@@ -958,7 +958,7 @@ function postcalendar_user_search()
 			$searchargs['start'] = date("m/d/Y");
 		}
 		if ($searchargs['end'] == "//") {
-			$searchargs['end'] = date("m/d/Y",strtotime("+7 Days"));
+			$searchargs['end'] = date("m/d/Y", strtotime("+7 Days", strtotime($searchargs['start'])));
 		}
 		//print_r($searchargs);
 		$eventsByDate =& postcalendar_userapi_pcGetEvents($searchargs);
