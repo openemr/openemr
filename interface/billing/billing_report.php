@@ -295,7 +295,6 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 	$skipping = FALSE;
 
 	foreach ($ret as $iter) {
-		$name = getPatientData($iter['pid']);
 		$this_encounter_id = $iter['pid'] . "-" . $iter['encounter'];
 
 		if ($last_encounter_id != $this_encounter_id) {
@@ -328,6 +327,19 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 				}
 			}
 
+			$name = getPatientData($iter['pid'], "fname, mname, lname");
+
+			# Check if patient has primary insurance and a subscriber exists for it.
+			# If not we will highlight their name in red.
+			# TBD: more checking here.
+			#
+			$res = sqlQuery("select count(*) as count from insurance_data where " .
+				"pid = " . $iter['pid'] . " and " .
+				"type='primary' and " .
+				"subscriber_lname is not null and " .
+				"subscriber_lname != '' limit 1");
+			$namecolor = ($res['count'] > 0) ? "black" : "#ff7777";
+
 			++$encount;
 			$bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
 			echo "<tr bgcolor='$bgcolor'><td colspan='8' height='5'></td></tr>\n";
@@ -335,7 +347,7 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 			$rcount = 0;
 			$oldcode = "";
 
-			$lhtml .= "&nbsp;<span class=bold>". $name['fname'] . "&nbsp;" . $name['lname'] . "</span><span class=small>&nbsp;(" . $iter['pid'] . "-" . $iter['encounter'] . ")</span>";
+			$lhtml .= "&nbsp;<span class=bold><font color='$namecolor'>". $name['fname'] . "&nbsp;" . $name['lname'] . "</font></span><span class=small>&nbsp;(" . $iter['pid'] . "-" . $iter['encounter'] . ")</span>";
 			$lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" href=\"" . $GLOBALS['webroot'] ."/interface/patient_file/encounter/patient_encounter.php?set_encounter=" . $iter['encounter'] . "&pid=" . $iter['pid'] . "\">[To&nbsp;Encounter]</a>";
 			$lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" href=\"" . $GLOBALS['webroot'] ."/interface/patient_file/summary/demographics_full.php?&pid=" . $iter['pid'] . "\">[To&nbsp;Demographics]</a>";
 			$lhtml .= "<br />\n";
