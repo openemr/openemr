@@ -16,23 +16,35 @@ foreach ($_POST as $k => $var) {
 	setEncounter( $encounter );
 //}
 
-
 $date = $_POST["year"]."-".$_POST["month"]."-".$_POST["day"];
+$onset_date = $_POST["onset_year"]."-".$_POST["onset_month"]."-".$_POST["onset_day"];
+
 if ($mode == 'new') {
 
-addForm($encounter, "New Patient Encounter", idSqlStatement("insert into form_encounter set date='$date',reason='$reason',facility='$facility',pid='$pid',encounter='$encounter'"), "newpatient", $pid, $userauthorized, $date);
+addForm($encounter, "New Patient Encounter",
+	idSqlStatement("insert into form_encounter set " .
+		"date = '$date', " .
+		"onset_date = '$onset_date', " .
+		"reason = '$reason', " .
+		"facility = '$facility', " .
+		"pid = '$pid', " .
+		"encounter = '$encounter'"),
+	"newpatient", $pid, $userauthorized, $date);
 
-} elseif ($mode == 'update') {
+} else if ($mode == 'update') {
+
 	$id = $_POST["id"];
-	sqlStatement("update form_encounter set date='$date',reason='$reason',facility='$facility' where id='$id'");
+	sqlStatement("update form_encounter set " .
+		// "date = '$date', " . // encounter date changes are frowned upon
+		"onset_date = '$onset_date', " .
+		"reason = '$reason', " .
+		"facility = '$facility' " .
+		"where id = '$id'");
+
 }
 
 $_SESSION["encounter"] = $encounter;
-
-
-
 ?>
-
 
 <html>
 <body>

@@ -9,7 +9,7 @@ class C_Prescription extends Controller {
 
 	var $template_mod;
 	var $pconfig;
-	
+
 	function C_Prescription($template_mod = "general") {
 		parent::Controller();
 		$this->template_mod = $template_mod;
@@ -32,10 +32,10 @@ class C_Prescription extends Controller {
 		elseif (get_class($this->prescriptions[0]) != "prescription" ) {
 			$this->prescriptions[0] = new Prescription($id);
 		}
-		
+
 		if (!empty($patient_id)) {
 			$this->prescriptions[0]->set_patient_id($patient_id);
-		}		
+		}
 		$this->default_action();
 	}
 
@@ -78,7 +78,7 @@ class C_Prescription extends Controller {
 		if ($_POST['process'] != "true")
 			return;
 		//print_r($_POST);
-		
+
 		$this->prescriptions[0] = new Prescription($_POST['id']);
 		parent::populate_object($this->prescriptions[0]);
 		//echo $this->prescriptions[0]->toString(true);
@@ -139,7 +139,12 @@ class C_Prescription extends Controller {
 					//else print it
 				}
 				elseif ($phar->get_transmit_method() == TRANSMIT_FAX) {
-					return $this->assign("process_result","No fax server is currently setup.");
+					$faxNum= $phar->get_fax();
+					if(!empty($faxNum)) {
+						Return $this->_fax_prescription ($p,$faxNum);
+					}
+					// return $this->assign("process_result","No fax server is currently setup.");
+					// else default is printing,
 				}
 				//the pharmacy has no default or default is print
 				return $this->_print_prescription($p, $dummy);
@@ -154,7 +159,7 @@ class C_Prescription extends Controller {
 		$pdf =& new Cezpdf("LETTER");
 		$pdf->ezSetMargins(80,30,90,30);
 		$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
-		
+
 		if(!empty($this->pconfig['logo'])) {
 			$pdf->ezImage($this->pconfig['logo'],"","","none","left");
 		}
@@ -222,18 +227,21 @@ class C_Prescription extends Controller {
 
 		$_POST['process'] = "";
 	}
-	
+
 	function _fax_prescription($p,$faxNum)
 	{
 		$err = "Sent fax";
 		//strip - ,(, ), and ws
 		$faxNum = preg_replace("/(-*)(\(*)(\)*)(\s*)/","",$faxNum);
 		//validate the number
-		
+
 		if(!empty($faxNum) && is_numeric($faxNum))
 		{
 			//get the sendfax command and execute it
 			$cmd = $this->pconfig['sendfax'];
+			// prepend any prefix to the fax number
+			$pref=$this->pconfig['prefix'];
+			$faxNum=$pref.$faxNum;
 			if(empty($cmd))
 			{
 				$err .= " Send fax not set in includes/config.php";
@@ -252,6 +260,7 @@ class C_Prescription extends Controller {
 				$fileName = dirname(__FILE__)."/../documents/".$p->get_id()
 								.$p->get_patient_id()."_fax_.pdf";
 				//print "filename is $fileName";
+				touch($fileName); // php bug
 				$handle = fopen($fileName,"w");
 				if(!$handle)
 				{
@@ -264,11 +273,11 @@ class C_Prescription extends Controller {
 					break;
 				}
 				fclose($handle);
-				$args = " -d $faxNum $fileName";
+				$args = " -n -d $faxNum $fileName";
 				//print "command is $cmd $args<br>";
 				exec($cmd . $args);
 			}
-			
+
 		}
 		else
 		{

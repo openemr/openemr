@@ -55,6 +55,17 @@ echo $c->act(array("prescription" => "", "block" => "", "patient_id" => $pid));
 
 ?>
 
+
+<a href="stats_full.php?active=all" target="Main"><font class="title">Problem List</font><font class=more><?echo $tmore;?></font></a><br>
+<?
+if ($result = getListByType($pid, "problem", "id,title,comments", 1, "all", 0)){
+	foreach ($result as $iter) {
+		echo "<a class=link target=Main href='stats_full.php?active=1'>" . $iter{"title"}."</a><br>\n";
+	}
+}
+
+?>
+
 </dl>
 
 </body>

@@ -250,7 +250,7 @@ class Smarty
             $this->_tpl_vars[$tpl_var] = &$value;
         $this->_extract = true;
     }
-	
+
 /*======================================================================*\
     Function: append
     Purpose:  appends values to template variables
@@ -487,7 +487,7 @@ class Smarty
 \*======================================================================*/
     function clear_cache($tpl_file = null, $cache_id = null, $compile_id = null, $exp_time = null)
     {
-		
+
         if (!isset($compile_id))
             $compile_id = $this->compile_id;
 
@@ -504,7 +504,7 @@ class Smarty
         } else {
             return $this->_rm_auto($this->cache_dir, $tpl_file, $auto_id, $exp_time);
         }
-		
+
     }
 
 
@@ -653,10 +653,10 @@ class Smarty
                     		echo $_smarty_results;
                         }
                     } else {
-                    		echo $_smarty_results;						
+                    		echo $_smarty_results;
 					}
                     error_reporting($_smarty_old_error_level);
-                    return true;    
+                    return true;
                 } else {
                     error_reporting($_smarty_old_error_level);
                     return $_smarty_results;
@@ -758,11 +758,11 @@ function _generate_debug_output() {
     // we must force compile the debug template in case the environment
     // changed between separate applications.
 	$_ldelim_orig = $this->left_delimiter;
-	$_rdelim_orig = $this->right_delimiter;	
-	
+	$_rdelim_orig = $this->right_delimiter;
+
 	$this->left_delimiter = '{';
 	$this->right_delimiter = '}';
-	
+
     $_force_compile_orig = $this->force_compile;
     $this->force_compile = true;
 	$_compile_id_orig = $this->_compile_id;
@@ -860,7 +860,7 @@ function _generate_debug_output() {
         /*
          * Find out if the resource exists.
          */
-		
+
         if ($resource_type == 'file') {
             $readable = false;
 			if(@is_file($resource_name)) {
@@ -1047,7 +1047,7 @@ function _generate_debug_output() {
                     break;
             }
         }
-		
+
         if (!$_return) {
             // see if we can get a template with the default template handler
             if (!empty($this->default_template_handler_func)) {
@@ -1164,7 +1164,7 @@ function _generate_debug_output() {
 				if($_smarty_once) {
                 	include_once($_smarty_php_resource);
 				} else {
-                	include($_smarty_php_resource);					
+                	include($_smarty_php_resource);
 				}
             } else {
                 eval($_smarty_php_resource);
@@ -1176,7 +1176,7 @@ function _generate_debug_output() {
 				if($_smarty_once) {
                 	include_once($_smarty_php_resource);
 				} else {
-                	include($_smarty_php_resource);					
+                	include($_smarty_php_resource);
 				}
             } else {
                 eval($_smarty_php_resource);
@@ -1191,12 +1191,12 @@ function _generate_debug_output() {
     function _config_load($file, $section, $scope)
     {
 		if(@is_dir($this->config_dir)) {
-			$_config_dir = $this->config_dir;			
+			$_config_dir = $this->config_dir;
 		} else {
 			// config_dir not found, try include_path
 			$this->_get_include_path($this->config_dir,$_config_dir);
 		}
-		
+
         if ($this->_conf_obj === null) {
             /* Prepare the configuration object. */
             if (!class_exists('Config_File'))
@@ -1441,6 +1441,7 @@ function _run_insert_handler($args)
         if ($create_dirs)
             $this->_create_dir_structure(dirname($filename));
 
+        touch($filename, 'w'); // php bug
         if (!($fd = @fopen($filename, 'w'))) {
             $this->trigger_error("problem writing '$filename.'");
             return false;
@@ -1466,16 +1467,16 @@ function _run_insert_handler($args)
     {
 		static $_dir_sep = null;
 		static $_dir_sep_enc = null;
-		
+
 		if(!isset($_dir_sep)) {
 			$_dir_sep_enc = urlencode(DIR_SEP);
 			if($this->use_sub_dirs) {
 				$_dir_sep = DIR_SEP;
 			} else {
-				$_dir_sep = '^';		
+				$_dir_sep = '^';
 			}
 		}
-		
+
 		if(@is_dir($auto_base)) {
         	$res = $auto_base . DIR_SEP;
 		} else {
@@ -1483,7 +1484,7 @@ function _run_insert_handler($args)
 			$this->_get_include_path($auto_base,$_include_path);
 			$res = $_include_path . DIR_SEP;
 		}
-		
+
 		if(isset($auto_id)) {
 			// make auto_id safe for directory names
 			$auto_id = str_replace('%7C','|',(urlencode($auto_id)));
@@ -1491,7 +1492,7 @@ function _run_insert_handler($args)
 			$auto_id = str_replace('|', $_dir_sep, $auto_id);
         	$res .= $auto_id . $_dir_sep;
 		}
-		
+
 		if(isset($auto_source)) {
 			// make source name safe for filename
 			if($this->use_sub_dirs) {
@@ -1505,7 +1506,7 @@ function _run_insert_handler($args)
         		$res .= str_replace($_dir_sep_enc,'^',urlencode($auto_source));
 			}
 		}
-		
+
         return $res;
     }
 
@@ -1519,10 +1520,10 @@ function _run_insert_handler($args)
           return false;
 
 		if(!isset($auto_id) && !isset($auto_source)) {
-			$res = $this->_rmdir($auto_base, 0, $exp_time);			
-		} else {		
+			$res = $this->_rmdir($auto_base, 0, $exp_time);
+		} else {
         	$tname = $this->_get_auto_filename($auto_base, $auto_source, $auto_id);
-			
+
 			if(isset($auto_source)) {
 				$res = $this->_unlink($tname);
 			} elseif ($this->use_sub_dirs) {
@@ -1532,7 +1533,7 @@ function _run_insert_handler($args)
 				$handle = opendir($auto_base);
         		while ($filename = readdir($handle)) {
 					if($filename == '.' || $filename == '..') {
-						continue;	
+						continue;
 					} elseif (substr($auto_base . DIR_SEP . $filename,0,strlen($tname)) == $tname) {
 						$this->_unlink($auto_base . DIR_SEP . $filename, $exp_time);
 					}
@@ -1568,9 +1569,9 @@ function _run_insert_handler($args)
 
         	if ($level)
             	@rmdir($dirname);
-        	
+
 			return true;
-		
+
 		} else {
        	 	return false;
 		}
@@ -1586,11 +1587,11 @@ function _run_insert_handler($args)
 			if(time() - filemtime($resource) >= $exp_time) {
 				@unlink($resource);
 			}
-		} else {			
+		} else {
 			@unlink($resource);
 		}
     }
-	
+
 /*======================================================================*\
     Function: _create_dir_structure
     Purpose:  create full directory structure
@@ -1600,14 +1601,14 @@ function _run_insert_handler($args)
         if (!@file_exists($dir)) {
             $_dir_parts = preg_split('!\\'.DIR_SEP.'+!', $dir, -1, PREG_SPLIT_NO_EMPTY);
             $_new_dir = ($dir{0} == DIR_SEP) ? DIR_SEP : '';
-			
+
 			// do not attempt to test or make directories outside of open_basedir
 			$_open_basedir_ini = ini_get('open_basedir');
 			if(!empty($_open_basedir_ini)) {
 				$_use_open_basedir = true;
             	$_open_basedir_sep = (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') ? ';' : ':';
             	$_open_basedirs = explode($_open_basedir_sep, $_open_basedir_ini);
-			} else {					
+			} else {
 				$_use_open_basedir = false;
 			}
 
@@ -1623,7 +1624,7 @@ function _run_insert_handler($args)
                         }
                     }
                 } else {
-                	$_make_new_dir = true;					
+                	$_make_new_dir = true;
 				}
 
                 if ($_make_new_dir && !@file_exists($_new_dir) && !@mkdir($_new_dir, 0771)) {
@@ -1758,7 +1759,7 @@ function _run_insert_handler($args)
 
         return true;
     }
-	
+
 /*======================================================================*\
     Function:  _get_plugin_filepath
     Purpose:   get filepath of requested plugin
@@ -1766,7 +1767,7 @@ function _run_insert_handler($args)
     function _get_plugin_filepath($type, $name)
     {
         $_plugin_filename = "$type.$name.php";
-		
+
         foreach ((array)$this->plugins_dir as $_plugin_dir) {
 
             $_plugin_filepath = $_plugin_dir . DIR_SEP . $_plugin_filename;
@@ -1796,8 +1797,8 @@ function _run_insert_handler($args)
         		}
         	}
 		}
-		
-		
+
+
         return false;
     }
 
@@ -1807,7 +1808,7 @@ function _run_insert_handler($args)
 \*======================================================================*/
     function _load_plugins($plugins)
     {
-		
+
         foreach ($plugins as $plugin_info) {
             list($type, $name, $tpl_file, $tpl_line, $delayed_loading) = $plugin_info;
             $plugin = &$this->_plugins[$type][$name];
@@ -1913,7 +1914,7 @@ function _run_insert_handler($args)
 
 /*======================================================================*\
     Function:   _load_resource_plugin
-    Purpose:   
+    Purpose:
 \*======================================================================*/
     function _load_resource_plugin($type)
     {
@@ -2027,7 +2028,7 @@ function _run_insert_handler($args)
     function _get_include_path($file_path,&$new_file_path)
     {
 		static $_path_array = null;
-		
+
 		if(!isset($_path_array)) {
 			$_ini_include_path = ini_get('include_path');
 
@@ -2045,8 +2046,8 @@ function _run_insert_handler($args)
             }
         }
 		return false;
-	}	
-	
+	}
+
 }
 
 /* vim: set expandtab: */

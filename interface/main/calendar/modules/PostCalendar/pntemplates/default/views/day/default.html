@@ -23,7 +23,7 @@
 			<a href="[-$PREV_DAY_URL-]">&lt;&lt;</a>
         	[-if $USE_INT_DATES eq true-]
 				[-pc_date_format date=$DATE format=#_PC_DATE_FORMAT_INT#-]
-			[-else-]	
+			[-else-]
 				[-pc_date_format date=$DATE format=#_PC_DATE_FORMAT_STD#-]
 			[-/if-]
 			<a href="[-$NEXT_DAY_URL-]">&gt;&gt;</a>
@@ -40,7 +40,7 @@
 		[-foreach item=provider from=$providers-]
 		<td valign='top'>
 		<table width='%100' height='%100' border="1" cellpadding="0" cellspacing="0" valign='top'>
- 		<tr><td >[-$provider.lname-]</td>
+ 		<tr><td >[-$provider.fname[0]-][-$provider.lname-]</td>
 		</tr>
 		<tr>
 		[-foreach name=dates item=events key=date from=$A_EVENTS-]
@@ -52,6 +52,11 @@
 								    	[-assign var="year" value=$date|date_format:"%Y"|string_format:"%4d"-]
 								    	[-assign var="eventdate" value=$date|date_format:"%Y%m%d"-]
 										[-pc_sort_events var="S_EVENTS" sort="time" order="asc" value=$A_EVENTS-]
+
+[-php-]
+	$arr_events = (array)$this->_tpl_vars['S_EVENTS'][$this->_tpl_vars['date']];
+	list($this->_tpl_vars['eventkey'], $this->_tpl_vars['event']) = each($arr_events);
+[-/php-]
 
 					[-foreach name=times item=time from=$times-]
 						<tr>
@@ -71,13 +76,35 @@
 						<img align="middle" src="[-$TPL_IMAGE_PATH-]/new.gif" border="0" vspace="0" hspace="0"/></a>
 						</td>
 						[-assign var="eventsbydate" value=$S_EVENTS.$date-]
-						[-foreach name=events key=eventkey item=event from=$S_EVENTS.$date-]
+
+						[-* foreach name=events key=eventkey item=event from=$S_EVENTS.$date *-]
+
+[-php-]
+	for (; isset($this->_tpl_vars['eventkey']);
+		list($this->_tpl_vars['eventkey'], $this->_tpl_vars['event']) = each($arr_events))
+	{
+[-/php-]
+
 							[-assign var="starth" value=$event.startTime|date_format:"%H"-]
 							[-assign var="displaystarth" value=$event.startTime|date_format:"%I:%M %p" -]
 							[-assign var="startm" value=$event.startTime|date_format:"%M"-]
-							[-assign var="mykey" value=$eventkey-]										
-														
-							[-if $time.hour == $starth && $startm >= $time.minute && $startm < ($time.minute + $interval) && $event.aid == $provider.id-]
+							[-assign var="mykey" value=$eventkey-]
+
+							[-* if $time.hour == $starth && $startm >= $time.minute && $startm < ($time.minute + $interval) && $event.aid == $provider.id *-]
+
+[-php-]
+		if ($this->_tpl_vars['event']['aid'] != $this->_tpl_vars['provider']['id'])
+			continue;
+		if ($this->_tpl_vars['starth'] < $this->_tpl_vars['time']['hour'])
+			continue;
+		if ($this->_tpl_vars['starth'] > $this->_tpl_vars['time']['hour'])
+			break;
+		if ($this->_tpl_vars['startm'] < $this->_tpl_vars['time']['minute'])
+			continue;
+		if ($this->_tpl_vars['startm'] >= ($this->_tpl_vars['time']['minute'] + $this->_tpl_vars['interval']))
+			break;
+[-/php-]
+
 								[-assign var="flagfound" value=true-]
 								[-assign var="eid" value=$event.eid-]
 								<td   class="eventsentry" width="[-math equation="$day_td_width * 10"-]" rowspan=[-$event.intervals-] style="{background-color: [-$event.catcolor-]}">
@@ -88,19 +115,23 @@
 								[-$displaystarth-]([-$event.duration_hours-]:[-$event.duration_minutes-])<br />
 								[-include file="$TPL_NAME/user/patient_line.html" event=$event show_icons=true show_provider=false show_patient=true -]&nbsp;
 								</td>
-								<!--unset event to avoid relooping-->
-							[-/if-]
-						[-/foreach-]			
-					
+
+							[-* /if *-]
+						[-* /foreach *-]
+
+[-php-]
+	} // end for
+[-/php-]
+
 						[-assign var="flagfound" value=false -]
 						</tr>
 					[-/foreach-]
 				</table>
 				</td>
 			[-/foreach-]
-		
+
 			</tr>
-			
+
 			</table>
 			</td>
 		[-/foreach-]
@@ -115,7 +146,7 @@
         	</td>
     		</tr>
 		</table>
-		
+
 	</td>
 </tr>
 </table>

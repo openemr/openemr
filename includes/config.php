@@ -27,6 +27,16 @@ $GLOBALS['oer_config']['prescriptions']['logo_pic'] = "prescription_logo.png";
 
 //Name of signature graphic in interface/pic/ directory without preceding slash. Normally 3 inches wide.
 $GLOBALS['oer_config']['prescriptions']['sig_pic'] = "sig.png";
+
+// only works with hylafax sendfax client, and sendfax must be in PATH
+// assign 'sendfax' to turn fax sending on
+$GLOBALS['oer_config']['prescriptions']['sendfax'] = '';
+
+// asign a value here if there is any prefix needed to get dialing tone
+// you can also append a comma to add a one second delay
+// i.e. 9, will dial 9 for external tone, and wait a second.
+$GLOBALS['oer_config']['prescriptions']['prefix'] = '';
+
 //accounting system web services integration
 //whether to use the system
 $GLOBALS['oer_config']['ws_accounting']['enabled'] = false;
@@ -35,11 +45,9 @@ $GLOBALS['oer_config']['ws_accounting']['port'] = "80";
 $GLOBALS['oer_config']['ws_accounting']['url'] = "/sql-ledger/ws_server.pl";
 $GLOBALS['oer_config']['ws_accounting']['username'] = "admin";
 $GLOBALS['oer_config']['ws_accounting']['password'] = "12345";
-$GLOBALS['oer_config']['ws_accounting']['url_path'] = "http://localhost/sql-ledger/login.pl";
+$GLOBALS['oer_config']['ws_accounting']['url_path'] = "http://" .
+  $_SERVER["SERVER_NAME"] . "/sql-ledger/login.pl";
 $GLOBALS['oer_config']['ws_accounting']['income_acct'] = "10035";
-
-
-
 
 //don't alter below this line unless you are an advanced user and know what you are doing
 

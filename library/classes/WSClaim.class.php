@@ -6,7 +6,7 @@ include_once (dirname(__FILE__) . "/../sql.inc");
 include_once (dirname(__FILE__) . "/../../includes/config.php");
 
 class WSClaim extends WSWrapper{
-	
+
 	var $patient_id;
 	var $foreign_provider_id;
 	var $foreign_patient_id;
@@ -18,41 +18,42 @@ class WSClaim extends WSWrapper{
 
 	function WSClaim($patient_id, $encounter) {
 		if (!is_numeric($patient_id) && is_numeric($encounter)) return;
-		
+
 		parent::WSWrapper(null,false);
-		
+
 		$this->patient_id = $patient_id;
 		$this->encounter = $encounter;
 		$this->claim = null;
 		$this->_db = $GLOBALS['adodb']['db'];
 		if (!$this->_config['enabled']) return;
-		
+
 		if ($this->load_claim()) {
 			$function['ezybiz.add_invoice'] = array(new xmlrpcval($this->claim,"struct"));
 			$this->send($function);
 		}
-		
+
 		//print_r($this->claim);
-		
+
 	}
-	
+
 	function load_claim() {
-		if (!$this->load_patient_foreign_id() || 
+		if (!$this->load_patient_foreign_id() ||
 			!$this->load_payer_foreign_id() ||
-			!$this->load_provider_foreign_id() ) 
+			!$this->load_provider_foreign_id() )
 			return false;
 		$invoice_info = array();
-		
-		$sql = "SELECT b.*, CONCAT(pd.fname,' ',pd.mname,' ',pd.lname) as patient_name FROM billing as b LEFT JOIN patient_data as pd on b.pid=pd.pid where " 
+
+		$sql = "SELECT b.*, CONCAT(pd.fname,' ',pd.mname,' ',pd.lname) as patient_name FROM billing as b LEFT JOIN patient_data as pd on b.pid=pd.pid where "
 			."b.encounter ='" . $this->encounter ."' AND b.pid = '" . $this->patient_id ."' AND b.billed = 1 AND b.activity != '0' AND authorized='1'";
-			
+
 		$result = $this->_db->Execute($sql);
-		
+
 		$invoice_info['salesman'] = $this->foreign_provider_id;
 		$invoice_info['customerid'] = $this->foreign_patient_id;
 		$invoice_info['payer_id'] = $this->foreign_payer_id;
-		$invoice_info['invoicenumber'] = $this->patient_id . "000" . $this->encounter;
-		
+//	$invoice_info['invoicenumber'] = $this->patient_id . "000" . $this->encounter;
+		$invoice_info['invoicenumber'] = $this->patient_id . "." . $this->encounter;
+
 		$counter = 0;
 		$total = 0;
 		$patient_info = array();
@@ -60,7 +61,7 @@ class WSClaim extends WSWrapper{
 		while ($result && !$result->EOF) {
 			if ($result->fields['process_date'] == null) {
 				//don't sync a claim that has not been processed, they may just want to mark this as billed
-					return false;	
+					return false;
 			}
 			// create a paymentline item for each code
 			/*
@@ -76,7 +77,7 @@ class WSClaim extends WSWrapper{
 				$invoice_info['duedate'] = date("m-d-Y",strtotime($result->fields['process_date']));
 				$invoice_info['items'] = array();
 			}
-			
+
 			$tii = array();
 			//This is how we set the line items for the invoice, using codes from our encounter
 			//if ($result->fields['code_type'] == "CPT4" || $result->fields['code_type'] == "HCPCS") {
@@ -87,12 +88,12 @@ class WSClaim extends WSWrapper{
 			}
 			else
 			{
-				$payer_info['payment_amount'] += sprintf("%01.2f",$result->fields['fee']);	
+				$payer_info['payment_amount'] += sprintf("%01.2f",$result->fields['fee']);
 			}
 				$tii['maincode'] = $result->fields['code'];
-				$tii['itemtext'] = $result->fields['code_type'] .":" . $result->fields['code'] . " " . $result->fields['code_text'] . " " 
+				$tii['itemtext'] = $result->fields['code_type'] .":" . $result->fields['code'] . " " . $result->fields['code_text'] . " "
 					. $result->fields['justify'];
-					 
+
 				$tii['qty'] = $result->fields['units'];
 				if (!$tii['qty'] > 0) {
 					$tii['qty'] = 1;
@@ -102,12 +103,12 @@ class WSClaim extends WSWrapper{
 				$tii['glaccountid'] = $this->_config['income_acct'];
 				$invoice_info['items'][] = $tii;
 			//}
-			
+
 			$result->MoveNext();
 			$counter++;
 		}
-		
-				
+
+
 		for($counter = 0; $counter < 2; $counter++)
 		{
 			$fee = 0;
@@ -115,7 +116,7 @@ class WSClaim extends WSWrapper{
 			if($counter == 0)
 			{
 				$fee = $patient_info['payment_amount'];
-				$billto = $this->foreign_patient_id; 
+				$billto = $this->foreign_patient_id;
 			}
 			else
 			{
@@ -130,11 +131,11 @@ class WSClaim extends WSWrapper{
 		}
 		$invoice_info['subtotal'] = sprintf("%01.2f",$total);
 		$invoice_info['total'] = sprintf("%01.2f",$total);
-		
+
 		$this->claim = $invoice_info;
-		return true;							
+		return true;
 	}
-	
+
 	function load_provider_foreign_id() {
 		$sql = "SELECT foreign_id from integration_mapping as im LEFT JOIN billing as b on im.local_id=b.provider_id where encounter = '" . $this->encounter . "' and b.pid = '" . $this->patient_id . "' and im.local_table='users' and im.foreign_table='salesman'";
 		$result = $this->_db->Execute($sql);
@@ -144,7 +145,7 @@ class WSClaim extends WSWrapper{
 		}
 		else {
 			echo "Entry has not been previously sent to external system or no entry was found for them in the integration mapping, could not send claim. Provider: '" . $this->patient_id . "'<br>";
-			return false;	
+			return false;
 		}
 	}
 	function load_patient_foreign_id() {
@@ -156,7 +157,7 @@ class WSClaim extends WSWrapper{
 		}
 		else {
 			echo "Entry has not been previously sent to external system or no entry was found for them in the integration mapping, could not send claim. Patient: '" . $this->patient_id . "'<br>";
-			return false;	
+			return false;
 		}
 	}
 	function load_payer_foreign_id() {
@@ -167,19 +168,24 @@ class WSClaim extends WSWrapper{
 		}
 		else {
 			echo "No payer id for this claim could be found";
-			return false;	
+			return false;
 		}
-		
-		$sql = "SELECT foreign_id from integration_mapping as im LEFT JOIN billing as b on im.local_id=b.payer_id where b.payer_id = '" . $this->payer_id . "' and im.local_table='insurance_companies' and im.foreign_table='customer'";
-		$result = $this->_db->Execute($sql);
-		if($result && !$result->EOF) {
-				$this->foreign_payer_id = $result->fields['foreign_id'];
-				return true;
+		// See comments in globals.php:
+		if ($GLOBALS['insurance_companies_are_not_customers']) {
+			$this->foreign_payer_id = $this->payer_id;
 		}
 		else {
-			echo "Entry has not been previously sent to external system or no entry was found for them in the integration mapping, could not send claim. Insurance Company: '" . $this->payer_id . "'<br>";
-			return false;	
+			$sql = "SELECT foreign_id from integration_mapping as im LEFT JOIN billing as b on im.local_id=b.payer_id where b.payer_id = '" . $this->payer_id . "' and im.local_table='insurance_companies' and im.foreign_table='customer'";
+			$result = $this->_db->Execute($sql);
+			if($result && !$result->EOF) {
+				$this->foreign_payer_id = $result->fields['foreign_id'];
+			}
+			else {
+				echo "Entry has not been previously sent to external system or no entry was found for them in the integration mapping, could not send claim. Insurance Company: '" . $this->payer_id . "'<br>";
+				return false;
+			}
 		}
+		return true;
 	}
 }
 

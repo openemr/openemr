@@ -5,9 +5,9 @@
 
 $host	= 'localhost';
 $port	= '3306';
-$login	= 'test_openemr';
-$pass	= 'test_openemr';
-$dbase	= 'test_openemr';
+$login	= 'openemr';
+$pass	= 'openemr';
+$dbase	= 'openemr';
 
 
 $sqlconf = array();

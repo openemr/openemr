@@ -188,7 +188,7 @@ preg_match("/^\((.*?)\)\s(.*?)\-(.*?)$/",$result{"phone_cell"},$pmatch_cell);
 	}
 ?>
 "></td><td rowspan="12">&nbsp;</td>
-<td><span class=bold>Patient Number: </span></td><td rowspan="12">&nbsp;</td><td><input type=entry size=5 name=pubpid value="<?echo $result{"pubpid"}?>"></td>
+<td><span class=bold>Patient Number: </span></td><td rowspan="12">&nbsp;</td><td><input type=entry size=10 name=pubpid value="<?echo $result{"pubpid"}?>"></td>
 </tr>
 <tr>
 <td>
@@ -421,7 +421,7 @@ for($i=1;$i<=3;$i++) {
 <option value="">Unassigned</option>
 <?php
 
-foreach ($insurancei as $iname => $iid) {
+foreach ($insurancei as $iid => $iname) {
         	echo "<option value='".$iid."'";
         if (strtolower($iid) == strtolower($result3{"provider"}))
                 echo " selected";

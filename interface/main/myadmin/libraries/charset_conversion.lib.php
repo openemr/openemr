@@ -273,6 +273,7 @@ function PMA_convert_file($src_charset, $dest_charset, $file) {
         case PMA_CHARSET_LIBICONV:
             $tmpfname = tempnam('', 'PMA_convert_file');
             $fin      = fopen($file, 'r');
+            touch($tmpfname); // php bug
             $fout     = fopen($tmpfname, 'w');
             if ($GLOBALS['PMA_recoding_engine'] == PMA_CHARSET_RECODE) {
                 recode_file($src_charset . '..'  . $dest_charset, $fin, $fout);

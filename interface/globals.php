@@ -110,12 +110,12 @@ $GLOBALS['backpic'] = $backpic;
 $GLOBALS['rootdir'] = $rootdir;
 //change these to reflect when the daily view should start to display times
 //as well as it should end. ex schedule_start = 9 schedule_end = 17
-// start end times in hours 
+// start end times in hours
 $GLOBALS['schedule_start'] = 9;
 $GLOBALS['schedule_end'] = 17;
 // the interval in minutes that the day calendar will display
 $GLOBALS['calendar_interval'] =15;
-// the width in charactors that the day view calendar will display the title and patient name  
+// the width in charactors that the day view calendar will display the title and patient name
 $GLOBALS['day_view_td_width'] =30;
 //include the authentication module code here, but the rule is
 //if the file has the word "login" in the source code file name,
@@ -125,14 +125,19 @@ if (!$ignoreAuth) {
 	include_once("$srcdir/auth.inc");
 }
 
+// If you do not want your accounting system to have a customer added to it
+// for each insurance company, then set this to true.  SQL-Ledger currently
+// (2005-03-21) does nothing useful with insurance companies as customers.
+//
+$GLOBALS['insurance_companies_are_not_customers'] = false;
 
 $encounter = $_SESSION['encounter'];
 
 if (!empty($_GET['pid']) && empty($_SESSION['pid'])) {
-	$_SESSION['pid'] = $pid;
+	$_SESSION['pid'] = $_GET['pid'];
 }
 elseif (!empty($_POST['pid']) && empty($_SESSION['pid'])) {
-	$_SESSION['pid'] = $pid;
+	$_SESSION['pid'] = $_POST['pid'];
 }
 $pid = $_SESSION['pid'];
 $userauthorized = $_SESSION['userauthorized'];
