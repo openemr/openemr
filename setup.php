@@ -311,7 +311,7 @@ break;
 	case 4:
 echo "<b>Step $state</b><br><br>\n";
 echo "Writing SQL Configuration to disk...\n";
-touch($conffile); // php bug
+@touch($conffile); // php bug
 $fd = @fopen($conffile, 'w');
 if ($fd == FALSE) {
 	echo "ERROR.  Could not open config file '$conffile' for writing.\n";
