@@ -23,11 +23,11 @@ function getLanguages() {
 
 function getInsuranceProviders() {
 	$returnval = array();
-	$sql = "select name, id from insurance_companies";
+	$sql = "select name, id from insurance_companies order by name";
 	$rez = sqlStatement($sql);
-	
+
 	for($iter=0; $row=sqlFetchArray($rez); $iter++) {
-			$returnval[$row['name']] = $row['id'];
+			$returnval[$row['id']] = $row['name'];
 	}
 	print_r($retval);
 
@@ -44,7 +44,7 @@ function getProviders() {
 			array_push($returnval, $row["fname"] . " " . $row["lname"]);
 		}
 	}
-	
+
 
 	return $returnval;
 }
@@ -100,7 +100,7 @@ function getCalendarProviderInfo($providerID = "%", $providers_only = true) {
 function getProviderName($providerID) {
 
 	$pi = getProviderInfo($providerID);
-	
+
 	if (strlen($pi[0]["lname"]) > 0) {
 		return $pi[0]['fname'] . " " . $pi[0]['lname'];
 	}
@@ -110,11 +110,11 @@ function getProviderName($providerID) {
 
 function getProviderId($providerName) {
 	$query = "select id from users where username = '". mysql_real_escape_string($providerName)."'";
-		
+
 	$rez = sqlStatement($query);
 	for($iter=0; $row=sqlFetchArray($rez); $iter++)
 		$returnval[$iter]=$row;
-	
+
 	return $returnval;
 }
 
@@ -275,7 +275,7 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
 		$sql = substr($sql, 0, -5)."order by $orderby";
 	if ($limit != "all")
 		$sql .= " limit $start, $limit";
-	
+
 	$rez = sqlStatement($sql);
 	for($iter=0; $row=sqlFetchArray($rez); $iter++)
 		$returnval[$iter]=$row;
@@ -312,7 +312,7 @@ function getPatientIds($given = "pid, id, lname, fname, mname", $orderby = "id A
 
 
 //----------------------input functions
-function newPatientData(	$db_id="", 
+function newPatientData(	$db_id="",
 				$title = "",
 				$fname = "",
 				$lname = "",
@@ -391,16 +391,16 @@ function newPatientData(	$db_id="",
 		genericval1 = '$genericval1',
 		genericname2 = '$genericname2',
 		genericval2 = '$genericval2',
-		phone_cell = '$phone_cell', 
+		phone_cell = '$phone_cell',
 		date=NOW()
 			");
-			
+
 	$id = sqlInsert($query);
 	$foo = sqlQuery("select pid from patient_data where id='$id' order by date limit 0,1");
-	
+
 	sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone_home,
 				$phone_biz,$email);
-		
+
 	return $foo['pid'];
 }
 
@@ -416,10 +416,10 @@ function fixDate($date) {
     if (preg_match("'^[0-9]{1,4}[/.-][0-9]{1,2}[/.-][0-9]{1,4}$'", $date)) {
         $dmy = preg_split("'[/.-]'", $date);
         if ($dmy[0] > 99) {
-            $fixed_date = sprintf("%04u-%02u-%02u", $dmy[0], $dmy[1], $dmy[2]);  
+            $fixed_date = sprintf("%04u-%02u-%02u", $dmy[0], $dmy[1], $dmy[2]);
         } else {
             if ($dmy[2] < 1000) $dmy[2] += 1900;
-            $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[0], $dmy[1]);  
+            $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[0], $dmy[1]);
         }
     }
 
@@ -549,7 +549,7 @@ function newInsuranceData(	$pid,
                 $data['pid']=$pid;
 	        $data['date']="NOW()";
 	//	echo "updating<br><br>";
-	
+
 		return updateInsuranceData($pid,$data);
 	}
 	else {
@@ -588,7 +588,7 @@ function newInsuranceData(	$pid,
 function updateInsuranceData($pid,$new)
 {
 		$fields = sqlListFields("insurance_data");
-		
+
         $real = getInsuranceData($pid);
         $use = array();
         while(list($key, $value) = each ($new)) {
@@ -602,8 +602,8 @@ function updateInsuranceData($pid,$new)
         $sql = "replace into insurance_data set ";
         while(list($key, $value) = each($use))
                 $sql .= $key." = '$value', ";
-        
-        
+
+
         $sql = substr($sql, 0, -2);
 
 	//echo $sql;
@@ -729,7 +729,7 @@ function sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone
 {
 	$db = $GLOBALS['adodb']['db'];
 	$customer_info = array();
-	
+
 	$sql = "SELECT foreign_id,foreign_table FROM integration_mapping where local_table = 'patient_data' and local_id = '" . $id . "'";
 	$result = $db->Execute($sql);
 	if ($result && !$result->EOF) {
@@ -737,44 +737,44 @@ function sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone
 		$customer_info['foreign_id'] = $result->fields['foreign_id'];
 		$customer_info['foreign_table'] = $result->fields['foreign_table'];
 	}
-	
+
 	///xml rpc code to connect to accounting package and add user to it
 	$customer_info['firstname'] = $fname;
-	$customer_info['lastname'] = $lname;	
+	$customer_info['lastname'] = $lname;
 	$customer_info['address'] = $street;
 	$customer_info['suburb'] = $city;
 	$customer_info['state'] = $state;
 	$customer_info['postcode'] = $postal_code;
-	
+
 	//ezybiz wants state as a code rather than abbreviation
 	$customer_info['geo_zone_id'] = "";
 	$sql = "SELECT zone_id from geo_zone_reference where zone_code = '" . strtoupper($state) . "'";
 	$db = $GLOBALS['adodb']['db'];
 	$result = $db->Execute($sql);
 	if ($result && !$result->EOF) {
-		$customer_info['geo_zone_id'] = $result->fields['zone_id'];	
+		$customer_info['geo_zone_id'] = $result->fields['zone_id'];
 	}
-	
+
 	//ezybiz wants country as a code rather than abbreviation
 	$customer_info['geo_country_id'] = "";
 	$sql = "SELECT countries_id from geo_country_reference where countries_iso_code_2 = '" . strtoupper($country_code) . "'";
 	$db = $GLOBALS['adodb']['db'];
 	$result = $db->Execute($sql);
 	if ($result && !$result->EOF) {
-		$customer_info['geo_country_id'] = $result->fields['countries_id'];	
+		$customer_info['geo_country_id'] = $result->fields['countries_id'];
 	}
-	
-	
+
+
 	$customer_info['phone1'] = $phone_home;
 	$customer_info['phone1comment'] = "Home Phone";
 	$customer_info['phone2'] = $phone_biz;
 	$customer_info['phone2comment'] = "Business Phone";
 	$customer_info['email'] = $email;
-	
+
 	$function['ezybiz.add_customer'] = array(new xmlrpcval($customer_info,"struct"));
 	$ws = new WSWrapper($function);
-	
-	// if the remote patient was added make an entry in the local mapping table to that updates can be made correctly 
+
+	// if the remote patient was added make an entry in the local mapping table to that updates can be made correctly
 	if (is_numeric($ws->value)) {
 		$sql = "REPLACE INTO integration_mapping set id = '" . $db->GenID("sequences") . "', foreign_id ='" . $ws->value . "', foreign_table ='customer', local_id = '" . $id . "', local_table = 'patient_data' ";
 		$db->Execute($sql) or die ("error: " . $db->ErrorMsg());
@@ -782,7 +782,7 @@ function sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone
 }
 
 // Returns Date of Birth given YYYYMMDD from MySQL DATE_FORMAT(DOB,'%Y%m%d')
-function getPatientAge($dobYMD) 
+function getPatientAge($dobYMD)
 {
     $tdyYMD=date("Ymd");
     $yearDiff = substr($tdyYMD,0,4) - substr($dobYMD,0,4);
