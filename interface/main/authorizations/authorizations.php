@@ -53,7 +53,7 @@ sqlStatement("update transactions set authorized=1 where pid='".$_GET["pid"]."'"
 														      
 
 //fetch billing information:
-if ($res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user from billing LEFT JOIN users as u on billing.user = u.id where billing.authorized=0 and groupname='$groupname'")) {
+if ($res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user from billing LEFT JOIN users as u on billing.user = u.id where billing.authorized = 0 and billing.activity = 1 and groupname='$groupname'")) {
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
 		$result[$iter] = $row;
 
