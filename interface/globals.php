@@ -134,10 +134,10 @@ $GLOBALS['insurance_companies_are_not_customers'] = false;
 $encounter = $_SESSION['encounter'];
 
 if (!empty($_GET['pid']) && empty($_SESSION['pid'])) {
-	$_SESSION['pid'] = $pid;
+	$_SESSION['pid'] = $_GET['pid'];
 }
 elseif (!empty($_POST['pid']) && empty($_SESSION['pid'])) {
-	$_SESSION['pid'] = $pid;
+	$_SESSION['pid'] = $_POST['pid'];
 }
 $pid = $_SESSION['pid'];
 $userauthorized = $_SESSION['userauthorized'];
