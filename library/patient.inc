@@ -23,13 +23,36 @@ function getLanguages() {
 
 function getInsuranceProviders() {
 	$returnval = array();
-	$sql = "select name, id from insurance_companies order by name, id";
-	$rez = sqlStatement($sql);
 
-	for($iter=0; $row=sqlFetchArray($rez); $iter++) {
+	if (true) {
+		$sql = "select name, id from insurance_companies order by name, id";
+		$rez = sqlStatement($sql);
+		for($iter=0; $row=sqlFetchArray($rez); $iter++) {
 			$returnval[$row['id']] = $row['name'];
+		}
 	}
-	print_r($retval);
+
+	// Please leave this here. I have a user who wants to see zip codes and PO
+	// box numbers listed along with the insurance company names, as many companies
+	// have different billing addresses for different plans.  -- Rod Roark
+	//
+	else {
+		$sql = "select insurance_companies.name, insurance_companies.id, " .
+		  "addresses.zip, addresses.line1 " .
+		  "from insurance_companies, addresses " .
+		  "where addresses.foreign_id = insurance_companies.id " .
+		  "order by insurance_companies.name, addresses.zip";
+
+		$rez = sqlStatement($sql);
+
+		for($iter=0; $row=sqlFetchArray($rez); $iter++) {
+			preg_match("/\d+/", $row['line1'], $matches);
+			$returnval[$row['id']] = $row['name'] . " (" . $row['zip'] .
+			  "," . $matches[0] . ")";
+		}
+	}
+
+	// print_r($retval);
 
 	return $returnval;
 }
@@ -371,6 +394,18 @@ function newPatientData(	$db_id="",
 			)
 {
 	$DOB = fixDate($DOB);
+
+	// Looking for problems... suspecting that $pid might be clobbered.
+	//
+	if ($pid) {
+		$rez = sqlQuery("select id from patient_data where pid = $pid");
+		if ($db_id != $rez['id']) {
+			$errmsg = "Internal error: Attempt to change patient_data.id from '" .
+			  $rez['id'] . "' to '$db_id' for pid '$pid'";
+			die($errmsg);
+		}
+	}
+	
 	$query = ("replace into patient_data set
 		id='$db_id',
 		title='$title',
