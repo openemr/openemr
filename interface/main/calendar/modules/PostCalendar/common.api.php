@@ -1009,7 +1009,7 @@ function postcalendar_userapi_buildSubmitForm($args,$admin=false)
 		$patient_data = getPatientData($event_pid, $given = "lname, fname");
 		$event_patient_name = $patient_data['lname'].", ".$patient_data['fname'];
 	}
-	$tpl->assign('patient_value',			$event_patient_name);
+	$tpl->assign('patient_value', $event_patient_name);
 
     //=================================================================
     //  PARSE INPUT_EVENT_TITLE
@@ -1020,20 +1020,25 @@ function postcalendar_userapi_buildSubmitForm($args,$admin=false)
     //=================================================================
     //  PARSE SELECT_DATE_TIME
     //=================================================================
+
+    // It seems that with Mozilla at least, <select> fields that are disabled
+    // do not get passed as form data.  Therefore we ignore $double_book so
+    // that the fields will not be disabled.  -- Rod 2005-03-22
+
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
     if(_SETTING_USE_INT_DATES) {
         $sel_data = pnModAPIFunc(__POSTCALENDAR__,'user','buildDaySelect',array('pc_day'=>$day,'selected'=>$event_startday));
-        $formdata = $output->FormSelectMultiple('event_startday', $sel_data,0,1,"","",false,$double_book);
+        $formdata = $output->FormSelectMultiple('event_startday', $sel_data,0,1,"","",false,/* $double_book*/ '');
         $sel_data = pnModAPIFunc(__POSTCALENDAR__,'user','buildMonthSelect',array('pc_month'=>$month,'selected'=>$event_startmonth));
-        $formdata .= $output->FormSelectMultiple('event_startmonth', $sel_data,0,1,"","",false,$double_book);
+        $formdata .= $output->FormSelectMultiple('event_startmonth', $sel_data,0,1,"","",false,/* $double_book*/ '');
     } else {
         $sel_data = pnModAPIFunc(__POSTCALENDAR__,'user','buildMonthSelect',array('pc_month'=>$month,'selected'=>$event_startmonth));
-        $formdata = $output->FormSelectMultiple('event_startmonth', $sel_data,0,1,"","",false,$double_book);
+        $formdata = $output->FormSelectMultiple('event_startmonth', $sel_data,0,1,"","",false,/* $double_book*/ '');
         $sel_data = pnModAPIFunc(__POSTCALENDAR__,'user','buildDaySelect',array('pc_day'=>$day,'selected'=>$event_startday));
-        $formdata .= $output->FormSelectMultiple('event_startday', $sel_data,0,1,"","",false,$double_book);
+        $formdata .= $output->FormSelectMultiple('event_startday', $sel_data,0,1,"","",false,/* $double_book*/ '');
     }
     $sel_data = pnModAPIFunc(__POSTCALENDAR__,'user','buildYearSelect',array('pc_year'=>$year,'selected'=>$event_startyear));
-    $formdata .= $output->FormSelectMultiple('event_startyear', $sel_data,0,1,"","",false,$double_book);
+    $formdata .= $output->FormSelectMultiple('event_startyear', $sel_data,0,1,"","",false,/* $double_book*/ '');
     $output->SetOutputMode(_PNH_KEEPOUTPUT);
     $tpl->assign('SelectDateTime', $formdata);
     $tpl->assign('InputAllday', 'event_allday');
@@ -1057,18 +1062,18 @@ function postcalendar_userapi_buildSubmitForm($args,$admin=false)
     if(_SETTING_USE_INT_DATES) {
         $sel_data = pnModAPIFunc(__POSTCALENDAR__,'user','buildDaySelect',array('pc_day'=>$day,'selected'=>$event_endday));
 
-        $formdata = $output->FormSelectMultiple('event_endday', $sel_data,0,1,"","",false,$double_book);
+        $formdata = $output->FormSelectMultiple('event_endday', $sel_data,0,1,"","",false,/* $double_book*/ '');
         $sel_data = pnModAPIFunc(__POSTCALENDAR__,'user','buildMonthSelect',array('pc_month'=>$month,'selected'=>$event_endmonth));
-        $formdata .= $output->FormSelectMultiple('event_endmonth', $sel_data,0,1,"","",false,$double_book);
+        $formdata .= $output->FormSelectMultiple('event_endmonth', $sel_data,0,1,"","",false,/* $double_book*/ '');
     } else {
 
         $sel_data = pnModAPIFunc(__POSTCALENDAR__,'user','buildMonthSelect',array('pc_month'=>$month,'selected'=>$event_endmonth));
-        $formdata = $output->FormSelectMultiple('event_endmonth', $sel_data,0,1,"","",false,$double_book);
+        $formdata = $output->FormSelectMultiple('event_endmonth', $sel_data,0,1,"","",false,/* $double_book*/ '');
         $sel_data = pnModAPIFunc(__POSTCALENDAR__,'user','buildDaySelect',array('pc_day'=>$day,'selected'=>$event_endday));
-        $formdata .= $output->FormSelectMultiple('event_endday', $sel_data,0,1,"","",false,$double_book);
+        $formdata .= $output->FormSelectMultiple('event_endday', $sel_data,0,1,"","",false,/* $double_book*/ '');
     }
     $sel_data = pnModAPIFunc(__POSTCALENDAR__,'user','buildYearSelect',array('pc_year'=>$year,'selected'=>$event_endyear));
-    $formdata .= $output->FormSelectMultiple('event_endyear', $sel_data,0,1,"","",false,$double_book);
+    $formdata .= $output->FormSelectMultiple('event_endyear', $sel_data,0,1,"","",false,/* $double_book*/ '');
     $output->SetOutputMode(_PNH_KEEPOUTPUT);
     $tpl->assign('SelectEndDate', $formdata);
     //=================================================================
@@ -1076,8 +1081,8 @@ function postcalendar_userapi_buildSubmitForm($args,$admin=false)
     //=================================================================
     $stimes = pnModAPIFunc(__POSTCALENDAR__,'user','buildTimeSelect',array('hselected'=>$event_starttimeh,'mselected'=>$event_starttimem));
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
-    $timed_hours = $output->FormSelectMultiple('event_starttimeh', $stimes['h'],0,1,"","",false,$double_book);
-    $timed_minutes = $output->FormSelectMultiple('event_starttimem', $stimes['m'],0,1,"","",false,$double_book);
+    $timed_hours = $output->FormSelectMultiple('event_starttimeh', $stimes['h'],0,1,"","",false,/* $double_book*/ '');
+    $timed_minutes = $output->FormSelectMultiple('event_starttimem', $stimes['m'],0,1,"","",false,/* $double_book*/ '');
     if(!_SETTING_TIME_24HOUR) {
         $ampm = array();
         $ampm[0]['id']          = pnVarPrepForStore(_AM_VAL);
@@ -1092,7 +1097,7 @@ function postcalendar_userapi_buildSubmitForm($args,$admin=false)
 	{
         	$ampm[1]['selected'] = 1;
 	}
-        $timed_ampm = $output->FormSelectMultiple('event_startampm', $ampm,0,1,"","",false,$double_book);
+        $timed_ampm = $output->FormSelectMultiple('event_startampm', $ampm,0,1,"","",false,/* $double_book*/ '');
     } else {
         $timed_ampm = '';
     }
@@ -1507,7 +1512,7 @@ function &postcalendar_userapi_pcGetEventDetails($eid)
 	$event['desc'] = $event['hometext'];
     $event['website'] = $event['website'];
 	if (!empty($event['pid']))
-	  $event['patient_name']= getPatientName($event['pid']);
+	  $event['patient_name'] = getPatientName($event['pid']);
 	if (empty($event['aid']))
 	  $event['aid']= -1;
 
