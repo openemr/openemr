@@ -25,6 +25,7 @@ else {
  OpenEMR requires Javascript and a GUI browser. We can't promise you     
 anything but try following <a href="setup.php">this link</a> to continue.
 <?php                                                                    
-}                                                                        
+}
+?>
 </body>
 </html>
