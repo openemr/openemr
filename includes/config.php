@@ -27,6 +27,16 @@ $GLOBALS['oer_config']['prescriptions']['logo_pic'] = "prescription_logo.png";
 
 //Name of signature graphic in interface/pic/ directory without preceding slash. Normally 3 inches wide.
 $GLOBALS['oer_config']['prescriptions']['sig_pic'] = "sig.png";
+
+// only works with hylafax sendfax client, and sendfax must be in PATH
+// assign 'sendfax' to turn fax sending on 
+$GLOBALS['oer_config']['prescriptions']['sendfax'] = '';
+
+// asign a value here if there is any prefix needed to get dialing tone
+// you can also append a comma to add a one second delay
+// i.e. 9, will dial 9 for external tone, and wait a second.
+$GLOBALS['oer_config']['prescriptions']['prefix'] = '';
+
 //accounting system web services integration
 //whether to use the system
 $GLOBALS['oer_config']['ws_accounting']['enabled'] = false;
