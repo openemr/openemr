@@ -139,7 +139,12 @@ class C_Prescription extends Controller {
 					//else print it
 				}
 				elseif ($phar->get_transmit_method() == TRANSMIT_FAX) {
-					return $this->assign("process_result","No fax server is currently setup.");
+					$faxNum= $phar->get_fax();
+					if(!empty($faxNum)) {
+						Return $this->_fax_prescription ($p,$faxNum);						
+					}
+					// return $this->assign("process_result","No fax server is currently setup.");
+					// else default is printing,
 				}
 				//the pharmacy has no default or default is print
 				return $this->_print_prescription($p, $dummy);
@@ -234,6 +239,9 @@ class C_Prescription extends Controller {
 		{
 			//get the sendfax command and execute it
 			$cmd = $this->pconfig['sendfax'];
+			// prepend any prefix to the fax number
+			$pref=$this->pconfig['prefix'];
+			$faxNum=$pref.$faxNum;
 			if(empty($cmd))
 			{
 				$err .= " Send fax not set in includes/config.php";
@@ -264,7 +272,7 @@ class C_Prescription extends Controller {
 					break;
 				}
 				fclose($handle);
-				$args = " -d $faxNum $fileName";
+				$args = " -n -d $faxNum $fileName";
 				//print "command is $cmd $args<br>";
 				exec($cmd . $args);
 			}
