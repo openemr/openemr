@@ -12,7 +12,7 @@
 *
 * IMPORTANT NOTE
 * there is no warranty, implied or otherwise with this software.
-* 
+*
 * LICENCE
 * This code has been placed in the Public Domain for all to enjoy.
 *
@@ -38,7 +38,7 @@ var $catalogId;
 * array carrying information about the fonts that the system currently knows about
 * used to ensure that a font is not loaded twice, among other things
 */
-var $fonts=array(); 
+var $fonts=array();
 /**
 * a record of the current font
 */
@@ -52,7 +52,7 @@ var $currentBaseFont='';
 */
 var $currentFontNum=0;
 /**
-* 
+*
 */
 var $currentNode;
 /**
@@ -145,7 +145,7 @@ var $fontFamilies = array();
 /**
 * track if the current font is bolded or italicised
 */
-var $currentTextState = ''; 
+var $currentTextState = '';
 /**
 * messages are stored here during processing, these can be selected afterwards to give some useful debug information
 */
@@ -184,7 +184,7 @@ var $nCallback = 0;
 */
 var $destinations = array();
 /**
-* store the stack for the transaction commands, each item in here is a record of the values of all the 
+* store the stack for the transaction commands, each item in here is a record of the values of all the
 * variables within the class, so that the user can rollback at will (from each 'start' command)
 * note that this includes the objects array, so these can be large.
 */
@@ -196,7 +196,7 @@ var $checkpoint = '';
 */
 function Cpdf ($pageSize=array(0,0,612,792)){
   $this->newDocument($pageSize);
-  
+
   // also initialize the font families that are known about already
   $this->setFontFamily('init');
 //  $this->fileIdentifier = md5('xxxxxxxx'.time());
@@ -214,7 +214,7 @@ function Cpdf ($pageSize=array(0,0,612,792)){
 *           'out' - produce the output for the pdf object
 * $options = optional, a string or array containing the various parameters for the object
 *
-* These, in conjunction with the output function are the ONLY way for output to be produced 
+* These, in conjunction with the output function are the ONLY way for output to be produced
 * within the pdf 'file'.
 */
 
@@ -383,7 +383,7 @@ function o_pages($id,$action,$options=''){
               $o['info']['pages'][$k]=$options['id'];
             }
           }
-        } 
+        }
       }
       break;
     case 'procset':
@@ -764,7 +764,7 @@ function o_action($id,$action,$options=''){
 
 /**
 * an annotation object, this will add an annotation to the current page.
-* initially will support just link annotations 
+* initially will support just link annotations
 */
 function o_annotation($id,$action,$options=''){
   if ($action!='new'){
@@ -1055,7 +1055,7 @@ function o_encryption($id,$action,$options=''){
 
       $this->objects[$id]['info']['U']=$uvalue;
       $this->encryptionKey=$ukey;
-     
+
       // initialize the arc4 array
       break;
     case 'out':
@@ -1069,12 +1069,12 @@ function o_encryption($id,$action,$options=''){
       $o['info']['p'] = (($o['info']['p']^255)+1)*-1;
       $res.="\n/P ".($o['info']['p']);
       $res.="\n>>\nendobj\n";
-      
+
       return $res;
       break;
   }
 }
-      
+
 /**
 * ARC4 functions
 * A series of function to implement ARC4 encoding in PHP
@@ -1093,7 +1093,7 @@ function md5_16($string){
 }
 
 /**
-* initialize the encryption for processing a particular object 
+* initialize the encryption for processing a particular object
 */
 function encryptInit($id){
   $tmp = $this->encryptionKey;
@@ -1129,7 +1129,7 @@ function ARC4_init($key=''){
     $j = ($j + ord($t) + ord($k[$i]))%256;
     $this->arc4[$i]=$this->arc4[$j];
     $this->arc4[$j]=$t;
-  }    
+  }
 }
 
 /**
@@ -1150,7 +1150,7 @@ function ARC4($text){
     $k = ord($c[(ord($c[$a])+ord($c[$b]))%256]);
     $out.=chr(ord($text[$i]) ^ $k);
   }
-  
+
   return $out;
 }
 
@@ -1289,7 +1289,7 @@ function newDocument($pageSize=array(0,0,612,792)){
   $this->numObj++;
   $this->o_page($this->numObj,'new');
 
-  // need to store the first page id as there is no way to get it to the user during 
+  // need to store the first page id as there is no way to get it to the user during
   // startup
   $this->firstPageId = $this->currentContents;
 }
@@ -1397,6 +1397,7 @@ function openFont($font){
     }
     $data['_version_']=1;
     $this->fonts[$font]=$data;
+    touch($dir.'php_'.$name.'.afm'); // php bug
     $fp = fopen($dir.'php_'.$name.'.afm','w');
     fwrite($fp,serialize($data));
     fclose($fp);
@@ -1455,7 +1456,7 @@ function selectFont($fontName,$encoding='',$set=1){
         $fbtype='';
       }
       $fbfile = $basefile.'.'.$fbtype;
-      
+
 //      $pfbfile = substr($fontName,0,strlen($fontName)-4).'.pfb';
 //      $ttffile = substr($fontName,0,strlen($fontName)-4).'.ttf';
       $this->addMessage('selectFont: checking for - '.$fbfile);
@@ -1507,7 +1508,7 @@ function selectFont($fontName,$encoding='',$set=1){
         $widthid = $this->numObj;
 
         // load the pfb file, and put that into an object too.
-        // note that pdf supports only binary format type 1 font files, though there is a 
+        // note that pdf supports only binary format type 1 font files, though there is a
         // simple utility to convert them from pfa to pfb.
         $fp = fopen($fbfile,'rb');
         $tmp = get_magic_quotes_runtime();
@@ -1544,7 +1545,7 @@ function selectFont($fontName,$encoding='',$set=1){
         } else if ($fbtype=='ttf'){
           $fdopt['FontFile2']=$pfbid;
         }
-        $this->o_fontDescriptor($fontDescriptorId,'new',$fdopt);        
+        $this->o_fontDescriptor($fontDescriptorId,'new',$fdopt);
 
         // embed the font program
         $this->o_contents($this->numObj,'new');
@@ -1579,7 +1580,7 @@ function selectFont($fontName,$encoding='',$set=1){
       }
 
 
-      // also set the differences here, note that this means that these will take effect only the 
+      // also set the differences here, note that this means that these will take effect only the
       //first time that a font is selected, else they are ignored
       if (isset($options['differences'])){
         $this->fonts[$fontName]['differences']=$options['differences'];
@@ -1603,7 +1604,7 @@ function selectFont($fontName,$encoding='',$set=1){
 * This function is to be called whenever the currentTextState is changed, it will update
 * the currentFont setting to whatever the appropriatte family one is.
 * If the user calls selectFont themselves then that will reset the currentBaseFont, and the currentFont
-* This function will change the currentFont to whatever it should be, but will not change the 
+* This function will change the currentFont to whatever it should be, but will not change the
 * currentBaseFont.
 *
 * @access private
@@ -1615,7 +1616,7 @@ function setCurrentFont(){
   }
   $cf = substr($this->currentBaseFont,strrpos($this->currentBaseFont,'/')+1);
   if (strlen($this->currentTextState)
-    && isset($this->fontFamilies[$cf]) 
+    && isset($this->fontFamilies[$cf])
       && isset($this->fontFamilies[$cf][$this->currentTextState])){
     // then we are in some state or another
     // and this font has a family, and the current setting exists within it
@@ -1628,7 +1629,7 @@ function setCurrentFont(){
     // the this font must not have the right family member for the current state
     // simply assume the base font
     $this->currentFont = $this->currentBaseFont;
-    $this->currentFontNum = $this->fonts[$this->currentFont]['fontNum'];    
+    $this->currentFontNum = $this->fonts[$this->currentFont]['fontNum'];
   }
 }
 
@@ -1707,7 +1708,7 @@ function filledEllipse($x0,$y0,$r1,$r2=0,$angle=0,$nSeg=8,$astart=0,$afinish=360
 * draws an ellipse in the current line style
 * centered at $x0,$y0, radii $r1,$r2
 * if $r2 is not set, then a circle is drawn
-* nSeg is not allowed to be less than 2, as this will simply draw a line (and will even draw a 
+* nSeg is not allowed to be less than 2, as this will simply draw a line (and will even draw a
 * pretty crappy shape at 2, as we are approximating with bezier curves.
 */
 function ellipse($x0,$y0,$r1,$r2=0,$angle=0,$nSeg=8,$astart=0,$afinish=360,$close=1,$fill=0){
@@ -1757,7 +1758,7 @@ function ellipse($x0,$y0,$r1,$r2=0,$angle=0,$nSeg=8,$astart=0,$afinish=360,$clos
     $a0=$a1;
     $b0=$b1;
     $c0=$c1;
-    $d0=$d1;    
+    $d0=$d1;
   }
   if ($fill){
     $this->objects[$this->currentContents]['c'].=' f';
@@ -1784,7 +1785,7 @@ function ellipse($x0,$y0,$r1,$r2=0,$angle=0,$nSeg=8,$astart=0,$afinish=360,$clos
 *   on and off dashes.
 *   (2) represents 2 on, 2 off, 2 on , 2 off ...
 *   (2,1) is 2 on, 1 off, 2 on, 1 off.. etc
-* phase is a modifier on the dash pattern which is used to shift the point at which the pattern starts. 
+* phase is a modifier on the dash pattern which is used to shift the point at which the pattern starts.
 */
 function setLineStyle($width=1,$cap='',$join='',$dash='',$phase=0){
 
@@ -1852,7 +1853,7 @@ function newPage($insert=0,$id=0,$pos='after'){
 
   // if there is a state saved, then go up the stack closing them
   // then on the new page, re-open them with the right setings
-  
+
   if ($this->nStateStack){
     for ($i=$this->nStateStack;$i>=1;$i--){
       $this->restoreState($i);
@@ -1874,7 +1875,7 @@ function newPage($insert=0,$id=0,$pos='after'){
     for ($i=1;$i<=$this->nStateStack;$i++){
       $this->saveState($i);
     }
-  }  
+  }
   // and if there has been a stroke or fill colour set, then transfer them
   if ($this->currentColour['r']>=0){
     $this->setColor($this->currentColour['r'],$this->currentColour['g'],$this->currentColour['b'],1);
@@ -1899,7 +1900,7 @@ function newPage($insert=0,$id=0,$pos='after'){
 function stream($options=''){
   // setting the options allows the adjustment of the headers
   // values at the moment are:
-  // 'Content-Disposition'=>'filename'  - sets the filename, though not too sure how well this will 
+  // 'Content-Disposition'=>'filename'  - sets the filename, though not too sure how well this will
   //        work as in my trial the browser seems to use the filename of the php file with .pdf on the end
   // 'Accept-Ranges'=>1 or 0 - if this is not set to 1, then this header is not included, off by default
   //    this header seems to have caused some problems despite tha fact that it is supposed to solve
@@ -1918,7 +1919,7 @@ function stream($options=''){
   $fileName = (isset($options['Content-Disposition'])?$options['Content-Disposition']:'file.pdf');
   header("Content-Disposition: inline; filename=".$fileName);
   if (isset($options['Accept-Ranges']) && $options['Accept-Ranges']==1){
-    header("Accept-Ranges: ".strlen(ltrim($tmp))); 
+    header("Accept-Ranges: ".strlen(ltrim($tmp)));
   }
   echo ltrim($tmp);
 }
@@ -1969,7 +1970,7 @@ function filterText($text){
 }
 
 /**
-* given a start position and information about how text is to be laid out, calculate where 
+* given a start position and information about how text is to be laid out, calculate where
 * on the page the text will end
 *
 * @access private
@@ -2146,7 +2147,7 @@ function PRVTcheckTextDirective1(&$text,$i,&$f,$final,&$x,&$y,$size=0,$angle=0,$
         }
         break;
     }
-  } 
+  }
   return $directive;
 }
 
@@ -2199,7 +2200,7 @@ function addText($x,$y,$size,$text,$angle=0,$wordSpaceAdjust=0){
         $xp=$x;
         $yp=$y;
         $directive = $this->PRVTcheckTextDirective1($text,$i,$f,1,$xp,$yp,$size,$angle,$wordSpaceAdjust);
-        
+
         // restart the text object
           if ($angle==0){
             $this->objects[$this->currentContents]['c'].="\n".'BT '.sprintf('%.3f',$xp).' '.sprintf('%.3f',$yp).' Td';
@@ -2219,7 +2220,7 @@ function addText($x,$y,$size,$text,$angle=0,$wordSpaceAdjust=0){
       $i=$i+$directive-1;
       $start=$i+1;
     }
-    
+
   }
   if ($start<$len){
     $part = substr($text,$start);
@@ -2285,7 +2286,7 @@ function getTextWidth($size,$text){
       }
     }
   }
-  
+
   $this->currentTextState = $store_currentTextState;
   $this->setCurrentFont();
 
@@ -2329,7 +2330,7 @@ function PRVTadjustWrapText($text,$actual,$width,&$x,&$adjust,$justification){
 * justification and angle can also be specified for the text
 */
 function addTextWrap($x,$y,$width,$size,$text,$justification='left',$angle=0,$test=0){
-  // this will display the text, and if it goes beyond the width $width, will backtrack to the 
+  // this will display the text, and if it goes beyond the width $width, will backtrack to the
   // previous space or hyphen, and return the remainder of the text.
 
   // $justification can be set to 'left','right','center','centre','full'
@@ -2366,7 +2367,7 @@ function addTextWrap($x,$y,$width,$size,$text,$justification='left',$angle=0,$te
       } else {
         $cOrd2 = $cOrd;
       }
-  
+
       if (isset($this->fonts[$cf]['C'][$cOrd2]['WX'])){
         $w+=$this->fonts[$cf]['C'][$cOrd2]['WX'];
       }
@@ -2439,14 +2440,14 @@ function addTextWrap($x,$y,$width,$size,$text,$justification='left',$angle=0,$te
 }
 
 /**
-* this will be called at a new page to return the state to what it was on the 
+* this will be called at a new page to return the state to what it was on the
 * end of the previous page, before the stack was closed down
 * This is to get around not being able to have open 'q' across pages
 *
 */
 function saveState($pageEnd=0){
   if ($pageEnd){
-    // this will be called at a new page to return the state to what it was on the 
+    // this will be called at a new page to return the state to what it was on the
     // end of the previous page, before the stack was closed down
     // This is to get around not being able to have open 'q' across pages
     $opt = $this->stateStack[$pageEnd]; // ok to use this as stack starts numbering at 1
@@ -2495,7 +2496,7 @@ function openObject(){
   $this->o_contents($this->numObj,'new');
   $this->currentContents=$this->numObj;
   $this->looseObjects[$this->numObj]=1;
-  
+
   return $this->numObj;
 }
 
@@ -2547,8 +2548,8 @@ function addObject($id,$options='add'){
     // then it is a valid object, and it is not being added to itself
     switch($options){
       case 'all':
-        // then this object is to be added to this page (done in the next block) and 
-        // all future new pages. 
+        // then this object is to be added to this page (done in the next block) and
+        // all future new pages.
         $this->addLooseObjects[$id]='all';
       case 'add':
         if (isset($this->objects[$this->currentContents]['onPage'])){
@@ -2651,7 +2652,7 @@ function addPngFromFile($file,$x,$y,$w=0,$h=0){
     $errormsg = 'trouble opening file: '.$file;
   }
   set_magic_quotes_runtime($tmp);
-  
+
   if (!$error){
     $header = chr(137).chr(80).chr(78).chr(71).chr(13).chr(10).chr(26).chr(10);
     if (substr($data,0,8)!=$header){
@@ -2673,7 +2674,7 @@ function addPngFromFile($file,$x,$y,$w=0,$h=0){
       $chunkLen = $this->PRVT_getBytes($data,$p,4);
       $chunkType = substr($data,$p+4,4);
 //      echo $chunkType.' - '.$chunkLen.'<br>';
-    
+
       switch($chunkType){
         case 'IHDR':
           // this is where all the file information comes from
@@ -2701,16 +2702,16 @@ function addPngFromFile($file,$x,$y,$w=0,$h=0){
         case 'IDAT':
           $idata.=substr($data,$p+8,$chunkLen);
           break;
-        case 'tRNS': 
-          //this chunk can only occur once and it must occur after the PLTE chunk and before IDAT chunk 
-          //print "tRNS found, color type = ".$info['colorType']."<BR>"; 
+        case 'tRNS':
+          //this chunk can only occur once and it must occur after the PLTE chunk and before IDAT chunk
+          //print "tRNS found, color type = ".$info['colorType']."<BR>";
           $transparency = array();
-          if ($info['colorType'] == 3) { // indexed color, rbg 
-          /* corresponding to entries in the plte chunk 
-          Alpha for palette index 0: 1 byte 
-          Alpha for palette index 1: 1 byte 
-          ...etc... 
-          */ 
+          if ($info['colorType'] == 3) { // indexed color, rbg
+          /* corresponding to entries in the plte chunk
+          Alpha for palette index 0: 1 byte
+          Alpha for palette index 1: 1 byte
+          ...etc...
+          */
             // there will be one entry for each palette entry. up until the last non-opaque entry.
             // set up an array, stretching over all palette entries which will be o (opaque) or 1 (transparent)
             $transparency['type']='indexed';
@@ -2722,37 +2723,37 @@ function addPngFromFile($file,$x,$y,$w=0,$h=0){
               }
             }
             $transparency['data'] = $trans;
-            
-          } elseif($info['colorType'] == 0) { // grayscale 
-          /* corresponding to entries in the plte chunk 
-          Gray: 2 bytes, range 0 .. (2^bitdepth)-1 
-          */ 
-//            $transparency['grayscale']=$this->PRVT_getBytes($data,$p+8,2); // g = grayscale 
+
+          } elseif($info['colorType'] == 0) { // grayscale
+          /* corresponding to entries in the plte chunk
+          Gray: 2 bytes, range 0 .. (2^bitdepth)-1
+          */
+//            $transparency['grayscale']=$this->PRVT_getBytes($data,$p+8,2); // g = grayscale
             $transparency['type']='indexed';
             $transparency['data'] = ord($data[$p+8+1]);
-          
-          } elseif($info['colorType'] == 2) { // truecolor 
-          /* corresponding to entries in the plte chunk 
-          Red: 2 bytes, range 0 .. (2^bitdepth)-1 
-          Green: 2 bytes, range 0 .. (2^bitdepth)-1 
-          Blue: 2 bytes, range 0 .. (2^bitdepth)-1 
-          */ 
-            $transparency['r']=$this->PRVT_getBytes($data,$p+8,2); // r from truecolor 
-            $transparency['g']=$this->PRVT_getBytes($data,$p+10,2); // g from truecolor 
-            $transparency['b']=$this->PRVT_getBytes($data,$p+12,2); // b from truecolor 
-          
-          } else { 
-          //unsupported transparency type 
-          } 
-          // KS End new code 
-          break; 
+
+          } elseif($info['colorType'] == 2) { // truecolor
+          /* corresponding to entries in the plte chunk
+          Red: 2 bytes, range 0 .. (2^bitdepth)-1
+          Green: 2 bytes, range 0 .. (2^bitdepth)-1
+          Blue: 2 bytes, range 0 .. (2^bitdepth)-1
+          */
+            $transparency['r']=$this->PRVT_getBytes($data,$p+8,2); // r from truecolor
+            $transparency['g']=$this->PRVT_getBytes($data,$p+10,2); // g from truecolor
+            $transparency['b']=$this->PRVT_getBytes($data,$p+12,2); // b from truecolor
+
+          } else {
+          //unsupported transparency type
+          }
+          // KS End new code
+          break;
         default:
           break;
       }
-    
+
       $p += $chunkLen+12;
     }
-    
+
     if(!$haveHeader){
       $error = 1;
       $errormsg = 'information header is missing';
@@ -2856,7 +2857,7 @@ function addJpegFromFile($img,$x,$y,$w=0,$h=0){
   set_magic_quotes_runtime(0);
   $data = fread($fp,filesize($img));
   set_magic_quotes_runtime($tmp);
-  
+
   fclose($fp);
 
   $this->addJpegImage_common($data,$x,$y,$w,$h,$imageWidth,$imageHeight,$channels);
@@ -2864,18 +2865,18 @@ function addJpegFromFile($img,$x,$y,$w=0,$h=0){
 
 /**
 * add an image into the document, from a GD object
-* this function is not all that reliable, and I would probably encourage people to use 
+* this function is not all that reliable, and I would probably encourage people to use
 * the file based functions
 */
 function addImage(&$img,$x,$y,$w=0,$h=0,$quality=75){
   // add a new image into the current location, as an external object
   // add the image at $x,$y, and with width and height as defined by $w & $h
-  
+
   // note that this will only work with full colour images and makes them jpg images for display
   // later versions could present lossless image formats if there is interest.
-  
+
   // there seems to be some problem here in that images that have quality set above 75 do not appear
-  // not too sure why this is, but in the meantime I have restricted this to 75.  
+  // not too sure why this is, but in the meantime I have restricted this to 75.
   if ($quality>75){
     $quality=75;
   }
@@ -2884,7 +2885,7 @@ function addImage(&$img,$x,$y,$w=0,$h=0,$quality=75){
   // height/width ratio the same, if they are both zero, then give up :)
   $imageWidth=imagesx($img);
   $imageHeight=imagesy($img);
-  
+
   if ($w<=0 && $h<=0){
     return;
   }
@@ -2894,7 +2895,7 @@ function addImage(&$img,$x,$y,$w=0,$h=0,$quality=75){
   if ($h==0){
     $h=$w*$imageHeight/$imageWidth;
   }
-  
+
   // gotta get the data out of the img..
 
   // so I write to a temp file, and then read it back.. soo ugly, my apologies.

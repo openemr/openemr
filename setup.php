@@ -36,14 +36,14 @@ include_once($conffile);
 if ($state == 5) {
 
 echo "
-Congratulations! OpenEMR is now successfully installed. 
+Congratulations! OpenEMR is now successfully installed.
 <ul>
-<li>Please Edit the 'interface/globals.php' file now to specify the correct URL paths, and to select a theme.<br>\n 
+<li>Please Edit the 'interface/globals.php' file now to specify the correct URL paths, and to select a theme.<br>\n
 <li>Please make sure that the two folders underneath 'openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/' exist and are writable by the web server. The two subdirectories are 'compiled' and 'cache'.<br>
   Try \"chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/compiled\".
 \"chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/cache\".
 (If either subdirectory doesn't exist, create it first then do the chown above)
-<li>Please Edit the interface/globals.php file now to specify the correct URL paths, and to select a theme.<br>\n 
+<li>Please Edit the interface/globals.php file now to specify the correct URL paths, and to select a theme.<br>\n
 <li>Please make sure that the folder underneath the OpenEMR webroot 'openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/compiled' is writable by the web server. <br>
 Try \"chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/compiled\".
 </ul>
@@ -75,7 +75,7 @@ exit();
 <?php
 
 
-	
+
 	$server = $_POST["server"];
 	$port = $_POST["port"];
 	$dbname = $_POST["dbname"];
@@ -91,10 +91,10 @@ if ($config == 1) {
 else {
 switch ($state) {
 
-	case 1: 
+	case 1:
 echo "<b>Step $state</b><br><br>\n";
 echo "Now I need to know whether you want me to create the databases on my own or if you have already created the database for me to use.  If you are upgrading, you will want to select the latter function.  For me to create the databases, you will need to supply the MySQL root password.\n
-<span class='title'> <br />NOTE: clicking on \"Continue\" may delete or cause damage to data on your system. Before you continue please backup your data.</span> 
+<span class='title'> <br />NOTE: clicking on \"Continue\" may delete or cause damage to data on your system. Before you continue please backup your data.</span>
 <br><br>\n
 <FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='2'>\n
@@ -104,7 +104,7 @@ echo "Now I need to know whether you want me to create the databases on my own o
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 break;
 
-	case 2: 
+	case 2:
 echo "<b>Step $state</b><br><br>\n";
 echo "Now you need to supply the MySQL server information.
 <br><br>
@@ -136,9 +136,9 @@ echo "</TABLE>
 break;
 
 
-	case 3: 
-	
-	
+	case 3:
+
+
 echo "<b>Step $state</b><br><br>\n";
 	if ($pass == "" || $login == "" || !isset($login) || !isset($pass)) {
 		echo "ERROR. Please pick a proper username and/or password.<br>\n";
@@ -157,7 +157,7 @@ if ($inst != 2) {
 		echo "<p>".mysql_error()." (#".mysql_errno().")\n";
 		break;
 	}
-	else 
+	else
 		echo "OK.<br>\n";
 	echo "Creating database...\n";
 	flush();
@@ -167,7 +167,7 @@ if ($inst != 2) {
 		echo "<p>".mysql_error()." (#".mysql_errno().")\n";
 		break;
 	}
-	else 
+	else
 		echo "OK.<br>\n";
 	echo "Creating user with permissions for database...\n";
 	flush();
@@ -177,25 +177,25 @@ if ($inst != 2) {
 		echo "ERROR.\n";
 		break;
 	}
-	else 
+	else
 		echo "OK.<br>\n";
 	echo "Reconnecting as new user...\n";
 	mysql_close($dbh);
 }
-else 
+else
 	echo "Connecting to MySQL Server...\n";
-	
+
 if ($server == "localhost")
 	$dbh = mysql_connect("$server","$login","$pass");
 else
 	$dbh = mysql_connect("$server:$port","$login","$pass");
-	
+
 if ($dbh == FALSE) {
 	echo "ERROR.  Check your login credentials.\n";
 	echo "<p>".mysql_error()." (#".mysql_errno().")\n";
 	break;
 }
-else 
+else
 	echo "OK.<br>\n";
 echo "Opening database...";
 flush();
@@ -204,7 +204,7 @@ if (mysql_select_db("$dbname",$dbh) == FALSE) {
 	echo "<p>".mysql_error()." (#".mysql_errno().")\n";
 	break;
 }
-else 
+else
 	echo "OK.<br>\n";
 	flush();
 if ($upgrade != 1) {
@@ -250,13 +250,13 @@ if ($upgrade != 1) {
 		echo "<p>".mysql_error()." (#".mysql_errno().")\n";
 		flush();
 		break;
-	}	
+	}
 	if (mysql_query("INSERT INTO users (id, username, password, authorized, lname,fname) VALUES (1,'$iuser','1a1dc91c907325c69271ddf0c944bc72',1,'$iuname','')") == FALSE) {
 		echo "ERROR.  Could not run queries.\n";
 		echo "<p>".mysql_error()." (#".mysql_errno().")\n";
 		flush();
 		break;
-	}	
+	}
 	echo "OK<br>\n";
 	flush();
 /*	echo "Inserting ICD-9-CM Codes into Database...\n";
@@ -308,9 +308,10 @@ echo "
 
 break;
 
-	case 4: 
+	case 4:
 echo "<b>Step $state</b><br><br>\n";
 echo "Writing SQL Configuration to disk...\n";
+touch($conffile); // php bug
 $fd = @fopen($conffile, 'w');
 if ($fd == FALSE) {
 	echo "ERROR.  Could not open config file '$conffile' for writing.\n";
@@ -325,7 +326,7 @@ $string = "<?
 ";
 
 $it_died = 0;   //fmg: variable keeps running track of any errors
- 
+
 fwrite($fd,$string) or $it_died++;
 fwrite($fd,"\$host\t= '$host';\n") or $it_died++;
 fwrite($fd,"\$port\t= '$port';\n") or $it_died++;

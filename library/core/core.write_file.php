@@ -27,6 +27,7 @@ function smarty_core_write_file($params, &$smarty)
     // file locking race condition
     $_tmp_file = $_dirname . DIRECTORY_SEPARATOR . uniqid('');
 
+    touch($_tmp_file); // php bug
     if (!($fd = @fopen($_tmp_file, 'w'))) {
         $smarty->trigger_error("problem writing temporary file '$_tmp_file'");
         return false;
