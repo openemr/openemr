@@ -12,10 +12,13 @@ if ($_POST['mode'] == 'export') {
 	$sdate = $_POST['from_date'];
 	$edate = $_POST['to_date'];
 
-	$sql = "SELECT billing.*, concat(pd.fname,' ', pd.lname) as name from billing join patient_data as pd on pd.pid = billing.pid where billed = '1' and"
-	. "(process_date > '" . mysql_real_escape_string($sdate) . "' or DATE_FORMAT( process_date, '%Y-%m-%d' ) = '" . mysql_real_escape_string($sdate) ."') "
-	. "and (process_date < '" . mysql_real_escape_string($edate) . "'or DATE_FORMAT( process_date, '%Y-%m-%d' ) = '" . mysql_real_escape_string($edate) ."') "
-	. " order by pid,encounter";
+	$sql = "SELECT billing.*, concat(pd.fname, ' ', pd.lname) as name from billing "
+	. "join patient_data as pd on pd.pid = billing.pid where billed = '1' and "
+	. "(process_date > '" . mysql_real_escape_string($sdate)
+	. "' or DATE_FORMAT( process_date, '%Y-%m-%d' ) = '" . mysql_real_escape_string($sdate) ."') "
+	. "and (process_date < '" . mysql_real_escape_string($edate)
+	. "'or DATE_FORMAT( process_date, '%Y-%m-%d' ) = '" . mysql_real_escape_string($edate) ."') "
+	. "order by pid,encounter";
 	$db = get_db();
 	$results = $db->Execute($sql);
 	$billings = array();
