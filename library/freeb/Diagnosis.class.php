@@ -11,6 +11,9 @@ class Diagnosis Extends DataObjectBase {
 		$this->_addFunc("isrelatedtootheraccident",		array(	"name"	=>	"FreeB.FBDiagnosis.isRelatedToOtherAccident",
 															"sig"	=>	array(XMLRPCSTRING,XMLRPCINT),
 															"doc"	=>	""));
+		$this->_addFunc("dateofencounter", array("name" => "FreeB.FBDiagnosis.DateOfEncounter",
+															"sig" => array(XMLRPCSTRING,XMLRPCINT),
+															"doc" => ""));
 		$this->_addFunc("dateofonset",					array(	"name"	=>	"FreeB.FBDiagnosis.DateOfOnset",
 															"sig"	=>	array(XMLRPCSTRING,XMLRPCINT),
 															"doc"	=>	""));
@@ -87,6 +90,39 @@ class Diagnosis Extends DataObjectBase {
 			// otherwise, we create the right response
 			// with the state name
 			return new xmlrpcresp(new xmlrpcval($retval,"i4"));
+		}
+	}
+
+	function dateofencounter($m) {
+		$err="";
+		$retval ="";
+		$obj= $m->getparam(0);
+		$key = $obj->getval();
+
+		$sql = "SELECT * FROM form_encounter where encounter = '" . $_SESSION['billkey'] .
+			"' and pid = '" . $_SESSION['patient_id'] ."' order by date DESC";
+		$db = $GLOBALS['adodb']['db'];
+		$results = $db->Execute($sql);
+
+		if (!$results) {
+			$err = $db->ErrorMsg();
+		}
+		else {
+			if (!$results->EOF) {
+				$retval = $results->fields['date'];
+			}
+		}
+		$retval = date("Y-m-d",strtotime($retval));
+		$retval = $this->_isodate($retval);
+
+		// if we generated an error, create an error return response
+		if ($err) {
+			return $this->_handleError($err);
+		}
+  		else {
+			// otherwise, we create the right response
+			// with the state name
+			return new xmlrpcresp(new xmlrpcval($retval,XMLRPCDATETIME));
 		}
 	}
 
