@@ -83,9 +83,7 @@ if (count($result) != 1) {
 </form>
 
 <address>
-<strong>
-Copyright &copy; 2003-2004 <a href="www.pennfirm.com"><strong>Pennington Firm</strong></a></strong><br />
-Copyright &copy; -2003 Synitech Inc.
+<a href="copyright_notice.html" target="main">Copyright Notice:</a><br />
 </address>
 
 </center>
