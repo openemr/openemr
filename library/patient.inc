@@ -818,4 +818,19 @@ function getPatientAge($dobYMD)
     }
     return $age;
 }
+
+function dateToDB ($date) 
+{
+	$date=substr ($date,6,4)."-".substr ($date,3,2)."-".substr($date, 0,2);
+	return $date;
+}
+
+
+
+
+function DBToDate ($date)
+{
+	$date=substr ($date,5,2)."/".substr ($date,8,2)."/".substr($date, 0,4);
+	return $date;
+}
 ?>
