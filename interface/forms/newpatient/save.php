@@ -35,7 +35,7 @@ addForm($encounter, "New Patient Encounter",
 
 	$id = $_POST["id"];
 	sqlStatement("update form_encounter set " .
-		"date = '$date', " .
+		// "date = '$date', " . // encounter date changes are frowned upon
 		"onset_date = '$onset_date', " .
 		"reason = '$reason', " .
 		"facility = '$facility' " .
