@@ -102,8 +102,20 @@ echo $result{"postal_code"}?>
 </td>
 <td valign=top></td>
 </tr>
-
-
+<tr>
+	<td colspan=2 valign=top>
+	<? 
+		$results{"hipaa_mail"}=='NO' ? $opt_out='DOES NOT ALLOW' : $opt_out='ALLOWS' ;
+		echo "Patient $opt_out Mailed Information";
+	?>
+	</td>
+	<td colspan=2 valign=top>
+	<? 
+		$results{"hipaa_voice"}=='NO' ? $opt_out='DOES NOT ALLOW' : $opt_out='ALLOWS' ;
+		echo "Patient $opt_out Voice Messages";
+	?>
+	</td>
+</tr>
 <tr>
 <td valign=top>
 <? if ($result{"occupation"} != "") {?><span class=bold>Occupation: </span><span class=text><?echo $result{"occupation"}?></span><br><?}?>

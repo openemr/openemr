@@ -286,6 +286,39 @@ preg_match("/\D*(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/",$result{"phone_cell"},$pm
 	</td>
 	<td><input name="genericname2" size=20 value="<?echo $result{"genericname2"};?>" /></td><td><input name="genericval2" size=20 value="<?echo $result{"genericval2"};?>" /></td>
 </tr>
+<tr>
+	<td colspan=6>
+		<a href="javascript:document.demographics_form.submit();" target=Main class=link_submit>[Save Patient Demographics]</a>
+		<hr>
+	</td>
+</tr>
+</table>
+
+<table class=bold>
+<th>HIPAA Choices:</th>
+<tr>
+	<td>Allow Mail:</td>
+	<td>
+	<select name="hipaa_mail">
+		<?
+		echo ('<option>NO</option>');
+		$result{"hipaa_mail"}=='YES' ? $opt_out='<option selected>YES</option>' : $opt_out='<option>YES</option>' ;
+		echo $opt_out;
+		?>
+	</select>
+	<td>Allow Voice Msg:</td>
+	<td>
+	<select name="hipaa_voice">
+		<?
+		echo ('<option>NO</option>');
+		$result{"hipaa_voice"}=='YES' ? $opt_out='<option selected>YES</option>' : $opt_out='<option>YES</option>' ;
+		echo $opt_out;
+		?>
+	</select>
+	</td>
+	<td></td>
+	<td></td>
+</tr>
 </table>
 
 

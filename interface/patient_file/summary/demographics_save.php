@@ -64,7 +64,10 @@ newPatientData(         $_POST["db_id"],
 						$_POST["genericval1"],
 						$_POST["genericname2"],
 						$_POST["genericval2"],
-						$_POST["phone_cell"]
+						$_POST["phone_cell"],
+						$_POST["hipaa_mail"],
+						$_POST["hipaa_voice"]
+
                 );
 
 newEmployerData(       $pid,
