@@ -1,5 +1,5 @@
 <?
-include_once("../globals.php");
+include_once("$srcdir/../interface/globals.php");
 include_once("$srcdir/log.inc");
 
 //function called to set the global session variable for patient id (pid) number
@@ -11,5 +11,5 @@ $pid=$new_pid;
 
 newEvent("view",$_SESSION["authUser"],$_SESSION["authProvider"],$pid);
 
-
 }
+?>
