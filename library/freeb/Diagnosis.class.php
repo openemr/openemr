@@ -93,22 +93,22 @@ class Diagnosis Extends DataObjectBase {
 	function dateofonset($m) {
 
 		$err="";
-		
+
 		$retval ="";
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM form_encounter where encounter = '" . $_SESSION['billkey'] ."' and pid = '" . $_SESSION['patient_id'] ."' order by date DESC";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
-				$retval = $results->fields['date'];
+				$retval = $results->fields['onset_date'];
 			}
 		}
 		$retval = date("Y-m-d",strtotime($retval));
@@ -132,18 +132,18 @@ class Diagnosis Extends DataObjectBase {
 		$retval ="";
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM form_encounter where encounter = '" . $_SESSION['billkey'] ."' and pid = '" . $_SESSION['patient_id'] ."' order by date DESC";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
-				$retval = $results->fields['date'];
+				$retval = $results->fields['onset_date'];
 			}
 		}
 		$retval = date("Y-m-d",strtotime($retval));
@@ -185,18 +185,18 @@ class Diagnosis Extends DataObjectBase {
 		$retval ="";
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM form_encounter where encounter = '" . $_SESSION['billkey'] ."' and pid = '" . $_SESSION['patient_id'] ."' order by date DESC";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
-				$retval = $results->fields['date'];
+				$retval = $results->fields['onset_date'];
 			}
 		}
 		$retval = date("Y-m-d",strtotime($retval));
@@ -216,7 +216,7 @@ class Diagnosis Extends DataObjectBase {
 	function iscantwork($m) {
 
 		$err="";
-		
+
 		//unimplemented by OpenEMR
 		$pkey = false;
 
@@ -303,7 +303,7 @@ class Diagnosis Extends DataObjectBase {
 	function autoaccidentstate($m) {
 
 		$err="";
-		
+
 		//unimplmeneted by OpenEMR
 		$pkey = "";
 
@@ -339,14 +339,14 @@ class Diagnosis Extends DataObjectBase {
 
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM billing where id = '" . $key . "'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
@@ -387,7 +387,7 @@ class Diagnosis Extends DataObjectBase {
 		}
 		$retval = date("Y-m-d",strtotime($retval));
 		$retval = $this->_isodate($retval);
-		
+
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
@@ -418,7 +418,7 @@ class Diagnosis Extends DataObjectBase {
 				$retval = $results->fields['reason'];
 			}
 		}
-				
+
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);

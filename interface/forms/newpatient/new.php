@@ -37,6 +37,7 @@ foreach($result as $iter) {
 <!--<br>-->
 <tr><td><span class=text>Chief Complaint:</span></td><td></td></tr>
 <tr><td><textarea name=reason cols=40 rows=6 wrap=virtual></textarea></td></td></tr>
+
 <tr><td><span class=text>Date Of Service:</span></td>
 <td><select name=month>
 <?
@@ -61,7 +62,7 @@ foreach($days as $day){
 </select>
 <select name=year>
 <?
-$years = array("2004","2005","2005","2006","2007");
+$years = array("2004","2005","2006","2007");
 foreach($years as $year){
 ?>
 <option value="<?echo $year;?>" <?if($year == date("Y")) echo "selected";?>><?echo $year?></option>
@@ -69,6 +70,36 @@ foreach($years as $year){
 }
 ?>
 </select></td></tr>
+
+<tr><td><span class=text>Date of onset or hospitalization:</span></td>
+<td><select name='onset_month'>
+<?
+foreach($months as $month){
+?>
+<option value="<?echo $month;?>" <?if($month == date("m")) echo "selected";?>><?echo $month?></option>
+<?
+}
+?>
+</select>
+<select name='onset_day'>
+<?
+foreach($days as $day){
+?>
+<option value="<?echo $day;?>" <?if($day == date("d")) echo "selected";?>><?echo $day?></option>
+<?
+}
+?>
+</select>
+<select name='onset_year'>
+<?
+foreach($years as $year){
+?>
+<option value="<?echo $year;?>" <?if($year == date("Y")) echo "selected";?>><?echo $year?></option>
+<?
+}
+?>
+</select></td></tr>
+
 </table>
 <a href="javascript:document.new_encounter.submit();" class="link_submit">[Save]</a>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

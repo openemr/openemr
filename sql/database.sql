@@ -26523,6 +26523,7 @@ CREATE TABLE `form_encounter` (
   `facility` longtext,
   `pid` bigint(20) default NULL,
   `encounter` bigint(20) default NULL,
+  `onset_date` datetime default NULL,
   PRIMARY KEY  (`id`)
 ) ;
 
