@@ -12,17 +12,19 @@ include_once("library/sqlconf.php");
 include_once("library/sqlconf.php");
 
 if ($config == 1) {
-?>
+?>                                                                                        
 <body ONLOAD="javascript:top.location.href='<?echo "interface/login/login_frame.php"?>';">
-<?php
-}
+OpenEMR requires Javascript and a GUI browser. We can't promise you                       
+anything but try following <a href="interface/login/login.php"                            
+>this link</a> to continue.                                                               
+<?php                                                                                     
+}                                                                                         
 else {
-?>
-<body ONLOAD="javascript:top.location.href='<?echo "setup.php"?>';">
-<?php
-}
-?>
-
-
+?>                                                                       
+<body ONLOAD="javascript:top.location.href='<?echo "setup.php"?>';">     
+ OpenEMR requires Javascript and a GUI browser. We can't promise you     
+anything but try following <a href="setup.php">this link</a> to continue.
+<?php                                                                    
+}                                                                        
 </body>
 </html>

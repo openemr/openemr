@@ -1509,11 +1509,22 @@ function postcalendar_admin_clearCache()
 {
 	if(!PC_ACCESS_ADMIN) { return _POSTCALENDAR_NOAUTH; }
 
-	$tpl =& new pcSmarty();
-	$tpl->clear_all_cache();
-	$tpl->clear_compiled_tpl();
-
-    return postcalendar_admin_modifyconfig('<center>'._PC_CACHE_CLEARED.'</center>');
+        $tpl =& new pcSmarty();
+        //fmg: check that both subdirs to be cleared first exist and are writeable  
+        $spec_err = '';
+    if (!file_exists($tpl->compile_dir)) 
+		 $spec_err .= "Error: folder '$tpl->compile_dir' doesn't exist!<br>";
+    else if (!is_writeable($tpl->compile_dir))
+       $spec_err .= "Error: folder '$tpl->compile_dir' not writeable!<br>";
+    if (!file_exists($tpl->cache_dir))
+       $spec_err .= "Error: folder '$tpl->cache_dir' doesn't exist!<br>";
+    else if (!is_writeable($tpl->cache_dir))                      
+	    $spec_err .= "Error: folder '$tpl->cache_dir' not writeable!<br>";             
+        //note: we don't abort on error... like before.                                       
+        $tpl->clear_all_cache();   
+        $tpl->clear_compiled_tpl();  
+		  
+    return postcalendar_admin_modifyconfig('<center>'.$spec_err._PC_CACHE_CLEARED.'</center>');
 }
 
 function pc_isNewVersion()

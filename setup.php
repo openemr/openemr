@@ -38,6 +38,11 @@ if ($state == 5) {
 echo "
 Congratulations! OpenEMR is now successfully installed. 
 <ul>
+<li>Please Edit the 'interface/globals.php' file now to specify the correct URL paths, and to select a theme.<br>\n 
+<li>Please make sure that the two folders underneath 'openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/' exist and are writable by the web server. The two subdirectories are 'compiled' and 'cache'.<br>
+  Try \"chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/compiled\".
+\"chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/cache\".
+(If either subdirectory doesn't exist, create it first then do the chown above)
 <li>Please Edit the interface/globals.php file now to specify the correct URL paths, and to select a theme.<br>\n 
 <li>Please make sure that the folder underneath the OpenEMR webroot 'openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/compiled' is writable by the web server. <br>
 Try \"chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/compiled\".
@@ -107,15 +112,18 @@ echo "Now you need to supply the MySQL server information.
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='3'>
 <INPUT TYPE='HIDDEN' NAME='inst' VALUE='$inst'>
 <TABLE>\n
+<TR><TD><font color='red'>SERVER:</font></TD></TR>
 <TR><TD><span class='text'>Server Host: </span></TD><TD><INPUT TYPE='TEXT' VALUE='$defhost' NAME='server' SIZE='30'><span class='text'>(This is the IP address of the machine running MySQL)</span><br></TD></TR>
 <TR><TD><span class='text'>Server Port: </span></TD><TD><INPUT TYPE='TEXT' VALUE='3306' NAME='port' SIZE='30'><span class='text'>(The default port for MySQL is 3306)</span><br></TD></TR>
 <TR><TD><span class='text'>Database Name: </span></TD><TD><INPUT TYPE='TEXT' VALUE='openemr' NAME='dbname' SIZE='30'><span class='text'>(This is the name of the OpenEMR database - 'openemr' is the recommended)</span><br></TD></TR>
 <TR><TD><span class='text'>Login Name: </span></TD><TD><INPUT TYPE='TEXT' VALUE='openemr' NAME='login' SIZE='30'><span class='text'>(This is the name of the OpenEMR login name - 'openemr' is the recommended)</span><br></TD></TR>
 <TR><TD><span class='text'>Password: </span></TD><TD><INPUT TYPE='PASSWORD' VALUE='' NAME='pass' SIZE='30'><span class='text'>(This is the Login Password for when PHP accesses MySQL - it should be at least 8 characters long and composed of both numbers and letters)</span><br></TD></TR>\n";
 if ($inst != 2) {
+echo "<TR><TD><font color='red'>CLIENT:</font></TD></TR>";
 echo "<TR><TD><span class='text'>User Hostname: </span></TD><TD><INPUT TYPE='TEXT' VALUE='$defhost' NAME='loginhost' SIZE='30'><span class='text'>(This is the IP address of the server machine running Apache and PHP - if you are setting up one computer, this is the same as the Server Host above)</span><br></TD></TR>
 <TR><TD><span class='text'>Root Pass: </span></TD><TD><INPUT TYPE='PASSWORD' VALUE='' NAME='rootpass' SIZE='30'><span class='text'>(This is your MySQL root password. For localhost, it is usually ok to leave it blank.)</span><br></TD></TR>\n";
 }
+echo "<TR><TD><font color='red'>USER:</font></TD></TR>";
 echo "<TR><TD COLSPAN=2></TD></TR>
 <TR><TD><span class='text'>Initial User:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='iuser' VALUE='admin'><span class='text'>(This is the user that will be created for you.  It will be an authorized user, so it should be for a Doctor or other Practitioner)</span></TD></TR>
 <TR><TD><span class='text'>Initial User's Name:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='iuname' VALUE='Administrator'><span class='text'>(This is the real name of the initial user.)</span></TD></TR>
@@ -133,7 +141,7 @@ break;
 	
 echo "<b>Step $state</b><br><br>\n";
 	if ($pass == "" || $login == "" || !isset($login) || !isset($pass)) {
-		echo "ERROR. Please pick a proper username andpassword.<br>\n";
+		echo "ERROR. Please pick a proper username and/or password.<br>\n";
 		break;
 	}
 
@@ -146,14 +154,17 @@ if ($inst != 2) {
 		$dbh = mysql_connect("$server:$port","root","$rootpass");
 	if ($dbh == FALSE) {
 		echo "ERROR.  Check your login credentials.\n";
+		echo "<p>".mysql_error()." (#".mysql_errno().")\n";
 		break;
 	}
 	else 
 		echo "OK.<br>\n";
 	echo "Creating database...\n";
 	flush();
+	echo "ERROR.\n";
 	if (mysql_query("create database $dbname",$dbh) == FALSE) {
 		echo "ERROR.  Check your login credentials.\n";
+		echo "<p>".mysql_error()." (#".mysql_errno().")\n";
 		break;
 	}
 	else 
@@ -161,6 +172,8 @@ if ($inst != 2) {
 	echo "Creating user with permissions for database...\n";
 	flush();
 	if (mysql_query("GRANT ALL PRIVILEGES ON $dbname.* TO '$login'@'$loginhost' IDENTIFIED BY '$pass'",$dbh) == FALSE) {
+		echo "ERROR when granting privileges to the specified user.\n";
+      echo "<p>".mysql_error()." (#".mysql_errno().")\n";
 		echo "ERROR.\n";
 		break;
 	}
@@ -179,6 +192,7 @@ else
 	
 if ($dbh == FALSE) {
 	echo "ERROR.  Check your login credentials.\n";
+	echo "<p>".mysql_error()." (#".mysql_errno().")\n";
 	break;
 }
 else 
@@ -187,6 +201,7 @@ echo "Opening database...";
 flush();
 if (mysql_select_db("$dbname",$dbh) == FALSE) {
 	echo "ERROR.  Check your login credentials.\n";
+	echo "<p>".mysql_error()." (#".mysql_errno().")\n";
 	break;
 }
 else 
@@ -198,7 +213,7 @@ if ($upgrade != 1) {
 	flush();
 	$fd = fopen($dumpfile, 'r');
 	if ($fd == FALSE) {
-		echo "ERROR.  Could not open dumpfile.\n";
+		echo "ERROR.  Could not open dumpfile '$dumpfile'.\n";
 		flush();
 		break;
 	}
@@ -232,11 +247,13 @@ if ($upgrade != 1) {
 	//echo "INSERT INTO groups VALUES (1,'$igroup','$iuser')<br>\n";
 	if (mysql_query("INSERT INTO groups (id, name, user) VALUES (1,'$igroup','$iuser')") == FALSE) {
 		echo "ERROR.  Could not run queries.\n";
+		echo "<p>".mysql_error()." (#".mysql_errno().")\n";
 		flush();
 		break;
 	}	
 	if (mysql_query("INSERT INTO users (id, username, password, authorized, lname,fname) VALUES (1,'$iuser','1a1dc91c907325c69271ddf0c944bc72',1,'$iuname','')") == FALSE) {
 		echo "ERROR.  Could not run queries.\n";
+		echo "<p>".mysql_error()." (#".mysql_errno().")\n";
 		flush();
 		break;
 	}	
@@ -247,6 +264,7 @@ if ($upgrade != 1) {
         $fd = fopen($icd9, 'r');
         if ($fd == FALSE) {
                 echo "ERROR.  Could not open dumpfile.\n";
+					 echo "<p>".mysql_error()." (#".mysql_errno().")\n";
                 flush();
                 break;
         }
@@ -273,7 +291,7 @@ if ($upgrade != 1) {
 	fclose($fd);*/
 	flush();
 }
-echo "\n<br>Please make sure library/sqlconf.php is world-writeable for the next step.<br>\n";
+echo "\n<br>Please make sure 'library/sqlconf.php' is world-writeable for the next step.<br>\n";
 
 
 echo "
@@ -295,7 +313,7 @@ echo "<b>Step $state</b><br><br>\n";
 echo "Writing SQL Configuration to disk...\n";
 $fd = @fopen($conffile, 'w');
 if ($fd == FALSE) {
-	echo "ERROR.  Could not open config file ($conffile) for writing.\n";
+	echo "ERROR.  Could not open config file '$conffile' for writing.\n";
 	flush();
 	break;
 }
@@ -306,13 +324,14 @@ $string = "<?
 
 ";
 
-fwrite($fd,$string);
-fwrite($fd,"\$host\t= '$host';\n");
-fwrite($fd,"\$port\t= '$port';\n");
-fwrite($fd,"\$login\t= '$login';\n");
-fwrite($fd,"\$pass\t= '$pass';\n");
-fwrite($fd,"\$dbase\t= '$dbname';\n");
-
+$it_died = 0;   //fmg: variable keeps running track of any errors
+ 
+fwrite($fd,$string) or $it_died++;
+fwrite($fd,"\$host\t= '$host';\n") or $it_died++;
+fwrite($fd,"\$port\t= '$port';\n") or $it_died++;
+fwrite($fd,"\$login\t= '$login';\n") or $it_died++;
+fwrite($fd,"\$pass\t= '$pass';\n") or $it_died++;
+fwrite($fd,"\$dbase\t= '$dbname';\n") or $it_died++;
 
 
 $string = '
@@ -333,11 +352,19 @@ $config = 1; /////////////
 //////////////////////////
 ?>
 ';
-fwrite($fd,$string);
+?><? // done just for coloring
+
+fwrite($fd,$string) or $it_died++;
+
+//it's rather irresponsible to not report errors when writing this file.
+if ($it_died != 0) {
+        echo "ERROR. Couldn't write $it_died lines to config file '$conffile'.\n";
+        flush();
+        break;
+}
 fclose($fd);
 
-echo "OK<BR>\nPlease restore secure permissions on the library/sqlconf.php file now.\n<br>
-<FORM METHOD='POST'>\n
+echo "OK<BR>\nPlease restore secure permissions on the 'library/sqlconf.php' file now.\n<br><FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='5'>\n
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
