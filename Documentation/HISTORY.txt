@@ -1,0 +1,26 @@
+OpenEMR Version History File
+##########################
+This document describes the history of OpenEMR over its development cycle.
+##########################
+
+Version History:
+
+1.0 - 6/14/2001 - Initial Version, unofficially MP Pro, for MedicalPractice Professional. A second program suites, MedicalPractice Gateway, was developed simultaneously to allow the generation of reports for auditing purposes. This program became the basis for the HIPAA backend modifications to follow.
+
+
+1.1 - 7/20/2001 - HIPAA compliant backend rewrite. Starting from the beginning, all functions were examined for security compliance. A conceptual model was developed for the distinction between patient data that is transmitted and data that is saved only for in-office logging and accounting purposes.
+
+
+1.2 - 8/25/2001 - User Interface rewrite. With expert advice and counseling, the frontend interface was redesigned to allow for maximum information delivery with limited screen real estate. The new interface was made themable to the physician's preference, and a simple but powerful user/group management system, as well as a comprehensive HIPAA user-based timeout system was implemented.
+
+
+1.3 - 6/29/2002 - Complete rewrite, re-dubbed OpenEMR. All of the core functions were rewritten for simplicity. We conducted a complete security audit on all functions to make sure they delivered only what information was requested of them. Many of these functions are ready to be used in 3rd party reporting systems.
+
+
+1.4 to 1.7 - 9/1/2002 - Functional modifications, additional features, test site implementation. Technologies integration with Biometric Authentication, Speech Recognition, and Encounter Form Templates.
+
+2.0 - Current - Additional Forms, interface changes based on physician feedback, integration with USB external hard drive and bootable CD.
+
+
+For a more detailed list of feature changes, please check out the ChangeLog file in the root openemr/ directory.
+

@@ -1,0 +1,33 @@
+<html>
+<head>
+{literal}
+ <style type="text/css" title="mystyles" media="all">
+<!--
+td {
+	font-size:8pt;
+	font-family:helvetica;
+}
+a {
+	font-size:8pt;
+	font-family:helvetica;
+}
+
+-->
+</style>
+{/literal}
+</head>
+<body>
+<table width="100%">
+	<tr>
+		<td colspan="5"><br><h2>{$title}&nbsp;&nbsp;&nbsp;&nbsp;{$smarty.now|date_format:"%A, %B %e, %Y"}</h2></td>
+	</tr>
+	<tr>
+		<td>
+		{if is_object($pager)}
+			{$pager->render($show)}
+		{/if}
+		</td>
+	</tr>
+</table>
+</body>
+</html>

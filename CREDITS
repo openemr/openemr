@@ -1,0 +1,20 @@
+Thanks very much to Matt Stack for creating the OpenEMR project and continuing to contribute to it over all these years.
+
+Thanks to Synitech Corporation for taking OpenEMR this far.
+
+Thanks very much to the GNOME project for its creation of a library of excellent icons licensed under the GPL. http://jimmac.musichall.cz/ikony.php3
+
+Great thanks to Fred Trotter and the FreeB team, medical billing is never fun and Fred deserves a lot of credit for making our live easier!
+
+Many thanks to Greg MacLelan for the number to text converter, sure glad we didn't have to code that from scratch!
+
+This project has been greatly improved by incorporating elements of the following other projects:
+
+PhpMyAdmin 		http://www.phpmyadmin.net
+PostCalendar 		http://www.postnuke.com
+R&OS PDF		http://www.ros.co.nz/pdf
+ADODB			http://php.weblogs.com/ADODB
+
+Patch Contrbutors:
+Thanks to 
+Andres

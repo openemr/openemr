@@ -1,0 +1,49 @@
+<style>
+td.blockmonthon 			{ background-color: [-$STYLE.BGCOLOR1-]; border: 1px solid [-$STYLE.BGCOLOR2-]; }
+td.blockmonthoff 			{ background-color: [-$STYLE.BGCOLOR2-]; border: 1px solid [-$STYLE.BGCOLOR1-]; }
+td.blockmonthtoday  		{ background-color: [-$STYLE.HIGHLIGHT_COLOR-]; border: 1px solid [-$STYLE.BGCOLOR2-]; }
+td.blockmonthheader 		{ background-color: [-$STYLE.BGCOLOR2-]; font-size: 8pt; font-weight: bold; }
+
+table.blockmonthheader  	{ background-color: [-$STYLE.BGCOLOR2-]; border: 1px solid #000000; }
+.blockmonthheader a:link 	{ font-size: 8pt; font-weight: bold; text-decoration: none; padding-left: 1px; padding-right: 1px; }
+.blockmonthheader a:hover 	{ font-size: 8pt; font-weight: bold; text-decoration: none; padding-left: 1px; padding-right: 1px; }
+.blockmonthheader a:active 	{ font-size: 8pt; font-weight: bold; text-decoration: none; padding-left: 1px; padding-right: 1px; }
+.blockmonthheader a:visited	{ font-size: 8pt; font-weight: bold; text-decoration: none; padding-left: 1px; padding-right: 1px; }
+
+td.blockdaynames 			{ background-color: [-$STYLE.BGCOLOR1-]; border: 1px solid [-$STYLE.BGCOLOR1-]; font-size: 8pt; font-weight: normal; text-decoration: none; }
+
+table.blockcalcontainer 	{ border: 1px solid #000000; }
+td.blockcalcontainer 		{ border: 1px solid #000000; }
+
+td.blockweeklink 			{ background-color: [-$STYLE.BGCOLOR1-]; border: 1px solid [-$STYLE.BGCOLOR1-]; }
+.blockweeklink a:link 		{ color: [-$STYLE.TEXTCOLOR1-]; font-size: 7pt; font-weight: normal; text-decoration: none; }
+.blockweeklink a:hover		{ color: [-$STYLE.TEXTCOLOR1-]; font-size: 7pt; font-weight: normal; text-decoration: none; }
+.blockweeklink a:visited	{ color: [-$STYLE.TEXTCOLOR1-]; font-size: 7pt; font-weight: normal; text-decoration: none; }
+.blockweeklink a:active 	{ color: [-$STYLE.TEXTCOLOR1-]; font-size: 7pt; font-weight: normal; text-decoration: none; }
+
+a.blockevent-none:link		{ color: [-$STYLE.TEXTCOLOR1-]; font-size: 10px; font-weight: normal; text-decoration: none; }
+a.blockevent-none:hover     { color: [-$STYLE.TEXTCOLOR1-]; font-size: 10px; font-weight: normal; text-decoration: none; }
+a.blockevent-none:visited   { color: [-$STYLE.TEXTCOLOR1-]; font-size: 10px; font-weight: normal; text-decoration: none; }
+a.blockevent-none:active    { color: [-$STYLE.TEXTCOLOR1-]; font-size: 10px; font-weight: normal; text-decoration: none; }
+
+a.blockevent-one:link	  	{ color: #006600; font-size: 10px; font-weight: normal; text-decoration: none; }
+a.blockevent-one:hover	  	{ color: #006600; font-size: 10px; font-weight: normal; text-decoration: none; }
+a.blockevent-one:visited    { color: #006600; font-size: 10px; font-weight: normal; text-decoration: none; }
+a.blockevent-one:active     { color: #006600; font-size: 10px; font-weight: normal; text-decoration: none; }
+
+a.blockevent-two:link	  	{ color: #006666; font-size: 10px; font-weight: normal; text-decoration: none; }
+a.blockevent-two:hover	  	{ color: #006666; font-size: 10px; font-weight: normal; text-decoration: none; }
+a.blockevent-two:visited    { color: #006666; font-size: 10px; font-weight: normal; text-decoration: none; }
+a.blockevent-two:active     { color: #006666; font-size: 10px; font-weight: normal; text-decoration: none; }
+
+a.blockevent-three:link     { color: #0066cc; font-size: 10px; font-weight: normal; text-decoration: none; }
+a.blockevent-three:hover    { color: #0066cc; font-size: 10px; font-weight: normal; text-decoration: none; }
+a.blockevent-three:visited  { color: #0066cc; font-size: 10px; font-weight: normal; text-decoration: none; }
+a.blockevent-three:active   { color: #0066cc; font-size: 10px; font-weight: normal; text-decoration: none; }
+
+td.eventlink 				{ padding: 2px; font-size: 10px; font-weight: normal; text-decoration: none; }
+.eventlink a:link 			{ padding: 2px; font-size: 10px; font-weight: normal; text-decoration: none; }
+.eventlink a:hover  		{ padding: 2px; font-size: 10px; font-weight: normal; text-decoration: none; }
+.eventlink a:visited  		{ padding: 2px; font-size: 10px; font-weight: normal; text-decoration: none; }
+.eventlink a:active  		{ padding: 2px; font-size: 10px; font-weight: normal; text-decoration: none; }
+</style>

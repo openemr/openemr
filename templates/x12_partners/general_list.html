@@ -1,0 +1,32 @@
+<table>
+	<tr>
+		<td>Name</td>
+		<td>&nbsp;</td>
+		<td>Sender ID</td>
+		<td>&nbsp;</td>
+		<td>Receiver ID</td>
+		<td>&nbsp;</td>
+		<td>Version</td>
+	</tr>
+	{foreach from=$partners item=partner}
+	<tr>
+		<td><a href="{$CURRENT_ACTION}action=edit&x12_partner_id={$partner->id}">{$partner->get_name()}</a></td>
+		<td></td>
+		<td>{$partner->get_x12_sender_id()}</td>
+		<td></td>
+		<td>{$partner->get_x12_receiver_id()}</td>
+		<td></td>
+		<td>{$partner->get_x12_version()}</td>
+	</tr>
+	{foreachelse}
+	<tr>
+		<td colspan="6">No Partners Found</td>
+	</tr>
+	{/foreach}
+	<tr>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td><a href="{$CURRENT_ACTION}action=edit&id=default">Add New Partner</a></td>
+	</tr>
+</table>

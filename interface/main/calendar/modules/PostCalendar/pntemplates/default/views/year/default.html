@@ -1,0 +1,102 @@
+[-*Smarty*-]
+[-config_load file="default.conf"-]
+[-*Load the Language Definitions*-]
+[-include file="$TPL_NAME/views/header.html"-]
+[-config_load file="lang.$USER_LANG"-]
+[-* we want to include out stylesheet for this view*-]
+[-fetch file="$TPL_STYLE_PATH/year.css" assign="css"-]
+[-eval var=$css-]
+[-if $PRINT_VIEW != 1-]
+[-*Main Navigation*-]
+[-include file="$TPL_NAME/views/global/navigation.html"-]
+[-/if-]
+<table width="100%" border="0" cellpadding="5" cellspacing="0" class="yearheader">
+    <tr align="center">
+        <td class="yearheader" width="100%" align="center" valign="middle">
+        	<a href="[-$PREV_YEAR_URL-]">&lt;&lt;</a>
+        	[-$DATE|date_format:#_PC_DATE_FORMAT_Y#-]
+        	<a href="[-$NEXT_YEAR_URL-]">&gt;&gt;</a>
+		[-if $PRINT_VIEW != 1-]
+		<td nowrap align="right" valign="top" class="yearheader">
+		</td>
+		[-/if-]
+    </tr>
+</table>
+[-strip-]
+<table width="100%" border="0" cellpadding="0" cellspacing="0" class="calcontainer"><tr><td>
+	<table width="100%" border="0" cellpadding="5" cellspacing="0">  
+		[-* Loop through each month of the year *-]
+		[-foreach name=months item=month key=monthnum from=$CAL_FORMAT-]
+		[-* check to see if we're starting a new row *-]
+		[-if $smarty.foreach.months.iteration %4 eq 1 -]
+		<tr>
+		[-/if-]
+		<td width="25%" valign="top" align="center">
+		[-* get the current year we're viewing *-]
+		[-assign var="y" value=$DATE|date_format:"%Y"-]
+		[-* figure out what month we are in *-]
+		[-assign var="m" value=$monthnum+1-]
+		[-* make sure we have a preceeding 0 on the month number *-]
+		[-assign var="m" value=$m|string_format:"%02d"-]
+		[-* create our link to the month *-]
+		<table width="100%" border="0" cellpadding="0" cellspacing="0" class="calcontainer">
+			<tr>
+				<td width="100%" class="monthheader" colspan="8" valign="top" align="center">
+					<a href="[-pc_url action="month" date="$y-$m-01"-]">[-$A_MONTH_NAMES.$monthnum-]</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="weeklink">&nbsp;</td>
+				[-foreach name=daynames item=day from=$S_SHORT_DAY_NAMES-]
+				<td width="14%" class="daynames" align="center">[-$day-]</td>
+				[-/foreach-]
+			</tr>
+			[-foreach name=weeks item=days from=$month-]
+			<tr>
+				<td align="center" valign="middle" class="weeklink">
+					<a href="[-pc_url action="week" date=$days[0]-]" class="weeklink">&gt;</a>
+				</td>
+				[-foreach name=day item=date from=$days-]
+				[-assign var="themonth" value=$date|date_format:"%m"-]
+				[-if $date == $TODAY_DATE && $themonth == $smarty.foreach.months.iteration-]
+					[-assign var="stylesheet" value="monthtoday"-]
+				[-elseif $themonth == $smarty.foreach.months.iteration-]
+					[-assign var="stylesheet" value="monthon"-]
+				[-else-]
+					[-assign var="stylesheet" value="monthoff"-]
+				[-/if-]
+				<td width="14%" align="center" class="[-$stylesheet-]">
+					[-if $A_EVENTS.$date|@count > 2 -]
+						[-assign var="classname" value="event-three"-]						 		   
+					[-elseif $A_EVENTS.$date|@count > 1 -]									 		   
+						[-assign var="classname" value="event-two"-]						 		   
+					[-elseif $A_EVENTS.$date|@count > 0 -]									 		   
+						[-assign var="classname" value="event-one"-]						 		   
+					[-else-]																 		   
+						[-assign var="classname" value="event-none"-]						 		   
+					[-/if-] 																 		   
+					<a class="[-$classname-]" href="[-pc_url action=day date=$date-]">[-$date|date_format:"%d"-]</a></td>
+				[-/foreach-]
+			</tr>
+			[-/foreach-]
+		</table>
+		[-/foreach-]
+		</td>
+		[-if $smarty.foreach.months.iteration %3 eq 1 -]
+		</tr>
+		[-/if-]
+	</table>
+</td></tr></table>
+[-/strip-]
+[-if $PRINT_VIEW != 1-]
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+    <tr>
+        <td align="right">
+            <a href="[-pc_url action="year" print="true"-]">[-#_PC_THEME_PRINT#-]</a>
+        </td>
+    </tr>
+</table>
+[-/if-]
+[-*footer*-]
+[-include file="$TPL_NAME/views/global/footer.html"-]
+[-include file="$TPL_NAME/views/footer.html"-]

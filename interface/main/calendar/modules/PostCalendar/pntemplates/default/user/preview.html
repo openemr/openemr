@@ -1,0 +1,92 @@
+[-*Smarty*-]
+[-config_load file="default.conf"-]
+[-include file="$TPL_NAME/views/header.html"-]
+[-*Load the Language Definitions*-]
+[-config_load file="lang.$USER_LANG"-]
+
+[-* we want to include out stylesheet for this view*-]
+[-fetch file="$TPL_STYLE_PATH/details.css" assign="css"-]
+[-eval var=$css-]
+
+<table width="100%" border="0" cellpadding="5" cellspacing="0" class="calcontainer">
+	<tr>
+		<td class="eventtitle" width="100%" nowrap="nowrap">
+			<b>[-$A_EVENT.title-]</b>
+		</td>
+	</tr>
+	<tr>
+		<td class="eventtime" width="100%" nowrap>
+			[-if $A_EVENT.alldayevent != true-]
+				[-if $24HOUR_TIME-]
+					[-assign var="timestamp" value=$A_EVENT.startTime|date_format:"%H:%M"-]
+				[-else-]
+					[-assign var="timestamp" value=$A_EVENT.startTime|date_format:"%I:%M %p"-]
+				[-/if-]
+				[-$timestamp-]
+			[-/if-]
+
+			[-if $USE_INT_DATES eq true-]
+				[-pc_date_format date=$A_EVENT.date format="%A, %d %B %Y"-]
+			[-else-]	
+				[-pc_date_format date=$A_EVENT.date format="%A, %B %d %Y"-]
+			[-/if-]
+
+			[-if $A_EVENT.alldayevent-]
+				[-#_PC_ALL_DAY#-]
+			[-else-]
+				[-#_PC_DURATION#-]: [-$A_EVENT.duration_hours-]:[-$A_EVENT.duration_minutes-]
+			[-/if-]
+		</td>
+	</tr>
+</table>
+<table width="100%" border="0" cellpadding="5" cellspacing="0" class="calcontainer">
+	<tr>
+		<td valign="top" align="left" width="100%">
+			[-$A_EVENT.hometext-]
+		</td>
+		<td valign="top" align="left" nowrap="nowrap">
+			[-if $LOCATION_INFO-]
+				<p><b>[-#_PC_LOCATION#-]:</b><br />
+				[-if $A_EVENT.location != ''-]
+					[-$A_EVENT.location-]<br />
+				[-/if-]
+				[-if $A_EVENT.street1 != ''-]
+					[-$A_EVENT.street1-]<br />
+				[-/if-]
+				[-if $A_EVENT.street2 != ''-]
+					[-$A_EVENT.street2-]<br />
+				[-/if-]
+				[-if $A_EVENT.city != ''-]
+					[-$A_EVENT.city-]
+				[-/if-]
+				[-if $A_EVENT.state != ''-]
+					[-$A_EVENT.state-]
+				[-/if-]
+				[-if $A_EVENT.postal != ''-]
+					[-$A_EVENT.postal-]
+				[-/if-]
+				</p>
+			[-/if-]
+			[-if $CONTACT_INFO-]
+				<p><b>[-#_PC_CONTACT#-]:</b><br />
+				[-if $A_EVENT.contname-]
+					[-$A_EVENT.contname-]<br />
+				[-/if-]
+				[-if $A_EVENT.conttel-]
+					[-$A_EVENT.conttel-]<br />
+				[-/if-]
+				[-if $A_EVENT.contemail-]
+					<a href="mailto:[-$A_EVENT.contemail-]">[-$A_EVENT.contemail-]</a><br />
+				[-/if-]
+				[-if $A_EVENT.website-]
+					<a href="[-$A_EVENT.website-]" target="_blank">[-$A_EVENT.website-]</a><br />
+				[-/if-]
+				</p>
+			[-/if-]
+			[-if $A_EVENT.fee != ''-]
+				<br />Fee: [-$A_EVENT.fee-]
+			[-/if-]
+		</td>
+	</tr>
+</table>
+[-include file="$TPL_NAME/views/footer.html"-]

@@ -1,0 +1,1959 @@
+2004-02-06 14:55  duhlman
+
+	* ChangeLog, interface/globals.php: tagging wackiness, moving to
+	  2.2.4
+
+2004-02-06 14:51  duhlman
+
+	* sql/database.sql: added default bookmarks
+
+2004-02-06 14:44  duhlman
+
+	* ChangeLog: [no log message]
+
+2004-02-06 14:32  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: pnadmin.php,
+	  pnuser.php: added navigation display to result page of event
+	  delete, this offers navigation paths to go back to normal
+	  calendar views
+
+2004-02-05 13:52  duhlman
+
+	* interface/patient_file/encounter/: coding.php,
+	  patient_encounter.php, superbill_codes.php,
+	  superbill_custom_full.php: superbill is now customizable
+
+2004-02-05 13:41  duhlman
+
+	* interface/patient_file/encounter/: superbill.php,
+	  superbill_codes.php: moved superbill.php to superbill_code.php
+	  for use with existing naming convention
+
+2004-02-05 13:26  duhlman
+
+	* interface/patient_file/encounter/superbill_custom_full.php:
+	  customizable superbill
+
+2004-02-05 13:22  duhlman
+
+	* library/billing.inc: changed billing to link on provider id not
+	  username
+
+2004-02-05 13:21  duhlman
+
+	* ChangeLog: [no log message]
+
+2004-02-05 13:20  duhlman
+
+	* interface/billing/billing_report.php: code cleanups
+
+2004-02-05 13:19  duhlman
+
+	* interface/billing/billing_report_xml.php: added message to
+	  billing_report_xml, no system in use, currently no billing system
+	  is implemented in this release
+
+2004-02-05 12:08  duhlman
+
+	* interface/: globals.php, main/myadmin/config.inc.php: the
+	  variable  is used by myadmin in queries, changed to
+
+2004-02-04 16:21  duhlman
+
+	* interface/main/myadmin/: config.inc.php, index.php: additional
+	  access fix for phpmyadmin
+
+2004-02-04 14:45  duhlman
+
+	* interface/main/authorizations/: authorizations.php,
+	  authorizations_full.php: added relational linking to billing
+	  queries in authorizations
+
+2004-02-04 14:07  duhlman
+
+	* interface/main/myadmin/index.php: fix access issue with myadmin
+
+2004-02-04 13:08  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/pnuser.php: cleanups
+
+2004-02-04 13:07  duhlman
+
+	*
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/user/submit_no_nav.html:
+	  added disable submit fields on double book to no_nav as swell as
+	  regular submit form
+
+2004-02-04 13:06  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/common.api.php:
+	  fixed disable submit form fields when double_book status is set,
+	  the variable was improperly being run through pnVarCleanInput
+	  when it was from input
+
+2004-02-04 12:37  duhlman
+
+	* interface/patient_file/summary/demographics.php: Primary Provider
+	  ID display from demographics summary, not in use since provider
+	  dropdown was added to demographics full
+
+2004-02-04 11:32  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: common.api.php,
+	  pntemplates/default/user/submit.html: added javascript
+	  functionality to the manual add screen to make adding in/out
+	  office events easier. Autopoulate same sane defaults on in/out
+	  office cat selections. Change category sort order so that In or
+	  out of office is not first in common.api.php so it plays well
+	  with javascript onchange event and new defaults
+
+2004-02-04 11:30  duhlman
+
+	* interface/new/new_patient_save.php: code cleanup
+
+2004-02-03 10:12  duhlman
+
+	* interface/patient_file/navigation.php: fixed double slash typo in
+	  url for history link, causes server to re-reference servername,
+	  this caused a problem on our demo site where the virtual host is
+	  www.openemr.net but we only access it from demo.openemr.net, this
+	  fixes situations where relative links must be kept relative
+	  against a domain name or more likely subdomain that is not in the
+	  http headers
+
+2004-02-03 09:26  duhlman
+
+	* interface/main/calendar/: pnMod.php,
+	  modules/PostCalendar/pnuser.php,
+	  modules/PostCalendar/plugins/function.pc_url.php,
+	  modules/PostCalendar/pntemplates/default/user/listapps.html,
+	  modules/PostCalendar/pntemplates/default/user/patient_line.html:
+	  added the ability to specify a path to postnuke function pnModURL
+	  and to smary pluging pc_url, use that functionality in the
+	  demographics list apps template
+
+2004-01-31 23:17  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: pnuser.php,
+	  pntemplates/default/user/submit_no_nav.html: on find patient
+	  default end date wasn't being set right, +7 days but not carrying
+	  the month, second search defaults we also not set, bug fixed
+
+2004-01-30 15:47  duhlman
+
+	* CREDITS: CREDITS
+
+2004-01-30 15:43  duhlman
+
+	* interface/patient_file/summary/summary_title.php: fixed typo in
+	  link to find_patient.php for new appointments
+
+2004-01-30 14:18  duhlman
+
+	* sql/cptcodes.sql: fixed the duplicate entries in the cpt codes
+
+2004-01-30 09:16  duhlman
+
+	* interface/new/new_patient_save.php: fixed bug where first new
+	  patient would have uid set to zero, mysql semantics problem
+
+2004-01-29 17:18  duhlman
+
+	* setup.php: escape single quote didn't need to be
+
+2004-01-29 16:46  duhlman
+
+	* ChangeLog: [no log message]
+
+2004-01-29 16:46  duhlman
+
+	* ChangeLog, sql/database.sql: latest database defaults
+
+2004-01-29 16:40  duhlman
+
+	* interface/: main/calendar/modules/PostCalendar/pnuser.php,
+	  usergroup/user_admin.php, usergroup/usergroup_admin.php: fixed
+	  typos that cause find first to runa a regular search with the
+	  find first data, which takes a really long time
+
+2004-01-29 16:40  duhlman
+
+	* interface/billing/billing_report.php: redid code that displays
+	  billing_report
+
+2004-01-29 12:31  duhlman
+
+	* ChangeLog: ChangeLog
+
+2004-01-29 12:19  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: pnuserapi.php,
+	  pntemplates/default/user/patient_line.html: fixed sql joins not
+	  to exclude rows where joining field was null or empty or not
+	  present in right table
+
+2004-01-29 10:53  duhlman
+
+	* interface/: main/calendar/find_patient.php,
+	  patient_file/summary/summary_title.php: fixes for remaining
+	  find_patient patient_notes links from within patient demographics
+	  screens
+
+2004-01-29 10:34  duhlman
+
+	* interface/:
+	  main/calendar/modules/PostCalendar/pcSmarty.class.php,
+	  main/calendar/modules/PostCalendar/pnuser.php,
+	  main/calendar/modules/PostCalendar/pnuserapi.php,
+	  main/calendar/modules/PostCalendar/pntemplates/default/user/listapps.html,
+	  main/calendar/modules/PostCalendar/pntemplates/default/user/patient_line.html,
+	  patient_file/summary/demographics.php,
+	  patient_file/summary/demographics_full.php: added display year of
+	  appointments to patient demographics_summary screen
+
+2004-01-29 10:34  duhlman
+
+	* interface/main/main_navigation.php: fixed with of find patient
+	  search widget so it didn't wrap
+
+2004-01-29 09:32  duhlman
+
+	* interface/usergroup/usergroup_navigation.php: updated menu layout
+	  for better fit
+
+2004-01-29 09:26  duhlman
+
+	* interface/main/main_navigation.php: changed main menu title
+	  alignment
+
+2004-01-29 09:21  duhlman
+
+	* interface/forms/vitalsigns/new.php: moved don't save link away
+	  from save link to prevent accidents
+
+2004-01-27 15:57  duhlman
+
+	* interface/: main/main.php, main/main_screen.php,
+	  main/calendar/find_patient.php,
+	  main/calendar/modules/PostCalendar/pntemplates/default/views/month/default.html,
+	  patient_file/summary/patient_summary.php,
+	  patient_file/summary/summary_title.php: added new appointment
+	  link to patient demo screen which populates find patient with
+	  there info, rearranged some frame code to make more sense to me
+
+2004-01-27 14:36  duhlman
+
+	* interface/: globals.php,
+	  main/calendar/modules/PostCalendar/pcSmarty.class.php,
+	  main/calendar/modules/PostCalendar/pnuser.php,
+	  main/calendar/modules/PostCalendar/pnuserapi.php,
+	  main/calendar/modules/PostCalendar/pntemplates/default/images/demo_hotlink.gif,
+	  main/calendar/modules/PostCalendar/pntemplates/default/images/encounter_hotlink.gif,
+	  main/calendar/modules/PostCalendar/pntemplates/default/user/patient_line.html,
+	  main/calendar/modules/PostCalendar/pntemplates/default/user/search.html,
+	  main/calendar/modules/PostCalendar/pntemplates/default/views/day/default.html,
+	  main/calendar/modules/PostCalendar/pntemplates/default/views/month/default.html,
+	  main/calendar/modules/PostCalendar/pntemplates/default/views/week/default.html:
+	  changes to accommodate the ne standardized patient_line template
+	  diplay of patient/provider/icon information
+
+2004-01-27 13:04  duhlman
+
+	* interface/pic/: demo_hotlink.gif, encounter_hotlink.gif: put new
+	  icons in the wrong dir, removing them
+
+2004-01-27 13:02  duhlman
+
+	* interface/: pic/demo_hotlink.gif, pic/encounter_hotlink.gif,
+	  main/calendar/modules/PostCalendar/pntemplates/default/images/demo_hotlink.gif,
+	  main/calendar/modules/PostCalendar/pntemplates/default/images/encounter_hotlink.gif:
+	  added icons for hotlinks used in new patient_line template
+
+2004-01-27 13:00  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: pnuser.php,
+	  pnuserapi.php, pntemplates/default/user/patient_line.html,
+	  pntemplates/default/user/search.html: created new file for use in
+	  tmplates so that the event entry line is standardized, fixed
+	  additional sql issues with new patient name, provider name, owner
+	  name joins in queryEvents functions
+
+2004-01-27 12:58  duhlman
+
+	* CREDITS, interface/main/calendar/modules/PostCalendar/pnuser.php,
+	  interface/main/calendar/modules/PostCalendar/pnuserapi.php,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/user/search.html:
+	  added credits file because we are including some gnome icons
+
+2004-01-27 11:34  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/pnuserapi.php: added
+	  joins on users, patient_data to postcalendar_events queries,
+	  check for unintended bugs in other uses of queries, redo maunal
+	  lookups now that that information should be in all results in
+	  returns from pcQueryEvents(FA)
+
+2004-01-27 11:32  duhlman
+
+	* library/sqlconf.php: added array for config vars, backwards
+	  compatible
+
+2004-01-27 11:25  duhlman
+
+	* interface/usergroup/usergroup_navigation.php: integrated
+	  phpmyadmin into navigation menu, seems to correctly update within
+	  frameset
+
+2004-01-27 11:22  duhlman
+
+	* interface/main/myadmin/config.inc.php: linked phpmyadmin database
+	  configs to openemr configs
+
+2004-01-27 11:13  duhlman
+
+	* interface/main/: calendar/modules/PostCalendar/pnuser.php,
+	  calendar/modules/PostCalendar/pnuserapi.php, myadmin/CREDITS,
+	  myadmin/ChangeLog, myadmin/Documentation.html,
+	  myadmin/Documentation.txt, myadmin/INSTALL, myadmin/LICENSE,
+	  myadmin/README, myadmin/RELEASE-DATE-2.5.5-pl1, myadmin/TODO,
+	  myadmin/browse_foreigners.php, myadmin/chk_rel.php,
+	  myadmin/config.inc.php, myadmin/db_create.php,
+	  myadmin/db_datadict.php, myadmin/db_details.php,
+	  myadmin/db_details_common.php, myadmin/db_details_db_info.php,
+	  myadmin/db_details_export.php,
+	  myadmin/db_details_importdocsql.php,
+	  myadmin/db_details_links.php, myadmin/db_details_qbe.php,
+	  myadmin/db_details_structure.php, myadmin/db_printview.php,
+	  myadmin/db_search.php, myadmin/docs.css, myadmin/export.php,
+	  myadmin/footer.inc.php, myadmin/header.inc.php,
+	  myadmin/header_printview.inc.php, myadmin/index.php,
+	  myadmin/ldi_check.php, myadmin/ldi_table.php, myadmin/left.php,
+	  myadmin/main.php, myadmin/mult_submits.inc.php,
+	  myadmin/pdf_pages.php, myadmin/pdf_schema.php,
+	  myadmin/phpMyAdmin-2.5.5-pl1.tar.bz2, myadmin/phpinfo.php,
+	  myadmin/queryframe.php, myadmin/querywindow.php,
+	  myadmin/read_dump.php, myadmin/server_collations.php,
+	  myadmin/server_common.inc.php, myadmin/server_databases.php,
+	  myadmin/server_export.php, myadmin/server_links.inc.php,
+	  myadmin/server_privileges.php, myadmin/server_processlist.php,
+	  myadmin/server_status.php, myadmin/server_variables.php,
+	  myadmin/sql.php, myadmin/tbl_addfield.php, myadmin/tbl_alter.php,
+	  myadmin/tbl_change.php, myadmin/tbl_create.php,
+	  myadmin/tbl_indexes.php, myadmin/tbl_move_copy.php,
+	  myadmin/tbl_printview.php, myadmin/tbl_properties.inc.php,
+	  myadmin/tbl_properties.php, myadmin/tbl_properties_common.php,
+	  myadmin/tbl_properties_export.php,
+	  myadmin/tbl_properties_links.php,
+	  myadmin/tbl_properties_operations.php,
+	  myadmin/tbl_properties_structure.php,
+	  myadmin/tbl_properties_table_info.php, myadmin/tbl_query_box.php,
+	  myadmin/tbl_relation.php, myadmin/tbl_rename.php,
+	  myadmin/tbl_replace.php, myadmin/tbl_replace_fields.php,
+	  myadmin/tbl_row_delete.php, myadmin/tbl_select.php,
+	  myadmin/transformation_wrapper.php, myadmin/translators.html,
+	  myadmin/user_password.php, myadmin/css/phpmyadmin.css.php,
+	  myadmin/images/arrow_ltr.gif, myadmin/images/arrow_rtl.gif,
+	  myadmin/images/asc_order.png, myadmin/images/browse.png,
+	  myadmin/images/button_bookmark.png,
+	  myadmin/images/button_browse.png, myadmin/images/button_drop.png,
+	  myadmin/images/button_edit.png, myadmin/images/button_empty.png,
+	  myadmin/images/button_fulltext.png,
+	  myadmin/images/button_index.png,
+	  myadmin/images/button_insert.png,
+	  myadmin/images/button_nobrowse.png,
+	  myadmin/images/button_nodrop.png,
+	  myadmin/images/button_noempty.png,
+	  myadmin/images/button_nofulltext.png,
+	  myadmin/images/button_noindex.png,
+	  myadmin/images/button_noprimary.png,
+	  myadmin/images/button_noselect.png,
+	  myadmin/images/button_nounique.png,
+	  myadmin/images/button_primary.png,
+	  myadmin/images/button_properties.png,
+	  myadmin/images/button_select.png,
+	  myadmin/images/button_smallbrowse.png,
+	  myadmin/images/button_unique.png, myadmin/images/desc_order.png,
+	  myadmin/images/fulltext.png, myadmin/images/item_ltr.png,
+	  myadmin/images/item_rtl.png, myadmin/images/minus.png,
+	  myadmin/images/partialtext.png, myadmin/images/plus.png,
+	  myadmin/images/pma_logo.png, myadmin/images/spacer.gif,
+	  myadmin/images/vertical_line.png, myadmin/lang/add_message.sh,
+	  myadmin/lang/add_message_file.sh,
+	  myadmin/lang/afrikaans-iso-8859-1.inc.php,
+	  myadmin/lang/afrikaans-utf-8.inc.php,
+	  myadmin/lang/albanian-iso-8859-1.inc.php,
+	  myadmin/lang/albanian-utf-8.inc.php,
+	  myadmin/lang/arabic-utf-8.inc.php,
+	  myadmin/lang/arabic-windows-1256.inc.php,
+	  myadmin/lang/azerbaijani-iso-8859-9.inc.php,
+	  myadmin/lang/azerbaijani-utf-8.inc.php,
+	  myadmin/lang/basque-iso-8859-1.inc.php,
+	  myadmin/lang/basque-utf-8.inc.php,
+	  myadmin/lang/bosnian-utf-8.inc.php,
+	  myadmin/lang/bosnian-windows-1250.inc.php,
+	  myadmin/lang/brazilian_portuguese-iso-8859-1.inc.php,
+	  myadmin/lang/brazilian_portuguese-utf-8.inc.php,
+	  myadmin/lang/bulgarian-koi8-r.inc.php,
+	  myadmin/lang/bulgarian-utf-8.inc.php,
+	  myadmin/lang/bulgarian-windows-1251.inc.php,
+	  myadmin/lang/catalan-iso-8859-1.inc.php,
+	  myadmin/lang/catalan-utf-8.inc.php, myadmin/lang/check_lang.sh,
+	  myadmin/lang/chinese_big5-utf-8.inc.php,
+	  myadmin/lang/chinese_big5.inc.php,
+	  myadmin/lang/chinese_gb-utf-8.inc.php,
+	  myadmin/lang/chinese_gb.inc.php,
+	  myadmin/lang/croatian-iso-8859-2.inc.php,
+	  myadmin/lang/croatian-utf-8.inc.php,
+	  myadmin/lang/croatian-windows-1250.inc.php,
+	  myadmin/lang/czech-iso-8859-2.inc.php,
+	  myadmin/lang/czech-utf-8.inc.php,
+	  myadmin/lang/czech-windows-1250.inc.php,
+	  myadmin/lang/danish-iso-8859-1.inc.php,
+	  myadmin/lang/danish-utf-8.inc.php,
+	  myadmin/lang/dutch-iso-8859-1.inc.php,
+	  myadmin/lang/dutch-utf-8.inc.php,
+	  myadmin/lang/english-iso-8859-1.inc.php,
+	  myadmin/lang/english-utf-8.inc.php,
+	  myadmin/lang/estonian-iso-8859-1.inc.php,
+	  myadmin/lang/estonian-utf-8.inc.php,
+	  myadmin/lang/finnish-iso-8859-1.inc.php,
+	  myadmin/lang/finnish-utf-8.inc.php,
+	  myadmin/lang/french-iso-8859-1.inc.php,
+	  myadmin/lang/french-utf-8.inc.php,
+	  myadmin/lang/galician-iso-8859-1.inc.php,
+	  myadmin/lang/galician-utf-8.inc.php,
+	  myadmin/lang/georgian-utf-8.inc.php,
+	  myadmin/lang/german-iso-8859-1.inc.php,
+	  myadmin/lang/german-utf-8.inc.php,
+	  myadmin/lang/greek-iso-8859-7.inc.php,
+	  myadmin/lang/greek-utf-8.inc.php,
+	  myadmin/lang/hebrew-iso-8859-8-i.inc.php,
+	  myadmin/lang/hindi-utf-8.inc.php,
+	  myadmin/lang/hungarian-iso-8859-2.inc.php,
+	  myadmin/lang/hungarian-utf-8.inc.php,
+	  myadmin/lang/indonesian-iso-8859-1.inc.php,
+	  myadmin/lang/indonesian-utf-8.inc.php,
+	  myadmin/lang/italian-iso-8859-1.inc.php,
+	  myadmin/lang/italian-utf-8.inc.php,
+	  myadmin/lang/japanese-euc.inc.php,
+	  myadmin/lang/japanese-sjis.inc.php,
+	  myadmin/lang/japanese-utf-8.inc.php,
+	  myadmin/lang/korean-ks_c_5601-1987.inc.php,
+	  myadmin/lang/latvian-utf-8.inc.php,
+	  myadmin/lang/latvian-windows-1257.inc.php,
+	  myadmin/lang/lithuanian-utf-8.inc.php,
+	  myadmin/lang/lithuanian-windows-1257.inc.php,
+	  myadmin/lang/malay-iso-8859-1.inc.php,
+	  myadmin/lang/malay-utf-8.inc.php,
+	  myadmin/lang/norwegian-iso-8859-1.inc.php,
+	  myadmin/lang/norwegian-utf-8.inc.php,
+	  myadmin/lang/persian-utf-8.inc.php,
+	  myadmin/lang/persian-windows-1256.inc.php,
+	  myadmin/lang/polish-iso-8859-2.inc.php,
+	  myadmin/lang/polish-utf-8.inc.php,
+	  myadmin/lang/portuguese-iso-8859-1.inc.php,
+	  myadmin/lang/portuguese-utf-8.inc.php,
+	  myadmin/lang/remove_message.sh,
+	  myadmin/lang/romanian-iso-8859-1.inc.php,
+	  myadmin/lang/romanian-utf-8.inc.php,
+	  myadmin/lang/russian-dos-866.inc.php,
+	  myadmin/lang/russian-koi8-r.inc.php,
+	  myadmin/lang/russian-utf-8.inc.php,
+	  myadmin/lang/russian-windows-1251.inc.php,
+	  myadmin/lang/serbian_cyrillic-utf-8.inc.php,
+	  myadmin/lang/serbian_cyrillic-windows-1251.inc.php,
+	  myadmin/lang/serbian_latin-utf-8.inc.php,
+	  myadmin/lang/serbian_latin-windows-1250.inc.php,
+	  myadmin/lang/slovak-iso-8859-2.inc.php,
+	  myadmin/lang/slovak-utf-8.inc.php,
+	  myadmin/lang/slovak-windows-1250.inc.php,
+	  myadmin/lang/slovenian-iso-8859-2.inc.php,
+	  myadmin/lang/slovenian-utf-8.inc.php,
+	  myadmin/lang/slovenian-windows-1250.inc.php,
+	  myadmin/lang/sort_lang.sh,
+	  myadmin/lang/spanish-iso-8859-1.inc.php,
+	  myadmin/lang/spanish-utf-8.inc.php,
+	  myadmin/lang/swedish-iso-8859-1.inc.php,
+	  myadmin/lang/swedish-utf-8.inc.php, myadmin/lang/sync_lang.sh,
+	  myadmin/lang/thai-tis-620.inc.php,
+	  myadmin/lang/thai-utf-8.inc.php, myadmin/lang/translatecount.sh,
+	  myadmin/lang/turkish-iso-8859-9.inc.php,
+	  myadmin/lang/turkish-utf-8.inc.php,
+	  myadmin/lang/ukrainian-utf-8.inc.php,
+	  myadmin/lang/ukrainian-windows-1251.inc.php,
+	  myadmin/libraries/blowfish.php,
+	  myadmin/libraries/bookmark.lib.php,
+	  myadmin/libraries/charset_conversion.lib.php,
+	  myadmin/libraries/common.lib.php,
+	  myadmin/libraries/config_import.lib.php,
+	  myadmin/libraries/db_config.lib.php,
+	  myadmin/libraries/db_table_exists.lib.php,
+	  myadmin/libraries/defines.lib.php,
+	  myadmin/libraries/defines_mysql.lib.php,
+	  myadmin/libraries/display_export.lib.php,
+	  myadmin/libraries/display_tbl.lib.php,
+	  myadmin/libraries/display_tbl_links.lib.php,
+	  myadmin/libraries/dom-drag.js, myadmin/libraries/functions.js,
+	  myadmin/libraries/get_foreign.lib.php,
+	  myadmin/libraries/grab_globals.lib.php,
+	  myadmin/libraries/header_http.inc.php,
+	  myadmin/libraries/header_meta_style.inc.php,
+	  myadmin/libraries/indexes.js,
+	  myadmin/libraries/ip_allow_deny.lib.php,
+	  myadmin/libraries/kanji-encoding.lib.php,
+	  myadmin/libraries/left.js,
+	  myadmin/libraries/mysql_charsets.lib.php,
+	  myadmin/libraries/mysql_wrappers.lib.php,
+	  myadmin/libraries/ob.lib.php,
+	  myadmin/libraries/read_dump.lib.php,
+	  myadmin/libraries/relation.lib.php,
+	  myadmin/libraries/relation_cleanup.lib.php,
+	  myadmin/libraries/select_lang.lib.php,
+	  myadmin/libraries/server_privileges.js,
+	  myadmin/libraries/sqlparser.data.php,
+	  myadmin/libraries/sqlparser.lib.php,
+	  myadmin/libraries/sqlvalidator.class.php,
+	  myadmin/libraries/sqlvalidator.lib.php,
+	  myadmin/libraries/string.lib.php,
+	  myadmin/libraries/tbl_change.js,
+	  myadmin/libraries/transformations.lib.php,
+	  myadmin/libraries/url_generating.lib.php,
+	  myadmin/libraries/user_password.js,
+	  myadmin/libraries/zip.lib.php,
+	  myadmin/libraries/auth/config.auth.lib.php,
+	  myadmin/libraries/auth/cookie.auth.lib.php,
+	  myadmin/libraries/auth/http.auth.lib.php,
+	  myadmin/libraries/dbg/profiling.php,
+	  myadmin/libraries/dbg/setup.php,
+	  myadmin/libraries/export/csv.php,
+	  myadmin/libraries/export/latex.php,
+	  myadmin/libraries/export/sql.php,
+	  myadmin/libraries/export/xml.php, myadmin/libraries/fpdf/README,
+	  myadmin/libraries/fpdf/fpdf.php,
+	  myadmin/libraries/fpdf/font/courier.php,
+	  myadmin/libraries/fpdf/font/helvetica.php,
+	  myadmin/libraries/fpdf/font/helveticab.php,
+	  myadmin/libraries/fpdf/font/helveticabi.php,
+	  myadmin/libraries/fpdf/font/helveticai.php,
+	  myadmin/libraries/fpdf/font/symbol.php,
+	  myadmin/libraries/fpdf/font/tahoma.php,
+	  myadmin/libraries/fpdf/font/tahomab.php,
+	  myadmin/libraries/fpdf/font/times.php,
+	  myadmin/libraries/fpdf/font/timesb.php,
+	  myadmin/libraries/fpdf/font/timesbi.php,
+	  myadmin/libraries/fpdf/font/timesi.php,
+	  myadmin/libraries/fpdf/font/zapfdingbats.php,
+	  myadmin/libraries/transformations/README,
+	  myadmin/libraries/transformations/TEMPLATE,
+	  myadmin/libraries/transformations/TEMPLATE_MIMETYPE,
+	  myadmin/libraries/transformations/generator.sh,
+	  myadmin/libraries/transformations/global.inc.php,
+	  myadmin/libraries/transformations/image_jpeg__inline.inc.php,
+	  myadmin/libraries/transformations/image_jpeg__link.inc.php,
+	  myadmin/libraries/transformations/image_png__inline.inc.php,
+	  myadmin/libraries/transformations/overview.php,
+	  myadmin/libraries/transformations/template_generator.sh,
+	  myadmin/libraries/transformations/template_generator_mimetype.sh,
+	  myadmin/libraries/transformations/text_plain__dateformat.inc.php,
+	  myadmin/libraries/transformations/text_plain__external.inc.php,
+	  myadmin/libraries/transformations/text_plain__formatted.inc.php,
+	  myadmin/libraries/transformations/text_plain__imagelink.inc.php,
+	  myadmin/libraries/transformations/text_plain__link.inc.php,
+	  myadmin/libraries/transformations/text_plain__substr.inc.php,
+	  myadmin/scripts/check_lang.php, myadmin/scripts/convertcfg.pl,
+	  myadmin/scripts/create-release.sh,
+	  myadmin/scripts/create_tables.sql,
+	  myadmin/scripts/decode_bug.php, myadmin/scripts/extchg.sh,
+	  myadmin/scripts/inno2pma.sh, myadmin/scripts/remove_control_m.sh:
+	  first import of phpmyadmin
+
+2004-01-26 17:03  duhlman
+
+	* interface/: patient_file/summary/summary_title.php,
+	  themes/style_sky_blue.css: change color on top title displays,
+	  changed label for old future-apt link
+
+2004-01-26 16:48  duhlman
+
+	* interface/patient_file/summary/demographics.php: fixed typo in
+	  marital status echo
+
+2004-01-26 16:18  duhlman
+
+	*
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/user/findfirst.html:
+	  fixed find first javascript links to correctly have am/pm as
+	  numbers 1/2 instead of previous AM/PM
+
+2004-01-26 16:08  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/pnuserapi.php:
+	  commented out 'other' provider column from week view, just no
+	  needed tight now, maybe when global events are re-enabled
+
+2004-01-26 16:00  duhlman
+
+	* interface/patient_file/summary/demographics.php,
+	  interface/patient_file/summary/demographics_full.php,
+	  interface/patient_file/summary/demographics_save.php,
+	  library/patient.inc: added field for mobile phone, fixed some
+	  ugly nested logic/html issues in demographics_summary
+
+2004-01-26 15:29  duhlman
+
+	* interface/patient_file/summary/demographics_full.php: added
+	  additional form submit links
+
+2004-01-26 15:26  duhlman
+
+	* interface/patient_file/summary/: browse.php, browse1.php,
+	  browse2.php, browse3.php, demographics_full.php: updated
+	  browse.php to use variable instead of hardcoded values, no longer
+	  need browse1.php browse2.php browse3.php
+
+2004-01-26 15:12  duhlman
+
+	* interface/patient_file/summary/demographics.php: put : outside of
+	  if statement, it displayed when there where no values to display
+
+2004-01-26 15:02  duhlman
+
+	* interface/patient_file/summary/browse.php: added browse.php back
+	  in on road to removing duplicated but number browse files, why
+	  not use a code loop instead
+
+2004-01-26 13:58  duhlman
+
+	* interface/patient_file/summary/: demographics.php,
+	  demographics_full.php: display new fields on demographics summary
+
+2004-01-26 13:34  duhlman
+
+	* interface/patient_file/summary/demographics_full.php,
+	  interface/patient_file/summary/demographics_save.php,
+	  library/patient.inc: strtotime cleanups, added copay field to
+	  insurance data
+
+2004-01-26 13:24  duhlman
+
+	* interface/patient_file/summary/: browse1.php,
+	  demographics_full.php, demographics_save.php: fixed browse1.php
+	  behavior in regard to naming and DOB
+
+2004-01-26 13:09  duhlman
+
+	* interface/patient_file/summary/: browse.php, browse1.php: fixed
+	  silly named number issue, went browse.php, browse2.php, now goes
+	  browse1.php, browse2.php
+
+2004-01-26 11:16  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: pnuser.php,
+	  pnuserapi.php, pntemplates/default/views/week/default.html: when
+	  calculate events function was broken out, forgot to include
+	  viewtype in passed arguments, this broke the block functionality
+	  of the week view
+
+2004-01-26 10:39  duhlman
+
+	* interface/patient_file/summary/demographics_full.php,
+	  interface/patient_file/summary/demographics_save.php,
+	  library/patient.inc: added generic fields to demographics
+
+2004-01-26 10:25  duhlman
+
+	* interface/patient_file/summary/demographics.php: changed display
+	  contact to read emergency contact
+
+2004-01-26 10:24  duhlman
+
+	* interface/patient_file/summary/demographics_full.php: more fixes
+	  to full demographics, table cleanups, etc
+
+2004-01-26 10:09  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/pnuser.php: added
+	  error message for repeating events, cannot have a repeating event
+	  without an end date set
+
+2004-01-26 09:53  duhlman
+
+	* sql/cptcodes.sql: cleaned up sql comments for cpt codes dump
+
+2004-01-26 09:51  duhlman
+
+	* sql/database.sql: added icd9 codes to default database
+
+2004-01-26 09:47  duhlman
+
+	* sql/: codes.sql, cptcodes.sql, icd9.sql: changed code layout,
+	  updates icd9 to include dots
+
+2004-01-23 17:25  duhlman
+
+	* interface/patient_file/summary/demographics_full.php: insurer
+	  loop works, cleanup naming, browse links
+
+2004-01-23 17:20  duhlman
+
+	* interface/patient_file/summary/demographics_full.php: enabled
+	  insurer loops, still need to remove old code
+
+2004-01-23 17:07  duhlman
+
+	* interface/patient_file/summary/demographics_full.php: groudwork
+	  for insurer display loops
+
+2004-01-23 16:46  duhlman
+
+	* interface/patient_file/summary/demographics_full.php: layout
+	  changes neccesitated by the addition of several fields
+
+2004-01-23 13:27  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: common.api.php,
+	  pnuser.php, pnuserapi.php: added check when submitting system
+	  events (in or out of office) to enable conflict resolution when
+	  the event being submitted is a recurring one, with long events
+	  the conflict list can be very long (1 per day of conflict)
+
+2004-01-23 10:09  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: common.api.php,
+	  pnuser.php, pnuserapi.php, pnlang/eng/global.php: added repeat
+	  everyday M-F functionality to repeating events, some additional
+	  stubs for future event collision detection with repeating events
+
+2004-01-22 16:30  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: common.api.php,
+	  pntemplates/default/user/submit_no_nav.html: fixed ugly query
+	  string hack in find patient
+
+2004-01-22 16:23  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: pnuser.php,
+	  pntemplates/default/user/submit_no_nav.html: added onchange
+	  reload in find_patient on provider select, this reloads page and
+	  sets provider id for find first link to be currently selected
+	  provider in dropdown, ugly querystring append hack
+
+2004-01-22 15:58  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: pnuserapi.php,
+	  pntemplates/default/views/week/default.html: changed event
+	  display order sort in week view so that events are listed
+	  earliest to latest
+
+2004-01-22 15:41  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/common.api.php:
+	  stopped double_book from being accessed as a autoregistered
+	  global, now goes through pnvarcleanfrominput in local scope
+
+2004-01-22 15:36  duhlman
+
+	* interface/main/calendar/: pnre.inc.php,
+	  modules/PostCalendar/pnuser.php: altered pnsecconfirmauthkey
+	  behavior so that when a form generates an error a new key is not
+	  created as well, this allows the user to the return to the
+	  previous screen, fix the error and try again, otherwise they
+	  would have to set all the values from scratch
+
+2004-01-22 15:24  duhlman
+
+	* interface/main/calendar/: pnHTML.php,
+	  modules/PostCalendar/common.api.php,
+	  modules/PostCalendar/pnuser.php,
+	  modules/PostCalendar/pntemplates/default/user/submit.html:
+	  partway through event submit collision process chain cleanups,
+	  disabled attributes in double book screen so that values can't be
+	  changed. Did this because event collide check is not run again,
+	  so if values were changes it could be an uncheck double booking
+
+2004-01-22 14:42  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/pnuserapi.php: fixed
+	  bug in 12/24 hour conversion on event collision detection
+
+2004-01-22 14:41  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/pnuser.php: fixed
+	  function name type, effects display of form after submit on non
+	  no_nav pages
+
+2004-01-22 13:40  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/pnadmin.php: hid
+	  othre admin settings
+
+2004-01-22 13:38  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/pnadmin.php: hid
+	  administration settings and links that shouldn't be touched
+
+2004-01-22 13:23  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/:
+	  plugins/function.pc_url.php,
+	  pntemplates/default/views/global/navigation.html: normal adds now
+	  have the hour and ampm set to current by default
+
+2004-01-22 10:43  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/pnuser.php: when
+	  submitting with the large format add page after submitted show
+	  form again, on na_nav page only the result banner is displayed
+
+2004-01-22 10:35  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/pnuser.php: when
+	  editing an event no collision check should be made, it will
+	  always collide
+
+2004-01-21 16:59  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: common.api.php,
+	  pnuser.php, pntemplates/default/user/submit.html,
+	  pntemplates/default/user/submit_no_nav.html: when adding a new
+	  event, if authorized the provider is defaulted to the current
+	  user
+
+2004-01-21 16:40  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/pnuser.php: ampm
+	  default set correctly when editing an event, was inhereted
+	  postcalendar bug, should be sent upstream
+
+2004-01-21 16:12  duhlman
+
+	* interface/main/calendar/find_patient.php: ampm default set
+	  correctly for find patient links
+
+2004-01-21 15:36  duhlman
+
+	* interface/main/calendar/find_patient.php: find_patient now has
+	  default hour event_starttimeh set to current hour
+
+2004-01-21 11:52  duhlman
+
+	* Documentation/: FAQ, OpenEMR Backend Spec.txt, Package.txt,
+	  Readme.txt: removed references to synitechs contact information
+	  and replaced with updated pennfirm contact information
+
+2004-01-21 11:48  duhlman
+
+	* ChangeLog: updated changelog
+
+2004-01-21 11:47  duhlman
+
+	* interface/globals.php: updated version information
+
+2004-01-21 11:37  duhlman
+
+	* setup.php: added instructions to setup about changing perms on
+	  smarty template compile dir
+
+2004-01-21 11:36  duhlman
+
+	* interface/main/calendar/config.php: PNRE reads database config
+	  from openemr config file settings
+
+2004-01-20 17:39  duhlman
+
+	* sql/database.sql: removed billing entries
+
+2004-01-20 17:33  duhlman
+
+	* sql/database.sql: removed install duplicated from clean database
+	  dump
+
+2004-01-20 17:33  duhlman
+
+	* setup.php: commented out icd9 codes
+
+2004-01-20 17:22  duhlman
+
+	* interface/main/calendar/findfirstapp.php: is this needed?
+
+2004-01-20 17:21  duhlman
+
+	* sql/: database.sql, icd9.sql, openemr_table_mods.sql: removing
+	  old sql data files
+
+2004-01-20 17:20  duhlman
+
+	* sql/: example_patient_data.sql, example_users.sql: sql dump of
+	  good example data for patients and users/providers
+
+2004-01-20 17:19  duhlman
+
+	* sql/codes.sql: sql dump of cpt/icd9 codes
+
+2004-01-20 17:04  duhlman
+
+	* sql/database.old.sql: no longer needed
+
+2004-01-20 16:56  duhlman
+
+	* library/patient.inc: reverting strtotime in browse and other
+	  location fixes to enable release
+
+2004-01-20 15:33  duhlman
+
+	* interface/patient_file/summary/browse.php, library/patient.inc:
+	  display date fixes relating to strtotime, insert problems on
+	  insurance data remain
+
+2004-01-20 15:06  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: pnuser.php,
+	  pnuserapi.php, pntemplates/default/views/week/default.html: show
+	  hidden days code and links
+
+2004-01-19 13:19  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: common.api.php,
+	  pnuser.php, pnuserapi.php,
+	  pntemplates/default/user/submit_no_nav.html: double book, event
+	  collision detection
+
+2004-01-19 08:44  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/common.api.php:
+	  removed debug statement
+
+2004-01-16 17:49  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: common.api.php,
+	  pntemplates/default/user/findfirst.html: fixed javascript for
+	  find first popup and parent refresh
+
+2004-01-16 16:38  duhlman
+
+	* interface/main/: main.php,
+	  calendar/modules/PostCalendar/common.api.php,
+	  calendar/modules/PostCalendar/pnuser.php,
+	  calendar/modules/PostCalendar/pnuserapi.php,
+	  calendar/modules/PostCalendar/pntemplates/default/user/findfirst.html,
+	  calendar/modules/PostCalendar/pntemplates/default/user/submit_no_nav.html:
+	  layout and polish for find first available
+
+2004-01-16 14:36  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/common.api.php: days
+	  without start or end times are ignored
+
+2004-01-16 14:32  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: common.api.php,
+	  pnuser.php: minute rollover problem with find first solved, allow
+	  0 duration apps, then weed them out so closest_start times get
+	  set correctly
+
+2004-01-16 13:33  duhlman
+
+	* interface/main/main_navigation.php: added non breaking spaces so
+	  menu items don't wrap line
+
+2004-01-16 13:32  duhlman
+
+	* interface/main/calendar/find_patient.php: added default category
+	  for dropdown when selecting from patient found list
+
+2004-01-16 13:31  duhlman
+
+	* interface/globals.php: added default category for find_patient
+	  screen
+
+2004-01-16 13:16  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: common.api.php,
+	  pnuser.php, pnuserapi.php,
+	  pntemplates/default/user/findfirst.html,
+	  pntemplates/default/user/submit_no_nav.html: first revision of
+	  new find first implemenatation
+
+2004-01-16 09:49  duhlman
+
+	* interface/main/finder/patient_select.php, library/patient.inc:
+	  additional strtotime glitch workarounds
+
+2004-01-16 09:23  duhlman
+
+	*
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/:
+	  user/submit_no_nav.html, views/day/default.html: layout changes
+
+2004-01-15 17:28  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: common.api.php,
+	  pnadmin.php, pnuser.php, pntemplates/default/user/submit.html:
+	  event edit allows for provider to be updated
+
+2004-01-15 17:11  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: common.api.php,
+	  pnuser.php, pntemplates/default/user/submit.html: event edit
+	  correctly sets patient default in dropdown
+
+2004-01-15 17:10  duhlman
+
+	* interface/main/: authorizations/authorizations.php,
+	  calendar/find_patient.php: changes to allow
+	  authorization/find_pateint toggle for authorized users
+
+2004-01-15 15:44  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/pnuserapi.php: don't
+	  generate blocks event array when not on week view
+
+2004-01-15 15:43  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/pnversion.php:
+	  updated version information to reflect changes by pennfirm
+
+2004-01-15 14:33  duhlman
+
+	* interface/main/main_info.php: authorized logins now have default
+	  category filter on day view set correctly
+
+2004-01-15 14:20  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: pnuserapi.php,
+	  pntemplates/default/style/day.css,
+	  pntemplates/default/style/week.css,
+	  pntemplates/default/views/day/default.html,
+	  pntemplates/default/views/week/default.html: visual changes to
+	  week, day views
+
+2004-01-15 13:00  duhlman
+
+	* interface/main/calendar/: find_patient.php,
+	  modules/PostCalendar/pnuser.php,
+	  modules/PostCalendar/pnuserapi.php,
+	  modules/PostCalendar/pntemplates/default/admin/submit.html,
+	  modules/PostCalendar/pntemplates/default/user/findfirst.html,
+	  modules/PostCalendar/pntemplates/default/user/submit.html,
+	  modules/PostCalendar/pntemplates/default/user/submit_no_nav.html,
+	  modules/PostCalendar/pntemplates/default/views/week/default.html:
+	  code cleanups, layout fixes
+
+2004-01-14 18:19  duhlman
+
+	* interface/main/: main.php,
+	  calendar/modules/PostCalendar/pnuserapi.php,
+	  calendar/modules/PostCalendar/pntemplates/default/views/week/default.html:
+	  hide unused blocks at beggining of day from calendar week display
+
+2004-01-14 16:40  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: common.api.php,
+	  pnuser.php, pnuserapi.php,
+	  pntemplates/default/views/week/default.html: changed calendar
+	  layout to reflect byt time and by provider
+
+2004-01-14 15:06  duhlman
+
+	* interface/main/calendar/: find_patient.php,
+	  modules/PostCalendar/pnuser.php,
+	  modules/PostCalendar/pnuserapi.php,
+	  modules/PostCalendar/pntemplates/default/user/findfirst.html,
+	  modules/PostCalendar/pntemplates/default/user/submit_no_nav.html,
+	  modules/PostCalendar/pntemplates/default/views/week/default.html:
+	  fixed multiple item display simultaneous in a single block bug,
+	  updated templates to reflect needed changes
+
+2004-01-14 13:40  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/common.api.php,
+	  interface/main/calendar/modules/PostCalendar/pnuser.php,
+	  library/auth.inc, library/calendar.inc, library/patient.inc: edit
+	  permissions, default conditions code cleanups
+
+2004-01-14 10:45  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: common.api.php,
+	  pnuser.php, pnuserapi.php: event delete bug fixes, block time
+	  half hour breakdown fix
+
+2004-01-14 10:12  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: pnuserapi.php,
+	  pntemplates/default/style/week.css,
+	  pntemplates/default/views/week/default.html: hide days of week
+	  prior to today, introduce show_days query flag to show hidden
+	  days
+
+2004-01-14 10:06  duhlman
+
+	* interface/main/: main_info.php, main_navigation.php: frameset,
+	  notes, home, layout changes
+
+2004-01-09 09:17  duhlman
+
+	* interface/main/calendar/: find_patient.php,
+	  modules/PostCalendar/pnuser.php,
+	  modules/PostCalendar/pntemplates/default/user/findfirst.html,
+	  modules/PostCalendar/pntemplates/default/user/submit_no_nav.html,
+	  modules/PostCalendar/pntemplates/default/views/footer.html,
+	  modules/PostCalendar/pntemplates/default/views/week/default.html:
+	  added stubs and basic functionality for find first appointment
+
+2004-01-09 09:11  duhlman
+
+	*
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/user/findfirst.html:
+	  added for use in the find first appointment popup window
+
+2004-01-09 08:30  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: pnuserapi.php,
+	  plugins/function.pc_filter.php: fixed filtering by user bugs
+
+2004-01-09 07:23  duhlman
+
+	* interface/main/calendar/find_patient.php, library/patient.inc:
+	  find_patient uses new event system with automatic updating of
+	  default provider and patient in event submit form
+
+2004-01-09 07:00  duhlman
+
+	*
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/user/submit_no_nav.html,
+	  library/patient.inc: fixed queries where like was being used when
+	  = should have been
+
+2004-01-09 06:40  duhlman
+
+	* interface/patient_file/summary/demographics_full.php: added
+	  unassigned value to provider dropdown
+
+2004-01-09 06:29  duhlman
+
+	* interface/patient_file/summary/demographics.php,
+	  interface/patient_file/summary/demographics_full.php,
+	  library/patient.inc: referrer display references changed to link
+	  to a providerID lookup
+
+2004-01-09 05:56  duhlman
+
+	* interface/patient_file/summary/demographics_full.php,
+	  interface/patient_file/summary/demographics_save.php,
+	  library/calendar.inc, library/patient.inc: added providerID
+	  support to demographic_full.php
+
+2004-01-09 05:14  duhlman
+
+	* interface/main/calendar/: find_patient.php,
+	  modules/PostCalendar/common.api.php,
+	  modules/PostCalendar/pnuserapi.php,
+	  modules/PostCalendar/pntemplates/default/user/submit.html,
+	  modules/PostCalendar/pntemplates/default/user/submit_no_nav.html:
+	  new find_patient event add works, waiting to do provider to
+	  patient linking until the provider id joins get fixed
+
+2004-01-09 02:04  duhlman
+
+	* interface/main/calendar/pnUser.php,
+	  interface/main/calendar/modules/PostCalendar/common.api.php,
+	  interface/main/calendar/modules/PostCalendar/pnuser.php,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/user/details.html,
+	  library/auth.inc: user can edit events owned by users sharing a
+	  group
+
+2004-01-09 01:33  duhlman
+
+	* interface/main/main.php: no_nav querystring added to frameset
+	  call on find_patient
+
+2004-01-09 00:48  duhlman
+
+	* openemr.webprj: quanta project file isn't needed in cvs
+
+2004-01-08 09:02  duhlman
+
+	* interface/main/calendar/: find_patient.php,
+	  modules/PostCalendar/pntemplates/default/user/submit_no_nav.html:
+	  smaller find_patient.php form display side is complete
+
+2004-01-08 08:10  duhlman
+
+	* interface/main/calendar/find_patient.php,
+	  interface/main/calendar/index.php,
+	  interface/main/calendar/modules/PostCalendar/common.api.php,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/user/submit_no_nav.html,
+	  library/calendar.inc: halfway through integratin new find_patient
+	  functionality
+
+2004-01-08 08:01  duhlman
+
+	*
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/user/submit_no_nav.html:
+	  new template for smaller submit form used in find_patient.php
+
+2004-01-08 06:53  duhlman
+
+	*
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/admin/submit.html:
+	  copied user submit template into admin template
+
+2004-01-08 06:51  duhlman
+
+	* interface/main/main.php: white space cleanup
+
+2004-01-08 06:48  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/: pnuserapi.php,
+	  pntemplates/default/user/submit.html,
+	  pntemplates/default/views/month/default.html: template cleanups
+
+2004-01-08 06:15  duhlman
+
+	* openemr.webprj, library/auth.inc, library/patient.inc: assorted
+	  date/calendar stubs, polishes, and fixes
+
+2004-01-08 06:15  duhlman
+
+	* interface/main/: main.php, main_info.php, calendar/index.php,
+	  calendar/index.php.old,
+	  calendar/modules/PostCalendar/common.api.php,
+	  calendar/modules/PostCalendar/pnuser.php,
+	  calendar/modules/PostCalendar/pntemplates/default/user/details.html,
+	  calendar/modules/PostCalendar/pntemplates/default/user/submit.html,
+	  calendar/modules/PostCalendar/pntemplates/default/views/day/default.html,
+	  calendar/modules/PostCalendar/pntemplates/default/views/week/default.html:
+	  authorized frame detect, not detected bug fixed
+
+2004-01-08 01:38  duhlman
+
+	* interface/main/calendar/pnre.webprj: superceded by openemr.webprj
+
+2004-01-07 09:22  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/pnuserapi.php,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/views/day/default.html,
+	  library/patient.inc: events diplay patient info
+
+2004-01-07 08:59  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/common.api.php,
+	  interface/main/calendar/modules/PostCalendar/pnuser.php,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/user/submit.html,
+	  library/patient.inc: event submit saves patient id
+
+2004-01-07 08:13  duhlman
+
+	* interface/main/: main.php, main_info.php, main_screen.php,
+	  calendar/calendar_interface.php,
+	  calendar/modules/PostCalendar/pnuserapi.php: frame layout changes
+	  to accomdate better calendar functionality
+
+2004-01-07 07:20  duhlman
+
+	*
+	  interface/main/calendar/modules/PostCalendar/plugins/function.pc_filter.php,
+	  library/calendar.inc: provider filtering is enabled
+
+2004-01-07 07:05  duhlman
+
+	* library/auth.inc, library/calendar.inc,
+	  interface/main/calendar/index.php,
+	  interface/main/calendar/modules/PostCalendar/common.api.php,
+	  interface/main/calendar/modules/PostCalendar/pnuser.php,
+	  interface/main/calendar/modules/PostCalendar/pnuserapi.php,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/user/submit.html:
+	  events can be added and linked to a provider
+
+2004-01-07 05:45  duhlman
+
+	* interface/main/calendar/modules/PostCalendar/common.api.php,
+	  interface/main/calendar/modules/PostCalendar/pnadmin.php,
+	  interface/main/calendar/modules/PostCalendar/pninit.php,
+	  interface/main/calendar/modules/PostCalendar/pnuser.php,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/user/submit.html,
+	  interface/usergroup/usergroup_navigation.php,
+	  library/calendar.inc: Added calendar setting in addmin, stubbedd
+	  out display of user selection in add event page
+
+2004-01-07 03:28  duhlman
+
+	* openemr.webprj, interface/globals.php, interface/main/main.php,
+	  interface/main/main_info.php, interface/main/main_screen.php,
+	  interface/main/calendar/index.php,
+	  interface/main/calendar/pnAPI.php,
+	  interface/main/calendar/pnSession.php,
+	  interface/main/calendar/modules/PostCalendar/common.api.php,
+	  interface/main/calendar/modules/PostCalendar/pnuser.php,
+	  interface/main/calendar/modules/PostCalendar/pnuserapi.php,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/admin/details.html,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/admin/submit.html,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/config/default.conf,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/config/navigation.conf,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/style/calendarblock.css,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/style/day.css,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/style/details.css,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/style/month.css,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/style/search.css,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/style/week.css,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/style/year.css,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/user/details.html,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/user/preview.html,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/user/search.html,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/user/submit.html,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/views/footer.html,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/views/header.html,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/views/calendarblock/month_view.html,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/views/calendarblock/todays_events.html,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/views/calendarblock/upcoming_events.html,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/views/day/default.html,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/views/global/navigation.html,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/views/month/default.html,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/views/month/list.html,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/views/week/default.html,
+	  interface/main/calendar/modules/PostCalendar/pntemplates/default/views/year/default.html,
+	  library/auth.inc: first revision of new calendar integration
+	  changes, focused on session integration, theme integration
+
+2004-01-06 08:01  duhlman
+
+	* interface/main/calendar/: config.php, index.php, index.php.old,
+	  pnAPI.php, pnHTML.php, pnMod.php, pnSession.php, pnUser.php,
+	  pnre.inc.php, pnre.webprj, pntables.php,
+	  modules/PostCalendar/COPYING, modules/PostCalendar/INSTALL,
+	  modules/PostCalendar/README, modules/PostCalendar/TODO,
+	  modules/PostCalendar/common.api.php,
+	  modules/PostCalendar/index.php,
+	  modules/PostCalendar/pcSmarty.class.php,
+	  modules/PostCalendar/pnadmin.php,
+	  modules/PostCalendar/pnadminapi.php,
+	  modules/PostCalendar/pninit.php,
+	  modules/PostCalendar/pntables.php,
+	  modules/PostCalendar/pnuser.php,
+	  modules/PostCalendar/pnuserapi.php,
+	  modules/PostCalendar/pnversion.php,
+	  modules/PostCalendar/popup.php, modules/PostCalendar/print.php,
+	  modules/PostCalendar/docs/changelog.txt,
+	  modules/PostCalendar/docs/credits.txt,
+	  modules/PostCalendar/docs/help.txt,
+	  modules/PostCalendar/docs/license.txt,
+	  modules/PostCalendar/plugins/function.pc_date_format.php,
+	  modules/PostCalendar/plugins/function.pc_date_select.php,
+	  modules/PostCalendar/plugins/function.pc_filter.php,
+	  modules/PostCalendar/plugins/function.pc_form_nav_close.php,
+	  modules/PostCalendar/plugins/function.pc_form_nav_open.php,
+	  modules/PostCalendar/plugins/function.pc_popup.php,
+	  modules/PostCalendar/plugins/function.pc_sort_day.php,
+	  modules/PostCalendar/plugins/function.pc_sort_events.php,
+	  modules/PostCalendar/plugins/function.pc_url.php,
+	  modules/PostCalendar/plugins/function.pc_view_select.php,
+	  modules/PostCalendar/plugins/function.pc_week_range.php,
+	  modules/PostCalendar/plugins/modifier.pc_date_format.php,
+	  modules/PostCalendar/pnblocks/calendar.php,
+	  modules/PostCalendar/pnblocks/index.htm,
+	  modules/PostCalendar/pnimages/admin.gif,
+	  modules/PostCalendar/pnimages/index.htm,
+	  modules/PostCalendar/pnimages/new.gif,
+	  modules/PostCalendar/pnimages/overlib.gif,
+	  modules/PostCalendar/pnimages/poweredbypc.gif,
+	  modules/PostCalendar/pnincludes/AnchorPosition.js,
+	  modules/PostCalendar/pnincludes/ColorPicker2.js,
+	  modules/PostCalendar/pnincludes/PopupWindow.js,
+	  modules/PostCalendar/pnincludes/index.htm,
+	  modules/PostCalendar/pnincludes/overlib.js,
+	  modules/PostCalendar/pnincludes/overlib_mini.js,
+	  modules/PostCalendar/pnincludes/Benchmark/Timer.php,
+	  modules/PostCalendar/pnincludes/Date/Calc.php,
+	  modules/PostCalendar/pnincludes/Smarty/Config_File.class.php,
+	  modules/PostCalendar/pnincludes/Smarty/Smarty.class.php,
+	  modules/PostCalendar/pnincludes/Smarty/Smarty_Compiler.class.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/function.assign.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/function.assign_debug_info.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/function.counter.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/function.cycle.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/function.debug.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/function.eval.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/function.fetch.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/function.html_options.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/function.html_select_date.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/function.html_select_time.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/function.math.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/function.popup.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/function.popup_init.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.capitalize.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.count_characters.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.count_paragraphs.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.count_sentences.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.count_words.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.date_format.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.debug_print_var.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.default.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.escape.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.indent.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.lower.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.regex_replace.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.replace.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.spacify.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.string_format.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.strip_tags.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.truncate.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.upper.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/modifier.wordwrap.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/outputfilter.trimwhitespace.php,
+	  modules/PostCalendar/pnincludes/Smarty/plugins/shared.make_timestamp.php,
+	  modules/PostCalendar/pnlang/index.htm,
+	  modules/PostCalendar/pnlang/eng/admin.php,
+	  modules/PostCalendar/pnlang/eng/calendar.php,
+	  modules/PostCalendar/pnlang/eng/global.php,
+	  modules/PostCalendar/pnlang/eng/index.htm,
+	  modules/PostCalendar/pnlang/eng/init.php,
+	  modules/PostCalendar/pnlang/eng/popup.php,
+	  modules/PostCalendar/pnlang/eng/user.php,
+	  modules/PostCalendar/pnlang/eng/userapi.php,
+	  modules/PostCalendar/pntemplates/index.html,
+	  modules/PostCalendar/pntemplates/default/index.html,
+	  modules/PostCalendar/pntemplates/default/admin/details.html,
+	  modules/PostCalendar/pntemplates/default/admin/index.html,
+	  modules/PostCalendar/pntemplates/default/admin/submit.html,
+	  modules/PostCalendar/pntemplates/default/config/default.conf,
+	  modules/PostCalendar/pntemplates/default/config/index.html,
+	  modules/PostCalendar/pntemplates/default/config/lang.eng,
+	  modules/PostCalendar/pntemplates/default/config/navigation.conf,
+	  modules/PostCalendar/pntemplates/default/images/events0.gif,
+	  modules/PostCalendar/pntemplates/default/images/events1.gif,
+	  modules/PostCalendar/pntemplates/default/images/events2.gif,
+	  modules/PostCalendar/pntemplates/default/images/events3.gif,
+	  modules/PostCalendar/pntemplates/default/images/events4.gif,
+	  modules/PostCalendar/pntemplates/default/images/index.html,
+	  modules/PostCalendar/pntemplates/default/images/new.gif,
+	  modules/PostCalendar/pntemplates/default/images/new.jpg,
+	  modules/PostCalendar/pntemplates/default/style/calendarblock.css,
+	  modules/PostCalendar/pntemplates/default/style/day.css,
+	  modules/PostCalendar/pntemplates/default/style/details.css,
+	  modules/PostCalendar/pntemplates/default/style/index.html,
+	  modules/PostCalendar/pntemplates/default/style/month.css,
+	  modules/PostCalendar/pntemplates/default/style/search.css,
+	  modules/PostCalendar/pntemplates/default/style/week.css,
+	  modules/PostCalendar/pntemplates/default/style/year.css,
+	  modules/PostCalendar/pntemplates/default/user/details.html,
+	  modules/PostCalendar/pntemplates/default/user/index.html,
+	  modules/PostCalendar/pntemplates/default/user/preview.html,
+	  modules/PostCalendar/pntemplates/default/user/search.html,
+	  modules/PostCalendar/pntemplates/default/user/submit.html,
+	  modules/PostCalendar/pntemplates/default/user/usermenu.html,
+	  modules/PostCalendar/pntemplates/default/views/index.html,
+	  modules/PostCalendar/pntemplates/default/views/calendarblock/index.html,
+	  modules/PostCalendar/pntemplates/default/views/calendarblock/month_view.html,
+	  modules/PostCalendar/pntemplates/default/views/calendarblock/todays_events.html,
+	  modules/PostCalendar/pntemplates/default/views/calendarblock/upcoming_events.html,
+	  modules/PostCalendar/pntemplates/default/views/day/default.html,
+	  modules/PostCalendar/pntemplates/default/views/day/index.html,
+	  modules/PostCalendar/pntemplates/default/views/global/details_navigation.html,
+	  modules/PostCalendar/pntemplates/default/views/global/footer.html,
+	  modules/PostCalendar/pntemplates/default/views/global/navigation.html,
+	  modules/PostCalendar/pntemplates/default/views/global/small_navigation.html,
+	  modules/PostCalendar/pntemplates/default/views/month/default.html,
+	  modules/PostCalendar/pntemplates/default/views/month/index.html,
+	  modules/PostCalendar/pntemplates/default/views/month/list.html,
+	  modules/PostCalendar/pntemplates/default/views/week/default.html,
+	  modules/PostCalendar/pntemplates/default/views/week/index.html,
+	  modules/PostCalendar/pntemplates/default/views/year/default.html,
+	  modules/PostCalendar/pntemplates/default/views/year/index.html,
+	  pnadodb/adodb-cryptsession.php, pnadodb/adodb-csvlib.inc.php,
+	  pnadodb/adodb-datadict.inc.php, pnadodb/adodb-error.inc.php,
+	  pnadodb/adodb-errorhandler.inc.php,
+	  pnadodb/adodb-errorpear.inc.php, pnadodb/adodb-lib.inc.php,
+	  pnadodb/adodb-pager.inc.php, pnadodb/adodb-pear.inc.php,
+	  pnadodb/adodb-session-clob.php, pnadodb/adodb-session.php,
+	  pnadodb/adodb-time.inc.php, pnadodb/adodb-xmlschema.inc.php,
+	  pnadodb/adodb-xmlschema.zip, pnadodb/adodb.gif,
+	  pnadodb/adodb.inc.php, pnadodb/adodb.png, pnadodb/adodb2.gif,
+	  pnadodb/adodb2.png, pnadodb/crypt.inc.php,
+	  pnadodb/docs-adodb.htm, pnadodb/docs-datadict.htm,
+	  pnadodb/docs-session.htm, pnadodb/index.html,
+	  pnadodb/license.txt, pnadodb/old-changelog.htm,
+	  pnadodb/pivottable.inc.php, pnadodb/readme.htm,
+	  pnadodb/readme.txt, pnadodb/rsfilter.inc.php, pnadodb/server.php,
+	  pnadodb/tips_portable_sql.htm, pnadodb/toexport.inc.php,
+	  pnadodb/tohtml.inc.php, pnadodb/tute.htm,
+	  pnadodb/datadict/datadict-access.inc.php,
+	  pnadodb/datadict/datadict-db2.inc.php,
+	  pnadodb/datadict/datadict-generic.inc.php,
+	  pnadodb/datadict/datadict-ibase.inc.php,
+	  pnadodb/datadict/datadict-informix.inc.php,
+	  pnadodb/datadict/datadict-mssql.inc.php,
+	  pnadodb/datadict/datadict-mysql.inc.php,
+	  pnadodb/datadict/datadict-oci8.inc.php,
+	  pnadodb/datadict/datadict-postgres.inc.php,
+	  pnadodb/datadict/index.html,
+	  pnadodb/drivers/adodb-access.inc.php,
+	  pnadodb/drivers/adodb-ado.inc.php,
+	  pnadodb/drivers/adodb-ado_access.inc.php,
+	  pnadodb/drivers/adodb-ado_mssql.inc.php,
+	  pnadodb/drivers/adodb-borland_ibase.inc.php,
+	  pnadodb/drivers/adodb-csv.inc.php,
+	  pnadodb/drivers/adodb-db2.inc.php,
+	  pnadodb/drivers/adodb-fbsql.inc.php,
+	  pnadodb/drivers/adodb-firebird.inc.php,
+	  pnadodb/drivers/adodb-ibase.inc.php,
+	  pnadodb/drivers/adodb-informix.inc.php,
+	  pnadodb/drivers/adodb-informix72.inc.php,
+	  pnadodb/drivers/adodb-mssql.inc.php,
+	  pnadodb/drivers/adodb-mssqlpo.inc.php,
+	  pnadodb/drivers/adodb-mysql.inc.php,
+	  pnadodb/drivers/adodb-mysqlt.inc.php,
+	  pnadodb/drivers/adodb-oci8.inc.php,
+	  pnadodb/drivers/adodb-oci805.inc.php,
+	  pnadodb/drivers/adodb-oci8po.inc.php,
+	  pnadodb/drivers/adodb-odbc.inc.php,
+	  pnadodb/drivers/adodb-odbc_mssql.inc.php,
+	  pnadodb/drivers/adodb-odbc_oracle.inc.php,
+	  pnadodb/drivers/adodb-oracle.inc.php,
+	  pnadodb/drivers/adodb-postgres.inc.php,
+	  pnadodb/drivers/adodb-postgres64.inc.php,
+	  pnadodb/drivers/adodb-postgres7.inc.php,
+	  pnadodb/drivers/adodb-proxy.inc.php,
+	  pnadodb/drivers/adodb-sqlanywhere.inc.php,
+	  pnadodb/drivers/adodb-sybase.inc.php,
+	  pnadodb/drivers/adodb-vfp.inc.php, pnadodb/drivers/index.html,
+	  pnadodb/lang/adodb-en.inc.php, pnadodb/lang/adodb-fr.inc.php,
+	  pnadodb/lang/index.html: added new PostCalendar calendar files
+
+2004-01-06 05:55  duhlman
+
+	* interface/patient_file/summary/demographics.php: parse error
+	  quickfix
+
+2004-01-06 05:53  duhlman
+
+	* openemr.webprj, interface/patient_file/summary/demographics.php,
+	  library/patient.inc: even more fixDate dixes
+
+2004-01-06 05:30  duhlman
+
+	* interface/patient_file/summary/demographics.php: DOB display
+	  condition changes
+
+2004-01-06 04:35  duhlman
+
+	* interface/patient_file/summary/demographics_save.php,
+	  library/patient.inc: final fixDate changes
+
+2004-01-06 04:25  duhlman
+
+	* library/patient.inc: fixDate fix for preg_match
+
+2004-01-06 04:17  duhlman
+
+	* library/patient.inc: even more strtotime date glitch fixes
+
+2004-01-06 04:16  duhlman
+
+	* interface/patient_file/summary/demographics_save.php: more
+	  strtotime date glitch fixes
+
+2004-01-06 04:08  duhlman
+
+	* library/patient.inc: first fixDate function
+
+2004-01-06 03:53  duhlman
+
+	* library/patient.inc: fixed day/month glitch in DOB_TS query, %m
+	  is month not %c
+
+2004-01-06 03:31  duhlman
+
+	* interface/patient_file/summary/demographics_full.php: changed to
+	  display DOB_TS, changed valid date test
+
+2004-01-06 03:31  duhlman
+
+	* interface/patient_file/summary/demographics.php: changed to
+	  display DOB_TS
+
+2004-01-06 03:25  duhlman
+
+	* library/patient.inc: Added DOB_TS field to patientdata query,
+	  worksaround broken strtotime issues for display at least
+
+2004-01-05 05:47  duhlman
+
+	* COPYING, ChangeLog, INSTALL, index.php, openemr.webprj,
+	  setup.php, Documentation/3rd Party Form API.txt,
+	  Documentation/Database.pdf, Documentation/FAQ,
+	  Documentation/Functions.pdf, Documentation/HISTORY.txt,
+	  Documentation/NoIP.txt, Documentation/OpenEMR Backend Spec.txt,
+	  Documentation/Package.txt, Documentation/Readme.txt,
+	  Documentation/User Documentation.pdf, Documentation/User
+	  Documentation.txt, interface/errorWin.php, interface/globals.php,
+	  interface/index.php, interface/login_screen.php,
+	  interface/logout.php, interface/version_info.php,
+	  interface/billing/billing_report.php,
+	  interface/billing/billing_report_xml.php,
+	  interface/billing/print_billing_report.php,
+	  interface/forms/OpenEMR_form_example-rev2.tar.gz,
+	  interface/forms/contacts/info.txt,
+	  interface/forms/contacts/new.php,
+	  interface/forms/contacts/report.php,
+	  interface/forms/contacts/save.php,
+	  interface/forms/contacts/table.sql,
+	  interface/forms/contacts/view.php,
+	  interface/forms/dictation/info.txt,
+	  interface/forms/dictation/new.php,
+	  interface/forms/dictation/report.php,
+	  interface/forms/dictation/save.php,
+	  interface/forms/dictation/table.sql,
+	  interface/forms/dictation/view.php,
+	  interface/forms/hearingtest/info.txt,
+	  interface/forms/hearingtest/new.php,
+	  interface/forms/hearingtest/report.php,
+	  interface/forms/hearingtest/save.php,
+	  interface/forms/hearingtest/table.sql,
+	  interface/forms/hearingtest/view.php,
+	  interface/forms/neurologicalreview/info.txt,
+	  interface/forms/neurologicalreview/new.php,
+	  interface/forms/neurologicalreview/report.php,
+	  interface/forms/neurologicalreview/save.php,
+	  interface/forms/neurologicalreview/table.sql,
+	  interface/forms/neurologicalreview/view.php,
+	  interface/forms/newpatient/info.txt,
+	  interface/forms/newpatient/new.php,
+	  interface/forms/newpatient/report.php,
+	  interface/forms/newpatient/save.php,
+	  interface/forms/newpatient/view.php,
+	  interface/forms/obstetrical/info.txt,
+	  interface/forms/obstetrical/new.php,
+	  interface/forms/obstetrical/report.php,
+	  interface/forms/obstetrical/save.php,
+	  interface/forms/obstetrical/table.sql,
+	  interface/forms/obstetrical/view.php,
+	  interface/forms/pain/info.txt, interface/forms/pain/new.php,
+	  interface/forms/pain/report.php, interface/forms/pain/save.php,
+	  interface/forms/pain/table.sql, interface/forms/pain/view.php,
+	  interface/forms/reviewofs/info.txt,
+	  interface/forms/reviewofs/new.php,
+	  interface/forms/reviewofs/report.php,
+	  interface/forms/reviewofs/save.php,
+	  interface/forms/reviewofs/table.sql,
+	  interface/forms/reviewofs/view.php,
+	  interface/forms/rosform/info.txt,
+	  interface/forms/rosform/new.php,
+	  interface/forms/rosform/report.php,
+	  interface/forms/rosform/save.php,
+	  interface/forms/rosform/table.sql,
+	  interface/forms/rosform/view.php,
+	  interface/forms/vision/info.txt, interface/forms/vision/new.php,
+	  interface/forms/vision/report.php,
+	  interface/forms/vision/save.php,
+	  interface/forms/vision/table.sql,
+	  interface/forms/vision/view.php,
+	  interface/forms/vitalsigns/info.txt,
+	  interface/forms/vitalsigns/new.php,
+	  interface/forms/vitalsigns/report.php,
+	  interface/forms/vitalsigns/save.php,
+	  interface/forms/vitalsigns/table.sql,
+	  interface/forms/vitalsigns/view.php,
+	  interface/forms_admin/forms_admin.php,
+	  interface/login/filler.php, interface/login/login.php,
+	  interface/login/login_frame.php, interface/login/login_title.php,
+	  interface/logview/logview.php, interface/main/main.php,
+	  interface/main/main_info.php, interface/main/main_navigation.php,
+	  interface/main/main_screen.php, interface/main/main_title.php,
+	  interface/main/authorizations/authorizations.php,
+	  interface/main/authorizations/authorizations_full.php,
+	  interface/main/calendar/calendar.php,
+	  interface/main/calendar/calendar_full.php,
+	  interface/main/calendar/calendar_interface.php,
+	  interface/main/calendar/caltest.php,
+	  interface/main/calendar/find_patient.php,
+	  interface/main/calendar/new_patient_save.php,
+	  interface/main/finder/finder_navigation.php,
+	  interface/main/finder/keyboard.php,
+	  interface/main/finder/patient_finder.php,
+	  interface/main/finder/patient_finder_keyboard.php,
+	  interface/main/finder/patient_select.php,
+	  interface/main/finder/pic/keyboard.gif,
+	  interface/main/onotes/office_comments.php,
+	  interface/main/onotes/office_comments_full.php,
+	  interface/new/new.php, interface/new/new_navigation.php,
+	  interface/new/new_patient.php,
+	  interface/new/new_patient_save.php, interface/new/new_title.php,
+	  interface/patient_file/navigation.php,
+	  interface/patient_file/patient_file.php,
+	  interface/patient_file/encounter/coding.php,
+	  interface/patient_file/encounter/copay.php,
+	  interface/patient_file/encounter/cpt_codes_custom.php,
+	  interface/patient_file/encounter/cpt_codes_custom_full.php,
+	  interface/patient_file/encounter/cptcm_codes.php,
+	  interface/patient_file/encounter/diagnosis.php,
+	  interface/patient_file/encounter/diagnosis_full.php,
+	  interface/patient_file/encounter/encounter.php,
+	  interface/patient_file/encounter/encounter_title.php,
+	  interface/patient_file/encounter/forms.php,
+	  interface/patient_file/encounter/hcpcs_codes.php,
+	  interface/patient_file/encounter/hcpcs_codes_custom.php,
+	  interface/patient_file/encounter/hcpcs_codes_custom_full.php,
+	  interface/patient_file/encounter/icd9cm_codes.php,
+	  interface/patient_file/encounter/icd9cm_codes_custom.php,
+	  interface/patient_file/encounter/icd9cm_codes_custom_full.php,
+	  interface/patient_file/encounter/load_form.php,
+	  interface/patient_file/encounter/new_form.php,
+	  interface/patient_file/encounter/patient_encounter.php,
+	  interface/patient_file/encounter/superbill.php,
+	  interface/patient_file/encounter/view_form.php,
+	  interface/patient_file/history/encounters.php,
+	  interface/patient_file/history/encounters_full.php,
+	  interface/patient_file/history/history.php,
+	  interface/patient_file/history/history_full.php,
+	  interface/patient_file/history/history_save.php,
+	  interface/patient_file/history/history_title.php,
+	  interface/patient_file/history/patient_history.php,
+	  interface/patient_file/report/custom_report.php,
+	  interface/patient_file/report/full_report.php,
+	  interface/patient_file/report/patient_report.php,
+	  interface/patient_file/report/print_custom_report.php,
+	  interface/patient_file/report/report_title.php,
+	  interface/patient_file/summary/allergies.php,
+	  interface/patient_file/summary/browse.php,
+	  interface/patient_file/summary/browse2.php,
+	  interface/patient_file/summary/browse3.php,
+	  interface/patient_file/summary/demographics.php,
+	  interface/patient_file/summary/demographics_full.php,
+	  interface/patient_file/summary/demographics_save.php,
+	  interface/patient_file/summary/immunizations.php,
+	  interface/patient_file/summary/medications.php,
+	  interface/patient_file/summary/patient_summary.php,
+	  interface/patient_file/summary/pnotes.php,
+	  interface/patient_file/summary/pnotes_full.php,
+	  interface/patient_file/summary/stats.php,
+	  interface/patient_file/summary/stats_full.php,
+	  interface/patient_file/summary/summary_title.php,
+	  interface/patient_file/transaction/add_transaction.php,
+	  interface/patient_file/transaction/patient_transaction.php,
+	  interface/patient_file/transaction/transaction_title.php,
+	  interface/patient_file/transaction/transactions.php,
+	  interface/patient_file/transaction/transactions_full.php,
+	  interface/pic/aquabg.gif, interface/pic/logo.gif,
+	  interface/pic/logo.jpg, interface/pic/logo_sky.gif,
+	  interface/pic/metalbg.gif, interface/pic/metallightbg.gif,
+	  interface/pic/nautilusbg.gif, interface/pic/nav_top.gif,
+	  interface/pic/nav_top2.gif, interface/pic/nav_top3.gif,
+	  interface/pic/nav_top4.gif, interface/pic/nav_top5.gif,
+	  interface/pic/pix.gif, interface/pic/repeat_vline.gif,
+	  interface/pic/repeat_vline3.gif, interface/pic/repeat_vline4.gif,
+	  interface/pic/repeat_vline5.gif, interface/pic/repeat_vline6.gif,
+	  interface/pic/repeat_vline7.gif, interface/pic/repeat_vline8.gif,
+	  interface/pic/repeat_vline9.gif, interface/themes/style.css,
+	  interface/themes/style_blue.css,
+	  interface/themes/style_metal.css,
+	  interface/themes/style_sky_blue.css,
+	  interface/themes/style_tan.css,
+	  interface/usergroup/facility_admin.php,
+	  interface/usergroup/user_admin.php,
+	  interface/usergroup/user_info.php,
+	  interface/usergroup/usergroup.php,
+	  interface/usergroup/usergroup_admin.php,
+	  interface/usergroup/usergroup_navigation.php,
+	  interface/usergroup/usergroup_title.php, library/api.inc,
+	  library/auth.inc, library/billing.inc, library/billrep.inc,
+	  library/calendar.inc, library/calendar_nikki.inc,
+	  library/encounter.inc, library/forms.inc, library/lists.inc,
+	  library/log.inc, library/md5.js, library/need_service.inc,
+	  library/onotes.inc, library/patient.inc, library/pid.inc,
+	  library/pnotes.inc, library/registry.inc, library/report.inc,
+	  library/sql.inc, library/sqlconf.php, library/transactions.inc,
+	  library/upload.inc, sql/database.sql, sql/database.old.sql,
+	  sql/defaults.sql, sql/icd9.sql, sql/openemr_table_mods.sql:
+	  Initial revision
+
+2004-01-05 05:47  duhlman
+
+	* COPYING, ChangeLog, INSTALL, index.php, openemr.webprj,
+	  setup.php, Documentation/3rd Party Form API.txt,
+	  Documentation/Database.pdf, Documentation/FAQ,
+	  Documentation/Functions.pdf, Documentation/HISTORY.txt,
+	  Documentation/NoIP.txt, Documentation/OpenEMR Backend Spec.txt,
+	  Documentation/Package.txt, Documentation/Readme.txt,
+	  Documentation/User Documentation.pdf, Documentation/User
+	  Documentation.txt, interface/errorWin.php, interface/globals.php,
+	  interface/index.php, interface/login_screen.php,
+	  interface/logout.php, interface/version_info.php,
+	  interface/billing/billing_report.php,
+	  interface/billing/billing_report_xml.php,
+	  interface/billing/print_billing_report.php,
+	  interface/forms/OpenEMR_form_example-rev2.tar.gz,
+	  interface/forms/contacts/info.txt,
+	  interface/forms/contacts/new.php,
+	  interface/forms/contacts/report.php,
+	  interface/forms/contacts/save.php,
+	  interface/forms/contacts/table.sql,
+	  interface/forms/contacts/view.php,
+	  interface/forms/dictation/info.txt,
+	  interface/forms/dictation/new.php,
+	  interface/forms/dictation/report.php,
+	  interface/forms/dictation/save.php,
+	  interface/forms/dictation/table.sql,
+	  interface/forms/dictation/view.php,
+	  interface/forms/hearingtest/info.txt,
+	  interface/forms/hearingtest/new.php,
+	  interface/forms/hearingtest/report.php,
+	  interface/forms/hearingtest/save.php,
+	  interface/forms/hearingtest/table.sql,
+	  interface/forms/hearingtest/view.php,
+	  interface/forms/neurologicalreview/info.txt,
+	  interface/forms/neurologicalreview/new.php,
+	  interface/forms/neurologicalreview/report.php,
+	  interface/forms/neurologicalreview/save.php,
+	  interface/forms/neurologicalreview/table.sql,
+	  interface/forms/neurologicalreview/view.php,
+	  interface/forms/newpatient/info.txt,
+	  interface/forms/newpatient/new.php,
+	  interface/forms/newpatient/report.php,
+	  interface/forms/newpatient/save.php,
+	  interface/forms/newpatient/view.php,
+	  interface/forms/obstetrical/info.txt,
+	  interface/forms/obstetrical/new.php,
+	  interface/forms/obstetrical/report.php,
+	  interface/forms/obstetrical/save.php,
+	  interface/forms/obstetrical/table.sql,
+	  interface/forms/obstetrical/view.php,
+	  interface/forms/pain/info.txt, interface/forms/pain/new.php,
+	  interface/forms/pain/report.php, interface/forms/pain/save.php,
+	  interface/forms/pain/table.sql, interface/forms/pain/view.php,
+	  interface/forms/reviewofs/info.txt,
+	  interface/forms/reviewofs/new.php,
+	  interface/forms/reviewofs/report.php,
+	  interface/forms/reviewofs/save.php,
+	  interface/forms/reviewofs/table.sql,
+	  interface/forms/reviewofs/view.php,
+	  interface/forms/rosform/info.txt,
+	  interface/forms/rosform/new.php,
+	  interface/forms/rosform/report.php,
+	  interface/forms/rosform/save.php,
+	  interface/forms/rosform/table.sql,
+	  interface/forms/rosform/view.php,
+	  interface/forms/vision/info.txt, interface/forms/vision/new.php,
+	  interface/forms/vision/report.php,
+	  interface/forms/vision/save.php,
+	  interface/forms/vision/table.sql,
+	  interface/forms/vision/view.php,
+	  interface/forms/vitalsigns/info.txt,
+	  interface/forms/vitalsigns/new.php,
+	  interface/forms/vitalsigns/report.php,
+	  interface/forms/vitalsigns/save.php,
+	  interface/forms/vitalsigns/table.sql,
+	  interface/forms/vitalsigns/view.php,
+	  interface/forms_admin/forms_admin.php,
+	  interface/login/filler.php, interface/login/login.php,
+	  interface/login/login_frame.php, interface/login/login_title.php,
+	  interface/logview/logview.php, interface/main/main.php,
+	  interface/main/main_info.php, interface/main/main_navigation.php,
+	  interface/main/main_screen.php, interface/main/main_title.php,
+	  interface/main/authorizations/authorizations.php,
+	  interface/main/authorizations/authorizations_full.php,
+	  interface/main/calendar/calendar.php,
+	  interface/main/calendar/calendar_full.php,
+	  interface/main/calendar/calendar_interface.php,
+	  interface/main/calendar/caltest.php,
+	  interface/main/calendar/find_patient.php,
+	  interface/main/calendar/new_patient_save.php,
+	  interface/main/finder/finder_navigation.php,
+	  interface/main/finder/keyboard.php,
+	  interface/main/finder/patient_finder.php,
+	  interface/main/finder/patient_finder_keyboard.php,
+	  interface/main/finder/patient_select.php,
+	  interface/main/finder/pic/keyboard.gif,
+	  interface/main/onotes/office_comments.php,
+	  interface/main/onotes/office_comments_full.php,
+	  interface/new/new.php, interface/new/new_navigation.php,
+	  interface/new/new_patient.php,
+	  interface/new/new_patient_save.php, interface/new/new_title.php,
+	  interface/patient_file/navigation.php,
+	  interface/patient_file/patient_file.php,
+	  interface/patient_file/encounter/coding.php,
+	  interface/patient_file/encounter/copay.php,
+	  interface/patient_file/encounter/cpt_codes_custom.php,
+	  interface/patient_file/encounter/cpt_codes_custom_full.php,
+	  interface/patient_file/encounter/cptcm_codes.php,
+	  interface/patient_file/encounter/diagnosis.php,
+	  interface/patient_file/encounter/diagnosis_full.php,
+	  interface/patient_file/encounter/encounter.php,
+	  interface/patient_file/encounter/encounter_title.php,
+	  interface/patient_file/encounter/forms.php,
+	  interface/patient_file/encounter/hcpcs_codes.php,
+	  interface/patient_file/encounter/hcpcs_codes_custom.php,
+	  interface/patient_file/encounter/hcpcs_codes_custom_full.php,
+	  interface/patient_file/encounter/icd9cm_codes.php,
+	  interface/patient_file/encounter/icd9cm_codes_custom.php,
+	  interface/patient_file/encounter/icd9cm_codes_custom_full.php,
+	  interface/patient_file/encounter/load_form.php,
+	  interface/patient_file/encounter/new_form.php,
+	  interface/patient_file/encounter/patient_encounter.php,
+	  interface/patient_file/encounter/superbill.php,
+	  interface/patient_file/encounter/view_form.php,
+	  interface/patient_file/history/encounters.php,
+	  interface/patient_file/history/encounters_full.php,
+	  interface/patient_file/history/history.php,
+	  interface/patient_file/history/history_full.php,
+	  interface/patient_file/history/history_save.php,
+	  interface/patient_file/history/history_title.php,
+	  interface/patient_file/history/patient_history.php,
+	  interface/patient_file/report/custom_report.php,
+	  interface/patient_file/report/full_report.php,
+	  interface/patient_file/report/patient_report.php,
+	  interface/patient_file/report/print_custom_report.php,
+	  interface/patient_file/report/report_title.php,
+	  interface/patient_file/summary/allergies.php,
+	  interface/patient_file/summary/browse.php,
+	  interface/patient_file/summary/browse2.php,
+	  interface/patient_file/summary/browse3.php,
+	  interface/patient_file/summary/demographics.php,
+	  interface/patient_file/summary/demographics_full.php,
+	  interface/patient_file/summary/demographics_save.php,
+	  interface/patient_file/summary/immunizations.php,
+	  interface/patient_file/summary/medications.php,
+	  interface/patient_file/summary/patient_summary.php,
+	  interface/patient_file/summary/pnotes.php,
+	  interface/patient_file/summary/pnotes_full.php,
+	  interface/patient_file/summary/stats.php,
+	  interface/patient_file/summary/stats_full.php,
+	  interface/patient_file/summary/summary_title.php,
+	  interface/patient_file/transaction/add_transaction.php,
+	  interface/patient_file/transaction/patient_transaction.php,
+	  interface/patient_file/transaction/transaction_title.php,
+	  interface/patient_file/transaction/transactions.php,
+	  interface/patient_file/transaction/transactions_full.php,
+	  interface/pic/aquabg.gif, interface/pic/logo.gif,
+	  interface/pic/logo.jpg, interface/pic/logo_sky.gif,
+	  interface/pic/metalbg.gif, interface/pic/metallightbg.gif,
+	  interface/pic/nautilusbg.gif, interface/pic/nav_top.gif,
+	  interface/pic/nav_top2.gif, interface/pic/nav_top3.gif,
+	  interface/pic/nav_top4.gif, interface/pic/nav_top5.gif,
+	  interface/pic/pix.gif, interface/pic/repeat_vline.gif,
+	  interface/pic/repeat_vline3.gif, interface/pic/repeat_vline4.gif,
+	  interface/pic/repeat_vline5.gif, interface/pic/repeat_vline6.gif,
+	  interface/pic/repeat_vline7.gif, interface/pic/repeat_vline8.gif,
+	  interface/pic/repeat_vline9.gif, interface/themes/style.css,
+	  interface/themes/style_blue.css,
+	  interface/themes/style_metal.css,
+	  interface/themes/style_sky_blue.css,
+	  interface/themes/style_tan.css,
+	  interface/usergroup/facility_admin.php,
+	  interface/usergroup/user_admin.php,
+	  interface/usergroup/user_info.php,
+	  interface/usergroup/usergroup.php,
+	  interface/usergroup/usergroup_admin.php,
+	  interface/usergroup/usergroup_navigation.php,
+	  interface/usergroup/usergroup_title.php, library/api.inc,
+	  library/auth.inc, library/billing.inc, library/billrep.inc,
+	  library/calendar.inc, library/calendar_nikki.inc,
+	  library/encounter.inc, library/forms.inc, library/lists.inc,
+	  library/log.inc, library/md5.js, library/need_service.inc,
+	  library/onotes.inc, library/patient.inc, library/pid.inc,
+	  library/pnotes.inc, library/registry.inc, library/report.inc,
+	  library/sql.inc, library/sqlconf.php, library/transactions.inc,
+	  library/upload.inc, sql/database.sql, sql/database.old.sql,
+	  sql/defaults.sql, sql/icd9.sql, sql/openemr_table_mods.sql: first
+	  import of openemr
+

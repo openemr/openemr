@@ -1,0 +1,448 @@
+[-*Smarty*-]
+<!-- main navigation -->
+[-*Load the Language Definitions*-]
+[-config_load file="lang.$USER_LANG"-]
+[-include file="$TPL_NAME/views/header.html"-]
+[-*Main Navigation*-]
+[-literal-]
+<SCRIPT LANGUAGE="JavaScript">
+
+function popUp(location) {
+day = new Date();
+id = "findfirstpopup";
+
+	var provid = document.find_first.event_userid.options[document.find_first.event_userid.selectedIndex].value;
+	var patient_id = document.find_first.event_pid.options[document.find_first.event_pid.selectedIndex].value;
+	var title = document.find_first.event_subject.value;
+    var category = document.find_first.event_category.options[document.find_first.event_category.selectedIndex].value;
+    var duration_m = document.find_first.event_dur_minutes.options[document.find_first.event_dur_minutes.selectedIndex].value; 
+    var duration_h = document.find_first.event_dur_hours.options[document.find_first.event_dur_hours.selectedIndex].value;
+    var s_day = document.find_first.event_startday.options[document.find_first.event_startday.selectedIndex].value;
+    var s_month = document.find_first.event_startmonth.options[document.find_first.event_startmonth.selectedIndex].value;
+    var s_year = document.find_first.event_startyear.options[document.find_first.event_startyear.selectedIndex].value;
+    var s_hour = document.find_first.event_starttimeh.options[document.find_first.event_starttimeh.selectedIndex].value;
+    var s_min = document.find_first.event_starttimem.options[document.find_first.event_starttimem.selectedIndex].value;
+    var s_ampm = document.find_first.event_startampm.options[document.find_first.event_startampm.selectedIndex].value;
+   
+    
+    location = location + '&provider_id=' + provid;
+    location = location + '&patient_id=' + patient_id;
+    
+    
+    if (title != "undefined") {
+    	location = location + '&event_subject=' + title;
+    }
+    if (category != "undefined") {
+    	location = location + '&event_category=' + category;
+    }
+    if (duration_m != "undefined") {
+    
+    	location = location + '&event_dur_minutes=' + duration_m;
+    }
+
+    
+    if (duration_h != "undefined") {
+    	location = location + '&event_dur_hours=' + duration_h;
+    }
+    
+     if (s_day != "undefined") {
+    	location = location + '&event_startday=' + s_day;
+    }
+    if (s_month != "undefined") {
+    	location = location + '&event_startmonth=' + s_month;
+    }
+    if (s_year != "undefined") {
+    	location = location + '&event_startyear=' + s_year;
+    }
+    if (s_hour != "undefined") {
+    	location = location + '&event_starttimeh=' + s_hour;
+    }
+    if (s_min != "undefined") {
+    	
+    	location = location + '&event_starttimem=' + s_min;
+    }
+    if (s_ampm != "undefined") {
+    	location = location + '&event_startampm=' + s_ampm;
+    }
+
+
+
+eval("page" + id + " = window.open(location, '" + id + "', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=350,height=400,left = 825,top = 400');");
+
+}
+
+function reloadForm(select) {
+	var provid = select.options[select.selectedIndex].value;
+	var title = document.find_first.event_subject.value;
+    var category = document.find_first.event_category.options[document.find_first.event_category.selectedIndex].value;
+    var duration_m = document.find_first.event_dur_minutes.options[document.find_first.event_dur_minutes.selectedIndex].value; 
+    var duration_h = document.find_first.event_dur_hours.options[document.find_first.event_dur_hours.selectedIndex].value;
+    var s_day = document.find_first.event_startday.options[document.find_first.event_startday.selectedIndex].value;
+    var s_month = document.find_first.event_startmonth.options[document.find_first.event_startmonth.selectedIndex].value;
+    var s_year = document.find_first.event_startyear.options[document.find_first.event_startyear.selectedIndex].value;
+    var s_hour = document.find_first.event_starttimeh.options[document.find_first.event_starttimeh.selectedIndex].value;
+    var s_min = document.find_first.event_starttimem.options[document.find_first.event_starttimem.selectedIndex].value;
+    var s_ampm = document.find_first.event_startampm.options[document.find_first.event_startampm.selectedIndex].value;
+    var location = 'find_patient.php?[-/literal-][-$qstring-][-literal-]';
+    
+    location = location + '&provider_id=' + provid;
+    
+    if (title != "undefined") {
+    	location = location + '&event_subject=' + title;
+    }
+    if (category != "undefined") {
+    	location = location + '&event_category=' + category;
+    }
+    if (duration_m != "undefined") {
+    	location = location + '&event_dur_minutes=' + duration_m;
+    }
+    if (duration_h != "undefined") {
+    	alter("here is durationh". duration_h);
+    	location = location + '&event_dur_hours=' + duration_h;
+    }
+    
+     if (s_day != "undefined") {
+    	location = location + '&event_startday=' + s_day;
+    }
+    if (s_month != "undefined") {
+    	location = location + '&event_startmonth=' + s_month;
+    }
+    if (s_year != "undefined") {
+    	location = location + '&event_startyear=' + s_year;
+    }
+    if (s_hour != "undefined") {
+    	location = location + '&event_starttimeh=' + s_hour;
+    }
+    if (s_min != "undefined") {
+    	
+    	location = location + '&event_starttimem=' + s_min;
+    }
+    if (s_ampm != "undefined") {
+    	location = location + '&event_startampm=' + s_ampm;
+    }
+    window.location.href=location;
+}
+
+
+function populateOffice(select) {
+var EventCats = new Array();
+ [-/literal-][-foreach item=cat from=$category-][-literal-]
+ 
+EventCats["value[-/literal-][-$cat.id-][-literal-]"] = new Array();
+
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["name"]="[-/literal-][-$cat.name-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["duration"]="[-/literal-][-$cat.event_duration-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["repeat"]="[-/literal-][-$cat.event_repeat-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["repeat_freq"]="[-/literal-][-$cat.event_repeat_freq-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["repeat_freq_type"]="[-/literal-][-$cat.event_repeat_freq_type-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["repeat_on_num"]="[-/literal-][-$cat.event_repeat_on_num-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["repeat_on_day"]="[-/literal-][-$cat.event_repeat_on_day-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["repeat_on_freq"]="[-/literal-][-$cat.event_repeat_on_freq-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["recurrspec"]="[-/literal-][-$cat.event_recurrspec-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["durationh"]="[-/literal-][-$cat.event_durationh-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["durationm"]="[-/literal-][-$cat.event_durationm-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["end_date_flag"]="[-/literal-][-$cat.end_date_flag-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["end_date_type"]="[-/literal-][-$cat.end_date_type-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["end_date_freq"]="[-/literal-][-$cat.end_date_freq-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["all_day"]="[-/literal-][-$cat.end_all_day-][-literal-]";
+
+
+ [-/literal-][-/foreach-][-literal-]
+ 
+
+var that = select.value;
+var cat = "value";
+ cat += select.value;
+document.find_first.event_subject.value = EventCats.eval(cat).name;
+
+
+var found_dur_min = 0;
+
+document.find_first.event_repeat_on_freq = EventCats.eval(cat).repeat_on_freq;
+for(var i=0;i < document.find_first.event_dur_minutes.length;i++){
+	if(document.find_first.event_dur_minutes.options[i].value == EventCats.eval(cat).durationm){
+	found_dur_min = 1;
+		document.find_first.event_dur_minutes.options[i].selected =true;
+	}
+}
+
+if(found_dur_min != 1){
+document.find_first.event_dur_minutes.options[document.find_first.event_dur_minutes.options.length++]= new Option(EventCats.eval(cat).durationm,EventCats.eval(cat).durationm,false,true);
+
+}
+
+for(var i=0;i < document.find_first.event_allday.length;i++){
+	
+	if(document.find_first.event_allday[i].value == EventCats.eval(cat).all_day){
+		
+		document.find_first.event_allday[i].checked =true;
+	}
+}
+
+for(var i=0;i < document.find_first.event_repeat.length;i++){
+	if(document.find_first.event_repeat[i].value == EventCats.eval(cat).repeat){
+		
+		document.find_first.event_repeat[i].checked =true;
+	}
+}
+
+for(var i=0;i < document.find_first.event_endtype.length;i++){
+	if(document.find_first.event_endtype[i].value == EventCats.eval(cat).end_date_type){
+		
+		document.find_first.event_endtype[i].checked =true;
+	}
+}
+
+document.find_first.event_repeat_freq_type.value = EventCats.eval(cat).repeat_freq_type;
+
+document.find_first.event_repeat_on_num.value = EventCats.eval(cat).repeat_on_num;
+
+document.find_first.event_repeat_on_day.value = EventCats.eval(cat).repeat_on_day;
+
+for(var i=0;i < document.find_first.event_dur_hours.length;i++){
+	if(document.find_first.event_dur_hours.options[i].value == EventCats.eval(cat).durationh){
+		
+		document.find_first.event_dur_hours.options[i].selected =true;
+	}
+}
+
+date = new Date();
+date.setDate(document.find_first.event_startday.options[document.find_first.event_startday.selectedIndex].value);
+date.setMonth(document.find_first.event_startmonth.options[document.find_first.event_startmonth.selectedIndex].value -1 );
+date.setFullYear(document.find_first.event_startyear.options[document.find_first.event_startyear.selectedIndex].value);
+
+if(EventCats.eval(cat).end_date_flag > 0)
+{
+	var num = parseInt(EventCats.eval(cat).end_date_freq);
+	switch(EventCats.eval(cat).end_date_type)
+	{
+		case '0':
+		case '4':
+			date.setDate(date.getDate() + num);
+			break;
+		case '1':
+			date.setDate(date.getDate() + (num * 7));
+			break;
+		case '2':
+			date.setMonth(date.getMonth() + num);
+			break;
+		case '3':
+			date.setFullYear(date.getFullYear() + num);
+			break;
+	}
+	document.find_first.event_endday = date.getDate();
+	document.find_first.event_endmonth = (date.getMonth() +1);
+	document.find_first.event_endyear = date.getFullYear();
+}
+	
+[-/literal-]
+[-literal-]
+
+}
+
+</script>
+[-/literal-]
+	[-if $double_book eq 1-]
+		[-assign var=disable value="disabled"-]
+	[-/if-]
+
+<form name="find_first" action="find_patient.php?no_nav=1" method="post" enctype="application/x-www-form-urlencoded">
+        <table width="100%" border="0" cellpadding="2" cellspacing="0" >
+<!-- EVENT INFO ROWS -->
+            <tr>
+				<td valign="top">
+
+					[-$EventTitle-] <span style="font-size:8pt;">[-$Required-]</span><br />
+                	<input type="text" name="[-$InputEventTitle-]" value="[-$ValueEventTitle-]" [-$disable-]/><br />
+                	[-if $disable-]
+                		<input type="hidden" name="[-$InputEventTitle-]" value="[-$ValueEventTitle-]"/>
+                	[-/if-]
+                	[-$DateTimeTitle-] <span style="font-size:8pt;">[-$Required-]</span><br />
+                	[-$SelectDateTime-]<br /><br />
+                	[-if $disable-]
+                		<input type="hidden" name="event_startday" value="[-$event_startday-]">
+                	[-/if-]
+                	[-if $disable-]
+                		<input type="hidden" name="event_startmonth" value="[-$event_startmonth-]">
+                	[-/if-]
+                	[-if $disable-]
+                		<input type="hidden" name="event_startyear" value="[-$event_startyear-]">
+                	[-/if-]
+					<input type="hidden" name="event_sharing" value="1"><!-- default of 1 is ahring type "public" -->
+
+
+				</td>
+				<td>&nbsp;</td>
+				<td  align="left" valign="top">
+   					<table cellpadding="0" cellspacing="0">
+					<tr><td>Provider</td>
+					<td>
+                		[-strip-]
+                		<select name="event_userid" onChange="reloadForm(this);" [-$disable-]>
+						<option value="">Unassigned</option>
+						[-foreach item=provider from=$user-]
+               		    <option value="[-$provider.id-]"
+						[-if $ProviderID eq $provider.id-]
+						  selected
+						[-/if-]
+						>[-$provider.lname-], [-$provider.fname-]</option>
+                		[-/foreach-]
+
+                		</select>
+                		[-/strip-]
+                		[-if $disable-]
+                		<input type="hidden" name="event_userid" value="[-$ProviderID-]">
+                		[-/if-]
+					</td>
+					</tr>
+					<tr>
+					<td>Patient</td>
+					<td>
+                		[-strip-]
+						<select name="event_pid" [-$disable-]>
+						[-if count($PatientList) > 1-]
+						  <option value="">None Specified</option>
+						[-/if-]
+                		[-foreach item=patient from=$PatientList-]
+                		    <option value="[-$patient.pid-]">[-$patient.lname-], [-$patient.fname-]</option>
+                		[-/foreach-]
+						[-if count($PatientList) < 2-]
+						  <option value="">None Specified</option>
+						[-/if-]
+                		</select>
+                		[-/strip-]
+                		[-if $disable-]
+                		<input type="hidden" name="event_pid" value="[-$patient.pid-]">
+                		[-/if-]
+					</td></tr>
+                	<tr>
+					<td valign="top">
+					<table><tr>
+					<td>Category&nbsp;</td>
+					<tr><td>Time &nbsp;</td></td></tr>
+
+					<tr><td>[-$TimedDurationTitle-]&nbsp;</td>
+					</tr></table>
+					</td>
+					<td>
+               		 	[-strip-]
+                		<select name="[-$InputEventCategory-]" onChange="populateOffice(this);"  [-$disable-]>
+                		[-foreach item=category from=$categories-]
+                		    <option value="[-$category.value-]" [-$category.selected-]>[-$category.name-]</option>
+                		[-/foreach-]
+                		</select>
+                		[-/strip-]
+                		[-if $disable-]
+                		<input type="hidden" name="[-$InputEventCategory-]"    value="[-$hidden_event_category-]">
+                		[-/if-]
+						<br />
+						[-$SelectTimedHours-] [-$SelectTimedMinutes-] [-$SelectTimedAMPM-]
+						[-if $disable-]
+                		<input type="hidden" name="event_starttimeh" value="[-$event_starttimeh-]">
+                		[-/if-]
+                		[-if $disable-]
+                		<input type="hidden" name="event_starttimem" value="[-$event_starttimem-]">
+                		[-/if-]
+                		[-if $disable-]
+                		<input type="hidden" name="event_startampm" value="[-$event_startampm-]">
+                		[-/if-]
+					<br />
+
+
+						[-strip-]
+                        	<!--<select name="[-$InputTimedDurationHours-]">
+                        	    [-foreach item=time from=$TimedDurationHours-]
+                        	        <option value="[-$time.value-]" [-$time.selected-]>[-$time.name-]</option>
+                        	    [-/foreach-]
+                        	    </select> -->
+                        	    [-if $disable-]
+								<input type="hidden" name="[-$InputTimedDurationHours-]" value="[-$event_dur_hours-]" />
+								[-/if-] 
+								<select name="[-$InputTimedDurationHours-]" [-$disable-]>
+                        	    [-foreach item=timeh from=$TimedDurationHours-]
+                        	        <option value="[-$timeh.value-]" [-$timeh.selected-]>[-$timeh.name-]</option>
+                        	    [-/foreach-]
+                        	</select>:
+                        	<select name="[-$InputTimedDurationMinutes-]" [-$disable-]>
+                        	    [-foreach item=time from=$TimedDurationMinutes-]
+                        	        <option value="[-$time.value-]" [-$time.selected-]>[-$time.name-]</option>
+                        	    [-/foreach-]
+                        	</select>
+                        [-/strip-]
+                        [-if $disable-]
+                		<input type="hidden" name="[-$InputTimedDurationMinutes-]" value="[-$event_dur_minutes-]">
+                		[-/if-]
+
+					</td></tr>
+					[-if $displayTopics eq 1-]
+                	 <tr><td>[-$EventTopicTitle-]</td>
+						<td>
+                		    [-strip-]
+                		    <select name="[-$InputEventTopic-]"  [-$disable-]>
+                		    [-foreach item=topic from=$topics-]
+                		        <option value="[-$topic.value-]" [-$topic.selected-]>[-$topic.name-]</option>
+                		    [-/foreach-]
+                		    </select>
+                		    [-/strip-]
+                		    [-if $disable-]
+                				<input type="hidden" name="[-$InputEventTopic-]" value="[-$topic.value-]">
+                			[-/if-]
+                	</td></tr>
+                	[-/if-]
+
+
+					</table>
+				</td>
+
+            </tr>
+			<tr>
+				<td colspan="3" align="center">
+				[-php-]
+
+					$plussevend = strtotime("+7 days");
+
+					$eday = date("d",$plussevend);
+					$emonth = date("m",$plussevend);
+					$eyear = date("Y",$plussevend);
+					$this->assign("endd",$eday);
+					$this->assign("endm",$emonth);
+					$this->assign("endy",$eyear);
+				[-/php-]
+				[-if $double_book ne 1-]
+					<A HREF="javascript:popUp('index.php?no_nav=1&module=PostCalendar&func=search&submit=Find%20First')" style="font-size:10pt;font-family:san-serif;">First Available Appointment</A>
+				[-/if-]
+					&nbsp;[-$FormSubmit-]
+				
+				</td>
+			</tr>
+
+        </table>
+	[-if $ValueEventDesc -]
+				  <input type="hidden" name="[-$InputEventDesc-]" value="[-$ValueEventDesc-]" />
+				[-else-]
+				  <input type="hidden" name="[-$InputEventDesc-]" value="no description" />
+				[-/if-]
+				<input type="hidden" name="[-$InputTimed-]" value="[-$ValueTimed-]" />
+<!-- EVENT INFO ROWS -->
+				<!-- baggage from regular size submit form -->
+                <input type="hidden" name="[-$InputNoRepeat-]" value="[-$ValueNoRepeat-]" [-$SelectedNoRepeat-] />
+				<input type="hidden" name="[-$InputRepeatOnFreq-]" value="[-$InputRepeatOnFreqVal-]" size="4" />
+				<input type="hidden" name="event_repeat_freq_type" value="[-$InputRepeatOnFreqVal-]" size="4" />
+				<input type="hidden" name="event_repeat_on_num" value="[-$InputRepeatOnFreqVal-]" size="4" />
+				<input type="hidden" name="event_repeat_on_day" value="[-$InputRepeatOnFreqVal-]" size="4" />
+                <input type="hidden" name="[-$InputEndOn-]" value="[-$ValueEndOn-]" [-$SelectedEndOn-] />
+				<input type="hidden" name="event_endmonth" id="event_endmonth" value="01">
+				<input type="hidden" name="event_endday" id="event_day" value="01">
+				<input type="hidden" name="event_endyear" id="event_day" value="1994">
+                <input type="hidden" name="[-$InputNoEnd-]" value="[-$ValueNoEnd-]" [-$SelectedNoEnd-] />
+				<input type="hidden" name="double_book" value="[-$double_book-]"/>
+<!-- REPEATING ROWS -->
+<input type="hidden" name="pc_html_or_text" value="text" selected>
+[-*$EventHTMLorText*-]
+
+
+[-$FormHidden-]
+
+
+</form>
+[-include file="$TPL_NAME/views/footer.html"-]

@@ -1,0 +1,64 @@
+<html>
+<head>
+{literal}
+ <style type="text/css" title="mystyles" media="all">
+<!--
+td {
+	font-size:12pt;
+	font-family:helvetica;
+}
+input {
+	font-size:8pt;
+	font-family:helvetica;
+}
+select {
+	font-size:8pt;
+	font-family:helvetica;
+}
+textarea {
+	font-size:8pt;
+	font-family:helvetica;
+}
+-->
+</style>
+{/literal}
+</head>
+<body bgcolor="{$STYLE.BGCOLOR2}">
+<form name="prescribe" method="post" action="{$FORM_ACTION}">
+<table CELLSPACING="0" CELLPADDING="3">
+<!--<tr><td>Example HL7 data<td></tr>
+<tr><td>MSH|^~\&|ADT1|CUH|LABADT|CUH|198808181127|SECURITY|ADT^A01|MSG00001|P|2.3|
+EVN|A01|198808181122||
+PID|||PATID1234^5^M11||RYAN^HENRY^P||19610615|M||C|1200 N ELM STREET^^GREENSBORO^NC^27401-1020|GL|(919)379-1212|(919)271-3434 ||S||PATID12345001^2^M10|123456789|987654^NC|
+NK1|JOHNSON^JOAN^K|WIFE||||||NK^NEXT OF KIN
+PV1|1|I|2000^2053^01||||004777^FISHER^BEN^J.|||SUR||||ADM|A0|</td></tr>-->
+<tr>
+<td>Paste HL7 Data</td>
+</tr>
+<tr>
+	<td><textarea rows="10" wrap="virtual" cols="65" name="hl7data"></textarea><br /><br />
+	<input type="submit" name="HL7" value="Parse HL7"/><br /><br />
+	</td>
+</tr>
+{if $hl7_message_err}
+	<tr><td>{$hl7_message_err}</td></tr>
+{/if}
+{if $hl7_array}
+	<tr><td>
+	<table>
+	{foreach from=$hl7_array item=hl7item key=hl7key}
+	<tr><td>&nbsp;</td></tr>
+	<tr><td><td colspan="2">{$hl7key}</td></tr>
+		{foreach from=$hl7item item=segment_val key=segment_name}
+			<tr><td>&nbsp;</td><td>{$segment_name}: </td><td>{$segment_val}</td></tr>
+		{/foreach}
+	{/foreach}
+	</table>
+	</td></tr>
+{/if}
+<input type="hidden" name="process" value="{$PROCESS}" />
+</table>
+</form>
+
+</body>
+</html>

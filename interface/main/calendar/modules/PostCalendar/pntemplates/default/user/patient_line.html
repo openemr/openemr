@@ -1,0 +1,14 @@
+[-if is_numeric($event.pid) and $show_patient eq true-]
+[-assign var=temppatient_name value=$event.patient_name|truncate::"$day_td_width":""-]
+	 <a href="../../patient_file/patient_file.php?set_pid=[-$event.pid-]&pid=[-$event.pid-]" target="_top">[-$temppatient_name"-]</a> 
+		<br/>([-$event.patient_dob-])
+[-/if-]
+[-if is_numeric($event.aid) and $show_provider eq true-]
+	provider <strong>[-$event.provider_name-]</strong>
+[-/if-]
+[-if is_numeric($event.pid) and $show_patient eq true and $show_icons eq true-]
+	
+	
+	<a href="[-$TPL_ROOTDIR-]/patient_file/patient_file.php?go=encounter&pid=[-$event.pid-]&set_pid=[-$event.pid-]" target="_top"><img align="middle" src="[-$TPL_IMAGE_PATH-]/encounter_hotlink.gif" border="0" vspace="0" hspace="0"/></a>
+	<a href="[-$TPL_ROOTDIR-]/patient_file/summary/demographics_full.php?pid=[-$event.pid-]&set_pid=[-$event.pid-]" target="Main"><img align="middle" src="[-$TPL_IMAGE_PATH-]/demo_hotlink.gif" border="0" vspace="0" hspace="0"/></a>
+[-/if-]

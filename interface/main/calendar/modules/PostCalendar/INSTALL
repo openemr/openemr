@@ -1,0 +1,122 @@
+$Id$
+========================================================================
+Installation
+========================================================================
+
+PLEASE ALSO READ THE DOCUMENTATION AVAILABLE ONLINE AT
+
+	http://www.postcalendar.tv/wiki
+
+
+To install PostCalendar simply unzip/untar the distribution inside your 
+PostNuke html directory. This will create the ./modules/PostCalendar 
+directory and should contain all the files of the distribution.
+
+***NOTE: You'll need to CHMOD 777 the following directories:
+
+	./modules/PostCalendar/pntemplates/compiled
+	./modules/PostCalendar/pntemplates/cache
+
+This allows Smarty to compile and cache your templates. If you're 
+on a windows platform, just make sure the directory has read/write 
+permissions for the web server.
+
+If you would like to change the path of these directories, you can 
+change the value of $this->compile_dir and $this->cache_dir in the 
+pcSmarty.class.php file to point to wherever you'd like templates to be 
+compiled. Moving this out of the webroot might not be that bad of an 
+idea. (I have not tested this as of yet)
+
+Now, enter the administration portion of your PostNuke site:
+
+    * Select MODULES Administration
+    * Click on the REGENERATE link
+    * Find the PostCalendar entry in the list
+    * Click INITIALISE
+    * After the list reloads, click ACTIVATE
+
+You should now have a fully functioning PostCalendar installation.
+
+You'll want to enter your site's Administration and configure 
+PostCalendar before you start to enter events. The installation 
+will set defaults for the calendar so that it works, but in 
+order to better suit your needs, it's best to change these as 
+early as possible.
+
+========================================================================
+Upgrading
+========================================================================
+To upgrade PostCalendar you should first make a backup of you current
+Database tables (using a tool like phpMyAdmin) and also backup your
+current PostCalendar installation.  This will be useful in the event
+an upgrade does not work for you.
+
+Next, unzip/untar the PostCalendar distribution inside your Postnuke
+html directory.  This will create the modules/PostCalendar directory
+and place all the necessary files there.
+
+***NOTE: You'll need to CHMOD 777 the following directories:
+
+	./modules/PostCalendar/pntemplates/compiled
+	./modules/PostCalendar/pntemplates/cache
+
+This allows Smarty to compile and cache your templates. If you're 
+on a windows platform, just make sure the directory has read/write 
+permissions for the web server.
+
+If you would like to change the path of these directories, you can 
+change the value of $this->compile_dir and $this->cache_dir in the 
+pcSmarty.class.php file to point to wherever you'd like templates to be 
+compiled. Moving this out of the webroot might not be that bad of an 
+idea. (I have not tested this as of yet)
+
+***NOTE: DO NOT USE THE POSTNUKE MODULE ADMIN INTERFACE
+         TO UPGRADE POSTCALENDAR.  DOING SO WILL BREAK
+		 THE UPGRADE PROCESS. FOLLOW THE STEPS BELOW
+
+Enter the administration portion of your PostNuke site:
+
+    * Select POSTCALENDAR Administration
+    * Click on the Upgrade PostCalendar Link
+
+If all went well, you should see a CONGRATULATIONS message.
+If not, you should see an ERROR message.
+
+You should see link that says 'Upgrade PostCalendar 3.0x'
+
+You should now have a fully functioning PostCalendar installation.
+
+You'll want to configure PostCalendar before you start to enter events. 
+The installation will set defaults for the calendar so that it works, 
+but in order to better suit your needs, it's best to change these as 
+early as possible.  You should also check your old events and edit
+them if necessary.  Events that have no end date should have the 
+appropriate repeating option for 'no end date' selected as this will
+greatly speed up your calendar.
+
+========================================================================
+Menu Configuration
+========================================================================
+You can link to PostCalendar by entering {PostCalendar} in a menu block.
+
+Using [PostCalendar] will also work, but this is for old style modules. 
+Using the method above will produce much better results.
+
+Goto your Block administration and edit/create the Menu block to hold 
+your link to PostCalendar.
+
+The Menu Block editing screen should look something like this:
+ 
++--------------+----------------+-------------+--------+--------+-------+ 
+| Title        | URL            | Description | Delete | Insert | Blank |
++--------------+----------------+-------------+--------+--------+-------+ 
+| PostCalendar | {PostCalendar} | My Calendar |        |        |       |
++--------------+----------------+-------------+--------+--------+-------+        
+
+========================================================================
+Admin Settings
+========================================================================
+
+========================================================================
+Blocks Configuration
+========================================================================

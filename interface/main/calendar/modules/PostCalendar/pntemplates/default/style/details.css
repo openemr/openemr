@@ -1,0 +1,9 @@
+<style>
+td.eventtitle { background-color: [-$STYLE.BGCOLOR2-]; font-size: 14pt; font-weight: bold; }
+table.eventtitle { background-color: [-$STYLE.BGCOLOR2-]; border: 1px solid #000000; }
+td.eventtime { background-color: [-$STYLE.BGCOLOR2-]; font-size: 10pt; font-weight: bold; }
+table.eventtime { background-color: [-$STYLE.BGCOLOR2-]; border: 1px solid #000000; }
+table.eventslist { background-color: [-$STYLE.BGCOLOR1-]; padding: 10px; }
+td.eventslist { background-color: [-$STYLE.BGCOLOR1-]; padding: 10px; }
+table.calcontainer { border: 1px solid #000000; }
+</style>

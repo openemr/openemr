@@ -1,0 +1,75 @@
+<html>
+<head>
+{literal}
+ <style type="text/css" title="mystyles" media="all">
+<!--
+td {
+	font-size:12pt;
+	font-family:helvetica;
+}
+.small {
+	font-size:9pt;
+	font-family:helvetica;
+	text-decoration: none;
+}
+.small:hover {
+	text-decoration: underline;
+}
+li{
+	font-size:11pt;
+	font-family:helvetica;
+	margin-left: 15px;
+}
+a {
+	font-size:11pt;
+	font-family:helvetica;
+}
+-->
+</style>
+{/literal}
+</head>
+<body bgcolor="{$STYLE.BGCOLOR2}">
+<form name="patientfinder" method="post" action="{$FORM_ACTION}">
+<table>
+	<tr>
+		<td>Name</td>
+		<td>
+			<input type="text" size="40" name="searchstring" value=""/>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<input type="submit" value="search"/>
+		</td>
+	</tr>
+</table>
+<input type="hidden" name="process" value="{$PROCESS}" />
+<input type="hidden" name="pid" value="{$hidden_ispid}" />
+</form>
+<table>
+{if count($result_set) > 0}
+	<tr>
+		<td>Results Found For Search '{$search_string}'</td>
+	</tr>
+	<tr>
+		<td>Name</td><td>DOB</td><td>Patient ID</td>
+{/if}
+{foreach  name="search_results" from=$result_set  item=result}
+	<tr>
+		<td>
+			<a href="javascript:{literal}{}{/literal}" onclick="window.opener.document.{$form_id}.value='{if $ispub == true }{$result.pubpid}{else}{$result.pid}{/if}'; window.opener.document.{$form_name}.value='{$result.name}'; window.close();">{$result.name}</a>
+		</td>
+		<td>{$result.DOB}</td>
+		<td>{$result.pubpid}</td>
+	</tr>
+{foreachelse}
+	{if is_array($result_set)}
+	<tr>
+		<td>No Results Found For Search '{$search_string}'</td>
+	</tr>
+	{/if}
+{/foreach}
+	</table>
+  </body>
+</html>
+  

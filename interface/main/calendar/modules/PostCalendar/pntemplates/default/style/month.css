@@ -1,0 +1,13 @@
+<style>
+td.monthon { background-color: [-$STYLE.BGCOLOR1-]; border: 1px solid [-$STYLE.BGCOLOR2-]; }
+td.monthoff { background-color: [-$STYLE.BGCOLOR2-]; border: 1px solid [-$STYLE.BGCOLOR1-]; }
+td.monthtoday { background-color: [-$STYLE.BGCOLOR1-]; border: 1px dashed [-$STYLE.HIGHLIGHT_COLOR-]; }
+td.monthheader { background-color: [-$STYLE.BGCOLOR2-]; font-size: 14pt; font-weight: bold; }
+table.monthheader { background-color: [-$STYLE.BGCOLOR2-]; border: 1px solid #000000; }
+.monthheader a:link { font-size: 14pt; font-weight: bold; text-decoration: none; padding-left: 10px; padding-right: 10px; }
+.monthheader a:active { font-size: 14pt; font-weight: bold; text-decoration: none; padding-left: 10px; padding-right: 10px; }
+.monthheader a:hover { font-size: 14pt; font-weight: bold; text-decoration: none; padding-left: 10px; padding-right: 10px; }
+.monthheader a:visited { font-size: 14pt; font-weight: bold; text-decoration: none; padding-left: 10px; padding-right: 10px; }
+td.daynames { background-color: [-$STYLE.BGCOLOR1-]; border: 1px solid [-$STYLE.BGCOLOR2-]; font-size: 10pt; font-weight: normal; text-decoration: none; }
+table.calcontainer { border: 1px solid #000000; }
+</style>

@@ -1,0 +1,121 @@
+[-*Smarty*-]
+[-config_load file="default.conf"-]
+[-*Load the Language Definitions*-]
+[-config_load file="lang.$USER_LANG"-]
+[-include file="$TPL_NAME/views/header.html"-]
+[-* we want to include out stylesheet for this view*-]
+[-fetch file="$TPL_STYLE_PATH/day.css" assign="css"-]
+[-eval var=$css-]
+
+[-if $PRINT_VIEW != 1-]
+[-*Main Navigation*-]
+[-include file="$TPL_NAME/views/global/navigation.html"-]
+[-/if-]
+[-assign var="dayname" value=$DATE|date_format:"%w"-]
+[-assign var="day" value=$DATE|date_format:"%d"|string_format:"%1d"-]
+[-assign var="month" value=$DATE|date_format:"%m"|string_format:"%1d"-]
+[-assign var="year" value=$DATE|date_format:"%Y"|string_format:"%4d"-]
+
+<table width="100%" border="0" cellpadding="5" cellspacing="0" class="weekheader">
+    <tr>
+        <td nowrap width="100%" align="center" valign="middle" class="weekheader">
+			<a href="[-$PREV_WEEK_URL-]">&lt;&lt;</a>
+        	[-pc_week_range date=$DATE sep=" - " format=#_PC_DATE_FORMAT_MDY#-]
+			<a href="[-$NEXT_WEEK_URL-]">&gt;&gt;</a>
+		[-if $PRINT_VIEW != 1-]
+		<td nowrap align="right" valign="top" class="weekheader">
+		</td>
+		[-/if-]
+	</tr>
+</table>
+
+<table width='%100' border="0" cellpadding="0" cellspacing="0" >
+	<tr>
+		[-foreach item=provider from=$providers-]
+		<td valign='top'>
+		<table width='%100' height='%100' border="1" cellpadding="0" cellspacing="0" valign='top'>
+ 		<tr><td >[-$provider.lname-]</td>
+		</tr>
+		
+		
+		[-foreach name=dates item=events key=date from=$A_EVENTS-]
+		<tr>
+		<td>
+		<table    cellpadding="0" cellspacing="0" class="eventsentry">
+								    	[-assign var="dayname" value=$date|date_format:"%w"-]
+								    	[-assign var="day" value=$date|date_format:"%d"|string_format:"%1d"-]
+								    	[-assign var="month" value=$date|date_format:"%m"|string_format:"%1d"-]
+								    	[-assign var="year" value=$date|date_format:"%Y"|string_format:"%4d"-]
+								    	[-assign var="eventdate" value=$date|date_format:"%Y%m%d"-]
+										[-pc_sort_events var="S_EVENTS" sort="time" order="asc" value=$A_EVENTS-]
+							[-pc_date_format date=$date format=#_PC_DATE_FORMAT_STD#-]
+					[-foreach name=times item=time from=$times-]
+						<tr>
+						<td  valign='top' class="eventslist" width ='90'>
+						[-if $time.mer == "pm" -]
+								[-assign var="event_startampm" value=2-]
+							[-if $time.hour > 12 -]
+								[-math equation="x-12" x=$time.hour-]:[-$time.minute-]
+							[-else-]
+								[-$time.hour-]:[-$time.minute-]
+							[-/if-]
+						[-else-]
+							[-assign var="event_startampm" value=1-]
+							[-$time.hour-]:[-$time.minute-]
+						[-/if-]
+						[-$time.mer-] <a href="index.php?module=PostCalendar&func=submit&event_startampm=[-$event_startampm-]&event_starttimeh=[-$time.hour-]&event_starttimem=[-$time.minute-]&Date=[-$eventdate-]&event_userid=[-$provider.id-]">
+						<img align="middle" src="[-$TPL_IMAGE_PATH-]/new.gif" border="0" vspace="0" hspace="0"/></a>
+						</td>
+						[-assign var="eventsbydate" value=$S_EVENTS.$date-]
+						[-foreach name=events key=eventkey item=event from=$S_EVENTS.$date-]
+							[-assign var="starth" value=$event.startTime|date_format:"%H"-]
+							[-assign var="displaystarth" value=$event.startTime|date_format:"%I:%M %p" -]
+							[-assign var="startm" value=$event.startTime|date_format:"%M"-]
+							[-assign var="mykey" value=$eventkey-]										
+														
+							[-if $time.hour == $starth && $startm >= $time.minute && $startm < ($time.minute + $interval) && $event.aid == $provider.id-]
+								[-assign var="flagfound" value=true-]
+								[-assign var="eid" value=$event.eid-]
+								<td   class="eventsentry" width="[-math equation="$day_td_width * 10"-]" rowspan=[-$event.intervals-] style="{background-color: [-$event.catcolor-]}">
+								<a href="[-pc_url action=detail eid=$event.eid date=$date-]" [-pc_popup delay="500"  bgcolor=$event.catcolor caption=$event.title text=$event.hometext-]>
+								[-assign var=short_event_title value=$event.title|strip_tags -]
+								[-$short_event_title|truncate::"$day_td_width":""-]
+									</a><br/>
+								[-$displaystarth-]([-$event.duration_hours-]:[-$event.duration_minutes-])<br />
+								[-include file="$TPL_NAME/user/patient_line.html" event=$event show_icons=true show_provider=false show_patient=true -]&nbsp;
+								</td>
+								<!--unset event to avoid relooping-->
+							[-/if-]
+						[-/foreach-]			
+					
+						[-assign var="flagfound" value=false -]
+						</tr>
+					[-/foreach-]
+				</table>
+				</td>
+			[-/foreach-]
+		
+			</tr>
+			
+			</table>
+			</td>
+		[-/foreach-]
+	</tr>
+</table>
+
+[-if $PRINT_VIEW != 1-]
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+    <tr>
+        <td align="right">
+            <a href="[-pc_url action="day" print="true"-]">[-#_PC_THEME_PRINT#-]</a>
+        	</td>
+    		</tr>
+		</table>
+		
+	</td>
+</tr>
+</table>
+[-/if-]
+[-*footer*-]
+[-include file="$TPL_NAME/views/global/footer.html"-]
+[-include file="$TPL_NAME/views/footer.html"-]

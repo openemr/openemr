@@ -1,0 +1,592 @@
+<html>
+<head>
+{literal}
+ <style type="text/css" title="mystyles" media="all">
+<!--
+ttd {
+	font-size:12pt;
+	font-family:helvetica;
+}
+li{
+	font-size:11pt;
+	font-family:helvetica;
+	margin-left: 15px;
+}
+a {
+	font-size:11pt;
+	font-family:helvetica;
+}
+.main_title{
+	font-family: sans-serif;
+	font-size: 14pt;
+	font-weight: bold;
+	text-decoration: none;
+	color: #000000;
+}
+.section_title{
+	font-family: sans-serif;
+	font-size: 12pt;
+	font-weight: bold;
+	text-decoration: none;
+	color: #000000;
+}
+
+.response_title {
+	font-family: sans-serif;
+	font-size: 10pt;
+	font-weight: bold;
+	font-style: italic;
+	color: #000000;
+}
+
+.response{
+	font-family: sans-serif;
+	font-size: 9pt;
+	font-weight: lighter;
+	text-decoration: none;
+	color: #000000;
+}
+
+.responcetd{
+border-width:1px;
+border-style:solid;
+border-color:black;
+}
+-->
+</style>
+{/literal}
+</head>
+<body bgcolor="{$STYLE.BGCOLOR2}">
+<form name="ros" method="post" action="{$FORM_ACTION}/interface/forms/ros/save.php">
+<table><tr><td colspan='10'>
+<p><span class="main_title">Review Of Systems</span></p>
+</td></tr>
+
+<tr>
+	<td><table><td class ="responcetd"><span class="section_title">Constitutional</span><table>
+		<tr>
+			<td class="response">Weight Change:</td>
+			<td class="response">{html_radios name="weight_change" options=$form->get_options() selected=$form->get_weight_change() separator=""}</td>
+			<td class="response">Weakness:</td>
+			<td class="response">{html_radios name="weakness" options=$form->get_options() selected=$form->get_weakness() separator=""}</td>
+			<td class="response">Fatigue:</td>
+			<td class="response">{html_radios name="fatigue" options=$form->get_options() selected=$form->get_fatigue() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Anorexia:</td>
+			<td class="response">{html_radios name="anorexia" options=$form->get_options() selected=$form->get_anorexia() separator=""}</td>
+			<td class="response">Fever:</td>
+			<td class="response">{html_radios name="fever" options=$form->get_options() selected=$form->get_fever() separator=""}</td>
+			<td class="response">Chills:</td>
+			<td class="response">{html_radios name="chills" options=$form->get_options() selected=$form->get_chills() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Night Sweats:</td>
+			<td class="response">{html_radios name="night_sweats" options=$form->get_options() selected=$form->get_night_sweats() separator=""}</td>
+			<td class="response">Insomnia:</td>
+			<td class="response">{html_radios name="insomnia" options=$form->get_options() selected=$form->get_insomnia() separator=""}</td>
+			<td class="response">Irritability:</td>
+			<td class="response">{html_radios name="irritability" options=$form->get_options() selected=$form->get_irritability() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Heat or Cold:</td>
+			<td class="response">{html_radios name="heat_or_cold" options=$form->get_options() selected=$form->get_heat_or_cold() separator=""}</td>
+			<td class="response">Intolerance:</td>
+			<td class="response">{html_radios name="intolerance" options=$form->get_options() selected=$form->get_intolerance() separator=""}</td>
+		</tr>
+</tr><td>
+	
+		
+	</td>
+</tr>
+
+	</table></td>
+</tr>
+<tr>
+	<td><table><td class ="responcetd"><span class="section_title">Eyes</span><table>
+		<tr>
+			<td class="response">Change in Vision:</td>
+			<td class="response">{html_radios name="change_in_vision" options=$form->get_options() selected=$form->get_weight_change() separator=""}</td>
+			<td class="response">Family History of Glaucoma:</td>
+			<td class="response">{html_radios name="glaucoma_history" options=$form->get_options() selected=$form->get_glaucoma_history() separator=""}</td>
+			<td class="response">Eye Pain:</td>
+			<td class="response">{html_radios name="eye_pain" options=$form->get_options() selected=$form->get_eye_pain() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Irritation:</td>
+			<td class="response">{html_radios name="irritation" options=$form->get_options() selected=$form->get_irritation() separator=""}</td>
+			<td class="response">Redness:</td>
+			<td class="response">{html_radios name="redness" options=$form->get_options() selected=$form->get_redness() separator=""}</td>
+			<td class="response">Excessive Tearing:</td>
+			<td class="response">{html_radios name="excessive_tearing" options=$form->get_options() selected=$form->get_excessive_tearing() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Double Vision:</td>
+			<td class="response">{html_radios name="double_vision" options=$form->get_options() selected=$form->get_double_vision() separator=""}</td>
+			<td class="response">Blind Spots:</td>
+			<td class="response">{html_radios name="blind_spots" options=$form->get_options() selected=$form->get_blind_spots() separator=""}</td>
+			<td class="response">Photophobia:</td>
+			<td class="response">{html_radios name="photophobia" options=$form->get_options() selected=$form->get_photophobia() separator=""}</td>
+		</tr>
+</tr><td>
+	
+		
+	</td>
+</tr>
+
+	</table></td>
+</tr>
+<tr>
+	<td><table><td class ="responcetd"><span class="section_title">Ears, Nose, Mouth, Throat</span><table>
+		<tr>
+			<td class="response">Hearing Loss:</td>
+			<td class="response">{html_radios name="hearing_loss" options=$form->get_options() selected=$form->get_hearing_loss() separator=""}</td>
+			<td class="response">Discharge:</td>
+			<td class="response">{html_radios name="discharge" options=$form->get_options() selected=$form->get_discharge() separator=""}</td>
+			<td class="response">Pain:</td>
+			<td class="response">{html_radios name="pain" options=$form->get_options() selected=$form->get_pain() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Vertigo:</td>
+			<td class="response">{html_radios name="vertigo" options=$form->get_options() selected=$form->get_vertigo() separator=""}</td>
+			<td class="response">Tinnitus:</td>
+			<td class="response">{html_radios name="tinnitus" options=$form->get_options() selected=$form->get_tinnitus() separator=""}</td>
+			<td class="response">Frequent Colds:</td>
+			<td class="response">{html_radios name="frequent_colds" options=$form->get_options() selected=$form->get_frequent_colds() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Sore Throat:</td>
+			<td class="response">{html_radios name="sore_throat" options=$form->get_options() selected=$form->get_sore_throat() separator=""}</td>
+			<td class="response">Sinus Problems:</td>
+			<td class="response">{html_radios name="sinus_problems" options=$form->get_options() selected=$form->get_sinus_problems() separator=""}</td>
+			<td class="response">Post Nasal Drip:</td>
+			<td class="response">{html_radios name="post_nasal_drip" options=$form->get_options() selected=$form->get_post_nasal_drip() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Nosebleed:</td>
+			<td class="response">{html_radios name="nosebleed" options=$form->get_options() selected=$form->get_nosebleed() separator=""}</td>
+			<td class="response">Snoring:</td>
+			<td class="response">{html_radios name="snoring" options=$form->get_options() selected=$form->get_snoring() separator=""}</td>
+			<td class="response">Apnea:</td>
+			<td class="response">{html_radios name="apnea" options=$form->get_options() selected=$form->get_apnea() separator=""}</td>
+		</tr>
+</tr><td>
+	
+		
+	</td>
+</tr>
+
+	</table></td>
+</tr>
+<tr>
+	<td><table><td class ="responcetd"><span class="section_title">Breast</span><table>
+		<tr>
+			<td class="response">Breast Mass:</td>
+			<td class="response">{html_radios name="breast_mass" options=$form->get_options() selected=$form->get_breast_mass() separator=""}</td>
+			<td class="response">Discharge:</td>
+			<td class="response">{html_radios name="breast_discharge" options=$form->get_options() selected=$form->get_breast_discharge() separator=""}</td>
+			<td class="response">Biopsy:</td>
+			<td class="response">{html_radios name="biopsy" options=$form->get_options() selected=$form->get_biopsy() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Abnormal Mammogram:</td>
+			<td class="response">{html_radios name="abnormal_mammogram" options=$form->get_options() selected=$form->get_abnormal_mammogram() separator=""}</td>
+		</tr>
+</tr><td>
+	
+		
+	</td>
+</tr>
+
+	</table></td>
+</tr>
+<tr>
+	<td><table><td class ="responcetd"><span class="section_title">Respiratory</span><table>
+		<tr>
+			<td class="response">Cough:</td>
+			<td class="response">{html_radios name="cough" options=$form->get_options() selected=$form->get_cough() separator=""}</td>
+			<td class="response">Sputum:</td>
+			<td class="response">{html_radios name="sputum" options=$form->get_options() selected=$form->get_sputum() separator=""}</td>
+			<td class="response">Shortness of Breath:</td>
+			<td class="response">{html_radios name="shortness_of_breath" options=$form->get_options() selected=$form->get_shortness_of_breath() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Wheezing:</td>
+			<td class="response">{html_radios name="wheezing" options=$form->get_options() selected=$form->get_wheezing() separator=""}</td>
+			<td class="response">Hemoptsyis:</td>
+			<td class="response">{html_radios name="hemoptsyis" options=$form->get_options() selected=$form->get_hemoptsyis() separator=""}</td>
+			<td class="response">Asthma:</td>
+			<td class="response">{html_radios name="asthma" options=$form->get_options() selected=$form->get_asthma() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">COPD:</td>
+			<td class="response">{html_radios name="copd" options=$form->get_options() selected=$form->get_copd() separator=""}</td>
+		</tr>
+</tr><td>
+	
+		
+	</td>
+</tr>
+
+	</table></td>
+</tr>
+<tr>
+	<td><table><td class ="responcetd"><span class="section_title">Cardiovascular</span><table>
+		<tr>
+			<td class="response">Chest Pain:</td>
+			<td class="response">{html_radios name="chest_pain" options=$form->get_options() selected=$form->get_chest_pain() separator=""}</td>
+			<td class="response">Palpitation:</td>
+			<td class="response">{html_radios name="palpitation" options=$form->get_options() selected=$form->get_palpitation() separator=""}</td>
+			<td class="response">Syncope:</td>
+			<td class="response">{html_radios name="syncope" options=$form->get_options() selected=$form->get_syncope() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">PND:</td>
+			<td class="response">{html_radios name="pnd" options=$form->get_options() selected=$form->get_pnd() separator=""}</td>
+			<td class="response">DOE:</td>
+			<td class="response">{html_radios name="doe" options=$form->get_options() selected=$form->get_doe() separator=""}</td>
+			<td class="response">Orthopnea:</td>
+			<td class="response">{html_radios name="orthopnea" options=$form->get_options() selected=$form->get_orthopnea() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Peripheal:</td>
+			<td class="response">{html_radios name="peripheal" options=$form->get_options() selected=$form->get_peripheal() separator=""}</td>
+			<td class="response">Edema:</td>
+			<td class="response">{html_radios name="edema" options=$form->get_options() selected=$form->get_edema() separator=""}</td>
+			<td class="response">Leg Pain/Cramping:</td>
+			<td class="response">{html_radios name="legpain_cramping" options=$form->get_options() selected=$form->get_legpain_cramping() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">History of Heart Murmur:</td>
+			<td class="response">{html_radios name="history_murmur" options=$form->get_options() selected=$form->get_history_murmur() separator=""}</td>
+			<td class="response">Arrythmia:</td>
+			<td class="response">{html_radios name="arrythmia" options=$form->get_options() selected=$form->get_arrythmia() separator=""}</td>
+			<td class="response">Heart Problems:</td>
+			<td class="response">{html_radios name="heart_problems" options=$form->get_options() selected=$form->get_heart_problem() separator=""}</td>
+		</tr>
+</tr><td>
+	
+		
+	</td>
+</tr>
+
+	</table></td>
+</tr>
+<tr>
+	<td><table><td class ="responcetd"><span class="section_title">Cardiovascular</span><table>
+		<tr>
+			<td class="response">Dysphagia:</td>
+			<td class="response">{html_radios name="dysphagia" options=$form->get_options() selected=$form->get_dysphagia() separator=""}</td>
+			<td class="response">Heartburn:</td>
+			<td class="response">{html_radios name="heartburn" options=$form->get_options() selected=$form->get_heartburn() separator=""}</td>
+			<td class="response">Bloating:</td>
+			<td class="response">{html_radios name="bloating" options=$form->get_options() selected=$form->get_bloating() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Belching:</td>
+			<td class="response">{html_radios name="belching" options=$form->get_options() selected=$form->get_belching() separator=""}</td>
+			<td class="response">Flatulence:</td>
+			<td class="response">{html_radios name="flatulence" options=$form->get_options() selected=$form->get_flatulence() separator=""}</td>
+			<td class="response">Nausea:</td>
+			<td class="response">{html_radios name="nausea" options=$form->get_options() selected=$form->get_nausea() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Vomiting:</td>
+			<td class="response">{html_radios name="vomiting" options=$form->get_options() selected=$form->get_vomiting() separator=""}</td>
+			<td class="response">Hematemesis:</td>
+			<td class="response">{html_radios name="hematemesis" options=$form->get_options() selected=$form->get_hematemesis() separator=""}</td>
+			<td class="response">Pain:</td>
+			<td class="response">{html_radios name="gastro_pain" options=$form->get_options() selected=$form->get_gastro_pain() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Food Intolerance:</td>
+			<td class="response">{html_radios name="food_intolerance" options=$form->get_options() selected=$form->get_food_intolerance() separator=""}</td>
+			<td class="response">H/O Hepatitis:</td>
+			<td class="response">{html_radios name="hepatitis" options=$form->get_options() selected=$form->get_hepatitis() separator=""}</td>
+			<td class="response">Jaundice:</td>
+			<td class="response">{html_radios name="jaundice" options=$form->get_options() selected=$form->get_jaundice() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Hematochezia:</td>
+			<td class="response">{html_radios name="hematochezia" options=$form->get_options() selected=$form->get_hematochezia() separator=""}</td>
+			<td class="response">Changed Bowel:</td>
+			<td class="response">{html_radios name="changed_bowel" options=$form->get_options() selected=$form->get_changed_bowel() separator=""}</td>
+			<td class="response">Diarrhea:</td>
+			<td class="response">{html_radios name="diarrhea" options=$form->get_options() selected=$form->get_diarrhea() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Constipation:</td>
+			<td class="response">{html_radios name="constipation" options=$form->get_options() selected=$form->get_constipation() separator=""}</td>
+		</tr>
+</tr><td>
+	
+		
+	</td>
+</tr>
+
+	</table></td>
+</tr>
+<tr>
+	<td><table><td class ="responcetd"><span class="section_title">Genitourinary General</span><table>
+		<tr>
+			<td class="response">Polyuria:</td>
+			<td class="response">{html_radios name="polyuria" options=$form->get_options() selected=$form->get_polyuria() separator=""}</td>
+			<td class="response">Polydypsia:</td>
+			<td class="response">{html_radios name="polydypsia" options=$form->get_options() selected=$form->get_polydypsia() separator=""}</td>
+			<td class="response">Dysuria:</td>
+			<td class="response">{html_radios name="dysuria" options=$form->get_options() selected=$form->get_dysuria() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Hematuria:</td>
+			<td class="response">{html_radios name="hematuria" options=$form->get_options() selected=$form->get_hematuria() separator=""}</td>
+			<td class="response">Frequency:</td>
+			<td class="response">{html_radios name="frequency" options=$form->get_options() selected=$form->get_frequency() separator=""}</td>
+			<td class="response">Urgency:</td>
+			<td class="response">{html_radios name="urgency" options=$form->get_options() selected=$form->get_urgency() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Incontinence:</td>
+			<td class="response">{html_radios name="incontinence" options=$form->get_options() selected=$form->get_incontinence() separator=""}</td>
+			<td class="response">Renal Stones:</td>
+			<td class="response">{html_radios name="renal_stones" options=$form->get_options() selected=$form->get_renal_stones() separator=""}</td>
+			<td class="response">UTIs:</td>
+			<td class="response">{html_radios name="utis" options=$form->get_options() selected=$form->get_utis() separator=""}</td>
+		</tr>
+</tr><td>
+	
+		
+	</td>
+</tr>
+
+	</table></td>
+</tr>
+<tr>
+	<td><table><td class ="responcetd"><span class="section_title">Genitourinary Male</span><table>
+		<tr>
+			<td class="response">Hesitancy:</td>
+			<td class="response">{html_radios name="hesitancy" options=$form->get_options() selected=$form->get_hesitancy() separator=""}</td>
+			<td class="response">Dribbling:</td>
+			<td class="response">{html_radios name="dribbling" options=$form->get_options() selected=$form->get_dribbling() separator=""}</td>
+			<td class="response">Stream:</td>
+			<td class="response">{html_radios name="stream" options=$form->get_options() selected=$form->get_stream() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Nocturia:</td>
+			<td class="response">{html_radios name="nocturia" options=$form->get_options() selected=$form->get_nocturia() separator=""}</td>
+			<td class="response">Erections:</td>
+			<td class="response">{html_radios name="erections" options=$form->get_options() selected=$form->get_erections() separator=""}</td>
+			<td class="response">Ejaculations:</td>
+			<td class="response">{html_radios name="ejaculations" options=$form->get_options() selected=$form->get_ejaculations() separator=""}</td>
+		</tr>
+</tr><td>	
+	</td>
+</tr>
+
+	</table></td>
+</tr>
+<tr>
+	<td><table><td class ="responcetd"><span class="section_title">Genitourinary General</span><table>
+		<tr>
+			<td class="response">G:</td>
+			<td class="response">{html_radios name="g" options=$form->get_options() selected=$form->get_g() separator=""}</td>
+			<td class="response">P:</td>
+			<td class="response">{html_radios name="p" options=$form->get_options() selected=$form->get_p() separator=""}</td>
+			<td class="response">AP:</td>
+			<td class="response">{html_radios name="ap" options=$form->get_options() selected=$form->get_ap() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">LC:</td>
+			<td class="response">{html_radios name="lc" options=$form->get_options() selected=$form->get_lc() separator=""}</td>
+			<td class="response">Mearche:</td>
+			<td class="response">{html_radios name="mearche" options=$form->get_options() selected=$form->get_mearche() separator=""}</td>
+			<td class="response">Menopause:</td>
+			<td class="response">{html_radios name="menopause" options=$form->get_options() selected=$form->get_menopause() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">LMP:</td>
+			<td class="response">{html_radios name="lmp" options=$form->get_options() selected=$form->get_lmp() separator=""}</td>
+			<td class="response">Frequency:</td>
+			<td class="response">{html_radios name="f_frequency" options=$form->get_options() selected=$form->get_f_frequency() separator=""}</td>
+			<td class="response">Flow:</td>
+			<td class="response">{html_radios name="f_flow" options=$form->get_options() selected=$form->get_f_flow() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Symptoms:</td>
+			<td class="response">{html_radios name="f_symptoms" options=$form->get_options() selected=$form->get_f_symptoms() separator=""}</td>
+			<td class="response">Abnormal Hair Growth:</td>
+			<td class="response">{html_radios name="abnormal_hair_growth" options=$form->get_options() selected=$form->get_abnormal_hair_growth() separator=""}</td>
+			<td class="response">F/H Female Hirsutism/Striae:</td>
+			<td class="response">{html_radios name="f_hirsutism" options=$form->get_options() selected=$form->get_f_hirsutism() separator=""}</td>
+		</tr>
+</tr><td>
+	</td>
+</tr></table></td>
+</tr>
+<tr>
+	<td><table><td class ="responcetd"><span class="section_title">Musculoskeletal</span><table>
+		<tr>
+			<td class="response">Chronic Joint Pain:</td>
+			<td class="response">{html_radios name="joint_pain" options=$form->get_options() selected=$form->get_joint_pain() separator=""}</td>
+			<td class="response">Swelling:</td>
+			<td class="response">{html_radios name="swelling" options=$form->get_options() selected=$form->get_swelling() separator=""}</td>
+			<td class="response">Redness:</td>
+			<td class="response">{html_radios name="m_redness" options=$form->get_options() selected=$form->get_m_redness() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Warm:</td>
+			<td class="response">{html_radios name="m_warm" options=$form->get_options() selected=$form->get_m_warm() separator=""}</td>
+			<td class="response">Stiffness:</td>
+			<td class="response">{html_radios name="m_stiffness" options=$form->get_options() selected=$form->get_m_stiffness() separator=""}</td>
+			<td class="response">Muscle:</td>
+			<td class="response">{html_radios name="muscle" options=$form->get_options() selected=$form->get_muscle() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Aches:</td>
+			<td class="response">{html_radios name="m_aches" options=$form->get_options() selected=$form->get_m_aches() separator=""}</td>
+			<td class="response">FMS:</td>
+			<td class="response">{html_radios name="fms" options=$form->get_options() selected=$form->get_fms() separator=""}</td>
+			<td class="response">Arthritis:</td>
+			<td class="response">{html_radios name="arthritis" options=$form->get_options() selected=$form->get_arthritis() separator=""}</td>
+		</tr>
+</tr><td>	
+	</td>
+</tr>
+
+	</table></td>
+</tr>
+<tr>
+	<td><table><td class ="responcetd"><span class="section_title">Neurologic</span><table>
+		<tr>
+			<td class="response">LOC:</td>
+			<td class="response">{html_radios name="loc" options=$form->get_options() selected=$form->get_loc() separator=""}</td>
+			<td class="response">Seizures:</td>
+			<td class="response">{html_radios name="seizures" options=$form->get_options() selected=$form->get_seizures() separator=""}</td>
+			<td class="response">Stroke:</td>
+			<td class="response">{html_radios name="stroke" options=$form->get_options() selected=$form->get_stroke() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">TIA:</td>
+			<td class="response">{html_radios name="tia" options=$form->get_options() selected=$form->get_tia() separator=""}</td>
+			<td class="response">Numbness:</td>
+			<td class="response">{html_radios name="n_numbness" options=$form->get_options() selected=$form->get_n_numbness() separator=""}</td>
+			<td class="response">Weakness:</td>
+			<td class="response">{html_radios name="n_weakness" options=$form->get_options() selected=$form->get_n_weakness() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Paralysis:</td>
+			<td class="response">{html_radios name="paralysis" options=$form->get_options() selected=$form->get_paralysis() separator=""}</td>
+			<td class="response">Intellectual Decline:</td>
+			<td class="response">{html_radios name="intellectual_decline" options=$form->get_options() selected=$form->get_intellectual_decline() separator=""}</td>
+			<td class="response">Memory Problems:</td>
+			<td class="response">{html_radios name="memory_problems" options=$form->get_options() selected=$form->get_memory_problems() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Dementia:</td>
+			<td class="response">{html_radios name="dementia" options=$form->get_options() selected=$form->get_dementia() separator=""}</td>
+			<td class="response">Headache:</td>
+			<td class="response">{html_radios name="n_headache" options=$form->get_options() selected=$form->get_n_headache() separator=""}</td>
+		</tr>
+</tr><td>	
+	</td>
+</tr>
+
+	</table></td>
+</tr>
+<tr>
+	<td><table><td class ="responcetd"><span class="section_title">Skin</span><table>
+		<tr>
+			<td class="response">Cancer:</td>
+			<td class="response">{html_radios name="s_cancer" options=$form->get_options() selected=$form->get_s_cancer() separator=""}</td>
+			<td class="response">Psoriasis:</td>
+			<td class="response">{html_radios name="psoriasis" options=$form->get_options() selected=$form->get_psoriasis() separator=""}</td>
+			<td class="response">Acne:</td>
+			<td class="response">{html_radios name="s_acne" options=$form->get_options() selected=$form->get_s_acne() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Other:</td>
+			<td class="response">{html_radios name="s_other" options=$form->get_options() selected=$form->get_s_other() separator=""}</td>
+			<td class="response">Disease:</td>
+			<td class="response">{html_radios name="s_disease" options=$form->get_options() selected=$form->get_s_disease() separator=""}</td>
+		</tr>
+</tr><td>	
+	</td>
+</tr>
+
+	</table></td>
+</tr>
+<tr>
+	<td><table><td class ="responcetd"><span class="section_title">Psychiatric</span><table>
+		<tr>
+			<td class="response">Psychiatric Diagnosis:</td>
+			<td class="response">{html_radios name="p_diagnosis" options=$form->get_options() selected=$form->get_p_diagnosis() separator=""}</td>
+			<td class="response">Psychiatric Medication:</td>
+			<td class="response">{html_radios name="p_medication" options=$form->get_options() selected=$form->get_p_medication() separator=""}</td>
+			<td class="response">Depression:</td>
+			<td class="response">{html_radios name="depression" options=$form->get_options() selected=$form->get_depression() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Anxiety:</td>
+			<td class="response">{html_radios name="anxiety" options=$form->get_options() selected=$form->get_anxiety() separator=""}</td>
+			<td class="response">Social Difficulties:</td>
+			<td class="response">{html_radios name="social_difficulties" options=$form->get_options() selected=$form->get_social_difficulties() separator=""}</td>
+		</tr>
+</tr><td>	
+	</td>
+</tr>
+
+	</table></td>
+</tr>
+<tr>
+	<td><table><td class ="responcetd"><span class="section_title">Endocirne</span><table>
+		<tr>
+			<td class="response">Thyroid Problems:</td>
+			<td class="response">{html_radios name="thyroid_problems" options=$form->get_options() selected=$form->get_thyroid_problems() separator=""}</td>
+			<td class="response">Diabetes:</td>
+			<td class="response">{html_radios name="diabetes" options=$form->get_options() selected=$form->get_diabetes() separator=""}</td>
+			<td class="response">Abnormal Blood Test:</td>
+			<td class="response">{html_radios name="abnormal_blood" options=$form->get_options() selected=$form->get_abnormal_blood() separator=""}</td>
+		</tr>
+</tr><td>	
+	</td>
+</tr>
+
+	</table></td>
+</tr>
+<tr>
+	<td><table><td class ="responcetd"><span class="section_title">Hematologic/Allegic/Immunologic</span><table>
+		<tr>
+			<td class="response">Anemia:</td>
+			<td class="response">{html_radios name="anemia" options=$form->get_options() selected=$form->get_anemia() separator=""}</td>
+			<td class="response">F/H Blood Problems:</td>
+			<td class="response">{html_radios name="fh_blood_problems" options=$form->get_options() selected=$form->get_fh_blood_problems() separator=""}</td>
+			<td class="response">Bleeding Problems:</td>
+			<td class="response">{html_radios name="bleeding_problems" options=$form->get_options() selected=$form->get_bleeding_problems() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Allergies:</td>
+			<td class="response">{html_radios name="allergies" options=$form->get_options() selected=$form->get_allergies() separator=""}</td>
+			<td class="response">Frequent Illness:</td>
+			<td class="response">{html_radios name="frequent_illness" options=$form->get_options() selected=$form->get_frequent_illness() separator=""}</td>
+			<td class="response">HIV:</td>
+			<td class="response">{html_radios name="hiv" options=$form->get_options() selected=$form->get_hiv() separator=""}</td>
+		</tr>
+		<tr>
+			<td class="response">Status:</td>
+			<td class="response">{html_radios name="hai_status" options=$form->get_options() selected=$form->get_hai_status() separator=""}</td>
+		</tr>
+</tr><td>	
+	</td>
+</tr>
+
+	</table></td>
+</tr>
+
+<tr><td>
+<input type="hidden" name="id" value="{$form->get_id()}" />
+<input type="hidden" name="pid" value="{$form->get_pid()}" />
+<input type="hidden" name="process" value="true" />
+<input type="submit" value="submit" />
+</td></tr></table>
+</form>
+</body>
+</html>

@@ -1,0 +1,64 @@
+[-*Smarty*-]
+[-* we want to include out stylesheet for this view*-]
+[-include file="$TPL_NAME/views/header.html"-]
+[-fetch file="$TPL_STYLE_PATH/search.css" assign="css"-]
+[-eval var=$css-]
+<!-- main navigation -->
+[-*Load the Language Definitions*-]
+[-config_load file="lang.$USER_LANG"-]
+[-*Main Navigation*-]
+[-if $SEARCH_PERFORMED-]
+<br />
+[-foreach name=apps key=date item=appday from=$appointments-]
+	[-if count($appointments[$date]) gt 0 -]
+	<table width="100%" border="0" cellpadding="5" cellspacing="0" class="dayheader">
+		<tr>
+			<td width="100%">
+    			<a href="[-pc_url localpath=../../main/calendar/ action=day date=$cdate-]">
+			[-if $USE_INT_DATES eq true-]
+				[-pc_date_format date=$date format="%A, %d %B %Y"-]
+			[-else-]
+				[-pc_date_format date=$date format="%A, %B %d %Y"-]
+			[-/if-]</a>
+    		</td>
+		</tr>
+	</table>
+	<table width="100%" border="0" cellpadding="5" cellspacing="0" class="calcontainer">
+		<tr>
+			<td width="100%" class="eventslist">
+				[-foreach name=eventlist item=event from=$appday-]
+					<div width="100%" style="padding: 2px; border:solid 1px [-$event.catcolor-];">
+					[-if $24HOUR_TIME-]
+						[-assign var="timestamp" value=$event.startTime|date_format:"%H:%M"-]
+					[-else-]
+						[-assign var="timestamp" value=$event.startTime|date_format:"%I:%M %p"-]
+					[-/if-]
+					[-if $event.alldayevent != true-]
+						[-$timestamp-]
+					[-/if-]
+					<a href="[-pc_url action=detail localpath=../../main/calendar/ eid=$event.eid date=$cdate-]"
+					[-pc_popup delay="500"
+	            			   bgcolor=$event.catcolor
+			    			   caption=$event.title
+			    			   text=$event.hometext-]>
+    				[-$event.title|strip_tags-]</a>
+					[-if $event.alldayevent != true-]
+						([-$event.duration_hours-]:[-$event.duration_minutes-])
+					[-/if-]
+					[-include file="$TPL_NAME/user/patient_line.html" event=$event show_patient=true show_icons=true show_provider=true-]<br />
+					</div>
+				[-/foreach-]
+    		</td>
+		</tr>
+	</table>
+
+	<br />
+	[-/if-]
+[-/foreach-]
+<br />
+
+[-if count($appointments) == 0-]
+[-#_PC_SEARCH_NO_RESULTS#-]
+[-/if-]
+[-/if-]
+[-include file="$TPL_NAME/views/footer.html"-]

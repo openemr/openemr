@@ -1,0 +1,63 @@
+[-*Smarty*-]
+[-config_load file="navigation.conf"-]
+[-*Load the Language Definitions*-]
+[-config_load file="lang.$USER_LANG"-]
+
+<style type="text/css">
+.bnav 			{ border: 1px solid #000000; }
+td.nav  		{ border-right: 1px outset [-$BGCOLOR3-]; background-color:[-$BGCOLOR3-]; }
+td.nav:hover 	{ border-right: 1px outset [-$BGCOLOR3-]; background-color:[-$BGCOLOR2-]; }
+td.rnav 		{ background-color:[-$BGCOLOR3-]; }
+td.rnav:hover 	{ background-color:[-$BGCOLOR2-]; }
+td.snav 		{ border-right: 1px outset [-$BGCOLOR3-]; background-color:[-$BGCOLOR1-]; font-weight : bold; }
+td.rsnav 		{ background-color:[-$BGCOLOR1-]; font-weight : bold; }
+a.nav:link  	{ padding-right: 3px; padding-left: 3px; color: [-$TEXTCOLOR1-]; text-decoration: none; }
+a.nav:active 	{ padding-right: 3px; padding-left: 3px; color: [-$TEXTCOLOR1-]; text-decoration: none; }
+a.nav:hover 	{ padding-right: 3px; padding-left: 3px; color: [-$TEXTCOLOR1-]; text-decoration: none; }
+a.nav:visited 	{ padding-right: 3px; padding-left: 3px; color: [-$TEXTCOLOR1-]; text-decoration: none; }
+SELECT.nav  	{ color: [-$TEXTCOLOR1-]; background-color:[-$BGCOLOR1-]; }
+OPTION.nav  	{ color: [-$TEXTCOLOR1-]; background-color:[-$BGCOLOR1-]; }
+INPUT.nav 		{ color: [-$TEXTCOLOR1-]; background-color:[-$BGCOLOR1-]; }
+</style>
+
+<!-- main navigation -->
+[-pc_form_nav_open-]
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+     <tr>
+         <td nowrap valign="bottom" class="pn-normal">
+             [-pc_date_select day="on" 
+			 				  month="on" 
+							  year="on" 
+							  view="on" 
+							  label=#_PC_JUMP_MENU_LABEL# 
+							  class=""
+							  order="month,day,year,view,jump"-]
+         </td>
+         <td valign="bottom" align="left">
+            <table id="bnav" class="bnav" border="0" cellpadding="3" cellspacing="0" width="100%" bgcolor="[-#TABLE_BGCOLOR#-]">
+                <tr>
+                    <td nowrap align="center" valign="bottom" [-if $VIEW_TYPE eq "day"-]class="snav"[-else-]class="nav"[-/if-]>
+                        <a class="nav" href="[-pc_url action="day"-]">[-#_PC_THEME_DAY#-]</a>
+                    </td>
+                    <td nowrap align="center" valign="bottom" [-if $VIEW_TYPE eq "week"-]class="snav"[-else-]class="nav"[-/if-]>
+                        <a class="nav" href="[-pc_url action="week"-]">[-#_PC_THEME_WEEK#-]</a>
+                    </td>
+                    <td nowrap align="center" valign="bottom" [-if $VIEW_TYPE eq "month"-]class="snav"[-else-]class="nav"[-/if-]>
+                        <a class="nav" href="[-pc_url action="month"-]">[-#_PC_THEME_MONTH#-]</a>
+                    </td>
+                    <td nowrap align="center" valign="bottom" [-if $VIEW_TYPE eq "year"-]class="snav"[-else-]class="nav"[-/if-]>
+                        <a class="nav" href="[-pc_url action="year"-]">[-#_PC_THEME_YEAR#-]</a>
+                    </td>
+					[-if $ACCESS_ADD eq true-]
+                    <td nowrap align="center" valign="bottom" [-if $FUNCTION eq "submit"-]class="snav"[-else-]class="nav"[-/if-]>
+                        <a class="nav" href="[-pc_url action="submit"-]">[-#_PC_THEME_SUBMIT#-]</a>
+                    </td>
+					[-/if-]
+                    <td nowrap align="center" valign="bottom" [-if $FUNCTION eq "search"-]class="rsnav"[-else-]class="rnav"[-/if-]>
+                        <a class="nav" href="[-pc_url action="search"-]">[-#_PC_THEME_SEARCH#-]</a>
+                    </td>
+                </tr>
+            </table>
+         </td>
+     </tr>
+ </table>

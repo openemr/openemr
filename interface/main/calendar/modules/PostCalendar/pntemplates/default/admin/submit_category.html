@@ -1,0 +1,310 @@
+[-*Smarty*-]
+<!-- main navigation -->
+[-*Load the Language Definitions*-]
+[-config_load file="lang.$USER_LANG"-]
+
+<script LANGUAGE="Javascript" SRC="modules/[-$pcDir-]/pnincludes/AnchorPosition.js"></SCRIPT>
+    <script LANGUAGE="Javascript" SRC="modules/[-$pcDir-]/pnincludes/PopupWindow.js"></SCRIPT>
+    <script LANGUAGE="Javascript" SRC="modules/[-$pcDir-]/pnincludes/ColorPicker2.js"></SCRIPT>
+    <script LANGUAGE="JavaScript">
+    var cp = new ColorPicker('window');
+    // Runs when a color is clicked
+    function pickColor(color) {
+    	document.getElementById(field).value = color;
+	   
+	   
+	}
+
+    var field;
+    function pick(anchorname,target) {
+    	field=target;
+	    cp.show(anchorname);
+	}
+    </SCRIPT>
+    
+<html>
+<head></head>
+<body bgcolor="[-$BGCOLOR2-]"/>
+[-$AdminMenu-]
+<form name="cats" action="[-$action-]" method="post" enctype="application/x-www-form-urlencoded">
+<!-- GATHER NEW DATA START -->
+	<table border="1" cellpadding="5" cellspacing="0">
+			<tr>
+				<td>
+					<table  width ='%100' border='1'>
+						<tr>
+							<td colspan ='5'>
+								<table width ='%100'>
+									<th align="center"> New Category</th>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<table cellspacing='8' cellpadding='2'>
+            						<tr>
+            							<td valign="top" align="left">
+            								<input type="hidden" name="newid" value=""/>
+            								[-$_PC_CAT_NAME-]:<br />
+            								&nbsp;<input type="text" name="newname" value="" size="20"/>
+            							</td>
+            							<td valign="top" align="left">
+                							[-$_PC_CAT_COLOR-]:<br />
+                							&nbsp;<input type="text" name="newcolor" id='newcolor' value="#FFFFFF" size="10"/>
+											[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick">pick</a>]
+            							</td>
+            							<td valign="top" align="left">
+                							[-$_PC_CAT_DESC-]:<br />
+                							&nbsp;<textarea name="newdesc" rows="3" cols="20"></textarea>
+            							</td>
+            							<td  valign="top" align="left">
+            								[-$ALL_DAY_CAT_TITLE-]<br />
+            								&nbsp;[-$ALL_DAY_CAT_YES-]<input type="radio" name="new[-$InputAllDay-]" value="[-$ValueAllDay-]"/>
+            								<br />
+            								&nbsp;[-$ALL_DAY_CAT_NO-]<input type="radio" name="new[-$InputAllDay-]" value="[-$ValueAllDayNo-]" checked />
+            							</td>
+            							<td  valign="top" align="left">
+            								[-$_PC_CAT_DUR-]:<br />
+                							&nbsp;	[-$DurationHourTitle-]
+                							<input type="text" name="new[-$InputDurationHour-]" value="0" size="4" />
+                							<br />
+                							&nbsp;	[-$DurationMinTitle-]
+                							<input type="text" name="new[-$InputDurationMin-]" value="0" size="4" />
+                						</td>
+            						</tr>
+            					</table>
+            				</td>
+            			</tr>			
+						<tr>
+							<td>                				
+            					<table width='%100'>
+            						<tr>            			
+                						<td colspan="4" align="left" valign="top" >
+                							[-$RepeatingHeader-]
+                						</td>
+                					</tr>
+            						<tr>
+                						<td colspan="4" align="left" valign="middle" >
+                							<input type="radio" name="new[-$InputNoRepeat-]" value="[-$ValueNoRepeat-]" />
+                							[-$NoRepeatTitle-]<br />
+                							<input type="radio" name="new[-$InputRepeat-]" value="[-$ValueRepeat-]"/>
+                							[-$RepeatTitle-] 
+                							<input type="text" name="new[-$InputRepeatFreq-]" value="0" size="4" />
+                							
+                							<select name="new[-$InputRepeatFreqType-]">
+                								[-foreach item=repeat from=$repeat_freq_type-]
+                    								<option value="[-$repeat.value-]">
+                    									[-$repeat.name-]
+                    								</option>
+                								[-/foreach-]
+                							</select>
+               								<br />
+	                						<input type="radio" name="new[-$InputRepeatOn-]" value="[-$ValueRepeatOn-]" />
+	                						 [-$RepeatOnTitle-]:<br />
+                                			<select name="new[-$InputRepeatOnNum-]">
+                                				[-foreach item=repeat from=$repeat_on_num-]
+                    								<option value="[-$repeat.value-]">
+                    									[-$repeat.name-]
+                    								</option>
+                    							[-/foreach-]
+                							</select>
+                							<select name="new[-$InputRepeatOnDay-]">
+               									[-foreach item=repeat from=$repeat_on_day-]
+                    								<option value="[-$repeat.value-]" >
+                    									[-$repeat.name-]
+                    								</option>
+                								[-/foreach-]
+                							</select>
+                							&nbsp;[-$OfTheMonthTitle-]&nbsp;
+                							<input type="text" name="new[-$InputRepeatOnFreq-]" value="0" size="4" />
+                							[-$MonthsTitle-]
+											<br />
+											</td>
+											<td >
+											<!--End Date Start-->
+											<table width ='%100'>
+												<tr>
+													<td>
+													[-$NoEndDateTitle-]    
+                										<input type="radio" name="new[-$InputEndOn-]" value="[-$ValueNoEnd-]" checked />
+                										<br />
+														[-$EndDateTitle-]
+                										<input type="radio" name="new[-$InputEndOn-]" value="[-$ValueEnd-]"/>
+                										<br />
+                										
+                										<input type="text" name="new[-$InputEndDateFreq-]" value="0" size="4" />
+                										
+                										<select name="new[-$InputEndDateFreqType-]">
+                											[-foreach item=repeat from=$repeat_freq_type-]
+                    											<option value="[-$repeat.value-]" [-$repeat.selected-]>
+                    												[-$repeat.name-]
+                    											</option>
+                											[-/foreach-]
+                										</select>   
+                										<br /> 
+                									</td>
+                								</tr>
+                								
+                							</table>
+                					 		<!-- /End Date End -->
+               							 </td>
+               							 
+           							 </tr>
+           							 
+            					</table>
+            				</td>
+            			</tr>
+            			 <tr><td valign='bottom'>[-$FormSubmit-]</td></tr>
+            		</table>
+            	</td>
+            </tr>
+	</table>
+<table border="1" cellpadding="5" cellspacing="0">
+	<!--START REPEATION SECTION -->
+		[-foreach item=cat from=$all_categories-]
+			<tr>
+				<td>
+					<table  width ='%100' border='1'>
+						<tr>
+							<td colspan ='5'>
+								<table width ='%100'>
+						 			<!--<td align='left'>
+										<input type="checkbox" name="del[]" value="[-$cat.id-]"/>
+										[-$_PC_CAT_DELETE-]
+									</td> -->
+									<th align="center" bgcolor="[-$cat.color-]">Category</th>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<table cellspacing='8' cellpadding='2'>
+            						<tr>
+            							<td valign="top" align="left">
+            								<input type="hidden" name="id[]" value="[-$cat.id-]"/>
+            								[-$_PC_CAT_NAME-]:<br />
+            								&nbsp;<input type="text" name="name[]" value="[-$cat.name-]" size="20"/>
+            							</td>
+            							<td valign="top" align="left">
+                							[-$_PC_CAT_COLOR-]:<br />
+                							&nbsp;<input type="text" name="color[]" id='color[-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]' value="[-$cat.color-]" size="10"/>
+											[<a href="javascript:void(0);" onClick="pick('pick','color[-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]');return false;" NAME="pick" ID="pick">pick</a>]
+
+											
+            							</td>
+            							<td valign="top" align="left">
+                							[-$_PC_CAT_DESC-]:<br />
+                							&nbsp;<textarea name="desc[]" rows="3" cols="20">[-$cat.desc-]</textarea>
+            							</td>
+            							<td  valign="top" align="left">
+            								[-$ALL_DAY_CAT_TITLE-]<br />
+            								[-$ALL_DAY_CAT_YES-]
+            								<input type="radio" name="[-$InputAllDay-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$ValueAllDay-]" [-if $cat.end_all_day == 1-]checked[-/if-]/>
+            								<br />
+            								&nbsp;[-$ALL_DAY_CAT_NO-]<input type="radio" name="[-$InputAllDay-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$ValueAllDayNo-]" [-if $cat.end_all_day == 0-]checked[-/if-]/>
+            								</td>
+                						<td  valign="top" align="left">
+            								[-$_PC_CAT_DUR-]:<br />
+                							&nbsp;	[-$DurationHourTitle-]
+                							<input type="text" name="[-$InputDurationHour-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$cat.event_durationh-]" size="4" />
+                							<br />
+                							&nbsp;	[-$DurationMinTitle-]
+                							<input type="text" name="[-$InputDurationMin-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$cat.event_durationm-]" size="4" />
+                						</td>
+            						</tr>
+            					</table>
+            				</td>
+            			</tr>			
+						<tr>
+							<td>                				
+            					<table width='%100'>
+            						<tr>            			
+                						<td colspan="4" align="left" valign="top" >
+                							[-$RepeatingHeader-]
+                						</td>
+                					</tr>
+            						<tr>
+                						<td colspan="4" align="left" valign="middle" >
+                							<input type="radio" name="[-$InputNoRepeat-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$ValueNoRepeat-]" [-if $cat.event_repeat == 0-]checked[-/if-]/>
+                							[-$NoRepeatTitle-]<br />
+                							<input type="radio" name="[-$InputRepeat-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$ValueRepeat-]" [-if $cat.event_repeat == 1-]checked[-/if-] />
+                							[-$RepeatTitle-] 
+                							<input type="text" name="[-$InputRepeatFreq-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$cat.event_repeat_freq-]" size="4" />
+                							
+                							<select name="[-$InputRepeatFreqType-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]">
+                								[-foreach item=repeat from=$repeat_freq_type-]
+                    								<option value="[-$repeat.value-]" [-if $cat.event_repeat_freq_type == $repeat.value-]selected[-/if-]>
+                    									[-$repeat.name-]
+                    								</option>
+                								[-/foreach-]
+                							</select>
+               								<br />
+	                						<input type="radio" name="[-$InputRepeatOn-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$ValueRepeatOn-]"[-if $cat.event_repeat == 2-]checked[-/if-] />
+	                						 [-$RepeatOnTitle-]:<br />
+                                			<select name="[-$InputRepeatOnNum-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]">
+                                				[-foreach item=repeat from=$repeat_on_num-]
+                    								<option value="[-$repeat.value-]" [-if $cat.event_repeat_on_num == $repeat.value-]selected[-/if-]>
+                    									[-$repeat.name-]
+                    								</option>
+                    							[-/foreach-]
+                							</select>
+                							<select name="[-$InputRepeatOnDay-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]">
+               									[-foreach item=repeat from=$repeat_on_day-]
+                    								<option value="[-$repeat.value-]" [-if $cat.event_repeat_on_day == $repeat.value-]selected [-/if-]>
+                    									[-$repeat.name-]
+                    								</option>
+                								[-/foreach-]
+                							</select>
+                							&nbsp;[-$OfTheMonthTitle-]&nbsp;
+                							<input type="text" name="[-$InputRepeatOnFreq-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$cat.event_repeat_on_freq-]" size="4" />
+                							[-$MonthsTitle-]
+											<br />
+											</td>
+											<td >
+											<!--End Date Start-->
+											<table width ='%100'>
+												<tr>
+													<td>
+														[-$NoEndDateTitle-]    
+                										<input type="radio" name="[-$InputEndOn-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$ValueNoEnd-]"  [-if $cat.end_date_flag == 0-] checked[-/if-] />
+                										<br />
+														[-$EndDateTitle-]
+                										<input type="radio" name="[-$InputEndOn-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$ValueEnd-]"  [-if $cat.end_date_flag == 1-] checked[-/if-] />
+                										<br />         
+                									
+                										<input type="text" name="[-$InputEndDateFreq-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$cat.end_date_freq-]" size="4" />
+                										<select name="[-$InputEndDateFreqType-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]">
+                											[-foreach item=repeat from=$repeat_freq_type-]
+                    											<option value="[-$repeat.value-]" [-if $cat.end_date_type == $repeat.value-]selected [-/if-]>
+                    												[-$repeat.name-]
+                    											</option>
+                											[-/foreach-]
+                										</select>   
+                									</td>
+                								</tr>
+                								
+                							</table>
+                					 		<!-- /End Date End -->
+               							 </td>
+           							 </tr>
+           							             					</table>
+            				</td>
+            			</tr>
+            			<tr><td valign='bottom'>[-$FormSubmit-]</td></tr>
+            		</table>
+            	</td>
+            </tr>
+ 		<!-- /REPEATING ROWS -->
+		[-/foreach-]
+	</table>
+	
+<input type="hidden" name="pc_html_or_text" value="text" selected>
+[-*$EventHTMLorText*-]
+
+[-$FormHidden-]
+
+[-$FormSubmit-]
+</form>
+[-include file="$TPL_NAME/views/footer.html"-]

@@ -1,0 +1,100 @@
+<html>
+<head>
+{literal}
+ <style type="text/css" title="mystyles" media="all">
+<!--
+td {
+	font-size:8pt;
+	font-family:helvetica;
+}
+input {
+	font-size:8pt;
+	font-family:helvetica;
+}
+select {
+	font-size:8pt;
+	font-family:helvetica;
+}
+textarea {
+	font-size:8pt;
+	font-family:helvetica;
+}
+-->
+</style>
+{/literal}
+</head>
+<body {$STYLE.BOTTOM_BG_LINE}>
+<form name="prescribe" method="post" action="{$FORM_ACTION}">
+<table CELLSPACING="0" CELLPADDING="3">
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Starting Date</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+		{html_select_date start_year="-10" end_year="+5" time=$prescription->start_date prefix="start_date_"}
+	</td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Provider</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+		{html_options name="provider_id" options=$prescription->provider->utility_provider_array() selected=$prescription->provider->get_id()}
+	</td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Patient Name</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >{$prescription->patient->get_name_display()}</td>
+	<input type="hidden" name="patient_id" value="{$prescription->patient->id}" />
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Drug</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+		<input type="input" size="20" name="drug" value="{$prescription->drug}"/><input class="button" type="BUTTON" onClick="drugPopup=window.open('controller.php?prescription&lookup', 'drugPopup', 'width=400,height=50,menubar=no,titlebar=no,left = 825,top = 400'); drugPopup.opener=self; return true;" value="Drug Lookup"/>
+	</td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Quantity</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+		<input TYPE="TEXT" NAME="quantity" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->quantity}"/>
+	</td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Medicine Units</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+		<input TYPE="TEXT" NAME="size" SIZE="11" MAXLENGTH="10" VALUE="{$prescription->size}"/>
+		<select name="unit">{html_options options=$prescription->unit_array selected=$prescription->unit}</select>
+	</td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Take</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+		<input TYPE="TEXT" NAME="dosage" SIZE="11" MAXLENGTH="10" VALUE="{$prescription->dosage}"/> in
+		<select name="form">{html_options options=$prescription->form_array selected=$prescription->form}</select>
+		<select name="route">{html_options options=$prescription->route_array selected=$prescription->route}</select>
+		<select name="interval">{html_options options=$prescription->interval_array selected=$prescription->interval}</select>
+	</td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Refill</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+		{html_options name="refills" options=$prescription->refills_array selected=$prescription->refills}
+ 		<input TYPE="TEXT" NAME="per_refill" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->per_refill}"/> units</td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Substitution</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	{html_options name="substitute" options=$prescription->substitute_array selected=$prescription->substitute}
+	</td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Notes</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	<textarea name="note" cols="30" rows="3" wrap="virtual">{$prescription->note}</textarea>
+	</td>
+</tr>
+<tr>
+	<td><input type="submit" value="Prescribe" /></td>
+</tr>
+</table>
+<input type="hidden" name="id" value="{$prescription->id}" />
+<input type="hidden" name="process" value="{$PROCESS}" />
+</form>
+</body>
+</html>

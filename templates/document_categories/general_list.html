@@ -1,0 +1,41 @@
+{literal}
+ <style type="text/css" title="mystyles" media="all">
+<!--
+.treeMenuDefault {
+	font-style: italic;
+}
+		
+.treeMenuBold {
+	font-style: italic;
+	font-weight: bold;
+}
+
+-->
+</style>
+{/literal}
+<script src="CategoryTreeMenu.js" language="JavaScript" type="text/javascript"></script>
+<table>
+	<tr>
+		<td height="20" valign="top">Document Categories</td>
+		
+	</tr>
+	<tr>
+		<td valign="top">{$tree_html}</td>
+		{if $message}
+		<td valign="top">{$message}</td>
+		{/if}
+		{if $add_node eq true}
+		<td width="25"></td>
+		<td valign="top">
+		The new category will be a sub-category of {$parent_name}<br>
+		<form method="post" action="{$FORM_ACTION}">
+		Category Name:&nbsp;<input type="text" name="name">&nbsp;&nbsp;
+		<input type="submit" name="Add Category" value="Add Category">
+		<input type="hidden" name="parent_is" value="{$parent_is}">
+		<input type="hidden" name="process" value="{$PROCESS}" />
+		</form>
+		</td>
+		{/if}
+	</tr>
+	
+</table>

@@ -1,0 +1,42 @@
+<form method=post enctype="multipart/form-data" action="{$FORM_ACTION}">
+<input type="hidden" name="MAX_FILE_SIZE" value="12000000" />
+<table>
+	<tr>
+		<td>NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category. </td>
+	</tr>
+	<tr>
+		<td>Upload Document {if $category_name} to category '{$category_name}'{/if}</td>
+	</tr>
+	<tr>
+		<td><input type="file" name="file"></td>
+	</tr>
+	<tr>
+		<td><input type="submit" value="Upload"></td>
+	</tr>
+	{if !empty($file)}
+	<tr>
+		<td><br><br></td>
+	</tr>
+	<tr>
+		<td>Upload Report</td>
+	</tr>
+	<tr>
+		<td>{$error}</td>
+	</tr>
+	<tr>
+		<td>
+		ID: {$file->get_id()}<br>
+		Patient: {$file->get_foreign_id()}<br>
+		URL: {$file->get_url()}<br>
+		Size: {$file->get_size()}<br>
+		Date: {$file->get_date()}<br>
+		MimeType: {$file->get_mimetype()}<br>
+		Revision: {$file->revision}<br>
+		</td>
+	</tr>
+	{/if}
+</table>
+<input type="hidden" name="patient_id" value="{$patient_id}" />
+<input type="hidden" name="category_id" value="{$category_id}" />
+<input type="hidden" name="process" value="{$PROCESS}" />
+</form>

@@ -1,0 +1,163 @@
+<html>
+<head>
+{literal}
+<script language="javascript">
+function calculateBMI()
+{
+	var bmi = 0;
+	var kilos = 0;
+	var meters = 0;
+	var height = document.vitals.height.value;
+	var weight = document.vitals.weight.value;
+	if(height > 0 && weight > 0)
+	{
+		kilos = weight/2.2;
+		meters = height/39.4;
+		bmi = kilos/(meters * meters);
+	}
+	document.vitals.BMI.value = bmi;
+	return bmi;
+}
+</script>
+ <style type="text/css" title="mystyles" media="all">
+<!--
+td {
+	font-size:12pt;
+	font-family:helvetica;
+}
+li{
+	font-size:11pt;
+	font-family:helvetica;
+	margin-left: 15px;
+}
+a {
+	font-size:11pt;
+	font-family:helvetica;
+}
+.title {
+	font-family: sans-serif;
+	font-size: 12pt;
+	font-weight: bold;
+	text-decoration: none;
+	color: #000000;
+}
+
+.form_text{
+	font-family: sans-serif;
+	font-size: 9pt;
+	text-decoration: none;
+	color: #000000;
+}
+
+
+-->
+</style>
+{/literal}
+</head>
+<body bgcolor="{$STYLE.BGCOLOR2}">
+<p><span class="title">Vitals</span></p>
+<form name="vitals" method="post" action="{$FORM_ACTION}/interface/forms/vitals/save.php">
+<table>
+	<tr><th align="left">Name</th><th align="left">Unit</th>
+	<th align="left">{$vitals->get_date()|date_format:"%m/%d/%y"}</th>
+	{foreach item=result from=$results}
+		<th align="left"  align='right'>{$result.date|date_format:"%m/%d/%y"}</th>
+	{/foreach}</tr>
+		<tr><td>Height</td><td>in</td>
+		<td align='right'><input type="text"  size='5'
+		name="height" value="{$vitals->get_height()}"/></td>
+	{foreach item=result from=$results}
+		<td  align='right'>{$result.height}</td>
+	{/foreach}</tr>
+	<tr><td>Weight</td><td>lbs</td>
+		<td align='right'><input type="text" size='5'
+			name="weight" value="{$vitals->get_weight()}" onchange="calculateBMI();"/></td>
+	{foreach item=result from=$results}
+		<td  align='right'>{$result.weight}</td>
+	{/foreach}</tr>
+	<tr><td>BP Systolic</td><td>mm/hg</td>
+		<td align='right'><input type="text" size='5'
+			name="bps" value="{$vitals->get_bps()}"/></td>
+	{foreach item=result from=$results}
+		<td  align='right'>{$result.bps}</td>
+	{/foreach}</tr>
+	<tr><td>BP Diastolic</td><td>mm/hg</td>
+		<td align='right'><input type="text" size='5'
+			name="bpd" value="{$vitals->get_bpd()}"/></td>
+	{foreach item=result from=$results}
+		<td  align='right'>{$result.bpd}</td>
+	{/foreach}</tr>
+	<tr><td>Pulse</td><td>per min</td>
+			<td align='right'><input type="text" size='5'
+			name="pulse" value="{$vitals->get_pulse()}"/></td>
+	{foreach item=result from=$results}
+		<td  align='right'>{$result.pulse}</td>
+	{/foreach}</tr>
+	<tr><td>Respiration</td><td>per min</td>
+		<td align='right'><input type="text" size='5'
+			name="respiration" value="{$vitals->get_respiration()}"/></td>
+	{foreach item=result from=$results}
+		<td  align='right'>{$result.respiration}</td>
+	{/foreach}</tr>
+	<tr><td>Temperature</td><td>F</td>
+		<td align='right'><input type="text" size='5'
+			name="temperature" value="{$vitals->get_temperature()}"/></td>
+	{foreach item=result from=$results}
+		<td  align='right'>{$result.temperature}</td>
+	{/foreach}</tr>
+	<tr><td>Temp Location</td>
+		<td colspan='2' ><select name="temp_method">
+			<option value="1" {if $vitals->get_temp_method() == 1 } selected{/if}>Tympanic Membrane
+			<option value="2" {if $vitals->get_temp_method() == 2 } selected{/if}>Oral
+			<option value="3" {if $vitals->get_temp_method() == 3 } selected{/if}>Rectal
+			<option value="4" {if $vitals->get_temp_method() == 4 } selected{/if}>Axillary
+		</select></td>
+		{foreach item=result from=$results}
+			<td  align='right'>{if $result.temp_method == 1 }
+					Tympanic Membrane
+				{elseif $result.temp_method == 2 }
+					Oral
+				{elseif $result.temp_method == 3 }
+					Rectal
+				{else}
+					Axillary
+				{/if}
+			</td>
+		{/foreach}
+		</tr>
+	<tr><td>Head Circumference</td><td>cm</td>
+		<td align='right'><input type="text" size='5'
+			name="head_circ" value="{$vitals->get_head_circ()}"/></td>
+	{foreach item=result from=$results}
+		<td  align='right'>{$result.head_circ}</td>
+	{/foreach}</tr>
+	<tr><td>BMI</td><td>%</td>
+		<td align='right'><input type="text" size='5'
+			name="BMI" value="{$vitals->get_BMI()}"/></td>
+	{foreach item=result from=$results}
+		<td  align='right'>{$result.BMI}</td>
+	{/foreach}</tr>
+	<tr><td>Oxygen Saturation</td><td>%</td>
+		<td align='right'><input type="text" size='5'
+			name="oxygen_saturation" value="{$vitals->get_oxygen_saturation()}"/></td>
+	{foreach item=result from=$results}
+		<td  align='right'>{$result.oxygen_saturation}</td>
+	{/foreach}</tr>
+	<tr><td>Waist Circumference</td><td>in</td>
+		<td align='right'><input type="text" size='5'
+			name="waist_circ" value="{$vitals->get_waist_circ()}"/></td>
+	{foreach item=result from=$results}
+		<td align='right'>{$result.waist_circ}</td>
+	{/foreach}
+	</tr>
+	<tr>
+	<td><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
+</tr>
+</table>
+<input type="hidden" name="id" value="{$vitals->get_id()}" />
+<input type="hidden" name="activity" value="{$vitals->get_activity()}">
+<input type="hidden" name="pid" value="{$vitals->get_pid()}">
+<input type="hidden" name="process" value="true">
+</form>
+</body>
+</html>

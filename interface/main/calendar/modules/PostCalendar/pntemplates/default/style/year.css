@@ -1,0 +1,46 @@
+<style>
+td.monthon  			{ background-color: [-$STYLE.BGCOLOR1-]; border: 1px solid [-$STYLE.BGCOLOR2-]; }
+td.monthoff 			{ background-color: [-$STYLE.BGCOLOR2-]; border: 1px solid [-$STYLE.BGCOLOR1-]; }
+td.monthtoday 			{ background-color: [-$STYLE.HIGHLIGHT_COLOR-]; border: 1px solid [-$STYLE.BGCOLOR2-]; }
+td.yearheader 			{ background-color: [-$STYLE.BGCOLOR2-]; font-size: 14pt; font-weight: bold; }
+table.yearheader 		{ background-color: [-$STYLE.BGCOLOR2-]; border: 1px solid #000000; }
+.yearheader a:link  	{ font-size: 14pt; font-weight: bold; text-decoration: none; padding-left: 10px; padding-right: 10px; }
+.yearheader a:active 	{ font-size: 14pt; font-weight: bold; text-decoration: none; padding-left: 10px; padding-right: 10px; }
+.yearheader a:hover 	{ font-size: 14pt; font-weight: bold; text-decoration: none; padding-left: 10px; padding-right: 10px; }
+.yearheader a:visited 	{ font-size: 14pt; font-weight: bold; text-decoration: none; padding-left: 10px; padding-right: 10px; }
+
+td.monthheader  		{ background-color: [-$STYLE.BGCOLOR2-]; border-bottom: 2px solid #000000; font-size: 10pt; font-weight: bold; }
+.monthheader a:link 	{ font-size: 10pt; font-weight: bold; text-decoration: none; padding-left: 15px; padding-right: 15px; }
+.monthheader a:active 	{ font-size: 10pt; font-weight: bold; text-decoration: none; padding-left: 15px; padding-right: 15px; }
+.monthheader a:hover 	{ font-size: 10pt; font-weight: bold; text-decoration: none; padding-left: 15px; padding-right: 15px; }
+.monthheader a:visited  { font-size: 10pt; font-weight: bold; text-decoration: none; padding-left: 15px; padding-right: 15px; }
+
+td.daynames 			{ background-color: [-$STYLE.BGCOLOR1-]; border: 1px solid [-$BGCOLOR1-]; font-size: 8pt; font-weight: normal; text-decoration: none; }
+table.calcontainer  	{ border: 1px solid #000000; }
+td.calcontainer 		{ border: 1px solid #000000; }
+td.weeklink 			{ background-color: [-$STYLE.BGCOLOR1-]; border: 1px solid [-$STYLE.BGCOLOR1-]; }
+.weeklink a:link 		{ color: [-$TEXTCOLOR1-]; font-size: 7pt; font-weight: normal; text-decoration: none; }
+.weeklink a:active  	{ color: [-$TEXTCOLOR1-]; font-size: 7pt; font-weight: normal; text-decoration: none; }
+.weeklink a:hover 		{ color: [-$TEXTCOLOR1-]; font-size: 7pt; font-weight: normal; text-decoration: none; }
+.weeklink a:visited 	{ color: [-$TEXTCOLOR1-]; font-size: 7pt; font-weight: normal; text-decoration: none; }
+
+a.event-none:link	    { color: #000000; font-size:10px; font-weight:normal; text-decoration: none; }
+a.event-none:hover    	{ color: #000000; font-size:10px; font-weight:normal; text-decoration: none; }
+a.event-none:visited  	{ color: #000000; font-size:10px; font-weight:normal; text-decoration: none; }
+a.event-none:active   	{ color: #000000; font-size:10px; font-weight:normal; text-decoration: none; }
+
+a.event-one:link	 	{ color: #006600; font-size:10px; font-weight:normal; text-decoration: none; }
+a.event-one:hover	 	{ color: #006600; font-size:10px; font-weight:normal; text-decoration: none; }
+a.event-one:visited   	{ color: #006600; font-size:10px; font-weight:normal; text-decoration: none; }
+a.event-one:active    	{ color: #006600; font-size:10px; font-weight:normal; text-decoration: none; }
+
+a.event-two:link	 	{ color: #006666; font-size:10px; font-weight:normal; text-decoration: none; }
+a.event-two:hover	 	{ color: #006666; font-size:10px; font-weight:normal; text-decoration: none; }
+a.event-two:visited   	{ color: #006666; font-size:10px; font-weight:normal; text-decoration: none; }
+a.event-two:active    	{ color: #006666; font-size:10px; font-weight:normal; text-decoration: none; }
+
+a.event-three:link    	{ color: #0066cc; font-size:10px; font-weight:normal; text-decoration: none; }
+a.event-three:hover   	{ color: #0066cc; font-size:10px; font-weight:normal; text-decoration: none; }
+a.event-three:visited 	{ color: #0066cc; font-size:10px; font-weight:normal; text-decoration: none; }
+a.event-three:active  	{ color: #0066cc; font-size:10px; font-weight:normal; text-decoration: none; }
+</style>

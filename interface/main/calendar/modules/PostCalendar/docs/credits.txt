@@ -1,0 +1,15 @@
+$Id$
+========================================================================
+Credits
+========================================================================
+	
+	Version 3.0
+		Mahmood Al-Yousif
+		Roger Raymond (iansym)
+	
+	Version 2.0
+		Craig Hamlin
+		HotBird
+
+	
+	Originally Based on Rob Sutton's Events Calendar

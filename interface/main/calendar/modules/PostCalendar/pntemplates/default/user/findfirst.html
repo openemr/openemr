@@ -1,0 +1,122 @@
+[-*Smarty*-]
+[-* we want to include out stylesheet for this view*-]
+[-include file="$TPL_NAME/views/header.html"-]
+[-fetch file="$TPL_STYLE_PATH/search.css" assign="css"-]
+[-eval var=$css-]
+<!-- main navigation -->
+[-*Load the Language Definitions*-]
+[-config_load file="lang.$USER_LANG"-]
+[-*Main Navigation*-]
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="border: 1px solid black;"><tr><td>
+<form name="search" action="[-$FORM_ACTION-]&no_nav=1" method="POST">
+<br />
+<table>
+<tr><td>Provider</td>
+					<td>
+                		[-strip-]
+                		
+                		<select name="provider_id">
+						<option value="">Unassigned</option>
+						[-foreach item=provider from=$providers-]
+               		    <option value="[-$provider.id-]"
+						[-if $ProviderID eq $provider.id-]
+						  selected
+						[-/if-]
+						>[-$provider.lname-], [-$provider.fname-]</option>
+                		[-/foreach-]
+
+                		</select>
+                		[-/strip-]
+						<input type="hidden" name="patient_id" value="[-$patient_id-]">
+						<input type="hidden" name="event_category" value="[-$event_category-]">
+						<input type="hidden" name="event_dur_minutes" value="[-$event_dur_minutes-]">
+						<input type="hidden" name="event_dur_hours" value="[-$event_dur_hours-]">
+						<input type="hidden" name="event_subject" value="[-$event_subject-]">
+					</td>
+					</tr>
+					<tr><td>Starting:&nbsp;</td><td>[-$SelectDateTimeStart-]</td></tr>
+					<tr><td>Ending:&nbsp;</td><td>[-$SelectDateTimeEnd-]</td></tr>
+					<!--<tr><td colspan="2">Number Available:
+					<select name="number_available">
+					    <option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+					</select>-->
+					</td></tr></table>
+<br />
+<!--[-#_PC_SEARCH_KEYWORDS#-]: <input type="text" name="pc_keywords" value="" />-->
+<!--<select name="pc_keywords_andor">
+	<option value="AND">[-#_PC_SEARCH_AND#-]</option>
+	<option value="OR">[-#_PC_SEARCH_OR#-]</option>
+</select>-->
+<!--[-#_PC_SEARCH_IN#-]:
+<select name="pc_category">
+	<option value="">[-#_PC_SEARCH_ANY_CATEGORY#-]</option>
+	[-$CATEGORY_OPTIONS-]
+</select>-->
+<!--[-if $USE_TOPICS-]
+<select name="pc_topic">
+	<option value="">[-#_PC_SEARCH_ANY_TOPIC#-]</option>
+	[-$TOPIC_OPTIONS-]
+</select>
+[-/if-]-->
+<input type="submit" name="submit" value="Find First" />
+</form>
+</td></tr></table>
+
+[-if $SEARCH_PERFORMED-]
+<br />
+[-foreach name=times key=date item=available from=$available_times-]
+	<table width="100%" border="0" cellpadding="5" cellspacing="0" class="dayheader">
+		<tr>
+			<td width="100%">
+    			<a href="[-pc_url action=day date=$cdate-]">
+			[-if $USE_INT_DATES eq true-]
+				[-pc_date_format date=$date format="%A, %d %B %Y"-]
+			[-else-]
+				[-pc_date_format date=$date format="%A, %B %d %Y"-]
+			[-/if-]</a>
+    		</td>
+		</tr>
+	</table>
+	<table width="100%" border="0" cellpadding="5" cellspacing="0" class="calcontainer">
+		<tr>
+			<td width="100%" class="eventslist">
+				[-foreach name=entrylist item=entry from=$available-]
+					<div width="100%" style="padding: 2px; border:solid 1px [-$event.catcolor-];">
+					[-if $24HOUR_TIME-]
+						[-assign var="timestamp" value=$entry.startTime|date_format:"%H:%M"-]
+					[-else-]
+						[-assign var="timestamp" value=$entry.startTime|date_format:"%I:%M %p"-]
+					[-/if-]
+					[-if $event.alldayevent != true-]
+						[-$timestamp-]
+					[-/if-]
+					[-assign var="ampm" value="1" -]
+					[-if $entry.startTime|date_format:"%p" eq "PM"-]
+						[-assign var="ampm" value=2-]
+					[-/if-]
+					&nbsp;&nbsp;&nbsp; 
+					<a href="javascript:{}" onclick="window.opener.location = 'find_patient.php?no_nav=1&event_startmonth=[-$entry.startTime|date_format:"%m"-]&event_startday=[-$entry.startTime|date_format:"%d"-]&event_startyear=[-$entry.startTime|date_format:"%Y"-]&patient_id=[-$patient_id-]&provider_id=[-$provider_id-]&event_starttimeh=[-$entry.startTime|date_format:"%I"-]&event_starttimem=[-$entry.startTime|date_format:"%M"-]&event_startampm=[-$ampm-]&event_dur_hours=[-$event_dur_hours-]&event_dur_minutes=[-$event_dur_minutes-]&event_category=[-$event_category-]&event_subject=[-$event_subject-]';window.close();">
+					[-assign var="durhours" value=$entry.endTime|date_format:"%H"-]
+					[-if $durhours > 0-]
+						[-$durhours-] hours and
+					[-/if-]
+					[-$entry.endTime|date_format:"%M"-] minutes</a>
+					</div>
+				[-/foreach-]
+    		</td>
+		</tr>
+	</table>
+
+	<br />
+[-/foreach-]
+<br />
+
+[-if count($available_times) == 0-]
+[-#_PC_SEARCH_NO_RESULTS#-]
+[-/if-]
+[-/if-]
+[-include file="$TPL_NAME/views/footer.html"-]

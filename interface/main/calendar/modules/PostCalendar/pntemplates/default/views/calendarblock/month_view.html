@@ -1,0 +1,87 @@
+[-*Smarty*-]
+[-config_load file="default.conf"-]
+[-*Load the Language Definitions*-]
+[-include file="$TPL_NAME/views/header.html"-]
+[-config_load file="lang.$USER_LANG"-]
+[-* we want to include our stylesheet for this view*-]
+[-fetch file="$TPL_STYLE_PATH/calendarblock.css" assign="css"-]
+[-eval var=$css-]
+<table width="100%" border="0" cellpadding="5" cellspacing="0" class="blockmonthheader">
+    <tr align="center">
+        <td nowrap class="blockmonthheader" width="100%" align="center" valign="middle">
+			<a class="blockmonthheader" href="[-$PREV_MONTH_URL-]">&lt;&lt;</a>
+        	<a href="[-pc_url action="month" date=$DATE-]" 
+			class="blockmonthheader">[-$DATE|pc_date_format:#_PC_DATE_FORMAT_MY#-]</a>
+			<a class="blockmonthheader" href="[-$NEXT_MONTH_URL-]">&gt;&gt;</a>
+		</td>
+    </tr>
+</table>
+<table width="100%" border="0" cellpadding="0" cellspacing="0" class="blockcalcontainer">
+	<tr>
+		<td class="blockweeklink">&nbsp;</td>
+		[-foreach name=daynames item=day from=$S_SHORT_DAY_NAMES-]
+		<td width="14%" valign="top" align="center" class="blockdaynames">[-$day-]</td>
+		[-/foreach-]
+	</tr>
+	[-foreach name=weeks item=days from=$CAL_FORMAT-]
+	<tr>
+		<td class="blockweeklink" align="center" valign="middle"><a 
+			href="[-pc_url action=week date=$days[0]-]">&gt;</a></td>
+		[-foreach name=day item=date from=$days-]
+		[-assign var="themonth" value=$date|date_format:"%m"-]
+		[-if $date == $TODAY_DATE-]
+			[-assign var="stylesheet" value="blockmonthtoday"-]
+		[-elseif ($date < $MONTH_START_DATE || $date > $MONTH_END_DATE)-]
+			[-assign var="stylesheet" value="blockmonthoff"-]
+		[-else-]
+			[-assign var="stylesheet" value="blockmonthon"-]
+		[-/if-]
+		<td width="14%" class="[-$stylesheet-]" align="center" valign="middle"
+	    	onmouseover="this.style.backgroundColor='[-#CellHighlight#-]';"
+			onmouseout="this.style.backgroundColor='';"
+			onclick="javascript:location.href='[-pc_url action=day date=$date-]';">
+			[-assign var="titles" value=""-]
+			[-foreach name=events item=event from=$A_EVENTS.$date-]
+				[-if $event.alldayevent != true-]
+					[-if $24HOUR_TIME -]
+						[-assign var="timestamp" value=$event.startTime|date_format:#_PC_TIME_FORMAT_24#-]
+					[-else-]
+						[-assign var="timestamp" value=$event.startTime|date_format:#_PC_TIME_FORMAT_12#-]
+					[-/if-]
+					[-assign var="duration" value="($event[duration_hours]:$event[duration_minutes])"-]
+				[-else-]
+					[-assign var="timestamp" value=""-]
+					[-assign var="duration" value=""-]
+				[-/if-]
+				[-assign var="titles" value="$titles$timestamp $event[title] $duration<br /><br />"-]
+			[-/foreach-]
+			[-if $A_EVENTS.$date|@count-]
+				[-if $A_EVENTS.$date|@count > 2 -]
+					[-assign var="classname" value="blockevent-three"-]
+				[-elseif $A_EVENTS.$date|@count > 1 -]									 		   
+					[-assign var="classname" value="blockevent-two"-]
+				[-elseif $A_EVENTS.$date|@count > 0 -]									 		   
+					[-assign var="classname" value="blockevent-one"-]	
+				[-else-]																 		   
+					[-assign var="classname" value="blockevent-none"-]
+				[-/if-] 																 		   
+				<a class="[-$classname-]" href="[-pc_url action=day date=$date-]"
+				   [-if $USE_INT_DATES eq true-]
+				       [-assign var="format" value=#_PC_DATE_FORMAT_INT#-]
+				   [-else-]    
+				       [-assign var="format" value=#_PC_DATE_FORMAT_STD#-]
+				   [-/if-]
+				   [-pc_popup delay="500" 
+					    	  timeout="3600"
+							  caption=$date|pc_date_format:$format
+							  text="$titles"-]>[-$date|date_format:"%d"-]</a>
+			[-else-]
+				[-assign var="classname" value="blockevent-none"-]
+				<a class="[-$classname-]" href="[-pc_url action=day date=$date-]">[-$date|date_format:"%d"-]</a>
+			[-/if-] 		  
+		</td>
+		[-/foreach-]
+	</tr>
+	[-/foreach-]
+</table>
+[-include file="$TPL_NAME/views/footer.html"-]

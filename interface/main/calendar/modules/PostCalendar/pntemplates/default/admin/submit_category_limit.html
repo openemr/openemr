@@ -1,0 +1,205 @@
+[-*Smarty*-]
+<!-- main navigation -->
+[-*Load the Language Definitions*-]
+[-config_load file="lang.$USER_LANG"-]
+    
+<html>
+<head></head>
+<body bgcolor="[-$BGCOLOR2-]"/>
+[-$AdminMenu-]
+<form name="limit" action="[-$action-]" method="post" enctype="application/x-www-form-urlencoded">
+<table border="1" cellpadding="5" cellspacing="0">
+			<tr>
+				<td>
+					<table  width ='%100' border='1'>
+						<tr>
+							<td colspan ='5'>
+								<table width ='%100'>
+									<th align="center" >[-$_PC_NEW_LIMIT_TITLE-]</th>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<table cellspacing='8' cellpadding='2'>
+								<tr><td>[-$catTitle-]</td><td>[-$StartTimeTitle-]</td><td>[-$EndTimeTitle-]</td><td>[-$LimitTitle-]</td></tr>
+            						<tr>
+            							<td valign="top" align="left">
+            								<select name="new[-$catid-]">
+                								[-foreach item=repeat from=$categories-]
+                    								<option value="[-$repeat.id-]">
+                    									[-$repeat.name-]
+                    								</option>
+                								[-/foreach-]
+                							</select>
+                						</td>
+            							<td valign="top" align="left">
+    										<select name="new[-$starttimeh-]">
+                								[-foreach item=repeat from=$hour_array-]
+                    								<option value="[-$repeat-]">
+                    									[-$repeat-]
+                    								</option>
+                								[-/foreach-]
+                							</select>:
+                							
+                							<select name="new[-$starttimem-]">
+                								[-foreach item=repeat from=$min_array-]
+                    								<option value="[-$repeat-]">
+                    									[-$repeat-]
+                    								</option>
+                								[-/foreach-]
+                							</select>
+               							
+                						</td>
+               							<td valign="top" align="left">                							
+                							<select name="new[-$endtimeh-]">
+                								[-foreach item=repeat from=$hour_array-]
+                    								<option value="[-$repeat-]" >
+                    									[-$repeat-]
+                    								</option>
+                								[-/foreach-]
+                							</select>:
+                							<select name="new[-$endtimem-]">
+                								[-foreach item=repeat from=$min_array-]
+                    								<option value="[-$repeat-]">
+                    									[-$repeat-]
+                    								</option>
+                								[-/foreach-]
+                							</select>
+                					
+               							</td>
+               							<td align='right'>
+               								<input type="text" name="new[-$InputLimit-]" value="" size="4" />
+               							</td>
+                					</tr>
+                				</table>
+                				
+                			</td>
+           				</tr>
+            		</table>
+            		[-$FormSubmit-]
+            	</td>
+            </tr>
+	</table>
+<table border="1" cellpadding="5" cellspacing="0">
+	<!--START REPEATION SECTION -->
+	
+		[-foreach item=limit from=$limits-]
+		[-assign var="shour" value=$limit.startTime|date_format:"%H"-]
+		[-assign var="smin" value=$limit.startTime|date_format:"%M"-]
+		[-assign var="ehour" value=$limit.endTime|date_format:"%H"-]
+		[-assign var="emin" value=$limit.endTime|date_format:"%M"-]
+		
+		
+		[-foreach item=repeat from=$categories-]
+       		
+       		[-if $repeat.id == $limit.catid -]
+       				[-assign var="title_color" value=$repeat.color -]
+       			
+       		[-/if-]
+        [-/foreach-]	
+			<tr>
+				<td>
+					<table  width ='%100' border='1'>
+						<tr>
+							<td colspan ='5'>
+								<table width ='%100'>
+									<th align="center"  bgcolor="[-$title_color-]">[-$_PC_LIMIT_TITLE-]</th>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						<tr>
+							<td>
+							<input type="checkbox" name="del[]" value="[-$limit.limitid-]"/>
+										[-$_PC_CAT_DELETE-]
+							</td>
+							<td>[-$limit.starttime|date_format:"%H" -]
+								<input type="hidden" name="id[]" value="[-$limit.limitid-]"/>
+								<table cellspacing='8' cellpadding='2'>
+								<tr><td>[-$catTitle-]</td><td>[-$StartTimeTitle-]</td><td>[-$EndTimeTitle-]</td><td>[-$LimitTitle-]</td></tr>
+            						<tr>
+            							<td valign="top" align="left">
+            								<select name="[-$catid-][]">
+                								[-foreach item=repeat from=$categories-]
+                    								<option value="[-$repeat.id-]"
+                    									[-if $repeat.id == $limit.catid -]
+                    										selected
+                    									[-/if-]
+                    									>
+                    									[-$repeat.name-]
+                    								</option>
+                								[-/foreach-]
+                							</select>
+                						</td>
+            							<td valign="top" align="left">
+            								<select name="[-$starttimeh-][]">
+                								[-foreach item=repeat from=$hour_array-]
+                    								<option value="[-$repeat-]"
+                    									[-if $repeat == $shour -]
+                    										selected 
+                    									[-/if-]>
+                    									[-$repeat-]
+                    								</option>
+                								[-/foreach-]
+                							</select>:
+                							
+                							<select name="[-$starttimem-][]">
+                								[-foreach item=repeat from=$min_array-]
+                    								<option value="[-$repeat-]"
+                    									[-if $repeat == $smin -]
+                    										selected 
+                    									[-/if-]>
+                    									[-$repeat-]
+                    								</option>
+                								[-/foreach-]
+                							</select>
+                					
+                						</td>
+               							<td valign="top" align="left">                							
+                							<select name="[-$endtimeh-][]">
+                								[-foreach item=repeat from=$hour_array-]
+                    								<option value="[-$repeat-]" 
+														[-if $repeat == $ehour -]
+                    										selected 
+                    									[-/if-]>
+                    									[-$repeat-]
+                    								</option>
+                								[-/foreach-]
+                							</select>:
+                							<select name="[-$endtimem-][]">
+                								[-foreach item=repeat from=$min_array-]
+                    								<option value="[-$repeat-]"
+                    									[-if $repeat == $emin -]
+                    										selected 
+                    									[-/if-]>
+                    									[-$repeat-]
+                    								</option>
+                								[-/foreach-]
+                							</select>
+                							
+               							</td>
+               							<td align='right'>
+               								<input type="text" name="[-$InputLimit-][]" value="[-$limit.limit-]" size="4" />
+               							</td>
+                					</tr>
+                				</table>
+                				
+                			</td>
+           				</tr>
+            		</table>
+            		[-$FormSubmit-]
+            	</td>
+            </tr>
+ 		<!-- /REPEATING ROWS -->
+		[-/foreach-]
+	</table>
+
+[-*$EventHTMLorText*-]
+
+[-$FormHidden-]
+
+
+</form>
+[-include file="$TPL_NAME/views/footer.html"-]

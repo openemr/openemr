@@ -1,0 +1,22 @@
+Frequently Asked Questions
+version 1.1
+
+
+* After installation and setup, I get errors from login.php at lines 3 and 4 about failing to opening md5.js and sql.inc.
+
+Please check the openemr/interface/globals.php file and edit the line that sets $webserver_root.
+$webserver_root = "/var/www/html/openemr";
+It should be set to the absolute path of the openemr web directory, as shown above.
+
+
+* During installation of setup.php, I see ';?> at the top of each step.
+
+PHP can be called from within Apache with either long tags: <?php or short tags: <? 
+OpenEMR uses short tags throughout its program code, though some default installations have short tags disabled. If you see this error, short tags are not enabled. Please consult PHP's documentation at: http://www.zend.com/manual/language.basic-syntax.php. The solution is to enable the short_open_tag configuration flag in the PHP config file, or by compiling PHP with the --enable-short-tags option to configure. (Zend PHP Website)
+
+
+* How do I implement my own encounter forms into OpenEMR?
+
+The encounter form system and API is intended to support a wide variety of diverse encounter forms. To create your own encounter forms, you have two options: you can implement them manually yourself, or you can contract PennFirm do generate them for you. If you would like PennFirm to generate forms for you, please email info@openemr.net, and you will be given a fax number to which all forms may be sent. PennFirm will create your forms, including layout, reporting, etc. and email them to you within 1 week.
+
+If you would like to make forms yourself, please begin by taking a look at the existing forms that come with the default installation of OpenEMR. The Documentation/3rd Party Form API.txt document details the user-level functions available for form developers. While implementing your own forms, please remember that compatibility with the rest of the OpenEMR platform is crucial, for correct report generation and smooth functionality.

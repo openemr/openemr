@@ -1,0 +1,26 @@
+CREATE TABLE IF NOT EXISTS `form_vitals` (
+
+`id` bigint(20) NOT NULL auto_increment,
+`date` datetime default NULL,
+`pid` bigint(20) default 0,
+`user` varchar(255) default NULL,
+`groupname` varchar(255) default NULL,
+`authorized` tinyint(4) default 0,
+`activity` tinyint(4) default 0,
+`bps` varchar (40) default 0,
+`bpd` varchar (40) default 0,
+`weight` INT (3) default 0,
+`height` INT (3) default 0,
+`temperature` FLOAT (4,2) default 0,
+`temp_method` VARCHAR (255) default NULL,
+`pulse` FLOAT (4,2) default 0,
+`respiration` FLOAT (4,2) default 0,
+`note` VARCHAR (255) default NULL,
+`BMI` DOUBLE  UNSIGNED default 0,
+`BMI_status` VARCHAR (255) default NULL,
+`waist_circ` FLOAT (4,2) default 0,
+`head_circ` FLOAT (4,2) default 0,
+`oxygen_saturation` FLOAT (3,2) default 0,
+`temp_methods` ENUM( 'Oral', 'Rectal', 'Axillary' ) DEFAULT 'Axillary' NOT NULL,
+PRIMARY KEY (id)
+) TYPE=MyISAM;

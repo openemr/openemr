@@ -1,0 +1,50 @@
+<html>
+<head>
+{literal}
+ <style type="text/css" title="mystyles" media="all">
+<!--
+td {
+	font-size:8pt;
+	font-family:helvetica;
+}
+a {
+	font-size:8pt;
+	font-family:helvetica;
+}
+.treeMenuDefault {
+	font-style: italic;
+}
+		
+.treeMenuBold {
+	font-style: italic;
+	font-weight: bold;
+}
+
+-->
+</style>
+{/literal}
+<script src="DocumentTreeMenu.js" language="JavaScript" type="text/javascript"></script>
+</head>
+<body bgcolor="{$STYLE.BGCOLOR2}">
+<table>
+	<tr>
+		<td height="20" valign="top">Document Categories<br>
+			&nbsp;&nbsp;&nbsp;<a href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">collapse all</a>
+		</td>
+		<td width="25"></td>
+		<td valign="top" rowspan="2">
+		{if $message}
+			{$message}<br>
+		{/if}
+		{if $messages}
+			{$messages}<br>
+		{/if}
+		{$activity}
+		</td>
+	</tr>
+	<tr>
+		<td valign="top">{$tree_html}</td>
+	</tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,42 @@
+[-*Smarty*-]
+<table border="0" cellpadding="1" cellspacing="0" width="100%" bgcolor="[-$bgcolor2-]"><tr><td>
+    <form action="[-$FormURL-]" method="post" enctype="application/x-www-form-urlencoded">
+    <input type="hidden" name="tplview" value="[-$tplview-]">
+    <table border="0" cellpadding="5" cellspacing="0" width="100%" bgcolor="[-$bgcolor1-]">
+        <tr>
+            <td width="10" align="left" valign="top">
+                <center><img src="modules/[-$ModuleDirectory-]/pnimages/admin.gif"></center>
+            </td>
+            <td align="center" valign="middle">
+                <font class="pn-logo">[-$ModuleName-]</font>
+                <p style="color: [-$bgcolor2-]">
+                [ <a href="[-$ActionViewDay-]">[-$DayView-]</a> ]
+                [ <a href="[-$ActionViewWeek-]">[-$WeekView-]</a> ]
+                [ <a href="[-$ActionViewMonth-]">[-$MonthView-]</a> ]
+                [ <a href="[-$ActionViewYear-]">[-$YearView-]</a> ]
+                [ <a href="[-$SubmitURL-]">[-$Submit-]</a> ]
+                [ <a href="[-$SearchURL-]">[-$Search-]</a> ]
+                </p>
+                [-pc_date_select day="off" view="off" year="on" month="on" form="off"-]
+                <br />
+            </td>
+            <td align="center" valign="top">
+                Legend:<br />
+                <table border="0" cellpadding="4" cellspacing="2">
+                    <tr>
+                    [-section name=cat loop=$category-]
+                        <td bgcolor="[-$category[cat].color-]">
+                           <font color="#000000">[-$category[cat].name-]</font>
+                        </td>
+                    [-if ($smarty.section.cat.rownum + 1) % 3 eq 1-]
+                    </tr><tr>
+                    [-/if-]
+                    [-/section-]
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    </form>
+</td></tr></table>
+

@@ -1,0 +1,399 @@
+------------------------------------------------------------------------
+r92 | rroark | 2005-02-08 10:30:48 -0800 (Tue, 08 Feb 2005) | 1 line
+
+fixed bug that was keeping claims from generating sql-ledger invoices
+------------------------------------------------------------------------
+r91 | rroark | 2005-02-07 20:56:23 -0800 (Mon, 07 Feb 2005) | 1 line
+
+formSubmit() did not insert billing codes properly; perhaps this fix will save someone some grief
+------------------------------------------------------------------------
+r90 | daryam | 2005-02-07 16:13:03 -0800 (Mon, 07 Feb 2005) | 1 line
+
+fixed db error
+------------------------------------------------------------------------
+r89 | james | 2005-02-07 16:06:10 -0800 (Mon, 07 Feb 2005) | 2 lines
+
+changed weel to well
+
+------------------------------------------------------------------------
+r88 | daryam | 2005-02-07 15:44:29 -0800 (Mon, 07 Feb 2005) | 1 line
+
+fixed some dumb errors
+------------------------------------------------------------------------
+r87 | daryam | 2005-02-07 08:43:55 -0800 (Mon, 07 Feb 2005) | 1 line
+
+pulling out old unused forms and putting them in forms tree
+------------------------------------------------------------------------
+r86 | daryam | 2005-02-04 14:22:00 -0800 (Fri, 04 Feb 2005) | 2 lines
+
+updated unassinged to unassigned
+
+------------------------------------------------------------------------
+r85 | daryam | 2005-02-04 13:33:10 -0800 (Fri, 04 Feb 2005) | 2 lines
+
+added formate of date in the select screen
+
+------------------------------------------------------------------------
+r84 | daryam | 2005-02-04 13:16:13 -0800 (Fri, 04 Feb 2005) | 2 lines
+
+updated weel_child to well_child
+
+------------------------------------------------------------------------
+r83 | daryam | 2005-02-03 12:06:35 -0800 (Thu, 03 Feb 2005) | 1 line
+
+Changes as per Walt to add a custom superbill report allowing users to enter a date range and have all the encounters print, initial version
+------------------------------------------------------------------------
+r82 | daryam | 2005-02-02 15:22:51 -0800 (Wed, 02 Feb 2005) | 1 line
+
+fixed errors in reporting
+------------------------------------------------------------------------
+r81 | rroark | 2005-02-02 14:05:52 -0800 (Wed, 02 Feb 2005) | 1 line
+
+improve robustness and flexibility of parsing input dates
+------------------------------------------------------------------------
+r80 | daryam | 2005-02-01 14:31:11 -0800 (Tue, 01 Feb 2005) | 1 line
+
+added proxymed as x12 partner format type
+------------------------------------------------------------------------
+r79 | rroark | 2005-02-01 12:38:47 -0800 (Tue, 01 Feb 2005) | 1 line
+
+cosmetics: change yellow areas to blue, remove the gradient title image, vertically center navigation and title lines, make some frames resizable with borders
+------------------------------------------------------------------------
+r78 | rroark | 2005-02-01 12:34:38 -0800 (Tue, 01 Feb 2005) | 1 line
+
+fix for garbage at end of pdf output when printing a prescription
+------------------------------------------------------------------------
+r77 | daryam | 2005-01-27 09:50:04 -0800 (Thu, 27 Jan 2005) | 1 line
+
+Added as per Walt
+------------------------------------------------------------------------
+r76 | daryam | 2005-01-24 08:09:21 -0800 (Mon, 24 Jan 2005) | 1 line
+
+Moved web services to false in config.php:
+------------------------------------------------------------------------
+r75 | daryam | 2005-01-20 17:19:46 -0800 (Thu, 20 Jan 2005) | 1 line
+
+posting to self so you don't have to go back and forth between diagnosis to add codes
+------------------------------------------------------------------------
+r74 | james | 2005-01-20 16:19:48 -0800 (Thu, 20 Jan 2005) | 2 lines
+
+there is nothing here
+
+------------------------------------------------------------------------
+r73 | daryam | 2005-01-19 11:04:48 -0800 (Wed, 19 Jan 2005) | 1 line
+
+backing out commit
+------------------------------------------------------------------------
+r72 | daryam | 2005-01-19 10:59:42 -0800 (Wed, 19 Jan 2005) | 1 line
+
+OpenEMR requires register_globals off to run properly, setting that in a .htaccess file
+------------------------------------------------------------------------
+r71 | daryam | 2005-01-17 10:10:59 -0800 (Mon, 17 Jan 2005) | 1 line
+
+fixed various errors with calendaring
+------------------------------------------------------------------------
+r70 | daryam | 2005-01-17 10:08:18 -0800 (Mon, 17 Jan 2005) | 1 line
+
+url escaping name
+------------------------------------------------------------------------
+r69 | daryam | 2005-01-17 10:00:52 -0800 (Mon, 17 Jan 2005) | 1 line
+
+Breaking out superbill to it's own page
+------------------------------------------------------------------------
+r68 | daryam | 2005-01-17 09:59:39 -0800 (Mon, 17 Jan 2005) | 1 line
+
+Added ability to set date on encounter
+------------------------------------------------------------------------
+r67 | daryam | 2005-01-17 09:57:44 -0800 (Mon, 17 Jan 2005) | 1 line
+
+Added ability to assign a date to an encounter
+------------------------------------------------------------------------
+r66 | james | 2005-01-06 09:03:16 -0800 (Thu, 06 Jan 2005) | 2 lines
+
+updated to work with sql ledger
+
+------------------------------------------------------------------------
+r65 | james | 2005-01-06 08:44:24 -0800 (Thu, 06 Jan 2005) | 2 lines
+
+updated to workaround  global arrray issue
+
+------------------------------------------------------------------------
+r64 | daryam | 2004-12-22 11:40:37 -0800 (Wed, 22 Dec 2004) | 1 line
+
+new auth scheme
+------------------------------------------------------------------------
+r63 | daryam | 2004-12-22 11:40:09 -0800 (Wed, 22 Dec 2004) | 1 line
+
+Code to break out superbill and seperate codes
+------------------------------------------------------------------------
+r62 | daryam | 2004-12-22 11:38:18 -0800 (Wed, 22 Dec 2004) | 1 line
+
+using db sequence for encounter now
+------------------------------------------------------------------------
+r61 | (no author) | 2004-12-21 22:49:25 -0800 (Tue, 21 Dec 2004) | 1 line
+
+
+------------------------------------------------------------------------
+r60 | (no author) | 2004-12-21 22:43:28 -0800 (Tue, 21 Dec 2004) | 1 line
+
+
+------------------------------------------------------------------------
+r59 | (no author) | 2004-12-17 20:28:29 -0800 (Fri, 17 Dec 2004) | 1 line
+
+
+------------------------------------------------------------------------
+r58 | (no author) | 2004-12-17 20:27:30 -0800 (Fri, 17 Dec 2004) | 1 line
+
+
+------------------------------------------------------------------------
+r57 | daryam | 2004-12-16 15:54:50 -0800 (Thu, 16 Dec 2004) | 1 line
+
+changed frameset to break out superbill
+------------------------------------------------------------------------
+r56 | daryam | 2004-12-16 15:54:15 -0800 (Thu, 16 Dec 2004) | 1 line
+
+Added a back link and changed more to use self as target
+------------------------------------------------------------------------
+r55 | daryam | 2004-12-16 15:52:39 -0800 (Thu, 16 Dec 2004) | 1 line
+
+Changed target of superbill to main
+------------------------------------------------------------------------
+r54 | daryam | 2004-12-16 15:28:50 -0800 (Thu, 16 Dec 2004) | 1 line
+
+Can now select date of service for an encounter
+------------------------------------------------------------------------
+r53 | daryam | 2004-12-16 15:28:19 -0800 (Thu, 16 Dec 2004) | 1 line
+
+added ability to pass date to addForm function
+------------------------------------------------------------------------
+r52 | daryam | 2004-12-16 10:49:25 -0800 (Thu, 16 Dec 2004) | 2 lines
+
+Created branch for eHDL code line
+
+------------------------------------------------------------------------
+r51 | daryam | 2004-12-16 10:46:10 -0800 (Thu, 16 Dec 2004) | 1 line
+
+Delete top level items, they are now in trunk
+------------------------------------------------------------------------
+r50 | daryam | 2004-12-16 10:41:01 -0800 (Thu, 16 Dec 2004) | 2 lines
+
+Copy current revision into trunk, this will be the main code line now
+
+------------------------------------------------------------------------
+r49 | daryam | 2004-12-16 10:40:03 -0800 (Thu, 16 Dec 2004) | 1 line
+
+added extra directories to track branches and main line
+------------------------------------------------------------------------
+r48 | daryam | 2004-11-17 13:49:42 -0800 (Wed, 17 Nov 2004) | 1 line
+
+added state to infor passed with customer
+------------------------------------------------------------------------
+r47 | daryam | 2004-11-17 12:32:17 -0800 (Wed, 17 Nov 2004) | 1 line
+
+Fixed error with ffa not carrying event title over
+------------------------------------------------------------------------
+r46 | daryam | 2004-11-17 09:14:31 -0800 (Wed, 17 Nov 2004) | 1 line
+
+comment
+------------------------------------------------------------------------
+r45 | james | 2004-11-16 15:18:42 -0800 (Tue, 16 Nov 2004) | 2 lines
+
+updated for findfirst dur/start hour/min 
+
+------------------------------------------------------------------------
+r44 | james | 2004-11-16 15:18:04 -0800 (Tue, 16 Nov 2004) | 2 lines
+
+pass along dur/start min/hour
+
+------------------------------------------------------------------------
+r43 | james | 2004-11-16 15:07:35 -0800 (Tue, 16 Nov 2004) | 2 lines
+
+updated to pass dur hour/min through double book error
+
+------------------------------------------------------------------------
+r42 | james | 2004-11-16 15:07:00 -0800 (Tue, 16 Nov 2004) | 2 lines
+
+updated so that dur min/hr get passed by double bookings
+
+------------------------------------------------------------------------
+r41 | james | 2004-11-15 10:45:44 -0800 (Mon, 15 Nov 2004) | 3 lines
+
+find first bug fix 
+
+
+------------------------------------------------------------------------
+r40 | daryam | 2004-11-13 11:57:31 -0800 (Sat, 13 Nov 2004) | 1 line
+
+fixed typo in status
+------------------------------------------------------------------------
+r39 | daryam | 2004-11-10 11:59:29 -0800 (Wed, 10 Nov 2004) | 1 line
+
+Added Comment function
+------------------------------------------------------------------------
+r38 | daryam | 2004-11-10 10:09:53 -0800 (Wed, 10 Nov 2004) | 1 line
+
+added date of last visit
+------------------------------------------------------------------------
+r37 | daryam | 2004-11-09 15:44:21 -0800 (Tue, 09 Nov 2004) | 1 line
+
+added dateoflastvisit function
+------------------------------------------------------------------------
+r36 | daryam | 2004-11-09 11:16:31 -0800 (Tue, 09 Nov 2004) | 1 line
+
+added defaults
+------------------------------------------------------------------------
+r35 | daryam | 2004-11-08 13:34:03 -0800 (Mon, 08 Nov 2004) | 1 line
+
+reverted to PnVar inc for time
+------------------------------------------------------------------------
+r34 | daryam | 2004-11-05 14:13:00 -0800 (Fri, 05 Nov 2004) | 1 line
+
+added button to menu class
+------------------------------------------------------------------------
+r33 | daryam | 2004-11-05 13:55:16 -0800 (Fri, 05 Nov 2004) | 1 line
+
+backwards logic
+------------------------------------------------------------------------
+r32 | daryam | 2004-11-05 13:52:43 -0800 (Fri, 05 Nov 2004) | 1 line
+
+Fixed yet another bug in patient finder
+------------------------------------------------------------------------
+r31 | daryam | 2004-11-05 13:06:43 -0800 (Fri, 05 Nov 2004) | 1 line
+
+enabled prescription faxing
+------------------------------------------------------------------------
+r30 | daryam | 2004-11-05 13:06:19 -0800 (Fri, 05 Nov 2004) | 1 line
+
+Fixed patient finder bug
+------------------------------------------------------------------------
+r29 | daryam | 2004-11-05 12:18:01 -0800 (Fri, 05 Nov 2004) | 1 line
+
+enabled faxing
+------------------------------------------------------------------------
+r28 | daryam | 2004-11-04 10:19:49 -0800 (Thu, 04 Nov 2004) | 1 line
+
+Added signature config
+------------------------------------------------------------------------
+r27 | daryam | 2004-11-04 10:18:54 -0800 (Thu, 04 Nov 2004) | 1 line
+
+added signature to printout
+------------------------------------------------------------------------
+r26 | daryam | 2004-11-03 18:15:04 -0800 (Wed, 03 Nov 2004) | 1 line
+
+fixed error in FFA
+------------------------------------------------------------------------
+r25 | james | 2004-11-03 14:00:53 -0800 (Wed, 03 Nov 2004) | 2 lines
+
+fixed view so that when an admin logs in the calandar view is of only thier events 
+
+------------------------------------------------------------------------
+r24 | james | 2004-11-03 12:19:53 -0800 (Wed, 03 Nov 2004) | 2 lines
+
+updated look and functionality of week view
+
+------------------------------------------------------------------------
+r23 | james | 2004-11-03 12:17:53 -0800 (Wed, 03 Nov 2004) | 2 lines
+
+updated look and functionality of week view
+
+------------------------------------------------------------------------
+r22 | daryam | 2004-11-03 11:19:16 -0800 (Wed, 03 Nov 2004) | 1 line
+
+changed configured back to 0
+------------------------------------------------------------------------
+r21 | daryam | 2004-11-03 11:15:25 -0800 (Wed, 03 Nov 2004) | 1 line
+
+Fixed error in FFA where all needed data not carried over
+------------------------------------------------------------------------
+r20 | daryam | 2004-11-03 08:09:23 -0800 (Wed, 03 Nov 2004) | 1 line
+
+removed best branch
+------------------------------------------------------------------------
+r19 | james | 2004-11-02 22:47:11 -0800 (Tue, 02 Nov 2004) | 2 lines
+
+updated to really fix this time.... REALLY
+
+------------------------------------------------------------------------
+r18 | daryam | 2004-11-02 21:44:57 -0800 (Tue, 02 Nov 2004) | 1 line
+
+tracking previous calendar page
+------------------------------------------------------------------------
+r17 | daryam | 2004-11-02 21:40:49 -0800 (Tue, 02 Nov 2004) | 1 line
+
+removed branches
+------------------------------------------------------------------------
+r16 | daryam | 2004-11-02 21:32:21 -0800 (Tue, 02 Nov 2004) | 2 lines
+
+import to best tree
+
+------------------------------------------------------------------------
+r15 | daryam | 2004-11-02 21:29:17 -0800 (Tue, 02 Nov 2004) | 2 lines
+
+Import best code to tree
+
+------------------------------------------------------------------------
+r14 | daryam | 2004-11-02 21:22:05 -0800 (Tue, 02 Nov 2004) | 3 lines
+
+Import branch from best
+
+
+------------------------------------------------------------------------
+r13 | daryam | 2004-11-02 21:15:19 -0800 (Tue, 02 Nov 2004) | 1 line
+
+deleted branches
+------------------------------------------------------------------------
+r12 | james | 2004-11-02 21:06:58 -0800 (Tue, 02 Nov 2004) | 2 lines
+
+updated for darya :) ... And to get the week view to work with calendar intervals 
+
+------------------------------------------------------------------------
+r11 | daryam | 2004-11-02 21:05:43 -0800 (Tue, 02 Nov 2004) | 2 lines
+
+Import of best code to our tree as branch
+
+------------------------------------------------------------------------
+r10 | daryam | 2004-11-02 20:22:33 -0800 (Tue, 02 Nov 2004) | 2 lines
+
+Import branch
+
+------------------------------------------------------------------------
+r9 | daryam | 2004-11-02 16:54:54 -0800 (Tue, 02 Nov 2004) | 1 line
+
+limits are tied to providers
+------------------------------------------------------------------------
+r8 | james | 2004-11-02 14:35:04 -0800 (Tue, 02 Nov 2004) | 2 lines
+
+fixed edit event date so if the end day month year are 0 (no end date) changes day month year to today.
+
+------------------------------------------------------------------------
+r7 | james | 2004-11-02 14:07:05 -0800 (Tue, 02 Nov 2004) | 2 lines
+
+updated name of day_calendar_interval to calendar_interval
+
+------------------------------------------------------------------------
+r6 | james | 2004-11-02 13:59:19 -0800 (Tue, 02 Nov 2004) | 2 lines
+
+updated weekview to have configurable intervals and renamed the var day_calendar_interval to calendar_interval 
+
+------------------------------------------------------------------------
+r5 | daryam | 2004-11-02 09:12:22 -0800 (Tue, 02 Nov 2004) | 1 line
+
+made middlename default to ''
+------------------------------------------------------------------------
+r4 | daryam | 2004-11-02 08:51:53 -0800 (Tue, 02 Nov 2004) | 1 line
+
+Tied providerid to limit
+------------------------------------------------------------------------
+r3 | daryam | 2004-11-01 15:06:26 -0800 (Mon, 01 Nov 2004) | 1 line
+
+test2
+------------------------------------------------------------------------
+r2 | daryam | 2004-11-01 15:04:49 -0800 (Mon, 01 Nov 2004) | 1 line
+
+test
+------------------------------------------------------------------------
+r1 | (no author) | 2004-11-01 14:44:02 -0800 (Mon, 01 Nov 2004) | 2 lines
+
+Initial import of openemr to the new subversion server
+
+------------------------------------------------------------------------

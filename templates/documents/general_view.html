@@ -1,0 +1,52 @@
+<table valign="top">
+<tr>
+	<td valign="top">
+	<table>
+	<tr>
+		<td valign="top">
+		<form name="notes" method="post" action="{$NOTE_ACTION}">
+		<textarea cols="53" rows="4" wrap="virtual" name="note"></textarea><br>
+		<input type="submit" name="add note" value="Add Note">
+		<input type="hidden" name="process" value="{$PROCESS}" />
+		<input type="hidden" name="foreign_id" value="{$file->get_id()}" />
+		</form>
+		</td>
+		<td rowspan="2">
+		<textarea cols="53" rows="10" disabled>
+{foreach name=note_loop from=$notes item=note}
+Note #{$note->get_id()}
+Date: {$note->get_date()}
+{$note->get_note()}
+
+{/foreach}
+</textarea>
+		</td>
+	</tr>
+	<tr>
+		<td>
+		<form method="post" name="document_move" action="{$MOVE_ACTION}">
+		<select name="new_category_id">{$tree_html_listbox}</select><br><br>
+		Move to Patient # <input type="text" name="new_patient_id" size="4">
+		<a href="javascript:{literal}{}{/literal}" onclick="var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|escape:"url"}&form_name={"document_move['new_patient_name']"|escape:"url"}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left = 425,top = 250');"><img src="images/stock_search-16.png" border="0"</a>
+		&nbsp;&nbsp;&nbsp;<input type="submit" name="move" value="Move">
+		<input type="hidden" name="new_patient_name" value="">
+		</form>
+		</td>
+	</tr>
+	</table>
+
+<a href="{$web_path}">Click to download</a><br>
+
+</td>
+</tr>
+	<td>
+	{if $file->get_mimetype() eq "image/tiff"}
+	<embed border="0" frameborder="0" style="border:none;" width="800" height="600" type="{$file->get_mimetype()}" src="{$web_path}{$file->get_url_web()}&as_file=false"></embed>
+	{elseif $file->get_mimetype() eq "image/png" or $file->get_mimetype() eq "image/jpg" or $file->get_mimetype() eq "image/jpeg" or $file->get_mimetype() eq "image/gif"}
+	<iframe border="0" frameborder="0" style="border:none;" width="800" height="600" type="{$file->get_mimetype()}" src="{$web_path}{$file->get_url_web()}&as_file=false"></iframe>
+	{else}
+	<iframe border="0" frameborder="0" style="border:none;" width="800" height="600" type="{$file->get_mimetype()}" src="{$web_path}{$file->get_url_web()}&as_file=true"></iframe>
+	{/if}
+	</td>
+</tr>
+</table>

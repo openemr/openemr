@@ -1,0 +1,11 @@
+<style>
+td.dayheader { background-color: [-$STYLE.BGCOLOR2-]; font-size: 14pt; font-weight: bold; }
+table.dayheader { background-color: [-$STYLE.BGCOLOR2-]; border: 1px solid #000000;}
+.dayheader a:link { font-size: 14pt; font-weight: bold; text-decoration: none; padding-left: 5px; padding-right: 5px;}
+.dayheader a:active { font-size: 14pt; font-weight: bold; text-decoration: none; padding-left: 5px; padding-right: 5px;}
+.dayheader a:hover { font-size: 14pt; font-weight: bold; text-decoration: none; padding-left: 5px; padding-right: 5px;}
+.dayheader a:visited { font-size: 14pt; font-weight: bold; text-decoration: none; padding-left: 5px; padding-right: 5px;}
+table.eventslist { background-color: [-$STYLE.BGCOLOR1-]; padding: 10px;}
+td.eventslist { background-color: [-$STYLE.BGCOLOR1-]; padding: 10px;}
+table.calcontainer { border: 1px solid #000000;}
+</style>

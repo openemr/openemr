@@ -1,0 +1,335 @@
+[-*Smarty*-]
+<!-- main navigation -->
+[-*Load the Language Definitions*-]
+[-config_load file="lang.$USER_LANG"-]
+[-include file="$TPL_NAME/views/header.html"-]
+[-*Main Navigation*-]
+[-include file="$TPL_NAME/views/global/small_navigation.html"-]
+
+[-literal-]
+<script language ='Javascript'>
+function populateOffice(select) {
+var EventCats = new Array();
+ [-/literal-][-foreach item=cat from=$category-][-literal-]
+ 
+EventCats["value[-/literal-][-$cat.id-][-literal-]"] = new Array();
+
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["name"]="[-/literal-][-$cat.name-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["duration"]="[-/literal-][-$cat.event_duration-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["repeat"]="[-/literal-][-$cat.event_repeat-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["repeat_freq"]="[-/literal-][-$cat.event_repeat_freq-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["repeat_freq_type"]="[-/literal-][-$cat.event_repeat_freq_type-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["repeat_on_num"]="[-/literal-][-$cat.event_repeat_on_num-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["repeat_on_day"]="[-/literal-][-$cat.event_repeat_on_day-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["repeat_on_freq"]="[-/literal-][-$cat.event_repeat_on_freq-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["recurrspec"]="[-/literal-][-$cat.event_recurrspec-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["durationh"]="[-/literal-][-$cat.event_durationh-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["durationm"]="[-/literal-][-$cat.event_durationm-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["end_date_flag"]="[-/literal-][-$cat.end_date_flag-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["end_date_type"]="[-/literal-][-$cat.end_date_type-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["end_date_freq"]="[-/literal-][-$cat.end_date_freq-][-literal-]";
+EventCats["value[-/literal-][-$cat.id-][-literal-]"]["all_day"]="[-/literal-][-$cat.end_all_day-][-literal-]";
+
+
+ [-/literal-][-/foreach-][-literal-]
+ 
+
+var that = select.value;
+var cat = "value";
+ cat += select.value;
+document.add_event.event_subject.value = EventCats.eval(cat).name;
+document.add_event.event_repeat_freq.value = EventCats.eval(cat).repeat_freq;
+document.add_event.event_repeat_on_freq.value = EventCats.eval(cat).repeat_on_freq;
+
+var found_dur_min = 0;
+for(var i=0;i < document.add_event.event_dur_minutes.length;i++){
+	if(document.add_event.event_dur_minutes.options[i].value == EventCats.eval(cat).durationm){
+	found_dur_min = 1;
+		document.add_event.event_dur_minutes.options[i].selected =true;
+	}
+}
+
+if(found_dur_min != 1){
+document.add_event.event_dur_minutes.options[document.add_event.event_dur_minutes.options.length++]= new Option(EventCats.eval(cat).durationm,EventCats.eval(cat).durationm,false,true);
+
+}
+
+for(var i=0;i < document.add_event.event_allday.length;i++){
+	
+	if(document.add_event.event_allday[i].value == EventCats.eval(cat).all_day){
+		
+		document.add_event.event_allday[i].checked =true;
+	}
+}
+
+for(var i=0;i < document.add_event.event_repeat.length;i++){
+	if(document.add_event.event_repeat[i].value == EventCats.eval(cat).repeat){
+		
+		document.add_event.event_repeat[i].checked =true;
+	}
+}
+
+for(var i=0;i < document.add_event.event_endtype.length;i++){
+	if(document.add_event.event_endtype[i].value == EventCats.eval(cat).end_date_flag){
+		
+		document.add_event.event_endtype[i].checked =true;
+	}
+}
+
+for(var i=0;i < document.add_event.event_repeat_freq_type.length;i++){
+	if(document.add_event.event_repeat_freq_type.options[i].value == EventCats.eval(cat).repeat_freq_type){
+		
+		document.add_event.event_repeat_freq_type.options[i].selected =true;
+	}
+}
+for(var i=0;i < document.add_event.event_repeat_on_num.length;i++){
+	if(document.add_event.event_repeat_on_num.options[i].value == EventCats.eval(cat).repeat_on_num){
+		
+		document.add_event.event_repeat_on_num.options[i].selected =true;
+	}
+}
+for(var i=0;i < document.add_event.event_repeat_on_day.length;i++){
+	if(document.add_event.event_repeat_on_day.options[i].value == EventCats.eval(cat).repeat_on_day){
+		
+		document.add_event.event_repeat_on_day.options[i].selected =true;
+	}
+}
+
+for(var i=0;i < document.add_event.event_dur_hours.length;i++){
+	if(document.add_event.event_dur_hours.options[i].value == EventCats.eval(cat).durationh){
+		
+		document.add_event.event_dur_hours.options[i].selected =true;
+	}
+}
+
+date = new Date();
+date.setDate(document.add_event.event_startday.options[document.add_event.event_startday.selectedIndex].value);
+date.setMonth(document.add_event.event_startmonth.options[document.add_event.event_startmonth.selectedIndex].value -1 );
+date.setFullYear(document.add_event.event_startyear.options[document.add_event.event_startyear.selectedIndex].value);
+
+if(EventCats.eval(cat).end_date_flag > 0)
+{
+	var num = parseInt(EventCats.eval(cat).end_date_freq);
+	switch(EventCats.eval(cat).end_date_type)
+	{
+		case '0':
+		case '4':
+			date.setDate(date.getDate() + num);
+			break;
+		case '1':
+			date.setDate(date.getDate() + (num * 7));
+			break;
+		case '2':
+			date.setMonth(date.getMonth() + num);
+			break;
+		case '3':
+			date.setFullYear(date.getFullYear() + num);
+			break;
+	}
+	
+	for(var i=0;i < document.add_event.event_endday.length;i++){
+		if(document.add_event.event_endday.options[i].value == date.getDate()){
+			
+			document.add_event.event_endday.options[i].selected =true;
+		}
+	}
+	
+	for(var i=0;i < document.add_event.event_endmonth.length;i++){
+		if(document.add_event.event_endmonth.options[i].value == (date.getMonth() +1)){
+			
+			document.add_event.event_endmonth.options[i].selected =true;
+		}
+	}
+	
+	for(var i=0;i < document.add_event.event_endyear.length;i++){
+		if(document.add_event.event_endyear.options[i].value == date.getFullYear()){
+			
+			document.add_event.event_endyear.options[i].selected =true;
+		}
+	}
+	
+	for(var i=0;i < document.add_event.event_endtype.length;i++){
+		if(document.add_event.event_endtype[i].value == EventCats.eval(cat).end_date_flag){
+			
+			document.add_event.event_endtype[i].checked =true;
+		}
+	}
+}
+
+
+[-/literal-]
+[-literal-]
+
+}
+
+</script>[-/literal-]
+
+<form name="add_event" action="[-pc_url action="submit"-]" method="post" enctype="application/x-www-form-urlencoded">
+<table border="0" cellpadding="1" cellspacing="0" bgcolor="[-$STYLE.BGCOLOR2-]" width="100%">
+	[-if $double_book eq 1-]
+		[-assign var=disable value=" readonly "-]
+	[-/if-]
+    <tr><td align="left" valign="middle" width="100%">
+        <table border="0" cellpadding="2" cellspacing="0" bgcolor="[-$STYLE.BGCOLOR1-]">
+
+<!-- EVENT INFO ROWS -->
+            <tr>
+                <th bgcolor="[-$STYLE.BGCOLOR2-]" colspan="2" align="left" valign="middle">[-$NewEventHeader-]</th>
+            </tr>
+            <tr>
+                <td bgcolor="[-$STYLE.BGCOLOR1-]" align="left" valign="top">
+                [-$EventTitle-]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[-$Required-]<br />
+                <input type="text" name="[-$InputEventTitle-]" value="[-$ValueEventTitle-]" [-$disable-]/><br />
+                [-$DateTimeTitle-]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[-$Required-]<br />
+                [-$SelectDateTime-]<br />
+                <table border="0" cellpadding="0" cellspacing="1">
+                    <tr>
+                        <td valign="top" align="left"><input type="radio" name="[-$InputAllday-]" value="[-$ValueAllday-]" [-$SelectedAllday-] [-$disable-]/></td>
+                        <td valign="top" align="left">[-$AlldayEventTitle-]</td>
+                    </tr>
+                    <tr>
+                        <td valign="top" align="left"><input type="radio" name="[-$InputTimed-]" value="[-$ValueTimed-]" [-$SelectedTimed-] [-$disable-]/></td>
+                        <td valign="top" align="left">[-$TimedEventTitle-]</td>
+                        <td valign="top" align="left">[-$SelectTimedHours-] [-$SelectTimedMinutes-] [-$SelectTimedAMPM-]</td>
+                    </tr>
+                    <tr>
+                        <td valign="top" align="left">&nbsp;</td>
+                        <td valign="top" align="left">[-$TimedDurationTitle-]</td>
+                        <td valign="top" align="left">
+                        [-strip-]
+                            <select name="[-$InputTimedDurationHours-]" [-$disable-]>
+                            [-foreach item=time from=$TimedDurationHours-]
+                                <option id="[-$time.name-]" name="[-$time.name-]" value="[-$time.value-]" [-$time.selected-]>[-$time.name-]</option>
+                            [-/foreach-]
+                            </select>
+                        [-/strip-]
+                        [-$TimedDurationHoursTitle-]
+
+                        [-strip-]
+                        <select name="[-$InputTimedDurationMinutes-]" [-$disable-]>
+                            [-foreach item=time from=$TimedDurationMinutes-]
+                                <option id="[-$InputTimedDurationMinutes-][-$time.value-]" name="[-$InputTimedDurationMinutes-][-$time.value-]" value="[-$time.value-]" [-$time.selected-]>[-$time.name-]</option>
+                            [-/foreach-]
+                        </select>
+                        [-/strip-]
+                        [-$TimedDurationMinutesTitle-]
+                        </td>
+                    </tr>
+                </table>
+                [-$EventDescTitle-]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+                <textarea name="[-$InputEventDesc-]" wrap="virtual" rows="2" cols="40" [-$disable-]>[-$ValueEventDesc-]</textarea>
+				</td>
+
+                <td bgcolor="[-$STYLE.BGCOLOR1-]" align="left" valign="top">
+                [-if $displayTopics eq 1-]
+                    [-$EventTopicTitle-]<br />
+                    [-strip-]
+                    <select name="[-$InputEventTopic-]" [-$disable-]>
+                    [-foreach item=topic from=$topics-]
+                        <option id="[-$topic.name-]" name="[-$topic.name-]" value="[-$topic.value-]" [-$topic.selected-]>[-$topic.name-]</option>
+                    [-/foreach-]
+                    </select>
+                    [-/strip-]
+                    <br />
+                [-/if-]
+				<table>
+				<tr><td>Patient<br />
+				<input type="text"	name="patient_name" size="15" value="[-$patient_value-]" readonly >
+				<input type="hidden" name="event_pid" value="[-$event_pid-]">
+				<a href="javascript:{}" onclick="var URL='[-$webroot-]/controller.php?patient_finder&find&form_id=add_event[\'event_pid\']&form_name=add_event[\'patient_name\']&pid=true'; window.open(URL, 'add_event', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left = 425,top = 250');">
+					<img src="[-$webroot-]/images/stock_search-16.png" border="0"</a>
+                
+				</td><td>&nbsp;</td><td>
+				Provider<br />
+                [-strip-]
+                <select name="event_userid" [-$disable-]>
+                [-foreach item=provider from=$user-]
+                    <option value="[-$provider.id-]"
+					[-if $event_aid eq $provider.id-]
+					selected
+					[-elseif $ProviderID eq $provider.id and empty($event_aid) -]
+					selected
+					[-/if-]
+					>[-$provider.lname-], [-$provider.fname-]</option>
+                [-/foreach-]
+                </select>
+                [-/strip-]
+				</td>
+				<td>&nbsp;</td>
+				<td>
+                [-$EventCategoriesTitle-]<br />
+                [-strip-]
+                <select name="[-$InputEventCategory-]" [-$disable-] onChange="populateOffice(this);">
+                [-foreach item=category from=$categories-]
+                	
+                    <option value="[-$category.value-]" [-$category.selected-]>[-$category.name-]</option>
+                [-/foreach-]
+                </select>
+                [-/strip-]
+				</td></tr></table>
+			<hr>
+			<table border="0">
+
+            <tr>
+                <td bgcolor="[-$STYLE.BGCOLOR1-]" colspan="2" align="left" valign="middle" width="100%">
+				[-$EndDateTitle-]&nbsp;
+                <input type="radio" name="[-$InputEndOn-]" value="[-$ValueEndOn-]" [-$SelectedEndOn-] [-$disable-]/>&nbsp;
+                [-$SelectEndDate-]
+                &nbsp;
+                <input type="radio" name="[-$InputNoEnd-]" value="[-$ValueNoEnd-]" [-$SelectedNoEnd-] [-$disable-]/>&nbsp;
+                [-$NoEndDateTitle-]
+				<br />
+				<input type="radio" name="[-$InputNoRepeat-]" value="[-$ValueNoRepeat-]" [-$SelectedNoRepeat-] [-$disable-]/>
+                [-$NoRepeatTitle-]<br />
+
+                <input type="radio" name="[-$InputRepeat-]" value="[-$ValueRepeat-]" [-$SelectedRepeat-] [-$disable-]/>
+                [-$RepeatTitle-]
+                <input type="text" name="[-$InputRepeatFreq-]" value="[-$InputRepeatFreqVal-]" size="4" [-$disable-]/>
+                <select name="[-$InputRepeatFreqType-]" [-$disable-]>
+                [-foreach item=repeat from=$repeat_freq_type-]
+                    <option id="[-$InputRepeatFreqType-][-$repeat.value-]" name="[-$InputRepeatFreqType-][-$repeat.value-]" value="[-$repeat.value-]" [-$repeat.selected-]>[-$repeat.name-]</option>
+                [-/foreach-]
+                </select>
+                <br />
+
+                <input type="radio" name="[-$InputRepeatOn-]" value="[-$ValueRepeatOn-]" [-$SelectedRepeatOn-] [-$disable-]/>
+                [-$RepeatOnTitle-]
+                <select name="[-$InputRepeatOnNum-]" [-$disable-]>
+                [-foreach item=repeat from=$repeat_on_num-]
+                    <option id="[-$repeat.name-]" name="[-$repeat.name-]" value="[-$repeat.value-]" [-$repeat.selected-]>[-$repeat.name-]</option>
+                [-/foreach-]
+                </select>
+                <select name="[-$InputRepeatOnDay-]" [-$disable-]>
+                [-foreach item=repeat from=$repeat_on_day-]
+                    <option id="[-$repeat.name-]" name="[-$repeat.name-]" value="[-$repeat.value-]" [-$repeat.selected-]>[-$repeat.name-]</option>
+                [-/foreach-]
+                </select>&nbsp;
+                [-$OfTheMonthTitle-]&nbsp;
+				<input type="text" name="[-$InputRepeatOnFreq-]" value="[-$InputRepeatOnFreqVal-]" size="4" [-$disable-]/>
+				[-$MonthsTitle-].
+                <br /><br />
+
+				<br />
+				[-$FormSubmit-]
+                </td>
+            </tr>
+        </table>
+
+                </td>
+            </tr>
+			</table>
+<!-- EVENT INFO ROWS -->
+
+
+     </td></tr>
+</table>
+<input type="hidden" name="double_book" value="[-$double_book-]"/>
+<input type="hidden" name="event_sharing" value="1"><!-- default of 1 is sharing type "public" -->
+<input type="hidden" name="pc_html_or_text" value="text" selected>
+[-*$EventHTMLorText*-]
+
+[-$FormHidden-]
+
+
+</form>
+[-include file="$TPL_NAME/views/footer.html"-]

@@ -1,0 +1,353 @@
+User Interface Documentation
+
+OpenEMR version 2.0
+Document revision 9
+
+
+The Login Screen
+Automatic Logout
+Main Screen
+	Navigation Bar
+	Information Bar
+	Office Notes
+	Office Notes Interface
+	Calendar
+	Calendar Interface
+	Changing User Password
+	Authorizations
+	Authorizations Interface
+	Finding a Patient File
+	Create New Patient Interface
+	Billing Summary
+	Billing Summary Interface
+Users and Groups Management
+	Change Password
+	Password Change Interface
+	Adding a New User
+	Adding a New Group
+	Assigning Users to Groups
+	Editing User Information
+	Edit User Information Screen
+	Deleting Users
+	Removing Users from Groups
+Patient File
+	Patient File Navigation Bar
+	Patient Summary Screen
+	Patient Summary Information Bar
+	Patient Summary Demographics
+	Patient Summary Demographics Interface
+	Medications/Allergies/Immunizations
+	Medications/Allergies/Immunizations Interface
+	Patient Notes
+	Patient Notes Interface
+Patient History Screen
+	Patient History Information Bar
+	Patient History / Lifestyle
+	Past Encounters
+	Past Encounters Interface
+Patient Encounters
+	New Patient Encounter
+	Patient Encounter Information Bar
+	Patient Forms
+	Adding a New Form to a Patient Encounter
+	Form Interface
+	Coding/Billing
+	ICD-9-CM Custom Code
+	ICD-9-CM Custom Codes Interface
+	ICD-9-CM Search
+	Billing
+	Billing Interface
+Patient Transactions
+	Patient Transactions Information Bar
+	Add New Transaction
+	Patient Transactions
+	Patient Transactions Interface
+Patient File Report
+	Patient File Report Information Bar
+	Patient File Report Screen
+Closing a Patient File
+	
+
+
+################
+The Login Screen
+To login to OpenEMR, first select the correct group name from the Group pulldown menu. The group is set in case multiple practices, or physician groups are using the same system. Next enter a username and password into the appropriate fields. Click the Login button to log into the system.  If the username, password, and group are incorrect, the login screen will reappear and you must enter a valid username, password, and group in order to use the system.
+
+################
+Automatic Logout
+When a user is logged into OpenEMR and has not loaded any new interface screens, or has not accessed or modified data, an automatic timeout will lock the system after one hour. This setting is saved in the file located at interface/globals.php in the variable called $timeout. Though it may be changed from this file, it should be kept to a reasonable value for security based.
+
+###########
+Main Screen
+
+##############
+Navigation Bar
+The navigation bar is located at the top of the screen. The first item of the navigation bar is the Find Patient entry and link. The second item is the New Patient link, the third item is the optional Users and Groups management screen, and the last item is the Logout link. The Users and Groups management link will only be displayed if the current user using the system is "authorized" (Information on Authorization status can be found in the Users and Groups management section).
+
+To navigate to a patient file, type in the first few letters of a patient's last name into the entry, and click on the Find link. This will load the Patient Selection screen, with a list of existing patient files. If nothing is entered into Patient entry when the Find link is clicked, an alphabetical list of the first 100 or so patient files will be displayed.
+
+Clicking on the New Patient link will load the Create New Patient Interface.
+
+Clicking on the Users and Groups link will load the Users and Groups administrative management system.
+
+Clicking on the Billing link will load the Billing Summary Interface.
+
+Clicking on the Logout link will log the current user out of the system. This is required by HIPAA for logging access and use of patient files. When a user logs out of a session, the login screen is shown again, and a user must log in before accessing patient files.
+
+###############
+Information Bar
+The name of the user that is currently logged in appears on the left hand side of the information bar. The current date is displayed on the right hand side of navigation bar.
+
+############
+Office Notes
+Office-wide notes may be stored, recorded, and displayed by any user. This can be used to log important events they are not related to a specific patient. Only a few of the most recent office notes are displayed on the Main Screen, in order from the most recent to the oldest. If there are more office notes that have not been displayed, a warning message will be printed at the bottom of the displayed notes informing the user that not all notes were displayed. Clicking on this notice, or on the title link, "Office Notes" will load the full office notes interface.
+
+######################
+Office Notes Interface
+To add a new comment, text should be entered into the large text entry box. To save the note, click on the Add New Note link. Notes may be Active or Inactive. To view all notes, click the View: All link. Otherwise, click on the View: Only Active or View: Only Inactive to see either active or inactive notes. Every note has a checkbox to the left of it - if the checkbox is checked, the note is active, if it is unchecked, the note is inactive. To change a note to active or inactive, check or uncheck the appropriate checkboxes to the left of the note you wish to change, and click on the Change Activity link. If there are many notes, only a few will be displayed at a time. To see the rest of the notes, click the Next link (or Previous link to navigate forward or backwards in time).
+
+To exit the Office Notes Interface, click on the Office Notes title link.
+
+########
+Calendar
+The calendar system provides health-care providers and their office staff an efficient way to schedule appointments with patients within the OpenEMR system. When the Main Screen is loaded, only a daily view of the calendar is displayed, with a list of text links on patient names. Clicking on a patient's name will load the Patient File Interface.
+
+##################
+Calendar Interface
+If an "authorized" user logs into the system and loads the main screen (ie. Providers, Physicians), the initial calendar screen shows all of their appointments for the day. If the user is not authorized (ie. Office Support Staff), the initial calendar view shows the appointments for all authorized users for that day. Clicking the More text link loads the weekly view of the calendar, where a pull-down selects views per Provider or All Providers. Under the weekly view, clicking on the name of the day (Monday, Tuesday, etc.) loads the comprehensive daily view. At any time, clicking on a patient's name loads the Patient File, or clicking on the appointment reason/description loads the Patient File, with a new patient encounter auto-populated with the calendar data.
+
+Adding a new patient appointment begins by typing the patient's last name into the text entry box at the bottom of the screen. The name may be selected from the list of results. Clicking on the New Patient link loads an interface to add a new patient file. To add a new patient to OpenEMR, enter name and additional information into the text entry boxes and pulldown menus. Finally, an appointment interface loads and accepts various data about the patient's appointment.
+
+To edit or delete a patient appointment, use the pulldown menu to the left of the Calendar Interface to load the daily view. Clicking on text title for a day in the weekly view (ie. Monday, Tuesday) will also load the daily view. In the daily view of the Calendar Interface, two links are shown titled Edit and Delete. Clicking the Edit text link will load the edit appointment interface at the bottom of the screen. Clicking the Delete text link will load the delete appointment interface at the bottom of the screen, and a prompt will verify that the appointment should be deleted.
+
+######################
+Changing User Password
+Changing user passwords regularly is a good practice to ensure a higher standard of office security. Industry recommends that passwords are changed on a monthly basis - while this is often a hastle, it is nevertheless important. Memorization aids such as sticky-notes on monitors are a very bad practice, though common and widespread. To change a user password from the Main Screen, click on the navigation link titled, "Change Password". This will load the Change Password Interface
+
+#########################
+Change Password Interface
+The Change Password Interface displays the real name, and username of the user currently logged in. It then presents two text entry boxes. To change the user password, the new password must be entered twice, once in each text entry box to assure the password is consistent. After the password has been entered twice, click the Save Changes button to save the password. If the password was not entered the same twice, an error will be displayed. Otherwise, a message will say that the password has been updated successfully, and provides a link to logout and relog in with the new password.
+
+##############
+Authorizations
+If the current user is an authorized user, ie. a physician, the Authorizations screen will appear on the bottom half of the Main Screen. It displays a brief summary of all of the information that has been entered into the system by users who are not authorized, ie. office staff, subcatagorized and organized by patient name. The interface will display Billing, Transactions, Patient Notes, and Encounter Forms, but does not display changes to Demographics information or Patient History / Lifestyle information. Underneath the patient's name is a text link, "Authorize". Clicking this link means that a physician has viewed and authorized the changes. If the information should not be authorized, the physician should navigate to the patient file, make the necessary amendments, and then authorize the original record from the Authorizations screen. A few authorizations are listed by patient on the Main Screen. If there are more authorizations, a notice will say that more exist, and clicking on it or the Authorizations title link will load the Authorizations Interface. NOTE: Authorizations are provided for physicians to supervise the actions and data entry of office staff - they are not provided as a replacement comprehensive administration as implemented by practice policies.
+
+########################
+Authorizations Interface
+This interface displays all authorizations, and operates the same way as the Authorizations screen from the Main Screen. To return to the Main Screen, click on the Authorizations title link.
+
+
+######################
+Finding a Patient File
+
+To find a patient file, type the first few letters of the patient's last name into the Patient Find text entry box in the upper left hand of the screen. Then click the Find link. A list of patient files that exist in the system will be displayed alphabetically by last name, comma, first name. To go to a patient file, click on the patient's name.
+
+############################
+Create New Patient Interface
+To return to the main screen, click on the Back text link in the upper right hand of the screen.
+After filling out the First Name, Middle Name, and Last Name text entry boxes, clicking on the Add New Patient File text link will create the new patient file, and automatically open the Patient File Interface for the patient just created. If the patient is already entered into the system, the patient record is loaded. For convenience, the first letter of all words in the first, middle, and last name are capitalized, so that patient names can be typed as 'john doe' or 'jane doe', instead of "John Doe" or "Jane Doe". If the last name begins with a lower case letter, for example 'von' or 'van' of 'de', the name re-entered or modified from the Patient Summery Interface Screen.
+
+###############
+Billing Summary
+The Billing Summary provides date-specific summaries of all billing and procedural codes entered into OpenEMR. To access the Billing Summary Interface, click on the Billing text link in the Main Scren Navigation Bar.
+
+#########################
+Billing Summary Interface
+When the Billing Summary Interface loads, it will display all billing codes that have been entered for the current day, that are Authorized and that have not been marked as Billed. To change the start date of the range of dates displayed, edit the contents of the From text entry box. To change the end date of the range of dates displayed, edit the contents of the To. The dates must be entered in the format "YYYY-MM-DD" where YYYY is the year, MM is the numerical month starting with a zero, and DD is the numerical day starting with a zero if needed. (For example January 3rd, 2002 is represented by 2002-01-03) The pulldown box to the right of the To text entry field displays all of the different code types recorded. Selecting a specific code type to view shows only those codes that match the type, otherwise the default value is to show All Codes. To the right of the code type pulldown are two checkboxes. The first checkbox labelled "Only Show Unbilled Codes" is checked by default, and means that only the codes that have not been marked as billed are displayed. If it is unchecked, both billed and unbilled codes will be displayed. The second checkbox labelled "Only Show Authorized Codes" is checked by default, and means that only codes that have been Authorized by an Authorized user (ie. a physician) will be displayed. If it is unchecked, both Authorized and not Authorized codes will be displayed. Finally, to readjust the display criteria, click on the Change View text link to the far right.
+
+A list of billing codes that match the search criteria will be catagorized by the patient for which they were coded. The code type, code, and date are displayed. If the entry is a copay, the amount of the copay is displayed as well. If billing occurs incrementally throughout the day, for example if a billing report is generated and faxed, it may be helpful to mark all of the codes currently being displayed as already Billed. This way, if a user generates new billing codes during the course of the day, the billing report is more accurate. To mark the codes currently visible as already Billed, click on the text link named "Mark All of These Codes As Billed".
+
+
+###########################
+Users and Groups Management
+
+###############
+Change Password
+To assure system security, users should change their passwords at least once a month. To change the password for a user currently logged into the system, navigate to the Main Screen and click the Change Password text link located in the Navigation Bar. This will load the Password Change Interface.
+
+#########################
+Password Change Interface
+This screen displays the current user's real name and username. To change the password, enter a new password into the Password entry box, and enter it again into the Password (Again) entry box. Then click the Save Changes button to save the new password, or click on the Back text link to return to the Main Screen. After the password is saved, the Password Change Interface will reload with a message about the successful updating of the user password. It will also recommend relogging in to the system, and provide a text link to the main login screen. Click the text link to exit the Password Change Interface and relogin to the system.
+
+#################
+Adding a New User
+To grant access to a new user, enter the new user's information into the appropriate entry fields. The username must be lower case, must start with a letter, should be less than 25 characters long, should be more than 5 characters long, and should only contain alphanumeric characters. The password should be at least 8 characters long, and may contain characters other than letters and numbers. A new user must be assigned initially to a specific group, from the group pulldown. The authorized checkbox determines whether or not this user should be able to administer the user and group settings. When a group is defined, for example, the name of the medical practice, it contains users who are office staff, as well as users who are physicians. Physicians who require the ability to authorize the information that was entered by office staff must be "authorized" and should have this button checked when creating them as users. Information such as the user's Real Name and Additional Information are provided for auditing purposes. When all of the information is entered, click on the Add User button to save the user.
+
+##################
+Adding a New Group
+To create a new group, enter the group name into the Groupname entry to the right of the New Group title. Each group must be created with an initial user, which must be selected from the Initial User pulldown. Click the Add Group button to create the new group.
+
+#########################
+Assigning Users to Groups
+If users must be assigned to multiple groups, select the username and which group they should join, and click the Add User To Group button.
+
+########################
+Editing User Information
+To change user information or to update passwords, etc. click on the Edit text link to the right of the username in the list of users near the bottom of the page. This will load the Edit User Information Administration Screen
+
+############################
+Edit User Information Screen
+This screen contains text entry boxes that allow an authorized user to change the Username, Real Name, Password, Authorized status, and comments for a user. Please remember that at least one user on the system should be assigned the Authorized status, so that administrative user and group changes can be made easily. To save changes to a User profile, click the Save Changes button. Otherwise, click the Back button to return to the Users and Groups Screen.
+
+##############
+Deleting Users
+To delete a user, locate the lists at the bottom of the page. The first list is a listing of all the users in the system. The second list is a list of all the groups and which users belong to which groups. To delete a user, click on the Delete link to the right of the user name. This is permanent and cannot be undone, so please make sure the delete is necessary and accurate.
+
+##########################
+Removing Users from Groups
+To remove a user from a group, click on the remove link printed after each username in the list of users that belong to each group.
+
+
+############
+Patient File
+
+###########################
+Patient File Navigation Bar
+The first page to load when accessing a patient file is the Patient Summary view. The Navigation Bar changes to reflect the different subdivisions of the patient file and includes a Summary, History, Encounter, Transaction, and the Close link. The Summary link is automatically selected. The History link loads the patient history screen, the Encounter link loads the encounter-specific screen, and the Transaction link is used to log any general patient file interactions outside of the office.
+
+######################
+Patient Summary Screen
+
+###############################
+Patient Summary Information Bar
+The patient summary information bar displays the name of the patient whose file is currently being viewed.
+
+############################
+Patient Summary Demographics
+The patient's demographic information is displayed directly underneath the Information Bar. Subtitles are displayed in bold, while the values for each label are printed alongside them, in a formatted layout. To change the demographic information, to add new entries, or to update values, click on the Demographics title link.
+
+######################################
+Patient Summary Demographics Interface
+The full Demographics Interface displays all of the possible values for the patient information, as well as their existing values if any have been entered previously. Dates must be entered in the format shown, "YYYY-MM-DD", where four digits are used for the year, followed by a hyphen, 2 digits for the month, followed by a hyphen, and finally 2 digits for the date. Examples include: 2002-01-01 1995-12-29 1984-10-10 To clear a value, select the text within the text entry box, and press the delete button. Though values are updated and deleted from the visible patient record, a comprehensive log of all patient data ever entered, regardless of being cleared, is stored for journaling purposes. To save the changes or updates, scroll to the bottom of the Demographics Interface page, and click on the Save Patient Demographics link. This will bring you back to the main Patient Summary screen. If you do not want save the changes that were made to the demographics information, click on the Demographics title link to reload the Patient Summary screen.
+
+###################################
+Medications/Allergies/Immunizations
+The patient's medications, allergies, and immunizations information is printed in the lower left of the Patient Summary screen. Initially, a compressed view is shown, and only the titles of the medications, allergies, and immunizations are shown. To see the expanded view including comments, etc. click on the Medications title link, Allergies title link, or Immunizations title link. Clicking on the text of an actual entry, instead of the title link, will load the expanded view, showing only the active medications, allergies, and immunizations.
+
+#############################################
+Medications/Allergies/Immunizations Interface
+To add a new medication, enter the name of the medication into the text entry box located directly underneath the Medications title link. Any additional comments may be entered beneath the medication entry box. Click on the Add New Medication link to update the list of medications. To add a new allergy, enter the name of the allergy into the text entry box located directly underneath the Allergies title link. Any additional comments may be entered beneath the allergy entry box. Click on the Add New Allergy link to update the list of allergies. To add a new immunization, enter the date of the immunization into the text entry box located directly underneath the Immunizations title link. Any comments regarding the type of immunization, etc. may be entered into the text entry box below the date entry box. Click the Add New Immunization link to update the list of immunizations.
+
+Each of the Medications, Allergies, and Immunizations sections displays the full list in a manner similar to how Office Notes are displayed. Similarly to Office Notes, medications, allergies, and immunizations can be active or inactive. Because all data that is ever entered into a patient file is stored for future analysis and journaling, updates to existing entries, edits, or corrections must all be made in the following manner: the old record that is no longer needed should be made inactive by unchecking the checkbox to the left of the entry and then clicking the Change Activity link to save the change. Then, the new entry should be entered in the appropriate section, either Medications, Allergies, or Immunizations.
+
+To exit the Medications/Allergies/Immunizations Interface and return to the Patient Summary screen, click on any of the Medications, Allergies, or Immunizations title links.
+
+#############
+Patient Notes
+Patient notes are displayed in the lower right of the Patient Summary screen. The date, the user that entered the patient note, and the note are displayed in order by date. If there are many patient notes, only the first few will be shown. If there are patient notes that are not visible, a link will be displayed that informs you that some patient notes were not displayed. Clicking on this link, or on the Patient Notes title link will load the full Patient Notes Interface.
+
+#######################
+Patient Notes Interface
+The Patient Notes Interface operates the same way as the Office Notes Interface. For detailed information, please refer to the Office Notes Interface section.
+
+To exit the Patient Notes Interface and return to the Patient Summary screen, click the Patient Notes title link.
+
+######################
+Patient History Screen
+
+###############################
+Patient History Information Bar
+The patient history information bar displays the name of the patient whose file is currently being viewed.
+
+###########################
+Patient History / Lifestyle
+A compressed view of the patient history and lifestyle information is displayed in a formatted layout below the Patient History Information Bar. The type of data entered is displayed in a bold font, and the actual data is printed to the right or directly underneath the type subtitle. To access the full expanded view of the patient history and lifestyle information in order to update, change, or modify any data, click on the Patient History / Lifestyle title link.
+
+#####################################
+Patient History / Lifestyle Interface
+The full Patient History / Lifestyle Interface displays all of the possible values for the patient information, as well as their existing values if any have been entered previously. Dates must be entered in the format shown, "YYYY-MM-DD", where four digits are used for the year, followed by a hyphen, 2 digits for the month, followed by a hyphen, and finally 2 digits for the date. Examples include: 2002-01-01 1995-12-29 1984-10-10 To clear a value, select the text within the text entry box, and press the delete button. Though values are updated and deleted from the visible patient record, a comprehensive log of all patient data ever entered, regardless of being cleared, is stored for journaling purposes. To save the changes or updates, scroll to the bottom of the Patient History / Lifestyle Interface page, and click on the Save Patient History link. This will bring you back to the main Patient History / Lifestyle screen. If you do not want save the changes that were made to the history information, click on the Patient History / Lifestyle title link to reload the Patient History / Lifestyle screen.
+
+###############
+Past Encounters
+A view of the most recent past encounters for the current patient are displayed on the bottom of the Patient History screen. The date of the encounter, the reason for the encounter, any comments that were entered under the Patient Summary screen on the same date, any Billing codes that were entered under the Encounter screen, and the insurance records that were valid in the Patient File at the time of the Patient Encounter are displayed in a formatted layout. Click on the date, reason, comments, or diagnosis to load the saved encounter. Click on the insurance records to load the expanded Patient Report. If some of the encounters were not displayed, a notice link will say that there are more encounters. Clicking on this link, or on the Past Encounters title link will load the full Past Encounters interface.
+
+#########################
+Past Encounters Interface
+This screen is an expanded version of the Past Encounters view presented in the Patient History screen, except that all entries are displayed this time. To return to the Patient History screen, click on the Past Encounters title link.
+
+##################
+Patient Encounters
+
+#####################
+New Patient Encounter
+If the Patient Encounter link is clicked for the first time on a specific date, the New Patient Encounter Form is automatically loaded, asking for information regarding the nature of the patient encounter. The Chief Complaint  text entry box is used in the Past Encounters screen to provide a summary of a patient encounter. Also, if the Patient Encounter link is clicked for the first time on a specific date, the Past Encounters view is displayed. For more information on this view, see the Past Encounters and Past Encounters Interface sections. Clicking on the Past Encounters title link will load the Past Encounters Interface of the Patient History screen.
+
+#################################
+Patient Encounter Information Bar
+The Patient Encounter Information Bar displays the name of the patient whose file is currently being viewed on the left hand side, and the date of the encounter on the right hand side. If the encounter is a past encounter, only the date will be displayed. However, if the encounter is the current day's encounter, the text "(Today)" will appear before the date.
+
+#############
+Patient Forms
+A list of all forms that were entered on the specific encounter currently being viewed are displayed in order that they were entered, in a formatted layout directly underneath the Patient Encounter Information Bar. To view a patient encounter form and its data, click on the name of the form.
+
+########################################
+Adding a New Form to a Patient Encounter
+The list of all available patient encounter forms is listed on the right hand side, underneath the encounter date, below the New Form title. To load a new patient encounter form, click on the name of the form.
+
+##############
+Form Interface
+Each form is specific to an encounter, and contains a varying degree of complexity depending on the nature of the form. When all of the data on the form has been entered, click the Save Form link to save the information, and return to the Patient Encounter screen.
+
+##############
+Coding/Billing
+A list of the possible coding and billing options for the encounter is displayed in the lower left hand corner of the Patient Encounter screen. The ICD-9-CM Custom link loads the customized list of the most frequently used ICD-9-CM codes. The ICD-9-CM Search link loads the search interface that accesses over 19,000 ICD-9-CM codes. The Copay link may be used to enter a copay amount for the encounter. The CPT Custom link loads the customized list of the most frequently used CPT Codes (this interface acts identically to ICD-9-CM Custom Codes Interface). The HCPS Custom link loads the customized list of the most frequently used HCPS Codes (this interface acts identically to ICD-9-CM Custom Codes Interface). 
+
+#####################
+ICD-9-CM Custom Codes
+The most frequently-used ICD-9-CM codes are automatically displayed in the bottom middle of the Patient Encounter screen. To add a new ICD-9-CM code to the current encounter, click on the text link of the code. To edit the default custom ICD-9-CM codes, click on the ICD-9-CM title link.
+
+###############################
+ICD-9-CM Custom Codes Interface
+To add a new custom ICD-9-CM code, enter the text description of the code in the Text Description text entry box, and enter the numerical code in the Numerical Code text entry box. When the information is entered, click on the Add Code link to save the new custom code. The existing custom ICD-9-CM codes are printed in a list beneath the Add Code link. To delete a custom ICD-9-CM code, click on the Delete link located directly to the right of the code you wish to remove from the ICD-9-CM Custom Codes list. To return to the Patient Encounter screen, click on the ICD-9-CM title link.
+
+###############
+ICD-9-CM Search
+To search the ICD-9-CM codes database, enter the part of the text of the title of the code, and click the Search text link. The first few codes to match are displayed. If more codes matched but could not be displayed, a message is printed at the end of the results, and the search should be refined if the result was not found. To add the ICD-9-CM code found from the search, click on the name of the code.
+
+#######
+Billing
+The billing codes that have been entered for the patient encounter are displayed in the lower right of the Patient Encounter screen. They are subcatagorized by the codeset type and version, or whether the entry was a copay, etc. To edit the list of Billing codes, click on the Billing title link.
+
+#################
+Billing Interface
+A full list of the codes entered for the encounter are displayed in a formatted list. To remove a specific entry, click on the Delete link located immediately to the right of the desired billing code.
+
+
+####################
+Patient Transactions
+This section is used to log any transaction of the patient record outside of the practice. This includes logging referrals, physician requests for data from outside the office, legal requests, or patient requests. HIPAA requires that this information is logged, and for auditing, journaling, and security purposes, it is required.
+
+####################################
+Patient Transactions Information Bar
+The Patient Transactions Information Bar displays the name of the patient whose file is currently being viewed.
+
+###################
+Add New Transaction
+Select the type of transaction from the pulldown menu located directly underneath the Transaction Type subtitle. Enter the details and comments regarding the patient transaction in the text entry box beneath the type pulldown menu. When the data is entered, click the Add New Transaction link to save the transaction.
+
+####################
+Patient Transactions
+At the bottom of the Patient Transactions screen is a formatted list of the most recent patient transactions, in order by date. Only the first few most recent transactions are displayed - if there are more transactions, a warning link explains that some patient transactions were not displayed. Click on this link or on the Patient Transaction title link to load the Patient Transactions Interface in order to view all of the transactions.
+
+##############################
+Patient Transactions Interface
+This screen displays all of the patient transactions recorded, in order by date, from most recent to oldest. The date that the transaction was entered, the type of transaction, and the comments and details of the transaction are all displayed in a formatted layout. To return to the Patient Transactions screen, click on the Patient Transactions title link.
+
+
+###################
+Patient File Report
+This section is used to export the electronic patient file, including Patient Summary, Patient History, Patient Medications/Allergies/Immunizations, Patient Notes, Patient Transactions, and Patient Encounter Forms. To access the Patient File Report Screen, click on the Report text link in the Patient File Navigation Bar.
+
+###################################
+Patient File Report Information Bar
+The Report of Patient File Information Bar displays the name of the patient whose file is currently being viewed.
+
+##########################
+Patient File Report Screen
+A comprehensive printout of all data stored in OpenEMR for the current patient is displayed in the Patient File Report Screen. Patient demographic, history, employer, and insurance data is displayed first, and each catagory of data displays a list of what values were entered and their corresponding dates of entry. For example, if the patient's street address or insurance data has changed several times, all of the past and present values will be printed with dates, where the most recent and accurate entry is printed first in a column format. Active, or visible Patient Allergies/Medications/Immunizations are printed next, followed by Patient Notes, a log of all Billing Codes, Patient Transactions, and finally the specific Encounter Forms. By default, the large amount of Patient Data is displayed in several columns. To reformat the patient data for easier printing in a single column, click the text link Printable View located to the right of the Patient Record Report title text. To return the view to the default, click the Normal View text link to the right of the Patient Record Report title text.
+
+######################
+Closing a Patient File
+To close an open patient file and return to the Main screen, click on the Close link in the upper right hand corner of the Patient File.
+
+

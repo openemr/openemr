@@ -1,0 +1,44 @@
+<form name="x12_partner" method="post" action="{$FORM_ACTION}">
+<table CELLSPACING="0" CELLPADDING="3" border="0">
+<tr>
+	<td colspan="2">X12 Partner</td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Partner&nbsp;Name</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="name" value="{$partner->get_name()}"/></td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >ID&nbsp;Number&nbsp;(ETIN)</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="id_number" value="{$partner->get_id_number()}"/></td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Receiver&nbsp;ID</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_receiver_id" value="{$partner->get_x12_receiver_id()}"/></td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Sender&nbsp;ID</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_sender_id" value="{$partner->get_x12_sender_id()}"/></td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Version</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_version" value="{$partner->get_x12_version()}"/></td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Processing&nbsp;Format</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >{html_options name="processing_format" options=$partner->get_processing_format_array() selected=$partner->get_processing_format()}</td>
+</tr>
+
+
+<tr>
+	<td>
+		{if $partner->get_id() eq ""}
+			<input type="submit" value="Add" />
+		{else}
+			<input type="submit" value="Update" />
+		{/if}	
+	</td>
+</tr>
+</table>
+<input type="hidden" name="id" value="{$partner->id}" />
+<input type="hidden" name="process" value="{$PROCESS}" />
+</form>

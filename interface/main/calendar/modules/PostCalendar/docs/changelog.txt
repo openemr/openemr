@@ -1,0 +1,182 @@
+$Id$
+
+[PostCalendar 4.0.0]
+
+20030130
+	* integrated both Patch 1 and Patch 2 into this distribution
+
+20021223
+	* More intelligent Print View Handling
+	* Introduced $PRINT_VIEW Template Variable
+	
+20021222
+	* Fixed event details in popup bug
+	* Fixed missing translation defines
+	* Fixed small navigation - added permission check for add
+	
+[PostCalendar 3.9.9]
+
+20021219
+	* added admin email notification option
+	* smarty plugins now moved to own directory and in seperate files
+	* fixed minor display issues with small calendar month views
+	* added no events message to day view
+	* some language file changes
+	
+20021218
+	* Safe Mode now Auto-Detected
+	* Remove Admin Setting for 'Is PHP Using Safe Mode?'
+
+[PostCalendar 3.9.8]
+
+20021218
+	* Fixes for username conflicts - username renamed to pc_username
+	* Pemission check tweaks
+	* More CSS Tweaks
+	* Fixed non-existent object in Test System
+	* Fixed _SETTING_DEFAULT_VIEW bug in pc_show_views plugin
+
+[PostCalendar 3.9.7]
+
+20021216
+	* Fixed webiste link getting lost 
+	* Permissions should work as expected now
+	* Some template re-design and CSS Tweaks
+	* Fixed function () not found bug
+	* Fixed JavaScript Errors
+	* Fixed link/form targets in popup window
+	* Admin details now show original event start date
+
+[PostCalendar 3.9.6]
+
+20021212
+	* More Special Character Fixes
+	* Fixed loading of global.php
+	* removed pc_lid from pninit.php
+	* fixed upgrade script
+	
+20021211
+	* Fixes for special characters
+
+[PostCalendar 3.9.5]
+
+20021210
+	* Topic Text now used instead of Topic Name
+	* Categories sorted by name
+	* More il8n in templates for date formats
+	* Removed pnHTML calls from most of Admin	
+
+20021209
+	* Fixed colors in submit forms
+	* Added more robust repeating frequencies
+	* Modifed repeating logic
+	* Filter by all users
+	* Calendar block header css fixes
+	* Users can now edit/delete their own events
+	* HTML special character fixes
+
+[PostCalendar 3.9.4]
+
+20021208
+	* Fixed pcSmarty.class.php assign_by_ref bug
+	* More memory tweaks
+	* Error checking now works on Preview and Submit
+	* Added db indexes to help alleviate db query stress
+	* Cosmetic changes
+	
+[PostCalendar 3.9.3]
+
+20021206
+	* Fixed event preview bug when not using topics
+	* Smarty now passes some values by reference
+
+[PostCalendar 3.9.2]
+
+20021206
+	* Fixed incorrect date display in event details
+	* Fixed issues with XForum
+	* New pcSafeMode Admin Setting
+	* Admin now uses details.html template
+	* Print view opens in new browser window
+	* Fixed smarty plugin showViews directory bug
+	* Event data is no longer loaded for YEAR views
+	* Some template tweaks
+	* Mouseovers added to calendar block month view
+
+[PostCalendar 3.9.1]
+
+20021204
+	* Fixed safe mode issues
+	* Fixed Print Bug
+	* Fixed list view templates for year and month
+	* Added pc_filter plugin
+	* Fixed pass-by-reference warning
+	* Fixed update of informant on event edit
+	* Fixed conflicts with postguestbook
+	* Fixed conflicts with XForum (unconfirmed)
+	* New Admin Image
+	
+[PostCalendar 3.9.0]
+
+20021203 : rraymond
+	* Fixed upgrade procedure
+	* Optimized pcSmarty class
+	* Removed old TemplatePower and IT classes
+	* Preped for 3.9.0 release
+	
+20021202 : rraymond
+	* New PostCalendar::Topic permission
+    * New Order Param to pc_date_select
+    * New User Param to pc_date_select
+    * Print added to Details
+    * Fixed latency issue on menu settings
+    * Fixed postcalendar_footer() error on Print screens
+    * Added pcUseCace admin setting
+    * Added pcCacheLifetime admin setting
+    * Private events now display Correctly
+    * Optimzed Event SQL
+    * Added Use Default admin option
+    * Caching now REALLY works
+    * Search is working
+    * Added HTML or TEXT option to Add/Edit
+    * Fixed Admin Prev/Next and Sort links
+    * Optimized Year View template
+    * Added some missing translations
+    * Fixed garbled email addresses
+    * updated event detail and preview templates
+    * removed benchmarking results
+    * removed some old unused files 
+	
+20021130 : rraymond
+	* New Permission PostCalendar::Topic
+	* Order parameter added to pc_date_select
+	* User parameter added to pc_date_select
+	* Added print function to event details
+	* Fixed Private event details display arror
+	* Print Screen fixes
+	* pcUseCache and pcCacheLifetime admin settings added
+	* pcDefaultView added to settings
+	* added link to reset settings to defaults
+	* the usual bug fixes
+	* search by keywords working
+	
+[PostCalendar 3.0]
+
+PostNuke .71+ compatible
+All new code, re-written from the ground up.
+One block for all views 
+    (Calendar/Current Events/Upcoming Events)
+All data now held in one table
+Recurring events should now display correctly
+New Global Settings
+New mouseover javascript popup code (overLIB)
+More powerful administration
+New Block Settings
+New event detail display
+New day view
+New week view
+New month view
+New year view
+New add event to day links
+Upgrade old tables in admin
+And much more...

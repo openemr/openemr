@@ -1,0 +1,20 @@
+<?php
+include_once("../../globals.php");
+include_once("$srcdir/calendar.inc");
+include_once("$srcdir/patient.inc");
+?>
+<html>
+<head>
+
+<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+
+</head>
+<body bgcolor="#FFFFFF" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0 >
+<form>
+
+<input type=submit value="Find" />
+
+</form>
+
+</body>
+</html>

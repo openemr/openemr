@@ -1,0 +1,20 @@
+ {literal}
+ <style type="text/css" title="mystyles" media="all">
+ <!--
+td {
+	font-family: sans-serif;
+	text-decoration: none;
+	color: #000000;
+	font-size: 70%;
+}
+-->
+{/literal}
+</style>
+<table>
+	{foreach from=$prescriptions item=prescription}
+	<tr>
+		<td>{$prescription->drug}</td>
+		<td>{$prescription->get_dosage_display()}</td>
+	</tr>
+	{/foreach}
+</table>

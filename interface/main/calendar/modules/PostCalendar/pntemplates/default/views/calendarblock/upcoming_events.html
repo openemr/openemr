@@ -1,0 +1,77 @@
+[-*Smarty*-]
+[-config_load file="default.conf"-]
+[-include file="$TPL_NAME/views/header.html"-]
+[-*Load the Language Definitions*-]
+[-config_load file="lang.$USER_LANG"-]
+
+[-if $SHOW_TITLE eq 1-]
+<br />
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+    <tr>
+        <td width="100%" align="left" valign="middle">
+			<b>[-$UPCOMING_EVENTS_TITLE-]</b>
+		</td>
+    </tr>
+</table>
+<br />
+[-else-]
+[-* we want to include our stylesheet for this view*-]
+[-fetch file="$TPL_STYLE_PATH/calendarblock.css" assign="css"-]
+[-eval var=$css-]
+[-/if-]
+[-counter start=0 assign=eventcount-]
+[-foreach name=dates item=events key=date from=$A_EVENTS-]
+	[-if $date > $TODAY_DATE-]
+    	[-foreach name=eventloop key=id item=event from=$events-]
+    		[-if $eventcount < $DISPLAY_LIMIT-]
+    			[-if $event.alldayevent != true-]
+					[-if $24HOUR_TIME -]
+						[-assign var="timestamp" value=$event.startTime|date_format:#_PC_TIME_FORMAT_24#-]
+					[-else-]
+						[-assign var="timestamp" value=$event.startTime|date_format:#_PC_TIME_FORMAT_12#-]
+					[-/if-]
+				[-else-]
+					[-assign var="timestamp" value=""-]
+				[-/if-]				
+				<table width="100%" border="0" cellpadding="0" cellspacing="1">
+        			[-if $smarty.foreach.eventloop.iteration eq 1-]
+        				<tr>
+            				<td style="padding: 2px;" bgcolor="[-$BGCOLOR2-]">
+			 					[-if $USE_INT_DATES eq true-]
+				    			    [-assign var="format" value=#_PC_DATE_FORMAT_BLOCK_INT#-]
+							    [-else-]    
+				    			    [-assign var="format" value=#_PC_DATE_FORMAT_BLOCK_STD#-]
+							    [-/if-]
+								<b style="color: [-$TEXTCOLOR1-];">[-$date|pc_date_format:$format-]</b>
+							</td>
+        				</tr>
+        			[-/if-]
+        			<tr>
+            			<td valign="top" align="left" class="eventlink">
+							<a class="eventlink" href="[-pc_url action=detail eid=$event.eid date=$date-]" 
+									 [-pc_popup delay="500" 
+									 			timeout="3600"
+						            			bgcolor=$event.catcolor 
+						            			caption=$event.title 
+						            			text=$event.hometext|truncate:255:"..."-]>[-$timestamp-] [-$event.title|strip_tags-]
+							[-if $event.alldayevent != true-]
+								([-$event.duration_hours-]:[-$event.duration_minutes-])
+							[-/if-]
+							</a><br />
+						</td>
+        			</tr>
+				</table>
+			[-/if-]
+		[-counter-]
+		[-/foreach-]
+    [-/if-]
+[-/foreach-]
+[-if $eventcount == 0-]
+	<table width="100%" border="0" cellpadding="0" cellspacing="1">
+		<tr>
+			<td>[-$NO_EVENTS-]</td>
+		</tr>
+	</table>
+	<br />    
+[-/if-]
+[-include file="$TPL_NAME/views/footer.html"-]

@@ -1,0 +1,66 @@
+<html>
+<head><script language="Javascript">
+{literal}
+		function my_process () {
+			// Pass the variable
+{/literal}
+			opener.document.prescribe.drug.value = document.lookup.drug.value;
+			// Close the window
+			window.self.close();
+{literal}
+		}
+{/literal}
+</script>
+{literal}
+ <style type="text/css" title="mystyles" media="all">
+<!--
+td {
+	font-size:8pt;
+	font-family:helvetica;
+}
+input {
+	font-size:8pt;
+	font-family:helvetica;
+}
+select {
+	font-size:8pt;
+	font-family:helvetica;
+}
+a {
+	font-size:8pt;
+	font-family:helvetica;
+}
+textarea {
+	font-size:8pt;
+	font-family:helvetica;
+}
+-->
+</style>
+{/literal}
+</head>
+<body onload="javascript:document.lookup.drug.focus();"
+<div ALIGN="CENTER">
+	<form NAME="lookup" ACTION="{$FORM_ACTION}" METHOD="POST">
+	{if $drug_options}
+		{html_options name="drug" values=$drug_values options=$drug_options}<input class="button" TYPE="BUTTON" NAME="select" VALUE="Select" onClick="my_process(); return true;">
+		<br><a href="{$CONTROLLER_THIS}">search again</a>
+	{else}
+		{$NO_RESULTS}
+
+		<input TYPE="HIDDEN" NAME="varname" VALUE=""/>
+		<input TYPE="HIDDEN" NAME="formname" VALUE=""/>
+		<input TYPE="HIDDEN" NAME="submitname" VALUE=""/>
+		<input TYPE="HIDDEN" NAME="action" VALUE="Search">
+		<div ALIGN="CENTER" CLASS="infobox">
+			Drug:
+			<input TYPE="TEXT" NAME="drug" VALUE=""/>
+			<input TYPE="SUBMIT" NAME="action" VALUE="Search" class="button"/>
+		</div>
+		<input type="hidden" name="process" value="{$PROCESS}" />
+
+	{/if}
+	</form>
+</div>
+</body>
+</html>
+
