@@ -4,55 +4,52 @@ include_once("../globals.php");
 include_once("$srcdir/md5.js");
 include_once("$srcdir/sql.inc");
 ?>
-
-
-
 <html>
 <head>
-
-
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-
-
 </head>
 <body <?echo $login_body_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0 onload="javascript:document.login_form.authUser.focus();" >
-
-
-
 
 <span class="text"></span>
 
 <center>
 
-
-
 <form method="POST" action="../main/main_screen.php?auth=login" target="_top" name=login_form>
+
+<?
+$res = sqlStatement("select distinct name from groups");
+for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+	$result[$iter] = $row;
+if (count($result) == 1) {
+	$resvalue = $result[0]{"name"};
+	echo "<input type='hidden' name='authProvider' value='$resvalue' />\n";
+}
+?>
 
 <table width=100% height="90%">
 <tr>
-<td valign=middle width=30%>
+<td valign=middle width=33%>
 <?echo $logocode;?>
 </td>
-<td valign=middle width=30%>
-<table><tr>
+<td align='center' valign='middle' width=34%>
+<table>
+<?
+if (count($result) != 1) {
+?>
+<tr>
 <td><span class="text">Group:</span></td>
 <td>
 <select name=authProvider>
 <?
-
-$res = sqlStatement("select distinct name from groups");
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-		$result[$iter] = $row;
-
-foreach ($result as $iter) {
-echo "<option value='".$iter{"name"}."'>".$iter{"name"}."</option>\n";
-}
-
-
+	foreach ($result as $iter) {
+		echo "<option value='".$iter{"name"}."'>".$iter{"name"}."</option>\n";
+	}
 ?>
 </select>
 </td></tr>
-
+<?
+}
+?>
 <tr>
 <td><span class="text">Username:</span></td>
 <td>
@@ -69,10 +66,13 @@ echo "<option value='".$iter{"name"}."'>".$iter{"name"}."</option>\n";
 </table>
 
 </td>
-<td width=30%>
+<td width=33%>
 
+<!-- Uncomment this for the OpenEMR demo installation
 <p><center>login = admin
 <br>password = pass
+-->
+
 </center></p>
 
 </td>
@@ -91,6 +91,3 @@ Copyright &copy; -2003 Synitech Inc.
 </center>
 </body>
 </html>
-
-
-
