@@ -1,6 +1,16 @@
 <?
 include_once("../../globals.php");
 
+// Session pid must be right or bad things can happen when demographics are saved!
+//
+include_once("$srcdir/pid.inc");
+if ($_GET["set_pid"] && $_GET["set_pid"] != $_SESSION["pid"]) {
+	setpid($_GET["set_pid"]);
+}
+else if ($_GET["pid"] && $_GET["pid"] != $_SESSION["pid"]) {
+	setpid($_GET["pid"]);
+}
+
 include_once("$srcdir/patient.inc");
 
 $relats = array('','self','spouse','child','other');
@@ -134,21 +144,25 @@ alert("Please enter a dollar amount using only numbers and a decimal point.");
 $result = getPatientData($pid);
 $result2 = getEmployerData($pid);
 
-
 //extract formatting of phone number:
 $pmatch_contact=array();
-preg_match("/^\((.*?)\)\s(.*?)\-(.*?)$/",$result{"phone_contact"},$pmatch_contact);
+// preg_match("/^\((.*?)\)\s(.*?)\-(.*?)$/",$result{"phone_contact"},$pmatch_contact);
+preg_match("/\D*(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/",$result{"phone_contact"},$pmatch_contact);
+
 //extract formatting of phone number:
 $pmatch_home=array();
-preg_match("/^\((.*?)\)\s(.*?)\-(.*?)$/",$result{"phone_home"},$pmatch_home);
+// preg_match("/^\((.*?)\)\s(.*?)\-(.*?)$/",$result{"phone_home"},$pmatch_home);
+preg_match("/\D*(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/",$result{"phone_home"},$pmatch_home);
 
 //extract formatting of phone number:
 $pmatch_biz=array();
-preg_match("/^\((.*?)\)\s(.*?)\-(.*?)$/",$result{"phone_biz"},$pmatch_biz);
+// preg_match("/^\((.*?)\)\s(.*?)\-(.*?)$/",$result{"phone_biz"},$pmatch_biz);
+preg_match("/\D*(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/",$result{"phone_biz"},$pmatch_biz);
 
 //extract formatting of phone number:
 $pmatch_cell=array();
-preg_match("/^\((.*?)\)\s(.*?)\-(.*?)$/",$result{"phone_cell"},$pmatch_cell);
+// preg_match("/^\((.*?)\)\s(.*?)\-(.*?)$/",$result{"phone_cell"},$pmatch_cell);
+preg_match("/\D*(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/",$result{"phone_cell"},$pmatch_cell);
 
 ?>
 
