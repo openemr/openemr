@@ -125,7 +125,7 @@ class Procedure Extends DataObjectBase {
 		$this->_addFunc("clearinghousekey", array(	"name"	=>	"FreeB.FBProcedure.ClearingHouseKey",
 															"sig"	=>	array(XMLRPCSTRING,XMLRPCINT),
 															"doc"	=>	""));
-																	
+
 	}
 
 	function isusingclearinghouse($m) {
@@ -151,14 +151,14 @@ class Procedure Extends DataObjectBase {
 		$retval = "";
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM billing where id = '" . $key . "'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
@@ -200,25 +200,25 @@ class Procedure Extends DataObjectBase {
 		$retval = "";
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM billing where id = '" . $key . "'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
 				$retval = $results->fields['units'];
 			}
 		}
-		
+
 		if (empty ($retval) || $retval < 1) {
-			$retval = 1;	
+			$retval = 1;
 		}
-		
+
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
@@ -237,14 +237,14 @@ class Procedure Extends DataObjectBase {
 		$retval = "";
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM billing where id = '" . $key . "'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
@@ -270,21 +270,21 @@ class Procedure Extends DataObjectBase {
 
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM billing where id = '" . $key . "'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
 				$retval = $results->fields['fee'];
 			}
 		}
-		
+
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
@@ -353,25 +353,25 @@ class Procedure Extends DataObjectBase {
 
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM billing where encounter = '" . $_SESSION['billkey'] . "'  and pid = '" . $_SESSION['patient_id'] . "' and code_type = 'COPAY'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
 				$retval = $results->fields['fee'];
 			}
 		}
-		
+
 		if (empty($retval)) {
-			$retval = "0000";	
+			$retval = "0000";
 		}
-		
+
 		$retval = str_replace(".","",$retval);
 
 		// if we generated an error, create an error return response
@@ -391,7 +391,7 @@ class Procedure Extends DataObjectBase {
 		$retval = "";
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		//phased out by HIPPA, use cpt modifiers instead
 		$retval = "";
 		// if we generated an error, create an error return response
@@ -404,21 +404,21 @@ class Procedure Extends DataObjectBase {
 			return new xmlrpcresp(new xmlrpcval($retval,"string"));
 		}
 	}
-	
+
 	function priorauth($m) {
 
 		$err="";
 		$retval = "";
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM forms JOIN form_prior_auth as fpa on fpa.id = forms.form_id where forms.encounter = '" . $_SESSION['billkey'] . "' and forms.pid = '" . $_SESSION['patient_id'] . "' and forms.formdir = 'prior_auth' order by forms.date";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
@@ -435,7 +435,7 @@ class Procedure Extends DataObjectBase {
 			return new xmlrpcresp(new xmlrpcval($retval,"string"));
 		}
 	}
-	
+
 	function dateofservicestart($m) {
 
 		$err="";
@@ -443,21 +443,21 @@ class Procedure Extends DataObjectBase {
 		$retval = "";
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM billing where pid = '" . $_SESSION['patient_id'] . "' and  encounter = '" . $_SESSION['billkey'] . "'and id ='" . $key ."'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
 				$retval  =	$results->fields['date'];
 			}
 		}
-		
+
 
 		$retval = $this->_isodate(date("Y-m-d",strtotime($retval)));
 
@@ -471,7 +471,7 @@ class Procedure Extends DataObjectBase {
 			return new xmlrpcresp(new xmlrpcval($retval,XMLRPCDATETIME));
 		}
 	}
-	
+
 	function dateofserviceend($m) {
 
 		$err="";
@@ -479,21 +479,21 @@ class Procedure Extends DataObjectBase {
 		$retval = "";
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM billing where pid = '" . $_SESSION['patient_id'] . "' and  encounter = '" . $_SESSION['billkey'] . "'and id ='" . $key ."'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
 				$retval  =	$results->fields['date'];
 			}
 		}
-		
+
 		$retval = $this->_isodate(date("Y-m-d",strtotime($retval)));
 
 		// if we generated an error, create an error return response
@@ -506,7 +506,7 @@ class Procedure Extends DataObjectBase {
 			return new xmlrpcresp(new xmlrpcval($retval,XMLRPCDATETIME));
 		}
 	}
-	
+
 	function dateofhospitalstart($m) {
 
 		$err="";
@@ -524,7 +524,7 @@ class Procedure Extends DataObjectBase {
 			return new xmlrpcresp(new xmlrpcval($pkey,XMLRPCDATETIME));
 		}
 	}
-	
+
 	function ishospitalized($m) {
 
 		$err="";
@@ -541,7 +541,7 @@ class Procedure Extends DataObjectBase {
 			return new xmlrpcresp(new xmlrpcval($pkey,"i4"));
 		}
 	}
-	
+
 	function isoutsidelab($m) {
 
 		$err="";
@@ -558,11 +558,11 @@ class Procedure Extends DataObjectBase {
 			return new xmlrpcresp(new xmlrpcval($pkey,"i4"));
 		}
 	}
-	
+
 	function outsidelabcharges($m) {
 
 		$err="";
-		
+
 		//unimplemented by OpenEMR
 		$pkey = "";
 
@@ -617,10 +617,10 @@ class Procedure Extends DataObjectBase {
 	function medicaidoriginalreference($m) {
 
 		$err="";
-		
+
 		//unimplemented by OpenEMR
 		$pkey = "";
-		
+
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
@@ -666,7 +666,7 @@ class Procedure Extends DataObjectBase {
 			return new xmlrpcresp(new xmlrpcval($pkey));
 		}
 	}
-	
+
 	function hcfalocaluse10d($m) {
 
 		$err="";
@@ -688,7 +688,7 @@ class Procedure Extends DataObjectBase {
 	function hcfalocaluse19($m) {
 
 		$err="";
-		
+
 		//this needs to be customized on a payer to payer and state to state basis
 		$pkey = "";
 
@@ -702,29 +702,34 @@ class Procedure Extends DataObjectBase {
 			return new xmlrpcresp(new xmlrpcval($pkey,"string"));
 		}
 	}
-	
+
 	function procarray($m) {
 
 		$err="";
-		
+
 		$procs = array();
-		
+
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$keys = split("-",$key);
 		$patient_id = $keys[0];
 		$encounter = $keys[1];
-		
+
 		$_SESSION['billkey'] = $encounter;
 		$_SESSION['patient_id'] = $patient_id;
-		$sql = "SELECT * FROM billing where (code_type = 'CPT4' or code_type = 'HCPCS') AND encounter = '$encounter' AND pid = '$patient_id' and activity = '1'";
+
+		// Sort by procedure timestamp in order to get some consistency.  In particular
+		// freeb determines the provider from the first procedure in this array.
+		$sql = "SELECT * FROM billing where (code_type = 'CPT4' or code_type = 'HCPCS') AND " .
+			"encounter = '$encounter' AND pid = '$patient_id' and activity = '1' " .
+			"order by date, id";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			while (!$results->EOF) {
@@ -732,7 +737,7 @@ class Procedure Extends DataObjectBase {
 				$results->MoveNext();
 			}
 		}
-		
+
 
 		// if we generated an error, create an error return response
 		if ($err) {
@@ -749,26 +754,26 @@ class Procedure Extends DataObjectBase {
 
 		$err="";
 		$diags = array();
-		
+
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM billing where id = '$key'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
 				$diagstring = $results->fields['justify'];
 			}
 		}
-		
+
 		if (!empty($diagstring)) {
-			
+
 			$diag_codes = split(":",$diagstring);
 			$diag_sql = "";
 			foreach ($diag_codes as $dc) {
@@ -779,12 +784,12 @@ class Procedure Extends DataObjectBase {
 			if (substr($diag_sql,strlen($diag_sql) -1) == ",") {
 				$diag_sql = substr($diag_sql,0,strlen($diag_sql) -1);
 			}
-			
+
 			$sql = "SELECT * FROM billing where code in ($diag_sql) and  code_type = 'ICD9' AND encounter = '" . $_SESSION['billkey'] . "' and pid ='" . $_SESSION['patient_id'] . "' and activity = '1'";
-			
-			$results = $db->Execute($sql);	
+
+			$results = $db->Execute($sql);
 			if (!$results) {
-				$err .= $db->ErrorMsg();	
+				$err .= $db->ErrorMsg();
 			}
 			else {
 				while (!$results->EOF) {
@@ -804,9 +809,9 @@ class Procedure Extends DataObjectBase {
 		else {
 			$diags[] = 	new xmlrpcval(0,"i4");
 		}
-		
-		
-		
+
+
+
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
@@ -822,7 +827,7 @@ class Procedure Extends DataObjectBase {
 
 		$err="";
 		$pkey ="";
-		
+
 		$pkey = $_SESSION['patient_id'];
 
 		// if we generated an error, create an error return response
@@ -839,35 +844,35 @@ class Procedure Extends DataObjectBase {
 	function practicekey($m) {
 
 		$err="";
-		
+
 		$sql = "SELECT * FROM form_encounter where encounter = '" . $_SESSION['billkey'] ."' and pid = '" . $_SESSION['patient_id'] ."'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
 				$fname = $results->fields['facility'];
 			}
 		}
-		
+
 		$sql = "SELECT * FROM facility where name = '" . $fname ."'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
 				$fkey =	$results->fields['id'];
 			}
 		}
-		
+
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
@@ -886,14 +891,14 @@ class Procedure Extends DataObjectBase {
 		$pkey ="";
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM billing where id = '" . $key . "'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
@@ -911,29 +916,29 @@ class Procedure Extends DataObjectBase {
 			return new xmlrpcresp(new xmlrpcval($pkey,"i4"));
 		}
 	}
-	
+
 	function referringproviderkey($m) {
 
 		$err="";
-		
+
 		$pkey ="";
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM patient_data where pid = '" . $key . "'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
 				$pkey =	$results->fields['providerID'];
 			}
 		}
-		
+
 
 		// if we generated an error, create an error return response
 		if ($err) {
@@ -953,30 +958,30 @@ class Procedure Extends DataObjectBase {
 		$payer_id = "";
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM billing where id = '" . $key . "'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
 				$payer_id  =	$results->fields['payer_id'];
 			}
 		}
-		
+
 
 		$insured_id = "";
 		$sql = "SELECT * FROM insurance_data where pid = '" . $_SESSION['patient_id'] . "' and provider = '" . $payer_id . "'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
@@ -985,7 +990,7 @@ class Procedure Extends DataObjectBase {
 		}
 		//we are returning the record id of the appropriate entry in insurance_data
 		//there is no relational data, all the subscriber/insured information is kept monolithically in that table
-		
+
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
@@ -1016,18 +1021,18 @@ class Procedure Extends DataObjectBase {
 
 	function payerkey($m) {
 		$err="";
-		
+
 		$pkey = "";
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
-		$sql = "SELECT * FROM billing where id = '" . $key . "'";		
+
+		$sql = "SELECT * FROM billing where id = '" . $key . "'";
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
-		
+		$results = $db->Execute($sql);
+
+
 		if (!$results) {
-			$err = $db->ErrorMsg() . " $sql";	
+			$err = $db->ErrorMsg() . " $sql";
 		}
 		else {
 			while (!$results->EOF) {
@@ -1035,7 +1040,7 @@ class Procedure Extends DataObjectBase {
 				$results->MoveNext();
 			}
 		}
-		
+
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
@@ -1069,17 +1074,17 @@ class Procedure Extends DataObjectBase {
 				$eid = "";
 		$patient_id = "";
 		$fname ="";
-		
+
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM billing where id = '" . $key . "'";
 
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
@@ -1087,32 +1092,32 @@ class Procedure Extends DataObjectBase {
 				$patient_id = $results->fields['pid'];
 			}
 		}
-		
+
 		$sql = "SELECT * FROM form_encounter where encounter = '" . $eid ."' and pid = '" . $patient_id ."'";
-			
-		$results = $db->Execute($sql);	
-		
+
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
 				$fname = $results->fields['facility'];
 			}
 		}
-		
+
 		$sql = "SELECT * FROM facility where name = '" . $fname ."'";
-		$results = $db->Execute($sql);	
+		$results = $db->Execute($sql);
 		if (!$results) {
 			echo "error";
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
 				$fkey =	$results->fields['id'];
 			}
 		}
-		
+
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
@@ -1182,17 +1187,17 @@ class Procedure Extends DataObjectBase {
 		$eid = "";
 		$patient_id = "";
 		$fname ="";
-		
+
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM billing where id = '" . $key . "'";
 
 		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);	
-		
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
@@ -1200,32 +1205,32 @@ class Procedure Extends DataObjectBase {
 				$patient_id = $results->fields['pid'];
 			}
 		}
-		
+
 		$sql = "SELECT * FROM form_encounter where encounter = '" . $eid ."' and pid = '" . $patient_id ."'";
-			
-		$results = $db->Execute($sql);	
-		
+
+		$results = $db->Execute($sql);
+
 		if (!$results) {
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
 				$fname = $results->fields['facility'];
 			}
 		}
-		
+
 		$sql = "SELECT * FROM facility where name = '" . $fname ."'";
-		$results = $db->Execute($sql);	
+		$results = $db->Execute($sql);
 		if (!$results) {
 			echo "error";
-			$err = $db->ErrorMsg();	
+			$err = $db->ErrorMsg();
 		}
 		else {
 			if (!$results->EOF) {
 				$fkey =	$results->fields['id'];
 			}
 		}
-		
+
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
