@@ -8,7 +8,7 @@ if ($_GET['show_pnote_link'] == true || $_POST['show_pnote_link'] == true) {
   $pnote_link = "&show_pnote_link=1";
 }
 //the maximum number of patient records to display:
-$M = 100;
+$M = 2000;
 
 /*if ($_GET['new'] == 1) {
 	echo "new is 1";
