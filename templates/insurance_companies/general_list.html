@@ -1,20 +1,18 @@
 <table>
 	<tr>
-		<td>Name</td>
-		<td rowspan="50">&nbsp;</td>
-		<td>City, State</td>
-		<td rowspan="50">&nbsp;</td>
-		<td>Default X12 Partner</td>
+		<td><b>Name</b></td>
+		<td><b>City, State</b></td>
+		<td><b>Default X12 Partner</b></td>
 	</tr>
 	{foreach from=$icompanies item=insurancecompany}
 	<tr>
-		<td><a href="{$CURRENT_ACTION}action=edit&id={$insurancecompany->id}">{$insurancecompany->name}</a></td>
-		<td>{$insurancecompany->address->city} {$insurancecompany->address->state|upper}</td>
+		<td><a href="{$CURRENT_ACTION}action=edit&id={$insurancecompany->id}">{$insurancecompany->name}</a>&nbsp;</td>
+		<td>{$insurancecompany->address->city} {$insurancecompany->address->state|upper}&nbsp;</td>
 		<td>{$insurancecompany->get_x12_default_partner_name()}</td>
 	</tr>
 	{foreachelse}
 	<tr>
-		<td colspan="6">No Insurance Companies Found</td>
+		<td colspan="3">No Insurance Companies Found</td>
 	</tr>
 	{/foreach}
 </table>

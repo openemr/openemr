@@ -23,7 +23,7 @@ function getLanguages() {
 
 function getInsuranceProviders() {
 	$returnval = array();
-	$sql = "select name, id from insurance_companies order by name";
+	$sql = "select name, id from insurance_companies order by name, id";
 	$rez = sqlStatement($sql);
 
 	for($iter=0; $row=sqlFetchArray($rez); $iter++) {
@@ -162,6 +162,7 @@ function getEmployerData($pid, $given = "*")
 
 function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
+	/****
 	$sql="select pid, MAX(id) as id from patient_data group by pid DESC order by pid ASC";
 	$res = sqlStatement($sql);
 	$sql="select $given from patient_data where lname like '$lname%' and (";
@@ -171,6 +172,13 @@ function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, 
 		$sql = substr($sql, 0, -3) . ") order by $orderby";
 	else
 		$sql = substr($sql, 0, -5)."order by $orderby";
+	****/
+
+	// WTF? That was a good way to create a 200KB sql statement.
+
+	$sql="select $given from patient_data where lname like '$lname%' " .
+		"order by $orderby";
+
 	if ($limit != "all")
 		$sql .= " limit $start, $limit";
 	$rez = sqlStatement($sql);
@@ -178,12 +186,12 @@ function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, 
 	for($iter=0; $row=sqlFetchArray($rez); $iter++)
 		$returnval[$iter]=$row;
 
-
 	return $returnval;
 }
 
 function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
+	/****
 	$sql="select pid, MAX(id) as id from patient_data group by pid DESC order by pid ASC";
 	$res = sqlStatement($sql);
 	$sql="select $given from patient_data where pubpid like '$pid%' and (";
@@ -193,17 +201,19 @@ function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, provid
 		$sql = substr($sql, 0, -3) . ") order by $orderby";
 	else
 		$sql = substr($sql, 0, -5)."order by $orderby";
+	****/
+
+	$sql = "select $given from patient_data where pubpid like '$pid%' " .
+		"order by $orderby";
+
 	if ($limit != "all")
 		$sql .= " limit $start, $limit";
-
 	$rez = sqlStatement($sql);
 	for($iter=0; $row=sqlFetchArray($rez); $iter++)
 		$returnval[$iter]=$row;
 
-
 	return $returnval;
 }
-
 
 function getPatientPID($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
@@ -242,6 +252,7 @@ function getPatientName($pid) {
 
 function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
+	/****
 	$sql="select pid, MAX(id) as id from patient_data group by pid DESC order by pid ASC";
 	$res = sqlStatement($sql);
 	$sql="select $given from patient_data where DOB like '$DOB%' and (";
@@ -251,6 +262,13 @@ function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $ord
 		$sql = substr($sql, 0, -3) . ") order by $orderby";
 	else
 		$sql = substr($sql, 0, -5)."order by $orderby";
+	****/
+
+	$DOB = fixDate($DOB, $DOB);
+
+	$sql="select $given from patient_data where DOB like '$DOB%' " .
+		"order by $orderby";
+
 	if ($limit != "all")
 		$sql .= " limit $start, $limit";
 
@@ -258,12 +276,12 @@ function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $ord
 	for($iter=0; $row=sqlFetchArray($rez); $iter++)
 		$returnval[$iter]=$row;
 
-
 	return $returnval;
 }
 
 function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
+	/****
 	$sql="select pid, MAX(id) as id from patient_data group by pid DESC order by pid ASC";
 	$res = sqlStatement($sql);
 	$sql="select $given from patient_data where ss like '$ss%' and (";
@@ -273,6 +291,11 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
 		$sql = substr($sql, 0, -3) . ") order by $orderby";
 	else
 		$sql = substr($sql, 0, -5)."order by $orderby";
+	****/
+
+	$sql="select $given from patient_data where ss like '$ss%' " .
+		"order by $orderby";
+
 	if ($limit != "all")
 		$sql .= " limit $start, $limit";
 
@@ -280,25 +303,22 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
 	for($iter=0; $row=sqlFetchArray($rez); $iter++)
 		$returnval[$iter]=$row;
 
-
 	return $returnval;
 }
 
-
-
-
-
-
-
-
 function getPatientIds($given = "pid, id, lname, fname, mname", $orderby = "id ASC", $limit="all", $start="0")
 {
+	/****
 	$sql="select pid, MAX(id) as id from patient_data group by pid DESC order by pid ASC";
 	$res = sqlStatement($sql);
 	$sql="select $given from patient_data where ";
 	for ($iter = 0;$row = sqlFetchArray($res);$iter++)
 		$sql.="id='{$row['id']}' or ";
 	$sql = substr($sql, 0, -3) . "order by $orderby";
+	****/
+
+	$sql="select $given from patient_data order by $orderby";
+
 	if ($limit != "all")
 		$sql .= " limit $start, $limit";
 
@@ -308,8 +328,6 @@ function getPatientIds($given = "pid, id, lname, fname, mname", $orderby = "id A
 
 	return $returnval;
 }
-
-
 
 //----------------------input functions
 function newPatientData(	$db_id="",
@@ -410,8 +428,8 @@ function newPatientData(	$db_id="",
 //   yyyy/mm/dd
 //   also mm-dd-yyyy, etc. and mm.dd.yyyy, etc.
 //
-function fixDate($date) {
-    $fixed_date = "0000-00-00";
+function fixDate($date, $default="0000-00-00") {
+    $fixed_date = $default;
     $date = trim($date);
     if (preg_match("'^[0-9]{1,4}[/.-][0-9]{1,2}[/.-][0-9]{1,4}$'", $date)) {
         $dmy = preg_split("'[/.-]'", $date);

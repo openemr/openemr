@@ -35,7 +35,7 @@ class InsuranceCompany extends ORDataObject{
 	//this is now deprecated use new x12 partners instead
 	var $x12_receiver_id;
 	var $x12_default_partner_id;
-	
+
 	/*
 	*	Freeb used this value to determine special formatting for the specified type of payer.
 	*	This value is a mutually exclusive choice answering the FB.Payer.isX API calls
@@ -44,7 +44,7 @@ class InsuranceCompany extends ORDataObject{
 	*	@var int Holds constant for type of payer as far as FREEB is concerned, see FB.Payer.isXXX API calls
 	*/
 	var $freeb_type;
-	
+
 	/*
 	*	Array used to populate select dropdowns or other form elements, it must coincide with the FREEB_TYPE_XXX constants
 	*	@var array Values are display strings that match constants for FB.Payer.isXXX payer types, used for populating select dropdowns, etc
@@ -75,14 +75,14 @@ class InsuranceCompany extends ORDataObject{
 	function get_id() {
 		return $this->id;
 	}
-	
+
 	//special function the the html forms use to prepopulate which allows for partial edits and wizard functionality
 	function set_form_id ($id = "") {
 		if (!empty($id)) {
 			$this->populate($id);
 		}
 	}
-	
+
 	function set_address($aobj) {
 		$this->address = $aobj;
 	}
@@ -95,7 +95,7 @@ class InsuranceCompany extends ORDataObject{
 	function set_address_line2($line) {
 		$this->address->set_line2($line);
 	}
-	
+
 	function set_city($city) {
 		$this->address->set_city($city);
 	}
@@ -162,30 +162,30 @@ class InsuranceCompany extends ORDataObject{
 	function set_phone($phone) {
 		$this->_set_number($phone, TYPE_WORK);
 	}
-	
+
 	function set_x12_receiver_id($id) {
 		//trigger_error("The set_x12_receiver_id function is now deprecated use the newer x12 partners code instead.",E_USER_NOTICE);
 		$this->x12_receiver_id = $id;
 	}
-	
+
 	function get_x12_receiver_id() {
 		//trigger_error("The get_x12_receiver_id function is now deprecated use the newer x12 partners code instead.",E_USER_NOTICE);
 		return $this->x12_receiver_id;
 	}
-	
+
 	function set_x12_default_partner_id($id) {
 		$this->x12_receiver_id = $id;
 	}
-	
+
 	function get_x12_default_partner_id() {
 		return $this->x12_receiver_id;
 	}
-	
+
 	function get_x12_default_partner_name() {
 		$xa = $this->_utility_array(X12Partner::x12_partner_factory());
 		return $xa[$this->get_x12_default_partner_id()];
 	}
-	
+
 	function populate() {
 		parent::populate();
 		$this->address = Address::factory_address($this->id);
@@ -215,7 +215,7 @@ class InsuranceCompany extends ORDataObject{
 		return ($pharmacy_array);
 	}
 
-	function insurance_companies_factory ($city = "", $sort = "ORDER BY name") {
+	function insurance_companies_factory ($city = "", $sort = "ORDER BY name, id") {
 		if (empty($city)) {
 			 $city= "";
 		}
