@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 1.1.2  (Linux)">
+	<META NAME="CREATED" CONTENT="20050114;13373000">
+	<META NAME="CHANGED" CONTENT="20050114;14092500">
+	<STYLE>
+	<!--
+		@page {
+	margin-top: 1in;
+	margin-right: 1.25in;
+	margin-left: 1.25in;
+	size: 8.5in 11in;
+}
+body {
+	background-color: #DEE6EE;
+}
+
+
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<P ALIGN=CENTER STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=5 STYLE="font-size: 16pt">Installing
+OpenEMR on a Windows 2003 server</FONT></FONT></P>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+<BR>
+</P>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=3>This document describes
+how to obtain and install OpenEMR on Windows platforms.</FONT></FONT></P>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+<BR>
+</P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in; font-style: normal; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=4><B>Installation using
+XAMPP</B></FONT></FONT></P>
+<P STYLE="margin-bottom: 0in; font-style: normal; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=3><B>Choose which
+distribution to install.</B></FONT></FONT></P>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=3>We recommend installing a
+stable production release. For our project, it was
+the XAMPP 1.4.11 version, which is free of charge.</FONT></FONT></P>
+<P STYLE="margin-bottom: 0in; font-style: normal; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=3><B>Download the
+distribution you want to install. </B></FONT></FONT>
+</P>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=3>We downloaded the XAMPP
+1.4.11 installer, xampp-win32-1.4.11-installer.exe, from the Apache
+Friends organization's Web site, http://www.apachefriends.org,
+because it's easy and safe.</FONT></FONT></P>
+<P STYLE="margin-bottom: 0in; font-style: normal; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=3><B>Install the
+distribution.</B></FONT></FONT></P>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=3>Installation of XAMPP is
+very easy. Just unpack the package on the partition of your choice.
+We chose the default, creating the main directory in
+C:\apachefriends\xampp.</FONT></FONT></P>
+<P STYLE="margin-bottom: 0in; font-style: normal; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=3><B>Perform
+post-installation setup.</B></FONT></FONT></P>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=3>To start XAMPP, choose
+the &quot;xampp basic start&quot; program from the start menu (start
+menu-&gt;apachefieends-&gt;xampp). </FONT></FONT>
+</P>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=3>Although MySQL starts
+without a password for &quot;root,&quot; you can add a root password,
+if you wish. To do so, use &quot;mysqladmin&quot; under the console
+or use the &quot;phpMyAdmin&quot; graphics program found on the XAMPP
+tools menu. </FONT></FONT>
+</P>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=3>Change the XAMPP switch
+from PHP 5 to the PHP 4.3.10 version by using the &quot;php switch&quot;
+program from the start menu (startmenu-&gt;apachefriends-&gt;php
+switch).<BR></FONT></FONT><BR>
+</P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in; font-style: normal; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=4><B>Installation of
+OpenEMR</B></FONT></FONT></P>
+<P STYLE="margin-bottom: 0in; font-style: normal; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=3><B>Choose which
+distribution to install.</B></FONT></FONT></P>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=3>We recommend installing a
+stable production release. For our project with
+Windows, it was the OpenEMR 2.6.5 version, which is also free of
+charge. </FONT></FONT>
+</P>
+<P STYLE="margin-bottom: 0in; font-style: normal; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=3><B>Download the
+distribution you want to install.</B></FONT></FONT></P>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=3>We downloaded the
+openemr-ea-2.5.3PF.tgz version from the OpenEMR Web site,
+http://openemr.net.</FONT></FONT></P>
+<P STYLE="margin-bottom: 0in; font-style: normal; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=3><B>Install the
+distribution.</B></FONT></FONT></P>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=3>For installation, we used
+the following Pennington Firm &quot;OpenEMR Windows installation&quot;
+document:<BR></FONT></FONT><BR>
+</P>
+<OL>
+	<LI><P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+	<FONT FACE="Arial, sans-serif"><FONT SIZE=3>As an administrator,
+	extract using WinZip the openemr archive copy and move the openemr
+	folder into C:\apachefriends\xampp\htdocs.</FONT></FONT></P>
+	<LI><P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+	<FONT FACE="Arial, sans-serif"><FONT SIZE=3>Use WordPad to open
+	globals.php file, which is in
+	C:\apachefriends\xampp\htdocs\openemr\interface. </FONT></FONT>
+	</P>
+	<LI><P STYLE="margin-bottom: 0in"><FONT FACE="Arial, sans-serif"><FONT SIZE=3><SPAN STYLE="font-weight: medium"><SPAN STYLE="text-decoration: none"><SPAN STYLE="font-style: normal">Change
+	$webserver_root =&quot;/var/www/openemr&quot;; to $webserver_root
+	</SPAN></SPAN></SPAN>=&quot;C: /apachefriends/xampp/htdocs/openemr&quot;.</FONT></FONT></P>
+	<LI><P STYLE="margin-bottom: 0in"><FONT FACE="Arial, sans-serif"><FONT SIZE=3>Start
+	Web browser and type in http: //localhost/openemr/setup.php. </FONT></FONT>
+	</P>
+	<LI><P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+	<FONT FACE="Arial, sans-serif"><FONT SIZE=3>Click &quot;Continue&quot;
+	button.</FONT></FONT></P>
+	<LI><P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+	<FONT FACE="Arial, sans-serif"><FONT SIZE=3>For the first step,
+	choose &quot;Have setup create the databases&quot; and click
+	&quot;Continue.&quot;</FONT></FONT></P>
+	<LI><P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+	<FONT FACE="Arial, sans-serif"><FONT SIZE=3>For the next step, choose
+	the following entries:</FONT></FONT></P>
+	<OL>
+		<LI><P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+		<FONT FACE="Arial, sans-serif"><FONT SIZE=2>mysql root password –
+		for password that you choose early;</FONT></FONT></P>
+		<LI><P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+		<FONT FACE="Arial, sans-serif"><FONT SIZE=2>openemr password –
+		use something simple like &quot;openemr1&quot;;</FONT></FONT></P>
+		<LI><P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+		<FONT FACE="Arial, sans-serif"><FONT SIZE=2>database name – for
+		example, use &quot;openemr&quot;;</FONT></FONT></P>
+		<LI><P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+		<FONT FACE="Arial, sans-serif"><FONT SIZE=2>change default clinic
+		name to the name of your clinic – for example, use “clinic”</FONT></FONT></P>
+		<LI><P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium; text-decoration: none">
+		<FONT FACE="Arial, sans-serif"><FONT SIZE=2>Click “Continue”
+		and soon you will be see the message, &quot;Congratuations...&quot;</FONT></FONT></P>
+	</OL>
+</OL>
+<P STYLE="margin-bottom: 0in; font-style: normal; text-decoration: none">
+<FONT FACE="Arial, sans-serif"><FONT SIZE=3><B>Perform
+post-installation setup. </B></FONT></FONT>
+</P>
+</BODY>
+</HTML>
