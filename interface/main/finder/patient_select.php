@@ -5,6 +5,9 @@ include_once("$srcdir/patient.inc");
 
 //the maximum number of patient records to display:
 $M = 100;
+// this is a quick fix so it doesn't go to thousands records. 
+// the searching functions on patient.inc need improvement.
+if ($patient=='') $patient='Please enter some information'; 
 ?>
 
 <html>
