@@ -40,7 +40,7 @@
 		[-foreach item=provider from=$providers-]
 		<td valign='top'>
 		<table width='%100' height='%100' border="1" cellpadding="0" cellspacing="0" valign='top'>
- 		<tr><td >[-$provider.lname-]</td>
+ 		<tr><td >[-$provider.fname[0]-][-$provider.lname-]</td>
 		</tr>
 		<tr>
 		[-foreach name=dates item=events key=date from=$A_EVENTS-]
