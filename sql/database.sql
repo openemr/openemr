@@ -26409,7 +26409,7 @@ CREATE TABLE `documents` (
   `mimetype` varchar(255) default NULL,
   `pages` int(11) default NULL,
   `owner` int(11) default NULL,
-  `revision` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+  `revision` timestamp,
   `foreign_id` int(11) default NULL,
   PRIMARY KEY  (`id`),
   KEY `revision` (`revision`),
@@ -26995,7 +26995,7 @@ CREATE TABLE `notes` (
   `note` varchar(255) default NULL,
   `owner` int(11) default NULL,
   `date` datetime default NULL,
-  `revision` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+  `revision` timestamp,
   PRIMARY KEY  (`id`),
   KEY `foreign_id` (`owner`),
   KEY `foreign_id_2` (`foreign_id`),
@@ -27293,8 +27293,8 @@ CREATE TABLE `patient_data` (
   `genericval1` varchar(255) NOT NULL default '',
   `genericname2` varchar(255) NOT NULL default '',
   `genericval2` varchar(255) NOT NULL default '',
-  `hipaa_mail` VARCHAR( 3 ) DEFAULT 'NO' NOT NULL ,
-  `hipaa_voice` VARCHAR( 3 ) DEFAULT 'NO' NOT NULL
+  `hipaa_mail` VARCHAR( 3 ) DEFAULT 'NO' NOT NULL,
+  `hipaa_voice` VARCHAR( 3 ) DEFAULT 'NO' NOT NULL,
   UNIQUE KEY `pid` (`pid`),
   KEY `id` (`id`),
   KEY `pid_2` (`pid`)
@@ -27413,7 +27413,7 @@ CREATE TABLE `pma_history` (
   `username` varchar(64) NOT NULL default '',
   `db` varchar(64) NOT NULL default '',
   `table` varchar(64) NOT NULL default '',
-  `timevalue` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+  `timevalue` timestamp,
   `sqlquery` text NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `username` (`username`,`db`,`table`,`timevalue`)
