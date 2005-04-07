@@ -1,3 +1,5 @@
+<!-- program was updated by Nikolai Vitsyn: 2004/02/13 -->
+
 <?
 include_once("../../globals.php");
 
