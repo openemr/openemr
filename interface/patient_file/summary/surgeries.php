@@ -1,5 +1,3 @@
-<!-- program created by Nikolai Vitsyn: 2004/02/13 -->
- 
 <?
 include_once("../../globals.php");
 include_once("$srcdir/lists.inc");
