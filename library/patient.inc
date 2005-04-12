@@ -456,7 +456,7 @@ function newPatientData(	$db_id="",
 	$foo = sqlQuery("select pid from patient_data where id='$id' order by date limit 0,1");
 
 	sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone_home,
-				$phone_biz,$email);
+				$phone_biz,$email,$pid);
 
 	return $foo['pid'];
 }
@@ -782,7 +782,7 @@ function updateHistoryData($pid,$new)
 }
 
 function sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone_home,
-				$phone_biz,$email)
+				$phone_biz,$email,$pid="")
 {
 	$db = $GLOBALS['adodb']['db'];
 	$customer_info = array();
@@ -827,6 +827,7 @@ function sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone
 	$customer_info['phone2'] = $phone_biz;
 	$customer_info['phone2comment'] = "Business Phone";
 	$customer_info['email'] = $email;
+	$customer_info['customernumber'] = $pid;
 
 	$function['ezybiz.add_customer'] = array(new xmlrpcval($customer_info,"struct"));
 	$ws = new WSWrapper($function);
