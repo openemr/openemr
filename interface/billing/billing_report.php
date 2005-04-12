@@ -175,6 +175,7 @@ if ($userauthorized) {
 	$acct_config = $GLOBALS['oer_config']['ws_accounting'];
 	if($acct_config['enabled'] == true) {
 		print '<span class=text><a href="javascript:void window.open(\''.$acct_config['url_path'].'\')">[Accounting System]</a></span>';
+		print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_receipts_report.php\')">[Reports]</a></span>';
 	}
 ?>
 		</td>

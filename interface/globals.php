@@ -131,6 +131,16 @@ if (!$ignoreAuth) {
 //
 $GLOBALS['insurance_companies_are_not_customers'] = false;
 
+// These are needed only if you are using SQL-Ledger and you want to see
+// the cash receipts report by practitioner (sl_receipts_report.php),
+// which is invoked from the billing page.  We will probably have more
+// uses for these later.
+//
+$sl_cash_acc = '1060';       // sql-ledger account number for checking
+$sl_dbname   = 'sql-ledger'; // sql-ledger database name
+$sl_dbuser   = 'sql-ledger'; // sql-ledger database login name
+$sl_dbpass   = 'secret';     // sql-ledger database login password
+
 $encounter = $_SESSION['encounter'];
 
 if (!empty($_GET['pid']) && empty($_SESSION['pid'])) {
