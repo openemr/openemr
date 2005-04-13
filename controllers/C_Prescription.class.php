@@ -158,6 +158,7 @@ class C_Prescription extends Controller {
 		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
 		$pdf =& new Cezpdf("LETTER");
 		$pdf->ezSetMargins(80,30,90,30);
+		$pdf->ezSetMargins(72,30,90,30);
 		$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
 
 		if(!empty($this->pconfig['logo'])) {
@@ -167,6 +168,10 @@ class C_Prescription extends Controller {
 		if(!empty($this->pconfig['signature'])) {
 			$pdf->ezImage($this->pconfig['signature'],"","","none","left");
 		}
+		{
+		$pdf->ezText("\n\n\n\nSignature:________________________________",10);
+		}
+
 		if(!empty($toFile))
 		{
 			$toFile = $pdf->ezOutput();
