@@ -17,14 +17,15 @@ include_once("$srcdir/lists.inc");
 <td width="20%" valign="top">
 <a href="stats_full.php?active=all" target="Main"><font class="title">Medical Problems</font><font class=more><?echo $tmore;?></font></a><br>
 <?
-if ($result = getListByType($pid, "medical_problem", "id,title,comments", 1, "all", 0)){
+if ($result = getListByType($pid, "problem", "id,title,comments", 1, "all", 0)){
 	foreach ($result as $iter) {
 		echo "<a class=link target=Main href='stats_full.php?active=1'>" . $iter{"title"} . "</a><br>\n";
 	}
 }
 ?>
 </td>
-
+</tr>
+<tr>
 
 <td width="20%" valign="top">
 <a href="stats_full.php?active=all" target="Main"><font class="title">Medications</font><font class=more><?echo $tmore;?></font></a><br>
@@ -36,7 +37,8 @@ if ($result = getListByType($pid, "medication", "id,title", 1, "all", 0)){
 }
 ?>
 </td>
-
+</tr>
+<tr>
 <td width="20%" valign="top">
 <a href="stats_full.php?active=all" target="Main"><font class="title">Allergies</font><font class=more><?echo $tmore;?></font></a><br>
 <?
@@ -48,19 +50,21 @@ if ($result = getListByType($pid, "allergy", "id,title", 1, "all", 0)){
 
 ?>
 </td>
-
+</tr>
+<tr>
 <td width="20%" valign="top">
 <a href="stats_full.php?active=all" target="Main"><font class="title">Surgeries</font><font class=more><?echo $tmore;?></font></a><br>
 <?
 if ($result = getListByType($pid, "surgery", "id,title,comments", 1, "all", 0)){
 	foreach ($result as $iter) {
-		echo "<a class=link target=Main href='stats_full.php?active=1'>" . $iter{"title"} . "</a><br>\n";
-	}
+		echo "<a class=link target=Main href='stats_full.php?active=1'>" . $iter{"title"} . ": ".strterm($iter{"comments"},20)."</a><br>\n";
+	}	
 }
 
 ?>
 </td>
-
+</tr>
+<tr>
 <td width="20%" valign="top">
 <a href="stats_full.php?active=all" target="Main"><font class="title">Immunizations</font><font class=more><?echo $tmore;?></font></a><br>
 <?
@@ -72,7 +76,8 @@ if ($result = getListByType($pid, "immunization", "id,title,comments", 1, "all",
 
 ?>
 </td>
-
+</tr>
+<tr>
 <td width="20%" valid="top"
 <?
 $cwd= getcwd();

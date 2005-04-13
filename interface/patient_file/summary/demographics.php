@@ -109,6 +109,8 @@ echo $result{"postal_code"}?>
 		echo "<span class=text>Patient $opt_out Mailed Information </span>";
 	?>
 	</td>
+</tr>
+<tr>
 	<td colspan=2 valign=top>
 	<? 
 		$result{"hipaa_voice"}=='NO' ? $opt_out='DOES NOT ALLOW' : $opt_out='ALLOWS' ;

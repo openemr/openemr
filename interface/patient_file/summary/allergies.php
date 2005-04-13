@@ -119,17 +119,6 @@ if ($result = getListByType($pid, "allergy", "id,title,comments,activity,date", 
 
 
 <br>
-<a href="javascript:document.update_activity.submit();" class=link_submit>[Change Activity]</a>
-
-
-
-
-
-
-
-
-
-
 
 </form>
 

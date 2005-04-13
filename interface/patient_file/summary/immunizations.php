@@ -115,22 +115,7 @@ if ($result = getListByType($pid, "immunization", "id,title,comments,activity,da
 ?>
 </span>
 
-
-
-
 <br>
-<a href="javascript:document.update_activity.submit();" class=link_submit>[Change Activity]</a>
-
-
-
-
-
-
-
-
-
-
-
 </form>
 
 

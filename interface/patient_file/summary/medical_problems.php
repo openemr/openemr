@@ -19,7 +19,7 @@ if ($mode == "update") {
 		}
 	}
 } elseif ($mode == "new") {
-	addList($pid,"medical_problem",$_POST["title"],$_POST["comments"],1);
+	addList($pid,"problem",$_POST["title"],$_POST["comments"],1);
 }
 }
 
@@ -44,7 +44,7 @@ if ($mode == "update") {
 <form border=0 method=post name=new_note action="medical_problems.php">
 <input type=hidden name=mode value="new">
 <input type=hidden name=active value="<?echo $active;?>">
-<input type=entry size=15 name=title value="""><br>
+<input type=entry size=15 name=title value="Problem" onfocus="javascript:this.value=''"><br>
 <textarea name=comments rows=3 cols=25 wrap=virtual"
 </textarea>
 <br>
@@ -101,9 +101,7 @@ if ($result = getListByType($pid, "medical_problem", "id,title,comments,activity
 
 ?>
 </span>
-
 <br>
-<a href="javascript:document.update_activity.submit();" class=link_submit>[Change Activity]</a>
 </form>
 
 </td></tr></table>

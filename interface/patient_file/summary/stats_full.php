@@ -1,5 +1,3 @@
-<!-- program was updated by Nikolai Vitsyn: 2004/02/13 -->
-
 <?
 include_once("../../globals.php");
 
@@ -13,9 +11,9 @@ OpenEMR
 </HEAD>
 
 
-<frameset rows="80%,20%" cols="*" frameborder="NO" border="0" framespacing="0">
+<frameset rows="50%,50%" cols="*" frameborder="NO" border="0" framespacing="0">
 
- <frameset rows="*" cols="20%,20%,20%,20%" frameborder="NO" border="0" framespacing="0">
+ <frameset rows="*" cols="25%,25%,25%,25%" frameborder="NO" border="0" framespacing="0">
 
   <frame src="medical_problems.php?active=<?echo $active;?>" name="Medical Problems" scrolling="auto" noresize rameborder="NO">
   <frame src="medications.php?active=<?echo $active;?>" name="Medications" scrolling="auto" noresize frameborder="NO">
@@ -35,4 +33,4 @@ OpenEMR
 
 </body></noframes>
 
-</HTML
+</HTML>

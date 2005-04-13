@@ -45,7 +45,7 @@ if ($mode == "update") {
 <form border=0 method=post name=new_note action="surgeries.php">
 <input type=hidden name=mode value="new">
 <input type=hidden name=active value="<?echo $active;?>">
-<input type=entry size=15 name=title value="""><br>
+<input type=entry size=15 name=title value="YYYY-MM-DD" onfocus="javascript:this.value=''"><br>
 <textarea name=comments rows=3 cols=25 wrap=virtual">
 </textarea>
 <br>
@@ -102,7 +102,6 @@ if ($result = getListByType($pid, "surgery", "id,title,comments,activity,date", 
 </span>
 
 <br>
-<a href="javascript:document.update_activity.submit();" class=link_submit>[Change Activity]</a>
 
 </form>
 
