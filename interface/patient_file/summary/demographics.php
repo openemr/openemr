@@ -105,13 +105,13 @@ echo $result{"postal_code"}?>
 <tr>
 	<td colspan=2 valign=top>
 	<? 
-		$results{"hipaa_mail"}=='NO' ? $opt_out='DOES NOT ALLOW' : $opt_out='ALLOWS' ;
+		$result{"hipaa_mail"}=='NO' ? $opt_out='DOES NOT ALLOW' : $opt_out='ALLOWS' ;
 		echo "Patient $opt_out Mailed Information";
 	?>
 	</td>
 	<td colspan=2 valign=top>
 	<? 
-		$results{"hipaa_voice"}=='NO' ? $opt_out='DOES NOT ALLOW' : $opt_out='ALLOWS' ;
+		$result{"hipaa_voice"}=='NO' ? $opt_out='DOES NOT ALLOW' : $opt_out='ALLOWS' ;
 		echo "Patient $opt_out Voice Messages";
 	?>
 	</td>
