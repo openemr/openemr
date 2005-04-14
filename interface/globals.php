@@ -136,10 +136,13 @@ $GLOBALS['insurance_companies_are_not_customers'] = false;
 // which is invoked from the billing page.  We will probably have more
 // uses for these later.
 //
-$sl_cash_acc = '1060';       // sql-ledger account number for checking
-$sl_dbname   = 'sql-ledger'; // sql-ledger database name
-$sl_dbuser   = 'sql-ledger'; // sql-ledger database login name
-$sl_dbpass   = 'secret';     // sql-ledger database login password
+$sl_cash_acc    = '1060';       // sql-ledger account number for checking
+$sl_ar_acc      = '1200';       // sql-ledger account number for a/r
+$sl_income_acc  = '4020';       // sql-ledger account number for medical services income
+$sl_services_id = 'MS';         // sql-ledger parts table id for medical services
+$sl_dbname      = 'sql-ledger'; // sql-ledger database name
+$sl_dbuser      = 'sql-ledger'; // sql-ledger database login name
+$sl_dbpass      = 'secret';     // sql-ledger database login password
 
 $encounter = $_SESSION['encounter'];
 
