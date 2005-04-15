@@ -210,7 +210,7 @@ function validate(f) {
         SLQuery($query);
         if ($sl_err) die($sl_err);
       }
-      $paytotal = bucks($paytotal);
+      $paytotal = sprintf("%.2f", $paytotal);
       echo "<script language='JavaScript'>\n";
       echo " opener.document.forms[0].form_amount.value -= $paytotal;\n";
     } else {
