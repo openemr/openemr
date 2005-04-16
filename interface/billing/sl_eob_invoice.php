@@ -84,13 +84,15 @@
     }
   }
 
-  // Update totals and payment date in the invoice header.
+  // Update totals and payment date in the invoice header.  Dollar amounts are
+  // stored as double precision floats so we have to be careful about rounding.
   //
   function updateAR($invid, $amount, $paid = 0, $paydate = "") {
     global $sl_err, $debug;
     $paydate = fixDate($paydate);
-    $query = "UPDATE ar SET amount = amount + $amount, netamount = netamount + $amount";
-    if ($paid) $query .= ", paid = paid + $paid, datepaid = '$paydate'";
+    $query = "UPDATE ar SET amount = round(CAST (amount AS numeric) + $amount, 2), " .
+      "netamount = round(CAST (netamount AS numeric) + $amount, 2)";
+    if ($paid) $query .= ", paid = round(CAST (paid AS numeric) + $paid, 2), datepaid = '$paydate'";
     $query .= " WHERE id = $invid";
     if ($debug) {
       echo $query . "<br>\n";
