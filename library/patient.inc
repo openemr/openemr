@@ -463,7 +463,7 @@ function newPatientData(	$db_id="",
 
 // Supported input date formats are:
 //   mm/dd/yyyy
-//   mm/dd/yy   (assumes 19yy)
+//   mm/dd/yy   (assumes 20yy for yy < 10, else 19yy)
 //   yyyy/mm/dd
 //   also mm-dd-yyyy, etc. and mm.dd.yyyy, etc.
 //
@@ -476,6 +476,7 @@ function fixDate($date, $default="0000-00-00") {
             $fixed_date = sprintf("%04u-%02u-%02u", $dmy[0], $dmy[1], $dmy[2]);
         } else {
             if ($dmy[2] < 1000) $dmy[2] += 1900;
+            if ($dmy[2] < 1910) $dmy[2] += 100;
             $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[0], $dmy[1]);
         }
     }
