@@ -1,0 +1,2 @@
+-- There is no table.
+
