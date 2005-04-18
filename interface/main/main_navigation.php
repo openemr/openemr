@@ -1,5 +1,6 @@
 <?
 include_once("../globals.php");
+include_once("../../library/acl.inc");
 ?>
 
 <html>
@@ -18,8 +19,8 @@ include_once("../globals.php");
 <tr>
 <td width="10%" nowrap>
 <?//<a href="javascript:document.find_patient.action='finder/patient_finder_keyboard.php';document.find_patient.submit();" class=link>Find Patient:</a>?>
-  <input type="entry" size="10" name="patient" />
-    <select name="findBy" size=1>
+	<input type="entry" size="10" name="patient" />
+	<select name="findBy" size=1>
 	<option value="ID">ID</option>
 	<option value="Last" selected>Last Name</option>
 	<option value="SSN">SSN</option>
@@ -39,14 +40,14 @@ include_once("../globals.php");
 &nbsp;<a href="../usergroup/user_info.php" target="Main" class="menu">Change&nbsp;Password</a>&nbsp;
 </td>
 
+<? if (acl_check('admin', 'calendar') || acl_check('admin', 'database') ||
+       acl_check('admin', 'forms')    || acl_check('admin', 'practice') ||
+       acl_check('admin', 'users')) { ?>
 <td align="center" nowrap>
-<? if ($userauthorized) {
-?>
 &nbsp;<a class=menu target=_top href="../usergroup/usergroup.php">Administration</a>&nbsp;
-<?
-}
-?>
 </td>
+<? } ?>
+
 <td align="center" nowrap>
 &nbsp;<a href="../reports/index.php" target="Main" class="menu">Reports</a>&nbsp;
 </td>
@@ -55,16 +56,20 @@ include_once("../globals.php");
 &nbsp;<a href="onotes/office_comments.php" target="Main" class="menu">Notes</a>&nbsp;
 </td>
 
+<? if (acl_check('acct', 'rep') || acl_check('acct', 'eob') || acl_check('acct', 'bill')) { ?>
 <td align="center" nowrap>
 &nbsp;<a href="../billing/billing_report.php" target="Main" class="menu">Billing</a>&nbsp;
 </td>
-<td nowrap>
+<? } ?>
 
+<td align="center" nowrap>
 &nbsp;<a href="main.php" target="Main" class="menu">Home</a>&nbsp;
 </td>
+
 <td align="center" nowrap>
 &nbsp;<a href="../logout.php?auth=logout" target="_top" class="menu">Logout</a>&nbsp;&nbsp;
 </td>
+
 </tr>
 </table>
 

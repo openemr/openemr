@@ -7,25 +7,27 @@
   include_once("../globals.php");
   include_once("../../library/patient.inc");
   include_once("../../library/sql-ledger.inc");
+  include_once("../../library/acl.inc");
 
   // This determines if a particular procedure code corresponds to receipts
   // for the "Clinic" column as opposed to receipts for the practitioner.  Each
   // practice will have its own policies in this regard, so you'll probably
   // have to customize this function.  If you use the "fee sheet" encounter
-  // form then you might choose to uncomment the stuff below.
+  // form then the code below may work for you.
   //
-  // include_once("../forms/fee_sheet/codes.php");
+  include_once("../forms/fee_sheet/codes.php");
   function is_clinic($code) {
-    // global $cpt, $hcpcs;
-    // return ($cpt['Lab'][$code] || $cpt['Immunizations'][$code] ||
-    //   $hcpcs['Therapeutic Injections'][$code]);
-    return false;
+    global $cpt, $hcpcs;
+    return ($cpt['Lab'][$code] || $cpt['Immunizations'][$code] ||
+      $hcpcs['Therapeutic Injections'][$code]);
   }
 
   function bucks($amount) {
     if ($amount)
       printf("%.2f", $amount);
   }
+
+  if (! acl_check('acct', 'rep')) die("Unauthorized access.");
 
   SLConnect();
 ?>
@@ -46,7 +48,7 @@
  <tr>
   <td>
 <?
-	if (SLIsAdmin($_SESSION['authUser'])) {
+	if (acl_check('acct', 'rep_a')) {
 		// Build a drop-down list of providers.
 		//
 		$query = "select id, lname, fname from users where " .

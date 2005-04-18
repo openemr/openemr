@@ -4,15 +4,6 @@
   $sl_conn = 0; // connection object
   $sl_err = ""; // global error message
 
-  // This function is a temporary kludge, to determine if the logged-in
-  // user has administrative rights in sql-ledger.  We will replace this
-  // when access controls are implemented.
-  //
-  function SLIsAdmin($user) {
-    // return ($user == 'bob' || $user == 'alice');
-    return true;
-  }
-
   function SLConnect() {
     global $sl_conn, $sl_dbname, $sl_dbuser, $sl_dbpass;
     $sl_conn = pg_pconnect("dbname=$sl_dbname user=$sl_dbuser password=$sl_dbpass");

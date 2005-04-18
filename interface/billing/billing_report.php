@@ -1,5 +1,6 @@
 <?
 include_once("../globals.php");
+include_once("../../library/acl.inc");
 
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/billrep.inc");
@@ -175,8 +176,12 @@ if ($userauthorized) {
 	$acct_config = $GLOBALS['oer_config']['ws_accounting'];
 	if($acct_config['enabled'] == true) {
 		print '<span class=text><a href="javascript:void window.open(\''.$acct_config['url_path'].'\')">[SQL-Ledger]</a></span>';
-		print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_receipts_report.php\')">[Reports]</a></span>';
-		print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_eob_search.php\')">[EOBs]</a></span>';
+		if (acl_check('acct', 'rep')) {
+			print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_receipts_report.php\')">[Reports]</a></span>';
+		}
+		if (acl_check('acct', 'eob')) {
+			print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_eob_search.php\')">[EOBs]</a></span>';
+		}
 	}
 ?>
 		</td>

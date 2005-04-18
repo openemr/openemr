@@ -369,12 +369,12 @@ function validate(f) {
    <? echo $code ?>
   </td>
   <td class="detail" align="right">
-   <? echo bucks($cdata['chg']) ?>
+   <? bucks($cdata['chg']) ?>
   </td>
   <td class="detail" align="right">
-   <input type="hidden" name="form_line[<? echo $code ?>][bal]" value="<? echo bucks($cdata['bal']) ?>">
+   <input type="hidden" name="form_line[<? echo $code ?>][bal]" value="<? bucks($cdata['bal']) ?>">
    <input type="hidden" name="form_line[<? echo $code ?>][ins]" value="<? echo $cdata['ins'] ?>">
-   <? echo bucks($cdata['bal']) ?>
+   <? bucks($cdata['bal']) ?>
   </td>
   <td class="detail">
    <input type="text" name="form_line[<? echo $code ?>][src]" size="10">
