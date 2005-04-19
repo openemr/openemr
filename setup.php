@@ -42,7 +42,8 @@ Congratulations! OpenEMR is now successfully installed.
 <li>Please make sure that the two folders underneath 'openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/' exist and are writable by the web server. The two subdirectories are 'compiled' and 'cache'.<br>
   Try \"chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/compiled\".
 \"chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/cache\".
-(If either subdirectory doesn't exist, create it first then do the chown above)
+(If either subdirectory doesn't exist, create it first then do the chown above).<br>
+The user name and group of apache may differ depending on your distro, i.e. for Debian is www-data and www-data.
 <li>Please Edit the interface/globals.php file now to specify the correct URL paths, and to select a theme.<br>\n
 <li>Please make sure that the folder underneath the OpenEMR webroot 'openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/compiled' is writable by the web server. <br>
 Try \"chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/compiled\".
