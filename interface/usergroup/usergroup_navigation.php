@@ -47,9 +47,11 @@ include_once("../../library/acl.inc");
 </td>
 <? } ?>
 
+<? if (acl_check('admin', 'users')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="<?echo $rootdir?>/logview/logview.php">View Logs</a>&nbsp;
 </td>
+<? } ?>
 
 <td valign="middle" align="right" nowrap>
 <?//<a href="../logout.php?auth=logout" target="_top" class="logout">Logout</a>?>
