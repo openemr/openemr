@@ -163,3 +163,8 @@ two files out, and replace them into the new openemr folder afterwards:
 But before replacing them, compare the old and new files in case there are
 new parameters that need to be included.  If there are other files that you
 have customized, then you will also need to treat those carefully.
+
+When upgrading, check the directory openemr/sql/ for files named *upgrade.sql
+Those files have sql statements to modify tables in your database so they will 
+match the layout of the current version.
+Be sure to backup the content of your database before doing so.
