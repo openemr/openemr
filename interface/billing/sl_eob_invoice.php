@@ -114,7 +114,7 @@ function writeoff(code) {
  var tmp =
   f['form_line[' + code + '][bal]'].value -
   f['form_line[' + code + '][pay]'].value;
- f['form_line[' + code + '][adj]'].value = Math.round(tmp * 100) * 0.01;
+ f['form_line[' + code + '][adj]'].value = Number(tmp).toFixed(2);
  return false;
 }
 
@@ -212,9 +212,9 @@ function validate(f) {
         SLQuery($query);
         if ($sl_err) die($sl_err);
       }
-      $paytotal = sprintf("%.2f", $paytotal);
       echo "<script language='JavaScript'>\n";
-      echo " opener.document.forms[0].form_amount.value -= $paytotal;\n";
+      echo " var tmp = opener.document.forms[0].form_amount.value - $paytotal;\n";
+      echo " opener.document.forms[0].form_amount.value = Number(tmp).toFixed(2);\n";
     } else {
       echo "<script language='JavaScript'>\n";
     }
