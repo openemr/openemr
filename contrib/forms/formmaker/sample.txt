@@ -1,0 +1,24 @@
+a1_preop_physical
+
+chief_complaints::textarea
+
+<h3>past surgical history</h3>
++surgical history::checkbox_group::cholecystectomy::tonsillectomy::apendectomy
+<h4>other</h4>
+surgical history other::textfield
+
+<h3>past surgical history</h3>
++medical history::scrolling_list_multiples::asthma::diabetes::hypertension
+<h4>other</h4>
+medical history other::textfield
+
+<h2>Allergies</h2>
++allergies::checkbox_group::penicillin::sulfa::iodine
+<h4>other</h4>
+allergies other::textfield
+
+<h2>Social History</h2>
+<h3>smoking</h3>
+smoke history::radio_group::non-smoker::smoker
+<h3>alcohol</h3>
+etoh history::scrolling_list::none::occasional::daily::heavy use
