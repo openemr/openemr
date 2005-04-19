@@ -376,7 +376,7 @@ break;
 	default:
 echo "Welcome to OpenEMR.  This utility will step you through the configuration of OpenEMR for your practice.  Before proceeding, be sure that you have a properly installed and configured MySQL server available, and a PHP configured webserver.<br><br>\n";
 
-Echo "<p>If you are upgrading from a previous version, please read the README file.<br><br>"
+Echo "<p>If you are upgrading from a previous version, please read the README file.<br><br>";
 
 echo "<FORM METHOD='POST'><INPUT TYPE='HIDDEN' NAME='state' VALUE='1'><INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>";
 
