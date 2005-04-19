@@ -137,6 +137,11 @@ To create custom encounter forms, see the files
 and read the included documentation. A few forms are provided initially as
 examples.
 
+Other configuration settings are stored under includes/config.php.
+Everything should work out of the installation without touching those, but if 
+you want fax, sql-ledger, and/or Freeb integration you will need to adjust some
+parameters in that file.
+
 IV. Setting Up Access Control
 
 As of this writing the option of adding phpGACL to your OpenEMR installation is
@@ -159,6 +164,7 @@ two files out, and replace them into the new openemr folder afterwards:
   openemr/interface/globals.php
   openemr/library/sqlconf.php
   openemr/library/sql-ledger.inc
+  openemr/includes/config.php (if you have modified it)
 
 But before replacing them, compare the old and new files in case there are
 new parameters that need to be included.  If there are other files that you
