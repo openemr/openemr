@@ -16,18 +16,20 @@
   //   forms       Forms Administration
   //   practice    Practice Settings
   //   superbill   Superbill Codes Administration
-  //   users       Users and Groups Administration
+  //   users       Users/Groups/Logs Administration
   //
   // Section "acct" (Accounting):
   //   bill        Billing (write optional)
   //   eob         EOB data entry
-  //   rep         Reporting - my encounters
-  //   rep_a       Reporting - any
+  //   rep         Financial Reporting - my encounters
+  //   rep_a       Financial Reporting - anything
   //
   // Section "patients" (Patient Information):
   //   appt        Appointments (write optional)
   //   demo        Demographics (write optional)
-  //   med         Medical Records (write optional)
+  //   med         Medical Records and History (write optional)
+  //   trans       Transactions, e.g. referrals (write optional)
+  //   docs        Documents (write optional)
   //
   // Section "encounters" (Encounter Information):
   //   auth        Authorize - my encounters
@@ -64,8 +66,7 @@
     if ($_SESSION['userauthorized']) return 'write';
 
     if ($section == 'patients') {
-      if (strpos($value, 'appt') === 0) return 'write';
-      if (strpos($value, 'demo') === 0) return 'write';
+      if ($value != 'med') return 'write';
     }
     else if ($section == 'encounters') {
       if (strpos($value, 'coding') === 0) return 'write';
