@@ -4,9 +4,12 @@
 
   include_once("../globals.php");
   include_once("../../library/patient.inc");
+  include_once("../../library/forms.inc");
   include_once("../../library/sql-ledger.inc");
 
   $debug = 0; // set to 1 for debugging mode
+
+  $info_msg = "";
 
   // Format money for display.
   //
@@ -99,6 +102,202 @@
     } else {
       SLQuery($query);
       if ($sl_err) die($sl_err);
+    }
+  }
+
+  // Do whatever is necessary to make this invoice re-billable.
+  //
+  function setupSecondary($invid) {
+    global $sl_err, $debug, $info_msg, $GLOBALS;
+
+    // Get some needed items from the SQL-Ledger invoice.
+    $arres = SLQuery("select invnumber, transdate, customer_id, employee_id " .
+      "from ar where ar.id = $invid");
+    if ($sl_err) die($sl_err);
+    $arrow = SLGetRow($arres, 0);
+    if (! $arrow) die("There is no match for invoice id = $trans_id.");
+    $customer_id = $arrow['customer_id'];
+    list($trash, $encounter) = explode(".", $arrow['invnumber']);
+
+    // Get the OpenEMR PID corresponding to the customer.
+    $pdrow = sqlQuery("SELECT patient_data.pid " .
+      "FROM integration_mapping, patient_data WHERE " .
+      "integration_mapping.foreign_id = $customer_id AND " .
+      "integration_mapping.foreign_table = 'customer' AND " .
+      "patient_data.id = integration_mapping.local_id");
+    $pid = $pdrow['pid'];
+    if (! $pid) die("Cannot find patient from SQL-Ledger customer id = $customer_id.");
+
+    // Find out if the encounter exists.
+    $ferow = sqlQuery("SELECT pid FROM form_encounter WHERE " .
+      "encounter = $encounter");
+    $encounter_pid = $ferow['pid'];
+
+    // If it exists, just update the billing items.
+    if ($encounter_pid) {
+      if ($encounter_pid != $pid)
+        die("Expected form_encounter.pid to be $pid, but was $encounter_pid");
+      $query = "UPDATE billing SET billed = 0, bill_process = 0, payer_id = -1, " .
+        "bill_date = NULL, process_date = NULL, process_file = NULL " .
+        "WHERE encounter = $encounter AND pid = $pid AND activity = 1";
+      if ($debug) {
+        echo $query . "<br>\n";
+      } else {
+        sqlQuery($query);
+      }
+      $info_msg = "Encounter $encounter is ready for secondary billing.";
+      return;
+    }
+
+    // It does not exist then it better be a date.
+    if (! preg_match("/^20\d\d\d\d\d\d$/", $encounter))
+      die("Internal error: encounter '$encounter' should exist but does not.");
+
+    $employee_id = $arrow['employee_id'];
+
+    // Get the OpenEMR provider info corresponding to the SQL-Ledger salesman.
+    $drrow = sqlQuery("SELECT users.id, users.username, users.facility " .
+      "FROM integration_mapping, users WHERE " .
+      "integration_mapping.foreign_id = $employee_id AND " .
+      "integration_mapping.foreign_table = 'salesman' AND " .
+      "users.id = integration_mapping.local_id");
+    $provider_id = $drrow['id'];
+    if (! $provider_id) die("Cannot find provider from SQL-Ledger employee = $employee_id.");
+
+    $date_of_service = $arrow['transdate'];
+    if (! $date_of_service) die("Invoice has no date!");
+
+    // Generate a new encounter number.
+    $conn = $GLOBALS['adodb']['db'];
+    $new_encounter = $conn->GenID("sequences");
+
+    // Create the "new encounter".
+    $encounter_id = 0;
+    $query = "INSERT INTO form_encounter ( " .
+      "date, reason, facility, pid, encounter, onset_date " .
+      ") VALUES ( " .
+      "'$date_of_service', " .
+      "'Imported from Accounting', " .
+      "'" . addslashes($drrow['facility']) . "', " .
+      "$pid, " .
+      "$new_encounter, " .
+      "'$date_of_service' " .
+      ")";
+    if ($debug) {
+      echo $query . "<br>\n";
+      echo "Call to addForm() goes here.<br>\n";
+    } else {
+      $encounter_id = idSqlStatement($query);
+      if (! $encounter_id) die("Insert failed: $query");
+      addForm($new_encounter, "New Patient Encounter", $encounter_id,
+        "newpatient", $pid, 1, $date_of_service);
+      $info_msg = "Encounter $new_encounter has been created. ";
+    }
+
+    // For each invoice line item with a billing code we will insert
+    // a billing row with payer_id set to -1.  Order the line items
+    // chronologically so that each procedure code will be followed by
+    // its associated icd9 code.
+
+    $inres = SLQuery("SELECT * FROM invoice WHERE trans_id = $invid " .
+      "ORDER BY id");
+    if ($sl_err) die($sl_err);
+
+    // When nonzero, this will be the ID of a billing row that needs to
+    // have its justify field set.
+    $proc_ins_id = 0;
+
+    for ($irow = 0; $irow < SLRowCount($inres); ++$irow) {
+      $row = SLGetRow($inres, $irow);
+      $amount   = $row['sellprice'];
+      $ins_id   = $row['project_id'];
+
+      // Extract the billing code.
+      $code = "Unknown";
+      if (preg_match("/([A-Za-z0-9]\d\d\S*)/", $row['serialnumber'], $matches)) {
+        $code = strtoupper($matches[1]);
+      }
+      else if (preg_match("/([A-Za-z0-9]\d\d\S*)/", $row['description'], $matches)) {
+        $code = strtoupper($matches[1]);
+      }
+
+      list($code, $modifier) = explode("-", $code);
+
+      // Set the billing code type and description.
+      $code_type = "";
+      $code_text = "";
+      if (preg_match("/CPT/", $row['serialnumber'])) {
+        $code_type = "CPT4";
+        $code_text = "Procedure $code";
+      }
+      else if (preg_match("/HCPCS/", $row['serialnumber'])) {
+        $code_type = "HCPCS";
+        $code_text = "Procedure $code";
+      }
+      else if (preg_match("/ICD/", $row['serialnumber'])) {
+        $code_type = "ICD9";
+        $code_text = "Diagnosis $code";
+        if ($proc_ins_id) {
+          $query = "UPDATE billing SET justify = '$code' WHERE id = $proc_ins_id";
+          if ($debug) {
+            echo $query . "<br>\n";
+          } else {
+            sqlQuery($query);
+          }
+          $proc_ins_id = 0;
+        }
+      }
+
+      // Skip adjustments.
+      if (! $code_type) continue;
+
+      // Insert the billing item.  If this for a procedure code then save
+      // the row ID so that we can update the "justify" field with the ICD9
+      // code, which should come next in the loop.
+      //
+      $query = "INSERT INTO billing ( " .
+        "date, code_type, code, pid, provider_id, user, groupname, authorized, " .
+        "encounter, code_text, activity, payer_id, billed, bill_process, " .
+        "modifier, units, fee, justify " .
+        ") VALUES ( " .
+        "NOW(), " .
+        "'$code_type', " .
+        "'$code', " .
+        "$pid, " .
+        "$provider_id, " .
+        "'" . $_SESSION['authId'] . "', " .
+        "'" . $_SESSION['authProvider'] . "', " .
+        "1, " .
+        "$new_encounter, " .
+        "'$code_text', " .
+        "1, " .
+        "-1, " .
+        "0, " .
+        "0, " .
+        "'$modifier', " .
+        "0, " .
+        "$amount, " .
+        "'' " .
+        ")";
+      if ($debug) {
+        echo $query . "<br>\n";
+      } else {
+        $proc_ins_id = idSqlStatement($query);
+        if ($code_type != "CPT4" && $code_type != "HCPCS")
+          $proc_ins_id = 0;
+      }
+    }
+
+    // Finally, change this invoice number to contain the new encounter number.
+    //
+    $new_invnumber = "$pid.$new_encounter";
+    $query = "UPDATE ar SET invnumber = '$new_invnumber' WHERE id = $invid";
+    if ($debug) {
+      echo $query . "<br>\n";
+    } else {
+      SLQuery($query);
+      if ($sl_err) die($sl_err);
+      $info_msg .= "This invoice number has been changed to $new_invnumber.";
     }
   }
 ?>
@@ -212,12 +411,16 @@ function validate(f) {
         SLQuery($query);
         if ($sl_err) die($sl_err);
       }
+      if ($_POST['form_secondary']) {
+        setupSecondary($trans_id);
+      }
       echo "<script language='JavaScript'>\n";
       echo " var tmp = opener.document.forms[0].form_amount.value - $paytotal;\n";
       echo " opener.document.forms[0].form_amount.value = Number(tmp).toFixed(2);\n";
     } else {
       echo "<script language='JavaScript'>\n";
     }
+    if ($info_msg) echo " alert('$info_msg');\n";
     if (! $debug) echo " window.close();\n";
     echo "</script></body></html>\n";
     SLClose();
@@ -325,6 +528,8 @@ function validate(f) {
     title='Due date mm/dd/yyyy or yyyy-mm-dd'>
   </td>
   <td colspan="2">
+   <input type="checkbox" name="form_secondary" value="1"> Needs secondary billing
+   &nbsp;&nbsp;
    <input type='submit' name='form_save' value='Save'>
    &nbsp;
    <input type='button' value='Cancel' onclick='window.close()'>
