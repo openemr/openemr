@@ -95,10 +95,9 @@ else {
 
 $v_major = '2';
 $v_minor = '7';
-$v_patch = '0';
+$v_patch = '2';
 
-
-$tag = ''; //early access
+$tag = '-rc1'; //early access
 
 $openemr_version = "$v_major.$v_minor.$v_patch".$tag;	// Version tag used by program
 
