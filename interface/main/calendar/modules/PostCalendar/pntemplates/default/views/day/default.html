@@ -37,6 +37,7 @@
 
 <table width='%100' border="0" cellpadding="0" cellspacing="0" >
 	<tr>
+		[-pc_sort_events var="S_EVENTS" sort="time" order="asc" value=$A_EVENTS-]
 		[-foreach item=provider from=$providers-]
 		<td valign='top'>
 		<table width='%100' height='%100' border="1" cellpadding="0" cellspacing="0" valign='top'>
@@ -51,7 +52,6 @@
 								    	[-assign var="month" value=$date|date_format:"%m"|string_format:"%1d"-]
 								    	[-assign var="year" value=$date|date_format:"%Y"|string_format:"%4d"-]
 								    	[-assign var="eventdate" value=$date|date_format:"%Y%m%d"-]
-										[-pc_sort_events var="S_EVENTS" sort="time" order="asc" value=$A_EVENTS-]
 
 [-php-]
 	$arr_events = (array)$this->_tpl_vars['S_EVENTS'][$this->_tpl_vars['date']];
@@ -108,7 +108,8 @@
 								[-assign var="flagfound" value=true-]
 								[-assign var="eid" value=$event.eid-]
 								<td   class="eventsentry" width="[-math equation="$day_td_width * 10"-]" rowspan=[-$event.intervals-] style="{background-color: [-$event.catcolor-]}">
-								<a href="[-pc_url action=detail eid=$event.eid date=$date-]" [-pc_popup delay="500"  bgcolor=$event.catcolor caption=$event.title text=$event.hometext-]>
+								[-* <a href="[-pc_url action=detail eid=$event.eid date=$date-]" [-pc_popup delay="500"  bgcolor=$event.catcolor caption=$event.title text=$event.hometext-]> *-]
+								<a href="index.php?module=PostCalendar&func=view&Date=[-$date-]&viewtype=details&eid=[-$event.eid-]">
 								[-assign var=short_event_title value=$event.title|strip_tags -]
 								[-$short_event_title|truncate::"$day_td_width":""-]
 									</a><br/>
