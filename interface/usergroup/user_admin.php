@@ -1,6 +1,7 @@
 <?
 include_once("../globals.php");
 include_once("$srcdir/auth.inc");
+include_once("../../library/acl.inc");
 
 include_once("$srcdir/md5.js");
 include_once("$srcdir/sql.inc");
@@ -21,7 +22,7 @@ require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
 <br><br>
 
 <?
-if (!$_GET["id"] || !$userauthorized)
+if (!$_GET["id"] || !acl_check('admin', 'users'))
 	exit();
 if ($_GET["mode"] == "update") {
 if ($_GET["username"]) {
