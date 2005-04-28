@@ -4,8 +4,12 @@ use strict;
 use DBI;
 
 #######################################################################
-# This program is released under the GNU General Public License.
-# Copyright (c) 2005 Rod Roark
+# Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
 #
 # This loads descriptions of HCPCS codes into the "codes" table of
 # OpenEMR.  Both the long and short descriptions are loaded from the
