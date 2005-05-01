@@ -45,7 +45,7 @@ if ($mode == "update") {
 <input type=hidden name=mode value="new">
 <input type=hidden name=active value="<?echo $active;?>">
 <input type=entry size=15 name=title value="Problem" onfocus="javascript:this.value=''"><br>
-<textarea name=comments rows=3 cols=25 wrap=virtual"
+<textarea name="comments" rows="3" cols="25" wrap="virtual" onfocus="javascript:this.value=''">Comments
 </textarea>
 <br>
 
