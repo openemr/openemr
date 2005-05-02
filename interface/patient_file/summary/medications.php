@@ -7,6 +7,8 @@ if (!isset($active)) {
 	$active="all";
 }
 
+//CLICKOPTIONS by Mark Leeds 2005, see clickoptions.txt in openemr/custom/ directory for more info
+$clickoptions_category = "medication";
 
 //this code handles changing the state of activity tags when the user updates them through the interface
 if (isset($mode)) {
@@ -24,13 +26,6 @@ if ($mode == "update") {
 }
 }
 
-
-
-
-
-
-
-
 ?>
 
 <html>
@@ -38,6 +33,11 @@ if ($mode == "update") {
 
 
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+
+<?php
+//CLICKOPTIONS by Mark Leeds 2005, see clickoptions.txt in openemr/custom/ directory for more info
+include("clickoptions1.php");
+?>
 
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
@@ -53,8 +53,14 @@ if ($mode == "update") {
 <form border=0 method=post name=new_note action="medications.php">
 <input type=hidden name=mode value="new">
 <input type=hidden name=active value="<?echo $active;?>">
-<input type=entry size=15 name=title value="Medication" onfocus="javascript:this.value=''"><br>
-<textarea name=comments rows=3 cols=25 wrap=virtual onfocus="javascript:this.value=''">Comments</textarea>
+
+<?php
+//CLICKOPTIONS by Mark Leeds 2005, see clickoptions.txt in openemr/custom/ directory for more info
+include("clickoptions2.php");
+?>
+
+<input type=entry size=15 name=title value="" onfocus="javascript:this.value=''"><br>
+<textarea name=comments rows=3 cols=15 wrap=virtual onfocus="javascript:this.value=''">Comments</textarea>
 <br>
 <a href="javascript:document.new_note.submit();" class=link_submit>[Add New Medication]</a>
 </form>
