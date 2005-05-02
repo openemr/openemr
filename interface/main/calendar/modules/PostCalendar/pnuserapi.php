@@ -960,9 +960,13 @@ function &postcalendar_userapi_pcQueryEvents($args)
 			LEFT JOIN users as u2 ON a.pc_aid = u2.id
 			LEFT JOIN patient_data as pd ON a.pc_pid=pd.pid
 			WHERE  b.pc_catid = a.pc_catid
-					AND a.pc_eventstatus = $eventstatus
-					AND (a.pc_endDate >= '$start' OR a.pc_endDate = '0000-00-00')
-					AND a.pc_eventDate <= '$end' ";
+				AND a.pc_eventstatus = $eventstatus
+				AND ((a.pc_endDate >= '$start' AND a.pc_eventDate <= '$end') OR
+				(a.pc_endDate = '0000-00-00' AND a.pc_eventDate >= '$start' AND a.pc_eventDate <= '$end')) ";
+
+	// The above two lines replace these:
+	//   AND (a.pc_endDate >= '$start' OR a.pc_endDate = '0000-00-00')
+	//   AND a.pc_eventDate <= '$end' ";
 
 	if(!empty($providerID))
 	{
@@ -1001,6 +1005,9 @@ function &postcalendar_userapi_pcQueryEvents($args)
 	//	END SEARCH FUNCTIONALITY
 	//======================================================================
 	//echo "sq: $sql<br />";
+
+	// echo "<!-- " . $sql . " -->\n"; // debugging
+
 	$result = $dbconn->Execute($sql);
 	if($dbconn->ErrorNo() != 0) die ($dbconn->ErrorMsg());
 
