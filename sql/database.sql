@@ -8447,7 +8447,7 @@ insert into codes values('','  OMPHALITIS OF NEWBORN',NULL,'771.4 ','2',NULL,NUL
 insert into codes values('','  NEONATAL INFEC MASTITIS',NULL,'771.5 ','2',NULL,NULL,NULL,0);
 insert into codes values('','  NEONATAL CONJUNCTIVITIS',NULL,'771.6 ','2',NULL,NULL,NULL,0);
 insert into codes values('','  NEONATAL CANDIDA INFECT',NULL,'771.7 ','2',NULL,NULL,NULL,0);
-insert into codes values('',' NB SEPTICEMIA ÕSEPSISþ',NULL,'771.81 ','2',NULL,NULL,NULL,0);
+insert into codes values('',' NB SEPTICEMIA ï¿½EPSIS',NULL,'771.81 ','2',NULL,NULL,NULL,0);
 insert into codes values('',' NB URINARY TRACT INFECTN',NULL,'771.82 ','2',NULL,NULL,NULL,0);
 insert into codes values('',' BACTEREMIA OF NEWBORN',NULL,'771.83 ','2',NULL,NULL,NULL,0);
 insert into codes values('',' PERINATAL INFECTION NEC',NULL,'771.89 ','2',NULL,NULL,NULL,0);
@@ -27868,3 +27868,10 @@ PRIMARY KEY (id)
 ) TYPE=MyISAM;
 
 
+CREATE TABLE IF NOT EXISTS issue_encounter (
+  pid       int(11)    NOT NULL, -- pid from patient_data table
+  list_id   int(11)    NOT NULL, -- id from lists table
+  encounter int(11)    NOT NULL, -- encounter from form_encounters table
+  resolved  tinyint(1) NOT NULL, -- if problem seems resolved with this encounter
+  PRIMARY KEY (pid, list_id, encounter)
+);
