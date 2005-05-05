@@ -67,7 +67,7 @@ $GLOBALS['style']['BOTTOM_BG_LINE'] = $bottom_bg_line;
 // the height in pixels of the Logo bar at the top of the login page.
 $GLOBALS['logoBarHeight'] = 110;
 // the height in pixels of the Navigation bar
-$GLOBALS['navBarHeight'] = 20;
+$GLOBALS['navBarHeight'] = 22;
 // the height in pixels of the Title bar
 $GLOBALS['titleBarHeight'] = 20;
 
