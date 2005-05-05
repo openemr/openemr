@@ -167,8 +167,8 @@ class C_Prescription extends Controller {
 		if(!empty($this->pconfig['signature'])) {
 			$pdf->ezImage($this->pconfig['signature'],"","","none","left");
 		}
-		{
-		$pdf->ezText("\n\n\n\nSignature:________________________________",10);
+		else{
+		  $pdf->ezText("\n\n\n\nSignature:________________________________",10);
 		}
 
 		if(!empty($toFile))
