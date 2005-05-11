@@ -1,4 +1,11 @@
 <?
+  // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+  //
+  // This program is free software; you can redistribute it and/or
+  // modify it under the terms of the GNU General Public License
+  // as published by the Free Software Foundation; either version 2
+  // of the License, or (at your option) any later version.
+
   // This is the second of two pages to support posting of EOBs.
   // The first is sl_eob_search.php.
 
@@ -145,7 +152,7 @@
       } else {
         sqlQuery($query);
       }
-      $info_msg = "Encounter $encounter is ready for secondary billing.";
+      $info_msg = "Encounter $encounter is ready for re-billing.";
       return;
     }
 
@@ -210,7 +217,6 @@
     for ($irow = 0; $irow < SLRowCount($inres); ++$irow) {
       $row = SLGetRow($inres, $irow);
       $amount   = $row['sellprice'];
-      $ins_id   = $row['project_id'];
 
       // Extract the billing code.
       $code = "Unknown";

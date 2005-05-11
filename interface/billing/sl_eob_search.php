@@ -1,22 +1,141 @@
 <?
-  // This is the first of two pages to support posting of EOBs.
-  // The second is sl_eob_invoice.php.
+ // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+ //
+ // This program is free software; you can redistribute it and/or
+ // modify it under the terms of the GNU General Public License
+ // as published by the Free Software Foundation; either version 2
+ // of the License, or (at your option) any later version.
 
-  include_once("../globals.php");
-  include_once("../../library/patient.inc");
-  include_once("../../library/sql-ledger.inc");
+ // This is the first of two pages to support posting of EOBs.
+ // The second is sl_eob_invoice.php.
 
-  function bucks($amount) {
-    if ($amount)
-      printf("%.2f", $amount);
+ include_once("../globals.php");
+ include_once("../../library/patient.inc");
+ include_once("../../library/sql-ledger.inc");
+ include_once("../../library/invoice_summary.inc.php");
+ include_once("../../custom/statement.inc.php");
+
+ $alertmsg = '';
+
+ function bucks($amount) {
+  if ($amount)
+   printf("%.2f", $amount);
+ }
+
+ $today = date("Y-m-d");
+
+ SLConnect();
+
+ // Print statements if requested.
+ //
+ if ($_POST['form_print'] && $_POST['form_cb']) {
+
+  $fhprint = fopen($STMT_TEMP_FILE, 'w');
+
+  $where = "";
+  foreach ($_POST['form_cb'] as $key => $value) $where .= " OR ar.id = $key";
+  $where = substr($where, 4);
+
+  // Sort by patient so that multiple invoices can be
+  // represented on a single statement.
+  $res = SLQuery("SELECT ar.*, customer.name, " .
+   "customer.address1, customer.address2, " .
+   "customer.city, customer.state, customer.zipcode " .
+   "FROM ar, customer WHERE ( $where ) AND " .
+   "customer.id = ar.customer_id " .
+   "ORDER BY ar.customer_id, ar.transdate");
+  if ($sl_err) die($sl_err);
+
+  $stmt = array();
+
+  for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
+   $row = SLGetRow($res, $irow);
+
+   // Determine the date of service.  An 8-digit encounter number is
+   // presumed to be a date of service imported during conversion.
+   // Otherwise look it up in the form_encounter table.
+   //
+   $svcdate = "";
+   list($pid, $encounter) = explode(".", $row['invnumber']);
+   if (strlen($encounter) == 8) {
+    $svcdate = substr($encounter, 0, 4) . "-" . substr($encounter, 4, 2) .
+      "-" . substr($encounter, 6, 2);
+   } else if ($encounter) {
+    $tmp = sqlQuery("SELECT date FROM form_encounter WHERE " .
+     "encounter = $encounter");
+    $svcdate = substr($tmp['date'], 0, 10);
+   }
+
+   // How many times have we dunned them for this invoice?
+   $intnotes = trim($row['intnotes']);
+   $duncount = substr_count(strtolower($intnotes), "statement sent");
+
+   // If this is a new patient then print the pending statement
+   // and start a new one.  This is an associative array:
+   //
+   //  pid     = patient ID
+   //  patient = patient name
+   //  amount  = total amount due
+   //  to      = array of addressee name/address lines
+   //  lines   = array of:
+   //    dos     = date of service "yyyy-mm-dd"
+   //    desc    = description
+   //    amount  = charge less adjustments
+   //    paid    = amount paid
+   //    notice  = 1 for first notice, 2 for second, etc.
+   //
+   if ($stmt['pid'] != $row['customer_id']) {
+    fwrite($fhprint, create_statement($stmt));
+    $stmt['pid'] = $row['customer_id'];
+    $stmt['patient'] = $row['name'];
+    $stmt['to'] = array($row['name']);
+    if ($row['address1']) $stmt['to'][] = $row['address1'];
+    if ($row['address2']) $stmt['to'][] = $row['address2'];
+    $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['zipcode'];
+    $stmt['lines'] = array();
+    $stmt['amount'] = '0.00';
+    $stmt['today'] = $today;
+   }
+
+   $invlines = get_invoice_summary($row['id']);
+   foreach ($invlines as $key => $value) {
+    $line = array();
+    $line['dos']     = $svcdate;
+    $line['desc']    = "Procedure $key";
+    $line['amount']  = sprintf("%.2f", $value['chg']);
+    $line['paid']    = sprintf("%.2f", $value['chg'] - $value['bal']);
+    $line['notice']  = $duncount + 1;
+    $stmt['lines'][] = $line;
+    $stmt['amount']  = sprintf("%.2f", $stmt['amount'] + $value['bal']);
+   }
+
+   // Record something in ar.intnotes about this statement run.
+   if ($intnotes) $intnotes .= "\n";
+   $intnotes = addslashes($intnotes . "Statement sent $today");
+   SLQuery("UPDATE ar SET intnotes = '$intnotes' WHERE id = " . $row['id']);
+   if ($sl_err) die($sl_err);
   }
 
-  SLConnect();
+  fwrite($fhprint, create_statement($stmt));
+
+  exec("$STMT_PRINT_CMD $STMT_TEMP_FILE");
+  $alertmsg = "Now printing statements from $STMT_TEMP_FILE";
+ }
 ?>
 <html>
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <title>EOB Posting - Search</title>
+<script language="JavaScript">
+function checkAll(checked) {
+ var f = document.forms[0];
+ for (var i = 0; i < f.elements.length; ++i) {
+  var ename = f.elements[i].name;
+  if (ename.indexOf('form_cb[') == 0)
+   f.elements[i].checked = checked;
+ }
+}
+</script>
 </head>
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
@@ -96,8 +215,15 @@
     title='Date of service mm/dd/yyyy'>
   </td>
   <td>
-   <input type='checkbox' name='form_closed' value='1'
-    title='Include closed invoices'<? if ($_POST['form_closed']) echo " checked"; ?>>Closed
+   <select name='form_category'>
+<?
+ foreach (array('Open', 'All', 'Due') as $value) {
+  echo "    <option value='$value'";
+  if ($_POST['form_category'] == $value) echo " selected";
+  echo ">$value</option>\n";
+ }
+?>
+   </select>
   </td>
   <td>
    <input type='submit' name='form_search' value='Search'>
@@ -115,23 +241,32 @@
 
  <tr bgcolor="#dddddd">
   <td class="dehead">
-   Patient
+   &nbsp;Patient
   </td>
   <td class="dehead">
-   Invoice
+   &nbsp;Invoice
   </td>
   <td class="dehead">
-   Svc Date
+   &nbsp;Svc Date
+  </td>
+  <td class="dehead">
+   &nbsp;Due Date
   </td>
   <td class="dehead" align="right">
-   Amount
+   Amount&nbsp;
   </td>
   <td class="dehead" align="right">
-   Paid
+   Paid&nbsp;
+  </td>
+  <td class="dehead" align="center">
+   Prv
+  </td>
+  <td class="dehead" align="center">
+   Sel
   </td>
  </tr>
 <?
-  if ($_POST['form_search']) {
+  if ($_POST['form_search'] || $_POST['form_print']) {
     $form_name      = trim($_POST['form_name']);
     $form_pid       = trim($_POST['form_pid']);
     $form_encounter = trim($_POST['form_encounter']);
@@ -170,10 +305,15 @@
 
     if (! $where) die("At least one search parameter is required.");
 
-    $query = "SELECT ar.id, ar.invnumber, ar.amount, ar.paid, customer.name " .
+    $query = "SELECT ar.id, ar.invnumber, ar.duedate, ar.amount, ar.paid, " .
+      "ar.intnotes, customer.name " .
       "FROM ar, customer WHERE $where AND customer.id = ar.customer_id ";
-    if (! $_POST['form_closed'])
+    if ($_POST['form_category'] != 'All') {
       $query .= "AND ar.amount != ar.paid ";
+      if ($_POST['form_category'] == 'Due') {
+        $query .= "AND ar.duedate <= CURRENT_DATE ";
+      }
+    }
     $query .= "ORDER BY customer.name, ar.invnumber";
 
     // echo "<!-- $query -->\n"; // debugging
@@ -184,11 +324,14 @@
     for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
       $row = SLGetRow($t_res, $irow);
 
+      $bgcolor = (($irow & 1) ? "#ffdddd" : "#ddddff");
+
       // Determine the date of service.  If this was a search parameter
       // then we already know it.  Or an 8-digit encounter number is
       // presumed to be a date of service imported during conversion.
       // Otherwise look it up in the form_encounter table.
       //
+      $svcdate = "";
       list($pid, $encounter) = explode(".", $row['invnumber']);
       if ($form_date) {
         $svcdate = $form_date;
@@ -197,28 +340,41 @@
         $svcdate = substr($encounter, 0, 4) . "-" . substr($encounter, 4, 2) .
           "-" . substr($encounter, 6, 2);
       }
-      else {
+      else if ($encounter) {
         $tmp = sqlQuery("SELECT date FROM form_encounter WHERE " .
           "encounter = $encounter");
         $svcdate = substr($tmp['date'], 0, 10);
       }
+
+      $duncount = substr_count(strtolower($row['intnotes']), "statement sent");
+
+      $isdue = ($row['duedate'] <= $today && $row['amount'] > $row['paid']) ? " checked" : "";
 ?>
- <tr>
+ <tr bgcolor='<? echo $bgcolor ?>'>
   <td class="detail">
-   <? echo $row['name'] ?>
+   &nbsp;<? echo $row['name'] ?>
   </td>
   <td class="detail">
-   <a href="sl_eob_invoice.php?id=<? echo $row['id'] ?>"
+   &nbsp;<a href="sl_eob_invoice.php?id=<? echo $row['id'] ?>"
     target="_blank"><? echo $row['invnumber'] ?></a>
   </td>
   <td class="detail">
-   <? echo $svcdate ?>
+   &nbsp;<? echo $svcdate ?>
+  </td>
+  <td class="detail">
+   &nbsp;<? echo $row['duedate'] ?>
   </td>
   <td class="detail" align="right">
-   <? bucks($row['amount']) ?>
+   <? bucks($row['amount']) ?>&nbsp;
   </td>
   <td class="detail" align="right">
-   <? bucks($row['paid']) ?>
+   <? bucks($row['paid']) ?>&nbsp;
+  </td>
+  <td class="detail" align="center">
+   <? echo $duncount ? $duncount : "&nbsp;" ?>
+  </td>
+  <td class="detail" align="center">
+   <input type='checkbox' name='form_cb[<? echo($row['id']) ?>]'<? echo $isdue ?> />
   </td>
  </tr>
 <?
@@ -228,7 +384,21 @@
 ?>
 
 </table>
+
+<p>
+<input type='button' value='Select All' onclick='checkAll(true)' /> &nbsp;
+<input type='button' value='Clear All' onclick='checkAll(false)' /> &nbsp;
+<input type='submit' name='form_print' value='Print Selected Statements' />
+</p>
+
 </form>
 </center>
+<script>
+<?
+	if ($alertmsg) {
+		echo "alert('$alertmsg');\n";
+	}
+?>
+</script>
 </body>
 </html>
