@@ -40,6 +40,10 @@ if ($_GET["drugid"]) {
 	$tqvar = addslashes($_GET["drugid"]);
 	sqlStatement("update users set federaldrugid='$tqvar' where id={$_GET["id"]}");
 }
+if ($_GET["upin"]) {
+	$tqvar = addslashes($_GET["upin"]);
+	sqlStatement("update users set upin='$tqvar' where id={$_GET["id"]}");
+}
 if ($_GET["lname"]) {
 	$tqvar = addslashes($_GET["lname"]);
 	sqlStatement("update users set lname='$tqvar' where id={$_GET["id"]}");
@@ -123,6 +127,11 @@ foreach($result as $iter2) {
 <TD><span class=text>Federal Tax ID: </span></TD><TD><input type=text name=taxid size=20 value="<? echo $iter["federaltaxid"]?>"></td>
 <TD><span class=text>Federal Drug ID: </span></TD><TD><input type=text name=drugid size=20 value="<? echo $iter["federaldrugid"]?>"></td>
 </TR>
+
+<tr>
+<td><span class="text">UPIN: </span></td><td><input type="text" name="upin" size="20" value="<? echo $iter["upin"]?>"></td>
+<td><span class="text">&nbsp;</span></td><td>&nbsp;</td>
+</tr>
 
 </table>
 <span class=text>Additional Info:</span><br>

@@ -27638,6 +27638,7 @@ CREATE TABLE `transactions` (
   `authorized` tinyint(4) default NULL,
   PRIMARY KEY  (`id`)
 ) ;
+
 --
 -- Table structure for table `users`
 --
@@ -27655,12 +27656,10 @@ CREATE TABLE `users` (
   `lname` varchar(255) default NULL,
   `federaltaxid` varchar(255) default NULL,
   `federaldrugid` varchar(255) default NULL,
+  `upin` varchar(255) default NULL,
   `facility` varchar(255) default NULL,
   PRIMARY KEY  (`id`)
 ) ;
-
-
-
 
 --
 -- Table structure for table `x12_partners`

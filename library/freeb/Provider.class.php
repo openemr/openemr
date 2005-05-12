@@ -131,7 +131,7 @@ class Provider Extends DataObjectBase {
 		}
 		else {
 			if (!$results->EOF) {
-				$retval = $results->fields['federaltaxid'];
+				$retval = $results->fields['upin'];
 			}
 		}
 
