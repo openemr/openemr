@@ -38,6 +38,9 @@ class Facility Extends DataObjectBase {
 		$this->_addFunc("hcfacode",				array(	"name"	=>	"FreeB.FBFacility.HCFACode",
 															"sig"	=>	array(XMLRPCSTRING,XMLRPCINT),
 															"doc"	=>	""));
+		$this->_addFunc("cliacode",				array(	"name"	=>	"FreeB.FBFacility.CLIACode",
+															"sig"	=>	array(XMLRPCSTRING,XMLRPCINT),
+															"doc"	=>	""));
 	}
 
 
@@ -377,6 +380,36 @@ class Facility Extends DataObjectBase {
 			// otherwise, we create the right response
 			// with the state name
 			return new xmlrpcresp(new xmlrpcval($retval,"i4"));
+		}
+	}
+
+	function cliacode($m) {
+
+		$err="";
+
+		$retval = "";
+		$obj= $m->getparam(0);
+		$key = $obj->getval();
+
+		$sql = "SELECT domain_identifier FROM facility where id = '" . $key ."'";
+		$db = $GLOBALS['adodb']['db'];
+		$results = $db->Execute($sql);	
+		
+		if (!$results) {
+			$err = $db->ErrorMsg();	
+		}
+		else {
+			if (!$results->EOF) {
+				$retval = $results->fields['domain_identifier'];
+			}
+		}
+
+		// if we generated an error, create an error return response
+		if ($err) {
+			return $this->_handleError($err);
+		}
+		else {
+			return new xmlrpcresp(new xmlrpcval($retval,"string"));
 		}
 	}
 
