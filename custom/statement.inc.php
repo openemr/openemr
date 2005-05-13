@@ -59,7 +59,7 @@ function create_statement($stmt) {
  $out = sprintf(
   "Your Business Name           %-25s %s\n" .
   "Address Line 1               Insurance information on file\n" .
-  "Address Line 2           
+  "Address Line 2           \n" .
   "City, State Zip              Total amount due: %s\n" .
   "\n" .
   "\n" .
