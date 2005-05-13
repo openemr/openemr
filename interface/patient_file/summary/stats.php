@@ -17,7 +17,7 @@ include_once("$srcdir/lists.inc");
 <td width="20%" valign="top">
 <a href="stats_full.php?active=all" target="Main"><font class="title">Medical Problems</font><font class=more><?echo $tmore;?></font></a><br>
 <?
-if ($result = getListByType($pid, "problem", "id,title,comments", 1, "all", 0)){
+if ($result = getListByType($pid, "medical_problem", "id,title,comments", 1, "all", 0)){
 	foreach ($result as $iter) {
 		echo "<a class=link target=Main href='stats_full.php?active=1'>" . $iter{"title"} . "</a><br>\n";
 	}
