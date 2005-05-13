@@ -364,7 +364,7 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 
 			$result = sqlStatement($query);
 			$count = 0;
-			$default_x12_partner = $iter['x12_partner_id'];
+			$default_x12_partner = $iter['ic_x12id'];
 
 			while ($row = mysql_fetch_array($result)) {
 				if (strlen($row['provider']) > 0) {
