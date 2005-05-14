@@ -6,8 +6,9 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-// This returns an associative array keyed on procedure code.
-// Its values are associative arrays having the following keys:
+// This returns an associative array keyed on procedure code, representing
+// all charge items for one invoice.  This array's values are themselves
+// associative arrays having the following keys:
 //  chg - the sum of line items, including adjustments, for the code
 //  bal - the unpaid balance
 //  ins - the id of the insurance company that was billed
