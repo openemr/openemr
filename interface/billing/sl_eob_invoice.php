@@ -13,6 +13,7 @@
   include_once("../../library/patient.inc");
   include_once("../../library/forms.inc");
   include_once("../../library/sql-ledger.inc");
+  include_once("../../library/invoice_summary.inc.php");
 
   $debug = 0; // set to 1 for debugging mode
 
@@ -441,48 +442,8 @@ function validate(f) {
   $arrow = SLGetRow($arres, 0);
   if (! $arrow) die("There is no match for invoice id = $trans_id.");
 
-  // Request all cash entries belonging to the invoice.
-  $atres = SLQuery("select * from acc_trans where trans_id = $trans_id and chart_id = $chart_id_cash");
-  if ($sl_err) die($sl_err);
-
-  // Deduct payments for each procedure code from the respective balance owed.
-  $codes = array();
-  for ($irow = 0; $irow < SLRowCount($atres); ++$irow) {
-    $row = SLGetRow($atres, $irow);
-    $code     = strtoupper($row['memo']);
-    $ins_id   = $row['project_id'];
-    if (! $code) $code = "Unknown";
-    $amount   = $row['amount'];
-    $codes[$code]['bal'] += $amount; // amount is negative for a payment
-    if ($ins_id)
-      $codes[$code]['ins'] = $ins_id;
-    // echo "<!-- $code $chart_id $amount -->\n"; // debugging
-  }
-
-  // Request all line items with money belonging to the invoice.
-  $inres = SLQuery("select * from invoice where trans_id = $trans_id and sellprice != 0");
-  if ($sl_err) die($sl_err);
-
-  // Add charges and adjustments for each procedure code into its total and balance.
-  for ($irow = 0; $irow < SLRowCount($inres); ++$irow) {
-    $row = SLGetRow($inres, $irow);
-    $amount   = $row['sellprice'];
-    $ins_id   = $row['project_id'];
-
-    $code = "Unknown";
-    if (preg_match("/([A-Za-z0-9]\d\d\S*)/", $row['serialnumber'], $matches)) {
-      $code = strtoupper($matches[1]);
-    }
-    else if (preg_match("/([A-Za-z0-9]\d\d\S*)/", $row['description'], $matches)) {
-      $code = strtoupper($matches[1]);
-    }
-
-    $codes[$code]['chg'] += $amount;
-    $codes[$code]['bal'] += $amount;
-
-    if ($ins_id)
-      $codes[$code]['ins'] = $ins_id;
-  }
+  // Get invoice charge details.
+  $codes = get_invoice_summary($trans_id);
 ?>
 <center>
 

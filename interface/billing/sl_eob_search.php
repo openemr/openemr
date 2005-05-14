@@ -126,7 +126,9 @@
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <title>EOB Posting - Search</title>
+
 <script language="JavaScript">
+
 function checkAll(checked) {
  var f = document.forms[0];
  for (var i = 0; i < f.elements.length; ++i) {
@@ -135,7 +137,14 @@ function checkAll(checked) {
    f.elements[i].checked = checked;
  }
 }
+
+function npopup(pid) {
+ window.open('sl_eob_patient_note.php?patient_id=' + pid, '_blank', 'width=500,height=250,resizable=1');
+ return false;
+}
+
 </script>
+
 </head>
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
@@ -352,7 +361,7 @@ function checkAll(checked) {
 ?>
  <tr bgcolor='<? echo $bgcolor ?>'>
   <td class="detail">
-   &nbsp;<? echo $row['name'] ?>
+   &nbsp;<a href="" onclick="return npopup(<? echo $pid ?>)"><? echo $row['name'] ?></a>
   </td>
   <td class="detail">
    &nbsp;<a href="sl_eob_invoice.php?id=<? echo $row['id'] ?>"
