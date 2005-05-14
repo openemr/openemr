@@ -1,0 +1,293 @@
+<html>
+<head>
+{literal}
+ <style type="text/css" title="mystyles" media="all">
+<!--
+td {
+	font-size:12pt;
+	font-family:helvetica;
+}
+li{
+	font-size:11pt;
+	font-family:helvetica;
+	margin-left: 15px;
+}
+a {
+	font-size:11pt;
+	font-family:helvetica;
+}
+.title {
+	font-family: sans-serif;
+	font-size: 12pt;
+	font-weight: bold;
+	text-decoration: none;
+	color: #000000;
+}
+
+.form_text{
+	font-family: sans-serif;
+	font-size: 9pt;
+	text-decoration: none;
+	color: #000000;
+}
+
+-->
+</style>
+{/literal}
+</head>
+<body bgcolor="{$STYLE.BGCOLOR2}">
+
+<p><span class="title">Well Child Visit</span></p>
+<form name="well_child" method="post" action="{$FORM_ACTION}/interface/forms/well_child/save.php">
+<table>
+<tr>
+	<td>
+		<span class=text>WT: </span><input size=3 type=entry name="wt" value="{$well_child->get_wt()}" ></input>
+		<span class=text>HT: </span><input size=3 type=entry name="ht" value="{$well_child->get_ht()}" ></input>
+		<span class=text>BP: </span><input size=3 type=entry name="bp" value="{$well_child->get_bp()}" ></input>
+		<span class=text>TEMP: </span><input size=3 type=entry name="t" value="{$well_child->get_t()}" ></input>
+		<span class=text>Years: </span><input size=3 type=entry name="years" value="{$well_child->get_years()}" ></input>
+		<span class=text>Months: </span><input size=3 type=entry name="months" value="{$well_child->get_months()}" ></input>
+	</td>
+</tr>
+<tr>
+	<td>
+		<span class=text>WT%: </span><input size=3 type=entry name="wt_percentile" value="{$well_child->get_wt_percentile()}" ></input>
+		<span class=text>HT%: </span><input size=3 type=entry name="ht_percentile" value="{$well_child->get_ht_percentile()}" ></input>
+	</td>
+</tr>
+<tr>
+	<td><br><br></td>
+</tr>
+</table>
+<table>
+
+{foreach name=loops item=headings key=title from=$checks}
+<tr>
+	{if $title eq "Genitalia"}
+		<td valign="top" align="right">{$title}</td>
+	{else}
+		<td align="right">{$title}</td>
+	{/if}
+	<td valign="top" align="left">
+	  {foreach item=row key=row_title from=$headings}
+			<table><tr>
+				{if !is_numeric($row_title)}
+					<td class="form_text">&nbsp;&nbsp;&nbsp;<b>{$row_title}</b></td>
+					<td class="form_text"><nobr>{html_checkboxes name="checks" options=$row selected=$well_child->checks separator="&nbsp;&nbsp;&nbsp;"}</nobr>
+					{if $row_title eq "Male"}
+					Tanner Stage:
+						{html_options name="male_tanner" selected=$well_child->get_male_tanner() options=$well_child->tanner_stage_array}
+					{elseif $row_title eq "Female"}
+					Tanner Stage:
+						{html_options name="female_tanner" selected=$well_child->get_female_tanner() options=$well_child->tanner_stage_array}
+					{/if}
+					</td>
+				{else}
+					<td colspan="6" class="form_text">
+					
+					<nobr>{html_checkboxes name="checks" options=$row selected=$well_child->checks separator="&nbsp;&nbsp;&nbsp;"}</nobr>
+					
+					{if $title eq "Breast:(FEMALE)"}
+					Tanner Stage:
+						{html_options name="breast_tanner" selected=$well_child->get_breast_tanner() options=$well_child->tanner_stage_array}
+					{/if}
+					
+					</td>
+				{/if}
+				
+			</tr></table>
+	  {/foreach}
+	  
+	</td>
+</tr>
+{/foreach}
+</table>
+
+<table>
+<tr>
+	<td><br><br></td>
+</tr>
+<tr>
+	<td>History:</td>
+</tr>
+<tr>
+	<td colspan="2"><textarea name="history" wrap="virtual" cols="75" rows="3">{$well_child->get_history()}</textarea></td>
+</tr>
+<tr>
+	<td><span class=text>Drug Allergy: </span></td>
+</tr>
+<tr>
+	<td><input size=80 type=entry name="drug_allergy" value="{$well_child->get_drug_allergy()}" ></input></td>
+</tr>
+<tr>
+	<td><span class=text>School Development: </span></td>
+</tr>
+<tr>
+	<td><input size=80 type=entry name="school_development" value="{$well_child->get_school_development()}" ></input></td>
+</tr>
+</table>
+<br><br>
+<table>
+<tr>
+	<td>Additional or Abnormal Findings</td>
+</tr>
+<tr>
+	<td> <textarea name="additional_findings" wrap="virtual" cols="75" rows="8">{$well_child->get_additional_findings()}</textarea></td>
+</tr>
+<tr>
+	<td>Assesment/Diagnosis</td>
+</tr>
+<tr>
+	<td><textarea name="assesment" wrap="virtual" cols="75" rows="8">{$well_child->get_assesment()}</textarea></td>
+</tr>
+</table>
+<table>
+<tr>
+	<td>
+	{foreach name=loops item=headings key=title from=$checks2}
+	<tr>
+		<td>
+			{$title}
+		</td>
+		<td><table>
+		  {foreach item=row key=row_title from=$headings}
+		  
+				<tr>
+					{if !is_numeric($row_title)}
+						<td>{$row_title}</td>
+						<td class="form_text"><nobr>{html_checkboxes name="checks2" options=$row selected=$well_child->checks2 separator="&nbsp;&nbsp;&nbsp;"}</nobr></td>
+					{else}
+						<td class="form_text">
+						<nobr>{html_checkboxes name="checks2" options=$row selected=$well_child->checks2 separator="&nbsp;&nbsp;&nbsp;"}</nobr>
+						</td>
+					{/if}
+					
+				</tr>
+		  {/foreach}
+		  </table>
+		</td>
+	</tr>
+	{/foreach}
+	<td>
+</tr>
+</table>
+<table>
+<tr>
+	<td>
+		<span class=text>PPD:</span><input size=3 type=entry name="ppd" value="{$well_child->get_ppd()}" ></input>
+		<span class=text>UA DIP:</span><input size=3 type=entry name="ua_dip" value="{$well_child->get_ua_dip()}" ></input>
+		<span class=text>HCT:</span><input size=3 type=entry name="hct" value="{$well_child->get_hct()}" ></input>
+		<span class=text>LEAD:</span><input size=3 type=entry name="lead" value="{$well_child->get_lead()}" ></input>
+	</td>
+</tr>
+<tr>
+	<td>RX</td>
+</tr>
+<tr>
+	<td colspan="6"><textarea name="rx" wrap="virtual" cols="75" rows="3">{$well_child->get_rx()}</textarea></td>
+</tr>
+
+<tr>
+	<td>RTC</td>
+</tr>
+<tr>
+	<td colspan="6"><textarea name="rtc" wrap="virtual" cols="75" rows="2">{$well_child->get_rtc()}</textarea></td>
+</tr>
+<tr>
+	<td><br><br></td>
+</tr>
+<tr>
+	<td>
+		<table>
+		  <tr>
+		    <td>Vision</td>
+		    <td>Corrected</td>
+		    <td>Uncorrected</td>
+		  </tr>
+		  <tr>
+		    <td>OU</td>
+		    <td class="form_text">20/<input size=6 type=entry name="ou_corrected" value="{$well_child->get_ou_corrected()}" ></input></td>
+		    <td class="form_text">20/<input size=6 type=entry name="ou_uncorrected" value="{$well_child->get_ou_uncorrected()}" ></input></td>
+		  </tr>
+		  <tr>
+		    <td>OD</td>
+		    <td class="form_text">20/<input size=6 type=entry name="od_corrected" value="{$well_child->get_od_corrected()}" ></input></td>
+		    <td class="form_text">20/<input size=6 type=entry name="od_uncorrected" value="{$well_child->get_od_uncorrected()}" ></input></td>
+		  </tr>
+		  <tr>
+		    <td>OS</td>
+		    <td class="form_text">20/<input size=6 type=entry name="os_corrected" value="{$well_child->get_os_corrected()}" ></input></td>
+		    <td class="form_text">20/<input size=6 type=entry name="os_uncorrected" value="{$well_child->get_os_uncorrected()}" ></input></td>
+		  </tr>
+		</table>
+	</td>
+	<td>
+		<table>
+		  <tr>
+		  	<td>Audio</td>
+		  	<td colspan="2">Frequency (HZ)</td>
+		  </tr>
+		  <tr>
+		    <td></td>
+		    <td>1000</td>
+		    <td>2000</td>
+		    <td>4000</td>
+		  </tr>
+		  <tr>
+		    <td>Right Ear</td>
+		    <td class="form_text"><input size=6 type=entry name="right_ear_1000" value="{$well_child->get_right_ear_1000()}" ></input></td>
+		    <td class="form_text"><input size=6 type=entry name="right_ear_2000" value="{$well_child->get_right_ear_2000()}" ></input></td>
+		    <td class="form_text"><input size=6 type=entry name="right_ear_4000" value="{$well_child->get_right_ear_4000()}" ></input></td>
+		  </tr>
+		  <tr>
+		    <td>Left Ear</td>
+		    <td class="form_text"><input size=6 type=entry name="left_ear_1000" value="{$well_child->get_left_ear_1000()}" ></input></td>
+		    <td class="form_text"><input size=6 type=entry name="left_ear_2000" value="{$well_child->get_left_ear_2000()}" ></input></td>
+		    <td class="form_text"><input size=6 type=entry name="left_ear_4000" value="{$well_child->get_left_ear_4000()}" ></input></td>
+		  </tr>
+		</table>
+	</td>
+</tr>
+<table>
+<tr>
+	<td>
+	{foreach name=loops item=headings key=title from=$checks3}
+	<tr>
+		<td>
+			{$title}
+		</td>
+		<td><table>
+		  {foreach item=row key=row_title from=$headings}
+		  
+				<tr>
+					{if !is_numeric($row_title)}
+						<td>{$row_title}</td>
+						<td class="form_text"><nobr>{html_checkboxes name="checks3" options=$row selected=$well_child->checks3 separator="&nbsp;&nbsp;&nbsp;"}</nobr></td>
+					{else}
+						<td class="form_text">
+						<nobr>{html_checkboxes name="checks3" options=$row selected=$well_child->checks3 separator="&nbsp;&nbsp;&nbsp;"}</nobr>
+						</td>
+					{/if}
+					
+				</tr>
+		  {/foreach}
+		  </table>
+		</td>
+	</tr>
+	{/foreach}
+	<td>
+</tr>
+</table>
+
+<tr>
+	<td><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
+</tr>
+</table>
+<input type="hidden" name="id" value="{$well_child->get_id()}" />
+<input type="hidden" name="activity" value="{$well_child->get_activity()}">
+<input type="hidden" name="pid" value="{$well_child->get_pid()}">
+<input type="hidden" name="process" value="true">
+</form>
+</body>
+</html>

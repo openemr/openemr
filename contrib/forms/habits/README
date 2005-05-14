@@ -1,0 +1,24 @@
+this form needs couple of functions that were added into /library/api.inc.
+one is 
+I am transcribing the paper forms to electronic, thus, the logic in these ones is not good yet
+
+
+function dateToDB ($date) 
+{
+	$date=substr ($date,6,4)."-".substr ($date,3,2)."-".substr($date, 0,2);
+	return $date;
+}
+
+
+and the opposite is
+
+
+function DBToDate ($date)
+{
+	$date=substr ($date,5,2)."/".substr ($date,8,2)."/".substr($date, 0,4);
+	return $date;
+}
+
+
+
+much more functionality can be added to proofread the date.
