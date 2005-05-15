@@ -85,6 +85,12 @@ printListData($pid, "immunization", "1")
 ?></td></tr></table>
 <hr>
 
+<font class=bold>Medical Problems:</font><br>
+<table><tr><td><?
+printListData($pid, "medical_problem", "1")
+?></td></tr></table>
+<hr>
+
 <font class=bold>Patient Notes:</font><br>
 <table><tr><td><?
 printPatientNotes($pid);

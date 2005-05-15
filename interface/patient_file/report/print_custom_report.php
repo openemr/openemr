@@ -163,6 +163,9 @@ if (stristr($key,"include_")) {
 		} elseif ($val == "medications") {
 			print "<font class=bold>Patient Medications:</font><br>";
 			printListData($pid, "medication", "1");
+		} elseif ($val == "medical_problems") {
+				print "<font class=bold>Patient Medical Problems:</font><br>";
+				printListData($pid, "medical_problem", "1");
 		} elseif ($val == "immunizations") {
 				print "<font class=bold>Patient Immunization:</font><br>";
 				printListData($pid, "immunization", "1");

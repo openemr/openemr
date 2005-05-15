@@ -26,10 +26,12 @@ include_once("../../globals.php");
 <input type=checkbox name=include_employer value="employer"><span class=text>Employer</span><br>
 <input type=checkbox name=include_insurance value="insurance"><span class=text>Insurance</span><br>
 <input type=checkbox name=include_billing value="billing" checked><span class=text>Billing</span><br>
+<br>
 </td><td>
 <input type=checkbox name=include_allergies value="allergies"><span class=text>Allergies</span><br>
 <input type=checkbox name=include_medications value="medications"><span class=text>Medications</span><br>
 <input type=checkbox name=include_immunizations value="immunizations"><span class=text>Immunizations</span><br>
+<input type=checkbox name=include_immunizations value="medical_problems"><span class=text>Medical Problems</span><br>
 <input type=checkbox name=include_notes value="notes"><span class=text>Patient Notes</span><br>
 <input type=checkbox name=include_transactions value="transactions"><span class=text>Transactions</span><br>
 </td></tr></table>
