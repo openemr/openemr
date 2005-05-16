@@ -14,30 +14,20 @@ include_once("$srcdir/patient.inc");
 <body <?echo $title_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 <?
-
 $result = getPatientData($pid, "fname,lname");
 
-//$subresult = getFormByEncounter($pid, $encounter , "*");
-//$encounter_date = date( "D F jS Y" ,strtotime($subresult[0]{"date"}));
-
-/*
 if (!empty($_GET["set_encounter"])) {
-	//get the date:
-	$subresult = getFormByEncounter($pid, $_GET["set_encounter"] , "*");
-	$encounter_date = date( "D F jS Y" ,strtotime($subresult[0]{"date"}));
-} else {
-	$encounter_date = "(Today) " . date( "D F jS Y" ); //otherwise, set today's date
-}
-*/
-if( !empty( $encounter ) ){
-	$subresult = getFormByEncounter($pid, $_GET["set_encounter"] , "*");
-	$encounter_date = date( "D F jS Y" ,strtotime($subresult[0]{"date"}));
-} else {
-	
-	$encounter_date = "(Today) " . date( "D F jS Y" ); //otherwise, set today's date
+  setencounter($_GET["set_encounter"]);
 }
 
-$provider_results = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'");
+if(!empty($encounter)){
+  $subresult = getFormByEncounter($pid, $encounter , "*");
+  $encounter_date = date( "D F jS Y" ,strtotime($subresult[0]{"date"}));
+} else {
+  $encounter_date = "(Today) " . date( "D F jS Y" ); //otherwise, set today's date
+}
+
+$provider_results = sqlQuery("select * from users where username='" . $_SESSION{"authUser"} . "'");
 ?>
 
 <table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
