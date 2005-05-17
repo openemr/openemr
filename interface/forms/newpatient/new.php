@@ -12,14 +12,14 @@ $years = array("2004","2005","2006","2007");
 
 <html>
 <head>
-<title>New Patient Encounter</title>
+<title>New Encounter</title>
 
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0 onload="javascript:document.new_encounter.reason.focus();">
 
 <form method=post action="<?echo $rootdir?>/forms/newpatient/save.php" name=new_encounter target=Main>
 <input type=hidden name=mode value='new'>
-<span class=title>New Patient Encounter Form</span>
+<span class=title>New Encounter Form</span>
 <br>
 
 <table>

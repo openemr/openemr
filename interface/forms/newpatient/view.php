@@ -27,7 +27,7 @@ $ons_day   = substr($result{'onset_date'}, 8, 2);
 
 <html>
 <head>
-<title>New Patient Encounter</title>
+<title>Patient Encounter</title>
 
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
@@ -35,7 +35,7 @@ $ons_day   = substr($result{'onset_date'}, 8, 2);
 <form method=post action="<?echo $rootdir?>/forms/newpatient/save.php" name=new_encounter target=Main>
 <input type=hidden name=mode value='update'>
 <input type=hidden name=id value='<?echo $_GET["id"];?>'>
-<span class=title>New Patient Encounter Form</span>
+<span class=title>Patient Encounter Form</span>
 <br>
 
 <table>
