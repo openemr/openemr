@@ -31,7 +31,7 @@ include_once("../../globals.php");
 <input type=checkbox name=include_allergies value="allergies"><span class=text>Allergies</span><br>
 <input type=checkbox name=include_medications value="medications"><span class=text>Medications</span><br>
 <input type=checkbox name=include_immunizations value="immunizations"><span class=text>Immunizations</span><br>
-<input type=checkbox name=include_immunizations value="medical_problems"><span class=text>Medical Problems</span><br>
+<input type=checkbox name=include_medical_problems value="medical_problems"><span class=text>Medical Problems</span><br>
 <input type=checkbox name=include_notes value="notes"><span class=text>Patient Notes</span><br>
 <input type=checkbox name=include_transactions value="transactions"><span class=text>Transactions</span><br>
 </td></tr></table>
