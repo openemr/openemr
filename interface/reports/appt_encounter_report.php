@@ -22,21 +22,21 @@
  include_once("../globals.php");
  include_once("../../library/patient.inc");
 
- $alertmsg = '';
+ $alertmsg = ''; // not used yet but maybe later
 
  function bucks($amount) {
   if ($amount)
    printf("%.2f", $amount);
  }
 
- $today = date("Y-m-d");
-
  if ($_POST['form_search']) {
   $form_date = fixDate($_POST['form_date'], "");
 
+  // MySQL doesn't grok full outer joins so we do it the hard way.
+  //
   $query = "( " .
    "SELECT " .
-   "LEFT(e.pc_eventDate, 10), e.pc_startTime, " .
+   "e.pc_startTime, " .
    "fe.encounter, " .
    "f.authorized, " .
    "p.fname, p.lname, p.pid, " .
@@ -51,7 +51,7 @@
    "( e.pc_catid = 5 OR e.pc_catid = 9 OR e.pc_catid = 10 ) " .
    ") UNION ( " .
    "SELECT " .
-   "LEFT(fe.date, 10), e.pc_startTime, " .
+   "e.pc_startTime, " .
    "fe.encounter, " .
    "f.authorized, " .
    "p.fname, p.lname, p.pid, " .
@@ -138,9 +138,11 @@
  </tr>
 <?
  if ($res) {
+  $lastdocname = "";
   while ($row = sqlFetchArray($res)) {
    $patient_id = $row['pid'];
    $encounter  = $row['encounter'];
+   $docname    = $row['docname'];
 
    $billed  = "Y";
    $errmsg  = "";
@@ -168,10 +170,10 @@
 ?>
  <tr bgcolor='<? echo $bgcolor ?>'>
   <td class="detail">
-   &nbsp;<? echo $row['docname'] ?>
+   &nbsp;<? echo ($docname == $lastdocname) ? "" : $docname ?>
   </td>
   <td class="detail">
-   &nbsp;<? echo $row['pc_startTime'] ?>
+   &nbsp;<? echo substr($row['pc_startTime'], 0, 5) ?>
   </td>
   <td class="detail">
    &nbsp;<? echo $row['fname'] . " " . $row['lname'] ?>
@@ -193,6 +195,7 @@
   </td>
  </tr>
 <?
+   $lastdocname = $docname;
   }
  }
 ?>
