@@ -97,7 +97,7 @@ $v_major = '2';
 $v_minor = '7';
 $v_patch = '2';
 
-$tag = '-rc2'; // release candidate 2
+$tag = ''; // release candidate
 
 $openemr_version = "$v_major.$v_minor.$v_patch".$tag;	// Version tag used by program
 
