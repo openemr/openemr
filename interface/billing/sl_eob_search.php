@@ -15,6 +15,8 @@
  include_once("../../library/invoice_summary.inc.php");
  include_once("../../custom/statement.inc.php");
 
+ $DEBUG = 0; // set to 0 for production, 1 to test
+
  $alertmsg = '';
 
  function bucks($amount) {
@@ -76,6 +78,8 @@
    //  pid     = patient ID
    //  patient = patient name
    //  amount  = total amount due
+   //  duedate = due date of the oldest included invoice
+   //  age     = number of days from duedate to today
    //  to      = array of addressee name/address lines
    //  lines   = array of:
    //    dos     = date of service "yyyy-mm-dd"
@@ -95,7 +99,16 @@
     $stmt['lines'] = array();
     $stmt['amount'] = '0.00';
     $stmt['today'] = $today;
+    $stmt['duedate'] = $row['duedate'];
+   } else {
+    // Report the oldest due date.
+    if ($row['duedate'] < $stmt['duedate']) {
+     $stmt['duedate'] = $row['duedate'];
+    }
    }
+
+   $stmt['age'] = round((strtotime($today) - strtotime($stmt['duedate'])) /
+    (24 * 60 * 60));
 
    $invlines = get_invoice_summary($row['id']);
    foreach ($invlines as $key => $value) {
@@ -112,14 +125,20 @@
    // Record something in ar.intnotes about this statement run.
    if ($intnotes) $intnotes .= "\n";
    $intnotes = addslashes($intnotes . "Statement sent $today");
-   SLQuery("UPDATE ar SET intnotes = '$intnotes' WHERE id = " . $row['id']);
-   if ($sl_err) die($sl_err);
+   if (! $DEBUG) {
+    SLQuery("UPDATE ar SET intnotes = '$intnotes' WHERE id = " . $row['id']);
+    if ($sl_err) die($sl_err);
+   }
   }
 
   fwrite($fhprint, create_statement($stmt));
 
-  exec("$STMT_PRINT_CMD $STMT_TEMP_FILE");
-  $alertmsg = "Now printing statements from $STMT_TEMP_FILE";
+  if ($DEBUG) {
+   $alertmsg = "Printing skipped; see test output in $STMT_TEMP_FILE";
+  } else {
+   exec("$STMT_PRINT_CMD $STMT_TEMP_FILE");
+   $alertmsg = "Now printing statements from $STMT_TEMP_FILE";
+  }
  }
 ?>
 <html>
@@ -312,7 +331,13 @@ function npopup(pid) {
       $where .= ")";
     }
 
-    if (! $where) die("At least one search parameter is required.");
+    if (! $where) {
+      if ($_POST['form_category'] == 'Due') {
+        $where = "1 = 1";
+      } else {
+        die("At least one search parameter is required or you must select Due.");
+      }
+    }
 
     $query = "SELECT ar.id, ar.invnumber, ar.duedate, ar.amount, ar.paid, " .
       "ar.intnotes, customer.name " .
