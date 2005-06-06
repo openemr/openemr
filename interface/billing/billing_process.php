@@ -56,7 +56,8 @@ if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
 				$pid = $tmpvars[0];
 				$encounter = $tmpvars[1];
 				if (!empty($encounter) && !empty($pid)) {
-					$sql = "UPDATE billing set billed = 1 where encounter = '" . $encounter . "' and pid = '" . $pid . "'";
+					$sql = "UPDATE billing set billed = 1 where encounter = '" . $encounter .
+						"' and pid = '" . $pid . "' and activity != 0";
 					$result = $db->execute($sql);
 					if(!$result) {
 						$error = true;
@@ -71,10 +72,7 @@ if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
 			}
 		}
 		if (!$error) {
-
-
-
-	 		header("Pragma: public");
+			header("Pragma: public");
 			header("Expires: 0");
 			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 			header("Content-Type: application/force-download");
