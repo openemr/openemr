@@ -39,8 +39,8 @@ $res = sqlStatement("select date_format(i1.administered_date,'%Y-%c-%e') as 'Dat
   from immunizations i1
          left join immunization i2 on i1.immunization_id = i2.id
          left join users u on i1.administered_by_id = u.id
-         left join patient_data p on i1.patient_id = p.id
-where p.id = " . $pid);
+         left join patient_data p on i1.patient_id = p.pid
+where p.pid = " . $pid);
 
 while ($data[] = sqlFetchArray($res)) {}
 
