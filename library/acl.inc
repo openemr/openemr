@@ -38,6 +38,7 @@
   //   coding_a    Coding - any encounters (write,wsome optional)
   //   notes       Notes - my encounters (write optional)
   //   notes_a     Notes - any encounters (write optional)
+  //   date_a      Fix encounter dates - any encounters
 
   if ($phpgacl_location) {
     include_once("$phpgacl_location/gacl.class.php");

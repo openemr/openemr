@@ -1,12 +1,13 @@
 <?
 include_once("../../globals.php");
+include_once("../../../library/acl.inc");
 
 $disabled = "disabled";
 
-// Uncomment this if you want to allow changing encounter dates.
-// Eventually this needs to be subject to access control:
-//
-//$disabled = "";
+// If we are allowed to change encounter dates...
+if (acl_check('encounters', 'date_a')) {
+	$disabled = "";
+}
 
 $months = array("01","02","03","04","05","06","07","08","09","10","11","12");
 $days = array("01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17",
