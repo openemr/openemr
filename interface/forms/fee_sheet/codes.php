@@ -1,10 +1,12 @@
 <?php
-$cpt = array();
+$bcodes = array();
+
+$bcodes['CPT4']  = array();
 
 // These are the commonly used CPT codes for YOUR practice.
 // Change them to suit your needs.
 //
-$cpt['Established Patient'] = array(
+$bcodes['CPT4']['Established Patient'] = array(
 	'99211' => 'Brief',
 	'99212' => 'Limited',
 	'99213' => 'Detailed',
@@ -18,7 +20,7 @@ $cpt['Established Patient'] = array(
 	'99396' => 'Well Exam 40-64 Yrs (V72.31/V70.0)',
 	'99397' => 'Well Exam 65+ Yrs (V72.31/V70.0)',
 );
-$cpt['New Patient'] = array(
+$bcodes['CPT4']['New Patient'] = array(
 	'99201' => 'Brief',
 	'99202' => 'Limited',
 	'99203' => 'Detailed',
@@ -32,7 +34,7 @@ $cpt['New Patient'] = array(
 	'99386' => 'Well Exam 40-64 Yrs (V72.31/V70.0)',
 	'99387' => 'Well Exam 65+ Yrs (V72.31/V70.0)',
 );
-$cpt['Procedures'] = array(
+$bcodes['CPT4']['Procedures'] = array(
 	'10040' => 'Cyst Removal',
 	'10060' => 'I & D simple/single',
 	'10061' => 'I & D abscess multiple/complex',
@@ -70,7 +72,7 @@ $cpt['Procedures'] = array(
 	'93233' => 'Holter Monitor Review',
 	'93272' => 'Event monitor interpretation',
 );
-$cpt['Lab'] = array(
+$bcodes['CPT4']['Lab'] = array(
 	'82962' => 'Accucheck',
 	'90788' => 'Admin of Antibiotic',
 	'90782' => 'Admin of Injection',
@@ -97,10 +99,9 @@ $cpt['Lab'] = array(
 	'81002' => 'Urinalysis w/o micro',
 	'81025' => 'Urine pregnancy losl/BHCG',
 	'36415' => 'Venipuncture',
-# 'G0001' => 'Venipuncture - Medicare',
 	'G0107' => 'Screening Hemoccult - Medicare',
 );
-$cpt['Immunizations'] = array(
+$bcodes['CPT4']['Immunizations'] = array(
 	'90471' => 'Single Immunization Admin',
 	'90472' => 'Additional Immunization Admin',
 	'G0008' => 'Flu shot / medicare (V06.6)',
@@ -110,7 +111,7 @@ $cpt['Immunizations'] = array(
 	'90718' => 'Td (V06.5)',
 	'90703' => 'Tot Tox (V03.7)',
 );
-$cpt['Consultation and Review'] = array(
+$bcodes['CPT4']['Consultation and Review'] = array(
 	'99361' => 'Medical Conference 30 min',
 	'99371' => 'Telephone Consultation 1-10 min',
 	'99372' => 'Telephone Consultation 10-20 min',
@@ -120,9 +121,9 @@ $cpt['Consultation and Review'] = array(
 	'G0181' => 'Care Plan Oversight',
 );
 
-$hcpcs = array();
+$bcodes['HCPCS'] = array();
 
-$hcpcs['Therapeutic Injections'] = array(
+$bcodes['HCPCS']['Therapeutic Injections'] = array(
 	'J7619' => 'Albuterol unit dose 0.083%',
 	'J1200' => 'Benadryl up to 50 mg',
 	'J3420' => 'B-12 1000 mg',

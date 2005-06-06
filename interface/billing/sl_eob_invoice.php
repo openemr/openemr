@@ -14,8 +14,25 @@
   include_once("../../library/forms.inc");
   include_once("../../library/sql-ledger.inc");
   include_once("../../library/invoice_summary.inc.php");
+  include_once("../../custom/code_types.inc.php");
 
   $debug = 0; // set to 1 for debugging mode
+
+  $reasons = array(
+    "Ins adjust",
+    "Coll w/o",
+    "Pt released",
+    "Sm debt w/o",
+    "To ded'ble",
+    "To copay",
+    "Bad debt",
+    "Discount",
+    "Hardship w/o",
+    "Ins refund",
+    "Pt refund",
+    "Ins overpaid",
+    "Pt overpaid"
+  );
 
   $info_msg = "";
 
@@ -58,10 +75,10 @@
 
   // Insert a row into the invoice table.
   //
-  function addLineItem($invid, $serialnumber, $amount, $adjdate, $insplan) {
+  function addLineItem($invid, $serialnumber, $amount, $adjdate, $insplan, $reason) {
     global $sl_err, $services_id, $debug;
     $adjdate = fixDate($adjdate);
-    $description = "Adjustment $adjdate";
+    $description = "Adjustment $adjdate $reason";
     $query = "INSERT INTO invoice ( " .
       "trans_id, "          .
       "parts_id, "          .
@@ -233,6 +250,8 @@
       // Set the billing code type and description.
       $code_type = "";
       $code_text = "";
+
+      /****
       if (preg_match("/CPT/", $row['serialnumber'])) {
         $code_type = "CPT4";
         $code_text = "Procedure $code";
@@ -252,6 +271,28 @@
             sqlQuery($query);
           }
           $proc_ins_id = 0;
+        }
+      }
+      ****/
+
+      foreach ($code_types as $key => $value) {
+        if (preg_match("/$key/", $row['serialnumber'])) {
+          $code_type = $key;
+          if ($value['fee']) {
+            $code_text = "Procedure $code";
+          } else {
+            $code_text = "Diagnosis $code";
+            if ($proc_ins_id) {
+              $query = "UPDATE billing SET justify = '$code' WHERE id = $proc_ins_id";
+              if ($debug) {
+                echo $query . "<br>\n";
+              } else {
+                sqlQuery($query);
+              }
+              $proc_ins_id = 0;
+            }
+          }
+          break;
         }
       }
 
@@ -392,6 +433,9 @@ function validate(f) {
         $thispay  = trim($cdata['pay']);
         $thisadj  = trim($cdata['adj']);
         $thisins  = trim($cdata['ins']);
+        $reason   = trim($cdata['reason']);
+        if (strpos(strtolower($reason), 'ins') !== false)
+          $reason .= ' ' . $_POST['form_insurance'];
         if (! $thisins) $thisins = 0;
         if ($thispay) {
           // Post a payment: add to ar, subtract from cash.
@@ -402,7 +446,7 @@ function validate(f) {
         }
         if ($thisadj) {
           // Post an adjustment: add negative invoice item, add to ar, subtract from income
-          addLineItem($trans_id, $code, 0 - $thisadj, $thisdate, $thisins);
+          addLineItem($trans_id, $code, 0 - $thisadj, $thisdate, $thisins, $reason);
           addTransaction($trans_id, $chart_id_ar, $thisadj, $thisdate, "InvAdj $thissrc", $code, $thisins);
           addTransaction($trans_id, $chart_id_income, 0 - $thisadj, $thisdate, "InvAdj $thissrc", $code, $thisins);
           updateAR($trans_id, 0 - $thisadj);
@@ -458,7 +502,7 @@ function validate(f) {
   <td>
    <?echo $arrow['name'] ?>
   </td>
-  <td colspan="2" rowspan="4">
+  <td colspan="2" rowspan="3">
    <textarea name="form_notes" cols="50" style="height:100%"><?echo $arrow['notes'] ?></textarea>
   </td>
  </tr>
@@ -484,6 +528,12 @@ function validate(f) {
   </td>
   <td>
    <?echo $arrow['transdate'] ?>
+  </td>
+  <td colspan="2">
+   Now posting for:&nbsp;
+   <input type='radio' name='form_insurance' value='Primary' checked />Ins1&nbsp;
+   <input type='radio' name='form_insurance' value='Secondary' />Ins2&nbsp;
+   <input type='radio' name='form_insurance' value='Tertiary' />Ins3
   </td>
  </tr>
  <tr>
@@ -532,6 +582,9 @@ function validate(f) {
   <td class="dehead">
    Adjust
   </td>
+  <td class="dehead">
+   Reason
+  </td>
  </tr>
 <?
   foreach ($codes as $code => $cdata) {
@@ -560,6 +613,15 @@ function validate(f) {
   <td class="detail">
    <input type="text" name="form_line[<? echo $code ?>][adj]" size="10">
    &nbsp; <a href="" onclick="return writeoff('<? echo $code ?>')">W</a>
+  </td>
+  <td class="detail">
+   <select name="form_line[<? echo $code ?>][reason]">
+<?
+ foreach ($reasons as $value) {
+  echo "    <option value=\"$value\">$value</option>\n";
+ }
+?>
+   </select>
   </td>
  </tr>
 <?

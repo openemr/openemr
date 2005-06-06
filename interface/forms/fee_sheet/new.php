@@ -8,7 +8,7 @@
 // And if you check in a change to either module, be sure to check
 // in the other (identical) module also.
 //
-// This nonsense will go away when we are moved to subversion.
+// This nonsense will go away if we ever move to subversion.
 //////////////////////////////////////////////////////////////////////
 
 // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
@@ -21,14 +21,7 @@
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("codes.php");
-
-// Numeric code types used internally by OpenEMR.
-//
-$type_map = array(
-	'CPT4'  => '1',
-	'ICD9'  => '2',
-	'HCPCS' => '3'
-);
+include_once("../../../custom/code_types.inc.php");
 
 // If Save was clicked, save the new and modified billing lines;
 // then if no error, redirect to patient_encounter.php.
@@ -41,7 +34,7 @@ if ($_POST['bn_save']) {
 		$iter = $bill["$lino"];
 
 		// Skip disabled (billed) line items.
-		if (!isset($iter['fee'])) continue;
+		if ($iter['billed']) continue;
 
 		$id        = $iter['id'];
 		$code_type = $iter['code_type'];
@@ -67,7 +60,7 @@ if ($_POST['bn_save']) {
 		// Otherwise it's a new item...
 		else if (! $del) {
 			$query = "select code_text from codes where code_type = '" .
-				$type_map[$code_type] . "' and " .
+				$code_types[$code_type]['id'] . "' and " .
 				"code = '$code' and ";
 			if ($modifier) {
 				$query .= "modifier = '$modifier'";
@@ -119,35 +112,25 @@ function codeselect(selobj, newtype) {
 <?
 $i = 0;
 
-foreach ($cpt as $key1 => $value1) {
-	++$i;
-	echo ($i & 1) ? " <tr>\n" : "";
-	echo "  <td width='50%' align='center' nowrap>\n";
-	echo "   <select name='$key1' style='width:96%' onchange='codeselect(this, \"CPT4\")'>\n";
-	echo "    <option value=''> $key1\n";
-	foreach ($cpt[$key1] as $key2 => $value2) {
-		echo "    <option value='$key2'>$key2 $value2\n";
+// Create all the drop-lists of preselected codes.
+//
+foreach ($bcodes as $key0 => $value0) {
+	foreach ($value0 as $key1 => $value1) {
+		++$i;
+		echo ($i & 1) ? " <tr>\n" : "";
+		echo "  <td width='50%' align='center' nowrap>\n";
+		echo "   <select name='$key1' style='width:96%' onchange='codeselect(this, \"$key0\")'>\n";
+		echo "    <option value=''> $key1\n";
+		foreach ($value0[$key1] as $key2 => $value2) {
+			echo "    <option value='$key2'>$key2 $value2\n";
+		}
+		echo "   </select>\n";
+		echo "  </td>\n";
+		echo ($i & 1) ? "" : " </tr>\n";
 	}
-	echo "   </select>\n";
-	echo "  </td>\n";
-	echo ($i & 1) ? "" : " </tr>\n";
 }
 
-foreach ($hcpcs as $key1 => $value1) {
-	++$i;
-	echo ($i & 1) ? " <tr>\n" : "";
-	echo "  <td width='50%' align='center' nowrap>\n";
-	echo "   <select name='$key1' style='width:96%' onchange='codeselect(this, \"HCPCS\")'>\n";
-	echo "    <option value=''> $key1\n";
-	foreach ($hcpcs[$key1] as $key2 => $value2) {
-		echo "    <option value='$key2'>$key2 $value2\n";
-	}
-	echo "   </select>\n";
-	echo "  </td>\n";
-	echo ($i & 1) ? "" : " </tr>\n";
-}
-
-$search_type = "ICD9";
+$search_type = $default_search_type;
 if ($_POST['search_type']) $search_type = $_POST['search_type'];
 
 echo ($i & 1) ? "  <td></td>\n </tr>\n" : "";
@@ -162,7 +145,7 @@ if ($_POST['bn_search'] && $_POST['search_term']) {
 	$query = "select code, modifier, code_text from codes where " .
 		"(code_text like '%" . $_POST['search_term'] . "%' or " .
 		"code like '%" . $_POST['search_term'] . "%') and " .
-		"code_type = '" . $type_map[$search_type] . "' " .
+		"code_type = '" . $code_types[$search_type]['id'] . "' " .
 		"order by code";
 	$res = sqlStatement($query);
 	$numrows = mysql_num_rows($res); // FIXME - not portable!
@@ -194,9 +177,13 @@ echo " </tr>\n";
  <tr>
   <td>
    Search&nbsp;
-   <input type='radio' name='search_type' value='ICD9' checked>ICD-9&nbsp;
-   <input type='radio' name='search_type' value='CPT4'>CPT&nbsp;
-   <input type='radio' name='search_type' value='HCPCS'>HCPCS&nbsp;
+<?
+	foreach ($code_types as $key => $value) {
+		echo "   <input type='radio' name='search_type' value='$key'";
+		if ($key == $default_search_type) echo " checked";
+		echo " />$key&nbsp;\n";
+	}
+?>
    for&nbsp;
   </td>
   <td>
@@ -214,8 +201,12 @@ echo " </tr>\n";
  <tr>
   <td class='billcell'><b>Type</b></td>
   <td class='billcell'><b>Code</b></td>
+<? if (modifiers_are_used()) { ?>
   <td class='billcell'><b>Mod</b></td>
+<? } ?>
+<? if (fees_are_used()) { ?>
   <td class='billcell' align='right'><b>Fee</b>&nbsp;</td>
+<? } ?>
   <td class='billcell' align='center'><b>Auth</b></td>
   <td class='billcell' align='center'><b>Delete</b></td>
   <td class='billcell'><b>Description</b></td>
@@ -227,10 +218,10 @@ echo " </tr>\n";
 function echoLine($lino, $codetype, $code, $modifier, $auth = TRUE, $del = FALSE,
 	$fee = NULL, $id = NULL, $billed = FALSE, $code_text = NULL)
 {
-	global $type_map;
+	global $code_types;
 	if (! $code_text) {
 		$query = "select fee, code_text from codes where code_type = '" .
-			$type_map[$codetype] . "' and " .
+			$code_types[$codetype]['id'] . "' and " .
 			"code = '$code' and ";
 		if ($modifier) {
 			$query .= "modifier = '$modifier'";
@@ -250,21 +241,38 @@ function echoLine($lino, $codetype, $code, $modifier, $auth = TRUE, $del = FALSE
 	}
 	echo "<input type='hidden' name='bill[$lino][code_type]' value='$codetype'>";
 	echo "<input type='hidden' name='bill[$lino][code]' value='$code'>";
+	echo "<input type='hidden' name='bill[$lino][billed]' value='$billed'>";
 	echo "</td>\n";
 	echo "  <td class='billcell'>$strike1$code$strike2</td>\n";
 	if ($billed) {
-		echo "  <td class='billcell'>$strike1$modifier$strike2" .
-			"<input type='hidden' name='bill[$lino][mod]' value='$modifier'></td>\n";
-		echo "  <td class='billcell' align='right'>$fee</td>\n";
+		if (modifiers_are_used()) {
+			echo "  <td class='billcell'>$strike1$modifier$strike2" .
+				"<input type='hidden' name='bill[$lino][mod]' value='$modifier'></td>\n";
+		}
+		if (fees_are_used()) {
+			echo "  <td class='billcell' align='right'>$fee</td>\n";
+		}
 		echo "  <td class='billcell' align='center'><input type='checkbox'" .
 			($auth ? " checked" : "") . " disabled /></td>\n";
 		echo "  <td class='billcell' align='center'><input type='checkbox'" .
 			" disabled /></td>\n";
 	} else {
-		echo "  <td class='billcell'><input type='text' name='bill[$lino][mod]' " .
-			"value='$modifier' size='2'></td>\n";
-		echo "  <td class='billcell' align='right'><input type='text' name='bill[$lino][fee]' " .
-			"value='$fee' size='6' style='text-align:right'></td>\n";
+		if (modifiers_are_used()) {
+			if ($code_types[$codetype]['mod'] || $modifier) {
+				echo "  <td class='billcell'><input type='text' name='bill[$lino][mod]' " .
+					"value='$modifier' size='" . $code_types[$codetype]['mod'] . "'></td>\n";
+			} else {
+				echo "  <td class='billcell'>&nbsp;</td>\n";
+			}
+		}
+		if (fees_are_used()) {
+			if ($code_types[$codetype]['fee'] || $fee != 0) {
+				echo "  <td class='billcell' align='right'><input type='text' name='bill[$lino][fee]' " .
+					"value='$fee' size='6' style='text-align:right'></td>\n";
+			} else {
+				echo "  <td class='billcell'>&nbsp;</td>\n";
+			}
+		}
 		echo "  <td class='billcell' align='center'><input type='checkbox' name='bill[$lino][auth]' " .
 			"value='1'" . ($auth ? " checked" : "") . " /></td>\n";
 		echo "  <td class='billcell' align='center'><input type='checkbox' name='bill[$lino][del]' " .
@@ -305,8 +313,8 @@ if ($_POST['bill']) {
 	}
 }
 
-// If a new billing code was <select>ed, add its line here.
-// Allow HCPCS codes to be mixed in with the CPT codes.
+// If a new billing code was <select>ed, add its line here.  As a special
+// case allow HCPCS codes to be included in the CPT drop-lists.
 //
 if ($_POST['newcode']) {
 	list($code, $modifier) = explode("-", $_POST['newcode']);

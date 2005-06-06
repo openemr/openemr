@@ -1,15 +1,12 @@
 <?
 include_once("../../globals.php");
+include_once("../../../custom/code_types.inc.php");
 include_once("$srcdir/sql.inc");
 
-define("CODE_TYPE_CPT4",1);
-define("CODE_TYPE_ICD9",2);
-define("CODE_TYPE_HCPCS",3);
-
-$code_type_array = array("","CPT4","ICD9","HCPCS");
-
 if (isset($mode)) {
-	
+
+	// ERROR!  $id and other variables here are not set!
+
 	if ($mode == "delete" ) {
 		sqlStatement("delete from codes where id='$id'");
 	} elseif ($mode == "add" ) {
@@ -68,9 +65,9 @@ $N = 12;
 	<td width="5" rowspan="7"></td>
 	<td>
 		<select name="code_type">
-			<option value="<?=CODE_TYPE_ICD9?>" <?if ($GLOBALS['code_type'] == CODE_TYPE_ICD9) echo "selected"?> >ICD9-CM</option>
-			<option value="<?=CODE_TYPE_CPT4?>" <?if ($GLOBALS['code_type'] == CODE_TYPE_CPT4) echo "selected"?>>CPT</option>
-			<option value="<?=CODE_TYPE_HCPCS?>" <?if ($GLOBALS['code_type'] == CODE_TYPE_HCPCS) echo "selected"?>>HCPCS</option>
+<? foreach ($code_types as $key => $value) { ?>
+			<option value="<? echo $value['id'] ?>"<?if ($GLOBALS['code_type'] == $value['id']) echo " selected" ?>><? echo $key ?></option>
+<? } ?>
 		</select>
 	</td>
 </tr>
@@ -111,7 +108,6 @@ elseif (!is_numeric($fstart)) {
 
 $fend = $fstart + 100;
 
-
 ?>
 
 </form>
@@ -132,15 +128,13 @@ $fend = $fstart + 100;
 <td>
 <a href="superbill_custom_full.php?fstart=<?=$_GET['fstart']?>&filter=">ALL</a>&nbsp;&nbsp;
 </td>
+
+<? foreach ($code_types as $key => $value) { ?>
 <td>
-<a href="superbill_custom_full.php?fstart=<?=$_GET['fstart']?>&filter=1">CPT</a>&nbsp;&nbsp;
+<a href="superbill_custom_full.php?fstart=<?=$_GET['fstart']?>&filter=<? echo $value['id'] ?>"><? echo $key ?></a>&nbsp;&nbsp;
 </td>
-<td>
-<a href="superbill_custom_full.php?fstart=<?=$_GET['fstart']?>&filter=2">ICD9</a>&nbsp;&nbsp;
-</td>
-<td>
-<a href="superbill_custom_full.php?fstart=<?=$_GET['fstart']?>&filter=3">HCPCS</a>&nbsp;&nbsp; <br>
-</td>
+<? } ?>
+
 <td>
 <input type="text" name="search" size="5">&nbsp;<input type="submit" name="go" value="search">
 </td>
@@ -160,63 +154,64 @@ $search = $_GET['search'];
 
 $sql = "select * from codes ";
 if (!is_numeric($filter) && empty($search)) {
-	$filter = "";	
+	$filter = "";
 }
 elseif (!empty($search)) {
-	$sql .= " where code like '%" . mysql_real_escape_string($search) . "%'" ;	
+	$sql .= " where code like '%" . mysql_real_escape_string($search) . "%'";
 }
 else {
 	$sql .= " where code_type = $filter ";	
 }
-$sql .= " order by code_type,code,units,code_text limit $fstart, $fend";
+$sql .= " order by code_type, code, units, code_text limit $fstart, $fend";
 
 $res = sqlStatement($sql);
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
 	$all[$iter] = $row;
 
-
 if ($all) {
 	$count =0;
 	foreach($all as $iter) {
 		$count++;
-		
-		//if ($count == $N) {
-		//	print "</td></tr></table></td><td valign=top><table border=0 cellpadding=5 cellspacing=0><th><td></td><td><span class=bold>Code</span></td><td><span class=bold>Type</span></td><td><span class=bold>Text</span></td><td><span class=bold>Modifier</span></td><td><span class=bold>Units</span></td><td><span class=bold>Fee</span></td><td></td></th>\n";
-		//}
-		
-		print "<tr><td></td><td><span class=text target=Diagnosis href='diagnosis.php?mode=add&type=".urlencode($iter{"code_type"})."&code=".urlencode($iter{"code"})."&text=".urlencode($iter{"code_text"})."'>";
-		print "</td><td><span class=text>" . $iter["code"] . "</span></td><td><span class=text" . $iter["modifier"] . "</span></td><td><span class=text>" . $code_type_array[$iter["code_type"]] . "</span></td><td><span class=text>" . $iter{"code_text"};
+
+		$has_fees = false;
+		foreach ($code_types as $key => $value) {
+			if ($value['id'] == $iter['code_type']) {
+				$has_fees = $value['fee'];
+				break;
+			}
+		}
+
+		print "<tr><td></td><td><span class=text target=Diagnosis href='diagnosis.php?mode=add" .
+			"&type=" . urlencode($iter{"code_type"}) .
+			"&code=" . urlencode($iter{"code"}) .
+			"&text=" . urlencode($iter{"code_text"})."'>";
+		print "</td><td><span class=text>" . $iter["code"] .
+			"</span></td><td><span class=text" .
+			$iter["modifier"] . "</span></td><td><span class=text>" .
+			$key .
+			"</span></td><td><span class=text>" . $iter{"code_text"};
 		print "</span></td><td>";
-		if ($iter['code_type'] != CODE_TYPE_ICD9) {
+		if ($has_fees) {
 			echo "<span class=text>" . $iter['modifier'] . "</span>";
 		}
 		echo "</td><td>";
-		if ($iter['code_type'] != CODE_TYPE_ICD9) {
+		if ($has_fees) {
 			echo "<span class=text>" . $iter['units'] . "</span>";
 		}
 		echo "</td><td>";
-		if ($iter['code_type'] != CODE_TYPE_ICD9) {
+		if ($has_fees) {
 			echo "<span class=text>$" . sprintf("%01.2f", $iter['fee']) . "</span>";
 		}
 		echo "</td><td><a class=link href='superbill_custom_full.php?mode=delete&id=".$iter{"id"}."'>[Delete]</a></td>\n";
 		echo "<td><a class=link href='superbill_custom_full.php?mode=edit&id=".$iter{"id"}."'>[Edit]</a></td></tr>\n";
-		
+
 	}
-	
 }
-
-
 
 ?>
 
 </td></tr></table>
 </table>
-
-
-
-
-
-
 
 </body>
 </html>

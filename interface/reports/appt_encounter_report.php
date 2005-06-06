@@ -21,6 +21,7 @@
 
  include_once("../globals.php");
  include_once("../../library/patient.inc");
+ include_once("../../custom/code_types.inc.php");
 
  $alertmsg = ''; // not used yet but maybe later
 
@@ -158,10 +159,12 @@
    while ($brow = sqlFetchArray($bres)) {
     if (! $brow['billed']) $billed = "";
     if (! $brow['authorized']) $errmsg = "Needs Auth";
-    if ($brow['code_type'] == 'CPT4' || $brow['code_type'] == 'HCPCS') {
+    if ($code_types[$brow['code_type']]['just']) {
+     if (! $brow['justify']) $errmsg = "Needs Justify";
+    }
+    if ($code_types[$brow['code_type']]['fee']) {
      $charges += $brow['fee'];
      if ($brow['fee'] == 0 ) $errmsg = "Missing Fee";
-     if (! $brow['justify']) $errmsg = "Needs Justify";
     } else {
      if ($brow['fee'] != 0) $errmsg = "Misplaced Fee";
     }

@@ -1,6 +1,7 @@
 <?
 include_once("../globals.php");
 include_once("../../library/acl.inc");
+include_once("../../custom/code_types.inc.php");
 
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/billrep.inc");
@@ -431,7 +432,8 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 		$oldcode = $iter['code_type'];
 		$rhtml .= "</td>\n";
 		$justify = "";
-		if ($iter['code_type'] == "CPT4" || $iter['code_type'] == "HCPCS") {
+//	if ($iter['code_type'] == "CPT4" || $iter['code_type'] == "HCPCS") {
+		if ($code_types[$iter['code_type']]['just']) {
 			$js = split(":",$iter['justify']);
 			$counter = 0;
 			foreach ($js as $j) {
