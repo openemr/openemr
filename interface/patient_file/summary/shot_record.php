@@ -22,7 +22,7 @@ $pdf->ezText($res['facility_address']
 $res = sqlQuery("select concat(p.lname,', ',p.fname,' ',p.mname) patient_name 
                        ,date_format(p.DOB,'%c/%e/%Y') as patient_DOB
                        ,concat(p.street,'\n',p.city,', ',p.state,' ',p.postal_code) as patient_address
-                   from patient_data p where p.id = $pid");
+                   from patient_data p where p.pid = $pid");
 
 $pdf->ezText("\n" . $res['patient_name'] . "\nDate of Birth: " . $res['patient_DOB'] . "\n" . $res['patient_address']);
 $pdf->ezText("\n");
