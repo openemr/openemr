@@ -146,8 +146,11 @@ class C_Prescription extends Controller {
 					// return $this->assign("process_result","No fax server is currently setup.");
 					// else default is printing,
 				}
-				//the pharmacy has no default or default is print
-				return $this->_print_prescription($p, $dummy);
+				elseif {
+			 		//the pharmacy has no default or default is print
+					return $this->_print_prescription($p, $dummy);
+				}
+				break;
 		}
 
 		return;
