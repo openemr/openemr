@@ -116,7 +116,7 @@ else {
 <input name=lastname size=15 value="<?echo $_SESSION["lastname"];?>" onfocus="javascript:document.findpatientform.lastname.value='';"><br>
 <select name="findBy" size=1>
 	<option value="ID">ID</option>
-	<option value="Last" selected>Last Name</option>
+	<option value="Last" selected>Name</option>
 	<option value="SSN">SSN</option>
 	<option value="DOB">DOB</option>
 </select><br>

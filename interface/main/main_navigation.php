@@ -22,7 +22,7 @@ include_once("../../library/acl.inc");
 	<input type="entry" size="10" name="patient" />
 	<select name="findBy" size=1>
 	<option value="ID">ID</option>
-	<option value="Last" selected>Last Name</option>
+	<option value="Last" selected>Name</option>
 	<option value="SSN">SSN</option>
 	<option value="DOB">DOB</option>
 </select>
