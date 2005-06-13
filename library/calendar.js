@@ -175,14 +175,14 @@
     		"onClick=\"Build(" + 
     		"'" + this.gReturnItem + "', '" + this.gMonth + "', '" + (parseInt(this.gYear)-1) + "', '" + this.gFormat + "'" +
     		");" +
-    		"\">&lt&ltYear<\/A>]</TD><TD ALIGN=center>");
+    		"\">&lt;&lt;Year<\/A>]</TD><TD ALIGN=center>");
     	ggWinContent += ("[<A HREF=\"javascript:void(0);\" " +
     		"onMouseOver=\"window.status='Go back one month'; return true;\" " +
     		"onMouseOut=\"window.status=''; return true;\" " +
     		"onClick=\"Build(" + 
     		"'" + this.gReturnItem + "', '" + prevMM + "', '" + prevYYYY + "', '" + this.gFormat + "'" +
     		");" +
-    		"\">&ltMon</A>]</TD><TD ALIGN=center>");
+    		"\">&lt;Mon</A>]</TD><TD ALIGN=center>");
     	ggWinContent += "       </TD><TD ALIGN=center>";
     	ggWinContent += ("[<A HREF=\"javascript:void(0);\" " +
     		"onMouseOver=\"window.status='Go forward one month'; return true;\" " +
@@ -190,14 +190,14 @@
     		"onClick=\"Build(" + 
     		"'" + this.gReturnItem + "', '" + nextMM + "', '" + nextYYYY + "', '" + this.gFormat + "'" +
     		");" +
-    		"\">Mon&gt<\/A>]</TD><TD ALIGN=center>");
+    		"\">Mon&gt;<\/A>]</TD><TD ALIGN=center>");
     	ggWinContent += ("[<A HREF=\"javascript:void(0);\" " +
     		"onMouseOver=\"window.status='Go forward one year'; return true;\" " +
     		"onMouseOut=\"window.status=''; return true;\" " +
     		"onClick=\"Build(" + 
     		"'" + this.gReturnItem + "', '" + this.gMonth + "', '" + (parseInt(this.gYear)+1) + "', '" + this.gFormat + "'" +
     		");" +
-    		"\">Year&gt&gt<\/A>]</TD></TR></TABLE><BR>");
+    		"\">Year&gt;&gt;<\/A>]</TD></TR></TABLE><BR>");
 
     	// Get the complete calendar code for the month, and add it to the
     	//	content var
