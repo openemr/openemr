@@ -454,8 +454,20 @@ function validate(f) {
       }
       $form_duedate = fixDate($_POST['form_duedate']);
       $form_notes = trim($_POST['form_notes']);
-      $query = "UPDATE ar SET duedate = '$form_duedate', notes = '$form_notes' " .
-        "WHERE id = $trans_id";
+
+      // Maintain the list of insurances whose EOBs we have posted.
+      // We use the "Ship Via" field of the invoice to hold these.
+      //
+      $form_eobs = trim($_POST['form_eobs']);
+      $form_insurance = trim($_POST['form_insurance']);
+      if (strpos($form_eobs, $form_insurance) === false) {
+        if ($form_eobs) $form_eobs .= ","; else $form_eobs = "EOBs: ";
+        $form_eobs .= $form_insurance;
+      }
+
+      $query = "UPDATE ar SET duedate = '$form_duedate', notes = '$form_notes', " .
+        "shipvia = '$form_eobs' WHERE id = $trans_id";
+
       if ($debug) {
         echo $query . "<br>\n";
       } else {
@@ -487,7 +499,7 @@ function validate(f) {
   if (! $arrow) die("There is no match for invoice id = $trans_id.");
 
   // Get invoice charge details.
-  $codes = get_invoice_summary($trans_id);
+  $codes = get_invoice_summary($trans_id, true);
 ?>
 <center>
 
@@ -502,7 +514,7 @@ function validate(f) {
   <td>
    <?echo $arrow['name'] ?>
   </td>
-  <td colspan="2" rowspan="3">
+  <td colspan="2" rowspan="2">
    <textarea name="form_notes" cols="50" style="height:100%"><?echo $arrow['notes'] ?></textarea>
   </td>
  </tr>
@@ -521,6 +533,10 @@ function validate(f) {
   <td>
    <?echo $arrow['invnumber'] ?>
   </td>
+  <td colspan="2">
+   Already posted:&nbsp;
+   <?echo $arrow['shipvia'] ?>
+  </td>
  </tr>
  <tr>
   <td>
@@ -531,9 +547,10 @@ function validate(f) {
   </td>
   <td colspan="2">
    Now posting for:&nbsp;
-   <input type='radio' name='form_insurance' value='Primary' checked />Ins1&nbsp;
-   <input type='radio' name='form_insurance' value='Secondary' />Ins2&nbsp;
-   <input type='radio' name='form_insurance' value='Tertiary' />Ins3
+   <input type='radio' name='form_insurance' value='Ins1' checked />Ins1&nbsp;
+   <input type='radio' name='form_insurance' value='Ins2' />Ins2&nbsp;
+   <input type='radio' name='form_insurance' value='Ins3' />Ins3
+   <input type='hidden' name='form_eobs' value='<?echo addslashes($arrow['shipvia']) ?>' />
   </td>
  </tr>
  <tr>
@@ -588,13 +605,53 @@ function validate(f) {
  </tr>
 <?
   foreach ($codes as $code => $cdata) {
+   $dispcode = $code;
+   // this sorts the details more or less chronologically:
+   ksort($cdata['dtl']);
+   foreach ($cdata['dtl'] as $dkey => $ddata) {
+    $ddate = substr($dkey, 0, 10);
+    $tmpchg = "";
+    $tmpadj = "";
+    if ($ddata['chg'] > 0)
+     $tmpchg = $ddata['chg'];
+    else if ($ddata['chg'] < 0)
+     $tmpadj = 0 - $ddata['chg'];
 ?>
  <tr>
   <td class="detail">
-   <? echo $code ?>
+   <? echo $dispcode; $dispcode = "" ?>
   </td>
   <td class="detail" align="right">
-   <? bucks($cdata['chg']) ?>
+   <? bucks($tmpchg) ?>
+  </td>
+  <td class="detail" align="right">
+   &nbsp;
+  </td>
+  <td class="detail">
+   <? echo $ddata['src'] ?>
+  </td>
+  <td class="detail">
+   <? echo $ddate ?>
+  </td>
+  <td class="detail">
+   <? bucks($ddata['pmt']) ?>
+  </td>
+  <td class="detail">
+   <? bucks($tmpadj) ?>
+  </td>
+  <td class="detail">
+   <? echo $ddata['rsn'] ?>
+  </td>
+ </tr>
+<?
+   } // end of prior detail line
+?>
+ <tr>
+  <td class="detail">
+   <? echo $dispcode; $dispcode = "" ?>
+  </td>
+  <td class="detail" align="right">
+   <!-- <? bucks($cdata['chg']) ?> --> &nbsp;
   </td>
   <td class="detail" align="right">
    <input type="hidden" name="form_line[<? echo $code ?>][bal]" value="<? bucks($cdata['bal']) ?>">
@@ -625,7 +682,7 @@ function validate(f) {
   </td>
  </tr>
 <?
-  }
+  } // end of code
   SLClose();
 ?>
 

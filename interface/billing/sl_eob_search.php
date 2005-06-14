@@ -340,7 +340,7 @@ function npopup(pid) {
     }
 
     $query = "SELECT ar.id, ar.invnumber, ar.duedate, ar.amount, ar.paid, " .
-      "ar.intnotes, customer.name " .
+      "ar.intnotes, ar.notes, ar.shipvia, customer.name " .
       "FROM ar, customer WHERE $where AND customer.id = ar.customer_id ";
     if ($_POST['form_category'] != 'All') {
       $query .= "AND ar.amount != ar.paid ";
@@ -380,7 +380,24 @@ function npopup(pid) {
         $svcdate = substr($tmp['date'], 0, 10);
       }
 
+      // $duncount was originally supposed to be the number of times that
+      // the patient was sent a statement for this invoice.
+      //
       $duncount = substr_count(strtolower($row['intnotes']), "statement sent");
+
+      // But if we have not yet billed the patient, then compute $duncount as a
+      // negative count of the number of insurance plans for which we have not
+      // yet posted an EOB.
+      //
+      if (! $duncount) {
+        $insgot = strtolower($row['notes']);
+        $inseobs = strtolower($row['shipvia']);
+        foreach (array('ins1', 'ins2', 'ins3') as $value) {
+          if (strpos($insgot, $value) !== false &&
+              strpos($inseobs, $value) === false)
+            --$duncount;
+        }
+      }
 
       $isdue = ($row['duedate'] <= $today && $row['amount'] > $row['paid']) ? " checked" : "";
 ?>
