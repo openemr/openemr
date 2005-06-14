@@ -1,4 +1,4 @@
-<script language="javascript">
+// <script language="javascript">
 //\//////////////////////////////////////////////////////////////////////////////////
 //\  overLIB 3.50  --  This notice must remain untouched at all times.
 //\  Copyright Erik Bosrup 1998-2001. All rights reserved.
@@ -687,4 +687,4 @@ function opt_FUNCTION(callme){
 otext=callme()
 return 0;
 }
-</SCRIPT>
+// </SCRIPT>

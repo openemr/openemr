@@ -1,9 +1,8 @@
 <?
 include_once("../../globals.php");
 include_once("$srcdir/sql.inc");
-include_once("$srcdir/overlib_mini.js");
-include_once("$srcdir/calendar.js");
-
+// include_once("$srcdir/overlib_mini.js");
+// include_once("$srcdir/calendar.js");
 
   if (isset($mode)) {
     if ($mode == "add" ) {
@@ -43,10 +42,11 @@ include_once("$srcdir/calendar.js");
     }
   }
 ?>
-
 <html>
   <head>
     <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+    <script type="text/javascript" src="../../../library/overlib_mini.js"></script>
+    <script type="text/javascript" src="../../../library/calendar.js"></script>
   </head>
 
   <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
@@ -86,7 +86,7 @@ include_once("$srcdir/calendar.js");
           </td>
           <td>
             <input class=text type=entry name="administered_date" size=10 value="<?php echo $administered_date ? $administered_date : date('Y-m-d'); ?>">
-            <a href="javascript:show_calendar('add_immunization.administered_date');" onMouseOver="window.status='Date Picker'; overlib('Click here to choose a date.'); return true;" onMouseOut="window.status=''; nd(); return true;"><img src=<?echo "$rootdir/pic/show_calendar.gif";?> width=24 height=22 border=0></a>
+            <a href="javascript:show_calendar('add_immunization.administered_date');" onMouseOver="window.status='Date Picker'; overlib('Click here to choose a date.'); return true;" onMouseOut="window.status=''; nd(); return true;"><img src='<?echo "$rootdir/pic/show_calendar.gif";?>' align='absbottom' width='24' height='22' border='0'></a>
           </td>
         </tr>
         <tr>
@@ -143,7 +143,7 @@ include_once("$srcdir/calendar.js");
           </td>
           <td>
             <input class=text type=entry name="education_date" size=10 value="<?php echo $education_date? $education_date : date('Y-m-d'); ?>">
-            <a href="javascript:show_calendar('add_immunization.education_date');" onMouseOver="window.status='Date Picker'; overlib('Click here to choose a date.'); return true;" onMouseOut="window.status=''; nd(); return true;"><img src=<?echo "$rootdir/pic/show_calendar.gif";?> width=24 height=22 border=0></a>
+            <a href="javascript:show_calendar('add_immunization.education_date');" onMouseOver="window.status='Date Picker'; overlib('Click here to choose a date.'); return true;" onMouseOut="window.status=''; nd(); return true;"><img src='<?echo "$rootdir/pic/show_calendar.gif";?>' align='absbottom' width='24' height='22' border='0'></a>
           </td>
         </tr>
         <tr>

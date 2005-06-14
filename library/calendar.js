@@ -1,4 +1,4 @@
-<script language="javascript">
+// <script language="javascript">
     var weekend = [0,6];
     var weekendColor = "#e0e0e0";
     var fontface = "Verdana";
@@ -541,4 +541,4 @@
 
     	Build(p_item, null, p_year, p_format);
     }
-</SCRIPT>
+// </SCRIPT>
