@@ -12,8 +12,9 @@
 //  chg - the sum of line items, including adjustments, for the code
 //  bal - the unpaid balance
 //  ins - the id of the insurance company that was billed
+//  dtl - associative array of details, if requested
 //
-function get_invoice_summary($trans_id) {
+function get_invoice_summary($trans_id, $with_detail = false) {
   global $sl_err, $sl_cash_acc;
 
   $codes = array();
@@ -27,6 +28,7 @@ function get_invoice_summary($trans_id) {
   if ($sl_err) die($sl_err);
 
   // Deduct payments for each procedure code from the respective balance owed.
+  $keysuffix = 5000;
   for ($irow = 0; $irow < SLRowCount($atres); ++$irow) {
     $row = SLGetRow($atres, $irow);
     $code = strtoupper($row['memo']);
@@ -36,6 +38,16 @@ function get_invoice_summary($trans_id) {
     $codes[$code]['bal'] += $amount; // amount is negative for a payment
     if ($ins_id)
       $codes[$code]['ins'] = $ins_id;
+
+    // Add the details if they want 'em.
+    if ($with_detail) {
+      if (! $codes[$code]['dtl']) $codes[$code]['dtl'] = array();
+      $tmpkey = $row['transdate'] . $keysuffix++;
+      $tmp = array();
+      $tmp['pmt'] = 0 - $amount;
+      $tmp['src'] = $row['source'];
+      $codes[$code]['dtl'][$tmpkey] = $tmp;
+    }
   }
 
   // Request all line items with money belonging to the invoice.
@@ -43,6 +55,7 @@ function get_invoice_summary($trans_id) {
   if ($sl_err) die($sl_err);
 
   // Add charges and adjustments for each procedure code into its total and balance.
+  $keysuffix = 1000;
   for ($irow = 0; $irow < SLRowCount($inres); ++$irow) {
     $row = SLGetRow($inres, $irow);
     $amount = $row['sellprice'];
@@ -61,6 +74,24 @@ function get_invoice_summary($trans_id) {
 
     if ($ins_id)
       $codes[$code]['ins'] = $ins_id;
+
+    // Add the details if they want 'em.
+    if ($with_detail) {
+      if (! $codes[$code]['dtl']) $codes[$code]['dtl'] = array();
+      if (preg_match("/^Adjustment\s*(\S*)\s*(.*)/", $row['description'], $matches)) {
+        $tmpkey = str_pad($matches[1], 10) . $keysuffix++;
+        $tmp = array();
+        $tmp['chg'] = $amount;
+        $tmp['rsn'] = $matches[2];
+        $codes[$code]['dtl'][$tmpkey] = $tmp;
+      }
+      else {
+        $tmpkey = "          " . $keysuffix++;
+        $tmp = array();
+        $tmp['chg'] = $amount;
+        $codes[$code]['dtl'][$tmpkey] = $tmp;
+      }
+    }
   }
 
   return $codes;
