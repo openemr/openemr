@@ -288,6 +288,9 @@ highlight color (green = resolved, red = unresolved) is an attribute of the
 <script>
 <?
  echo $endjs;
+ if ($_REQUEST['issue']) {
+  echo "doclick('p', " . $_REQUEST['issue'] . ");\n";
+ }
  if ($alertmsg) echo "alert('$alertmsg');\n";
 ?>
 </script>

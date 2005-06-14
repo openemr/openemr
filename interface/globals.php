@@ -130,6 +130,11 @@ if (!$ignoreAuth) {
 //
 $GLOBALS['insurance_companies_are_not_customers'] = false;
 
+// If OpenEMR is being used by an athletic team rather than in a traditional
+// clinical setting, set this to true.
+//
+$GLOBALS['athletic_team'] = false;
+
 // These are needed only if you are using SQL-Ledger and you want to see
 // the cash receipts report by practitioner (sl_receipts_report.php),
 // which is invoked from the billing page.  We will probably have more

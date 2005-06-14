@@ -26940,14 +26940,19 @@ CREATE TABLE `integration_mapping` (
 
 DROP TABLE IF EXISTS `lists`;
 CREATE TABLE `lists` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `date` datetime default NULL,
-  `type` varchar(255) default NULL,
-  `title` varchar(255) default NULL,
-  `activity` tinyint(4) default NULL,
-  `comments` longtext,
-  `pid` bigint(20) default NULL,
-  `user` varchar(255) default NULL,
+  `id`       bigint(20)    NOT NULL auto_increment,
+  `date`     datetime      default NULL,
+  `type`     varchar(255)  default NULL,
+  `title`    varchar(255)  default NULL,
+  begdate    date          DEFAULT NULL,
+  enddate    date          DEFAULT NULL,
+  occurrence int(11)       DEFAULT 0,
+  referredby varchar(255)  DEFAULT NULL,
+  extrainfo  varchar(255)  DEFAULT NULL,
+  `activity` tinyint(4)    default NULL,
+  `comments` longtext      ,
+  `pid` bigint(20)         default NULL,
+  `user` varchar(255)      default NULL,
   `groupname` varchar(255) default NULL,
   PRIMARY KEY  (`id`)
 ) ;
