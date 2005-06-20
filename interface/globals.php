@@ -46,8 +46,6 @@ session_start();
 #print(session_id());
 
 //this is the theme definition for a beige theme:
-
-
 $top_bg_line = ' bgcolor="#94d6e7" ';
 $GLOBALS['style']['BGCOLOR2'] = "#94d6e7";
 $bottom_bg_line = ' background="'.$rootdir.'/pic/aquabg.gif" ';
@@ -70,7 +68,6 @@ $GLOBALS['logoBarHeight'] = 110;
 $GLOBALS['navBarHeight'] = 22;
 // the height in pixels of the Title bar
 $GLOBALS['titleBarHeight'] = 20;
-
 
 //the assistant word, MORE printed next to titles that can be clicked
 $tmore = "(More)";
@@ -134,6 +131,11 @@ $GLOBALS['insurance_companies_are_not_customers'] = false;
 // clinical setting, set this to true.
 //
 $GLOBALS['athletic_team'] = false;
+
+// The telephone country code of this installation.
+// See http://www.wtng.info/ for a list.
+//
+$GLOBALS['phone_country_code'] = '1'; // 1 = USA
 
 // These are needed only if you are using SQL-Ledger and you want to see
 // the cash receipts report by practitioner (sl_receipts_report.php),

@@ -161,7 +161,8 @@ function getHistoryData($pid, $given = "*")
 	return sqlQuery($sql);
 }
 
-function getInsuranceData($pid, $type = "primary", $given = "insd.*, DATE_FORMAT(subscriber_DOB,'%m/%d/%Y') as subscriber_DOB, ic.name as provider_name")
+// function getInsuranceData($pid, $type = "primary", $given = "insd.*, DATE_FORMAT(subscriber_DOB,'%m/%d/%Y') as subscriber_DOB, ic.name as provider_name")
+function getInsuranceData($pid, $type = "primary", $given = "insd.*, ic.name as provider_name")
 {
 	$sql = "select $given from insurance_data as insd left join insurance_companies as ic on ic.id = insd.provider where pid='$pid' and type='$type' order by date DESC limit 0,1";
 	return sqlQuery($sql);
@@ -401,22 +402,25 @@ function newPatientData(	$db_id="",
 				$genericval2 = "",
 				$phone_cell = "",
 				$hipaa_mail = "",
-				$hipaa_voice = ""
+				$hipaa_voice = "",
+				$squad = 0
 			)
 {
 	$DOB = fixDate($DOB);
 
 	// Looking for problems... suspecting that $pid might be clobbered.
 	//
+	$fitness = 0;
 	if ($pid) {
-		$rez = sqlQuery("select id from patient_data where pid = $pid");
+		$rez = sqlQuery("select id, fitness from patient_data where pid = $pid");
 		if ($db_id != $rez['id']) {
 			$errmsg = "Internal error: Attempt to change patient_data.id from '" .
 			  $rez['id'] . "' to '$db_id' for pid '$pid'";
 			die($errmsg);
 		}
+		$fitness = $rez['fitness'];
 	}
-	
+
 	$query = ("replace into patient_data set
 		id='$db_id',
 		title='$title',
@@ -458,6 +462,8 @@ function newPatientData(	$db_id="",
 		phone_cell = '$phone_cell',
 		hipaa_mail = '$hipaa_mail',
 		hipaa_voice = '$hipaa_voice',
+		squad = '$squad',
+		fitness='$fitness',
 		date=NOW()
 			");
 

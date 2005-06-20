@@ -14,8 +14,9 @@ function selpopup(selobj) {
  var i = selobj.selectedIndex;
  if (i > 0) {
   var parms = (i == 1) ?
-   'menubar=1,resizable=1' :
-   'width=400,height=300,resizable=1';
+   'menubar=1,resizable=1' : (i == 2) ?
+   'width=400,height=300,resizable=1' :
+   'width=750,height=550,resizable=1';
   window.open(selobj.options[i].value, '_blank', parms);
  }
  selobj.selectedIndex = 0;
@@ -54,6 +55,9 @@ function selpopup(selobj) {
    <option value=''>Popups</option>
    <option value='problem_encounter.php'>Issues</option>
    <option value='../../custom/export_demographics.php'>Export</option>
+<? if ($GLOBALS['athletic_team']) { ?>
+   <option value='../reports/players_report.php'>Roster</option>
+<? } ?>
   </select>
  </form>
  <!-- <a href="<?echo $rootdir;?>/patient_file/problem_encounter.php" target="_blank" class="menu">Issues</a> -->

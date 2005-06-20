@@ -72,9 +72,11 @@ function doeclick(id) {
   <td>Enc</td>
  </tr>
 <?
+ $encount = 0;
  $lasttype = "";
  while ($row = sqlFetchArray($pres)) {
   if ($lasttype != $row['type']) {
+   $encount = 0;
    $lasttype = $row['type'];
    $disptype = $lasttype;
    switch ($lasttype) {
@@ -96,19 +98,22 @@ function doeclick(id) {
   $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
    "list_id = $rowid");
 
+  ++$encount;
+  $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
+
   echo " <tr class='detail'>\n";
   echo "  <td valign='top'>&nbsp;</td>\n";
-  echo "  <td valign='top' id='p_$rowid' onclick='dopclick($rowid)'>" .
+  echo "  <td valign='top' id='p_$rowid' onclick='dopclick($rowid)' bgcolor='$bgcolor'>" .
        "<a href='' onclick='return false'>$disptitle</a></td>\n";
-  echo "  <td valign='top'>" . $row['begdate'] . "&nbsp;</td>\n";
-  echo "  <td valign='top'>" . $row['enddate'] . "&nbsp;</td>\n";
-  echo "  <td valign='top' nowrap>" . $arroccur[$row['occurrence']] . "</td>\n";
+  echo "  <td valign='top' bgcolor='$bgcolor'>" . $row['begdate'] . "&nbsp;</td>\n";
+  echo "  <td valign='top' bgcolor='$bgcolor'>" . $row['enddate'] . "&nbsp;</td>\n";
+  echo "  <td valign='top' bgcolor='$bgcolor' nowrap>" . $arroccur[$row['occurrence']] . "</td>\n";
   if ($GLOBALS['athletic_team'])
-   echo "  <td valign='top' align='center'>" . $row['extrainfo'] . "</td>\n"; // games missed
+   echo "  <td valign='top' align='center' bgcolor='$bgcolor'>" . $row['extrainfo'] . "</td>\n"; // games missed
   else
-   echo "  <td valign='top'>" . $row['referredby'] . "</td>\n";
-  echo "  <td valign='top'>" . $row['comments'] . "</td>\n";
-  echo "  <td valign='top' align='center' id='e_$rowid' onclick='doeclick($rowid)'>" .
+   echo "  <td valign='top' bgcolor='$bgcolor'>" . $row['referredby'] . "</td>\n";
+  echo "  <td valign='top' bgcolor='$bgcolor'>" . $row['comments'] . "</td>\n";
+  echo "  <td valign='top' align='center' id='e_$rowid' onclick='doeclick($rowid)' bgcolor='$bgcolor'>" .
        "<a href='' onclick='return false'>&nbsp;" . $ierow['count'] . "&nbsp;</a></td>\n";
   echo " </tr>\n";
  }
