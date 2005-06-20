@@ -355,6 +355,25 @@
 <title>EOB Posting - Invoice</title>
 <script language="JavaScript">
 
+// An insurance radio button is selected.
+function setins(istr) {
+ var f = document.forms[0];
+ for (var i = 0; i < f.elements.length; ++i) {
+  var ename = f.elements[i].name;
+  if (ename.indexOf('[src]') < 0) continue;
+  var evalue = f.elements[i].value;
+  var tmp = evalue.substring(0, 4).toLowerCase();
+  if (tmp >= 'ins1' && tmp <= 'ins3')
+   evalue = evalue.substring(4);
+  else if (evalue.substring(0, 2).toLowerCase() == 'pt')
+   evalue = evalue.substring(2);
+  while (evalue.substring(0, 1) == '/')
+   evalue = evalue.substring(1);
+  f.elements[i].value = istr + '/' + evalue;
+ }
+ return true;
+}
+
 // Compute an adjustment that writes off the balance:
 function writeoff(code) {
  var f = document.forms[0];
@@ -374,9 +393,39 @@ function validate(f) {
   var pfx = ename.substring(0, pfxlen);
   var code = pfx.substring(pfx.indexOf('[')+1, pfxlen-1);
   if (f[pfx+'[pay]'].value || f[pfx+'[adj]'].value) {
-   if (! f[pfx+'[src]'].value) {
-    alert('Source is missing for code ' + code + '; this should be a check or EOB number');
+   var srcobj = f[pfx+'[src]'];
+   while (srcobj.value.length) {
+    var tmp = srcobj.value.substring(srcobj.value.length - 1);
+    if (tmp > ' ' && tmp != '/') break;
+    srcobj.value = srcobj.value.substring(0, srcobj.value.length - 1);
+   }
+   var svalue = srcobj.value;
+   if (! svalue) {
+    alert('Source is missing for code ' + code);
     return false;
+   } else {
+    var tmp = svalue.substring(0, 4).toLowerCase();
+    if (tmp >= 'ins1' && tmp <= 'ins3') {
+     svalue = svalue.substring(4);
+    } else if (svalue.substring(0, 2).toLowerCase() == 'pt') {
+     svalue = svalue.substring(2);
+    } else {
+     alert('Invalid or missing payer in source for code ' + code);
+     return false;
+    }
+    if (svalue) {
+     if (svalue.substring(0, 1) != '/') {
+      alert('Missing slash after payer in source for code ' + code);
+      return false;
+     }
+     tmp = svalue.substring(1, 3).toLowerCase();
+     if (tmp != 'nm' && tmp != 'ci' && tmp != 'cp' && tmp != 'ne' &&
+         tmp != 'it' && tmp != 'pf' && tmp != 'pp' && tmp != 'ok')
+     {
+      alert('Invalid source designation "' + tmp + '" for code ' + code);
+      return false;
+     }
+    }
    }
    if (! f[pfx+'[date]'].value) {
     alert('Date is missing for code ' + code);
@@ -498,6 +547,22 @@ function validate(f) {
   $arrow = SLGetRow($arres, 0);
   if (! $arrow) die("There is no match for invoice id = $trans_id.");
 
+  // Determine the date of service.  An 8-digit encounter number is
+  // presumed to be a date of service imported during conversion.
+  // Otherwise look it up in the form_encounter table.
+  //
+  $svcdate = "";
+  list($trash, $encounter) = explode(".", $arrow['invnumber']);
+  if (strlen($encounter) == 8) {
+    $svcdate = substr($encounter, 0, 4) . "-" . substr($encounter, 4, 2) .
+      "-" . substr($encounter, 6, 2);
+  }
+  else if ($encounter) {
+    $tmp = sqlQuery("SELECT date FROM form_encounter WHERE " .
+      "encounter = $encounter");
+    $svcdate = substr($tmp['date'], 0, 10);
+  }
+
   // Get invoice charge details.
   $codes = get_invoice_summary($trans_id, true);
 ?>
@@ -514,7 +579,7 @@ function validate(f) {
   <td>
    <?echo $arrow['name'] ?>
   </td>
-  <td colspan="2" rowspan="2">
+  <td colspan="2" rowspan="3">
    <textarea name="form_notes" cols="50" style="height:100%"><?echo $arrow['notes'] ?></textarea>
   </td>
  </tr>
@@ -533,11 +598,21 @@ function validate(f) {
   <td>
    <?echo $arrow['invnumber'] ?>
   </td>
+ </tr>
+
+ <tr>
+  <td>
+   Svc Date:
+  </td>
+  <td>
+   <?echo $svcdate ?>
+  </td>
   <td colspan="2">
    Already posted:&nbsp;
    <?echo $arrow['shipvia'] ?>
   </td>
  </tr>
+
  <tr>
   <td>
    Bill Date:
@@ -547,9 +622,10 @@ function validate(f) {
   </td>
   <td colspan="2">
    Now posting for:&nbsp;
-   <input type='radio' name='form_insurance' value='Ins1' checked />Ins1&nbsp;
-   <input type='radio' name='form_insurance' value='Ins2' />Ins2&nbsp;
-   <input type='radio' name='form_insurance' value='Ins3' />Ins3
+   <input type='radio' name='form_insurance' value='Ins1' onclick='setins("Ins1")' checked />Ins1&nbsp;
+   <input type='radio' name='form_insurance' value='Ins2' onclick='setins("Ins2")' />Ins2&nbsp;
+   <input type='radio' name='form_insurance' value='Ins3' onclick='setins("Ins3")' />Ins3&nbsp;
+   <input type='radio' name='form_insurance' value='Pt'   onclick='setins("Pt")'   />Patient
    <input type='hidden' name='form_eobs' value='<?echo addslashes($arrow['shipvia']) ?>' />
   </td>
  </tr>
@@ -575,9 +651,9 @@ function validate(f) {
  </tr>
 </table>
 
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
+<table border='0' cellpadding='2' cellspacing='0' width='98%'>
 
- <tr bgcolor="#dddddd">
+ <tr bgcolor="#cccccc">
   <td class="dehead">
    Code
   </td>
@@ -585,7 +661,7 @@ function validate(f) {
    Charge
   </td>
   <td class="dehead" align="right">
-   Balance
+   Balance&nbsp;
   </td>
   <td class="dehead">
    Source
@@ -604,12 +680,18 @@ function validate(f) {
   </td>
  </tr>
 <?
+  $encount = 0;
   foreach ($codes as $code => $cdata) {
+   ++$encount;
+   $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
    $dispcode = $code;
    // this sorts the details more or less chronologically:
    ksort($cdata['dtl']);
    foreach ($cdata['dtl'] as $dkey => $ddata) {
     $ddate = substr($dkey, 0, 10);
+    if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
+     $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
+    }
     $tmpchg = "";
     $tmpadj = "";
     if ($ddata['chg'] > 0)
@@ -617,7 +699,7 @@ function validate(f) {
     else if ($ddata['chg'] < 0)
      $tmpadj = 0 - $ddata['chg'];
 ?>
- <tr>
+ <tr bgcolor='<? echo $bgcolor ?>'>
   <td class="detail">
    <? echo $dispcode; $dispcode = "" ?>
   </td>
@@ -646,33 +728,35 @@ function validate(f) {
 <?
    } // end of prior detail line
 ?>
- <tr>
+ <tr bgcolor='<? echo $bgcolor ?>'>
   <td class="detail">
    <? echo $dispcode; $dispcode = "" ?>
   </td>
   <td class="detail" align="right">
-   <!-- <? bucks($cdata['chg']) ?> --> &nbsp;
+   &nbsp;
   </td>
   <td class="detail" align="right">
    <input type="hidden" name="form_line[<? echo $code ?>][bal]" value="<? bucks($cdata['bal']) ?>">
    <input type="hidden" name="form_line[<? echo $code ?>][ins]" value="<? echo $cdata['ins'] ?>">
-   <? bucks($cdata['bal']) ?>
+   <? printf("%.2f", $cdata['bal']) ?>&nbsp;
   </td>
   <td class="detail">
-   <input type="text" name="form_line[<? echo $code ?>][src]" size="10">
+   <input type="text" name="form_line[<? echo $code ?>][src]" size="10"
+    style="background-color:<? echo $bgcolor ?>"
+    title="NM=notmet, CI=coins, CP=copay, NE=notelig, IT=insterm, PF=ptfull, PP=ptpart" />
   </td>
   <td class="detail">
-   <input type="text" name="form_line[<? echo $code ?>][date]" size="10">
+   <input type="text" name="form_line[<? echo $code ?>][date]" size="10" style="background-color:<? echo $bgcolor ?>" />
   </td>
   <td class="detail">
-   <input type="text" name="form_line[<? echo $code ?>][pay]" size="10">
+   <input type="text" name="form_line[<? echo $code ?>][pay]" size="10" style="background-color:<? echo $bgcolor ?>" />
   </td>
   <td class="detail">
-   <input type="text" name="form_line[<? echo $code ?>][adj]" size="10">
+   <input type="text" name="form_line[<? echo $code ?>][adj]" size="10" style="background-color:<? echo $bgcolor ?>" />
    &nbsp; <a href="" onclick="return writeoff('<? echo $code ?>')">W</a>
   </td>
   <td class="detail">
-   <select name="form_line[<? echo $code ?>][reason]">
+   <select name="form_line[<? echo $code ?>][reason]" style="background-color:<? echo $bgcolor ?>">
 <?
  foreach ($reasons as $value) {
   echo "    <option value=\"$value\">$value</option>\n";
@@ -698,6 +782,7 @@ function validate(f) {
     echo " f2['form_line[$code][date]'].value = f1.form_paydate.value;\n";
   }
 ?>
+ setins("Ins1");
 </script>
 </body>
 </html>

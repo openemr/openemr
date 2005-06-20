@@ -125,7 +125,7 @@
    // Record something in ar.intnotes about this statement run.
    if ($intnotes) $intnotes .= "\n";
    $intnotes = addslashes($intnotes . "Statement sent $today");
-   if (! $DEBUG) {
+   if (! $DEBUG && ! $_POST['form_without']) {
     SLQuery("UPDATE ar SET intnotes = '$intnotes' WHERE id = " . $row['id']);
     if ($sl_err) die($sl_err);
    }
@@ -137,7 +137,11 @@
    $alertmsg = "Printing skipped; see test output in $STMT_TEMP_FILE";
   } else {
    exec("$STMT_PRINT_CMD $STMT_TEMP_FILE");
-   $alertmsg = "Now printing statements from $STMT_TEMP_FILE";
+   if ($_POST['form_without']) {
+    $alertmsg = "Now printing statements; invoices will not be updated.";
+   } else {
+    $alertmsg = "Now printing statements and updating invoices.";
+   }
   }
  }
 ?>
@@ -286,6 +290,9 @@ function npopup(pid) {
   <td class="dehead" align="right">
    Paid&nbsp;
   </td>
+  <td class="dehead" align="right">
+   Balance&nbsp;
+  </td>
   <td class="dehead" align="center">
    Prv
   </td>
@@ -303,8 +310,14 @@ function npopup(pid) {
     $where = "";
 
     if ($form_name) {
+      // Allow the last name to be followed by a comma and some part of a first name.
+      if (preg_match('/^(.*\S)\s*,\s*(.*)/', $form_name, $matches)) {
+        $form_name = $matches[2] . '% ' . $matches[1] . '%';
+      } else {
+        $form_name = "%$form_name%";
+      }
       if ($where) $where .= " AND ";
-      $where .= "customer.name ILIKE '%$form_name%'";
+      $where .= "customer.name ILIKE '$form_name'";
     }
 
     if ($form_pid && $form_encounter) {
@@ -421,6 +434,9 @@ function npopup(pid) {
   <td class="detail" align="right">
    <? bucks($row['paid']) ?>&nbsp;
   </td>
+  <td class="detail" align="right">
+   <? bucks($row['amount'] - $row['paid']) ?>&nbsp;
+  </td>
   <td class="detail" align="center">
    <? echo $duncount ? $duncount : "&nbsp;" ?>
   </td>
@@ -439,7 +455,8 @@ function npopup(pid) {
 <p>
 <input type='button' value='Select All' onclick='checkAll(true)' /> &nbsp;
 <input type='button' value='Clear All' onclick='checkAll(false)' /> &nbsp;
-<input type='submit' name='form_print' value='Print Selected Statements' />
+<input type='submit' name='form_print' value='Print Selected Statements' /> &nbsp;
+<input type='checkbox' name='form_without' value='1' /> Without Update
 </p>
 
 </form>
