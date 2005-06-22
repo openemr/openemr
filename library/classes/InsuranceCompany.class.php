@@ -15,7 +15,25 @@ define ("FREEB_TYPE_CHAMPUSVA",4);
 define ("FREEB_TYPE_CHAMPUS",5);
 define ("FREEB_TYPE_BCBS",6);
 define ("FREEB_TYPE_FECA",7);
-
+define ("FREEB_TYPE_SELF_PAY",8);
+define ("FREEB_TYPE_CENTRAL_CERTIFICATION",9);
+define ("FREEB_TYPE_OTHER_NON-FEDERAL_PROGRAMS",10);
+define ("FREEB_TYPE_PREFERRED_PROVIDER_ORGANIZATION",11);
+define ("FREEB_TYPE_POINT_OF_SERVICE",12);
+define ("FREEB_TYPE_EXCLUSIVE_PROVIDER_ORGANIZATION",13);
+define ("FREEB_TYPE_INDEMNITY_INSURANCE",14);
+define ("FREEB_TYPE_HMO_MEDICARE_RISK",15);
+define ("FREEB_TYPE_AUTOMOBILE_MEDICAL",16);
+define ("FREEB_TYPE_COMMERCIAL_INSURANCE",17);
+define ("FREEB_TYPE_DISABILITY",18);
+define ("FREEB_TYPE_HEALTH_MAINTENANCE_ORGANIZATION",19);
+define ("FREEB_TYPE_LIABILITY",20);
+define ("FREEB_TYPE_LIABILITY_MEDICAL",21);
+define ("FREEB_TYPE_OTHER_FEDERAL_PROGRAM",22);
+define ("FREEB_TYPE_TITLE_V",23);
+define ("FREEB_TYPE_VETERANS_ADMINISTRATION_PLAN",24);
+define ("FREEB_TYPE_WORKERS_COMPENSATION_HEALTH_PLAN",25);
+define ("FREEB_TYPE_MUTUALLY_DEFINED",26);
 
 require_once("PhoneNumber.class.php");
 require_once("Address.class.php");
@@ -49,7 +67,64 @@ class InsuranceCompany extends ORDataObject{
 	*	Array used to populate select dropdowns or other form elements, it must coincide with the FREEB_TYPE_XXX constants
 	*	@var array Values are display strings that match constants for FB.Payer.isXXX payer types, used for populating select dropdowns, etc
 	*/
-	var $freeb_type_array = array("","Other HCFA", "Medicare", "Medicaid", "ChampUSVA", "ChampUS", "Blue Cross Blue Shield", "FECA");
+	var $freeb_type_array = array('','Other HCFA'
+                                        ,'Medicare Part B'
+                                        ,'Medicaid'
+                                        ,'ChampUSVA'
+                                        ,'ChampUS'
+                                        ,'Blue Cross Blue Shield'
+                                        ,'FECA'
+                                        ,'Self Pay'
+                                        ,'Central Certification'
+                                        ,'Other Non-Federal Programs'
+                                        ,'Preferred Provider Organization (PPO)'
+                                        ,'Point of Service (POS)'
+                                        ,'Exclusive Provider Organization (EPO)'
+                                        ,'Indemnity Insurance'
+                                        ,'Health Maintenance Organization (HMO) Medicare Risk'
+                                        ,'Automobile Medical'
+                                        ,'Commercial Insurance Co.'
+                                        ,'Disability'
+                                        ,'Health Maintenance Organization'
+                                        ,'Liability'
+                                        ,'Liability Medical'
+                                        ,'Other Federal Program'
+                                        ,'Title V'
+                                        ,'Veterans Administration Plan'
+                                        ,'Workers Compensation Health Plan'
+                                        ,'Mutually Defined'
+                                        );
+
+	var $freeb_claim_type_array = array(''
+	                                   ,'16'
+	                                   ,'MB'
+	                                   ,'MC'
+	                                   ,'CH'
+	                                   ,'CH'
+	                                   ,'BL'
+	                                   ,'16'
+	                                   ,'09'
+	                                   ,'10'
+	                                   ,'11'
+	                                   ,'12'
+	                                   ,'13'
+	                                   ,'14'
+	                                   ,'15'
+	                                   ,'16'
+	                                   ,'AM'
+	                                   ,'CI'
+	                                   ,'DS'
+	                                   ,'HM'
+	                                   ,'LI'
+	                                   ,'LM'
+	                                   ,'OF'
+	                                   ,'TV'
+	                                   ,'VA'
+	                                   ,'WC'
+	                                   ,'ZZ'
+	                                   );
+
+
 	var $address;
 
 	/**
@@ -132,6 +207,9 @@ class InsuranceCompany extends ORDataObject{
 	}
 	function get_freeb_type_display() {
 		return $this->freeb_type_array[$this->freeb_type];
+	}
+	function get_freeb_claim_type() {
+		return $this->freeb_claim_type_array[$this->freeb_type];
 	}
 	function get_phone() {
 		foreach($this->phone_numbers as $phone) {
