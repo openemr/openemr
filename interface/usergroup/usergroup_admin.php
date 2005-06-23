@@ -33,7 +33,19 @@ if ($_POST["mode"] == "facility")
 	}
 
 	if ($doit == true) {
-		$prov_id = idSqlStatement("insert into users set username='".$_POST["username"]."',password='".$_POST["newauthPass"]."',fname='".$_POST["fname"]."',mname='".$_POST["mname"]."',lname='".$_POST["lname"]."',federaltaxid='".$_POST["federaltaxid"]."',authorized='".$_POST["authorized"]."',info='".$_POST["info"]."',federaldrugid='".$_POST["federaldrugid"]."',facility='".$_POST["facility"]."'");
+		$prov_id = idSqlStatement("insert into users set " .
+			"username = '"         . $_POST["username"] .
+			"', password = '"      . $_POST["newauthPass"] .
+			"', fname = '"         . $_POST["fname"] .
+			"', mname = '"         . $_POST["mname"] .
+			"', lname = '"         . $_POST["lname"] .
+			"', federaltaxid = '"  . $_POST["federaltaxid"] .
+			"', authorized = '"    . $_POST["authorized"] .
+			"', info = '"          . $_POST["info"] .
+			"', federaldrugid = '" . $_POST["federaldrugid"] .
+			"', upin = '"          . $_POST["upin"] .
+			"', facility = '"      . $_POST["facility"] .
+			"'");
 		sqlStatement("insert into groups set name='".$_POST["groupname"]."',user='".$_POST["username"]."'");
 		$ws = new WSProvider($prov_id);
 	}
@@ -205,6 +217,10 @@ foreach($result as $iter) {
 <tr>
 <td><span class=text>Federal Tax ID: </span></td><td><input type=entry name='federaltaxid' size=20></td>
 <td><span class=text>Federal Drug ID: </span></td><td><input type=entry name='federaldrugid' size=20></td>
+</tr>
+<tr>
+<td><span class="text">UPIN: </span></td><td><input type="entry" name="upin" size="20"></td>
+<td><span class=text>&nbsp;</span></td><td>&nbsp;</td>
 </tr>
 </table>
 <span class=text>Additional Info: </span><br>

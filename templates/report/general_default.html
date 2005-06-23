@@ -1,7 +1,8 @@
 <html>
 <head>
 {literal}
- <style type="text/css" title="mystyles" media="all">
+
+<style type="text/css" title="mystyles" media="all">
 <!--
 td {
 	font-size:8pt;
@@ -11,23 +12,41 @@ a {
 	font-size:8pt;
 	font-family:helvetica;
 }
-
 -->
 </style>
-<script language="javascript">
+
+<script language="JavaScript">
+
 function clear_vars() {
   document.report.var1.value = "";
   document.report.var2.value = "";
 }
+
+function dopopup(aurl) {
+ window.open(aurl, '_blank', 'width=750,height=550,resizable=1');
+}
+
 </script>
+
 {/literal}
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
 
 <a href="custom_report_range.php" target="_new">Superbill Report</a>
 <br/>
-
+<a href="appt_encounter_report.php" target="_new">Appointments-Encounters Report</a>
+{php}
+ if ($GLOBALS['athletic_team']) {
+  echo "<br/>\n";
+  echo "<a href='javascript:dopopup(\"players_report.php\")'>Team Roster</a>\n";
+ }
+{/php}
+<br/>
+&nbsp;
+<br/>
 <a href="{$printable_link}" target="_new">[printable]</a>
+&nbsp;
+<br/>
 <form name="report" action="index.php" method="get">
 <table>
 	<tr>

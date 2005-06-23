@@ -8,7 +8,7 @@ if ($_GET['show_pnote_link'] == true || $_POST['show_pnote_link'] == true) {
   $pnote_link = "&show_pnote_link=1";
 }
 //the maximum number of patient records to display:
-$M = 100;
+$M = 2000;
 
 /*if ($_GET['new'] == 1) {
 	echo "new is 1";
@@ -116,7 +116,7 @@ else {
 <input name=lastname size=15 value="<?echo $_SESSION["lastname"];?>" onfocus="javascript:document.findpatientform.lastname.value='';"><br>
 <select name="findBy" size=1>
 	<option value="ID">ID</option>
-	<option value="Last" selected>Last Name</option>
+	<option value="Last" selected>Name</option>
 	<option value="SSN">SSN</option>
 	<option value="DOB">DOB</option>
 </select><br>

@@ -13,6 +13,17 @@ if (!isset($_GET["codefrom"]) ) {
 ?>
 <?
 include_once("../../globals.php");
+
+// Session pid must be right.
+//
+include_once("$srcdir/pid.inc");
+if ($_GET["set_pid"] && $_GET["set_pid"] != $_SESSION["pid"]) {
+	setpid($_GET["set_pid"]);
+}
+else if ($_GET["pid"] && $_GET["pid"] != $_SESSION["pid"]) {
+	setpid($_GET["pid"]);
+}
+
 include_once("$srcdir/encounter.inc");
 
 
@@ -34,8 +45,8 @@ Patient Encounters
 	<frame src="forms.php" name="Forms" scrolling="auto">
 	<frame src="new_form.php" name="New Form" scrolling="auto">
   </frameset>
-  
-  <frameset rows="*" cols="200,400,*"> 
+
+  <frameset rows="*" cols="200,400,*">
 	<frame src="coding.php" name="Codesets" scrolling="auto">
 	<frame src="blank.php" name="Codes" scrolling="auto">
 	<frame src="diagnosis.php" name="Diagnosis" scrolling="auto">

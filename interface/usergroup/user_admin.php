@@ -1,6 +1,7 @@
 <?
 include_once("../globals.php");
 include_once("$srcdir/auth.inc");
+include_once("../../library/acl.inc");
 
 include_once("$srcdir/md5.js");
 include_once("$srcdir/sql.inc");
@@ -21,7 +22,7 @@ require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
 <br><br>
 
 <?
-if (!$_GET["id"] || !$userauthorized)
+if (!$_GET["id"] || !acl_check('admin', 'users'))
 	exit();
 if ($_GET["mode"] == "update") {
 if ($_GET["username"]) {
@@ -38,6 +39,10 @@ if ($_GET["taxid"]) {
 if ($_GET["drugid"]) {
 	$tqvar = addslashes($_GET["drugid"]);
 	sqlStatement("update users set federaldrugid='$tqvar' where id={$_GET["id"]}");
+}
+if ($_GET["upin"]) {
+	$tqvar = addslashes($_GET["upin"]);
+	sqlStatement("update users set upin='$tqvar' where id={$_GET["id"]}");
 }
 if ($_GET["lname"]) {
 	$tqvar = addslashes($_GET["lname"]);
@@ -122,6 +127,11 @@ foreach($result as $iter2) {
 <TD><span class=text>Federal Tax ID: </span></TD><TD><input type=text name=taxid size=20 value="<? echo $iter["federaltaxid"]?>"></td>
 <TD><span class=text>Federal Drug ID: </span></TD><TD><input type=text name=drugid size=20 value="<? echo $iter["federaldrugid"]?>"></td>
 </TR>
+
+<tr>
+<td><span class="text">UPIN: </span></td><td><input type="text" name="upin" size="20" value="<? echo $iter["upin"]?>"></td>
+<td><span class="text">&nbsp;</span></td><td>&nbsp;</td>
+</tr>
 
 </table>
 <span class=text>Additional Info:</span><br>

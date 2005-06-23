@@ -135,9 +135,18 @@ if (stristr($key,"include_")) {
 		} elseif ($val == "medications") {
 			print "<font class=bold>Patient Medications:</font><br>";
 			printListData($pid, "medication", "1");
+		} elseif ($val == "medical_problems") {
+				print "<font class=bold>Patient Medical Problems:</font><br>";
+				printListData($pid, "medical_problem", "1");
 		} elseif ($val == "immunizations") {
 				print "<font class=bold>Patient Immunization:</font><br>";
-				printListData($pid, "immunization", "1");
+				$sql = "select if(i1.administered_date,concat(i1.administered_date,' - ',i2.name) ,substring(i1.note,1,20) ) as immunization_data from immunizations i1 left join immunization i2 on i1.immunization_id = i2.id where i1.patient_id = $pid order by administered_date desc";
+
+				$result = sqlStatement($sql);
+
+				while ($row=sqlFetchArray($result)){
+					echo "<span class=text> " . $row{'immunization_data'} . "</span><br>\n";
+				}
 		} elseif ($val == "notes") {
 				print "<font class=bold>Patient Notes:</font><br>";
 				printPatientNotes($pid);

@@ -5,10 +5,13 @@ ini_set("magic_quotes","0");
 include_once ("../../../library/sqlconf.php");
 include_once("../../globals.php");
 include_once("$srcdir/auth.inc");
-if($_SESSION['userauthorized'] != 1){
-        echo "You do not have access to this resource<br>";
-	        exit;
-		}
+include_once("../../../library/acl.inc");
+
+// if($_SESSION['userauthorized'] != 1){
+if (! acl_check('admin', 'database')) {
+  echo "You do not have access to this resource<br>";
+  exit;
+}
 
 
 global $sqlconf;

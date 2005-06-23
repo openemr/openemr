@@ -40,7 +40,7 @@ if (!is_array($result)) {
 </td>
 
 <td valign=top>
-<span class=bold>Patient Had:</span><br>
+<span class=bold>Surgeries:</span><br>
 <?if ($result{"cataract_surgery"} != "0000-00-00 00:00:00") {?><span class=text>Cataract Surgery: </span><span class=text><?echo date("n/j/Y",strtotime($result{"cataract_surgery"}));?></span><br><?}?>
 <?if ($result{"tonsillectomy"} != "0000-00-00 00:00:00") {?><span class=text>Tonsillectomy: </span><span class=text><?echo date("n/j/Y",strtotime($result{"tonsillectomy"}));?></span><br><?}?>
 <?if ($result{"appendectomy"} != "0000-00-00 00:00:00") {?><span class=text>Appendectomy: </span><span class=text><?echo date("n/j/Y",strtotime($result{"appendectomy"}));?></span><br><?}?>

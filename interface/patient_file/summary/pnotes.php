@@ -6,7 +6,6 @@ include_once("$srcdir/pnotes.inc");
 <html>
 <head>
 
-
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 
 </head>
@@ -19,14 +18,9 @@ include_once("$srcdir/pnotes.inc");
 </td>
 <td valign=top>
 
-
-
-
 <a href="pnotes_full.php" target="Main"><font class="title">Patient Notes</font><font class=more><?echo $tmore;?></font></a>
 
 <br>
-
-
 
 <table border=0>
 
@@ -34,10 +28,24 @@ include_once("$srcdir/pnotes.inc");
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
 $N = 4;
 
+$conn = $GLOBALS['adodb']['db'];
+
+// Get the billing note if there is one.
+$billing_note = "";
+$colorbeg = "";
+$colorend = "";
+$sql = "select genericname2, genericval2 " .
+    "from patient_data where pid = '$pid' limit 1";
+$resnote = $conn->Execute($sql);
+if($resnote && !$resnote->EOF && $resnote->fields['genericname2'] == 'Billing') {
+  $billing_note = $resnote->fields['genericval2'];
+  $colorbeg = "<font color='red'>";
+  $colorend = "<font>";
+}
+
 //Display what the patient owes
 require_once($GLOBALS['fileroot'] ."/library/classes/WSWrapper.class.php");
 $customer_info['id'] = 0;
-$conn = $GLOBALS['adodb']['db'];
 $sql = "SELECT foreign_id from integration_mapping as im LEFT JOIN patient_data as pd on im.local_id=pd.id where pd.pid = '" . $pid . "' and im.local_table='patient_data' and im.foreign_table='customer'";
 $result = $conn->Execute($sql);
 if($result && !$result->EOF) 
@@ -47,10 +55,13 @@ if($result && !$result->EOF)
 
 $function['ezybiz.customer_balance'] = array(new xmlrpcval($customer_info,"struct"));
 $ws = new WSWrapper($function);
-if(is_numeric($ws->value))
-{
-	$formatted = sprintf('$%01.2f', $ws->value);
-	print "<tr><td>Balance Due</td><td>$formatted</td></tr>\n";
+if(is_numeric($ws->value)) {
+  $formatted = sprintf('$%01.2f', $ws->value);
+  print "<tr><td>$colorbeg" . "Balance Due$colorend</td><td>$colorbeg$formatted$colorend</td></tr>\n";
+}
+
+if($billing_note) {
+  print "<tr><td>$colorbeg" . "Billing Note$colorend</td><td>$colorbeg$billing_note$colorend</td></tr>\n";
 }
 
 //retrieve all active notes
@@ -82,41 +93,9 @@ foreach ($result as $iter) {
 
 </table>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </td>
 </tr>
 </table>
-
 
 </body>
 </html>

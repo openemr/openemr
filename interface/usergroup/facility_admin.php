@@ -1,16 +1,13 @@
 <?
 include_once("../globals.php");
-
-
 include_once("$srcdir/md5.js");
 include_once("$srcdir/sql.inc");
 require_once("$srcdir/classes/POSRef.class.php");
 
-
 if ($_POST["mode"] == "facility")
 {
-	 sqlStatement("update facility set
-	 	name='{$_POST['facility']}',
+	sqlStatement("update facility set
+		name='{$_POST['facility']}',
 		phone='{$_POST['phone']}',
 		street='{$_POST['street']}',
 		city='{$_POST['city']}',
@@ -21,7 +18,7 @@ if ($_POST["mode"] == "facility")
 		billing_location='{$_POST['billing_location']}',
 		accepts_assignment='{$_POST['accepts_assignment']}',
 		pos_code='{$_POST['pos_code']}',
-		x12_sender_id='{$_POST['x12_sender_id']}',
+		domain_identifier='{$_POST['domain_identifier']}',
 		attn='{$_POST['attn']}'
 	where id='{$_POST['fid']}'");
 }
@@ -34,10 +31,7 @@ if (isset($_POST["fid"])) {
 	$my_fid = $_POST["fid"];
 }
 
-
-
 ?>
-
 <html>
 <head>
 
@@ -100,13 +94,10 @@ if (isset($_POST["fid"])) {
 	<td><span class="text">Billing Attn:</span></td>
 	<td colspan="4"><input type="text" name="attn" size="45" value="<?=$facility['attn']?>"></td>
 </tr>
-<!--
-This is now deprecated use the newer X12 partner management in practice settings
 <tr>
-	<td><span class="text">X12 Sender ID: </span></td>
-	<td><input type="text" name="x12_sender_id" size="15" value="<?=$facility['x12_sender_id']?>"></td>
+	<td><span class="text">CLIA Number:</span></td>
+	<td colspan="4"><input type="text" name="domain_identifier" size="45" value="<?=$facility['domain_identifier']?>"></td>
 </tr>
--->
 <tr>
 	<td>&nbsp;</td><td>&nbsp;</td>
 	<td>&nbsp;</td><td><br><br><input type="submit" value="Update Info">&nbsp;&nbsp;&nbsp;<a href="usergroup_admin.php" class=link_submit>[Back]</font></a></td>
@@ -114,21 +105,5 @@ This is now deprecated use the newer X12 partner management in practice settings
 </table>
 </form>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </body>
 </html>
-

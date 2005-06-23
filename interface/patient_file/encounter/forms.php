@@ -31,15 +31,15 @@ if (is_numeric($pid)) {
 if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name,formdir,user")) {
 	echo "<table>";
 	foreach ($result as $iter) {
-		//print "<a target=Main href='$rootdir/forms/".$iter{"formdir"}."/view.php?id=".$iter{"form_id"}."' class=text>" . $iter{"form_name"} . "</a><br>\n";
-		
 		$form_info = getFormInfoById($iter['id']);
 		echo '<tr valign="top">';
 		$user = $iter['user'];
 		$user = getNameFromUsername($user);
-		
+
+		$form_name = ($iter['formdir'] == 'newpatient') ? "Patient Encounter" : $iter['form_name'];
+
 		echo '<td class="text"><span style="font-weight:bold;">' . $user['fname'] . " " . $user['lname'] .'</span></td>';
-		echo "<td valign=\"top\"><a target=Main href='$rootdir/patient_file/encounter/view_form.php?formname=".$iter{"formdir"}."&id=".$iter{"form_id"}."' class=text>" . $iter{"form_name"} . "</a></td><td width=\"25\"></td><td valign=\"top\">";
+		echo "<td valign=\"top\"><a target=Main href='$rootdir/patient_file/encounter/view_form.php?formname=".$iter{"formdir"}."&id=".$iter{"form_id"}."' class=text>$form_name</a></td><td width=\"25\"></td><td valign=\"top\">";
 		echo "<table valign=\"top\" cellspacing=\"0\" cellpadding=\"0\"><tr>\n";
 		
 		$counter = 0;
@@ -73,13 +73,7 @@ if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name
 	}
 	echo "</table>";
 }
-
-
 ?>
-
-
-
-
 
 </body>
 </html>

@@ -1,5 +1,6 @@
 <?
 include_once("../globals.php");
+include_once("../../library/acl.inc");
 ?>
 
 <html>
@@ -16,29 +17,41 @@ include_once("../globals.php");
 <table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
 <tr>
 
+<? if (acl_check('admin', 'users')) { ?>
 <td valign="middle" nowrap>
 &nbsp;&nbsp;<a class=menu target=Main href="usergroup_admin.php">Users & Groups</a>&nbsp;
 </td>
+<? } ?>
 
+<? if (acl_check('admin', 'forms')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../forms_admin/forms_admin.php">Forms Settings</a>&nbsp;
 </td>
+<? } ?>
 
+<? if (acl_check('admin', 'practice')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="<?=$GLOBALS['webroot']?>/controller.php?practice_settings">Practice Settings</a>&nbsp;
 </td>
+<? } ?>
 
+<? if (acl_check('admin', 'calendar')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig">Calendar Settings</a>&nbsp;
 </td>
+<? } ?>
 
+<? if (acl_check('admin', 'database')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../main/myadmin/index.php">Database&nbsp;Reporting</a>&nbsp;
 </td>
+<? } ?>
 
+<? if (acl_check('admin', 'users')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="<?echo $rootdir?>/logview/logview.php">View Logs</a>&nbsp;
 </td>
+<? } ?>
 
 <td valign="middle" align="right" nowrap>
 <?//<a href="../logout.php?auth=logout" target="_top" class="logout">Logout</a>?>

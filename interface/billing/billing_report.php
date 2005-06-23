@@ -1,5 +1,7 @@
 <?
 include_once("../globals.php");
+include_once("../../library/acl.inc");
+include_once("../../custom/code_types.inc.php");
 
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/billrep.inc");
@@ -12,10 +14,13 @@ if ($_POST['mode'] == 'export') {
 	$sdate = $_POST['from_date'];
 	$edate = $_POST['to_date'];
 
-	$sql = "SELECT billing.*, concat(pd.fname,' ', pd.lname) as name from billing join patient_data as pd on pd.pid = billing.pid where billed = '1' and"
-	. "(process_date > '" . mysql_real_escape_string($sdate) . "' or DATE_FORMAT( process_date, '%Y-%m-%d' ) = '" . mysql_real_escape_string($sdate) ."') "
-	. "and (process_date < '" . mysql_real_escape_string($edate) . "'or DATE_FORMAT( process_date, '%Y-%m-%d' ) = '" . mysql_real_escape_string($edate) ."') "
-	. " order by pid,encounter";
+	$sql = "SELECT billing.*, concat(pd.fname, ' ', pd.lname) as name from billing "
+	. "join patient_data as pd on pd.pid = billing.pid where billed = '1' and "
+	. "(process_date > '" . mysql_real_escape_string($sdate)
+	. "' or DATE_FORMAT( process_date, '%Y-%m-%d' ) = '" . mysql_real_escape_string($sdate) ."') "
+	. "and (process_date < '" . mysql_real_escape_string($edate)
+	. "'or DATE_FORMAT( process_date, '%Y-%m-%d' ) = '" . mysql_real_escape_string($edate) ."') "
+	. "order by pid,encounter";
 	$db = get_db();
 	$results = $db->Execute($sql);
 	$billings = array();
@@ -171,7 +176,13 @@ if ($userauthorized) {
 	print '&nbsp;';
 	$acct_config = $GLOBALS['oer_config']['ws_accounting'];
 	if($acct_config['enabled'] == true) {
-		print '<span class=text><a href="javascript:void window.open(\''.$acct_config['url_path'].'\')">[Accounting System]</a></span>';
+		print '<span class=text><a href="javascript:void window.open(\''.$acct_config['url_path'].'\')">[SQL-Ledger]</a></span>';
+		if (acl_check('acct', 'rep')) {
+			print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_receipts_report.php\')">[Reports]</a></span>';
+		}
+		if (acl_check('acct', 'eob')) {
+			print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_eob_search.php\')">[EOBs]</a></span>';
+		}
 	}
 ?>
 		</td>
@@ -292,7 +303,6 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 	$skipping = FALSE;
 
 	foreach ($ret as $iter) {
-		$name = getPatientData($iter['pid']);
 		$this_encounter_id = $iter['pid'] . "-" . $iter['encounter'];
 
 		if ($last_encounter_id != $this_encounter_id) {
@@ -325,6 +335,19 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 				}
 			}
 
+			$name = getPatientData($iter['pid'], "fname, mname, lname");
+
+			# Check if patient has primary insurance and a subscriber exists for it.
+			# If not we will highlight their name in red.
+			# TBD: more checking here.
+			#
+			$res = sqlQuery("select count(*) as count from insurance_data where " .
+				"pid = " . $iter['pid'] . " and " .
+				"type='primary' and " .
+				"subscriber_lname is not null and " .
+				"subscriber_lname != '' limit 1");
+			$namecolor = ($res['count'] > 0) ? "black" : "#ff7777";
+
 			++$encount;
 			$bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
 			echo "<tr bgcolor='$bgcolor'><td colspan='8' height='5'></td></tr>\n";
@@ -332,7 +355,7 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 			$rcount = 0;
 			$oldcode = "";
 
-			$lhtml .= "&nbsp;<span class=bold>". $name['fname'] . "&nbsp;" . $name['lname'] . "</span><span class=small>&nbsp;(" . $iter['pid'] . "-" . $iter['encounter'] . ")</span>";
+			$lhtml .= "&nbsp;<span class=bold><font color='$namecolor'>". $name['fname'] . "&nbsp;" . $name['lname'] . "</font></span><span class=small>&nbsp;(" . $iter['pid'] . "-" . $iter['encounter'] . ")</span>";
 			$lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" href=\"" . $GLOBALS['webroot'] ."/interface/patient_file/encounter/patient_encounter.php?set_encounter=" . $iter['encounter'] . "&pid=" . $iter['pid'] . "\">[To&nbsp;Encounter]</a>";
 			$lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" href=\"" . $GLOBALS['webroot'] ."/interface/patient_file/summary/demographics_full.php?&pid=" . $iter['pid'] . "\">[To&nbsp;Demographics]</a>";
 			$lhtml .= "<br />\n";
@@ -342,7 +365,7 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 
 			$result = sqlStatement($query);
 			$count = 0;
-			$default_x12_partner = $iter['x12_partner_id'];
+			$default_x12_partner = $iter['ic_x12id'];
 
 			while ($row = mysql_fetch_array($result)) {
 				if (strlen($row['provider']) > 0) {
@@ -409,7 +432,8 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 		$oldcode = $iter['code_type'];
 		$rhtml .= "</td>\n";
 		$justify = "";
-		if ($iter['code_type'] == "CPT4" || $iter['code_type'] == "HCPCS") {
+//	if ($iter['code_type'] == "CPT4" || $iter['code_type'] == "HCPCS") {
+		if ($code_types[$iter['code_type']]['just']) {
 			$js = split(":",$iter['justify']);
 			$counter = 0;
 			foreach ($js as $j) {
