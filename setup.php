@@ -20,12 +20,12 @@ include_once($conffile);
 
 <HTML>
 <HEAD>
-<TITLE>Pennington Firm OpenEMR Setup Tool</TITLE>
+<TITLE>OpenEMR Setup Tool</TITLE>
 <LINK REL=STYLESHEET HREF="interface/themes/style_blue.css">
 </HEAD>
 <BODY>
 
-<span class="title">Pennington Firm OpenEMR Setup</span>
+<span class="title">OpenEMR Setup</span>
 <br><br>
 <span class="text">
 
@@ -42,7 +42,8 @@ Congratulations! OpenEMR is now successfully installed.
 <li>Please make sure that the two folders underneath 'openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/' exist and are writable by the web server. The two subdirectories are 'compiled' and 'cache'.<br>
   Try \"chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/compiled\".
 \"chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/cache\".
-(If either subdirectory doesn't exist, create it first then do the chown above)
+(If either subdirectory doesn't exist, create it first then do the chown above).<br>
+The user name and group of apache may differ depending on your distro, i.e. for Debian is www-data and www-data.
 <li>Please Edit the interface/globals.php file now to specify the correct URL paths, and to select a theme.<br>\n
 <li>Please make sure that the folder underneath the OpenEMR webroot 'openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/compiled' is writable by the web server. <br>
 Try \"chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/compiled\".
@@ -52,7 +53,7 @@ Try \"chown apache:apache -R openemrwebroot/interface/main/calendar/modules/Post
 You must also make sure your PHP installation (normally set in your php.ini file) has \"file_uploads enabled\", that \"upload_max_filesize\" is appropriate for your use and that \"upload_tmp_dir\" is set to a correct value if the default of \"/tmp\" won't work on your system.
 </p>
 <p>
-To ensure a consistent look and feel through out the application Pennington Firm, LLC recommends using <a href='http://www.mozilla.org/products/firefox/'> Firefox</a>.
+To ensure a consistent look and feel through out the application using <a href='http://www.mozilla.org/products/firefox/'> Firefox</a> is recommended.
 </p>
 <p>
 <a href='./'>Click here to start using OpenEMR. </a>
@@ -374,7 +375,10 @@ break;
 
 	case 0:
 	default:
-echo "Welcome to Pennington Firm OpenEMR.  This utility will step you through the configuration of OpenEMR for your practice.  Before proceeding, be sure that you have a properly installed and configured MySQL server available, and a PHP configured webserver.<br><br>\n";
+echo "Welcome to OpenEMR.  This utility will step you through the configuration of OpenEMR for your practice.  Before proceeding, be sure that you have a properly installed and configured MySQL server available, and a PHP configured webserver.<br><br>\n";
+
+Echo "<p>If you are upgrading from a previous version, please read the README file.<br><br>";
+
 echo "<FORM METHOD='POST'><INPUT TYPE='HIDDEN' NAME='state' VALUE='1'><INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>";
 
 

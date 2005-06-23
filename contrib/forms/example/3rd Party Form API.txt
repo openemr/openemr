@@ -1,0 +1,57 @@
+3rd Party Form API
+OpenEMR suite v1.3
+doc revision 2
+
+Matthew Beale, mixonic@synitech.com
+Synitech Incorporated, CT
+
+
+ ******* Introduction *******
+
+OpenEMR is more than a simple EMR suite, it is a modular platform that allows for customized modifications to meet specific needs.
+
+To create a set of patient encounter forms for use with OpenEMR, at least a limited knowledge of the PHP scripting language and the MySQL syntax is needed. The script _must_ be stored in the interface/forms/your_script_name/ directory, with at least these four files:
+	new.php		<-- will be acessed for new data entry
+	view.php	<-- will be used to view your form
+	print.php	<-- should be used to print your form
+	SQL.php		<-- contains sql table creation scripts
+
+ ******* Initialization *******
+
+To initialize the 3rd party php library (from interface/forms/your_script_name/myfile.php):
+	include_once("../../../library/api.inc");
+
+
+ ******* Functions *******
+
+--->>	formHeader("my form title name here")
+	This is the suggested title header for forms. It maintains the style used by the rest of the suite for consistency.
+
+
+--->>	formFooter()
+	Our suggested footer.
+
+
+--->>	formSubmit("my_table", $array_to_import, "0")
+	Submit will submit your array into the database, in the table created during your script install process.  The array to import should be a single dimension such as the following:
+
+		$myArray['column_name1']  = 'my column1 value';
+
+The third argument to formSubmit() is a url to redirect to after the data from a form has been saved.  If you set this to "0" (its default) then it will forward back to "openemr/interface/patient_file/encounter/patient_encounter.php". This is the preferred operation, since users expect to be taken back to the Patient Encounter screen after saving a new form.
+
+
+--->>	formFetch("my_table", 'record id', 'columns wanted', 'activity state')
+	This function will retrieve one record of data.  The record id must be a numeric entry in the database.  The columns wanted defaults to "*", or all columns. If only a few columns are needed, setting columns wanted manually as follows: "id, activity, column-x" for example - usually id and activity are needed by the form, so it's a good idea to include those.  The activity state controls the visibility, or activity, of the records - you can view normal records with it set to "1" (its default) or view deleted records with "0" or both with "all".
+
+
+--->>	formGetIds("my_table", 'wanted columns', 'limit', 'start point', 
+'activity state')
+	This function retrieves a set of ids ordered by date descending from the most recent.  "wanted columns" will once again have a default of "*".  Limit defaults to "all" with returns unlimited results.  Placing a number in its place with limit the results.  'start point' is a starting point or offset for the limited results, and 'activity state' acts as stated above.
+
+
+--->>	formDisappear("my_table", 'record id')
+	This effectively sets the activity state to 0, causing the records to be invisible during normal suite usage. This is equivalent to letting the user delete a record. However, for maximum legal compliance, all data entered into OpenEMR should be saved. Instead of deleting records then, we merely make them invisible to normal user interface operations.
+
+
+--->>	formReappear("my_table", 'record id)
+	This function will reverse the effects of formDisappear, cause the record to once again be active. Use this if you allow the user to modify the active or inactive flag.

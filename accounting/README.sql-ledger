@@ -1,0 +1,72 @@
+                     Integrating SQL-Ledger with OpenEMR
+                              by Tekkno Genius
+
+
+1. Install sql-ledger according to sql-ledger's instructions. Make sure it is
+working before adding the support for openemr. Installation basically amounts
+to untarring sql-ledger in a directory, creating an alias/virtual directory in
+your web server, creating the sql-ledger user in the postgresql database, see
+the sql-ledger README for the details:
+
+  http://www.sql-ledger.org/cgi-bin/nav.pl?page=source/readme.txt&title=README
+
+OpenEMR configuration:
+
+2. Create a sql-ledger user for openemr to post as. Bring up sql-ledger in
+admin mode [http://localhost/sql-ledger/admin.pl]. Login as the sql-ledger
+user. Create a dataset (database) for openemr to put its data (I called mine
+openemr) and used the default set of books (accounting codes). Create a user
+to use this dataset. I created a user called openemr. Note, this user is not a
+postgresql user, it is a sql-ledger user. You see that you need to put a user
+to log into postgresql as. Here I used the default sql-ledger user. Make sure
+you select the Pg (postgresql) driver.
+
+3.Edit the sql-ledger.conf file. Add the following to the default
+sql-ledger.conf:
+
+  $oemr_ar_acc
+  $oemr_cash_acc
+  $oemr_due_days
+  $oemr_username
+  $oemr_services_partnumber
+
+to the use vars section at the top 
+
+Add the following also:
+
+# Some constants relevant to OpenEMR import.
+#
+$oemr_username = 'openemr'; # sql-ledger user to post as
+$oemr_ar_acc = '1200';      # account number for accounts receivable
+$oemr_cash_acc = '1060';    # account number for checking (copay deposits)
+
+# In SQL-Ledger you must create a services item for medical services
+# before you do any OpenEMR billing. Specify its "part number" here:
+#
+$oemr_services_partnumber = 'MS';
+
+# This is the number of days added to the OpenEMR transaction date to 
+# produce the invoice due date when there is insurance. This affects the 
+# patient portion of the outstanding balance shown in the OpenEMR patient 
+# summary, and of course SQL-Ledger's aging reports and statements. 
+#
+$oemr_due_days = 40;
+
+Note: $oemr_username is the same user you created in step 2.
+
+Also note: A sample sql-ledger.conf including the above parameters is
+included, however it may be incomplete from the standpoint of the current
+SQL-Ledger release.
+
+4. Either copy ws_server.pl to the sql-ledger directory or create a symbolic
+link to the file in the sql-leder directory.
+
+5. Edit the openemr/interface/globals.php and put the right data for the
+following variables:
+
+$sl_dbname = 'openemr';    // sql-ledger database name
+$sl_dbuser = 'sql-ledger'; // sql-ledger database login name
+$sl_dbpass = 'secret';     // sql-ledger database login password
+
+Note: $sl_user is a postgresql user
+$sl_dbname is the dataset you created in step 2.

@@ -17,7 +17,11 @@ occupation => "Occupation: ",
 phone_home => "Home Phone: ",
 phone_biz => "Business Phone: ",
 phone_contact => "Contact Phone: ",
-contact_relationship => "Contact Person");
+contact_relationship => "Contact Person",
+hipaa_mail => "Allows Mail: ",
+hipaa_voice => "Allows Voice msgs: "
+);
+
 
 $history_data_array = array(
 coffee => "Coffee Use: ",

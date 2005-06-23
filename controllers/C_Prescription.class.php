@@ -146,8 +146,11 @@ class C_Prescription extends Controller {
 					// return $this->assign("process_result","No fax server is currently setup.");
 					// else default is printing,
 				}
-				//the pharmacy has no default or default is print
-				return $this->_print_prescription($p, $dummy);
+				elseif {
+			 		//the pharmacy has no default or default is print
+					return $this->_print_prescription($p, $dummy);
+				}
+				break;
 		}
 
 		return;
@@ -157,7 +160,7 @@ class C_Prescription extends Controller {
 	function _print_prescription($p, & $toFile) {
 		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
 		$pdf =& new Cezpdf("LETTER");
-		$pdf->ezSetMargins(80,30,90,30);
+		$pdf->ezSetMargins(72,30,50,30);
 		$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
 
 		if(!empty($this->pconfig['logo'])) {
@@ -167,6 +170,10 @@ class C_Prescription extends Controller {
 		if(!empty($this->pconfig['signature'])) {
 			$pdf->ezImage($this->pconfig['signature'],"","","none","left");
 		}
+		else{
+		  $pdf->ezText("\n\n\n\nSignature:________________________________",10);
+		}
+
 		if(!empty($toFile))
 		{
 			$toFile = $pdf->ezOutput();

@@ -23,13 +23,36 @@ function getLanguages() {
 
 function getInsuranceProviders() {
 	$returnval = array();
-	$sql = "select name, id from insurance_companies order by name, id";
-	$rez = sqlStatement($sql);
 
-	for($iter=0; $row=sqlFetchArray($rez); $iter++) {
+	if (true) {
+		$sql = "select name, id from insurance_companies order by name, id";
+		$rez = sqlStatement($sql);
+		for($iter=0; $row=sqlFetchArray($rez); $iter++) {
 			$returnval[$row['id']] = $row['name'];
+		}
 	}
-	print_r($retval);
+
+	// Please leave this here. I have a user who wants to see zip codes and PO
+	// box numbers listed along with the insurance company names, as many companies
+	// have different billing addresses for different plans.  -- Rod Roark
+	//
+	else {
+		$sql = "select insurance_companies.name, insurance_companies.id, " .
+		  "addresses.zip, addresses.line1 " .
+		  "from insurance_companies, addresses " .
+		  "where addresses.foreign_id = insurance_companies.id " .
+		  "order by insurance_companies.name, addresses.zip";
+
+		$rez = sqlStatement($sql);
+
+		for($iter=0; $row=sqlFetchArray($rez); $iter++) {
+			preg_match("/\d+/", $row['line1'], $matches);
+			$returnval[$row['id']] = $row['name'] . " (" . $row['zip'] .
+			  "," . $matches[0] . ")";
+		}
+	}
+
+	// print_r($retval);
 
 	return $returnval;
 }
@@ -138,7 +161,8 @@ function getHistoryData($pid, $given = "*")
 	return sqlQuery($sql);
 }
 
-function getInsuranceData($pid, $type = "primary", $given = "insd.*, DATE_FORMAT(subscriber_DOB,'%m/%d/%Y') as subscriber_DOB, ic.name as provider_name")
+// function getInsuranceData($pid, $type = "primary", $given = "insd.*, DATE_FORMAT(subscriber_DOB,'%m/%d/%Y') as subscriber_DOB, ic.name as provider_name")
+function getInsuranceData($pid, $type = "primary", $given = "insd.*, ic.name as provider_name")
 {
 	$sql = "select $given from insurance_data as insd left join insurance_companies as ic on ic.id = insd.provider where pid='$pid' and type='$type' order by date DESC limit 0,1";
 	return sqlQuery($sql);
@@ -176,7 +200,16 @@ function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, 
 
 	// WTF? That was a good way to create a 200KB sql statement.
 
+	// Allow the last name to be followed by a comma and some part of a first name.
+	$lname = trim($lname);
+	$fname = '';
+	if (preg_match('/^(.*\S)\s*,\s*(.*)/', $lname, $matches)) {
+		$lname = $matches[1];
+		$fname = $matches[2];
+	}
+
 	$sql="select $given from patient_data where lname like '$lname%' " .
+		"and fname like '$fname%' " .
 		"order by $orderby";
 
 	if ($limit != "all")
@@ -367,10 +400,27 @@ function newPatientData(	$db_id="",
 				$genericval1 = "",
 				$genericname2 = "",
 				$genericval2 = "",
-				$phone_cell = ""
+				$phone_cell = "",
+				$hipaa_mail = "",
+				$hipaa_voice = "",
+				$squad = 0
 			)
 {
 	$DOB = fixDate($DOB);
+
+	// Looking for problems... suspecting that $pid might be clobbered.
+	//
+	$fitness = 0;
+	if ($pid) {
+		$rez = sqlQuery("select id, fitness from patient_data where pid = $pid");
+		if ($db_id != $rez['id']) {
+			$errmsg = "Internal error: Attempt to change patient_data.id from '" .
+			  $rez['id'] . "' to '$db_id' for pid '$pid'";
+			die($errmsg);
+		}
+		$fitness = $rez['fitness'];
+	}
+
 	$query = ("replace into patient_data set
 		id='$db_id',
 		title='$title',
@@ -410,6 +460,10 @@ function newPatientData(	$db_id="",
 		genericname2 = '$genericname2',
 		genericval2 = '$genericval2',
 		phone_cell = '$phone_cell',
+		hipaa_mail = '$hipaa_mail',
+		hipaa_voice = '$hipaa_voice',
+		squad = '$squad',
+		fitness='$fitness',
 		date=NOW()
 			");
 
@@ -417,14 +471,14 @@ function newPatientData(	$db_id="",
 	$foo = sqlQuery("select pid from patient_data where id='$id' order by date limit 0,1");
 
 	sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone_home,
-				$phone_biz,$email);
+				$phone_biz,$email,$pid);
 
 	return $foo['pid'];
 }
 
 // Supported input date formats are:
 //   mm/dd/yyyy
-//   mm/dd/yy   (assumes 19yy)
+//   mm/dd/yy   (assumes 20yy for yy < 10, else 19yy)
 //   yyyy/mm/dd
 //   also mm-dd-yyyy, etc. and mm.dd.yyyy, etc.
 //
@@ -437,6 +491,7 @@ function fixDate($date, $default="0000-00-00") {
             $fixed_date = sprintf("%04u-%02u-%02u", $dmy[0], $dmy[1], $dmy[2]);
         } else {
             if ($dmy[2] < 1000) $dmy[2] += 1900;
+            if ($dmy[2] < 1910) $dmy[2] += 100;
             $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[0], $dmy[1]);
         }
     }
@@ -743,7 +798,7 @@ function updateHistoryData($pid,$new)
 }
 
 function sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone_home,
-				$phone_biz,$email)
+				$phone_biz,$email,$pid="")
 {
 	$db = $GLOBALS['adodb']['db'];
 	$customer_info = array();
@@ -788,6 +843,7 @@ function sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone
 	$customer_info['phone2'] = $phone_biz;
 	$customer_info['phone2comment'] = "Business Phone";
 	$customer_info['email'] = $email;
+	$customer_info['customernumber'] = $pid;
 
 	$function['ezybiz.add_customer'] = array(new xmlrpcval($customer_info,"struct"));
 	$ws = new WSWrapper($function);
@@ -817,5 +873,20 @@ function getPatientAge($dobYMD)
         $age = "$ageInMonths month";
     }
     return $age;
+}
+
+function dateToDB ($date) 
+{
+	$date=substr ($date,6,4)."-".substr ($date,3,2)."-".substr($date, 0,2);
+	return $date;
+}
+
+
+
+
+function DBToDate ($date)
+{
+	$date=substr ($date,5,2)."/".substr ($date,8,2)."/".substr($date, 0,4);
+	return $date;
 }
 ?>

@@ -419,8 +419,18 @@ class Prescription extends ORDataObject {
 			default:
 				break;
 		}
+		$sql = "SELECT * FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . mysql_real_escape_string($this->provider->id) . "'";
+		$db = get_db();
+		$results = $db->Execute($sql);
+		if (!$results->EOF) {
+
+			$string =	 $results->fields['name'] . "\n"
+			. $results->fields['street'] . "\n"
+			. $results->fields['city'] . ", " . $results->fields['state'] . " " . $results->fields['postal_code'] . "\n"
+			. $results->fields['phone'] . "\n\n";
+		}
 		
-		$string = ""
+		$string .= ""
 			."Prescription For:" . "\t" .$this->patient->get_name_display() . "\n"
 			."Start Date: " . "\t\t" . $this->start_date. "\n"
 			."Provider: " . "\t\t" . $this->provider->get_name_display(). "\n"

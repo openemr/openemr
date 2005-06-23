@@ -1,0 +1,20 @@
+##########
+# README #
+##########
+
+This form was created by Women's Health Services IT dept. as a contribution to OpenEMR and therefore released under the GNU GPL license  questions can be addressed to it@whssf.org. For support we recommend you contact openemr.net
+
+This form needs a directory called `scanned` hanging from `forms/documents/`
+i.e.. `forms/documents/scanned`.
+The  `scanned` dir will hold the documents under another directory that the script will create during upload time. This directory will be named after the $PID (patient id)
+i.e..  `forms/documents/scanned/1` and the documents scanned for that patient will hang there.
+It is important that you give Apache writing permission to  `scanned`.
+After uploading the script will chmod the file so it can only be read.
+
+The documents uploaded are renamed in a way that you will always be able to identify them. year-month-day-hour-minute-second-patient_id
+
+The installation procedure is fairly simple.
+Decompress the file under the `forms` directory, which you may already done if you are reading this.
+Then log in OpenEMR, go to administration, forms, register (this form), install db, and enable.
+All that should make the form available under encounters.
+

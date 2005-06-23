@@ -43,8 +43,32 @@ class WSClaim extends WSWrapper{
 			return false;
 		$invoice_info = array();
 
-		$sql = "SELECT b.*, CONCAT(pd.fname,' ',pd.mname,' ',pd.lname) as patient_name FROM billing as b LEFT JOIN patient_data as pd on b.pid=pd.pid where "
-			."b.encounter ='" . $this->encounter ."' AND b.pid = '" . $this->patient_id ."' AND b.billed = 1 AND b.activity != '0' AND authorized='1'";
+		// Create invoice notes for the new invoice that list the patient's
+		// insurance plans.  This is so that when payments are posted, the user
+		// can easily see if a secondary claim needs to be submitted.
+		//
+		$insnotes = "";
+		$insno = 0;
+		foreach (array("primary", "secondary", "tertiary") as $instype) {
+			++$insno;
+			$sql = "SELECT insurance_companies.name " .
+				"FROM insurance_data, insurance_companies WHERE " .
+				"insurance_data.pid = " . $this->patient_id . " AND " .
+				"insurance_data.type = '$instype' AND " .
+				"insurance_companies.id = insurance_data.provider " .
+				"LIMIT 1";
+			$result = $this->_db->Execute($sql);
+			if ($result && !$result->EOF && $result->fields['name']) {
+				if ($insnotes) $insnotes .= "\n";
+				$insnotes .= "Ins$insno: " . $result->fields['name'];
+			}
+		}
+		$invoice_info['notes'] = $insnotes;
+
+		$sql = "SELECT b.*, CONCAT(pd.fname,' ',pd.mname,' ',pd.lname) as patient_name " .
+			"FROM billing as b LEFT JOIN patient_data as pd on b.pid=pd.pid where " .
+			"b.encounter = '" . $this->encounter ."' AND b.pid = '" . $this->patient_id .
+			"' AND b.billed = 1 AND b.activity != '0' AND authorized = '1'";
 
 		$result = $this->_db->Execute($sql);
 

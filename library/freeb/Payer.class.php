@@ -76,7 +76,7 @@ class Payer Extends DataObjectBase {
 															"sig"	=>	array(XMLRPCSTRING,XMLRPCSTRING),
 															"doc"	=>	""));
 		$this->_addFunc("x12claimtype",	array(	"name"	=>	"FreeB.FBPayer.X12ClaimType",
-															"sig"	=>	array(XMLRPCSTRING,XMLRPCSTRING),
+															"sig"	=>	array(XMLRPCSTRING,XMLRPCINT),
 															"doc"	=>	""));
 	}
 
@@ -596,9 +596,10 @@ class Payer Extends DataObjectBase {
 
 		//type of payer determined by HIPAA, supposed to be superceded by PlanID at some point, I don't think yet 06/03/2004
 
-		//MB is medicare
-		//16 is HMO
-		$pkey = "16";
+		$obj= $m->getparam(0);
+		$ikey = $obj->getval();
+		$ic = new InsuranceCompany($ikey);
+		$pkey = $ic->get_freeb_claim_type();
 
 		// if we generated an error, create an error return response
 		if ($err) {
