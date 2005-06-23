@@ -7,11 +7,17 @@ include_once("$srcdir/lists.inc");
 
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<style>
+.link {
+ font-family: sans-serif;
+ text-decoration: none;
+ color: #000000;
+ font-size: 8pt;
+}
+</style>
 </head>
 
-
 <body <?echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-
 
 <table ><tr>
 <td width="20%" valign="top">
@@ -86,7 +92,7 @@ while ($row=sqlFetchArray($result)){
 </td>
 </tr>
 <tr>
-<td width="20%" valid="top"
+<td width="20%" valign="top">
 <?
 $cwd= getcwd();
 chdir("../../../");
@@ -94,15 +100,10 @@ require_once("library/classes/Controller.class.php");
 $c = new Controller();
 echo '<font class="title">Prescriptions</font>';
 echo $c->act(array("prescription" => "", "block" => "", "patient_id" => $pid));
-
 ?>
 </td>
 </tr>
 </table>
 
-
-
-
 </body>
 </html>
-
