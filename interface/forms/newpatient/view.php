@@ -1,5 +1,13 @@
 <?
 include_once("../../globals.php");
+include_once("../../../library/acl.inc");
+
+$disabled = "disabled";
+
+// If we are allowed to change encounter dates...
+if (acl_check('encounters', 'date_a')) {
+	$disabled = "";
+}
 
 $months = array("01","02","03","04","05","06","07","08","09","10","11","12");
 $days = array("01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17",
@@ -20,7 +28,7 @@ $ons_day   = substr($result{'onset_date'}, 8, 2);
 
 <html>
 <head>
-<title>New Patient Encounter</title>
+<title>Patient Encounter</title>
 
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
@@ -28,7 +36,7 @@ $ons_day   = substr($result{'onset_date'}, 8, 2);
 <form method=post action="<?echo $rootdir?>/forms/newpatient/save.php" name=new_encounter target=Main>
 <input type=hidden name=mode value='update'>
 <input type=hidden name=id value='<?echo $_GET["id"];?>'>
-<span class=title>New Patient Encounter Form</span>
+<span class=title>Patient Encounter Form</span>
 <br>
 
 <table>
@@ -55,7 +63,7 @@ echo $result{"reason"};
 </td></td></tr>
 
 <tr><td><span class='text'>Date Of Service:</span></td>
-<td><select name='month' disabled>
+<td><select name='month' <? echo $disabled ?>>
 <?
 foreach($months as $month){
 ?>
@@ -64,7 +72,7 @@ foreach($months as $month){
 }
 ?>
 </select>
-<select name='day' disabled>
+<select name='day' <? echo $disabled ?>>
 <?
 foreach($days as $day){
 ?>
@@ -73,7 +81,7 @@ foreach($days as $day){
 }
 ?>
 </select>
-<select name='year' disabled>
+<select name='year' <? echo $disabled ?>>
 <?
 foreach($years as $year){
 ?>

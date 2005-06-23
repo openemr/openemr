@@ -1,0 +1,13 @@
+This file is intended as a little help to developers willing to make some changes.
+
+
+To Modify patient demographic information you'll need to modify the following files:
+
+lib/patient.inc
+lib/report.inc
+sql/database.sql
+sql/update***.sql (please be nice and include the database changes)
+interface/patient_file/summary/demographics.php
+interface/patient_file/summary/demographics_full.php
+interface/patient_file/summary/demographics_save.php
+

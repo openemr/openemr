@@ -46,8 +46,6 @@ session_start();
 #print(session_id());
 
 //this is the theme definition for a beige theme:
-
-
 $top_bg_line = ' bgcolor="#94d6e7" ';
 $GLOBALS['style']['BGCOLOR2'] = "#94d6e7";
 $bottom_bg_line = ' background="'.$rootdir.'/pic/aquabg.gif" ';
@@ -67,10 +65,9 @@ $GLOBALS['style']['BOTTOM_BG_LINE'] = $bottom_bg_line;
 // the height in pixels of the Logo bar at the top of the login page.
 $GLOBALS['logoBarHeight'] = 110;
 // the height in pixels of the Navigation bar
-$GLOBALS['navBarHeight'] = 20;
+$GLOBALS['navBarHeight'] = 22;
 // the height in pixels of the Title bar
 $GLOBALS['titleBarHeight'] = 20;
-
 
 //the assistant word, MORE printed next to titles that can be clicked
 $tmore = "(More)";
@@ -95,10 +92,9 @@ else {
 
 $v_major = '2';
 $v_minor = '7';
-$v_patch = '0';
+$v_patch = '2';
 
-
-$tag = ''; //early access
+$tag = ''; // release candidate
 
 $openemr_version = "$v_major.$v_minor.$v_patch".$tag;	// Version tag used by program
 
@@ -130,6 +126,29 @@ if (!$ignoreAuth) {
 // (2005-03-21) does nothing useful with insurance companies as customers.
 //
 $GLOBALS['insurance_companies_are_not_customers'] = false;
+
+// If OpenEMR is being used by an athletic team rather than in a traditional
+// clinical setting, set this to true.
+//
+$GLOBALS['athletic_team'] = false;
+
+// The telephone country code of this installation.
+// See http://www.wtng.info/ for a list.
+//
+$GLOBALS['phone_country_code'] = '1'; // 1 = USA
+
+// These are needed only if you are using SQL-Ledger and you want to see
+// the cash receipts report by practitioner (sl_receipts_report.php),
+// which is invoked from the billing page.  We will probably have more
+// uses for these later.
+//
+$sl_cash_acc    = '1060';       // sql-ledger account number for checking
+$sl_ar_acc      = '1200';       // sql-ledger account number for a/r
+$sl_income_acc  = '4020';       // sql-ledger account number for medical services income
+$sl_services_id = 'MS';         // sql-ledger parts table id for medical services
+$sl_dbname      = 'sql-ledger'; // sql-ledger database name
+$sl_dbuser      = 'sql-ledger'; // sql-ledger database login name
+$sl_dbpass      = 'secret';     // sql-ledger database login password
 
 $encounter = $_SESSION['encounter'];
 

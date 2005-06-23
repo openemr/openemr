@@ -33,9 +33,11 @@ addForm($encounter, "New Patient Encounter",
 
 } else if ($mode == 'update') {
 
+	// See view.php to allow or disallow updates of the encounter date.
+	$datepart = $_POST["day"] ? "date = '$date', " : "";
 	$id = $_POST["id"];
 	sqlStatement("update form_encounter set " .
-		// "date = '$date', " . // encounter date changes are frowned upon
+		$datepart .
 		"onset_date = '$onset_date', " .
 		"reason = '$reason', " .
 		"facility = '$facility' " .
