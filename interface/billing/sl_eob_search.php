@@ -345,10 +345,10 @@ function npopup(pid) {
     }
 
     if (! $where) {
-      if ($_POST['form_category'] == 'Due') {
-        $where = "1 = 1";
+      if ($_POST['form_category'] == 'All') {
+        die("At least one search parameter is required if you select All.");
       } else {
-        die("At least one search parameter is required or you must select Due.");
+        $where = "1 = 1";
       }
     }
 
@@ -357,9 +357,9 @@ function npopup(pid) {
       "FROM ar, customer WHERE $where AND customer.id = ar.customer_id ";
     if ($_POST['form_category'] != 'All') {
       $query .= "AND ar.amount != ar.paid ";
-      if ($_POST['form_category'] == 'Due') {
-        $query .= "AND ar.duedate <= CURRENT_DATE ";
-      }
+      // if ($_POST['form_category'] == 'Due') {
+      //   $query .= "AND ar.duedate <= CURRENT_DATE ";
+      // }
     }
     $query .= "ORDER BY customer.name, ar.invnumber";
 
@@ -370,6 +370,38 @@ function npopup(pid) {
 
     for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
       $row = SLGetRow($t_res, $irow);
+
+      // $duncount was originally supposed to be the number of times that
+      // the patient was sent a statement for this invoice.
+      //
+      $duncount = substr_count(strtolower($row['intnotes']), "statement sent");
+
+      // But if we have not yet billed the patient, then compute $duncount as a
+      // negative count of the number of insurance plans for which we have not
+      // yet closed out insurance.
+      //
+      if (! $duncount) {
+        $insgot = strtolower($row['notes']);
+        $inseobs = strtolower($row['shipvia']);
+        foreach (array('ins1', 'ins2', 'ins3') as $value) {
+          if (strpos($insgot, $value) !== false &&
+              strpos($inseobs, $value) === false)
+            --$duncount;
+        }
+      }
+
+//    $isdue = ($row['duedate'] <= $today && $row['amount'] > $row['paid']) ? " checked" : "";
+
+      // An invoice is now due if money is owed and we are not waiting for
+      // insurance to pay.  We no longer look at the due date for this.
+      //
+      $isdue = ($duncount >= 0 &&
+        sprintf("%.2f",$row['amount']) > sprintf("%.2f",$row['paid']))
+        ? " checked" : "";
+
+      // Skip non-due invoices if the user asked for only those due.
+      //
+      if ($_POST['form_category'] == 'Due' && ! $isdue) continue;
 
       $bgcolor = (($irow & 1) ? "#ffdddd" : "#ddddff");
 
@@ -392,27 +424,6 @@ function npopup(pid) {
           "encounter = $encounter");
         $svcdate = substr($tmp['date'], 0, 10);
       }
-
-      // $duncount was originally supposed to be the number of times that
-      // the patient was sent a statement for this invoice.
-      //
-      $duncount = substr_count(strtolower($row['intnotes']), "statement sent");
-
-      // But if we have not yet billed the patient, then compute $duncount as a
-      // negative count of the number of insurance plans for which we have not
-      // yet posted an EOB.
-      //
-      if (! $duncount) {
-        $insgot = strtolower($row['notes']);
-        $inseobs = strtolower($row['shipvia']);
-        foreach (array('ins1', 'ins2', 'ins3') as $value) {
-          if (strpos($insgot, $value) !== false &&
-              strpos($inseobs, $value) === false)
-            --$duncount;
-        }
-      }
-
-      $isdue = ($row['duedate'] <= $today && $row['amount'] > $row['paid']) ? " checked" : "";
 ?>
  <tr bgcolor='<? echo $bgcolor ?>'>
   <td class="detail">

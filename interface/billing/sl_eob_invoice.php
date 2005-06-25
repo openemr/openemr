@@ -504,14 +504,15 @@ function validate(f) {
       $form_duedate = fixDate($_POST['form_duedate']);
       $form_notes = trim($_POST['form_notes']);
 
-      // Maintain the list of insurances whose EOBs we have posted.
+      // Maintain the list of insurances that we mark as finished.
       // We use the "Ship Via" field of the invoice to hold these.
       //
-      $form_eobs = trim($_POST['form_eobs']);
-      $form_insurance = trim($_POST['form_insurance']);
-      if (strpos($form_eobs, $form_insurance) === false) {
-        if ($form_eobs) $form_eobs .= ","; else $form_eobs = "EOBs: ";
-        $form_eobs .= $form_insurance;
+      $form_eobs = "";
+      foreach (array('Ins1', 'Ins2', 'Ins3') as $value) {
+        if ($_POST["form_done_$value"]) {
+          if ($form_eobs) $form_eobs .= ","; else $form_eobs = "Done: ";
+          $form_eobs .= $value;
+        }
       }
 
       $query = "UPDATE ar SET duedate = '$form_duedate', notes = '$form_notes', " .
@@ -608,8 +609,23 @@ function validate(f) {
    <?echo $svcdate ?>
   </td>
   <td colspan="2">
-   Already posted:&nbsp;
-   <?echo $arrow['shipvia'] ?>
+   <!-- <?echo $arrow['shipvia'] ?> -->
+   Done with:&nbsp;
+<?
+ // Write a checkbox for each insurance.  It is to be checked when
+ // we no longer expect any payments from that company for the claim.
+ // The information is stored in the 'shipvia' field of the invoice.
+ //
+ $insgot  = strtolower($arrow['notes']);
+ $insdone = strtolower($arrow['shipvia']);
+ foreach (array('Ins1', 'Ins2', 'Ins3') as $value) {
+  $lcvalue = strtolower($value);
+  $checked  = (strpos($insdone, $lcvalue) === false) ? "" : " checked";
+  if (strpos($insgot, $lcvalue) !== false) {
+   echo "   <input type='checkbox' name='form_done_$value' value='1'$checked />$value&nbsp;\n";
+  }
+ }
+?>
   </td>
  </tr>
 

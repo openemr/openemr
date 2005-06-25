@@ -10,25 +10,29 @@
 and promotes efficient entry of EOB data.
 
 <p>The first window is the invoice search page.  At the top you should
-enter a check number, pay date and check amount.  The reason for the check
-number and pay date is so that you don't have to enter them over and over
+enter a source (e.g. check number), pay date and check amount.  The reason for the
+source and pay date is so that you don't have to enter them over and over
 again for each claim.  The amount that you enter will be decreased for each
 invoice that is given part of the payment, and hopefully will end at zero
 when you are done.
 
 <p>Just below the check information is a blue area where you put in your
 search parameters.  You can search by patient name, chart number, encounter
-number or date of service, or any combination of these.  The "Closed" checkbox,
-if checked, will include closed invoices in the search.  Click the Search
-button to perform the search.
+number or date of service, or any combination of these.  You may also select
+whether you want to see all invoices, open invoices, or only invoices that
+are due (by the patient).  Click the Search button to perform the search.
 
 <p>Upon searching you are presented with a list of invoices.  Click on one
 of the invoice numbers to open the second window, which is the data entry
-page.
+page.  You may also click on a patient name if you want to enter a note that
+the front office staff will see when the patient checks in, and you may
+select invoices to appear on patient statements and print those statements.
 
-<p>In the data entry page you can change the due date and notes for the invoice.
-More importantly, for each billing code for which an amount was charged, you
-can enter payment and adjustment information.
+<p>Upon clicking an invoice number a "posting window" appears.  Here you can
+change the due date and notes for the invoice, select the party for whom you
+are posting, and select the insurances for which all expected paymants have
+been received.  Most importantly, for each billing code for which an amount
+was charged, you can enter payment and adjustment information.
 
 <p>The Source and Date columns are copied from the first page, so normally
 you will not need to touch those.  You can put a payment amount in the Pay
@@ -36,12 +40,18 @@ column, an adjustment amount in the Adjust column, or both.  You can also click
 the "W" on the right to automatically compute an adjustment value that
 writes off the remainder of the charge for that line item.
 
-<p>Pay attention to the due date.  This is the date when we will start asking
-the patient to pay the remaining balance.  If there is a balance
-that the patient should pay, then set the due date to the current date.  If
-you will be submitting a secondary claim then set the due date about 40 days
-into the future, or as otherwise prescribed by your site's policies.
+<p>Pay attention to the "Done with" checkboxes.  After the insurances are
+marked complete then we will start asking the patient to pay the remaining
+balance; if you fail to mark all of the insurances complete then the remaining
+amount will not be collected!  Also if there is a balance that the patient
+should pay, then set the due date appropriately, as this will affect the
+language that appears on patient statements.
 
 <p>After the information is correctly entered, click the Save button.
+
+<p>Another thing you can do in the posting window is request secondary billing.
+If you select this checkbox before saving, then the original claim will be
+re-opened on the Billing page, and you will be able to select the new insurance
+to be billed during the next billing run.
 </body>
 </html>
