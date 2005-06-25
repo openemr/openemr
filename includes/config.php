@@ -27,6 +27,8 @@ $GLOBALS['oer_config']['prescriptions']['logo_pic'] = "prescription_logo.png";
 
 //Name of signature graphic in interface/pic/ directory without preceding slash. Normally 3 inches wide.
 $GLOBALS['oer_config']['prescriptions']['sig_pic'] = "sig.png";
+//Option to used signature graphic or not
+$GLOBALS['oer_config']['prescriptions']['use_signature'] = false;
 
 // only works with hylafax sendfax client, and sendfax must be in PATH
 // assign 'sendfax' to turn fax sending on
