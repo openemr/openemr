@@ -242,7 +242,8 @@ class BillingContact Extends DataObjectBase {
 		}
 
 		$phone_parts = array();
-		preg_match("/^\((.*?)\)\s(.*?)\-(.*?)$/",$retval,$phone_parts);
+//	preg_match("/^\((.*?)\)\s(.*?)\-(.*?)$/",$retval,$phone_parts);
+		preg_match("/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/",$retval,$phone_parts);
 		$retval = $phone_parts[1];
 
 		// if we generated an error, create an error return response
@@ -278,7 +279,8 @@ class BillingContact Extends DataObjectBase {
 		}
 		
 		$phone_parts = array();
-		preg_match("/^\((.*?)\)\s(.*?)\-(.*?)$/",$retval,$phone_parts);
+//	preg_match("/^\((.*?)\)\s(.*?)\-(.*?)$/",$retval,$phone_parts);
+		preg_match("/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/",$retval,$phone_parts);
 		$retval = $phone_parts[2] . "-" . $phone_parts[3];
 
 		// if we generated an error, create an error return response
