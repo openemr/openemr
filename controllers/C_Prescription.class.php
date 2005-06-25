@@ -146,7 +146,7 @@ class C_Prescription extends Controller {
 					// return $this->assign("process_result","No fax server is currently setup.");
 					// else default is printing,
 				}
-				elseif {
+				else {
 			 		//the pharmacy has no default or default is print
 					return $this->_print_prescription($p, $dummy);
 				}
@@ -167,7 +167,7 @@ class C_Prescription extends Controller {
 			$pdf->ezImage($this->pconfig['logo'],"","","none","left");
 		}
 		$pdf->ezText($p->get_prescription_display(),10);
-		if(!empty($this->pconfig['signature'])) {
+		if($this->pconfig['use_signature'] == true ) {
 			$pdf->ezImage($this->pconfig['signature'],"","","none","left");
 		}
 		else{
