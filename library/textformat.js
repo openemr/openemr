@@ -75,6 +75,39 @@ function datekeyup(e, defcc) {
  }
 }
 
+// Onblur handler to avoid incomplete entry of dates.
+//
+function dateblur(e, defcc) {
+ var v = e.value;
+ if (v.length == 0) return;
+
+ var arr = new Array(0, 0, 0);
+ var ix = 0;
+ for (var i = 0; i < v.length; ++i) {
+  var c = v.charAt(i);
+  if (c >= '0' && c <= '9') {
+   ++arr[ix];
+  } else if (c == '-' || c == '/') {
+   arr[++ix] = 0;
+  } else {
+   alert('Invalid character in date!');
+   return;
+  }
+ }
+
+ if (ix != 2 || arr[0] != 4 || arr[1] != 2 || arr[2] < 1) {
+  if (confirm('Date entry is incomplete! Try again?'))
+   e.focus();
+  else
+   e.value = '';
+  return;
+ }
+
+ if (arr[2] == 1) {
+  e.value = v.substring(0, 8) + '0' + v.substring(8);
+ }
+}
+
 // Private subroutine for US phone number formatting.
 function usphone(v) {
  if (v.length > 0 && v.charAt(0) == '-') v = v.substring(1);

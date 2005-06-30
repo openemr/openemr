@@ -134,7 +134,7 @@ $result2 = getEmployerData($pid);
   <td>
    <input tabindex='5' type='entry' size='11' name='dob'
     value='<? echo $result['DOB'] ?>' onkeyup='datekeyup(this,mypcc)'
-    title='yyyy-mm-dd' />
+    onblur='dateblur(this,mypcc)' title='yyyy-mm-dd' />
   </td>
   <td rowspan="12">&nbsp;</td>
   <td><span class=bold><? echo ($GLOBALS['athletic_team']) ? 'Organizational ID' : 'Patient' ?> Number: </span></td>
@@ -503,7 +503,8 @@ $result2 = getEmployerData($pid);
    <span class=bold>D.O.B.: </span>
    <input type='entry' size='11' name='i<?=$i?>subscriber_DOB'
     value='<? echo $result3['subscriber_DOB'] ?>'
-    onkeyup='datekeyup(this,mypcc)' title='yyyy-mm-dd' />
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+    title='yyyy-mm-dd' />
    <span class=bold>S.S.: </span><input type=entry size=11 name=i<?=$i?>subscriber_ss value="<?echo $result3{"subscriber_ss"}?> ">&nbsp;
    <span class=bold>Sex: </span>
    <select name=i<?=$i?>subscriber_sex>
