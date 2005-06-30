@@ -207,6 +207,7 @@ function goPid(pid) {
    $startampm = ($slottime['mer']) == "pm" ? 2 : 1;
    $starttimeh = $slottime['hour'];
    $starttimem = $slottime['minute'];
+   $slotendmins = $starttimeh * 60 + $starttimem + $interval;
 
    // Repeat doc names at 1PM.  This is a kludge; omit it for released code.
    // if ($starttimeh == 13 && $starttimem == 0) $need_headers = true;
@@ -220,8 +221,8 @@ function goPid(pid) {
     $starth = substr($slotevent['startTime'], 0, 2);
     $startm = substr($slotevent['startTime'], 3, 2);
 
-    if ($starth > $starttimeh) break;
-    if ($startm >= ($starttimem + $interval)) break;
+    if (($starth * 60 + $startm) > $slotendmins) break;
+
     $arr_slot[$slotkey] = $slotevent;
 
     $catid = $slotevent['catid'];
@@ -321,7 +322,7 @@ function goPid(pid) {
      $patient_age = $event['patient_age'];
      $catid = $event['catid'];
      $catname = $event['catname'];
-     $title = "$fname, age $patient_age ($patient_dob) " . addslashes($event['hometext']);
+     $title = "Age $patient_age ($patient_dob) " . addslashes($event['hometext']);
      if ($catid == 2 || $catid == 3 || $catid == 4 || $catid == 8 || $catid == 11) {
       if      ($catid ==  2) $catname = "IN";
       else if ($catid ==  3) $catname = "OUT";
@@ -339,7 +340,7 @@ function goPid(pid) {
       $content .= $startm . "</a>";
       $content .= "<a href='javascript:goPid($patientid)' title='$title'>-";
       if ($catid == 1) $content .= "<strike>";
-      $content .= $lname;
+      $content .= $lname . "," . $fname;
       if ($catid == 1) $content .= "</strike>";
       $content .= "</a>";
      }
