@@ -291,93 +291,91 @@ function postcalendar_user_submit2($args)
 	}
 	//return postcalendar_user_submit2($args);
 }
+
 function postcalendar_user_submit($args)
 {
-
-
 	// We need at least ADD permission to submit an event
-    if (!(bool)PC_ACCESS_ADD) {
-        return _POSTCALENDARNOAUTH;
-    }
+	if (!(bool)PC_ACCESS_ADD) {
+		return _POSTCALENDARNOAUTH;
+	}
 
 	$output =& new pnHTML();
-    $output->SetInputMode(_PNH_VERBATIMINPUT);
+	$output->SetInputMode(_PNH_VERBATIMINPUT);
 
 
 	// get the theme globals :: is there a better way to do this?
-    pnThemeLoad(pnUserGetTheme());
-    global $bgcolor1, $bgcolor2, $bgcolor3, $bgcolor4, $bgcolor5, $textcolor1, $textcolor2;
+	pnThemeLoad(pnUserGetTheme());
+	global $bgcolor1, $bgcolor2, $bgcolor3, $bgcolor4, $bgcolor5, $textcolor1, $textcolor2;
 
-//  $category = pnVarCleanFromInput('event_category');
-    $category = pnVarCleanFromInput('category');
+	// $category = pnVarCleanFromInput('event_category');
+	$category = pnVarCleanFromInput('category');
 
-    if(!empty($category))
-    {
-    	$category = unserialize(base64_decode($category));
-    	//print_r($category);
-    }
-    else
-    {	//print_r($_POST);
-    	$cat = $_POST['category'];
+	if(!empty($category))
+	{
+		$category = unserialize(base64_decode($category));
+		//print_r($category);
+	}
+	else
+	{ //print_r($_POST);
+		$cat = $_POST['category'];
 
-    	$category = unserialize(base64_decode($cat));
-    	//print_r($category);
-    }
-    //print_r($category);
+		$category = unserialize(base64_decode($cat));
+		//print_r($category);
+	}
+	//print_r($category);
 
-		// echo("<!-- Here is the argument array: -->\n");
-		// foreach ($args as $tmpkey => $tmpval) { // debugging
-		// 	echo("<!-- $tmpkey => '$tmpval' -->\n");
-		// }
+	// echo("<!-- Here is the argument array: -->\n");
+	// foreach ($args as $tmpkey => $tmpval) { // debugging
+	//  echo("<!-- $tmpkey => '$tmpval' -->\n");
+	// }
 
-    extract($args);
-
+	extract($args);
 
 	$Date =& postcalendar_getDate();
 	$year   = substr($Date,0,4);
-    $month  = substr($Date,4,2);
-    $day    = substr($Date,6,2);
+	$month  = substr($Date,4,2);
+	$day    = substr($Date,6,2);
 
 	// basic event information
-	$event_desc 		= pnVarCleanFromInput('event_desc');
-	$event_category 	= pnVarCleanFromInput('event_category');
-	$event_subject  	= pnVarCleanFromInput('event_subject');
-	$event_sharing  	= pnVarCleanFromInput('event_sharing');
-	$event_topic 		= pnVarCleanFromInput('event_topic');
+	$event_desc     = pnVarCleanFromInput('event_desc');
+	$event_category = pnVarCleanFromInput('event_category');
+	$event_subject  = pnVarCleanFromInput('event_subject');
+	$event_sharing  = pnVarCleanFromInput('event_sharing');
+	$event_topic    = pnVarCleanFromInput('event_topic');
 
 	//id of the user the event is for
-	$event_userid 		= pnVarCleanFromInput('event_userid');
+	$event_userid = pnVarCleanFromInput('event_userid');
 	if (!is_numeric($event_userid))
 		$event_userid = 0;
-	$event_pid			= pnVarCleanFromInput('event_pid');
+	$event_pid = pnVarCleanFromInput('event_pid');
 
 	if (!is_numeric($event_pid))
 		$event_pid = "";
 
 	// event start information
-	$event_startmonth 	= pnVarCleanFromInput('event_startmonth');
-	$event_startday 	= pnVarCleanFromInput('event_startday');
-	$event_startyear 	= pnVarCleanFromInput('event_startyear');
-	$event_starttimeh	= pnVarCleanFromInput('event_starttimeh');
-	$event_starttimem 	= pnVarCleanFromInput('event_starttimem');
-	$event_startampm 	= pnVarCleanFromInput('event_startampm');
+	$event_startmonth    = pnVarCleanFromInput('event_startmonth');
+	$event_startday      = pnVarCleanFromInput('event_startday');
+	$event_startyear     = pnVarCleanFromInput('event_startyear');
+	$event_starttimeh    = pnVarCleanFromInput('event_starttimeh');
+	$event_starttimem    = pnVarCleanFromInput('event_starttimem');
+	$event_startampm     = pnVarCleanFromInput('event_startampm');
 
 	// location data
-	$event_location 	= pnVarCleanFromInput('event_location');
-	$event_street1  	= pnVarCleanFromInput('event_street1');
-	$event_street2  	= pnVarCleanFromInput('event_street2');
-	$event_city 		= pnVarCleanFromInput('event_city');
-	$event_state 		= pnVarCleanFromInput('event_state');
-	$event_postal 		= pnVarCleanFromInput('event_postal');
+	$event_location      = pnVarCleanFromInput('event_location');
+	$event_street1       = pnVarCleanFromInput('event_street1');
+	$event_street2       = pnVarCleanFromInput('event_street2');
+	$event_city          = pnVarCleanFromInput('event_city');
+	$event_state         = pnVarCleanFromInput('event_state');
+	$event_postal        = pnVarCleanFromInput('event_postal');
 	$event_location_info = serialize(compact('event_location', 'event_street1', 'event_street2',
-                                             'event_city', 'event_state', 'event_postal'));
+                                           'event_city', 'event_state', 'event_postal'));
 	// contact data
-	$event_contname 	= pnVarCleanFromInput('event_contname');
-	$event_conttel  	= pnVarCleanFromInput('event_conttel');
-	$event_contemail 	= pnVarCleanFromInput('event_contemail');
-	$event_website  	= pnVarCleanFromInput('event_website');
-	$event_fee  		= pnVarCleanFromInput('event_fee');
-	$event_patient_name = pnVarCleanFromInput('patient_name');
+	$event_contname      = pnVarCleanFromInput('event_contname');
+	$event_conttel       = pnVarCleanFromInput('event_conttel');
+	$event_contemail     = pnVarCleanFromInput('event_contemail');
+	$event_website       = pnVarCleanFromInput('event_website');
+	$event_fee           = pnVarCleanFromInput('event_fee');
+	$event_patient_name  = pnVarCleanFromInput('patient_name');
 
 	// event repeating data
 	if( is_array($category) )
@@ -396,10 +394,10 @@ function postcalendar_user_submit($args)
 		$event_repeat_on_day = $category['event_repeat_on_day'];
 		$event_repeat_on_freq = $category['event_repeat_on_freq'];
 		$event_recurrspec = serialize(compact('event_repeat_freq', 'event_repeat_freq_type', 'event_repeat_on_num',
-	                                          'event_repeat_on_day', 'event_repeat_on_freq'));
+                                          'event_repeat_on_day', 'event_repeat_on_freq'));
 
-	    // event end information
-	    $multiple = $category['end_date_freq']." ";
+		// event end information
+		$multiple = $category['end_date_freq']." ";
 		switch($category['end_date_type'])
 		{
 			case REPEAT_EVERY_DAY:
@@ -426,7 +424,11 @@ function postcalendar_user_submit($args)
 		$event_endday 		= date("d",$event_enddate);
 		$event_endyear  	= date("Y",$event_enddate);
 		$event_endtype  	= $category['end_date_flag'];
-		$event_allday 		= $category['event_all_day'];
+
+		// I'm pretty sure this was a bug since 'event_all_day' appears nowhere
+		// else in the code, but it's hard to tell WTF is going on.
+//	$event_allday 		= $category['event_all_day'];
+		$event_allday 		= $category['all_day'];
 	}
 	else
 	{
@@ -440,7 +442,7 @@ function postcalendar_user_submit($args)
 		$event_repeat_on_day = pnVarCleanFromInput('event_repeat_on_day');
 		$event_repeat_on_freq = pnVarCleanFromInput('event_repeat_on_freq');
 		$event_recurrspec = serialize(compact('event_repeat_freq', 'event_repeat_freq_type', 'event_repeat_on_num',
-	                                          'event_repeat_on_day', 'event_repeat_on_freq'));
+                                          'event_repeat_on_day', 'event_repeat_on_freq'));
 
 		// event end information
 		$event_endmonth 	= pnVarCleanFromInput('event_endmonth');
@@ -449,21 +451,31 @@ function postcalendar_user_submit($args)
 		$event_endtype  	= pnVarCleanFromInput('event_endtype');
 		$event_allday 		= pnVarCleanFromInput('event_allday');
 	}
+
+	// Added by Rod:
+	if ($event_allday) {
+		$event_starttimeh  = 0;
+		$event_starttimem  = 0;
+		$event_startampm   = 1;
+		$event_dur_hours   = 24;
+		$event_dur_minutes = 0;
+		$event_duration    = 60 * 60 * $event_dur_hours;
+	}
+
 	$form_action = pnVarCleanFromInput('form_action');
 	$pc_html_or_text = pnVarCleanFromInput('pc_html_or_text');
-    $pc_event_id = pnVarCleanFromInput('pc_event_id');
+	$pc_event_id = pnVarCleanFromInput('pc_event_id');
 	$data_loaded = pnVarCleanFromInput('data_loaded');
-    $is_update   = pnVarCleanFromInput('is_update');
+	$is_update   = pnVarCleanFromInput('is_update');
 	$authid      = pnVarCleanFromInput('authid');
 
 	//pennfirm uname matchup future fix
 	//if(pnUserLoggedIn()) { $uname = pnUserGetVar('uname'); }
-    //else { $uname = pnConfigGetVar('anonymous'); }
+	//else { $uname = pnConfigGetVar('anonymous'); }
 	$uname = $_SESSION['authUser'];
-    if(!isset($event_repeat)) { $event_repeat = 0; }
+	if(!isset($event_repeat)) { $event_repeat = 0; }
 
 	if(!isset($pc_event_id) || empty($pc_event_id) || $data_loaded) {
-
 		// lets wrap all the data into array for passing to submit and preview functions
 		$eventdata = compact('event_subject','event_desc','event_sharing','event_category','event_topic',
 		'event_startmonth','event_startday','event_startyear','event_starttimeh','event_starttimem','event_startampm',
@@ -483,7 +495,7 @@ function postcalendar_user_submit($args)
 		//echo "uname is:$uname  other name is: ".$event['uname'] . "<br />";
 		if($uname != $event['uname']) {
 			if (!validateGroupStatus($uname,getUsername($event['uname']))) {
-			 return _PC_CAN_NOT_EDIT;
+				return _PC_CAN_NOT_EDIT;
 			}
 		}
 		$eventdata['event_subject'] = $event['title'];
@@ -540,12 +552,11 @@ function postcalendar_user_submit($args)
 		$eventdata['data_loaded'] = true;
 		$eventdata['pc_html_or_text'] = $pc_html_or_text;
 		$eventdata['category'] = base64_encode(serialize($category));
-
 	}
 
 	// lets get the module's information
-    $modinfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
-    $categories = pnModAPIFunc(__POSTCALENDAR__,'user','getCategories');
+	$modinfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
+	$categories = pnModAPIFunc(__POSTCALENDAR__,'user','getCategories');
 	$output->tabindex=1;
 
 	//================================================================
@@ -553,18 +564,18 @@ function postcalendar_user_submit($args)
 	//================================================================
 	// removed event_desc as a required_var
 
-    $required_vars = array('event_subject');
-    $required_name = array(_PC_EVENT_TITLE,_PC_EVENT_DESC);
-    $error_msg = '';
-    $output->SetOutputMode(_PNH_RETURNOUTPUT);
-    $reqCount = count($required_vars);
+	$required_vars = array('event_subject');
+	$required_name = array(_PC_EVENT_TITLE,_PC_EVENT_DESC);
+	$error_msg = '';
+	$output->SetOutputMode(_PNH_RETURNOUTPUT);
+	$reqCount = count($required_vars);
 	//print_r($eventdata);
-    for ($r=0; $r<$reqCount; $r++) {
-        if(empty($$required_vars[$r]) || !preg_match('/\S/i',$$required_vars[$r])) {
-            $error_msg .= $output->Text('<b>'.$required_name[$r].'</b> '._PC_SUBMIT_ERROR4);
-            $error_msg .= $output->Linebreak();
-        }
-    }
+	for ($r=0; $r<$reqCount; $r++) {
+		if(empty($$required_vars[$r]) || !preg_match('/\S/i',$$required_vars[$r])) {
+			$error_msg .= $output->Text('<b>'.$required_name[$r].'</b> '._PC_SUBMIT_ERROR4);
+			$error_msg .= $output->Linebreak();
+		}
+	}
 	unset($reqCount);
 	// check repeating frequencies
 	if($event_repeat == REPEAT) {
@@ -572,65 +583,65 @@ function postcalendar_user_submit($args)
 		//can't have a repeating event that doesnt have an end date
 		if ($event_endtype == 0) {
 			$error_msg .= $output->Text("Repeating events must have an end date set.");
-        	$error_msg .= $output->Linebreak();
+			$error_msg .= $output->Linebreak();
 		}
 		if(!isset($event_repeat_freq) ||  $event_repeat_freq < 1 || empty($event_repeat_freq)) {
 			$error_msg .= $output->Text(_PC_SUBMIT_ERROR5);
-        	$error_msg .= $output->Linebreak();
+			$error_msg .= $output->Linebreak();
 		} elseif(!is_numeric($event_repeat_freq)) {
 			$error_msg .= $output->Text(_PC_SUBMIT_ERROR6);
-        	$error_msg .= $output->Linebreak();
+			$error_msg .= $output->Linebreak();
 		}
 	} elseif($event_repeat == REPEAT_ON) {
 		//can't have a repeating event that doesnt have an end date
 		if ($event_endtype == 0) {
 			$error_msg .= $output->Text("Repeating events must have an end date set.");
-        	$error_msg .= $output->Linebreak();
+			$error_msg .= $output->Linebreak();
 		}
 		if(!isset($event_repeat_on_freq) || $event_repeat_on_freq < 1 || empty($event_repeat_on_freq)) {
 			$error_msg .= $output->Text(_PC_SUBMIT_ERROR5);
-        	$error_msg .= $output->Linebreak();
+			$error_msg .= $output->Linebreak();
 		} elseif(!is_numeric($event_repeat_on_freq)) {
 			$error_msg .= $output->Text(_PC_SUBMIT_ERROR6);
-        	$error_msg .= $output->Linebreak();
+			$error_msg .= $output->Linebreak();
 		}
 	}
 	// check date validity
-    if(_SETTING_TIME_24HOUR) {
-        $startTime = $event_starttimeh.':'.$event_starttimem;
-        $endTime =   $event_endtimeh.':'.$event_endtimem;
-    } else {
-        if($event_startampm == _AM_VAL) {
-            $event_starttimeh = $event_starttimeh == 12 ? '00' : $event_starttimeh;
-        } else {
-            $event_starttimeh =  $event_starttimeh != 12 ? $event_starttimeh+=12 : $event_starttimeh;
-        }
-        $startTime = $event_starttimeh.':'.$event_starttimem;
-    }
-    $sdate = strtotime($event_startyear.'-'.$event_startmonth.'-'.$event_startday);
-    $edate = strtotime($event_endyear.'-'.$event_endmonth.'-'.$event_endday);
-    $tdate = strtotime(date('Y-m-d'));
-    if($edate < $sdate && $event_endtype == 1) {
-        $error_msg .= $output->Text(_PC_SUBMIT_ERROR1);
-        $error_msg .= $output->Linebreak();
-    }
-    if(!checkdate($event_startmonth,$event_startday,$event_startyear)) {
-        $error_msg .= $output->Text(_PC_SUBMIT_ERROR2 . " '$event_startyear-$event_startmonth-$event_startday'");
-        $error_msg .= $output->Linebreak();
-    }
-    if(!checkdate($event_endmonth,$event_endday,$event_endyear)) {
-        $error_msg .= $output->Text(_PC_SUBMIT_ERROR3 . " '$event_endyear-$event_endmonth-$event_endday'");
-        $error_msg .= $output->Linebreak();
-    }
+	if(_SETTING_TIME_24HOUR) {
+		$startTime = $event_starttimeh.':'.$event_starttimem;
+		$endTime =   $event_endtimeh.':'.$event_endtimem;
+	} else {
+		if($event_startampm == _AM_VAL) {
+			$event_starttimeh = $event_starttimeh == 12 ? '00' : $event_starttimeh;
+		} else {
+			$event_starttimeh =  $event_starttimeh != 12 ? $event_starttimeh+=12 : $event_starttimeh;
+		}
+		$startTime = $event_starttimeh.':'.$event_starttimem;
+	}
+	$sdate = strtotime($event_startyear.'-'.$event_startmonth.'-'.$event_startday);
+	$edate = strtotime($event_endyear.'-'.$event_endmonth.'-'.$event_endday);
+	$tdate = strtotime(date('Y-m-d'));
+	if($edate < $sdate && $event_endtype == 1) {
+		$error_msg .= $output->Text(_PC_SUBMIT_ERROR1);
+		$error_msg .= $output->Linebreak();
+	}
+	if(!checkdate($event_startmonth,$event_startday,$event_startyear)) {
+		$error_msg .= $output->Text(_PC_SUBMIT_ERROR2 . " '$event_startyear-$event_startmonth-$event_startday'");
+		$error_msg .= $output->Linebreak();
+	}
+	if(!checkdate($event_endmonth,$event_endday,$event_endyear)) {
+		$error_msg .= $output->Text(_PC_SUBMIT_ERROR3 . " '$event_endyear-$event_endmonth-$event_endday'");
+		$error_msg .= $output->Linebreak();
+	}
 
-    //check limit on category
-    if(($ret = checkCategoryLimits($eventdata)) != null)
-    {
-    	$error_msg .= $output->Text("This category has a limit of $ret[limit] between $ret[start] and $ret[end] which you have exceeded.");
-        $error_msg .= $output->Linebreak();
-        //$output->Text(pnModAPIFunc('PostCalendar','user','buildSubmitForm',$eventdata));
+	//check limit on category
+	if(($ret = checkCategoryLimits($eventdata)) != null)
+	{
+		$error_msg .= $output->Text("This category has a limit of $ret[limit] between $ret[start] and $ret[end] which you have exceeded.");
+		$error_msg .= $output->Linebreak();
+		//$output->Text(pnModAPIFunc('PostCalendar','user','buildSubmitForm',$eventdata));
 		//return $output->GetOutput();
-    }
+	}
 	//echo "fa: " . $form_action . " double_book: " . pnVarCleanFromInput("double_book") . " update: " . $eventdata['is_update'] . " em: " . $error_msg;
 	//event collision check
 
@@ -650,58 +661,56 @@ function postcalendar_user_submit($args)
 			$searchargs['s_keywords'] = " (a.pc_catid = 2 OR a.pc_catid = 3) ";
 			//print_r($searchargs);
 
-		$eventsByDate =& postcalendar_userapi_pcGetEvents($searchargs);
-		$ekey = md5($event_data['subject'] . date("U") . rand(0,1000));
-		$oldstatus = $eventdata['event_status'];
-		$oldtitle = $eventdata['event_subject'];
-		$old_patient_name = $eventdata['patient_name'];
-		$old_dur_hours = $eventdata['event_dur_hours'];
-		$old_dur_min = $eventdata['event_dur_minutes'];
-		$old_duration = $eventdata['event_duration'];
-		$eventdata['event_subject'] = mysql_real_escape_string($ekey);
-		$eventdata['event_status'] = _EVENT_TEMPORARY;
+			$eventsByDate =& postcalendar_userapi_pcGetEvents($searchargs);
+			$ekey = md5($event_data['subject'] . date("U") . rand(0,1000));
+			$oldstatus = $eventdata['event_status'];
+			$oldtitle = $eventdata['event_subject'];
+			$old_patient_name = $eventdata['patient_name'];
+			$old_dur_hours = $eventdata['event_dur_hours'];
+			$old_dur_min = $eventdata['event_dur_minutes'];
+			$old_duration = $eventdata['event_duration'];
+			$eventdata['event_subject'] = mysql_real_escape_string($ekey);
+			$eventdata['event_status'] = _EVENT_TEMPORARY;
 
-		if (!pnModAPIFunc(__POSTCALENDAR__,'user','submitEvent',$eventdata)) {
-        		$error_msg .= $output->Text('<center><div style="padding:5px; border:1px solid red; background-color: pink;">');
+			if (!pnModAPIFunc(__POSTCALENDAR__,'user','submitEvent',$eventdata)) {
+				$error_msg .= $output->Text('<center><div style="padding:5px; border:1px solid red; background-color: pink;">');
 				$error_msg .= $output->Text("<b>The system was unable to check you event for conflicts with other events because there was a problem with your database.</b><br />");
 				$error_msg .= $output->Text('</div></center>');
 				$error_msg .= $output->Linebreak();
-        		$error_msg .= $output->Text($dbconn->ErrorMsg());
-    	}
-		$searchargs['s_keywords'] = " (a.pc_catid = 2 OR a.pc_catid = 3) AND a.pc_title = '" . $eventdata['event_subject']  . "' ";
-		$searchargs['event_status'] = _EVENT_TEMPORARY;
-		$submitEventByDate =& postcalendar_userapi_pcGetEvents($searchargs);
-		if(!delete_event($ekey)) {
-			$error_msg .= $output->Text('<center><div style="padding:5px; border:1px solid red; background-color: pink;">');
-			$error_msg .= $output->Text("<b>The system was unable to delete a temporary record it created, this may have left the database in an inconsistent state.</b><br />");
-			$error_msg .= $output->Text('</div></center>');
-			$error_msg .= $output->Linebreak();
-        	$error_msg .= $output->Text($dbconn->ErrorMsg());
+				$error_msg .= $output->Text($dbconn->ErrorMsg());
+			}
+			$searchargs['s_keywords'] = " (a.pc_catid = 2 OR a.pc_catid = 3) AND a.pc_title = '" . $eventdata['event_subject']  . "' ";
+			$searchargs['event_status'] = _EVENT_TEMPORARY;
+			$submitEventByDate =& postcalendar_userapi_pcGetEvents($searchargs);
 
-		}
-		$eventdata['event_status'] = $oldstatus;
-		$eventdata['event_subject'] = $oldtitle;
-		$eventdata['patient_name '] = $old_patient_name;
-		$eventdata['event_dur_hours'] = $old_dur_hour;
-		$eventdata['event_dur_minutes'] = $old_dur_min;
-
-		foreach ($submitEventByDate as $date => $newevent) {
-			if (count($eventsByDate[$date]) > 0 && count($newevent) > 0) {
-				foreach ($eventsByDate[$date] as $con_event)  {
-					if ($con_event['catid'] == $newevent[0]['catid']) {
-						$error_msg .= $output->Text('There is a conflict on ' . $date . ' with event ' . $con_event['title']);
-						$error_msg .= $output->Linebreak();
-					}
-				}
-
+			if(!delete_event($ekey)) {
+				$error_msg .= $output->Text('<center><div style="padding:5px; border:1px solid red; background-color: pink;">');
+				$error_msg .= $output->Text("<b>The system was unable to delete a temporary record it created, this may have left the database in an inconsistent state.</b><br />");
+				$error_msg .= $output->Text('</div></center>');
+				$error_msg .= $output->Linebreak();
+				$error_msg .= $output->Text($dbconn->ErrorMsg());
 			}
 
-		}
-		/*echo "<br /><br />";
-		print_r($eventsByDate);
-		echo "<br /><br />";
-		print_r($submitEventByDate);*/
+			$eventdata['event_status'] = $oldstatus;
+			$eventdata['event_subject'] = $oldtitle;
+			$eventdata['patient_name '] = $old_patient_name;
+			$eventdata['event_dur_hours'] = $old_dur_hour;
+			$eventdata['event_dur_minutes'] = $old_dur_min;
 
+			foreach ($submitEventByDate as $date => $newevent) {
+				if (count($eventsByDate[$date]) > 0 && count($newevent) > 0) {
+					foreach ($eventsByDate[$date] as $con_event)  {
+						if ($con_event['catid'] == $newevent[0]['catid']) {
+							$error_msg .= $output->Text('There is a conflict on ' . $date . ' with event ' . $con_event['title']);
+							$error_msg .= $output->Linebreak();
+						}
+					}
+				}
+			}
+			/*echo "<br /><br />";
+			print_r($eventsByDate);
+			echo "<br /><br />";
+			print_r($submitEventByDate);*/
 		}
 
 		$colls = checkEventCollision($eventdata);
@@ -716,62 +725,59 @@ function postcalendar_user_submit($args)
 			//$eventdata['event_subject'] = "DOUBLE BOOKED " . $eventdata['event_subject'];
 			$eventdata['double_book'] = 1;
 		}
-
 	}
 
 	$output->SetOutputMode(_PNH_KEEPOUTPUT);
 	if($form_action == 'preview') {
-        //================================================================
-		//	Preview the event
+		//================================================================
+		//  Preview the event
 		//================================================================
 		// check authid
-        if (!pnSecConfirmAuthKey()) { return(_NO_DIRECT_ACCESS); }
-        if(!empty($error_msg)) {
-            $preview = false;
-            $output->Text('<table border="0" width="100%" cellpadding="1" cellspacing="0"><tr><td bgcolor="red">');
-            $output->Text('<table border="0" width="100%" cellpadding="1" cellspacing="0"><tr><td bgcolor="pink">');
-                $output->Text('<center><b>'._PC_SUBMIT_ERROR.'</b></center>');
-                $output->Linebreak();
-                $output->Text($error_msg);
-            $output->Text('</td></td></table>');
-            $output->Text('</td></td></table>');
-            $output->Linebreak(2);
-        } else {
-            $output->Text(pnModAPIFunc(__POSTCALENDAR__,'user','eventPreview',$eventdata));
+		if (!pnSecConfirmAuthKey()) { return(_NO_DIRECT_ACCESS); }
+		if(!empty($error_msg)) {
+			$preview = false;
+			$output->Text('<table border="0" width="100%" cellpadding="1" cellspacing="0"><tr><td bgcolor="red">');
+			$output->Text('<table border="0" width="100%" cellpadding="1" cellspacing="0"><tr><td bgcolor="pink">');
+			$output->Text('<center><b>'._PC_SUBMIT_ERROR.'</b></center>');
 			$output->Linebreak();
-        }
-    } elseif($form_action == 'commit') {
-
-
+			$output->Text($error_msg);
+			$output->Text('</td></td></table>');
+			$output->Text('</td></td></table>');
+			$output->Linebreak(2);
+		} else {
+			$output->Text(pnModAPIFunc(__POSTCALENDAR__,'user','eventPreview',$eventdata));
+			$output->Linebreak();
+		}
+	} elseif($form_action == 'commit') {
 
 		//================================================================
-		//	Enter the event into the DB
+		//  Enter the event into the DB
 		//================================================================
-  		if (!empty($error_msg)) {
+		if (!empty($error_msg)) {
 			if (!pnSecConfirmAuthKey(true)) { return(_NO_DIRECT_ACCESS); }
 		}
 		else {
 			if (!pnSecConfirmAuthKey()) { return(_NO_DIRECT_ACCESS); }
 		}
 		if(!empty($error_msg)) {
-            $preview = false;
-            $output->Text('<table border="0" width="100%" cellpadding="1" cellspacing="0"><tr><td bgcolor="red">');
-            $output->Text('<table border="0" width="100%" cellpadding="1" cellspacing="0"><tr><td bgcolor="pink">');
-                $output->Text('<center><b>'._PC_SUBMIT_ERROR.'</b></center>');
-                $output->Linebreak();
-                $output->Text($error_msg);
-            $output->Text('</td></td></table>');
-            $output->Text('</td></td></table>');
-            $output->Linebreak(2);
-        } else {
-            if (!pnModAPIFunc(__POSTCALENDAR__,'user','submitEvent',$eventdata)) {
-        		$output->Text('<center><div style="padding:5px; border:1px solid red; background-color: pink;">');
+			$preview = false;
+			$output->Text('<table border="0" width="100%" cellpadding="1" cellspacing="0"><tr><td bgcolor="red">');
+			$output->Text('<table border="0" width="100%" cellpadding="1" cellspacing="0"><tr><td bgcolor="pink">');
+			$output->Text('<center><b>'._PC_SUBMIT_ERROR.'</b></center>');
+			$output->Linebreak();
+			$output->Text($error_msg);
+			$output->Text('</td></td></table>');
+			$output->Text('</td></td></table>');
+			$output->Linebreak(2);
+		} else {
+			if (!pnModAPIFunc(__POSTCALENDAR__,'user','submitEvent',$eventdata)) {
+				$output->Text('<center><div style="padding:5px; border:1px solid red; background-color: pink;">');
 				$output->Text("<b>"._PC_EVENT_SUBMISSION_FAILED."</b>");
 				$output->Text('</div></center>');
 				$output->Linebreak();
-        		$output->Text($dbconn->ErrorMsg());
-    		} else {
-        		// clear the Smarty cache
+				$output->Text($dbconn->ErrorMsg());
+			} else {
+				// clear the Smarty cache
 				$tpl =& new pcSmarty();
 				$tpl->clear_all_cache();
 				$output->Text('<center><div style="padding:5px; border:1px solid green; background-color: lightgreen;">');
@@ -782,8 +788,8 @@ function postcalendar_user_submit($args)
 				}
 				$output->Text('</div></center>');
 				$output->Linebreak();
-        		// clear the form vars
-        		$event_subject=$event_desc=$event_sharing=$event_category=$event_topic=
+				// clear the form vars
+				$event_subject=$event_desc=$event_sharing=$event_category=$event_topic=
 				$event_startmonth=$event_startday=$event_startyear=$event_starttimeh=$event_starttimem=$event_startampm=
 				$event_endmonth=$event_endday=$event_endyear=$event_endtype=$event_dur_hours=$event_dur_minutes=
 				$event_duration=$event_allday=$event_location=$event_street1=$event_street2=$event_city=$event_state=
@@ -793,7 +799,7 @@ function postcalendar_user_submit($args)
 				$Date=$year=$month=$day=$pc_html_or_text=$event_patient_name=$evnet_pid=null;
 				$is_update = false;
 				$pc_event_id = 0;
-
+	
 				//$_SESSION['category'] = "";
 				// lets wrap all the data into array for passing to submit and preview functions
 				$eventdata = compact('event_subject','event_desc','event_sharing','event_category','event_topic',
@@ -809,14 +815,12 @@ function postcalendar_user_submit($args)
 					return $output->GetOutput();
 				}
 			}
-        }
+		}
 	}
 
 	$output->Text(pnModAPIFunc('PostCalendar','user','buildSubmitForm',$eventdata));
 	return $output->GetOutput();
 }
-
-
 
 
 /**
