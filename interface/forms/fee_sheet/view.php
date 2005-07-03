@@ -103,7 +103,7 @@ function codeselect(selobj, newtype) {
 
 <body <?echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
 <form method="post" action="<?echo $rootdir;?>/forms/fee_sheet/new.php">
-<span class="title">Fee Sheet</span><br>
+<span class="title"><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Fee' : 'Coding' ?> Sheet</span><br>
 <input type='hidden' name='newtype' value=''>
 <input type='hidden' name='newcode' value=''>
 
@@ -314,13 +314,16 @@ if ($_POST['bill']) {
 }
 
 // If a new billing code was <select>ed, add its line here.  As a special
-// case allow HCPCS codes to be included in the CPT drop-lists.
+// case allow HCPCS codes to be included in the CPT drop-lists, and
+// CPT4 codes included in OPCS drop-lists.
 //
 if ($_POST['newcode']) {
 	list($code, $modifier) = explode("-", $_POST['newcode']);
 	$newtype = $_POST['newtype'];
 	if ($newtype == "CPT4" && preg_match("/^[A-Z]/", $code))
 		$newtype = "HCPCS";
+	else if ($newtype == "OPCS" && preg_match("/^[0-9]/", $code))
+		$newtype = "CPT4";
 	echoLine(++$lino, $newtype, $code, trim($modifier));
 }
 
