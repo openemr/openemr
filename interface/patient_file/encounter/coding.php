@@ -9,7 +9,7 @@ include_once("../../../custom/code_types.inc.php");
 <body <?echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 <dl>
-<dt><span href="coding.php" class="title">Coding/Billing</span></dt>
+<dt><span href="coding.php" class="title">Coding</span></dt>
 <dd><a class="text" href="superbill_codes.php" target="Main">Superbill</a></dd>
 
 <? foreach ($code_types as $key => $value) { ?>

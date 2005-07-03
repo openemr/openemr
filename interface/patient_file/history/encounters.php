@@ -24,7 +24,7 @@ $N = 10;
 <tr>
 <td><span class=bold>Date</span></td>
 <td><span class=bold>Reason</span></td>
-<td><span class=bold>Billing</span></td>
+<td><span class=bold><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Billing' : 'Coding' ?></span></td>
 <td><span class=bold>Insurance</span></td>
 </tr>
 

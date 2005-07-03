@@ -1,15 +1,9 @@
 <?
 include_once("../../globals.php");
-
 ?>
-
 <html>
 <head>
-
-
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-
-
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <!-- outdated
@@ -27,8 +21,11 @@ include_once("../../globals.php");
 include_once("$srcdir/registry.inc");
 $reg = getRegistered ();
 if ($reg != false)
-foreach ($reg as $entry)
-	echo '<dd><a href="'.$rootdir.'/patient_file/encounter/load_form.php?formname='.urlencode($entry['directory']).'" class="link" target=Main>'.$entry['name'].'</a></dd>';
+foreach ($reg as $entry) {
+	echo '<dd><a href="'.$rootdir.'/patient_file/encounter/load_form.php?formname='.urlencode($entry['directory']).'" class="link" target=Main>';
+	echo ($entry['name'] == 'Fee Sheet' && $GLOBALS['phone_country_code'] != '1') ? 'Coding Sheet' : $entry['name'];
+	echo '</a></dd>';
+}
 ?>
 </dl>
 

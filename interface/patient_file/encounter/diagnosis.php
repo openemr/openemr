@@ -57,7 +57,7 @@ if (isset($mode)) {
 <td valign=top>
 
 <dl>
-<dt><a href="diagnosis_full.php" target="Main"><span class=title>Billing</span><font class=more><?echo $tmore;?></font></a>
+<dt><a href="diagnosis_full.php" target="Main"><span class=title><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Billing' : 'Coding' ?></span><font class=more><?echo $tmore;?></font></a>
 <?
 if( !empty( $_GET["back"] ) || !empty( $_POST["back"] ) ){
 	print "&nbsp;<a href=\"superbill_codes.php\" target=\"Main\"><font class=more>$tback</font></a>";
