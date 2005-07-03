@@ -728,7 +728,10 @@ function newHistoryData(	$pid,
 				$value_1 = "",
 				$name_2 = "",
 				$value_2 = "",
-				$additional_history = ""
+				$additional_history = "",
+				$last_ecg = "",
+				$last_cardiac_echo = "",
+				$last_exam_results = ""
 				)
 {
 	return sqlInsert("insert into history_data set
@@ -747,6 +750,9 @@ function newHistoryData(	$pid,
 		last_prostate_exam='$last_prostate_exam',
 		last_physical_exam='$last_physical_exam',
 		last_sigmoidoscopy_colonoscopy='$last_sigmoidoscopy_colonoscopy',
+		last_ecg='$last_ecg',
+		last_cardiac_echo='$last_cardiac_echo',
+		last_exam_results='$last_exam_results',
 		history_mother='$history_mother',
 		history_father='$history_father',
 		history_siblings='$history_siblings',

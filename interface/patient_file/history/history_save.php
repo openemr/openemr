@@ -1,8 +1,7 @@
 <?
 include_once("../../globals.php");
-
-
 include_once("$srcdir/patient.inc");
+include_once("history.inc.php");
 
 foreach ($_POST as $key => $val) {
 	if ($val == "YYYY-MM-DD") {
@@ -12,7 +11,18 @@ foreach ($_POST as $key => $val) {
 	}
 }
 
-
+// Compute the string of radio button values representing
+// normal/abnormal exam results.
+//
+$ltr = "000000000";
+foreach ($exams as $key => $value) {
+ if ($_POST[$key]) {
+  $tmp = $_POST['rb_' . $key];
+  $digit = ($tmp == '1') ? '1' : (($tmp == '2') ? '2' : '0');
+  $index = substr($value, 0, 2);
+  $ltr = substr($ltr, 0, $index) . $digit . substr($ltr, $index + 1);
+ }
+}
 
 newHistoryData($pid,
 $_POST["coffee"],
@@ -57,9 +67,11 @@ $_POST["name_1"],
 $_POST["value_1"],
 $_POST["name_2"],
 $_POST["value_2"],
-$_POST["additional_history"]
+$_POST["additional_history"],
+$_POST["last_ecg"],
+$_POST["last_cardiac_echo"],
+$ltr
 );
 
 include_once("patient_history.php");
 ?>
-

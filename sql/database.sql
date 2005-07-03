@@ -26754,6 +26754,8 @@ CREATE TABLE `groups` (
 
 --
 -- Table structure for table `history_data`
+-- See interface/patient_file/history/history.inc.php which should be
+-- modified whenever corresponding changes are made to this table.
 --
 
 DROP TABLE IF EXISTS `history_data`;
@@ -26767,13 +26769,19 @@ CREATE TABLE `history_data` (
   `seatbelt_use` longtext,
   `counseling` longtext,
   `hazardous_activities` longtext,
-  `last_breast_exam` datetime default NULL,
-  `last_mammogram` datetime default NULL,
-  `last_gynocological_exam` datetime default NULL,
-  `last_rectal_exam` datetime default NULL,
-  `last_prostate_exam` datetime default NULL,
-  `last_physical_exam` datetime default NULL,
-  `last_sigmoidoscopy_colonoscopy` datetime default NULL,
+  -- Exams begin here.
+  `last_breast_exam` varchar(255) NOT NULL default '',
+  `last_mammogram` varchar(255) NOT NULL default '',
+  `last_gynocological_exam` varchar(255) NOT NULL default '',
+  `last_rectal_exam` varchar(255) NOT NULL default '',
+  `last_prostate_exam` varchar(255) NOT NULL default '',
+  `last_physical_exam` varchar(255) NOT NULL default '',
+  `last_sigmoidoscopy_colonoscopy` varchar(255) NOT NULL default '',
+  `last_ecg` varchar(255) NOT NULL DEFAULT '',
+  `last_cardiac_echo` varchar(255) NOT NULL DEFAULT '',
+  -- here is 1 digit for each of the above exams, in order, with values
+  -- 0=n/a, 1=normal, 2=abnormal:
+  `last_exam_results` varchar(255) NOT NULL DEFAULT '000000000';
   `history_mother` longtext,
   `history_father` longtext,
   `history_siblings` longtext,
@@ -26788,6 +26796,7 @@ CREATE TABLE `history_data` (
   `relatives_epilepsy` longtext,
   `relatives_mental_illness` longtext,
   `relatives_suicide` longtext,
+  -- The following are deprecated and should be removed at some point.
   `cataract_surgery` datetime default NULL,
   `tonsillectomy` datetime default NULL,
   `cholecystestomy` datetime default NULL,
@@ -26796,9 +26805,10 @@ CREATE TABLE `history_data` (
   `hernia_repair` datetime default NULL,
   `hip_replacement` datetime default NULL,
   `knee_replacement` datetime default NULL,
+  `appendectomy` datetime default NULL,
+  -- End of deprecated variables.
   `date` datetime default NULL,
   `pid` bigint(20) NOT NULL default '0',
-  `appendectomy` datetime default NULL,
   `name_1` varchar(255) default NULL,
   `value_1` varchar(255) default NULL,
   `name_2` varchar(255) default NULL,
