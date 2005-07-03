@@ -6,8 +6,8 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
- // This report simply lists all players/patients who are members
- // of a squad.  It is applicable only for sports teams.
+ // This report simply lists all players/patients by name within
+ // squad.  It is applicable only for sports teams.
 
  include_once("../globals.php");
  include_once("../../library/patient.inc");
@@ -35,8 +35,7 @@
 
  $alertmsg = ''; // not used yet but maybe later
 
- $query = "SELECT * FROM patient_data " .
-  "ORDER BY squad, lname, fname";
+ $query = "SELECT * FROM patient_data ORDER BY squad, lname, fname";
  $res = sqlStatement($query);
 ?>
 <html>
@@ -46,8 +45,12 @@
 <script language="JavaScript">
 
  function gopid(pid) {
+<? if ($_GET['embed']) { ?>
+  top.location = '../patient_file/patient_file.php?set_pid=' + pid;
+<? } else { ?>
   opener.top.location = '../patient_file/patient_file.php?set_pid=' + pid;
   window.close();
+<? } ?>
  }
 
 </script>
