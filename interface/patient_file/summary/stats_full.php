@@ -122,6 +122,7 @@ function doeclick(id) {
 
 <center><p>
  <input type='button' value='Add Issue' onclick='dopclick(0)' style='background-color:transparent' /> &nbsp; &nbsp;
+ <input type='button' value='To History' onclick='location="../history/history_full.php"' style='background-color:transparent' /> &nbsp; &nbsp;
  <input type='button' value='Back' onclick='location="patient_summary.php"' style='background-color:transparent' />
 </p></center>
 
