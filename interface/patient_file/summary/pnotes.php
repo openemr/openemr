@@ -18,7 +18,7 @@ include_once("$srcdir/pnotes.inc");
 </td>
 <td valign=top>
 
-<a href="pnotes_full.php" target="Main"><font class="title">Patient Notes</font><font class=more><?echo $tmore;?></font></a>
+<a href="pnotes_full.php" target="Main"><font class="title">Notes</font><font class=more><?echo $tmore;?></font></a>
 
 <br>
 
