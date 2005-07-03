@@ -92,9 +92,9 @@ else {
 
 $v_major = '2';
 $v_minor = '7';
-$v_patch = '2';
+$v_patch = '3';
 
-$tag = ''; // release candidate
+$tag = '-rc1'; // release candidate
 
 $openemr_version = "$v_major.$v_minor.$v_patch".$tag;	// Version tag used by program
 
