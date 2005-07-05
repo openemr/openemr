@@ -1,17 +1,17 @@
 <?
 include_once("../globals.php");
 include_once("$srcdir/pid.inc");
-
 setpid($_GET["set_pid"]);
 ?>
-
 <HTML>
 <HEAD>
 <TITLE>
 OpenEMR
 </TITLE>
+<script type="text/javascript" src="../../library/topdialog.js"></script>
 </HEAD>
-<frameset rows="<?echo "$GLOBALS[navBarHeight],$GLOBALS[titleBarHeight]" ?>,*" cols="*" frameborder="0" border="0" framespacing="0">
+<frameset rows="<?echo "$GLOBALS[navBarHeight],$GLOBALS[titleBarHeight]" ?>,*"
+ cols="*" frameborder="0" border="0" framespacing="0" onunload="imclosing()">
 <?
 if (isset($_GET["calenc"])) {
 ?>

@@ -1,7 +1,6 @@
 <?
 include_once("../../globals.php");
 include_once("$srcdir/log.inc");
-
 include_once("$srcdir/billing.inc");
 include_once("$srcdir/forms.inc");
 include_once("$srcdir/pnotes.inc");
@@ -9,12 +8,10 @@ include_once("$srcdir/transactions.inc");
 include_once("$srcdir/lists.inc");
 include_once("$srcdir/patient.inc");
 
-
 //the number of authorizations to display in the quick view:
 // MAR 20041008 the full authorizations screen sucks... no links to the patient charts
 // increase to a high number to make the mini frame more useful.
 $N = 50;
-
 
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
 $retVal = getProviderId($_SESSION['authUser']);	
@@ -26,11 +23,7 @@ sqlStatement("update pnotes set authorized=1 where pid='".$_GET["pid"]."'");
 sqlStatement("update transactions set authorized=1 where pid='".$_GET["pid"]."'");
 
 }
-
-
-
 ?>
-
 <html>
 <head>
 
@@ -38,11 +31,10 @@ sqlStatement("update transactions set authorized=1 where pid='".$_GET["pid"]."'"
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 
 </head>
-<body <?echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-
+<body <?echo $bottom_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2' bottommargin='0'
+ marginwidth='2' marginheight='0'>
 
 <a href="authorizations_full.php" target=Main><font class=title>Authorizations</font><font class=more><?echo $tmore;?>(<a class="more" style="font-size:8pt;" href="../calendar/find_patient.php?no_nav=1&mode=reset" name="Find Patients">Find Patient</a>)</font></a>
-
 
 <?
 //      provider
@@ -61,15 +53,12 @@ if ($result) {
 foreach ($result as $iter) {
 
 $authorize{$iter{"pid"}}{"billing"} .= "<span class=text>" . $iter{"code_text"} . " " . date("n/j/Y",strtotime($iter{"date"})) . "</span><br>\n";
-
-
 }
 
 //$authorize[$iter{"pid"}]{"billing"} = substr($authorize[$iter{"pid"}]{"billing"},0,strlen($authorize[$iter{"pid"}]{"billing"}));
 
 }
 }
-		
 
 //fetch transaction information:
 if ($res = sqlStatement("select * from transactions where authorized=0 and groupname='$groupname'")) {
@@ -81,14 +70,12 @@ foreach ($result2 as $iter) {
 
 $authorize{$iter{"pid"}}{"transaction"} .= "<span class=text>" . $iter{"title"} . ": " . stripslashes(strterm($iter{"body"},25)) . " " . date("n/j/Y",strtotime($iter{"date"})) . "</span><br>\n";
 
-
 }
 
 //$authorize[$iter{"pid"}]{"transaction"} = substr($authorize[$iter{"pid"}]{"transaction"},0,strlen($authorize[$iter{"pid"}]{"transaction"}));
 
 }
 }
-
 
 //fetch pnotes information:
 if ($res = sqlStatement("select * from pnotes where authorized=0 and groupname='$groupname'")) {
@@ -100,15 +87,12 @@ foreach ($result3 as $iter) {
 
 $authorize{$iter{"pid"}}{"pnotes"} .= "<span class=text>" . stripslashes(strterm($iter{"body"},25)) . " " . date("n/j/Y",strtotime($iter{"date"})) . "</span><br>\n";
 
-
 }
 
 //$authorize[$iter{"pid"}]{"pnotes"} = substr($authorize[$iter{"pid"}]{"pnotes"},0,strlen($authorize[$iter{"pid"}]{"pnotes"}));
 
 }
 }
-
-
 
 //fetch forms information:
 if ($res = sqlStatement("select * from forms where authorized=0 and groupname='$groupname'")) {
@@ -120,23 +104,17 @@ foreach ($result4 as $iter) {
 
 $authorize{$iter{"pid"}}{"forms"} .= "<span class=text>" . $iter{"form_name"} . " " . date("n/j/Y",strtotime($iter{"date"})) . "</span><br>\n";
 
-
 }
 
 //$authorize[$iter{"pid"}]{"forms"} = substr($authorize[$iter{"pid"}]{"forms"},0,strlen($authorize[$iter{"pid"}]{"forms"}));
 
 }
 }
-
-
-
-
 ?>
 
 <table border=0 cellpadding=0 cellspacing=2 width=100%>
 <tr>
 <td valign=top>
-
 
 <?
 if ($authorize) {
@@ -172,16 +150,10 @@ while(list($ppid,$patient) = each($authorize)){
 }
 ?>
 
-
 </td>
-
 
 </tr>
 </table>
-
-
-
-
 
 </body>
 </html>

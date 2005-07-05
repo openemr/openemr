@@ -28,24 +28,31 @@ a       { text-decoration:none; }
 .notop  { border-top-width:0px; }
 </style>
 
+<script type="text/javascript" src="../../../library/dialog.js"></script>
+
 <script language='JavaScript'>
-function newEvt(startampm, starttimeh, starttimem, eventdate, providerid) {
- location = 'index.php?module=PostCalendar&func=submit' +
-  '&event_startampm=' + startampm +
-  '&event_starttimeh=' + starttimeh +
-  '&event_starttimem=' + starttimem +
-  '&Date=' + eventdate +
-  '&event_userid=' + providerid;
-}
-function oldEvt(eventdate, eventid) {
- location = 'index.php?module=PostCalendar&func=view&viewtype=details' +
-  '&Date=' + eventdate +
-  '&eid=' + eventid;
-}
-function goPid(pid) {
- top.location = '../../patient_file/patient_file.php' +
-  '?set_pid=' + pid + '&pid=' + pid;
-}
+
+ // This is called from the event editor popup.
+ function refreshme() {
+  document.forms[0].submit();
+ }
+
+ function newEvt(startampm, starttimeh, starttimem, eventdate, providerid) {
+  dlgopen('add_edit_event.php?startampm=' + startampm +
+   '&starttimeh=' + starttimeh + '&starttimem=' + starttimem +
+   '&date=' + eventdate + '&userid=' + providerid,
+   '_blank', 550, 270);
+ }
+
+ function oldEvt(eventdate, eventid) {
+  dlgopen('add_edit_event.php?eid=' + eventid, '_blank', 550, 270);
+ }
+
+ function goPid(pid) {
+  top.location = '../../patient_file/patient_file.php' +
+   '?set_pid=' + pid + '&pid=' + pid;
+ }
+
 </script>
 
 [-php-]
@@ -77,7 +84,7 @@ function goPid(pid) {
 
  $provinfo = getProviderInfo();
 
- echo "<form action='index.php?module=PostCalendar&func=view' method='post'>\n";
+ echo "<form name='theform' action='index.php?module=PostCalendar&func=view' method='post'>\n";
  echo "<center>\n";
  echo "<table border='0' cellpadding='0' cellspacing='0' width='99%'>\n";
  echo " <tr><td colspan='3' height='5'></td></tr>\n";
@@ -131,12 +138,12 @@ function goPid(pid) {
   echo ">$value</option>\n";
  }
  echo "   </select>\n";
- echo "   &nbsp;<input type='submit' name='submit' value='Go' />\n";
+ echo "   &nbsp;<input type='submit' name='bnsubmit' value='Go' />\n";
  echo "  </td>\n";
 
  // Show the Add and Search buttons.
  echo "  <td align='right' valign='top' width='33%' nowrap>\n";
- echo "   <input type='button' value='Add' onclick='location=\"index.php?module=PostCalendar&func=submit&Date=$Date&event_starttimeh=23&event_startampm=2\"' />\n";
+ echo "   <input type='button' value='Add' onclick='newEvt(1, 9, 00, $Date, 0)' />\n";
  echo "   <input type='button' value='Search' onclick='location=\"index.php?module=PostCalendar&func=search\"' />\n";
  echo "  </td>\n";
  echo " </tr>\n";
