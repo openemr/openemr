@@ -116,17 +116,17 @@
     "ORDER BY date DESC LIMIT 1";
    $erow = sqlQuery($query);
 ?>
- <tr bgcolor="<? echo $fitcolors[$fitness-1] ?>">
+ <tr>
   <td class="detail">
    &nbsp;<? echo ($squad == $lastsquad) ? "" : $squad ?>
   </td>
-  <td class="detail">
+  <td class="detail" bgcolor="<? echo $fitcolors[$fitness-1] ?>">
    &nbsp;<a href='javascript:gopid(<? echo $patient_id ?>)'><? echo $row['lname'] . ", " . $row['fname'] ?></a>
   </td>
-  <td class="detail">
+  <td class="detail" bgcolor="<? echo $fitcolors[$fitness-1] ?>">
    <? echo $fitnesses[$fitness-1] ?>&nbsp;
   </td>
-  <td class="detail">
+  <td class="detail" bgcolor="<? echo $fitcolors[$fitness-1] ?>">
    &nbsp;<? echo substr($erow['date'], 0, 10) . ' ' . $erow['reason'] ?>&nbsp;
   </td>
  </tr>
