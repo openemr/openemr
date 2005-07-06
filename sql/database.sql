@@ -26907,9 +26907,10 @@ CREATE TABLE `insurance_numbers` (
   `provider_id` int(11) NOT NULL default '0',
   `insurance_company_id` int(11) default NULL,
   `provider_number` varchar(20) default NULL,
+  `rendering_provider_number` varchar(20) default NULL,
   `group_number` varchar(20) default NULL,
   `provider_number_type` varchar(4) default NULL,
-  `x12_id_type` varchar(4) default NULL,
+  `rendering_provider_number_type` varchar(4) default NULL,
   PRIMARY KEY  (`id`)
 ) ;
 

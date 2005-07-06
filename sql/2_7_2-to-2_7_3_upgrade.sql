@@ -9,6 +9,7 @@ ALTER TABLE patient_data
   ADD squad      int(11)       NOT NULL DEFAULT 0,
   ADD fitness    int(11)       NOT NULL DEFAULT 0;
 
+
 ALTER TABLE history_data
   CHANGE last_breast_exam        last_breast_exam        varchar(255) DEFAULT '',
   CHANGE last_mammogram          last_mammogram          varchar(255) DEFAULT '',
@@ -30,3 +31,13 @@ UPDATE history_data SET last_rectal_exam        = '' WHERE last_rectal_exam     
 UPDATE history_data SET last_prostate_exam      = '' WHERE last_prostate_exam      = '0000-00-00 00:00:00';
 UPDATE history_data SET last_physical_exam      = '' WHERE last_physical_exam      = '0000-00-00 00:00:00';
 UPDATE history_data SET last_sigmoidoscopy_colonoscopy = '' WHERE last_sigmoidoscopy_colonoscopy = '0000-00-00 00:00:00';
+
+update insurance_numbers
+  set provider_number_type = x12_id_type;
+  
+ALTER TABLE insurance_numbers
+  DROP column x12_id_type,
+  ADD rendering_provider_number_type varchar(4) DEFAULT NULL,
+  ADD rendering_provider_number varchar(20) DEFAULT NULL;
+
+
