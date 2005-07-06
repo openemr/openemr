@@ -34,18 +34,20 @@ tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
 tr.detail { font-size:10pt; }
 </style>
 
+<script type="text/javascript" src="../../../library/dialog.js"></script>
+
 <script language="JavaScript">
 
 // Process click on issue title.
 function dopclick(id) {
- window.open('add_edit_issue.php?issue=' + id, '_blank',
-  'width=500,height=450,scrollbars=1,resizable=1');
+ dlgopen('add_edit_issue.php?issue=' + id, '_blank', 500, 450);
 }
 
 // Process click on number of encounters.
 function doeclick(id) {
- window.open('../problem_encounter.php?issue=' + id, '_blank',
-  'menubar=1,resizable=1,scrollbars=1');
+ dlgopen('../problem_encounter.php?issue=' + id, '_blank', 700, 500);
+ // window.open('../problem_encounter.php?issue=' + id, '_blank',
+ //  'menubar=1,resizable=1,scrollbars=1');
  return false;
 }
 
