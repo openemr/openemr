@@ -26781,7 +26781,7 @@ CREATE TABLE `history_data` (
   `last_cardiac_echo` varchar(255) NOT NULL DEFAULT '',
   -- here is 1 digit for each of the above exams, in order, with values
   -- 0=n/a, 1=normal, 2=abnormal:
-  `last_exam_results` varchar(255) NOT NULL DEFAULT '000000000';
+  `last_exam_results` varchar(255) NOT NULL DEFAULT '000000000',
   `history_mother` longtext,
   `history_father` longtext,
   `history_siblings` longtext,
