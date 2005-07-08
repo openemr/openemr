@@ -16,7 +16,6 @@ $webserver_root = "/var/www/html/openemr";
 //trailing slash.
 $web_root = "/openemr";
 
-
 ///////////////////////////////////////////////////////////////////
 
 //This is the return mail address used when sending prescriptions by email
@@ -124,24 +123,24 @@ if (!$ignoreAuth) {
 // If you do not want your accounting system to have a customer added to it
 // for each insurance company, then set this to true.  SQL-Ledger currently
 // (2005-03-21) does nothing useful with insurance companies as customers.
-//
 $GLOBALS['insurance_companies_are_not_customers'] = false;
 
 // If OpenEMR is being used by an athletic team rather than in a traditional
 // clinical setting, set this to true.
-//
 $GLOBALS['athletic_team'] = false;
 
 // The telephone country code of this installation.
 // See http://www.wtng.info/ for a list.
-//
 $GLOBALS['phone_country_code'] = '1'; // 1 = USA
+
+// This determines how appointments display on the calendar:
+// 1 = lastname 2 = last,first 3 = last,first(title)
+$GLOBALS['calendar_appt_style'] = 2;
 
 // These are needed only if you are using SQL-Ledger and you want to see
 // the cash receipts report by practitioner (sl_receipts_report.php),
 // which is invoked from the billing page.  We will probably have more
 // uses for these later.
-//
 $sl_cash_acc    = '1060';       // sql-ledger account number for checking
 $sl_ar_acc      = '1200';       // sql-ledger account number for a/r
 $sl_income_acc  = '4020';       // sql-ledger account number for medical services income

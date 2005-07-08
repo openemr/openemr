@@ -107,14 +107,15 @@
     "pc_recurrspec = '$recurrspec', "                                  .
     "pc_startTime = '$starttime', "                                    .
     "pc_endTime = '$endtime', "                                        .
-    "pc_alldayevent = '" . $_POST['form_allday']               . "' "  .
+    "pc_alldayevent = '" . $_POST['form_allday']               . "', " .
+    "pc_apptstatus = '"  . $_POST['form_apptstatus']           . "' "  .
     "WHERE pc_eid = '$eid'");
   } else {
    sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
     "pc_catid, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
     "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
     "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
-    "pc_location, pc_eventstatus, pc_sharing " .
+    "pc_apptstatus, pc_location, pc_eventstatus, pc_sharing " .
     ") VALUES ( " .
     "'" . $_POST['form_category']             . "', " .
     "'" . $_POST['form_provider']             . "', " .
@@ -131,6 +132,7 @@
     "'$starttime', "                                  .
     "'$endtime', "                                    .
     "'" . $_POST['form_allday']               . "', " .
+    "'" . $_POST['form_apptstatus']           . "', " .
     "'$locationspec', "                               .
     "1, " .
     "1 )");
@@ -153,11 +155,26 @@
 
  // If we get this far then we are displaying the form.
 
+ $statuses = array(
+  '-' => '',
+  '*' => '* Reminder done',
+  '+' => '+ Chart pulled',
+  '?' => '? No show',
+  '@' => '@ Arrived',
+  '~' => '~ Arrived late',
+  '!' => '! Left w/o visit',
+  '#' => '# Ins/fin issue',
+  '<' => '< In exam room',
+  '>' => '> Checked out',
+  '$' => '$ Coding done',
+ );
+
  $repeats = 0; // if the event repeats
  $repeattype = '0';
  $patientid = '';
  if ($_REQUEST['patientid']) $patientid = $_REQUEST['patientid'];
  $patientname = " (Click to select)";
+ $patienttitle = "";
  $hometext = "";
  $row = array();
 
@@ -177,11 +194,13 @@
   if (substr($hometext, 0, 6) == ':text:') $hometext = substr($hometext, 6);
  }
 
- // If we have a patient ID, get their name for display.
+ // If we have a patient ID, get the name and phone numbers to display.
  if ($patientid) {
-  $prow = sqlQuery("SELECT lname, fname FROM patient_data WHERE pid = '" .
-   $patientid . "'");
+  $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz " .
+   "FROM patient_data WHERE pid = '" . $patientid . "'");
   $patientname = $prow['lname'] . ", " . $prow['fname'];
+  if ($prow['phone_home']) $patienttitle .= " H=" . $prow['phone_home'];
+  if ($prow['phone_biz']) $patienttitle  .= " W=" . $prow['phone_biz'];
  }
 
  // Get the providers list.
@@ -420,6 +439,21 @@ td { font-size:10pt; }
 
  <tr>
   <td nowrap>
+   <b>Patient:</b>
+  </td>
+  <td nowrap>
+   <input type='text' size='10' name='form_patient' style='width:100%'
+    value='<? echo $patientname ?>' onclick='sel_patient()'
+    title='Click to select patient' readonly />
+   <input type='hidden' name='form_pid' value='<? echo $patientid ?>' />
+  </td>
+  <td colspan='3' nowrap style='font-size:8pt'>
+   &nbsp;<? echo $patienttitle ?>
+  </td>
+ </tr>
+
+ <tr>
+  <td nowrap>
    <b>Provider:</b>
   </td>
   <td nowrap>
@@ -465,13 +499,18 @@ td { font-size:10pt; }
 
  <tr>
   <td nowrap>
-   <b>Patient:</b>
+   <b>Status:</b>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_patient' style='width:100%'
-    value='<? echo $patientname ?>' onclick='sel_patient()'
-    title='Click here to select a patient' readonly />
-   <input type='hidden' name='form_pid' value='<? echo $patientid ?>' />
+   <select name='form_apptstatus' style='width:100%' title='Appointment status'>
+<?
+ foreach ($statuses as $key => $value) {
+  echo "    <option value='$key'";
+  if ($key == $row['pc_apptstatus']) echo " selected";
+  echo ">" . htmlspecialchars($value) . "</option>\n";
+ }
+?>
+   </select>
   </td>
   <td nowrap>
    &nbsp;

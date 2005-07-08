@@ -344,10 +344,15 @@ a       { text-decoration:none; }
      }
      else { // some sort of patient appointment
       $content .= "<a href='javascript:oldEvt($eventdate,$eventid)' title='$catname'>";
-      $content .= $startm . "</a>";
-      $content .= "<a href='javascript:goPid($patientid)' title='$title'>-";
+      $content .= $startm . htmlspecialchars($event['apptstatus']) . "</a>";
+      $content .= "<a href='javascript:goPid($patientid)' title='$title'>";
       if ($catid == 1) $content .= "<strike>";
-      $content .= $lname . "," . $fname;
+      $content .= $lname;
+      if ($GLOBALS['calendar_appt_style'] != 1) {
+       $content .= "," . $fname;
+       if ($event['title'] && $GLOBALS['calendar_appt_style'] == 3)
+        $content .= "(" . $event['title'] . ")";
+      }
       if ($catid == 1) $content .= "</strike>";
       $content .= "</a>";
      }

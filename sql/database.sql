@@ -26960,6 +26960,7 @@ CREATE TABLE `lists` (
   occurrence int(11)       DEFAULT 0,
   referredby varchar(255)  DEFAULT NULL,
   extrainfo  varchar(255)  DEFAULT NULL,
+  diagnosis  varchar(255)  NOT NULL DEFAULT '',
   `activity` tinyint(4)    default NULL,
   `comments` longtext      ,
   `pid` bigint(20)         default NULL,
@@ -27179,6 +27180,19 @@ CREATE TABLE `openemr_postcalendar_events` (
   `pc_eventstatus` int(11) NOT NULL default '0',
   `pc_sharing` int(11) NOT NULL default '0',
   `pc_language` varchar(30) default '',
+  -- Appointment status is one of the following:
+  --  - = not otherwise applicable
+  --  * = reminder call completed
+  --  + = chart pulled
+  --  ? = no show
+  --  @ = patient arrived
+  --  ~ = arrived late
+  --  ! = left without being seen
+  --  # = left due to ins/money issue
+  --  < = visit in progress
+  --  > = checked out
+  --  $ = coding complete
+  `pc_apptstatus` char(1) NOT NULL DEFAULT '-',
   PRIMARY KEY  (`pc_eid`),
   KEY `basic_event` (`pc_catid`,`pc_aid`,`pc_eventDate`,`pc_endDate`,`pc_eventstatus`,`pc_sharing`,`pc_topic`)
 ) ;

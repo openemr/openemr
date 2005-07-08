@@ -708,198 +708,193 @@ function postcalendar_userapi_eventPreview($args)
  */
 function &postcalendar_userapi_pcQueryEventsFA($args)	{
 
-    $end = '0000-00-00';
-	extract($args);
-	$eventstatus = 1;
-	if (is_numeric($event_status))
-		$eventstatus = $event_status;
+  $end = '0000-00-00';
+  extract($args);
+  $eventstatus = 1;
+  if (is_numeric($event_status))
+    $eventstatus = $event_status;
 
+  if(!isset($start)) { $start = Date_Calc::dateNow('%Y-%m-%d'); }
+  list($sy,$sm,$sd) = explode('-',$start);
 
-    if(!isset($start)) { $start = Date_Calc::dateNow('%Y-%m-%d'); }
-    list($sy,$sm,$sd) = explode('-',$start);
+  list($dbconn) = pnDBGetConn();
+  $pntable = pnDBGetTables();
+  // link to the events tables
+  $table      =  $pntable['postcalendar_events'];
+  $cattable   =  $pntable['postcalendar_categories'];
 
-    list($dbconn) = pnDBGetConn();
-    $pntable = pnDBGetTables();
-    // link to the events tables
-    $table      =  $pntable['postcalendar_events'];
-    $cattable   =  $pntable['postcalendar_categories'];
+  $sql =  "SELECT DISTINCT a.pc_eid,  a.pc_informant, a.pc_catid, a.pc_title, a.pc_time, a.pc_hometext,
+    a.pc_eventDate, a.pc_duration, a.pc_endDate, a.pc_startTime, a.pc_recurrtype,
+    a.pc_recurrfreq, a.pc_recurrspec, a.pc_topic, a.pc_alldayevent, a.pc_location,
+    a.pc_conttel, a.pc_contname, a.pc_contemail, a.pc_website, a.pc_fee,
+    a.pc_sharing, b.pc_catcolor, b.pc_catname, b.pc_catdesc, a.pc_pid, a.pc_aid,
+    concat(u.fname,' ',u.lname) as provider_name, concat(pd.fname,' ',pd.lname) as patient_name,
+    concat(u2.fname, ' ', u2.lname) as owner_name, DOB as patient_dob
+    FROM   $table AS a, $cattable AS b
+    LEFT JOIN users as u ON a.pc_aid = u.id
+    LEFT JOIN users as u2 ON a.pc_aid = u2.id
+    LEFT JOIN patient_data as pd ON a.pc_pid=pd.pid
+    WHERE  b.pc_catid = a.pc_catid
+      AND a.pc_eventstatus = $eventstatus
+      AND (a.pc_endDate >= '$start' OR a.pc_endDate = '0000-00-00')
+      AND a.pc_eventDate <= '$end'
+      AND (a.pc_aid = '" . $provider_id . "' OR a.pc_aid = '')";
 
-    $sql =  "SELECT DISTINCT a.pc_eid,  a.pc_informant, a.pc_catid, a.pc_title, a.pc_time, a.pc_hometext,
-                    a.pc_eventDate, a.pc_duration, a.pc_endDate, a.pc_startTime, a.pc_recurrtype,
-                    a.pc_recurrfreq, a.pc_recurrspec, a.pc_topic, a.pc_alldayevent, a.pc_location,
-                    a.pc_conttel, a.pc_contname, a.pc_contemail, a.pc_website, a.pc_fee,
-                    a.pc_sharing, b.pc_catcolor, b.pc_catname, b.pc_catdesc, a.pc_pid, a.pc_aid,
-					concat(u.fname,' ',u.lname) as provider_name, concat(pd.fname,' ',pd.lname) as patient_name,
-					concat(u2.fname, ' ', u2.lname) as owner_name, DOB as patient_dob
-			FROM   $table AS a, $cattable AS b
-			LEFT JOIN users as u ON a.pc_aid = u.id
-			LEFT JOIN users as u2 ON a.pc_aid = u2.id
-			LEFT JOIN patient_data as pd ON a.pc_pid=pd.pid
-			WHERE  b.pc_catid = a.pc_catid
-					AND a.pc_eventstatus = $eventstatus
-					AND (a.pc_endDate >= '$start' OR a.pc_endDate = '0000-00-00')
-					AND a.pc_eventDate <= '$end'
-					AND (a.pc_aid = '" . $provider_id . "' OR a.pc_aid = '')";
+  //======================================================================
+  //  START SEARCH FUNCTIONALITY
+  //======================================================================
+  if(!empty($s_keywords)) $sql .= "AND ($s_keywords) ";
+  if(!empty($s_category)) $sql .= "AND ($s_category) ";
+  if(!empty($s_topic)) 	$sql .= "AND ($s_topic) ";
+  if(!empty($collide_etime) && !empty($collide_stime)) {
+    $sql .= "AND NOT ((pc_endTime <= '$collide_stime') OR (pc_startTime >= '$collide_etime')) AND pc_endTime IS NOT NULL ";
+  }
+  if(!empty($category))	$sql .= "AND (a.pc_catid = '".pnVarPrepForStore($category)."') ";
+  if(!empty($topic))		$sql .= "AND (a.pc_topic = '".pnVarPrepForStore($topic)."') ";
+  //======================================================================
+  //  Search sort and limitation
+  //======================================================================
+  if(empty($sort)) $sql .= "GROUP BY a.pc_eid ORDER BY a.pc_startTime ASC";
+  else $sql .= "GROUP BY a.pc_eid ORDER BY a.$sort";
+  //======================================================================
+  //  END SEARCH FUNCTIONALITY
+  //======================================================================
+  //echo "<Br />sql: $sql<br />";
+  $result = $dbconn->Execute($sql);
+  if($dbconn->ErrorNo() != 0) die ($dbconn->ErrorMsg());
 
-	//======================================================================
-	//	START SEARCH FUNCTIONALITY
-	//======================================================================
-	if(!empty($s_keywords)) $sql .= "AND ($s_keywords) ";
-	if(!empty($s_category)) $sql .= "AND ($s_category) ";
-	if(!empty($s_topic)) 	$sql .= "AND ($s_topic) ";
-	if(!empty($collide_etime) && !empty($collide_stime)) {
-	 	$sql .= "AND NOT ((pc_endTime <= '$collide_stime') OR (pc_startTime >= '$collide_etime')) AND pc_endTime IS NOT NULL ";
-	}
-	if(!empty($category))	$sql .= "AND (a.pc_catid = '".pnVarPrepForStore($category)."') ";
-	if(!empty($topic))		$sql .= "AND (a.pc_topic = '".pnVarPrepForStore($topic)."') ";
-	//======================================================================
-	//	Serch sort and limitation
-	//======================================================================
-	if(empty($sort))		$sql .= "GROUP BY a.pc_eid ORDER BY a.pc_startTime ASC";
-	else 					$sql .= "GROUP BY a.pc_eid ORDER BY a.$sort";
-	//======================================================================
-	//	END SEARCH FUNCTIONALITY
-	//======================================================================
-	//echo "<Br />sql: $sql<br />";
-	$result = $dbconn->Execute($sql);
-	if($dbconn->ErrorNo() != 0) die ($dbconn->ErrorMsg());
+  // put the information into an array for easy access
+  $events = array();
+  // return an empty array if we don't have any results
+  if(!isset($result)) { return $events; }
 
-    // put the information into an array for easy access
-    $events = array();
-    // return an empty array if we don't have any results
-    if(!isset($result)) { return $events; }
+  for($i=0; !$result->EOF; $result->MoveNext()) {
 
+    // get the results from the query
+    if(isset($tmp)) { unset($tmp); } $tmp = array();
+    list($tmp['eid'],        $tmp['uname'],       $tmp['catid'],
+         $tmp['title'],      $tmp['time'],        $tmp['hometext'],
+         $tmp['eventDate'],  $tmp['duration'],    $tmp['endDate'],
+         $tmp['startTime'],  $tmp['recurrtype'],  $tmp['recurrfreq'],
+         $tmp['recurrspec'], $tmp['topic'],       $tmp['alldayevent'],
+         $tmp['location'],   $tmp['conttel'],     $tmp['contname'],
+         $tmp['contemail'],  $tmp['website'],     $tmp['fee'], $tmp['sharing'],
+         $tmp['catcolor'],   $tmp['catname'],     $tmp['catdesc'],
+         $tmp['pid'], $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'],
+         $tmp['owner_name'],$tmp['patient_dob']) = $result->fields;
 
-    for($i=0; !$result->EOF; $result->MoveNext()) {
-
-		// get the results from the query
-        if(isset($tmp)) { unset($tmp); } $tmp = array();
-        list($tmp['eid'],        $tmp['uname'],       $tmp['catid'],
-             $tmp['title'],      $tmp['time'],        $tmp['hometext'],
-             $tmp['eventDate'],  $tmp['duration'],    $tmp['endDate'],
-             $tmp['startTime'],  $tmp['recurrtype'],  $tmp['recurrfreq'],
-             $tmp['recurrspec'], $tmp['topic'],       $tmp['alldayevent'],
-             $tmp['location'],   $tmp['conttel'],     $tmp['contname'],
-             $tmp['contemail'],  $tmp['website'],     $tmp['fee'], $tmp['sharing'],
-             $tmp['catcolor'],   $tmp['catname'],     $tmp['catdesc'],
-			 $tmp['pid'], $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'],
-			 $tmp['owner_name'],$tmp['patient_dob']) = $result->fields;
-
-		// grab the name of the topic
-        $topicname = pcGetTopicName($tmp['topic']);
-		// get the user id of event's author
-        $cuserid = @$nuke_users[strtolower($tmp['uname'])];
-		// check the current event's permissions
-		// the user does not have permission to view this event
-		// if any of the following evaluate as false
-		if(!pnSecAuthAction(0, 'PostCalendar::Event', "$tmp[title]::$tmp[eid]", ACCESS_OVERVIEW)) {
-            continue;
-        } elseif(!pnSecAuthAction(0, 'PostCalendar::Category', "$tmp[catname]::$tmp[catid]", ACCESS_OVERVIEW)) {
-            continue;
-        } elseif(!pnSecAuthAction(0, 'PostCalendar::User', "$tmp[uname]::$cuserid", ACCESS_OVERVIEW)) {
-            continue;
-        } elseif(!pnSecAuthAction(0, 'PostCalendar::Topic', "$topicname::$tmp[topic]", ACCESS_OVERVIEW)) {
-            continue;
-        } elseif($tmp['sharing'] == SHARING_PRIVATE && $cuserid != $userid) {
-            continue;
-        }
-
-        // add event to the array if we passed the permissions check
-        // this is the common information
-        $events[$i]['eid']         = $tmp['eid'];
-        $events[$i]['uname']       = $tmp['uname'];
-        $events[$i]['uid']         = $cuserid;
-        $events[$i]['catid']       = $tmp['catid'];
-        $events[$i]['time']        = $tmp['time'];
-        $events[$i]['eventDate']   = $tmp['eventDate'];
-        $events[$i]['duration']    = $tmp['duration'];
-		// there has to be a more intelligent way to do this
-        @list($events[$i]['duration_hours'],$dmin) = @explode('.',($tmp['duration']/60/60));
-        $events[$i]['duration_minutes'] = substr(sprintf('%.2f','.' . 60*($dmin/100)),2,2);
-		//''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-        $events[$i]['endDate']     = $tmp['endDate'];
-        $events[$i]['startTime']   = $tmp['startTime'];
-        $events[$i]['recurrtype']  = $tmp['recurrtype'];
-        $events[$i]['recurrfreq']  = $tmp['recurrfreq'];
-        $events[$i]['recurrspec']  = $tmp['recurrspec'];
-
-
-        $rspecs = unserialize($tmp['recurrspec']);
-		$events[$i]['event_repeat_freq'] = $rspecs['event_repeat_freq'];
-		$events[$i]['event_repeat_freq_type'] = $rspecs['event_repeat_freq_type'];
-		$events[$i]['event_repeat_on_num'] = $rspecs['event_repeat_on_num'];
-		$events[$i]['event_repeat_on_day'] = $rspecs['event_repeat_on_day'];
-		$events[$i]['event_repeat_on_freq'] = $rspecs['event_repeat_on_freq'];
-
-        $events[$i]['topic']       = $tmp['topic'];
-        $events[$i]['alldayevent'] = $tmp['alldayevent'];
-        $events[$i]['catcolor']    = $tmp['catcolor'];
-        $events[$i]['catname']     = $tmp['catname'];
-        $events[$i]['catdesc']     = $tmp['catdesc'];
-		$events[$i]['pid']         = $tmp['pid'];
-		$events[$i]['patient_name']= $tmp['patient_name'];
-		$events[$i]['provider_name'] = $tmp['provider_name'];
-		$events[$i]['owner_name'] = $tmp['owner_name'];
-		$events[$i]['patient_dob'] = $tmp['patient_dob'];
-		$events[$i]['patient_age'] = date("Y") - substr(($tmp['patient_dob']),0,4);
-        $events[$i]['sharing']     = $tmp['sharing'];
-		$events[$i]['aid']		   = $tmp['aid'];
-		$events[$i]['intervals']   = ceil(($tmp['duration']/60) / $GLOBALS['calendar_interval']);
-		if($events[$i]['intervals'] == 0)
-			$events[$i]['intervals'] = 1;
-        // is this a public event to be shown as busy?
-        if($tmp['sharing'] == SHARING_BUSY && $cuserid != $userid) {
-            // make it not display any information
-            $events[$i]['title']       = _USER_BUSY_TITLE;
-            $events[$i]['hometext']    = _USER_BUSY_MESSAGE;
-			$events[$i]['desc']        = _USER_BUSY_MESSAGE;
-            $events[$i]['conttel']     = '';
-            $events[$i]['contname']    = '';
-            $events[$i]['contemail']   = '';
-            $events[$i]['website']     = '';
-            $events[$i]['fee']         = '';
-			$events[$i]['location']    = '';
-			$events[$i]['street1']     = '';
-			$events[$i]['street2']     = '';
-			$events[$i]['city']        = '';
-			$events[$i]['state']       = '';
-			$events[$i]['postal']      = '';
-		} else {
-            $display_type = substr($tmp['hometext'],0,6);
-			if($display_type == ':text:') {
-				$prepFunction = 'pcVarPrepForDisplay';
-				$tmp['hometext'] = substr($tmp['hometext'],6);
-			} elseif($display_type == ':html:') {
-				$prepFunction = 'pcVarPrepHTMLDisplay';
-				$tmp['hometext'] = substr($tmp['hometext'],6);
-			} else {
-				$prepFunction = 'pcVarPrepHTMLDisplay';
-			}
-			unset($display_type);
-			$events[$i]['title']       = $prepFunction($tmp['title']);
-            $events[$i]['hometext']    = $prepFunction($tmp['hometext']);
-			$events[$i]['desc']        = $events[$i]['hometext'];
-            $events[$i]['conttel']     = $prepFunction($tmp['conttel']);
-            $events[$i]['contname']    = $prepFunction($tmp['contname']);
-            $events[$i]['contemail']   = $prepFunction($tmp['contemail']);
-            $events[$i]['website']     = $prepFunction(postcalendar_makeValidURL($tmp['website']));
-            $events[$i]['fee']         = $prepFunction($tmp['fee']);
-			$loc = unserialize($tmp['location']);
-			$events[$i]['location']   = $prepFunction($loc['event_location']);
-			$events[$i]['street1']    = $prepFunction($loc['event_street1']);
-			$events[$i]['street2']    = $prepFunction($loc['event_street2']);
-			$events[$i]['city']       = $prepFunction($loc['event_city']);
-			$events[$i]['state']      = $prepFunction($loc['event_state']);
-			$events[$i]['postal']     = $prepFunction($loc['event_postal']);
-		}
-        $i++;
+    // grab the name of the topic
+    $topicname = pcGetTopicName($tmp['topic']);
+    // get the user id of event's author
+    $cuserid = @$nuke_users[strtolower($tmp['uname'])];
+    // check the current event's permissions
+    // the user does not have permission to view this event
+    // if any of the following evaluate as false
+    if(!pnSecAuthAction(0, 'PostCalendar::Event', "$tmp[title]::$tmp[eid]", ACCESS_OVERVIEW)) {
+      continue;
+    } elseif(!pnSecAuthAction(0, 'PostCalendar::Category', "$tmp[catname]::$tmp[catid]", ACCESS_OVERVIEW)) {
+      continue;
+    } elseif(!pnSecAuthAction(0, 'PostCalendar::User', "$tmp[uname]::$cuserid", ACCESS_OVERVIEW)) {
+      continue;
+    } elseif(!pnSecAuthAction(0, 'PostCalendar::Topic', "$topicname::$tmp[topic]", ACCESS_OVERVIEW)) {
+      continue;
+    } elseif($tmp['sharing'] == SHARING_PRIVATE && $cuserid != $userid) {
+      continue;
     }
-    unset($tmp);
-    $result->Close();
-	return $events;
+
+    // add event to the array if we passed the permissions check
+    // this is the common information
+    $events[$i]['eid']         = $tmp['eid'];
+    $events[$i]['uname']       = $tmp['uname'];
+    $events[$i]['uid']         = $cuserid;
+    $events[$i]['catid']       = $tmp['catid'];
+    $events[$i]['time']        = $tmp['time'];
+    $events[$i]['eventDate']   = $tmp['eventDate'];
+    $events[$i]['duration']    = $tmp['duration'];
+    // there has to be a more intelligent way to do this
+    @list($events[$i]['duration_hours'],$dmin) = @explode('.',($tmp['duration']/60/60));
+    $events[$i]['duration_minutes'] = substr(sprintf('%.2f','.' . 60*($dmin/100)),2,2);
+    //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    $events[$i]['endDate']     = $tmp['endDate'];
+    $events[$i]['startTime']   = $tmp['startTime'];
+    $events[$i]['recurrtype']  = $tmp['recurrtype'];
+    $events[$i]['recurrfreq']  = $tmp['recurrfreq'];
+    $events[$i]['recurrspec']  = $tmp['recurrspec'];
+
+    $rspecs = unserialize($tmp['recurrspec']);
+    $events[$i]['event_repeat_freq'] = $rspecs['event_repeat_freq'];
+    $events[$i]['event_repeat_freq_type'] = $rspecs['event_repeat_freq_type'];
+    $events[$i]['event_repeat_on_num'] = $rspecs['event_repeat_on_num'];
+    $events[$i]['event_repeat_on_day'] = $rspecs['event_repeat_on_day'];
+    $events[$i]['event_repeat_on_freq'] = $rspecs['event_repeat_on_freq'];
+
+    $events[$i]['topic']       = $tmp['topic'];
+    $events[$i]['alldayevent'] = $tmp['alldayevent'];
+    $events[$i]['catcolor']    = $tmp['catcolor'];
+    $events[$i]['catname']     = $tmp['catname'];
+    $events[$i]['catdesc']     = $tmp['catdesc'];
+    $events[$i]['pid']         = $tmp['pid'];
+    $events[$i]['patient_name']= $tmp['patient_name'];
+    $events[$i]['provider_name'] = $tmp['provider_name'];
+    $events[$i]['owner_name'] = $tmp['owner_name'];
+    $events[$i]['patient_dob'] = $tmp['patient_dob'];
+    $events[$i]['patient_age'] = date("Y") - substr(($tmp['patient_dob']),0,4);
+    $events[$i]['sharing']     = $tmp['sharing'];
+    $events[$i]['aid']		   = $tmp['aid'];
+    $events[$i]['intervals']   = ceil(($tmp['duration']/60) / $GLOBALS['calendar_interval']);
+    if($events[$i]['intervals'] == 0)
+      $events[$i]['intervals'] = 1;
+    // is this a public event to be shown as busy?
+    if($tmp['sharing'] == SHARING_BUSY && $cuserid != $userid) {
+      // make it not display any information
+      $events[$i]['title']       = _USER_BUSY_TITLE;
+      $events[$i]['hometext']    = _USER_BUSY_MESSAGE;
+      $events[$i]['desc']        = _USER_BUSY_MESSAGE;
+      $events[$i]['conttel']     = '';
+      $events[$i]['contname']    = '';
+      $events[$i]['contemail']   = '';
+      $events[$i]['website']     = '';
+      $events[$i]['fee']         = '';
+      $events[$i]['location']    = '';
+      $events[$i]['street1']     = '';
+      $events[$i]['street2']     = '';
+      $events[$i]['city']        = '';
+      $events[$i]['state']       = '';
+      $events[$i]['postal']      = '';
+    } else {
+      $display_type = substr($tmp['hometext'],0,6);
+      if($display_type == ':text:') {
+        $prepFunction = 'pcVarPrepForDisplay';
+        $tmp['hometext'] = substr($tmp['hometext'],6);
+      } elseif($display_type == ':html:') {
+        $prepFunction = 'pcVarPrepHTMLDisplay';
+        $tmp['hometext'] = substr($tmp['hometext'],6);
+      } else {
+        $prepFunction = 'pcVarPrepHTMLDisplay';
+      }
+      unset($display_type);
+      $events[$i]['title']       = $prepFunction($tmp['title']);
+      $events[$i]['hometext']    = $prepFunction($tmp['hometext']);
+      $events[$i]['desc']        = $events[$i]['hometext'];
+      $events[$i]['conttel']     = $prepFunction($tmp['conttel']);
+      $events[$i]['contname']    = $prepFunction($tmp['contname']);
+      $events[$i]['contemail']   = $prepFunction($tmp['contemail']);
+      $events[$i]['website']     = $prepFunction(postcalendar_makeValidURL($tmp['website']));
+      $events[$i]['fee']         = $prepFunction($tmp['fee']);
+      $loc = unserialize($tmp['location']);
+      $events[$i]['location']   = $prepFunction($loc['event_location']);
+      $events[$i]['street1']    = $prepFunction($loc['event_street1']);
+      $events[$i]['street2']    = $prepFunction($loc['event_street2']);
+      $events[$i]['city']       = $prepFunction($loc['event_city']);
+      $events[$i]['state']      = $prepFunction($loc['event_state']);
+      $events[$i]['postal']     = $prepFunction($loc['event_postal']);
+    }
+    $i++;
+  }
+  unset($tmp);
+  $result->Close();
+  return $events;
 }
-
-
 
 
 /**
@@ -912,238 +907,234 @@ function &postcalendar_userapi_pcQueryEventsFA($args)	{
  */
 function &postcalendar_userapi_pcQueryEvents($args)
 {
+  $end = '0000-00-00';
+  extract($args);
 
-    $end = '0000-00-00';
-	extract($args);
+  $pc_username = pnVarCleanFromInput('pc_username');
+  if (empty($pc_username )) {
+    $pc_username = "__PC_ALL__";
+  }
 
+  //pennfirm echo "PC Username: $pc_username";
+  $topic = pnVarCleanFromInput('pc_topic');
+  $category = pnVarCleanFromInput('pc_category');
 
-	$pc_username = pnVarCleanFromInput('pc_username');
-	if (empty($pc_username )) {
-		$pc_username = "__PC_ALL__";
-	}
-
-	//pennfirm echo "PC Username: $pc_username";
-	$topic = pnVarCleanFromInput('pc_topic');
-	$category = pnVarCleanFromInput('pc_category');
-
-
-	if(!empty($pc_username) && (strtolower($pc_username) != 'anonymous')) {
-        if($pc_username=='__PC_ALL__' || $pc_username == -1) {
-			$ruserid = -1;
-		} else {
-			$ruserid = getIDfromUser($pc_username);
-		}
-    }
-
-	if(!isset($eventstatus)) { $eventstatus = 1; }
-    // sanity check on eventstatus
-    if((int)$eventstatus < -1 || (int)$eventstatus > 1) { $eventstatus = 1; }
-    if(!isset($start)) { $start = Date_Calc::dateNow('%Y-%m-%d'); }
-    list($sy,$sm,$sd) = explode('-',$start);
-
-    list($dbconn) = pnDBGetConn();
-    $pntable = pnDBGetTables();
-    // link to the events tables
-    $table      =  $pntable['postcalendar_events'];
-    $cattable   =  $pntable['postcalendar_categories'];
-    $topictable   =  $pntable['postcalendar_topics'];
-
-    $sql =  "SELECT DISTINCT a.pc_eid,  a.pc_informant, a.pc_catid, a.pc_title, a.pc_time, a.pc_hometext,
-                    a.pc_eventDate, a.pc_duration, a.pc_endDate, a.pc_startTime, a.pc_recurrtype,
-                    a.pc_recurrfreq, a.pc_recurrspec, a.pc_topic, a.pc_alldayevent, a.pc_location,
-                    a.pc_conttel, a.pc_contname, a.pc_contemail, a.pc_website, a.pc_fee,
-                    a.pc_sharing, b.pc_catcolor, b.pc_catname, b.pc_catdesc, a.pc_pid, a.pc_aid,
-					concat(u.fname,' ',u.lname) as provider_name, concat(pd.lname,', ',pd.fname) as patient_name,
-					concat(u2.fname, ' ', u2.lname) as owner_name, DOB as patient_dob, pd.pubpid
-			FROM   $table AS a, $cattable AS b
-			LEFT JOIN users as u ON a.pc_aid = u.id
-			LEFT JOIN users as u2 ON a.pc_aid = u2.id
-			LEFT JOIN patient_data as pd ON a.pc_pid=pd.pid
-			WHERE  b.pc_catid = a.pc_catid
-				AND a.pc_eventstatus = $eventstatus
-				AND ((a.pc_endDate >= '$start' AND a.pc_eventDate <= '$end') OR
-				(a.pc_endDate = '0000-00-00' AND a.pc_eventDate >= '$start' AND a.pc_eventDate <= '$end')) ";
-
-	// The above two lines replace these:
-	//   AND (a.pc_endDate >= '$start' OR a.pc_endDate = '0000-00-00')
-	//   AND a.pc_eventDate <= '$end' ";
-
-	if(!empty($providerID))
-	{
-		$ruserid = $providerID;
-	}
-
-    if(isset($ruserid)) {
-        // get all events for the specified username
-        if($ruserid == -1) {
-			$sql .= "AND (a.pc_sharing = '" . SHARING_BUSY . "' ";
-			$sql .= "OR a.pc_sharing = '" . SHARING_PUBLIC . "') ";
-		} else {
-			$sql .= "AND a.pc_aid = " . $ruserid . " ";
-		}
-    } elseif(!pnUserLoggedIn()) {
-        // get all events for anonymous users
-        $sql .= "AND a.pc_sharing = '" . SHARING_GLOBAL . "' ";
+  if(!empty($pc_username) && (strtolower($pc_username) != 'anonymous')) {
+    if($pc_username=='__PC_ALL__' || $pc_username == -1) {
+      $ruserid = -1;
     } else {
-        // get all events for logged in user plus global events
-        $sql .= "AND (a.pc_aid = " . $_SESSION['authUserID'] . " OR a.pc_sharing = '" . SHARING_GLOBAL . "') ";
-	}
-	//======================================================================
-	//	START SEARCH FUNCTIONALITY
-	//======================================================================
-	if(!empty($s_keywords)) $sql .= "AND ($s_keywords) ";
-	if(!empty($s_category)) $sql .= "AND ($s_category) ";
-	if(!empty($s_topic)) 	$sql .= "AND ($s_topic) ";
-	if(!empty($category))	$sql .= "AND (a.pc_catid = '".pnVarPrepForStore($category)."') ";
-	if(!empty($topic))		$sql .= "AND (a.pc_topic = '".pnVarPrepForStore($topic)."') ";
-	//======================================================================
-	//	Serch sort and limitation
-	//======================================================================
-	if(empty($sort))		$sql .= "GROUP BY a.pc_eid ORDER BY a.pc_time DESC";
-	else 					$sql .= "GROUP BY a.pc_eid ORDER BY a.$sort";
-	//======================================================================
-	//	END SEARCH FUNCTIONALITY
-	//======================================================================
-	//echo "sq: $sql<br />";
-
-	// echo "<!-- " . $sql . " -->\n"; // debugging
-
-	$result = $dbconn->Execute($sql);
-	if($dbconn->ErrorNo() != 0) die ($dbconn->ErrorMsg());
-
-    // put the information into an array for easy access
-    $events = array();
-    // return an empty array if we don't have any results
-    if(!isset($result)) { return $events; }
-
-
-    for($i=0; !$result->EOF; $result->MoveNext()) {
-
-		// get the results from the query
-        if(isset($tmp)) { unset($tmp); } $tmp = array();
-        list($tmp['eid'],        $tmp['uname'],       $tmp['catid'],
-             $tmp['title'],      $tmp['time'],        $tmp['hometext'],
-             $tmp['eventDate'],  $tmp['duration'],    $tmp['endDate'],
-             $tmp['startTime'],  $tmp['recurrtype'],  $tmp['recurrfreq'],
-             $tmp['recurrspec'], $tmp['topic'],       $tmp['alldayevent'],
-             $tmp['location'],   $tmp['conttel'],     $tmp['contname'],
-             $tmp['contemail'],  $tmp['website'],     $tmp['fee'], $tmp['sharing'],
-             $tmp['catcolor'],   $tmp['catname'],     $tmp['catdesc'],
-			 $tmp['pid'], $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'],
-			 $tmp['owner_name'],$tmp['patient_dob'],$tmp['pubpid']) = $result->fields;
-
-		// grab the name of the topic
-        $topicname = pcGetTopicName($tmp['topic']);
-		// get the user id of event's author
-        $cuserid = @$nuke_users[strtolower($tmp['uname'])];
-		// check the current event's permissions
-		// the user does not have permission to view this event
-		// if any of the following evaluate as false
-		if(!pnSecAuthAction(0, 'PostCalendar::Event', "$tmp[title]::$tmp[eid]", ACCESS_OVERVIEW)) {
-            continue;
-        } elseif(!pnSecAuthAction(0, 'PostCalendar::Category', "$tmp[catname]::$tmp[catid]", ACCESS_OVERVIEW)) {
-            continue;
-        } elseif(!pnSecAuthAction(0, 'PostCalendar::User', "$tmp[uname]::$cuserid", ACCESS_OVERVIEW)) {
-            continue;
-        } elseif(!pnSecAuthAction(0, 'PostCalendar::Topic', "$topicname::$tmp[topic]", ACCESS_OVERVIEW)) {
-            continue;
-        } elseif($tmp['sharing'] == SHARING_PRIVATE && $cuserid != $userid) {
-            continue;
-        }
-
-        // add event to the array if we passed the permissions check
-        // this is the common information
-
-
-
-		$events[$i]['intervals'] 	=($tmp['duration']/60)/	$GLOBALS['day_calandar_interval'];//sets the number of rows this event should span
-		print_r($events[$i]['intervals']);
-
-        $events[$i]['eid']         = $tmp['eid'];
-        $events[$i]['uname']       = $tmp['uname'];
-        $events[$i]['uid']         = $cuserid;
-        $events[$i]['catid']       = $tmp['catid'];
-        $events[$i]['time']        = $tmp['time'];
-        $events[$i]['eventDate']   = $tmp['eventDate'];
-        $events[$i]['duration']    = $tmp['duration'];
-		// there has to be a more intelligent way to do this
-        @list($events[$i]['duration_hours'],$dmin) = @explode('.',($tmp['duration']/60/60));
-        $events[$i]['duration_minutes'] = substr(sprintf('%.2f','.' . 60*($dmin/100)),2,2);
-		//''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-       	$events[$i]['endDate']     = $tmp['endDate'];
-        $events[$i]['startTime']   = $tmp['startTime'];
-        $events[$i]['recurrtype']  = $tmp['recurrtype'];
-        $events[$i]['recurrfreq']  = $tmp['recurrfreq'];
-        $events[$i]['recurrspec']  = $tmp['recurrspec'];
-        $events[$i]['topic']       = $tmp['topic'];
-        $events[$i]['alldayevent'] = $tmp['alldayevent'];
-        $events[$i]['catcolor']    = $tmp['catcolor'];
-        $events[$i]['catname']     = $tmp['catname'];
-        $events[$i]['catdesc']     = $tmp['catdesc'];
-		$events[$i]['pid']         = $tmp['pid'];
-		$events[$i]['pubpid']         = $tmp['pubpid'];
-		$events[$i]['patient_name']= $tmp['patient_name'];
-		$events[$i]['provider_name'] = $tmp['provider_name'];
-		$events[$i]['owner_name'] = $tmp['owner_name'];
-		$events[$i]['patient_dob'] = $tmp['patient_dob'];
-		$events[$i]['patient_age'] = date("Y") - substr(($tmp['patient_dob']),0,4);
-        $events[$i]['sharing']     = $tmp['sharing'];
-		$events[$i]['aid']		   = $tmp['aid'];
-		$events[$i]['topictext']   = $topicname;
-		$events[$i]['intervals']   = ceil(($tmp['duration']/60) / $GLOBALS['calendar_interval']);
-		if($events[$i]['intervals'] == 0)
-			$events[$i]['intervals'] = 1;
-        // is this a public event to be shown as busy?
-        if($tmp['sharing'] == SHARING_BUSY && $cuserid != $userid) {
-            // make it not display any information
-            $events[$i]['title']       = _USER_BUSY_TITLE;
-            $events[$i]['hometext']    = _USER_BUSY_MESSAGE;
-			$events[$i]['desc']        = _USER_BUSY_MESSAGE;
-            $events[$i]['conttel']     = '';
-            $events[$i]['contname']    = '';
-            $events[$i]['contemail']   = '';
-            $events[$i]['website']     = '';
-            $events[$i]['fee']         = '';
-			$events[$i]['location']    = '';
-			$events[$i]['street1']     = '';
-			$events[$i]['street2']     = '';
-			$events[$i]['city']        = '';
-			$events[$i]['state']       = '';
-			$events[$i]['postal']      = '';
-		} else {
-            $display_type = substr($tmp['hometext'],0,6);
-			if($display_type == ':text:') {
-				$prepFunction = 'pcVarPrepForDisplay';
-				$tmp['hometext'] = substr($tmp['hometext'],6);
-			} elseif($display_type == ':html:') {
-				$prepFunction = 'pcVarPrepHTMLDisplay';
-				$tmp['hometext'] = substr($tmp['hometext'],6);
-			} else {
-				$prepFunction = 'pcVarPrepHTMLDisplay';
-			}
-			unset($display_type);
-			$events[$i]['title']       = $prepFunction($tmp['title']);
-            $events[$i]['hometext']    = $prepFunction($tmp['hometext']);
-			$events[$i]['desc']        = $events[$i]['hometext'];
-            $events[$i]['conttel']     = $prepFunction($tmp['conttel']);
-            $events[$i]['contname']    = $prepFunction($tmp['contname']);
-            $events[$i]['contemail']   = $prepFunction($tmp['contemail']);
-            $events[$i]['website']     = $prepFunction(postcalendar_makeValidURL($tmp['website']));
-            $events[$i]['fee']         = $prepFunction($tmp['fee']);
-			$loc = unserialize($tmp['location']);
-			$events[$i]['location']   = $prepFunction($loc['event_location']);
-			$events[$i]['street1']    = $prepFunction($loc['event_street1']);
-			$events[$i]['street2']    = $prepFunction($loc['event_street2']);
-			$events[$i]['city']       = $prepFunction($loc['event_city']);
-			$events[$i]['state']      = $prepFunction($loc['event_state']);
-			$events[$i]['postal']     = $prepFunction($loc['event_postal']);
-		}
-        $i++;
+      $ruserid = getIDfromUser($pc_username);
     }
-    unset($tmp);
-    $result->Close();
-	return $events;
+  }
+
+  if(!isset($eventstatus)) { $eventstatus = 1; }
+  // sanity check on eventstatus
+  if((int)$eventstatus < -1 || (int)$eventstatus > 1) { $eventstatus = 1; }
+  if(!isset($start)) { $start = Date_Calc::dateNow('%Y-%m-%d'); }
+  list($sy,$sm,$sd) = explode('-',$start);
+
+  list($dbconn) = pnDBGetConn();
+  $pntable = pnDBGetTables();
+  // link to the events tables
+  $table      =  $pntable['postcalendar_events'];
+  $cattable   =  $pntable['postcalendar_categories'];
+  $topictable =  $pntable['postcalendar_topics'];
+
+  $sql =  "SELECT DISTINCT a.pc_eid,  a.pc_informant, a.pc_catid, a.pc_title, a.pc_time, a.pc_hometext,
+    a.pc_eventDate, a.pc_duration, a.pc_endDate, a.pc_startTime, a.pc_recurrtype,
+    a.pc_recurrfreq, a.pc_recurrspec, a.pc_topic, a.pc_alldayevent, a.pc_location,
+    a.pc_conttel, a.pc_contname, a.pc_contemail, a.pc_website, a.pc_fee,
+    a.pc_sharing, b.pc_catcolor, b.pc_catname, b.pc_catdesc, a.pc_pid, a.pc_apptstatus, a.pc_aid,
+    concat(u.fname,' ',u.lname) as provider_name, concat(pd.lname,', ',pd.fname) as patient_name,
+    concat(u2.fname, ' ', u2.lname) as owner_name, DOB as patient_dob, pd.pubpid
+    FROM   $table AS a, $cattable AS b
+    LEFT JOIN users as u ON a.pc_aid = u.id
+    LEFT JOIN users as u2 ON a.pc_aid = u2.id
+    LEFT JOIN patient_data as pd ON a.pc_pid = pd.pid
+    WHERE  b.pc_catid = a.pc_catid
+      AND a.pc_eventstatus = $eventstatus
+      AND ((a.pc_endDate >= '$start' AND a.pc_eventDate <= '$end') OR
+      (a.pc_endDate = '0000-00-00' AND a.pc_eventDate >= '$start' AND a.pc_eventDate <= '$end')) ";
+
+  // The above two lines replace these:
+  //   AND (a.pc_endDate >= '$start' OR a.pc_endDate = '0000-00-00')
+  //   AND a.pc_eventDate <= '$end' ";
+
+  if(!empty($providerID))
+  {
+    $ruserid = $providerID;
+  }
+
+  if(isset($ruserid)) {
+    // get all events for the specified username
+    if($ruserid == -1) {
+      $sql .= "AND (a.pc_sharing = '" . SHARING_BUSY . "' ";
+      $sql .= "OR a.pc_sharing = '" . SHARING_PUBLIC . "') ";
+    } else {
+      $sql .= "AND a.pc_aid = " . $ruserid . " ";
+    }
+  } elseif(!pnUserLoggedIn()) {
+    // get all events for anonymous users
+    $sql .= "AND a.pc_sharing = '" . SHARING_GLOBAL . "' ";
+  } else {
+    // get all events for logged in user plus global events
+    $sql .= "AND (a.pc_aid = " . $_SESSION['authUserID'] . " OR a.pc_sharing = '" . SHARING_GLOBAL . "') ";
+  }
+  //======================================================================
+  //  START SEARCH FUNCTIONALITY
+  //======================================================================
+  if(!empty($s_keywords)) $sql .= "AND ($s_keywords) ";
+  if(!empty($s_category)) $sql .= "AND ($s_category) ";
+  if(!empty($s_topic))    $sql .= "AND ($s_topic) ";
+  if(!empty($category))   $sql .= "AND (a.pc_catid = '".pnVarPrepForStore($category)."') ";
+  if(!empty($topic))      $sql .= "AND (a.pc_topic = '".pnVarPrepForStore($topic)."') ";
+  //======================================================================
+  //  Search sort and limitation
+  //======================================================================
+  if(empty($sort)) $sql .= "GROUP BY a.pc_eid ORDER BY a.pc_time DESC";
+  else $sql .= "GROUP BY a.pc_eid ORDER BY a.$sort";
+  //======================================================================
+  //  END SEARCH FUNCTIONALITY
+  //======================================================================
+  //echo "sq: $sql<br />";
+
+  // echo "<!-- " . $sql . " -->\n"; // debugging
+
+  $result = $dbconn->Execute($sql);
+  if($dbconn->ErrorNo() != 0) die ($dbconn->ErrorMsg());
+
+  // put the information into an array for easy access
+  $events = array();
+  // return an empty array if we don't have any results
+  if(!isset($result)) { return $events; }
+
+  for($i=0; !$result->EOF; $result->MoveNext()) {
+
+    // get the results from the query
+    if(isset($tmp)) { unset($tmp); } $tmp = array();
+    list($tmp['eid'],        $tmp['uname'],       $tmp['catid'],
+         $tmp['title'],      $tmp['time'],        $tmp['hometext'],
+         $tmp['eventDate'],  $tmp['duration'],    $tmp['endDate'],
+         $tmp['startTime'],  $tmp['recurrtype'],  $tmp['recurrfreq'],
+         $tmp['recurrspec'], $tmp['topic'],       $tmp['alldayevent'],
+         $tmp['location'],   $tmp['conttel'],     $tmp['contname'],
+         $tmp['contemail'],  $tmp['website'],     $tmp['fee'], $tmp['sharing'],
+         $tmp['catcolor'],   $tmp['catname'],     $tmp['catdesc'],
+         $tmp['pid'],        $tmp['apptstatus'],  $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'],
+         $tmp['owner_name'],$tmp['patient_dob'],$tmp['pubpid']) = $result->fields;
+
+    // grab the name of the topic
+    $topicname = pcGetTopicName($tmp['topic']);
+    // get the user id of event's author
+    $cuserid = @$nuke_users[strtolower($tmp['uname'])];
+    // check the current event's permissions
+    // the user does not have permission to view this event
+    // if any of the following evaluate as false
+    if(!pnSecAuthAction(0, 'PostCalendar::Event', "$tmp[title]::$tmp[eid]", ACCESS_OVERVIEW)) {
+      continue;
+    } elseif(!pnSecAuthAction(0, 'PostCalendar::Category', "$tmp[catname]::$tmp[catid]", ACCESS_OVERVIEW)) {
+      continue;
+    } elseif(!pnSecAuthAction(0, 'PostCalendar::User', "$tmp[uname]::$cuserid", ACCESS_OVERVIEW)) {
+      continue;
+    } elseif(!pnSecAuthAction(0, 'PostCalendar::Topic', "$topicname::$tmp[topic]", ACCESS_OVERVIEW)) {
+      continue;
+    } elseif($tmp['sharing'] == SHARING_PRIVATE && $cuserid != $userid) {
+      continue;
+    }
+
+    // add event to the array if we passed the permissions check
+    // this is the common information
+
+    $events[$i]['intervals'] 	=($tmp['duration']/60)/	$GLOBALS['day_calandar_interval'];//sets the number of rows this event should span
+    print_r($events[$i]['intervals']);
+
+    $events[$i]['eid']         = $tmp['eid'];
+    $events[$i]['uname']       = $tmp['uname'];
+    $events[$i]['uid']         = $cuserid;
+    $events[$i]['catid']       = $tmp['catid'];
+    $events[$i]['time']        = $tmp['time'];
+    $events[$i]['eventDate']   = $tmp['eventDate'];
+    $events[$i]['duration']    = $tmp['duration'];
+    // there has to be a more intelligent way to do this
+    @list($events[$i]['duration_hours'],$dmin) = @explode('.',($tmp['duration']/60/60));
+    $events[$i]['duration_minutes'] = substr(sprintf('%.2f','.' . 60*($dmin/100)),2,2);
+    //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    $events[$i]['endDate']     = $tmp['endDate'];
+    $events[$i]['startTime']   = $tmp['startTime'];
+    $events[$i]['recurrtype']  = $tmp['recurrtype'];
+    $events[$i]['recurrfreq']  = $tmp['recurrfreq'];
+    $events[$i]['recurrspec']  = $tmp['recurrspec'];
+    $events[$i]['topic']       = $tmp['topic'];
+    $events[$i]['alldayevent'] = $tmp['alldayevent'];
+    $events[$i]['catcolor']    = $tmp['catcolor'];
+    $events[$i]['catname']     = $tmp['catname'];
+    $events[$i]['catdesc']     = $tmp['catdesc'];
+    $events[$i]['pid']         = $tmp['pid'];
+    $events[$i]['apptstatus']  = $tmp['apptstatus'];
+    $events[$i]['pubpid']      = $tmp['pubpid'];
+    $events[$i]['patient_name']= $tmp['patient_name'];
+    $events[$i]['provider_name'] = $tmp['provider_name'];
+    $events[$i]['owner_name']  = $tmp['owner_name'];
+    $events[$i]['patient_dob'] = $tmp['patient_dob'];
+    $events[$i]['patient_age'] = date("Y") - substr(($tmp['patient_dob']),0,4);
+    $events[$i]['sharing']     = $tmp['sharing'];
+    $events[$i]['aid']         = $tmp['aid'];
+    $events[$i]['topictext']   = $topicname;
+    $events[$i]['intervals']   = ceil(($tmp['duration']/60) / $GLOBALS['calendar_interval']);
+    if($events[$i]['intervals'] == 0)
+      $events[$i]['intervals'] = 1;
+    // is this a public event to be shown as busy?
+    if($tmp['sharing'] == SHARING_BUSY && $cuserid != $userid) {
+      // make it not display any information
+      $events[$i]['title']       = _USER_BUSY_TITLE;
+      $events[$i]['hometext']    = _USER_BUSY_MESSAGE;
+      $events[$i]['desc']        = _USER_BUSY_MESSAGE;
+      $events[$i]['conttel']     = '';
+      $events[$i]['contname']    = '';
+      $events[$i]['contemail']   = '';
+      $events[$i]['website']     = '';
+      $events[$i]['fee']         = '';
+      $events[$i]['location']    = '';
+      $events[$i]['street1']     = '';
+      $events[$i]['street2']     = '';
+      $events[$i]['city']        = '';
+      $events[$i]['state']       = '';
+      $events[$i]['postal']      = '';
+    } else {
+      $display_type = substr($tmp['hometext'],0,6);
+      if($display_type == ':text:') {
+        $prepFunction = 'pcVarPrepForDisplay';
+        $tmp['hometext'] = substr($tmp['hometext'],6);
+      } elseif($display_type == ':html:') {
+        $prepFunction = 'pcVarPrepHTMLDisplay';
+        $tmp['hometext'] = substr($tmp['hometext'],6);
+      } else {
+        $prepFunction = 'pcVarPrepHTMLDisplay';
+      }
+      unset($display_type);
+      $events[$i]['title']       = $prepFunction($tmp['title']);
+      $events[$i]['hometext']    = $prepFunction($tmp['hometext']);
+      $events[$i]['desc']        = $events[$i]['hometext'];
+      $events[$i]['conttel']     = $prepFunction($tmp['conttel']);
+      $events[$i]['contname']    = $prepFunction($tmp['contname']);
+      $events[$i]['contemail']   = $prepFunction($tmp['contemail']);
+      $events[$i]['website']     = $prepFunction(postcalendar_makeValidURL($tmp['website']));
+      $events[$i]['fee']         = $prepFunction($tmp['fee']);
+      $loc = unserialize($tmp['location']);
+      $events[$i]['location']   = $prepFunction($loc['event_location']);
+      $events[$i]['street1']    = $prepFunction($loc['event_street1']);
+      $events[$i]['street2']    = $prepFunction($loc['event_street2']);
+      $events[$i]['city']       = $prepFunction($loc['event_city']);
+      $events[$i]['state']      = $prepFunction($loc['event_state']);
+      $events[$i]['postal']     = $prepFunction($loc['event_postal']);
+    }
+    $i++;
+  }
+  unset($tmp);
+  $result->Close();
+  return $events;
 }
+
 
 function getBlockTime($time) {
 

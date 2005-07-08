@@ -9,7 +9,6 @@ ALTER TABLE patient_data
   ADD squad      int(11)       NOT NULL DEFAULT 0,
   ADD fitness    int(11)       NOT NULL DEFAULT 0;
 
-
 ALTER TABLE history_data
   CHANGE last_breast_exam        last_breast_exam        varchar(255) DEFAULT '',
   CHANGE last_mammogram          last_mammogram          varchar(255) DEFAULT '',
@@ -34,10 +33,26 @@ UPDATE history_data SET last_sigmoidoscopy_colonoscopy = '' WHERE last_sigmoidos
 
 update insurance_numbers
   set provider_number_type = x12_id_type;
-  
+
 ALTER TABLE insurance_numbers
   DROP column x12_id_type,
   ADD rendering_provider_number_type varchar(4) DEFAULT NULL,
   ADD rendering_provider_number varchar(20) DEFAULT NULL;
 
+ALTER TABLE openemr_postcalendar_events
+  -- Appointment status is one of the following:
+  --  - = not otherwise applicable
+  --  * = reminder call completed
+  --  + = chart pulled
+  --  ? = no show
+  --  @ = patient arrived
+  --  ~ = arrived late
+  --  ! = left without being seen
+  --  # = left due to ins/money issue
+  --  < = visit in progress
+  --  > = checked out
+  --  $ = coding complete
+  ADD pc_apptstatus char(1) NOT NULL DEFAULT '-';
 
+ALTER TABLE lists
+  ADD diagnosis varchar(255) NOT NULL DEFAULT '';
