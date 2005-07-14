@@ -26769,7 +26769,6 @@ CREATE TABLE `history_data` (
   `seatbelt_use` longtext,
   `counseling` longtext,
   `hazardous_activities` longtext,
-  -- Exams begin here.
   `last_breast_exam` varchar(255) NOT NULL default '',
   `last_mammogram` varchar(255) NOT NULL default '',
   `last_gynocological_exam` varchar(255) NOT NULL default '',
@@ -26779,8 +26778,6 @@ CREATE TABLE `history_data` (
   `last_sigmoidoscopy_colonoscopy` varchar(255) NOT NULL default '',
   `last_ecg` varchar(255) NOT NULL DEFAULT '',
   `last_cardiac_echo` varchar(255) NOT NULL DEFAULT '',
-  -- here is 1 digit for each of the above exams, in order, with values
-  -- 0=n/a, 1=normal, 2=abnormal:
   `last_exam_results` varchar(255) NOT NULL DEFAULT '000000000',
   `history_mother` longtext,
   `history_father` longtext,
@@ -26796,7 +26793,6 @@ CREATE TABLE `history_data` (
   `relatives_epilepsy` longtext,
   `relatives_mental_illness` longtext,
   `relatives_suicide` longtext,
-  -- The following are deprecated and should be removed at some point.
   `cataract_surgery` datetime default NULL,
   `tonsillectomy` datetime default NULL,
   `cholecystestomy` datetime default NULL,
@@ -26806,7 +26802,6 @@ CREATE TABLE `history_data` (
   `hip_replacement` datetime default NULL,
   `knee_replacement` datetime default NULL,
   `appendectomy` datetime default NULL,
-  -- End of deprecated variables.
   `date` datetime default NULL,
   `pid` bigint(20) NOT NULL default '0',
   `name_1` varchar(255) default NULL,
@@ -27180,18 +27175,6 @@ CREATE TABLE `openemr_postcalendar_events` (
   `pc_eventstatus` int(11) NOT NULL default '0',
   `pc_sharing` int(11) NOT NULL default '0',
   `pc_language` varchar(30) default '',
-  -- Appointment status is one of the following:
-  --  - = not otherwise applicable
-  --  * = reminder call completed
-  --  + = chart pulled
-  --  ? = no show
-  --  @ = patient arrived
-  --  ~ = arrived late
-  --  ! = left without being seen
-  --  # = left due to ins/money issue
-  --  < = visit in progress
-  --  > = checked out
-  --  $ = coding complete
   `pc_apptstatus` char(1) NOT NULL DEFAULT '-',
   PRIMARY KEY  (`pc_eid`),
   KEY `basic_event` (`pc_catid`,`pc_aid`,`pc_eventDate`,`pc_endDate`,`pc_eventstatus`,`pc_sharing`,`pc_topic`)
