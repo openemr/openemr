@@ -27308,6 +27308,8 @@ CREATE TABLE `patient_data` (
   `genericval2` varchar(255) NOT NULL default '',
   `hipaa_mail` VARCHAR( 3 ) DEFAULT 'NO' NOT NULL,
   `hipaa_voice` VARCHAR( 3 ) DEFAULT 'NO' NOT NULL,
+  `squad`      int(11)       NOT NULL DEFAULT 0,
+  `fitness`    int(11)       NOT NULL DEFAULT 0,
   UNIQUE KEY `pid` (`pid`),
   KEY `id` (`id`),
   KEY `pid_2` (`pid`)
