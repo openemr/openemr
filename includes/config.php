@@ -39,14 +39,27 @@ $GLOBALS['oer_config']['prescriptions']['sendfax'] = '';
 // i.e. 9, will dial 9 for external tone, and wait a second.
 $GLOBALS['oer_config']['prescriptions']['prefix'] = '';
 
+// select paper size for prescription printing
+// see library/classes/class.ezpdf.php for complete list of paper sizes
+// ex. "LETTER", "A4", "LEGAL" ...
+$GLOBALS['oer_config']['prescriptions']['paper_size'] = "LETTER";
+
+// change page margins for prescription printing
+// note, values are in pixels (72 dots per inch)
+// to convert from centimeters use the following: (centimeters / 2.54 ) * 72;
+$GLOBALS['oer_config']['prescriptions']['left'] = 30;
+$GLOBALS['oer_config']['prescriptions']['right'] = 30;
+$GLOBALS['oer_config']['prescriptions']['top'] = 72;
+$GLOBALS['oer_config']['prescriptions']['bottom'] = 30;
+
 //accounting system web services integration
 //whether to use the system
-$GLOBALS['oer_config']['ws_accounting']['enabled'] = false;
+$GLOBALS['oer_config']['ws_accounting']['enabled'] = true;
 $GLOBALS['oer_config']['ws_accounting']['server'] = "localhost";
 $GLOBALS['oer_config']['ws_accounting']['port'] = "80";
 $GLOBALS['oer_config']['ws_accounting']['url'] = "/sql-ledger/ws_server.pl";
-$GLOBALS['oer_config']['ws_accounting']['username'] = "admin";
-$GLOBALS['oer_config']['ws_accounting']['password'] = "12345";
+$GLOBALS['oer_config']['ws_accounting']['username'] = "openemr";
+$GLOBALS['oer_config']['ws_accounting']['password'] = "MFP**123";
 $GLOBALS['oer_config']['ws_accounting']['url_path'] = "http://" .
   $_SERVER["SERVER_NAME"] . "/sql-ledger/login.pl";
 $GLOBALS['oer_config']['ws_accounting']['income_acct'] = "10035";
@@ -55,6 +68,7 @@ $GLOBALS['oer_config']['ws_accounting']['income_acct'] = "10035";
 
 $GLOBALS['oer_config']['prescriptions']['logo'] = dirname(__FILE__) ."/../interface/pic/" . $GLOBALS['oer_config']['prescriptions']['logo_pic'];
 $GLOBALS['oer_config']['prescriptions']['signature'] = dirname(__FILE__) ."/../interface/pic/" . $GLOBALS['oer_config']['prescriptions']['sig_pic'];
+$GLOBALS['oer_config']['prescriptions']['signature'] = '';
 
 if (strpos($GLOBALS['oer_config']['documents']['repository'],"/") !== 0) {
 	$GLOBALS['oer_config']['documents']['repository'] = realpath(dirname(__FILE__) . "/../" . $GLOBALS['oer_config']['documents']['repository']) . "/";

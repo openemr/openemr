@@ -159,8 +159,13 @@ class C_Prescription extends Controller {
 
 	function _print_prescription($p, & $toFile) {
 		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
-		$pdf =& new Cezpdf("LETTER");
-		$pdf->ezSetMargins(72,30,50,30);
+		$pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);
+		$pdf->ezSetMargins($GLOBALS['oer_config']['prescriptions']['top']
+                      ,$GLOBALS['oer_config']['prescriptions']['bottom']
+ 		                  ,$GLOBALS['oer_config']['prescriptions']['left']
+                      ,$GLOBALS['oer_config']['prescriptions']['right']
+                      );
+
 		$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
 
 		if(!empty($this->pconfig['logo'])) {
