@@ -38,6 +38,11 @@ tr.detail { font-size:10pt; }
 
 <script language="JavaScript">
 
+// callback from add_edit_issue.php:
+function refreshIssue(issue, title) {
+ location.reload();
+}
+
 // Process click on issue title.
 function dopclick(id) {
  dlgopen('add_edit_issue.php?issue=' + id, '_blank', 500, 450);
@@ -64,6 +69,7 @@ function doeclick(id) {
   <td>Title</td>
   <td>Begin</td>
   <td>End</td>
+  <td>Diag</td>
   <td>Occurrence</td>
 <? if ($GLOBALS['athletic_team']) { ?>
   <td>Missed</td>
@@ -109,6 +115,7 @@ function doeclick(id) {
        "<a href='' onclick='return false'>$disptitle</a></td>\n";
   echo "  <td valign='top' bgcolor='$bgcolor'>" . $row['begdate'] . "&nbsp;</td>\n";
   echo "  <td valign='top' bgcolor='$bgcolor'>" . $row['enddate'] . "&nbsp;</td>\n";
+  echo "  <td valign='top' bgcolor='$bgcolor' nowrap>" . $row['diagnosis'] . "</td>\n";
   echo "  <td valign='top' bgcolor='$bgcolor' nowrap>" . $arroccur[$row['occurrence']] . "</td>\n";
   if ($GLOBALS['athletic_team'])
    echo "  <td valign='top' align='center' bgcolor='$bgcolor'>" . $row['extrainfo'] . "</td>\n"; // games missed
