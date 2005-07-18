@@ -9,8 +9,6 @@
  include_once("../../globals.php");
  include_once("$srcdir/lists.inc");
  include_once("$srcdir/patient.inc");
- // include_once("$srcdir/overlib_mini.js");
- // include_once("$srcdir/calendar.js");
 
  $issue = $_REQUEST['issue'];
  $info_msg = "";
@@ -48,8 +46,11 @@ td { font-size:10pt; }
 
 <script type="text/javascript" src="../../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../../library/calendar.js"></script>
+<script type="text/javascript" src="../../../library/textformat.js"></script>
 
 <script language="JavaScript">
+
+ var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
 
  var aopts = new Array();
 <?
@@ -110,21 +111,25 @@ td { font-size:10pt; }
    if ($i++ == $_POST['form_type']) $text_type = $key;
   }
 
+  $form_begin = fixDate($_POST['form_begin'], '');
+  $form_end   = fixDate($_POST['form_end'], '');
+
   if ($issue) {
    sqlStatement("UPDATE lists SET " .
     "type = '" . $text_type . "', " .
     "title = '" . $_POST['form_title'] . "', " .
     "comments = '" . $_POST['form_comments'] . "', " .
-    "begdate = " . QuotedOrNull(fixDate($_POST['form_begin'], '')) . ", " .
-    "enddate = " . QuotedOrNull(fixDate($_POST['form_end'], '')) . ", " .
+    "begdate = " . QuotedOrNull($form_begin) . ", " .
+    "enddate = " . QuotedOrNull($form_end) . ", " .
+    "diagnosis = '" . $_POST['form_diagnosis'] . "', " .
     "occurrence = '" . $_POST['form_occur'] . "', " .
     "referredby = '" . $_POST['form_referredby'] . "', " .
     "extrainfo = '" . $_POST['form_missed'] . "' " .
     "WHERE id = '$issue'");
   } else {
-   sqlInsert("INSERT INTO lists ( " .
+   $issue = sqlInsert("INSERT INTO lists ( " .
     "date, pid, type, title, activity, comments, begdate, enddate, " .
-    "occurrence, referredby, extrainfo, user, groupname " .
+    "diagnosis, occurrence, referredby, extrainfo, user, groupname " .
     ") VALUES ( " .
     "NOW(), " .
     "'$pid', " .
@@ -132,8 +137,9 @@ td { font-size:10pt; }
     "'" . $_POST['form_title']       . "', " .
     "1, "                            .
     "'" . $_POST['form_comments']    . "', " .
-    QuotedOrNull(fixDate($_POST['form_begin'], '')) . ", " .
-    QuotedOrNull(fixDate($_POST['form_end'], '')) . ", " .
+    QuotedOrNull($form_begin)        . ", "  .
+    QuotedOrNull($form_end)          . ", "  .
+    "'" . $_POST['form_diagnosis']   . "', " .
     "'" . $_POST['form_occur']       . "', " .
     "'" . $_POST['form_referredby']  . "', " .
     "'" . $_POST['form_missed']      . "', " .
@@ -141,24 +147,41 @@ td { font-size:10pt; }
     "'" . $$_SESSION['authProvider'] . "' )");
   }
 
+  $tmp_title = substr($arrtype[$text_type], 0, 1) . ": $form_begin " .
+   substr($_POST['form_title'], 0, 40);
+
   // Close this window and redisplay the updated list of issues.
   //
   echo "<script language='JavaScript'>\n";
   if ($info_msg) echo " alert('$info_msg');\n";
   echo " window.close();\n";
-  echo " opener.location.reload();\n";
+  // echo " opener.location.reload();\n";
+  echo " if (opener.refreshIssue) opener.refreshIssue($issue,'$tmp_title');\n";
   echo "</script></body></html>\n";
   exit();
  }
 
  $irow = array();
  $type_index = 0;
+
  if ($issue) {
   $irow = sqlQuery("SELECT * FROM lists WHERE id = $issue");
   foreach ($arrtype as $key => $value) {
    if ($key == $irow['type']) break;
    ++$type_index;
   }
+  // Get all of the eligible diagnoses.
+  // We include the pid in this search for better performance,
+  // because it's part of the primary key:
+  $bres = sqlStatement(
+   "SELECT DISTINCT billing.code, billing.code_text " .
+   "FROM issue_encounter, billing WHERE " .
+   "issue_encounter.pid = '$pid' AND " .
+   "issue_encounter.list_id = '$issue' AND " .
+   "billing.encounter = issue_encounter.encounter AND " .
+   "( billing.code_type LIKE 'ICD%' OR " .
+   "billing.code_type LIKE 'OSICS' )"
+  );
  }
 ?>
 <!-- Required for the popup date selectors -->
@@ -197,6 +220,7 @@ td { font-size:10pt; }
   <td valign='top' nowrap><b>Begin Date:</b></td>
   <td>
    <input type='text' size='10' name='form_begin' value='<? echo $irow['begdate'] ?>'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='yyyy-mm-dd date of onset, surgery or start of medication' />
    <a href="javascript:show_calendar('theform.form_begin')"
     title="Click here to choose a date"
@@ -208,11 +232,28 @@ td { font-size:10pt; }
   <td valign='top' nowrap><b>End Date:</b></td>
   <td>
    <input type='text' size='10' name='form_end' value='<? echo $irow['enddate'] ?>'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='yyyy-mm-dd date of recovery or end of medication' />
    <a href="javascript:show_calendar('theform.form_end')"
     title="Click here to choose a date"
     ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
     &nbsp;(leave blank if still active)
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' nowrap><b>Diagnosis:</b></td>
+  <td>
+   <select name='form_diagnosis' title='Diagnosis must be coded into a linked encounter'>
+    <option value="">Unknown or N/A</option>
+<?
+ while ($brow = sqlFetchArray($bres)) {
+  echo "   <option value='" . $brow['code'] . "'";
+  if ($brow['code'] == $irow['diagnosis']) echo " selected";
+  echo ">" . $brow['code'] . " " . substr($brow['code_text'], 0, 40) . "</option>\n";
+ }
+?>
+   </select>
   </td>
  </tr>
 
