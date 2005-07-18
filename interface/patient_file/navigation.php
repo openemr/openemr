@@ -8,16 +8,20 @@ include_once("../globals.php");
 
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 
+<script type="text/javascript" src="../../library/dialog.js"></script>
+
 <script language="JavaScript">
 // This is invoked to pop up some window when a popup item is selected.
 function selpopup(selobj) {
  var i = selobj.selectedIndex;
  if (i > 0) {
-  var parms = (i == 1) ?
-   'menubar=1,resizable=1' : (i == 2) ?
-   'width=400,height=300,resizable=1' :
-   'width=750,height=550,resizable=1';
-  window.open(selobj.options[i].value, '_blank', parms);
+  var width  = 750;
+  var height = 550;
+  if (i == 2) { // export reply is a small dialog
+   width  = 400;
+   height = 300;
+  }
+  dlgopen(selobj.options[i].value, '_blank', width, height);
  }
  selobj.selectedIndex = 0;
 }
