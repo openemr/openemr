@@ -18,7 +18,8 @@
  if ($_POST['form_save']) {
   $form_pid = $_POST['form_pid'];
   $form_pelist = $_POST['form_pelist'];
-  $pattern = '|/(\d+),(\d+),([YN])|';
+  // $pattern = '|/(\d+),(\d+),([YN])|';
+  $pattern = '|/(\d+),(\d+)|';
 
   preg_match_all($pattern, $form_pelist, $matches);
   $numsets = count($matches[1]);
@@ -28,11 +29,11 @@
   for ($i = 0; $i < $numsets; ++$i) {
    $list_id   = $matches[1][$i];
    $encounter = $matches[2][$i];
-   $resolved = ($matches[3][$i] == 'Y') ? 1 : 0;
+   // $resolved = ($matches[3][$i] == 'Y') ? 1 : 0;
    $query = "INSERT INTO issue_encounter ( " .
-    "pid, list_id, encounter, resolved " .
+    "pid, list_id, encounter" . // , resolved " .
     ") VALUES ( " .
-    "$form_pid, $list_id, $encounter, $resolved " .
+    "$form_pid, $list_id, $encounter" . // , $resolved " .
     ")";
    sqlQuery($query);
   }
@@ -66,6 +67,9 @@ tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
 tr.detail { font-size:10pt; background-color:#eeeeee; }
 </style>
 
+<script type="text/javascript" src="../../library/topdialog.js"></script>
+<script type="text/javascript" src="../../library/dialog.js"></script>
+
 <script language="JavaScript">
 
 // These are the possible colors for table rows.
@@ -73,39 +77,71 @@ var trcolors = new Object();
 // Colors for:            Foreground Background
 trcolors['U'] = new Array('#000000', '#eeeeee'); // unselected
 trcolors['K'] = new Array('#000000', '#eeee00'); // selected key
-trcolors['Y'] = new Array('#000000', '#99ff99'); // selected value resolved=Y
-trcolors['N'] = new Array('#000000', '#ff9999'); // selected value resolved=N
+// trcolors['Y'] = new Array('#000000', '#99ff99'); // selected value resolved=Y
+// trcolors['N'] = new Array('#000000', '#ff9999'); // selected value resolved=N
+trcolors['V'] = new Array('#000000', '#9999ff'); // selected value
 
 var pselected = new Object();
 var eselected = new Object();
 var keyid = null; // id of currently hilited key, if any
 
+// callback from add_edit_issue.php:
+function refreshIssue(issue, title) {
+ location.reload();
+}
+
+// New Issue button is clicked.
+function newIssue() {
+ var f = document.forms[0];
+ var tmp = (keyid && f.form_key[1].checked) ? ('?enclink=' + keyid) : '';
+ dlgopen('summary/add_edit_issue.php' + tmp, '_blank', 500, 450);
+}
+
+// New Encounter button is clicked.
+function newEncounter() {
+ var f = document.forms[0];
+ if (!f.form_save.disabled) {
+  if (!confirm('This will abandon your unsaved changes.  Are you sure?'))
+   return;
+ }
+ var tmp = (keyid && f.form_key[0].checked) ? ('&issue=' + keyid) : '';
+ opener.top.Title.location.href='encounter/encounter_title.php';
+ opener.top.Main.location.href='encounter/patient_encounter.php?mode=new' + tmp;
+ window.close();
+}
+
 // Determine if a given problem/encounter pair is currently linked.
 // If yes, return the "resolved" character (Y or N), else an empty string.
 function isPair(problem, encounter) {
  var pelist = document.forms[0].form_pelist;
- var frag = '/' + problem + ',' + encounter + ',';
+ // var frag = '/' + problem + ',' + encounter + ',';
+ var frag = '/' + problem + ',' + encounter + '/';
  var i = pelist.value.indexOf(frag);
  if (i < 0) return '';
- return pelist.value.charAt(i + frag.length);
+ // return pelist.value.charAt(i + frag.length);
+ return 'V';
 }
 
 // Unlink a problem/encounter pair.
 function removePair(problem, encounter) {
  var pelist = document.forms[0].form_pelist;
- var frag = '/' + problem + ',' + encounter + ',';
+ // var frag = '/' + problem + ',' + encounter + ',';
+ var frag = '/' + problem + ',' + encounter + '/';
  var i = pelist.value.indexOf(frag);
  if (i >= 0) {
-  pelist.value = pelist.value.substring(0, i) + pelist.value.substring(i + frag.length + 1);
+  // pelist.value = pelist.value.substring(0, i) + pelist.value.substring(i + frag.length + 1);
+  pelist.value = pelist.value.substring(0, i) + pelist.value.substring(i + frag.length - 1);
   document.forms[0].form_save.disabled = false;
  }
 }
 
 // Link a new or modified problem/encounter pair.
-function addPair(problem, encounter, resolved) {
+// function addPair(problem, encounter, resolved) {
+function addPair(problem, encounter) {
  removePair(problem, encounter);
  var pelist = document.forms[0].form_pelist;
- pelist.value += '' + problem + ',' + encounter + ',' + resolved + '/';
+ // pelist.value += '' + problem + ',' + encounter + ',' + resolved + '/';
+ pelist.value += '' + problem + ',' + encounter + '/';
  document.forms[0].form_save.disabled = false;
 }
 
@@ -168,21 +204,27 @@ function doclick(pfx, id) {
  } else { // they clicked in the value table
   if (keyid) {
    var resolved = thisarr[id];
-   if (resolved == 'Y') { // it was hilited and resolved, change to unresolved
-    thisarr[id] = 'N';
-    thisstyle.color = trcolors['N'][0];
-    thisstyle.backgroundColor = trcolors['N'][1];
-    if (pfx == 'p') addPair(id, keyid, 'N'); else addPair(keyid, id, 'N');
-   } else if (resolved == 'N') { // it was hilited and unresolved, remove it
+   // if (resolved == 'Y') { // it was hilited and resolved, change to unresolved
+   //  thisarr[id] = 'N';
+   //  thisstyle.color = trcolors['N'][0];
+   //  thisstyle.backgroundColor = trcolors['N'][1];
+   //  if (pfx == 'p') addPair(id, keyid, 'N'); else addPair(keyid, id, 'N');
+   // } else if (resolved == 'N') { // it was hilited and unresolved, remove it
+   if (resolved != '') { // hilited, so remove it
     thisarr[id] = '';
     thisstyle.color = trcolors['U'][0];
     thisstyle.backgroundColor = trcolors['U'][1];
     if (pfx == 'p') removePair(id, keyid); else removePair(keyid, id);
-   } else { // not hilited, change to hilited and resolved
-    thisarr[id] = 'Y';
-    thisstyle.color = trcolors['Y'][0];
-    thisstyle.backgroundColor = trcolors['Y'][1];
-    if (pfx == 'p') addPair(id, keyid, 'Y'); else addPair(keyid, id, 'Y');
+   // } else { // not hilited, change to hilited and resolved
+   //  thisarr[id] = 'Y';
+   //  thisstyle.color = trcolors['Y'][0];
+   //  thisstyle.backgroundColor = trcolors['Y'][1];
+   //  if (pfx == 'p') addPair(id, keyid, 'Y'); else addPair(keyid, id, 'Y');
+   } else { // not hilited, change to hilited
+    thisarr[id] = 'V';
+    thisstyle.color = trcolors['V'][0];
+    thisstyle.backgroundColor = trcolors['V'][1];
+    if (pfx == 'p') addPair(id, keyid); else addPair(keyid, id);
    }
   } else {
    alert('You must first select an item in the section whose radio button is checked.');
@@ -193,15 +235,17 @@ function doclick(pfx, id) {
 </script>
 
 </head>
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' bgcolor='#ffffff'>
+<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'
+ bgcolor='#ffffff' onunload='imclosing()'>
 <form method='post' action='problem_encounter.php'>
 <?
  echo "<input type='hidden' name='form_pid' value='$pid' />\n";
- // pelist looks like /problem,encounter,Y/problem,encounter,N/[...].
+ // pelist looks like /problem,encounter/problem,encounter/[...].
  echo "<input type='hidden' name='form_pelist' value='/";
  while ($row = sqlFetchArray($peres)) {
-  echo $row['list_id'] . "," . $row['encounter'] . "," .
-   ($row['resolved'] ? "Y" : "N") . "/";
+  // echo $row['list_id'] . "," . $row['encounter'] . "," .
+  //  ($row['resolved'] ? "Y" : "N") . "/";
+  echo $row['list_id'] . "," . $row['encounter'] . "/";
  }
  echo "' />\n";
 ?>
@@ -270,6 +314,8 @@ function doclick(pfx, id) {
  <tr>
   <td colspan='2' align='center'>
    <input type='submit' name='form_save' value='Save' disabled /> &nbsp;
+   <input type='button' value='Add Issue' onclick='newIssue()' />
+   <input type='button' value='Add Encounter' onclick='newEncounter()' />
    <input type='button' value='Cancel' onclick='window.close()' />
   </td>
  </tr>
@@ -280,9 +326,7 @@ function doclick(pfx, id) {
 
 <p><b>Instructions:</b> Choose a section and click an item within it; then in
 the other section you will see the related items highlighted, and you can click
-in that section to create, remove and change the relationships.  Note that the
-highlight color (green = resolved, red = unresolved) is an attribute of the
-<i>relationship</i>, not of the item itself.
+in that section to add and delete relationships.
 </p>
 
 <script>
