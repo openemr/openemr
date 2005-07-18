@@ -25,6 +25,7 @@
     "Sm debt w/o",
     "To ded'ble",
     "To copay",
+    "Bad check",
     "Bad debt",
     "Discount",
     "Hardship w/o",
