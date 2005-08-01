@@ -1,22 +1,15 @@
-#! /bin/sh
+#!/bin/bash
+# backups an openemr system and burns a cd
 
-# backups an openemr system and burns it a cd
-# this script needs to have the right permission set 
-# and requires mkisofs and cdrecord applications
-# it might be a good idea to cron it
+#vars
 
-
-#vars, replace with your values.
-
-db='openemr1'
+db='openemr'
 dbuser='backuper'
-dbpass='backuper'
-
-#make sure these dir are right for your sys
+dbpass='bakuper'
+pguser='sql-ledger'
 workdir='/var/tmp/backups/'
 tempdir='/var/tmp/isos/'
 installdir='/var/www/openemr'
-
 
 # a name for the file that is unique of that day
 file=`date +%F`
@@ -27,8 +20,14 @@ mysqldump -u ${dbuser} -p${dbpass} --databases ${db} > ${workdir}${file}.sql.bak
 # compress the file
 bzip2 ${workdir}${file}.sql.bak
 
+#get the content from the postgres database
+pg_dumpall -U ${pguser} > ${workdir}${file}postgres.bak
+
+# compress the file
+bzip2 ${workdir}${file}postgres.bak
+
 # get all the files on the site
-tar -zcf ${workdir}backupofopenemr.tar.gz ${installdir}
+tar -zcf ${workdir}${file}openemr.tar.gz ${installdir}
 
 # create a disk image
 label=`date +%y%m%d`
@@ -39,6 +38,5 @@ cdrecord -dao -v -data -eject ${tempdir}image.iso
 
 #delete the original files
 rm -rf ${workdir}*
-
 
 exit 0
