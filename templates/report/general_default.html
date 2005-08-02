@@ -23,7 +23,7 @@ function clear_vars() {
 }
 
 function dopopup(aurl) {
- window.open(aurl, '_blank', 'width=750,height=550,resizable=1');
+ window.open(aurl, '_blank', 'width=750,height=550,resizable=1,scrollbars=1');
 }
 
 </script>
@@ -35,10 +35,14 @@ function dopopup(aurl) {
 <a href="custom_report_range.php" target="_new">Superbill Report</a>
 <br/>
 <a href="appt_encounter_report.php" target="_new">Appointments-Encounters Report</a>
+<br/>
+<a href="insurance_allocation_report.php" target="_new">Patient Insurance Distribution Report</a>
 {php}
  if ($GLOBALS['athletic_team']) {
   echo "<br/>\n";
   echo "<a href='javascript:dopopup(\"players_report.php\")'>Team Roster</a>\n";
+  echo "<br/>\n";
+  echo "<a href='javascript:dopopup(\"absences_report.php\")'>Days and Games Missed</a>\n";
  }
 {/php}
 <br/>
