@@ -1,7 +1,8 @@
 <?
-include_once("../../globals.php");
-include_once("$srcdir/patient.inc");
-include_once("history.inc.php");
+ include_once("../../globals.php");
+ include_once("$srcdir/patient.inc");
+ include_once("history.inc.php");
+ include_once("$srcdir/acl.inc");
 ?>
 <html>
 <head>
@@ -10,14 +11,23 @@ include_once("history.inc.php");
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 <?
-$result = getHistoryData($pid);
-if (!is_array($result)) {
- newHistoryData($pid);
- $result = getHistoryData($pid);	
-}
+ $thisauth = acl_check('patients', 'med');
+ if (!$thisauth) {
+  echo "<p>(History not authorized)</p>\n";
+  echo "</body>\n</html>\n";
+  exit();
+ }
+
+ $result = getHistoryData($pid);
+ if (!is_array($result)) {
+  newHistoryData($pid);
+  $result = getHistoryData($pid);	
+ }
 ?>
 
+<? if ($thisauth == 'write' || $thisauth == 'addonly') { ?>
 <a href="history_full.php" target=Main><font class=title>Patient History / Lifestyle</font><font class=more><?echo $tmore;?></font></a><br>
+<? } ?>
 
 <table border='0' cellpadding='2' width='100%'>
  <tr>

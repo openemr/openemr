@@ -8,6 +8,11 @@
 
  include_once("../../globals.php");
  include_once("$srcdir/lists.inc");
+ include_once("$srcdir/acl.inc");
+
+ // Check authorization.
+ $thisauth = acl_check('patients', 'demo');
+ if (!$thisauth) die("Demographics not authorized.");
 
  $arroccur = array(
   0   => 'Unknown or N/A',
@@ -111,8 +116,13 @@ function doeclick(id) {
 
   echo " <tr class='detail'>\n";
   echo "  <td valign='top'>&nbsp;</td>\n";
-  echo "  <td valign='top' id='p_$rowid' onclick='dopclick($rowid)' bgcolor='$bgcolor'>" .
-       "<a href='' onclick='return false'>$disptitle</a></td>\n";
+  if ($thisauth == 'write') {
+   echo "  <td valign='top' id='p_$rowid' onclick='dopclick($rowid)' bgcolor='$bgcolor'>";
+   echo "<a href='' onclick='return false'>$disptitle</a></td>\n";
+  } else {
+   echo "  <td valign='top' id='p_$rowid' bgcolor='$bgcolor'>";
+   echo "$disptitle</td>\n";
+  }
   echo "  <td valign='top' bgcolor='$bgcolor'>" . $row['begdate'] . "&nbsp;</td>\n";
   echo "  <td valign='top' bgcolor='$bgcolor'>" . $row['enddate'] . "&nbsp;</td>\n";
   echo "  <td valign='top' bgcolor='$bgcolor' nowrap>" . $row['diagnosis'] . "</td>\n";

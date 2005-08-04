@@ -1,11 +1,15 @@
 <?
-include_once("../../globals.php");
-include_once("$srcdir/pnotes.inc");
+ include_once("../../globals.php");
+ include_once("$srcdir/pnotes.inc");
+ include_once("$srcdir/acl.inc");
 
+ // Check authorization.
+ $thisauth = acl_check('patients', 'notes');
+ if ($thisauth != 'write' && $thisauth != 'addonly')
+  die("Not authorized.");
 
 //the number of records to display per screen
 $N = 5;
-
 
 if (!isset($offset)) {
 	$offset=0;
@@ -31,18 +35,13 @@ if ($mode == "update") {
 }
 }
 ?>
-
 <html>
 <head>
 
-
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-
 
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-
-
 
 <form border=0 method=post name=new_note action="pnotes_full.php">
 <a href="../summary/patient_summary.php" target="Main"><font class="title">Patient Notes</font><font class=back>(Back)</font></a>
@@ -56,8 +55,6 @@ if ($mode == "update") {
 <br>
 <a href="javascript:document.new_note.submit();" class=link_submit>[Add New Note]</a>
 </form>
-
-
 
 <form border=0 method=post name=update_activity action="pnotes_full.php">
 
@@ -78,10 +75,6 @@ if ($active=="all") {
 <a href="pnotes_full.php?offset=0&active=all" class=<?echo $all_class;?>>[All]</a>
 <a href="pnotes_full.php?offset=0&active=1" class=<?echo $active_class;?>>[Only Active]</a>
 <a href="pnotes_full.php?offset=0&active=0" class=<?echo $inactive_class;?>>[Only Inactive]</a>
-
-
-
-
 
 <input type=hidden name=mode value="update">
 <input type=hidden name=offset value="<?echo $offset;?>">
@@ -115,8 +108,6 @@ foreach ($result as $iter) {
 	print "<td><font class=bold>".$date_string . "</font>";
 	print " <font class=bold>(". $iter{"user"}.")</font></td>";
 	print "<td>" . "<font class=text>" . stripslashes($iter{"body"}) . "</font></td></tr>\n";
-	
-	
 	$notes_count++;
 }
 }else{
@@ -144,44 +135,6 @@ echo "<a class=link href=pnotes_full.php?active=".$active."&offset=".($offset+$N
 ?>
 </td></tr>
 </table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 </body>
 </html>

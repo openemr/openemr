@@ -1,8 +1,8 @@
 <?
-include_once("../../globals.php");
-include_once("$srcdir/pnotes.inc");
+ include_once("../../globals.php");
+ include_once("$srcdir/pnotes.inc");
+ include_once("$srcdir/acl.inc");
 ?>
-
 <html>
 <head>
 
@@ -11,6 +11,15 @@ include_once("$srcdir/pnotes.inc");
 </head>
 <body <?echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
+<?
+ $thisauth = acl_check('patients', 'notes');
+ if (!$thisauth) {
+  echo "<p>(Notes not authorized)</p>\n";
+  echo "</body>\n</html>\n";
+  exit();
+ }
+?>
+
 <table border=0 cellspacing=0 cellpadding=0 height=100%>
 <tr>
 <td background="<?echo $linepic;?>" width=7 height=100%>
@@ -18,7 +27,9 @@ include_once("$srcdir/pnotes.inc");
 </td>
 <td valign=top>
 
+<? if ($thisauth == 'write' || $thisauth == 'addonly') { ?>
 <a href="pnotes_full.php" target="Main"><font class="title">Notes</font><font class=more><?echo $tmore;?></font></a>
+<? } ?>
 
 <br>
 

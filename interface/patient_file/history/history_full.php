@@ -1,7 +1,13 @@
 <?
-include_once("../../globals.php");
-include_once("$srcdir/patient.inc");
-include_once("history.inc.php");
+ include_once("../../globals.php");
+ include_once("$srcdir/patient.inc");
+ include_once("history.inc.php");
+ include_once("$srcdir/acl.inc");
+
+ // Check authorization.
+ $thisauth = acl_check('patients', 'med');
+ if ($thisauth != 'write' && $thisauth != 'addonly')
+  die("Not authorized.");
 ?>
 <html>
 <head>

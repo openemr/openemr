@@ -9,9 +9,14 @@
  include_once("../../globals.php");
  include_once("$srcdir/lists.inc");
  include_once("$srcdir/patient.inc");
+ include_once("$srcdir/acl.inc");
 
  $issue = $_REQUEST['issue'];
  $info_msg = "";
+
+ $thisauth = acl_check('patients', 'med');
+ if ($issue && $thisauth != 'write') die("Edit is not authorized!");
+ if ($thisauth != 'write' && $thisauth != 'addonly') die("Add is not authorized!");
 
  $arrtype = array(
   'medical_problem' => 'Problem',

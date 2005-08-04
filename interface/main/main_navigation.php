@@ -30,11 +30,17 @@ include_once("../../library/acl.inc");
 
 <td width="5%" nowrap>
 <a href="javascript:document.find_patient.action='<?echo $rootdir?>/main/finder/patient_finder.php';document.find_patient.submit();" class=link>&nbsp;Find&nbsp;Patient</a>
+&nbsp;
 </td>
 
+<?
+ $npauth = acl_check('patients', 'demo');
+ if ($npauth == 'write' || $npauth == 'addonly') {
+?>
 <td align="center" nowrap>
-&nbsp;&nbsp;&nbsp;<a class="menu" target=_top href="../new/new_patient.php">New&nbsp;Patient</a>&nbsp;
+&nbsp;<a class="menu" target=_top href="../new/new_patient.php">New&nbsp;Patient</a>&nbsp;
 </td>
+<? } ?>
 
 <td align="center" nowrap>
 &nbsp;<a href="../usergroup/user_info.php" target="Main" class="menu">Change&nbsp;Password</a>&nbsp;

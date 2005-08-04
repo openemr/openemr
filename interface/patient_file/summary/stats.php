@@ -1,8 +1,8 @@
 <?
-include_once("../../globals.php");
-include_once("$srcdir/lists.inc");
+ include_once("../../globals.php");
+ include_once("$srcdir/lists.inc");
+ include_once("$srcdir/acl.inc");
 ?>
-
 <html>
 
 <head>
@@ -17,7 +17,17 @@ include_once("$srcdir/lists.inc");
 </style>
 </head>
 
-<body <?echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?echo $bottom_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
+ bottommargin='0' marginwidth='2' marginheight='0'>
+
+<?
+ $thisauth = acl_check('patients', 'med');
+ if (!$thisauth) {
+  echo "<p>(Issues not authorized)</p>\n";
+  echo "</body>\n</html>\n";
+  exit();
+ }
+?>
 
 <table ><tr>
 <td width="20%" valign="top">

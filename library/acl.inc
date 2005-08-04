@@ -20,25 +20,28 @@
   //
   // Section "acct" (Accounting):
   //   bill        Billing (write optional)
-  //   eob         EOB data entry
+  //   eob         EOB Data Entry
   //   rep         Financial Reporting - my encounters
   //   rep_a       Financial Reporting - anything
   //
   // Section "patients" (Patient Information):
   //   appt        Appointments (write optional)
-  //   demo        Demographics (write optional)
-  //   med         Medical Records and History (write optional)
+  //   demo        Demographics (write,addonly optional)
+  //   med         Medical Records and History (write,addonly optional)
   //   trans       Transactions, e.g. referrals (write optional)
-  //   docs        Documents (write optional)
+  //   docs        Documents (write,addonly optional)
+  //   notes       Patient Notes (write,addonly optional)
   //
   // Section "encounters" (Encounter Information):
   //   auth        Authorize - my encounters
   //   auth_a      Authorize - any encounters
   //   coding      Coding - my encounters (write,wsome optional)
   //   coding_a    Coding - any encounters (write,wsome optional)
-  //   notes       Notes - my encounters (write optional)
-  //   notes_a     Notes - any encounters (write optional)
+  //   notes       Notes - my encounters (write,addonly optional)
+  //   notes_a     Notes - any encounters (write,addonly optional)
   //   date_a      Fix encounter dates - any encounters
+  //   relaxed     Less-private information (write,addonly optional)
+  //               (e.g. the Sports Fitness encounter form)
 
   if ($phpgacl_location) {
     include_once("$phpgacl_location/gacl.class.php");
@@ -48,10 +51,12 @@
   // acl_check should return 0 if access is denied.  Otherwise it may
   // return anything that evaluates to true.  In addition if any of the
   // following types of access are applicable, then the corresponding value
-  // must be returned if and only if such access is granted:
+  // must be returned if and only if such access is granted (ony one may
+  // be specified):
   //
-  // * write - the user may add or modify the ACO
-  // * wsome - the user has limited add/modify access to the ACO
+  // * write   - the user may add or modify the ACO
+  // * wsome   - the user has limited add/modify access to the ACO
+  // * addonly - the user may view and add but not modify entries
   //
   function acl_check($section, $value, $user = '') {
     global $gacl_object, $phpgacl_location;
@@ -63,6 +68,8 @@
 
     // If no phpgacl, then apply the old static rules whereby "authorized"
     // users (providers) can do anything, and other users can do most things.
+    // If you want custom access control but don't want to mess with phpGACL,
+    // then you could customize the code below instead.
 
     if ($_SESSION['userauthorized']) return 'write';
 
@@ -70,8 +77,9 @@
       if ($value != 'med') return 'write';
     }
     else if ($section == 'encounters') {
-      if (strpos($value, 'coding') === 0) return 'write';
-      if (strpos($value, 'notes' ) === 0) return 'write';
+      if (strpos($value, 'coding' ) === 0) return 'write';
+      if (strpos($value, 'notes'  ) === 0) return 'write';
+      if ($value == 'relaxed') return 'write';
     }
     else if ($section == 'acct') {
       return 'write';

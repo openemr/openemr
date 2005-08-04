@@ -1,15 +1,26 @@
 <?
-include_once("../../globals.php");
+ include_once("../../globals.php");
+ include_once("$srcdir/acl.inc");
 
-// Session pid must be right or bad things can happen when demographics are saved!
-//
-include_once("$srcdir/pid.inc");
-if ($_GET["set_pid"] && $_GET["set_pid"] != $_SESSION["pid"]) {
- setpid($_GET["set_pid"]);
-}
-else if ($_GET["pid"] && $_GET["pid"] != $_SESSION["pid"]) {
- setpid($_GET["pid"]);
-}
+ // Session pid must be right or bad things can happen when demographics are saved!
+ //
+ include_once("$srcdir/pid.inc");
+ if ($_GET["set_pid"] && $_GET["set_pid"] != $_SESSION["pid"]) {
+  setpid($_GET["set_pid"]);
+ }
+ else if ($_GET["pid"] && $_GET["pid"] != $_SESSION["pid"]) {
+  setpid($_GET["pid"]);
+ }
+
+ // Check authorization.
+ $thisauth = acl_check('patients', 'demo');
+ if ($pid) {
+  if ($thisauth != 'write')
+   die("Updating demographics is not authorized.");
+ } else {
+  if ($thisauth != 'write' && $thisauth != 'addonly')
+   die("Adding demographics is not authorized.");
+ }
 
 include_once("$srcdir/patient.inc");
 

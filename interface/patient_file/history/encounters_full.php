@@ -1,11 +1,10 @@
 <?
-include_once("../../globals.php");
-
-include_once("$srcdir/forms.inc");
-include_once("$srcdir/billing.inc");
-include_once("$srcdir/pnotes.inc");
-include_once("$srcdir/patient.inc");
-
+ include_once("../../globals.php");
+ include_once("$srcdir/forms.inc");
+ include_once("$srcdir/billing.inc");
+ include_once("$srcdir/pnotes.inc");
+ include_once("$srcdir/patient.inc");
+ include_once("$srcdir/acl.inc");
 ?>
 <html>
 <head>
@@ -26,45 +25,65 @@ include_once("$srcdir/patient.inc");
 </tr>
 
 <?
+ // Get relevant ACL info.
+ $auth_notes_a  = acl_check('encounters', 'notes_a');
+ $auth_notes    = acl_check('encounters', 'notes');
+ $auth_coding_a = acl_check('encounters', 'coding_a');
+ $auth_coding   = acl_check('encounters', 'coding');
+ $auth_med      = acl_check('patients'  , 'med');
+ $auth_demo     = acl_check('patients'  , 'demo');
+
 if ($result = getEncounters($pid)) {
 	foreach ($result as $iter ) {
 
-		$reason_string = "";
-		if ($result4 = sqlQuery("select * from form_encounter where encounter='" . $iter{"encounter"} . "' and pid='$pid'")) {
-			$raw_encounter_date = date("Y-m-d", strtotime($result4{"date"}));
-			$encounter_date = date("D F jS", strtotime($result4{"date"}));
-			$reason_string .= $result4{"reason"} . "<br>\n";
-		}
+    $reason_string = "";
+    if ($result4 = sqlQuery("select * from form_encounter where encounter='" . $iter{"encounter"} . "' and pid='$pid'")) {
+     $raw_encounter_date = date("Y-m-d", strtotime($result4{"date"}));
+     $encounter_date = date("D F jS", strtotime($result4{"date"}));
+
+     if ($auth_notes_a || ($auth_notes && $iter['user'] == $_SESSION['authUser']))
+      $reason_string .= $result4{"reason"} . "<br>\n";
+     else
+      $reason_string = "(No access)";
+    }
 
 		print "<tr>\n";
 		print "<td valign='top'><a target='Main' href=\"javascript:parent.Title.location.href='../encounter/encounter_title.php?set_encounter=".$iter{"encounter"}."';parent.Main.location.href='../encounter/patient_encounter.php?set_encounter=".$iter{"encounter"}."'\" class='text'>" . $encounter_date . "</a></td>\n";
 		print "<td valign='top'><a target='Main' href=\"javascript:parent.Title.location.href='../encounter/encounter_title.php?set_encounter=".$iter{"encounter"}."';parent.Main.location.href='../encounter/patient_encounter.php?set_encounter=".$iter{"encounter"}."'\" class='text'>" . $reason_string . "</a></td>\n";
 
-		$coded = "";
-		if ($subresult2 = getBillingByEncounter($pid, $iter{"encounter"})) {
-			//this is where we print out the text of the billing that occurred on this encounter
-			foreach ($subresult2 as $iter2) {
-				$coded .= "<span title='" . addslashes($iter2{"code_text"}) . "'>";
-				$coded .= $iter2{"code"} . "</span>, ";
-			}
-			$coded = substr($coded, 0, strlen($coded) - 2);
-		}
+    //this is where we print out the text of the billing that occurred on this encounter
+    $coded = "";
+    if ($auth_coding_a || ($auth_coding && $iter['user'] == $_SESSION['authUser'])) {
+     if ($subresult2 = getBillingByEncounter($pid, $iter{"encounter"})) {
+      foreach ($subresult2 as $iter2) {
+       $coded .= "<span title='" . addslashes($iter2{"code_text"}) . "'>";
+       $coded .= $iter2{"code"} . "</span>, ";
+      }
+      $coded = substr($coded, 0, strlen($coded) - 2);
+     }
+    } else {
+     $coded = "(No access)";
+    }
 
-		print "<td valign='top'><a target='Main' href=\"javascript:parent.Title.location.href='../encounter/encounter_title.php?set_encounter=".$iter{"encounter"}."';parent.Main.location.href='../encounter/patient_encounter.php?set_encounter=".$iter{"encounter"}."'\" class='text'>" . $coded . "</a></td>\n";
+    print "<td valign='top'><a target='Main' href=\"javascript:parent.Title.location.href='../encounter/encounter_title.php?set_encounter=".$iter{"encounter"}."';parent.Main.location.href='../encounter/patient_encounter.php?set_encounter=".$iter{"encounter"}."'\" class='text'>" . $coded . "</a></td>\n";
 
-		$insured = "$raw_encounter_date";
-		$subresult5 = getInsuranceDataByDate($pid, $raw_encounter_date, "primary");
-		if ($subresult5 && $subresult5{"provider_name"}) {
-			$insured = "<span class='text'>Primary: " . $subresult5{"provider_name"} . "</span><br>\n";
-		}
-		$subresult6 = getInsuranceDataByDate($pid, $raw_encounter_date, "secondary");
-		if ($subresult6 && $subresult6{"provider_name"}) {
-			$insured .= "<span class='text'>Secondary: ".$subresult6{"provider_name"}."</span><br>\n";
-		}
-		$subresult7 = getInsuranceDataByDate($pid, $raw_encounter_date, "tertiary");
-		if ($subresult6 && $subresult7{"provider_name"}) {
-			$insured .= "<span class='text'>Tertiary: ".$subresult7{"provider_name"}."</span><br>\n";
-		}
+    $insured = "$raw_encounter_date";
+    if ($auth_demo) {
+     $subresult5 = getInsuranceDataByDate($pid, $raw_encounter_date, "primary");
+     if ($subresult5 && $subresult5{"provider_name"}) {
+      $insured = "<span class='text'>Primary: " . $subresult5{"provider_name"} . "</span><br>\n";
+     }
+     $subresult6 = getInsuranceDataByDate($pid, $raw_encounter_date, "secondary");
+     if ($subresult6 && $subresult6{"provider_name"}) {
+      $insured .= "<span class='text'>Secondary: ".$subresult6{"provider_name"}."</span><br>\n";
+     }
+     $subresult7 = getInsuranceDataByDate($pid, $raw_encounter_date, "tertiary");
+     if ($subresult6 && $subresult7{"provider_name"}) {
+      $insured .= "<span class='text'>Tertiary: ".$subresult7{"provider_name"}."</span><br>\n";
+     }
+    } else {
+      $insured = "(No access)";
+    }
 
 		print "<td valign='top'><a target='Main' href=\"javascript:parent.Title.location.href='../report/report_title.php?set_encounter=".$iter{"encounter"}."';parent.Main.location.href='../report/patient_report.php?set_encounter=".$iter{"encounter"}."'\" class='text'>" . $insured . "</a></td>\n";
 

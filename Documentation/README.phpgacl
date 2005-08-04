@@ -8,6 +8,10 @@ and a bit of time.  If you don't have the time then you should hire
 an experienced person to set things up for you.  The following tips
 are for the adventurous only!
 
+Alternatively, it's possible to set up your own access rules without
+using phpGACL by customizing the code in library/acl.inc.  See that
+module for more information.
+
 phpGACL is available from http://phpgacl.sourceforge.net/.  Read
 its documentation and install it according to its instructions.
 
@@ -89,10 +93,10 @@ a really confusing "write only" interface, but thankfully you won't
 have to use it every day!  Mostly what you will do here is highlight
 a group from the box on the right, and also select some ACOs from the
 top section by highlighting them and clicking the ">>" button.
-Then if "write" or "wsome" access applies, key in that as the
-return value, otherwise a return value is not required.  Then click
-the Submit button to save that particular access rule.  Repeat until
-all your ACL rules are defined.
+Then if "write" or "wsome" or "addonly" access applies, key in that
+as the return value, otherwise a return value is not required.  Then
+click the Submit button to save that particular access rule.  Repeat
+until all your ACL rules are defined.
 
 To see your access rules, click the "ACL List" tab.  To make corrections
 click the corresponding Edit link on the right side; this will open the

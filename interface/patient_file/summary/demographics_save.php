@@ -1,6 +1,17 @@
 <?
-include_once("../../globals.php");
-include_once("$srcdir/patient.inc");
+ include_once("../../globals.php");
+ include_once("$srcdir/patient.inc");
+ include_once("$srcdir/acl.inc");
+
+ // Check authorization.
+ $thisauth = acl_check('patients', 'demo');
+ if ($pid) {
+  if ($thisauth != 'write')
+   die("Updating demographics is not authorized.");
+ } else {
+  if ($thisauth != 'write' && $thisauth != 'addonly')
+   die("Adding demographics is not authorized.");
+ }
 
 foreach ($_POST as $key => $val) {
   if ($val == "MM/DD/YYYY") {

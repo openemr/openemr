@@ -1,58 +1,62 @@
 <?
-include_once("../../globals.php");
-
-include_once("$srcdir/forms.inc");
-include_once("$srcdir/calendar.inc");
-
+ include_once("../../globals.php");
+ include_once("$srcdir/forms.inc");
+ include_once("$srcdir/calendar.inc");
+ include_once("$srcdir/acl.inc");
 ?>
-
 <html>
+
 <head>
-
-
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-
-
 </head>
+
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-<span class="title">This Encounter</span> 
+<span class="title">This Encounter</span>
 <?
-if (is_numeric($pid)) {
+ $auth_notes_a  = acl_check('encounters', 'notes_a');
+ $auth_notes    = acl_check('encounters', 'notes');
+ $auth_relaxed  = acl_check('encounters', 'relaxed');
+
+ if (is_numeric($pid)) {
   $result = getPatientData($pid, "fname,lname");
   echo " for " . $result['fname'] . " " . $result['lname'];
-}
+ }
 
-?>
-:<br>
+ echo ":<br>\n";
 
-<?
+ if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name,formdir,user")) {
+  echo "<table>";
+  foreach ($result as $iter) {
 
-if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name,formdir,user")) {
-	echo "<table>";
-	foreach ($result as $iter) {
-		$form_info = getFormInfoById($iter['id']);
-		echo '<tr valign="top">';
-		$user = $iter['user'];
-		$user = getNameFromUsername($user);
+   // Skip forms that we are not authorized to see.
+   if (($auth_notes_a) ||
+       ($auth_notes && $iter['user'] == $_SESSION['authUser']) ||
+       ($auth_relaxed && $iter['formdir'] == 'sports_fitness')) ;
+   else continue;
 
-		$form_name = ($iter['formdir'] == 'newpatient') ? "Patient Encounter" : $iter['form_name'];
+   $form_info = getFormInfoById($iter['id']);
+   echo '<tr valign="top">';
+   $user = getNameFromUsername($iter['user']);
 
-		echo '<td class="text"><span style="font-weight:bold;">' .
-			$user['fname'] . " " . $user['lname'] .'</span></td>';
-		echo "<td valign='top'><a target='Main' href='$rootdir/patient_file/encounter/view_form.php?" .
-			"formname=" . $iter{"formdir"} . "&id=" . $iter{"form_id"} .
-			"' class='text'>$form_name</a></td>\n" .
-			"<td width='25'></td>\n" .
-			"<td valign='top'>";
+   $form_name = ($iter['formdir'] == 'newpatient') ? "Patient Encounter" : $iter['form_name'];
 
-		if (true) {
-			// Instead of the garbage below, let's use the form's report.php.
-			//
-			include_once($GLOBALS['incdir'] . "/forms/" . $iter['formdir'] . "/report.php");
-			call_user_func($iter['formdir'] . "_report", $pid, $iter['encounter'], 2, $iter['form_id']);
-		}
-		else {
+   echo '<td class="text"><span style="font-weight:bold;">' .
+    $user['fname'] . " " . $user['lname'] .'</span></td>';
+   echo "<td valign='top'><a target='Main' href='$rootdir/patient_file/encounter/view_form.php?" .
+    "formname=" . $iter{"formdir"} . "&id=" . $iter{"form_id"} .
+    "' class='text'>$form_name</a></td>\n" .
+    "<td width='25'></td>\n" .
+    "<td valign='top'>";
+
+   if (true) {
+    // Instead of the garbage below, let's use the form's report.php.
+    //
+    include_once($GLOBALS['incdir'] . "/forms/" . $iter['formdir'] . "/report.php");
+    call_user_func($iter['formdir'] . "_report", $pid, $iter['encounter'], 2, $iter['form_id']);
+   }
+   else {
+
 			// Garbage starts here. Delete this after some testing.
 			//
 			echo "<table valign='top' cellspacing='0' cellpadding='0'><tr>\n";
@@ -89,12 +93,13 @@ if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name
 			echo "</tr></table>\n";
 			//
 			// End of garbage
-		}
 
-		echo "</td></tr>";
-	}
-	echo "</table>";
-}
+   }
+
+   echo "</td></tr>";
+  }
+  echo "</table>";
+ }
 ?>
 
 </body>

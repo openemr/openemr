@@ -1,7 +1,8 @@
 <?
-include_once("../../globals.php");
-include_once("$srcdir/billing.inc");
-include_once("$srcdir/sql.inc");
+ include_once("../../globals.php");
+ include_once("$srcdir/billing.inc");
+ include_once("$srcdir/sql.inc");
+ include_once("$srcdir/acl.inc");
 
 if (isset($mode)) {
 	if ($mode == "add") {
@@ -41,12 +42,26 @@ if (isset($mode)) {
 ?>
 <html>
 <head>
-
-
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-
 </head>
+
 <body <?echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=4 bottommargin=0 marginheight=0>
+
+<?
+ $thisauth = acl_check('encounters', 'coding_a');
+ if (!$thisauth) {
+  $erow = sqlQuery("SELECT user FROM forms WHERE " .
+   "encounter = '$encounter' AND formdir = 'newpatient' LIMIT 1");
+  if ($erow['user'] == $_SESSION['authUser'])
+   $thisauth = acl_check('encounters', 'coding');
+ }
+ if (!$thisauth) {
+  echo "<p>(Coding not authorized)</p>\n";
+  echo "</body>\n</html>\n";
+  exit();
+ }
+?>
+
 <form name="diagnosis" method="post" action="diagnosis.php?mode=justify">
 
 <table border=0 cellspacing=0 cellpadding=0 height=100%>

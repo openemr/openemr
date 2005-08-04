@@ -1,6 +1,7 @@
 <?
-include_once("../../globals.php");
-include_once("$srcdir/patient.inc");
+ include_once("../../globals.php");
+ include_once("$srcdir/patient.inc");
+ include_once("$srcdir/acl.inc");
 ?>
 <html>
 
@@ -10,7 +11,21 @@ include_once("$srcdir/patient.inc");
 
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-<p><a href="demographics_full.php" target=Main><font class=title>Demographics</font><font class=more><?echo $tmore;?></font></a></p>
+<?
+ $thisauth = acl_check('patients', 'demo');
+
+ if (!$thisauth) {
+  echo "<p>(Demographics not authorized)</p>\n";
+  echo "</body>\n</html>\n";
+  exit();
+ }
+
+ if ($thisauth == 'write') {
+  echo "<p><a href='demographics_full.php' target='Main'>" .
+   "<font class='title'>Demographics</font>" .
+   "<font class='more'>$tmore</font></a></p>\n";
+ }
+?>
 
 <table border="0" width="100%">
  <tr>
