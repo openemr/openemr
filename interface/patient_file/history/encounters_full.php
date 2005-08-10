@@ -52,8 +52,15 @@ if ($result = getEncounters($pid)) {
 		print "<td valign='top'><a target='Main' href=\"javascript:parent.Title.location.href='../encounter/encounter_title.php?set_encounter=".$iter{"encounter"}."';parent.Main.location.href='../encounter/patient_encounter.php?set_encounter=".$iter{"encounter"}."'\" class='text'>" . $reason_string . "</a></td>\n";
 
     //this is where we print out the text of the billing that occurred on this encounter
+    $thisauth = $auth_coding_a;
+    if (!$thisauth && $auth_coding) {
+     $erow = sqlQuery("SELECT user FROM forms WHERE encounter = '" .
+      $iter['encounter'] . "' AND formdir = 'newpatient' LIMIT 1");
+     if ($erow['user'] == $_SESSION['authUser'])
+      $thisauth = $auth_coding;
+    }
     $coded = "";
-    if ($auth_coding_a || ($auth_coding && $iter['user'] == $_SESSION['authUser'])) {
+    if ($thisauth) {
      if ($subresult2 = getBillingByEncounter($pid, $iter{"encounter"})) {
       foreach ($subresult2 as $iter2) {
        $coded .= "<span title='" . addslashes($iter2{"code_text"}) . "'>";

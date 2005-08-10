@@ -128,17 +128,24 @@ if ($result = getEncounters($pid)) {
 ****/
 
     //this is where we print out the text of the billing that occurred on this encounter
+    $thisauth = $auth_coding_a;
+    if (!$thisauth && $auth_coding) {
+     $erow = sqlQuery("SELECT user FROM forms WHERE encounter = '" .
+      $iter['encounter'] . "' AND formdir = 'newpatient' LIMIT 1");
+     if ($erow['user'] == $_SESSION['authUser'])
+      $thisauth = $auth_coding;
+    }
     $coded = "";
-    if ($auth_coding_a || ($auth_coding && $iter['user'] == $_SESSION['authUser'])) {
-      if ($subresult2 = getBillingByEncounter($pid,$iter{"encounter"})) {
-        foreach ($subresult2 as $iter2) {
-          $coded .= "<span title='" . addslashes($iter2{"code_text"}) . "'>";
-          $coded .= $iter2{"code"} . "</span>, ";
-        }
-        $coded = substr($coded, 0, strlen($coded) - 2);
+    if ($thisauth) {
+     if ($subresult2 = getBillingByEncounter($pid,$iter{"encounter"})) {
+      foreach ($subresult2 as $iter2) {
+       $coded .= "<span title='" . addslashes($iter2{"code_text"}) . "'>";
+       $coded .= $iter2{"code"} . "</span>, ";
       }
+      $coded = substr($coded, 0, strlen($coded) - 2);
+     }
     } else {
-      $coded = "(No access)";
+     $coded = "(No access)";
     }
 
     echo "<td valign='top'><a class='text' " .

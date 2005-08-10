@@ -7,7 +7,18 @@
  // of the License, or (at your option) any later version.
 
  include_once("../globals.php");
- include_once("../../library/patient.inc");
+ include_once("$srcdir/patient.inc");
+ include_once("$srcdir/acl.inc");
+
+ $thisauth = (acl_check('encounters', 'notes') == 'write' &&
+              acl_check('patients', 'med') == 'write');
+
+ if (!$thisauth) {
+  echo "<html>\n<body>\n";
+  echo "<p>You are not authorized for this.</p>\n";
+  echo "</body>\n</html>\n";
+  exit();
+ }
 
  $patdata = getPatientData($pid, "fname,lname");
 

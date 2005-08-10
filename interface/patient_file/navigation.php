@@ -1,5 +1,9 @@
 <?
-include_once("../globals.php");
+ include_once("../globals.php");
+ include_once("$srcdir/acl.inc");
+
+ $ie_auth = (acl_check('encounters', 'notes') == 'write' &&
+             acl_check('patients', 'med') == 'write');
 ?>
 <html>
 <head>
@@ -55,7 +59,9 @@ function selpopup(selobj) {
   <td align="right" valign="middle">
     <select onchange='selpopup(this)' style='background-color:transparent'>
      <option value=''>Popups</option>
+<? if ($ie_auth) { ?>
      <option value='problem_encounter.php'>Issues</option>
+<? } ?>
      <option value='../../custom/export_demographics.php'>Export</option>
 <? if ($GLOBALS['athletic_team']) { ?>
      <option value='../reports/players_report.php'>Roster</option>
