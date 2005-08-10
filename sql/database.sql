@@ -96,7 +96,7 @@ CREATE TABLE `categories_seq` (
 
 
 /*!40000 ALTER TABLE `categories_seq` DISABLE KEYS */;
-INSERT INTO `categories_seq` VALUES (1);
+INSERT INTO `categories_seq` VALUES (5);
 /*!40000 ALTER TABLE `categories_seq` ENABLE KEYS */;
 
 --
@@ -133,7 +133,8 @@ CREATE TABLE `codes` (
   `units` tinyint(3) default NULL,
   `fee` decimal(7,2) default NULL,
   `superbill` tinyint(1) NOT NULL default '0',
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `code` (`code`)
 ) ;
 
 --
@@ -27882,10 +27883,10 @@ PRIMARY KEY (id)
 ) TYPE=MyISAM;
 
 CREATE TABLE IF NOT EXISTS issue_encounter (
-  pid       int(11)    NOT NULL, -- pid from patient_data table
-  list_id   int(11)    NOT NULL, -- id from lists table
-  encounter int(11)    NOT NULL, -- encounter from form_encounters table
-  resolved  tinyint(1) NOT NULL, -- if problem seems resolved with this encounter
+  pid       int(11)    NOT NULL,
+  list_id   int(11)    NOT NULL,
+  encounter int(11)    NOT NULL,
+  resolved  tinyint(1) NOT NULL,
   PRIMARY KEY (pid, list_id, encounter)
 );
 
