@@ -15,7 +15,7 @@ function sports_fitness_report($pid, $encounter, $cols, $id) {
   "FROM form_sports_fitness WHERE " .
   "id = '$id' AND activity = '1'");
  if ($data) {
-  print "<table>\n<tr>\n";
+  print "<table cellpadding='0' cellspacing='0'>\n<tr>\n";
   foreach($data as $key => $value) {
    if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" ||
        $key == "authorized" || $key == "activity" || $key == "date" ||
@@ -26,7 +26,7 @@ function sports_fitness_report($pid, $encounter, $cols, $id) {
     $value = "yes";
    }
    $key=ucwords(str_replace("_"," ",$key));
-   print "<td valign='top'><span class='bold'>$key: </span><span class='text'>$value</span></td>\n";
+   print "<td valign='top'><span class='bold'>$key: </span><span class='text'>$value &nbsp;</span></td>\n";
    $count++;
    if ($count == $cols) {
     $count = 0;
