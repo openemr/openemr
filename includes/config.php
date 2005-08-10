@@ -54,15 +54,15 @@ $GLOBALS['oer_config']['prescriptions']['bottom'] = 30;
 
 //accounting system web services integration
 //whether to use the system
-$GLOBALS['oer_config']['ws_accounting']['enabled'] = true;
+$GLOBALS['oer_config']['ws_accounting']['enabled'] = false;
 $GLOBALS['oer_config']['ws_accounting']['server'] = "localhost";
 $GLOBALS['oer_config']['ws_accounting']['port'] = "80";
 $GLOBALS['oer_config']['ws_accounting']['url'] = "/sql-ledger/ws_server.pl";
-$GLOBALS['oer_config']['ws_accounting']['username'] = "openemr";
-$GLOBALS['oer_config']['ws_accounting']['password'] = "MFP**123";
+$GLOBALS['oer_config']['ws_accounting']['username'] = "unused";
+$GLOBALS['oer_config']['ws_accounting']['password'] = "unused";
 $GLOBALS['oer_config']['ws_accounting']['url_path'] = "http://" .
   $_SERVER["SERVER_NAME"] . "/sql-ledger/login.pl";
-$GLOBALS['oer_config']['ws_accounting']['income_acct'] = "10035";
+$GLOBALS['oer_config']['ws_accounting']['income_acct'] = "4020";
 
 //don't alter below this line unless you are an advanced user and know what you are doing
 
