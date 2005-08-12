@@ -19,7 +19,8 @@ $code_types = array(
  /* UK Sports Medicine:
  'ICD10' => array('id' => 4, 'fee' => 0, 'mod' => 0, 'just' => ''    ),
  'OSICS' => array('id' => 5, 'fee' => 0, 'mod' => 4, 'just' => ''    ),
- 'OPCS'  => array('id' => 6, 'fee' => 0, 'mod' => 0, 'just' => ''    ) */
+ 'OPCS'  => array('id' => 6, 'fee' => 0, 'mod' => 0, 'just' => ''    ),
+ 'PTCJ'  => array('id' => 7, 'fee' => 0, 'mod' => 0, 'just' => ''    ) */
 );
 
 $default_search_type = 'ICD9'; // US
