@@ -61,6 +61,13 @@ function doeclick(id) {
  return false;
 }
 
+// Add Encounter button is clicked.
+function newEncounter() {
+ var f = document.forms[0];
+ top.Title.location.href='../encounter/encounter_title.php';
+ top.Main.location.href='../encounter/patient_encounter.php?mode=new';
+}
+
 </script>
 
 </head>
@@ -140,8 +147,9 @@ function doeclick(id) {
 </table>
 
 <center><p>
- <input type='button' value='Add Issue' onclick='dopclick(0)' style='background-color:transparent' /> &nbsp; &nbsp;
- <input type='button' value='To History' onclick='location="../history/history_full.php"' style='background-color:transparent' /> &nbsp; &nbsp;
+ <input type='button' value='Add Issue' onclick='dopclick(0)' style='background-color:transparent' /> &nbsp;
+ <input type='button' value='Add Encounter' onclick='newEncounter()' style='background-color:transparent' /> &nbsp;
+ <input type='button' value='To History' onclick='location="../history/history_full.php"' style='background-color:transparent' /> &nbsp;
  <input type='button' value='Back' onclick='location="patient_summary.php"' style='background-color:transparent' />
 </p></center>
 
