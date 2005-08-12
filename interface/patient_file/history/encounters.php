@@ -68,10 +68,10 @@ if ($result = getEncounters($pid)) {
       $raw_encounter_date = date("Y-m-d", strtotime($result4{"date"}));
       $encounter_date = date("D F jS", strtotime($result4{"date"}));
 
-      if ($auth_notes_a || ($auth_notes && $iter['user'] == $_SESSION['authUser']))
-        $reason_string .= $result4{"reason"} . "<br>\n";
-      else
-        $reason_string = "(No access)";
+      // if ($auth_notes_a || ($auth_notes && $iter['user'] == $_SESSION['authUser']))
+      $reason_string .= $result4{"reason"} . "<br>\n";
+      // else
+      //   $reason_string = "(No access)";
     }
 
     echo "<tr>\n";
