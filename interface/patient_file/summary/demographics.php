@@ -7,6 +7,15 @@
 
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<script type="text/javascript" src="../../../library/dialog.js"></script>
+<script language="JavaScript">
+ function oldEvt(eventid) {
+  dlgopen('../../main/calendar/add_edit_event.php?eid=' + eventid, '_blank', 550, 270);
+ }
+ function refreshme() {
+  location.reload();
+ }
+</script>
 </head>
 
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
@@ -339,7 +348,7 @@ if ($result5{"provider"}) {
 ?>
    </table>
   </td>
-  <td align="right" valign="top">
+  <td valign="top" class="text">
 <?php
 // I can't believe this crap.  It generates a whole new document with
 // <html> tag and everything, and then terminates our script prematurely!
@@ -376,6 +385,22 @@ $patient_id = $_GET['patient_id'];
 //variables set
 chdir("../../main/calendar");
 include("index.php");
+}
+else if (isset($pid)) {
+ $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
+  "e.pc_startTime, u.fname, u.lname, u.mname " .
+  "FROM openemr_postcalendar_events AS e, users AS u WHERE " .
+  "e.pc_pid = '$pid' AND e.pc_eventDate >= CURRENT_DATE AND " .
+  "u.id = e.pc_aid " .
+  "ORDER BY e.pc_eventDate, e.pc_startTime";
+ $res = sqlStatement($query);
+ while($row = sqlFetchArray($res)) {
+  $dayname = date("l", strtotime($row['pc_eventDate']));
+  echo "<a href='javascript:oldEvt(" . $row['pc_eid'] .
+       ")'><b>$dayname " . $row['pc_eventDate'] . "</b><br>";
+  echo substr($row['pc_startTime'], 0, 5) . " " . $row['pc_title'] . "<br>\n";
+  echo $row['fname'] . " " . $row['lname'] . "</a><br>&nbsp;<br>\n";
+ }
 }
 ?>
   </td>
