@@ -80,7 +80,7 @@ function refreshIssue(issue, title) {
    <textarea name='reason' cols='40' rows='5' wrap='virtual' style='width:96%'><? echo htmlspecialchars($result['reason']) ?></textarea>
   </td>
   <td rowspan='4' valign='top'>
-   <select multiple name='issues[]' size='6' style='width:100%;height:100%'
+   <select multiple name='issues[]' size='10' style='width:100%'
     title='Hold down [Ctrl] for multiple selections or to unselect'>
 <?
  while ($irow = sqlFetchArray($ires)) {
