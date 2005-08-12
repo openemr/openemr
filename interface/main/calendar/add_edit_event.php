@@ -237,7 +237,7 @@ td { font-size:10pt; }
 
  var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
 
- // var durations = new Array();
+ var durations = new Array();
  // var rectypes  = new Array();
 <?
  // Read the event categories, generate their options list, and get
@@ -250,7 +250,7 @@ td { font-size:10pt; }
  while ($crow = sqlFetchArray($cres)) {
   $duration = round($crow['pc_duration'] / 60);
   if ($crow['pc_end_all_day']) $duration = 1440;
-  // echo " durations[" . $crow['pc_catid'] . "] = $duration\n";
+  echo " durations[" . $crow['pc_catid'] . "] = $duration\n";
   // echo " rectypes[" . $crow['pc_catid'] . "] = " . $crow['pc_recurrtype'] . "\n";
   $catoptions .= "    <option value='" . $crow['pc_catid'] . "'";
   if ($eid) {
@@ -278,12 +278,14 @@ td { font-size:10pt; }
  }
 
  // Do whatever is needed when a new event category is selected.
- // For now all we do is change the event title.
+ // For now this means changing the event title and duration.
  function set_category() {
   var f = document.forms[0];
   var s = f.form_category;
-  if (s.selectedIndex >= 0)
+  if (s.selectedIndex >= 0) {
    f.form_title.value = s.options[s.selectedIndex].text;
+   f.form_duration.value = durations[s.options[s.selectedIndex].value];
+  }
  }
 
  // Modify some visual attributes when the all-day or timed-event
