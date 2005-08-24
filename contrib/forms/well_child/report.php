@@ -5,7 +5,7 @@ include_once($GLOBALS["srcdir"]."/api.inc");
 include_once($GLOBALS["srcdir"]."/sql.inc");
 function well_child_report( $pid, $encounter, $cols, $id) {
 $count = 0;
-$data = formFetch("form_weel_child", $id);
+$data = formFetch("form_well_child", $id);
 $sql = "SELECT name from form_well_child_checks where foreign_id = '" . mysql_real_escape_string($id) . "'";
 $results = sqlQ($sql);
 $data2 = array();
