@@ -329,7 +329,7 @@ class FormWellInfant extends ORDataObject {
 			$sql = "delete FROM form_well_infant_checks where foreign_id = '" . $this->id . "'";
 			sqlQuery($sql);
 			
-			if (!empty($this->checks2)) {
+			if (!empty($this->checks)) {
 			
 				foreach ($this->checks as $check) {
 					if (!empty($check)) {
