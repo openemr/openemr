@@ -14,21 +14,22 @@
 // This is invoked to pop up some window when a popup item is selected.
 function selpopup(selobj) {
  var i = selobj.selectedIndex;
+ var opt = selobj.options[i];
  if (i > 0) {
   var width  = 750;
   var height = 550;
-  if (i == 2) { // export reply is a small dialog
-   width  = 400;
-   height = 300;
+  if (opt.text == 'Export' || opt.text == 'Import') {
+   width  = 500;
+   height = 400;
   }
-  dlgopen(selobj.options[i].value, '_blank', width, height);
+  dlgopen(opt.value, '_blank', width, height);
  }
  selobj.selectedIndex = 0;
 }
 </script>
 </head>
 
-<body <?echo $nav_bg_line;?> topmargin='0' rightmargin='0' leftmargin='5'
+<body <? echo $nav_bg_line ?> topmargin='0' rightmargin='0' leftmargin='5'
  marginheight='0' bottommargin='0'
  link='#000000' vlink='#000000' alink='#000000'>
 
@@ -62,7 +63,8 @@ function selpopup(selobj) {
 <? if ($ie_auth) { ?>
      <option value='problem_encounter.php'>Issues</option>
 <? } ?>
-     <option value='../../custom/export_demographics.php'>Export</option>
+     <option value='../../custom/export_xml.php'>Export</option>
+     <option value='../../custom/import_xml.php'>Import</option>
 <? if ($GLOBALS['athletic_team']) { ?>
      <option value='../reports/players_report.php'>Roster</option>
 <? } ?>
