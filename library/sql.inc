@@ -7,22 +7,22 @@ define('ADODB_FETCH_ASSOC',2);
 $database = NewADOConnection("mysql");
 $database->PConnect($host, $login, $pass, $dbase);
 $GLOBALS['adodb']['db'] = $database;
-$GLOBALS['dbh'] = $database->_connectionID;                                     
-                                                                                
-//fmg: This makes the login screen informative when no connection can be made...
-if (!$GLOBALS['dbh']) {                                                         
-        //try to be more helpful                                                
-        if ($host == "localhost") {                                             
-                echo "Check that mysqld is running.<p>";                        
-        } else {                                                                
-                echo "Check that you can ping the server '$host'.<p>";          
-        }//if local                                                             
-        HelpfulDie("Could not connect to server!",mysql_error());               
-        exit;                                                                   
-}//if no connection                                                             
-                                                                                
-function sqlConnect($login,$pass,$dbase,$host,$port = '3306')                   
-{                                                                               
+$GLOBALS['dbh'] = $database->_connectionID;
+
+//fmg: This makes the login screen informative when no connection can be made
+if (!$GLOBALS['dbh']) {
+        //try to be more helpful
+        if ($host == "localhost") {
+                echo "Check that mysqld is running.<p>";
+        } else {
+                echo "Check that you can ping the server '$host'.<p>";
+        }//if local
+        HelpfulDie("Could not connect to server!",mysql_error());
+        exit;
+}//if no connection
+
+function sqlConnect($login,$pass,$dbase,$host,$port = '3306')
+{
 	return $GLOBALS['dbh'] = $database->_connectionID;
 }
 
@@ -36,12 +36,8 @@ function sqlStatement($statement)
 
 function idSqlStatement($statement)
 {
-	//----------run a mysql query, return the handle
-	$query = mysql_query($statement, $GLOBALS['dbh']) or
-        HelpfulDie("query failed: $statement (".mysql_error().")");
-	return mysql_insert_id();
+  return sqlInsert($statement);
 }
-
 
 function sqlClose()
 {
@@ -53,18 +49,15 @@ function sqlClose()
 
 function sqlInsert($statement)
 {
-	//----------run a mysql insert, return the last id generated
-	mysql_query($statement, $GLOBALS['dbh']) or 
-        HelpfulDie("insert failed: $statement (".mysql_error().")");
-        return mysql_insert_id($GLOBALS['dbh']);
+  //----------run a mysql insert, return the last id generated
+  mysql_query($statement, $GLOBALS['dbh']) or 
+    HelpfulDie("insert failed: $statement (".mysql_error().")");
+  return mysql_insert_id($GLOBALS['dbh']);
 }
 
 function sqlInsertClean($statement)
 {
-	//----------run a mysql insert, return the last id generated
-	mysql_query($statement, $GLOBALS['dbh']) or 
-        HelpfulDie("insert failed: $statement (".mysql_error().")");
-	return mysql_insert_id($GLOBALS['dbh']);
+  return sqlInsert($statement);
 }
 
 function sqlFetchArray($resource)
@@ -115,15 +108,15 @@ function generate_id () {
 	$database = $GLOBALS['adodb']['db'];
 	return $database->GenID("sequences");
 }
-                                                                   
-//fmg: Much more helpful that way...                               
-function HelpfulDie ($statement,$sqlerr)                           
-{                                                                  
+
+//fmg: Much more helpful that way...
+function HelpfulDie ($statement,$sqlerr)
+{
         echo "<p><p><font color='red'>ERROR:</font> $statement<p>";
-        if ($sqlerr) {                                             
-                echo "Error: <font color='red'>$sqlerr</font><p>"; 
-        }//if error                                                
-        exit;                                                      
-}                                                                  
+        if ($sqlerr) {
+                echo "Error: <font color='red'>$sqlerr</font><p>";
+        }//if error
+        exit;
+}
 
 ?>
