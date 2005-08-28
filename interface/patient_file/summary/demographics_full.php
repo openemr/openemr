@@ -364,7 +364,7 @@ $result2 = getEmployerData($pid);
   if ($s == strtolower($result["language"]))
    echo " selected";
   echo ">".ucwords($s)."</option>\n";
-}
+ }
 ?>
    </select><br>
    <input type=entry size=30 name=language value="<?echo ucfirst($result{"language"});?>"><br><br />
@@ -380,7 +380,7 @@ $result2 = getEmployerData($pid);
   if ($s == strtolower($result["ethnoracial"]))
    echo " selected";
   echo ">".ucwords($s)."</option>\n";
-}
+ }
 ?>
    </select>
    <br>
@@ -401,7 +401,7 @@ $result2 = getEmployerData($pid);
      <td><span class=bold>Homeless, etc.: </span></td><td><input type=entry size=20 name=homeless value="<?echo $result{"homeless"}?>"></td>
     </tr>
     <tr>
-     <td><span class=bold>Interpretter: </span></td><td><input type=entry size=20 name=interpretter value="<?echo $result{"interpretter"}?>"></td>
+     <td><span class=bold>Interpreter: </span></td><td><input type=entry size=20 name=interpretter value="<?echo $result{"interpretter"}?>"></td>
     </tr>
     <tr>
      <td><span class=bold>Migrant/Seasonal: </span></td><td><input type=entry size=20 name=migrantseasonal value="<?echo $result{"migrantseasonal"}?>"></td>
