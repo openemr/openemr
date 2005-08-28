@@ -1,6 +1,6 @@
 <?
  include_once("../../globals.php");
- include_once("../../../library/acl.inc");
+ include_once("$srcdir/acl.inc");
 
  $disabled = "disabled";
 
@@ -21,12 +21,12 @@
 
  $encounter = $result['encounter'];
 
- $enc_year  = substr($result{'date'}, 0, 4);
- $enc_month = substr($result{'date'}, 5, 2);
- $enc_day   = substr($result{'date'}, 8, 2);
- $ons_year  = substr($result{'onset_date'}, 0, 4);
- $ons_month = substr($result{'onset_date'}, 5, 2);
- $ons_day   = substr($result{'onset_date'}, 8, 2);
+ // $enc_year  = substr($result{'date'}, 0, 4);
+ // $enc_month = substr($result{'date'}, 5, 2);
+ // $enc_day   = substr($result{'date'}, 8, 2);
+ // $ons_year  = substr($result{'onset_date'}, 0, 4);
+ // $ons_month = substr($result{'onset_date'}, 5, 2);
+ // $ons_day   = substr($result{'onset_date'}, 8, 2);
 
  // get issues
  $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
@@ -39,26 +39,36 @@
 <html>
 <head>
 <title>Patient Encounter</title>
+
 <script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="../../../library/overlib_mini.js"></script>
+<script type="text/javascript" src="../../../library/calendar.js"></script>
+<script type="text/javascript" src="../../../library/textformat.js"></script>
+
 <script language="JavaScript">
 
-// Process click on issue title.
-function newissue() {
- dlgopen('../../patient_file/summary/add_edit_issue.php', '_blank', 500, 450);
- return false;
-}
+ var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
 
-// callback from add_edit_issue.php:
-function refreshIssue(issue, title) {
- var s = document.forms[0]['issues[]'];
- s.options[s.options.length] = new Option(title, issue, true, true);
-}
+ // Process click on issue title.
+ function newissue() {
+  dlgopen('../../patient_file/summary/add_edit_issue.php', '_blank', 500, 450);
+  return false;
+ }
+
+ // callback from add_edit_issue.php:
+ function refreshIssue(issue, title) {
+  var s = document.forms[0]['issues[]'];
+  s.options[s.options.length] = new Option(title, issue, true, true);
+ }
 
 </script>
 </head>
 
 <body <?echo $top_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2' bottommargin='0'
  marginwidth='2' marginheight='0'>
+
+<!-- Required for the popup date selectors -->
+<div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
 <form method='post' action="<?echo $rootdir?>/forms/newpatient/save.php" name='new_encounter' target='Main'>
 <input type=hidden name='mode' value='update'>
@@ -125,6 +135,16 @@ function refreshIssue(issue, title) {
  <tr>
   <td class='text' nowrap>Date of Service:</td>
   <td nowrap>
+
+   <input type='text' size='10' name='form_date' <? echo $disabled ?>
+    value='<? echo substr($result['date'], 0, 10) ?>'
+    title='yyyy-mm-dd Date of service'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
+   <a href="javascript:show_calendar('new_encounter.form_date')"
+    title="Click here to choose a date"
+    ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
+
+   <!--
    <select name='month' <? echo $disabled ?>>
 <?
  foreach($months as $month) {
@@ -152,12 +172,24 @@ function refreshIssue(issue, title) {
  }
 ?>
    </select>
+   -->
+
   </td>
  </tr>
 
  <tr>
   <td class='text' nowrap>Onset/hospitalization date:</td>
   <td nowrap>
+
+   <input type='text' size='10' name='form_onset_date'
+    value='<? echo substr($result['onset_date'], 0, 10) ?>'
+    title='yyyy-mm-dd Date of onset or hospitalization'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
+   <a href="javascript:show_calendar('new_encounter.form_onset_date')"
+    title="Click here to choose a date"
+    ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
+
+   <!--
    <select name='onset_month'>
 <?
  foreach($months as $month){
@@ -185,6 +217,8 @@ function refreshIssue(issue, title) {
  }
 ?>
    </select>
+   -->
+
   </td>
  </tr>
 
