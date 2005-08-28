@@ -190,10 +190,12 @@ echo $result{"postal_code"}?>
     </tr>
     <tr>
      <td valign='top'>
-<? if ($result{"ethnoracial"} != "") {?><span class='bold'>Race/Ethnicity: </span><span class='text'><?echo $result{"ethnoracial"};?></span><br><?}?>
-<? if ($result{"language"} != "") {?><span class='bold'>Language: </span><span class='text'><?echo ucfirst($result{"language"});?></span><br><?}?>
-<? if ($result{"interpretter"} != "") {?><span class='bold'>Interpretter: </span><span class='text'><?echo $result{"interpretter"};?></span><br><?}?>
-<? if ($result{"family_size"} != "") {?><span class='bold'>Family Size: </span><span class='text'><?echo $result{"family_size"};?></span><br><?}?>
+<? if (! $GLOBALS['athletic_team']) { ?>
+<? if ($result{"ethnoracial"} != "")  { ?><span class='bold'>Race/Ethnicity: </span><span class='text'><?echo $result{"ethnoracial"};?></span><br><? } ?>
+<? if ($result{"language"} != "")     { ?><span class='bold'>Language: </span><span class='text'><?echo ucfirst($result{"language"});?></span><br><? } ?>
+<? if ($result{"interpretter"} != "") { ?><span class='bold'>Interpreter: </span><span class='text'><?echo $result{"interpretter"};?></span><br><? } ?>
+<? if ($result{"family_size"} != "")  { ?><span class='bold'>Family Size: </span><span class='text'><?echo $result{"family_size"};?></span><br><? } ?>
+<? } ?>
      </td>
      <td valign='top'>
 <?
@@ -211,10 +213,12 @@ if ($moneymatches[2] != "") {
 }
 }
 ?>
+<? if (! $GLOBALS['athletic_team']) { ?>
 <? if ($result{"financial_review"} != "0000-00-00 00:00:00") {?><span class='bold'>Financial Review Date: </span><span class='text'><?echo date("n/j/Y",strtotime($result{"financial_review"}));?></span><br><?}?>
 <? if ($result{"monthly_income"} != "") {?><span class='bold'>Monthly Income: </span><span class='text'><?echo print_as_money($result{"monthly_income"});?></span><br><?}?>
 <? if ($result{"migrantseasonal"} != "") {?><span class='bold'>Migrant/Seasonal: </span><span class='text'><?echo $result{"migrantseasonal"};?></span><br><?}?>
 <? if ($result{"homeless"} != "") {?><span class='bold'>Homeless, etc.: </span><span class='text'><?echo $result{"homeless"};?></span><br><?}?>
+<? } ?>
      </td>
      <td valign='top'>
       <table>
