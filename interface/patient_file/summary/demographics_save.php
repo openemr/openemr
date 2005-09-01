@@ -8,6 +8,9 @@
  if ($pid) {
   if ($thisauth != 'write')
    die("Updating demographics is not authorized.");
+  $tmp = getPatientData($pid, "squad");
+  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
+   die("You are not authorized to access this squad.");
  } else {
   if ($thisauth != 'write' && $thisauth != 'addonly')
    die("Adding demographics is not authorized.");

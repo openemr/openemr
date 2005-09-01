@@ -55,6 +55,11 @@ if (isset($mode)) {
   if ($erow['user'] == $_SESSION['authUser'])
    $thisauth = acl_check('encounters', 'coding');
  }
+ if ($thisauth) {
+  $tmp = getPatientData($pid, "squad");
+  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
+   $thisauth = 0;
+ }
  if (!$thisauth) {
   echo "<p>(Coding not authorized)</p>\n";
   echo "</body>\n</html>\n";
@@ -122,13 +127,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 	foreach ($billing_html as $key => $val) {
 		print "<tr><td>$key</td><td><table>$val</table><td></tr><tr><td height=\"5\"></td></tr>\n";
 	}
-	
-	
 }
-
-
-
-
 ?>
 </tr></table>
 </td>
@@ -137,9 +136,6 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 <input type="hidden" name="patient_id" value="<?=$pid?>">
 </form>
 </table>
-
-
-
 
 </body>
 </html>

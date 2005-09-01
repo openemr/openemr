@@ -18,6 +18,10 @@
  if ($issue && $thisauth != 'write') die("Edit is not authorized!");
  if ($thisauth != 'write' && $thisauth != 'addonly') die("Add is not authorized!");
 
+ $tmp = getPatientData($pid, "squad");
+ if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
+  die("Not authorized for this squad!");
+
  $arrtype = array(
   'medical_problem' => 'Problem',
   'allergy'         => 'Allergy',

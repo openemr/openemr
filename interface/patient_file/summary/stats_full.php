@@ -10,10 +10,6 @@
  include_once("$srcdir/lists.inc");
  include_once("$srcdir/acl.inc");
 
- // Check authorization.
- $thisauth = acl_check('patients', 'demo');
- if (!$thisauth) die("Demographics not authorized.");
-
  $arroccur = array(
   0   => 'Unknown or N/A',
   1   => 'First',
@@ -22,6 +18,15 @@
   4   => 'Chronic/Recurrent',
   5   => 'Acute on Chronic'
  );
+
+ // Check authorization.
+ $thisauth = acl_check('patients', 'med');
+ if ($thisauth) {
+  $tmp = getPatientData($pid, "squad");
+  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
+   $thisauth = 0;
+ }
+ if (!$thisauth) die("Not authorized.");
 
  // get issues
  $pres = sqlStatement("SELECT * FROM lists WHERE pid = $pid " .

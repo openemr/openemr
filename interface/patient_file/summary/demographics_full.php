@@ -12,17 +12,22 @@
   setpid($_GET["pid"]);
  }
 
+ include_once("$srcdir/patient.inc");
+
+ $result = getPatientData($pid);
+ $result2 = getEmployerData($pid);
+
  // Check authorization.
  $thisauth = acl_check('patients', 'demo');
  if ($pid) {
   if ($thisauth != 'write')
    die("Updating demographics is not authorized.");
+  if ($result['squad'] && ! acl_check('squads', $result['squad']))
+   die("You are not authorized to access this squad.");
  } else {
   if ($thisauth != 'write' && $thisauth != 'addonly')
    die("Adding demographics is not authorized.");
  }
-
-include_once("$srcdir/patient.inc");
 
 $relats = array('','self','spouse','child','other');
 $statii = array('married','single','divorced','widowed','separated','domestic partner');
@@ -115,10 +120,6 @@ function checkNum () {
 </head>
 
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<?
-$result = getPatientData($pid);
-$result2 = getEmployerData($pid);
-?>
 
 <form action='demographics_save.php' name='demographics_form' method='post'>
 <input type=hidden name=mode value=save>
@@ -311,10 +312,17 @@ $result2 = getEmployerData($pid);
      <td><span class='bold'>Squad: </span></td>
      <td>
       <select name='squad'>
-       <option value='0'>&nbsp;</option>
-       <option value='1'<? if ($result['squad'] == '1') echo ' selected' ?>>Senior</option>
-       <option value='2'<? if ($result['squad'] == '2') echo ' selected' ?>>Academy</option>
-       <option value='3'<? if ($result['squad'] == '3') echo ' selected' ?>>Ladies</option>
+       <option value=''>&nbsp;</option>
+<?
+ $squads = acl_get_squads();
+ if ($squads) {
+  foreach ($squads as $key => $value) {
+   echo "       <option value='$key'";
+   if ($result['squad'] == $key) echo " selected";
+   echo ">$value</option>\n";
+  }
+ }
+?>
       </select>
      </td>
     </tr>

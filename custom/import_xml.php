@@ -119,6 +119,9 @@
 
   $olddata = getPatientData($pid);
 
+  if ($olddata['squad'] && ! acl_check('squads', $olddata['squad']))
+   die("You are not authorized to access this squad.");
+
   newPatientData(
    $olddata['id'],
    $apatient['title'],

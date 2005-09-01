@@ -42,6 +42,9 @@
   //   date_a      Fix encounter dates - any encounters
   //   relaxed     Less-private information (write,addonly optional)
   //               (e.g. the Sports Fitness encounter form)
+  //
+  // Section "squads" applies to sports team use only:
+  //   acos in this section define the user-specified list of squads
 
   if ($phpgacl_location) {
     include_once("$phpgacl_location/gacl.class.php");
@@ -81,10 +84,30 @@
       if (strpos($value, 'notes'  ) === 0) return 'write';
       if ($value == 'relaxed') return 'write';
     }
-    else if ($section == 'acct') {
+    else if ($section != 'admin') {
       return 'write';
     }
 
+    return 0;
+  }
+
+  // Return an array of squad ACO names and descriptive names.
+  // This is only applicable for sports team use.
+  //
+  function acl_get_squads() {
+    global $phpgacl_location;
+    if ($phpgacl_location) {
+      include_once("$phpgacl_location/gacl_api.class.php");
+      $section = 'squads';
+      $gacl = new gacl_api();
+      $arr1 = $gacl->get_objects($section, 1, 'ACO');
+      $arr = array();
+      foreach ($arr1[$section] as $value) {
+        $odata = $gacl->get_object_data($gacl->get_object_id($section, $value, 'ACO'), 'ACO');
+        $arr[$value] = $odata[0][3];
+      }
+      return $arr;
+    }
     return 0;
   }
 ?>

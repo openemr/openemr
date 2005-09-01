@@ -10,8 +10,13 @@
  include_once("$srcdir/patient.inc");
  include_once("$srcdir/acl.inc");
 
+ $patdata = getPatientData($pid, "fname,lname,squad");
+
  $thisauth = (acl_check('encounters', 'notes') == 'write' &&
               acl_check('patients', 'med') == 'write');
+
+ if ($patdata['squad'] && ! acl_check('squads', $patdata['squad']))
+  $thisauth = 0;
 
  if (!$thisauth) {
   echo "<html>\n<body>\n";
@@ -19,8 +24,6 @@
   echo "</body>\n</html>\n";
   exit();
  }
-
- $patdata = getPatientData($pid, "fname,lname");
 
  $alertmsg = ""; // anything here pops up in an alert box
  $endjs = "";    // holds javascript to write at the end

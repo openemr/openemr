@@ -7,6 +7,9 @@
  $thisauth = acl_check('patients', 'notes');
  if ($thisauth != 'write' && $thisauth != 'addonly')
   die("Not authorized.");
+ $tmp = getPatientData($pid, "squad");
+ if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
+  die("Not authorized for this squad.");
 
 //the number of records to display per screen
 $N = 5;
@@ -67,8 +70,6 @@ if ($active=="all") {
 } elseif ($active==0) {
 	$inactive_class="link_selected";
 }
-
-
 ?>
 
 <font class=text>View: </font> 

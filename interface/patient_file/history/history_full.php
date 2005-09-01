@@ -6,6 +6,11 @@
 
  // Check authorization.
  $thisauth = acl_check('patients', 'med');
+ if ($thisauth) {
+  $tmp = getPatientData($pid, "squad");
+  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
+   $thisauth = 0;
+ }
  if ($thisauth != 'write' && $thisauth != 'addonly')
   die("Not authorized.");
 ?>

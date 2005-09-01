@@ -10,14 +10,15 @@
  // squad.  It is applicable only for sports teams.
 
  include_once("../globals.php");
- include_once("../../library/patient.inc");
+ include_once("$srcdir/patient.inc");
+ include_once("$srcdir/acl.inc");
 
- $squads = array(
-  'None',
-  'Senior',
-  'Academy',
-  'Ladies'
- );
+ // $squads = array(
+ //  'None',
+ //  'Senior',
+ //  'Academy',
+ //  'Ladies'
+ // );
 
  $fitnesses = array(
   'Full Play',
@@ -104,10 +105,12 @@
  </tr>
 <?
  if ($res) {
+  $squads = acl_get_squads();
   $lastsquad = '';
   while ($row = sqlFetchArray($res)) {
    $patient_id = $row['pid'];
    $squad = $squads[$row['squad']];
+   if (! $squad) $squad = "None";
    $fitness = $row['fitness'];
    if (! $fitness) $fitness = 1;
    $query = "SELECT date, reason " .

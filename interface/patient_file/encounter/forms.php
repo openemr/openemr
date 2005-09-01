@@ -19,8 +19,11 @@
  $auth_relaxed  = acl_check('encounters', 'relaxed');
 
  if (is_numeric($pid)) {
-  $result = getPatientData($pid, "fname,lname");
+  $result = getPatientData($pid, "fname,lname,squad");
   echo " for " . $result['fname'] . " " . $result['lname'];
+  if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
+   $auth_notes_a = $auth_notes = $auth_relaxed = 0;
+  }
  }
 
  echo ":<br>\n";

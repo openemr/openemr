@@ -13,6 +13,11 @@
 
 <?
  $thisauth = acl_check('patients', 'notes');
+ if ($thisauth) {
+  $tmp = getPatientData($pid, "squad");
+  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
+   $thisauth = 0;
+ }
  if (!$thisauth) {
   echo "<p>(Notes not authorized)</p>\n";
   echo "</body>\n</html>\n";

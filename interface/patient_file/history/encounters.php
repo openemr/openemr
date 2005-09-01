@@ -43,6 +43,10 @@
  $auth_med      = acl_check('patients'  , 'med');
  $auth_demo     = acl_check('patients'  , 'demo');
 
+ $tmp = getPatientData($pid, "squad");
+ if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
+  $auth_notes_a = $auth_notes = $auth_coding_a = $auth_coding = $auth_med = $auth_demo = 0;
+
 $count = 0;
 if ($result = getEncounters($pid)) {
   foreach ($result as $iter ) {

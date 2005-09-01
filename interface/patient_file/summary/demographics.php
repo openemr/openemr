@@ -21,7 +21,14 @@
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 <?
+ $result = getPatientData($pid);
+ $result2 = getEmployerData($pid);
+
  $thisauth = acl_check('patients', 'demo');
+ if ($thisauth) {
+  if ($result['squad'] && ! acl_check('squads', $result['squad']))
+   $thisauth = 0;
+ }
 
  if (!$thisauth) {
   echo "<p>(Demographics not authorized)</p>\n";
@@ -40,10 +47,6 @@
  <tr>
   <td align="left" valign="top">
    <table border='0' cellpadding='0' width='100%'>
-<?
-$result = getPatientData($pid);
-$result2 = getEmployerData($pid);
-?>
     <tr>
      <td valign='top'>
       <span class='bold'>Name: </span><span class='text'><?echo $result{"title"}?> <?echo $result{"fname"}?> <?echo $result{"mname"}?> <?echo $result{"lname"}?></span><br>
@@ -354,43 +357,7 @@ if ($result5{"provider"}) {
   </td>
   <td valign="top" class="text">
 <?php
-// I can't believe this crap.  It generates a whole new document with
-// <html> tag and everything, and then terminates our script prematurely!
-// So I disabled it.  BTW the comments below re postnuke are not mine.
-//  -- Rod 2005-06-16
-//
-if (false && isset($pid)) { // was: if (isset($pid)) {
-//postnuke doesn't make it easy to set globals/get/post
-//didn't want to use an ifram here so I had to fake a page
-//load environment by setting the things that would have
-//been passed in the querystring
-
-include_once("$srcdir/calendar.inc");
-
-unset($func);
-unset($module);
-unset($Date);
-$_GET['module'] = "PostCalendar";
-$_GET['func']	= "search";
-$_GET['Date']	= pc_getDate();
-$_GET['no_nav'] = 2;
-$_GET['patient_id'] = intval($pid);
-$_GET['submit'] = "listapps";
-global $func,$Date,$module;
-$module = "PostCalendar";
-$func = "search";
-$Date = $_GET['Date'];
-$submit = "listapps";
-$no_nav = 2;
-$patient_id = $_GET['patient_id'];
-
-//now that the environment is set, include the page, it will
-//behave as though it was loaded in an iframe with the querystring
-//variables set
-chdir("../../main/calendar");
-include("index.php");
-}
-else if (isset($pid)) {
+if (isset($pid)) {
  $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
   "e.pc_startTime, u.fname, u.lname, u.mname " .
   "FROM openemr_postcalendar_events AS e, users AS u WHERE " .
@@ -400,9 +367,16 @@ else if (isset($pid)) {
  $res = sqlStatement($query);
  while($row = sqlFetchArray($res)) {
   $dayname = date("l", strtotime($row['pc_eventDate']));
+  $dispampm = "am";
+  $disphour = substr($row['pc_startTime'], 0, 2) + 0;
+  $dispmin  = substr($row['pc_startTime'], 3, 2);
+  if ($disphour >= 12) {
+   $dispampm = "pm";
+   if ($disphour > 12) $disphour -= 12;
+  }
   echo "<a href='javascript:oldEvt(" . $row['pc_eid'] .
        ")'><b>$dayname " . $row['pc_eventDate'] . "</b><br>";
-  echo substr($row['pc_startTime'], 0, 5) . " " . $row['pc_title'] . "<br>\n";
+  echo "$disphour:$dispmin $dispampm " . $row['pc_title'] . "<br>\n";
   echo $row['fname'] . " " . $row['lname'] . "</a><br>&nbsp;<br>\n";
  }
 }

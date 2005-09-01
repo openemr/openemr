@@ -6,7 +6,7 @@ ALTER TABLE lists
   ADD extrainfo  varchar(255)  DEFAULT NULL;
 
 ALTER TABLE patient_data
-  ADD squad      int(11)       NOT NULL DEFAULT 0,
+  ADD squad      varchar(32)   NOT NULL DEFAULT '',
   ADD fitness    int(11)       NOT NULL DEFAULT 0;
 
 ALTER TABLE history_data
