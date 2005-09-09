@@ -1,6 +1,7 @@
 <?
  include_once("../../globals.php");
  include_once("$srcdir/acl.inc");
+ include_once("$srcdir/lists.inc");
 
  $disabled = "disabled";
 
@@ -96,10 +97,14 @@
  while ($irow = sqlFetchArray($ires)) {
   $list_id = $irow['id'];
   $tcode = $irow['type'];
+  /****
   if ($tcode == 'medical_problem' || $tcode == 'problem') $tcode = 'P';
   else if ($tcode == 'allergy')    $tcode = 'A';
   else if ($tcode == 'medication') $tcode = 'M';
   else if ($tcode == 'surgery')    $tcode = 'S';
+  ****/
+  if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
+
   echo "    <option value='$list_id'";
   $perow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
    "pid = '$pid' AND encounter = '$encounter' AND list_id = '$list_id'");

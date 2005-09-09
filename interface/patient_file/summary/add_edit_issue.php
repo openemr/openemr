@@ -22,13 +22,6 @@
  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
   die("Not authorized for this squad!");
 
- $arrtype = array(
-  'medical_problem' => 'Problem',
-  'allergy'         => 'Allergy',
-  'medication'      => 'Medication',
-  'surgery'         => 'Surgery'
- );
-
  $arroccur = array(
   0   => 'Unknown or N/A',
   1   => 'First',
@@ -72,7 +65,7 @@ td { font-size:10pt; }
  if (is_file("../../../custom/clickoptions.txt"))
   $clickoptions = file("../../../custom/clickoptions.txt");
  $i = 0;
- foreach ($arrtype as $key => $value) {
+ foreach ($ISSUE_TYPES as $key => $value) {
   echo " aopts[$i] = new Array();\n";
   foreach($clickoptions as $line) {
    $line = trim($line);
@@ -116,7 +109,7 @@ td { font-size:10pt; }
 
   $i = 0;
   $text_type = "unknown";
-  foreach ($arrtype as $key => $value) {
+  foreach ($ISSUE_TYPES as $key => $value) {
    if ($i++ == $_POST['form_type']) $text_type = $key;
   }
 
@@ -156,7 +149,7 @@ td { font-size:10pt; }
     "'" . $$_SESSION['authProvider'] . "' )");
   }
 
-  $tmp_title = substr($arrtype[$text_type], 0, 1) . ": $form_begin " .
+  $tmp_title = $ISSUE_TYPES[$text_type][2] . ": $form_begin " .
    substr($_POST['form_title'], 0, 40);
 
   // Close this window and redisplay the updated list of issues.
@@ -175,7 +168,7 @@ td { font-size:10pt; }
 
  if ($issue) {
   $irow = sqlQuery("SELECT * FROM lists WHERE id = $issue");
-  foreach ($arrtype as $key => $value) {
+  foreach ($ISSUE_TYPES as $key => $value) {
    if ($key == $irow['type']) break;
    ++$type_index;
   }
@@ -206,10 +199,10 @@ td { font-size:10pt; }
   <td>
 <?
  $index = 0;
- foreach ($arrtype as $value) {
+ foreach ($ISSUE_TYPES as $value) {
   echo "   <input type='radio' name='form_type' value='$index' onclick='newtype($index)'";
   if ($index == $type_index) echo " checked";
-  echo " />$value&nbsp;\n";
+  echo " />" . $value[1] . "&nbsp;\n";
   ++$index;
  }
 ?>

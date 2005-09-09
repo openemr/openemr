@@ -1,6 +1,15 @@
 <?php
 require_once("{$GLOBALS['srcdir']}/sql.inc");
 
+$ISSUE_TYPES = array(
+ // table type               plural              singular    abbrev
+ 'medical_problem' => array('Medical Problems', 'Problem'   , 'P'),
+ 'allergy'         => array('Allergies'       , 'Allergy'   , 'A'),
+ 'medication'      => array('Medications'     , 'Medication', 'M'),
+ 'surgery'         => array('Surgeries'       , 'Surgery'   , 'S'),
+ 'dental'          => array('Dental Issues'   , 'Dental'    , 'D')
+);
+
 function getListById ($id, $cols = "*")
 {
 	return sqlQuery("select $cols from lists where id='$id' order by date DESC limit 0,1");

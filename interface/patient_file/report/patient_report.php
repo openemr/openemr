@@ -1,5 +1,6 @@
 <?
  include_once("../../globals.php");
+ include_once("$srcdir/lists.inc");
 ?>
 <html>
 <head>
@@ -84,6 +85,8 @@
  while ($prow = sqlFetchArray($pres)) {
   if ($lasttype != $prow['type']) {
    $lasttype = $prow['type'];
+
+   /****
    $disptype = $lasttype;
    switch ($lasttype) {
     case "allergy"        : $disptype = "Allergies"       ; break;
@@ -92,6 +95,9 @@
     case "medication"     : $disptype = "Medications"     ; break;
     case "surgery"        : $disptype = "Surgeries"       ; break;
    }
+   ****/
+   $disptype = $ISSUE_TYPES[$lasttype][0];
+
    echo " <tr>\n";
    echo "  <td valign='top' colspan='4' class='bold'><b>$disptype</b></td>\n";
    echo " </tr>\n";

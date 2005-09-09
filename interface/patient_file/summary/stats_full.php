@@ -103,6 +103,8 @@ function newEncounter() {
   if ($lasttype != $row['type']) {
    $encount = 0;
    $lasttype = $row['type'];
+
+   /****
    $disptype = $lasttype;
    switch ($lasttype) {
     case "allergy"        : $disptype = "Allergies"       ; break;
@@ -111,6 +113,9 @@ function newEncounter() {
     case "medication"     : $disptype = "Medications"     ; break;
     case "surgery"        : $disptype = "Surgeries"       ; break;
    }
+   ****/
+   $disptype = $ISSUE_TYPES[$lasttype][0];
+
    echo " <tr class='detail'>\n";
    echo "  <td valign='top' colspan='8'><b>$disptype</b></td>\n";
    echo " </tr>\n";

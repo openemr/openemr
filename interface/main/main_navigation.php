@@ -2,7 +2,6 @@
 include_once("../globals.php");
 include_once("../../library/acl.inc");
 ?>
-
 <html>
 <head>
 <title>Navigation</title>
@@ -43,7 +42,7 @@ include_once("../../library/acl.inc");
 <? } ?>
 
 <td align="center" nowrap>
-&nbsp;<a href="../usergroup/user_info.php" target="Main" class="menu">Change&nbsp;Password</a>&nbsp;
+&nbsp;<a href="../usergroup/user_info.php" target="Main" class="menu">Password</a>&nbsp;
 </td>
 
 <? if (acl_check('admin', 'calendar') || acl_check('admin', 'database') ||
@@ -68,9 +67,18 @@ include_once("../../library/acl.inc");
 </td>
 <? } ?>
 
+<? if ($GLOBALS['athletic_team']) { ?>
+<td align="center" nowrap>
+&nbsp;<a href="../reports/players_report.php?embed=1" target="Main" class="menu">Roster</a>&nbsp;
+</td>
+<td align="center" nowrap>
+&nbsp;<a href="main.php" target="Main" class="menu">Calendar</a>&nbsp;
+</td>
+<? } else { ?>
 <td align="center" nowrap>
 &nbsp;<a href="main.php" target="Main" class="menu">Home</a>&nbsp;
 </td>
+<? } ?>
 
 <td align="center" nowrap>
 &nbsp;<a href="../logout.php?auth=logout" target="_top" class="menu">Logout</a>&nbsp;&nbsp;

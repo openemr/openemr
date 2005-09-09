@@ -1,6 +1,7 @@
 <?
  include_once("../../globals.php");
  include_once("$srcdir/calendar.inc");
+ include_once("$srcdir/lists.inc");
 
  $months = array("01","02","03","04","05","06","07","08","09","10","11","12");
  $days = array("01","02","03","04","05","06","07","08","09","10","11","12","13","14",
@@ -74,10 +75,14 @@
 <?
  while ($irow = sqlFetchArray($ires)) {
   $tcode = $irow['type'];
+  /****
   if ($tcode == 'medical_problem' || $tcode == 'problem') $tcode = 'P';
   else if ($tcode == 'allergy')    $tcode = 'A';
   else if ($tcode == 'medication') $tcode = 'M';
   else if ($tcode == 'surgery')    $tcode = 'S';
+  ****/
+  if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
+
   echo "    <option value='" . $irow['id'] . "'>$tcode: ";
   echo $irow['begdate'] . " " . htmlspecialchars(substr($irow['title'], 0, 40)) . "</option>\n";
  }

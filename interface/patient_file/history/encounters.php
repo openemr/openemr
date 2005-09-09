@@ -4,6 +4,7 @@
  include_once("$srcdir/billing.inc");
  include_once("$srcdir/pnotes.inc");
  include_once("$srcdir/patient.inc");
+ include_once("$srcdir/lists.inc");
  include_once("$srcdir/acl.inc");
 
  //maximum number of encounter entries to display on this page:
@@ -57,14 +58,6 @@ if ($result = getEncounters($pid)) {
       break;
     }
 
-/****
-		$subresult = getFormByEncounter($pid, $iter{"encounter"}, "*", "New Patient Encounter");
-		$raw_encounter_date = date( "Y-m-d" ,strtotime($subresult[0]{"date"}));
-		$encounter_date = date( "D F jS" ,strtotime($subresult[0]{"date"}));
-		print "<tr><td></td>";
-		print "<td valign=top width=100><a target=Main href=\"javascript:parent.Title.location.href='../encounter/encounter_title.php?set_encounter=".$iter{"encounter"}."';parent.Main.location.href='../encounter/patient_encounter.php?set_encounter=".$iter{"encounter"}."'\" class=text>" . $encounter_date . "</a></td>";
-****/
-
     $reason_string = "";
     if ($result4 = sqlQuery("select * from form_encounter where encounter='" .
       $iter{"encounter"} . "' and pid='$pid'"))
@@ -102,10 +95,15 @@ if ($result = getEncounters($pid)) {
      for ($i = 0; $irow = sqlFetchArray($ires); ++$i) {
       if ($i > 0) echo "<br>";
       $tcode = $irow['type'];
+
+      /****
       if ($tcode == 'medical_problem' || $tcode == 'problem') $tcode = 'P';
       else if ($tcode == 'allergy')    $tcode = 'A';
       else if ($tcode == 'medication') $tcode = 'M';
       else if ($tcode == 'surgery')    $tcode = 'S';
+      ****/
+      if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
+
       echo "$tcode: " . $irow['title'];
      }
     } else {
@@ -113,23 +111,6 @@ if ($result = getEncounters($pid)) {
     }
 
     echo "</a></td>\n";
-
-/****
-		///////////
-		$comments = "";
-		if ($subresult3 = getPnotesByDate(date( "Y-m-d" ,strtotime($subresult[0]{"date"})), "all", "*", $pid, 5, 0)){
-			//this is where we print out short headers for comments enterred into the patient file on the same date
-			
-			
-			foreach ($subresult3 as $iter3) {
-				$comments .= stripslashes(strterm($iter3{"body"},100)) . "<br>";
-				
-			}
-			$comments = substr($comments,0,strlen($comments)-4);
-		}
-		
-		print "<td valign=top width=23%><a target=Main href=\"javascript:parent.Title.location.href='../encounter/encounter_title.php?set_encounter=".$iter{"encounter"}."';parent.Main.location.href='../encounter/patient_encounter.php?set_encounter=".$iter{"encounter"}."'\" class=text>" . $comments . "</a></td>";
-****/
 
     //this is where we print out the text of the billing that occurred on this encounter
     $thisauth = $auth_coding_a;

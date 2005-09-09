@@ -34,57 +34,25 @@
  }
 ?>
 
-<table ><tr>
-<td width="20%" valign="top">
-<a href="stats_full.php?active=all" target="Main"><font class="title">Medical Problems</font><font class=more><?echo $tmore;?></font></a><br>
-<?
-if ($result = getListByType($pid, "medical_problem", "id,title,comments", 1, "all", 0)){
-	foreach ($result as $iter) {
-		echo "<a class=link target=Main href='stats_full.php?active=1'>" . $iter{"title"} . "</a><br>\n";
-	}
-}
-?>
-</td>
-</tr>
-<tr>
+<table >
 
-<td width="20%" valign="top">
-<a href="stats_full.php?active=all" target="Main"><font class="title">Medications</font><font class=more><?echo $tmore;?></font></a><br>
 <?
-if ($result = getListByType($pid, "medication", "id,title", 1, "all", 0)){
-	foreach ($result as $iter) {
-		echo "<a class=link target=Main href='stats_full.php?active=1'>" . $iter{"title"} . "</a><br>\n";
-	}
-}
+ foreach ($ISSUE_TYPES as $key => $arr) {
+  echo " <tr>\n";
+  echo "  <td width='20%' valign='top'>\n";
+  echo "   <a href='stats_full.php?active=all' target='Main'><font class='title'>" .
+       $arr[0] . "</font><font class='more'>$tmore</font></a><br>\n";
+  if ($result = getListByType($pid, $key, "id,title,comments", 1, "all", 0)) {
+   foreach ($result as $iter) {
+    echo "<a class='link' target='Main' href='stats_full.php?active=1'>" .
+     $iter['title'] . "</a><br>\n";
+   }
+  }
+  echo "  </td>\n";
+  echo " </tr>\n";
+ }
 ?>
-</td>
-</tr>
-<tr>
-<td width="20%" valign="top">
-<a href="stats_full.php?active=all" target="Main"><font class="title">Allergies</font><font class=more><?echo $tmore;?></font></a><br>
-<?
-if ($result = getListByType($pid, "allergy", "id,title", 1, "all", 0)){
-	foreach ($result as $iter) {
-		echo "<a class=link target=Main href='stats_full.php?active=1'>" . $iter{"title"} . "</a><br>\n";
-	}
-}
 
-?>
-</td>
-</tr>
-<tr>
-<td width="20%" valign="top">
-<a href="stats_full.php?active=all" target="Main"><font class="title">Surgeries</font><font class=more><?echo $tmore;?></font></a><br>
-<?
-if ($result = getListByType($pid, "surgery", "id,title,comments", 1, "all", 0)){
-	foreach ($result as $iter) {
-		echo "<a class=link target=Main href='stats_full.php?active=1'>" . $iter{"title"} . ": ".strterm($iter{"comments"},20)."</a><br>\n";
-	}	
-}
-
-?>
-</td>
-</tr>
 <tr>
 <td width="20%" valign="top">
 <a href="immunizations.php" target="Main"><font class="title">Immunizations</font><font class=more><?echo $tmore;?></font></a><br>
