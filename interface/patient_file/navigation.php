@@ -68,6 +68,7 @@ function selpopup(selobj) {
 <? if ($GLOBALS['athletic_team']) { ?>
      <option value='../reports/players_report.php'>Roster</option>
 <? } ?>
+     <option value='../reports/appointments_report.php'>Appts</option>
     </select>
   </td>
  </tr>
