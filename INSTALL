@@ -149,8 +149,8 @@ a work in progress.  You can choose to do nothing about this, in which case
 OpenEMR's traditional and very limited access controls will be used, or you can
 choose to install phpGACL (see http://phpgacl.sourceforge.net/), in which case
 you should read the phpGACL manual and the comments in library/acl.inc and also
-modify that file to point to your phpGACL installation directory.  Note that
-"AXOs" are not used here.
+modify that file to point to your phpGACL installation directory.  See
+Documentation/README.phpgacl for more information.
 
 It is reasonable to first get a basic OpenEMR installation working and then add
 these extended access controls later.
