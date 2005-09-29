@@ -1,18 +1,18 @@
 <?
 $ignoreAuth=true;
 include_once("./globals.php");
-
 ?>
-
 <html>
-<head>
+<body>
 
+<script LANGUAGE="JavaScript">
+ top.location.href='<?echo "$rootdir/login/login_frame.php"?>';
+</script>
 
-</head>                                                                                  
-<body ONLOAD="javascript:top.location.href='<?echo "$rootdir/login/login_frame.php"?>';">
-<a href='<?echo "$rootdir/login/login_frame.php"?>'>Follow manually</a>                  
-<p>                                                                                      
-OpenEMR requires Javascript to perform user authentication.                              
+<a href='<?echo "$rootdir/login/login_frame.php"?>'>Follow manually</a>
+
+<p>
+OpenEMR requires Javascript to perform user authentication.
 
 </body>
 </html>
