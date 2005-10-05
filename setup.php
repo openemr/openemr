@@ -6,7 +6,6 @@ extract($_POST);
 //turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn","off");
 
-
 $url = "";
 $dumpfile = "sql/database.sql";
 $icd9 = "sql/icd9.sql";
@@ -17,7 +16,6 @@ $state = $_POST["state"];
 
 include_once($conffile);
 ?>
-
 <HTML>
 <HEAD>
 <TITLE>OpenEMR Setup Tool</TITLE>
@@ -29,53 +27,52 @@ include_once($conffile);
 <br><br>
 <span class="text">
 
-
-
-
-<?
-if ($state == 5) {
-
-echo "
-Congratulations! OpenEMR is now successfully installed.
-<ul>
-<li>Please Edit the 'interface/globals.php' file now to specify the correct URL paths, and to select a theme.<br>\n
-<li>Please make sure that the two folders underneath 'openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/' exist and are writable by the web server. The two subdirectories are 'compiled' and 'cache'.<br>
-  Try \"chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/compiled\".
-\"chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/cache\".
-(If either subdirectory doesn't exist, create it first then do the chown above).<br>
-The user name and group of apache may differ depending on your distro, i.e. for Debian is www-data and www-data.
-<li>Please Edit the interface/globals.php file now to specify the correct URL paths, and to select a theme.<br>\n
-<li>Please make sure that the folder underneath the OpenEMR webroot 'openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/compiled' is writable by the web server. <br>
-Try \"chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/compiled\".
-</ul>
-<p>
- In order to take full advantage of the documents capability you must give your web server permissions on the document storage directory, try \"chown apache:apache -R openemrwebroot/documents\" and then \"chmod g+w openemrwebroot/documents\".
-You must also make sure your PHP installation (normally set in your php.ini file) has \"file_uploads enabled\", that \"upload_max_filesize\" is appropriate for your use and that \"upload_tmp_dir\" is set to a correct value if the default of \"/tmp\" won't work on your system.
-</p>
-<p>
-To ensure a consistent look and feel through out the application using <a href='http://www.mozilla.org/products/firefox/'> Firefox</a> is recommended.
-</p>
-<p>
-<a href='./'>Click here to start using OpenEMR. </a>
-</p>
-";
-exit();
-
-
-}
+<?php
+ if ($state == 5) {
 ?>
 
+<p>Congratulations! OpenEMR is now successfully installed.
 
+<ul>
+ <li>Please Edit the 'interface/globals.php' file now to specify the correct
+  URL paths, and to select a theme.</li>
+ <li>Please make sure that the two folders underneath
+  'openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/'
+  exist and are writable by the web server. The two subdirectories are
+  'compiled' and 'cache'.<br>
+  Try "chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/compiled"
+  and
+  "chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/cache".
+  (If either subdirectory doesn't exist, create it first then do the chown above).<br>
+  The user name and group of apache may differ depending on your distro, i.e.
+  for Debian is www-data and www-data.</li>
+</ul>
+<p>
+ In order to take full advantage of the documents capability you
+ must give your web server permissions on the document storage
+ directory. Try "chown apache:apache -R openemrwebroot/documents"
+ and then "chmod g+w openemrwebroot/documents".
+ You must also make sure your PHP installation (normally set in
+ your php.ini file) has "file_uploads enabled", that
+ "upload_max_filesize" is appropriate for your use and that
+ "upload_tmp_dir" is set to a correct value if the default of
+ "/tmp" won't work on your system.
+</p>
+<p>
+ To ensure a consistent look and feel through out the application
+ using <a href='http://www.mozilla.org/products/firefox/'> Firefox</a>
+ is recommended.
+</p>
+<p>
+ <a href='./'>Click here to start using OpenEMR. </a>
+</p>
 
-
-
-
-
-
+<?
+  exit();
+ }
+?>
 
 <?php
-
-
 
 	$server = $_POST["server"];
 	$port = $_POST["port"];
@@ -162,7 +159,6 @@ if ($inst != 2) {
 		echo "OK.<br>\n";
 	echo "Creating database...\n";
 	flush();
-	echo "ERROR.\n";
 	if (mysql_query("create database $dbname",$dbh) == FALSE) {
 		echo "ERROR.  Check your login credentials.\n";
 		echo "<p>".mysql_error()." (#".mysql_errno().")\n";
