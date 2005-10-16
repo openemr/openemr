@@ -70,7 +70,7 @@
  $printed = false;
 
  foreach ($ar as $key => $val) {
-  if (!$printed && strpos($key, "newpatient_") === 0) {
+  if (!$printed && strpos($key, "newpatient_") == 0) {
    $billing = getPatientBillingEncounter($pid, $val);
    foreach ($billing as $b) {
     if(!empty($b['provider_name'])) {
@@ -238,7 +238,7 @@
     }
    }
 
-   else if (strpos($key, "issue_") === 0) {
+   else if (strpos($key, "issue_") == 0) {
 
     if ($first_issue) {
      $first_issue = 0;
