@@ -337,10 +337,13 @@ if ($_POST['newcode']) {
 <span class="billcell">PROVIDER:</span>
 
 <?
-// Build a drop-down list of providers.
+// Build a drop-down list of providers.  This includes users who
+// have the word "provider" anywhere in their "additional info"
+// field, so that we can define providers (for billing purposes)
+// who do not appear in the calendar.
 //
-$query = "select id, lname, fname from users where " .
-	"authorized = 1 order by lname, fname";
+$query = "SELECT id, lname, fname FROM users WHERE " .
+	"authorized = 1 OR info LIKE '%provider%' ORDER BY lname, fname";
 $res = sqlStatement($query);
 
 echo "   <select name='ProviderID'>\n";
@@ -364,13 +367,18 @@ echo "   </select>\n";
 &nbsp;
 <input type='button' value='Cancel' onclick="location='<? echo "$rootdir/patient_file/encounter/patient_encounter.php" ?>'" />
 
+<?php if ($code_types['UCSMC']) { ?>
+<p style='font-family:sans-serif;font-size:8pt;color:#666666;'>
+&nbsp;<br>
+UCSMC codes provided by the University of Calgary Sports Medicine Centre
+</p>
+<? } ?>
+
 </center>
 
 </form>
 <?php
-
 // TBD: If $alertmsg, display it with a JavaScript alert().
-
 ?>
 </body>
 </html>
