@@ -182,7 +182,8 @@ td { font-size:10pt; }
    "issue_encounter.list_id = '$issue' AND " .
    "billing.encounter = issue_encounter.encounter AND " .
    "( billing.code_type LIKE 'ICD%' OR " .
-   "billing.code_type LIKE 'OSICS' )"
+   "billing.code_type LIKE 'OSICS' OR " .
+   "billing.code_type LIKE 'UCSMC' )"
   );
  }
 ?>
