@@ -133,6 +133,8 @@ function set_button_states() {
 
 	f.bn_hcfa_print.disabled      = !can_generate;
 	f.bn_hcfa.disabled            = !can_generate;
+	f.bn_ub92_print.disabled      = !can_generate;
+	f.bn_ub92.disabled            = !can_generate;
 	f.bn_x12.disabled             = !can_generate;
 	f.bn_mark.disabled            = !can_mark;
 	f.bn_electronic_file.disabled = !can_bill;
@@ -203,11 +205,13 @@ if ($userauthorized) {
 <form name=update_form method=post action=billing_process.php>
 
 <center>
-<input type="submit" name="bn_hcfa_print" value="Generate HCFA &amp; Print" title="Queue for HCFA batch processing and printing">
-<input type="submit" name="bn_hcfa" value="Generate HCFA" title="Queue for HCFA batch processing">
-<input type="submit" name="bn_x12" value="Generate X12" title="Queue for X12 batch processing">
-<input type="submit" name="bn_mark" value="Mark Bills as Cleared" title="Post to accounting and mark as billed">
-<input type="submit" name="bn_electronic_file" value="Generate Electronic Batch &amp; Clear" title="Download billing file, post to accounting and mark as billed">
+<input type="submit" name="bn_hcfa_print" value="Queue HCFA &amp; Print" title="Queue for HCFA batch processing and printing">
+<input type="submit" name="bn_hcfa" value="Queue HCFA" title="Queue for HCFA batch processing">
+<input type="submit" name="bn_ub92_print" value="Queue UB92 &amp; Print" title="Queue for UB-92 batch processing and printing">
+<input type="submit" name="bn_ub92" value="Queue UB92" title="Queue for UB-92 batch processing">
+<input type="submit" name="bn_x12" value="Queue X12" title="Queue for X12 batch processing">
+<input type="submit" name="bn_mark" value="Mark as Cleared" title="Post to accounting and mark as billed">
+<input type="submit" name="bn_electronic_file" value="Make Electronic Batch &amp; Clear" title="Download billing file, post to accounting and mark as billed">
 </center>
 
 <input type=hidden name=mode value="bill">

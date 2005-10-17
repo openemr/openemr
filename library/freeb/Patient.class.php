@@ -105,6 +105,9 @@ class Patient Extends DataObjectBase {
 		$this->_addFunc("ispregnant",			array(	"name"	=>	"FreeB.FBPatient.isPregnant",
 															"sig"	=>	array(XMLRPCSTRING,XMLRPCINT),
 															"doc"	=>	""));
+		$this->_addFunc("insuredkey", array("name" => "FreeB.FBPatient.InsuredKey",
+															"sig" => array(XMLRPCSTRING,XMLRPCINT,XMLRPCSTRING),
+															"doc" => ""));
 	}
 
 
@@ -1302,14 +1305,39 @@ class Patient Extends DataObjectBase {
 		}
 	}
 
+	function insuredkey($m) {
 
+		$err="";
+		$obj= $m->getparam(0);
+		$patientkey = $obj->getval();
 
+		$obj= $m->getparam(1);
+		$instype = $obj->getval();
 
+		$retval = "";
 
+		$sql = "SELECT id FROM insurance_data WHERE pid = '$patientkey' AND type = '$instype'";
+		$db = $GLOBALS['adodb']['db'];
+		$results = $db->Execute($sql);	
+		
+		if (!$results) {
+			$err = $db->ErrorMsg();	
+		}
+		else {
+			if (!$results->EOF) {
+				$retval  = $results->fields['id'];
+			}
+		}
+
+		if ($err) {
+			return $this->_handleError($err);
+		}
+  		else {
+			return new xmlrpcresp(new xmlrpcval($retval, "i4"));
+		}
+	}
 
 }
-
-
 
 //'FreeB.FBPatient.FirstName' 			=> \&FreeB_FBPatient_FirstName,
 //'FreeB.FBPatient.MiddleName' 			=> \&FreeB_FBPatient_MiddleName,

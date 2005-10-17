@@ -71,6 +71,9 @@ class Insured Extends DataObjectBase {
 		$this->_addFunc("phonenumber",			array(	"name"	=>	"FreeB.FBInsured.PhoneNumber",
 															"sig"	=>	array(XMLRPCSTRING,XMLRPCINT),
 															"doc"	=>	""));
+		$this->_addFunc("payerkey", array("name" => "FreeB.FBInsured.PayerKey",
+															"sig" => array(XMLRPCSTRING,XMLRPCINT),
+															"doc" => ""));
 	}
 
 	function firstname($m) {
@@ -736,6 +739,34 @@ class Insured Extends DataObjectBase {
 			// otherwise, we create the right response
 			// with the state name
 			return new xmlrpcresp(new xmlrpcval($retval,"string"));
+		}
+	}
+
+	function payerkey($m) {
+		$err="";
+
+		$pkey = "";
+		$obj= $m->getparam(0);
+		$key = $obj->getval();
+
+		$sql = "SELECT provider FROM insurance_data where id = '$key'";
+		$db = $GLOBALS['adodb']['db'];
+		$results = $db->Execute($sql);
+
+		if (!$results) {
+			$err = $db->ErrorMsg() . " $sql";
+		}
+		else {
+			if (!$results->EOF) {
+				$pkey = $results->fields['provider'];
+			}
+		}
+
+		if ($err) {
+			return $this->_handleError($err);
+		}
+			else {
+			return new xmlrpcresp(new xmlrpcval($pkey, "i4"));
 		}
 	}
 

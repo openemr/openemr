@@ -29,8 +29,8 @@ if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
 			$fname = preg_replace("[\\\\]","",$fname);
 			$fname = $fconfig['claim_file_dir'] . $fname;
 			if (file_exists($fname)) {
-			//less than 700 is almost definetely an error
-				if (filesize($fname) > 700) {
+			//less than 500 is almost definitely an error
+				if (filesize($fname) > 500) {
 					$bill_info[] = "Added: " . $fname . "\n";
 					$ta = array();
 					$ta["data"] = file_get_contents($fname);
@@ -128,6 +128,10 @@ function process_form($ar) {
 				$sql .= " bill_process = 5, target = 'hcfa', ";
 			} else if (isset($ar['bn_hcfa'])) {
 				$sql .= " bill_process = 1, target = 'hcfa', ";
+			} else if (isset($ar['bn_ub92_print'])) {
+				$sql .= " bill_process = 5, target = 'ub92', ";
+			} else if (isset($ar['bn_ub92'])) {
+				$sql .= " bill_process = 1, target = 'ub92', ";
 			} else if (isset($ar['bn_x12'])) {
 				$sql .= " bill_process = 1, target = '" . $target . "', x12_partner_id = '" . mysql_real_escape_string($claim_array['partner']) . "', ";
 			} else if (isset($ar['bn_mark'])) {

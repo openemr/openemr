@@ -53,7 +53,7 @@ foreach ($billkeys as $billkey) {
 		$format = $GLOBALS['oer_config']['freeb']['default_format'];
 	}
 	$file_type = "txt";
-	if ($format == "hcfa") {
+	if ($format == "hcfa" || $format == "ub92") {
 		$file_type = "pdf";
 	}
 	else {
