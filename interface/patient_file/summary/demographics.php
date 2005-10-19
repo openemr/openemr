@@ -125,7 +125,7 @@ echo $result{"postal_code"}?>
     <tr>
      <td colspan='4' valign='top'>
 	<? 
-		$result{"hipaa_mail"}=='NO' ? $opt_out='DOES NOT ALLOW' : $opt_out='ALLOWS' ;
+		$result{"hipaa_mail"}=='YES' ? $opt_out='ALLOWS' : $opt_out='DOES NOT ALLOW' ;
 		echo "<span class='text'>Patient $opt_out Mailed Information </span>";
 	?>
      </td>
@@ -133,7 +133,7 @@ echo $result{"postal_code"}?>
     <tr>
      <td colspan='4' valign='top'>
 	<? 
-		$result{"hipaa_voice"}=='NO' ? $opt_out='DOES NOT ALLOW' : $opt_out='ALLOWS' ;
+		$result{"hipaa_voice"}=='YES' ? $opt_out='ALLOWS' : $opt_out='DOES NOT ALLOW' ;
 		echo "<span class='text'>Patient $opt_out Voice Messages </span>";
 	?>
      </td>
