@@ -8,6 +8,24 @@
 
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<script type="text/javascript" src="../../../library/dialog.js"></script>
+
+<script language="JavaScript">
+
+ // Process click on Delete link.
+ function deleteme() {
+  dlgopen('../deleter.php?encounter=<?php echo $encounter ?>', '_blank', 500, 450);
+  return false;
+ }
+
+ // Called by the deleteme.php window on a successful delete.
+ function imdeleted() {
+  top.Title.location.href = '../patient_file/encounter/encounter_title.php';
+  top.Main.location.href  = '../patient_file/encounter/patient_encounter.php?mode=new';
+ }
+
+</script>
+
 </head>
 
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
@@ -26,7 +44,12 @@
   }
  }
 
- echo ":<br>\n";
+ echo ":";
+ if (acl_check('admin', 'super')) {
+  echo "&nbsp;&nbsp;<a href='' onclick='return deleteme()'>" .
+   "<font class='more' style='color:red'>(Delete)</font></a>";
+ }
+ echo "<br>\n";
 
  if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name,formdir,user")) {
   echo "<table>";

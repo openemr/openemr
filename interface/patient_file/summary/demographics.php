@@ -9,12 +9,26 @@
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script language="JavaScript">
+
  function oldEvt(eventid) {
   dlgopen('../../main/calendar/add_edit_event.php?eid=' + eventid, '_blank', 550, 270);
  }
+
  function refreshme() {
   location.reload();
  }
+
+ // Process click on Delete link.
+ function deleteme() {
+  dlgopen('../deleter.php?patient=<?php echo $pid ?>', '_blank', 500, 450);
+  return false;
+ }
+
+ // Called by the deleteme.php window on a successful delete.
+ function imdeleted() {
+  top.location.href = '../main/main_screen.php';
+ }
+
 </script>
 </head>
 
@@ -39,7 +53,12 @@
  if ($thisauth == 'write') {
   echo "<p><a href='demographics_full.php' target='Main'>" .
    "<font class='title'>Demographics</font>" .
-   "<font class='more'>$tmore</font></a></p>\n";
+   "<font class='more'>$tmore</font></a>";
+  if (acl_check('admin', 'super')) {
+   echo "&nbsp;&nbsp;<a href='' onclick='return deleteme()'>" .
+    "<font class='more' style='color:red'>(Delete)</font></a>";
+  }
+  echo "</p>\n";
  }
 ?>
 

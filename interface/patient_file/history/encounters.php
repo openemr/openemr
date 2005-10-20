@@ -9,6 +9,26 @@
 
  //maximum number of encounter entries to display on this page:
  $N = 12;
+
+ // Get relevant ACL info.
+ $auth_notes_a  = acl_check('encounters', 'notes_a');
+ $auth_notes    = acl_check('encounters', 'notes');
+ $auth_coding_a = acl_check('encounters', 'coding_a');
+ $auth_coding   = acl_check('encounters', 'coding');
+ $auth_relaxed  = acl_check('encounters', 'relaxed');
+ $auth_med      = acl_check('patients'  , 'med');
+ $auth_demo     = acl_check('patients'  , 'demo');
+
+ $tmp = getPatientData($pid, "squad");
+ if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
+  $auth_notes_a = $auth_notes = $auth_coding_a = $auth_coding = $auth_med = $auth_demo = $auth_relaxed = 0;
+
+ if (!($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
+  echo "<body>\n<html>\n";
+  echo "<p>(Encounters not authorized)</p>\n";
+  echo "</body>\n</html>\n";
+  exit();
+ }
 ?>
 <html>
 <head>
@@ -36,18 +56,6 @@
 </tr>
 
 <?
- // Get relevant ACL info.
- $auth_notes_a  = acl_check('encounters', 'notes_a');
- $auth_notes    = acl_check('encounters', 'notes');
- $auth_coding_a = acl_check('encounters', 'coding_a');
- $auth_coding   = acl_check('encounters', 'coding');
- $auth_med      = acl_check('patients'  , 'med');
- $auth_demo     = acl_check('patients'  , 'demo');
-
- $tmp = getPatientData($pid, "squad");
- if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-  $auth_notes_a = $auth_notes = $auth_coding_a = $auth_coding = $auth_med = $auth_demo = 0;
-
 $count = 0;
 if ($result = getEncounters($pid)) {
   foreach ($result as $iter ) {

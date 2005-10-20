@@ -36,6 +36,7 @@
 
  // Create Administration ACOs.
  //
+ $gacl->add_object ('admin', 'Superuser'                       , 'super'    , 10, 0, 'ACO');
  $gacl->add_object ('admin', 'Calendar Settings'               , 'calendar' , 10, 0, 'ACO');
  $gacl->add_object ('admin', 'Database Reporting'              , 'database' , 10, 0, 'ACO');
  $gacl->add_object ('admin', 'Forms Administration'            , 'forms'    , 10, 0, 'ACO');
@@ -87,7 +88,7 @@
  $gacl->add_acl(
   array(
    'acct'=>array('bill', 'eob', 'rep', 'rep_e'),
-   'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users'),
+   'admin'=>array('super', 'calendar', 'database', 'forms', 'practice', 'superbill', 'users'),
    'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
    'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes')
   ),

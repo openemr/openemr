@@ -10,7 +10,7 @@
   // These are the "things to be protected":
   //
   // Section "admin" (Administration):
-  //   acl         Access Control Administration
+  //   super       Superuser - can delete patients, encounters, issues
   //   calendar    Calendar Settings
   //   database    Database Reporting
   //   forms       Forms Administration
@@ -73,6 +73,8 @@
     // users (providers) can do anything, and other users can do most things.
     // If you want custom access control but don't want to mess with phpGACL,
     // then you could customize the code below instead.
+
+    if ($section == 'admin' && $value == 'super') return 0;
 
     if ($_SESSION['userauthorized']) return 'write';
 

@@ -49,6 +49,7 @@ td { font-size:10pt; }
 <script type="text/javascript" src="../../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../../library/calendar.js"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
+<script type="text/javascript" src="../../../library/dialog.js"></script>
 
 <script language="JavaScript">
 
@@ -95,6 +96,18 @@ td { font-size:10pt; }
   var f = document.forms[0];
   f.form_title.value = f.form_titles.options[f.form_titles.selectedIndex].text;
   f.form_titles.selectedIndex = -1;
+ }
+
+
+ // Process click on Delete link.
+ function deleteme() {
+  dlgopen('../deleter.php?issue=<?php echo $issue ?>', '_blank', 500, 450);
+  return false;
+ }
+
+ // Called by the deleteme.php window on a successful delete.
+ function imdeleted() {
+  window.close();
  }
 
 </script>
@@ -305,6 +318,12 @@ td { font-size:10pt; }
 
 <p>
 <input type='submit' name='form_save' value='Save' />
+
+<?php if ($issue && acl_check('admin', 'super')) { ?>
+&nbsp;
+<input type='button' value='Delete' style='color:red' onclick='deleteme()' />
+<?php } ?>
+
 &nbsp;
 <input type='button' value='Cancel' onclick='window.close()' />
 </p>

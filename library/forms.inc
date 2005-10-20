@@ -68,7 +68,9 @@ function authorizeForm($id, $authorized = "1")
 
 function getEncounters($pid)
 {
-	$res = sqlStatement("select distinct encounter from forms where pid='$pid' order by date desc;");
+	// $res = sqlStatement("select distinct encounter from forms where pid='$pid' order by date desc;");
+
+  $res = sqlStatement("select distinct encounter from form_encounter where pid = '$pid' order by date desc;");
 
 	for($iter=0; $row=sqlFetchArray($res); $iter++)
 	{
