@@ -54,6 +54,7 @@
    -->
    <input type='checkbox' name='include_notes' value="notes">Patient Notes<br>
    <input type='checkbox' name='include_transactions' value="transactions">Transactions<br>
+   <input type='checkbox' name='include_batchcom' value="batchcom">Communications<br>
   </td>
  </tr>
 </table>
