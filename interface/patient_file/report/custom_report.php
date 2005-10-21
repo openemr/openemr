@@ -162,7 +162,7 @@
    } elseif ($val == "batchcom") {
 
 	   print "<font class=bold>Patient Communication sent:</font><br>";
-	   $sql="SELECT concat( 'Messsage Type: ', batchcom.msg_type, ' Message Subject: ', batchcom.msg_subject, ', Sent on:', batchcom.msg_date_sent ) AS batchcom_data, batchcom.msg_text, concat( users.fname, users.lname ) AS user_name FROM `batchcom` JOIN `users` ON users.id = batchcom.sent_by WHERE batchcom.patient_id='$pid'";
+	   $sql="SELECT concat( 'Messsage Type: ', batchcom.msg_type, ', Message Subject: ', batchcom.msg_subject, ', Sent on:', batchcom.msg_date_sent ) AS batchcom_data, batchcom.msg_text, concat( users.fname, users.lname ) AS user_name FROM `batchcom` JOIN `users` ON users.id = batchcom.sent_by WHERE batchcom.patient_id='$pid'";
 	   // echo $sql;
 	   $result = sqlStatement($sql);
 	   while ($row=sqlFetchArray($result)) {
