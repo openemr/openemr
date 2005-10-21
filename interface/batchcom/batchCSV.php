@@ -33,7 +33,7 @@ $today=date('Y-m-d:H:i:s');
 $filename="CSVdata-".$today.".csv";
 header('Pragma: private');
 header('Cache-control: private, must-revalidate');
-header("Content-type: text/text");
+header("Content-type: text/comma-separated-values");
 header("Content-Disposition: attachment; filename=".$filename);
 print $file; 
 exit()

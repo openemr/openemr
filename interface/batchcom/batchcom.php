@@ -97,6 +97,13 @@ if ($_POST['form_action']=='Process') {
 			$sql.=" $and patient_data.hipaa_mail='YES' ";
 		}
 		
+		switch ($_POST['process_type']):
+			case $choices[1]: // Email
+				$and=where_or_and ($and);
+				$sql.=" $and patient_data.email IS NOT NULL ";
+			break;
+		endswitch;
+
 		// add to complete query sintax
 		$sql.=' GROUP BY patient_data.pid';
 
@@ -211,6 +218,11 @@ if ($_POST['form_action']=='Process') {
 				}
 				?>
 				</SELECT>
+	<br>(Fill here only if sending email notification to patients).
+	<br>Email Sender: <INPUT TYPE="text" NAME="email_sender" value="your@example.com">
+	<br>Email Subject: <INPUT TYPE="text" NAME="email_subject" value="From your clinic">
+	<br>Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***
+	<br><TEXTAREA NAME="email_body" ROWS="8" COLS="35"></TEXTAREA>
 
 	<br><INPUT TYPE="submit" name="form_action" value="Process">
 
