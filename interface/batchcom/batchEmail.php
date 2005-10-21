@@ -18,6 +18,8 @@
 
 <?
 $email_sender=$_POST['email_sender'];
+$sent_by=$_SESSION["authId"];
+$msg_type="Email from Batchcom";
 
 while ($row=sqlFetchArray($res)) {
 
@@ -39,6 +41,8 @@ while ($row=sqlFetchArray($res)) {
 	if ( mail ('',$email_subject,$email_body,$headers)) {
 
 		echo ("<br>Email sent to $pt_name at $pt_email");
+		$patient_id=$row['id'];
+		register_email($patient_id, $sent_by, $msg_type, $email_subject, $email_body );
 
 	} else {
 		$m_error=TRUE;
