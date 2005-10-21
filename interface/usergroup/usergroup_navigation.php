@@ -47,6 +47,13 @@ include_once("../../library/acl.inc");
 </td>
 <? } ?>
 
+<? if (acl_check('admin', 'batchcom')) { ?>
+<td valign="middle" nowrap>
+&nbsp;<a class=menu target=Main href="../batchcom/batchcom.php">Batch Com</a>&nbsp;
+</td>
+<? } ?>
+
+
 <? if (acl_check('admin', 'users')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="<?echo $rootdir?>/logview/logview.php">View Logs</a>&nbsp;
