@@ -43,6 +43,7 @@
  $gacl->add_object ('admin', 'Practice Settings'               , 'practice' , 10, 0, 'ACO');
  $gacl->add_object ('admin', 'Superbill Codes Administration'  , 'superbill', 10, 0, 'ACO');
  $gacl->add_object ('admin', 'Users/Groups/Logs Administration', 'users'    , 10, 0, 'ACO');
+ $gacl->add_object ('admin', 'Batch Communication Tool'		   , 'batchcom' , 10, 0, 'ACO');
 
  // Create ACOs for encounters.
  //
@@ -88,7 +89,7 @@
  $gacl->add_acl(
   array(
    'acct'=>array('bill', 'eob', 'rep', 'rep_e'),
-   'admin'=>array('super', 'calendar', 'database', 'forms', 'practice', 'superbill', 'users'),
+   'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users','batchcom'),
    'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
    'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes')
   ),
