@@ -149,7 +149,7 @@ function soccer_injury_report($pid, $encounter, $cols, $id) {
 
  si_report_item("Occurred" , substr($row['occdate'], 0, 10) . " " . substr($row['siinjtime'], 0, 5));
  si_report_item("During"   , $arr_gameplay[$row['sigametime']]);
- si_report_item("Mechanism", $arr_gameplay[$row['simechanism']] . ' ' . $row['simech_other']);
+ si_report_item("Mechanism", $arr_activity[$row['simechanism']] . ' ' . $row['simech_other']);
  si_report_item("Surface"  , $arr_surface[$row['sisurface']]);
  si_report_item("Position" , $arr_position[$row['siposition']]);
  si_report_item("Footwear" , $arr_footwear[$row['sifootwear']]);
