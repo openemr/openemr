@@ -20,7 +20,7 @@ CREATE TABLE `billing` (
   `id` int(11) NOT NULL auto_increment,
   `date` datetime default NULL,
   `code_type` varchar(7) default NULL,
-  `code` varchar(7) default NULL,
+  `code` varchar(9) default NULL,
   `pid` int(11) default NULL,
   `provider_id` int(11) default NULL,
   `user` int(11) default NULL,

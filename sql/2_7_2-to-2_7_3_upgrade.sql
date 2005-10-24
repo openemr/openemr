@@ -72,3 +72,5 @@ CREATE TABLE IF NOT EXISTS `batchcom` (
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM ;
 
+ALTER TABLE billing
+  CHANGE `code` varchar(9) DEFAULT NULL;
