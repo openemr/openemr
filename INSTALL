@@ -13,12 +13,15 @@ V...................Version History
 
 -------------------------------------
 
-I. Overview of Files
+I. Overview of Directories
 
-interface	- Contains User Interface scripts and configuration
-library   - Contains backend library scripts
-old       - Contains deprecated code and documentation
-sql       - Contains initial database images
+accounting    - Contains information and scripts to support SQL-Ledger
+contrib       - Contains many user-contributed encounter forms and utilities
+custom        - Contains scripts and other text files commonly customized
+Documentation - Contains useful documentation
+interface     - Contains User Interface scripts and configuration
+library       - Contains scripts commonly included in other scripts
+sql           - Contains initial database images
 
 II. Unpacking
 
@@ -134,8 +137,8 @@ To create custom encounter forms, see the files
   openemr/Documentation/3rd Party Form API.txt
   openemr/interface/forms/OpenEMR_form_example-rev2.tar.gz
 
-and read the included documentation. A few forms are provided initially as
-examples.
+and read the included documentation. Many forms exist in contrib/forms as well
+as in interface/forms and may be used as examples.
 
 Other configuration settings are stored under includes/config.php.
 Everything should work out of the installation without touching those, but if 
