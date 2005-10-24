@@ -24,15 +24,11 @@
   'Full Play',
   'Full Training',
   'Restricted Training',
-  'Injured Out'
+  'Injured Out',
+  'Rehabilitation'
  );
 
- $fitcolors = array(
-  '#00ff00',
-  '#ffff00',
-  '#ff8800',
-  '#ff3333'
- );
+ $fitcolors = array('#6677ff', '#00cc00', '#ffff00', '#ff3333', '#ff8800');
 
  $alertmsg = ''; // not used yet but maybe later
 
@@ -124,7 +120,7 @@
    &nbsp;<? echo ($squad == $lastsquad) ? "" : $squad ?>
   </td>
   <td class="detail" bgcolor="<? echo $fitcolors[$fitness-1] ?>">
-   &nbsp;<a href='javascript:gopid(<? echo $patient_id ?>)'><? echo $row['lname'] . ", " . $row['fname'] ?></a>
+   &nbsp;<a href='javascript:gopid(<? echo $patient_id ?>)' style='color:#000000'><? echo $row['lname'] . ", " . $row['fname'] ?></a>
   </td>
   <td class="detail" bgcolor="<? echo $fitcolors[$fitness-1] ?>">
    <? echo $fitnesses[$fitness-1] ?>&nbsp;

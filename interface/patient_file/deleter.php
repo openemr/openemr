@@ -126,7 +126,6 @@ td { font-size:10pt; }
 ?>
 
 <form method='post' action='deleter.php?patient=<? echo $patient ?>&encounter=<? echo $encounter ?>&issue=<? echo $issue ?>'>
-<center>
 
 <p>&nbsp;<br>
 Do you really want to delete
@@ -140,6 +139,9 @@ Do you really want to delete
   echo "issue $issue";
  }
 ?> and all subordinate data? This action will be logged!</p>
+
+<center>
+
 <p>&nbsp;<br>
 <input type='submit' name='form_submit' value='Yes, Delete and Log' />
 &nbsp;

@@ -117,7 +117,7 @@
     "FROM lists " .
     "LEFT OUTER JOIN codes " .
     "ON codes.code = lists.diagnosis AND " .
-    "(codes.code_type = 2 OR codes.code_type = 4 OR codes.code_type = 5) " .
+    "(codes.code_type = 2 OR codes.code_type = 4 OR codes.code_type = 5 OR codes.code_type = 8) " .
     "WHERE " .
     "(lists.enddate IS NULL OR lists.enddate >= '$from_date') AND lists.begdate <= '$to_date' " .
     "GROUP BY lists.diagnosis";

@@ -186,7 +186,8 @@ echo $result{"postal_code"}?>
 <?
  // This stuff only applies to athletic team use of OpenEMR:
  if ($GLOBALS['athletic_team']) {
-  $fitcolors = array('#00ff00', '#ffff00', '#ff8800', '#ff3333');
+  //                  blue       dk green   yellow     red        orange
+  $fitcolors = array('#6677ff', '#00cc00', '#ffff00', '#ff3333', '#ff8800');
   $fitcolor = $fitcolors[0];
   $fitness = $_POST['form_fitness'];
   if ($fitness) {
@@ -204,6 +205,7 @@ echo $result{"postal_code"}?>
        <option value='2'<? if ($fitness == 2) echo ' selected' ?>>Full Training</option>
        <option value='3'<? if ($fitness == 3) echo ' selected' ?>>Restricted Training</option>
        <option value='4'<? if ($fitness == 4) echo ' selected' ?>>Injured Out</option>
+       <option value='5'<? if ($fitness == 5) echo ' selected' ?>>Rehabilitation</option>
       </select>
       </form>
 <? } ?>
