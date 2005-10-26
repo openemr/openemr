@@ -59,6 +59,15 @@ include_once($conffile);
  "/tmp" won't work on your system.
 </p>
 <p>
+There's many information and extra tools bundled within OpenEMR Files.
+<br>Please refer to openemr/Documentation
+<br>Many forms and other useful scripts can be found at openemr/contrib
+<br>OpenEMR now comes with optional GACL support, a fine grained access control system. Please refer to openemr/Documentation/README.phpgacl for -easy- installation.
+</p>
+<p>
+Reading openemr/includes/config.php and openemr/interface/globals.php is a good idea.
+</p>
+<p>
  To ensure a consistent look and feel through out the application
  using <a href='http://www.mozilla.org/products/firefox/'> Firefox</a>
  is recommended.
