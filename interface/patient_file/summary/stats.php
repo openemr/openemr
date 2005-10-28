@@ -42,10 +42,12 @@
   echo "  <td width='20%' valign='top'>\n";
   echo "   <a href='stats_full.php?active=all' target='Main'><font class='title'>" .
        $arr[0] . "</font><font class='more'>$tmore</font></a><br>\n";
-  if ($result = getListByType($pid, $key, "id,title,comments", 1, "all", 0)) {
+  if ($result = getListByType($pid, $key, "id,title,comments,enddate", 1, "all", 0)) {
    foreach ($result as $iter) {
-    echo "<a class='link' target='Main' href='stats_full.php?active=1'>" .
-     $iter['title'] . "</a><br>\n";
+    if (! $iter['enddate']) {
+     echo "<a class='link' target='Main' href='stats_full.php?active=1'>" .
+      $iter['title'] . "</a><br>\n";
+    }
    }
   }
   echo "  </td>\n";
