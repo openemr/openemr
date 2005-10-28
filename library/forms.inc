@@ -82,7 +82,8 @@ function getEncounters($pid)
 
 function getEncounterDateByEncounter($encounter)
 {
-	$sql = "select date from forms where encounter='$encounter' order by date";
+	// $sql = "select date from forms where encounter='$encounter' order by date";
+  $sql = "select date from form_encounter where encounter='$encounter' order by date";
 	return sqlQuery($sql);
 }
 
