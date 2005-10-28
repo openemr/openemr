@@ -44,15 +44,16 @@
 <body <?echo $bottom_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
  bottommargin='0' marginwidth='2' marginheight='0'>
 
-<a href="encounters_full.php" target="Main"><font class="title">Past Encounters</font><font class=more><?echo $tmore;?></font></a><br>
+<a href='encounters_full.php' target='Main'><font class='title'>Past Encounters</font><font class='more'><?echo $tmore;?></font></a><br>
 
 <table width="100%">
 <tr>
-<td><span class=bold>Date</span></td>
-<td><span class=bold>Reason</span></td>
-<td><span class=bold>Issue</span></td>
-<td><span class=bold><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Billing' : 'Coding' ?></span></td>
-<td><span class=bold>Insurance</span></td>
+<td><span class='bold'>Date</span></td>
+<td><span class='bold'>Provider</span></td>
+<td><span class='bold'>Reason/Form</span></td>
+<td><span class='bold'>Issue</span></td>
+<td><span class='bold'><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Billing' : 'Coding' ?></span></td>
+<td><span class='bold'>Insurance</span></td>
 </tr>
 
 <?
@@ -65,6 +66,8 @@ if ($result = getEncounters($pid)) {
       print "<tr><td colspan='4' align='center'><a target='Main' href='encounters_full.php' class='alert'>Some encounters were not displayed. Click here to view all.</a></td></tr>\n";
       break;
     }
+
+    $href = "javascript:window.toencounter(" . $iter['encounter'] . ")";
 
     $reason_string = "";
     if ($result4 = sqlQuery("select * from form_encounter where encounter='" .
@@ -79,20 +82,22 @@ if ($result = getEncounters($pid)) {
       //   $reason_string = "(No access)";
     }
 
+    $erow = sqlQuery("SELECT user FROM forms WHERE encounter = '" .
+      $iter['encounter'] . "' AND formdir = 'newpatient' LIMIT 1");
+
     echo "<tr>\n";
 
-    echo "<td valign='top'><a class='text' " .
-      "href='javascript:window.toencounter(" . $iter{"encounter"} . ")'>" .
+    echo "<td valign='top'><a class='text' href='$href'>" .
       $raw_encounter_date . "</a></td>\n";
 
-    echo "<td valign='top'><a class='text' " .
-      "href='javascript:window.toencounter(" . $iter{"encounter"} . ")'>" .
+    echo "<td valign='top'><a class='text' href='$href'>" .
+      $erow['user'] . "</a></td>\n";
+
+    echo "<td valign='top'><a class='text' href='$href'>" .
       $reason_string . "</a></td>\n";
 
     // show issues for this encounter
-    echo "<td valign='top'><a class='text' " .
-      "href='javascript:window.toencounter(" . $iter{"encounter"} . ")'>";
-
+    echo "<td valign='top'><a class='text' href='$href'>";
     if ($auth_med) {
      $ires = sqlStatement("SELECT lists.type, lists.title, lists.begdate " .
       "FROM issue_encounter, lists WHERE " .
@@ -103,28 +108,17 @@ if ($result = getEncounters($pid)) {
      for ($i = 0; $irow = sqlFetchArray($ires); ++$i) {
       if ($i > 0) echo "<br>";
       $tcode = $irow['type'];
-
-      /****
-      if ($tcode == 'medical_problem' || $tcode == 'problem') $tcode = 'P';
-      else if ($tcode == 'allergy')    $tcode = 'A';
-      else if ($tcode == 'medication') $tcode = 'M';
-      else if ($tcode == 'surgery')    $tcode = 'S';
-      ****/
       if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
-
       echo "$tcode: " . $irow['title'];
      }
     } else {
      echo "(No access)";
     }
-
     echo "</a></td>\n";
 
     //this is where we print out the text of the billing that occurred on this encounter
     $thisauth = $auth_coding_a;
     if (!$thisauth && $auth_coding) {
-     $erow = sqlQuery("SELECT user FROM forms WHERE encounter = '" .
-      $iter['encounter'] . "' AND formdir = 'newpatient' LIMIT 1");
      if ($erow['user'] == $_SESSION['authUser'])
       $thisauth = $auth_coding;
     }
@@ -141,8 +135,7 @@ if ($result = getEncounters($pid)) {
      $coded = "(No access)";
     }
 
-    echo "<td valign='top'><a class='text' " .
-      "href='javascript:window.toencounter(" . $iter{"encounter"} . ")'>" .
+    echo "<td valign='top'><a class='text' href='$href'>" .
       $coded . "</a></td>\n";
 
     // Show insurance.
@@ -165,12 +158,40 @@ if ($result = getEncounters($pid)) {
     }
 
     echo "<td valign='top'><a class='text' " .
-      "href='javascript:window.toencounter(" . $iter{"encounter"} . ")'>" .
-      $insured . "</a></td>\n";
+      "href='$href'>" . $insured . "</a></td>\n";
 
     echo "</tr>\n";
-  }
-}
+
+    // Now show a line for each encounter form, if the user is authorized to
+    // see this encounter's notes.
+    //
+    if ($auth_notes_a || ($auth_notes && $iter['user'] == $_SESSION['authUser'])) {
+      $encarr = getFormByEncounter($pid, $iter['encounter'], "formdir, user, form_name, form_id");
+      foreach ($encarr as $enc) {
+        if ($enc['formdir'] == 'newpatient') continue;
+        $title = "";
+        $frow = sqlQuery("select * from form_" . $enc['formdir'] .
+          " where id = " . $enc['form_id']);
+        foreach ($frow as $fkey => $fvalue) {
+          if (! preg_match('/[A-Za-z]/', $fvalue)) continue;
+          if ($title) $title .= "; ";
+          $title .= strtoupper($fkey) . ': ' . $fvalue;
+        }
+        $title = htmlspecialchars(strtr($title, "\t\n\r", "   "), ENT_QUOTES);
+
+        echo "<tr>\n";
+        echo " <td valign='top'></td>\n";
+        echo " <td valign='top'><a class='text' href='$href'>" .
+          $enc['user'] . "</a></td>\n";
+        echo " <td valign='top' colspan='4'><a class='text' href='$href' " .
+          "style='color:blue' title='$title'>&nbsp;&nbsp;&nbsp;" .
+          $enc['form_name'] . "</a></td>\n";
+        echo "</tr>\n";
+      } // end foreach $encarr
+    } // end if
+
+  } // end foreach $result
+} // end if
 ?>
 
 </table>
