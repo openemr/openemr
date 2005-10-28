@@ -10,6 +10,7 @@ include_once("../../globals.php");
 include_once($GLOBALS["srcdir"] . "/api.inc");
 
 function clinical_notes_report($pid, $encounter, $cols, $id) {
+ $cols = 1; // force always 1 column
  $count = 0;
  $data = sqlQuery("SELECT * " .
   "FROM form_clinical_notes WHERE " .
