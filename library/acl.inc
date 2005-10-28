@@ -93,7 +93,8 @@
     return 0;
   }
 
-  // Return an array of squad ACO names and descriptive names.
+  // Return an array keyed on squad ACO names.  Each value is an
+  // array (section_value, value, order_value, name, hidden).
   // This is only applicable for sports team use.
   //
   function acl_get_squads() {
@@ -106,7 +107,8 @@
       $arr = array();
       foreach ($arr1[$section] as $value) {
         $odata = $gacl->get_object_data($gacl->get_object_id($section, $value, 'ACO'), 'ACO');
-        $arr[$value] = $odata[0][3];
+        // $arr[$value] = $odata[0][3];
+        $arr[$value] = $odata[0];
       }
       return $arr;
     }

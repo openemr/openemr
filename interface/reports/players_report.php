@@ -13,12 +13,7 @@
  include_once("$srcdir/patient.inc");
  include_once("$srcdir/acl.inc");
 
- // $squads = array(
- //  'None',
- //  'Senior',
- //  'Academy',
- //  'Ladies'
- // );
+ $squads = acl_get_squads();
 
  $fitnesses = array(
   'Full Play',
@@ -32,8 +27,30 @@
 
  $alertmsg = ''; // not used yet but maybe later
 
- $query = "SELECT * FROM patient_data ORDER BY squad, lname, fname";
+ $query = "SELECT pid, squad, fitness, lname, fname FROM " .
+  "patient_data"; // ORDER BY squad, lname, fname
  $res = sqlStatement($query);
+
+ // Sort the patients in squad priority order.
+ function patient_compare($a, $b) {
+  global $squads;
+  if ($squads[$a['squad']][3] == $squads[$b['squad']][3]) {
+   if ($a['lname'] == $b['lname']) {
+    return ($a['fname'] < $b['fname']) ? -1 : 1;
+   }
+   return ($a['lname'] < $b['lname']) ? -1 : 1;
+  }
+  // The squads are different so compare their order attributes,
+  // or unassigned squads sort last.
+  if (! $squads[$a['squad']][3]) return 1;
+  if (! $squads[$b['squad']][3]) return -1;
+  return ($squads[$a['squad']][2] < $squads[$b['squad']][2]) ? -1 : 1;
+ }
+ $ordres = array();
+ if ($res) {
+  while ($row = sqlFetchArray($res)) $ordres[] = $row;
+  usort($ordres, "patient_compare");
+ }
 ?>
 <html>
 <head>
@@ -100,13 +117,17 @@
   </td>
  </tr>
 <?
- if ($res) {
-  $squads = acl_get_squads();
+ // if ($res) {
   $lastsquad = '';
-  while ($row = sqlFetchArray($res)) {
+  foreach ($ordres as $row) {
+   $squadvalue = $row['squad'];
+   $squadname = $squads[$squadvalue][3];
+   if ($squadname) {
+    if (! acl_check('squads', $squadvalue)) continue;
+   } else {
+    $squadname = "None";
+   }
    $patient_id = $row['pid'];
-   $squad = $squads[$row['squad']];
-   if (! $squad) $squad = "None";
    $fitness = $row['fitness'];
    if (! $fitness) $fitness = 1;
    $query = "SELECT date, reason " .
@@ -117,7 +138,7 @@
 ?>
  <tr>
   <td class="detail">
-   &nbsp;<? echo ($squad == $lastsquad) ? "" : $squad ?>
+   &nbsp;<? echo ($squadname == $lastsquad) ? "" : $squadname ?>
   </td>
   <td class="detail" bgcolor="<? echo $fitcolors[$fitness-1] ?>">
    &nbsp;<a href='javascript:gopid(<? echo $patient_id ?>)' style='color:#000000'><? echo $row['lname'] . ", " . $row['fname'] ?></a>
@@ -130,9 +151,9 @@
   </td>
  </tr>
 <?
-   $lastsquad = $squad;
+   $lastsquad = $squadname;
   }
- }
+ // }
 ?>
 
 </table>

@@ -319,7 +319,7 @@ function checkNum () {
   foreach ($squads as $key => $value) {
    echo "       <option value='$key'";
    if ($result['squad'] == $key) echo " selected";
-   echo ">$value</option>\n";
+   echo ">" . $value[3] . "</option>\n";
   }
  }
 ?>
