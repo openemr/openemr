@@ -397,3 +397,756 @@ r1 | (no author) | 2004-11-01 14:44:02 -0800 (Mon, 01 Nov 2004) | 2 lines
 Initial import of openemr to the new subversion server
 
 ------------------------------------------------------------------------
+>>>>>>>>>>>>>>>>>>>>>>>>>>>
+date: 2005/10/24 16:22:41;  author: sunsetsystems;  state: Exp;  lines: +10 -7
+added and revised some notes about directories
+--
+date: 2005/09/29 15:23:27;  author: sunsetsystems;  state: Exp;  lines: +2 -2
+added phpGACL setup utility
+--
+date: 2005/10/21 00:51:41;  author: andres_paglayan;  state: Exp;  lines: +170 -169
+batchcom authorization added for admin
+--
+date: 2005/10/20 01:22:04;  author: sunsetsystems;  state: Exp;  lines: +2 -1
+added ability (for superuser only) to delete patients, encounters, issues
+--
+date: 2005/09/29 15:23:27;  author: sunsetsystems;  state: Exp;
+added phpGACL setup utility
+--
+date: 2005/10/26 18:07:48;  author: andres_paglayan;  state: Exp;  lines: +9 -0
+some info added
+--
+date: 2005/10/05 00:08:49;  author: sunsetsystems;  state: Exp;  lines: +33 -37
+fixed a couple of silly display errors
+--
+date: 2005/09/29 15:23:27;  author: sunsetsystems;  state: Exp;  lines: +26 -42
+added phpGACL setup utility
+--
+date: 2005/08/04 22:28:29;  author: sunsetsystems;  state: Exp;  lines: +8 -4
+phpgacl implementation updates
+--
+date: 2005/08/02 23:53:46;  author: sunsetsystems;  state: Exp;
+initial checkin
+--
+date: 2005/10/05 00:12:20;  author: sunsetsystems;  state: Exp;
+initial checkin
+--
+date: 2005/10/05 00:12:20;  author: sunsetsystems;  state: Exp;
+initial checkin
+--
+date: 2005/10/28 05:19:12;  author: sunsetsystems;  state: Exp;  lines: +1 -0
+force just one column
+--
+date: 2005/10/05 00:12:20;  author: sunsetsystems;  state: Exp;
+initial checkin
+--
+date: 2005/10/05 00:12:20;  author: sunsetsystems;  state: Exp;
+initial checkin
+--
+date: 2005/10/05 00:12:20;  author: sunsetsystems;  state: Exp;
+initial checkin
+--
+date: 2005/08/02 23:51:33;  author: sunsetsystems;  state: Exp;
+new encounter form
+--
+date: 2005/08/02 23:51:33;  author: sunsetsystems;  state: Exp;
+new encounter form
+--
+date: 2005/10/22 19:22:07;  author: sunsetsystems;  state: Exp;  lines: +1 -1
+fixed typo
+--
+date: 2005/10/20 01:17:21;  author: sunsetsystems;  state: Exp;  lines: +10 -0
+fixed reported injury date
+--
+date: 2005/08/10 06:18:16;  author: sunsetsystems;  state: Exp;  lines: +148 -6
+reporting improvements
+--
+date: 2005/08/02 23:51:33;  author: sunsetsystems;  state: Exp;
+new encounter form
+--
+date: 2005/08/02 23:51:33;  author: sunsetsystems;  state: Exp;
+new encounter form
+--
+date: 2005/08/02 23:51:33;  author: sunsetsystems;  state: Exp;
+new encounter form
+--
+date: 2005/10/05 00:12:20;  author: sunsetsystems;  state: Exp;
+initial checkin
+--
+date: 2005/10/05 00:12:20;  author: sunsetsystems;  state: Exp;
+initial checkin
+--
+date: 2005/10/28 05:19:12;  author: sunsetsystems;  state: Exp;  lines: +1 -0
+force just one column
+--
+date: 2005/10/05 00:12:20;  author: sunsetsystems;  state: Exp;
+initial checkin
+--
+date: 2005/10/05 00:12:20;  author: sunsetsystems;  state: Exp;
+initial checkin
+--
+date: 2005/10/05 00:12:20;  author: sunsetsystems;  state: Exp;
+initial checkin
+--
+date: 2005/08/02 23:51:33;  author: sunsetsystems;  state: Exp;
+new encounter form
+--
+date: 2005/08/02 23:51:33;  author: sunsetsystems;  state: Exp;
+new encounter form
+--
+date: 2005/08/10 06:18:16;  author: sunsetsystems;  state: Exp;  lines: +2 -2
+reporting improvements
+--
+date: 2005/08/02 23:51:33;  author: sunsetsystems;  state: Exp;
+new encounter form
+--
+date: 2005/08/02 23:51:33;  author: sunsetsystems;  state: Exp;
+new encounter form
+--
+date: 2005/08/02 23:51:33;  author: sunsetsystems;  state: Exp;
+new encounter form
+--
+date: 2005/08/24 14:49:47;  author: tekknogenius;  state: Exp;  lines: +2 -2
+corrected typo and logic error
+--
+date: 2005/08/24 14:49:47;  author: tekknogenius;  state: Exp;  lines: +1 -1
+corrected typo and logic error
+--
+date: 2005/08/24 14:52:44;  author: tekknogenius;  state: Exp;  lines: +2 -2
+corrected logic error
+--
+date: 2005/08/24 14:51:33;  author: tekknogenius;  state: Exp;  lines: +1 -1
+corrected table name from form_weel_child to form_well_infant
+--
+date: 2005/08/29 22:20:10;  author: andres_paglayan;  state: Exp;  lines: +5 -1
+added bzip and newer-than date to the tar part of the script.
+--
+date: 2005/08/01 19:38:18;  author: andres_paglayan;  state: Exp;  lines: +13 -15
+dump for sql-ledger added
+--
+date: 2005/07/25 22:41:58;  author: andres_paglayan;  state: Exp;
+This file is a basic script than can be cronned to backup an openemr sys to a cd
+--
+date: 2005/07/16 15:07:09;  author: tekknogenius;  state: Exp;  lines: +0 -1
+removed extra line at end of file, caused header info being sent
+--
+date: 2005/07/06 02:38:55;  author: tekknogenius;  state: Exp;  lines: +112 -104
+Added rendering provider number and type
+--
+date: 2005/07/16 15:08:44;  author: tekknogenius;  state: Exp;  lines: +8 -3
+configurable paper size and margins via config.php
+--
+date: 2005/10/17 17:07:23;  author: sunsetsystems;  state: Exp;  lines: +4 -2
+added ucsmc codes for uk sports medicine
+--
+date: 2005/08/12 05:29:10;  author: sunsetsystems;  state: Exp;  lines: +2 -1
+added physiotherapy codes for sports medicine
+--
+date: 2005/08/26 17:11:35;  author: sunsetsystems;  state: Exp;
+added xml-based patient export and import
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +3 -0
+implemented squads as access control objects
+--
+date: 2005/08/26 17:11:35;  author: sunsetsystems;  state: Exp;
+added xml-based patient export and import
+--
+date: 2005/10/23 01:17:58;  author: sunsetsystems;  state: Exp;
+from jim proctor for assessment_intake form
+--
+date: 2005/08/10 06:19:34;  author: sunsetsystems;  state: Exp;  lines: +4 -4
+more sensible default settings
+--
+date: 2005/07/16 15:08:45;  author: tekknogenius;  state: Exp;  lines: +17 -3
+configurable paper size and margins via config.php
+--
+date: 2005/07/08 15:10:18;  author: sunsetsystems;  state: Exp;  lines: +4 -5
+adding appointment status and option to include appt title in calendar display
+--
+date: 2005/07/03 07:19:52;  author: sunsetsystems;  state: Exp;  lines: +2 -2
+version bump to 2.7.3-rc1
+--
+date: 2005/09/29 15:25:38;  author: sunsetsystems;  state: Exp;  lines: +8 -8
+work around mozilla bug with onload and https
+--
+date: 2005/10/21 19:00:17;  author: andres_paglayan;  state: Exp;  lines: +1 -1
+other features added
+--
+date: 2005/10/21 00:54:28;  author: andres_paglayan;  state: Exp;
+initial commit for batchcom module
+--
+date: 2005/10/21 19:49:59;  author: andres_paglayan;  state: Exp;  lines: +4 -0
+table registry added
+--
+date: 2005/10/21 19:00:17;  author: andres_paglayan;  state: Exp;  lines: +51 -2
+other features added
+--
+date: 2005/10/21 00:54:28;  author: andres_paglayan;  state: Exp;
+initial commit for batchcom module
+--
+date: 2005/10/21 19:00:17;  author: andres_paglayan;  state: Exp;  lines: +41 -1
+other features added
+--
+date: 2005/10/21 00:54:28;  author: andres_paglayan;  state: Exp;
+initial commit for batchcom module
+--
+date: 2005/10/21 00:54:28;  author: andres_paglayan;  state: Exp;
+initial commit for batchcom module
+--
+date: 2005/10/21 19:49:59;  author: andres_paglayan;  state: Exp;  lines: +44 -25
+table registry added
+--
+date: 2005/10/21 00:54:28;  author: andres_paglayan;  state: Exp;
+initial commit for batchcom module
+--
+date: 2005/10/21 19:00:17;  author: andres_paglayan;  state: Exp;  lines: +12 -0
+other features added
+--
+date: 2005/10/21 00:54:28;  author: andres_paglayan;  state: Exp;
+initial commit for batchcom module
+--
+date: 2005/10/17 17:14:27;  author: sunsetsystems;  state: Exp;  lines: +6 -2
+added ub-92 support
+--
+date: 2005/10/17 17:14:27;  author: sunsetsystems;  state: Exp;  lines: +9 -5
+added ub-92 support
+--
+date: 2005/07/18 21:46:15;  author: sunsetsystems;  state: Exp;  lines: +1 -0
+added "bad check" as an adjustment reason
+--
+date: 2005/10/17 17:10:31;  author: sunsetsystems;  state: Exp;  lines: +13 -5
+added ucsmc codes for uk sports medicine; allow selection of providers not in the calendar
+--
+date: 2005/07/03 07:20:53;  author: sunsetsystems;  state: Exp;  lines: +5 -2
+allow cpt4 codes in opcs lists
+--
+date: 2005/10/17 17:10:42;  author: sunsetsystems;  state: Exp;  lines: +13 -5
+added ucsmc codes for uk sports medicine; allow selection of providers not in the calendar
+--
+date: 2005/07/03 07:20:54;  author: sunsetsystems;  state: Exp;  lines: +5 -2
+allow cpt4 codes in opcs lists
+--
+date: 2005/10/20 01:19:03;  author: sunsetsystems;  state: Exp;  lines: +17 -0
+better permissions checking
+--
+date: 2005/09/09 18:54:14;  author: sunsetsystems;  state: Exp;  lines: +5 -0
+simplified adding/removing issue types and added dental as a type
+--
+date: 2005/08/28 16:59:52;  author: sunsetsystems;  state: Exp;  lines: +45 -11
+use improved date selectors
+--
+date: 2005/08/12 05:23:57;  author: sunsetsystems;  state: Exp;  lines: +1 -1
+work around ie bug
+--
+date: 2005/07/18 21:49:05;  author: sunsetsystems;  state: Exp;  lines: +129 -67
+added ability to select related issues
+--
+date: 2005/08/28 16:59:52;  author: sunsetsystems;  state: Exp;  lines: +13 -8
+use improved date selectors
+--
+date: 2005/07/18 21:49:43;  author: sunsetsystems;  state: Exp;  lines: +46 -38
+added ability to select related issues
+--
+date: 2005/09/09 18:54:14;  author: sunsetsystems;  state: Exp;  lines: +5 -0
+simplified adding/removing issue types and added dental as a type
+--
+date: 2005/08/28 16:59:52;  author: sunsetsystems;  state: Exp;  lines: +52 -18
+use improved date selectors
+--
+date: 2005/08/12 05:24:12;  author: sunsetsystems;  state: Exp;  lines: +1 -1
+work around ie bug
+--
+date: 2005/07/18 21:49:15;  author: sunsetsystems;  state: Exp;  lines: +149 -76
+added ability to select related issues
+--
+date: 2005/10/28 05:18:57;  author: sunsetsystems;  state: Exp;  lines: +23 -22
+force just one column
+--
+date: 2005/09/09 18:54:14;  author: sunsetsystems;  state: Exp;  lines: +10 -2
+simplified adding/removing issue types and added dental as a type
+--
+date: 2005/08/04 22:28:29;  author: sunsetsystems;  state: Exp;  lines: +7 -1
+phpgacl implementation updates
+--
+date: 2005/07/05 22:38:43;  author: sunsetsystems;  state: Exp;  lines: +20 -49
+new code to manage appointments and other calendar events with popup windows
+--
+date: 2005/07/03 07:27:16;  author: sunsetsystems;  state: Exp;  lines: +19 -20
+for sports team use show the player roster initially instead of the calendar
+--
+date: 2005/07/05 22:38:43;  author: sunsetsystems;  state: Exp;  lines: +2 -30
+new code to manage appointments and other calendar events with popup windows
+--
+date: 2005/08/12 05:25:20;  author: sunsetsystems;  state: Exp;  lines: +6 -4
+use default durations from categories
+--
+date: 2005/07/08 15:10:18;  author: sunsetsystems;  state: Exp;  lines: +49 -10
+adding appointment status and option to include appt title in calendar display
+--
+date: 2005/07/05 22:35:51;  author: sunsetsystems;  state: Exp;
+new code to manage appointments and other calendar events with popup windows
+--
+date: 2005/07/05 22:35:51;  author: sunsetsystems;  state: Exp;
+new code to manage appointments and other calendar events with popup windows
+--
+date: 2005/07/05 22:35:51;  author: sunsetsystems;  state: Exp;
+new code to manage appointments and other calendar events with popup windows
+--
+date: 2005/07/01 01:36:17;  author: sunsetsystems;  state: Exp;  lines: +212 -208
+hopefully all-day events will work now
+--
+date: 2005/07/08 15:10:18;  author: sunsetsystems;  state: Exp;  lines: +404 -413
+adding appointment status and option to include appt title in calendar display
+--
+date: 2005/07/08 15:10:18;  author: sunsetsystems;  state: Exp;  lines: +8 -3
+adding appointment status and option to include appt title in calendar display
+--
+date: 2005/07/05 22:37:40;  author: sunsetsystems;  state: Exp;  lines: +27 -20
+new code to manage appointments and other calendar events with popup windows
+--
+date: 2005/07/08 15:10:18;  author: sunsetsystems;  state: Exp;  lines: +8 -3
+adding appointment status and option to include appt title in calendar display
+--
+date: 2005/07/05 22:37:40;  author: sunsetsystems;  state: Exp;  lines: +27 -20
+new code to manage appointments and other calendar events with popup windows
+--
+date: 2005/08/26 17:10:06;  author: sunsetsystems;  state: Exp;  lines: +73 -52
+cosmetics
+--
+date: 2005/08/26 17:10:06;  author: sunsetsystems;  state: Exp;  lines: +71 -66
+cosmetics
+--
+date: 2005/10/24 18:23:09;  author: sunsetsystems;  state: Exp;  lines: +3 -1
+misc cosmetic cleanups for sports team use
+--
+date: 2005/10/20 01:22:04;  author: sunsetsystems;  state: Exp;
+added ability (for superuser only) to delete patients, encounters, issues
+--
+date: 2005/09/29 15:28:17;  author: sunsetsystems;  state: Exp;  lines: +1 -0
+added appointments report
+--
+date: 2005/08/26 17:11:35;  author: sunsetsystems;  state: Exp;  lines: +8 -6
+added xml-based patient export and import
+--
+date: 2005/08/10 06:17:10;  author: sunsetsystems;  state: Exp;  lines: +7 -1
+access control updates
+--
+date: 2005/07/28 16:02:34;  author: sunsetsystems;  state: Exp;  lines: +37 -40
+workaround for ie formatting bug
+--
+date: 2005/07/18 21:52:31;  author: sunsetsystems;  state: Exp;  lines: +9 -5
+use modal dialog support
+--
+date: 2005/07/05 22:39:11;  author: sunsetsystems;  state: Exp;  lines: +3 -3
+new code to manage appointments and other calendar events with popup windows
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +5 -2
+implemented squads as access control objects
+--
+date: 2005/08/10 06:17:10;  author: sunsetsystems;  state: Exp;  lines: +12 -1
+access control updates
+--
+date: 2005/07/18 21:51:56;  author: sunsetsystems;  state: Exp;  lines: +74 -30
+simplification
+--
+date: 2005/07/03 07:23:10;  author: sunsetsystems;  state: Exp;  lines: +1 -1
+renamed Billing to Coding in some places for non-US sites
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +5 -9
+implemented squads as access control objects
+--
+date: 2005/08/04 22:28:29;  author: sunsetsystems;  state: Exp;  lines: +21 -6
+phpgacl implementation updates
+--
+date: 2005/07/03 07:23:10;  author: sunsetsystems;  state: Exp;  lines: +1 -1
+renamed Billing to Coding in some places for non-US sites
+--
+date: 2005/10/24 18:23:09;  author: sunsetsystems;  state: Exp;  lines: +9 -50
+misc cosmetic cleanups for sports team use
+--
+date: 2005/10/20 01:22:04;  author: sunsetsystems;  state: Exp;  lines: +24 -1
+added ability (for superuser only) to delete patients, encounters, issues
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +4 -1
+implemented squads as access control objects
+--
+date: 2005/08/04 22:28:29;  author: sunsetsystems;  state: Exp;  lines: +51 -46
+phpgacl implementation updates
+--
+date: 2005/07/03 07:23:10;  author: sunsetsystems;  state: Exp;  lines: +5 -8
+renamed Billing to Coding in some places for non-US sites
+--
+date: 2005/10/28 05:16:05;  author: sunsetsystems;  state: Exp;  lines: +51 -30
+add user column and encounter form info
+--
+date: 2005/10/20 01:22:04;  author: sunsetsystems;  state: Exp;  lines: +20 -12
+added ability (for superuser only) to delete patients, encounters, issues
+--
+date: 2005/09/09 18:54:14;  author: sunsetsystems;  state: Exp;  lines: +6 -25
+simplified adding/removing issue types and added dental as a type
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +4 -0
+implemented squads as access control objects
+--
+date: 2005/08/12 05:26:32;  author: sunsetsystems;  state: Exp;  lines: +4 -4
+always show encounter reason
+--
+date: 2005/08/10 06:17:10;  author: sunsetsystems;  state: Exp;  lines: +15 -8
+access control updates
+--
+date: 2005/08/04 22:28:29;  author: sunsetsystems;  state: Exp;  lines: +59 -32
+phpgacl implementation updates
+--
+date: 2005/07/18 21:56:00;  author: sunsetsystems;  state: Exp;  lines: +87 -50
+added an issues column
+--
+date: 2005/07/03 07:23:10;  author: sunsetsystems;  state: Exp;  lines: +1 -1
+renamed Billing to Coding in some places for non-US sites
+--
+date: 2005/10/28 05:16:15;  author: sunsetsystems;  state: Exp;  lines: +97 -26
+add user column and encounter form info
+--
+date: 2005/10/20 01:20:43;  author: sunsetsystems;  state: Exp;  lines: +21 -13
+better permissions checking
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +4 -0
+implemented squads as access control objects
+--
+date: 2005/08/12 05:26:41;  author: sunsetsystems;  state: Exp;  lines: +4 -4
+always show encounter reason
+--
+date: 2005/08/10 06:17:10;  author: sunsetsystems;  state: Exp;  lines: +8 -1
+access control updates
+--
+date: 2005/08/04 22:28:29;  author: sunsetsystems;  state: Exp;  lines: +57 -38
+phpgacl implementation updates
+--
+date: 2005/07/03 07:18:03;  author: sunsetsystems;  state: Exp;
+new and improved history data
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +5 -0
+implemented squads as access control objects
+--
+date: 2005/08/04 22:28:29;  author: sunsetsystems;  state: Exp;  lines: +18 -8
+phpgacl implementation updates
+--
+date: 2005/07/03 07:18:03;  author: sunsetsystems;  state: Exp;  lines: +74 -99
+new and improved history data
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +5 -0
+implemented squads as access control objects
+--
+date: 2005/08/04 22:28:29;  author: sunsetsystems;  state: Exp;  lines: +9 -3
+phpgacl implementation updates
+--
+date: 2005/07/03 07:18:03;  author: sunsetsystems;  state: Exp;  lines: +112 -126
+new and improved history data
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +5 -0
+implemented squads as access control objects
+--
+date: 2005/08/04 22:28:29;  author: sunsetsystems;  state: Exp;  lines: +9 -3
+phpgacl implementation updates
+--
+date: 2005/07/03 07:18:03;  author: sunsetsystems;  state: Exp;  lines: +17 -5
+new and improved history data
+--
+date: 2005/10/21 20:42:01;  author: andres_paglayan;  state: Exp;  lines: +1 -1
+*** empty log message ***
+--
+date: 2005/10/21 20:41:23;  author: andres_paglayan;  state: Exp;  lines: +10 -0
+batchcom added
+--
+date: 2005/08/02 23:46:54;  author: sunsetsystems;  state: Exp;  lines: +249 -204
+improved layout and ordering
+--
+date: 2005/10/21 22:30:19;  author: andres_paglayan;  state: Exp;  lines: +10 -1
+batchom support
+--
+date: 2005/10/21 20:41:23;  author: andres_paglayan;  state: Exp;  lines: +1 -0
+batchcom added
+--
+date: 2005/09/09 18:54:14;  author: sunsetsystems;  state: Exp;  lines: +6 -0
+simplified adding/removing issue types and added dental as a type
+--
+date: 2005/08/02 23:46:54;  author: sunsetsystems;  state: Exp;  lines: +163 -77
+improved layout and ordering
+--
+date: 2005/10/16 11:34:50;  author: tekknogenius;  state: Exp;  lines: +2 -2
+undoe the  === to == (realized they were correct in php)
+--
+date: 2005/10/16 11:20:11;  author: tekknogenius;  state: Exp;  lines: +2 -2
+corrected === to == in two if statements
+--
+date: 2005/08/02 23:46:54;  author: sunsetsystems;  state: Exp;  lines: +266 -209
+improved layout and ordering
+--
+date: 2005/10/20 01:22:04;  author: sunsetsystems;  state: Exp;  lines: +19 -0
+added ability (for superuser only) to delete patients, encounters, issues
+--
+date: 2005/10/17 17:08:15;  author: sunsetsystems;  state: Exp;  lines: +2 -1
+added ucsmc codes for uk sports medicine
+--
+date: 2005/09/09 18:54:14;  author: sunsetsystems;  state: Exp;  lines: +6 -13
+simplified adding/removing issue types and added dental as a type
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +4 -0
+implemented squads as access control objects
+--
+date: 2005/08/04 22:28:29;  author: sunsetsystems;  state: Exp;  lines: +5 -0
+phpgacl implementation updates
+--
+date: 2005/07/18 21:57:16;  author: sunsetsystems;  state: Exp;  lines: +50 -9
+added diagnosis selection
+--
+date: 2005/10/24 18:23:09;  author: sunsetsystems;  state: Exp;  lines: +3 -1
+misc cosmetic cleanups for sports team use
+--
+date: 2005/10/20 01:22:04;  author: sunsetsystems;  state: Exp;  lines: +20 -1
+added ability (for superuser only) to delete patients, encounters, issues
+--
+date: 2005/10/19 19:55:17;  author: andres_paglayan;  state: Exp;  lines: +2 -2
+hipaa choice display logic fixed
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +16 -42
+implemented squads as access control objects
+--
+date: 2005/08/28 16:52:48;  author: sunsetsystems;  state: Exp;  lines: +8 -4
+hide some things for athletic team use
+--
+date: 2005/08/12 05:30:36;  author: sunsetsystems;  state: Exp;  lines: +26 -1
+added upcoming appointments to patient summary
+--
+date: 2005/08/04 22:28:29;  author: sunsetsystems;  state: Exp;  lines: +18 -3
+phpgacl implementation updates
+--
+date: 2005/10/28 05:22:54;  author: sunsetsystems;  state: Exp;  lines: +1 -1
+use squad ordering from phpgacl in the team roster
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +18 -10
+implemented squads as access control objects
+--
+date: 2005/08/28 16:51:44;  author: sunsetsystems;  state: Exp;  lines: +3 -3
+fix spelling error
+--
+date: 2005/08/04 22:28:29;  author: sunsetsystems;  state: Exp;  lines: +21 -10
+phpgacl implementation updates
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +3 -0
+implemented squads as access control objects
+--
+date: 2005/08/04 22:28:29;  author: sunsetsystems;  state: Exp;  lines: +13 -2
+phpgacl implementation updates
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +5 -0
+implemented squads as access control objects
+--
+date: 2005/08/04 22:28:29;  author: sunsetsystems;  state: Exp;  lines: +14 -3
+phpgacl implementation updates
+--
+date: 2005/07/03 07:24:27;  author: sunsetsystems;  state: Exp;  lines: +1 -1
+renamed Patient Notes to Notes
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +3 -2
+implemented squads as access control objects
+--
+date: 2005/08/04 22:28:29;  author: sunsetsystems;  state: Exp;  lines: +9 -56
+phpgacl implementation updates
+--
+date: 2005/10/28 05:20:55;  author: sunsetsystems;  state: Exp;  lines: +5 -3
+omit inactive issues
+--
+date: 2005/09/09 18:54:14;  author: sunsetsystems;  state: Exp;  lines: +15 -47
+simplified adding/removing issue types and added dental as a type
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +5 -0
+implemented squads as access control objects
+--
+date: 2005/08/04 22:28:29;  author: sunsetsystems;  state: Exp;  lines: +14 -4
+phpgacl implementation updates
+--
+date: 2005/09/09 18:54:14;  author: sunsetsystems;  state: Exp;  lines: +5 -0
+simplified adding/removing issue types and added dental as a type
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +9 -4
+implemented squads as access control objects
+--
+date: 2005/08/12 05:31:54;  author: sunsetsystems;  state: Exp;  lines: +10 -2
+added Add Encounter button
+--
+date: 2005/08/04 22:28:29;  author: sunsetsystems;  state: Exp;  lines: +12 -2
+phpgacl implementation updates
+--
+date: 2005/07/18 21:58:28;  author: sunsetsystems;  state: Exp;  lines: +7 -0
+show a diagnosis column
+--
+date: 2005/07/06 15:20:50;  author: sunsetsystems;  state: Exp;  lines: +6 -4
+use modal dialogs
+--
+date: 2005/07/03 07:25:11;  author: sunsetsystems;  state: Exp;  lines: +1 -0
+added To History button
+--
+date: 2005/07/05 22:39:11;  author: sunsetsystems;  state: Exp;  lines: +57 -35
+new code to manage appointments and other calendar events with popup windows
+--
+date: 2005/10/24 18:23:09;  author: sunsetsystems;  state: Exp;  lines: +1 -1
+misc cosmetic cleanups for sports team use
+--
+date: 2005/08/02 23:48:24;  author: sunsetsystems;  state: Exp;
+new reports
+--
+date: 2005/09/29 15:28:17;  author: sunsetsystems;  state: Exp;
+added appointments report
+--
+date: 2005/08/02 23:48:24;  author: sunsetsystems;  state: Exp;
+new reports
+--
+date: 2005/10/28 05:22:54;  author: sunsetsystems;  state: Exp;  lines: +36 -15
+use squad ordering from phpgacl in the team roster
+--
+date: 2005/10/24 18:23:09;  author: sunsetsystems;  state: Exp;  lines: +4 -8
+misc cosmetic cleanups for sports team use
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +10 -7
+implemented squads as access control objects
+--
+date: 2005/07/05 22:42:01;  author: sunsetsystems;  state: Exp;  lines: +4 -4
+popup window improvements
+--
+date: 2005/07/03 07:26:12;  author: sunsetsystems;  state: Exp;  lines: +7 -4
+allow the roster to be a non-popup
+--
+date: 2005/10/21 00:55:47;  author: andres_paglayan;  state: Exp;  lines: +7 -0
+batchcom menu item added
+--
+date: 2005/10/28 05:22:54;  author: sunsetsystems;  state: Exp;  lines: +4 -2
+use squad ordering from phpgacl in the team roster
+--
+date: 2005/10/20 01:22:04;  author: sunsetsystems;  state: Exp;  lines: +3 -1
+added ability (for superuser only) to delete patients, encounters, issues
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +24 -1
+implemented squads as access control objects
+--
+date: 2005/08/04 22:28:29;  author: sunsetsystems;  state: Exp;  lines: +19 -11
+phpgacl implementation updates
+--
+date: 2005/07/05 22:33:11;  author: sunsetsystems;  state: Exp;
+improved support for popup windows
+--
+date: 2005/10/28 05:17:25;  author: sunsetsystems;  state: Exp;  lines: +2 -1
+get real encounter date
+--
+date: 2005/10/20 01:22:04;  author: sunsetsystems;  state: Exp;  lines: +3 -1
+added ability (for superuser only) to delete patients, encounters, issues
+--
+date: 2005/09/09 18:54:14;  author: sunsetsystems;  state: Exp;  lines: +9 -0
+simplified adding/removing issue types and added dental as a type
+--
+date: 2005/07/03 07:18:03;  author: sunsetsystems;  state: Exp;  lines: +7 -1
+new and improved history data
+--
+date: 2005/08/28 16:54:06;  author: sunsetsystems;  state: Exp;  lines: +31 -38
+fix possible problem with getting insert ids
+--
+date: 2005/07/05 22:33:11;  author: sunsetsystems;  state: Exp;
+improved support for popup windows
+--
+date: 2005/07/16 15:05:41;  author: tekknogenius;  state: Exp;  lines: +0 -1
+removed extra line at end of file, caused header info being sent
+--
+date: 2005/07/06 02:38:30;  author: tekknogenius;  state: Exp;  lines: +126 -103
+Added rendering provider number and type
+--
+date: 2005/07/16 15:05:41;  author: tekknogenius;  state: Exp;  lines: +0 -1
+removed extra line at end of file, caused header info being sent
+--
+date: 2005/07/06 02:38:30;  author: tekknogenius;  state: Exp;  lines: +87 -79
+Added rendering provider number and type
+--
+date: 2005/10/17 17:14:27;  author: sunsetsystems;  state: Exp;  lines: +31 -0
+added ub-92 support
+--
+date: 2005/10/17 17:14:27;  author: sunsetsystems;  state: Exp;  lines: +30 -2
+added ub-92 support
+--
+date: 2005/08/01 21:54:11;  author: andres_paglayan;  state: Exp;  lines: +1 -1
+got rid of empty files that created and headers sent problem
+--
+date: 2005/07/15 09:37:41;  author: sunsetsystems;  state: Exp;  lines: +0 -1
+removed blank line at end which was causing billing batch process to fail
+--
+date: 2005/07/06 02:37:50;  author: tekknogenius;  state: Exp;  lines: +706 -598
+Added rendering provider number and type
+--
+date: 2005/10/17 17:14:27;  author: sunsetsystems;  state: Exp;  lines: +1 -1
+added ub-92 support
+--
+date: 2005/08/01 21:54:11;  author: andres_paglayan;  state: Exp;  lines: +1 -5
+got rid of empty files that created and headers sent problem
+--
+date: 2005/10/26 13:36:36;  author: tekknogenius;  state: Exp;  lines: +1 -1
+corrected syntax
+--
+date: 2005/10/24 16:39:01;  author: sunsetsystems;  state: Exp;  lines: +2 -0
+increased size of codes.code
+--
+date: 2005/10/21 19:49:26;  author: andres_paglayan;  state: Exp;  lines: +16 -0
+batchcom table added
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +1 -1
+implemented squads as access control objects
+--
+date: 2005/07/08 15:10:18;  author: sunsetsystems;  state: Exp;  lines: +17 -2
+adding appointment status and option to include appt title in calendar display
+--
+date: 2005/07/06 02:40:53;  author: tekknogenius;  state: Exp;  lines: +11 -0
+Added rendering provider number and type
+--
+date: 2005/07/03 07:18:03;  author: sunsetsystems;  state: Exp;  lines: +22 -0
+new and improved history data
+--
+date: 2005/10/24 16:39:00;  author: sunsetsystems;  state: Exp;  lines: +1 -1
+increased size of codes.code
+--
+date: 2005/10/21 19:48:54;  author: andres_paglayan;  state: Exp;  lines: +10 -0
+batchom table added
+--
+date: 2005/09/01 16:51:25;  author: sunsetsystems;  state: Exp;  lines: +1 -1
+implemented squads as access control objects
+--
+date: 2005/08/10 06:15:10;  author: sunsetsystems;  state: Exp;  lines: +7 -6
+fix bad categories_seq starting value, add index to codes, remove comments causing setup to fail
+--
+date: 2005/07/14 23:11:36;  author: sunsetsystems;  state: Exp;  lines: +2 -0
+add squad and fitness to patient_data
+--
+date: 2005/07/14 20:15:02;  author: sunsetsystems;  state: Exp;  lines: +0 -17
+removed comment lines within table defs so setup will not barf
+--
+date: 2005/07/10 20:39:42;  author: sunsetsystems;  state: Exp;  lines: +3 -3
+fixed inserts to openemr_postcalendar_events
+--
+date: 2005/07/08 15:10:18;  author: sunsetsystems;  state: Exp;  lines: +14 -0
+adding appointment status and option to include appt title in calendar display
+--
+date: 2005/07/06 16:56:20;  author: sunsetsystems;  state: Exp;  lines: +1 -1
+fixed typo reported by Mark Leeds
+--
+date: 2005/07/06 02:40:53;  author: tekknogenius;  state: Exp;  lines: +2 -1
+Added rendering provider number and type
+--
+date: 2005/07/03 07:18:03;  author: sunsetsystems;  state: Exp;  lines: +18 -8
+new and improved history data
+--
+date: 2005/07/06 02:41:47;  author: tekknogenius;  state: Exp;  lines: +83 -68
+Added rendering provider number and type
+--
+date: 2005/07/06 02:41:47;  author: tekknogenius;  state: Exp;  lines: +23 -21
+Added rendering provider number and type
+--
+date: 2005/09/29 15:28:17;  author: sunsetsystems;  state: Exp;  lines: +2 -0
+added appointments report
+--
+date: 2005/08/02 23:48:24;  author: sunsetsystems;  state: Exp;  lines: +5 -1
+new reports
