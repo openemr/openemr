@@ -44,7 +44,7 @@
  // Get the info.
  //
  $query = "SELECT " .
-  "e.pc_eventDate, e.pc_startTime, e.pc_catid, " .
+  "e.pc_eventDate, e.pc_startTime, e.pc_catid, e.pc_eid, " .
   "p.fname, p.mname, p.lname, p.pid, " .
   "u.fname AS ufname, u.mname AS umname, u.lname AS ulname, " .
   "c.pc_catname " .
@@ -64,6 +64,7 @@
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/calendar.js"></script>
 <script type="text/javascript" src="../../library/textformat.js"></script>
+<script type="text/javascript" src="../../library/dialog.js"></script>
 
 <script LANGUAGE="JavaScript">
 
@@ -74,6 +75,15 @@
   f.form_orderby.value = orderby;
   f.submit();
   return false;
+ }
+
+ function oldEvt(eventid) {
+  dlgopen('../main/calendar/add_edit_event.php?eid=' + eventid, '_blank', 550, 270);
+ }
+
+ function refreshme() {
+  // location.reload();
+  document.forms[0].submit();
  }
 
 </script>
@@ -169,7 +179,9 @@
    &nbsp;<? echo ($docname == $lastdocname) ? "" : $docname ?>
   </td>
   <td class="detail">
-   &nbsp;<? echo $row['pc_eventDate'] . ' ' . substr($row['pc_startTime'], 0, 5) ?>
+   &nbsp;<a href='javascript:oldEvt(<?echo $row['pc_eid'] ?>)'>
+   <? echo $row['pc_eventDate'] . ' ' . substr($row['pc_startTime'], 0, 5) ?>
+   </a>
   </td>
   <td class="detail">
    &nbsp;<? echo $row['fname'] . " " . $row['lname'] ?>
