@@ -22,6 +22,10 @@ function selpopup(selobj) {
    width  = 500;
    height = 400;
   }
+  else if (opt.text == 'Refer') {
+   width  = 700;
+   height = 500;
+  }
   dlgopen(opt.value, '_blank', width, height);
  }
  selobj.selectedIndex = 0;
@@ -69,6 +73,9 @@ function selpopup(selobj) {
      <option value='../reports/players_report.php'>Roster</option>
 <? } ?>
      <option value='../reports/appointments_report.php'>Appts</option>
+<? if (file_exists("$webserver_root/custom/refer.php")) { ?>
+     <option value='../../custom/refer.php'>Refer</option>
+<? } ?>
     </select>
   </td>
  </tr>

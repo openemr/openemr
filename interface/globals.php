@@ -90,10 +90,10 @@ else {
 //Version tags
 
 $v_major = '2';
-$v_minor = '7';
-$v_patch = '3';
+$v_minor = '8';
+$v_patch = '0';
 
-$tag = '-rc1'; // release candidate
+$tag = '-rc2'; // release candidate, e.g. '-rc1'
 
 $openemr_version = "$v_major.$v_minor.$v_patch".$tag;	// Version tag used by program
 
@@ -106,7 +106,7 @@ $GLOBALS['rootdir'] = $rootdir;
 //change these to reflect when the daily view should start to display times
 //as well as it should end. ex schedule_start = 9 schedule_end = 17
 // start end times in hours
-$GLOBALS['schedule_start'] = 9;
+$GLOBALS['schedule_start'] = 8;
 $GLOBALS['schedule_end'] = 17;
 // the interval in minutes that the day calendar will display
 $GLOBALS['calendar_interval'] =15;
