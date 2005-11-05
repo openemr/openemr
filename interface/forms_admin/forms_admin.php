@@ -104,10 +104,15 @@ for ($i=0; false != ($fname = readdir($dp)); $i++)
 	if ($fname != "." && $fname != ".." && $fname != "CVS" && (is_dir($dpath.$fname) || stristr($fname, ".tar.gz") || stristr($fname, ".tar") || stristr($fname, ".zip") || stristr($fname, ".gz")))
 		$inDir[$i] = $fname;
 
+// ballards 11/05/2005 fixed bug in removing registered form from the list
 if ($bigdata != false)
-foreach ( $bigdata as $registry )
-	if ( $key = array_search($registry['directory'], $inDir) )
+{
+	foreach ( $bigdata as $registry )
+	{
+		$key = array_search($registry['directory'], $inDir) ;  /* returns integer or FALSE */
 		unset($inDir[$key]);
+	}
+}
 
 foreach ( $inDir as $fname )
 {
