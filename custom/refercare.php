@@ -11,10 +11,7 @@
  /////////////////////////////////////////////////////////////////////
 
  include_once("../interface/globals.php");
- // include_once("../library/patient.inc");
 
- // This mess gets all the info for the patient.
- //
  $query = "SELECT * FROM patient_data WHERE pid = '$pid' LIMIT 1";
  $row = sqlFetchArray(sqlStatement($query));
 
