@@ -53,6 +53,12 @@ include_once("../../library/acl.inc");
 </td>
 <? } ?>
 
+<? if (acl_check('admin', 'language')) { ?>
+<td valign="middle" nowrap>
+&nbsp;<a class=menu target=Main href="../language/language.php">Language</a>&nbsp;
+</td>
+<? } ?>
+
 
 <? if (acl_check('admin', 'users')) { ?>
 <td valign="middle" nowrap>
