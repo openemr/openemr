@@ -1,0 +1,69 @@
+<pre>
+
+Multi Language Tool.
+
+This module has very few components to care about.
+
+The first one is the following lines you can find at globals.php
+
+//Language Control Section (will add toggling)
+//English:1, Swedish:2, Spanish:3, German:4,
+define (LANGUAGE,1);
+
+By changing the number, you change the default language.
+At a click language toggling capabilities will be added in the future.
+
+The second thing is the module itself.
+By default we have English, Swedish, and Spanish loaded as languages.
+But not all the translation is done yet.
+
+The options are.
+Add Language: You get a box to enter a new language.
+
+Add Constant: You get a box to add a new string to be used in the translation function, this one should be used only if you know what you are doing, mostly, if you added some custom programming with new text output. The "constant" string can be literally what you want to say or a shorter reference to it.
+
+Edit Definitions: English is used as the reference language, if you click the English label you'll get a set of all constants and the English definitions at the side. If no definition is loaded yet for a given constant then a blank box is shown, by entering a definition and clicking "Load Definition" you save whatever changes you made.
+
+If you click other label than English, you get a set of all constants, the English definition at the side, and an input box to enter/modify the definition in the selected language.
+
+The translation is done by the xl() custom function.
+Its semantics are very simple.
+
+xl (string[,'r'[,string prepend[,string append]])
+
+Which with examples means:
+
+xl ('translate this')
+
+By default the function will return (after all, is a function) the translation.
+
+First it uses the LANGUAGE constant defined to pick the translation.
+
+Second it goes for the translation, if none is found, then the same string entered is used and returned as is.
+
+The first optional and only argument is 'e' which stands for echo. Use it if you want the function to echo the translated result instead of returning it.
+
+i.e.
+xl ('translate this','e')
+
+But if you are already within another function, then you want the function to return something.
+
+i.e.
+echo ("this and".xl ('translate this')."that too");
+
+The third and fourth optional arguments are strings to be prepend and appended respectively.
+
+i.e.
+xl ('translate this','e','&#60b>',&#60/b>);
+
+will echo
+&#60b>this translated&#60/b>
+
+If you want only something to be appended in the a return, then you must supply empty second and third arguments.
+
+i.e.
+xl ('translate this','','',&#60br>);
+will echo
+this translated&#60br>
+
+</pre>
