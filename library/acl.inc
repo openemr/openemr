@@ -4,7 +4,7 @@
   // statement and change it to point to the location where
   // gacl.class.php is intalled.
   //
-  // $phpgacl_location = "/var/www/phpgacl";
+  $phpgacl_location = "/var/www/gacl";
 
   // Tentatively, the following Access Control Objects will be supported.
   // These are the "things to be protected":
@@ -17,6 +17,8 @@
   //   practice    Practice Settings
   //   superbill   Superbill Codes Administration
   //   users       Users/Groups/Logs Administration
+  //   batchcom    Batch Communication Tool
+  //   language	   Language Interface Tool	
   //
   // Section "acct" (Accounting):
   //   bill        Billing (write optional)
