@@ -145,8 +145,8 @@ if ($_POST['form_action']=='Process') {
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <link rel=stylesheet href="batchcom.css" type="text/css">
-<script type="text/javascript" src="http://192.168.1.7/e/openemr/library/overlib_mini.js"></script>
-<script type="text/javascript" src="http://192.168.1.7/e/openemr/library/calendar.js"></script>
+<script type="text/javascript" src="../../library/overlib_mini.js"></script>
+<script type="text/javascript" src="../../library/calendar.js"></script>
 
 
 </head>
