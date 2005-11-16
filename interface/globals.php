@@ -170,6 +170,11 @@ function strterm($string,$length) {
 	}
 }
 
+//Language Control Section (will add toggling)
+//English:1, Swedish:2, Spanish:3, German:4,
+define (LANGUAGE,1);
+include_once (dirname(__FILE__) . "/../library/translation.inc.php");
+
 //required for normal operation because of recent changes in PHP:
 $ps = strpos($_SERVER['REQUEST_URI'],"myadmin");
 if ($ps === false) {
