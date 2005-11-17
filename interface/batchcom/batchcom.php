@@ -198,19 +198,19 @@ if ($_POST['form_action']=='Process') {
 		-->
 		<br>And:<INPUT TYPE="radio" NAME="and_or_app_within" value="AND" checked>, Or:<INPUT TYPE="radio" NAME="and_or_app_within" value="OR"> Appointment within:<INPUT TYPE='text' size='12' NAME='app_s'> <a href="javascript:show_calendar('select_form.app_s')"
     title="Click here to choose a date"
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
+    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' ></a>
 		
 		And: <INPUT TYPE='text' size='12' NAME='app_e'> <a href="javascript:show_calendar('select_form.app_e')"
     title="Click here to choose a date"
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
+    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' ></a>
 
 		<br>And:<INPUT TYPE="radio" NAME="and_or_seen_since" value="AND" checked>, Or:<INPUT TYPE="radio" NAME="and_or_seen_since" value="OR"> Seen since: <INPUT TYPE='text' size='12' NAME='seen_since'> <a href="javascript:show_calendar('select_form.seen_since')"
     title="Click here to choose a date"
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
+    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
 
 		<br>And:<INPUT TYPE="radio" NAME="and_or_not_seen_since" value="AND" checked>, Or:<INPUT TYPE="radio" NAME="and_or_not_seen_since" value="OR"> Not seen since: <INPUT TYPE='text' size='12' NAME='not_seen_since'> <a href="javascript:show_calendar('select_form.not_seen_since')"
     title="Click here to choose a date"
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
+    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
 		<br>Sort by: <SELECT NAME="sort_by">
 				<?
 				foreach ($sort_by as $key => $value) {
