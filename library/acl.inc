@@ -4,7 +4,7 @@
   // statement and change it to point to the location where
   // gacl.class.php is intalled.
   //
-  $phpgacl_location = "/var/www/gacl";
+  // $phpgacl_location = "/var/www/gacl";
 
   // Tentatively, the following Access Control Objects will be supported.
   // These are the "things to be protected":
