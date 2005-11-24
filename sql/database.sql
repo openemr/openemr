@@ -27970,7 +27970,7 @@ CREATE TABLE IF NOT EXISTS `lang_constants` (
   `constant_name` varchar(255) NOT NULL default '',
   UNIQUE KEY `cons_id` (`cons_id`),
   KEY `cons_name` (`constant_name`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
+) ENGINE=MyISAM AUTO_INCREMENT=6 ;
 
 ## 
 ## Dumping data for table `lang_constants`
@@ -27989,7 +27989,7 @@ CREATE TABLE IF NOT EXISTS `lang_definitions` (
   `definition` mediumtext NOT NULL,
   UNIQUE KEY `def_id` (`def_id`),
   KEY `definition` (`definition`(100))
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 ;
+) ENGINE=MyISAM ;
 
 ## 
 ## Dumping data for table `lang_definitions`
@@ -28007,7 +28007,7 @@ CREATE TABLE IF NOT EXISTS `lang_languages` (
   `lang_code` char(2) NOT NULL default '',
   `lang_description` varchar(100) NOT NULL default '',
   UNIQUE KEY `lang_id` (`lang_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 ;
+) ENGINE=MyISAM ;
 
 ## 
 ## Dumping data for table `lang_languages`
