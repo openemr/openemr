@@ -11,38 +11,38 @@ $thisauth = acl_check('admin', 'batchcom');
 
 if (!$thisauth) {
   echo "<html>\n<body>\n";
-  echo "<p>You are not authorized for this.</p>\n";
+  echo "<p>".xl('You are not authorized for this.','','','</p>')."\n";
   echo "</body>\n</html>\n";
   exit();
  }
 
 // menu arrays (done this way so it's easier to validate input on validate selections)
-$choices=Array ('CSV File','Email','Phone call list');
-$gender=Array ('Any','Male','Female');
-$hipaa=Array ('NO','YES');
-$sort_by=Array ('Zip Code'=>'patient_data.postal_code','Last Name'=>'patient_data.lname','Appointment Date'=>'last_ap' );
+$choices=Array (xl('CSV File'),xl('Email'),xl('Phone call list'));
+$gender=Array (xl('Any'),xl('Male'),xl('Female'));
+$hipaa=Array (xl('NO'),xl('YES'));
+$sort_by=Array (xl('Zip Code')=>'patient_data.postal_code',xl('Last Name')=>'patient_data.lname',xl('Appointment Date')=>'last_ap' );
 
 // process form
 if ($_POST['form_action']=='Process') {
 	//validation uses the functions in batchcom.inc.php
 	//validate dates
-	if (!check_date_format($_POST['app_s'])) $form_err.='<br>Date format for "appointment start" is not valid';
-	if (!check_date_format($_POST['app_e'])) $form_err.='<br>Date format for "appointment end" is not valid';
-	if (!check_date_format($_POST['seen_since'])) $form_err.='<br>Date format for "seen since" is not valid';
-	if (!check_date_format($_POST['not_seen_since'])) $form_err.='<br>Date format for "not seen since" is not valid';
+	if (!check_date_format($_POST['app_s'])) $form_err.=xl('Date format for "appointment start" is not valid','','<br>');
+	if (!check_date_format($_POST['app_e'])) $form_err.=xl('Date format for "appointment end" is not valid','','<br>');
+	if (!check_date_format($_POST['seen_since'])) $form_err.=xl('Date format for "seen since" is not valid','','<br>');
+	if (!check_date_format($_POST['not_seen_since'])) $form_err.=xl('Date format for "not seen since" is not valid','','<br>');
 	// validate numbers
-	if (!check_age($_POST['age_from'])) $form_err.='<br>Age format for "age from" is not valid';
-	if (!check_age($_POST['age_upto'])) $form_err.='<br>Age format for "age up to" is not valid';
+	if (!check_age($_POST['age_from'])) $form_err.=xl('Age format for "age from" is not valid','','<br>');
+	if (!check_age($_POST['age_upto'])) $form_err.=xl('Age format for "age up to" is not valid','','<br>');
 	// validate selections
-	if (!check_select($_POST['gender'],$gender)) $form_err.='<br>Error in "Gender" selection';
-	if (!check_select($_POST['process_type'],$choices)) $form_err.='<br>Error in "Process" selection';
-	if (!check_select($_POST['hipaa_choice'],$hipaa)) $form_err.='<br>Error in "HIPAA" selection';
-	if (!check_select($_POST['sort_by'],$sort_by)) $form_err.='<br>Error in "Sort By" selection';
+	if (!check_select($_POST['gender'],$gender)) $form_err.=xl('Error in "Gender" selection','','<br>');
+	if (!check_select($_POST['process_type'],$choices)) $form_err.=xl('Error in "Process" selection','','<br>');
+	if (!check_select($_POST['hipaa_choice'],$hipaa)) $form_err.=xl('Error in "HIPAA" selection','','<br>');
+	if (!check_select($_POST['sort_by'],$sort_by)) $form_err.=xl('Error in "Sort By" selection','','<br>');
 	// validates and or
-	if (!check_yes_no ($_POST['and_or_gender'])) $form_err.='<br>Error in YES or NO option';
-	if (!check_yes_no ($_POST['and_or_app_within'])) $form_err.='<br>Error in YES or NO option';
-	if (!check_yes_no ($_POST['and_or_seen_since'])) $form_err.='<br>Error in YES or NO option';
-	if (!check_yes_no ($_POST['and_or_not_seen_since'])) $form_err.='<br>Error in YES or NO option';
+	if (!check_yes_no ($_POST['and_or_gender'])) $form_err.=xl('Error in YES or NO option','','<br>');
+	if (!check_yes_no ($_POST['and_or_app_within'])) $form_err.=xl('Error in YES or NO option','','<br>');
+	if (!check_yes_no ($_POST['and_or_seen_since'])) $form_err.=xl('Error in YES or NO option','','<br>');
+	if (!check_yes_no ($_POST['and_or_not_seen_since'])) $form_err.=xl('Error in YES or NO option','','<br>');
 
 	//process sql
 	if (!$form_err) {
@@ -117,7 +117,7 @@ if ($_POST['form_action']=='Process') {
 		// if no results.
 		if (mysql_num_rows($res)==0){
 			
-			echo ("<br>No results, please tray again.");
+			echo (xl('No results, please tray again.','','<br>'));
 		
 		//if results
 		} else { 
@@ -151,7 +151,7 @@ if ($_POST['form_action']=='Process') {
 
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<span class="title">Batch Communication Tool</span>
+<span class="title"><?xl('Batch Communication Tool','e')?></span>
 <br><br>
 
 <!-- for the popup date selector -->
@@ -165,8 +165,8 @@ if ($_POST['form_action']=='Process') {
 		if ($form_err) {
 			echo ("The following errors occurred<br>$form_err<br><br>");
 		}
-		?>
-		Process:<SELECT NAME="process_type">
+		
+		xl('Process:','e')?><SELECT NAME="process_type">
 				<?
 				foreach ($choices as $value) {
 					echo ("<option>$value</option>");
@@ -174,7 +174,7 @@ if ($_POST['form_action']=='Process') {
 				?>
 				</SELECT>
 
-		<br>Overwrite HIPAA choice: <SELECT NAME="hipaa_choice">
+		<br><?xl('Overwrite HIPAA choice: ','e')?><SELECT NAME="hipaa_choice">
 									<?
 									foreach ($hipaa as $value) {
 										echo ("<option>$value</option>");
@@ -182,9 +182,9 @@ if ($_POST['form_action']=='Process') {
 									?>
 									</SELECT>
 		<br>
-		Age From:<INPUT TYPE="text" size="2" NAME="age_from"> Up to:<INPUT TYPE="text" size="2" NAME="age_upto"> 
-		And:<INPUT TYPE="radio" NAME="and_or_gender" value="AND" checked>, Or:<INPUT TYPE="radio" NAME="and_or_gender" value="OR">
-		Gender: <SELECT NAME="gender">
+		<?xl('Age From:','e')?><INPUT TYPE="text" size="2" NAME="age_from"> <?xl(' Up to:','e')?><INPUT TYPE="text" size="2" NAME="age_upto"> 
+		<?xl('And:','e')?><INPUT TYPE="radio" NAME="and_or_gender" value="AND" checked><?xl(', Or:','e')?><INPUT TYPE="radio" NAME="and_or_gender" value="OR">
+		<?l('Gender: ','e')?><SELECT NAME="gender">
 				<?
 				foreach ($gender as $value) {
 					echo ("<option>$value</option>");
@@ -196,32 +196,32 @@ if ($_POST['form_action']=='Process') {
 
 						</SELECT>
 		-->
-		<br>And:<INPUT TYPE="radio" NAME="and_or_app_within" value="AND" checked>, Or:<INPUT TYPE="radio" NAME="and_or_app_within" value="OR"> Appointment within:<INPUT TYPE='text' size='12' NAME='app_s'> <a href="javascript:show_calendar('select_form.app_s')"
-    title="Click here to choose a date"
+		<br><?xl('And:','e')?><INPUT TYPE="radio" NAME="and_or_app_within" value="AND" checked><?xl(', Or:','e')?><INPUT TYPE="radio" NAME="and_or_app_within" value="OR"><?xl(' Appointment within:','e')?><INPUT TYPE='text' size='12' NAME='app_s'> <a href="javascript:show_calendar('select_form.app_s')"
+    title="<?xl('Click here to choose a date','e')?>"
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' ></a>
 		
-		And: <INPUT TYPE='text' size='12' NAME='app_e'> <a href="javascript:show_calendar('select_form.app_e')"
-    title="Click here to choose a date"
+		<?xl('And: ','e')?><INPUT TYPE='text' size='12' NAME='app_e'> <a href="javascript:show_calendar('select_form.app_e')"
+    title="<?xl('Click here to choose a date','e')?>"
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' ></a>
 
-		<br>And:<INPUT TYPE="radio" NAME="and_or_seen_since" value="AND" checked>, Or:<INPUT TYPE="radio" NAME="and_or_seen_since" value="OR"> Seen since: <INPUT TYPE='text' size='12' NAME='seen_since'> <a href="javascript:show_calendar('select_form.seen_since')"
-    title="Click here to choose a date"
+		<br><?xl('And:','e')?><INPUT TYPE="radio" NAME="and_or_seen_since" value="AND" checked><?xl(', Or:','e')?><INPUT TYPE="radio" NAME="and_or_seen_since" value="OR"><?xl(' Seen since: ','e')?><INPUT TYPE='text' size='12' NAME='seen_since'> <a href="javascript:show_calendar('select_form.seen_since')"
+    title="<?xl('Click here to choose a date','e')?>"
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
 
-		<br>And:<INPUT TYPE="radio" NAME="and_or_not_seen_since" value="AND" checked>, Or:<INPUT TYPE="radio" NAME="and_or_not_seen_since" value="OR"> Not seen since: <INPUT TYPE='text' size='12' NAME='not_seen_since'> <a href="javascript:show_calendar('select_form.not_seen_since')"
-    title="Click here to choose a date"
+		<br><?xl('And:','e')?><INPUT TYPE="radio" NAME="and_or_not_seen_since" value="AND" checked><?xl(', Or:','e')?><INPUT TYPE="radio" NAME="and_or_not_seen_since" value="OR"><?xl(' Not seen since: ','e')?><INPUT TYPE='text' size='12' NAME='not_seen_since'> <a href="javascript:show_calendar('select_form.not_seen_since')"
+    title="<?xl('Click here to choose a date','e')?>"
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
-		<br>Sort by: <SELECT NAME="sort_by">
+		<br><?xl('Sort by: ','e')?><SELECT NAME="sort_by">
 				<?
 				foreach ($sort_by as $key => $value) {
 					echo ("<option value=".$value.">$key</option>");
 				}
 				?>
 				</SELECT>
-	<br>(Fill here only if sending email notification to patients).
-	<br>Email Sender: <INPUT TYPE="text" NAME="email_sender" value="your@example.com">
-	<br>Email Subject: <INPUT TYPE="text" NAME="email_subject" value="From your clinic">
-	<br>Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***
+	<br><?xl('(Fill here only if sending email notification to patients)','e')?>
+	<br><?xl('Email Sender: ','e')?><INPUT TYPE="text" NAME="email_sender" value="your@example.com">
+	<br><?xl('Email Subject: ','e')?><INPUT TYPE="text" NAME="email_subject" value="From your clinic">
+	<br><?xl('Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***','e')?>
 	<br><TEXTAREA NAME="email_body" ROWS="8" COLS="35"></TEXTAREA>
 
 	<br><INPUT TYPE="submit" name="form_action" value="Process">

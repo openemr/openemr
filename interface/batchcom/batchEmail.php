@@ -13,13 +13,13 @@
 <link rel=stylesheet href="batchcom.css" type="text/css">
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<span class="title">Batch Communication Tool</span>
+<span class="title"><?xl('Batch Communication Tool','e')?></span>
 <br><br>
 
 <?
 $email_sender=$_POST['email_sender'];
 $sent_by=$_SESSION["authId"];
-$msg_type="Email from Batchcom";
+$msg_type="xl('Email from Batchcom')";
 
 while ($row=sqlFetchArray($res)) {
 
@@ -52,7 +52,7 @@ while ($row=sqlFetchArray($res)) {
 }
 
 if ($m_error) {
-	echo ("<br>Could not send email due to a server problem, $m_error_count emails not sent<br>");
+	echo ("xl('Could not send email due to a server problem, ','','<br>). $m_error_count . xl(' emails not sent','','','<br>')");
 }
 
 ?> 

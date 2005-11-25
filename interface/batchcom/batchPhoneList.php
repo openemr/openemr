@@ -13,18 +13,18 @@
 <link rel=stylesheet href="batchcom.css" type="text/css">
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<span class="title">Batch Communication Tool</span>
+<span class="title"><?xl('Batch Communication Tool','e')?></span>
 <br><br>
 
 <?
 
 echo ("<table>"); //will do css
 
-echo ("<tr><td>Name </td>");
-echo ("<td>DOB </td>");
-echo ("<td>Home</td>");
-echo ("<td>Work </td>");
-echo ("<td>Contact </td>");
+echo ("<tr><td>xl('Name') </td>");
+echo ("<td>xl('DOB') </td>");
+echo ("<td>xl('Home')</td>");
+echo ("<td>xl('Work') </td>");
+echo ("<td>xl('Contact') </td>");
 echo ("<td>$Cell </td></tr>\n");
 
 
