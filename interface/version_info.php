@@ -15,10 +15,10 @@ include_once("globals.php");
 
 
 
-<font class="title">Debug Information</font>
+<font class="title"><?xl('Debug Information','e')?></font>
 
 <br>
-Pennington Firm OpenEMR  v<?echo $openemr_version?><br>
+<? echo xl('Pennington Firm OpenEMR  v') . $openemr_version?><br>
 
 
 </body>

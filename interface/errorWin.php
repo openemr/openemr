@@ -1,5 +1,5 @@
 <?php
-echo "heyyo. you have been here for ".($_GET['msec']/1000/60)." min";
+echo xl("heyyo. you have been here for ").($_GET['msec']/1000/60).xl(" min");
 ?>
 <script language="JavaScript">
 

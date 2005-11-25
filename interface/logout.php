@@ -17,16 +17,16 @@ include_once("$srcdir/auth.inc");
 
 
 
-<span class=text>Logged out.</span>
+<span class=text><?xl('Logged out.','e')?></span>
 
 
 <br><br>
 
-This page will inline include the login page, so that we do not have to click relogin every time.
+<?xl('This page will inline include the login page, so that we do not have to click relogin every time.','e')?>
 
 <br><br>
 
-<a class=link href="login_screen.php">Relogin</a>
+<a class=link href="login_screen.php"><?xl('Relogin','e')?></a>
 
 <br><br>
 

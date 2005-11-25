@@ -9,10 +9,10 @@ include_once("./globals.php");
  top.location.href='<?echo "$rootdir/login/login_frame.php"?>';
 </script>
 
-<a href='<?echo "$rootdir/login/login_frame.php"?>'>Follow manually</a>
+<a href='<?echo "$rootdir/login/login_frame.php"?>'><?xl('Follow manually','e')?></a>
 
 <p>
-OpenEMR requires Javascript to perform user authentication.
+<?xl('OpenEMR requires Javascript to perform user authentication.','e')?>
 
 </body>
 </html>
