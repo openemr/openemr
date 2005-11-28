@@ -77,10 +77,10 @@ if ($_POST['bn_save']) {
    "history = '"          . $_POST['form_history']     . "', " .
    "examination = '"      . $_POST['form_examination'] . "', " .
    "plan = '"             . $_POST['form_plan']        . "', " .
-   "followup_required = " . cbvalue('fu_required')     . ", "  .
-   "followup_timing = '$fu_timing'"                    . ", "  .
-   "outcome = "           . rbvalue('outcome')         . ", "  .
-   "destination = "       . rbvalue('destination')     . " "   .
+   "followup_required = " . rbvalue('fu_required')     . ", "  .
+   "followup_timing = '$fu_timing'"                    . " "   .
+// "outcome = "           . rbvalue('outcome')         . ", "  .
+// "destination = "       . rbvalue('destination')     . " "   .
    "WHERE id = '$formid'";
   sqlStatement($query);
  }
@@ -89,16 +89,16 @@ if ($_POST['bn_save']) {
  //
  else {
   $query = "INSERT INTO form_clinical_notes ( " .
-   "history, examination, plan, followup_required, followup_timing, " .
-   "outcome, destination " .
+   "history, examination, plan, followup_required, followup_timing " .
+// ",outcome, destination " .
    ") VALUES ( " .
    "'" . $_POST['form_history']     . "', " .
    "'" . $_POST['form_examination'] . "', " .
    "'" . $_POST['form_plan']        . "', " .
-   cbvalue('fu_required')           . ", "  .
-   "'$fu_timing'"                   . ", "  .
-   rbvalue('outcome')               . ", "  .
-   rbvalue('destination')           . " "   .
+   rbvalue('fu_required')           . ", "  .
+   "'$fu_timing'"                   . " "   .
+// rbvalue('outcome')               . ", "  .
+// rbvalue('destination')           . " "   .
    ")";
   $newid = sqlInsert($query);
   addForm($encounter, "Clinical Notes", $newid, "clinical_notes", $pid, $userauthorized);
@@ -162,7 +162,7 @@ if ($formid) {
    <table width='100%'>
     <tr>
      <td width='5%' nowrap>
-      <? echo cbinput('fu_required', 'followup_required') ?>Required on:&nbsp;
+      <? echo rbinput('fu_required', '1', 'Required in:', 'followup_required') ?>
      </td>
      <td nowrap>
       <input type='text' name='fu_timing' size='10' style='width:100%'
@@ -170,9 +170,21 @@ if ($formid) {
        value='<? echo addslashes($row['followup_timing']) ?>' />
      </td>
     </tr>
+    <tr>
+     <td colspan='2' nowrap>
+      <? echo rbinput('fu_required', '2', 'Pending investigation', 'followup_required') ?>
+     </td>
+    </tr>
+    <tr>
+     <td colspan='2' nowrap>
+      <? echo rbinput('fu_required', '0', 'None required', 'followup_required') ?>
+     </td>
+    </tr>
    </table>
   </td>
  </tr>
+
+ <!--
 
  <tr bgcolor='#dddddd'>
   <td colspan='2' align='center'><b>Final Discharge</b></td>
@@ -183,10 +195,10 @@ if ($formid) {
   <td nowrap>
    <table width='100%'>
     <tr>
-     <? echo rbcell('outcome', '1', 'Resolved'  , 'outcome') ?>
-     <? echo rbcell('outcome', '2', 'Improved'  , 'outcome') ?>
-     <? echo rbcell('outcome', '3', 'Status Quo', 'outcome') ?>
-     <? echo rbcell('outcome', '4', 'Worse'     , 'outcome') ?>
+     <? // echo rbcell('outcome', '1', 'Resolved'  , 'outcome') ?>
+     <? // echo rbcell('outcome', '2', 'Improved'  , 'outcome') ?>
+     <? // echo rbcell('outcome', '3', 'Status Quo', 'outcome') ?>
+     <? // echo rbcell('outcome', '4', 'Worse'     , 'outcome') ?>
     </tr>
    </table>
   </td>
@@ -197,14 +209,16 @@ if ($formid) {
   <td nowrap>
    <table width='100%'>
     <tr>
-     <? echo rbcell('destination', '1', 'GP'                 , 'destination') ?>
-     <? echo rbcell('destination', '2', 'Hospital Specialist', 'destination') ?>
+     <? // echo rbcell('destination', '1', 'GP'                 , 'destination') ?>
+     <? // echo rbcell('destination', '2', 'Hospital Specialist', 'destination') ?>
      <td width='25%'>&nbsp;</td>
      <td width='25%'>&nbsp;</td>
     </tr>
    </table>
   </td>
  </tr>
+
+ -->
 
 </table>
 

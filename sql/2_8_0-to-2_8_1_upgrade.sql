@@ -55,3 +55,10 @@ CREATE TABLE IF NOT EXISTS `lang_languages` (
 INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (1, 'en', 'English');
 INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (2, 'se', 'Swedish');
 INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (3, 'es', 'Spanish');
+
+ALTER TABLE lists
+  ADD outcome     int(11) NOT NULL DEFAULT 0,
+  ADD destination varchar(255) DEFAULT NULL;
+
+ALTER TABLE form_clinical_notes
+  MODIFY followup_required int(11) NOT NULL DEFAULT 0;

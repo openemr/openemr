@@ -108,7 +108,7 @@ function refreshIssue(issue, title) {
 function newIssue() {
  var f = document.forms[0];
  var tmp = (keyid && f.form_key[1].checked) ? ('?enclink=' + keyid) : '';
- dlgopen('summary/add_edit_issue.php' + tmp, '_blank', 500, 450);
+ dlgopen('summary/add_edit_issue.php' + tmp, '_blank', 600, 475);
 }
 
 // New Encounter button is clicked.

@@ -52,7 +52,7 @@
 
  // Process click on issue title.
  function newissue() {
-  dlgopen('../../patient_file/summary/add_edit_issue.php', '_blank', 500, 450);
+  dlgopen('../../patient_file/summary/add_edit_issue.php', '_blank', 600, 475);
   return false;
  }
 

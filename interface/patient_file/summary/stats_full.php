@@ -55,7 +55,7 @@ function refreshIssue(issue, title) {
 
 // Process click on issue title.
 function dopclick(id) {
- dlgopen('add_edit_issue.php?issue=' + id, '_blank', 500, 450);
+ dlgopen('add_edit_issue.php?issue=' + id, '_blank', 600, 475);
 }
 
 // Process click on number of encounters.

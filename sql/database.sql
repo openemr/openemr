@@ -26947,21 +26947,23 @@ CREATE TABLE `integration_mapping` (
 
 DROP TABLE IF EXISTS `lists`;
 CREATE TABLE `lists` (
-  `id`       bigint(20)    NOT NULL auto_increment,
-  `date`     datetime      default NULL,
-  `type`     varchar(255)  default NULL,
-  `title`    varchar(255)  default NULL,
-  begdate    date          DEFAULT NULL,
-  enddate    date          DEFAULT NULL,
-  occurrence int(11)       DEFAULT 0,
-  referredby varchar(255)  DEFAULT NULL,
-  extrainfo  varchar(255)  DEFAULT NULL,
-  diagnosis  varchar(255)  NOT NULL DEFAULT '',
-  `activity` tinyint(4)    default NULL,
-  `comments` longtext      ,
-  `pid` bigint(20)         default NULL,
-  `user` varchar(255)      default NULL,
-  `groupname` varchar(255) default NULL,
+  `id`          bigint(20)    NOT NULL auto_increment,
+  `date`        datetime      DEFAULT NULL,
+  `type`        varchar(255)  DEFAULT NULL,
+  `title`       varchar(255)  DEFAULT NULL,
+  begdate       date          DEFAULT NULL,
+  enddate       date          DEFAULT NULL,
+  occurrence    int(11)       DEFAULT 0,
+  referredby    varchar(255)  DEFAULT NULL,
+  extrainfo     varchar(255)  DEFAULT NULL,
+  diagnosis     varchar(255)  NOT NULL DEFAULT '',
+  `activity`    tinyint(4)    DEFAULT NULL,
+  `comments`    longtext      ,
+  `pid`         bigint(20)    DEFAULT NULL,
+  `user`        varchar(255)  DEFAULT NULL,
+  `groupname`   varchar(255)  DEFAULT NULL,
+  `outcome`     int(11)       NOT NULL DEFAULT 0,
+  `destination` varchar(255)  DEFAULT NULL,
   PRIMARY KEY  (`id`)
 ) ;
 

@@ -1,4 +1,4 @@
-<?
+<?php
  // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -36,6 +36,20 @@
   return "NULL";
  }
 
+ function rbinput($name, $value, $desc, $colname) {
+  global $irow;
+  $ret  = "<input type='radio' name='$name' value='$value'";
+  if ($irow[$colname] == $value) $ret .= " checked";
+  $ret .= " />$desc";
+  return $ret;
+ }
+
+ function rbvalue($rbname) {
+  $tmp = $_POST[$rbname];
+  if (! $tmp) $tmp = '0';
+  return "'$tmp'";
+ }
+
 ?>
 <html>
 <head>
@@ -56,7 +70,7 @@ td { font-size:10pt; }
  var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
 
  var aopts = new Array();
-<?
+<?php
  // "Clickoptions" is a feature by Mark Leeds that provides for one-click
  // access to preselected lists of issues in each category.  Here we get
  // the issue titles from the user-customizable file and write JavaScript
@@ -115,7 +129,7 @@ td { font-size:10pt; }
 </head>
 
 <body <?echo $top_bg_line;?>>
-<?
+<?php
  // If we are saving, then save and close the window.
  //
  if ($_POST['form_save']) {
@@ -131,20 +145,24 @@ td { font-size:10pt; }
 
   if ($issue) {
    sqlStatement("UPDATE lists SET " .
-    "type = '" . $text_type . "', " .
-    "title = '" . $_POST['form_title'] . "', " .
-    "comments = '" . $_POST['form_comments'] . "', " .
-    "begdate = " . QuotedOrNull($form_begin) . ", " .
-    "enddate = " . QuotedOrNull($form_end) . ", " .
-    "diagnosis = '" . $_POST['form_diagnosis'] . "', " .
-    "occurrence = '" . $_POST['form_occur'] . "', " .
-    "referredby = '" . $_POST['form_referredby'] . "', " .
-    "extrainfo = '" . $_POST['form_missed'] . "' " .
+    "type = '"        . $text_type                  . "', " .
+    "title = '"       . $_POST['form_title']        . "', " .
+    "comments = '"    . $_POST['form_comments']     . "', " .
+    "begdate = "      . QuotedOrNull($form_begin)   . ", "  .
+    "enddate = "      . QuotedOrNull($form_end)     . ", "  .
+    "diagnosis = '"   . $_POST['form_diagnosis']    . "', " .
+    "occurrence = '"  . $_POST['form_occur']        . "', " .
+    "referredby = '"  . $_POST['form_referredby']   . "', " .
+    "extrainfo = '"   . $_POST['form_missed']       . "', " .
+    "outcome = "      . rbvalue('form_outcome')     . ", "  .
+//  "destination = "  . rbvalue('form_destination') . " "   . // radio button version
+    "destination = '" . $_POST'form_destination']   . "' "  .
     "WHERE id = '$issue'");
   } else {
    $issue = sqlInsert("INSERT INTO lists ( " .
     "date, pid, type, title, activity, comments, begdate, enddate, " .
-    "diagnosis, occurrence, referredby, extrainfo, user, groupname " .
+    "diagnosis, occurrence, referredby, extrainfo, user, groupname, " .
+    "outcome, destination " .
     ") VALUES ( " .
     "NOW(), " .
     "'$pid', " .
@@ -159,7 +177,11 @@ td { font-size:10pt; }
     "'" . $_POST['form_referredby']  . "', " .
     "'" . $_POST['form_missed']      . "', " .
     "'" . $$_SESSION['authUser']     . "', " .
-    "'" . $$_SESSION['authProvider'] . "' )");
+    "'" . $$_SESSION['authProvider'] . "', " .
+   rbvalue('form_outcome')           . ", "  .
+// rbvalue('form_destination')       . " "   . // radio button version
+    "'" . $_POST['form_destination'] . "' "  .
+   ")");
   }
 
   $tmp_title = $ISSUE_TYPES[$text_type][2] . ": $form_begin " .
@@ -211,7 +233,7 @@ td { font-size:10pt; }
  <tr>
   <td valign='top' width='1%' nowrap><b>Type:</b></td>
   <td>
-<?
+<?php
  $index = 0;
  foreach ($ISSUE_TYPES as $value) {
   echo "   <input type='radio' name='form_type' value='$index' onclick='newtype($index)'";
@@ -262,7 +284,7 @@ td { font-size:10pt; }
   <td>
    <select name='form_diagnosis' title='Diagnosis must be coded into a linked encounter'>
     <option value="">Unknown or N/A</option>
-<?
+<?php
  while ($brow = sqlFetchArray($bres)) {
   echo "   <option value='" . $brow['code'] . "'";
   if ($brow['code'] == $irow['diagnosis']) echo " selected";
@@ -277,7 +299,7 @@ td { font-size:10pt; }
   <td valign='top' nowrap><b>Occurrence:</b></td>
   <td>
    <select name='form_occur'>
-<?
+<?php
  foreach ($arroccur as $key => $value) {
   echo "   <option value='$key'";
   if ($key == $irow['occurrence']) echo " selected";
@@ -288,7 +310,7 @@ td { font-size:10pt; }
   </td>
  </tr>
 
-<? if ($GLOBALS['athletic_team']) { ?>
+<?php if ($GLOBALS['athletic_team']) { ?>
  <tr>
   <td valign='top' nowrap><b>Missed:</b></td>
   <td>
@@ -297,7 +319,7 @@ td { font-size:10pt; }
    &nbsp;games/events
   </td>
  </tr>
-<? } else { ?>
+<?php } else { ?>
  <tr>
   <td valign='top' nowrap><b>Referred by:</b></td>
   <td>
@@ -305,12 +327,38 @@ td { font-size:10pt; }
     style='width:100%' title='Referring physician and practice' />
   </td>
  </tr>
-<? } ?>
+<?php } ?>
 
  <tr>
   <td valign='top' nowrap><b>Comments:</b></td>
   <td>
    <textarea name='form_comments' rows='4' cols='40' wrap='virtual' style='width:100%'><? echo $irow['comments'] ?></textarea>
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' nowrap><b>Outcome:</b></td>
+  <td>
+   <? echo rbinput('form_outcome', '1', 'Resolved'        , 'outcome') ?>&nbsp;
+   <? echo rbinput('form_outcome', '2', 'Improved'        , 'outcome') ?>&nbsp;
+   <? echo rbinput('form_outcome', '3', 'Status quo'      , 'outcome') ?>&nbsp;
+   <? echo rbinput('form_outcome', '4', 'Worse'           , 'outcome') ?>&nbsp;
+   <? echo rbinput('form_outcome', '5', 'Pending followup', 'outcome') ?>
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' nowrap><b>Destination:</b></td>
+  <td>
+<?php if (true) { ?>
+   <input type='text' size='40' name='form_destination' value='<? echo $irow['destination'] ?>'
+    style='width:100%' title='GP, Secondary care specialist, etc.' />
+<?php } else { // leave this here for now, please -- Rod ?>
+   <? echo rbinput('form_destination', '1', 'GP'                 , 'destination') ?>&nbsp;
+   <? echo rbinput('form_destination', '2', 'Secondary care spec', 'destination') ?>&nbsp;
+   <? echo rbinput('form_destination', '3', 'GP via physio'      , 'destination') ?>&nbsp;
+   <? echo rbinput('form_destination', '4', 'GP via podiatry'    , 'destination') ?>
+<?php } ?>
   </td>
  </tr>
 

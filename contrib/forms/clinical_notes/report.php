@@ -25,8 +25,13 @@ function clinical_notes_report($pid, $encounter, $cols, $id) {
    }
 
    if ($key == 'followup_required') {
-    $value = 'Yes';
+    switch ($value) {
+     case '1': $value = 'Yes'; break;
+     case '2': $value = 'Pending investigation'; break;
+    }
    }
+
+   /****
    else if ($key == 'outcome') {
     switch ($value) {
      case '1': $value = 'Resolved'  ; break;
@@ -41,6 +46,7 @@ function clinical_notes_report($pid, $encounter, $cols, $id) {
      case '2': $value = 'Hospital Specialist'; break;
     }
    }
+   ****/
 
    $key=ucwords(str_replace("_"," ",$key));
    print "<td valign='top'><span class='bold'>$key: </span><span class='text'>$value &nbsp;</span></td>\n";
