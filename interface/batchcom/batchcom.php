@@ -184,7 +184,7 @@ if ($_POST['form_action']=='Process') {
 		<br>
 		<?xl('Age From:','e')?><INPUT TYPE="text" size="2" NAME="age_from"> <?xl(' Up to:','e')?><INPUT TYPE="text" size="2" NAME="age_upto"> 
 		<?xl('And:','e')?><INPUT TYPE="radio" NAME="and_or_gender" value="AND" checked><?xl(', Or:','e')?><INPUT TYPE="radio" NAME="and_or_gender" value="OR">
-		<?l('Gender: ','e')?><SELECT NAME="gender">
+		<?xl('Gender: ','e')?><SELECT NAME="gender">
 				<?
 				foreach ($gender as $value) {
 					echo ("<option>$value</option>");
