@@ -25,7 +25,7 @@ if ($_POST['mode'] == 'export') {
 	$results = $db->Execute($sql);
 	$billings = array();
 	if ($results->RecordCount() == 0) {
-		echo "No Bills Found to Include in OFX Export<br>";
+		echo xl("No Bills Found to Include in OFX Export<br>");
 	}
 	else {
 		while(!$results->EOF) {
@@ -45,12 +45,12 @@ if ($_POST['mode'] == 'export') {
 
 if ($_POST['mode'] == 'process') {
 	if (exec("ps x | grep 'process_bills[.]php'")) {
-		$alertmsg = 'Request ignored - claims processing is already running!';
+		$alertmsg = xl('Request ignored - claims processing is already running!');
 	}
 	else {
 		exec("cd $webserver_root/library/freeb;" .
 			"php -q process_bills.php bill > process_bills.log 2>&1 &");
-		$alertmsg = 'Batch processing initiated; this may take a while.';
+		$alertmsg = xl('Batch processing initiated; this may take a while.');
 	}
 }
 
@@ -148,9 +148,9 @@ function set_button_states() {
 <?
 if ($userauthorized) {
 ?>
-<a href="../main/main.php" target=Main><font class=title>Billing Report</font><font class=more> <?echo $tback;?></font></a>
+<a href="../main/main.php" target=Main><font class=title><?xl('Billing Report','e')?></font><font class=more> <?echo $tback;?></font></a>
 <?} else {?>
-<a href="../main/onotes/office_comments.php" target=Main><font class=title>Billing Report</font><font class=more><?echo $tback;?></font></a>
+<a href="../main/onotes/office_comments.php" target=Main><font class=title><?xl('Billing Report','e')?></font><font class=more><?echo $tback;?></font></a>
 <?
 }
 ?>
@@ -160,30 +160,30 @@ if ($userauthorized) {
 <input type=hidden name=mode value="change">
 <table width=100% border="1" cellspacing="0" cellpadding="0">
 	<tr>
-		<td nowrap>&nbsp;<span class=text>From: </span><input type=entry name=from_date size=11 value="<?echo $from_date;?>"></td>
-		<td nowrap>&nbsp;<span class=text>To: </span><input type=entry name=to_date size=11 value="<?echo $to_date;?>">
+		<td nowrap>&nbsp;<span class=text><?xl('From: ','e')?></span><input type=entry name=from_date size=11 value="<?echo $from_date;?>"></td>
+		<td nowrap>&nbsp;<span class=text><?xl('To: ','e')?></span><input type=entry name=to_date size=11 value="<?echo $to_date;?>">
 			<input type="hidden" name="code_type" value="%"></td>
-		<td nowrap><input type=checkbox name=unbilled <?if ($unbilled == "on") {echo "checked";};?>><span class=text>Show Unbilled Only</span></td>
-		<td nowrap><input type=checkbox name=authorized <?if ($my_authorized == "on") {echo "checked";};?>><span class=text>Show Authorized Only</span></td>
+		<td nowrap><input type=checkbox name=unbilled <?if ($unbilled == "on") {echo "checked";};?>><span class=text><?xl('Show Unbilled Only','e')?></span></td>
+		<td nowrap><input type=checkbox name=authorized <?if ($my_authorized == "on") {echo "checked";};?>><span class=text><?xl('Show Authorized Only','e')?></span></td>
 		<td align='right' width='10%' nowrap>
-			&nbsp;<span class=text><a href="javascript:document.the_form.mode.value='change';document.the_form.submit()" class=link_submit>[Change View]</a>
+			&nbsp;<span class=text><a href="javascript:document.the_form.mode.value='change';document.the_form.submit()" class=link_submit><?xl('[Change View]','e')?></a>
 			or
-			<a href="javascript:document.the_form.mode.value='export';document.the_form.submit()" class=link_submit>[Export OFX]</a></span>&nbsp;
+			<a href="javascript:document.the_form.mode.value='export';document.the_form.submit()" class=link_submit><?xl('[Export OFX]','e')?></a></span>&nbsp;
 		</td>
 	</tr>
 	<tr>
-		<td nowrap>&nbsp;<a href="print_billing_report.php?<?print "from_date=".urlencode($ofrom_date)."&to_date=".urlencode($oto_date)."&code_type=".urlencode($ocode_type)."&unbilled=".urlencode($ounbilled)."&authorized=".urlencode($oauthorized);?>" class=link_submit target=new>[View Printable Report]</a></td>
+		<td nowrap>&nbsp;<a href="print_billing_report.php?<?print "from_date=".urlencode($ofrom_date)."&to_date=".urlencode($oto_date)."&code_type=".urlencode($ocode_type)."&unbilled=".urlencode($ounbilled)."&authorized=".urlencode($oauthorized);?>" class=link_submit target=new><?xl('[View Printable Report]','e')?></a></td>
 		<td nowrap>
 <?php
 	print '&nbsp;';
 	$acct_config = $GLOBALS['oer_config']['ws_accounting'];
 	if($acct_config['enabled'] == true) {
-		print '<span class=text><a href="javascript:void window.open(\''.$acct_config['url_path'].'\')">[SQL-Ledger]</a></span>';
+		print '<span class=text><a href="javascript:void window.open(\''.$acct_config['url_path'].'\')">'.xl("[SQL-Ledger]","e").'</a></span>';
 		if (acl_check('acct', 'rep')) {
-			print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_receipts_report.php\')">[Reports]</a></span>';
+			print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_receipts_report.php\')">'.xl('[Reports]').'</a></span>';
 		}
 		if (acl_check('acct', 'eob')) {
-			print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_eob_search.php\')">[EOBs]</a></span>';
+			print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_eob_search.php\')">'.xl('[EOBs]').'</a></span>';
 		}
 	}
 ?>
@@ -191,12 +191,12 @@ if ($userauthorized) {
 		<td colspan='2' nowrap>
 			&nbsp;
 			<a href="javascript:document.the_form.mode.value='process';document.the_form.submit()" class="link_submit"
-				 title="Process all queued bills to create electronic data (and print if requested)">[Start Batch Processing]</a>
+				 title="Process all queued bills to create electronic data (and print if requested)"><?xl('[Start Batch Processing]','e')?></a>
 			&nbsp; <a href='../../library/freeb/process_bills.log' target='_blank' class='link_submit'
-				title='See messages from the last batch processing run'>[view log]</a></span>
+				title='See messages from the last batch processing run'><?xl('[view log]','e')?></a></span>
 		</td>
 		<td align='right' nowrap>
-			<a href="javascript:select_all()" class="link_submit">[Select All]</a>&nbsp;
+			<a href="javascript:select_all()" class="link_submit"><?xl('[Select All]','e')?></a>&nbsp;
 		</td>
 	</tr>
 </table>
@@ -205,13 +205,13 @@ if ($userauthorized) {
 <form name=update_form method=post action=billing_process.php>
 
 <center>
-<input type="submit" name="bn_hcfa_print" value="Queue HCFA &amp; Print" title="Queue for HCFA batch processing and printing">
-<input type="submit" name="bn_hcfa" value="Queue HCFA" title="Queue for HCFA batch processing">
-<input type="submit" name="bn_ub92_print" value="Queue UB92 &amp; Print" title="Queue for UB-92 batch processing and printing">
-<input type="submit" name="bn_ub92" value="Queue UB92" title="Queue for UB-92 batch processing">
-<input type="submit" name="bn_x12" value="Queue X12" title="Queue for X12 batch processing">
-<input type="submit" name="bn_mark" value="Mark as Cleared" title="Post to accounting and mark as billed">
-<input type="submit" name="bn_electronic_file" value="Make Electronic Batch &amp; Clear" title="Download billing file, post to accounting and mark as billed">
+<input type="submit" name="bn_hcfa_print" value="Queue HCFA &amp; Print" title="<?xl('Queue for HCFA batch processing and printing','e')?>">
+<input type="submit" name="bn_hcfa" value="Queue HCFA" title="<?xl('Queue for HCFA batch processing','e')?>">
+<input type="submit" name="bn_ub92_print" value="Queue UB92 &amp; Print" title="<?xl('Queue for UB-92 batch processing and printing','e')?>">
+<input type="submit" name="bn_ub92" value="Queue UB92" title="<?xl('Queue for UB-92 batch processing','e')?>">
+<input type="submit" name="bn_x12" value="Queue X12" title="<?xl('Queue for X12 batch processing','e')?>">
+<input type="submit" name="bn_mark" value="Mark as Cleared" title="<?xl('Post to accounting and mark as billed','e')?>">
+<input type="submit" name="bn_electronic_file" value="Make Electronic Batch &amp; Clear" title="<?xl('Download billing file, post to accounting and mark as billed','e')?>">
 </center>
 
 <input type=hidden name=mode value="bill">
@@ -396,29 +396,29 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 				$lhtml .= '>' . $xname . '</option>';
 			}
 			$lhtml .= "</select>";
-			$lhtml .= "<br>\n&nbsp;Claim was initiated: "  . $iter['date'];
+			$lhtml .= "<br>\n&nbsp;".xl("Claim was initiated: ")  . $iter['date'];
 			if ($iter['billed'] == 1) {
-				$lhtml .= "<br>\n&nbsp;Claim was billed: "  . $iter['bill_date'];
+				$lhtml .= "<br>\n&nbsp;".xl("Claim was billed: ")  . $iter['bill_date'];
 				++$lcount;
 			}
 			if ($iter['bill_process'] == 1) {
-				$lhtml .= "<br>\n&nbsp;Claim is queued for processing";
+				$lhtml .= "<br>\n&nbsp;".xl("Claim is queued for processing");
 				++$lcount;
 			}
 			if ($iter['bill_process'] == 5) {
-				$lhtml .= "<br>\n&nbsp;Claim is queued for printing and processing";
+				$lhtml .= "<br>\n&nbsp;".xl("Claim is queued for printing and processing");
 				++$lcount;
 			}
 			if ($iter['bill_process'] == 2) {
-				$lhtml .= "<br>\n&nbsp;Claim was processed: "  . $iter['process_date'];
-				$lhtml .= '<br>' . "\n" . '&nbsp;Claim is in file: <a href="get_claim_file.php?key=' . $iter['process_file'] .'">'  . $iter['process_file'] . '</a> or ';
+				$lhtml .= "<br>\n&nbsp;".xl("Claim was processed: ")  . $iter['process_date'];
+				$lhtml .= '<br>' . "\n" . '&nbsp;'.xl("Claim is in file:").' <a href="get_claim_file.php?key=' . $iter['process_file'] .'">'  . $iter['process_file'] . '</a> or ';
 				$lhtml .= '<a href="get_claim_file.php?action=print&key=' . $iter['process_file'] .'">Print It</a> or ';
-				$lhtml .= '<a target="_new" href="freebtest.php?format=' . $iter['target'] . '&billkey=' . $iter['pid'] . '-' . $iter['encounter'] . '">Run Test</a>';
+				$lhtml .= '<a target="_new" href="freebtest.php?format=' . $iter['target'] . '&billkey=' . $iter['pid'] . '-' . $iter['encounter'] . '">'.xl('Run Test').'</a>';
 				$lhtml .= '<input type="hidden" name="claims[' . $this_encounter_id . '][file]" value="' . $iter['process_file'] . '">';
 				$lcount += 2;
 			}
 			if ($iter['bill_process'] == 3) {
-				$lhtml .= "<br>\n&nbsp;Claim was processed: "  . $iter['process_date'] . " but there was an error: ". $iter['process_file'];
+				$lhtml .= "<br>\n&nbsp;".xl("Claim was processed: ")  . $iter['process_date'] . xl(" but there was an error: "). $iter['process_file'];
 				++$lcount;
 			}
 		}
@@ -464,7 +464,7 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 		$rhtml .= "</span></td>\n";
 		$rhtml .= '<td width=100>&nbsp;&nbsp;&nbsp;<span style="font-size:8pt;">' . date("Y-m-d",strtotime($iter{"date"})) . "</span></td>\n";
 		if ($iter['authorized'] != 1) {
-			$rhtml .= "<td><span class=alert>Note: This code was not entered by an authorized user. Only authorized codes may be uploaded to the Open Medical Billing Network for processing. If you wish to upload these codes, please select an authorized user here.</span></td>\n";
+			$rhtml .= "<td><span class=alert>".xl("Note: This code was not entered by an authorized user. Only authorized codes may be uploaded to the Open Medical Billing Network for processing. If you wish to upload these codes, please select an authorized user here.")."</span></td>\n";
 		}
 		else {
 			$rhtml .= "<td></td>\n";

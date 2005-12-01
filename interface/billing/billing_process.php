@@ -11,7 +11,7 @@ $bill_info = array();
 if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
 
 	if (empty($_POST['claims'])) {
-		$bill_info[] = "No claims were selected for inclusion.";
+		$bill_info[] = xl("No claims were selected for inclusion.");
 
 	}
 	$efile = array();
@@ -31,18 +31,18 @@ if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
 			if (file_exists($fname)) {
 			//less than 500 is almost definitely an error
 				if (filesize($fname) > 500) {
-					$bill_info[] = "Added: " . $fname . "\n";
+					$bill_info[] = xl("Added: ") . $fname . "\n";
 					$ta = array();
 					$ta["data"] = file_get_contents($fname);
 					$ta["size"] = filesize($fname);
 					$efile[] = $ta;
 				}
 				else {
-					$bill_info[] = "May have an error:" . $fname . "\n";
+					$bill_info[] = xl("May have an error:") . $fname . "\n";
 				}
 			}
 			else {
-				$bill_info[] = "Not found:" . $fname . "\n";
+				$bill_info[] = xl("Not found:") . $fname . "\n";
 			}
 		}
 
@@ -61,7 +61,7 @@ if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
 					$result = $db->execute($sql);
 					if(!$result) {
 						$error = true;
-						$bill_info[] = "Marking claim $claimid had a db error:" . $db->ErrorMsg() . "\n";
+						$bill_info[] = xl("Marking claim"). $claimid . xl("had a db error:") . $db->ErrorMsg() . "\n";
 					}
 
 					//send claim to the web services code to sync to external system if enabled
@@ -145,16 +145,16 @@ function process_form($ar) {
 			$result = $db->Execute($sql);
 
 			if(!$result) {
-				$bill_info[] = "Claim $claimid could not be queued due to error:" . $db->ErrorMsg() . "\n";
+				$bill_info[] = xl("Claim"). $claimid . xl("could not be queued due to error:") . $db->ErrorMsg() . "\n";
 			}
 			else {
 				// wtf is mark_as_billed? nothing sets it! -- Rod
 				// if($ar['mark_as_billed'] == 1) {
 				if($mark_only) {
-					$bill_info[] = "Claim $claimid was marked as billed only.\n";
+					$bill_info[] = xl("Claim ").$claimid . xl("was marked as billed only.",'','',"\n";
 				}
 				else {
-					$bill_info[] = "Claim $claimid was queued successfully.\n";
+					$bill_info[] = xl("Claim". $claimid . xl("was queued successfully.")."\n";
 				}
 			}
 			if ($mark_only) {
@@ -179,7 +179,7 @@ function process_form($ar) {
 
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<br><p><h3>Billing queue results:</h3><a href="billing_report.php">back</a><ul>
+<br><p><h3><?xl('Billing queue results:','e')?></h3><a href="billing_report.php">back</a><ul>
 <?
 foreach ($bill_info as $infoline) {
 	echo nl2br($infoline);

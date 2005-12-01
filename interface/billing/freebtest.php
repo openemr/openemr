@@ -12,28 +12,28 @@ $command = escapeshellcmd($command);
 $logfile = "/tmp/log-" . date("Ymd") . "-" . rand() . ".log";
 
 $execstring = $command . " " . $billkey . " " . $logfile;
-echo "Running Command: $execstring\n<br>";
+echo xl("Running Command: ")."$execstring\n<br>";
 echo "<p>";
-echo "Please note that this can take a very long time, up to several minutes, your web browser may not appear very active during this time but generating a bill is a 
-complicated process and your web browser is merely waiting for more information.";
+echo xl("Please note that this can take a very long time, up to several minutes, your web browser may not appear very active during this time but generating a bill is a 
+complicated process and your web browser is merely waiting for more information.");
 echo "</p>";
 echo "<p>";
-echo "You should be running this test if this claim appeared to generate successfully but the actual claim file does not contain any data or only an unfinished portion
+echo xl("You should be running this test if this claim appeared to generate successfully but the actual claim file does not contain any data or only an unfinished portion
 of the amount of data it is supposed to contain. It is obvious with HCFA claims because they are human readable, with X12 claims it is a more difficult process to determine
-if the claim is properly complete.";
-echo " Pecularities in many browsers may mean that the output below enters your screen in sudden jerks and that there are long pauses of several seconds where it 
+if the claim is properly complete.");
+echo xl(" Pecularities in many browsers may mean that the output below enters your screen in sudden jerks and that there are long pauses of several seconds where it 
 appears as though things may have crashed. That is not the case, you will eventually see output coming out line by line. There may be sequential numbers appearing 
 below, this is to indicate that even though nothing else may be displaying there is activity going on. These numbers will be interspersed with the content of the 
-billing and that is normal.";
+billing and that is normal.");
 echo "</p>";
 echo "<p>";
-echo "Depending on the type of bill you are testing you will see HCFA like output on a blank page for HCFA bills, you will see many lines of somewhat garbled text 
+echo xl("Depending on the type of bill you are testing you will see HCFA like output on a blank page for HCFA bills, you will see many lines of somewhat garbled text 
 and information if you are testing an X12 claim. That garbled text is the X12 EDI 4010A format. Occasionally you will see odd characters that look like dominoes or 
-squiglies, these are control characters such as page feeds and are normal.";
+squiglies, these are control characters such as page feeds and are normal.");
 echo "</p>";
 echo "<p>";
-echo "Please do NOT use your browsers stop or reload button while this page is running unless more than 10 minutes have elapsed, this will not cause the process to 
-stop on the server and will consume uneccesary resources.";
+echo xl("Please do NOT use your browsers stop or reload button while this page is running unless more than 10 minutes have elapsed, this will not cause the process to 
+stop on the server and will consume uneccesary resources.");
 echo "</p>";
 flush();
 ob_flush;
@@ -97,7 +97,7 @@ if (is_resource($process)) {
     // proc_close in order to avoid a deadlock
     $return_value = proc_close($process);
 
-    echo "<br>Claim test has completed running\n";
+    echo "<br>".xl("Claim test has completed running")."\n";
 }
 
 ?>

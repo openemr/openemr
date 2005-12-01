@@ -134,13 +134,13 @@
   fwrite($fhprint, create_statement($stmt));
 
   if ($DEBUG) {
-   $alertmsg = "Printing skipped; see test output in $STMT_TEMP_FILE";
+   $alertmsg = xl("Printing skipped; see test output in ").$STMT_TEMP_FILE;
   } else {
    exec("$STMT_PRINT_CMD $STMT_TEMP_FILE");
    if ($_POST['form_without']) {
-    $alertmsg = "Now printing statements; invoices will not be updated.";
+    $alertmsg = xl("Now printing statements; invoices will not be updated.");
    } else {
-    $alertmsg = "Now printing statements and updating invoices.";
+    $alertmsg = xl("Now printing statements and updating invoices.");
    }
   }
  }
@@ -148,7 +148,7 @@
 <html>
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<title>EOB Posting - Search</title>
+<title><?xl('EOB Posting - Search','e')?></title>
 
 <script language="JavaScript">
 
@@ -187,28 +187,28 @@ function npopup(pid) {
    &nbsp;
   </td>
   <td>
-   Source:
+   <?xl('Source:','e')?>
   </td>
   <td>
    <input type='text' name='form_source' size='10' value='<? echo $_POST['form_source']; ?>'
-    title='A check number or claim number to identify the payment'>
+    title='<?xl("A check number or claim number to identify the payment","e")?>'>
   </td>
   <td>
-   Pay Date:
+   <?xl('Pay Date:','e')?>
   </td>
   <td>
    <input type='text' name='form_paydate' size='10' value='<? echo $_POST['form_paydate']; ?>'
-    title='Date of payment mm/dd/yyyy'>
+    title='<?xl("Date of payment mm/dd/yyyy","e")?>'>
   </td>
   <td>
-   Amount:
+   <?xl('Amount:','e')?>
   </td>
   <td>
    <input type='text' name='form_amount' size='10' value='<? echo $_POST['form_amount']; ?>'
-    title='Paid amount that you will allocate'>
+    title='<?xl("Paid amount that you will allocate","e")?>'>
   </td>
   <td colspan='2' align='right'>
-   <a href='sl_eob_help.php' target='_blank'>Help</a>
+   <a href='sl_eob_help.php' target='_blank'><?xl('Help','e')?></a>
   </td>
  </tr>
 
@@ -219,37 +219,37 @@ function npopup(pid) {
 
  <tr bgcolor='#ddddff'>
   <td>
-   Name:
+   <?xl('Name:','e')?>
   </td>
   <td>
    <input type='text' name='form_name' size='10' value='<? echo $_POST['form_name']; ?>'
-    title='Any part of the patient name'>
+    title='<?xl("Any part of the patient name","e")?>'>
   </td>
   <td>
-   Chart ID:
+   <?xl('Chart ID:','e')?>
   </td>
   <td>
    <input type='text' name='form_pid' size='10' value='<? echo $_POST['form_pid']; ?>'
-    title='Patient chart ID'>
+    title='<?xl("Patient chart ID","e")?>'>
   </td>
   <td>
-   Encounter:
+   <?xl('Encounter:','e')?>
   </td>
   <td>
    <input type='text' name='form_encounter' size='10' value='<? echo $_POST['form_encounter']; ?>'
-    title='Encounter number'>
+    title='<?xl("Encounter number","e")?>'>
   </td>
   <td>
-   Svc Date:
+   <?xl('Svc Date:','e')?>
   </td>
   <td>
    <input type='text' name='form_date' size='10' value='<? echo $_POST['form_date']; ?>'
-    title='Date of service mm/dd/yyyy'>
+    title='<?xl("Date of service mm/dd/yyyy","e")?>'>
   </td>
   <td>
    <select name='form_category'>
 <?
- foreach (array('Open', 'All', 'Due') as $value) {
+ foreach (array(xl('Open'), xl('All'), xl('Due')) as $value) {
   echo "    <option value='$value'";
   if ($_POST['form_category'] == $value) echo " selected";
   echo ">$value</option>\n";
@@ -258,7 +258,7 @@ function npopup(pid) {
    </select>
   </td>
   <td>
-   <input type='submit' name='form_search' value='Search'>
+   <input type='submit' name='form_search' value='<?xl("Search","e")?>'>
   </td>
  </tr>
 
@@ -273,31 +273,31 @@ function npopup(pid) {
 
  <tr bgcolor="#dddddd">
   <td class="dehead">
-   &nbsp;Patient
+   &nbsp;<?xl('Patient','e')?>
   </td>
   <td class="dehead">
-   &nbsp;Invoice
+   &nbsp;<?xl('Invoice','e')?>
   </td>
   <td class="dehead">
-   &nbsp;Svc Date
+   &nbsp;<?xl('Svc Date','e')?>
   </td>
   <td class="dehead">
-   &nbsp;Due Date
+   &nbsp;<?xl('Due Date','e')?>
   </td>
   <td class="dehead" align="right">
-   Amount&nbsp;
+   <?xl('Amount','e')?>&nbsp;
   </td>
   <td class="dehead" align="right">
-   Paid&nbsp;
+   <?xl('Paid','e')?>&nbsp;
   </td>
   <td class="dehead" align="right">
-   Balance&nbsp;
+   <?xl('Balance','e')?>&nbsp;
   </td>
   <td class="dehead" align="center">
-   Prv
+   <?xl('Prv','e')?>
   </td>
   <td class="dehead" align="center">
-   Sel
+   <?xl('Sel','e')?>
   </td>
  </tr>
 <?
@@ -467,7 +467,7 @@ function npopup(pid) {
 <input type='button' value='Select All' onclick='checkAll(true)' /> &nbsp;
 <input type='button' value='Clear All' onclick='checkAll(false)' /> &nbsp;
 <input type='submit' name='form_print' value='Print Selected Statements' /> &nbsp;
-<input type='checkbox' name='form_without' value='1' /> Without Update
+<input type='checkbox' name='form_without' value='1' /> <?xl('Without Update','e')?>
 </p>
 
 </form>

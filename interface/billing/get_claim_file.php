@@ -13,7 +13,7 @@ $fname = $fconfig['claim_file_dir'] . $fname;
 
 
 if (!file_exists($fname)) {
-   echo "The claim file: " . $_GET['key'] . " could not be accessed.";
+   echo xl("The claim file: ") . $_GET['key'] . xl(" could not be accessed.");
 }
 elseif ($_GET['action'] == "print") {
 ?>
@@ -22,12 +22,12 @@ elseif ($_GET['action'] == "print") {
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<br><p><h3>Printing results:</h3><a href="billing_report.php">back</a><ul>
+<br><p><h3><?xl('Printing results:','e')?></h3><a href="billing_report.php"><?xl('back','e')?></a><ul>
 <?
 	$estring = $fconfig['print_command'] . " -P " . $fconfig['printer_name'] . " " . $fconfig['printer_extras'] . " " . $fname;
 	//echo $estring . "<br>";
 	$rstring = exec(escapeshellcmd($estring));
-	echo "Document $fname sent to printer.";
+	echo xl("Document"). $fname .xl("sent to printer.");
 ?>
 </ul>
 </body>

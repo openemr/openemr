@@ -18,8 +18,8 @@
   include_once("../forms/fee_sheet/codes.php");
   function is_clinic($code) {
     global $cpt, $hcpcs;
-    return ($cpt['Lab'][$code] || $cpt['Immunizations'][$code] ||
-      $hcpcs['Therapeutic Injections'][$code]);
+    return ($cpt[xl('Lab','e')][$code] || $cpt[xl('Immunizations','e')][$code] ||
+      $hcpcs[xl('Therapeutic Injections','e')][$code]);
   }
 
   function bucks($amount) {
@@ -27,19 +27,19 @@
       printf("%.2f", $amount);
   }
 
-  if (! acl_check('acct', 'rep')) die("Unauthorized access.");
+  if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
 
   SLConnect();
 ?>
 <html>
 <head>
-<title>Receipts for Medical Services</title>
+<title><?xl('Receipts for Medical Services','e')?></title>
 </head>
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <center>
 
-<h2>Cash Receipts</h2>
+<h2><?xl('Cash Receipts','e')?></h2>
 
 <form method='post' action='sl_receipts_report.php'>
 
@@ -67,14 +67,14 @@
 		echo "<input type='hidden' name='form_doctor' value='" . $_SESSION['authUserID'] . "'>";
 	}
 ?>
-   &nbsp;From:
+   &nbsp;<?xl('From:','e')?>
    <input type='text' name='form_from_date' size='10' value='<? echo $_POST['form_from_date']; ?>' title='MM/DD/YYYY'>
    &nbsp;To:
    <input type='text' name='form_to_date' size='10' value='<? echo $_POST['form_to_date']; ?>' title='MM/DD/YYYY'>
    &nbsp;
-   <input type='checkbox' name='form_details' value='1'<? if ($_POST['form_details']) echo " checked"; ?>>Details
+   <input type='checkbox' name='form_details' value='1'<? if ($_POST['form_details']) echo " checked"; ?>><?xl('Details','e')?>
    &nbsp;
-   <input type='submit' name='form_refresh' value='Refresh'>
+   <input type='submit' name='form_refresh' value="<?xl('Refresh','e')?>">
   </td>
  </tr>
 
@@ -89,22 +89,22 @@
 
  <tr bgcolor="#dddddd">
   <td class="dehead">
-   Practitioner
+   <?xl('Practitioner','e')?>
   </td>
   <td class="dehead">
-   Date
+   <?xl('Date','e')?>
   </td>
   <td class="dehead">
-   Invoice
+   <?xl('Invoice','e')?>
   </td>
   <td class="dehead">
-   Procedure
+   <?xl('Procedure','e')?>
   </td>
   <td class="dehead" align="right">
-   Prof.
+   <?xl('Prof.','e')?>
   </td>
   <td class="dehead" align="right">
-   Clinic
+   <?xl('Clinic','e')?>
   </td>
  </tr>
 <?
@@ -163,7 +163,7 @@
 
  <tr bgcolor="#ddddff">
   <td class="detail" colspan="4">
-   Totals for <? echo $docname ?>
+   <? echo xl('Totals for ') . $docname ?>
   </td>
   <td class="dehead" align="right">
    <? bucks($doctotal1) ?>
@@ -215,7 +215,7 @@
 
  <tr bgcolor="#ddddff">
   <td class="detail" colspan="4">
-   Totals for <? echo $docname ?>
+   <?echo xl('Totals for ') . $docname ?>
   </td>
   <td class="dehead" align="right">
    <? bucks($doctotal1) ?>
@@ -227,7 +227,7 @@
 
  <tr bgcolor="#ffdddd">
   <td class="detail" colspan="4">
-   Grand Totals
+   <?xl('Grand Totals','e')?>
   </td>
   <td class="dehead" align="right">
    <? bucks($grandtotal1) ?>

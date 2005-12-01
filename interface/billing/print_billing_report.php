@@ -61,7 +61,7 @@ if (!isset($_GET["mode"])) {
 <body bgcolor="#ffffff" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 
-<a href="javascript:window.close();" target=Main><font class=title>Billing Report</font></a>
+<a href="javascript:window.close();" target=Main><font class=title><?xl('Billing Report','e')?></font></a>
 <br>
 
 

@@ -58,14 +58,14 @@ if (!isset($_POST["mode"])) {
 <?
 if ($userauthorized) {
 ?>
-<a href="../main/main.php" target=Main><font class=title>Billing Report</font><font class=more><?echo $tback;?></font></a>
+<a href="../main/main.php" target=Main><font class=title><?xl('Billing Report','e')?></font><font class=more><?echo $tback;?></font></a>
 <?} else {?>
-<a href="../main/onotes/office_comments.php" target=Main><font class=title>Billing Report</font><font class=more><?echo $tback;?></font></a>
+<a href="../main/onotes/office_comments.php" target=Main><font class=title><?xl('Billing Report','e')?></font><font class=more><?echo $tback;?></font></a>
 <?
 }
 ?>
 <br>
-No billing system is currently active<br />
+<?xl('No billing system is currently active','e')?><br />
 
 <?
 

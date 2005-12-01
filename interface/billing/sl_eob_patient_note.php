@@ -17,12 +17,12 @@
 <html>
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<title>EOB Posting - Patient Note</title>
+<title><?xl('EOB Posting - Patient Note','e')?></title>
 </head>
 <body>
 <?
   $patient_id = $_GET['patient_id'];
-  if (! $patient_id) die("You cannot access this page directly.");
+  if (! $patient_id) die(xl("You cannot access this page directly."));
 
   if ($_POST['form_save']) {
     $thevalue = trim($_POST['form_note']);
@@ -45,7 +45,7 @@
 ?>
 <center>
 
-<h2>Billing Note for <? echo $row['fname'] . " " . $row['lname'] ?></h2>
+<h2><?echo xl('Billing Note for '). $row['fname'] . " " . $row['lname'] ?></h2>
 <p>&nbsp;</p>
 
 <form method='post' action='sl_eob_patient_note.php?patient_id=<? echo $patient_id ?>'>
@@ -56,9 +56,9 @@
 </p>
 
 <p>&nbsp;</p>
-<input type='submit' name='form_save' value='Save'>
+<input type='submit' name='form_save' value='<?xl("Save","e")?>'>
 &nbsp;
-<input type='button' value='Cancel' onclick='window.close()'>
+<input type='button' value='<?xl("Cancel","e")?>' onclick='window.close()'>
 
 </form>
 </center>

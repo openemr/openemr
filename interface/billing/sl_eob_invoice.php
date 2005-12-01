@@ -19,20 +19,20 @@
   $debug = 0; // set to 1 for debugging mode
 
   $reasons = array(
-    "Ins adjust",
-    "Coll w/o",
-    "Pt released",
-    "Sm debt w/o",
-    "To ded'ble",
-    "To copay",
-    "Bad check",
-    "Bad debt",
-    "Discount",
-    "Hardship w/o",
-    "Ins refund",
-    "Pt refund",
-    "Ins overpaid",
-    "Pt overpaid"
+    xl("Ins adjust"),
+    xl("Coll w/o"),
+    xl("Pt released"),
+    xl("Sm debt w/o"),
+    xl("To ded'ble"),
+    xl("To copay"),
+    xl("Bad check"),
+    xl("Bad debt"),
+    xl("Discount"),
+    xl("Hardship w/o"),
+    xl("Ins refund"),
+    xl("Pt refund"),
+    xl("Ins overpaid"),
+    xl("Pt overpaid")
   );
 
   $info_msg = "";
@@ -141,7 +141,7 @@
       "from ar where ar.id = $invid");
     if ($sl_err) die($sl_err);
     $arrow = SLGetRow($arres, 0);
-    if (! $arrow) die("There is no match for invoice id = $trans_id.");
+    if (! $arrow) die(xl('There is no match for invoice id').' = '."$trans_id.");
     $customer_id = $arrow['customer_id'];
     list($trash, $encounter) = explode(".", $arrow['invnumber']);
 
@@ -152,7 +152,7 @@
       "integration_mapping.foreign_table = 'customer' AND " .
       "patient_data.id = integration_mapping.local_id");
     $pid = $pdrow['pid'];
-    if (! $pid) die("Cannot find patient from SQL-Ledger customer id = $customer_id.");
+    if (! $pid) die(xl("Cannot find patient from SQL-Ledger customer id" )." = $customer_id.");
 
     // Find out if the encounter exists.
     $ferow = sqlQuery("SELECT pid FROM form_encounter WHERE " .
@@ -162,7 +162,7 @@
     // If it exists, just update the billing items.
     if ($encounter_pid) {
       if ($encounter_pid != $pid)
-        die("Expected form_encounter.pid to be $pid, but was $encounter_pid");
+        die(xl("Expected form_encounter.pid to be"). $pid.', '. xl('but was'). $encounter_pid);
       $query = "UPDATE billing SET billed = 0, bill_process = 0, payer_id = -1, " .
         "bill_date = NULL, process_date = NULL, process_file = NULL " .
         "WHERE encounter = $encounter AND pid = $pid AND activity = 1";
@@ -171,13 +171,13 @@
       } else {
         sqlQuery($query);
       }
-      $info_msg = "Encounter $encounter is ready for re-billing.";
+      $info_msg = xl("Encounter ".$encounter . xl("is ready for re-billing.");
       return;
     }
 
     // It does not exist then it better be a date.
     if (! preg_match("/^20\d\d\d\d\d\d$/", $encounter))
-      die("Internal error: encounter '$encounter' should exist but does not.");
+      die(xl("Internal error: encounter '").$encounter. xl("' should exist but does not."));
 
     $employee_id = $arrow['employee_id'];
 
@@ -188,10 +188,10 @@
       "integration_mapping.foreign_table = 'salesman' AND " .
       "users.id = integration_mapping.local_id");
     $provider_id = $drrow['id'];
-    if (! $provider_id) die("Cannot find provider from SQL-Ledger employee = $employee_id.");
+    if (! $provider_id) die(xl("Cannot find provider from SQL-Ledger employee = ") . $employee_id );
 
     $date_of_service = $arrow['transdate'];
-    if (! $date_of_service) die("Invoice has no date!");
+    if (! $date_of_service) die(xl("Invoice has no date!"));
 
     // Generate a new encounter number.
     $conn = $GLOBALS['adodb']['db'];
@@ -203,7 +203,7 @@
       "date, reason, facility, pid, encounter, onset_date " .
       ") VALUES ( " .
       "'$date_of_service', " .
-      "'Imported from Accounting', " .
+      "xl('Imported from Accounting','e'), " .
       "'" . addslashes($drrow['facility']) . "', " .
       "$pid, " .
       "$new_encounter, " .
@@ -211,13 +211,13 @@
       ")";
     if ($debug) {
       echo $query . "<br>\n";
-      echo "Call to addForm() goes here.<br>\n";
+      echo xl("Call to addForm() goes here.<br>")."\n";
     } else {
       $encounter_id = idSqlStatement($query);
-      if (! $encounter_id) die("Insert failed: $query");
-      addForm($new_encounter, "New Patient Encounter", $encounter_id,
+      if (! $encounter_id) die(xl("Insert failed: ".$query);
+      addForm($new_encounter, xl("New Patient Encounter"), $encounter_id,
         "newpatient", $pid, 1, $date_of_service);
-      $info_msg = "Encounter $new_encounter has been created. ";
+      $info_msg = xl("Encounter ").$new_encounter . xl(" has been created. ");
     }
 
     // For each invoice line item with a billing code we will insert
@@ -238,7 +238,7 @@
       $amount   = $row['sellprice'];
 
       // Extract the billing code.
-      $code = "Unknown";
+      $code = xl("Unknown");
       if (preg_match("/([A-Za-z0-9]\d\d\S*)/", $row['serialnumber'], $matches)) {
         $code = strtoupper($matches[1]);
       }
@@ -280,9 +280,9 @@
         if (preg_match("/$key/", $row['serialnumber'])) {
           $code_type = $key;
           if ($value['fee']) {
-            $code_text = "Procedure $code";
+            $code_text = xl("Procedure")." $code";
           } else {
-            $code_text = "Diagnosis $code";
+            $code_text = xl("Diagnosis")." $code";
             if ($proc_ins_id) {
               $query = "UPDATE billing SET justify = '$code' WHERE id = $proc_ins_id";
               if ($debug) {
@@ -346,14 +346,14 @@
     } else {
       SLQuery($query);
       if ($sl_err) die($sl_err);
-      $info_msg .= "This invoice number has been changed to $new_invnumber.";
+      $info_msg .= xl("This invoice number has been changed to ").$new_invnumber;
     }
   }
 ?>
 <html>
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<title>EOB Posting - Invoice</title>
+<title><?xl('EOB Posting - Invoice','e')?></title>
 <script language="JavaScript">
 
 // An insurance radio button is selected.
@@ -402,7 +402,7 @@ function validate(f) {
    }
    var svalue = srcobj.value;
    if (! svalue) {
-    alert('Source is missing for code ' + code);
+    alert(<? xl('Source is missing for code ','e')?> + code);
     return false;
    } else {
     var tmp = svalue.substring(0, 4).toLowerCase();
@@ -411,34 +411,34 @@ function validate(f) {
     } else if (svalue.substring(0, 2).toLowerCase() == 'pt') {
      svalue = svalue.substring(2);
     } else {
-     alert('Invalid or missing payer in source for code ' + code);
+     alert(<?xl('Invalid or missing payer in source for code ','e')?> + code);
      return false;
     }
     if (svalue) {
      if (svalue.substring(0, 1) != '/') {
-      alert('Missing slash after payer in source for code ' + code);
+      alert(<?xl('Missing slash after payer in source for code ','e')?> + code);
       return false;
      }
      tmp = svalue.substring(1, 3).toLowerCase();
      if (tmp != 'nm' && tmp != 'ci' && tmp != 'cp' && tmp != 'ne' &&
          tmp != 'it' && tmp != 'pf' && tmp != 'pp' && tmp != 'ok')
      {
-      alert('Invalid source designation "' + tmp + '" for code ' + code);
+      alert(<?xl('Invalid source designation "','e')?> + tmp + <?xl('" for code ','e')?> + code);
       return false;
      }
     }
    }
    if (! f[pfx+'[date]'].value) {
-    alert('Date is missing for code ' + code);
+    alert(<?xl('Date is missing for code ','e')?> + code);
     return false;
    }
   }
   if (f[pfx+'[pay]'].value && isNaN(parseFloat(f[pfx+'[pay]'].value))) {
-   alert('Payment value for code ' + code + ' is not a number');
+   alert(<?xl('Payment value for code ','e')?> + code + <?xl(' is not a number','e')?>);
    return false;
   }
   if (f[pfx+'[adj]'].value && isNaN(parseFloat(f[pfx+'[adj]'].value))) {
-   alert('Adjustment value for code ' + code + ' is not a number');
+   alert(<?xl('Adjustment value for code ','e')?> + code + <?xl(' is not a number','e')?>);
    return false;
   }
   // TBD: validate the date format
@@ -451,30 +451,30 @@ function validate(f) {
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <?
   $trans_id = $_GET['id'];
-  if (! $trans_id) die("You cannot access this page directly.");
+  if (! $trans_id) die(xl("You cannot access this page directly."));
 
   SLConnect();
 
   $chart_id_cash = SLQueryValue("select id from chart where accno = '$sl_cash_acc'");
   if ($sl_err) die($sl_err);
-  if (! $chart_id_cash) die("There is no COA entry for cash account '$sl_cash_acc'");
+  if (! $chart_id_cash) die(xl("There is no COA entry for cash account ").'$sl_cash_acc');
 
   $chart_id_ar = SLQueryValue("select id from chart where accno = '$sl_ar_acc'");
   if ($sl_err) die($sl_err);
-  if (! $chart_id_ar) die("There is no COA entry for AR account '$sl_ar_acc'");
+  if (! $chart_id_ar) die(xl("There is no COA entry for AR account ").'$sl_ar_acc');
 
   $chart_id_income = SLQueryValue("select id from chart where accno = '$sl_income_acc'");
   if ($sl_err) die($sl_err);
-  if (! $chart_id_income) die("There is no COA entry for income account '$sl_income_acc'");
+  if (! $chart_id_income) die(xl("There is no COA entry for income account ").'$sl_income_acc');
 
   $services_id = SLQueryValue("select id from parts where partnumber = '$sl_services_id'");
   if ($sl_err) die($sl_err);
-  if (! $services_id) die("There is no parts entry for services ID '$sl_services_id'");
+  if (! $services_id) die(xl("There is no parts entry for services ID ").'$sl_services_id');
 
   if ($_POST['form_save'] || $_POST['form_cancel']) {
     if ($_POST['form_save']) {
       if ($debug) {
-        echo "<p><b>This module is in test mode. The database will not be changed.</b><p>\n";
+        echo xl("This module is in test mode. The database will not be changed.",'','<p><b>',"</b><p>\n");
       }
       $paytotal = 0;
       foreach ($_POST['form_line'] as $code => $cdata) {
@@ -547,7 +547,7 @@ function validate(f) {
     "customer.id = ar.customer_id and employee.id = ar.employee_id");
   if ($sl_err) die($sl_err);
   $arrow = SLGetRow($arres, 0);
-  if (! $arrow) die("There is no match for invoice id = $trans_id.");
+  if (! $arrow) die(xl("There is no match for invoice id = ",).$trans_id);
 
   // Determine the date of service.  An 8-digit encounter number is
   // presumed to be a date of service imported during conversion.
@@ -576,7 +576,7 @@ function validate(f) {
 <table border='0' cellpadding='3'>
  <tr>
   <td>
-   Patient:
+   <?xl('Patient:','e')?>
   </td>
   <td>
    <?echo $arrow['name'] ?>
@@ -587,7 +587,7 @@ function validate(f) {
  </tr>
  <tr>
   <td>
-   Provider:
+   <?xl('Provider:','e')?>
   </td>
   <td>
    <?echo $arrow['doctor'] ?>
@@ -595,7 +595,7 @@ function validate(f) {
  </tr>
  <tr>
   <td>
-   Invoice:
+   <?xl('Invoice:','e')?>
   </td>
   <td>
    <?echo $arrow['invnumber'] ?>
@@ -604,14 +604,14 @@ function validate(f) {
 
  <tr>
   <td>
-   Svc Date:
+   <?xl('Svc Date:','e')?>
   </td>
   <td>
    <?echo $svcdate ?>
   </td>
   <td colspan="2">
    <!-- <?echo $arrow['shipvia'] ?> -->
-   Done with:&nbsp;
+   <?xl('Done with:','e','',"&nbsp")?>;
 <?
  // Write a checkbox for each insurance.  It is to be checked when
  // we no longer expect any payments from that company for the claim.
@@ -632,34 +632,34 @@ function validate(f) {
 
  <tr>
   <td>
-   Bill Date:
+   <?xl('Bill Date:','e'?>
   </td>
   <td>
    <?echo $arrow['transdate'] ?>
   </td>
   <td colspan="2">
-   Now posting for:&nbsp;
-   <input type='radio' name='form_insurance' value='Ins1' onclick='setins("Ins1")' checked />Ins1&nbsp;
-   <input type='radio' name='form_insurance' value='Ins2' onclick='setins("Ins2")' />Ins2&nbsp;
-   <input type='radio' name='form_insurance' value='Ins3' onclick='setins("Ins3")' />Ins3&nbsp;
-   <input type='radio' name='form_insurance' value='Pt'   onclick='setins("Pt")'   />Patient
+   <?xl('Now posting for:','e','',"&nbsp")?>;
+   <input type='radio' name='form_insurance' value='Ins1' onclick='setins("Ins1")' checked /><?xl('Ins1','e')?>&nbsp;
+   <input type='radio' name='form_insurance' value='Ins2' onclick='setins("Ins2")' /><?xl('Ins2','e')?>&nbsp;
+   <input type='radio' name='form_insurance' value='Ins3' onclick='setins("Ins3")' /><?xl('Ins3','e')?>&nbsp;
+   <input type='radio' name='form_insurance' value='Pt'   onclick='setins("Pt")'   /><?xl('Patient','e')?>
    <input type='hidden' name='form_eobs' value='<?echo addslashes($arrow['shipvia']) ?>' />
   </td>
  </tr>
  <tr>
   <td>
-   Due Date:
+   <?xl('Due Date:','e')?>
   </td>
   <td>
    <input type='text' name='form_duedate' size='10' value='<?echo $arrow['duedate'] ?>'
-    title='Due date mm/dd/yyyy or yyyy-mm-dd'>
+    title='<?xl('Due date mm/dd/yyyy or yyyy-mm-dd','e')?>'>
   </td>
   <td colspan="2">
-   <input type="checkbox" name="form_secondary" value="1"> Needs secondary billing
+   <input type="checkbox" name="form_secondary" value="1"> <?xl('Needs secondary billing','e')?>
    &nbsp;&nbsp;
-   <input type='submit' name='form_save' value='Save'>
+   <input type='submit' name='form_save' value='<?xl('Save','e')?>'>
    &nbsp;
-   <input type='button' value='Cancel' onclick='window.close()'>
+   <input type='button' value='<?xl('Cancel','e')?>' onclick='window.close()'>
   </td>
  </tr>
  <tr>
@@ -672,28 +672,28 @@ function validate(f) {
 
  <tr bgcolor="#cccccc">
   <td class="dehead">
-   Code
+   <?xl('Code','e')?>
   </td>
   <td class="dehead" align="right">
-   Charge
+   <?xl('Charge','e')?>
   </td>
   <td class="dehead" align="right">
-   Balance&nbsp;
+   <?xl('Balance','e')?>&nbsp;
   </td>
   <td class="dehead">
-   Source
+   <?xl('Source','e')?>
   </td>
   <td class="dehead">
-   Date
+   <?xl('Date','e')?>
   </td>
   <td class="dehead">
-   Pay
+   <?xl('Pay','e')?>
   </td>
   <td class="dehead">
-   Adjust
+   <?xl('Adjust','e')?>
   </td>
   <td class="dehead">
-   Reason
+   <?xl('Reason','e')?>
   </td>
  </tr>
 <?
