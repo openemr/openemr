@@ -443,8 +443,7 @@ class Prescription extends ORDataObject {
 			if ($this->refills > 0) {
 				$string .= "Refills: " . "\t\t" . $this->refills. ", of quantity: " . $this->per_refill ."\n";
 			}
-			$string .= "\n"
-			."Notes: \n" . $this->note;
+			$string .= "\n"."Notes: \n" . $this->note . "";
 			return $string;
 	}
 	
