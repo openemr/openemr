@@ -224,7 +224,7 @@ if ($_POST['form_action']=='Process') {
 	<br><?xl('Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***','e')?>
 	<br><TEXTAREA NAME="email_body" ROWS="8" COLS="35"></TEXTAREA>
 
-	<br><INPUT TYPE="submit" name="form_action" value="Process">
+	<br><INPUT TYPE="submit" name="form_action" value="Process"><?xl('Takes long','e')?>
 
 	</div>
 </div>
