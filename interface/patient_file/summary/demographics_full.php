@@ -42,6 +42,7 @@ $insurancei = getInsuranceProviders();
 
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 
+<script type="text/javascript" src="../../../library/dialog.js"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
 
 <SCRIPT LANGUAGE="JavaScript"><!--
@@ -112,6 +113,32 @@ function checkNum () {
  }else{
   alert("Please enter a dollar amount using only numbers and a decimal point.");
  }
+}
+
+// Indicates which insurance slot is being updated.
+var insurance_index = 0;
+
+// The OnClick handler for searching/adding the insurance company.
+function ins_search(ins) {
+ insurance_index = ins;
+ dlgopen('../../practice/ins_search.php', '_blank', 550, 400);
+ return false;
+}
+
+// The ins_search.php window calls this to set the selected insurance.
+function set_insurance(ins_id, ins_name) {
+ var thesel = document.forms[0]['i' + insurance_index + 'provider'];
+ var theopts = thesel.options; // the array of Option objects
+ var i = 0;
+ for (; i < theopts.length; ++i) {
+  if (theopts[i].value == ins_id) {
+   theopts[i].selected = true;
+   return;
+  }
+ }
+ // no matching option was found so create one, append it to the
+ // end of the list, and select it.
+ theopts[i] = new Option(ins_name, ins_id, false, true);
 }
 
 //-->
@@ -453,13 +480,13 @@ function checkNum () {
        <option value="">Unassigned</option>
 <?php
  foreach ($insurancei as $iid => $iname) {
-  echo "<option value='".$iid."'";
+  echo "<option value='" . $iid . "'";
   if (strtolower($iid) == strtolower($result3{"provider"}))
    echo " selected";
-  echo ">".$iname."</option>\n";
+  echo ">" . $iname . "</option>\n";
  }
 ?>
-      </select>&nbsp;<a href="<? echo  $GLOBALS['webroot'] ?>/controller.php?practice_settings&insurance_company&action=edit">Add New Insurer</a>
+      </select>&nbsp;<a href='' onclick='return ins_search(<?=$i?>)'>Search/Add Insurer</a>
      </td>
     </tr>
     <tr>
