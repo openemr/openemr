@@ -11,7 +11,7 @@ and promotes efficient entry of EOB data.','e')?>
 
 <p><?xl('The first window is the invoice search page.  At the top you should
 enter a source (e.g. check number), pay date and check amount.  The reason for the
-source and pay date is so that you don't have to enter them over and over
+source and pay date is so that you don\'t have to enter them over and over
 again for each claim.  The amount that you enter will be decreased for each
 invoice that is given part of the payment, and hopefully will end at zero
 when you are done.','e')?>
