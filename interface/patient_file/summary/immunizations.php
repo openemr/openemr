@@ -18,7 +18,7 @@ include_once("$srcdir/sql.inc");
                       patient_id   = '" . mysql_real_escape_string($pid) . "',
                       created_by = '" . mysql_real_escape_string($_SESSION['authId']) . "',
                       updated_by = '" . mysql_real_escape_string($_SESSION['authId']) . "',
-                      create_date = now()";
+                      create_date = now() ";
       sqlStatement($sql);
       $administered_date=$education_date=date('Y-m-d');
       $immunization_id=$manufacturer=$lot_number=$administered_by_id=$note=$id="";
@@ -26,6 +26,10 @@ include_once("$srcdir/sql.inc");
     elseif ($mode == "clear" ) {
       $administered_date=$education_date=date('Y-m-d');
       $immunization_id=$manufacturer=$lot_number=$administered_by_id=$note=$id="";
+    }
+	elseif ($mode == "delete" ) {
+	  $sql="DELETE FROM immunizations WHERE id =". mysql_real_escape_string($id)." LIMIT 1";
+	  sqlStatement($sql);
     }
     elseif ($mode == "edit" ) {
       $sql = "select * from immunizations where id = " . mysql_real_escape_string($id);
@@ -123,7 +127,8 @@ include_once("$srcdir/sql.inc");
                            from users
                          order by concat(lname,', ',fname))
                          union all
-                         select 0, 'Other'
+                                (select xtra_id, xtra_text from xtra limit 1)
+
                        ";
                 $result = sqlStatement($sql);
                 while($row = sqlFetchArray($result)){
@@ -175,7 +180,7 @@ include_once("$srcdir/sql.inc");
       <tr>
         <td valign=top>
           <table border=0 cellpadding=5 cellspacing=0>
-            <th><td><span class=bold>Date</span></td><td><span class=bold>Vaccine</span></td><td><span class=bold>Manufacturer</span></td><td><span class=bold>Lot Number</span></td><td><span class=bold>Administered By</span></td><td><span class=bold>Education Date</span></td><td><span class=bold>Note</span></td></th>
+            <th><td><span class=bold>Date</span></td><td><span class=bold>Vaccine</span></td><td><span class=bold>Manufacturer</span></td><td><span class=bold>Lot Number</span></td><td><span class=bold>Administered By</span></td><td><span class=bold>Education Date</span></td><td><span class=bold>Note</span></td><td></td></th>
               <?php
                 $sql = "select i1.id
                               ,i1.administered_date
@@ -201,7 +206,9 @@ include_once("$srcdir/sql.inc");
                   print "<td><span class=text>" . $row{"lot_number"} . "</span></td>";
                   print "<td><span class=text>" . $row{"administered_by"} . "</span></td>";
                   print "<td><span class=text>" . $row{"education_date"} . "</span></td>";
-                  print "<td><span class=text>" . $row{"note"} . "</span></td></tr>";
+                  print "<td><span class=text>" . $row{"note"} . "</span></td>";
+                  print "<td><a class=link href='immunizations.php?mode=delete&id=".$row{"id"}."' style=\"color: red;\">[Delete]</a></td></tr>";
+
                 }
               ?>
           </table>
