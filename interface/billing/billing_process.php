@@ -5,6 +5,12 @@ include_once("$srcdir/patient.inc");
 include_once("$srcdir/billrep.inc");
 include_once(dirname(__FILE__) . "/../../library/classes/WSClaim.class.php");
 
+$EXPORT_INC = "$webserver_root/custom/BillingExport.php";
+if (file_exists($EXPORT_INC)) {
+  include_once($EXPORT_INC);
+  $BILLING_EXPORT = true;
+}
+
 $fconfig = $GLOBALS['oer_config']['freeb'];
 $bill_info = array();
 
@@ -38,11 +44,11 @@ if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
 					$efile[] = $ta;
 				}
 				else {
-					$bill_info[] = xl("May have an error:") . $fname . "\n";
+					$bill_info[] = xl("May have an error: ") . $fname . "\n";
 				}
 			}
 			else {
-				$bill_info[] = xl("Not found:") . $fname . "\n";
+				$bill_info[] = xl("Not found: ") . $fname . "\n";
 			}
 		}
 
@@ -61,7 +67,7 @@ if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
 					$result = $db->execute($sql);
 					if(!$result) {
 						$error = true;
-						$bill_info[] = xl("Marking claim"). $claimid . xl("had a db error:") . $db->ErrorMsg() . "\n";
+						$bill_info[] = xl("Marking claim "). $claimid . xl(" had a db error: ") . $db->ErrorMsg() . "\n";
 					}
 
 					//send claim to the web services code to sync to external system if enabled
@@ -102,6 +108,11 @@ else {
 function process_form($ar) {
 	global $bill_info;
 
+  if (isset($ar['bn_external'])) {
+    // Open external billing file for output.
+    $be = new BillingExport();
+  }
+
 	$db = $GLOBALS['adodb']['db'];
 
 	if (empty($ar['claims'])) {
@@ -115,12 +126,20 @@ function process_form($ar) {
 		$payer = $claim_array['payer'];
 
 		if (isset($claim_array['bill'])) {
-			$sql = "SELECT x.processing_format from x12_partners as x where x.id =" . $db->qstr($claim_array['partner']);
-			$result = $db->Execute($sql);
-			$target = "x12";
-			if ($result && !$result->EOF) {
-			  	$target = $result->fields['processing_format'];
-			}
+
+      if (isset($ar['bn_external'])) {
+        // Write external claim.
+        $be->addClaim($patient_id, $encounter);
+      }
+      else {
+        $sql = "SELECT x.processing_format from x12_partners as x where x.id =" .
+          $db->qstr($claim_array['partner']);
+        $result = $db->Execute($sql);
+        $target = "x12";
+        if ($result && !$result->EOF) {
+            $target = $result->fields['processing_format'];
+        }
+      }
 
 			$sql = "UPDATE billing set bill_date = NOW(), ";
 
@@ -137,24 +156,26 @@ function process_form($ar) {
 			} else if (isset($ar['bn_mark'])) {
 				$sql .= " billed = 1, ";
 				$mark_only = true;
-			}
+      } else if (isset($ar['bn_external'])) {
+        $sql .= " billed = 1, ";
+      }
 
 			$sql .= " payer_id = '$payer' where encounter = " . $encounter . " and pid = " . $patient_id;
 
 			//echo $sql;
-			$result = $db->Execute($sql);
+			$result = 1; // $result = $db->Execute($sql); // Testing
 
 			if(!$result) {
-				$bill_info[] = xl("Claim"). $claimid . xl("could not be queued due to error:") . $db->ErrorMsg() . "\n";
+				$bill_info[] = xl("Claim "). $claimid . xl(" could not be queued due to error: ") . $db->ErrorMsg() . "\n";
 			}
 			else {
 				// wtf is mark_as_billed? nothing sets it! -- Rod
 				// if($ar['mark_as_billed'] == 1) {
 				if($mark_only) {
-					$bill_info[] = xl("Claim ").$claimid . xl("was marked as billed only.",'','',"\n";
+					$bill_info[] = xl("Claim ") . $claimid . xl(" was marked as billed only.") . "\n";
 				}
 				else {
-					$bill_info[] = xl("Claim". $claimid . xl("was queued successfully.")."\n";
+					$bill_info[] = xl("Claim ") . $claimid . xl(" was queued successfully.") . "\n";
 				}
 			}
 			if ($mark_only) {
@@ -167,6 +188,11 @@ function process_form($ar) {
 		}
 
 	}
+
+  if (isset($ar['bn_external'])) {
+    // Close external billing file.
+    $be->close();
+  }
 }
 
 

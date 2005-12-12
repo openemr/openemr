@@ -8,6 +8,8 @@ include_once("$srcdir/billrep.inc");
 include_once(dirname(__FILE__) . "/../../library/classes/OFX.class.php");
 include_once(dirname(__FILE__) . "/../../library/classes/X12Partner.class.php");
 
+$EXPORT_INC = "$webserver_root/custom/BillingExport.php";
+
 $alertmsg = '';
 
 if ($_POST['mode'] == 'export') {
@@ -131,13 +133,17 @@ function set_button_states() {
 	var can_mark     = (count1 == 0 && (count0 > 0 || count2 > 0));
 	var can_bill     = (count0 == 0 && count1 == 0 && count2 > 0);
 
+<? if (file_exists($EXPORT_INC)) { ?>
+  f.bn_external.disabled        = !can_generate;
+<? } else { ?>
 	f.bn_hcfa_print.disabled      = !can_generate;
 	f.bn_hcfa.disabled            = !can_generate;
 	f.bn_ub92_print.disabled      = !can_generate;
 	f.bn_ub92.disabled            = !can_generate;
 	f.bn_x12.disabled             = !can_generate;
-	f.bn_mark.disabled            = !can_mark;
 	f.bn_electronic_file.disabled = !can_bill;
+<? } ?>
+	f.bn_mark.disabled            = !can_mark;
 }
 
 </script>
@@ -190,10 +196,12 @@ if ($userauthorized) {
 		</td>
 		<td colspan='2' nowrap>
 			&nbsp;
+<? if (! file_exists($EXPORT_INC)) { ?>
 			<a href="javascript:document.the_form.mode.value='process';document.the_form.submit()" class="link_submit"
 				 title="Process all queued bills to create electronic data (and print if requested)"><?xl('[Start Batch Processing]','e')?></a>
 			&nbsp; <a href='../../library/freeb/process_bills.log' target='_blank' class='link_submit'
 				title='See messages from the last batch processing run'><?xl('[view log]','e')?></a></span>
+<? } ?>
 		</td>
 		<td align='right' nowrap>
 			<a href="javascript:select_all()" class="link_submit"><?xl('[Select All]','e')?></a>&nbsp;
@@ -205,6 +213,11 @@ if ($userauthorized) {
 <form name=update_form method=post action=billing_process.php>
 
 <center>
+
+<? if (file_exists($EXPORT_INC)) { ?>
+<input type="submit" name="bn_external" value="Export Billing" title="<?xl('Export to external billing system','e')?>"> &nbsp;
+<input type="submit" name="bn_mark" value="Mark as Cleared" title="<?xl('Mark as billed but skip billing','e')?>">
+<? } else { ?>
 <input type="submit" name="bn_hcfa_print" value="Queue HCFA &amp; Print" title="<?xl('Queue for HCFA batch processing and printing','e')?>">
 <input type="submit" name="bn_hcfa" value="Queue HCFA" title="<?xl('Queue for HCFA batch processing','e')?>">
 <input type="submit" name="bn_ub92_print" value="Queue UB92 &amp; Print" title="<?xl('Queue for UB-92 batch processing and printing','e')?>">
@@ -212,6 +225,8 @@ if ($userauthorized) {
 <input type="submit" name="bn_x12" value="Queue X12" title="<?xl('Queue for X12 batch processing','e')?>">
 <input type="submit" name="bn_mark" value="Mark as Cleared" title="<?xl('Post to accounting and mark as billed','e')?>">
 <input type="submit" name="bn_electronic_file" value="Make Electronic Batch &amp; Clear" title="<?xl('Download billing file, post to accounting and mark as billed','e')?>">
+<? } ?>
+
 </center>
 
 <input type=hidden name=mode value="bill">
