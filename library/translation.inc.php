@@ -10,10 +10,10 @@ function xl($constant,$mode='r',$prepend='',$append='') {
 	$string=$row['definition'];
 	if ($string=='') { $string="$constant"; }
 	$string="$prepend"."$string"."$append";
-	if ($mode=='r'){ 
-		return $string;	
-	} else {
+	if ($mode=='e'){ 
 		echo $string;
+	} else {
+		return $string;	
 	}
 }
 
