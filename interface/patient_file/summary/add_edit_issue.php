@@ -156,7 +156,7 @@ td { font-size:10pt; }
     "extrainfo = '"   . $_POST['form_missed']       . "', " .
     "outcome = "      . rbvalue('form_outcome')     . ", "  .
 //  "destination = "  . rbvalue('form_destination') . " "   . // radio button version
-    "destination = '" . $_POST'form_destination']   . "' "  .
+    "destination = '" . $_POST['form_destination']   . "' "  .
     "WHERE id = '$issue'");
   } else {
    $issue = sqlInsert("INSERT INTO lists ( " .
