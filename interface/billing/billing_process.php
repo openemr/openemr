@@ -163,7 +163,7 @@ function process_form($ar) {
 			$sql .= " payer_id = '$payer' where encounter = " . $encounter . " and pid = " . $patient_id;
 
 			//echo $sql;
-			$result = 1; // $result = $db->Execute($sql); // Testing
+			$result = $db->Execute($sql); // Testing
 
 			if(!$result) {
 				$bill_info[] = xl("Claim "). $claimid . xl(" could not be queued due to error: ") . $db->ErrorMsg() . "\n";
