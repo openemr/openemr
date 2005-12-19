@@ -58,8 +58,11 @@ Also note: A sample sql-ledger.conf including the above parameters is
 included, however it may be incomplete from the standpoint of the current
 SQL-Ledger release.
 
-4. Either copy ws_server.pl to the sql-ledger directory or create a symbolic
-link to the file in the sql-leder directory.
+4. Copy ws_server.pl to the sql-ledger directory if you are using SQL-Ledger
+2.4.x.  If you are using 2.6.x then copy ws_server_26.pl to that directory
+as ws_server.pl.  Alternatively you can create a suitable symbolic link in
+that directory.  Then, examine the resulting ws_server.pl and change the
+"use lib qw" statement as indicated.
 
 5. Edit the openemr/interface/globals.php and put the right data for the
 following variables:
