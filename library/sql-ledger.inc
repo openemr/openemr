@@ -6,7 +6,7 @@
 
   function SLConnect() {
     global $sl_conn, $sl_dbname, $sl_dbuser, $sl_dbpass;
-    $sl_conn = pg_pconnect("dbname=$sl_dbname user=$sl_dbuser password=$sl_dbpass");
+    $sl_conn = pg_pconnect("host=localhost dbname=$sl_dbname user=$sl_dbuser password=$sl_dbpass");
     if (!$sl_conn) die("Failed to connect to SQL-Ledger database.");
   }
 
