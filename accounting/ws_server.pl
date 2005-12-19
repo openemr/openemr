@@ -156,12 +156,19 @@ sub rpc_add_invoice
 	# This is the AR account number, needed by IS::post_invoice.
 	$form->{AR} = $oemr_ar_acc;
 
+
+	# This will use the posting date as the billing date
 	@t = localtime(time);
 	$dd = $t[3];
 	$mm = $t[4] + 1;
 	$yy = $t[5] + 1900;
 	
 	$form->{transdate} = sprintf("%02u-%02u-%04u", $t[4] + 1, $t[3], $t[5] + 1900);
+
+	#Uncoment this following line if you rather use the DOS as the billing date.
+	
+	# $form->{transdate} = $$post_hash{'dosdate'};
+
 
 	# If there is insurance, set a future due date so we don't bother
 	# the patient for a while.
