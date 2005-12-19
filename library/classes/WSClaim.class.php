@@ -96,10 +96,12 @@ class WSClaim extends WSWrapper{
 			*/
 			if ($counter == 0) {
 				//unused but supported by ezybiz, helpful in debugging
+				// actualy the dosdate can be used if you want that as the invoice date
 				$invoice_info['customer'] = $result->fields['patient_name'];
 				$invoice_info['invoicedate'] = date("m-d-Y",strtotime($result->fields['process_date']));
 				$invoice_info['duedate'] = date("m-d-Y",strtotime($result->fields['process_date']));
 				$invoice_info['items'] = array();
+				$invoice_info['dosdate'] = date("m-d-Y",strtotime($result->fields['date']));
 			}
 
 			$tii = array();
