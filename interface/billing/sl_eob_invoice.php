@@ -171,7 +171,7 @@
       } else {
         sqlQuery($query);
       }
-      $info_msg = xl("Encounter ".$encounter . xl("is ready for re-billing.");
+      $info_msg = xl("Encounter ") . $encounter . xl(" is ready for re-billing.");
       return;
     }
 
@@ -214,10 +214,10 @@
       echo xl("Call to addForm() goes here.<br>")."\n";
     } else {
       $encounter_id = idSqlStatement($query);
-      if (! $encounter_id) die(xl("Insert failed: ".$query);
+      if (! $encounter_id) die(xl("Insert failed: " . $query));
       addForm($new_encounter, xl("New Patient Encounter"), $encounter_id,
         "newpatient", $pid, 1, $date_of_service);
-      $info_msg = xl("Encounter ").$new_encounter . xl(" has been created. ");
+      $info_msg = xl("Encounter ") . $new_encounter . xl(" has been created. ");
     }
 
     // For each invoice line item with a billing code we will insert
@@ -547,7 +547,7 @@ function validate(f) {
     "customer.id = ar.customer_id and employee.id = ar.employee_id");
   if ($sl_err) die($sl_err);
   $arrow = SLGetRow($arres, 0);
-  if (! $arrow) die(xl("There is no match for invoice id = ",).$trans_id);
+  if (! $arrow) die(xl("There is no match for invoice id = ") . $trans_id);
 
   // Determine the date of service.  An 8-digit encounter number is
   // presumed to be a date of service imported during conversion.
@@ -632,7 +632,7 @@ function validate(f) {
 
  <tr>
   <td>
-   <?xl('Bill Date:','e'?>
+   <?php xl('Bill Date:','e') ?>
   </td>
   <td>
    <?echo $arrow['transdate'] ?>
