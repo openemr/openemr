@@ -12,10 +12,8 @@ require_once("language.inc.php");
 <html>
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="http://192.168.1.7/e/openemr/library/overlib_mini.js"></script>
-<script type="text/javascript" src="http://192.168.1.7/e/openemr/library/calendar.js"></script>
-
-
+<script type="text/javascript" src="../../library/overlib_mini.js"></script>
+<script type="text/javascript" src="../../library/calendar.js"></script>
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <span class="title"><? xl('Multi Language Tool','e') ?></span>
