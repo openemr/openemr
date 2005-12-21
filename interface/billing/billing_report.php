@@ -101,8 +101,10 @@ $oauthorized = $my_authorized;
 
 <html>
 <head>
-
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<style>
+.subbtn { margin-top:3px; margin-bottom:3px; margin-left:2px; margin-right:2px }
+</style>
 <script>
 
 function select_all() {
@@ -184,12 +186,12 @@ if ($userauthorized) {
 	print '&nbsp;';
 	$acct_config = $GLOBALS['oer_config']['ws_accounting'];
 	if($acct_config['enabled'] == true) {
-		print '<span class=text><a href="javascript:void window.open(\''.$acct_config['url_path'].'\')">'.xl("[SQL-Ledger]","e").'</a></span>';
+		print '<span class=text><a href="javascript:void window.open(\'' . $acct_config['url_path'] . '\')">' . xl("[SQL-Ledger]") . '</a></span>';
 		if (acl_check('acct', 'rep')) {
-			print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_receipts_report.php\')">'.xl('[Reports]').'</a></span>';
+			print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_receipts_report.php\')">' . xl('[Reports]') . '</a></span>';
 		}
 		if (acl_check('acct', 'eob')) {
-			print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_eob_search.php\')">'.xl('[EOBs]').'</a></span>';
+			print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_eob_search.php\')">' . xl('[EOBs]') . '</a></span>';
 		}
 	}
 ?>
@@ -215,16 +217,16 @@ if ($userauthorized) {
 <center>
 
 <? if (file_exists($EXPORT_INC)) { ?>
-<input type="submit" name="bn_external" value="Export Billing" title="<?xl('Export to external billing system','e')?>"> &nbsp;
-<input type="submit" name="bn_mark" value="Mark as Cleared" title="<?xl('Mark as billed but skip billing','e')?>">
+<input type="submit" class="subbtn" name="bn_external" value="Export Billing" title="<?xl('Export to external billing system','e')?>">
+<input type="submit" class="subbtn" name="bn_mark" value="Mark as Cleared" title="<?xl('Mark as billed but skip billing','e')?>">
 <? } else { ?>
-<input type="submit" name="bn_hcfa_print" value="Queue HCFA &amp; Print" title="<?xl('Queue for HCFA batch processing and printing','e')?>">
-<input type="submit" name="bn_hcfa" value="Queue HCFA" title="<?xl('Queue for HCFA batch processing','e')?>">
-<input type="submit" name="bn_ub92_print" value="Queue UB92 &amp; Print" title="<?xl('Queue for UB-92 batch processing and printing','e')?>">
-<input type="submit" name="bn_ub92" value="Queue UB92" title="<?xl('Queue for UB-92 batch processing','e')?>">
-<input type="submit" name="bn_x12" value="Queue X12" title="<?xl('Queue for X12 batch processing','e')?>">
-<input type="submit" name="bn_mark" value="Mark as Cleared" title="<?xl('Post to accounting and mark as billed','e')?>">
-<input type="submit" name="bn_electronic_file" value="Make Electronic Batch &amp; Clear" title="<?xl('Download billing file, post to accounting and mark as billed','e')?>">
+<input type="submit" class="subbtn" name="bn_hcfa_print" value="Queue HCFA &amp; Print" title="<?xl('Queue for HCFA batch processing and printing','e')?>">
+<input type="submit" class="subbtn" name="bn_hcfa" value="Queue HCFA" title="<?xl('Queue for HCFA batch processing','e')?>">
+<input type="submit" class="subbtn" name="bn_ub92_print" value="Queue UB92 &amp; Print" title="<?xl('Queue for UB-92 batch processing and printing','e')?>">
+<input type="submit" class="subbtn" name="bn_ub92" value="Queue UB92" title="<?xl('Queue for UB-92 batch processing','e')?>">
+<input type="submit" class="subbtn" name="bn_x12" value="Queue X12" title="<?xl('Queue for X12 batch processing','e')?>">
+<input type="submit" class="subbtn" name="bn_mark" value="Mark as Cleared" title="<?xl('Post to accounting and mark as billed','e')?>">
+<input type="submit" class="subbtn" name="bn_electronic_file" value="Make Electronic Batch &amp; Clear" title="<?xl('Download billing file, post to accounting and mark as billed','e')?>">
 <? } ?>
 
 </center>
