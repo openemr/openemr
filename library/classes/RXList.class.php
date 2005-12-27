@@ -3,8 +3,17 @@
  // $Author$
  //
  // $Log$
- // Revision 1.1  2005/03/09 19:59:43  wpennington
- // Initial revision
+ // Revision 1.2  2005/12/27 00:45:19  sunsetsystems
+ // fix broken url
+ //
+ // Revision 1.1.1.3  2005/06/23 05:25:49  drbowen
+ // Initial import.
+ //
+ // Revision 1.1.1.2  2005/03/28 00:44:54  drbowen
+ // Initial import.
+ //
+ // Revision 1.1.1.1  2005/03/09 19:59:43  wpennington
+ // First import of OpenEMR
  //
  // Revision 1.2  2002/08/06 13:49:08  rufustfirefly
  // updated rxlist class for changes in RxList.com
@@ -19,8 +28,8 @@ define('__CLASS_RXLIST_PHP__', true);
 class RxList {
 
 	function getPage ( $query ) {
-		//$url = "http://www.rxlist.com/cgi/rxlist.cgi?drug=".
-		$url = "http://129.250.146.18/cgi/rxlist.cgi?drug=".
+		$url = "http://www.rxlist.com/cgi/rxlist.cgi?drug=".
+		// $url = "http://129.250.146.18/cgi/rxlist.cgi?drug=".
 			urlencode($query);
 
 		if (!($fp = fopen($url, "r"))) {
