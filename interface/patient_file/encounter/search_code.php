@@ -25,9 +25,13 @@ $code_type = $_GET['type'];
 
 <table border=0 cellspacing=0 cellpadding=0 height=100%>
 <tr>
+
+<!--
 <td background="<?echo $linepic;?>" width=7 height=100%>
 &nbsp;
 </td>
+-->
+
 <td valign=top>
 
 <form name='search_form' method='post' action='search_code.php?type=<? echo $code_type ?>'>

@@ -19,9 +19,13 @@ $N=10
 
 <table border=0 cellspacing=0 cellpadding=0 height=100%>
 <tr>
+
+<!--
 <td background="<?echo $linepic;?>" width=7 height=100%>
 &nbsp;
 </td>
+-->
+
 <td valign=top>
 
 <dl>
