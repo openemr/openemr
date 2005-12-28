@@ -122,14 +122,20 @@ include_once("$srcdir/sql.inc");
           <td>
             <select name="administered_by_id">
               <?php
-                $sql = "(select id
-                               ,concat(lname,', ',fname) as full_name
-                           from users
-                         order by concat(lname,', ',fname))
-                         union all
-                                (select xtra_id, xtra_text from xtra limit 1)
 
-                       ";
+//              $sql = "(select id
+//                             ,concat(lname,', ',fname) as full_name
+//                         from users
+//                       order by concat(lname,', ',fname))
+//                       union all
+//                              (select xtra_id, xtra_text from xtra limit 1)
+//                     ";
+
+                // This replaces the above.  There is no table "xtra".  -- Rod
+                $sql = "select id, concat(lname,', ',fname) as full_name " .
+                       "from users " .
+                       "order by concat(lname,', ',fname)";
+
                 $result = sqlStatement($sql);
                 while($row = sqlFetchArray($result)){
                   echo '<OPTION VALUE=' . $row{'id'};
@@ -217,4 +223,3 @@ include_once("$srcdir/sql.inc");
     </table>
   </body>
 </html>
-
