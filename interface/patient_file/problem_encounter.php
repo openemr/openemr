@@ -12,7 +12,8 @@
 
  $patdata = getPatientData($pid, "fname,lname,squad");
 
- $thisauth = (acl_check('encounters', 'notes') == 'write' &&
+ $thisauth = ((acl_check('encounters', 'notes') == 'write' ||
+               acl_check('encounters', 'notes_a') == 'write') &&
               acl_check('patients', 'med') == 'write');
 
  if ($patdata['squad'] && ! acl_check('squads', $patdata['squad']))
