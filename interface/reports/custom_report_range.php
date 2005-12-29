@@ -52,7 +52,10 @@ if(empty($_POST['start']) || empty($_POST['end'])){
 	} 
 	
 
-	$res = sqlStatement("select * from forms where form_name='New Patient Encounter' and date between DATE('$start') and DATE('$end') order by date DESC");
+  $res = sqlStatement("select * from forms where " .
+    "form_name = 'New Patient Encounter' and " .
+    "date between '$start' and '$end' " .
+    "order by date DESC");
 	while($result = sqlFetchArray($res)) {
 		if ($result{"form_name"} == "New Patient Encounter") {
 			$newpatient[] = $result{"form_id"}.":".$result{"encounter"};
