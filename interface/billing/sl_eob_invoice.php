@@ -141,7 +141,7 @@
       "from ar where ar.id = $invid");
     if ($sl_err) die($sl_err);
     $arrow = SLGetRow($arres, 0);
-    if (! $arrow) die(xl('There is no match for invoice id').' = '."$trans_id.");
+    if (! $arrow) die(xl('There is no match for invoice id') . ' = ' . "$trans_id.");
     $customer_id = $arrow['customer_id'];
     list($trash, $encounter) = explode(".", $arrow['invnumber']);
 
@@ -152,7 +152,7 @@
       "integration_mapping.foreign_table = 'customer' AND " .
       "patient_data.id = integration_mapping.local_id");
     $pid = $pdrow['pid'];
-    if (! $pid) die(xl("Cannot find patient from SQL-Ledger customer id" )." = $customer_id.");
+    if (! $pid) die(xl("Cannot find patient from SQL-Ledger customer id") . " = $customer_id.");
 
     // Find out if the encounter exists.
     $ferow = sqlQuery("SELECT pid FROM form_encounter WHERE " .
@@ -162,7 +162,7 @@
     // If it exists, just update the billing items.
     if ($encounter_pid) {
       if ($encounter_pid != $pid)
-        die(xl("Expected form_encounter.pid to be"). $pid.', '. xl('but was'). $encounter_pid);
+        die(xl("Expected form_encounter.pid to be ") . $pid . ', ' . xl(' but was ') . $encounter_pid);
       $query = "UPDATE billing SET billed = 0, bill_process = 0, payer_id = -1, " .
         "bill_date = NULL, process_date = NULL, process_file = NULL " .
         "WHERE encounter = $encounter AND pid = $pid AND activity = 1";
@@ -177,7 +177,7 @@
 
     // It does not exist then it better be a date.
     if (! preg_match("/^20\d\d\d\d\d\d$/", $encounter))
-      die(xl("Internal error: encounter '").$encounter. xl("' should exist but does not."));
+      die(xl("Internal error: encounter '") . $encounter . xl("' should exist but does not."));
 
     $employee_id = $arrow['employee_id'];
 
@@ -203,7 +203,7 @@
       "date, reason, facility, pid, encounter, onset_date " .
       ") VALUES ( " .
       "'$date_of_service', " .
-      "xl('Imported from Accounting','e'), " .
+      "'" . xl('Imported from Accounting') . "', " .
       "'" . addslashes($drrow['facility']) . "', " .
       "$pid, " .
       "$new_encounter, " .
@@ -211,10 +211,10 @@
       ")";
     if ($debug) {
       echo $query . "<br>\n";
-      echo xl("Call to addForm() goes here.<br>")."\n";
+      echo xl("Call to addForm() goes here.<br>") . "\n";
     } else {
       $encounter_id = idSqlStatement($query);
-      if (! $encounter_id) die(xl("Insert failed: " . $query));
+      if (! $encounter_id) die(xl("Insert failed: ") . $query);
       addForm($new_encounter, xl("New Patient Encounter"), $encounter_id,
         "newpatient", $pid, 1, $date_of_service);
       $info_msg = xl("Encounter ") . $new_encounter . xl(" has been created. ");
@@ -280,9 +280,9 @@
         if (preg_match("/$key/", $row['serialnumber'])) {
           $code_type = $key;
           if ($value['fee']) {
-            $code_text = xl("Procedure")." $code";
+            $code_text = xl("Procedure") . " $code";
           } else {
-            $code_text = xl("Diagnosis")." $code";
+            $code_text = xl("Diagnosis") . " $code";
             if ($proc_ins_id) {
               $query = "UPDATE billing SET justify = '$code' WHERE id = $proc_ins_id";
               if ($debug) {
@@ -346,7 +346,7 @@
     } else {
       SLQuery($query);
       if ($sl_err) die($sl_err);
-      $info_msg .= xl("This invoice number has been changed to ").$new_invnumber;
+      $info_msg .= xl("This invoice number has been changed to ") . $new_invnumber;
     }
   }
 ?>
@@ -402,7 +402,7 @@ function validate(f) {
    }
    var svalue = srcobj.value;
    if (! svalue) {
-    alert(<? xl('Source is missing for code ','e')?> + code);
+    alert('<? xl('Source is missing for code ','e') ?>' + code);
     return false;
    } else {
     var tmp = svalue.substring(0, 4).toLowerCase();
@@ -411,34 +411,36 @@ function validate(f) {
     } else if (svalue.substring(0, 2).toLowerCase() == 'pt') {
      svalue = svalue.substring(2);
     } else {
-     alert(<?xl('Invalid or missing payer in source for code ','e')?> + code);
+     alert('<?xl('Invalid or missing payer in source for code ','e')?>' + code);
      return false;
     }
     if (svalue) {
      if (svalue.substring(0, 1) != '/') {
-      alert(<?xl('Missing slash after payer in source for code ','e')?> + code);
+      alert('<?xl('Missing slash after payer in source for code ','e')?>' + code);
       return false;
      }
-     tmp = svalue.substring(1, 3).toLowerCase();
-     if (tmp != 'nm' && tmp != 'ci' && tmp != 'cp' && tmp != 'ne' &&
-         tmp != 'it' && tmp != 'pf' && tmp != 'pp' && tmp != 'ok')
-     {
-      alert(<?xl('Invalid source designation "','e')?> + tmp + <?xl('" for code ','e')?> + code);
-      return false;
-     }
+     if (false) { // Please keep this, Oakland Clinic wants it.  -- Rod
+      tmp = svalue.substring(1, 3).toLowerCase();
+      if (tmp != 'nm' && tmp != 'ci' && tmp != 'cp' && tmp != 'ne' &&
+          tmp != 'it' && tmp != 'pf' && tmp != 'pp' && tmp != 'ok')
+      {
+       alert('<? xl('Invalid source designation "','e') ?>' + tmp + '<? xl('" for code ','e') ?>' + code);
+       return false;
+      }
+     } // End of OC code
     }
    }
    if (! f[pfx+'[date]'].value) {
-    alert(<?xl('Date is missing for code ','e')?> + code);
+    alert('<?xl('Date is missing for code ','e')?>' + code);
     return false;
    }
   }
   if (f[pfx+'[pay]'].value && isNaN(parseFloat(f[pfx+'[pay]'].value))) {
-   alert(<?xl('Payment value for code ','e')?> + code + <?xl(' is not a number','e')?>);
+   alert('<? xl('Payment value for code ','e') ?>' + code + '<? xl(' is not a number','e') ?>');
    return false;
   }
   if (f[pfx+'[adj]'].value && isNaN(parseFloat(f[pfx+'[adj]'].value))) {
-   alert(<?xl('Adjustment value for code ','e')?> + code + <?xl(' is not a number','e')?>);
+   alert('<? xl('Adjustment value for code ','e') ?>' + code + '<? xl(' is not a number','e') ?>');
    return false;
   }
   // TBD: validate the date format
@@ -457,19 +459,19 @@ function validate(f) {
 
   $chart_id_cash = SLQueryValue("select id from chart where accno = '$sl_cash_acc'");
   if ($sl_err) die($sl_err);
-  if (! $chart_id_cash) die(xl("There is no COA entry for cash account ").'$sl_cash_acc');
+  if (! $chart_id_cash) die(xl("There is no COA entry for cash account ") . "'$sl_cash_acc'");
 
   $chart_id_ar = SLQueryValue("select id from chart where accno = '$sl_ar_acc'");
   if ($sl_err) die($sl_err);
-  if (! $chart_id_ar) die(xl("There is no COA entry for AR account ").'$sl_ar_acc');
+  if (! $chart_id_ar) die(xl("There is no COA entry for AR account ") . "'$sl_ar_acc'");
 
   $chart_id_income = SLQueryValue("select id from chart where accno = '$sl_income_acc'");
   if ($sl_err) die($sl_err);
-  if (! $chart_id_income) die(xl("There is no COA entry for income account ").'$sl_income_acc');
+  if (! $chart_id_income) die(xl("There is no COA entry for income account ") . "'$sl_income_acc'");
 
   $services_id = SLQueryValue("select id from parts where partnumber = '$sl_services_id'");
   if ($sl_err) die($sl_err);
-  if (! $services_id) die(xl("There is no parts entry for services ID ").'$sl_services_id');
+  if (! $services_id) die(xl("There is no parts entry for services ID ") . "'$sl_services_id'");
 
   if ($_POST['form_save'] || $_POST['form_cancel']) {
     if ($_POST['form_save']) {
@@ -760,7 +762,10 @@ function validate(f) {
   <td class="detail">
    <input type="text" name="form_line[<? echo $code ?>][src]" size="10"
     style="background-color:<? echo $bgcolor ?>"
-    title="NM=notmet, CI=coins, CP=copay, NE=notelig, IT=insterm, PF=ptfull, PP=ptpart" />
+<?php if (false) { ?>
+    title="NM=notmet, CI=coins, CP=copay, NE=notelig, IT=insterm, PF=ptfull, PP=ptpart"
+<?php } ?>
+   />
   </td>
   <td class="detail">
    <input type="text" name="form_line[<? echo $code ?>][date]" size="10" style="background-color:<? echo $bgcolor ?>" />
