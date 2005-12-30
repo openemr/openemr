@@ -18,8 +18,8 @@
   include_once("../forms/fee_sheet/codes.php");
   function is_clinic($code) {
     global $cpt, $hcpcs;
-    return ($cpt[xl('Lab','e')][$code] || $cpt[xl('Immunizations','e')][$code] ||
-      $hcpcs[xl('Therapeutic Injections','e')][$code]);
+    return ($cpt[xl('Lab')][$code] || $cpt[xl('Immunizations')][$code] ||
+      $hcpcs[xl('Therapeutic Injections')][$code]);
   }
 
   function bucks($amount) {
