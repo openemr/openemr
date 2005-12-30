@@ -32,7 +32,7 @@
  $gacl->add_object ('acct', 'Billing (write optional)'           , 'bill' , 10, 0, 'ACO');
  $gacl->add_object ('acct', 'EOB Data Entry'                     , 'eob'  , 10, 0, 'ACO');
  $gacl->add_object ('acct', 'Financial Reporting - my encounters', 'rep'  , 10, 0, 'ACO');
- $gacl->add_object ('acct', 'Financial Reporting - anything'     , 'rep_e', 10, 0, 'ACO');
+ $gacl->add_object ('acct', 'Financial Reporting - anything'     , 'rep_a', 10, 0, 'ACO');
 
  // Create Administration ACOs.
  //
@@ -89,7 +89,7 @@
  //
  $gacl->add_acl(
   array(
-   'acct'=>array('bill', 'eob', 'rep', 'rep_e'),
+   'acct'=>array('bill', 'eob', 'rep', 'rep_a'),
    'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users','batchcom','language'),
    'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
    'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes')
@@ -143,7 +143,7 @@
  //
  $gacl->add_acl(
   array(
-   'acct'=>array('bill', 'eob', 'rep', 'rep_e'),
+   'acct'=>array('bill', 'eob', 'rep', 'rep_a'),
    'admin'=>array('practice', 'superbill'),
    'encounters'=>array('auth_a', 'coding_a', 'date_a'),
    'patients'=>array('appt', 'demo')
