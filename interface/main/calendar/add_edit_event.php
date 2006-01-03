@@ -81,13 +81,18 @@
   // More garbage, but this time 1 character of it is used to save the
   // repeat type.
   if ($_POST['form_repeat']) {
-   $recurrspec = 'a:5:{s:17:"event_repeat_freq";s:1:"1";' .
+   $recurrspec = 'a:5:{' .
+    's:17:"event_repeat_freq";s:1:"' . $_POST['form_repeat_freq'] . '";' .
     's:22:"event_repeat_freq_type";s:1:"' . $_POST['form_repeat_type'] . '";' .
-    's:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";' .
+    's:19:"event_repeat_on_num";s:1:"1";' .
+    's:19:"event_repeat_on_day";s:1:"0";' .
     's:20:"event_repeat_on_freq";s:1:"0";}';
   } else {
-   $recurrspec = 'a:5:{s:17:"event_repeat_freq";N;s:22:"event_repeat_freq_type";s:1:"0";' .
-    's:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";' .
+   $recurrspec = 'a:5:{' .
+    's:17:"event_repeat_freq";N;' .
+    's:22:"event_repeat_freq_type";s:1:"0";' .
+    's:19:"event_repeat_on_num";s:1:"1";' .
+    's:19:"event_repeat_on_day";s:1:"0";' .
     's:20:"event_repeat_on_freq";s:1:"1";}';
   }
 
@@ -171,6 +176,7 @@
 
  $repeats = 0; // if the event repeats
  $repeattype = '0';
+ $repeatfreq = '0';
  $patientid = '';
  if ($_REQUEST['patientid']) $patientid = $_REQUEST['patientid'];
  $patientname = " (Click to select)";
@@ -189,6 +195,9 @@
   $repeats = $row['pc_recurrtype'];
   if (preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', $row['pc_recurrspec'], $matches)) {
    $repeattype = $matches[1];
+  }
+  if (preg_match('/"event_repeat_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches)) {
+   $repeatfreq = $matches[1];
   }
   $hometext = $row['pc_hometext'];
   if (substr($hometext, 0, 6) == ':text:') $hometext = substr($hometext, 6);
@@ -325,6 +334,7 @@ td { font-size:10pt; }
    myvisibility = 'visible';
   }
   f.form_repeat_type.disabled = isdisabled;
+  f.form_repeat_freq.disabled = isdisabled;
   f.form_enddate.disabled = isdisabled;
   document.getElementById('tdrepeat1').style.color = mycolor;
   document.getElementById('tdrepeat2').style.color = mycolor;
@@ -484,18 +494,32 @@ td { font-size:10pt; }
    Repeats
   </td>
   <td nowrap>
+
+   <select name='form_repeat_freq' title='Every, every other, every 3rd, etc.'>
+<?
+ foreach (array(1 => 'every', 2 => '2nd', 3 => '3rd', 4 => '4th', 5 => '5th', 6 => '6th')
+  as $key => $value)
+ {
+  echo "    <option value='$key'";
+  if ($key == $repeatfreq) echo " selected";
+  echo ">$value</option>\n";
+ }
+?>
+   </select>
+
    <select name='form_repeat_type'>
 <?
  // See common.api.php for these:
- foreach (array(0 => 'day', 4 => 'work day', 1 => 'week', 2 => 'month', 3 => 'year')
+ foreach (array(0 => 'day', 4 => 'workday', 1 => 'week', 2 => 'month', 3 => 'year')
   as $key => $value)
  {
   echo "    <option value='$key'";
   if ($key == $repeattype) echo " selected";
-  echo ">every $value</option>\n";
+  echo ">$value</option>\n";
  }
 ?>
    </select>
+
   </td>
  </tr>
 
