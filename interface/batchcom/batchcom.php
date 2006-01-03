@@ -110,7 +110,7 @@ if ($_POST['form_action']=='Process') {
 		// sort by
 		$sql.=' ORDER BY '.$_POST['sort_by'];
 
-		// echo $sql;
+	    // echo $sql;
 		// send query for results.
 		$res = sqlStatement($sql);
 
@@ -214,7 +214,7 @@ if ($_POST['form_action']=='Process') {
 		<br><?xl('Sort by: ','e')?><SELECT NAME="sort_by">
 				<?
 				foreach ($sort_by as $key => $value) {
-					echo ("<option value=".$value.">$key</option>");
+					echo ("<option value=\"".$value."\">$key</option>");
 				}
 				?>
 				</SELECT>
