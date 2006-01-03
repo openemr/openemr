@@ -19,7 +19,7 @@
 <?
 $email_sender=$_POST['email_sender'];
 $sent_by=$_SESSION["authId"];
-$msg_type="xl('Email from Batchcom')";
+$msg_type=xl('Email from Batchcom');
 
 while ($row=sqlFetchArray($res)) {
 
