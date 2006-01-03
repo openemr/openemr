@@ -81,7 +81,8 @@
     if ($_SESSION['userauthorized']) return 'write';
 
     if ($section == 'patients') {
-      if ($value != 'med') return 'write';
+      if ($value == 'med') return 1;
+      return 'write';
     }
     else if ($section == 'encounters') {
       if (strpos($value, 'coding' ) === 0) return 'write';
