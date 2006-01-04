@@ -3,7 +3,7 @@
 include_once(dirname(__FILE__) . "/sqlconf.php");
 require_once(dirname(__FILE__) . "/adodb/adodb.inc.php");
 
-define('ADODB_FETCH_ASSOC',2);
+define('ADODB_FETCH_ASSOC', 2);
 $database = NewADOConnection("mysql");
 $database->PConnect($host, $login, $pass, $dbase);
 $GLOBALS['adodb']['db'] = $database;
@@ -11,27 +11,27 @@ $GLOBALS['dbh'] = $database->_connectionID;
 
 //fmg: This makes the login screen informative when no connection can be made
 if (!$GLOBALS['dbh']) {
-        //try to be more helpful
-        if ($host == "localhost") {
-                echo "Check that mysqld is running.<p>";
-        } else {
-                echo "Check that you can ping the server '$host'.<p>";
-        }//if local
-        HelpfulDie("Could not connect to server!",mysql_error());
-        exit;
+  //try to be more helpful
+  if ($host == "localhost") {
+    echo "Check that mysqld is running.<p>";
+  } else {
+    echo "Check that you can ping the server '$host'.<p>";
+  }//if local
+  HelpfulDie("Could not connect to server!", mysql_error());
+  exit;
 }//if no connection
 
 function sqlConnect($login,$pass,$dbase,$host,$port = '3306')
 {
-	return $GLOBALS['dbh'] = $database->_connectionID;
+  return $GLOBALS['dbh'] = $database->_connectionID;
 }
 
 function sqlStatement($statement)
 {
-	//----------run a mysql query, return the handle
-	$query = mysql_query($statement, $GLOBALS['dbh']) or 
-        HelpfulDie("query failed: $statement (".mysql_error().")");
-	return $query;
+  //----------run a mysql query, return the handle
+  $query = mysql_query($statement, $GLOBALS['dbh']) or 
+    HelpfulDie("query failed: $statement (" . mysql_error() . ")");
+  return $query;
 }
 
 function idSqlStatement($statement)
@@ -41,17 +41,17 @@ function idSqlStatement($statement)
 
 function sqlClose()
 {
-	//----------Close our mysql connection
-	$closed = mysql_close($GLOBALS['dbh']) or
-        HelpfulDie("could not disconnect from mysql server link (".mysql_error().")");
-	return $closed;
+  //----------Close our mysql connection
+  $closed = mysql_close($GLOBALS['dbh']) or
+    HelpfulDie("could not disconnect from mysql server link (" . mysql_error() . ")");
+  return $closed;
 }
 
 function sqlInsert($statement)
 {
   //----------run a mysql insert, return the last id generated
   mysql_query($statement, $GLOBALS['dbh']) or 
-    HelpfulDie("insert failed: $statement (".mysql_error().")");
+    HelpfulDie("insert failed: $statement (" . mysql_error() . ")");
   return mysql_insert_id($GLOBALS['dbh']);
 }
 
@@ -62,61 +62,63 @@ function sqlInsertClean($statement)
 
 function sqlFetchArray($resource)
 {
-	if ($resource == FALSE)
-	  return false;
-	return mysql_fetch_array($resource, MYSQL_ASSOC);
+  if ($resource == FALSE)
+    return false;
+  return mysql_fetch_array($resource, MYSQL_ASSOC);
 }
 
 function sqlQuery ($statement)
 {
-	//echo "[$statement]<br>";
-	//echo "link is: " . $GLOBALS['dbh'];
-	$query = mysql_query($statement, $GLOBALS['dbh']) or 
-        HelpfulDie("query failed: $statement (".mysql_error().")");
-	$rez = @mysql_fetch_array($query, MYSQL_ASSOC);
-	if ($rez == FALSE)
-	  return FALSE;
-	return $rez;
+  //echo "[$statement]<br>";
+  //echo "link is: " . $GLOBALS['dbh'];
+  $query = mysql_query($statement, $GLOBALS['dbh']) or 
+    HelpfulDie("query failed: $statement (" . mysql_error() . ")");
+  $rez = @mysql_fetch_array($query, MYSQL_ASSOC);
+  if ($rez == FALSE)
+    return FALSE;
+  return $rez;
 }
-function sqlListFields($table) {
 
-	$sql = "SHOW COLUMNS FROM ". mysql_real_escape_string($table);
-	$res = sqlQ($sql);
-	$field_list = array();
-	while($row = mysql_fetch_array($res)) {
-		$field_list[] = $row['Field'];
-	}
-	return $field_list;
+function sqlListFields($table) {
+  $sql = "SHOW COLUMNS FROM ". mysql_real_escape_string($table);
+  $res = sqlQ($sql);
+  $field_list = array();
+  while($row = mysql_fetch_array($res)) {
+    $field_list[] = $row['Field'];
+  }
+  return $field_list;
 }
+
 function sqlLastID() {
-	return mysql_insert_id($GLOBALS['dbh']);
+  return mysql_insert_id($GLOBALS['dbh']);
 }
 
 function sqlQ ($statement)
 {
-	//echo "[$statement]<br>";
-	//echo "link is: " . $GLOBALS['dbh'];
-	$query = mysql_query($statement, $GLOBALS['dbh']) or 
-        HelpfulDie("query failed: $statement (".mysql_error().")");
-          return $query;
-	return $query;
+  //echo "[$statement]<br>";
+  //echo "link is: " . $GLOBALS['dbh'];
+  $query = mysql_query($statement, $GLOBALS['dbh']) or
+    HelpfulDie("query failed: $statement (" . mysql_error() . ")");
+  return $query;
 }
+
 function get_db() {
-	return $GLOBALS['adodb']['db'];
+  return $GLOBALS['adodb']['db'];
 }
+
 function generate_id () {
-	$database = $GLOBALS['adodb']['db'];
-	return $database->GenID("sequences");
+  $database = $GLOBALS['adodb']['db'];
+  return $database->GenID("sequences");
 }
 
 //fmg: Much more helpful that way...
-function HelpfulDie ($statement,$sqlerr)
+function HelpfulDie ($statement, $sqlerr='')
 {
-        echo "<p><p><font color='red'>ERROR:</font> $statement<p>";
-        if ($sqlerr) {
-                echo "Error: <font color='red'>$sqlerr</font><p>";
-        }//if error
-        exit;
+  echo "<p><p><font color='red'>ERROR:</font> $statement<p>";
+  if ($sqlerr) {
+    echo "Error: <font color='red'>$sqlerr</font><p>";
+  }//if error
+  exit;
 }
 
 ?>
