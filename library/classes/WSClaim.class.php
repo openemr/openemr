@@ -82,24 +82,28 @@ class WSClaim extends WSWrapper{
 		$total = 0;
 		$patient_info = array();
 		$payer_info = array();
+
 		while ($result && !$result->EOF) {
-			if ($result->fields['process_date'] == null) {
-				//don't sync a claim that has not been processed, they may just want to mark this as billed
-					return false;
-			}
-			// create a paymentline item for each code
-			/*
-			$invoice_info["invoiceid$counter"] = $result->fields['code'];
-			$invoice_info["amount$counter"] = $result->fields['fee'];
-			$invoice_info["invoicenumber$counter"] = $this->patient_id . "000" . $this->encounter;
-			$invoice_info["interest$counter"] = 0;
-			*/
+
+//		if ($result->fields['process_date'] == null) {
+//			//don't sync a claim that has not been processed, they may just want to mark this as billed
+//				return false;
+//		}
+
+      // The above is silly.  If we don't want to sync, why are we here?
+      // All bills should be in the accounting system, and mark-as-cleared
+      // is the only reasonable way to process cash-only patients.
+      //
+      $process_date = ($result->fields['process_date'] == null) ?
+        date("m-d-Y") :
+        date("m-d-Y", strtotime($result->fields['process_date']));
+
 			if ($counter == 0) {
 				//unused but supported by ezybiz, helpful in debugging
 				// actualy the dosdate can be used if you want that as the invoice date
 				$invoice_info['customer'] = $result->fields['patient_name'];
-				$invoice_info['invoicedate'] = date("m-d-Y",strtotime($result->fields['process_date']));
-				$invoice_info['duedate'] = date("m-d-Y",strtotime($result->fields['process_date']));
+				$invoice_info['invoicedate'] = $process_date;
+				$invoice_info['duedate'] = $process_date;
 				$invoice_info['items'] = array();
 				$invoice_info['dosdate'] = date("m-d-Y",strtotime($result->fields['date']));
 			}
@@ -116,24 +120,26 @@ class WSClaim extends WSWrapper{
 			{
 				$payer_info['payment_amount'] += sprintf("%01.2f",$result->fields['fee']);
 			}
-				$tii['maincode'] = $result->fields['code'];
-				$tii['itemtext'] = $result->fields['code_type'] .":" . $result->fields['code'] . " " . $result->fields['code_text'] . " "
-					. $result->fields['justify'];
 
-				$tii['qty'] = $result->fields['units'];
-				if (!$tii['qty'] > 0) {
-					$tii['qty'] = 1;
-				}
-				$tii['price'] = sprintf("%01.2f",$result->fields['fee']);
-				$total += $tii['price'];
-				$tii['glaccountid'] = $this->_config['income_acct'];
-				$invoice_info['items'][] = $tii;
-			//}
+			$tii['maincode'] = $result->fields['code'];
+			$tii['itemtext'] = $result->fields['code_type'] .":" .
+        $result->fields['code'] . " " . $result->fields['code_text'] . " " .
+        $result->fields['justify'];
+
+//		$tii['qty'] = $result->fields['units'];
+//		if (!$tii['qty'] > 0) {
+//			$tii['qty'] = 1;
+//		}
+      $tii['qty'] = 1;
+
+			$tii['price'] = sprintf("%01.2f",$result->fields['fee']);
+			$total += $tii['price'];
+			$tii['glaccountid'] = $this->_config['income_acct'];
+			$invoice_info['items'][] = $tii;
 
 			$result->MoveNext();
 			$counter++;
 		}
-
 
 		for($counter = 0; $counter < 2; $counter++)
 		{
@@ -174,6 +180,7 @@ class WSClaim extends WSWrapper{
 			return false;
 		}
 	}
+
 	function load_patient_foreign_id() {
 		$sql = "SELECT foreign_id from integration_mapping as im LEFT JOIN patient_data as pd on im.local_id=pd.id where pd.pid = '" . $this->patient_id . "' and im.local_table='patient_data' and im.foreign_table='customer'";
 		$result = $this->_db->Execute($sql);
@@ -186,6 +193,7 @@ class WSClaim extends WSWrapper{
 			return false;
 		}
 	}
+
 	function load_payer_foreign_id() {
 		$sql = "SELECT payer_id from billing where encounter = '" . $this->encounter . "' and pid = '" . $this->patient_id . "'";
 		$result = $this->_db->Execute($sql);
