@@ -1,22 +1,14 @@
 <?
 include_once("../../globals.php");
 include_once("$srcdir/transactions.inc");
-
-
-
-
-
 ?>
-
 <html>
 <head>
-
 
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 
 </head>
 <body <?echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-
 
 <a href="transactions_full.php" target="Main"><font class="title">Patient Transactions</font><font class=more><?echo $tmore;?></font></a>
 
@@ -26,8 +18,6 @@ include_once("$srcdir/transactions.inc");
 <?
 //the number of transactions to display on the page at first:
 $N = 6;
-
-
 
 if ($result = getTransByPid($pid)) {
 	
@@ -56,12 +46,7 @@ if ($result = getTransByPid($pid)) {
 }
 ?>
 
-
 </table>
-
-
-
-
 
 </body>
 </html>
