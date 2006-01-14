@@ -51,7 +51,6 @@ function addPnote($pid, $newtext, $authorized = '0', $activity = '1',
 
 function updatePnote($id, $newtext, $title, $assigned_to)
 {
-  $newtext = mysql_escape_string($newtext);
   $row = getPnoteById($id);
   if (! $row) die("updatePnote() did not find id '$id'");
   $activity = $assigned_to ? '1' : '0';
