@@ -3,10 +3,6 @@ include_once("../../globals.php");
 include_once("$srcdir/calendar.inc");
 include_once("$srcdir/patient.inc");
 
-$pnote_link == "";
-if ($_GET['show_pnote_link'] == true || $_POST['show_pnote_link'] == true) {
-  $pnote_link = "&show_pnote_link=1";
-}
 //the maximum number of patient records to display:
 $M = 2000;
 
@@ -102,31 +98,19 @@ $firstname = $_SESSION["firstname"];
 
 <table border=0 cellpadding=3 cellspacing=0>
  <tr>
-  <td width=150 valign=top>
-
-<?
-if ($userauthorized == 1) {
-?>
+  <td width='150' valign='top'>
    <span class='bold'>Patient&nbsp;Appointment</span>
-<? if (empty($pnote_link)) { ?>
+<? if ($userauthorized == 1) { ?>
    <a class="more" style="font-size:8pt;"
     href="../authorizations/authorizations.php"
-    name="Authorizations">(Authorizations)</a>
-<? } if (!empty($pnote_link)) { ?>
-   &nbsp;<a class="more" style="font-size:8pt;"
-    href="../../patient_file/summary/pnotes.php" target="Notes"
-    name="Patient Notes">(Patient&nbsp;Notes)</a>
+    name="Authorizations">(Notes&nbsp;and&nbsp;Authorizations)</a>
+<? } else { ?>
+   <a class="more" style="font-size:8pt;"
+    href="../authorizations/authorizations.php"
+    name="Authorizations">(Patient&nbsp;Notes)</a>
 <? } ?>
-   <br>
-<?
-}
-else {
-?>
-   <span class='bold'>Patient&nbsp;Appointment</span>
-<?
-}
-?>
-   <form name='findpatientform' action="find_patient.php?no_nav=1<?=$pnote_link?>" method='post'>
+   <p>
+   <form name='findpatientform' action="find_patient.php?no_nav=1" method='post'>
    <input type='hidden' name='mode' value="findpatient">
    <input name='lastname' size='15' value="<?echo $_SESSION["lastname"];?>"
     onfocus="javascript:document.findpatientform.lastname.value='';"><br>

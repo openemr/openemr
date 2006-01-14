@@ -9,7 +9,8 @@
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 
 </head>
-<body <?echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?echo $bottom_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
+ bottommargin='0' marginwidth='2' marginheight='0'>
 
 <?
  $thisauth = acl_check('patients', 'notes');
@@ -25,28 +26,24 @@
  }
 ?>
 
-<table border=0 cellspacing=0 cellpadding=0 height=100%>
+<table border='0' cellspacing='0' cellpadding='0' height='100%'>
 <tr>
 
-<!--
-<td background="<?echo $linepic;?>" width=7 height=100%>
-&nbsp;
-</td>
--->
-
-<td valign=top>
+<td valign='top'>
 
 <? if ($thisauth == 'write' || $thisauth == 'addonly') { ?>
-<a href="pnotes_full.php" target="Main"><font class="title">Notes</font><font class=more><?echo $tmore;?></font></a>
+<a href="pnotes_full.php" target="Main">
+<font class="title">Notes</font><font class=more><?echo $tmore;?></font>
+</a>
 <? } ?>
 
 <br>
 
-<table border=0>
+<table border='0'>
 
 <?
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
-$N = 4;
+$N = 15;
 
 $conn = $GLOBALS['adodb']['db'];
 
@@ -70,45 +67,72 @@ $sql = "SELECT foreign_id from integration_mapping as im LEFT JOIN patient_data 
 $result = $conn->Execute($sql);
 if($result && !$result->EOF) 
 {
-		$customer_info['id'] = $result->fields['foreign_id'];
+  $customer_info['id'] = $result->fields['foreign_id'];
 }
 
 $function['ezybiz.customer_balance'] = array(new xmlrpcval($customer_info,"struct"));
 $ws = new WSWrapper($function);
 if(is_numeric($ws->value)) {
   $formatted = sprintf('$%01.2f', $ws->value);
-  print "<tr><td>$colorbeg" . "Balance Due$colorend</td><td>$colorbeg$formatted$colorend</td></tr>\n";
+  echo " <tr>\n";
+  echo "  <td>$colorbeg" . "Balance Due$colorend</td><td>$colorbeg$formatted$colorend</td>\n";
+  echo " </tr>\n";
 }
 
 if($billing_note) {
-  print "<tr><td>$colorbeg" . "Billing Note$colorend</td><td>$colorbeg$billing_note$colorend</td></tr>\n";
+  echo " <tr>\n";
+  echo "  <td>$colorbeg" . "Billing Note$colorend</td><td>$colorbeg$billing_note$colorend</td>\n";
+  echo " </tr>\n";
 }
 
 //retrieve all active notes
-if ($result = getPnotesByDate("", 1, "date,body,user",$pid,"all",0)){
+if ($result = getPnotesByDate("", 1, "id,date,body,user,title,assigned_to",
+  $pid, "all", 0))
+{
+  $notes_count = 0;//number of notes so far displayed
+  foreach ($result as $iter) {
 
-$notes_count = 0;//number of notes so far displayed
-foreach ($result as $iter) {
-	if ($notes_count >= $N) {
-		//we have more active notes to print, but we've reached our display maximum
-		print "<tr><td colspan=3 align=center><a target=Main href='pnotes_full.php?active=1' class=alert>Some notes were not displayed. Click here to view all.</a></td></tr>\n";
-		break;
-	}
-	
-	
-	if (getdate() == strtotime($iter{"date"})) {
-		$date_string = "Today, " . date( "D F jS" ,strtotime($iter{"date"}));
-	} else {
-		$date_string = date( "D F jS" ,strtotime($iter{"date"}));
-	}
-	
-	print "<tr><td><a href='pnotes_full.php?active=1' target=Main class=bold>".$date_string . " (". $iter{"user"}.")</a></td><td>" . "<a href='pnotes_full.php?active=1' target=Main class=text>" . stripslashes($iter{"body"}) . "</a></td></tr>\n";
-	
-	
-	$notes_count++;
-}
-}
+    if ($notes_count >= $N) {
+      //we have more active notes to print, but we've reached our display maximum
+      echo " <tr>\n";
+      echo "  <td colspan='3' align='center'>\n";
+      echo "   <a target='Main' href='pnotes_full.php?active=1' class='alert'>";
+      echo "Some notes were not displayed. Click here to view all.</a>\n";
+      echo "  </td>\n";
+      echo " </tr>\n";
+      break;
+    }
 
+    /****
+    if (getdate() == strtotime($iter{"date"})) {
+      $date_string = "Today, " . date( "D F jS" ,strtotime($iter{"date"}));
+    } else {
+      $date_string = date( "D F jS" ,strtotime($iter{"date"}));
+    }
+    print "<tr><td><a href='pnotes_full.php?active=1' target=Main class=bold>".$date_string . " (". $iter{"user"}.")</a></td><td>" . "<a href='pnotes_full.php?active=1' target=Main class=text>" . stripslashes($iter{"body"}) . "</a></td></tr>\n";
+    ****/
+
+    $body = $iter['body'];
+    if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
+      $body = nl2br($body);
+    } else {
+      $body = date('Y-m-d H:i', strtotime($iter['date'])) .
+        ' (' . $iter['user'] . ') ' . nl2br($body);
+    }
+
+    echo " <tr>\n";
+    echo "  <td valign='top'>\n";
+    echo "   <a href='pnotes_full.php?noteid=" . $iter['id'] .
+         "&active=1' target='Main' class='bold'>" . $iter['title'] . "</a>\n";
+    echo "  </td>\n";
+    echo "  <td valign='top'>\n";
+    echo "   <font class='text'>$body</font>\n";
+    echo "  </td>\n";
+    echo " </tr>\n";
+
+    $notes_count++;
+  }
+}
 ?>
 
 </table>

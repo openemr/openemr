@@ -27538,14 +27538,16 @@ CREATE TABLE `pma_table_info` (
 
 DROP TABLE IF EXISTS `pnotes`;
 CREATE TABLE `pnotes` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `date` datetime default NULL,
-  `body` longtext,
-  `pid` bigint(20) default NULL,
-  `user` varchar(255) default NULL,
-  `groupname` varchar(255) default NULL,
-  `activity` tinyint(4) default NULL,
-  `authorized` tinyint(4) default NULL,
+  `id`          bigint(20)   NOT NULL auto_increment,
+  `date`        datetime     default NULL,
+  `body`        longtext,
+  `pid`         bigint(20)   default NULL,
+  `user`        varchar(255) default NULL,
+  `groupname`   varchar(255) default NULL,
+  `activity`    tinyint(4)   default NULL,
+  `authorized`  tinyint(4)   default NULL,
+  `title`       varchar(255) NOT NULL DEFAULT 'Unassigned',
+  `assigned_to` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`)
 ) ;
 

@@ -62,3 +62,7 @@ ALTER TABLE lists
 
 ALTER TABLE form_clinical_notes
   MODIFY followup_required int(11) NOT NULL DEFAULT 0;
+
+ALTER TABLE pnotes
+  ADD title       varchar(255) NOT NULL DEFAULT 'Unassigned',
+  ADD assigned_to varchar(255) NOT NULL DEFAULT '';
