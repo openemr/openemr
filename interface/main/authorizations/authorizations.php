@@ -39,9 +39,13 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 <body <?echo $bottom_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2' bottommargin='0'
  marginwidth='2' marginheight='0'>
 
+<?php
+	$_GET['show_all']=='yes' ? $lnkvar="'authorizations.php?show_all=no' name='Just Mine'>(Just Mine)" : $lnkvar="'authorizations.php?show_all=yes' name='See All'>(See All)"; 
+?>
+
 <font class='title'>Patient Notes </font>
-<a class='more' style='font-size:8pt;' href='authorizations.php?show_all=yes'
-name='See All'>(See All)</a> </font>
+<a class='more' style='font-size:8pt;' href=<?php echo $lnkvar; ?></a> </font>
+
 <?php 
 	if ($imauthorized) { 
 ?>
