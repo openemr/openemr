@@ -15,6 +15,10 @@ $N = 50;
 
 $imauthorized = $_SESSION['userauthorized'];
 
+$atemp = sqlQuery("SELECT see_auth FROM users WHERE username = '" .
+  $_SESSION['authUser'] . "'");
+$see_auth = $atemp['see_auth'];
+
 // This authorizes everything for the specified patient.
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
   $retVal = getProviderId($_SESSION['authUser']);	
@@ -46,7 +50,7 @@ and
 </font>
 
 <?php
-// Retrieve all active notes addressed to me or to everyone.
+// Retrieve all active notes addressed to me.
 if ($result = getPnotesByDate("", 1, "id,date,body,pid,user,title,assigned_to",
   '%', "all", 0, $_SESSION['authUser']))
 {
@@ -88,7 +92,7 @@ if ($result = getPnotesByDate("", 1, "id,date,body,pid,user,title,assigned_to",
 ?>
 
 <?php
-if ($imauthorized) {
+if ($imauthorized && $see_auth > 1) {
 
 //  provider
 //  billing
@@ -172,6 +176,12 @@ if ($authorize) {
   $count = 0;
 
   while (list($ppid,$patient) = each($authorize)) {
+    $name = getPatientData($ppid);
+
+    // If I want to see mine only and this patient is not mine, skip it.
+    if ($see_auth == 2 && $_SESSION['authUserID'] != $name['id'])
+      continue;
+
     if ($count >= $N) {
       print "<tr><td colspan='5' align='center'><a target='Main' " .
         "href='authorizations_full.php?active=1' class='alert'>" .
@@ -179,7 +189,6 @@ if ($authorize) {
         "</a></td></tr>\n";
       break;
     }
-    $name = getPatientData($ppid);
 
     echo "<tr><td valign='top'>" .
       "<a href='$rootdir/patient_file/patient_file.php?set_pid=$ppid' " .
@@ -188,6 +197,7 @@ if ($authorize) {
       "<a class=link_submit href='authorizations.php?mode=authorize" .
       "&pid=$ppid'>Authorize</a></td>\n";
 
+    /****
     //Michael A Rowley MD 20041012.
     // added below 4 lines to add provider to authorizations for ez reference.
     $providerID = sqlFetchArray(sqlStatement(
@@ -195,6 +205,11 @@ if ($authorize) {
     $userID=$providerID{"providerID"};
     $providerName = sqlFetchArray(sqlStatement(
       "select lname from users where id=$userID"));
+    ****/
+    // Don't use sqlQuery because there might be no match.
+    $providerName = sqlFetchArray(sqlStatement(
+      "select lname from users where id = " . $name['providerID']));
+    /****/
 
     echo "<td valign=top><span class=bold>Provider:</span><span class=text><br>" .
       $providerName{"lname"} . "</td>\n";
@@ -208,6 +223,7 @@ if ($authorize) {
     echo "<td valign=top><span class=bold>Encounter Forms:</span><span class=text><br>" .
       $patient{"forms"} . "</td>\n";
     echo "</tr>\n";
+
     $count++;
   }
 }

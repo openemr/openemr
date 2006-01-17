@@ -45,6 +45,7 @@ if ($_POST["mode"] == "facility")
 			"', federaldrugid = '" . $_POST["federaldrugid"] .
 			"', upin = '"          . $_POST["upin"] .
 			"', facility = '"      . $_POST["facility"] .
+			"', see_auth = '"      . $_POST["see_auth"] .
 			"'");
 		sqlStatement("insert into groups set name='".$_POST["groupname"]."',user='".$_POST["username"]."'");
 		$ws = new WSProvider($prov_id);
@@ -88,21 +89,14 @@ if (sqlFetchArray($res) != FALSE)
 sqlStatement("delete from groups where id='".$_GET["id"]."'");
 }
 }
-
-
 ?>
-
-
 <html>
 <head>
-
 
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-
-
 
 <span class="title">User & Group Administration</span>
 
@@ -176,7 +170,7 @@ foreach($result2 as $iter3) {
 </td><td>
 <table border=0 cellpadding=0 cellspacing=0>
 <tr>
-<td><span class=text>Username: </span></td><td><input type=entry name=username size=20></td>
+<td><span class=text>Username: </span></td><td><input type=entry name=username size=20> &nbsp;</td>
 <td><span class=text>Password: </span></td><td><input type="password" size=20 name=clearPass></td>
 </tr>
 <tr>
@@ -220,7 +214,16 @@ foreach($result as $iter) {
 </tr>
 <tr>
 <td><span class="text">UPIN: </span></td><td><input type="entry" name="upin" size="20"></td>
-<td><span class=text>&nbsp;</span></td><td>&nbsp;</td>
+<td class='text'>See Authorizations: </td>
+<td><select name="see_auth">
+<?php
+ foreach (array(1 => 'None', 2 => 'Only Mine', 3 => 'All') as $key => $value)
+ {
+  echo " <option value='$key'";
+  echo ">$value</option>\n";
+ }
+?>
+</select></td>
 </tr>
 </table>
 <span class=text>Additional Info: </span><br>

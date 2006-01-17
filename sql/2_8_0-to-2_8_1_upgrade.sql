@@ -66,3 +66,6 @@ ALTER TABLE form_clinical_notes
 ALTER TABLE pnotes
   ADD title       varchar(255) NOT NULL DEFAULT 'Unassigned',
   ADD assigned_to varchar(255) NOT NULL DEFAULT '';
+
+ALTER TABLE users ADD see_auth int(11) NOT NULL DEFAULT 1;
+UPDATE users SET see_auth = 3 WHERE authorized = 1;

@@ -23,58 +23,63 @@ require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
 
 <?
 if (!$_GET["id"] || !acl_check('admin', 'users'))
-	exit();
-if ($_GET["mode"] == "update") {
-if ($_GET["username"]) {
-	$tqvar = addslashes($_GET["username"]);
-	$user_data = mysql_fetch_array(sqlStatement("select * from users where id={$_GET["id"]}"));
-	sqlStatement("update users set username='$tqvar' where id={$_GET["id"]}");
-	sqlStatement("update groups set user='$tqvar' where user='". $user_data["username"]  ."'");
-	//echo "query was: " ."update groups set user='$tqvar' where user='". $user_data["username"]  ."'" ;
-}
-if ($_GET["taxid"]) {
-	$tqvar = addslashes($_GET["taxid"]);
-	sqlStatement("update users set federaltaxid='$tqvar' where id={$_GET["id"]}");
-}
-if ($_GET["drugid"]) {
-	$tqvar = addslashes($_GET["drugid"]);
-	sqlStatement("update users set federaldrugid='$tqvar' where id={$_GET["id"]}");
-}
-if ($_GET["upin"]) {
-	$tqvar = addslashes($_GET["upin"]);
-	sqlStatement("update users set upin='$tqvar' where id={$_GET["id"]}");
-}
-if ($_GET["lname"]) {
-	$tqvar = addslashes($_GET["lname"]);
-	sqlStatement("update users set lname='$tqvar' where id={$_GET["id"]}");
-}
-if ($_GET["mname"]) {
-        $tqvar = addslashes($_GET["mname"]);
-        sqlStatement("update users set mname='$tqvar' where id={$_GET["id"]}");
-}
-if ($_GET["facility"]) {
-        $tqvar = addslashes($_GET["facility"]);
-        sqlStatement("update users set facility='$tqvar' where id={$_GET["id"]}");
-}
-if ($_GET["fname"]) {
-        $tqvar = addslashes($_GET["fname"]);
-        sqlStatement("update users set fname='$tqvar' where id={$_GET["id"]}");
-}
-if ($_GET["newauthPass"] && $_GET["newauthPass"] != "d41d8cd98f00b204e9800998ecf8427e") { // account for empty
-	$tqvar = addslashes($_GET["newauthPass"]);
-	sqlStatement("update users set password='$tqvar' where id={$_GET["id"]}");
-}
-if ($_GET["authorized"] == "on")
-	$tqvar = 1;
-else
-	$tqvar = 0;
-sqlStatement("update users set authorized=$tqvar where id={$_GET["id"]}");
+  exit();
 
-if ($_GET["comments"]) {
-	$tqvar = addslashes($_GET["comments"]);
-	sqlStatement("update users set info='$tqvar' where id={$_GET["id"]}");
-}
-	$ws = new WSProvider($_GET['id']);
+if ($_GET["mode"] == "update") {
+  if ($_GET["username"]) {
+    $tqvar = addslashes($_GET["username"]);
+    $user_data = mysql_fetch_array(sqlStatement("select * from users where id={$_GET["id"]}"));
+    sqlStatement("update users set username='$tqvar' where id={$_GET["id"]}");
+    sqlStatement("update groups set user='$tqvar' where user='". $user_data["username"]  ."'");
+    //echo "query was: " ."update groups set user='$tqvar' where user='". $user_data["username"]  ."'" ;
+  }
+  if ($_GET["taxid"]) {
+    $tqvar = addslashes($_GET["taxid"]);
+    sqlStatement("update users set federaltaxid='$tqvar' where id={$_GET["id"]}");
+  }
+  if ($_GET["drugid"]) {
+    $tqvar = addslashes($_GET["drugid"]);
+    sqlStatement("update users set federaldrugid='$tqvar' where id={$_GET["id"]}");
+  }
+  if ($_GET["upin"]) {
+    $tqvar = addslashes($_GET["upin"]);
+    sqlStatement("update users set upin='$tqvar' where id={$_GET["id"]}");
+  }
+  if ($_GET["lname"]) {
+    $tqvar = addslashes($_GET["lname"]);
+    sqlStatement("update users set lname='$tqvar' where id={$_GET["id"]}");
+  }
+  if ($_GET["mname"]) {
+          $tqvar = addslashes($_GET["mname"]);
+          sqlStatement("update users set mname='$tqvar' where id={$_GET["id"]}");
+  }
+  if ($_GET["facility"]) {
+          $tqvar = addslashes($_GET["facility"]);
+          sqlStatement("update users set facility='$tqvar' where id={$_GET["id"]}");
+  }
+  if ($_GET["fname"]) {
+          $tqvar = addslashes($_GET["fname"]);
+          sqlStatement("update users set fname='$tqvar' where id={$_GET["id"]}");
+  }
+  if ($_GET["newauthPass"] && $_GET["newauthPass"] != "d41d8cd98f00b204e9800998ecf8427e") { // account for empty
+    $tqvar = addslashes($_GET["newauthPass"]);
+    sqlStatement("update users set password='$tqvar' where id={$_GET["id"]}");
+  }
+
+  if ($_GET["authorized"] == "on")
+    $tqvar = 1;
+  else
+    $tqvar = 0;
+
+  sqlStatement("UPDATE users SET authorized = $tqvar, " .
+    "see_auth = '" . $_GET['see_auth'] . "' WHERE " .
+    "id = {$_GET["id"]}");
+
+  if ($_GET["comments"]) {
+    $tqvar = addslashes($_GET["comments"]);
+    sqlStatement("update users set info='$tqvar' where id={$_GET["id"]}");
+  }
+  $ws = new WSProvider($_GET['id']);
 }
 
 $res = sqlStatement("select * from users where id={$_GET["id"]}");
@@ -86,12 +91,12 @@ $iter = $result[0];
 <FORM NAME="user_form" METHOD="GET" ACTION="user_admin.php">
 <TABLE border=0 cellpadding=0 cellspacing=0>
 <TR>
-<TD><span class=text>Username: </span></TD><TD><input type=entry name=username size=20 value="<? echo $iter["username"]; ?>" disabled></td>
-<TD><span class=text>Password: </span></TD><TD><input type=password name=clearPass size=20 value=""> * Leave blank to keep password unchanged.</td>
+<TD><span class=text>Username: </span></TD><TD><input type=entry name=username size=20 value="<? echo $iter["username"]; ?>" disabled> &nbsp;</td>
+<TD><span class=text>Password: </span></TD><TD class='text'><input type=password name=clearPass size=20 value=""> * Leave blank to keep password unchanged.</td>
 </TR>
 
 <TR>
-<td></td><td></td>
+<td><span class="text">&nbsp;</span></td><td>&nbsp;</td>
 <TD><span class=text>Authorized: </TD>
 <TD><INPUT TYPE="checkbox" name="authorized"<?
 if ($iter["authorized"] == 1)
@@ -130,13 +135,22 @@ foreach($result as $iter2) {
 
 <tr>
 <td><span class="text">UPIN: </span></td><td><input type="text" name="upin" size="20" value="<? echo $iter["upin"]?>"></td>
-<td><span class="text">&nbsp;</span></td><td>&nbsp;</td>
+<td class='text'>See Authorizations: </td>
+<td><select name="see_auth">
+<?php
+ foreach (array(1 => 'None', 2 => 'Only Mine', 3 => 'All') as $key => $value)
+ {
+  echo " <option value='$key'";
+  if ($key == $iter['see_auth']) echo " selected";
+  echo ">$value</option>\n";
+ }
+?>
+</select></td>
 </tr>
 
 </table>
 <span class=text>Additional Info:</span><br>
 <textarea name="comments" wrap=auto rows=4 cols=30><? echo $iter["info"];?></textarea>
-
 
 <br>&nbsp;&nbsp;&nbsp;
 <INPUT TYPE="HIDDEN" NAME="id" VALUE="<? echo $_GET["id"]; ?>">
