@@ -39,20 +39,27 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 <body <?echo $bottom_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2' bottommargin='0'
  marginwidth='2' marginheight='0'>
 
-<font class='title'>Patient Notes
-<?php if ($imauthorized) { ?>
-and
+<font class='title'>Patient Notes </font>
+<a class='more' style='font-size:8pt;' href='authorizations.php?show_all=yes'
+name='See All'>(See All)</a> </font>
+<?php 
+	if ($imauthorized) { 
+?>
+<font class='title'>and
 <a href='authorizations_full.php' target='Main'>Authorizations<font class='more'><?echo $tmore;?></font></a>
-<?php } ?>
+<?php 
+	} 
+?>
 </font>
 <font class='more'> &nbsp;
 <a class='more' style='font-size:8pt;' href='../calendar/find_patient.php?no_nav=1&mode=reset' name='Find Patients'>(Find Patient)</a>
 </font>
 
 <?php
-// Retrieve all active notes addressed to me.
-if ($result = getPnotesByDate("", 1, "id,date,body,pid,user,title,assigned_to",
-  '%', "all", 0, $_SESSION['authUser']))
+// Retrieve all active notes addressed to me (or to anybody)
+$_GET['show_all']=='yes' ? $usrvar='' : $usrvar=$_SESSION['authUser'] ; 
+if ($result=getPnotesByDate("", 1, "id,date,body,pid,user,title,assigned_to",
+  '%', "all", 0, $usrvar))
 {
   echo "<table border='0'>\n";
   echo " <tr>\n";
