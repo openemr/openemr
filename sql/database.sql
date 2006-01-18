@@ -27678,6 +27678,7 @@ CREATE TABLE `users` (
   `federaldrugid` varchar(255) default NULL,
   `upin` varchar(255) default NULL,
   `facility` varchar(255) default NULL,
+  `see_auth` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY  (`id`)
 ) ;
 
