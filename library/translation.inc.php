@@ -1,4 +1,5 @@
-<?
+<?php
+  include_once($GLOBALS['srcdir'] . '/sql.inc');
 
 // this function is related to the interface/language module.
 
