@@ -77,6 +77,7 @@ function selpopup(selobj) {
 <? if (file_exists("$webserver_root/custom/refer.php")) { ?>
      <option value='../../custom/refer.php'>Refer</option>
 <? } ?>
+     <option value='front_payment.php'>Payment</option>
     </select>
   </td>
  </tr>

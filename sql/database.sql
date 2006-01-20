@@ -27977,15 +27977,15 @@ CREATE TABLE IF NOT EXISTS `lang_constants` (
   KEY `cons_name` (`constant_name`)
 ) ENGINE=MyISAM AUTO_INCREMENT=6 ;
 
-## 
+##
 ## Dumping data for table `lang_constants`
-## 
+##
 
 ## ########################################################
 
-## 
+##
 ## Table structure for table `lang_definitions`
-## 
+##
 
 CREATE TABLE IF NOT EXISTS `lang_definitions` (
   `def_id` int(11) NOT NULL auto_increment,
@@ -27996,16 +27996,16 @@ CREATE TABLE IF NOT EXISTS `lang_definitions` (
   KEY `definition` (`definition`(100))
 ) ENGINE=MyISAM ;
 
-## 
+##
 ## Dumping data for table `lang_definitions`
-## 
+##
 
 
 ## ########################################################
 
-## 
+##
 ## Table structure for table `lang_languages`
-## 
+##
 
 CREATE TABLE IF NOT EXISTS `lang_languages` (
   `lang_id` int(11) NOT NULL auto_increment,
@@ -28014,10 +28014,29 @@ CREATE TABLE IF NOT EXISTS `lang_languages` (
   UNIQUE KEY `lang_id` (`lang_id`)
 ) ENGINE=MyISAM ;
 
-## 
+##
 ## Dumping data for table `lang_languages`
-## 
+##
 
 INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (1, 'en', 'English');
 INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (2, 'se', 'Swedish');
 INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (3, 'es', 'Spanish');
+
+--
+-- Table structure for table `payments`
+--
+
+DROP TABLE IF EXISTS `payments`;
+CREATE TABLE `payments` (
+  `id`          bigint(20)    NOT NULL auto_increment,
+  `pid`         bigint(20)    NOT NULL DEFAULT 0,
+  `dtime`       datetime      NOT NULL,
+  `user`        varchar(255)  NOT NULL DEFAULT '',
+  `method`      varchar(255)  NOT NULL DEFAULT '',
+  `source`      varchar(255)  NOT NULL DEFAULT '',
+  `amount1`     decimal(7,2)  NOT NULL DEFAULT 0,
+  `amount2`     decimal(7,2)  NOT NULL DEFAULT 0,
+  `posted1`     decimal(7,2)  NOT NULL DEFAULT 0,
+  `posted2`     decimal(7,2)  NOT NULL DEFAULT 0,
+  PRIMARY KEY  (`id`)
+) ;

@@ -69,3 +69,17 @@ ALTER TABLE pnotes
 
 ALTER TABLE users ADD see_auth int(11) NOT NULL DEFAULT 1;
 UPDATE users SET see_auth = 3 WHERE authorized = 1;
+
+CREATE TABLE `payments` (
+  `id`          bigint(20)    NOT NULL auto_increment,
+  `pid`         bigint(20)    NOT NULL DEFAULT 0,
+  `dtime`       datetime      NOT NULL,
+  `user`        varchar(255)  NOT NULL DEFAULT '',
+  `method`      varchar(255)  NOT NULL DEFAULT '',
+  `source`      varchar(255)  NOT NULL DEFAULT '',
+  `amount1`     decimal(7,2)  NOT NULL DEFAULT 0,
+  `amount2`     decimal(7,2)  NOT NULL DEFAULT 0,
+  `posted1`     decimal(7,2)  NOT NULL DEFAULT 0,
+  `posted2`     decimal(7,2)  NOT NULL DEFAULT 0,
+  PRIMARY KEY  (`id`)
+) ;
