@@ -15,6 +15,16 @@
 //the number of records to display per screen
 $N = 25;
 
+$note_types = array(
+  'Unassigned',
+  'Chart Note',
+  'Insurance',
+  'Pharmacy',
+  'Prior Auth',
+  'Referral',
+  'Test Scheduling',
+  'Other');
+
 $mode   = $_REQUEST['mode'];
 $offset = $_REQUEST['offset'];
 $active = $_REQUEST['active'];
@@ -105,9 +115,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
    <b>Type:</b>
    <select name='title'>
 <?
- foreach (array('Unassigned', 'Chart Note', 'Insurance', 'Pharmacy',
-  'Prior Auth', 'Referral', 'Other') as $value)
- {
+ foreach ($note_types as $value) {
   echo "    <option value='$value'";
   if ($value == $title) echo " selected";
   echo ">$value</option>\n";
