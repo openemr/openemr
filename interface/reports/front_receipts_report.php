@@ -13,6 +13,10 @@
 
  $from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
  $to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
+
+ function bucks($amt) {
+  return ($amt != 0.00) ? sprintf('%.2f', $amt) : '';
+ }
 ?>
 <html>
 <head>
@@ -142,13 +146,13 @@
    <?php echo $row['source'] ?>
   </td>
   <td class='detail' align='right'>
-   <?php echo $row['amount1'] ?>
+   <?php echo bucks($row['amount1']) ?>
   </td>
   <td class='detail' align='right'>
-   <?php echo $row['amount2'] ?>
+   <?php echo bucks($row['amount2']) ?>
   </td>
   <td class='detail' align='right'>
-   <?php echo sprintf('%.2f', $row['amount1'] + $row['amount2']) ?>
+   <?php echo bucks($row['amount1'] + $row['amount2']) ?>
   </td>
  </tr>
 <?php
@@ -168,13 +172,13 @@
    Totals
   </td>
   <td class='detail' align='right'>
-   <?php echo sprintf('%.2f', $total1) ?>
+   <?php echo bucks($total1) ?>
   </td>
   <td class='detail' align='right'>
-   <?php echo sprintf('%.2f', $total2) ?>
+   <?php echo bucks($total2) ?>
   </td>
   <td class='detail' align='right'>
-   <?php echo sprintf('%.2f', $total1 + $total2) ?>
+   <?php echo bucks($total1 + $total2) ?>
   </td>
  </tr>
 
