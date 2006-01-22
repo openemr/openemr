@@ -65,10 +65,21 @@ class WSClaim extends WSWrapper{
 		}
 		$invoice_info['notes'] = $insnotes;
 
+    /****
 		$sql = "SELECT b.*, CONCAT(pd.fname,' ',pd.mname,' ',pd.lname) as patient_name " .
 			"FROM billing as b LEFT JOIN patient_data as pd on b.pid=pd.pid where " .
 			"b.encounter = '" . $this->encounter ."' AND b.pid = '" . $this->patient_id .
 			"' AND b.billed = 1 AND b.activity != '0' AND authorized = '1'";
+    ****/
+
+    $sql = "SELECT b.*, e.date AS dosdate, " .
+      "CONCAT(pd.fname,' ',pd.mname,' ',pd.lname) as patient_name " .
+      "FROM billing AS b " .
+      "LEFT JOIN form_encounter AS e ON e.encounter = b.encounter AND e.pid = b.pid " .
+      "LEFT JOIN patient_data AS pd ON b.pid = pd.pid " .
+      "WHERE " .
+      "b.encounter = '" . $this->encounter . "' AND b.pid = '" . $this->patient_id .
+      "' AND b.billed = 1 AND b.activity != '0' AND authorized = '1'";
 
 		$result = $this->_db->Execute($sql);
 
@@ -105,7 +116,8 @@ class WSClaim extends WSWrapper{
 				$invoice_info['invoicedate'] = $process_date;
 				$invoice_info['duedate'] = $process_date;
 				$invoice_info['items'] = array();
-				$invoice_info['dosdate'] = date("m-d-Y",strtotime($result->fields['date']));
+//			$invoice_info['dosdate'] = date("m-d-Y",strtotime($result->fields['date']));
+        $invoice_info['dosdate'] = date("m-d-Y",strtotime($result->fields['dosdate']));
 			}
 
 			$tii = array();

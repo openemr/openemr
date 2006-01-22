@@ -174,11 +174,11 @@ sub rpc_add_invoice
 
 	$form->{transdate} = sprintf("%02u-%02u-%04u", $t[4] + 1, $t[3], $t[5] + 1900);
 
-
-	#Uncoment this following line if you rather use the DOS as the billing date.
-	
-	# $form->{transdate} = $$post_hash{'dosdate'};
-
+	# This overrides the above statement to use the date of service as the
+	# invoice date, which should be preferable for most practices.  Comment
+	# out the following line if you really want the billing date instead.
+	#
+	$form->{transdate} = $$post_hash{'dosdate'};
 
 	# If there is insurance, set a future due date so we don't bother
 	# the patient for a while.
