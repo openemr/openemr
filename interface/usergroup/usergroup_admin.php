@@ -1,93 +1,119 @@
 <?
 include_once("../globals.php");
-
-
 include_once("$srcdir/md5.js");
 include_once("$srcdir/sql.inc");
 require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
 
+$alertmsg = '';
+
 if (isset($_POST["mode"])) {
-if ($_POST["mode"] == "facility")
-{
-	 sqlStatement("insert into facility set
-	 	name='{$_POST['facility']}',
-		phone='{$_POST['phone']}',
-		street='{$_POST['street']}',
-		city='{$_POST['city']}',
-		state='{$_POST['state']}',
-		postal_code='{$_POST['postal_code']}',
-		country_code='{$_POST['country_code']}',
-		federal_ein='{$_POST['federal_ein']}'");
-}elseif ($_POST["mode"] == "new_user") {
-	if ($_POST["authorized"] != "1") {
-		$_POST["authorized"] = 0;
-	}
-	$_POST["info"] = addslashes($_POST["info"]);
+  if ($_POST["mode"] == "facility")
+  {
+    sqlStatement("insert into facility set
+    name='{$_POST['facility']}',
+    phone='{$_POST['phone']}',
+    street='{$_POST['street']}',
+    city='{$_POST['city']}',
+    state='{$_POST['state']}',
+    postal_code='{$_POST['postal_code']}',
+    country_code='{$_POST['country_code']}',
+    federal_ein='{$_POST['federal_ein']}'");
+  } elseif ($_POST["mode"] == "new_user") {
+    if ($_POST["authorized"] != "1") {
+      $_POST["authorized"] = 0;
+    }
+    $_POST["info"] = addslashes($_POST["info"]);
 
-	$res = sqlStatement("select distinct username from users");
-	$doit = true;
-	while ($row = mysql_fetch_array($res)) {
-		if ($doit == true && $row['username'] == $_POST["username"]) {
-			$doit = false;
-		}
-	}
+    $res = sqlStatement("select distinct username from users");
+    $doit = true;
+    while ($row = mysql_fetch_array($res)) {
+      if ($doit == true && $row['username'] == $_POST["username"]) {
+        $doit = false;
+      }
+    }
 
-	if ($doit == true) {
-		$prov_id = idSqlStatement("insert into users set " .
-			"username = '"         . $_POST["username"] .
-			"', password = '"      . $_POST["newauthPass"] .
-			"', fname = '"         . $_POST["fname"] .
-			"', mname = '"         . $_POST["mname"] .
-			"', lname = '"         . $_POST["lname"] .
-			"', federaltaxid = '"  . $_POST["federaltaxid"] .
-			"', authorized = '"    . $_POST["authorized"] .
-			"', info = '"          . $_POST["info"] .
-			"', federaldrugid = '" . $_POST["federaldrugid"] .
-			"', upin = '"          . $_POST["upin"] .
-			"', facility = '"      . $_POST["facility"] .
-			"', see_auth = '"      . $_POST["see_auth"] .
-			"'");
-		sqlStatement("insert into groups set name='".$_POST["groupname"]."',user='".$_POST["username"]."'");
-		$ws = new WSProvider($prov_id);
-	}
-} 
-elseif ($_POST["mode"] == "new_group") {
-
-$res = sqlStatement("select distinct name,user from groups");
-for ($iter = 0;$row = sqlFetchArray($res);$iter++) 
-                $result[$iter] = $row;
-$doit = 1;
-foreach ($result as $iter) {
-	if ($doit == 1 && $iter{"name"} == $_POST["groupname"] && $iter{"user"} == $_POST["username"])
-		$doit--;
-}
-if ($doit == 1)
-	sqlStatement("insert into groups set name='".$_POST["groupname"]."',user='".$_POST["username"]."'");
-}
-
+    if ($doit == true) {
+      $prov_id = idSqlStatement("insert into users set " .
+        "username = '"         . $_POST["username"] .
+        "', password = '"      . $_POST["newauthPass"] .
+        "', fname = '"         . $_POST["fname"] .
+        "', mname = '"         . $_POST["mname"] .
+        "', lname = '"         . $_POST["lname"] .
+        "', federaltaxid = '"  . $_POST["federaltaxid"] .
+        "', authorized = '"    . $_POST["authorized"] .
+        "', info = '"          . $_POST["info"] .
+        "', federaldrugid = '" . $_POST["federaldrugid"] .
+        "', upin = '"          . $_POST["upin"] .
+        "', facility = '"      . $_POST["facility"] .
+        "', see_auth = '"      . $_POST["see_auth"] .
+        "'");
+      sqlStatement("insert into groups set name = '" . $_POST["groupname"] .
+        "', user = '" . $_POST["username"] . "'");
+      $ws = new WSProvider($prov_id);
+    } else {
+      $alertmsg .= "User " . $_POST["username"] . " already exists. ";
+    }
+  }
+  elseif ($_POST["mode"] == "new_group") {
+    $res = sqlStatement("select distinct name, user from groups");
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+      $result[$iter] = $row;
+    $doit = 1;
+    foreach ($result as $iter) {
+      if ($doit == 1 && $iter{"name"} == $_POST["groupname"] && $iter{"user"} == $_POST["username"])
+        $doit--;
+    }
+    if ($doit == 1) {
+      sqlStatement("insert into groups set name = '" . $_POST["groupname"] .
+        "', user = '" . $_POST["username"] . "'");
+    } else {
+      $alertmsg .= "User " . $_POST["username"] .
+        " is already a member of group " . $_POST["groupname"] . ". ";
+    }
+  }
 }
 
 if (isset($_GET["mode"])) {
-if ($_GET["mode"] == "delete") {
-$res = sqlStatement("select distinct username,id from users where id={$_GET["id"]}");
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-                $result[$iter] = $row;
-foreach($result as $iter) {
-	sqlStatement("delete from groups where user='".$iter{"username"}."'");
-}
-sqlStatement("delete from users where id='".$_GET["id"]."'");
-} elseif ($_GET["mode"] == "delete_group") {
 
-$res = sqlStatement("select distinct user from groups where id={$_GET["id"]}");
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-                $result[$iter] = $row;
-foreach($result as $iter) 
-	$un = $iter{"user"};
+  // This is the code to delete a user.  Note that the link which invokes
+  // this is commented out.  Somebody must have figured it was too dangerous.
+  //
+  if ($_GET["mode"] == "delete") {
+    $res = sqlStatement("select distinct username, id from users where id = '" .
+      $_GET["id"] . "'");
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+      $result[$iter] = $row;
 
-$res = sqlStatement("select name,user from groups where user='".$iter{"user"}."' and id!={$_GET["id"]}\n");
-if (sqlFetchArray($res) != FALSE) 
-sqlStatement("delete from groups where id='".$_GET["id"]."'");
-}
+    // TBD: Before deleting the user, we should check all tables that
+    // reference users to make sure this user is not referenced!
+
+    foreach($result as $iter) {
+      sqlStatement("delete from groups where user = '" . $iter{"username"} . "'");
+    }
+    sqlStatement("delete from users where id = '" . $_GET["id"] . "'");
+  }
+
+  elseif ($_GET["mode"] == "delete_group") {
+    $res = sqlStatement("select distinct user from groups where id = '" .
+      $_GET["id"] . "'");
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+      $result[$iter] = $row;
+    foreach($result as $iter)
+      $un = $iter{"user"};
+//  $res = sqlStatement("select name,user from groups where user = '" .
+//    $iter{"user"} . "' and id != {$_GET["id"]}\n");
+    $res = sqlStatement("select name, user from groups where user = '$un' " .
+      "and id != '" . $_GET["id"] . "'");
+
+    // Remove the user only if they are also in some other group.  I.e. every
+    // user must be a member of at least one group.
+    if (sqlFetchArray($res) != FALSE) {
+      sqlStatement("delete from groups where id = '" . $_GET["id"] . "'");
+    } else {
+      $alertmsg .= "You must add this user to some other group before " .
+        "removing them from this group. ";
+    }
+  }
 }
 ?>
 <html>
@@ -148,16 +174,14 @@ sqlStatement("delete from groups where id='".$_GET["id"]."'");
 $fres = 0;
 $fres = sqlStatement("select * from facility order by name");
 if ($fres) {
-$result2 = array();
-for ($iter3 = 0;$frow = sqlFetchArray($fres);$iter3++)
-                $result2[$iter3] = $frow;
-foreach($result2 as $iter3) {
+  $result2 = array();
+  for ($iter3 = 0;$frow = sqlFetchArray($fres);$iter3++)
+    $result2[$iter3] = $frow;
+  foreach($result2 as $iter3) {
 ?>
 <span class=text><?echo $iter3{name};?></span><a href="facility_admin.php?fid=<?echo $iter3{id};?>" class=link_submit>(Edit)</a><br>
-
-
 <?
-}
+  }
 }
 ?>
 
@@ -179,9 +203,9 @@ foreach($result2 as $iter3) {
 <?
 $res = sqlStatement("select distinct name from groups");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-		$result2[$iter] = $row;
+  $result2[$iter] = $row;
 foreach ($result2 as $iter) {
-print "<option value='".$iter{"name"}."'>" . $iter{"name"} . "</option>\n";
+  print "<option value='".$iter{"name"}."'>" . $iter{"name"} . "</option>\n";
 }
 ?>
 </select></td>
@@ -197,13 +221,13 @@ print "<option value='".$iter{"name"}."'>" . $iter{"name"} . "</option>\n";
 <?
 $fres = sqlStatement("select * from facility order by name");
 if ($fres) {
-for ($iter = 0;$frow = sqlFetchArray($fres);$iter++)
-                $result[$iter] = $frow;
-foreach($result as $iter) {
+  for ($iter = 0;$frow = sqlFetchArray($fres);$iter++)
+    $result[$iter] = $frow;
+  foreach($result as $iter) {
 ?>
 <option value="<?echo $iter{name};?>"><?echo $iter{name};?></option>
 <?
-}
+  }
 }
 ?>
 </select></td>
@@ -247,9 +271,9 @@ foreach($result as $iter) {
 <?
 $res = sqlStatement("select distinct username from users");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-		$result[$iter] = $row;
+  $result[$iter] = $row;
 foreach ($result as $iter) {
-print "<option value='".$iter{"username"}."'>" . $iter{"username"} . "</option>\n";
+  print "<option value='".$iter{"username"}."'>" . $iter{"username"} . "</option>\n";
 }
 ?>
 </select>
@@ -270,9 +294,9 @@ print "<option value='".$iter{"username"}."'>" . $iter{"username"} . "</option>\
 <?
 $res = sqlStatement("select distinct username from users");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-		$result3[$iter] = $row;
+  $result3[$iter] = $row;
 foreach ($result3 as $iter) {
-print "<option value='".$iter{"username"}."'>" . $iter{"username"} . "</option>\n";
+  print "<option value='".$iter{"username"}."'>" . $iter{"username"} . "</option>\n";
 }
 ?>
 </select>
@@ -282,9 +306,9 @@ print "<option value='".$iter{"username"}."'>" . $iter{"username"} . "</option>\
 <?
 $res = sqlStatement("select distinct name from groups");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-		$result2[$iter] = $row;
+  $result2[$iter] = $row;
 foreach ($result2 as $iter) {
-print "<option value='".$iter{"name"}."'>" . $iter{"name"} . "</option>\n";
+  print "<option value='".$iter{"name"}."'>" . $iter{"name"} . "</option>\n";
 }
 ?>
 </select>
@@ -293,65 +317,64 @@ print "<option value='".$iter{"name"}."'>" . $iter{"name"} . "</option>\n";
 </form>
 </td>
 
-
-
-
-
 </tr>
 </table>
 
 <hr>
-
-
 
 <table border=0 cellpadding=1 cellspacing=2>
 <tr><td><span class=bold>Username</span></td><td><span class=bold>Real Name</span></td><td><span class=bold>Info</span></td><td><span class=bold>Authorized?</span></td></tr>
 <?
 $res = sqlStatement("select * from users order by username");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-		$result4[$iter] = $row;
+  $result4[$iter] = $row;
 foreach ($result4 as $iter) {
-if ($iter{"authorized"}) {
-$iter{"authorized"} = "yes";
-} else {
-$iter{"authorized"} = "";
+  if ($iter{"authorized"}) {
+    $iter{"authorized"} = "yes";
+  } else {
+      $iter{"authorized"} = "";
+  }
+
+  print "<tr><td><span class=text>" . $iter{"username"} .
+    "</span><a href='user_admin.php?id=" . $iter{"id"} .
+    "' class=link_submit>(Edit)</a></td><td><span class=text>" .
+    $iter{"fname"} . ' ' . $iter{"lname"}."</span></td><td><span class=text>" .
+    $iter{"info"} . "</span></td><td align='center'><span class=text>" .
+    $iter{"authorized"} . "</span></td>";
+  print "<td><!--<a href='usergroup_admin.php?mode=delete&id=" . $iter{"id"} .
+    "' class=link_submit>[Delete]</a>--></td>";
+  print "</tr>\n";
 }
-
-print "<tr><td><span class=text>".$iter{"username"}."</span><a href='user_admin.php?id=".$iter{"id"}."' class=link_submit>(Edit)</a></td><td><span class=text>".$iter{"fname"}.' '.$iter{"lname"}."</span></td><td><span class=text>".$iter{"info"}."</span></td><td align='center'><span class=text>".$iter{"authorized"}."</span></td>";
-print "<td><!--<a href='usergroup_admin.php?mode=delete&id=".$iter{"id"}."' class=link_submit>[Delete]</a>--></td>";
-print "</tr>\n";
-}
-
-
-
 ?>
 
 </table>
 
-
 <hr>
-
 
 <?
 $res = sqlStatement("select * from groups order by name");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-		$result5[$iter] = $row;
+  $result5[$iter] = $row;
 
 foreach ($result5 as $iter) {
-$grouplist{$iter{"name"}} .= $iter{"user"} . "(<a class=link_submit href='usergroup_admin.php?mode=delete_group&id=".$iter{"id"}."'>Remove</a>), ";
-
-
+  $grouplist{$iter{"name"}} .= $iter{"user"} .
+    "(<a class=link_submit href='usergroup_admin.php?mode=delete_group&id=" .
+    $iter{"id"} . "'>Remove</a>), ";
 }
 
 foreach ($grouplist as $groupname => $list) {
-print "<span class=bold>" . $groupname . "</span><br>\n<span class=text>" . substr($list,0,strlen($list)-2) . "</span><br>\n";
+  print "<span class=bold>" . $groupname . "</span><br>\n<span class=text>" .
+    substr($list,0,strlen($list)-2) . "</span><br>\n";
 }
-
-
 ?>
 
-
-
+<script language="JavaScript">
+<?
+  if ($alertmsg = trim($alertmsg)) {
+    echo "alert('$alertmsg');\n";
+  }
+?>
+</script>
 
 </body>
 </html>
