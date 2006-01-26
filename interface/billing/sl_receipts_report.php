@@ -16,6 +16,7 @@
   // form then the code below may work for you.
   //
   include_once("../forms/fee_sheet/codes.php");
+
   function is_clinic($code) {
     global $cpt, $hcpcs;
     return ($cpt[xl('Lab')][$code] || $cpt[xl('Immunizations')][$code] ||
@@ -30,6 +31,8 @@
   if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
 
   SLConnect();
+
+  $form_use_edate = $_POST['form_use_edate'];
 ?>
 <html>
 <head>
@@ -67,6 +70,10 @@
 		echo "<input type='hidden' name='form_doctor' value='" . $_SESSION['authUserID'] . "'>";
 	}
 ?>
+   &nbsp;<select name='form_use_edate'>
+    <option value='0'>Payment Date</option>
+    <option value='1'<?php if ($form_use_edate) echo ' selected' ?>>Invoice Date</option>
+   </select>
    &nbsp;<?xl('From:','e')?>
    <input type='text' name='form_from_date' size='10' value='<? echo $_POST['form_from_date']; ?>' title='MM/DD/YYYY'>
    &nbsp;To:
@@ -119,9 +126,15 @@
     $query = "select acc_trans.amount, acc_trans.transdate, acc_trans.memo, " .
       "ar.invnumber, ar.employee_id from acc_trans, ar where " .
       "acc_trans.chart_id = $chart_id_cash and " .
-      "acc_trans.transdate >= '$from_date' and " .
-      "acc_trans.transdate <= '$to_date' and " .
-      "ar.id = acc_trans.trans_id";
+      "ar.id = acc_trans.trans_id and ";
+
+    if ($form_use_edate) {
+      $query .= "ar.transdate >= '$from_date' and " .
+      "ar.transdate <= '$to_date'";
+    } else {
+      $query .= "acc_trans.transdate >= '$from_date' and " .
+      "acc_trans.transdate <= '$to_date'";
+    }
 
     if ($form_doctor) {
       $tmp = sqlQuery("select foreign_id from integration_mapping where " .
