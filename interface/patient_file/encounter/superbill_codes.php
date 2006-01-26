@@ -6,7 +6,17 @@ include_once("$srcdir/sql.inc");
 
 //the number of rows to display before resetting and starting a new column:
 $N=10;
-$mode = $_GET['mode'];
+
+$mode     = $_GET['mode'];
+$type     = $_GET['type'];
+$modifier = $_GET['modifier'];
+$units    = $_GET['units'];
+$fee      = $_GET['fee'];
+$code     = $_GET['code'];
+$text     = $_GET['text'];
+
+if (!get_magic_quotes_gpc()) $text = addslashes($text);
+
 if (isset($mode)) {
 	if ($mode == "add") {
 		if (strtolower($type) == "copay") {
