@@ -19,6 +19,7 @@ $note_types = array(
   'Unassigned',
   'Chart Note',
   'Insurance',
+  'New Document',
   'Pharmacy',
   'Prior Auth',
   'Referral',
@@ -268,6 +269,25 @@ if ($result_count == $N) {
 </table>
 
 </center>
+
+<?php
+// If this note references a new patient document, pop up a display
+// of that document.
+//
+if ($noteid && $title == 'New Document') {
+  $prow = getPnoteById($noteid, 'body');
+  if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', $prow['body'], $matches)) {
+    $docid = $matches[1];
+    $docname = $matches[2];
+?>
+<script language="JavaScript">
+ window.open('../../../controller.php?document&retrieve&patient_id=<?php echo $pid ?>&document_id=<?php echo $docid ?>&<?php echo $docname?>&as_file=true',
+  '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
+</script>
+<?php
+  }
+}
+?>
 
 </body>
 </html>
