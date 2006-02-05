@@ -46,7 +46,7 @@ class FormVitals extends ORDataObject {
 	var $head_circ;
 	var $oxygen_saturation;
 
-	var $temp_methods;
+	// var $temp_methods;
 	/**
 	 * Constructor sets all Form attributes to their default value
 	 */
@@ -180,9 +180,9 @@ class FormVitals extends ORDataObject {
 	function set_temp_method($tm) {
 		$this->temp_method = $tm;
 	}
-	function get_temp_methods() {
-		return $this->temp_methods;
-	}
+	// function get_temp_methods() {
+	// 	return $this->temp_methods;
+	// }
 	function get_pulse() {
 		return $this->pulse;
 	}
