@@ -61,20 +61,17 @@ if (count($result) != 1) {
 </td></tr>
 <tr><td>&nbsp;</td><td>
 <input type="hidden" name="authPass">
-<input type="submit" onClick="javascript:this.form.authPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';" value="<?xl('Login','e')?>">
+<input type="submit" onClick="javascript:this.form.authPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';" value="Login">
 </td></tr>
 </table>
 
 </td>
 <td width=33%>
-<center>
-<table>
-<?# not changed - some kind of demo? ?>
-<tr><td>User:</td><td>Password:</td></tr> 
-<tr><td>clerk</td><td>clerk1</td></tr> 
-<tr><td>demo</td><td>pass</td></tr> 
-<tr><td>drwhitehair</td><td>drwhitehair1</td></tr> 
-<tr><td>admin</td><td>pass</td></tr>
+
+<!-- Uncomment this for the OpenEMR demo installation
+<p><center>login = admin
+<br>password = pass
+-->
 
 </center></p>
 
@@ -84,11 +81,9 @@ if (count($result) != 1) {
 
 
 </form>
-<br><br>
-<center>
+
 <address>
-<a href="copyright_notice.html" target="main"><?xl('Copyright Notice:','e')?></a><br />
-<a href="http://www.openmedsoftware.org/" target="main"><?xl('Return to Open Source Medical Software','e')?></a>
+<a href="copyright_notice.html" target="main"><?xl('Copyright Notice','e')?></a><br />
 </address>
 
 </center>
