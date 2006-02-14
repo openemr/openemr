@@ -28,7 +28,7 @@ include_once("../../library/acl.inc");
 </td>
 
 <td width="5%" nowrap>
-<a href="javascript:document.find_patient.action='<?echo $rootdir?>/main/finder/patient_finder.php';document.find_patient.submit();" class=link>&nbsp;Find&nbsp;Patient</a>
+<a href="javascript:document.find_patient.action='<?echo $rootdir?>/main/finder/patient_finder.php';document.find_patient.submit();" class=link>&nbsp;<? xl('Find','e'); ?>&nbsp;<? xl('Patient','e'); ?></a>
 &nbsp;
 </td>
 
@@ -37,51 +37,51 @@ include_once("../../library/acl.inc");
  if ($npauth == 'write' || $npauth == 'addonly') {
 ?>
 <td align="center" nowrap>
-&nbsp;<a class="menu" target=_top href="../new/new_patient.php">New&nbsp;Patient</a>&nbsp;
+&nbsp;<a class="menu" target=_top href="../new/new_patient.php"><? xl('New','e'); ?>&nbsp;<? xl('Patient','e'); ?></a>&nbsp;
 </td>
 <? } ?>
 
 <td align="center" nowrap>
-&nbsp;<a href="../usergroup/user_info.php" target="Main" class="menu">Password</a>&nbsp;
+&nbsp;<a href="../usergroup/user_info.php" target="Main" class="menu"><? xl('Password','e'); ?></a>&nbsp;
 </td>
 
 <? if (acl_check('admin', 'calendar') || acl_check('admin', 'database') ||
        acl_check('admin', 'forms')    || acl_check('admin', 'practice') ||
        acl_check('admin', 'users')) { ?>
 <td align="center" nowrap>
-&nbsp;<a class=menu target=_top href="../usergroup/usergroup.php">Administration</a>&nbsp;
+&nbsp;<a class=menu target=_top href="../usergroup/usergroup.php"><? xl('Administration','e'); ?></a>&nbsp;
 </td>
 <? } ?>
 
 <td align="center" nowrap>
-&nbsp;<a href="../reports/index.php" target="Main" class="menu">Reports</a>&nbsp;
+&nbsp;<a href="../reports/index.php" target="Main" class="menu"><? xl('Reports','e'); ?></a>&nbsp;
 </td>
 
 <td align="center" nowrap>
-&nbsp;<a href="onotes/office_comments.php" target="Main" class="menu">Notes</a>&nbsp;
+&nbsp;<a href="onotes/office_comments.php" target="Main" class="menu"><? xl('Notes','e'); ?></a>&nbsp;
 </td>
 
 <? if (acl_check('acct', 'rep') || acl_check('acct', 'eob') || acl_check('acct', 'bill')) { ?>
 <td align="center" nowrap>
-&nbsp;<a href="../billing/billing_report.php" target="Main" class="menu">Billing</a>&nbsp;
+&nbsp;<a href="../billing/billing_report.php" target="Main" class="menu"><? xl('Billing','e'); ?></a>&nbsp;
 </td>
 <? } ?>
 
 <? if ($GLOBALS['athletic_team']) { ?>
 <td align="center" nowrap>
-&nbsp;<a href="../reports/players_report.php?embed=1" target="Main" class="menu">Roster</a>&nbsp;
+&nbsp;<a href="../reports/players_report.php?embed=1" target="Main" class="menu"><? xl('Roster','e'); ?></a>&nbsp;
 </td>
 <td align="center" nowrap>
-&nbsp;<a href="main.php" target="Main" class="menu">Calendar</a>&nbsp;
+&nbsp;<a href="main.php" target="Main" class="menu"><? xl('Calendar','e'); ?></a>&nbsp;
 </td>
 <? } else { ?>
 <td align="center" nowrap>
-&nbsp;<a href="main.php" target="Main" class="menu">Home</a>&nbsp;
+&nbsp;<a href="main.php" target="Main" class="menu"><? xl('Home','e'); ?></a>&nbsp;
 </td>
 <? } ?>
 
 <td align="center" nowrap>
-&nbsp;<a href="../logout.php?auth=logout" target="_top" class="menu">Logout</a>&nbsp;&nbsp;
+&nbsp;<a href="../logout.php?auth=logout" target="_top" class="menu"><? xl('Logout','e'); ?></a>&nbsp;&nbsp;
 </td>
 
 </tr>
