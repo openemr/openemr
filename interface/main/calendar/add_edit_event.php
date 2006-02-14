@@ -375,7 +375,7 @@ td { font-size:10pt; }
 
  <tr>
   <td width='1%' nowrap>
-   <b>Category:</b>
+   <b><? xl('Category','e'); ?>:</b>
   </td>
   <td nowrap>
    <select name='form_category' onchange='set_category()' style='width:100%'>
@@ -388,13 +388,13 @@ td { font-size:10pt; }
     <? if ($thisduration == 1440) echo "checked " ?>/>
   </td>
   <td colspan='2' nowrap id='tdallday1'>
-   All day event
+   <? xl('All day event','e'); ?>
   </td>
  </tr>
 
  <tr>
   <td nowrap>
-   <b>Date:</b>
+   <b><? xl('Date','e'); ?>:</b>
   </td>
   <td nowrap>
    <input type='text' size='10' name='form_date'
@@ -411,7 +411,7 @@ td { font-size:10pt; }
     <? if ($thisduration != 1440) echo "checked " ?>/>
   </td>
   <td width='1%' nowrap id='tdallday2'>
-   Time
+   <? xl('Time','e'); ?>
   </td>
   <td width='1%' nowrap id='tdallday3'>
    <input type='text' size='2' name='form_hour'
@@ -429,7 +429,7 @@ td { font-size:10pt; }
 
  <tr>
   <td nowrap>
-   <b>Title:</b>
+   <b><? xl('Title','e'); ?>:</b>
   </td>
   <td nowrap>
    <input type='text' size='10' name='form_title'
@@ -440,18 +440,17 @@ td { font-size:10pt; }
   <td nowrap>
    &nbsp;
   </td>
-  <td nowrap id='tdallday4'>
-   duration
+  <td nowrap id='tdallday4'><? xl('duration','e'); ?>
   </td>
   <td nowrap id='tdallday5'>
    <input type='text' size='4' name='form_duration' value='<? echo $thisduration ?>'
-    title='Event duration in minutes' /> minutes
+    title='Event duration in minutes' /> <? xl('minutes','e'); ?>
   </td>
  </tr>
 
  <tr>
   <td nowrap>
-   <b>Patient:</b>
+   <b><? xl('Patient','e'); ?>:</b>
   </td>
   <td nowrap>
    <input type='text' size='10' name='form_patient' style='width:100%'
@@ -466,7 +465,7 @@ td { font-size:10pt; }
 
  <tr>
   <td nowrap>
-   <b>Provider:</b>
+   <b><? xl('Provider','e'); ?>:</b>
   </td>
   <td nowrap>
    <select name='form_provider' style='width:100%'>
@@ -490,8 +489,7 @@ td { font-size:10pt; }
    <input type='checkbox' name='form_repeat' onclick='set_repeat(this)'
     value='1'<? if ($repeats) echo " checked" ?>/>
   </td>
-  <td nowrap id='tdrepeat1'>
-   Repeats
+  <td nowrap id='tdrepeat1'><? xl('Repeats','e'); ?>
   </td>
   <td nowrap>
 
@@ -510,7 +508,7 @@ td { font-size:10pt; }
    <select name='form_repeat_type'>
 <?
  // See common.api.php for these:
- foreach (array(0 => 'day', 4 => 'workday', 1 => 'week', 2 => 'month', 3 => 'year')
+ foreach (array(0 => 'day' , 4 => 'workday', 1 => 'week', 2 => 'month', 3 => 'year')
   as $key => $value)
  {
   echo "    <option value='$key'";
@@ -525,7 +523,7 @@ td { font-size:10pt; }
 
  <tr>
   <td nowrap>
-   <b>Status:</b>
+   <b><? xl('Status','e'); ?>:</b>
   </td>
   <td nowrap>
    <select name='form_apptstatus' style='width:100%' title='Appointment status'>
@@ -541,8 +539,7 @@ td { font-size:10pt; }
   <td nowrap>
    &nbsp;
   </td>
-  <td nowrap id='tdrepeat2'>
-   until
+  <td nowrap id='tdrepeat2'><? xl('until','e'); ?>
   </td>
   <td nowrap>
    <input type='text' size='10' name='form_enddate' value='<? echo $row['pc_endDate'] ?>'
@@ -557,7 +554,7 @@ td { font-size:10pt; }
 
  <tr>
   <td nowrap>
-   <b>Comments:</b>
+   <b><? xl('Comments','e'); ?>:</b>
   </td>
   <td colspan='4' nowrap>
    <input type='text' size='40' name='form_comments' style='width:100%'

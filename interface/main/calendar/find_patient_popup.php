@@ -70,12 +70,12 @@ td { font-size:10pt; }
    <b>
    Search by:
    <select name='searchby'>
-    <option value="Last">Name</option>
-    <option value="ID"<? if ($searchby == 'ID') echo ' selected' ?>>ID</option>
-    <option value="SSN"<? if ($searchby == 'SSN') echo ' selected' ?>>SSN</option>
-    <option value="DOB"<? if ($searchby == 'DOB') echo ' selected' ?>>DOB</option>
+    <option value="Last"><? xl ('Name','e'); ?></option>
+    <option value="ID"<? if ($searchby == 'ID') echo ' selected' ?>><? xl ('ID','e'); ?></option>
+    <option value="SSN"<? if ($searchby == 'SSN') echo ' selected' ?>><? xl ('SSN','e'); ?></option>
+    <option value="DOB"<? if ($searchby == 'DOB') echo ' selected' ?>><? xl ('DOB','e'); ?></option>
    </select>
-   for:
+ for:
    <input type='text' name='searchparm' size='12' value='<? echo $_REQUEST['searchparm']; ?>'
     title='If name, any part of lastname or lastname,firstname'>
    &nbsp;
@@ -96,10 +96,10 @@ td { font-size:10pt; }
 
 <table border='0'>
  <tr>
-  <td><b>Name</b></td>
-  <td><b>SS</b></td>
-  <td><b>DOB</b></td>
-  <td><b>ID</b></td>
+  <td><b><? xl ('Name','e'); ?></b></td>
+  <td><b><? xl ('SS','e'); ?></b></td>
+  <td><b><? xl ('DOB','e'); ?></b></td>
+  <td><b><? xl ('ID','e'); ?></b></td>
  </tr>
 <?
   foreach ($result as $iter) {

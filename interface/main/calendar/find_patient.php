@@ -99,15 +99,15 @@ $firstname = $_SESSION["firstname"];
 <table border=0 cellpadding=3 cellspacing=0>
  <tr>
   <td width='150' valign='top'>
-   <span class='bold'>Patient&nbsp;Appointment</span>
+   <span class='bold'><?xl('Patient Appointment','e'); ?></span>
 <? if ($userauthorized == 1) { ?>
    <a class="more" style="font-size:8pt;"
     href="../authorizations/authorizations.php"
-    name="Authorizations">(Notes&nbsp;and&nbsp;Authorizations)</a>
+    name="Authorizations"><?xl('(Notes and Authorizations)','e'); ?></a>
 <? } else { ?>
    <a class="more" style="font-size:8pt;"
     href="../authorizations/authorizations.php"
-    name="Authorizations">(Patient&nbsp;Notes)</a>
+    name="Authorizations"><?xl('(Patient Notes)','e'); ?></a>
 <? } ?>
    <p>
    <form name='findpatientform' action="find_patient.php?no_nav=1" method='post'>
@@ -115,13 +115,13 @@ $firstname = $_SESSION["firstname"];
    <input name='lastname' size='15' value="<?echo $_SESSION["lastname"];?>"
     onfocus="javascript:document.findpatientform.lastname.value='';"><br>
    <select name="findBy" size='1'>
-    <option value="ID">ID</option>
-    <option value="Last" selected>Name</option>
-    <option value="SSN">SSN</option>
-    <option value="DOB">DOB</option>
+    <option value="ID"><? xl ('ID','e'); ?></option>
+    <option value="Last" selected><? xl('Name','e'); ?></option>
+    <option value="SSN"><? xl ('SSN','e'); ?></option>
+    <option value="DOB"><? xl ('DOB','e'); ?></option>
    </select><br>
    <div align='right'>
-    <a href="javascript:document.findpatientform.submit();" class='link_submit'>Search</a>
+    <a href="javascript:document.findpatientform.submit();" class='link_submit'><? xl ('Search','e'); ?></a>
    </div>
    </form>
   </td>
@@ -129,8 +129,8 @@ $firstname = $_SESSION["firstname"];
 <?
 if ($lastname != "") {
 ?>
-   <span class='bold'>Records Found</span>
-   <a class='text' href="../../new/new_patient.php" target="_top">(New Patient)</a><br>
+   <span class='bold'><? xl ('Records Found','e'); ?></span>
+   <a class='text' href="../../new/new_patient.php" target="_top"><? xl ('(New Patient)','e'); ?></a><br>
 <?
   $count = 0;
   $total = 0;
@@ -146,10 +146,10 @@ if ($lastname != "") {
   }
 
   echo "<table>\n";
-  echo "<tr><td><span class='text'>Name</span></td>" .
-    "<td><span class='text'>SS</span></td>" .
-    "<td><span class='text'>DOB</span></td>" .
-    "<td><span class='text'>ID</span></td></tr>\n";
+  echo "<tr><td><span class='text'><? xl ('Name','e'); ?></span></td>" .
+    "<td><span class='text'><? xl ('SS','e'); ?></span></td>" .
+    "<td><span class='text'><? xl ('DOB','e'); ?></span></td>" .
+    "<td><span class='text'><? xl ('ID','e'); ?></span></td></tr>\n";
 
   //set ampm default for find patient results links event_startampm
   $ampm = 1;
