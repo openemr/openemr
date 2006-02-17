@@ -13,7 +13,7 @@ include_once("$srcdir/log.inc");
 
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<font class=title>Logs Viewer</font>
+<font class=title><?xl('Logs Viewer','e');?></font>
 <br>
 
 <?php
@@ -27,7 +27,7 @@ for($iter=0;$row=sqlFetchArray($res);$iter++) {
 ?>
 <br>
 <FORM METHOD="GET" name=the_form>
-<span class=text>Date: </span>
+<span class=text><?xl('Date','e');?>: </span>
 <SELECT NAME="date">
 <?php
 
@@ -75,10 +75,10 @@ if ($row["event"] == $_GET["event"]) {
 ?>
 <input type="radio" name="event" value="*"<?if (!$found) echo " checked";?>>All
 </span>&nbsp;
-<a href="javascript:document.the_form.submit();" class=link_submit>[Refresh]</a>
+<a href="javascript:document.the_form.submit();" class=link_submit>[<?xl('Refresh','e');?>]</a>
 </FORM>
 <TABLE BORDER=1 CELLPADDING=4>
-<TR><TD><span class=bold>Date</span></TD><TD><span class=bold>Event</span></TD><TD><span class=bold>User</span></TD><TD><span class=bold>Group</span></TD><TD><span class=bold>Comments</span></TD>
+<TR><TD><span class=bold><?xl('Date');?></span></TD><TD><span class=bold><?xl('Event','e');?></span></TD><TD><span class=bold><?xl('User','e');?></span></TD><TD><span class=bold><?xl('Group','e');?></span></TD><TD><span class=bold><?xl('Comments','e');?></span></TD>
 <?php
 
 if ($ret = getEventByDate($getdate) ) {
