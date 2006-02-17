@@ -40,7 +40,7 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
  marginwidth='2' marginheight='0'>
 
 <?php
-	$_GET['show_all']=='yes' ? $lnkvar="'authorizations.php?show_all=no' name='Just Mine'>(Just Mine)" : $lnkvar="'authorizations.php?show_all=yes' name='See All'>(See All)"; 
+	$_GET['show_all']=='yes' ? $lnkvar="'authorizations.php?show_all=no' name='Just Mine'> (".xl('Just Mine').") " : $lnkvar="'authorizations.php?show_all=yes' name='See All'>(".xl('See All').")"; 
 ?>
 
 <font class='title'><?xl('Patient Notes','e')?> </font>
@@ -50,13 +50,13 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 	if ($imauthorized) { 
 ?>
 <font class='title'><?xl('and ','e')?>
-<a href='authorizations_full.php' target='Main'><?xl('Authorizations','e')?><font class='more'><?echo $tmore;?></font></a>
+<a href='authorizations_full.php' target='Main'><?xl('Authorizations','e')?><font class='more'><?echo (xl($tmore));?></font></a>
 <?php 
 	} 
 ?>
 </font>
 <font class='more'> &nbsp;
-<a class='more' style='font-size:8pt;' href='../calendar/find_patient.php?no_nav=1&mode=reset' name='Find Patients'><?xl('(Find Patient)','e')?></a>
+<a class='more' style='font-size:8pt;' href='../calendar/find_patient.php?no_nav=1&mode=reset' name='Find Patients'>(<?xl('Find Patient','e')?>)</a>
 </font>
 
 <?php
