@@ -29,7 +29,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<span class="title">Forms Administration</span>
+<span class="title"><?xl('Forms Administration','e');?></span>
 <br><br>
 
 
@@ -40,7 +40,7 @@ if ($err)
 
 
 <?php //REGISTERED SECTION ?>
-<span class=bold>Registered</span><br>
+<span class=bold><?xl('Registered','e');?></span><br>
 <table border=0 cellpadding=1 cellspacing=2 width="500">
 <?php
 $color="#CCCCCC";
@@ -57,28 +57,28 @@ foreach($bigdata as $registry)
 		</td>
 		<?php
 			if ($registry['sql_run'] == 0)
-				echo "<td bgcolor='$color' width='10%'><span class='text'>registered</span>";
+				echo "<td bgcolor='$color' width='10%'><span class='text'>".xl('registered')."</span>";
 			elseif ($registry['state'] == "0")
-				echo "<td bgcolor='#FFCCCC' width='10%'><a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=enable' target='Main'>disabled</a>";
+				echo "<td bgcolor='#FFCCCC' width='10%'><a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=enable' target='Main'>".xl('disabled')."</a>";
 			else
-				echo "<td bgcolor='#CCFFCC' width='10%'><a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=disable' target='Main'>enabled</a>";
+				echo "<td bgcolor='#CCFFCC' width='10%'><a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=disable' target='Main'>".xl('enabled')."</a>";
 		?></td>
 		<td bgcolor="<?=$color?>" width="10%">
 			<span class=text><?php
 			
 			if ($registry['unpackaged'])
-				echo "PHP extracted";
+				echo xl('PHP extracted','e');
 			else
-				echo "PHP compressed";
+				echo xl('PHP compressed','e');
 			
 			?></span> 
 		</td>
 		<td bgcolor="<?=$color?>" width="10%">
 			<?php
 			if ($registry['sql_run'])
-				echo "<span class=text>DB installed</span>";
+				echo "<span class=text>".xl('DB installed')."</span>";
 			else
-				echo "<a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=install_db' target='Main'>install DB</a>";
+				echo "<a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=install_db' target='Main'>".xl('install DB')."</a>";
 			?> 
 		</td>
 	</tr>
@@ -94,7 +94,7 @@ foreach($bigdata as $registry)
 
 
 <?php  //UNREGISTERED SECTION ?>
-<span class=bold>Unregistered</span><br>
+<span class=bold><?xl('Unregistered','e');?></span><br>
 <table border=0 cellpadding=1 cellspacing=2 width="500">
 <?php
 $dpath = "$srcdir/../interface/forms/";

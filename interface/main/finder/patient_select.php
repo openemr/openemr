@@ -7,7 +7,7 @@ $M = 2000;
 
 // this is a quick fix so it doesn't go to thousands records. 
 // the searching functions on patient.inc need improvement.
-if ($patient=='') $patient='Please enter some information'; 
+if ($patient=='') $patient=xl('Please enter some information','e'); 
 ?>
 
 <html>
@@ -19,7 +19,7 @@ if ($patient=='') $patient='Please enter some information';
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-<a class="title" href="../main_screen.php" target="_top">Select Patient: <?echo $patient;?> by <?echo $findBy;?></a>
+<a class="title" href="../main_screen.php" target="_top"><?xl('Select Patient','e');?>: <?echo $patient;?> <?xl('by','e');?> <?echo xl($findBy,'e');?></a>
 
 
 <br>
@@ -27,13 +27,13 @@ if ($patient=='') $patient='Please enter some information';
 <table border=0 cellpadding=5 cellspacing=0>
 <tr>
 <td>
-<span class=bold>Name</span>
+<span class=bold><?xl('Name','e');?></span>
 </td><td>
-<span class=bold>SS</span>
+<span class=bold><?xl('SS','e');?></span>
 </td><td>
-<span class=bold>DOB</span>
+<span class=bold><?xl('DOB','e');?></span>
 </td><td>
-<span class=bold>ID</span>
+<span class=bold><?xl('ID','e');?></span>
 </td></tr>
 <?
 
