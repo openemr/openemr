@@ -37,7 +37,7 @@ if (count($result) == 1) {
 if (count($result) != 1) {
 ?>
 <tr>
-<td><span class="text"><?xl('Group:','e')?></span></td>
+<td><span class="text"><? xl('Group:','e'); ?></span></td>
 <td>
 <select name=authProvider>
 <?
@@ -51,17 +51,17 @@ if (count($result) != 1) {
 }
 ?>
 <tr>
-<td><span class="text"><?xl('Username:','e')?></span></td>
+<td><span class="text"><? xl('Username:','e'); ?></span></td>
 <td>
 <input type="entry" size=10 name=authUser>
 </td></tr><tr>
-<td><span class="text"><?xl('Password:','e')?></span></td>
+<td><span class="text"><? xl('Password:','e'); ?></span></td>
 <td>
 <input type="password" size=10 name=clearPass>
 </td></tr>
 <tr><td>&nbsp;</td><td>
 <input type="hidden" name="authPass">
-<input type="submit" onClick="javascript:this.form.authPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';" value=<?xl('Login','e');?>>
+<input type="submit" onClick="javascript:this.form.authPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';" value=<? xl('Login','e');?>>
 </td></tr>
 </table>
 
@@ -83,7 +83,7 @@ if (count($result) != 1) {
 </form>
 
 <address>
-<a href="copyright_notice.html" target="main"><?xl('Copyright Notice','e')?></a><br />
+<a href="copyright_notice.html" target="main"><? xl('Copyright Notice','e'); ?></a><br />
 </address>
 
 </center>
