@@ -18,7 +18,7 @@ require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 
-<a href="usergroup_admin.php"><span class="title">User Administration</span></a>
+<a href="usergroup_admin.php"><span class="title"><?xl('User Administration','e');?></span></a>
 <br><br>
 
 <?
@@ -91,13 +91,13 @@ $iter = $result[0];
 <FORM NAME="user_form" METHOD="GET" ACTION="user_admin.php">
 <TABLE border=0 cellpadding=0 cellspacing=0>
 <TR>
-<TD><span class=text>Username: </span></TD><TD><input type=entry name=username size=20 value="<? echo $iter["username"]; ?>" disabled> &nbsp;</td>
-<TD><span class=text>Password: </span></TD><TD class='text'><input type=password name=clearPass size=20 value=""> * Leave blank to keep password unchanged.</td>
+<TD><span class=text><?xl('Username','e');?>: </span></TD><TD><input type=entry name=username size=20 value="<? echo $iter["username"]; ?>" disabled> &nbsp;</td>
+<TD><span class=text><?xl('Password','e');?>: </span></TD><TD class='text'><input type=password name=clearPass size=20 value=""> * <?xl('Leave blank to keep password unchanged.','e');?></td>
 </TR>
 
 <TR>
 <td><span class="text">&nbsp;</span></td><td>&nbsp;</td>
-<TD><span class=text>Authorized: </TD>
+<TD><span class=text><?xl('Authorized','e');?>: </TD>
 <TD><INPUT TYPE="checkbox" name="authorized"<?
 if ($iter["authorized"] == 1)
 	echo " checked";
@@ -105,14 +105,14 @@ if ($iter["authorized"] == 1)
 </TR>
 
 <TR>
-<TD><span class=text>First Name: </span></TD>
+<TD><span class=text><?xl('First Name','e');?>: </span></TD>
 <TD><input type=entry name=fname size=20 value="<? echo $iter["fname"]; ?>"></td>
-<td><span class=text>Middle Name: </span></TD><td><input type=entry name=mname size=20 value="<? echo $iter["mname"]; ?>"></td>
+<td><span class=text><?xl('Middle Name','e');?>: </span></TD><td><input type=entry name=mname size=20 value="<? echo $iter["mname"]; ?>"></td>
 </TR>
 
 <TR>
-<td><span class=text>Last Name: </span></td><td><input type=entry name=lname size=20 value="<? echo $iter["lname"]; ?>"></td>
-<td><span class=text>Default Facility: </span></td><td><select name=facility>
+<td><span class=text><?xl('Last Name','e');?>: </span></td><td><input type=entry name=lname size=20 value="<? echo $iter["lname"]; ?>"></td>
+<td><span class=text><?xl('Default Facility','e');?>: </span></td><td><select name=facility>
 <?
 $fres = sqlStatement("select * from facility order by name");
 if ($fres) {
@@ -129,16 +129,16 @@ foreach($result as $iter2) {
 </tr>
 
 <TR>
-<TD><span class=text>Federal Tax ID: </span></TD><TD><input type=text name=taxid size=20 value="<? echo $iter["federaltaxid"]?>"></td>
-<TD><span class=text>Federal Drug ID: </span></TD><TD><input type=text name=drugid size=20 value="<? echo $iter["federaldrugid"]?>"></td>
+<TD><span class=text><?xl('Federal Tax ID','e');?>: </span></TD><TD><input type=text name=taxid size=20 value="<? echo $iter["federaltaxid"]?>"></td>
+<TD><span class=text><?xl('Federal Drug ID','e');?>: </span></TD><TD><input type=text name=drugid size=20 value="<? echo $iter["federaldrugid"]?>"></td>
 </TR>
 
 <tr>
-<td><span class="text">UPIN: </span></td><td><input type="text" name="upin" size="20" value="<? echo $iter["upin"]?>"></td>
-<td class='text'>See Authorizations: </td>
+<td><span class="text"><?xl('UPIN','e');?>: </span></td><td><input type="text" name="upin" size="20" value="<? echo $iter["upin"]?>"></td>
+<td class='text'><?xl('See Authorizations','e');?>: </td>
 <td><select name="see_auth">
 <?php
- foreach (array(1 => 'None', 2 => 'Only Mine', 3 => 'All') as $key => $value)
+ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value)
  {
   echo " <option value='$key'";
   if ($key == $iter['see_auth']) echo " selected";
@@ -149,16 +149,16 @@ foreach($result as $iter2) {
 </tr>
 
 </table>
-<span class=text>Additional Info:</span><br>
+<span class=text><?xl('Additional Info','e');?>:</span><br>
 <textarea name="comments" wrap=auto rows=4 cols=30><? echo $iter["info"];?></textarea>
 
 <br>&nbsp;&nbsp;&nbsp;
 <INPUT TYPE="HIDDEN" NAME="id" VALUE="<? echo $_GET["id"]; ?>">
 <INPUT TYPE="HIDDEN" NAME="mode" VALUE="update">
 <INPUT TYPE="HIDDEN" NAME="newauthPass" VALUE="">
-<INPUT TYPE="Submit" VALUE="Save Changes" onClick="javascript:this.form.newauthPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';">
+<INPUT TYPE="Submit" VALUE=<?xl('Save Changes','e');?> onClick="javascript:this.form.newauthPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';">
 &nbsp;&nbsp;&nbsp;
-<a href="usergroup_admin.php" class=link_submit>[Back]</font></a>
+<a href="usergroup_admin.php" class=link_submit>[<?xl('Back','e');?>]</font></a>
 </FORM>
 
 <br><br>

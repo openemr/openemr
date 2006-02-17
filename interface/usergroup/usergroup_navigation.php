@@ -20,49 +20,49 @@ include_once("../../library/acl.inc");
 <? if (acl_check('admin', 'users')) { ?>
 <td valign="middle" nowrap>
 &nbsp;&nbsp;<a class=menu target=Main href="usergroup_admin.php"
- title="Add or Edit Users, Groups and Facilities">Users & Groups</a>&nbsp;
+ title="Add or Edit Users, Groups and Facilities"><?xl('Users & Groups','e');?></a>&nbsp;
 </td>
 <? } ?>
 
 <? if (acl_check('admin', 'forms')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../forms_admin/forms_admin.php"
- title="Activate New Forms">Forms</a>&nbsp;
+ title="Activate New Forms"><?xl('Forms','e');?></a>&nbsp;
 </td>
 <? } ?>
 
 <? if (acl_check('admin', 'practice')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="<?=$GLOBALS['webroot']?>/controller.php?practice_settings"
- title="Practice Settings">Practice</a>&nbsp;
+ title="Practice Settings"><?xl('Practice','e');?></a>&nbsp;
 </td>
 <? } ?>
 
 <? if (acl_check('admin', 'calendar')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig"
- title="Calendar Settings">Calendar</a>&nbsp;
+ title="Calendar Settings"><?xl('Calendar','e');?></a>&nbsp;
 </td>
 <? } ?>
 
 <? if (acl_check('admin', 'database')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../main/myadmin/index.php"
- title="Database Reporting">Database</a>&nbsp;
+ title="Database Reporting"><?xl('Database','e');?></a>&nbsp;
 </td>
 <? } ?>
 
 <? if (acl_check('admin', 'batchcom')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../batchcom/batchcom.php"
- title="Batch Communication and Export">BatchCom</a>&nbsp;
+ title="Batch Communication and Export"><?xl('BatchCom','e');?></a>&nbsp;
 </td>
 <? } ?>
 
 <? if (acl_check('admin', 'language')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../language/language.php"
- title="Language Management">Language</a>&nbsp;
+ title="Language Management"><?xl('Language','e');?></a>&nbsp;
 </td>
 <? } ?>
 
@@ -70,14 +70,14 @@ include_once("../../library/acl.inc");
 <? if (acl_check('admin', 'users')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="<?echo $rootdir?>/logview/logview.php"
- title="View Logs">Logs</a>&nbsp;
+ title="View Logs"><?xl('Logs','e');?></a>&nbsp;
 </td>
 <? } ?>
 
 <td valign="middle" align="right" nowrap>
 <?//<a href="../logout.php?auth=logout" target="_top" class="logout">Logout</a>?>
 &nbsp;<a class=menu href="../main/main_screen.php" target="_top" class="menu"
- title="Exit from Administration">Back</a>&nbsp;&nbsp;
+ title=<?xl('Exit from Administration','e');?>><?xl('Back','e');?></a>&nbsp;&nbsp;
 </td>
 </tr>
 </table>

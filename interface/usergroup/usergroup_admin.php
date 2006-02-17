@@ -124,7 +124,7 @@ if (isset($_GET["mode"])) {
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-<span class="title">User & Group Administration</span>
+<span class="title"><? xl('User & Group Administration','e');?></span>
 
 <br><br>
 
@@ -135,29 +135,29 @@ if (isset($_GET["mode"])) {
 
 <form name='facility' method='post' action="usergroup_admin.php">
 <input type=hidden name=mode value="facility">
-<span class=bold>New Facility Information: </span>
+<span class=bold><? xl('New Facility Information','e');?>: </span>
 </td><td>
 
 <table border=0 cellpadding=0 cellspacing=0>
 <tr>
-<td><span class=text>Name: </span></td><td><input type=entry name=facility size=20 value=""></td>
-<td><span class=text>Phone: </span></td><td><input type=entry name=phone size=20 value=""></td>
+<td><span class=text><? xl('Name','e');?>: </span></td><td><input type=entry name=facility size=20 value=""></td>
+<td><span class=text><? xl('Phone','e');?>: </span></td><td><input type=entry name=phone size=20 value=""></td>
 </tr>
 <tr>
-<td><span class=text>Address: </span></td><td><input type=entry size=20 name=street value=""></td>
-<td><span class=text>City: </span></td><td><input type=entry size=20 name=city value=""></td>
+<td><span class=text><? xl('Address','e');?>: </span></td><td><input type=entry size=20 name=street value=""></td>
+<td><span class=text><? xl('City','e');?>: </span></td><td><input type=entry size=20 name=city value=""></td>
 </tr>
 <tr>
-<td><span class=text>State: </span></td><td><input type=entry size=20 name=state value=""></td>
-<td><span class=text>Zip Code: </span></td><td><input type=entry size=20 name=postal_code value=""></td>
+<td><span class=text><? xl('State','e');?>: </span></td><td><input type=entry size=20 name=state value=""></td>
+<td><span class=text><? xl('Zip Code','e');?>: </span></td><td><input type=entry size=20 name=postal_code value=""></td>
 </tr>
 <tr>
-<td><span class=text>Country: </span></td><td><input type=entry size=20 name=country_code value=""></td>
-<td><span class=text>Federal EIN: </span></td><td><input type=entry size=20 name=federal_ein value=""></td>
+<td><span class=text><? xl('Country','e');?>: </span></td><td><input type=entry size=20 name=country_code value=""></td>
+<td><span class=text><? xl('Federal EIN','e');?>: </span></td><td><input type=entry size=20 name=federal_ein value=""></td>
 </tr>
 <tr>
 <td>&nbsp;</td><td>&nbsp;</td>
-<td>&nbsp;</td><td><input type="submit" value="Add Facility"></td>
+<td>&nbsp;</td><td><input type="submit" value=<? xl('Add Facility','e');?>></td>
 </tr>
 </table>
 </form>
@@ -167,8 +167,8 @@ if (isset($_GET["mode"])) {
 <td valign=top>
 
 <form name='facility' method='post' action="usergroup_admin.php">
-<input type=hidden name=mode value="facility">
-<span class=bold>Edit Facilities: </span>
+<input type=hidden name=mode value=<? xl('facility','e');?>>
+<span class=bold><? xl('Edit Facilities','e');?>: </span>
 </td><td valign=top>
 <?
 $fres = 0;
@@ -190,15 +190,15 @@ if ($fres) {
 <tr><td valign=top>
 <form name='new_user' method='post' action="usergroup_admin.php">
 <input type=hidden name=mode value=new_user>
-<span class=bold>New User:</span>
+<span class=bold><? xl('New User','e');?>:</span>
 </td><td>
 <table border=0 cellpadding=0 cellspacing=0>
 <tr>
-<td><span class=text>Username: </span></td><td><input type=entry name=username size=20> &nbsp;</td>
-<td><span class=text>Password: </span></td><td><input type="password" size=20 name=clearPass></td>
+<td><span class=text><? xl('Username','e');?>: </span></td><td><input type=entry name=username size=20> &nbsp;</td>
+<td><span class=text><? xl('Password','e');?>: </span></td><td><input type="password" size=20 name=clearPass></td>
 </tr>
 <tr>
-<td><span class=text>Groupname: </span></td><td>
+<td><span class=text><? xl('Groupname','e');?>: </span></td><td>
 <select name=groupname>
 <?
 $res = sqlStatement("select distinct name from groups");
@@ -209,15 +209,15 @@ foreach ($result2 as $iter) {
 }
 ?>
 </select></td>
-<td><span class=text>Authorized: </span></td><td><input type=checkbox name='authorized' value="1"></td>
+<td><span class=text><? xl('Authorized','e');?>: </span></td><td><input type=checkbox name='authorized' value="1"></td>
 </tr>
 <tr>
-<td><span class=text>First Name: </span></td><td><input type=entry name='fname' size=20></td>
-<td><span class=text>Middle Name: </span></td><td><input type=entry name='mname' size=20></td>
+<td><span class=text><? xl('First Name','e');?>: </span></td><td><input type=entry name='fname' size=20></td>
+<td><span class=text><? xl('Middle Name','e');?>: </span></td><td><input type=entry name='mname' size=20></td>
 </tr>
 <tr>
-<td><span class=text>Last Name: </span></td><td><input type=entry name='lname' size=20></td>
-<td><span class=text>Default Facility: </span></td><td><select name=facility>
+<td><span class=text><? xl('Last Name','e');?>: </span></td><td><input type=entry name='lname' size=20></td>
+<td><span class=text><? xl('Default Facility','e');?>: </span></td><td><select name=facility>
 <?
 $fres = sqlStatement("select * from facility order by name");
 if ($fres) {
@@ -233,15 +233,15 @@ if ($fres) {
 </select></td>
 </tr>
 <tr>
-<td><span class=text>Federal Tax ID: </span></td><td><input type=entry name='federaltaxid' size=20></td>
-<td><span class=text>Federal Drug ID: </span></td><td><input type=entry name='federaldrugid' size=20></td>
+<td><span class=text><? xl('Federal Tax ID','e');?>: </span></td><td><input type=entry name='federaltaxid' size=20></td>
+<td><span class=text><? xl('Federal Drug ID','e');?>: </span></td><td><input type=entry name='federaldrugid' size=20></td>
 </tr>
 <tr>
-<td><span class="text">UPIN: </span></td><td><input type="entry" name="upin" size="20"></td>
-<td class='text'>See Authorizations: </td>
+<td><span class="text"><? xl('UPIN','e');?>: </span></td><td><input type="entry" name="upin" size="20"></td>
+<td class='text'><? xl('See Authorizations','e');?>: </td>
 <td><select name="see_auth">
 <?php
- foreach (array(1 => 'None', 2 => 'Only Mine', 3 => 'All') as $key => $value)
+ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value)
  {
   echo " <option value='$key'";
   echo ">$value</option>\n";
@@ -250,10 +250,10 @@ if ($fres) {
 </select></td>
 </tr>
 </table>
-<span class=text>Additional Info: </span><br>
+<span class=text><? xl('Additional Info','e');?>: </span><br>
 <textarea name=info cols=40 rows=4 wrap=auto></textarea>
 <br><input type="hidden" name="newauthPass">
-<input type="submit" onClick="javascript:this.form.newauthPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';" value="Add User">
+<input type="submit" onClick="javascript:this.form.newauthPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';" value=<? xl('Add User','e');?>>
 </form>
 </td>
 
@@ -262,11 +262,11 @@ if ($fres) {
 <td valign=top>
 <form name=new_group method=post action="usergroup_admin.php">
 <input type=hidden name=mode value=new_group>
-<span class=bold>New Group:</span>
+<span class=bold><? xl('New Group','e');?>:</span>
 </td><td>
-<span class=text>Groupname: </span><input type=entry name=groupname size=10>
+<span class=text><? xl('Groupname','e');?>: </span><input type=entry name=groupname size=10>
 &nbsp;&nbsp;&nbsp;
-<span class=text>Initial User: </span>
+<span class=text><? xl('Initial User','e');?>: </span>
 <select name=username>
 <?
 $res = sqlStatement("select distinct username from users");
@@ -278,7 +278,7 @@ foreach ($result as $iter) {
 ?>
 </select>
 &nbsp;&nbsp;&nbsp;
-<input type="submit" value="Add Group">
+<input type="submit" value=<? xl('Add Group','e');?>>
 </form>
 </td>
 
@@ -287,9 +287,9 @@ foreach ($result as $iter) {
 <td valign=top>
 <form name=new_group method=post action="usergroup_admin.php">
 <input type=hidden name=mode value=new_group>
-<span class=bold>Add User To Group:</span>
+<span class=bold><? xl('Add User To Group','e');?>:</span>
 </td><td>
-<span class=text>User: </span>
+<span class=text><? xl('User','e');?>: </span>
 <select name=username>
 <?
 $res = sqlStatement("select distinct username from users");
@@ -301,7 +301,7 @@ foreach ($result3 as $iter) {
 ?>
 </select>
 &nbsp;&nbsp;&nbsp;
-<span class=text>Groupname: </span>
+<span class=text><? xl('Groupname','e');?>: </span>
 <select name=groupname>
 <?
 $res = sqlStatement("select distinct name from groups");
@@ -313,7 +313,7 @@ foreach ($result2 as $iter) {
 ?>
 </select>
 &nbsp;&nbsp;&nbsp;
-<input type="submit" value="Add User To Group">
+<input type="submit" value=<? xl('Add User To Group','e');?>>
 </form>
 </td>
 
@@ -323,14 +323,14 @@ foreach ($result2 as $iter) {
 <hr>
 
 <table border=0 cellpadding=1 cellspacing=2>
-<tr><td><span class=bold>Username</span></td><td><span class=bold>Real Name</span></td><td><span class=bold>Info</span></td><td><span class=bold>Authorized?</span></td></tr>
+<tr><td><span class=bold><? xl('Username','e');?></span></td><td><span class=bold><? xl('Real Name','e');?></span></td><td><span class=bold><? xl('Info','e');?></span></td><td><span class=bold><? xl('Authorized','e');?>?</span></td></tr>
 <?
 $res = sqlStatement("select * from users order by username");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
   $result4[$iter] = $row;
 foreach ($result4 as $iter) {
   if ($iter{"authorized"}) {
-    $iter{"authorized"} = "yes";
+    $iter{"authorized"} = xl('yes');
   } else {
       $iter{"authorized"} = "";
   }

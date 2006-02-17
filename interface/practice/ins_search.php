@@ -57,7 +57,7 @@
 ?>
 <html>
 <head>
-<title>Insurance Company Search/Add</title>
+<title><?xl('Insurance Company Search/Add','e');?></title>
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
 
 <style>
@@ -221,23 +221,23 @@ td { font-size:10pt; }
  -->
 
  <tr>
-  <td valign='top' width='1%' nowrap><b>Name:</b></td>
+  <td valign='top' width='1%' nowrap><b><?xl('Name','e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_name' maxlength='35'
-    class='search' style='width:100%' title='Name of insurance company' />
+    class='search' style='width:100%' title=<?xl('Name of insurance company','e');?> />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b>Attention:</b></td>
+  <td valign='top' nowrap><b><?xl('Attention','e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_attn' maxlength='35'
-    class='search' style='width:100%' title='Contact name' />
+    class='search' style='width:100%' title=".xl('Contact name')." />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b>Address1:</b></td>
+  <td valign='top' nowrap><b><?xl('Address1','e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_addr1' maxlength='35'
     class='search' style='width:100%' title='First address line' />
@@ -245,7 +245,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b>Address2:</b></td>
+  <td valign='top' nowrap><b><?xl('Address2','e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_addr2' maxlength='35'
     class='search' style='width:100%' title='Second address line, if any' />
@@ -253,7 +253,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b>City/State:</b></td>
+  <td valign='top' nowrap><b><?xl('City/State','e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_city' maxlength='25'
     class='search' title='City name' />
@@ -275,7 +275,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b>Phone:</b></td>
+  <td valign='top' nowrap><b><?xl('Phone','e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_phone' maxlength='20'
     class='search' title='Telephone number' />
@@ -292,7 +292,7 @@ td { font-size:10pt; }
  -->
 
  <tr>
-  <td valign='top' nowrap><b>CMS ID:</b></td>
+  <td valign='top' nowrap><b><?xl('CMS ID','e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_cms_id' maxlength='15'
     class='search' title='Identifier assigned by CMS' />
@@ -300,7 +300,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b>Payer Type:</b></td>
+  <td valign='top' nowrap><b><?xl('Payer Type','e');?>:</b></td>
   <td>
    <select name='form_freeb_type'>
 <?php
@@ -315,7 +315,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b>X12 Partner:</b></td>
+  <td valign='top' nowrap><b><?xl('X12 Partner','e');?>:</b></td>
   <td>
    <select name='form_partner' title='Default X12 Partner'>
     <option value="">-- None --</option>

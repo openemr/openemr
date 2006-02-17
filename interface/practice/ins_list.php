@@ -64,7 +64,7 @@
 ?>
 <html>
 <head>
-<title>List Insurance Companies</title>
+<title><?xl('List Insurance Companies','e');?></title>
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
 
 <style>
@@ -93,14 +93,14 @@ td { font-size:10pt; }
 
 <table border='0' width='100%'>
  <tr>
-  <td><b>Name</b>&nbsp;</td>
-  <td><b>Attn</b>&nbsp;</td>
-  <td><b>Address</b>&nbsp;</td>
+  <td><b><?xl('Name','e');?></b>&nbsp;</td>
+  <td><b><?xl('Attn','e');?></b>&nbsp;</td>
+  <td><b><?xl('Address','e');?></b>&nbsp;</td>
   <td><b>&nbsp;</b>&nbsp;</td>
-  <td><b>City</b>&nbsp;</td>
-  <td><b>State</b>&nbsp;</td>
-  <td><b>Zip</b>&nbsp;</td>
-  <td><b>Phone</b></td>
+  <td><b><?xl('City','e');?></b>&nbsp;</td>
+  <td><b><?xl('State','e');?></b>&nbsp;</td>
+  <td><b><?xl('Zip','e');?></b>&nbsp;</td>
+  <td><b><?xl('Phone','e');?></b></td>
  </tr>
 
 <?
