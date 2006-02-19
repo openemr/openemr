@@ -21,10 +21,12 @@ if (!empty($_GET["set_encounter"])) {
 }
 
 if(!empty($encounter)){
-  $subresult = getFormByEncounter($pid, $encounter , "*");
-  $encounter_date = date( "D F jS Y" ,strtotime($subresult[0]{"date"}));
+  // $subresult = getFormByEncounter($pid, $encounter , "*");
+  // $encounter_date = date( "D F jS Y" ,strtotime($subresult[0]{"date"}));
+  $subresult = getEncounterDateByEncounter($encounter);
+  $encounter_date = date("D F jS Y", strtotime($subresult['date']));
 } else {
-  $encounter_date = "(Today) " . date( "D F jS Y" ); //otherwise, set today's date
+  $encounter_date = "(Today) " . date("D F jS Y"); //otherwise, set today's date
 }
 
 $provider_results = sqlQuery("select * from users where username='" . $_SESSION{"authUser"} . "'");
