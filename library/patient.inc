@@ -203,13 +203,13 @@ function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, 
 	// Allow the last name to be followed by a comma and some part of a first name.
 	$lname = trim($lname);
 	$fname = '';
-> 	if (preg_match('/^(.*),(.*)/', $lname, $matches)) {
-> 		$lname = trim($matches[1]);
-> 		$fname = trim($matches[2]);
+ 	if (preg_match('/^(.*),(.*)/', $lname, $matches)) {
+ 		$lname = trim($matches[1]);
+ 		$fname = trim($matches[2]);
 	}
 
 	$sql="select $given from patient_data where lname like '$lname%' " .
-> 		"and fname like '%$fname%' " .
+ 		"and fname like '%$fname%' " .
 		"order by $orderby";
 
 	if ($limit != "all")
