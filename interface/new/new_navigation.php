@@ -19,20 +19,20 @@ include_once("../globals.php");
 <?//<a href="javascript:document.find_patient.action='../main/finder/patient_finder_keyboard.php';document.find_patient.submit();" class=link>Find Patient:</a>?>
 <input type=entry size=10 name=patient>
   <select name="findBy" size=1> 
-	<option value="Last" selected>Last Name</option>
-	<option value="ID">ID</option>
-	<option value="SSN">SSN</option>
-	<option value="DOB">DOB</option>
+	<option value="Last" selected><?xl('Last Name','e');?></option>
+	<option value="ID"><?xl('ID','e');?></option>
+	<option value="SSN"><?xl('SSN','e');?></option>
+	<option value="DOB"><?xl('DOB','e');?></option>
 </select>
 </td>
 
 <td valign="middle" nowrap>
-<a href="javascript:document.find_patient.action='../main/finder/patient_finder.php';document.find_patient.submit();" class=link>&nbsp;Find&nbsp;Patient</a>
+<a href="javascript:document.find_patient.action='../main/finder/patient_finder.php';document.find_patient.submit();" class=link>&nbsp;<?xl('Find Patient','e');?></a>
 </td>
 
 <td valign="middle" align="right" nowrap>
 <?//<a href="../logout.php?auth=logout" target="_top" class="logout">Logout</a>?>
-<a href="../main/main_screen.php" target="_top" class="logout">Back</a>&nbsp;&nbsp;
+<a href="../main/main_screen.php" target="_top" class="logout"><?xl('Back','e');?></a>&nbsp;&nbsp;
 </td>
 </tr>
 </table>

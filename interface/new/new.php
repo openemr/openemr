@@ -4,7 +4,7 @@ include_once("../globals.php");
 <html>
 
 <head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?echo xl($css_header,'e');?>" type="text/css">
 </head>
 
 <body <?echo $top_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
@@ -12,7 +12,7 @@ include_once("../globals.php");
  onload="javascript:document.new_patient.fname.focus();">
 
 <form name='new_patient' method='post' action="new_patient_save.php" target='_top'>
-<a class="title" href="../main/main_screen.php" target="_top">New Patient</a>
+<a class="title" href="../main/main_screen.php" target="_top"><?xl('New Patient','e');?></a>
 
 <br><br>
 
@@ -22,14 +22,14 @@ include_once("../globals.php");
 
  <tr>
   <td>
-   <span class='bold'>Title: </span>
+   <span class='bold'><?xl('Title','e');?>: </span>
   </td>
   <td>
    <select name='title'>
-    <option value="Mr.">Mr.</option>
-    <option value="Mrs.">Mrs.</option>
-    <option value="Ms.">Ms.</option>
-    <option value="Dr.">Dr.</option>
+    <option value="Mr."><?xl('Mr.','e');?></option>
+    <option value="Mrs."><?xl('Mrs.','e');?></option>
+    <option value="Ms."><?xl('Ms.','e');?></option>
+    <option value="Dr."><?xl('Dr.','e');?></option>
    </select>
   </td>
   <td rowspan='5' class='bold'>
@@ -38,7 +38,7 @@ include_once("../globals.php");
 
  <tr>
   <td>
-   <span class='bold'>First Name: </span>
+   <span class='bold'><?xl('First Name','e');?>: </span>
   </td>
   <td>
    <input type='entry' size='15' name='fname'>
@@ -47,7 +47,7 @@ include_once("../globals.php");
 
  <tr>
   <td>
-   <span class='bold'>Middle Name: </span>
+   <span class='bold'><?xl('Middle Name','e');?>: </span>
   </td>
   <td>
    <input type='entry' size='15' name='mname'>
@@ -56,7 +56,7 @@ include_once("../globals.php");
 
  <tr>
   <td>
-   <span class='bold'>Last Name: </span>
+   <span class='bold'><?xl('Last Name','e');?>: </span>
   </td>
   <td>
    <input type='entry' size='15' name='lname'>
@@ -65,11 +65,11 @@ include_once("../globals.php");
 
  <tr>
   <td>
-   <span class='bold'>Patient Number: </span>
+   <span class='bold'><?xl('Patient Number','e');?>: </span>
   </td>
   <td>
    <input type='entry' size='5' name='pubpid'>
-   <span class='text'> omit to autoassign &nbsp; &nbsp; </span>
+   <span class='text'><?xl('omit to autoassign','e');?> &nbsp; &nbsp; </span>
   </td>
  </tr>
 
