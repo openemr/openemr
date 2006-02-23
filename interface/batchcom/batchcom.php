@@ -166,7 +166,7 @@ if ($_POST['form_action']=='Process') {
 			echo ("The following errors occurred<br>$form_err<br><br>");
 		}
 		
-		xl('Process:','e')?><SELECT NAME="process_type">
+		xl('Process','e')?>:<SELECT NAME="process_type">
 				<?
 				foreach ($choices as $value) {
 					echo ("<option>$value</option>");
@@ -174,7 +174,7 @@ if ($_POST['form_action']=='Process') {
 				?>
 				</SELECT>
 
-		<br><?xl('Overwrite HIPAA choice: ','e')?><SELECT NAME="hipaa_choice">
+		<br><?xl('Overwrite HIPAA choice','e')?> :<SELECT NAME="hipaa_choice">
 									<?
 									foreach ($hipaa as $value) {
 										echo ("<option>$value</option>");
@@ -182,9 +182,9 @@ if ($_POST['form_action']=='Process') {
 									?>
 									</SELECT>
 		<br>
-		<?xl('Age From:','e')?><INPUT TYPE="text" size="2" NAME="age_from"> <?xl(' Up to:','e')?><INPUT TYPE="text" size="2" NAME="age_upto"> 
-		<?xl('And:','e')?><INPUT TYPE="radio" NAME="and_or_gender" value="AND" checked><?xl(', Or:','e')?><INPUT TYPE="radio" NAME="and_or_gender" value="OR">
-		<?xl('Gender: ','e')?><SELECT NAME="gender">
+		<?xl('Age From','e')?>:<INPUT TYPE="text" size="2" NAME="age_from"> <?xl('Up to','e')?>:<INPUT TYPE="text" size="2" NAME="age_upto"> 
+		<?xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_gender" value="AND" checked>, <?xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_gender" value="OR">
+		<?xl('Gender ','e')?>:<SELECT NAME="gender">
 				<?
 				foreach ($gender as $value) {
 					echo ("<option>$value</option>");
@@ -196,31 +196,31 @@ if ($_POST['form_action']=='Process') {
 
 						</SELECT>
 		-->
-		<br><?xl('And:','e')?><INPUT TYPE="radio" NAME="and_or_app_within" value="AND" checked><?xl(', Or:','e')?><INPUT TYPE="radio" NAME="and_or_app_within" value="OR"><?xl(' Appointment within:','e')?><INPUT TYPE='text' size='12' NAME='app_s'> <a href="javascript:show_calendar('select_form.app_s')"
+		<br><?xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_app_within" value="AND" checked>, <?xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_app_within" value="OR"> <?xl('Appointment within','e')?>:<INPUT TYPE='text' size='12' NAME='app_s'> <a href="javascript:show_calendar('select_form.app_s')"
     title="<?xl('Click here to choose a date','e')?>"
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' ></a>
 		
-		<?xl('And: ','e')?><INPUT TYPE='text' size='12' NAME='app_e'> <a href="javascript:show_calendar('select_form.app_e')"
+		<?xl('And','e')?> :<INPUT TYPE='text' size='12' NAME='app_e'> <a href="javascript:show_calendar('select_form.app_e')"
     title="<?xl('Click here to choose a date','e')?>"
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' ></a>
 
-		<br><?xl('And:','e')?><INPUT TYPE="radio" NAME="and_or_seen_since" value="AND" checked><?xl(', Or:','e')?><INPUT TYPE="radio" NAME="and_or_seen_since" value="OR"><?xl(' Seen since: ','e')?><INPUT TYPE='text' size='12' NAME='seen_since'> <a href="javascript:show_calendar('select_form.seen_since')"
+		<br><?xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_seen_since" value="AND" checked>, <?xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_seen_since" value="OR"> <?xl('Seen since','e')?> :<INPUT TYPE='text' size='12' NAME='seen_since'> <a href="javascript:show_calendar('select_form.seen_since')"
     title="<?xl('Click here to choose a date','e')?>"
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
 
-		<br><?xl('And:','e')?><INPUT TYPE="radio" NAME="and_or_not_seen_since" value="AND" checked><?xl(', Or:','e')?><INPUT TYPE="radio" NAME="and_or_not_seen_since" value="OR"><?xl(' Not seen since: ','e')?><INPUT TYPE='text' size='12' NAME='not_seen_since'> <a href="javascript:show_calendar('select_form.not_seen_since')"
+		<br><?xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_not_seen_since" value="AND" checked>, <?xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_not_seen_since" value="OR"> <?xl('Not seen since','e')?> :<INPUT TYPE='text' size='12' NAME='not_seen_since'> <a href="javascript:show_calendar('select_form.not_seen_since')"
     title="<?xl('Click here to choose a date','e')?>"
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
-		<br><?xl('Sort by: ','e')?><SELECT NAME="sort_by">
+		<br><?xl('Sort by','e')?> :<SELECT NAME="sort_by">
 				<?
 				foreach ($sort_by as $key => $value) {
 					echo ("<option value=\"".$value."\">$key</option>");
 				}
 				?>
 				</SELECT>
-	<br><?xl('(Fill here only if sending email notification to patients)','e')?>
-	<br><?xl('Email Sender: ','e')?><INPUT TYPE="text" NAME="email_sender" value="your@example.com">
-	<br><?xl('Email Subject: ','e')?><INPUT TYPE="text" NAME="email_subject" value="From your clinic">
+	<br>(<?xl('Fill here only if sending email notification to patients','e')?>)
+	<br><?xl('Email Sender','e')?> :<INPUT TYPE="text" NAME="email_sender" value="your@example.com">
+	<br><?xl('Email Subject','e')?>: <INPUT TYPE="text" NAME="email_subject" value="From your clinic">
 	<br><?xl('Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***','e')?>
 	<br><TEXTAREA NAME="email_body" ROWS="8" COLS="35"></TEXTAREA>
 
