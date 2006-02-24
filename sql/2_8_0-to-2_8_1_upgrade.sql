@@ -325,9 +325,6 @@ ALTER TABLE lists
   ADD outcome     int(11) NOT NULL DEFAULT 0,
   ADD destination varchar(255) DEFAULT NULL;
 
-ALTER TABLE form_clinical_notes
-  MODIFY followup_required int(11) NOT NULL DEFAULT 0;
-
 ALTER TABLE pnotes
   ADD title       varchar(255) NOT NULL DEFAULT 'Unassigned',
   ADD assigned_to varchar(255) NOT NULL DEFAULT '';
@@ -348,3 +345,12 @@ CREATE TABLE `payments` (
   `posted2`     decimal(7,2)  NOT NULL DEFAULT 0,
   PRIMARY KEY  (`id`)
 ) ;
+
+ALTER TABLE form_vitals
+  MODIFY temperature float(5,2) default 0,
+  MODIFY pulse       float(5,2) default 0,
+  MODIFY respiration float(5,2) default 0,
+  MODIFY waist_circ  float(5,2) default 0;
+
+ALTER TABLE form_clinical_notes
+  MODIFY followup_required int(11) NOT NULL DEFAULT 0;
