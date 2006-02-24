@@ -78,6 +78,7 @@
    //  pid     = patient ID
    //  patient = patient name
    //  amount  = total amount due
+   //  adjust  = adjustments (already applied to amount)
    //  duedate = due date of the oldest included invoice
    //  age     = number of days from duedate to today
    //  to      = array of addressee name/address lines
@@ -116,6 +117,7 @@
     $line['dos']     = $svcdate;
     $line['desc']    = "Procedure $key";
     $line['amount']  = sprintf("%.2f", $value['chg']);
+    $line['adjust']  = sprintf("%.2f", $value['adj']);
     $line['paid']    = sprintf("%.2f", $value['chg'] - $value['bal']);
     $line['notice']  = $duncount + 1;
     $stmt['lines'][] = $line;

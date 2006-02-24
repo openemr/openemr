@@ -76,7 +76,7 @@ function create_statement($stmt) {
   "\n" .
   "_______________________ STATEMENT SUMMARY _______________________\n" .
   "\n" .
-  "Date of Service  Description                      Charge     Paid\n" .
+  "Visit Date  Description                    Charge  Adjust    Paid\n" .
   "\n",
 
   // These are the values for the variable fields.  They must appear
@@ -99,10 +99,15 @@ function create_statement($stmt) {
  //
  foreach ($stmt['lines'] as $line) {
   ++$count;
-  $out .= sprintf("%-16s %-30s%9s%9s\n",
+  $description = $line['desc'];
+  $tmp = substr($description, 0, 14);
+  if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921')
+    $description = 'Office Visit';
+  $out .= sprintf("%-10s  %-29s%8s%8s%8s\n",
    $line['dos'], // values start here
-   $line['desc'],
-   $line['amount'],
+   $description,
+   sprintf("%.2f", $line['amount'] + $line['adjust']),
+   $line['adjust'],
    $line['paid']);
  }
 

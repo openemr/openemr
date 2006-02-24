@@ -71,6 +71,7 @@ function get_invoice_summary($trans_id, $with_detail = false) {
 
     $codes[$code]['chg'] += $amount;
     $codes[$code]['bal'] += $amount;
+    if ($amount < 0) $codes[$code]['adj'] -= $amount;
 
     if ($ins_id)
       $codes[$code]['ins'] = $ins_id;
