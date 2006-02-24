@@ -50,7 +50,7 @@
 <h2><?=$facility['name']?></h2>
 <?=$facility['street']?><br>
 <?=$facility['city']?>, <?=$facility['state']?> <?=$facility['postal_code']?><br clear='all'>
-
+<?=$facility['phone']?><br>
 </p>
 
 <a href="javascript:window.close();"><font class=title><?print $titleres{"fname"} . " " . $titleres{"lname"};?></font></a><br>
