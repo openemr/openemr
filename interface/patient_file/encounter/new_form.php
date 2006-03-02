@@ -19,13 +19,47 @@ include_once("../../globals.php");
 <dt><span class="title">New Form</span></dt>
 <?php //DYNAMIC FORM RETREIVAL
 include_once("$srcdir/registry.inc");
-$reg = getRegistered ();
+function myGetRegistered ( $state="1", $limit="unlimited", $offset="0")
+{
+        $sql = "select category, nickname, name, state, directory, id, sql_run, unpackaged, date from registry where state like \"$state\" order by category,priority";
+        if ($limit != "unlimited")
+                $sql .= " limit $limit, $offset";
+        $res = sqlStatement($sql);
+        if ($res)
+        for($iter=0; $row=sqlFetchArray($res); $iter++)
+        {
+                $all[$iter] = $row;
+        }
+        else
+                return false;
+        return $all;
+}
+$reg = myGetRegistered ();
+$old_category = '';
+echo "<FORM METHOD=POST NAME='choose'>\n";
 if ($reg != false)
 foreach ($reg as $entry) {
-	echo '<dd><a href="'.$rootdir.'/patient_file/encounter/load_form.php?formname='.urlencode($entry['directory']).'" class="link" target=Main>';
-	echo ($entry['name'] == 'Fee Sheet' && $GLOBALS['phone_country_code'] != '1') ? 'Coding Sheet' : $entry['name'];
-	echo '</a></dd>';
+	$new_category = trim($entry['category']);
+	$new_nickname = trim($entry['nickname']);
+	if ($new_category == '') {$new_category = 'miscellaneous';}
+	if ($new_nickname != '') {$nickname = $new_nickname;}
+	else {$nickname = $entry['name'];}
+	if ($old_category != $new_category) {
+		if ($old_category != '') {echo "</select><hr>\n";}
+		echo $new_category.' ';
+		echo "<INPUT TYPE=button VALUE='jump' onClick='top.frames[\"Main\"].location.href = document.choose."
+			.$new_category.".options[document.choose."
+			.$new_category.".selectedIndex].value'><br>\n";
+		echo "<select name=".$new_category.">\n";
+		echo "<option value='".$rootdir.'/patient_file/encounter/load_form.php?formname='.urlencode($entry['directory'])."'>".$nickname."</option>\n";
+		$old_category = $new_category;
+	}
+	else {
+		echo "<option value='".$rootdir.'/patient_file/encounter/load_form.php?formname='.urlencode($entry['directory'])."'>".$nickname."</option>\n";
+	}
 }
+echo "</select><hr>\n";
+echo "</FORM>\n";
 ?>
 </dl>
 

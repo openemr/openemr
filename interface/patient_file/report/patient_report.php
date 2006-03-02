@@ -142,7 +142,12 @@
   "FROM forms, form_encounter WHERE " .
   "forms.pid = '$pid' AND form_encounter.encounter = forms.encounter " .
   "ORDER BY form_encounter.date DESC, fdate ASC");
-
+ $res2 = sqlStatement("SELECT name FROM registry ORDER BY priority");
+$html_strings = array();
+$registry_form_name = array();
+ while($result2 = sqlFetchArray($res2)) {
+   array_push($registry_form_name,trim($result2['name']));
+ }
  while($result = sqlFetchArray($res)) {
   if ($result{"form_name"} == "New Patient Encounter") {
    if ($isfirst == 0) {
@@ -155,10 +160,20 @@
    print " >New Encounter" .
     " (" . date("Y-m-d",strtotime($result{"date"})) .
     ")<blockquote>\n";
+
+   foreach($registry_form_name as $var) {
+     if ($toprint = $html_strings[$var]) { 
+       {foreach($toprint as $var) {print $var;}}
+     }
+   }
+   $html_strings = array();
   } else {
-   print "<input type='checkbox' name='" . $result{"formdir"} . "_" .
-    $result{"form_id"} . "' value='" . $result{"encounter"} . "'";
-   print ">" . $result{"form_name"} . "<br>\n";
+   $form_name = trim($result{"form_name"});
+   if (!is_array($html_strings[$form_name])) {$html_strings[$form_name] = array();}
+   array_push($html_strings[$form_name], "<input type='checkbox' name='" 
+     . $result{"formdir"} . "_" 
+     . $result{"form_id"} . "' value='" . $result{"encounter"} . "'"
+     . ">" . $result{"form_name"} . "<br>\n");
   }
   //call_user_func($result{"formdir"} . "_report", $pid, $result{"encounter"}, $cols, $result{"form_id"});
 }
