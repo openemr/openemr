@@ -2,6 +2,18 @@
 include_once("../../globals.php");
 include_once("$srcdir/sql.inc");
 
+//This may be more appropriate to move to the library
+//later
+require_once("{$GLOBALS['srcdir']}/sql.inc");
+function getInsuranceCompanies($pid) {
+        $res = sqlStatement("select * from insurance_data where pid='$pid'");
+
+        for($iter=0; $row=sqlFetchArray($res); $iter++) {
+                $all[$iter] = $row;
+        }
+        return $all;
+}
+
 //the number of rows to display before resetting and starting a new column:
 $N=10
 
@@ -35,12 +47,34 @@ $N=10
 <dt><span class=title>Copay</span></dt>
 
 <br>
-
-<span class=text>$ </span><input type=entry name=code size=5>
-
-
-<a class=text href="javascript:document.copay_form.submit();">Save</a>
-
+<span class=text>$ </span><input type=entry name=code value='100.00' size=5>
+<?
+//<a class=text href="javascript:document.copay_form.submit();">Save</a><br><br>
+?>
+<input type="SUBMIT" value="Save"><br><br>
+<input type="RADIO" name="payment_method" value="cash" checked> cash
+<input type="RADIO" name="payment_method" value="credit card"> credit 
+<input type="RADIO" name="payment_method" value="check"> check 
+<input type="RADIO" name="payment_method" value="other"> other<br><br>
+<input type="RADIO" name="payment_method" value="insurance"> insurance
+<?php
+if ($ret=getInsuranceCompanies($pid)) {
+	if (sizeof($ret)>0) {
+		echo "<select name=insurance_company>\n";
+		foreach($ret as $iter) {
+			$plan_name = trim($iter['plan_name']);
+			if ($plan_name != '') {
+				echo "<option value='"
+				.$plan_name
+				."'>".$plan_name ."\n";
+			}
+		}	
+		echo "</select>\n";
+	}
+}
+?>
+<br><br>
+<input type="RADIO" name="payment_method" value="write off"> write off
 
 
 </form>
