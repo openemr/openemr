@@ -31,6 +31,22 @@ $bigdata = getRegistered("%") or $bigdata = false;
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <span class="title"><?xl('Forms Administration','e');?></span>
 <br><br>
+<?php
+	foreach($_POST as $key=>$val) {
+	       if (preg_match('/nickname_(\d+)/', $key, $matches)) {
+               		$nickname_id = $matches[1];
+			sqlQuery("update registry set nickname='".$val."' where id=".$nickname_id);
+		}
+	       if (preg_match('/category_(\d+)/', $key, $matches)) {
+               		$category_id = $matches[1];
+			sqlQuery("update registry set category='".$val."' where id=".$category_id);
+		}
+	       if (preg_match('/priority_(\d+)/', $key, $matches)) {
+               		$priority_id = $matches[1];
+			sqlQuery("update registry set priority='".$val."' where id=".$priority_id);
+		}
+        }   
+?>
 
 
 <?php //ERROR REPORTING
@@ -41,12 +57,26 @@ if ($err)
 
 <?php //REGISTERED SECTION ?>
 <span class=bold><?xl('Registered','e');?></span><br>
+<form method=POST action ='./forms_admin.php' target='Main'>
+<i>click here to update priority, category and nickname settings</i>
+<input type=submit name=update value=update><br> 
 <table border=0 cellpadding=1 cellspacing=2 width="500">
+	<tr>
+		<td> </td>
+		<td> </td>
+		<td> </td>
+		<td> </td>
+		<td> </td>
+		<td>Priority </td>
+		<td>Category </td>
+		<td>Nickname</td>
+	</tr>
 <?php
 $color="#CCCCCC";
 if ($bigdata != false)
 foreach($bigdata as $registry)
 {
+	$priority_category = sqlQuery("select priority, category, nickname from registry where id=".$registry['id']); 
 	?>
 	<tr>
 		<td bgcolor="<?=$color?>" width="2%">
@@ -81,6 +111,11 @@ foreach($bigdata as $registry)
 				echo "<a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=install_db' target='Main'>".xl('install DB')."</a>";
 			?> 
 		</td>
+		<?php
+			echo "<td><input type=text size=4 name=priority_".$registry['id']." value='".$priority_category['priority']."'></td>";
+			echo "<td><input type=text size=8 name=category_".$registry['id']." value='".$priority_category['category']."'></td>";
+			echo "<td><input type=text size=8 name=nickname_".$registry['id']." value='".$priority_category['nickname']."'></td>";
+		?>
 	</tr>
 	<?php
 	if ($color=="#CCCCCC")
