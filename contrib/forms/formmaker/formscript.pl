@@ -10,9 +10,27 @@ use CGI qw(:standard);
 #documentation
 my $documentation =<<'START';
 
-*************************************
-*      Form Generating Script 1.1   *
-*************************************
+*******************************************
+*      Form Generating Script 1.1.2       *
+*******************************************
+
+new for 1.1.2
+
+Added a 'do not save' link at the top and bottom of the form.
+Fixed problem with using single and double quotes in input file.
+Changed deprecated PHP function mysql_escape_string to 
+mysql_real_escape_string.
+
+bugs: There may still be a problem with reserved MySQL words not
+being caught.  There may be other bugs not discovered yet.
+
+future plans: I plan on improving the output format in report.php.
+For now, users can alter this form as needed.  Since formscript.pl
+knows the fields to be used, it makes more sense to list them 
+explicitly than to print them in a foreach loop.  I will get to
+work on this soon.
+
+1.1
 
 This is a complete rewrite of an earlier Perl script I wrote to generate
 forms for OpenEMR.  It is now all self contained within a single .pl file.
@@ -79,6 +97,12 @@ my $info_txt=<<'START';
 FORM_NAME
 START
 
+my $do_not_save=<<'START';
+<?
+echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/patient_encounter.php'>[do not save]</a>";
+?>
+START
+
 #new.php
 my $new_php =<<'START';
 <?php
@@ -94,7 +118,9 @@ formHeader("Form: FORM_NAME");
 <hr>
 <h1> FORM_NAME </h1>
 <hr>
+
 DATABASEFIELDS
+
 </form>
 <?php
 formFooter();
@@ -141,7 +167,8 @@ if ($value == "on") {
 $value = "yes";
 }
 $key=ucwords(str_replace("_"," ",$key));
-print "<td><span class=bold>$key: </span><span class=text>$value</span></td>";
+$output = stripslashes($value);
+print "<td><span class=bold>$key: </span><span class=text>$output</span></td>";
 $count++;
 if ($count == $cols) {
 $count = 0;
@@ -199,7 +226,7 @@ foreach($field_names as $key=>$val)
 //end special processing
 
 foreach ($field_names as $k => $var) {
-$field_names[$k] = mysql_escape_string($var);
+$field_names[$k] = mysql_real_escape_string($var);
 echo "$var\n";
 }
 if ($encounter == "")
@@ -302,7 +329,7 @@ START
 
 my @reserved = ('ADD','ALL','ALTER','ANALYZE','AND','AS','ASC','ASENSITIVE','BEFORE','BETWEEN','BIGINT','BINARY','BLOB','BOTH','BY','CALL','CASCADE','CASE','CHANGE','CHAR','CHARACTER','CHECK','COLLATE','COLUMN','CONDITION','CONNECTION','CONSTRAINT','CONTINUE','CONVERT','CREATE','CROSS','CURRENT_DATE','CURRENT_TIME','CURRENT_TIMESTAMP','CURRENT_USER','CURSOR','DATABASE','DATABASES','DAY_HOUR','DAY_MICROSECOND','DAY_MINUTE','DAY_SECOND','DEC','DECIMAL','DECLARE','DEFAULT','DELAYED','DELETE','DESC','DESCRIBE','DETERMINISTIC','DISTINCT','DISTINCTROW','DIV','DOUBLE','DROP','DUAL','EACH','ELSE','ELSEIF','ENCLOSED','ESCAPED','EXISTS','EXIT','EXPLAIN','FALSE','FETCH','FLOAT','FOR','FORCE','FOREIGN','FROM','FULLTEXT','GOTO','GRANT','GROUP','HAVING','HIGH_PRIORITY','HOUR_MICROSECOND','HOUR_MINUTE','HOUR_SECOND','IF','IGNORE','IN','INDEX','INFILE','INNER','INOUT','INSENSITIVE','INSERT','INT','INTEGER','INTERVAL','INTO','IS','ITERATE','JOIN','KEY','KEYS','KILL','LEADING','LEAVE','LEFT','LIKE','LIMIT','LINES','LOAD','LOCALTIME','LOCALTIMESTAMP','LOCK','LONG','LONGBLOB','LONGTEXT','LOOP','LOW_PRIORITY','MATCH','MEDIUMBLOB','MEDIUMINT','MEDIUMTEXT','MIDDLEINT','MINUTE_MICROSECOND','MINUTE_SECOND','MOD','MODIFIES','NATURAL','NOT','NO_WRITE_TO_BINLOG','NULL','NUMERIC','ON','OPTIMIZE','OPTION','OPTIONALLY','OR','ORDER','OUT','OUTER','OUTFILE','PRECISION','PRIMARY','PROCEDURE','PURGE','READ','READS','REAL','REFERENCES','REGEXP','RENAME','REPEAT','REPLACE','REQUIRE','RESTRICT','RETURN','REVOKE','RIGHT','RLIKE','SCHEMA','SCHEMAS','SECOND_MICROSECOND','SELECT','SENSITIVE','SEPARATOR','SET','SHOW','SMALLINT','SONAME','SPATIAL','SPECIFIC','SQL','SQLEXCEPTION','SQLSTATE','SQLWARNING','SQL_BIG_RESULT','SQL_CALC_FOUND_ROWS','SQL_SMALL_RESULT','SSL','STARTING','STRAIGHT_JOIN','TABLE','TERMINATED','THEN','TINYBLOB','TINYINT','TINYTEXT','TO','TRAILING','TRIGGER','TRUE','UNDO','UNION','UNIQUE','UNLOCK','UNSIGNED','UPDATE','USAGE','USE','USING','UTC_DATE','UTC_TIME','UTC_TIMESTAMP','VALUES','VARBINARY','VARCHAR','VARCHARACTER','VARYING','WHEN','WHERE','WHILE','WITH','WRITE','XOR','YEAR_MONTH','ZEROFILL','ACTION','BIT','DATE','ENUM','NO','TEXT','TIME','TIMESTAMP');
 my %reserved;
-$reserved{$_}++ for @reserved;
+$reserved{uc $_}++ for @reserved;
 
 #main program
 
@@ -315,9 +342,10 @@ if (@ARGV == 0)
 
 my $form_name = <>;
 chomp($form_name);
-if ($reserved{$form_name})
+my $check_reserved = uc $form_name;
+if ($reserved{uc $check_reserved})
 {
-	print "You have chosen an SQL reserved word for your form name: $form_name.  Please try again.\n";
+	print "You have chosen an SQL reserved word for your form name: $check_reserved.  Please try again.\n";
 	exit 1;
 }
 $form_name =~ s/^\s+(\S)\s+$/$1/;
@@ -339,7 +367,8 @@ for (@field_data)
 	{
 		$_->[0] =~ s/^\s+(\S)\s+$/$1/;
 		$_->[0] =~ s/\s+/_/g;
-		push @reserved_used, $_->[0] if $reserved{$_->[0]};
+		$check_reserved = $_->[0] =~ m/(\w+)/ ? uc $1 : q{};
+		push @reserved_used, $check_reserved if $reserved{$check_reserved};
 		$_->[1] =~ s/^\s+(\S)\s+$/$1/;
 		if ($_->[0] =~ /^\+/) #a leading '+' indicates to print negatives
 		{		# or not checked values in a checkbox_group or scrolling_list_multiples
@@ -458,7 +487,7 @@ sub replace_sql #a special case
 sub make_form
 {
 	my @data = @_;
-	my $return = submit(-name=>'submit form');
+	my $return = submit(-name=>'submit form') . $do_not_save;
 	$return .= "<table>";	
 	for (@data)
 	{
@@ -466,6 +495,11 @@ sub make_form
 		next if $_->[0] =~ /^#/; #ignore perl type comments
 		if ($_->[0] =~ /^\w/ and $_->[1])	
 		{
+			for (@$_)
+			{
+				s/'/\'/g;
+				s/"/\"/g;
+			}
 			my $field_name = shift @$_;
 			my $field_type = shift @$_;
 			my $label = $field_name;
@@ -513,7 +547,7 @@ sub make_form
 		}
 	}		
 	$return .= "<table>";
-	$return .= submit(-name=>'submit form');
+	$return .= submit(-name=>'submit form') . $do_not_save;
 	return $return;
 }
 
