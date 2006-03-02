@@ -201,16 +201,28 @@ function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, 
 	// WTF? That was a good way to create a 200KB sql statement.
 
 	// Allow the last name to be followed by a comma and some part of a first name.
+	// New behavior for searches:
+	// Allows comma alone followed by some part of a first name
+	// If the first letter of either name is capital, searches for name starting
+	// with given substring (the expected behavior).  If it is lower case, it
+	// it searches for the substring anywhere in the name.  This applies to either
+	// last name or first name or both.  The arbitrary limit of 100 results is set
+	// in the sql query below. --Mark Leeds
 	$lname = trim($lname);
 	$fname = '';
  	if (preg_match('/^(.*),(.*)/', $lname, $matches)) {
  		$lname = trim($matches[1]);
  		$fname = trim($matches[2]);
 	}
-
-	$sql="select $given from patient_data where lname like '$lname%' " .
- 		"and fname like '%$fname%' " .
-		"order by $orderby";
+	$search_for_pieces1 = '';
+	$search_for_pieces2 = '';
+	if ($lname{0} != strtoupper($lname{0})) {$search_for_pieces1 = '%';}
+	if ($fname{0} != strtoupper($fname{0})) {$search_for_pieces2 = '%';}
+	$sql="select $given from patient_data where lname like '"
+		.$search_for_pieces1."$lname%' "
+		."and fname like '"
+		.$search_for_pieces2."$fname%' "
+		."order by $orderby limit 100";
 
 	if ($limit != "all")
 		$sql .= " limit $start, $limit";
