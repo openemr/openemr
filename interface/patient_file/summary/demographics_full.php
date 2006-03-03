@@ -156,7 +156,7 @@ function set_insurance(ins_id, ins_name) {
 <table border="0" cellpadding="0" width='100%'>
  <tr>
   <td valign="top"><span class=required>Name: </span></td>
-  <td colspan="6">
+  <td colspan="4" nowrap>
    <select name=title tabindex="1">
     <option value="<?echo $result{"title"}?>"><?echo $result{"title"}?></option>
     <option value="Mr.">Mr.</option>
@@ -164,9 +164,13 @@ function set_insurance(ins_id, ins_name) {
     <option value="Ms.">Ms.</option>
     <option value="Dr.">Dr.</option>
    </select>
-   <input tabindex="2" type=entry size=15 name=fname value="<?echo $result{"fname"}?>"> <input tabindex="3" type=entry size=3 name=mname value="<?echo $result{"mname"}?>"> <input tabindex="4" type=entry size=15 name=lname value="<?echo $result{"lname"}?>">
+   <input tabindex="2" type=entry size=15 name=fname value="<?echo $result{"fname"}?>">
+   <input tabindex="3" type=entry size=3 name=mname value="<?echo $result{"mname"}?>">
+   <input tabindex="4" type=entry size=15 name=lname value="<?echo $result{"lname"}?>">
+   &nbsp;
+   <span class='bold'><? echo ($GLOBALS['athletic_team']) ? 'OID ' : '' ?>Number: </span>
   </td>
-
+  <td><input type='entry' size='10' name='pubpid' value="<?echo $result{"pubpid"}?>"></td>
  </tr>
  <tr>
   <td valign='top'><span class='required'>DOB: </span></td>
@@ -176,9 +180,9 @@ function set_insurance(ins_id, ins_name) {
     onblur='dateblur(this,mypcc)' title='yyyy-mm-dd' />
   </td>
   <td rowspan="12">&nbsp;</td>
-  <td><span class=bold><? echo ($GLOBALS['athletic_team']) ? 'Organizational ID' : 'Patient' ?> Number: </span></td>
+  <td><span class='bold'>Emergency Contact: </span></td>
   <td rowspan="12">&nbsp;</td>
-  <td><input type='entry' size='10' name='pubpid' value="<?echo $result{"pubpid"}?>"></td>
+  <td><input type='entry' size='10' name='contact_relationship' value="<?echo $result{"contact_relationship"}?>"></td>
  </tr>
  <tr>
   <td><span class=required>Sex: </span></td>
@@ -188,32 +192,32 @@ function set_insurance(ins_id, ins_name) {
     <option value="Female" <?if ($result{"sex"} == "Female") {echo "selected";};?>>Female</option>
    </select>
   </td>
-  <td><span class='bold'>Emergency Contact: </span></td>
-  <td><input type='entry' size='10' name='contact_relationship' value="<?echo $result{"contact_relationship"}?>"></td>
- </tr>
- <tr>
-  <td><span class=bold>S.S.: </span></td>
-  <td><input tabindex="7" type=entry size=11 name=ss value="<?echo $result{"ss"}?>"></td>
   <td><span class=bold>Emergency Phone:</span></td>
   <td><input type='text' size='20' name='phone_contact' value='<?echo $result['phone_contact'] ?>' onkeyup='phonekeyup(this,mypcc)' /></td>
  </tr>
  <tr>
-  <td><span class=required>Address: </span></td>
-  <td><input tabindex="8" type=entry size=25 name=street value="<?echo $result{"street"}?>"></td>
+  <td><span class=bold>S.S.: </span></td>
+  <td><input tabindex="7" type=entry size=11 name=ss value="<?echo $result{"ss"}?>"></td>
   <td><span class='bold'>Home Phone: </span></td>
   <td><input type='text' size='20' name='phone_home' value='<?echo $result['phone_home'] ?>' onkeyup='phonekeyup(this,mypcc)' /></td>
  </tr>
  <tr>
-  <td><span class=required>City: </span></td>
-  <td><input tabindex="9" type=entry size=15 name=city value="<?echo $result{"city"}?>"></td>
+  <td><span class=required>Address: </span></td>
+  <td><input tabindex="8" type=entry size=25 name=street value="<?echo $result{"street"}?>"></td>
   <td><span class=bold>Work Phone:</span></td>
   <td><input type='text' size='20' name='phone_biz' value='<?echo $result['phone_biz'] ?>' onkeyup='phonekeyup(this,mypcc)' /></td>
  </tr>
  <tr>
-  <td><span class=required><? echo ($GLOBALS['phone_country_code'] == '1') ? 'State' : 'Locality' ?>: </span></td>
-  <td><input tabindex="10" type=entry size=15 name=state value="<?echo $result{"state"}?>"></td>
+  <td><span class=required>City: </span></td>
+  <td><input tabindex="9" type=entry size=15 name=city value="<?echo $result{"city"}?>"></td>
   <td><span class=bold>Mobile Phone: </span></td>
   <td><input type='text' size='20' name='phone_cell' value='<?echo $result['phone_cell'] ?>' onkeyup='phonekeyup(this,mypcc)' /></td>
+ </tr>
+ <tr>
+  <td><span class=required><? echo ($GLOBALS['phone_country_code'] == '1') ? 'State' : 'Locality' ?>: </span></td>
+  <td><input tabindex="10" type=entry size=15 name=state value="<?echo $result{"state"}?>"></td>
+  <td><span class=bold>Pharmacy Phone: </span></td>
+  <td><input type='text' size='20' name='phone_pharmacy' value='<?echo $result['phone_pharmacy'] ?>' onkeyup='phonekeyup(this,mypcc)' /></td>
  </tr>
  <tr>
   <td><span class=required><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Zip' : 'Postal' ?> Code: </span></td><td><input tabindex="11" type=entry size=6 name=postal_code value="<?echo $result{"postal_code"}?>"></td>
@@ -244,7 +248,8 @@ function set_insurance(ins_id, ins_name) {
 ?>
    </select>
   </td>
-  <td><input name="genericname1" size=20 value="<? echo $result{"genericname1"} ?>" /></td><td><input name="genericval1" size='20' value="<? echo $result{"genericval1"} ?>" /></td>
+  <td><input name="genericname1" size=20 value="<? echo $result{"genericname1"} ?>" /></td>
+  <td><input name="genericval1" size='20' value="<? echo $result{"genericval1"} ?>" /></td>
  </tr>
  <tr>
   <td><span class=required>Provider: </span></td>
@@ -589,6 +594,7 @@ function set_insurance(ins_id, ins_name) {
  phonekeyup(f.phone_home,mypcc);
  phonekeyup(f.phone_biz,mypcc);
  phonekeyup(f.phone_cell,mypcc);
+ phonekeyup(f.phone_pharmacy,mypcc);
  phonekeyup(f.i1subscriber_phone,mypcc);
  phonekeyup(f.i2subscriber_phone,mypcc);
  phonekeyup(f.i3subscriber_phone,mypcc);

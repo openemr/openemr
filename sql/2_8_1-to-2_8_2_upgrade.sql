@@ -266,3 +266,7 @@ INSERT INTO `lang_definitions` VALUES (173, 178, 3, 'Cualquier');
 ALTER TABLE registry ADD COLUMN priority INT DEFAULT 0 AFTER date;
 ALTER TABLE registry ADD COLUMN category VARCHAR(255) DEFAULT "category" AFTER priority;
 ALTER TABLE registry ADD COLUMN nickname VARCHAR(255) DEFAULT '' AFTER category;
+
+ALTER TABLE patient_data
+  ADD phone_pharmacy varchar(255) NOT NULL default '';
+

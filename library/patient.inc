@@ -415,7 +415,8 @@ function newPatientData(	$db_id="",
 				$phone_cell = "",
 				$hipaa_mail = "",
 				$hipaa_voice = "",
-				$squad = 0
+				$squad = 0,
+				$phone_pharmacy = ""
 			)
 {
 	$DOB = fixDate($DOB);
@@ -472,6 +473,7 @@ function newPatientData(	$db_id="",
 		genericname2 = '$genericname2',
 		genericval2 = '$genericval2',
 		phone_cell = '$phone_cell',
+		phone_pharmacy = '$phone_pharmacy',
 		hipaa_mail = '$hipaa_mail',
 		hipaa_voice = '$hipaa_voice',
 		squad = '$squad',

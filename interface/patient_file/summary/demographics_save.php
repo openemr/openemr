@@ -77,7 +77,8 @@ newPatientData(
   $_POST["phone_cell"],
   $_POST["hipaa_mail"],
   $_POST["hipaa_voice"],
-  $_POST["squad"]
+  $_POST["squad"],
+  $_POST["phone_pharmacy"]
 );
 
 newEmployerData(
