@@ -52,7 +52,7 @@ $backurl="../main_info.php";
 ?>
 
 
-<a href="<?echo $backurl;?>" target="Main"><font class="title">Office Notes</font><font class=back><?echo $tback;?></font></a>
+<a href="<?echo $backurl;?>" target="Main"><font class="title"><? xl('Office Notes','e'); ?></font><font class=back><?echo xl ($tback,'e') ;?></font></a>
 <br>
 <input type=hidden name=mode value="new">
 <input type=hidden name=offset value="<?echo $offset;?>">
@@ -60,7 +60,7 @@ $backurl="../main_info.php";
 
 <textarea name=note rows=6 cols=40 wrap=virtual></textarea>
 <br>
-<a href="javascript:document.new_note.submit();" class=link_submit>[Add New Note]</a>
+<a href="javascript:document.new_note.submit();" class=link_submit>[<?xl ('Add New Note','e'); ?>]</a>
 </form>
 
 
@@ -81,9 +81,9 @@ if ($active=="all") {
 ?>
 
 <font class=text>View: </font> 
-<a href="office_comments_full.php?offset=0&active=all" class=<?echo $all_class;?>>[All]</a>
-<a href="office_comments_full.php?offset=0&active=1" class=<?echo $active_class;?>>[Only Active]</a>
-<a href="office_comments_full.php?offset=0&active=0" class=<?echo $inactive_class;?>>[Only Inactive]</a>
+<a href="office_comments_full.php?offset=0&active=all" class=<?echo $all_class;?>>[<? xl('All','e'); ?>]</a>
+<a href="office_comments_full.php?offset=0&active=1" class=<?echo $active_class;?>>[<?xl ('Only Active','e'); ?>]</a>
+<a href="office_comments_full.php?offset=0&active=0" class=<?echo $inactive_class;?>>[<? xl('Only Inactive','e'); ?>]</a>
 
 
 
@@ -93,7 +93,7 @@ if ($active=="all") {
 <input type=hidden name=offset value="<?echo $offset;?>">
 <input type=hidden name=active value="<?echo $active;?>">
 <table border=0>
-<tr><td colspan=3 align=left><a href="javascript:document.update_activity.submit();" class=link_submit>[Change Activity]</a></td></tr>
+<tr><td colspan=3 align=left><a href="javascript:document.update_activity.submit();" class=link_submit>[<? xl('Change Activity','e'); ?>]</a></td></tr>
 <?
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
 
@@ -129,7 +129,7 @@ print "<tr><td></td><td></td><td></td></tr>\n";
 }
 
 ?>
-<tr><td colspan=3 align=left><a href="javascript:document.update_activity.submit();" class=link_submit>[Change Activity]</a></td></tr>
+<tr><td colspan=3 align=left><a href="javascript:document.update_activity.submit();" class=link_submit>[<?xl ('Change Activity','e'); ?>]</a></td></tr>
 </table>
 </form>
 <hr>
@@ -137,13 +137,13 @@ print "<tr><td></td><td></td><td></td></tr>\n";
 <tr><td>
 <?
 if ($offset>($N-1)) {
-echo "<a class=link href=office_comments_full.php?active=".$active."&offset=".($offset-$N).">[Previous]</a>";
+echo "<a class=link href=office_comments_full.php?active=".$active."&offset=".($offset-$N).">[".xl('Previous','e')."]</a>";
 }
 ?>
 </td><td align=right>
 <?
 if ($result_count == $N) {
-echo "<a class=link href=office_comments_full.php?active=".$active."&offset=".($offset+$N).">[Next]</a>";
+echo "<a class=link href=office_comments_full.php?active=".$active."&offset=".($offset+$N).">[".xl('Next')."]</a>";
 }
 ?>
 </td></tr>

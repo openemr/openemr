@@ -20,7 +20,7 @@
 ?>
 <html>
 <head>
-<title>Front Office Receipts</title>
+<title><? xl('Front Office Receipts','e'); ?></title>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/calendar.js"></script>
@@ -46,7 +46,7 @@
 
 <center>
 
-<h2>Front Office Receipts</h2>
+<h2><? xl('Front Office Receipts','e'); ?></h2>
 
 <form name='theform' method='post' action='front_receipts_report.php'>
 
@@ -54,20 +54,20 @@
 
  <tr>
   <td>
-   From:
+   <? xl('From','e'); ?>:
    <input type='text' name='form_from_date' size='10' value='<? echo $from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <a href="javascript:show_calendar('theform.form_from_date')"
-    title="Click here to choose a date"
+    title=".xl('Click here to choose a date')."
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
-   &nbsp;To:
+   &nbsp;<? xl('To','e'); ?>:
    <input type='text' name='form_to_date' size='10' value='<? echo $to_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <a href="javascript:show_calendar('theform.form_to_date')"
-    title="Click here to choose a date"
+    title=".xl('Click here to choose a date')."
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
    &nbsp;
-   <input type='submit' name='form_refresh' value='Refresh'>
+   <input type='submit' name='form_refresh' value=<? xl('Refresh','e'); ?>>
   </td>
  </tr>
 
@@ -82,28 +82,28 @@
 
  <tr bgcolor="#dddddd">
   <td class="dehead">
-   Time
+   <? xl('Time','e'); ?>
   </td>
   <td class='dehead'>
-   Patient
+   <? xl('Patient','e'); ?>
   </td>
   <td class='dehead'>
-   ID
+   <? xl('ID','e'); ?>
   </td>
   <td class='dehead'>
-   Method
+   <? xl('Method','e'); ?>
   </td>
   <td class='dehead'>
-   Source
+   <? xl('Source','e'); ?>
   </td>
   <td class='dehead' align='right'>
-   Today
+   <? xl('Today','e'); ?>
   </td>
   <td class='dehead' align='right'>
-   Previous
+   <? xl('Previous','e'); ?>
   </td>
   <td class='dehead' align='right'>
-   Total
+   <? xl('Total','e'); ?>
   </td>
  </tr>
 <?
@@ -169,7 +169,7 @@
 
  <tr>
   <td class='dehead' colspan='5'>
-   Totals
+   <? xl('Totals','e'); ?>
   </td>
   <td class='detail' align='right'>
    <?php echo bucks($total1) ?>

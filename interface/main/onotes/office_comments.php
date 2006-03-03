@@ -21,7 +21,7 @@ $N = 10;
 
 
 
-<a href="office_comments_full.php" target="Main"><font class="title">Office Notes</font><font class=more><?echo $tmore;?></font></a>
+<a href="office_comments_full.php" target="Main"><font class="title"><? xl('Office Notes','e'); ?></font><font class=more><?echo $tmore;?></font></a>
 
 <br>
 

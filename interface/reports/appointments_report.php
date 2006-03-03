@@ -59,7 +59,7 @@
 <html>
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<title>Appointments Report</title>
+<title><? xl('Appointments Report','e'); ?></title>
 
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/calendar.js"></script>
@@ -97,7 +97,7 @@
 
 <center>
 
-<h2>Appointments Report</h2>
+<h2><? xl('Appointments Report','e'); ?></h2>
 
 <form method='post' name='theform' action='appointments_report.php'>
 
@@ -105,7 +105,7 @@
 
  <tr>
   <td>
-   Provider:
+   <? xl('Provider','e'); ?>:
 <?
  // Build a drop-down list of providers.
  //
@@ -122,17 +122,17 @@
  }
  echo "   </select>\n";
 ?>
-   &nbsp;From:
+   &nbsp;<?  xl('From','e'); ?>:
    <input type='text' name='form_from_date' size='10' value='<? echo $from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <a href="javascript:show_calendar('theform.form_from_date')"
-    title="Click here to choose a date"
+    title=".xl('Click here to choose a date')."
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
-   &nbsp;To:
+   &nbsp;<?  xl('To','e'); ?>:
    <input type='text' name='form_to_date' size='10' value='<? echo $to_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <a href="javascript:show_calendar('theform.form_to_date')"
-    title="Click here to choose a date"
+    title=".xl('Click here to choose a date')."
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
    &nbsp;
    <input type='submit' name='form_refresh' value='Refresh'>
@@ -151,19 +151,19 @@
  <tr bgcolor="#dddddd">
   <td class="dehead">
    <a href="nojs.php" onclick="return dosort('doctor')"
-   <?php if ($form_orderby == "doctor") echo " style=\"color:#00cc00\"" ?>>Provider</a>
+   <?php if ($form_orderby == "doctor") echo " style=\"color:#00cc00\"" ?>><?  xl('Provider','e'); ?> </a>
   </td>
   <td class="dehead">
    <a href="nojs.php" onclick="return dosort('time')"
-   <?php if ($form_orderby == "time") echo " style=\"color:#00cc00\"" ?>>Time</a>
+   <?php if ($form_orderby == "time") echo " style=\"color:#00cc00\"" ?>><?  xl('Time','e'); ?></a>
   </td>
   <td class="dehead">
    <a href="nojs.php" onclick="return dosort('patient')"
-   <?php if ($form_orderby == "patient") echo " style=\"color:#00cc00\"" ?>>Patient</a>
+   <?php if ($form_orderby == "patient") echo " style=\"color:#00cc00\"" ?>><?  xl('Patient','e'); ?></a>
   </td>
   <td class="dehead">
    <a href="nojs.php" onclick="return dosort('type')"
-   <?php if ($form_orderby == "type") echo " style=\"color:#00cc00\"" ?>>Type</a>
+   <?php if ($form_orderby == "type") echo " style=\"color:#00cc00\"" ?>><?  xl('Type','e'); ?></a>
   </td>
  </tr>
 <?

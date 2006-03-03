@@ -74,7 +74,7 @@
 <html>
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<title>Appointments and Encounters</title>
+<title><? xl('Appointments and Encounters','e'); ?></title>
 </head>
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
@@ -91,12 +91,12 @@
 
  <tr bgcolor='#ddddff'>
   <td align='left'>
-   <h2>Appointments and Encounters</h2>
+   <h2><? xl('Appointments and Encounters','e'); ?></h2>
   </td>
   <td align='right'>
-   Booking Date:
+   <? xl('Booking Date','e'); ?>:
    <input type='text' name='form_date' size='10' value='<? echo $_POST['form_date']; ?>'
-    title='Date of appointments mm/dd/yyyy'>
+    title='Date of appointments mm/dd/yyyy' >
    &nbsp;
    <input type='submit' name='form_search' value='Search'>
   </td>
@@ -113,28 +113,28 @@
 
  <tr bgcolor="#dddddd">
   <td class="dehead">
-   &nbsp;Practitioner
+   &nbsp;<? xl('Practitioner','e'); ?>
   </td>
   <td class="dehead">
-   &nbsp;Time
+   &nbsp;<? xl('Time','e'); ?>
   </td>
   <td class="dehead">
-   &nbsp;Patient
+   &nbsp;<? xl('Patient','e'); ?>
   </td>
   <td class="dehead" align="right">
-   Chart&nbsp;
+   <? xl('Chart','e'); ?>&nbsp;
   </td>
   <td class="dehead" align="right">
-   Encounter&nbsp;
+   <? xl('Encounter','e'); ?>&nbsp;
   </td>
   <td class="dehead" align="right">
-   Charge&nbsp;
+   <? xl('Charge','e'); ?>&nbsp;
   </td>
   <td class="dehead" align="center">
-   Billed
+   <? xl('Billed','e'); ?>
   </td>
   <td class="dehead">
-   &nbsp;Error
+   &nbsp;<? xl('Error','e'); ?>
   </td>
  </tr>
 <?

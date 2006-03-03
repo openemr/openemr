@@ -32,7 +32,7 @@
 
 <center>
 
-<h2>Days and Games Missed</h2>
+<h2><? xl('Days and Games Missed','e'); ?></h2>
 
 <form name='theform' method='post' action='absences_report.php'>
 
@@ -42,20 +42,20 @@
   <td>
    By:
    <input type='radio' name='form_by' value='d'
-    <? echo ($form_by == 'p') ? '' : 'checked' ?> />Diagnosis&nbsp;
+    <? echo ($form_by == 'p') ? '' : 'checked' ?> /><? xl('Diagnosis','e'); ?>&nbsp;
    <input type='radio' name='form_by' value='p'
-    <? echo ($form_by == 'p') ? 'checked' : '' ?> />Player &nbsp;
+    <? echo ($form_by == 'p') ? 'checked' : '' ?> /><? xl('Player','e'); ?> &nbsp;
    From:
    <input type='text' name='form_from_date' size='10' value='<? echo $from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <a href="javascript:show_calendar('theform.form_from_date')"
-    title="Click here to choose a date"
+    title=".xl('Click here to choose a date')."
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
    &nbsp;To:
    <input type='text' name='form_to_date' size='10' value='<? echo $to_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <a href="javascript:show_calendar('theform.form_to_date')"
-    title="Click here to choose a date"
+    title=".xl('Click here to choose a date')."
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
    &nbsp;
    <input type='submit' name='form_refresh' value='Refresh'>
@@ -74,24 +74,24 @@
  <tr bgcolor="#dddddd">
 <?  if ($form_by == 'p') { ?>
   <td class="dehead">
-   Name
+   <? xl('Name','e'); ?>
   </td>
 <? } else { ?>
   <td class="dehead">
-   Code
+   <? xl('Code','e'); ?>
   </td>
   <td class="dehead">
-   Description
+   <? xl('Description','e'); ?>
   </td>
 <? } ?>
   <td class='dehead' align='right'>
-   Issues
+   <? xl('Issues','e'); ?>
   </td>
   <td class='dehead' align='right'>
-   Days
+   <? xl('Days','e'); ?>
   </td>
   <td class='dehead' align='right'>
-   Games
+   <? xl('Games','e'); ?>
   </td>
  </tr>
 <?

@@ -16,7 +16,7 @@
 ?>
 <html>
 <head>
-<title>Patient Insurance Distribution</title>
+<title><? xl('Patient Insurance Distribution','e'); ?></title>
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/calendar.js"></script>
 <script type="text/javascript" src="../../library/textformat.js"></script>
@@ -32,7 +32,7 @@
 
 <center>
 
-<h2>Patient Insurance Distribution</h2>
+<h2><? xl('Patient Insurance Distribution','e'); ?></h2>
 
 <form name='theform' method='post' action='insurance_allocation_report.php'>
 
@@ -40,20 +40,20 @@
 
  <tr>
   <td>
-   From:
+   <? xl('From','e'); ?>:
    <input type='text' name='form_from_date' size='10' value='<? echo $from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <a href="javascript:show_calendar('theform.form_from_date')"
-    title="Click here to choose a date"
+    title=".xl('Click here to choose a date')"
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
-   &nbsp;To:
+   &nbsp;<? xl('To','e'); ?>:
    <input type='text' name='form_to_date' size='10' value='<? echo $to_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <a href="javascript:show_calendar('theform.form_to_date')"
-    title="Click here to choose a date"
+    title=".xl('Click here to choose a date')"
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
    &nbsp;
-   <input type='submit' name='form_refresh' value='Refresh'>
+   <input type='submit' name='form_refresh' value=<? xl('Refresh','e'); ?>>
   </td>
  </tr>
 
@@ -68,13 +68,13 @@
 
  <tr bgcolor="#dddddd">
   <td class="dehead">
-   Primary Insurance
+   <? xl('Primary Insurance','e'); ?>
   </td>
   <td class='dehead' align='right'>
-   Patients
+   <? xl('Patients','e'); ?>
   </td>
   <td class='dehead' align='right'>
-   Percent
+   <? xl('Percent','e'); ?>
   </td>
  </tr>
 <?

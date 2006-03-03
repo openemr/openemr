@@ -5,7 +5,7 @@ include_once("../../library/acl.inc");
 
 <html>
 <head>
-<title>Navigation</title>
+<title><? xl('Navigation','e'); ?></title>
 
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 
@@ -20,14 +20,14 @@ include_once("../../library/acl.inc");
 <? if (acl_check('admin', 'users')) { ?>
 <td valign="middle" nowrap>
 &nbsp;&nbsp;<a class=menu target=Main href="usergroup_admin.php"
- title="Add or Edit Users, Groups and Facilities"><?xl('Users & Groups','e');?></a>&nbsp;
+ title="Add or Edit Users, Groups and Facilities"><? xl('Users & Groups','e'); ?></a>&nbsp;
 </td>
 <? } ?>
 
 <? if (acl_check('admin', 'forms')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../forms_admin/forms_admin.php"
- title="Activate New Forms"><?xl('Forms','e');?></a>&nbsp;
+ title="Activate New Forms"><? xl('Forms','e'); ?></a>&nbsp;
 </td>
 <? } ?>
 
@@ -41,14 +41,14 @@ include_once("../../library/acl.inc");
 <? if (acl_check('admin', 'calendar')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig"
- title="Calendar Settings"><?xl('Calendar','e');?></a>&nbsp;
+ title="Calendar Settings"><? xl('Calendar','e'); ?></a>&nbsp;
 </td>
 <? } ?>
 
 <? if (acl_check('admin', 'database')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../main/myadmin/index.php"
- title="Database Reporting"><?xl('Database','e');?></a>&nbsp;
+ title="Database Reporting"><? xl('Database','e'); ?></a>&nbsp;
 </td>
 <? } ?>
 
@@ -62,7 +62,7 @@ include_once("../../library/acl.inc");
 <? if (acl_check('admin', 'language')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../language/language.php"
- title="Language Management"><?xl('Language','e');?></a>&nbsp;
+ title="Language Management"><? xl('Language','e'); ?></a>&nbsp;
 </td>
 <? } ?>
 
@@ -70,14 +70,14 @@ include_once("../../library/acl.inc");
 <? if (acl_check('admin', 'users')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="<?echo $rootdir?>/logview/logview.php"
- title="View Logs"><?xl('Logs','e');?></a>&nbsp;
+ title="View Logs"><? xl('Logs','e'); ?></a>&nbsp;
 </td>
 <? } ?>
 
 <td valign="middle" align="right" nowrap>
 <?//<a href="../logout.php?auth=logout" target="_top" class="logout">Logout</a>?>
 &nbsp;<a class=menu href="../main/main_screen.php" target="_top" class="menu"
- title=<?xl('Exit from Administration','e');?>><?xl('Back','e');?></a>&nbsp;&nbsp;
+ title=<? xl('Exit from Administration','e'); ?>><?xl('Back','e');?></a>&nbsp;&nbsp;
 </td>
 </tr>
 </table>

@@ -16,7 +16,7 @@ include_once("$srcdir/sql.inc");
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 
-<span class="title"><?xl('Password Change','e');?></span>
+<span class="title"><? xl('Password Change','e'); ?></span>
 <br><br>
 
 <?
@@ -40,26 +40,26 @@ for ($iter = 0;$row = sqlFetchArray($res);$iter++)
 $iter = $result[0];
 
 ?>
-<span class="text"><?xl('Once you change your password, you will have to re-login.','e');?><br></span>
+<span class="text"><? xl('Once you change your password, you will have to re-login.','e'); ?><br></span>
 <FORM NAME="user_form" METHOD="GET" ACTION="user_info.php">
 <TABLE>
 <TR>
-<TD><span class=text><?xl('Real Name','e');?>: </span></TD>
+<TD><span class=text><? xl('Real Name','e'); ?>: </span></TD>
 <TD><span class=text><? echo $iter["realname"]; ?></span></td>
 </TR>
 
 <TR>
-<TD><span class=text><?xl('Username','e');?>: </span></TD>
+<TD><span class=text><? xl('Username','e'); ?>: </span></TD>
 <TD><span class=text><? echo $iter["username"]; ?></span></td>
 </TR>
 
 
 <TR>
-<TD><span class=text><?xl('Password','e');?>: </span></TD>
+<TD><span class=text><? xl('Password','e'); ?>: </span></TD>
 <TD><input type=password name=clearPass size=20 value=""></td>
 </TR>
 <TR>
-<TD><span class=text><?xl('Password','e');?> (<?xl('Again','e');?>): </span></TD>
+<TD><span class=text><? xl('Password','e'); ?> (<?xl('Again','e');?>): </span></TD>
 <TD><input type=password name=clearPass2 size=20 value=""></td>
 </TR>
 
@@ -71,7 +71,7 @@ $iter = $result[0];
 <INPUT TYPE="HIDDEN" NAME="authPass2" VALUE="">
 <INPUT TYPE="Submit" VALUE="Save Changes" onClick="javascript:this.form.authPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';this.form.authPass2.value=MD5(this.form.clearPass2.value);this.form.clearPass2.value='';">
 &nbsp;&nbsp;&nbsp;
-[<a href="../main/main_screen.php" target="_top" class=link_submit><?xl('Back','e');?></font></a>]
+[<a href="../main/main_screen.php" target="_top" class=link_submit><? xl('Back','e'); ?></font></a>]
 </FORM>
 
 <?

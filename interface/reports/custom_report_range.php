@@ -28,8 +28,8 @@ if(empty($_POST['start']) || empty($_POST['end'])){
 	?>
 	<form method="post" action="custom_report_range.php">
 		<table>
-		<tr><td>Start Date:</td><td><input type="text" name="start" value="" size="10"/></td><td>YYYYMMDD</td></tr>
-		<tr><td>End Date:</td><td><input type="text" name="end" value="" size="10"/></td><td>YYYYMMDD</td></tr>
+		<tr><td><? xl('Start Date','e'); ?>:</td><td><input type="text" name="start" value="" size="10"/></td><td>YYYYMMDD</td></tr>
+		<tr><td><? xl('End Date','e'); ?>:</td><td><input type="text" name="end" value="" size="10"/></td><td>YYYYMMDD</td></tr>
 		<tr><td><input type="submit" value="Submit"/></td><td></td></tr>
 		</table>
 	</form>
@@ -85,22 +85,22 @@ if(empty($_POST['start']) || empty($_POST['end'])){
 		}
 		*/
 		
-		print "<font class=bold>Patient Data:</font><br>";
+		print "<font class=bold>".xl('Patient Data').":</font><br>";
 		printRecDataOne($patient_data_array, getRecPatientData ($pids[$iCounter]), $N);
 		
-		print "<font class=bold>Primary Insurance Data:</font><br>";
+		print "<font class=bold>".xl('Primary Insurance Data').":</font><br>";
 		printRecDataOne($insurance_data_array, getRecInsuranceData ($pids[$iCounter],"primary"), $N);		
-		print "<font class=bold>Secondary Insurance Data:</font><br>";	
+		print "<font class=bold>".xl('Secondary Insurance Data').":</font><br>";	
 		printRecDataOne($insurance_data_array, getRecInsuranceData ($pids[$iCounter],"secondary"), $N);
 					
-		print "<font class=bold>Tertiary Insurance Data:</font><br>";
+		print "<font class=bold>".xl('Tertiary Insurance Data').":</font><br>";
 		printRecDataOne($insurance_data_array, getRecInsuranceData ($pids[$iCounter],"tertiary"), $N);
 		
-		print "<font class=bold>Billing Information:</font><br>";
+		print "<font class=bold>".xl('Billing Information').":</font><br>";
 		if (count($patient) > 0) {
 			$billings = array();
 			echo "<table>";
-			echo "<tr><td class=bold>Date</td><td width=\"200\" class=bold>Provider</td><td width=\"400\" class=bold>Code</td><td class=bold>Fee</td></tr>\n";
+			echo "<tr><td class=bold>".xl('Date')."</td><td width=\"200\" class=bold>".xl('Provider')."</td><td width=\"400\" class=bold>".xl('Code')."</td><td class=bold>".xl('Fee')."</td></tr>\n";
 			$total = 0.00;
 			$copays = 0.00;
 			//foreach ($patient as $be) {
@@ -128,16 +128,16 @@ if(empty($_POST['start']) || empty($_POST['end'])){
 				}
 			//} 
 			echo "<tr><td>&nbsp;</td></tr>";
-			echo "<tr><td class=bold>Sub-Total</td><td class=text>" . sprintf("%0.2f",$total + abs($copays)) . "</td></tr>";
-			echo "<tr><td class=bold>Paid</td><td class=text>" . sprintf("%0.2f",abs($copays)) . "</td></tr>";
-			echo "<tr><td class=bold>Total</td><td class=text>" . sprintf("%0.2f",$total) . "</td></tr>";
+			echo "<tr><td class=bold>".xl('Sub-Total')."</td><td class=text>" . sprintf("%0.2f",$total + abs($copays)) . "</td></tr>";
+			echo "<tr><td class=bold>".xl('Paid')."</td><td class=text>" . sprintf("%0.2f",abs($copays)) . "</td></tr>";
+			echo "<tr><td class=bold>".xl('Total')."</td><td class=text>" . sprintf("%0.2f",$total) . "</td></tr>";
 			echo "</table>";
 			echo "<pre>";
 			//print_r($billings);
 			echo "</pre>";
 		}
 		++$iCounter;
-		print "<br/><br/>Physician Signature:  _______________________________________________<br/><br/><br/>";
+		print "<br/><br/>".xl('Physician Signature').":  _______________________________________________<br/><br/><br/>";
 		print "<hr width=\"100%\" />";
 	}
 		

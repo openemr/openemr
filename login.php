@@ -61,7 +61,7 @@ if (count($result) != 1) {
 </td></tr>
 <tr><td>&nbsp;</td><td>
 <input type="hidden" name="authPass">
-<input type="submit" onClick="javascript:this.form.authPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';" value="Login">
+<input type="submit" onClick="javascript:this.form.authPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';" value="<? xl('Login','e'); ?>">
 </td></tr>
 </table>
 

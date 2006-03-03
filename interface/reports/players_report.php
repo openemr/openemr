@@ -69,7 +69,7 @@
 
 </script>
 
-<title>Team Roster</title>
+<title><? xl('Team Roster','e'); ?></title>
 </head>
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
@@ -86,7 +86,7 @@
 
  <tr bgcolor='#ddddff'>
   <td align='left'>
-   <h2>Team Roster</h2>
+   <h2><? xl('Team Roster','e'); ?></h2>
   </td>
   <td align='right'>
    <b><? echo date('l, F j, Y') ?></b>
@@ -104,16 +104,16 @@
 
  <tr bgcolor="#dddddd">
   <td class="dehead">
-   &nbsp;Squad
+   &nbsp;<? xl('Squad','e'); ?>
   </td>
   <td class="dehead">
-   &nbsp;Player
+   &nbsp;<? xl('Player','e'); ?>
   </td>
   <td class="dehead">
-   &nbsp;Fitness
+   &nbsp;<? xl('Fitness','e'); ?>
   </td>
   <td class="dehead">
-   &nbsp;Last Encounter
+   &nbsp;<? xl('Last Encounter','e'); ?>
   </td>
  </tr>
 <?
