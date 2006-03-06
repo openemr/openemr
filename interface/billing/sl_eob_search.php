@@ -75,7 +75,8 @@
    // If this is a new patient then print the pending statement
    // and start a new one.  This is an associative array:
    //
-   //  pid     = patient ID
+   //  cid     = SQL-Ledger customer ID
+   //  pid     = OpenEMR patient ID
    //  patient = patient name
    //  amount  = total amount due
    //  adjust  = adjustments (already applied to amount)
@@ -89,9 +90,10 @@
    //    paid    = amount paid
    //    notice  = 1 for first notice, 2 for second, etc.
    //
-   if ($stmt['pid'] != $row['customer_id']) {
+   if ($stmt['cid'] != $row['customer_id']) {
     fwrite($fhprint, create_statement($stmt));
-    $stmt['pid'] = $row['customer_id'];
+    $stmt['cid'] = $row['customer_id'];
+    $stmt['pid'] = $pid;
     $stmt['patient'] = $row['name'];
     $stmt['to'] = array($row['name']);
     if ($row['address1']) $stmt['to'][] = $row['address1'];
