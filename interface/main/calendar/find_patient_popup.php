@@ -39,11 +39,11 @@ td { font-size:10pt; }
 
 <script language="JavaScript">
 
- function selpid(pid, lname, fname) {
+ function selpid(pid, lname, fname, dob) {
   if (opener.closed || ! opener.setpatient)
    alert('The destination form was closed; I cannot act on your selection.');
   else
-   opener.setpatient(pid, lname, fname);
+   opener.setpatient(pid, lname, fname, dob);
   window.close();
   return false;
  }
@@ -106,8 +106,9 @@ td { font-size:10pt; }
    $iterpid   = $iter['pid'];
    $iterlname = addslashes($iter['lname']);
    $iterfname = addslashes($iter['fname']);
+   $iterdob   = $iter['DOB'];
    $anchor = "<a href='' " .
-    "onclick='return selpid($iterpid, \"$iterlname\", \"$iterfname\")'>";
+    "onclick='return selpid($iterpid, \"$iterlname\", \"$iterfname\", \"$iterdob\")'>";
    echo " <tr>";
    echo "  <td>$anchor$iterlname, $iterfname</a></td>\n";
    echo "  <td>$anchor" . $iter['ss'] . "</a></td>\n";

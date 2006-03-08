@@ -142,6 +142,14 @@
     "1, " .
     "1 )");
   }
+
+  // Save new DOB if it's there.
+  $patient_dob = trim($_POST['form_dob']);
+  if ($patient_dob && $_POST['form_pid']) {
+   sqlStatement("UPDATE patient_data SET DOB = '$patient_dob' WHERE " .
+    "pid = '" . $_POST['form_pid'] . "'");
+  }
+
  }
  else if ($_POST['form_delete']) {
   sqlStatement("DELETE FROM openemr_postcalendar_events WHERE " .
@@ -205,7 +213,7 @@
 
  // If we have a patient ID, get the name and phone numbers to display.
  if ($patientid) {
-  $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz " .
+  $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB " .
    "FROM patient_data WHERE pid = '" . $patientid . "'");
   $patientname = $prow['lname'] . ", " . $prow['fname'];
   if ($prow['phone_home']) $patienttitle .= " H=" . $prow['phone_home'];
@@ -275,10 +283,12 @@ td { font-size:10pt; }
 ?>
 
  // This is for callback by the find-patient popup.
- function setpatient(pid, lname, fname) {
+ function setpatient(pid, lname, fname, dob) {
   var f = document.forms[0];
   f.form_patient.value = lname + ', ' + fname;
   f.form_pid.value = pid;
+  dobstyle = (dob == '' || dob.substr(5, 10) == '00-00') ? '' : 'none';
+  document.getElementById('dob_row').style.display = dobstyle;
  }
 
  // This invokes the find-patient popup.
@@ -560,6 +570,28 @@ td { font-size:10pt; }
    <input type='text' size='40' name='form_comments' style='width:100%'
     value='<? echo $hometext ?>'
     title='Optional information about this event' />
+  </td>
+ </tr>
+
+<?php
+ // DOB is important for the clinic, so if it's missing give them a chance
+ // to enter it right here.  We must display or hide this row dynamically
+ // in case the patient-select popup is used.
+ $patient_dob = trim($prow['DOB']);
+ $dobstyle = ($prow && (!$patient_dob || substr($patient_dob, 5) == '00-00')) ?
+  '' : 'none';
+?>
+ <tr id='dob_row' style='display:<?php echo $dobstyle ?>'>
+  <td colspan='4' nowrap>
+   <b><font color='red'><? xl('DOB is missing, please enter if possible','e'); ?>:</font></b>
+  </td>
+  <td nowrap>
+   <input type='text' size='10' name='form_dob'
+    title='yyyy-mm-dd date of birth'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
+   <a href="javascript:show_calendar('theform.form_dob')"
+    title="Click here to choose a date"
+    ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
   </td>
  </tr>
 
