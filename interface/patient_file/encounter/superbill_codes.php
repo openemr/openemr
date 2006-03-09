@@ -43,7 +43,7 @@ if (isset($mode)) {
 
 <dl>
 
-<dt><a href="superbill_custom_full.php" ><span class=title>Superbill</span><font class=more><?echo $tmore;?></font></a>
+<dt><a href="superbill_custom_full.php" ><span class=title><? xl('Superbill','e'); ?></span><font class=more><?echo $tmore;?></font></a>
 <a href="patient_encounter.php?codefrom=superbill" ><font class=more><?echo $tback;?></font></a></dt>
 </td></tr>
 </table>

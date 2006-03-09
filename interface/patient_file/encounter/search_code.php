@@ -37,7 +37,7 @@ $code_type = $_GET['type'];
 <form name='search_form' method='post' action='search_code.php?type=<? echo $code_type ?>'>
 <input type=hidden name=mode value="search">
 
-<span class="title" href="search_code.php"><? echo $code_type ?> Codes</span><br>
+<span class="title" href="search_code.php"><? echo $code_type ?> <? xl('Codes','e'); ?></span><br>
 
 <input type=entry size=15 name=text><a href="javascript:document.search_form.submit();" class="text">Search</a>
 </form>
@@ -67,7 +67,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search") {
 					$count = 0;
 				}
 
-				echo "<a target='Diagnosis' class='text' href='diagnosis.php?mode=add" .
+				echo "<a target='".xl('Diagnosis')."' class='text' href='diagnosis.php?mode=add" .
 					"&type="     . urlencode($code_type) .
 					"&code="     . urlencode($iter{"code"}) .
 					"&modifier=" . urlencode($iter{"modifier"}) .
@@ -81,7 +81,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search") {
 				$count++;
 				$total++;
 				if ($total == $M) {
-					echo "</span><span class=alert>Some codes were not displayed.\n";
+					echo "</span><span class=alert>".xl('Some codes were not displayed.')."\n";
 					break;
 				}
 			}

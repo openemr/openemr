@@ -16,7 +16,7 @@ include_once("../../globals.php");
 </dl>
 -->
 <dl>
-<dt><span class="title">New Form</span></dt>
+<dt><span class="title"><? xl('New Form','e'); ?></span></dt>
 <?php //DYNAMIC FORM RETREIVAL
 include_once("$srcdir/registry.inc");
 function myGetRegistered ( $state="1", $limit="unlimited", $offset="0")

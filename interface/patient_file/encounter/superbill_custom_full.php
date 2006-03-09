@@ -51,17 +51,17 @@ $N = 12;
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-<a href="patient_encounter.php?codefrom=superbill" target="Main"><span class=title>Superbill Codes</span><font class=more><?echo $tback;?></font></a>
+<a href="patient_encounter.php?codefrom=superbill" target="Main"><span class=title><? xl('Superbill Codes','e'); ?></span><font class=more><?echo $tback;?></font></a>
 
 <form action="superbill_custom_full.php" name=add_code>
 <input type=hidden name=mode value="add">
 <br>
 <table border=0 cellpadding=0 cellspacing=0>
 <tr>
-<td colspan="3"> Not all fields are required for all codes or code types.<br><br></td>
+<td colspan="3"> <? xl('Not all fields are required for all codes or code types.','e'); ?><br><br></td>
 </tr>
 <tr>
-	<td>Code Type:</td>
+	<td><? xl('Code Type','e'); ?>:</td>
 	<td width="5" rowspan="7"></td>
 	<td>
 		<select name="code_type">
@@ -72,27 +72,27 @@ $N = 12;
 	</td>
 </tr>
 <tr>
-	<td>Code:</td><td><input type=entry size=25 name="code" value="<?=$GLOBALS['code']?>"></td>
+	<td><? xl('Code','e'); ?>:</td><td><input type=entry size=25 name="code" value="<?=$GLOBALS['code']?>"></td>
 </tr>
 <tr>
-	<td>Code Text:</td><td><input type=entry size=25 name="code_text" value="<?=$GLOBALS['code_text']?>"></td>
+	<td><? xl('Code Text','e'); ?>:</td><td><input type=entry size=25 name="code_text" value="<?=$GLOBALS['code_text']?>"></td>
 </tr>
 <tr>
-	<td>Modifier:</td><td><input type=entry size=3 name="modifier" value="<?=$GLOBALS['modifier']?>"></td>
+	<td><? xl('Modifier','e'); ?>:</td><td><input type=entry size=3 name="modifier" value="<?=$GLOBALS['modifier']?>"></td>
 </tr>
 <tr>
-	<td>Units:</td><td><input type=entry size=4 name="units" value="<?=$GLOBALS['units']?>"></td>
+	<td><? xl('Units','e'); ?>:</td><td><input type=entry size=4 name="units" value="<?=$GLOBALS['units']?>"></td>
 </tr>
 <tr>
-	<td>Fee:</td><td><input type=entry size=6 name="fee" value="<?=$GLOBALS['fee']?>" ></td>
+	<td><? xl('Fee','e'); ?>:</td><td><input type=entry size=6 name="fee" value="<?=$GLOBALS['fee']?>" ></td>
 </tr>
 <tr>
-	<td>Include in Superbill:</td><td><select name="superbill"><option value="0" <?if ($GLOBALS['superbill'] == 0) echo "selected"?>>No</option><option value="1" <?if ($GLOBALS['superbill'] == 1) echo "selected"?>>Yes</option></td>
+	<td><? xl('Include in Superbill','e'); ?>:</td><td><select name="superbill"><option value="0" <?if ($GLOBALS['superbill'] == 0) echo "selected"?>>No</option><option value="1" <?if ($GLOBALS['superbill'] == 1) echo "selected"?>><? xl('Yes','e'); ?></option></td>
 </tr>
 <tr>
 	<td colspan="3" align="center">
 	<input type="hidden" name="id" value="<?=$GLOBALS['id']?>"> 
-	<br><a href='javascript:document.add_code.submit();' class=link>[Add Code]</a></td>
+	<br><a href='javascript:document.add_code.submit();' class=link>[<? xl('Add Code','e'); ?>]</a></td>
 </tr>
 
 </table>
@@ -116,17 +116,17 @@ $fend = $fstart + 100;
 <tr>
 <? if ($fstart > 0) { ?>
 <td>
-<a href="superbill_custom_full.php?fstart=<?=($fstart - 100)?>&filter=<?=$_GET['filter']?>&search=<?=$_GET['search']?>">Prev 100</a>
+<a href="superbill_custom_full.php?fstart=<?=($fstart - 100)?>&filter=<?=$_GET['filter']?>&search=<?=$_GET['search']?>"><? xl('Prev 100','e'); ?></a>
 &nbsp;&nbsp;
 </td>
 <? } ?>
 
 <td>
-<a href="superbill_custom_full.php?fstart=<?=($fstart + 100)?>&filter=<?=$_GET['filter']?>&search=<?=$_GET['search']?>">Next 100</a>
+<a href="superbill_custom_full.php?fstart=<?=($fstart + 100)?>&filter=<?=$_GET['filter']?>&search=<?=$_GET['search']?>"><? xl('Next 100','e'); ?></a>
 &nbsp;&nbsp;
 </td>
 <td>
-<a href="superbill_custom_full.php?fstart=<?=$_GET['fstart']?>&filter=">ALL</a>&nbsp;&nbsp;
+<a href="superbill_custom_full.php?fstart=<?=$_GET['fstart']?>&filter="><? xl('ALL','e'); ?></a>&nbsp;&nbsp;
 </td>
 
 <? foreach ($code_types as $key => $value) { ?>
@@ -146,7 +146,7 @@ $fend = $fstart + 100;
 <tr>
 <td valign=top>
 <table border=0 cellpadding=5 cellspacing=0>
-<th><td></td><td><span class=bold>Code</span></td><td><span class=bold>Modifier</span></td><td><span class=bold>Type</span></td><td><span class=bold>Text</span></td><td><span class=bold>Modifier</span></td><td><span class=bold>Units</span></td><td><span class=bold>Fee</span></td><td></td></th>
+<th><td></td><td><span class=bold><? xl('Code','e'); ?></span></td><td><span class=bold><? xl('Modifier','e'); ?></span></td><td><span class=bold><? xl('Type','e'); ?></span></td><td><span class=bold><? xl('Text','e'); ?></span></td><td><span class=bold><? xl('Modifier','e'); ?></span></td><td><span class=bold><? xl('Units','e'); ?></span></td><td><span class=bold><? xl('Fee','e'); ?></span></td><td></td></th>
 <?
 
 $filter = $_GET['filter'];

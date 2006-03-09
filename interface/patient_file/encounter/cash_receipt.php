@@ -57,7 +57,7 @@
 <a href="javascript:window.close();"><font class=title><?print $titleres{"fname"} . " " . $titleres{"lname"};?></font></a><br><br>
 
 <table>
-<tr><td>Generated on:</td><td> <?print date("Y-m-d");?></td></tr>
+<tr><td><? xl('Generated on','e'); ?>:</td><td> <?print date("Y-m-d");?></td></tr>
 <?
 if ($date_result = sqlQuery("select date from form_encounter where encounter='" .
 $encounter . "' and pid='$pid'"))
@@ -67,7 +67,7 @@ $encounter . "' and pid='$pid'"))
 
 }
 ?>
-<tr><td>Date Of Service: </td><td> <?print $raw_encounter_date;?></td></tr>
+<tr><td><? xl('Date Of Service','e'); ?>: </td><td> <?print $raw_encounter_date;?></td></tr>
 </table>
 <br><br>
 <?
@@ -121,35 +121,35 @@ $encounter . "' and pid='$pid'"))
 
    if ($val == "demographics") {
 
-    print "<br><font class=bold>Patient Data:</font><br>";
+    print "<br><font class=bold>".xl('Patient Data').":</font><br>";
     printRecDataOne($patient_data_array, getRecPatientData ($pid), $N);
 
    } elseif ($val == "history") {
 
-    print "<br><font class=bold>History Data:</font><br>";
+    print "<br><font class=bold>".xl('History Data').":</font><br>";
     printRecDataOne($history_data_array, getRecHistoryData ($pid), $N);
 
    } elseif ($val == "employer") {
 
-    print "<br><font class=bold>Employer Data:</font><br>";
+    print "<br><font class=bold>".xl('Employer Data').":</font><br>";
     printRecDataOne($employer_data_array, getRecEmployerData ($pid), $N);
 
    } elseif ($val == "insurance") {
 
-    print "<br><font class=bold>Primary Insurance Data:</font><br>";
+    print "<br><font class=bold>".xl('Primary Insurance Data').":</font><br>";
     printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"primary"), $N);		
-    print "<font class=bold>Secondary Insurance Data:</font><br>";	
+    print "<font class=bold>".xl('Secondary Insurance Data').":</font><br>";	
     printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"secondary"), $N);
-    print "<font class=bold>Tertiary Insurance Data:</font><br>";
+    print "<font class=bold>".xl('Tertiary Insurance Data').":</font><br>";
     printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"tertiary"), $N);
 
    } elseif ($val == "billing") {
 
-    print "<br><font class=bold>Billing Information:</font><br>";
+    print "<br><font class=bold>".xl('Billing Information').":</font><br>";
     if (count($ar['newpatient']) > 0) {
      $billings = array();
      echo "<table>";
-     echo "<tr><td width=\"400\" class=bold>Code</td><td class=bold>Fee</td></tr>\n";
+     echo "<tr><td width=\"400\" class=bold>Code</td><td class=bold>".xl('Fee')."</td></tr>\n";
      $total = 0.00;
      $copays = 0.00;
      foreach ($ar['newpatient'] as $be) {
@@ -198,7 +198,7 @@ $encounter . "' and pid='$pid'"))
     ****/
 
    } elseif ($val == "immunizations") {
-    print "<font class=bold>Patient Immunization:</font><br>";
+    print "<font class=bold>".xl('Patient Immunization').":</font><br>";
     $sql = "select if(i1.administered_date,concat(i1.administered_date,' - ',i2.name) ,substring(i1.note,1,20) ) as immunization_data from immunizations i1 left join immunization i2 on i1.immunization_id = i2.id where i1.patient_id = $pid order by administered_date desc";
     $result = sqlStatement($sql);
     while ($row=sqlFetchArray($result)) {
@@ -207,12 +207,12 @@ $encounter . "' and pid='$pid'"))
 
    } elseif ($val == "notes") {
 
-    print "<font class=bold>Patient Notes:</font><br>";
+    print "<font class=bold>".xl('Patient Notes').":</font><br>";
     printPatientNotes($pid);
 
    } elseif ($val == "transactions") {
 
-    print "<font class=bold>Patient Transactions:</font><br>";
+    print "<font class=bold>".xl('Patient Transactions').":</font><br>";
     printPatientTransactions($pid);
 
    }
@@ -232,10 +232,10 @@ $encounter . "' and pid='$pid'"))
      echo "<table>";
      foreach ($notes as $note) {
       echo '<tr>';
-      echo '<td>Note #' . $note->get_id() . '</td>';
+      echo '<td>'.xl('Note').' #' . $note->get_id() . '</td>';
       echo '</tr>';
       echo '<tr>';
-      echo '<td>Date: '.$note->get_date().'</td>';
+      echo '<td>'.xl('Date').': '.$note->get_date().'</td>';
       echo '</tr>';
       echo '<tr>';
       echo '<td>'.$note->get_note().'<br><br></td>';
@@ -246,7 +246,7 @@ $encounter . "' and pid='$pid'"))
       echo '<img src="' . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . $document_id . '"><br><br>';
      }
      else {
-      echo "<b>NOTE</b>: Document '" . $fname ."' cannot be displayed inline becuase its type is not supported by the browser.<br><br>";	
+      echo "<b>NOTE</b>: ".xl('Document')." '" . $fname ."' ".xl('cannot be displayed inline becuase its type is not supported by the browser').".<br><br>";	
      }
     }
    }
@@ -335,7 +335,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 			$counter++;
 		}
 		elseif ($iter["code_type"] == "COPAY") { 
-			$html .= "<tr><td>Payment:</td><td>Thank You!</td><td>"
+			$html .= "<tr><td>".xl('Payment').":</td><td>".xl('Thank You')."!</td><td>"
 				.$iter["code_text"]."</td><td>"
 				.$iter["code"]."</td></tr>\n";
 			if ($iter["code"] > 0.00) {
@@ -370,9 +370,9 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 			
 	}
 	
-$billing_html["CPT4"] .= "<tr><td>total</td><td></td><td></td><td>" . sprintf("%01.2f",$total) . "</td></tr>\n";
+$billing_html["CPT4"] .= "<tr><td>".xl('total')."</td><td></td><td></td><td>" . sprintf("%01.2f",$total) . "</td></tr>\n";
 ?>
-<tr><td>code type</td><td>code</td><td>description</td><td>fee</td></tr>
+<tr><td><? xl('code type','e'); ?></td><td><? xl('code','e'); ?></td><td><? xl('description','e'); ?></td><td><? xl('fee','e'); ?></td></tr>
 <?
 	$key = "ICD9"; $val = $billing_html[$key];
 		print $val;
@@ -382,7 +382,7 @@ $billing_html["CPT4"] .= "<tr><td>total</td><td></td><td></td><td>" . sprintf("%
 		print $val;
 $balance = $total-$copay;
 if ($balance != 0.00) {
-	print "<tr><td>balance</td><td></td><td>Please pay this amount:</td><td>" . sprintf("%01.2f",$balance) . "</td></tr>\n";
+	print "<tr><td>".xl('balance')."</td><td></td><td>".xl('Please pay this amount').":</td><td>" . sprintf("%01.2f",$balance) . "</td></tr>\n";
 }
 
 }

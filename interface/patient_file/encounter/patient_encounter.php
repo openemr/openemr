@@ -37,7 +37,7 @@ if (isset($_GET["set_encounter"])) {
 <HTML>
 <HEAD>
 <TITLE>
-Patient Encounters
+<? xl('Patient Encounters','e'); ?>
 </TITLE>
 </HEAD>
 <frameset rows="50%,50%" cols="*">
@@ -76,7 +76,7 @@ if (isset($_GET["mode"])  && $_GET["mode"] == "new") {
 <HTML>
 <HEAD>
 <TITLE>
-New Patient Encounter
+<? xl('New Patient Encounter','e'); ?>
 </TITLE>
 </HEAD>
 <frameset rows="50%,50%" cols="*">
@@ -102,7 +102,7 @@ New Patient Encounter
 <HTML>
 <HEAD>
 <TITLE>
-Patient Encounters
+<? xl('Patient Encounters','e'); ?>
 </TITLE>
 </HEAD>
 <frameset rows="50%,50%" cols="*">

@@ -35,7 +35,7 @@ if (isset($mode)) {
 
 
 
-<a href="patient_encounter.php" target="Main"><span class=title>Billing</span><font class=more><?echo $tback;?></font></a>
+<a href="patient_encounter.php" target="Main"><span class=title><? xl('Billing','e'); ?></span><font class=more><?echo $tback;?></font></a>
 
 
 <table border=0 cellpadding=3 cellspacing=0>
@@ -72,7 +72,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 			
 			
 			$billing_html[$iter["code_type"]] .= "</span></td>";
-			$billing_html[$iter["code_type"]] .= "<td><a class=\"link_submit\" href='diagnosis_full.php?mode=clear&id=".$iter{"id"}."' class=link>[Clear Justification]</a></td>";
+			$billing_html[$iter["code_type"]] .= "<td><a class=\"link_submit\" href='diagnosis_full.php?mode=clear&id=".$iter{"id"}."' class=link>[".xl('Clear Justification')."]</a></td>";
 			
 		}
 			$billing_html[$iter["code_type"]] .= "<td><a class=\"link_submit\" href='diagnosis_full.php?mode=delete&id=".$iter{"id"}."' class=link>[Delete]</a></td>";
