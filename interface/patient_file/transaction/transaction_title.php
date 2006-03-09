@@ -16,9 +16,9 @@ include_once("$srcdir/patient.inc");
  $provider_results = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'");
 
  $info = 'ID: ' . $result['pubpid'];
- if ($result['DOB']) $info .= ', DOB: ' . $result['DOB'];
- if ($result['phone_home']) $info .= ', Home: ' . $result['phone_home'];
- if ($result['phone_pharmacy']) $info .= ', Pharm: ' . $result['phone_pharmacy'];
+ if ($result['DOB']) $info .= ', '.xl('DOB').': ' . $result['DOB'];
+ if ($result['phone_home']) $info .= ', '.xl('Home').': ' . $result['phone_home'];
+ if ($result['phone_pharmacy']) $info .= ', '.xl('Pharm').': ' . $result['phone_pharmacy'];
 ?>
 
 <table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%">
@@ -28,7 +28,7 @@ include_once("$srcdir/patient.inc");
    <span style="font-size:8pt;">(<?php echo $info ?>)</span>
   </td>
   <td width="35%" align="center" valign="middle" nowrap>
-   <span class="title">Logged in as: <?echo $provider_results{"fname"}.' '.$provider_results{"lname"};?></span>
+   <span class="title"><? xl('Logged in as','e'); ?>: <?echo $provider_results{"fname"}.' '.$provider_results{"lname"};?></span>
   </td>
   <td width="20%" align="right" valign="middle" nowrap>
    &nbsp;
