@@ -44,7 +44,7 @@ $N=10
 
 <form method=post name=copay_form action="diagnosis.php?mode=add&type=COPAY&text=copay" target=Diagnosis>
 
-<dt><span class=title>Copay</span></dt>
+<dt><span class=title><? xl('Copay','e'); ?></span></dt>
 
 <br>
 <span class=text>$ </span><input type=entry name=code value='100.00' size=5>
@@ -52,11 +52,11 @@ $N=10
 //<a class=text href="javascript:document.copay_form.submit();">Save</a><br><br>
 ?>
 <input type="SUBMIT" value="Save"><br><br>
-<input type="RADIO" name="payment_method" value="cash" checked> cash
-<input type="RADIO" name="payment_method" value="credit card"> credit 
-<input type="RADIO" name="payment_method" value="check"> check 
-<input type="RADIO" name="payment_method" value="other"> other<br><br>
-<input type="RADIO" name="payment_method" value="insurance"> insurance
+<input type="RADIO" name="payment_method" value="cash" checked><? xl('cash','e'); ?>
+<input type="RADIO" name="payment_method" value="credit card"><? xl('credit','e'); ?>
+<input type="RADIO" name="payment_method" value="check"><? xl('check','e'); ?>
+<input type="RADIO" name="payment_method" value="other"><? xl('other','e'); ?><br><br>
+<input type="RADIO" name="payment_method" value="insurance"><? xl('insurance','e'); ?>
 <?php
 if ($ret=getInsuranceCompanies($pid)) {
 	if (sizeof($ret)>0) {
@@ -74,7 +74,7 @@ if ($ret=getInsuranceCompanies($pid)) {
 }
 ?>
 <br><br>
-<input type="RADIO" name="payment_method" value="write off"> write off
+<input type="RADIO" name="payment_method" value="write off"><? xl('write off','e'); ?>
 
 
 </form>
