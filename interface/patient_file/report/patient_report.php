@@ -28,46 +28,46 @@
 <body <?echo $top_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
  bottommargin='0' marginwidth='2' marginheight='0'>
 
-<font class='title'>Patient Report</font><br>
+<font class='title'><? xl('Patient Report','e'); ?></font><br>
 
-<a class="link_submit" href="full_report.php">[View Comprehensive Patient Report]</a>
+<a class="link_submit" href="full_report.php">[<? xl('View Comprehensive Patient Report','e'); ?>]</a>
 
 <form name='report_form' method='post' action='custom_report.php'>
 
 <table>
  <tr>
   <td class='text' valign='top'>
-   <input type='checkbox' name='include_demographics' value="demographics" checked>Demographics<br>
-   <input type='checkbox' name='include_history' value="history">History<br>
-   <input type='checkbox' name='include_employer' value="employer">Employer<br>
-   <input type='checkbox' name='include_insurance' value="insurance">Insurance<br>
-   <input type='checkbox' name='include_billing' value="billing" checked>Billing<br>
+   <input type='checkbox' name='include_demographics' value="demographics" checked><? xl('Demographics','e'); ?><br>
+   <input type='checkbox' name='include_history' value="history"><? xl(' History','e'); ?><br>
+   <input type='checkbox' name='include_employer' value="employer"><? xl('Employer','e'); ?><br>
+   <input type='checkbox' name='include_insurance' value="insurance"><? xl('Insurance','e'); ?><br>
+   <input type='checkbox' name='include_billing' value="billing" checked><? xl('Billing','e'); ?><br>
   </td>
   <td class='text' valign='top'>
    <!--
    <input type='checkbox' name='include_allergies' value="allergies">Allergies<br>
    <input type='checkbox' name='include_medications' value="medications">Medications<br>
    -->
-   <input type='checkbox' name='include_immunizations' value="immunizations">Immunizations<br>
+   <input type='checkbox' name='include_immunizations' value="immunizations"><? xl('Immunizations','e'); ?><br>
    <!--
    <input type='checkbox' name='include_medical_problems' value="medical_problems">Medical Problems<br>
    -->
-   <input type='checkbox' name='include_notes' value="notes">Patient Notes<br>
-   <input type='checkbox' name='include_transactions' value="transactions">Transactions<br>
-   <input type='checkbox' name='include_batchcom' value="batchcom">Communications<br>
+   <input type='checkbox' name='include_notes' value="notes"><? xl('Patient Notes','e'); ?><br>
+   <input type='checkbox' name='include_transactions' value="transactions"><? xl('Transactions','e'); ?><br>
+   <input type='checkbox' name='include_batchcom' value="batchcom"><? xl('Communications','e'); ?><br>
   </td>
  </tr>
 </table>
 
 <br>
-<a href='javascript:document.report_form.submit()' class='link_submit'>Generate Report</a>
+<a href='javascript:document.report_form.submit()' class='link_submit'><? xl('Generate Report','e'); ?></a>
 <hr>
 
 <table>
  <tr>
 
   <td valign='top' class='text'>
-   <span class='bold'>Issues to Include in this Report: &nbsp; &nbsp;</span>
+   <span class='bold'><? xl('Issues to Include in this Report','e'); ?>: &nbsp; &nbsp;</span>
    <br>&nbsp;
    <table cellpadding='1' cellspacing='2'>
     <!--
@@ -132,7 +132,7 @@
   </td>
 
   <td valign='top' class='text'>
-<span class='bold'>Encounter Forms to Include in this Report:</span>
+<span class='bold'><? xl('Encounter Forms to Include in this Report','e'); ?>:</span>
 <br><br>
 <?
  $isfirst = 1;
@@ -184,7 +184,7 @@ $registry_form_name = array();
  </tr>
 </table>
 
-<span class="bold">Documents</span>:<br>
+<span class="bold"><? xl('Documents','e'); ?></span>:<br>
 <ul>
 <?
  //code lists available images
@@ -207,7 +207,7 @@ $registry_form_name = array();
 </ul>
 </form>
 
-<a href='javascript:document.report_form.submit()' class='link_submit'>Generate Report</a>
+<a href='javascript:document.report_form.submit()' class='link_submit'><? xl('Generate Report','e'); ?></a>
 
 </body>
 </html>

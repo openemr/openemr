@@ -28,7 +28,7 @@ include_once("$srcdir/patient.inc");
    <span style="font-size:8pt;">(<?php echo $info ?>)</span>
   </td>
   <td width="35%" align="center" valign="middle" nowrap>
-   <span class="title">Logged in as: <?echo $provider_results{"fname"}.' '.$provider_results{"lname"};?></span>
+   <span class="title"><? xl('Logged in as','e'); ?>: <?echo $provider_results{"fname"}.' '.$provider_results{"lname"};?></span>
   </td>
   <td width="20%" align="right" valign="middle" nowrap>
    &nbsp;

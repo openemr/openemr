@@ -43,12 +43,12 @@
 ?>
 
 <a href="patient_report.php">
- <font class='title'>Patient Report</font>
+ <font class='title'><? xl('Patient Report','e'); ?></font>
  <font class='back'><?echo $tback;?></font>
 </a><br><br>
 
 <a href="print_custom_report.php?<?print postToGet($ar);?>" class='link_submit' target='new'>
- [Printable Version]
+ [<? xl('Printable Version','e'); ?>]
 </a><br>
 
 <?
@@ -68,35 +68,35 @@
 
    if ($val == "demographics") {
 
-    print "<br><font class='bold'>Patient Data:</font><br>";
+    print "<br><font class='bold'>".xl('Patient Data').":</font><br>";
     printRecDataOne($patient_data_array, getRecPatientData ($pid), $N);
 
    } elseif ($val == "history") {
 
-    print "<br><font class='bold'>History Data:</font><br>";
+    print "<br><font class='bold'>".xl('History Data').":</font><br>";
     printRecDataOne($history_data_array, getRecHistoryData ($pid), $N);
 
    } elseif ($val == "employer") {
 
-    print "<br><font class='bold'>Employer Data:</font><br>";
+    print "<br><font class='bold'>".xl('Employer Data').":</font><br>";
     printRecDataOne($employer_data_array, getRecEmployerData ($pid), $N);
 
    } elseif ($val == "insurance") {
 
-    print "<br><font class=bold>Primary Insurance Data:</font><br>";
+    print "<br><font class=bold>".xl('Primary Insurance Data').":</font><br>";
     printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"primary"), $N);		
-    print "<font class=bold>Secondary Insurance Data:</font><br>";	
+    print "<font class=bold>".xl('Secondary Insurance Data').":</font><br>";	
     printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"secondary"), $N);
-    print "<font class=bold>Tertiary Insurance Data:</font><br>";
+    print "<font class=bold>".xl('Tertiary Insurance Data').":</font><br>";
     printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"tertiary"), $N);
 
    } elseif ($val == "billing") {
 
-    print "<br><font class=bold>Billing Information:</font><br>";
+    print "<br><font class=bold>".xl('Billing Information').":</font><br>";
     if (count($ar['newpatient']) > 0) {
      $billings = array();
      echo "<table>";
-     echo "<tr><td width='400' class='bold'>Code</td><td class='bold'>Fee</td></tr>\n";
+     echo "<tr><td width='400' class='bold'>Code</td><td class='bold'>".xl('Fee')."</td></tr>\n";
      $total = 0.00;
      $copays = 0.00;
      foreach ($ar['newpatient'] as $be) {
@@ -119,9 +119,9 @@
       }
      }
      echo "<tr><td>&nbsp;</td></tr>";
-     echo "<tr><td class=bold>Sub-Total</td><td class=text>" . sprintf("%0.2f",$total + abs($copays)) . "</td></tr>";
-     echo "<tr><td class=bold>Paid</td><td class=text>" . sprintf("%0.2f",abs($copays)) . "</td></tr>";
-     echo "<tr><td class=bold>Total</td><td class=text>" . sprintf("%0.2f",$total) . "</td></tr>";
+     echo "<tr><td class=bold>".xl('Sub-Total')."</td><td class=text>" . sprintf("%0.2f",$total + abs($copays)) . "</td></tr>";
+     echo "<tr><td class=bold>".xl('Paid')."</td><td class=text>" . sprintf("%0.2f",abs($copays)) . "</td></tr>";
+     echo "<tr><td class=bold>".xl('Total')."</td><td class=text>" . sprintf("%0.2f",$total) . "</td></tr>";
      echo "</table>";
      echo "<pre>";
      //print_r($billings);
@@ -152,7 +152,7 @@
 
    } elseif ($val == "immunizations") {
 
-    print "<font class=bold>Patient Immunization:</font><br>";
+    print "<font class=bold>".xl('Patient Immunization').":</font><br>";
     $sql = "select if(i1.administered_date,concat(i1.administered_date,' - ',i2.name) ,substring(i1.note,1,20) ) as immunization_data from immunizations i1 left join immunization i2 on i1.immunization_id = i2.id where i1.patient_id = $pid order by administered_date desc";
     $result = sqlStatement($sql);
     while ($row=sqlFetchArray($result)) {
@@ -161,7 +161,7 @@
    // communication report
    } elseif ($val == "batchcom") {
 
-	   print "<font class=bold>Patient Communication sent:</font><br>";
+	   print "<font class=bold>".xl('Patient Communication sent').":</font><br>";
 	   $sql="SELECT concat( 'Messsage Type: ', batchcom.msg_type, ', Message Subject: ', batchcom.msg_subject, ', Sent on:', batchcom.msg_date_sent ) AS batchcom_data, batchcom.msg_text, concat( users.fname, users.lname ) AS user_name FROM `batchcom` JOIN `users` ON users.id = batchcom.sent_by WHERE batchcom.patient_id='$pid'";
 	   // echo $sql;
 	   $result = sqlStatement($sql);
@@ -171,12 +171,12 @@
 
    } elseif ($val == "notes") {
 
-    print "<font class=bold>Patient Notes:</font><br>";
+    print "<font class=bold>".xl('Patient Notes').":</font><br>";
     printPatientNotes($pid);
 
    } elseif ($val == "transactions") {
 
-    print "<font class=bold>Patient Transactions:</font><br>";
+    print "<font class=bold>".xl('Patient Transactions').":</font><br>";
     printPatientTransactions($pid);
 
    }
@@ -212,7 +212,7 @@
       echo '<img src="' . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . $document_id . '"><br><br>';
      }
      else {
-      echo "<b>NOTE</b>: Document '" . $fname ."' cannot be displayed inline because its type is not supported by the browser.<br><br>";	
+      echo "<b>NOTE</b>: ".xl('Document')."'" . $fname ."' ".xl('cannot be displayed inline because its type is not supported by the browser.')."<br><br>";	
      }
     }
    }
@@ -236,7 +236,7 @@
       "code = '$diagnosis' AND " .
       "(code_type = 2 OR code_type = 4 OR code_type = 5)" .
       "LIMIT 1");
-     echo "<span class='bold'>&nbsp;Diagnosis: </span><span class='text'>" .
+     echo "<span class='bold'>&nbsp;".xl('Diagnosis').": </span><span class='text'>" .
       $irow['diagnosis'] . " " . $crow['code_text'] . "</span><br>\n";
     }
    }
@@ -262,7 +262,7 @@
       "(code_type = 'CPT4' OR code_type = 'OPCS') " .
       "ORDER BY date");
      while ($brow=sqlFetchArray($bres)) {
-      echo "<span class='bold'>&nbsp;Procedure: </span><span class='text'>" .
+      echo "<span class='bold'>&nbsp;".xl('Procedure').": </span><span class='text'>" .
         $brow['code'] . " " . $brow['code_text'] . "</span><br>\n";
      }
     }
