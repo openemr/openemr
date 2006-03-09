@@ -75,7 +75,7 @@
 <html>
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<title>Issues and Encounters</title>
+<title><? xl('Issues and Encounters','e'); ?></title>
 
 <style>
 tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
@@ -269,7 +269,7 @@ function doclick(pfx, id) {
 
  <tr>
   <td colspan='2' align='center'>
-   <b>Issues and Encounters for <? echo $patdata['fname'] . " " . $patdata['lname'] . " ($pid)</b>\n"; ?>
+   <b><? xl('Issues and Encounters for','e'); ?> <? echo $patdata['fname'] . " " . $patdata['lname'] . " ($pid)</b>\n"; ?>
   </td>
  </tr>
 
@@ -279,13 +279,13 @@ function doclick(pfx, id) {
     <tr class='head'>
      <td colspan='3' align='center'>
       <input type='radio' name='form_key' value='p' onclick='clearall()' checked />
-      <b>Issues Section</b>
+      <b><? xl('Issues Section','e'); ?></b>
      </td>
     </tr>
     <tr class='head'>
-     <td>Type</td>
-     <td>Title</td>
-     <td>Description</td>
+     <td><? xl('Type','e'); ?></td>
+     <td><? xl('Title','e'); ?></td>
+     <td><? xl('Description','e'); ?></td>
     </tr>
 <?
  while ($row = sqlFetchArray($pres)) {
@@ -305,12 +305,12 @@ function doclick(pfx, id) {
     <tr class='head'>
      <td colspan='2' align='center'>
       <input type='radio' name='form_key' value='e' onclick='clearall()' />
-      <b>Encounters Section</b>
+      <b><? xl('Encounters Section','e'); ?></b>
      </td>
     </tr>
     <tr class='head'>
-     <td>Date</td>
-     <td>Presenting Complaint</td>
+     <td><? xl('Date','e'); ?></td>
+     <td><? xl('Presenting Complaint','e'); ?></td>
     </tr>
 <?
  while ($row = sqlFetchArray($eres)) {
@@ -339,9 +339,9 @@ function doclick(pfx, id) {
 
 </form>
 
-<p><b>Instructions:</b> Choose a section and click an item within it; then in
+<p><b><? xl('Instructions:','e'); ?></b> <? xl('Choose a section and click an item within it; then in
 the other section you will see the related items highlighted, and you can click
-in that section to add and delete relationships.
+in that section to add and delete relationships.','e'); ?>
 </p>
 
 <script>

@@ -57,7 +57,7 @@
 ?>
 <html>
 <head>
-<title>Delete Patient, Encounter or Issue</title>
+<title><? xl('Delete Patient, Encounter or Issue','e'); ?></title>
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
 
 <style>
@@ -127,8 +127,8 @@ td { font-size:10pt; }
 
 <form method='post' action='deleter.php?patient=<? echo $patient ?>&encounter=<? echo $encounter ?>&issue=<? echo $issue ?>'>
 
-<p>&nbsp;<br>
-Do you really want to delete
+<p>&nbsp;<br><? xl('
+Do you really want to delete','e'); ?>
 
 <?php
  if ($patient) {
@@ -138,7 +138,7 @@ Do you really want to delete
  } else if ($issue) {
   echo "issue $issue";
  }
-?> and all subordinate data? This action will be logged!</p>
+?> <? xl('and all subordinate data? This action will be logged','e'); ?>!</p>
 
 <center>
 

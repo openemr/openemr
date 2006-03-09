@@ -79,11 +79,11 @@
   // Now proceed with printing the receipt.
 ?>
 
-<title>Receipt for Payment</title>
+<title><? xl('Receipt for Payment','e'); ?></title>
 <body bgcolor='#ffffff'>
 <center>
 
-<p><h2>Receipt for Payment</h2>
+<p><h2><? xl('Receipt for Payment','e'); ?></h2>
 
 <p><?php echo htmlentities($frow['name']) ?>
 <br><?php echo htmlentities($frow['street']) ?>
@@ -94,32 +94,32 @@
 <p>
 <table border='0' cellspacing='8'>
  <tr>
-  <td>Date:</td>
+  <td><? xl('Date','e'); ?>:</td>
   <td><?php echo date('Y-m-d', strtotime($payrow['dtime'])) ?></td>
  </tr>
  <tr>
-  <td>Patient:</td>
+  <td><? xl('Patient','e'); ?>:</td>
   <td><?php echo $patdata['fname'] . " " . $patdata['mname'] . " " .
        $patdata['lname'] . " (" . $patdata['pubpid'] . ")" ?></td>
  </tr>
  <tr>
-  <td>Paid Via:</td>
+  <td><? xl('Paid Via','e'); ?>:</td>
   <td><?php echo $payrow['method'] ?></td>
  </tr>
  <tr>
-  <td>Check/Ref Number:</td>
+  <td><? xl('Check/Ref Number','e'); ?>:</td>
   <td><?php echo $payrow['source'] ?></td>
  </tr>
  <tr>
-  <td>Amount for This Visit:</td>
+  <td><? xl('Amount for This Visit','e'); ?>:</td>
   <td><?php echo $payrow['amount1'] ?></td>
  </tr>
  <tr>
-  <td>Amount for Past Balance:</td>
+  <td><? xl('Amount for Past Balance','e'); ?>:</td>
   <td><?php echo $payrow['amount2'] ?></td>
  </tr>
  <tr>
-  <td>Received By:</td>
+  <td><? xl('Received By','e'); ?>:</td>
   <td><?php echo $payrow['user'] ?></td>
  </tr>
 </table>
@@ -127,7 +127,7 @@
 </center>
 
 <p>&nbsp;<br>
-<a href='' class='link_submit' onclick='window.print();return false;'>Print</a>
+<a href='' class='link_submit' onclick='window.print();return false;'><? xl('Print','e'); ?></a>
 
 </body>
 
@@ -143,7 +143,7 @@
   }
   // Continue with display of the data entry form.
 ?>
-<title>Record Payment</title>
+<title><? xl('Record Payment','e'); ?></title>
 
 <style>
 </style>
@@ -169,7 +169,7 @@
  <tr>
   <td colspan='2' align='center'>
    &nbsp;<br>
-   <b>Accept Payment for <?php echo $patdata['fname'] . " " .
+   <b><? xl('Accept Payment for ','e'); ?><?php echo $patdata['fname'] . " " .
     $patdata['lname'] . " (" . $patdata['pubpid'] . ")" ?></b>
     <br>&nbsp;
   </td>
@@ -177,7 +177,7 @@
 
  <tr>
   <td>
-   Payment Method:
+   <? xl('Payment Method','e'); ?>:
   </td>
   <td>
    <select name='form_method'>
@@ -194,7 +194,7 @@
 
  <tr>
   <td>
-   Check/Reference Number:
+   <? xl('Check/Reference Number','e'); ?>:
   </td>
   <td>
    <input type='text' name='form_source' size='10' value='<?php echo $payrow['source'] ?>'>
@@ -203,7 +203,7 @@
 
  <tr>
   <td>
-   Amount for Today's Visit:
+   <? xl('Amount for Todays Visit','e'); ?>:
   </td>
   <td>
    <input type='text' name='form_amount1' size='10' value='<?php echo $payrow['amount1'] ?>'>
@@ -212,7 +212,7 @@
 
  <tr>
   <td>
-   Amount for Prior Balance:
+   <? xl('Amount for Prior Balance','e'); ?>:
   </td>
   <td>
    <input type='text' name='form_amount2' size='10' value='<?php echo $payrow['amount2'] ?>'>

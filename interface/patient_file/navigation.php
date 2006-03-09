@@ -42,42 +42,42 @@ function selpopup(selobj) {
 <table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
  <tr>
   <td align="center" valign="middle">
-   <a href="javascript:parent.Title.location.href='<?echo $rootdir;?>/patient_file/summary/summary_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/summary/patient_summary.php'" target="Main" class="menu">Summary</a>
+   <a href="javascript:parent.Title.location.href='<?echo $rootdir;?>/patient_file/summary/summary_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/summary/patient_summary.php'" target="Main" class="menu"><? xl('Summary','e'); ?></a>
   </td>
   <td align="center" valign="middle">
-   <a href="javascript:parent.Title.location.href='<?echo $rootdir;?>/patient_file/history/history_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/history/patient_history.php'" target="Main" class="menu">History</a>
+   <a href="javascript:parent.Title.location.href='<?echo $rootdir;?>/patient_file/history/history_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/history/patient_history.php'" target="Main" class="menu"><? xl('History','e'); ?></a>
   </td>
   <td align="center" valign="middle">
-   <a href="javascript:parent.Title.location.href='<?echo $rootdir;?>/patient_file/encounter/encounter_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/encounter/patient_encounter.php?mode=new'" target="Main" class="menu">Encounter</a>
+   <a href="javascript:parent.Title.location.href='<?echo $rootdir;?>/patient_file/encounter/encounter_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/encounter/patient_encounter.php?mode=new'" target="Main" class="menu"><? xl('Encounter','e'); ?></a>
   </td>
   <td align="center" valign="middle">
-   <a href="javascript:parent.Title.location.href='<?echo $rootdir;?>/patient_file/transaction/transaction_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/transaction/patient_transaction.php'" target="Main" class="menu">Transaction</a>
+   <a href="javascript:parent.Title.location.href='<?echo $rootdir;?>/patient_file/transaction/transaction_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/transaction/patient_transaction.php'" target="Main" class="menu"><? xl('Transaction','e'); ?></a>
   </td>
   <td align="center" valign="middle">
-   <a href="<?echo $GLOBALS['web_root'];?>/controller.php?document&list&patient_id=<?=$pid?>" target="Main" class="menu">Documents</a>
+   <a href="<?echo $GLOBALS['web_root'];?>/controller.php?document&list&patient_id=<?=$pid?>" target="Main" class="menu"><? xl('Documents','e'); ?></a>
   </td>
   <td align="center" valign="middle">
-   <a href="javascript:parent.Title.location.href='<?echo $rootdir;?>/patient_file/report/report_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/report/patient_report.php'" target="Main" class="menu">Report</a>
+   <a href="javascript:parent.Title.location.href='<?echo $rootdir;?>/patient_file/report/report_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/report/patient_report.php'" target="Main" class="menu"><? xl('Report','e'); ?></a>
   </td>
   <td align="center" align="right" valign="middle">
-   <a href="../main/main_screen.php" target="_top" class="logout">Close</a>&nbsp;&nbsp;
+   <a href="../main/main_screen.php" target="_top" class="logout"><? xl('Close','e'); ?></a>&nbsp;&nbsp;
   </td>
   <td align="right" valign="middle">
     <select onchange='selpopup(this)' style='background-color:transparent'>
-     <option value=''>Popups</option>
+     <option value=''><? xl('Popups','e'); ?></option>
 <? if ($ie_auth) { ?>
-     <option value='problem_encounter.php'>Issues</option>
+     <option value='problem_encounter.php'><? xl('Issues','e'); ?></option>
 <? } ?>
-     <option value='../../custom/export_xml.php'>Export</option>
-     <option value='../../custom/import_xml.php'>Import</option>
+     <option value='../../custom/export_xml.php'><? xl('Export','e'); ?></option>
+     <option value='../../custom/import_xml.php'><? xl('Import','e'); ?></option>
 <? if ($GLOBALS['athletic_team']) { ?>
-     <option value='../reports/players_report.php'>Roster</option>
+     <option value='../reports/players_report.php'><? xl('Roster','e'); ?></option>
 <? } ?>
-     <option value='../reports/appointments_report.php'>Appts</option>
+     <option value='../reports/appointments_report.php'><? xl('Appts','e'); ?></option>
 <? if (file_exists("$webserver_root/custom/refer.php")) { ?>
-     <option value='../../custom/refer.php'>Refer</option>
+     <option value='../../custom/refer.php'><? xl('Refer','e'); ?></option>
 <? } ?>
-     <option value='front_payment.php'>Payment</option>
+     <option value='front_payment.php'><? xl('Payment','e'); ?></option>
     </select>
   </td>
  </tr>
