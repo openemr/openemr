@@ -64,7 +64,7 @@ if (isset($mode)) {
    $thisauth = 0;
  }
  if (!$thisauth) {
-  echo "<p>(Coding not authorized)</p>\n";
+  echo "<p>(".xl('Coding not authorized').")</p>\n";
   echo "</body>\n</html>\n";
   exit();
  }
@@ -95,7 +95,7 @@ if( !empty( $_GET["back"] ) || !empty( $_POST["back"] ) ){
 </dl>
 
 <a href="cash_receipt.php?" class='link_submit' target='new'>
-[Receipt]
+[<? xl('Receipt','e'); ?>]
 </a>
 <table border="0">
 <?
