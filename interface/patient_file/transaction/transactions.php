@@ -10,7 +10,7 @@ include_once("$srcdir/transactions.inc");
 </head>
 <body <?echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-<a href="transactions_full.php" target="Main"><font class="title">Patient Transactions</font><font class=more><?echo $tmore;?></font></a>
+<a href="transactions_full.php" target="Main"><font class="title"><? xl('Patient Transactions','e'); ?></font><font class=more><?echo $tmore;?></font></a>
 
 <br>
 <table>
@@ -25,7 +25,7 @@ if ($result = getTransByPid($pid)) {
 	foreach ($result as $iter) {
 		if ($notes_count >= $N) {
 			//we have more active notes to print, but we've reached our display maximum
-			print "<tr><td colspan=3 align=center><a target=Main href='transactions_full.php' class=alert>Some notes were not displayed. Click here to view all</a></td></tr>\n";
+			print "<tr><td colspan=3 align=center><a target=Main href='transactions_full.php' class=alert>".xl('Some notes were not displayed. Click here to view all')."</a></td></tr>\n";
 			break;
 		}
 		

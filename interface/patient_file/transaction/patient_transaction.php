@@ -4,8 +4,8 @@ include_once("../../globals.php");
 
 <HTML>
 <HEAD>
-<TITLE>
-Patient Summary
+<TITLE><? xl('
+Patient Summary','e'); ?>
 </TITLE>
 </HEAD>
 <frameset rows="50%,50%" cols="*">

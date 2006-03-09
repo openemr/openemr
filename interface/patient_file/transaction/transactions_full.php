@@ -18,7 +18,7 @@ include_once("$srcdir/transactions.inc");
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 
-<a href="patient_transaction.php" target="Main"><font class="title">Patient Transactions</font><font class=more><?echo $tback;?></font></a>
+<a href="patient_transaction.php" target="Main"><font class="title"><? xl('Patient Transactions','e'); ?></font><font class=more><?echo $tback;?></font></a>
 
 <br>
 <table>

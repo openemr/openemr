@@ -27,24 +27,24 @@ if (isset($mode)) {
  <tr>
 
   <td valign='top'>
-   <span class='bold'>Transaction Type:</span><br>
+   <span class='bold'><? xl('Transaction Type','e'); ?>:</span><br>
    <select name='title'>
 
-    <option value="Referral">Referral</option>
-    <option value="Patient Request">Patient Request</option>
-    <option value="Physician Request">Physician Request</option>
-    <option value="Legal">Legal</option>
+    <option value="Referral"><? xl('Referral','e'); ?></option>
+    <option value="Patient Request"><? xl('Patient Request','e'); ?></option>
+    <option value="Physician Request"><? xl('Physician Request','e'); ?></option>
+    <option value="Legal"><? xl('Legal','e'); ?></option>
 
    </select>
 
    <br>
 
-   <span class='bold'>Details:</span><br>
+   <span class='bold'><? xl('Details','e'); ?>:</span><br>
    <textarea name='body' rows='6' cols='40' wrap='virtual'></textarea>
 
    <br>
 
-   <a href="javascript:document.new_transaction.submit();" class='link_submit'>[Add New Transaction]</a>
+   <a href="javascript:document.new_transaction.submit();" class='link_submit'>[<? xl('Add New Transaction','e'); ?>]</a>
 
   </td>
  </tr>
