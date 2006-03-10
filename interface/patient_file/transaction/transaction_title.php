@@ -12,13 +12,14 @@ include_once("$srcdir/patient.inc");
 <body <?echo $title_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 <?
- $result = getPatientData($pid, "fname,lname,pubpid,phone_home,phone_pharmacy,DOB");
- $provider_results = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'");
+ $result = getPatientData($pid, "fname,lname,pid,pubpid,phone_home,phone_pharmacy,DOB,DATE_FORMAT(DOB,'%Y%m%d') as DOB_YMD");
+ $provider_results = sqlQuery("select * from users where username='" . $_SESSION{"authUser"} . "'");
+ $age = getPatientAge($result["DOB_YMD"]);
 
  $info = 'ID: ' . $result['pubpid'];
- if ($result['DOB']) $info .= ', '.xl('DOB').': ' . $result['DOB'];
- if ($result['phone_home']) $info .= ', '.xl('Home').': ' . $result['phone_home'];
- if ($result['phone_pharmacy']) $info .= ', '.xl('Pharm').': ' . $result['phone_pharmacy'];
+ if ($result['DOB']) $info .= ', ' . xl('DOB') . ': ' . $result['DOB'] . ', ' . xl('Age') . ': ' . $age;
+ if ($result['phone_home']) $info .= ', ' . xl('Home') . ': ' . $result['phone_home'];
+ if ($result['phone_pharmacy']) $info .= ', ' . xl('Pharm') . ': ' . $result['phone_pharmacy'];
 ?>
 
 <table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%">

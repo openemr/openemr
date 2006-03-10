@@ -24,12 +24,12 @@ include_once("$srcdir/calendar.inc");
  marginwidth='2' marginheight='0'>
 
 <?
- $result = getPatientData($pid, "fname,lname,providerID,pid,pubpid,phone_home,phone_pharmacy,DOB,DATE_FORMAT(DOB,'%Y%m%d') as DOB_YMD");
- $provider_results = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'");
- // $age = getPatientAge($result["DOB_YMD"]);
+ $result = getPatientData($pid, "fname,lname,pid,pubpid,phone_home,phone_pharmacy,DOB,DATE_FORMAT(DOB,'%Y%m%d') as DOB_YMD");
+ $provider_results = sqlQuery("select * from users where username='" . $_SESSION{"authUser"} . "'");
+ $age = getPatientAge($result["DOB_YMD"]);
 
  $info = 'ID: ' . $result['pubpid'];
- if ($result['DOB']) $info .= ', DOB: ' . $result['DOB'];
+ if ($result['DOB']) $info .= ', DOB: ' . $result['DOB'] . ', Age: ' . $age;
  if ($result['phone_home']) $info .= ', Home: ' . $result['phone_home'];
  if ($result['phone_pharmacy']) $info .= ', Pharm: ' . $result['phone_pharmacy'];
 ?>
