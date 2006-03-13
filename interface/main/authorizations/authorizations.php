@@ -67,9 +67,9 @@ if ($result=getPnotesByDate("", 1, "id,date,body,pid,user,title,assigned_to",
 {
   echo "<table border='0'>\n";
   echo " <tr>\n";
-  echo "  <td class='bold' nowrap>Patient &nbsp;</td>\n";
-  echo "  <td class='bold' nowrap>Note Type &nbsp;</td>\n";
-  echo "  <td class='bold' nowrap>Timestamp and Text</td>\n";
+  echo "  <td class='bold' nowrap>".xl('Patient')." &nbsp;</td>\n";
+  echo "  <td class='bold' nowrap>".xl('Note Type')." &nbsp;</td>\n";
+  echo "  <td class='bold' nowrap>".xl('Timestamp and Text')."</td>\n";
   echo " </tr>\n";
 
   foreach ($result as $iter) {
@@ -196,7 +196,7 @@ if ($authorize) {
     if ($count >= $N) {
       print "<tr><td colspan='5' align='center'><a target='Main' " .
         "href='authorizations_full.php?active=1' class='alert'>" .
-        "Some authorizations were not displayed. Click here to view all" .
+        "".xl('Some authorizations were not displayed. Click here to view all')."" .
         "</a></td></tr>\n";
       break;
     }
@@ -206,7 +206,7 @@ if ($authorize) {
       "target='_top'><span class='bold'>" . $name{"fname"} . " " .
       $name{"lname"} . "</span></a><br>" .
       "<a class=link_submit href='authorizations.php?mode=authorize" .
-      "&pid=$ppid'>Authorize</a></td>\n";
+      "&pid=$ppid'>".xl('Authorize')."</a></td>\n";
 
     /****
     //Michael A Rowley MD 20041012.
@@ -222,16 +222,16 @@ if ($authorize) {
       "select lname from users where id = " . $name['providerID']));
     /****/
 
-    echo "<td valign=top><span class=bold>Provider:</span><span class=text><br>" .
+    echo "<td valign=top><span class=bold>".xl('Provider').":</span><span class=text><br>" .
       $providerName{"lname"} . "</td>\n";
     //  ha ha, see if that works....mar.
-    echo "<td valign=top><span class=bold>Billing:</span><span class=text><br>" .
+    echo "<td valign=top><span class=bold>".xl('Billing').":</span><span class=text><br>" .
       $patient{"billing"} . "</td>\n";
-    echo "<td valign=top><span class=bold>Transactions:</span><span class=text><br>" .
+    echo "<td valign=top><span class=bold>".xl('Transactions').":</span><span class=text><br>" .
       $patient{"transaction"} . "</td>\n";
-    echo "<td valign=top><span class=bold>Patient Notes:</span><span class=text><br>" .
+    echo "<td valign=top><span class=bold>".xl('Patient Notes').":</span><span class=text><br>" .
       $patient{"pnotes"} . "</td>\n";
-    echo "<td valign=top><span class=bold>Encounter Forms:</span><span class=text><br>" .
+    echo "<td valign=top><span class=bold>".xl('Encounter Forms').":</span><span class=text><br>" .
       $patient{"forms"} . "</td>\n";
     echo "</tr>\n";
 

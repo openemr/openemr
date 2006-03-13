@@ -129,14 +129,14 @@ while(list($ppid,$patient) = each($authorize)){
 	
 	$name = getPatientData($ppid);
 	
-	echo "<tr><td valign=top><span class=bold>". $name{"fname"} . " " . $name{"lname"} ."</span><br><a class=link_submit href='authorizations.php?mode=authorize&pid=$ppid'>Authorize</a></td>\n";
-	echo "<td valign=top><span class=bold>Billing:</span><span class=text><br>" . $patient{"billing"} . "</td>\n";
+	echo "<tr><td valign=top><span class=bold>". $name{"fname"} . " " . $name{"lname"} ."</span><br><a class=link_submit href='authorizations.php?mode=authorize&pid=$ppid'>".xl('Authorize')."</a></td>\n";
+	echo "<td valign=top><span class=bold>".xl('Billing').":</span><span class=text><br>" . $patient{"billing"} . "</td>\n";
 	
-	echo "<td valign=top><span class=bold>Transactions:</span><span class=text><br>" . $patient{"transaction"} . "</td>\n";
+	echo "<td valign=top><span class=bold>".xl('Transactions').":</span><span class=text><br>" . $patient{"transaction"} . "</td>\n";
 	
-	echo "<td valign=top><span class=bold>Patient Notes:</span><span class=text><br>" . $patient{"pnotes"} . "</td>\n";
+	echo "<td valign=top><span class=bold>".xl('Patient Notes').":</span><span class=text><br>" . $patient{"pnotes"} . "</td>\n";
 	
-	echo "<td valign=top><span class=bold>Encounter Forms:</span><span class=text><br>" . $patient{"forms"} . "</td>\n";
+	echo "<td valign=top><span class=bold>".xl('Encounter Forms').":</span><span class=text><br>" . $patient{"forms"} . "</td>\n";
 	echo "</tr>\n";
 	$count++;
 }
