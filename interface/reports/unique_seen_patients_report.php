@@ -127,11 +127,10 @@
    if ($row['DOB']) {
     $dob = $row['DOB'];
     $tdy = $row['edate'];
-    $yearDiff = substr($tdy,0,4) - substr($dob,0,4);
-    $ageInMonths = ((substr($tdy,0,4)*12) + substr($tdy,5,2)) -
-                   ((substr($dob,0,4)*12) + substr($dob,5,2));
+    $ageInMonths = (substr($tdy,0,4)*12) + substr($tdy,5,2) -
+                   (substr($dob,0,4)*12) - substr($dob,5,2);
     $dayDiff = substr($tdy,8,2) - substr($dob,8,2);
-    if ($dayDiff < 0) $ageInMonths -= 1;
+    if ($dayDiff < 0) --$ageInMonths;
     $age = intval($ageInMonths/12);
    }
 ?>
