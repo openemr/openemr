@@ -73,6 +73,9 @@ Reading openemr/includes/config.php and openemr/interface/globals.php is a good 
  is recommended.
 </p>
 <p>
+The default user is "admin" and the default password is "pass"
+</P
+<p>
  <a href='./'>Click here to start using OpenEMR. </a>
 </p>
 
