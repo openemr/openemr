@@ -34,7 +34,7 @@ if (!isset($_GET["viewnum"])) {
 
 
 
-<font class=bold><? xl('Patient Data','e'); >?:</font><br>
+<font class=bold><? xl('Patient Data','e'); ?>:</font><br>
 <?
 printRecData($patient_data_array, getRecPatientData ($pid), $N);
 ?><hr>
