@@ -22,7 +22,7 @@
 
  if (!($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
   echo "<body>\n<html>\n";
-  echo "<p>(Encounters not authorized)</p>\n";
+  echo "<p>(".xl('Encounters not authorized').")</p>\n";
   echo "</body>\n</html>\n";
   exit();
  }
@@ -41,16 +41,16 @@
 <body <?echo $top_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
  bottommargin='0' marginwidth='2' marginheight='0'>
 
-<a href="patient_history.php" target="Main"><font class="title">Past Encounters</font><font class=back><?echo $tback;?></font></a><br>
+<a href="patient_history.php" target="Main"><font class="title"><? xl('Past Encounters','e'); ?></font><font class=back><?echo $tback;?></font></a><br>
 
 <table width='100%'>
 <tr>
-<td><span class='bold'>Date</span></td>
-<td><span class='bold'>Provider</span></td>
-<td><span class='bold'>Reason</span></td>
-<td><span class='bold'>Issue</span></td>
+<td><span class='bold'><? xl('Date','e'); ?></span></td>
+<td><span class='bold'><? xl('Provider','e'); ?></span></td>
+<td><span class='bold'><? xl('Reason','e'); ?></span></td>
+<td><span class='bold'><? xl('Issue','e'); ?></span></td>
 <td><span class='bold'><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Billing' : 'Coding' ?></span></td>
-<td><span class='bold'>Insurance</span></td>
+<td><span class='bold'><? xl('Insurance','e'); ?></span></td>
 </tr>
 
 <?
@@ -100,7 +100,7 @@
       echo "$tcode: " . $irow['title'];
      }
     } else {
-     echo "(No access)";
+     echo "(".xl('No access').")";
     }
     echo "</a></td>\n";
 
@@ -131,15 +131,15 @@
     if ($auth_demo) {
       $subresult5 = getInsuranceDataByDate($pid, $raw_encounter_date, "primary");
       if ($subresult5 && $subresult5{"provider_name"}) {
-        $insured = "<span class='text'>Primary: " . $subresult5{"provider_name"} . "</span><br>\n";
+        $insured = "<span class='text'>".xl('Primary').": " . $subresult5{"provider_name"} . "</span><br>\n";
       }
       $subresult6 = getInsuranceDataByDate($pid, $raw_encounter_date, "secondary");
       if ($subresult6 && $subresult6{"provider_name"}) {
-        $insured .= "<span class='text'>Secondary: ".$subresult6{"provider_name"}."</span><br>\n";
+        $insured .= "<span class='text'>".xl('Secondary').": ".$subresult6{"provider_name"}."</span><br>\n";
       }
       $subresult7 = getInsuranceDataByDate($pid, $raw_encounter_date, "tertiary");
       if ($subresult6 && $subresult7{"provider_name"}) {
-        $insured .= "<span class='text'>Tertiary: ".$subresult7{"provider_name"}."</span><br>\n";
+        $insured .= "<span class='text'>".xl('Tertiary').": ".$subresult7{"provider_name"}."</span><br>\n";
       }
     } else {
       $insured = "(No access)";

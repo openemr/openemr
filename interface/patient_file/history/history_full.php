@@ -31,46 +31,46 @@ if (!is_array($result)) {
 <form action="history_save.php" name='history_form' method='post'>
 <input type='hidden' name='mode' value='save'>
 
-<a href="patient_history.php" target=Main><font class='title'>Patient History / Lifestyle</font><font class=back><?echo $tback;?></font></a><br>
+<a href="patient_history.php" target=Main><font class='title'><? xl('Patient History / Lifestyle','e'); ?></font><font class=back><?echo $tback;?></font></a><br>
 
 <table border='0' cellpadding='5' width='100%'>
 
  <tr>
   <td valign='top'>
    <table border='0' cellpadding='0' cellspacing='0'>
-    <tr><td colspan='2' class='bold'>Family History:</td></tr>
-    <tr><td class='text'>Father</td><td><input type='text' size='20' name='history_father' value="<?echo $result{"history_father"};?>"></tr>
-    <tr><td class='text'>Mother</td><td><input type='text' size='20' name='history_mother' value="<?echo $result{"history_mother"};?>"></tr>
-    <tr><td class='text'>Siblings</td><td><input type='text' size='20' name='history_siblings' value="<?echo $result{"history_siblings"};?>"></tr>
-    <tr><td class='text'>Spouse</td><td><input type='text' size='20' name='history_spouse' value="<?echo $result{"history_spouse"};?>"></tr>
-    <tr><td class='text'>Offspring&nbsp;</td><td><input type='text' size='20' name='history_offspring' value="<?echo $result{"history_offspring"};?>"></tr>
+    <tr><td colspan='2' class='bold'><? xl('Family History','e'); ?>:</td></tr>
+    <tr><td class='text'><? xl('Father','e'); ?></td><td><input type='text' size='20' name='history_father' value="<?echo $result{"history_father"};?>"></tr>
+    <tr><td class='text'><? xl('Mother','e'); ?></td><td><input type='text' size='20' name='history_mother' value="<?echo $result{"history_mother"};?>"></tr>
+    <tr><td class='text'><? xl('Siblings','e'); ?></td><td><input type='text' size='20' name='history_siblings' value="<?echo $result{"history_siblings"};?>"></tr>
+    <tr><td class='text'><? xl('Spouse','e'); ?></td><td><input type='text' size='20' name='history_spouse' value="<?echo $result{"history_spouse"};?>"></tr>
+    <tr><td class='text'><? xl('Offspring','e'); ?>&nbsp;</td><td><input type='text' size='20' name='history_offspring' value="<?echo $result{"history_offspring"};?>"></tr>
    </table>
   </td>
   <td valign='top'>
    <table border='0' cellpadding='0' cellspacing='0'>
-    <tr><td colspan='2' class='bold'>Relatives:</td></tr>
-    <tr><td class='text'>Cancer</td><td><input type='text' size='20' name='relatives_cancer' value="<?echo $result{"relatives_cancer"};?>"></tr>
-    <tr><td class='text'>Tuberculosis</td><td><input type='text' size='20' name='relatives_tuberculosis' value="<?echo $result{"relatives_tuberculosis"};?>"></tr>
-    <tr><td class='text'>Diabetes</td><td><input type='text' size='20' name='relatives_diabetes' value="<?echo $result{"relatives_diabetes"};?>"></tr>
-    <tr><td class='text'>High Blood Pressure&nbsp;</td><td><input type='text' size='20' name='relatives_high_blood_pressure' value="<?echo $result{"relatives_high_blood_pressure"};?>"></tr>
-    <tr><td class='text'>Heart Problems</td><td><input type='text' size='20' name='relatives_heart_problems' value="<?echo $result{"relatives_heart_problems"};?>"></tr>
-    <tr><td class='text'>Stroke</td><td><input type='text' size='20' name='relatives_stroke' value="<?echo $result{"relatives_stroke"};?>"></tr>
-    <tr><td class='text'>Epilepsy</td><td><input type='text' size='20' name='relatives_epilepsy' value="<?echo $result{"relatives_epilepsy"};?>"></tr>
-    <tr><td class='text'>Mental Illness</td><td><input type='text' size='20' name='relatives_mental_illness' value="<?echo $result{"relatives_mental_illness"};?>"></tr>
-    <tr><td class='text'>Suicide</td><td><input type='text' size='20' name='relatives_suicide' value="<?echo $result{"relatives_suicide"};?>"></tr>
+    <tr><td colspan='2' class='bold'><? xl('Relatives','e'); ?>:</td></tr>
+    <tr><td class='text'><? xl('Cancer','e'); ?></td><td><input type='text' size='20' name='relatives_cancer' value="<?echo $result{"relatives_cancer"};?>"></tr>
+    <tr><td class='text'><? xl('Tuberculosis','e'); ?></td><td><input type='text' size='20' name='relatives_tuberculosis' value="<?echo $result{"relatives_tuberculosis"};?>"></tr>
+    <tr><td class='text'><? xl('Diabetes','e'); ?></td><td><input type='text' size='20' name='relatives_diabetes' value="<?echo $result{"relatives_diabetes"};?>"></tr>
+    <tr><td class='text'><? xl('High Blood Pressure','e'); ?>&nbsp;</td><td><input type='text' size='20' name='relatives_high_blood_pressure' value="<?echo $result{"relatives_high_blood_pressure"};?>"></tr>
+    <tr><td class='text'><? xl('Heart Problems','e'); ?></td><td><input type='text' size='20' name='relatives_heart_problems' value="<?echo $result{"relatives_heart_problems"};?>"></tr>
+    <tr><td class='text'><? xl('Stroke','e'); ?></td><td><input type='text' size='20' name='relatives_stroke' value="<?echo $result{"relatives_stroke"};?>"></tr>
+    <tr><td class='text'><? xl('Epilepsy','e'); ?></td><td><input type='text' size='20' name='relatives_epilepsy' value="<?echo $result{"relatives_epilepsy"};?>"></tr>
+    <tr><td class='text'><? xl('Mental Illness','e'); ?></td><td><input type='text' size='20' name='relatives_mental_illness' value="<?echo $result{"relatives_mental_illness"};?>"></tr>
+    <tr><td class='text'><? xl('Suicide','e'); ?></td><td><input type='text' size='20' name='relatives_suicide' value="<?echo $result{"relatives_suicide"};?>"></tr>
    </table>
   </td>
   <td valign='top'>
    <table border=0 cellpadding=0 cellspacing=0>
-    <tr><td colspan=2 class=bold>Lifestyle:</td></tr>
-    <tr><td class='text'>Coffee</td><td><input type='text' size='20' name='coffee' value="<?echo $result{"coffee"};?>"></tr>
-    <tr><td class='text'>Tobacco</td><td><input type='text' size='20' name='tobacco' value="<?echo $result{"tobacco"};?>"></tr>
-    <tr><td class='text'>Alcohol</td><td><input type='text' size='20' name='alcohol' value="<?echo $result{"alcohol"};?>"></tr>
-    <tr><td class='text'>Sleep Patterns</td><td><input type='text' size='20' name='sleep_patterns' value="<?echo $result{"sleep_patterns"};?>"></tr>
-    <tr><td class='text'>Exercise Patterns</td><td><input type='text' size='20' name='exercise_patterns' value="<?echo $result{"exercise_patterns"};?>"></tr>
-    <tr><td class='text'>Seatbelt Use</td><td><input type='text' size='20' name='seatbelt_use' value="<?echo $result{"seatbelt_use"};?>"></tr>
-    <tr><td class='text'>Counseling</td><td><input type='text' size='20' name='counseling' value="<?echo $result{"counseling"};?>"></tr>
-    <tr><td class='text'>Hazardous Activities&nbsp;</td><td><input type='text' size='20' name='hazardous_activities' value="<?echo $result{"hazardous_activities"};?>"></tr>
+    <tr><td colspan=2 class=bold><? xl('Lifestyle','e'); ?>:</td></tr>
+    <tr><td class='text'><? xl('Coffee','e'); ?></td><td><input type='text' size='20' name='coffee' value="<?echo $result{"coffee"};?>"></tr>
+    <tr><td class='text'><? xl('Tobacco','e'); ?></td><td><input type='text' size='20' name='tobacco' value="<?echo $result{"tobacco"};?>"></tr>
+    <tr><td class='text'><? xl('Alcohol','e'); ?></td><td><input type='text' size='20' name='alcohol' value="<?echo $result{"alcohol"};?>"></tr>
+    <tr><td class='text'><? xl('Sleep Patterns','e'); ?></td><td><input type='text' size='20' name='sleep_patterns' value="<?echo $result{"sleep_patterns"};?>"></tr>
+    <tr><td class='text'><? xl('Exercise Patterns','e'); ?></td><td><input type='text' size='20' name='exercise_patterns' value="<?echo $result{"exercise_patterns"};?>"></tr>
+    <tr><td class='text'><? xl('Seatbelt Use','e'); ?></td><td><input type='text' size='20' name='seatbelt_use' value="<?echo $result{"seatbelt_use"};?>"></tr>
+    <tr><td class='text'><? xl('Counseling','e'); ?></td><td><input type='text' size='20' name='counseling' value="<?echo $result{"counseling"};?>"></tr>
+    <tr><td class='text'><? xl('Hazardous Activities','e'); ?>&nbsp;</td><td><input type='text' size='20' name='hazardous_activities' value="<?echo $result{"hazardous_activities"};?>"></tr>
    </table>
   </td>
   <td valign='top'>
@@ -83,9 +83,9 @@ if (!is_array($result)) {
   <td valign='top' width='10%'>
    <table border='0' cellpadding='0' cellspacing='0'>
     <tr>
-     <td colspan='2' class='bold'>Date/Notes of Last:</td>
-     <td class='bold'>Nor&nbsp;</td>
-     <td class='bold'>Abn</td>
+     <td colspan='2' class='bold'><? xl('Date/Notes of Last','e'); ?>:</td>
+     <td class='bold'><? xl('Nor','e'); ?>&nbsp;</td>
+     <td class='bold'><? xl('Abn','e'); ?></td>
     </tr>
 <?
  foreach ($exams as $key => $value) {
@@ -124,15 +124,15 @@ if (!is_array($result)) {
   </td>
   <td align='center' valign='top'>
    <table border='0' cellpadding='0' cellspacing='0'>
-    <tr><td colspan='2' class='bold'>Additional History:</td></tr>
+    <tr><td colspan='2' class='bold'><? xl('Additional History','e'); ?>:</td></tr>
     <tr><td class='text'><input type='text' size='20' name='name_1' value="<?=$result{"name_1"}?>">:</td><td><input type='text' size='20' name='value_1' value="<?=$result{"value_1"}?>"></td></tr>
     <tr><td class='text'><input type='text' size='20' name='name_2' value="<?=$result{"name_2"}?>">:</td><td><input type='text' size='20' name='value_2' value="<?=$result{"value_2"}?>"></td></tr>
    </table><br>
    <textarea cols="50" rows="5" name="additional_history"><?=$result{"additional_history"}?></textarea>
    <p>
-   <input type='submit' value='Save' />&nbsp;
-   <input type='button' value='To Issues' onclick='location="../summary/stats_full.php"' />&nbsp;
-   <input type='button' value='Back' onclick='location="patient_history.php"' />
+   <input type='submit' value='<?xl('Save','e'); ?>.' />&nbsp;
+   <input type='button' value='<?xl('To Issues','e'); ?>' onclick='location="../summary/stats_full.php"' />&nbsp;
+   <input type='button' value='<?xl('Back','e'); ?>' onclick='location="patient_history.php"' />
    <!--
    <a href="javascript:document.history_form.submit();" target=Main class=link_submit>[Save Patient History]</a>
    -->
