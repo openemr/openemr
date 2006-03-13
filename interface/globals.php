@@ -35,6 +35,13 @@ $GLOBALS['template_dir'] = $GLOBALS['fileroot'] . "/templates/";
 $GLOBALS['incdir'] = $include_root;
 //location of the login screen file
 $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
+
+//Language Control Section (will add toggling)
+//English:1, Swedish:2, Spanish:3, German:4,
+define (LANGUAGE,1);
+include_once (dirname(__FILE__) . "/../library/translation.inc.php");
+
+
 //default category for find_patient screen
 $GLOBALS['default_category'] = 5;
 $GLOBALS['default_event_title'] = 'Office Visit';
@@ -170,10 +177,6 @@ function strterm($string,$length) {
 	}
 }
 
-//Language Control Section (will add toggling)
-//English:1, Swedish:2, Spanish:3, German:4,
-define (LANGUAGE,1);
-include_once (dirname(__FILE__) . "/../library/translation.inc.php");
 
 //required for normal operation because of recent changes in PHP:
 $ps = strpos($_SERVER['REQUEST_URI'],"myadmin");
