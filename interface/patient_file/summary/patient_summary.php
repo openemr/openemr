@@ -6,7 +6,7 @@ include_once("../../globals.php");
 <HTML>
 <HEAD>
 <TITLE>
-Patient Summary
+<? xl('Patient Summary','e'); ?>
 </TITLE>
 </HEAD>
 

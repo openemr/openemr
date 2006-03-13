@@ -37,7 +37,7 @@
 <head>
 
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
-<title>Patient Issues</title>
+<title><? xl('Patient Issues','e'); ?></title>
 
 <style>
 tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
@@ -82,19 +82,19 @@ function newEncounter() {
 
 <table width='100%' cellpadding='1' cellspacing='2'>
  <tr class='head'>
-  <td>Type</td>
-  <td>Title</td>
-  <td>Begin</td>
-  <td>End</td>
-  <td>Diag</td>
-  <td>Occurrence</td>
+  <td><? xl('Type','e'); ?></td>
+  <td><? xl('Title','e'); ?></td>
+  <td><? xl('Begin','e'); ?></td>
+  <td><? xl('End','e'); ?></td>
+  <td><? xl('Diag','e'); ?></td>
+  <td><? xl('Occurrence','e'); ?></td>
 <? if ($GLOBALS['athletic_team']) { ?>
-  <td>Missed</td>
+  <td><? xl('Missed','e'); ?></td>
 <? } else { ?>
-  <td>RefBy</td>
+  <td><? xl('RefBy','e'); ?></td>
 <? } ?>
-  <td>Comments</td>
-  <td>Enc</td>
+  <td><? xl('Comments','e'); ?></td>
+  <td><? xl('Enc','e'); ?></td>
  </tr>
 <?
  $encount = 0;
@@ -157,10 +157,10 @@ function newEncounter() {
 </table>
 
 <center><p>
- <input type='button' value='Add Issue' onclick='dopclick(0)' style='background-color:transparent' /> &nbsp;
- <input type='button' value='Add Encounter' onclick='newEncounter()' style='background-color:transparent' /> &nbsp;
- <input type='button' value='To History' onclick='location="../history/history_full.php"' style='background-color:transparent' /> &nbsp;
- <input type='button' value='Back' onclick='location="patient_summary.php"' style='background-color:transparent' />
+ <input type='button' value='<?xl('Add Issue','e'); ?>' onclick='dopclick(0)' style='background-color:transparent' /> &nbsp;
+ <input type='button' value='<?xl('Add Encounter','e'); ?>' onclick='newEncounter()' style='background-color:transparent' /> &nbsp;
+ <input type='button' value='<?xl('To History','e'); ?>' onclick='location="../history/history_full.php"' style='background-color:transparent' /> &nbsp;
+ <input type='button' value='<?xl('Back','e'); ?>' onclick='location="patient_summary.php"' style='background-color:transparent' />
 </p></center>
 
 </form>

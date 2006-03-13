@@ -54,7 +54,7 @@ include_once("$srcdir/sql.inc");
   </head>
 
   <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-    <a href="patient_summary.php" target="Main"><font class="title">Immunizations</font><font class=back><?echo $tback;?></font></a>
+    <a href="patient_summary.php" target="Main"><font class="title"><? xl('Immunizations','e'); ?></font><font class=back><?echo $tback;?></font></a>
     <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
     <form action="immunizations.php" name=add_immunization>
@@ -65,7 +65,7 @@ include_once("$srcdir/sql.inc");
         <tr>
           <td align="right">
             <span class=text>
-              Immunization
+              <? xl('Immunization','e'); ?>
             </span>
           </td>
           <td>
@@ -85,7 +85,7 @@ include_once("$srcdir/sql.inc");
         <tr>
           <td align="right">
             <span class=text>
-              Date Administered
+              <? xl('Date Administered','e'); ?>
             </span>
           </td>
           <td>
@@ -96,7 +96,7 @@ include_once("$srcdir/sql.inc");
         <tr>
           <td align="right">
             <span class=text>
-              Immunization Manufacturer
+              <? xl('Immunization Manufacturer','e'); ?>
             </span>
           </td>
           <td>
@@ -106,7 +106,7 @@ include_once("$srcdir/sql.inc");
         <tr>
           <td align="right">
             <span class=text>
-              Immunization Lot Number
+              <? xl('Immunization Lot Number','e'); ?>
             </span>
           </td>
           <td>
@@ -116,7 +116,7 @@ include_once("$srcdir/sql.inc");
         <tr>
           <td align="right">
             <span class=text>
-              Name and Title of Immunization Administrator
+              <? xl('Name and Title of Immunization Administrator','e'); ?>
             </span>
           </td>
           <td>
@@ -149,7 +149,7 @@ include_once("$srcdir/sql.inc");
         <tr>
           <td align="right">
             <span class=text>
-              Date Immunization Information Statements Given
+              <? xl('Date Immunization Information Statements Given','e'); ?>
             </span>
           </td>
           <td>
@@ -160,7 +160,7 @@ include_once("$srcdir/sql.inc");
         <tr>
           <td align="right">
             <span class=text>
-              Notes
+              <? xl('Notes','e'); ?>
             </span>
           </td>
           <td>
@@ -169,14 +169,14 @@ include_once("$srcdir/sql.inc");
         </tr>
         <tr>
           <td align="center">
-            <br /><a href='shot_record.php' class=link>[Print Shot Record]</a>
+            <br /><a href='shot_record.php' class=link>[<? xl('Print Shot Record','e'); ?>]</a>
           </td>
           <td align="center">
             <input type="hidden" name="id" value="<?=$id?>"> 
-            <br /><a href='javascript:document.add_immunization.submit();' class=link>[Save Immunization]</a>
+            <br /><a href='javascript:document.add_immunization.submit();' class=link>[<? xl('Save Immunization','e'); ?>]</a>
           </td>
           <td align="center">
-            <br /><a href='immunizations.php?mode=clear' class=link>[Clear]</a>
+            <br /><a href='immunizations.php?mode=clear' class=link>[<? xl('Clear','e'); ?>]</a>
           </td>
         </tr>
       </table>
@@ -186,7 +186,7 @@ include_once("$srcdir/sql.inc");
       <tr>
         <td valign=top>
           <table border=0 cellpadding=5 cellspacing=0>
-            <th><td><span class=bold>Date</span></td><td><span class=bold>Vaccine</span></td><td><span class=bold>Manufacturer</span></td><td><span class=bold>Lot Number</span></td><td><span class=bold>Administered By</span></td><td><span class=bold>Education Date</span></td><td><span class=bold>Note</span></td><td></td></th>
+            <th><td><span class=bold><? xl('Date','e'); ?></span></td><td><span class=bold><? xl('Vaccine','e'); ?></span></td><td><span class=bold><? xl('Manufacturer','e'); ?></span></td><td><span class=bold><? xl('Lot Number','e'); ?></span></td><td><span class=bold><? xl('Administered By','e'); ?></span></td><td><span class=bold><? xl('Education Date','e'); ?></span></td><td><span class=bold><? xl('Note','e'); ?></span></td><td></td></th>
               <?php
                 $sql = "select i1.id
                               ,i1.administered_date
@@ -205,7 +205,7 @@ include_once("$srcdir/sql.inc");
                         order by administered_date desc";
                 $result = sqlStatement($sql);
                 while($row = sqlFetchArray($result)){
-                  print "<tr><td><a class=link href='immunizations.php?mode=edit&id=".$row{"id"}."'>[Edit]</a></td>";
+                  print "<tr><td><a class=link href='immunizations.php?mode=edit&id=".$row{"id"}."'>[".xl('Edit')."]</a></td>";
                   print "<td><span class=text>" . $row{"administered_date"} . "</span></td>";
                   print "<td><span class=text>" . $row{"immunization"} . "</span></td>";
                   print "<td><span class=text>" . $row{"manufacturer"} . "</span></td>";
@@ -213,7 +213,7 @@ include_once("$srcdir/sql.inc");
                   print "<td><span class=text>" . $row{"administered_by"} . "</span></td>";
                   print "<td><span class=text>" . $row{"education_date"} . "</span></td>";
                   print "<td><span class=text>" . $row{"note"} . "</span></td>";
-                  print "<td><a class=link href='immunizations.php?mode=delete&id=".$row{"id"}."' style=\"color: red;\">[Delete]</a></td></tr>";
+                  print "<td><a class=link href='immunizations.php?mode=delete&id=".$row{"id"}."' style=\"color: red;\">[".xl('Delete')."]</a></td></tr>";
 
                 }
               ?>

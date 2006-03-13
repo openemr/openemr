@@ -88,7 +88,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 <form border='0' method='post' name='new_note' action='pnotes_full.php'>
 
 <a href="../summary/patient_summary.php" target="Main">
-<font class='title'>Patient Notes</font><font class='back'>(Back)</font>
+<font class='title'><? xl('Patient Notes','e'); ?></font><font class='back'>(<? xl('Back','e'); ?>)</font>
 </a>
 <br>
 
@@ -104,16 +104,16 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
   <td class='text' align='center'>
 <?php
  if ($noteid) {
-   echo "<b>Amend Existing Note &quot;$title&quot;</b>\n";
+   echo "<b>".xl('Amend Existing Note')." &quot;$title&quot;</b>\n";
  } else {
-   echo "<b>Add New Note</b>\n";
+   echo "<b>".xl('Add New Note')."</b>\n";
  }
 ?>
   </td>
  </tr>
  <tr>
   <td class='text' align='center'>
-   <b>Type:</b>
+   <b><? xl('Type','e'); ?>:</b>
    <select name='title'>
 <?
  foreach ($note_types as $value) {
@@ -124,7 +124,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 ?>
    </select>
    &nbsp; &nbsp;
-   <b>To:</b>
+   <b><? xl('To','e'); ?>:</b>
    <select name='assigned_to'>
 <?
  while ($urow = sqlFetchArray($ures)) {
@@ -135,7 +135,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
   echo "</option>\n";
  }
 ?>
-    <option value=''>** Close **</option>
+    <option value=''>** <? xl('Close','e'); ?> **</option>
    </select>
   </td>
  </tr>
@@ -148,9 +148,9 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 
 <a href="javascript:document.new_note.submit();" class='link_submit'>
 <?php if ($noteid) { ?>
-[Append to This Note]
+[<? xl('Append to This Note','e'); ?>]
 <?php } else { ?>
-[Add New Note]
+[<? xl('Add New Note','e'); ?>]
 <?php } ?>
 </a>
 <br>
@@ -170,10 +170,10 @@ if ($active=="all") {
 ?>
 
 <br>
-<font class='text'>View: </font> 
-<a href="pnotes_full.php?offset=0&active=all" class='<?echo $all_class;?>'>[All]</a>
-<a href="pnotes_full.php?offset=0&active=1" class='<?echo $active_class;?>'>[Only Active]</a>
-<a href="pnotes_full.php?offset=0&active=0" class='<?echo $inactive_class;?>'>[Only Inactive]</a>
+<font class='text'><? xl('View','e'); ?>: </font> 
+<a href="pnotes_full.php?offset=0&active=all" class='<?echo $all_class;?>'>[<? xl('All','e'); ?>]</a>
+<a href="pnotes_full.php?offset=0&active=1" class='<?echo $active_class;?>'>[<? xl('Only Active','e'); ?>]</a>
+<a href="pnotes_full.php?offset=0&active=0" class='<?echo $inactive_class;?>'>[<? xl('Only Inactive','e'); ?>]</a>
 
 <input type='hidden' name='mode' value="update">
 <input type='hidden' name='offset' value="<?echo $offset;?>">
@@ -183,7 +183,7 @@ if ($active=="all") {
 <table border='0'>
  <tr>
   <td colspan='3' align='left'>
-   <a href="javascript:document.update_activity.submit();" class='link_submit'>[Change Activity]</a>
+   <a href="javascript:document.update_activity.submit();" class='link_submit'>[<? xl('Change Activity','e'); ?>]</a>
   </td>
  </tr>
 <?
@@ -242,7 +242,7 @@ if ($result = getPnotesByDate("", $active,
 ?>
  <tr>
   <td colspan='3' align='left'>
-   <a href="javascript:document.update_activity.submit();" class='link_submit'>[Change Activity]</a>
+   <a href="javascript:document.update_activity.submit();" class='link_submit'>[<? xl('Change Activity','e'); ?>]</a>
   </td>
  </tr>
 
@@ -254,14 +254,14 @@ if ($result = getPnotesByDate("", $active,
   <td>
 <?
 if ($offset > ($N-1)) {
-  echo "   <a class='link' href='pnotes_full.php?active=" . $active . "&offset=" . ($offset-$N) . "'>[Previous]</a>\n";
+  echo "   <a class='link' href='pnotes_full.php?active=" . $active . "&offset=" . ($offset-$N) . "'>[".xl('Previous')."]</a>\n";
 }
 ?>
   </td>
   <td align='right'>
 <?
 if ($result_count == $N) {
-  echo "   <a class='link' href='pnotes_full.php?active=" . $active . "&offset=" . ($offset+$N) . "'>[Next]</a>\n";
+  echo "   <a class='link' href='pnotes_full.php?active=" . $active . "&offset=" . ($offset+$N) . "'>[".xl('Next')."]</a>\n";
 }
 ?>
   </td>

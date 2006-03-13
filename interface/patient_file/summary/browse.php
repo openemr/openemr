@@ -14,17 +14,17 @@ $browsenum = (is_numeric($_REQUEST['browsenum'])) ? $_REQUEST['browsenum'] : 1;
 
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-<a href="javascript:window.close();"><font class=title>Browse for Record</font><font class=back><?echo $tback;?></font></a>
+<a href="javascript:window.close();"><font class=title><? xl('Browse for Record','e'); ?></font><font class=back><?echo $tback;?></font></a>
 
 <form border='0' method='post' name="find_patient" action="browse.php?browsenum=<?=$browsenum?>">
 
 <?//<a href="javascript:document.find_patient.action='finder/patient_finder_keyboard.php';document.find_patient.submit();" class=link>Find Patient:</a>?>
 <input type='entry' size='10' name='patient'>
 <select name="findBy" size='1'>
- <option value="ID">ID</option>
- <option value="Last" selected>Last Name</option>
- <option value="SSN">SSN</option>
- <option value="DOB">DOB</option>
+ <option value="ID"><? xl('ID','e'); ?></option>
+ <option value="Last" selected><? xl('Last Name','e'); ?></option>
+ <option value="SSN"><? xl('SSN','e'); ?></option>
+ <option value="DOB"><? xl('DOB','e'); ?></option>
 </select>
 <a href="javascript:document.find_patient.submit();" class=link>Find</a>&nbsp;&nbsp;
 <a href="javascript:auto_populate_employer_address();" class=link_submit>Copy Values</a>
@@ -80,87 +80,87 @@ function auto_populate_employer_address(){
 
 <form method=post name=insurance_form action=browse.php?browsenum=<?=$browsenum?>&set_pid=<?echo $_GET{set_pid};?>>
 <input type="hidden" name="browsenum" value="<?=$browsenum?>">
-<span class=bold> Insurance Provider:</span>
+<span class=bold> <? xl('Insurance Provider','e'); ?>:</span>
 <select name=insurance onchange="javascript:document.insurance_form.submit();">
-<option value="primary">Primary</option>
-<option value="secondary">Secondary</option>
-<option value="tertiary">Tertiary</option>
+<option value="primary"><? xl('Primary','e'); ?></option>
+<option value="secondary"><? xl('Secondary','e'); ?></option>
+<option value="tertiary"><? xl('Tertiary','e'); ?></option>
 </select>
 
 </form>
 <table>
 <tr>
-<td><span class=text>First Name:</span></td><td><span class=text><?echo $result3{subscriber_fname};?></span></td>
+<td><span class=text><? xl('First Name','e'); ?>:</span></td><td><span class=text><?echo $result3{subscriber_fname};?></span></td>
 </tr>
 <tr>
-<td><span class=text>Middle Name:</span></td><td><span class=text><?echo $result3{subscriber_mname};?></span></td>
+<td><span class=text><? xl('Middle Name','e'); ?>:</span></td><td><span class=text><?echo $result3{subscriber_mname};?></span></td>
 </tr>
 <tr>
-<td><span class=text>Last Name:</span></td><td><span class=text><?echo $result3{subscriber_lname};?></span></td>
+<td><span class=text><? xl('Last Name','e'); ?>:</span></td><td><span class=text><?echo $result3{subscriber_lname};?></span></td>
 </tr>
 <tr>
-<td><span class=text>Address:</span></td><td><span class=text><?echo $result3{subscriber_street};?></span></td>
+<td><span class=text><? xl('Address','e'); ?>:</span></td><td><span class=text><?echo $result3{subscriber_street};?></span></td>
 </tr>
 <tr>
-<td><span class=text>City:</span></td><td><span class=text><?echo $result3{subscriber_city};?></span></td>
+<td><span class=text><? xl('City','e'); ?>:</span></td><td><span class=text><?echo $result3{subscriber_city};?></span></td>
 </tr>
 <tr>
-<td><span class=text>State:</span></td><td><span class=text><?echo $result3{subscriber_state};?></span></td>
+<td><span class=text><? xl('State','e'); ?>:</span></td><td><span class=text><?echo $result3{subscriber_state};?></span></td>
 </tr>
 <tr>
-<td><span class=text>Zip Code:</span></td><td><span class=text><?echo $result3{subscriber_postal_code};?></span></td>
+<td><span class=text><? xl('Zip Code','e'); ?>:</span></td><td><span class=text><?echo $result3{subscriber_postal_code};?></span></td>
 </tr>
 <tr>
-<td><span class=text>Country:</span></td><td><span class=text><?echo $result3{subscriber_country};?></span></td>
+<td><span class=text><? xl('Country','e'); ?>:</span></td><td><span class=text><?echo $result3{subscriber_country};?></span></td>
 </tr>
 <tr>
-<td><span class=text>Phone:</span></td><td><span class=text><?echo $result3{subscriber_phone};?></span></td>
+<td><span class=text><? xl('Phone','e'); ?>:</span></td><td><span class=text><?echo $result3{subscriber_phone};?></span></td>
 </tr>
 <tr>
-<td><span class=text>DOB:</span></td><td><span class=text><?echo $result3{subscriber_DOB};?></span></td>
+<td><span class=text><? xl('DOB','e'); ?>:</span></td><td><span class=text><?echo $result3{subscriber_DOB};?></span></td>
 </tr>
 <tr>
-<td><span class=text>SS:</span></td><td><span class=text><?echo $result3{subscriber_ss};?></span></td>
+<td><span class=text><? xl('SS','e'); ?>:</span></td><td><span class=text><?echo $result3{subscriber_ss};?></span></td>
 </tr>
 <tr>
-<td><span class=text>Primary Insurance Provider:</span></td><td><span class=text><?echo $result3{provider_name};?></span></td>
+<td><span class=text><? xl('Primary Insurance Provider','e'); ?>:</span></td><td><span class=text><?echo $result3{provider_name};?></span></td>
 </tr>
 <tr>
-<td><span class=text>Plan Name:</span></td><td><span class=text><?echo $result3{plan_name};?></span></td>
+<td><span class=text><? xl('Plan Name','e'); ?>:</span></td><td><span class=text><?echo $result3{plan_name};?></span></td>
 </tr>
 <tr>
-<td><span class=text>Group Number:</span></td><td><span class=text><?echo $result3{group_number};?></span></td>
+<td><span class=text><? xl('Group Number','e'); ?>:</span></td><td><span class=text><?echo $result3{group_number};?></span></td>
 </tr>
 <tr>
 <tr>
-<td><span class=text>Policy Number:</span></td><td><span class=text><?echo $result3{policy_number};?></span></td>
+<td><span class=text><? xl('Policy Number','e'); ?>:</span></td><td><span class=text><?echo $result3{policy_number};?></span></td>
 </tr>
 
 <?php if (usingEmployer()) { ?>
 
 <tr>
-<td><span class=text>Subscriber Employer:</span></td><td><span class=text><?echo $result3{subscriber_employer};?></span></td>
+<td><span class=text><? xl('Subscriber Employer','e'); ?>:</span></td><td><span class=text><?echo $result3{subscriber_employer};?></span></td>
 </tr>
 <tr>
-<td><span class=text>Subscriber Employer Address:</span></td><td><span class=text><?echo $result3{subscriber_employer_street};?></span></td>
+<td><span class=text><? xl('Subscriber Employer Address','e'); ?>:</span></td><td><span class=text><?echo $result3{subscriber_employer_street};?></span></td>
 </tr>
 <tr>
-<td><span class=text>Subscriber Employer Zip Code:</span></td><td><span class=text><?echo $result3{subscriber_employer_postal_code};?></span></td>
+<td><span class=text><? xl('Subscriber Employer Zip Code','e'); ?>:</span></td><td><span class=text><?echo $result3{subscriber_employer_postal_code};?></span></td>
 </tr>
 <tr>
-<td><span class=text>Subscriber Employer City:</span></td><td><span class=text><?echo $result3{subscriber_employer_city};?></span></td>
+<td><span class=text><? xl('Subscriber Employer City','e'); ?>:</span></td><td><span class=text><?echo $result3{subscriber_employer_city};?></span></td>
 </tr>
 <tr>
-<td><span class=text>Subscriber Employer State:</span></td><td><span class=text><?echo $result3{subscriber_employer_state};?></span></td>
+<td><span class=text><? xl('Subscriber Employer State','e'); ?>:</span></td><td><span class=text><?echo $result3{subscriber_employer_state};?></span></td>
 </tr>
 <tr>
-<td><span class=text>Subscriber Employer Country:</span></td><td><span class=text><?echo $result3{subscriber_employer_country};?></span></td>
+<td><span class=text><? xl('Subscriber Employer Country','e'); ?>:</span></td><td><span class=text><?echo $result3{subscriber_employer_country};?></span></td>
 </tr>
 
 <?php } ?>
 
 <tr>
-<td><span class=text>Subscriber Sex:</span></td><td><span class=text><?echo $result3{subscriber_sex};?></span></td>
+<td><span class=text><? xl('Subscriber Sex','e'); ?>:</span></td><td><span class=text><?echo $result3{subscriber_sex};?></span></td>
 </tr>
 </table>
 
@@ -174,13 +174,13 @@ function auto_populate_employer_address(){
 <table border=0 cellpadding=5 cellspacing=0>
 <tr>
 <td>
-<span class=bold>Name</span>
+<span class=bold><? xl('Name','e'); ?></span>
 </td><td>
-<span class=bold>SS</span>
+<span class=bold><? xl('SS','e'); ?></span>
 </td><td>
-<span class=bold>DOB</span>
+<span class=bold><? xl('DOB','e'); ?></span>
 </td><td>
-<span class=bold>ID</span>
+<span class=bold><? xl('ID','e'); ?></span>
 </td></tr>
 <?
 

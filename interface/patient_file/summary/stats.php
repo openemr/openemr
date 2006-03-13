@@ -28,7 +28,7 @@
    $thisauth = 0;
  }
  if (!$thisauth) {
-  echo "<p>(Issues not authorized)</p>\n";
+  echo "<p>(".xl('Issues not authorized').")</p>\n";
   echo "</body>\n</html>\n";
   exit();
  }
@@ -57,7 +57,7 @@
 
 <tr>
 <td width="20%" valign="top">
-<a href="immunizations.php" target="Main"><font class="title">Immunizations</font><font class=more><?echo $tmore;?></font></a><br>
+<a href="immunizations.php" target="Main"><font class="title"><? xl('Immunizations','e'); ?></font><font class=more><?echo $tmore;?></font></a><br>
 <?$sql = "select if(i1.administered_date
                       ,concat(i1.administered_date,' - ',i2.name)
                       ,substring(i1.note,1,20)
@@ -83,7 +83,7 @@ $cwd= getcwd();
 chdir("../../../");
 require_once("library/classes/Controller.class.php");
 $c = new Controller();
-echo '<font class="title">Prescriptions</font>';
+echo '<font class="title">'.xl('Prescriptions').'</font>';
 echo $c->act(array("prescription" => "", "block" => "", "patient_id" => $pid));
 ?>
 </td>

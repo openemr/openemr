@@ -231,7 +231,7 @@ td { font-size:10pt; }
 <table border='0' width='100%'>
 
  <tr>
-  <td valign='top' width='1%' nowrap><b>Type:</b></td>
+  <td valign='top' width='1%' nowrap><b><? xl('Type','e'); ?>:</b></td>
   <td>
 <?php
  $index = 0;
@@ -246,7 +246,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b>Title:</b></td>
+  <td valign='top' nowrap><b><? xl('Title','e'); ?>:</b></td>
   <td>
    <select name='form_titles' size='4' onchange='set_text()' style='width:100%'>
    </select><br>
@@ -255,7 +255,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b>Begin Date:</b></td>
+  <td valign='top' nowrap><b><? xl('Begin Date','e'); ?>:</b></td>
   <td>
    <input type='text' size='10' name='form_begin' value='<? echo $irow['begdate'] ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
@@ -267,7 +267,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b>End Date:</b></td>
+  <td valign='top' nowrap><b><? xl('End Date','e'); ?>:</b></td>
   <td>
    <input type='text' size='10' name='form_end' value='<? echo $irow['enddate'] ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
@@ -275,15 +275,15 @@ td { font-size:10pt; }
    <a href="javascript:show_calendar('theform.form_end')"
     title="Click here to choose a date"
     ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
-    &nbsp;(leave blank if still active)
+    &nbsp;(<? xl('leave blank if still active','e'); ?>)
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b>Diagnosis:</b></td>
+  <td valign='top' nowrap><b><? xl('Diagnosis','e'); ?>:</b></td>
   <td>
    <select name='form_diagnosis' title='Diagnosis must be coded into a linked encounter'>
-    <option value="">Unknown or N/A</option>
+    <option value=""><? xl('Unknown or N/A','e'); ?></option>
 <?php
  while ($brow = sqlFetchArray($bres)) {
   echo "   <option value='" . $brow['code'] . "'";
@@ -296,7 +296,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b>Occurrence:</b></td>
+  <td valign='top' nowrap><b><? xl('Occurrence','e'); ?>:</b></td>
   <td>
    <select name='form_occur'>
 <?php
@@ -312,16 +312,16 @@ td { font-size:10pt; }
 
 <?php if ($GLOBALS['athletic_team']) { ?>
  <tr>
-  <td valign='top' nowrap><b>Missed:</b></td>
+  <td valign='top' nowrap><b><? xl('Missed','e'); ?>:</b></td>
   <td>
    <input type='text' size='3' name='form_missed' value='<? echo $irow['extrainfo'] ?>'
     title='Number of games or events missed, if any' />
-   &nbsp;games/events
+   &nbsp;<? xl('games/events','e'); ?>
   </td>
  </tr>
 <?php } else { ?>
  <tr>
-  <td valign='top' nowrap><b>Referred by:</b></td>
+  <td valign='top' nowrap><b><? xl('Referred by','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_referredby' value='<? echo $irow['referredby'] ?>'
     style='width:100%' title='Referring physician and practice' />
@@ -330,14 +330,14 @@ td { font-size:10pt; }
 <?php } ?>
 
  <tr>
-  <td valign='top' nowrap><b>Comments:</b></td>
+  <td valign='top' nowrap><b><? xl('Comments','e'); ?>:</b></td>
   <td>
    <textarea name='form_comments' rows='4' cols='40' wrap='virtual' style='width:100%'><? echo $irow['comments'] ?></textarea>
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b>Outcome:</b></td>
+  <td valign='top' nowrap><b><? xl('Outcome','e'); ?>:</b></td>
   <td>
    <? echo rbinput('form_outcome', '1', 'Resolved'        , 'outcome') ?>&nbsp;
    <? echo rbinput('form_outcome', '2', 'Improved'        , 'outcome') ?>&nbsp;
@@ -348,7 +348,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b>Destination:</b></td>
+  <td valign='top' nowrap><b><? xl('Destination','e'); ?>:</b></td>
   <td>
 <?php if (true) { ?>
    <input type='text' size='40' name='form_destination' value='<? echo $irow['destination'] ?>'
