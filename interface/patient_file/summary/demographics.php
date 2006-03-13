@@ -45,18 +45,18 @@
  }
 
  if (!$thisauth) {
-  echo "<p>(Demographics not authorized)</p>\n";
+  echo "<p>(".xl('Demographics not authorized').")</p>\n";
   echo "</body>\n</html>\n";
   exit();
  }
 
  if ($thisauth == 'write') {
   echo "<p><a href='demographics_full.php' target='Main'>" .
-   "<font class='title'>Demographics</font>" .
+   "<font class='title'>".xl('Demographics')."</font>" .
    "<font class='more'>$tmore</font></a>";
   if (acl_check('admin', 'super')) {
    echo "&nbsp;&nbsp;<a href='' onclick='return deleteme()'>" .
-    "<font class='more' style='color:red'>(Delete)</font></a>";
+    "<font class='more' style='color:red'>(".xl('Delete').")</font></a>";
   }
   echo "</p>\n";
  }
@@ -68,14 +68,14 @@
    <table border='0' cellpadding='0' width='100%'>
     <tr>
      <td valign='top'>
-      <span class='bold'>Name: </span><span class='text'><?echo $result{"title"}?> <?echo $result{"fname"}?> <?echo $result{"mname"}?> <?echo $result{"lname"}?></span><br>
-      <span class='bold'>Number: </span><span class='text'><?echo $result{"pubpid"}?></span>
+      <span class='bold'><? xl('Name','e'); ?>: </span><span class='text'><?echo $result{"title"}?> <?echo $result{"fname"}?> <?echo $result{"mname"}?> <?echo $result{"lname"}?></span><br>
+      <span class='bold'><? xl('Number','e'); ?>: </span><span class='text'><?echo $result{"pubpid"}?></span>
      </td>
      <td valign='top'>
 <?
  if ($result{"DOB"} && $result{"DOB"} != "0000-00-00") {
 ?>
-      <span class='bold'>DOB: </span>
+      <span class='bold'><? xl('DOB','e'); ?>: </span>
       <span class='text'>
 <?
   echo $result{"DOB"};
@@ -83,13 +83,13 @@
 ?>
       </span>
      </td>
-     <td valign='top'><? if ($result{"sex"} != ""){?><span class='bold'>Sex: </span><?}?><span class='text'><?echo $result{"sex"}?></span></td>
-     <td valign='top'><? if ($result{"ss"} != "") {?><span class='bold'>S.S.: </span><?}?><span class='text'><?echo $result{"ss"}?></span></td>
+     <td valign='top'><? if ($result{"sex"} != ""){?><span class='bold'><? xl('Sex','e'); ?>: </span><?}?><span class='text'><?echo $result{"sex"}?></span></td>
+     <td valign='top'><? if ($result{"ss"} != "") {?><span class='bold'><? xl('S.S.','e'); ?>: </span><?}?><span class='text'><?echo $result{"ss"}?></span></td>
     </tr>
     <tr>
      <td valign='top'>
 <? if (($result{"street"} != "") || ($result{"city"} != "") || ($result{"state"} != "") || ($result{"country_code"} != "") || ($result{"postal_code"} != "")) {?>
-      <span class='bold'>Address: </span>
+      <span class='bold'><? xl('Address','e'); ?>: </span>
 <?}?>
       <br><span class='text'><?echo $result{"street"}?><br><?echo $result{"city"}?><?if($result{"city"} != ""){echo ", ";}?><?echo $result{"state"};?>
 <? if($result{"country_code"} != ""){ echo ", "; }?><?echo $result{"country_code"}?>
@@ -106,7 +106,7 @@ echo $result{"postal_code"}?>
 		($result{"email"} != "")  ||
 		($result{"phone_cell"} != "")    ){
 ?>
-      <span class='bold'>Emergency Contact: </span><?}?><span class='text'><?echo $result{"contact_relationship"}?><?echo " "?>
+      <span class='bold'><? xl('Emergency Contact','e'); ?>: </span><?}?><span class='text'><?echo $result{"contact_relationship"}?><?echo " "?>
 <?
 	if ($result{"phone_contact"} != "") {
 		echo " " . $result{"phone_contact"};
@@ -124,7 +124,7 @@ echo $result{"postal_code"}?>
 		echo $result{"phone_cell"};
 	}
 	if ($result{"email"} != "") {
-		echo "<br>Email: </span>";
+		echo "<br>".xl('Email').": </span>";
 		echo '<a class=link_submit href="mailto:' . $result{"email"} . '">' . $result{"email"} . '</a>';
 	}
 ?>
@@ -132,7 +132,7 @@ echo $result{"postal_code"}?>
      <td valign='top'>
 <?
 	if ($result{"status"} != "") {
-		echo "<span class='bold'>Marital Status: </span>";
+		echo "<span class='bold'>".xl('Marital Status').": </span>";
 		echo "<span class='text'>" .  $result{"status"} . "</span>";
 	}
 ?>
@@ -167,12 +167,12 @@ echo $result{"postal_code"}?>
 
     <tr>
      <td valign='top'>
-<? if ($result{"occupation"} != "") {?><span class='bold'>Occupation: </span><span class='text'><?echo $result{"occupation"}?></span><br><?}?>
-<? if ($result2{"name"} != "") {?><span class='bold'>Employer: </span><span class='text'><?echo $result2{"name"}?></span><?}?>
+<? if ($result{"occupation"} != "") {?><span class='bold'><? xl('Occupation','e'); ?>: </span><span class='text'><?echo $result{"occupation"}?></span><br><?}?>
+<? if ($result2{"name"} != "") {?><span class='bold'><? xl('Employer','e'); ?>: </span><span class='text'><?echo $result2{"name"}?></span><?}?>
      </td>
      <td valign='top'>
 <? if (($result2{"street"} != "") || ($result2{"city"} != "") || ($result2{"state"} != "") || ($result2{"country"} != "") || ($result2{"postal_code"} != "")) {?>
-      <span class='bold'>Employer Address:</span>
+      <span class='bold'><? xl('Employer Address','e'); ?>:</span>
 <? } ?>
       <br>
       <span class='text'>
@@ -199,13 +199,13 @@ echo $result{"postal_code"}?>
   $fitcolor = $fitcolors[$fitness - 1];
 ?>
       <form method='post' action='demographics.php'>
-      <span class='bold'>Fitness to Play:</span><br>
+      <span class='bold'><? xl('Fitness to Play','e'); ?>:</span><br>
       <select name='form_fitness' onchange='document.forms[0].submit()' style='background-color:<? echo $fitcolor ?>'>
-       <option value='1'<? if ($fitness == 1) echo ' selected' ?>>Full Play</option>
-       <option value='2'<? if ($fitness == 2) echo ' selected' ?>>Full Training</option>
-       <option value='3'<? if ($fitness == 3) echo ' selected' ?>>Restricted Training</option>
-       <option value='4'<? if ($fitness == 4) echo ' selected' ?>>Injured Out</option>
-       <option value='5'<? if ($fitness == 5) echo ' selected' ?>>Rehabilitation</option>
+       <option value='1'<? if ($fitness == 1) echo ' selected' ?>><? xl('Full Play','e'); ?></option>
+       <option value='2'<? if ($fitness == 2) echo ' selected' ?>><? xl('Full Training','e'); ?></option>
+       <option value='3'<? if ($fitness == 3) echo ' selected' ?>><? xl('Restricted Training','e'); ?></option>
+       <option value='4'<? if ($fitness == 4) echo ' selected' ?>><? xl('Injured Out','e'); ?></option>
+       <option value='5'<? if ($fitness == 5) echo ' selected' ?>><? xl('Rehabilitation','e'); ?></option>
       </select>
       </form>
 <? } ?>
@@ -215,10 +215,10 @@ echo $result{"postal_code"}?>
     <tr>
      <td valign='top'>
 <? if (! $GLOBALS['athletic_team']) { ?>
-<? if ($result{"ethnoracial"} != "")  { ?><span class='bold'>Race/Ethnicity: </span><span class='text'><?echo $result{"ethnoracial"};?></span><br><? } ?>
-<? if ($result{"language"} != "")     { ?><span class='bold'>Language: </span><span class='text'><?echo ucfirst($result{"language"});?></span><br><? } ?>
-<? if ($result{"interpretter"} != "") { ?><span class='bold'>Interpreter: </span><span class='text'><?echo $result{"interpretter"};?></span><br><? } ?>
-<? if ($result{"family_size"} != "")  { ?><span class='bold'>Family Size: </span><span class='text'><?echo $result{"family_size"};?></span><br><? } ?>
+<? if ($result{"ethnoracial"} != "")  { ?><span class='bold'><? xl('Race/Ethnicity','e'); ?>: </span><span class='text'><?echo $result{"ethnoracial"};?></span><br><? } ?>
+<? if ($result{"language"} != "")     { ?><span class='bold'><? xl('Language','e'); ?>: </span><span class='text'><?echo ucfirst($result{"language"});?></span><br><? } ?>
+<? if ($result{"interpretter"} != "") { ?><span class='bold'><? xl('Interpreter','e'); ?>: </span><span class='text'><?echo $result{"interpretter"};?></span><br><? } ?>
+<? if ($result{"family_size"} != "")  { ?><span class='bold'><? xl('Family Size','e'); ?>: </span><span class='text'><?echo $result{"family_size"};?></span><br><? } ?>
 <? } ?>
      </td>
      <td valign='top'>
@@ -238,10 +238,10 @@ if ($moneymatches[2] != "") {
 }
 ?>
 <? if (! $GLOBALS['athletic_team']) { ?>
-<? if ($result{"financial_review"} != "0000-00-00 00:00:00") {?><span class='bold'>Financial Review Date: </span><span class='text'><?echo date("n/j/Y",strtotime($result{"financial_review"}));?></span><br><?}?>
-<? if ($result{"monthly_income"} != "") {?><span class='bold'>Monthly Income: </span><span class='text'><?echo print_as_money($result{"monthly_income"});?></span><br><?}?>
-<? if ($result{"migrantseasonal"} != "") {?><span class='bold'>Migrant/Seasonal: </span><span class='text'><?echo $result{"migrantseasonal"};?></span><br><?}?>
-<? if ($result{"homeless"} != "") {?><span class='bold'>Homeless, etc.: </span><span class='text'><?echo $result{"homeless"};?></span><br><?}?>
+<? if ($result{"financial_review"} != "0000-00-00 00:00:00") {?><span class='bold'><? xl('Financial Review Date','e'); ?>: </span><span class='text'><?echo date("n/j/Y",strtotime($result{"financial_review"}));?></span><br><?}?>
+<? if ($result{"monthly_income"} != "") {?><span class='bold'><? xl('Monthly Income','e'); ?>: </span><span class='text'><?echo print_as_money($result{"monthly_income"});?></span><br><?}?>
+<? if ($result{"migrantseasonal"} != "") {?><span class='bold'><? xl('Migrant/Seasonal','e'); ?>: </span><span class='text'><?echo $result{"migrantseasonal"};?></span><br><?}?>
+<? if ($result{"homeless"} != "") {?><span class='bold'><? xl('Homeless, etc','e'); ?>.: </span><span class='text'><?echo $result{"homeless"};?></span><br><?}?>
 <? } ?>
      </td>
      <td valign='top'>
@@ -265,7 +265,7 @@ if ($result{"referrer"} != "" || $result{"referrerID"} != "")
 ?>
     <tr>
      <td valign='top'>
-      <span class='bold'>Primary Provider: </span><span class='text'><?=getProviderName($result['providerID'])?></span><br>
+      <span class='bold'><? xl('Primary Provider','e'); ?>: </span><span class='text'><?=getProviderName($result['providerID'])?></span><br>
       <!--<span class='bold'>Primary Provider ID: </span><span class='text'><?=$result{"referrerID"}?></span>-->
      </td>
      <td valign='top'></td>
@@ -281,26 +281,26 @@ if ($result3{"provider"}) {
 ?>
     <tr>
      <td valign='top'>
-      <span class='bold'>Primary Insurance Provider:</span><br><span class='text'><?echo $result3{"provider_name"}?></span><br>
-      <span class='text'>Policy Number: <?echo $result3{"policy_number"}?><br>
+      <span class='bold'><? xl('Primary Insurance Provider','e'); ?>:</span><br><span class='text'><?echo $result3{"provider_name"}?></span><br>
+      <span class='text'><? xl('Policy Number','e'); ?>: <?echo $result3{"policy_number"}?><br>
       Plan Name: <?=$result3{"plan_name"}?><br>
       Group Number: <?echo $result3{"group_number"}?></span>
      </td>
      <td valign='top'>
-      <span class='bold'>Subscriber: </span><br><span class='text'><?=$result3{"subscriber_fname"}?> <?=$result3{"subscriber_mname"}?> <?=$result3{"subscriber_lname"}?> <?if ($result3{"subscriber_relationship"} != "") {echo "(".$result3{"subscriber_relationship"}.")";}?><br>
-      S.S.: <?echo $result3{"subscriber_ss"}?> D.O.B.: <?if ($result3{"subscriber_DOB"} != "0000-00-00 00:00:00") {echo $result3{"subscriber_DOB"};}?><br>
+      <span class='bold'><? xl('Subscriber','e'); ?>: </span><br><span class='text'><?=$result3{"subscriber_fname"}?> <?=$result3{"subscriber_mname"}?> <?=$result3{"subscriber_lname"}?> <?if ($result3{"subscriber_relationship"} != "") {echo "(".$result3{"subscriber_relationship"}.")";}?><br>
+      S.S.: <?echo $result3{"subscriber_ss"}?> <? xl('D.O.B.','e'); ?>: <?if ($result3{"subscriber_DOB"} != "0000-00-00 00:00:00") {echo $result3{"subscriber_DOB"};}?><br>
       Phone: <? echo $result3{"subscriber_phone"}?>
       </span>
      </td>
      <td valign='top'>
-      <span class='bold'>Subscriber Address: </span><br><span class='text'><?echo $result3{"subscriber_street"}?><br><?echo $result3{"subscriber_city"}?><?if($result3{"subscriber_state"} != ""){echo ", ";}?><?echo $result3{"subscriber_state"}?><?if($result3{"subscriber_country"} != ""){echo ", ";}?><?echo $result3{"subscriber_country"}?> <?echo " ".$result3{"subscriber_postal_code"}?></span>
+      <span class='bold'><? xl('Subscriber Address','e'); ?>: </span><br><span class='text'><?echo $result3{"subscriber_street"}?><br><?echo $result3{"subscriber_city"}?><?if($result3{"subscriber_state"} != ""){echo ", ";}?><?echo $result3{"subscriber_state"}?><?if($result3{"subscriber_country"} != ""){echo ", ";}?><?echo $result3{"subscriber_country"}?> <?echo " ".$result3{"subscriber_postal_code"}?></span>
      </td>
      <td valign='top'>
-      <span class='bold'>Subscriber Employer: </span><br><span class='text'><?echo $result3{"subscriber_employer"}?><br><?echo $result3{"subscriber_employer_street"}?><br><?echo $result3{"subscriber_employer_city"}?><?if($result3{"subscriber_employer_city"} != ""){echo ", ";}?><?echo $result3{"subscriber_employer_state"}?><?if($result3{"subscriber_employer_country"} != ""){echo ", ";}?><?echo $result3{"subscriber_employer_country"}?> <?echo " ".$result3{"subscriber_employer_postal_code"}?></span>
+      <span class='bold'><? xl('Subscriber Employer','e'); ?>: </span><br><span class='text'><?echo $result3{"subscriber_employer"}?><br><?echo $result3{"subscriber_employer_street"}?><br><?echo $result3{"subscriber_employer_city"}?><?if($result3{"subscriber_employer_city"} != ""){echo ", ";}?><?echo $result3{"subscriber_employer_state"}?><?if($result3{"subscriber_employer_country"} != ""){echo ", ";}?><?echo $result3{"subscriber_employer_country"}?> <?echo " ".$result3{"subscriber_employer_postal_code"}?></span>
      </td>
     </tr>
     <tr>
-     <td><? if ($result3{"copay"} != "") {?><span class='bold'>CoPay: </span><span class='text'><?=$result3{"copay"}?></span><?}?></td>
+     <td><? if ($result3{"copay"} != "") {?><span class='bold'><? xl('CoPay','e'); ?>: </span><span class='text'><?=$result3{"copay"}?></span><?}?></td>
      <td valign='top'></td>
      <td valign='top'></td>
      <td valign='top'></td>
@@ -312,27 +312,27 @@ if ($result4{"provider"} != "") {
 ?>
     <tr>
      <td valign='top'>
-      <span class='bold'>Secondary Insurance Provider:</span><br><span class='text'><?echo $result4{"provider_name"}?></span><br>
-      <span class='text'>Policy Number: <?echo $result4{"policy_number"}?><br>
+      <span class='bold'><? xl('Secondary Insurance Provider','e'); ?>:</span><br><span class='text'><?echo $result4{"provider_name"}?></span><br>
+      <span class='text'><? xl('Policy Number','e'); ?>: <?echo $result4{"policy_number"}?><br>
       Plan Name: <?=$result4{"plan_name"}?><br>
       Group Number: <?echo $result4{"group_number"}?></span>
      </td>
      <td valign='top'>
-      <span class='bold'>Subscriber: </span><br><span class='text'><?=$result4{"subscriber_fname"}?> <?=$result4{"subscriber_mname"}?> <?=$result4{"subscriber_lname"}?> <?if ($result4{"subscriber_relationship"} != "") {echo "(".$result4{"subscriber_relationship"}.")";}?><br>
-      S.S.: <?echo $result4{"subscriber_ss"}?> D.O.B.: <?if ($result4{"subscriber_DOB"} != "0000-00-00 00:00:00") {echo $result4{"subscriber_DOB"};}?><br>
+      <span class='bold'><? xl('Subscriber','e'); ?>: </span><br><span class='text'><?=$result4{"subscriber_fname"}?> <?=$result4{"subscriber_mname"}?> <?=$result4{"subscriber_lname"}?> <?if ($result4{"subscriber_relationship"} != "") {echo "(".$result4{"subscriber_relationship"}.")";}?><br>
+      S.S.: <?echo $result4{"subscriber_ss"}?> <? xl('D.O.B.','e'); ?>: <?if ($result4{"subscriber_DOB"} != "0000-00-00 00:00:00") {echo $result4{"subscriber_DOB"};}?><br>
       Phone: <? echo $result4{"subscriber_phone"}?>
       </span>
      </td>
      <td valign='top'>
-      <span class='bold'>Subscriber Address: </span><br><span class='text'><?echo $result4{"subscriber_street"}?><br><?echo $result4{"subscriber_city"}?><?if($result4{"subscriber_state"} != ""){echo ", ";}?><?echo $result4{"subscriber_state"}?><?if($result4{"subscriber_country"} != ""){echo ", ";}?><?echo $result4{"subscriber_country"}?> <?echo " ".$result4{"subscriber_postal_code"}?></span>
+      <span class='bold'><? xl('Subscriber Address','e'); ?>: </span><br><span class='text'><?echo $result4{"subscriber_street"}?><br><?echo $result4{"subscriber_city"}?><?if($result4{"subscriber_state"} != ""){echo ", ";}?><?echo $result4{"subscriber_state"}?><?if($result4{"subscriber_country"} != ""){echo ", ";}?><?echo $result4{"subscriber_country"}?> <?echo " ".$result4{"subscriber_postal_code"}?></span>
      </td>
      <td valign='top'>
-      <span class='bold'>Subscriber Employer: </span><br><span class='text'><?echo $result4{"subscriber_employer"}?><br><?echo $result4{"subscriber_employer_street"}?><br><?echo $result4{"subscriber_employer_city"}?><?if($result4{"subscriber_employer_city"} != ""){echo ", ";}?><?echo $result4{"subscriber_employer_state"}?><?if($result4{"subscriber_employer_country"} != ""){echo ", ";}?><?echo $result4{"subscriber_employer_country"}?> <?echo " ".$result4{"subscriber_employer_postal_code"}?></span>
+      <span class='bold'><? xl('Subscriber Employer','e'); ?>: </span><br><span class='text'><?echo $result4{"subscriber_employer"}?><br><?echo $result4{"subscriber_employer_street"}?><br><?echo $result4{"subscriber_employer_city"}?><?if($result4{"subscriber_employer_city"} != ""){echo ", ";}?><?echo $result4{"subscriber_employer_state"}?><?if($result4{"subscriber_employer_country"} != ""){echo ", ";}?><?echo $result4{"subscriber_employer_country"}?> <?echo " ".$result4{"subscriber_employer_postal_code"}?></span>
      </td>
     </tr>
     <tr>
      <td>
-      <? if ($result4{"copay"} != "") {?><span class='bold'>CoPay: </span><span class='text'><?=$result4{"copay"}?></span><?}?>
+      <? if ($result4{"copay"} != "") {?><span class='bold'><? xl('CoPay','e'); ?>: </span><span class='text'><?=$result4{"copay"}?></span><?}?>
      </td>
      <td valign='top'></td>
      <td valign='top'></td>
@@ -345,27 +345,27 @@ if ($result5{"provider"}) {
 ?>
     <tr>
      <td valign='top'>
-      <span class='bold'>Tertiary Insurance Provider:</span><br><span class='text'><?echo $result5{"provider_name"}?></span><br>
-      <span class='text'>Policy Number: <?echo $result5{"policy_number"}?><br>
+      <span class='bold'><? xl('Tertiary Insurance Provider','e'); ?>:</span><br><span class='text'><?echo $result5{"provider_name"}?></span><br>
+      <span class='text'><? xl('Policy Number','e'); ?>: <?echo $result5{"policy_number"}?><br>
       Plan Name: <?=$result5{"plan_name"}?><br>
       Group Number: <?echo $result5{"group_number"}?></span>
      </td>
      <td valign='top'>
-      <span class='bold'>Subscriber: </span><br><span class='text'><?=$result5{"subscriber_fname"}?> <?=$result5{"subscriber_mname"}?> <?=$result5{"subscriber_lname"}?> <?if ($result5{"subscriber_relationship"} != "") {echo "(".$result5{"subscriber_relationship"}.")";}?><br>
-      S.S.: <?echo $result5{"subscriber_ss"}?> D.O.B.: <?if ($result5{"subscriber_DOB"} != "0000-00-00 00:00:00") {echo $result5{"subscriber_DOB"};}?><br>
+      <span class='bold'><? xl('Subscriber','e'); ?>: </span><br><span class='text'><?=$result5{"subscriber_fname"}?> <?=$result5{"subscriber_mname"}?> <?=$result5{"subscriber_lname"}?> <?if ($result5{"subscriber_relationship"} != "") {echo "(".$result5{"subscriber_relationship"}.")";}?><br>
+      S.S.: <?echo $result5{"subscriber_ss"}?> <? xl('D.O.B.','e'); ?>: <?if ($result5{"subscriber_DOB"} != "0000-00-00 00:00:00") {echo $result5{"subscriber_DOB"};}?><br>
       Phone: <? echo $result5{"subscriber_phone"}?>
       </span>
      </td>
      <td valign='top'>
-      <span class='bold'>Subscriber Address: </span><br><span class='text'><?echo $result5{"subscriber_street"}?><br><?echo $result5{"subscriber_city"}?><?if($result5{"subscriber_state"} != ""){echo ", ";}?><?echo $result5{"subscriber_state"}?><?if($result5{"subscriber_country"} != ""){echo ", ";}?><?echo $result5{"subscriber_country"}?> <?echo " ".$result5{"subscriber_postal_code"}?></span>
+      <span class='bold'><? xl('Subscriber Address','e'); ?>: </span><br><span class='text'><?echo $result5{"subscriber_street"}?><br><?echo $result5{"subscriber_city"}?><?if($result5{"subscriber_state"} != ""){echo ", ";}?><?echo $result5{"subscriber_state"}?><?if($result5{"subscriber_country"} != ""){echo ", ";}?><?echo $result5{"subscriber_country"}?> <?echo " ".$result5{"subscriber_postal_code"}?></span>
      </td>
      <td valign='top'>
-      <span class='bold'>Subscriber Employer: </span><br><span class='text'><?echo $result5{"subscriber_employer"}?><br><?echo $result5{"subscriber_employer_street"}?><br><?echo $result5{"subscriber_employer_city"}?><?if($result5{"subscriber_employer_city"} != ""){echo ", ";}?><?echo $result5{"subscriber_employer_state"}?><?if($result5{"subscriber_employer_country"} != ""){echo ", ";}?><?echo $result5{"subscriber_employer_country"}?> <?echo " ".$result5{"subscriber_employer_postal_code"}?></span>
+      <span class='bold'><? xl('Subscriber Employer','e'); ?>: </span><br><span class='text'><?echo $result5{"subscriber_employer"}?><br><?echo $result5{"subscriber_employer_street"}?><br><?echo $result5{"subscriber_employer_city"}?><?if($result5{"subscriber_employer_city"} != ""){echo ", ";}?><?echo $result5{"subscriber_employer_state"}?><?if($result5{"subscriber_employer_country"} != ""){echo ", ";}?><?echo $result5{"subscriber_employer_country"}?> <?echo " ".$result5{"subscriber_employer_postal_code"}?></span>
      </td>
     </tr>
     <tr>
      <td>
-      <? if ($result5{"copay"} != "") {?><span class='bold'>CoPay: </span><span class='text'><?=$result5{"copay"}?></span><?}?>
+      <? if ($result5{"copay"} != "") {?><span class='bold'><? xl('CoPay','e'); ?>: </span><span class='text'><?=$result5{"copay"}?></span><?}?>
      </td>
      <td valign='top'></td>
      <td valign='top'></td>

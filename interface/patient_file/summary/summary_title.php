@@ -41,10 +41,10 @@ include_once("$srcdir/calendar.inc");
    <span style="font-size:8pt;">(<?php echo $info ?>)</span>
   </td>
   <td width="35%" align="center" valign="middle" nowrap>
-   <span class="title">Logged in as: <?echo $provider_results{"fname"}.' '.$provider_results{"lname"};?></span>
+   <span class="title"><? xl('Logged in as','e'); ?>: <?echo $provider_results{"fname"}.' '.$provider_results{"lname"};?></span>
   </td>
   <td width="20%" align="right" valign="middle" nowrap>
-   <a href='' class='title_bar_top' onclick='return newEvt()'>New Appointment</a>
+   <a href='' class='title_bar_top' onclick='return newEvt()'><? xl('New Appointment','e'); ?></a>
   </td>
  </tr>
 </table>
