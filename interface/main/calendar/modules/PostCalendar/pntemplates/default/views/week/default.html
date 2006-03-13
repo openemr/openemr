@@ -29,8 +29,13 @@ a       { text-decoration:none; }
 </style>
 
 <script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="../../../library/overlib_mini.js"></script>
+<script type="text/javascript" src="../../../library/calendar.js"></script>
+<script type="text/javascript" src="../../../library/textformat.js"></script>
 
 <script language='JavaScript'>
+
+ var mypcc = '[-php-] echo $GLOBALS['phone_country_code'] [-/php-]';
 
  // This is called from the event editor popup.
  function refreshme() {
@@ -54,6 +59,9 @@ a       { text-decoration:none; }
  }
 
 </script>
+
+<!-- Required for the popup date selectors -->
+<div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
 [-php-]
 
@@ -106,32 +114,17 @@ a       { text-decoration:none; }
 
  // Build the date and view type selectors and the Go button.
  echo "  <td align='center' valign='top' width='34%' nowrap>\n";
- echo "   <select name='jumpmonth'>\n";
- foreach (array('01' => 'Jan', '02' => 'Feb', '03' => 'Mar', '04' => 'Apr',
-                '05' => 'May', '06' => 'Jun', '07' => 'Jul', '08' => 'Aug',
-                '09' => 'Sep', '10' => 'Oct', '11' => 'Nov', '12' => 'Dec')
-          as $key => $value) {
-  echo "    <option value='$key'";
-  if ($key == $m) echo " selected";
-  echo ">$value</option>\n";
- }
- echo "   </select>";
- echo "<select name='jumpday'>\n";
- for ($i = 1; $i <= 31; ++$i) {
-  echo "    <option value='$i'";
-  if ($i == $d) echo " selected";
-  echo ">$i</option>\n";
- }
- echo "   </select>";
- echo "<select name='jumpyear'>\n";
- for ($i = 2005; $i <= 2015; ++$i) {
-  echo "    <option value='$i'";
-  if ($i == $y) echo " selected";
-  echo ">$i</option>\n";
- }
- echo "   </select>\n";
- echo "   <select name='viewtype'>\n";
- foreach (array('day' => 'Day', 'week' => 'Week', 'month' => 'Month', 'year' => 'Year')
+
+ echo "    <input type='text' size='10' name='jumpdate'\n" .
+  "     value='$y-$m-$d'\n" .
+  "     title='yyyy-mm-dd date to go to'\n" .
+  "     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />\n" .
+  "     <a href=\"javascript:show_calendar('theform.jumpdate')\"\n" .
+  "     title='Click here to choose a date'\n" .
+  "     ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>\n";
+
+ echo "   &nbsp;<select name='viewtype'>\n";
+ foreach (array('day' => 'Day View', 'week' => 'Week View', 'month' => 'Month View', 'year' => 'Year View')
           as $key => $value) {
   echo "    <option value='$key'";
   if ($key == $viewtype) echo " selected";

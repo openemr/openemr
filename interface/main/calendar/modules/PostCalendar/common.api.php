@@ -192,26 +192,38 @@ function postcalendar_removeScriptTags($in)
 {
 	return preg_replace("/<script.*?>(.*?)<\/script>/","",$in);
 }
+
 function &postcalendar_getDate($format='%Y%m%d')
 {
-    list($Date,$jumpday,$jumpmonth,$jumpyear) = pnVarCleanFromInput('Date','jumpday','jumpmonth','jumpyear');
+	list($Date, $jumpday, $jumpmonth, $jumpyear, $jumpdate) =
+		pnVarCleanFromInput('Date', 'jumpday', 'jumpmonth', 'jumpyear', 'jumpdate');
 	if(!isset($Date)) {
-        // if we still don't have a date then calculate it
-        $time = time();
-        if (pnUserLoggedIn()) {
-            $time += (pnUserGetVar('timezone_offset') - pnConfigGetVar('timezone_offset')) * 3600;
-        }
-		// check the jump menu
-        if(!isset($jumpday))   $jumpday = strftime('%d',$time);
-        if(!isset($jumpmonth)) $jumpmonth = strftime('%m',$time);
-        if(!isset($jumpyear))  $jumpyear = strftime('%Y',$time);
+		// if we still don't have a date then calculate it
+		// check the jump menu, might be a 'jumpdate' input field or m/d/y select lists
+		if ($jumpdate) {
+			$jumpyear  = substr($jumpdate,0,4);
+			$jumpmonth = substr($jumpdate,5,2);
+			$jumpday   = substr($jumpdate,8,2);
+		} else {
+			if ($_SESSION['lastcaldate']) {
+				$time = strtotime($_SESSION['lastcaldate']);
+			} else {
+				$time = time();
+				if (pnUserLoggedIn())
+					$time += (pnUserGetVar('timezone_offset') - pnConfigGetVar('timezone_offset')) * 3600;
+			}
+			if(!isset($jumpday))   $jumpday   = strftime('%d',$time);
+			if(!isset($jumpmonth)) $jumpmonth = strftime('%m',$time);
+			if(!isset($jumpyear))  $jumpyear  = strftime('%Y',$time);
+		}
 		// create the correct date string
-        $Date = (int) "$jumpyear$jumpmonth$jumpday";
-    }
+		$Date = (int) "$jumpyear$jumpmonth$jumpday";
+	}
 	$y = substr($Date,0,4);
 	$m = substr($Date,4,2);
 	$d = substr($Date,6,2);
-    return strftime($format,mktime(0,0,0,$m,$d,$y));
+	$_SESSION['lastcaldate'] = "$y-$m-$d"; // remember the last chosen date
+	return strftime($format,mktime(0,0,0,$m,$d,$y));
 }
 
 function &postcalendar_today($format='%Y%m%d')
