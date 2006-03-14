@@ -546,7 +546,7 @@ sub make_form
 			$return .= "<table>";
 		}
 	}		
-	$return .= "<table>";
+	$return .= "</table>";
 	$return .= submit(-name=>'submit form') . $do_not_save;
 	return $return;
 }
