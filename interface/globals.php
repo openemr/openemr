@@ -141,7 +141,8 @@ $GLOBALS['athletic_team'] = false;
 $GLOBALS['phone_country_code'] = '1'; // 1 = USA
 
 // This determines how appointments display on the calendar:
-// 1 = lastname 2 = last,first 3 = last,first(title)
+// 1 = lastname; 2 = last,first; 3 = last,first(title);
+// 4 = last,first(title: description)
 $GLOBALS['calendar_appt_style'] = 2;
 
 // These are needed only if you are using SQL-Ledger and you want to see
