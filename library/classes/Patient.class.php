@@ -32,6 +32,7 @@ class Patient extends ORDataObject{
 		$this->lname = "";
 		$this->mname = "";
 		$this->fname = "";
+		$this->dob 	 = "";
 		$this->provider = new Provider();
 		$this->populate();
 
@@ -63,6 +64,9 @@ class Patient extends ORDataObject{
 	}
 	function get_provider() {
 		return $this->provider;
+	}
+	function get_dob () {
+		return $this->date_of_birth;
 	}
 
 } // end of Patient
