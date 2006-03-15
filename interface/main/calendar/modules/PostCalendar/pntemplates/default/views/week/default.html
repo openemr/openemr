@@ -322,7 +322,9 @@ a       { text-decoration:none; }
      $patient_age = $event['patient_age'];
      $catid = $event['catid'];
      $catname = $event['catname'];
-     $title = "Age $patient_age ($patient_dob) " . addslashes($event['hometext']);
+     $title = "Age $patient_age ($patient_dob)";
+     if ($event['hometext'] && $GLOBALS['calendar_appt_style'] < 4)
+      $title .= " " . addslashes($event['hometext']);
      if ($catid == 2 || $catid == 3 || $catid == 4 || $catid == 8 || $catid == 11) {
       if      ($catid ==  2) $catname = "IN";
       else if ($catid ==  3) $catname = "OUT";
@@ -343,8 +345,12 @@ a       { text-decoration:none; }
       $content .= $lname;
       if ($GLOBALS['calendar_appt_style'] != 1) {
        $content .= "," . $fname;
-       if ($event['title'] && $GLOBALS['calendar_appt_style'] == 3)
-        $content .= "(" . $event['title'] . ")";
+       if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
+        $content .= "(" . $event['title'];
+        if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4)
+         $content .= ": <font color='green'>" . htmlspecialchars(trim($event['hometext'])) . "</font>";
+        $content .= ")";
+       }
       }
       if ($catid == 1) $content .= "</strike>";
       $content .= "</a>";
