@@ -1,3 +1,15 @@
+<script type="text/javascript" src="library/dialog.js"></script>
+<script language="JavaScript">
+ // Process click on Delete link.
+ function deleteme(docid) {literal}{{/literal}
+  dlgopen('interface/patient_file/deleter.php?document=' + docid, '_blank', 500, 450);
+  return false;
+ {literal}}{/literal}
+ // Called by the deleter.php window on a successful delete.
+ function imdeleted() {literal}{{/literal}
+  window.location.href='{$REFRESH_ACTION}';
+ {literal}}{/literal}
+</script>
 <table valign="top">
 <tr>
 	<td valign="top">
@@ -35,7 +47,12 @@ Date: {$note->get_date()}
 	</tr>
 	</table>
 
-<a href="{$web_path}">Click to download</a><br>
+<a href="{$web_path}">Click to download</a>
+
+<!-- Added by Rod: -->
+&nbsp;&nbsp;&nbsp;{$delete_string}
+
+<br>
 
 </td>
 </tr>

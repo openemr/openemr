@@ -1,5 +1,5 @@
 <?
- // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005, 2006 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -13,6 +13,7 @@
  $patient   = $_REQUEST['patient'];
  $encounter = $_REQUEST['encounter'];
  $issue     = $_REQUEST['issue'];
+ $document  = $_REQUEST['document'];
 
  $info_msg = "";
 
@@ -57,7 +58,7 @@
 ?>
 <html>
 <head>
-<title><? xl('Delete Patient, Encounter or Issue','e'); ?></title>
+<title><? xl('Delete Patient, Encounter, Issue or Document','e'); ?></title>
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
 
 <style>
@@ -108,6 +109,15 @@ td { font-size:10pt; }
    row_delete("issue_encounter", "list_id = '$issue'");
    row_delete("lists", "id = '$issue'");
   }
+  else if ($document) {
+   $trow = sqlQuery("SELECT url FROM documents WHERE id = '$document'");
+   $url = $trow['url'];
+   row_delete("categories_to_documents", "document_id = '$document'");
+   row_delete("documents", "id = '$document'");
+   if (substr($url, 0, 7) == 'file://') {
+    @unlink(substr($url, 7));
+   }
+  }
   else {
    die("Nothing was specified to delete!");
   }
@@ -125,7 +135,7 @@ td { font-size:10pt; }
  }
 ?>
 
-<form method='post' action='deleter.php?patient=<? echo $patient ?>&encounter=<? echo $encounter ?>&issue=<? echo $issue ?>'>
+<form method='post' action='deleter.php?patient=<? echo $patient ?>&encounter=<? echo $encounter ?>&issue=<? echo $issue ?>&document=<? echo $document ?>'>
 
 <p>&nbsp;<br><? xl('
 Do you really want to delete','e'); ?>
@@ -137,6 +147,8 @@ Do you really want to delete','e'); ?>
   echo "encounter $encounter";
  } else if ($issue) {
   echo "issue $issue";
+ } else if ($document) {
+  echo "document $document";
  }
 ?> <? xl('and all subordinate data? This action will be logged','e'); ?>!</p>
 

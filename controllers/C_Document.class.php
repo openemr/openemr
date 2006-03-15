@@ -134,7 +134,10 @@ class C_Document extends Controller {
 	}
 	
 	function view_action($patient_id="",$doc_id) {
-		
+		// Added by Rod to support document delete:
+		global $gacl_object, $phpgacl_location;
+		require_once(dirname(__FILE__) . "/../library/acl.inc");
+
 		$d = new Document($doc_id);	
 		$n = new Note();
 		
@@ -144,7 +147,16 @@ class C_Document extends Controller {
 		$this->assign("web_path", $this->_link("retrieve") . "document_id=" . $d->get_id() . "&");
 		$this->assign("NOTE_ACTION",$this->_link("note"));
 		$this->assign("MOVE_ACTION",$this->_link("move") . "document_id=" . $d->get_id() . "&process=true");
-		
+
+		// Added by Rod to support document delete:
+		$delete_string = '';
+		if (acl_check('admin', 'super')) {
+			$delete_string = "<a href='' onclick='return deleteme(" . $d->get_id() .
+				")'><font color='red'>(Delete this document)</font></a>";
+		}
+		$this->assign("delete_string", $delete_string);
+		$this->assign("REFRESH_ACTION",$this->_link("list"));
+
 		$this->assign("notes",$notes);
 		
 		$this->_last_node = null;
