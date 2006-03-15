@@ -432,6 +432,7 @@ class Prescription extends ORDataObject {
 		
 		$string .= ""
 			."Prescription For:" . "\t" .$this->patient->get_name_display() . "\n"
+			."DOB:"."\t".$this->patient->get_dob()."\n"
 			."Start Date: " . "\t\t" . $this->start_date. "\n"
 			."Provider: " . "\t\t" . $this->provider->get_name_display(). "\n"
 			."Provider FDID: " . "\t\t" . $this->provider->federal_drug_id. "\n"
