@@ -16,7 +16,6 @@ include_once("../../globals.php");
 </dl>
 -->
 <dl>
-<dt><span class="title"><? xl('New Form','e'); ?></span></dt>
 <?php //DYNAMIC FORM RETREIVAL
 include_once("$srcdir/registry.inc");
 function myGetRegistered ( $state="1", $limit="unlimited", $offset="0")
@@ -45,12 +44,11 @@ foreach ($reg as $entry) {
 	if ($new_nickname != '') {$nickname = $new_nickname;}
 	else {$nickname = $entry['name'];}
 	if ($old_category != $new_category) {
-		if ($old_category != '') {echo "</select><hr>\n";}
+		if ($old_category != '') {echo "</select>\n";}
+		echo "<select name=".$new_category." onchange='top.frames[\"Main\"].location.href = document.choose." .$new_category.".options[document.choose." .$new_category.".selectedIndex].value'>\n";
+		echo "<option value=".$new_category.">".$new_category."</option>\n";
 		echo $new_category.' ';
-		echo "<INPUT TYPE=button VALUE='jump' onClick='top.frames[\"Main\"].location.href = document.choose."
-			.$new_category.".options[document.choose."
-			.$new_category.".selectedIndex].value'><br>\n";
-		echo "<select name=".$new_category.">\n";
+
 		echo "<option value='".$rootdir.'/patient_file/encounter/load_form.php?formname='.urlencode($entry['directory'])."'>".$nickname."</option>\n";
 		$old_category = $new_category;
 	}
@@ -58,7 +56,7 @@ foreach ($reg as $entry) {
 		echo "<option value='".$rootdir.'/patient_file/encounter/load_form.php?formname='.urlencode($entry['directory'])."'>".$nickname."</option>\n";
 	}
 }
-echo "</select><hr>\n";
+echo "</select>\n";
 echo "</FORM>\n";
 ?>
 </dl>
