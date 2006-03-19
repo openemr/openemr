@@ -44,10 +44,11 @@ foreach ($reg as $entry) {
 	if ($new_nickname != '') {$nickname = $new_nickname;}
 	else {$nickname = $entry['name'];}
 	if ($old_category != $new_category) {
+		$new_category_ = $new_category;
+		$new_category_ = str_replace(' ','_',$new_category_);
 		if ($old_category != '') {echo "</select>\n";}
-		echo "<select name=".$new_category." onchange='top.frames[\"Main\"].location.href = document.choose." .$new_category.".options[document.choose." .$new_category.".selectedIndex].value'>\n";
-		echo "<option value=".$new_category.">".$new_category."</option>\n";
-		echo $new_category.' ';
+		echo "<select name=".$new_category_." onchange='top.frames[\"Main\"].location.href = document.choose." .$new_category_.".options[document.choose." .$new_category_.".selectedIndex].value'>\n";
+		echo "<option value=".$new_category_.">".$new_category."</option>\n";
 
 		echo "<option value='".$rootdir.'/patient_file/encounter/load_form.php?formname='.urlencode($entry['directory'])."'>".$nickname."</option>\n";
 		$old_category = $new_category;
