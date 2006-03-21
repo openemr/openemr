@@ -270,3 +270,11 @@ ALTER TABLE registry ADD COLUMN nickname VARCHAR(255) DEFAULT '' AFTER category;
 ALTER TABLE patient_data
   ADD phone_pharmacy varchar(255) NOT NULL default '';
 
+
+## array table for storing configuration data and string lists etc...
+
+CREATE TABLE `array` (
+  `array_key` varchar(255) default NULL,
+  `array_value` longtext
+) TYPE=MyISAM;
+

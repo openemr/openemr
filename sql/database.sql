@@ -28313,3 +28313,11 @@ INSERT INTO `lang_definitions` VALUES (173, 178, 3, 'Cualquier');
 ALTER TABLE registry ADD COLUMN priority INT DEFAULT 0 AFTER date;
 ALTER TABLE registry ADD COLUMN category VARCHAR(255) DEFAULT "category" AFTER priority;
 ALTER TABLE registry ADD COLUMN nickname VARCHAR(255) DEFAULT '' AFTER category;
+
+## array table for storing configuration data and string lists etc...
+
+CREATE TABLE `array` (
+  `array_key` varchar(255) default NULL,
+  `array_value` longtext
+) TYPE=MyISAM;
+
