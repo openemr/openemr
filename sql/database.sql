@@ -27282,6 +27282,7 @@ CREATE TABLE `patient_data` (
   `city` varchar(255) default NULL,
   `state` varchar(255) default NULL,
   `country_code` varchar(255) default NULL,
+  `drivers_license` varchar(255) default NULL,
   `ss` varchar(255) default NULL,
   `occupation` longtext,
   `phone_home` varchar(255) default NULL,

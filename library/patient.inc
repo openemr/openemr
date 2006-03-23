@@ -416,7 +416,8 @@ function newPatientData(	$db_id="",
 				$hipaa_mail = "",
 				$hipaa_voice = "",
 				$squad = 0,
-				$phone_pharmacy = ""
+				$phone_pharmacy = "",
+				$drivers_license = ""
 			)
 {
 	$DOB = fixDate($DOB);
@@ -447,6 +448,7 @@ function newPatientData(	$db_id="",
 		city='$city',
 		state='$state',
 		country_code='$country_code',
+		drivers_license='$drivers_license',
 		ss='$ss',
 		occupation='$occupation',
 		phone_home='$phone_home',

@@ -220,17 +220,24 @@ function set_insurance(ins_id, ins_name) {
   <td><input type='text' size='20' name='phone_pharmacy' value='<?echo $result['phone_pharmacy'] ?>' onkeyup='phonekeyup(this,mypcc)' /></td>
  </tr>
  <tr>
-  <td><span class=required><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Zip' : 'Postal' ?> <? xl('Code','e'); ?>: </span></td><td><input tabindex="11" type=entry size=6 name=postal_code value="<?echo $result{"postal_code"}?>"></td>
-  <td><span class=bold><? xl('Contact Email','e'); ?>: </span></td><td><input type=entry size=30 name=email value="<?echo $result{"email"}?>"></td>
+  <td><span class=required><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Zip' : 'Postal' ?> <? xl('Code','e'); ?>: </span></td>
+  <td><input tabindex="11" type=entry size=6 name=postal_code value="<?echo $result{"postal_code"}?>"></td>
+  <td><span class='bold'><? xl('Contact Email','e'); ?>: </span></td><td><input type=entry size=30 name=email value="<?echo $result{"email"}?>"></td>
  </tr>
  <tr>
-  <td><span class=required><? xl('Country','e'); ?>: </span></td><td><input tabindex="12" type=entry size=10 name=country_code value="<?echo $result{"country_code"}?>"></td>
-  <td><span class=bold><? xl('User Defined Fields','e'); ?></span></td>
+  <td><span class='required'><? xl('Country','e'); ?>: </span></td>
+  <td><input tabindex="13" type='entry' size='10' name='country_code' value="<?echo $result{"country_code"}?>"></td>
+  <td><span class='bold' colspan='2'> </span></td>
+ </tr>
+ <tr>
+  <td><span class='bold'><? xl('License/ID','e'); ?>: </span></td>
+  <td><input tabindex="12" type='entry' size='15' name='drivers_license' value="<?echo $result{"drivers_license"}?>"></td>
+  <td><span class='bold' colspan='2'><? xl('User Defined Fields','e'); ?></span></td>
  </tr>
  <tr>
   <td><span class=required><? xl('Marital Status','e'); ?>: </span></td>
   <td>
-   <select name=status tabindex="13">
+   <select name=status tabindex="14">
 <?php
  print "<!-- ".$result["status"]." -->\n";
  foreach ($statii as $s) {
@@ -254,7 +261,7 @@ function set_insurance(ins_id, ins_name) {
  <tr>
   <td><span class=required><? xl('Provider','e'); ?>: </span></td>
   <td>
-   <select tabindex="14" name="providerID" onchange="javascript:document.demographics_form.referrer.value=upperFirst(this.options[this.selectedIndex].text,this.options[this.selectedIndex].text);">
+   <select tabindex="15" name="providerID" onchange="javascript:document.demographics_form.referrer.value=upperFirst(this.options[this.selectedIndex].text,this.options[this.selectedIndex].text);">
     <option value=''><? xl('Unassigned','e'); ?></option>
 <?php
  foreach ($provideri as $s) {

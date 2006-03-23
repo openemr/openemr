@@ -78,7 +78,8 @@ newPatientData(
   $_POST["hipaa_mail"],
   $_POST["hipaa_voice"],
   $_POST["squad"],
-  $_POST["phone_pharmacy"]
+  $_POST["phone_pharmacy"],
+  $_POST["drivers_license"]
 );
 
 newEmployerData(
