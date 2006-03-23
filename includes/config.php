@@ -62,7 +62,7 @@ $GLOBALS['oer_config']['ws_accounting']['username'] = "unused";
 $GLOBALS['oer_config']['ws_accounting']['password'] = "unused";
 $GLOBALS['oer_config']['ws_accounting']['url_path'] = "http://" .
   $_SERVER["SERVER_NAME"] . "/sql-ledger/login.pl";
-$GLOBALS['oer_config']['ws_accounting']['income_acct'] = "4020";
+$GLOBALS['oer_config']['ws_accounting']['income_acct'] = "4320";
 
 //don't alter below this line unless you are an advanced user and know what you are doing
 

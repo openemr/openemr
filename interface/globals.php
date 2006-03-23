@@ -1,8 +1,6 @@
 <?
 require_once(dirname(__FILE__) . "/../includes/config.php");
 //Global variable file in which colors and paths are set for the interface.
-//Pennington Firm (PennFirm.com), San Diego, California
-//888-480-5050
 ///////////////////////////////////////////////////////////////////
 //THESE VALUES MUST BE SET BEFORE OPENEMR WILL FUNCTION:
 ///////////////////////////////////////////////////////////////////
@@ -98,9 +96,9 @@ else {
 
 $v_major = '2';
 $v_minor = '8';
-$v_patch = '1';
+$v_patch = '2';
 
-$tag = ''; // release candidate, e.g. '-rc1'
+$tag = '-dev'; // release candidate, e.g. '-rc1'
 
 $openemr_version = "$v_major.$v_minor.$v_patch".$tag;	// Version tag used by program
 
@@ -130,7 +128,7 @@ if (!$ignoreAuth) {
 // If you do not want your accounting system to have a customer added to it
 // for each insurance company, then set this to true.  SQL-Ledger currently
 // (2005-03-21) does nothing useful with insurance companies as customers.
-$GLOBALS['insurance_companies_are_not_customers'] = false;
+$GLOBALS['insurance_companies_are_not_customers'] = true;
 
 // If OpenEMR is being used by an athletic team rather than in a traditional
 // clinical setting, set this to true.
@@ -151,7 +149,7 @@ $GLOBALS['calendar_appt_style'] = 2;
 // uses for these later.
 $sl_cash_acc    = '1060';       // sql-ledger account number for checking
 $sl_ar_acc      = '1200';       // sql-ledger account number for a/r
-$sl_income_acc  = '4020';       // sql-ledger account number for medical services income
+$sl_income_acc  = '4320';       // sql-ledger account number for medical services income
 $sl_services_id = 'MS';         // sql-ledger parts table id for medical services
 $sl_dbname      = 'sql-ledger'; // sql-ledger database name
 $sl_dbuser      = 'sql-ledger'; // sql-ledger database login name
@@ -177,7 +175,6 @@ function strterm($string,$length) {
 		return $string;
 	}
 }
-
 
 //required for normal operation because of recent changes in PHP:
 $ps = strpos($_SERVER['REQUEST_URI'],"myadmin");
