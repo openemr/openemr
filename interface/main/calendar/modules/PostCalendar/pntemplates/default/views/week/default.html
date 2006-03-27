@@ -58,6 +58,16 @@ a       { text-decoration:none; }
    '?set_pid=' + pid + '&pid=' + pid;
  }
 
+ function GoToToday(theForm){
+ var todays_date = new Date();
+ var theMonth = todays_date.getMonth() + 1;
+
+   theMonth = theMonth < 10 ? "0" + theMonth : theMonth;
+
+   theForm.jumpdate.value = todays_date.getFullYear() + "-" + theMonth + "-" + todays_date.getDate();
+   theForm.submit();
+ }
+
 </script>
 
 <!-- Required for the popup date selectors -->
@@ -112,7 +122,7 @@ a       { text-decoration:none; }
  echo "   </select>\n";
  echo "  </td>\n";
 
- // Build the date and view type selectors and the Go button.
+ // Build the date and view type selectors and the Go button and the Today button.
  echo "  <td align='center' valign='top' width='34%' nowrap>\n";
 
  echo "    <input type='text' size='10' name='jumpdate'\n" .
@@ -132,6 +142,7 @@ a       { text-decoration:none; }
  }
  echo "   </select>\n";
  echo "   &nbsp;<input type='submit' name='bnsubmit' value='Go' />\n";
+ echo "   &nbsp;<input type='submit' name='bnsubmit' value='Today' onClick='GoToToday(theform);' />\n";
  echo "  </td>\n";
 
  // Show the Add and Search buttons.
