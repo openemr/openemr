@@ -354,7 +354,7 @@ class Procedure Extends DataObjectBase {
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
 
-		$sql = "SELECT * FROM billing where encounter = '" . $_SESSION['billkey'] . "'  and pid = '" . $_SESSION['patient_id'] . "' and code_type = 'COPAY'";
+		$sql = "SELECT * FROM billing where activity = '1' and encounter = '" . $_SESSION['billkey'] . "'  and pid = '" . $_SESSION['patient_id'] . "' and code_type = 'COPAY'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
 		$results = $db->Execute($sql);
