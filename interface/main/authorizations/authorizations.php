@@ -118,9 +118,9 @@ if ($res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user " .
   "groupname = '$groupname'"))
 {
   for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-    $result[$iter] = $row;
-  if ($result) {
-    foreach ($result as $iter) {
+    $result1[$iter] = $row;
+  if ($result1) {
+    foreach ($result1 as $iter) {
       $authorize{$iter{"pid"}}{"billing"} .= "<span class=text>" .
         $iter{"code_text"} . " " . date("n/j/Y",strtotime($iter{"date"})) .
         "</span><br>\n";
