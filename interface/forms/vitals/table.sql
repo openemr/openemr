@@ -20,6 +20,6 @@ CREATE TABLE IF NOT EXISTS `form_vitals` (
 `BMI_status` VARCHAR (255) default NULL,
 `waist_circ` FLOAT (5,2) default 0,
 `head_circ` FLOAT (4,2) default 0,
-`oxygen_saturation` FLOAT (3,2) default 0,
+`oxygen_saturation` FLOAT (5,2) default 0,
 PRIMARY KEY (id)
 ) TYPE=MyISAM;
