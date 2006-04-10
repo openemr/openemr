@@ -62,7 +62,7 @@
        ($auth_relaxed && ($formdir == 'sports_fitness' || $formdir == 'podiatry'))) ;
    else continue;
 
-   $form_info = getFormInfoById($iter['id']);
+   // $form_info = getFormInfoById($iter['id']);
    echo '<tr valign="top">';
    $user = getNameFromUsername($iter['user']);
 

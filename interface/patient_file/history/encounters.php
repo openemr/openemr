@@ -169,15 +169,18 @@ if ($result = getEncounters($pid)) {
       $encarr = getFormByEncounter($pid, $iter['encounter'], "formdir, user, form_name, form_id");
       foreach ($encarr as $enc) {
         if ($enc['formdir'] == 'newpatient') continue;
+
         $title = "";
-        $frow = sqlQuery("select * from form_" . $enc['formdir'] .
-          " where id = " . $enc['form_id']);
-        foreach ($frow as $fkey => $fvalue) {
-          if (! preg_match('/[A-Za-z]/', $fvalue)) continue;
-          if ($title) $title .= "; ";
-          $title .= strtoupper($fkey) . ': ' . $fvalue;
+        if ($enc['formdir'] != 'physical_exam') {
+          $frow = sqlQuery("select * from form_" . $enc['formdir'] .
+            " where id = " . $enc['form_id']);
+          foreach ($frow as $fkey => $fvalue) {
+            if (! preg_match('/[A-Za-z]/', $fvalue)) continue;
+            if ($title) $title .= "; ";
+            $title .= strtoupper($fkey) . ': ' . $fvalue;
+          }
+          $title = htmlspecialchars(strtr($title, "\t\n\r", "   "), ENT_QUOTES);
         }
-        $title = htmlspecialchars(strtr($title, "\t\n\r", "   "), ENT_QUOTES);
 
         echo "<tr>\n";
         echo " <td valign='top'></td>\n";
