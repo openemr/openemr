@@ -155,6 +155,11 @@ $sl_dbname      = 'sql-ledger'; // sql-ledger database name
 $sl_dbuser      = 'sql-ledger'; // sql-ledger database login name
 $sl_dbpass      = 'secret';     // sql-ledger database login password
 
+// Set this to 1 if you want the drug database and support for
+// prescription dispensing, otherwise 0.
+//
+$GLOBALS['inhouse_pharmacy'] = 0;
+
 $encounter = $_SESSION['encounter'];
 
 if (!empty($_GET['pid']) && empty($_SESSION['pid'])) {

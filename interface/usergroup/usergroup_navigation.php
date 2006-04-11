@@ -59,13 +59,19 @@ include_once("../../library/acl.inc");
 </td>
 <? } ?>
 
+<? if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) { ?>
+<td valign="middle" nowrap>
+&nbsp;<a class=menu target=Main href="../drugs/drug_inventory.php"
+ title="Drug Inventory Management"><?xl('Drugs','e');?></a>&nbsp;
+</td>
+<? } ?>
+
 <? if (acl_check('admin', 'language')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../language/language.php"
  title="Language Management"><? xl('Language','e'); ?></a>&nbsp;
 </td>
 <? } ?>
-
 
 <? if (acl_check('admin', 'users')) { ?>
 <td valign="middle" nowrap>

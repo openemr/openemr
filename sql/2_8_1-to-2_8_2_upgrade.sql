@@ -103,16 +103,16 @@ INSERT INTO `lang_definitions` VALUES (13, 13, 3, 'Masculino');
 INSERT INTO `lang_definitions` VALUES (14, 19, 3, 'Seguro Social');
 INSERT INTO `lang_definitions` VALUES (15, 20, 3, 'Administracion de Usuarios y Grupos');
 INSERT INTO `lang_definitions` VALUES (16, 21, 3, 'Salir');
-INSERT INTO `lang_definitions` VALUES (17, 22, 3, 'Contraseña:');
+INSERT INTO `lang_definitions` VALUES (17, 22, 3, 'Contraseï¿½:');
 INSERT INTO `lang_definitions` VALUES (18, 23, 3, 'Entrar');
-INSERT INTO `lang_definitions` VALUES (19, 24, 3, 'Administración');
-INSERT INTO `lang_definitions` VALUES (20, 25, 3, 'Contraseña');
-INSERT INTO `lang_definitions` VALUES (21, 28, 3, 'Facturación');
+INSERT INTO `lang_definitions` VALUES (19, 24, 3, 'Administraciï¿½');
+INSERT INTO `lang_definitions` VALUES (20, 25, 3, 'Contraseï¿½');
+INSERT INTO `lang_definitions` VALUES (21, 28, 3, 'Facturaciï¿½');
 INSERT INTO `lang_definitions` VALUES (22, 29, 3, 'Inicio');
 INSERT INTO `lang_definitions` VALUES (23, 27, 3, 'Notas');
 INSERT INTO `lang_definitions` VALUES (24, 26, 3, 'Informes');
-INSERT INTO `lang_definitions` VALUES (25, 32, 3, '(Más)');
-INSERT INTO `lang_definitions` VALUES (26, 31, 3, 'Autorizaciónes');
+INSERT INTO `lang_definitions` VALUES (25, 32, 3, '(Mï¿½)');
+INSERT INTO `lang_definitions` VALUES (26, 31, 3, 'Autorizaciï¿½es');
 INSERT INTO `lang_definitions` VALUES (27, 33, 3, 'Localizar Paciente');
 INSERT INTO `lang_definitions` VALUES (28, 30, 3, 'Notas de Paciente');
 INSERT INTO `lang_definitions` VALUES (29, 34, 3, 'Paciente Nuevo');
@@ -122,24 +122,24 @@ INSERT INTO `lang_definitions` VALUES (32, 35, 3, 'Nombre');
 INSERT INTO `lang_definitions` VALUES (33, 38, 3, 'y');
 INSERT INTO `lang_definitions` VALUES (34, 39, 3, 'Cita(s) del Paciente');
 INSERT INTO `lang_definitions` VALUES (35, 40, 3, '(Notas y Autorizaciones)');
-INSERT INTO `lang_definitions` VALUES (36, 41, 3, 'Búsqueda');
-INSERT INTO `lang_definitions` VALUES (37, 42, 3, 'Categoría');
+INSERT INTO `lang_definitions` VALUES (36, 41, 3, 'Bsqueda');
+INSERT INTO `lang_definitions` VALUES (37, 42, 3, 'Categorï¿½');
 INSERT INTO `lang_definitions` VALUES (38, 43, 3, 'Fecha');
-INSERT INTO `lang_definitions` VALUES (39, 44, 3, 'Título');
+INSERT INTO `lang_definitions` VALUES (39, 44, 3, 'Tï¿½ulo');
 INSERT INTO `lang_definitions` VALUES (40, 45, 3, 'Paciente');
-INSERT INTO `lang_definitions` VALUES (41, 46, 3, 'Médico');
+INSERT INTO `lang_definitions` VALUES (41, 46, 3, 'Mï¿½ico');
 INSERT INTO `lang_definitions` VALUES (42, 47, 3, 'Notas');
-INSERT INTO `lang_definitions` VALUES (43, 48, 3, 'Duración');
+INSERT INTO `lang_definitions` VALUES (43, 48, 3, 'Duraciï¿½');
 INSERT INTO `lang_definitions` VALUES (44, 49, 3, 'Expedientes Localizado');
 INSERT INTO `lang_definitions` VALUES (45, 50, 3, '(Paciente Nuevo)');
-INSERT INTO `lang_definitions` VALUES (46, 51, 3, 'Día completo');
+INSERT INTO `lang_definitions` VALUES (46, 51, 3, 'Dï¿½ completo');
 INSERT INTO `lang_definitions` VALUES (47, 52, 3, 'Hora');
 INSERT INTO `lang_definitions` VALUES (48, 53, 3, 'Minutos');
-INSERT INTO `lang_definitions` VALUES (49, 54, 3, 'Día');
+INSERT INTO `lang_definitions` VALUES (49, 54, 3, 'Dï¿½');
 INSERT INTO `lang_definitions` VALUES (50, 55, 3, 'Repite');
 INSERT INTO `lang_definitions` VALUES (51, 56, 3, 'Hasta');
 INSERT INTO `lang_definitions` VALUES (52, 57, 3, 'Ver Todos');
-INSERT INTO `lang_definitions` VALUES (53, 58, 3, 'Mío');
+INSERT INTO `lang_definitions` VALUES (53, 58, 3, 'Mï¿½');
 INSERT INTO `lang_definitions` VALUES (54, 59, 3, 'Localizar Paciente');
 INSERT INTO `lang_definitions` VALUES (55, 60, 3, 'Favor de ingresar datos');
 INSERT INTO `lang_definitions` VALUES (56, 61, 3, 'Escoja Paciente');
@@ -148,51 +148,51 @@ INSERT INTO `lang_definitions` VALUES (58, 63, 3, 'Apellido');
 INSERT INTO `lang_definitions` VALUES (59, 64, 3, 'Volver');
 INSERT INTO `lang_definitions` VALUES (60, 65, 3, 'Primer Nombre');
 INSERT INTO `lang_definitions` VALUES (61, 66, 3, 'Segundo Nombre');
-INSERT INTO `lang_definitions` VALUES (62, 67, 3, 'Número de Expediente');
-INSERT INTO `lang_definitions` VALUES (63, 68, 3, 'Omitir para Autoasignación');
+INSERT INTO `lang_definitions` VALUES (62, 67, 3, 'Nmero de Expediente');
+INSERT INTO `lang_definitions` VALUES (63, 68, 3, 'Omitir para Autoasignaciï¿½');
 INSERT INTO `lang_definitions` VALUES (64, 69, 3, 'Usuario');
-INSERT INTO `lang_definitions` VALUES (65, 70, 3, 'Información de Nuevas Facilidades');
-INSERT INTO `lang_definitions` VALUES (66, 71, 3, 'País');
-INSERT INTO `lang_definitions` VALUES (67, 72, 3, 'Dirección');
+INSERT INTO `lang_definitions` VALUES (65, 70, 3, 'Informaciï¿½ de Nuevas Facilidades');
+INSERT INTO `lang_definitions` VALUES (66, 71, 3, 'Paï¿½');
+INSERT INTO `lang_definitions` VALUES (67, 72, 3, 'Direcciï¿½');
 INSERT INTO `lang_definitions` VALUES (69, 74, 3, 'Estado');
 INSERT INTO `lang_definitions` VALUES (70, 75, 3, 'Ciudad');
 INSERT INTO `lang_definitions` VALUES (71, 76, 3, 'Seguro Social Patronal');
-INSERT INTO `lang_definitions` VALUES (72, 77, 3, 'Acepta Facturación');
-INSERT INTO `lang_definitions` VALUES (73, 78, 3, 'Centro de Facturación');
-INSERT INTO `lang_definitions` VALUES (74, 79, 3, 'Aplicable si es Centro de Facturación');
-INSERT INTO `lang_definitions` VALUES (75, 80, 3, 'Codígo de Lugar de Servicío');
+INSERT INTO `lang_definitions` VALUES (72, 77, 3, 'Acepta Facturaciï¿½');
+INSERT INTO `lang_definitions` VALUES (73, 78, 3, 'Centro de Facturaciï¿½');
+INSERT INTO `lang_definitions` VALUES (74, 79, 3, 'Aplicable si es Centro de Facturaciï¿½');
+INSERT INTO `lang_definitions` VALUES (75, 80, 3, 'Codï¿½o de Lugar de Servicï¿½');
 INSERT INTO `lang_definitions` VALUES (76, 81, 3, 'Facturas a Nombre');
-INSERT INTO `lang_definitions` VALUES (77, 82, 3, 'Código de Laboratorio Clínico');
-INSERT INTO `lang_definitions` VALUES (78, 83, 3, 'Teléfono');
+INSERT INTO `lang_definitions` VALUES (77, 82, 3, 'Cï¿½igo de Laboratorio Clï¿½ico');
+INSERT INTO `lang_definitions` VALUES (78, 83, 3, 'Telï¿½ono');
 INSERT INTO `lang_definitions` VALUES (79, 84, 3, 'como');
-INSERT INTO `lang_definitions` VALUES (80, 85, 3, 'Editar Información de Facilidades');
-INSERT INTO `lang_definitions` VALUES (81, 86, 3, 'Información de Facilidades');
+INSERT INTO `lang_definitions` VALUES (80, 85, 3, 'Editar Informaciï¿½ de Facilidades');
+INSERT INTO `lang_definitions` VALUES (81, 86, 3, 'Informaciï¿½ de Facilidades');
 INSERT INTO `lang_definitions` VALUES (82, 87, 3, 'Actualizar');
 INSERT INTO `lang_definitions` VALUES (83, 88, 3, 'Administracion de Usuarios');
 INSERT INTO `lang_definitions` VALUES (84, 89, 3, 'Usuario');
 INSERT INTO `lang_definitions` VALUES (85, 90, 3, 'Autorizado');
-INSERT INTO `lang_definitions` VALUES (86, 91, 3, 'Número de Identifcación Federal');
+INSERT INTO `lang_definitions` VALUES (86, 91, 3, 'Nmero de Identifcaciï¿½ Federal');
 INSERT INTO `lang_definitions` VALUES (87, 92, 3, 'Ver Autorizaciones');
 INSERT INTO `lang_definitions` VALUES (88, 93, 3, 'Ninguno');
 INSERT INTO `lang_definitions` VALUES (89, 94, 3, 'Mio Solamente');
 INSERT INTO `lang_definitions` VALUES (90, 95, 3, 'Todos');
-INSERT INTO `lang_definitions` VALUES (91, 96, 3, 'Información Addicional');
+INSERT INTO `lang_definitions` VALUES (91, 96, 3, 'Informaciï¿½ Addicional');
 INSERT INTO `lang_definitions` VALUES (92, 97, 3, 'Guardar Cambios');
-INSERT INTO `lang_definitions` VALUES (93, 98, 3, 'Dejar en Blanco para no cambiar contraseña');
-INSERT INTO `lang_definitions` VALUES (94, 99, 3, 'Nombre de Clínica');
+INSERT INTO `lang_definitions` VALUES (93, 98, 3, 'Dejar en Blanco para no cambiar contraseï¿½');
+INSERT INTO `lang_definitions` VALUES (94, 99, 3, 'Nombre de Clï¿½ica');
 INSERT INTO `lang_definitions` VALUES (95, 100, 3, 'Nombre de Grupo');
 INSERT INTO `lang_definitions` VALUES (96, 101, 3, 'Usuario Inicial');
 INSERT INTO `lang_definitions` VALUES (97, 102, 3, 'Usuario');
 INSERT INTO `lang_definitions` VALUES (98, 103, 3, 'Modificar');
 INSERT INTO `lang_definitions` VALUES (99, 104, 3, 'Nombre Real');
-INSERT INTO `lang_definitions` VALUES (100, 105, 3, 'Información');
+INSERT INTO `lang_definitions` VALUES (100, 105, 3, 'Informaciï¿½');
 INSERT INTO `lang_definitions` VALUES (101, 106, 3, 'si');
-INSERT INTO `lang_definitions` VALUES (102, 107, 3, 'Salir de Administración');
+INSERT INTO `lang_definitions` VALUES (102, 107, 3, 'Salir de Administraciï¿½');
 INSERT INTO `lang_definitions` VALUES (103, 108, 3, 'Ver Registro');
 INSERT INTO `lang_definitions` VALUES (104, 109, 3, 'Registro');
 INSERT INTO `lang_definitions` VALUES (105, 110, 3, 'Idioma');
 INSERT INTO `lang_definitions` VALUES (106, 111, 3, 'Base de Datos');
-INSERT INTO `lang_definitions` VALUES (107, 116, 3, 'Communicación');
+INSERT INTO `lang_definitions` VALUES (107, 116, 3, 'Communicaciï¿½');
 INSERT INTO `lang_definitions` VALUES (108, 112, 3, 'Calendario');
 INSERT INTO `lang_definitions` VALUES (109, 114, 3, 'Formularios');
 INSERT INTO `lang_definitions` VALUES (110, 113, 3, 'Consultorio');
@@ -201,10 +201,10 @@ INSERT INTO `lang_definitions` VALUES (112, 117, 3, 'Modificar Facilidades');
 INSERT INTO `lang_definitions` VALUES (113, 118, 3, 'Usuario Nuevo');
 INSERT INTO `lang_definitions` VALUES (114, 119, 3, 'Grupo Nuevo');
 INSERT INTO `lang_definitions` VALUES (115, 120, 3, 'Agrega Usuario a Grupo');
-INSERT INTO `lang_definitions` VALUES (116, 121, 3, 'Día Laboral');
+INSERT INTO `lang_definitions` VALUES (116, 121, 3, 'Dï¿½ Laboral');
 INSERT INTO `lang_definitions` VALUES (117, 123, 3, 'mes');
 INSERT INTO `lang_definitions` VALUES (118, 122, 3, 'semana');
-INSERT INTO `lang_definitions` VALUES (119, 124, 3, 'año');
+INSERT INTO `lang_definitions` VALUES (119, 124, 3, 'aï¿½');
 INSERT INTO `lang_definitions` VALUES (120, 126, 3, '2ndo');
 INSERT INTO `lang_definitions` VALUES (121, 127, 3, '3er');
 INSERT INTO `lang_definitions` VALUES (122, 128, 3, '4to');
@@ -217,24 +217,24 @@ INSERT INTO `lang_definitions` VALUES (128, 133, 3, 'Guardar');
 INSERT INTO `lang_definitions` VALUES (129, 134, 3, 'Eliminar');
 INSERT INTO `lang_definitions` VALUES (130, 135, 3, 'Registro');
 INSERT INTO `lang_definitions` VALUES (131, 136, 3, 'Evento');
-INSERT INTO `lang_definitions` VALUES (132, 137, 3, 'Atención');
+INSERT INTO `lang_definitions` VALUES (132, 137, 3, 'Atenciï¿½');
 INSERT INTO `lang_definitions` VALUES (133, 138, 3, 'Registrado');
 INSERT INTO `lang_definitions` VALUES (134, 139, 3, 'No Registrado');
-INSERT INTO `lang_definitions` VALUES (135, 140, 3, 'Administración de Formularios');
+INSERT INTO `lang_definitions` VALUES (135, 140, 3, 'Administraciï¿½ de Formularios');
 INSERT INTO `lang_definitions` VALUES (136, 142, 3, 'desactivado');
 INSERT INTO `lang_definitions` VALUES (137, 141, 3, 'activado');
 INSERT INTO `lang_definitions` VALUES (138, 143, 3, 'Instalado');
 INSERT INTO `lang_definitions` VALUES (139, 144, 3, 'PHP descomprimido');
 INSERT INTO `lang_definitions` VALUES (140, 145, 3, 'Instalar');
-INSERT INTO `lang_definitions` VALUES (141, 146, 3, 'Informe de Facturación');
+INSERT INTO `lang_definitions` VALUES (141, 146, 3, 'Informe de Facturaciï¿½');
 INSERT INTO `lang_definitions` VALUES (142, 147, 3, 'Notas Oficiales');
 INSERT INTO `lang_definitions` VALUES (143, 149, 3, 'Activos');
 INSERT INTO `lang_definitions` VALUES (144, 150, 3, 'Inactivos');
 INSERT INTO `lang_definitions` VALUES (145, 148, 3, 'Ver');
 INSERT INTO `lang_definitions` VALUES (146, 151, 3, 'Modificar Actividad');
 INSERT INTO `lang_definitions` VALUES (147, 152, 3, 'Agregar Nota Nueva');
-INSERT INTO `lang_definitions` VALUES (148, 153, 3, 'Modificar Contraseña');
-INSERT INTO `lang_definitions` VALUES (149, 154, 3, 'Al cambiar su contraseña, Re-valida.');
+INSERT INTO `lang_definitions` VALUES (148, 153, 3, 'Modificar Contraseï¿½');
+INSERT INTO `lang_definitions` VALUES (149, 154, 3, 'Al cambiar su contraseï¿½, Re-valida.');
 INSERT INTO `lang_definitions` VALUES (150, 155, 3, 'Nuevamente');
 INSERT INTO `lang_definitions` VALUES (151, 156, 3, 'O');
 INSERT INTO `lang_definitions` VALUES (152, 157, 3, 'Sexo');
@@ -256,8 +256,8 @@ INSERT INTO `lang_definitions` VALUES (167, 173, 3, 'Correo Electronico no envia
 INSERT INTO `lang_definitions` VALUES (168, 170, 3, 'Empleo');
 INSERT INTO `lang_definitions` VALUES (169, 174, 3, 'Ignorar HIPAA');
 INSERT INTO `lang_definitions` VALUES (170, 175, 3, 'Archivo CSV');
-INSERT INTO `lang_definitions` VALUES (171, 177, 3, 'Correo Electrónico');
-INSERT INTO `lang_definitions` VALUES (172, 176, 3, 'Lista de llamadas telefónicas');
+INSERT INTO `lang_definitions` VALUES (171, 177, 3, 'Correo Electrï¿½ico');
+INSERT INTO `lang_definitions` VALUES (172, 176, 3, 'Lista de llamadas telefï¿½icas');
 INSERT INTO `lang_definitions` VALUES (173, 178, 3, 'Cualquier');
 
 
@@ -280,3 +280,33 @@ CREATE TABLE `array` (
 ALTER TABLE patient_data
   ADD drivers_license varchar(255) NOT NULL default '';
 
+ALTER TABLE form_vitals
+  MODIFY oxygen_saturation float(5,2) default 0;
+
+CREATE TABLE drugs (
+  drug_id       int(11)      NOT NULL auto_increment,
+  name          varchar(255) NOT NULL,
+  ndc_number    varchar(255) NOT NULL DEFAULT '',
+  on_order      int(11)      NOT NULL DEFAULT 0,
+  reorder_point int(11)      NOT NULL DEFAULT 0,
+  reactions     text         NOT NULL DEFAULT '',
+  form          int(3)       NOT NULL DEFAULT 0,
+  dosage        varchar(10)  NOT NULL DEFAULT '',
+  size          int(11)      NOT NULL DEFAULT 0,
+  unit          int(11)      NOT NULL DEFAULT 0,
+  route         int(11)      NOT NULL DEFAULT 0,
+  period        int(11)      NOT NULL DEFAULT 0,
+  substitute    int(11)      NOT NULL DEFAULT 0,
+  refills       int(11)      NOT NULL DEFAULT 0,
+  per_refill    int(11)      NOT NULL DEFAULT 0,
+  PRIMARY KEY (drug_id)
+) TYPE=MyISAM;
+
+CREATE TABLE drug_inventory (
+  drug_id       int(11)      NOT NULL,
+  lot_number    varchar(255) NOT NULL DEFAULT '',
+  expiration    date         DEFAULT NULL,
+  manufacturer  varchar(255) NOT NULL DEFAULT '',
+  on_hand       int(11)      NOT NULL DEFAULT 0,
+  PRIMARY KEY (drug_id, lot_number)
+) TYPE=MyISAM;

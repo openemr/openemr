@@ -28322,3 +28322,34 @@ CREATE TABLE `array` (
   `array_value` longtext
 ) TYPE=MyISAM;
 
+## Drug information database.
+
+CREATE TABLE drugs (
+  drug_id       int(11)      NOT NULL auto_increment,
+  name          varchar(255) NOT NULL,
+  ndc_number    varchar(255) NOT NULL DEFAULT '',
+  on_order      int(11)      NOT NULL DEFAULT 0,
+  reorder_point int(11)      NOT NULL DEFAULT 0,
+  reactions     text         NOT NULL DEFAULT '',
+  form          int(3)       NOT NULL DEFAULT 0,
+  dosage        varchar(10)  NOT NULL DEFAULT '',
+  size          int(11)      NOT NULL DEFAULT 0,
+  unit          int(11)      NOT NULL DEFAULT 0,
+  route         int(11)      NOT NULL DEFAULT 0,
+  period        int(11)      NOT NULL DEFAULT 0,
+  substitute    int(11)      NOT NULL DEFAULT 0,
+  refills       int(11)      NOT NULL DEFAULT 0,
+  per_refill    int(11)      NOT NULL DEFAULT 0,
+  PRIMARY KEY (drug_id)
+) TYPE=MyISAM;
+
+## Drug inventory database.
+
+CREATE TABLE drug_inventory (
+  drug_id       int(11)      NOT NULL,
+  lot_number    varchar(255) NOT NULL DEFAULT '',
+  expiration    date         DEFAULT NULL,
+  manufacturer  varchar(255) NOT NULL DEFAULT '',
+  on_hand       int(11)      NOT NULL DEFAULT 0,
+  PRIMARY KEY (drug_id, lot_number)
+) TYPE=MyISAM;
