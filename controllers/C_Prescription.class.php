@@ -1,9 +1,9 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/Prescription.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/Provider.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/RXList.class.php");
+require_once($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
+require_once($GLOBALS['fileroot'] . "/library/classes/Prescription.class.php");
+require_once($GLOBALS['fileroot'] . "/library/classes/Provider.class.php");
+require_once($GLOBALS['fileroot'] . "/library/classes/RXList.class.php");
 
 class C_Prescription extends Controller {
 
@@ -17,6 +17,19 @@ class C_Prescription extends Controller {
 		$this->assign("TOP_ACTION", $GLOBALS['webroot']."/controller.php?" . "prescription" . "&");
 		$this->assign("STYLE", $GLOBALS['style']);
 		$this->pconfig = $GLOBALS['oer_config']['prescriptions'];
+
+		// Make an array of drug IDs and names for the template.
+		$drug_array = array(0 => "-- or select from inventory --");
+		$res = sqlStatement("SELECT * FROM drugs ORDER BY name");
+		while ($row = sqlFetchArray($res)) {
+			$drug_array[$row['drug_id']] = $row['name'];
+			if ($row['ndc_number']) {
+				$drug_array[$row['drug_id']] .= ' [' . $row['ndc_number'] . ']';
+			}
+			// TBD: JavaScript variables for setting default options.
+		}
+		$this->assign("DRUG_ARRAY", $drug_array);
+
 	}
 
 	function default_action() {

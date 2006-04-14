@@ -102,6 +102,7 @@ class Prescription extends ORDataObject {
 	var $refills;
 	var $per_refill;
 
+	var $drug_id;
 
 	/**
 	 * Constructor sets all Prescription attributes to their default value
@@ -132,6 +133,9 @@ class Prescription extends ORDataObject {
 		$this->date_modified = date("Y-m-d");
 		$this->per_refill = 0;
 		$this->note = "";
+
+		$this->drug_id = 0;
+
 		for($i=0;$i<21;$i++) {
 			$this->refills_array[$i] = sprintf("%02d",$i);
 		}
@@ -181,7 +185,8 @@ class Prescription extends ORDataObject {
 			."Interval: " .$this->interval_array[$this->interval]. "\n"
 			."Substitute: " . $this->substitute_array[$this->substitute]. "\n"
 			."Refills: " . $this->refills. "\n"
-			."Per Refill: " . $this->per_refill;
+			."Per Refill: " . $this->per_refill . "\n"
+			."Drug ID: " . $this->drug_id;
 
 		if ($html) {
 			return nl2br($string);
@@ -406,6 +411,13 @@ class Prescription extends ORDataObject {
 		if (is_numeric($id)) {
 			return $this->pharmacist->id = $id;
 		}
+	}
+
+	function set_drug_id($drug_id) {
+			$this->drug_id = $drug_id;
+	}
+	function get_drug_id() {
+		return $this->drug_id;
 	}
 
 	function get_prescription_display() {

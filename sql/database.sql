@@ -27576,6 +27576,7 @@ CREATE TABLE `prescriptions` (
   `provider_id` int(11) default NULL,
   `start_date` date default NULL,
   `drug` varchar(150) default NULL,
+  `drug_id` int(11) NOT NULL DEFAULT 0,
   `form` int(3) default NULL,
   `dosage` varchar(10) default NULL,
   `quantity` int(11) default NULL,
@@ -28322,14 +28323,15 @@ CREATE TABLE `array` (
   `array_value` longtext
 ) TYPE=MyISAM;
 
-## Drug information database.
+## Drug information.
 
 CREATE TABLE drugs (
   drug_id       int(11)      NOT NULL auto_increment,
   name          varchar(255) NOT NULL,
-  ndc_number    varchar(255) NOT NULL DEFAULT '',
+  ndc_number    varchar(20)  NOT NULL DEFAULT '',
   on_order      int(11)      NOT NULL DEFAULT 0,
   reorder_point int(11)      NOT NULL DEFAULT 0,
+  last_notify   date         NOT NULL DEFAULT '0000-00-00',
   reactions     text         NOT NULL DEFAULT '',
   form          int(3)       NOT NULL DEFAULT 0,
   dosage        varchar(10)  NOT NULL DEFAULT '',
@@ -28343,13 +28345,26 @@ CREATE TABLE drugs (
   PRIMARY KEY (drug_id)
 ) TYPE=MyISAM;
 
-## Drug inventory database.
-
 CREATE TABLE drug_inventory (
+  inventory_id  int(11)      NOT NULL auto_increment,
   drug_id       int(11)      NOT NULL,
-  lot_number    varchar(255) NOT NULL DEFAULT '',
+  lot_number    varchar(20)  NOT NULL DEFAULT '',
   expiration    date         DEFAULT NULL,
   manufacturer  varchar(255) NOT NULL DEFAULT '',
   on_hand       int(11)      NOT NULL DEFAULT 0,
-  PRIMARY KEY (drug_id, lot_number)
+  last_notify   date         NOT NULL DEFAULT '0000-00-00',
+  PRIMARY KEY (inventory_id)
+) TYPE=MyISAM;
+
+CREATE TABLE drug_sales (
+  sale_id         int(11)      NOT NULL auto_increment,
+  drug_id         int(11)      NOT NULL,
+  inventory_id    int(11)      NOT NULL,
+  prescription_id int(11)      NOT NULL DEFAULT 0,
+  pid             int(11)      NOT NULL DEFAULT 0,
+  user            varchar(255) NOT NULL DEFAULT '',
+  sale_date       date         NOT NULL,
+  quantity        int(11)      NOT NULL DEFAULT 0,
+  fee             decimal(7,2) NOT NULL DEFAULT 0.00,
+  PRIMARY KEY (sale_id)
 ) TYPE=MyISAM;

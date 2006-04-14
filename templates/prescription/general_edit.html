@@ -21,6 +21,18 @@ textarea {
 }
 -->
 </style>
+<script type="text/javascript" src="library/dialog.js"></script>
+<script language='JavaScript'>
+ function dispense() {
+  var f = document.forms[0];
+  dlgopen('interface/drugs/dispense_drug.php' +
+   '?drug_id=' + f.drug_id.value +
+   '&prescription=' + f.id.value +
+   '&quantity=' + f.disp_quantity.value +
+   '&fee=' + f.disp_fee.value,
+   '_blank', 400, 200);
+ }
+</script>
 {/literal}
 </head>
 <body {$STYLE.BOTTOM_BG_LINE}>
@@ -36,19 +48,31 @@ textarea {
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Provider</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		{html_options name="provider_id" options=$prescription->provider->utility_provider_array() selected=$prescription->provider->get_id()}
+		<input type="hidden" name="patient_id" value="{$prescription->patient->id}" />
 	</td>
 </tr>
+<!--
 <tr>
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Patient Name</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >{$prescription->patient->get_name_display()}</td>
-	<input type="hidden" name="patient_id" value="{$prescription->patient->id}" />
 </tr>
+-->
 <tr>
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Drug</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<input type="input" size="20" name="drug" value="{$prescription->drug}"/><input class="button" type="BUTTON" onClick="drugPopup=window.open('controller.php?prescription&lookup', 'drugPopup', 'width=400,height=50,menubar=no,titlebar=no,left = 825,top = 400'); drugPopup.opener=self; return true;" value="Drug Lookup"/>
 	</td>
 </tr>
+
+{if $DRUG_ARRAY}
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >&nbsp; in-house</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+		{html_options name="drug_id" options=$DRUG_ARRAY selected=$prescription->get_drug_id()}
+	</td>
+</tr>
+{/if}
+
 <tr>
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Quantity</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
@@ -65,7 +89,7 @@ textarea {
 <tr>
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Take</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-		<input TYPE="TEXT" NAME="dosage" SIZE="11" MAXLENGTH="10" VALUE="{$prescription->dosage}"/> in
+		<input TYPE="TEXT" NAME="dosage" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->dosage}"/> in
 		<select name="form">{html_options options=$prescription->form_array selected=$prescription->form}</select>
 		<select name="route">{html_options options=$prescription->route_array selected=$prescription->route}</select>
 		<select name="interval">{html_options options=$prescription->interval_array selected=$prescription->interval}</select>
@@ -86,11 +110,20 @@ textarea {
 <tr>
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Notes</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-	<textarea name="note" cols="30" rows="3" wrap="virtual">{$prescription->note}</textarea>
+	<textarea name="note" cols="30" rows="2" wrap="virtual">{$prescription->note}</textarea>
 	</td>
 </tr>
 <tr>
-	<td><input type="submit" value="Prescribe" /></td>
+	<td colspan="3">
+		<input type="submit" value="Prescribe" />
+		{if $DRUG_ARRAY}{if $prescription->id}
+		&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+		<input type="button" value="Dispense" onclick="dispense()" />
+		<input type="text" name="disp_quantity" size="2" maxlength="10" value="{$prescription->quantity}" />
+		units, $
+		<input type="text" name="disp_fee" size="5" maxlength="10" />
+		{/if}{/if}
+	</td>
 </tr>
 </table>
 <input type="hidden" name="id" value="{$prescription->id}" />
