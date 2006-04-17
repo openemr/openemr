@@ -212,7 +212,21 @@
       echo '<img src="' . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . $document_id . '"><br><br>';
      }
      else {
-      echo "<b>NOTE</b>: ".xl('Document')."'" . $fname ."' ".xl('cannot be displayed inline because its type is not supported by the browser.')."<br><br>";	
+      // echo "<b>NOTE</b>: ".xl('Document')."'" . $fname ."' ".xl('cannot be displayed inline because its type is not supported by the browser.')."<br><br>";	
+
+      // This requires ImageMagick to be installed.
+      $from_file = $d->get_url_filepath();
+      $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
+      if (! is_file($to_file)) exec("convert '$from_file' -append '$to_file'");
+      if (is_file($to_file)) {
+       $to_url = $GLOBALS['webroot'] . "/documents/$pid/" . basename($to_file);
+       echo "<img src='$to_url'><br><br>\n";
+      } else {
+       echo "<b>NOTE</b>: " . xl('Document') . "'" . $fname . "' " .
+        xl('cannot be converted to JPEG. Perhaps ImageMagick is not installed?') .
+        "<br><br>";
+      }
+
      }
     }
    }
