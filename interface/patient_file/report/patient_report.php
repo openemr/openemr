@@ -139,7 +139,8 @@
  $res = sqlStatement("SELECT forms.encounter, forms.form_id, forms.form_name, " .
   "forms.formdir, forms.date AS fdate, form_encounter.date " .
   "FROM forms, form_encounter WHERE " .
-  "forms.pid = '$pid' AND form_encounter.encounter = forms.encounter " .
+  "forms.pid = '$pid' AND form_encounter.pid = '$pid' AND " .
+  "form_encounter.encounter = forms.encounter " .
   "ORDER BY form_encounter.date DESC, fdate ASC");
  $res2 = sqlStatement("SELECT name FROM registry ORDER BY priority");
 $html_strings = array();
