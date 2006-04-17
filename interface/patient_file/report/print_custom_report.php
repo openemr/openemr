@@ -280,7 +280,7 @@
     call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
     if ($res[1] == 'newpatient') {
      $bres = sqlStatement("SELECT date, code, code_text FROM billing WHERE " .
-      "encounter = '$form_encounter' AND activity = 1 AND " .
+      "pid = '$pid' AND encounter = '$form_encounter' AND activity = 1 AND " .
       "(code_type = 'CPT4' OR code_type = 'OPCS') " .
       "ORDER BY date");
      while ($brow=sqlFetchArray($bres)) {
