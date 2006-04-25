@@ -10,6 +10,7 @@
  require_once("$srcdir/acl.inc");
  require_once("drugs.inc.php");
  require_once($GLOBALS['fileroot'] . "/library/classes/class.phpmailer.php");
+ require_once($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
 
  function send_email($subject, $body) {
   $recipient = $GLOBALS['practice_return_email_path'];
@@ -29,7 +30,7 @@
   }
  }
 
- $sales_id        = $_REQUEST['sales_id'];
+ $sale_id         = $_REQUEST['sale_id'];
  $drug_id         = $_REQUEST['drug_id'];
  $prescription_id = $_REQUEST['prescription'];
  $quantity        = $_REQUEST['quantity'];
@@ -47,7 +48,9 @@
  $bad_lot_list = '';
  $today = date('Y-m-d');
 
- if (! $sales_id) {
+ // If there is no sale_id then this is a new dispensation.
+ //
+ if (! $sale_id) {
   // Find and update inventory, deal with errors.
   //
   if ($drug_id) {
@@ -94,16 +97,59 @@
 
   }
 
-  $sales_id = sqlInsert("INSERT INTO drug_sales ( " .
+  $sale_id = sqlInsert("INSERT INTO drug_sales ( " .
    "drug_id, inventory_id, prescription_id, pid, user, sale_date, quantity, fee " .
    ") VALUES ( " .
    "'$drug_id', '$inventory_id', '$prescription_id', '$pid', '$user', '$today',
    '$quantity', '$fee' "  .
    ")");
-
-  echo "Inventory has been updated. Here we will send a PDF for the bottle label.\n";
  }
 
- // TBD: Generate the bottle label PDF for the sale identified by $sales_id.
+ // Generate the bottle label PDF for the sale identified by $sale_id.
 
+ $row = sqlQuery("SELECT " .
+  "s.pid, s.quantity, s.prescription_id, " .
+  "i.manufacturer, i.lot_number, i.expiration, " .
+  "d.name, d.ndc_number, d.form, d.size, d.unit, " .
+  "r.date_modified, r.dosage, r.route, r.interval, r.substitute, r.refills, " .
+  "p.fname, p.lname, p.mname " .
+  "FROM drug_sales AS s, drug_inventory AS i, drugs AS d, " .
+  "prescriptions AS r, patient_data AS p WHERE " .
+  "s.sale_id = '$sale_id' AND " .
+  "i.inventory_id = s.inventory_id AND " .
+  "d.drug_id = i.drug_id AND " .
+  "r.id = s.prescription_id AND " .
+  "p.pid = s.pid");
+
+ $label_text = 'RX# ' . $row['prescription_id'] . ' ' .
+  $row['fname'] . ' ' . $row['lname'] . ' ' . $row['date_modified'] . "\n" .
+  $row['name'] . ' ' . $row['size'] . ' ' .
+  $unit_array[$row['unit']] . ' QTY ' .
+  $row['quantity'] . "\n" .
+  'NDC ' . $row['ndc_number'] . ' Lot ' . $row['lot_number'] . ' ' .
+  $row['manufacturer'] . "\n" .
+  'Take ' . $row['dosage'] . ' ' . $form_array[$row['form']] .
+  ($row['dosage'] > 1 ? 's ' : ' ') .
+  $interval_array_verbose[$row['interval']] . ' ' .
+  $route_array_verbose[$row['route']] . ".\n";
+
+ if ($row['refills']) {
+  // Find out how many times this prescription has been filled/refilled.
+  // Is this right?  Perhaps we should instead sum the dispensed quantities
+  // and reconcile with the prescription quantities.
+  $refills_row = sqlQuery("SELECT count(*) AS count FROM drug_sales " .
+   "WHERE prescription_id = '" . $row['prescription_id'] .
+   "' AND quantity > 0");
+  $label_text .= ($refills_row['count'] - 1) . ' of ' . $row['refills'] . ' refills';
+ }
+
+ $dconfig = $GLOBALS['oer_config']['druglabels'];
+ $pdf =& new Cezpdf($dconfig['paper_size']);
+ $pdf->ezSetMargins($dconfig['top'],$dconfig['bottom'],$dconfig['left'],$dconfig['right']);
+ $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
+ if(!empty($dconfig['logo'])) {
+  $pdf->ezImage($dconfig['logo']);
+ }
+ $pdf->ezText($label_text, 10);
+ $pdf->ezStream();
 ?>

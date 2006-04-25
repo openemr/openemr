@@ -52,6 +52,15 @@ $GLOBALS['oer_config']['prescriptions']['right'] = 30;
 $GLOBALS['oer_config']['prescriptions']['top'] = 72;
 $GLOBALS['oer_config']['prescriptions']['bottom'] = 30;
 
+// Similarly for bottle labels if you are dispensing drugs.  Note that paper
+// size here or for prescriptions may be an array (0, 0, width, height).
+// All of these measurements are in points.
+$GLOBALS['oer_config']['druglabels']['paper_size'] = array(0, 0, 216, 144);
+$GLOBALS['oer_config']['druglabels']['left']   = 18;
+$GLOBALS['oer_config']['druglabels']['right']  = 18;
+$GLOBALS['oer_config']['druglabels']['top']    = 18;
+$GLOBALS['oer_config']['druglabels']['bottom'] = 18;
+
 //accounting system web services integration
 //whether to use the system
 $GLOBALS['oer_config']['ws_accounting']['enabled'] = false;
