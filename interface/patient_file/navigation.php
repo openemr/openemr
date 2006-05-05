@@ -1,4 +1,4 @@
-<?
+<?php
  include_once("../globals.php");
  include_once("$srcdir/acl.inc");
 
@@ -34,7 +34,7 @@ function selpopup(selobj) {
 </script>
 </head>
 
-<body <? echo $nav_bg_line ?> topmargin='0' rightmargin='0' leftmargin='5'
+<body <?php echo $nav_bg_line ?> topmargin='0' rightmargin='0' leftmargin='5'
  marginheight='0' bottommargin='0'
  link='#000000' vlink='#000000' alink='#000000'>
 
@@ -65,19 +65,23 @@ function selpopup(selobj) {
   <td align="right" valign="middle">
     <select onchange='selpopup(this)' style='background-color:transparent'>
      <option value=''><? xl('Popups','e'); ?></option>
-<? if ($ie_auth) { ?>
+<?php if ($ie_auth) { ?>
      <option value='problem_encounter.php'><? xl('Issues','e'); ?></option>
-<? } ?>
+<?php } ?>
      <option value='../../custom/export_xml.php'><? xl('Export','e'); ?></option>
      <option value='../../custom/import_xml.php'><? xl('Import','e'); ?></option>
-<? if ($GLOBALS['athletic_team']) { ?>
+<?php if ($GLOBALS['athletic_team']) { ?>
      <option value='../reports/players_report.php'><? xl('Roster','e'); ?></option>
-<? } ?>
+<?php } ?>
      <option value='../reports/appointments_report.php'><? xl('Appts','e'); ?></option>
-<? if (file_exists("$webserver_root/custom/refer.php")) { ?>
+<?php if (file_exists("$webserver_root/custom/refer.php")) { ?>
      <option value='../../custom/refer.php'><? xl('Refer','e'); ?></option>
-<? } ?>
+<?php } ?>
+<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
+     <option value='pos_checkout.php'><? xl('Payment','e'); ?></option>
+<?php } else { ?>
      <option value='front_payment.php'><? xl('Payment','e'); ?></option>
+<?php } ?>
     </select>
   </td>
  </tr>

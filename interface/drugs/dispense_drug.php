@@ -107,22 +107,46 @@
 
  // Generate the bottle label PDF for the sale identified by $sale_id.
 
+ // Get details for what we guess is the primary facility.
+ $frow = sqlQuery("SELECT * FROM facility " .
+  "ORDER BY billing_location DESC, accepts_assignment DESC, id LIMIT 1");
+
+ // Get everything else.
  $row = sqlQuery("SELECT " .
   "s.pid, s.quantity, s.prescription_id, " .
   "i.manufacturer, i.lot_number, i.expiration, " .
   "d.name, d.ndc_number, d.form, d.size, d.unit, " .
   "r.date_modified, r.dosage, r.route, r.interval, r.substitute, r.refills, " .
-  "p.fname, p.lname, p.mname " .
+  "p.fname, p.lname, p.mname, " .
+  "u.fname AS ufname, u.mname AS umname, u.lname AS ulname " .
   "FROM drug_sales AS s, drug_inventory AS i, drugs AS d, " .
-  "prescriptions AS r, patient_data AS p WHERE " .
+  "prescriptions AS r, patient_data AS p, users AS u WHERE " .
   "s.sale_id = '$sale_id' AND " .
   "i.inventory_id = s.inventory_id AND " .
   "d.drug_id = i.drug_id AND " .
   "r.id = s.prescription_id AND " .
-  "p.pid = s.pid");
+  "p.pid = s.pid AND " .
+  "u.id = r.provider_id");
 
- $label_text = 'RX# ' . $row['prescription_id'] . ' ' .
-  $row['fname'] . ' ' . $row['lname'] . ' ' . $row['date_modified'] . "\n" .
+ $dconfig = $GLOBALS['oer_config']['druglabels'];
+ $pdf =& new Cezpdf($dconfig['paper_size']);
+ $pdf->ezSetMargins($dconfig['top'],$dconfig['bottom'],$dconfig['left'],$dconfig['right']);
+ $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
+
+ $header_text = $row['ufname'] . ' ' . $row['umname'] . ' ' . $row['ulname'] . "\n" .
+  $frow['street'] . "\n" .
+  $frow['city'] . ', ' . $frow['state'] . ' ' . $frow['postal_code'] .
+  '  ' . $frow['phone'] . "\n";
+ if ($dconfig['disclaimer']) $header_text .= $dconfig['disclaimer'] . "\n\n";
+
+ $pdf->ezText($header_text, 10, array('justification'=>'center'));
+
+ if(!empty($dconfig['logo'])) {
+  $pdf->ezImage($dconfig['logo'], 0, 180, '', 'left');
+ }
+
+ $label_text = $row['fname'] . ' ' . $row['lname'] . ' ' . $row['date_modified'] .
+  ' RX#' . sprintf('%06u', $row['prescription_id']) . "\n" .
   $row['name'] . ' ' . $row['size'] . ' ' .
   $unit_array[$row['unit']] . ' QTY ' .
   $row['quantity'] . "\n" .
@@ -133,6 +157,7 @@
   $interval_array_verbose[$row['interval']] . ' ' .
   $route_array_verbose[$row['route']] . ".\n";
 
+ /****
  if ($row['refills']) {
   // Find out how many times this prescription has been filled/refilled.
   // Is this right?  Perhaps we should instead sum the dispensed quantities
@@ -142,14 +167,8 @@
    "' AND quantity > 0");
   $label_text .= ($refills_row['count'] - 1) . ' of ' . $row['refills'] . ' refills';
  }
+ ****/
 
- $dconfig = $GLOBALS['oer_config']['druglabels'];
- $pdf =& new Cezpdf($dconfig['paper_size']);
- $pdf->ezSetMargins($dconfig['top'],$dconfig['bottom'],$dconfig['left'],$dconfig['right']);
- $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
- if(!empty($dconfig['logo'])) {
-  $pdf->ezImage($dconfig['logo']);
- }
- $pdf->ezText($label_text, 10);
+ $pdf->ezText($label_text, 10, array('justification'=>'center'));
  $pdf->ezStream();
 ?>

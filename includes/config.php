@@ -47,19 +47,23 @@ $GLOBALS['oer_config']['prescriptions']['paper_size'] = "LETTER";
 // change page margins for prescription printing
 // note, values are in pixels (72 dots per inch)
 // to convert from centimeters use the following: (centimeters / 2.54 ) * 72;
-$GLOBALS['oer_config']['prescriptions']['left'] = 30;
-$GLOBALS['oer_config']['prescriptions']['right'] = 30;
-$GLOBALS['oer_config']['prescriptions']['top'] = 72;
+$GLOBALS['oer_config']['prescriptions']['left']   = 30;
+$GLOBALS['oer_config']['prescriptions']['right']  = 30;
+$GLOBALS['oer_config']['prescriptions']['top']    = 72;
 $GLOBALS['oer_config']['prescriptions']['bottom'] = 30;
 
 // Similarly for bottle labels if you are dispensing drugs.  Note that paper
 // size here or for prescriptions may be an array (0, 0, width, height).
-// All of these measurements are in points.
-$GLOBALS['oer_config']['druglabels']['paper_size'] = array(0, 0, 216, 144);
+// As above, these measurements are in points.
+$GLOBALS['oer_config']['druglabels']['paper_size'] = array(0, 0, 216, 216);
 $GLOBALS['oer_config']['druglabels']['left']   = 18;
 $GLOBALS['oer_config']['druglabels']['right']  = 18;
 $GLOBALS['oer_config']['druglabels']['top']    = 18;
 $GLOBALS['oer_config']['druglabels']['bottom'] = 18;
+$GLOBALS['oer_config']['druglabels']['logo_pic'] = 'druglogo.png';
+$GLOBALS['oer_config']['druglabels']['disclaimer'] =
+  'Caution: Federal law prohibits dispensing without a prescription. ' .
+  'Use only as directed.';
 
 //accounting system web services integration
 //whether to use the system
@@ -75,9 +79,14 @@ $GLOBALS['oer_config']['ws_accounting']['income_acct'] = "4320";
 
 //don't alter below this line unless you are an advanced user and know what you are doing
 
-$GLOBALS['oer_config']['prescriptions']['logo'] = dirname(__FILE__) ."/../interface/pic/" . $GLOBALS['oer_config']['prescriptions']['logo_pic'];
-$GLOBALS['oer_config']['prescriptions']['signature'] = dirname(__FILE__) ."/../interface/pic/" . $GLOBALS['oer_config']['prescriptions']['sig_pic'];
+$GLOBALS['oer_config']['prescriptions']['logo'] = dirname(__FILE__) .
+  "/../interface/pic/" . $GLOBALS['oer_config']['prescriptions']['logo_pic'];
+$GLOBALS['oer_config']['prescriptions']['signature'] = dirname(__FILE__) .
+  "/../interface/pic/" . $GLOBALS['oer_config']['prescriptions']['sig_pic'];
 $GLOBALS['oer_config']['prescriptions']['signature'] = '';
+
+$GLOBALS['oer_config']['druglabels']['logo'] = dirname(__FILE__) .
+  "/../interface/pic/" . $GLOBALS['oer_config']['druglabels']['logo_pic'];
 
 if (strpos($GLOBALS['oer_config']['documents']['repository'],"/") !== 0) {
 	$GLOBALS['oer_config']['documents']['repository'] = realpath(dirname(__FILE__) . "/../" . $GLOBALS['oer_config']['documents']['repository']) . "/";

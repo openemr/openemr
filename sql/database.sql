@@ -28362,6 +28362,7 @@ CREATE TABLE drug_sales (
   inventory_id    int(11)      NOT NULL,
   prescription_id int(11)      NOT NULL DEFAULT 0,
   pid             int(11)      NOT NULL DEFAULT 0,
+  encounter       int(11)      NOT NULL DEFAULT 0,
   user            varchar(255) NOT NULL DEFAULT '',
   sale_date       date         NOT NULL,
   quantity        int(11)      NOT NULL DEFAULT 0,
