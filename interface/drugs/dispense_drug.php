@@ -137,12 +137,15 @@
   $frow['street'] . "\n" .
   $frow['city'] . ', ' . $frow['state'] . ' ' . $frow['postal_code'] .
   '  ' . $frow['phone'] . "\n";
- if ($dconfig['disclaimer']) $header_text .= $dconfig['disclaimer'] . "\n\n";
+ if ($dconfig['disclaimer']) $header_text .= $dconfig['disclaimer'] . "\n";
 
- $pdf->ezText($header_text, 10, array('justification'=>'center'));
+ $pdf->ezSetDy(20); // dunno why we have to do this...
+ $pdf->ezText($header_text, 8, array('justification'=>'center'));
 
  if(!empty($dconfig['logo'])) {
+  $pdf->ezSetDy(-5); // add space (move down) before the image
   $pdf->ezImage($dconfig['logo'], 0, 180, '', 'left');
+  $pdf->ezSetDy(8);  // reduce space (move up) after the image
  }
 
  $label_text = $row['fname'] . ' ' . $row['lname'] . ' ' . $row['date_modified'] .
@@ -155,7 +158,7 @@
   'Take ' . $row['dosage'] . ' ' . $form_array[$row['form']] .
   ($row['dosage'] > 1 ? 's ' : ' ') .
   $interval_array_verbose[$row['interval']] . ' ' .
-  $route_array_verbose[$row['route']] . ".\n";
+  $route_array_verbose[$row['route']] . ".";
 
  /****
  if ($row['refills']) {
@@ -170,5 +173,6 @@
  ****/
 
  $pdf->ezText($label_text, 10, array('justification'=>'center'));
+
  $pdf->ezStream();
 ?>
