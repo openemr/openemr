@@ -18,17 +18,33 @@ class C_Prescription extends Controller {
 		$this->assign("STYLE", $GLOBALS['style']);
 		$this->pconfig = $GLOBALS['oer_config']['prescriptions'];
 
-		// Make an array of drug IDs and names for the template.
-		$drug_array = array(0 => "-- or select from inventory --");
-		$res = sqlStatement("SELECT * FROM drugs ORDER BY name");
-		while ($row = sqlFetchArray($res)) {
-			$drug_array[$row['drug_id']] = $row['name'];
-			if ($row['ndc_number']) {
-				$drug_array[$row['drug_id']] .= ' [' . $row['ndc_number'] . ']';
+		if ($GLOBALS['inhouse_pharmacy']) {
+			// Make an array of drug IDs and selectors for the template.
+			$drug_array = array(0 => "-- or select from inventory --");
+			$drug_attributes = '';
+			$res = sqlStatement("SELECT * FROM drugs ORDER BY selector");
+			while ($row = sqlFetchArray($res)) {
+				$drug_array[$row['drug_id']] = $row['selector'];
+				if ($row['ndc_number']) {
+					$drug_array[$row['drug_id']] .= ' [' . $row['ndc_number'] . ']';
+				}
+				if ($drug_attributes) $drug_attributes .= ',';
+				$drug_attributes .=    "['"  .
+					$row['name']       . "',"  . //  0
+					$row['form']       . ",'"  . //  1
+					$row['dosage']     . "',"  . //  2
+					$row['size']       . ","   . //  3
+					$row['unit']       . ","   . //  4
+					$row['route']      . ","   . //  5
+					$row['period']     . ","   . //  6
+					$row['substitute'] . ","   . //  7
+					$row['quantity']   . ","   . //  8
+					$row['refills']    . ","   . //  9
+					$row['per_refill'] . "]";    // 10
 			}
-			// TBD: JavaScript variables for setting default options.
+			$this->assign("DRUG_ARRAY", $drug_array);
+			$this->assign("DRUG_ATTRIBUTES", $drug_attributes);
 		}
-		$this->assign("DRUG_ARRAY", $drug_array);
 
 	}
 
@@ -97,6 +113,19 @@ class C_Prescription extends Controller {
 		//echo $this->prescriptions[0]->toString(true);
 		$this->prescriptions[0]->persist();
 		$_POST['process'] = "";
+
+		// If the "Prescribe and Dispense" button was clicked, then
+		// redisplay as in edit_action() but also replicate the fee and
+		// include a piece of javascript to call dispense().
+		//
+		if ($_POST['disp_button']) {
+			$this->assign("DISP_QUANTITY", $_POST['disp_quantity']);
+			$this->assign("DISP_FEE", $_POST['disp_fee']);
+			$this->assign("ENDING_JAVASCRIPT", "dispense();");
+			$this->_state = false;
+			return $this->edit_action($this->prescriptions[0]->id);
+		}
+
 		return $this->send_action($this->prescriptions[0]->id);
 	}
 

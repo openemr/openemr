@@ -28327,7 +28327,8 @@ CREATE TABLE `array` (
 
 CREATE TABLE drugs (
   drug_id       int(11)      NOT NULL auto_increment,
-  name          varchar(255) NOT NULL,
+  selector      varchar(255) NOT NULL,
+  name          varchar(255) NOT NULL DEFAULT '',
   ndc_number    varchar(20)  NOT NULL DEFAULT '',
   on_order      int(11)      NOT NULL DEFAULT 0,
   reorder_point int(11)      NOT NULL DEFAULT 0,
@@ -28340,6 +28341,7 @@ CREATE TABLE drugs (
   route         int(11)      NOT NULL DEFAULT 0,
   period        int(11)      NOT NULL DEFAULT 0,
   substitute    int(11)      NOT NULL DEFAULT 0,
+  quantity      int(11)      NOT NULL DEFAULT 0,
   refills       int(11)      NOT NULL DEFAULT 0,
   per_refill    int(11)      NOT NULL DEFAULT 0,
   PRIMARY KEY (drug_id)

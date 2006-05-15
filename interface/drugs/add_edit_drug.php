@@ -37,6 +37,7 @@ td { font-size:10pt; }
   if ($drug_id) {
    if ($_POST['form_save']) {
     sqlStatement("UPDATE drugs SET " .
+     "selector = '"      . $_POST['form_selector']      . "', " .
      "name = '"          . $_POST['form_name']          . "', " .
      "ndc_number = '"    . $_POST['form_ndc_number']    . "', " .
      "on_order = '"      . $_POST['form_on_order']      . "', " .
@@ -49,6 +50,7 @@ td { font-size:10pt; }
      "route = '"         . $_POST['form_route']         . "', " .
      "period = '"        . $_POST['form_period']        . "', " .
      "substitute = '"    . $_POST['form_substitute']    . "', " .
+     "quantity = '"      . $_POST['form_quantity']      . "', " .
      "refills = '"       . $_POST['form_refills']       . "', " .
      "per_refill = '"    . $_POST['form_per_refill']    . "' "  .
      "WHERE drug_id = '$drug_id'");
@@ -58,9 +60,10 @@ td { font-size:10pt; }
    }
   } else {
    $drug_id = sqlInsert("INSERT INTO drugs ( " .
-    "name, ndc_number, on_order, reorder_point, reactions, form, dosage, " .
-    "size, unit, route, period, substitute, refills, per_refill " .
+    "selector, name, ndc_number, on_order, reorder_point, reactions, form, dosage, " .
+    "size, unit, route, period, substitute, quantity, refills, per_refill " .
     ") VALUES ( " .
+    "'" . $_POST['form_selector']      . "', " .
     "'" . $_POST['form_name']          . "', " .
     "'" . $_POST['form_ndc_number']    . "', " .
     "'" . $_POST['form_on_order']      . "', " .
@@ -73,6 +76,7 @@ td { font-size:10pt; }
     "'" . $_POST['form_route']         . "', " .
     "'" . $_POST['form_period']        . "', " .
     "'" . $_POST['form_substitute']    . "', " .
+    "'" . $_POST['form_quantity']      . "', " .
     "'" . $_POST['form_refills']       . "', " .
     "'" . $_POST['form_per_refill']    . "' "  .
    ")");
@@ -99,7 +103,14 @@ td { font-size:10pt; }
 <table border='0' width='100%'>
 
  <tr>
-  <td valign='top' width='1%' nowrap><b><? xl('Name','e'); ?>:</b></td>
+  <td valign='top' width='1%' nowrap><b><? xl('Identifier','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='40' name='form_selector' maxlength='80' value='<? echo $row['selector'] ?>' style='width:100%' />
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' nowrap><b><? xl('Name','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_name' maxlength='80' value='<? echo $row['name'] ?>' style='width:100%' />
   </td>
@@ -219,6 +230,13 @@ td { font-size:10pt; }
  }
 ?>
    </select>
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' nowrap><b><? xl('Quantity','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='5' name='form_quantity' maxlength='7' value='<? echo $row['quantity'] ?>' />
   </td>
  </tr>
 

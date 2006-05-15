@@ -62,12 +62,13 @@ function doiclick(id, lot) {
 
 <table width='100%' cellpadding='1' cellspacing='2'>
  <tr class='head'>
-  <td title='Click to edit'><? xl('Name','e'); ?></td>
+  <td title='Click to edit'><? xl('Identifier','e'); ?></td>
+  <td><? xl('Name','e'); ?></td>
   <td><? xl('NDC','e'); ?></td>
   <td><? xl('Form','e'); ?></td>
   <td><? xl('Size','e'); ?></td>
   <td><? xl('Unit','e'); ?></td>
-  <td title='Click to receive (add) new lot'><? xl('QOO','e'); ?></td>
+  <td title='Click to receive (add) new lot'><? xl('Add','e'); ?></td>
   <td title='Click to edit'><? xl('Lot','e'); ?></td>
   <td><? xl('QOH','e'); ?></td>
   <td><? xl('Expires','e'); ?></td>
@@ -83,17 +84,17 @@ function doiclick(id, lot) {
    echo " <tr class='detail' bgcolor='$bgcolor'>\n";
    echo "  <td onclick='dodclick($lastid)'>" .
     "<a href='' onclick='return false'>" .
-    htmlentities($row['name']) . "</a></td>\n";
+    htmlentities($row['selector']) . "</a></td>\n";
+   echo "  <td>" . htmlentities($row['name']) . "</td>\n";
    echo "  <td>" . htmlentities($row['ndc_number']) . "</td>\n";
    echo "  <td>" . $form_array[$row['form']] . "</td>\n";
    echo "  <td>" . $row['size'] . "</td>\n";
    echo "  <td>" . $unit_array[$row['unit']] . "</td>\n";
    echo "  <td onclick='doiclick($lastid,\"\")'>" .
-    "<a href='' onclick='return false'>" .
-    $row['on_order'] . "</a></td>\n";
+    "<a href='' onclick='return false'>Add</a></td>\n";
   } else {
    echo " <tr class='detail' bgcolor='$bgcolor'>\n";
-   echo "  <td colspan='6'>&nbsp;</td>\n";
+   echo "  <td colspan='7'>&nbsp;</td>\n";
   }
   if ($row['lot_number']) {
    $lot_number = htmlentities($row['lot_number']);
