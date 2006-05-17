@@ -135,9 +135,21 @@ class C_Prescription extends Controller {
 			$this->function_argument_error();
 		}
 
-		$this->assign("prescription",new Prescription($id));
+		$rx = new Prescription($id);
+		// Populate pharmacy info if the patient has a default pharmacy.
+		// Probably the Prescription object should handle this instead, but
+		// doing it there will require more careful research and testing.
+		$prow = sqlQuery("SELECT pt.pharmacy_id FROM prescriptions AS rx, " .
+			"patient_data AS pt WHERE rx.id = '$id' AND pt.pid = rx.patient_id");
+		if ($prow['pharmacy_id']) {
+			$rx->pharmacy->set_id($prow['pharmacy_id']);
+			$rx->pharmacy->populate();
+		}
+		$this->assign("prescription", $rx);
+
 		$this->_state = false;
-		return $this->fetch($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_send.html");
+		return $this->fetch($GLOBALS['template_dir'] . "prescription/" .
+			$this->template_mod . "_send.html");
 	}
 
 	function send_action_process($id) {

@@ -27289,7 +27289,7 @@ CREATE TABLE `patient_data` (
   `phone_biz` varchar(255) default NULL,
   `phone_contact` varchar(255) default NULL,
   `phone_cell` varchar(255) NOT NULL default '',
-  `phone_pharmacy` varchar(255) NOT NULL default '',
+  `pharmacy_id` int(11) NOT NULL default 0,
   `status` varchar(255) default NULL,
   `contact_relationship` varchar(255) default NULL,
   `date` datetime default NULL,

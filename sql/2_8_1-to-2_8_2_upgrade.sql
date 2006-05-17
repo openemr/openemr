@@ -267,8 +267,8 @@ ALTER TABLE registry ADD COLUMN priority INT DEFAULT 0 AFTER date;
 ALTER TABLE registry ADD COLUMN category VARCHAR(255) DEFAULT "category" AFTER priority;
 ALTER TABLE registry ADD COLUMN nickname VARCHAR(255) DEFAULT '' AFTER category;
 
-ALTER TABLE patient_data
-  ADD phone_pharmacy varchar(255) NOT NULL default '';
+# ALTER TABLE patient_data
+#   ADD phone_pharmacy varchar(255) NOT NULL default '';
 
 ## array table for storing configuration data and string lists etc...
 
@@ -331,4 +331,7 @@ CREATE TABLE drug_sales (
 ) TYPE=MyISAM;
 
 ALTER TABLE prescriptions
-  ADD drug_id    int(11)      NOT NULL DEFAULT 0;
+  ADD drug_id    int(11) NOT NULL DEFAULT 0;
+
+ALTER TABLE patient_data
+  ADD pharmacy_id int(11) NOT NULL default 0;

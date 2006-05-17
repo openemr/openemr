@@ -216,8 +216,27 @@ function set_insurance(ins_id, ins_name) {
  <tr>
   <td><span class=required><? echo ($GLOBALS['phone_country_code'] == '1') ? 'State' : 'Locality' ?>: </span></td>
   <td><input tabindex="10" type=entry size=15 name=state value="<?echo $result{"state"}?>"></td>
-  <td><span class=bold><? xl('Pharmacy Phone','e'); ?>: </span></td>
-  <td><input type='text' size='20' name='phone_pharmacy' value='<?echo $result['phone_pharmacy'] ?>' onkeyup='phonekeyup(this,mypcc)' /></td>
+  <td><span class=bold><? xl('Pharmacy','e'); ?>: </span></td>
+  <td>
+   <!--
+   <input type='text' size='20' name='phone_pharmacy' value='<?echo $result['phone_pharmacy'] ?>' onkeyup='phonekeyup(this,mypcc)' />
+   -->
+   <select name='pharmacy_id'>
+    <option value='0'></option>
+    <?php
+     $pres = sqlStatement("SELECT id, name FROM pharmacies ORDER BY name");
+     while ($prow = sqlFetchArray($pres)) {
+      $key = $prow['id'];
+      $value = $prow['name'];
+      echo "    <option value='$key'";
+      if ($result['pharmacy_id'] == $key) echo " selected";
+      echo ">" . $prow['name'] . "</option>\n";
+     }
+    ?>
+   </select>
+   <!-- conversion helper: -->
+   <?php if (!$result['pharmacy_id']) echo $result['phone_pharmacy']; ?>
+  </td>
  </tr>
  <tr>
   <td><span class=required><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Zip' : 'Postal' ?> <? xl('Code','e'); ?>: </span></td>

@@ -30,12 +30,12 @@ a {
 
 </td><td></td></tr>
 <form name="send_prescription" method="post" action="{$TOP_ACTION}send&id={$prescription->id}">
-<tr><td><input type="submit" name="submit" value="Email" style="width:85;" /></td><td><input type="text" name="email_to"  size="25" value="{$prescription->email_to}"></td></tr>
-<tr><td><input type="submit" name="submit" value="Fax" style="width:85;"/></td><td><input type="text" name="fax_to"  size="25" value="{$prescription->fax_to}" ></td></tr>
+<tr><td><input type="submit" name="submit" value="Email" style="width:85;" /></td><td><input type="text" name="email_to"  size="25" value="{$prescription->pharmacy->get_email()}"></td></tr>
+<tr><td><input type="submit" name="submit" value="Fax" style="width:85;"/></td><td><input type="text" name="fax_to"  size="25" value="{$prescription->pharmacy->get_fax()}" ></td></tr>
 <input type="hidden" name="process" value="{$PROCESS}" />
 </form>
 <form name="send_prescription" method="post" action="{$TOP_ACTION}send&id={$prescription->id}" target="_new">
-<tr><td><input type="submit" name="submit" value="Auto Send" style="width:85;" /></td><td>{html_options name="pharmacy_id" options=$prescription->pharmacy->utility_pharmacy_array() selected=$prescription->provider->id}</td></tr>
+<tr><td><input type="submit" name="submit" value="Auto Send" style="width:85;" /></td><td>{html_options name="pharmacy_id" options=$prescription->pharmacy->utility_pharmacy_array() selected=$prescription->pharmacy->id}</td></tr>
 <input type="hidden" name="process" value="{$PROCESS}" />
 <tr><td colspan="2" align="center"></td></tr>
 </table>

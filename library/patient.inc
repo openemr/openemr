@@ -416,17 +416,16 @@ function newPatientData(	$db_id="",
 				$hipaa_mail = "",
 				$hipaa_voice = "",
 				$squad = 0,
-				$phone_pharmacy = "",
+				$pharmacy_id = 0,
 				$drivers_license = ""
 			)
 {
 	$DOB = fixDate($DOB);
 
-	// Looking for problems... suspecting that $pid might be clobbered.
-	//
 	$fitness = 0;
 	if ($pid) {
 		$rez = sqlQuery("select id, fitness from patient_data where pid = $pid");
+		// Check for brain damage:
 		if ($db_id != $rez['id']) {
 			$errmsg = "Internal error: Attempt to change patient_data.id from '" .
 			  $rez['id'] . "' to '$db_id' for pid '$pid'";
@@ -475,7 +474,7 @@ function newPatientData(	$db_id="",
 		genericname2 = '$genericname2',
 		genericval2 = '$genericval2',
 		phone_cell = '$phone_cell',
-		phone_pharmacy = '$phone_pharmacy',
+		pharmacy_id = '$pharmacy_id',
 		hipaa_mail = '$hipaa_mail',
 		hipaa_voice = '$hipaa_voice',
 		squad = '$squad',
