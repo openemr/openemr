@@ -251,9 +251,16 @@ function npopup(pid) {
     title='<?xl("Date of service mm/dd/yyyy","e")?>'>
   </td>
   <td>
+   <?xl('To:','e')?>
+  </td>
+  <td>
+   <input type='text' name='form_to_date' size='10' value='<? echo $_POST['form_to_date']; ?>'
+    title='<?xl("Ending DOS mm/dd/yyyy if you wish to enter a range","e")?>'>
+  </td>
+  <td>
    <select name='form_category'>
 <?
- foreach (array(xl('Open'), xl('All'), xl('Due')) as $value) {
+ foreach (array(xl('Open'), xl('All'), xl('Due Pt'), xl('Due Ins')) as $value) {
   echo "    <option value='$value'";
   if ($_POST['form_category'] == $value) echo " selected";
   echo ">$value</option>\n";
@@ -310,6 +317,7 @@ function npopup(pid) {
     $form_pid       = trim($_POST['form_pid']);
     $form_encounter = trim($_POST['form_encounter']);
     $form_date      = fixDate($_POST['form_date'], "");
+    $form_to_date   = fixDate($_POST['form_to_date'], "");
 
     $where = "";
 
@@ -339,9 +347,22 @@ function npopup(pid) {
 
     if ($form_date) {
       if ($where) $where .= " AND ";
-      $where .= "(ar.invnumber LIKE '%." . substr($form_date, 0, 4) . substr($form_date, 5, 2) .
-        substr($form_date, 8, 2) . "'";
-      $rez = sqlStatement("SELECT pid, encounter FROM form_encounter WHERE date = '$form_date'");
+      $date1 = substr($form_date, 0, 4) . substr($form_date, 5, 2) .
+        substr($form_date, 8, 2);
+      if ($form_to_date) {
+        $date2 = substr($form_to_date, 0, 4) . substr($form_to_date, 5, 2) .
+          substr($form_to_date, 8, 2);
+        $where .= "((CAST (substring(ar.invnumber from position('.' in ar.invnumber) + 1 for 8) AS integer) " .
+          "BETWEEN '$date1' AND '$date2')";
+        $tmp = "date >= '$form_date' AND date <= '$form_to_date'";
+      }
+      else {
+        // This catches old converted invoices where we have no encounters:
+        $where .= "(ar.invnumber LIKE '%.$date1'";
+        $tmp = "date = '$form_date'";
+      }
+      // Pick out the encounters from MySQL with the desired DOS:
+      $rez = sqlStatement("SELECT pid, encounter FROM form_encounter WHERE $tmp");
       while ($row = sqlFetchArray($rez)) {
         $where .= " OR ar.invnumber = '" . $row['pid'] . "." . $row['encounter'] . "'";
       }
@@ -372,6 +393,7 @@ function npopup(pid) {
     $t_res = SLQuery($query);
     if ($sl_err) die($sl_err);
 
+    $orow = -1;
     for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
       $row = SLGetRow($t_res, $irow);
 
@@ -396,18 +418,21 @@ function npopup(pid) {
 
 //    $isdue = ($row['duedate'] <= $today && $row['amount'] > $row['paid']) ? " checked" : "";
 
-      // An invoice is now due if money is owed and we are not waiting for
-      // insurance to pay.  We no longer look at the due date for this.
-      //
-      $isdue = ($duncount >= 0 &&
-        sprintf("%.2f",$row['amount']) > sprintf("%.2f",$row['paid']))
-        ? " checked" : "";
+      $isdueany = sprintf("%.2f",$row['amount']) > sprintf("%.2f",$row['paid']);
 
-      // Skip non-due invoices if the user asked for only those due.
+      // An invoice is now due from the patient if money is owed and we are
+      // not waiting for insurance to pay.  We no longer look at the due date
+      // for this.
       //
-      if ($_POST['form_category'] == 'Due' && ! $isdue) continue;
+      $isduept = ($duncount >= 0 && $isdueany) ? " checked" : "";
 
-      $bgcolor = (($irow & 1) ? "#ffdddd" : "#ddddff");
+      // Skip invoices not in the desired "Due..." category.
+      //
+      if (substr($_POST['form_category'], 0, 3) == 'Due' && !$isdueany) continue;
+      if ($_POST['form_category'] == 'Due Ins' && $duncount >= 0) continue;
+      if ($_POST['form_category'] == 'Due Pt'  && $duncount <  0) continue;
+
+      $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
 
       // Determine the date of service.  If this was a search parameter
       // then we already know it.  Or an 8-digit encounter number is
@@ -416,10 +441,10 @@ function npopup(pid) {
       //
       $svcdate = "";
       list($pid, $encounter) = explode(".", $row['invnumber']);
-      if ($form_date) {
-        $svcdate = $form_date;
-      }
-      else if (strlen($encounter) == 8) {
+      // if ($form_date) {
+      //   $svcdate = $form_date;
+      // } else
+      if (strlen($encounter) == 8) {
         $svcdate = substr($encounter, 0, 4) . "-" . substr($encounter, 4, 2) .
           "-" . substr($encounter, 6, 2);
       }
@@ -456,7 +481,7 @@ function npopup(pid) {
    <? echo $duncount ? $duncount : "&nbsp;" ?>
   </td>
   <td class="detail" align="center">
-   <input type='checkbox' name='form_cb[<? echo($row['id']) ?>]'<? echo $isdue ?> />
+   <input type='checkbox' name='form_cb[<? echo($row['id']) ?>]'<? echo $isduept ?> />
   </td>
  </tr>
 <?
