@@ -123,7 +123,8 @@ class PhoneNumber extends ORDataObject{
 	
 	function get_phone_display() {
 		if (is_numeric($this->area_code) && is_numeric($this->prefix) && is_numeric($this->number)) {
-			return  "(" . $this->area_code . ") " . $this->prefix . "-" . $this->number;
+			// return  "(" . $this->area_code . ") " . $this->prefix . "-" . $this->number;
+			return  $this->area_code . "-" . $this->prefix . "-" . $this->number;
 		}
 		return "";
 	}
