@@ -143,6 +143,9 @@ $GLOBALS['phone_country_code'] = '1'; // 1 = USA
 // 4 = last,first(title: description)
 $GLOBALS['calendar_appt_style'] = 2;
 
+// True to omit insurance and some other things from the demographics form:
+$GLOBALS['simplified_demographics'] = false;
+
 // These are needed only if you are using SQL-Ledger and you want to see
 // the cash receipts report by practitioner (sl_receipts_report.php),
 // which is invoked from the billing page.  We will probably have more
