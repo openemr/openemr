@@ -5,13 +5,30 @@ include_once("../globals.php");
 
 <head>
 <link rel=stylesheet href="<?echo xl($css_header,'e');?>" type="text/css">
+
+<script LANGUAGE="JavaScript">
+
+ function validate() {
+<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
+  var f = document.forms[0];
+  if (f.refsource.selectedIndex <= 0) {
+   alert('Please select a referral source!');
+   return false;
+  }
+<?php } ?>
+  return true;
+ }
+
+</script>
+
 </head>
 
 <body <?echo $top_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
  bottommargin='0' marginwidth='2' marginheight='0'
  onload="javascript:document.new_patient.fname.focus();">
 
-<form name='new_patient' method='post' action="new_patient_save.php" target='_top'>
+<form name='new_patient' method='post' action="new_patient_save.php"
+ target='_top' onsubmit='return validate()'>
 <a class="title" href="../main/main_screen.php" target="_top"><?xl('New Patient','e');?></a>
 
 <br><br>
@@ -62,6 +79,25 @@ include_once("../globals.php");
    <input type='entry' size='15' name='lname'>
   </td>
  </tr>
+
+<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
+ <tr>
+  <td>
+   <span class='bold'><?php xl('Referral Source','e'); ?>: </span>
+  </td>
+  <td>
+   <select name='refsource'>
+<?php
+ foreach (array('', 'Patient', 'Employee', 'Walk-In', 'Newspaper',
+  'Direct Mail', 'Coupon', 'Other') as $rs)
+ {
+  echo "    <option value='$rs'>$rs</option>\n";
+ }
+?>
+   </select>
+  </td>
+ </tr>
+<?php } ?>
 
  <tr>
   <td>

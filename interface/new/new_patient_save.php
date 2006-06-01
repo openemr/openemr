@@ -88,6 +88,13 @@ if ($_POST['form_create']) {
  newInsuranceData($pid, "primary");
  newInsuranceData($pid, "secondary");
  newInsuranceData($pid, "tertiary");
+
+ // Set referral source separately because we don't want it messed
+ // with later by newPatientData().
+ if ($refsource = trim($_POST["refsource"])) {
+  sqlQuery("UPDATE patient_data SET referral_source = '$refsource' " .
+   "WHERE pid = '$pid'");
+ }
 }
 ?>
 <html>

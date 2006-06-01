@@ -27315,6 +27315,7 @@ CREATE TABLE `patient_data` (
   `hipaa_voice` VARCHAR( 3 ) DEFAULT 'NO' NOT NULL,
   `squad`      varchar(32)   NOT NULL DEFAULT '',
   `fitness`    int(11)       NOT NULL DEFAULT 0,
+  `referral_source` varchar(30) NOT NULL DEFAULT '',
   UNIQUE KEY `pid` (`pid`),
   KEY `id` (`id`),
   KEY `pid_2` (`pid`)

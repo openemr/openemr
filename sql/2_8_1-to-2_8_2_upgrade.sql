@@ -334,4 +334,5 @@ ALTER TABLE prescriptions
   ADD drug_id    int(11) NOT NULL DEFAULT 0;
 
 ALTER TABLE patient_data
-  ADD pharmacy_id int(11) NOT NULL default 0;
+  ADD pharmacy_id     int(11)     NOT NULL DEFAULT 0,
+  ADD referral_source varchar(30) NOT NULL DEFAULT '';
