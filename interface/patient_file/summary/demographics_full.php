@@ -235,7 +235,9 @@ function set_insurance(ins_id, ins_name) {
  <tr>
   <td><span class='required'><?php xl('Country','e'); ?>: </span></td>
   <td><input tabindex="13" type='entry' size='10' name='country_code' value="<?php echo $result{"country_code"}?>"></td>
+<?php if (!$GLOBALS['weight_loss_clinic']) { ?>
   <td><span class='bold' colspan='2'><?php xl('User Defined Fields','e'); ?></span></td>
+<?php } ?>
  </tr>
 
  <tr>
@@ -259,8 +261,19 @@ function set_insurance(ins_id, ins_name) {
 ?>
    </select>
   </td>
-  <td><input name="genericname1" size=20 value="<?php echo $result{"genericname1"} ?>" /></td>
+
+<?php if ($GLOBALS['weight_loss_clinic']) { ?>
+  <td class='bold'>Starting Weight</td>
+  <td class='bold'>
+   <input name="genericname1" size='4' value="<?php echo $result{"genericname1"} ?>" />
+   &nbsp;Date:
+   <input name="genericval1" size='10' value="<?php echo $result{"genericval1"} ?>" />
+  </td>
+<?php } else { ?>
+  <td><input name="genericname1" size='20' value="<?php echo $result{"genericname1"} ?>" /></td>
   <td><input name="genericval1" size='20' value="<?php echo $result{"genericval1"} ?>" /></td>
+<?php } ?>
+
  </tr>
 
  <tr>
@@ -281,8 +294,19 @@ function set_insurance(ins_id, ins_name) {
 ?>
    </select>
   </td>
+
+<?php if ($GLOBALS['weight_loss_clinic']) { ?>
+  <td class='bold'>Ending Weight</td>
+  <td class='bold'>
+   <input name="genericname2" size='4' value="<?php echo $result{"genericname2"} ?>" />
+   &nbsp;Date:
+   <input name="genericval2" size='10' value="<?php echo $result{"genericval2"} ?>" />
+  </td>
+<?php } else { ?>
   <td><input name="genericname2" size='20' value="<?php echo $result{"genericname2"};?>" /></td>
   <td><input name="genericval2" size='20' value="<?php echo $result{"genericval2"};?>" /></td>
+<?php } ?>
+
  </tr>
 
  <tr>

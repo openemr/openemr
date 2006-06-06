@@ -84,7 +84,8 @@
 
  <tr>
   <td colspan='2'>
-   <textarea name='reason' cols='40' rows='5' wrap='virtual' style='width:96%'></textarea>
+   <textarea name='reason' cols='40' rows='5' wrap='virtual' style='width:96%'
+    ><?php echo $GLOBALS['default_chief_complaint'] ?></textarea>
   </td>
   <td rowspan='4' valign='top'>
    <select multiple name='issues[]' size='10' style='width:100%'

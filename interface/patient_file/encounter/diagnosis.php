@@ -91,7 +91,10 @@ if( !empty( $_GET["back"] ) || !empty( $_POST["back"] ) ){
 	print "<input type=\"hidden\" name=\"back\" value=\"1\">";
 }
 ?>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="justify" value="Justify"></dt>
+<?php if (!$GLOBALS['weight_loss_clinic']) { ?>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="justify" value="Justify">
+<?php } ?>
+</dt>
 </dl>
 
 <a href="cash_receipt.php?" class='link_submit' target='new'>

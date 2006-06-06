@@ -5,7 +5,7 @@ $_SESSION["encounter"] = "";
 <html>
 <head>
 <title>
-OpenEMR
+<?php echo $openemr_name ?>
 </title>
 <script type="text/javascript" src="../../library/topdialog.js"></script>
 </head>

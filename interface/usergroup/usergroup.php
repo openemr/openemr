@@ -6,11 +6,10 @@ $_SESSION["encounter"] = "";
 
 if (/*$userauthorized*/ true) {
 ?>
-
 <HTML>
 <HEAD>
 <TITLE>
-OpenEMR
+<?php echo $openemr_name ?>
 </TITLE>
 </HEAD>
 <frameset rows="<?echo "$GLOBALS[navBarHeight],$GLOBALS[titleBarHeight]" ?>,*" cols="*" frameborder="NO" border="0" framespacing="0">

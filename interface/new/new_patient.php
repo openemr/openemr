@@ -1,14 +1,11 @@
 <?
 include_once("../globals.php");
-
 $_SESSION["encounter"] = "";
-
 ?>
-
 <HTML>
 <HEAD>
 <TITLE>
-OpenEMR
+<?php echo $openemr_name ?>
 </TITLE>
 </HEAD>
 <frameset rows="<?echo "$GLOBALS[navBarHeight],$GLOBALS[titleBarHeight]" ?>,*" cols="*" frameborder="0" border="0" framespacing="0">

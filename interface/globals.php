@@ -100,6 +100,7 @@ $v_patch = '2';
 
 $tag = '-dev'; // release candidate, e.g. '-rc1'
 
+$openemr_name = 'OpenEMR'; // appears on the login page
 $openemr_version = "$v_major.$v_minor.$v_patch".$tag;	// Version tag used by program
 
 $rootdir = $GLOBALS['rootdir'];
@@ -143,9 +144,6 @@ $GLOBALS['phone_country_code'] = '1'; // 1 = USA
 // 4 = last,first(title: description)
 $GLOBALS['calendar_appt_style'] = 2;
 
-// True to omit insurance and some other things from the demographics form:
-$GLOBALS['simplified_demographics'] = false;
-
 // These are needed only if you are using SQL-Ledger and you want to see
 // the cash receipts report by practitioner (sl_receipts_report.php),
 // which is invoked from the billing page.  We will probably have more
@@ -158,10 +156,18 @@ $sl_dbname      = 'sql-ledger'; // sql-ledger database name
 $sl_dbuser      = 'sql-ledger'; // sql-ledger database login name
 $sl_dbpass      = 'secret';     // sql-ledger database login password
 
-// Set this to 1 if you want the drug database and support for
+// Set this to true if you want the drug database and support for
 // prescription dispensing, otherwise 0.
-//
-$GLOBALS['inhouse_pharmacy'] = 0;
+$GLOBALS['inhouse_pharmacy'] = false;
+
+// True to omit insurance and some other things from the demographics form:
+$GLOBALS['simplified_demographics'] = false;
+
+// True if this is a weight loss clinic:
+$GLOBALS['weight_loss_clinic'] = false;
+
+// Assign a value here as the default complaint in the New Patient form:
+$GLOBALS['default_chief_complaint'] = '';
 
 $encounter = $_SESSION['encounter'];
 
