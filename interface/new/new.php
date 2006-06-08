@@ -43,9 +43,9 @@ include_once("../globals.php");
   </td>
   <td>
    <select name='title'>
-    <option value="Mr."><?xl('Mr.','e');?></option>
     <option value="Mrs."><?xl('Mrs.','e');?></option>
     <option value="Ms."><?xl('Ms.','e');?></option>
+    <option value="Mr."><?xl('Mr.','e');?></option>
     <option value="Dr."><?xl('Dr.','e');?></option>
    </select>
   </td>
@@ -88,8 +88,8 @@ include_once("../globals.php");
   <td>
    <select name='refsource'>
 <?php
- foreach (array('', 'Patient', 'Employee', 'Walk-In', 'Newspaper',
-  'Direct Mail', 'Coupon', 'Other') as $rs)
+ foreach (array('', 'Patient', 'Employee', 'Walk-In', 'Newspaper', 'Radio',
+  'T.V.', 'Direct Mail', 'Coupon', 'Referral Card', 'Other') as $rs)
  {
   echo "    <option value='$rs'>$rs</option>\n";
  }
