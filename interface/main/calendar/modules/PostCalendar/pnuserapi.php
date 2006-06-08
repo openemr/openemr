@@ -730,7 +730,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)	{
     a.pc_sharing, b.pc_catcolor, b.pc_catname, b.pc_catdesc, a.pc_pid, a.pc_aid,
     concat(u.fname,' ',u.lname) as provider_name, concat(pd.fname,' ',pd.lname) as patient_name,
     concat(u2.fname, ' ', u2.lname) as owner_name, DOB as patient_dob
-    FROM   $table AS a, $cattable AS b
+    FROM  ( $table AS a, $cattable AS b )
     LEFT JOIN users as u ON a.pc_aid = u.id
     LEFT JOIN users as u2 ON a.pc_aid = u2.id
     LEFT JOIN patient_data as pd ON a.pc_pid=pd.pid
@@ -947,7 +947,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
     a.pc_sharing, b.pc_catcolor, b.pc_catname, b.pc_catdesc, a.pc_pid, a.pc_apptstatus, a.pc_aid,
     concat(u.fname,' ',u.lname) as provider_name, concat(pd.lname,', ',pd.fname) as patient_name,
     concat(u2.fname, ' ', u2.lname) as owner_name, DOB as patient_dob, pd.pubpid
-    FROM   $table AS a, $cattable AS b
+    FROM  ( $table AS a, $cattable AS b )
     LEFT JOIN users as u ON a.pc_aid = u.id
     LEFT JOIN users as u2 ON a.pc_aid = u2.id
     LEFT JOIN patient_data as pd ON a.pc_pid = pd.pid

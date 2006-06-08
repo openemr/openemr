@@ -8,7 +8,7 @@
  * Purpose:  evaluate a template variable as a template
  * -------------------------------------------------------------
  */
-function smarty_function_eval($params, &$this)
+function smarty_function_eval($params, &$smarty)
 {
     extract($params);
 
@@ -20,7 +20,8 @@ function smarty_function_eval($params, &$this)
 		return;
 	}
 
-	$this->_compile_template("evaluated template", $var, $source);
+	$smarty->_compile_template("evaluated template", $var, $source);
+	$source="";
 	
     if (!empty($assign)) {
         ob_start();
