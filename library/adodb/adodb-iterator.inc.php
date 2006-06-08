@@ -44,10 +44,15 @@ class ADODB_Iterator implements Iterator {
 	{
         $this->rs->MoveNext();
     }
+	function valid() 
+	{
+		
+	}
 }
 
 
 class ADODB_BASE_RS implements IteratorAggregate {
+
     function getIterator() {
         return new ADODB_Iterator($this);
     }
