@@ -1231,7 +1231,7 @@ function output($debug=0){
   $this->checkAllHere();
 
   $xref=array();
-  $content="%PDF-1.3\n%âãÏÓ\n";
+  $content="%PDF-1.3\n%ï¿½ï¿½\n";
 //  $content="%PDF-1.3\n";
   $pos=strlen($content);
   foreach($this->objects as $k=>$v){
@@ -1914,10 +1914,18 @@ function stream($options=''){
   } else {
     $tmp = $this->output();
   }
+
+  // Rod's mods below are based on this tip:
+  // http://sourceforge.net/forum/forum.php?thread_id=1420028&forum_id=147987
+  header('Cache-Control:'); // added by Rod
+  header('Pragma:');        // added by Rod
   header("Content-type: application/pdf");
   header("Content-Length: ".strlen(ltrim($tmp)));
   $fileName = (isset($options['Content-Disposition'])?$options['Content-Disposition']:'file.pdf');
-  header("Content-Disposition: inline; filename=".$fileName);
+  // header("Content-Disposition: inline; filename=".$fileName);
+  header("Content-Disposition: attachment; filename=".$fileName); // modded by Rod
+  // End of Rod's mods.
+
   if (isset($options['Accept-Ranges']) && $options['Accept-Ranges']==1){
     header("Accept-Ranges: ".strlen(ltrim($tmp)));
   }
