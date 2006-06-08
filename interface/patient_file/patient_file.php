@@ -6,7 +6,7 @@ setpid($_GET["set_pid"]);
 <HTML>
 <HEAD>
 <TITLE>
-OpenEMR
+<?php echo $openemr_name ?>
 </TITLE>
 <script type="text/javascript" src="../../library/topdialog.js"></script>
 </HEAD>
