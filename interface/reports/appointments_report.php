@@ -28,7 +28,15 @@
    printf("%.2f", $amount);
  }
 
- $from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
+ $patient = $_REQUEST['patient'];
+
+ if ($patient && ! $_POST['form_from_date']) {
+  // If a specific patient, default to 2 years ago.
+  $tmp = date('Y') - 2;
+  $from_date = date("$tmp-m-d");
+ } else {
+  $from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
+ }
  $to_date   = fixDate($_POST['form_to_date'], '');
  $provider  = $_POST['form_provider'];
 
@@ -38,8 +46,9 @@
 
  $where = "e.pc_pid != '' AND e.pc_eventDate >= '$from_date'";
 
- if ($to_date) $where .= " AND e.pc_eventDate <= '$to_date'";
+ if ($to_date ) $where .= " AND e.pc_eventDate <= '$to_date'";
  if ($provider) $where .= " AND e.pc_aid = '$provider'";
+ if ($patient ) $where .= " AND e.pc_pid = '$patient'";
 
  // Get the info.
  //
@@ -199,6 +208,7 @@
 </table>
 
 <input type="hidden" name="form_orderby" value="<?php echo $form_orderby ?>" />
+<input type="hidden" name="patient" value="<?php echo $patient ?>" />
 
 </form>
 </center>

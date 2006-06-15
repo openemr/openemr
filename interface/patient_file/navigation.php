@@ -73,7 +73,7 @@ function selpopup(selobj) {
 <?php if ($GLOBALS['athletic_team']) { ?>
      <option value='../reports/players_report.php'><? xl('Roster','e'); ?></option>
 <?php } ?>
-     <option value='../reports/appointments_report.php'><? xl('Appts','e'); ?></option>
+     <option value='../reports/appointments_report.php?patient=<?php echo $pid ?>'><? xl('Appts','e'); ?></option>
 <?php if (file_exists("$webserver_root/custom/refer.php")) { ?>
      <option value='../../custom/refer.php'><? xl('Refer','e'); ?></option>
 <?php } ?>
