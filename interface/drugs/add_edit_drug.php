@@ -42,17 +42,17 @@ td { font-size:10pt; }
      "ndc_number = '"    . $_POST['form_ndc_number']    . "', " .
      "on_order = '"      . $_POST['form_on_order']      . "', " .
      "reorder_point = '" . $_POST['form_reorder_point'] . "', " .
-     "reactions = '"     . $_POST['form_reactions']     . "', " .
+//   "reactions = '"     . $_POST['form_reactions']     . "', " .
      "form = '"          . $_POST['form_form']          . "', " .
      "dosage = '"        . $_POST['form_dosage']        . "', " .
      "size = '"          . $_POST['form_size']          . "', " .
      "unit = '"          . $_POST['form_unit']          . "', " .
      "route = '"         . $_POST['form_route']         . "', " .
      "period = '"        . $_POST['form_period']        . "', " .
-     "substitute = '"    . $_POST['form_substitute']    . "', " .
-     "quantity = '"      . $_POST['form_quantity']      . "', " .
-     "refills = '"       . $_POST['form_refills']       . "', " .
-     "per_refill = '"    . $_POST['form_per_refill']    . "' "  .
+//   "substitute = '"    . $_POST['form_substitute']    . "', " .
+     "quantity = '"      . $_POST['form_quantity']      . "' "  .
+//   "refills = '"       . $_POST['form_refills']       . "', " .
+//   "per_refill = '"    . $_POST['form_per_refill']    . "' "  .
      "WHERE drug_id = '$drug_id'");
    } else {
     sqlStatement("DELETE FROM drug_inventory WHERE drug_id = '$drug_id'");
@@ -60,25 +60,25 @@ td { font-size:10pt; }
    }
   } else {
    $drug_id = sqlInsert("INSERT INTO drugs ( " .
-    "selector, name, ndc_number, on_order, reorder_point, reactions, form, dosage, " .
-    "size, unit, route, period, substitute, quantity, refills, per_refill " .
+    "selector, name, ndc_number, on_order, reorder_point, form, dosage, " .
+    "size, unit, route, period, quantity " .
     ") VALUES ( " .
     "'" . $_POST['form_selector']      . "', " .
     "'" . $_POST['form_name']          . "', " .
     "'" . $_POST['form_ndc_number']    . "', " .
     "'" . $_POST['form_on_order']      . "', " .
     "'" . $_POST['form_reorder_point'] . "', " .
-    "'" . $_POST['form_reactions']     . "', " .
+//  "'" . $_POST['form_reactions']     . "', " .
     "'" . $_POST['form_form']          . "', " .
     "'" . $_POST['form_dosage']        . "', " .
     "'" . $_POST['form_size']          . "', " .
     "'" . $_POST['form_unit']          . "', " .
     "'" . $_POST['form_route']         . "', " .
     "'" . $_POST['form_period']        . "', " .
-    "'" . $_POST['form_substitute']    . "', " .
-    "'" . $_POST['form_quantity']      . "', " .
-    "'" . $_POST['form_refills']       . "', " .
-    "'" . $_POST['form_per_refill']    . "' "  .
+//  "'" . $_POST['form_substitute']    . "', " .
+    "'" . $_POST['form_quantity']      . "' "  .
+//  "'" . $_POST['form_refills']       . "', " .
+//  "'" . $_POST['form_per_refill']    . "' "  .
    ")");
   }
 
@@ -137,12 +137,14 @@ td { font-size:10pt; }
   </td>
  </tr>
 
+ <!--
  <tr>
   <td valign='top' nowrap><b><? xl('Reactions','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_reactions' maxlength='250' value='<? echo $row['reactions'] ?>' style='width:100%' />
   </td>
  </tr>
+ -->
 
  <tr>
   <td valign='top' nowrap><b><? xl('Form','e'); ?>:</b></td>
@@ -218,6 +220,7 @@ td { font-size:10pt; }
   </td>
  </tr>
 
+ <!--
  <tr>
   <td valign='top' nowrap><b><? xl('Substitution','e'); ?>:</b></td>
   <td>
@@ -232,6 +235,7 @@ td { font-size:10pt; }
    </select>
   </td>
  </tr>
+ -->
 
  <tr>
   <td valign='top' nowrap><b><? xl('Quantity','e'); ?>:</b></td>
@@ -240,19 +244,20 @@ td { font-size:10pt; }
   </td>
  </tr>
 
+ <!--
  <tr>
   <td valign='top' nowrap><b><? xl('Refills','e'); ?>:</b></td>
   <td>
    <input type='text' size='5' name='form_refills' maxlength='7' value='<? echo $row['refills'] ?>' />
   </td>
  </tr>
-
  <tr>
   <td valign='top' nowrap><b><? xl('Per Refill','e'); ?>:</b></td>
   <td>
    <input type='text' size='5' name='form_per_refill' maxlength='7' value='<? echo $row['per_refill'] ?>' />
   </td>
  </tr>
+ -->
 
 </table>
 
