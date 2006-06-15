@@ -89,6 +89,7 @@
    //    amount  = charge less adjustments
    //    paid    = amount paid
    //    notice  = 1 for first notice, 2 for second, etc.
+   //    detail  = array of details, see invoice_summary.inc.php
    //
    if ($stmt['cid'] != $row['customer_id']) {
     fwrite($fhprint, create_statement($stmt));
@@ -113,15 +114,16 @@
    $stmt['age'] = round((strtotime($today) - strtotime($stmt['duedate'])) /
     (24 * 60 * 60));
 
-   $invlines = get_invoice_summary($row['id']);
+   $invlines = get_invoice_summary($row['id'], true); // true added by Rod 2006-06-09
    foreach ($invlines as $key => $value) {
     $line = array();
     $line['dos']     = $svcdate;
-    $line['desc']    = "Procedure $key";
+    $line['desc']    = ($key == 'CO-PAY') ? "Patient Payment" : "Procedure $key";
     $line['amount']  = sprintf("%.2f", $value['chg']);
     $line['adjust']  = sprintf("%.2f", $value['adj']);
     $line['paid']    = sprintf("%.2f", $value['chg'] - $value['bal']);
     $line['notice']  = $duncount + 1;
+    $line['detail']  = $value['dtl']; // Added by Rod 2006-06-09
     $stmt['lines'][] = $line;
     $stmt['amount']  = sprintf("%.2f", $stmt['amount'] + $value['bal']);
    }

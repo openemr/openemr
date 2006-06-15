@@ -9,11 +9,23 @@
 // This returns an associative array keyed on procedure code, representing
 // all charge items for one invoice.  This array's values are themselves
 // associative arrays having the following keys:
+//
 //  chg - the sum of line items, including adjustments, for the code
 //  bal - the unpaid balance
+//  adj - the (positive) sum of inverted adjustments
 //  ins - the id of the insurance company that was billed
 //  dtl - associative array of details, if requested
 //
+// Where details are requested, each dtl array is keyed on a string
+// beginning with a date in yyyy-mm-dd format, or blanks in the case
+// of the original charge items.  The value array is:
+//
+//  pmt - payment amount as a positive number, only for payments
+//  src - check number or other source, only for payments
+//  chg - invoice line item amount amount, only for charges or
+//        adjustments (adjustments may be zero)
+//  rsn - adjustment reason, only for adjustments
+
 function get_invoice_summary($trans_id, $with_detail = false) {
   global $sl_err, $sl_cash_acc;
 
@@ -50,8 +62,10 @@ function get_invoice_summary($trans_id, $with_detail = false) {
     }
   }
 
-  // Request all line items with money belonging to the invoice.
-  $inres = SLQuery("select * from invoice where trans_id = $trans_id and sellprice != 0");
+  // Request all line items with money or adjustment reasons belonging
+  // to the invoice.
+  $inres = SLQuery("SELECT * FROM invoice WHERE trans_id = $trans_id AND " .
+    "( sellprice != 0 OR description LIKE 'Adjustment%' )");
   if ($sl_err) die($sl_err);
 
   // Add charges and adjustments for each procedure code into its total and balance.

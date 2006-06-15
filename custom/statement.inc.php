@@ -1,6 +1,6 @@
 <?php
 
-// Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -12,6 +12,7 @@
 // letters.  You must customize it to suit your practice.  If your
 // needs are simple then you do not need programming experience to do
 // this - just read the comments and make appropriate substitutions.
+// All you really need to do is replace the [strings in brackets].
 //////////////////////////////////////////////////////////////////////
 
 // The location/name of a temporary file to hold printable statements.
@@ -23,7 +24,7 @@ $STMT_TEMP_FILE = "/tmp/openemr_statements.txt";
 // example is designed for 8.5x11-inch paper with 1-inch margins,
 // 10 CPI, 6 LPI, 65 columns, 54 lines per page.
 //
-$STMT_PRINT_CMD = "lpr -P SuperScript-870 -o cpi=10 -o lpi=6 -o page-left=72 -o page-top=72";
+$STMT_PRINT_CMD = "lpr -P HPLaserjet6P -o cpi=10 -o lpi=6 -o page-left=72 -o page-top=72";
 
 // This function builds a printable statement or collection letter from
 // an associative array having the following keys:
@@ -39,6 +40,17 @@ $STMT_PRINT_CMD = "lpr -P SuperScript-870 -o cpi=10 -o lpi=6 -o page-left=72 -o 
 //    amount  = charge less adjustments
 //    paid    = amount paid
 //    notice  = 1 for first notice, 2 for second, etc.
+//    detail  = associative array of details
+//
+// Each detail array is keyed on a string beginning with a date in
+// yyyy-mm-dd format, or blanks in the case of the original charge
+// items.  Its values are associative arrays like this:
+//
+//  pmt - payment amount as a positive number, only for payments
+//  src - check number or other source, only for payments
+//  chg - invoice line item amount amount, only for charges or
+//        adjustments (adjustments may be zero)
+//  rsn - adjustment reason, only for adjustments
 //
 // The returned value is a string that can be sent to a printer.
 // This example is plain text, but if you are a hotshot programmer
@@ -57,26 +69,26 @@ function create_statement($stmt) {
  // Note that "\n" is a line feed (new line) character.
  //
  $out = sprintf(
-  "Your Business Name           %-25s %s\n" .
-  "Address Line 1               Insurance information on file\n" .
-  "Address Line 2           \n" .
-  "City, State Zip              Total amount due: %s\n" .
+  "[Your Clinic Name]             %-23s %s\n" .
+  "[Your Clinic Address]          Chart Number %s\n" .
+  "[City, State Zip]              Insurance information on file\n" .
+  "                               Total amount due: %s\n" .
   "\n" .
   "\n" .
   "ADDRESSEE:                       REMIT TO:\n" .
   "\n" .
-  "%-32s Your Remit-To Name\n" .
-  "%-32s Your Remit-To Address\n" .
-  "%-32s City, State Zip\n" .
-  "%s\n" .
+  "%-32s [Remit-To Name]\n" .
+  "%-32s [Remit-To Address]\n" .
+  "%-32s [City, State Zip]\n" .
+  "%-32s If paying by VISA/MC/AMEX/Disc:\n" .
   "\n" .
-  "\n" .
-  "  (Return above part with your payment by check or money order)\n" .
+  "Card#_____________________  Exp______ Signature__________________\n" .
+  "              (Return above part with your payment)\n" .
   "-----------------------------------------------------------------\n" .
   "\n" .
   "_______________________ STATEMENT SUMMARY _______________________\n" .
   "\n" .
-  "Visit Date  Description                    Charge  Adjust    Paid\n" .
+  "Visit Date  Description                                    Amount\n" .
   "\n",
 
   // These are the values for the variable fields.  They must appear
@@ -84,6 +96,7 @@ function create_statement($stmt) {
   //
   $stmt['patient'],
   $stmt['today'],
+  $stmt['pid'],
   $stmt['amount'],
   $stmt['to'][0],
   $stmt['to'][1],
@@ -98,17 +111,43 @@ function create_statement($stmt) {
  // be specified in the order used.
  //
  foreach ($stmt['lines'] as $line) {
-  ++$count;
   $description = $line['desc'];
   $tmp = substr($description, 0, 14);
   if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921')
-    $description = 'Office Visit';
-  $out .= sprintf("%-10s  %-29s%8s%8s%8s\n",
-   $line['dos'], // values start here
-   $description,
-   sprintf("%.2f", $line['amount'] + $line['adjust']),
-   $line['adjust'],
-   $line['paid']);
+   $description = 'Office Visit';
+
+  $dos = $line['dos'];
+  ksort($line['detail']);
+
+  foreach ($line['detail'] as $dkey => $ddata) {
+   $ddate = substr($dkey, 0, 10);
+   if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
+    $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
+   }
+   $amount = '';
+
+   if ($ddata['pmt']) {
+    $amount = sprintf("%.2f", 0 - $ddata['pmt']);
+    $desc = "Paid $ddate: " . $ddata['src'];
+   } else if ($ddata['rsn']) {
+    if ($ddata['chg']) {
+     $amount = sprintf("%.2f", $ddata['chg']);
+     $desc = "Adj  $ddate: " . $ddata['rsn'];
+    } else {
+     $desc = "Note $ddate: " . $ddata['rsn'];
+    }
+   } else if ($ddata['chg'] < 0) {
+    $amount = sprintf("%.2f", $ddata['chg']);
+    $desc = "Patient Payment";
+   } else {
+    $amount = sprintf("%.2f", $ddata['chg']);
+    $desc = $description;
+   }
+
+   $out .= sprintf("%-10s  %-45s%8s\n", $dos, $desc, $amount);
+   $dos = '';
+   ++$count;
+  }
  }
 
  // This generates blank lines until we are at line 42.
@@ -121,14 +160,14 @@ function create_statement($stmt) {
   "Name: %-25s Date: %-10s     Due:%8s\n" .
   "_________________________________________________________________\n" .
   "\n" .
-  "Thank you for choosing [Clinic name here].\n" .
+  "Thank you for choosing [Your Clinic Name].\n" .
   "\n" .
   "Please call if any of the above information is incorrect.\n" .
   "We appreciate prompt payment of balances due.\n" .
   "\n" .
-  "[Insert some name here]\n" .
-  "Practice Manager\n" .
-  "[Insert phone number here]" .
+  "[Your billing contact name]\n" .
+  "Billing Department\n" .
+  "[Your billing contact phone number]" .
   "\014", // this is a form feed
 
   $stmt['patient'], // values start here

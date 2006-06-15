@@ -19,6 +19,7 @@
   $debug = 0; // set to 1 for debugging mode
 
   $reasons = array(
+    "", // not choosing this allows a reason with no adjustment amount
     xl("Ins adjust"),
     xl("Coll w/o"),
     xl("Pt released"),
@@ -443,6 +444,10 @@ function validate(f) {
    alert('<? xl('Adjustment value for code ','e') ?>' + code + '<? xl(' is not a number','e') ?>');
    return false;
   }
+  if (f[pfx+'[adj]'].value && ! f[pfx+'[reason]'].value) {
+   alert('<? xl('Please select an adjustment reason for code ','e') ?>' + code);
+   return false;
+  }
   // TBD: validate the date format
  }
  return true;
@@ -496,13 +501,26 @@ function validate(f) {
           updateAR($trans_id, 0, $thispay, $thisdate);
           $paytotal += $thispay;
         }
-        if ($thisadj) {
+
+//      if ($thisadj) {
+//        // Post an adjustment: add negative invoice item, add to ar, subtract from income
+//        addLineItem($trans_id, $code, 0 - $thisadj, $thisdate, $thisins, $reason);
+//        addTransaction($trans_id, $chart_id_ar, $thisadj, $thisdate, "InvAdj $thissrc", $code, $thisins);
+//        addTransaction($trans_id, $chart_id_income, 0 - $thisadj, $thisdate, "InvAdj $thissrc", $code, $thisins);
+//        updateAR($trans_id, 0 - $thisadj);
+//      }
+
+        // Be sure to record adjustment reasons even for zero adjustments.
+        if ($thisadj || $reason) {
           // Post an adjustment: add negative invoice item, add to ar, subtract from income
           addLineItem($trans_id, $code, 0 - $thisadj, $thisdate, $thisins, $reason);
-          addTransaction($trans_id, $chart_id_ar, $thisadj, $thisdate, "InvAdj $thissrc", $code, $thisins);
-          addTransaction($trans_id, $chart_id_income, 0 - $thisadj, $thisdate, "InvAdj $thissrc", $code, $thisins);
-          updateAR($trans_id, 0 - $thisadj);
+          if ($thisadj) {
+            addTransaction($trans_id, $chart_id_ar, $thisadj, $thisdate, "InvAdj $thissrc", $code, $thisins);
+            addTransaction($trans_id, $chart_id_income, 0 - $thisadj, $thisdate, "InvAdj $thissrc", $code, $thisins);
+            updateAR($trans_id, 0 - $thisadj);
+          }
         }
+
       }
       $form_duedate = fixDate($_POST['form_duedate']);
       $form_notes = trim($_POST['form_notes']);
