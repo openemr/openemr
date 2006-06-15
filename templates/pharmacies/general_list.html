@@ -2,14 +2,15 @@
 	<tr>
 		<td>Name</td>
 		<td rowspan="50">&nbsp;</td>
-		<td>City, State</td>
+		<td>Address</td>
 		<td rowspan="50">&nbsp;</td>
 		<td>Default Method</td>
 	</tr>
 	{foreach from=$pharmacies item=pharmacy}
 	<tr>
 		<td><a href="{$CURRENT_ACTION}action=edit&id={$pharmacy->id}">{$pharmacy->name}</a></td>
-		<td>{$pharmacy->address->city} {$pharmacy->address->state|upper}</td>
+		<td>{$pharmacy->address->line1}, {$pharmacy->address->city},
+			{$pharmacy->address->state|upper} {$pharmacy->address->zip}</td>
 		<td>{$pharmacy->get_transmit_method_display()}</td>
 	</tr>
 	{foreachelse}
