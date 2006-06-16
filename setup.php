@@ -1,5 +1,4 @@
 <?php
-
 //required for normal operation because of recent changes in PHP:
 extract($_GET);
 extract($_POST);
@@ -28,6 +27,15 @@ include_once($conffile);
 <span class="text">
 
 <?php
+ if (ini_get('register_globals')) {
+  echo "It appears that you have register_globals enabled in your php.ini\n" .
+   "configuration file.  This causes unacceptable security risks.  You must\n" .
+   "turn it off before continuing with installation.\n";
+  exit();
+ }
+?>
+
+<?php
  if ($state == 5) {
 ?>
 
@@ -44,8 +52,8 @@ include_once($conffile);
   and
   "chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/cache".
   (If either subdirectory doesn't exist, create it first then do the chown above).<br>
-  The user name and group of apache may differ depending on your distro, i.e.
-  for Debian is www-data and www-data.</li>
+  The user name and group of apache may differ depending on your OS, i.e.
+  for Debian they are www-data and www-data.</li>
 </ul>
 <p>
  In order to take full advantage of the documents capability you
@@ -59,22 +67,26 @@ include_once($conffile);
  "/tmp" won't work on your system.
 </p>
 <p>
-There's many information and extra tools bundled within OpenEMR Files.
-<br>Please refer to openemr/Documentation
-<br>Many forms and other useful scripts can be found at openemr/contrib
-<br>OpenEMR now comes with optional GACL support, a fine grained access control system. Please refer to openemr/Documentation/README.phpgacl for -easy- installation.
+There's much information and many extra tools bundled within the OpenEMR
+installation directory. Please refer to openemr/Documentation.
+<br>Many forms and other useful scripts can be found at openemr/contrib.
+<br>OpenEMR now comes with optional GACL support, a fine grained access control
+system. Please refer to openemr/Documentation/README.phpgacl for -easy-
+installation.
 </p>
 <p>
-Reading openemr/includes/config.php and openemr/interface/globals.php is a good idea.
+Reading openemr/includes/config.php and openemr/interface/globals.php is a good
+idea.
 </p>
 <p>
- To ensure a consistent look and feel through out the application
- using <a href='http://www.mozilla.org/products/firefox/'> Firefox</a>
- is recommended.
+To ensure a consistent look and feel through out the application
+using <a href='http://www.mozilla.org/products/firefox/'>Firefox</a>
+is recommended.
 </p>
 <p>
-The default user is "admin" and the default password is "pass"
-</P
+<b>The initial OpenEMR user is "admin" and the password is "pass".</b>
+You should change this password!
+</p>
 <p>
  <a href='./'>Click here to start using OpenEMR. </a>
 </p>
