@@ -28025,8 +28025,9 @@ CREATE TABLE IF NOT EXISTS `lang_languages` (
 INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (1, 'en', 'English');
 INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (2, 'se', 'Swedish');
 INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (3, 'es', 'Spanish');
-INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (4, 'du', 'Dutch');
-INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (5, 'he', 'Hebrew');
+INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (4, 'de', 'German');
+INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (5, 'du', 'Dutch');
+INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (6, 'he', 'Hebrew');
 
 
 --

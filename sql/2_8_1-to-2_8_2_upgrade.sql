@@ -337,7 +337,8 @@ ALTER TABLE patient_data
   ADD pharmacy_id     int(11)     NOT NULL DEFAULT 0,
   ADD referral_source varchar(30) NOT NULL DEFAULT '';
 
-#two new options in lang tables  
-INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (4, 'du', 'Dutch');
-INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (5, 'he', 'Hebrew');
+#new options in lang tables  
+INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (4, 'de', 'German');
+INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (5, 'du', 'Dutch');
+INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (6, 'he', 'Hebrew');
   
