@@ -35,7 +35,7 @@ $GLOBALS['incdir'] = $include_root;
 $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
 
 //Language Control Section (will add toggling)
-//English:1, Swedish:2, Spanish:3, German:4,
+//English:1, Swedish:2, Spanish:3, German:4, Dutch:5, Hebrew:6
 define (LANGUAGE,1);
 include_once (dirname(__FILE__) . "/../library/translation.inc.php");
 
