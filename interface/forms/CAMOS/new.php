@@ -167,7 +167,7 @@ $i=0;
 $query = "SELECT id, item, content, subcategory_id FROM form_CAMOS_item ORDER BY item";
 $statement = sqlStatement($query);
 while ($result = sqlFetchArray($statement)) {
-  echo "array3[".$i."] = new Array('".$result['item']."', '".str_replace(array("\r","\n"),array("",""),strip_tags($result['content']))."', '".$result['subcategory_id'].
+  echo "array3[".$i."] = new Array('".$result['item']."', '".str_replace(array("\r","\n","'","\""),array("","","\\'","\\\""),strip_tags($result['content']))."', '".$result['subcategory_id'].
     "','".$result['id']."');\n";
   $i++;
 }
