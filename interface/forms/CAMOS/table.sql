@@ -59,7 +59,6 @@ subcategory_id bigint(20) NOT NULL,
 PRIMARY KEY (id)
 ) TYPE=MyISAM;
 
-insert into pma_bookmark (dbase,user,label,query) values ('openemr','openemr','camos2','select date(date),pid, category,subcategory,item from form_CAMOS where subcategory like \'%[VARIABLE]%\' and item like \'%[VARIABLE2]%\';
 
 -- MySQL dump 10.9
 --
