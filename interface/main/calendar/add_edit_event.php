@@ -248,11 +248,13 @@
 td { font-size:10pt; }
 </style>
 
+<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../../library/topdialog.js"></script>
 <script type="text/javascript" src="../../../library/dialog.js"></script>
-<script type="text/javascript" src="../../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../../library/calendar.js"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 
 <script language="JavaScript">
 
@@ -388,7 +390,7 @@ td { font-size:10pt; }
   f.form_enddate.disabled = isdisabled;
   document.getElementById('tdrepeat1').style.color = mycolor;
   document.getElementById('tdrepeat2').style.color = mycolor;
-  document.getElementById('imgrepeat').style.visibility = myvisibility;
+  document.getElementById('img_enddate').style.visibility = myvisibility;
  }
 
  // This is for callback by the find-available popup.
@@ -427,9 +429,6 @@ td { font-size:10pt; }
 
 <body <?echo $top_bg_line;?> onunload='imclosing()'>
 
-<!-- Required for the popup date selectors -->
-<div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
-
 <form method='post' name='theform' action='add_edit_event.php?eid=<? echo $eid ?>'
  onsubmit='return validate()'>
 <center>
@@ -460,13 +459,13 @@ td { font-size:10pt; }
    <b><? xl('Date','e'); ?>:</b>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_date'
+   <input type='text' size='10' name='form_date' id='form_date'
     value='<? echo $eid ? $row['pc_eventDate'] : $date ?>'
     title='yyyy-mm-dd event date or starting date'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <a href="javascript:show_calendar('theform.form_date')"
-    title="Click here to choose a date"
-    ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
+   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_date' border='0' alt='[?]' style='cursor:pointer'
+    title='Click here to choose a date'>
   </td>
   <td nowrap>
    &nbsp;&nbsp;
@@ -615,13 +614,13 @@ td { font-size:10pt; }
   <td nowrap id='tdrepeat2'><? xl('until','e'); ?>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_enddate' value='<? echo $row['pc_endDate'] ?>'
+   <input type='text' size='10' name='form_enddate' id='form_enddate'
+    value='<? echo $row['pc_endDate'] ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='yyyy-mm-dd last date of this event' />
-   <a href="javascript:show_calendar('theform.form_enddate')"
-    title="Click here to choose a date"
-    ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-      border='0' alt='[?]' id='imgrepeat' /></a>
+   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_enddate' border='0' alt='[?]' style='cursor:pointer'
+    title='Click here to choose a date'>
   </td>
  </tr>
 
@@ -649,12 +648,12 @@ td { font-size:10pt; }
    <b><font color='red'><? xl('DOB is missing, please enter if possible','e'); ?>:</font></b>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_dob'
+   <input type='text' size='10' name='form_dob' id='form_dob'
     title='yyyy-mm-dd date of birth'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <a href="javascript:show_calendar('theform.form_dob')"
-    title="Click here to choose a date"
-    ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
+   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_dob' border='0' alt='[?]' style='cursor:pointer'
+    title='Click here to choose a date'>
   </td>
  </tr>
 
@@ -671,6 +670,7 @@ td { font-size:10pt; }
 </p>
 </center>
 </form>
+
 <script language='JavaScript'>
 <? if ($eid) { ?>
  set_display();
@@ -679,6 +679,11 @@ td { font-size:10pt; }
 <? } ?>
  set_allday();
  set_repeat();
+
+ Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_date"});
+ Calendar.setup({inputField:"form_enddate", ifFormat:"%Y-%m-%d", button:"img_enddate"});
+ Calendar.setup({inputField:"form_dob", ifFormat:"%Y-%m-%d", button:"img_dob"});
 </script>
+
 </body>
 </html>
