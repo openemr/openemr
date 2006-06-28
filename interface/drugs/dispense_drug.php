@@ -140,7 +140,7 @@
  if ($dconfig['disclaimer']) $header_text .= $dconfig['disclaimer'] . "\n";
 
  $pdf->ezSetDy(20); // dunno why we have to do this...
- $pdf->ezText($header_text, 8, array('justification'=>'center'));
+ $pdf->ezText($header_text, 7, array('justification'=>'center'));
 
  if(!empty($dconfig['logo'])) {
   $pdf->ezSetDy(-5); // add space (move down) before the image
@@ -172,7 +172,7 @@
  }
  ****/
 
- $pdf->ezText($label_text, 10, array('justification'=>'center'));
+ $pdf->ezText($label_text, 9, array('justification'=>'center'));
 
  $pdf->ezStream();
 ?>

@@ -162,14 +162,14 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Dosage','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><? xl('Schedule','e'); ?>:</b></td>
   <td>
    <input type='text' size='10' name='form_dosage' maxlength='10' value='<? echo $row['dosage'] ?>' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Size','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><? xl('Pill Size','e'); ?>:</b></td>
   <td>
    <input type='text' size='5' name='form_size' maxlength='7' value='<? echo $row['size'] ?>' />
   </td>
