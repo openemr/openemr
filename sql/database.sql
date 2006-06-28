@@ -27179,6 +27179,7 @@ CREATE TABLE `openemr_postcalendar_events` (
   `pc_sharing` int(11) NOT NULL default '0',
   `pc_language` varchar(30) default '',
   `pc_apptstatus` char(1) NOT NULL DEFAULT '-',
+  `pc_prefcatid` int(11) NOT NULL default '0',
   PRIMARY KEY  (`pc_eid`),
   KEY `basic_event` (`pc_catid`,`pc_aid`,`pc_eventDate`,`pc_endDate`,`pc_eventstatus`,`pc_sharing`,`pc_topic`)
 ) ;

@@ -1,5 +1,5 @@
 <?
- // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -10,10 +10,11 @@
 
  //------------------------------------------------------------//
  // Category __________________V   O All day event             //
- // Date     _____________ [?]     O Date     ___:___ __V      //
- // Title    ___________________     Duration ____ minutes     //
- // Provider __________________V   X Repeats  _____________V   //
- // Patient  ___________________     Until    ___________ [?]  //
+ // Date     _____________ [?]     O Time     ___:___ __V      //
+ // Title    ___________________     duration ____ minutes     //
+ // Patient  _(Click_to_select)_                               //
+ // Provider __________________V   X Repeats  ______V ______V  //
+ // Status   __________________V     until    __________ [?]   //
  // Comments ________________________________________________  //
  //                                                            //
  //       [Save]  [Find Available]  [Delete]  [Cancel]         //
@@ -24,9 +25,10 @@
 
  // Things that might be passed by our opener.
  //
- $eid        = $_GET['eid'];         // only for existing events
- $date       = $_GET['date'];        // this and below only for new events
- $userid     = $_GET['userid'];
+ $eid           = $_GET['eid'];         // only for existing events
+ $date          = $_GET['date'];        // this and below only for new events
+ $userid        = $_GET['userid'];
+ $default_catid = $_GET['catid'] ? $_GET['catid'] : '5';
  //
  if ($date)
   $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
@@ -113,14 +115,15 @@
     "pc_startTime = '$starttime', "                                    .
     "pc_endTime = '$endtime', "                                        .
     "pc_alldayevent = '" . $_POST['form_allday']               . "', " .
-    "pc_apptstatus = '"  . $_POST['form_apptstatus']           . "' "  .
+    "pc_apptstatus = '"  . $_POST['form_apptstatus']           . "', "  .
+    "pc_prefcatid = '"   . $_POST['form_prefcat']              . "' "  .
     "WHERE pc_eid = '$eid'");
   } else {
    sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
     "pc_catid, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
     "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
     "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
-    "pc_apptstatus, pc_location, pc_eventstatus, pc_sharing " .
+    "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing " .
     ") VALUES ( " .
     "'" . $_POST['form_category']             . "', " .
     "'" . $_POST['form_provider']             . "', " .
@@ -138,6 +141,7 @@
     "'$endtime', "                                    .
     "'" . $_POST['form_allday']               . "', " .
     "'" . $_POST['form_apptstatus']           . "', " .
+    "'" . $_POST['form_prefcat']              . "', " .
     "'$locationspec', "                               .
     "1, " .
     "1 )");
@@ -260,6 +264,7 @@ td { font-size:10pt; }
  // Read the event categories, generate their options list, and get
  // the default event duration from them if this is a new event.
  $catoptions = "";
+ $prefcat_options = "    <option value='0'>-- None --</option>\n";
  $thisduration = 0;
  if ($eid) {
   $thisduration = $row['pc_alldayevent'] ? 1440 : round($row['pc_duration'] / 60);
@@ -273,12 +278,22 @@ td { font-size:10pt; }
   if ($eid) {
    if ($crow['pc_catid'] == $row['pc_catid']) $catoptions .= " selected";
   } else {
-   if ($crow['pc_catid'] == '5') { // office visit
+   if ($crow['pc_catid'] == $default_catid) {
     $catoptions .= " selected";
     $thisduration = $duration;
    }
   }
   $catoptions .= ">" . $crow['pc_catname'] . "</option>\n";
+
+  // This section is to build the list of preferred categories:
+  if ($duration) {
+   $prefcat_options .= "    <option value='" . $crow['pc_catid'] . "'";
+   if ($eid) {
+    if ($crow['pc_catid'] == $row['pc_prefcatid']) $prefcat_options .= " selected";
+   }
+   $prefcat_options .= ">" . $crow['pc_catname'] . "</option>\n";
+  }
+
  }
 ?>
 
@@ -298,12 +313,37 @@ td { font-size:10pt; }
 
  // Do whatever is needed when a new event category is selected.
  // For now this means changing the event title and duration.
+ function set_display() {
+  var f = document.forms[0];
+  var s = f.form_category;
+  if (s.selectedIndex >= 0) {
+   var catid = s.options[s.selectedIndex].value;
+   var style_apptstatus = document.getElementById('title_apptstatus').style;
+   var style_prefcat = document.getElementById('title_prefcat').style;
+   if (catid == '2') { // In Office
+    style_apptstatus.display = 'none';
+    style_prefcat.display = '';
+    f.form_apptstatus.style.display = 'none';
+    f.form_prefcat.style.display = '';
+   } else {
+    style_prefcat.display = 'none';
+    style_apptstatus.display = '';
+    f.form_prefcat.style.display = 'none';
+    f.form_apptstatus.style.display = '';
+   }
+  }
+ }
+
+ // Do whatever is needed when a new event category is selected.
+ // For now this means changing the event title and duration.
  function set_category() {
   var f = document.forms[0];
   var s = f.form_category;
   if (s.selectedIndex >= 0) {
+   var catid = s.options[s.selectedIndex].value;
    f.form_title.value = s.options[s.selectedIndex].text;
-   f.form_duration.value = durations[s.options[s.selectedIndex].value];
+   f.form_duration.value = durations[catid];
+   set_display();
   }
  }
 
@@ -365,8 +405,20 @@ td { font-size:10pt; }
  // Invoke the find-available popup.
  function find_available() {
   var s = document.forms[0].form_provider;
-  dlgopen('find_appt_popup.php?providerid=' + s.options[s.selectedIndex].value,
-   '_blank', 500, 400);
+  var c = document.forms[0].form_category;
+  dlgopen('find_appt_popup.php?providerid=' + s.options[s.selectedIndex].value +
+   '&catid=' + c.options[c.selectedIndex].value, '_blank', 500, 400);
+ }
+
+ // Check for errors when the form is submitted.
+ function validate() {
+  var f = document.forms[0];
+  if (f.form_repeat.checked &&
+      (! f.form_enddate.value || f.form_enddate.value < f.form_date.value)) {
+   alert('An end date later than the start date is required for repeated events!');
+   return false;
+  }
+  return true;
  }
 
 </script>
@@ -378,7 +430,8 @@ td { font-size:10pt; }
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<form method='post' name='theform' action='add_edit_event.php?eid=<? echo $eid ?>'>
+<form method='post' name='theform' action='add_edit_event.php?eid=<? echo $eid ?>'
+ onsubmit='return validate()'>
 <center>
 
 <table border='0' width='100%'>
@@ -533,9 +586,11 @@ td { font-size:10pt; }
 
  <tr>
   <td nowrap>
-   <b><? xl('Status','e'); ?>:</b>
+   <span id='title_apptstatus'><b><? xl('Status','e'); ?>:</b></span>
+   <span id='title_prefcat' style='display:none'><b><? xl('Pref Cat','e'); ?>:</b></span>
   </td>
   <td nowrap>
+
    <select name='form_apptstatus' style='width:100%' title='Appointment status'>
 <?
  foreach ($statuses as $key => $value) {
@@ -545,6 +600,14 @@ td { font-size:10pt; }
  }
 ?>
    </select>
+   <!--
+    The following list will be invisible unless this is an In Office
+    event, in which case form_apptstatus (above) is to be invisible.
+   -->
+   <select name='form_prefcat' style='width:100%;display:none' title='Preferred Event Category'>
+<? echo $prefcat_options ?>
+   </select>
+
   </td>
   <td nowrap>
    &nbsp;
@@ -609,7 +672,9 @@ td { font-size:10pt; }
 </center>
 </form>
 <script language='JavaScript'>
-<? if (! $eid) { ?>
+<? if ($eid) { ?>
+ set_display();
+<? } else { ?>
  set_category();
 <? } ?>
  set_allday();

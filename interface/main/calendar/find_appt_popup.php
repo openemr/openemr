@@ -9,9 +9,11 @@
  include_once("../../globals.php");
  include_once("$srcdir/patient.inc");
 
+ $input_catid = $_REQUEST['catid'];
+
  // Record an event into the slots array for a specified day.
- function doOneDay($catid, $udate, $starttime, $duration) {
-  global $slots, $slotsecs, $slotstime, $slotbase, $slotcount;
+ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid) {
+  global $slots, $slotsecs, $slotstime, $slotbase, $slotcount, $input_catid;
   $udate = strtotime($starttime, $udate);
   if ($udate < $slotstime) return;
   $i = (int) ($udate / $slotsecs) - $slotbase;
@@ -20,11 +22,21 @@
   if ($iend <= $i) $iend = $i + 1;
   for (; $i < $iend; ++$i) {
    if ($catid == 2) {        // in office
-    $slots[$i] |= 1;
-    break;
+    // If a category ID was specified when this popup was invoked, then select
+    // only IN events with a matching preferred category or with no preferred
+    // category; other IN events are to be treated as OUT events.
+    if ($input_catid) {
+     if ($prefcatid == $input_catid || !$prefcatid)
+      $slots[$i] |= 1;
+     else
+      $slots[$i] |= 2;
+    } else {
+     $slots[$i] |= 1;
+    }
+    break; // ignore any positive duration for IN
    } else if ($catid == 3) { // out of office
     $slots[$i] |= 2;
-    break;
+    break; // ignore any positive duration for OUT
    } else { // all other events reserve time
     $slots[$i] |= 4;
    }
@@ -33,6 +45,12 @@
 
  // seconds per time slot
  $slotsecs = $GLOBALS['calendar_interval'] * 60;
+
+ $catslots = 1;
+ if ($input_catid) {
+  $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = '$input_catid'");
+  if ($srow['pc_duration']) $catslots = ceil($srow['pc_duration'] / $slotsecs);
+ }
 
  $info_msg = "";
 
@@ -78,9 +96,9 @@
 
   // Note there is no need to sort the query results.
   $query = "SELECT pc_eventDate, pc_endDate, pc_startTime, pc_duration, " .
-   "pc_recurrtype, pc_recurrspec, pc_alldayevent, pc_catid " .
-   "FROM openemr_postcalendar_events WHERE " .
-   "pc_aid = '$providerid' AND " .
+   "pc_recurrtype, pc_recurrspec, pc_alldayevent, pc_catid, pc_prefcatid " .
+   "FROM openemr_postcalendar_events " .
+   "WHERE pc_aid = '$providerid' AND " .
    "((pc_endDate >= '$sdate' AND pc_eventDate < '$edate') OR " .
    "(pc_endDate = '0000-00-00' AND pc_eventDate >= '$sdate' AND pc_eventDate < '$edate'))";
   $res = sqlStatement($query);
@@ -88,12 +106,28 @@
   while ($row = sqlFetchArray($res)) {
    $thistime = strtotime($row['pc_eventDate'] . " 00:00:00");
    if ($row['pc_recurrtype']) {
+
     preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
     $repeattype = $matches[1];
+
+    preg_match('/"event_repeat_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
+    $repeatfreq = $matches[1];
+    if (! $repeatfreq) $repeatfreq = 1;
+
     $endtime = strtotime($row['pc_endDate'] . " 00:00:00") + (24 * 60 * 60);
     if ($endtime > $slotetime) $endtime = $slotetime;
+
+    $repeatix = 0;
     while ($thistime < $endtime) {
-     doOneDay($row['pc_catid'], $thistime, $row['pc_startTime'], $row['pc_duration']);
+
+     // Skip the event if a repeat frequency > 1 was specified and this is
+     // not the desired occurrence.
+     if (! $repeatix) {
+      doOneDay($row['pc_catid'], $thistime, $row['pc_startTime'],
+       $row['pc_duration'], $row['pc_prefcatid']);
+     }
+     if (++$repeatix >= $repeatfreq) $repeatix = 0;
+
      $adate = getdate($thistime);
      if ($repeattype == 0)        { // daily
       $adate['mday'] += 1;
@@ -116,7 +150,8 @@
      $thistime = mktime(0, 0, 0, $adate['mon'], $adate['mday'], $adate['year']);
     }
    } else {
-    doOneDay($row['pc_catid'], $thistime, $row['pc_startTime'], $row['pc_duration']);
+    doOneDay($row['pc_catid'], $thistime, $row['pc_startTime'],
+     $row['pc_duration'], $row['pc_prefcatid']);
    }
   }
 
@@ -158,7 +193,7 @@ td { font-size:10pt; }
 <body <?echo $top_bg_line;?>>
 <?
 ?>
-<form method='post' name='theform' action='find_appt_popup.php?providerid=<? echo $providerid ?>'>
+<form method='post' name='theform' action='find_appt_popup.php?providerid=<?php echo $providerid ?>&catid=<?php echo $input_catid ?>'>
 <center>
 
 <table border='0' cellpadding='5' cellspacing='0'>
@@ -201,10 +236,16 @@ td { font-size:10pt; }
 <?
   $lastdate = "";
   for ($i = 0; $i < $slotcount; ++$i) {
-   if ($slots[$i] >= 4) continue;
+
+   $available = true;
+   for ($j = $i; $j < $i + $catslots; ++$j) {
+    if ($slots[$j] >= 4) $available = false;
+   }
+   if (!$available) continue; // skip reserved slots
+
    $utime = ($slotbase + $i) * $slotsecs;
    $thisdate = date("Y-m-d", $utime);
-   if ($thisdate != $lastdate) {
+   if ($thisdate != $lastdate) { // if a new day, start a new row
     if ($lastdate) {
      echo "</td>\n";
      echo " </tr>\n";
@@ -223,6 +264,10 @@ td { font-size:10pt; }
     $adate['hours'] . "," .
     $adate['minutes'] . ")'>";
    echo $anchor . date("H:i", $utime) . "</a> ";
+
+   // If category duration is more than 1 slot, increment $i appropriately.
+   // This is to avoid reporting available times on undesirable boundaries.
+   $i += $catslots - 1;
   }
   if ($lastdate) {
    echo "</td>\n";

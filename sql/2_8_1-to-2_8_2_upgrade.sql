@@ -341,4 +341,6 @@ ALTER TABLE patient_data
 INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (4, 'de', 'German');
 INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (5, 'du', 'Dutch');
 INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (6, 'he', 'Hebrew');
-  
+
+ALTER TABLE openemr_postcalendar_events
+  ADD pc_prefcatid int(11) NOT NULL DEFAULT 0;

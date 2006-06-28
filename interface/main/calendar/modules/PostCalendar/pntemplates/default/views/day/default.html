@@ -3,7 +3,7 @@
 [-* This is the source code for both day/default.html and week/default.html.  *-]
 [-* They should always be identical.  If you change one, copy to the other!   *-]
 [-*****************************************************************************-]
-[-* Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com> and others           *-]
+[-* Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com> and others      *-]
 [-*                                                                           *-]
 [-* This program is free software; you can redistribute it and/or             *-]
 [-* modify it under the terms of the GNU General Public License               *-]
@@ -42,10 +42,10 @@ a       { text-decoration:none; }
   document.forms[0].submit();
  }
 
- function newEvt(startampm, starttimeh, starttimem, eventdate, providerid) {
+ function newEvt(startampm, starttimeh, starttimem, eventdate, providerid, catid) {
   dlgopen('add_edit_event.php?startampm=' + startampm +
    '&starttimeh=' + starttimeh + '&starttimem=' + starttimem +
-   '&date=' + eventdate + '&userid=' + providerid,
+   '&date=' + eventdate + '&userid=' + providerid + '&catid=' + catid,
    '_blank', 550, 270);
  }
 
@@ -68,7 +68,6 @@ a       { text-decoration:none; }
    theForm.submit();
  }
 
-
 </script>
 
 <!-- Required for the popup date selectors -->
@@ -76,13 +75,21 @@ a       { text-decoration:none; }
 
 [-php-]
 
+ // A_CATEGORY is an ordered array of associative-array categories.
+ // Keys of interest are: id, name, color, desc, event_duration.
+ //
+ // echo "<!-- A_CATEGORY = "; print_r($this->_tpl_vars['A_CATEGORY']); echo " -->\n"; // debugging
+ // echo "<!-- A_EVENTS = "; print_r($this->_tpl_vars['A_EVENTS']); echo " -->\n"; // debugging
+
+ $A_CATEGORY  =& $this->_tpl_vars['A_CATEGORY'];
+
  // [-if $PRINT_VIEW != 1-]
  // [-*Main Navigation*-]
  // [-include file="$TPL_NAME/views/global/navigation.html"-]
  // [-/if-]
 
  $A_EVENTS  =& $this->_tpl_vars['A_EVENTS'];
- $S_EVENTS  =& $this->_tpl_vars['S_EVENTS'];
+ // $S_EVENTS  =& $this->_tpl_vars['S_EVENTS']; // Deleted by Rod
  $providers =& $this->_tpl_vars['providers'];
  $times     =& $this->_tpl_vars['times'];
  $interval  =  $this->_tpl_vars['interval'];
@@ -148,7 +155,7 @@ a       { text-decoration:none; }
 
  // Show the Add and Search buttons.
  echo "  <td align='right' valign='top' width='33%' nowrap>\n";
- echo "   <input type='button' value='Add' onclick='newEvt(1, 9, 00, $Date, 0)' />\n";
+ echo "   <input type='button' value='Add' onclick='newEvt(1, 9, 00, $Date, 0, 0)' />\n";
  echo "   <input type='button' value='Search' onclick='location=\"index.php?module=PostCalendar&func=search\"' />\n";
  echo "  </td>\n";
  echo " </tr>\n";
@@ -224,9 +231,9 @@ a       { text-decoration:none; }
    // Repeat doc names at 1PM.  This is a kludge; omit it for released code.
    // if ($starttimeh == 13 && $starttimem == 0) $need_headers = true;
 
-   // Get all events just for this time slot now, because we can pick up where
-   // we left off and because we don't want to re-scan all events for the day
-   // for each table cell.
+   // Get all events for all providers just for this time slot now, because we
+   // can pick up where we left off and because we don't want to re-scan all
+   // events for the day for each table cell.
    //
    $arr_slot = array();
    for (; isset($slotkey); list($slotkey, $slotevent) = each($arr_events)) {
@@ -242,20 +249,42 @@ a       { text-decoration:none; }
     $durminutes = ceil($slotevent['duration'] / 60);
     $durslots = ceil($durminutes / $interval);
 
-    // While we're here, collect information for setting cell colors.
+    // While we're here, collect information for cell cosmetics.
     if ($catid == 2) { // in office
      $provstat[$providerid]['in'] = true;
+
+     // Save preferred category info for this IN event.
+     $provstat[$providerid]['in_cat'] = -1;
+     $provstat[$providerid]['in_slot0'] = $slotindex;
+     $provstat[$providerid]['in_slots'] = 1;
+     if ($slotevent['prefcatid']) {
+      foreach ($A_CATEGORY as $catkey => $catval) {
+       if ($catval['id'] == $slotevent['prefcatid']) {
+        $provstat[$providerid]['in_cat'] = $catkey;
+        $provstat[$providerid]['in_slots'] =
+         ceil(ceil($catval['event_duration'] / 60) / $interval);
+        break;
+       }
+      }
+      // Debugging:
+      if ($provstat[$providerid]['in_cat'] < 0) {
+       echo "<!-- Unmatched prefcatid = " . $slotevent['prefcatid'] . " -->\n"; // debugging
+      }
+     }
+
     }
     else if ($catid == 3) { // out of office
      $provstat[$providerid]['in'] = false;
     }
     else if ($catid == 4 || $catid == 8 || $catid == 11) { // unavailable types
+     // unavailable slots are marked 'res' for appropriate coloring.
      $endindex = $slotindex + $durslots;
      for ($i = $slotindex; $i < $endindex; ++$i) {
       $provstat[$providerid][$i]['res'] = true;
      }
     }
-    // if duration > slot size then mark slots for border control.
+    // If duration > slot size then mark slots for border control.  A slot
+    // marked 'ext' is not to have a border between itself and the slot below.
     if ($durslots > 1) {
      $endindex = $slotindex + $durslots - 1;
      for ($i = $slotindex; $i < $endindex; ++$i) {
@@ -263,6 +292,7 @@ a       { text-decoration:none; }
      }
     }
    }
+   // Finished getting event information for this time slot.
 
    // Write a header row with the provider names if appropriate.
    if ($need_headers) {
@@ -284,6 +314,19 @@ a       { text-decoration:none; }
    foreach ($providers as $provider) {
     $providerid = $provider['id'];
 
+    // Mark this as a no-bottom-border slot if the preferred category
+    // duration extends beyond it.
+    //
+    // echo "<!-- slotindex=$slotindex in=" . $provstat[$providerid]['in'] .
+    //  " in_cat=" . $provstat[$providerid]['in_cat'] .
+    //  " in_slot0=" . $provstat[$providerid]['in_slot0'] .
+    //  " in_slots=" . $provstat[$providerid]['in_slots'] . " -->\n"; // debugging
+    //
+    if ($provstat[$providerid]['in']) {
+     if (($slotindex + 1 - $provstat[$providerid]['in_slot0']) % $provstat[$providerid]['in_slots'])
+      $provstat[$providerid][$slotindex]['ext'] = true;
+    }
+
     $content = ""; // this will be the event cell content
 
     $clsuffix = "acell";
@@ -295,7 +338,8 @@ a       { text-decoration:none; }
     // time slots or when the practitioner is not in-office.  Using "rowspan"
     // would be a difficult and inferior solution to this problem.
     //
-    $tdstyle="";
+    $tdstyle = "";
+    $timelabel = true;
     if ($slotindex < $lastslotindex &&
         ($provstat[$providerid][$slotindex]['ext'] || !$provstat[$providerid]['in'])) {
      $tdstyle .= " nobot";
@@ -303,18 +347,39 @@ a       { text-decoration:none; }
     if ($slotindex > 0 && ($provstat[$providerid][$slotindex-1]['ext'] ||
         !($provstat[$providerid]['in'] || $provstat[$providerid]['wasin']))) {
      $tdstyle .= " notop";
+     $timelabel = false;
     }
 
     $disptimeh = ($starttimeh > 12) ? ($starttimeh - 12) : $starttimeh;
 
-    echo "  <td class='t$clsuffix'";
+    $in_cat_id = 0;
+    if ($provstat[$providerid]['in_cat'] >= 0) {
+     $category =& $A_CATEGORY[$provstat[$providerid]['in_cat']];
+     $in_cat_id = $category['id'];
+    }
+
+    // If a slot omits the top border, then we omit the TOD cell's top border
+    // and skip writing its time-of-day text.  This way we can get some rows
+    // with no content at all, which should produce a more compact and readable
+    // calendar display.
+
+    echo "  <td class='t$clsuffix$tdstyle'";
     if ($slotindex == 0) echo " width='1%'";
     echo ">";
-    echo "<a href='javascript:newEvt($startampm,$starttimeh,$starttimem,$eventdate,$providerid)'>";
-    echo "$disptimeh:$starttimem";
-    echo "</a></td>\n";
+    if ($timelabel) {
+     echo "<a href='javascript:newEvt($startampm,$starttimeh,$starttimem,$eventdate,$providerid,$in_cat_id)'>";
+     echo "$disptimeh:$starttimem</a>";
+    } else {
+     echo "<span style='font-size:1px'>&nbsp;</span>";
+    }
+    echo "</td>\n";
 
-    echo "  <td class='e$clsuffix$tdstyle'>";
+    echo "  <td class='e$clsuffix$tdstyle'";
+    if ($clsuffix == "acell" && $in_cat_id) {
+     echo " style='background-color:" . $category['color'] . "'";
+     echo " title='" . $category['name'] . "'";
+    }
+    echo ">";
 
     // Scan all events for this time slot and generate the associated HTML for
     // this doc.  JavaScript is used in hrefs to reduce the volume of output.
@@ -369,7 +434,7 @@ a       { text-decoration:none; }
      }
     } // end while
 
-    if (! $content) $content = "&nbsp;";
+    if (! $content) $content = "<span style='font-size:1px'>&nbsp;</span>";
     echo $content . "</td>\n";
 
     // Keep track of whether the doc was in during the previous time slot.
