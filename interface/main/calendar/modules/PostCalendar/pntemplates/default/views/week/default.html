@@ -28,10 +28,12 @@ a       { text-decoration:none; }
 .notop  { border-top-width:0px; }
 </style>
 
+<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../../library/dialog.js"></script>
-<script type="text/javascript" src="../../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../../library/calendar.js"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 
 <script language='JavaScript'>
 
@@ -133,13 +135,12 @@ a       { text-decoration:none; }
  // Build the date and view type selectors and the Go button and the Today button.
  echo "  <td align='center' valign='top' width='34%' nowrap>\n";
 
- echo "    <input type='text' size='10' name='jumpdate'\n" .
-  "     value='$y-$m-$d'\n" .
-  "     title='yyyy-mm-dd date to go to'\n" .
+ echo "    <input type='text' size='10' name='jumpdate' id='jumpdate'\n" .
+  "     value='$y-$m-$d' title='yyyy-mm-dd date to go to'\n" .
   "     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />\n" .
-  "     <a href=\"javascript:show_calendar('theform.jumpdate')\"\n" .
-  "     title='Click here to choose a date'\n" .
-  "     ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>\n";
+  "     <img src='../../pic/show_calendar.gif' id='img_jumpdate' align='absbottom'\n" .
+  "      width='24' height='22' border='0' alt='[?]' style='cursor:pointer'\n" .
+  "     title='Click here to choose a date'>\n";
 
  echo "   &nbsp;<select name='viewtype'>\n";
  foreach (array('day' => 'Day View', 'week' => 'Week View', 'month' => 'Month View', 'year' => 'Year View')
@@ -186,6 +187,10 @@ a       { text-decoration:none; }
  echo "</form>\n";
 
 [-/php-]
+
+<script language='JavaScript'>
+ Calendar.setup({inputField:"jumpdate", ifFormat:"%Y-%m-%d", button:"img_jumpdate"});
+</script>
 
 [-assign var="dayname" value=$DATE|date_format:"%w"-]
 [-assign var="day"     value=$DATE|date_format:"%d"|string_format:"%1d"-]
