@@ -144,6 +144,9 @@ $GLOBALS['phone_country_code'] = '1'; // 1 = USA
 // 4 = last,first(title: description)
 $GLOBALS['calendar_appt_style'] = 2;
 
+// Make this true if you want providers to see everyone on the calendar.
+$GLOBALS['docs_see_entire_calendar'] = false;
+
 // These are needed only if you are using SQL-Ledger and you want to see
 // the cash receipts report by practitioner (sl_receipts_report.php),
 // which is invoked from the billing page.  We will probably have more
