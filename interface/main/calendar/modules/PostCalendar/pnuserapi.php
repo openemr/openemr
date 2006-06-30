@@ -235,7 +235,7 @@ function postcalendar_userapi_buildView($args)
 		// passing the times array to the tpl the times array is for the days schedule
 		$tpl->assign_by_ref("times",$times);
 		// load the table width to the template
-		$tpl->assign("day_td_width",$GLOBALS['day_view_td_width']);
+		// $tpl->assign("day_td_width",$GLOBALS['day_view_td_width']);
 
 		//=================================================================
 		//  Week View is a bit of a pain in the ass, so we need to
