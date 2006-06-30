@@ -2,28 +2,16 @@
 //------------report.php
 include_once("../../globals.php");
 include_once("../../../library/api.inc");
+include_once("content_parser.php");
 function CAMOS_report( $pid, $encounter, $cols, $id) {
-$count = 0;
-$data = formFetch("form_CAMOS", $id);
-if ($data) {
-print "<table><tr>";
-foreach($data as $key => $value) {
-if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" || $key == "authorized" || $key == "activity" || $key == "date" || $value == "" || $value == "0000-00-00 00:00:00") {
-	continue;
-}
-if ($value == "on") {
-$value = "yes";
-}
-$key=ucwords(str_replace("_"," ",$key));
-$output = stripslashes($value);
-print "<td><span class=bold>$key: </span><span class=text>$output</span></td>";
-$count++;
-if ($count == $cols) {
-$count = 0;
-print "</tr><tr>\n";
-}
-}
-}
-print "</tr></table>";
+  $data = formFetch("form_CAMOS", $id);
+  if ($data) {
+    echo "(category) ".stripslashes($data['category'])." | ";
+    echo "(subcategory) ".stripslashes($data['subcategory'])." | ";
+    echo "(item) ".stripslashes($data['item']);
+
+
+   echo "<pre>".stripslashes(content_parser($data['content']))."</pre><hr>\n";
+  }
 }
 ?> 

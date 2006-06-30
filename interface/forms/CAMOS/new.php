@@ -8,6 +8,8 @@ formHeader("Form: CAMOS");
 
 <?
 $select_size = 20;
+$textarea_rows = 25;
+$textarea_cols = 55;
 $debug = '';
 $error = '';
 //variables for preselect section below (after handle database changes):
@@ -167,7 +169,7 @@ $i=0;
 $query = "SELECT id, item, content, subcategory_id FROM form_CAMOS_item ORDER BY item";
 $statement = sqlStatement($query);
 while ($result = sqlFetchArray($statement)) {
-  echo "array3[".$i."] = new Array('".$result['item']."', '".str_replace(array("\r","\n","'","\""),array("","","\\'","\\\""),strip_tags($result['content']))."', '".$result['subcategory_id'].
+  echo "array3[".$i."] = new Array('".$result['item']."', '".str_replace(array("\r","\n","'","\""),array("\\r","\\n","\\'","\\\""),strip_tags($result['content'],"<b>,<i>"))."', '".$result['subcategory_id'].
     "','".$result['id']."');\n";
   $i++;
 }
@@ -373,7 +375,7 @@ if ($error != '') {
     <input type=button name=del3 value=del onClick="js_button('delete','change_item')"><br>
   </td>
   <td>
-    <textarea name=textarea_content cols=40 rows=6></textarea><br>
+    <textarea name=textarea_content cols=<? echo $textarea_cols ?> rows=<? echo $textarea_rows ?>></textarea><br>
     <input type=button name=add4 value=add onClick="js_button('add','change_content')">
   </td>
 </tr>
