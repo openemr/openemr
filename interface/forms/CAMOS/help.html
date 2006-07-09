@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+
+
+<html>
+<head>
+  <title>CAMOS Help</title>
+  <link rel="stylesheet" type="text/css" 
+        href="CAMOS.css" 
+        >
+</head>
+<body>
+<a name='top'>
+<div id='myheader'>CAMOS Help Page</div>
+<div id='mypic'><img src='palm.gif'></div>
+<div id='mymenu'>
+      <a href="#intro">Introduction</a> |
+      <a href="#basic">Basic Use</a> |
+      <a href="#advanced">Advanced Use</a> 
+</div>
+<a name='intro'>
+<hr/>
+<h1>Introduction</h1>
+<p><a href='#top'>Top</a></p>
+<p>
+An introduction to CAMOS
+</p>
+<p>
+CAMOS (Computer Aided Medical Ordering System) is, on the surface, 
+just a fancy interface for organizing and choosing pieces of text 
+to insert into a patient's chart.  It is designed to be intuitive
+and easy to use.  In OpenEMR, CAMOS is a plug-in form that does
+not require an upgrade to your current OpenEMR system to use 
+(assuming you are using a relatively up-to-date system, probably
+OpenEMR 2.6 and above and a current PHP4 with a fully javascript
+compliant browser, like Firefox).  The concept is based on a PDA
+EMR program I wrote a few years ago, which was designed to limit
+the need for direct text entry during a patient encounter. 
+</p>
+<p>
+The structure of the form is three select menus titled 'category', 
+'subcategory', and 'items' and a text box titled 'content'.  
+Each of the three menus has a one line text box and a set of three buttons 
+at the bottom and the 'content' text 
+box has one button.
+The buttons are labeled 'add', 'alter', and 'del'.  The 'add' button
+adds to the menu above whatever has been typed in the one line text box
+above the button.  The 'alter' button changes the selected text in the menu
+to the typed text, again, in the box above the button.  The 'del' button
+attempts to delete the selected text in the menu.  This will not work in
+some situations.  For example, if you attempt to delete an element of the
+'Category' menu, and that element is associated with existing subcategories,
+you will not be allowed to delete until all of these subcategories are first deleted.
+In turn, a subcategory cannot be deleted until all of the items under it, in other
+words, the elements that appear in the 'Item' menu when a particular subcategory is
+selected must all be deleted first before the selected subcategory may be deleted.
+The text entered in the 'Content' box is directly associated with the selected element in
+the 'Item' menu.  In fact, when you push the 'add' button below the 'Item' menu, you not only
+add the new typed item to the menu, you also add the text in the 'Content' box.
+</p>
+
+<a name='basic'>
+<hr/>
+<h1>Basic Use</h1>
+<p><a href='#top'>Top</a></p>
+<p>
+Basic use
+</p>
+<p>
+Here is where instructions go
+</p>
+
+</a>
+<a name='advanced'>
+<hr/>
+<h1>Advanced Use</h1>
+<p><a href='#top'>Top</a></p>
+<p>
+For the advanced user
+</p>
+<p>
+Here is where advanced instructions go
+</p>
+
+<div class='box'>
+<div class='code'>
+<pre>
+an example of code
+can go here
+to show them how to do it
+</pre>
+</div>
+</div>
+<p>
+More explanation
+</p>
+
+<div class='box'>
+<div class='code'>
+<pre>
+More code examples
+</pre>
+</div>
+</div>
+
+</div>
+</body>
+</html>
