@@ -1,0 +1,46 @@
+body {
+  font: 1em, Verdana, Geneva, Arial, Helvetica, sans-serif;
+  background-color: #FFFFFF;
+}
+h1 {
+  text-decoration: underline;
+}
+.box {
+  background-color: #ccffcc;
+  border: 1px solid #00ff00;
+  width: 50%;
+}
+  
+.code {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+/*function names.  used f for less typing around single words affected*/
+.f {
+  font-weight: bold;
+}
+
+#myheader {
+  background-color: #c9c3ed;
+  text-align: center;
+  font-size: 2em;
+}
+a:link, a:visited {
+  background-color: #ffffff;
+  text-decoration: none;
+  color: #6A5ACD;
+}
+a:hover {
+  background-color: #c9c3ed;
+}
+#mymenu {
+  font-size: 1em;
+  text-align: center;
+}
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
