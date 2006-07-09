@@ -165,11 +165,50 @@ if ($userauthorized) {
 </p>
 
 <form name=the_form method=post action=billing_report.php>
+
+<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/textformat.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script language='JavaScript'>
+ var mypcc = '1';
+</script>
+
 <input type=hidden name=mode value="change">
 <table width=100% border="1" cellspacing="0" cellpadding="0">
+
 	<tr>
-		<td nowrap>&nbsp;<span class=text><?xl('From: ','e')?></span><input type=entry name=from_date size=11 value="<?echo $from_date;?>"></td>
-		<td nowrap>&nbsp;<span class=text><?xl('To: ','e')?></span><input type=entry name=to_date size=11 value="<?echo $to_date;?>">
+          
+           <td nowrap>
+             &nbsp;<span class=text><?xl('From: ','e')?></span>
+             <input type='text' size='10' name='from_date' id='from_date'
+              value='<?echo $from_date;?>'
+              onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+              title='yyyy-mm-dd last date of this event' />
+             <img src='../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
+              id='img_fromdate' border='0' alt='[?]' style='cursor:pointer'
+              title='Click here to choose a date'>
+             <script>
+             Calendar.setup({inputField:"from_date", ifFormat:"%Y-%m-%d", button:"img_fromdate"});
+             </script>
+            </td>
+
+           <td nowrap>
+             &nbsp;<span class=text><?xl('To: ','e')?></span>
+             <input type='text' size='10' name='to_date' id='to_date'
+              value='<?echo $to_date;?>'
+              onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+              title='yyyy-mm-dd last date of this event' />
+             <img src='../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
+              id='img_todate' border='0' alt='[?]' style='cursor:pointer'
+              title='Click here to choose a date'>
+             <script>
+             Calendar.setup({inputField:"to_date", ifFormat:"%Y-%m-%d", button:"img_todate"});
+             </script>
+            </td>
+
 			<input type="hidden" name="code_type" value="%"></td>
 		<td nowrap><input type=checkbox name=unbilled <?if ($unbilled == "on") {echo "checked";};?>><span class=text><?xl('Show Unbilled Only','e')?></span></td>
 		<td nowrap><input type=checkbox name=authorized <?if ($my_authorized == "on") {echo "checked";};?>><span class=text><?xl('Show Authorized Only','e')?></span></td>
