@@ -394,6 +394,7 @@ if ($error != '') {
 <input type=button name='submit form' value='submit' onClick="js_button('submit','submit')">
 <?
 echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/patient_encounter.php'>[do not save]</a>";
+echo "<a href='".$GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [help]</a>";
 ?>
 
 
