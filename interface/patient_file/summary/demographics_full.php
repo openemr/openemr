@@ -159,9 +159,9 @@ function set_insurance(ins_id, ins_name) {
   <td colspan="4" nowrap>
    <select name=title tabindex="1">
     <option value="<?php echo $result{"title"} ?>"><?php echo $result{"title"} ?></option>
-    <option value="Mr."><?php xl('Mr','e'); ?>.</option>
     <option value="Mrs."><?php xl('Mrs','e'); ?>.</option>
     <option value="Ms."><?php xl('Ms','e'); ?>.</option>
+    <option value="Mr."><?php xl('Mr','e'); ?>.</option>
     <option value="Dr."><?php xl('Dr','e'); ?>.</option>
    </select>
    <input tabindex="2" type=entry size=15 name=fname value="<?php echo $result{"fname"} ?>">
@@ -190,8 +190,8 @@ function set_insurance(ins_id, ins_name) {
   <td><span class=required><?php xl('Sex','e'); ?>: </span></td>
   <td>
    <select name=sex tabindex="6">
-    <option value="Male" <?php if ($result{"sex"} == "Male") {echo "selected";};?>><?php xl('Male','e'); ?></option>
     <option value="Female" <?php if ($result{"sex"} == "Female") {echo "selected";};?>><?php xl('Female','e'); ?></option>
+    <option value="Male" <?php if ($result{"sex"} == "Male") {echo "selected";};?>><?php xl('Male','e'); ?></option>
    </select>
   </td>
   <td><span class=bold><?php xl('Emergency Phone','e'); ?>:</span></td>
