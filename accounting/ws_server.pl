@@ -204,8 +204,16 @@ sub rpc_add_invoice
 	{
 		if($$line_item{'itemtext'} =~ /COPAY/){
 			$form->{"datepaid_$j"} = "$mm-$dd-$yy";
-			$form->{"source_$j"} = "Co-pay";
-			$form->{"memo_$j"} ='Co-pay';
+			# For copays we use a dummy procedure code because it may be applicable
+			# to multiple procedures during the visit.
+			$form->{"memo_$j"} = 'Co-pay';
+			# Put the payment method and check number in the source field if they are
+			# present (i.e. from pos_checkout.php).
+			if ($$line_item{'itemtext'} =~ /^COPAY:([A-Z].*)$/) {
+				$form->{"source_$j"} = $1;
+			} else {
+				$form->{"source_$j"} = 'Co-pay';
+			}
 			$form->{"paid_$j"} =  abs($$line_item{'price'});
 			$form->{"AR_paid_$j"} = "$oemr_cash_acc" . "--";
 			$j++;

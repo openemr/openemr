@@ -38,15 +38,24 @@ function dopopup(aurl) {
 <br/>
 <a href="appt_encounter_report.php" target="_new">Appointments-Encounters Report</a>
 <br/>
+
+{php} if (! $GLOBALS['simplified_demographics']) { {/php}
 <a href="insurance_allocation_report.php" target="_new">Patient Insurance Distribution Report</a>
 <br/>
 <a href="../billing/indigent_patients_report.php" target="_new">Indigent Patients Report</a>
 <br/>
-<a href="front_receipts_report.php" target="_new">Front Office Receipts Report</a>
-<br/>
 <a href="unique_seen_patients_report.php" target="_new">Unique Seen Patients Report</a>
 <br/>
+{php} } {/php}
+
+{php} if (! $GLOBALS['weight_loss_clinic']) { {/php}
+<a href="front_receipts_report.php" target="_new">Front Office Receipts Report</a>
+<br/>
+{php} } {/php}
+
 <a href="prescriptions_report.php" target="_new">Prescriptions Report</a>
+<br/>
+<a href="receipts_by_method_report.php" target="_new">Receipts by Payment Method Report</a>
 {php}
  if ($GLOBALS['athletic_team']) {
   echo "<br/>\n";

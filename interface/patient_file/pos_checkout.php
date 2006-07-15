@@ -128,7 +128,8 @@ function invoice_add_line_item(& $invoice_info, $code_type, $code,
 {
 	$tii = array();
 	$tii['maincode'] = $code;
-	$tii['itemtext'] = "$code_type:$code $code_text";
+	$tii['itemtext'] = "$code_type:$code";
+	if ($code_text) $tii['itemtext'] .= " $code_text";
 	$tii['qty'] = 1;
 	$tii['price'] = sprintf("%01.2f", $amount);
 	$tii['glaccountid'] = $GLOBALS['oer_config']['ws_accounting']['income_acct'];
@@ -272,9 +273,11 @@ function invoice_post(& $invoice_info)
   $row = SLGetRow($atres, $irow);
   $amount = sprintf('%01.2f', $row['amount']); // negative
   $charges += $amount;
+  $rowsource = $row['source'];
+  if (strtolower($rowsource) == 'co-pay') $rowsource = '';
   echo " <tr>\n";
   echo "  <td>" . $row['transdate'] . "</td>\n";
-  echo "  <td>Payment " . $row['source'] . "</td>\n";
+  echo "  <td>Payment $rowsource</td>\n";
   echo "  <td align='right'>$amount</td>\n";
   echo " </tr>\n";
  }
@@ -392,8 +395,7 @@ function invoice_post(& $invoice_info)
   }
 
   if ($_POST['form_amount']) {
-   $paydesc = 'Received at time of visit';
-   if ($_POST['form_source']) $paydesc .= ' (' . $_POST['form_source'] . ')';
+   $paydesc = $_POST['form_source'] ? $_POST['form_source'] : '';
    $msg = invoice_add_line_item($invoice_info, 'COPAY',
     $_POST['form_method'],
     $paydesc,
