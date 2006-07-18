@@ -24,7 +24,7 @@ if ($encounter == "")
 $encounter = date("Ymd");
 if ($_GET["mode"] == "new"){
   $newid = formSubmit("form_CAMOS", $field_names, $_GET["id"], $userauthorized);
-  addForm($encounter, "CAMOS", $newid, "CAMOS", $pid, $userauthorized);
+  addForm($encounter, "CAMOS-".$field_names['category'].'-'.$field_names['subcategory'].'-'.$field_names['item'], $newid, "CAMOS", $pid, $userauthorized);
   //deal with embedded camos submissions here
   foreach($embedded_camos as $val) {
     foreach($val as $k => $v) {
