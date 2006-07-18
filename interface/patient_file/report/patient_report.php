@@ -168,6 +168,16 @@ $registry_form_name = array();
   } 
   else {
    $form_name = trim($result{"form_name"});
+   //if form name is not in registry, look for the closest match by
+  // finding a registry name which is  at the start of the form name.
+  //this is to allow for forms to put additional helpful information
+  //in the database in the same string as their form name after the name
+   $form_name_found_flag = 0;
+   foreach($registry_form_name as $var) {if ($var == $form_name) {$form_name_found_flag = 1;}}
+   // if the form does not match precisely with any names in the registry, now see if any front partial matches
+   // and change $form_name appropriately so it will print above in $toprint = $html_strings[$var]
+   if (!$form_name_found_flag) { foreach($registry_form_name as $var) {if (strpos($form_name,$var) == 0) {$form_name = $var;}}}
+ 
    if (!is_array($html_strings[$form_name])) {$html_strings[$form_name] = array();}
    array_push($html_strings[$form_name], "<input type='checkbox' name='" 
      . $result{"formdir"} . "_" 
