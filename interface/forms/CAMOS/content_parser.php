@@ -44,14 +44,35 @@ function remove_dangling_comments($string_to_process) {
 
 //process commands embedded in C style comments where function name is first
 //followed by args separated by :: delimiter and nothing else
-//must run this before remove_comments or there will be nothing left to process :)
 
-function process_commands($string_to_process) {
+function process_commands(&$string_to_process, &$camos_return_data) {
 
+  //First, handle replace function as special case.  full depth of inserts should be evaluated prior
+  //to evaluating other functions in final string assembly.
+  $replace_finished = FALSE; 
+  while (!$replace_finished) {
+    if (preg_match_all("/\/\*\s*replace\s*::.*?\*\//",$string_to_process, $matches)) {
+      foreach($matches[0] as $val) {
+        $comm = preg_replace("/(\/\*)|(\*\/)/","",$val);
+        $comm_array = split('::', $comm); //array where first element is command and rest are args
+        $replacement_item = trim($comm_array[1]); //this is the item name to search for in the database.  easy.
+        $replacement_text = '';
+        $query = "SELECT content FROM form_CAMOS_item WHERE item like '".$replacement_item."'";
+        $statement = sqlStatement($query);
+        if ($result = sqlFetchArray($statement)) {$replacement_text = $result['content'];}
+        $string_to_process = str_replace($val,$replacement_text,$string_to_process);
+      }
+    }
+    else {$replace_finished = TRUE;}
+  }
+
+
+  //end of special case of replace function
+  $return_value = 0;
   $camos_return_data = array(); // to be filled with additional camos form submissions if any embedded
   $command_array = array();  //to be filled with potential commands
   $matches= array();  //to be filled with potential commands
-  if (!preg_match_all("/\/\*.*?\*\//",$string_to_process, $matches)) {return $camos_return_data;}
+  if (!preg_match_all("/\/\*.*?\*\//",$string_to_process, $matches)) {return $return_value;}
   $command_array = $matches[0];
   foreach($command_array as $val) {
     //process each command 
@@ -71,6 +92,7 @@ function process_commands($string_to_process) {
       addBilling2($encounter, $type, $code, $text, $modifier,$units,$fee,$comm_array);
     }
     if (trim($comm_array[0]) == 'camos') {
+      $command_count++;
       //data to be submitted as separate camos forms
       //this is for embedded prescriptions, test orders etc... usually within a soap note or something  
       //data collected here will be returned so that save.php can give it special treatment and insert
@@ -82,5 +104,6 @@ function process_commands($string_to_process) {
         "content" => trim($comm_array[4]))); 
     }
   }
-  return $camos_return_data;
+  $string_to_process = remove_comments($string_to_process);
+  return $return_value;
 } 

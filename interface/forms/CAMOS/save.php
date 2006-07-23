@@ -17,8 +17,7 @@ $field_names[$k] = mysql_real_escape_string($var);
 echo "$var\n";
 }
 
-$embedded_camos = process_commands($field_names['content']);
-$field_names['content'] = remove_comments($field_names['content']);
+process_commands($field_names['content'], $embedded_camos); 
 
 if ($encounter == "")
 $encounter = date("Ymd");
