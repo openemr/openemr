@@ -304,7 +304,10 @@ function js_button(mode,selection) {
     f2.category.value = f2.select_category.options[f2.select_category.selectedIndex].text;
     f2.subcategory.value = f2.select_subcategory.options[f2.select_subcategory.selectedIndex].text;
     f2.item.value = f2.select_item.options[f2.select_item.selectedIndex].text;
-    f2.content.value = f2.textarea_content.value;
+    if (selection == 'submit_selection') {
+      f2.content.value = (f2.textarea_content.value).substring(f2.textarea_content.selectionStart, f2.textarea_content.selectionEnd);
+    }
+    else {f2.content.value = f2.textarea_content.value;}
     f2.action = '<?echo $rootdir;?>/forms/CAMOS/save.php?mode=new';
     f2.submit();
   }
@@ -391,7 +394,8 @@ if ($error != '') {
 <input type=hidden name=subcategory>
 <input type=hidden name=item>
 <input type=hidden name=content>
-<input type=button name='submit form' value='submit' onClick="js_button('submit','submit')">
+<input type=button name='submit form' value='submit all content' onClick="js_button('submit','submit')">
+<input type=button name='submit form' value='submit selected content' onClick="js_button('submit','submit_selection')">
 <?
 echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/patient_encounter.php'>[do not save]</a>";
 echo "<a href='".$GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [help]</a>";
