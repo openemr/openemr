@@ -12,6 +12,15 @@ $textarea_rows = 25;
 $textarea_cols = 55;
 $debug = '';
 $error = '';
+$previous_encounter_data = '<hr><p>Previous Encounter CAMOS entries</p><hr>';
+//get data from previous encounter to show at bottom of form for reference
+$query = "SELECT t1.category, t1.subcategory, t1.item, t1.content FROM form_CAMOS as t1 JOIN forms as t2 on (t1.id = t2.form_id) where t2.encounter=(select max(t2.encounter) from forms as t2 where t2.form_name like 'CAMOS%' and t2.encounter < ".$_SESSION['encounter'].") AND t1.pid = ".$_SESSION['pid']." AND t2.form_name like 'CAMOS%'";
+$statement = sqlStatement($query);
+while ($result = sqlFetchArray($statement)) { 
+$previous_encounter_data .= $result['category']." | ".$result['subcategory']." | ".$result['item']."<p>".$result['content']."</p><hr>";
+}
+
+//end of get data from previous encounter
 //variables for preselect section below (after handle database changes):
 $preselect_category = '';
 $preselect_subcategory = '';
@@ -148,9 +157,20 @@ else {
 var array1 = new Array();
 var array2 = new Array();
 var array3 = new Array();
+var icd9_list = '';
 var preselect_off = false;
 
 <?
+//ICD9
+$query = "SELECT code_text, code FROM billing WHERE encounter=".$_SESSION['encounter'].
+  " AND pid=".$_SESSION['pid']." AND code_type like 'ICD9'";
+$statement = sqlStatement($query);
+echo "icd9_list = \"\\n\\n\\\n";
+while ($result = sqlFetchArray($statement)) {
+  echo $result['code']." ".$result['code_text'].", \\n\\\n";
+}
+echo "\";\n";
+
 $query = "SELECT id, category FROM form_CAMOS_category ORDER BY category";
 $statement = sqlStatement($query);
 $i = 0;
@@ -174,6 +194,11 @@ while ($result = sqlFetchArray($statement)) {
   $i++;
 }
 ?>
+
+function append_icd9() {
+  var f2 = document.CAMOS;
+  f2.textarea_content.value = f2.textarea_content.value + icd9_list;
+}
 
 function select_word(mode, mystring, myselect) { //take a string and select it in a select box if present
   if (preselect_off) return 0;
@@ -380,6 +405,7 @@ if ($error != '') {
   <td>
     <textarea name=textarea_content cols=<? echo $textarea_cols ?> rows=<? echo $textarea_rows ?>></textarea><br>
     <input type=button name=add4 value=add onClick="js_button('add','change_content')">
+    <input type=button name=icd9 value=icd9 onClick="append_icd9()">
   </td>
 </tr>
 </table>
@@ -399,6 +425,7 @@ if ($error != '') {
 <?
 echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/patient_encounter.php'>[do not save]</a>";
 echo "<a href='".$GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [help]</a>";
+echo $previous_encounter_data;
 ?>
 
 
