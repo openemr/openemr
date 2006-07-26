@@ -218,6 +218,20 @@ Two tablets by mouth every 12 hours for 10 days.
 <p>
 At least this is how I do it in my setup.  Note the formatting of the prescription text with line endings.  This does not cause any problem with the function call.  I do it this way, because I print these as prescriptions from the report page within an encounter.  The arguments here correspond of course to category, subcategory, item, and content.  Again, no enforcement is made of these elements.  It will still work if your CAMOS menus do not contain these particular elements.  Likely, if you do not follow the structure you set up for your menus, you will limit your future ability to data mine.  Or, you may have good reason for straying from this structure.
 </p>
+<p>
+Newly added function: replace.  Used as follows:
+</p>
+<div class='box'>
+<div class='code'>
+<pre>
+Atenolol 50mg
+/*replace::30 tablets qd*/
+</pre>
+</div>
+</div>
+<p>
+In this example, the replace function looks for an 'item' entry called '30 tablets qd' and replaces the function call with the text from the associated content box.  This replace function works recursively, meaning that if the text which is used in the replacement contains a call to 'replace' itself, this will be called as well.  Other function calls will be executed only after all replace calls are completed.
+</p>
 
 </body>
 </html>
