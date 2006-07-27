@@ -6,6 +6,7 @@ $GLOBALS['oer_config']['freeb']['username'] 		= "freeb";
 $GLOBALS['oer_config']['freeb']['password'] 		= "12345";
 $GLOBALS['oer_config']['freeb']['print_command'] 	= "/usr/bin/lpr";
 $GLOBALS['oer_config']['freeb']['printer_name'] 	= "HP_LaserJet4L";
+// This does not seem useful for PDF HCFAs, see freeb/targetbin/ascii2pdf instead:
 $GLOBALS['oer_config']['freeb']['printer_extras'] 	= "-o PageSize=Letter -o portrait";
 
 //used differently by different applications, intuit programs only like numbers
