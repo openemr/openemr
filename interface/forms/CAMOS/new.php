@@ -14,7 +14,7 @@ $debug = '';
 $error = '';
 $previous_encounter_data = '<hr><p>Previous Encounter CAMOS entries</p><hr>';
 //get data from previous encounter to show at bottom of form for reference
-$query = "SELECT t1.category, t1.subcategory, t1.item, t1.content FROM form_CAMOS as t1 JOIN forms as t2 on (t1.id = t2.form_id) where t2.encounter=(select max(t2.encounter) from forms as t2 where t2.form_name like 'CAMOS%' and t2.encounter < ".$_SESSION['encounter'].") AND t1.pid = ".$_SESSION['pid']." AND t2.form_name like 'CAMOS%'";
+$query = "SELECT t1.category, t1.subcategory, t1.item, t1.content FROM form_CAMOS as t1 JOIN forms as t2 on (t1.id = t2.form_id) where t2.encounter=(select max(encounter) from forms where form_name like 'CAMOS%' and encounter < ".$_SESSION['encounter']." and pid=".$_SESSION['pid'].") and t1.pid=".$_SESSION['pid'];
 $statement = sqlStatement($query);
 while ($result = sqlFetchArray($statement)) { 
 $previous_encounter_data .= $result['category']." | ".$result['subcategory']." | ".$result['item']."<p>".$result['content']."</p><hr>";
@@ -167,7 +167,7 @@ $query = "SELECT code_text, code FROM billing WHERE encounter=".$_SESSION['encou
 $statement = sqlStatement($query);
 echo "icd9_list = \"\\n\\n\\\n";
 while ($result = sqlFetchArray($statement)) {
-  echo $result['code']." ".$result['code_text'].", \\n\\\n";
+  echo $result['code']." ".$result['code_text']."\\n\\\n";
 }
 echo "\";\n";
 
