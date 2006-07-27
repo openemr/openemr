@@ -153,12 +153,12 @@
   $row['name'] . ' ' . $row['size'] . ' ' .
   $unit_array[$row['unit']] . ' QTY ' .
   $row['quantity'] . "\n" .
-  'NDC ' . $row['ndc_number'] . ' Lot ' . $row['lot_number'] . ' ' .
-  $row['manufacturer'] . "\n" .
   'Take ' . $row['dosage'] . ' ' . $form_array[$row['form']] .
   ($row['dosage'] > 1 ? 's ' : ' ') .
   $interval_array_verbose[$row['interval']] . ' ' .
-  $route_array_verbose[$row['route']] . ".";
+  $route_array_verbose[$row['route']] . "\n" .
+  'Lot ' . $row['lot_number'] . ' Exp ' . $row['expiration'] . "\n" .
+  'NDC ' . $row['ndc_number'] . ' ' . $row['manufacturer'];
 
  /****
  if ($row['refills']) {
