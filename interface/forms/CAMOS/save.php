@@ -19,18 +19,21 @@ echo "$var\n";
 
 process_commands($field_names['content'], $embedded_camos); 
 
+$CAMOS_form_name = "CAMOS-".$field_names['category'].'-'.$field_names['subcategory'].'-'.$field_names['item'];
+
 if ($encounter == "")
 $encounter = date("Ymd");
 if ($_GET["mode"] == "new"){
   $newid = formSubmit("form_CAMOS", $field_names, $_GET["id"], $userauthorized);
-  addForm($encounter, "CAMOS-".$field_names['category'].'-'.$field_names['subcategory'].'-'.$field_names['item'], $newid, "CAMOS", $pid, $userauthorized);
+  addForm($encounter, $CAMOS_form_name, $newid, "CAMOS", $pid, $userauthorized);
   //deal with embedded camos submissions here
   foreach($embedded_camos as $val) {
     foreach($val as $k => $v) {
       $val[$k] = trim($v);  
     } 
+    $CAMOS_form_name = "CAMOS-".$val['category'].'-'.$val['subcategory'].'-'.$val['item'];
     $newid = formSubmit("form_CAMOS", $val, $_GET["id"], $userauthorized);
-    addForm($encounter, "CAMOS", $newid, "CAMOS", $pid, $userauthorized);
+    addForm($encounter, $CAMOS_form_name, $newid, "CAMOS", $pid, $userauthorized);
   }
 }
 elseif ($_GET["mode"] == "update") {
@@ -38,7 +41,7 @@ elseif ($_GET["mode"] == "update") {
 }
 elseif ($_GET["mode"] == "delete") {
   sqlInsert("delete from form_CAMOS where id=$id and date(date) = date(now())");
-  sqlInsert("delete from forms where form_name='CAMOS' and form_id=$id and pid='".$_SESSION["pid"]."' and date(date) = date(now())");
+  sqlInsert("delete from forms where form_name like 'CAMOS%' and form_id=$id and pid='".$_SESSION["pid"]."' and date(date) = date(now())");
 }
 $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
