@@ -1,4 +1,4 @@
-<?
+<?php
 include_once("../globals.php");
 include_once("../../library/acl.inc");
 include_once("../../custom/code_types.inc.php");
@@ -101,7 +101,7 @@ $oauthorized = $my_authorized;
 
 <html>
 <head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
 <style>
 .subbtn { margin-top:3px; margin-bottom:3px; margin-left:2px; margin-right:2px }
 </style>
@@ -135,31 +135,31 @@ function set_button_states() {
 	var can_mark     = (count1 == 0 && (count0 > 0 || count2 > 0));
 	var can_bill     = (count0 == 0 && count1 == 0 && count2 > 0);
 
-<? if (file_exists($EXPORT_INC)) { ?>
+<?php if (file_exists($EXPORT_INC)) { ?>
   f.bn_external.disabled        = !can_generate;
-<? } else { ?>
+<?php } else { ?>
 	f.bn_hcfa_print.disabled      = !can_generate;
 	f.bn_hcfa.disabled            = !can_generate;
 	f.bn_ub92_print.disabled      = !can_generate;
 	f.bn_ub92.disabled            = !can_generate;
 	f.bn_x12.disabled             = !can_generate;
 	f.bn_electronic_file.disabled = !can_bill;
-<? } ?>
+<?php } ?>
 	f.bn_mark.disabled            = !can_mark;
 }
 
 </script>
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $top_bg_line; ?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 <p style='margin-top:5px;margin-bottom:5px;margin-left:5px'>
-<?
+<?php
 if ($userauthorized) {
 ?>
-<a href="../main/main.php" target=Main><font class=title><?xl('Billing Report','e')?></font><font class=more> <?echo $tback;?></font></a>
-<?} else {?>
-<a href="../main/onotes/office_comments.php" target=Main><font class=title><?xl('Billing Report','e')?></font><font class=more><?echo $tback;?></font></a>
-<?
+<a href="../main/main.php" target=Main><font class=title><?php xl('Billing Report','e') ?></font><font class=more> <?php echo $tback; ?></font></a>
+<?php } else { ?>
+<a href="../main/onotes/office_comments.php" target=Main><font class=title><?php xl('Billing Report','e') ?></font><font class=more><?php echo $tback; ?></font></a>
+<?php
 }
 ?>
 </p>
@@ -182,9 +182,9 @@ if ($userauthorized) {
 	<tr>
           
            <td nowrap>
-             &nbsp;<span class=text><?xl('From: ','e')?></span>
+             &nbsp;<span class=text><?php xl('From: ','e') ?></span>
              <input type='text' size='10' name='from_date' id='from_date'
-              value='<?echo $from_date;?>'
+              value='<?php echo $from_date; ?>'
               onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
               title='yyyy-mm-dd last date of this event' />
              <img src='../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
@@ -196,9 +196,9 @@ if ($userauthorized) {
             </td>
 
            <td nowrap>
-             &nbsp;<span class=text><?xl('To: ','e')?></span>
+             &nbsp;<span class=text><?php xl('To: ','e') ?></span>
              <input type='text' size='10' name='to_date' id='to_date'
-              value='<?echo $to_date;?>'
+              value='<?php echo $to_date; ?>'
               onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
               title='yyyy-mm-dd last date of this event' />
              <img src='../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
@@ -210,16 +210,16 @@ if ($userauthorized) {
             </td>
 
 			<input type="hidden" name="code_type" value="%"></td>
-		<td nowrap><input type=checkbox name=unbilled <?if ($unbilled == "on") {echo "checked";};?>><span class=text><?xl('Show Unbilled Only','e')?></span></td>
-		<td nowrap><input type=checkbox name=authorized <?if ($my_authorized == "on") {echo "checked";};?>><span class=text><?xl('Show Authorized Only','e')?></span></td>
+		<td nowrap><input type=checkbox name=unbilled <?php if ($unbilled == "on") {echo "checked";}; ?>><span class=text><?php xl('Show Unbilled Only','e') ?></span></td>
+		<td nowrap><input type=checkbox name=authorized <?php if ($my_authorized == "on") {echo "checked";}; ?>><span class=text><?php xl('Show Authorized Only','e') ?></span></td>
 		<td align='right' width='10%' nowrap>
-			&nbsp;<span class=text><a href="javascript:document.the_form.mode.value='change';document.the_form.submit()" class=link_submit><?xl('[Change View]','e')?></a>
+			&nbsp;<span class=text><a href="javascript:document.the_form.mode.value='change';document.the_form.submit()" class=link_submit><?php xl('[Change View]','e') ?></a>
 			or
-			<a href="javascript:document.the_form.mode.value='export';document.the_form.submit()" class=link_submit><?xl('[Export OFX]','e')?></a></span>&nbsp;
+			<a href="javascript:document.the_form.mode.value='export';document.the_form.submit()" class=link_submit><?php xl('[Export OFX]','e') ?></a></span>&nbsp;
 		</td>
 	</tr>
 	<tr>
-		<td nowrap>&nbsp;<a href="print_billing_report.php?<?print "from_date=".urlencode($ofrom_date)."&to_date=".urlencode($oto_date)."&code_type=".urlencode($ocode_type)."&unbilled=".urlencode($ounbilled)."&authorized=".urlencode($oauthorized);?>" class=link_submit target=new><?xl('[View Printable Report]','e')?></a></td>
+		<td nowrap>&nbsp;<a href="print_billing_report.php?<?php print "from_date=".urlencode($ofrom_date)."&to_date=".urlencode($oto_date)."&code_type=".urlencode($ocode_type)."&unbilled=".urlencode($ounbilled)."&authorized=".urlencode($oauthorized); ?>" class=link_submit target=new><?php xl('[View Printable Report]','e') ?></a></td>
 		<td nowrap>
 <?php
 	print '&nbsp;';
@@ -237,15 +237,15 @@ if ($userauthorized) {
 		</td>
 		<td colspan='2' nowrap>
 			&nbsp;
-<? if (! file_exists($EXPORT_INC)) { ?>
+<?php if (! file_exists($EXPORT_INC)) { ?>
 			<a href="javascript:document.the_form.mode.value='process';document.the_form.submit()" class="link_submit"
-				 title="Process all queued bills to create electronic data (and print if requested)"><?xl('[Start Batch Processing]','e')?></a>
+				 title="Process all queued bills to create electronic data (and print if requested)"><?php xl('[Start Batch Processing]','e') ?></a>
 			&nbsp; <a href='../../library/freeb/process_bills.log' target='_blank' class='link_submit'
-				title='See messages from the last batch processing run'><?xl('[view log]','e')?></a></span>
-<? } ?>
+				title='See messages from the last batch processing run'><?php xl('[view log]','e') ?></a></span>
+<?php } ?>
 		</td>
 		<td align='right' nowrap>
-			<a href="javascript:select_all()" class="link_submit"><?xl('[Select All]','e')?></a>&nbsp;
+			<a href="javascript:select_all()" class="link_submit"><?php xl('[Select All]','e') ?></a>&nbsp;
 		</td>
 	</tr>
 </table>
@@ -255,28 +255,28 @@ if ($userauthorized) {
 
 <center>
 
-<? if (file_exists($EXPORT_INC)) { ?>
-<input type="submit" class="subbtn" name="bn_external" value="Export Billing" title="<?xl('Export to external billing system','e')?>">
-<input type="submit" class="subbtn" name="bn_mark" value="Mark as Cleared" title="<?xl('Mark as billed but skip billing','e')?>">
-<? } else { ?>
-<input type="submit" class="subbtn" name="bn_hcfa_print" value="Queue HCFA &amp; Print" title="<?xl('Queue for HCFA batch processing and printing','e')?>">
-<input type="submit" class="subbtn" name="bn_hcfa" value="Queue HCFA" title="<?xl('Queue for HCFA batch processing','e')?>">
-<input type="submit" class="subbtn" name="bn_ub92_print" value="Queue UB92 &amp; Print" title="<?xl('Queue for UB-92 batch processing and printing','e')?>">
-<input type="submit" class="subbtn" name="bn_ub92" value="Queue UB92" title="<?xl('Queue for UB-92 batch processing','e')?>">
-<input type="submit" class="subbtn" name="bn_x12" value="Queue X12" title="<?xl('Queue for X12 batch processing','e')?>">
-<input type="submit" class="subbtn" name="bn_mark" value="Mark as Cleared" title="<?xl('Post to accounting and mark as billed','e')?>">
-<input type="submit" class="subbtn" name="bn_electronic_file" value="Make Electronic Batch &amp; Clear" title="<?xl('Download billing file, post to accounting and mark as billed','e')?>">
-<? } ?>
+<?php if (file_exists($EXPORT_INC)) { ?>
+<input type="submit" class="subbtn" name="bn_external" value="Export Billing" title="<?php xl('Export to external billing system','e') ?>">
+<input type="submit" class="subbtn" name="bn_mark" value="Mark as Cleared" title="<?php xl('Mark as billed but skip billing','e') ?>">
+<?php } else { ?>
+<input type="submit" class="subbtn" name="bn_hcfa_print" value="Queue HCFA &amp; Print" title="<?php xl('Queue for HCFA batch processing and printing','e') ?>">
+<input type="submit" class="subbtn" name="bn_hcfa" value="Queue HCFA" title="<?php xl('Queue for HCFA batch processing','e')?>">
+<input type="submit" class="subbtn" name="bn_ub92_print" value="Queue UB92 &amp; Print" title="<?php xl('Queue for UB-92 batch processing and printing','e')?>">
+<input type="submit" class="subbtn" name="bn_ub92" value="Queue UB92" title="<?php xl('Queue for UB-92 batch processing','e')?>">
+<input type="submit" class="subbtn" name="bn_x12" value="Queue X12" title="<?php xl('Queue for X12 batch processing','e')?>">
+<input type="submit" class="subbtn" name="bn_mark" value="Mark as Cleared" title="<?php xl('Post to accounting and mark as billed','e')?>">
+<input type="submit" class="subbtn" name="bn_electronic_file" value="Make Electronic Batch &amp; Clear" title="<?php xl('Download billing file, post to accounting and mark as billed','e')?>">
+<?php } ?>
 
 </center>
 
 <input type=hidden name=mode value="bill">
-<input type=hidden name=authorized value="<?echo $my_authorized;?>">
-<input type=hidden name=unbilled value="<?echo $unbilled;?>">
+<input type=hidden name=authorized value="<?php echo $my_authorized; ?>">
+<input type=hidden name=unbilled value="<?php echo $unbilled; ?>">
 <input type=hidden name=code_type value="%">
-<input type=hidden name=to_date value="<?echo $to_date;?>">
-<input type=hidden name=from_date value="<?echo $from_date;?>">
-<?
+<input type=hidden name=to_date value="<?php echo $to_date; ?>">
+<input type=hidden name=from_date value="<?php echo $from_date; ?>">
+<?php
 if ($my_authorized == "on" ) {
 	$my_authorized = "1";
 } else {
@@ -289,7 +289,7 @@ if ($unbilled == "on") {
 	$unbilled = "%";
 }
 ?>
-<input type=hidden name=bill_list value="<?
+<input type=hidden name=bill_list value="<?php
 $list = getBillsListBetween($from_date,$to_date,$my_authorized,$unbilled,"%");
 print $list;
 ?>">
@@ -421,14 +421,30 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 			$lhtml .= "<br />\n";
 			$lhtml .= "&nbsp;<span class=text>Bill: ";
 			$lhtml .= "<select name='claims[" . $this_encounter_id . "][payer]' style='background-color:$bgcolor'>";
-			$query = "SELECT id.provider as id, id.type, ic.x12_default_partner_id as ic_x12id, ic.name as provider FROM insurance_data as id, insurance_companies as ic WHERE ic.id = id.provider AND pid = '" . mysql_escape_string($iter['pid']) . "' order by type";
 
+			$query = "SELECT id.provider AS id, id.type, " .
+				"ic.x12_default_partner_id AS ic_x12id, ic.name AS provider " .
+				"FROM insurance_data AS id, insurance_companies AS ic WHERE " .
+				"ic.id = id.provider AND pid = '" . mysql_escape_string($iter['pid']) .
+				"' ORDER BY type";
 			$result = sqlStatement($query);
+
 			$count = 0;
 			$default_x12_partner = $iter['ic_x12id'];
 
 			while ($row = mysql_fetch_array($result)) {
 				if (strlen($row['provider']) > 0) {
+
+					// This preserves any existing insurance company selection, which is
+					// important when EOB posting has re-queued for secondary billing.
+					$lhtml .= "<option value=\"" . $row['id'] . "\"";
+					if (($count == 0 && !$iter['payer_id']) || $row['id'] == $iter['payer_id']) {
+						$lhtml .= " selected";
+						if (!is_numeric($default_x12_partner)) $default_x12_partner = $row['ic_x12id'];
+					}
+					$lhtml .= ">" . $row['type'] . ": " . $row['provider'] . "</option>";
+
+					/****
 					if ($count == 0) {
 						$lhtml .= "<option value=\"" .$row['id'] . "\" selected>" . $row['type'] . ": " . $row['provider']. "</option>";
 						if (!is_numeric($default_x12_partner)) $default_x12_partner = $row['ic_x12id'];
@@ -436,9 +452,12 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 					else {
 						$lhtml .= "<option value=\"" . $row['id'] . "\">" . $row['type'] . ": " . $row['provider']. "</option>";
 					}
+					****/
+
 				}
 				$count++;
 			}
+
 			$lhtml .= "<option value='-1'>Unassigned</option>\n";
 			$lhtml .= "</select>&nbsp;&nbsp;\n";
 			$lhtml .= "<select name='claims[" . $this_encounter_id . "][partner]' style='background-color:$bgcolor'>";
@@ -553,7 +572,7 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 <script>
 set_button_states();
 
-<?
+<?php
 	if ($alertmsg) {
 		echo "alert('$alertmsg');\n";
 	}

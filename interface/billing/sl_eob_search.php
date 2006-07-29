@@ -1,5 +1,5 @@
-<?
- // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+<?php
+ // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -14,10 +14,32 @@
  include_once("../../library/sql-ledger.inc");
  include_once("../../library/invoice_summary.inc.php");
  include_once("../../custom/statement.inc.php");
+ include_once("../../library/parse_era.inc.php");
+ include_once("../../library/sl_eob.inc.php");
 
  $DEBUG = 0; // set to 0 for production, 1 to test
 
  $alertmsg = '';
+ $where = '';
+ $eraname = '';
+ $eracount = 0;
+
+ // This is called back by parse_era() if we are processing X12 835's.
+ //
+ function era_callback(&$out) {
+  global $where, $eracount, $eraname;
+  // print_r($out); // debugging
+  ++$eracount;
+  // $eraname = $out['isa_control_number'];
+  $eraname = $out['gs_date'] . '_' . ltrim($out['isa_control_number'], '0') .
+    '_' . ltrim($out['payer_id'], '0');
+  list($pid, $encounter, $invnumber) = slInvoiceNumber($out);
+
+  if ($pid && $encounter) {
+   if ($where) $where .= ' OR ';
+   $where .= "invnumber = '$invnumber'";
+  }
+ }
 
  function bucks($amount) {
   if ($amount)
@@ -179,7 +201,7 @@ function npopup(pid) {
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <center>
 
-<form method='post' action='sl_eob_search.php'>
+<form method='post' action='sl_eob_search.php' enctype='multipart/form-data'>
 
 <table border='0' cellpadding='5' cellspacing='0'>
 
@@ -196,21 +218,21 @@ function npopup(pid) {
    <?xl('Source:','e')?>
   </td>
   <td>
-   <input type='text' name='form_source' size='10' value='<? echo $_POST['form_source']; ?>'
+   <input type='text' name='form_source' size='10' value='<?php echo $_POST['form_source']; ?>'
     title='<?xl("A check number or claim number to identify the payment","e")?>'>
   </td>
   <td>
    <?xl('Pay Date:','e')?>
   </td>
   <td>
-   <input type='text' name='form_paydate' size='10' value='<? echo $_POST['form_paydate']; ?>'
+   <input type='text' name='form_paydate' size='10' value='<?php echo $_POST['form_paydate']; ?>'
     title='<?xl("Date of payment mm/dd/yyyy","e")?>'>
   </td>
   <td>
    <?xl('Amount:','e')?>
   </td>
   <td>
-   <input type='text' name='form_amount' size='10' value='<? echo $_POST['form_amount']; ?>'
+   <input type='text' name='form_amount' size='10' value='<?php echo $_POST['form_amount']; ?>'
     title='<?xl("Paid amount that you will allocate","e")?>'>
   </td>
   <td colspan='2' align='right'>
@@ -228,40 +250,40 @@ function npopup(pid) {
    <?xl('Name:','e')?>
   </td>
   <td>
-   <input type='text' name='form_name' size='10' value='<? echo $_POST['form_name']; ?>'
+   <input type='text' name='form_name' size='10' value='<?php echo $_POST['form_name']; ?>'
     title='<?xl("Any part of the patient name","e")?>'>
   </td>
   <td>
    <?xl('Chart ID:','e')?>
   </td>
   <td>
-   <input type='text' name='form_pid' size='10' value='<? echo $_POST['form_pid']; ?>'
+   <input type='text' name='form_pid' size='10' value='<?php echo $_POST['form_pid']; ?>'
     title='<?xl("Patient chart ID","e")?>'>
   </td>
   <td>
    <?xl('Encounter:','e')?>
   </td>
   <td>
-   <input type='text' name='form_encounter' size='10' value='<? echo $_POST['form_encounter']; ?>'
+   <input type='text' name='form_encounter' size='10' value='<?php echo $_POST['form_encounter']; ?>'
     title='<?xl("Encounter number","e")?>'>
   </td>
   <td>
    <?xl('Svc Date:','e')?>
   </td>
   <td>
-   <input type='text' name='form_date' size='10' value='<? echo $_POST['form_date']; ?>'
+   <input type='text' name='form_date' size='10' value='<?php echo $_POST['form_date']; ?>'
     title='<?xl("Date of service mm/dd/yyyy","e")?>'>
   </td>
   <td>
    <?xl('To:','e')?>
   </td>
   <td>
-   <input type='text' name='form_to_date' size='10' value='<? echo $_POST['form_to_date']; ?>'
+   <input type='text' name='form_to_date' size='10' value='<?php echo $_POST['form_to_date']; ?>'
     title='<?xl("Ending DOS mm/dd/yyyy if you wish to enter a range","e")?>'>
   </td>
   <td>
    <select name='form_category'>
-<?
+<?php
  foreach (array(xl('Open'), xl('All'), xl('Due Pt'), xl('Due Ins')) as $value) {
   echo "    <option value='$value'";
   if ($_POST['form_category'] == $value) echo " selected";
@@ -275,12 +297,145 @@ function npopup(pid) {
   </td>
  </tr>
 
+ <!-- Support for X12 835 upload -->
+ <tr bgcolor='#ddddff'>
+  <td colspan='12'>
+   <?xl('Or upload ERA file:','e')?>
+   <input type="hidden" name="MAX_FILE_SIZE" value="5000000" />
+   <input name="form_erafile" type="file" />
+  </td>
+ </tr>
+
  <tr>
   <td height="1" colspan="10">
   </td>
  </tr>
 
 </table>
+
+<?php
+  if ($_POST['form_search'] || $_POST['form_print']) {
+    $form_name      = trim($_POST['form_name']);
+    $form_pid       = trim($_POST['form_pid']);
+    $form_encounter = trim($_POST['form_encounter']);
+    $form_date      = fixDate($_POST['form_date'], "");
+    $form_to_date   = fixDate($_POST['form_to_date'], "");
+
+    $where = "";
+
+    // Handle X12 835 file upload.
+    //
+    if ($_FILES['form_erafile']['size']) {
+      $tmp_name = $_FILES['form_erafile']['tmp_name'];
+
+      // Handle .zip extension if present.  Probably won't work on Windows.
+      if (strtolower(substr($_FILES['form_erafile']['name'], -4)) == '.zip') {
+        rename($tmp_name, "$tmp_name.zip");
+        exec("unzip -p $tmp_name.zip > $tmp_name");
+        unlink("$tmp_name.zip");
+      }
+
+      echo "<!-- Notes from ERA upload processing:\n";
+      $alertmsg .= parse_era($tmp_name, 'era_callback');
+      echo "-->\n";
+      $erafullname = "$webserver_root/era/$eraname.edi";
+
+      if (is_file($erafullname)) {
+        $alertmsg .= "Warning: Set $eraname was already uploaded ";
+        if (is_file("$webserver_root/era/$eraname.html"))
+          $alertmsg .= "and processed. ";
+        else
+          $alertmsg .= "but not yet processed. ";
+      }
+      // if (!move_uploaded_file($_FILES['form_erafile']['tmp_name'], $erafullname)) {
+      //   die("Upload failed! $alertmsg");
+      // }
+      rename($tmp_name, $erafullname);
+    }
+
+    if ($eracount) {
+      if (! $where) $where = '1 = 2';
+    }
+    else {
+      if ($form_name) {
+        // Allow the last name to be followed by a comma and some part of a first name.
+        if (preg_match('/^(.*\S)\s*,\s*(.*)/', $form_name, $matches)) {
+          $form_name = $matches[2] . '% ' . $matches[1] . '%';
+        } else {
+          $form_name = "%$form_name%";
+        }
+        if ($where) $where .= " AND ";
+        $where .= "customer.name ILIKE '$form_name'";
+      }
+
+      if ($form_pid && $form_encounter) {
+        if ($where) $where .= " AND ";
+        $where .= "ar.invnumber = '$form_pid.$form_encounter'";
+      }
+      else if ($form_pid) {
+        if ($where) $where .= " AND ";
+        $where .= "ar.invnumber LIKE '$form_pid.%'";
+      }
+      else if ($form_encounter) {
+        if ($where) $where .= " AND ";
+        $where .= "ar.invnumber like '%.$form_encounter'";
+      }
+
+      if ($form_date) {
+        if ($where) $where .= " AND ";
+        $date1 = substr($form_date, 0, 4) . substr($form_date, 5, 2) .
+          substr($form_date, 8, 2);
+        if ($form_to_date) {
+          $date2 = substr($form_to_date, 0, 4) . substr($form_to_date, 5, 2) .
+            substr($form_to_date, 8, 2);
+          $where .= "((CAST (substring(ar.invnumber from position('.' in ar.invnumber) + 1 for 8) AS integer) " .
+            "BETWEEN '$date1' AND '$date2')";
+          $tmp = "date >= '$form_date' AND date <= '$form_to_date'";
+        }
+        else {
+          // This catches old converted invoices where we have no encounters:
+          $where .= "(ar.invnumber LIKE '%.$date1'";
+          $tmp = "date = '$form_date'";
+        }
+        // Pick out the encounters from MySQL with the desired DOS:
+        $rez = sqlStatement("SELECT pid, encounter FROM form_encounter WHERE $tmp");
+        while ($row = sqlFetchArray($rez)) {
+          $where .= " OR ar.invnumber = '" . $row['pid'] . "." . $row['encounter'] . "'";
+        }
+        $where .= ")";
+      }
+
+      if (! $where) {
+        if ($_POST['form_category'] == 'All') {
+          die("At least one search parameter is required if you select All.");
+        } else {
+          $where = "1 = 1";
+        }
+      }
+    }
+
+    $query = "SELECT ar.id, ar.invnumber, ar.duedate, ar.amount, ar.paid, " .
+      "ar.intnotes, ar.notes, ar.shipvia, customer.name " .
+      "FROM ar, customer WHERE ( $where ) AND customer.id = ar.customer_id ";
+    if ($_POST['form_category'] != 'All' && !$eracount) {
+      $query .= "AND ar.amount != ar.paid ";
+      // if ($_POST['form_category'] == 'Due') {
+      //   $query .= "AND ar.duedate <= CURRENT_DATE ";
+      // }
+    }
+    $query .= "ORDER BY customer.name, ar.invnumber";
+
+    echo "<!-- $query -->\n"; // debugging
+
+    $t_res = SLQuery($query);
+    if ($sl_err) die($sl_err);
+
+    $num_invoices = SLRowCount($t_res);
+    if ($eracount && $num_invoices != $eracount) {
+      $alertmsg .= "Of $eracount remittances, there are $num_invoices " .
+        "matching claims in OpenEMR. ";
+    }
+?>
 
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
 
@@ -309,94 +464,16 @@ function npopup(pid) {
   <td class="dehead" align="center">
    <?xl('Prv','e')?>
   </td>
+<?php if (!$eracount) { ?>
   <td class="dehead" align="center">
    <?xl('Sel','e')?>
   </td>
+<?php } ?>
  </tr>
-<?
-  if ($_POST['form_search'] || $_POST['form_print']) {
-    $form_name      = trim($_POST['form_name']);
-    $form_pid       = trim($_POST['form_pid']);
-    $form_encounter = trim($_POST['form_encounter']);
-    $form_date      = fixDate($_POST['form_date'], "");
-    $form_to_date   = fixDate($_POST['form_to_date'], "");
 
-    $where = "";
-
-    if ($form_name) {
-      // Allow the last name to be followed by a comma and some part of a first name.
-      if (preg_match('/^(.*\S)\s*,\s*(.*)/', $form_name, $matches)) {
-        $form_name = $matches[2] . '% ' . $matches[1] . '%';
-      } else {
-        $form_name = "%$form_name%";
-      }
-      if ($where) $where .= " AND ";
-      $where .= "customer.name ILIKE '$form_name'";
-    }
-
-    if ($form_pid && $form_encounter) {
-      if ($where) $where .= " AND ";
-      $where .= "ar.invnumber = '$form_pid.$form_encounter'";
-    }
-    else if ($form_pid) {
-      if ($where) $where .= " AND ";
-      $where .= "ar.invnumber LIKE '$form_pid.%'";
-    }
-    else if ($form_encounter) {
-      if ($where) $where .= " AND ";
-      $where .= "ar.invnumber like '%.$form_encounter'";
-    }
-
-    if ($form_date) {
-      if ($where) $where .= " AND ";
-      $date1 = substr($form_date, 0, 4) . substr($form_date, 5, 2) .
-        substr($form_date, 8, 2);
-      if ($form_to_date) {
-        $date2 = substr($form_to_date, 0, 4) . substr($form_to_date, 5, 2) .
-          substr($form_to_date, 8, 2);
-        $where .= "((CAST (substring(ar.invnumber from position('.' in ar.invnumber) + 1 for 8) AS integer) " .
-          "BETWEEN '$date1' AND '$date2')";
-        $tmp = "date >= '$form_date' AND date <= '$form_to_date'";
-      }
-      else {
-        // This catches old converted invoices where we have no encounters:
-        $where .= "(ar.invnumber LIKE '%.$date1'";
-        $tmp = "date = '$form_date'";
-      }
-      // Pick out the encounters from MySQL with the desired DOS:
-      $rez = sqlStatement("SELECT pid, encounter FROM form_encounter WHERE $tmp");
-      while ($row = sqlFetchArray($rez)) {
-        $where .= " OR ar.invnumber = '" . $row['pid'] . "." . $row['encounter'] . "'";
-      }
-      $where .= ")";
-    }
-
-    if (! $where) {
-      if ($_POST['form_category'] == 'All') {
-        die("At least one search parameter is required if you select All.");
-      } else {
-        $where = "1 = 1";
-      }
-    }
-
-    $query = "SELECT ar.id, ar.invnumber, ar.duedate, ar.amount, ar.paid, " .
-      "ar.intnotes, ar.notes, ar.shipvia, customer.name " .
-      "FROM ar, customer WHERE $where AND customer.id = ar.customer_id ";
-    if ($_POST['form_category'] != 'All') {
-      $query .= "AND ar.amount != ar.paid ";
-      // if ($_POST['form_category'] == 'Due') {
-      //   $query .= "AND ar.duedate <= CURRENT_DATE ";
-      // }
-    }
-    $query .= "ORDER BY customer.name, ar.invnumber";
-
-    // echo "<!-- $query -->\n"; // debugging
-
-    $t_res = SLQuery($query);
-    if ($sl_err) die($sl_err);
-
+<?php
     $orow = -1;
-    for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
+    for ($irow = 0; $irow < $num_invoices; ++$irow) {
       $row = SLGetRow($t_res, $irow);
 
       // $duncount was originally supposed to be the number of times that
@@ -456,35 +533,37 @@ function npopup(pid) {
         $svcdate = substr($tmp['date'], 0, 10);
       }
 ?>
- <tr bgcolor='<? echo $bgcolor ?>'>
+ <tr bgcolor='<?php echo $bgcolor ?>'>
   <td class="detail">
-   &nbsp;<a href="" onclick="return npopup(<? echo $pid ?>)"><? echo $row['name'] ?></a>
+   &nbsp;<a href="" onclick="return npopup(<?php echo $pid ?>)"><?php echo $row['name'] ?></a>
   </td>
   <td class="detail">
-   &nbsp;<a href="sl_eob_invoice.php?id=<? echo $row['id'] ?>"
-    target="_blank"><? echo $row['invnumber'] ?></a>
+   &nbsp;<a href="sl_eob_invoice.php?id=<?php echo $row['id'] ?>"
+    target="_blank"><?php echo $row['invnumber'] ?></a>
   </td>
   <td class="detail">
-   &nbsp;<? echo $svcdate ?>
+   &nbsp;<?php echo $svcdate ?>
   </td>
   <td class="detail">
-   &nbsp;<? echo $row['duedate'] ?>
+   &nbsp;<?php echo $row['duedate'] ?>
   </td>
   <td class="detail" align="right">
-   <? bucks($row['amount']) ?>&nbsp;
+   <?php bucks($row['amount']) ?>&nbsp;
   </td>
   <td class="detail" align="right">
-   <? bucks($row['paid']) ?>&nbsp;
+   <?php bucks($row['paid']) ?>&nbsp;
   </td>
   <td class="detail" align="right">
-   <? bucks($row['amount'] - $row['paid']) ?>&nbsp;
+   <?php bucks($row['amount'] - $row['paid']) ?>&nbsp;
   </td>
   <td class="detail" align="center">
-   <? echo $duncount ? $duncount : "&nbsp;" ?>
+   <?php echo $duncount ? $duncount : "&nbsp;" ?>
   </td>
+<?php if (!$eracount) { ?>
   <td class="detail" align="center">
-   <input type='checkbox' name='form_cb[<? echo($row['id']) ?>]'<? echo $isduept ?> />
+   <input type='checkbox' name='form_cb[<?php echo($row['id']) ?>]'<?php echo $isduept ?> />
   </td>
+<?php } ?>
  </tr>
 <?
     }
@@ -495,19 +574,29 @@ function npopup(pid) {
 </table>
 
 <p>
+<?php if ($eracount) { ?>
+<input type='button' value='Process ERA File' onclick='processERA()' /> &nbsp;
+<?php } else { ?>
 <input type='button' value='Select All' onclick='checkAll(true)' /> &nbsp;
 <input type='button' value='Clear All' onclick='checkAll(false)' /> &nbsp;
 <input type='submit' name='form_print' value='Print Selected Statements' /> &nbsp;
+<?php } ?>
 <input type='checkbox' name='form_without' value='1' /> <?xl('Without Update','e')?>
 </p>
 
 </form>
 </center>
-<script>
-<?
-	if ($alertmsg) {
-		echo "alert('$alertmsg');\n";
-	}
+<script language="JavaScript">
+ function processERA() {
+  var f = document.forms[0];
+  var debug = f.form_without.checked ? '1' : '0';
+  window.open('sl_eob_process.php?eraname=<?php echo $eraname ?>&debug=' + debug, '_blank');
+  return false;
+ }
+<?php
+ if ($alertmsg) {
+  echo "alert('" . htmlentities($alertmsg) . "');\n";
+ }
 ?>
 </script>
 </body>
