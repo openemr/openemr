@@ -10,7 +10,6 @@ function parse_era_2100(&$out, $cb) {
 	if ($out['loopid'] == '2110') {
 		$cb($out);
 	}
-	// TBD: Clear some stuff like the 2110 array.
 }
 
 function parse_era($filename, $cb) {
@@ -130,6 +129,7 @@ function parse_era($filename, $cb) {
 			if (! $out['loopid']) return 'Unexpected CLP segment';
 			parse_era_2100($out, $cb);
 			$out['loopid'] = '2100';
+			$out['warnings'] = '';
 			// Clear some stuff to start the new claim:
 			$out['subscriber_lname']     = '';
 			$out['subscriber_fname']     = '';
@@ -161,7 +161,9 @@ function parse_era($filename, $cb) {
 			$out['payer_claim_id']    = trim($seg[7]); // payer's claim number
 		}
 		else if ($segid == 'CAS' && $out['loopid'] == '2100') {
-			// TBD: log a warning
+			// TBD: It is technically valid for adjustments to occur at the claim
+			// level.  I guess we need to create a dummy service item for these.
+			$out['warnings'] .= "Adjustment at claim level not handled.\n";
 		}
 		else if ($segid == 'NM1' && $seg[1] == 'QC' && $out['loopid'] == '2100') {
 			$out['patient_lname']     = trim($seg[3]);
@@ -182,16 +184,16 @@ function parse_era($filename, $cb) {
 			$out['provider_member_id'] = trim($seg[9]);
 		}
 		else if ($segid == 'NM1' && $out['loopid'] == '2100') {
-			// TBD: log a warning
+			$out['warnings'] .= "NM1 segment at claim level ignored.\n";
 		}
 		else if ($segid == 'MOA' && $out['loopid'] == '2100') {
-			// TBD: log a warning
+			$out['warnings'] .= "MOA segment at claim level ignored.\n";
 		}
 		else if ($segid == 'REF' && $seg[1] == '1W' && $out['loopid'] == '2100') {
 			$out['claim_comment'] = trim($seg[2]);
 		}
 		else if ($segid == 'REF' && $out['loopid'] == '2100') {
-			// TBD: log a warning
+			$out['warnings'] .= "REF segment at claim level ignored.\n";
 		}
 		else if ($segid == 'DTM' && $seg[1] == '050' && $out['loopid'] == '2100') {
 			$out['claim_date'] = trim($seg[2]); // yyyymmdd
@@ -200,13 +202,13 @@ function parse_era($filename, $cb) {
 			// ignore?
 		}
 		else if ($segid == 'PER' && $out['loopid'] == '2100') {
-			// TBD: log a warning
+			$out['warnings'] .= "PER segment at claim level ignored.\n";
 		}
 		else if ($segid == 'AMT' && $out['loopid'] == '2100') {
-			// TBD: log a warning
+			$out['warnings'] .= "AMT segment at claim level ignored.\n";
 		}
 		else if ($segid == 'QTY' && $out['loopid'] == '2100') {
-			// TBD: log a warning
+			$out['warnings'] .= "QTY segment at claim level ignored.\n";
 		}
 		else if ($segid == 'SVC') {
 			if (! $out['loopid']) return 'Unexpected SVC segment';
@@ -233,7 +235,7 @@ function parse_era($filename, $cb) {
 			$out['svc'][$i]['adj'][$j]['amount']      = $seg[3];
 		}
 		else if ($segid == 'REF' && $out['loopid'] == '2110') {
-			// TBD: log a warning
+			// ignore
 		}
 		else if ($segid == 'AMT' && $seg[1] == 'B6' && $out['loopid'] == '2110') {
 			$i = count($out['svc']) - 1;
@@ -244,10 +246,10 @@ function parse_era($filename, $cb) {
 			$out['svc'][$i]['remark'] = $seg[2];
 		}
 		else if ($segid == 'QTY' && $out['loopid'] == '2110') {
-			// TBD: log a warning
+			$out['warnings'] .= "QTY segment at service level ignored.\n";
 		}
 		else if ($segid == 'PLB') {
-			// TBD: log a warning
+			$out['warnings'] .= "PLB segment ignored.\n";
 		}
 		else if ($segid == 'SE') {
 			parse_era_2100($out, $cb);

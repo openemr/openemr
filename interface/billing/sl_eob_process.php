@@ -158,6 +158,10 @@
 			}
 		}
 
+		if ($out['warnings']) {
+			writeMessageLine($bgcolor, 'errdetail', nl2br(rtrim($out['warnings'])));
+		}
+
 		// Simplify some claim attributes for cleaner code.
 		$service_date = parse_date($out['dos']);
 		$check_date = parse_date($out['check_date']);
