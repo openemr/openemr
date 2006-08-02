@@ -25,17 +25,22 @@ $previous_encounter_data .= $result['category']." | ".$result['subcategory']." |
 $preselect_category = '';
 $preselect_subcategory = '';
 $preselect_item= '';
+$preselect_category_override = '';
+$preselect_subcategory_override = '';
+$preselect_item_override = '';
 if ($_POST['hidden_category']) {$preselect_category = $_POST['hidden_category'];}
 if ($_POST['hidden_subcategory']) {$preselect_subcategory = $_POST['hidden_subcategory'];}
 if ($_POST['hidden_item']) {$preselect_item = $_POST['hidden_item'];}
 //handle changes to database
 if ($_POST['hidden_mode'] == 'add') {
   if ($_POST['hidden_selection'] == 'change_category') {
+    $preselect_category_override = $_POST['change_category'];
     $query = "INSERT INTO form_CAMOS_category (category) values ('";
     $query .= $_POST['change_category']."')"; 
     sqlInsert($query);
   }
   else if ($_POST['hidden_selection'] == 'change_subcategory') {
+    $preselect_subcategory_override = $_POST['change_subcategory'];
     $category_id = $_POST['hidden_category']; 
     if ($category_id >= 0 ) {
       $query = "INSERT INTO form_CAMOS_subcategory (subcategory, category_id) values ('";
@@ -44,6 +49,7 @@ if ($_POST['hidden_mode'] == 'add') {
     }
   }
   else if ($_POST['hidden_selection'] == 'change_item') {
+    $preselect_item_override = $_POST['change_item'];
     $category_id = $_POST['hidden_category']; 
     $subcategory_id = $_POST['hidden_subcategory']; 
     if (($category_id >= 0 ) && ($subcategory_id >=0)) {
@@ -159,17 +165,70 @@ var array2 = new Array();
 var array3 = new Array();
 var icd9_list = '';
 var preselect_off = false;
+var content_change_flag = false;
+var lock_override_flag = false;
 
+//deal with locking of content = prevent accidental overwrite
+
+function trimString (str) {
+  str = this != window? this : str;
+  return str.replace(/^\s+/g, '').replace(/\s+$/g, '');
+}
+function isLocked() {
+  f2 = document.CAMOS;
+  if (lock_override_flag) {
+    lock_override_flag = false;
+    return false;
+  }
+  return /\/\*\s*lock\s*\:\:\s*\*\//.test(f2.textarea_content.value);
+}
+function lock_content() {
+  f2 = document.CAMOS;
+  if ((trimString(f2.textarea_content.value) != "") && (!isLocked())) {
+    f2.textarea_content.value = f2.textarea_content.value + "\n\n" + "/*lock::*/";
+    lock_override_flag = true;
+    js_button('add','change_content');
+  }
+}
+function allSelected() {
+  var f2 = document.CAMOS;
+  if ( (f2.select_category.selectedIndex < 0) || (f2.select_subcategory.selectedIndex < 0) || (f2.select_item.selectedIndex < 0) ) {
+    return false; //one of the columns is not selected
+  }
+  else {
+    return true; //all columns have a selection
+  }
+}
+
+function content_focus() {
+  if (content_change_flag == false) {
+    if (!allSelected()) {
+      alert("If you add text to the 'content' box without a selection in each column (category, subcategory, item), you will likely lose your work.")
+    }
+  }
+  else {return;}
+  content_change_flag = true;
+}
+function content_blur() {
+  if (content_change_flag == true) {
+    content_change_flag = false;
+  }
+}
 <?
 //ICD9
+$icd9_flag = false;
 $query = "SELECT code_text, code FROM billing WHERE encounter=".$_SESSION['encounter'].
   " AND pid=".$_SESSION['pid']." AND code_type like 'ICD9'";
 $statement = sqlStatement($query);
-echo "icd9_list = \"\\n\\n\\\n";
+if ($result = sqlFetchArray($statement)) {
+  $icd9_flag = true;
+  echo "icd9_list = \"\\n\\n\\\n";
+  echo $result['code']." ".$result['code_text']."\\n\\\n";
+}
 while ($result = sqlFetchArray($statement)) {
   echo $result['code']." ".$result['code_text']."\\n\\\n";
 }
-echo "\";\n";
+if ($icd9_flag) {echo "\";\n";}
 
 $query = "SELECT id, category FROM form_CAMOS_category ORDER BY category";
 $statement = sqlStatement($query);
@@ -223,7 +282,14 @@ function init() {
   for (i1=0;i1<array1.length;i1++) {
     f2.select_category.options[f2.select_category.length] = new Option(array1[i1][0], array1[i1][1]);
   }
-  if (select_word('<? echo $preselect_mode."', '".$preselect_category; ?>' ,f2.select_category)) {
+<?
+  $temp_preselect_mode = $preselect_mode;
+  if ($preselect_category_override != '') {
+    $temp_preselect_mode = "by name";
+    $preselect_category = $preselect_category_override;
+  }
+?>
+  if (select_word('<? echo $temp_preselect_mode."', '".$preselect_category; ?>' ,f2.select_category)) {
     click_category();
   }
 }
@@ -245,7 +311,14 @@ function click_category() {
       }
     }
   }
-  if (select_word('<? echo $preselect_mode."', '".$preselect_subcategory; ?>' ,f2.select_subcategory)) {
+<?
+  $temp_preselect_mode = $preselect_mode;
+  if ($preselect_subcategory_override != '') {
+    $temp_preselect_mode = "by name";
+    $preselect_subcategory = $preselect_subcategory_override;
+  }
+?>
+  if (select_word('<? echo $temp_preselect_mode."', '".$preselect_subcategory; ?>' ,f2.select_subcategory)) {
     click_subcategory();
   }
 }
@@ -265,7 +338,14 @@ function click_subcategory() {
       }
     }
   }
-  if (select_word('<? echo $preselect_mode."', '".$preselect_item; ?>' ,f2.select_item)) {
+<?
+  $temp_preselect_mode = $preselect_mode;
+  if ($preselect_item_override != '') {
+    $temp_preselect_mode = "by name";
+    $preselect_item = $preselect_item_override;
+  }
+?>
+  if (select_word('<? echo $temp_preselect_mode."', '".$preselect_item; ?>' ,f2.select_item)) {
     click_item();
     preselect_off = true;
   }
@@ -281,7 +361,57 @@ function click_item() {
     }
   }
 }
+
+function selectContains(myselect, str) {
+  for (var i=0;i<myselect.length;i++) {
+    if (myselect.options[i].text == trimString(str)) {return true;}
+  }
+}
+
 function js_button(mode,selection) {
+  var f2 = document.CAMOS;
+//check lock first
+if ( (mode == 'add') && (selection == 'change_content') && (isLocked()) ) {
+  alert("You have attempted to alter content which is locked.\nRemove the lock if you want to do this.\nTo unlock, remove the line, '/*lock::*/'");
+  return;
+}
+//end check lock
+
+//check for blank or duplicate submissions
+if ( (mode == 'add') || (mode == 'alter') ) {
+  if (selection == 'change_category') {
+    if (trimString(f2.change_category.value) == "") {
+      alert("You cannot add a blank value for a category!"); 
+      return;
+    }
+    if (selectContains(f2.select_category, trimString(f2.change_category.value))) {
+      alert("There is already a category named "+f2.change_category.value+".");
+      return;
+    }
+  }
+  if (selection == 'change_subcategory') {
+    if (trimString(f2.change_subcategory.value) == "") {
+      alert("You cannot add a blank value for a subcategory!"); 
+      return;
+    }
+    if (selectContains(f2.select_subcategory, trimString(f2.change_subcategory.value))) {
+      alert("There is already a subcategory named "+f2.change_subcategory.value+".");
+      return;
+    }
+  }
+  if (selection == 'change_item') {
+    if (trimString(f2.change_item.value) == "") {
+      alert("You cannot add a blank value for an item!"); 
+      return;
+    }
+    if (selectContains(f2.select_item, trimString(f2.change_item.value))) {
+      alert("There is already an item named "+f2.change_item.value+".");
+      return;
+    }
+  }
+}
+//end of check for blank or duplicate submissions
+
   if (mode == 'delete') {
     if (!confirm("Are you sure you want to delete this item from the database?")) {
       return;
@@ -403,9 +533,10 @@ if ($error != '') {
     <input type=button name=del3 value=del onClick="js_button('delete','change_item')"><br>
   </td>
   <td>
-    <textarea name=textarea_content cols=<? echo $textarea_cols ?> rows=<? echo $textarea_rows ?>></textarea><br>
+    <textarea name=textarea_content cols=<? echo $textarea_cols ?> rows=<? echo $textarea_rows ?> onFocus="content_focus()" onBlur="content_blur()"></textarea><br>
     <input type=button name=add4 value=add onClick="js_button('add','change_content')">
     <input type=button name=icd9 value=icd9 onClick="append_icd9()">
+    <input type=button name=lock value=lock onClick="lock_content()">
   </td>
 </tr>
 </table>
