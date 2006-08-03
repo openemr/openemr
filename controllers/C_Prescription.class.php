@@ -156,7 +156,7 @@ class C_Prescription extends Controller {
                 //print header
                 $pdf->ezImage($GLOBALS['fileroot'] . '/interface/pic/Rx.png','','50','','center','');
                 $pdf->ezColumnsStart(array('num'=>2, 'gap'=>10));
-                $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='"
+                $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='"
                       . mysql_real_escape_string($p->provider->id) . "'");
 
                 $pdf->ezText($res['addr'],12);
