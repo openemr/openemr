@@ -421,7 +421,7 @@ a       { text-decoration:none; }
      }
      else { // some sort of patient appointment
       $content .= "<a href='javascript:oldEvt($eventdate,$eventid)' title='$catname'>";
-      $content .= $startm . htmlspecialchars($event['apptstatus']) . "</a>";
+      $content .= $starth . ':' . $startm . htmlspecialchars($event['apptstatus']) . "</a>";
       $content .= "<a href='javascript:goPid($patientid)' title='$title'>";
       if ($catid == 1) $content .= "<strike>";
       $content .= $lname;
@@ -462,4 +462,3 @@ a       { text-decoration:none; }
 [-/php-]
 
 </body>
-</html>
