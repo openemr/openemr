@@ -344,3 +344,8 @@ INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES
 
 ALTER TABLE openemr_postcalendar_events
   ADD pc_prefcatid int(11) NOT NULL DEFAULT 0;
+
+# Option to deal with prescriptions on the medication list
+ALTER TABLE prescriptions
+  ADD medication int(11);
+

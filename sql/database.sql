@@ -27590,6 +27590,7 @@ CREATE TABLE `prescriptions` (
   `refills` int(11) default NULL,
   `per_refill` int(11) default NULL,
   `filled_date` date default NULL,
+  `medication` int(11) default NULL,
   `note` text,
   `active` int(11) NOT NULL default '1',
   PRIMARY KEY  (`id`)

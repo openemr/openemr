@@ -158,6 +158,14 @@ td { font-size:10pt; }
 //  "destination = "  . rbvalue('form_destination') . " "   . // radio button version
     "destination = '" . $_POST['form_destination']   . "' "  .
     "WHERE id = '$issue'");
+
+    if ($text_type == "medication" && enddate != '') {
+      sqlStatement('UPDATE prescriptions SET '
+        . 'medication = 0 where patient_id = ' . $pid
+        . " and upper(trim(drug)) = '" . strtoupper($_POST['form_title']) . "' "
+        . ' and medication = 1' );
+    }
+
   } else {
    $issue = sqlInsert("INSERT INTO lists ( " .
     "date, pid, type, title, activity, comments, begdate, enddate, " .
