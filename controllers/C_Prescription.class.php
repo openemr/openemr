@@ -152,6 +152,143 @@ class C_Prescription extends Controller {
 			$this->template_mod . "_send.html");
 	}
 
+        function multiprint_header(& $pdf, $p) {
+                //print header
+                $pdf->ezImage($GLOBALS['fileroot'] . '/interface/pic/Rx.png','','50','','center','');
+                $pdf->ezColumnsStart(array('num'=>2, 'gap'=>10));
+                $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='"
+                      . mysql_real_escape_string($p->provider->id) . "'");
+
+                $pdf->ezText($res['addr'],12);
+                $my_y = $pdf->y;
+                $pdf->ezNewPage();
+                $pdf->ezText('<b>' . $p->provider->get_name_display() . '</b>',12);
+                $pdf->ezText('<b>DEA:</b>' . $p->provider->federal_drug_id,12);
+                $pdf->ezColumnsStop();
+                if ($my_y < $pdf->y){
+                        $pdf->ezSetY($my_y);
+                }
+                $pdf->ezText('',10);
+                $pdf->setLineStyle(1);
+                $pdf->ezColumnsStart(array('num'=>2));
+                $pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
+                $pdf->ezText('<b>Patient Name & Address</b>',6);
+                $pdf->ezText($p->patient->get_name_display(),10);
+		$res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =". mysql_real_escape_string ($p->patient->id));
+                $pdf->ezText($res['addr']);
+                $my_y = $pdf->y;
+                $pdf->ezNewPage();
+                $pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
+                $pdf->ezText('<b>Date of Birth</b>',6);
+                $pdf->ezText($p->patient->date_of_birth,10);
+                $pdf->ezText('');
+                $pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
+                $pdf->ezText('<b>Medical Record #</b>',6);
+                $pdf->ezText(str_pad($p->patient->get_id(), 10, "0", STR_PAD_LEFT),10);
+                $pdf->ezColumnsStop();
+                if ($my_y < $pdf->y){
+                        $pdf->ezSetY($my_y);
+                }
+                $pdf->ezText('');
+                $pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
+
+                $pdf->ezText('<b>Prescriptions</b>',6);
+                $pdf->ezText('',10);
+        }
+
+        function multiprint_footer(& $pdf){
+                if($this->pconfig['use_signature'] == true ) {
+                        $pdf->ezImage($this->pconfig['signature'],"","","none","left");
+                }
+                else{
+                  $pdf->ezText("\n\n\n\nSignature:________________________________\nDate: " . date('Y-m-d'),12);
+                }
+        }
+
+        function get_prescription_body_text($p) {
+                $body = '<b>Rx: ' . $p->get_drug() . ' ' . $p->get_size() . ' ' . $p->get_unit_display()
+                       . ' [' . $p->form_array[$p->get_form()] . "]</b>     <i>"
+                       . $p->substitute_array[$p->get_substitute()] . "</i>\n"
+                       . '<b>Disp #:</b> <u>' . $p->get_quantity() . "</u>\n"
+		       . '<b>Sig:</b> ' . $p->get_dosage() . ' ' . $p->form_array[$p->get_form()] .' ' 
+		       . $p->route_array[$p->get_route()] . ' ' . $p->interval_array[$p->get_interval()] .  "\n";
+                if ($p->get_refills() > 0) {
+                        $body .= "\n<b>Refills:</b> <u>" .  $p->get_refills() . " of quantity " . $p->get_per_refill() . "</u>\n";
+                }
+                else {
+                        $body .= "\n<b>Refills:</b> <u>0 (Zero)</u>\n";
+                }
+                $note = $p->get_note();
+                if ($note != '') {
+                        $body .= "\n$note\n";
+                }
+                return $body;
+        }
+
+        function multiprint_body(& $pdf, $p){
+                $pdf->ez['leftMargin'] += $pdf->ez['leftMargin'];
+                $pdf->ez['rightMargin'] += $pdf->ez['rightMargin'];
+                $d = $this->get_prescription_body_text($p);
+
+                if ( $pdf->ezText($d,10,array(),1) ) {
+                        $pdf->ez['leftMargin'] -= $pdf->ez['leftMargin'];
+                        $pdf->ez['rightMargin'] -= $pdf->ez['rightMargin'];
+                        $this->multiprint_footer($pdf, $p);
+                        $pdf->ezNewPage();
+                        $this->multiprint_header($pdf, $p);
+                        $pdf->ez['leftMargin'] += $pdf->ez['leftMargin'];
+                        $pdf->ez['rightMargin'] += $pdf->ez['rightMargin'];
+                }
+                $my_y = $pdf->y;
+                $pdf->ezText($d,10);
+                $pdf->setColor(.9,.9,.9);
+                $pdf->filledRectangle($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin']-$pdf->ez['leftMargin'],$my_y - $pdf->y);
+                $pdf->setColor(0,0,0);
+                $pdf->ezSetY($my_y);
+                $pdf->ezText($d,10);
+                $pdf->ez['leftMargin'] = $GLOBALS['oer_config']['prescriptions']['left'];
+                $pdf->ez['rightMargin'] = $GLOBALS['oer_config']['prescriptions']['right'];
+                $pdf->ezText('');
+                $pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
+                $pdf->ezText('');
+
+        }
+
+        function multiprint_action($id = "") {
+                $_POST['process'] = "true";
+                if(empty($id)) {
+                        $this->function_argument_error();
+                }
+                require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
+                $pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);
+                $pdf->ezSetMargins($GLOBALS['oer_config']['prescriptions']['top']
+                      ,$GLOBALS['oer_config']['prescriptions']['bottom']
+                                  ,$GLOBALS['oer_config']['prescriptions']['left']
+                      ,$GLOBALS['oer_config']['prescriptions']['right']
+                      );
+                $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
+
+
+                $print_header = true;
+
+                //print prescriptions body
+                $this->_state = false; // Added by Rod - see Controller.class.php
+                $ids = preg_split('/::/', substr($id,1,strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
+                foreach ($ids as $id) {
+                        $p = new Prescription($id);
+                        if ($print_header == true) {
+                                $this->multiprint_header($pdf, $p);
+                                $print_header = false;
+                        }
+                        $this->multiprint_body($pdf, $p);
+                }
+
+                $this->multiprint_footer($pdf);
+
+                $pdf->ezStream();
+                return;
+        }
+
 	function send_action_process($id) {
 		$dummy = ""; // Added by Rod to avoid run-time warnings
 		if ($_POST['process'] != "true")
@@ -211,7 +348,36 @@ class C_Prescription extends Controller {
 
 	}
 
-	function _print_prescription($p, & $toFile) {
+        function _print_prescription($p, & $toFile) {
+                require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
+                $pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);
+                $pdf->ezSetMargins($GLOBALS['oer_config']['prescriptions']['top']
+                      ,$GLOBALS['oer_config']['prescriptions']['bottom']
+                                  ,$GLOBALS['oer_config']['prescriptions']['left']
+                      ,$GLOBALS['oer_config']['prescriptions']['right']
+                      );
+
+                $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
+
+                $this->multiprint_header($pdf, $p);
+
+                $this->multiprint_body($pdf, $p);
+
+                $this->multiprint_footer($pdf);
+
+                if(!empty($toFile))
+                {
+                        $toFile = $pdf->ezOutput();
+                }
+                else
+                {
+                        $pdf->ezStream();
+                        // $pdf->ezStream(array('compress' => 0)); // for testing with uncompressed output
+                }
+                return;
+        }
+
+	function _print_prescription_old($p, & $toFile) {
 		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
 		$pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);
 		$pdf->ezSetMargins($GLOBALS['oer_config']['prescriptions']['top']

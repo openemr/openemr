@@ -14,10 +14,31 @@ a {
 
 -->
 </style>
+
+<script language="javascript">
+
+function changeLinkHref(id,addValue,value) {
+var myRegExp = new RegExp(":" + value + ":");
+        if (addValue){ //add value to href
+                document.getElementById(id).href += ':' + value + ':';
+        }
+        else { //remove value from href
+                document.getElementById(id).href = document.getElementById(id).href.replace(myRegExp,'');
+        }
+}
+
+</script>
+
 {/literal}
 </head>
 <body {$STYLE.BOTTOM_BG_LINE}>
 <table>
+	<tr>
+		<td colspan="12" align="right">
+		<a id="multiprint" target="_new" href="{$CONTROLLER}prescription&multiprint&id={$printm}">Print Multiple</a>
+		</td>
+	</tr>
+
 	<tr>
 		<td>Drug</td>
 		<td rowspan="50">&nbsp;</td>
@@ -30,6 +51,8 @@ a {
 		<td>Qty.</td>
 		<td rowspan="50">&nbsp;</td>
 		<td>Provider</td>
+                <td>Select</td>
+
 	</tr>
 	{foreach from=$prescriptions item=prescription}
 	<tr>
@@ -39,6 +62,8 @@ a {
 		<td>{$prescription->get_unit_display()}</td>
 		<td>{$prescription->quantity}</td>
 		<td>{$prescription->provider->get_name_display()}</td>
+                <td><input type=checkbox value="{$prescription->id}" onclick="changeLinkHref('multiprint',this.checked, this
+.value)"></td>
 	</tr>
 	{foreachelse}
 	<tr>

@@ -115,7 +115,7 @@ textarea {
 <tr>
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Quantity</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-		<input TYPE="TEXT" NAME="quantity" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->quantity}"/>
+		<input TYPE="TEXT" NAME="quantity" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->quantity}" onchange="document.getElementById('per_refill').value=this.value"/>
 	</td>
 </tr>
 <tr>
@@ -138,7 +138,7 @@ textarea {
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Refill</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		{html_options name="refills" options=$prescription->refills_array selected=$prescription->refills}
- 		<input TYPE="TEXT" NAME="per_refill" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->per_refill}"/> units</td>
+ 		<input TYPE="TEXT" ID="per_refill" NAME="per_refill" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->per_refill}"/> units</td>
 </tr>
 <tr>
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Substitution</td>
@@ -152,6 +152,13 @@ textarea {
 	<textarea name="note" cols="30" rows="2" wrap="virtual">{$prescription->note}</textarea>
 	</td>
 </tr>
+<tr>
+        <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Add to Medication List</td>
+        <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+        {html_radios name="medication" options=$prescription->medication_array selected=$prescription->medication}
+        </td>
+</tr>
+
 <tr>
 	<td colspan="3">
 		<input type="submit" value="Prescribe" />

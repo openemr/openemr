@@ -14,8 +14,8 @@
 	define('UNIT_MG_3CC',4);
 	define('UNIT_MG_4CC',5);
 	define('UNIT_MG_5CC',6);
-	define('UNIT_GRAMS',7);
-	define('UNIT_MCG',8);
+	define('UNIT_MCG',7);
+	define('UNIT_GRAMS',8);
 	define('INTERVAL_BID',1);
 	define('INTERVAL_TID',2);
 	define('INTERVAL_QID',3);
@@ -37,6 +37,8 @@
 	define('FORM_UNITS',7);
 	define('FORM_INHILATIONS',8);
 	define('FORM_GTTS_DROPS',9);
+        define('FORM_CR',10);
+        define('FORM_OINT',11);
 
 	define("ROUTE_PER_ORIS", 1);
 	define("ROUTE_PER_RECTUM", 2);
@@ -50,6 +52,10 @@
 	define("ROUTE_IM", 10);
 	define("ROUTE_IV", 11);
 	define("ROUTE_PER_NOSTRIL", 12);
+        define("ROUTE_B_EAR", 13);
+        define("ROUTE_L_EAR", 14);
+        define("ROUTE_R_EAR", 15);
+
 
 /**
  * class Prescription
@@ -68,11 +74,13 @@ class Prescription extends ORDataObject {
 	 * static
 	 */
 	var $form_array = array(" ",FORM_TABLET => "tablet", FORM_CAPSULE => "capsule", FORM_TSP => "tsp", FORM_ML => "ml", FORM_UNITS => "units", 
-							FORM_INHILATIONS => "inhilations", FORM_GTTS_DROPS => "gtts(drops)");
+							FORM_INHILATIONS => "inhilations", FORM_GTTS_DROPS => "gtts(drops)"
+,FORM_CR => "cream", FORM_OINT => "ointment");
 	var $unit_array = array(" ","mg","mg/1cc","","","","mg/5cc","mcg");
-	var $route_array = array(" ","Per Oris","Per Rectum","To Skin","To Affected Area","Sublingual", "OS", "OD", "OU", "SQ", "IM", "IV", "Per Nostril");
+	var $route_array = array(" ","per oris","per rectum","apply to skin","apply to affected area","sublingual", "OS", "OD", "OU", "SQ", "IM", "IV", "per nostril","both ears","left ear","right ear");
 	var $interval_array = array(" ","b.i.d.","t.i.d.","q.i.d.","q.3h","q.4h","q.5h","q.6h","q.8h","q.d.");
 	var $substitute_array = array("","substitution allowed","substitution not allowed");
+	var $medication_array = array(0 => 'No', 1 => 'Yes');
 	var $refills_array;
 
 	/**
@@ -101,6 +109,7 @@ class Prescription extends ORDataObject {
 	var $substitute;
 	var $refills;
 	var $per_refill;
+	var $medication;
 
 	var $drug_id;
 
@@ -289,6 +298,34 @@ class Prescription extends ORDataObject {
 	function get_substitute() {
 		return $this->substitute;
 	}
+        function set_medication($med) {
+                $this->medication = $med;
+                //check if this drug is on the medication list
+                $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 1 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . $this->drug . "')) and pid = " . $this->patient->id . ' limit 1');
+
+                if ($med && !isset($dataRow['id'])){
+                        $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 0 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . $this->drug . "')) and pid = " . $this->patient->id . ' limit 1');
+                        if (!isset($dataRow['id'])){
+                                //add the record to the medication list
+                                sqlInsert("insert into lists(date,begdate,type,activity,pid,user,groupname,title) values (now(),cast(now() as date),'medication',1," . $this->patient->id . ",'" . $$_SESSION['authUser']. "','" . $$_SESSION['authProvider'] . "','" . $this->drug . "')");
+                        }
+                        else {
+                                $dataRow = sqlQuery('update lists set activity = 1'
+                                         . " ,user = '" . $$_SESSION['authUser']
+                                         . "', groupname = '" . $$_SESSION['authProvider'] . "' where id = " . $dataRow['id']);
+                        }
+                }
+                elseif (!$med && isset($dataRow['id'])) {
+                        //remove the drug from the medication list if it exists
+                        $dataRow = sqlQuery('update lists set activity = 0'
+                                 . " ,user = '" . $$_SESSION['authUser']
+                                 . "', groupname = '" . $$_SESSION['authProvider'] . "' where id = " . $dataRow['id']);
+                }
+        }
+        function get_medication() {
+                return $this->medication;
+        }
+
 	function set_per_refill($pr) {
 		if (is_numeric($pr)) {
 			$this->per_refill = $pr;
@@ -447,7 +484,7 @@ class Prescription extends ORDataObject {
 			."DOB:"."\t".$this->patient->get_dob()."\n"
 			."Start Date: " . "\t\t" . $this->start_date. "\n"
 			."Provider: " . "\t\t" . $this->provider->get_name_display(). "\n"
-			."Provider FDID: " . "\t\t" . $this->provider->federal_drug_id. "\n"
+			."Provider DEA No.: " . "\t\t" . $this->provider->federal_drug_id. "\n"
 			."Drug: " . "\t\t\t" . $this->drug. "\n"
 			."Dosage: " . "\t\t" . $this->dosage . " in ". $this->form_array[$this->form]. " form " . $this->interval_array[$this->interval]. "\n"
 			."Qty: " . "\t\t\t" . $this->quantity. "\n"
