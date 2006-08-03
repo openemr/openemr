@@ -12,6 +12,7 @@ if (isset($_POST["mode"])) {
     sqlStatement("insert into facility set
     name='{$_POST['facility']}',
     phone='{$_POST['phone']}',
+    fax='{$_POST['fax']}',
     street='{$_POST['street']}',
     city='{$_POST['city']}',
     state='{$_POST['state']}',
@@ -142,6 +143,10 @@ if (isset($_GET["mode"])) {
 <tr>
 <td><span class=text><? xl('Name','e'); ?>: </span></td><td><input type=entry name=facility size=20 value=""></td>
 <td><span class=text><? xl('Phone','e'); ?>: </span></td><td><input type=entry name=phone size=20 value=""></td>
+</tr>
+<tr>
+<td>&nbsp;</td><td>&nbsp;</td>
+<td><span class=text><? xl('Fax','e'); ?>: </span></td><td><input type=entry name=fax size=20 value=""></td>
 </tr>
 <tr>
 <td><span class=text><? xl('Address','e'); ?>: </span></td><td><input type=entry size=20 name=street value=""></td>

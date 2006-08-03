@@ -9,6 +9,7 @@ if ($_POST["mode"] == "facility")
 	sqlStatement("update facility set
 		name='{$_POST['facility']}',
 		phone='{$_POST['phone']}',
+		fax='{$_POST['fax']}',
 		street='{$_POST['street']}',
 		city='{$_POST['city']}',
 		state='{$_POST['state']}',
@@ -53,6 +54,11 @@ if (isset($_POST["fid"])) {
 <tr>
 	<td><span class=text><? xl('Name','e'); ?>: </span></td><td><input type=entry name=facility size=20 value="<?=$facility['name']?>"></td><td rowspan="10" width="15"></d>
 	<td><span class=text><? xl('Phone','e'); ?> <? xl('as','e'); ?> (000) 000-0000:</span></td><td><input type=entry name=phone size=20 value="<?=$facility['phone']?>"></td>
+</tr>
+<tr>
+        <td>&nbsp;</td><td>&nbsp;</td>
+        <td><span class=text><? xl('Fax','e'); ?> <? xl('as','e'); ?> (000) 000-0000:</span></td><td><input type=entry name=f
+ax size=20 value="<?=$facility['fax']?>"></td>
 </tr>
 <tr>
 	<td><span class=text><? xl('Address','e'); ?>: </span></td><td><input type=entry size=20 name=street value="<?=$facility["street"]?>"></td>

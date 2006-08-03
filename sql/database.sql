@@ -26462,6 +26462,7 @@ CREATE TABLE `facility` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(255) default NULL,
   `phone` varchar(30) default NULL,
+  `fax` varchar(30) default NULL,
   `street` varchar(255) default NULL,
   `city` varchar(255) default NULL,
   `state` varchar(50) default NULL,

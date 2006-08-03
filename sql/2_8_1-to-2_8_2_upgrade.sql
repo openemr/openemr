@@ -349,3 +349,6 @@ ALTER TABLE openemr_postcalendar_events
 ALTER TABLE prescriptions
   ADD medication int(11);
 
+# Add fax to facility table
+ALTER TABLE facility
+  ADD fax varchar(30) default NULL;
