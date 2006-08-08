@@ -105,7 +105,7 @@
    ")");
  }
 
- // Generate the bottle label PDF for the sale identified by $sale_id.
+ // Generate the bottle label for the sale identified by $sale_id.
 
  // Get details for what we guess is the primary facility.
  $frow = sqlQuery("SELECT * FROM facility " .
@@ -129,24 +129,12 @@
   "u.id = r.provider_id");
 
  $dconfig = $GLOBALS['oer_config']['druglabels'];
- $pdf =& new Cezpdf($dconfig['paper_size']);
- $pdf->ezSetMargins($dconfig['top'],$dconfig['bottom'],$dconfig['left'],$dconfig['right']);
- $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
 
  $header_text = $row['ufname'] . ' ' . $row['umname'] . ' ' . $row['ulname'] . "\n" .
   $frow['street'] . "\n" .
   $frow['city'] . ', ' . $frow['state'] . ' ' . $frow['postal_code'] .
   '  ' . $frow['phone'] . "\n";
  if ($dconfig['disclaimer']) $header_text .= $dconfig['disclaimer'] . "\n";
-
- $pdf->ezSetDy(20); // dunno why we have to do this...
- $pdf->ezText($header_text, 7, array('justification'=>'center'));
-
- if(!empty($dconfig['logo'])) {
-  $pdf->ezSetDy(-5); // add space (move down) before the image
-  $pdf->ezImage($dconfig['logo'], 0, 180, '', 'left');
-  $pdf->ezSetDy(8);  // reduce space (move up) after the image
- }
 
  $label_text = $row['fname'] . ' ' . $row['lname'] . ' ' . $row['date_modified'] .
   ' RX#' . sprintf('%06u', $row['prescription_id']) . "\n" .
@@ -160,19 +148,80 @@
   'Lot ' . $row['lot_number'] . ' Exp ' . $row['expiration'] . "\n" .
   'NDC ' . $row['ndc_number'] . ' ' . $row['manufacturer'];
 
- /****
- if ($row['refills']) {
-  // Find out how many times this prescription has been filled/refilled.
-  // Is this right?  Perhaps we should instead sum the dispensed quantities
-  // and reconcile with the prescription quantities.
-  $refills_row = sqlQuery("SELECT count(*) AS count FROM drug_sales " .
-   "WHERE prescription_id = '" . $row['prescription_id'] .
-   "' AND quantity > 0");
-  $label_text .= ($refills_row['count'] - 1) . ' of ' . $row['refills'] . ' refills';
+ // if ($row['refills']) {
+ //  // Find out how many times this prescription has been filled/refilled.
+ //  $refills_row = sqlQuery("SELECT count(*) AS count FROM drug_sales " .
+ //   "WHERE prescription_id = '" . $row['prescription_id'] .
+ //   "' AND quantity > 0");
+ //  $label_text .= ($refills_row['count'] - 1) . ' of ' . $row['refills'] . ' refills';
+ // }
+
+ // We originally went for PDF output on the theory that output formatting
+ // would be more controlled.  However the clumisness of invoking a PDF
+ // viewer from the browser becomes intolerable in a POS environment, and
+ // printing HTML is much faster and easier if the browser's page setup is
+ // configured properly.
+ //
+ if (false) { // if PDF output is desired
+  $pdf =& new Cezpdf($dconfig['paper_size']);
+  $pdf->ezSetMargins($dconfig['top'],$dconfig['bottom'],$dconfig['left'],$dconfig['right']);
+  $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
+  $pdf->ezSetDy(20); // dunno why we have to do this...
+  $pdf->ezText($header_text, 7, array('justification'=>'center'));
+  if(!empty($dconfig['logo'])) {
+   $pdf->ezSetDy(-5); // add space (move down) before the image
+   $pdf->ezImage($dconfig['logo'], 0, 180, '', 'left');
+   $pdf->ezSetDy(8);  // reduce space (move up) after the image
+  }
+  $pdf->ezText($label_text, 9, array('justification'=>'center'));
+  $pdf->ezStream();
  }
- ****/
-
- $pdf->ezText($label_text, 9, array('justification'=>'center'));
-
- $pdf->ezStream();
+ else { // HTML output
+?>
+<html>
+<head>
+<style type="text/css">
+ body {
+  font-family: sans-serif;
+  font-size: 9pt;
+  font-weight: normal;
+ }
+ .labtop {
+  color: #000000;
+  font-family: sans-serif;
+  font-size: 7pt;
+  font-weight: normal;
+  text-align: center;
+  padding-bottom: 1pt;
+ }
+ .labbot {
+  color: #000000;
+  font-family: sans-serif;
+  font-size: 9pt;
+  font-weight: normal;
+  text-align: center;
+  padding-top: 2pt;
+ }
+</style>
+<title>Prescription Label</title>
+</head>
+<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
+<center>
+<table border='0' cellpadding='0' cellspacing='0' style='width: 200pt'>
+ <tr><td class="labtop" nowrap>
+  <?php echo nl2br($header_text); ?>
+ </td></tr>
+ <tr><td style='background-color: #000000; height: 5pt;'></td></tr>
+ <tr><td class="labbot" nowrap>
+  <?php echo nl2br($label_text); ?>
+ </td></tr>
+</table>
+</center>
+<script language="JavaScript">
+ window.print();
+</script>
+</body>
+</html>
+<?php
+ }
 ?>
