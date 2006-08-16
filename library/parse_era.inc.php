@@ -163,7 +163,7 @@ function parse_era($filename, $cb) {
 		else if ($segid == 'CAS' && $out['loopid'] == '2100') {
 			// TBD: It is technically valid for adjustments to occur at the claim
 			// level.  I guess we need to create a dummy service item for these.
-			$out['warnings'] .= "Adjustment at claim level not handled.\n";
+			$out['warnings'] .= "Adjustment at claim level not handled!\n";
 		}
 		else if ($segid == 'NM1' && $seg[1] == 'QC' && $out['loopid'] == '2100') {
 			$out['patient_lname']     = trim($seg[3]);
@@ -184,7 +184,7 @@ function parse_era($filename, $cb) {
 			$out['provider_member_id'] = trim($seg[9]);
 		}
 		else if ($segid == 'NM1' && $out['loopid'] == '2100') {
-			$out['warnings'] .= "NM1 segment at claim level ignored.\n";
+			// $out['warnings'] .= "NM1 segment at claim level ignored.\n";
 		}
 		else if ($segid == 'MOA' && $out['loopid'] == '2100') {
 			$out['warnings'] .= "MOA segment at claim level ignored.\n";
@@ -193,7 +193,7 @@ function parse_era($filename, $cb) {
 			$out['claim_comment'] = trim($seg[2]);
 		}
 		else if ($segid == 'REF' && $out['loopid'] == '2100') {
-			$out['warnings'] .= "REF segment at claim level ignored.\n";
+			// ignore; saw a "REF|EA|X" from Tricare, dunno what that is.
 		}
 		else if ($segid == 'DTM' && $seg[1] == '050' && $out['loopid'] == '2100') {
 			$out['claim_date'] = trim($seg[2]); // yyyymmdd
@@ -202,7 +202,8 @@ function parse_era($filename, $cb) {
 			// ignore?
 		}
 		else if ($segid == 'PER' && $out['loopid'] == '2100') {
-			$out['warnings'] .= "PER segment at claim level ignored.\n";
+			$out['warnings'] .= 'Claim contact information: ' .
+				$seg[4] . "\n";
 		}
 		else if ($segid == 'AMT' && $out['loopid'] == '2100') {
 			$out['warnings'] .= "AMT segment at claim level ignored.\n";
@@ -249,7 +250,8 @@ function parse_era($filename, $cb) {
 			$out['warnings'] .= "QTY segment at service level ignored.\n";
 		}
 		else if ($segid == 'PLB') {
-			$out['warnings'] .= "PLB segment ignored.\n";
+			$out['warnings'] .= 'PROVIDER LEVEL ADJUSTMENT (not claim-specific): $' .
+				sprintf('%.2f', $seg[4]) . "\n";
 		}
 		else if ($segid == 'SE') {
 			parse_era_2100($out, $cb);

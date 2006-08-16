@@ -159,7 +159,7 @@
 		}
 
 		if ($out['warnings']) {
-			writeMessageLine($bgcolor, 'errdetail', nl2br(rtrim($out['warnings'])));
+			writeMessageLine($bgcolor, 'infdetail', nl2br(rtrim($out['warnings'])));
 		}
 
 		// Simplify some claim attributes for cleaner code.
