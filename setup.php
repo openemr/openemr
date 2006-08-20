@@ -27,7 +27,7 @@ include_once($conffile);
 <span class="text">
 
 <?php
- if (ini_get('register_globals')) {
+ if (strtolower(ini_get('register_globals')) != 'off' && (bool) ini_get('register_globals')) {
   echo "It appears that you have register_globals enabled in your php.ini\n" .
    "configuration file.  This causes unacceptable security risks.  You must\n" .
    "turn it off before continuing with installation.\n";
