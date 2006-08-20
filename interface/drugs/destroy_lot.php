@@ -21,10 +21,11 @@
 
  if (!acl_check('admin', 'drugs')) die("Not authorized!");
  if (!$drug_id) die("Drug ID missing!");
+ if (!$lot_id ) die("Lot ID missing!");
 ?>
 <html>
 <head>
-<title><? echo $lot_id ? "Edit" : "Add New" ?> Lot</title>
+<title>Destroy Lot</title>
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
 
 <style>
@@ -47,29 +48,13 @@ td { font-size:10pt; }
 <?php
  // If we are saving, then save and close the window.
  //
- if ($_POST['form_save'] || $_POST['form_delete']) {
-  if ($lot_id) {
-   if ($_POST['form_save']) {
-    sqlStatement("UPDATE drug_inventory SET " .
-     "lot_number = '"   . $_POST['form_lot_number']      . "', " .
-     "manufacturer = '" . $_POST['form_manufacturer']    . "', " .
-     "expiration = "    . QuotedOrNull($form_expiration) . ", "  .
-     "on_hand = '"      . $_POST['form_on_hand']         . "' " .
-     "WHERE drug_id = '$drug_id' AND inventory_id = '$lot_id'");
-   } else {
-    sqlStatement("DELETE FROM drug_inventory WHERE drug_id = '$drug_id' AND inventory_id = '$lot_id'");
-   }
-  } else {
-   $lot_id = sqlInsert("INSERT INTO drug_inventory ( " .
-    "drug_id, lot_number, manufacturer, expiration, on_hand " .
-    ") VALUES ( " .
-    "'$drug_id', "                            .
-    "'" . $_POST['form_lot_number']   . "', " .
-    "'" . $_POST['form_manufacturer'] . "', " .
-    QuotedOrNull($form_expiration)    . ", "  .
-    "'" . $_POST['form_on_hand']      . "' " .
-    ")");
-  }
+ if ($_POST['form_save']) {
+  sqlStatement("UPDATE drug_inventory SET " .
+   "destroy_date = "     . QuotedOrNull($form_date) . ", "  .
+   "destroy_method = '"  . $_POST['form_method']    . "', " .
+   "destroy_witness = '" . $_POST['form_witness']   . "', " .
+   "destroy_notes = '"   . $_POST['form_notes']     . "' "  .
+   "WHERE drug_id = '$drug_id' AND inventory_id = '$lot_id'");
 
   // Close this window and redisplay the updated list of drugs.
   //
@@ -81,13 +66,11 @@ td { font-size:10pt; }
   exit();
  }
 
- if ($lot_id) {
-  $row = sqlQuery("SELECT * FROM drug_inventory WHERE drug_id = '$drug_id' " .
-   "AND inventory_id = '$lot_id'");
- }
+ $row = sqlQuery("SELECT * FROM drug_inventory WHERE drug_id = '$drug_id' " .
+  "AND inventory_id = '$lot_id'");
 ?>
 
-<form method='post' name='theform' action='add_edit_lot.php?drug=<?php echo $drug_id ?>&lot=<?php echo $lot_id ?>'>
+<form method='post' name='theform' action='destroy_lot.php?drug=<?php echo $drug_id ?>&lot=<?php echo $lot_id ?>'>
 <center>
 
 <table border='0' width='100%'>
@@ -95,45 +78,72 @@ td { font-size:10pt; }
  <tr>
   <td valign='top' width='1%' nowrap><b><? xl('Lot Number','e'); ?>:</b></td>
   <td>
-   <input type='text' size='40' name='form_lot_number' maxlength='40' value='<? echo $row['lot_number'] ?>' style='width:100%' />
+   <? echo $row['lot_number'] ?>
   </td>
  </tr>
 
  <tr>
   <td valign='top' nowrap><b><? xl('Manufacturer','e'); ?>:</b></td>
   <td>
-   <input type='text' size='40' name='form_manufacturer' maxlength='250' value='<? echo $row['manufacturer'] ?>' style='width:100%' />
+   <? echo $row['manufacturer'] ?>
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Expiration','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><? xl('Quantity On Hand','e'); ?>:</b></td>
   <td>
-   <input type='text' size='10' name='form_expiration' id='form_expiration'
-    value='<? echo $row['expiration'] ?>'
+   <? echo $row['on_hand'] ?>
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' nowrap><b><? xl('Expiration Date','e'); ?>:</b></td>
+  <td>
+   <? echo $row['expiration'] ?>
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' nowrap><b><? xl('Date Destroyed','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='10' name='form_date' id='form_date'
+    value='<? echo $row['destroy_date'] ? $row['destroy_date'] : date("Y-m-d"); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='yyyy-mm-dd date of expiration' />
+    title='yyyy-mm-dd date destroyed' />
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_expiration' border='0' alt='[?]' style='cursor:pointer'
+    id='img_date' border='0' alt='[?]' style='cursor:pointer'
     title='Click here to choose a date'>
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('On Hand','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><? xl('Method of Destruction','e'); ?>:</b></td>
   <td>
-   <input type='text' size='5' name='form_on_hand' maxlength='7' value='<? echo $row['on_hand'] ?>' />
+   <input type='text' size='40' name='form_method' maxlength='250'
+    value='<? echo $row['destroy_method'] ?>' style='width:100%' />
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' nowrap><b><? xl('Witness','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='40' name='form_witness' maxlength='250'
+    value='<? echo $row['destroy_witness'] ?>' style='width:100%' />
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' nowrap><b><? xl('Notes','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='40' name='form_notes' maxlength='250'
+    value='<? echo $row['destroy_notes'] ?>' style='width:100%' />
   </td>
  </tr>
 
 </table>
 
 <p>
-<input type='submit' name='form_save' value='Save' />
-
-&nbsp;
-<input type='button' value='Destroy...'
- onclick="window.location.href='destroy_lot.php?drug=<?php echo $drug_id ?>&lot=<?php echo $lot_id ?>'" />
+<input type='submit' name='form_save' value='Submit' />
 
 &nbsp;
 <input type='button' value='Cancel' onclick='window.close()' />
@@ -142,7 +152,7 @@ td { font-size:10pt; }
 </center>
 </form>
 <script language='JavaScript'>
- Calendar.setup({inputField:"form_expiration", ifFormat:"%Y-%m-%d", button:"img_expiration"});
+ Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_date"});
 </script>
 </body>
 </html>

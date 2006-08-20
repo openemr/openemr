@@ -55,7 +55,7 @@
   //
   if ($drug_id) {
    $res = sqlStatement("SELECT * FROM drug_inventory WHERE " .
-    "drug_id = '$drug_id' AND on_hand > 0 " .
+    "drug_id = '$drug_id' AND on_hand > 0 AND destroy_date IS NULL " .
     "ORDER BY expiration, inventory_id");
    while ($row = sqlFetchArray($res)) {
     if ($row['expiration'] > $today && $row['on_hand'] >= $quantity) {

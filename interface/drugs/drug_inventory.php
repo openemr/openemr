@@ -16,10 +16,10 @@
 
  // get drugs
  $res = sqlStatement("SELECT d.*, " .
-  "di.lot_number, di.expiration, di.manufacturer, di.on_hand " .
+  "di.inventory_id, di.lot_number, di.expiration, di.manufacturer, di.on_hand " .
   "FROM drugs AS d " .
   "LEFT OUTER JOIN drug_inventory AS di ON di.drug_id = d.drug_id " .
-  "AND di.on_hand != 0 " .
+  "AND di.on_hand != 0 AND di.destroy_date IS NULL " .
   "ORDER BY d.name, d.drug_id, di.expiration, di.lot_number");
 ?>
 <html>
@@ -32,6 +32,7 @@
 <style>
 tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
 tr.detail { font-size:10pt; }
+a, a:visited, a:hover { color:#0000cc; }
 </style>
 
 <script type="text/javascript" src="../../library/dialog.js"></script>
@@ -62,8 +63,7 @@ function doiclick(id, lot) {
 
 <table width='100%' cellpadding='1' cellspacing='2'>
  <tr class='head'>
-  <td title='Click to edit'><? xl('Identifier','e'); ?></td>
-  <td><? xl('Name','e'); ?></td>
+  <td title='Click to edit'><? xl('Name','e'); ?></td>
   <td><? xl('NDC','e'); ?></td>
   <td><? xl('Form','e'); ?></td>
   <td><? xl('Size','e'); ?></td>
@@ -84,13 +84,12 @@ function doiclick(id, lot) {
    echo " <tr class='detail' bgcolor='$bgcolor'>\n";
    echo "  <td onclick='dodclick($lastid)'>" .
     "<a href='' onclick='return false'>" .
-    htmlentities($row['selector']) . "</a></td>\n";
-   echo "  <td>" . htmlentities($row['name']) . "</td>\n";
+    htmlentities($row['name']) . "</a></td>\n";
    echo "  <td>" . htmlentities($row['ndc_number']) . "</td>\n";
    echo "  <td>" . $form_array[$row['form']] . "</td>\n";
    echo "  <td>" . $row['size'] . "</td>\n";
    echo "  <td>" . $unit_array[$row['unit']] . "</td>\n";
-   echo "  <td onclick='doiclick($lastid,\"\")'>" .
+   echo "  <td onclick='doiclick($lastid,0)'>" .
     "<a href='' onclick='return false'>Add</a></td>\n";
   } else {
    echo " <tr class='detail' bgcolor='$bgcolor'>\n";
@@ -98,7 +97,7 @@ function doiclick(id, lot) {
   }
   if ($row['lot_number']) {
    $lot_number = htmlentities($row['lot_number']);
-   echo "  <td onclick='doiclick($lastid,\"$lot_number\")'>" .
+   echo "  <td onclick='doiclick($lastid," . $row['inventory_id'] . ")'>" .
     "<a href='' onclick='return false'>$lot_number</a></td>\n";
    echo "  <td>" . $row['on_hand'] . "</td>\n";
    echo "  <td>" . $row['expiration'] . "</td>\n";

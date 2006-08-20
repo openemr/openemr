@@ -12,8 +12,39 @@
 
  $drug_id = $_REQUEST['drug'];
  $info_msg = "";
+ $tmpl_line_no = 0;
 
  if (!acl_check('admin', 'drugs')) die("Not authorized!");
+
+ // Write a line of data for one template to the form.
+ //
+ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills) {
+  global $tmpl_line_no, $interval_array;
+  ++$tmpl_line_no;
+
+  echo " <tr>\n";
+  echo "  <td class='tmplcell'>";
+  echo "<input type='text' name='tmpl[$tmpl_line_no][selector]' value='$selector' size='10' maxlength='100'>";
+  echo "</td>\n";
+  echo "  <td class='tmplcell'>";
+  echo "<input type='text' name='tmpl[$tmpl_line_no][dosage]' value='$dosage' size='10' maxlength='10'>";
+  echo "</td>\n";
+  echo "  <td class='tmplcell'>";
+  echo "<select name='tmpl[$tmpl_line_no][period]'>";
+  foreach ($interval_array as $key => $value) {
+   echo "<option value='$key'";
+   if ($key == $period) echo " selected";
+   echo ">$value</option>";
+  }
+  echo "</td>\n";
+  echo "  <td class='tmplcell'>";
+  echo "<input type='text' name='tmpl[$tmpl_line_no][quantity]' value='$quantity' size='5' maxlength='7'>";
+  echo "</td>\n";
+  echo "  <td class='tmplcell'>";
+  echo "<input type='text' name='tmpl[$tmpl_line_no][refills]' value='$refills' size='3' maxlength='5'>";
+  echo "</td>\n";
+  echo " </tr>\n";
+ }
 ?>
 <html>
 <head>
@@ -34,66 +65,82 @@ td { font-size:10pt; }
  // If we are saving, then save and close the window.
  //
  if ($_POST['form_save'] || $_POST['form_delete']) {
+  $new_drug = false;
   if ($drug_id) {
    if ($_POST['form_save']) {
     sqlStatement("UPDATE drugs SET " .
-     "selector = '"      . $_POST['form_selector']      . "', " .
      "name = '"          . $_POST['form_name']          . "', " .
      "ndc_number = '"    . $_POST['form_ndc_number']    . "', " .
      "on_order = '"      . $_POST['form_on_order']      . "', " .
      "reorder_point = '" . $_POST['form_reorder_point'] . "', " .
-//   "reactions = '"     . $_POST['form_reactions']     . "', " .
      "form = '"          . $_POST['form_form']          . "', " .
-     "dosage = '"        . $_POST['form_dosage']        . "', " .
      "size = '"          . $_POST['form_size']          . "', " .
      "unit = '"          . $_POST['form_unit']          . "', " .
-     "route = '"         . $_POST['form_route']         . "', " .
-     "period = '"        . $_POST['form_period']        . "', " .
-//   "substitute = '"    . $_POST['form_substitute']    . "', " .
-     "quantity = '"      . $_POST['form_quantity']      . "' "  .
-//   "refills = '"       . $_POST['form_refills']       . "', " .
-//   "per_refill = '"    . $_POST['form_per_refill']    . "' "  .
+     "route = '"         . $_POST['form_route']         . "' "  .
      "WHERE drug_id = '$drug_id'");
-   } else {
-    sqlStatement("DELETE FROM drug_inventory WHERE drug_id = '$drug_id'");
-    sqlStatement("DELETE FROM drugs WHERE drug_id = '$drug_id'");
+    sqlStatement("DELETE FROM drug_templates WHERE drug_id = '$drug_id'");
    }
-  } else {
+   else {
+    if (acl_check('admin', 'super')) {
+     sqlStatement("DELETE FROM drug_inventory WHERE drug_id = '$drug_id'");
+     sqlStatement("DELETE FROM drug_templates WHERE drug_id = '$drug_id'");
+     sqlStatement("DELETE FROM drugs WHERE drug_id = '$drug_id'");
+    }
+   }
+  } else if ($_POST['form_save']) {
+   $new_drug = true;
    $drug_id = sqlInsert("INSERT INTO drugs ( " .
-    "selector, name, ndc_number, on_order, reorder_point, form, dosage, " .
-    "size, unit, route, period, quantity " .
+    "name, ndc_number, on_order, reorder_point, form, " .
+    "size, unit, route " .
     ") VALUES ( " .
-    "'" . $_POST['form_selector']      . "', " .
     "'" . $_POST['form_name']          . "', " .
     "'" . $_POST['form_ndc_number']    . "', " .
     "'" . $_POST['form_on_order']      . "', " .
     "'" . $_POST['form_reorder_point'] . "', " .
-//  "'" . $_POST['form_reactions']     . "', " .
     "'" . $_POST['form_form']          . "', " .
-    "'" . $_POST['form_dosage']        . "', " .
     "'" . $_POST['form_size']          . "', " .
     "'" . $_POST['form_unit']          . "', " .
-    "'" . $_POST['form_route']         . "', " .
-    "'" . $_POST['form_period']        . "', " .
-//  "'" . $_POST['form_substitute']    . "', " .
-    "'" . $_POST['form_quantity']      . "' "  .
-//  "'" . $_POST['form_refills']       . "', " .
-//  "'" . $_POST['form_per_refill']    . "' "  .
-   ")");
+    "'" . $_POST['form_route']         . "' "  .
+    ")");
+  }
+
+  if ($_POST['form_save'] && $drug_id) {
+   $tmpl = $_POST['tmpl'];
+   for ($lino = 1; isset($tmpl["$lino"]['selector']); ++$lino) {
+    $iter = $tmpl["$lino"];
+    if (trim($iter['selector'])) {
+     sqlInsert("INSERT INTO drug_templates ( " .
+      "drug_id, selector, dosage, period, quantity, refills " .
+      ") VALUES ( " .
+      "$drug_id, "                          .
+      "'" . trim($iter['selector']) . "', " .
+      "'" . trim($iter['dosage'])   . "', " .
+      "'" . trim($iter['period'])   . "', " .
+      "'" . trim($iter['quantity']) . "', " .
+      "'" . trim($iter['refills'])  . "' "  .
+      ")");
+    }
+   }
   }
 
   // Close this window and redisplay the updated list of drugs.
   //
   echo "<script language='JavaScript'>\n";
   if ($info_msg) echo " alert('$info_msg');\n";
-  echo " window.close();\n";
   echo " if (opener.refreshme) opener.refreshme();\n";
+  if ($new_drug) {
+   echo " window.location.href='add_edit_lot.php?drug=$drug_id&lot=0'\n";
+  } else {
+   echo " window.close();\n";
+  }
   echo "</script></body></html>\n";
   exit();
  }
 
  if ($drug_id) {
-  $row = sqlQuery("SELECT * FROM drugs WHERE drug_id = $drug_id");
+  $row = sqlQuery("SELECT * FROM drugs WHERE drug_id = '$drug_id'");
+  $tres = sqlStatement("SELECT * FROM drug_templates WHERE " .
+   "drug_id = '$drug_id' ORDER BY selector");
  }
 ?>
 
@@ -101,13 +148,6 @@ td { font-size:10pt; }
 <center>
 
 <table border='0' width='100%'>
-
- <tr>
-  <td valign='top' width='1%' nowrap><b><? xl('Identifier','e'); ?>:</b></td>
-  <td>
-   <input type='text' size='40' name='form_selector' maxlength='80' value='<? echo $row['selector'] ?>' style='width:100%' />
-  </td>
- </tr>
 
  <tr>
   <td valign='top' nowrap><b><? xl('Name','e'); ?>:</b></td>
@@ -137,15 +177,6 @@ td { font-size:10pt; }
   </td>
  </tr>
 
- <!--
- <tr>
-  <td valign='top' nowrap><b><? xl('Reactions','e'); ?>:</b></td>
-  <td>
-   <input type='text' size='40' name='form_reactions' maxlength='250' value='<? echo $row['reactions'] ?>' style='width:100%' />
-  </td>
- </tr>
- -->
-
  <tr>
   <td valign='top' nowrap><b><? xl('Form','e'); ?>:</b></td>
   <td>
@@ -158,13 +189,6 @@ td { font-size:10pt; }
  }
 ?>
    </select>
-  </td>
- </tr>
-
- <tr>
-  <td valign='top' nowrap><b><? xl('Schedule','e'); ?>:</b></td>
-  <td>
-   <input type='text' size='10' name='form_dosage' maxlength='10' value='<? echo $row['dosage'] ?>' />
   </td>
  </tr>
 
@@ -206,69 +230,46 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Interval','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><? xl('Templates','e'); ?>:</b></td>
   <td>
-   <select name='form_period'>
-<?php
- foreach ($interval_array as $key => $value) {
-  echo "   <option value='$key'";
-  if ($key == $row['period']) echo " selected";
-  echo ">$value\n";
- }
-?>
-   </select>
+   <table border='0' width='100%'>
+    <tr>
+     <td><b><? xl('Name'    ,'e'); ?></b></td>
+     <td><b><? xl('Schedule','e'); ?></b></td>
+     <td><b><? xl('Interval','e'); ?></b></td>
+     <td><b><? xl('Qty'     ,'e'); ?></b></td>
+     <td><b><? xl('Refills' ,'e'); ?></b></td>
+    </tr>
+    <?php
+     $blank_lines = 3;
+     if ($tres) {
+      $blank_lines = 1;
+      while ($trow = sqlFetchArray($tres)) {
+       writeTemplateLine($trow['selector'], $trow['dosage'], $trow['period'],
+        $trow['quantity'], $trow['refills']);
+      }
+     }
+     for ($i = 0; $i < $blank_lines; ++$i) {
+      writeTemplateLine('', '', '', '', '');
+     }
+    ?>
+   </table>
   </td>
  </tr>
-
- <!--
- <tr>
-  <td valign='top' nowrap><b><? xl('Substitution','e'); ?>:</b></td>
-  <td>
-   <select name='form_substitute'>
-<?php
- foreach ($substitute_array as $key => $value) {
-  echo "   <option value='$key'";
-  if ($key == $row['substitute']) echo " selected";
-  echo ">$value\n";
- }
-?>
-   </select>
-  </td>
- </tr>
- -->
-
- <tr>
-  <td valign='top' nowrap><b><? xl('Quantity','e'); ?>:</b></td>
-  <td>
-   <input type='text' size='5' name='form_quantity' maxlength='7' value='<? echo $row['quantity'] ?>' />
-  </td>
- </tr>
-
- <!--
- <tr>
-  <td valign='top' nowrap><b><? xl('Refills','e'); ?>:</b></td>
-  <td>
-   <input type='text' size='5' name='form_refills' maxlength='7' value='<? echo $row['refills'] ?>' />
-  </td>
- </tr>
- <tr>
-  <td valign='top' nowrap><b><? xl('Per Refill','e'); ?>:</b></td>
-  <td>
-   <input type='text' size='5' name='form_per_refill' maxlength='7' value='<? echo $row['per_refill'] ?>' />
-  </td>
- </tr>
- -->
 
 </table>
 
 <p>
 <input type='submit' name='form_save' value='Save' />
 
+<?php if (acl_check('admin', 'super')) { ?>
 &nbsp;
 <input type='submit' name='form_delete' value='Delete' style='color:red' />
+<?php } ?>
 
 &nbsp;
 <input type='button' value='Cancel' onclick='window.close()' />
+
 </p>
 
 </center>
