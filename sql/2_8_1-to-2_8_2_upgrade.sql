@@ -285,7 +285,6 @@ ALTER TABLE form_vitals
 
 CREATE TABLE drugs (
   drug_id       int(11)      NOT NULL auto_increment,
-  selector      varchar(255) NOT NULL,
   name          varchar(255) NOT NULL DEFAULT '',
   ndc_number    varchar(20)  NOT NULL DEFAULT '',
   on_order      int(11)      NOT NULL DEFAULT 0,
@@ -293,26 +292,21 @@ CREATE TABLE drugs (
   last_notify   date         NOT NULL DEFAULT '0000-00-00',
   reactions     text         NOT NULL DEFAULT '',
   form          int(3)       NOT NULL DEFAULT 0,
-  dosage        varchar(10)  NOT NULL DEFAULT '',
   size          int(11)      NOT NULL DEFAULT 0,
   unit          int(11)      NOT NULL DEFAULT 0,
   route         int(11)      NOT NULL DEFAULT 0,
-  period        int(11)      NOT NULL DEFAULT 0,
   substitute    int(11)      NOT NULL DEFAULT 0,
-  quantity      int(11)      NOT NULL DEFAULT 0,
-  refills       int(11)      NOT NULL DEFAULT 0,
-  per_refill    int(11)      NOT NULL DEFAULT 0,
   PRIMARY KEY (drug_id)
 ) TYPE=MyISAM;
 
 CREATE TABLE drug_inventory (
-  inventory_id  int(11)      NOT NULL auto_increment,
-  drug_id       int(11)      NOT NULL,
-  lot_number    varchar(20)  NOT NULL DEFAULT '',
-  expiration    date         DEFAULT NULL,
-  manufacturer  varchar(255) NOT NULL DEFAULT '',
-  on_hand       int(11)      NOT NULL DEFAULT 0,
-  last_notify   date         NOT NULL DEFAULT '0000-00-00',
+  inventory_id    int(11)      NOT NULL auto_increment,
+  drug_id         int(11)      NOT NULL,
+  lot_number      varchar(20)  NOT NULL DEFAULT '',
+  expiration      date         DEFAULT NULL,
+  manufacturer    varchar(255) NOT NULL DEFAULT '',
+  on_hand         int(11)      NOT NULL DEFAULT 0,
+  last_notify     date         NOT NULL DEFAULT '0000-00-00',
   PRIMARY KEY (inventory_id)
 ) TYPE=MyISAM;
 
@@ -352,3 +346,19 @@ ALTER TABLE prescriptions
 # Add fax to facility table
 ALTER TABLE facility
   ADD fax varchar(30) default NULL;
+
+CREATE TABLE drug_templates (
+  drug_id       int(11)      NOT NULL,
+  selector      varchar(255) NOT NULL,
+  dosage        varchar(10)  NOT NULL DEFAULT '',
+  period        int(11)      NOT NULL DEFAULT 0,
+  quantity      int(11)      NOT NULL DEFAULT 0,
+  refills       int(11)      NOT NULL DEFAULT 0,
+  PRIMARY KEY (drug_id, selector)
+) TYPE=MyISAM;
+
+ALTER TABLE drug_inventory
+  ADD destroy_date    date         DEFAULT NULL,
+  ADD destroy_method  varchar(255) NOT NULL DEFAULT '',
+  ADD destroy_witness varchar(255) NOT NULL DEFAULT '',
+  ADD destroy_notes   varchar(255) NOT NULL DEFAULT '';
