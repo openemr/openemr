@@ -352,9 +352,10 @@ function set_insurance(ins_id, ins_name) {
   <td class='bold'>
    <select name="hipaa_mail">
     <?php
-     echo ('<option>NO</option>');
-     $result{"hipaa_mail"}=='YES' ? $opt_out='<option selected>YES</option>' : $opt_out='<option>YES</option>' ;
-     echo $opt_out;
+     echo "    <option>NO</option>\n";
+     $opt_sel = ($result['hipaa_mail'] == 'YES' || ($GLOBALS['weight_loss_clinic'] && !$result['hipaa_mail']))
+      ? ' selected' : '';
+     echo "    <option$opt_sel>YES</option>\n";
     ?>
    </select>
   </td>
@@ -362,9 +363,10 @@ function set_insurance(ins_id, ins_name) {
   <td class='bold'>
    <select name="hipaa_voice">
     <?php
-     echo ('<option>NO</option>');
-     $result{"hipaa_voice"}=='YES' ? $opt_out='<option selected>YES</option>' : $opt_out='<option>YES</option>' ;
-     echo $opt_out;
+     echo "    <option>NO</option>\n";
+     $opt_sel = ($result['hipaa_voice'] == 'YES' || ($GLOBALS['weight_loss_clinic'] && !$result['hipaa_voice']))
+      ? ' selected' : '';
+     echo "    <option$opt_sel>YES</option>\n";
     ?>
    </select>
   </td>

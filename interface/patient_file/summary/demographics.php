@@ -140,7 +140,7 @@ echo $result{"postal_code"}?>
      <td valign='top'></td>
     </tr>
 
-<? if (! $GLOBALS['athletic_team']) { ?>
+<? if (!$GLOBALS['athletic_team'] && $result['hipaa_mail']) { ?>
     <tr>
      <td colspan='4' valign='top'>
 	<? 
