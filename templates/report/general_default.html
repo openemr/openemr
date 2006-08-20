@@ -34,8 +34,10 @@ function dopopup(aurl) {
 
 <a href="custom_report_range.php" target="_new">Superbill Report</a>
 <br/>
+
 <a href="appointments_report.php" target="_new">Appointments Report</a>
 <br/>
+
 <a href="appt_encounter_report.php" target="_new">Appointments-Encounters Report</a>
 <br/>
 
@@ -55,6 +57,15 @@ function dopopup(aurl) {
 
 <a href="prescriptions_report.php" target="_new">Prescriptions Report</a>
 <br/>
+
+<a href="sales_by_item.php" target="_new">Sales by Product Report</a>
+<br/>
+
+{php} if ($GLOBALS['inhouse_pharmacy']) { {/php}
+<a href="destroyed_drugs_report.php" target="_new">Destroyed Drugs Report</a>
+<br/>
+{php} } {/php}
+
 <a href="receipts_by_method_report.php" target="_new">Receipts by Payment Method Report</a>
 {php}
  if ($GLOBALS['athletic_team']) {
