@@ -68,7 +68,7 @@
     title=".xl('Click here to choose a date')."
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
    &nbsp;<? xl('Patient ID','e'); ?>:
-   <input type='text' name='form_to_date' size='6' maxlength='6' value='<? echo $form_patient_id ?>'
+   <input type='text' name='form_patient_id' size='6' maxlength='6' value='<? echo $form_patient_id ?>'
     title='Optional numeric patient ID' />
    &nbsp;<? xl('Drug','e'); ?>:
    <input type='text' name='form_drug_name' size='10' maxlength='250' value='<? echo $form_drug_name ?>'
@@ -135,7 +135,7 @@
  if ($_POST['form_refresh']) {
   $where = "r.date_modified >= '$form_from_date' AND " .
    "r.date_modified <= '$form_to_date'";
-  if ($form_patient_id) $where .= " AND r.id = '$form_patient_id'";
+  if ($form_patient_id) $where .= " AND r.patient_id = '$form_patient_id'";
   if ($form_drug_name ) $where .= " AND d.name LIKE '$form_drug_name'";
   if ($form_lot_number) $where .= " AND i.lot_number LIKE '$form_lot_number'";
 
@@ -212,7 +212,10 @@
    <?php echo $reactions ?>
   </td>
   <td class='detail'>
-   <?php echo $row['sale_date'] ?>
+   <a href='../drugs/dispense_drug.php?sale_id=<?php echo $row['sale_id'] ?>'
+    style='color:#0000ff' target='_blank'>
+    <?php echo $row['sale_date'] ?>
+   </a>
   </td>
   <td class='detail'>
    <?php echo $row['quantity'] ?>
