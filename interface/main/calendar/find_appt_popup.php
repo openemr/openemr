@@ -1,5 +1,5 @@
 <?
- // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -231,7 +231,7 @@ td { font-size:10pt; }
  <tr>
   <td><b>Day</b></td>
   <td><b>Date</b></td>
-  <td><b>Available Times</b></td>
+  <td><b>Available Times</b> (red = p.m.)</td>
  </tr>
 <?
   $lastdate = "";
@@ -257,13 +257,16 @@ td { font-size:10pt; }
     echo "  <td valign='top'>";
    }
    $adate = getdate($utime);
-   $anchor = "<a href='' onclick='return setappt(" .
+   $anchor = "<a href='' style='color:" .
+    (date('a', $utime) == 'am' ? '#0000cc' : '#cc0000') .
+    "' onclick='return setappt(" .
     $adate['year'] . "," .
     $adate['mon'] . "," .
     $adate['mday'] . "," .
     $adate['hours'] . "," .
     $adate['minutes'] . ")'>";
-   echo $anchor . date("H:i", $utime) . "</a> ";
+   echo (strlen(date('g',$utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
+    $anchor . date("g:i", $utime) . "</a> ";
 
    // If category duration is more than 1 slot, increment $i appropriately.
    // This is to avoid reporting available times on undesirable boundaries.
