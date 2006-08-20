@@ -575,19 +575,11 @@ class Prescription extends ORDataObject {
 		return $prescriptions;
 	}
 
+	function get_dispensation_count() {
+		$refills_row = sqlQuery("SELECT count(*) AS count FROM drug_sales " .
+			"WHERE prescription_id = '" . $this->id . "' AND quantity > 0");
+		return $refills_row['count'];
+	}
+
 }	// end of Prescription
-
-//class test
-/*
-$rx = new Prescription(1);
-echo "<br /><br />the object is now: " . $rx->toString(true) . "<br />";
-$rx->form = FORM_TABLET;
-echo "<br /><br />the object is now: " . $rx->toString(true) . "<br />";
-$rx->persist();
-echo "<br /><br />the object is now: " . $rx->toString(true) . "<br />";
-
-$rx2 = new Prescription(1);
-echo "<br /><br />the object is now: " . $rx->toString(true) . "<br />";
-*/
-
 ?>

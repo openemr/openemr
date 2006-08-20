@@ -12,22 +12,35 @@ class C_Prescription extends Controller {
 
 	function C_Prescription($template_mod = "general") {
 		parent::Controller();
+
 		$this->template_mod = $template_mod;
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
 		$this->assign("TOP_ACTION", $GLOBALS['webroot']."/controller.php?" . "prescription" . "&");
 		$this->assign("STYLE", $GLOBALS['style']);
+		$this->assign("WEIGHT_LOSS_CLINIC", $GLOBALS['weight_loss_clinic']);
 		$this->pconfig = $GLOBALS['oer_config']['prescriptions'];
 
 		if ($GLOBALS['inhouse_pharmacy']) {
 			// Make an array of drug IDs and selectors for the template.
-			$drug_array = array(0 => "-- or select from inventory --");
+			$drug_array_values = array(0);
+			$drug_array_output = array("-- or select from inventory --");
 			$drug_attributes = '';
-			$res = sqlStatement("SELECT * FROM drugs ORDER BY selector");
+
+			// $res = sqlStatement("SELECT * FROM drugs ORDER BY selector");
+
+			$res = sqlStatement("SELECT d.name, d.ndc_number, d.form, d.size, " .
+				"d.unit, d.route, d.substitute, t.drug_id, t.selector, t.dosage, " .
+				"t.period, t.quantity, t.refills " .
+				"FROM drug_templates AS t, drugs AS d WHERE " .
+				"d.drug_id = t.drug_id ORDER BY t.selector");
+
 			while ($row = sqlFetchArray($res)) {
-				$drug_array[$row['drug_id']] = $row['selector'];
+				$tmp_output = $row['selector'];
 				if ($row['ndc_number']) {
-					$drug_array[$row['drug_id']] .= ' [' . $row['ndc_number'] . ']';
+					$tmp_output .= ' [' . $row['ndc_number'] . ']';
 				}
+				$drug_array_values[] = $row['drug_id'];
+				$drug_array_output[] = $tmp_output;
 				if ($drug_attributes) $drug_attributes .= ',';
 				$drug_attributes .=    "['"  .
 					$row['name']       . "',"  . //  0
@@ -40,12 +53,12 @@ class C_Prescription extends Controller {
 					$row['substitute'] . ","   . //  7
 					$row['quantity']   . ","   . //  8
 					$row['refills']    . ","   . //  9
-					$row['per_refill'] . "]";    // 10
+					$row['quantity']   . "]";    // 10 quantity per_refill
 			}
-			$this->assign("DRUG_ARRAY", $drug_array);
+			$this->assign("DRUG_ARRAY_VALUES", $drug_array_values);
+			$this->assign("DRUG_ARRAY_OUTPUT", $drug_array_output);
 			$this->assign("DRUG_ATTRIBUTES", $drug_attributes);
 		}
-
 	}
 
 	function default_action() {
@@ -349,6 +362,7 @@ class C_Prescription extends Controller {
 	}
 
         function _print_prescription($p, & $toFile) {
+
                 require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
                 $pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);
                 $pdf->ezSetMargins($GLOBALS['oer_config']['prescriptions']['top']
@@ -378,6 +392,7 @@ class C_Prescription extends Controller {
         }
 
 	function _print_prescription_old($p, & $toFile) {
+
 		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
 		$pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);
 		$pdf->ezSetMargins($GLOBALS['oer_config']['prescriptions']['top']

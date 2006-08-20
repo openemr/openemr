@@ -101,12 +101,12 @@ textarea {
 	</td>
 </tr>
 
-{if $DRUG_ARRAY}
+{if $DRUG_ARRAY_VALUES}
 <tr>
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >&nbsp; in-house</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<select name="drug_id" onchange="drugselected(this)">
-		{html_options options=$DRUG_ARRAY selected=$prescription->get_drug_id()}
+		{html_options values=$DRUG_ARRAY_VALUES output=$DRUG_ARRAY_OUTPUT selected=$prescription->get_drug_id()}
 		</select>
 	</td>
 </tr>
@@ -135,10 +135,10 @@ textarea {
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Refill</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Refills</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		{html_options name="refills" options=$prescription->refills_array selected=$prescription->refills}
- 		<input TYPE="TEXT" ID="per_refill" NAME="per_refill" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->per_refill}"/> units</td>
+		of <input TYPE="TEXT" ID="per_refill" NAME="per_refill" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->per_refill}"/> units each</td>
 </tr>
 <tr>
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Substitution</td>
@@ -152,31 +152,27 @@ textarea {
 	<textarea name="note" cols="30" rows="2" wrap="virtual">{$prescription->note}</textarea>
 	</td>
 </tr>
+{if !$WEIGHT_LOSS_CLINIC}
 <tr>
         <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Add to Medication List</td>
         <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
         {html_radios name="medication" options=$prescription->medication_array selected=$prescription->medication}
         </td>
 </tr>
-
+{/if}
 <tr>
 	<td colspan="3">
 		<input type="submit" value="Prescribe" />
-		<!--
-		{if $DRUG_ARRAY}{if $prescription->id}
-		&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-		<input type="button" value="Dispense" onclick="dispense()" />
-		<input type="text" name="disp_quantity" size="2" maxlength="10" value="{$prescription->quantity}" />
-		units, $
-		<input type="text" name="disp_fee" size="5" maxlength="10" />
-		{/if}{/if}
-		-->
-		{if $DRUG_ARRAY}
+		{if $DRUG_ARRAY_VALUES}
 		&nbsp; &nbsp; &nbsp; &nbsp;
+		{if $prescription->get_refills() >= $prescription->get_dispensation_count()}
 		<input type="submit" name="disp_button" value="Prescribe and Dispense" />
 		<input type="text" name="disp_quantity" size="2" maxlength="10" value="{$DISP_QUANTITY}" />
 		units, $
 		<input type="text" name="disp_fee" size="5" maxlength="10" value="{$DISP_FEE}" />
+		{else}
+		This prescription has reached its limit of {$prescription->get_refills()} refills.
+		{/if}
 		{/if}
 	</td>
 </tr>
