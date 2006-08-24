@@ -78,6 +78,13 @@ class C_Prescription extends Controller {
 		if (!empty($patient_id)) {
 			$this->prescriptions[0]->set_patient_id($patient_id);
 		}
+
+		// If quantity to dispense is not already set from a POST, set its
+		// default value.
+		if (! $this->get_template_vars('DISP_QUANTITY')) {
+			$this->assign('DISP_QUANTITY', $this->prescriptions[0]->quantity);
+		}
+
 		$this->default_action();
 	}
 
