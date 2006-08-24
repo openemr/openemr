@@ -73,6 +73,9 @@
    <?xl('Invoice','e')?>
   </td>
   <td class="dehead" align="right">
+   <?xl('Qty','e')?>
+  </td>
+  <td class="dehead" align="right">
    <?xl('Amount','e')?>
   </td>
  </tr>
@@ -82,7 +85,7 @@
     $to_date   = $form_to_date;
 
     $query = "SELECT ar.invnumber, ar.transdate, " .
-      "invoice.description, invoice.fxsellprice " .
+      "invoice.description, invoice.qty, invoice.fxsellprice " .
       "FROM ar, invoice WHERE " .
       "ar.transdate >= '$from_date' AND ar.transdate <= '$to_date' " .
       "AND invoice.trans_id = ar.id " .
@@ -97,6 +100,8 @@
     $productleft = "";
     $producttotal = 0;
     $grandtotal = 0;
+    $productqty = 0;
+    $grandqty = 0;
 
     for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
       $row = SLGetRow($t_res, $irow);
@@ -117,12 +122,16 @@
    <? echo xl('Total for ') . $product ?>
   </td>
   <td class="dehead" align="right">
-   <? bucks($producttotal) ?>
+   <?php echo $productqty; ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php bucks($producttotal); ?>
   </td>
  </tr>
 <?
         }
         $producttotal = 0;
+        $productqty = 0;
         $product = $rowproduct;
         $productleft = $product;
       }
@@ -132,22 +141,27 @@
 
  <tr>
   <td class="detail">
-   <? echo $productleft; $productleft = "&nbsp;" ?>
+   <?php echo $productleft; $productleft = "&nbsp;"; ?>
   </td>
   <td class="dehead">
-   <? echo $row['transdate'] ?>
+   <?php echo $row['transdate']; ?>
   </td>
   <td class="detail">
-   <? echo $row['invnumber'] ?>
+   <?php echo $row['invnumber']; ?>
   </td>
   <td class="dehead" align="right">
-   <? bucks($rowamount) ?>
+   <?php echo $row['qty']; ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php bucks($rowamount); ?>
   </td>
  </tr>
 <?
       }
       $producttotal += $rowamount;
       $grandtotal   += $rowamount;
+      $productqty   += $row['qty'];
+      $grandqty     += $row['qty'];
     }
 ?>
 
@@ -156,16 +170,22 @@
    <?echo xl('Total for ') . $product ?>
   </td>
   <td class="dehead" align="right">
-   <? bucks($producttotal) ?>
+   <?php echo $productqty; ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php bucks($producttotal); ?>
   </td>
  </tr>
 
  <tr bgcolor="#ffdddd">
   <td class="detail" colspan="3">
-   <?xl('Grand Total','e')?>
+   <?php xl('Grand Total','e'); ?>
   </td>
   <td class="dehead" align="right">
-   <? bucks($grandtotal) ?>
+   <?php echo $grandqty; ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php bucks($grandtotal); ?>
   </td>
  </tr>
 
