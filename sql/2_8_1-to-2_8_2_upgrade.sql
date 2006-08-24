@@ -267,8 +267,8 @@ ALTER TABLE registry ADD COLUMN priority INT DEFAULT 0 AFTER date;
 ALTER TABLE registry ADD COLUMN category VARCHAR(255) DEFAULT "category" AFTER priority;
 ALTER TABLE registry ADD COLUMN nickname VARCHAR(255) DEFAULT '' AFTER category;
 
-# ALTER TABLE patient_data
-#   ADD phone_pharmacy varchar(255) NOT NULL default '';
+ALTER TABLE patient_data
+  ADD phone_pharmacy varchar(255) NOT NULL default '';
 
 ## array table for storing configuration data and string lists etc...
 
@@ -362,3 +362,9 @@ ALTER TABLE drug_inventory
   ADD destroy_method  varchar(255) NOT NULL DEFAULT '',
   ADD destroy_witness varchar(255) NOT NULL DEFAULT '',
   ADD destroy_notes   varchar(255) NOT NULL DEFAULT '';
+
+ALTER TABLE prescriptions
+  MODIFY `size` float unsigned DEFAULT NULL;
+
+ALTER TABLE drugs
+  MODIFY `size` float unsigned NOT NULL DEFAULT 0;
