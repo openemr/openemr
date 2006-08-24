@@ -55,27 +55,31 @@
  }
 ?>
 
+<?php if (!$GLOBALS['weight_loss_clinic']) { ?>
 <tr>
 <td width="20%" valign="top">
 <a href="immunizations.php" target="Main"><font class="title"><? xl('Immunizations','e'); ?></font><font class=more><?echo $tmore;?></font></a><br>
-<?$sql = "select if(i1.administered_date
-                      ,concat(i1.administered_date,' - ',i2.name)
-                      ,substring(i1.note,1,20)
-                      ) as immunization_data
-            from immunizations i1
-                   left join immunization i2
-                     on i1.immunization_id = i2.id
-           where i1.patient_id = $pid
-          order by administered_date desc";
+<?php
+  $sql = "select if(i1.administered_date
+    ,concat(i1.administered_date,' - ',i2.name)
+    ,substring(i1.note,1,20)
+    ) as immunization_data
+    from immunizations i1
+    left join immunization i2
+    on i1.immunization_id = i2.id
+    where i1.patient_id = $pid
+    order by administered_date desc";
 
-$result = sqlStatement($sql);
- 
-while ($row=sqlFetchArray($result)){
-  echo "<a class=link target=Main href='immunizations.php'>" . $row{'immunization_data'} . "</a><br>\n";
-}
+  $result = sqlStatement($sql);
+
+  while ($row=sqlFetchArray($result)){
+    echo "<a class=link target=Main href='immunizations.php'>" . $row{'immunization_data'} . "</a><br>\n";
+  }
 ?>
 </td>
 </tr>
+<?php } ?>
+
 <tr>
 <td width="20%" valign="top">
 <?
