@@ -48,12 +48,12 @@
 
 <table width="100%">
 <tr>
-<td><span class='bold'><? xl('Date','e'); ?></span></td>
-<td><span class='bold'><? xl('Provider','e'); ?></span></td>
-<td><span class='bold'><? xl('Reason/Form','e'); ?></span></td>
-<td><span class='bold'><? xl('Issue','e'); ?></span></td>
-<td><span class='bold'><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Billing' : 'Coding' ?></span></td>
-<td><span class='bold'><? xl('Insurance','e'); ?></span></td>
+<td><span class='bold'><?php xl('Date','e'); ?></span></td>
+<td><span class='bold'><?php xl('Provider','e'); ?></span></td>
+<td><span class='bold'><?php xl('Reason/Form','e'); ?></span></td>
+<td><span class='bold'><?php xl('Issue','e'); ?></span></td>
+<td><span class='bold'><?php echo ($GLOBALS['phone_country_code'] == '1') ? 'Billing' : 'Coding' ?></span></td>
+<td><span class='bold'><?php xl(($GLOBALS['weight_loss_clinic'] ? 'Payment' : 'Insurance'),'e'); ?></span></td>
 </tr>
 
 <?

@@ -93,7 +93,7 @@ function doiclick(id, lot) {
     "<a href='' onclick='return false'>Add</a></td>\n";
   } else {
    echo " <tr class='detail' bgcolor='$bgcolor'>\n";
-   echo "  <td colspan='7'>&nbsp;</td>\n";
+   echo "  <td colspan='6'>&nbsp;</td>\n";
   }
   if ($row['lot_number']) {
    $lot_number = htmlentities($row['lot_number']);
