@@ -103,8 +103,7 @@
 	//
 	function era_callback(&$out) {
 		global $encount, $debug, $claim_status_codes, $adjustment_reasons, $remark_codes;
-		global $invoice_total;
-		// print_r($out); // debugging
+		global $invoice_total, $last_code;
 
 		// Some heading information.
 		if ($encount == 0) {
@@ -116,6 +115,7 @@
 			}
 		}
 
+		$last_code = '';
 		$invoice_total = 0.00;
 		$bgcolor = (++$encount & 1) ? "#ddddff" : "#ffdddd";
 		list($pid, $encounter, $invnumber) = slInvoiceNumber($out);
@@ -139,8 +139,20 @@
 			}
 		}
 
+		$insurance_id = 0;
+		foreach ($codes as $cdata) {
+			if ($cdata['ins']) {
+				$insurance_id = $cdata['ins'];
+				break;
+			}
+		}
+
 		// Show the claim status.
 		$csc = $out['claim_status_code'];
+		$inslabel = 'Ins1';
+		if ($csc == '1' || $csc == '19') $inslabel = 'Ins1';
+		if ($csc == '2' || $csc == '20') $inslabel = 'Ins2';
+		if ($csc == '3' || $csc == '21') $inslabel = 'Ins3';
 		writeMessageLine($bgcolor, 'infdetail',
 			"Claim status $csc: " . $claim_status_codes[$csc]);
 
@@ -150,12 +162,14 @@
 				"The following claim is not in our database");
 		}
 		else {
-			$insdone = strtolower($arrow['shipvia']);
-			if (strpos($insdone, 'ins1') !== false) {
-				$inverror = true;
-				writeMessageLine($bgcolor, 'errdetail',
-					"Primary insurance EOB was already posted for the following claim");
-			}
+			// Skip this test. Claims can get multiple CLPs from the same payer!
+			//
+			// $insdone = strtolower($arrow['shipvia']);
+			// if (strpos($insdone, 'ins1') !== false) {
+			//  $inverror = true;
+			//  writeMessageLine($bgcolor, 'errdetail',
+			//   "Primary insurance EOB was already posted for the following claim");
+			// }
 		}
 
 		if ($out['warnings']) {
@@ -169,9 +183,10 @@
 		$patient_name = $arrow['name'] ? $arrow['name'] :
 			($out['patient_fname'] . ' ' . $out['patient_lname']);
 
+		$error = $inverror;
+
 		// This loops once for each service item in this claim.
 		foreach ($out['svc'] as $svc) {
-			$error = $inverror;
 			$prev = $codes[$svc['code']];
 
 			// This reports detail lines already on file for this service item.
@@ -184,7 +199,14 @@
 						"EOB charge amount " . $svc['chg'] . " for this code does not match our invoice");
 					$error = true;
 				}
+
 				// Check for duplicate payment.  Should not happen.
+				//
+				// This is not right.  What we want to do is check if we have
+				// any payments or adjustments from this payer for this service item,
+				// and produce an error if so.  The point is that a duplicated claim
+				// submission may not give the same results as the original.
+				/****
 				foreach ($prev['dtl'] as $dkey => $ddata) {
 					if (! $ddata['pmt']) continue;
 					$ddate = parse_date($dkey);
@@ -194,17 +216,43 @@
 						$error = true;
 					}
 				}
+				****/
+				// The following replaces the above.
+				if ((sprintf("%.2f",$prev['chg']) != sprintf("%.2f",$prev['bal']) ||
+				    $prev['adj'] != 0) && $inslabel == 'Ins1')
+				{
+					writeMessageLine($bgcolor, 'errdetail',
+						"This service item already has payments and/or adjustments!");
+					$error = true;
+				}
+
 				unset($codes[$svc['code']]);
 			}
 
-			// Or if the service item is not in our database, show it in red for
-			// manual resolution.  Probably what happened is that the billing was
-			// "corrected" in OpenEMR after the claim was generated... not good!
+			// If the service item is not in our database...
 			else {
+
+				/****
 				writeDetailLine($bgcolor, 'errdetail', $patient_name, $invnumber,
 					$svc['code'], $service_date, '*** UNMATCHED SERVICE ITEM ***',
 					$svc['chg'], '');
 				$error = true;
+				****/
+
+				// No, this is not an error. Instead, if we are not in error mode
+				// insert the service item into SL.  Then display it (in green if it
+				// was inserted, or in red if we are in error mode).
+				$description = 'CPT4:' . $svc['code'] . " Added by $inslabel $production_date";
+				if (!$error && !$debug) {
+					slPostCharge($arrow['id'], $svc['chg'], $service_date, $svc['code'],
+						$insurance_id, $description, $debug);
+					$invoice_total += $svc['chg'];
+				}
+				$class = $error ? 'errdetail' : 'newdetail';
+				writeDetailLine($bgcolor, $class, $patient_name, $invnumber,
+					$svc['code'], $production_date, $description,
+					$svc['chg'], ($error ? '' : $invoice_total));
+
 			}
 
 			$class = $error ? 'errdetail' : 'newdetail';
@@ -239,11 +287,11 @@
 			if ($svc['paid']) {
 				if (!$error && !$debug) {
 					slPostPayment($arrow['id'], $svc['paid'], $check_date,
-						'Ins1/' . $out['check_number'], $svc['code'], $prev['ins'], $debug);
+						"$inslabel/" . $out['check_number'], $svc['code'], $insurance_id, $debug);
 					$invoice_total -= $svc['paid'];
 				}
 				writeDetailLine($bgcolor, $class, $patient_name, $invnumber,
-					$svc['code'], $check_date, 'Ins1/' . $out['check_number'] . ' payment',
+					$svc['code'], $check_date, "$inslabel/" . $out['check_number'] . ' payment',
 					0 - $svc['paid'], ($error ? '' : $invoice_total));
 			}
 
@@ -261,7 +309,7 @@
 					$reason .= sprintf("%.2f", $adj['amount']);
 					if (!$error && !$debug) {
 						slPostAdjustment($arrow['id'], 0, $production_date,
-							$out['check_number'], $svc['code'], $prev['ins'],
+							$out['check_number'], $svc['code'], $insurance_id,
 							$reason, $debug);
 					}
 					writeMessageLine($bgcolor, $class, $description . ' ' .
@@ -271,8 +319,8 @@
 				else {
 					if (!$error && !$debug) {
 						slPostAdjustment($arrow['id'], $adj['amount'], $production_date,
-							$out['check_number'], $svc['code'], $prev['ins'],
-							'Ins1 adjust code ' . $adj['reason_code'], $debug);
+							$out['check_number'], $svc['code'], $insurance_id,
+							"$inslabel adjust code " . $adj['reason_code'], $debug);
 						$invoice_total -= $adj['amount'];
 					}
 					writeDetailLine($bgcolor, $class, $patient_name, $invnumber,
@@ -290,13 +338,15 @@
 
 		// Cleanup: If all is well, mark Ins1 done and check for secondary billing.
 		if (!$error && !$debug) {
-			// Mark Ins1 done.
-			$query = "UPDATE ar SET shipvia = 'Done: Ins1' WHERE id = " . $arrow['id'];
+			$shipvia = 'Done: Ins1';
+			if ($inslabel != 'Ins1') $shipvia .= ',Ins2';
+			if ($inslabel == 'Ins3') $shipvia .= ',Ins3';
+			$query = "UPDATE ar SET shipvia = '$shipvia' WHERE id = " . $arrow['id'];
 			SLQuery($query);
 			if ($sl_err) die($sl_err);
 			// Check for secondary insurance.
 			$insgot = strtolower($arrow['notes']);
-			if (strpos($insgot, 'ins2') !== false) {
+			if ($inslabel == 'Ins1' && strpos($insgot, 'ins2') !== false) {
 				slSetupSecondary($arrow['id'], $debug);
 				writeMessageLine($bgcolor, 'infdetail',
 					'This claim is now re-queued for secondary paper billing');

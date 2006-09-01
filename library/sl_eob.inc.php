@@ -112,10 +112,8 @@
 
   // Insert a row into the invoice table.
   //
-  function slAddLineItem($invid, $serialnumber, $amount, $adjdate, $insplan, $reason, $debug) {
+  function slAddLineItem($invid, $serialnumber, $amount, $insplan, $description, $debug) {
     global $sl_err, $services_id;
-    $adjdate = fixDate($adjdate);
-    $description = "Adjustment $adjdate $reason";
     $query = "INSERT INTO invoice ( " .
       "trans_id, "          .
       "parts_id, "          .
@@ -170,15 +168,28 @@
   function slPostPayment($trans_id, $thispay, $thisdate, $thissrc, $code, $thisins, $debug) {
     global $chart_id_cash, $chart_id_ar;
     // Post a payment: add to ar, subtract from cash.
-    slAddTransaction($trans_id, $chart_id_ar, $thispay, $thisdate, $thissrc, $code, $thisins, $debug);
+    slAddTransaction($trans_id, $chart_id_ar  , $thispay    , $thisdate, $thissrc, $code, $thisins, $debug);
     slAddTransaction($trans_id, $chart_id_cash, 0 - $thispay, $thisdate, $thissrc, $code, $thisins, $debug);
     slUpdateAR($trans_id, 0, $thispay, $thisdate, $debug);
+  }
+
+  function slPostCharge($trans_id, $thisamt, $thisdate, $code, $thisins, $description, $debug) {
+    global $chart_id_income, $chart_id_ar;
+    // Post an adjustment: add negative invoice item, add to ar, subtract from income
+    slAddLineItem($trans_id, $code, $thisamt, $thisins, $description, $debug);
+    if ($thisamt) {
+      slAddTransaction($trans_id, $chart_id_ar    , 0 - $thisamt, $thisdate, $description, $code, $thisins, $debug);
+      slAddTransaction($trans_id, $chart_id_income, $thisamt    , $thisdate, $description, $code, $thisins, $debug);
+      slUpdateAR($trans_id, $thisamt, 0, '', $debug);
+    }
   }
 
   function slPostAdjustment($trans_id, $thisadj, $thisdate, $thissrc, $code, $thisins, $reason, $debug) {
     global $chart_id_income, $chart_id_ar;
     // Post an adjustment: add negative invoice item, add to ar, subtract from income
-    slAddLineItem($trans_id, $code, 0 - $thisadj, $thisdate, $thisins, $reason, $debug);
+    $adjdate = fixDate($thisdate);
+    $description = "Adjustment $adjdate $reason";
+    slAddLineItem($trans_id, $code, 0 - $thisadj, $thisins, $description, $debug);
     if ($thisadj) {
       slAddTransaction($trans_id, $chart_id_ar, $thisadj, $thisdate, "InvAdj $thissrc", $code, $thisins, $debug);
       slAddTransaction($trans_id, $chart_id_income, 0 - $thisadj, $thisdate, "InvAdj $thissrc", $code, $thisins, $debug);

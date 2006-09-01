@@ -65,7 +65,7 @@ function get_invoice_summary($trans_id, $with_detail = false) {
   // Request all line items with money or adjustment reasons belonging
   // to the invoice.
   $inres = SLQuery("SELECT * FROM invoice WHERE trans_id = $trans_id AND " .
-    "( sellprice != 0 OR description LIKE 'Adjustment%' )");
+    "( sellprice != 0 OR description LIKE 'Adjustment%' OR serialnumber = 'Claim' )");
   if ($sl_err) die($sl_err);
 
   // Add charges and adjustments for each procedure code into its total and balance.
@@ -76,7 +76,10 @@ function get_invoice_summary($trans_id, $with_detail = false) {
     $ins_id = $row['project_id'];
 
     $code = "Unknown";
-    if (preg_match("/([A-Za-z0-9]\d\d\S*)/", $row['serialnumber'], $matches)) {
+    if ($row['serialnumber'] == 'Claim') {
+      $code = 'Claim';
+    }
+    else if (preg_match("/([A-Za-z0-9]\d\d\S*)/", $row['serialnumber'], $matches)) {
       $code = strtoupper($matches[1]);
     }
     else if (preg_match("/([A-Za-z0-9]\d\d\S*)/", $row['description'], $matches)) {

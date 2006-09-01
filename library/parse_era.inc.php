@@ -58,18 +58,23 @@ function parse_era($filename, $cb) {
 			if ($out['loopid']) return 'Unexpected BPR segment';
 			$out['check_amount'] = trim($seg[2]);
 			$out['check_date'] = trim($seg[16]); // yyyymmdd
+			// TBD: BPR04 is a payment method code.
 		}
 		else if ($segid == 'TRN') {
 			if ($out['loopid']) return 'Unexpected TRN segment';
 			$out['check_number'] = trim($seg[2]);
 			$out['payer_tax_id'] = substr($seg[3], 1); // 9 digits
 			$out['payer_id'] = trim($seg[4]);
+			// Note: TRN04 further qualifies the paying entity within the
+			// organization identified by TRN03.
 		}
 		else if ($segid == 'REF' && $seg[1] == 'EV') {
 			if ($out['loopid']) return 'Unexpected REF|EV segment';
 		}
 		else if ($segid == 'CUR' && ! $out['loopid']) {
-			// ignore
+			if ($seg[3] && $seg[3] != 1.0) {
+				return("We cannot handle foreign currencies!");
+			}
 		}
 		else if ($segid == 'REF' && ! $out['loopid']) {
 			// ignore
@@ -78,6 +83,9 @@ function parse_era($filename, $cb) {
 			if ($out['loopid']) return 'Unexpected DTM|405 segment';
 			$out['production_date'] = trim($seg[2]); // yyyymmdd
 		}
+		//
+		// Loop 1000A is Payer Information.
+		//
 		else if ($segid == 'N1' && $seg[1] == 'PR') {
 			if ($out['loopid']) return 'Unexpected N1|PR segment';
 			$out['loopid'] = '1000A';
@@ -85,6 +93,7 @@ function parse_era($filename, $cb) {
 		}
 		else if ($segid == 'N3' && $out['loopid'] == '1000A') {
 			$out['payer_street'] = trim($seg[1]);
+			// TBD: N302 may exist as an additional address line.
 		}
 		else if ($segid == 'N4' && $out['loopid'] == '1000A') {
 			$out['payer_city']  = trim($seg[1]);
@@ -92,11 +101,15 @@ function parse_era($filename, $cb) {
 			$out['payer_zip']   = trim($seg[3]);
 		}
 		else if ($segid == 'REF' && $out['loopid'] == '1000A') {
-			// ignore
+			// Other types of REFs may be given to identify the payer, but we
+			// ignore them.
 		}
 		else if ($segid == 'PER' && $out['loopid'] == '1000A') {
-			// ignore
+			// TBD: Report payer contact information as a note.
 		}
+		//
+		// Loop 1000B is Payee Identification.
+		//
 		else if ($segid == 'N1' && $seg[1] == 'PE') {
 			if ($out['loopid'] != '1000A') return 'Unexpected N1|PE segment';
 			$out['loopid'] = '1000B';
@@ -112,8 +125,13 @@ function parse_era($filename, $cb) {
 			$out['payee_zip']   = trim($seg[3]);
 		}
 		else if ($segid == 'REF' && $out['loopid'] == '1000B') {
-			// ignore
+			// Used to report additional ID numbers.  Ignored.
 		}
+		//
+		// Loop 2000 provides for logical grouping of claim payment information.
+		// LX is required if any CLPs are present, but so far we do not care
+		// about loop 2000 content.
+		//
 		else if ($segid == 'LX') {
 			if (! $out['loopid']) return 'Unexpected LX segment';
 			parse_era_2100($out, $cb);
@@ -125,6 +143,9 @@ function parse_era($filename, $cb) {
 		else if ($segid == 'TS3' && $out['loopid'] == '2000') {
 			// ignore
 		}
+		//
+		// Loop 2100 is Claim Payment Information. The good stuff begins here.
+		//
 		else if ($segid == 'CLP') {
 			if (! $out['loopid']) return 'Unexpected CLP segment';
 			parse_era_2100($out, $cb);
@@ -146,12 +167,6 @@ function parse_era($filename, $cb) {
 			// The 835 spec calls this the "provider-assigned claim control
 			// number" and notes that it is specifically intended for
 			// identifying the claim in the provider's database.
-			//
-			// When this field does not conform to either of our formats,
-			// it's likely that the claim pre-dates the clinic's OpenEMR
-			// installation and we should probably just flag it for manual
-			// posting.  A better solution might be tailored for sites
-			// where A/R was converted from a prior system.
 			$out['our_claim_id']      = trim($seg[1]);
 			//
 			$out['claim_status_code'] = trim($seg[2]);
@@ -161,43 +176,85 @@ function parse_era($filename, $cb) {
 			$out['payer_claim_id']    = trim($seg[7]); // payer's claim number
 		}
 		else if ($segid == 'CAS' && $out['loopid'] == '2100') {
-			// TBD: It is technically valid for adjustments to occur at the claim
-			// level.  I guess we need to create a dummy service item for these.
-			$out['warnings'] .= "Adjustment at claim level not handled!\n";
+			// This is a claim-level adjustment and should be unusual.
+			// Handle it by creating a dummy zero-charge service item and then
+			// populating the adjustments into it.
+			$i = 0; // if present, the dummy service item will be first.
+			if (!$out['svc'][$i]) {
+				$out['svc'][$i] = array();
+				$out['svc'][$i]['code'] = 'Claim';
+				$out['svc'][$i]['mod']  = '';
+				$out['svc'][$i]['chg']  = '0';
+				$out['svc'][$i]['paid'] = '0';
+				$out['svc'][$i]['adj']  = array();
+			}
+			for ($k = 2; $k < 20; $k += 3) {
+				if (!$seg[$k]) break;
+				$j = count($out['svc'][$i]['adj']);
+				$out['svc'][$i]['adj'][$j] = array();
+				$out['svc'][$i]['adj'][$j]['group_code']  = $seg[1];
+				$out['svc'][$i]['adj'][$j]['reason_code'] = $seg[$k];
+				$out['svc'][$i]['adj'][$j]['amount']      = $seg[$k+1];
+			}
 		}
+		// QC = Patient
 		else if ($segid == 'NM1' && $seg[1] == 'QC' && $out['loopid'] == '2100') {
 			$out['patient_lname']     = trim($seg[3]);
 			$out['patient_fname']     = trim($seg[4]);
 			$out['patient_mname']     = trim($seg[5]);
 			$out['patient_member_id'] = trim($seg[9]);
 		}
+		// IL = Insured or Subscriber
 		else if ($segid == 'NM1' && $seg[1] == 'IL' && $out['loopid'] == '2100') {
 			$out['subscriber_lname']     = trim($seg[3]);
 			$out['subscriber_fname']     = trim($seg[4]);
 			$out['subscriber_mname']     = trim($seg[5]);
 			$out['subscriber_member_id'] = trim($seg[9]);
 		}
+		// 82 = Rendering Provider
 		else if ($segid == 'NM1' && $seg[1] == '82' && $out['loopid'] == '2100') {
 			$out['provider_lname']     = trim($seg[3]);
 			$out['provider_fname']     = trim($seg[4]);
 			$out['provider_mname']     = trim($seg[5]);
 			$out['provider_member_id'] = trim($seg[9]);
 		}
+		// 74 = Corrected Insured
+		// TT = Crossover Carrier (Transfer To another payer)
+		// PR = Corrected Payer
 		else if ($segid == 'NM1' && $out['loopid'] == '2100') {
 			// $out['warnings'] .= "NM1 segment at claim level ignored.\n";
 		}
 		else if ($segid == 'MOA' && $out['loopid'] == '2100') {
 			$out['warnings'] .= "MOA segment at claim level ignored.\n";
 		}
+		// REF segments may provide various identifying numbers. REF02 is:
+		// 1L = Group or Policy Number
+		// 1W = Member Identification Number
+		// 9A = Repriced Claim Reference Number
+		// 9C = Adjusted Repriced Claim Reference Number
+		// A6 = Employee Identification Number
+		// BB = Authorization Number
+		// CE = Class of Contract Code
+		// EA = Medical Record Identification Number
+		// F8 = Original Reference Number
+		// G1 = Prior Authorization Number
+		// G3 = Predetermination of Benefits Identification Number
+		// IG = Insurance Policy Number
+		// SY = Social Security Number
+		// 1A, 1B, 1C, 1D, 1G, 1H, D3, G2 = various rendering provider numbers
 		else if ($segid == 'REF' && $seg[1] == '1W' && $out['loopid'] == '2100') {
 			$out['claim_comment'] = trim($seg[2]);
 		}
 		else if ($segid == 'REF' && $out['loopid'] == '2100') {
-			// ignore; saw a "REF|EA|X" from Tricare, dunno what that is.
+			// ignore
 		}
 		else if ($segid == 'DTM' && $seg[1] == '050' && $out['loopid'] == '2100') {
 			$out['claim_date'] = trim($seg[2]); // yyyymmdd
 		}
+		// 036 = expiration date of coverage
+		// 050 = date claim received by payer
+		// 232 = claim statement period start
+		// 233 = claim statement period end
 		else if ($segid == 'DTM' && $out['loopid'] == '2100') {
 			// ignore?
 		}
@@ -205,35 +262,65 @@ function parse_era($filename, $cb) {
 			$out['warnings'] .= 'Claim contact information: ' .
 				$seg[4] . "\n";
 		}
+		// For AMT01 see the Amount Qualifier Codes on pages 135-135 of the
+		// Implementation Guide.  AMT is only good for comments and is not
+		// part of claim balancing.
 		else if ($segid == 'AMT' && $out['loopid'] == '2100') {
 			$out['warnings'] .= "AMT segment at claim level ignored.\n";
 		}
+		// For QTY01 see the Quantity Qualifier Codes on pages 137-138 of the
+		// Implementation Guide.  QTY is only good for comments and is not
+		// part of claim balancing.
 		else if ($segid == 'QTY' && $out['loopid'] == '2100') {
 			$out['warnings'] .= "QTY segment at claim level ignored.\n";
 		}
+		//
+		// Loop 2110 is Service Payment Information.
+		//
 		else if ($segid == 'SVC') {
 			if (! $out['loopid']) return 'Unexpected SVC segment';
 			$out['loopid'] = '2110';
 			$svc = explode('^', $seg[1]);
 			if ($svc[0] != 'HC') return 'SVC segment has unexpected qualifier';
+			// TBD: Other qualifiers are possible; see IG pages 140-141.
 			$i = count($out['svc']);
 			$out['svc'][$i] = array();
 			$out['svc'][$i]['code'] = $svc[1];
+			$out['svc'][$i]['mod']  = $svc[2] ? $svc[2] : '';
+			// TBD: There may be up to 4 procedure modifiers in $svc[2] thru [5].
 			$out['svc'][$i]['chg']  = $seg[2];
 			$out['svc'][$i]['paid'] = $seg[3];
 			$out['svc'][$i]['adj']  = array();
+
+			// Note: SVC05, if present, indicates the paid units of service.
+			// It defaults to 1.
+
+			// Note: In the case of bundling, SVC06 reports the original procedure
+			// code, there are adjustments of the old procedure codes that zero out
+			// the original charge amounts, a negative adjustment of the new
+			// procedure code(s) reflecting the old charges, and other "normal"
+			// adjustments to these charges.
+
 		}
+		// DTM01 identifies the type of service date:
+		// 472 = a single date of service
+		// 150 = service period start
+		// 151 = service period end
 		else if ($segid == 'DTM' && $out['loopid'] == '2110') {
 			$out['dos'] = trim($seg[2]); // yyyymmdd
 		}
 		else if ($segid == 'CAS' && $out['loopid'] == '2110') {
-			// There may be multiple adjustments per service item.
 			$i = count($out['svc']) - 1;
-			$j = count($out['svc'][$i]['adj']);
-			$out['svc'][$i]['adj'][$j] = array();
-			$out['svc'][$i]['adj'][$j]['group_code']  = $seg[1];
-			$out['svc'][$i]['adj'][$j]['reason_code'] = $seg[2];
-			$out['svc'][$i]['adj'][$j]['amount']      = $seg[3];
+			for ($k = 2; $k < 20; $k += 3) {
+				if (!$seg[$k]) break;
+				$j = count($out['svc'][$i]['adj']);
+				$out['svc'][$i]['adj'][$j] = array();
+				$out['svc'][$i]['adj'][$j]['group_code']  = $seg[1];
+				$out['svc'][$i]['adj'][$j]['reason_code'] = $seg[$k];
+				$out['svc'][$i]['adj'][$j]['amount']      = $seg[$k+1];
+				// Note: $seg[$k+2] is "quantity".  A value here indicates a change to
+				// the number of units of service.  We're ignoring that for now.
+			}
 		}
 		else if ($segid == 'REF' && $out['loopid'] == '2110') {
 			// ignore
@@ -250,8 +337,14 @@ function parse_era($filename, $cb) {
 			$out['warnings'] .= "QTY segment at service level ignored.\n";
 		}
 		else if ($segid == 'PLB') {
-			$out['warnings'] .= 'PROVIDER LEVEL ADJUSTMENT (not claim-specific): $' .
-				sprintf('%.2f', $seg[4]) . "\n";
+			// Provider-level adjustments are a General Ledger thing and should not
+			// alter the A/R for the claim, so we just report them as notes.
+			for ($k = 3; $k < 15; $k += 2) {
+				if (!$seg[$k]) break;
+				$out['warnings'] .= 'PROVIDER LEVEL ADJUSTMENT (not claim-specific): $' .
+					sprintf('%.2f', $seg[$k+1]) . " with reason code " . $seg[$k] . "\n";
+				// Note: For PLB adjustment reason codes see IG pages 165-170.
+			}
 		}
 		else if ($segid == 'SE') {
 			parse_era_2100($out, $cb);
