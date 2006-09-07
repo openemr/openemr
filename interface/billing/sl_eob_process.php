@@ -8,12 +8,6 @@
 
 	// This processes X12 835 remittances and produces a report.
 
-	// Caveats:
-	// Currently we assume that all 835's come from primary insurance, and
-	// that secondary claims always go out on paper.  This should be made
-	// more general at some point.  So far we have only tested with a
-	// family practice clinic using Zirmed.
-
 	// Buffer all output so we can archive it to a file.
 	ob_start();
 
@@ -153,6 +147,7 @@
 		if ($csc == '1' || $csc == '19') $inslabel = 'Ins1';
 		if ($csc == '2' || $csc == '20') $inslabel = 'Ins2';
 		if ($csc == '3' || $csc == '21') $inslabel = 'Ins3';
+		$primary = ($inslabel == 'Ins1');
 		writeMessageLine($bgcolor, 'infdetail',
 			"Claim status $csc: " . $claim_status_codes[$csc]);
 
@@ -200,29 +195,12 @@
 					$error = true;
 				}
 
-				// Check for duplicate payment.  Should not happen.
-				//
-				// This is not right.  What we want to do is check if we have
-				// any payments or adjustments from this payer for this service item,
-				// and produce an error if so.  The point is that a duplicated claim
-				// submission may not give the same results as the original.
-				/****
-				foreach ($prev['dtl'] as $dkey => $ddata) {
-					if (! $ddata['pmt']) continue;
-					$ddate = parse_date($dkey);
-					if ($ddate == $check_date && $ddata['pmt'] == $svc['paid']) {
-						writeMessageLine($bgcolor, 'errdetail',
-							"This payment dated $check_date seems to be already posted!");
-						$error = true;
-					}
-				}
-				****/
-				// The following replaces the above.
+				// Check for already-existing primary remittance activity.
 				if ((sprintf("%.2f",$prev['chg']) != sprintf("%.2f",$prev['bal']) ||
-				    $prev['adj'] != 0) && $inslabel == 'Ins1')
+				    $prev['adj'] != 0) && $primary)
 				{
 					writeMessageLine($bgcolor, 'errdetail',
-						"This service item already has payments and/or adjustments!");
+						"This service item already has primary payments and/or adjustments!");
 					$error = true;
 				}
 
@@ -232,14 +210,7 @@
 			// If the service item is not in our database...
 			else {
 
-				/****
-				writeDetailLine($bgcolor, 'errdetail', $patient_name, $invnumber,
-					$svc['code'], $service_date, '*** UNMATCHED SERVICE ITEM ***',
-					$svc['chg'], '');
-				$error = true;
-				****/
-
-				// No, this is not an error. Instead, if we are not in error mode
+				// This is not an error. If we are not in error mode and not debugging,
 				// insert the service item into SL.  Then display it (in green if it
 				// was inserted, or in red if we are in error mode).
 				$description = 'CPT4:' . $svc['code'] . " Added by $inslabel $production_date";
@@ -284,14 +255,18 @@
 			}
 
 			// Post and report the payment for this service item from the ERA.
+			// By the way a 'Claim' level payment is probably going to be negative,
+			// i.e. a payment reversal.
 			if ($svc['paid']) {
 				if (!$error && !$debug) {
 					slPostPayment($arrow['id'], $svc['paid'], $check_date,
 						"$inslabel/" . $out['check_number'], $svc['code'], $insurance_id, $debug);
 					$invoice_total -= $svc['paid'];
 				}
+				$description = "$inslabel/" . $out['check_number'] . ' payment';
+				if ($svc['paid'] < 0) $description .= ' reversal';
 				writeDetailLine($bgcolor, $class, $patient_name, $invnumber,
-					$svc['code'], $check_date, "$inslabel/" . $out['check_number'] . ' payment',
+					$svc['code'], $check_date, $description,
 					0 - $svc['paid'], ($error ? '' : $invoice_total));
 			}
 
@@ -299,14 +274,24 @@
 			// must be 25 characters or less in order to fit on patient statements.
 			foreach ($svc['adj'] as $adj) {
 				$description = $adj['reason_code'] . ': ' . $adjustment_reasons[$adj['reason_code']];
-				// Group code PR is Patient Responsibility.  Enter these as zero
-				// adjustments to retain the note without crediting the claim.
-				if ($adj['group_code'] == 'PR') {
-					$reason = 'Pt resp: '; // Reasons should be 25 chars or less.
-					if ($adj['reason_code'] == '1') $reason = 'To deductible: ';
-					else if ($adj['reason_code'] == '2') $reason = 'Coinsurance: ';
-					else if ($adj['reason_code'] == '3') $reason = 'Co-pay: ';
+				if ($adj['group_code'] == 'PR' || !$primary) {
+					// Group code PR is Patient Responsibility.  Enter these as zero
+					// adjustments to retain the note without crediting the claim.
+					if ($primary) {
+						$reason = 'Pt resp: '; // Reasons should be 25 chars or less.
+						if ($adj['reason_code'] == '1') $reason = 'To deductible: ';
+						else if ($adj['reason_code'] == '2') $reason = 'Coinsurance: ';
+						else if ($adj['reason_code'] == '3') $reason = 'Co-pay: ';
+					}
+					// Non-primary insurance adjustments are garbage, either repeating
+					// the primary or are not adjustments at all.  Report them as notes
+					// but do not post any amounts.
+					else {
+						$reason = "$inslabel note " . $adj['reason_code'] . ': ';
+						$reason .= sprintf("%.2f", $adj['amount']);
+					}
 					$reason .= sprintf("%.2f", $adj['amount']);
+					// Post a zero-dollar adjustment just to save it as a comment.
 					if (!$error && !$debug) {
 						slPostAdjustment($arrow['id'], 0, $production_date,
 							$out['check_number'], $svc['code'], $insurance_id,
@@ -315,7 +300,7 @@
 					writeMessageLine($bgcolor, $class, $description . ' ' .
 						sprintf("%.2f", $adj['amount']));
 				}
-				// Other group codes are real adjustments.
+				// Other group codes for primary insurance are real adjustments.
 				else {
 					if (!$error && !$debug) {
 						slPostAdjustment($arrow['id'], $adj['amount'], $production_date,
@@ -346,7 +331,7 @@
 			if ($sl_err) die($sl_err);
 			// Check for secondary insurance.
 			$insgot = strtolower($arrow['notes']);
-			if ($inslabel == 'Ins1' && strpos($insgot, 'ins2') !== false) {
+			if ($primary && strpos($insgot, 'ins2') !== false) {
 				slSetupSecondary($arrow['id'], $debug);
 				writeMessageLine($bgcolor, 'infdetail',
 					'This claim is now re-queued for secondary paper billing');

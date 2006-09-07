@@ -8,6 +8,23 @@
 
 function parse_era_2100(&$out, $cb) {
 	if ($out['loopid'] == '2110') {
+
+		// Force the sum of service payments to equal the claim payment
+		// amount.  Whenever this is an issue it should result from
+		// claim-level adjustments, and in this case the first SVC item
+		// that we stored was a 'Claim' type.
+		$paytotal = $out['amount_approved'];
+		foreach ($out['svc'] as $svc) $paytotal -= $svc['paid'];
+		$paytotal = round($paytotal, 2);
+		if ($paytotal != 0) {
+			$out['svc'][0]['paid'] += $paytotal;
+			if ($out['svc'][0]['code'] != 'Claim') {
+				$out['warnings'] .= "First service item payment amount " .
+					"adjusted by $paytotal due to payment imbalance. " .
+					"This should not happen!\n";
+			}
+		}
+
 		$cb($out);
 	}
 }
@@ -29,8 +46,6 @@ function parse_era($filename, $cb) {
 		if ($tpos === false) break;
 		$inline = substr($buffer, 0, $tpos);
 		$buffer = substr($buffer, $tpos + 1);
-
-		// echo $inline . "\n"; // debugging
 
 		$seg = explode('|', $inline);
 		$segid = $seg[0];
@@ -177,8 +192,10 @@ function parse_era($filename, $cb) {
 		}
 		else if ($segid == 'CAS' && $out['loopid'] == '2100') {
 			// This is a claim-level adjustment and should be unusual.
-			// Handle it by creating a dummy zero-charge service item and then
-			// populating the adjustments into it.
+			// Handle it by creating a dummy zero-charge service item and
+			// then populating the adjustments into it.  See also code in
+			// parse_era_2100() which will later plug in a payment reversal
+			// amount that offsets these adjustments.
 			$i = 0; // if present, the dummy service item will be first.
 			if (!$out['svc'][$i]) {
 				$out['svc'][$i] = array();
@@ -227,21 +244,8 @@ function parse_era($filename, $cb) {
 		else if ($segid == 'MOA' && $out['loopid'] == '2100') {
 			$out['warnings'] .= "MOA segment at claim level ignored.\n";
 		}
-		// REF segments may provide various identifying numbers. REF02 is:
-		// 1L = Group or Policy Number
-		// 1W = Member Identification Number
-		// 9A = Repriced Claim Reference Number
-		// 9C = Adjusted Repriced Claim Reference Number
-		// A6 = Employee Identification Number
-		// BB = Authorization Number
-		// CE = Class of Contract Code
-		// EA = Medical Record Identification Number
-		// F8 = Original Reference Number
-		// G1 = Prior Authorization Number
-		// G3 = Predetermination of Benefits Identification Number
-		// IG = Insurance Policy Number
-		// SY = Social Security Number
-		// 1A, 1B, 1C, 1D, 1G, 1H, D3, G2 = various rendering provider numbers
+		// REF segments may provide various identifying numbers, where REF02
+		// indicates the type of number.
 		else if ($segid == 'REF' && $seg[1] == '1W' && $out['loopid'] == '2100') {
 			$out['claim_comment'] = trim($seg[2]);
 		}
@@ -291,16 +295,13 @@ function parse_era($filename, $cb) {
 			$out['svc'][$i]['chg']  = $seg[2];
 			$out['svc'][$i]['paid'] = $seg[3];
 			$out['svc'][$i]['adj']  = array();
-
 			// Note: SVC05, if present, indicates the paid units of service.
 			// It defaults to 1.
-
 			// Note: In the case of bundling, SVC06 reports the original procedure
 			// code, there are adjustments of the old procedure codes that zero out
 			// the original charge amounts, a negative adjustment of the new
 			// procedure code(s) reflecting the old charges, and other "normal"
 			// adjustments to these charges.
-
 		}
 		// DTM01 identifies the type of service date:
 		// 472 = a single date of service
