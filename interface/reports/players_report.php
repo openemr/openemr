@@ -14,6 +14,7 @@
  include_once("$srcdir/acl.inc");
 
  $squads = acl_get_squads();
+ $auth_notes_a  = acl_check('encounters', 'notes_a');
 
  $fitnesses = array(
   'Full Play',
@@ -147,7 +148,13 @@
    <? echo $fitnesses[$fitness-1] ?>&nbsp;
   </td>
   <td class="detail" bgcolor="<? echo $fitcolors[$fitness-1] ?>">
-   &nbsp;<? echo substr($erow['date'], 0, 10) . ' ' . $erow['reason'] ?>&nbsp;
+   &nbsp;<?php
+    if ($auth_notes_a) {
+     echo substr($erow['date'], 0, 10) . ' ' . $erow['reason'];
+    } else {
+     echo '(No access)';
+    }
+   ?>&nbsp;
   </td>
  </tr>
 <?
