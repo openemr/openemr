@@ -21,10 +21,12 @@
   'Full Training',
   'Restricted Training',
   'Injured Out',
-  'Rehabilitation'
+  'Rehabilitation',
+  'Illness',
+  'International Duty'
  );
 
- $fitcolors = array('#6677ff', '#00cc00', '#ffff00', '#ff3333', '#ff8800');
+ $fitcolors = array('#6677ff', '#00cc00', '#ffff00', '#ff3333', '#ff8800', '#ffeecc', '#ffccaa');
 
  $alertmsg = ''; // not used yet but maybe later
 
