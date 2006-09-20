@@ -105,7 +105,8 @@ function postcalendar_userapi_buildView($args)
 	//=================================================================
 	//  grab the for post variable
 	//=================================================================
-	$pc_username = pnVarCleanFromInput('pc_username');
+	// $pc_username = pnVarCleanFromInput('pc_username');
+	$pc_username = $_SESSION['pc_username']; // from Michael Brinson 2006-09-19
 	$category = pnVarCleanFromInput('pc_category');
 	$topic    = pnVarCleanFromInput('pc_topic');
 
@@ -912,7 +913,8 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
   // echo "<!-- args = "; print_r($args); echo " -->\n"; // debugging
 
-  $pc_username = pnVarCleanFromInput('pc_username');
+  // $pc_username = pnVarCleanFromInput('pc_username');
+  $pc_username = $_SESSION['pc_username']; // from Michael Brinson 2006-09-19
   if (empty($pc_username) || is_array($pc_username)) {
     $pc_username = "__PC_ALL__";
   }
