@@ -10,27 +10,9 @@ use CGI qw(:standard);
 #documentation
 my $documentation =<<'START';
 
-*******************************************
-*      Form Generating Script 1.1.2       *
-*******************************************
-
-new for 1.1.2
-
-Added a 'do not save' link at the top and bottom of the form.
-Fixed problem with using single and double quotes in input file.
-Changed deprecated PHP function mysql_escape_string to 
-mysql_real_escape_string.
-
-bugs: There may still be a problem with reserved MySQL words not
-being caught.  There may be other bugs not discovered yet.
-
-future plans: I plan on improving the output format in report.php.
-For now, users can alter this form as needed.  Since formscript.pl
-knows the fields to be used, it makes more sense to list them 
-explicitly than to print them in a foreach loop.  I will get to
-work on this soon.
-
-1.1
+*************************************
+*      Form Generating Script 2.0   *
+*************************************
 
 This is a complete rewrite of an earlier Perl script I wrote to generate
 forms for OpenEMR.  It is now all self contained within a single .pl file.
@@ -42,6 +24,9 @@ where filename is a text file with data relating to your form.  If you run
 without a filename argument, a sample data file will be created in the same
 directory named 'sample.txt' that you can use to see how to create your own.
 
+The first line you enter in your textfile is the name of the form.
+In the example this is "a1_preop_physical"
+
 Basically you enter one database field item per line like this:
 
 Social History::popup_menu::smoker::non-smoker
@@ -51,7 +36,8 @@ or
 Social History::radio_group::smoker::non-smoker
 
 
-where the first item is the field name.  spaces within the name will convert to '_'
+where the first item is the field name, the second item is the widget type, and Nth items are values.
+spaces within the name will convert to '_'
 for the sql database field name.  If you use a SQL reserved word, the form generation
 will fail and this program will notify you of the word(s) you used.
 
@@ -97,12 +83,6 @@ my $info_txt=<<'START';
 FORM_NAME
 START
 
-my $do_not_save=<<'START';
-<?
-echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/patient_encounter.php'>[do not save]</a>";
-?>
-START
-
 #new.php
 my $new_php =<<'START';
 <?php
@@ -118,9 +98,7 @@ formHeader("Form: FORM_NAME");
 <hr>
 <h1> FORM_NAME </h1>
 <hr>
-
 DATABASEFIELDS
-
 </form>
 <?php
 formFooter();
@@ -167,8 +145,7 @@ if ($value == "on") {
 $value = "yes";
 }
 $key=ucwords(str_replace("_"," ",$key));
-$output = stripslashes($value);
-print "<td><span class=bold>$key: </span><span class=text>$output</span></td>";
+print "<td><span class=bold>$key: </span><span class=text>".stripslashes($value)."</span></td>";
 $count++;
 if ($count == $cols) {
 $count = 0;
@@ -198,7 +175,7 @@ foreach($field_names as $key=>$val)
 {
 	if ($val == "checkbox")
 	{
-		if ($_POST[$key]) {$field_names[$key] = "positve";}
+		if ($_POST[$key]) {$field_names[$key] = "yes";}
 		else {$field_names[$key] = "negative";}
 	}
 	elseif (($val == "checkbox_group")||($val == "scrolling_list_multiples"))
@@ -213,9 +190,9 @@ foreach($field_names as $key=>$val)
 					unset($negatives[$key][$pos]);
 				}
 			}
-			$neg = ".   Negative for ".implode(', ',$negatives[$key]);
+			$neg = ".   Negative for ".implode(',',$negatives[$key]);
 		}
-		$field_names[$key] = implode(', ',$_POST[$key]).$neg;	
+		$field_names[$key] = implode(',',$_POST[$key]).$neg;	
 	}
 	else
 	{
@@ -226,7 +203,7 @@ foreach($field_names as $key=>$val)
 //end special processing
 
 foreach ($field_names as $k => $var) {
-$field_names[$k] = mysql_real_escape_string($var);
+$field_names[$k] = mysql_escape_string($var);
 echo "$var\n";
 }
 if ($encounter == "")
@@ -268,6 +245,46 @@ my $view_php =<<'START';
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 formHeader("Form: FORM_NAME");
+$obj = formFetch("form_FORM_NAME", $_GET["id"]);  #Use the formFetch function from api.inc to get values for existing form.
+
+function chkdata_Txt(&$obj, $var)
+    {
+        $result = stripslashes($obj{"$var"});
+        return $result;
+    }
+ function chkdata_CB(&$obj, $nam, $var)
+    {
+        $objarr = explode(',',$obj{$nam});
+        foreach ($objarr as $a)
+        	{
+        		if ($a == "$var")
+        			{
+        				$result = "\"checked\"";
+					}
+        	}
+        return $result;
+    }
+ function chkdata_Radio(&$obj, $nam, $var)
+    {
+        if ($obj{$nam}== "$var")
+        	{
+        		$result = "\"checked\"";
+			}
+        return $result;
+    }
+ function chkdata_PopOrScroll(&$obj, $nam, $var)
+    {
+        $objarr = explode(',',$obj{$nam});
+        foreach ($objarr as $a)
+        	{
+        		if ($a == "$var")
+        			{
+        				$result = "\"selected\"";
+					}
+        	}
+        return $result;
+    }
+
 ?>
 <html><head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
@@ -329,9 +346,15 @@ START
 
 my @reserved = ('ADD','ALL','ALTER','ANALYZE','AND','AS','ASC','ASENSITIVE','BEFORE','BETWEEN','BIGINT','BINARY','BLOB','BOTH','BY','CALL','CASCADE','CASE','CHANGE','CHAR','CHARACTER','CHECK','COLLATE','COLUMN','CONDITION','CONNECTION','CONSTRAINT','CONTINUE','CONVERT','CREATE','CROSS','CURRENT_DATE','CURRENT_TIME','CURRENT_TIMESTAMP','CURRENT_USER','CURSOR','DATABASE','DATABASES','DAY_HOUR','DAY_MICROSECOND','DAY_MINUTE','DAY_SECOND','DEC','DECIMAL','DECLARE','DEFAULT','DELAYED','DELETE','DESC','DESCRIBE','DETERMINISTIC','DISTINCT','DISTINCTROW','DIV','DOUBLE','DROP','DUAL','EACH','ELSE','ELSEIF','ENCLOSED','ESCAPED','EXISTS','EXIT','EXPLAIN','FALSE','FETCH','FLOAT','FOR','FORCE','FOREIGN','FROM','FULLTEXT','GOTO','GRANT','GROUP','HAVING','HIGH_PRIORITY','HOUR_MICROSECOND','HOUR_MINUTE','HOUR_SECOND','IF','IGNORE','IN','INDEX','INFILE','INNER','INOUT','INSENSITIVE','INSERT','INT','INTEGER','INTERVAL','INTO','IS','ITERATE','JOIN','KEY','KEYS','KILL','LEADING','LEAVE','LEFT','LIKE','LIMIT','LINES','LOAD','LOCALTIME','LOCALTIMESTAMP','LOCK','LONG','LONGBLOB','LONGTEXT','LOOP','LOW_PRIORITY','MATCH','MEDIUMBLOB','MEDIUMINT','MEDIUMTEXT','MIDDLEINT','MINUTE_MICROSECOND','MINUTE_SECOND','MOD','MODIFIES','NATURAL','NOT','NO_WRITE_TO_BINLOG','NULL','NUMERIC','ON','OPTIMIZE','OPTION','OPTIONALLY','OR','ORDER','OUT','OUTER','OUTFILE','PRECISION','PRIMARY','PROCEDURE','PURGE','READ','READS','REAL','REFERENCES','REGEXP','RENAME','REPEAT','REPLACE','REQUIRE','RESTRICT','RETURN','REVOKE','RIGHT','RLIKE','SCHEMA','SCHEMAS','SECOND_MICROSECOND','SELECT','SENSITIVE','SEPARATOR','SET','SHOW','SMALLINT','SONAME','SPATIAL','SPECIFIC','SQL','SQLEXCEPTION','SQLSTATE','SQLWARNING','SQL_BIG_RESULT','SQL_CALC_FOUND_ROWS','SQL_SMALL_RESULT','SSL','STARTING','STRAIGHT_JOIN','TABLE','TERMINATED','THEN','TINYBLOB','TINYINT','TINYTEXT','TO','TRAILING','TRIGGER','TRUE','UNDO','UNION','UNIQUE','UNLOCK','UNSIGNED','UPDATE','USAGE','USE','USING','UTC_DATE','UTC_TIME','UTC_TIMESTAMP','VALUES','VARBINARY','VARCHAR','VARCHARACTER','VARYING','WHEN','WHERE','WHILE','WITH','WRITE','XOR','YEAR_MONTH','ZEROFILL','ACTION','BIT','DATE','ENUM','NO','TEXT','TIME','TIMESTAMP');
 my %reserved;
-$reserved{uc $_}++ for @reserved;
+$reserved{$_}++ for @reserved;     # Shortened syntax for assigning value of 1 to each associative element in array.
+					     # IE:  UNLOCK = 1, WRITE = 1, ETC... Associative array.
 
-#main program
+
+
+
+#*********************************************************************************
+#******************************** MAIN PROGRAM ***********************************
+#*********************************************************************************
 
 if (@ARGV == 0)
 {
@@ -342,38 +365,40 @@ if (@ARGV == 0)
 
 my $form_name = <>;
 chomp($form_name);
-my $check_reserved = uc $form_name;
-if ($reserved{uc $check_reserved})
+my $compare = $form_name;
+$compare =~ tr/[a-z]/[A-Z]/;
+if ($reserved{$compare})
 {
-	print "You have chosen an SQL reserved word for your form name: $check_reserved.  Please try again.\n";
+	print "You have chosen an SQL reserved word for your form name: $form_name.  Please try again.\n";
 	exit 1;
 }
-$form_name =~ s/^\s+(\S)\s+$/$1/;
-$form_name =~ s/\s+/_/g;
-if (not -d $form_name)
+$form_name =~ s/^\s+(\S)\s+$/$1/;	#Remove spaces from beginning and end of form name and save $1 which is a backreference to subexpression ("\S" MEANS Any non-whitespace character)) to $form_name.
+$form_name =~ s/\s+/_/g;		#Substitute all blank spaces with _ globally --> g means globally.
+if (! -e $form_name)
 {
 	mkdir "$form_name" or die "Could not create directory $form_name: $!";
 }
-my @field_data; #the very important array of field data
-chomp, push @field_data, [ split /::/ ] while <>;
-my %negatives; #key=field name: these are the fields that require reporting of pertinant
-		#negatives.  will only apply to checkbox_group and scrolling_list_multiples types
+my @field_data;                                                                                  #the very important array of field data
+chomp, push @field_data, [ split /::/ ] while <>;		#while <> continues through currently open file (parameter from command line invoking perl ie: "subjective.txt"), chomping return characters, splitting on :: or more (::::) and putting into field_data array.
+my %negatives;               #key=field name: these are the fields that require reporting of pertinant
+		                     #negatives.  will only apply to checkbox_group and scrolling_list_multiples types
 my @reserved_used;
 #strip outer spaces from field names and field types and change inner spaces to underscores
 #and check field names for SQL reserved words now
 for (@field_data) 
 {
-	if ($_->[0] and $_->[1])
+	if ($_->[0] and $_->[1])	#$_->[0] is field name and $_->[1] is field type.  IE:  @field_data[4]->[0] and @field_data[4]->[1]
 	{
-		$_->[0] =~ s/^\s+(\S)\s+$/$1/;
-		$_->[0] =~ s/\s+/_/g;
-		$check_reserved = $_->[0] =~ m/(\w+)/ ? uc $1 : q{};
-		push @reserved_used, $check_reserved if $reserved{$check_reserved};
+		$_->[0] =~ s/^\s+(\S)\s+$/$1/;        #\s means spaces, \S means non spaces. (\S) creates backreference pointed to by $1 at end. ***FIELD NAME***
+		$_->[0] = lc $_->[0];		#MAKE SURE FIELNAMES ARE ALL LOWERCASE (to avoid problems later)
+		$_->[0] =~ s/\s+|-+/_/g;                 # So now @field_data[1]->[0] contains the field name without spaces at beginning or end and this replaces spaces with _  ie: "field type" becomes "field_type"
+		push @reserved_used, $_->[0] if $reserved{$_->[0]};
 		$_->[1] =~ s/^\s+(\S)\s+$/$1/;
 		if ($_->[0] =~ /^\+/) #a leading '+' indicates to print negatives
 		{		# or not checked values in a checkbox_group or scrolling_list_multiples
 			$_->[0] =~ s/^\+(.*)/$1/;
-			$negatives{$_->[0]}++;
+			$negatives{$_->[0]}++;      #Shortened syntax for putting $field_name, 1 into "negatives" associative array.
+							    #Same as %negatives = (%negatives, $_->[0], 1)
 		}
 	}
 }
@@ -384,36 +409,53 @@ if (@reserved_used)
 	exit 1;
 }
 
-my $text = make_form(@field_data);
+
+
+#****************************************************************************
+#**Send field data to the Make_form subroutine and receive it back as $text**
+#****************************************************************************
+
+my $make_form_results = make_form(@field_data);
 my $out;
 
+
+
+#***************************************************************************
+#**************************REPLACEMENT SECTION******************************
+#***************************************************************************
+#***This section replaces the 'PLACE_HOLDERS' in the $whatever.php above.***
+#***$text holds the results from the "make_form" subroutine below.       ***
+#***************************************************************************
+
+
 #info.txt
-$out = replace($info_txt, 'FORM_NAME', $form_name);
+$out = replace($info_txt, 'FORM_NAME', $form_name); #Custom delcared sub 3 parameters
 to_file("$form_name/info.txt",$out);
 
 #new.php
 $out = replace($new_php, 'FORM_NAME', $form_name);
-$out = replace($out, 'DATABASEFIELDS', $text);
+$out = replace($out, 'DATABASEFIELDS', $make_form_results);
 to_file("$form_name/new.php",$out);
 
 #print.php
 $out = replace($print_php, 'FORM_NAME', $form_name);
-$out = replace($out, 'DATABASEFIELDS', $text);
+$out = replace($out, 'DATABASEFIELDS', $make_form_results);
 to_file("$form_name/print.php",$out);
 
 #report.php
-$out = replace($report_php, 'FORM_NAME', $form_name);
-$out = replace($out, 'DATABASEFIELDS', $text);
+$out = replace($report_php, 'FORM_NAME', $form_name);	#Here's where we set $out = to it's corresponding input (whatever_php) and replace the place holder 'FORM_NAME' with the correct $form_name
+$out = replace($out, 'DATABASEFIELDS', $make_form_results);		#Then replace 'DATABASEFIELDS' in 'whatever_php' with $make_form_results, generated from make_form subroutine.
 to_file("$form_name/report.php",$out);
 
 #save.php
 $out = replace($save_php, 'FORM_NAME', $form_name);
-$out = replace_save_php($out, @field_data);
+$out = replace_save_php($out, @field_data);		#Or send it to a special case where extra things can be added to the output. ("replace_save_php" is down below under "sub-routines")
 to_file("$form_name/save.php",$out);
 
 #view.php
 $out = replace($view_php, 'FORM_NAME', $form_name);
-$out = replace($out, 'DATABASEFIELDS', $text);
+$out = replace($out, 'DATABASEFIELDS', $make_form_results);
+$out = replace_view_php($out);
 to_file("$form_name/view.php",$out);
 
 #table.sql
@@ -423,14 +465,21 @@ to_file("$form_name/table.sql",$out);
 
 #preview.html
 $out = replace($preview_html, 'FORM_NAME', $form_name);
-$out = replace($out, 'DATABASEFIELDS', $text);
+$out = replace($out, 'DATABASEFIELDS', $make_form_results);
 to_file("$form_name/preview.html",$out);
 
-# subs
+
+
+
+#******************************************************************
+#************************* SUB-ROUTINES ***************************
+#******************************************************************
 
 sub replace
 {
-	my $text = shift;
+	my $text = shift;  #This shifts through the supplied arguments ($whatever_php, 'FORM_NAME', and $form_name)
+				#This $text is a LOCAL variable.  Does not overwrite other $make_form_results
+				#Shift starts with the first value.  If variable (as in $whatever_php) expands and goes through line by line
 	my %words = @_;
 	$text =~ s/$_/$words{$_}/g for keys %words;
 	return $text;
@@ -440,7 +489,7 @@ sub replace
 sub replace_save_php #a special case
 {
 	my $text = shift;
-	my @fields = map {$_->[0]} grep{$_->[0] and $_->[1]} @_;
+	my @fields = map {$_->[0]} grep{$_->[0] and $_->[1]} @_;  #Checks to see that Field_name and Field_type exist --Grep statement and map to @array.
 	for (@fields)
 	{
 		 $_ = "$_='\".\$field_names[\"$_\"].\"'";
@@ -463,13 +512,13 @@ sub replace_save_php #a special case
 					push @temp, "'$_->[$count]' => '$_->[$count]'"; 
 					$count++;
 				}
-				push @negatives, "'$_->[0]' => array(".join(', ', @temp).")";	
+				push @negatives, "'$_->[0]' => array(".join(',', @temp).")";	
 			}
 		}
 	}
- 	$fields = join ', ', @fields;
+ 	$fields = join ',', @fields;
 	$text =~ s/FIELDNAMES/$fields/;
-	my $negatives = join ', ', @negatives;
+	my $negatives = join ',', @negatives;
 	$text =~ s/NEGATIVES/$negatives/;
 	return $text;
 }
@@ -484,26 +533,59 @@ sub replace_sql #a special case
 	return $text;
 }
 
+sub replace_view_php           #a special case  (They're all special cases aren't they? ;^ )  )
+{
+	my $text = shift;
+	$text =~ s/(<\/label>)\s?(<label>)/$1\n$2/g;		#MAKE LAYOUT MORE READABLE. NEWLINE FOR EACH <LABEL> TAG
+	my @text = split (/\n/,$text);				#PUT EACH LINE OF TEXT INTO AN ARRAY SPLIT ON NEWLINE (\n)
+	my @temp = ();
+	my $selname = "";
+	foreach (@text)
+	{
+		if ($_ =~ /<select name="(\w*)/) #SELECT NAME FOR POPUP & SCROLLING MENUS.
+			{
+			  $selname = $1;
+			  goto go;
+			}
+	
+	  goto go if $_ =~ s/(<textarea\sname=")([\w\s]+)("[\w\s="]*>)/$1$2$3<?php \$result = chkdata_Txt(\$obj,"$2"); echo \$result;?>/;  #TEXTAREA
+		 
+	  goto go if $_ =~ s/(<input\stype="text"\s)(name=")([\w\s]+)(")([^>]*)/$1$2$3$4 value=<?php \$result = chkdata_Txt(\$obj,"$3"); echo \$result;?>/;               #TEXT
+		 
+	  goto go if $_ =~ s/(<input\stype="checkbox"\sname=")([\w\s]+)(\[\])("\svalue=")([\w\s]+)(")([^>]*)/$1$2$3$4$5$6 <?php \$result = chkdata_CB(\$obj,"$2","$5"); echo \$result;?>/;   #CHECKBOX-GROUP
+		 
+	  goto go if $_ =~ s/(<input\stype="checkbox"\sname=")([\w\s]+)("\svalue=")([\w\s]+)(")([^>]*)/$1$2$3$4$5 <?php \$result = chkdata_CB(\$obj,"$2","$4"); echo \$result;?>/; #CHECKBOX
+		 
+	  goto go if $_ =~ s/(<input\stype="radio"\sname=")([\w\s]+)("\svalue=")([\w\s]+)(")([^>]*)/$1$2$3$4$5 <?php \$result = chkdata_Radio(\$obj,"$2","$4"); echo \$result;?>/; #RADIO-GROUP
+
+	  goto go if $_ =~ s/(<option value=")([\w\s]+)(")/$1$2$3 <?php \$result = chkdata_PopOrScroll(\$obj,"$selname","$2"); echo \$result;?>/g; #SCROLLING-LISTS-BOTH & POPUP-MENU
+
+		go:	push (@temp, $_, "\n");
+
+	}
+
+	$text = "@temp";
+	return $text;
+}
+
+
 sub make_form
 {
 	my @data = @_;
-	my $return = submit(-name=>'submit form') . $do_not_save;
-	$return .= "<table>";	
+	my $return = submit(-name=>'submit form');
+	$return .= '<br>'."\n";
 	for (@data)
 	{
-		next if not $_->[0];
-		next if $_->[0] =~ /^#/; #ignore perl type comments
-		if ($_->[0] =~ /^\w/ and $_->[1])	
+		next if not $_->[0];		#Go to next iteration of loop if no "field name"
+		next if $_->[0] =~ /^#/;	#ignore perl type comments
+		if ($_->[0] =~ /^\w/ and $_->[1])	#Check that the "field name" contains valid characters and that there is a "field type" in array iteration.
 		{
-			for (@$_)
-			{
-				s/'/\'/g;
-				s/"/\"/g;
-			}
-			my $field_name = shift @$_;
+			my $field_name = shift @$_;	#Get current field_name for iteration of array.  Shift removes it from the array and moves to next.
 			my $field_type = shift @$_;
 			my $label = $field_name;
 			$label =~ s/_/ /g;
+			$label = ucfirst($label);
+			$return .= "\n".'<table>'."\n\n";
 			if ($field_type =~ /^textfield$/)
 			{
 				$return .= Tr(td($label),td(textfield(-name=>$field_name, -value=> join @$_)))."\n";
@@ -514,7 +596,7 @@ sub make_form
 			}
 			elsif ($field_type =~ /^radio_group$/)
 			{
-				$return .= Tr(td($label),td(radio_group(-name=>$field_name, -values=>$_)))."\n";;
+				$return .= Tr(td($label),td(radio_group(-name=>$field_name, -values=>$_, -default=>'-')))."\n";;
 			}
 			elsif ($field_type =~ /^checkbox$/)
 			{
@@ -524,32 +606,44 @@ sub make_form
 			{
 				$return .= Tr(td($label),td(checkbox_group(-name=>$field_name.'[]', -values=>$_)))."\n";
 			}
-			elsif ($field_type =~ /^popup_menu/)
+			elsif ($field_type =~ /^popup_menu$/)
 			{
 				$return .= Tr(td($label),td(popup_menu(-name=>$field_name, -values=>$_)))."\n";
 			}
-			elsif ($field_type =~ /^scrolling_list/)
+			elsif ($field_type =~ /^scrolling_list$/)
 			{
-				my $mult = 'false';
-				my $mult2 = '';
-				$mult = 'true' if $field_type =~ /multiples$/;
-				$mult2 = '[]' if $field_type =~ /multiples$/;
-				$return .= Tr(td($label),td(scrolling_list(-name=>$field_name.$mult2, -values=>$_, -size=>scalar(@$_), -multiple=>$mult)))."\n";
+				$return .= Tr(td($label),td(scrolling_list(-name=>$field_name, -values=>$_, -size=>scalar(@$_))))."\n";
 			}
+			elsif ($field_type =~ /^scrolling_list_multiples/)
+			{
+			  	$return .= Tr(td($label),td(scrolling_list(-name=>$field_name.'[]', -values=>$_, -size=>scalar(@$_), -multiple=>'true')))."\n";
+			}
+		unshift @$_, $label;
 		unshift @$_, $field_type;
 		unshift @$_, $field_name;
+		$return .= "\n".'</table>'."\n";
 		}
-		else #probably an html tag or something
+		else #probably an html tag or something -- Get to this point if no Field_name and Field_type found in array.
 		{
-			$return .= "</table>";	
-			$return .= $_->[0]."\n";	
-			$return .= "<table>";
+
+			  if ($_->[0] !~ /<br>\s*$|<\/td>\s*$|<\/tr>\s*$|<\/p>\s*$/) {
+			    $return .= '<br>'."\n";
+			  }
+
+			  $return .= $_->[0]."\n";	
+			  
+			  
 		}
 	}		
+	$return .= "<table>";
+	$return .= submit(-name=>'submit form');
 	$return .= "</table>";
-	$return .= submit(-name=>'submit form') . $do_not_save;
 	return $return;
 }
+
+#***********************************************************************************************************
+#**Receive 'full file path' and '$out' (finished output) from REPLACEMENT SECTION above and write to file.**
+#***********************************************************************************************************
 
 sub to_file
 {
