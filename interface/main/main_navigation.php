@@ -61,6 +61,12 @@ include_once("../../library/acl.inc");
 &nbsp;<a href="onotes/office_comments.php" target="Main" class="menu"><? xl('Notes','e'); ?></a>&nbsp;
 </td>
 
+<? if ($GLOBALS['hylafax_server']) { ?>
+<td align="center" nowrap>
+&nbsp;<a href="../fax/faxq.php" target="Main" class="menu"><? xl('Fax','e'); ?></a>&nbsp;
+</td>
+<? } ?>
+
 <? if (acl_check('acct', 'rep') || acl_check('acct', 'eob') || acl_check('acct', 'bill')) { ?>
 <td align="center" nowrap>
 &nbsp;<a href="../billing/billing_report.php" target="Main" class="menu"><? xl('Billing','e'); ?></a>&nbsp;

@@ -163,6 +163,12 @@ $GLOBALS['simplified_demographics'] = false;
 // You may put text here as the default complaint in the New Patient form:
 $GLOBALS['default_chief_complaint'] = '';
 
+// If you want Hylafax support then uncomment and customize the following
+// statements, and also customize custom/faxcover.txt:
+// $GLOBALS['hylafax_server']   = 'localhost';
+// $GLOBALS['hylafax_basedir']  = '/var/spool/fax';
+// $GLOBALS['hylafax_enscript'] = 'enscript -M Letter -f Courier@12 -B --margins=36:36:36:36';
+
 // Customize these if you are using SQL-Ledger with OpenEMR.
 $sl_cash_acc    = '1060';       // sql-ledger account number for checking account
 $sl_ar_acc      = '1200';       // sql-ledger account number for accounts receivable

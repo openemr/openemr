@@ -15,17 +15,6 @@
 //the number of records to display per screen
 $N = 25;
 
-$note_types = array(
-  'Unassigned',
-  'Chart Note',
-  'Insurance',
-  'New Document',
-  'Pharmacy',
-  'Prior Auth',
-  'Referral',
-  'Test Scheduling',
-  'Other');
-
 $mode   = $_REQUEST['mode'];
 $offset = $_REQUEST['offset'];
 $active = $_REQUEST['active'];
@@ -116,7 +105,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
    <b><? xl('Type','e'); ?>:</b>
    <select name='title'>
 <?
- foreach ($note_types as $value) {
+ foreach ($patient_note_types as $value) {
   echo "    <option value='$value'";
   if ($value == $title) echo " selected";
   echo ">$value</option>\n";
@@ -274,7 +263,7 @@ if ($result_count == $N) {
 // If this note references a new patient document, pop up a display
 // of that document.
 //
-if ($noteid && $title == 'New Document') {
+if ($noteid /* && $title == 'New Document' */ ) {
   $prow = getPnoteById($noteid, 'body');
   if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', $prow['body'], $matches)) {
     $docid = $matches[1];

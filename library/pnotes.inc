@@ -1,6 +1,17 @@
 <?php
 require_once("{$GLOBALS['srcdir']}/sql.inc");
 
+$patient_note_types = array(
+  'Unassigned',
+  'Chart Note',
+  'Insurance',
+  'New Document',
+  'Pharmacy',
+  'Prior Auth',
+  'Referral',
+  'Test Scheduling',
+  'Other');
+
 function getPnoteById($id, $cols = "*")
 {
   return sqlQuery("SELECT $cols FROM pnotes WHERE id='$id' " .

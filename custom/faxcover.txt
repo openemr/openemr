@@ -1,0 +1,13 @@
+                        FACSIMILE TRANSMISSION
+                        {CURRENT_DATE}
+
+
+From: {SENDER_NAME}
+      Your Company Name                             Phone: 222-333-4444
+      Your Company Address                          Fax:   555-666-7777
+      Your City, State Zip
+
+To:   {RECIPIENT_NAME}
+Fax:  {RECIPIENT_FAX}
+
+{MESSAGE}

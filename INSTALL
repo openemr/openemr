@@ -145,6 +145,15 @@ Everything should work out of the installation without touching those, but if
 you want fax, sql-ledger, and/or Freeb integration you will need to adjust some
 parameters in that file.
 
+General-purpose fax support requires customization of interface/globals.php
+and custom/faxcover.txt; it also requires the following utilities:
+
+* faxstat and sendfax from the HylaFAX client package
+* mogrify from the ImageMagick package
+* tiff2pdf, tiffcp and tiffsplit from the libtiff-tools package
+* enscript
+
+
 IV. Setting Up Access Control
 
 As of this writing the option of adding phpGACL to your OpenEMR installation is
