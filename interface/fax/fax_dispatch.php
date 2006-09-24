@@ -129,7 +129,13 @@
    $form_to       = trim($_POST['form_to']);
    $form_fax      = trim($_POST['form_fax']);
    $form_message  = trim($_POST['form_message']);
-   $form_finemode = $_POST['form_finemode'] ? ' -m' : '';
+   $form_finemode = $_POST['form_finemode'] ? '-m' : '-l';
+
+   if (get_magic_quotes_gpc()) {
+    $form_from    = stripslashes($form_from);
+    $form_to      = stripslashes($form_to);
+    $form_message = stripslashes($form_message);
+   }
 
    // Generate a cover page using enscript.  This can be a cool thing
    // to do, as enscript is very powerful.
@@ -150,8 +156,8 @@
    $cpstring = str_replace('{MESSAGE}'       , $form_message , $cpstring);
    fwrite($tmph, $cpstring);
    fclose($tmph);
-   $tmp0 = exec($GLOBALS['hylafax_enscript'] . " -o $tmpfn2 $tmpfn1",
-    $tmp1, $tmp2);
+   $tmp0 = exec("cd $webserver_root/custom; " . $GLOBALS['hylafax_enscript'] .
+    " -o $tmpfn2 $tmpfn1", $tmp1, $tmp2);
    if ($tmp2) {
     $info_msg .= "enscript returned $tmp2: $tmp0 ";
    }
@@ -159,7 +165,7 @@
 
    // Send the fax as the cover page followed by the selected pages.
    $info_msg .= mergeTiffs();
-   $tmp0 = exec("sendfax -n$form_finemode -d " .
+   $tmp0 = exec("sendfax -n $form_finemode -d " .
     escapeshellarg($form_fax) . " $tmpfn2 '$faxcache/temp.tif'",
     $tmp1, $tmp2);
    if ($tmp2) {
@@ -472,17 +478,17 @@ div.section {
    </td>
   </tr>
   <tr>
-   <td class='itemtitle' nowrap>Resolution</td>
-   <td>
-    <input type='radio' name='form_finemode' value='' checked />Standard &nbsp;
-    <input type='radio' name='form_finemode' value='1' />Fine &nbsp;
-   </td>
-  </tr>
-  <tr>
    <td class='itemtitle' nowrap>Message</td>
    <td>
     <textarea name='form_message' rows='3' cols='30' style='width:100%'
      title='Your comments to include with this message' /></textarea>
+   </td>
+  </tr>
+  <tr>
+   <td class='itemtitle' nowrap>Quality</td>
+   <td>
+    <input type='radio' name='form_finemode' value='' />Normal &nbsp;
+    <input type='radio' name='form_finemode' value='1' checked />Fine &nbsp;
    </td>
   </tr>
  </table>

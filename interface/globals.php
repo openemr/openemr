@@ -167,7 +167,7 @@ $GLOBALS['default_chief_complaint'] = '';
 // statements, and also customize custom/faxcover.txt:
 // $GLOBALS['hylafax_server']   = 'localhost';
 // $GLOBALS['hylafax_basedir']  = '/var/spool/fax';
-// $GLOBALS['hylafax_enscript'] = 'enscript -M Letter -f Courier@12 -B --margins=36:36:36:36';
+// $GLOBALS['hylafax_enscript'] = 'enscript -M Letter -B -e^ --margins=36:36:36:36';
 
 // Customize these if you are using SQL-Ledger with OpenEMR.
 $sl_cash_acc    = '1060';       // sql-ledger account number for checking account

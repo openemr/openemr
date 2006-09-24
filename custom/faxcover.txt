@@ -1,5 +1,6 @@
-                        FACSIMILE TRANSMISSION
-                        {CURRENT_DATE}
+^epsf[c]{faxtitle.eps}
+^font{Courier-Bold@12}
+                           {CURRENT_DATE}
 
 
 From: {SENDER_NAME}
@@ -9,5 +10,9 @@ From: {SENDER_NAME}
 
 To:   {RECIPIENT_NAME}
 Fax:  {RECIPIENT_FAX}
-
+^font{Helvetica-Bold@12}
 {MESSAGE}
+
+Best regards,
+
+{SENDER_NAME}
