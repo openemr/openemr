@@ -367,7 +367,10 @@ class HTML_TreeNode
     * Unique ID of this node
     * @var int
     */
-    var $parent;
+    //commented out because it was causing Documents page to not show
+   //because of this redeclaration of $parent.  I do not know what the 
+  // author's intention was in using this name twice or if it was a mistake
+    //var $parent;
     
 
     /**
