@@ -15,8 +15,10 @@
  exec("faxstat -r -l -h " . $GLOBALS['hylafax_server'], $statlines);
  $mlines = array();
  foreach ($statlines as $line) {
-  // This gets pagecount, sender, time, filename.
-  if (preg_match('/^-\S+\s+(\d+)\s+\S+\s+(.+)\s+(\S+)\s+(\S+)\s*$/', $line, $matches)) {
+  // This gets pagecount, sender, time, filename.  We are expecting the
+  // string to start with "-rw-rw-" so as to exclude faxes not yet fully
+  // received, for which permissions are "-rw----".
+  if (preg_match('/^-r\S\Sr\S\S\s+(\d+)\s+\S+\s+(.+)\s+(\S+)\s+(\S+)\s*$/', $line, $matches)) {
    $mlines[$matches[4]] = $matches;
   }
  }
