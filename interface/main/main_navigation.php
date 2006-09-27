@@ -61,11 +61,21 @@ include_once("../../library/acl.inc");
 &nbsp;<a href="onotes/office_comments.php" target="Main" class="menu"><? xl('Notes','e'); ?></a>&nbsp;
 </td>
 
-<? if ($GLOBALS['hylafax_server']) { ?>
+<?php
+ if ($GLOBALS['hylafax_server']) {
+  // Count the number of faxes in the recvq:
+  $statlines = array();
+  exec("faxstat -r -l -h " . $GLOBALS['hylafax_server'], $statlines);
+  $faxcount = 0;
+  foreach ($statlines as $line) {
+   if (substr($line, 0, 1) == '-') ++$faxcount;
+  }
+  $faxcount = $faxcount ? "($faxcount)" : "";
+?>
 <td align="center" nowrap>
-&nbsp;<a href="../fax/faxq.php" target="Main" class="menu"><? xl('Fax','e'); ?></a>&nbsp;
+&nbsp;<a href="../fax/faxq.php" target="Main" class="menu"><?php echo xl('Fax') . $faxcount; ?></a>&nbsp;
 </td>
-<? } ?>
+<?php } ?>
 
 <? if (acl_check('acct', 'rep') || acl_check('acct', 'eob') || acl_check('acct', 'bill')) { ?>
 <td align="center" nowrap>
