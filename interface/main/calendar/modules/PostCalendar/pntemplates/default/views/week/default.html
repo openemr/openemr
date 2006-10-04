@@ -360,7 +360,7 @@ a       { text-decoration:none; }
     $in_cat_id = 0;
     if ($provstat[$providerid]['in_cat'] >= 0) {
      $category =& $A_CATEGORY[$provstat[$providerid]['in_cat']];
-     $in_cat_id = $category['id'];
+     if ($category['id']) $in_cat_id = $category['id'];
     }
 
     // If a slot omits the top border, then we omit the TOD cell's top border
@@ -462,3 +462,4 @@ a       { text-decoration:none; }
 [-/php-]
 
 </body>
+</html>
