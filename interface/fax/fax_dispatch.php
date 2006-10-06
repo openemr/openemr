@@ -213,7 +213,7 @@
   if ($tmp2) die("mkdir returned $tmp2: $tmp0");
   $tmp0 = exec("cd '$faxcache'; tiffsplit '$filepath'", $tmp1, $tmp2);
   if ($tmp2) die("tiffsplit returned $tmp2: $tmp0");
-  $tmp0 = exec("cd '$faxcache'; mogrify -resize 600x776 -format jpg *.tif", $tmp1, $tmp2);
+  $tmp0 = exec("cd '$faxcache'; mogrify -resize 750x970 -format jpg *.tif", $tmp1, $tmp2);
   if ($tmp2) die("mogrify returned $tmp2: $tmp0");
  }
 
