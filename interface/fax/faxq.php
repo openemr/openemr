@@ -9,6 +9,17 @@
  require_once("../globals.php");
  require_once("$srcdir/acl.inc");
 
+ $faxstats = array(
+  'B' => 'Blocked',
+  'D' => 'Sent successfully',
+  'F' => 'Failed',
+  'P' => 'Pending',
+  'R' => 'Send in progress',
+  'S' => 'Sleeping',
+  'T' => 'Suspended',
+  'W' => 'Waiting',
+ );
+
  // Get the recvq entries, parse and sort by filename.
  //
  $statlines = array();
@@ -82,6 +93,7 @@ td.tabhead {
 
 <script language="JavaScript">
 
+// Process click on a tab.
 function tabclick(tabname) {
  var tabs = new Array('faxin', 'faxout', 'scanin');
  var visdisp = document.getElementById('bigtable').style.display;
@@ -89,7 +101,8 @@ function tabclick(tabname) {
   var thistd    = document.getElementById('td_tab_' + tabs[i]);
   var thistable = document.getElementById('table_' + tabs[i]);
   if (tabs[i] == tabname) {
-   thistd.style.borderBottom = '0px solid #000000';
+   // thistd.style.borderBottom = '0px solid #000000';
+   thistd.style.borderBottom = '2px solid transparent';
    thistd.style.color = '#cc0000';
    thistd.style.cursor = 'default';
    thistable.style.display = visdisp;
@@ -102,7 +115,7 @@ function tabclick(tabname) {
  }
 }
 
-// callback from popups to refresh this display.
+// Callback from popups to refresh this display.
 function refreshme() {
  location.reload();
 }
@@ -121,7 +134,7 @@ function dojclick(jobid) {
  return false;
 }
 
-// Process click on More to pop up the dispatch window.
+// Process click to pop up the dispatch window.
 function domclick(ffname) {
  dlgopen('fax_dispatch.php?file=' + ffname, '_blank', 850, 550);
 }
@@ -135,7 +148,7 @@ function domclick(ffname) {
  id='bigtable' width='100%' height='100%'>
  <tr style='height: 20px;'>
   <td width='33%' id='td_tab_faxin'  class='tabhead'
-   style='color: #cc0000; border-right: 2px solid #000000;'
+   style='color: #cc0000; border-right: 2px solid #000000; border-bottom: 2px solid transparent;'
    onclick='tabclick("faxin")'>Faxes In</td>
   <td width='33%' id='td_tab_faxout' class='tabhead'
    style='color: #777777; border-right: 2px solid #000000; border-bottom: 2px solid #000000; cursor: pointer;'
@@ -166,7 +179,6 @@ function domclick(ffname) {
   echo "    <tr class='detail' bgcolor='$bgcolor'>\n";
   echo "     <td onclick='dodclick(\"$ffname\")'>";
   echo "<a href='fax_view.php?file=$ffname' onclick='return false'>$ffbase</a></td>\n";
-  // echo "<a href='fax_view.php?file=$ffname'>$ffname</a></td>\n";
   echo "     <td onclick='domclick(\"$ffname\")'>";
   echo "<a href='fax_dispatch.php?file=$ffname' onclick='return false'>Dispatch</a></td>\n";
   echo "     <td>" . htmlentities($matches[3]) . "</td>\n";
@@ -191,18 +203,10 @@ function domclick(ffname) {
  foreach ($dlines as $matches) {
   ++$encount;
   $jobid = $matches[1];
-  $ffstatus = $matches[3];
-  if ($ffstatus == 'D') $ffstatus = 'Sent successfully';
-  else if ($ffstatus == 'B') $ffstatus = 'Blocked';
-  else if ($ffstatus == 'F') $ffstatus = 'Failed';
-  else if ($ffstatus == 'P') $ffstatus = 'Pending';
-  else if ($ffstatus == 'R') $ffstatus = 'Send in progress';
-  else if ($ffstatus == 'S') $ffstatus = 'Sleeping';
-  else if ($ffstatus == 'T') $ffstatus = 'Suspended';
-  else if ($ffstatus == 'W') $ffstatus = 'Waiting';
+  $ffstatus = $faxstats[$matches[3]];
   $fftts = '';
-  $ffstatend = $matches[8];
-  if (preg_match('/^\s*(\d+:\d+)\s*(.*)$/', $ffstatend, $tmp)) {
+  $ffstatend = trim($matches[8]);
+  if (preg_match('/^(\d+:\d+)\s*(.*)$/', $ffstatend, $tmp)) {
    $fftts = $tmp[1];
    $ffstatend = $tmp[2];
   }

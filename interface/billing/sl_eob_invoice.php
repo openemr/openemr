@@ -74,10 +74,13 @@ function setins(istr) {
 // Compute an adjustment that writes off the balance:
 function writeoff(code) {
  var f = document.forms[0];
- var tmp =
-  f['form_line[' + code + '][bal]'].value -
-  f['form_line[' + code + '][pay]'].value;
- f['form_line[' + code + '][adj]'].value = Number(tmp).toFixed(2);
+ var belement = f['form_line[' + code + '][bal]'];
+ var pelement = f['form_line[' + code + '][pay]'];
+ var aelement = f['form_line[' + code + '][adj]'];
+ var relement = f['form_line[' + code + '][reason]'];
+ var tmp = belement.value - pelement.value;
+ aelement.value = Number(tmp).toFixed(2);
+ if (aelement.value && ! relement.value) relement.selectedIndex = 1;
  return false;
 }
 
@@ -449,17 +452,21 @@ function validate(f) {
    />
   </td>
   <td class="detail">
-   <input type="text" name="form_line[<?php echo $code ?>][date]" size="10" style="background-color:<?php echo $bgcolor ?>" />
+   <input type="text" name="form_line[<?php echo $code ?>][date]" size="10"
+    style="background-color:<?php echo $bgcolor ?>" />
   </td>
   <td class="detail">
-   <input type="text" name="form_line[<?php echo $code ?>][pay]" size="10" style="background-color:<?php echo $bgcolor ?>" />
+   <input type="text" name="form_line[<?php echo $code ?>][pay]" size="10"
+    style="background-color:<?php echo $bgcolor ?>" />
   </td>
   <td class="detail">
-   <input type="text" name="form_line[<?php echo $code ?>][adj]" size="10" style="background-color:<?php echo $bgcolor ?>" />
+   <input type="text" name="form_line[<?php echo $code ?>][adj]" size="10"
+    style="background-color:<?php echo $bgcolor ?>" />
    &nbsp; <a href="" onclick="return writeoff('<?php echo $code ?>')">W</a>
   </td>
   <td class="detail">
-   <select name="form_line[<?php echo $code ?>][reason]" style="background-color:<?php echo $bgcolor ?>">
+   <select name="form_line[<?php echo $code ?>][reason]"
+    style="background-color:<?php echo $bgcolor ?>">
 <?php
  foreach ($reasons as $value) {
   echo "    <option value=\"$value\">$value</option>\n";

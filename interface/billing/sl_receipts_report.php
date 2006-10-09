@@ -16,11 +16,11 @@
   // form then the code below may work for you.
   //
   include_once("../forms/fee_sheet/codes.php");
-
   function is_clinic($code) {
-    global $cpt, $hcpcs;
-    return ($cpt[xl('Lab')][$code] || $cpt[xl('Immunizations')][$code] ||
-      $hcpcs[xl('Therapeutic Injections')][$code]);
+    global $bcodes;
+    return ($bcodes['CPT4'][xl('Lab')][$code]     ||
+      $bcodes['CPT4'][xl('Immunizations')][$code] ||
+      $bcodes['HCPCS'][xl('Therapeutic Injections')][$code]);
   }
 
   function bucks($amount) {
