@@ -20,41 +20,56 @@
   'W' => 'Waiting',
  );
 
- // Get the recvq entries, parse and sort by filename.
- //
- $statlines = array();
- exec("faxstat -r -l -h " . $GLOBALS['hylafax_server'], $statlines);
  $mlines = array();
- foreach ($statlines as $line) {
-  // This gets pagecount, sender, time, filename.  We are expecting the
-  // string to start with "-rw-rw-" so as to exclude faxes not yet fully
-  // received, for which permissions are "-rw----".
-  if (preg_match('/^-r\S\Sr\S\S\s+(\d+)\s+\S+\s+(.+)\s+(\S+)\s+(\S+)\s*$/', $line, $matches)) {
-   $mlines[$matches[4]] = $matches;
-  }
- }
- ksort($mlines);
-
- // Get the doneq entries, parse and sort by job ID
- //
- /* for example:
- JID  Pri S  Owner Number       Pages Dials     TTS Status
- 155  123 D nobody 6158898622    1:1   5:12
- 153  124 D nobody 6158896439    1:1   4:12
- 154  124 F nobody 6153551807    0:1   4:12         No carrier detected
- */
- $donelines = array();
- exec("faxstat -s -d -l -h " . $GLOBALS['hylafax_server'], $donelines);
  $dlines = array();
- foreach ($donelines as $line) {
-  // This gets jobid, priority, statchar, owner, phone, pages, dials and tts/status.
-  if (preg_match('/^(\d+)\s+(\d+)\s+(\S)\s+(\S+)\s+(\S+)\s+(\d+:\d+)\s+(\d+:\d+)(.*)$/', $line, $matches)) {
-   $dlines[$matches[1]] = $matches;
-  }
- }
- ksort($dlines);
+ $slines = array();
 
- // echo "<!--\n"; print_r($statlines); echo "-->\n"; // debugging
+ if ($GLOBALS['hylafax_server']) {
+  // Get the recvq entries, parse and sort by filename.
+  $statlines = array();
+  exec("faxstat -r -l -h " . $GLOBALS['hylafax_server'], $statlines);
+  foreach ($statlines as $line) {
+   // This gets pagecount, sender, time, filename.  We are expecting the
+   // string to start with "-rw-rw-" so as to exclude faxes not yet fully
+   // received, for which permissions are "-rw----".
+   if (preg_match('/^-r\S\Sr\S\S\s+(\d+)\s+\S+\s+(.+)\s+(\S+)\s+(\S+)\s*$/', $line, $matches)) {
+    $mlines[$matches[4]] = $matches;
+   }
+  }
+  ksort($mlines);
+
+  // Get the doneq entries, parse and sort by job ID
+  /* for example:
+  JID  Pri S  Owner Number       Pages Dials     TTS Status
+  155  123 D nobody 6158898622    1:1   5:12
+  153  124 D nobody 6158896439    1:1   4:12
+  154  124 F nobody 6153551807    0:1   4:12         No carrier detected
+  */
+  $donelines = array();
+  exec("faxstat -s -d -l -h " . $GLOBALS['hylafax_server'], $donelines);
+  foreach ($donelines as $line) {
+   // This gets jobid, priority, statchar, owner, phone, pages, dials and tts/status.
+   if (preg_match('/^(\d+)\s+(\d+)\s+(\S)\s+(\S+)\s+(\S+)\s+(\d+:\d+)\s+(\d+:\d+)(.*)$/', $line, $matches)) {
+    $dlines[$matches[1]] = $matches;
+   }
+  }
+  ksort($dlines);
+ }
+
+ $scandir = $GLOBALS['scanner_output_directory'];
+ if ($scandir) {
+  // Get the directory entries, parse and sort by date and time.
+  $dh = opendir($scandir);
+  if (! $dh) die("Cannot read $scandir");
+  while (false !== ($sfname = readdir($dh))) {
+   if (substr($sfname, 0, 1) == '.') continue;
+   $tmp = stat("$scandir/$sfname");
+   $tmp[0] = $sfname; // put filename in slot 0 which we don't otherwise need
+   $slines[$tmp[9]] = $tmp; // key is file mod time
+  }
+  closedir($dh);
+  ksort($slines);
+ }
 
 ?>
 <html>
@@ -134,9 +149,21 @@ function dojclick(jobid) {
  return false;
 }
 
-// Process click to pop up the dispatch window.
+// Process scanned document filename to view.
+function dosvclick(sfname) {
+ cascwin('fax_view.php?scan=' + sfname, '_blank', 600, 475,
+  "resizable=1,scrollbars=1");
+ return false;
+}
+
+// Process click to pop up the fax dispatch window.
 function domclick(ffname) {
  dlgopen('fax_dispatch.php?file=' + ffname, '_blank', 850, 550);
+}
+
+// Process click to pop up the scanned document dispatch window.
+function dosdclick(sfname) {
+ dlgopen('fax_dispatch.php?scan=' + sfname, '_blank', 850, 550);
 }
 
 </script>
@@ -148,13 +175,21 @@ function domclick(ffname) {
  id='bigtable' width='100%' height='100%'>
  <tr style='height: 20px;'>
   <td width='33%' id='td_tab_faxin'  class='tabhead'
+   <?php if ($GLOBALS['hylafax_server']) { ?>
    style='color: #cc0000; border-right: 2px solid #000000; border-bottom: 2px solid transparent;'
+   <?php } else { ?>
+   style='color: #777777; border-right: 2px solid #000000; border-bottom: 2px solid #000000; cursor: pointer;'
+   <?php } ?>
    onclick='tabclick("faxin")'>Faxes In</td>
   <td width='33%' id='td_tab_faxout' class='tabhead'
    style='color: #777777; border-right: 2px solid #000000; border-bottom: 2px solid #000000; cursor: pointer;'
    onclick='tabclick("faxout")'>Faxes Out</td>
   <td width='34%' id='td_tab_scanin' class='tabhead'
+   <?php if ($GLOBALS['hylafax_server']) { ?>
    style='color: #777777; border-bottom: 2px solid #000000; cursor: pointer;'
+   <?php } else { ?>
+   style='color: #cc0000; border-bottom: 2px solid transparent;'
+   <?php } ?>
    onclick='tabclick("scanin")'>Scanner In</td>
  </tr>
  <tr>
@@ -162,7 +197,8 @@ function domclick(ffname) {
 
    <form method='post' action='faxq.php'>
 
-   <table width='100%' cellpadding='1' cellspacing='2' id='table_faxin'>
+   <table width='100%' cellpadding='1' cellspacing='2' id='table_faxin'
+    <?php if (!$GLOBALS['hylafax_server']) echo "style='display:none;'"; ?>>
     <tr class='head'>
      <td colspan='2' title='Click to view'><? xl('Document','e'); ?></td>
      <td><? xl('Received','e'); ?></td>
@@ -189,7 +225,8 @@ function domclick(ffname) {
 ?>
    </table>
 
-   <table width='100%' cellpadding='1' cellspacing='2' id='table_faxout' style='display:none;'>
+   <table width='100%' cellpadding='1' cellspacing='2' id='table_faxout'
+    style='display:none;'>
     <tr class='head'>
      <td title='Click to view'><? xl('Job ID','e'); ?></td>
      <td><? xl('To','e'); ?></td>
@@ -226,10 +263,31 @@ function domclick(ffname) {
 ?>
    </table>
 
-   <table width='100%' cellpadding='1' cellspacing='2' id='table_scanin' style='display:none;'>
-    <tr class='detail'>
-     <td>Not yet implemented.</td>
+   <table width='100%' cellpadding='1' cellspacing='2' id='table_scanin'
+    <?php if ($GLOBALS['hylafax_server']) echo "style='display:none;'"; ?>>
+    <tr class='head'>
+     <td colspan='2' title='Click to view'><? xl('Filename','e'); ?></td>
+     <td><? xl('Scanned','e'); ?></td>
+     <td align='right'><? xl('Length','e'); ?></td>
     </tr>
+<?
+ $encount = 0;
+ foreach ($slines as $sline) {
+  ++$encount;
+  $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
+  $sfname = $sline[0]; // filename
+  $sfdate = date('Y-m-d H:i', $sline[9]);
+  echo "    <tr class='detail' bgcolor='$bgcolor'>\n";
+  echo "     <td onclick='dosvclick(\"$sfname\")'>" .
+       "<a href='fax_view.php?scan=$sfname' onclick='return false'>" .
+       "$sfname</a></td>\n";
+  echo "     <td onclick='dosdclick(\"$sfname\")'>";
+  echo "<a href='fax_dispatch.php?scan=$sfname' onclick='return false'>Dispatch</a></td>\n";
+  echo "     <td>$sfdate</td>\n";
+  echo "     <td align='right'>" . $sline[7] . "</td>\n";
+  echo "    </tr>\n";
+ }
+?>
    </table>
 
    </form>

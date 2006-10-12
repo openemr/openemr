@@ -10,10 +10,25 @@
  include_once("$srcdir/patient.inc");
  include_once("$srcdir/pnotes.inc");
 
- $filename = escapeshellcmd($_GET['file']);
- $filepath = $GLOBALS['hylafax_basedir'] . '/recvq/' . $filename;
- $filebase = basename("/$filename", '.tif');
- $faxcache = "$webserver_root/faxcache/$filebase";
+ if ($_GET['file']) {
+  $mode = 'fax';
+  // $filename = escapeshellcmd($_GET['file']);
+  $filename = $_GET['file'];
+  $filepath = $GLOBALS['hylafax_basedir'] . '/recvq/' . $filename;
+ }
+ else if ($_GET['scan']) {
+  $mode = 'scan';
+  // $filename = escapeshellcmd($_GET['scan']);
+  $filename = $_GET['scan'];
+  $filepath = $GLOBALS['scanner_output_directory'] . '/' . $filename;
+ }
+ else {
+  die("No filename was given.");
+ }
+
+ $ext = substr($filename, strrpos($filename, '.'));
+ $filebase = basename("/$filename", $ext);
+ $faxcache = "$webserver_root/faxcache/$mode/$filebase";
 
  $info_msg = "";
 
@@ -208,13 +223,24 @@
  // If we get this far then we are displaying the form.
 
  // If the image cache does not yet exist for this fax, build it.
+ // This will contain a .tif image as well as a .jpg image for each page.
  if (! is_dir($faxcache)) {
   $tmp0 = exec("mkdir -p '$faxcache'", $tmp1, $tmp2);
   if ($tmp2) die("mkdir returned $tmp2: $tmp0");
-  $tmp0 = exec("cd '$faxcache'; tiffsplit '$filepath'", $tmp1, $tmp2);
-  if ($tmp2) die("tiffsplit returned $tmp2: $tmp0");
+  if (strtolower($ext) != '.tif') {
+   // convert's default density for PDF-to-TIFF conversion is 72 dpi which is
+   // not very good, so we upgrade it to "fine mode" fax quality.  It's really
+   // better and faster if the scanner produces TIFFs instead of PDFs.
+   $tmp0 = exec("convert -density 203x196 '$filepath' '$faxcache/deleteme.tif'", $tmp1, $tmp2);
+   if ($tmp2) die("convert returned $tmp2: $tmp0");
+   $tmp0 = exec("cd '$faxcache'; tiffsplit 'deleteme.tif'; rm -f 'deleteme.tif'", $tmp1, $tmp2);
+   if ($tmp2) die("tiffsplit/rm returned $tmp2: $tmp0");
+  } else {
+   $tmp0 = exec("cd '$faxcache'; tiffsplit '$filepath'", $tmp1, $tmp2);
+   if ($tmp2) die("tiffsplit returned $tmp2: $tmp0");
+  }
   $tmp0 = exec("cd '$faxcache'; mogrify -resize 750x970 -format jpg *.tif", $tmp1, $tmp2);
-  if ($tmp2) die("mogrify returned $tmp2: $tmp0");
+  if ($tmp2) die("mogrify returned $tmp2: $tmp0; ext is '$ext'; filepath is '$filepath'");
  }
 
  // Get the categories list.
@@ -361,7 +387,8 @@ div.section {
 
 <center><h2>Dispatch Received Document</h2></center>
 
-<form method='post' name='theform' action='fax_dispatch.php?file=<? echo $filename ?>'
+<form method='post' name='theform'
+ action='fax_dispatch.php?<?php echo ($mode == 'fax') ? 'file' : 'scan'; ?>=<?php echo $filename ?>'
  onsubmit='return validate()'>
 
 <p><input type='checkbox' name='form_cb_copy' value='1'
@@ -396,7 +423,7 @@ div.section {
    <td class='itemtitle' nowrap>Filename</td>
    <td>
     <input type='text' size='10' name='form_filename' style='width:100%'
-     value='<? echo $filename ?>'
+     value='<? echo "$filebase.pdf" ?>'
      title='Name for this document in the patient chart' />
    </td>
   </tr>
@@ -495,7 +522,7 @@ div.section {
 </div><!-- end div_forward -->
 
 <p><input type='checkbox' name='form_cb_delete' value='1' />
-<b>Delete Fax from Queue</b></p>
+<b>Delete Document from Queue</b></p>
 
 <center>
 <p>
@@ -517,7 +544,7 @@ div.section {
    $jfnamebase = $matches[1];
    echo " <tr>\n";
    echo "  <td valign='top'>\n";
-   echo "   <img src='../../faxcache/$filebase/$jfname' />\n";
+   echo "   <img src='../../faxcache/$mode/$filebase/$jfname' />\n";
    echo "  </td>\n";
    echo "  <td align='center' valign='top'>\n";
    echo "   <input type='checkbox' name='form_images[]' value='$jfnamebase' />\n";

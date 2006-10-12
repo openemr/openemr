@@ -34,6 +34,9 @@
 			die(xl("Cannot find postscript document reference in ") . $jfname);
 		}
 	}
+	else if ($_GET['scan']) {
+		$ffname = $GLOBALS['scanner_output_directory'] . '/' . $_GET['scan'];
+	}
 	else {
 		$ffname = $GLOBALS['hylafax_basedir'] . '/recvq/' . $_GET['file'];
 	}
@@ -50,9 +53,11 @@
 
 	$ext = substr($ffname, strrpos($ffname, '.'));
 	if ($ext == '.ps')
-		passthru("TMPDIR=/tmp ps2pdf $ffname -");
+		passthru("TMPDIR=/tmp ps2pdf '$ffname' -");
+	else if ($ext == '.pdf' || $ext == '.PDF')
+		readfile($ffname);
 	else
-		passthru("tiff2pdf $ffname");
+		passthru("tiff2pdf '$ffname'");
 
 	header("Pragma: public");
 	header("Expires: 0");

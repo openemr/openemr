@@ -62,18 +62,20 @@ include_once("../../library/acl.inc");
 </td>
 
 <?php
- if ($GLOBALS['hylafax_server']) {
-  // Count the number of faxes in the recvq:
-  $statlines = array();
-  exec("faxstat -r -l -h " . $GLOBALS['hylafax_server'], $statlines);
+ if ($GLOBALS['hylafax_server'] || $GLOBALS['scanner_output_directory']) {
   $faxcount = 0;
-  foreach ($statlines as $line) {
-   if (substr($line, 0, 1) == '-') ++$faxcount;
+  if ($GLOBALS['hylafax_server']) {
+   // Count the number of faxes in the recvq:
+   $statlines = array();
+   exec("faxstat -r -l -h " . $GLOBALS['hylafax_server'], $statlines);
+   foreach ($statlines as $line) {
+    if (substr($line, 0, 1) == '-') ++$faxcount;
+   }
   }
   $faxcount = $faxcount ? "($faxcount)" : "";
 ?>
 <td align="center" nowrap>
-&nbsp;<a href="../fax/faxq.php" target="Main" class="menu"><?php echo xl('Fax') . $faxcount; ?></a>&nbsp;
+&nbsp;<a href="../fax/faxq.php" target="Main" class="menu"><?php echo xl('Docs') . $faxcount; ?></a>&nbsp;
 </td>
 <?php } ?>
 
