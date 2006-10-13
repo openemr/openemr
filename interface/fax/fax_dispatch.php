@@ -12,13 +12,11 @@
 
  if ($_GET['file']) {
   $mode = 'fax';
-  // $filename = escapeshellcmd($_GET['file']);
   $filename = $_GET['file'];
   $filepath = $GLOBALS['hylafax_basedir'] . '/recvq/' . $filename;
  }
  else if ($_GET['scan']) {
   $mode = 'scan';
-  // $filename = escapeshellcmd($_GET['scan']);
   $filename = $_GET['scan'];
   $filepath = $GLOBALS['scanner_output_directory'] . '/' . $filename;
  }
@@ -81,15 +79,19 @@
    $docdir = "$webserver_root/documents/$patient_id";
    exec("mkdir -p '$docdir'");
    // Compute a target filename that does not yet exist.
+   $ffname = trim($_POST['form_filename']);
+   $i = strrpos($ffname, '.');
+   if ($i) $ffname = trim(substr($ffname, 0, $i));
+   if (!$ffname) $ffname = $filebase;
    $ffmod  = '';
    $ffsuff = '.pdf';
    // If the target filename exists, modify it until it doesn't.
    $count = 0;
-   while (is_file("$docdir/$filebase$ffmod$ffsuff")) {
+   while (is_file("$docdir/$ffname$ffmod$ffsuff")) {
     ++$count;
     $ffmod = "_$count";
    }
-   $target = "$docdir/$filebase$ffmod$ffsuff";
+   $target = "$docdir/$ffname$ffmod$ffsuff";
 
    // Create the target PDF.
    $info_msg .= mergeTiffs();
@@ -120,7 +122,7 @@
     if ($_POST['form_cb_note']) {
      // Build note text in a way that identifies the new document.
      // See pnotes_full.php which uses this to auto-display the document.
-     $note = "$filebase$ffmod$ffsuff";
+     $note = "$ffname$ffmod$ffsuff";
      for ($tmp = $catid; $tmp;) {
       $catrow = sqlQuery("SELECT name, parent FROM categories WHERE id = '$tmp'");
       $note = $catrow['name'] . "/$note";
