@@ -23,6 +23,9 @@ include_once("$srcdir/api.inc");
 include_once("codes.php");
 include_once("../../../custom/code_types.inc.php");
 
+// $FEE_SHEET_COLUMNS should be defined in codes.php.
+if (empty($FEE_SHEET_COLUMNS)) $FEE_SHEET_COLUMNS = 2;
+
 // If Save was clicked, save the new and modified billing lines;
 // then if no error, redirect to patient_encounter.php.
 //
@@ -117,7 +120,7 @@ $i = 0;
 foreach ($bcodes as $key0 => $value0) {
 	foreach ($value0 as $key1 => $value1) {
 		++$i;
-		echo ($i & 1) ? " <tr>\n" : "";
+		echo ($i <= 1) ? " <tr>\n" : "";
 		echo "  <td width='50%' align='center' nowrap>\n";
 		echo "   <select name='$key1' style='width:96%' onchange='codeselect(this, \"$key0\")'>\n";
 		echo "    <option value=''> $key1\n";
@@ -126,16 +129,19 @@ foreach ($bcodes as $key0 => $value0) {
 		}
 		echo "   </select>\n";
 		echo "  </td>\n";
-		echo ($i & 1) ? "" : " </tr>\n";
+		if ($i >= $FEE_SHEET_COLUMNS) {
+			echo " </tr>\n";
+			$i = 0;
+		}
 	}
 }
 
 $search_type = $default_search_type;
 if ($_POST['search_type']) $search_type = $_POST['search_type'];
 
-echo ($i & 1) ? "  <td></td>\n </tr>\n" : "";
+echo $i ? "  <td></td>\n </tr>\n" : "";
 echo " <tr>\n";
-echo "  <td colspan='2' align='center' nowrap>\n";
+echo "  <td colspan='$FEE_SHEET_COLUMNS' align='center' nowrap>\n";
 
 // If Search was clicked, do it and write the list of results here.
 // There's no limit on the number of results!
