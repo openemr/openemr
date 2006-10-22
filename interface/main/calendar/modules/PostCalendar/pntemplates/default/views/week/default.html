@@ -19,13 +19,47 @@
 [-eval var=$css-]
 
 <style>
-a       { text-decoration:none; }
-.tacell { font-size:10pt; background-color:#ddffdd; text-align:right; }
-.tucell { font-size:10pt; background-color:#ffbbbb; text-align:right; }
-.eacell { font-size:10pt; background-color:#ffffff; }
-.eucell { font-size:10pt; background-color:#ffbbbb; }
-.nobot  { border-bottom-width:0px; }
-.notop  { border-top-width:0px; }
+a {
+ text-decoration:none;
+}
+td {
+ font-family: Arial, Helvetica, sans-serif;
+}
+.tacell {
+ font-size:10pt;
+ background-color:#ddffdd;
+ text-align:right;
+}
+.tucell {
+ font-size:10pt;
+ background-color:#ffbbbb;
+ text-align:right;
+}
+.eacell {
+ font-size:10pt;
+ background-color:#ffffff;
+}
+.eucell {
+ font-size:10pt;
+ background-color:#ffbbbb;
+}
+.bordyy {
+}
+.bordyn {
+ border-top-width:0px;
+ padding-top:0px;
+}
+.bordny {
+ border-bottom-width:0px;
+ padding-bottom:0px;
+}
+.bordnn {
+ border-top-width:0px;
+ border-bottom-width:0px;
+ padding-top:0px;
+ padding-bottom:0px;
+}
+table div { width:1px; height:1px; }
 </style>
 
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
@@ -61,13 +95,11 @@ a       { text-decoration:none; }
  }
 
  function GoToToday(theForm){
- var todays_date = new Date();
- var theMonth = todays_date.getMonth() + 1;
-
-   theMonth = theMonth < 10 ? "0" + theMonth : theMonth;
-
-   theForm.jumpdate.value = todays_date.getFullYear() + "-" + theMonth + "-" + todays_date.getDate();
-   theForm.submit();
+  var todays_date = new Date();
+  var theMonth = todays_date.getMonth() + 1;
+  theMonth = theMonth < 10 ? "0" + theMonth : theMonth;
+  theForm.jumpdate.value = todays_date.getFullYear() + "-" + theMonth + "-" + todays_date.getDate();
+  theForm.submit();
  }
 
 </script>
@@ -202,6 +234,7 @@ a       { text-decoration:none; }
 [-php-]
 
  echo "<table width='100%' border='1' cellpadding='1' cellspacing='0' >\n";
+ $tdstylearr = array('bordyy', 'bordny', 'bordyn', 'bordnn');
 
  // For each day...
  foreach ($A_EVENTS as $date => $events) {
@@ -343,17 +376,18 @@ a       { text-decoration:none; }
     // time slots or when the practitioner is not in-office.  Using "rowspan"
     // would be a difficult and inferior solution to this problem.
     //
-    $tdstyle = "";
+    $tdstyleix = 0;
     $timelabel = true;
     if ($slotindex < $lastslotindex &&
         ($provstat[$providerid][$slotindex]['ext'] || !$provstat[$providerid]['in'])) {
-     $tdstyle .= " nobot";
+     $tdstyleix += 1; // no bottom
     }
     if ($slotindex > 0 && ($provstat[$providerid][$slotindex-1]['ext'] ||
         !($provstat[$providerid]['in'] || $provstat[$providerid]['wasin']))) {
-     $tdstyle .= " notop";
+     $tdstyleix += 2; // no top
      $timelabel = false;
     }
+    $tdstyle = ' ' . $tdstylearr[$tdstyleix];
 
     $disptimeh = ($starttimeh > 12) ? ($starttimeh - 12) : $starttimeh;
 
@@ -375,7 +409,7 @@ a       { text-decoration:none; }
      echo "<a href='javascript:newEvt($startampm,$starttimeh,$starttimem,$eventdate,$providerid,$in_cat_id)'>";
      echo "$disptimeh:$starttimem</a>";
     } else {
-     echo "<span style='font-size:1px'>&nbsp;</span>";
+     echo "<div></div>"; // 1x1 px content so the browser does not suppress borders
     }
     echo "</td>\n";
 
@@ -439,7 +473,7 @@ a       { text-decoration:none; }
      }
     } // end while
 
-    if (! $content) $content = "<span style='font-size:1px'>&nbsp;</span>";
+    if (! $content) $content = "<div></div>"; // so the browser does not suppress borders
     echo $content . "</td>\n";
 
     // Keep track of whether the doc was in during the previous time slot.
