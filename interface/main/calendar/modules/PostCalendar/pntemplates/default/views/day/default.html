@@ -144,7 +144,9 @@ table div { width:1px; height:1px; font-size:1px; }
 
  $provinfo = getProviderInfo();
 
- echo "<form name='theform' action='index.php?module=PostCalendar&func=view' method='post'>\n";
+ echo "<form name='theform' action='index.php?module=PostCalendar&func=view" .
+      "&tplview=default&viewtype=day&pc_username=&pc_category=&pc_topic=' " .
+      "method='post'>\n";
  echo "<center>\n";
  echo "<table border='0' cellpadding='0' cellspacing='0' width='99%'>\n";
  echo " <tr><td colspan='3' height='5'></td></tr>\n";
