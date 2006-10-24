@@ -423,8 +423,9 @@ function newPatientData(	$db_id="",
 	$DOB = fixDate($DOB);
 
 	$fitness = 0;
+	$referral_source = '';
 	if ($pid) {
-		$rez = sqlQuery("select id, fitness from patient_data where pid = $pid");
+		$rez = sqlQuery("select id, fitness, referral_source from patient_data where pid = $pid");
 		// Check for brain damage:
 		if ($db_id != $rez['id']) {
 			$errmsg = "Internal error: Attempt to change patient_data.id from '" .
@@ -432,6 +433,7 @@ function newPatientData(	$db_id="",
 			die($errmsg);
 		}
 		$fitness = $rez['fitness'];
+		$referral_source = $rez['referral_source'];
 	}
 
 	$query = ("replace into patient_data set
@@ -479,6 +481,7 @@ function newPatientData(	$db_id="",
 		hipaa_voice = '$hipaa_voice',
 		squad = '$squad',
 		fitness='$fitness',
+		referral_source='$referral_source',
 		date=NOW()
 			");
 
