@@ -26526,6 +26526,7 @@ CREATE TABLE `form_encounter` (
   `pid` bigint(20) default NULL,
   `encounter` bigint(20) default NULL,
   `onset_date` datetime default NULL,
+  `sensitivity` varchar(30) NOT NULL default '',
   PRIMARY KEY  (`id`)
 ) ;
 

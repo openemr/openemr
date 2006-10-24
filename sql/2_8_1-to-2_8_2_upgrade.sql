@@ -368,3 +368,6 @@ ALTER TABLE prescriptions
 
 ALTER TABLE drugs
   MODIFY `size` float unsigned NOT NULL DEFAULT 0;
+
+ALTER TABLE form_encounter
+  ADD sensitivity varchar(30) NOT NULL DEFAULT '';
