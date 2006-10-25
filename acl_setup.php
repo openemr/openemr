@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -21,50 +21,56 @@
 
  // Create the ACO sections.  Every ACO must have a section.
  //
- $gacl->add_object_section('Accounting'    , 'acct'      , 10, 0, 'ACO');
- $gacl->add_object_section('Administration', 'admin'     , 10, 0, 'ACO');
- $gacl->add_object_section('Encounters'    , 'encounters', 10, 0, 'ACO');
- $gacl->add_object_section('Patients'      , 'patients'  , 10, 0, 'ACO');
- $gacl->add_object_section('Squads'        , 'squads'    , 10, 0, 'ACO');
+ $gacl->add_object_section('Accounting'    , 'acct'         , 10, 0, 'ACO');
+ $gacl->add_object_section('Administration', 'admin'        , 10, 0, 'ACO');
+ $gacl->add_object_section('Encounters'    , 'encounters'   , 10, 0, 'ACO');
+ $gacl->add_object_section('Patients'      , 'patients'     , 10, 0, 'ACO');
+ $gacl->add_object_section('Squads'        , 'squads'       , 10, 0, 'ACO');
+ $gacl->add_object_section('Sensitivities' , 'sensitivities', 10, 0, 'ACO');
 
  // Create Accounting ACOs.
  //
- $gacl->add_object ('acct', 'Billing (write optional)'           , 'bill' , 10, 0, 'ACO');
- $gacl->add_object ('acct', 'EOB Data Entry'                     , 'eob'  , 10, 0, 'ACO');
- $gacl->add_object ('acct', 'Financial Reporting - my encounters', 'rep'  , 10, 0, 'ACO');
- $gacl->add_object ('acct', 'Financial Reporting - anything'     , 'rep_a', 10, 0, 'ACO');
+ $gacl->add_object('acct', 'Billing (write optional)'           , 'bill' , 10, 0, 'ACO');
+ $gacl->add_object('acct', 'EOB Data Entry'                     , 'eob'  , 10, 0, 'ACO');
+ $gacl->add_object('acct', 'Financial Reporting - my encounters', 'rep'  , 10, 0, 'ACO');
+ $gacl->add_object('acct', 'Financial Reporting - anything'     , 'rep_a', 10, 0, 'ACO');
 
  // Create Administration ACOs.
  //
- $gacl->add_object ('admin', 'Superuser'                       , 'super'    , 10, 0, 'ACO');
- $gacl->add_object ('admin', 'Calendar Settings'               , 'calendar' , 10, 0, 'ACO');
- $gacl->add_object ('admin', 'Database Reporting'              , 'database' , 10, 0, 'ACO');
- $gacl->add_object ('admin', 'Forms Administration'            , 'forms'    , 10, 0, 'ACO');
- $gacl->add_object ('admin', 'Practice Settings'               , 'practice' , 10, 0, 'ACO');
- $gacl->add_object ('admin', 'Superbill Codes Administration'  , 'superbill', 10, 0, 'ACO');
- $gacl->add_object ('admin', 'Users/Groups/Logs Administration', 'users'    , 10, 0, 'ACO');
- $gacl->add_object ('admin', 'Batch Communication Tool'		   , 'batchcom' , 10, 0, 'ACO');
- $gacl->add_object ('admin', 'Language Interface Tool'		   , 'language' , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Superuser'                       , 'super'    , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Calendar Settings'               , 'calendar' , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Database Reporting'              , 'database' , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Forms Administration'            , 'forms'    , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Practice Settings'               , 'practice' , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Superbill Codes Administration'  , 'superbill', 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Users/Groups/Logs Administration', 'users'    , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Batch Communication Tool'        , 'batchcom' , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Language Interface Tool'         , 'language' , 10, 0, 'ACO');
 
  // Create ACOs for encounters.
  //
- $gacl->add_object ('encounters', 'Authorize - my encounters'                        , 'auth'    , 10, 0, 'ACO');
- $gacl->add_object ('encounters', 'Authorize - any encounters'                       , 'auth_a'  , 10, 0, 'ACO');
- $gacl->add_object ('encounters', 'Coding - my encounters (write,wsome optional)'    , 'coding'  , 10, 0, 'ACO');
- $gacl->add_object ('encounters', 'Coding - any encounters (write,wsome optional)'   , 'coding_a', 10, 0, 'ACO');
- $gacl->add_object ('encounters', 'Notes - my encounters (write,addonly optional)'   , 'notes'   , 10, 0, 'ACO');
- $gacl->add_object ('encounters', 'Notes - any encounters (write,addonly optional)'  , 'notes_a' , 10, 0, 'ACO');
- $gacl->add_object ('encounters', 'Fix encounter dates - any encounters'             , 'date_a'  , 10, 0, 'ACO');
- $gacl->add_object ('encounters', 'Less-private information (write,addonly optional)', 'relaxed' , 10, 0, 'ACO');
+ $gacl->add_object('encounters', 'Authorize - my encounters'                        , 'auth'    , 10, 0, 'ACO');
+ $gacl->add_object('encounters', 'Authorize - any encounters'                       , 'auth_a'  , 10, 0, 'ACO');
+ $gacl->add_object('encounters', 'Coding - my encounters (write,wsome optional)'    , 'coding'  , 10, 0, 'ACO');
+ $gacl->add_object('encounters', 'Coding - any encounters (write,wsome optional)'   , 'coding_a', 10, 0, 'ACO');
+ $gacl->add_object('encounters', 'Notes - my encounters (write,addonly optional)'   , 'notes'   , 10, 0, 'ACO');
+ $gacl->add_object('encounters', 'Notes - any encounters (write,addonly optional)'  , 'notes_a' , 10, 0, 'ACO');
+ $gacl->add_object('encounters', 'Fix encounter dates - any encounters'             , 'date_a'  , 10, 0, 'ACO');
+ $gacl->add_object('encounters', 'Less-private information (write,addonly optional)', 'relaxed' , 10, 0, 'ACO');
 
  // Create ACOs for patients.
  //
- $gacl->add_object ('patients', 'Appointments (write optional)'           , 'appt' , 10, 0, 'ACO');
- $gacl->add_object ('patients', 'Demographics (write,addonly optional)'   , 'demo' , 10, 0, 'ACO');
- $gacl->add_object ('patients', 'Medical/History (write,addonly optional)', 'med'  , 10, 0, 'ACO');
- $gacl->add_object ('patients', 'Transactions (write optional)'           , 'trans', 10, 0, 'ACO');
- $gacl->add_object ('patients', 'Documents (write,addonly optional)'      , 'docs' , 10, 0, 'ACO');
- $gacl->add_object ('patients', 'Patient Notes (write,addonly optional)'  , 'notes', 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Appointments (write optional)'           , 'appt' , 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Demographics (write,addonly optional)'   , 'demo' , 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Medical/History (write,addonly optional)', 'med'  , 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Transactions (write optional)'           , 'trans', 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Documents (write,addonly optional)'      , 'docs' , 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Patient Notes (write,addonly optional)'  , 'notes', 10, 0, 'ACO');
+
+ // Create ACOs for sensitivities.
+ //
+ $gacl->add_object('sensitivities', 'Normal', 'normal', 10, 0, 'ACO');
+ $gacl->add_object('sensitivities', 'High'  , 'high'  , 20, 0, 'ACO');
 
  // Create ARO groups.
  //
@@ -90,9 +96,10 @@
  $gacl->add_acl(
   array(
    'acct'=>array('bill', 'eob', 'rep', 'rep_a'),
-   'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users','batchcom','language'),
+   'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super'),
    'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
-   'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes')
+   'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes'),
+   'sensitivities'=>array('normal', 'high')
   ),
   NULL, array($admin), NULL, NULL,
   1, 1, 'write', 'Administrators can do anything'
@@ -104,7 +111,8 @@
   array(
    'acct'=>array('rep'),
    'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
-   'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes')
+   'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes'),
+   'sensitivities'=>array('normal', 'high')
   ),
   NULL, array($doc), NULL, NULL,
   1, 1, 'write', 'Things that physicians can read and modify'
@@ -115,7 +123,8 @@
  $gacl->add_acl(
   array(
    'encounters'=>array('notes', 'relaxed'),
-   'patients'=>array('demo', 'med', 'docs', 'notes')
+   'patients'=>array('demo', 'med', 'docs', 'notes'),
+   'sensitivities'=>array('normal')
   ),
   NULL, array($clin), NULL, NULL,
   1, 1, 'addonly', 'Things that clinicians can read and enter but not modify'

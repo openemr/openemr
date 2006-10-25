@@ -49,11 +49,13 @@
 <table width="100%">
 <tr>
 <td><span class='bold'><?php xl('Date','e'); ?></span></td>
-<td><span class='bold'><?php xl('Provider','e'); ?></span></td>
-<td><span class='bold'><?php xl('Reason/Form','e'); ?></span></td>
 <td><span class='bold'><?php xl('Issue','e'); ?></span></td>
+<td><span class='bold'><?php xl('Reason/Form','e'); ?></span></td>
 <td><span class='bold'><?php echo ($GLOBALS['phone_country_code'] == '1') ? 'Billing' : 'Coding' ?></span></td>
+<td><span class='bold'><?php xl('Provider','e'); ?></span></td>
+<?php if (!$GLOBALS['athletic_team']) { ?>
 <td><span class='bold'><?php xl(($GLOBALS['weight_loss_clinic'] ? 'Payment' : 'Insurance'),'e'); ?></span></td>
+<?php } ?>
 </tr>
 
 <?
@@ -70,8 +72,12 @@ if ($result = getEncounters($pid)) {
     $href = "javascript:window.toencounter(" . $iter['encounter'] . ")";
 
     $reason_string = "";
-    if ($result4 = sqlQuery("select * from form_encounter where encounter='" .
-      $iter{"encounter"} . "' and pid='$pid'"))
+    $auth_sensitivity = true;
+    $linkbeg = "<a class='text' href='$href'>";
+    $linkend = "</a>";
+
+    if ($result4 = sqlQuery("SELECT * FROM form_encounter WHERE encounter = '" .
+      $iter{"encounter"} . "' AND pid = '$pid'"))
     {
       $raw_encounter_date = date("Y-m-d", strtotime($result4{"date"}));
       $encounter_date = date("D F jS", strtotime($result4{"date"}));
@@ -80,6 +86,15 @@ if ($result = getEncounters($pid)) {
       $reason_string .= $result4{"reason"} . "<br>\n";
       // else
       //   $reason_string = "(No access)";
+
+      if ($result4['sensitivity']) {
+        $auth_sensitivity = acl_check('sensitivities', $result4['sensitivity']);
+        if (!$auth_sensitivity) {
+          $reason_string = "(No access)";
+          $linkbeg = "<span class='text'>";
+          $linkend = "</span>";
+        }
+      }
     }
 
     $erow = sqlQuery("SELECT user FROM forms WHERE encounter = '" .
@@ -87,18 +102,12 @@ if ($result = getEncounters($pid)) {
 
     echo "<tr>\n";
 
-    echo "<td valign='top'><a class='text' href='$href'>" .
-      $raw_encounter_date . "</a></td>\n";
-
-    echo "<td valign='top'><a class='text' href='$href'>" .
-      $erow['user'] . "</a></td>\n";
-
-    echo "<td valign='top'><a class='text' href='$href'>" .
-      $reason_string . "</a></td>\n";
+    // show encounter date
+    echo "<td valign='top'>$linkbeg$raw_encounter_date$linkend</td>\n";
 
     // show issues for this encounter
-    echo "<td valign='top'><a class='text' href='$href'>";
-    if ($auth_med) {
+    echo "<td valign='top'>$linkbeg";
+    if ($auth_med && $auth_sensitivity) {
      $ires = sqlStatement("SELECT lists.type, lists.title, lists.begdate " .
       "FROM issue_encounter, lists WHERE " .
       "issue_encounter.pid = '$pid' AND " .
@@ -114,7 +123,11 @@ if ($result = getEncounters($pid)) {
     } else {
      echo "(".xl('No access').")";
     }
-    echo "</a></td>\n";
+    echo "$linkend</td>\n";
+
+    // show encounter reason/title
+    echo "<td valign='top'>$linkbeg" .
+      $reason_string . "$linkend</td>\n";
 
     //this is where we print out the text of the billing that occurred on this encounter
     $thisauth = $auth_coding_a;
@@ -123,7 +136,7 @@ if ($result = getEncounters($pid)) {
       $thisauth = $auth_coding;
     }
     $coded = "";
-    if ($thisauth) {
+    if ($thisauth && $auth_sensitivity) {
      if ($subresult2 = getBillingByEncounter($pid,$iter{"encounter"})) {
       foreach ($subresult2 as $iter2) {
        $coded .= "<span title='" . addslashes($iter2{"code_text"}) . "'>";
@@ -134,38 +147,42 @@ if ($result = getEncounters($pid)) {
     } else {
      $coded = "(No access)";
     }
+    echo "<td valign='top'>$linkbeg" .
+      $coded . "$linkend</td>\n";
 
-    echo "<td valign='top'><a class='text' href='$href'>" .
-      $coded . "</a></td>\n";
+    // show user who created the encounter
+    echo "<td valign='top'>$linkbeg" .
+      $erow['user'] . "$linkend</td>\n";
 
-    // Show insurance.
-    $insured = "$raw_encounter_date";
-    if ($auth_demo) {
-      $subresult5 = getInsuranceDataByDate($pid, $raw_encounter_date, "primary");
-      if ($subresult5 && $subresult5{"provider_name"}) {
-        $insured = "<span class='text'>".xl('Primary').": " . $subresult5{"provider_name"} . "</span><br>\n";
+    // show insurance
+    if (!$GLOBALS['athletic_team']) {
+      $insured = "$raw_encounter_date";
+      if ($auth_demo) {
+        $subresult5 = getInsuranceDataByDate($pid, $raw_encounter_date, "primary");
+        if ($subresult5 && $subresult5{"provider_name"}) {
+          $insured = "<span class='text'>".xl('Primary').": " . $subresult5{"provider_name"} . "</span><br>\n";
+        }
+        $subresult6 = getInsuranceDataByDate($pid, $raw_encounter_date, "secondary");
+        if ($subresult6 && $subresult6{"provider_name"}) {
+          $insured .= "<span class='text'>".xl('Secondary').": ".$subresult6{"provider_name"}."</span><br>\n";
+        }
+        $subresult7 = getInsuranceDataByDate($pid, $raw_encounter_date, "tertiary");
+        if ($subresult6 && $subresult7{"provider_name"}) {
+          $insured .= "<span class='text'>".xl('Tertiary').": ".$subresult7{"provider_name"}."</span><br>\n";
+        }
+      } else {
+        $insured = "(No access)";
       }
-      $subresult6 = getInsuranceDataByDate($pid, $raw_encounter_date, "secondary");
-      if ($subresult6 && $subresult6{"provider_name"}) {
-        $insured .= "<span class='text'>".xl('Secondary').": ".$subresult6{"provider_name"}."</span><br>\n";
-      }
-      $subresult7 = getInsuranceDataByDate($pid, $raw_encounter_date, "tertiary");
-      if ($subresult6 && $subresult7{"provider_name"}) {
-        $insured .= "<span class='text'>".xl('Tertiary').": ".$subresult7{"provider_name"}."</span><br>\n";
-      }
-    } else {
-      $insured = "(No access)";
+      echo "<td valign='top'>$linkbeg" .
+        $insured . "$linkend</td>\n";
     }
-
-    echo "<td valign='top'><a class='text' " .
-      "href='$href'>" . $insured . "</a></td>\n";
 
     echo "</tr>\n";
 
     // Now show a line for each encounter form, if the user is authorized to
     // see this encounter's notes.
     //
-    if ($auth_notes_a || ($auth_notes && $iter['user'] == $_SESSION['authUser'])) {
+    if ($auth_sensitivity && ($auth_notes_a || ($auth_notes && $iter['user'] == $_SESSION['authUser']))) {
       $encarr = getFormByEncounter($pid, $iter['encounter'], "formdir, user, form_name, form_id");
       foreach ($encarr as $enc) {
         if ($enc['formdir'] == 'newpatient') continue;
@@ -183,12 +200,12 @@ if ($result = getEncounters($pid)) {
         }
 
         echo "<tr>\n";
-        echo " <td valign='top'></td>\n";
-        echo " <td valign='top'><a class='text' href='$href'>" .
-          $enc['user'] . "</a></td>\n";
-        echo " <td valign='top' colspan='4'><a class='text' href='$href' " .
-          "style='color:blue' title='$title'>&nbsp;&nbsp;&nbsp;" .
-          $enc['form_name'] . "</a></td>\n";
+        echo " <td valign='top' colspan='2'></td>\n";
+        echo " <td valign='top' colspan='2' title='$title'>$linkbeg" .
+          "&nbsp;&nbsp;&nbsp;" .
+          $enc['form_name'] . "$linkend</td>\n";
+        echo " <td valign='top'>$linkbeg" .
+          $enc['user'] . "$linkend</td>\n";
         echo "</tr>\n";
       } // end foreach $encarr
     } // end if

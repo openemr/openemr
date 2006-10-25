@@ -18,7 +18,7 @@
   //   superbill   Superbill Codes Administration
   //   users       Users/Groups/Logs Administration
   //   batchcom    Batch Communication Tool
-  //   language	   Language Interface Tool	
+  //   language    Language Interface Tool	
   //
   // Section "acct" (Accounting):
   //   bill        Billing (write optional)
@@ -96,25 +96,46 @@
     return 0;
   }
 
-  // Return an array keyed on squad ACO names.  Each value is an
-  // array (section_value, value, order_value, name, hidden).
-  // This is only applicable for sports team use.
+  // Get the ACO name/value pairs for a designated section.  Each value
+  // is an array (section_value, value, order_value, name, hidden).
   //
-  function acl_get_squads() {
+  function acl_get_section_acos($section) {
     global $phpgacl_location;
     if ($phpgacl_location) {
       include_once("$phpgacl_location/gacl_api.class.php");
-      $section = 'squads';
       $gacl = new gacl_api();
       $arr1 = $gacl->get_objects($section, 1, 'ACO');
       $arr = array();
       foreach ($arr1[$section] as $value) {
         $odata = $gacl->get_object_data($gacl->get_object_id($section, $value, 'ACO'), 'ACO');
-        // $arr[$value] = $odata[0][3];
         $arr[$value] = $odata[0];
       }
       return $arr;
     }
     return 0;
   }
+
+  // Return an array keyed on squad ACO names.
+  // This is only applicable for sports team use.
+  //
+  function acl_get_squads() {
+    return acl_get_section_acos('squads');
+  }
+
+  // Return an array keyed on encounter sensitivity level ACO names.
+  // Sensitivities are useful when some encounter notes are not
+  // medically sensitive (e.g. a physical fitness test), and/or if
+  // some will be "for doctor's eyes only" (e.g. STD treatment).
+  //
+  // When a non-blank sensitivity value exists in the new encounter
+  // form, it names an additional ACO required for access to all forms
+  // in the encounter.  If you want some encounters to be non-sensitive,
+  // then you also need some default nonblank sensitivity for normal
+  // encounters, as well as greater encounter notes permissions for
+  // those allowed to view non-sensitive encounters.
+  //
+  function acl_get_sensitivities() {
+    return acl_get_section_acos('sensitivities');
+  }
+
 ?>

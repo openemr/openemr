@@ -37,9 +37,16 @@
  $auth_relaxed  = acl_check('encounters', 'relaxed');
 
  if (is_numeric($pid)) {
+  // Check for no access to the patient's squad.
   $result = getPatientData($pid, "fname,lname,squad");
   echo " for " . $result['fname'] . " " . $result['lname'];
   if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
+   $auth_notes_a = $auth_notes = $auth_relaxed = 0;
+  }
+  // Check for no access to the encounter's sensitivity level.
+  $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE " .
+   "pid = '$pid' AND encounter = '$encounter' LIMIT 1");
+  if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
    $auth_notes_a = $auth_notes = $auth_relaxed = 0;
   }
  }

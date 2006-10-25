@@ -22,12 +22,17 @@
 
  $encounter = $result['encounter'];
 
- // $enc_year  = substr($result{'date'}, 0, 4);
- // $enc_month = substr($result{'date'}, 5, 2);
- // $enc_day   = substr($result{'date'}, 8, 2);
- // $ons_year  = substr($result{'onset_date'}, 0, 4);
- // $ons_month = substr($result{'onset_date'}, 5, 2);
- // $ons_day   = substr($result{'onset_date'}, 8, 2);
+ if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
+  echo "<body>\n<html>\n";
+  echo "<p>You are not authorized to see this encounter.</p>\n";
+  echo "</body>\n</html>\n";
+  exit();
+ }
+
+ // Sort comparison for sensitivities by their order attribute.
+ function sensitivity_compare($a, $b) {
+  return ($a[2] < $b[2]) ? -1 : 1;
+ }
 
  // get issues
  $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
@@ -88,21 +93,15 @@
 
  <tr>
   <td colspan='2'>
-   <textarea name='reason' cols='40' rows='5' wrap='virtual' style='width:96%'><? echo htmlspecialchars($result['reason']) ?></textarea>
+   <textarea name='reason' cols='40' rows='4' wrap='virtual' style='width:96%'><? echo htmlspecialchars($result['reason']) ?></textarea>
   </td>
-  <td rowspan='4' valign='top'>
+  <td rowspan='5' valign='top'>
    <select multiple name='issues[]' size='10' style='width:100%'
     title='Hold down [Ctrl] for multiple selections or to unselect'>
 <?
  while ($irow = sqlFetchArray($ires)) {
   $list_id = $irow['id'];
   $tcode = $irow['type'];
-  /****
-  if ($tcode == 'medical_problem' || $tcode == 'problem') $tcode = 'P';
-  else if ($tcode == 'allergy')    $tcode = 'A';
-  else if ($tcode == 'medication') $tcode = 'M';
-  else if ($tcode == 'surgery')    $tcode = 'S';
-  ****/
   if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
 
   echo "    <option value='$list_id'";
@@ -138,9 +137,41 @@
  </tr>
 
  <tr>
+<?php
+ $sensitivities = acl_get_sensitivities();
+ if ($sensitivities && count($sensitivities)) {
+  usort($sensitivities, "sensitivity_compare");
+?>
+  <td class='text' width='1%' nowrap>Sensitivity:</td>
+  <td>
+   <select name='form_sensitivity'>
+<?php
+  foreach ($sensitivities as $value) {
+   // Omit sensitivities to which this user does not have access.
+   if (acl_check('sensitivities', $value[1])) {
+    echo "    <option value='" . $value[1] . "'";
+    if ($result['sensitivity'] == $value[1]) echo " selected";
+    echo ">" . $value[3] . "</option>\n";
+   }
+  }
+  echo "    <option value=''";
+  if (!$result['sensitivity']) echo " selected";
+  echo ">None</option>\n";
+?>
+   </select>
+  </td>
+<?php
+ } else {
+?>
+  <td colspan='2'><!-- sensitivities not used --></td>
+<?php
+ }
+?>
+ </tr>
+
+ <tr>
   <td class='text' nowrap>Date of Service:</td>
   <td nowrap>
-
    <input type='text' size='10' name='form_date' <? echo $disabled ?>
     value='<? echo substr($result['date'], 0, 10) ?>'
     title='yyyy-mm-dd Date of service'
@@ -148,44 +179,12 @@
    <a href="javascript:show_calendar('new_encounter.form_date')"
     title="Click here to choose a date"
     ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
-
-   <!--
-   <select name='month' <? echo $disabled ?>>
-<?
- foreach($months as $month) {
-?>
-    <option value="<?echo $month;?>" <?if($month == $enc_month) echo "selected";?>><?echo $month?></option>
-<?
- }
-?>
-   </select>
-   <select name='day' <? echo $disabled ?>>
-<?
- foreach($days as $day){
-?>
-    <option value="<?echo $day;?>" <?if($day == $enc_day) echo "selected";?>><?echo $day?></option>
-<?
- }
-?>
-   </select>
-   <select name='year' <? echo $disabled ?>>
-<?
- foreach($years as $year){
-?>
-    <option value="<?echo $year;?>" <?if($year == $enc_year) echo "selected";?>><?echo $year?></option>
-<?
- }
-?>
-   </select>
-   -->
-
   </td>
  </tr>
 
  <tr>
   <td class='text' nowrap>Onset/hospitalization date:</td>
   <td nowrap>
-
    <input type='text' size='10' name='form_onset_date'
     value='<? echo substr($result['onset_date'], 0, 10) ?>'
     title='yyyy-mm-dd Date of onset or hospitalization'
@@ -193,37 +192,6 @@
    <a href="javascript:show_calendar('new_encounter.form_onset_date')"
     title="Click here to choose a date"
     ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
-
-   <!--
-   <select name='onset_month'>
-<?
- foreach($months as $month){
-?>
-    <option value="<?echo $month;?>" <?if($month == $ons_month) echo "selected";?>><?echo $month?></option>
-<?
- }
-?>
-   </select>
-   <select name='onset_day'>
-<?
- foreach($days as $day){
-?>
-    <option value="<?echo $day;?>" <?if($day == $ons_day) echo "selected";?>><?echo $day?></option>
-<?
- }
-?>
-   </select>
-   <select name='onset_year'>
-<?
- foreach($years as $year){
-?>
-    <option value="<?echo $year;?>" <?if($year == $ons_year) echo "selected";?>><?echo $year?></option>
-<?
- }
-?>
-   </select>
-   -->
-
   </td>
  </tr>
 

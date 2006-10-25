@@ -26,6 +26,11 @@
  $thisyear = date("Y");
  $years = array($thisyear-1, $thisyear, $thisyear+1, $thisyear+2);
 
+ // Sort comparison for sensitivities by their order attribute.
+ function sensitivity_compare($a, $b) {
+  return ($a[2] < $b[2]) ? -1 : 1;
+ }
+
  // get issues
  $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
   "pid = $pid AND enddate IS NULL " .
@@ -84,23 +89,16 @@
 
  <tr>
   <td colspan='2'>
-   <textarea name='reason' cols='40' rows='5' wrap='virtual' style='width:96%'
+   <textarea name='reason' cols='40' rows='4' wrap='virtual' style='width:96%'
     ><?php echo $GLOBALS['default_chief_complaint'] ?></textarea>
   </td>
-  <td rowspan='4' valign='top'>
+  <td rowspan='5' valign='top'>
    <select multiple name='issues[]' size='10' style='width:100%'
     title='Hold down [Ctrl] for multiple selections or to unselect'>
 <?
  while ($irow = sqlFetchArray($ires)) {
   $tcode = $irow['type'];
-  /****
-  if ($tcode == 'medical_problem' || $tcode == 'problem') $tcode = 'P';
-  else if ($tcode == 'allergy')    $tcode = 'A';
-  else if ($tcode == 'medication') $tcode = 'M';
-  else if ($tcode == 'surgery')    $tcode = 'S';
-  ****/
   if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
-
   echo "    <option value='" . $irow['id'] . "'>$tcode: ";
   echo $irow['begdate'] . " " . htmlspecialchars(substr($irow['title'], 0, 40)) . "</option>\n";
  }
@@ -132,9 +130,37 @@
  </tr>
 
  <tr>
+<?php
+ $sensitivities = acl_get_sensitivities();
+ if ($sensitivities && count($sensitivities)) {
+  usort($sensitivities, "sensitivity_compare");
+?>
+  <td class='text' width='1%' nowrap>Sensitivity:</td>
+  <td>
+   <select name='form_sensitivity'>
+<?php
+  foreach ($sensitivities as $value) {
+   // Omit sensitivities to which this user does not have access.
+   if (acl_check('sensitivities', $value[1])) {
+    echo "    <option value='" . $value[1] . "'>" . $value[3] . "</option>\n";
+   }
+  }
+  echo "    <option value=''>None</option>\n";
+?>
+   </select>
+  </td>
+<?php
+ } else {
+?>
+  <td colspan='2'><!-- sensitivities not used --></td>
+<?php
+ }
+?>
+ </tr>
+
+ <tr>
   <td class='text' nowrap>Date of Service:</td>
   <td nowrap>
-
    <input type='text' size='10' name='form_date' <? echo $disabled ?>
     value='<? echo date('Y-m-d') ?>'
     title='yyyy-mm-dd Date of service'
@@ -142,37 +168,6 @@
    <a href="javascript:show_calendar('new_encounter.form_date')"
     title="Click here to choose a date"
     ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
-
-   <!--
-   <select name='month'>
-<?
- foreach($months as $month) {
-?>
-    <option value="<?echo $month;?>" <?if($month == date("m")) echo "selected";?>><?echo $month?></option>
-<?
- }
-?>
-   </select>
-   <select name='day'>
-<?
- foreach($days as $day){
-?>
-    <option value="<?echo $day;?>" <?if($day == date("d")) echo "selected";?>><?echo $day?></option>
-<?
- }
-?>
-   </select>
-   <select name='year'>
-<?
- foreach($years as $year){
-?>
-    <option value="<?echo $year;?>" <?if($year == date("Y")) echo "selected";?>><?echo $year?></option>
-<?
- }
-?>
-   </select>
-   -->
-
   </td>
  </tr>
 
@@ -187,37 +182,6 @@
    <a href="javascript:show_calendar('new_encounter.form_onset_date')"
     title="Click here to choose a date"
     ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
-
-   <!--
-   <select name='onset_month'>
-<?
- foreach($months as $month){
-?>
-    <option value="<?echo $month;?>" <?if($month == date("m")) echo "selected";?>><?echo $month?></option>
-<?
- }
-?>
-   </select>
-   <select name='onset_day'>
-<?
- foreach($days as $day){
-?>
-    <option value="<?echo $day;?>" <?if($day == date("d")) echo "selected";?>><?echo $day?></option>
-<?
- }
-?>
-   </select>
-   <select name='onset_year'>
-<?
- foreach($years as $year){
-?>
-    <option value="<?echo $year;?>" <?if($year == date("Y")) echo "selected";?>><?echo $year?></option>
-<?
- }
-?>
-   </select>
-   -->
-
   </td>
  </tr>
 
