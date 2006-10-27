@@ -34,6 +34,7 @@ if (isset($mode)) {
     <option value="Patient Request"><? xl('Patient Request','e'); ?></option>
     <option value="Physician Request"><? xl('Physician Request','e'); ?></option>
     <option value="Legal"><? xl('Legal','e'); ?></option>
+    <option value="Billing"><? xl('Billing','e'); ?></option>
 
    </select>
 
