@@ -1,4 +1,4 @@
-<?
+<?php
  include_once("../../globals.php");
  include_once("$srcdir/forms.inc");
  include_once("$srcdir/calendar.inc");
@@ -14,7 +14,7 @@
 
  // Process click on Delete link.
  function deleteme() {
-  dlgopen('../deleter.php?encounter=<?php echo $encounter ?>', '_blank', 500, 450);
+  dlgopen('../deleter.php?encounter=<?php echo $encounter; ?>', '_blank', 500, 450);
   return false;
  }
 
@@ -28,10 +28,10 @@
 
 </head>
 
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-<span class="title">This Encounter</span>
-<?
+<span class="title"><?php xl('This Encounter','e'); ?></span>
+<?php
  $auth_notes_a  = acl_check('encounters', 'notes_a');
  $auth_notes    = acl_check('encounters', 'notes');
  $auth_relaxed  = acl_check('encounters', 'relaxed');

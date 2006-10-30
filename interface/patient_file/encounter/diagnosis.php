@@ -1,4 +1,4 @@
-<?
+<?php
  include_once("../../globals.php");
  include_once("$srcdir/billing.inc");
  include_once("$srcdir/sql.inc");
@@ -48,9 +48,9 @@ if (isset($mode)) {
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 </head>
 
-<body <?echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=4 bottommargin=0 marginheight=0>
+<body <?php echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=4 bottommargin=0 marginheight=0>
 
-<?
+<?php
  $thisauth = acl_check('encounters', 'coding_a');
  if (!$thisauth) {
   $erow = sqlQuery("SELECT user FROM forms WHERE " .
@@ -84,24 +84,24 @@ if (isset($mode)) {
 <td valign=top>
 
 <dl>
-<dt><a href="diagnosis_full.php" target="Main"><span class=title><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Billing' : 'Coding' ?></span><font class=more><?echo $tmore;?></font></a>
-<?
+<dt><a href="diagnosis_full.php" target="Main"><span class=title><?php echo ($GLOBALS['phone_country_code'] == '1') ? 'Billing' : 'Coding'; ?></span><font class=more><?php echo $tmore;?></font></a>
+<?php
 if( !empty( $_GET["back"] ) || !empty( $_POST["back"] ) ){
 	print "&nbsp;<a href=\"superbill_codes.php\" target=\"Main\"><font class=more>$tback</font></a>";
 	print "<input type=\"hidden\" name=\"back\" value=\"1\">";
 }
 ?>
 <?php if (!$GLOBALS['weight_loss_clinic']) { ?>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="justify" value="Justify">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="justify" value="<?php xl('Justify');?>">
 <?php } ?>
 </dt>
 </dl>
 
 <a href="cash_receipt.php?" class='link_submit' target='new'>
-[<? xl('Receipt','e'); ?>]
+[<?php xl('Receipt','e'); ?>]
 </a>
 <table border="0">
-<?
+<?php
 if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 	$billing_html = array();
         $total = 0.0;
@@ -153,8 +153,8 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 </tr></table>
 </td>
 </tr>
-<input type="hidden" name="encounter_id" value="<?=$encounter?>">
-<input type="hidden" name="patient_id" value="<?=$pid?>">
+<input type="hidden" name="encounter_id" value="<?php=$encounter?>">
+<input type="hidden" name="patient_id" value="<?php=$pid?>">
 </form>
 </table>
 

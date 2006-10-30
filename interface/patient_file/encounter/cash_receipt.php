@@ -1,4 +1,4 @@
-<?
+<?php
  include_once("../../globals.php");
  include_once("$srcdir/forms.inc");
  include_once("$srcdir/billing.inc");
@@ -26,7 +26,7 @@
 
 <body bgcolor="#ffffff" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <p>
-<?
+<?php
  if (sizeof($_GET) > 0) {
   $ar = $_GET;
  } else {
@@ -47,18 +47,18 @@
   echo "<img src='$practice_logo' align='left'>\n";
  }
 ?>
-<h2><?=$facility['name']?></h2>
-<?=$facility['street']?><br>
-<?=$facility['city']?>, <?=$facility['state']?> <?=$facility['postal_code']?><br clear='all'>
-<?=$facility['phone']?><br>
+<h2><?php=$facility['name']?></h2>
+<?php=$facility['street']?><br>
+<?php=$facility['city']?>, <?=$facility['state']?> <?php=$facility['postal_code']?><br clear='all'>
+<?php=$facility['phone']?><br>
 
 </p>
 
-<a href="javascript:window.close();"><font class=title><?print $titleres{"fname"} . " " . $titleres{"lname"};?></font></a><br><br>
+<a href="javascript:window.close();"><font class=title><?php print $titleres{"fname"} . " " . $titleres{"lname"};?></font></a><br><br>
 
 <table>
-<tr><td><? xl('Generated on','e'); ?>:</td><td> <?print date("Y-m-d");?></td></tr>
-<?
+<tr><td><?php xl('Generated on','e'); ?>:</td><td> <?php print date("Y-m-d");?></td></tr>
+<?php
 if ($date_result = sqlQuery("select date from form_encounter where encounter='" .
 $encounter . "' and pid='$pid'"))
 {
@@ -67,10 +67,10 @@ $encounter . "' and pid='$pid'"))
 
 }
 ?>
-<tr><td><? xl('Date Of Service','e'); ?>: </td><td> <?print $raw_encounter_date;?></td></tr>
+<tr><td><?php xl('Date Of Service','e'); ?>: </td><td> <?php print $raw_encounter_date;?></td></tr>
 </table>
 <br><br>
-<?
+<?php
  //$provider = getProviderName($titleres['providerID']);
 
  //print "Provider: " . $provider  . "</br>";
@@ -310,7 +310,7 @@ $encounter . "' and pid='$pid'"))
 
 ?>
 <table border="1" cellpadding=5>
-<?
+<?php
 if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 	$billing_html = array();
         $total = 0.0;
@@ -372,8 +372,8 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 	
 $billing_html["CPT4"] .= "<tr><td>".xl('total')."</td><td></td><td></td><td>" . sprintf("%01.2f",$total) . "</td></tr>\n";
 ?>
-<tr><td><? xl('code type','e'); ?></td><td><? xl('code','e'); ?></td><td><? xl('description','e'); ?></td><td><? xl('fee','e'); ?></td></tr>
-<?
+<tr><td><?php xl('code type','e'); ?></td><td><?php xl('code','e'); ?></td><td><?php xl('description','e'); ?></td><td><?php xl('fee','e'); ?></td></tr>
+<?php
 	$key = "ICD9"; $val = $billing_html[$key];
 		print $val;
 	$key = "CPT4"; $val = $billing_html[$key];
@@ -388,7 +388,7 @@ if ($balance != 0.00) {
 }
 ?>
 </tr></table>
-<?
+<?php
 //if ($balance != 0.00) {
 //	print "<p>Note: The balance recorded above only reflects the encounter described by this statement.  It does not reflect the balance of the entire account.  A negative number in the balance field indicates a credit due to overpayment</p>";
 //}

@@ -1,4 +1,4 @@
-<?
+<?php
 include_once("../../globals.php");
 include_once("$srcdir/billing.inc");
 
@@ -27,20 +27,20 @@ if (isset($mode)) {
 <head>
 
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=4 bottommargin=0 marginheight=0>
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=4 bottommargin=0 marginheight=0>
 
 
 
 
-<a href="patient_encounter.php" target="Main"><span class=title><? xl('Billing','e'); ?></span><font class=more><?echo $tback;?></font></a>
+<a href="patient_encounter.php" target="Main"><span class=title><?php xl('Billing','e'); ?></span><font class=more><?php echo $tback;?></font></a>
 
 
 <table border=0 cellpadding=3 cellspacing=0>
 
-<?
+<?php
 if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 	$billing_html = array();
 	foreach ($result as $iter) {

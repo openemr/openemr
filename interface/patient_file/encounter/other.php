@@ -1,4 +1,4 @@
-<?
+<?php
 include_once("../../globals.php");
 include_once("$srcdir/sql.inc");
 
@@ -14,7 +14,7 @@ $N=10
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 
 </head>
-<body <?echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 
 <table border=0 cellspacing=0 cellpadding=0 height=100%>
@@ -32,21 +32,21 @@ $N=10
 
 <form method=post name=other_form action="diagnosis.php?mode=add&type=OTHER" target=Diagnosis>
 
-<dt><span class=title>Other</span></dt>
+<dt><span class=title><?php xl('Other','e'); ?></span></dt>
 
 <br>
 <table>
 <tr>
-<td class="text">code</td>
-<td class="text">description</td>
-<td class="text">&nbsp;&nbsp;&nbsp;fee</td>
+<td class="text"><?php xl('code','e'); ?></td>
+<td class="text"><?php xl('description','e'); ?></td>
+<td class="text">&nbsp;&nbsp;&nbsp;<?php xl('fee','e'); ?></td>
 <td></td>
 </tr>
 <tr>
   <td class="text"><input type=entry name=code size=4>&nbsp;&nbsp;</td>
   <td class="text"><input type=entry name=text size=15>&nbsp;&nbsp;</td>
   <td class="text">$ </span><input type=entry name=fee size=5></td>
-  <td>&nbsp;<a class=text href="javascript:document.other_form.submit();">Save</a>
+  <td>&nbsp;<a class=text href="javascript:document.other_form.submit();"><?php xl('Save','e'); ?></a>
   </td>
 </tr>
 </table>

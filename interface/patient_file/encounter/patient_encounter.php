@@ -1,4 +1,4 @@
-<?
+<?php
 //this code takes care of automatically loading the appropriate
 //code page, depending on where the user is coming back from
 //for example, if the user clicked on the CPT Custom code editor,
@@ -10,8 +10,7 @@ if (!isset($_GET["codefrom"]) ) {
 } else {
 	$code_page = $_GET["codefrom"];
 }
-?>
-<?
+
 include_once("../../globals.php");
 
 // Session pid must be right.
@@ -37,7 +36,7 @@ if (isset($_GET["set_encounter"])) {
 <HTML>
 <HEAD>
 <TITLE>
-<? xl('Patient Encounters','e'); ?>
+<?php xl('Patient Encounters','e'); ?>
 </TITLE>
 </HEAD>
 <frameset rows="50%,50%" cols="*">
@@ -56,7 +55,7 @@ if (isset($_GET["set_encounter"])) {
 <noframes><body bgcolor="#FFFFFF">
 </body></noframes>
 </HTML>
-<?
+<?php
 	exit(0);
 }
 
@@ -76,33 +75,28 @@ if (isset($_GET["mode"])  && $_GET["mode"] == "new") {
 <HTML>
 <HEAD>
 <TITLE>
-<? xl('New Patient Encounter','e'); ?>
+<?php xl('New Patient Encounter','e'); ?>
 </TITLE>
 </HEAD>
 <frameset rows="50%,50%" cols="*">
-	<frame src="<?echo "$rootdir/forms/newpatient/new.php?autoloaded=1&calenc=".$_GET["calenc"]."";?>" name="New" scrolling="auto">
-	<frame src="<?echo "$rootdir/patient_file/history/encounters.php";?>" name="Diagnosis" scrolling="auto">
+	<frame src="<?php echo "$rootdir/forms/newpatient/new.php?autoloaded=1&calenc=".$_GET["calenc"].""; ?>" name="New" scrolling="auto">
+	<frame src="<?php echo "$rootdir/patient_file/history/encounters.php";?>" name="Diagnosis" scrolling="auto">
 </frameset>
 <noframes><body bgcolor="#FFFFFF">
 </body></noframes>
 </HTML>
 
-<?
+<?php
 		exit(0);
 	}
 
 
 }
-
-
-
 ?>
-
-
 <HTML>
 <HEAD>
 <TITLE>
-<? xl('Patient Encounters','e'); ?>
+<?php xl('Patient Encounters','e'); ?>
 </TITLE>
 </HEAD>
 <frameset rows="50%,50%" cols="*">

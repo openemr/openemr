@@ -1,4 +1,4 @@
-<?
+<?php
 
 ////////////////////////////////////////////////////////////////////////////////
 // THIS MODULE REPLACES cptcm_codes.php, hcpcs_codes.php AND icd9cm_codes.php.
@@ -37,12 +37,12 @@ $code_type = $_GET['type'];
 <form name='search_form' method='post' action='search_code.php?type=<? echo $code_type ?>'>
 <input type=hidden name=mode value="search">
 
-<span class="title" href="search_code.php"><? echo $code_type ?> <? xl('Codes','e'); ?></span><br>
+<span class="title" href="search_code.php"><?php echo $code_type ?> <?php xl('Codes','e'); ?></span><br>
 
-<input type=entry size=15 name=text><a href="javascript:document.search_form.submit();" class="text">Search</a>
+<input type=entry size=15 name=text><a href="javascript:document.search_form.submit();" class="text"><?php xl('Search','e'); ?></a>
 </form>
 
-<?
+<?php
 if (isset($_POST["mode"]) && $_POST["mode"] == "search") {
 	$sql = "select * from codes where (code_text like '%" . $_POST["text"] .
 		"%' or code like '%" . $_POST["text"] . "%') and code_type = '" .
@@ -56,7 +56,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search") {
 ?>
 
 <table><tr><td valign=top>
-<?
+<?php
 		$count = 0;
 		$total = 0;
 
@@ -88,7 +88,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search") {
 		}
 ?>
 </td></tr></table>
-<?
+<?php
 	}
 }
 ?>

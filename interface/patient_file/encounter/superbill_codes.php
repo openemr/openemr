@@ -1,4 +1,4 @@
-<?
+<?php
 include_once("../../globals.php");
 include_once("../../../custom/code_types.inc.php");
 include_once("$srcdir/billing.inc");
@@ -35,7 +35,7 @@ if (isset($mode)) {
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 <table border=0 cellspacing=0 cellpadding=0 >
 <tr>
@@ -43,13 +43,13 @@ if (isset($mode)) {
 
 <dl>
 
-<dt><a href="superbill_custom_full.php" ><span class=title><? xl('Superbill','e'); ?></span><font class=more><?echo $tmore;?></font></a>
-<a href="patient_encounter.php?codefrom=superbill" ><font class=more><?echo $tback;?></font></a></dt>
+<dt><a href="superbill_custom_full.php" ><span class=title><?php xl('Superbill','e'); ?></span><font class=more><?php echo $tmore;?></font></a>
+<a href="patient_encounter.php?codefrom=superbill" ><font class=more><?php echo $tback;?></font></a></dt>
 </td></tr>
 </table>
 
 <table border=0 width=100% cellpadding=0 cellspacing=1>
-<?
+<?php
 $res = sqlStatement("select * from codes where superbill = 1 order by code_type, code, code_text");
 
 $codes = array();
