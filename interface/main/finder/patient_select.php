@@ -1,4 +1,4 @@
-<?
+<?php 
 include_once("../../globals.php");
 include_once("$srcdir/patient.inc");
 
@@ -14,12 +14,12 @@ if ($patient=='') $patient=xl('Please enter some information','e');
 <head>
 
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-<a class="title" href="../main_screen.php" target="_top"><?xl('Select Patient','e');?>: <?echo $patient;?> <?xl('by','e');?> <?echo xl($findBy,'e');?></a>
+<a class="title" href="../main_screen.php" target="_top"><?php xl('Select Patient','e');?>: <?php echo $patient; xl('by','e'); echo xl($findBy,'e');?></a>
 
 
 <br>
@@ -27,15 +27,15 @@ if ($patient=='') $patient=xl('Please enter some information','e');
 <table border=0 cellpadding=5 cellspacing=0>
 <tr>
 <td>
-<span class=bold><?xl('Name','e');?></span>
+<span class=bold><?php xl('Name','e');?></span>
 </td><td>
-<span class=bold><?xl('SS','e');?></span>
+<span class=bold><?php xl('SS','e');?></span>
 </td><td>
-<span class=bold><?xl('DOB','e');?></span>
+<span class=bold><?php xl('DOB','e');?></span>
 </td><td>
-<span class=bold><?xl('ID','e');?></span>
+<span class=bold><?php xl('ID','e');?></span>
 </td></tr>
-<?
+<?php 
 
 $count=0;
 $total=0;
