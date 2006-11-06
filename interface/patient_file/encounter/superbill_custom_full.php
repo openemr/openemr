@@ -73,26 +73,26 @@ $N = 12;
 	</td>
 </tr>
 <tr>
-	<td><?php xl('Code','e'); ?>:</td><td><input type=entry size=25 name="code" value="<?php=$GLOBALS['code']?>"></td>
+	<td><?php xl('Code','e'); ?>:</td><td><input type=entry size=25 name="code" value="<?=$GLOBALS['code']?>"></td>
 </tr>
 <tr>
-	<td><?php xl('Code Text','e'); ?>:</td><td><input type=entry size=25 name="code_text" value="<?php=$GLOBALS['code_text']?>"></td>
+	<td><?php xl('Code Text','e'); ?>:</td><td><input type=entry size=25 name="code_text" value="<?=$GLOBALS['code_text']?>"></td>
 </tr>
 <tr>
-	<td><?php xl('Modifier','e'); ?>:</td><td><input type=entry size=3 name="modifier" value="<?php=$GLOBALS['modifier']?>"></td>
+	<td><?php xl('Modifier','e'); ?>:</td><td><input type=entry size=3 name="modifier" value="<?=$GLOBALS['modifier']?>"></td>
 </tr>
 <tr>
-	<td><?php xl('Units','e'); ?>:</td><td><input type=entry size=4 name="units" value="<?php=$GLOBALS['units']?>"></td>
+	<td><?php xl('Units','e'); ?>:</td><td><input type=entry size=4 name="units" value="<?=$GLOBALS['units']?>"></td>
 </tr>
 <tr>
-	<td><?php xl('Fee','e'); ?>:</td><td><input type=entry size=6 name="fee" value="<?php=$GLOBALS['fee']?>" ></td>
+	<td><?php xl('Fee','e'); ?>:</td><td><input type=entry size=6 name="fee" value="<?=$GLOBALS['fee']?>" ></td>
 </tr>
 <tr>
 	<td><?php xl('Include in Superbill','e'); ?>:</td><td><select name="superbill"><option value="0" <?php if ($GLOBALS['superbill'] == 0) echo "selected"?>>No</option><option value="1" <?php if ($GLOBALS['superbill'] == 1) echo "selected"?>><?php xl('Yes','e'); ?></option></td>
 </tr>
 <tr>
 	<td colspan="3" align="center">
-	<input type="hidden" name="id" value="<?php=$GLOBALS['id']?>"> 
+	<input type="hidden" name="id" value="<?=$GLOBALS['id']?>"> 
 	<br><a href='javascript:document.add_code.submit();' class=link>[<? xl('Add Code','e'); ?>]</a></td>
 </tr>
 
@@ -117,22 +117,22 @@ $fend = $fstart + 100;
 <tr>
 <?php if ($fstart > 0) { ?>
 <td>
-<a href="superbill_custom_full.php?fstart=<?php=($fstart - 100)?>&filter=<?php=$_GET['filter']?>&search=<?php=$_GET['search']?>"><?php xl('Prev 100','e'); ?></a>
+<a href="superbill_custom_full.php?fstart=<?=($fstart - 100)?>&filter=<?=$_GET['filter']?>&search=<?=$_GET['search']?>"><?php xl('Prev 100','e'); ?></a>
 &nbsp;&nbsp;
 </td>
 <?php } ?>
 
 <td>
-<a href="superbill_custom_full.php?fstart=<?php=($fstart + 100)?>&filter=<?php=$_GET['filter']?>&search=<?php=$_GET['search']?>"><?php xl('Next 100','e'); ?></a>
+<a href="superbill_custom_full.php?fstart=<?=($fstart + 100)?>&filter=<?=$_GET['filter']?>&search=<?=$_GET['search']?>"><?php xl('Next 100','e'); ?></a>
 &nbsp;&nbsp;
 </td>
 <td>
-<a href="superbill_custom_full.php?fstart=<?php=$_GET['fstart']?>&filter="><?php xl('ALL','e'); ?></a>&nbsp;&nbsp;
+<a href="superbill_custom_full.php?fstart=<?=$_GET['fstart']?>&filter="><?php xl('ALL','e'); ?></a>&nbsp;&nbsp;
 </td>
 
 <?php foreach ($code_types as $key => $value) { ?>
 <td>
-<a href="superbill_custom_full.php?fstart=<?php=$_GET['fstart']?>&filter=<? echo $value['id'] ?>"><?php echo $key ?></a>&nbsp;&nbsp;
+<a href="superbill_custom_full.php?fstart=<?=$_GET['fstart']?>&filter=<? echo $value['id'] ?>"><?php echo $key ?></a>&nbsp;&nbsp;
 </td>
 <?php } ?>
 

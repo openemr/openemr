@@ -47,10 +47,10 @@
   echo "<img src='$practice_logo' align='left'>\n";
  }
 ?>
-<h2><?php=$facility['name']?></h2>
-<?php=$facility['street']?><br>
-<?php=$facility['city']?>, <?=$facility['state']?> <?php=$facility['postal_code']?><br clear='all'>
-<?php=$facility['phone']?><br>
+<h2><?=$facility['name']?></h2>
+<?=$facility['street']?><br>
+<?=$facility['city']?>, <?=$facility['state']?> <?=$facility['postal_code']?><br clear='all'>
+<?=$facility['phone']?><br>
 
 </p>
 

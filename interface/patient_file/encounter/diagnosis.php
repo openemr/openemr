@@ -153,8 +153,8 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 </tr></table>
 </td>
 </tr>
-<input type="hidden" name="encounter_id" value="<?php=$encounter?>">
-<input type="hidden" name="patient_id" value="<?php=$pid?>">
+<input type="hidden" name="encounter_id" value="<?= $encounter?>">
+<input type="hidden" name="patient_id" value="<?= $pid?>">
 </form>
 </table>
 
