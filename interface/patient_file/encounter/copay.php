@@ -48,9 +48,7 @@ $N=10
 
 <br>
 <span class=text>$ </span><input type=entry name=code value='100.00' size=5>
-<?
-//<a class=text href="javascript:document.copay_form.submit();"><?php xl('Save','e'); ?></a><br><br>
-?>
+
 <input type="SUBMIT" value="<?php xl('Save','e'); ?>"><br><br>
 <input type="RADIO" name="payment_method" value="cash" checked><?php xl('cash','e'); ?>
 <input type="RADIO" name="payment_method" value="credit card"><?php xl('credit','e'); ?>
