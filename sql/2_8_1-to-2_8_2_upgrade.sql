@@ -371,3 +371,6 @@ ALTER TABLE drugs
 
 ALTER TABLE form_encounter
   ADD sensitivity varchar(30) NOT NULL DEFAULT '';
+
+ALTER TABLE lists
+  ADD returndate date DEFAULT NULL;

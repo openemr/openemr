@@ -26955,6 +26955,7 @@ CREATE TABLE `lists` (
   `title`       varchar(255)  DEFAULT NULL,
   begdate       date          DEFAULT NULL,
   enddate       date          DEFAULT NULL,
+  returndate    date          DEFAULT NULL,
   occurrence    int(11)       DEFAULT 0,
   referredby    varchar(255)  DEFAULT NULL,
   extrainfo     varchar(255)  DEFAULT NULL,

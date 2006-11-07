@@ -69,7 +69,8 @@ td { font-size:10pt; }
 
  var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
 
- var aopts = new Array();
+ var aitypes = new Array(); // issue type attributes
+ var aopts   = new Array(); // Option objects
 <?php
  // "Clickoptions" is a feature by Mark Leeds that provides for one-click
  // access to preselected lists of issues in each category.  Here we get
@@ -81,6 +82,7 @@ td { font-size:10pt; }
   $clickoptions = file("../../../custom/clickoptions.txt");
  $i = 0;
  foreach ($ISSUE_TYPES as $key => $value) {
+  echo " aitypes[$i] = " . $value[3] . ";\n";
   echo " aopts[$i] = new Array();\n";
   foreach($clickoptions as $line) {
    $line = trim($line);
@@ -96,13 +98,29 @@ td { font-size:10pt; }
 ?>
 
  // React to selection of an issue type.  This loads the associated
- // shortcuts into the selection list of titles.
+ // shortcuts into the selection list of titles, and determines which
+ // rows are displayed or hidden.
  function newtype(index) {
-  var theopts = document.forms[0].form_titles.options;
+  var f = document.forms[0];
+  var theopts = f.form_titles.options;
   theopts.length = 0;
   for (i = 0; i < aopts[index].length; ++i) {
    theopts[i] = aopts[index][i];
   }
+  // Show or hide various rows depending on issue type, except do not
+  // hide the comments or referred-by fields if they have data.
+  var comdisp = (aitypes[index] == 1) ? 'none' : '';
+  var revdisp = (aitypes[index] == 1) ? '' : 'none';
+  document.getElementById('row_enddate'   ).style.display = comdisp;
+  document.getElementById('row_active'    ).style.display = revdisp;
+  document.getElementById('row_diagnosis' ).style.display = comdisp;
+  document.getElementById('row_occurrence').style.display = comdisp;
+  document.getElementById('row_referredby').style.display = (f.form_referredby.value) ? '' : comdisp;
+  document.getElementById('row_comments'  ).style.display = (f.form_comments.value) ? '' : revdisp;
+<?php if ($GLOBALS['athletic_team']) { ?>
+  document.getElementById('row_returndate').style.display = comdisp;
+  document.getElementById('row_missed'    ).style.display = comdisp;
+<?php } ?>
  }
 
  // If a clickoption title is selected, copy it to the title field.
@@ -111,7 +129,6 @@ td { font-size:10pt; }
   f.form_title.value = f.form_titles.options[f.form_titles.selectedIndex].text;
   f.form_titles.selectedIndex = -1;
  }
-
 
  // Process click on Delete link.
  function deleteme() {
@@ -122,6 +139,20 @@ td { font-size:10pt; }
  // Called by the deleteme.php window on a successful delete.
  function imdeleted() {
   window.close();
+ }
+
+ // Called when the Active checkbox is clicked.  For consistency we
+ // use the existence of an end date to indicate inactivity, even
+ // though the simple verion of the form does not show an end date.
+ function activeClicked(cb) {
+  var f = document.forms[0];
+  if (cb.checked) {
+   var today = new Date();
+   f.form_end.value = '' + (today.getYear() + 1900) + '-' +
+    (today.getMonth() + 1) + '-' + today.getDate();
+  } else {
+   f.form_end.value = '';
+  }
  }
 
 </script>
@@ -144,12 +175,14 @@ td { font-size:10pt; }
   $form_end   = fixDate($_POST['form_end'], '');
 
   if ($issue) {
-   sqlStatement("UPDATE lists SET " .
+
+   $query = "UPDATE lists SET " .
     "type = '"        . $text_type                  . "', " .
     "title = '"       . $_POST['form_title']        . "', " .
     "comments = '"    . $_POST['form_comments']     . "', " .
     "begdate = "      . QuotedOrNull($form_begin)   . ", "  .
     "enddate = "      . QuotedOrNull($form_end)     . ", "  .
+    "returndate = "   . QuotedOrNull($form_return)  . ", "  .
     "diagnosis = '"   . $_POST['form_diagnosis']    . "', " .
     "occurrence = '"  . $_POST['form_occur']        . "', " .
     "referredby = '"  . $_POST['form_referredby']   . "', " .
@@ -157,8 +190,8 @@ td { font-size:10pt; }
     "outcome = "      . rbvalue('form_outcome')     . ", "  .
 //  "destination = "  . rbvalue('form_destination') . " "   . // radio button version
     "destination = '" . $_POST['form_destination']   . "' "  .
-    "WHERE id = '$issue'");
-
+    "WHERE id = '$issue'";
+    sqlStatement($query);
     if ($text_type == "medication" && enddate != '') {
       sqlStatement('UPDATE prescriptions SET '
         . 'medication = 0 where patient_id = ' . $pid
@@ -167,8 +200,9 @@ td { font-size:10pt; }
     }
 
   } else {
+
    $issue = sqlInsert("INSERT INTO lists ( " .
-    "date, pid, type, title, activity, comments, begdate, enddate, " .
+    "date, pid, type, title, activity, comments, begdate, enddate, returndate, " .
     "diagnosis, occurrence, referredby, extrainfo, user, groupname, " .
     "outcome, destination " .
     ") VALUES ( " .
@@ -180,6 +214,7 @@ td { font-size:10pt; }
     "'" . $_POST['form_comments']    . "', " .
     QuotedOrNull($form_begin)        . ", "  .
     QuotedOrNull($form_end)          . ", "  .
+    QuotedOrNull($form_return)       . ", "  .
     "'" . $_POST['form_diagnosis']   . "', " .
     "'" . $_POST['form_occur']       . "', " .
     "'" . $_POST['form_referredby']  . "', " .
@@ -190,6 +225,7 @@ td { font-size:10pt; }
 // rbvalue('form_destination')       . " "   . // radio button version
     "'" . $_POST['form_destination'] . "' "  .
    ")");
+
   }
 
   $tmp_title = $ISSUE_TYPES[$text_type][2] . ": $form_begin " .
@@ -274,7 +310,7 @@ td { font-size:10pt; }
   </td>
  </tr>
 
- <tr>
+ <tr id='row_enddate'>
   <td valign='top' nowrap><b><? xl('End Date','e'); ?>:</b></td>
   <td>
    <input type='text' size='10' name='form_end' value='<? echo $irow['enddate'] ?>'
@@ -287,7 +323,29 @@ td { font-size:10pt; }
   </td>
  </tr>
 
- <tr>
+ <tr id='row_active'>
+  <td valign='top' nowrap><b><? xl('Active','e'); ?>:</b></td>
+  <td>
+   <input type='checkbox' name='form_active' value='1' <? echo $irow['enddate'] ? "checked" : ""; ?>
+    onclick='activeClicked(this);'
+    title='Indicates if this issue is currently active' />
+  </td>
+ </tr>
+
+ <tr<?php if (! $GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_returndate'>
+  <td valign='top' nowrap><b><? xl('Returned to Play','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='10' name='form_return' value='<? echo $irow['returndate'] ?>'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+    title='yyyy-mm-dd date returned to play' />
+   <a href="javascript:show_calendar('theform.form_return')"
+    title="Click here to choose a date"
+    ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
+    &nbsp;(<? xl('leave blank if still active','e'); ?>)
+  </td>
+ </tr>
+
+ <tr id='row_diagnosis'>
   <td valign='top' nowrap><b><? xl('Diagnosis','e'); ?>:</b></td>
   <td>
    <select name='form_diagnosis' title='Diagnosis must be coded into a linked encounter'>
@@ -303,7 +361,7 @@ td { font-size:10pt; }
   </td>
  </tr>
 
- <tr>
+ <tr id='row_occurrence'>
   <td valign='top' nowrap><b><? xl('Occurrence','e'); ?>:</b></td>
   <td>
    <select name='form_occur'>
@@ -318,8 +376,7 @@ td { font-size:10pt; }
   </td>
  </tr>
 
-<?php if ($GLOBALS['athletic_team']) { ?>
- <tr>
+ <tr<?php if (! $GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_missed'>
   <td valign='top' nowrap><b><? xl('Missed','e'); ?>:</b></td>
   <td>
    <input type='text' size='3' name='form_missed' value='<? echo $irow['extrainfo'] ?>'
@@ -327,24 +384,23 @@ td { font-size:10pt; }
    &nbsp;<? xl('games/events','e'); ?>
   </td>
  </tr>
-<?php } else { ?>
- <tr>
+
+ <tr<?php if ($GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_referredby'>
   <td valign='top' nowrap><b><? xl('Referred by','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_referredby' value='<? echo $irow['referredby'] ?>'
     style='width:100%' title='Referring physician and practice' />
   </td>
  </tr>
-<?php } ?>
 
- <tr>
+ <tr id='row_comments'>
   <td valign='top' nowrap><b><? xl('Comments','e'); ?>:</b></td>
   <td>
    <textarea name='form_comments' rows='4' cols='40' wrap='virtual' style='width:100%'><? echo $irow['comments'] ?></textarea>
   </td>
  </tr>
 
- <tr>
+ <tr<?php if ($GLOBALS['athletic_team']) echo " style='display:none;'"; ?>>
   <td valign='top' nowrap><b><? xl('Outcome','e'); ?>:</b></td>
   <td>
    <? echo rbinput('form_outcome', '1', 'Resolved'        , 'outcome') ?>&nbsp;
@@ -355,7 +411,7 @@ td { font-size:10pt; }
   </td>
  </tr>
 
- <tr>
+ <tr<?php if ($GLOBALS['athletic_team']) echo " style='display:none;'"; ?>>
   <td valign='top' nowrap><b><? xl('Destination','e'); ?>:</b></td>
   <td>
 <?php if (true) { ?>

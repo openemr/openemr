@@ -2,12 +2,19 @@
 require_once("{$GLOBALS['srcdir']}/sql.inc");
 
 $ISSUE_TYPES = array(
- // table type               plural              singular    abbrev
- 'medical_problem' => array('Medical Problems', 'Problem'   , 'P'),
- 'allergy'         => array('Allergies'       , 'Allergy'   , 'A'),
- 'medication'      => array('Medications'     , 'Medication', 'M'),
- 'surgery'         => array('Surgeries'       , 'Surgery'   , 'S'),
- 'dental'          => array('Dental Issues'   , 'Dental'    , 'D')
+ // table type               plural              singular    abbrev style
+ 'medical_problem' => array('Medical Problems', 'Problem'   , 'P',  0),
+ 'allergy'         => array('Allergies'       , 'Allergy'   , 'A',  0),
+ 'medication'      => array('Medications'     , 'Medication', 'M',  0),
+ 'surgery'         => array('Surgeries'       , 'Surgery'   , 'S',  0),
+ 'dental'          => array('Dental Issues'   , 'Dental'    , 'D',  0)
+ //
+ // Styles are:
+ // 0 - Normal, as in 2.8.1.
+ // 1 - Simplified: only title, start date, comments and an Active checkbox;
+ //     no diagnosis, occurrence, end date, referred-by or sports fields.
+ //     Internally we'll still use a null end date to indicate active.
+ //
 );
 
 function getListById ($id, $cols = "*")
