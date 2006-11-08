@@ -92,7 +92,7 @@ if( !empty( $_GET["back"] ) || !empty( $_POST["back"] ) ){
 }
 ?>
 <?php if (!$GLOBALS['weight_loss_clinic']) { ?>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="justify" value="<?php xl('Justify');?>">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="justify" value="<?php xl('Justify','e');?>">
 <?php } ?>
 </dt>
 </dl>
