@@ -22,6 +22,8 @@ $facility    = $_POST['facility'];
 $reason      = $_POST['reason'];
 $mode        = $_POST['mode'];
 
+$nexturl = "$rootdir/patient_file/encounter/patient_encounter.php";
+
 if ($mode == 'new')
 {
   $encounter = $conn->GenID("sequences");
@@ -74,11 +76,25 @@ if (is_array($_POST['issues'])) {
     sqlStatement($query);
   }
 }
+
+// If this is a new encounter and a default form is specified...
+if ($mode == 'new' && $GLOBALS['default_new_encounter_form']) {
+  // And if there are no other encounters already sharing an issue
+  // with this encounter, then make the default form appear.
+  $ierow = sqlQuery("SELECT count(*) AS count " .
+    "FROM issue_encounter AS ie1, issue_encounter AS ie2 WHERE " .
+    "ie1.encounter = '$encounter' AND ie2.list_id = ie1.list_id AND " .
+    "ie2.encounter != '$encounter'");
+  if (! $ierow['count']) {
+    $nexturl = "$rootdir/patient_file/encounter/load_form.php?formname=" .
+      $GLOBALS['default_new_encounter_form'];
+  }
+}
 ?>
 <html>
 <body>
 <script language="Javascript">
- window.location="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>";
+ window.location="<?php echo $nexturl; ?>";
 </script>
 
 </body>
