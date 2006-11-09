@@ -59,7 +59,7 @@ td {
  padding-top:0px;
  padding-bottom:0px;
 }
-table div { width:1px; height:1px; font-size:1px; }
+div.tiny { width:1px; height:1px; font-size:1px; }
 </style>
 
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
@@ -411,7 +411,7 @@ table div { width:1px; height:1px; font-size:1px; }
      echo "<a href='javascript:newEvt($startampm,$starttimeh,$starttimem,$eventdate,$providerid,$in_cat_id)'>";
      echo "$disptimeh:$starttimem</a>";
     } else {
-     echo "<div></div>"; // 1x1 px content so the browser does not suppress borders
+     echo "<div class=tiny></div>"; // 1x1 px content so the browser does not suppress borders
     }
     echo "</td>\n";
 
@@ -475,7 +475,7 @@ table div { width:1px; height:1px; font-size:1px; }
      }
     } // end while
 
-    if (! $content) $content = "<div></div>"; // so the browser does not suppress borders
+    if (! $content) $content = "<div class=tiny></div>"; // so the browser does not suppress borders
     echo $content . "</td>\n";
 
     // Keep track of whether the doc was in during the previous time slot.
