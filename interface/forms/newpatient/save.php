@@ -22,7 +22,8 @@ $facility    = $_POST['facility'];
 $reason      = $_POST['reason'];
 $mode        = $_POST['mode'];
 
-$nexturl = "$rootdir/patient_file/encounter/patient_encounter.php";
+$normalurl = "$rootdir/patient_file/encounter/patient_encounter.php";
+$nexturl = $normalurl;
 
 if ($mode == 'new')
 {
@@ -77,17 +78,34 @@ if (is_array($_POST['issues'])) {
   }
 }
 
-// If this is a new encounter and a default form is specified...
-if ($mode == 'new' && $GLOBALS['default_new_encounter_form']) {
-  // And if there are no other encounters already sharing an issue
-  // with this encounter, then make the default form appear.
-  $ierow = sqlQuery("SELECT count(*) AS count " .
-    "FROM issue_encounter AS ie1, issue_encounter AS ie2 WHERE " .
-    "ie1.encounter = '$encounter' AND ie2.list_id = ie1.list_id AND " .
-    "ie2.encounter != '$encounter'");
-  if (! $ierow['count']) {
+// Custom for Chelsea FC.
+//
+if ($mode == 'new' && $GLOBALS['default_new_encounter_form'] == 'football_injury_audit') {
+
+  // If there are any "football injury" issues (medical problems without
+  // "illness" in the title) linked to this encounter, but no encounter linked
+  // to such an issue has the injury form in it, then present that form.
+
+  $lres = sqlStatement("SELECT list_id " .
+    "FROM issue_encounter, lists WHERE " .
+    "issue_encounter.pid = '$pid' AND " .
+    "issue_encounter.encounter = '$encounter' AND " .
+    "lists.id = issue_encounter.list_id AND " .
+    "lists.type = 'medical_problem' AND " .
+    "lists.title NOT LIKE '%Illness%'");
+
+  if (mysql_num_rows($lres)) {
     $nexturl = "$rootdir/patient_file/encounter/load_form.php?formname=" .
       $GLOBALS['default_new_encounter_form'];
+    while ($lrow = sqlFetchArray($lres)) {
+      $frow = sqlQuery("SELECT count(*) AS count " .
+         "FROM issue_encounter, forms WHERE " .
+         "issue_encounter.list_id = '" . $lrow['list_id'] . "' AND " .
+         "forms.pid = issue_encounter.pid AND " .
+         "forms.encounter = issue_encounter.encounter AND " .
+         "forms.formdir = '" . $GLOBALS['default_new_encounter_form'] . "'");
+      if ($frow['count']) $nexturl = $normalurl;
+    }
   }
 }
 ?>

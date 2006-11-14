@@ -163,9 +163,7 @@ $GLOBALS['simplified_demographics'] = false;
 // You may put text here as the default complaint in the New Patient form:
 $GLOBALS['default_chief_complaint'] = '';
 
-// You can specify an encounter form here to appear by default after a new
-// encounter has been created that does not reference an old issue.  This
-// was added for sports teams needing to fill out injury forms, but might
+// This was added for sports teams needing to fill out injury forms, but might
 // have other applications.
 $GLOBALS['default_new_encounter_form'] = '';
 
