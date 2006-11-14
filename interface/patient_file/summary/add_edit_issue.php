@@ -147,11 +147,11 @@ td { font-size:10pt; }
  function activeClicked(cb) {
   var f = document.forms[0];
   if (cb.checked) {
+   f.form_end.value = '';
+  } else {
    var today = new Date();
    f.form_end.value = '' + (today.getYear() + 1900) + '-' +
     (today.getMonth() + 1) + '-' + today.getDate();
-  } else {
-   f.form_end.value = '';
   }
  }
 
@@ -326,7 +326,7 @@ td { font-size:10pt; }
  <tr id='row_active'>
   <td valign='top' nowrap><b><? xl('Active','e'); ?>:</b></td>
   <td>
-   <input type='checkbox' name='form_active' value='1' <? echo $irow['enddate'] ? "checked" : ""; ?>
+   <input type='checkbox' name='form_active' value='1' <? echo $irow['enddate'] ? "" : "checked"; ?>
     onclick='activeClicked(this);'
     title='Indicates if this issue is currently active' />
   </td>
