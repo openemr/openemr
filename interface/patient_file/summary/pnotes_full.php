@@ -61,8 +61,10 @@ if ($noteid) {
   $assigned_to = $prow['assigned_to'];
 }
 
-// Get the users list.
+// Get the users list.  The "Inactive" test is a kludge, we should create
+// a separate column for this.
 $ures = sqlStatement("SELECT username, fname, lname FROM users " .
+ "WHERE info NOT LIKE '%Inactive%' " .
  "ORDER BY lname, fname");
 ?>
 <html>

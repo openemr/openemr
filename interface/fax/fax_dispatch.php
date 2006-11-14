@@ -251,6 +251,7 @@
 
  // Get the users list.
  $ures = sqlStatement("SELECT username, fname, lname FROM users " .
+  "WHERE info NOT LIKE '%Inactive%' " .
   "ORDER BY lname, fname");
 ?>
 <html>
