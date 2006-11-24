@@ -26484,7 +26484,7 @@ CREATE TABLE `facility` (
 
 
 /*!40000 ALTER TABLE `facility` DISABLE KEYS */;
-INSERT INTO `facility` VALUES (3,'Your Clinic Name Here','000-000-0000','','','','','','',0,0,NULL,'','','');
+INSERT INTO `facility` VALUES (3,'Your Clinic Name Here','000-000-0000','000-000-0000','','','','','','',0,0,NULL,'','','');
 /*!40000 ALTER TABLE `facility` ENABLE KEYS */;
 
 --
