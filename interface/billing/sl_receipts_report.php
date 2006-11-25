@@ -33,6 +33,7 @@
   SLConnect();
 
   $form_use_edate = $_POST['form_use_edate'];
+  $form_billcode = trim($_POST['form_billcode']);
 ?>
 <html>
 <head>
@@ -78,6 +79,8 @@
    <input type='text' name='form_from_date' size='10' value='<? echo $_POST['form_from_date']; ?>' title='MM/DD/YYYY'>
    &nbsp;To:
    <input type='text' name='form_to_date' size='10' value='<? echo $_POST['form_to_date']; ?>' title='MM/DD/YYYY'>
+   &nbsp;Code:
+   <input type='text' name='form_billcode' size='5' value='<? echo $form_billcode; ?>' title='Optional billing code'>
    &nbsp;
    <input type='checkbox' name='form_details' value='1'<? if ($_POST['form_details']) echo " checked"; ?>><?xl('Details','e')?>
    &nbsp;
@@ -104,6 +107,16 @@
   <td class="dehead">
    <?xl('Invoice','e')?>
   </td>
+<?php if ($form_billcode) { ?>
+  <td class="dehead" align='right'>
+   <?xl('InvAmt','e')?>
+  </td>
+<?php } ?>
+<?php if ($form_billcode) { ?>
+  <td class="dehead">
+   <?xl('Insurance','e')?>
+  </td>
+<?php } ?>
   <td class="dehead">
    <?xl('Procedure','e')?>
   </td>
@@ -123,10 +136,24 @@
     $from_date = fixDate($_POST['form_from_date']);
     $to_date   = fixDate($_POST['form_to_date']);
 
-    $query = "select acc_trans.amount, acc_trans.transdate, acc_trans.memo, " .
-      "ar.invnumber, ar.employee_id from acc_trans, ar where " .
-      "acc_trans.chart_id = $chart_id_cash and " .
-      "ar.id = acc_trans.trans_id and ";
+    if ($form_billcode) {
+      $query = "SELECT acc_trans.amount, acc_trans.transdate, " .
+        "acc_trans.memo, acc_trans.project_id, " .
+        "ar.invnumber, ar.employee_id, invoice.fxsellprice " .
+        "FROM acc_trans, ar, invoice WHERE " .
+        "acc_trans.chart_id = $chart_id_cash AND " .
+        "acc_trans.memo ILIKE '$form_billcode' AND " .
+        "ar.id = acc_trans.trans_id AND " .
+        "invoice.trans_id = acc_trans.trans_id AND " .
+        "invoice.serialnumber ILIKE acc_trans.memo AND " .
+        "invoice.fxsellprice >= 0.00 AND ";
+    }
+    else {
+      $query = "select acc_trans.amount, acc_trans.transdate, acc_trans.memo, " .
+        "ar.invnumber, ar.employee_id from acc_trans, ar where " .
+        "acc_trans.chart_id = $chart_id_cash and " .
+        "ar.id = acc_trans.trans_id and ";
+    }
 
     if ($form_use_edate) {
       $query .= "ar.transdate >= '$from_date' and " .
@@ -162,6 +189,15 @@
 
     for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
       $row = SLGetRow($t_res, $irow);
+
+      // Get insurance company name
+      $insconame = '';
+      if ($form_billcode && $row['project_id']) {
+        $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE " .
+          "id = '" . $row['project_id'] . "'");
+        $insconame = $tmp['name'];
+      }
+
       $amount1 = 0;
       $amount2 = 0;
       if (is_clinic($row['memo']))
@@ -175,7 +211,7 @@
 ?>
 
  <tr bgcolor="#ddddff">
-  <td class="detail" colspan="4">
+  <td class="detail" colspan="<?php echo $form_billcode ? '6' : '4'; ?>">
    <? echo xl('Totals for ') . $docname ?>
   </td>
   <td class="dehead" align="right">
@@ -201,19 +237,29 @@
   <td class="detail">
    <? echo $docnameleft; $docnameleft = "&nbsp;" ?>
   </td>
-  <td class="dehead">
+  <td class="detail">
    <? echo $row['transdate'] ?>
   </td>
   <td class="detail">
    <? echo $row['invnumber'] ?>
   </td>
-  <td class="dehead">
+<?php if ($form_billcode) { ?>
+  <td class="detail" align='right'>
+   <?php bucks($row['fxsellprice']) ?>
+  </td>
+<?php } ?>
+<?php if ($form_billcode) { ?>
+  <td class="detail">
+   <?php echo $insconame ?>
+  </td>
+<?php } ?>
+  <td class="detail">
    <? echo $row['memo'] ?>
   </td>
-  <td class="dehead" align="right">
+  <td class="detail" align="right">
    <? bucks($amount1) ?>
   </td>
-  <td class="dehead" align="right">
+  <td class="detail" align="right">
    <? bucks($amount2) ?>
   </td>
  </tr>
@@ -227,7 +273,7 @@
 ?>
 
  <tr bgcolor="#ddddff">
-  <td class="detail" colspan="4">
+  <td class="detail" colspan="<?php echo $form_billcode ? '6' : '4'; ?>">
    <?echo xl('Totals for ') . $docname ?>
   </td>
   <td class="dehead" align="right">
@@ -239,7 +285,7 @@
  </tr>
 
  <tr bgcolor="#ffdddd">
-  <td class="detail" colspan="4">
+  <td class="detail" colspan="<?php echo $form_billcode ? '6' : '4'; ?>">
    <?xl('Grand Totals','e')?>
   </td>
   <td class="dehead" align="right">
