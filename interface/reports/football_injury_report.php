@@ -41,6 +41,7 @@ $arr_show = array(
 	2 => array('Days/Games Missed'),
 	3 => array('Body Region'),
 	4 => array('Injury Type'),
+	5 => array('Issue Title'),
 );
 
 $arr_regions_osics = array(
@@ -285,7 +286,7 @@ $arr_types_ucsmc = array(
 
 		$query = "SELECT lists.id AS listid, lists.diagnosis, lists.pid, " .
 			"lists.extrainfo AS gmissed, lists.begdate, lists.enddate, " .
-			"lists.returndate, fia.*, pd.lname, pd.fname, pd.mname " .
+			"lists.returndate, lists.title, fia.*, pd.lname, pd.fname, pd.mname " .
 			"FROM lists " .
 			"JOIN patient_data AS pd ON pd.pid = lists.pid AND ( $squadmatches ) " .
 			"JOIN issue_encounter AS ie ON ie.list_id = lists.id " .
@@ -302,6 +303,7 @@ $arr_types_ucsmc = array(
 		$areport = array();
 		$arr_my_body_regions = array();
 		$arr_my_injury_types = array();
+		$arr_my_issue_titles = array();
 
 		$last_listid  = 0;
 		$last_pid     = 0;
@@ -328,6 +330,8 @@ $arr_types_ucsmc = array(
 			else if (preg_match('/^..\...\.(..)$/', $row['diagnosis'], $matches)) {
 				$injury_type = $arr_types_ucsmc[$matches[1]];
 			}
+
+			$issue_title = trim($row['title']);
 
 			$key = 'Unspecified';
 
@@ -404,6 +408,7 @@ $arr_types_ucsmc = array(
 				$areport[$key]['gmissed'] = 0;  // games missed
 				$areport[$key]['br'] = array(); // body region array
 				$areport[$key]['it'] = array(); // injury type array
+				$areport[$key]['ti'] = array(); // issue title array
 			}
 
 			// Compute days missed.  Force non-overlap of multiple issues for the
@@ -430,10 +435,12 @@ $arr_types_ucsmc = array(
 			$areport[$key]['gmissed'] += $row['gmissed']; // count games missed
 			$areport[$key]['br'][$body_region] += 1;      // count injuries to this body part
 			$areport[$key]['it'][$injury_type] += 1;      // count injuries of this type
+			$areport[$key]['ti'][$issue_title] += 1;      // count injuries with this title
 
 			// These track all body regions and injury types encountered.
 			$arr_my_body_regions[$body_region] += 1;
 			$arr_my_injury_types[$injury_type] += 1;
+			$arr_my_issue_titles[$issue_title] += 1;
 
 		} // end while
 
@@ -441,6 +448,7 @@ $arr_types_ucsmc = array(
 		ksort($areport);
 		ksort($arr_my_body_regions);
 		ksort($arr_my_injury_types);
+		ksort($arr_my_issue_titles);
 ?>
 
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
@@ -468,6 +476,11 @@ $arr_types_ucsmc = array(
 			else if ($value == '4') { // injury type
 				foreach ($arr_my_injury_types as $it => $nothing) {
 					echo "  <td class='dehead' align='right'>$it</td>\n";
+				}
+			}
+			else if ($value == '5') { // issue titles
+				foreach ($arr_my_issue_titles as $ti => $nothing) {
+					echo "  <td class='dehead' align='right'>$ti</td>\n";
 				}
 			}
 		}
@@ -499,6 +512,11 @@ $arr_types_ucsmc = array(
 				else if ($value == '4') { // injury type
 					foreach ($arr_my_injury_types as $injury_type => $nothing) {
 						echo "  <td class='detail' align='right'>" . $areport[$key]['it'][$injury_type] . "</td>\n";
+					}
+				}
+				else if ($value == '5') { // issue title
+					foreach ($arr_my_issue_titles as $issue_title => $nothing) {
+						echo "  <td class='detail' align='right'>" . $areport[$key]['ti'][$issue_title] . "</td>\n";
 					}
 				}
 			}
