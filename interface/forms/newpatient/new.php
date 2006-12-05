@@ -116,6 +116,7 @@
  $drow = sqlFetchArray($dres);
  $fres = sqlStatement("select * from facility order by name");
  if ($fres) {
+  $result = array();
   for ($iter = 0; $frow = sqlFetchArray($fres); $iter++)
    $result[$iter] = $frow;
   foreach($result as $iter) {
