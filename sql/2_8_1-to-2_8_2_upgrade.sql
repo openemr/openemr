@@ -374,3 +374,17 @@ ALTER TABLE form_encounter
 
 ALTER TABLE lists
   ADD returndate date DEFAULT NULL;
+
+ALTER TABLE users
+  ADD active    tinyint(1)   NOT NULL DEFAULT 1,
+  ADD npi       varchar(15)  NOT NULL DEFAULT '',
+  ADD specialty varchar(255) NOT NULL DEFAULT '',
+  ADD billname  varchar(255) NOT NULL DEFAULT '',
+  ADD email     varchar(255) NOT NULL DEFAULT '',
+  ADD url       varchar(255) NOT NULL DEFAULT '',
+  ADD street    varchar(60)  NOT NULL DEFAULT '',
+  ADD city      varchar(30)  NOT NULL DEFAULT '',
+  ADD state     varchar(30)  NOT NULL DEFAULT '',
+  ADD zip       varchar(20)  NOT NULL DEFAULT '',
+  ADD phone     varchar(30)  NOT NULL DEFAULT '',
+  ADD fax       varchar(30)  NOT NULL DEFAULT '';

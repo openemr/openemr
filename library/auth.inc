@@ -145,9 +145,9 @@ function changePasword ($id, $new_md5)
 function getUserList ($cols = '*', $limit = 'all', $start = '0')
 {
 	if ($limit = "all")
-		$rez = sqlStatement("select $cols from users order by date DESC");
+		$rez = sqlStatement("select $cols from users where username != '' order by date DESC");
 	else
-		$rez = sqlStatement("select $cols from users order by date DESC limit $limit, $start");
+		$rez = sqlStatement("select $cols from users where username != '' order by date DESC limit $limit, $start");
 	for ($iter = 0; $row = sqlFetchArray($rez); $iter++)
 		$tbl[$iter] = $row;
 	return $tbl;

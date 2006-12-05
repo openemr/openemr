@@ -32,7 +32,8 @@ function toggleNoShow( $cid) {
 
 //return array of provider usernames
 function getProviderUsernames() {
-	$rez = sqlStatement("select distinct username,lname,fname from users where authorized=1");
+	$rez = sqlStatement("select distinct username, lname, fname from users " .
+		"where authorized = 1 and username != ''");
 	for($iter=0; $row=sqlFetchArray($rez); $iter++)
 		$returnval[$iter]=$row;
 
@@ -50,7 +51,7 @@ function getIDfromUser($name) {
 		return $row['id'];
 }
 function getAuthorizedIDs() {
-	$query = "select id, username from users where authorized=1 ";
+	$query = "select id, username from users where authorized=1 and username != ''";
 	$rez = sqlStatement($query);
 	for($iter=0; $row=sqlFetchArray($rez); $iter++)
 		$returnval[$iter]=$row;
@@ -59,7 +60,8 @@ function getAuthorizedIDs() {
 
 
 function getUserInfo() {
-	$rez = sqlStatement("select distinct id,username,lname,fname, authorized, info, facility from users");
+	$rez = sqlStatement("select distinct id, username, lname, fname, authorized, " .
+		"info, facility from users where username != ''");
 	for($iter=0; $row=sqlFetchArray($rez); $iter++)
 		$returnval[$iter]=$row;
 
@@ -76,7 +78,7 @@ function getUsername($uID) {
 
 //retrieve the name based on the username
 function getNamefromUsername($username) {
-	$query = "select * from users where username like '$username'";
+	$query = "select * from users where username like '$username' and username != ''";
 	$res = sqlQuery($query);
 	return $res;
 }

@@ -349,7 +349,8 @@ if ($_POST['newcode']) {
 // who do not appear in the calendar.
 //
 $query = "SELECT id, lname, fname FROM users WHERE " .
-	"authorized = 1 OR info LIKE '%provider%' ORDER BY lname, fname";
+	"( authorized = 1 OR info LIKE '%provider%' ) AND username != '' " .
+	"ORDER BY lname, fname";
 $res = sqlStatement($query);
 
 echo "   <select name='ProviderID'>\n";

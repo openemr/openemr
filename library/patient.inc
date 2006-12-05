@@ -60,7 +60,7 @@ function getInsuranceProviders() {
 
 function getProviders() {
 	$returnval = array("");
-	$sql = "select fname,lname from users where authorized=1";
+	$sql = "select fname,lname from users where authorized = 1 and username != ''";
 	$rez = sqlStatement($sql);
 	for($iter=0; $row=sqlFetchArray($rez); $iter++) {
 		if (($row["fname"] != "") && ($row["lname"] != "")) {
@@ -81,7 +81,9 @@ function getProviderInfo($providerID = "%", $providers_only = true) {
 	if ($providerID == "%") {
 		$command = "like";
 	}
-	$query = "select distinct id,username,lname,fname, authorized, info, facility from users where id $command '" . mysql_real_escape_string($providerID) . "' " . $param1;
+	$query = "select distinct id, username, lname, fname, authorized, info, facility " .
+		"from users where username != '' and id $command '" .
+		mysql_real_escape_string($providerID) . "' " . $param1;
 	$rez = sqlStatement($query);
 	for($iter=0; $row=sqlFetchArray($rez); $iter++)
 		$returnval[$iter]=$row;
@@ -109,7 +111,9 @@ function getCalendarProviderInfo($providerID = "%", $providers_only = true) {
 	if ($providerID == "%") {
 		$command = "like";
 	}
-	$query = "select distinct id,username,lname,fname, authorized, info, facility from users where id $command '" . mysql_real_escape_string($providerID) . "' " . $param1;
+	$query = "select distinct id, username, lname, fname, authorized, info, facility " .
+		"from users where username != '' and id $command '" .
+		mysql_real_escape_string($providerID) . "' " . $param1;
 
 	$rez = sqlStatement($query);
 	for($iter=0; $row=sqlFetchArray($rez); $iter++)

@@ -25,7 +25,7 @@ if (isset($_POST["mode"])) {
     }
     $_POST["info"] = addslashes($_POST["info"]);
 
-    $res = sqlStatement("select distinct username from users");
+    $res = sqlStatement("select distinct username from users where username != ''");
     $doit = true;
     while ($row = mysql_fetch_array($res)) {
       if ($doit == true && $row['username'] == $_POST["username"]) {
@@ -274,7 +274,7 @@ if ($fres) {
 <span class=text><? xl('Initial User','e'); ?>: </span>
 <select name=username>
 <?
-$res = sqlStatement("select distinct username from users");
+$res = sqlStatement("select distinct username from users where username != ''");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
   $result[$iter] = $row;
 foreach ($result as $iter) {
@@ -297,7 +297,7 @@ foreach ($result as $iter) {
 <span class=text><? xl('User','e'); ?>: </span>
 <select name=username>
 <?
-$res = sqlStatement("select distinct username from users");
+$res = sqlStatement("select distinct username from users where username != ''");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
   $result3[$iter] = $row;
 foreach ($result3 as $iter) {
@@ -330,7 +330,7 @@ foreach ($result2 as $iter) {
 <table border=0 cellpadding=1 cellspacing=2>
 <tr><td><span class=bold><? xl('Username','e'); ?></span></td><td><span class=bold><? xl('Real Name','e'); ?></span></td><td><span class=bold><? xl('Info','e'); ?></span></td><td><span class=bold><? xl('Authorized','e'); ?>?</span></td></tr>
 <?
-$res = sqlStatement("select * from users order by username");
+$res = sqlStatement("select * from users where username != '' order by username");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
   $result4[$iter] = $row;
 foreach ($result4 as $iter) {
