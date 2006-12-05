@@ -167,6 +167,10 @@ $GLOBALS['default_chief_complaint'] = '';
 // have other applications.
 $GLOBALS['default_new_encounter_form'] = '';
 
+// If you want a new encounter to be automatically created when appointment
+// status is set to "@" (arrived), then make this true.
+$GLOBALS['auto_create_new_encounters'] = true;
+
 // If you want Hylafax support then uncomment and customize the following
 // statements, and also customize custom/faxcover.txt:
 //

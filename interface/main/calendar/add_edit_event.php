@@ -22,6 +22,7 @@
 
  include_once("../../globals.php");
  include_once("$srcdir/patient.inc");
+ include_once("$srcdir/forms.inc");
 
  // Things that might be passed by our opener.
  //
@@ -55,6 +56,8 @@
  // If we are saving, then save and close the window.
  //
  if ($_POST['form_save']) {
+
+  $event_date = fixDate($_POST['form_date']);
 
   // Compute start and end time strings to be saved.
   if ($_POST['form_allday']) {
@@ -107,7 +110,7 @@
     "pc_time = NOW(), "                                                .
     "pc_hometext = '"    . $_POST['form_comments']             . "', " .
     "pc_informant = '"   . $_SESSION['authUserID']             . "', " .
-    "pc_eventDate = '"   . fixDate($_POST['form_date'])        . "', " .
+    "pc_eventDate = '"   . $event_date                         . "', " .
     "pc_endDate = '"     . fixDate($_POST['form_enddate'])     . "', " .
     "pc_duration = '"    . ($duration * 60)                    . "', " .
     "pc_recurrtype = '"  . ($_POST['form_repeat'] ? '1' : '0') . "', " .
@@ -132,7 +135,7 @@
     "NOW(), "                                         .
     "'" . $_POST['form_comments']             . "', " .
     "'" . $_SESSION['authUserID']             . "', " .
-    "'" . fixDate($_POST['form_date'])        . "', " .
+    "'" . $event_date                         . "', " .
     "'" . fixDate($_POST['form_enddate'])     . "', " .
     "'" . ($duration * 60)                    . "', " .
     "'" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
@@ -152,6 +155,33 @@
   if ($patient_dob && $_POST['form_pid']) {
    sqlStatement("UPDATE patient_data SET DOB = '$patient_dob' WHERE " .
     "pid = '" . $_POST['form_pid'] . "'");
+  }
+
+  // Auto-create a new encounter if appropriate.
+  //
+  if ($GLOBALS['auto_create_new_encounters'] &&
+    $_POST['form_apptstatus'] == '@' && $event_date == date('Y-m-d'))
+  {
+    $tmprow = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
+      "pid = '" . $_POST['form_pid'] . "' AND date = '$event_date 00:00:00'");
+    if ($tmprow['count'] == 0) {
+      $tmprow = sqlQuery("SELECT facility FROM users WHERE username = '" .
+        $_SESSION['authUser'] . "'");
+      $facility = $tmprow['facility'];
+      $conn = $GLOBALS['adodb']['db'];
+      $encounter = $conn->GenID("sequences");
+      addForm($encounter, "New Patient Encounter",
+        sqlInsert("INSERT INTO form_encounter SET " .
+          "date = '$event_date', " .
+          "onset_date = '$event_date', " .
+          "reason = '" . $_POST['form_comments'] . "', " .
+          "facility = '$facility', " .
+          "pid = '" . $_POST['form_pid'] . "', " .
+          "encounter = '$encounter'"),
+        "newpatient", $_POST['form_pid'], $userauthorized
+      );
+      $info_msg .= "New encounter $encounter was created. ";
+    }
   }
 
  }
