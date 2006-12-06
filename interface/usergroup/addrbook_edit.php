@@ -43,11 +43,31 @@
 ?>
 <html>
 <head>
-<title><? echo $userid ? "Edit" : "Add New" ?> Person</title>
-<link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
+<title><?php echo $userid ? "Edit" : "Add New" ?> Person</title>
+<link rel=stylesheet href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }
+
+.inputtext {
+ /*
+ font-family:monospace;
+ font-size:10pt;
+ font-weight:normal;
+ border-style:solid;
+ border-width:1px;
+ border-color: #000000;
+ background-color:transparent;
+ */
+ padding-left:2px;
+ padding-right:2px;
+}
+
+.button {
+ font-family:sans-serif;
+ font-size:9pt;
+ font-weight:bold;
+}
 </style>
 
 <script language="JavaScript">
@@ -64,10 +84,12 @@ td { font-size:10pt; }
   if ($userid) {
 
    $query = "UPDATE users SET " .
+    "title = "        . invalue('form_title')        . ", " .
     "fname = "        . invalue('form_fname')        . ", " .
     "lname = "        . invalue('form_lname')        . ", " .
     "mname = "        . invalue('form_mname')        . ", " .
     "specialty = "    . invalue('form_specialty')    . ", " .
+    "assistant = "    . invalue('form_assistant')    . ", " .
     "federaltaxid = " . invalue('form_federaltaxid') . ", " .
     "upin = "         . invalue('form_upin')         . ", " .
     "npi = "          . invalue('form_npi')          . ", " .
@@ -77,25 +99,35 @@ td { font-size:10pt; }
     "city = "         . invalue('form_city')         . ", " .
     "state = "        . invalue('form_state')        . ", " .
     "zip = "          . invalue('form_zip')          . ", " .
+    "street2 = "      . invalue('form_street2')      . ", " .
+    "city2 = "        . invalue('form_city2')        . ", " .
+    "state2 = "       . invalue('form_state2')       . ", " .
+    "zip2 = "         . invalue('form_zip2')         . ", " .
     "phone = "        . invalue('form_phone')        . ", " .
-    "fax = "          . invalue('form_fax')          . ", " .
-    "info = "         . invalue('form_info')         . " "  .
+    "phonew1 = "      . invalue('form_phonew1')      . ", " .
+    "phonew2 = "      . invalue('form_phonew2')      . ", " .
+    "phonecell = "    . invalue('form_phonecell')    . ", " .
+    "fax = "          . invalue('form_fax')          . " "  .
     "WHERE id = '$userid'";
     sqlStatement($query);
 
   } else {
 
    $userid = sqlInsert("INSERT INTO users ( " .
-    "username, password, authorized, info, source, fname, lname, mname,  " .
+    "username, password, authorized, info, source, " .
+    "title, fname, lname, mname,  " .
     "federaltaxid, federaldrugid, upin, facility, see_auth, active, " .
-    "npi, specialty, billname, email, url, street, city, " .
-    "state, zip, phone, fax "            .
+    "npi, specialty, assistant, billname, email, url, " .
+    "street, city, state, zip, " .
+    "street2, city2, state2, zip2, " .
+    "phone, phonew1, phonew2, phonecell, fax "            .
     ") VALUES ( "                        .
     "'', "                               . // username
     "'', "                               . // password
     "0, "                                . // authorized
-    invalue('form_info')          . ", " .
+    "'', "                               . // info
     "NULL, "                             . // source
+    invalue('form_title')         . ", " .
     invalue('form_fname')         . ", " .
     invalue('form_lname')         . ", " .
     invalue('form_mname')         . ", " .
@@ -107,6 +139,7 @@ td { font-size:10pt; }
     "1, "                                . // active
     invalue('form_npi')           . ", " .
     invalue('form_specialty')     . ", " .
+    invalue('form_assistant')     . ", " .
     "'', "                               . // billname
     invalue('form_email')         . ", " .
     invalue('form_url')           . ", " .
@@ -114,7 +147,14 @@ td { font-size:10pt; }
     invalue('form_city')          . ", " .
     invalue('form_state')         . ", " .
     invalue('form_zip')           . ", " .
+    invalue('form_street2')       . ", " .
+    invalue('form_city2')         . ", " .
+    invalue('form_state2')        . ", " .
+    invalue('form_zip2')          . ", " .
     invalue('form_phone')         . ", " .
+    invalue('form_phonew1')       . ", " .
+    invalue('form_phonew2')       . ", " .
+    invalue('form_phonecell')     . ", " .
     invalue('form_fax')           . " "  .
    ")");
 
@@ -144,7 +184,7 @@ td { font-size:10pt; }
   $row = sqlQuery("SELECT * FROM users WHERE id = '$userid'");
  }
 ?>
-<form method='post' name='theform' action='addrbook_edit.php?userid=<? echo $userid ?>'>
+<form method='post' name='theform' action='addrbook_edit.php?userid=<?php echo $userid ?>'>
 <center>
 
 <table border='0' width='100%'>
@@ -152,59 +192,134 @@ td { font-size:10pt; }
  <tr>
   <td width='1%' nowrap><b><?php xl('Name','e'); ?>:</b></td>
   <td>
-   <input type='text' size='10' name='form_lname' value='<? echo $row['lname'] ?>' />&nbsp;
-   First: <input type='text' size='10' name='form_fname' value='<? echo $row['fname'] ?>' />&nbsp;
-   Middle: <input type='text' size='4' name='form_mname' value='<? echo $row['mname'] ?>' />
+   <select name='form_title'>
+    <option value=''></option>
+<?php
+ foreach (array('Mr.', 'Mrs.', 'Ms.', 'Dr.') as $value) {
+  echo "    <option value='$value'";
+  if ($value == $row['title']) echo " selected";
+  echo ">$value</option>\n";
+ }
+?>
+   </select>
+   <b>Last:</b><input type='text' size='10' name='form_lname' class='inputtext'
+     maxlength='50' value='<?php echo $row['lname'] ?>'/>&nbsp;
+   <b>First:</b> <input type='text' size='10' name='form_fname' class='inputtext'
+     maxlength='50' value='<?php echo $row['fname'] ?>' />&nbsp;
+   <b>Middle:</b> <input type='text' size='4' name='form_mname' class='inputtext'
+     maxlength='50' value='<?php echo $row['mname'] ?>' />
   </td>
  </tr>
 
  <tr>
-  <td nowrap><b><? xl('Specialty','e'); ?>:</b></td>
+  <td nowrap><b><?php xl('Specialty','e'); ?>:</b></td>
   <td>
-   <input type='text' size='40' name='form_specialty' value='<? echo $row['specialty'] ?>'
-    style='width:100%' />
+   <input type='text' size='40' name='form_specialty' maxlength='250'
+    value='<?php echo $row['specialty'] ?>'
+    style='width:100%' class='inputtext' />
   </td>
  </tr>
 
  <tr>
-  <td nowrap><b><? xl('Phone','e'); ?>:</b></td>
+  <td nowrap><b><?php xl('Home Phone','e'); ?>:</b></td>
   <td>
-   <input type='text' size='11' name='form_phone' value='<? echo $row['phone'] ?>' />&nbsp;
-   Fax: <input type='text' size='11' name='form_fax' value='<? echo $row['fax'] ?>' />
+   <input type='text' size='11' name='form_phone' value='<?php echo $row['phone'] ?>'
+    maxlength='30' class='inputtext' />&nbsp;
+   <b>Mobile:</b><input type='text' size='11' name='form_phonecell'
+    maxlength='30' value='<?php echo $row['phonecell'] ?>' class='inputtext' />
   </td>
  </tr>
 
  <tr>
-  <td nowrap><b><? xl('Email','e'); ?>:</b></td>
+  <td nowrap><b><?php xl('Work Phone','e'); ?>:</b></td>
   <td>
-   <input type='text' size='40' name='form_email' value='<? echo $row['email'] ?>'
-    style='width:100%' />
+   <input type='text' size='11' name='form_phonew1' value='<?php echo $row['phonew1'] ?>'
+    maxlength='30' class='inputtext' />&nbsp;
+   <b>2nd:</b><input type='text' size='11' name='form_phonew2' value='<?php echo $row['phonew2'] ?>'
+    maxlength='30' class='inputtext' />&nbsp;
+   <b>Fax:</b> <input type='text' size='11' name='form_fax' value='<?php echo $row['fax'] ?>'
+    maxlength='30' class='inputtext' />
   </td>
  </tr>
 
  <tr>
-  <td nowrap><b><? xl('Street','e'); ?>:</b></td>
+  <td nowrap><b><?php xl('Assistant','e'); ?>:</b></td>
   <td>
-   <input type='text' size='40' name='form_street' value='<? echo $row['street'] ?>'
-    style='width:100%' />
+   <input type='text' size='40' name='form_assistant' maxlength='250'
+    value='<?php echo $row['assistant'] ?>'
+    style='width:100%' class='inputtext' />
   </td>
  </tr>
 
  <tr>
-  <td nowrap><b><? xl('City','e'); ?>:</b></td>
+  <td nowrap><b><?php xl('Email','e'); ?>:</b></td>
   <td>
-   <input type='text' size='15' name='form_city' value='<? echo $row['city'] ?>' />&nbsp;
-   State: <input type='text' size='10' name='form_state' value='<? echo $row['state'] ?>' />&nbsp;
-   Postal: <input type='text' size='10' name='form_zip' value='<? echo $row['zip'] ?>' />
+   <input type='text' size='40' name='form_email' maxlength='250'
+    value='<?php echo $row['email'] ?>'
+    style='width:100%' class='inputtext' />
   </td>
  </tr>
 
  <tr>
-  <td nowrap><b><? xl('UPIN','e'); ?>:</b></td>
+  <td nowrap><b><?php xl('Website','e'); ?>:</b></td>
   <td>
-   <input type='text' size='6' name='form_upin' value='<? echo $row['upin'] ?>' />&nbsp;
-   NPI: <input type='text' size='10' name='form_npi' value='<? echo $row['npi'] ?>' />&nbsp;
-   TIN: <input type='text' size='11' name='form_federaltaxid' value='<? echo $row['federaltaxid'] ?>' />
+   <input type='text' size='40' name='form_url' maxlength='250'
+    value='<?php echo $row['url'] ?>'
+    style='width:100%' class='inputtext' />
+  </td>
+ </tr>
+
+ <tr>
+  <td nowrap><b><?php xl('Main Address','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='40' name='form_street' maxlength='60'
+    value='<?php echo $row['street'] ?>'
+    style='width:100%' class='inputtext' />
+  </td>
+ </tr>
+
+ <tr>
+  <td nowrap><b><?php xl('City','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='10' name='form_city' maxlength='30'
+    value='<?php echo $row['city'] ?>' class='inputtext' />&nbsp;
+   <b>State/county:</b> <input type='text' size='10' name='form_state' maxlength='30'
+    value='<?php echo $row['state'] ?>' class='inputtext' />&nbsp;
+   <b>Postal code:</b> <input type='text' size='10' name='form_zip' maxlength='20'
+    value='<?php echo $row['zip'] ?>' class='inputtext' />
+  </td>
+ </tr>
+
+ <tr>
+  <td nowrap><b><?php xl('Alt Address','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='40' name='form_street2' maxlength='60'
+    value='<?php echo $row['street2'] ?>'
+    style='width:100%' class='inputtext' />
+  </td>
+ </tr>
+
+ <tr>
+  <td nowrap><b><?php xl('City','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='10' name='form_city2' maxlength='30'
+    value='<?php echo $row['city2'] ?>' class='inputtext' />&nbsp;
+   <b>State/county:</b> <input type='text' size='10' name='form_state2' maxlength='30'
+    value='<?php echo $row['state2'] ?>' class='inputtext' />&nbsp;
+   <b>Postal code:</b> <input type='text' size='10' name='form_zip2' maxlength='20'
+    value='<?php echo $row['zip2'] ?>' class='inputtext' />
+  </td>
+ </tr>
+
+ <tr>
+  <td nowrap><b><?php xl('UPIN','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='6' name='form_upin' maxlength='6'
+    value='<?php echo $row['upin'] ?>' class='inputtext' />&nbsp;
+   <b>NPI:</b> <input type='text' size='10' name='form_npi' maxlength='10'
+    value='<?php echo $row['npi'] ?>' class='inputtext' />&nbsp;
+   <b>TIN:</b> <input type='text' size='10' name='form_federaltaxid' maxlength='10'
+    value='<?php echo $row['federaltaxid'] ?>' class='inputtext' />
   </td>
  </tr>
 
@@ -225,8 +340,5 @@ td { font-size:10pt; }
 
 </center>
 </form>
-<script language='JavaScript'>
- newtype(<? echo $type_index ?>);
-</script>
 </body>
 </html>

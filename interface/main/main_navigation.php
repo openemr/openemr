@@ -61,6 +61,10 @@ include_once("../../library/acl.inc");
 &nbsp;<a href="onotes/office_comments.php" target="Main" class="menu"><? xl('Notes','e'); ?></a>&nbsp;
 </td>
 
+<td align="center" nowrap>
+&nbsp;<a href="../usergroup/addrbook_list.php" target="Main" class="menu"><? xl('AB','e'); ?></a>&nbsp;
+</td>
+
 <?php
  if ($GLOBALS['hylafax_server'] || $GLOBALS['scanner_output_directory']) {
   $faxcount = 0;

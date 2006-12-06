@@ -387,4 +387,13 @@ ALTER TABLE users
   ADD state     varchar(30)  NOT NULL DEFAULT '',
   ADD zip       varchar(20)  NOT NULL DEFAULT '',
   ADD phone     varchar(30)  NOT NULL DEFAULT '',
-  ADD fax       varchar(30)  NOT NULL DEFAULT '';
+  ADD fax       varchar(30)  NOT NULL DEFAULT '',
+  ADD title     varchar(30)  NOT NULL DEFAULT '',
+  ADD phonew1   varchar(30)  NOT NULL DEFAULT '',
+  ADD phonew2   varchar(30)  NOT NULL DEFAULT '',
+  ADD phonecell varchar(30)  NOT NULL DEFAULT '',
+  ADD assistant varchar(255) NOT NULL DEFAULT '',
+  ADD street2   varchar(60)  NOT NULL DEFAULT '',
+  ADD city2     varchar(30)  NOT NULL DEFAULT '',
+  ADD state2    varchar(30)  NOT NULL DEFAULT '',
+  ADD zip2      varchar(20)  NOT NULL DEFAULT '';

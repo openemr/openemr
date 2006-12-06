@@ -11,10 +11,12 @@
 
  $form_fname = trim($_POST['form_fname']);
  $form_lname = trim($_POST['form_lname']);
+ $form_specialty = trim($_POST['form_specialty']);
 
  $query = "SELECT * FROM users WHERE 1 = 1 ";
  if ($form_lname) $query .= "AND lname LIKE '$form_lname%' ";
  if ($form_fname) $query .= "AND fname LIKE '$form_fname%' ";
+ if ($form_specialty) $query .= "AND specialty LIKE '%$form_specialty%' ";
  $query .= "ORDER BY lname, fname, mname LIMIT 500";
  $res = sqlStatement($query);
 ?>
@@ -35,16 +37,38 @@ a, a:visited, a:hover {
  color:#0000cc;
 }
 tr.search {
- font-size:10pt;
- font-weight: bold;
+ font-size:9pt;
+ font-weight:bold;
 }
 tr.head {
  font-size:10pt;
  background-color:#cccccc;
- font-weight: bold;
+ font-weight:bold;
 }
 tr.detail {
  font-size:10pt;
+}
+
+.inputtext {
+ font-family:monospace;
+ font-size:9pt;
+ font-weight:normal;
+ border-style:solid;
+ border-width:1px;
+ /*
+ border-top-width:0px;
+ border-bottom-width:1px;
+ border-left-width:0px;
+ border-right-width:0px;
+ */
+ border-color: #000000;
+ background-color:transparent;
+}
+
+.button {
+ font-family:sans-serif;
+ font-size:8pt;
+ font-weight:bold;
 }
 </style>
 
@@ -60,7 +84,7 @@ function refreshme() {
 
 // Process click to pop up the add/edit window.
 function doedclick(userid) {
- dlgopen('addrbook_edit.php?userid=' + userid, '_blank', 600, 350);
+ dlgopen('addrbook_edit.php?userid=' + userid, '_blank', 700, 450);
 }
 
 </script>
@@ -80,14 +104,17 @@ function doedclick(userid) {
   <td>
    <?xl('First Name:','e')?>
    <input type='text' name='form_fname' size='10' value='<?php echo $form_fname; ?>'
-    title='<?php xl("All or part of the first name","e") ?>' />&nbsp;
+    class='inputtext' title='<?php xl("All or part of the first name","e") ?>' />&nbsp;
    <?xl('Last Name:','e')?>
    <input type='text' name='form_lname' size='10' value='<?php echo $form_lname; ?>'
-    title='<?php xl("All or part of the last name","e") ?>' />&nbsp;
-   <input type='submit' name='form_search' value='<?xl("Search","e")?>' />
+    class='inputtext' title='<?php xl("All or part of the last name","e") ?>' />&nbsp;
+   <?xl('Specialty:','e')?>
+   <input type='text' name='form_specialty' size='10' value='<?php echo $form_specialty; ?>'
+    class='inputtext' title='<?php xl("Any part of the desired specialty","e") ?>' />&nbsp;&nbsp;
+   <input type='submit' class='button' name='form_search' value='<?xl("Search","e")?>' />
   </td>
   <td align='right'>
-   <input type='button' value='Add New' onclick='doedclick(0)' />
+   <input type='button' class='button' value='Add New' onclick='doedclick(0)' />
   </td>
  </tr>
  <tr>
@@ -121,7 +148,7 @@ function doedclick(userid) {
   echo "  <td>" . $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] . "</td>\n";
   echo "  <td>" . $username         . "</td>\n";
   echo "  <td>" . $row['specialty'] . "</td>\n";
-  echo "  <td>" . $row['phone']     . "</td>\n";
+  echo "  <td>" . $row['phonew1']   . "</td>\n";
   echo "  <td>" . $row['fax']       . "</td>\n";
   echo "  <td>" . $row['email']     . "</td>\n";
   echo "  <td>" . $row['street']    . "</td>\n";
