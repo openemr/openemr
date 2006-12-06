@@ -14,7 +14,7 @@
 
  // Process click on Delete link.
  function deleteme() {
-  dlgopen('../deleter.php?encounter=<?php echo $encounter; ?>', '_blank', 500, 450);
+  dlgopen('../deleter.php?encounterid=<?php echo $encounter; ?>', '_blank', 500, 450);
   return false;
  }
 

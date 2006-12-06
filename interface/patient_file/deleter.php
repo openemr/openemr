@@ -10,10 +10,11 @@
  include_once("$srcdir/log.inc");
  include_once("$srcdir/acl.inc");
 
- $patient   = $_REQUEST['patient'];
- $encounter = $_REQUEST['encounter'];
- $issue     = $_REQUEST['issue'];
- $document  = $_REQUEST['document'];
+ $patient     = $_REQUEST['patient'];
+ $encounterid = $_REQUEST['encounterid'];
+ $formid      = $_REQUEST['formid'];
+ $issue       = $_REQUEST['issue'];
+ $document    = $_REQUEST['document'];
 
  $info_msg = "";
 
@@ -58,7 +59,7 @@
 ?>
 <html>
 <head>
-<title><? xl('Delete Patient, Encounter, Issue or Document','e'); ?></title>
+<title><? xl('Delete Patient, Encounter, Form, Issue or Document','e'); ?></title>
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
 
 <style>
@@ -95,15 +96,23 @@ td { font-size:10pt; }
    }
    row_delete("forms", "pid = '$patient'");
   }
-  else if ($encounter) {
-   row_modify("billing", "activity = 0", "encounter = '$encounter'");
-   row_delete("issue_encounter", "encounter = '$encounter'");
-   $res = sqlStatement("SELECT * FROM forms WHERE encounter = '$encounter'");
+  else if ($encounterid) {
+   row_modify("billing", "activity = 0", "encounter = '$encounterid'");
+   row_delete("issue_encounter", "encounter = '$encounterid'");
+   $res = sqlStatement("SELECT * FROM forms WHERE encounter = '$encounterid'");
    while ($row = sqlFetchArray($res)) {
     $formdir = ($row['formdir'] == 'newpatient') ? 'encounter' : $row['formdir'];
     row_delete("form_$formdir", "id = '" . $row['form_id'] . "'");
    }
-   row_delete("forms", "encounter = '$encounter'");
+   row_delete("forms", "encounter = '$encounterid'");
+  }
+  else if ($formid) {
+   $row = sqlQuery("SELECT * FROM forms WHERE id = '$formid'");
+   $formdir = $row['formdir'];
+   if (! $formdir) die("There is no form with id '$formid'");
+   $formname = ($formdir == 'newpatient') ? 'encounter' : $formdir;
+   row_delete("form_$formname", "id = '" . $row['form_id'] . "'");
+   row_delete("forms", "id = '$formid'");
   }
   else if ($issue) {
    row_delete("issue_encounter", "list_id = '$issue'");
@@ -135,16 +144,18 @@ td { font-size:10pt; }
  }
 ?>
 
-<form method='post' action='deleter.php?patient=<? echo $patient ?>&encounter=<? echo $encounter ?>&issue=<? echo $issue ?>&document=<? echo $document ?>'>
+<form method='post' action='deleter.php?patient=<? echo $patient ?>&encounterid=<? echo $encounterid ?>&formid=<? echo $formid ?>&issue=<? echo $issue ?>&document=<? echo $document ?>'>
 
-<p>&nbsp;<br><? xl('
+<p>&nbsp;<br><?php xl('
 Do you really want to delete','e'); ?>
 
 <?php
  if ($patient) {
   echo "patient $patient";
- } else if ($encounter) {
-  echo "encounter $encounter";
+ } else if ($encounterid) {
+  echo "encounter $encounterid";
+ } else if ($formid) {
+  echo "form $formid";
  } else if ($issue) {
   echo "issue $issue";
  } else if ($document) {
