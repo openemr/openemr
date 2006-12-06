@@ -21,6 +21,7 @@
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
+include_once("$srcdir/acl.inc");
 
 $row = array();
 
@@ -84,8 +85,10 @@ $imagepath = "$imagedir/${encounter}_$formid.jpg";
 $imageurl = "$web_root/documents/$pid/encounters/${encounter}_$formid.jpg";
 
 if ($formid) {
- $row = sqlQuery ("SELECT * FROM form_scanned_notes WHERE " .
-  "id = '$formid' AND activity = '1'") ;
+ $row = sqlQuery("SELECT * FROM form_scanned_notes WHERE " .
+  "id = '$formid' AND activity = '1'");
+ $formrow = sqlQuery("SELECT id FROM forms WHERE " .
+  "form_id = '$formid' AND formdir = 'scanned_notes'");
 }
 ?>
 <html>
@@ -97,13 +100,28 @@ if ($formid) {
  .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
 </style>
 <script type="text/javascript" src="../../../library/dialog.js"></script>
+
 <script language='JavaScript'>
+
  function newEvt() {
   dlgopen('../../main/calendar/add_edit_event.php?patientid=<? echo $pid ?>',
    '_blank', 550, 270);
   return false;
  }
+
+ // Process click on Delete button.
+ function deleteme() {
+  dlgopen('../../patient_file/deleter.php?formid=<?php echo $formrow['id'] ?>', '_blank', 500, 450);
+  return false;
+ }
+
+ // Called by the deleteme.php window on a successful delete.
+ function imdeleted() {
+  location = '<?php echo "$rootdir/patient_file/encounter/patient_encounter.php" ?>';
+ }
+
 </script>
+
 </head>
 
 <body <?echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2"
@@ -152,6 +170,10 @@ if ($formid && is_file($imagepath)) {
 <input type='button' value='Add Appointment' onclick='newEvt()' />
 &nbsp;
 <input type='button' value='Back' onclick="location='<? echo "$rootdir/patient_file/encounter/patient_encounter.php" ?>'" />
+<?php if ($formrow['id'] && acl_check('admin', 'super')) { ?>
+&nbsp;
+<input type='button' value='Delete' onclick='deleteme()' style='color:red' />
+<?php } ?>
 </p>
 
 </center>
