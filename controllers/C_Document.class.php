@@ -362,7 +362,8 @@ class C_Document extends Controller {
 		//move to new patient
 		if (is_numeric($new_patient_id) && is_numeric($document_id)) {
 			$d = new Document($document_id);
-			$sql = "SELECT pid from patient_data where pubpid = '" . $new_patient_id . "'";
+			// $sql = "SELECT pid from patient_data where pubpid = '" . $new_patient_id . "'";
+			$sql = "SELECT pid from patient_data where pid = '" . $new_patient_id . "'";
 			$result = $d->_db->Execute($sql);
 			
 			if (!$result || $result->EOF) {
