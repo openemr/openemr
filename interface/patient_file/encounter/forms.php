@@ -77,8 +77,10 @@
 
    echo '<td class="text"><span style="font-weight:bold;">' .
     $user['fname'] . " " . $user['lname'] .'</span></td>';
-   echo "<td valign='top'><a target='Main' href='$rootdir/patient_file/encounter/view_form.php?" .
-    "formname=" . $formdir . "&id=" . $iter{"form_id"} .
+   echo "<td valign='top'><a target='";
+   echo $GLOBALS['concurrent_layout'] ? "_parent" : "Main";
+   echo "' href='$rootdir/patient_file/encounter/view_form.php?" .
+    "formname=" . $formdir . "&id=" . $iter['form_id'] .
     "' class='text'>$form_name</a></td>\n" .
     "<td width='25'></td>\n" .
     "<td valign='top'>";

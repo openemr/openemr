@@ -5,7 +5,6 @@ include_once("$srcdir/onotes.inc");
 //the number of records to display per screen
 $N = 10;
 
-
 if (!isset($offset)) {
 	$offset=0;
 }
@@ -30,20 +29,17 @@ if ($mode == "update") {
 }
 }
 ?>
-
 <html>
 <head>
 
-
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-
 
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 <form border=0 method=post name=new_note action="office_comments_full.php">
 
-<?
+<?php
 if ($userauthorized) {
 $backurl="../main.php";
 } else {
@@ -51,23 +47,28 @@ $backurl="../main_info.php";
 }
 ?>
 
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+<a href="office_comments.php">
+<?php } else { ?>
+<a href="<?php echo $backurl; ?>" target="Main">
+<?php } ?>
 
-<a href="<?echo $backurl;?>" target="Main"><font class="title"><? xl('Office Notes','e'); ?></font><font class=back><?echo xl ($tback,'e') ;?></font></a>
+<font class="title"><?php xl('Office Notes','e'); ?></font>
+<font class=back><?php echo xl ($tback,'e') ; ?></font></a>
+
 <br>
 <input type=hidden name=mode value="new">
-<input type=hidden name=offset value="<?echo $offset;?>">
-<input type=hidden name=active value="<?echo $active;?>">
+<input type=hidden name=offset value="<?php echo $offset; ?>">
+<input type=hidden name=active value="<?php echo $active; ?>">
 
 <textarea name=note rows=6 cols=40 wrap=virtual></textarea>
 <br>
-<a href="javascript:document.new_note.submit();" class=link_submit>[<?xl ('Add New Note','e'); ?>]</a>
+<a href="javascript:document.new_note.submit();" class=link_submit>[<?php xl ('Add New Note','e'); ?>]</a>
 </form>
-
-
 
 <form border=0 method=post name=update_activity action="office_comments_full.php">
 
-<?//change the view on the current mode, whether all, active, or inactive
+<?php //change the view on the current mode, whether all, active, or inactive
 $all_class="link";$active_class="link";$inactive_class="link";
 if ($active=="all") {
 	$all_class="link_selected";
@@ -76,8 +77,6 @@ if ($active=="all") {
 } elseif ($active==0) {
 	$inactive_class="link_selected";
 }
-
-
 ?>
 
 <font class=text>View: </font> 
@@ -85,16 +84,12 @@ if ($active=="all") {
 <a href="office_comments_full.php?offset=0&active=1" class=<?echo $active_class;?>>[<?xl ('Only Active','e'); ?>]</a>
 <a href="office_comments_full.php?offset=0&active=0" class=<?echo $inactive_class;?>>[<? xl('Only Inactive','e'); ?>]</a>
 
-
-
-
-
 <input type=hidden name=mode value="update">
 <input type=hidden name=offset value="<?echo $offset;?>">
 <input type=hidden name=active value="<?echo $active;?>">
 <table border=0>
 <tr><td colspan=3 align=left><a href="javascript:document.update_activity.submit();" class=link_submit>[<? xl('Change Activity','e'); ?>]</a></td></tr>
-<?
+<?php
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
 
 //retrieve all notes
@@ -135,7 +130,7 @@ print "<tr><td></td><td></td><td></td></tr>\n";
 <hr>
 <table width=400 border=0 cellpadding=0 cellspacing=0>
 <tr><td>
-<?
+<?php
 if ($offset>($N-1)) {
 echo "<a class=link href=office_comments_full.php?active=".$active."&offset=".($offset-$N).">[".xl('Previous','e')."]</a>";
 }
@@ -150,8 +145,6 @@ echo "<a class=link href=office_comments_full.php?active=".$active."&offset=".($
 </table>
 
 <br><br><br>
-
-<?//<a href="../main.php" target=Main class=link_submit>Back</a>?>
 
 </body>
 </html>

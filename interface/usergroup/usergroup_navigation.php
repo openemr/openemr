@@ -2,7 +2,6 @@
 include_once("../globals.php");
 include_once("../../library/acl.inc");
 ?>
-
 <html>
 <head>
 <title><? xl('Navigation','e'); ?></title>
@@ -80,11 +79,13 @@ include_once("../../library/acl.inc");
 </td>
 <? } ?>
 
+<?php if (! $GLOBALS['concurrent_layout']) { ?>
 <td valign="middle" align="right" nowrap>
-<?//<a href="../logout.php?auth=logout" target="_top" class="logout">Logout</a>?>
 &nbsp;<a class=menu href="../main/main_screen.php" target="_top" class="menu"
  title=<? xl('Exit from Administration','e'); ?>><?xl('Back','e');?></a>&nbsp;&nbsp;
 </td>
+<?php } ?>
+
 </tr>
 </table>
 

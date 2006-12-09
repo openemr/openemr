@@ -1,25 +1,20 @@
-<?
+<?php
 include_once("../globals.php");
-
-
 include_once("$srcdir/md5.js");
 include_once("$srcdir/sql.inc");
 ?>
-
 <html>
 <head>
-
 
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-
 <span class="title"><? xl('Password Change','e'); ?></span>
 <br><br>
 
-<?
+<?php
 
 if ($_GET["mode"] == "update") {
 	if ($_GET["authPass"] && $_GET["authPass2"] && $_GET["authPass"] != "d41d8cd98f00b204e9800998ecf8427e") { // account for empty
@@ -53,7 +48,6 @@ $iter = $result[0];
 <TD><span class=text><? echo $iter["username"]; ?></span></td>
 </TR>
 
-
 <TR>
 <TD><span class=text><? xl('Password','e'); ?>: </span></TD>
 <TD><input type=password name=clearPass size=20 value=""></td>
@@ -70,18 +64,18 @@ $iter = $result[0];
 <INPUT TYPE="HIDDEN" NAME="authPass" VALUE="">
 <INPUT TYPE="HIDDEN" NAME="authPass2" VALUE="">
 <INPUT TYPE="Submit" VALUE="Save Changes" onClick="javascript:this.form.authPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';this.form.authPass2.value=MD5(this.form.clearPass2.value);this.form.clearPass2.value='';">
+
+<?php if (! $GLOBALS['concurrent_layout']) { ?>
 &nbsp;&nbsp;&nbsp;
 [<a href="../main/main_screen.php" target="_top" class=link_submit><? xl('Back','e'); ?></font></a>]
+<?php } ?>
+
 </FORM>
 
-<?
-
-?>
 <br><br>
 </BODY>
 </HTML>
 
-<?
+<?php
 //  d41d8cd98f00b204e9800998ecf8427e == blank
-
 ?>

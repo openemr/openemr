@@ -31,7 +31,9 @@
 ?>
 
 <? if ($thisauth == 'write' || $thisauth == 'addonly') { ?>
-<a href="history_full.php" target=Main><font class=title><? xl('Patient History / Lifestyle','e'); ?></font><font class=more><?echo $tmore;?></font></a><br>
+<a href="history_full.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>>
+<font class=title><? xl('Patient History / Lifestyle','e'); ?></font>
+<font class=more><?echo $tmore;?></font></a><br>
 <? } ?>
 
 <table border='0' cellpadding='2' width='100%'>

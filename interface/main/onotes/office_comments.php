@@ -2,9 +2,6 @@
 include_once("../../globals.php");
 include_once("$srcdir/onotes.inc");
 
-
-
-
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
 $N = 10;
 ?>
@@ -12,19 +9,17 @@ $N = 10;
 <html>
 <head>
 
-
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-
 
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 
-
-<a href="office_comments_full.php" target="Main"><font class="title"><? xl('Office Notes','e'); ?></font><font class=more><?echo $tmore;?></font></a>
+<a href="office_comments_full.php" <?php if (!$GLOBALS['concurrent_layout']) echo 'target="Main"'; ?>>
+<font class="title"><? xl('Office Notes','e'); ?></font>
+<font class=more><?echo $tmore;?></font></a>
 
 <br>
-
 
 <table border=0 width=100%>
 

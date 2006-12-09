@@ -22,7 +22,11 @@ $facility    = $_POST['facility'];
 $reason      = $_POST['reason'];
 $mode        = $_POST['mode'];
 
-$normalurl = "$rootdir/patient_file/encounter/patient_encounter.php";
+if ($GLOBALS['concurrent_layout'])
+  $normalurl = "$rootdir/patient_file/encounter/encounter_top.php";
+else
+  $normalurl = "$rootdir/patient_file/encounter/patient_encounter.php";
+
 $nexturl = $normalurl;
 
 if ($mode == 'new')

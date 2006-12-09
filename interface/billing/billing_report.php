@@ -153,15 +153,13 @@ function set_button_states() {
 <body <?php echo $top_bg_line; ?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 <p style='margin-top:5px;margin-bottom:5px;margin-left:5px'>
-<?php
-if ($userauthorized) {
-?>
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+<font class='title'><?php xl('Billing Report','e') ?></font>
+<?php } else if ($userauthorized) { ?>
 <a href="../main/main.php" target=Main><font class=title><?php xl('Billing Report','e') ?></font><font class=more> <?php echo $tback; ?></font></a>
 <?php } else { ?>
 <a href="../main/onotes/office_comments.php" target=Main><font class=title><?php xl('Billing Report','e') ?></font><font class=more><?php echo $tback; ?></font></a>
-<?php
-}
-?>
+<?php } ?>
 </p>
 
 <form name=the_form method=post action=billing_report.php>

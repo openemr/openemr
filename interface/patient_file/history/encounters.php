@@ -33,18 +33,32 @@
 <html>
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+
 <script language="JavaScript">
- function toencounter(enc) {
+ function toencounter(enc, datestr) {
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+  parent.left_nav.setEncounter(datestr, enc);
+  parent.left_nav.setRadio(window.name, 'enc');
+  location.href  = '../encounter/encounter_top.php?set_encounter=' + enc;
+<?php } else { ?>
   top.Title.location.href = '../encounter/encounter_title.php?set_encounter='   + enc;
   top.Main.location.href  = '../encounter/patient_encounter.php?set_encounter=' + enc;
+<?php } ?>
  }
 </script>
+
 </head>
 
 <body <?echo $bottom_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
  bottommargin='0' marginwidth='2' marginheight='0'>
 
-<a href='encounters_full.php' target='Main'><font class='title'><? xl('Past Encounters','e'); ?></font><font class='more'><?echo $tmore;?></font></a><br>
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+<a href='encounters_full.php'>
+<?php } else { ?>
+<a href='encounters_full.php' target='Main'>
+<?php } ?>
+<font class='title'><? xl('Past Encounters','e'); ?></font>
+<font class='more'><?echo $tmore;?></font></a><br>
 
 <table width="100%">
 <tr>
@@ -69,11 +83,10 @@ if ($result = getEncounters($pid)) {
       break;
     }
 
-    $href = "javascript:window.toencounter(" . $iter['encounter'] . ")";
-
+    // $href = "javascript:window.toencounter(" . $iter['encounter'] . ")";
     $reason_string = "";
     $auth_sensitivity = true;
-    $linkbeg = "<a class='text' href='$href'>";
+    // $linkbeg = "<a class='text' href='$href'>";
     $linkend = "</a>";
 
     if ($result4 = sqlQuery("SELECT * FROM form_encounter WHERE encounter = '" .
@@ -86,6 +99,9 @@ if ($result = getEncounters($pid)) {
       $reason_string .= $result4{"reason"} . "<br>\n";
       // else
       //   $reason_string = "(No access)";
+
+      $href = "javascript:window.toencounter(" . $iter['encounter'] . ",\"$raw_encounter_date\")";
+      $linkbeg = "<a class='text' href='$href'>";
 
       if ($result4['sensitivity']) {
         $auth_sensitivity = acl_check('sensitivities', $result4['sensitivity']);

@@ -47,14 +47,20 @@ foreach ($reg as $entry) {
 		$new_category_ = $new_category;
 		$new_category_ = str_replace(' ','_',$new_category_);
 		if ($old_category != '') {echo "</select>\n";}
-		echo "<select name=".$new_category_." onchange='top.frames[\"Main\"].location.href = document.choose." .$new_category_.".options[document.choose." .$new_category_.".selectedIndex].value'>\n";
-		echo "<option value=".$new_category_.">".$new_category."</option>\n";
-
-		echo "<option value='".$rootdir.'/patient_file/encounter/load_form.php?formname='.urlencode($entry['directory'])."'>".$nickname."</option>\n";
+		echo "<select name=" . $new_category_ . " onchange='";
+		echo $GLOBALS['concurrent_layout'] ? "parent" : "top.frames[\"Main\"]";
+		echo ".location.href = document.choose." . $new_category_ .
+			".options[document.choose." . $new_category_ . ".selectedIndex].value'>\n";
+		echo "<option value=" . $new_category_ . ">" . $new_category . "</option>\n";
+		echo "<option value='" . $rootdir .
+			'/patient_file/encounter/load_form.php?formname=' .
+			urlencode($entry['directory']) . "'>" . $nickname . "</option>\n";
 		$old_category = $new_category;
 	}
 	else {
-		echo "<option value='".$rootdir.'/patient_file/encounter/load_form.php?formname='.urlencode($entry['directory'])."'>".$nickname."</option>\n";
+		echo "<option value='" . $rootdir .
+			'/patient_file/encounter/load_form.php?formname=' .
+			urlencode($entry['directory']) . "'>" . $nickname . "</option>\n";
 	}
 }
 echo "</select>\n";

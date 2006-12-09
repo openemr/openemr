@@ -76,7 +76,8 @@
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<form method='post' action="<?echo $rootdir?>/forms/newpatient/save.php" name='new_encounter' target='Main'>
+<form method='post' action="<?echo $rootdir?>/forms/newpatient/save.php" name='new_encounter'
+ <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>>
 <input type=hidden name='mode' value='update'>
 <input type=hidden name='id' value='<? echo $_GET["id"] ?>'>
 <span class=title>Patient Encounter Form</span>
@@ -201,7 +202,15 @@
 <p>
 <a href="javascript:document.new_encounter.submit();" class="link_submit">[Save]</a>
 &nbsp; &nbsp;
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link_submit" target='Main'>[Cancel]</a>
+
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+<a href="<?php echo "$rootdir/patient_file/encounter/encounter_top.php"; ?>"
+ class="link_submit">[Cancel]</a>
+<?php } else { ?>
+<a href="<?php echo "$rootdir/patient_file/encounter/patient_encounter.php"; ?>"
+ class="link_submit" target='Main'>[Cancel]</a>
+<?php } ?>
+
 &nbsp; &nbsp;
 <a href="" onclick="return newissue()" class="link_submit">[Add Issue]</a>
 

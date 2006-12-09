@@ -128,6 +128,11 @@ if (!$ignoreAuth) {
 	include_once("$srcdir/auth.inc");
 }
 
+// Set this to true to activate support for the new frame layout.
+// THIS IS NOT YET COMPLETE, DO NOT USE IT YET!
+//
+$GLOBALS['concurrent_layout'] = false;
+
 // If you do not want your accounting system to have a customer added to it
 // for each insurance company, then set this to true.  SQL-Ledger currently
 // (2005-03-21) does nothing useful with insurance companies as customers.

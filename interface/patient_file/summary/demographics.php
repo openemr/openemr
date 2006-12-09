@@ -2,6 +2,11 @@
  include_once("../../globals.php");
  include_once("$srcdir/patient.inc");
  include_once("$srcdir/acl.inc");
+
+ if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
+  include_once("$srcdir/pid.inc");
+  setpid($_GET['set_pid']);
+ }
 ?>
 <html>
 
@@ -26,7 +31,11 @@
 
  // Called by the deleteme.php window on a successful delete.
  function imdeleted() {
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+  parent.left_nav.clearPatient();
+<?php } else { ?>
   top.location.href = '../main/main_screen.php';
+<?php } ?>
  }
 
 </script>
@@ -51,8 +60,9 @@
  }
 
  if ($thisauth == 'write') {
-  echo "<p><a href='demographics_full.php' target='Main'>" .
-   "<font class='title'>".xl('Demographics')."</font>" .
+  echo "<p><a href='demographics_full.php'";
+   if (! $GLOBALS['concurrent_layout']) echo " target='Main'";
+   echo "><font class='title'>" . xl('Demographics') . "</font>" .
    "<font class='more'>$tmore</font></a>";
   if (acl_check('admin', 'super')) {
    echo "&nbsp;&nbsp;<a href='' onclick='return deleteme()'>" .
@@ -407,6 +417,14 @@ if (isset($pid)) {
   </td>
  </tr>
 </table>
+
+<?php if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) { ?>
+<script language='JavaScript'>
+ parent.left_nav.setPatient(<?php echo "'" . $result['fname'] . " " . $result['lname'] . "'," . $pid; ?>);
+ parent.left_nav.setRadio('rb_bot', 'sum');
+ parent.left_nav.loadFrame('RBot', 'summary_bottom.php');
+</script>
+<?php } ?>
 
 </body>
 </html>

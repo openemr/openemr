@@ -84,5 +84,9 @@ $_POST["last_cardiac_echo"],
 $ltr
 );
 
-include_once("patient_history.php");
+if ($GLOBALS['concurrent_layout']) {
+ include_once("history.php");
+} else {
+ include_once("patient_history.php");
+}
 ?>

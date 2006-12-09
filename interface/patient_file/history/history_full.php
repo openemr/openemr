@@ -31,7 +31,13 @@ if (!is_array($result)) {
 <form action="history_save.php" name='history_form' method='post'>
 <input type='hidden' name='mode' value='save'>
 
-<a href="patient_history.php" target=Main><font class='title'><? xl('Patient History / Lifestyle','e'); ?></font><font class=back><?echo $tback;?></font></a><br>
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+<a href="history.php">
+<?php } else { ?>
+<a href='patient_history.php' target='Main'>
+<?php } ?>
+<font class='title'><? xl('Patient History / Lifestyle','e'); ?></font>
+<font class=back><?echo $tback;?></font></a><br>
 
 <table border='0' cellpadding='5' width='100%'>
 
@@ -132,10 +138,11 @@ if (!is_array($result)) {
    <p>
    <input type='submit' value='<?xl('Save','e'); ?>.' />&nbsp;
    <input type='button' value='<?xl('To Issues','e'); ?>' onclick='location="../summary/stats_full.php"' />&nbsp;
-   <input type='button' value='<?xl('Back','e'); ?>' onclick='location="patient_history.php"' />
-   <!--
-   <a href="javascript:document.history_form.submit();" target=Main class=link_submit>[Save Patient History]</a>
-   -->
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+   <input type='button' value='<?php xl('Back','e'); ?>' onclick='location="history.php"' />
+<?php } else { ?>
+   <input type='button' value='<?php xl('Back','e'); ?>' onclick='location="patient_history.php"' />
+<?php } ?>
   </td>
  </tr>
 </table>
