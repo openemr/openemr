@@ -137,11 +137,17 @@ if (!is_array($result)) {
    <textarea cols="50" rows="5" name="additional_history"><?=$result{"additional_history"}?></textarea>
    <p>
    <input type='submit' value='<?xl('Save','e'); ?>.' />&nbsp;
-   <input type='button' value='<?xl('To Issues','e'); ?>' onclick='location="../summary/stats_full.php"' />&nbsp;
+   <input type='button' value='<?xl('To Issues','e'); ?>'
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-   <input type='button' value='<?php xl('Back','e'); ?>' onclick='location="history.php"' />
+    onclick="parent.left_nav.setRadio(window.name,'iss');location='../summary/stats_full.php';" />&nbsp;
 <?php } else { ?>
-   <input type='button' value='<?php xl('Back','e'); ?>' onclick='location="patient_history.php"' />
+    onclick="location='../summary/stats_full.php';" />&nbsp;
+<?php } ?>
+   <input type='button' value='<?php xl('Back','e'); ?>'
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+    onclick="location='history.php';" />
+<?php } else { ?>
+    onclick="location='patient_history.php';" />
 <?php } ?>
   </td>
  </tr>

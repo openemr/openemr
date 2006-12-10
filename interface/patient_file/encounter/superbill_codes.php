@@ -43,8 +43,21 @@ if (isset($mode)) {
 
 <dl>
 
-<dt><a href="superbill_custom_full.php" ><span class=title><?php xl('Superbill','e'); ?></span><font class=more><?php echo $tmore;?></font></a>
-<a href="patient_encounter.php?codefrom=superbill" ><font class=more><?php echo $tback;?></font></a></dt>
+<dt>
+
+<a href="superbill_custom_full.php" >
+<span class=title><?php xl('Superbill','e'); ?></span>
+<font class=more><?php echo $tmore;?></font></a>
+
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+<a href="encounter_bottom.php" >
+<?php } else { ?>
+<a href="patient_encounter.php?codefrom=superbill" >
+<?php } ?>
+
+<font class=more><?php echo $tback;?></font></a>
+
+</dt>
 </td></tr>
 </table>
 
@@ -81,7 +94,9 @@ while ($index < $numlines) {
 		echo "  <td valign='top'>\n";
 		if(!empty($value[$index])) {
 			$code = $value[$index];
-			echo "   <dd><a class='text' target='Main' href='superbill_codes.php?back=1&mode=add" .
+			echo "   <dd><a class='text' ";
+			if (!$GLOBALS['concurrent_layout']) echo "target='Main' ";
+			echo "href='superbill_codes.php?back=1&mode=add" .
 				"&type="     . urlencode($key) .
 				"&modifier=" . urlencode($code{"modifier"}) .
 				"&units="    . urlencode($code{"units"}) .

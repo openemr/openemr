@@ -32,7 +32,7 @@
  // * interface/new/new_patient_save.php: modified to load the demographics
  //   page to the current frame instead of loading a new frameset.
  // * interface/patient_file/history/history.php: target change.
- // * interface/patient_file/history/history_full.php: target change.
+ // * interface/patient_file/history/history_full.php: target changes.
  // * interface/patient_file/history/history_save.php: target change.
  // * interface/patient_file/history/encounters.php: various link/target changes.
  // * interface/patient_file/encounter/encounter_top.php: another new frameset
@@ -41,6 +41,15 @@
  // * interface/patient_file/encounter/new_form.php: target change.
  // * interface/forms/newpatient/new.php, view.php, save.php: link/target
  //   changes.
+ // * interface/patient_file/summary/immunizations.php: removed back link.
+ // * interface/patient_file/summary/pnotes.php: changed link targets.
+ // * interface/patient_file/summary/pnotes_full.php: changed back link.
+ // * interface/patient_file/transaction/transactions.php: various changes.
+ // * interface/patient_file/transaction/add_transaction.php: new return js.
+ // * interface/patient_file/encounter/superbill_codes.php: target and link
+ //   changes.
+ // * interface/patient_file/encounter/superbill_custom_full.php: target and
+ //   link changes.
 
  // Our find_patient form, when submitted, invokes patient_select.php in the
  // upper frame. When the patient is selected, demographics.php is invoked

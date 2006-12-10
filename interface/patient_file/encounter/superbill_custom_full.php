@@ -52,7 +52,14 @@ $N = 12;
 </head>
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-<a href="patient_encounter.php?codefrom=superbill" target="Main"><span class=title><?php xl('Superbill Codes','e'); ?></span><font class=more><?php echo $tback;?></font></a>
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+<a href="superbill_codes.php">
+<?php } else { ?>
+<a href="patient_encounter.php?codefrom=superbill" target="Main">
+<?php } ?>
+
+<span class=title><?php xl('Superbill Codes','e'); ?></span>
+<font class=more><?php echo $tback;?></font></a>
 
 <form action="superbill_custom_full.php" name=add_code>
 <input type=hidden name=mode value="add">

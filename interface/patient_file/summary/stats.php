@@ -54,7 +54,9 @@
   if (mysql_num_rows($pres) > 0 || $ix == 0) {
    echo " <tr>\n";
    echo "  <td colspan='$numcols' valign='top'>\n";
-   echo "   <a href='stats_full.php?active=all' target='Main'><font class='title'>" .
+   echo "   <a href='stats_full.php?active=all' target='";
+   echo $GLOBALS['concurrent_layout'] ? "_parent" : "Main";
+   echo "'><font class='title'>" .
         $arr[0] . "</font><font class='more'>$tmore</font></a>\n";
    echo "  </td>\n";
    echo " </tr>\n";
@@ -98,7 +100,7 @@
      echo "  <td class='link' style='color:$rowcolor;' align='right'>&nbsp;$daysmissed</td>\n";
      echo "  <td class='link' style='color:$rowcolor;' align='right'>&nbsp;" . $ierow['count'] . "</td>\n";
     } else {
-     echo "  <td colspan='$numcols' class='link'>&nbsp;&nbsp;" . $row['title'] . "</a></td>\n";
+     echo "  <td colspan='$numcols' class='link'>&nbsp;&nbsp;" . $row['title'] . "</td>\n";
     }
 
     echo " </tr>\n";
@@ -114,7 +116,11 @@
 <?php if (!$GLOBALS['weight_loss_clinic']) { ?>
 <tr>
 <td colspan='<?php echo $numcols ?>' valign='top'>
-<a href="immunizations.php" target="Main"><font class="title"><? xl('Immunizations','e'); ?></font><font class=more><?echo $tmore;?></font></a><br>
+<a href="immunizations.php"
+ target="<?php echo $GLOBALS['concurrent_layout'] ? "_parent" : "Main"; ?>">
+<font class="title"><? xl('Immunizations','e'); ?></font>
+<font class=more><?echo $tmore;?></font></a><br>
+
 <?php
   $sql = "select if(i1.administered_date
     ,concat(i1.administered_date,' - ',i2.name)
@@ -129,7 +135,9 @@
   $result = sqlStatement($sql);
 
   while ($row=sqlFetchArray($result)){
-    echo "<a class=link target=Main href='immunizations.php'>" . $row{'immunization_data'} . "</a><br>\n";
+    echo "<a class='link' target='";
+    echo $GLOBALS['concurrent_layout'] ? "_parent" : "Main";
+    echo "' href='immunizations.php'>" . $row{'immunization_data'} . "</a><br>\n";
   }
 ?>
 </td>

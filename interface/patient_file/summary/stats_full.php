@@ -69,8 +69,13 @@ function doeclick(id) {
 // Add Encounter button is clicked.
 function newEncounter() {
  var f = document.forms[0];
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+ parent.left_nav.setRadio(window.name, 'nen');
+ location.href='../../forms/newpatient/new.php?autoloaded=1&calenc=';
+<?php } else { ?>
  top.Title.location.href='../encounter/encounter_title.php';
  top.Main.location.href='../encounter/patient_encounter.php?mode=new';
+<?php } ?>
 }
 
 </script>
@@ -157,10 +162,27 @@ function newEncounter() {
 </table>
 
 <center><p>
- <input type='button' value='<?xl('Add Issue','e'); ?>' onclick='dopclick(0)' style='background-color:transparent' /> &nbsp;
- <input type='button' value='<?xl('Add Encounter','e'); ?>' onclick='newEncounter()' style='background-color:transparent' /> &nbsp;
- <input type='button' value='<?xl('To History','e'); ?>' onclick='location="../history/history_full.php"' style='background-color:transparent' /> &nbsp;
- <input type='button' value='<?xl('Back','e'); ?>' onclick='location="patient_summary.php"' style='background-color:transparent' />
+ <input type='button' value='<?xl('Add Issue','e'); ?>'
+  onclick='dopclick(0)'
+  style='background-color:transparent' /> &nbsp;
+ <input type='button' value='<?xl('Add Encounter','e'); ?>'
+  onclick='newEncounter()'
+  style='background-color:transparent' /> &nbsp;
+ <input type='button' value='<?xl('To History','e'); ?>'
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+  onclick="parent.left_nav.setRadio(window.name,'his');location='../history/history_full.php';"
+<?php } else { ?>
+  onclick="location='../history/history_full.php';"
+<?php } ?>
+  style='background-color:transparent' /> &nbsp;
+ <input type='button' value='<?xl('Back','e'); ?>'
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+  onclick="parent.left_nav.setRadio(window.name,'dem');location='demographics.php';"
+<?php } else { ?>
+  onclick='location="patient_summary.php"'
+<?php } ?>
+
+  style='background-color:transparent' />
 </p></center>
 
 </form>

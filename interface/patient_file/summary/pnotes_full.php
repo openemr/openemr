@@ -78,9 +78,16 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 
 <form border='0' method='post' name='new_note' action='pnotes_full.php'>
 
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+<a href="pnotes.php">
+<font class='title'><? xl('Patient Notes','e'); ?></font>
+<font class='back'>(<? xl('Back','e'); ?>)</font></a>
+<?php } else { ?>
 <a href="../summary/patient_summary.php" target="Main">
-<font class='title'><? xl('Patient Notes','e'); ?></font><font class='back'>(<? xl('Back','e'); ?>)</font>
-</a>
+<font class='title'><? xl('Patient Notes','e'); ?></font>
+<font class='back'>(<? xl('Back','e'); ?>)</font></a>
+<?php } ?>
+
 <br>
 
 <input type='hidden' name='mode' value="new">
@@ -188,12 +195,6 @@ if ($result = getPnotesByDate("", $active,
   $result_count = 0;
   foreach ($result as $iter) {
     $result_count++;
-
-//  if (getdate() == strtotime($iter{"date"})) {
-//    $date_string = "Today, " . date( "D F jS" ,strtotime($iter{"date"}));
-//  } else {
-//    $date_string = date( "D F jS" ,strtotime($iter{"date"}));
-//  }
 
     $body = $iter['body'];
     if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {

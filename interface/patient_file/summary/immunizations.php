@@ -54,7 +54,15 @@ include_once("$srcdir/sql.inc");
   </head>
 
   <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-    <a href="patient_summary.php" target="Main"><font class="title"><? xl('Immunizations','e'); ?></font><font class=back><?echo $tback;?></font></a>
+
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+    <font class="title"><? xl('Immunizations','e'); ?></font>
+<?php } else { ?>
+    <a href="patient_summary.php" target="Main">
+    <font class="title"><? xl('Immunizations','e'); ?></font>
+    <font class=back><?echo $tback;?></font></a>
+<?php } ?>
+
     <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
     <form action="immunizations.php" name=add_immunization>
@@ -133,7 +141,7 @@ include_once("$srcdir/sql.inc");
 
                 // This replaces the above.  There is no table "xtra".  -- Rod
                 $sql = "select id, concat(lname,', ',fname) as full_name " .
-                       "from users " .
+                       "from users where username != '' " .
                        "order by concat(lname,', ',fname)";
 
                 $result = sqlStatement($sql);

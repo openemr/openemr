@@ -1,4 +1,4 @@
-<?
+<?php
 include_once("../../globals.php");
 include_once("$srcdir/transactions.inc");
 
@@ -6,7 +6,10 @@ $body_onload_code="";
 if (isset($mode)) {
 	if ($mode == "add") {
 		newTransaction($pid, $body, $title, $userauthorized);
-		$body_onload_code = "javascript:parent.Transactions.location.href='transactions.php';";
+		if ($GLOBALS['concurrent_layout'])
+			$body_onload_code = "javascript:location.href='transactions.php';";
+		else
+			$body_onload_code = "javascript:parent.Transactions.location.href='transactions.php';";
 	}
 }
 ?>
@@ -16,7 +19,7 @@ if (isset($mode)) {
 <link rel='stylesheet' href="<?echo $css_header;?>" type="text/css">
 
 </head>
-<body <?echo $top_bg_line;?> onload="<?echo $body_onload_code;?>"
+<body <?php echo $top_bg_line; ?> onload="<?php echo $body_onload_code; ?>"
  topmargin='0' rightmargin='0' leftmargin='2' bottommargin='0'
  marginwidth='2' marginheight='0'>
 
@@ -45,7 +48,8 @@ if (isset($mode)) {
 
    <br>
 
-   <a href="javascript:document.new_transaction.submit();" class='link_submit'>[<? xl('Add New Transaction','e'); ?>]</a>
+   <a href="javascript:document.new_transaction.submit();" class='link_submit'>
+   [<?php xl('Add New Transaction','e'); ?>]</a>
 
   </td>
  </tr>

@@ -32,7 +32,13 @@
 <td valign='top'>
 
 <? if ($thisauth == 'write' || $thisauth == 'addonly') { ?>
+
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+<a href="pnotes_full.php">
+<?php } else { ?>
 <a href="pnotes_full.php" target="Main">
+<?php } ?>
+
 <font class="title">Notes</font><font class=more><?echo $tmore;?></font>
 </a>
 <? } ?>
@@ -96,21 +102,14 @@ if ($result = getPnotesByDate("", 1, "id,date,body,user,title,assigned_to",
       //we have more active notes to print, but we've reached our display maximum
       echo " <tr>\n";
       echo "  <td colspan='3' align='center'>\n";
-      echo "   <a target='Main' href='pnotes_full.php?active=1' class='alert'>";
+      echo "   <a ";
+      if (!$GLOBALS['concurrent_layout']) echo "target='Main' ";
+      echo "href='pnotes_full.php?active=1' class='alert'>";
       echo "Some notes were not displayed. Click here to view all.</a>\n";
       echo "  </td>\n";
       echo " </tr>\n";
       break;
     }
-
-    /****
-    if (getdate() == strtotime($iter{"date"})) {
-      $date_string = "Today, " . date( "D F jS" ,strtotime($iter{"date"}));
-    } else {
-      $date_string = date( "D F jS" ,strtotime($iter{"date"}));
-    }
-    print "<tr><td><a href='pnotes_full.php?active=1' target=Main class=bold>".$date_string . " (". $iter{"user"}.")</a></td><td>" . "<a href='pnotes_full.php?active=1' target=Main class=text>" . stripslashes($iter{"body"}) . "</a></td></tr>\n";
-    ****/
 
     $body = $iter['body'];
     if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
@@ -122,8 +121,9 @@ if ($result = getPnotesByDate("", 1, "id,date,body,user,title,assigned_to",
 
     echo " <tr>\n";
     echo "  <td valign='top'>\n";
-    echo "   <a href='pnotes_full.php?noteid=" . $iter['id'] .
-         "&active=1' target='Main' class='bold'>" . $iter['title'] . "</a>\n";
+    echo "   <a href='pnotes_full.php?noteid=" . $iter['id'] . "&active=1'";
+    if (!$GLOBALS['concurrent_layout']) echo " target='Main'";
+    echo " class='bold'>" . $iter['title'] . "</a>\n";
     echo "  </td>\n";
     echo "  <td valign='top'>\n";
     echo "   <font class='text'>$body</font>\n";
