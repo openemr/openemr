@@ -50,6 +50,9 @@
  //   changes.
  // * interface/patient_file/encounter/superbill_custom_full.php: target and
  //   link changes.
+ // * interface/patient_file/encounter/diagnosis.php: target changes.
+ // * interface/patient_file/encounter/diagnosis_full.php: target and link
+ //   changes.
 
  // Our find_patient form, when submitted, invokes patient_select.php in the
  // upper frame. When the patient is selected, demographics.php is invoked
