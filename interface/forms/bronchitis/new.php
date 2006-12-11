@@ -4,6 +4,7 @@
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 formHeader("Form: bronchitis");
+$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 ?>
 <html><head>
 <SCRIPT LANGUAGE="JavaScript">
@@ -44,7 +45,7 @@ topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight
 
 <a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link" style="color: #483D8B">[Don't Save]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" style="color: #483D8B">[Don't Save]</a>
 <br></br>
 <span class="text" >Onset of Illness: </span><input type="entry" name="bronchitis_date_of_illness" value=""></input>
 <br></br>
@@ -421,7 +422,7 @@ topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight
 <br>
 <a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link" style="color: #483D8B">[Don't Save]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" style="color: #483D8B">[Don't Save]</a>
 </form>
 
 <?php

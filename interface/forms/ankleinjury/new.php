@@ -4,6 +4,7 @@
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 formHeader("Form: ankleinjury");
+$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 ?>
 
 <html><head>
@@ -17,7 +18,7 @@ topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight
 
 <a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link" style="color: #483D8B">[Don't Save]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" style="color: #483D8B">[Don't Save]</a>
 <br></br>
 
 <span class="text" >Date of Injury: </span><input type="entry" name="ankle_date_of_injuary" value=""></input>
@@ -206,7 +207,7 @@ wrap="virtual name">1.Rest
 </table>
 
 <a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link" style="color: #483D8B">[Don't Save]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" style="color: #483D8B">[Don't Save]</a>
 </form>
 <?php
 formFooter();

@@ -56,6 +56,9 @@
  // * interface/patient_file/encounter/diagnosis_full.php: target and link
  //   changes.
  // * interface/main/authorizations/authorizations.php: link and target change.
+ // * library/api.inc: url change.
+ // * all encounter forms: remove all instances of "target=Main" and change
+ //   all instances of "patient_encounter.php" to "encounter_top.php".
 
  // Our find_patient form, when submitted, invokes patient_select.php in the
  // upper frame. When the patient is selected, demographics.php is invoked
@@ -122,6 +125,7 @@
 <head>
 <title>Navigation</title>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+
 <style type="text/css">
  body {
   font-family:sans-serif;
@@ -151,6 +155,7 @@
  background-color:transparent;
 }
 </style>
+
 <script language='JavaScript'>
 
  // Master values for current pid and encounter.
@@ -173,7 +178,7 @@
  }
 
  // Load the specified url into the specified frame (RTop or RBot).
- // The URL provided must be relative to interfaces.
+ // The URL provided must be relative to interface.
  function loadFrame(frame, url) {
   top.frames[frame].location = '<?php echo "$web_root/interface/" ?>' + url;
  }
@@ -355,6 +360,7 @@
  }
 
 </script>
+
 </head>
 
 <body <?echo $nav_bg_line;?> topmargin='0' rightmargin='4' leftmargin='2'

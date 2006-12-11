@@ -10,10 +10,11 @@ class C_FormSOAP extends Controller {
 	
     function C_FormSOAP($template_mod = "general") {
     	parent::Controller();
+    	$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
     	$this->template_mod = $template_mod;
     	$this->template_dir = dirname(__FILE__) . "/templates/";
     	$this->assign("FORM_ACTION", $GLOBALS['web_root']);
-    	$this->assign("DONT_SAVE_LINK",$GLOBALS['webroot'] . "/interface/patient_file/encounter/patient_encounter.php");
+    	$this->assign("DONT_SAVE_LINK",$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
     	$this->assign("STYLE", $GLOBALS['style']);
     }
     

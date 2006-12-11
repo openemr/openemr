@@ -3,6 +3,7 @@
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 formHeader("Form: reviewofs");
+$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 ?>
 <html><head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
@@ -157,7 +158,7 @@ formHeader("Form: reviewofs");
 <br>
 <a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link">[Don't Save]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link">[Don't Save]</a>
 </form>
 <?php
 formFooter();

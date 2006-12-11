@@ -26,8 +26,10 @@ include_once("../../../custom/code_types.inc.php");
 // $FEE_SHEET_COLUMNS should be defined in codes.php.
 if (empty($FEE_SHEET_COLUMNS)) $FEE_SHEET_COLUMNS = 2;
 
+$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+
 // If Save was clicked, save the new and modified billing lines;
-// then if no error, redirect to patient_encounter.php.
+// then if no error, redirect to $returnurl.
 //
 if ($_POST['bn_save']) {
 	$provid = $_POST['ProviderID'];
@@ -372,7 +374,7 @@ echo "   </select>\n";
 &nbsp;
 <input type='submit' name='bn_refresh' value='Refresh'>
 &nbsp;
-<input type='button' value='Cancel' onclick="location='<? echo "$rootdir/patient_file/encounter/patient_encounter.php" ?>'" />
+<input type='button' value='Cancel' onclick="location='<? echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
 
 <?php if ($code_types['UCSMC']) { ?>
 <p style='font-family:sans-serif;font-size:8pt;color:#666666;'>

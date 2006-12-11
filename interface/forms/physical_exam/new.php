@@ -27,6 +27,8 @@ if (! $encounter) { // comes from globals.php
  die("Internal error: we do not seem to be in an encounter!");
 }
 
+$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+
 function showExamLine($line_id, $description, &$linedbrow, $sysnamedisp) {
  $dres = sqlStatement("SELECT * FROM form_physical_exam_diagnoses " .
   "WHERE line_id = '$line_id' ORDER BY ordering, diagnosis");
@@ -202,7 +204,7 @@ if ($formid) {
 <input type='hidden' name='form_refresh' value='' />
 <input type='submit' name='bn_save' value='Save' />
 &nbsp;
-<input type='button' value='Cancel' onclick="location='<? echo "$rootdir/patient_file/encounter/patient_encounter.php" ?>'" />
+<input type='button' value='Cancel' onclick="location='<? echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
 </p>
 
 </center>

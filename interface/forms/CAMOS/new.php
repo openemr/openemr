@@ -3,6 +3,7 @@ include_once("../../globals.php");
 include_once("../../../library/api.inc");
 include_once("../../../library/sql.inc");
 formHeader("Form: CAMOS");
+$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 ?>
 
 
@@ -473,7 +474,9 @@ if ( (mode == 'add') || (mode == 'alter') ) {
     f2.hidden_subcategory.value = subcategory;
     f2.hidden_item.value = item;
     f2.action = '<? print $GLOBALS['webroot'] ?>/interface/patient_file/encounter/load_form.php?formname=CAMOS';
+<?php if (!$GLOBALS['concurrent_layout']) { ?>
     f2.target = 'Main';
+<?php } ?>
     f2.submit();
   }
 }
@@ -554,7 +557,7 @@ if ($error != '') {
 <input type=button name='submit form' value='submit all content' onClick="js_button('submit','submit')">
 <input type=button name='submit form' value='submit selected content' onClick="js_button('submit','submit_selection')">
 <?
-echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/patient_encounter.php'>[do not save]</a>";
+echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl'>[do not save]</a>";
 echo "<a href='".$GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [help]</a>";
 echo $previous_encounter_data;
 ?>

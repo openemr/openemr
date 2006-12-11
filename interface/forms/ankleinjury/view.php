@@ -1,6 +1,7 @@
 <!-- Ankle Injury View Form created by Nikolai Vitsyn by 2004/02/19 -->
 <?php
 include_once("../../globals.php");
+$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 ?>
 <html><head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
@@ -15,7 +16,7 @@ $obj = formFetch("form_ankleinjury", $_GET["id"]);
 
 <a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link" target=Main>[Don't Save Changes]</a>
+<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl"; ?>" class="link">[Don't Save Changes]</a>
 <br></br>
 
 <span class=text>Date of Injury: </span><input type=entry name="ankle_date_of_injuary" value="<?echo stripslashes($obj{"ankle_date_of_injuary"});?>" >
@@ -152,7 +153,7 @@ stripslashes($obj{"ankle_diagnosis4"});?>" size="50"></td>
 
 <a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link" target=Main>[Don't Save Changes]</a>
+<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl"; ?>" class="link">[Don't Save Changes]</a>
 </form>
 <?php
 formFooter();

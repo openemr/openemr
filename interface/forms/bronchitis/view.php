@@ -1,6 +1,7 @@
 <!-- Form created by Nikolai Vitsyn by 2004/01/23 -->
 <?php
 include_once("../../globals.php");
+$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 ?>
 <html><head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
@@ -15,7 +16,7 @@ $obj = formFetch("form_bronchitis", $_GET["id"]);
 
 <a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link" target=Main>[Don't Save Changes]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" target=Main>[Don't Save Changes]</a>
 <br></br>
 
 <span class=text>Onset of Ilness: </span><input type=entry name="bronchitis_date_of_illness" value="<?echo stripslashes($obj{"bronchitis_date_of_illness"});?>" ><br></br>
@@ -419,7 +420,7 @@ stripslashes($obj{"diagnosis3_bronchitis_form"});?>" size="40"><br>
 
 <a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link" target=Main>[Don't Save Changes]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" target=Main>[Don't Save Changes]</a>
 
 </form>
 <?php
