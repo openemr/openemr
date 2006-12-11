@@ -420,9 +420,9 @@ if (isset($pid)) {
 
 <?php if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) { ?>
 <script language='JavaScript'>
- parent.left_nav.setPatient(<?php echo "'" . $result['fname'] . " " . $result['lname'] . "'," . $pid; ?>);
+ parent.left_nav.setPatient(<?php echo "'" . $result['fname'] . " " . $result['lname'] . "',$pid,''"; ?>);
  parent.left_nav.setRadio('rb_bot', 'sum');
- parent.left_nav.loadFrame('RBot', 'summary_bottom.php');
+ parent.left_nav.loadFrame('RBot', 'patient_file/summary/summary_bottom.php');
 </script>
 <?php } ?>
 

@@ -33,7 +33,7 @@
 <script language="JavaScript">
  function toencounter(enc, datestr) {
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-  parent.left_nav.setEncounter(datestr, enc);
+  parent.left_nav.setEncounter(datestr, enc, window.name);
   parent.left_nav.setRadio(window.name, 'enc');
   location.href  = '../encounter/encounter_top.php?set_encounter=' + enc;
 <?php } else { ?>

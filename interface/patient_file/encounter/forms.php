@@ -20,8 +20,12 @@
 
  // Called by the deleter.php window on a successful delete.
  function imdeleted() {
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+  parent.parent.left_nav.clearEncounter();
+<?php } else { ?>
   top.Title.location.href = '../patient_file/encounter/encounter_title.php';
   top.Main.location.href  = '../patient_file/encounter/patient_encounter.php?mode=new';
+<?php } ?>
  }
 
 </script>

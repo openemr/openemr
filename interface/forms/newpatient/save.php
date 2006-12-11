@@ -116,6 +116,10 @@ if ($mode == 'new' && $GLOBALS['default_new_encounter_form'] == 'football_injury
 <html>
 <body>
 <script language="Javascript">
+<?php if ($GLOBALS['concurrent_layout'] && $mode == 'new') { ?>
+ parent.left_nav.setEncounter(<?php echo "'$date', $encounter, window.name"; ?>);
+ parent.left_nav.setRadio(window.name, 'enc');
+<?php } ?>
  window.location="<?php echo $nexturl; ?>";
 </script>
 

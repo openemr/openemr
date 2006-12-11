@@ -52,12 +52,15 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 <font class='title'><?xl('and ','e')?>
 <a href='authorizations_full.php' target='Main'><?xl('Authorizations','e')?><font class='more'><?echo (xl($tmore));?></font></a>
 <?php 
-	} 
+	}
 ?>
 </font>
+
+<?php if (!$GLOBALS['concurrent_layout']) { ?>
 <font class='more'> &nbsp;
 <a class='more' style='font-size:8pt;' href='../calendar/find_patient.php?no_nav=1&mode=reset' name='Find Patients'>(<?xl('Find Patient','e')?>)</a>
 </font>
+<?php } ?>
 
 <?php
 // Retrieve all active notes addressed to me (or to anybody)
@@ -86,11 +89,17 @@ if ($result=getPnotesByDate("", 1, "id,date,body,pid,user,title,assigned_to",
     echo getPatientName($iter['pid']) . "\n";
     echo "  </td>\n";
     echo "  <td valign='top'>\n";
-    echo "   <a href='../../patient_file/patient_file.php" .
-         "?set_pid=" . $iter['pid'] .
-         "&noteid=" . $iter['id'] .
-         "' target='_top' class='link_submit'>" .
-         $iter['title'] . "</a>\n";
+
+    if ($GLOBALS['concurrent_layout']) {
+      echo "   <a href='../../patient_file/summary/pnotes_full.php" .
+           "?set_pid=" . $iter['pid'] . "&noteid=" . $iter['id'] .
+           "&active=1' class='link_submit'>" . $iter['title'] . "</a>\n";
+    } else {
+      echo "   <a href='../../patient_file/patient_file.php" .
+           "?set_pid=" . $iter['pid'] . "&noteid=" . $iter['id'] .
+           "' target='_top' class='link_submit'>" . $iter['title'] . "</a>\n";
+    }
+
     echo "  </td>\n";
     echo "  <td valign='top' class='text'>\n";
     echo "   $body\n";

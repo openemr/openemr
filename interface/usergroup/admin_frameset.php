@@ -7,8 +7,9 @@ include_once("../../library/acl.inc");
 <HTML>
 <HEAD>
 </HEAD>
-<frameset rows="<?php echo $GLOBALS['navBarHeight'] ?>,*" frameborder="NO" border="0" framespacing="0">
-  <frame src="usergroup_navigation.php" name="Navigation" scrolling="no" noresize frameborder="NO">
+<frameset rows="<?php echo $GLOBALS['navBarHeight'] ?>,*" frameborder="1"
+ border="1" framespacing="1" bordercolor="#000000">
+  <frame src="usergroup_navigation.php" name="Navigation" scrolling="no" frameborder="1" noresize>
   <frame
 <? if (acl_check('admin', 'users')) { ?>
    src="usergroup_admin.php"
@@ -23,6 +24,6 @@ include_once("../../library/acl.inc");
 <? } else { ?>
    src="<?php echo $rootdir ?>/logview/logview.php"
 <? } ?>
-   name="Main" scrolling="auto" noresize frameborder="NO">
+   name="Main" scrolling="auto" frameborder="0" noresize>
 </frameset>
 </HTML>

@@ -4,6 +4,11 @@
  include_once("$srcdir/patient.inc");
  include_once("$srcdir/acl.inc");
 
+ if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
+  include_once("$srcdir/pid.inc");
+  setpid($_GET['set_pid']);
+ }
+
  // Check authorization.
  $thisauth = acl_check('patients', 'notes');
  if ($thisauth != 'write' && $thisauth != 'addonly')
@@ -64,7 +69,7 @@ if ($noteid) {
 // Get the users list.  The "Inactive" test is a kludge, we should create
 // a separate column for this.
 $ures = sqlStatement("SELECT username, fname, lname FROM users " .
- "WHERE info NOT LIKE '%Inactive%' " .
+ "WHERE username != '' AND info NOT LIKE '%Inactive%' " .
  "ORDER BY lname, fname");
 ?>
 <html>
@@ -262,7 +267,16 @@ if ($result_count == $N) {
 
 </center>
 
+<script language='JavaScript'>
+
 <?php
+if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
+  $ndata = getPatientData($pid, "fname, lname");
+?>
+ parent.left_nav.setPatient(<?php echo "'" . $ndata['fname'] . " " . $ndata['lname'] . "',$pid,'window.name'"; ?>);
+<?php
+}
+
 // If this note references a new patient document, pop up a display
 // of that document.
 //
@@ -272,14 +286,14 @@ if ($noteid /* && $title == 'New Document' */ ) {
     $docid = $matches[1];
     $docname = $matches[2];
 ?>
-<script language="JavaScript">
  window.open('../../../controller.php?document&retrieve&patient_id=<?php echo $pid ?>&document_id=<?php echo $docid ?>&<?php echo $docname?>&as_file=true',
   '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
-</script>
 <?php
   }
 }
 ?>
+
+</script>
 
 </body>
 </html>

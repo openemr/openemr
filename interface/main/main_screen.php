@@ -28,9 +28,9 @@
 </head>
 <!-- border (mozilla) and framespacing (ie) are the same thing.      -->
 <!-- frameborder specifies a 3d look, not whether there are borders. -->
-<frameset rows='<?php echo $GLOBALS[titleBarHeight] ?>,*' frameborder='0'
- border='0' framespacing='0' onunload='imclosing()'>
- <frame src='main_title.php' name='Title' scrolling='no' frameborder='0' noresize />
+<frameset rows='<?php echo $GLOBALS[titleBarHeight] ?>,*' frameborder='1'
+ border='1' framespacing='1' onunload='imclosing()'>
+ <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' noresize />
  <frameset cols='130,*' id='fsbody' frameborder='1' border='4' framespacing='4'>
   <frame src='left_nav.php' name='left_nav' />
   <frameset rows='60%,*' id='fsright'>
