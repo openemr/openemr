@@ -53,7 +53,7 @@ $obj = formFetch("form_pain", $_GET["id"]);
 <br>
 <a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link" target=Main>[Don't Save Changes]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save Changes]</a>
 </form>
 <?php
 formFooter();

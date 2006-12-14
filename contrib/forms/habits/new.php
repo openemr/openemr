@@ -23,7 +23,7 @@
 
 <!-- main form starts here -->
 <table>
-<form method='post' action="<?echo $rootdir;?>/forms/habits/save.php?mode=new" name='habits_form' target='Main'>
+<form method='post' action="<?echo $rootdir;?>/forms/habits/save.php?mode=new" name='habits_form'>
 
 <TR>
 	<TD>
@@ -131,7 +131,7 @@
 <a href="javascript:document.habits_form.submit();" class="link_submit">[Save]</a>
 <br>
 
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link">[Don't Save]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save]</a>
 
 	</TD>
 </TR>

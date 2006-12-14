@@ -1,4 +1,3 @@
-
 <?php
 include_once("../../globals.php");
 ?>
@@ -18,14 +17,10 @@ $obj = formFetch("form_individual_treatment_plan", $_GET["id"]);
 <span class="title"><center><b>Individual Treatment Plan</b></center></span><br><br>
 <center>
 <a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link" target=Main>[Don't Save Changes]</a></center>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save Changes]</a></center>
 <br></br>
 
 <? /* From New */ ?>
-
-
-
-
 
 <?php $res = sqlStatement("SELECT fname,mname,lname,ss,street,city,state,postal_code,phone_home,DOB FROM patient_data WHERE pid = $pid");
 $result = SqlFetchArray($res); ?>
@@ -114,23 +109,11 @@ $result = SqlFetchArray($res); ?>
 <img src="../../../images/space.gif" width="6" height="1">
 <input type="text" name="referrals_2" size="42" maxlength="40" value="<? echo stripslashes($obj{"referrals_2"});?>"><br><br>
 
-
-
-
-
-
-
-
-
-
-
-
-
 <? /* From New */ ?>
 <br>
 <a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link" target=Main>[Don't Save Changes]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save Changes]</a>
 </form>
 <?php
 formFooter();

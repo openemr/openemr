@@ -18,7 +18,7 @@ $obj = formFetch("form_mh_therapy_progress", $_GET["id"]);
 <span class="title"><center><b>Therapy Progress Note</b></center></span><br><br>
 <center>
 <a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link" target=Main>[Don't Save Changes]</a></center>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save Changes]</a></center>
 <br></br>
 
 <? /* From New */ ?>
@@ -306,7 +306,7 @@ $result = SqlFetchArray($res); ?>
 <br>
 <a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link" target=Main>[Don't Save Changes]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save Changes]</a>
 </form>
 <?php
 formFooter();

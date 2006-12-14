@@ -11,7 +11,7 @@ formHeader("Lab Results");
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 <br>
-<form method='post' action="<?echo $rootdir;?>/forms/lab_results/save.php?mode=new" name='lab_results_form' target='Main' enctype="multipart/form-data">
+<form method='post' action="<?echo $rootdir;?>/forms/lab_results/save.php?mode=new" name='lab_results_form' enctype="multipart/form-data">
 <span class=title>Lab Results</span>
 <br>
 
@@ -24,7 +24,7 @@ formHeader("Lab Results");
 <a href="javascript:document.lab_results_form.submit();" class="link_submit">[Save]</a>
 <br>
 
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link">[Don't Save]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save]</a>
 </form>
 
 

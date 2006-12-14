@@ -157,7 +157,7 @@ if ($formid) {
 &nbsp;
 <input type='button' value='Add Appointment' onclick='newEvt()' />
 &nbsp;
-<input type='button' value='Cancel' onclick="location='<? echo "$rootdir/patient_file/encounter/patient_encounter.php" ?>'" />
+<input type='button' value='Cancel' onclick="location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
 </p>
 
 </center>

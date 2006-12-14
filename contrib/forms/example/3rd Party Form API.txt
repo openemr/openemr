@@ -37,7 +37,7 @@ To initialize the 3rd party php library (from interface/forms/your_script_name/m
 
 		$myArray['column_name1']  = 'my column1 value';
 
-The third argument to formSubmit() is a url to redirect to after the data from a form has been saved.  If you set this to "0" (its default) then it will forward back to "openemr/interface/patient_file/encounter/patient_encounter.php". This is the preferred operation, since users expect to be taken back to the Patient Encounter screen after saving a new form.
+The third argument to formSubmit() is a url to redirect to after the data from a form has been saved.  If you set this to "0" (its default) then it will forward back to $GLOBALS['form_exit_url']. This is the preferred operation, since users expect to be taken back to the Patient Encounter screen after saving a new form.
 
 
 --->>	formFetch("my_table", 'record id', 'columns wanted', 'activity state')

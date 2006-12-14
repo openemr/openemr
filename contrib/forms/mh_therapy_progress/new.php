@@ -1,4 +1,3 @@
-
 <?php
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
@@ -13,7 +12,7 @@ formHeader("Form: mh_therapy_progress");
 <span class="title"><center>Therapy Progress Note</center></span><br><br>
 <center><a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
 <img src="../../../images/space.gif" width="5" height="1">
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link_submit">[Don't Save]</a></center>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link_submit">[Don't Save]</a></center>
 <br>
 
 <?php $res = sqlStatement("SELECT fname,mname,lname,ss,street,city,state,postal_code,phone_home,DOB FROM patient_data WHERE pid = $pid");
@@ -292,7 +291,7 @@ $result = SqlFetchArray($res); ?>
 <br><br>
 <center><a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
 <img src="../../../images/space.gif" width="5" height="1">
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link_submit">[Don't Save]</a></center>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link_submit">[Don't Save]</a></center>
 <br>
 </form>
 <?php

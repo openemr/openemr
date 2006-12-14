@@ -6,7 +6,6 @@ include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
 include_once("$srcdir/calendar.inc");
 ?>
-
 <html>
 <head>
 <title>Physical examination</title>
@@ -35,8 +34,8 @@ examination is performed. For all other levels of examination, the total number 
 reported.<br><br>
 <table border=1>
 <tr><td>LEVEL OF EXAMINATION</td><td>PERFORM AND DOCUMENT</td></tr>
-<tr><td>PROBLEM FOCUSED</td><td>1–5 ELEMENTS IDENTIFIED BY A BULLET</td></tr>
-<tr><td>EXPANDED PROBLEM FOCUSED</td><td>6–11 ELEMENTS IDENTIFIED BY A BULLET</td></tr>
+<tr><td>PROBLEM FOCUSED</td><td>15 ELEMENTS IDENTIFIED BY A BULLET</td></tr>
+<tr><td>EXPANDED PROBLEM FOCUSED</td><td>611 ELEMENTS IDENTIFIED BY A BULLET</td></tr>
 <tr><td>DETAILED</td><td>12 OR MORE ELEMENTS IDENTIFIED BY A BULLET</td></tr>
 <tr><td>COMPREHENSIVE</td><td>ALL ELEMENTS IDENTIFIED BY A BULLET IN CONSTITUTIONAL AND GASTROINTESTINAL,
 ANY 7 BULLETS IN GYNECOLOGIC, AT LEAST 1 BULLET IN ALL OTHER SYSTEMS</td></tr>
@@ -481,7 +480,7 @@ ABNormal</td>
 <table width="100%" border="0">
   <tr><td align="left" width="120"> <a href="javascript:document.my_form.submit();" class="link_submit">[Save Data]</a> </td>
   <td align="left" nowrap> <a href="<? echo $rootdir; ?>/patient_file/encounter/print_form.php?id=<? echo $id; ?>&formname=<? echo $formname; ?>" target="_blank" class="link_submit">[Printable form]</a> </td>
-  <td align="right"> <a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link_submit">[Don't Save]</a> </td></tr>
+  <td align="right"> <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link_submit">[Don't Save]</a> </td></tr>
 </table>
 </form>
 <?php

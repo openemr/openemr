@@ -18,9 +18,8 @@ $row = formFetch('form_phone_exam', $_GET['id']);
 echo $row['notes'];
 ?>
 <br><br>
-<a href="../../patient_file/encounter/patient_encounter.php">Done</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>">Done</a>
 </body>
 <?php
 formFooter();
 ?>
-

@@ -23,7 +23,7 @@ echo ("<IMG SRC=\"$relink\" ALT=\"$relink\">");
 
 ?>
 <hr>
-<a href="../../patient_file/encounter/patient_encounter.php">Done</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>">Done</a>
 
 <?php
 formFooter();

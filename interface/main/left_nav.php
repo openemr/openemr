@@ -63,9 +63,9 @@
  // Our find_patient form, when submitted, invokes patient_select.php in the
  // upper frame. When the patient is selected, demographics.php is invoked
  // with the set_pid parameter, which establishes the new session pid and also
- // calls the above setPatient() function.  In this case demographics.php
- // will also load the summary frameset into the bottom frame, invoking the
- // above loadFrame() and setRadio() functions.
+ // calls the setPatient() function (below).  In this case demographics.php
+ // will also load the summary frameset into the bottom frame, invoking our
+ // loadFrame() and setRadio() functions.
  //
  // Similarly, we have the concept of selecting an encounter from the
  // Encounters list, and then having that "stick" until some other encounter
@@ -111,7 +111,7 @@
   'sum' => array('Summary'   , 1, 'patient_file/summary/summary_bottom.php'),
   'nen' => array('New Enctr' , 1, 'forms/newpatient/new.php?autoloaded=1&calenc='),
   'enc' => array('Encounter' , 2, 'patient_file/encounter/encounter_top.php'),
-  'cod' => array('Coding'    , 2, 'patient_file/encounter/encounter_bottom.php'),
+  'cod' => array('Charges'   , 2, 'patient_file/encounter/encounter_bottom.php'),
  );
 
  $admin_allowed = acl_check('admin', 'calendar') ||
@@ -163,15 +163,15 @@
  var active_encounter = 0;
 
  // Expand and/or collapse frames in response to checkbox clicks.
+ // fnum indicates which checkbox was clicked (1=left, 2=right).
  function toggleFrame(fnum) {
   var f = document.forms[0];
   var fset = top.document.getElementById('fsright');
-  var rows = '';
   if (!f.cb_top.checked && !f.cb_bot.checked) {
    if (fnum == 1) f.cb_bot.checked = true;
    else f.cb_top.checked = true;
   }
-  rows += f.cb_top.checked ?  '*' :  '0';
+  var rows = f.cb_top.checked ? '*' :  '0';
   rows += f.cb_bot.checked ? ',*' : ',0';
   fset.rows = rows;
   fset.rows = rows;
@@ -243,9 +243,11 @@
   }
  }
 
- // Reload patient-specific frames, excluding a specified frame.  At this
- // point the new server-side pid may not be set and loading the same
- // document for the new patient will not work, so load global info instead.
+ // This is called automatically when a new patient is set, to make sure
+ // there are no patient-specific documents showing stale data.  If a frame
+ // was just loaded with data for the correct patient, its name is passed so
+ // that it will not be zapped.  At this point the new server-side pid is not
+ // assumed to be set, so this function will only load global data.
  function reloadPatient(fname) {
   var f = document.forms[0];
   for (var i = 0; i < f.rb_top.length; ++i) {
@@ -386,7 +388,8 @@
  </tr>
 <?php
  // Builds the table of radio buttons and their labels.  Radio button values
- // are constructed of the 3-character document id and the 1-digit usage type.
+ // are comprised of the 3-character document id and the 1-digit usage type,
+ // so that JavaScript can easily access this information.
  foreach ($primary_docs as $key => $varr) {
   if ($key == 'ros' && !$GLOBALS['athletic_team']) continue;
   if ($key == 'adm' && !$admin_allowed           ) continue;
@@ -423,18 +426,30 @@ Active Encounter:<br />
 
 <hr />
 
-Find:
-<input type="entry" size="7" name="patient" class='inputtext' style='width:65px;' />
 <table cellpadding='0' cellspacing='0' border='0'>
  <tr>
-  <td class='smalltext'>by:&nbsp;</td>
-  <td><a href="javascript:findPatient('Last');" class="navitem">Name</a></td>
-  <td align='right'><a href="javascript:findPatient('ID');"   class="navitem">ID</a></td>
+  <td class='smalltext'>Find:&nbsp;</td>
+  <td class='smalltext' colspan='2'>
+   <input type="entry" size="7" name="patient" class='inputtext' style='width:65px;' />
+  </td>
+ </tr>
+ <tr>
+  <td class='smalltext'>by:</td>
+  <td class='smalltext'>
+   <a href="javascript:findPatient('Last');" class="navitem">Name</a>
+  </td>
+  <td class='smalltext' align='right'>
+   <a href="javascript:findPatient('ID');"   class="navitem">ID</a>
+  </td>
  </tr>
  <tr>
   <td class='smalltext'>&nbsp;</td>
-  <td><a href="javascript:findPatient('SSN');"  class="navitem">SSN</a></td>
-  <td align='right'><a href="javascript:findPatient('DOB');"  class="navitem">DOB</a></td>
+  <td class='smalltext'>
+   <a href="javascript:findPatient('SSN');"  class="navitem">SSN</a>
+  </td>
+  <td class='smalltext' align='right'>
+   <a href="javascript:findPatient('DOB');"  class="navitem">DOB</a>
+  </td>
  </tr>
 </table>
 

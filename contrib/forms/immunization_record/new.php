@@ -148,7 +148,7 @@ $vacci++;
 <table width="100%" border="0">
   <tr>
     <td align="left"> <a href="javascript:document.my_form.submit();" class="link_submit">[Save Data]</a> </td>
-    <td align="right"> <a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link_submit">[Don't Save]</a> </td>
+    <td align="right"> <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link_submit">[Don't Save]</a> </td>
   </tr>
 </table>
 </form>

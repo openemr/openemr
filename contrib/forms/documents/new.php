@@ -16,7 +16,7 @@ formHeader("Scanned Documents Input");
 <!--REM note that every input method has the same name as a valid column, this will make things easier in save.php -->
 
 <br>
-<form method='post' action="<?echo $rootdir;?>/forms/documents/save.php?mode=new" name='document_form' target='Main' enctype="multipart/form-data">
+<form method='post' action="<?echo $rootdir;?>/forms/documents/save.php?mode=new" name='document_form' enctype="multipart/form-data">
 <span class=title>Scanned Documents Input</span>
 <br>
 
@@ -35,7 +35,7 @@ formHeader("Scanned Documents Input");
 <a href="javascript:document.document_form.submit();" class="link_submit">[Save]</a>
 <br>
 
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link">[Don't Save]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save]</a>
 </form>
 
 

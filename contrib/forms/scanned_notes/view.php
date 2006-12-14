@@ -117,7 +117,7 @@ if ($formid) {
 
  // Called by the deleteme.php window on a successful delete.
  function imdeleted() {
-  location = '<?php echo "$rootdir/patient_file/encounter/patient_encounter.php" ?>';
+  location = '<?php echo $GLOBALS['form_exit_url']; ?>';
  }
 
 </script>
@@ -169,7 +169,7 @@ if ($formid && is_file($imagepath)) {
 &nbsp;
 <input type='button' value='Add Appointment' onclick='newEvt()' />
 &nbsp;
-<input type='button' value='Back' onclick="location='<? echo "$rootdir/patient_file/encounter/patient_encounter.php" ?>'" />
+<input type='button' value='Back' onclick="location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
 <?php if ($formrow['id'] && acl_check('admin', 'super')) { ?>
 &nbsp;
 <input type='button' value='Delete' onclick='deleteme()' style='color:red' />

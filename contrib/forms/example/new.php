@@ -5,7 +5,7 @@ formHeader("newerpatient form");
 ?>
 
 <--REM note that every input method has the same name as a valid column, this will make things easier in save.php -->
-<form method=post action="./save.php" name='newerpatient' target=Main>
+<form method=post action="./save.php" name='newerpatient'>
 <span class=title>Newer Patient Encounter Form</span>
 <br>
 

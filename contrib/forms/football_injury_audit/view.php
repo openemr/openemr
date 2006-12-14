@@ -426,7 +426,7 @@ function docoding() {
 <p>
 <input type='submit' name='bn_save' value='Save' />
 &nbsp;
-<input type='button' value='Cancel' onclick="location='<? echo "$rootdir/patient_file/encounter/patient_encounter.php" ?>'" />
+<input type='button' value='Cancel' onclick="location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
 &nbsp;
 <input type='button' value='Add Injury Diagnosis...' onclick='docoding();'
  title='Add or change coding for this encounter'

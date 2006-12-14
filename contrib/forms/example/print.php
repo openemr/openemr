@@ -26,7 +26,7 @@ echo $data['cats'];
 
 <br><Br>
 <hr>
-<a href="../../patient_file/encounter/patient_encounter.php">i'm all done</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>">i'm all done</a>
 
 <?php
 formFooter();

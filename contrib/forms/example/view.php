@@ -3,7 +3,7 @@ include("../../../library/api.inc");
 formHeader("View my form");
 ?>
 
-<form method=post action=save.php name=new_encounter target=Main>
+<form method=post action=save.php name=new_encounter>
 <input type=hidden name=id value='<?echo $_GET["id"];?>'>
 <span class=title>New Patient Encounter Form</span>
 <br>

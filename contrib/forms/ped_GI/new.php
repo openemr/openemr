@@ -18,7 +18,7 @@ formHeader("Pediatric GI Evaluation");
 <!--REM note that every input method has the same name as a valid column, this will make things easier in save.php -->
 
 <br>
-<form method='post' action="<?echo $rootdir;?>/forms/ped_GI/save.php?mode=new" name='ped_GI' target='Main' >
+<form method='post' action="<?echo $rootdir;?>/forms/ped_GI/save.php?mode=new" name='ped_GI' >
 
 <!-- the form goes here -->
 <?php
@@ -31,7 +31,7 @@ formHeader("Pediatric GI Evaluation");
 <a href="javascript:document.ped_GI.submit();" class="link_submit">[Save]</a>
 <br>
 
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link">[Don't Save]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save]</a>
 </form>
 
 

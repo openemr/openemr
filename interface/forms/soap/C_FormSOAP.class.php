@@ -7,21 +7,19 @@ require_once("FormSOAP.class.php");
 class C_FormSOAP extends Controller {
 
 	var $template_dir;
-	
+
     function C_FormSOAP($template_mod = "general") {
     	parent::Controller();
-    	$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
     	$this->template_mod = $template_mod;
     	$this->template_dir = dirname(__FILE__) . "/templates/";
     	$this->assign("FORM_ACTION", $GLOBALS['web_root']);
-    	$this->assign("DONT_SAVE_LINK",$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
+    	$this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
     	$this->assign("STYLE", $GLOBALS['style']);
     }
-    
+
     function default_action() {
     	$form = new FormSOAP();
     	$this->assign("data",$form);
-    	
     	return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
 	}
 	

@@ -16,7 +16,7 @@ formHeader("Vital Signs");
 <!--REM note that every input method has the same name as a valid column, this will make things easier in save.php -->
 
 <br>
-<form method='post' action="<?echo $rootdir;?>/forms/vitals/save.php?mode=new" name='vitals' target='Main' >
+<form method='post' action="<?echo $rootdir;?>/forms/vitals/save.php?mode=new" name='vitals' >
 
 <!-- the form goes here -->
 <?php
@@ -29,7 +29,7 @@ formHeader("Vital Signs");
 <a href="javascript:document.vitals.submit();" class="link_submit">[Save]</a>
 <br>
 
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link">[Don't Save]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save]</a>
 </form>
 
 

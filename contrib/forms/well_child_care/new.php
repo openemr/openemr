@@ -17,7 +17,7 @@ include_once("C_WellChildCare.class.php");
 <!--REM note that every input method has the same name as a valid column, this will make things easier in save.php -->
 
 <br>
-<form method='post' action="<?echo $rootdir;?>/forms/well_child_care/save.php?mode=new" name='well_child_care' target='Main' >
+<form method='post' action="<?echo $rootdir;?>/forms/well_child_care/save.php?mode=new" name='well_child_care' >
 
 <!-- the form goes here -->
 <?php
@@ -30,7 +30,7 @@ include_once("C_WellChildCare.class.php");
 <a href="javascript:document.well_child_care.submit();" class="link_submit">[Save]</a>
 <br>
 
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link">[Don't Save]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save]</a>
 </form>
 
 

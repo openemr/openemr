@@ -14,7 +14,7 @@ class C_FormEvaluation extends Controller {
     	$this->template_mod = $template_mod;
     	$this->template_dir = dirname(__FILE__) . "/templates/evaluation/";
     	$this->assign("FORM_ACTION", $GLOBALS['web_root']);
-    	$this->assign("DONT_SAVE_LINK",$GLOBALS['webroot'] . "/interface/patient_file/encounter/patient_encounter.php");
+    	$this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
     	$this->assign("STYLE", $GLOBALS['style']);
     }
     
