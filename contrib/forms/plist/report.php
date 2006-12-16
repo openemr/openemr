@@ -2,6 +2,7 @@
 
 <?php
 include_once("../../globals.php");
+global $srcdir;
 include_once("$srcdir/api.inc");
    $fres = sqlStatement("select * from form_plist where id=$id");
    $repdata = sqlFetchArray($fres);

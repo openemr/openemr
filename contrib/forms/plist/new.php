@@ -73,12 +73,19 @@ if ($old) {
     <tr>
       <td class="fibody2" id="bordR"><textarea name="pl_high_risk" rows="6" wrap="VIRTUAL" class="fullin2" id="pl_high_risk"><? echo $obj{'pl_high_risk'} ?></textarea></td>
       <td class="fibody2"><textarea name="pl_family_history" rows="6" wrap="VIRTUAL" class="fullin2" id="pl_family_history"><?
-	  ($history['history_mother'] != '')?$tmp[] = "Mother: ".$history['history_mother']:'';
-	  ($history['history_father'] != '')?$tmp[] = "Father: ".$history['history_father']:'';
-	  ($history['history_siblings'] != '')?$tmp[] = "Siblings: ".$history['history_siblings']:'';
-	  ($history['history_spouse'] != '')?$tmp[] = "Spouse: ".$history['history_spouse']:'';
-	  ($history['history_offspring'] != '')?$tmp[] = "Offspring: ".$history['history_offspring']:'';
-	  echo join(', ', $tmp);
+//	  ($history['history_mother'] != ''   ) ? $tmp[] = "Mother: "    . $history['history_mother']    : '';
+//	  ($history['history_father'] != ''   ) ? $tmp[] = "Father: "    . $history['history_father']    : '';
+//	  ($history['history_siblings'] != '' ) ? $tmp[] = "Siblings: "  . $history['history_siblings']  : '';
+//	  ($history['history_spouse'] != ''   ) ? $tmp[] = "Spouse: "    . $history['history_spouse']    : '';
+//	  ($history['history_offspring'] != '') ? $tmp[] = "Offspring: " . $history['history_offspring'] : '';
+//	  echo join(', ', $tmp);
+	  $tmp = array();
+	  if ($history['history_mother'   ] != '') $tmp[] = "Mother: "    . $history['history_mother'   ];
+	  if ($history['history_father'   ] != '') $tmp[] = "Father: "    . $history['history_father'   ];
+	  if ($history['history_siblings' ] != '') $tmp[] = "Siblings: "  . $history['history_siblings' ];
+	  if ($history['history_spouse'   ] != '') $tmp[] = "Spouse: "    . $history['history_spouse'   ];
+	  if ($history['history_offspring'] != '') $tmp[] = "Offspring: " . $history['history_offspring'];
+	  if (count($tmp)) echo join(', ', $tmp);
 	  ?></textarea></td>
     </tr>
     <tr>

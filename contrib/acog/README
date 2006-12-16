@@ -1,0 +1,7 @@
+These files are needed to support some of the contributed forms.
+
+This was all gathered up in a hurry and is not fully debugged yet.  If you
+find that a form is broken because it refers to one of these files in a
+different location, please fix the form to reference the file in this location
+(contrib/acog/) instead.
+
