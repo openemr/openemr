@@ -15,6 +15,8 @@
  // * interface/patient_file/summary/demographics.php: this is the first frame
  //   loaded when a new patient is chosen, and in turn sets the current pid and
  //   then loads the initial bottom frame.
+ // * interface/patient_file/summary/demographics_full.php: added support for
+ //   setting a new pid, needed for going to demographics from billing.
  // * interface/patient_file/summary/summary_bottom.php: new frameset for the
  //   summary, prescriptions and notes for a selected patient, cloned from
  //   patient_summary.php.
@@ -27,7 +29,8 @@
  //   cloned from usergroup.php.
  // * interface/main/onotes/office_comments.php: removed Back link target.
  // * interface/main/onotes/office_comments_full.php: changed Back link.
- // * interface/billing/billing_report.php: removed Back link.
+ // * interface/billing/billing_report.php: removed Back link; added logic
+ //   to properly go to demographics or to an encounter when requested.
  // * interface/new/new.php: removed Back link and revised form target.
  // * interface/new/new_patient_save.php: modified to load the demographics
  //   page to the current frame instead of loading a new frameset.

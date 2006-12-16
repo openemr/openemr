@@ -148,6 +148,33 @@ function set_button_states() {
 	f.bn_mark.disabled            = !can_mark;
 }
 
+// Process a click to go to an encounter.
+function toencounter(pid, pname, enc, datestr) {
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+ var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
+ parent.left_nav.setPatient(pname,pid,'');
+ parent.left_nav.setEncounter(datestr, enc, othername);
+ parent.left_nav.setRadio(othername, 'enc');
+ parent.frames[othername].location.href =
+  '../patient_file/encounter/encounter_top.php?set_encounter='
+  + enc + '&pid=' + pid;
+<?php } else { ?>
+ location.href = '../patient_file/encounter/patient_encounter.php?set_encounter='
+  + enc + '&pid=' + pid;
+<?php } ?>
+}
+
+// Process a click to go to patient demographics.
+function topatient(pid) {
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+ var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
+ parent.frames[othername].location.href =
+  '../patient_file/summary/demographics_full.php?pid=' + pid;
+<?php } else { ?>
+ location.href = '../patient_file/summary/demographics_full.php?pid=' + pid;
+<?php } ?>
+}
+
 </script>
 </head>
 <body <?php echo $top_bg_line; ?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
@@ -363,6 +390,8 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 	foreach ($ret as $iter) {
 		$this_encounter_id = $iter['pid'] . "-" . $iter['encounter'];
 
+		// echo "<!-- $this_encounter_id -->\n"; // debugging
+
 		if ($last_encounter_id != $this_encounter_id) {
 			if ($lhtml) {
 				while ($rcount < $lcount) {
@@ -413,9 +442,30 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 			$rcount = 0;
 			$oldcode = "";
 
-			$lhtml .= "&nbsp;<span class=bold><font color='$namecolor'>". $name['fname'] . "&nbsp;" . $name['lname'] . "</font></span><span class=small>&nbsp;(" . $iter['pid'] . "-" . $iter['encounter'] . ")</span>";
-			$lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" href=\"" . $GLOBALS['webroot'] ."/interface/patient_file/encounter/patient_encounter.php?set_encounter=" . $iter['encounter'] . "&pid=" . $iter['pid'] . "\">[To&nbsp;Encounter]</a>";
-			$lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" href=\"" . $GLOBALS['webroot'] ."/interface/patient_file/summary/demographics_full.php?&pid=" . $iter['pid'] . "\">[To&nbsp;Demographics]</a>";
+			$ptname = $name['fname'] . " " . $name['lname'];
+			$raw_encounter_date = date("Y-m-d", strtotime($iter['enc_date']));
+
+			$lhtml .= "&nbsp;<span class=bold><font color='$namecolor'>$ptname" .
+				"</font></span><span class=small>&nbsp;(" . $iter['pid'] . "-" .
+				$iter['encounter'] . ")</span>";
+
+			// $lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" href=\"" .
+			//  $GLOBALS['form_exit_url'] . "?set_encounter=" .
+			//  $iter['encounter'] . "&pid=" . $iter['pid'] . "\">[To&nbsp;Encounter]</a>";
+
+			$lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" " .
+				"href=\"javascript:window.toencounter(" . $iter['pid'] .
+				",'" . addslashes($ptname) . "'," . $iter['encounter'] .
+				",'$raw_encounter_date')\">[To&nbsp;Encounter]</a>";
+
+			// $lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" href=\"" . $GLOBALS['webroot'] .
+			//  "/interface/patient_file/summary/demographics_full.php?&pid=" .
+			//  $iter['pid'] . "\">[To&nbsp;Demographics]</a>";
+
+			$lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" " .
+				"href=\"javascript:window.topatient(" . $iter['pid'] .
+				")\">[To&nbsp;Demographics]</a>";
+
 			$lhtml .= "<br />\n";
 			$lhtml .= "&nbsp;<span class=text>Bill: ";
 			$lhtml .= "<select name='claims[" . $this_encounter_id . "][payer]' style='background-color:$bgcolor'>";
@@ -441,16 +491,6 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 						if (!is_numeric($default_x12_partner)) $default_x12_partner = $row['ic_x12id'];
 					}
 					$lhtml .= ">" . $row['type'] . ": " . $row['provider'] . "</option>";
-
-					/****
-					if ($count == 0) {
-						$lhtml .= "<option value=\"" .$row['id'] . "\" selected>" . $row['type'] . ": " . $row['provider']. "</option>";
-						if (!is_numeric($default_x12_partner)) $default_x12_partner = $row['ic_x12id'];
-					}
-					else {
-						$lhtml .= "<option value=\"" . $row['id'] . "\">" . $row['type'] . ": " . $row['provider']. "</option>";
-					}
-					****/
 
 				}
 				$count++;

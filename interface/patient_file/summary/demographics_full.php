@@ -5,11 +5,9 @@
  // Session pid must be right or bad things can happen when demographics are saved!
  //
  include_once("$srcdir/pid.inc");
- if ($_GET["set_pid"] && $_GET["set_pid"] != $_SESSION["pid"]) {
-  setpid($_GET["set_pid"]);
- }
- else if ($_GET["pid"] && $_GET["pid"] != $_SESSION["pid"]) {
-  setpid($_GET["pid"]);
+ $set_pid = $_GET["set_pid"] ? $_GET["set_pid"] : $_GET["pid"];
+ if ($set_pid && $set_pid != $_SESSION["pid"]) {
+  setpid($set_pid);
  }
 
  include_once("$srcdir/patient.inc");
@@ -150,7 +148,13 @@ function set_insurance(ins_id, ins_name) {
 <form action='demographics_save.php' name='demographics_form' method='post'>
 <input type=hidden name=mode value=save>
 
-<a href="patient_summary.php" target=Main><font class=title><?php xl('Demographics','e'); ?></font><font class=back><?php echo $tback;?></font></a>
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+<a href="demographics.php">
+<?php } else { ?>
+<a href="patient_summary.php" target=Main>
+<?php } ?>
+<font class=title><?php xl('Demographics','e'); ?></font>
+<font class=back><?php echo $tback;?></font></a>
 
 <table border="0" cellpadding="0" width='100%'>
 
@@ -657,17 +661,25 @@ function set_insurance(ins_id, ins_name) {
 <br>
 
 <script language="JavaScript">
+
  // fix inconsistently formatted phone numbers from the database
  var f = document.forms[0];
  phonekeyup(f.phone_contact,mypcc);
  phonekeyup(f.phone_home,mypcc);
  phonekeyup(f.phone_biz,mypcc);
  phonekeyup(f.phone_cell,mypcc);
+
 <?php if (! $GLOBALS['simplified_demographics']) { ?>
  phonekeyup(f.i1subscriber_phone,mypcc);
  phonekeyup(f.i2subscriber_phone,mypcc);
  phonekeyup(f.i3subscriber_phone,mypcc);
 <?php } ?>
+
+<?php if ($GLOBALS['concurrent_layout'] && $set_pid) { ?>
+ parent.left_nav.setPatient(<?php echo "'" . $result['fname'] . " " . $result['lname'] . "',$pid,''"; ?>);
+ parent.left_nav.setRadio(window.name, 'dem');
+<?php } ?>
+
 </script>
 
 </body>
