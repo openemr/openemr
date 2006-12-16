@@ -13,7 +13,7 @@
  $form_lname = trim($_POST['form_lname']);
  $form_specialty = trim($_POST['form_specialty']);
 
- $query = "SELECT * FROM users WHERE 1 = 1 ";
+ $query = "SELECT * FROM users WHERE active = 1 ";
  if ($form_lname) $query .= "AND lname LIKE '$form_lname%' ";
  if ($form_fname) $query .= "AND fname LIKE '$form_fname%' ";
  if ($form_specialty) $query .= "AND specialty LIKE '%$form_specialty%' ";
@@ -126,9 +126,10 @@ function doedclick(userid) {
 <table width='100%' cellpadding='1' cellspacing='2'>
  <tr class='head'>
   <td title='Click to view or edit'><?php xl('Name','e'); ?></td>
-  <td><?php xl('Login','e'); ?></td><!-- empty for external -->
+  <td><?php xl('Local','e'); ?></td><!-- empty for external -->
   <td><?php xl('Specialty','e'); ?></td>
   <td><?php xl('Phone','e'); ?></td>
+  <td><?php xl('Mobile','e'); ?></td>
   <td><?php xl('Fax','e'); ?></td>
   <td><?php xl('Email','e'); ?></td>
   <td><?php xl('Street','e'); ?></td>
@@ -146,9 +147,10 @@ function doedclick(userid) {
   echo " <tr class='detail' bgcolor='$bgcolor' style='cursor:pointer' " .
        "onclick='doedclick(" . $row['id'] . ")'>\n";
   echo "  <td>" . $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] . "</td>\n";
-  echo "  <td>" . $username         . "</td>\n";
+  echo "  <td>" . ($username ? '*' : '') . "</td>\n";
   echo "  <td>" . $row['specialty'] . "</td>\n";
   echo "  <td>" . $row['phonew1']   . "</td>\n";
+  echo "  <td>" . $row['phonecell'] . "</td>\n";
   echo "  <td>" . $row['fax']       . "</td>\n";
   echo "  <td>" . $row['email']     . "</td>\n";
   echo "  <td>" . $row['street']    . "</td>\n";
