@@ -66,12 +66,10 @@ if ($_GET["mode"] == "update") {
     sqlStatement("update users set password='$tqvar' where id={$_GET["id"]}");
   }
 
-  if ($_GET["authorized"] == "on")
-    $tqvar = 1;
-  else
-    $tqvar = 0;
+  $tqvar  = $_GET["authorized"] ? 1 : 0;
+  $actvar = $_GET["active"]     ? 1 : 0;
 
-  sqlStatement("UPDATE users SET authorized = $tqvar, " .
+  sqlStatement("UPDATE users SET authorized = $tqvar, active = $actvar, " .
     "see_auth = '" . $_GET['see_auth'] . "' WHERE " .
     "id = {$_GET["id"]}");
 
@@ -98,10 +96,11 @@ $iter = $result[0];
 <TR>
 <td><span class="text">&nbsp;</span></td><td>&nbsp;</td>
 <TD><span class=text><? xl('Authorized','e'); ?>: </TD>
-<TD><INPUT TYPE="checkbox" name="authorized"<?
-if ($iter["authorized"] == 1)
-	echo " checked";
-?>></TD>
+<TD>
+ <input type="checkbox" name="authorized"<?php if ($iter["authorized"]) echo " checked"; ?> />
+ &nbsp;&nbsp;<span class='text'><? xl('Active','e'); ?>:
+ <input type="checkbox" name="active"<?php if ($iter["active"]) echo " checked"; ?> />
+</TD>
 </TR>
 
 <TR>

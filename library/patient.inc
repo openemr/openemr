@@ -16,8 +16,6 @@ function getLanguages() {
 			array_push($returnval, $row["language"]);
 		}
 	}
-
-
 	return $returnval;
 }
 
@@ -52,23 +50,19 @@ function getInsuranceProviders() {
 		}
 	}
 
-	// print_r($retval);
-
 	return $returnval;
 }
 
-
 function getProviders() {
 	$returnval = array("");
-	$sql = "select fname,lname from users where authorized = 1 and username != ''";
+	$sql = "select fname, lname from users where authorized = 1 and " .
+		"active = 1 and username != ''";
 	$rez = sqlStatement($sql);
 	for($iter=0; $row=sqlFetchArray($rez); $iter++) {
 		if (($row["fname"] != "") && ($row["lname"] != "")) {
 			array_push($returnval, $row["fname"] . " " . $row["lname"]);
 		}
 	}
-
-
 	return $returnval;
 }
 
@@ -82,7 +76,7 @@ function getProviderInfo($providerID = "%", $providers_only = true) {
 		$command = "like";
 	}
 	$query = "select distinct id, username, lname, fname, authorized, info, facility " .
-		"from users where username != '' and id $command '" .
+		"from users where username != '' and active = 1 and id $command '" .
 		mysql_real_escape_string($providerID) . "' " . $param1;
 	$rez = sqlStatement($query);
 	for($iter=0; $row=sqlFetchArray($rez); $iter++)
@@ -112,7 +106,7 @@ function getCalendarProviderInfo($providerID = "%", $providers_only = true) {
 		$command = "like";
 	}
 	$query = "select distinct id, username, lname, fname, authorized, info, facility " .
-		"from users where username != '' and id $command '" .
+		"from users where active = 1 and username != '' and id $command '" .
 		mysql_real_escape_string($providerID) . "' " . $param1;
 
 	$rez = sqlStatement($query);
@@ -122,26 +116,19 @@ function getCalendarProviderInfo($providerID = "%", $providers_only = true) {
 	return $returnval;
 }
 
-
-
 function getProviderName($providerID) {
-
 	$pi = getProviderInfo($providerID);
-
 	if (strlen($pi[0]["lname"]) > 0) {
 		return $pi[0]['fname'] . " " . $pi[0]['lname'];
 	}
-
 	return "";
 }
 
 function getProviderId($providerName) {
 	$query = "select id from users where username = '". mysql_real_escape_string($providerName)."'";
-
 	$rez = sqlStatement($query);
 	for($iter=0; $row=sqlFetchArray($rez); $iter++)
 		$returnval[$iter]=$row;
-
 	return $returnval;
 }
 
@@ -154,8 +141,6 @@ function getEthnoRacials() {
 			array_push($returnval, $row["ethnoracial"]);
 		}
 	}
-
-
 	return $returnval;
 }
 
@@ -181,7 +166,6 @@ function getInsuranceDataByDate( $pid, $date, $type, $given = "insd.*, DATE_FORM
 	return sqlQuery($sql);
 }
 
-
 function getEmployerData($pid, $given = "*")
 {
 	$sql = "select $given from employer_data where pid='$pid' order by date DESC limit 0,1";
@@ -190,20 +174,6 @@ function getEmployerData($pid, $given = "*")
 
 function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
-	/****
-	$sql="select pid, MAX(id) as id from patient_data group by pid DESC order by pid ASC";
-	$res = sqlStatement($sql);
-	$sql="select $given from patient_data where lname like '$lname%' and (";
-	for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-		$sql.=" id='{$row['id']}' or";
-	if ($iter > 0)
-		$sql = substr($sql, 0, -3) . ") order by $orderby";
-	else
-		$sql = substr($sql, 0, -5)."order by $orderby";
-	****/
-
-	// WTF? That was a good way to create a 200KB sql statement.
-
 	// Allow the last name to be followed by a comma and some part of a first name.
 	// New behavior for searches:
 	// Allows comma alone followed by some part of a first name
@@ -240,18 +210,6 @@ function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, 
 
 function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
-	/****
-	$sql="select pid, MAX(id) as id from patient_data group by pid DESC order by pid ASC";
-	$res = sqlStatement($sql);
-	$sql="select $given from patient_data where pubpid like '$pid%' and (";
-	for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-		$sql.=" id='{$row['id']}' or";
-	if ($iter > 0)
-		$sql = substr($sql, 0, -3) . ") order by $orderby";
-	else
-		$sql = substr($sql, 0, -5)."order by $orderby";
-	****/
-
 	$sql = "select $given from patient_data where pubpid like '$pid%' " .
 		"order by $orderby";
 
@@ -284,7 +242,6 @@ function getPatientPID($pid = "%", $given = "pid, id, lname, fname, mname, provi
 	for($iter=0; $row=sqlFetchArray($rez); $iter++)
 		$returnval[$iter]=$row;
 
-
 	return $returnval;
 }
 
@@ -298,21 +255,8 @@ function getPatientName($pid) {
 	return $patientName;
 }
 
-
 function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
-	/****
-	$sql="select pid, MAX(id) as id from patient_data group by pid DESC order by pid ASC";
-	$res = sqlStatement($sql);
-	$sql="select $given from patient_data where DOB like '$DOB%' and (";
-	for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-		$sql.=" id='{$row['id']}' or";
-	if ($iter > 0)
-		$sql = substr($sql, 0, -3) . ") order by $orderby";
-	else
-		$sql = substr($sql, 0, -5)."order by $orderby";
-	****/
-
 	$DOB = fixDate($DOB, $DOB);
 
 	$sql="select $given from patient_data where DOB like '$DOB%' " .
@@ -330,18 +274,6 @@ function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $ord
 
 function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
-	/****
-	$sql="select pid, MAX(id) as id from patient_data group by pid DESC order by pid ASC";
-	$res = sqlStatement($sql);
-	$sql="select $given from patient_data where ss like '$ss%' and (";
-	for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-		$sql.=" id='{$row['id']}' or";
-	if ($iter > 0)
-		$sql = substr($sql, 0, -3) . ") order by $orderby";
-	else
-		$sql = substr($sql, 0, -5)."order by $orderby";
-	****/
-
 	$sql="select $given from patient_data where ss like '$ss%' " .
 		"order by $orderby";
 
@@ -357,15 +289,6 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
 
 function getPatientIds($given = "pid, id, lname, fname, mname", $orderby = "id ASC", $limit="all", $start="0")
 {
-	/****
-	$sql="select pid, MAX(id) as id from patient_data group by pid DESC order by pid ASC";
-	$res = sqlStatement($sql);
-	$sql="select $given from patient_data where ";
-	for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-		$sql.="id='{$row['id']}' or ";
-	$sql = substr($sql, 0, -3) . "order by $orderby";
-	****/
-
 	$sql="select $given from patient_data order by $orderby";
 
 	if ($limit != "all")
@@ -521,7 +444,6 @@ function fixDate($date, $default="0000-00-00") {
     return $fixed_date;
 }
 
-
 function updatePatientData($pid,$new)
 {
 	$real = getPatientData($pid);
@@ -539,7 +461,6 @@ function updatePatientData($pid,$new)
 
 	return sqlInsert($sql);
 }
-
 
 function newEmployerData(	$pid,
 				$name = "",
@@ -705,7 +626,6 @@ function updateInsuranceData($pid,$new)
 	//exit;
         return sqlInsert($sql);
 }
-
 
 function newHistoryData(	$pid,
 				$coffee = "",
@@ -908,9 +828,6 @@ function dateToDB ($date)
 	$date=substr ($date,6,4)."-".substr ($date,3,2)."-".substr($date, 0,2);
 	return $date;
 }
-
-
-
 
 function DBToDate ($date)
 {
