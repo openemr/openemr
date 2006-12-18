@@ -330,7 +330,9 @@ function doclick(pfx, id) {
   <td colspan='2' align='center'>
    <input type='submit' name='form_save' value='Save' disabled /> &nbsp;
    <input type='button' value='Add Issue' onclick='newIssue()' />
+<?php if (!$GLOBALS['concurrent_layout']) { ?>
    <input type='button' value='Add Encounter' onclick='newEncounter()' />
+<?php } ?>
    <input type='button' value='Cancel' onclick='window.close()' />
   </td>
  </tr>

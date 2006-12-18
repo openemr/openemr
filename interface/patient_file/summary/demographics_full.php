@@ -339,7 +339,7 @@ function set_insurance(ins_id, ins_name) {
 
  <tr>
   <td colspan='6'>
-   <a href="javascript:document.demographics_form.submit();" target='Main' class='link_submit'>[<?php xl('Save Patient Demographics','e'); ?>]</a>
+   <a href="javascript:document.demographics_form.submit();" class='link_submit'>[<?php xl('Save Patient Demographics','e'); ?>]</a>
    <hr>
   </td>
  </tr>
@@ -377,7 +377,7 @@ function set_insurance(ins_id, ins_name) {
  </tr>
  <tr>
   <td colspan='4'>
-   <a href="javascript:document.demographics_form.submit();" target=Main class=link_submit>[<?php xl('Save Patient Demographics','e'); ?>]</a>
+   <a href="javascript:document.demographics_form.submit();" class=link_submit>[<?php xl('Save Patient Demographics','e'); ?>]</a>
    <br><hr>
   </td>
  </tr>
@@ -458,7 +458,7 @@ function set_insurance(ins_id, ins_name) {
 
  <tr>
   <td colspan=4>
-   <a href="javascript:document.demographics_form.submit();" target=Main class=link_submit>[<?php xl('Save Patient Demographics','e'); ?>]</a><hr></td>
+   <a href="javascript:document.demographics_form.submit();" class=link_submit>[<?php xl('Save Patient Demographics','e'); ?>]</a><hr></td>
  </tr>
 
 <?php if (! $GLOBALS['athletic_team'] && ! $GLOBALS['simplified_demographics']) { ?>
@@ -526,7 +526,7 @@ function set_insurance(ins_id, ins_name) {
 
  <tr>
   <td colspan=4>
-   <a href="javascript:document.demographics_form.submit();" target=Main class=link_submit>[<?php xl('Save Patient Demographics','e'); ?>]</a>
+   <a href="javascript:document.demographics_form.submit();" class=link_submit>[<?php xl('Save Patient Demographics','e'); ?>]</a>
    <hr>
   </td>
  </tr>
@@ -648,7 +648,7 @@ function set_insurance(ins_id, ins_name) {
   </td>
  </tr>
 </table>
-<a href="javascript:document.demographics_form.submit();" target=Main class=link_submit>[<?php xl('Save Patient Demographics','e'); ?>]</a>
+<a href="javascript:document.demographics_form.submit();" class=link_submit>[<?php xl('Save Patient Demographics','e'); ?>]</a>
 <hr>
 
 <?php

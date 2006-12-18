@@ -185,5 +185,9 @@ newInsuranceData(
   $_POST['i3subscriber_sex']
 );
 
-include_once("patient_summary.php");
+if ($GLOBALS['concurrent_layout']) {
+ include_once("demographics.php");
+} else {
+ include_once("patient_summary.php");
+}
 ?>

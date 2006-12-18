@@ -50,7 +50,12 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 	if ($imauthorized) { 
 ?>
 <font class='title'><?xl('and ','e')?>
-<a href='authorizations_full.php' target='Main'><?xl('Authorizations','e')?><font class='more'><?echo (xl($tmore));?></font></a>
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+<a href='authorizations_full.php'>
+<?php } else { ?>
+<a href='authorizations_full.php' target='Main'>
+<?php } ?>
+<?xl('Authorizations','e')?><font class='more'><?echo (xl($tmore));?></font></a>
 <?php 
 	}
 ?>
@@ -203,19 +208,28 @@ if ($authorize) {
       continue;
 
     if ($count >= $N) {
-      print "<tr><td colspan='5' align='center'><a target='Main' " .
-        "href='authorizations_full.php?active=1' class='alert'>" .
-        "".xl('Some authorizations were not displayed. Click here to view all')."" .
+      print "<tr><td colspan='5' align='center'><a" .
+        ($GLOBALS['concurrent_layout'] ? "" : " target='Main'") .
+        " href='authorizations_full.php?active=1' class='alert'>" .
+        xl('Some authorizations were not displayed. Click here to view all') .
         "</a></td></tr>\n";
       break;
     }
 
-    echo "<tr><td valign='top'>" .
-      "<a href='$rootdir/patient_file/patient_file.php?set_pid=$ppid' " .
-      "target='_top'><span class='bold'>" . $name{"fname"} . " " .
+    echo "<tr><td valign='top'>";
+    if ($GLOBALS['concurrent_layout']) {
+      // Clicking the patient name will load both frames for that patient,
+      // as demographics.php takes care of loading the bottom frame.
+      echo "<a href='$rootdir/patient_file/summary/demographics.php?set_pid=$ppid' " .
+        "target='RTop'>";
+    } else {
+      echo "<a href='$rootdir/patient_file/patient_file.php?set_pid=$ppid' " .
+        "target='_top'>";
+    }
+    echo "<span class='bold'>" . $name{"fname"} . " " .
       $name{"lname"} . "</span></a><br>" .
       "<a class=link_submit href='authorizations.php?mode=authorize" .
-      "&pid=$ppid'>".xl('Authorize')."</a></td>\n";
+      "&pid=$ppid'>" . xl('Authorize') . "</a></td>\n";
 
     /****
     //Michael A Rowley MD 20041012.

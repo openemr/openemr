@@ -1,10 +1,6 @@
 <?
 include_once("../../globals.php");
-
 include_once("$srcdir/patient.inc");
-
-
-
 
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
 newEvent("view",$_SESSION["authUser"],$_SESSION["authProvider"],$_GET["pid"]);
@@ -14,21 +10,20 @@ sqlStatement("update pnotes set authorized=1 where pid='".$_GET["pid"]."'");
 sqlStatement("update transactions set authorized=1 where pid='".$_GET["pid"]."'");
 
 }
-
-
-
 ?>
-
 <html>
 <head>
-
-
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-<a href="../main.php" target=Main><font class=title>Authorizations</font><font class=more><?echo $tback;?></font></a>
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+<a href="authorizations.php">
+<?php } else { ?>
+<a href="../main.php" target=Main>
+<?php } ?>
+<font class=title>Authorizations</font>
+<font class=more><?echo $tback;?></font></a>
 
 <?
 //	billing
@@ -46,14 +41,12 @@ foreach ($result as $iter) {
 
 $authorize{$iter{"pid"}}{"billing"} .= "<span class=small>" . $iter{"user"} . ": </span><span class=text>" . $iter{"code_text"} . " " . date("n/j/Y",strtotime($iter{"date"})) . "</span><br>\n";
 
-
 }
 
 //$authorize[$iter{"pid"}]{"billing"} = substr($authorize[$iter{"pid"}]{"billing"},0,strlen($authorize[$iter{"pid"}]{"billing"}));
 
 }
 }
-
 
 //fetch transaction information:
 if ($res = sqlStatement("select * from transactions where authorized=0 and groupname='$groupname'")) {
@@ -65,14 +58,12 @@ foreach ($result2 as $iter) {
 
 $authorize{$iter{"pid"}}{"transaction"} .= "<span class=small>" . $iter{"user"} . ": </span><span class=text>" . $iter{"title"} . ": " . strterm($iter{"body"},25) . " " . date("n/j/Y",strtotime($iter{"date"})) . "</span><br>\n";
 
-
 }
 
 //$authorize[$iter{"pid"}]{"transaction"} = substr($authorize[$iter{"pid"}]{"transaction"},0,strlen($authorize[$iter{"pid"}]{"transaction"}));
 
 }
 }
-
 
 //fetch pnotes information:
 if ($res = sqlStatement("select * from pnotes where authorized=0 and groupname='$groupname'")) {
@@ -84,15 +75,12 @@ foreach ($result3 as $iter) {
 
 $authorize{$iter{"pid"}}{"pnotes"} .= "<span class=small>" . $iter{"user"} . ": </span><span class=text>" . strterm($iter{"body"},25) . " " . date("n/j/Y",strtotime($iter{"date"})) . "</span><br>\n";
 
-
 }
 
 //$authorize[$iter{"pid"}]{"pnotes"} = substr($authorize[$iter{"pid"}]{"pnotes"},0,strlen($authorize[$iter{"pid"}]{"pnotes"}));
 
 }
 }
-
-
 
 //fetch forms information:
 if ($res = sqlStatement("select * from forms where authorized=0 and groupname='$groupname'")) {
@@ -104,23 +92,17 @@ foreach ($result4 as $iter) {
 
 $authorize{$iter{"pid"}}{"forms"} .= "<span class=small>" . $iter{"user"} . ": </span><span class=text>" . $iter{"form_name"} . " " . date("n/j/Y",strtotime($iter{"date"})) . "</span><br>\n";
 
-
 }
 
 //$authorize[$iter{"pid"}]{"forms"} = substr($authorize[$iter{"pid"}]{"forms"},0,strlen($authorize[$iter{"pid"}]{"forms"}));
 
 }
 }
-
-
-
-
 ?>
 
 <table border=0 cellpadding=0 cellspacing=2 width=100%>
 <tr>
 <td valign=top>
-
 
 <?
 if ($authorize) {
@@ -143,16 +125,10 @@ while(list($ppid,$patient) = each($authorize)){
 }
 ?>
 
-
 </td>
-
 
 </tr>
 </table>
-
-
-
-
 
 </body>
 </html>

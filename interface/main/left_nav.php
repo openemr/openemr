@@ -17,6 +17,8 @@
  //   then loads the initial bottom frame.
  // * interface/patient_file/summary/demographics_full.php: added support for
  //   setting a new pid, needed for going to demographics from billing.
+ // * interface/patient_file/summary/demographics_save.php: redisplay
+ //   demographics.php and not the frameset.
  // * interface/patient_file/summary/summary_bottom.php: new frameset for the
  //   summary, prescriptions and notes for a selected patient, cloned from
  //   patient_summary.php.
@@ -58,8 +60,10 @@
  // * interface/patient_file/encounter/diagnosis.php: target changes.
  // * interface/patient_file/encounter/diagnosis_full.php: target and link
  //   changes.
- // * interface/main/authorizations/authorizations.php: link and target change.
+ // * interface/main/authorizations/authorizations.php: link and target changes.
  // * library/api.inc: url change.
+ // * interface/patient_file/summary/rx_frameset.php: new frameset.
+ // * interface/patient_file/summary/rx_left.php: new for prescriptions.
  // * all encounter forms: remove all instances of "target=Main" and change
  //   all instances of "patient_encounter.php" to "encounter_top.php".
 
@@ -105,6 +109,8 @@
   'dem' => array('Patient'   , 1, 'patient_file/summary/demographics.php'),
   'his' => array('History'   , 1, 'patient_file/history/history.php'),
   'ens' => array('Encounters', 1, 'patient_file/history/encounters.php'),
+  'nen' => array('New Enctr' , 1, 'forms/newpatient/new.php?autoloaded=1&calenc='),
+  'pre' => array('Rx'        , 1, 'patient_file/summary/rx_frameset.php'),
   'iss' => array('Issues'    , 1, 'patient_file/summary/stats_full.php?active=all'),
   'imm' => array('Immunize'  , 1, 'patient_file/summary/immunizations.php'),
   'doc' => array('Documents' , 1, '../controller.php?document&list&patient_id='),
@@ -112,7 +118,6 @@
   'pno' => array('Pt Notes'  , 1, 'patient_file/summary/pnotes.php'),
   'tra' => array('Transact'  , 1, 'patient_file/transaction/transactions.php'),
   'sum' => array('Summary'   , 1, 'patient_file/summary/summary_bottom.php'),
-  'nen' => array('New Enctr' , 1, 'forms/newpatient/new.php?autoloaded=1&calenc='),
   'enc' => array('Encounter' , 2, 'patient_file/encounter/encounter_top.php'),
   'cod' => array('Charges'   , 2, 'patient_file/encounter/encounter_bottom.php'),
  );
@@ -215,9 +220,13 @@
    var usage = rb1.value.substring(3);
    if (active_pid == 0 && usage > '0') da = true;
    if (active_encounter == 0 && usage > '1') da = true;
-   rb1.disabled = da;
-   rb2.disabled = da;
-   document.getElementById('lbl_' + rbid).style.color = da ? '#888888' : '#000000';
+   // daemon_frame can also set special label colors, so don't mess with
+   // them unless we have to.
+   if (rb1.disabled != da) {
+    rb1.disabled = da;
+    rb2.disabled = da;
+    document.getElementById('lbl_' + rbid).style.color = da ? '#888888' : '#000000';
+   }
   }
  }
 
@@ -293,6 +302,7 @@
  // of the frame that the call came from, so we know to only reload content
  // from the *other* frame if it is patient-specific.
  function setPatient(pname, pid, fname) {
+  if (pid == active_pid) return;
   var str = '<b>' + pname + ' (' + pid + ')</b>';
   setDivContent('current_patient', str);
   setDivContent('current_encounter', '<b>None</b>');
@@ -309,6 +319,7 @@
  // fname is the name of the frame that the call came from, so we know to only
  // reload encounter-specific content from the *other* frame.
  function setEncounter(edate, eid, fname) {
+  if (eid == active_encounter) return;
   if (!eid) edate = 'None';
   var str = '<b>' + edate + '</b>';
   setDivContent('current_encounter', str);
@@ -322,6 +333,7 @@
  // the appearance of the navigation frame will be correct and so that any
  // stale content will be reloaded.
  function clearPatient() {
+  if (active_pid == 0) return;
   var f = document.forms[0];
   active_pid = 0;
   active_encounter = 0;
@@ -336,6 +348,7 @@
  // the appearance of the navigation frame will be correct and so that any
  // stale content will be reloaded.
  function clearEncounter() {
+  if (active_encounter == 0) return;
   setDivContent('current_encounter', '<b>None</b>');
   active_encounter = 0;
   reloadEncounter('');
@@ -457,7 +470,8 @@ Active Encounter:<br />
 </table>
 
 <hr />
-<a href="../logout.php?auth=logout" target="_top" class="navitem"><? xl('Logout','e'); ?></a>
+<a href="../logout.php?auth=logout" target="_top" class="navitem" id="logout_link">
+<? xl('Logout','e'); ?></a>
 
 <input type='hidden' name='findBy' value='Name' />
 

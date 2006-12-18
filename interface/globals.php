@@ -50,14 +50,26 @@ session_name("OpenEMR");
 
 session_start();
 
-// Theme definition for a beige theme:
-$top_bg_line = ' bgcolor="#94d6e7" ';
-$GLOBALS['style']['BGCOLOR2'] = "#94d6e7";
-$bottom_bg_line = ' background="'.$rootdir.'/pic/aquabg.gif" ';
+// Set this to true to activate support for the new frame layout.
+//
+$GLOBALS['concurrent_layout'] = false;
+
+// Theme definition:
+if ($GLOBALS['concurrent_layout']) {
+ $top_bg_line = ' bgcolor="#dddddd" ';
+ $GLOBALS['style']['BGCOLOR2'] = "#dddddd";
+ $bottom_bg_line = $top_bg_line;
+ $title_bg_line = ' bgcolor="#bbbbbb" ';
+ $nav_bg_line = ' bgcolor="#94d6e7" ';
+} else {
+ $top_bg_line = ' bgcolor="#94d6e7" ';
+ $GLOBALS['style']['BGCOLOR2'] = "#94d6e7";
+ $bottom_bg_line = ' background="'.$rootdir.'/pic/aquabg.gif" ';
+ $title_bg_line = ' bgcolor="#aaffff" ';
+ $nav_bg_line = ' bgcolor="#94d6e7" ';
+}
 $login_filler_line = ' bgcolor="#f7f0d5" ';
 $login_body_line = ' background="'.$rootdir.'/pic/aquabg.gif" ';
-$title_bg_line = ' bgcolor="#aaffff" ';
-$nav_bg_line = ' bgcolor="#94d6e7" ';
 $css_header = "$rootdir/themes/style_sky_blue.css";
 $logocode="<img src='$rootdir/pic/logo_sky.gif'>";
 $linepic = "$rootdir/pic/repeat_vline9.gif";
@@ -127,11 +139,6 @@ $GLOBALS['calendar_interval'] = 15;
 if (!$ignoreAuth) {
 	include_once("$srcdir/auth.inc");
 }
-
-// Set this to true to activate support for the new frame layout.
-// THIS IS NOT YET COMPLETE, DO NOT USE IT YET!
-//
-$GLOBALS['concurrent_layout'] = false;
 
 // If you do not want your accounting system to have a customer added to it
 // for each insurance company, then set this to true.  SQL-Ledger currently
