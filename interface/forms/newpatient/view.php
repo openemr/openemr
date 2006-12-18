@@ -124,10 +124,10 @@
 <?
  $fres = sqlStatement("select * from facility order by name");
  if ($fres) {
-  $result = array();
+  $fresult = array();
   for ($iter = 0; $frow = sqlFetchArray($fres); $iter++)
-   $result[$iter] = $frow;
-  foreach($result as $iter) {
+   $fresult[$iter] = $frow;
+  foreach($fresult as $iter) {
 ?>
     <option value="<?echo $iter{name};?>" <?if ($result{facility} == $iter{name}) echo "selected";?>><?echo $iter{name};?></option>
 <?
