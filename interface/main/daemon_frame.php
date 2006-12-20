@@ -48,7 +48,7 @@
   var elem = ld.getElementById('lbl_fax');
   if (elem) elem.style.color = '<?php echo $color_fax; ?>';
 
-  var elem = ld.getElementById('lbl_aun');
+  elem = ld.getElementById('lbl_aun');
   if (elem) elem.style.color = '<?php echo $color_aun; ?>';
  }
  else {

@@ -80,8 +80,9 @@
  // a new encounter.  interface/patient_file/encounter/encounter_top.php
  // supports set_encounter to establish an encounter.
  //
- // TBD: Call the sanity check functions in various places.
- // TBD: Fixes to all encounter forms!
+ // TBD: Include active_pid and/or active_encounter in relevant submitted
+ // form data, and add logic to the save routines to make sure they match
+ // the corresponding session values.
 
  include_once("../globals.php");
  include_once("../../library/acl.inc");
@@ -113,7 +114,7 @@
   'pre' => array('Rx'        , 1, 'patient_file/summary/rx_frameset.php'),
   'iss' => array('Issues'    , 1, 'patient_file/summary/stats_full.php?active=all'),
   'imm' => array('Immunize'  , 1, 'patient_file/summary/immunizations.php'),
-  'doc' => array('Documents' , 1, '../controller.php?document&list&patient_id='),
+  'doc' => array('Documents' , 1, '../controller.php?document&list&patient_id={PID}'),
   'prp' => array('Pt Report' , 1, 'patient_file/report/patient_report.php'),
   'pno' => array('Pt Notes'  , 1, 'patient_file/summary/pnotes.php'),
   'tra' => array('Transact'  , 1, 'patient_file/transaction/transactions.php'),
@@ -122,12 +123,23 @@
   'cod' => array('Charges'   , 2, 'patient_file/encounter/encounter_bottom.php'),
  );
 
- $admin_allowed = acl_check('admin', 'calendar') ||
-  acl_check('admin', 'database') || acl_check('admin', 'forms') ||
-  acl_check('admin', 'practice') || acl_check('admin', 'users');
+ // This section decides which navigation items will not appear.
 
- $billing_allowed = acl_check('acct', 'rep') || acl_check('acct', 'eob') ||
-  acl_check('acct', 'bill');
+ $disallowed = array();
+
+ $disallowed['adm'] = !(acl_check('admin', 'calendar') ||
+  acl_check('admin', 'database') || acl_check('admin', 'forms') ||
+  acl_check('admin', 'practice') || acl_check('admin', 'users'));
+
+ $disallowed['bil'] = !(acl_check('acct', 'rep') || acl_check('acct', 'eob') ||
+  acl_check('acct', 'bill'));
+
+ $tmp = acl_check('patients', 'demo');
+ $disallowed['new'] = !($tmp == 'write' || $tmp == 'addonly');
+
+ $disallowed['fax'] = !($GLOBALS['hylafax_server'] || $GLOBALS['scanner_output_directory']);
+
+ $disallowed['ros'] = !$GLOBALS['athletic_team'];
 ?>
 <html>
 <head>
@@ -188,6 +200,8 @@
  // Load the specified url into the specified frame (RTop or RBot).
  // The URL provided must be relative to interface.
  function loadFrame(frame, url) {
+  var i = url.indexOf('{PID}');
+  if (i >= 0) url = url.substring(0,i) + active_pid + url.substring(i+5);
   top.frames[frame].location = '<?php echo "$web_root/interface/" ?>' + url;
  }
 
@@ -260,15 +274,15 @@
  // was just loaded with data for the correct patient, its name is passed so
  // that it will not be zapped.  At this point the new server-side pid is not
  // assumed to be set, so this function will only load global data.
- function reloadPatient(fname) {
+ function reloadPatient(frname) {
   var f = document.forms[0];
   for (var i = 0; i < f.rb_top.length; ++i) {
    if (f.rb_top[i].value.substring(3) > '0') {
-    if (fname != 'RTop' && f.rb_top[i].checked) {
+    if (frname != 'RTop' && f.rb_top[i].checked) {
      loadFrame('RTop', '<?php echo $primary_docs['cal'][2]; ?>');
      setRadio('rb_top', 'cal');
     }
-    if (fname != 'RBot' && f.rb_bot[i].checked) {
+    if (frname != 'RBot' && f.rb_bot[i].checked) {
      loadFrame('RBot', '<?php echo $primary_docs['aun'][2]; ?>');
      setRadio('rb_bot', 'aun');
     }
@@ -279,15 +293,15 @@
  // Reload encounter-specific frames, excluding a specified frame.  At this
  // point the new server-side encounter ID may not be set and loading the same
  // document for the new encounter will not work, so load patient info instead.
- function reloadEncounter(fname) {
+ function reloadEncounter(frname) {
   var f = document.forms[0];
   for (var i = 0; i < f.rb_top.length; ++i) {
    if (f.rb_top[i].value.substring(3) > '1') {
-    if (fname != 'RTop' && f.rb_top[i].checked) {
+    if (frname != 'RTop' && f.rb_top[i].checked) {
      loadFrame('RTop', '<?php echo $primary_docs['dem'][2]; ?>');
      setRadio('rb_top', 'dem');
     }
-    if (fname != 'RBot' && f.rb_bot[i].checked) {
+    if (frname != 'RBot' && f.rb_bot[i].checked) {
      loadFrame('RBot', '<?php echo $primary_docs['ens'][2]; ?>');
      setRadio('rb_bot', 'ens');
     }
@@ -298,17 +312,17 @@
  // Call this to announce that the patient has changed.  You must call this
  // if you change the session PID, so that the navigation frame will show the
  // correct patient and so that the other frame will be reloaded if it contains
- // patient-specific information from the previous patient.  fname is the name
+ // patient-specific information from the previous patient.  frname is the name
  // of the frame that the call came from, so we know to only reload content
  // from the *other* frame if it is patient-specific.
- function setPatient(pname, pid, fname) {
+ function setPatient(pname, pid, frname) {
   if (pid == active_pid) return;
   var str = '<b>' + pname + ' (' + pid + ')</b>';
   setDivContent('current_patient', str);
   setDivContent('current_encounter', '<b>None</b>');
   active_pid = pid;
   active_encounter = 0;
-  if (fname) reloadPatient(fname);
+  if (frname) reloadPatient(frname);
   syncRadios();
  }
 
@@ -316,15 +330,15 @@
  // if you change the session encounter, so that the navigation frame will
  // show the correct encounter and so that the other frame will be reloaded if
  // it contains encounter-specific information from the previous encounter.
- // fname is the name of the frame that the call came from, so we know to only
+ // frname is the name of the frame that the call came from, so we know to only
  // reload encounter-specific content from the *other* frame.
- function setEncounter(edate, eid, fname) {
+ function setEncounter(edate, eid, frname) {
   if (eid == active_encounter) return;
   if (!eid) edate = 'None';
   var str = '<b>' + edate + '</b>';
   setDivContent('current_encounter', str);
   active_encounter = eid;
-  reloadEncounter(fname);
+  reloadEncounter(frname);
   syncRadios();
  }
 
@@ -406,17 +420,16 @@
  // Builds the table of radio buttons and their labels.  Radio button values
  // are comprised of the 3-character document id and the 1-digit usage type,
  // so that JavaScript can easily access this information.
+ $default_top_rbid = $GLOBALS['athletic_team'] ? 'ros' : 'cal';
  foreach ($primary_docs as $key => $varr) {
-  if ($key == 'ros' && !$GLOBALS['athletic_team']) continue;
-  if ($key == 'adm' && !$admin_allowed           ) continue;
-  if ($key == 'bil' && !$billing_allowed         ) continue;
+  if ($disallowed[$key]) continue;
   $label = $varr[0];
   $usage = $varr[1];
   $url   = $varr[2];
   echo " <tr>\n";
   echo "  <td class='smalltext'><input type='radio' name='rb_top' value='$key$usage' " .
        "onclick=\"loadFrame('RTop','$url')\"";
-  if ($key == 'cal') echo " checked";
+  if ($key == $default_top_rbid) echo " checked";
   echo " /></td>\n";
   echo "  <td class='smalltext' id='lbl_$key'>$label</td>\n";
   echo "  <td class='smalltext'><input type='radio' name='rb_bot' value='$key$usage' " .
