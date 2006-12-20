@@ -19,7 +19,9 @@ phone_biz => "Business Phone: ",
 phone_contact => "Contact Phone: ",
 contact_relationship => "Contact Person",
 hipaa_mail => "Allows Mail: ",
-hipaa_voice => "Allows Voice msgs: "
+hipaa_voice => "Allows Voice msgs: ",
+hipaa_notice => "Notice Received: ",
+hipaa_message => "Leave Message With: "
 );
 
 

@@ -344,7 +344,9 @@ function newPatientData(	$db_id="",
 				$hipaa_voice = "",
 				$squad = 0,
 				$pharmacy_id = 0,
-				$drivers_license = ""
+				$drivers_license = "",
+				$hipaa_notice = "",
+				$hipaa_message = ""
 			)
 {
 	$DOB = fixDate($DOB);
@@ -406,6 +408,8 @@ function newPatientData(	$db_id="",
 		pharmacy_id = '$pharmacy_id',
 		hipaa_mail = '$hipaa_mail',
 		hipaa_voice = '$hipaa_voice',
+		hipaa_notice = '$hipaa_notice',
+		hipaa_message = '$hipaa_message',
 		squad = '$squad',
 		fitness='$fitness',
 		referral_source='$referral_source',

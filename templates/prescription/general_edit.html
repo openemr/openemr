@@ -128,10 +128,17 @@ textarea {
 <tr>
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Take</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+{if $SIMPLIFIED_PRESCRIPTIONS && !$prescription->form && !$prescription->route && !$prescription->interval}
+		<input TYPE="text" NAME="dosage" SIZE="30" MAXLENGTH="100" VALUE="{$prescription->dosage}" />
+		<input type="hidden" name="form" value="0" />
+		<input type="hidden" name="route" value="0" />
+		<input type="hidden" name="interval" value="0" />
+{else}
 		<input TYPE="TEXT" NAME="dosage" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->dosage}"/> in
 		<select name="form">{html_options options=$prescription->form_array selected=$prescription->form}</select>
 		<select name="route">{html_options options=$prescription->route_array selected=$prescription->route}</select>
 		<select name="interval">{html_options options=$prescription->interval_array selected=$prescription->interval}</select>
+{/if}
 	</td>
 </tr>
 <tr>

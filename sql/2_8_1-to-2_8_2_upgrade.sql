@@ -397,3 +397,10 @@ ALTER TABLE users
   ADD city2     varchar(30)  NOT NULL DEFAULT '',
   ADD state2    varchar(30)  NOT NULL DEFAULT '',
   ADD zip2      varchar(20)  NOT NULL DEFAULT '';
+
+ALTER TABLE patient_data
+  ADD `hipaa_notice`  VARCHAR(3)  DEFAULT 'NO' NOT NULL,
+  ADD `hipaa_message` VARCHAR(20);
+
+ALTER TABLE prescriptions
+  MODIFY `dosage` varchar(100) DEFAULT NULL;

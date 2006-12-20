@@ -172,6 +172,9 @@ $GLOBALS['inhouse_pharmacy'] = false;
 // True to omit insurance and some other things from the demographics form:
 $GLOBALS['simplified_demographics'] = false;
 
+// True to omit form, route and interval which then become part of dosage:
+$GLOBALS['simplified_prescriptions'] = false;
+
 // You may put text here as the default complaint in the New Patient form:
 $GLOBALS['default_chief_complaint'] = '';
 
@@ -182,6 +185,9 @@ $GLOBALS['default_new_encounter_form'] = '';
 // If you want a new encounter to be automatically created when appointment
 // status is set to "@" (arrived), then make this true.
 $GLOBALS['auto_create_new_encounters'] = true;
+
+// If you don't want employer information and country in patient demographics.
+$GLOBALS['omit_employers'] = false;
 
 // If you want Hylafax support then uncomment and customize the following
 // statements, and also customize custom/faxcover.txt:

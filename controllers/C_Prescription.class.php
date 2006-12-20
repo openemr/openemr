@@ -18,6 +18,7 @@ class C_Prescription extends Controller {
 		$this->assign("TOP_ACTION", $GLOBALS['webroot']."/controller.php?" . "prescription" . "&");
 		$this->assign("STYLE", $GLOBALS['style']);
 		$this->assign("WEIGHT_LOSS_CLINIC", $GLOBALS['weight_loss_clinic']);
+		$this->assign("SIMPLIFIED_PRESCRIPTIONS", $GLOBALS['simplified_prescriptions']);
 		$this->pconfig = $GLOBALS['oer_config']['prescriptions'];
 
 		if ($GLOBALS['inhouse_pharmacy']) {

@@ -7,6 +7,20 @@
   include_once("$srcdir/pid.inc");
   setpid($_GET['set_pid']);
  }
+
+function print_as_money($money) {
+	preg_match("/(\d*)\.?(\d*)/",$money,$moneymatches);
+	$tmp = wordwrap(strrev($moneymatches[1]),3,",",1);
+	$ccheck = strrev($tmp);
+	if ($ccheck[0] == ",") {
+		$tmp = substr($ccheck,1,strlen($ccheck)-1);
+	}
+	if ($moneymatches[2] != "") {
+		return "$ " . strrev($tmp) . "." . $moneymatches[2];
+	} else {
+		return "$ " . strrev($tmp);
+	}
+}
 ?>
 <html>
 
@@ -150,40 +164,88 @@ echo $result{"postal_code"}?>
      <td valign='top'></td>
     </tr>
 
-<? if (!$GLOBALS['athletic_team'] && $result['hipaa_mail']) { ?>
+<?php if (!$GLOBALS['athletic_team']) { ?>
     <tr>
      <td colspan='4' valign='top'>
-	<? 
-		$result{"hipaa_mail"}=='YES' ? $opt_out='ALLOWS' : $opt_out='DOES NOT ALLOW' ;
+	<?php
+		$opt_out = ($result{"hipaa_mail"} == 'YES') ? 'ALLOWS' : 'DOES NOT ALLOW';
 		echo "<span class='text'>Patient $opt_out Mailed Information </span>";
 	?>
      </td>
     </tr>
     <tr>
      <td colspan='4' valign='top'>
-	<? 
-		$result{"hipaa_voice"}=='YES' ? $opt_out='ALLOWS' : $opt_out='DOES NOT ALLOW' ;
+	<?php
+		$opt_out = ($result{"hipaa_voice"} == 'YES') ? 'ALLOWS' : 'DOES NOT ALLOW';
 		echo "<span class='text'>Patient $opt_out Voice Messages </span>";
 	?>
      </td>
     </tr>
-<? } else { ?>
+    <tr>
+     <td colspan='4' valign='top'>
+	<?php
+		$opt_out = ($result{"hipaa_notice"} == 'YES') ? 'RECEIVED' : 'DID NOT RECEIVE';
+		echo "<span class='text'>Patient $opt_out Notice Information </span>";
+	?>
+     </td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>
+    <tr>
+     <td colspan='4' valign='top'>
+	<?php
+		if ( $result["hipaa_message"] == "" ) {
+			echo "<span class='text'><b>Leave a message with :</b> " .
+				$result{"fname"} . " " . $result{"mname"} . " " .
+				$result{"lname"} . "</span>";
+		}
+		else {
+			echo "<span class='text'><b>Leave a message with :</b> " .
+				$result{"hipaa_message"} . "</span>";
+		}
+	?>
+     </td>
+    </tr>
+
+<?php } else { ?>
     <tr>
      <td colspan='4' valign='top'>
       &nbsp;
      </td>
     </tr>
-<? } ?>
+<?php } ?>
+
+<?php if ($GLOBALS['omit_employers']) { /////////////////////////////////// ?>
 
     <tr>
      <td valign='top'>
-<? if ($result{"occupation"} != "") {?><span class='bold'><? xl('Occupation','e'); ?>: </span><span class='text'><?echo $result{"occupation"}?></span><br><?}?>
-<? if ($result2{"name"} != "") {?><span class='bold'><? xl('Employer','e'); ?>: </span><span class='text'><?echo $result2{"name"}?></span><?}?>
+      <table>
+       <tr>
+        <td><span class='bold'>Listed Family Members:</span></td><td>&nbsp;</td>
+       </tr>
+       <tr>
+        <td><?php if ($result{"genericname1"} != "") { ?><span class='text'>&nbsp;&nbsp;&nbsp;<?=$result{"genericname1"}?></span><?php } ?></td>
+        <td><?php if ($result{"genericval1"} != "") { ?><span class='text'>&nbsp;&nbsp;&nbsp;<?=$result{"genericval1"}?></span><?php } ?></td>
+       </tr>
+       <tr>
+        <td><?php if ($result{"genericname2"} != "") { ?><span class='text'>&nbsp;&nbsp;&nbsp;<?=$result{"genericname2"}?></span><?php } ?></td>
+        <td><?php if ($result{"genericval2"} != "") { ?><span class='text'>&nbsp;&nbsp;&nbsp;<?=$result{"genericval2"}?></span><?php } ?></td>
+       </tr>
+      </table>
+     </td>
+     <td valign='top'></td>
+    </tr>
+
+<?php } else { ///// end omit_employers ///// ?>
+
+    <tr>
+     <td valign='top'>
+<?php if ($result{"occupation"} != "") {?><span class='bold'><? xl('Occupation','e'); ?>: </span><span class='text'><?echo $result{"occupation"}?></span><br><?}?>
+<?php if ($result2{"name"} != "") {?><span class='bold'><? xl('Employer','e'); ?>: </span><span class='text'><?echo $result2{"name"}?></span><?}?>
      </td>
      <td valign='top'>
-<? if (($result2{"street"} != "") || ($result2{"city"} != "") || ($result2{"state"} != "") || ($result2{"country"} != "") || ($result2{"postal_code"} != "")) {?>
+<?php if (($result2{"street"} != "") || ($result2{"city"} != "") || ($result2{"state"} != "") || ($result2{"country"} != "") || ($result2{"postal_code"} != "")) {?>
       <span class='bold'><? xl('Employer Address','e'); ?>:</span>
-<? } ?>
+<?php } ?>
       <br>
       <span class='text'>
 <?echo $result2{"street"}?><br><?echo $result2{"city"}?><?if($result2{"city"} != ""){echo ", ";}?><?echo $result2{"state"}?>
@@ -193,7 +255,7 @@ echo $result{"postal_code"}?>
       </span>
      </td>
      <td valign='top'>
-<?
+<?php
  // This stuff only applies to athletic team use of OpenEMR:
  if ($GLOBALS['athletic_team']) {
   //                  blue       dk green   yellow     red        orange
@@ -220,41 +282,26 @@ echo $result{"postal_code"}?>
        <option value='7'<? if ($fitness == 7) echo ' selected' ?>><? xl('International Duty','e'); ?></option>
       </select>
       </form>
-<? } ?>
+<?php } // end athletic team ?>
      </td>
      <td valign='top'></td>
     </tr>
     <tr>
      <td valign='top'>
-<? if (! $GLOBALS['athletic_team']) { ?>
-<? if ($result{"ethnoracial"} != "")  { ?><span class='bold'><? xl('Race/Ethnicity','e'); ?>: </span><span class='text'><?echo $result{"ethnoracial"};?></span><br><? } ?>
-<? if ($result{"language"} != "")     { ?><span class='bold'><? xl('Language','e'); ?>: </span><span class='text'><?echo ucfirst($result{"language"});?></span><br><? } ?>
-<? if ($result{"interpretter"} != "") { ?><span class='bold'><? xl('Interpreter','e'); ?>: </span><span class='text'><?echo $result{"interpretter"};?></span><br><? } ?>
-<? if ($result{"family_size"} != "")  { ?><span class='bold'><? xl('Family Size','e'); ?>: </span><span class='text'><?echo $result{"family_size"};?></span><br><? } ?>
-<? } ?>
+<?php if (! $GLOBALS['athletic_team']) { ?>
+<?php if ($result{"ethnoracial"} != "")  { ?><span class='bold'><? xl('Race/Ethnicity','e'); ?>: </span><span class='text'><?echo $result{"ethnoracial"};?></span><br><? } ?>
+<?php if ($result{"language"} != "")     { ?><span class='bold'><? xl('Language','e'); ?>: </span><span class='text'><?echo ucfirst($result{"language"});?></span><br><? } ?>
+<?php if ($result{"interpretter"} != "") { ?><span class='bold'><? xl('Interpreter','e'); ?>: </span><span class='text'><?echo $result{"interpretter"};?></span><br><? } ?>
+<?php if ($result{"family_size"} != "")  { ?><span class='bold'><? xl('Family Size','e'); ?>: </span><span class='text'><?echo $result{"family_size"};?></span><br><? } ?>
+<?php } ?>
      </td>
      <td valign='top'>
-<?
-function print_as_money($money) {
-preg_match("/(\d*)\.?(\d*)/",$money,$moneymatches);
-$tmp = wordwrap(strrev($moneymatches[1]),3,",",1);
-$ccheck = strrev($tmp);
-if ($ccheck[0] == ",") {
-	$tmp = substr($ccheck,1,strlen($ccheck)-1);
-}
-if ($moneymatches[2] != "") {
-	return "$ " . strrev($tmp) . "." . $moneymatches[2];
-} else {
-	return "$ " . strrev($tmp);
-}
-}
-?>
-<? if (! $GLOBALS['athletic_team']) { ?>
-<? if ($result{"financial_review"} != "0000-00-00 00:00:00") {?><span class='bold'><? xl('Financial Review Date','e'); ?>: </span><span class='text'><?echo date("n/j/Y",strtotime($result{"financial_review"}));?></span><br><?}?>
-<? if ($result{"monthly_income"} != "") {?><span class='bold'><? xl('Monthly Income','e'); ?>: </span><span class='text'><?echo print_as_money($result{"monthly_income"});?></span><br><?}?>
-<? if ($result{"migrantseasonal"} != "") {?><span class='bold'><? xl('Migrant/Seasonal','e'); ?>: </span><span class='text'><?echo $result{"migrantseasonal"};?></span><br><?}?>
-<? if ($result{"homeless"} != "") {?><span class='bold'><? xl('Homeless, etc','e'); ?>.: </span><span class='text'><?echo $result{"homeless"};?></span><br><?}?>
-<? } ?>
+<?php if (! $GLOBALS['athletic_team']) { ?>
+<?php if ($result{"financial_review"} != "0000-00-00 00:00:00") {?><span class='bold'><? xl('Financial Review Date','e'); ?>: </span><span class='text'><?echo date("n/j/Y",strtotime($result{"financial_review"}));?></span><br><?}?>
+<?php if ($result{"monthly_income"} != "") {?><span class='bold'><? xl('Monthly Income','e'); ?>: </span><span class='text'><?echo print_as_money($result{"monthly_income"});?></span><br><?}?>
+<?php if ($result{"migrantseasonal"} != "") {?><span class='bold'><? xl('Migrant/Seasonal','e'); ?>: </span><span class='text'><?echo $result{"migrantseasonal"};?></span><br><?}?>
+<?php if ($result{"homeless"} != "") {?><span class='bold'><? xl('Homeless, etc','e'); ?>.: </span><span class='text'><?echo $result{"homeless"};?></span><br><?}?>
+<?php } ?>
      </td>
      <td valign='top'>
       <table>
@@ -270,6 +317,9 @@ if ($moneymatches[2] != "") {
      </td>
      <td valign='top'></td>
     </tr>
+
+<?php } ///// end not omit_employers ///// ?>
+
 <?php
 //////////////////////////////////REFERRAL SECTION
 if ($result{"referrer"} != "" || $result{"referrerID"} != "")

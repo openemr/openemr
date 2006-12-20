@@ -237,10 +237,15 @@ function set_insurance(ins_id, ins_name) {
  </tr>
 
  <tr>
-  <td><span class='required'><?php xl('Country','e'); ?>: </span></td>
-  <td><input tabindex="13" type='entry' size='10' name='country_code' value="<?php echo $result{"country_code"}?>"></td>
+  <td><span class='required'<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
+      <?php xl('Country','e'); ?>: </span></td>
+  <td><input tabindex="13" type='entry' size='10' name='country_code'
+       value="<?php echo $result{"country_code"}?>"
+       <?php if ($GLOBALS['omit_employers']) echo "style='display:none'"; ?>></td>
 <?php if (!$GLOBALS['weight_loss_clinic']) { ?>
-  <td><span class='bold' colspan='2'><?php xl('User Defined Fields','e'); ?></span></td>
+  <td><span class='bold' colspan='2'>
+   <?php echo $GLOBALS['omit_employers'] ? xl('List Immediate Family Members') : xl('User Defined Fields'); ?>:
+  </span></td>
 <?php } ?>
  </tr>
 
@@ -352,28 +357,43 @@ function set_insurance(ins_id, ins_name) {
   <th colspan='4' align='left' class='bold'><?php xl('HIPAA Choices','e'); ?>:</th>
  </tr>
  <tr>
-  <td class='bold' width='10%' nowrap><?php xl('Allow Mail','e'); ?>:</td>
+  <td class='bold' width='10%' nowrap><?php xl('Did you receive a copy of the HIPAA Notice?','e'); ?> </td>
   <td class='bold'>
-   <select name="hipaa_mail">
-    <?php
-     echo "    <option>NO</option>\n";
-     $opt_sel = ($result['hipaa_mail'] == 'YES' || ($GLOBALS['weight_loss_clinic'] && !$result['hipaa_mail']))
-      ? ' selected' : '';
-     echo "    <option$opt_sel>YES</option>\n";
-    ?>
+   <select name = "hipaa_notice">
+<?php
+ echo "    <option>NO</option>\n";
+ $opt_sel = ($result['hipaa_notice'] == 'YES' || ($GLOBALS['weight_loss_clinic'] && !$result['hipaa_notice']))
+  ? ' selected' : '';
+ echo "    <option$opt_sel>YES</option>\n";
+?>
    </select>
   </td>
   <td class='bold' width='10%' nowrap><?php xl('Allow Voice Msg','e'); ?>:</td>
   <td class='bold'>
    <select name="hipaa_voice">
-    <?php
-     echo "    <option>NO</option>\n";
-     $opt_sel = ($result['hipaa_voice'] == 'YES' || ($GLOBALS['weight_loss_clinic'] && !$result['hipaa_voice']))
-      ? ' selected' : '';
-     echo "    <option$opt_sel>YES</option>\n";
-    ?>
+<?php
+ echo "    <option>NO</option>\n";
+ $opt_sel = ($result['hipaa_voice'] == 'YES' || ($GLOBALS['weight_loss_clinic'] && !$result['hipaa_voice']))
+  ? ' selected' : '';
+ echo "    <option$opt_sel>YES</option>\n";
+?>
    </select>
   </td>
+ </tr>
+ <tr>
+  <td class='bold' width='10%' nowrap><?php xl('Allow Mail','e'); ?>:</td>
+  <td class='bold'>
+   <select name="hipaa_mail">
+<?php
+ echo "    <option>NO</option>\n";
+ $opt_sel = ($result['hipaa_mail'] == 'YES' || ($GLOBALS['weight_loss_clinic'] && !$result['hipaa_mail']))
+  ? ' selected' : '';
+ echo "    <option$opt_sel>YES</option>\n";
+?>
+   </select>
+  </td>
+  <td class='bold' width='10%' nowrap><?php xl('Who may we leave a message with?','e'); ?> </td>
+  <td><input name="hipaa_message" size='20' value="<?php echo $result['hipaa_message']; ?>" /></td>
  </tr>
  <tr>
   <td colspan='4'>
@@ -385,7 +405,7 @@ function set_insurance(ins_id, ins_name) {
 
 <?php } ?>
 
-<table width='100%'>
+<table width='100%'<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
  <tr>
   <td valign=top>
    <input type=hidden size=30 name=referrer value="<?php echo ucfirst($result{"referrer"});?>">
@@ -576,15 +596,18 @@ function set_insurance(ins_id, ins_name) {
     <tr>
      <td><span class=required><?php xl('Group Number','e'); ?>: </span></td><td><input type=entry size=16 name=i<?php echo $i?>group_number value="<?php echo $result3{"group_number"}?>"></td>
     </tr>
-    <tr>
+
+    <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
      <td class='required'><?php xl('Subscriber Employer (SE)','e'); ?><br><span style='font-weight:normal'>
       (<?php xl('if unemployed enter Student','e'); ?>,<br><?php xl('PT Student, or leave blank','e'); ?>): </span></td>
      <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer value="<?php echo $result3{"subscriber_employer"}?>"></td>
     </tr>
-    <tr>
+
+    <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
      <td><span class=required><?php xl('SE Address','e'); ?>: </span></td><td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer_street value="<?php echo $result3{"subscriber_employer_street"}?>"></td>
     </tr>
-    <tr>
+
+    <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
      <td colspan="2">
       <table>
        <tr>
@@ -602,6 +625,7 @@ function set_insurance(ins_id, ins_name) {
       </table>
      </td>
     </tr>
+
    </table>
   </td>
 
@@ -640,7 +664,10 @@ function set_insurance(ins_id, ins_name) {
    <span class=required><?php xl('City','e'); ?>: </span><input type=entry size=15 name=i<?php echo $i?>subscriber_city value="<?php echo $result3{"subscriber_city"}?>">
    <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? 'State' : 'Locality' ?>: </span><input type=entry size=15 name=i<?php echo $i?>subscriber_state value="<?php echo $result3{"subscriber_state"}?>"><br>
    <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? 'Zip' : 'Postal' ?> <?php xl('Code','e'); ?>: </span><input type=entry size=10 name=i<?php echo $i?>subscriber_postal_code value="<?php echo $result3{"subscriber_postal_code"}?>">
-   <span class=required><?php xl('Country','e'); ?>: </span><input type=entry size=10 name=i<?php echo $i?>subscriber_country value="<?php echo $result3{"subscriber_country"}?>"><br>
+   <span class='required'<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
+   <?php xl('Country','e'); ?>:
+   <input type=entry size=10 name=i<?php echo $i?>subscriber_country
+    value="<?php echo $result3{"subscriber_country"}?>"><br></span>
    <span class=bold><?php xl('Subscriber Phone','e'); ?>: 
    <input type='text' size='20' name='i<?php echo $i?>subscriber_phone' value='<?php echo $result3["subscriber_phone"] ?>' onkeyup='phonekeyup(this,mypcc)' />
    </span><br />
