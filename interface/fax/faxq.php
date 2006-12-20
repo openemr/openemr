@@ -65,7 +65,7 @@
    if (substr($sfname, 0, 1) == '.') continue;
    $tmp = stat("$scandir/$sfname");
    $tmp[0] = $sfname; // put filename in slot 0 which we don't otherwise need
-   $slines[$tmp[9]] = $tmp; // key is file mod time
+   $slines[$tmp[9] . $tmp[1]] = $tmp; // key is file mod time and inode number
   }
   closedir($dh);
   ksort($slines);
