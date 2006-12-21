@@ -9,11 +9,16 @@
  // This script runs in a hidden frame, reloads itself periodically,
  // and does whatever might need doing in the background.
 
+ // Tell auth.inc that this is the daemon script; this is so that
+ // inactivity timeouts will still work, and to avoid logging an
+ // event every time we run.
+ $GLOBALS['DAEMON_FLAG'] = true;
+
  include_once("../globals.php");
 
- $daemon_interval = 60; // Interval in seconds between reloads.
- $colorh = '#ff0000';   // highlight color
- $colorn = '#000000';   // normal color
+ $daemon_interval = 120; // Interval in seconds between reloads.
+ $colorh = '#ff0000';    // highlight color
+ $colorn = '#000000';    // normal color
 
  // Check if there are faxes in the recvq.
  $faxcount = 0;

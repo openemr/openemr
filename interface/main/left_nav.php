@@ -486,7 +486,7 @@ Active Encounter:<br />
 <a href="../logout.php?auth=logout" target="_top" class="navitem" id="logout_link">
 <? xl('Logout','e'); ?></a>
 
-<input type='hidden' name='findBy' value='Name' />
+<input type='hidden' name='findBy' value='Last' />
 
 </form>
 

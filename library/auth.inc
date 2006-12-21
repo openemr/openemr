@@ -6,27 +6,25 @@ require_once("{$GLOBALS['srcdir']}/sql.inc");
 
 if ($_GET['auth'] == "login" && isset($_POST['authUser']) && isset($_POST['authPass']) && isset($_POST['authProvider']))
 {
-
 	if (!authNewSession($_POST['authUser'], $_POST['authPass'], $_POST['authProvider']))
-        {
-
+	{
 		newEvent("login",$_POST['authUser'], $_POST['authProvider'], "failure");
 		authLoginScreen();
-
 	}
 	newEvent("login", $_POST['authUser'], $_POST['authProvider'], "success");
 	$_SESSION["last_update"] = time(); //store the very first initial timestamp for timeout errors
-}elseif ($_GET['auth'] == "logout")
+}
+else if ($_GET['auth'] == "logout")
 {
 	newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], "success");
 	authCloseSession();
 	authLoginScreen();
-}else
+}
+else
 {
-
-    if (authCheckSession()) {
-        	
-		if (isset($_SESSION['pid']))
+	if (authCheckSession())
+	{
+		if (isset($_SESSION['pid']) && !$GLOBALS['DAEMON_FLAG'])
 		{
 			require_once("{$GLOBALS['srcdir']}/patient.inc");
 			$logpatient = getPatientData($_SESSION['pid'], "lname, fname, mname");
@@ -45,16 +43,14 @@ if (!isset($_SESSION["last_update"])) {
 	authLoginScreen();
 } else {
 	 //if page has not been updated in a given period of time, we call login screen
-	if ((time()-$_SESSION["last_update"])>$timeout) {
+	if ((time() - $_SESSION["last_update"]) > $timeout) {
 		newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], "timeout");
 		authCloseSession();
 		authLoginScreen();
 	} else {
-		$_SESSION["last_update"] = time();
+		if (!$GLOBALS['DAEMON_FLAG']) $_SESSION["last_update"] = time();
 	}
 }
-
-
 
 //----------THINGS WE DO IF WE STILL LIKE YOU
 
@@ -91,7 +87,6 @@ function authNewSession ($user, $pass, $provider)
 function authCheckSession ()
 {
 	if (isset($_SESSION['authId'])) {
-		
 		$authDB = sqlQuery("select username, password from users where id = '".$_SESSION['authId']."'");
 		if ($_SESSION['authUser'] == $authDB['username'] && $_SESSION['authPass'] == $authDB['password']) {
 			return true;

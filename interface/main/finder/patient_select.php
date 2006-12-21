@@ -55,7 +55,8 @@ if ($result) {
 		// The new layout loads just the demographics frame here, which in turn
 		// will set the pid and load all the other frames.
 		if ($GLOBALS['concurrent_layout']) {
-			$anchor = "<a href='../../patient_file/summary/demographics.php?set_pid=" . $iter['pid'] . "'>";
+			$anchor = "<a href='../../patient_file/summary/demographics.php?set_pid=" .
+				$iter['pid'] . "' class='text'>";
 		} else {
 			$anchor = "<a class='text' target='_top' " .
 				"href='../../patient_file/patient_file.php?set_pid=" .
