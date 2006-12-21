@@ -64,10 +64,12 @@
   // represented on a single statement.
   $res = SLQuery("SELECT ar.*, customer.name, " .
    "customer.address1, customer.address2, " .
-   "customer.city, customer.state, customer.zipcode " .
+   "customer.city, customer.state, customer.zipcode, " .
+   "substring(trim(both from customer.name) from '% #\"%#\"' for '#') AS lname, " .
+   "substring(trim(both from customer.name) from '#\"%#\" %' for '#') AS fname " .
    "FROM ar, customer WHERE ( $where ) AND " .
    "customer.id = ar.customer_id " .
-   "ORDER BY ar.customer_id, ar.transdate");
+   "ORDER BY lname, fname, ar.customer_id, ar.transdate");
   if ($sl_err) die($sl_err);
 
   $stmt = array();
@@ -415,7 +417,9 @@ function npopup(pid) {
     }
 
     $query = "SELECT ar.id, ar.invnumber, ar.duedate, ar.amount, ar.paid, " .
-      "ar.intnotes, ar.notes, ar.shipvia, customer.name " .
+      "ar.intnotes, ar.notes, ar.shipvia, customer.name, " .
+      "substring(trim(both from customer.name) from '% #\"%#\"' for '#') AS lname, " .
+      "substring(trim(both from customer.name) from '#\"%#\" %' for '#') AS fname " .
       "FROM ar, customer WHERE ( $where ) AND customer.id = ar.customer_id ";
     if ($_POST['form_category'] != 'All' && !$eracount) {
       $query .= "AND ar.amount != ar.paid ";
@@ -423,7 +427,7 @@ function npopup(pid) {
       //   $query .= "AND ar.duedate <= CURRENT_DATE ";
       // }
     }
-    $query .= "ORDER BY customer.name, ar.invnumber";
+    $query .= "ORDER BY lname, fname, ar.invnumber";
 
     echo "<!-- $query -->\n"; // debugging
 
@@ -535,7 +539,8 @@ function npopup(pid) {
 ?>
  <tr bgcolor='<?php echo $bgcolor ?>'>
   <td class="detail">
-   &nbsp;<a href="" onclick="return npopup(<?php echo $pid ?>)"><?php echo $row['name'] ?></a>
+   &nbsp;<a href="" onclick="return npopup(<?php echo $pid ?>)"
+   ><?php echo $row['lname'] . ', ' . $row['fname']; ?></a>
   </td>
   <td class="detail">
    &nbsp;<a href="sl_eob_invoice.php?id=<?php echo $row['id'] ?>"

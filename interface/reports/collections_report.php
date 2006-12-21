@@ -280,18 +280,24 @@
     foreach ($rows as $ptname => $row) {
 
       $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
+      list($pid, $encounter) = explode(".", $row['invnumber']);
 
       if ($form_export) {
 
-        // This is the format provided by Transworld Systems.
-        echo "00000000"; // client number and filler
+        // This is a fixed-length format used by Transworld Systems.  Your
+        // needs will surely be different, so consider this just an example.
+        //
+        echo "9999X"; // client number goes here
+        echo "000";   // filler
         echo sprintf("%-30s", substr($ptname, 0, 30));
         echo sprintf("%-30s", " ");
         echo sprintf("%-30s", substr($row['address1'], 0, 30));
         echo sprintf("%-15s", substr($row['city'], 0, 15));
         echo sprintf("%-2s", substr($row['state'], 0, 2));
         echo sprintf("%-5s", $row['zipcode'] ? substr($row['zipcode'], 0, 5) : '00000');
-        echo "00000000000 "; // service code, transmittal number, filler
+        echo "0";                      // service code
+        echo sprintf("%010.0f", $pid); // transmittal number = patient id
+        echo " ";                      // filler
         echo sprintf("%-15s", substr($row['ss'], 0, 15));
         echo substr($row['dos'], 5, 2) . substr($row['dos'], 8, 2) . substr($row['dos'], 2, 2);
         echo sprintf("%08.0f", ($row['amount'] - $row['paid']) * 100);
