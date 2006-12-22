@@ -140,6 +140,10 @@
  $disallowed['fax'] = !($GLOBALS['hylafax_server'] || $GLOBALS['scanner_output_directory']);
 
  $disallowed['ros'] = !$GLOBALS['athletic_team'];
+
+ $disallowed['iss'] = !((acl_check('encounters', 'notes') == 'write' ||
+  acl_check('encounters', 'notes_a') == 'write') &&
+  acl_check('patients', 'med') == 'write');
 ?>
 <html>
 <head>
@@ -175,6 +179,8 @@
  background-color:transparent;
 }
 </style>
+
+<script type="text/javascript" src="../../library/dialog.js"></script>
 
 <script language='JavaScript'>
 
@@ -242,6 +248,7 @@
     document.getElementById('lbl_' + rbid).style.color = da ? '#888888' : '#000000';
    }
   }
+  f.popups.disabled = (active_pid == 0);
  }
 
  // Process the click to find a patient by name, id, ssn or dob.
@@ -391,6 +398,26 @@
   return true;
  }
 
+ // This is invoked to pop up some window when a popup item is selected.
+ function selpopup(selobj) {
+  var i = selobj.selectedIndex;
+  var opt = selobj.options[i];
+  if (i > 0) {
+   var width  = 750;
+   var height = 550;
+   if (opt.text == 'Export' || opt.text == 'Import') {
+    width  = 500;
+    height = 400;
+   }
+   else if (opt.text == 'Refer') {
+    width  = 700;
+    height = 500;
+   }
+   dlgopen(opt.value, '_blank', width, height);
+  }
+  selobj.selectedIndex = 0;
+ }
+
 </script>
 
 </head>
@@ -452,6 +479,28 @@ Active Encounter:<br />
 <div id='current_encounter'>
 <b>None</b>
 </div>
+
+<select name='popups' onchange='selpopup(this)'
+ style='background-color:transparent;font-size:9pt;'>
+ <option value=''><? xl('Popups','e'); ?></option>
+<?php if (!$disallowed['iss']) { ?>
+ <option value='../patient_file/problem_encounter.php'><? xl('Issues','e'); ?></option>
+<?php } ?>
+ <option value='../../custom/export_xml.php'><? xl('Export','e'); ?></option>
+ <option value='../../custom/import_xml.php'><? xl('Import','e'); ?></option>
+<?php if ($GLOBALS['athletic_team']) { ?>
+ <option value='../reports/players_report.php'><? xl('Roster','e'); ?></option>
+<?php } ?>
+ <option value='../reports/appointments_report.php?patient=<?php echo $pid ?>'><? xl('Appts','e'); ?></option>
+<?php if (file_exists("$webserver_root/custom/refer.php")) { ?>
+ <option value='../../custom/refer.php'><? xl('Refer','e'); ?></option>
+<?php } ?>
+<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
+ <option value='../patient_file/pos_checkout.php'><? xl('Payment','e'); ?></option>
+<?php } else { ?>
+ <option value='../patient_file/front_payment.php'><? xl('Payment','e'); ?></option>
+<?php } ?>
+</select>
 
 <hr />
 
