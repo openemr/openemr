@@ -13,11 +13,11 @@ include_once("$srcdir/patient.inc");
 // increase to a high number to make the mini frame more useful.
 $N = 50;
 
-$imauthorized = $_SESSION['userauthorized'];
-
 $atemp = sqlQuery("SELECT see_auth FROM users WHERE username = '" .
   $_SESSION['authUser'] . "'");
 $see_auth = $atemp['see_auth'];
+
+$imauthorized = $_SESSION['userauthorized'] || $see_auth > 2;
 
 // This authorizes everything for the specified patient.
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
