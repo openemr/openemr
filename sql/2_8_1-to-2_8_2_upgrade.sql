@@ -403,4 +403,5 @@ ALTER TABLE patient_data
   ADD `hipaa_message` VARCHAR(20);
 
 ALTER TABLE prescriptions
-  MODIFY `dosage` varchar(100) DEFAULT NULL;
+  MODIFY `dosage`   varchar(100) DEFAULT NULL,
+  MODIFY `quantity` varchar(11)  DEFAULT NULL;

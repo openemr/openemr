@@ -27586,7 +27586,7 @@ CREATE TABLE `prescriptions` (
   `drug_id` int(11) NOT NULL DEFAULT 0,
   `form` int(3) default NULL,
   `dosage` varchar(100) default NULL,
-  `quantity` int(11) default NULL,
+  `quantity` varchar(11) default NULL,
   `size` float unsigned default NULL,
   `unit` int(11) default NULL,
   `route` int(11) default NULL,

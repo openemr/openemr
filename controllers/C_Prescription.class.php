@@ -227,12 +227,13 @@ class C_Prescription extends Controller {
         }
 
         function get_prescription_body_text($p) {
-                $body = '<b>Rx: ' . $p->get_drug() . ' ' . $p->get_size() . ' ' . $p->get_unit_display()
-                       . ' [' . $p->form_array[$p->get_form()] . "]</b>     <i>"
-                       . $p->substitute_array[$p->get_substitute()] . "</i>\n"
-                       . '<b>Disp #:</b> <u>' . $p->get_quantity() . "</u>\n"
-		       . '<b>Sig:</b> ' . $p->get_dosage() . ' ' . $p->form_array[$p->get_form()] .' ' 
-		       . $p->route_array[$p->get_route()] . ' ' . $p->interval_array[$p->get_interval()] .  "\n";
+                $body = '<b>Rx: ' . $p->get_drug() . ' ' . $p->get_size() . ' ' . $p->get_unit_display();
+                if ($p->get_form()) $body .= ' [' . $p->form_array[$p->get_form()] . "]";
+                $body .= "</b>     <i>"
+                  . $p->substitute_array[$p->get_substitute()] . "</i>\n"
+                  . '<b>Disp #:</b> <u>' . $p->get_quantity() . "</u>\n"
+                  . '<b>Sig:</b> ' . $p->get_dosage() . ' ' . $p->form_array[$p->get_form()] .' ' 
+                  . $p->route_array[$p->get_route()] . ' ' . $p->interval_array[$p->get_interval()] .  "\n";
                 if ($p->get_refills() > 0) {
                         $body .= "\n<b>Refills:</b> <u>" .  $p->get_refills() . " of quantity " . $p->get_per_refill() . "</u>\n";
                 }

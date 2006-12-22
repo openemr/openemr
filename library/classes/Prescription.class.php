@@ -265,9 +265,9 @@ class Prescription extends ORDataObject {
 		return $this->size;
 	}
 	function set_quantity($qty) {
-		if (is_numeric($qty)) {
-			$this->quantity = $qty;
-		}
+		// if (is_numeric($qty)) {
+		$this->quantity = $qty;
+		// }
 	}
 	function get_quantity() {
 		return $this->quantity;
