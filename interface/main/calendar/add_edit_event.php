@@ -165,8 +165,9 @@
     $tmprow = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
       "pid = '" . $_POST['form_pid'] . "' AND date = '$event_date 00:00:00'");
     if ($tmprow['count'] == 0) {
-      $tmprow = sqlQuery("SELECT facility FROM users WHERE username = '" .
-        $_SESSION['authUser'] . "'");
+      $tmprow = sqlQuery("SELECT username, facility FROM users WHERE id = '" .
+        $_POST['form_provider'] . "'");
+      $username = $tmprow['username'];
       $facility = $tmprow['facility'];
       $conn = $GLOBALS['adodb']['db'];
       $encounter = $conn->GenID("sequences");
@@ -177,8 +178,9 @@
           "reason = '" . $_POST['form_comments'] . "', " .
           "facility = '$facility', " .
           "pid = '" . $_POST['form_pid'] . "', " .
-          "encounter = '$encounter'"),
-        "newpatient", $_POST['form_pid'], $userauthorized
+          "encounter = '$encounter'"
+        ),
+        "newpatient", $_POST['form_pid'], "1", "NOW()", $username
       );
       $info_msg .= "New encounter $encounter was created. ";
     }
@@ -256,7 +258,7 @@
 
  // Get the providers list.
  $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE " .
-  "authorized != 0 ORDER BY lname, fname");
+  "authorized != 0 AND active = 1 ORDER BY lname, fname");
 
  // Get event categories.
  $cres = sqlStatement("SELECT pc_catid, pc_catname, pc_recurrtype, pc_duration, pc_end_all_day " .

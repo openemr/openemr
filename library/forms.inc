@@ -50,15 +50,19 @@ function getFormByEncounter($pid,$encounter, $cols="form_id, form_name", $name="
 	return $all;
 }
 
-function addForm($encounter, $form_name, $form_id, $formdir, $pid, $authorized = "0", $date="NOW()")
+function addForm($encounter, $form_name, $form_id, $formdir, $pid,
+ $authorized = "0", $date="NOW()", $user="", $group="")
 {
-	$sql = "insert into forms (date, encounter, form_name, form_id, pid, user, groupname, authorized, formdir) values (";
+	if (!$user) $user = $_SESSION['authUser'];
+	if (!$group) $group = $_SESSION['authProvider'];
+	$sql = "insert into forms (date, encounter, form_name, form_id, pid, " .
+		"user, groupname, authorized, formdir) values (";
 	if($date == "NOW()")
 		$sql .= "$date";
 	else
 		$sql .= "'$date'";
-		
-	$sql .= ", '$encounter', '$form_name', '$form_id', '$pid', '" . $_SESSION['authUser'] . "', '" . $_SESSION['authProvider'] . "', '$authorized', '$formdir')";
+	$sql .= ", '$encounter', '$form_name', '$form_id', '$pid', '$user',          " .
+		"'$group', '$authorized', '$formdir')";
 	return sqlInsert( $sql );
 }
 

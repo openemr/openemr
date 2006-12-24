@@ -138,6 +138,20 @@ function set_insurance(ins_id, ins_name) {
  theopts[i] = new Option(ins_name, ins_id, false, true);
 }
 
+// This capitalizes the first letter of each word in the passed input
+// element.  It also strips out extraneous spaces.
+function capitalizeMe(elem) {
+ var a = elem.value.split(' ');
+ var s = '';
+ for(var i = 0; i < a.length; ++i) {
+  if (a[i].length > 0) {
+   if (s.length > 0) s += ' ';
+   s += a[i].charAt(0).toUpperCase() + a[i].substring(1);
+  }
+ }
+ elem.value = s;
+}
+
 //-->
 
 </script>
@@ -168,9 +182,15 @@ function set_insurance(ins_id, ins_name) {
     <option value="Mr."><?php xl('Mr','e'); ?>.</option>
     <option value="Dr."><?php xl('Dr','e'); ?>.</option>
    </select>
-   <input tabindex="2" type=entry size=15 name=fname value="<?php echo $result{"fname"} ?>">
-   <input tabindex="3" type=entry size=3 name=mname value="<?php echo $result{"mname"} ?>">
-   <input tabindex="4" type=entry size=15 name=lname value="<?php echo $result{"lname"} ?>">
+   <input tabindex="2" type=entry size=15 name=fname
+    value="<?php echo $result{"fname"} ?>"
+    onchange="capitalizeMe(this);" />
+   <input tabindex="3" type=entry size=3 name=mname
+    value="<?php echo $result{"mname"} ?>"
+    onchange="capitalizeMe(this);" />
+   <input tabindex="4" type=entry size=15 name=lname
+    value="<?php echo $result{"lname"} ?>"
+    onchange="capitalizeMe(this);" />
    &nbsp;
    <span class='bold'><?php echo ($GLOBALS['athletic_team']) ? 'OID ' : '' ?><?php xl('Number','e'); ?>: </span>
   </td>
@@ -187,7 +207,9 @@ function set_insurance(ins_id, ins_name) {
   <td rowspan="12">&nbsp;</td>
   <td><span class='bold'><?php xl('Emergency Contact','e'); ?>: </span></td>
   <td rowspan="12">&nbsp;</td>
-  <td><input type='entry' size='10' name='contact_relationship' value="<?php echo $result{"contact_relationship"}?>"></td>
+  <td><input type='entry' size='10' name='contact_relationship'
+   value="<?php echo $result{"contact_relationship"}?>"
+   onchange="capitalizeMe(this);" /></td>
  </tr>
 
  <tr>
@@ -211,14 +233,16 @@ function set_insurance(ins_id, ins_name) {
 
  <tr>
   <td><span class=required><?php xl('Address','e'); ?>: </span></td>
-  <td><input tabindex="8" type=entry size=25 name=street value="<?php echo $result{"street"}?>"></td>
+  <td><input tabindex="8" type=entry size=25 name=street value="<?php echo $result{"street"}?>"
+   onchange="capitalizeMe(this);" /></td>
   <td><span class=bold><?php xl('Work Phone','e'); ?>:</span></td>
   <td><input type='text' size='20' name='phone_biz' value='<?php echo $result['phone_biz'] ?>' onkeyup='phonekeyup(this,mypcc)' /></td>
  </tr>
 
  <tr>
   <td><span class=required><?php xl('City','e'); ?>: </span></td>
-  <td><input tabindex="9" type=entry size=15 name=city value="<?php echo $result{"city"}?>"></td>
+  <td><input tabindex="9" type=entry size=15 name=city value="<?php echo $result{"city"}?>"
+   onchange="capitalizeMe(this);" /></td>
   <td><span class=bold><?php xl('Mobile Phone','e'); ?>: </span></td>
   <td><input type='text' size='20' name='phone_cell' value='<?php echo $result['phone_cell'] ?>' onkeyup='phonekeyup(this,mypcc)' /></td>
  </tr>
@@ -279,8 +303,10 @@ function set_insurance(ins_id, ins_name) {
    <input name="genericval1" size='10' value="<?php echo $result{"genericval1"} ?>" />
   </td>
 <?php } else { ?>
-  <td><input name="genericname1" size='20' value="<?php echo $result{"genericname1"} ?>" /></td>
-  <td><input name="genericval1" size='20' value="<?php echo $result{"genericval1"} ?>" /></td>
+  <td><input name="genericname1" size='20' value="<?php echo $result{"genericname1"} ?>"
+   onchange="capitalizeMe(this);" /></td>
+  <td><input name="genericval1" size='20' value="<?php echo $result{"genericval1"} ?>"
+   onchange="capitalizeMe(this);" /></td>
 <?php } ?>
 
  </tr>
@@ -312,8 +338,10 @@ function set_insurance(ins_id, ins_name) {
    <input name="genericval2" size='10' value="<?php echo $result{"genericval2"} ?>" />
   </td>
 <?php } else { ?>
-  <td><input name="genericname2" size='20' value="<?php echo $result{"genericname2"};?>" /></td>
-  <td><input name="genericval2" size='20' value="<?php echo $result{"genericval2"};?>" /></td>
+  <td><input name="genericname2" size='20' value="<?php echo $result{"genericname2"};?>"
+   onchange="capitalizeMe(this);" /></td>
+  <td><input name="genericval2" size='20' value="<?php echo $result{"genericval2"};?>"
+   onchange="capitalizeMe(this);" /></td>
 <?php } ?>
 
  </tr>
@@ -393,7 +421,8 @@ function set_insurance(ins_id, ins_name) {
    </select>
   </td>
   <td class='bold' width='10%' nowrap><?php xl('Who may we leave a message with?','e'); ?> </td>
-  <td><input name="hipaa_message" size='20' value="<?php echo $result['hipaa_message']; ?>" /></td>
+  <td><input name="hipaa_message" size='20' value="<?php echo $result['hipaa_message']; ?>"
+   onchange="capitalizeMe(this);" /></td>
  </tr>
  <tr>
   <td colspan='4'>
@@ -418,7 +447,8 @@ function set_insurance(ins_id, ins_name) {
     </tr>
     <tr>
      <td class='bold'><?php xl('Employer','e'); ?>:</td>
-     <td><input type=entry size=20 name=ename value="<?php echo $result2{"name"}?>"></td>
+     <td><input type=entry size=20 name=ename value="<?php echo $result2{"name"}?>"
+      onchange="capitalizeMe(this);" /></td>
     </tr>
     <tr>
      <td colspan='2' class='bold' style='font-weight:normal'>(<?php xl('if unemployed enter Student, PT Student, or leave blank','e'); ?>)</td>
@@ -454,10 +484,15 @@ function set_insurance(ins_id, ins_name) {
 
    <table>
     <tr>
-     <td><span class=bold><?php xl('Employer Address','e'); ?></span></td><td><span class=bold></span><input type=entry size=25 name=estreet value="<?php echo $result2{"street"}?>"></td>
+     <td><span class=bold><?php xl('Employer Address','e'); ?></span></td>
+     <td><span class=bold></span>
+      <input type=entry size=25 name=estreet value="<?php echo $result2{"street"} ?>"
+       onchange="capitalizeMe(this);" /></td>
     </tr>
     <tr>
-     <td><span class=bold><?php xl('City','e'); ?>: </span></td><td><input type=entry size=15 name=ecity value="<?php echo $result2{"city"}?>"></td>
+     <td><span class=bold><?php xl('City','e'); ?>: </span></td>
+     <td><input type=entry size=15 name=ecity value="<?php echo $result2{"city"}?>"
+      onchange="capitalizeMe(this);" /></td>
     </tr>
     <tr>
      <td><span class=bold><?php echo ($GLOBALS['phone_country_code'] == '1') ? 'State' : 'Locality' ?>: </span></td><td><input type=entry size=15 name=estate value="<?php echo $result2{"state"}?>"></td>
@@ -466,7 +501,9 @@ function set_insurance(ins_id, ins_name) {
      <td><span class=bold><?php echo ($GLOBALS['phone_country_code'] == '1') ? 'Zip' : 'Postal' ?> <?php xl('Code','e'); ?>: </span></td><td><input type=entry size=10 name=epostal_code value="<?php echo $result2{"postal_code"}?>"></td>
     </tr>
     <tr>
-     <td><span class=bold><?php xl('Country','e'); ?>: </span></td><td><input type=entry size=10 name=ecountry value="<?php echo $result2{"country"}?>"></td>
+     <td><span class=bold><?php xl('Country','e'); ?>: </span></td>
+     <td><input type=entry size=10 name=ecountry value="<?php echo $result2{"country"}?>"
+      onchange="capitalizeMe(this);" /></td>
     </tr>
    </table>
 
@@ -588,7 +625,9 @@ function set_insurance(ins_id, ins_name) {
      </td>
     </tr>
     <tr>
-     <td><span class=required><?php xl('Plan Name','e'); ?>: </span></td><td><input type=entry size=20 name=i<?php echo $i?>plan_name value="<?php echo $result3{"plan_name"}?>"></td>
+     <td><span class=required><?php xl('Plan Name','e'); ?>: </span></td>
+     <td><input type=entry size=20 name=i<?php echo $i?>plan_name value="<?php echo $result3{"plan_name"} ?>"
+      onchange="capitalizeMe(this);" /></td>
     </tr>
     <tr>
      <td><span class=required><?php xl('Policy Number','e'); ?>: </span></td><td><input type=entry size=16 name=i<?php echo $i?>policy_number value="<?php echo $result3{"policy_number"}?>"></td>
@@ -600,11 +639,16 @@ function set_insurance(ins_id, ins_name) {
     <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
      <td class='required'><?php xl('Subscriber Employer (SE)','e'); ?><br><span style='font-weight:normal'>
       (<?php xl('if unemployed enter Student','e'); ?>,<br><?php xl('PT Student, or leave blank','e'); ?>): </span></td>
-     <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer value="<?php echo $result3{"subscriber_employer"}?>"></td>
+     <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer
+      value="<?php echo $result3{"subscriber_employer"}?>"
+       onchange="capitalizeMe(this);" /></td>
     </tr>
 
     <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
-     <td><span class=required><?php xl('SE Address','e'); ?>: </span></td><td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer_street value="<?php echo $result3{"subscriber_employer_street"}?>"></td>
+     <td><span class=required><?php xl('SE Address','e'); ?>: </span></td>
+     <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer_street
+      value="<?php echo $result3{"subscriber_employer_street"}?>"
+       onchange="capitalizeMe(this);" /></td>
     </tr>
 
     <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
@@ -612,15 +656,20 @@ function set_insurance(ins_id, ins_name) {
       <table>
        <tr>
         <td><span class=required><?php xl('SE City','e'); ?>: </span></td>
-        <td><input type=entry size=15 name=i<?php echo $i?>subscriber_employer_city value="<?php echo $result3{"subscriber_employer_city"}?>"></td>
+        <td><input type=entry size=15 name=i<?php echo $i?>subscriber_employer_city
+         value="<?php echo $result3{"subscriber_employer_city"}?>"
+          onchange="capitalizeMe(this);" /></td>
         <td><span class=required><?php xl('SE','e'); ?> <?php echo ($GLOBALS['phone_country_code'] == '1') ? 'State' : 'Locality' ?>: </span></td>
-        <td><input type=entry size=15 name=i<?php echo $i?>subscriber_employer_state value="<?php echo $result3{"subscriber_employer_state"}?>"></td>
+        <td><input type=entry size=15 name=i<?php echo $i?>subscriber_employer_state
+         value="<?php echo $result3{"subscriber_employer_state"}?>"></td>
        </tr>
        <tr>
         <td><span class=required><?php xl('SE','e'); ?> <?php echo ($GLOBALS['phone_country_code'] == '1') ? 'Zip' : 'Postal' ?> <?php xl('Code','e'); ?>: </span></td>
         <td><input type=entry size=10 name=i<?php echo $i?>subscriber_employer_postal_code value="<?php echo $result3{"subscriber_employer_postal_code"}?>"></td>
         <td><span class=required><?php xl('SE Country','e'); ?>: </span></td>
-        <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer_country value="<?php echo $result3{"subscriber_employer_country"}?>"></td>
+        <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer_country
+         value="<?php echo $result3{"subscriber_employer_country"}?>"
+         onchange="capitalizeMe(this);" /></td>
        </tr>
       </table>
      </td>
@@ -630,7 +679,16 @@ function set_insurance(ins_id, ins_name) {
   </td>
 
   <td valign=top>
-   <span class=required><?php xl('Subscriber','e'); ?>: </span><input type=entry size=10 name=i<?php echo $i?>subscriber_fname value="<?php echo $result3{"subscriber_fname"}?>"><input type=entry size=3 name=i<?php echo $i?>subscriber_mname value="<?php echo $result3{"subscriber_mname"}?>"><input type=entry size=10 name=i<?php echo $i?>subscriber_lname value="<?php echo $result3{"subscriber_lname"}?>">
+   <span class=required><?php xl('Subscriber','e'); ?>: </span>
+   <input type=entry size=10 name=i<?php echo $i?>subscriber_fname
+    value="<?php echo $result3{"subscriber_fname"}?>"
+    onchange="capitalizeMe(this);" />
+   <input type=entry size=3 name=i<?php echo $i?>subscriber_mname
+    value="<?php echo $result3{"subscriber_mname"}?>"
+    onchange="capitalizeMe(this);" />
+   <input type=entry size=10 name=i<?php echo $i?>subscriber_lname
+    value="<?php echo $result3{"subscriber_lname"}?>"
+    onchange="capitalizeMe(this);" />
    <br>
    <span class=required><?php xl('Relationship','e'); ?>: </span>
    <select name=i<?php echo $i?>subscriber_relationship onchange="javascript:auto_populate_employer_address<?php echo $i?>();">
@@ -656,18 +714,25 @@ function set_insurance(ins_id, ins_name) {
    <span class=bold><?php xl('S.S.','e'); ?>: </span><input type=entry size=11 name=i<?php echo $i?>subscriber_ss value="<?php echo $result3{"subscriber_ss"}?> ">&nbsp;
    <span class=bold><?php xl('Sex','e'); ?>: </span>
    <select name=i<?php echo $i?>subscriber_sex>
-    <option value="Male" <?php if (strtolower($result3{"subscriber_sex"}) == "male") echo "selected"?>><?php xl('Male','e'); ?></option>
     <option value="Female" <?php if (strtolower($result3{"subscriber_sex"}) == "female") echo "selected"?>><?php xl('Female','e'); ?></option>
+    <option value="Male" <?php if (strtolower($result3{"subscriber_sex"}) == "male") echo "selected"?>><?php xl('Male','e'); ?></option>
    </select>
    <br>
-   <span class=required><?php xl('Subscriber Address','e'); ?>: </span><input type=entry size=25 name=i<?php echo $i?>subscriber_street value="<?php echo $result3{"subscriber_street"}?>"><br>
-   <span class=required><?php xl('City','e'); ?>: </span><input type=entry size=15 name=i<?php echo $i?>subscriber_city value="<?php echo $result3{"subscriber_city"}?>">
+   <span class=required><?php xl('Subscriber Address','e'); ?>: </span>
+   <input type=entry size=25 name=i<?php echo $i?>subscriber_street
+    value="<?php echo $result3{"subscriber_street"}?>"
+    onchange="capitalizeMe(this);" /><br>
+   <span class=required><?php xl('City','e'); ?>: </span>
+   <input type=entry size=15 name=i<?php echo $i?>subscriber_city
+    value="<?php echo $result3{"subscriber_city"}?>"
+    onchange="capitalizeMe(this);" />
    <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? 'State' : 'Locality' ?>: </span><input type=entry size=15 name=i<?php echo $i?>subscriber_state value="<?php echo $result3{"subscriber_state"}?>"><br>
    <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? 'Zip' : 'Postal' ?> <?php xl('Code','e'); ?>: </span><input type=entry size=10 name=i<?php echo $i?>subscriber_postal_code value="<?php echo $result3{"subscriber_postal_code"}?>">
    <span class='required'<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
    <?php xl('Country','e'); ?>:
    <input type=entry size=10 name=i<?php echo $i?>subscriber_country
-    value="<?php echo $result3{"subscriber_country"}?>"><br></span>
+    value="<?php echo $result3{"subscriber_country"}?>"
+    onchange="capitalizeMe(this);" /><br></span>
    <span class=bold><?php xl('Subscriber Phone','e'); ?>: 
    <input type='text' size='20' name='i<?php echo $i?>subscriber_phone' value='<?php echo $result3["subscriber_phone"] ?>' onkeyup='phonekeyup(this,mypcc)' />
    </span><br />

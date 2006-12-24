@@ -305,7 +305,18 @@ if ($result = getBillingByEncounter($pid, $encounter, "*") ) {
 	}
 }
 
-// If there were no billing items then the default provider is the logged-in user.
+// If there were no billing items then try setting the default provider
+// to that of the new encounter form.
+//
+if ($encounter_provid < 0) {
+	$tmp = sqlQuery("SELECT users.id FROM forms, users WHERE " .
+		"forms.pid = '$pid' AND forms.encounter = '$encounter' AND " .
+		"forms.formdir='newpatient' AND users.username = forms.user AND " .
+		"users.authorized = 1");
+	if ($tmp['id']) $encounter_provid = $tmp['id'];
+}
+
+// If still no default provider then make it the logged-in user.
 //
 if ($encounter_provid < 0) $encounter_provid = $_SESSION["authUserID"];
 
