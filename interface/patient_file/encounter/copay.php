@@ -16,20 +16,15 @@ function getInsuranceCompanies($pid) {
 
 //the number of rows to display before resetting and starting a new column:
 $N=10
-
 ?>
-
 <html>
 <head>
-
-
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-
 </head>
-<body <?php echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $bottom_bg_line;?> topmargin='0' rightmargin='0'
+ leftmargin='2' bottommargin='0' marginwidth='2' marginheight='0'>
 
-
-<table border=0 cellspacing=0 cellpadding=0 height=100%>
+<table border='0' cellspacing='0' cellpadding='0' height='100%'>
 <tr>
 
 <!--
@@ -47,9 +42,11 @@ $N=10
 <dt><span class=title><?php xl('Copay','e'); ?></span></dt>
 
 <br>
-<span class=text>$ </span><input type=entry name=code value='100.00' size=5>
+<span class='text'>$ </span><input type='entry' name='code' value='' size='5' />
 
 <input type="SUBMIT" value="<?php xl('Save','e'); ?>"><br><br>
+
+<div<?php if ($GLOBALS['simplified_copay']) echo " style='display:none;'"; ?>>
 <input type="RADIO" name="payment_method" value="cash" checked><?php xl('cash','e'); ?>
 <input type="RADIO" name="payment_method" value="credit card"><?php xl('credit','e'); ?>
 <input type="RADIO" name="payment_method" value="check"><?php xl('check','e'); ?>
@@ -74,20 +71,15 @@ if ($ret=getInsuranceCompanies($pid)) {
 <br><br>
 <input type="RADIO" name="payment_method" value="write off"><?php xl('write off','e'); ?>
 
+</div>
 
 </form>
 
-
-
 </dl>
-
 
 </td>
 </tr>
 </table>
-
-
-
 
 </body>
 </html>

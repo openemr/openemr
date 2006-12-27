@@ -175,6 +175,9 @@ $GLOBALS['simplified_demographics'] = false;
 // True to omit form, route and interval which then become part of dosage:
 $GLOBALS['simplified_prescriptions'] = false;
 
+// True to omit method of payment from the copay panel:
+$GLOBALS['simplified_copay'] = false;
+
 // You may put text here as the default complaint in the New Patient form:
 $GLOBALS['default_chief_complaint'] = '';
 
