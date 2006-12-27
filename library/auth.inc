@@ -4,7 +4,8 @@
 require_once("{$GLOBALS['srcdir']}/log.inc");
 require_once("{$GLOBALS['srcdir']}/sql.inc");
 
-if ($_GET['auth'] == "login" && isset($_POST['authUser']) && isset($_POST['authPass']) && isset($_POST['authProvider']))
+if ($_GET['auth'] == "login" && isset($_POST['authUser']) &&
+	isset($_POST['authPass']) && isset($_POST['authProvider']))
 {
 	if (!authNewSession($_POST['authUser'], $_POST['authPass'], $_POST['authProvider']))
 	{
@@ -12,7 +13,8 @@ if ($_GET['auth'] == "login" && isset($_POST['authUser']) && isset($_POST['authP
 		authLoginScreen();
 	}
 	newEvent("login", $_POST['authUser'], $_POST['authProvider'], "success");
-	$_SESSION["last_update"] = time(); //store the very first initial timestamp for timeout errors
+	//store the very first initial timestamp for timeout errors
+	$_SESSION["last_update"] = time();
 }
 else if ($_GET['auth'] == "logout")
 {
@@ -28,7 +30,9 @@ else
 		{
 			require_once("{$GLOBALS['srcdir']}/patient.inc");
 			$logpatient = getPatientData($_SESSION['pid'], "lname, fname, mname");
-			newEvent("view", $_SESSION['authUser'], $_SESSION['authProvider'], "{$logpatient['lname']}, {$logpatient['fname']} {$logpatient['mname']} :: encounter ".$_SESSION['encounter']);
+			newEvent("view", $_SESSION['authUser'], $_SESSION['authProvider'],
+				"{$logpatient['lname']}, {$logpatient['fname']} {$logpatient['mname']} :: encounter " .
+				$_SESSION['encounter']);
 		}
 		//LOG EVERYTHING
 		//newEvent("view", $_SESSION['authUser'], $_SESSION['authProvider'], $_SERVER['REQUEST_URI']);
@@ -62,7 +66,8 @@ function authNewSession ($user, $pass, $provider)
 	  session_start();
 	}
 	//echo "user is: $user pass is: $pass provider is: $provider<br />";
-	$authDB = sqlQuery("select id, password, authorized from users where username = '$user'");
+	$authDB = sqlQuery("select id, password, authorized, see_auth from users " .
+		"where username = '$user'");
 	//echo "<br>auth pass: ".$authDB['password'];
 	if ($authDB['password'] == $pass)
 	{
@@ -75,6 +80,8 @@ function authNewSession ($user, $pass, $provider)
 			$_SESSION['authProvider'] = $provider;
 			$_SESSION['authId'] = $authDB{'id'};
 			$_SESSION['userauthorized'] = $authDB['authorized'];
+			// Some users may be able to authorize without being providers:
+			if ($authDB['see_auth'] > '2') $_SESSION['userauthorized'] = '1';
 			return true;
 		} else {
 			return false;
@@ -87,8 +94,11 @@ function authNewSession ($user, $pass, $provider)
 function authCheckSession ()
 {
 	if (isset($_SESSION['authId'])) {
-		$authDB = sqlQuery("select username, password from users where id = '".$_SESSION['authId']."'");
-		if ($_SESSION['authUser'] == $authDB['username'] && $_SESSION['authPass'] == $authDB['password']) {
+		$authDB = sqlQuery("select username, password from users where id = '" .
+			$_SESSION['authId']."'");
+		if ($_SESSION['authUser'] == $authDB['username'] &&
+			$_SESSION['authPass'] == $authDB['password'])
+		{
 			return true;
 		}
 		else {
@@ -109,9 +119,9 @@ function authCloseSession ()
 	//setcookie(session_name(),"","","/");
 	//the following does the same as the above line:
 	//if(isset($_COOKIE[session_name()])) {
-	//	session_start();
-	//	session_destroy();
-		unset($_COOKIE[session_name()]);
+	// session_start();
+	// session_destroy();
+	unset($_COOKIE[session_name()]);
 	//}
 }
 
@@ -215,6 +225,4 @@ function validateGroupStatus ($user_to_be_checked, $group_user) {
 
 	return false;
 }
-
-
 ?>
