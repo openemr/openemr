@@ -174,22 +174,27 @@ echo $result{"postal_code"}?>
      </td>
     </tr>
     <tr>
-     <td colspan='4' valign='top'>
+     <td colspan='2' valign='top'>
 	<?php
 		$opt_out = ($result{"hipaa_voice"} == 'YES') ? 'ALLOWS' : 'DOES NOT ALLOW';
 		echo "<span class='text'>Patient $opt_out Voice Messages </span>";
 	?>
      </td>
+     <td colspan='2' valign='top'>
+	<?php if ($result['genericname2'] == 'Billing') echo "<span class='bold'>" . xl('Billing Note') . ":</span>"; ?>
+     </td>
     </tr>
     <tr>
-     <td colspan='4' valign='top'>
+     <td colspan='2' valign='top'>
 	<?php
 		$opt_out = ($result{"hipaa_notice"} == 'YES') ? 'RECEIVED' : 'DID NOT RECEIVE';
 		echo "<span class='text'>Patient $opt_out Notice Information </span>";
 	?>
      </td>
+     <td colspan='2' valign='top'>
+	<?php if ($result['genericname2'] == 'Billing') echo "<span class='bold'><font color='red'>" . $result['genericval2'] . "</font></span>"; ?>
+     </td>
     </tr>
-    <tr><td>&nbsp;</td></tr>
     <tr>
      <td colspan='4' valign='top'>
 	<?php

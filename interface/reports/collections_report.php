@@ -13,10 +13,10 @@
  include_once("../../custom/statement.inc.php");
  include_once("../../library/sl_eob.inc.php");
 
- $DEBUG = 0; // set to 0 for production, 1 to test
-
  $alertmsg = '';
- $where = '';
+ $bgcolor = "#aaaaaa";
+ $export_patient_count = 0;
+ $export_dollars = 0;
 
  function bucks($amount) {
   if ($amount)
@@ -27,17 +27,94 @@
 
  $form_date      = fixDate($_POST['form_date'], "");
  $form_to_date   = fixDate($_POST['form_to_date'], "");
- $form_export    = $_POST['form_export'];
- $form_minimum   = sprintf("%.2f",$_POST['form_minimum']);
+
+ $grand_total_charges     = 0;
+ $grand_total_adjustments = 0;
+ $grand_total_paid        = 0;
 
  SLConnect();
+
+function endPatient($ptrow) {
+  global $export_patient_count, $export_dollars, $bgcolor;
+  global $grand_total_charges, $grand_total_adjustments, $grand_total_paid;
+
+  if (!$ptrow['pid']) return;
+
+  $pt_balance = $ptrow['amount'] - $ptrow['paid'];
+
+  if ($_POST['form_export']) {
+    // This is a fixed-length format used by Transworld Systems.  Your
+    // needs will surely be different, so consider this just an example.
+    //
+    echo "1896H"; // client number goes here
+    echo "000";   // filler
+    echo sprintf("%-30s", substr($ptrow['ptname'], 0, 30));
+    echo sprintf("%-30s", " ");
+    echo sprintf("%-30s", substr($ptrow['address1'], 0, 30));
+    echo sprintf("%-15s", substr($ptrow['city'], 0, 15));
+    echo sprintf("%-2s", substr($ptrow['state'], 0, 2));
+    echo sprintf("%-5s", $ptrow['zipcode'] ? substr($ptrow['zipcode'], 0, 5) : '00000');
+    echo "1";                      // service code
+    echo sprintf("%010.0f", $ptrow['pid']); // transmittal number = patient id
+    echo " ";                      // filler
+    echo sprintf("%-15s", substr($ptrow['ss'], 0, 15));
+    echo substr($ptrow['dos'], 5, 2) . substr($ptrow['dos'], 8, 2) . substr($ptrow['dos'], 2, 2);
+    echo sprintf("%08.0f", $pt_balance * 100);
+    echo sprintf("%-9s\n", " ");
+
+    if (!$_POST['form_without']) {
+      sqlStatement("UPDATE patient_data SET " .
+        "genericname2 = 'Billing', " .
+        "genericval2 = 'IN COLLECTIONS " . date("Y-m-d") . "' " .
+        "WHERE pid = '" . $ptrow['pid'] . "'");
+    }
+    $export_patient_count += 1;
+    $export_dollars += $pt_balance;
+  }
+  else {
+    if ($ptrow['count'] > 1) {
+      echo " <tr bgcolor='$bgcolor'>\n";
+      echo "  <td class='detail' colspan='6'>\n";
+      echo "   &nbsp;\n";
+      echo "  </td>\n";
+      echo "  <td class='detotal' colspan='3'>\n";
+      echo "   &nbsp;Total Patient Balance:\n";
+      echo "  </td>\n";
+      echo "  <td class='detotal' align='right'>\n";
+      echo "   &nbsp;" . sprintf("%.2f", $pt_balance) . "&nbsp;\n";
+      echo "  </td>\n";
+      echo "  <td class='detail' colspan='2'>\n";
+      echo "   &nbsp;\n";
+      echo "  </td>\n";
+      echo " </tr>\n";
+    }
+  }
+  $grand_total_charges     += $ptrow['charges'];
+  $grand_total_adjustments += $ptrow['adjustments'];
+  $grand_total_paid        += $ptrow['paid'];
+}
 ?>
 <html>
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <title><?xl('Collections Report','e')?></title>
+<style type="text/css">
+ body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
+ .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
+ .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
+ .detotal   { color:#996600; font-family:sans-serif; font-size:10pt; font-weight:normal }
+</style>
 
 <script language="JavaScript">
+
+function checkAll(checked) {
+ var f = document.forms[0];
+ for (var i = 0; i < f.elements.length; ++i) {
+  var ename = f.elements[i].name;
+  if (ename.indexOf('form_cb[') == 0)
+   f.elements[i].checked = checked;
+ }
+}
 
 </script>
 
@@ -51,7 +128,7 @@
 <table border='0' cellpadding='5' cellspacing='0'>
 
  <tr>
-  <td height="1" colspan="6">
+  <td height="1" colspan="4">
   </td>
  </tr>
 
@@ -67,14 +144,9 @@
     title='<?xl("Ending DOS mm/dd/yyyy if you wish to enter a range","e")?>'>
   </td>
   <td>
-   <?xl('Minimum:','e')?>
-   <input type='text' name='form_minimum' size='4' value='<?php echo $form_minimum; ?>'
-    title='<?xl("Minimum balance to include","e")?>'>
-  </td>
-  <td>
    <select name='form_category'>
 <?php
- foreach (array(xl('Open'), xl('Due Pt'), xl('Due Ins')) as $value) {
+ foreach (array(xl('Open'), xl('Due Pt'), xl('Due Ins'), xl('Credits')) as $value) {
   echo "    <option value='$value'";
   if ($_POST['form_category'] == $value) echo " selected";
   echo ">$value</option>\n";
@@ -83,26 +155,26 @@
    </select>
   </td>
   <td>
-   <?xl('Export:','e')?>
-   <input type='checkbox' name='form_export' value='1'
-    title='<?xl("To display in export format","e")?>'
-    <?php if ($form_export) echo 'checked '; ?>/>
-  </td>
-  <td>
    <input type='submit' name='form_search' value='<?xl("Search","e")?>'>
   </td>
  </tr>
 
  <tr>
-  <td height="1" colspan="6">
+  <td height="1" colspan="4">
   </td>
  </tr>
 
 </table>
 
 <?php
-  if ($_POST['form_search']) {
+  if ($_POST['form_search'] || $_POST['form_export']) {
     $where = "";
+
+    if ($_POST['form_export']) {
+      $where = "( 1 = 2";
+      foreach ($_POST['form_cb'] as $key => $value) $where .= " OR ar.customer_id = $key";
+      $where .= ' )';
+    }
 
     if ($form_date) {
       if ($where) $where .= " AND ";
@@ -135,9 +207,14 @@
     $query = "SELECT ar.id, ar.invnumber, ar.duedate, ar.amount, ar.paid, " .
       "ar.intnotes, ar.notes, ar.shipvia, " .
       "customer.id AS custid, customer.name, customer.address1, " .
-      "customer.city, customer.state, customer.zipcode, customer.phone " .
-      "FROM ar, customer WHERE ( $where ) AND customer.id = ar.customer_id ";
-    if ($_POST['form_category'] != 'All') {
+      "customer.city, customer.state, customer.zipcode, customer.phone, " .
+      "(SELECT SUM(invoice.fxsellprice) FROM invoice WHERE " .
+      "invoice.trans_id = ar.id AND invoice.fxsellprice > 0) AS charges, " .
+      "(SELECT SUM(invoice.fxsellprice) FROM invoice WHERE " .
+      "invoice.trans_id = ar.id AND invoice.fxsellprice < 0) AS adjustments " .
+      "FROM ar JOIN customer ON customer.id = ar.customer_id " .
+      "WHERE ( $where ) ";
+    if ($_POST['form_search']) {
       $query .= "AND ar.amount != ar.paid ";
     }
     $query .= "ORDER BY ar.invnumber";
@@ -153,9 +230,14 @@
     $rows = array();
     for ($irow = 0; $irow < $num_invoices; ++$irow) {
       $row = SLGetRow($t_res, $irow);
+      $pt_balance = sprintf("%.2f",$row['amount']) - sprintf("%.2f",$row['paid']);
 
-      if ((sprintf("%.2f",$row['amount']) - sprintf("%.2f",$row['paid']))
-        < ($form_minimum + 0)) continue;
+      if ($_POST['form_category'] == 'Credits') {
+        if ($pt_balance > 0) continue;
+      }
+      // else {
+      //   if ($pt_balance < 0) continue;
+      // }
 
       // $duncount was originally supposed to be the number of times that
       // the patient was sent a statement for this invoice.
@@ -207,23 +289,26 @@
 
       $row['dos'] = $svcdate;
 
-      $pdrow = sqlQuery("SELECT pd.fname, pd.lname, pd.mname, pd.ss FROM " .
+      $pdrow = sqlQuery("SELECT pd.fname, pd.lname, pd.mname, pd.ss, " .
+        "pd.genericname2, pd.genericval2 FROM " .
         "integration_mapping AS im, patient_data AS pd WHERE " .
         "im.foreign_id = " . $row['custid'] . " AND " .
         "im.foreign_table = 'customer' AND " .
         "pd.id = im.local_id");
 
       $row['ss'] = $pdrow['ss'];
+      $row['billnote'] = ($pdrow['genericname2'] == 'Billing') ? $pdrow['genericval2'] : '';
 
       $ptname = $pdrow['lname'] . ", " . $pdrow['fname'];
       if ($pdrow['mname']) $ptname .= " " . substr($pdrow['mname'], 0, 1);
 
-      $rows[$ptname] = $row;
+      // $rows[$ptname] = $row;
+      $rows[$ptname . '|' . $encounter] = $row; // new
     }
 
     ksort($rows);
 
-    if ($form_export) {
+    if ($_POST['form_export']) {
       echo "<textarea rows='35' cols='100' readonly>";
     }
     else {
@@ -241,85 +326,102 @@
   <td class="dehead">
    &nbsp;<?xl('Phone','e')?>
   </td>
+  <!--
   <td class="dehead">
    &nbsp;<?xl('Street','e')?>
   </td>
+  -->
   <td class="dehead">
    &nbsp;<?xl('City','e')?>
   </td>
+  <!--
   <td class="dehead">
    &nbsp;<?xl('State','e')?>
   </td>
   <td class="dehead">
    &nbsp;<?xl('Zip','e')?>
   </td>
+  -->
   <td class="dehead">
-   &nbsp;<?xl('Invoice','e')?>
+   &nbsp;<?php xl('Invoice','e') ?>
   </td>
   <td class="dehead">
-   &nbsp;<?xl('Svc Date','e')?>
+   &nbsp;<?php xl('Svc Date','e') ?>
   </td>
   <td class="dehead" align="right">
-   <?xl('Amount','e')?>&nbsp;
+   <?php xl('Charge','e') ?>&nbsp;
   </td>
   <td class="dehead" align="right">
-   <?xl('Paid','e')?>&nbsp;
+   <?php xl('Adjust','e') ?>&nbsp;
   </td>
   <td class="dehead" align="right">
-   <?xl('Balance','e')?>&nbsp;
+   <?php xl('Paid','e') ?>&nbsp;
+  </td>
+  <td class="dehead" align="right">
+   <?php xl('Balance','e') ?>&nbsp;
   </td>
   <td class="dehead" align="center">
-   <?xl('Prv','e')?>
+   <?php xl('Prv','e') ?>
+  </td>
+  <td class="dehead" align="center">
+   <?php xl('Sel','e') ?>
   </td>
  </tr>
 
 <?php
     }
 
+    $ptrow = array('pid' => 0);
     $orow = -1;
-    foreach ($rows as $ptname => $row) {
 
-      $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
+    foreach ($rows as $key => $row) {
+      list($ptname, $trash) = explode('|', $key);
       list($pid, $encounter) = explode(".", $row['invnumber']);
 
-      if ($form_export) {
-
-        // This is a fixed-length format used by Transworld Systems.  Your
-        // needs will surely be different, so consider this just an example.
-        //
-        echo "1896H"; // client number goes here
-        echo "000";   // filler
-        echo sprintf("%-30s", substr($ptname, 0, 30));
-        echo sprintf("%-30s", " ");
-        echo sprintf("%-30s", substr($row['address1'], 0, 30));
-        echo sprintf("%-15s", substr($row['city'], 0, 15));
-        echo sprintf("%-2s", substr($row['state'], 0, 2));
-        echo sprintf("%-5s", $row['zipcode'] ? substr($row['zipcode'], 0, 5) : '00000');
-        echo "1";                      // service code
-        echo sprintf("%010.0f", $pid); // transmittal number = patient id
-        echo " ";                      // filler
-        echo sprintf("%-15s", substr($row['ss'], 0, 15));
-        echo substr($row['dos'], 5, 2) . substr($row['dos'], 8, 2) . substr($row['dos'], 2, 2);
-        echo sprintf("%08.0f", ($row['amount'] - $row['paid']) * 100);
-        echo sprintf("%-9s\n", " ");
-
+      if ($pid != $ptrow['pid']) {
+        // For the report, this will write the patient totals.  For the
+        // export this writes everything for the patient:
+        endPatient($ptrow);
+        $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
+        $ptrow = array('ptname' => $ptname, 'pid' => $pid, 'count' => 1);
+        foreach ($row as $key => $value) $ptrow[$key] = $value;
       } else {
+        $ptrow['amount']      += $row['amount'];
+        $ptrow['paid']        += $row['paid'];
+        $ptrow['charges']     += $row['charges'];
+        $ptrow['adjustments'] += $row['adjustments'];
+        ++$ptrow['count'];
+      }
+
+      if (!$_POST['form_export']) {
+
+        $in_collections = stristr($row['billnote'], 'IN COLLECTIONS') !== false;
+
 ?>
  <tr bgcolor='<?php echo $bgcolor ?>'>
-  <td class="detail">
-   &nbsp;<?php echo $ptname; ?>
-  </td>
-  <td class="detail">
-   &nbsp;<?php echo $row['ss'] ?>
-  </td>
-  <td class="detail">
-   &nbsp;<?php echo $row['phone'] ?>
-  </td>
+<?php
+        if ($ptrow['count'] == 1) {
+          echo "  <td class='detail'>\n";
+          echo "   &nbsp;$ptname\n";
+          echo "  </td>\n";
+          echo "  <td class='detail'>\n";
+          echo "   &nbsp;" . $row['ss'] . "\n";
+          echo "  </td>\n";
+          echo "  <td class='detail'>\n";
+          echo "   &nbsp;" . $row['phone'] . "\n";
+          echo "  </td>\n";
+          echo "  <td class='detail'>\n";
+          echo "   &nbsp;" . $row['city'] . "\n";
+          echo "  </td>\n";
+        } else {
+          echo "  <td class='detail' colspan='4'>\n";
+          echo "   &nbsp;\n";
+          echo "  </td>\n";
+        }
+?>
+  <!--
   <td class="detail">
    &nbsp;<?php echo $row['address1'] ?>
-  </td>
-  <td class="detail">
-   &nbsp;<?php echo $row['city'] ?>
   </td>
   <td class="detail">
    &nbsp;<?php echo $row['state'] ?>
@@ -327,6 +429,7 @@
   <td class="detail">
    &nbsp;<?php echo $row['zipcode'] ?>
   </td>
+  -->
   <td class="detail">
    &nbsp;<a href="../billing/sl_eob_invoice.php?id=<?php echo $row['id'] ?>"
     target="_blank"><?php echo $row['invnumber'] ?></a>
@@ -335,26 +438,75 @@
    &nbsp;<?php echo $row['dos']; ?>
   </td>
   <td class="detail" align="right">
-   <?php bucks($row['amount']) ?>&nbsp;
+   <?php bucks($row['charges']) ?>&nbsp;
+  </td>
+  <td class="detail" align="right">
+   <?php bucks($row['adjustments']) ?>&nbsp;
   </td>
   <td class="detail" align="right">
    <?php bucks($row['paid']) ?>&nbsp;
   </td>
   <td class="detail" align="right">
-   <?php bucks($row['amount'] - $row['paid']) ?>&nbsp;
+   <?php bucks($row['charges'] + $row['adjustments'] - $row['paid']) ?>&nbsp;
   </td>
   <td class="detail" align="center">
    <?php echo $row['duncount'] ? $row['duncount'] : "&nbsp;" ?>
+  </td>
+  <td class="detail" align="center">
+<?php
+        if ($ptrow['count'] == 1) {
+          if ($in_collections) {
+            echo "   <b><font color='red'>IC</font></b>\n";
+          } else {
+            echo "   <input type='checkbox' name='form_cb[" . $row['custid'] . "]' />\n";
+          }
+        } else {
+          echo "   &nbsp;\n";
+        }
+?>
   </td>
  </tr>
 <?
       } // end not $form_export
     } // end loop
 
-    if ($form_export) {
+    endPatient($ptrow);
+
+    if ($_POST['form_export']) {
       echo "</textarea>\n";
+      $alertmsg .= "$export_patient_count patients representing $" .
+        sprintf("%.2f", $export_dollars) . " have been exported ";
+      if ($_POST['form_without']) {
+        $alertmsg .= "but NOT flagged as in collections.";
+      } else {
+        $alertmsg .= "AND flagged as in collections.";
+      }
     }
     else {
+      echo " <tr bgcolor='#ffffff'>\n";
+      echo "  <td class='detail' colspan='4'>\n";
+      echo "   &nbsp;\n";
+      echo "  </td>\n";
+      echo "  <td class='dehead' colspan='2'>\n";
+      echo "   &nbsp;Report Totals:\n";
+      echo "  </td>\n";
+      echo "  <td class='dehead' align='right'>\n";
+      echo "   &nbsp;" . sprintf("%.2f", $grand_total_charges) . "&nbsp;\n";
+      echo "  </td>\n";
+      echo "  <td class='dehead' align='right'>\n";
+      echo "   &nbsp;" . sprintf("%.2f", $grand_total_adjustments) . "&nbsp;\n";
+      echo "  </td>\n";
+      echo "  <td class='dehead' align='right'>\n";
+      echo "   &nbsp;" . sprintf("%.2f", $grand_total_paid) . "&nbsp;\n";
+      echo "  </td>\n";
+      echo "  <td class='dehead' align='right'>\n";
+      echo "   " . sprintf("%.2f", $grand_total_charges +
+           $grand_total_adjustments - $grand_total_paid) . "&nbsp;\n";
+      echo "  </td>\n";
+      echo "  <td class='detail' colspan='2'>\n";
+      echo "   &nbsp;\n";
+      echo "  </td>\n";
+      echo " </tr>\n";
       echo "</table>\n";
     }
   } // end if form_search
@@ -362,14 +514,21 @@
 ?>
 
 <p>
+<?php if (!$_POST['form_export']) { ?>
+<input type='button' value='Select All' onclick='checkAll(true)' /> &nbsp;
+<input type='button' value='Clear All' onclick='checkAll(false)' /> &nbsp;
+<input type='submit' name='form_export' value='Export Selected to Collections' /> &nbsp;
+<input type='checkbox' name='form_without' value='1' /> <?php xl('Without Update','e') ?>
+<?php } ?>
+</p>
 
 </form>
 </center>
 <script language="JavaScript">
 <?php
- if ($alertmsg) {
+if ($alertmsg) {
   echo "alert('" . htmlentities($alertmsg) . "');\n";
- }
+}
 ?>
 </script>
 </body>

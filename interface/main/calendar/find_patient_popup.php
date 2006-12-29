@@ -114,6 +114,11 @@ td { font-size:10pt; }
    echo "  <td>$anchor" . $iter['ss'] . "</a></td>\n";
    echo "  <td>$anchor" . $iter['DOB'] . "</a></td>\n";
    echo "  <td>$anchor" . $iter['pubpid'] . "</a></td>\n";
+   if ($iter['genericname2'] == 'Billing') {
+    echo "  <td><b><font color='red'>" . $iter['genericval2'] . "</font></b></td>\n";
+   } else {
+    echo "<td>&nbsp;</td>\n";
+   }
    echo " </tr>";
   }
 ?>

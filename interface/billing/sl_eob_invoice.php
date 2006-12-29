@@ -34,7 +34,8 @@
     xl("Ins refund"),
     xl("Pt refund"),
     xl("Ins overpaid"),
-    xl("Pt overpaid")
+    xl("Pt overpaid"),
+    xl("Adm adjust")
   );
 
   $info_msg = "";
@@ -215,8 +216,10 @@ function validate(f) {
         slSetupSecondary($trans_id, $debug);
       }
       echo "<script language='JavaScript'>\n";
-      echo " var tmp = opener.document.forms[0].form_amount.value - $paytotal;\n";
-      echo " opener.document.forms[0].form_amount.value = Number(tmp).toFixed(2);\n";
+      echo " if (opener.document.forms[0].form_amount) {\n";
+      echo "  var tmp = opener.document.forms[0].form_amount.value - $paytotal;\n";
+      echo "  opener.document.forms[0].form_amount.value = Number(tmp).toFixed(2);\n";
+      echo " }\n";
     } else {
       echo "<script language='JavaScript'>\n";
     }
@@ -486,12 +489,14 @@ function validate(f) {
 <script language="JavaScript">
  var f1 = opener.document.forms[0];
  var f2 = document.forms[0];
+ if (f1.form_source) {
 <?php
   foreach ($codes as $code => $cdata) {
-    echo " f2['form_line[$code][src]'].value  = f1.form_source.value;\n";
-    echo " f2['form_line[$code][date]'].value = f1.form_paydate.value;\n";
+    echo "  f2['form_line[$code][src]'].value  = f1.form_source.value;\n";
+    echo "  f2['form_line[$code][date]'].value = f1.form_paydate.value;\n";
   }
 ?>
+ }
  setins("Ins1");
 </script>
 </body>
