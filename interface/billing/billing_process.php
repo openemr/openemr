@@ -1,6 +1,5 @@
 <?php
 include_once("../globals.php");
-
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/billrep.inc");
 include_once(dirname(__FILE__) . "/../../library/classes/WSClaim.class.php");
@@ -11,6 +10,21 @@ if (file_exists($EXPORT_INC)) {
   $BILLING_EXPORT = true;
 }
 
+// This is a kludge to enter some parameters that are not in the X12
+// Partners table, but should be:
+$ISA07 = 'ZZ'; // ZZ = mutually defined, 01 = Duns, etc.
+$ISA14 = '0';  // 1 = Acknowledgment requested, else 0
+$ISA15 = 'T';  // T = testing, P = production
+$GS02  = '';   // Empty to use the sender ID from the ISA segment
+$PER06 = '';   // The submitter's EDI Access Number, if any
+/**** For Availity:
+$ISA07 = '01'; // ZZ = mutually defined, 01 = Duns, etc.
+$ISA14 = '1';  // 1 = Acknowledgment requested, else 0
+$ISA15 = 'T';  // T = testing, P = production
+$GS02  = 'AV01101957';
+$PER06 = 'xxxxxx'; // The submitter's EDI Access Number
+****/
+
 $fconfig = $GLOBALS['oer_config']['freeb'];
 $bill_info = array();
 
@@ -18,9 +32,20 @@ if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
 
 	if (empty($_POST['claims'])) {
 		$bill_info[] = xl("No claims were selected for inclusion.");
-
 	}
-	$efile = array();
+	// $efile = array();
+
+	$bat_type     = ''; // will be edi or hcfa
+	$bat_sendid   = '';
+	$bat_recvid   = '';
+	$bat_content  = '';
+	$bat_segcount = 2;
+	$bat_time     = time();
+	$bat_hhmm     = date('Hi' , $bat_time);
+	$bat_yymmdd   = date('ymd', $bat_time);
+	$bat_yyyymmdd = date('Ymd', $bat_time);
+	// Minutes since 1/1/1970 00:00:00 GMT will be our interchange control number:
+	$bat_icn = sprintf('%09.0f', $bat_time/60);
 
 	foreach ($_POST['claims'] as $claim) {
 		if (isset($claim['bill'])) {
@@ -30,18 +55,68 @@ if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
 			else {
 			  $fname = $claim['file'];
 			}
+
+			$tmp = substr($fname, strrpos($fname, '.') + 1);
+			if (!$bat_type) {
+				$bat_type = $tmp;
+			} else if ($bat_type != $tmp) {
+				die("You cannot mix '$bat_type' and '$tmp' formats in the same batch!");
+			}
+
 			$fname = preg_replace("[/]","",$fname);
 			$fname = preg_replace("[\.\.]","",$fname);
 			$fname = preg_replace("[\\\\]","",$fname);
 			$fname = $fconfig['claim_file_dir'] . $fname;
+
 			if (file_exists($fname)) {
 			//less than 500 is almost definitely an error
 				if (filesize($fname) > 500) {
 					$bill_info[] = xl("Added: ") . $fname . "\n";
-					$ta = array();
-					$ta["data"] = file_get_contents($fname);
-					$ta["size"] = filesize($fname);
-					$efile[] = $ta;
+
+					// $ta = array();
+					// $ta["data"] = file_get_contents($fname);
+					// $ta["size"] = filesize($fname);
+					// $efile[] = $ta;
+
+					if ($bat_type != 'edi') {
+						$bat_content .= file_get_contents($fname);
+						continue;
+					}
+
+					// If we get here, we are sending X12 837p data.  Strip off the ISA,
+					// GS, ST, SE, GE, and IEA segments from the individual files and
+					// send just one set of these for the whole batch.  We think this is
+					// what the partners are happiest with, and Availity for one requires
+					// (as of this writing) exactly one ISA/IEA pair per batch.
+					$segs = explode('~', file_get_contents($fname));
+					foreach ($segs as $seg) {
+						if (!$seg) continue;
+						$elems = explode('*', $seg);
+						if ($elems[0] == 'ISA') {
+							if (!$bat_content) {
+								$bat_sendid = trim($elems[6]);
+								$bat_recvid = trim($elems[8]);
+								$bat_sender = $GS02 ? $GS02 : $bat_sendid;
+								$bat_content = substr($seg, 0, 51) .
+									$ISA07 . substr($seg, 53, 17) .
+									"$bat_yymmdd*$bat_hhmm*U*00401*$bat_icn*$ISA14*$ISA15*:~" .
+									"GS*HC*$bat_sender*$bat_recvid*$bat_yyyymmdd*$bat_hhmm*1*X*004010X098A1~" .
+									"ST*837*0001~";
+							}
+							continue;
+						} else if (!$bat_content) {
+							die("Error in $fname:<br>\nInput must begin with 'ISA'; " .
+								"found '" . htmlentities($elems[0]) . "' instead");
+						}
+						if ($elems[0] == 'GS' || $elems[0] == 'ST') continue;
+						if ($elems[0] == 'SE' || $elems[0] == 'GE' || $elems[0] == 'IEA') continue;
+						if ($elems[0] == 'PER' && $PER06 && !$elems[5]) {
+							$seg .= "*ED*$PER06";
+						}
+						$bat_content .= $seg . '~';
+						$bat_segcount += 1;
+					}
+
 				}
 				else {
 					$bill_info[] = xl("May have an error: ") . $fname . "\n";
@@ -53,7 +128,13 @@ if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
 		}
 
 	}
-	if (!empty($efile)) {
+
+	if ($bat_type == 'edi' && $bat_content) {
+		$bat_content .= "SE*$bat_segcount*0001~GE*1*1~IEA*1*$bat_icn~";
+	}
+
+	// if (!empty($efile)) {
+	if ($bat_content) {
 		$db = $GLOBALS['adodb']['db'];
 		$error = false;
 		foreach ($_POST['claims'] as $claimid => $claim) {
@@ -78,23 +159,35 @@ if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
 			}
 		}
 		if (!$error) {
+			$fname = date("Y-m-d", $bat_time) . "-billing_batch.txt";
+
+			// If a writable edi directory exists, log the batch to it.
+			// I guarantee you'll be glad we did this.  :-)
+			$fh = @fopen("$webserver_root/edi/$fname", 'a');
+			if ($fh) {
+				fwrite($fh, $bat_content);
+				fclose($fh);
+			}
+
 			header("Pragma: public");
 			header("Expires: 0");
 			header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 			header("Content-Type: application/force-download");
-			header("Content-Disposition: attachment; filename=". date("Y-m-d") . "-billing_batch.txt");
+			header("Content-Disposition: attachment; filename=$fname");
 			header("Content-Description: File Transfer");
 
-			$data = "";
-			$size = 0;
+			// $data = "";
+			// $size = 0;
+			// foreach ($efile as $file) {
+			// $data .= $file['data'];
+			// $size += $file['size'];
+			// }
+			// header("Content-Length: " . $size);
+			// echo $data;
 
-			foreach ($efile as $file) {
-				$data .= $file['data'];
-				$size += $file['size'];
-			}
+			header("Content-Length: " . strlen($bat_content));
+			echo $bat_content;
 
-			header("Content-Length: " . $size);
-			echo $data;
 			exit;
 		}
 	}
@@ -103,7 +196,6 @@ if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
 else {
 	process_form($_POST);
 }
-
 
 function process_form($ar) {
 	global $bill_info;
@@ -194,12 +286,9 @@ function process_form($ar) {
     $be->close();
   }
 }
-
-
 ?>
 <html>
 <head>
-
 
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 
