@@ -699,7 +699,7 @@ function capitalizeMe(elem) {
   } else {
    echo "<option value='".$s."'";
   }
-  if ($s == $result3{"subscriber_relationship"})
+  if ($s == strtolower($result3['subscriber_relationship']))
    echo " selected";
   echo ">".ucfirst($s)."</option>\n";
 }
