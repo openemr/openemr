@@ -69,7 +69,8 @@ if ($noteid) {
 // Get the users list.  The "Inactive" test is a kludge, we should create
 // a separate column for this.
 $ures = sqlStatement("SELECT username, fname, lname FROM users " .
- "WHERE username != '' AND active = 1 AND info NOT LIKE '%Inactive%' " .
+ "WHERE username != '' AND active = 1 AND " .
+ "( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
  "ORDER BY lname, fname");
 ?>
 <html>
