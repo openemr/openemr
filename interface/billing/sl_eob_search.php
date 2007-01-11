@@ -419,7 +419,11 @@ function npopup(pid) {
     $query = "SELECT ar.id, ar.invnumber, ar.duedate, ar.amount, ar.paid, " .
       "ar.intnotes, ar.notes, ar.shipvia, customer.name, " .
       "substring(trim(both from customer.name) from '% #\"%#\"' for '#') AS lname, " .
-      "substring(trim(both from customer.name) from '#\"%#\" %' for '#') AS fname " .
+      "substring(trim(both from customer.name) from '#\"%#\" %' for '#') AS fname, " .
+      "(SELECT SUM(invoice.fxsellprice) FROM invoice WHERE " .
+      "invoice.trans_id = ar.id AND invoice.fxsellprice > 0) AS charges, " .
+      "(SELECT SUM(invoice.fxsellprice) FROM invoice WHERE " .
+      "invoice.trans_id = ar.id AND invoice.fxsellprice < 0) AS adjustments " .
       "FROM ar, customer WHERE ( $where ) AND customer.id = ar.customer_id ";
     if ($_POST['form_category'] != 'All' && !$eracount) {
       $query .= "AND ar.amount != ar.paid ";
@@ -457,7 +461,10 @@ function npopup(pid) {
    &nbsp;<?xl('Due Date','e')?>
   </td>
   <td class="dehead" align="right">
-   <?xl('Amount','e')?>&nbsp;
+   <?xl('Charge','e')?>&nbsp;
+  </td>
+  <td class="dehead" align="right">
+   <?xl('Adjust','e')?>&nbsp;
   </td>
   <td class="dehead" align="right">
    <?xl('Paid','e')?>&nbsp;
@@ -553,13 +560,16 @@ function npopup(pid) {
    &nbsp;<?php echo $row['duedate'] ?>
   </td>
   <td class="detail" align="right">
-   <?php bucks($row['amount']) ?>&nbsp;
+   <?php bucks($row['charges']) ?>&nbsp;
+  </td>
+  <td class="detail" align="right">
+   <?php bucks($row['adjustments']) ?>&nbsp;
   </td>
   <td class="detail" align="right">
    <?php bucks($row['paid']) ?>&nbsp;
   </td>
   <td class="detail" align="right">
-   <?php bucks($row['amount'] - $row['paid']) ?>&nbsp;
+   <?php bucks($row['charges'] + $row['adjustments'] - $row['paid']) ?>&nbsp;
   </td>
   <td class="detail" align="center">
    <?php echo $duncount ? $duncount : "&nbsp;" ?>
