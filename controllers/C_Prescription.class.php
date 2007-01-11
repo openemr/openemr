@@ -226,90 +226,101 @@ class C_Prescription extends Controller {
                 }
         }
 
-        function get_prescription_body_text($p) {
-                $body = '<b>Rx: ' . $p->get_drug() . ' ' . $p->get_size() . ' ' . $p->get_unit_display();
-                if ($p->get_form()) $body .= ' [' . $p->form_array[$p->get_form()] . "]";
-                $body .= "</b>     <i>"
-                  . $p->substitute_array[$p->get_substitute()] . "</i>\n"
-                  . '<b>Disp #:</b> <u>' . $p->get_quantity() . "</u>\n"
-                  . '<b>Sig:</b> ' . $p->get_dosage() . ' ' . $p->form_array[$p->get_form()] .' ' 
-                  . $p->route_array[$p->get_route()] . ' ' . $p->interval_array[$p->get_interval()] .  "\n";
-                if ($p->get_refills() > 0) {
-                        $body .= "\n<b>Refills:</b> <u>" .  $p->get_refills() . " of quantity " . $p->get_per_refill() . "</u>\n";
-                }
-                else {
-                        $body .= "\n<b>Refills:</b> <u>0 (Zero)</u>\n";
-                }
-                $note = $p->get_note();
-                if ($note != '') {
-                        $body .= "\n$note\n";
-                }
-                return $body;
-        }
+	function get_prescription_body_text($p) {
+		$body = '<b>Rx: ' . $p->get_drug() . ' ' . $p->get_size() . ' ' . $p->get_unit_display();
+		if ($p->get_form()) $body .= ' [' . $p->form_array[$p->get_form()] . "]";
+		$body .= "</b>     <i>" .
+			$p->substitute_array[$p->get_substitute()] . "</i>\n" .
+			'<b>Disp #:</b> <u>' . $p->get_quantity() . "</u>\n" .
+			'<b>Sig:</b> ' . $p->get_dosage() . ' ' . $p->form_array[$p->get_form()] . ' ' .
+			$p->route_array[$p->get_route()] . ' ' . $p->interval_array[$p->get_interval()] . "\n";
+		if ($p->get_refills() > 0) {
+			$body .= "\n<b>Refills:</b> <u>" .  $p->get_refills();
+			if ($p->get_per_refill()) {
+				$body .= " of quantity " . $p->get_per_refill();
+			}
+			$body .= "</u>\n";
+		}
+		else {
+			$body .= "\n<b>Refills:</b> <u>0 (Zero)</u>\n";
+		}
+		$note = $p->get_note();
+		if ($note != '') {
+			$body .= "\n$note\n";
+		}
+		return $body;
+	}
 
-        function multiprint_body(& $pdf, $p){
-                $pdf->ez['leftMargin'] += $pdf->ez['leftMargin'];
-                $pdf->ez['rightMargin'] += $pdf->ez['rightMargin'];
-                $d = $this->get_prescription_body_text($p);
+	function multiprint_body(& $pdf, $p){
+		$pdf->ez['leftMargin'] += $pdf->ez['leftMargin'];
+		$pdf->ez['rightMargin'] += $pdf->ez['rightMargin'];
+		$d = $this->get_prescription_body_text($p);
+		if ( $pdf->ezText($d,10,array(),1) ) {
+			$pdf->ez['leftMargin'] -= $pdf->ez['leftMargin'];
+			$pdf->ez['rightMargin'] -= $pdf->ez['rightMargin'];
+			$this->multiprint_footer($pdf, $p);
+			$pdf->ezNewPage();
+			$this->multiprint_header($pdf, $p);
+			$pdf->ez['leftMargin'] += $pdf->ez['leftMargin'];
+			$pdf->ez['rightMargin'] += $pdf->ez['rightMargin'];
+		}
+		$my_y = $pdf->y;
+		$pdf->ezText($d,10);
+		if($this->pconfig['shading']) {
+			$pdf->setColor(.9,.9,.9);
+			$pdf->filledRectangle($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin']-$pdf->ez['leftMargin'],$my_y - $pdf->y);
+			$pdf->setColor(0,0,0);
+		}
+		$pdf->ezSetY($my_y);
+		$pdf->ezText($d,10);
+		$pdf->ez['leftMargin'] = $GLOBALS['oer_config']['prescriptions']['left'];
+		$pdf->ez['rightMargin'] = $GLOBALS['oer_config']['prescriptions']['right'];
+		$pdf->ezText('');
+		$pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
+		$pdf->ezText('');
+	}
 
-                if ( $pdf->ezText($d,10,array(),1) ) {
-                        $pdf->ez['leftMargin'] -= $pdf->ez['leftMargin'];
-                        $pdf->ez['rightMargin'] -= $pdf->ez['rightMargin'];
-                        $this->multiprint_footer($pdf, $p);
-                        $pdf->ezNewPage();
-                        $this->multiprint_header($pdf, $p);
-                        $pdf->ez['leftMargin'] += $pdf->ez['leftMargin'];
-                        $pdf->ez['rightMargin'] += $pdf->ez['rightMargin'];
-                }
-                $my_y = $pdf->y;
-                $pdf->ezText($d,10);
-                $pdf->setColor(.9,.9,.9);
-                $pdf->filledRectangle($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin']-$pdf->ez['leftMargin'],$my_y - $pdf->y);
-                $pdf->setColor(0,0,0);
-                $pdf->ezSetY($my_y);
-                $pdf->ezText($d,10);
-                $pdf->ez['leftMargin'] = $GLOBALS['oer_config']['prescriptions']['left'];
-                $pdf->ez['rightMargin'] = $GLOBALS['oer_config']['prescriptions']['right'];
-                $pdf->ezText('');
-                $pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
-                $pdf->ezText('');
+	function multiprint_action($id = "") {
+		$_POST['process'] = "true";
+		if(empty($id)) {
+			$this->function_argument_error();
+		}
+		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
+		$pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);
+		$pdf->ezSetMargins($GLOBALS['oer_config']['prescriptions']['top']
+			,$GLOBALS['oer_config']['prescriptions']['bottom']
+			,$GLOBALS['oer_config']['prescriptions']['left']
+			,$GLOBALS['oer_config']['prescriptions']['right']
+		);
+		$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
 
-        }
+		// $print_header = true;
+		$on_this_page = 0;
 
-        function multiprint_action($id = "") {
-                $_POST['process'] = "true";
-                if(empty($id)) {
-                        $this->function_argument_error();
-                }
-                require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
-                $pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);
-                $pdf->ezSetMargins($GLOBALS['oer_config']['prescriptions']['top']
-                      ,$GLOBALS['oer_config']['prescriptions']['bottom']
-                                  ,$GLOBALS['oer_config']['prescriptions']['left']
-                      ,$GLOBALS['oer_config']['prescriptions']['right']
-                      );
-                $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
+		//print prescriptions body
+		$this->_state = false; // Added by Rod - see Controller.class.php
+		$ids = preg_split('/::/', substr($id,1,strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
+		foreach ($ids as $id) {
+			$p = new Prescription($id);
+			// if ($print_header == true) {
+			if ($on_this_page == 0) {
+				$this->multiprint_header($pdf, $p);
+			}
+			if (++$on_this_page > 3) {
+				$this->multiprint_footer($pdf);
+				$pdf->ezNewPage();
+				$this->multiprint_header($pdf, $p);
+				// $print_header = false;
+				$on_this_page = 1;
+			}
+			$this->multiprint_body($pdf, $p);
+		}
 
+		$this->multiprint_footer($pdf);
 
-                $print_header = true;
-
-                //print prescriptions body
-                $this->_state = false; // Added by Rod - see Controller.class.php
-                $ids = preg_split('/::/', substr($id,1,strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
-                foreach ($ids as $id) {
-                        $p = new Prescription($id);
-                        if ($print_header == true) {
-                                $this->multiprint_header($pdf, $p);
-                                $print_header = false;
-                        }
-                        $this->multiprint_body($pdf, $p);
-                }
-
-                $this->multiprint_footer($pdf);
-
-                $pdf->ezStream();
-                return;
-        }
+		$pdf->ezStream();
+		return;
+	}
 
 	function send_action_process($id) {
 		$dummy = ""; // Added by Rod to avoid run-time warnings

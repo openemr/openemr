@@ -30,6 +30,8 @@ $GLOBALS['oer_config']['prescriptions']['logo_pic'] = "prescription_logo.png";
 $GLOBALS['oer_config']['prescriptions']['sig_pic'] = "sig.png";
 //Option to used signature graphic or not
 $GLOBALS['oer_config']['prescriptions']['use_signature'] = false;
+// To print the medication area on a grey background:
+$GLOBALS['oer_config']['prescriptions']['shading'] = false;
 
 // only works with hylafax sendfax client, and sendfax must be in PATH
 // assign 'sendfax' to turn fax sending on
