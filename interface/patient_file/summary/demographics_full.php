@@ -175,7 +175,7 @@ function capitalizeMe(elem) {
  <tr>
   <td valign="top"><span class=required><?php xl('Name','e'); ?>: </span></td>
   <td colspan="4" nowrap>
-   <select name=title tabindex="1">
+   <select name=title tabindex="1"<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
     <option value="<?php echo $result{"title"} ?>"><?php echo $result{"title"} ?></option>
     <option value="Mrs."><?php xl('Mrs','e'); ?>.</option>
     <option value="Ms."><?php xl('Ms','e'); ?>.</option>
@@ -201,7 +201,8 @@ function capitalizeMe(elem) {
   <td valign='top'><span class='required'><?php xl('DOB','e'); ?>: </span></td>
   <td>
    <input tabindex='5' type='entry' size='11' name='dob'
-    value='<?php echo $result['DOB'] ?>' onkeyup='datekeyup(this,mypcc)'
+    value='<?php if (substr($result['DOB'], 0, 4) != '0000') echo $result['DOB']; ?>'
+    onkeyup='datekeyup(this,mypcc)'
     onblur='dateblur(this,mypcc)' title='yyyy-mm-dd' />
   </td>
   <td rowspan="12">&nbsp;</td>
