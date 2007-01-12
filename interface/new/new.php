@@ -41,8 +41,13 @@ include_once("../globals.php");
 
 <center>
 
+<?php if ($GLOBALS['omit_employers']) { ?>
+   <input type='hidden' name='title' value='' />
+<?php } ?>
+
 <table border='0'>
 
+<?php if (!$GLOBALS['omit_employers']) { ?>
  <tr>
   <td>
    <span class='bold'><?php xl('Title','e');?>: </span>
@@ -55,9 +60,8 @@ include_once("../globals.php");
     <option value="Dr."><?php xl('Dr.','e');?></option>
    </select>
   </td>
-  <td rowspan='5' class='bold'>
-  </td>
  </tr>
+<?php } ?>
 
  <tr>
   <td>
