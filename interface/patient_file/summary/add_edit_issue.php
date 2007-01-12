@@ -60,8 +60,10 @@
 td { font-size:10pt; }
 </style>
 
-<script type="text/javascript" src="../../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../../library/calendar.js"></script>
+<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 
@@ -266,9 +268,6 @@ td { font-size:10pt; }
   );
  }
 ?>
-<!-- Required for the popup date selectors -->
-<div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
-
 <form method='post' name='theform' action='add_edit_issue.php?issue=<? echo $issue ?>'>
 <center>
 
@@ -301,24 +300,27 @@ td { font-size:10pt; }
  <tr>
   <td valign='top' nowrap><b><? xl('Begin Date','e'); ?>:</b></td>
   <td>
-   <input type='text' size='10' name='form_begin' value='<? echo $irow['begdate'] ?>'
+
+   <input type='text' size='10' name='form_begin' id='form_begin'
+    value='<? echo $irow['begdate'] ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='yyyy-mm-dd date of onset, surgery or start of medication' />
-   <a href="javascript:show_calendar('theform.form_begin')"
-    title="Click here to choose a date"
-    ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
+   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_begin' border='0' alt='[?]' style='cursor:pointer'
+    title='Click here to choose a date' />
   </td>
  </tr>
 
  <tr id='row_enddate'>
   <td valign='top' nowrap><b><? xl('End Date','e'); ?>:</b></td>
   <td>
-   <input type='text' size='10' name='form_end' value='<? echo $irow['enddate'] ?>'
+   <input type='text' size='10' name='form_end' id='form_end'
+    value='<? echo $irow['enddate'] ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='yyyy-mm-dd date of recovery or end of medication' />
-   <a href="javascript:show_calendar('theform.form_end')"
-    title="Click here to choose a date"
-    ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
+   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_end' border='0' alt='[?]' style='cursor:pointer'
+    title='Click here to choose a date' />
     &nbsp;(<? xl('leave blank if still active','e'); ?>)
   </td>
  </tr>
@@ -335,12 +337,13 @@ td { font-size:10pt; }
  <tr<?php if (! $GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_returndate'>
   <td valign='top' nowrap><b><? xl('Returned to Play','e'); ?>:</b></td>
   <td>
-   <input type='text' size='10' name='form_return' value='<? echo $irow['returndate'] ?>'
+   <input type='text' size='10' name='form_return' id='form_return'
+    value='<? echo $irow['returndate'] ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='yyyy-mm-dd date returned to play' />
-   <a href="javascript:show_calendar('theform.form_return')"
-    title="Click here to choose a date"
-    ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
+   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_return' border='0' alt='[?]' style='cursor:pointer'
+    title='Click here to choose a date' />
     &nbsp;(<? xl('leave blank if still active','e'); ?>)
   </td>
  </tr>
@@ -444,6 +447,9 @@ td { font-size:10pt; }
 </form>
 <script language='JavaScript'>
  newtype(<? echo $type_index ?>);
+ Calendar.setup({inputField:"form_begin", ifFormat:"%Y-%m-%d", button:"img_begin"});
+ Calendar.setup({inputField:"form_end", ifFormat:"%Y-%m-%d", button:"img_end"});
+ Calendar.setup({inputField:"form_return", ifFormat:"%Y-%m-%d", button:"img_return"});
 </script>
 </body>
 </html>
