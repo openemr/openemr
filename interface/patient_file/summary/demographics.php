@@ -21,6 +21,41 @@ function print_as_money($money) {
 		return "$ " . strrev($tmp);
 	}
 }
+
+/****
+function get_billing_note($pid) {
+	$conn = $GLOBALS['adodb']['db'];
+	$billing_note = "";
+	$sql = "select genericname2, genericval2 " .
+		"from patient_data where pid = '$pid' limit 1";
+	$resnote = $conn->Execute($sql);
+	if($resnote && !$resnote->EOF && $resnote->fields['genericname2'] == 'Billing') {
+		$billing_note = $resnote->fields['genericval2'];
+	}
+	return $billing_note;
+}
+****/
+
+function get_patient_balance($pid) {
+	require_once($GLOBALS['fileroot'] . "/library/classes/WSWrapper.class.php");
+	$conn = $GLOBALS['adodb']['db'];
+	$customer_info['id'] = 0;
+	$sql = "SELECT foreign_id FROM integration_mapping AS im " .
+		"LEFT JOIN patient_data AS pd ON im.local_id = pd.id WHERE " .
+		"pd.pid = '" . $pid . "' AND im.local_table = 'patient_data' AND " .
+		"im.foreign_table = 'customer'";
+	$result = $conn->Execute($sql);
+	if($result && !$result->EOF) {
+		$customer_info['id'] = $result->fields['foreign_id'];
+	}
+	$function['ezybiz.customer_balance'] = array(new xmlrpcval($customer_info,"struct"));
+	$ws = new WSWrapper($function);
+	if(is_numeric($ws->value)) {
+		return sprintf('%01.2f', $ws->value);
+	}
+	return '';
+}
+
 ?>
 <html>
 
@@ -181,7 +216,13 @@ echo $result{"postal_code"}?>
 	?>
      </td>
      <td colspan='2' valign='top'>
-	<?php if ($result['genericname2'] == 'Billing') echo "<span class='bold'>" . xl('Billing Note') . ":</span>"; ?>
+<?php
+	echo "<span class='bold'><font color='#ee6600'>Balance Due: $" .
+		get_patient_balance($pid) . "</font>";
+	if ($result['genericname2'] == 'Billing')
+		echo "<br>" . xl('Billing Note') . ":";
+	echo "</span>";
+?>
      </td>
     </tr>
     <tr>
@@ -192,7 +233,11 @@ echo $result{"postal_code"}?>
 	?>
      </td>
      <td colspan='2' valign='top'>
-	<?php if ($result['genericname2'] == 'Billing') echo "<span class='bold'><font color='red'>" . $result['genericval2'] . "</font></span>"; ?>
+<?php
+	if ($result['genericname2'] == 'Billing')
+		echo "<span class='bold'><font color='red'>" .
+		$result['genericval2'] . "</font></span>";
+?>
      </td>
     </tr>
     <tr>
