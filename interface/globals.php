@@ -107,7 +107,7 @@ else {
 $v_major = '2';
 $v_minor = '8';
 $v_patch = '2';
-$tag = '-dev'; // release candidate, e.g. '-rc1'
+$tag = ''; // release candidate, e.g. '-rc1'
 
 // This name appears on the login page and in the title bar of most windows.
 // It's nice to customize this to be the name of your clinic.
@@ -189,7 +189,7 @@ $GLOBALS['default_new_encounter_form'] = '';
 // status is set to "@" (arrived), then make this true.
 $GLOBALS['auto_create_new_encounters'] = true;
 
-// If you don't want employer information and country in patient demographics.
+// If you don't want employer information, country, title in patient demographics.
 $GLOBALS['omit_employers'] = false;
 
 // If you want Hylafax support then uncomment and customize the following
