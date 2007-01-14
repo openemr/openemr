@@ -196,6 +196,9 @@
 				}
 
 				// Check for already-existing primary remittance activity.
+				// Removed this check because it was not allowing for copays manually
+				// entered into the invoice under a non-copay billing code.
+				/****
 				if ((sprintf("%.2f",$prev['chg']) != sprintf("%.2f",$prev['bal']) ||
 				    $prev['adj'] != 0) && $primary)
 				{
@@ -203,6 +206,7 @@
 						"This service item already has primary payments and/or adjustments!");
 					$error = true;
 				}
+				****/
 
 				unset($codes[$svc['code']]);
 			}
