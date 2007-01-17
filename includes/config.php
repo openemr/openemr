@@ -26,11 +26,17 @@ $GLOBALS['oer_config']['documents']['file_command_path'] = "/usr/bin/file";
 //Name of prescription graphic in interface/pic/ directory without preceding slash. Can be JPEG or PNG, normally 3 inches wide.
 $GLOBALS['oer_config']['prescriptions']['logo_pic'] = "prescription_logo.png";
 
-//Name of signature graphic in interface/pic/ directory without preceding slash. Normally 3 inches wide.
+// Name of signature graphic in interface/pic/ directory without preceding
+// slash. Normally 3 inches wide.  This filename may include the string
+// "{userid}" to indicate the numeric ID of the user, so that prescriptions
+// can print with the correct provider's signature if you have multiple
+// providers.  Also signature images are used only for faxed prescriptions,
+// not printed prescriptions.
 $GLOBALS['oer_config']['prescriptions']['sig_pic'] = "sig.png";
 //Option to used signature graphic or not
 $GLOBALS['oer_config']['prescriptions']['use_signature'] = false;
-// To print the medication area on a grey background:
+
+// To print the prescription medication area on a grey background:
 $GLOBALS['oer_config']['prescriptions']['shading'] = false;
 
 // only works with hylafax sendfax client, and sendfax must be in PATH
