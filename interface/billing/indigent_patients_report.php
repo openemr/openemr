@@ -1,4 +1,4 @@
-<?
+<?php 
  // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -28,8 +28,8 @@
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<title><?xl('Indigent Patients Report','e')?></title>
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<title><?php xl('Indigent Patients Report','e')?></title>
 
 <script language="JavaScript">
 
@@ -53,21 +53,21 @@
 
  <tr bgcolor='#ddddff'>
   <td>
-   <?xl('Start Date:','e')?>
+   <?php xl('Start Date:','e')?>
   </td>
   <td>
-   <input type='text' name='form_start_date' size='10' value='<? echo $form_start_date ?>'
-    title='<?xl("Beginning date of service yyyy-mm-dd","e")?>'>
+   <input type='text' name='form_start_date' size='10' value='<?php  echo $form_start_date ?>'
+    title='<?php xl("Beginning date of service yyyy-mm-dd","e")?>'>
   </td>
   <td>
-   <?xl('End Date:','e')?>
+   <?php xl('End Date:','e')?>
   </td>
   <td>
-   <input type='text' name='form_end_date' size='10' value='<? echo $form_end_date ?>'
-    title='<?xl("Ending date of service yyyy-mm-dd","e")?>'>
+   <input type='text' name='form_end_date' size='10' value='<?php  echo $form_end_date ?>'
+    title='<?php xl("Ending date of service yyyy-mm-dd","e")?>'>
   </td>
   <td>
-   <input type='submit' name='form_search' value='<?xl("Search","e")?>'>
+   <input type='submit' name='form_search' value='<?php xl("Search","e")?>'>
   </td>
  </tr>
 
@@ -82,31 +82,31 @@
 
  <tr bgcolor="#dddddd">
   <td class="dehead">
-   &nbsp;<?xl('Patient','e')?>
+   &nbsp;<?php xl('Patient','e')?>
   </td>
   <td class="dehead">
-   &nbsp;<?xl('SSN','e')?>
+   &nbsp;<?php xl('SSN','e')?>
   </td>
   <td class="dehead">
-   &nbsp;<?xl('Invoice','e')?>
+   &nbsp;<?php xl('Invoice','e')?>
   </td>
   <td class="dehead">
-   &nbsp;<?xl('Svc Date','e')?>
+   &nbsp;<?php xl('Svc Date','e')?>
   </td>
   <td class="dehead">
-   &nbsp;<?xl('Due Date','e')?>
+   &nbsp;<?php xl('Due Date','e')?>
   </td>
   <td class="dehead" align="right">
-   <?xl('Amount','e')?>&nbsp;
+   <?php xl('Amount','e')?>&nbsp;
   </td>
   <td class="dehead" align="right">
-   <?xl('Paid','e')?>&nbsp;
+   <?php xl('Paid','e')?>&nbsp;
   </td>
   <td class="dehead" align="right">
-   <?xl('Balance','e')?>&nbsp;
+   <?php xl('Balance','e')?>&nbsp;
   </td>
  </tr>
-<?
+<?php 
   if ($_POST['form_search']) {
 
     $where = "";
@@ -142,33 +142,33 @@
 
       $bgcolor = (($irow & 1) ? "#ffdddd" : "#ddddff");
 ?>
- <tr bgcolor='<? echo $bgcolor ?>'>
+ <tr bgcolor='<?php  echo $bgcolor ?>'>
   <td class="detail">
-   &nbsp;<? echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] ?>
+   &nbsp;<?php  echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] ?>
   </td>
   <td class="detail">
-   &nbsp;<? echo $row['ss'] ?>
+   &nbsp;<?php  echo $row['ss'] ?>
   </td>
   <td class="detail">
-   &nbsp;<? echo $invnumber ?></a>
+   &nbsp;<?php  echo $invnumber ?></a>
   </td>
   <td class="detail">
-   &nbsp;<? echo substr($row['date'], 0, 10) ?>
+   &nbsp;<?php  echo substr($row['date'], 0, 10) ?>
   </td>
   <td class="detail">
-   &nbsp;<? echo $arow['duedate'] ?>
+   &nbsp;<?php  echo $arow['duedate'] ?>
   </td>
   <td class="detail" align="right">
-   <? echo bucks($arow['amount']) ?>&nbsp;
+   <?php  echo bucks($arow['amount']) ?>&nbsp;
   </td>
   <td class="detail" align="right">
-   <? echo bucks($arow['paid']) ?>&nbsp;
+   <?php  echo bucks($arow['paid']) ?>&nbsp;
   </td>
   <td class="detail" align="right">
-   <? echo bucks($arow['amount'] - $arow['paid']) ?>&nbsp;
+   <?php  echo bucks($arow['amount'] - $arow['paid']) ?>&nbsp;
   </td>
  </tr>
-<?
+<?php 
     }
 ?>
  <tr bgcolor='#dddddd'>
@@ -188,16 +188,16 @@
    &nbsp;
   </td>
   <td class="detail" align="right">
-   <? echo bucks($total_amount) ?>&nbsp;
+   <?php  echo bucks($total_amount) ?>&nbsp;
   </td>
   <td class="detail" align="right">
-   <? echo bucks($total_paid) ?>&nbsp;
+   <?php  echo bucks($total_paid) ?>&nbsp;
   </td>
   <td class="detail" align="right">
-   <? echo bucks($total_amount - $total_paid) ?>&nbsp;
+   <?php  echo bucks($total_amount - $total_paid) ?>&nbsp;
   </td>
  </tr>
-<?
+<?php 
   }
   SLClose();
 ?>
@@ -207,7 +207,7 @@
 </form>
 </center>
 <script>
-<?
+<?php 
 	if ($alertmsg) {
 		echo "alert('$alertmsg');\n";
 	}

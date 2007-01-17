@@ -370,7 +370,7 @@
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <style type="text/css">
  body       { font-family:sans-serif; font-size:8pt; font-weight:normal }
  .dehead    { color:#000000; font-family:sans-serif; font-size:9pt; font-weight:bold }
@@ -379,7 +379,7 @@
  .errdetail { color:#dd0000; font-family:sans-serif; font-size:9pt; font-weight:normal }
  .infdetail { color:#0000ff; font-family:sans-serif; font-size:9pt; font-weight:normal }
 </style>
-<title><?xl('EOB Posting - Electronic Remittances','e')?></title>
+<title><?php xl('EOB Posting - Electronic Remittances','e')?></title>
 <script language="JavaScript">
 </script>
 </head>

@@ -25,8 +25,8 @@
 ?>
 <html>
 <head>
-<title>Destroy Lot</title>
-<link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
+<title><?php xl ('Destroy Lot','e') ?></title>
+<link rel=stylesheet href='<?php  echo $css_header ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }
@@ -39,12 +39,12 @@ td { font-size:10pt; }
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 
 <script language="JavaScript">
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php  echo $GLOBALS['phone_country_code'] ?>';
 </script>
 
 </head>
 
-<body <?echo $top_bg_line;?>>
+<body <?php echo $top_bg_line;?>>
 <?php
  // If we are saving, then save and close the window.
  //
@@ -76,38 +76,38 @@ td { font-size:10pt; }
 <table border='0' width='100%'>
 
  <tr>
-  <td valign='top' width='1%' nowrap><b><? xl('Lot Number','e'); ?>:</b></td>
+  <td valign='top' width='1%' nowrap><b><?php  xl('Lot Number','e'); ?>:</b></td>
   <td>
-   <? echo $row['lot_number'] ?>
+   <?php  echo $row['lot_number'] ?>
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Manufacturer','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php  xl('Manufacturer','e'); ?>:</b></td>
   <td>
-   <? echo $row['manufacturer'] ?>
+   <?php  echo $row['manufacturer'] ?>
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Quantity On Hand','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php  xl('Quantity On Hand','e'); ?>:</b></td>
   <td>
-   <? echo $row['on_hand'] ?>
+   <?php  echo $row['on_hand'] ?>
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Expiration Date','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php  xl('Expiration Date','e'); ?>:</b></td>
   <td>
-   <? echo $row['expiration'] ?>
+   <?php  echo $row['expiration'] ?>
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Date Destroyed','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php  xl('Date Destroyed','e'); ?>:</b></td>
   <td>
    <input type='text' size='10' name='form_date' id='form_date'
-    value='<? echo $row['destroy_date'] ? $row['destroy_date'] : date("Y-m-d"); ?>'
+    value='<?php  echo $row['destroy_date'] ? $row['destroy_date'] : date("Y-m-d"); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='yyyy-mm-dd date destroyed' />
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
@@ -117,36 +117,36 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Method of Destruction','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php  xl('Method of Destruction','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_method' maxlength='250'
-    value='<? echo $row['destroy_method'] ?>' style='width:100%' />
+    value='<?php  echo $row['destroy_method'] ?>' style='width:100%' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Witness','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php  xl('Witness','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_witness' maxlength='250'
-    value='<? echo $row['destroy_witness'] ?>' style='width:100%' />
+    value='<?php  echo $row['destroy_witness'] ?>' style='width:100%' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Notes','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php  xl('Notes','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_notes' maxlength='250'
-    value='<? echo $row['destroy_notes'] ?>' style='width:100%' />
+    value='<?php  echo $row['destroy_notes'] ?>' style='width:100%' />
   </td>
  </tr>
 
 </table>
 
 <p>
-<input type='submit' name='form_save' value='Submit' />
+<input type='submit' name='form_save' value='<?php xl('Submit','e') ;?>' />
 
 &nbsp;
-<input type='button' value='Cancel' onclick='window.close()' />
+<input type='button' value='<?php xl('Cancel','e'); ?>' onclick='window.close()' />
 </p>
 
 </center>

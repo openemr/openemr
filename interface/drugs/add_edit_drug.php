@@ -48,8 +48,8 @@
 ?>
 <html>
 <head>
-<title><? echo $drug_id ? "Edit" : "Add New" ?> Drug</title>
-<link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
+<title><?php echo $drug_id ? xl("Edit") : xl("Add New"); xl (' Drug','e'); ?></title>
+<link rel=stylesheet href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }
@@ -60,7 +60,7 @@ td { font-size:10pt; }
 
 </head>
 
-<body <?echo $top_bg_line;?>>
+<body <?php echo $top_bg_line;?>>
 <?php
  // If we are saving, then save and close the window.
  //
@@ -144,41 +144,41 @@ td { font-size:10pt; }
  }
 ?>
 
-<form method='post' name='theform' action='add_edit_drug.php?drug=<? echo $drug_id ?>'>
+<form method='post' name='theform' action='add_edit_drug.php?drug=<?php echo $drug_id; ?>'>
 <center>
 
 <table border='0' width='100%'>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Name','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Name','e'); ?>:</b></td>
   <td>
-   <input type='text' size='40' name='form_name' maxlength='80' value='<? echo $row['name'] ?>' style='width:100%' />
+   <input type='text' size='40' name='form_name' maxlength='80' value='<?php echo $row['name'] ?>' style='width:100%' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('NDC Number','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('NDC Number','e'); ?>:</b></td>
   <td>
-   <input type='text' size='40' name='form_ndc_number' maxlength='20' value='<? echo $row['ndc_number'] ?>' style='width:100%' />
+   <input type='text' size='40' name='form_ndc_number' maxlength='20' value='<?php echo $row['ndc_number'] ?>' style='width:100%' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('On Order','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('On Order','e'); ?>:</b></td>
   <td>
-   <input type='text' size='5' name='form_on_order' maxlength='7' value='<? echo $row['on_order'] ?>' />
+   <input type='text' size='5' name='form_on_order' maxlength='7' value='<?php echo $row['on_order'] ?>' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Reorder At','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Reorder At','e'); ?>:</b></td>
   <td>
-   <input type='text' size='5' name='form_reorder_point' maxlength='7' value='<? echo $row['reorder_point'] ?>' />
+   <input type='text' size='5' name='form_reorder_point' maxlength='7' value='<?php echo $row['reorder_point'] ?>' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Form','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Form','e'); ?>:</b></td>
   <td>
    <select name='form_form'>
 <?php
@@ -193,14 +193,14 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Pill Size','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Pill Size','e'); ?>:</b></td>
   <td>
-   <input type='text' size='5' name='form_size' maxlength='7' value='<? echo $row['size'] ?>' />
+   <input type='text' size='5' name='form_size' maxlength='7' value='<?php echo $row['size'] ?>' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Units','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Units','e'); ?>:</b></td>
   <td>
    <select name='form_unit'>
 <?php
@@ -215,7 +215,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Route','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Route','e'); ?>:</b></td>
   <td>
    <select name='form_route'>
 <?php
@@ -230,15 +230,15 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Templates','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Templates','e'); ?>:</b></td>
   <td>
    <table border='0' width='100%'>
     <tr>
-     <td><b><? xl('Name'    ,'e'); ?></b></td>
-     <td><b><? xl('Schedule','e'); ?></b></td>
-     <td><b><? xl('Interval','e'); ?></b></td>
-     <td><b><? xl('Qty'     ,'e'); ?></b></td>
-     <td><b><? xl('Refills' ,'e'); ?></b></td>
+     <td><b><?php xl('Name'    ,'e'); ?></b></td>
+     <td><b><?php xl('Schedule','e'); ?></b></td>
+     <td><b><?php xl('Interval','e'); ?></b></td>
+     <td><b><?php xl('Qty'     ,'e'); ?></b></td>
+     <td><b><?php xl('Refills' ,'e'); ?></b></td>
     </tr>
     <?php
      $blank_lines = 3;
@@ -260,15 +260,15 @@ td { font-size:10pt; }
 </table>
 
 <p>
-<input type='submit' name='form_save' value='Save' />
+<input type='submit' name='form_save' value='<?php xl('Save','e'); ?>' />
 
 <?php if (acl_check('admin', 'super')) { ?>
 &nbsp;
-<input type='submit' name='form_delete' value='Delete' style='color:red' />
+<input type='submit' name='form_delete' value='<?php xl('Delete','e'); ?>' style='color:red' />
 <?php } ?>
 
 &nbsp;
-<input type='button' value='Cancel' onclick='window.close()' />
+<input type='button' value='<?php xl('Cancel','e'); ?>' onclick='window.close()' />
 
 </p>
 

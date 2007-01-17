@@ -294,8 +294,8 @@ function process_form($ar) {
 
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<br><p><h3><?xl('Billing queue results:','e')?></h3><a href="billing_report.php">back</a><ul>
-<?
+<br><p><h3><?php xl('Billing queue results:','e'); ?></h3><a href="billing_report.php">back</a><ul>
+<?php
 foreach ($bill_info as $infoline) {
 	echo nl2br($infoline);
 }

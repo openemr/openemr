@@ -1,4 +1,4 @@
-<?
+<?php 
 include_once("../globals.php");
 include_once("$srcdir/upload.inc");
 
@@ -49,25 +49,25 @@ if (!isset($_POST["mode"])) {
 <head>
 
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 
-<?
+<?php 
 if ($userauthorized) {
 ?>
-<a href="../main/main.php" target=Main><font class=title><?xl('Billing Report','e')?></font><font class=more><?echo $tback;?></font></a>
-<?} else {?>
-<a href="../main/onotes/office_comments.php" target=Main><font class=title><?xl('Billing Report','e')?></font><font class=more><?echo $tback;?></font></a>
-<?
+<a href="../main/main.php" target=Main><font class=title><?php xl('Billing Report','e')?></font><font class=more><?php echo $tback;?></font></a>
+<?php } else {?>
+<a href="../main/onotes/office_comments.php" target=Main><font class=title><?php xl('Billing Report','e')?></font><font class=more><?php echo $tback;?></font></a>
+<?php 
 }
 ?>
 <br>
-<?xl('No billing system is currently active','e')?><br />
+<?php xl('No billing system is currently active','e')?><br />
 
-<?
+<?php 
 
 print_r($_POST);
 

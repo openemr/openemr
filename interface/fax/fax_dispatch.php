@@ -1,4 +1,4 @@
-<?
+<?php
  // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -57,7 +57,7 @@
   foreach ($_POST['form_images'] as $inbase) {
    $inames .= ' ' . escapeshellarg("$inbase.tif");
   }
-  if (!$inames) die("Internal error - no pages were selected!");
+  if (!$inames) die(xl("Internal error - no pages were selected!"));
   $tmp0 = exec("cd '$faxcache'; tiffcp $inames temp.tif", $tmp1, $tmp2);
   if ($tmp2) {
    $msg .= "tiffcp returned $tmp2: $tmp0 ";
@@ -74,7 +74,7 @@
 
   if ($_POST['form_cb_copy']) {
    $patient_id = (int) $_POST['form_pid'];
-   if (!$patient_id) die('Internal error - patient ID was not provided!');
+   if (!$patient_id) die(xl('Internal error - patient ID was not provided!'));
    // Compute the name of the target directory and make sure it exists.
    $docdir = "$webserver_root/documents/$patient_id";
    exec("mkdir -p '$docdir'");
@@ -211,7 +211,7 @@
   }
 
   if (!$action_taken && !$info_msg)
-   $info_msg = 'You did not choose any actions.';
+   $info_msg = xl('You did not choose any actions.');
 
   // Close this window and refresh the fax list.
   echo "<html>\n<body>\n<script language='JavaScript'>\n";
@@ -256,8 +256,8 @@
 ?>
 <html>
 <head>
-<title>Dispatch Received Document</title>
-<link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
+<title><?php xl('Dispatch Received Document','e'); ?></title>
+<link rel=stylesheet href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
 
@@ -290,7 +290,7 @@ div.section {
 
 <script language="JavaScript">
 
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  function divclick(cb, divid) {
   var divstyle = document.getElementById(divid).style;
@@ -386,9 +386,9 @@ div.section {
 
 </head>
 
-<body <?echo $top_bg_line;?> onunload='imclosing()'>
+<body <?php echo $top_bg_line;?> onunload='imclosing()'>
 
-<center><h2>Dispatch Received Document</h2></center>
+<center><h2><?php xl('Dispatch Received Document','e'); ?></h2></center>
 
 <form method='post' name='theform'
  action='fax_dispatch.php?<?php echo ($mode == 'fax') ? 'file' : 'scan'; ?>=<?php echo $filename ?>'
@@ -396,21 +396,21 @@ div.section {
 
 <p><input type='checkbox' name='form_cb_copy' value='1'
  onclick='return divclick(this,"div_copy");' />
-<b>Copy Pages to Patient Chart</b></p>
+<b><?php xl('Copy Pages to Patient Chart','e'); ?></b></p>
 
 <div id='div_copy' class='section' style='display:none;'>
  <table>
   <tr>
-   <td class='itemtitle' width='1%' nowrap>Patient</td>
+   <td class='itemtitle' width='1%' nowrap><?php xl('Patient','e'); ?></td>
    <td>
     <input type='text' size='10' name='form_patient' style='width:100%'
-     value=' (Click to select)' onclick='sel_patient()'
+     value=' (<?php xl('Click to select'); ?>)' onclick='sel_patient()'
      title='Click to select patient' readonly />
     <input type='hidden' name='form_pid' value='0' />
    </td>
   </tr>
   <tr>
-   <td class='itemtitle' nowrap>Category</td>
+   <td class='itemtitle' nowrap><?php xl('Category','e'); ?></td>
    <td>
     <select name='form_category' style='width:100%'>
 <?php
@@ -423,10 +423,10 @@ div.section {
    </td>
   </tr>
   <tr>
-   <td class='itemtitle' nowrap>Filename</td>
+   <td class='itemtitle' nowrap><?php xl('Filename','e'); ?></td>
    <td>
     <input type='text' size='10' name='form_filename' style='width:100%'
-     value='<? echo "$filebase.pdf" ?>'
+     value='<?php  echo "$filebase.pdf" ?>'
      title='Name for this document in the patient chart' />
    </td>
   </tr>
@@ -434,11 +434,11 @@ div.section {
    <td colspan='2' style='padding-top:0.5em;'>
     <input type='checkbox' name='form_cb_note' value='1'
      onclick='return divclick(this,"div_note");' />
-    <b>Create Patient Note</b>
+    <b><?php xl('Create Patient Note','e'); ?></b>
     <div id='div_note' class='section' style='display:none;margin-top:0.5em;'>
      <table>
       <tr>
-       <td class='itemtitle' width='1%' nowrap>Type</td>
+       <td class='itemtitle' width='1%' nowrap><?php xl('Type','e'); ?></td>
        <td>
         <select name='form_note_type' style='width:100%'>
 <?php
@@ -462,12 +462,12 @@ div.section {
   echo "</option>\n";
  }
 ?>
-         <option value=''>** <? xl('Close','e'); ?> **</option>
+         <option value=''>** <?php  xl('Close','e'); ?> **</option>
         </select>
        </td>
       </tr>
       <tr>
-       <td class='itemtitle' nowrap>Message</td>
+       <td class='itemtitle' nowrap><?php xl('Message','e'); ?></td>
        <td>
         <textarea name='form_note_message' rows='3' cols='30' style='width:100%'
          title='Your comments' /></textarea>
@@ -482,59 +482,59 @@ div.section {
 
 <p><input type='checkbox' name='form_cb_forward' value='1'
  onclick='return divclick(this,"div_forward");' />
-<b>Forward Pages via Fax</b></p>
+<b><?php xl('Forward Pages via Fax','e'); ?></b></p>
 
 <div id='div_forward' class='section' style='display:none;'>
  <table>
   <tr>
-   <td class='itemtitle' width='1%' nowrap>From</td>
+   <td class='itemtitle' width='1%' nowrap><?php xl('From','e'); ?></td>
    <td>
     <input type='text' size='10' name='form_from' style='width:100%'
      title='Type your name here' />
    </td>
   </tr>
   <tr>
-   <td class='itemtitle' nowrap>To</td>
+   <td class='itemtitle' nowrap><?php xl('To','e'); ?></td>
    <td>
     <input type='text' size='10' name='form_to' style='width:100%'
      title='Type the recipient name here' />
    </td>
   </tr>
   <tr>
-   <td class='itemtitle' nowrap>Fax</td>
+   <td class='itemtitle' nowrap><?php xl('Fax','e'); ?></td>
    <td>
     <input type='text' size='10' name='form_fax' style='width:100%'
      title='The fax phone number to send this to' />
    </td>
   </tr>
   <tr>
-   <td class='itemtitle' nowrap>Message</td>
+   <td class='itemtitle' nowrap><?php xl('Message','e'); ?></td>
    <td>
     <textarea name='form_message' rows='3' cols='30' style='width:100%'
      title='Your comments to include with this message' /></textarea>
    </td>
   </tr>
   <tr>
-   <td class='itemtitle' nowrap>Quality</td>
+   <td class='itemtitle' nowrap><?php xl('Quality','e'); ?></td>
    <td>
-    <input type='radio' name='form_finemode' value='' />Normal &nbsp;
-    <input type='radio' name='form_finemode' value='1' checked />Fine &nbsp;
+    <input type='radio' name='form_finemode' value='' /><?php xl('Normal','e'); ?> &nbsp;
+    <input type='radio' name='form_finemode' value='1' checked /><?php xl('Fine','e'); ?> &nbsp;
    </td>
   </tr>
  </table>
 </div><!-- end div_forward -->
 
 <p><input type='checkbox' name='form_cb_delete' value='1' />
-<b>Delete Document from Queue</b></p>
+<b><?php xl('Delete Document from Queue','e'); ?></b></p>
 
 <center>
 <p>
-<input type='submit' name='form_save' value='OK' />
+<input type='submit' name='form_save' value='<?php xl('OK'); ?>' />
 &nbsp; &nbsp;
-<input type='button' value='Cancel' onclick='window.close()' />
+<input type='button' value='<?php xl('Cancel'); ?>' onclick='window.close()' />
 </p>
 
-<p><br /><b>Please select the desired pages to copy or forward:</b></p>
+<p><br /><b><?php xl('Please select the desired pages to copy or forward:','e'); ?></b></p>
 <table>
 
 <?php

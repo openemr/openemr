@@ -72,15 +72,15 @@
 	}
 ?>
    &nbsp;<select name='form_use_edate'>
-    <option value='0'>Payment Date</option>
-    <option value='1'<?php if ($form_use_edate) echo ' selected' ?>>Invoice Date</option>
+    <option value='0'><?php xl('Payment Date','e'); ?></option>
+    <option value='1'<?php if ($form_use_edate) echo ' selected' ?>><?php xl('Invoice Date','e'); ?></option>
    </select>
    &nbsp;<?xl('From:','e')?>
    <input type='text' name='form_from_date' size='10' value='<? echo $_POST['form_from_date']; ?>' title='MM/DD/YYYY'>
    &nbsp;To:
    <input type='text' name='form_to_date' size='10' value='<? echo $_POST['form_to_date']; ?>' title='MM/DD/YYYY'>
    &nbsp;Code:
-   <input type='text' name='form_billcode' size='5' value='<? echo $form_billcode; ?>' title='Optional billing code'>
+   <input type='text' name='form_billcode' size='5' value='<? echo $form_billcode; ?>' title='<?php xl('Optional billing code','e'); ?>>
    &nbsp;
    <input type='checkbox' name='form_details' value='1'<? if ($_POST['form_details']) echo " checked"; ?>><?xl('Details','e')?>
    &nbsp;

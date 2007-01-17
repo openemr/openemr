@@ -24,8 +24,8 @@
 ?>
 <html>
 <head>
-<title><? echo $lot_id ? "Edit" : "Add New" ?> Lot</title>
-<link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
+<title><?php echo $lot_id ? xl("Edit") : xl("Add New"); xl(' Lot', 'e'); ?></title>
+<link rel=stylesheet href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }
@@ -38,12 +38,12 @@ td { font-size:10pt; }
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 
 <script language="JavaScript">
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 </script>
 
 </head>
 
-<body <?echo $top_bg_line;?>>
+<body <?php echo $top_bg_line;?>>
 <?php
  // If we are saving, then save and close the window.
  //
@@ -93,24 +93,24 @@ td { font-size:10pt; }
 <table border='0' width='100%'>
 
  <tr>
-  <td valign='top' width='1%' nowrap><b><? xl('Lot Number','e'); ?>:</b></td>
+  <td valign='top' width='1%' nowrap><b><?php xl('Lot Number','e'); ?>:</b></td>
   <td>
-   <input type='text' size='40' name='form_lot_number' maxlength='40' value='<? echo $row['lot_number'] ?>' style='width:100%' />
+   <input type='text' size='40' name='form_lot_number' maxlength='40' value='<?php echo $row['lot_number'] ?>' style='width:100%' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Manufacturer','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Manufacturer','e'); ?>:</b></td>
   <td>
-   <input type='text' size='40' name='form_manufacturer' maxlength='250' value='<? echo $row['manufacturer'] ?>' style='width:100%' />
+   <input type='text' size='40' name='form_manufacturer' maxlength='250' value='<?php echo $row['manufacturer'] ?>' style='width:100%' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Expiration','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Expiration','e'); ?>:</b></td>
   <td>
    <input type='text' size='10' name='form_expiration' id='form_expiration'
-    value='<? echo $row['expiration'] ?>'
+    value='<?php echo $row['expiration'] ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='yyyy-mm-dd date of expiration' />
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
@@ -120,23 +120,23 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('On Hand','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('On Hand','e'); ?>:</b></td>
   <td>
-   <input type='text' size='5' name='form_on_hand' maxlength='7' value='<? echo $row['on_hand'] ?>' />
+   <input type='text' size='5' name='form_on_hand' maxlength='7' value='<?php echo $row['on_hand'] ?>' />
   </td>
  </tr>
 
 </table>
 
 <p>
-<input type='submit' name='form_save' value='Save' />
+<input type='submit' name='form_save' value='<?php xl('Save','e'); ?>' />
 
 &nbsp;
-<input type='button' value='Destroy...'
+<input type='button' value='<?php xl('Destroy...','e'); ?>'
  onclick="window.location.href='destroy_lot.php?drug=<?php echo $drug_id ?>&lot=<?php echo $lot_id ?>'" />
 
 &nbsp;
-<input type='button' value='Cancel' onclick='window.close()' />
+<input type='button' value='<?php xl('Cancel','e'); ?>' onclick='window.close()' />
 </p>
 
 </center>

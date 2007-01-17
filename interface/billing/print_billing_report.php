@@ -1,4 +1,4 @@
-<?
+<?php 
 include_once("../globals.php");
 
 include_once("$srcdir/patient.inc");
@@ -55,18 +55,18 @@ if (!isset($_GET["mode"])) {
 <head>
 
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 
 </head>
 <body bgcolor="#ffffff" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 
-<a href="javascript:window.close();" target=Main><font class=title><?xl('Billing Report','e')?></font></a>
+<a href="javascript:window.close();" target=Main><font class=title><?php xl('Billing Report','e')?></font></a>
 <br>
 
 
 
-<?
+<?php 
 if ($my_authorized == "on" ) {
 	$my_authorized = 1;
 } else {
@@ -122,7 +122,7 @@ if (!isset($_GET["mode"])) {
 }
 ?>
 
-<?
+<?php 
 if ($my_authorized == "on" ) {
 	$my_authorized = 1;
 } else {
@@ -142,7 +142,7 @@ $list = getBillsListBetween($from_date,$to_date,$my_authorized,$unbilled,$code_t
 
 ?>
 
-<?
+<?php 
 
 if (isset($_GET["mode"]) && $_GET["mode"] == "bill") {
 	billCodesList($list);

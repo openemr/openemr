@@ -17,7 +17,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 <table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
 <tr>
 <td valign="middle" nowrap>
-<span class="title_bar_top"><?php  xl('Logged in','e');?>: <?php echo $res{"fname"}." ".$res{"lname"};?></span><span style="font-size:9pt;"> (<?php =$_SESSION['authGroup']?>)</span>
+<span class="title_bar_top"><?php  xl('Logged in','e');?>: <?php echo $res{"fname"}." ".$res{"lname"};?></span><span style="font-size:9pt;"> (<?php echo $_SESSION['authGroup']; ?>)</span>
 </td>
 
 <td align="right" valign="middle" nowrap>

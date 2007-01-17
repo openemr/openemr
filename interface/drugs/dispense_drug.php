@@ -203,7 +203,7 @@
   padding-top: 2pt;
  }
 </style>
-<title>Prescription Label</title>
+<title><?php xl('Prescription Label','e') ; ?></title>
 </head>
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <center>

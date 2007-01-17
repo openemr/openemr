@@ -1,4 +1,4 @@
-<?
+<?php 
   // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
   //
   // This program is free software; you can redistribute it and/or
@@ -16,11 +16,11 @@
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<title><?xl('EOB Posting - Patient Note','e')?></title>
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<title><?php xl('EOB Posting - Patient Note','e')?></title>
 </head>
 <body>
-<?
+<?php 
   $patient_id = $_GET['patient_id'];
   if (! $patient_id) die(xl("You cannot access this page directly."));
 
@@ -45,20 +45,20 @@
 ?>
 <center>
 
-<h2><?echo xl('Billing Note for '). $row['fname'] . " " . $row['lname'] ?></h2>
+<h2><?php echo xl('Billing Note for '). $row['fname'] . " " . $row['lname'] ?></h2>
 <p>&nbsp;</p>
 
-<form method='post' action='sl_eob_patient_note.php?patient_id=<? echo $patient_id ?>'>
+<form method='post' action='sl_eob_patient_note.php?patient_id=<?php  echo $patient_id ?>'>
 
 <p>
 <input type='text' name='form_note' size='60' maxlength='255'
- value='<? echo addslashes($row['genericval2']) ?>' />
+ value='<?php  echo addslashes($row['genericval2']) ?>' />
 </p>
 
 <p>&nbsp;</p>
-<input type='submit' name='form_save' value='<?xl("Save","e")?>'>
+<input type='submit' name='form_save' value='<?php xl("Save","e")?>'>
 &nbsp;
-<input type='button' value='<?xl("Cancel","e")?>' onclick='window.close()'>
+<input type='button' value='<?php xl("Cancel","e")?>' onclick='window.close()'>
 
 </form>
 </center>

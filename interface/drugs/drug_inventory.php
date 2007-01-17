@@ -26,8 +26,8 @@
 
 <head>
 
-<link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
-<title><? xl('Drug Inventory','e'); ?></title>
+<link rel=stylesheet href='<?php  echo $css_header ?>' type='text/css'>
+<title><?php  xl('Drug Inventory','e'); ?></title>
 
 <style>
 tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
@@ -58,22 +58,22 @@ function doiclick(id, lot) {
 
 </head>
 
-<body <?echo $top_bg_line;?>>
+<body <?php echo $top_bg_line;?>>
 <form method='post' action='drug_inventory.php'>
 
 <table width='100%' cellpadding='1' cellspacing='2'>
  <tr class='head'>
-  <td title='Click to edit'><? xl('Name','e'); ?></td>
-  <td><? xl('NDC','e'); ?></td>
-  <td><? xl('Form','e'); ?></td>
-  <td><? xl('Size','e'); ?></td>
-  <td><? xl('Unit','e'); ?></td>
-  <td title='Click to receive (add) new lot'><? xl('Add','e'); ?></td>
-  <td title='Click to edit'><? xl('Lot','e'); ?></td>
-  <td><? xl('QOH','e'); ?></td>
-  <td><? xl('Expires','e'); ?></td>
+  <td title='Click to edit'><?php  xl('Name','e'); ?></td>
+  <td><?php  xl('NDC','e'); ?></td>
+  <td><?php  xl('Form','e'); ?></td>
+  <td><?php  xl('Size','e'); ?></td>
+  <td><?php  xl('Unit','e'); ?></td>
+  <td title='Click to receive (add) new lot'><?php  xl('Add','e'); ?></td>
+  <td title='Click to edit'><?php  xl('Lot','e'); ?></td>
+  <td><?php  xl('QOH','e'); ?></td>
+  <td><?php  xl('Expires','e'); ?></td>
  </tr>
-<?
+<?php 
  $lastid = "";
  $encount = 0;
  while ($row = sqlFetchArray($res)) {
@@ -110,7 +110,7 @@ function doiclick(id, lot) {
 </table>
 
 <center><p>
- <input type='button' value='<?xl('Add Drug','e'); ?>' onclick='dodclick(0)' style='background-color:transparent' />
+ <input type='button' value='<?php xl('Add Drug','e'); ?>' onclick='dodclick(0)' style='background-color:transparent' />
 </p></center>
 
 </form>

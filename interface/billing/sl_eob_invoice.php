@@ -49,8 +49,8 @@
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<title><?xl('EOB Posting - Invoice','e')?></title>
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<title><?php xl('EOB Posting - Invoice','e')?></title>
 <script language="JavaScript">
 
 // An insurance radio button is selected.
@@ -111,12 +111,12 @@ function validate(f) {
     } else if (svalue.substring(0, 2).toLowerCase() == 'pt') {
      svalue = svalue.substring(2);
     } else {
-     alert('<?xl('Invalid or missing payer in source for code ','e')?>' + code);
+     alert('<?php xl('Invalid or missing payer in source for code ','e')?>' + code);
      return false;
     }
     if (svalue) {
      if (svalue.substring(0, 1) != '/') {
-      alert('<?xl('Missing slash after payer in source for code ','e')?>' + code);
+      alert('<?php xl('Missing slash after payer in source for code ','e')?>' + code);
       return false;
      }
      if (false) { // Please keep this, Oakland Clinic wants it.  -- Rod
@@ -131,7 +131,7 @@ function validate(f) {
     }
    }
    if (! f[pfx+'[date]'].value) {
-    alert('<?xl('Date is missing for code ','e')?>' + code);
+    alert('<?php xl('Date is missing for code ','e')?>' + code);
     return false;
    }
   }
@@ -265,42 +265,42 @@ function validate(f) {
 <table border='0' cellpadding='3'>
  <tr>
   <td>
-   <?xl('Patient:','e')?>
+   <?php xl('Patient:','e')?>
   </td>
   <td>
-   <?echo $arrow['name'] ?>
+   <?php echo $arrow['name'] ?>
   </td>
   <td colspan="2" rowspan="3">
-   <textarea name="form_notes" cols="50" style="height:100%"><?echo $arrow['notes'] ?></textarea>
+   <textarea name="form_notes" cols="50" style="height:100%"><?php echo $arrow['notes'] ?></textarea>
   </td>
  </tr>
  <tr>
   <td>
-   <?xl('Provider:','e')?>
+   <?php xl('Provider:','e')?>
   </td>
   <td>
-   <?echo $arrow['doctor'] ?>
+   <?php echo $arrow['doctor'] ?>
   </td>
  </tr>
  <tr>
   <td>
-   <?xl('Invoice:','e')?>
+   <?php xl('Invoice:','e')?>
   </td>
   <td>
-   <?echo $arrow['invnumber'] ?>
+   <?php echo $arrow['invnumber'] ?>
   </td>
  </tr>
 
  <tr>
   <td>
-   <?xl('Svc Date:','e')?>
+   <?php xl('Svc Date:','e')?>
   </td>
   <td>
-   <?echo $svcdate ?>
+   <?php echo $svcdate ?>
   </td>
   <td colspan="2">
-   <!-- <?echo $arrow['shipvia'] ?> -->
-   <?xl('Done with:','e','',"&nbsp")?>;
+   <!-- <?php echo $arrow['shipvia'] ?> -->
+   <?php xl('Done with:','e','',"&nbsp")?>;
 <?php
  // Write a checkbox for each insurance.  It is to be checked when
  // we no longer expect any payments from that company for the claim.
@@ -324,31 +324,31 @@ function validate(f) {
    <?php xl('Bill Date:','e') ?>
   </td>
   <td>
-   <?echo $arrow['transdate'] ?>
+   <?php echo $arrow['transdate'] ?>
   </td>
   <td colspan="2">
-   <?xl('Now posting for:','e','',"&nbsp")?>;
-   <input type='radio' name='form_insurance' value='Ins1' onclick='setins("Ins1")' checked /><?xl('Ins1','e')?>&nbsp;
-   <input type='radio' name='form_insurance' value='Ins2' onclick='setins("Ins2")' /><?xl('Ins2','e')?>&nbsp;
-   <input type='radio' name='form_insurance' value='Ins3' onclick='setins("Ins3")' /><?xl('Ins3','e')?>&nbsp;
-   <input type='radio' name='form_insurance' value='Pt'   onclick='setins("Pt")'   /><?xl('Patient','e')?>
-   <input type='hidden' name='form_eobs' value='<?echo addslashes($arrow['shipvia']) ?>' />
+   <?php xl('Now posting for:','e','',"&nbsp")?>;
+   <input type='radio' name='form_insurance' value='Ins1' onclick='setins("Ins1")' checked /><?php xl('Ins1','e')?>&nbsp;
+   <input type='radio' name='form_insurance' value='Ins2' onclick='setins("Ins2")' /><?php xl('Ins2','e')?>&nbsp;
+   <input type='radio' name='form_insurance' value='Ins3' onclick='setins("Ins3")' /><?php xl('Ins3','e')?>&nbsp;
+   <input type='radio' name='form_insurance' value='Pt'   onclick='setins("Pt")'   /><?php xl('Patient','e')?>
+   <input type='hidden' name='form_eobs' value='<?php echo addslashes($arrow['shipvia']) ?>' />
   </td>
  </tr>
  <tr>
   <td>
-   <?xl('Due Date:','e')?>
+   <?php xl('Due Date:','e')?>
   </td>
   <td>
-   <input type='text' name='form_duedate' size='10' value='<?echo $arrow['duedate'] ?>'
-    title='<?xl('Due date mm/dd/yyyy or yyyy-mm-dd','e')?>'>
+   <input type='text' name='form_duedate' size='10' value='<?php echo $arrow['duedate'] ?>'
+    title='<?php xl('Due date mm/dd/yyyy or yyyy-mm-dd','e')?>'>
   </td>
   <td colspan="2">
-   <input type="checkbox" name="form_secondary" value="1"> <?xl('Needs secondary billing','e')?>
+   <input type="checkbox" name="form_secondary" value="1"> <?php xl('Needs secondary billing','e')?>
    &nbsp;&nbsp;
-   <input type='submit' name='form_save' value='<?xl('Save','e')?>'>
+   <input type='submit' name='form_save' value='<?php xl('Save','e')?>'>
    &nbsp;
-   <input type='button' value='<?xl('Cancel','e')?>' onclick='window.close()'>
+   <input type='button' value='<?php xl('Cancel','e')?>' onclick='window.close()'>
   </td>
  </tr>
  <tr>
@@ -361,28 +361,28 @@ function validate(f) {
 
  <tr bgcolor="#cccccc">
   <td class="dehead">
-   <?xl('Code','e')?>
+   <?php xl('Code','e')?>
   </td>
   <td class="dehead" align="right">
-   <?xl('Charge','e')?>
+   <?php xl('Charge','e')?>
   </td>
   <td class="dehead" align="right">
-   <?xl('Balance','e')?>&nbsp;
+   <?php xl('Balance','e')?>&nbsp;
   </td>
   <td class="dehead">
-   <?xl('Source','e')?>
+   <?php xl('Source','e')?>
   </td>
   <td class="dehead">
-   <?xl('Date','e')?>
+   <?php xl('Date','e')?>
   </td>
   <td class="dehead">
-   <?xl('Pay','e')?>
+   <?php xl('Pay','e')?>
   </td>
   <td class="dehead">
-   <?xl('Adjust','e')?>
+   <?php xl('Adjust','e')?>
   </td>
   <td class="dehead">
-   <?xl('Reason','e')?>
+   <?php xl('Reason','e')?>
   </td>
  </tr>
 <?php
