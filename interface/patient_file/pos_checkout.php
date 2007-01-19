@@ -46,7 +46,7 @@
 // accounting system.
 //
 function invoice_initialize(& $invoice_info, $patient_id, $provider_id,
-	$payer_id = 0, $encounter = 0)
+	$payer_id = 0, $encounter = 0, $dosdate = '')
 {
 	$db = $GLOBALS['adodb']['db'];
 
@@ -112,11 +112,17 @@ function invoice_initialize(& $invoice_info, $patient_id, $provider_id,
 	}
 	$invoice_info['notes'] = $insnotes;
 
+	if (preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $dosdate, $matches)) {
+		$dosdate = $matches[2] . '-' . $matches[3] . '-' . $matches[1];
+	} else {
+		$dosdate = date("m-d-Y");
+	}
+
 	$invoice_info['salesman']   = $foreign_provider_id;
 	$invoice_info['customerid'] = $foreign_patient_id;
 	$invoice_info['payer_id']   = $foreign_payer_id;
 	$invoice_info['invoicenumber'] = $patient_id . "." . $encounter;
-	$invoice_info['dosdate'] = date("m-d-Y");
+	$invoice_info['dosdate'] = $dosdate;
 	$invoice_info['items'] = array();
 	$invoice_info['total'] = '0.00';
 
@@ -344,13 +350,19 @@ function invoice_post(& $invoice_info)
   $form_pid = $_POST['form_pid'];
   $form_encounter = $_POST['form_encounter'];
 
+  // Get the posting date from the form as yyyy-mm-dd.
+  $dosdate = date("Y-m-d");
+  if (preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $_POST['form_date'], $matches)) {
+   $dosdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
+  }
+
   // If there is no associated encounter (i.e. this invoice has only
-  // prescriptions) then assign an encounter number of the current
+  // prescriptions) then assign an encounter number of the service
   // date, with an optional suffix to ensure that it's unique.
   //
   if (! $form_encounter) {
    SLConnect();
-   $form_encounter = date('Ymd');
+   $form_encounter = substr($dosdate,0,4) . substr($dosdate,5,2) . substr($dosdate,8,2);
    $tmp = '';
    while (SLQueryValue("select id from ar where " .
     "invnumber = '$form_pid.$form_encounter$tmp'")) {
@@ -364,7 +376,7 @@ function invoice_post(& $invoice_info)
   //
   $invoice_info = array();
   $msg = invoice_initialize($invoice_info, $_POST['form_pid'],
-   $_POST['form_provider'], $_POST['form_payer'], $form_encounter);
+   $_POST['form_provider'], $_POST['form_payer'], $form_encounter, $dosdate);
   if ($msg) die($msg);
 
   $form_amount = $_POST['form_amount'];
@@ -449,7 +461,13 @@ function invoice_post(& $invoice_info)
 <title><? xl('Patient Checkout','e'); ?></title>
 <style>
 </style>
+<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../library/textformat.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 <script language="JavaScript">
+ var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
 </script>
 </head>
 
@@ -476,21 +494,26 @@ function invoice_post(& $invoice_info)
  </tr>
 <?php
  $inv_encounter = '';
+ $inv_date      = '';
  $inv_provider  = 0;
  $inv_payer     = 0;
  $total         = 0.00;
  while ($brow = sqlFetchArray($bres)) {
+  $thisdate = substr($brow['date'], 0, 10);
   write_form_line($brow['code_type'], $brow['code'], $brow['id'],
-   substr($brow['date'], 0, 10), $brow['code_text'], $brow['fee']);
+   $thisdate, $brow['code_text'], $brow['fee']);
   $inv_encounter = $brow['encounter'];
   $inv_provider  = $brow['provider_id'];
   $inv_payer     = $brow['payer_id'];
+  if (!$inv_date || $inv_date < $thisdate) $inv_date = $thisdate;
   $total += $brow['fee'];
  }
  while ($drow = sqlFetchArray($dres)) {
+  $thisdate = $drow['sale_date'];
   write_form_line('MED', $drow['prescription_id'], $drow['sale_id'],
-   $drow['sale_date'], $drow['name'], $drow['fee']);
+   $thisdate, $drow['name'], $drow['fee']);
   $inv_provider = $drow['provider_id'];
+  if (!$inv_date || $inv_date < $thisdate) $inv_date = $thisdate;
   $total += $drow['fee'];
  }
 ?>
@@ -534,6 +557,21 @@ function invoice_post(& $invoice_info)
  </tr>
 
  <tr>
+  <td>
+   <?php xl('Posting Date','e'); ?>:
+  </td>
+  <td>
+   <input type='text' size='10' name='form_date' id='form_date'
+    value='<? echo $inv_date ?>'
+    title='yyyy-mm-dd date of service'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_date' border='0' alt='[?]' style='cursor:pointer'
+    title='Click here to choose a date'>
+  </td>
+ </tr>
+
+ <tr>
   <td colspan='2' align='center'>
    &nbsp;<br>
    <input type='submit' name='form_save' value='Save' /> &nbsp;
@@ -548,6 +586,10 @@ function invoice_post(& $invoice_info)
 </center>
 
 </form>
+
+<script language='JavaScript'>
+ Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_date"});
+</script>
 
 </body>
 </html>
