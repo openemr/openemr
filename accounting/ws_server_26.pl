@@ -168,9 +168,10 @@ sub rpc_add_invoice
 
 	# This will use the posting date as the billing date
 	@t = localtime(time);
-	$dd = $t[3];
-	$mm = $t[4] + 1;
-	$yy = $t[5] + 1900;
+
+	# $dd = $t[3];
+	# $mm = $t[4] + 1;
+	# $yy = $t[5] + 1900;
 
 	$form->{transdate} = sprintf("%02u-%02u-%04u", $t[4] + 1, $t[3], $t[5] + 1900);
 
@@ -214,7 +215,7 @@ sub rpc_add_invoice
 	foreach  my $line_item (@$items)
 	{
 		if ($$line_item{'itemtext'} =~ /COPAY/) {
-			$form->{"datepaid_$j"} = "$mm-$dd-$yy";
+			$form->{"datepaid_$j"} = $form->{transdate}; # "$mm-$dd-$yy";
 			# For copays we use a dummy procedure code because it may be applicable
 			# to multiple procedures during the visit.
 			$form->{"memo_$j"} = 'Co-pay';
