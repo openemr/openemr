@@ -390,10 +390,10 @@ function capitalizeMe(elem) {
   <td class='bold'>
    <select name = "hipaa_notice">
 <?php
- echo "    <option>NO</option>\n";
+ echo "    <option>" .xl('NO'). "</option>\n";
  $opt_sel = ($result['hipaa_notice'] == 'YES' || ($GLOBALS['weight_loss_clinic'] && !$result['hipaa_notice']))
   ? ' selected' : '';
- echo "    <option$opt_sel>YES</option>\n";
+ echo "    <option$opt_sel>" .xl('YES'). "</option>\n";
 ?>
    </select>
   </td>
@@ -401,10 +401,10 @@ function capitalizeMe(elem) {
   <td class='bold'>
    <select name="hipaa_voice">
 <?php
- echo "    <option>NO</option>\n";
+ echo "    <option>" .xl('NO'). "</option>\n";
  $opt_sel = ($result['hipaa_voice'] == 'YES' || ($GLOBALS['weight_loss_clinic'] && !$result['hipaa_voice']))
   ? ' selected' : '';
- echo "    <option$opt_sel>YES</option>\n";
+ echo "    <option$opt_sel>" .xl('YES'). "</option>\n";
 ?>
    </select>
   </td>
@@ -414,10 +414,10 @@ function capitalizeMe(elem) {
   <td class='bold'>
    <select name="hipaa_mail">
 <?php
- echo "    <option>NO</option>\n";
+ echo "    <option>" .xl('NO'). "</option>\n";
  $opt_sel = ($result['hipaa_mail'] == 'YES' || ($GLOBALS['weight_loss_clinic'] && !$result['hipaa_mail']))
   ? ' selected' : '';
- echo "    <option$opt_sel>YES</option>\n";
+ echo "    <option$opt_sel>" .xl('YES'). "</option>\n";
 ?>
    </select>
   </td>

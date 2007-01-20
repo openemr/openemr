@@ -1,4 +1,4 @@
-<?
+<?php 
  // This module is for team sports use and reports on absences by
  // injury type (diagnosis) for a given time period.
 
@@ -16,12 +16,12 @@
 ?>
 <html>
 <head>
-<title>Absences by Diagnosis</title>
+<title><?php xl('Absences by Diagnosis','e'); ?></title>
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/calendar.js"></script>
 <script type="text/javascript" src="../../library/textformat.js"></script>
 <script language="JavaScript">
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php  echo $GLOBALS['phone_country_code'] ?>';
 </script>
 </head>
 
@@ -32,7 +32,7 @@
 
 <center>
 
-<h2><? xl('Days and Games Missed','e'); ?></h2>
+<h2><?php  xl('Days and Games Missed','e'); ?></h2>
 
 <form name='theform' method='post' action='absences_report.php'>
 
@@ -40,25 +40,25 @@
 
  <tr>
   <td>
-   By:
+  <?php  xl('By:','e'); ?>
    <input type='radio' name='form_by' value='d'
-    <? echo ($form_by == 'p') ? '' : 'checked' ?> /><? xl('Diagnosis','e'); ?>&nbsp;
+    <?php  echo ($form_by == 'p') ? '' : 'checked' ?> /><?php  xl('Diagnosis','e'); ?>&nbsp;
    <input type='radio' name='form_by' value='p'
-    <? echo ($form_by == 'p') ? 'checked' : '' ?> /><? xl('Player','e'); ?> &nbsp;
-   From:
-   <input type='text' name='form_from_date' size='10' value='<? echo $from_date ?>'
+    <?php  echo ($form_by == 'p') ? 'checked' : '' ?> /><?php  xl('Player','e'); ?> &nbsp;
+   <?php  xl('From:','e'); ?>
+   <input type='text' name='form_from_date' size='10' value='<?php  echo $from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <a href="javascript:show_calendar('theform.form_from_date')"
     title=".xl('Click here to choose a date')."
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
-   &nbsp;To:
-   <input type='text' name='form_to_date' size='10' value='<? echo $to_date ?>'
+   &nbsp;<?php  xl('To:','e'); ?>
+   <input type='text' name='form_to_date' size='10' value='<?php  echo $to_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <a href="javascript:show_calendar('theform.form_to_date')"
     title=".xl('Click here to choose a date')."
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
    &nbsp;
-   <input type='submit' name='form_refresh' value='Refresh'>
+   <input type='submit' name='form_refresh' value='<?php  xl('Refresh','e'); ?>'>
   </td>
  </tr>
 
@@ -72,29 +72,29 @@
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
 
  <tr bgcolor="#dddddd">
-<?  if ($form_by == 'p') { ?>
+<?php   if ($form_by == 'p') { ?>
   <td class="dehead">
-   <? xl('Name','e'); ?>
+   <?php  xl('Name','e'); ?>
   </td>
-<? } else { ?>
+<?php  } else { ?>
   <td class="dehead">
-   <? xl('Code','e'); ?>
+   <?php  xl('Code','e'); ?>
   </td>
   <td class="dehead">
-   <? xl('Description','e'); ?>
+   <?php  xl('Description','e'); ?>
   </td>
-<? } ?>
+<?php  } ?>
   <td class='dehead' align='right'>
-   <? xl('Issues','e'); ?>
-  </td>
-  <td class='dehead' align='right'>
-   <? xl('Days','e'); ?>
+   <?php  xl('Issues','e'); ?>
   </td>
   <td class='dehead' align='right'>
-   <? xl('Games','e'); ?>
+   <?php  xl('Days','e'); ?>
+  </td>
+  <td class='dehead' align='right'>
+   <?php  xl('Games','e'); ?>
   </td>
  </tr>
-<?
+<?php 
  if ($_POST['form_refresh']) {
   $form_doctor = $_POST['form_doctor'];
   $from_date = fixDate($_POST['form_from_date']);
@@ -131,29 +131,29 @@
 ?>
 
  <tr>
-<?  if ($form_by == 'p') { ?>
+<?php   if ($form_by == 'p') { ?>
   <td class='detail'>
-   <? echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] ?>
+   <?php  echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] ?>
   </td>
-<? } else { ?>
+<?php  } else { ?>
   <td class='detail'>
-   <? echo $row['diagnosis'] ?>
+   <?php  echo $row['diagnosis'] ?>
   </td>
   <td class='detail'>
-   <? echo $row['code_text'] ?>
+   <?php  echo $row['code_text'] ?>
   </td>
-<? } ?>
+<?php  } ?>
   <td class='detail' align='right'>
-   <? echo $row['count'] ?>
-  </td>
-  <td class='detail' align='right'>
-   <? echo $row['dmissed'] ?>
+   <?php  echo $row['count'] ?>
   </td>
   <td class='detail' align='right'>
-   <? echo $row['gmissed'] ?>
+   <?php  echo $row['dmissed'] ?>
+  </td>
+  <td class='detail' align='right'>
+   <?php  echo $row['gmissed'] ?>
   </td>
  </tr>
-<?
+<?php 
   }
  }
 ?>

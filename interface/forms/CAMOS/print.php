@@ -9,18 +9,18 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <form method=post action="<?echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="my_form">
-<h1> CAMOS </h1>
+<h1><php xl ('CAMOS','e'); ?> </h1>
 <hr>
-<input type="submit" name="submit form" value="submit form" /><?
-echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl'>[do not save]</a>";
+<input type="submit" name="submit form" value="<?php xl('submit form','e'); ?>" /><?
+echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl'>[" . xl('do not save') ."]</a>";
 ?>
-<table></table><h3>Computer Aided Medical Ordering System</h3>
-<table><tr><td>category</td> <td><input type="text" name="category"  /></td></tr>
-<tr><td>subcategory</td> <td><input type="text" name="subcategory"  /></td></tr>
-<tr><td>item</td> <td><input type="text" name="item"  /></td></tr>
-<tr><td>content</td> <td><input type="text" name="content"  /></td></tr>
+<table></table><h3><php xl ('Computer Aided Medical Ordering System','e'); ?></h3>
+<table><tr><td><php xl ('category','e'); ?></td> <td><input type="text" name="category"  /></td></tr>
+<tr><td><php xl ('subcategory','e'); ?></td> <td><input type="text" name="subcategory"  /></td></tr>
+<tr><td><php xl ('item','e'); ?></td> <td><input type="text" name="item"  /></td></tr>
+<tr><td><php xl ('content','e'); ?></td> <td><input type="text" name="content"  /></td></tr>
 </table><input type="submit" name="submit form" value="submit form" /><?
-echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl'>[do not save]</a>";
+echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl'>[" .xl('do not save') ."]</a>";
 ?>
 
 </form>

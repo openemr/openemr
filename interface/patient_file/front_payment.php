@@ -14,13 +14,13 @@
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <?php
  $payment_methods = array(
-  'Cash',
-  'Check',
-  'MC',
-  'VISA',
-  'AMEX',
-  'DISC',
-  'Other');
+  xl('Cash'),
+  xl('Check'),
+  xl('MC'),
+  xl('VISA'),
+  xl('AMEX'),
+  xl('DISC'),
+  xl('Other'));
 
  // $patdata = getPatientData($pid, 'fname,lname,pubpid');
 
@@ -222,8 +222,8 @@
  <tr>
   <td colspan='2' align='center'>
    &nbsp;<br>
-   <input type='submit' name='form_save' value='Save' /> &nbsp;
-   <input type='button' value='Cancel' onclick='window.close()' />
+   <input type='submit' name='form_save' value='<?php xl('Save','e'); ?>' /> &nbsp;
+   <input type='button' value='<?php xl('Cancel','e'); ?>' onclick='window.close()' />
   </td>
  </tr>
 

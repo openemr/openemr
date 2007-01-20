@@ -8,12 +8,12 @@ include_once("$srcdir/log.inc");
 <head>
 
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 
 
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<font class=title><? xl('Logs Viewer','e'); ?></font>
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<font class=title><?php  xl('Logs Viewer','e'); ?></font>
 <br>
 
 <?php
@@ -27,7 +27,7 @@ for($iter=0;$row=sqlFetchArray($res);$iter++) {
 ?>
 <br>
 <FORM METHOD="GET" name=the_form>
-<span class=text><? xl('Date','e'); ?>: </span>
+<span class=text><?php  xl('Date','e'); ?>: </span>
 <SELECT NAME="date">
 <?php
 
@@ -62,7 +62,7 @@ $found = 0;
 echo "&nbsp;<span class=text>";
 for($iter=0;$row=sqlFetchArray($res);$iter++) {
 ?>
-<input type="radio" name="event" value="<?echo $row["event"];?>"<?
+<input type="radio" name="event" value="<?php echo $row["event"];?>"<?php 
 if ($row["event"] == $_GET["event"]) {
 	echo " checked";
 	$found++;
@@ -73,12 +73,12 @@ if ($row["event"] == $_GET["event"]) {
 }
 
 ?>
-<input type="radio" name="event" value="*"<?if (!$found) echo " checked";?>>All
+<input type="radio" name="event" value="*"<?php if (!$found) echo " checked";?>><?php xl('All','e'); ?>
 </span>&nbsp;
-<a href="javascript:document.the_form.submit();" class=link_submit>[<? xl('Refresh','e'); ?>]</a>
+<a href="javascript:document.the_form.submit();" class=link_submit>[<?php  xl('Refresh','e'); ?>]</a>
 </FORM>
 <TABLE BORDER=1 CELLPADDING=4>
-<TR><TD><span class=bold><? xl('Date'); ?></span></TD><TD><span class=bold><? xl('Event','e'); ?></span></TD><TD><span class=bold><? xl('User','e'); ?></span></TD><TD><span class=bold><? xl('Group','e'); ?></span></TD><TD><span class=bold><? xl('Comments','e'); ?></span></TD>
+<TR><TD><span class=bold><?php  xl('Date'); ?></span></TD><TD><span class=bold><?php  xl('Event','e'); ?></span></TD><TD><span class=bold><?php  xl('User','e'); ?></span></TD><TD><span class=bold><?php  xl('Group','e'); ?></span></TD><TD><span class=bold><?php  xl('Comments','e'); ?></span></TD>
 <?php
 
 if ($ret = getEventByDate($getdate) ) {
@@ -94,7 +94,7 @@ else
 foreach ($ret as $iter) {
 	if (($gev == "*") || ($gev == $iter["event"])) {
 ?>
-<TR><TD><span class=text><?echo $iter["date"]?></span></TD><TD><span class=text><?echo $iter["event"]?></span></TD><TD><span class=text><?echo $iter["user"]?></span></TD><TD><span class=text><?echo $iter["groupname"]?></span></TD><TD><span class=text><?echo $iter["comments"]?></span></TD></TR>
+<TR><TD><span class=text><?php echo $iter["date"]?></span></TD><TD><span class=text><?php echo $iter["event"]?></span></TD><TD><span class=text><?php echo $iter["user"]?></span></TD><TD><span class=text><?php echo $iter["groupname"]?></span></TD><TD><span class=text><?php echo $iter["comments"]?></span></TD></TR>
 
 <?php
 	}

@@ -11,12 +11,12 @@
  include_once("$srcdir/acl.inc");
 
  $arroccur = array(
-  0   => 'Unknown or N/A',
-  1   => 'First',
-  2   => 'Second',
-  3   => 'Third',
-  4   => 'Chronic/Recurrent',
-  5   => 'Acute on Chronic'
+  0   => xl('Unknown or N/A'),
+  1   => xl('First'),
+  2   => xl('Second'),
+  3   => xl('Third'),
+  4   => xl('Chronic/Recurrent'),
+  5   => xl('Acute on Chronic')
  );
 
  // Check authorization.

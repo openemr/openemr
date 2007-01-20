@@ -20,17 +20,17 @@ $form_squads = $_POST['form_squads']; // this is an array
 // One of these is chosen as the left column, or Y-axis, of the report.
 //
 $arr_by = array(
-	1  => 'Activity Type',
-	2  => 'Body Region',
-	3  => 'Footwear Type',
-	4  => 'Game Period',
-	5  => 'Injury Mechanism',
-	6  => 'Injury Type',
-	7  => 'Player',
-	8  => 'Playing Position',
-	9  => 'Sanction Type',
-	10 => 'Surface Type',
-	11 => 'Training Type',
+	1  => xl('Activity Type'),
+	2  => xl('Body Region'),
+	3  => xl('Footwear Type'),
+	4  => xl('Game Period'),
+	5  => xl('Injury Mechanism'),
+	6  => xl('Injury Type'),
+	7  => xl('Player'),
+	8  => xl('Playing Position'),
+	9  => xl('Sanction Type'),
+	10 => xl('Surface Type'),
+	11 => xl('Training Type')
 );
 
 // A reported value is either scalar, or an array listed horizontally.  If
@@ -45,125 +45,125 @@ $arr_show = array(
 );
 
 $arr_regions_osics = array(
-	'A' => 'Ankle + heel',
-	'B' => 'Buttock + S.I.',
-	'C' => 'Chest',
-	'D' => 'Thoracic spine',
-	'E' => 'Elbow',
-	'F' => 'Foot',
-	'G' => 'Hip + groin',
-	'H' => 'Head',
-	'K' => 'Knee',
-	'L' => 'Lumbar spine',
-	'M' => 'Medical problem',
-	'N' => 'Neck',
-	'O' => 'Abdominal',
-	'P' => 'Hand + fingers',
-	'Q' => 'Lower leg',
-	'R' => 'Forearm',
-	'S' => 'Shoulder + clavicle',
-	'T' => 'Thigh + hamstring',
-	'U' => 'Upper arm',
-	'W' => 'Wrist',
-	'X' => 'Multiple areas',
-	'Z' => 'Area not specified',
+	'A' => xl('Ankle + heel'),
+	'B' => xl('Buttock + S.I.'),
+	'C' => xl('Chest'),
+	'D' => xl('Thoracic spine'),
+	'E' => xl('Elbow'),
+	'F' => xl('Foot'),
+	'G' => xl('Hip + groin'),
+	'H' => xl('Head'),
+	'K' => xl('Knee'),
+	'L' => xl('Lumbar spine'),
+	'M' => xl('Medical problem'),
+	'N' => xl('Neck'),
+	'O' => xl('Abdominal'),
+	'P' => xl('Hand + fingers'),
+	'Q' => xl('Lower leg'),
+	'R' => xl('Forearm'),
+	'S' => xl('Shoulder + clavicle'),
+	'T' => xl('Thigh + hamstring'),
+	'U' => xl('Upper arm'),
+	'W' => xl('Wrist'),
+	'X' => xl('Multiple areas'),
+	'Z' => xl('Area not specified')
 );
 
 $arr_regions_ucsmc = array(
-	'AN' => 'Ankle + heel',
-	'AR' => 'Upper arm',
-	'BL' => 'Medical problem',
-	'CV' => 'Medical problem',
-	'DE' => 'Medical problem',
-	'EL' => 'Elbow',
-	'EN' => 'Medical problem',
-	'EV' => 'Environmental',
-	'FA' => 'Forearm',
-	'FE' => 'Fluid and electrolyte problem',
-	'FO' => 'Foot',
-	'GI' => 'Abdominal',
-	'GU' => 'Medical problem',
-	'HA' => 'Hand + fingers',
-	'HE' => 'Head',
-	'HI' => 'Hip + groin',
-	'ID' => 'Medical problem',
-	'KN' => 'Knee',
-	'LE' => 'Lower leg',
-	'LP' => 'Lumbar spine',
-	'NE' => 'Neck',
-	'NS' => 'Medical problem',
-	'PS' => 'Medical problem',
-	'RE' => 'Medical problem',
-	'RM' => 'Medical problem',
-	'SH' => 'Shoulder + clavicle',
-	'TH' => 'Thigh + hamstring',
-	'TR' => 'Thoracic spine',
-	'WR' => 'Wrist',
+	'AN' => xl('Ankle + heel'),
+	'AR' => xl('Upper arm'),
+	'BL' => xl('Medical problem'),
+	'CV' => xl('Medical problem'),
+	'DE' => xl('Medical problem'),
+	'EL' => xl('Elbow'),
+	'EN' => xl('Medical problem'),
+	'EV' => xl('Environmental'),
+	'FA' => xl('Forearm'),
+	'FE' => xl('Fluid and electrolyte problem'),
+	'FO' => xl('Foot'),
+	'GI' => xl('Abdominal'),
+	'GU' => xl('Medical problem'),
+	'HA' => xl('Hand + fingers'),
+	'HE' => xl('Head'),
+	'HI' => xl('Hip + groin'),
+	'ID' => xl('Medical problem'),
+	'KN' => xl('Knee'),
+	'LE' => xl('Lower leg'),
+	'LP' => xl('Lumbar spine'),
+	'NE' => xl('Neck'),
+	'NS' => xl('Medical problem'),
+	'PS' => xl('Medical problem'),
+	'RE' => xl('Medical problem'),
+	'RM' => xl('Medical problem'),
+	'SH' => xl('Shoulder + clavicle'),
+	'TH' => xl('Thigh + hamstring'),
+	'TR' => xl('Thoracic spine'),
+	'WR' => xl('Wrist')
 );
 
 $arr_types_osics = array(
-	'A' => 'Arthritis / degen joint disease',
-	'B' => 'Developmental abnormality',
-	'C' => 'Cartilage / chondral / disc damage',
-	'D' => 'Dislocation',
-	'E' => 'Tumour',
-	'F' => 'Fracture',
-	'G' => 'Avulsion / avulsion fracture',
-	'H' => 'Haematoma / bruising',
-	'I' => 'Infection / Abscess',
-	'J' => 'Minor joint strain +/- synovitis',
-	'K' => 'Laceration / skin condition',
-	'L' => 'Ligament tear or sprain',
-	'M' => 'Strain of muscle',
-	'N' => 'Neural condition / nerve damage',
-	'O' => 'Visceral damage/trauma/surgery',
-	'P' => 'Chronic synovitis / effusion / joint pain / gout',
-	'Q' => 'Old fracture non / malunion',
-	'R' => 'Rupture',
-	'S' => 'Stress fracture',
-	'T' => 'Tendonitis / osis / bursitis',
-	'U' => 'Instability / subluxation',
-	'V' => 'Vascular condition',
-	'X' => 'Medical problem',
-	'Y' => 'Trigger point / compartment syndrome / DOMS / cramp',
-	'Z' => 'Undiagnosed',
+	'A' => xl('Arthritis / degen joint disease'),
+	'B' => xl('Developmental abnormality'),
+	'C' => xl('Cartilage / chondral / disc damage'),
+	'D' => xl('Dislocation'),
+	'E' => xl('Tumour'),
+	'F' => xl('Fracture'),
+	'G' => xl('Avulsion / avulsion fracture'),
+	'H' => xl('Haematoma / bruising'),
+	'I' => xl('Infection / Abscess'),
+	'J' => xl('Minor joint strain +/- synovitis'),
+	'K' => xl('Laceration / skin condition'),
+	'L' => xl('Ligament tear or sprain'),
+	'M' => xl('Strain of muscle'),
+	'N' => xl('Neural condition / nerve damage'),
+	'O' => xl('Visceral damage/trauma/surgery'),
+	'P' => xl('Chronic synovitis / effusion / joint pain / gout'),
+	'Q' => xl('Old fracture non / malunion'),
+	'R' => xl('Rupture'),
+	'S' => xl('Stress fracture'),
+	'T' => xl('Tendonitis / osis / bursitis'),
+	'U' => xl('Instability / subluxation'),
+	'V' => xl('Vascular condition'),
+	'X' => xl('Medical problem'),
+	'Y' => xl('Trigger point / compartment syndrome / DOMS / cramp'),
+	'Z' => xl('Undiagnosed')
 );
 
 $arr_types_ucsmc = array(
-	'01' => 'Ligament tear or sprain',
-	'02' => 'Ligament tear or sprain',
-	'03' => 'Ligament tear or sprain',
-	'07' => 'Strain of muscle',
-	'09' => 'Rupture',
-	'10' => 'Dislocation',
-	'11' => 'Instability / subluxation',
-	'12' => 'Instability / subluxation',
-	'13' => 'Fracture',
-	'14' => 'Avulsion / avulsion fracture',
-	'15' => 'Old fracture non / malunion',
-	'16' => 'Fracture',
-	'17' => 'Cartilage / chondral / disc damage',
-	'18' => 'Stress fracture',
-	'23' => 'Haematoma / bruising',
-	'24' => 'Laceration / skin condition',
-	'25' => 'Haematoma / bruising',
-	'26' => 'Tendonitis / osis / bursitis',
-	'27' => 'Tendonitis / osis / bursitis',
-	'28' => 'Tendonitis / osis / bursitis',
-	'29' => 'Tendonitis / osis / bursitis',
-	'33' => 'Arthritis / degen joint disease',
-	'36' => 'Trigger point / compartment syndrome / DOMS / cramp',
-	'38' => 'Infection / Abscess',
-	'39' => 'Medical problem',
-	'40' => 'Cartilage / chondral / disc damage',
-	'42' => 'Tumour',
-	'44' => 'Neural condition / nerve damage',
+	'01' => xl('Ligament tear or sprain'),
+	'02' => xl('Ligament tear or sprain'),
+	'03' => xl('Ligament tear or sprain'),
+	'07' => xl('Strain of muscle'),
+	'09' => xl('Rupture'),
+	'10' => xl('Dislocation'),
+	'11' => xl('Instability / subluxation'),
+	'12' => xl('Instability / subluxation'),
+	'13' => xl('Fracture'),
+	'14' => xl('Avulsion / avulsion fracture'),
+	'15' => xl('Old fracture non / malunion'),
+	'16' => xl('Fracture'),
+	'17' => xl('Cartilage / chondral / disc damage'),
+	'18' => xl('Stress fracture'),
+	'23' => xl('Haematoma / bruising'),
+	'24' => xl('Laceration / skin condition'),
+	'25' => xl('Haematoma / bruising'),
+	'26' => xl('Tendonitis / osis / bursitis'),
+	'27' => xl('Tendonitis / osis / bursitis'),
+	'28' => xl('Tendonitis / osis / bursitis'),
+	'29' => xl('Tendonitis / osis / bursitis'),
+	'33' => xl('Arthritis / degen joint diseas'),
+	'36' => xl('Trigger point / compartment syndrome / DOMS / cramp'),
+	'38' => xl('Infection / Abscess'),
+	'39' => xl('Medical problem'),
+	'40' => xl('Cartilage / chondral / disc damage'),
+	'42' => xl('Tumour'),
+	'44' => xl('Neural condition / nerve damage')
 );
 
 ?>
 <html>
 <head>
-<title>Football Injury Report</title>
+<title><?php xl('Football Injury Report','e'); ?></title>
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 <style type="text/css">
  body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
@@ -206,11 +206,11 @@ $arr_types_ucsmc = array(
   </td>
   <td valign='top' rowspan='3' nowrap>
    &nbsp;
-   <input type='submit' name='form_refresh' value='Show' title='Click to generate the report'> :
+   <input type='submit' name='form_refresh' value='<?php xl('Show','e'); ?>' title='<?php xl('Click to generate the report','e'); ?>'> :
   </td>
   <td valign='top' rowspan='3'>
    <select name='form_show[]' size='4' multiple
-    title='Hold down Ctrl to select multiple items'>
+    title='<?php xl('Hold down Ctrl to select multiple items','e'); ?>'>
 <?php
 	foreach ($arr_show as $key => $value) {
 		echo "    <option value='$key'";
@@ -226,7 +226,7 @@ $arr_types_ucsmc = array(
   </td>
   <td valign='top' rowspan='3'>
    <select name='form_squads[]' size='4' multiple
-    title='Hold down Ctrl to select multiple squads'>
+    title='<?php xl('Hold down Ctrl to select multiple squads','e'); ?>'>
 <?php
 	$squads = acl_get_squads();
 	if ($squads) {
@@ -249,7 +249,7 @@ $arr_types_ucsmc = array(
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='Start date yyyy-mm-dd'>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='Click here to choose a date'>
+    title='<?php xl('Click here to choose a date','e'); ?>'>
   </td>
  </tr>
  <tr>
@@ -261,7 +261,7 @@ $arr_types_ucsmc = array(
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='End date yyyy-mm-dd'>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title='Click here to choose a date'>
+    title='<?php xl('Click here to choose a date','e'); ?>'>
   </td>
  </tr>
 

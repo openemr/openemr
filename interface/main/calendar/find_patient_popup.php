@@ -30,7 +30,7 @@
 ?>
 <html>
 <head>
-<title>Patient Finder</title>
+<title><?php xl('Patient Finder','e'); ?></title>
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
 
 <style>
@@ -68,19 +68,19 @@ td { font-size:10pt; }
  <tr bgcolor='#ddddff'>
   <td>
    <b>
-   Search by:
+   <?php xl('Search by:','e'); ?>
    <select name='searchby'>
     <option value="Last"><? xl ('Name','e'); ?></option>
     <option value="ID"<? if ($searchby == 'ID') echo ' selected' ?>><? xl ('ID','e'); ?></option>
     <option value="SSN"<? if ($searchby == 'SSN') echo ' selected' ?>><? xl ('SSN','e'); ?></option>
     <option value="DOB"<? if ($searchby == 'DOB') echo ' selected' ?>><? xl ('DOB','e'); ?></option>
    </select>
- for:
+ <?php xl('for:','e'); ?>
    <input type='text' name='searchparm' size='12' value='<? echo $_REQUEST['searchparm']; ?>'
-    title='If name, any part of lastname or lastname,firstname'>
+    title='<?php xl('If name, any part of lastname or lastname,firstname','e'); ?>'>
    &nbsp;
-   <input type='submit' value='Search'>
-   <!-- &nbsp; <input type='button' value='Close' onclick='window.close()' /> -->
+   <input type='submit' value='<?php xl('Search','e'); ?>'>
+   <!-- &nbsp; <input type='button' value='<?php xl('Close','e'); ?>' onclick='window.close()' /> -->
    </b>
   </td>
  </tr>

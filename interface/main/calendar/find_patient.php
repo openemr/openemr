@@ -1,4 +1,4 @@
-<?
+<?php 
 include_once("../../globals.php");
 include_once("$srcdir/calendar.inc");
 include_once("$srcdir/patient.inc");
@@ -71,7 +71,7 @@ $firstname = $_SESSION["firstname"];
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 
 <script language='JavaScript'>
@@ -94,44 +94,44 @@ $firstname = $_SESSION["firstname"];
 </script>
 
 </head>
-<body <?echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0 <?echo $body_code;?>>
+<body <?php echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0 <?php echo $body_code;?>>
 
 <table border=0 cellpadding=3 cellspacing=0>
  <tr>
   <td width='150' valign='top'>
-   <span class='bold'><?xl('Patient Appointment','e'); ?></span>
-<? if ($userauthorized == 1) { ?>
+   <span class='bold'><?php xl('Patient Appointment','e'); ?></span>
+<?php  if ($userauthorized == 1) { ?>
    <a class="more" style="font-size:8pt;"
     href="../authorizations/authorizations.php"
-    name="Authorizations"><?xl('(Notes and Authorizations)','e'); ?></a>
-<? } else { ?>
+    name="Authorizations"><?php xl('(Notes and Authorizations)','e'); ?></a>
+<?php  } else { ?>
    <a class="more" style="font-size:8pt;"
     href="../authorizations/authorizations.php"
-    name="Authorizations"><?xl('(Patient Notes)','e'); ?></a>
-<? } ?>
+    name="Authorizations"><?php xl('(Patient Notes)','e'); ?></a>
+<?php  } ?>
    <p>
    <form name='findpatientform' action="find_patient.php?no_nav=1" method='post'>
    <input type='hidden' name='mode' value="findpatient">
-   <input name='lastname' size='15' value="<?echo $_SESSION["lastname"];?>"
+   <input name='lastname' size='15' value="<?php echo $_SESSION["lastname"];?>"
     onfocus="javascript:document.findpatientform.lastname.value='';"><br>
    <select name="findBy" size='1'>
-    <option value="ID"><? xl ('ID','e'); ?></option>
-    <option value="Last" selected><? xl('Name','e'); ?></option>
-    <option value="SSN"><? xl ('SSN','e'); ?></option>
-    <option value="DOB"><? xl ('DOB','e'); ?></option>
+    <option value="ID"><?php  xl ('ID','e'); ?></option>
+    <option value="Last" selected><?php  xl('Name','e'); ?></option>
+    <option value="SSN"><?php  xl ('SSN','e'); ?></option>
+    <option value="DOB"><?php  xl ('DOB','e'); ?></option>
    </select><br>
    <div align='right'>
-    <a href="javascript:document.findpatientform.submit();" class='link_submit'><? xl ('Search','e'); ?></a>
+    <a href="javascript:document.findpatientform.submit();" class='link_submit'><?php  xl ('Search','e'); ?></a>
    </div>
    </form>
   </td>
   <td width='300' valign='top'>
-<?
+<?php 
 if ($lastname != "") {
 ?>
-   <span class='bold'><? xl ('Records Found','e'); ?></span>
-   <a class='text' href="../../new/new_patient.php" target="_top"><? xl ('(New Patient)','e'); ?></a><br>
-<?
+   <span class='bold'><?php  xl ('Records Found','e'); ?></span>
+   <a class='text' href="../../new/new_patient.php" target="_top"><?php  xl ('(New Patient)','e'); ?></a><br>
+<?php 
   $count = 0;
   $total = 0;
 
@@ -146,10 +146,10 @@ if ($lastname != "") {
   }
 
   echo "<table>\n";
-  echo "<tr><td><span class='text'><? xl ('Name','e'); ?></span></td>" .
-    "<td><span class='text'><? xl ('SS','e'); ?></span></td>" .
-    "<td><span class='text'><? xl ('DOB','e'); ?></span></td>" .
-    "<td><span class='text'><? xl ('ID','e'); ?></span></td></tr>\n";
+  echo "<tr><td><span class='text'><?php  xl ('Name','e'); ?></span></td>" .
+    "<td><span class='text'><?php  xl ('SS','e'); ?></span></td>" .
+    "<td><span class='text'><?php  xl ('DOB','e'); ?></span></td>" .
+    "<td><span class='text'><?php  xl ('ID','e'); ?></span></td></tr>\n";
 
   //set ampm default for find patient results links event_startampm
   $ampm = 1;

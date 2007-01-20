@@ -168,7 +168,7 @@
 ?>
 <html>
 <head>
-<title>Find Available Appointments</title>
+<title><?php xl('Find Available Appointments','e'); ?></title>
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
 
 <style>
@@ -179,7 +179,7 @@ td { font-size:10pt; }
 
  function setappt(year,mon,mday,hours,minutes) {
   if (opener.closed || ! opener.setappt)
-   alert('The destination form was closed; I cannot act on your selection.');
+   alert('<?php xl('The destination form was closed; I cannot act on your selection.','e'); ?>');
   else
    opener.setappt(year,mon,mday,hours,minutes);
   window.close();
@@ -190,7 +190,7 @@ td { font-size:10pt; }
 
 </head>
 
-<body <?echo $top_bg_line;?>>
+<body <?php echo $top_bg_line;?>>
 <?
 ?>
 <form method='post' name='theform' action='find_appt_popup.php?providerid=<?php echo $providerid ?>&catid=<?php echo $input_catid ?>'>
@@ -206,14 +206,14 @@ td { font-size:10pt; }
  <tr bgcolor='#ddddff'>
   <td>
    <b>
-   Start date:
+   <?php xl('Start date:','e'); ?>
    <input type='text' name='startdate' size='10' value='<? echo $sdate ?>'
     title='yyyy-mm-dd starting date for search' />
-   for
+   <?php xl('for','e'); ?>
    <input type='text' name='searchdays' size='3' value='<? echo $searchdays ?>'
     title='Number of days to search from the start date' />
-   days&nbsp;
-   <input type='submit' value='Search'>
+   <?php xl('days','e'); ?>&nbsp;
+   <input type='submit' value='<?php xl('Search','e'); ?>'>
    </b>
   </td>
  </tr>
@@ -229,9 +229,9 @@ td { font-size:10pt; }
 
 <table border='0'>
  <tr>
-  <td><b>Day</b></td>
-  <td><b>Date</b></td>
-  <td><b>Available Times</b> (red = p.m.)</td>
+  <td><b><?php xl('Day','e'); ?></b></td>
+  <td><b><?php xl('Date','e'); ?></b></td>
+  <td><b><?php xl('Available Times','e'); ?></b><?php xl('(red = p.m.)','e'); ?></td>
  </tr>
 <?
   $lastdate = "";
@@ -276,7 +276,7 @@ td { font-size:10pt; }
    echo "</td>\n";
    echo " </tr>\n";
   } else {
-   echo " <tr><td colspan='3'>No openings were found for this period.</td></tr>\n";
+   echo " <tr><td colspan='3'> " . xl('No openings were found for this period.','e') . "</td></tr>\n";
   }
 ?>
 </table>

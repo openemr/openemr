@@ -23,12 +23,12 @@
   die("Not authorized for this squad!");
 
  $arroccur = array(
-  0   => 'Unknown or N/A',
-  1   => 'First',
-  2   => 'Second',
-  3   => 'Third',
-  4   => 'Chronic/Recurrent',
-  5   => 'Acute on Chronic'
+  0   => xl('Unknown or N/A'),
+  1   => xl('First'),
+  2   => xl('Second'),
+  3   => xl('Third'),
+  4   => xl('Chronic/Recurrent'),
+  5   => xl('Acute on Chronic')
  );
 
  function QuotedOrNull($fld) {
@@ -53,7 +53,7 @@
 ?>
 <html>
 <head>
-<title><? echo $issue ? "Edit" : "Add New" ?> Issue</title>
+<title><? echo $issue ? "Edit" : "Add New" ?><?php xl('Issue','e'); ?></title>
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
 
 <style>
@@ -304,10 +304,10 @@ td { font-size:10pt; }
    <input type='text' size='10' name='form_begin' id='form_begin'
     value='<? echo $irow['begdate'] ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='yyyy-mm-dd date of onset, surgery or start of medication' />
+    title='<?php xl('yyyy-mm-dd date of onset, surgery or start of medication','e'); ?>' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_begin' border='0' alt='[?]' style='cursor:pointer'
-    title='Click here to choose a date' />
+    title='<?php xl('Click here to choose a date','e'); ?>' />
   </td>
  </tr>
 
@@ -317,10 +317,10 @@ td { font-size:10pt; }
    <input type='text' size='10' name='form_end' id='form_end'
     value='<? echo $irow['enddate'] ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='yyyy-mm-dd date of recovery or end of medication' />
+    title='<?php xl('yyyy-mm-dd date of recovery or end of medication','e'); ?>' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_end' border='0' alt='[?]' style='cursor:pointer'
-    title='Click here to choose a date' />
+    title='<?php xl('Click here to choose a date','e'); ?>' />
     &nbsp;(<? xl('leave blank if still active','e'); ?>)
   </td>
  </tr>
@@ -330,7 +330,7 @@ td { font-size:10pt; }
   <td>
    <input type='checkbox' name='form_active' value='1' <? echo $irow['enddate'] ? "" : "checked"; ?>
     onclick='activeClicked(this);'
-    title='Indicates if this issue is currently active' />
+    title='<?php xl('Indicates if this issue is currently active','e'); ?>' />
   </td>
  </tr>
 
@@ -340,10 +340,10 @@ td { font-size:10pt; }
    <input type='text' size='10' name='form_return' id='form_return'
     value='<? echo $irow['returndate'] ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='yyyy-mm-dd date returned to play' />
+    title='<?php xl('yyyy-mm-dd date returned to play','e'); ?>' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_return' border='0' alt='[?]' style='cursor:pointer'
-    title='Click here to choose a date' />
+    title='<?php xl('Click here to choose a date','e'); ?>' />
     &nbsp;(<? xl('leave blank if still active','e'); ?>)
   </td>
  </tr>
@@ -351,7 +351,7 @@ td { font-size:10pt; }
  <tr id='row_diagnosis'>
   <td valign='top' nowrap><b><? xl('Diagnosis','e'); ?>:</b></td>
   <td>
-   <select name='form_diagnosis' title='Diagnosis must be coded into a linked encounter'>
+   <select name='form_diagnosis' title='<?php xl('Diagnosis must be coded into a linked encounter','e'); ?>'>
     <option value=""><? xl('Unknown or N/A','e'); ?></option>
 <?php
  while ($brow = sqlFetchArray($bres)) {
@@ -383,7 +383,7 @@ td { font-size:10pt; }
   <td valign='top' nowrap><b><? xl('Missed','e'); ?>:</b></td>
   <td>
    <input type='text' size='3' name='form_missed' value='<? echo $irow['extrainfo'] ?>'
-    title='Number of games or events missed, if any' />
+    title='<?php xl('Number of games or events missed, if any','e'); ?>' />
    &nbsp;<? xl('games/events','e'); ?>
   </td>
  </tr>
@@ -392,7 +392,7 @@ td { font-size:10pt; }
   <td valign='top' nowrap><b><? xl('Referred by','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_referredby' value='<? echo $irow['referredby'] ?>'
-    style='width:100%' title='Referring physician and practice' />
+    style='width:100%' title='<?php xl('Referring physician and practice','e'); ?>' />
   </td>
  </tr>
 
@@ -432,15 +432,15 @@ td { font-size:10pt; }
 </table>
 
 <p>
-<input type='submit' name='form_save' value='Save' />
+<input type='submit' name='form_save' value='<?php xl('Save','e'); ?>' />
 
 <?php if ($issue && acl_check('admin', 'super')) { ?>
 &nbsp;
-<input type='button' value='Delete' style='color:red' onclick='deleteme()' />
+<input type='button' value='<?php xl('Delete','e'); ?>' style='color:red' onclick='deleteme()' />
 <?php } ?>
 
 &nbsp;
-<input type='button' value='Cancel' onclick='window.close()' />
+<input type='button' value='<?php xl('Cancel','e'); ?>' onclick='window.close()' />
 </p>
 
 </center>

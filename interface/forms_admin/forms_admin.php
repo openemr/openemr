@@ -1,4 +1,4 @@
-<?
+<?php 
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 include_once("../globals.php");
 include_once("$srcdir/registry.inc");
@@ -26,10 +26,10 @@ $bigdata = getRegistered("%") or $bigdata = false;
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<span class="title"><?xl('Forms Administration','e');?></span>
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<span class="title"><?php xl('Forms Administration','e');?></span>
 <br><br>
 <?php
 	foreach($_POST as $key=>$val) {
@@ -56,10 +56,10 @@ if ($err)
 
 
 <?php //REGISTERED SECTION ?>
-<span class=bold><?xl('Registered','e');?></span><br>
+<span class=bold><?php xl('Registered','e');?></span><br>
 <form method=POST action ='./forms_admin.php' target='Main'>
-<i>click here to update priority, category and nickname settings</i>
-<input type=submit name=update value=update><br> 
+<i><?php xl('click here to update priority, category and nickname settings','e'); ?></i>
+<input type=submit name=update value='<?php xl('update','e'); ?>'><br> 
 <table border=0 cellpadding=1 cellspacing=2 width="500">
 	<tr>
 		<td> </td>
@@ -67,9 +67,9 @@ if ($err)
 		<td> </td>
 		<td> </td>
 		<td> </td>
-		<td>Priority </td>
-		<td>Category </td>
-		<td>Nickname</td>
+		<td><?php xl('Priority ','e'); ?></td>
+		<td><?php xl('Category ','e'); ?></td>
+		<td><?php xl('Nickname','e'); ?></td>
 	</tr>
 <?php
 $color="#CCCCCC";
@@ -79,11 +79,11 @@ foreach($bigdata as $registry)
 	$priority_category = sqlQuery("select priority, category, nickname from registry where id=".$registry['id']); 
 	?>
 	<tr>
-		<td bgcolor="<?=$color?>" width="2%">
-			<span class=text><?=$registry['id'];?></span> 
+		<td bgcolor="<?php echo $color?>" width="2%">
+			<span class=text><?php echo $registry['id'];?></span> 
 		</td>
-		<td bgcolor="<?=$color?>" width="30%">
-			<span class=bold><?=$registry['name'];?></span> 
+		<td bgcolor="<?php echo $color?>" width="30%">
+			<span class=bold><?php echo $registry['name'];?></span> 
 		</td>
 		<?php
 			if ($registry['sql_run'] == 0)
@@ -93,7 +93,7 @@ foreach($bigdata as $registry)
 			else
 				echo "<td bgcolor='#CCFFCC' width='10%'><a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=disable' target='Main'>".xl('enabled')."</a>";
 		?></td>
-		<td bgcolor="<?=$color?>" width="10%">
+		<td bgcolor="<?php $color?>" width="10%">
 			<span class=text><?php
 			
 			if ($registry['unpackaged'])
@@ -103,7 +103,7 @@ foreach($bigdata as $registry)
 			
 			?></span> 
 		</td>
-		<td bgcolor="<?=$color?>" width="10%">
+		<td bgcolor="<?php echo $color?>" width="10%">
 			<?php
 			if ($registry['sql_run'])
 				echo "<span class=text>".xl('DB installed')."</span>";
@@ -129,7 +129,7 @@ foreach($bigdata as $registry)
 
 
 <?php  //UNREGISTERED SECTION ?>
-<span class=bold><?xl('Unregistered','e');?></span><br>
+<span class=bold><?php xl('Unregistered','e');?></span><br>
 <table border=0 cellpadding=1 cellspacing=2 width="500">
 <?php
 $dpath = "$srcdir/../interface/forms/";
@@ -157,22 +157,22 @@ foreach ( $inDir as $fname )
 		$phpState =  "PHP extracted";
 	?>
 	<tr>
-		<td bgcolor="<?=$color?>" width="1%">
+		<td bgcolor="<?php echo $color?>" width="1%">
 			<span class=text> </span> 
 		</td>
-		<td bgcolor="<?=$color?>" width="20%">
-			<span class=bold><?=$fname?></span> 
+		<td bgcolor="<?php echo $color?>" width="20%">
+			<span class=bold><?php echo $fname?></span> 
 		</td>
-		<td bgcolor="<?=$color?>" width="10%"><?php
+		<td bgcolor="<?php echo $color?>" width="10%"><?php
 			if ($phpState == "PHP extracted")
 				echo '<a class=link_submit href="./forms_admin.php?name='.urlencode($fname).'&method=register" target=Main>register</a>';
 			else
 				echo '<span class=text>n/a</span>';
 		?></td>
-		<td bgcolor="<?=$color?>" width="20%">
-			<span class=text><?=$phpState?></span> 
+		<td bgcolor="<?php echo $color?>" width="20%">
+			<span class=text><?php echo $phpState?></span> 
 		</td>
-		<td bgcolor="<?=$color?>" width="10%">
+		<td bgcolor="<?php echo $color?>" width="10%">
 			<span class=text>n/a</span> 
 		</td>
 	</tr>

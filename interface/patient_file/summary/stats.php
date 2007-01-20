@@ -64,13 +64,13 @@
    // Show headers if this is a long line.
    if ($GLOBALS['athletic_team'] && $arr[3] == 0 && mysql_num_rows($pres) > 0) {
     echo " <tr>\n";
-    echo "  <td class='link'>&nbsp;&nbsp;<b>Title</b></td>\n";
-    echo "  <td class='link'>&nbsp;<b>Diag</b></td>\n";
-    echo "  <td class='link'>&nbsp;<b>Start</b></td>\n";
-    echo "  <td class='link'>&nbsp;<b>Return</b></td>\n";
-    echo "  <td class='link'>&nbsp;<b>Games</b></td>\n";
-    echo "  <td class='link' align='right'>&nbsp;<b>Days</b></td>\n";
-    echo "  <td class='link' align='right'>&nbsp;<b>Enc</b></td>\n";
+    echo "  <td class='link'>&nbsp;&nbsp;<b>" .xl('Title'). "</b></td>\n";
+    echo "  <td class='link'>&nbsp;<b>" .xl('Diag'). "</b></td>\n";
+    echo "  <td class='link'>&nbsp;<b>" .xl('Start'). "</b></td>\n";
+    echo "  <td class='link'>&nbsp;<b>" .xl('Return'). "</b></td>\n";
+    echo "  <td class='link'>&nbsp;<b>" .xl('Games'). "</b></td>\n";
+    echo "  <td class='link' align='right'>&nbsp;<b>" .xl('Days'). "</b></td>\n";
+    echo "  <td class='link' align='right'>&nbsp;<b>" .xl('Enc'). "</b></td>\n";
     echo " </tr>\n";
    }
 

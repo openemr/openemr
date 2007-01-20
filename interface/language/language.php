@@ -11,12 +11,12 @@ require_once("language.inc.php");
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/calendar.js"></script>
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<span class="title"><? xl('Multi Language Tool','e') ?></span>
+<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<span class="title"><?php  xl('Multi Language Tool','e') ?></span>
 <div class="text">
 <br>
 
@@ -49,5 +49,5 @@ endswitch;
 
 ?>
 
-<A HREF="lang.info.html">Info</A>
+<A HREF="lang.info.html"><?php xl('Info','e'); ?></A>
 </div>

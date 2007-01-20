@@ -1,11 +1,11 @@
-<?
+<?php
 include_once("../../globals.php");
 ?>
 
 <HTML>
 <HEAD>
 <TITLE>
-Patient History
+<?php xl('Patient History','e'); ?>
 </TITLE>
 </HEAD>
 <frameset rows="50%,50%" cols="*">

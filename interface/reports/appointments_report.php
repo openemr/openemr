@@ -68,7 +68,7 @@
 <html>
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<title><? xl('Appointments Report','e'); ?></title>
+<title><?php xl('Appointments Report','e'); ?></title>
 
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/calendar.js"></script>
@@ -77,7 +77,7 @@
 
 <script LANGUAGE="JavaScript">
 
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  function dosort(orderby) {
   var f = document.forms[0];
@@ -106,7 +106,7 @@
 
 <center>
 
-<h2><? xl('Appointments Report','e'); ?></h2>
+<h2><?php xl('Appointments Report','e'); ?></h2>
 
 <form method='post' name='theform' action='appointments_report.php'>
 
@@ -114,7 +114,7 @@
 
  <tr>
   <td>
-   <? xl('Provider','e'); ?>:
+   <?php xl('Provider','e'); ?>:
 <?
  // Build a drop-down list of providers.
  //
@@ -131,20 +131,20 @@
  }
  echo "   </select>\n";
 ?>
-   &nbsp;<?  xl('From','e'); ?>:
-   <input type='text' name='form_from_date' size='10' value='<? echo $from_date ?>'
+   &nbsp;<?php  xl('From','e'); ?>:
+   <input type='text' name='form_from_date' size='10' value='<?php echo $from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <a href="javascript:show_calendar('theform.form_from_date')"
     title=".xl('Click here to choose a date')."
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
-   &nbsp;<?  xl('To','e'); ?>:
-   <input type='text' name='form_to_date' size='10' value='<? echo $to_date ?>'
+   &nbsp;<?php  xl('To','e'); ?>:
+   <input type='text' name='form_to_date' size='10' value='<?php echo $to_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <a href="javascript:show_calendar('theform.form_to_date')"
     title=".xl('Click here to choose a date')."
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
    &nbsp;
-   <input type='submit' name='form_refresh' value='Refresh'>
+   <input type='submit' name='form_refresh' value='<?php  xl('Refresh','e'); ?>'>
   </td>
  </tr>
 
@@ -160,19 +160,19 @@
  <tr bgcolor="#dddddd">
   <td class="dehead">
    <a href="nojs.php" onclick="return dosort('doctor')"
-   <?php if ($form_orderby == "doctor") echo " style=\"color:#00cc00\"" ?>><?  xl('Provider','e'); ?> </a>
+   <?php if ($form_orderby == "doctor") echo " style=\"color:#00cc00\"" ?>><?php  xl('Provider','e'); ?> </a>
   </td>
   <td class="dehead">
    <a href="nojs.php" onclick="return dosort('time')"
-   <?php if ($form_orderby == "time") echo " style=\"color:#00cc00\"" ?>><?  xl('Time','e'); ?></a>
+   <?php if ($form_orderby == "time") echo " style=\"color:#00cc00\"" ?>><?php  xl('Time','e'); ?></a>
   </td>
   <td class="dehead">
    <a href="nojs.php" onclick="return dosort('patient')"
-   <?php if ($form_orderby == "patient") echo " style=\"color:#00cc00\"" ?>><?  xl('Patient','e'); ?></a>
+   <?php if ($form_orderby == "patient") echo " style=\"color:#00cc00\"" ?>><?php  xl('Patient','e'); ?></a>
   </td>
   <td class="dehead">
    <a href="nojs.php" onclick="return dosort('type')"
-   <?php if ($form_orderby == "type") echo " style=\"color:#00cc00\"" ?>><?  xl('Type','e'); ?></a>
+   <?php if ($form_orderby == "type") echo " style=\"color:#00cc00\"" ?>><?php  xl('Type','e'); ?></a>
   </td>
  </tr>
 <?
@@ -183,20 +183,20 @@
    $docname  = $row['ulname'] . ', ' . $row['ufname'] . ' ' . $row['umname'];
    $errmsg  = "";
 ?>
- <tr bgcolor='<? echo $bgcolor ?>'>
+ <tr bgcolor='<?php echo $bgcolor ?>'>
   <td class="detail">
-   &nbsp;<? echo ($docname == $lastdocname) ? "" : $docname ?>
+   &nbsp;<?php echo ($docname == $lastdocname) ? "" : $docname ?>
   </td>
   <td class="detail">
    &nbsp;<a href='javascript:oldEvt(<?echo $row['pc_eid'] ?>)'>
-   <? echo $row['pc_eventDate'] . ' ' . substr($row['pc_startTime'], 0, 5) ?>
+   <?php echo $row['pc_eventDate'] . ' ' . substr($row['pc_startTime'], 0, 5) ?>
    </a>
   </td>
   <td class="detail">
-   &nbsp;<? echo $row['fname'] . " " . $row['lname'] ?>
+   &nbsp;<?php echo $row['fname'] . " " . $row['lname'] ?>
   </td>
   <td class="detail">
-   &nbsp;<? echo $row['pc_catname'] ?>
+   &nbsp;<?php echo $row['pc_catname'] ?>
   </td>
  </tr>
 <?

@@ -1,4 +1,4 @@
-<?
+<?php 
  // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -73,8 +73,8 @@
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<title><? xl('Appointments and Encounters','e'); ?></title>
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<title><?php  xl('Appointments and Encounters','e'); ?></title>
 </head>
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
@@ -91,11 +91,11 @@
 
  <tr bgcolor='#ddddff'>
   <td align='left'>
-   <h2><? xl('Appointments and Encounters','e'); ?></h2>
+   <h2><?php  xl('Appointments and Encounters','e'); ?></h2>
   </td>
   <td align='right'>
-   <? xl('Booking Date','e'); ?>:
-   <input type='text' name='form_date' size='10' value='<? echo $_POST['form_date']; ?>'
+   <?php  xl('Booking Date','e'); ?>:
+   <input type='text' name='form_date' size='10' value='<?php  echo $_POST['form_date']; ?>'
     title='Date of appointments mm/dd/yyyy' >
    &nbsp;
    <input type='submit' name='form_search' value='Search'>
@@ -113,31 +113,31 @@
 
  <tr bgcolor="#dddddd">
   <td class="dehead">
-   &nbsp;<? xl('Practitioner','e'); ?>
+   &nbsp;<?php  xl('Practitioner','e'); ?>
   </td>
   <td class="dehead">
-   &nbsp;<? xl('Time','e'); ?>
+   &nbsp;<?php  xl('Time','e'); ?>
   </td>
   <td class="dehead">
-   &nbsp;<? xl('Patient','e'); ?>
+   &nbsp;<?php  xl('Patient','e'); ?>
   </td>
   <td class="dehead" align="right">
-   <? xl('Chart','e'); ?>&nbsp;
+   <?php  xl('Chart','e'); ?>&nbsp;
   </td>
   <td class="dehead" align="right">
-   <? xl('Encounter','e'); ?>&nbsp;
+   <?php  xl('Encounter','e'); ?>&nbsp;
   </td>
   <td class="dehead" align="right">
-   <? xl('Charge','e'); ?>&nbsp;
+   <?php  xl('Charge','e'); ?>&nbsp;
   </td>
   <td class="dehead" align="center">
-   <? xl('Billed','e'); ?>
+   <?php  xl('Billed','e'); ?>
   </td>
   <td class="dehead">
-   &nbsp;<? xl('Error','e'); ?>
+   &nbsp;<?php  xl('Error','e'); ?>
   </td>
  </tr>
-<?
+<?php 
  if ($res) {
   $lastdocname = "";
   while ($row = sqlFetchArray($res)) {
@@ -171,33 +171,33 @@
    }
    if (! $charges) $billed = "";
 ?>
- <tr bgcolor='<? echo $bgcolor ?>'>
+ <tr bgcolor='<?php  echo $bgcolor ?>'>
   <td class="detail">
-   &nbsp;<? echo ($docname == $lastdocname) ? "" : $docname ?>
-  </td>
-  <td class="detail">
-   &nbsp;<? echo substr($row['pc_startTime'], 0, 5) ?>
+   &nbsp;<?php  echo ($docname == $lastdocname) ? "" : $docname ?>
   </td>
   <td class="detail">
-   &nbsp;<? echo $row['fname'] . " " . $row['lname'] ?>
+   &nbsp;<?php  echo substr($row['pc_startTime'], 0, 5) ?>
+  </td>
+  <td class="detail">
+   &nbsp;<?php  echo $row['fname'] . " " . $row['lname'] ?>
   </td>
   <td class="detail" align="right">
-   <? echo $row['pid'] ?>&nbsp;
+   <?php  echo $row['pid'] ?>&nbsp;
   </td>
   <td class="detail" align="right">
-   <? echo $row['encounter'] ?>&nbsp;
+   <?php  echo $row['encounter'] ?>&nbsp;
   </td>
   <td class="detail" align="right">
-   <? bucks($charges) ?>&nbsp;
+   <?php  bucks($charges) ?>&nbsp;
   </td>
   <td class="detail" align="center">
-   <? echo $billed ?>
+   <?php  echo $billed ?>
   </td>
   <td class="detail" align="left">
-   &nbsp;<? echo $errmsg ?>
+   &nbsp;<?php  echo $errmsg ?>
   </td>
  </tr>
-<?
+<?php 
    $lastdocname = $docname;
   }
  }
@@ -208,7 +208,7 @@
 </form>
 </center>
 <script>
-<?
+<?php 
 	if ($alertmsg) {
 		echo " alert('$alertmsg');\n";
 	}

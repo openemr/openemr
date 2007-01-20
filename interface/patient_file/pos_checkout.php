@@ -245,9 +245,9 @@ function invoice_post(& $invoice_info)
 <center>
 <table>
  <tr>
-  <td><b>Date</b></td>
-  <td><b>Description</b></td>
-  <td align='right'><b>Amount</b></td>
+  <td><b><?php xl('Date','e'); ?></b></td>
+  <td><b><?php xl('Description','e'); ?></b></td>
+  <td align='right'><b><?php xl('Amount','e'); ?></b></td>
  </tr>
 <?php
  $charges = 0.00;
@@ -293,12 +293,12 @@ function invoice_post(& $invoice_info)
  </tr>
  <tr>
   <td>&nbsp;</td>
-  <td><b>Balance Due</b></td>
+  <td><b><?php xl('Balance Due','e'); ?></b></td>
   <td align='right'><?php echo sprintf('%01.2f', $charges) ?></td>
  </tr>
 </table>
 </center>
-<p>&nbsp;<a href='' onclick='window.print(); return false;'>Print</a></p>
+<p>&nbsp;<a href='' onclick='window.print(); return false;'><?php xl('Print','e'); ?></a></p>
 </body>
 </html>
 <?php
@@ -488,9 +488,9 @@ function invoice_post(& $invoice_info)
   </td>
  </tr>
  <tr>
-  <td><b>Date</b></td>
-  <td><b>Description</b></td>
-  <td align='right'><b>Amount</b>&nbsp;</td>
+  <td><b><?php xl('Date','e'); ?></b></td>
+  <td><b><?php xl('Description','e'); ?></b></td>
+  <td align='right'><b><?php xl('Amount','e'); ?></b>&nbsp;</td>
  </tr>
 <?php
  $inv_encounter = '';
@@ -574,7 +574,7 @@ function invoice_post(& $invoice_info)
  <tr>
   <td colspan='2' align='center'>
    &nbsp;<br>
-   <input type='submit' name='form_save' value='Save' /> &nbsp;
+   <input type='submit' name='form_save' value='<?php xl('Save','e'); ?>' /> &nbsp;
    <input type='button' value='Cancel' onclick='window.close()' />
    <input type='hidden' name='form_provider'  value='<?php echo $inv_provider  ?>' />
    <input type='hidden' name='form_payer'     value='<?php echo $inv_payer     ?>' />

@@ -17,15 +17,15 @@
 ?>
 <html>
 <head>
-<title>Edit Diagnoses for <?php echo $line_id ?></title>
-<link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
+<title><?php xl('Edit Diagnoses for','e');?><?php echo $line_id ?></title>
+<link rel=stylesheet href='<?php  echo $css_header ?>' type='text/css'>
 
 <script language="JavaScript">
 </script>
 
 </head>
 
-<body <?echo $top_bg_line;?>>
+<body <?php echo $top_bg_line;?>>
 <?php
  // If we are saving, then save and close the window.
  //
@@ -63,14 +63,14 @@
   "line_id = '$line_id' ORDER BY ordering, diagnosis"
  );
 ?>
-<form method='post' name='theform' action='edit_diagnoses.php?lineid=<? echo $line_id ?>'>
+<form method='post' name='theform' action='edit_diagnoses.php?lineid=<?php  echo $line_id ?>'>
 <center>
 
 <table border='0' width='100%'>
 
  <tr>
-  <td width='5%'>Order</td>
-  <td width='95%'>Diagnosis</td>
+  <td width='5%'><?php xl('Order','e'); ?></td>
+  <td width='95%'><?php xl('Diagnosis','e'); ?></td>
  </tr>
 
 <?php for ($i = 1; $drow = sqlFetchArray($dres); ++$i) { ?>
@@ -90,10 +90,10 @@
 </table>
 
 <p>
-<input type='submit' name='form_save' value='Save' />
+<input type='submit' name='form_save' value='<?php xl('Save','e'); ?>' />
 
 &nbsp;
-<input type='button' value='Cancel' onclick='window.close()' />
+<input type='button' value='<?php xl('Cancel','e'); ?>' onclick='window.close()' />
 </p>
 
 </center>

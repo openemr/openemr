@@ -37,16 +37,16 @@ if ($_POST['Submit']=='Add'){
 <TABLE>
 <FORM name="lang_form" METHOD=POST ACTION="?m=language">
 <TR>
-	<TD><? xl('Language Code','e') ?>:</TD>
-	<TD><INPUT TYPE="text" NAME="lang_code" size="2" maxlength="2" value="<? echo $val_lang_code; ?>"></TD>
+	<TD><?php  xl('Language Code','e') ?>:</TD>
+	<TD><INPUT TYPE="text" NAME="lang_code" size="2" maxlength="2" value="<?php  echo $val_lang_code; ?>"></TD>
 </TR>
 <TR>
-	<TD><? xl('Language Name','e') ?>:</TD>
-	<TD><INPUT TYPE="text" NAME="lang_name" size="24" value="<? echo $val_lang_name; ?>"></TD>
+	<TD><?php  xl('Language Name','e') ?>:</TD>
+	<TD><INPUT TYPE="text" NAME="lang_name" size="24" value="<?php  echo $val_lang_name; ?>"></TD>
 </TR>
 <TR>
 	<TD></TD>
-	<TD><INPUT TYPE="submit" name="Submit" value="Add"></TD>
+	<TD><INPUT TYPE="submit" name="Submit" value="<?php xl('Add','e'); ?>"></TD>
 </TR>
 </FORM>
 </TABLE>

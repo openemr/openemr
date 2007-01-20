@@ -206,16 +206,16 @@
 
  $statuses = array(
   '-' => '',
-  '*' => '* Reminder done',
-  '+' => '+ Chart pulled',
-  '?' => '? No show',
-  '@' => '@ Arrived',
-  '~' => '~ Arrived late',
-  '!' => '! Left w/o visit',
-  '#' => '# Ins/fin issue',
-  '<' => '< In exam room',
-  '>' => '> Checked out',
-  '$' => '$ Coding done',
+  '*' => xl('* Reminder done'),
+  '+' => xl('+ Chart pulled'),
+  '?' => xl('? No show'),
+  '@' => xl('@ Arrived'),
+  '~' => xl('~ Arrived late'),
+  '!' => xl('! Left w/o visit'),
+  '#' => xl('# Ins/fin issue'),
+  '<' => xl('< In exam room'),
+  '>' => xl('> Checked out'),
+  '$' => xl('$ Coding done'),
  );
 
  $repeats = 0; // if the event repeats
@@ -223,7 +223,7 @@
  $repeatfreq = '0';
  $patientid = '';
  if ($_REQUEST['patientid']) $patientid = $_REQUEST['patientid'];
- $patientname = " (Click to select)";
+ $patientname = xl('Click to select');
  $patienttitle = "";
  $hometext = "";
  $row = array();
@@ -273,7 +273,7 @@
 ?>
 <html>
 <head>
-<title><? echo $eid ? "Edit" : "Add New" ?> Event</title>
+<title><? echo $eid ? "Edit" : "Add New" ?> <?php xl('Event','e');?></title>
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
 
 <style>
@@ -493,11 +493,11 @@ td { font-size:10pt; }
   <td nowrap>
    <input type='text' size='10' name='form_date' id='form_date'
     value='<? echo $eid ? $row['pc_eventDate'] : $date ?>'
-    title='yyyy-mm-dd event date or starting date'
+    title='<?php xl('yyyy-mm-dd event date or starting date','e'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_date' border='0' alt='[?]' style='cursor:pointer'
-    title='Click here to choose a date'>
+    title='<?php xl('Click here to choose a date','e'); ?>'>
   </td>
   <td nowrap>
    &nbsp;&nbsp;
@@ -510,13 +510,13 @@ td { font-size:10pt; }
   <td width='1%' nowrap id='tdallday3'>
    <input type='text' size='2' name='form_hour'
     value='<? echo $starttimeh ?>'
-    title='Event start time' /> :
+    title='<?php xl('Event start time','e'); ?>' /> :
    <input type='text' size='2' name='form_minute'
     value='<? echo $starttimem ?>'
-    title='Event start time' />&nbsp;
+    title='<?php xl('Event start time','e'); ?>' />&nbsp;
    <select name='form_ampm' title='Note: 12:00 noon is PM, not AM'>
-    <option value='1'>AM</option>
-    <option value='2'<? if ($startampm == '2') echo " selected" ?>>PM</option>
+    <option value='1'><?php xl('AM','e'); ?></option>
+    <option value='2'<? if ($startampm == '2') echo " selected" ?>><?php xl('PM','e'); ?></option>
    </select>
   </td>
  </tr>
@@ -529,7 +529,7 @@ td { font-size:10pt; }
    <input type='text' size='10' name='form_title'
     value='<? echo addslashes($row['pc_title']) ?>'
     style='width:100%'
-    title='Event title' />
+    title='<?php xl('Event title','e'); ?>' />
   </td>
   <td nowrap>
    &nbsp;
@@ -538,7 +538,7 @@ td { font-size:10pt; }
   </td>
   <td nowrap id='tdallday5'>
    <input type='text' size='4' name='form_duration' value='<? echo $thisduration ?>'
-    title='Event duration in minutes' /> <? xl('minutes','e'); ?>
+    title='<?php xl('Event duration in minutes','e'); ?>' /> <? xl('minutes','e'); ?>
   </td>
  </tr>
 
@@ -549,7 +549,7 @@ td { font-size:10pt; }
   <td nowrap>
    <input type='text' size='10' name='form_patient' style='width:100%'
     value='<? echo $patientname ?>' onclick='sel_patient()'
-    title='Click to select patient' readonly />
+    title='<?php xl('Click to select patient','e'); ?>' readonly />
    <input type='hidden' name='form_pid' value='<? echo $patientid ?>' />
   </td>
   <td colspan='3' nowrap style='font-size:8pt'>
@@ -622,7 +622,7 @@ td { font-size:10pt; }
   </td>
   <td nowrap>
 
-   <select name='form_apptstatus' style='width:100%' title='Appointment status'>
+   <select name='form_apptstatus' style='width:100%' title='<?php xl('Appointment status','e'); ?>'>
 <?
  foreach ($statuses as $key => $value) {
   echo "    <option value='$key'";
@@ -635,7 +635,7 @@ td { font-size:10pt; }
     The following list will be invisible unless this is an In Office
     event, in which case form_apptstatus (above) is to be invisible.
    -->
-   <select name='form_prefcat' style='width:100%;display:none' title='Preferred Event Category'>
+   <select name='form_prefcat' style='width:100%;display:none' title='<?php xl('Preferred Event Category','e');?>'>
 <? echo $prefcat_options ?>
    </select>
 
@@ -649,10 +649,10 @@ td { font-size:10pt; }
    <input type='text' size='10' name='form_enddate' id='form_enddate'
     value='<? echo $row['pc_endDate'] ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='yyyy-mm-dd last date of this event' />
+    title='<?php xl('yyyy-mm-dd last date of this event','e');?>' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_enddate' border='0' alt='[?]' style='cursor:pointer'
-    title='Click here to choose a date'>
+    title='<?php xl('Click here to choose a date','e');?>'>
   </td>
  </tr>
 
@@ -663,7 +663,7 @@ td { font-size:10pt; }
   <td colspan='4' nowrap>
    <input type='text' size='40' name='form_comments' style='width:100%'
     value='<? echo $hometext ?>'
-    title='Optional information about this event' />
+    title='<?php xl('Optional information about this event','e');?>' />
   </td>
  </tr>
 
@@ -681,24 +681,24 @@ td { font-size:10pt; }
   </td>
   <td nowrap>
    <input type='text' size='10' name='form_dob' id='form_dob'
-    title='yyyy-mm-dd date of birth'
+    title='<?php xl('yyyy-mm-dd date of birth','e');?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_dob' border='0' alt='[?]' style='cursor:pointer'
-    title='Click here to choose a date'>
+    title='<?php xl('Click here to choose a date','e');?>'>
   </td>
  </tr>
 
 </table>
 
 <p>
-<input type='submit' name='form_save' value='Save' />
+<input type='submit' name='form_save' value='<?php xl('Save','e');?>' />
 &nbsp;
-<input type='button' value='Find Available' onclick='find_available()' />
+<input type='button' value='<?php xl('Find Available','e');?>' onclick='find_available()' />
 &nbsp;
-<input type='submit' name='form_delete' value='Delete'<? if (!$eid) echo " disabled" ?> />
+<input type='submit' name='form_delete' value='<?php xl('Delete','e');?>'<? if (!$eid) echo " disabled" ?> />
 &nbsp;
-<input type='button' value='Cancel' onclick='window.close()' />
+<input type='button' value='<?php xl('Cancel','e');?>' onclick='window.close()' />
 </p>
 </center>
 </form>

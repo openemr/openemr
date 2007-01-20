@@ -122,7 +122,7 @@ if (!is_array($result)) {
  }
  if ($needwarning) {
   echo "    <tr>\n";
-  echo "     <td class='text' colspan='4' nowrap><font color='red'>** Please move surgeries to Issues!</font></td>\n";
+  echo "     <td class='text' colspan='4' nowrap><font color='red'>" . xl('** Please move surgeries to Issues!'). "</font></td>\n";
   echo "    </tr>\n";
  }
 ?>

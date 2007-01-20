@@ -79,7 +79,7 @@ if ($active=="all") {
 }
 ?>
 
-<font class=text>View: </font> 
+<font class=text><?php xl('View:','e'); ?> </font> 
 <a href="office_comments_full.php?offset=0&active=all" class=<?echo $all_class;?>>[<? xl('All','e'); ?>]</a>
 <a href="office_comments_full.php?offset=0&active=1" class=<?echo $active_class;?>>[<?xl ('Only Active','e'); ?>]</a>
 <a href="office_comments_full.php?offset=0&active=0" class=<?echo $inactive_class;?>>[<? xl('Only Inactive','e'); ?>]</a>

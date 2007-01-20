@@ -8,7 +8,7 @@
 ?>
 <html>
 <head>
-<title>Navigation</title>
+<title><?php xl('Navigation','e'); ?></title>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script language="JavaScript">

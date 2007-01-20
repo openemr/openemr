@@ -1,4 +1,4 @@
-<?
+<?php
  // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -13,23 +13,23 @@
  //
  if ($GLOBALS['athletic_team']) {
   $exams = array(
-   "last_cardiac_echo"              => '08 Cardiac Echo',
-   "last_ecg"                       => '07 ECG',
-   "last_physical_exam"             => '05 Physical Exam',
-   "last_breast_exam"               => '00 Breast Exam',
-   "last_mammogram"                 => '01 Mammogram'
+   "last_cardiac_echo"              => xl('08 Cardiac Echo'),
+   "last_ecg"                       => xl('07 ECG'),
+   "last_physical_exam"             => xl('05 Physical Exam'),
+   "last_breast_exam"               => xl('00 Breast Exam'),
+   "last_mammogram"                 => xl('01 Mammogram')
   );
  } else {
   $exams = array(
-   "last_breast_exam"               => '00 Breast Exam',
-   "last_cardiac_echo"              => '08 Cardiac Echo',
-   "last_ecg"                       => '07 ECG',
-   "last_gynocological_exam"        => '02 Gynecological Exam',
-   "last_mammogram"                 => '01 Mammogram',
-   "last_physical_exam"             => '05 Physical Exam',
-   "last_prostate_exam"             => '04 Prostate Exam',
-   "last_rectal_exam"               => '03 Rectal Exam',
-   "last_sigmoidoscopy_colonoscopy" => '06 Sigmoid/Colonoscopy'
+   "last_breast_exam"               => xl('00 Breast Exam'),
+   "last_cardiac_echo"              => xl('08 Cardiac Echo'),
+   "last_ecg"                       => xl('07 ECG'),
+   "last_gynocological_exam"        => xl('02 Gynecological Exam'),
+   "last_mammogram"                 => xl('01 Mammogram'),
+   "last_physical_exam"             => xl('05 Physical Exam'),
+   "last_prostate_exam"             => xl('04 Prostate Exam'),
+   "last_rectal_exam"               => xl('03 Rectal Exam'),
+   "last_sigmoidoscopy_colonoscopy" => xl('06 Sigmoid/Colonoscopy')
   );
  }
 
@@ -37,14 +37,14 @@
  // is data, and which should be moved to the lists table:
  //
  $obsoletes = array(
-  'cataract_surgery' => 'Cataract Surgery',
-  'tonsillectomy'    => 'Tonsillectomy',
-  'appendectomy'     => 'Appendectomy',
-  'cholecystestomy'  => 'Cholecystestomy',
-  'heart_surgery'    => 'Heart Surgery',
-  'hysterectomy'     => 'Hysterectomy',
-  'hernia_repair'    => 'Hernia Repair',
-  'hip_replacement'  => 'Hip Replacement',
-  'knee_replacement' => 'Knee Replacement'
+  'cataract_surgery' => xl('Cataract Surgery'),
+  'tonsillectomy'    => xl('Tonsillectomy'),
+  'appendectomy'     => xl('Appendectomy'),
+  'cholecystestomy'  => xl('Cholecystestomy'),
+  'heart_surgery'    => xl('Heart Surgery'),
+  'hysterectomy'     => xl('Hysterectomy'),
+  'hernia_repair'    => xl('Hernia Repair'),
+  'hip_replacement'  => xl('Hip Replacement'),
+  'knee_replacement' => xl('Knee Replacement')
  );
 ?>

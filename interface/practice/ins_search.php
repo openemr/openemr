@@ -26,39 +26,39 @@
  // This is copied from InsuranceCompany.class.php.  It should
  // really be in a SQL table.
  $freeb_type_array = array(''
-  ,'Other HCFA'
-  ,'Medicare Part B'
-  ,'Medicaid'
-  ,'ChampUSVA'
-  ,'ChampUS'
-  ,'Blue Cross Blue Shield'
-  ,'FECA'
-  ,'Self Pay'
-  ,'Central Certification'
-  ,'Other Non-Federal Programs'
-  ,'Preferred Provider Organization (PPO)'
-  ,'Point of Service (POS)'
-  ,'Exclusive Provider Organization (EPO)'
-  ,'Indemnity Insurance'
-  ,'Health Maintenance Organization (HMO) Medicare Risk'
-  ,'Automobile Medical'
-  ,'Commercial Insurance Co.'
-  ,'Disability'
-  ,'Health Maintenance Organization'
-  ,'Liability'
-  ,'Liability Medical'
-  ,'Other Federal Program'
-  ,'Title V'
-  ,'Veterans Administration Plan'
-  ,'Workers Compensation Health Plan'
-  ,'Mutually Defined'
+  , xl('Other HCFA')
+  , xl('Medicare Part B')
+  , xl('Medicaid')
+  , xl('ChampUSVA')
+  , xl('ChampUS')
+  , xl('Blue Cross Blue Shield')
+  , xl('FECA')
+  , xl('Self Pay')
+  , xl('Central Certification')
+  , xl('Other Non-Federal Programs')
+  , xl('Preferred Provider Organization (PPO)')
+  , xl('Point of Service (POS)')
+  , xl('Exclusive Provider Organization (EPO)')
+  , xl('Indemnity Insurance')
+  , xl('Health Maintenance Organization (HMO) Medicare Risk')
+  , xl('Automobile Medical')
+  , xl('Commercial Insurance Co.')
+  , xl('Disability')
+  , xl('Health Maintenance Organization')
+  , xl('Liability')
+  , xl('Liability Medical')
+  , xl('Other Federal Program')
+  , xl('Title V')
+  , xl('Veterans Administration Plan')
+  , xl('Workers Compensation Health Plan')
+  , xl('Mutually Defined')
  );
 
 ?>
 <html>
 <head>
-<title><?xl('Insurance Company Search/Add','e');?></title>
-<link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
+<title><?php xl('Insurance Company Search/Add','e');?></title>
+<link rel=stylesheet href='<?php  echo $css_header ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }
@@ -70,7 +70,7 @@ td { font-size:10pt; }
 
 <script language="JavaScript">
 
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php  echo $GLOBALS['phone_country_code'] ?>';
 
  function doescape(value) {
   return escape(value);
@@ -133,7 +133,7 @@ td { font-size:10pt; }
 
 </head>
 
-<body <?echo $top_bg_line;?> onunload='imclosing()'>
+<body <?php echo $top_bg_line;?> onunload='imclosing()'>
 <?php
  // If we are saving, then save and close the window.
  //
@@ -221,15 +221,15 @@ td { font-size:10pt; }
  -->
 
  <tr>
-  <td valign='top' width='1%' nowrap><b><?xl('Name','e');?>:</b></td>
+  <td valign='top' width='1%' nowrap><b><?php xl('Name','e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_name' maxlength='35'
-    class='search' style='width:100%' title=<?xl('Name of insurance company','e');?> />
+    class='search' style='width:100%' title=<?php xl('Name of insurance company','e');?> />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?xl('Attention','e');?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Attention','e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_attn' maxlength='35'
     class='search' style='width:100%' title=".xl('Contact name')." />
@@ -237,7 +237,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?xl('Address1','e');?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Address1','e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_addr1' maxlength='35'
     class='search' style='width:100%' title='First address line' />
@@ -245,7 +245,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?xl('Address2','e');?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Address2','e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_addr2' maxlength='35'
     class='search' style='width:100%' title='Second address line, if any' />
@@ -253,7 +253,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?xl('City/State','e');?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('City/State','e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_city' maxlength='25'
     class='search' title='City name' />
@@ -264,7 +264,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b>Zip/Country:</b></td>
+  <td valign='top' nowrap><b><?php xl('Zip/Country:','e'); ?></b></td>
   <td>
    <input type='text' size='20' name='form_zip' maxlength='10'
     class='search' title='Postal code' />
@@ -275,7 +275,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?xl('Phone','e');?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Phone','e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_phone' maxlength='20'
     class='search' title='Telephone number' />
@@ -292,7 +292,7 @@ td { font-size:10pt; }
  -->
 
  <tr>
-  <td valign='top' nowrap><b><?xl('CMS ID','e');?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('CMS ID','e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_cms_id' maxlength='15'
     class='search' title='Identifier assigned by CMS' />
@@ -300,7 +300,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?xl('Payer Type','e');?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Payer Type','e');?>:</b></td>
   <td>
    <select name='form_freeb_type'>
 <?php
@@ -315,10 +315,10 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?xl('X12 Partner','e');?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('X12 Partner','e');?>:</b></td>
   <td>
    <select name='form_partner' title='Default X12 Partner'>
-    <option value="">-- None --</option>
+    <option value=""><?php xl('None','e','-- ',' --'); ?></option>
 <?php
  while ($xrow = sqlFetchArray($xres)) {
   echo "   <option value='" . $xrow['id'] . "'";
@@ -333,11 +333,11 @@ td { font-size:10pt; }
 </table>
 
 <p>&nbsp;<br>
-<input type='button' value='Search' class='search' onclick='dosearch()' />
+<input type='button' value='<?php xl('Search','e'); ?>' class='search' onclick='dosearch()' />
 &nbsp;
-<input type='submit' value='Save as New' name='form_save' onmousedown='save_clicked=true' />
+<input type='submit' value='<?php xl('Save as New','e'); ?>' name='form_save' onmousedown='save_clicked=true' />
 &nbsp;
-<input type='button' value='Cancel' onclick='window.close()' />
+<input type='button' value='<?php xl('Cancel','e'); ?>' onclick='window.close()' />
 </p>
 
 </center>

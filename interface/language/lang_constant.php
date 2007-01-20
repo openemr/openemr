@@ -38,4 +38,4 @@ echo "$sql here ";
 </TR>
 </FORM>
 </TABLE>
-Please Note: constants are case sensitive and any string is allowed.
+<?php xl('Please Note: constants are case sensitive and any string is allowed.','e'); ?>

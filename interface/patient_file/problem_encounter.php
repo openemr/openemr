@@ -21,7 +21,7 @@
 
  if (!$thisauth) {
   echo "<html>\n<body>\n";
-  echo "<p>You are not authorized for this.</p>\n";
+  echo "<p>" .xl('You are not authorized for this.'). "</p>\n";
   echo "</body>\n</html>\n";
   exit();
  }
@@ -328,12 +328,12 @@ function doclick(pfx, id) {
 
  <tr>
   <td colspan='2' align='center'>
-   <input type='submit' name='form_save' value='Save' disabled /> &nbsp;
-   <input type='button' value='Add Issue' onclick='newIssue()' />
+   <input type='submit' name='form_save' value='<?php xl('Save','e'); ?>' disabled /> &nbsp;
+   <input type='button' value='<?php xl('Add Issue','e'); ?>' onclick='newIssue()' />
 <?php if (!$GLOBALS['concurrent_layout']) { ?>
-   <input type='button' value='Add Encounter' onclick='newEncounter()' />
+   <input type='button' value='<?php xl('Add Encounter','e'); ?>' onclick='newEncounter()' />
 <?php } ?>
-   <input type='button' value='Cancel' onclick='window.close()' />
+   <input type='button' value='<?php xl('Cancel','e'); ?>' onclick='window.close()' />
   </td>
  </tr>
 

@@ -1,4 +1,4 @@
-<?
+<?php 
  // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -64,8 +64,8 @@
 ?>
 <html>
 <head>
-<title><?xl('List Insurance Companies','e');?></title>
-<link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
+<title><?php xl('List Insurance Companies','e');?></title>
+<link rel=stylesheet href='<?php  echo $css_header ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }
@@ -87,23 +87,23 @@ td { font-size:10pt; }
 
 </head>
 
-<body <?echo $top_bg_line;?>>
+<body <?php echo $top_bg_line;?>>
 <form method='post' name='theform'>
 <center>
 
 <table border='0' width='100%'>
  <tr>
-  <td><b><?xl('Name','e');?></b>&nbsp;</td>
-  <td><b><?xl('Attn','e');?></b>&nbsp;</td>
-  <td><b><?xl('Address','e');?></b>&nbsp;</td>
+  <td><b><?php xl('Name','e');?></b>&nbsp;</td>
+  <td><b><?php xl('Attn','e');?></b>&nbsp;</td>
+  <td><b><?php xl('Address','e');?></b>&nbsp;</td>
   <td><b>&nbsp;</b>&nbsp;</td>
-  <td><b><?xl('City','e');?></b>&nbsp;</td>
-  <td><b><?xl('State','e');?></b>&nbsp;</td>
-  <td><b><?xl('Zip','e');?></b>&nbsp;</td>
-  <td><b><?xl('Phone','e');?></b></td>
+  <td><b><?php xl('City','e');?></b>&nbsp;</td>
+  <td><b><?php xl('State','e');?></b>&nbsp;</td>
+  <td><b><?php xl('Zip','e');?></b>&nbsp;</td>
+  <td><b><?php xl('Phone','e');?></b></td>
  </tr>
 
-<?
+<?php 
   while ($row = sqlFetchArray($res)) {
    $anchor = "<a href=\"\" onclick=\"return setins(" .
     $row['id'] . ",'" . addslashes($row['name']) . "')\">";

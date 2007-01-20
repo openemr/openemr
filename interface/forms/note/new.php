@@ -104,11 +104,11 @@ document.write(dateline[Style]);
 <body <?echo $top_bg_line;?>
 topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <form method=post action="<?echo $rootdir;?>/forms/note/save.php?mode=new" name="my_form">
-<span class="title">Work/School Note</span><br></br>
+<span class="title"><?php xl('Work/School Note','e'); ?></span><br></br>
 
-<a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
+<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" style="color: #483D8B">[Don't Save]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" style="color: #483D8B">[<?php xl('Don\'t Save','e'); ?>]</a>
 <br></br>
 
 <?
@@ -119,8 +119,8 @@ topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight
 <tr>
   <td>
    <select name="note_type">
-     <option value="WORK NOTE">WORK NOTE</option>
-     <option value="SCHOOL NOTE">SCHOOL NOTE</option>
+     <option value="WORK NOTE"><?php xl('WORK NOTE','e'); ?></option>
+     <option value="SCHOOL NOTE"><?php xl('SCHOOL NOTE','e'); ?></option>
    <br></select>
    </td>
 </tr>
@@ -129,7 +129,7 @@ topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight
 <td colspan="2" bgcolor="#ffffff"></td>
 </tr>
 <tr align="left" valign="top">
-<td colspan="2" bgcolor="#e0e0e0"><b>MESSAGE:</b>
+<td colspan="2" bgcolor="#e0e0e0"><b><?php xl('MESSAGE:','e'); ?></b>
 </td>
 </tr>
 <br>
@@ -142,13 +142,13 @@ topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight
 <td colspan="2" bgcolor="#ffffff"></td>
 </tr>
 <tr align="left" valign="top">
-<td colspan="2" bgcolor="#e0e0e0"><b>Signature:</b>
+<td colspan="2" bgcolor="#e0e0e0"><b><?php xl('Signature:','e'); ?></b>
 </td>
 </tr>
 <br>
 
 <tr>
- <td align="right">Doctor:</td>
+ <td align="right"><?php xl('Doctor:','e'); ?></td>
  <td>
    <select name="doctor">
       <option value="Dr. #1">Dr. #1</option>
@@ -168,14 +168,14 @@ topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight
 ?>
 
 
-<span class="text">Date</span><input type="entry" name="date_of_signature" 
+<span class="text"><?php xl('Date','e'); ?></span><input type="entry" name="date_of_signature" 
 value="<?php echo date("Y-m-d") ?>">
 </input>
 <br></br>
 
-<a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
+<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" style="color: #483D8B">[Don't Save]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" style="color: #483D8B">[<?php xl('Don\'t Save','e'); ?>]</a>
 </form>
 <?php
 formFooter();

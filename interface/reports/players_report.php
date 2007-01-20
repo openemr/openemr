@@ -1,4 +1,4 @@
-<?
+<?php
  // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -17,13 +17,13 @@
  $auth_notes_a  = acl_check('encounters', 'notes_a');
 
  $fitnesses = array(
-  'Full Play',
-  'Full Training',
-  'Restricted Training',
-  'Injured Out',
-  'Rehabilitation',
-  'Illness',
-  'International Duty'
+  xl('Full Play'),
+  xl('Full Training'),
+  xl('Restricted Training'),
+  xl('Injured Out'),
+  xl('Rehabilitation'),
+  xl('Illness'),
+  xl('International Duty')
  );
 
  $fitcolors = array('#6677ff', '#00cc00', '#ffff00', '#ff3333', '#ff8800', '#ffeecc', '#ffccaa');
@@ -57,22 +57,22 @@
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 
 <script language="JavaScript">
 
  function gopid(pid) {
-<? if ($_GET['embed']) { ?>
+<?php  if ($_GET['embed']) { ?>
   top.location = '../patient_file/patient_file.php?set_pid=' + pid;
-<? } else { ?>
+<?php  } else { ?>
   opener.top.location = '../patient_file/patient_file.php?set_pid=' + pid;
   window.close();
-<? } ?>
+<?php  } ?>
  }
 
 </script>
 
-<title><? xl('Team Roster','e'); ?></title>
+<title><?php  xl('Team Roster','e'); ?></title>
 </head>
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
@@ -89,10 +89,10 @@
 
  <tr bgcolor='#ddddff'>
   <td align='left'>
-   <h2><? xl('Team Roster','e'); ?></h2>
+   <h2><?php  xl('Team Roster','e'); ?></h2>
   </td>
   <td align='right'>
-   <b><? echo date('l, F j, Y') ?></b>
+   <b><?php  echo date('l, F j, Y') ?></b>
   </td>
  </tr>
 
@@ -107,19 +107,19 @@
 
  <tr bgcolor="#dddddd">
   <td class="dehead">
-   &nbsp;<? xl('Squad','e'); ?>
+   &nbsp;<?php  xl('Squad','e'); ?>
   </td>
   <td class="dehead">
-   &nbsp;<? xl('Player','e'); ?>
+   &nbsp;<?php  xl('Player','e'); ?>
   </td>
   <td class="dehead">
-   &nbsp;<? xl('Fitness','e'); ?>
+   &nbsp;<?php  xl('Fitness','e'); ?>
   </td>
   <td class="dehead">
-   &nbsp;<? xl('Last Encounter','e'); ?>
+   &nbsp;<?php  xl('Last Encounter','e'); ?>
   </td>
  </tr>
-<?
+<?php 
  // if ($res) {
   $lastsquad = '';
   foreach ($ordres as $row) {
@@ -141,15 +141,15 @@
 ?>
  <tr>
   <td class="detail">
-   &nbsp;<? echo ($squadname == $lastsquad) ? "" : $squadname ?>
+   &nbsp;<?php  echo ($squadname == $lastsquad) ? "" : $squadname ?>
   </td>
-  <td class="detail" bgcolor="<? echo $fitcolors[$fitness-1] ?>">
-   &nbsp;<a href='javascript:gopid(<? echo $patient_id ?>)' style='color:#000000'><? echo $row['lname'] . ", " . $row['fname'] ?></a>
+  <td class="detail" bgcolor="<?php  echo $fitcolors[$fitness-1] ?>">
+   &nbsp;<a href='javascript:gopid(<?php  echo $patient_id ?>)' style='color:#000000'><?php  echo $row['lname'] . ", " . $row['fname'] ?></a>
   </td>
-  <td class="detail" bgcolor="<? echo $fitcolors[$fitness-1] ?>">
-   <? echo $fitnesses[$fitness-1] ?>&nbsp;
+  <td class="detail" bgcolor="<?php  echo $fitcolors[$fitness-1] ?>">
+   <?php  echo $fitnesses[$fitness-1] ?>&nbsp;
   </td>
-  <td class="detail" bgcolor="<? echo $fitcolors[$fitness-1] ?>">
+  <td class="detail" bgcolor="<?php  echo $fitcolors[$fitness-1] ?>">
    &nbsp;<?php
     if ($auth_notes_a) {
      echo substr($erow['date'], 0, 10) . ' ' . $erow['reason'];
@@ -159,7 +159,7 @@
    ?>&nbsp;
   </td>
  </tr>
-<?
+<?php 
    $lastsquad = $squadname;
   }
  // }
@@ -170,7 +170,7 @@
 </form>
 </center>
 <script>
-<?
+<?php 
 	if ($alertmsg) {
 		echo " alert('$alertmsg');\n";
 	}

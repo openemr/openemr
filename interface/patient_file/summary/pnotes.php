@@ -39,7 +39,7 @@
 <a href="pnotes_full.php" target="Main">
 <?php } ?>
 
-<font class="title">Notes</font><font class=more><?echo $tmore;?></font>
+<font class="title"><?php xl('Notes','e'); ?></font><font class=more><?echo $tmore;?></font>
 </a>
 <? } ?>
 

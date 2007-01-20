@@ -169,12 +169,12 @@ if ($formid) {
 <table border='0' width='98%'>
 
  <tr>
-  <td align='center' width='1%' nowrap><b>WNL</b></td>
-  <td align='center' width='1%' nowrap><b>ABN1</b></td>
-  <td align='left'   width='1%' nowrap><b>System</b></td>
-  <td align='left'   width='1%' nowrap><b>Specific</b></td>
-  <td align='left'   width='1%' nowrap><b>Diagnosis</b></td>
-  <td align='left'  width='95%' nowrap><b>Comments</b></td>
+  <td align='center' width='1%' nowrap><b><?php xl('WNL','e'); ?></b></td>
+  <td align='center' width='1%' nowrap><b><?php xl('ABN1','e'); ?></b></td>
+  <td align='left'   width='1%' nowrap><b><?php xl('System','e'); ?></b></td>
+  <td align='left'   width='1%' nowrap><b><?php xl('Specific','e'); ?></b></td>
+  <td align='left'   width='1%' nowrap><b><?php xl('Diagnosis','e'); ?></b></td>
+  <td align='left'  width='95%' nowrap><b><?php xl('Comments','e'); ?></b></td>
  </tr>
 
 <?php
@@ -182,7 +182,7 @@ if ($formid) {
   if ($sysname == '*') {
    // TBD: Show any remaining entries in $rows (should not be any).
    echo " <tr><td colspan='6'>\n";
-   echo "   &nbsp;<br><b>Treatment:</b>\n";
+   echo "   &nbsp;<br><b>" .xl('Treatment:'). "</b>\n";
    echo " </td></tr>\n";
   }
   $sysnamedisp = $sysname;
@@ -202,9 +202,9 @@ if ($formid) {
 
 <p>
 <input type='hidden' name='form_refresh' value='' />
-<input type='submit' name='bn_save' value='Save' />
+<input type='submit' name='bn_save' value='<?php xl('Save','e'); ?>' />
 &nbsp;
-<input type='button' value='Cancel' onclick="location='<? echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
+<input type='button' value='<?php xl('Cancel','e'); ?>' onclick="location='<? echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
 </p>
 
 </center>

@@ -108,7 +108,7 @@ function codeselect(selobj, newtype) {
 
 <body <?echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
 <form method="post" action="<?echo $rootdir;?>/forms/fee_sheet/new.php">
-<span class="title"><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Fee' : 'Coding' ?> Sheet</span><br>
+<span class="title"><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Fee' : 'Coding' ?> <?php xl('Sheet','e');?></span><br>
 <input type='hidden' name='newtype' value=''>
 <input type='hidden' name='newcode' value=''>
 
@@ -184,7 +184,7 @@ echo " </tr>\n";
 <table>
  <tr>
   <td>
-   Search&nbsp;
+   <?php xl('Search','e'); ?>&nbsp;
 <?
 	foreach ($code_types as $key => $value) {
 		echo "   <input type='radio' name='search_type' value='$key'";
@@ -192,13 +192,13 @@ echo " </tr>\n";
 		echo " />$key&nbsp;\n";
 	}
 ?>
-   for&nbsp;
+   <?php xl('for','e'); ?>&nbsp;
   </td>
   <td>
    <input type='text' name='search_term' value=''> &nbsp;
   </td>
   <td>
-   <input type='submit' name='bn_search' value='Search'>
+   <input type='submit' name='bn_search' value='<?php xl('Search','e');?>'>
   </td>
  </tr>
 </table>
@@ -207,17 +207,17 @@ echo " </tr>\n";
 <p style='margin-top:16px;margin-bottom:8px'>
 <table cellspacing='5'>
  <tr>
-  <td class='billcell'><b>Type</b></td>
-  <td class='billcell'><b>Code</b></td>
+  <td class='billcell'><b><?php xl('Type','e');?></b></td>
+  <td class='billcell'><b><?php xl('Code','e');?></b></td>
 <? if (modifiers_are_used()) { ?>
-  <td class='billcell'><b>Mod</b></td>
+  <td class='billcell'><b><?php xl('Mod','e');?></b></td>
 <? } ?>
 <? if (fees_are_used()) { ?>
-  <td class='billcell' align='right'><b>Fee</b>&nbsp;</td>
+  <td class='billcell' align='right'><b><?php xl('Fee','e');?></b>&nbsp;</td>
 <? } ?>
-  <td class='billcell' align='center'><b>Auth</b></td>
-  <td class='billcell' align='center'><b>Delete</b></td>
-  <td class='billcell'><b>Description</b></td>
+  <td class='billcell' align='center'><b><?php xl('Auth','e');?></b></td>
+  <td class='billcell' align='center'><b><?php xl('Delete','e');?></b></td>
+  <td class='billcell'><b><?php xl('Description','e');?></b></td>
  </tr>
 <?
 
@@ -353,7 +353,7 @@ if ($_POST['newcode']) {
 <br>
 &nbsp;
 
-<span class="billcell">PROVIDER:</span>
+<span class="billcell"><?php xl('PROVIDER:','e');?></span>
 
 <?
 // Build a drop-down list of providers.  This includes users who
@@ -381,16 +381,16 @@ echo "   </select>\n";
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
 
-<input type='submit' name='bn_save' value='Save' />
+<input type='submit' name='bn_save' value='<?php xl('Save','e');?>' />
 &nbsp;
-<input type='submit' name='bn_refresh' value='Refresh'>
+<input type='submit' name='bn_refresh' value='<?php xl('Refresh','e');?>'>
 &nbsp;
-<input type='button' value='Cancel' onclick="location='<? echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
+<input type='button' value='<?php xl('Cancel','e');?>' onclick="location='<? echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
 
 <?php if ($code_types['UCSMC']) { ?>
 <p style='font-family:sans-serif;font-size:8pt;color:#666666;'>
 &nbsp;<br>
-UCSMC codes provided by the University of Calgary Sports Medicine Centre
+<?php xl('UCSMC codes provided by the University of Calgary Sports Medicine Centre','e');?>
 </p>
 <? } ?>
 

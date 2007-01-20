@@ -44,7 +44,7 @@
 
 <html>
 <head>
-<title>Patient Encounter</title>
+<title><?php xl('Patient Encounter','e'); ?></title>
 
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script type="text/javascript" src="../../../library/overlib_mini.js"></script>
@@ -80,15 +80,15 @@
  <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>>
 <input type=hidden name='mode' value='update'>
 <input type=hidden name='id' value='<? echo $_GET["id"] ?>'>
-<span class=title>Patient Encounter Form</span>
+<span class=title><?php xl('Patient Encounter Form','e'); ?></span>
 <br>
 <center>
 <table width='96%'>
 
  <tr>
-  <td colspan='2' width='50%' nowrap class='text'>Chief Complaint:</td>
+  <td colspan='2' width='50%' nowrap class='text'><?php xl('Chief Complaint:','e'); ?></td>
   <td class='text' width='50%' nowrap>
-   Issues (Problems, Medications, Surgeries, Allergies):
+   <?php xl('Issues (Problems, Medications, Surgeries, Allergies):','e'); ?>
   </td>
  </tr>
 
@@ -98,7 +98,7 @@
   </td>
   <td rowspan='5' valign='top'>
    <select multiple name='issues[]' size='10' style='width:100%'
-    title='Hold down [Ctrl] for multiple selections or to unselect'>
+    title='<?php xl('Hold down [Ctrl] for multiple selections or to unselect','e'); ?>'>
 <?
  while ($irow = sqlFetchArray($ires)) {
   $list_id = $irow['id'];
@@ -118,7 +118,7 @@
  </tr>
 
  <tr>
-  <td class='text' width='1%' nowrap>Facility:</td>
+  <td class='text' width='1%' nowrap><?php xl('Facility:','e'); ?></td>
   <td>
    <select name='facility'>
 <?
@@ -144,7 +144,7 @@
  if ($sensitivities && count($sensitivities)) {
   usort($sensitivities, "sensitivity_compare");
 ?>
-  <td class='text' width='1%' nowrap>Sensitivity:</td>
+  <td class='text' width='1%' nowrap><?php xl('Sensitivity:','e'); ?></td>
   <td>
    <select name='form_sensitivity'>
 <?php
@@ -158,7 +158,7 @@
   }
   echo "    <option value=''";
   if (!$result['sensitivity']) echo " selected";
-  echo ">None</option>\n";
+  echo ">" . xl('None'). "</option>\n";
 ?>
    </select>
   </td>
@@ -172,27 +172,27 @@
  </tr>
 
  <tr>
-  <td class='text' nowrap>Date of Service:</td>
+  <td class='text' nowrap><?php xl('Date of Service:','e'); ?></td>
   <td nowrap>
    <input type='text' size='10' name='form_date' <? echo $disabled ?>
     value='<? echo substr($result['date'], 0, 10) ?>'
-    title='yyyy-mm-dd Date of service'
+    title='<?php xl('yyyy-mm-dd Date of service','e'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
    <a href="javascript:show_calendar('new_encounter.form_date')"
-    title="Click here to choose a date"
+    title="<?php xl('Click here to choose a date','e'); ?>"
     ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
   </td>
  </tr>
 
  <tr>
-  <td class='text' nowrap>Onset/hospitalization date:</td>
+  <td class='text' nowrap><?php xl('Onset/hospitalization date:','e'); ?></td>
   <td nowrap>
    <input type='text' size='10' name='form_onset_date'
     value='<? echo substr($result['onset_date'], 0, 10) ?>'
-    title='yyyy-mm-dd Date of onset or hospitalization'
+    title='<?php xl('yyyy-mm-dd Date of onset or hospitalization','e'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
    <a href="javascript:show_calendar('new_encounter.form_onset_date')"
-    title="Click here to choose a date"
+    title="<?php xl('Click here to choose a date','e'); ?>"
     ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
   </td>
  </tr>
@@ -200,19 +200,19 @@
 </table>
 
 <p>
-<a href="javascript:document.new_encounter.submit();" class="link_submit">[Save]</a>
+<a href="javascript:document.new_encounter.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 &nbsp; &nbsp;
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href="<?php echo "$rootdir/patient_file/encounter/encounter_top.php"; ?>"
- class="link_submit">[Cancel]</a>
+ class="link_submit">[<?php xl('Cancel','e'); ?>]</a>
 <?php } else { ?>
 <a href="<?php echo "$rootdir/patient_file/encounter/patient_encounter.php"; ?>"
- class="link_submit" target='Main'>[Cancel]</a>
+ class="link_submit" target='Main'>[<?php xl('Cancel','e'); ?>]</a>
 <?php } ?>
 
 &nbsp; &nbsp;
-<a href="" onclick="return newissue()" class="link_submit">[Add Issue]</a>
+<a href="" onclick="return newissue()" class="link_submit">[<?php xl('Add Issue','e'); ?>]</a>
 
 </center>
 
