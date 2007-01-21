@@ -18,7 +18,8 @@ if (isset($_POST["mode"])) {
     state='{$_POST['state']}',
     postal_code='{$_POST['postal_code']}',
     country_code='{$_POST['country_code']}',
-    federal_ein='{$_POST['federal_ein']}'");
+    federal_ein='{$_POST['federal_ein']}',
+	facility_npi='{$_POST['facility_npi']}'");
   } elseif ($_POST["mode"] == "new_user") {
     if ($_POST["authorized"] != "1") {
       $_POST["authorized"] = 0;
@@ -45,6 +46,7 @@ if (isset($_POST["mode"])) {
         "', info = '"          . $_POST["info"] .
         "', federaldrugid = '" . $_POST["federaldrugid"] .
         "', upin = '"          . $_POST["upin"] .
+		"', npi  = '"          . $_POST["npi"].
         "', facility = '"      . $_POST["facility"] .
         "', see_auth = '"      . $_POST["see_auth"] .
         "'");
@@ -157,8 +159,14 @@ if (isset($_GET["mode"])) {
 <td><span class=text><? xl('Zip Code','e'); ?>: </span></td><td><input type=entry size=20 name=postal_code value=""></td>
 </tr>
 <tr>
-<td><span class=text><? xl('Country','e'); ?>: </span></td><td><input type=entry size=20 name=country_code value=""></td>
+<td height="22"><span class=text><? xl('Country','e'); ?>: </span></td>
+<td><input type=entry size=20 name=country_code value=""></td>
 <td><span class=text><? xl('Federal EIN','e'); ?>: </span></td><td><input type=entry size=20 name=federal_ein value=""></td>
+</tr>
+<tr>
+<td>&nbsp;</td><td>&nbsp;</td>
+
+<td><span class=text><? xl('Facility NPI','e'); ?>: </span></td><td><input type=entry size=20 name=facility_npi value=""></td>
 </tr>
 <tr>
 <td>&nbsp;</td><td>&nbsp;</td>
@@ -253,6 +261,9 @@ if ($fres) {
  }
 ?>
 </select></td>
+
+<tr>
+<td><span class="text"><? xl('NPI','e'); ?>: </span></td><td><input type="entry" name="npi" size="20"></td>
 </tr>
 </table>
 <span class=text><? xl('Additional Info','e'); ?>: </span><br>
@@ -294,7 +305,9 @@ foreach ($result as $iter) {
 <input type=hidden name=mode value=new_group>
 <span class=bold><? xl('Add User To Group','e'); ?>:</span>
 </td><td>
-<span class=text><? xl('User','e'); ?>: </span>
+<span class=text>
+<? xl('User','e'); ?>
+: </span>
 <select name=username>
 <?
 $res = sqlStatement("select distinct username from users where username != ''");

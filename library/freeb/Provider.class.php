@@ -14,6 +14,9 @@ class Provider Extends DataObjectBase {
 		$this->_addFunc("ipn",					array(	"name"	=>	"FreeB.FBProvider.IPN",
 															"sig"	=>	array(XMLRPCSTRING,XMLRPCINT),
 															"doc"	=>	""));
+		$this->_addFunc("npi",					array(	"name"	=>	"FreeB.FBProvider.NPI",
+															"sig"	=>	array(XMLRPCSTRING,XMLRPCINT),
+															"doc"	=>	""));
 		$this->_addFunc("firstname",			array(	"name"	=>	"FreeB.FBProvider.FirstName",
 															"sig"	=>	array(XMLRPCSTRING,XMLRPCINT),
 															"doc"	=>	""));
@@ -47,10 +50,11 @@ class Provider Extends DataObjectBase {
 		$this->_addFunc("phonenumber",			array(	"name"	=>	"FreeB.FBProvider.PhoneNumber",
 															"sig"	=>	array(XMLRPCSTRING,XMLRPCINT),
 															"doc"	=>	""));
+
 	}
 
 	function socialsecuritynumber($m) {
-
+		// since this function is useless I will get the NPI number using this
 		$err="";
 
 		$obj= $m->getparam(0);
@@ -66,7 +70,7 @@ class Provider Extends DataObjectBase {
 		}
 		else {
 			if (!$results->EOF) {
-				$retval = $results->fields['federaltaxid'];
+				$retval = $results->fields['npi'];
 			}
 		}
 
@@ -146,6 +150,40 @@ class Provider Extends DataObjectBase {
 			return new xmlrpcresp(new xmlrpcval($retval,"string"));
 		}
 	}
+
+	function npi($m) {
+
+		$err="";
+
+		$obj= $m->getparam(0);
+		$key = $obj->getval();
+		
+		$sql = "SELECT * FROM users where id = '" . $key . "'";
+		//echo $sql;
+		$db = $GLOBALS['adodb']['db'];
+		$results = $db->Execute($sql);	
+		
+		if (!$results) {
+			$err = $db->ErrorMsg();	
+		}
+		else {
+			if (!$results->EOF) {
+				$retval = $results->fields['npi'];
+			}
+		}
+
+
+		// if we generated an error, create an error return response
+		if ($err) {
+			return $this->_handleError($err);
+		}
+  		else {
+			// otherwise, we create the right response
+			// with the state name
+			return new xmlrpcresp(new xmlrpcval($retval,"string"));
+		}
+	}
+
 
 	function firstname($m) {
 
@@ -568,13 +606,16 @@ class Provider Extends DataObjectBase {
 		}
 	}
 
+
+
 }
 
 //'FreeB.FBProvider.SocialSecurityNumber' 	=> \&FreeB_FBProvider_SocialSecurityNumber,
-//'FreeB.FBProvider.TIN' 				=> \&FreeB_FBProvider_TIN,
-//'FreeB.FBProvider.IPN' 				=> \&FreeB_FBProvider_IPN,
+//'FreeB.FBProvider.TIN' 			=> \&FreeB_FBProvider_TIN,
+//'FreeB.FBProvider.IPN' 			=> \&FreeB_FBProvider_IPN,
+//'FreeB.FBProvider.NPI' 			=> \&FreeB_FBProvider_NPI,
 //'FreeB.FBProvider.FirstName' 			=> \&FreeB_FBProvider_FirstName,
-//'FreeB.FBProvider.MiddleName' 			=> \&FreeB_FBProvider_MiddleName,
+//'FreeB.FBProvider.MiddleName' 		=> \&FreeB_FBProvider_MiddleName,
 //'FreeB.FBProvider.LastName' 			=> \&FreeB_FBProvider_LastName,
 //'FreeB.FBProvider.StreetAddress' 		=> \&FreeB_FBProvider_StreetAddress,
 //'FreeB.FBProvider.City' 			=> \&FreeB_FBProvider_City,
@@ -582,8 +623,7 @@ class Provider Extends DataObjectBase {
 //'FreeB.FBProvider.Zipcode' 			=> \&FreeB_FBProvider_Zipcode,
 //'FreeB.FBProvider.PhoneCountry' 		=> \&FreeB_FBProvider_PhoneCountry,
 //'FreeB.FBProvider.PhoneExtension' 		=> \&FreeB_FBProvider_PhoneExtension,
-//'FreeB.FBProvider.PhoneNumber' 			=> \&FreeB_FBProvider_PhoneNumber,
+//'FreeB.FBProvider.PhoneNumber' 		=> \&FreeB_FBProvider_PhoneNumber,
 //'FreeB.FBProvider.PhoneArea' 			=> \&FreeB_FBProvider_PhoneArea,
-
 
 ?>

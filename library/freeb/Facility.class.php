@@ -41,6 +41,9 @@ class Facility Extends DataObjectBase {
 		$this->_addFunc("cliacode",				array(	"name"	=>	"FreeB.FBFacility.CLIACode",
 															"sig"	=>	array(XMLRPCSTRING,XMLRPCINT),
 															"doc"	=>	""));
+		$this->_addFunc("npi",					array(	"name"	=>	"FreeB.FBFacility.NPI",
+															"sig"	=>	array(XMLRPCSTRING,XMLRPCINT),
+															"doc"	=>	""));
 	}
 
 
@@ -414,6 +417,39 @@ class Facility Extends DataObjectBase {
 			return new xmlrpcresp(new xmlrpcval($retval,"string"));
 		}
 	}
+	function npi($m) {
+
+		$err="";
+
+		$retval = "";
+		$obj= $m->getparam(0);
+		$key = $obj->getval();
+
+		$sql = "SELECT * FROM facility where id = '" . $key ."'";
+		//echo $sql;
+		$db = $GLOBALS['adodb']['db'];
+		$results = $db->Execute($sql);	
+		
+		if (!$results) {
+			$err = $db->ErrorMsg();	
+		}
+		else {
+			if (!$results->EOF) {
+				$retval =	$results->fields['facility_npi'];
+			}
+		}
+
+		// if we generated an error, create an error return response
+		if ($err) {
+			return $this->_handleError($err);
+		}
+  		else {
+			// otherwise, we create the right response
+			// with the state name
+			return new xmlrpcresp(new xmlrpcval($retval,"string"));
+		}
+	}
+
 
 }
 
@@ -428,6 +464,7 @@ class Facility Extends DataObjectBase {
 //'FreeB.FBFacility.PhoneArea' 			=> \&FreeB_FBFacility_PhoneArea,
 //'FreeB.FBFacility.X12Code' 			=> \&FreeB_FBFacility_X12Code,
 //'FreeB.FBFacility.HCFACode' 			=> \&FreeB_FBFacility_HCFACode,
+//'FreeB.FBFacility.NPI                         => \&FreeB_FBFacility_NPI
 
 
 ?>

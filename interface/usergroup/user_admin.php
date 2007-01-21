@@ -45,6 +45,10 @@ if ($_GET["mode"] == "update") {
     $tqvar = addslashes($_GET["upin"]);
     sqlStatement("update users set upin='$tqvar' where id={$_GET["id"]}");
   }
+    if ($_GET["npi"]) {
+    $tqvar = addslashes($_GET["npi"]);
+    sqlStatement("update users set npi='$tqvar' where id={$_GET["id"]}");
+  }
   if ($_GET["lname"]) {
     $tqvar = addslashes($_GET["lname"]);
     sqlStatement("update users set lname='$tqvar' where id={$_GET["id"]}");
@@ -146,7 +150,10 @@ foreach($result as $iter2) {
 ?>
 </select></td>
 </tr>
-
+<tr>
+<td><span class="text"><? xl('NPI','e'); ?>: </span></td><td><input type="text" name="npi" size="20" value="<? echo $iter["npi"]?>"></td>
+</tr>
+</tr>
 </table>
 <span class=text><? xl('Additional Info','e'); ?>:</span><br>
 <textarea name="comments" wrap=auto rows=4 cols=30><? echo $iter["info"];?></textarea>

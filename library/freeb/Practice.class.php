@@ -38,6 +38,9 @@ class Practice Extends DataObjectBase {
                 $this->_addFunc("tin",                  array(  "name"  =>     "FreeB.FBPractice.TIN",
                                                                                "sig"    =>      array(XMLRPCSTRING,XMLRPCINT,XMLRPCINT,XMLRPCINT),
                                                                                "doc"    =>      ""));
+                $this->_addFunc("npi",                  array(  "name"  =>     "FreeB.FBPractice.NPI",
+                                                                               "sig"    =>      array(XMLRPCSTRING,XMLRPCINT,XMLRPCINT,XMLRPCINT),
+                                                                               "doc"    =>      ""));
                 $this->_addFunc("practiceid",                   array(  "name" =>       "FreeB.FBPractice.PracticeID",
                                                                                "sig"    =>      array(XMLRPCSTRING,XMLRPCINT,XMLRPCINT,XMLRPCINT),
                                                                                "doc"    =>      ""));
@@ -56,6 +59,7 @@ class Practice Extends DataObjectBase {
                 $this->_addFunc("x12id",                                array( "name"   =>      "FreeB.FBPractice.X12Id",
                                                                                "sig"    =>      array(XMLRPCSTRING,XMLRPCINT,XMLRPCINT),
                                                                                "doc"    =>      ""));
+
         }
 
 
@@ -693,6 +697,47 @@ class Practice Extends DataObjectBase {
                 }
         }
 
+        function npi($m) {
+
+                $err="";
+
+                $obj= $m->getparam(0);
+                $key = $obj->getval();
+
+                $obj= $m->getparam(1);
+                $payerkey = $obj->getval();
+
+                $obj= $m->getparam(2);
+                $providerkey = $obj->getval();
+
+                $sql = "SELECT * FROM facility where billing_location = 1";
+                //echo $sql;
+                $db = $GLOBALS['adodb']['db'];
+                $results = $db->Execute($sql);
+
+                $vals = array();
+                if (!$results) {
+                        $err = $db->ErrorMsg();
+                }
+                else {
+                        if (!$results->EOF) {
+                                $retval = $results->fields['facility_npi'];
+
+                        }
+                }
+
+                // if we generated an error, create an error return response
+                if ($err) {
+                        return $this->_handleError($err);
+                }
+                else {
+                        // otherwise, we create the right response
+                        // with the state name
+                        return new xmlrpcresp(new xmlrpcval($retval,"string"));
+                }
+        }
+
+
 }
 
 
@@ -707,12 +752,14 @@ class Practice Extends DataObjectBase {
 //'FreeB.FBPractice.PhoneArea'                  => \&FreeB_FBPractice_PhoneArea,
 //'FreeB.FBPractice.isAcceptsAssignment'                => \&FreeB_FBPractice_isAcceptsAssignment,
 //'FreeB.FBPractice.PracticeID'                         => \&FreeB_FBPractice_PracticeID,
-//'FreeB.FBPractice.RenderingPracticeID'                        => \&FreeB_FBPractice_RenderingPracticeID,
+//'FreeB.FBPractice.RenderingPracticeID'                => \&FreeB_FBPractice_RenderingPracticeID,
 //'FreeB.FBPractice.GroupID'                    => \&FreeB_FBPractice_GroupID,
 //'FreeB.FBPractice.TIN'                                => \&FreeB_FBPractice_TIN,
+//'FreeB.FBPractice.NPI'                                => \&FreeB_FBPractice_NPI,
 //'FreeB.FBPractice.ProviderNumX12Type'                         => \&FreeB_FBPractice_ProviderNumX12Type,
 //'FreeB.FBPractice.RenderingNumX12Type'                        => \&FreeB_FBPractice_RenderingNumX12Type,
 //'FreeB.FBPractice.X12Id'                      => \&FreeB_FBPractice_X12Id,
+
 
 
 ?>

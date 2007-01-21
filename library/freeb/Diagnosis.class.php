@@ -77,11 +77,27 @@ class Diagnosis Extends DataObjectBase {
 	}
 
 	function isrelatedtootheraccident($m) {
-
 		$err="";
-		//unimplemented by OpenEMR
-		$retval = false;
+		//Now implemented by OpenEMR with Form: Misc Billing Options
+		$pkey = false;
+		$retval = "";
+		$obj= $m->getparam(0);
+		$key = $obj->getval();
 
+		$sql = "SELECT * FROM forms JOIN form_misc_billing_options as fpa on fpa.id = forms.form_id where forms.encounter = '" . $_SESSION['billkey'] . "' and forms.pid = '" . $_SESSION['patient_id'] . "' and forms.formdir = 'misc_billing_options' order by forms.date";
+		//echo $sql;
+		$db = $GLOBALS['adodb']['db'];
+		$results = $db->Execute($sql);
+
+		if (!$results) {
+			$err = $db->ErrorMsg();
+		}
+		else {
+			if (!$results->EOF) {
+				$retval = $results->fields['other_accident'];
+				if ($retval == "1") {$pkey = true;};
+					}
+		}
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
@@ -89,7 +105,7 @@ class Diagnosis Extends DataObjectBase {
   		else {
 			// otherwise, we create the right response
 			// with the state name
-			return new xmlrpcresp(new xmlrpcval($retval,"i4"));
+			return new xmlrpcresp(new xmlrpcval($pkey,"i4"));
 		}
 	}
 
@@ -250,12 +266,27 @@ class Diagnosis Extends DataObjectBase {
 	}
 
 	function iscantwork($m) {
-
 		$err="";
-
-		//unimplemented by OpenEMR
+		//Now implemented by OpenEMR with Form: Misc Billing Options
 		$pkey = false;
+		$retval = "";
+		$obj= $m->getparam(0);
+		$key = $obj->getval();
 
+		$sql = "SELECT * FROM forms JOIN form_misc_billing_options as fpa on fpa.id = forms.form_id where forms.encounter = '" . $_SESSION['billkey'] . "' and forms.pid = '" . $_SESSION['patient_id'] . "' and forms.formdir = 'misc_billing_options' order by forms.date";
+		//echo $sql;
+		$db = $GLOBALS['adodb']['db'];
+		$results = $db->Execute($sql);
+
+		if (!$results) {
+			$err = $db->ErrorMsg();
+		}
+		else {
+			if (!$results->EOF) {
+				$retval = $results->fields['is_unable_to_work'];
+				if ($retval == "1") {$pkey = true;};
+					}
+		}
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
@@ -268,11 +299,27 @@ class Diagnosis Extends DataObjectBase {
 	}
 
 	function dateofcantworkstart($m) {
-
 		$err="";
-		//unimplemented by OpenEMR
-		$pkey = $this->_isodate("");
+		//Now implemented by OpenEMR with Form: Misc Billing Options
+		$retval = "";
+		$obj= $m->getparam(0);
+		$key = $obj->getval();
 
+		$sql = "SELECT * FROM forms JOIN form_misc_billing_options as fpa on fpa.id = forms.form_id where forms.encounter = '" . $_SESSION['billkey'] . "' and forms.pid = '" . $_SESSION['patient_id'] . "' and forms.formdir = 'misc_billing_options' order by forms.date";
+		//echo $sql;
+		$db = $GLOBALS['adodb']['db'];
+		$results = $db->Execute($sql);
+
+		if (!$results) {
+			$err = $db->ErrorMsg();
+		}
+		else {
+			if (!$results->EOF) {
+				$retval = $results->fields['off_work_from'];
+				}
+		}
+		$retval = date("Y-m-d",strtotime($retval));
+		$retval = $this->_isodate($retval);		
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
@@ -280,16 +327,33 @@ class Diagnosis Extends DataObjectBase {
   		else {
 			// otherwise, we create the right response
 			// with the state name
-			return new xmlrpcresp(new xmlrpcval($pkey,XMLRPCDATETIME));
+			return new xmlrpcresp(new xmlrpcval($retval,XMLRPCDATETIME));
 		}
 	}
 
+
 	function dateofcantworkend($m) {
-
 		$err="";
-		//unimplemented by OpenEMR
-		$pkey = $this->_isodate("");
+		//Now implemented by OpenEMR with Form: Misc Billing Options
+		$retval = "";
+		$obj= $m->getparam(0);
+		$key = $obj->getval();
 
+		$sql = "SELECT * FROM forms JOIN form_misc_billing_options as fpa on fpa.id = forms.form_id where forms.encounter = '" . $_SESSION['billkey'] . "' and forms.pid = '" . $_SESSION['patient_id'] . "' and forms.formdir = 'misc_billing_options' order by forms.date";
+		//echo $sql;
+		$db = $GLOBALS['adodb']['db'];
+		$results = $db->Execute($sql);
+
+		if (!$results) {
+			$err = $db->ErrorMsg();
+		}
+		else {
+			if (!$results->EOF) {
+				$retval = $results->fields['off_work_to'];
+				}
+		}
+		$retval = date("Y-m-d",strtotime($retval));
+		$retval = $this->_isodate($retval);		
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
@@ -297,17 +361,32 @@ class Diagnosis Extends DataObjectBase {
   		else {
 			// otherwise, we create the right response
 			// with the state name
-			return new xmlrpcresp(new xmlrpcval($pkey,XMLRPCDATETIME));
+			return new xmlrpcresp(new xmlrpcval($retval,XMLRPCDATETIME));
 		}
 	}
 
 	function isrelatedtoemployment($m) {
-
 		$err="";
-
-		//unimplemented by OpenEMR
+		//Now implemented by OpenEMR with Form: Misc Billing Options
 		$pkey = false;
+		$retval = "";
+		$obj= $m->getparam(0);
+		$key = $obj->getval();
 
+		$sql = "SELECT * FROM forms JOIN form_misc_billing_options as fpa on fpa.id = forms.form_id where forms.encounter = '" . $_SESSION['billkey'] . "' and forms.pid = '" . $_SESSION['patient_id'] . "' and forms.formdir = 'misc_billing_options' order by forms.date";
+		//echo $sql;
+		$db = $GLOBALS['adodb']['db'];
+		$results = $db->Execute($sql);
+
+		if (!$results) {
+			$err = $db->ErrorMsg();
+		}
+		else {
+			if (!$results->EOF) {
+				$retval = $results->fields['employment_related'];
+				if ($retval == "1") {$pkey = true;};
+					}
+		}
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
@@ -320,11 +399,27 @@ class Diagnosis Extends DataObjectBase {
 	}
 
 	function isrelatedtoautoaccident($m) {
-
 		$err="";
-		//unimplemented by OpenEMR
-		$pkey = "";
+		//Now implemented by OpenEMR with Form: Misc Billing Options
+		$pkey = false;
+		$retval = "";
+		$obj= $m->getparam(0);
+		$key = $obj->getval();
 
+		$sql = "SELECT * FROM forms JOIN form_misc_billing_options as fpa on fpa.id = forms.form_id where forms.encounter = '" . $_SESSION['billkey'] . "' and forms.pid = '" . $_SESSION['patient_id'] . "' and forms.formdir = 'misc_billing_options' order by forms.date";
+		//echo $sql;
+		$db = $GLOBALS['adodb']['db'];
+		$results = $db->Execute($sql);
+
+		if (!$results) {
+			$err = $db->ErrorMsg();
+		}
+		else {
+			if (!$results->EOF) {
+				$retval = $results->fields['auto_accident'];
+				if ($retval == "1") {$pkey = true;};
+					}
+		}
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
@@ -339,10 +434,23 @@ class Diagnosis Extends DataObjectBase {
 	function autoaccidentstate($m) {
 
 		$err="";
+		$retval = "";
+		$obj= $m->getparam(0);
+		$key = $obj->getval();
+		//Now implemented by OpenEMR with Form: Misc_billing_options
+		$sql = "SELECT * FROM forms JOIN form_misc_billing_options as fpa on fpa.id = forms.form_id where forms.encounter = '" . $_SESSION['billkey'] . "' and forms.pid = '" . $_SESSION['patient_id'] . "' and forms.formdir = 'misc_billing_options' order by forms.date";
+		//echo $sql;
+		$db = $GLOBALS['adodb']['db'];
+		$results = $db->Execute($sql);
 
-		//unimplmeneted by OpenEMR
-		$pkey = "";
-
+		if (!$results) {
+			$err = $db->ErrorMsg();
+		}
+		else {
+			if (!$results->EOF) {
+				$retval = $results->fields['accident_state'];
+			}
+		}
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
@@ -350,9 +458,11 @@ class Diagnosis Extends DataObjectBase {
   		else {
 			// otherwise, we create the right response
 			// with the state name
-			return new xmlrpcresp(new xmlrpcval($pkey));
+			return new xmlrpcresp(new xmlrpcval($retval,"string"));
 		}
 	}
+
+
 	function icd10code($m) {
 
 		$err="";
