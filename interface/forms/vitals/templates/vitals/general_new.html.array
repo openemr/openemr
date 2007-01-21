@@ -82,7 +82,7 @@ a {
 		<td><select name="temp_method">
 		
 	</td></tr>
-	<tr><td>Head Circumference ;lkajsd;fkj</td><td>cm</td>
+	<tr><td>Head Circumference</td><td>cm</td>
 	{foreach item=vital from=$vitals}
 		<td><input type="text" 
 			name="head_circ" value="{$vital->get_head_circ()}"/></td>
@@ -92,6 +92,12 @@ a {
 		<td><input type="text" 
 			name="BMI" value="{$vital->get_BMI()}"/></td>
 	{/foreach}
+	<tr><td>BMI Status</td><td>Type</td>
+	{foreach item=vital from=$vitals}
+		<td><input type="text" 
+			name="BMI_status" value="{$vital->get_BMI_status()}"/></td>
+	{/foreach}
+
 	<tr><td>Oxygen Saturation</td><td>%</td>
 	{foreach item=vital from=$vitals}
 		<td><input type="text" 
