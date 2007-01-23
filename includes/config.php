@@ -8,6 +8,9 @@ $GLOBALS['oer_config']['freeb']['print_command'] 	= "/usr/bin/lpr";
 $GLOBALS['oer_config']['freeb']['printer_name'] 	= "HP_LaserJet4L";
 // This does not seem useful for PDF HCFAs, see freeb/targetbin/ascii2pdf instead:
 $GLOBALS['oer_config']['freeb']['printer_extras'] 	= "-o PageSize=Letter -o portrait";
+// Set this to make an additional copy of HCFA PDFs in the specified directory,
+// e.g. for an external billing service. You must end this path with a slash:
+$GLOBALS['oer_config']['freeb']['copy_pdfs_to'] = '';
 
 //used differently by different applications, intuit programs only like numbers
 $GLOBALS['oer_config']['ofx']['bankid'] 	= "123456789";
