@@ -253,7 +253,7 @@ function npopup(pid) {
   </td>
   <td>
    <input type='text' name='form_name' size='10' value='<?php echo $_POST['form_name']; ?>'
-    title='<?xl("Any part of the patient name","e")?>'>
+    title='<?xl("Any part of the patient name, or 'last,first', or 'X-Y'","e")?>'>
   </td>
   <td>
    <?xl('Chart ID:','e')?>
@@ -360,16 +360,22 @@ function npopup(pid) {
     }
     else {
       if ($form_name) {
+        if ($where) $where .= " AND ";
         // Allow the last name to be followed by a comma and some part of a first name.
         if (preg_match('/^(.*\S)\s*,\s*(.*)/', $form_name, $matches)) {
-          $form_name = $matches[2] . '% ' . $matches[1] . '%';
+          $where .= "customer.name ILIKE '" . $matches[2] . '% ' . $matches[1] . "%'";
+        // Allow a filter like "A-C" on the first character of the last name.
+        } else if (preg_match('/^(\S)\s*-\s*(\S)$/', $form_name, $matches)) {
+          $tmp = '1 = 2';
+          while (ord($matches[1]) <= ord($matches[2])) {
+            $tmp .= " OR customer.name ILIKE '% " . $matches[1] . "%'";
+            $matches[1] = chr(ord($matches[1]) + 1);
+          }
+          $where .= "( $tmp ) ";
         } else {
-          $form_name = "%$form_name%";
+          $where .= "customer.name ILIKE '%$form_name%'";
         }
-        if ($where) $where .= " AND ";
-        $where .= "customer.name ILIKE '$form_name'";
       }
-
       if ($form_pid && $form_encounter) {
         if ($where) $where .= " AND ";
         $where .= "ar.invnumber = '$form_pid.$form_encounter'";
