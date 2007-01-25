@@ -127,7 +127,13 @@ function get_patient_balance($pid) {
    <table border='0' cellpadding='0' width='100%'>
     <tr>
      <td valign='top'>
-      <span class='bold'><? xl('Name','e'); ?>: </span><span class='text'><?echo $result{"title"}?> <?echo $result{"fname"}?> <?echo $result{"mname"}?> <?echo $result{"lname"}?></span><br>
+      <span class='bold'><?php xl('Name','e'); ?>: </span>
+      <span class='text'>
+<?php
+ if (!$GLOBALS['omit_employers']) echo $result['title'] . ' ';
+ echo $result['fname'] . ' ' . $result['mname'] . ' ' . $result['lname'];
+?>
+      </span><br>
       <span class='bold'><? xl('Number','e'); ?>: </span><span class='text'><?echo $result{"pubpid"}?></span>
      </td>
      <td valign='top'>
