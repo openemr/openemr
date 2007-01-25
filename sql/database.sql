@@ -26475,6 +26475,7 @@ CREATE TABLE `facility` (
   `x12_sender_id` varchar(25) default NULL,
   `attn` varchar(65) default NULL,
   `domain_identifier` varchar(60) default NULL,
+  `facility_npi` varchar(15)  NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`)
 ) ;
 

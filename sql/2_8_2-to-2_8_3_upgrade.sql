@@ -29,3 +29,6 @@ CREATE TABLE IF NOT EXISTS `form_misc_billing_options` (
   comments                    varchar(255) default NULL,
   PRIMARY KEY (id)
 ) TYPE=MyISAM;
+
+ALTER TABLE facility
+  ADD `facility_npi` varchar(15)  NOT NULL DEFAULT '';
