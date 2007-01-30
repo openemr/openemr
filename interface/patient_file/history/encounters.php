@@ -35,6 +35,7 @@
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 
 <script language="JavaScript">
+
  function toencounter(enc, datestr) {
 <?php if ($GLOBALS['concurrent_layout']) { ?>
   parent.left_nav.setEncounter(datestr, enc, window.name);
@@ -45,6 +46,12 @@
   top.Main.location.href  = '../encounter/patient_encounter.php?set_encounter=' + enc;
 <?php } ?>
  }
+
+ function showTitle(title) {
+  window.status = title;
+  return true;
+ }
+
 </script>
 
 </head>
@@ -155,7 +162,8 @@ if ($result = getEncounters($pid)) {
     if ($thisauth && $auth_sensitivity) {
      if ($subresult2 = getBillingByEncounter($pid,$iter{"encounter"})) {
       foreach ($subresult2 as $iter2) {
-       $coded .= "<span title='" . addslashes($iter2{"code_text"}) . "'>";
+       $title = addslashes($iter2['code_text']);
+       $coded .= "<span title='$title' onmouseover='return showTitle(\"$title\")'>";
        $coded .= $iter2{"code"} . "</span>, ";
       }
       $coded = substr($coded, 0, strlen($coded) - 2);
@@ -217,8 +225,8 @@ if ($result = getEncounters($pid)) {
 
         echo "<tr>\n";
         echo " <td valign='top' colspan='2'></td>\n";
-        echo " <td valign='top' colspan='2' title='$title'>$linkbeg" .
-          "&nbsp;&nbsp;&nbsp;" .
+        echo " <td valign='top' colspan='2' title='$title' onmouseover='return showTitle(\"$title\")'>" .
+          "$linkbeg&nbsp;&nbsp;&nbsp;" .
           $enc['form_name'] . "$linkend</td>\n";
         echo " <td valign='top'>$linkbeg" .
           $enc['user'] . "$linkend</td>\n";
