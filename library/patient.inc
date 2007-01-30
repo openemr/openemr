@@ -2,6 +2,18 @@
 include_once("{$GLOBALS['srcdir']}/sql.inc");
 require_once(dirname(__FILE__) . "/classes/WSWrapper.class.php");
 
+// These are for sports team use:
+$PLAYER_FITNESSES = array(
+  xl('Full Play'),
+  xl('Full Training'),
+  xl('Restricted Training'),
+  xl('Injured Out'),
+  xl('Rehabilitation'),
+  xl('Illness'),
+  xl('International Duty')
+);
+$PLAYER_FITCOLORS = array('#6677ff', '#00cc00', '#ffff00', '#ff3333', '#ff8800', '#ffeecc', '#ffccaa');
+
 function getPatientData($pid, $given = "*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS") {
 	$sql = "select $given from patient_data where pid='$pid' order by date DESC limit 0,1";
 	return sqlQuery($sql);

@@ -12,13 +12,14 @@
  include_once("$srcdir/acl.inc");
 
  $issue = $_REQUEST['issue'];
+ $thispid = $_REQUEST['thispid'] ? $_REQUEST['thispid'] : $pid;
  $info_msg = "";
 
  $thisauth = acl_check('patients', 'med');
  if ($issue && $thisauth != 'write') die("Edit is not authorized!");
  if ($thisauth != 'write' && $thisauth != 'addonly') die("Add is not authorized!");
 
- $tmp = getPatientData($pid, "squad");
+ $tmp = getPatientData($thispid, "squad");
  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
   die("Not authorized for this squad!");
 
@@ -196,7 +197,7 @@ td { font-size:10pt; }
     sqlStatement($query);
     if ($text_type == "medication" && enddate != '') {
       sqlStatement('UPDATE prescriptions SET '
-        . 'medication = 0 where patient_id = ' . $pid
+        . 'medication = 0 where patient_id = ' . $thispid
         . " and upper(trim(drug)) = '" . strtoupper($_POST['form_title']) . "' "
         . ' and medication = 1' );
     }
@@ -209,7 +210,7 @@ td { font-size:10pt; }
     "outcome, destination " .
     ") VALUES ( " .
     "NOW(), " .
-    "'$pid', " .
+    "'$thispid', " .
     "'" . $text_type                 . "', " .
     "'" . $_POST['form_title']       . "', " .
     "1, "                            .
@@ -259,7 +260,7 @@ td { font-size:10pt; }
   $bres = sqlStatement(
    "SELECT DISTINCT billing.code, billing.code_text " .
    "FROM issue_encounter, billing WHERE " .
-   "issue_encounter.pid = '$pid' AND " .
+   "issue_encounter.pid = '$thispid' AND " .
    "issue_encounter.list_id = '$issue' AND " .
    "billing.encounter = issue_encounter.encounter AND " .
    "( billing.code_type LIKE 'ICD%' OR " .

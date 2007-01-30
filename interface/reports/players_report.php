@@ -16,18 +16,6 @@
  $squads = acl_get_squads();
  $auth_notes_a  = acl_check('encounters', 'notes_a');
 
- $fitnesses = array(
-  xl('Full Play'),
-  xl('Full Training'),
-  xl('Restricted Training'),
-  xl('Injured Out'),
-  xl('Rehabilitation'),
-  xl('Illness'),
-  xl('International Duty')
- );
-
- $fitcolors = array('#6677ff', '#00cc00', '#ffff00', '#ff3333', '#ff8800', '#ffeecc', '#ffccaa');
-
  $alertmsg = ''; // not used yet but maybe later
 
  $query = "SELECT pid, squad, fitness, lname, fname FROM " .
@@ -143,13 +131,13 @@
   <td class="detail">
    &nbsp;<?php  echo ($squadname == $lastsquad) ? "" : $squadname ?>
   </td>
-  <td class="detail" bgcolor="<?php  echo $fitcolors[$fitness-1] ?>">
+  <td class="detail" bgcolor="<?php  echo $PLAYER_FITCOLORS[$fitness-1] ?>">
    &nbsp;<a href='javascript:gopid(<?php  echo $patient_id ?>)' style='color:#000000'><?php  echo $row['lname'] . ", " . $row['fname'] ?></a>
   </td>
-  <td class="detail" bgcolor="<?php  echo $fitcolors[$fitness-1] ?>">
-   <?php  echo $fitnesses[$fitness-1] ?>&nbsp;
+  <td class="detail" bgcolor="<?php  echo $PLAYER_FITCOLORS[$fitness-1] ?>">
+   <?php  echo $PLAYER_FITNESSES[$fitness-1] ?>&nbsp;
   </td>
-  <td class="detail" bgcolor="<?php  echo $fitcolors[$fitness-1] ?>">
+  <td class="detail" bgcolor="<?php  echo $PLAYER_FITCOLORS[$fitness-1] ?>">
    &nbsp;<?php
     if ($auth_notes_a) {
      echo substr($erow['date'], 0, 10) . ' ' . $erow['reason'];
