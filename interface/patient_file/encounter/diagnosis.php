@@ -4,6 +4,16 @@
  include_once("$srcdir/sql.inc");
  include_once("$srcdir/acl.inc");
 
+$mode              = $_REQUEST['mode'];
+$type              = $_REQUEST['type'];
+$code              = $_REQUEST['code'];
+$modifier          = $_REQUEST['modifier'];
+$units             = $_REQUEST['units'];
+$fee               = $_REQUEST['fee'];
+$text              = $_REQUEST['text'];
+$payment_method    = $_REQUEST['payment_method'];
+$insurance_company = $_REQUEST['insurance_company'];
+
 $target = $GLOBALS['concurrent_layout'] ? '_parent' : 'Main';
 
 if ($payment_method == "insurance") {
@@ -11,18 +21,27 @@ if ($payment_method == "insurance") {
 }
 if (isset($mode)) {
 	if ($mode == "add") {
+
+		// Get the provider ID from the new encounter form if possible, otherwise
+		// it's the logged-in user.
+		$tmp = sqlQuery("SELECT users.id FROM forms, users WHERE " .
+			"forms.pid = '$pid' AND forms.encounter = '$encounter' AND " .
+			"forms.formdir='newpatient' AND users.username = forms.user AND " .
+			"users.authorized = 1");
+		$provid = $tmp['id'] ? $tmp['id'] : $_SESSION["authUserID"];
+
 		if (strtolower($type) == "copay") {
 			addBilling($encounter, $type, sprintf("%01.2f", $code), $payment_method,
-				$pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units,
+				$pid, $userauthorized, $provid, $modifier, $units,
 				sprintf("%01.2f", 0 - $code));
 		}
 		elseif (strtolower($type) == "other") {
 			addBilling($encounter, $type, $code, $text, $pid, $userauthorized,
-				$_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", $fee));
+				$provid, $modifier, $units, sprintf("%01.2f", $fee));
 		}
 		else {
 			addBilling($encounter, $type, $code, $text, $pid, $userauthorized,
-				$_SESSION['authUserID'], $modifier, $units, $fee);
+				$provid, $modifier, $units, $fee);
 		}
 	}
 	elseif ($mode == "justify") {
