@@ -290,10 +290,18 @@ function echoLine($lino, $codetype, $code, $modifier, $auth = TRUE, $del = FALSE
 	echo " </tr>\n";
 }
 
+// Try setting the default provider to that of the new encounter form.
+//
+$encounter_provid = -1;
+$tmp = sqlQuery("SELECT users.id FROM forms, users WHERE " .
+	"forms.pid = '$pid' AND forms.encounter = '$encounter' AND " .
+	"forms.formdir='newpatient' AND users.username = forms.user AND " .
+	"users.authorized = 1");
+if ($tmp['id']) $encounter_provid = $tmp['id'];
+
 // Generate lines for items already in the database.
 //
 $lino = 0;
-$encounter_provid = -1;
 if ($result = getBillingByEncounter($pid, $encounter, "*") ) {
 	foreach ($result as $iter) {
 		++$lino;
@@ -301,19 +309,9 @@ if ($result = getBillingByEncounter($pid, $encounter, "*") ) {
 		// list($code, $modifier) = explode("-", $iter["code"]);
 		echoLine($lino, $iter["code_type"], trim($iter["code"]), trim($iter["modifier"]),
 			$iter["authorized"], $del, $iter["fee"], $iter["id"], $iter["billed"], $iter["code_text"]);
+		// If no default provider yet then try this one.
 		if ($encounter_provid < 0 && ! $del) $encounter_provid = $iter["provider_id"];
 	}
-}
-
-// If there were no billing items then try setting the default provider
-// to that of the new encounter form.
-//
-if ($encounter_provid < 0) {
-	$tmp = sqlQuery("SELECT users.id FROM forms, users WHERE " .
-		"forms.pid = '$pid' AND forms.encounter = '$encounter' AND " .
-		"forms.formdir='newpatient' AND users.username = forms.user AND " .
-		"users.authorized = 1");
-	if ($tmp['id']) $encounter_provid = $tmp['id'];
 }
 
 // If still no default provider then make it the logged-in user.
