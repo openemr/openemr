@@ -27,6 +27,9 @@
 
  $form_date      = fixDate($_POST['form_date'], "");
  $form_to_date   = fixDate($_POST['form_to_date'], "");
+ $is_due_ins     = $_POST['form_category'] == xl('Due Ins');
+ $is_due_pt      = $_POST['form_category'] == xl('Due Pt');
+
 
  $grand_total_charges     = 0;
  $grand_total_adjustments = 0;
@@ -37,6 +40,7 @@
 function endPatient($ptrow) {
   global $export_patient_count, $export_dollars, $bgcolor;
   global $grand_total_charges, $grand_total_adjustments, $grand_total_paid;
+  global $is_due_ins;
 
   if (!$ptrow['pid']) return;
 
@@ -74,10 +78,10 @@ function endPatient($ptrow) {
   else {
     if ($ptrow['count'] > 1) {
       echo " <tr bgcolor='$bgcolor'>\n";
-      echo "  <td class='detail' colspan='6'>\n";
+      echo "  <td class='detail' colspan='" . ($is_due_ins ? '5' : '4') . "'>\n";
       echo "   &nbsp;\n";
       echo "  </td>\n";
-      echo "  <td class='detotal' colspan='3'>\n";
+      echo "  <td class='detotal' colspan='5'>\n";
       echo "   &nbsp;Total Patient Balance:\n";
       echo "  </td>\n";
       echo "  <td class='detotal' align='right'>\n";
@@ -246,15 +250,23 @@ function checkAll(checked) {
 
       // But if we have not yet billed the patient, then compute $duncount as a
       // negative count of the number of insurance plans for which we have not
-      // yet closed out insurance.
+      // yet closed out insurance.  Here we also compute $insname as the name of
+      // the insurance plan from which we are awaiting payment.
       //
+      $insname = '';
       if (! $duncount) {
         $insgot = strtolower($row['notes']);
         $inseobs = strtolower($row['shipvia']);
         foreach (array('ins1', 'ins2', 'ins3') as $value) {
-          if (strpos($insgot, $value) !== false &&
-              strpos($inseobs, $value) === false)
+          $i = strpos($insgot, $value);
+          if ($i !== false && strpos($inseobs, $value) === false) {
             --$duncount;
+            if (!$insname && $is_due_ins) {
+              $j = strpos($insgot, "\n", $i);
+              if (!$j) $j = strlen($insgot);
+              $insname = trim(substr($row['notes'], $i + 5, $j - $i - 5));
+            }
+          }
         }
       }
 
@@ -266,8 +278,8 @@ function checkAll(checked) {
 
       // Skip invoices not in the desired "Due..." category.
       //
-      if ($_POST['form_category'] == 'Due Ins' && $duncount >= 0) continue;
-      if ($_POST['form_category'] == 'Due Pt'  && $duncount <  0) continue;
+      if ($is_due_ins && $duncount >= 0) continue;
+      if ($is_due_pt  && $duncount <  0) continue;
 
       $row['duncount'] = $duncount;
 
@@ -303,7 +315,7 @@ function checkAll(checked) {
       if ($pdrow['mname']) $ptname .= " " . substr($pdrow['mname'], 0, 1);
 
       // $rows[$ptname] = $row;
-      $rows[$ptname . '|' . $encounter] = $row; // new
+      $rows[$insname . '|' . $ptname . '|' . $encounter] = $row; // new
     }
 
     ksort($rows);
@@ -317,6 +329,11 @@ function checkAll(checked) {
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
 
  <tr bgcolor="#dddddd">
+<?php if ($is_due_ins) { ?>
+  <td class="dehead">
+   &nbsp;<?xl('Insurance','e')?>
+  </td>
+<?php } ?>
   <td class="dehead">
    &nbsp;<?xl('Name','e')?>
   </td>
@@ -326,22 +343,9 @@ function checkAll(checked) {
   <td class="dehead">
    &nbsp;<?xl('Phone','e')?>
   </td>
-  <!--
-  <td class="dehead">
-   &nbsp;<?xl('Street','e')?>
-  </td>
-  -->
   <td class="dehead">
    &nbsp;<?xl('City','e')?>
   </td>
-  <!--
-  <td class="dehead">
-   &nbsp;<?xl('State','e')?>
-  </td>
-  <td class="dehead">
-   &nbsp;<?xl('Zip','e')?>
-  </td>
-  -->
   <td class="dehead">
    &nbsp;<?php xl('Invoice','e') ?>
   </td>
@@ -371,19 +375,19 @@ function checkAll(checked) {
 <?php
     }
 
-    $ptrow = array('pid' => 0);
+    $ptrow = array('insname' => '', 'pid' => 0);
     $orow = -1;
 
     foreach ($rows as $key => $row) {
-      list($ptname, $trash) = explode('|', $key);
+      list($insname, $ptname, $trash) = explode('|', $key);
       list($pid, $encounter) = explode(".", $row['invnumber']);
 
-      if ($pid != $ptrow['pid']) {
+      if ($insname != $ptrow['insname'] || $pid != $ptrow['pid']) {
         // For the report, this will write the patient totals.  For the
         // export this writes everything for the patient:
         endPatient($ptrow);
         $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
-        $ptrow = array('ptname' => $ptname, 'pid' => $pid, 'count' => 1);
+        $ptrow = array('insname' => $insname, 'ptname' => $ptname, 'pid' => $pid, 'count' => 1);
         foreach ($row as $key => $value) $ptrow[$key] = $value;
       } else {
         $ptrow['amount']      += $row['amount'];
@@ -401,6 +405,11 @@ function checkAll(checked) {
  <tr bgcolor='<?php echo $bgcolor ?>'>
 <?php
         if ($ptrow['count'] == 1) {
+          if ($is_due_ins) {
+            echo "  <td class='detail'>\n";
+            echo "   &nbsp;$insname\n";
+            echo "  </td>\n";
+          }
           echo "  <td class='detail'>\n";
           echo "   &nbsp;$ptname\n";
           echo "  </td>\n";
@@ -414,22 +423,11 @@ function checkAll(checked) {
           echo "   &nbsp;" . $row['city'] . "\n";
           echo "  </td>\n";
         } else {
-          echo "  <td class='detail' colspan='4'>\n";
+          echo "  <td class='detail' colspan='" . ($is_due_ins ? '5' : '4') . "'>\n";
           echo "   &nbsp;\n";
           echo "  </td>\n";
         }
 ?>
-  <!--
-  <td class="detail">
-   &nbsp;<?php echo $row['address1'] ?>
-  </td>
-  <td class="detail">
-   &nbsp;<?php echo $row['state'] ?>
-  </td>
-  <td class="detail">
-   &nbsp;<?php echo $row['zipcode'] ?>
-  </td>
-  -->
   <td class="detail">
    &nbsp;<a href="../billing/sl_eob_invoice.php?id=<?php echo $row['id'] ?>"
     target="_blank"><?php echo $row['invnumber'] ?></a>
@@ -484,7 +482,7 @@ function checkAll(checked) {
     }
     else {
       echo " <tr bgcolor='#ffffff'>\n";
-      echo "  <td class='detail' colspan='4'>\n";
+      echo "  <td class='detail' colspan='" . ($is_due_ins ? '5' : '4') . "'>\n";
       echo "   &nbsp;\n";
       echo "  </td>\n";
       echo "  <td class='dehead' colspan='2'>\n";
