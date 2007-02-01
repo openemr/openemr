@@ -1,6 +1,7 @@
 <?php
 
-	require_once (dirname(__FILE__) ."/../sql.inc");
+	require_once (dirname(__FILE__) . "/../sql.inc");
+	require_once (dirname(__FILE__) . "/../lists.inc");
 	require_once("ORDataObject.class.php");
 	require_once("Patient.class.php");
 	require_once("Person.class.php");
@@ -298,33 +299,37 @@ class Prescription extends ORDataObject {
 	function get_substitute() {
 		return $this->substitute;
 	}
-        function set_medication($med) {
-                $this->medication = $med;
-                //check if this drug is on the medication list
-                $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 1 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . $this->drug . "')) and pid = " . $this->patient->id . ' limit 1');
+	function set_medication($med) {
+		$this->medication = $med;
 
-                if ($med && !isset($dataRow['id'])){
-                        $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 0 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . $this->drug . "')) and pid = " . $this->patient->id . ' limit 1');
-                        if (!isset($dataRow['id'])){
-                                //add the record to the medication list
-                                sqlInsert("insert into lists(date,begdate,type,activity,pid,user,groupname,title) values (now(),cast(now() as date),'medication',1," . $this->patient->id . ",'" . $$_SESSION['authUser']. "','" . $$_SESSION['authProvider'] . "','" . $this->drug . "')");
-                        }
-                        else {
-                                $dataRow = sqlQuery('update lists set activity = 1'
-                                         . " ,user = '" . $$_SESSION['authUser']
-                                         . "', groupname = '" . $$_SESSION['authProvider'] . "' where id = " . $dataRow['id']);
-                        }
-                }
-                elseif (!$med && isset($dataRow['id'])) {
-                        //remove the drug from the medication list if it exists
-                        $dataRow = sqlQuery('update lists set activity = 0'
-                                 . " ,user = '" . $$_SESSION['authUser']
-                                 . "', groupname = '" . $$_SESSION['authProvider'] . "' where id = " . $dataRow['id']);
-                }
-        }
-        function get_medication() {
-                return $this->medication;
-        }
+		// Avoid making a mess if we are not using the "medication" issue type.
+		if (!$ISSUE_TYPES['medication']) return;
+
+		//check if this drug is on the medication list
+		$dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 1 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . $this->drug . "')) and pid = " . $this->patient->id . ' limit 1');
+
+		if ($med && !isset($dataRow['id'])){
+			$dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 0 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . $this->drug . "')) and pid = " . $this->patient->id . ' limit 1');
+			if (!isset($dataRow['id'])){
+				//add the record to the medication list
+				sqlInsert("insert into lists(date,begdate,type,activity,pid,user,groupname,title) values (now(),cast(now() as date),'medication',1," . $this->patient->id . ",'" . $$_SESSION['authUser']. "','" . $$_SESSION['authProvider'] . "','" . $this->drug . "')");
+			}
+			else {
+				$dataRow = sqlQuery('update lists set activity = 1'
+					. " ,user = '" . $$_SESSION['authUser']
+					. "', groupname = '" . $$_SESSION['authProvider'] . "' where id = " . $dataRow['id']);
+			}
+		}
+		elseif (!$med && isset($dataRow['id'])) {
+			//remove the drug from the medication list if it exists
+			$dataRow = sqlQuery('update lists set activity = 0'
+				. " ,user = '" . $$_SESSION['authUser']
+				. "', groupname = '" . $$_SESSION['authProvider'] . "' where id = " . $dataRow['id']);
+		}
+	}
+	function get_medication() {
+					return $this->medication;
+	}
 
 	function set_per_refill($pr) {
 		if (is_numeric($pr)) {
