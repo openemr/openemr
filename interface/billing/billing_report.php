@@ -78,11 +78,11 @@ if (!isset($_POST["mode"])) {
 	} else {
 		$unbilled = $_POST["unbilled"];
 	}
-	if (!isset($_POST["authorized"])) {
-		$my_authorized = "on";
-	} else {
-		$my_authorized = $_POST["authorized"];
-	}
+	// if (!isset($_POST["authorized"])) {
+	//  $my_authorized = "on";
+	// } else {
+	$my_authorized = $_POST["authorized"];
+	// }
 } else {
 	$from_date = $_POST["from_date"];
 	$to_date = $_POST["to_date"];
@@ -388,7 +388,19 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 	$skipping = FALSE;
 
 	foreach ($ret as $iter) {
-		$this_encounter_id = $iter['pid'] . "-" . $iter['encounter'];
+
+		// We include encounters here that have never been billed.  However
+		// if it had no selected billing items but does have non-selected
+		// billing items, then it is not of interest.
+		if (!$iter['id']) {
+			$res = sqlQuery("SELECT count(*) AS count FROM billing WHERE " .
+				"encounter = '" . $iter['enc_encounter'] . "' AND " .
+				"pid='" . $iter['enc_pid'] . "' AND " .
+				"activity = 1");
+			if ($res['count'] > 0) continue;
+		}
+
+		$this_encounter_id = $iter['enc_pid'] . "-" . $iter['enc_encounter'];
 
 		// echo "<!-- $this_encounter_id -->\n"; // debugging
 
@@ -412,8 +424,8 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 			$skipping = FALSE;
 			if ($my_authorized == '1') {
 				$res = sqlQuery("select count(*) as count from billing where " .
-					"encounter = '" . $iter['encounter'] . "' and " .
-					"pid='" . $iter['pid'] . "' and " .
+					"encounter = '" . $iter['enc_encounter'] . "' and " .
+					"pid='" . $iter['enc_pid'] . "' and " .
 					"activity = 1 and authorized = 0");
 				if ($res['count'] > 0) {
 					$skipping = TRUE;
@@ -422,14 +434,14 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 				}
 			}
 
-			$name = getPatientData($iter['pid'], "fname, mname, lname");
+			$name = getPatientData($iter['enc_pid'], "fname, mname, lname");
 
 			# Check if patient has primary insurance and a subscriber exists for it.
 			# If not we will highlight their name in red.
 			# TBD: more checking here.
 			#
 			$res = sqlQuery("select count(*) as count from insurance_data where " .
-				"pid = " . $iter['pid'] . " and " .
+				"pid = " . $iter['enc_pid'] . " and " .
 				"type='primary' and " .
 				"subscriber_lname is not null and " .
 				"subscriber_lname != '' limit 1");
@@ -438,7 +450,7 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 			++$encount;
 			$bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
 			echo "<tr bgcolor='$bgcolor'><td colspan='8' height='5'></td></tr>\n";
-			$lcount = 3;
+			$lcount = 1;
 			$rcount = 0;
 			$oldcode = "";
 
@@ -446,16 +458,16 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 			$raw_encounter_date = date("Y-m-d", strtotime($iter['enc_date']));
 
 			$lhtml .= "&nbsp;<span class=bold><font color='$namecolor'>$ptname" .
-				"</font></span><span class=small>&nbsp;(" . $iter['pid'] . "-" .
-				$iter['encounter'] . ")</span>";
+				"</font></span><span class=small>&nbsp;(" . $iter['enc_pid'] . "-" .
+				$iter['enc_encounter'] . ")</span>";
 
 			// $lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" href=\"" .
 			//  $GLOBALS['form_exit_url'] . "?set_encounter=" .
 			//  $iter['encounter'] . "&pid=" . $iter['pid'] . "\">[To&nbsp;Encounter]</a>";
 
 			$lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" " .
-				"href=\"javascript:window.toencounter(" . $iter['pid'] .
-				",'" . addslashes($ptname) . "'," . $iter['encounter'] .
+				"href=\"javascript:window.toencounter(" . $iter['enc_pid'] .
+				",'" . addslashes($ptname) . "'," . $iter['enc_encounter'] .
 				",'$raw_encounter_date')\">[To&nbsp;Encounter]</a>";
 
 			// $lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" href=\"" . $GLOBALS['webroot'] .
@@ -463,77 +475,74 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 			//  $iter['pid'] . "\">[To&nbsp;Demographics]</a>";
 
 			$lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" " .
-				"href=\"javascript:window.topatient(" . $iter['pid'] .
+				"href=\"javascript:window.topatient(" . $iter['enc_pid'] .
 				")\">[To&nbsp;Demographics]</a>";
 
-			$lhtml .= "<br />\n";
-			$lhtml .= "&nbsp;<span class=text>Bill: ";
-			$lhtml .= "<select name='claims[" . $this_encounter_id . "][payer]' style='background-color:$bgcolor'>";
-
-			$query = "SELECT id.provider AS id, id.type, " .
-				"ic.x12_default_partner_id AS ic_x12id, ic.name AS provider " .
-				"FROM insurance_data AS id, insurance_companies AS ic WHERE " .
-				"ic.id = id.provider AND pid = '" . mysql_escape_string($iter['pid']) .
-				"' ORDER BY type";
-			$result = sqlStatement($query);
-
-			$count = 0;
-			$default_x12_partner = $iter['ic_x12id'];
-
-			while ($row = mysql_fetch_array($result)) {
-				if (strlen($row['provider']) > 0) {
-
-					// This preserves any existing insurance company selection, which is
-					// important when EOB posting has re-queued for secondary billing.
-					$lhtml .= "<option value=\"" . $row['id'] . "\"";
-					if (($count == 0 && !$iter['payer_id']) || $row['id'] == $iter['payer_id']) {
-						$lhtml .= " selected";
-						if (!is_numeric($default_x12_partner)) $default_x12_partner = $row['ic_x12id'];
-					}
-					$lhtml .= ">" . $row['type'] . ": " . $row['provider'] . "</option>";
-
-				}
-				$count++;
-			}
-
-			$lhtml .= "<option value='-1'>Unassigned</option>\n";
-			$lhtml .= "</select>&nbsp;&nbsp;\n";
-			$lhtml .= "<select name='claims[" . $this_encounter_id . "][partner]' style='background-color:$bgcolor'>";
-			$x = new X12Partner();
-			$partners = $x->_utility_array($x->x12_partner_factory());
-			foreach ($partners as $xid => $xname) {
-				$lhtml .= '<option label="' . $xname . '" value="' . $xid .'"';
-				if ($xid == $default_x12_partner) {
-					$lhtml .= "selected";
-				}
-				$lhtml .= '>' . $xname . '</option>';
-			}
-			$lhtml .= "</select>";
-			$lhtml .= "<br>\n&nbsp;".xl("Claim was initiated: ")  . $iter['date'];
-			if ($iter['billed'] == 1) {
-				$lhtml .= "<br>\n&nbsp;".xl("Claim was billed: ")  . $iter['bill_date'];
-				++$lcount;
-			}
-			if ($iter['bill_process'] == 1) {
-				$lhtml .= "<br>\n&nbsp;".xl("Claim is queued for processing");
-				++$lcount;
-			}
-			if ($iter['bill_process'] == 5) {
-				$lhtml .= "<br>\n&nbsp;".xl("Claim is queued for printing and processing");
-				++$lcount;
-			}
-			if ($iter['bill_process'] == 2) {
-				$lhtml .= "<br>\n&nbsp;".xl("Claim was processed: ")  . $iter['process_date'];
-				$lhtml .= '<br>' . "\n" . '&nbsp;'.xl("Claim is in file:").' <a href="get_claim_file.php?key=' . $iter['process_file'] .'">'  . $iter['process_file'] . '</a> or ';
-				$lhtml .= '<a href="get_claim_file.php?action=print&key=' . $iter['process_file'] .'">Print It</a> or ';
-				$lhtml .= '<a target="_new" href="freebtest.php?format=' . $iter['target'] . '&billkey=' . $iter['pid'] . '-' . $iter['encounter'] . '">'.xl('Run Test').'</a>';
-				$lhtml .= '<input type="hidden" name="claims[' . $this_encounter_id . '][file]" value="' . $iter['process_file'] . '">';
+			if ($iter['id']) {
 				$lcount += 2;
-			}
-			if ($iter['bill_process'] == 3) {
-				$lhtml .= "<br>\n&nbsp;".xl("Claim was processed: ")  . $iter['process_date'] . xl(" but there was an error: "). $iter['process_file'];
-				++$lcount;
-			}
+				$lhtml .= "<br />\n";
+				$lhtml .= "&nbsp;<span class=text>Bill: ";
+				$lhtml .= "<select name='claims[" . $this_encounter_id . "][payer]' style='background-color:$bgcolor'>";
+				$query = "SELECT id.provider AS id, id.type, " .
+					"ic.x12_default_partner_id AS ic_x12id, ic.name AS provider " .
+					"FROM insurance_data AS id, insurance_companies AS ic WHERE " .
+					"ic.id = id.provider AND pid = '" . mysql_escape_string($iter['enc_pid']) .
+					"' ORDER BY type";
+				$result = sqlStatement($query);
+				$count = 0;
+				$default_x12_partner = $iter['ic_x12id'];
+				while ($row = mysql_fetch_array($result)) {
+					if (strlen($row['provider']) > 0) {
+						// This preserves any existing insurance company selection, which is
+						// important when EOB posting has re-queued for secondary billing.
+						$lhtml .= "<option value=\"" . $row['id'] . "\"";
+						if (($count == 0 && !$iter['payer_id']) || $row['id'] == $iter['payer_id']) {
+							$lhtml .= " selected";
+							if (!is_numeric($default_x12_partner)) $default_x12_partner = $row['ic_x12id'];
+						}
+						$lhtml .= ">" . $row['type'] . ": " . $row['provider'] . "</option>";
+					}
+					$count++;
+				}
+				$lhtml .= "<option value='-1'>Unassigned</option>\n";
+				$lhtml .= "</select>&nbsp;&nbsp;\n";
+				$lhtml .= "<select name='claims[" . $this_encounter_id . "][partner]' style='background-color:$bgcolor'>";
+				$x = new X12Partner();
+				$partners = $x->_utility_array($x->x12_partner_factory());
+				foreach ($partners as $xid => $xname) {
+					$lhtml .= '<option label="' . $xname . '" value="' . $xid .'"';
+					if ($xid == $default_x12_partner) {
+						$lhtml .= "selected";
+					}
+					$lhtml .= '>' . $xname . '</option>';
+				}
+				$lhtml .= "</select>";
+				$lhtml .= "<br>\n&nbsp;".xl("Claim was initiated: ")  . $iter['date'];
+				if ($iter['billed'] == 1) {
+					$lhtml .= "<br>\n&nbsp;".xl("Claim was billed: ")  . $iter['bill_date'];
+					++$lcount;
+				}
+				if ($iter['bill_process'] == 1) {
+					$lhtml .= "<br>\n&nbsp;".xl("Claim is queued for processing");
+					++$lcount;
+				}
+				if ($iter['bill_process'] == 5) {
+					$lhtml .= "<br>\n&nbsp;".xl("Claim is queued for printing and processing");
+					++$lcount;
+				}
+				if ($iter['bill_process'] == 2) {
+					$lhtml .= "<br>\n&nbsp;".xl("Claim was processed: ")  . $iter['process_date'];
+					$lhtml .= '<br>' . "\n" . '&nbsp;'.xl("Claim is in file:").' <a href="get_claim_file.php?key=' . $iter['process_file'] .'">'  . $iter['process_file'] . '</a> or ';
+					$lhtml .= '<a href="get_claim_file.php?action=print&key=' . $iter['process_file'] .'">Print It</a> or ';
+					$lhtml .= '<a target="_new" href="freebtest.php?format=' . $iter['target'] . '&billkey=' . $iter['enc_pid'] . '-' . $iter['enc_encounter'] . '">'.xl('Run Test').'</a>';
+					$lhtml .= '<input type="hidden" name="claims[' . $this_encounter_id . '][file]" value="' . $iter['process_file'] . '">';
+					$lcount += 2;
+				}
+				if ($iter['bill_process'] == 3) {
+					$lhtml .= "<br>\n&nbsp;".xl("Claim was processed: ")  . $iter['process_date'] . xl(" but there was an error: "). $iter['process_file'];
+					++$lcount;
+				}
+			} // end if ($iter['id'])
 		}
 
 		if ($skipping) continue;
@@ -543,14 +552,13 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 			$rhtml .= "<tr bgcolor='$bgcolor'>\n";
 		}
 		$rhtml .= "<td width='50'>";
-		if ($oldcode != $iter['code_type']) {
+		if ($iter['id'] && $oldcode != $iter['code_type']) {
 			$rhtml .= "<span class=text>" . $iter['code_type'] . ": </span>";
 		}
 		$oldcode = $iter['code_type'];
 		$rhtml .= "</td>\n";
 		$justify = "";
-//	if ($iter['code_type'] == "CPT4" || $iter['code_type'] == "HCPCS") {
-		if ($code_types[$iter['code_type']]['just']) {
+		if ($iter['id'] && $code_types[$iter['code_type']]['just']) {
 			$js = split(":",$iter['justify']);
 			$counter = 0;
 			foreach ($js as $j) {
@@ -568,21 +576,23 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 
 		$rhtml .= "<td><span class=text>" . $iter{"code"}. "</span>" . '<span style="font-size:8pt;">' . $justify . "</span></td>\n";
 		$rhtml .= '<td align="right"><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
-		if ($iter['fee'] > 0) {
+		if ($iter['id'] && $iter['fee'] > 0) {
 			$rhtml .= '$' . $iter['fee'];
 		}
 		$rhtml .= "</span></td>\n";
 		$rhtml .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
-		$rhtml .= getProviderName($iter['provider_id']);
+		if ($iter['id']) $rhtml .= getProviderName($iter['provider_id']);
 		$rhtml .= "</span></td>\n";
-		$rhtml .= '<td width=100>&nbsp;&nbsp;&nbsp;<span style="font-size:8pt;">' . date("Y-m-d",strtotime($iter{"date"})) . "</span></td>\n";
-		if ($iter['authorized'] != 1) {
+		$rhtml .= '<td width=100>&nbsp;&nbsp;&nbsp;<span style="font-size:8pt;">';
+		if ($iter['id']) $rhtml .= date("Y-m-d",strtotime($iter{"date"}));
+		$rhtml .= "</span></td>\n";
+		if ($iter['id'] && $iter['authorized'] != 1) {
 			$rhtml .= "<td><span class=alert>".xl("Note: This code was not entered by an authorized user. Only authorized codes may be uploaded to the Open Medical Billing Network for processing. If you wish to upload these codes, please select an authorized user here.")."</span></td>\n";
 		}
 		else {
 			$rhtml .= "<td></td>\n";
 		}
-		if ($last_encounter_id != $this_encounter_id) {
+		if ($iter['id'] && $last_encounter_id != $this_encounter_id) {
 			$rhtml .= "<td><input type='checkbox' value='" . $iter['bill_process'] . "$procstatus' name='claims[" . $this_encounter_id . "][bill]' onclick='set_button_states()'>&nbsp;</td>\n";
 		}
 		else {
