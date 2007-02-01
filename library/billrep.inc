@@ -50,6 +50,7 @@
 		// just the data entry date; instead we want to go by the encounter date
 		// which is the date in the form_encounter table.
 		//
+		/****
 		$sql = "select form_encounter.date as enc_date, billing.* " .
 			"from form_encounter, billing where " .
 			"form_encounter.date >= '$date' and " .
@@ -60,6 +61,22 @@
 			"billing.code_type like '$code_type' and " .
 			"billing.activity = 1 " .
 			"order by billing.encounter, billing.pid, billing.code_type, billing.code ASC";
+		****/
+
+		$sql = "SELECT fe.date AS enc_date, fe.pid AS enc_pid, " .
+			"fe.encounter AS enc_encounter, billing.* " .
+			"FROM form_encounter AS fe " .
+			"LEFT OUTER JOIN billing ON " .
+			"billing.encounter = fe.encounter AND " .
+			"billing.pid = fe.pid AND " .
+			"billing.authorized like '$auth' AND " .
+			"( $billstring ) AND " .
+			"billing.code_type LIKE '$code_type' AND " .
+			"billing.activity = 1 " .
+			"WHERE " .
+			"fe.date >= '$date' AND " .
+			"fe.date <= '$date2 23:59:59' " .
+			"ORDER BY fe.encounter, fe.pid, billing.code_type, billing.code ASC";
 
 		$res = sqlStatement($sql);
 
