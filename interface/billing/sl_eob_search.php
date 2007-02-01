@@ -525,8 +525,8 @@ function npopup(pid) {
       // Skip invoices not in the desired "Due..." category.
       //
       if (substr($_POST['form_category'], 0, 3) == 'Due' && !$isdueany) continue;
-      if ($_POST['form_category'] == 'Due Ins' && $duncount >= 0) continue;
-      if ($_POST['form_category'] == 'Due Pt'  && $duncount <  0) continue;
+      if ($_POST['form_category'] == 'Due Ins' && ($duncount >= 0 || !$isdueany)) continue;
+      if ($_POST['form_category'] == 'Due Pt'  && ($duncount <  0 || !$isdueany)) continue;
 
       $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
 
