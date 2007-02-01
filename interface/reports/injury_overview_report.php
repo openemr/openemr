@@ -155,7 +155,8 @@ function dopclick(id,pid) {
 
 		$query = "SELECT lists.id AS listid, lists.diagnosis, lists.pid, " .
 			"lists.extrainfo AS gmissed, lists.begdate, lists.enddate, " .
-			"lists.returndate, lists.title, pd.lname, pd.fname, pd.mname, pd.fitness " .
+			"lists.returndate, lists.title, lists.type, " .
+			"pd.lname, pd.fname, pd.mname, pd.fitness " .
 			"FROM lists " .
 			"JOIN patient_data AS pd ON pd.pid = lists.pid AND ( $squadmatches ) " .
 			"WHERE ( lists.enddate IS NULL OR lists.enddate >= '$from_date' ) AND " .
@@ -195,6 +196,8 @@ function dopclick(id,pid) {
 			$ptname  = '&nbsp;';
 			$fitness = '&nbsp;';
 
+			$issue_style = $ISSUE_TYPES[$row['type']][3];
+
 			// Compute days missed.  Force non-overlap of multiple issues for the
 			// same player.  This logic assumes sorting on begdate within pid.
 			//
@@ -213,7 +216,7 @@ function dopclick(id,pid) {
 				$bgcolor = (++$encount & 1) ? "#ddddff" : "#ffdddd";
 			}
 			$daysmissed = '&nbsp;';
-			if ($row['begdate']) {
+			if ($row['begdate'] && $issue_style == 0) {
 				if ($begsecs > $endsecs) $begsecs = $endsecs;
 				if ($last_endsecs < $endsecs) $last_endsecs = $endsecs;
 				$daysmissed = round(($endsecs - $begsecs) / (60 * 60 * 24));
