@@ -299,7 +299,8 @@
 			$payload='<?xml version="1.0" encoding="' . $xmlrpc_defencoding . '"?>' . "\n"
 				. $this->serializeDebug()
 				. $r->serialize();
-			Header("Content-type: text/xml\r\nContent-length: " . strlen($payload));
+			Header("Content-type: text/xml");
+			Header("Content-length: " . strlen($payload));
 			print $payload;
 		}
 
