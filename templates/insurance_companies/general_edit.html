@@ -4,50 +4,50 @@
 <input type="hidden" name="form_id" value="{$insurancecompany->id}" />
 <table CELLSPACING="0" CELLPADDING="3">
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Name</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Name'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<input type="text" size="40" name="name" value="{$insurancecompany->get_name()}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Attn</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Attn'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<input type="text" size="40" name="attn" value="{$insurancecompany->get_attn()}"/>
 	</td>
 </tr>
 
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Address</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Address'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<input type="text" size="40" name="address_line1" value="{$insurancecompany->address->line1}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Address</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Address'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<input type="text" size="40" name="address_line2" value="{$insurancecompany->address->line2}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >City, State Zip</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='City, State Zip'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<input type="text" size="25" name="city" value="{$insurancecompany->address->city}"/> , <input type="text" size="2" maxlength="2" name="state" value="{$insurancecompany->address->state}"/> <input type="text" size="5" name="zip" value="{$insurancecompany->address->zip}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Phone</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Phone'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<input TYPE="TEXT" NAME="phone" SIZE="12" VALUE="{$insurancecompany->get_phone()}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >CMS ID</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='CMS ID'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<input type="text" size="15" name="cms_id" value="{$insurancecompany->get_cms_id()}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE">Payer Type</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE">{xl t='Payer Type'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE">
 		{html_options name="freeb_type" options=$insurancecompany->freeb_type_array selected=$insurancecompany->get_freeb_type()}
 	</td>
@@ -61,13 +61,13 @@ This is now deprecated use the newer x12 partner code instead
 	</td>
 </tr>-->
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE">Default X12 Partner</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE">{xl t='Default X12 Partner'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE">
 		{html_options name="x12_default_partner_id" options=$x12_partners selected=$insurancecompany->get_x12_default_partner_id()}
 	</td>
 </tr>
 <tr>
-	<td><br /><input type="submit" value="Update" /></td>
+	<td><br /><input type="submit" value="{xl t='Update'}" /></td>
 </tr>
 </table>
 <input type="hidden" name="id" value="{$insurancecompany->id}" />

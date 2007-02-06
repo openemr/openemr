@@ -18,7 +18,7 @@
 		<td valign="top">
 		<form name="notes" method="post" action="{$NOTE_ACTION}">
 		<textarea cols="53" rows="4" wrap="virtual" name="note"></textarea><br>
-		<input type="submit" name="add note" value="Add Note">
+		<input type="submit" name="add note" value="{xl t='Add Note'}">
 		<input type="hidden" name="process" value="{$PROCESS}" />
 		<input type="hidden" name="foreign_id" value="{$file->get_id()}" />
 		</form>
@@ -26,8 +26,8 @@
 		<td rowspan="2">
 		<textarea cols="53" rows="10" disabled>
 {foreach name=note_loop from=$notes item=note}
-Note #{$note->get_id()}
-Date: {$note->get_date()}
+{xl t='Note'} #{$note->get_id()}
+{xl t='Date:'} {$note->get_date()}
 {$note->get_note()}
 
 {/foreach}
@@ -38,16 +38,16 @@ Date: {$note->get_date()}
 		<td>
 		<form method="post" name="document_move" action="{$MOVE_ACTION}">
 		<select name="new_category_id">{$tree_html_listbox}</select><br><br>
-		Move to Patient # <input type="text" name="new_patient_id" size="4">
+		{xl t='Move to Patient'} # <input type="text" name="new_patient_id" size="4">
 		<a href="javascript:{literal}{}{/literal}" onclick="var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|escape:"url"}&form_name={"document_move['new_patient_name']"|escape:"url"}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left = 425,top = 250');"><img src="images/stock_search-16.png" border="0"</a>
-		&nbsp;&nbsp;&nbsp;<input type="submit" name="move" value="Move">
+		&nbsp;&nbsp;&nbsp;<input type="submit" name="move" value="{xl t='Move'}">
 		<input type="hidden" name="new_patient_name" value="">
 		</form>
 		</td>
 	</tr>
 	</table>
 
-<a href="{$web_path}">Click to download</a>
+<a href="{$web_path}">{xl t='Click to download'}</a>
 
 <!-- Added by Rod: -->
 &nbsp;&nbsp;&nbsp;{$delete_string}

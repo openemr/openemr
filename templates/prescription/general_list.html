@@ -40,18 +40,18 @@ var myRegExp = new RegExp(":" + value + ":");
 	</tr>
 
 	<tr>
-		<td>Drug</td>
+		<td>{xl t='Drug'}</td>
 		<td rowspan="50">&nbsp;</td>
-		<td>Created<br />Changed</td>
+		<td>{xl t='Created'}<br />{xl t='Changed'}</td>
 		<td rowspan="50">&nbsp;</td>
-		<td>Dosage</td>
+		<td>{xl t='Dosage'}</td>
 		<td rowspan="50">&nbsp;</td>
-		<td>Unit</td>
+		<td>{xl t='Unit'}</td>
 		<td rowspan="50">&nbsp;</td>
-		<td>Qty.</td>
+		<td>{xl t='Qty'}.</td>
 		<td rowspan="50">&nbsp;</td>
-		<td>Provider</td>
-                <td>Select</td>
+		<td>{xl t='Provider'}</td>
+                <td>{xl t='Select'}</td>
 
 	</tr>
 	{foreach from=$prescriptions item=prescription}
@@ -67,7 +67,7 @@ var myRegExp = new RegExp(":" + value + ":");
 	</tr>
 	{foreachelse}
 	<tr>
-		<td colspan="6">No Prescriptions Found</td>
+		<td colspan="6">{xl t='No Prescriptions Found'}</td>
 	</tr>
 	{/foreach}
 </table>

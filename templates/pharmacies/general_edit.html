@@ -4,56 +4,56 @@
 <input type="hidden" name="form_id" value="{$pharmacy->id}" />
 <table CELLSPACING="0" CELLPADDING="3">
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Name</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Name'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<input type="text" size="40" name="name" value="{$pharmacy->name}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Address</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Address'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<input type="text" size="40" name="address_line1" value="{$pharmacy->address->line1}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Address</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Address'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<input type="text" size="40" name="address_line2" value="{$pharmacy->address->line2}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >City, State Zip</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='City, State Zip'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<input type="text" size="25" name="city" value="{$pharmacy->address->city}"/> , <input type="text" size="2" maxlength="2" name="state" value="{$pharmacy->address->state}"/> <input type="text" size="5" name="zip" value="{$pharmacy->address->zip}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Email</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Email'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<input TYPE="TEXT" NAME="email" SIZE="35" VALUE="{$pharmacy->email}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Phone</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Phone'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<input TYPE="TEXT" NAME="phone" SIZE="12" VALUE="{$pharmacy->get_phone()}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Fax</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Fax'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<input TYPE="TEXT" NAME="fax" SIZE="12" VALUE="{$pharmacy->get_fax()}"/>
 	</td>
 </tr>
 
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Default Method</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Default Method'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<select name="transmit_method">{html_options options=$pharmacy->transmit_method_array selected=$pharmacy->transmit_method}</select>
 	</td>
 </tr>
 <tr>
-	<td><br /><input type="submit" value="Update" /></td>
+	<td><br /><input type="submit" value="{xl t='Update'}" /></td>
 </tr>
 </table>
 <input type="hidden" name="id" value="{$pharmacy->id}" />

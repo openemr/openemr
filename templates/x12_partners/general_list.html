@@ -1,12 +1,12 @@
 <table>
 	<tr>
-		<td>Name</td>
+		<td>{xl t='Name'}</td>
 		<td>&nbsp;</td>
-		<td>Sender ID</td>
+		<td>{xl t='Sender ID'}</td>
 		<td>&nbsp;</td>
-		<td>Receiver ID</td>
+		<td>{xl t='Receiver ID'}</td>
 		<td>&nbsp;</td>
-		<td>Version</td>
+		<td>{xl t='Version'}</td>
 	</tr>
 	{foreach from=$partners item=partner}
 	<tr>
@@ -20,13 +20,13 @@
 	</tr>
 	{foreachelse}
 	<tr>
-		<td colspan="6">No Partners Found</td>
+		<td colspan="6">{xl t='No Partners Found'}</td>
 	</tr>
 	{/foreach}
 	<tr>
 		<td>&nbsp;</td>
 	</tr>
 	<tr>
-		<td><a href="{$CURRENT_ACTION}action=edit&id=default">Add New Partner</a></td>
+		<td><a href="{$CURRENT_ACTION}action=edit&id=default">{xl t='Add New Partner'}</a></td>
 	</tr>
 </table>

@@ -21,20 +21,20 @@ a {
 <input type="hidden" name="MAX_FILE_SIZE" value="12000000" />
 <table>
 	<tr>
-		<td>Upload Document</td>
+		<td>{xl t="Upload Document"}</td>
 	</tr>
 	<tr>
 		<td><input type="file" name="file"></td>
 	</tr>
 	<tr>
-		<td><input type="submit" value="Upload"></td>
+		<td><input type="submit" value="{xl t='Upload'}"></td>
 	</tr>
 	{if !empty($file)}
 	<tr>
 		<td><br><br></td>
 	</tr>
 	<tr>
-		<td>Upload Report</td>
+		<td>{xl t='Upload Report'}</td>
 	</tr>
 	<tr>
 		<td>{$error}</td>

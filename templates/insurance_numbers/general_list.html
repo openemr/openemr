@@ -1,24 +1,24 @@
 <table>
         <tr>
-                <td>Name</td>
+                <td>{xl t='Name'}</td>
                 <td rowspan="50">&nbsp;</td>
                 <td></td>
                 <td rowspan="50">&nbsp;</td>
-                <td>Provider #</td>
-                <td>Rendering #</td>
-                <td>Group #</td>
+                <td>{xl t='Provider'} #</td>
+                <td>{xl t='Rendering'} #</td>
+                <td>{xl t='Group'} #</td>
         </tr>
         {foreach from=$providers item=provider}
         <tr>
                 <td><a href="{$CURRENT_ACTION}action=edit&id=default&provider_id={$provider->id}">{$provider->get_name_display()}</a></td>
-                <td>Default</td>
+                <td>{xl t='Default'}</td>
                 <td>{$provider->get_provider_number_default()}</td>
                 <td>{$provider->get_rendering_provider_number_default()}</td>
                 <td>{$provider->get_group_number_default()}</td>
         </tr>
         {foreachelse}
         <tr>
-                <td colspan="6">No Providers Found</td>
+                <td colspan="6">{xl t='No Providers Found'}</td>
         </tr>
         {/foreach}
 </table>

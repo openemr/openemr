@@ -39,7 +39,7 @@ a {
 	</tr>
 	<tr>
 		<td>
-			<input type="submit" value="search"/>
+			<input type="submit" value="{xl t='search'}"/>
 		</td>
 	</tr>
 </table>
@@ -49,10 +49,10 @@ a {
 <table>
 {if count($result_set) > 0}
 	<tr>
-		<td>Results Found For Search '{$search_string}'</td>
+		<td>{xl t='Results Found For Search'} '{$search_string}'</td>
 	</tr>
 	<tr>
-		<td>Name</td><td>DOB</td><td>Patient ID</td>
+		<td>{xl t='Name'}</td><td>{xl t='DOB'}</td><td>{xl t='Patient ID'}</td>
 {/if}
 {foreach  name="search_results" from=$result_set  item=result}
 	<tr>
@@ -65,7 +65,7 @@ a {
 {foreachelse}
 	{if is_array($result_set)}
 	<tr>
-		<td>No Results Found For Search '{$search_string}'</td>
+		<td>{xl t='No Results Found For Search'} '{$search_string}'</td>
 	</tr>
 	{/if}
 {/foreach}

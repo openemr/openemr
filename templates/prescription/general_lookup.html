@@ -42,19 +42,19 @@ textarea {
 <div ALIGN="CENTER">
 	<form NAME="lookup" ACTION="{$FORM_ACTION}" METHOD="POST">
 	{if $drug_options}
-		{html_options name="drug" values=$drug_values options=$drug_options}<input class="button" TYPE="BUTTON" NAME="select" VALUE="Select" onClick="my_process(); return true;">
-		<br><a href="{$CONTROLLER_THIS}">search again</a>
+		{html_options name="drug" values=$drug_values options=$drug_options}<input class="button" TYPE="BUTTON" NAME="select" VALUE="{xl t='Select'}" onClick="my_process(); return true;">
+		<br><a href="{$CONTROLLER_THIS}">{xl t='search again'}</a>
 	{else}
 		{$NO_RESULTS}
 
 		<input TYPE="HIDDEN" NAME="varname" VALUE=""/>
 		<input TYPE="HIDDEN" NAME="formname" VALUE=""/>
 		<input TYPE="HIDDEN" NAME="submitname" VALUE=""/>
-		<input TYPE="HIDDEN" NAME="action" VALUE="Search">
+		<input TYPE="HIDDEN" NAME="action" VALUE="{xl t='Search'}">
 		<div ALIGN="CENTER" CLASS="infobox">
 			Drug:
 			<input TYPE="TEXT" NAME="drug" VALUE=""/>
-			<input TYPE="SUBMIT" NAME="action" VALUE="Search" class="button"/>
+			<input TYPE="SUBMIT" NAME="action" VALUE="{xl t='Search'}" class="button"/>
 		</div>
 		<input type="hidden" name="process" value="{$PROCESS}" />
 

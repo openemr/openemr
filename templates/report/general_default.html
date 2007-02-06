@@ -32,76 +32,76 @@ function dopopup(aurl) {
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
 
-<a href="custom_report_range.php" target="_new">Superbill Report</a>
+<a href="custom_report_range.php" target="_new">{xl t='Superbill Report'}</a>
 <br/>
 
-<a href="appointments_report.php" target="_new">Appointments Report</a>
+<a href="appointments_report.php" target="_new">{xl t='Appointments Report'}</a>
 <br/>
 
-<a href="appt_encounter_report.php" target="_new">Appointments-Encounters Report</a>
+<a href="appt_encounter_report.php" target="_new">{xl t='Appointments-Encounters Report'}</a>
 <br/>
 
 {php} if (! $GLOBALS['simplified_demographics']) { {/php}
-<a href="insurance_allocation_report.php" target="_new">Patient Insurance Distribution Report</a>
+<a href="insurance_allocation_report.php" target="_new">{xl t='Patient Insurance Distribution Report'}</a>
 <br/>
-<a href="../billing/indigent_patients_report.php" target="_new">Indigent Patients Report</a>
+<a href="../billing/indigent_patients_report.php" target="_new">{xl t='Indigent Patients Report'}</a>
 <br/>
-<a href="unique_seen_patients_report.php" target="_new">Unique Seen Patients Report</a>
+<<a href="unique_seen_patients_report.php" target="_new">{xl t='Unique Seen Patients Report'}</a>
 <br/>
-<a href="patient_list.php" target="_new">Patient List</a>
+<a href="patient_list.php" target="_new">{xl t='Patient List'}</a>
 <br/>
 {php} } {/php}
 
 {php} if (! $GLOBALS['weight_loss_clinic']) { {/php}
-<a href="front_receipts_report.php" target="_new">Front Office Receipts Report</a>
+<a href="front_receipts_report.php" target="_new">{xl t='Front Office Receipts Report'}</a>
 <br/>
 {php} } {/php}
 
-<a href="prescriptions_report.php" target="_new">Prescriptions Report</a>
+<a href="prescriptions_report.php" target="_new">{xl t='Prescriptions Report'}</a>
 <br/>
 
-<a href="sales_by_item.php" target="_new">Sales by Product Report</a>
+<a href="sales_by_item.php" target="_new">{xl t='Sales by Product Report'}</a>
 <br/>
 
-<a href="collections_report.php" target="_new">Collections Report</a>
+<a href="collections_report.php" target="_new">{xl t='Collections Report'}</a>
 <br/>
 
 {php} if ($GLOBALS['inhouse_pharmacy']) { {/php}
-<a href="destroyed_drugs_report.php" target="_new">Destroyed Drugs Report</a>
+<a href="destroyed_drugs_report.php" target="_new">{xl t='Destroyed Drugs Report'}</a>
 <br/>
 {php} } {/php}
 
-<a href="receipts_by_method_report.php" target="_new">Receipts by Payment Method Report</a>
+<a href="receipts_by_method_report.php" target="_new">{xl t='Receipts by Payment Method Report'}</a>
 {php}
  if ($GLOBALS['athletic_team']) {
   echo "<br/>\n";
-  echo "<a href='javascript:dopopup(\"players_report.php\")'>Team Roster</a>\n";
+  echo "<a href='javascript:dopopup(\"players_report.php\")'>{xl t='Team Roster'}</a>\n";
   echo "<br/>\n";
-  echo "<a href='javascript:dopopup(\"absences_report.php\")'>Days and Games Missed</a>\n";
+  echo "<a href='javascript:dopopup(\"absences_report.php\")'>{xl t='Days and Games Missed'}</a>\n";
   echo "<br/>\n";
-  echo "<a href='javascript:dopopup(\"football_injury_report.php\")'>Football Injury Reports</a>\n";
+  echo "<a href='javascript:dopopup(\"football_injury_report.php\")'>{xl t='Football Injury Reports'}</a>\n";
   echo "<br/>\n";
-  echo "<a href='javascript:dopopup(\"injury_overview_report.php\")'>Injury Overview Report</a>\n";
+  echo "<a href='javascript:dopopup(\"injury_overview_report.php\")'>{xl t='Injury Overview Report'}</a>\n";
  }
 {/php}
 <br/>
 &nbsp;
 <br/>
-<a href="{$printable_link}" target="_new">[printable]</a>
+<a href="{$printable_link}" target="_new">[{xl t='printable'}]</a>
 &nbsp;
 <br/>
 <form name="report" action="index.php" method="get">
 <table>
 	<tr>
-		<td>Reports:</td>
+		<td>{xl t='Reports'}:</td>
 		<td>{html_options onChange="clear_vars()" name="query_id" selected=$query_id options=$queries}</td>
 		<td>&nbsp;&nbsp;</td>
-		<td>Var1:&nbsp;<input size="10" type="text" value="{$var1}" name="var1"></td>
+		<td>{xl t='Var1'}:&nbsp;<input size="10" type="text" value="{$var1}" name="var1"></td>
 		<td>&nbsp;&nbsp;</td>
-		<td>Var2:&nbsp;<input size="10" type="text" value="{$var2}"name="var2"></td>
+		<td>{xl t='Var2'}:&nbsp;<input size="10" type="text" value="{$var2}"name="var2"></td>
 		<td>&nbsp;&nbsp;</td>
-		<td>Show:&nbsp;</td>
-		<td>{html_options name="show" selected=$show options=$show_options}<input type="submit" value="Go"></td>
+		<td>{xl t='Show'}:&nbsp;</td>
+		<td>{html_options name="show" selected=$show options=$show_options}<input type="submit" value="{xl t='Go'}"></td>
 	</tr>
 	<tr>
 		<td colspan="5"><br><h2>{$title}&nbsp;&nbsp;&nbsp;&nbsp;{$smarty.now|date_format:"%A, %B %e, %Y"}</h2></td>

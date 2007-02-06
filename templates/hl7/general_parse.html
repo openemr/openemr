@@ -33,11 +33,11 @@ PID|||PATID1234^5^M11||RYAN^HENRY^P||19610615|M||C|1200 N ELM STREET^^GREENSBORO
 NK1|JOHNSON^JOAN^K|WIFE||||||NK^NEXT OF KIN
 PV1|1|I|2000^2053^01||||004777^FISHER^BEN^J.|||SUR||||ADM|A0|</td></tr>-->
 <tr>
-<td>Paste HL7 Data</td>
+<td>{xl t='Paste HL7 Data'}</td>
 </tr>
 <tr>
 	<td><textarea rows="10" wrap="virtual" cols="65" name="hl7data"></textarea><br /><br />
-	<input type="submit" name="HL7" value="Parse HL7"/><br /><br />
+	<input type="submit" name="HL7" value="{xl t='Parse HL7'}"/><br /><br />
 	</td>
 </tr>
 {if $hl7_message_err}

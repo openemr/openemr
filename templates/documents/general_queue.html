@@ -6,13 +6,13 @@
 	<tr>
 		<td></td>
 		<td>&nbsp;</td>
-		<td>Name</td>
+		<td>{xl t='Name'}</td>
 		<td>&nbsp;</td>
-		<td>Date</td>
+		<td>{xl t='Date'}</td>
 		<td>&nbsp;</td>
-		<td>Patient</td>
+		<td>{xl t='Patient'}</td>
 		<td>&nbsp;</td>
-		<td>Category</td>
+		<td>{xl t='Category'}</td>
 	</tr>
 	{foreach name=queue_list from=$queue_files item=file}
 	<tr>
@@ -30,7 +30,7 @@
 	</tr>
 	{/foreach}
 	<tr>
-		<td colspan="5"><br><input type="submit" name="update_files" value="Update files"></td>
+		<td colspan="5"><br><input type="submit" name="update_files" value="{xl t='Update files'}"></td>
 	</tr>
 </table>
 <input type="hidden" name="process" value="{$PROCESS}" />

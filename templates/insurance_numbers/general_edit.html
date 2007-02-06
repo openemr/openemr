@@ -7,7 +7,7 @@
 <input type="hidden" name="form_id" value="{$ins->id}" />
 <table CELLSPACING="0" CELLPADDING="3" border="0">
 <tr>
-        <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE">Provider</td>
+        <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE">{xl t='Provider'}</td>
         <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE">
                 {$provider->get_name_display()}
         </td>
@@ -19,25 +19,25 @@
         <td ALIGN="LEFT" VALIGN="MIDDLE">
                         <a href="{$CURRENT_ACTION}action=edit&id={$num_set->get_id()}" class="small">{$num_set->get_insurance_company_name()}</a>
         </td>
-        <td class="small">Provider #</td>
+        <td class="small">{xl t='Provider'} #</td>
         <td class="small">{$num_set->get_provider_number()}</td>
 </tr>
 <tr>
         <td></td>
         <td></td>
-        <td class="small">Rendering Provider #</td>
+        <td class="small">{xl t='Rendering Provider'} #</td>
         <td class="small">{$num_set->get_rendering_provider_number()}</td>
 </tr>
 <tr>
         <td></td>
         <td></td>
-        <td class="small">Group #</td>
+        <td class="small">{xl t='Group'} #</td>
         <td class="small">{$num_set->get_group_number()}</td>
 </tr>
         {if $smarty.foreach.inums.last}
         <tr>
                 <td></td>
-                <td><a class="small" href="{$CURRENT_ACTION}action=edit&id=&provider_id={$provider->get_id()}">Add New...</a></td>
+                <td><a class="small" href="{$CURRENT_ACTION}action=edit&id=&provider_id={$provider->get_id()}">{xl t='Add New'}...</a></td>
                 <td></td>
                 <td></td>
         </tr>
@@ -45,7 +45,7 @@
 {foreachelse}
         <tr>
                 <td></td>
-                <td class="small">No entries found, use the form below to add an entry.</td>
+                <td class="small">{xl t='No entries found, use the form below to add an entry.'}</td>
                 <td></td>
                 <td></td>
         </tr>
@@ -56,7 +56,7 @@
         <td colspan="4"><br /><br /><br /></td>
 </tr>
 <tr>
-        <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Insurance Company</td>
+        <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Insurance Company'}</td>
         <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
                 {if $ins->get_id() eq ""}
                         {html_options name="insurance_company_id" options=$ic_array values=$ic_array selected=$ins->get_insurance_company_id()}
@@ -66,7 +66,7 @@
         </td>
 </tr>
 <tr>
-        <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Provider Number</td>
+        <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Provider Number'}</td>
         <td COLSPAN="3" ALIGN="LEFT" VALIGN="MIDDLE" >
                 <input type="text" size="20" name="provider_number" value="{$ins->get_provider_number()}"/>
                 &nbsp;Type:&nbsp;
@@ -74,7 +74,7 @@
         </td>
 </tr>
 <tr>
-        <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Rendering Provider Number</td>
+        <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Rendering Provider Number'}</td>
         <td COLSPAN="3" ALIGN="LEFT" VALIGN="MIDDLE" >
                 <input type="text" size="20" name="rendering_provider_number" value="{$ins->get_rendering_provider_number()}"/>
                 &nbsp;Type:&nbsp;
@@ -82,7 +82,7 @@
         </td>
 </tr>
 <tr>
-        <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Group Number</td>
+        <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Group Number'}</td>
         <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
                 <input type="text" size="20" name="group_number" value="{$ins->get_group_number()}"/>
         </td>
@@ -91,9 +91,9 @@
         <td><br />
 
                 {if $ins->get_id() eq ""}
-                        <input type="submit" value="Add" />
+                        <input type="submit" value="{xl t='Add'}" />
                 {else}
-                        <input type="submit" value="Update" />
+                        <input type="submit" value="{xl t='Update'}" />
                 {/if}
 
         </td>

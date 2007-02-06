@@ -1,8 +1,8 @@
 <table>
 	<tr>
-		<td><b>Name</b></td>
-		<td><b>City, State</b></td>
-		<td><b>Default X12 Partner</b></td>
+		<td><b>{xl t='Name'}</b></td>
+		<td><b>{xl t='City, State'}</b></td>
+		<td><b>{xl t='Default X12 Partner'}</b></td>
 	</tr>
 	{foreach from=$icompanies item=insurancecompany}
 	<tr>
@@ -12,7 +12,7 @@
 	</tr>
 	{foreachelse}
 	<tr>
-		<td colspan="3">No Insurance Companies Found</td>
+		<td colspan="3">{xl t='No Insurance Companies Found'}</td>
 	</tr>
 	{/foreach}
 </table>

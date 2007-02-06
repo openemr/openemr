@@ -1,10 +1,10 @@
 <table>
 	<tr>
-		<td>Name</td>
+		<td>{xl t='Name'}</td>
 		<td rowspan="50">&nbsp;</td>
-		<td>Address</td>
+		<td>{xl t='Address'}</td>
 		<td rowspan="50">&nbsp;</td>
-		<td>Default Method</td>
+		<td>{xl t='Default Method'}</td>
 	</tr>
 	{foreach from=$pharmacies item=pharmacy}
 	<tr>
@@ -15,7 +15,7 @@
 	</tr>
 	{foreachelse}
 	<tr>
-		<td colspan="6">No Pharmacies Found</td>
+		<td colspan="6">{xl t='No Pharmacies Found'}</td>
 	</tr>
 	{/foreach}
 </table>
