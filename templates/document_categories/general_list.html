@@ -16,7 +16,7 @@
 <script src="CategoryTreeMenu.js" language="JavaScript" type="text/javascript"></script>
 <table>
 	<tr>
-		<td height="20" valign="top">Document Categories</td>
+		<td height="20" valign="top">{xl t="Document Categories"}</td>
 		
 	</tr>
 	<tr>
@@ -27,10 +27,10 @@
 		{if $add_node eq true}
 		<td width="25"></td>
 		<td valign="top">
-		The new category will be a sub-category of {$parent_name}<br>
+		{xl t="The new category will be a sub-category of "}{$parent_name}<br>
 		<form method="post" action="{$FORM_ACTION}">
-		Category Name:&nbsp;<input type="text" name="name">&nbsp;&nbsp;
-		<input type="submit" name="Add Category" value="Add Category">
+		{xl t="Category Name"}:&nbsp;<input type="text" name="name">&nbsp;&nbsp;
+		<input type="submit" name="Add Category" value="{xl t='Add Category'}">
 		<input type="hidden" name="parent_is" value="{$parent_is}">
 		<input type="hidden" name="process" value="{$PROCESS}" />
 		</form>
