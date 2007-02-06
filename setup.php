@@ -101,6 +101,7 @@ You should change this password!
 	$server = $_POST["server"];
 	$port = $_POST["port"];
 	$dbname = $_POST["dbname"];
+	$root = $_POST["root"];	
 	$login = $_POST["login"];
 	$pass = $_POST["pass"];
 	$loginhost = $_POST["loginhost"];
@@ -143,6 +144,7 @@ echo "Now you need to supply the MySQL server information.
 if ($inst != 2) {
 echo "<TR><TD><font color='red'>CLIENT:</font></TD></TR>";
 echo "<TR><TD><span class='text'>User Hostname: </span></TD><TD><INPUT TYPE='TEXT' VALUE='$defhost' NAME='loginhost' SIZE='30'><span class='text'>(This is the IP address of the server machine running Apache and PHP - if you are setting up one computer, this is the same as the Server Host above)</span><br></TD></TR>
+<TR><TD><span class='text'>Name for Root Account: </span></TD><TD><INPUT TYPE='TEXT' VALUE='root' NAME='root' SIZE='30'><span class='text'>(This is name for MySQL root account. For localhost, it is usually ok to leave it 'root'.)</span><br></TD></TR>
 <TR><TD><span class='text'>Root Pass: </span></TD><TD><INPUT TYPE='PASSWORD' VALUE='' NAME='rootpass' SIZE='30'><span class='text'>(This is your MySQL root password. For localhost, it is usually ok to leave it blank.)</span><br></TD></TR>\n";
 }
 echo "<TR><TD><font color='red'>USER:</font></TD></TR>";
@@ -171,9 +173,9 @@ if ($inst != 2) {
 	echo "Connecting to MySQL Server...\n";
 	flush();
 	if ($server == "localhost")
-		$dbh = mysql_connect("$server","root","$rootpass");
+		$dbh = mysql_connect("$server","$root","$rootpass");
 	else
-		$dbh = mysql_connect("$server:$port","root","$rootpass");
+		$dbh = mysql_connect("$server:$port","$root","$rootpass");
 	if ($dbh == FALSE) {
 		echo "ERROR.  Check your login credentials.\n";
 		echo "<p>".mysql_error()." (#".mysql_errno().")\n";
