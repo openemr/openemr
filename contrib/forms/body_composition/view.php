@@ -22,10 +22,18 @@ include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
 
+$scale_file_name = '/tmp/tanita_scale.txt';
+$scale_file_age = -1;
 $row = array();
 
 if (! $encounter) { // comes from globals.php
  die("Internal error: we do not seem to be in an encounter!");
+}
+// encode a string from a form field for database writing.
+function form2db($fldval) {
+ $fldval = trim($fldval);
+ if (!get_magic_quotes_gpc()) $fldval = addslashes($fldval);
+ return $fldval;
 }
 
 function rbvalue($rbname) {
@@ -53,16 +61,16 @@ if ($_POST['bn_save']) {
  if ($formid) {
   $query = "UPDATE form_body_composition SET "      .
    "body_type = "             . rbvalue('form_body_type') . ", "  .
-   "height = '"               . $_POST['form_height']     . "', " .
-   "weight = '"               . $_POST['form_weight']     . "', " .
-   "bmi = '"                  . $_POST['form_bmi']        . "', " .
-   "bmr = '"                  . $_POST['form_bmr']        . "', " .
-   "impedance = '"            . $_POST['form_impedance']  . "', " .
-   "fat_pct = '"              . $_POST['form_fat_pct']    . "', " .
-   "fat_mass = '"             . $_POST['form_fat_mass']   . "', " .
-   "ffm = '"                  . $_POST['form_ffm']        . "', " .
-   "tbw = '"                  . $_POST['form_tbw']        . "', " .
-   "other = '"                . $_POST['form_other']                . "' "  .
+   "height = '"               . form2db($_POST['form_height'])     . "', " .
+   "weight = '"               . form2db($_POST['form_weight'])     . "', " .
+   "bmi = '"                  . form2db($_POST['form_bmi'])        . "', " .
+   "bmr = '"                  . form2db($_POST['form_bmr'])        . "', " .
+   "impedance = '"            . form2db($_POST['form_impedance'])  . "', " .
+   "fat_pct = '"              . form2db($_POST['form_fat_pct'])    . "', " .
+   "fat_mass = '"             . form2db($_POST['form_fat_mass'])   . "', " .
+   "ffm = '"                  . form2db($_POST['form_ffm'])        . "', " .
+   "tbw = '"                  . form2db($_POST['form_tbw'])        . "', " .
+   "other = '"                . form2db($_POST['form_other'])      . "' "  .
    "WHERE id = '$formid'";
   sqlStatement($query);
  }
@@ -75,16 +83,16 @@ if ($_POST['bn_save']) {
    "fat_mass, ffm, tbw, other " .
    ") VALUES ( " .
    rbvalue('form_body_type')      . ", "  .
-   "'" . $_POST['form_height']    . "', " .
-   "'" . $_POST['form_weight']    . "', " .
-   "'" . $_POST['form_bmi']       . "', " .
-   "'" . $_POST['form_bmr']       . "', " .
-   "'" . $_POST['form_impedance'] . "', " .
-   "'" . $_POST['form_fat_pct']   . "', " .
-   "'" . $_POST['form_fat_mass']  . "', " .
-   "'" . $_POST['form_ffm']       . "', " .
-   "'" . $_POST['form_tbw']       . "', " .
-   "'" . $_POST['form_other']     . "' "  .
+   "'" . form2db($_POST['form_height'])    . "', " .
+   "'" . form2db($_POST['form_weight'])    . "', " .
+   "'" . form2db($_POST['form_bmi'])       . "', " .
+   "'" . form2db($_POST['form_bmr'])       . "', " .
+   "'" . form2db($_POST['form_impedance']) . "', " .
+   "'" . form2db($_POST['form_fat_pct'])   . "', " .
+   "'" . form2db($_POST['form_fat_mass'])  . "', " .
+   "'" . form2db($_POST['form_ffm'])       . "', " .
+   "'" . form2db($_POST['form_tbw'])       . "', " .
+   "'" . form2db($_POST['form_other'])     . "' "  .
    ")";
   $newid = sqlInsert($query);
   addForm($encounter, "Body Composition", $newid, "body_composition", $pid, $userauthorized);
@@ -100,6 +108,23 @@ if ($formid) {
  $row = sqlQuery ("SELECT * FROM form_body_composition WHERE " .
   "id = '$formid' AND activity = '1'") ;
 }
+else {
+ // Get the most recent scale reading.
+ $items = explode(',', trim(file_get_contents($scale_file_name)));
+ if ($items && count($items) > 11) {
+  $scale_file_age = round((time() - filemtime($scale_file_name)) / 60);
+  $row['body_type'] = $items[0] ? 'Athletic' : 'Standard';
+  $row['height']    = $items[2];
+  $row['weight']    = $items[3];
+  $row['bmi']       = $items[10];
+  $row['bmr']       = $items[11];
+  $row['impedance'] = $items[4];
+  $row['fat_pct']   = $items[5];
+  $row['fat_mass']  = $items[6];
+  $row['ffm']       = $items[7];
+  $row['tbw']       = $items[8];
+ }
+}
 ?>
 <html>
 <head>
@@ -109,7 +134,7 @@ if ($formid) {
 </head>
 
 <body <?echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
-<form method="post" action="<? echo $rootdir ?>/forms/body_composition/new.php?id=<? echo $formid ?>">
+<form method="post" action="<?php echo $rootdir ?>/forms/body_composition/new.php?id=<?php echo $formid ?>">
 
 <center>
 
@@ -117,14 +142,14 @@ if ($formid) {
 <table border='0' width='95%'>
 
  <tr bgcolor='#dddddd'>
-  <td colspan='2' align='center'><b>Body Composition</b></td>
+  <td colspan='3' align='center'><b>Body Composition</b></td>
  </tr>
 
  <tr>
   <td width='5%' nowrap>Body Type</td>
-  <td nowrap>
-   <? echo rbinput('form_body_type', 'Standard', 'Standard', 'body_type') ?>&nbsp;
-   <? echo rbinput('form_body_type', 'Athletic', 'Athletic', 'body_type') ?>&nbsp;
+  <td colspan='2' nowrap>
+   <?php echo rbinput('form_body_type', 'Standard', 'Standard', 'body_type') ?>&nbsp;
+   <?php echo rbinput('form_body_type', 'Athletic', 'Athletic', 'body_type') ?>&nbsp;
   </td>
  </tr>
 
@@ -134,6 +159,9 @@ if ($formid) {
    <input type='text' name='form_height' size='6'
     value='<? echo addslashes($row['height']) ?>' /> &nbsp;
   </td>
+  <td nowrap>
+   &nbsp;
+  </td>
  </tr>
 
  <tr>
@@ -142,13 +170,25 @@ if ($formid) {
    <input type='text' name='form_weight' size='6'
     value='<? echo addslashes($row['weight']) ?>' /> &nbsp;
   </td>
+  <td align='center' nowrap>
+<?php
+ if ($scale_file_age >= 0) {
+  echo "<font color='blue'>This reading was taken $scale_file_age minutes ago.</font>\n";
+ } else {
+  echo "&nbsp;\n";
+ }
+?>
+  </td>
  </tr>
 
  <tr>
   <td nowrap>BMI</td>
   <td nowrap>
    <input type='text' name='form_bmi' size='6'
-    value='<? echo addslashes($row['bmi']) ?>' /> &nbsp;
+    value='<?php echo addslashes($row['bmi']) ?>' /> &nbsp;
+  </td>
+  <td nowrap>
+   &nbsp;
   </td>
  </tr>
 
@@ -156,7 +196,10 @@ if ($formid) {
   <td nowrap>BMR in kj</td>
   <td nowrap>
    <input type='text' name='form_bmr' size='6'
-    value='<? echo addslashes($row['bmr']) ?>' /> &nbsp;
+    value='<?php echo addslashes($row['bmr']) ?>' /> &nbsp;
+  </td>
+  <td nowrap>
+   &nbsp;
   </td>
  </tr>
 
@@ -164,7 +207,10 @@ if ($formid) {
   <td nowrap>Impedance in ohms</td>
   <td nowrap>
    <input type='text' name='form_impedance' size='6'
-    value='<? echo addslashes($row['impedance']) ?>' /> &nbsp;
+    value='<?php echo addslashes($row['impedance']) ?>' /> &nbsp;
+  </td>
+  <td nowrap>
+   &nbsp;
   </td>
  </tr>
 
@@ -172,7 +218,10 @@ if ($formid) {
   <td nowrap>Fat %</td>
   <td nowrap>
    <input type='text' name='form_fat_pct' size='6'
-    value='<? echo addslashes($row['fat_pct']) ?>' /> &nbsp;
+    value='<?php echo addslashes($row['fat_pct']) ?>' /> &nbsp;
+  </td>
+  <td nowrap>
+   &nbsp;
   </td>
  </tr>
 
@@ -180,7 +229,10 @@ if ($formid) {
   <td nowrap>Fat Mass in pounds</td>
   <td nowrap>
    <input type='text' name='form_fat_mass' size='6'
-    value='<? echo addslashes($row['fat_mass']) ?>' /> &nbsp;
+    value='<?php echo addslashes($row['fat_mass']) ?>' /> &nbsp;
+  </td>
+  <td nowrap>
+   &nbsp;
   </td>
  </tr>
 
@@ -188,7 +240,10 @@ if ($formid) {
   <td nowrap>FFM in pounds</td>
   <td nowrap>
    <input type='text' name='form_ffm' size='6'
-    value='<? echo addslashes($row['ffm']) ?>' /> &nbsp;
+    value='<?php echo addslashes($row['ffm']) ?>' /> &nbsp;
+  </td>
+  <td nowrap>
+   &nbsp;
   </td>
  </tr>
 
@@ -196,14 +251,17 @@ if ($formid) {
   <td nowrap>TBW in pounds</td>
   <td nowrap>
    <input type='text' name='form_tbw' size='6'
-    value='<? echo addslashes($row['tbw']) ?>' /> &nbsp;
+    value='<?php echo addslashes($row['tbw']) ?>' /> &nbsp;
+  </td>
+  <td nowrap>
+   &nbsp;
   </td>
  </tr>
 
  <tr>
   <td nowrap>Notes</td>
-  <td nowrap>
-   <textarea name='form_other' rows='8' style='width:100%'><? echo $row['other'] ?></textarea>
+  <td colspan='2' nowrap>
+   <textarea name='form_other' rows='8' style='width:100%'><?php echo $row['other'] ?></textarea>
   </td>
  </tr>
 
@@ -218,10 +276,5 @@ if ($formid) {
 </center>
 
 </form>
-<?php
-
-// TBD: If $alertmsg, display it with a JavaScript alert().
-
-?>
 </body>
 </html>
