@@ -33,9 +33,9 @@
 <html>
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<script type="text/javascript" src="../../../library/tooltip.js"></script>
 
 <script language="JavaScript">
-
  function toencounter(enc, datestr) {
 <?php if ($GLOBALS['concurrent_layout']) { ?>
   parent.left_nav.setEncounter(datestr, enc, window.name);
@@ -46,18 +46,16 @@
   top.Main.location.href  = '../encounter/patient_encounter.php?set_encounter=' + enc;
 <?php } ?>
  }
-
- function showTitle(title) {
-  window.status = title;
-  return true;
- }
-
 </script>
 
 </head>
 
 <body <?echo $bottom_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
  bottommargin='0' marginwidth='2' marginheight='0'>
+
+<div id='tooltipdiv'
+ style='position:absolute;width:500px;border:1px solid black;padding:2px;background-color:#ffffaa;visibility:hidden;z-index:1000;font-size:9pt;'
+ ></div>
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href='encounters_full.php'>
@@ -163,7 +161,9 @@ if ($result = getEncounters($pid)) {
      if ($subresult2 = getBillingByEncounter($pid,$iter{"encounter"})) {
       foreach ($subresult2 as $iter2) {
        $title = addslashes($iter2['code_text']);
-       $coded .= "<span title='$title' onmouseover='return showTitle(\"$title\")'>";
+       // $coded .= "<span title='$title' onmouseover='return showTitle(\"$title\")'>";
+       $coded .= "<span " .
+         "onmouseover='ttshow(this,\"$title\")' onmouseout='tthide()'>";
        $coded .= $iter2{"code"} . "</span>, ";
       }
       $coded = substr($coded, 0, strlen($coded) - 2);
@@ -225,7 +225,9 @@ if ($result = getEncounters($pid)) {
 
         echo "<tr>\n";
         echo " <td valign='top' colspan='2'></td>\n";
-        echo " <td valign='top' colspan='2' title='$title' onmouseover='return showTitle(\"$title\")'>" .
+        // echo " <td valign='top' colspan='2' title='$title' onmouseover='return showTitle(\"$title\")'>" .
+        echo " <td valign='top' colspan='2' " .
+          "onmouseover='ttshow(this,\"$title\")' onmouseout='tthide()'>" .
           "$linkbeg&nbsp;&nbsp;&nbsp;" .
           $enc['form_name'] . "$linkend</td>\n";
         echo " <td valign='top'>$linkbeg" .
