@@ -10,15 +10,6 @@
  include_once("$srcdir/lists.inc");
  include_once("$srcdir/acl.inc");
 
- $arroccur = array(
-  0   => xl('Unknown or N/A'),
-  1   => xl('First'),
-  2   => xl('Second'),
-  3   => xl('Third'),
-  4   => xl('Chronic/Recurrent'),
-  5   => xl('Acute on Chronic')
- );
-
  // Check authorization.
  $thisauth = acl_check('patients', 'med');
  if ($thisauth) {
@@ -148,7 +139,7 @@ function newEncounter() {
   echo "  <td valign='top' bgcolor='$bgcolor'>" . $row['begdate'] . "&nbsp;</td>\n";
   echo "  <td valign='top' bgcolor='$bgcolor'>" . $row['enddate'] . "&nbsp;</td>\n";
   echo "  <td valign='top' bgcolor='$bgcolor' nowrap>" . $row['diagnosis'] . "</td>\n";
-  echo "  <td valign='top' bgcolor='$bgcolor' nowrap>" . $arroccur[$row['occurrence']] . "</td>\n";
+  echo "  <td valign='top' bgcolor='$bgcolor' nowrap>" . $ISSUE_OCCURRENCES[$row['occurrence']] . "</td>\n";
   if ($GLOBALS['athletic_team'])
    echo "  <td valign='top' align='center' bgcolor='$bgcolor'>" . $row['extrainfo'] . "</td>\n"; // games missed
   else

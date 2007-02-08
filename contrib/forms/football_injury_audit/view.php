@@ -11,7 +11,7 @@
 // This nonsense will go away if we ever move to subversion.
 //////////////////////////////////////////////////////////////////////
 
-// Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2007 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -83,6 +83,7 @@ if ($_POST['bn_save']) {
   $query = "UPDATE form_football_injury_audit SET "                .
    "fiinjmin = "          . invalue('form_injmin')          . ", " .
    "fiinjtime = "         . rbvalue('form_injtime')         . ", " .
+   "fimatchtype = "       . rbvalue('form_matchtype')       . ", " .
    "fimech_tackling = "   . cbvalue('form_mech_tackling')   . ", " .
    "fimech_tackled = "    . cbvalue('form_mech_tackled')    . ", " .
    "fimech_collision = "  . cbvalue('form_mech_collision')  . ", " .
@@ -121,7 +122,8 @@ if ($_POST['bn_save']) {
  //
  else {
   $query = "INSERT INTO form_football_injury_audit ( " .
-   "fiinjmin, fiinjtime, fimech_tackling, fimech_tackled, fimech_collision, " .
+   "fiinjmin, fiinjtime, fimatchtype, " .
+   "fimech_tackling, fimech_tackled, fimech_collision, " .
    "fimech_kicked, fimech_elbow, fimech_nofoul, fimech_oppfoul, " .
    "fimech_ownfoul, fimech_yellow, fimech_red, fimech_passing, " .
    "fimech_shooting, fimech_running, fimech_dribbling, fimech_heading, " .
@@ -132,6 +134,7 @@ if ($_POST['bn_save']) {
    ") VALUES ( " .
    invalue('form_injmin')          . ", " .
    rbvalue('form_injtime')         . ", " .
+   rbvalue('form_matchtype')       . ", " .
    cbvalue('form_mech_tackling')   . ", " .
    cbvalue('form_mech_tackled')    . ", " .
    cbvalue('form_mech_collision')  . ", " .
@@ -244,6 +247,32 @@ function docoding() {
      <? echo rbcell('form_injtime', '5', 'During Session', 'fiinjtime') ?>
      <? echo rbcell('form_injtime', '6', 'Cool Down'     , 'fiinjtime') ?>
      <? echo rbcell('form_injtime', '7', 'Rehabilitation', 'fiinjtime') ?>
+    </tr>
+   </table>
+  </td>
+ </tr>
+
+ <tr>
+  <td nowrap>Match Type</td>
+  <td nowrap>
+   <table width='100%'>
+    <tr>
+     <? echo rbcell('form_matchtype', '1', 'Premiership'         , 'fimatchtype') ?>
+     <? echo rbcell('form_matchtype', '2', 'FA Cup'              , 'fimatchtype') ?>
+     <? echo rbcell('form_matchtype', '3', 'League Cup'          , 'fimatchtype') ?>
+     <? echo rbcell('form_matchtype', '4', 'Champions League Cup', 'fimatchtype') ?>
+    </tr>
+    <tr>
+     <? echo rbcell('form_matchtype', '5', 'Championship Match'  , 'fimatchtype') ?>
+     <? echo rbcell('form_matchtype', '6', 'League One Match'    , 'fimatchtype') ?>
+     <? echo rbcell('form_matchtype', '7', 'League Two Match'    , 'fimatchtype') ?>
+     <? echo rbcell('form_matchtype', '8', 'International Match' , 'fimatchtype') ?>
+    </tr>
+    <tr>
+     <? echo rbcell('form_matchtype', '9', 'Friendly'            , 'fimatchtype') ?>
+     <td width='25%'>&nbsp;</td>
+     <td width='25%'>&nbsp;</td>
+     <td width='25%'>&nbsp;</td>
     </tr>
    </table>
   </td>

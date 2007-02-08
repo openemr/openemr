@@ -26958,6 +26958,7 @@ CREATE TABLE `lists` (
   enddate       date          DEFAULT NULL,
   returndate    date          DEFAULT NULL,
   occurrence    int(11)       DEFAULT 0,
+  classification int(11)      DEFAULT 0,
   referredby    varchar(255)  DEFAULT NULL,
   extrainfo     varchar(255)  DEFAULT NULL,
   diagnosis     varchar(255)  NOT NULL DEFAULT '',

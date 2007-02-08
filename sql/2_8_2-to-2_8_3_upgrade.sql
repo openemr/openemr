@@ -32,3 +32,9 @@ CREATE TABLE IF NOT EXISTS `form_misc_billing_options` (
 
 ALTER TABLE facility
   ADD `facility_npi` varchar(15)  NOT NULL DEFAULT '';
+
+ALTER TABLE lists
+  ADD `classification` int(11) NOT NULL DEFAULT 0;
+
+ALTER TABLE form_football_injury_audit
+  ADD `fimatchtype` int(11) NOT NULL DEFAULT 0;

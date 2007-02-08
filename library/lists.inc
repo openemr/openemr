@@ -17,6 +17,24 @@ $ISSUE_TYPES = array(
  //
 );
 
+$ISSUE_OCCURRENCES = array(
+  0   => xl('Unknown or N/A'),
+  1   => xl('First'),
+  6   => xl('Early Recurrence (<2 Mo)'),
+  7   => xl('Late Recurrence (2-12 Mo)'),
+  8   => xl('Delayed Recurrence (> 12 Mo)'),
+//2   => xl('Second'),
+//3   => xl('Third'),
+  4   => xl('Chronic/Recurrent'),
+  5   => xl('Acute on Chronic')
+);
+
+$ISSUE_CLASSIFICATIONS = array(
+  0   => xl('Unknown or N/A'),
+  1   => xl('Trauma'),
+  2   => xl('Overuse')
+);
+
 function getListById ($id, $cols = "*")
 {
 	return sqlQuery("select $cols from lists where id='$id' order by date DESC limit 0,1");

@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2007 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -22,15 +22,6 @@
  $tmp = getPatientData($thispid, "squad");
  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
   die("Not authorized for this squad!");
-
- $arroccur = array(
-  0   => xl('Unknown or N/A'),
-  1   => xl('First'),
-  2   => xl('Second'),
-  3   => xl('Third'),
-  4   => xl('Chronic/Recurrent'),
-  5   => xl('Acute on Chronic')
- );
 
  function QuotedOrNull($fld) {
   if ($fld) return "'$fld'";
@@ -188,6 +179,7 @@ td { font-size:10pt; }
     "returndate = "   . QuotedOrNull($form_return)  . ", "  .
     "diagnosis = '"   . $_POST['form_diagnosis']    . "', " .
     "occurrence = '"  . $_POST['form_occur']        . "', " .
+    "classification = '" . $_POST['form_classification'] . "', " .
     "referredby = '"  . $_POST['form_referredby']   . "', " .
     "extrainfo = '"   . $_POST['form_missed']       . "', " .
     "outcome = "      . rbvalue('form_outcome')     . ", "  .
@@ -206,7 +198,7 @@ td { font-size:10pt; }
 
    $issue = sqlInsert("INSERT INTO lists ( " .
     "date, pid, type, title, activity, comments, begdate, enddate, returndate, " .
-    "diagnosis, occurrence, referredby, extrainfo, user, groupname, " .
+    "diagnosis, occurrence, classification, referredby, extrainfo, user, groupname, " .
     "outcome, destination " .
     ") VALUES ( " .
     "NOW(), " .
@@ -220,6 +212,7 @@ td { font-size:10pt; }
     QuotedOrNull($form_return)       . ", "  .
     "'" . $_POST['form_diagnosis']   . "', " .
     "'" . $_POST['form_occur']       . "', " .
+    "'" . $_POST['form_classification'] . "', " .
     "'" . $_POST['form_referredby']  . "', " .
     "'" . $_POST['form_missed']      . "', " .
     "'" . $$_SESSION['authUser']     . "', " .
@@ -370,9 +363,24 @@ td { font-size:10pt; }
   <td>
    <select name='form_occur'>
 <?php
- foreach ($arroccur as $key => $value) {
+ foreach ($ISSUE_OCCURRENCES as $key => $value) {
   echo "   <option value='$key'";
   if ($key == $irow['occurrence']) echo " selected";
+  echo ">$value\n";
+ }
+?>
+   </select>
+  </td>
+ </tr>
+
+ <tr id='row_classification'>
+  <td valign='top' nowrap><b><? xl('Classification','e'); ?>:</b></td>
+  <td>
+   <select name='form_classification'>
+<?php
+ foreach ($ISSUE_CLASSIFICATIONS as $key => $value) {
+  echo "   <option value='$key'";
+  if ($key == $irow['classification']) echo " selected";
   echo ">$value\n";
  }
 ?>

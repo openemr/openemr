@@ -75,4 +75,17 @@
   '2' => 'Later'      ,
   '3' => 'Not at All' ,
  );
+
+ $arr_match_type = array(
+  '1' => 'Premiership',
+  '2' => 'FA Cup',
+  '3' => 'League Cup',
+  '4' => 'Champions League Cup',
+  '5' => 'Championship Match',
+  '6' => 'League One Match',
+  '7' => 'League Two Match',
+  '8' => 'International Match',
+  '9' => 'Friendly'
+ );
+
 ?>
