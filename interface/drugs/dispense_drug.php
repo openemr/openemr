@@ -25,7 +25,7 @@
   $mail->Subject = $subject;
   $mail->AddAddress($recipient);
   if(!$mail->Send()) {
-   $die("There has been a mail error sending to " . $recipient .
+   die("There has been a mail error sending to " . $recipient .
     " " . $mail->ErrorInfo);
   }
  }
