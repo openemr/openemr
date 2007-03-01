@@ -550,7 +550,7 @@ div.section {
    echo "   <img src='../../faxcache/$mode/$filebase/$jfname' />\n";
    echo "  </td>\n";
    echo "  <td align='center' valign='top'>\n";
-   echo "   <input type='checkbox' name='form_images[]' value='$jfnamebase' />\n";
+   echo "   <input type='checkbox' name='form_images[]' value='$jfnamebase' checked />\n";
    echo "   <br />$page\n";
    echo "  </td>\n";
    echo " </tr>\n";
