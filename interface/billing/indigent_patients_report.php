@@ -135,6 +135,9 @@
       $ares = SLQuery("SELECT duedate, amount, paid FROM ar WHERE " .
         "ar.invnumber = '$invnumber'");
       if ($sl_err) die($sl_err);
+
+      if (SLRowCount($ares) == 0) continue;
+
       $arow = SLGetRow($ares, 0);
 
       $total_amount += bucks($arow['amount']);
