@@ -3,7 +3,7 @@
 include_once(dirname(__FILE__) . "/sqlconf.php");
 require_once(dirname(__FILE__) . "/adodb/adodb.inc.php");
 
-define('ADODB_FETCH_ASSOC', 2);
+if (!defined('ADODB_FETCH_ASSOC')) define('ADODB_FETCH_ASSOC', 2);
 $database = NewADOConnection("mysql");
 $database->PConnect($host, $login, $pass, $dbase);
 $GLOBALS['adodb']['db'] = $database;
