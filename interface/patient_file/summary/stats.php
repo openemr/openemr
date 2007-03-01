@@ -112,26 +112,30 @@
   ++$ix;
  }
 
- // Show treatments if any are present.
+ // Show spreadsheet forms if any are present.
  //
- if (mysql_num_rows(sqlStatement("SHOW TABLES LIKE 'form_treatment_protocols'")) > 0) {
-  $dres = sqlStatement("SELECT tp.id, tp.value FROM forms, " .
-    "form_treatment_protocols AS tp WHERE forms.pid = $pid AND " .
-    "forms.formdir = 'treatment_protocols' AND tp.id = forms.form_id AND " .
+ $need_head = true;
+ foreach (array('treatment_protocols','injury_log') as $formname) {
+  if (mysql_num_rows(sqlStatement("SHOW TABLES LIKE 'form_$formname'")) > 0) {
+   $dres = sqlStatement("SELECT tp.id, tp.value FROM forms, " .
+    "form_$formname AS tp WHERE forms.pid = $pid AND " .
+    "forms.formdir = '$formname' AND tp.id = forms.form_id AND " .
     "tp.rownbr = -1 AND tp.colnbr = -1 AND tp.value LIKE '0%' " .
     "ORDER BY tp.value DESC");
-  if (mysql_num_rows($dres) > 0) {
-   echo " <tr>\n";
-   echo "  <td colspan='$numcols' valign='top'>\n";
-   echo "   <font class='title'>Treatments</font>\n";
-   echo "  </td>\n";
-   echo " </tr>\n";
+   if (mysql_num_rows($dres) > 0 && $need_head) {
+    $need_head = false;
+    echo " <tr>\n";
+    echo "  <td colspan='$numcols' valign='top'>\n";
+    echo "   <font class='title'>Injury Log</font>\n";
+    echo "  </td>\n";
+    echo " </tr>\n";
+   }
    while ($row = sqlFetchArray($dres)) {
     list($completed, $start_date, $template_name) = explode('|', $row['value'], 3);
     echo " <tr>\n";
     echo "  <td colspan='$numcols'>&nbsp;&nbsp;";
     echo "<a class='link' target='_blank' ";
-    echo "href='../../forms/treatment_protocols/new.php?popup=1&id=";
+    echo "href='../../forms/$formname/new.php?popup=1&id=";
     echo $row['id'] . "'>$start_date $template_name</a></td>\n";
     echo " </tr>\n";
    }
