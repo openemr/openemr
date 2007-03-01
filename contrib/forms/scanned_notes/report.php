@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2007 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -12,6 +12,9 @@ include_once($GLOBALS["srcdir"] . "/api.inc");
 function scanned_notes_report($pid, $useless_encounter, $cols, $id) {
  global $webserver_root, $web_root, $encounter;
 
+ // In the case of a patient report, the passed encounter is vital.
+ $thisenc = $useless_encounter ? $useless_encounter : $encounter;
+
  $count = 0;
 
  $data = sqlQuery("SELECT * " .
@@ -19,8 +22,8 @@ function scanned_notes_report($pid, $useless_encounter, $cols, $id) {
   "id = '$id' AND activity = '1'");
 
  if ($data) {
-  $imagepath = "$webserver_root/documents/$pid/encounters/${encounter}_$id.jpg";
-  $imageurl  = "$web_root/documents/$pid/encounters/${encounter}_$id.jpg";
+  $imagepath = "$webserver_root/documents/$pid/encounters/${thisenc}_$id.jpg";
+  $imageurl  = "$web_root/documents/$pid/encounters/${thisenc}_$id.jpg";
 
   // echo "<!-- Image path is '$imagepath'. -->\n";
 
