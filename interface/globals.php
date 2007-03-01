@@ -36,7 +36,7 @@ $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
 
 // Language Control Section (will add toggling)
 // English:1, Swedish:2, Spanish:3, German:4, Dutch:5, Hebrew:6
-define (LANGUAGE,1);
+define ('LANGUAGE',1);
 include_once (dirname(__FILE__) . "/../library/translation.inc.php");
 
 // Default category for find_patient screen
@@ -94,7 +94,7 @@ $tback = "(Back)";
 // This is the idle logout function:
 // if a page has not been refreshed within this many seconds, the interface
 // will return to the login page
-if ($special_timeout > 0) {
+if (!empty($special_timeout)) {
 	$timeout = intval($special_timeout);
 }
 else {
@@ -216,7 +216,7 @@ $sl_dbpass      = 'secret';     // sql-ledger database login password
 
 // Don't change anything below this line. ////////////////////////////
 
-$encounter = $_SESSION['encounter'];
+$encounter = empty($_SESSION['encounter']) ? 0 : $_SESSION['encounter'];
 
 if (!empty($_GET['pid']) && empty($_SESSION['pid'])) {
 	$_SESSION['pid'] = $_GET['pid'];
@@ -224,9 +224,9 @@ if (!empty($_GET['pid']) && empty($_SESSION['pid'])) {
 elseif (!empty($_POST['pid']) && empty($_SESSION['pid'])) {
 	$_SESSION['pid'] = $_POST['pid'];
 }
-$pid = $_SESSION['pid'];
-$userauthorized = $_SESSION['userauthorized'];
-$groupname = $_SESSION['authProvider'];
+$pid = empty($_SESSION['pid']) ? 0 : $_SESSION['pid'];
+$userauthorized = empty($_SESSION['userauthorized']) ? 0 : $_SESSION['userauthorized'];
+$groupname = empty($_SESSION['authProvider']) ? 0 : $_SESSION['authProvider'];
 
 // global interface function to format text length using ellipses
 function strterm($string,$length) {
