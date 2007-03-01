@@ -130,6 +130,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
    &nbsp; &nbsp;
    <b><? xl('To','e'); ?>:</b>
    <select name='assigned_to'>
+    <option value=''>** <? xl('Close','e'); ?> **</option>
 <?
  while ($urow = sqlFetchArray($ures)) {
   echo "    <option value='" . $urow['username'] . "'";
@@ -139,7 +140,6 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
   echo "</option>\n";
  }
 ?>
-    <option value=''>** <? xl('Close','e'); ?> **</option>
    </select>
   </td>
  </tr>
