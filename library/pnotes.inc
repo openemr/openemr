@@ -10,6 +10,7 @@ $patient_note_types = array(
   'Prior Auth',
   'Referral',
   'Test Scheduling',
+  'Bill/Collect',
   'Other');
 
 function getPnoteById($id, $cols = "*")
