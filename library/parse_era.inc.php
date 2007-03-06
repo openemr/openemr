@@ -7,7 +7,7 @@
   // of the License, or (at your option) any later version.
 
 function parse_era_2100(&$out, $cb) {
-	if ($out['loopid'] == '2110') {
+	if ($out['loopid'] == '2110' || $out['loopid'] == '2100') {
 
 		// Force the sum of service payments to equal the claim payment
 		// amount.  Whenever this is an issue it should result from
@@ -284,7 +284,16 @@ function parse_era($filename, $cb) {
 		else if ($segid == 'SVC') {
 			if (! $out['loopid']) return 'Unexpected SVC segment';
 			$out['loopid'] = '2110';
-			$svc = explode('^', $seg[1]);
+			if ($seg[6]) {
+				// SVC06 if present is our original procedure code that they are bundling.
+				// We will not put their crap in our invoice, but rather log a note and
+				// treat it as adjustments to our originally submitted coding.
+				$svc = explode('^', $seg[6]);
+				$tmp = explode('^', $seg[1]);
+				$out['warnings'] .= "Payer is bundling " . $svc[1] . " into " . $tmp[1] . ".\n";
+			} else {
+				$svc = explode('^', $seg[1]);
+			}
 			if ($svc[0] != 'HC') return 'SVC segment has unexpected qualifier';
 			// TBD: Other qualifiers are possible; see IG pages 140-141.
 			$i = count($out['svc']);
@@ -297,11 +306,6 @@ function parse_era($filename, $cb) {
 			$out['svc'][$i]['adj']  = array();
 			// Note: SVC05, if present, indicates the paid units of service.
 			// It defaults to 1.
-			// Note: In the case of bundling, SVC06 reports the original procedure
-			// code, there are adjustments of the old procedure codes that zero out
-			// the original charge amounts, a negative adjustment of the new
-			// procedure code(s) reflecting the old charges, and other "normal"
-			// adjustments to these charges.
 		}
 		// DTM01 identifies the type of service date:
 		// 472 = a single date of service
