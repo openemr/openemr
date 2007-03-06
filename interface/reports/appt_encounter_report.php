@@ -1,5 +1,5 @@
 <?php 
- // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2007 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -18,26 +18,66 @@
  // * Procedure codes without a fee
  // * Fees assigned to diagnoses (instead of procedures)
  // * Encounters not billed
+ //
+ // For decent performance the following indexes are highly recommended:
+ //   openemr_postcalendar_events.pc_eventDate
+ //   forms.encounter
+ //   billing.pid_encounter
 
  include_once("../globals.php");
  include_once("../../library/patient.inc");
  include_once("../../custom/code_types.inc.php");
 
  $alertmsg = ''; // not used yet but maybe later
+ $grand_total_charges    = 0;
+ $grand_total_copays     = 0;
+ $grand_total_encounters = 0;
 
  function bucks($amount) {
   if ($amount)
    printf("%.2f", $amount);
  }
 
+ function endDoctor(&$docrow) {
+  global $grand_total_charges, $grand_total_copays, $grand_total_encounters;
+  if (!$docrow['docname']) return;
+
+  echo " <tr bgcolor='#ffff00'>\n";
+  echo "  <td class='detail' colspan='4'>\n";
+  echo "   &nbsp;Totals for " . $docrow['docname'] . "\n";
+  echo "  </td>\n";
+  echo "  <td class='detotal' align='right'>\n";
+  echo "   &nbsp;" . $docrow['encounters'] . "&nbsp;\n";
+  echo "  </td>\n";
+  echo "  <td class='detotal' align='right'>\n";
+  echo "   &nbsp;"; bucks($docrow['charges']); echo "&nbsp;\n";
+  echo "  </td>\n";
+  echo "  <td class='detotal' align='right'>\n";
+  echo "   &nbsp;"; bucks($docrow['copays']); echo "&nbsp;\n";
+  echo "  </td>\n";
+  echo "  <td class='detail' colspan='2'>\n";
+  echo "   &nbsp;\n";
+  echo "  </td>\n";
+  echo " </tr>\n";
+
+  $grand_total_charges     += $docrow['charges'];
+  $grand_total_copays      += $docrow['copays'];
+  $grand_total_encounters  += $docrow['encounters'];
+
+  $docrow['charges']     = 0;
+  $docrow['copays']      = 0;
+  $docrow['encounters']  = 0;
+ }
+
  if ($_POST['form_search']) {
-  $form_date = fixDate($_POST['form_date'], "");
+  $form_date    = fixDate($_POST['form_date'], date('Y-m-d'));
+  $form_to_date = fixDate($_POST['form_to_date'], "");
 
   // MySQL doesn't grok full outer joins so we do it the hard way.
   //
   $query = "( " .
    "SELECT " .
-   "e.pc_startTime, " .
+   "e.pc_eventDate, e.pc_startTime, " .
    "fe.encounter, " .
    "f.authorized, " .
    "p.fname, p.lname, p.pid, " .
@@ -47,12 +87,18 @@
    "ON LEFT(fe.date, 10) = e.pc_eventDate AND fe.pid = e.pc_pid " .
    "LEFT OUTER JOIN forms AS f ON f.encounter = fe.encounter AND f.formdir = 'newpatient' " .
    "LEFT OUTER JOIN patient_data AS p ON p.pid = e.pc_pid " .
-   "LEFT OUTER JOIN users AS u ON u.id = e.pc_aid " .
-   "WHERE e.pc_eventDate = '$form_date' AND " .
-   "( e.pc_catid = 5 OR e.pc_catid = 9 OR e.pc_catid = 10 ) " .
+   // "LEFT OUTER JOIN users AS u ON u.id = e.pc_aid WHERE ";
+   "LEFT OUTER JOIN users AS u ON u.username = f.user WHERE ";
+  if ($form_to_date) {
+   $query .= "e.pc_eventDate >= '$form_date' AND e.pc_eventDate <= '$form_to_date' ";
+  } else {
+   $query .= "e.pc_eventDate = '$form_date' ";
+  }
+  // $query .= "AND ( e.pc_catid = 5 OR e.pc_catid = 9 OR e.pc_catid = 10 ) " .
+  $query .= "AND e.pc_pid != '' AND e.pc_apptstatus != '?' " .
    ") UNION ( " .
    "SELECT " .
-   "e.pc_startTime, " .
+   "e.pc_eventDate, e.pc_startTime, " .
    "fe.encounter, " .
    "f.authorized, " .
    "p.fname, p.lname, p.pid, " .
@@ -60,13 +106,19 @@
    "FROM form_encounter AS fe " .
    "LEFT OUTER JOIN openemr_postcalendar_events AS e " .
    "ON LEFT(fe.date, 10) = e.pc_eventDate AND fe.pid = e.pc_pid AND " .
-   "( e.pc_catid = 5 OR e.pc_catid = 9 OR e.pc_catid = 10 ) " .
+   // "( e.pc_catid = 5 OR e.pc_catid = 9 OR e.pc_catid = 10 ) " .
+   "e.pc_pid != '' AND e.pc_apptstatus != '?' " .
    "LEFT OUTER JOIN forms AS f ON f.encounter = fe.encounter AND f.formdir = 'newpatient' " .
    "LEFT OUTER JOIN patient_data AS p ON p.pid = fe.pid " .
-   "LEFT OUTER JOIN users AS u ON u.username = f.user " .
-   "WHERE LEFT(fe.date, 10) = '$form_date' " .
-   ") " .
-   "ORDER BY docname, pc_startTime";
+   "LEFT OUTER JOIN users AS u ON u.username = f.user WHERE ";
+  if ($form_to_date) {
+   // $query .= "LEFT(fe.date, 10) >= '$form_date' AND LEFT(fe.date, 10) <= '$form_to_date' ";
+   $query .= "fe.date >= '$form_date 00:00:00' AND fe.date <= '$form_to_date 23:59:59' ";
+  } else {
+   // $query .= "LEFT(fe.date, 10) = '$form_date' ";
+   $query .= "fe.date >= '$form_date 00:00:00' AND fe.date <= '$form_date 23:59:59' ";
+  }
+  $query .= ") ORDER BY docname, pc_eventDate, pc_startTime";
 
   $res = sqlStatement($query);
  }
@@ -94,9 +146,16 @@
    <h2><?php  xl('Appointments and Encounters','e'); ?></h2>
   </td>
   <td align='right'>
-   <?php  xl('Booking Date','e'); ?>:
+   <?php  xl('DOS','e'); ?>:
    <input type='text' name='form_date' size='10' value='<?php  echo $_POST['form_date']; ?>'
     title='Date of appointments mm/dd/yyyy' >
+   &nbsp;
+   <?php  xl('to','e'); ?>:
+   <input type='text' name='form_to_date' size='10' value='<?php  echo $_POST['form_to_date']; ?>'
+    title='Optional end date mm/dd/yyyy' >
+   &nbsp;
+   <input type='checkbox' name='form_details'
+    value='1'<? if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details','e') ?>
    &nbsp;
    <input type='submit' name='form_search' value='Search'>
   </td>
@@ -128,7 +187,10 @@
    <?php  xl('Encounter','e'); ?>&nbsp;
   </td>
   <td class="dehead" align="right">
-   <?php  xl('Charge','e'); ?>&nbsp;
+   <?php  xl('Charges','e'); ?>&nbsp;
+  </td>
+  <td class="dehead" align="right">
+   <?php  xl('Copays','e'); ?>&nbsp;
   </td>
   <td class="dehead" align="center">
    <?php  xl('Billed','e'); ?>
@@ -139,15 +201,21 @@
  </tr>
 <?php 
  if ($res) {
-  $lastdocname = "";
+  $docrow = array('docname' => '', 'charges' => 0, 'copays' => 0, 'encounters' => 0);
+
   while ($row = sqlFetchArray($res)) {
    $patient_id = $row['pid'];
    $encounter  = $row['encounter'];
-   $docname    = $row['docname'];
+   $docname    = $row['docname'] ? $row['docname'] : 'Unknown';
+
+   if ($docname != $docrow['docname']) {
+    endDoctor($docrow);
+   }
 
    $billed  = "Y";
    $errmsg  = "";
    $charges = 0;
+   $copays  = 0;
 
    // Scan the billing items for status and fee total.
    //
@@ -162,7 +230,10 @@
     if ($code_types[$brow['code_type']]['just']) {
      if (! $brow['justify']) $errmsg = "Needs Justify";
     }
-    if ($code_types[$brow['code_type']]['fee']) {
+    if ($brow['code_type'] == 'COPAY') {
+     $copays -= $brow['fee'];
+     if ($brow['fee'] >= 0) $errmsg = "Copay not positive";
+    } else if ($code_types[$brow['code_type']]['fee']) {
      $charges += $brow['fee'];
      if ($brow['fee'] == 0 ) $errmsg = "Missing Fee";
     } else {
@@ -170,13 +241,20 @@
     }
    }
    if (! $charges) $billed = "";
+
+   $docrow['charges'] += $charges;
+   $docrow['copays']  += $copays;
+   if ($encounter) ++$docrow['encounters'];
+
+   if ($_POST['form_details']) {
 ?>
- <tr bgcolor='<?php  echo $bgcolor ?>'>
+ <tr>
   <td class="detail">
-   &nbsp;<?php  echo ($docname == $lastdocname) ? "" : $docname ?>
+   &nbsp;<?php  echo ($docname == $docrow['docname']) ? "" : $docname ?>
   </td>
   <td class="detail">
-   &nbsp;<?php  echo substr($row['pc_startTime'], 0, 5) ?>
+   &nbsp;<?php if ($form_to_date) echo $row['pc_eventDate'] . ' ';
+    echo substr($row['pc_startTime'], 0, 5) ?>
   </td>
   <td class="detail">
    &nbsp;<?php  echo $row['fname'] . " " . $row['lname'] ?>
@@ -185,10 +263,13 @@
    <?php  echo $row['pid'] ?>&nbsp;
   </td>
   <td class="detail" align="right">
-   <?php  echo $row['encounter'] ?>&nbsp;
+   <?php  echo $encounter ?>&nbsp;
   </td>
   <td class="detail" align="right">
    <?php  bucks($charges) ?>&nbsp;
+  </td>
+  <td class="detail" align="right">
+   <?php  bucks($copays) ?>&nbsp;
   </td>
   <td class="detail" align="center">
    <?php  echo $billed ?>
@@ -197,9 +278,32 @@
    &nbsp;<?php  echo $errmsg ?>
   </td>
  </tr>
-<?php 
-   $lastdocname = $docname;
-  }
+<?php
+   } // end of details line
+
+   $docrow['docname'] = $docname;
+  } // end of row
+
+  endDoctor($docrow);
+
+  echo " <tr bgcolor='#77ff77'>\n";
+  echo "  <td class='detail' colspan='4'>\n";
+  echo "   &nbsp;Grand Totals\n";
+  echo "  </td>\n";
+  echo "  <td class='detotal' align='right'>\n";
+  echo "   &nbsp;" . $grand_total_encounters . "&nbsp;\n";
+  echo "  </td>\n";
+  echo "  <td class='detotal' align='right'>\n";
+  echo "   &nbsp;"; bucks($grand_total_charges); echo "&nbsp;\n";
+  echo "  </td>\n";
+  echo "  <td class='detotal' align='right'>\n";
+  echo "   &nbsp;"; bucks($grand_total_copays); echo "&nbsp;\n";
+  echo "  </td>\n";
+  echo "  <td class='detail' colspan='2'>\n";
+  echo "   &nbsp;\n";
+  echo "  </td>\n";
+  echo " </tr>\n";
+
  }
 ?>
 
