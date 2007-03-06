@@ -69,7 +69,7 @@ function endPatient($ptrow) {
     if (!$_POST['form_without']) {
       sqlStatement("UPDATE patient_data SET " .
         "genericname2 = 'Billing', " .
-        "genericval2 = 'IN COLLECTIONS " . date("Y-m-d") . "' " .
+        "genericval2 = CONCAT('IN COLLECTIONS " . date("Y-m-d") . "', genericval2) " .
         "WHERE pid = '" . $ptrow['pid'] . "'");
     }
     $export_patient_count += 1;
