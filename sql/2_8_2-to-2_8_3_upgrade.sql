@@ -38,3 +38,7 @@ ALTER TABLE lists
 
 ALTER TABLE form_football_injury_audit
   ADD `fimatchtype` int(11) NOT NULL DEFAULT 0;
+
+ALTER TABLE documents
+  ADD `docdate` date       DEFAULT NULL,
+  ADD `list_id` bigint(20) NOT NULL DEFAULT 0;

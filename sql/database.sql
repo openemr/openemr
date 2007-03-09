@@ -26412,6 +26412,8 @@ CREATE TABLE `documents` (
   `owner` int(11) default NULL,
   `revision` timestamp,
   `foreign_id` int(11) default NULL,
+  `docdate` date       DEFAULT NULL,
+  `list_id` bigint(20) NOT NULL DEFAULT 0,
   PRIMARY KEY  (`id`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
