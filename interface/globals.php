@@ -52,7 +52,7 @@ session_start();
 
 // Set this to true to activate support for the new frame layout.
 //
-$GLOBALS['concurrent_layout'] = false;
+$GLOBALS['concurrent_layout'] = true;
 
 // Theme definition:
 if ($GLOBALS['concurrent_layout']) {
@@ -106,8 +106,8 @@ else {
 
 $v_major = '2';
 $v_minor = '8';
-$v_patch = '2';
-$tag = ''; // release candidate, e.g. '-rc1'
+$v_patch = '3';
+$tag = '-dev'; // release candidate, e.g. '-rc1'
 
 // This name appears on the login page and in the title bar of most windows.
 // It's nice to customize this to be the name of your clinic.
