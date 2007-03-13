@@ -1,5 +1,5 @@
 <?
- // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2007 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -106,11 +106,12 @@ td { font-size:10pt; }
    $iterpid   = $iter['pid'];
    $iterlname = addslashes($iter['lname']);
    $iterfname = addslashes($iter['fname']);
+   $itermname = addslashes($iter['mname']);
    $iterdob   = $iter['DOB'];
    $anchor = "<a href='' " .
     "onclick='return selpid($iterpid, \"$iterlname\", \"$iterfname\", \"$iterdob\")'>";
    echo " <tr>";
-   echo "  <td>$anchor$iterlname, $iterfname</a></td>\n";
+   echo "  <td>$anchor$iterlname, $iterfname $itermname</a></td>\n";
    echo "  <td>$anchor" . $iter['ss'] . "</a></td>\n";
    echo "  <td>$anchor" . $iter['DOB'] . "</a></td>\n";
    echo "  <td>$anchor" . $iter['pubpid'] . "</a></td>\n";
