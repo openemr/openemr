@@ -1,6 +1,6 @@
 <?php
 
-require_once (dirname(__FILE__) . "/../library/classes/Controller.class.php");
+require_once(dirname(__FILE__) . "/../library/classes/Controller.class.php");
 require_once(dirname(__FILE__) . "/../library/classes/Document.class.php");
 require_once(dirname(__FILE__) . "/../library/classes/CategoryTree.class.php");
 require_once(dirname(__FILE__) . "/../library/classes/TreeMenu.php");
@@ -136,7 +136,10 @@ class C_Document extends Controller {
 	function view_action($patient_id="",$doc_id) {
 		// Added by Rod to support document delete:
 		global $gacl_object, $phpgacl_location;
+		global $ISSUE_TYPES;
+
 		require_once(dirname(__FILE__) . "/../library/acl.inc");
+		require_once(dirname(__FILE__) . "/../library/lists.inc");
 
 		$d = new Document($doc_id);	
 		$n = new Note();
@@ -156,6 +159,25 @@ class C_Document extends Controller {
 		}
 		$this->assign("delete_string", $delete_string);
 		$this->assign("REFRESH_ACTION",$this->_link("list"));
+
+		// Added by Rod to support document date update:
+		$this->assign("DOCDATE", $d->get_docdate());
+		$this->assign("UPDATE_ACTION",$this->_link("update") .
+			"document_id=" . $d->get_id() . "&process=true");
+
+		// Added by Rod to support document issue update:
+		$issues_options = "<option value='0'>-- Select Issue --</option>";
+		$ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
+			"pid = $patient_id " . // AND enddate IS NULL " .
+			"ORDER BY type, begdate");
+		while ($irow = sqlFetchArray($ires)) {
+			$desc = $irow['type'];
+			if ($ISSUE_TYPES[$desc]) $desc = $ISSUE_TYPES[$desc][2];
+			$desc .= ": " . $irow['begdate'] . " " . htmlspecialchars(substr($irow['title'], 0, 40));
+			$sel = ($irow['id'] == $d->get_list_id()) ? ' selected' : '';
+			$issues_options .= "<option value='" . $irow['id'] . "'$sel>$desc</option>";
+		}
+		$this->assign("ISSUES_LIST", $issues_options);
 
 		$this->assign("notes",$notes);
 		
@@ -420,6 +442,38 @@ class C_Document extends Controller {
 		return $this->view_action($patient_id,$document_id);
 	}
 
+	// Added by Rod for metadata update.
+	//
+	function update_action_process($patient_id="", $document_id) {
+		if ($_POST['process'] != "true") {
+			die("process is '" . $_POST['process'] . "', expected 'true'");
+			return;
+		}
+
+		$docdate = $_POST['docdate'];
+		$issue_id = $_POST['issue_id'];
+
+		if (is_numeric($document_id)) {
+			if (preg_match('/^\d\d\d\d-\d+-\d+$/', $docdate)) {
+				$docdate = "'$docdate'";
+			} else {
+				$docdate = "NULL";
+			}
+			if (!is_numeric($issue_id)) {
+				$issue_id = 0;
+			}
+			$sql = "UPDATE documents SET docdate = $docdate, " .
+				"list_id = '$issue_id' " .
+				"WHERE id = '$document_id'";
+			$this->tree->_db->Execute($sql);
+			$messages .= "Document date and issue updated successfully\n";
+		}
+
+		$this->_state = false;
+		$this->assign("messages", $messages);
+		return $this->view_action($patient_id, $document_id);
+	}
+
 	function list_action($patient_id = "") {
 		$this->_last_node = null;
 		$categories_list = $this->tree->_get_categories_array($patient_id);
@@ -513,18 +567,25 @@ class C_Document extends Controller {
  					}
  				}
  			}	
- 			
- 			$icon = "file3.png";
- 		 	if (is_array($categories[$id])) {
- 		  		foreach ($categories[$id] as $doc) {
- 					$current_node->addItem(new HTML_TreeNode(array('text' => basename($doc['url']), 'link' => $this->_link("view") . "doc_id=" . $doc['document_id'] . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon)));
- 		  		}
+
+			// If there are documents in this document category, then add their
+			// attributes to the current node.
+			$icon = "file3.png";
+			if (is_array($categories[$id])) {
+				foreach ($categories[$id] as $doc) {
+					$current_node->addItem(new HTML_TreeNode(array(
+						'text' => $doc['docdate'] . ' ' . basename($doc['url']),
+						'link' => $this->_link("view") . "doc_id=" . $doc['document_id'] . "&",
+						'icon' => $icon,
+						'expandedIcon' => $expandedIcon
+					)));
+				}
 			}
- 		}
- 		return $node;
- 	}
-	
-	
+
+		}
+		return $node;
+	}
+
 }
 //place to hold optional code
 //$first_node = array_keys($t->tree);

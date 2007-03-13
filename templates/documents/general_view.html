@@ -1,5 +1,11 @@
+<style type="text/css">@import url(library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="library/dialog.js"></script>
+<script type="text/javascript" src="library/textformat.js"></script>
+<script type="text/javascript" src="library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="library/dynarch_calendar_setup.js"></script>
 <script language="JavaScript">
+ var mypcc = '{php} echo $GLOBALS['phone_country_code'] {/php}';
  // Process click on Delete link.
  function deleteme(docid) {literal}{{/literal}
   dlgopen('interface/patient_file/deleter.php?document=' + docid, '_blank', 500, 450);
@@ -11,59 +17,65 @@
  {literal}}{/literal}
 </script>
 <table valign="top">
-<tr>
-	<td valign="top">
-	<table>
 	<tr>
 		<td valign="top">
-		<form name="notes" method="post" action="{$NOTE_ACTION}">
-		<textarea cols="53" rows="4" wrap="virtual" name="note"></textarea><br>
-		<input type="submit" name="add note" value="{xl t='Add Note'}">
-		<input type="hidden" name="process" value="{$PROCESS}" />
-		<input type="hidden" name="foreign_id" value="{$file->get_id()}" />
-		</form>
-		</td>
-		<td rowspan="2">
-		<textarea cols="53" rows="10" disabled>
+			<a href="{$web_path}">{xl t='Click to download'}</a>
+			&nbsp;&nbsp;&nbsp;{$delete_string}
+
+			<p><form method="post" name="document_update" action="{$UPDATE_ACTION}">
+			{xl t='Date'}:
+			<input type='text' size='10' name='docdate' id='docdate'
+			 value='{$DOCDATE}' title='{xl t='yyyy-mm-dd document date'}'
+			 onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
+			<img src='interface/pic/show_calendar.gif' id='img_docdate' align='absbottom'
+			 width='24' height='22' border='0' alt='[?]' style='cursor:pointer'
+			 title='{xl t='Click here to choose a date'}' />
+			&nbsp;&nbsp;
+			<select name="issue_id">{$ISSUES_LIST}</select>
+			&nbsp;&nbsp;
+			<input type="submit" name="docupdate" value="{xl t='Update'}" />
+			</form>
+
+			<p><form method="post" name="document_move" action="{$MOVE_ACTION}">
+			<select name="new_category_id">{$tree_html_listbox}</select>&nbsp;
+			{xl t='Move to Patient'} # <input type="text" name="new_patient_id" size="4" />
+			<a href="javascript:{literal}{}{/literal}"
+			 onclick="var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|escape:"url"}&form_name={"document_move['new_patient_name']"|escape:"url"}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left=425,top=250');">
+			<img src="images/stock_search-16.png" border="0" /></a>
+			<input type="hidden" name="new_patient_name" value="" />
+			&nbsp;&nbsp;&nbsp;<input type="submit" name="move" value="{xl t='Move'}" />
+			</form>
+
+			<p><form name="notes" method="post" action="{$NOTE_ACTION}">
+			<textarea cols="53" rows="4" wrap="virtual" name="note"></textarea><br>
+			<input type="submit" name="add note" value="{xl t='Add Note'}">
+			<input type="hidden" name="process" value="{$PROCESS}" />
+			<input type="hidden" name="foreign_id" value="{$file->get_id()}" />
+			</form>
+
+			<textarea cols="53" rows="10" readonly style='background-color:transparent'>
 {foreach name=note_loop from=$notes item=note}
 {xl t='Note'} #{$note->get_id()}
 {xl t='Date:'} {$note->get_date()}
 {$note->get_note()}
 
 {/foreach}
-</textarea>
+			</textarea>
+			<br />
 		</td>
 	</tr>
 	<tr>
 		<td>
-		<form method="post" name="document_move" action="{$MOVE_ACTION}">
-		<select name="new_category_id">{$tree_html_listbox}</select><br><br>
-		{xl t='Move to Patient'} # <input type="text" name="new_patient_id" size="4">
-		<a href="javascript:{literal}{}{/literal}" onclick="var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|escape:"url"}&form_name={"document_move['new_patient_name']"|escape:"url"}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left = 425,top = 250');"><img src="images/stock_search-16.png" border="0"</a>
-		&nbsp;&nbsp;&nbsp;<input type="submit" name="move" value="{xl t='Move'}">
-		<input type="hidden" name="new_patient_name" value="">
-		</form>
+			{if $file->get_mimetype() eq "image/tiff"}
+			<embed border="0" frameborder="0" style="border:none;" width="800" height="600" type="{$file->get_mimetype()}" src="{$web_path}{$file->get_url_web()}&as_file=false"></embed>
+			{elseif $file->get_mimetype() eq "image/png" or $file->get_mimetype() eq "image/jpg" or $file->get_mimetype() eq "image/jpeg" or $file->get_mimetype() eq "image/gif"}
+			<iframe border="0" frameborder="0" style="border:none;" width="800" height="600" type="{$file->get_mimetype()}" src="{$web_path}{$file->get_url_web()}&as_file=false"></iframe>
+			{else}
+			<iframe border="0" frameborder="0" style="border:none;" width="800" height="600" type="{$file->get_mimetype()}" src="{$web_path}{$file->get_url_web()}&as_file=true"></iframe>
+			{/if}
 		</td>
 	</tr>
-	</table>
-
-<a href="{$web_path}">{xl t='Click to download'}</a>
-
-<!-- Added by Rod: -->
-&nbsp;&nbsp;&nbsp;{$delete_string}
-
-<br>
-
-</td>
-</tr>
-	<td>
-	{if $file->get_mimetype() eq "image/tiff"}
-	<embed border="0" frameborder="0" style="border:none;" width="800" height="600" type="{$file->get_mimetype()}" src="{$web_path}{$file->get_url_web()}&as_file=false"></embed>
-	{elseif $file->get_mimetype() eq "image/png" or $file->get_mimetype() eq "image/jpg" or $file->get_mimetype() eq "image/jpeg" or $file->get_mimetype() eq "image/gif"}
-	<iframe border="0" frameborder="0" style="border:none;" width="800" height="600" type="{$file->get_mimetype()}" src="{$web_path}{$file->get_url_web()}&as_file=false"></iframe>
-	{else}
-	<iframe border="0" frameborder="0" style="border:none;" width="800" height="600" type="{$file->get_mimetype()}" src="{$web_path}{$file->get_url_web()}&as_file=true"></iframe>
-	{/if}
-	</td>
-</tr>
 </table>
+<script language='JavaScript'>
+ Calendar.setup({literal}{{/literal}inputField:"docdate", ifFormat:"%Y-%m-%d", button:"img_docdate"{literal}}{/literal});
+</script>

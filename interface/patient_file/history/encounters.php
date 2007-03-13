@@ -29,6 +29,51 @@
   echo "</body>\n</html>\n";
   exit();
  }
+
+// This is called to generate a line of output for a patient document.
+//
+function showDocument(&$drow) {
+  global $ISSUE_TYPES, $auth_med;
+
+  $docdate = $drow['docdate'];
+
+  $href = "javascript:todocument(" . $drow['id'] . ")";
+  $linkbeg = "<a class='text' href='$href' style='color:#0000ff'>";
+  $linkend = "</a>";
+
+  echo "<tr>\n";
+
+  // show date
+  echo "<td valign='top'>$linkbeg$docdate$linkend</td>\n";
+
+  // show associated issue, if any
+  echo "<td valign='top'>$linkbeg";
+  if ($auth_med) {
+    $irow = sqlQuery("SELECT type, title, begdate " .
+      "FROM lists WHERE " .
+      "id = '" . $drow['list_id'] . "' " .
+      "LIMIT 1");
+    if ($irow) {
+      $tcode = $irow['type'];
+      if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
+      echo "$tcode: " . $irow['title'];
+    }
+  } else {
+    echo "(" . xl('No access') . ")";
+  }
+  echo "$linkend</td>\n";
+
+  // show document name
+  echo "<td valign='top' colspan='3'>$linkbeg" . xl('Document') . ": " .
+    basename($drow['url']) . "$linkend</td>\n";
+
+  // skip insurance column
+  if (!$GLOBALS['athletic_team']) {
+    echo "<td valign='top'>&nbsp;</td>\n";
+  }
+
+  echo "</tr>\n";
+}
 ?>
 <html>
 <head>
@@ -36,6 +81,7 @@
 <script type="text/javascript" src="../../../library/tooltip.js"></script>
 
 <script language="JavaScript">
+
  function toencounter(enc, datestr) {
 <?php if ($GLOBALS['concurrent_layout']) { ?>
   parent.left_nav.setEncounter(datestr, enc, window.name);
@@ -46,6 +92,17 @@
   top.Main.location.href  = '../encounter/patient_encounter.php?set_encounter=' + enc;
 <?php } ?>
  }
+
+ function todocument(docid) {
+  h = '../../../controller.php?document&view&patient_id=<?php echo $pid ?>&doc_id=' + docid;
+<?php if ($GLOBALS['concurrent_layout']) { ?>
+  parent.left_nav.setRadio(window.name, 'doc');
+  location.href = h;
+<?php } else { ?>
+  top.Main.location.href = h;
+<?php } ?>
+ }
+
 </script>
 
 </head>
@@ -58,12 +115,12 @@
  ></div>
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-<a href='encounters_full.php'>
+<!-- <a href='encounters_full.php'> -->
 <?php } else { ?>
-<a href='encounters_full.php' target='Main'>
+<!-- <a href='encounters_full.php' target='Main'> -->
 <?php } ?>
-<font class='title'><? xl('Past Encounters','e'); ?></font>
-<font class='more'><?echo $tmore;?></font></a><br>
+<font class='title'><? xl('Past Encounters and Documents','e'); ?></font>
+<!-- <font class='more'><?echo $tmore;?></font></a> --><br>
 
 <table width="100%">
 <tr>
@@ -78,10 +135,17 @@
 </tr>
 
 <?
+// Query the documents for this patient.
+$dres = sqlStatement("SELECT id, type, url, docdate, list_id " .
+  "FROM documents WHERE foreign_id = '$pid' " .
+  "ORDER BY docdate DESC, id DESC");
+$drow = sqlFetchArray($dres);
+
 $count = 0;
 if ($result = getEncounters($pid)) {
+
   foreach ($result as $iter ) {
-    $count++;
+    // $count++; // Forget about limiting the number of encounters
     if ($count > $N) {
       //we have more encounters to print, but we've reached our display maximum
       print "<tr><td colspan='4' align='center'><a target='Main' href='encounters_full.php' class='alert'>".xl('Some encounters were not displayed. Click here to view all.')."</a></td></tr>\n";
@@ -94,6 +158,7 @@ if ($result = getEncounters($pid)) {
     // $linkbeg = "<a class='text' href='$href'>";
     $linkend = "</a>";
 
+    $raw_encounter_date = '';
     if ($result4 = sqlQuery("SELECT * FROM form_encounter WHERE encounter = '" .
       $iter{"encounter"} . "' AND pid = '$pid'"))
     {
@@ -120,6 +185,12 @@ if ($result = getEncounters($pid)) {
 
     $erow = sqlQuery("SELECT user FROM forms WHERE encounter = '" .
       $iter['encounter'] . "' AND formdir = 'newpatient' LIMIT 1");
+
+    // This generates document lines as appropriate for the date order.
+    while ($drow && $raw_encounter_date && $drow['docdate'] > $raw_encounter_date) {
+      showDocument($drow);
+      $drow = sqlFetchArray($dres);
+    }
 
     echo "<tr>\n";
 
@@ -238,6 +309,12 @@ if ($result = getEncounters($pid)) {
 
   } // end foreach $result
 } // end if
+
+// Dump remaining document lines if count not exceeded.
+while ($drow && $count <= $N) {
+  showDocument($drow);
+  $drow = sqlFetchArray($dres);
+}
 ?>
 
 </table>

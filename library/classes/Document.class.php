@@ -80,6 +80,18 @@ class Document extends ORDataObject{
 	*/
 	var $revision;
 
+	/*
+	* Date (YYYY-MM-DD) logically associated with the document, e.g. when a picture was taken.
+	* @var string
+	*/
+	var $docdate;
+	
+	/*
+	* DB identifier reference to the lists table (the related issue), 0 if none.
+	* @var int
+	*/
+	var $list_id;
+
 	/**
 	 * Constructor sets all Document attributes to their default value
 	 * @param int $id optional existing id of a specific document, if omitted a "blank" document is created 
@@ -100,6 +112,8 @@ class Document extends ORDataObject{
 		$this->date = date("Y-m-d H:i:s");
 		$this->url = "";
 		$this->mimetype = "";
+		$this->docdate = date("Y-m-d");
+		$this->list_id = 0;
 		
 		if ($id != "") {
 			$this->populate();
@@ -197,7 +211,9 @@ class Document extends ORDataObject{
 		. "mimetype: " . $this->mimetype . "\n"
 		. "pages: " . $this->pages . "\n"
 		. "owner: " . $this->owner . "\n"
-		. "revision: " . $this->revision. "\n";
+		. "revision: " . $this->revision . "\n"
+		. "docdate: " . $this->docdate . "\n"
+		. "list_id: " . $this->list_id . "\n";
 
 		if ($html) {
 			return nl2br($string);
@@ -294,6 +310,18 @@ class Document extends ORDataObject{
 	*/
 	function set_revision($revision) {
 		$this->revision = $revision;
+	}
+	function set_docdate($docdate) {
+		$this->docdate = $docdate;
+	}
+	function get_docdate() {
+		return $this->docdate;
+	}
+	function set_list_id($list_id) {
+		$this->list_id = $list_id;
+	}
+	function get_list_id() {
+		return $this->list_id;
 	}
 	
 	/*
