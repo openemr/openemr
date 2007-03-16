@@ -7,7 +7,7 @@ if ($_POST['Submit']=="Load Definitions") {
 	$sql="INSERT INTO lang_definitions (`cons_id`,`lang_id`,`definition`) VALUES  ";
 //	echo ('<pre>');	print_r($_POST['cons_id']);	echo ('</pre>');
 	foreach ($_POST['cons_id'] as $key => $value) {
-		$value=trim($value);
+		$value = mysql_real_escape_string (trim($value));
 		$sql.=" ('$key', ";
 		$sql.="'".$_POST['lang_id']."',";
 		$sql.="'".$value."'),";
