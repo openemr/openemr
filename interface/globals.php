@@ -5,7 +5,7 @@ require_once(dirname(__FILE__) . "/../includes/config.php");
 // THESE VALUES MUST BE SET BEFORE OPENEMR WILL FUNCTION:
 ///////////////////////////////////////////////////////////////////
 // Set this to the full absolute directory path for openemr:
-$webserver_root = "/var/www/html/openemr";
+$webserver_root = "/mnt/htdocs/openemr";
 
 // Set this to the relative html path, ie. what you would type into the web
 // browser after the server address to get to OpenEMR.  For example, if you
@@ -38,6 +38,8 @@ $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
 // English:1, Swedish:2, Spanish:3, German:4, Dutch:5, Hebrew:6
 define ('LANGUAGE',1);
 include_once (dirname(__FILE__) . "/../library/translation.inc.php");
+
+include_once (dirname(__FILE__) . "/../library/date_functions.php");
 
 // Default category for find_patient screen
 $GLOBALS['default_category'] = 5;
