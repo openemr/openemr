@@ -21,7 +21,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 </td>
 
 <td align="right" valign="middle" nowrap>
-<span class="title_bar_top"><?php  echo date( "D F jS Y" );?></span>
+<span class="title_bar_top"><?php echo dateformat();?></span>
 </td>
 
 </tr>
