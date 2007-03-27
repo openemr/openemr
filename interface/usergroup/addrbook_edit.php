@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2007 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -96,10 +96,12 @@ td { font-size:10pt; }
     "email = "        . invalue('form_email')        . ", " .
     "url = "          . invalue('form_url')          . ", " .
     "street = "       . invalue('form_street')       . ", " .
+    "streetb = "      . invalue('form_streetb')      . ", " .
     "city = "         . invalue('form_city')         . ", " .
     "state = "        . invalue('form_state')        . ", " .
     "zip = "          . invalue('form_zip')          . ", " .
     "street2 = "      . invalue('form_street2')      . ", " .
+    "streetb2 = "     . invalue('form_streetb2')     . ", " .
     "city2 = "        . invalue('form_city2')        . ", " .
     "state2 = "       . invalue('form_state2')       . ", " .
     "zip2 = "         . invalue('form_zip2')         . ", " .
@@ -107,7 +109,8 @@ td { font-size:10pt; }
     "phonew1 = "      . invalue('form_phonew1')      . ", " .
     "phonew2 = "      . invalue('form_phonew2')      . ", " .
     "phonecell = "    . invalue('form_phonecell')    . ", " .
-    "fax = "          . invalue('form_fax')          . " "  .
+    "fax = "          . invalue('form_fax')          . ", " .
+    "notes = "        . invalue('form_notes')        . " "  .
     "WHERE id = '$userid'";
     sqlStatement($query);
 
@@ -118,9 +121,9 @@ td { font-size:10pt; }
     "title, fname, lname, mname,  " .
     "federaltaxid, federaldrugid, upin, facility, see_auth, active, " .
     "npi, specialty, assistant, billname, email, url, " .
-    "street, city, state, zip, " .
-    "street2, city2, state2, zip2, " .
-    "phone, phonew1, phonew2, phonecell, fax "            .
+    "street, streetb, city, state, zip, " .
+    "street2, streetb2, city2, state2, zip2, " .
+    "phone, phonew1, phonew2, phonecell, fax, notes "            .
     ") VALUES ( "                        .
     "'', "                               . // username
     "'', "                               . // password
@@ -144,10 +147,12 @@ td { font-size:10pt; }
     invalue('form_email')         . ", " .
     invalue('form_url')           . ", " .
     invalue('form_street')        . ", " .
+    invalue('form_streetb')       . ", " .
     invalue('form_city')          . ", " .
     invalue('form_state')         . ", " .
     invalue('form_zip')           . ", " .
     invalue('form_street2')       . ", " .
+    invalue('form_streetb2')      . ", " .
     invalue('form_city2')         . ", " .
     invalue('form_state2')        . ", " .
     invalue('form_zip2')          . ", " .
@@ -155,7 +160,8 @@ td { font-size:10pt; }
     invalue('form_phonew1')       . ", " .
     invalue('form_phonew2')       . ", " .
     invalue('form_phonecell')     . ", " .
-    invalue('form_fax')           . " "  .
+    invalue('form_fax')           . ", " .
+    invalue('form_notes')         . " "  .
    ")");
 
   }
@@ -279,6 +285,15 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
+  <td nowrap>&nbsp;</td>
+  <td>
+   <input type='text' size='40' name='form_streetb' maxlength='60'
+    value='<?php echo $row['streetb'] ?>'
+    style='width:100%' class='inputtext' />
+  </td>
+ </tr>
+
+ <tr>
   <td nowrap><b><?php xl('City','e'); ?>:</b></td>
   <td>
    <input type='text' size='10' name='form_city' maxlength='30'
@@ -295,6 +310,15 @@ td { font-size:10pt; }
   <td>
    <input type='text' size='40' name='form_street2' maxlength='60'
     value='<?php echo $row['street2'] ?>'
+    style='width:100%' class='inputtext' />
+  </td>
+ </tr>
+
+ <tr>
+  <td nowrap>&nbsp;</td>
+  <td>
+   <input type='text' size='40' name='form_streetb2' maxlength='60'
+    value='<?php echo $row['streetb2'] ?>'
     style='width:100%' class='inputtext' />
   </td>
  </tr>
@@ -320,6 +344,14 @@ td { font-size:10pt; }
     value='<?php echo $row['npi'] ?>' class='inputtext' />&nbsp;
    <b>TIN:</b> <input type='text' size='10' name='form_federaltaxid' maxlength='10'
     value='<?php echo $row['federaltaxid'] ?>' class='inputtext' />
+  </td>
+ </tr>
+
+ <tr>
+  <td nowrap><b><?php xl('Notes','e'); ?>:</b></td>
+  <td>
+   <textarea rows='3' cols='40' name='form_notes' style='width:100%'
+    wrap='virtual' class='inputtext' /><?php echo $row['notes'] ?></textarea>
   </td>
  </tr>
 

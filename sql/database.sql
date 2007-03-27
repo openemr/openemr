@@ -27703,10 +27703,12 @@ CREATE TABLE `users` (
   `url`        varchar(255) NOT NULL DEFAULT '',
   `assistant`  varchar(255) NOT NULL DEFAULT '',
   `street`     varchar(60)  NOT NULL DEFAULT '',
+  `streetb`    varchar(60)  NOT NULL DEFAULT '',
   `city`       varchar(30)  NOT NULL DEFAULT '',
   `state`      varchar(30)  NOT NULL DEFAULT '',
   `zip`        varchar(20)  NOT NULL DEFAULT '',
   `street2`    varchar(60)  NOT NULL DEFAULT '',
+  `streetb2`   varchar(60)  NOT NULL DEFAULT '',
   `city2`      varchar(30)  NOT NULL DEFAULT '',
   `state2`     varchar(30)  NOT NULL DEFAULT '',
   `zip2`       varchar(20)  NOT NULL DEFAULT '',
@@ -27715,6 +27717,7 @@ CREATE TABLE `users` (
   `phonew1`    varchar(30)  NOT NULL DEFAULT '',
   `phonew2`    varchar(30)  NOT NULL DEFAULT '',
   `phonecell`  varchar(30)  NOT NULL DEFAULT '',
+  `notes`      text         NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`)
 ) ;
 

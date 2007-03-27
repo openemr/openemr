@@ -84,7 +84,7 @@ function refreshme() {
 
 // Process click to pop up the add/edit window.
 function doedclick(userid) {
- dlgopen('addrbook_edit.php?userid=' + userid, '_blank', 700, 450);
+ dlgopen('addrbook_edit.php?userid=' + userid, '_blank', 700, 550);
 }
 
 </script>

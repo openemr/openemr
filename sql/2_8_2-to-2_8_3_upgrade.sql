@@ -42,3 +42,8 @@ ALTER TABLE form_football_injury_audit
 ALTER TABLE documents
   ADD `docdate` date       DEFAULT NULL,
   ADD `list_id` bigint(20) NOT NULL DEFAULT 0;
+
+ALTER TABLE users
+  ADD streetb  varchar(60) NOT NULL DEFAULT '',
+  ADD streetb2 varchar(60) NOT NULL DEFAULT '',
+  ADD notes    text        NOT NULL DEFAULT '';
