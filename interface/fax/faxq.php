@@ -158,12 +158,14 @@ function dosvclick(sfname) {
 
 // Process click to pop up the fax dispatch window.
 function domclick(ffname) {
- dlgopen('fax_dispatch.php?file=' + ffname, '_blank', 850, 550);
+ cascwin('fax_dispatch.php?file=' + ffname, '_blank', 850, 550,
+  "resizable=1,scrollbars=1");
 }
 
 // Process click to pop up the scanned document dispatch window.
 function dosdclick(sfname) {
- dlgopen('fax_dispatch.php?scan=' + sfname, '_blank', 850, 550);
+ cascwin('fax_dispatch.php?scan=' + sfname, '_blank', 850, 550,
+  "resizable=1,scrollbars=1");
 }
 
 </script>
