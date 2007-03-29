@@ -194,6 +194,11 @@ $GLOBALS['auto_create_new_encounters'] = true;
 // If you don't want employer information, country, title in patient demographics.
 $GLOBALS['omit_employers'] = false;
 
+// You can set this to the category name of a document to link to from the
+// patient summary page.  Normally this is the category for insurance cards.
+// This lets you click on the patient's name to see their ID card.
+$GLOBALS['patient_id_category_name'] = '';
+
 // If you want Hylafax support then uncomment and customize the following
 // statements, and also customize custom/faxcover.txt:
 //

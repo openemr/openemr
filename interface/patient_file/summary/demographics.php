@@ -119,6 +119,19 @@ function get_patient_balance($pid) {
   }
   echo "</p>\n";
  }
+
+// Get the document ID of the patient ID card if access to it is wanted here.
+$document_id = 0;
+if ($GLOBALS['patient_id_category_name']) {
+  $tmp = sqlQuery("SELECT d.id, d.date, d.url FROM " .
+    "documents AS d, categories_to_documents AS cd, categories AS c " .
+    "WHERE d.foreign_id = $pid " .
+    "AND cd.document_id = d.id " .
+    "AND c.id = cd.category_id " .
+    "AND c.name LIKE '" . $GLOBALS['patient_id_category_name'] . "' " .
+    "ORDER BY d.date DESC LIMIT 1");
+  if ($tmp) $document_id = $tmp['id'];
+}
 ?>
 
 <table border="0" width="100%">
@@ -130,8 +143,11 @@ function get_patient_balance($pid) {
       <span class='bold'><?php xl('Name','e'); ?>: </span>
       <span class='text'>
 <?php
- if (!$GLOBALS['omit_employers']) echo $result['title'] . ' ';
- echo $result['fname'] . ' ' . $result['mname'] . ' ' . $result['lname'];
+if ($document_id) echo "<a href='/openemr/controller.php?document&retrieve" .
+  "&patient_id=$pid&document_id=$document_id' style='color:#00cc00'>";
+if (!$GLOBALS['omit_employers']) echo $result['title'] . ' ';
+echo $result['fname'] . ' ' . $result['mname'] . ' ' . $result['lname'];
+if ($document_id) echo "</a>";
 ?>
       </span><br>
       <span class='bold'><? xl('Number','e'); ?>: </span><span class='text'><?echo $result{"pubpid"}?></span>
