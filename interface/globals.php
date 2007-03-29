@@ -138,7 +138,7 @@ $GLOBALS['calendar_interval'] = 15;
 // if the file has the word "login" in the source code file name,
 // don't include the authentication module - we do this to avoid
 // include loops.
-if (!$ignoreAuth) {
+if ((isset ($ignoreAuth)) && (!$ignoreAuth)) {
 	include_once("$srcdir/auth.inc");
 }
 
