@@ -182,7 +182,7 @@
 
    // Send the fax as the cover page followed by the selected pages.
    $info_msg .= mergeTiffs();
-   $tmp0 = exec("sendfax -n $form_finemode -d " .
+   $tmp0 = exec("sendfax -A -n $form_finemode -d " .
     escapeshellarg($form_fax) . " $tmpfn2 '$faxcache/temp.tif'",
     $tmp1, $tmp2);
    if ($tmp2) {
@@ -194,8 +194,13 @@
   }
 
   if ($_POST['form_cb_delete'] && !$info_msg) {
-   // Delete the tiff file.
-   unlink($filepath);
+
+   // Delete the tiff file, with archiving if desired.
+   if ($GLOBALS['hylafax_archdir'] && $mode == 'fax') {
+    rename($filepath, $GLOBALS['hylafax_archdir'] . '/' . $filename);
+   } else {
+    unlink($filepath);
+   }
 
    // Erase its cache.
    if (is_dir($faxcache)) {
