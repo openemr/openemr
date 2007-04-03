@@ -4,7 +4,7 @@
 require_once("{$GLOBALS['srcdir']}/log.inc");
 require_once("{$GLOBALS['srcdir']}/sql.inc");
 
-if ($_GET['auth'] == "login" && isset($_POST['authUser']) &&
+if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
 	isset($_POST['authPass']) && isset($_POST['authProvider']))
 {
 	if (!authNewSession($_POST['authUser'], $_POST['authPass'], $_POST['authProvider']))
@@ -16,7 +16,7 @@ if ($_GET['auth'] == "login" && isset($_POST['authUser']) &&
 	//store the very first initial timestamp for timeout errors
 	$_SESSION["last_update"] = time();
 }
-else if ($_GET['auth'] == "logout")
+else if ( (isset($_GET['auth'])) && ($_GET['auth'] == "logout") )
 {
 	newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], "success");
 	authCloseSession();
@@ -52,7 +52,7 @@ if (!isset($_SESSION["last_update"])) {
 		authCloseSession();
 		authLoginScreen();
 	} else {
-		if (!$GLOBALS['DAEMON_FLAG']) $_SESSION["last_update"] = time();
+		if ( (isset ($GLOBALS['DAEMON_FLAG'])) && (!$GLOBALS['DAEMON_FLAG']) ) $_SESSION["last_update"] = time();
 	}
 }
 
