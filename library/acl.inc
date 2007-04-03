@@ -48,7 +48,7 @@
   // Section "squads" applies to sports team use only:
   //   acos in this section define the user-specified list of squads
 
-  if ($phpgacl_location) {
+  if (isset ($phpgacl_location)) {
     include_once("$phpgacl_location/gacl.class.php");
     $gacl_object = new gacl();
   }
