@@ -137,7 +137,9 @@
  $tmp = acl_check('patients', 'demo');
  $disallowed['new'] = !($tmp == 'write' || $tmp == 'addonly');
 
- $disallowed['fax'] = !($GLOBALS['hylafax_server'] || $GLOBALS['scanner_output_directory']);
+if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_directory']) ) {
+    $disallowed['fax'] = !($GLOBALS['hylafax_server'] || $GLOBALS['scanner_output_directory']);
+}
 
  $disallowed['ros'] = !$GLOBALS['athletic_team'];
 
@@ -448,8 +450,9 @@
  // are comprised of the 3-character document id and the 1-digit usage type,
  // so that JavaScript can easily access this information.
  $default_top_rbid = $GLOBALS['athletic_team'] ? 'ros' : 'cal';
- foreach ($primary_docs as $key => $varr) {
-  if ($disallowed[$key]) continue;
+ 
+foreach ($primary_docs as $key => $varr) {
+  if  (isset ($disallowed[$key])) continue;
   $label = $varr[0];
   $usage = $varr[1];
   $url   = $varr[2];
