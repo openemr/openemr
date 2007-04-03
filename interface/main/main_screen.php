@@ -5,7 +5,7 @@
  if ($GLOBALS['athletic_team']) {
   $frame1url = "../reports/players_report.php?embed=1";
  } else {
-  if (isset($_GET[mode]) && $_GET{mode} == "loadcalendar") {
+  if (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
    $frame1url = "calendar/index.php?pid=" . $_GET['pid'];
    if (isset($_GET['date'])) $frame1url .= "&date=" . $_GET['date'];
   } else {
@@ -29,8 +29,7 @@
 <!-- border (mozilla) and framespacing (ie) are the same thing.      -->
 <!-- frameborder specifies a 3d look, not whether there are borders. -->
 
-<frameset rows='<?php echo $GLOBALS[titleBarHeight] ?>,*' frameborder='1'
- border='1' framespacing='1' onunload='imclosing()'>
+<frameset rows='<?php echo $GLOBALS['titleBarHeight'] ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>
  <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' noresize />
  <frameset cols='130,*' id='fsbody' frameborder='1' border='4' framespacing='4'>
   <frameset rows='*,0' frameborder='0' border='0' framespacing='0'>
