@@ -1452,16 +1452,16 @@ function &postcalendar_userapi_pcGetEventDetails($eid)
                     e.pc_contemail,
                     e.pc_website,
                     e.pc_fee,
-					e.pc_sharing,
+                    e.pc_sharing,
                     c.pc_catcolor,
                     c.pc_catname,
                     c.pc_catdesc,
-					e.pc_pid,
-					e.pc_aid,
-					pd.pubpid
-			 FROM   $table e, $cattable c
-			 LEFT JOIN patient_data as pd on pd.pid = e.pc_pid
-			 WHERE  e.pc_eid = '$eid' AND c.pc_catid = e.pc_catid";
+                    e.pc_pid,
+                    e.pc_aid,
+                    pd.pubpid
+            FROM   ($table e, $cattable c)
+            LEFT JOIN patient_data as pd ON (pd.pid = e.pc_pid)
+            WHERE  (e.pc_eid = '$eid' AND c.pc_catid = e.pc_catid)";
 
     $result = $dbconn->Execute($sql);
     if($dbconn->ErrorNo() != 0) {
