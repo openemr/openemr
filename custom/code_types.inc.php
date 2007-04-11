@@ -17,16 +17,15 @@ $code_types = array(
  'HCPCS' => array('id' => 3, 'fee' => 1, 'mod' => 2, 'just' => 'ICD9')
 
  /* UK Sports Medicine:
- 'ICD10' => array('id' => 4, 'fee' => 0, 'mod' => 0, 'just' => ''    ),
- 'OSICS' => array('id' => 5, 'fee' => 0, 'mod' => 4, 'just' => ''    ),
- 'UCSMC' => array('id' => 8, 'fee' => 0, 'mod' => 0, 'just' => ''    ),
+ 'OSICS10' => array('id' => 9, 'fee' => 0, 'mod' => 4, 'just' => ''  ),
  'OPCS'  => array('id' => 6, 'fee' => 0, 'mod' => 0, 'just' => ''    ),
  'PTCJ'  => array('id' => 7, 'fee' => 0, 'mod' => 0, 'just' => ''    ),
- 'CPT4'  => array('id' => 1, 'fee' => 0, 'mod' => 0, 'just' => ''    ) */
+ 'CPT4'  => array('id' => 1, 'fee' => 0, 'mod' => 0, 'just' => ''    ),
+ 'SMPC'  => array('id' => 10, 'fee' => 0, 'mod' => 0, 'just' => ''   ) */
 );
 
 $default_search_type = 'ICD9'; // US
-// $default_search_type = 'UCSMC'; // UK
+// $default_search_type = 'OSICS10'; // UK
 
 function fees_are_used() {
  global $code_types;
