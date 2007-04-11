@@ -9,20 +9,51 @@
 function parse_era_2100(&$out, $cb) {
 	if ($out['loopid'] == '2110' || $out['loopid'] == '2100') {
 
+		// Production date is posted with adjustments, so make sure it exists.
+		if (!$out['production_date']) $out['production_date'] = $out['check_date'];
+
 		// Force the sum of service payments to equal the claim payment
-		// amount.  Whenever this is an issue it should result from
-		// claim-level adjustments, and in this case the first SVC item
-		// that we stored was a 'Claim' type.
+		// amount, and the sum of service adjustments to equal the CLP's
+		// (charged amount - paid amount - patient responsibility amount).
+		// This may result from claim-level adjustments, and in this case the
+		// first SVC item that we stored was a 'Claim' type.  It also may result
+		// from poorly reported payment reversals, in which case we may need to
+		// create the 'Claim' service type here.
+		//
 		$paytotal = $out['amount_approved'];
-		foreach ($out['svc'] as $svc) $paytotal -= $svc['paid'];
-		$paytotal = round($paytotal, 2);
-		if ($paytotal != 0) {
-			$out['svc'][0]['paid'] += $paytotal;
-			if ($out['svc'][0]['code'] != 'Claim') {
-				$out['warnings'] .= "First service item payment amount " .
-					"adjusted by $paytotal due to payment imbalance. " .
-					"This should not happen!\n";
+		$adjtotal = $out['amount_charged'] - $out['amount_approved'] - $out['amount_patient'];
+		foreach ($out['svc'] as $svc) {
+			$paytotal -= $svc['paid'];
+			foreach ($svc['adj'] as $adj) {
+				if ($adj['group_code'] != 'PR') $adjtotal -= $adj['amount'];
 			}
+		}
+		$paytotal = round($paytotal, 2);
+		$adjtotal = round($adjtotal, 2);
+		if ($paytotal != 0 || $adjtotal != 0) {
+			if ($out['svc'][0]['code'] != 'Claim') {
+				array_unshift($out['svc'], array());
+				$out['svc'][0]['code'] = 'Claim';
+				$out['svc'][0]['mod']  = '';
+				$out['svc'][0]['chg']  = '0';
+				$out['svc'][0]['paid'] = '0';
+				$out['svc'][0]['adj']  = array();
+				$out['warnings'] .= "Procedure 'Claim' is inserted artificially to " .
+					"force claim balancing.\n";
+			}
+			$out['svc'][0]['paid'] += $paytotal;
+			if ($adjtotal) {
+				$j = count($out['svc'][0]['adj']);
+				$out['svc'][0]['adj'][$j] = array();
+				$out['svc'][0]['adj'][$j]['group_code']  = 'CR'; // presuming a correction or reversal
+				$out['svc'][0]['adj'][$j]['reason_code'] = 'Balancing';
+				$out['svc'][0]['adj'][$j]['amount'] = $adjtotal;
+			}
+			// if ($out['svc'][0]['code'] != 'Claim') {
+			//   $out['warnings'] .= "First service item payment amount " .
+			//   "adjusted by $paytotal due to payment imbalance. " .
+			//   "This should not happen!\n";
+			// }
 		}
 
 		$cb($out);
@@ -285,12 +316,13 @@ function parse_era($filename, $cb) {
 			if (! $out['loopid']) return 'Unexpected SVC segment';
 			$out['loopid'] = '2110';
 			if ($seg[6]) {
-				// SVC06 if present is our original procedure code that they are bundling.
+				// SVC06 if present is our original procedure code that they are changing.
 				// We will not put their crap in our invoice, but rather log a note and
 				// treat it as adjustments to our originally submitted coding.
 				$svc = explode('^', $seg[6]);
 				$tmp = explode('^', $seg[1]);
-				$out['warnings'] .= "Payer is bundling " . $svc[1] . " into " . $tmp[1] . ".\n";
+				$out['warnings'] .= "Payer is restating our procedure " . $svc[1] .
+					" as " . $tmp[1] . ".\n";
 			} else {
 				$svc = explode('^', $seg[1]);
 			}

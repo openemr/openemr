@@ -1,5 +1,5 @@
 <?php
-	// Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
+	// Copyright (C) 2006-2007 Rod Roark <rod@sunsetsystems.com>
 	//
 	// This program is free software; you can redistribute it and/or
 	// modify it under the terms of the GNU General Public License
@@ -167,6 +167,17 @@
 			// }
 		}
 
+		if ($csc == '4') {
+			$inverror = true;
+			writeMessageLine($bgcolor, 'errdetail',
+				"Not posting adjustments for denied claims, please follow up manually!");
+		}
+		else if ($csc == '22') {
+			$inverror = true;
+			writeMessageLine($bgcolor, 'errdetail',
+				"Payment reversals are not automated, please enter manually!");
+		}
+
 		if ($out['warnings']) {
 			writeMessageLine($bgcolor, 'infdetail', nl2br(rtrim($out['warnings'])));
 		}
@@ -189,7 +200,7 @@
 				writeOldDetail($prev, $patient_name, $invnumber, $service_date, $svc['code'], $bgcolor);
 				// Check for sanity in amount charged.
 				$prevchg = sprintf("%.2f", $prev['chg'] + $prev['adj']);
-				if ($prevchg != $svc['chg']) {
+				if ($prevchg != abs($svc['chg'])) {
 					writeMessageLine($bgcolor, 'errdetail',
 						"EOB charge amount " . $svc['chg'] . " for this code does not match our invoice");
 					$error = true;
@@ -320,13 +331,21 @@
 
 		} // End of service item
 
-		// Report any existing service items not mentioned in the ERA.
+		// Report any existing service items not mentioned in the ERA, and
+		// determine if any of them are still missing an insurance response
+		// (if so, then insurance is not yet done with the claim).
+		$insurance_done = true;
 		foreach ($codes as $code => $prev) {
 			writeOldDetail($prev, $arrow['name'], $invnumber, $service_date, $code, $bgcolor);
+			$got_response = false;
+			foreach ($prev['dtl'] as $ddata) {
+				if ($ddata['pmt'] || $ddata['rsn']) $got_response = true;
+			}
+			if (!$got_response) $insurance_done = false;
 		}
 
-		// Cleanup: If all is well, mark Ins1 done and check for secondary billing.
-		if (!$error && !$debug) {
+		// Cleanup: If all is well, mark Ins<x> done and check for secondary billing.
+		if (!$error && !$debug && $insurance_done) {
 			$shipvia = 'Done: Ins1';
 			if ($inslabel != 'Ins1') $shipvia .= ',Ins2';
 			if ($inslabel == 'Ins3') $shipvia .= ',Ins3';
