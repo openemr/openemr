@@ -30,7 +30,7 @@ $obj = formFetch("form_misc_billing_options", $_GET["id"]);
 <table>
 <tr>
 <td valign=top>
-<span class=text>Additional Notes: </span><br><textarea cols=40 rows=8 wrap=virtual name="additional_notes" ><?echo $obj{"comments"};?></textarea><br>
+<span class=text>Additional Notes: </span><br><textarea cols=40 rows=8 wrap=virtual name="comments" ><?echo $obj{"comments"};?></textarea><br>
 </td>
 </table>
 <br>
