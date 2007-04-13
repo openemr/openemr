@@ -11,7 +11,9 @@ if (file_exists($EXPORT_INC)) {
 }
 
 // This is a kludge to enter some parameters that are not in the X12
-// Partners table, but should be:
+// Partners table, but should be.
+//
+// The following works for Zirmed:
 $ISA07 = 'ZZ'; // ZZ = mutually defined, 01 = Duns, etc.
 $ISA14 = '0';  // 1 = Acknowledgment requested, else 0
 $ISA15 = 'T';  // T = testing, P = production
@@ -39,7 +41,7 @@ if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
 	$bat_sendid   = '';
 	$bat_recvid   = '';
 	$bat_content  = '';
-	$bat_segcount = 2;
+	$bat_stcount  = 0;
 	$bat_time     = time();
 	$bat_hhmm     = date('Hi' , $bat_time);
 	$bat_yymmdd   = date('ymd', $bat_time);
@@ -84,9 +86,9 @@ if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
 					}
 
 					// If we get here, we are sending X12 837p data.  Strip off the ISA,
-					// GS, ST, SE, GE, and IEA segments from the individual files and
-					// send just one set of these for the whole batch.  We think this is
-					// what the partners are happiest with, and Availity for one requires
+					// GS, GE, and IEA segments from the individual files and send just
+					// one set of these for the whole batch.  We think this is what the
+					// partners are happiest with, and Availity for one requires
 					// (as of this writing) exactly one ISA/IEA pair per batch.
 					$segs = explode('~', file_get_contents($fname));
 					foreach ($segs as $seg) {
@@ -100,23 +102,28 @@ if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
 								$bat_content = substr($seg, 0, 51) .
 									$ISA07 . substr($seg, 53, 17) .
 									"$bat_yymmdd*$bat_hhmm*U*00401*$bat_icn*$ISA14*$ISA15*:~" .
-									"GS*HC*$bat_sender*$bat_recvid*$bat_yyyymmdd*$bat_hhmm*1*X*004010X098A1~" .
-									"ST*837*0001~";
+									"GS*HC*$bat_sender*$bat_recvid*$bat_yyyymmdd*$bat_hhmm*1*X*004010X098A1~";
 							}
 							continue;
 						} else if (!$bat_content) {
 							die("Error in $fname:<br>\nInput must begin with 'ISA'; " .
 								"found '" . htmlentities($elems[0]) . "' instead");
 						}
-						if ($elems[0] == 'GS' || $elems[0] == 'ST') continue;
-						if ($elems[0] == 'SE' || $elems[0] == 'GE' || $elems[0] == 'IEA') continue;
+						if ($elems[0] == 'ST') {
+							++$bat_stcount;
+							$bat_content .= sprintf("ST*837*%04d~", $bat_stcount);
+							continue;
+						}
+						if ($elems[0] == 'SE') {
+							$bat_content .= sprintf("SE*%d*%04d~", $elems[1], $bat_stcount);
+							continue;
+						}
+						if ($elems[0] == 'GS' || $elems[0] == 'GE' || $elems[0] == 'IEA') continue;
 						if ($elems[0] == 'PER' && $PER06 && !$elems[5]) {
 							$seg .= "*ED*$PER06";
 						}
 						$bat_content .= $seg . '~';
-						$bat_segcount += 1;
 					}
-
 				}
 				else {
 					$bill_info[] = xl("May have an error: ") . $fname . "\n";
@@ -126,11 +133,9 @@ if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
 				$bill_info[] = xl("Not found: ") . $fname . "\n";
 			}
 		}
-
 	}
-
 	if ($bat_type == 'edi' && $bat_content) {
-		$bat_content .= "SE*$bat_segcount*0001~GE*1*1~IEA*1*$bat_icn~";
+		$bat_content .= "GE*$bat_stcount*1~IEA*1*$bat_icn~";
 	}
 
 	// if (!empty($efile)) {
