@@ -534,9 +534,9 @@ div.section {
 
 <center>
 <p>
-<input type='submit' name='form_save' value='<?php xl('OK'); ?>' />
+<input type='submit' name='form_save' value='<?php xl('OK','e'); ?>' />
 &nbsp; &nbsp;
-<input type='button' value='<?php xl('Cancel'); ?>' onclick='window.close()' />
+<input type='button' value='<?php xl('Cancel','e'); ?>' onclick='window.close()' />
 </p>
 
 <p><br /><b><?php xl('Please select the desired pages to copy or forward:','e'); ?></b></p>
