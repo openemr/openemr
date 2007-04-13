@@ -1,10 +1,17 @@
 #!/usr/bin/perl
 
+######################################################################
+# This module is compatible only with SQL-Ledger version 2.4.x.
+# Copy it to your SQL-Ledger installation directory as ws_server.pl.
+######################################################################
+
 use Frontier::Responder;
 use DBI;
 
-# You need to modify this as needed:
-use lib qw (/srv/www/sql-ledger);
+######################################################################
+# IMPORTANT - modify this to point to your SQL-Ledger installation!
+######################################################################
+use lib qw (/var/www/sql-ledger);
 
 use SL::User;
 use SL::Form;
@@ -13,6 +20,7 @@ use SL::HR;
 use SL::IS;
 use SL::IC;
 use SL::AR;
+
 require  "sql-ledger.conf";
 
 my $add_customer = \&rpc_add_customer;
@@ -44,15 +52,20 @@ sub rpc_customer_balance {
 		$form->{action} = 'Continue';
 
 		AR::ar_transactions("",\%$myconfig, \%$form);
-		my ($paid,$amount) =0;
+
+		my ($paid,$amount) = 0;
 
 		# Exclude invoices that are not yet due (i.e. waiting for insurance).
+		# We no longer use the due date for this; instead ar.notes identifies
+		# insurances used, and ar.shipvia indicates which of those are done.
+		# If all insurances are done, it's due.
 		#
-		my @now = localtime;
-		my $today = sprintf("%04u-%02u-%02u", $now[5] + 1900, $now[4] + 1, $now[3]);
 		foreach my $resref (@{$$form{transactions}}) {
-			my $duedate = substr($$resref{duedate}, 6) . "-" . substr($$resref{duedate}, 0, 5);
-			if ($duedate le $today) {
+			my $inspending = 0;
+			foreach my $tmp ('Ins1','Ins2','Ins3') {
+				++$inspending if ($$resref{notes} =~ /$tmp/ && $$resref{shipvia} !~ /$tmp/);
+			}
+			if ($inspending == 0) {
 				$paid   += $$resref{paid};
 				$amount += $$resref{amount};
 			}
@@ -158,9 +171,10 @@ sub rpc_add_invoice
 
 	# This will use the posting date as the billing date
 	@t = localtime(time);
-	$dd = $t[3];
-	$mm = $t[4] + 1;
-	$yy = $t[5] + 1900;
+
+	# $dd = $t[3];
+	# $mm = $t[4] + 1;
+	# $yy = $t[5] + 1900;
 
 	$form->{transdate} = sprintf("%02u-%02u-%04u", $t[4] + 1, $t[3], $t[5] + 1900);
 
@@ -188,9 +202,10 @@ sub rpc_add_invoice
 	$eth->execute($$post_hash{'invoicenumber'}) || die "Failed to execute ar query";
 	($trans_id) = $eth->fetchrow_array;
 	$eth->finish;
-	$dbh->disconnect;
+
 	if ($trans_id) {
 		print STDERR "Skipping invoice $trans_id = " . $$post_hash{'invoicenumber'} . "\n";
+		$dbh->disconnect;
 		return 0;
 	}
 
@@ -202,8 +217,8 @@ sub rpc_add_invoice
 
 	foreach  my $line_item (@$items)
 	{
-		if($$line_item{'itemtext'} =~ /COPAY/){
-			$form->{"datepaid_$j"} = "$mm-$dd-$yy";
+		if ($$line_item{'itemtext'} =~ /COPAY/) {
+			$form->{"datepaid_$j"} = $form->{transdate}; # "$mm-$dd-$yy";
 			# For copays we use a dummy procedure code because it may be applicable
 			# to multiple procedures during the visit.
 			$form->{"memo_$j"} = 'Co-pay';
@@ -243,6 +258,8 @@ sub rpc_add_invoice
 			$i++;
 		}
 	}
+
+	$dbh->disconnect;
 
 	$form->{paidaccounts} = $j - 1;
 	$form->{rowcount} = $i - 1;
