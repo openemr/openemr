@@ -18,6 +18,8 @@
 
 <p><?php xl('This module promotes efficient entry of EOB data.','e')?>
 
+<p><b><?php xl('Input Fields','e') ?></b>
+
 <p><?php xl('The initial window is the invoice search page.  At the top you may enter
 a source (e.g. check number), pay date and check amount.  The reason for the
 source and pay date is so that you don\'t have to enter them over and over
@@ -30,6 +32,8 @@ search parameters.  You can search by patient name, chart number, encounter
 number or date of service, or any combination of these.  You may also select
 whether you want to see all invoices, open invoices, or only invoices that
 are due (by the patient).  Click the Search button to perform the search.','e')?>
+
+<p><b><?php xl('Electronic Remits','e') ?></b>
 
 <p><?php xl('Alternatively, you may use the search page to upload an electronic
 remittance (X12 835) file that you have obtained from your payer or
@@ -44,14 +48,24 @@ window redisplays itself with the matching invoices from the X12 file.  You
 may click on any of these invoice numbers (as described below) if you wish to
 make any corrections before the remittance information is applied.
 To apply the changes, click the Process ERA File button at the bottom of the
-page.  This will produce a new window with a detailed report.  Black lines in
-this report show previously existing information.  Green lines show changes
+page.  This will produce a new window with a detailed report.','e') ?>
+
+<p><?php xl('Blue lines in this report are informational. Black lines
+show previously existing information.  Green lines show changes
 that were successfully applied.  Red lines indicate errors, or changes that
-were not applied because of errors.  Blue lines are informational.','e')?>
+were not applied; these must be processed manually.  Currently denied claims and
+payment reversals are not handled automatically and so will appear in red.','e')?>
 
 <p><?php xl('The X12 files as well as the resulting HTML output reports are archived
 in the "era" subdirectory of the main OpenEMR installation directory.  You will
-probably have to refer to these archives from time to time.','e')?>
+want to refer to these archives from time to time.  The URL is ','e') ?>
+<?php
+$url = ($_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
+$url .= "://" . $_SERVER['HTTP_HOST'] . "$web_root/era/";
+echo "<a href='$url'>$url</a>.\n";
+?>
+
+<p><b><?php xl('Manual Posting','e') ?></b>
 
 <p><?php xl('The remaining information below applies only if you are posting
 manually, or if you are doing manual corrections.','e')?>
