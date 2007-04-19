@@ -52,7 +52,7 @@ if (!isset($_SESSION["last_update"])) {
 		authCloseSession();
 		authLoginScreen();
 	} else {
-		if ( (isset ($GLOBALS['DAEMON_FLAG'])) && (!$GLOBALS['DAEMON_FLAG']) ) $_SESSION["last_update"] = time();
+		if (!empty($GLOBALS['DAEMON_FLAG'])) $_SESSION["last_update"] = time();
 	}
 }
 
