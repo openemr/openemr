@@ -201,7 +201,7 @@ td { font-size:10pt; }
    <select name='form_title'>
     <option value=''></option>
 <?php
- foreach (array('Mr.', 'Mrs.', 'Ms.', 'Dr.') as $value) {
+ foreach (array('Mr.', 'Mrs.', 'Ms.', 'Dr.', 'Prof.') as $value) {
   echo "    <option value='$value'";
   if ($value == $row['title']) echo " selected";
   echo ">$value</option>\n";
