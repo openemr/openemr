@@ -1,4 +1,8 @@
 ------------------------------------------------------------------------
+2007-05-04 ballards In library/sql-ledger.inc, changed function SLConnect()
+to use  $GLOBALS['oer_config']['ws_accounting']['server'] as the
+hostname instead of 'localhost'
+------------------------------------------------------------------------
 r92 | rroark | 2005-02-08 10:30:48 -0800 (Tue, 08 Feb 2005) | 1 line
 
 fixed bug that was keeping claims from generating sql-ledger invoices
