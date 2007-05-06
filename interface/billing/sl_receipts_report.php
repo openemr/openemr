@@ -33,7 +33,8 @@
   SLConnect();
 
   $form_use_edate = $_POST['form_use_edate'];
-  $form_billcode = trim($_POST['form_billcode']);
+  $form_cptcode = trim($_POST['form_cptcode']);
+  $form_icdcode = trim($_POST['form_icdcode']);
 ?>
 <html>
 <head>
@@ -79,8 +80,12 @@
    <input type='text' name='form_from_date' size='10' value='<? echo $_POST['form_from_date']; ?>' title='MM/DD/YYYY'>
    &nbsp;To:
    <input type='text' name='form_to_date' size='10' value='<? echo $_POST['form_to_date']; ?>' title='MM/DD/YYYY'>
-   &nbsp;Code:
-   <input type='text' name='form_billcode' size='5' value='<? echo $form_billcode; ?>' title='<?php xl('Optional billing code','e'); ?>>
+   &nbsp;CPT:
+   <input type='text' name='form_cptcode' size='5' value='<? echo $form_cptcode; ?>'
+    title='<?php xl('Optional procedure code','e'); ?>'>
+   &nbsp;ICD:
+   <input type='text' name='form_icdcode' size='5' value='<? echo $form_icdcode; ?>'
+    title='<?php xl('Enter a diagnosis code to exclude all invoices not containing it','e'); ?>'>
    &nbsp;
    <input type='checkbox' name='form_details' value='1'<? if ($_POST['form_details']) echo " checked"; ?>><?xl('Details','e')?>
    &nbsp;
@@ -107,12 +112,12 @@
   <td class="dehead">
    <?xl('Invoice','e')?>
   </td>
-<?php if ($form_billcode) { ?>
+<?php if ($form_cptcode) { ?>
   <td class="dehead" align='right'>
    <?xl('InvAmt','e')?>
   </td>
 <?php } ?>
-<?php if ($form_billcode) { ?>
+<?php if ($form_cptcode) { ?>
   <td class="dehead">
    <?xl('Insurance','e')?>
   </td>
@@ -136,20 +141,23 @@
     $from_date = fixDate($_POST['form_from_date']);
     $to_date   = fixDate($_POST['form_to_date']);
 
-    if ($form_billcode) {
+    if ($form_cptcode) {
       $query = "SELECT acc_trans.amount, acc_trans.transdate, " .
-        "acc_trans.memo, acc_trans.project_id, " .
+        "acc_trans.memo, acc_trans.project_id, acc_trans.trans_id, " .
         "ar.invnumber, ar.employee_id, invoice.fxsellprice " .
         "FROM acc_trans, ar, invoice WHERE " .
         "acc_trans.chart_id = $chart_id_cash AND " .
-        "acc_trans.memo ILIKE '$form_billcode' AND " .
+        "acc_trans.memo ILIKE '$form_cptcode' AND " .
         "ar.id = acc_trans.trans_id AND " .
         "invoice.trans_id = acc_trans.trans_id AND " .
         "invoice.serialnumber ILIKE acc_trans.memo AND " .
-        "invoice.fxsellprice >= 0.00 AND ";
+        "invoice.fxsellprice >= 0.00 AND " .
+        "invoice.fxsellprice >= 0.00 AND " .
+        "( invoice.description ILIKE 'CPT%' OR invoice.description ILIKE 'Proc%' ) AND ";
     }
     else {
-      $query = "select acc_trans.amount, acc_trans.transdate, acc_trans.memo, " .
+      $query = "select acc_trans.amount, acc_trans.transdate, " .
+        "acc_trans.memo, acc_trans.trans_id, " .
         "ar.invnumber, ar.employee_id from acc_trans, ar where " .
         "acc_trans.chart_id = $chart_id_cash and " .
         "ar.id = acc_trans.trans_id and ";
@@ -186,13 +194,34 @@
     $grandtotal1 = 0;
     $doctotal2   = 0;
     $grandtotal2 = 0;
+    $last_trans_id = 0;
+    $skipping      = false;
 
     for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
       $row = SLGetRow($t_res, $irow);
 
+      // If a diagnosis code was given then skip any invoices without
+      // that diagnosis.
+      if ($form_icdcode) {
+        if ($row['trans_id'] == $last_trans_id) {
+          if ($skipping) continue;
+          // same invoice and not skipping, do nothing.
+        } else { // new invoice
+          $skipping = false;
+          if (!SLQueryValue("SELECT count(*) FROM invoice WHERE " .
+            "invoice.trans_id = '" . $row['trans_id'] . "' AND " .
+            "( invoice.description ILIKE 'ICD9:$form_icdcode %' OR " .
+            "invoice.serialnumber ILIKE 'ICD9:$form_icdcode' )"))
+          {
+            $skipping = true;
+            continue;
+          }
+        }
+      }
+
       // Get insurance company name
       $insconame = '';
-      if ($form_billcode && $row['project_id']) {
+      if ($form_cptcode && $row['project_id']) {
         $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE " .
           "id = '" . $row['project_id'] . "'");
         $insconame = $tmp['name'];
@@ -211,7 +240,7 @@
 ?>
 
  <tr bgcolor="#ddddff">
-  <td class="detail" colspan="<?php echo $form_billcode ? '6' : '4'; ?>">
+  <td class="detail" colspan="<?php echo $form_cptcode ? '6' : '4'; ?>">
    <? echo xl('Totals for ') . $docname ?>
   </td>
   <td class="dehead" align="right">
@@ -243,12 +272,12 @@
   <td class="detail">
    <? echo $row['invnumber'] ?>
   </td>
-<?php if ($form_billcode) { ?>
+<?php if ($form_cptcode) { ?>
   <td class="detail" align='right'>
    <?php bucks($row['fxsellprice']) ?>
   </td>
 <?php } ?>
-<?php if ($form_billcode) { ?>
+<?php if ($form_cptcode) { ?>
   <td class="detail">
    <?php echo $insconame ?>
   </td>
@@ -273,7 +302,7 @@
 ?>
 
  <tr bgcolor="#ddddff">
-  <td class="detail" colspan="<?php echo $form_billcode ? '6' : '4'; ?>">
+  <td class="detail" colspan="<?php echo $form_cptcode ? '6' : '4'; ?>">
    <?echo xl('Totals for ') . $docname ?>
   </td>
   <td class="dehead" align="right">
@@ -285,7 +314,7 @@
  </tr>
 
  <tr bgcolor="#ffdddd">
-  <td class="detail" colspan="<?php echo $form_billcode ? '6' : '4'; ?>">
+  <td class="detail" colspan="<?php echo $form_cptcode ? '6' : '4'; ?>">
    <?xl('Grand Totals','e')?>
   </td>
   <td class="dehead" align="right">
