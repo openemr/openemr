@@ -415,7 +415,15 @@ if ($result3{"provider"}) {
 ?>
     <tr>
      <td valign='top'>
-      <span class='bold'><? xl('Primary Insurance Provider','e'); ?>:</span><br><span class='text'><?echo $result3{"provider_name"}?></span><br>
+      <span class='bold'><? xl('Primary Insurance Provider','e'); ?>:</span><br><span class='text'>
+<?php
+  if (trim($result3['provider_name'])) {
+    echo $result3['provider_name'];
+  } else {
+    echo "<font color='red'><b>Unassigned</b></font>";
+  }
+?>
+      </span><br>
       <span class='text'><? xl('Policy Number','e'); ?>: <?echo $result3{"policy_number"}?><br>
       Plan Name: <?=$result3{"plan_name"}?><br>
       Group Number: <?echo $result3{"group_number"}?></span>
