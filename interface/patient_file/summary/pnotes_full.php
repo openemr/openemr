@@ -150,13 +150,24 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
  </tr>
 </table>
 
-<a href="javascript:document.new_note.submit();" class='link_submit'>
 <?php if ($noteid) { ?>
+
+<a href="javascript:document.new_note.submit();" class='link_submit'>
 [<? xl('Append to This Note','e'); ?>]
-<?php } else { ?>
-[<? xl('Add New Note','e'); ?>]
-<?php } ?>
 </a>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<a href='pnotes_print.php?noteid=<?php echo $noteid; ?>' class='link_submit' target='_blank'>
+[<? xl('Print This Note','e'); ?>]
+</a>
+
+<?php } else { ?>
+
+<a href="javascript:document.new_note.submit();" class='link_submit'>
+[<? xl('Add New Note','e'); ?>]
+</a>
+
+<?php } ?>
+
 <br>
 </form>
 
