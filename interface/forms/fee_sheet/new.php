@@ -45,6 +45,7 @@ if ($_POST['bn_save']) {
 		$code_type = $iter['code_type'];
 		$code      = $iter['code'];
 		$modifier  = trim($iter['mod']);
+		$units     = max(1, intval(trim($iter['units'])));
 		$fee       = trim($iter['fee']);
 		$auth      = $iter['auth'] ? "1" : "0";
 		$del       = $iter['del'];
@@ -56,9 +57,10 @@ if ($_POST['bn_save']) {
 			}
 			else {
 				// authorizeBilling($id, $auth);
-				sqlQuery("update billing set fee = '$fee', modifier = '$modifier', " .
-					"authorized = $auth, provider_id = '$provid' where " .
-					"id = '$id' and billed = 0 and activity = 1");
+        sqlQuery("UPDATE billing SET " .
+          "units = '$units', fee = '$fee', modifier = '$modifier', " .
+          "authorized = $auth, provider_id = '$provid' WHERE " .
+          "id = '$id' AND billed = 0 AND activity = 1");
 			}
 		}
 
@@ -75,7 +77,7 @@ if ($_POST['bn_save']) {
 			$result = sqlQuery($query);
 			$code_text = addslashes($result['code_text']);
 			addBilling($encounter, $code_type, $code, $code_text, $pid, $auth,
-				$provid, $modifier, "", $fee);
+				$provid, $modifier, $units, $fee);
 		}
 	}
 
@@ -213,6 +215,7 @@ echo " </tr>\n";
   <td class='billcell'><b><?php xl('Mod','e');?></b></td>
 <? } ?>
 <? if (fees_are_used()) { ?>
+  <td class='billcell' align='center'><b><?php xl('Units','e');?></b></td>
   <td class='billcell' align='right'><b><?php xl('Fee','e');?></b>&nbsp;</td>
 <? } ?>
   <td class='billcell' align='center'><b><?php xl('Auth','e');?></b></td>
@@ -224,11 +227,11 @@ echo " </tr>\n";
 // This writes a billing line item to the output page.
 //
 function echoLine($lino, $codetype, $code, $modifier, $auth = TRUE, $del = FALSE,
-	$fee = NULL, $id = NULL, $billed = FALSE, $code_text = NULL)
+	$units = NULL, $fee = NULL, $id = NULL, $billed = FALSE, $code_text = NULL)
 {
 	global $code_types;
 	if (! $code_text) {
-		$query = "select fee, code_text from codes where code_type = '" .
+		$query = "select units, fee, code_text from codes where code_type = '" .
 			$code_types[$codetype]['id'] . "' and " .
 			"code = '$code' and ";
 		if ($modifier) {
@@ -238,6 +241,7 @@ function echoLine($lino, $codetype, $code, $modifier, $auth = TRUE, $del = FALSE
 		}
 		$result = sqlQuery($query);
 		$code_text = $result['code_text'];
+		if (empty($units)) $units = max(1, intval($result['units']));
 		if (!isset($fee)) $fee = $result['fee'];
 	}
 	$strike1 = ($id && $del) ? "<strike>" : "";
@@ -258,6 +262,7 @@ function echoLine($lino, $codetype, $code, $modifier, $auth = TRUE, $del = FALSE
 				"<input type='hidden' name='bill[$lino][mod]' value='$modifier'></td>\n";
 		}
 		if (fees_are_used()) {
+			echo "  <td class='billcell' align='center'>$units</td>\n";
 			echo "  <td class='billcell' align='right'>$fee</td>\n";
 		}
 		echo "  <td class='billcell' align='center'><input type='checkbox'" .
@@ -275,9 +280,12 @@ function echoLine($lino, $codetype, $code, $modifier, $auth = TRUE, $del = FALSE
 		}
 		if (fees_are_used()) {
 			if ($code_types[$codetype]['fee'] || $fee != 0) {
+				echo "  <td class='billcell' align='center'><input type='text' name='bill[$lino][units]' " .
+					"value='$units' size='2' style='text-align:right'></td>\n";
 				echo "  <td class='billcell' align='right'><input type='text' name='bill[$lino][fee]' " .
 					"value='$fee' size='6' style='text-align:right'></td>\n";
 			} else {
+				echo "  <td class='billcell'>&nbsp;</td>\n";
 				echo "  <td class='billcell'>&nbsp;</td>\n";
 			}
 		}
@@ -307,8 +315,9 @@ if ($result = getBillingByEncounter($pid, $encounter, "*") ) {
 		++$lino;
 		$del = $_POST['bill']["$lino"]['del']; // preserve Delete if checked
 		// list($code, $modifier) = explode("-", $iter["code"]);
-		echoLine($lino, $iter["code_type"], trim($iter["code"]), trim($iter["modifier"]),
-			$iter["authorized"], $del, $iter["fee"], $iter["id"], $iter["billed"], $iter["code_text"]);
+    echoLine($lino, $iter["code_type"], trim($iter["code"]), trim($iter["modifier"]),
+      $iter["authorized"], $del, $iter["units"], $iter["fee"], $iter["id"],
+      $iter["billed"], $iter["code_text"]);
 		// If no default provider yet then try this one.
 		if ($encounter_provid < 0 && ! $del) $encounter_provid = $iter["provider_id"];
 	}
@@ -326,7 +335,7 @@ if ($_POST['bill']) {
 		if ($iter["id"])  continue; // skip if it came from the database
 		if ($iter["del"]) continue; // skip if Delete was checked
 		echoLine(++$lino, $iter["code_type"], $iter["code"], trim($iter["mod"]),
-			$iter["auth"], $iter["del"], $iter["fee"]);
+			$iter["auth"], $iter["del"], $iter["units"], $iter["fee"]);
 	}
 }
 
