@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2007 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -54,6 +54,7 @@
   $inames = '';
   $tmp1 = array();
   $tmp2 = 0;
+  // form_images are the checkboxes to the right of the images.
   foreach ($_POST['form_images'] as $inbase) {
    $inames .= ' ' . escapeshellarg("$inbase.tif");
   }
@@ -93,7 +94,9 @@
    }
    $target = "$docdir/$ffname$ffmod$ffsuff";
 
-   // Create the target PDF.
+   // Create the target PDF.  Note that we are relying on the .tif files for
+   // the individual pages to already exist in the faxcache directory.
+   //
    $info_msg .= mergeTiffs();
    $tmp0 = exec("tiff2pdf -p letter -o '$target' '$faxcache/temp.tif'", $tmp1, $tmp2);
    if ($tmp2) {
@@ -193,7 +196,27 @@
    $action_taken = true;
   }
 
-  if ($_POST['form_cb_delete'] && !$info_msg) {
+  $form_cb_delete = $_POST['form_cb_delete'];
+
+  // If deleting selected, do it and then check if any are left.
+  if ($form_cb_delete == '1' && !$info_msg) {
+   foreach ($_POST['form_images'] as $inbase) {
+    unlink("$faxcache/$inbase.jpg");
+    $action_taken = true;
+   }
+   // Check if any .jpg files remain... if not we'll clean up.
+   if ($action_taken) {
+    $dh = opendir($faxcache);
+    if (! $dh) die("Cannot read $faxcache");
+    $form_cb_delete = '2';
+    while (false !== ($jfname = readdir($dh))) {
+     if (preg_match('/\.jpg$/', $jfname)) $form_cb_delete = '1';
+    }
+    closedir($dh);
+   }
+  }
+
+  if ($form_cb_delete == '2' && !$info_msg) {
 
    // Delete the tiff file, with archiving if desired.
    if ($GLOBALS['hylafax_archdir'] && $mode == 'fax') {
@@ -218,19 +241,23 @@
   if (!$action_taken && !$info_msg)
    $info_msg = xl('You did not choose any actions.');
 
-  // Close this window and refresh the fax list.
-  echo "<html>\n<body>\n<script language='JavaScript'>\n";
-  if ($info_msg) echo " alert('$info_msg');\n";
-  echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
-  echo " window.close();\n";
-  echo "</script>\n</body>\n</html>\n";
-  exit();
+  if ($info_msg || $form_cb_delete != '1') {
+   // Close this window and refresh the fax list.
+   echo "<html>\n<body>\n<script language='JavaScript'>\n";
+   if ($info_msg) echo " alert('$info_msg');\n";
+   echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
+   echo " window.close();\n";
+   echo "</script>\n</body>\n</html>\n";
+   exit();
+  }
+
  }
 
  // If we get this far then we are displaying the form.
 
  // If the image cache does not yet exist for this fax, build it.
  // This will contain a .tif image as well as a .jpg image for each page.
+ //
  if (! is_dir($faxcache)) {
   $tmp0 = exec("mkdir -p '$faxcache'", $tmp1, $tmp2);
   if ($tmp2) die("mkdir returned $tmp2: $tmp0");
@@ -529,8 +556,11 @@ div.section {
  </table>
 </div><!-- end div_forward -->
 
-<p><input type='checkbox' name='form_cb_delete' value='1' />
-<b><?php xl('Delete Document from Queue','e'); ?></b></p>
+<p><b><?php xl('Delete Pages','e'); ?>:</b>&nbsp;
+<input type='radio' name='form_cb_delete' value='2' />All&nbsp;
+<input type='radio' name='form_cb_delete' value='1' checked />Selected&nbsp;
+<input type='radio' name='form_cb_delete' value='0' />None
+</p>
 
 <center>
 <p>
