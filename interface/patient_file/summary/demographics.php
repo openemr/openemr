@@ -193,19 +193,19 @@ echo $result{"postal_code"}?>
 		echo " " . $result{"phone_contact"};
 	}
 	if ($result{"phone_home"} != "") {
-		echo "<br>Home: ";
+		echo "<br><span class='bold'>Home:</span> ";
 		echo $result{"phone_home"};
 	}
 	if ($result{"phone_biz"} != "") {
-		echo "<br>Work: ";
+		echo "<br><span class='bold'>Work:</span> ";
 		echo $result{"phone_biz"};
 	}
 	if ($result{"phone_cell"} != "") {
-		echo "<br>Mobile: ";
+		echo "<br><span class='bold'>Mobile:</span> ";
 		echo $result{"phone_cell"};
 	}
 	if ($result{"email"} != "") {
-		echo "<br>".xl('Email').": </span>";
+		echo "<br><span class='bold'>".xl('Email').": </span>";
 		echo '<a class=link_submit href="mailto:' . $result{"email"} . '">' . $result{"email"} . '</a>';
 	}
 ?>
