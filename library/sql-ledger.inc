@@ -1,5 +1,5 @@
 <?php
-// sql-ledger.inc
+/* $Id$ */
 //  ------------------------------------------------------------------------ //
 //                OpenEMR Electronic Medical Records System                  //
 //                    Copyright (c) 2005 oemr.org                            //
