@@ -1,4 +1,30 @@
 <?php
+/* $Id$ */
+//  ------------------------------------------------------------------------ //
+//                OpenEMR Electronic Medical Records System                  //
+//                    Copyright (c) 2005 oemr.org                            //
+//                       <http://www.oemr.org/>                              //
+//  ------------------------------------------------------------------------ //
+//  This program is free software; you can redistribute it and/or modify     //
+//  it under the terms of the GNU General Public License as published by     //
+//  the Free Software Foundation; either version 2 of the License, or        //
+//  (at your option) any later version.                                      //
+//                                                                           //
+//  You may not change or alter any portion of this comment or credits       //
+//  of supporting developers from this source code or any supporting         //
+//  source code which is considered copyrighted (c) material of the          //
+//  original comment or credit authors.                                      //
+//                                                                           //
+//  This program is distributed in the hope that it will be useful,          //
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of           //
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            //
+//  GNU General Public License for more details.                             //
+//                                                                           //
+//  You should have received a copy of the GNU General Public License        //
+//  along with this program; if not, write to the Free Software              //
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA //
+//  ------------------------------------------------------------------------ //
+
 $GLOBALS['oer_config']['freeb']['claim_file_dir'] 	= "/usr/share/freeb/public/";
 //currently can be pdf or txt
 $GLOBALS['oer_config']['freeb']['default_format'] 	= "pdf";
@@ -23,7 +49,7 @@ $GLOBALS['oer_config']['prescriptions']['format'] = "";
 
 //Document storage repository document root, if it does not begin with a slash it is set relative to the file root
 //you must include a trailing slash in either case
-$GLOBALS['oer_config']['documents']['repository'] = "documents/";
+$GLOBALS['oer_config']['documents']['repopath'] = "documents/";
 $GLOBALS['oer_config']['documents']['file_command_path'] = "/usr/bin/file";
 
 //Name of prescription graphic in interface/pic/ directory without preceding slash. Can be JPEG or PNG, normally 3 inches wide.
@@ -100,6 +126,7 @@ $GLOBALS['oer_config']['prescriptions']['signature'] = '';
 $GLOBALS['oer_config']['druglabels']['logo'] = dirname(__FILE__) .
   "/../interface/pic/" . $GLOBALS['oer_config']['druglabels']['logo_pic'];
 
+$GLOBALS['oer_config']['documents']['repository'] = $GLOBALS['oer_config']['documents']['repopath'];
 if (strpos($GLOBALS['oer_config']['documents']['repository'],"/") !== 0) {
 	$GLOBALS['oer_config']['documents']['repository'] = realpath(dirname(__FILE__) . "/../" . $GLOBALS['oer_config']['documents']['repository']) . "/";
 }
