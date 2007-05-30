@@ -1,4 +1,8 @@
 ------------------------------------------------------------------------
+2007-05-29 ballards In config.php, changed initial setting of global 
+variable for the document repository from $GLOBALS['oer_config']['documents']['repository'] 
+to $GLOBALS['oer_config']['documents']['repopath']
+------------------------------------------------------------------------
 2007-05-04 ballards In library/sql-ledger.inc, changed function SLConnect()
 to use  $GLOBALS['oer_config']['ws_accounting']['server'] as the
 hostname instead of 'localhost'
