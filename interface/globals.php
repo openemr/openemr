@@ -82,6 +82,9 @@ session_start();
 //
 $GLOBALS['concurrent_layout'] = true;
 
+// used in Add new event for multiple providers
+$GLOBALS['select_multi_providers'] = false;
+
 // Theme definition:
 if ($GLOBALS['concurrent_layout']) {
  $top_bg_line = ' bgcolor="#dddddd" ';
