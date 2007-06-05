@@ -1,4 +1,8 @@
 ------------------------------------------------------------------------
+2007-06-05 lemonsoftware Added multiple_providers option 
+This customization was made for Dutch version. It is controlled in globals.php
+by $GLOBALS['select_multi_providers'] default set to false
+------------------------------------------------------------------------
 2007-05-29 ballards In config.php, changed initial setting of global 
 variable for the document repository from $GLOBALS['oer_config']['documents']['repository'] 
 to $GLOBALS['oer_config']['documents']['repopath']
