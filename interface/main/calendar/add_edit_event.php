@@ -101,8 +101,97 @@
     's:20:"event_repeat_on_freq";s:1:"1";}';
   }
 
+/* =======================================================
+//                                  UPDATE EVENTS
+========================================================*/
   if ($eid) {
-   sqlStatement("UPDATE openemr_postcalendar_events SET " .
+    if ($GLOBALS['select_multi_providers']) {
+    /* ==========================================
+    // multi providers BOS
+    ==========================================*/
+
+    // what is multiple key around this $eid?
+    $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+
+    // obtain current list of providers regarding the multiple key
+    $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple={$row['pc_multiple']}");
+    while ($current = sqlFetchArray($up)) {
+        $providers_current[] = $current['pc_aid'];
+    } 
+
+    $providers_new = $_POST['form_provider'];
+
+    // this difference means that some providers from current was UNCHECKED
+    // so we must delete this event for them
+    $r1 = array_diff ($providers_current, $providers_new);
+    if (count ($r1)) {
+        foreach ($r1 as $to_be_removed) {
+           sqlQuery("DELETE FROM openemr_postcalendar_events WHERE pc_aid='$to_be_removed' AND pc_multiple={$row['pc_multiple']}");
+        }
+    }
+
+    // this difference means that some providers was added 
+    // so we must insert this event for them 
+   $r2 = array_diff ($providers_new, $providers_current);
+    if (count ($r2)) {
+        foreach ($r2 as $to_be_inserted) {
+            sqlInsert("INSERT INTO openemr_postcalendar_events ( pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing) 
+            VALUES ( " .
+                "'" . $_POST['form_category']             . "', " .
+                "'" . $row['pc_multiple']             . "', " .
+                "'" . $to_be_inserted            . "', " .
+                "'" . $_POST['form_pid']                  . "', " .
+                "'" . $_POST['form_title']                . "', " .
+                "NOW(), "                                         .
+                "'" . $_POST['form_comments']             . "', " .
+                "'" . $_SESSION['authUserID']             . "', " .
+                "'" . $event_date                         . "', " .
+                "'" . fixDate($_POST['form_enddate'])     . "', " .
+                "'" . ($duration * 60)                    . "', " .
+                "'" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
+                "'$recurrspec', "                                 .
+                "'$starttime', "                                  .
+                "'$endtime', "                                    .
+                "'" . $_POST['form_allday']               . "', " .
+                "'" . $_POST['form_apptstatus']           . "', " .
+                "'" . $_POST['form_prefcat']              . "', " .
+                "'$locationspec', "                               .
+                "1, " .
+                "1 )");
+        } // foreach
+    }
+
+
+    // after the two diffs above, we must update for remaining providers
+   // those who are intersected in $providers_current and $providers_new
+   foreach ($_POST['form_provider'] as $provider) {
+            sqlStatement("UPDATE openemr_postcalendar_events SET " .
+            "pc_catid = '"       . $_POST['form_category']             . "', " .
+            "pc_pid = '"         . $_POST['form_pid']                  . "', " .
+            "pc_title = '"       . $_POST['form_title']                . "', " .
+            "pc_time = NOW(), "                                                .
+            "pc_hometext = '"    . $_POST['form_comments']             . "', " .
+            "pc_informant = '"   . $_SESSION['authUserID']             . "', " .
+            "pc_eventDate = '"   . $event_date                         . "', " .
+            "pc_endDate = '"     . fixDate($_POST['form_enddate'])     . "', " .
+            "pc_duration = '"    . ($duration * 60)                    . "', " .
+            "pc_recurrtype = '"  . ($_POST['form_repeat'] ? '1' : '0') . "', " .
+            "pc_recurrspec = '$recurrspec', "                                  .
+            "pc_startTime = '$starttime', "                                    .
+            "pc_endTime = '$endtime', "                                        .
+            "pc_alldayevent = '" . $_POST['form_allday']               . "', " .
+            "pc_apptstatus = '"  . $_POST['form_apptstatus']           . "', "  .
+            "pc_prefcatid = '"   . $_POST['form_prefcat']              . "' "  .
+              "WHERE pc_aid = '$provider' AND pc_multiple={$row['pc_multiple']}");
+        } // foreach
+ 
+/* ==========================================
+// multi providers EOS
+==========================================*/
+
+    } else {
+    // simple provider case
+    sqlStatement("UPDATE openemr_postcalendar_events SET " .
     "pc_catid = '"       . $_POST['form_category']             . "', " .
     "pc_aid = '"         . $_POST['form_provider']             . "', " .
     "pc_pid = '"         . $_POST['form_pid']                  . "', " .
@@ -121,8 +210,58 @@
     "pc_apptstatus = '"  . $_POST['form_apptstatus']           . "', "  .
     "pc_prefcatid = '"   . $_POST['form_prefcat']              . "' "  .
     "WHERE pc_eid = '$eid'");
+    }
+
   } else {
-   sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
+
+// =======================================
+// multi providers case
+// =======================================
+
+if (is_array($_POST['form_provider'])) {
+
+    // obtain the next available unique key to group multiple providers around some event
+    $q = sqlStatement ("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
+    $max = sqlFetchArray($q);
+    $new_multiple_value = $max['max'] + 1;
+
+    foreach ($_POST['form_provider'] as $provider) {
+    sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
+    "pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
+    "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
+    "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
+    "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing " .
+    ") VALUES ( " .
+    "'" . $_POST['form_category']             . "', " .
+    "'" . $new_multiple_value             . "', " .
+    "'" . $provider                           . "', " .
+    "'" . $_POST['form_pid']                  . "', " .
+    "'" . $_POST['form_title']                . "', " .
+    "NOW(), "                                         .
+    "'" . $_POST['form_comments']             . "', " .
+    "'" . $_SESSION['authUserID']             . "', " .
+    "'" . $event_date                         . "', " .
+    "'" . fixDate($_POST['form_enddate'])     . "', " .
+    "'" . ($duration * 60)                    . "', " .
+    "'" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
+    "'$recurrspec', "                                 .
+    "'$starttime', "                                  .
+    "'$endtime', "                                    .
+    "'" . $_POST['form_allday']               . "', " .
+    "'" . $_POST['form_apptstatus']           . "', " .
+    "'" . $_POST['form_prefcat']              . "', " .
+    "'$locationspec', "                               .
+    "1, " .
+    "1 )");
+
+    } // foreach
+
+// =======================================
+// EOS multi providers case
+// =======================================
+
+} else {
+sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
     "pc_catid, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
     "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
     "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
@@ -149,6 +288,8 @@
     "1, " .
     "1 )");
   }
+ }
+
 
   // Save new DOB if it's there.
   $patient_dob = trim($_POST['form_dob']);
@@ -188,8 +329,19 @@
 
  }
  else if ($_POST['form_delete']) {
-  sqlStatement("DELETE FROM openemr_postcalendar_events WHERE " .
-   "pc_eid = '$eid'");
+        // =======================================
+        //  multi providers case
+        // =======================================
+        if ($GLOBALS['select_multi_providers']) {
+             // what is multiple key around this $eid?
+            $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+            sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_multiple = {$row['pc_multiple']}");
+        // =======================================
+        //  EOS multi providers case
+        // =======================================
+        } else {
+            sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = '$eid'");
+        }
  }
 
  if ($_POST['form_save'] || $_POST['form_delete']) {
@@ -237,6 +389,8 @@
   $starttimeh = substr($row['pc_startTime'], 0, 2) + 0;
   $starttimem = substr($row['pc_startTime'], 3, 2);
   $repeats = $row['pc_recurrtype'];
+  $multiple_value = $row['pc_multiple'];
+ 
   if (preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', $row['pc_recurrspec'], $matches)) {
    $repeattype = $matches[1];
   }
@@ -562,7 +716,49 @@ td { font-size:10pt; }
    <b><? xl('Provider','e'); ?>:</b>
   </td>
   <td nowrap>
-   <select name='form_provider' style='width:100%'>
+
+<?php
+
+// =======================================
+// multi providers case
+// =======================================
+if  ($GLOBALS['select_multi_providers']) {
+
+//  there are two posible situations: edit and new record
+
+// this is executed only on edit ($eid)
+if ($eid) {
+    // find all the providers around multiple key
+    $qall = sqlStatement ("SELECT pc_aid AS providers FROM openemr_postcalendar_events WHERE pc_multiple = $multiple_value");
+
+    while ($r = sqlFetchArray($qall)) {
+        $providers_array[] = $r['providers'];
+    }
+}
+
+// build the selection tool
+echo "<select name='form_provider[]' style='width:100%' multiple='multiple' size='5'>";
+
+while ($urow = sqlFetchArray($ures)) {
+    echo "    <option value='" . $urow['id'] . "'";
+
+    if ($userid) {
+        if ( in_array($urow['id'], $providers_array) ) echo " selected";
+    }
+
+    echo ">" . $urow['lname'];
+    if ($urow['fname']) echo ", " . $urow['fname'];
+    echo "</option>\n";
+ }
+
+echo '</select>';
+
+// =======================================
+// EOS  multi providers case
+// =======================================
+} else {
+?>
+<select name='form_provider' style='width:100%'>
 <?
  while ($urow = sqlFetchArray($ures)) {
   echo "    <option value='" . $urow['id'] . "'";
@@ -577,6 +773,9 @@ td { font-size:10pt; }
  }
 ?>
    </select>
+<?php } ?>
+
+
   </td>
   <td nowrap>
    &nbsp;&nbsp;
