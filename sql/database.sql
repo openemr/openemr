@@ -27158,6 +27158,7 @@ DROP TABLE IF EXISTS `openemr_postcalendar_events`;
 CREATE TABLE `openemr_postcalendar_events` (
   `pc_eid` int(11) unsigned NOT NULL auto_increment,
   `pc_catid` int(11) NOT NULL default '0',
+  `pc_multiple` int(10) unsigned NOT NULL,
   `pc_aid` varchar(30) NOT NULL default '',
   `pc_pid` varchar(11) NOT NULL default '',
   `pc_title` varchar(150) default '',
