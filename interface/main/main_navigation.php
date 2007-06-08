@@ -66,6 +66,16 @@ include_once("../../library/acl.inc");
 </td>
 
 <?php
+  $tmp = acl_check('patients', 'demo');
+  if (($tmp == 'write' || $tmp == 'addonly') &&
+    is_readable("$webserver_root/custom/import.php")) {
+?>
+<td align="center" nowrap>
+&nbsp;<a href="<?php echo $web_root; ?>/custom/import.php" target="Main" class="menu"><? xl('Import','e'); ?></a>&nbsp;
+</td>
+<?php } ?>
+
+<?php
  if ($GLOBALS['hylafax_server'] || $GLOBALS['scanner_output_directory']) {
   $faxcount = 0;
   if ($GLOBALS['hylafax_server']) {

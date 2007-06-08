@@ -643,6 +643,7 @@ function updateInsuranceData($pid,$new)
         return sqlInsert($sql);
 }
 
+/****
 function newHistoryData(	$pid,
 				$coffee = "",
 				$tobacco = "",
@@ -742,6 +743,18 @@ function newHistoryData(	$pid,
 		date=NOW(),
 		pid='$pid'
 		");
+}
+****/
+
+function newHistoryData($pid, $new=false) {
+  $sql = "insert into history_data set pid = '$pid', date = NOW()";
+  if ($new) {
+    while(list($key, $value) = each($new)) {
+      if (!get_magic_quotes_gpc()) $value = addslashes($value);
+      $sql .= ", $key = '$value'";
+    }
+  }
+  return sqlInsert($sql);
 }
 
 function updateHistoryData($pid,$new)

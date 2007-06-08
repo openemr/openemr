@@ -103,6 +103,7 @@
   'ono' => array('Ofc Notes' , 0, 'main/onotes/office_comments.php'),
   'fax' => array('Fax/Scan'  , 0, 'fax/faxq.php'),
   'adb' => array('Addr Bk'   , 0, 'usergroup/addrbook_list.php'),
+  'imp' => array('Import'    , 0, '../custom/import.php'),
   'bil' => array('Billing'   , 0, 'billing/billing_report.php'),
   'sup' => array('Superbill' , 0, 'patient_file/encounter/superbill_custom_full.php'),
   'aun' => array('Auth/notes', 0, 'main/authorizations/authorizations.php'),
@@ -146,6 +147,9 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
  $disallowed['iss'] = !((acl_check('encounters', 'notes') == 'write' ||
   acl_check('encounters', 'notes_a') == 'write') &&
   acl_check('patients', 'med') == 'write');
+
+ $disallowed['imp'] = $disallowed['new'] ||
+  !is_readable("$webserver_root/custom/import.php");
 ?>
 <html>
 <head>

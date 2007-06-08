@@ -47,3 +47,11 @@ ALTER TABLE users
   ADD streetb  varchar(60) NOT NULL DEFAULT '',
   ADD streetb2 varchar(60) NOT NULL DEFAULT '',
   ADD notes    text        NOT NULL DEFAULT '';
+
+ALTER TABLE history_data
+  ADD `last_retinal`    varchar(255) NOT NULL DEFAULT '',
+  ADD `last_fluvax`     varchar(255) NOT NULL DEFAULT '',
+  ADD `last_pneuvax`    varchar(255) NOT NULL DEFAULT '',
+  ADD `last_ldl`        varchar(255) NOT NULL DEFAULT '',
+  ADD `last_hemoglobin` varchar(255) NOT NULL DEFAULT '',
+  ADD `last_psa`        varchar(255) NOT NULL DEFAULT '';

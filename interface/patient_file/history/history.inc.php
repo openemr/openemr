@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2007 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -13,23 +13,30 @@
  //
  if ($GLOBALS['athletic_team']) {
   $exams = array(
-   "last_cardiac_echo"              => xl('08 Cardiac Echo'),
-   "last_ecg"                       => xl('07 ECG'),
-   "last_physical_exam"             => xl('05 Physical Exam'),
-   "last_breast_exam"               => xl('00 Breast Exam'),
-   "last_mammogram"                 => xl('01 Mammogram')
+   "last_cardiac_echo"              => '08 ' . xl('Cardiac Echo'),
+   "last_ecg"                       => '07 ' . xl('ECG'),
+   "last_physical_exam"             => '05 ' . xl('Physical Exam'),
+   "last_breast_exam"               => '00 ' . xl('Breast Exam'),
+   "last_mammogram"                 => '01 ' . xl('Mammogram')
   );
  } else {
   $exams = array(
-   "last_breast_exam"               => xl('00 Breast Exam'),
-   "last_cardiac_echo"              => xl('08 Cardiac Echo'),
-   "last_ecg"                       => xl('07 ECG'),
-   "last_gynocological_exam"        => xl('02 Gynecological Exam'),
-   "last_mammogram"                 => xl('01 Mammogram'),
-   "last_physical_exam"             => xl('05 Physical Exam'),
-   "last_prostate_exam"             => xl('04 Prostate Exam'),
-   "last_rectal_exam"               => xl('03 Rectal Exam'),
-   "last_sigmoidoscopy_colonoscopy" => xl('06 Sigmoid/Colonoscopy')
+   "last_breast_exam"               => '00 ' . xl('Breast Exam'),
+   "last_cardiac_echo"              => '08 ' . xl('Cardiac Echo'),
+   "last_ecg"                       => '07 ' . xl('ECG'),
+   "last_gynocological_exam"        => '02 ' . xl('Gynecological Exam'),
+   "last_mammogram"                 => '01 ' . xl('Mammogram'),
+   "last_physical_exam"             => '05 ' . xl('Physical Exam'),
+   "last_prostate_exam"             => '04 ' . xl('Prostate Exam'),
+   "last_rectal_exam"               => '03 ' . xl('Rectal Exam'),
+   "last_sigmoidoscopy_colonoscopy" => '06 ' . xl('Sigmoid/Colonoscopy'),
+   // new for McCormick:
+   "last_retinal"                   => '09 ' . xl('Retinal Exam'),
+   "last_fluvax"                    => '10 ' . xl('Flu Vaccination'),
+   "last_pneuvax"                   => '11 ' . xl('Pneumonia Vaccination'),
+   "last_ldl"                       => '12 ' . xl('LDL'),
+   "last_hemoglobin"                => '13 ' . xl('Hemoglobin'),
+   "last_psa"                       => '14 ' . xl('PSA')
   );
  }
 
