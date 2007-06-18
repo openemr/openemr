@@ -11,7 +11,7 @@
 // This nonsense will go away if we ever move to subversion.
 //////////////////////////////////////////////////////////////////////
 
-// Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2005-2007 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,6 +22,15 @@ include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("codes.php");
 include_once("../../../custom/code_types.inc.php");
+
+// Possible units of measure for NDC drug quantities.
+//
+$ndc_uom_choices = array(
+  'ML' => 'ML',
+  'GR' => 'Grams',
+  'F2' => 'I.U.',
+  'UN' => 'Units'
+);
 
 // $FEE_SHEET_COLUMNS should be defined in codes.php.
 if (empty($FEE_SHEET_COLUMNS)) $FEE_SHEET_COLUMNS = 2;
@@ -50,6 +59,12 @@ if ($_POST['bn_save']) {
 		$auth      = $iter['auth'] ? "1" : "0";
 		$del       = $iter['del'];
 
+    $ndc_info = '';
+    if ($iter['ndcnum']) {
+    $ndc_info = 'N4' . trim($iter['ndcnum']) . '   ' . $iter['ndcuom'] .
+      trim($iter['ndcqty']);
+    }
+
 		// If the item is already in the database...
 		if ($id) {
 			if ($del) {
@@ -59,7 +74,8 @@ if ($_POST['bn_save']) {
 				// authorizeBilling($id, $auth);
         sqlQuery("UPDATE billing SET " .
           "units = '$units', fee = '$fee', modifier = '$modifier', " .
-          "authorized = $auth, provider_id = '$provid' WHERE " .
+          "authorized = $auth, provider_id = '$provid', " .
+          "ndc_info = '$ndc_info' WHERE " .
           "id = '$id' AND billed = 0 AND activity = 1");
 			}
 		}
@@ -77,7 +93,7 @@ if ($_POST['bn_save']) {
 			$result = sqlQuery($query);
 			$code_text = addslashes($result['code_text']);
 			addBilling($encounter, $code_type, $code, $code_text, $pid, $auth,
-				$provid, $modifier, $units, $fee);
+				$provid, $modifier, $units, $fee, $ndc_info);
 		}
 	}
 
@@ -142,6 +158,16 @@ foreach ($bcodes as $key0 => $value0) {
 
 $search_type = $default_search_type;
 if ($_POST['search_type']) $search_type = $_POST['search_type'];
+
+// Find out if the patient has any insurance that requires NDC numbers.
+// Currently this is just Medicaid, type 3.
+//
+$tmp = sqlQuery("SELECT c.id FROM " .
+  "insurance_data AS i, insurance_companies AS c WHERE " .
+  "i.pid = '$pid' AND i.provider != '' AND " .
+  "c.id = i.provider AND c.freeb_type = 3 " .
+  "LIMIT 1");
+$ndc_applies = !empty($tmp);
 
 echo $i ? "  <td></td>\n </tr>\n" : "";
 echo " <tr>\n";
@@ -226,10 +252,12 @@ echo " </tr>\n";
 
 // This writes a billing line item to the output page.
 //
-function echoLine($lino, $codetype, $code, $modifier, $auth = TRUE, $del = FALSE,
-	$units = NULL, $fee = NULL, $id = NULL, $billed = FALSE, $code_text = NULL)
+function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
+  $auth = TRUE, $del = FALSE, $units = NULL, $fee = NULL, $id = NULL,
+  $billed = FALSE, $code_text = NULL)
 {
-	global $code_types;
+  global $code_types, $ndc_applies, $ndc_uom_choices;
+
 	if (! $code_text) {
 		$query = "select units, fee, code_text from codes where code_type = '" .
 			$code_types[$codetype]['id'] . "' and " .
@@ -296,6 +324,38 @@ function echoLine($lino, $codetype, $code, $modifier, $auth = TRUE, $del = FALSE
 	}
 	echo "  <td class='billcell'>$strike1" . ucfirst(strtolower($code_text)) . "$strike2</td>\n";
 	echo " </tr>\n";
+
+  // If NDC info exists or may be required, add a line for it.
+  if ($codetype == 'HCPCS' && $ndc_applies && !$billed) {
+    $ndcnum = ''; $ndcuom = ''; $ndcqty = '';
+    if (preg_match('/^N4(\S+)\s+(\S\S)(.*)/', $ndc_info, $tmp)) {
+      $ndcnum = $tmp[1]; $ndcuom = $tmp[2]; $ndcqty = $tmp[3];
+    }
+    echo " <tr>\n";
+    echo "  <td class='billcell' colspan='2'>&nbsp;</td>\n";
+    echo "  <td class='billcell' colspan='6'>&nbsp;NDC:&nbsp;";
+    echo "<input type='text' name='bill[$lino][ndcnum]' value='$ndcnum' " .
+      "size='11' style='background-color:transparent'>";
+    echo " &nbsp;Qty:&nbsp;";
+    echo "<input type='text' name='bill[$lino][ndcqty]' value='$ndcqty' " .
+      "size='3' style='background-color:transparent;text-align:right'>";
+    echo " ";
+    echo "<select name='bill[$lino][ndcuom]' style='background-color:transparent'>";
+    foreach ($ndc_uom_choices as $key => $value) {
+      echo "<option value='$key'";
+      if ($key == $ndcuom) echo " selected";
+      echo ">$value</option>";
+    }
+    echo "</select>";
+    echo "</td>\n";
+    echo " </tr>\n";
+  }
+  else if ($ndc_info) {
+    echo " <tr>\n";
+    echo "  <td class='billcell' colspan='2'>&nbsp;</td>\n";
+    echo "  <td class='billcell' colspan='6'>&nbsp;NDC Data: $ndc_info</td>\n";
+    echo " </tr>\n";
+  }
 }
 
 // Try setting the default provider to that of the new encounter form.
@@ -315,9 +375,10 @@ if ($result = getBillingByEncounter($pid, $encounter, "*") ) {
 		++$lino;
 		$del = $_POST['bill']["$lino"]['del']; // preserve Delete if checked
 		// list($code, $modifier) = explode("-", $iter["code"]);
-    echoLine($lino, $iter["code_type"], trim($iter["code"]), trim($iter["modifier"]),
-      $iter["authorized"], $del, $iter["units"], $iter["fee"], $iter["id"],
-      $iter["billed"], $iter["code_text"]);
+    echoLine($lino, $iter["code_type"], trim($iter["code"]),
+      trim($iter["modifier"]), $iter["ndc_info"],  $iter["authorized"],
+      $del, $iter["units"], $iter["fee"], $iter["id"], $iter["billed"],
+      $iter["code_text"]);
 		// If no default provider yet then try this one.
 		if ($encounter_provid < 0 && ! $del) $encounter_provid = $iter["provider_id"];
 	}
@@ -334,8 +395,14 @@ if ($_POST['bill']) {
 	foreach ($_POST['bill'] as $key => $iter) {
 		if ($iter["id"])  continue; // skip if it came from the database
 		if ($iter["del"]) continue; // skip if Delete was checked
-		echoLine(++$lino, $iter["code_type"], $iter["code"], trim($iter["mod"]),
-			$iter["auth"], $iter["del"], $iter["units"], $iter["fee"]);
+    $ndc_info = '';
+    if ($iter['ndcnum']) {
+    $ndc_info = 'N4' . trim($iter['ndcnum']) . '   ' . $iter['ndcuom'] .
+      trim($iter['ndcqty']);
+    }
+    echoLine(++$lino, $iter["code_type"], $iter["code"], trim($iter["mod"]),
+      $ndc_info, $iter["auth"], $iter["del"], $iter["units"],
+      $iter["fee"]);
 	}
 }
 
@@ -350,7 +417,17 @@ if ($_POST['newcode']) {
 		$newtype = "HCPCS";
 	else if ($newtype == "OPCS" && preg_match("/^[0-9]/", $code))
 		$newtype = "CPT4";
-	echoLine(++$lino, $newtype, $code, trim($modifier));
+
+  $ndc_info = '';
+  // If HCPCS and Medicaid, find last NDC string used for this code.
+  if ($newtype == 'HCPCS' && $ndc_applies) {
+    $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
+      "code_type = '$newtype' AND code = '$code' AND ndc_info LIKE 'N4%' " .
+      "ORDER BY date DESC LIMIT 1");
+    if (!empty($tmp)) $ndc_info = $tmp['ndc_info'];
+  }
+
+  echoLine(++$lino, $newtype, $code, trim($modifier), $ndc_info);
 }
 
 ?>

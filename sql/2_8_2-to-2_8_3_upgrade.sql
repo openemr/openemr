@@ -55,3 +55,9 @@ ALTER TABLE history_data
   ADD `last_ldl`        varchar(255) NOT NULL DEFAULT '',
   ADD `last_hemoglobin` varchar(255) NOT NULL DEFAULT '',
   ADD `last_psa`        varchar(255) NOT NULL DEFAULT '';
+
+ALTER TABLE openemr_postcalendar_events
+  ADD `pc_multiple` int(10) unsigned NOT NULL DEFAULT 0;
+
+ALTER TABLE billing
+  ADD `ndc_info` varchar(255) NOT NULL DEFAULT '';
