@@ -3,6 +3,9 @@
  // $Author$
  //
  // $Log$
+ // Revision 1.3  2007/06/19 02:34:45  sunsetsystems
+ // drug lookup fix from Sam Rajan
+ //
  // Revision 1.2  2005/12/27 00:45:19  sunsetsystems
  // fix broken url
  //
@@ -127,8 +130,9 @@ class RxList {
 					($pos == ($record + 3)))
 					and ($ending != "")) {
 				//print "tokens[$pos] = ".htmlentities($tokens[$pos])."<BR>\n";
-				if ((!(strpos(strtoupper($tokens[$pos]), "</A>") === false)) or
-					(!(strpos(strtoupper($tokens[$pos]), "</FONT>") === false))) {
+        if ((!(strpos(strtoupper($tokens[$pos]), "</A>"   ) === false)) or
+            (!(strpos(strtoupper($tokens[$pos]), "</FONT>") === false)) or
+            (!(strpos(strtoupper($tokens[$pos]), "</TD>"  ) === false))) {
 					// Find where anchor is
 					$my_pos = strpos(strtoupper($tokens[$pos]), "<");
 					$hash[$type] = substr($tokens[$pos], 0, $my_pos);
