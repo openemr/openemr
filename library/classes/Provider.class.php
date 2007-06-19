@@ -21,6 +21,7 @@ class Provider extends ORDataObject{
         var $fname;
         var $federal_drug_id;
         var $insurance_numbers;
+        var $specialty;
 
         /**
          * Constructor sets all Prescription attributes to their default value
@@ -36,12 +37,13 @@ class Provider extends ORDataObject{
         }
 
         function populate() {
-                $res = sqlQuery("SELECT fname,lname,federaldrugid from users where id =". mysql_real_escape_string($this->id));
+                $res = sqlQuery("SELECT fname,lname,federaldrugid, specialty FROM users where id =". mysql_real_escape_string($this->id));
 
                 if (is_array($res)) {
                         $this->lname = $res['lname'];
                         $this->fname = $res['fname'];
                         $this->federal_drug_id = $res['federaldrugid'];
+                        $this->specialty = $res['specialty'];
                 }
 
                 $ins = new InsuranceNumbers();
@@ -75,6 +77,10 @@ class Provider extends ORDataObject{
 
         function get_name_display() {
                 return $this->fname . " " . $this->lname;
+        }
+
+        function get_specialty() {
+                return $this->specialty;
         }
 
         function get_provider_number_default() {
