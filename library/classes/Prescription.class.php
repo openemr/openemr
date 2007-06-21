@@ -1,5 +1,4 @@
 <?php
-
 	require_once (dirname(__FILE__) . "/../sql.inc");
 	require_once (dirname(__FILE__) . "/../lists.inc");
 	require_once("ORDataObject.class.php");
@@ -57,7 +56,6 @@
         define("ROUTE_L_EAR", 14);
         define("ROUTE_R_EAR", 15);
 
-
 /**
  * class Prescription
  *
@@ -69,19 +67,16 @@ class Prescription extends ORDataObject {
 	 * @access public
 	 */
 
-
 	/**
 	 *
 	 * static
 	 */
-	var $form_array = array(" ",FORM_TABLET => "tablet", FORM_CAPSULE => "capsule", FORM_TSP => "tsp", FORM_ML => "ml", FORM_UNITS => "units", 
-							FORM_INHILATIONS => "inhilations", FORM_GTTS_DROPS => "gtts(drops)"
-,FORM_CR => "cream", FORM_OINT => "ointment");
-	var $unit_array = array(" ","mg","mg/1cc","","","","mg/5cc","mcg");
-	var $route_array = array(" ","per oris","per rectum","apply to skin","apply to affected area","sublingual", "OS", "OD", "OU", "SQ", "IM", "IV", "per nostril","both ears","left ear","right ear");
-	var $interval_array = array(" ","b.i.d.","t.i.d.","q.i.d.","q.3h","q.4h","q.5h","q.6h","q.8h","q.d.");
-	var $substitute_array = array("","substitution allowed","substitution not allowed");
-	var $medication_array = array(0 => 'No', 1 => 'Yes');
+        var $form_array;
+	var $unit_array;
+        var $route_array;	
+        var $interval_array;
+	var $substitute_array;
+	var $medication_array;
 	var $refills_array;
 
 	/**
@@ -119,7 +114,21 @@ class Prescription extends ORDataObject {
 	 */
 
 	function Prescription($id= "", $_prefix = "")	{
-		if (is_numeric($id)) {
+		// set the translations for route_array
+//                 $this->route_array = array(" ", xl("per oris"), xl("per rectum"), xl("apply to skin"), xl("apply to affected area"), xl("sublingual"), xl("OS"), xl("OD"), xl("OU"), xl("SQ"), xl("IM"), xl("IV"), xl("per nostril"),xl("both ears"), xl("left ear"), xl("right ear"));
+
+                $this->form_array = array(" ", FORM_TABLET => xl("tablet"), FORM_CAPSULE => xl("capsule"), FORM_TSP => xl("tsp"), FORM_ML => xl("ml"), FORM_UNITS => xl("units"), FORM_INHILATIONS => xl("inhilations"), FORM_GTTS_DROPS => xl("gtts(drops)"), FORM_CR => xl("cream"), FORM_OINT => xl("ointment"));
+
+                $this->interval_array = array(" ", xl("b.i.d."), xl("t.i.d."), xl("q.i.d."), xl("q.3h"), xl("q.4h"), xl("q.5h"), xl("q.6h"), xl("q.8h"), xl("q.d."));
+
+	       $this->substitute_array = array("",xl("substitution allowed"), xl ("substitution not allowed"));
+
+	       $this->medication_array = array(0 => xl('No'), 1 => xl('Yes'));
+
+              $this->unit_array = array(" ",xl("mg"), xl("mg/1cc"), "", "", "", xl("mg/5cc"), xl ("mcg"));
+
+
+                if (is_numeric($id)) {
 			$this->id = $id;
 		}
 		else {
@@ -570,7 +579,9 @@ class Prescription extends ORDataObject {
 
 	function prescriptions_factory($patient_id,$order_by = "active DESC, date_modified DESC, date_added DESC") {
 		$prescriptions = array();
-		$p = new Prescription();
+	        require_once (dirname(__FILE__) . "/../translation.inc.php");
+
+                $p = new Prescription();
 		$sql = "SELECT id FROM  " . $p->_table . " WHERE patient_id = " .mysql_real_escape_string($patient_id) . " and active = 1 ORDER BY " . mysql_real_escape_string($order_by);
 		$results = sqlQ($sql);
 		//echo "sql: $sql";
