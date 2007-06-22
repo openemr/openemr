@@ -179,8 +179,11 @@
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <title><?xl('EOB Posting - Search','e')?></title>
+<script type="text/javascript" src="../../library/textformat.js"></script>
 
 <script language="JavaScript">
+
+var mypcc = '1';
 
 function checkAll(checked) {
  var f = document.forms[0];
@@ -228,7 +231,8 @@ function npopup(pid) {
   </td>
   <td>
    <input type='text' name='form_paydate' size='10' value='<?php echo $_POST['form_paydate']; ?>'
-    title='<?xl("Date of payment mm/dd/yyyy","e")?>'>
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+    title='<?xl("Date of payment yyyy-mm-dd","e")?>'>
   </td>
   <td>
    <?xl('Amount:','e')?>
@@ -611,7 +615,8 @@ function npopup(pid) {
  function processERA() {
   var f = document.forms[0];
   var debug = f.form_without.checked ? '1' : '0';
-  window.open('sl_eob_process.php?eraname=<?php echo $eraname ?>&debug=' + debug, '_blank');
+  var paydate = f.form_paydate.value;
+  window.open('sl_eob_process.php?eraname=<?php echo $eraname ?>&debug=' + debug + '&paydate=' + paydate, '_blank');
   return false;
  }
 <?php

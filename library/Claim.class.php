@@ -34,6 +34,54 @@ class Claim {
   var $invoice;           // result from get_invoice_summary()
   var $payers;            // array of arrays, for all payers
 
+  function loadPayerInfo(&$billrow) {
+    global $sl_err;
+
+    // Create the $payers array.  This contains data for all insurances
+    // with the current one always at index 0, and the others in payment
+    // order starting at index 1.
+    //
+    $this->payers = array();
+    $this->payers[0] = array();
+    $dres = sqlStatement("SELECT * FROM insurance_data WHERE " .
+      "pid = '{$this->pid}' AND provider != '' " .
+      "ORDER BY type");
+    while ($drow = sqlFetchArray($dres)) {
+      $ins = ($drow['provider'] == $billrow['payer_id']) ?
+        0 : count($this->payers);
+      $crow = sqlQuery("SELECT * FROM insurance_companies WHERE " .
+        "id = '" . $drow['provider'] . "'");
+      $orow = new InsuranceCompany($drow['provider']);
+      $this->payers[$ins] = array();
+      $this->payers[$ins]['data']    = $drow;
+      $this->payers[$ins]['company'] = $crow;
+      $this->payers[$ins]['object']  = $orow;
+    }
+
+    $this->using_modifiers = true;
+
+    // Get payment and adjustment details if there are any previous payers.
+    //
+    $this->invoice = array();
+    if ($this->payerSequence() != 'P') {
+      SLConnect();
+      $arres = SLQuery("select id from ar where invnumber = " .
+        "'{$this->pid}.{$this->encounter_id}'");
+      if ($sl_err) die($sl_err);
+      $arrow = SLGetRow($arres, 0);
+      if ($arrow) {
+        $this->invoice = get_invoice_summary($arrow['id'], true);
+      }
+      SLClose();
+      // Secondary claims might not have modifiers in SQL-Ledger data.
+      // In that case, note that we should not try to match on them.
+      $this->using_modifiers = false;
+      foreach ($this->invoice as $key => $trash) {
+        if (strpos($key, ':')) $this->using_modifiers = true;
+      }
+    }
+  }
+
   // Constructor. Loads relevant database information.
   //
   function Claim($pid, $encounter_id) {
@@ -50,9 +98,15 @@ class Claim {
     $res = sqlStatement($sql);
     while ($row = sqlFetchArray($res)) {
       if (!$row['units']) $row['units'] = 1;
-      // Consolidate duplicate procedure codes.
+      // Load prior payer data at the first opportunity in order to get
+      // the using_modifiers flag that is referenced below.
+      if (empty($this->procs)) $this->loadPayerInfo($row);
+      // Consolidate duplicate procedures.
       foreach ($this->procs as $key => $trash) {
-        if ($this->procs[$key]['code'] == $row['code']) {
+        if ($this->procs[$key]['code'] == $row['code'] &&
+            ($this->procs[$key]['modifier'] == $row['modifier'] ||
+             !$this->using_modifiers))
+        {
           $this->procs[$key]['units'] += $row['units'];
           $this->procs[$key]['fee']   += $row['fee'];
           continue 2; // skip to next table row
@@ -108,60 +162,29 @@ class Claim {
     $this->referrer = sqlQuery($sql);
     if (!$this->referrer) $this->referrer = array();
 
-    // Create the $payers array.  This contains data for all insurances
-    // with the current one always at index 0, and the others in payment
-    // order starting at index 1.
-    //
-    $this->payers = array();
-    $this->payers[0] = array();
-    $dres = sqlStatement("SELECT * FROM insurance_data WHERE " .
-      "pid = '{$this->pid}' AND provider != '' " .
-      "ORDER BY type");
-    while ($drow = sqlFetchArray($dres)) {
-      $ins = ($drow['provider'] == $this->procs[0]['payer_id']) ?
-        0 : count($this->payers);
-      $crow = sqlQuery("SELECT * FROM insurance_companies WHERE " .
-        "id = '" . $drow['provider'] . "'");
-      $orow = new InsuranceCompany($drow['provider']);
-      $this->payers[$ins] = array();
-      $this->payers[$ins]['data']    = $drow;
-      $this->payers[$ins]['company'] = $crow;
-      $this->payers[$ins]['object']  = $orow;
-    }
-
-    // Get payment and adjustment details if there are any previous payers.
-    //
-    $this->invoice = array();
-    if ($this->payerSequence() != 'P') {
-      SLConnect();
-      $arres = SLQuery("select id from ar where invnumber = " .
-        "'{$this->pid}.{$this->encounter_id}'");
-      if ($sl_err) die($sl_err);
-      $arrow = SLGetRow($arres, 0);
-      if ($arrow) {
-        $this->invoice = get_invoice_summary($arrow['id'], true);
-      }
-      SLClose();
-    }
-
   } // end constructor
 
   // Return an array of adjustments from the designated payer for the
-  // designated procedure code, or for the claim level.  For each
-  // adjustment give date, group code, reason code and amount.
+  // designated procedure key (might be procedure:modifier), or for the claim
+  // level.  For each adjustment give date, group code, reason code, amount.
   //
   function payerAdjustments($ins, $code='Claim') {
     $aadj = array();
     $inslabel = ($this->payerSequence($ins) == 'S') ? 'Ins2' : 'Ins1';
 
+    // If we have no modifiers stored in SQL-Ledger for this claim,
+    // then we cannot use a modifier passed in with the key.
+    $tmp = strpos($code, ':');
+    if ($tmp && !$this->using_modifiers) $code = substr($code, 0, $tmp);
+
     // For payments, source always starts with "Ins" or "Pt".
     // Nonzero adjustment reason examples:
-    //   Ins1 adjust code 42 (Charges exceed our fee schedule or maximum allowable amount)
+    //   Ins1 adjust code 42 (Charges exceed ... (obsolete))
     //   Ins1 adjust code 45 (Charges exceed your contracted/ legislated fee arrangement)
     //   Ins1 adjust code 97 (Payment is included in the allowance for another service/procedure)
     //   Ins1 adjust code A2 (Contractual adjustment)
     //   Ins adjust Ins1
-    //   adjust code 42
+    //   adjust code 45
     // Zero adjustment reason examples:
     //   Co-pay: 25.00
     //   Coinsurance: 11.46  (code 2)
@@ -184,12 +207,14 @@ class Claim {
             $rcode = $tmp[1];
           }
           else if (preg_match("/$inslabel/i", $rsn, $tmp)) {
+            // Nothing to do.
           }
           else if ($inslabel == 'Ins1') {
             if (preg_match("/\$adjust code (\S+)/i", $rsn, $tmp)) {
               $rcode = $tmp[1];
             }
             else if ($chg) {
+              // Nothing to do.
             }
             else if (preg_match("/Co-pay: (\S+)/i", $rsn, $tmp) ||
               preg_match("/Coinsurance: (\S+)/i", $rsn, $tmp)) {
@@ -219,23 +244,35 @@ class Claim {
     return $aadj;
   }
 
-  // Return the amount and date paid by the designated prior payer.
-  // If $code is specified then only that procedure code is selected.
+  // Return date, total payments and total adjustments from the designated
+  // prior payer. If $code is specified then only that procedure key is
+  // selected, otherwise it's for the whole claim.
   //
-  function payerPaidAmount($ins, $code='') {
+  function payerTotals($ins, $code='') {
+    // If we have no modifiers stored in SQL-Ledger for this claim,
+    // then we cannot use a modifier passed in with the key.
+    $tmp = strpos($code, ':');
+    if ($tmp && !$this->using_modifiers) $code = substr($code, 0, $tmp);
+
     $inslabel = ($this->payerSequence($ins) == 'S') ? 'Ins2' : 'Ins1';
-    $amount = 0;
+    $paytotal = 0;
+    $adjtotal = 0;
     $date = '';
     foreach($this->invoice as $codekey => $codeval) {
       if ($code && $codekey != $code) continue;
       foreach ($codeval['dtl'] as $key => $value) {
         if (preg_match("/$inslabel/i", $value['src'], $tmp)) {
           if (!$date) $date = str_replace('-', '', trim(substr($key, 0, 10)));
-          $amount += $value['pmt'];
+          $paytotal += $value['pmt'];
         }
       }
+      $aarr = $this->payerAdjustments($ins, $codekey);
+      foreach ($aarr as $a) {
+        $adjtotal += $a[3];
+        if (!$date) $date = $a[0];
+      }
     }
-    return array(sprintf('%.2f', $amount), $date);
+    return array($date, sprintf('%.2f', $paytotal), sprintf('%.2f', $adjtotal));
   }
 
   // Return the amount already paid by the patient.
@@ -538,6 +575,12 @@ class Claim {
 
   function cptModifier($prockey) {
     return x12clean(trim($this->procs[$prockey]['modifier']));
+  }
+
+  // Returns the procedure code, followed by ":modifier" if there is one.
+  function cptKey($prockey) {
+    $tmp = $this->cptModifier($prockey);
+    return $this->cptCode($prockey) . ($tmp ? ":$tmp" : "");
   }
 
   function cptCharges($prockey) {

@@ -20,6 +20,7 @@
 	include_once("remark_codes.php");
 
 	$debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
+	$paydate = parse_date($_GET['paydate']);
 	$encount = 0;
 
 	$last_ptname = '';
@@ -31,7 +32,7 @@
 
 	function parse_date($date) {
 		$date = substr(trim($date), 0, 10);
-		if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)$/', $date, $matches)) {
+		if (preg_match('/^(\d\d\d\d)\D*(\d\d)\D*(\d\d)$/', $date, $matches)) {
 			return $matches[1] . '-' . $matches[2] . '-' . $matches[3];
 		}
 		return '';
@@ -97,7 +98,7 @@
 	//
 	function era_callback(&$out) {
 		global $encount, $debug, $claim_status_codes, $adjustment_reasons, $remark_codes;
-		global $invoice_total, $last_code;
+		global $invoice_total, $last_code, $paydate;
 
 		// Some heading information.
 		if ($encount == 0) {
@@ -184,8 +185,8 @@
 
 		// Simplify some claim attributes for cleaner code.
 		$service_date = parse_date($out['dos']);
-		$check_date = parse_date($out['check_date']);
-		$production_date = parse_date($out['production_date']);
+    $check_date      = $paydate ? $paydate : parse_date($out['check_date']);
+    $production_date = $paydate ? $paydate : parse_date($out['production_date']);
 		$patient_name = $arrow['name'] ? $arrow['name'] :
 			($out['patient_fname'] . ' ' . $out['patient_lname']);
 
@@ -193,11 +194,16 @@
 
 		// This loops once for each service item in this claim.
 		foreach ($out['svc'] as $svc) {
-			$prev = $codes[$svc['code']];
+
+      // Treat a modifier in the remit data as part of the procedure key.
+      // This key will then make its way into SQL-Ledger.
+      $codekey = $svc['code'];
+      if ($svc['mod']) $codekey .= ':' . $svc['mod'];
+      $prev = $codes[$codekey];
 
 			// This reports detail lines already on file for this service item.
 			if ($prev) {
-				writeOldDetail($prev, $patient_name, $invnumber, $service_date, $svc['code'], $bgcolor);
+				writeOldDetail($prev, $patient_name, $invnumber, $service_date, $codekey, $bgcolor);
 				// Check for sanity in amount charged.
 				$prevchg = sprintf("%.2f", $prev['chg'] + $prev['adj']);
 				if ($prevchg != abs($svc['chg'])) {
@@ -219,7 +225,7 @@
 				}
 				****/
 
-				unset($codes[$svc['code']]);
+				unset($codes[$codekey]);
 			}
 
 			// If the service item is not in our database...
@@ -228,15 +234,15 @@
 				// This is not an error. If we are not in error mode and not debugging,
 				// insert the service item into SL.  Then display it (in green if it
 				// was inserted, or in red if we are in error mode).
-				$description = 'CPT4:' . $svc['code'] . " Added by $inslabel $production_date";
+				$description = "CPT4:$codekey Added by $inslabel $production_date";
 				if (!$error && !$debug) {
-					slPostCharge($arrow['id'], $svc['chg'], $service_date, $svc['code'],
+					slPostCharge($arrow['id'], $svc['chg'], $service_date, $codekey,
 						$insurance_id, $description, $debug);
 					$invoice_total += $svc['chg'];
 				}
 				$class = $error ? 'errdetail' : 'newdetail';
 				writeDetailLine($bgcolor, $class, $patient_name, $invnumber,
-					$svc['code'], $production_date, $description,
+					$codekey, $production_date, $description,
 					$svc['chg'], ($error ? '' : $invoice_total));
 
 			}
@@ -275,13 +281,13 @@
 			if ($svc['paid']) {
 				if (!$error && !$debug) {
 					slPostPayment($arrow['id'], $svc['paid'], $check_date,
-						"$inslabel/" . $out['check_number'], $svc['code'], $insurance_id, $debug);
+						"$inslabel/" . $out['check_number'], $codekey, $insurance_id, $debug);
 					$invoice_total -= $svc['paid'];
 				}
 				$description = "$inslabel/" . $out['check_number'] . ' payment';
 				if ($svc['paid'] < 0) $description .= ' reversal';
 				writeDetailLine($bgcolor, $class, $patient_name, $invnumber,
-					$svc['code'], $check_date, $description,
+					$codekey, $check_date, $description,
 					0 - $svc['paid'], ($error ? '' : $invoice_total));
 			}
 
@@ -309,7 +315,7 @@
 					// Post a zero-dollar adjustment just to save it as a comment.
 					if (!$error && !$debug) {
 						slPostAdjustment($arrow['id'], 0, $production_date,
-							$out['check_number'], $svc['code'], $insurance_id,
+							$out['check_number'], $codekey, $insurance_id,
 							$reason, $debug);
 					}
 					writeMessageLine($bgcolor, $class, $description . ' ' .
@@ -319,12 +325,12 @@
 				else {
 					if (!$error && !$debug) {
 						slPostAdjustment($arrow['id'], $adj['amount'], $production_date,
-							$out['check_number'], $svc['code'], $insurance_id,
+							$out['check_number'], $codekey, $insurance_id,
 							"$inslabel adjust code " . $adj['reason_code'], $debug);
 						$invoice_total -= $adj['amount'];
 					}
 					writeDetailLine($bgcolor, $class, $patient_name, $invnumber,
-						$svc['code'], $production_date, $description,
+						$codekey, $production_date, $description,
 						0 - $adj['amount'], ($error ? '' : $invoice_total));
 				}
 			}

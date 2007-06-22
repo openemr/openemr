@@ -56,6 +56,14 @@ that were successfully applied.  Red lines indicate errors, or changes that
 were not applied; these must be processed manually.  Currently denied claims and
 payment reversals are not handled automatically and so will appear in red.','e')?>
 
+<p><?php xl('If you have entered a Pay Date in the search page, this will
+override the posting date of payments and adjustments that are otherwise
+taken from the X12 file.  This may be useful for reporting purposes, if
+you want your receipts reporting to use your posting date rather than the
+insurance company\'s processing date.  Note that this will also affect
+dates of prior payments and adjustments that are put into secondary
+claims.','e') ?>
+
 <p><?php xl('The X12 files as well as the resulting HTML output reports are archived
 in the "era" subdirectory of the main OpenEMR installation directory.  You will
 want to refer to these archives from time to time.  The URL is ','e') ?>

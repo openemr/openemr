@@ -489,6 +489,8 @@ function gen_x12_837($pid, $encounter, &$log) {
     "*" . $claim->facilityZip() .
     "~\n";
 
+  $prev_pt_resp = $clm_total_charges; // for computation below
+
   // Loops 2320 and 2330*, other subscriber/payer information.
   //
   for ($ins = 1; $ins < $claim->payerCount(); ++$ins) {
@@ -521,17 +523,21 @@ function gen_x12_837($pid, $encounter, &$log) {
           "~\n";
       }
 
-      $payerpaid = $claim->payerPaidAmount($ins);
+      $payerpaid = $claim->payerTotals($ins);
       ++$edicount;
       $out .= "AMT" . // Previous payer's paid amount. Page 332.
         "*D" .
-        "*" . $payerpaid[0] .
+        "*" . $payerpaid[1] .
         "~\n";
+
+      // Patient responsibility amount as of this previous payer.
+      $prev_pt_resp -= $payerpaid[1]; // reduce by payments
+      $prev_pt_resp -= $payerpaid[2]; // reduce by adjustments
 
       ++$edicount;
       $out .= "AMT" . // Patient responsibility amount per previous payer. Page 335.
         "*F2" .
-        "*" . sprintf('%.2f', $claim->invoiceTotal() - $payerpaid[0]) .
+        "*" . sprintf('%.2f', $prev_pt_resp) .
         "~\n";
 
     } // End of things that apply only to previous payers.
@@ -599,11 +605,7 @@ function gen_x12_837($pid, $encounter, &$log) {
 
     ++$edicount;
     $out .= "SV1" .     // Professional Service. Page 400.
-      "*HC:" . $claim->cptCode($prockey);
-    if ($claim->cptModifier($prockey)) { $out .=
-      ":" . $claim->cptModifier($prockey);
-    }
-    $out .=
+      "*HC:" . $claim->cptKey($prockey) .
       "*" . sprintf('%.2f', $claim->cptCharges($prockey)) .
       "*UN" .
       "*" . $claim->cptUnits($prockey) .
@@ -613,11 +615,11 @@ function gen_x12_837($pid, $encounter, &$log) {
       "~\n";
 
     if (!$claim->cptCharges($prockey)) {
-      $log .= "*** Procedure '" . $claim->cptCode($prockey) . "' has no charges!\n";
+      $log .= "*** Procedure '" . $claim->cptKey($prockey) . "' has no charges!\n";
     }
 
     if (!$claim->diagIndex($prockey)) {
-      $log .= "*** Procedure '" . $claim->cptCode($prockey) . "' is not justified!\n";
+      $log .= "*** Procedure '" . $claim->cptKey($prockey) . "' is not justified!\n";
     }
 
     ++$edicount;
@@ -659,11 +661,11 @@ function gen_x12_837($pid, $encounter, &$log) {
       if ($claim->payerSequence($ins) > $claim->payerSequence())
         continue; // payer is future, not previous
 
-      $payerpaid = $claim->payerPaidAmount($ins, $claim->cptCode($prockey));
-      $aarr = $claim->payerAdjustments($ins, $claim->cptCode($prockey));
+      $payerpaid = $claim->payerTotals($ins, $claim->cptKey($prockey));
+      $aarr = $claim->payerAdjustments($ins, $claim->cptKey($prockey));
 
-      if ($payerpaid[0] == 0 && !count($aarr)) {
-        $log .= "*** Procedure '" . $claim->cptCode($prockey) .
+      if ($payerpaid[1] == 0 && !count($aarr)) {
+        $log .= "*** Procedure '" . $claim->cptKey($prockey) .
           "' has no payments or adjustments from previous payer!\n";
         continue;
       }
@@ -671,16 +673,13 @@ function gen_x12_837($pid, $encounter, &$log) {
       ++$edicount;
       $out .= "SVD" . // Service line adjudication. Page 554.
         "*" . $claim->payerID($ins) .
-        "*" . $payerpaid[0] .
-        "*HC:" . $claim->cptCode($prockey);
-      if ($claim->cptModifier($prockey)) $out .=
-        ":" . $claim->cptModifier($prockey);
-      $out .=
+        "*" . $payerpaid[1] .
+        "*HC:" . $claim->cptKey($prockey) .
         "*" .
         "*" . $claim->cptUnits($prockey) .
         "~\n";
 
-      $tmpdate = $payerpaid[1];
+      $tmpdate = $payerpaid[0];
       foreach ($aarr as $a) {
         ++$edicount;
         $out .= "CAS" . // Previous payer's line level adjustments. Page 558.

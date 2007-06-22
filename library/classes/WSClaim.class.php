@@ -133,15 +133,25 @@ class WSClaim extends WSWrapper{
 				$payer_info['payment_amount'] += sprintf("%01.2f",$result->fields['fee']);
 			}
 
-			$tii['maincode'] = $result->fields['code'];
-			$tii['itemtext'] = $result->fields['code_type'] .":" .
-        $result->fields['code'] . " " . $result->fields['code_text'] . " " .
+      // New as of 2007-06-21: wherever we put a procedure code in the
+      // invoice, append a colon and the modifier if there is one.  This way
+      // we can better match up payments and adjustments with the billing data
+      // in OpenEMR.
+      $codekey = $result->fields['code'];
+      if ($result->fields['modifier']) $codekey .= ':' . $result->fields['modifier'];
+
+      $tii['maincode'] = $codekey;
+      $tii['itemtext'] = $result->fields['code_type'] .":" .
+        $codekey . " " . $result->fields['code_text'] . " " .
         $result->fields['justify'];
 
 //		$tii['qty'] = $result->fields['units'];
 //		if (!$tii['qty'] > 0) {
 //			$tii['qty'] = 1;
 //		}
+
+      // We always store units as 1 in order to avoid awkward round-off errors
+      // that might happen when dividing the fee by units.
       $tii['qty'] = 1;
 
 			$tii['price'] = sprintf("%01.2f",$result->fields['fee']);
@@ -153,6 +163,8 @@ class WSClaim extends WSWrapper{
 			$counter++;
 		}
 
+    // I think maybe this info is not used.
+    //
 		for($counter = 0; $counter < 2; $counter++)
 		{
 			$fee = 0;
@@ -173,6 +185,7 @@ class WSClaim extends WSWrapper{
 			$invoice_info["interest$counter"] = 0;
 			$invoice_info["billtoid$counter"] = $billto;
 		}
+
 		$invoice_info['subtotal'] = sprintf("%01.2f",$total);
 		$invoice_info['total'] = sprintf("%01.2f",$total);
 
