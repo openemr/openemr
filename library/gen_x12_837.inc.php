@@ -6,18 +6,20 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-
-// TBD: Write log messages for the "view log" screen.
-
-
 require_once("Claim.class.php");
 
-function gen_x12_837($pid, $encounter) {
+function gen_x12_837($pid, $encounter, &$log) {
 
   $today = time();
   $out = '';
   $claim = new Claim($pid, $encounter);
   $edicount = 0;
+
+  $log .= "Generating claim $pid-$encounter for " .
+    $claim->patientFirstName()  . ' ' .
+    $claim->patientMiddleName() . ' ' .
+    $claim->patientLastName()   . ' on ' .
+    date('Y-m-d H:i', $today) . ".\n";
 
   $out .= "ISA" .
     "*00" .
@@ -25,28 +27,28 @@ function gen_x12_837($pid, $encounter) {
     "*00" .
     "*          " .
     "*ZZ" .
-    "*" . strtoupper($claim->x12gssenderid()) .
+    "*" . $claim->x12gssenderid() .
     "*ZZ" .
-    "*" . strtoupper($claim->x12gsreceiverid()) .
+    "*" . $claim->x12gsreceiverid() .
     "*030911" .
     "*1630" .
     "*U" .
     "*00401" .
     "*000000001" .
     "*0" .
-    "*T" .
+    "*P" .
     "*:" .
     "~\n";
 
   $out .= "GS" .
     "*HC" .
-    "*" . strtoupper($claim->x12gssenderid()) .
-    "*" . strtoupper($claim->x12gsreceiverid()) .
+    "*" . $claim->x12gssenderid() .
+    "*" . $claim->x12gsreceiverid() .
     "*" . date('Ymd', $today) .
     "*" . date('Hi', $today) .
     "*1" .
     "*X" .
-    "*" . strtoupper($claim->x12gsversionstring()) .
+    "*" . $claim->x12gsversionstring() .
     "~\n";
 
   ++$edicount;
@@ -68,26 +70,26 @@ function gen_x12_837($pid, $encounter) {
   ++$edicount;
   $out .= "REF" .
     "*87" .
-    "*" . strtoupper($claim->x12gsversionstring()) .
+    "*" . $claim->x12gsversionstring() .
     "~\n";
 
   ++$edicount;
   $out .= "NM1" .       // Loop 1000A Submitter
     "*41" .
     "*2" .
-    "*" . strtoupper($claim->billingFacilityName()) .
+    "*" . $claim->billingFacilityName() .
     "*" .
     "*" .
     "*" .
     "*" .
     "*46" .
-    "*" . strtoupper($claim->billingFacilityETIN()) .
+    "*" . $claim->billingFacilityETIN() .
     "~\n";
 
   ++$edicount;
   $out .= "PER" .
     "*IC" .
-    "*" . strtoupper($claim->billingContactName()) .
+    "*" . $claim->billingContactName() .
     "*TE" .
     "*" . $claim->billingContactPhone() .
     "~\n";
@@ -96,13 +98,13 @@ function gen_x12_837($pid, $encounter) {
   $out .= "NM1" .       // Loop 1000B Receiver
     "*40" .
     "*2" .
-    "*" . strtoupper($claim->clearingHouseName()) .
+    "*" . $claim->clearingHouseName() .
     "*" .
     "*" .
     "*" .
     "*" .
     "*46" .
-    "*" . strtoupper($claim->clearingHouseETIN()) .
+    "*" . $claim->clearingHouseETIN() .
     "~\n";
 
   $HLcount = 1;
@@ -121,27 +123,29 @@ function gen_x12_837($pid, $encounter) {
   $out .= "NM1" .       // Loop 2010AA Billing Provider
     "*85" .
     "*2" .
-    "*" . strtoupper($claim->billingFacilityName()) .
+    "*" . $claim->billingFacilityName() .
     "*" .
     "*" .
     "*" .
     "*";
-  if ($claim->billingFacilityNPI())
+  if ($claim->billingFacilityNPI()) {
     $out .= "*XX*" . $claim->billingFacilityNPI();
-  else
+  } else {
+    $log .= "*** Billing facility has no NPI.\n";
     $out .= "*24*" . $claim->billingFacilityETIN();
+  }
   $out .= "~\n";
 
   ++$edicount;
   $out .= "N3" .
-    "*" . strtoupper($claim->billingFacilityStreet()) .
+    "*" . $claim->billingFacilityStreet() .
     "~\n";
 
   ++$edicount;
   $out .= "N4" .
-    "*" . strtoupper($claim->billingFacilityCity()) .
-    "*" . strtoupper($claim->billingFacilityState()) .
-    "*" . strtoupper($claim->billingFacilityZip()) .
+    "*" . $claim->billingFacilityCity() .
+    "*" . $claim->billingFacilityState() .
+    "*" . $claim->billingFacilityZip() .
     "~\n";
 
   // Add a REF*EI*<ein> segment if NPI was specified in the NM1 above.
@@ -164,7 +168,7 @@ function gen_x12_837($pid, $encounter) {
   $out .= "NM1" .       // Loop 2010AB Pay-To Provider
     "*87" .
     "*2" .
-    "*" . strtoupper($claim->billingFacilityName()) .
+    "*" . $claim->billingFacilityName() .
     "*" .
     "*" .
     "*" .
@@ -177,14 +181,14 @@ function gen_x12_837($pid, $encounter) {
 
   ++$edicount;
   $out .= "N3" .
-    "*" . strtoupper($claim->billingFacilityStreet()) .
+    "*" . $claim->billingFacilityStreet() .
     "~\n";
 
   ++$edicount;
   $out .= "N4" .
-    "*" . strtoupper($claim->billingFacilityCity()) .
-    "*" . strtoupper($claim->billingFacilityState()) .
-    "*" . strtoupper($claim->billingFacilityZip()) .
+    "*" . $claim->billingFacilityCity() .
+    "*" . $claim->billingFacilityState() .
+    "*" . $claim->billingFacilityZip() .
     "~\n";
 
   if ($claim->billingFacilityNPI() && $claim->billingFacilityETIN()) {
@@ -209,24 +213,24 @@ function gen_x12_837($pid, $encounter) {
 
   ++$edicount;
   $out .= "SBR" .       // Subscriber Information
-    "*" . strtoupper($claim->payerSequence()) .
-    "*" . strtoupper($claim->insuredRelationship()) .
-    "*" . strtoupper($claim->groupNumber()) .
-    "*" . strtoupper($claim->groupName()) .
+    "*" . $claim->payerSequence() .
+    "*" . $claim->insuredRelationship() .
+    "*" . $claim->groupNumber() .
+    "*" . $claim->groupName() .
+    "*" . $claim->insuredTypeCode() . // applies for secondary medicare
     "*" .
     "*" .
     "*" .
-    "*" .
-    "*" . $claim->claimType() .
+    "*" . $claim->claimType() . // Zirmed replaces this
     "~\n";
 
   ++$edicount;
   $out .= "NM1" .       // Loop 2010BA Subscriber
     "*IL" .
     "*1" .
-    "*" . strtoupper($claim->insuredLastName()) .
-    "*" . strtoupper($claim->insuredFirstName()) .
-    "*" . strtoupper($claim->insuredMiddleName()) .
+    "*" . $claim->insuredLastName() .
+    "*" . $claim->insuredFirstName() .
+    "*" . $claim->insuredMiddleName() .
     "*" .
     "*" .
     "*MI" .
@@ -235,14 +239,14 @@ function gen_x12_837($pid, $encounter) {
 
   ++$edicount;
   $out .= "N3" .
-    "*" . strtoupper($claim->insuredStreet()) .
+    "*" . $claim->insuredStreet() .
     "~\n";
 
   ++$edicount;
   $out .= "N4" .
-    "*" . strtoupper($claim->insuredCity()) .
-    "*" . strtoupper($claim->insuredState()) .
-    "*" . strtoupper($claim->insuredZip()) .
+    "*" . $claim->insuredCity() .
+    "*" . $claim->insuredState() .
+    "*" . $claim->insuredZip() .
     "~\n";
 
   ++$edicount;
@@ -256,25 +260,29 @@ function gen_x12_837($pid, $encounter) {
   $out .= "NM1" .       // Loop 2010BB Payer
     "*PR" .
     "*2" .
-    "*" . strtoupper($claim->payerName()) .
+    "*" . $claim->payerName() .
     "*" .
     "*" .
     "*" .
     "*" .
     "*PI" .
-    "*" . $claim->payerID() .
+    "*" . $claim->payerID() . // Zirmed ignores this if using Payer Name Matching.
     "~\n";
+
+  // if (!$claim->payerID()) {
+  //   $log .= "*** CMS ID is missing for payer '" . $claim->payerName() . "'.\n";
+  // }
 
   ++$edicount;
   $out .= "N3" .
-    "*" . strtoupper($claim->payerStreet()) .
+    "*" . $claim->payerStreet() .
     "~\n";
 
   ++$edicount;
   $out .= "N4" .
-    "*" . strtoupper($claim->payerCity()) .
-    "*" . strtoupper($claim->payerState()) .
-    "*" . strtoupper($claim->payerZip()) .
+    "*" . $claim->payerCity() .
+    "*" . $claim->payerState() .
+    "*" . $claim->payerZip() .
     "~\n";
 
   if (! $claim->isSelfOfInsured()) {
@@ -297,21 +305,21 @@ function gen_x12_837($pid, $encounter) {
     $out .= "NM1" .       // Loop 2010CA Patient
       "*QC" .
       "*1" .
-      "*" . strtoupper($claim->patientLastName()) .
-      "*" . strtoupper($claim->patientFirstName()) .
-      "*" . strtoupper($claim->patientMiddleName()) .
+      "*" . $claim->patientLastName() .
+      "*" . $claim->patientFirstName() .
+      "*" . $claim->patientMiddleName() .
       "~\n";
 
     ++$edicount;
     $out .= "N3" .
-      "*" . strtoupper($claim->patientStreet()) .
+      "*" . $claim->patientStreet() .
       "~\n";
 
     ++$edicount;
     $out .= "N4" .
-      "*" . strtoupper($claim->patientCity()) .
-      "*" . strtoupper($claim->patientState()) .
-      "*" . strtoupper($claim->patientZip()) .
+      "*" . $claim->patientCity() .
+      "*" . $claim->patientState() .
+      "*" . $claim->patientZip() .
       "~\n";
 
     ++$edicount;
@@ -329,10 +337,14 @@ function gen_x12_837($pid, $encounter) {
     $clm_total_charges += $claim->cptCharges($prockey);
   }
 
+  if (!$clm_total_charges) {
+    $log .= "*** This claim has no charges!\n";
+  }
+
   ++$edicount;
   $out .= "CLM" .       // Loop 2300 Claim
     "*$pid-$encounter" .
-    "*" . sprintf("%.2f",$clm_total_charges) .
+    "*" . sprintf("%.2f",$clm_total_charges) . // Zirmed computes and replaces this
     "*" .
     "*" .
     "*" . $claim->facilityPOS() . "::1" .
@@ -401,9 +413,9 @@ function gen_x12_837($pid, $encounter) {
     $out .= "NM1" .     // Loop 2310A Referring Provider
       "*DN" .
       "*1" .
-      "*" . strtoupper($claim->referrerLastName()) .
-      "*" . strtoupper($claim->referrerFirstName()) .
-      "*" . strtoupper($claim->referrerMiddleName()) .
+      "*" . $claim->referrerLastName() .
+      "*" . $claim->referrerFirstName() .
+      "*" . $claim->referrerMiddleName() .
       "*" .
       "*";
     if ($claim->referrerNPI()) { $out .=
@@ -418,7 +430,7 @@ function gen_x12_837($pid, $encounter) {
     ++$edicount;
     $out .= "REF" .     // Referring Provider Secondary Identification
       "*1G" .
-      "*" . strtoupper($claim->referrerUPIN()) .
+      "*" . $claim->referrerUPIN() .
       "~\n";
   }
 
@@ -426,9 +438,9 @@ function gen_x12_837($pid, $encounter) {
   $out .= "NM1" .       // Loop 2310B Rendering Provider
     "*82" .
     "*1" .
-    "*" . strtoupper($claim->providerLastName()) .
-    "*" . strtoupper($claim->providerFirstName()) .
-    "*" . strtoupper($claim->providerMiddleName()) .
+    "*" . $claim->providerLastName() .
+    "*" . $claim->providerFirstName() .
+    "*" . $claim->providerMiddleName() .
     "*" .
     "*";
   if ($claim->providerNPI()) { $out .=
@@ -437,6 +449,7 @@ function gen_x12_837($pid, $encounter) {
   } else { $out .=
     "*34" .
     "*" . $claim->providerSSN();
+    $log .= "*** Rendering provider has no NPI.\n";
   }
   $out .= "~\n";
 
@@ -451,7 +464,7 @@ function gen_x12_837($pid, $encounter) {
   $out .= "NM1" .       // Loop 2310B Service Location
     "*77" .
     "*2" .
-    "*" . strtoupper($claim->facilityName()) .
+    "*" . $claim->facilityName() .
     "*" .
     "*" .
     "*" .
@@ -460,19 +473,20 @@ function gen_x12_837($pid, $encounter) {
     "*XX*" . $claim->facilityNPI();
   } else { $out .=
     "*24*" . $claim->facilityETIN();
+    $log .= "*** Service location has no NPI.\n";
   }
   $out .= "~\n";
 
   ++$edicount;
   $out .= "N3" .
-    "*" . strtoupper($claim->facilityStreet()) .
+    "*" . $claim->facilityStreet() .
     "~\n";
 
   ++$edicount;
   $out .= "N4" .
-    "*" . strtoupper($claim->facilityCity()) .
-    "*" . strtoupper($claim->facilityState()) .
-    "*" . strtoupper($claim->facilityZip()) .
+    "*" . $claim->facilityCity() .
+    "*" . $claim->facilityState() .
+    "*" . $claim->facilityZip() .
     "~\n";
 
   // Loops 2320 and 2330*, other subscriber/payer information.
@@ -481,10 +495,10 @@ function gen_x12_837($pid, $encounter) {
 
     ++$edicount;
     $out .= "SBR" . // Loop 2320, Subscriber Information - page 318
-      "*" . strtoupper($claim->payerSequence($ins)) .
-      "*" . strtoupper($claim->insuredRelationship($ins)) .
-      "*" . strtoupper($claim->groupNumber($ins)) .
-      "*" . strtoupper($claim->groupName($ins)) .
+      "*" . $claim->payerSequence($ins) .
+      "*" . $claim->insuredRelationship($ins) .
+      "*" . $claim->groupNumber($ins) .
+      "*" . $claim->groupName($ins) .
       "*" .
       "*" .
       "*" .
@@ -511,16 +525,23 @@ function gen_x12_837($pid, $encounter) {
       ++$edicount;
       $out .= "AMT" . // Previous payer's paid amount. Page 332.
         "*D" .
-        "*" . $payerpaid .
+        "*" . $payerpaid[0] .
         "~\n";
 
       ++$edicount;
       $out .= "AMT" . // Patient responsibility amount per previous payer. Page 335.
         "*F2" .
-        "*" . sprintf('%.2f', $claim->invoiceTotal() - $payerpaid) .
+        "*" . sprintf('%.2f', $claim->invoiceTotal() - $payerpaid[0]) .
         "~\n";
 
     } // End of things that apply only to previous payers.
+
+    ++$edicount;
+    $out .= "DMG" . // Other subscriber demographic information. Page 342.
+      "*D8" .
+      "*" . $claim->insuredDOB($ins) .
+      "*" . $claim->insuredSex($ins) .
+      "~\n";
 
     ++$edicount;
     $out .= "OI" .  // Other Insurance Coverage Information. Page 344.
@@ -536,9 +557,9 @@ function gen_x12_837($pid, $encounter) {
     $out .= "NM1" . // Loop 2330A Subscriber info for other insco. Page 350.
       "*IL" .
       "*1" .
-      "*" . strtoupper($claim->insuredLastName($ins)) .
-      "*" . strtoupper($claim->insuredFirstName($ins)) .
-      "*" . strtoupper($claim->insuredMiddleName($ins)) .
+      "*" . $claim->insuredLastName($ins) .
+      "*" . $claim->insuredFirstName($ins) .
+      "*" . $claim->insuredMiddleName($ins) .
       "*" .
       "*" .
       "*MI" .
@@ -549,7 +570,7 @@ function gen_x12_837($pid, $encounter) {
     $out .= "NM1" . // Loop 2330B Payer info for other insco. Page 359.
       "*PR" .
       "*2" .
-      "*" . strtoupper($claim->payerName($ins)) .
+      "*" . $claim->payerName($ins) .
       "*" .
       "*" .
       "*" .
@@ -557,6 +578,10 @@ function gen_x12_837($pid, $encounter) {
       "*PI" .
       "*" . $claim->payerID($ins) .
       "~\n";
+
+    // if (!$claim->payerID($ins)) {
+    //   $log .= "*** CMS ID is missing for payer '" . $claim->payerName($ins) . "'.\n";
+    // }
 
   } // End loops 2320/2330*.
 
@@ -574,9 +599,9 @@ function gen_x12_837($pid, $encounter) {
 
     ++$edicount;
     $out .= "SV1" .     // Professional Service. Page 400.
-      "*HC:" . strtoupper($claim->cptCode($prockey));
+      "*HC:" . $claim->cptCode($prockey);
     if ($claim->cptModifier($prockey)) { $out .=
-      ":" . strtoupper($claim->cptModifier($prockey));
+      ":" . $claim->cptModifier($prockey);
     }
     $out .=
       "*" . sprintf('%.2f', $claim->cptCharges($prockey)) .
@@ -586,6 +611,14 @@ function gen_x12_837($pid, $encounter) {
       "*" .
       "*" . $claim->diagIndex($prockey) .
       "~\n";
+
+    if (!$claim->cptCharges($prockey)) {
+      $log .= "*** Procedure '" . $claim->cptCode($prockey) . "' has no charges!\n";
+    }
+
+    if (!$claim->diagIndex($prockey)) {
+      $log .= "*** Procedure '" . $claim->cptCode($prockey) . "' is not justified!\n";
+    }
 
     ++$edicount;
     $out .= "DTP" .     // Date of Service. Page 435.
@@ -597,13 +630,18 @@ function gen_x12_837($pid, $encounter) {
     // Loop 2410, Drug Information. Medicaid insurers seem to want this
     // with HCPCS codes.
     //
-    if ($claim->cptNDCID($prockey))
+    $ndc = $claim->cptNDCID($prockey);
+    if ($ndc) {
       ++$edicount;
       $out .= "LIN" . // Drug Identification. Page 500+ (Addendum pg 71).
         "*4" .
         "*N4" .
-        "*" . $claim->cptNDCID($prockey) .
+        "*" . $ndc .
         "~\n";
+
+      if (!preg_match('/^\d\d\d\d\d-\d\d\d\d-\d\d$/', $ndc, $tmp)) {
+        $log .= "*** NDC code '$ndc' has invalid format!\n";
+      }
 
       ++$edicount;
       $out .= "CTP" . // Drug Pricing. Page 500+ (Addendum pg 74).
@@ -621,20 +659,28 @@ function gen_x12_837($pid, $encounter) {
       if ($claim->payerSequence($ins) > $claim->payerSequence())
         continue; // payer is future, not previous
 
+      $payerpaid = $claim->payerPaidAmount($ins, $claim->cptCode($prockey));
+      $aarr = $claim->payerAdjustments($ins, $claim->cptCode($prockey));
+
+      if ($payerpaid[0] == 0 && !count($aarr)) {
+        $log .= "*** Procedure '" . $claim->cptCode($prockey) .
+          "' has no payments or adjustments from previous payer!\n";
+        continue;
+      }
+
       ++$edicount;
       $out .= "SVD" . // Service line adjudication. Page 554.
         "*" . $claim->payerID($ins) .
-        "*" . $claim->payerPaidAmount($ins, $claim->cptCode($prockey)) .
-        "*HC:" . strtoupper($claim->cptCode($prockey));
+        "*" . $payerpaid[0] .
+        "*HC:" . $claim->cptCode($prockey);
       if ($claim->cptModifier($prockey)) $out .=
-        ":" . strtoupper($claim->cptModifier($prockey));
+        ":" . $claim->cptModifier($prockey);
       $out .=
         "*" .
         "*" . $claim->cptUnits($prockey) .
         "~\n";
 
-      $aarr = $claim->payerAdjustments($ins, $claim->cptCode($prockey));
-      $tmpdate = '';
+      $tmpdate = $payerpaid[1];
       foreach ($aarr as $a) {
         ++$edicount;
         $out .= "CAS" . // Previous payer's line level adjustments. Page 558.
@@ -642,7 +688,7 @@ function gen_x12_837($pid, $encounter) {
           "*" . $a[2] .
           "*" . $a[3] .
           "~\n";
-        $tmpdate = $a[0];
+        if (!$tmpdate) $tmpdate = $a[0];
       }
 
       if ($tmpdate) {
@@ -672,6 +718,7 @@ function gen_x12_837($pid, $encounter) {
     "*000000001" .
     "~\n";
 
+  $log .= "\n";
   return $out;
 }
 ?>

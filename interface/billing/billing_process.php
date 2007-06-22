@@ -212,7 +212,11 @@ else {
 }
 
 function process_form($ar) {
-  global $bill_info;
+  global $bill_info, $webserver_root;
+
+  if (isset($ar['bn_x12'])) {
+    $hlog = fopen("$webserver_root/library/freeb/process_bills.log", 'w');
+  }
 
   if (isset($ar['bn_external'])) {
     // Open external billing file for output.
@@ -281,9 +285,12 @@ function process_form($ar) {
         }
 
         else if (isset($ar['bn_x12'])) {
-          $segs = explode("~\n", gen_x12_837($patient_id, $encounter));
+          $log = '';
+          $segs = explode("~\n", gen_x12_837($patient_id, $encounter, $log));
+          fwrite($hlog, $log);
           append_claim($segs);
-          $db->execute("UPDATE billing SET billed = 1, bill_process = 2 WHERE " .
+          $db->execute("UPDATE billing SET billed = 1, bill_process = 2, " .
+            "process_date = NOW(), process_file = '' WHERE " .
             "encounter = '$encounter' AND pid = '$patient_id' AND activity != 0");
           $ws = new WSClaim($patient_id, $encounter);
         }
@@ -305,6 +312,7 @@ function process_form($ar) {
 
   if (isset($ar['bn_x12'])) {
     append_claim_close();
+    fclose($hlog);
     send_batch();
     exit;
   }

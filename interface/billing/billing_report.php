@@ -288,7 +288,9 @@ function topatient(pid) {
 <input type="submit" class="subbtn" name="bn_hcfa" value="Queue HCFA" title="<?php xl('Queue for HCFA batch processing','e')?>">
 <input type="submit" class="subbtn" name="bn_ub92_print" value="Queue UB92 &amp; Print" title="<?php xl('Queue for UB-92 batch processing and printing','e')?>">
 <input type="submit" class="subbtn" name="bn_ub92" value="Queue UB92" title="<?php xl('Queue for UB-92 batch processing','e')?>">
-<input type="submit" class="subbtn" name="bn_x12" value="Queue X12" title="<?php xl('Queue for X12 batch processing','e')?>">
+<input type="submit" class="subbtn" name="bn_x12" value="Process X12"
+ title="<?php xl('Generate X12 claims and create batch','e')?>"
+ onclick="alert('After saving your batch, click [view log] to check for errors.')">
 <input type="submit" class="subbtn" name="bn_mark" value="Mark as Cleared" title="<?php xl('Post to accounting and mark as billed','e')?>">
 <input type="submit" class="subbtn" name="bn_electronic_file" value="Make Electronic Batch &amp; Clear" title="<?php xl('Download billing file, post to accounting and mark as billed','e')?>">
 <?php } ?>
@@ -532,11 +534,14 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 				}
 				if ($iter['bill_process'] == 2) {
 					$lhtml .= "<br>\n&nbsp;".xl("Claim was processed: ")  . $iter['process_date'];
-					$lhtml .= '<br>' . "\n" . '&nbsp;'.xl("Claim is in file:").' <a href="get_claim_file.php?key=' . $iter['process_file'] .'">'  . $iter['process_file'] . '</a> or ';
-					$lhtml .= '<a href="get_claim_file.php?action=print&key=' . $iter['process_file'] .'">Print It</a> or ';
-					$lhtml .= '<a target="_new" href="freebtest.php?format=' . $iter['target'] . '&billkey=' . $iter['enc_pid'] . '-' . $iter['enc_encounter'] . '">'.xl('Run Test').'</a>';
-					$lhtml .= '<input type="hidden" name="claims[' . $this_encounter_id . '][file]" value="' . $iter['process_file'] . '">';
-					$lcount += 2;
+          if ($iter['process_file']) {
+            $lhtml .= '<br>' . "\n" . '&nbsp;'.xl("Claim is in file:").' <a href="get_claim_file.php?key=' . $iter['process_file'] .'">'  . $iter['process_file'] . '</a> or ';
+            $lhtml .= '<a href="get_claim_file.php?action=print&key=' . $iter['process_file'] .'">Print It</a> or ';
+            $lhtml .= '<a target="_new" href="freebtest.php?format=' . $iter['target'] . '&billkey=' . $iter['enc_pid'] . '-' . $iter['enc_encounter'] . '">'.xl('Run Test').'</a>';
+            $lhtml .= '<input type="hidden" name="claims[' . $this_encounter_id . '][file]" value="' . $iter['process_file'] . '">';
+            ++$lcount;
+          }
+          ++$lcount;
 				}
 				if ($iter['bill_process'] == 3) {
 					$lhtml .= "<br>\n&nbsp;".xl("Claim was processed: ")  . $iter['process_date'] . xl(" but there was an error: "). $iter['process_file'];

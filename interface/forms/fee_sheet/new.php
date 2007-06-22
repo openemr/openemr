@@ -159,6 +159,7 @@ foreach ($bcodes as $key0 => $value0) {
 $search_type = $default_search_type;
 if ($_POST['search_type']) $search_type = $_POST['search_type'];
 
+/****
 // Find out if the patient has any insurance that requires NDC numbers.
 // Currently this is just Medicaid, type 3.
 //
@@ -168,6 +169,8 @@ $tmp = sqlQuery("SELECT c.id FROM " .
   "c.id = i.provider AND c.freeb_type = 3 " .
   "LIMIT 1");
 $ndc_applies = !empty($tmp);
+****/
+$ndc_applies = true; // Looks like more payers are starting to require this.
 
 echo $i ? "  <td></td>\n </tr>\n" : "";
 echo " <tr>\n";
@@ -419,7 +422,7 @@ if ($_POST['newcode']) {
 		$newtype = "CPT4";
 
   $ndc_info = '';
-  // If HCPCS and Medicaid, find last NDC string used for this code.
+  // If HCPCS, find last NDC string used for this code.
   if ($newtype == 'HCPCS' && $ndc_applies) {
     $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
       "code_type = '$newtype' AND code = '$code' AND ndc_info LIKE 'N4%' " .
