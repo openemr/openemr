@@ -103,8 +103,8 @@ class Claim {
       if (empty($this->procs)) $this->loadPayerInfo($row);
       // Consolidate duplicate procedures.
       foreach ($this->procs as $key => $trash) {
-        if ($this->procs[$key]['code'] == $row['code'] &&
-            ($this->procs[$key]['modifier'] == $row['modifier'] ||
+        if (strcmp($this->procs[$key]['code'],$row['code']) == 0 &&
+            (strcmp($this->procs[$key]['modifier'],$row['modifier']) == 0 ||
              !$this->using_modifiers))
         {
           $this->procs[$key]['units'] += $row['units'];
@@ -164,13 +164,15 @@ class Claim {
 
   } // end constructor
 
-  // Return an array of adjustments from the designated payer for the
+  // Return an array of adjustments from the designated prior payer for the
   // designated procedure key (might be procedure:modifier), or for the claim
   // level.  For each adjustment give date, group code, reason code, amount.
+  // Note this will include "patient responsibility" adjustments which are
+  // not adjustments to OUR invoice, but they reduce the amount that the
+  // insurance company pays.
   //
   function payerAdjustments($ins, $code='Claim') {
     $aadj = array();
-    $inslabel = ($this->payerSequence($ins) == 'S') ? 'Ins2' : 'Ins1';
 
     // If we have no modifiers stored in SQL-Ledger for this claim,
     // then we cannot use a modifier passed in with the key.
@@ -187,14 +189,38 @@ class Claim {
     //   adjust code 45
     // Zero adjustment reason examples:
     //   Co-pay: 25.00
-    //   Coinsurance: 11.46  (code 2)
-    //   To deductible: 0.22 (code 1)
-    //   To copay (this seems to be meaningless)
+    //   Coinsurance: 11.46  (code 2)   Note: fix remits to identify insurance
+    //   To deductible: 0.22 (code 1)   Note: fix remits to identify insurance
+    //   To copay Ins1 (manual entry)
+    //   To ded'ble Ins1 (manual entry)
 
     if (!empty($this->invoice[$code])) {
+      $date = '';
+      $deductible  = 0;
+      $coinsurance = 0;
+      $inslabel = ($this->payerSequence($ins) == 'S') ? 'Ins2' : 'Ins1';
+      $insnumber = substr($inslabel, 3);
+
+      // Compute this procedure's patient responsibility amount as of this
+      // prior payer, which is the original charge minus all insurance
+      // payments and "hard" adjustments up to this payer.
+      $ptresp = $this->invoice[$code]['chg'] + $this->invoice[$code]['adj'];
       foreach ($this->invoice[$code]['dtl'] as $key => $value) {
-        $date = str_replace('-', '', trim(substr($key, 0, 10)));
-        if ($date && $value['pmt'] == 0) {
+        if (preg_match("/^Ins(\d)/i", $value['src'], $tmp)) {
+          if ($tmp[1] <= $insnumber) $ptresp -= $value['pmt'];
+        }
+        else if (trim(substr($key, 0, 10))) { // not an adjustment if no date
+          if (!preg_match("/Ins(\d)/i", $value['rsn'], $tmp) || $tmp[1] <= $insnumber)
+            $ptresp += $value['chg']; // adjustments are negative charges
+        }
+      }
+      if ($ptresp < 0) $ptresp = 0; // we may be insane but try to hide it
+
+      // Main loop, to extract adjustments for this payer and procedure.
+      foreach ($this->invoice[$code]['dtl'] as $key => $value) {
+        $tmp = str_replace('-', '', trim(substr($key, 0, 10)));
+        if ($tmp) $date = $tmp;
+        if ($tmp && $value['pmt'] == 0) { // not original charge and not a payment
           $rsn = $value['rsn'];
           $chg = 0 - $value['chg']; // adjustments are negative charges
 
@@ -203,48 +229,85 @@ class Claim {
 
           if (preg_match("/Ins adjust $inslabel/i", $rsn, $tmp)) {
           }
+          else if (preg_match("/To copay $inslabel/i", $rsn, $tmp) && !$chg) {
+            $coinsurance = $ptresp;
+            continue;
+          }
+          else if (preg_match("/To ded'ble $inslabel/i", $rsn, $tmp) && !$chg) {
+            $deductible = $ptresp;
+            continue;
+          }
           else if (preg_match("/$inslabel adjust code (\S+)/i", $rsn, $tmp)) {
             $rcode = $tmp[1];
           }
           else if (preg_match("/$inslabel/i", $rsn, $tmp)) {
-            // Nothing to do.
+            // Take the defaults.
           }
-          else if ($inslabel == 'Ins1') {
-            if (preg_match("/\$adjust code (\S+)/i", $rsn, $tmp)) {
+          else if (preg_match('/Ins(\d)/i', $rsn, $tmp) && $tmp[1] != $insnumber) {
+            continue; // it's for some other payer
+          }
+          else if ($insnumber == '1') {
+            if (preg_match("/\$\s*adjust code (\S+)/i", $rsn, $tmp)) {
               $rcode = $tmp[1];
             }
             else if ($chg) {
-              // Nothing to do.
+              // Other adjustments default to Ins1.
             }
             else if (preg_match("/Co-pay: (\S+)/i", $rsn, $tmp) ||
               preg_match("/Coinsurance: (\S+)/i", $rsn, $tmp)) {
-              $gcode = 'PR';
-              $rcode = '2';
-              $chg = $tmp[1];
+              $coinsurance = 0 + $tmp[1];
+              continue;
             }
             else if (preg_match("/To deductible: (\S+)/i", $rsn, $tmp)) {
-              $gcode = 'PR';
-              $rcode = '1';
-              $chg = $tmp[1];
+              $deductible = 0 + $tmp[1];
+              continue;
             }
             else {
-              continue; // there is no adjustment amount anywhere
+              continue; // there is no adjustment amount
             }
           }
           else {
-            continue; // we are not Ins1 and there is no chg so forget it
+            continue; // it's for primary and that's not us
           }
 
           $aadj[] = array($date, $gcode, $rcode, sprintf('%.2f', $chg));
 
         } // end if
       } // end foreach
+
+      // If we really messed it up, at least avoid negative numbers.
+      if ($coinsurance > $ptresp) $coinsurance = $ptresp;
+      if ($deductible  > $ptresp) $deductible  = $ptresp;
+
+      // Find out if this payer paid anything at all on this claim.  This will
+      // help us allocate any unknown patient responsibility amounts.
+      $thispaidanything = 0;
+      foreach($this->invoice as $codekey => $codeval) {
+        foreach ($codeval['dtl'] as $key => $value) {
+          if (preg_match("/$inslabel/i", $value['src'], $tmp)) {
+            $thispaidanything += $value['pmt'];
+          }
+        }
+      }
+
+      // Allocate any unknown patient responsibility by guessing if the
+      // deductible has been satisfied.
+      if ($thispaidanything)
+        $coinsurance = $ptresp - $deductible;
+      else
+        $deductible = $ptresp - $coinsurance;
+
+      if ($date && $deductible != 0)
+        $aadj[] = array($date, 'PR', '1', sprintf('%.2f', $deductible));
+      if ($date && $coinsurance != 0)
+        $aadj[] = array($date, 'PR', '2', sprintf('%.2f', $coinsurance));
+
     } // end if
 
     return $aadj;
   }
 
-  // Return date, total payments and total adjustments from the designated
+  // Return date, total payments and total "hard" adjustments from the given
   // prior payer. If $code is specified then only that procedure key is
   // selected, otherwise it's for the whole claim.
   //
@@ -259,7 +322,7 @@ class Claim {
     $adjtotal = 0;
     $date = '';
     foreach($this->invoice as $codekey => $codeval) {
-      if ($code && $codekey != $code) continue;
+      if ($code && strcmp($codekey,$code) != 0) continue;
       foreach ($codeval['dtl'] as $key => $value) {
         if (preg_match("/$inslabel/i", $value['src'], $tmp)) {
           if (!$date) $date = str_replace('-', '', trim(substr($key, 0, 10)));
@@ -268,7 +331,7 @@ class Claim {
       }
       $aarr = $this->payerAdjustments($ins, $codekey);
       foreach ($aarr as $a) {
-        $adjtotal += $a[3];
+        if (strcmp($a[1],'PR') != 0) $adjtotal += $a[3];
         if (!$date) $date = $a[0];
       }
     }
@@ -428,15 +491,15 @@ class Claim {
   //
   function insuredRelationship($ins=0) {
     $tmp = strtolower($this->payers[$ins]['data']['subscriber_relationship']);
-    if ($tmp == 'self'  ) return '18';
-    if ($tmp == 'spouse') return '01';
-    if ($tmp == 'child' ) return '19';
-    if ($tmp == 'other' ) return 'G8';
+    if (strcmp($tmp,'self'  ) == 0) return '18';
+    if (strcmp($tmp,'spouse') == 0) return '01';
+    if (strcmp($tmp,'child' ) == 0) return '19';
+    if (strcmp($tmp,'other' ) == 0) return 'G8';
     return $tmp; // should not happen
   }
 
   function insuredTypeCode($ins=0) {
-    if ($this->claimType($ins) == 'MB' && $this->payerSequence($ins) != 'P')
+    if (strcmp($this->claimType($ins),'MB') == 0 && $this->payerSequence($ins) != 'P')
       return '12'; // medicare secondary working aged beneficiary or
                    // spouse with employer group health plan
     return '';
@@ -446,7 +509,7 @@ class Claim {
   //
   function isSelfOfInsured($ins=0) {
     $tmp = strtolower($this->payers[$ins]['data']['subscriber_relationship']);
-    return ($tmp == 'self');
+    return (strcmp($tmp,'self') == 0);
   }
 
   function groupNumber($ins=0) {
@@ -655,7 +718,7 @@ class Claim {
     $i = 0;
     foreach ($da as $value) {
       ++$i;
-      if ($value == $diag) return $i;
+      if (strcmp($value,$diag) == 0) return $i;
     }
     return '';
   }

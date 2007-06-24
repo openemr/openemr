@@ -362,7 +362,7 @@ function gen_x12_837($pid, $encounter, &$log) {
     "*" . $claim->onsetDate() .
     "~\n";
 
-  if ($claim->facilityPOS() == '21') {
+  if (strcmp($claim->facilityPOS(),'21') == 0) {
     ++$edicount;
     $out .= "DTP" .     // Date of Hospitalization
       "*435" .
