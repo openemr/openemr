@@ -228,17 +228,33 @@ class Claim {
           $rcode = '45'; // default reason code = max fee exceeded (code 42 is obsolete)
 
           if (preg_match("/Ins adjust $inslabel/i", $rsn, $tmp)) {
+            // From manual post. Take the defaults.
           }
           else if (preg_match("/To copay $inslabel/i", $rsn, $tmp) && !$chg) {
-            $coinsurance = $ptresp;
+            $coinsurance = $ptresp; // from manual post
             continue;
           }
           else if (preg_match("/To ded'ble $inslabel/i", $rsn, $tmp) && !$chg) {
-            $deductible = $ptresp;
+            $deductible = $ptresp; // from manual post
             continue;
           }
+          else if (preg_match("/$inslabel copay: (\S+)/i", $rsn, $tmp) && !$chg) {
+            $coinsurance = $tmp[1]; // from 835 as of 6/2007
+            continue;
+          }
+          else if (preg_match("/$inslabel coins: (\S+)/i", $rsn, $tmp) && !$chg) {
+            $coinsurance = $tmp[1]; // from 835 and manual post as of 6/2007
+            continue;
+          }
+          else if (preg_match("/$inslabel dedbl: (\S+)/i", $rsn, $tmp) && !$chg) {
+            $deductible = $tmp[1]; // from 835 and manual post as of 6/2007
+            continue;
+          }
+          else if (preg_match("/$inslabel ptresp: (\S+)/i", $rsn, $tmp) && !$chg) {
+            continue; // from 835 as of 6/2007
+          }
           else if (preg_match("/$inslabel adjust code (\S+)/i", $rsn, $tmp)) {
-            $rcode = $tmp[1];
+            $rcode = $tmp[1]; // from 835
           }
           else if (preg_match("/$inslabel/i", $rsn, $tmp)) {
             // Take the defaults.
@@ -248,18 +264,18 @@ class Claim {
           }
           else if ($insnumber == '1') {
             if (preg_match("/\$\s*adjust code (\S+)/i", $rsn, $tmp)) {
-              $rcode = $tmp[1];
+              $rcode = $tmp[1]; // from 835
             }
             else if ($chg) {
               // Other adjustments default to Ins1.
             }
             else if (preg_match("/Co-pay: (\S+)/i", $rsn, $tmp) ||
               preg_match("/Coinsurance: (\S+)/i", $rsn, $tmp)) {
-              $coinsurance = 0 + $tmp[1];
+              $coinsurance = 0 + $tmp[1]; // from 835 before 6/2007
               continue;
             }
             else if (preg_match("/To deductible: (\S+)/i", $rsn, $tmp)) {
-              $deductible = 0 + $tmp[1];
+              $deductible = 0 + $tmp[1]; // from 835 before 6/2007
               continue;
             }
             else {

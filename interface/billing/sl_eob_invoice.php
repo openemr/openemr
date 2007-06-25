@@ -185,6 +185,16 @@ function validate(f) {
 
         // Be sure to record adjustment reasons even for zero adjustments.
         if ($thisadj || $reason) {
+          // "To copay" and "To ded'ble" need to become a comment in a zero
+          // adjustment, formatted just like sl_eob_process.php.
+          if (preg_match("/To copay/", $reason)) {
+            $reason = $_POST['form_insurance'] . " coins: $thisadj";
+            $thisadj = 0;
+          }
+          else if (preg_match("/To ded'ble/", $reason)) {
+            $reason = $_POST['form_insurance'] . " dedbl: $thisadj";
+            $thisadj = 0;
+          }
           slPostAdjustment($trans_id, $thisadj, $thisdate, $thissrc, $code, $thisins, $reason, $debug);
         }
       }

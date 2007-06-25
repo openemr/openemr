@@ -299,17 +299,25 @@
 					// Group code PR is Patient Responsibility.  Enter these as zero
 					// adjustments to retain the note without crediting the claim.
 					if ($primary) {
+            /****
 						$reason = 'Pt resp: '; // Reasons should be 25 chars or less.
 						if ($adj['reason_code'] == '1') $reason = 'To deductible: ';
 						else if ($adj['reason_code'] == '2') $reason = 'Coinsurance: ';
 						else if ($adj['reason_code'] == '3') $reason = 'Co-pay: ';
+            ****/
+						$reason = "$inslabel ptresp: "; // Reasons should be 25 chars or less.
+						if ($adj['reason_code'] == '1') $reason = "$inslabel dedbl: ";
+						else if ($adj['reason_code'] == '2') $reason = "$inslabel coins: ";
+						else if ($adj['reason_code'] == '3') $reason = "$inslabel copay: ";
 					}
 					// Non-primary insurance adjustments are garbage, either repeating
 					// the primary or are not adjustments at all.  Report them as notes
 					// but do not post any amounts.
 					else {
 						$reason = "$inslabel note " . $adj['reason_code'] . ': ';
+            /****
 						$reason .= sprintf("%.2f", $adj['amount']);
+            ****/
 					}
 					$reason .= sprintf("%.2f", $adj['amount']);
 					// Post a zero-dollar adjustment just to save it as a comment.
