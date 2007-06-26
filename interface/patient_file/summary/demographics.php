@@ -1,7 +1,9 @@
-<?
- include_once("../../globals.php");
- include_once("$srcdir/patient.inc");
- include_once("$srcdir/acl.inc");
+<?php
+ require_once("../../globals.php");
+ require_once("$srcdir/patient.inc");
+ require_once("$srcdir/acl.inc");
+ require_once("$srcdir/classes/Address.class.php");
+ require_once("$srcdir/classes/InsuranceCompany.class.php");
 
  if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
   include_once("$srcdir/pid.inc");
@@ -92,7 +94,7 @@ function get_patient_balance($pid) {
 
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-<?
+<?php
  $result = getPatientData($pid);
  $result2 = getEmployerData($pid);
 
@@ -139,7 +141,7 @@ if ($GLOBALS['patient_id_category_name']) {
   <td align="left" valign="top">
    <table border='0' cellpadding='0' width='100%'>
     <tr>
-     <td valign='top'>
+     <td valign='top' width='33%'>
       <span class='bold'><?php xl('Name','e'); ?>: </span>
       <span class='text'>
 <?php
@@ -152,7 +154,7 @@ if ($document_id) echo "</a>";
       </span><br>
       <span class='bold'><? xl('Number','e'); ?>: </span><span class='text'><?echo $result{"pubpid"}?></span>
      </td>
-     <td valign='top'>
+     <td valign='top' width='33%'>
 <?
  if ($result{"DOB"} && $result{"DOB"} != "0000-00-00") {
 ?>
@@ -162,16 +164,24 @@ if ($document_id) echo "</a>";
   echo $result{"DOB"};
  }
 ?>
-      </span>
+      </span><br>
+<?php if ($result{"ss"} != "") { ?>
+      <span class='bold'><?php xl('S.S.','e'); ?>: </span>
+<?php } ?>
+      <span class='text'><?php echo $result{"ss"} ?></span>
      </td>
-     <td valign='top'><? if ($result{"sex"} != ""){?><span class='bold'><? xl('Sex','e'); ?>: </span><?}?><span class='text'><?echo $result{"sex"}?></span></td>
-     <td valign='top'><? if ($result{"ss"} != "") {?><span class='bold'><? xl('S.S.','e'); ?>: </span><?}?><span class='text'><?echo $result{"ss"}?></span></td>
+     <td valign='top' width='34%'>
+<?php if ($result{"sex"} != "") { ?>
+      <span class='bold'><?php xl('Sex','e'); ?>: </span>
+<?php } ?>
+      <span class='text'><?php echo $result{"sex"} ?></span>
+     </td>
     </tr>
     <tr>
      <td valign='top'>
-<? if (($result{"street"} != "") || ($result{"city"} != "") || ($result{"state"} != "") || ($result{"country_code"} != "") || ($result{"postal_code"} != "")) {?>
+<?php if (($result{"street"} != "") || ($result{"city"} != "") || ($result{"state"} != "") || ($result{"country_code"} != "") || ($result{"postal_code"} != "")) {?>
       <span class='bold'><? xl('Address','e'); ?>: </span>
-<?}?>
+<?php } ?>
       <br><span class='text'><?echo $result{"street"}?><br><?echo $result{"city"}?><?if($result{"city"} != ""){echo ", ";}?><?echo $result{"state"};?>
 <? if($result{"country_code"} != ""){ echo ", "; }?><?echo $result{"country_code"}?>
 <?echo " ";
@@ -218,12 +228,11 @@ echo $result{"postal_code"}?>
 	}
 ?>
      </td>
-     <td valign='top'></td>
     </tr>
 
 <?php if (!$GLOBALS['athletic_team']) { ?>
     <tr>
-     <td colspan='4' valign='top'>
+     <td colspan='3' valign='top'>
 	<?php
 		$opt_out = ($result{"hipaa_mail"} == 'YES') ? 'ALLOWS' : 'DOES NOT ALLOW';
 		echo "<span class='text'>Patient $opt_out Mailed Information </span>";
@@ -237,7 +246,7 @@ echo $result{"postal_code"}?>
 		echo "<span class='text'>Patient $opt_out Voice Messages </span>";
 	?>
      </td>
-     <td colspan='2' valign='top'>
+     <td colspan='1' valign='top'>
 <?php
 	echo "<span class='bold'><font color='#ee6600'>Balance Due: $" .
 		get_patient_balance($pid) . "</font>";
@@ -249,12 +258,12 @@ echo $result{"postal_code"}?>
     </tr>
     <tr>
      <td colspan='2' valign='top'>
-	<?php
+<?php
 		$opt_out = ($result{"hipaa_notice"} == 'YES') ? 'RECEIVED' : 'DID NOT RECEIVE';
 		echo "<span class='text'>Patient $opt_out Notice Information </span>";
-	?>
+?>
      </td>
-     <td colspan='2' valign='top'>
+     <td colspan='1' valign='top'>
 <?php
 	if ($result['genericname2'] == 'Billing')
 		echo "<span class='bold'><font color='red'>" .
@@ -263,7 +272,7 @@ echo $result{"postal_code"}?>
      </td>
     </tr>
     <tr>
-     <td colspan='4' valign='top'>
+     <td colspan='3' valign='top'>
 	<?php
 		if ( $result["hipaa_message"] == "" ) {
 			echo "<span class='text'><b>Leave a message with :</b> " .
@@ -280,19 +289,20 @@ echo $result{"postal_code"}?>
 
 <?php } else { ?>
     <tr>
-     <td colspan='4' valign='top'>
+     <td colspan='3' valign='top'>
       &nbsp;
      </td>
     </tr>
 <?php } ?>
 
-<?php if ($GLOBALS['omit_employers']) { /////////////////////////////////// ?>
+<?php if ($GLOBALS['omit_employers']) { ?>
 
     <tr>
-     <td valign='top'>
+     <td valign='top' colspan='2'>
       <table>
        <tr>
-        <td><span class='bold'>Listed Family Members:</span></td><td>&nbsp;</td>
+        <td><span class='bold'>Listed Family Members:</span></td>
+        <td>&nbsp;</td>
        </tr>
        <tr>
         <td><?php if ($result{"genericname1"} != "") { ?><span class='text'>&nbsp;&nbsp;&nbsp;<?=$result{"genericname1"}?></span><?php } ?></td>
@@ -311,19 +321,23 @@ echo $result{"postal_code"}?>
 
     <tr>
      <td valign='top'>
-<?php if ($result{"occupation"} != "") {?><span class='bold'><? xl('Occupation','e'); ?>: </span><span class='text'><?echo $result{"occupation"}?></span><br><?}?>
-<?php if ($result2{"name"} != "") {?><span class='bold'><? xl('Employer','e'); ?>: </span><span class='text'><?echo $result2{"name"}?></span><?}?>
+<?php if ($result{"occupation"} != "") { ?>
+      <span class='bold'><?php xl('Occupation','e'); ?>: </span><span class='text'><?echo $result{"occupation"}?></span><br>
+<?php } ?>
+<?php if ($result2{"name"} != "") { ?>
+      <span class='bold'><?php xl('Employer','e'); ?>: </span><span class='text'><?php echo $result2{"name"} ?></span>
+<?php } ?>
      </td>
      <td valign='top'>
-<?php if (($result2{"street"} != "") || ($result2{"city"} != "") || ($result2{"state"} != "") || ($result2{"country"} != "") || ($result2{"postal_code"} != "")) {?>
+<?php if (($result2{"street"} != "") || ($result2{"city"} != "") || ($result2{"state"} != "") || ($result2{"country"} != "") || ($result2{"postal_code"} != "")) { ?>
       <span class='bold'><? xl('Employer Address','e'); ?>:</span>
 <?php } ?>
       <br>
       <span class='text'>
-<?echo $result2{"street"}?><br><?echo $result2{"city"}?><?if($result2{"city"} != ""){echo ", ";}?><?echo $result2{"state"}?>
-<?if($result2{"country"} != ""){echo ", ";}?><?echo $result2{"country"}?>
-<?if($result2{"postal_code"} != ""){echo " ";}?>
-<?echo $result2{"postal_code"}?>
+<?php echo $result2{"street"}?><br><?php echo $result2{"city"} ?><?php if($result2{"city"} != "") { echo ", "; } ?><?php echo $result2{"state"} ?>
+<?php if($result2{"country"} != "") { echo ", "; } echo $result2{"country"} ?>
+<?php if($result2{"postal_code"} != "") {echo " "; } ?>
+<?php echo $result2{"postal_code"} ?>
       </span>
      </td>
      <td valign='top'>
@@ -356,7 +370,6 @@ echo $result{"postal_code"}?>
       </form>
 <?php } // end athletic team ?>
      </td>
-     <td valign='top'></td>
     </tr>
     <tr>
      <td valign='top'>
@@ -387,7 +400,6 @@ echo $result{"postal_code"}?>
        </tr>
       </table>
      </td>
-     <td valign='top'></td>
     </tr>
 
 <?php } ///// end not omit_employers ///// ?>
@@ -398,13 +410,10 @@ if ($result{"referrer"} != "" || $result{"referrerID"} != "")
 {
 ?>
     <tr>
-     <td valign='top'>
+     <td valign='top' colspan='3'>
       <span class='bold'><? xl('Primary Provider','e'); ?>: </span><span class='text'><?=getProviderName($result['providerID'])?></span><br>
       <!--<span class='bold'>Primary Provider ID: </span><span class='text'><?=$result{"referrerID"}?></span>-->
      </td>
-     <td valign='top'></td>
-     <td valign='top'></td>
-     <td valign='top'></td>
     </tr>
 <?php
 }
@@ -412,13 +421,19 @@ if ($result{"referrer"} != "" || $result{"referrerID"} != "")
 /////////////////////////////////INSURANCE SECTION
 $result3 = getInsuranceData($pid, "primary");
 if ($result3{"provider"}) {
+  $icobj = new InsuranceCompany($result3['provider']);
+  $adobj = $icobj->get_address();
 ?>
     <tr>
      <td valign='top'>
-      <span class='bold'><? xl('Primary Insurance Provider','e'); ?>:</span><br><span class='text'>
+      <span class='bold'><?php xl('Primary Insurance','e'); ?>:</span><br><span class='text'>
 <?php
   if (trim($result3['provider_name'])) {
-    echo $result3['provider_name'];
+    echo $result3['provider_name'] . '<br>';
+    if (trim($adobj->get_line1())) {
+      echo $adobj->get_line1() . '<br>';
+      echo $adobj->get_city() . ', ' . $adobj->get_state() . ' ' . $adobj->get_zip();
+    }
   } else {
     echo "<font color='red'><b>Unassigned</b></font>";
   }
@@ -430,20 +445,29 @@ if ($result3{"provider"}) {
      </td>
      <td valign='top'>
       <span class='bold'><? xl('Subscriber','e'); ?>: </span><br><span class='text'><?=$result3{"subscriber_fname"}?> <?=$result3{"subscriber_mname"}?> <?=$result3{"subscriber_lname"}?> <?if ($result3{"subscriber_relationship"} != "") {echo "(".$result3{"subscriber_relationship"}.")";}?><br>
-      S.S.: <?echo $result3{"subscriber_ss"}?> <? xl('D.O.B.','e'); ?>: <?if ($result3{"subscriber_DOB"} != "0000-00-00 00:00:00") {echo $result3{"subscriber_DOB"};}?><br>
+      S.S.: <?echo $result3{"subscriber_ss"}?><br>
+      <?php xl('D.O.B.','e'); ?>: <?if ($result3{"subscriber_DOB"} != "0000-00-00 00:00:00") {echo $result3{"subscriber_DOB"};}?><br>
       Phone: <? echo $result3{"subscriber_phone"}?>
       </span>
      </td>
      <td valign='top'>
       <span class='bold'><? xl('Subscriber Address','e'); ?>: </span><br><span class='text'><?echo $result3{"subscriber_street"}?><br><?echo $result3{"subscriber_city"}?><?if($result3{"subscriber_state"} != ""){echo ", ";}?><?echo $result3{"subscriber_state"}?><?if($result3{"subscriber_country"} != ""){echo ", ";}?><?echo $result3{"subscriber_country"}?> <?echo " ".$result3{"subscriber_postal_code"}?></span>
-     </td>
-     <td valign='top'>
-      <span class='bold'><? xl('Subscriber Employer','e'); ?>: </span><br><span class='text'><?echo $result3{"subscriber_employer"}?><br><?echo $result3{"subscriber_employer_street"}?><br><?echo $result3{"subscriber_employer_city"}?><?if($result3{"subscriber_employer_city"} != ""){echo ", ";}?><?echo $result3{"subscriber_employer_state"}?><?if($result3{"subscriber_employer_country"} != ""){echo ", ";}?><?echo $result3{"subscriber_employer_country"}?> <?echo " ".$result3{"subscriber_employer_postal_code"}?></span>
+
+<?php if (trim($result3['subscriber_employer'])) { ?>
+      <br><span class='bold'><?php xl('Subscriber Employer','e'); ?>: </span><br>
+      <span class='text'><?php echo $result3{"subscriber_employer"}?><br>
+      <?php echo $result3{"subscriber_employer_street"}?><br>
+      <?php echo $result3{"subscriber_employer_city"}?>
+      <?php if($result3{"subscriber_employer_city"} != ""){echo ", ";} echo $result3{"subscriber_employer_state"}?>
+      <?php if($result3{"subscriber_employer_country"} != ""){echo ", ";} echo $result3{"subscriber_employer_country"}?>
+      <?php echo " ".$result3{"subscriber_employer_postal_code"}?>
+      </span>
+<?php } ?>
+
      </td>
     </tr>
     <tr>
      <td><? if ($result3{"copay"} != "") {?><span class='bold'><? xl('CoPay','e'); ?>: </span><span class='text'><?=$result3{"copay"}?></span><?}?></td>
-     <td valign='top'></td>
      <td valign='top'></td>
      <td valign='top'></td>
    </tr>
@@ -451,10 +475,24 @@ if ($result3{"provider"}) {
 <?
 $result4 = getInsuranceData($pid, "secondary");
 if ($result4{"provider"} != "") {
+  $icobj = new InsuranceCompany($result4['provider']);
+  $adobj = $icobj->get_address();
 ?>
     <tr>
      <td valign='top'>
-      <span class='bold'><? xl('Secondary Insurance Provider','e'); ?>:</span><br><span class='text'><?echo $result4{"provider_name"}?></span><br>
+      <span class='bold'><? xl('Secondary Insurance','e'); ?>:</span><br><span class='text'>
+<?php
+  if (trim($result4['provider_name'])) {
+    echo $result4['provider_name'] . '<br>';
+    if (trim($adobj->get_line1())) {
+      echo $adobj->get_line1() . '<br>';
+      echo $adobj->get_city() . ', ' . $adobj->get_state() . ' ' . $adobj->get_zip();
+    }
+  } else {
+    echo "<font color='red'><b>Unassigned</b></font>";
+  }
+?>
+      </span><br>
       <span class='text'><? xl('Policy Number','e'); ?>: <?echo $result4{"policy_number"}?><br>
       Plan Name: <?=$result4{"plan_name"}?><br>
       Group Number: <?echo $result4{"group_number"}?></span>
@@ -467,9 +505,18 @@ if ($result4{"provider"} != "") {
      </td>
      <td valign='top'>
       <span class='bold'><? xl('Subscriber Address','e'); ?>: </span><br><span class='text'><?echo $result4{"subscriber_street"}?><br><?echo $result4{"subscriber_city"}?><?if($result4{"subscriber_state"} != ""){echo ", ";}?><?echo $result4{"subscriber_state"}?><?if($result4{"subscriber_country"} != ""){echo ", ";}?><?echo $result4{"subscriber_country"}?> <?echo " ".$result4{"subscriber_postal_code"}?></span>
-     </td>
-     <td valign='top'>
-      <span class='bold'><? xl('Subscriber Employer','e'); ?>: </span><br><span class='text'><?echo $result4{"subscriber_employer"}?><br><?echo $result4{"subscriber_employer_street"}?><br><?echo $result4{"subscriber_employer_city"}?><?if($result4{"subscriber_employer_city"} != ""){echo ", ";}?><?echo $result4{"subscriber_employer_state"}?><?if($result4{"subscriber_employer_country"} != ""){echo ", ";}?><?echo $result4{"subscriber_employer_country"}?> <?echo " ".$result4{"subscriber_employer_postal_code"}?></span>
+
+<?php if (trim($result4['subscriber_employer'])) { ?>
+      <br><span class='bold'><?php xl('Subscriber Employer','e'); ?>: </span><br>
+      <span class='text'><?php echo $result4{"subscriber_employer"}?><br>
+      <?php echo $result4{"subscriber_employer_street"}?><br>
+      <?php echo $result4{"subscriber_employer_city"}?>
+      <?php if($result4{"subscriber_employer_city"} != ""){echo ", ";} echo $result4{"subscriber_employer_state"}?>
+      <?php if($result4{"subscriber_employer_country"} != ""){echo ", ";} echo $result4{"subscriber_employer_country"}?>
+      <?php echo " ".$result4{"subscriber_employer_postal_code"}?>
+      </span>
+<?php } ?>
+
      </td>
     </tr>
     <tr>
@@ -478,16 +525,29 @@ if ($result4{"provider"} != "") {
      </td>
      <td valign='top'></td>
      <td valign='top'></td>
-     <td valign='top'></td>
     </tr>
 <? } ?>
 <?
 $result5 = getInsuranceData($pid, "tertiary");
 if ($result5{"provider"}) {
+  $icobj = new InsuranceCompany($result5['provider']);
+  $adobj = $icobj->get_address();
 ?>
     <tr>
      <td valign='top'>
-      <span class='bold'><? xl('Tertiary Insurance Provider','e'); ?>:</span><br><span class='text'><?echo $result5{"provider_name"}?></span><br>
+      <span class='bold'><? xl('Tertiary Insurance','e'); ?>:</span><br><span class='text'>
+<?php
+  if (trim($result5['provider_name'])) {
+    echo $result5['provider_name'] . '<br>';
+    if (trim($adobj->get_line1())) {
+      echo $adobj->get_line1() . '<br>';
+      echo $adobj->get_city() . ', ' . $adobj->get_state() . ' ' . $adobj->get_zip();
+    }
+  } else {
+    echo "<font color='red'><b>Unassigned</b></font>";
+  }
+?>
+      </span><br>
       <span class='text'><? xl('Policy Number','e'); ?>: <?echo $result5{"policy_number"}?><br>
       Plan Name: <?=$result5{"plan_name"}?><br>
       Group Number: <?echo $result5{"group_number"}?></span>
@@ -500,16 +560,24 @@ if ($result5{"provider"}) {
      </td>
      <td valign='top'>
       <span class='bold'><? xl('Subscriber Address','e'); ?>: </span><br><span class='text'><?echo $result5{"subscriber_street"}?><br><?echo $result5{"subscriber_city"}?><?if($result5{"subscriber_state"} != ""){echo ", ";}?><?echo $result5{"subscriber_state"}?><?if($result5{"subscriber_country"} != ""){echo ", ";}?><?echo $result5{"subscriber_country"}?> <?echo " ".$result5{"subscriber_postal_code"}?></span>
-     </td>
-     <td valign='top'>
-      <span class='bold'><? xl('Subscriber Employer','e'); ?>: </span><br><span class='text'><?echo $result5{"subscriber_employer"}?><br><?echo $result5{"subscriber_employer_street"}?><br><?echo $result5{"subscriber_employer_city"}?><?if($result5{"subscriber_employer_city"} != ""){echo ", ";}?><?echo $result5{"subscriber_employer_state"}?><?if($result5{"subscriber_employer_country"} != ""){echo ", ";}?><?echo $result5{"subscriber_employer_country"}?> <?echo " ".$result5{"subscriber_employer_postal_code"}?></span>
+
+<?php if (trim($result5['subscriber_employer'])) { ?>
+      <br><span class='bold'><?php xl('Subscriber Employer','e'); ?>: </span><br>
+      <span class='text'><?php echo $result5{"subscriber_employer"}?><br>
+      <?php echo $result5{"subscriber_employer_street"}?><br>
+      <?php echo $result5{"subscriber_employer_city"}?>
+      <?php if($result5{"subscriber_employer_city"} != ""){echo ", ";} echo $result5{"subscriber_employer_state"}?>
+      <?php if($result5{"subscriber_employer_country"} != ""){echo ", ";} echo $result5{"subscriber_employer_country"}?>
+      <?php echo " ".$result5{"subscriber_employer_postal_code"}?>
+      </span>
+<?php } ?>
+
      </td>
     </tr>
     <tr>
      <td>
       <? if ($result5{"copay"} != "") {?><span class='bold'><? xl('CoPay','e'); ?>: </span><span class='text'><?=$result5{"copay"}?></span><?}?>
      </td>
-     <td valign='top'></td>
      <td valign='top'></td>
      <td valign='top'></td>
     </tr>
