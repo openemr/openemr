@@ -121,11 +121,28 @@ function codeselect(selobj, newtype) {
  }
 }
 
+function validate(f) {
+ for (var lino = 1; f['bill[' + lino + '][code_type]']; ++lino) {
+  var pfx = 'bill[' + lino + ']';
+  if (f[pfx + '[ndcnum]'] && f[pfx + '[ndcnum]'].value) {
+   if (isNaN(f[pfx + '[ndcqty]'].value - 0)) {
+    alert('<?php xl('Quantity for NDC ','e') ?>' + f[pfx + '[ndcnum]'].value +
+     '<?php xl(' is not numeric (decimal fractions are OK).','e') ?>');
+    if (f[pfx + '[ndcqty]'].focus) f[pfx + '[ndcqty]'].focus();
+    return false;
+   }
+  }
+ }
+ return true;
+}
+
 </script>
 </head>
 
-<body <?echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
-<form method="post" action="<?echo $rootdir;?>/forms/fee_sheet/new.php">
+<body <?echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2"
+ bottommargin="0" marginwidth="2" marginheight="0">
+<form method="post" action="<?php echo $rootdir; ?>/forms/fee_sheet/new.php"
+ onsubmit="return validate(this)">
 <span class="title"><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Fee' : 'Coding' ?> <?php xl('Sheet','e');?></span><br>
 <input type='hidden' name='newtype' value=''>
 <input type='hidden' name='newcode' value=''>
