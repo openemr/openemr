@@ -53,6 +53,10 @@ if ($_GET["mode"] == "update") {
     $tqvar = addslashes($_GET["lname"]);
     sqlStatement("update users set lname='$tqvar' where id={$_GET["id"]}");
   }
+  if ($_GET["job"]) {
+    $tqvar = addslashes($_GET["job"]);
+    sqlStatement("update users set specialty='$tqvar' where id={$_GET["id"]}");
+  }
   if ($_GET["mname"]) {
           $tqvar = addslashes($_GET["mname"]);
           sqlStatement("update users set mname='$tqvar' where id={$_GET["id"]}");
@@ -153,6 +157,11 @@ foreach($result as $iter2) {
 <tr>
 <td><span class="text"><? xl('NPI','e'); ?>: </span></td><td><input type="text" name="npi" size="20" value="<? echo $iter["npi"]?>"></td>
 </tr>
+
+<tr>
+<td><span class="text"><? xl('Job Description','e'); ?>: </span></td><td><input type="text" name="job" size="20" value="<? echo $iter["specialty"]?>"></td>
+</tr>
+
 </tr>
 </table>
 <span class=text><? xl('Additional Info','e'); ?>:</span><br>
