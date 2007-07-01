@@ -29,6 +29,10 @@ allergy::codeine
 surgery::tonsillectomy
 surgery::appendectomy
 surgery::cholecystectomy
+immunizations::Gardasil #1
+immunizations::Gardasil #2
+immunizations::Gardasil #3
 immunizations::MMR
 immunizations::tetanus
 immunizations::varicella
+immunizations::Zostavax
