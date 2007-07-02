@@ -105,13 +105,17 @@
 //                                  UPDATE EVENTS
 ========================================================*/
   if ($eid) {
-    if ($GLOBALS['select_multi_providers']) {
+
+    // what is multiple key around this $eid?
+    $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+
+    if ($GLOBALS['select_multi_providers'] && $row['pc_multiple']) {
     /* ==========================================
     // multi providers BOS
     ==========================================*/
 
-    // what is multiple key around this $eid?
-    $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+    // we make sure that we don't get a 0 result (0 is the default value for pc_multiple field)
+    if ( $row['pc_multiple'] ) {
 
 	// we make sure that we don't get a 0 result (0 is the default value for pc_multiple field)
 	if ( $row['pc_multiple'] ) {
@@ -192,7 +196,7 @@
 // multi providers EOS
 ==========================================*/
 
-    } else {
+    } elseif ( !$GLOBALS['select_multi_providers'] || !$row['pc_multiple'] ) {
     // simple provider case
     sqlStatement("UPDATE openemr_postcalendar_events SET " .
     "pc_catid = '"       . $_POST['form_category']             . "', " .
@@ -214,6 +218,7 @@
     "pc_prefcatid = '"   . $_POST['form_prefcat']              . "' "  .
     "WHERE pc_eid = '$eid'");
     }
+
 
   } else {
 
