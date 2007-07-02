@@ -110,60 +110,57 @@
     $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
 
     if ($GLOBALS['select_multi_providers'] && $row['pc_multiple']) {
-    /* ==========================================
-    // multi providers BOS
-    ==========================================*/
+        /* ==========================================
+        // multi providers BOS
+        ==========================================*/
 
-	// we make sure that we don't get a 0 result (0 is the default value for pc_multiple field)
-	if ( $row['pc_multiple'] ) {
+        // obtain current list of providers regarding the multiple key
+        $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple={$row['pc_multiple']}");
+        while ($current = sqlFetchArray($up)) {
+            $providers_current[] = $current['pc_aid'];
+        } 
 
-    // obtain current list of providers regarding the multiple key
-    $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple={$row['pc_multiple']}");
-    while ($current = sqlFetchArray($up)) {
-        $providers_current[] = $current['pc_aid'];
-    } 
+        $providers_new = $_POST['form_provider'];
 
-    $providers_new = $_POST['form_provider'];
-
-    // this difference means that some providers from current was UNCHECKED
-    // so we must delete this event for them
-    $r1 = array_diff ($providers_current, $providers_new);
-    if (count ($r1)) {
-        foreach ($r1 as $to_be_removed) {
-           sqlQuery("DELETE FROM openemr_postcalendar_events WHERE pc_aid='$to_be_removed' AND pc_multiple={$row['pc_multiple']}");
+        // this difference means that some providers from current was UNCHECKED
+        // so we must delete this event for them
+        $r1 = array_diff ($providers_current, $providers_new);
+        if (count ($r1)) {
+            foreach ($r1 as $to_be_removed) {
+            sqlQuery("DELETE FROM openemr_postcalendar_events WHERE pc_aid='$to_be_removed' AND pc_multiple={$row['pc_multiple']}");
+            }
         }
-    }
 
-    // this difference means that some providers was added 
-    // so we must insert this event for them 
-   $r2 = array_diff ($providers_new, $providers_current);
-    if (count ($r2)) {
-        foreach ($r2 as $to_be_inserted) {
-            sqlInsert("INSERT INTO openemr_postcalendar_events ( pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing) 
-            VALUES ( " .
-                "'" . $_POST['form_category']             . "', " .
-                "'" . $row['pc_multiple']             . "', " .
-                "'" . $to_be_inserted            . "', " .
-                "'" . $_POST['form_pid']                  . "', " .
-                "'" . $_POST['form_title']                . "', " .
-                "NOW(), "                                         .
-                "'" . $_POST['form_comments']             . "', " .
-                "'" . $_SESSION['authUserID']             . "', " .
-                "'" . $event_date                         . "', " .
-                "'" . fixDate($_POST['form_enddate'])     . "', " .
-                "'" . ($duration * 60)                    . "', " .
-                "'" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
-                "'$recurrspec', "                                 .
-                "'$starttime', "                                  .
-                "'$endtime', "                                    .
-                "'" . $_POST['form_allday']               . "', " .
-                "'" . $_POST['form_apptstatus']           . "', " .
-                "'" . $_POST['form_prefcat']              . "', " .
-                "'$locationspec', "                               .
-                "1, " .
-                "1 )");
-        } // foreach
-    }
+        // this difference means that some providers was added 
+        // so we must insert this event for them 
+        $r2 = array_diff ($providers_new, $providers_current);
+        if (count ($r2)) {
+            foreach ($r2 as $to_be_inserted) {
+                sqlInsert("INSERT INTO openemr_postcalendar_events ( pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing) 
+                VALUES ( " .
+                    "'" . $_POST['form_category']             . "', " .
+                    "'" . $row['pc_multiple']             . "', " .
+                    "'" . $to_be_inserted            . "', " .
+                    "'" . $_POST['form_pid']                  . "', " .
+                    "'" . $_POST['form_title']                . "', " .
+                    "NOW(), "                                         .
+                    "'" . $_POST['form_comments']             . "', " .
+                    "'" . $_SESSION['authUserID']             . "', " .
+                    "'" . $event_date                         . "', " .
+                    "'" . fixDate($_POST['form_enddate'])     . "', " .
+                    "'" . ($duration * 60)                    . "', " .
+                    "'" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
+                    "'$recurrspec', "                                 .
+                    "'$starttime', "                                  .
+                    "'$endtime', "                                    .
+                    "'" . $_POST['form_allday']               . "', " .
+                    "'" . $_POST['form_apptstatus']           . "', " .
+                    "'" . $_POST['form_prefcat']              . "', " .
+                    "'$locationspec', "                               .
+                    "1, " .
+                    "1 )");
+            } // foreach
+       } //if count
 
 
     // after the two diffs above, we must update for remaining providers
@@ -188,35 +185,44 @@
             "pc_prefcatid = '"   . $_POST['form_prefcat']              . "' "  .
               "WHERE pc_aid = '$provider' AND pc_multiple={$row['pc_multiple']}");
         } // foreach
-	}	// if ( $row['pc_multiple'] )
+
 /* ==========================================
 // multi providers EOS
 ==========================================*/
 
-    } elseif ( !$GLOBALS['select_multi_providers'] || !$row['pc_multiple'] ) {
-    // simple provider case
-    sqlStatement("UPDATE openemr_postcalendar_events SET " .
-    "pc_catid = '"       . $_POST['form_category']             . "', " .
-    "pc_aid = '"         . $_POST['form_provider']             . "', " .
-    "pc_pid = '"         . $_POST['form_pid']                  . "', " .
-    "pc_title = '"       . $_POST['form_title']                . "', " .
-    "pc_time = NOW(), "                                                .
-    "pc_hometext = '"    . $_POST['form_comments']             . "', " .
-    "pc_informant = '"   . $_SESSION['authUserID']             . "', " .
-    "pc_eventDate = '"   . $event_date                         . "', " .
-    "pc_endDate = '"     . fixDate($_POST['form_enddate'])     . "', " .
-    "pc_duration = '"    . ($duration * 60)                    . "', " .
-    "pc_recurrtype = '"  . ($_POST['form_repeat'] ? '1' : '0') . "', " .
-    "pc_recurrspec = '$recurrspec', "                                  .
-    "pc_startTime = '$starttime', "                                    .
-    "pc_endTime = '$endtime', "                                        .
-    "pc_alldayevent = '" . $_POST['form_allday']               . "', " .
-    "pc_apptstatus = '"  . $_POST['form_apptstatus']           . "', "  .
-    "pc_prefcatid = '"   . $_POST['form_prefcat']              . "' "  .
-    "WHERE pc_eid = '$eid'");
+    } elseif (  !$row['pc_multiple'] ) {
+            if ( $GLOBALS['select_multi_providers'] ) {
+                $prov = $_POST['form_provider'][0];
+            } else {
+                $prov =  $_POST['form_provider'];
+            }
+
+            // simple provider case
+            sqlStatement("UPDATE openemr_postcalendar_events SET " .
+            "pc_catid = '"       . $_POST['form_category']             . "', " .
+            "pc_aid = '"         . $prov            . "', " .
+            "pc_pid = '"         . $_POST['form_pid']                  . "', " .
+            "pc_title = '"       . $_POST['form_title']                . "', " .
+            "pc_time = NOW(), "                                                .
+            "pc_hometext = '"    . $_POST['form_comments']             . "', " .
+            "pc_informant = '"   . $_SESSION['authUserID']             . "', " .
+            "pc_eventDate = '"   . $event_date                         . "', " .
+            "pc_endDate = '"     . fixDate($_POST['form_enddate'])     . "', " .
+            "pc_duration = '"    . ($duration * 60)                    . "', " .
+            "pc_recurrtype = '"  . ($_POST['form_repeat'] ? '1' : '0') . "', " .
+            "pc_recurrspec = '$recurrspec', "                                  .
+            "pc_startTime = '$starttime', "                                    .
+            "pc_endTime = '$endtime', "                                        .
+            "pc_alldayevent = '" . $_POST['form_allday']               . "', " .
+            "pc_apptstatus = '"  . $_POST['form_apptstatus']           . "', "  .
+            "pc_prefcatid = '"   . $_POST['form_prefcat']              . "' "  .
+            "WHERE pc_eid = '$eid'");
+
     }
 
-
+/* =======================================================
+//                                  INSERT EVENTS
+========================================================*/
   } else {
 
 // =======================================
@@ -293,7 +299,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
     "1, " .
     "1 )");
   }
- }
+ } // else - insert
 
 
   // Save new DOB if it's there.
