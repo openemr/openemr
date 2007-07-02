@@ -114,9 +114,6 @@
     // multi providers BOS
     ==========================================*/
 
-    // we make sure that we don't get a 0 result (0 is the default value for pc_multiple field)
-    if ( $row['pc_multiple'] ) {
-
 	// we make sure that we don't get a 0 result (0 is the default value for pc_multiple field)
 	if ( $row['pc_multiple'] ) {
 
