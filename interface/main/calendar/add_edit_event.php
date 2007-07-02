@@ -113,6 +113,9 @@
     // what is multiple key around this $eid?
     $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
 
+	// we make sure that we don't get a 0 result (0 is the default value for pc_multiple field)
+	if ( $row['pc_multiple'] ) {
+
     // obtain current list of providers regarding the multiple key
     $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple={$row['pc_multiple']}");
     while ($current = sqlFetchArray($up)) {
@@ -184,7 +187,7 @@
             "pc_prefcatid = '"   . $_POST['form_prefcat']              . "' "  .
               "WHERE pc_aid = '$provider' AND pc_multiple={$row['pc_multiple']}");
         } // foreach
- 
+	}	// if ( $row['pc_multiple'] )
 /* ==========================================
 // multi providers EOS
 ==========================================*/
@@ -335,7 +338,9 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
         if ($GLOBALS['select_multi_providers']) {
              // what is multiple key around this $eid?
             $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
-            sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_multiple = {$row['pc_multiple']}");
+			if ( $row['pc_multiple'] ) {
+				sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_multiple = {$row['pc_multiple']}");
+			}
         // =======================================
         //  EOS multi providers case
         // =======================================
