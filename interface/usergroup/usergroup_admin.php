@@ -19,6 +19,7 @@ if (isset($_POST["mode"])) {
     postal_code='{$_POST['postal_code']}',
     country_code='{$_POST['country_code']}',
     federal_ein='{$_POST['federal_ein']}',
+    specialty='{$_POST['specialty']}',
 	facility_npi='{$_POST['facility_npi']}'");
   } elseif ($_POST["mode"] == "new_user") {
     if ($_POST["authorized"] != "1") {
@@ -48,6 +49,7 @@ if (isset($_POST["mode"])) {
         "', upin = '"          . $_POST["upin"] .
 		"', npi  = '"          . $_POST["npi"].
         "', facility = '"      . $_POST["facility"] .
+		"', specialty = '"     . $_POST["specialty"] .
         "', see_auth = '"      . $_POST["see_auth"] .
         "'");
       sqlStatement("insert into groups set name = '" . $_POST["groupname"] .
@@ -167,6 +169,7 @@ if (isset($_GET["mode"])) {
 <td>&nbsp;</td><td>&nbsp;</td>
 
 <td><span class=text><? xl('Facility NPI','e'); ?>: </span></td><td><input type=entry size=20 name=facility_npi value=""></td>
+
 </tr>
 <tr>
 <td>&nbsp;</td><td>&nbsp;</td>
@@ -264,6 +267,7 @@ if ($fres) {
 
 <tr>
 <td><span class="text"><? xl('NPI','e'); ?>: </span></td><td><input type="entry" name="npi" size="20"></td>
+<td><span class="text"><? xl('Job Description','e'); ?>: </span></td><td><input type="entry" name="specialty" size="20"></td>
 </tr>
 </table>
 <span class=text><? xl('Additional Info','e'); ?>: </span><br>
