@@ -348,7 +348,9 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
             $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
 			if ( $row['pc_multiple'] ) {
 				sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_multiple = {$row['pc_multiple']}");
-			}
+			} else {
+                                sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+                        }
         // =======================================
         //  EOS multi providers case
         // =======================================
@@ -741,11 +743,15 @@ if  ($GLOBALS['select_multi_providers']) {
 
 // this is executed only on edit ($eid)
 if ($eid) {
-    // find all the providers around multiple key
-    $qall = sqlStatement ("SELECT pc_aid AS providers FROM openemr_postcalendar_events WHERE pc_multiple = $multiple_value");
-
-    while ($r = sqlFetchArray($qall)) {
-        $providers_array[] = $r['providers'];
+    if ( $multiple_value ) {
+        // find all the providers around multiple key
+        $qall = sqlStatement ("SELECT pc_aid AS providers FROM openemr_postcalendar_events WHERE pc_multiple = $multiple_value");
+        while ($r = sqlFetchArray($qall)) {
+            $providers_array[] = $r['providers'];
+        }
+    } else {
+        $qall = sqlStatement ("SELECT pc_aid AS providers FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+        $providers_array = sqlFetchArray($qall);
     }
 }
 
