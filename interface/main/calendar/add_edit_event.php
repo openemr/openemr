@@ -689,7 +689,6 @@ td { font-size:10pt; }
    </select>
   </td>
  </tr>
-
  <tr>
   <td nowrap>
    <b><? xl('Title','e'); ?>:</b>
@@ -762,7 +761,7 @@ while ($urow = sqlFetchArray($ures)) {
     echo "    <option value='" . $urow['id'] . "'";
 
     if ($userid) {
-        if ( in_array($urow['id'], $providers_array) ) echo " selected";
+        if ( in_array($urow['id'], $providers_array) || ($urow['id'] == $userid) ) echo " selected";
     }
 
     echo ">" . $urow['lname'];
