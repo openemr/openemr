@@ -103,7 +103,7 @@ function invoice_initialize(& $invoice_info, $patient_id, $provider_id,
 			"insurance_data.pid = $patient_id AND " .
 			"insurance_data.type = '$instype' AND " .
 			"insurance_companies.id = insurance_data.provider " .
-			"LIMIT 1";
+			"ORDER BY insurance_data.date DESC LIMIT 1";
 		$result = $db->Execute($sql);
 		if ($result && !$result->EOF && $result->fields['name']) {
 			if ($insnotes) $insnotes .= "\n";
@@ -375,7 +375,7 @@ function invoice_post(& $invoice_info)
   // Initialize an array of invoice information for posting.
   //
   $invoice_info = array();
-  $msg = invoice_initialize($invoice_info, $_POST['form_pid'],
+  $msg = invoice_initialize($invoice_info, $form_pid,
    $_POST['form_provider'], $_POST['form_payer'], $form_encounter, $dosdate);
   if ($msg) die($msg);
 
@@ -397,13 +397,16 @@ function invoice_post(& $invoice_info)
     $query = "update drug_sales SET fee = '$amount', " .
      "encounter = '$form_encounter' WHERE " .
      "sale_id = '$id'";
+    sqlQuery($query);
    }
    else {
+    // Because there is no insurance here, there is no need for a claims
+    // table entry and so we do not call updateClaim().  Note we should not
+    // eliminate billed and bill_date from the billing table!
     $query = "UPDATE billing SET billed = 1, bill_date = NOW() WHERE " .
      "id = '$id'";
+    sqlQuery($query);
    }
-   sqlQuery($query);
-   // echo $query . "<br>\n"; // debugging
   }
 
   if ($_POST['form_amount']) {

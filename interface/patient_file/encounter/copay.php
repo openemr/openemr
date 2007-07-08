@@ -2,16 +2,19 @@
 include_once("../../globals.php");
 include_once("$srcdir/sql.inc");
 
-//This may be more appropriate to move to the library
-//later
+// This may be more appropriate to move to the library
+// later
 require_once("{$GLOBALS['srcdir']}/sql.inc");
 function getInsuranceCompanies($pid) {
-        $res = sqlStatement("select * from insurance_data where pid='$pid'");
-
-        for($iter=0; $row=sqlFetchArray($res); $iter++) {
-                $all[$iter] = $row;
-        }
-        return $all;
+  $res = sqlStatement("SELECT * FROM insurance_data WHERE pid = '$pid' " .
+    "ORDER BY type ASC, date DESC");
+  $prevtype = '';
+  for($iter = 0; $row = sqlFetchArray($res); $iter++) {
+    if (strcmp($row['type'], $prevtype) == 0) continue;
+    $prevtype = $row['type'];
+    $all[$iter] = $row;
+  }
+  return $all;
 }
 
 //the number of rows to display before resetting and starting a new column:

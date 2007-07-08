@@ -605,15 +605,10 @@ function capitalizeMe(elem) {
 ?>
 <table border="0">
  <tr>
-  <td valign=top>
-   <table border="0">
-    <tr>
-     <td colspan="5"><span class='required'><?php echo $insurance_headings[$i -1]?></span></td>
-    </tr>
-    <tr>
-     <td colspan="5">
-      <select name="i<?php echo $i?>provider">
-       <option value=""><?php xl('Unassigned','e'); ?></option>
+  <td valign='top' colspan='2'>
+   <span class='required'><?php echo $insurance_headings[$i -1]?></span>
+   <select name="i<?php echo $i?>provider">
+    <option value=""><?php xl('Unassigned','e'); ?></option>
 <?php
  foreach ($insurancei as $iid => $iname) {
   echo "<option value='" . $iid . "'";
@@ -622,17 +617,42 @@ function capitalizeMe(elem) {
   echo ">" . $iname . "</option>\n";
  }
 ?>
-      </select>&nbsp;<a href='' onclick='return ins_search(<?php echo $i?>)'><?php xl('Search/Add Insurer','e'); ?></a>
+   </select>&nbsp;<a href='' onclick='return ins_search(<?php echo $i?>)'>
+   <?php xl('Search/Add Insurer','e'); ?></a>
+  </td>
+ </tr>
+
+ <tr>
+  <td valign=top>
+   <table border="0">
+
+    <tr>
+     <td>
+      <span class='required'><?php xl('Plan Name','e'); ?>: </span>
+     </td>
+     <td>
+      <input type='entry' size='20' name='i<?php echo $i?>plan_name' value="<?php echo $result3{"plan_name"} ?>"
+       onchange="capitalizeMe(this);" />&nbsp;&nbsp;
      </td>
     </tr>
+
     <tr>
-     <td><span class=required><?php xl('Plan Name','e'); ?>: </span></td>
-     <td><input type=entry size=20 name=i<?php echo $i?>plan_name value="<?php echo $result3{"plan_name"} ?>"
-      onchange="capitalizeMe(this);" /></td>
+     <td>
+      <span class='required'><?php xl('Effective Date','e'); ?>: </span>
+     </td>
+     <td>
+      <input type='entry' size='11' name='i<?php echo $i ?>effective_date'
+       value='<?php echo $result3['date'] ?>'
+       onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+       title='yyyy-mm-dd' />
+     </td>
     </tr>
+
     <tr>
-     <td><span class=required><?php xl('Policy Number','e'); ?>: </span></td><td><input type=entry size=16 name=i<?php echo $i?>policy_number value="<?php echo $result3{"policy_number"}?>"></td>
+     <td><span class=required><?php xl('Policy Number','e'); ?>: </span></td>
+     <td><input type=entry size=16 name=i<?php echo $i?>policy_number value="<?php echo $result3{"policy_number"}?>"></td>
     </tr>
+
     <tr>
      <td><span class=required><?php xl('Group Number','e'); ?>: </span></td><td><input type=entry size=16 name=i<?php echo $i?>group_number value="<?php echo $result3{"group_number"}?>"></td>
     </tr>

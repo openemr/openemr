@@ -3,32 +3,6 @@
 
 	//date must be in nice format (e.g. 2002-07-11)
 
-//	function getBillsBy($date, $qtype = "day", $auth="%", $cols = "date,pid,code_type,code,user,authorized")
-//	{
-//		if ($qtype == "all") {
-//			$res = sqlStatement("select $cols from billing order by date ASC");
-//		}
-//		elseif ($qtype == "day") {
-//			$res = sqlStatement("select $cols from billing where date like '$date' order by date ASC");
-//		}
-//		elseif ($qtype == "month") {
-//			$m = substr($date,5,2);
-//			$y = substr($date,0,4);
-//			$res = sqlStatement("select $cols from billing where MONTH(date) = '$m' and YEAR(date) = '$y' ORDER by date ASC");
-//		}
-//		elseif ($qtype == "year") {
-//			$y = substr($date,0,4);
-//			$res = sqlStatement("select $cols from billing where YEAR(date) = '$y' ORDER by date ASC");
-//		}
-//
-//		for($iter=0; $row=sqlFetchArray($res); $iter++)
-//		{
-//			$all[$iter] = $row;
-//		}
-//
-//		return $all;
-//	}
-
 	function getBillsBetween($date, $date2, $auth="%", $unbilled, $code_type,
 		$cols = "id,date,pid,code_type,code,user,authorized,x12_partner_id")
 	{
@@ -41,28 +15,10 @@
 			$billstring = "billing.billed = '1'";
 		}
 
-//	$sql = "select * from billing where date >= '$date' and " .
-//		"date <= '$date2 23:59:59' and authorized like '$auth' and " .
-//		"($billstring) and code_type like '$code_type' and activity = 1 " .
-//		"order by encounter, pid, code_type, code ASC";
-
 		// Selecting by the date in the billing table is wrong, because that is
 		// just the data entry date; instead we want to go by the encounter date
 		// which is the date in the form_encounter table.
 		//
-		/****
-		$sql = "select form_encounter.date as enc_date, billing.* " .
-			"from form_encounter, billing where " .
-			"form_encounter.date >= '$date' and " .
-			"form_encounter.date <= '$date2 23:59:59' and " .
-			"billing.encounter = form_encounter.encounter and " .
-			"billing.authorized like '$auth' and " .
-			"($billstring) and " .
-			"billing.code_type like '$code_type' and " .
-			"billing.activity = 1 " .
-			"order by billing.encounter, billing.pid, billing.code_type, billing.code ASC";
-		****/
-
 		$sql = "SELECT fe.date AS enc_date, fe.pid AS enc_pid, " .
 			"fe.encounter AS enc_encounter, billing.* " .
 			"FROM form_encounter AS fe " .
@@ -100,8 +56,6 @@
 			$billstring = "billed = '1'";
 		}
 
-//	$sql = "select $cols from billing where date >= '$date' and date <= '$date2 23:59:59' and authorized like '$auth' and ($billstring) and code_type like '$code_type' and activity = 1 order by pid,date ASC";
-
 		// See above comment in getBillsBetween().
 		//
 		$sql = "select $cols " .
@@ -127,11 +81,6 @@
 		return $string;
 	}
 
-// function billCodesBetween($date, $date2, $auth="%", $code_type)
-// {
-// 	sqlStatement("update billing set billed=1 where date >= '$date' and date <= '$date2 23:59:59' and authorized like '$auth' and code_type like '$code_type'");
-// }
-
 	function billCodesList($list,$skip = "()") {
 		if ($list == "()")
 			return;
@@ -143,16 +92,5 @@
 
 		return;
 	}
-
-//	function getCodeTypes () {
-//		$res = sqlStatement("select distinct code_type from billing order by code_type");
-//
-//		for($iter=0; $row=sqlFetchArray($res); $iter++)
-//		{
-//			$all[$iter] = $row;
-//		}
-//
-//		return $all;
-//	}
 
 ?>

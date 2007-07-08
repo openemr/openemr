@@ -46,9 +46,7 @@ class ClearingHouse Extends DataObjectBase {
 															"doc"	=>	""));
 	}
 
-
 	function name($m) {
-
 		$err="";
 
 		//val zero is deprecated and is the facility identifier
@@ -59,11 +57,13 @@ class ClearingHouse Extends DataObjectBase {
 		
 		$db = $GLOBALS['adodb']['db'];
 		
-		$sql = "SELECT x.name FROM billing as b LEFT JOIN x12_partners as x on x.id = b.x12_partner_id where b.id= " .$db->qstr($key) ;
+    $sql = "SELECT x.name FROM billing AS b " .
+      "LEFT JOIN x12_partners AS x ON x.id = b.x12_partner_id " .
+      "where b.id= " .$db->qstr($key) ;
 		//echo $sql;
-		
+
 		$results = $db->Execute($sql);	
-		
+
 		$vals = array();
 		if (!$results) {
 			$err = $db->ErrorMsg();	
@@ -72,8 +72,8 @@ class ClearingHouse Extends DataObjectBase {
 			if (!$results->EOF) {
 				$retval = $results->fields['name'];
 			}
-		}		
-		
+		}
+
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
@@ -86,17 +86,16 @@ class ClearingHouse Extends DataObjectBase {
 	}
 
 	function streetaddress($m) {
-
 		$err="";
 
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM facility where billing_location = '1'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
 		$results = $db->Execute($sql);	
-		
+
 		if (!$results) {
 			$err = $db->ErrorMsg();	
 		}
@@ -116,9 +115,7 @@ class ClearingHouse Extends DataObjectBase {
 		}
 	}
 
-
 	function city($m) {
-
 		$err="";
 
 		$obj= $m->getparam(0);
@@ -148,8 +145,8 @@ class ClearingHouse Extends DataObjectBase {
 			return new xmlrpcresp(new xmlrpcval($retval));
 		}
 	}
-	function state($m) {
 
+	function state($m) {
 		$err="";
 
 		$obj= $m->getparam(0);
@@ -159,7 +156,7 @@ class ClearingHouse Extends DataObjectBase {
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
 		$results = $db->Execute($sql);	
-		
+
 		if (!$results) {
 			$err = $db->ErrorMsg();	
 		}
@@ -179,19 +176,18 @@ class ClearingHouse Extends DataObjectBase {
 			return new xmlrpcresp(new xmlrpcval($retval));
 		}
 	}
-	
-	function zipcode($m) {
 
+	function zipcode($m) {
 		$err="";
 
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM facility where billing_location = '1'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
 		$results = $db->Execute($sql);	
-		
+
 		if (!$results) {
 			$err = $db->ErrorMsg();	
 		}
@@ -211,8 +207,8 @@ class ClearingHouse Extends DataObjectBase {
 			return new xmlrpcresp(new xmlrpcval($retval));
 		}
 	}
-	function phonecountry($m) {
 
+	function phonecountry($m) {
 		$err="";
 
 		$pkey = "1";
@@ -221,7 +217,7 @@ class ClearingHouse Extends DataObjectBase {
 		if ($err) {
 			return $this->_handleError($err);
 		}
-  		else {
+    else {
 			// otherwise, we create the right response
 			// with the state name
 			return new xmlrpcresp(new xmlrpcval($pkey));
@@ -229,7 +225,6 @@ class ClearingHouse Extends DataObjectBase {
 	}
 
 	function phoneextension($m) {
-
 		$err="";
 
 		$pkey = "";
@@ -238,25 +233,24 @@ class ClearingHouse Extends DataObjectBase {
 		if ($err) {
 			return $this->_handleError($err);
 		}
-  		else {
+    else {
 			// otherwise, we create the right response
 			// with the state name
 			return new xmlrpcresp(new xmlrpcval($pkey));
 		}
 	}
-	
-	function phonearea($m) {
 
+	function phonearea($m) {
 		$err="";
-		
+
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-	
+
 		$sql = "SELECT * FROM facility where billing_location = '1'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
 		$results = $db->Execute($sql);	
-		
+
 		if (!$results) {
 			$err = $db->ErrorMsg();	
 		}
@@ -275,24 +269,24 @@ class ClearingHouse Extends DataObjectBase {
 		if ($err) {
 			return $this->_handleError($err);
 		}
-  		else {
+    else {
 			// otherwise, we create the right response
 			// with the state name
 			return new xmlrpcresp(new xmlrpcval($retval));
 		}
 	}
-	function phonenumber($m) {
 
+	function phonenumber($m) {
 		$err="";
 
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$sql = "SELECT * FROM facility where billing_location = '1'";
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
 		$results = $db->Execute($sql);	
-		
+
 		if (!$results) {
 			$err = $db->ErrorMsg();	
 		}
@@ -311,29 +305,31 @@ class ClearingHouse Extends DataObjectBase {
 		if ($err) {
 			return $this->_handleError($err);
 		}
-  		else {
+    else {
 			// otherwise, we create the right response
 			// with the state name
 			return new xmlrpcresp(new xmlrpcval($retval));
 		}
 	}
-	function etin($m) {
 
+	function etin($m) {
 		$err="";
-		
+
 		//val zero is deprecated and is the facility identifier
 		//val two should be the procedure key, or put another way an id in the billing able
 		//trim due to ugly perl string cast hack
 		$obj= $m->getparam(1);
 		$key = trim($obj->getval());
-		
+
 		$db = $GLOBALS['adodb']['db'];
-		
-		$sql = "SELECT x.id_number FROM billing as b LEFT JOIN x12_partners as x on x.id = b.x12_partner_id where b.id= " .$db->qstr($key) ;
+
+    $sql = "SELECT x.id_number FROM billing AS b " .
+      "LEFT JOIN x12_partners AS x ON x.id = b.x12_partner_id " .
+      "WHERE b.id = " . $db->qstr($key) ;
 		//echo $sql;
-		
+
 		$results = $db->Execute($sql);	
-		
+
 		$vals = array();
 		if (!$results) {
 			$err = $db->ErrorMsg();	
@@ -343,19 +339,19 @@ class ClearingHouse Extends DataObjectBase {
 				$retval = $results->fields['id_number'];
 			}
 		}		
-		
+
 		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
 		}
-  		else {
+    else {
 			// otherwise, we create the right response
 			// with the state name
 			return new xmlrpcresp(new xmlrpcval($retval));
 		}
 	}
-	function x12gsreceiverid($m) {
 
+	function x12gsreceiverid($m) {
 		$err="";
 		
 		//val zero is deprecated and is the facility identifier
@@ -363,14 +359,14 @@ class ClearingHouse Extends DataObjectBase {
 		//trim due to ugly perl string cast hack
 		$obj= $m->getparam(1);
 		$key = trim($obj->getval());
-		
+
 		$db = $GLOBALS['adodb']['db'];
-		
+
 		$sql = "SELECT x.x12_receiver_id FROM billing as b LEFT JOIN x12_partners as x on x.id = b.x12_partner_id where b.id= " .$db->qstr($key) ;
 		//echo $sql;
-		
-		$results = $db->Execute($sql);	
-		
+
+		$results = $db->Execute($sql);
+
 		$vals = array();
 		if (!$results) {
 			$err = $db->ErrorMsg();	
@@ -379,8 +375,8 @@ class ClearingHouse Extends DataObjectBase {
 			if (!$results->EOF) {
 				$retval = $results->fields['x12_receiver_id'];
 			}
-		}		
-		
+		}
+
 		while (strlen($retval) < 15) {
 			$retval .= " ";	
 		}
@@ -389,15 +385,14 @@ class ClearingHouse Extends DataObjectBase {
 		if ($err) {
 			return $this->_handleError($err);
 		}
-  		else {
+		else {
 			// otherwise, we create the right response
 			// with the state name
 			return new xmlrpcresp(new xmlrpcval($retval));
 		}
 	}
-	
-	function x12gssenderid($m) {
 
+	function x12gssenderid($m) {
 		$err="";
 
 		//val zero is deprecated and is the facility identifier
@@ -405,14 +400,14 @@ class ClearingHouse Extends DataObjectBase {
 		//trim due to ugly perl string cast hack
 		$obj= $m->getparam(1);
 		$key = trim($obj->getval());
-		
+
 		$db = $GLOBALS['adodb']['db'];
-		
+
 		$sql = "SELECT x.x12_sender_id FROM billing as b LEFT JOIN x12_partners as x on x.id = b.x12_partner_id where b.id= " .$db->qstr($key) ;
 		//echo $sql;
-		
+
 		$results = $db->Execute($sql);	
-		
+
 		$vals = array();
 		if (!$results) {
 			$err = $db->ErrorMsg();	
@@ -421,8 +416,8 @@ class ClearingHouse Extends DataObjectBase {
 			if (!$results->EOF) {
 				$retval = $results->fields['x12_sender_id'];
 			}
-		}		
-		
+		}
+
 		while (strlen($retval) < 15) {
 			$retval .= " ";	
 		}
@@ -430,29 +425,27 @@ class ClearingHouse Extends DataObjectBase {
 		if ($err) {
 			return $this->_handleError($err);
 		}
-  		else {
+		else {
 			// otherwise, we create the right response
 			// with the state name
 			return new xmlrpcresp(new xmlrpcval($retval));
 		}
 	}
 
-
 function x12gsversionstring($m) {
-
 		$err="";
 
 		//val zero is deprecated and is the facility identifier
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
-		
+
 		$db = $GLOBALS['adodb']['db'];
-		
+
 		$sql = "SELECT x.x12_version FROM billing AS b LEFT JOIN  x12_partners as x ON x.id = b.x12_partner_id WHERE b.id= ".$db->qstr($key); 
 		//echo $sql;
-	
+
 		$results = $db->Execute($sql);	
-		
+
 		$vals = array();
 		if (!$results) {
 			$err = $db->ErrorMsg();	
@@ -466,7 +459,7 @@ function x12gsversionstring($m) {
 		if ($err) {
 			return $this->_handleError($err);
 		}
-  		else {
+		else {
 			// otherwise, we create the right response
 			// with the state name
 			return new xmlrpcresp(new xmlrpcval($retval));
@@ -475,6 +468,7 @@ function x12gsversionstring($m) {
 	}
 
 }
+
 //'FreeB.FBClearingHouse.Name' 			=> \&FreeB_FBClearingHouse_Name,
 //'FreeB.FBClearingHouse.StreetAddress' 		=> \&FreeB_FBClearingHouse_StreetAddress,
 //'FreeB.FBClearingHouse.City' 			=> \&FreeB_FBClearingHouse_City,
@@ -487,8 +481,5 @@ function x12gsversionstring($m) {
 //'FreeB.FBClearingHouse.ETIN' 			=> \&FreeB_FBClearingHouse_ETIN,
 //'FreeB.FBClearingHouse.X12GSReceiverID' 	=> \&FreeB_FBClearingHouse_X12GSReceiverID,
 //'FreeB.FBClearingHouse.X12GSSenderID'	 	=> \&FreeB_FBClearingHouse_X12GSSenderID,
-
-
-
 
 ?>

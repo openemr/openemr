@@ -79,6 +79,9 @@ td { font-size:10pt; }
    row_modify("pnotes"        , "activity = 0", "pid = '$patient'");
    row_modify("prescriptions" , "active = 0"  , "patient_id = '$patient'");
 
+   row_delete("claims"         , "patient_id = '$patient'");
+   row_delete("drug_sales"     , "pid = '$patient'");
+   row_delete("payments"       , "pid = '$patient'");
    row_delete("openemr_postcalendar_events", "pc_pid = '$patient'");
    row_delete("immunizations"  , "patient_id = '$patient'");
    row_delete("issue_encounter", "pid = '$patient'");
@@ -95,9 +98,14 @@ td { font-size:10pt; }
     row_delete("form_$formdir", "id = '" . $row['form_id'] . "'");
    }
    row_delete("forms", "pid = '$patient'");
+
+   $row = sqlQuery("SELECT id FROM patient_data WHERE pid = '$patient'");
+   row_delete("integration_mapping", "local_table = 'patient_data' AND " .
+    "local_id = '" . $row['id'] . "'");
   }
   else if ($encounterid) {
    row_modify("billing", "activity = 0", "encounter = '$encounterid'");
+   row_delete("claims", "encounter_id = '$encounterid'");
    row_delete("issue_encounter", "encounter = '$encounterid'");
    $res = sqlStatement("SELECT * FROM forms WHERE encounter = '$encounterid'");
    while ($row = sqlFetchArray($res)) {

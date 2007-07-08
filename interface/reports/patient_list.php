@@ -99,6 +99,7 @@
  if ($_POST['form_refresh']) {
   $totalpts = 0;
 
+  /****
   $query = "SELECT " .
    "p.fname, p.mname, p.lname, p.street, p.city, p.state, " .
    "p.postal_code, p.phone_home, p.phone_biz, " .
@@ -119,11 +120,40 @@
    "c2.id = i2.provider " .
    "GROUP BY p.lname, p.fname, p.mname, p.pid " .
    "ORDER BY p.lname, p.fname, p.mname, p.pid";
+  $res = sqlStatement($query);
+  while ($row = sqlFetchArray($res)) {
+  ****/
 
-  // echo "<!-- $query -->\n"; // debugging
+  $query = "SELECT " .
+   "p.fname, p.mname, p.lname, p.street, p.city, p.state, " .
+   "p.postal_code, p.phone_home, p.phone_biz, " .
+   "count(e.date) AS ecount, max(e.date) AS edate, " .
+   "i1.date AS idate1, i2.date AS idate2, " .
+   "c1.name AS cname1, c2.name AS cname2 " .
+   "FROM patient_data AS p " .
+   "JOIN form_encounter AS e ON " .
+   "e.pid = p.pid AND " .
+   "e.date >= '$from_date 00:00:00' AND " .
+   "e.date <= '$to_date 23:59:59' " .
+   "LEFT OUTER JOIN insurance_data AS i1 ON " .
+   "i1.pid = p.pid AND i1.type = 'primary' " .
+   "LEFT OUTER JOIN insurance_companies AS c1 ON " .
+   "c1.id = i1.provider " .
+   "LEFT OUTER JOIN insurance_data AS i2 ON " .
+   "i2.pid = p.pid AND i2.type = 'secondary' " .
+   "LEFT OUTER JOIN insurance_companies AS c2 ON " .
+   "c2.id = i2.provider " .
+   "GROUP BY p.lname, p.fname, p.mname, p.pid, i1.date, i2.date " .
+   "ORDER BY p.lname, p.fname, p.mname, p.pid, i1.date DESC, i2.date DESC";
   $res = sqlStatement($query);
 
+  $prevpid = 0;
   while ($row = sqlFetchArray($res)) {
+   if ($row['pid'] == $prevpid) continue;
+   $prevpid = $row['pid'];
+
+  /****/
+
    $age = '';
    if ($row['DOB']) {
     $dob = $row['DOB'];

@@ -175,10 +175,14 @@ class BillingExport {
       "LEFT OUTER JOIN insurance_numbers AS n ON n.provider_id = " .
       $erow['id'] . " AND n.insurance_company_id = c.id " .
       "WHERE d.pid = '$patient_id' AND d.provider != '' " .
-      "ORDER BY d.type";
+      "ORDER BY d.type ASC, d.date DESC";
     $ires = sqlStatement($query);
 
+    $prev_type = '?';
     while ($irow = sqlFetchArray($ires)) {
+      if (strcmp($irow['type'], $prev_type) == 0) continue;
+      $prev_type = $irow['type'];
+
       fwrite($this->tmpfh, 'IN' .
         ',"' . $this->fixString($irow['subscriber_lname'])          . '"' .
         ',"' . $this->fixString($irow['subscriber_fname'])          . '"' .

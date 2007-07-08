@@ -165,17 +165,23 @@ function getHistoryData($pid, $given = "*")
 // function getInsuranceData($pid, $type = "primary", $given = "insd.*, DATE_FORMAT(subscriber_DOB,'%m/%d/%Y') as subscriber_DOB, ic.name as provider_name")
 function getInsuranceData($pid, $type = "primary", $given = "insd.*, ic.name as provider_name")
 {
-	$sql = "select $given from insurance_data as insd left join insurance_companies as ic on ic.id = insd.provider where pid='$pid' and type='$type' order by date DESC limit 0,1";
-	return sqlQuery($sql);
+  $sql = "select $given from insurance_data as insd " .
+    "left join insurance_companies as ic on ic.id = insd.provider " .
+    "where pid = '$pid' and type = '$type' order by date DESC limit 1";
+  return sqlQuery($sql);
 }
 
-function getInsuranceDataByDate( $pid, $date, $type, $given = "insd.*, DATE_FORMAT(subscriber_DOB,'%m/%d/%Y') as subscriber_DOB, ic.name as provider_name")
-{ //this must take the date in the following manner: YYYY-MM-DD
-	//this function recalls the insurance value that was most recently enterred from the
-	//given date. it will call up most recent records up to and on the date given,
-	//but not records enterred after the given date
-	$sql = "select $given from insurance_data as insd left join insurance_companies as ic on ic.id = provider where pid='$pid' and  date_format(date,'%Y-%m-%d')<='$date' and type='$type' order by date DESC limit 0,1";
-	return sqlQuery($sql);
+function getInsuranceDataByDate($pid, $date, $type,
+  $given = "insd.*, DATE_FORMAT(subscriber_DOB,'%m/%d/%Y') as subscriber_DOB, ic.name as provider_name")
+{ // this must take the date in the following manner: YYYY-MM-DD
+  // this function recalls the insurance value that was most recently enterred from the
+  // given date. it will call up most recent records up to and on the date given,
+  // but not records enterred after the given date
+  $sql = "select $given from insurance_data as insd " .
+    "left join insurance_companies as ic on ic.id = provider " .
+    "where pid = '$pid' and date_format(date,'%Y-%m-%d') <= '$date' and " .
+    "type='$type' order by date DESC limit 1";
+  return sqlQuery($sql);
 }
 
 function getEmployerData($pid, $given = "*")
@@ -451,8 +457,10 @@ function fixDate($date, $default="0000-00-00") {
         if ($dmy[0] > 99) {
             $fixed_date = sprintf("%04u-%02u-%02u", $dmy[0], $dmy[1], $dmy[2]);
         } else {
-            if ($dmy[2] < 1000) $dmy[2] += 1900;
-            if ($dmy[2] < 1910) $dmy[2] += 100;
+            if ($dmy[0] != 0 || $dmy[1] != 0 || $dmy[2] != 0) {
+              if ($dmy[2] < 1000) $dmy[2] += 1900;
+              if ($dmy[2] < 1910) $dmy[2] += 100;
+            }
             $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[0], $dmy[1]);
         }
     }
@@ -516,235 +524,165 @@ function updateEmployerData($pid,$new)
         return sqlInsert($sql);
 }
 
-function newInsuranceData(	$pid,
-				$type = "",
-				$provider = "",
-				$policy_number = "",
-				$group_number = "",
-				$plan_name = "",
-				$subscriber_lname = "",
-				$subscriber_mname = "",
-				$subscriber_fname = "",
-				$subscriber_relationship = "",
-				$subscriber_ss = "",
-				$subscriber_DOB = "",
-				$subscriber_street = "",
-				$subscriber_postal_code = "",
-				$subscriber_city = "",
-				$subscriber_state = "",
-				$subscriber_country = "",
-				$subscriber_phone = "",
-				$subscriber_employer = "",
-				$subscriber_employer_street = "",
-				$subscriber_employer_city = "",
-				$subscriber_employer_postal_code = "",
-				$subscriber_employer_state = "",
-				$subscriber_employer_country = "",
-				$copay = "",
-				$subscriber_sex = ""
-			)
+// This updates or adds the given insurance data info, while retaining any
+// previously added insurance_data rows that should be preserved.
+// This does not directly support the maintenance of non-current insurance.
+//
+function newInsuranceData(
+  $pid,
+  $type = "",
+  $provider = "",
+  $policy_number = "",
+  $group_number = "",
+  $plan_name = "",
+  $subscriber_lname = "",
+  $subscriber_mname = "",
+  $subscriber_fname = "",
+  $subscriber_relationship = "",
+  $subscriber_ss = "",
+  $subscriber_DOB = "",
+  $subscriber_street = "",
+  $subscriber_postal_code = "",
+  $subscriber_city = "",
+  $subscriber_state = "",
+  $subscriber_country = "",
+  $subscriber_phone = "",
+  $subscriber_employer = "",
+  $subscriber_employer_street = "",
+  $subscriber_employer_city = "",
+  $subscriber_employer_postal_code = "",
+  $subscriber_employer_state = "",
+  $subscriber_employer_country = "",
+  $copay = "",
+  $subscriber_sex = "",
+  $effective_date = "0000-00-00")
 {
-	if (strlen($type) > 0) {
-	$query = "select * from insurance_data where type='" . $type  . "' and pid = " . $pid .  " limit 1";
-	}
-	else {
-		return FALSE;
-	}
-	$res = sqlQuery ($query);
+  if (strlen($type) <= 0) return FALSE;
 
-	if ($res) {
-		$data['type'] = $type;
-		$data['provider'] = $provider;
-		$data['policy_number']=$policy_number;
-                $data['group_number']=$group_number;
-                $data['plan_name']=$plan_name;
-                $data['subscriber_lname']=$subscriber_lname;
-		$data['subscriber_mname']=$subscriber_mname;
-                $data['subscriber_fname']=$subscriber_fname;
-                $data['subscriber_relationship']=$subscriber_relationship;
-                $data['subscriber_ss']=$subscriber_ss;
-                $data['subscriber_DOB']=$subscriber_DOB;
-                $data['subscriber_street']=$subscriber_street;
-                $data['subscriber_postal_code']=$subscriber_postal_code;
-                $data['subscriber_city']=$subscriber_city;
-                $data['subscriber_state']=$subscriber_state;
-                $data['subscriber_country']=$subscriber_country;
-                $data['subscriber_phone']=$subscriber_phone;
-                $data['subscriber_employer']=$subscriber_employer;
-                $data['subscriber_employer_city']=$subscriber_employer_city;
-                $data['subscriber_employer_street']=$subscriber_employer_street;
-                $data['subscriber_employer_postal_code']=$subscriber_employer_postal_code;
-                $data['subscriber_employer_state']=$subscriber_employer_state;
-                $data['subscriber_employer_country']=$subscriber_employer_country;
-                $data['copay']=$copay;
-                $data['subscriber_sex']=$subscriber_sex;
-                $data['pid']=$pid;
-	        $data['date']="NOW()";
-	//	echo "updating<br><br>";
+  // If a bad date was passed, err on the side of caution.
+  $effective_date = fixDate($effective_date, date('Y-m-d'));
 
-		return updateInsuranceData($pid,$data);
-	}
-	else {
-	return sqlInsert("insert into insurance_data set
-		type='$type',
-		provider='$provider',
-		policy_number='$policy_number',
-		group_number='$group_number',
-		plan_name='$plan_name',
-		subscriber_lname='$subscriber_lname',
-		subscriber_mname='$subscriber_mname',
-		subscriber_fname='$subscriber_fname',
-		subscriber_relationship='$subscriber_relationship',
-		subscriber_ss='$subscriber_ss',
-		subscriber_DOB='$subscriber_DOB',
-		subscriber_street='$subscriber_street',
-		subscriber_postal_code='$subscriber_postal_code',
-		subscriber_city='$subscriber_city',
-		subscriber_state='$subscriber_state',
-		subscriber_country='$subscriber_country',
-		subscriber_phone='$subscriber_phone',
-		subscriber_employer = '$subscriber_employer',
-		subscriber_employer_city='$subscriber_employer_city',
-		subscriber_employer_street='$subscriber_employer_street',
-		subscriber_employer_postal_code='$subscriber_employer_postal_code',
-		subscriber_employer_state='$subscriber_employer_state',
-		subscriber_employer_country='$subscriber_employer_country',
-		copay='$copay',
-		subscriber_sex='$subscriber_sex',
-		pid='$pid',
-		date=NOW()
-		");
-	}
+  $idres = sqlStatement("SELECT * FROM insurance_data WHERE " .
+    "pid = '$pid' AND type = '$type' ORDER BY date DESC");
+  $idrow = sqlFetchArray($idres);
+
+  // Replace the most recent entry in any of the following cases:
+  // * Its effective date is >= this effective date.
+  // * It is the first entry and it has no (insurance) provider.
+  // * There is no encounter that is earlier than the new effective date but
+  //   on or after the old effective date.
+  // Otherwise insert a new entry.
+
+  $replace = false;
+  if ($idrow) {
+    if (strcmp($idrow['date'], $effective_date) > 0) {
+      $replace = true;
+    }
+    else {
+      if (!$idrow['provider'] && !sqlFetchArray($idres)) {
+        $replace = true;
+      }
+      else {
+        $ferow = sqlQuery("SELECT count(*) AS count FROM form_encounter " .
+          "WHERE pid = '$pid' AND date < '$effective_date 00:00:00' AND " .
+          "date >= '" . $idrow['date'] . " 00:00:00'");
+        if ($ferow['count'] == 0) $replace = true;
+      }
+    }
+  }
+
+  if ($replace) {
+
+    // TBD: This is a bit dangerous in that a typo in entering the effective
+    // date can wipe out previous insurance history.  So we want some data
+    // entry validation somewhere.
+    sqlStatement("DELETE FROM insurance_data WHERE " .
+      "pid = '$pid' AND type = '$type' AND date >= '$effective_date' AND " .
+      "id != " . $idrow['id']);
+
+    $data = array();
+    $data['type'] = $type;
+    $data['provider'] = $provider;
+    $data['policy_number'] = $policy_number;
+    $data['group_number'] = $group_number;
+    $data['plan_name'] = $plan_name;
+    $data['subscriber_lname'] = $subscriber_lname;
+    $data['subscriber_mname'] = $subscriber_mname;
+    $data['subscriber_fname'] = $subscriber_fname;
+    $data['subscriber_relationship'] = $subscriber_relationship;
+    $data['subscriber_ss'] = $subscriber_ss;
+    $data['subscriber_DOB'] = $subscriber_DOB;
+    $data['subscriber_street'] = $subscriber_street;
+    $data['subscriber_postal_code'] = $subscriber_postal_code;
+    $data['subscriber_city'] = $subscriber_city;
+    $data['subscriber_state'] = $subscriber_state;
+    $data['subscriber_country'] = $subscriber_country;
+    $data['subscriber_phone'] = $subscriber_phone;
+    $data['subscriber_employer'] = $subscriber_employer;
+    $data['subscriber_employer_city'] = $subscriber_employer_city;
+    $data['subscriber_employer_street'] = $subscriber_employer_street;
+    $data['subscriber_employer_postal_code'] = $subscriber_employer_postal_code;
+    $data['subscriber_employer_state'] = $subscriber_employer_state;
+    $data['subscriber_employer_country'] = $subscriber_employer_country;
+    $data['copay'] = $copay;
+    $data['subscriber_sex'] = $subscriber_sex;
+    $data['pid'] = $pid;
+    $data['date'] = $effective_date;
+    updateInsuranceData($idrow['id'], $data);
+    return $idrow['id'];
+  }
+  else {
+    return sqlInsert("INSERT INTO insurance_data SET
+      type = '$type',
+      provider = '$provider',
+      policy_number = '$policy_number',
+      group_number = '$group_number',
+      plan_name = '$plan_name',
+      subscriber_lname = '$subscriber_lname',
+      subscriber_mname = '$subscriber_mname',
+      subscriber_fname = '$subscriber_fname',
+      subscriber_relationship = '$subscriber_relationship',
+      subscriber_ss = '$subscriber_ss',
+      subscriber_DOB = '$subscriber_DOB',
+      subscriber_street = '$subscriber_street',
+      subscriber_postal_code = '$subscriber_postal_code',
+      subscriber_city = '$subscriber_city',
+      subscriber_state = '$subscriber_state',
+      subscriber_country = '$subscriber_country',
+      subscriber_phone = '$subscriber_phone',
+      subscriber_employer = '$subscriber_employer',
+      subscriber_employer_city = '$subscriber_employer_city',
+      subscriber_employer_street = '$subscriber_employer_street',
+      subscriber_employer_postal_code = '$subscriber_employer_postal_code',
+      subscriber_employer_state = '$subscriber_employer_state',
+      subscriber_employer_country = '$subscriber_employer_country',
+      copay = '$copay',
+      subscriber_sex = '$subscriber_sex',
+      pid = '$pid',
+      date = '$effective_date'
+    ");
+  }
 }
 
-function updateInsuranceData($pid,$new)
+// This is used internally only.
+function updateInsuranceData($id, $new)
 {
-		$fields = sqlListFields("insurance_data");
+  $fields = sqlListFields("insurance_data");
+  $use = array();
 
-        $real = getInsuranceData($pid);
-        $use = array();
-        while(list($key, $value) = each ($new)) {
-        		if (in_array($key,$fields)){
-                	$use[$key] = $value;
-        		}
-		}
-        $real['date'] = "'+NOW()+'";
-        $real['id'] = "";
+  while(list($key, $value) = each ($new)) {
+    if (in_array($key, $fields)) {
+      $use[$key] = $value;
+    }
+  }
 
-        $sql = "replace into insurance_data set ";
-        while(list($key, $value) = each($use))
-                $sql .= $key." = '$value', ";
+  $sql = "UPDATE insurance_data SET ";
+  while(list($key, $value) = each($use))
+    $sql .= $key . " = '$value', ";
+  $sql = substr($sql, 0, -2) . " WHERE id = '$id'";
 
-
-        $sql = substr($sql, 0, -2);
-
-	//echo $sql;
-	//exit;
-        return sqlInsert($sql);
+  sqlStatement($sql);
 }
-
-/****
-function newHistoryData(	$pid,
-				$coffee = "",
-				$tobacco = "",
-				$alcohol = "",
-				$sleep_patterns = "",
-				$exercise_patterns = "",
-				$seatbelt_use = "",
-				$counseling = "",
-				$hazardous_activities = "",
-				$last_breast_exam = "",
-				$last_mammogram = "",
-				$last_gynocological_exam = "",
-				$last_rectal_exam = "",
-				$last_prostate_exam = "",
-				$last_physical_exam = "",
-				$last_sigmoidoscopy_colonoscopy = "",
-				$history_mother = "",
-				$history_father = "",
-				$history_siblings = "",
-				$history_offspring = "",
-				$history_spouse = "",
-				$relatives_cancer = "",
-				$relatives_tuberculosis = "",
-				$relatives_diabetes = "",
-				$relatives_high_blood_pressure = "",
-				$relatives_heart_problems = "",
-				$relatives_stroke = "",
-				$relatives_epilepsy = "",
-				$relatives_mental_illness = "",
-				$relatives_suicide = "",
-				$cataract_surgery = "",
-				$tonsillectomy = "",
-				$appendectomy = "",
-				$cholecystestomy = "",
-				$heart_surgery = "",
-				$hysterectomy = "",
-				$hernia_repair = "",
-				$hip_replacement = "",
-				$knee_replacement = "",
-				$name_1 = "",
-				$value_1 = "",
-				$name_2 = "",
-				$value_2 = "",
-				$additional_history = "",
-				$last_ecg = "",
-				$last_cardiac_echo = "",
-				$last_exam_results = ""
-				)
-{
-	return sqlInsert("insert into history_data set
-		coffee='$coffee',
-		tobacco='$tobacco',
-		alcohol='$alcohol',
-		sleep_patterns='$sleep_patterns',
-		exercise_patterns='$exercise_patterns',
-		seatbelt_use='$seatbelt_use',
-		counseling='$counseling',
-		hazardous_activities='$hazardous_activities',
-		last_breast_exam='$last_breast_exam',
-		last_mammogram='$last_mammogram',
-		last_gynocological_exam='$last_gynocological_exam',
-		last_rectal_exam='$last_rectal_exam',
-		last_prostate_exam='$last_prostate_exam',
-		last_physical_exam='$last_physical_exam',
-		last_sigmoidoscopy_colonoscopy='$last_sigmoidoscopy_colonoscopy',
-		last_ecg='$last_ecg',
-		last_cardiac_echo='$last_cardiac_echo',
-		last_exam_results='$last_exam_results',
-		history_mother='$history_mother',
-		history_father='$history_father',
-		history_siblings='$history_siblings',
-		history_offspring='$history_offspring',
-		history_spouse='$history_spouse',
-		relatives_cancer='$relatives_cancer',
-		relatives_tuberculosis ='$relatives_tuberculosis',
-		relatives_diabetes='$relatives_diabetes',
-		relatives_high_blood_pressure='$relatives_high_blood_pressure',
-		relatives_heart_problems='$relatives_heart_problems',
-		relatives_stroke='$relatives_stroke',
-		relatives_epilepsy='$relatives_epilepsy',
-		relatives_mental_illness='$relatives_mental_illness',
-		relatives_suicide='$relatives_suicide',
-		cataract_surgery='$cataract_surgery',
-		tonsillectomy='$tonsillectomy',
-		appendectomy='$appendectomy',
-		cholecystestomy='$cholecystestomy',
-		heart_surgery='$heart_surgery',
-		hysterectomy='$hysterectomy',
-		hernia_repair='$hernia_repair',
-		hip_replacement='$hip_replacement',
-		knee_replacement='$knee_replacement',
-		name_1 = '$name_1',
-		value_1 = '$value_1',
-		name_2 = '$name_2',
-		value_2 = '$value_2',
-		additional_history = '$additional_history',
-		date=NOW(),
-		pid='$pid'
-		");
-}
-****/
 
 function newHistoryData($pid, $new=false) {
   $sql = "insert into history_data set pid = '$pid', date = NOW()";

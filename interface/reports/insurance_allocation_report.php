@@ -82,25 +82,31 @@
   $from_date = fixDate($_POST['form_from_date']);
   $to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 
-  $query = "SELECT DISTINCT billing.pid, insurance_companies.name " .
-   "FROM  billing " .
-   "LEFT OUTER JOIN insurance_data ON " .
-   "insurance_data.pid = billing.pid AND " .
-   "insurance_data.type = 'primary' " .
-   "LEFT OUTER JOIN insurance_companies ON " .
-   "insurance_companies.id = insurance_data.provider " .
+  $query = "SELECT DISTINCT c.name, b.pid, i.date " .
+   "FROM  billing AS b " .
+   "LEFT OUTER JOIN insurance_data AS i ON " .
+   "i.pid = b.pid AND " .
+   "i.type = 'primary' AND " .
+   "i.date <= b.date " .
+   "LEFT OUTER JOIN insurance_companies AS c ON " .
+   "c.id = i.provider " .
    "WHERE " .
-   "billing.date >= '$from_date' AND " .
-   "billing.date <= '$to_date' " .
-   "ORDER BY insurance_companies.name, billing.pid";
+   "b.date >= '$from_date' AND " .
+   "b.date <= '$to_date' " .
+   "ORDER BY c.name ASC, b.pid ASC, i.date DESC";
 
   // echo "<!-- $query -->\n"; // debugging
   $res = sqlStatement($query);
   $insarr = array();
 
+  $prevplan = '';
+  $prevpid = 0;
   while ($row = sqlFetchArray($res)) {
    // echo "<!-- " . $row['name'] . " / " . $row['pid'] . " -->\n"; // debugging
    $plan = $row['name'] ? $row['name'] : '-- No Insurance --';
+   if (strcmp($plan, $prevplan) == 0 && $row['pid'] == $prevpid) continue;
+   $prevplan = $plan;
+   $prevpid = $row['pid'];
    $insarr[$plan] += 1;
    $inscount += 1;
   }

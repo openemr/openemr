@@ -26889,12 +26889,11 @@ CREATE TABLE `insurance_data` (
   `subscriber_employer_country` varchar(255) default NULL,
   `subscriber_employer_city` varchar(255) default NULL,
   `copay` varchar(255) default NULL,
-  `date` datetime default NULL,
+  `date` date NOT NULL default '0000-00-00',
   `pid` bigint(20) NOT NULL default '0',
   `subscriber_sex` varchar(25) default NULL,
   PRIMARY KEY  (`id`),
-  UNIQUE KEY `pid_type` (`type`,`pid`),
-  KEY `pid` (`pid`)
+  UNIQUE KEY `pid_type_date` (`pid`, `type`, `date`)
 ) ;
 
 --
@@ -31016,4 +31015,20 @@ CREATE TABLE drug_sales (
   quantity        int(11)      NOT NULL DEFAULT 0,
   fee             decimal(7,2) NOT NULL DEFAULT 0.00,
   PRIMARY KEY (sale_id)
+) TYPE=MyISAM;
+
+CREATE TABLE claims (
+  patient_id        int(11)      NOT NULL,
+  encounter_id      int(11)      NOT NULL,
+  version           int unsigned NOT NULL AUTO_INCREMENT,
+  payer_id          int(11)      NOT NULL DEFAULT 0,
+  status            tinyint(2)   NOT NULL DEFAULT 0,
+  payer_type        tinyint(4)   NOT NULL DEFAULT 0,
+  bill_process      tinyint(2)   NOT NULL DEFAULT 0,
+  bill_time         datetime     DEFAULT NULL,
+  process_time      datetime     DEFAULT NULL,
+  process_file      varchar(255) NOT NULL DEFAULT '',
+  target            varchar(30)  NOT NULL DEFAULT '',
+  x12_partner_id    int(11)      NOT NULL DEFAULT 0,
+  PRIMARY KEY (patient_id, encounter_id, version)
 ) TYPE=MyISAM;

@@ -36,6 +36,7 @@ class Claim {
 
   function loadPayerInfo(&$billrow) {
     global $sl_err;
+    $encounter_date = substr($this->encounter['date'], 0, 10);
 
     // Create the $payers array.  This contains data for all insurances
     // with the current one always at index 0, and the others in payment
@@ -43,10 +44,16 @@ class Claim {
     //
     $this->payers = array();
     $this->payers[0] = array();
-    $dres = sqlStatement("SELECT * FROM insurance_data WHERE " .
-      "pid = '{$this->pid}' AND provider != '' " .
-      "ORDER BY type");
+    $query = "SELECT * FROM insurance_data WHERE " .
+      "pid = '{$this->pid}' AND provider != '' AND " .
+      "date <= '$encounter_date' " .
+      "ORDER BY type ASC, date DESC";
+    // echo "<br>$query<br>"; // debugging
+    $dres = sqlStatement($query);
+    $prevtype = '';
     while ($drow = sqlFetchArray($dres)) {
+      if (strcmp($prevtype, $drow['type']) == 0) continue;
+      $prevtype = $drow['type'];
       $ins = ($drow['provider'] == $billrow['payer_id']) ?
         0 : count($this->payers);
       $crow = sqlQuery("SELECT * FROM insurance_companies WHERE " .
@@ -89,6 +96,12 @@ class Claim {
     $this->encounter_id = $encounter_id;
     $this->procs = array();
 
+    // We need the encounter date before we can identify the payers.
+    $sql = "SELECT * FROM form_encounter WHERE " .
+      "pid = '{$this->pid}' AND " .
+      "encounter = '{$this->encounter_id}'";
+    $this->encounter = sqlQuery($sql);
+
     // Sort by procedure timestamp in order to get some consistency.  In particular
     // we determine the provider from the first procedure in this array.
     $sql = "SELECT * FROM billing WHERE " .
@@ -118,11 +131,6 @@ class Claim {
     $sql = "SELECT * FROM x12_partners WHERE " .
       "id = '" . $this->procs[0]['x12_partner_id'] . "'";
     $this->x12_partner = sqlQuery($sql);
-
-    $sql = "SELECT * FROM form_encounter WHERE " .
-      "pid = '{$this->pid}' AND " .
-      "encounter = '{$this->encounter_id}'";
-    $this->encounter = sqlQuery($sql);
 
     $sql = "SELECT * FROM facility WHERE " .
       "name = '" . addslashes($this->encounter['facility']) . "' " .

@@ -95,6 +95,7 @@ newEmployerData(
 );
 
 $i1dob = fixDate($_POST["i1subscriber_DOB"]);
+$i1date = fixDate($_POST["i1effective_date"], date('Y-m-d'));
 
 newInsuranceData(
   $pid,
@@ -122,10 +123,12 @@ newInsuranceData(
   $_POST["i1subscriber_employer_state"],
   $_POST["i1subscriber_employer_country"],
   $_POST['i1copay'],
-  $_POST['i1subscriber_sex']
+  $_POST['i1subscriber_sex'],
+  $i1date
 );
 
 $i2dob = fixDate($_POST["i2subscriber_DOB"]);
+$i2date = fixDate($_POST["i2effective_date"], date('Y-m-d'));
 
 newInsuranceData(
   $pid,
@@ -153,10 +156,12 @@ newInsuranceData(
   $_POST["i2subscriber_employer_state"],
   $_POST["i2subscriber_employer_country"],
   $_POST['i2copay'],
-  $_POST['i2subscriber_sex']
+  $_POST['i2subscriber_sex'],
+  $i2date
 );
 
-$i3dob = fixDate($_POST["i3subscriber_DOB"]);
+$i3dob  = fixDate($_POST["i3subscriber_DOB"]);
+$i3date = fixDate($_POST["i3effective_date"], date('Y-m-d'));
 
 newInsuranceData(
   $pid,
@@ -184,7 +189,8 @@ newInsuranceData(
   $_POST["i3subscriber_employer_state"],
   $_POST["i3subscriber_employer_country"],
   $_POST['i3copay'],
-  $_POST['i3subscriber_sex']
+  $_POST['i3subscriber_sex'],
+  $i3date
 );
 
 if ($GLOBALS['concurrent_layout']) {

@@ -61,3 +61,42 @@ ALTER TABLE openemr_postcalendar_events
 
 ALTER TABLE billing
   ADD `ndc_info` varchar(255) NOT NULL DEFAULT '';
+
+ALTER TABLE openemr_postcalendar_events
+  ADD `pc_multiple` int(10) unsigned NOT NULL;
+
+CREATE TABLE claims (
+  patient_id        int(11)      NOT NULL,
+  encounter_id      int(11)      NOT NULL,
+  version           int unsigned NOT NULL AUTO_INCREMENT,
+  payer_id          int(11)      NOT NULL DEFAULT 0,
+  status            tinyint(2)   NOT NULL DEFAULT 0,
+  payer_type        tinyint(4)   NOT NULL DEFAULT 0,
+  bill_process      tinyint(2)   NOT NULL DEFAULT 0,
+  bill_time         datetime     DEFAULT NULL,
+  process_time      datetime     DEFAULT NULL,
+  process_file      varchar(255) NOT NULL DEFAULT '',
+  target            varchar(30)  NOT NULL DEFAULT '',
+  x12_partner_id    int(11)      NOT NULL DEFAULT 0,
+  PRIMARY KEY (patient_id, encounter_id, version)
+) TYPE=MyISAM;
+
+INSERT IGNORE INTO claims (
+  patient_id, encounter_id, bill_time, payer_id,
+  status, payer_type,
+  bill_process, process_time, process_file, target,
+  x12_partner_id )
+  SELECT DISTINCT
+  b.pid, b.encounter, b.bill_date, b.payer_id,
+  b.billed * 2 + 1, FIND_IN_SET(i.type, 'primary,secondary,tertiary'),
+  b.bill_process, b.process_date, b.process_file, b.target,
+  b.x12_partner_id
+  FROM billing AS b
+  LEFT OUTER JOIN insurance_data AS i ON i.pid = b.pid AND i.provider = b.payer_id
+  WHERE b.activity > 0 AND b.encounter > 0 AND b.code_type != 'ICD9' AND b.payer_id > 0;
+
+ALTER TABLE insurance_data
+  MODIFY `date` date NOT NULL DEFAULT '0000-00-00',
+  DROP KEY pid_type,
+  DROP KEY pid,
+  ADD UNIQUE KEY pid_type_date (pid, type, date);

@@ -43,6 +43,17 @@ class WSClaim extends WSWrapper{
 			return false;
 		$invoice_info = array();
 
+    // Get encounter date and patient name.
+    $sql = "SELECT e.date AS dosdate, " .
+      "CONCAT(pd.fname,' ',pd.mname,' ',pd.lname) as patient_name " .
+      "FROM form_encounter AS e, patient_data AS pd " .
+      "WHERE " .
+      "e.encounter = '" . $this->encounter . "' AND " .
+      "e.pid = '" . $this->patient_id . "' AND " .
+      "pd.pid = e.pid";
+    $eres = $this->_db->Execute($sql);
+    $dosdate = substr($eres->fields['dosdate'], 0, 10);
+
 		// Create invoice notes for the new invoice that list the patient's
 		// insurance plans.  This is so that when payments are posted, the user
 		// can easily see if a secondary claim needs to be submitted.
@@ -51,12 +62,13 @@ class WSClaim extends WSWrapper{
 		$insno = 0;
 		foreach (array("primary", "secondary", "tertiary") as $instype) {
 			++$insno;
-			$sql = "SELECT insurance_companies.name " .
-				"FROM insurance_data, insurance_companies WHERE " .
-				"insurance_data.pid = " . $this->patient_id . " AND " .
-				"insurance_data.type = '$instype' AND " .
-				"insurance_companies.id = insurance_data.provider " .
-				"LIMIT 1";
+      $sql = "SELECT ic.name " .
+        "FROM insurance_data AS id, insurance_companies AS ic WHERE " .
+        "id.pid = " . $this->patient_id . " AND " .
+        "id.type = '$instype' AND " .
+        "id.date <= '$dosdate' AND " .
+        "ic.id = id.provider " .
+        "ORDER BY id.date DESC LIMIT 1";
 			$result = $this->_db->Execute($sql);
 			if ($result && !$result->EOF && $result->fields['name']) {
 				if ($insnotes) $insnotes .= "\n";
@@ -65,28 +77,15 @@ class WSClaim extends WSWrapper{
 		}
 		$invoice_info['notes'] = $insnotes;
 
-    /****
-		$sql = "SELECT b.*, CONCAT(pd.fname,' ',pd.mname,' ',pd.lname) as patient_name " .
-			"FROM billing as b LEFT JOIN patient_data as pd on b.pid=pd.pid where " .
-			"b.encounter = '" . $this->encounter ."' AND b.pid = '" . $this->patient_id .
-			"' AND b.billed = 1 AND b.activity != '0' AND authorized = '1'";
-    ****/
-
-    $sql = "SELECT b.*, e.date AS dosdate, " .
-      "CONCAT(pd.fname,' ',pd.mname,' ',pd.lname) as patient_name " .
-      "FROM billing AS b " .
-      "LEFT JOIN form_encounter AS e ON e.encounter = b.encounter AND e.pid = b.pid " .
-      "LEFT JOIN patient_data AS pd ON b.pid = pd.pid " .
-      "WHERE " .
-      "b.encounter = '" . $this->encounter . "' AND b.pid = '" . $this->patient_id .
-      "' AND b.billed = 1 AND b.activity != '0' AND authorized = '1'";
+    $sql = "SELECT * FROM billing WHERE " .
+      "encounter = '" . $this->encounter . "' AND pid = '" . $this->patient_id .
+      "' AND billed = 1 AND activity != 0 AND authorized = 1";
 
 		$result = $this->_db->Execute($sql);
 
 		$invoice_info['salesman'] = $this->foreign_provider_id;
 		$invoice_info['customerid'] = $this->foreign_patient_id;
 		$invoice_info['payer_id'] = $this->foreign_payer_id;
-//	$invoice_info['invoicenumber'] = $this->patient_id . "000" . $this->encounter;
 		$invoice_info['invoicenumber'] = $this->patient_id . "." . $this->encounter;
 
 		$counter = 0;
@@ -96,12 +95,6 @@ class WSClaim extends WSWrapper{
 
 		while ($result && !$result->EOF) {
 
-//		if ($result->fields['process_date'] == null) {
-//			//don't sync a claim that has not been processed, they may just want to mark this as billed
-//				return false;
-//		}
-
-      // The above is silly.  If we don't want to sync, why are we here?
       // All bills should be in the accounting system, and mark-as-cleared
       // is the only reasonable way to process cash-only patients.
       //
@@ -112,12 +105,11 @@ class WSClaim extends WSWrapper{
 			if ($counter == 0) {
 				//unused but supported by ezybiz, helpful in debugging
 				// actualy the dosdate can be used if you want that as the invoice date
-				$invoice_info['customer'] = $result->fields['patient_name'];
+				$invoice_info['customer'] = $eres->fields['patient_name'];
 				$invoice_info['invoicedate'] = $process_date;
 				$invoice_info['duedate'] = $process_date;
 				$invoice_info['items'] = array();
-//			$invoice_info['dosdate'] = date("m-d-Y",strtotime($result->fields['date']));
-        $invoice_info['dosdate'] = date("m-d-Y",strtotime($result->fields['dosdate']));
+        $invoice_info['dosdate'] = date("m-d-Y",strtotime($eres->fields['dosdate']));
 			}
 
 			$tii = array();

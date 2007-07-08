@@ -101,6 +101,11 @@
 
  // This mess gets all the info for the patient.
  //
+ $insrow = array();
+ foreach (array('primary','secondary','tertiary') as $value) {
+   $insrow[] = sqlQuery("SELECT id FROM insurance_data WHERE " .
+     "pid = '$pid' AND type = '$value' ORDER BY date DESC LIMIT 1");
+ }
  $query = "SELECT " .
   "p.pubpid, p.fname, p.mname, p.lname, p.DOB, p.providerID, " .
   "p.ss, p.street, p.city, p.state, p.postal_code, p.phone_home, p.sex, " .
@@ -147,9 +152,13 @@
   "a3.line1 AS street13, a3.line2 AS street23, a3.city AS city3, a3.state AS state3, " .
   "a3.zip AS zip3, a3.plus_four AS zip43, a3.country AS country3 " .
   "FROM patient_data AS p " .
-  "LEFT OUTER JOIN insurance_data AS i1 ON i1.pid = p.pid AND i1.type = 'primary' " .
-  "LEFT OUTER JOIN insurance_data AS i2 ON i2.pid = p.pid AND i2.type = 'secondary' " .
-  "LEFT OUTER JOIN insurance_data AS i3 ON i3.pid = p.pid AND i3.type = 'tertiary' " .
+  // "LEFT OUTER JOIN insurance_data AS i1 ON i1.pid = p.pid AND i1.type = 'primary'   " .
+  // "LEFT OUTER JOIN insurance_data AS i2 ON i2.pid = p.pid AND i2.type = 'secondary' " .
+  // "LEFT OUTER JOIN insurance_data AS i3 ON i3.pid = p.pid AND i3.type = 'tertiary'  " .
+  "LEFT OUTER JOIN insurance_data AS i1 ON i1.id = '" . $insrow[0]['id'] . "' " .
+  "LEFT OUTER JOIN insurance_data AS i2 ON i2.id = '" . $insrow[1]['id'] . "' " .
+  "LEFT OUTER JOIN insurance_data AS i3 ON i3.id = '" . $insrow[2]['id'] . "' " .
+  //
   "LEFT OUTER JOIN insurance_companies AS c1 ON c1.id = i1.provider " .
   "LEFT OUTER JOIN insurance_companies AS c2 ON c2.id = i2.provider " .
   "LEFT OUTER JOIN insurance_companies AS c3 ON c3.id = i3.provider " .

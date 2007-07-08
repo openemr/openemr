@@ -113,22 +113,33 @@ class Prescription extends ORDataObject {
 	 * Constructor sets all Prescription attributes to their default value
 	 */
 
-	function Prescription($id= "", $_prefix = "")	{
-		// set the translations for route_array
-//                 $this->route_array = array(" ", xl("per oris"), xl("per rectum"), xl("apply to skin"), xl("apply to affected area"), xl("sublingual"), xl("OS"), xl("OD"), xl("OU"), xl("SQ"), xl("IM"), xl("IV"), xl("per nostril"),xl("both ears"), xl("left ear"), xl("right ear"));
+	function Prescription($id= "", $_prefix = "") {
 
-                $this->form_array = array(" ", FORM_TABLET => xl("tablet"), FORM_CAPSULE => xl("capsule"), FORM_TSP => xl("tsp"), FORM_ML => xl("ml"), FORM_UNITS => xl("units"), FORM_INHILATIONS => xl("inhilations"), FORM_GTTS_DROPS => xl("gtts(drops)"), FORM_CR => xl("cream"), FORM_OINT => xl("ointment"));
+    $this->route_array = array(" ", xl("per oris"), xl("per rectum"),
+      xl("apply to skin"), xl("apply to affected area"), xl("sublingual"),
+      xl("OS"), xl("OD"), xl("OU"), xl("SQ"), xl("IM"), xl("IV"),
+      xl("per nostril"),xl("both ears"), xl("left ear"), xl("right ear"));
 
-                $this->interval_array = array(" ", xl("b.i.d."), xl("t.i.d."), xl("q.i.d."), xl("q.3h"), xl("q.4h"), xl("q.5h"), xl("q.6h"), xl("q.8h"), xl("q.d."));
+    $this->form_array = array(" ", FORM_TABLET => xl("tablet"),
+      FORM_CAPSULE => xl("capsule"), FORM_TSP => xl("tsp"),
+      FORM_ML => xl("ml"), FORM_UNITS => xl("units"),
+      FORM_INHILATIONS => xl("inhilations"),
+      FORM_GTTS_DROPS => xl("gtts(drops)"), FORM_CR => xl("cream"),
+      FORM_OINT => xl("ointment"));
 
-	       $this->substitute_array = array("",xl("substitution allowed"), xl ("substitution not allowed"));
+    $this->interval_array = array(" ", xl("b.i.d."), xl("t.i.d."),
+      xl("q.i.d."), xl("q.3h"), xl("q.4h"), xl("q.5h"), xl("q.6h"),
+      xl("q.8h"), xl("q.d."));
 
-	       $this->medication_array = array(0 => xl('No'), 1 => xl('Yes'));
+    $this->substitute_array = array("",xl("substitution allowed"),
+      xl ("substitution not allowed"));
 
-              $this->unit_array = array(" ",xl("mg"), xl("mg/1cc"), "", "", "", xl("mg/5cc"), xl ("mcg"));
+    $this->medication_array = array(0 => xl('No'), 1 => xl('Yes'));
 
+    $this->unit_array = array(" ",xl("mg"), xl("mg/1cc"), "", "", "",
+      xl("mg/5cc"), xl ("mcg"));
 
-                if (is_numeric($id)) {
+    if (is_numeric($id)) {
 			$this->id = $id;
 		}
 		else {

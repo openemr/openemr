@@ -201,82 +201,97 @@ function topatient(pid) {
  var mypcc = '1';
 </script>
 
-<input type=hidden name=mode value="change">
-<table width=100% border="1" cellspacing="0" cellpadding="0">
+<input type='hidden' name='mode' value='change'>
+<table width='100%' border="1" cellspacing="0" cellpadding="0">
+ <tr>
 
-	<tr>
-          
-           <td nowrap>
-             &nbsp;<span class=text><?php xl('From: ','e') ?></span>
-             <input type='text' size='10' name='from_date' id='from_date'
-              value='<?php echo $from_date; ?>'
-              onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-              title='yyyy-mm-dd last date of this event' />
-             <img src='../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-              id='img_fromdate' border='0' alt='[?]' style='cursor:pointer'
-              title='Click here to choose a date'>
-             <script>
-             Calendar.setup({inputField:"from_date", ifFormat:"%Y-%m-%d", button:"img_fromdate"});
-             </script>
-            </td>
+  <td nowrap>
+   &nbsp;<span class='text'><?php xl('From: ','e') ?></span>
+   <input type='text' size='10' name='from_date' id='from_date'
+    value='<?php echo $from_date; ?>'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+    title='yyyy-mm-dd last date of this event' />
+   <img src='../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_fromdate' border='0' alt='[?]' style='cursor:pointer'
+    title='Click here to choose a date'>
+   <script>
+    Calendar.setup({inputField:"from_date", ifFormat:"%Y-%m-%d", button:"img_fromdate"});
+   </script>
+  </td>
 
-           <td nowrap>
-             &nbsp;<span class=text><?php xl('To: ','e') ?></span>
-             <input type='text' size='10' name='to_date' id='to_date'
-              value='<?php echo $to_date; ?>'
-              onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-              title='yyyy-mm-dd last date of this event' />
-             <img src='../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-              id='img_todate' border='0' alt='[?]' style='cursor:pointer'
-              title='Click here to choose a date'>
-             <script>
-             Calendar.setup({inputField:"to_date", ifFormat:"%Y-%m-%d", button:"img_todate"});
-             </script>
-            </td>
+  <td nowrap>
+   &nbsp;<span class='text'><?php xl('To: ','e') ?></span>
+   <input type='text' size='10' name='to_date' id='to_date'
+    value='<?php echo $to_date; ?>'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+    title='yyyy-mm-dd last date of this event' />
+   <img src='../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_todate' border='0' alt='[?]' style='cursor:pointer'
+    title='Click here to choose a date' />
+   <script>
+    Calendar.setup({inputField:"to_date", ifFormat:"%Y-%m-%d", button:"img_todate"});
+   </script>
+   <input type="hidden" name="code_type" value="%" />
+  </td>
 
-			<input type="hidden" name="code_type" value="%"></td>
-		<td nowrap><input type=checkbox name=unbilled <?php if ($unbilled == "on") {echo "checked";}; ?>><span class=text><?php xl('Show Unbilled Only','e') ?></span></td>
-		<td nowrap><input type=checkbox name=authorized <?php if ($my_authorized == "on") {echo "checked";}; ?>><span class=text><?php xl('Show Authorized Only','e') ?></span></td>
-		<td align='right' width='10%' nowrap>
-			&nbsp;<span class=text><a href="javascript:document.the_form.mode.value='change';document.the_form.submit()" class=link_submit><?php xl('[Change View]','e') ?></a>
-			or
-			<a href="javascript:document.the_form.mode.value='export';document.the_form.submit()" class=link_submit><?php xl('[Export OFX]','e') ?></a></span>&nbsp;
-		</td>
-	</tr>
-	<tr>
-		<td nowrap>&nbsp;<a href="print_billing_report.php?<?php print "from_date=".urlencode($ofrom_date)."&to_date=".urlencode($oto_date)."&code_type=".urlencode($ocode_type)."&unbilled=".urlencode($ounbilled)."&authorized=".urlencode($oauthorized); ?>" class=link_submit target=new><?php xl('[View Printable Report]','e') ?></a></td>
-		<td nowrap>
+  <td nowrap>
+   <input type='checkbox' name='unbilled' <?php if ($unbilled == "on") {echo "checked";}; ?> />
+   <span class='text'><?php xl('Show Unbilled Only','e') ?></span>
+  </td>
+
+  <td nowrap>
+   <input type='checkbox' name='authorized' <?php if ($my_authorized == "on") {echo "checked";}; ?> />
+   <span class='text'><?php xl('Show Authorized Only','e') ?></span>
+  </td>
+
+  <td align='right' width='10%' nowrap>
+   &nbsp;<span class='text'><a href="javascript:document.the_form.mode.value='change';document.the_form.submit()" class=link_submit><?php xl('[Change View]','e') ?></a>
+   or
+   <a href="javascript:document.the_form.mode.value='export';document.the_form.submit()" class='link_submit'><?php xl('[Export OFX]','e') ?></a></span>&nbsp;
+  </td>
+ </tr>
+
+ <tr>
+  <td nowrap>
+   &nbsp;<a href="print_billing_report.php?<?php print "from_date=".urlencode($ofrom_date)."&to_date=".urlencode($oto_date)."&code_type=".urlencode($ocode_type)."&unbilled=".urlencode($ounbilled)."&authorized=".urlencode($oauthorized); ?>"
+    class='link_submit' target='new'><?php xl('[View Printable Report]','e') ?></a>
+  </td>
+
+  <td nowrap>
 <?php
-	print '&nbsp;';
-	$acct_config = $GLOBALS['oer_config']['ws_accounting'];
-	if($acct_config['enabled'] == true) {
-		print '<span class=text><a href="javascript:void window.open(\'' . $acct_config['url_path'] . '\')">' . xl("[SQL-Ledger]") . '</a></span>';
-		if (acl_check('acct', 'rep')) {
-			print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_receipts_report.php\')">' . xl('[Reports]') . '</a></span>';
-		}
-		if (acl_check('acct', 'eob')) {
-			print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_eob_search.php\')">' . xl('[EOBs]') . '</a></span>';
-		}
-	}
+  print '&nbsp;';
+  $acct_config = $GLOBALS['oer_config']['ws_accounting'];
+  if($acct_config['enabled'] == true) {
+    print '<span class=text><a href="javascript:void window.open(\'' . $acct_config['url_path'] . '\')">' . xl("[SQL-Ledger]") . '</a></span>';
+    if (acl_check('acct', 'rep')) {
+      print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_receipts_report.php\')">' . xl('[Reports]') . '</a></span>';
+    }
+    if (acl_check('acct', 'eob')) {
+      print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_eob_search.php\')">' . xl('[EOBs]') . '</a></span>';
+    }
+  }
 ?>
-		</td>
-		<td colspan='2' nowrap>
-			&nbsp;
+  </td>
+
+  <td colspan='2' nowrap>
+   &nbsp;
 <?php if (! file_exists($EXPORT_INC)) { ?>
-			<a href="javascript:document.the_form.mode.value='process';document.the_form.submit()" class="link_submit"
-				 title="Process all queued bills to create electronic data (and print if requested)"><?php xl('[Start Batch Processing]','e') ?></a>
-			&nbsp; <a href='../../library/freeb/process_bills.log' target='_blank' class='link_submit'
-				title='See messages from the last batch processing run'><?php xl('[view log]','e') ?></a></span>
+   <a href="javascript:document.the_form.mode.value='process';document.the_form.submit()" class="link_submit"
+    title="Process all queued bills to create electronic data (and print if requested)"><?php xl('[Start Batch Processing]','e') ?></a>
+   &nbsp; <a href='../../library/freeb/process_bills.log' target='_blank' class='link_submit'
+    title='See messages from the last batch processing run'><?php xl('[view log]','e') ?></a>
 <?php } ?>
-		</td>
-		<td align='right' nowrap>
-			<a href="javascript:select_all()" class="link_submit"><?php xl('[Select All]','e') ?></a>&nbsp;
-		</td>
-	</tr>
+  </td>
+
+  <td align='right' nowrap>
+   <a href="javascript:select_all()" class="link_submit"><?php xl('[Select All]','e') ?></a>&nbsp;
+  </td>
+
+ </tr>
 </table>
 </form>
 
-<form name=update_form method=post action=billing_process.php>
+<form name='update_form' method='post' action='billing_process.php'>
 
 <center>
 
@@ -297,12 +312,12 @@ function topatient(pid) {
 
 </center>
 
-<input type=hidden name=mode value="bill">
-<input type=hidden name=authorized value="<?php echo $my_authorized; ?>">
-<input type=hidden name=unbilled value="<?php echo $unbilled; ?>">
-<input type=hidden name=code_type value="%">
-<input type=hidden name=to_date value="<?php echo $to_date; ?>">
-<input type=hidden name=from_date value="<?php echo $from_date; ?>">
+<input type='hidden' name='mode' value="bill" />
+<input type='hidden' name='authorized' value="<?php echo $my_authorized; ?>" />
+<input type='hidden' name='unbilled' value="<?php echo $unbilled; ?>" />
+<input type='hidden' name='code_type' value="%" />
+<input type='hidden' name='to_date' value="<?php echo $to_date; ?>" />
+<input type='hidden' name='from_date' value="<?php echo $from_date; ?>" />
 <?php
 if ($my_authorized == "on" ) {
 	$my_authorized = "1";
@@ -316,10 +331,10 @@ if ($unbilled == "on") {
 	$unbilled = "%";
 }
 ?>
-<input type=hidden name=bill_list value="<?php
+<input type='hidden' name='bill_list' value="<?php
 $list = getBillsListBetween($from_date,$to_date,$my_authorized,$unbilled,"%");
 print $list;
-?>">
+?>" />
 <!-- new form for uploading -->
 <?php
 if (!isset($_POST["mode"])) {
@@ -367,8 +382,6 @@ if ($unbilled == "on") {
 	$unbilled = "%";
 }
 
-?>
-<?
 if (isset($_POST["mode"]) && $_POST["mode"] == "bill") {
 	billCodesList($list);
 }
@@ -463,18 +476,10 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 				"</font></span><span class=small>&nbsp;(" . $iter['enc_pid'] . "-" .
 				$iter['enc_encounter'] . ")</span>";
 
-			// $lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" href=\"" .
-			//  $GLOBALS['form_exit_url'] . "?set_encounter=" .
-			//  $iter['encounter'] . "&pid=" . $iter['pid'] . "\">[To&nbsp;Encounter]</a>";
-
 			$lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" " .
 				"href=\"javascript:window.toencounter(" . $iter['enc_pid'] .
 				",'" . addslashes($ptname) . "'," . $iter['enc_encounter'] .
 				",'$raw_encounter_date')\">[To&nbsp;Encounter]</a>";
-
-			// $lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" href=\"" . $GLOBALS['webroot'] .
-			//  "/interface/patient_file/summary/demographics_full.php?&pid=" .
-			//  $iter['pid'] . "\">[To&nbsp;Demographics]</a>";
 
 			$lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" " .
 				"href=\"javascript:window.topatient(" . $iter['enc_pid'] .
@@ -485,15 +490,22 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 				$lhtml .= "<br />\n";
 				$lhtml .= "&nbsp;<span class=text>Bill: ";
 				$lhtml .= "<select name='claims[" . $this_encounter_id . "][payer]' style='background-color:$bgcolor'>";
-				$query = "SELECT id.provider AS id, id.type, " .
-					"ic.x12_default_partner_id AS ic_x12id, ic.name AS provider " .
-					"FROM insurance_data AS id, insurance_companies AS ic WHERE " .
-					"ic.id = id.provider AND pid = '" . mysql_escape_string($iter['enc_pid']) .
-					"' ORDER BY type";
+
+        $query = "SELECT id.provider AS id, id.type, id.date, " .
+          "ic.x12_default_partner_id AS ic_x12id, ic.name AS provider " .
+          "FROM insurance_data AS id, insurance_companies AS ic WHERE " .
+          "ic.id = id.provider AND " .
+          "id.pid = '" . mysql_escape_string($iter['enc_pid']) . "' AND " .
+          "id.date <= '$raw_encounter_date' " .
+          "ORDER BY id.type ASC, id.date DESC";
+
 				$result = sqlStatement($query);
 				$count = 0;
 				$default_x12_partner = $iter['ic_x12id'];
+        $prevtype = '';
 				while ($row = mysql_fetch_array($result)) {
+          if (strcmp($row['type'], $prevtype) == 0) continue;
+          $prevtype = $row['type'];
 					if (strlen($row['provider']) > 0) {
 						// This preserves any existing insurance company selection, which is
 						// important when EOB posting has re-queued for secondary billing.
@@ -519,7 +531,9 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 					$lhtml .= '>' . $xname . '</option>';
 				}
 				$lhtml .= "</select>";
-				$lhtml .= "<br>\n&nbsp;".xl("Claim was initiated: ")  . $iter['date'];
+
+        /****
+				$lhtml .= "<br>\n&nbsp;".xl("Encounter was coded: ")  . $iter['date'];
 				if ($iter['billed'] == 1) {
 					$lhtml .= "<br>\n&nbsp;".xl("Claim was billed: ")  . $iter['bill_date'];
 					++$lcount;
@@ -547,6 +561,60 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 					$lhtml .= "<br>\n&nbsp;".xl("Claim was processed: ")  . $iter['process_date'] . xl(" but there was an error: "). $iter['process_file'];
 					++$lcount;
 				}
+        ****/
+
+        $lhtml .= "<br>\n&nbsp;" . substr($iter['date'], 0, 16) . " " .
+          xl("Encounter was coded");
+
+        $query = "SELECT * FROM claims WHERE " .
+          "patient_id = '" . $iter['enc_pid'] . "' AND " .
+          "encounter_id = '" . $iter['enc_encounter'] . "' " .
+          "ORDER BY version";
+        $cres = sqlStatement($query);
+
+        $lastcrow = false;
+
+        while ($crow = sqlFetchArray($cres)) {
+
+          $query = "SELECT id.type, ic.name " .
+            "FROM insurance_data AS id, insurance_companies AS ic WHERE " .
+            "id.pid = '" . $iter['enc_pid'] . "' AND " .
+            "id.provider = '" . $crow['payer_id'] . "' AND " .
+            "id.date <= '$raw_encounter_date' AND " .
+            "ic.id = id.provider " .
+            "ORDER BY id.type ASC, id.date DESC";
+          $irow= sqlQuery($query);
+
+          if ($crow['bill_process']) {
+            $lhtml .= "<br>\n&nbsp;" . substr($crow['bill_time'], 0, 16) . " " .
+              xl("Queued for") . " {$irow['type']} {$crow['target']} " .
+              xl("billing to ") . $irow['name'];
+            ++$lcount;
+          }
+          else {
+            $lhtml .= "<br>\n&nbsp;" . substr($crow['bill_time'], 0, 16) . " " .
+              xl("Marked as cleared");
+            ++$lcount;
+          }
+
+          if ($crow['process_time']) {
+            $lhtml .= "<br>\n&nbsp;" . substr($crow['process_time'], 0, 16) . " " .
+              xl("Claim was generated to file ") . $crow['process_file'];
+            ++$lcount;
+          }
+
+          $lastcrow = $crow;
+        } // end while ($crow = sqlFetchArray($cres))
+
+        if ($lastcrow && $lastcrow['status'] == 4) {
+          $lhtml .= "<br>\n&nbsp;This claim has been closed.";
+          ++$lcount;
+        }
+        if ($lastcrow && $lastcrow['status'] == 5) {
+          $lhtml .= "<br>\n&nbsp;This claim has been canceled.";
+          ++$lcount;
+        }
+
 			} // end if ($iter['id'])
 		}
 

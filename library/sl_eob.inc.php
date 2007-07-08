@@ -8,6 +8,7 @@
 
   include_once("sql-ledger.inc");
   include_once("patient.inc");
+  include_once("billing.inc");
   include_once("invoice_summary.inc.php");
 
   $chart_id_cash   = 0;
@@ -210,6 +211,7 @@
     $arrow = SLGetRow($arres, 0);
     if (! $arrow) die(xl('There is no match for invoice id') . ' = ' . "$trans_id.");
     $customer_id = $arrow['customer_id'];
+    $date_of_service = $arrow['transdate'];
     list($trash, $encounter) = explode(".", $arrow['invnumber']);
 
     // Get the OpenEMR PID corresponding to the customer.
@@ -227,8 +229,9 @@
     foreach (array('ins1' => 'primary', 'ins2' => 'secondary', 'ins3' => 'tertiary') as $key => $value) {
       if (strpos($insdone, $key) === false) {
         $nprow = sqlQuery("SELECT provider FROM insurance_data WHERE " .
-          "pid = '$pid' AND type = '$value'");
-        if ($nprow['provider']) {
+          "pid = '$pid' AND type = '$value' AND date <= '$date_of_service' " .
+          "ORDER BY date DESC LIMIT 1");
+        if (!empty($nprow['provider'])) {
           $new_payer_id = $nprow['provider'];
         }
         break;
@@ -249,21 +252,32 @@
       if ($new_payer_id > 0) {
         // TBD: implement a default bill_process and target in config.php,
         // it should not really be hard-coded here.
+        /****
         $query = "UPDATE billing SET billed = 0, bill_process = 5, " .
           "target = 'hcfa', payer_id = $new_payer_id, " .
           "bill_date = NOW(), process_date = NULL, process_file = NULL " .
           "WHERE encounter = $encounter AND pid = $pid AND activity = 1";
+        ****/
+        if (!$debug)
+          updateClaim(true, $pid, $encounter, $new_payer_id, 1, 5, '', 'hcfa');
       } else {
+        /****
         $query = "UPDATE billing SET billed = 0, bill_process = 0, payer_id = -1, " .
           "bill_date = NULL, process_date = NULL, process_file = NULL " .
           "WHERE encounter = $encounter AND pid = $pid AND activity = 1";
+        ****/
+        if (!$debug)
+          updateClaim(true, $pid, $encounter, -1, 1, 0, '');
       }
 
+      /****
       if ($debug) {
         echo $query . "<br>\n";
       } else {
         sqlQuery($query);
       }
+      ****/
+
       $info_msg = xl("Encounter ") . $encounter . xl(" is ready for re-billing.");
       return;
     }
@@ -288,7 +302,6 @@
     $provider_id = $drrow['id'];
     if (! $provider_id) die(xl("Cannot find provider from SQL-Ledger employee = ") . $employee_id );
 
-    $date_of_service = $arrow['transdate'];
     if (! $date_of_service) die(xl("Invoice has no date!"));
 
     // Generate a new encounter number.

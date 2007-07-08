@@ -1066,26 +1066,38 @@ class Procedure Extends DataObjectBase {
 		$err="";
 
 		$payer_id = "";
+		$patient_id = "";
+		$dos = "";
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
 
-		$sql = "SELECT * FROM billing where id = '" . $key . "'";
+    // $sql = "SELECT * FROM billing where id = '" . $key . "'";
+    $sql = "SELECT b.pid, b.payer_id, fe.date FROM " .
+      "billing AS b, form_encounter AS fe WHERE " .
+      "b.id = '$key' AND fe.pid = b.pid AND fe.encounter = b.encounter";
+
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
 		$results = $db->Execute($sql);
 
 		if (!$results) {
-			$err = $db->ErrorMsg();
+			// $err = $db->ErrorMsg();
+			return $this->_handleError($db->ErrorMsg());
 		}
 		else {
 			if (!$results->EOF) {
-				$payer_id  =	$results->fields['payer_id'];
+				$payer_id = $results->fields['payer_id'];
+        $patient_id = $results->fields['pid'];
+        $dos = $results->fields['date'];
 			}
 		}
-
-
 		$insured_id = "";
-		$sql = "SELECT * FROM insurance_data where pid = '" . $_SESSION['patient_id'] . "' and provider = '" . $payer_id . "'";
+
+    // $sql = "SELECT * FROM insurance_data WHERE pid = '" . $_SESSION['patient_id'] . "' and provider = '" . $payer_id . "'";
+    $sql = "SELECT id FROM insurance_data WHERE " .
+      "pid = '$patient_id' AND provider = '$payer_id' AND " .
+      "date <= '$dos' ORDER BY date DESC LIMIT 1";
+
 		//echo $sql;
 		$db = $GLOBALS['adodb']['db'];
 		$results = $db->Execute($sql);
@@ -1095,7 +1107,7 @@ class Procedure Extends DataObjectBase {
 		}
 		else {
 			if (!$results->EOF) {
-				$insured_id  =	$results->fields['id'];
+				$insured_id = $results->fields['id'];
 			}
 		}
 		//we are returning the record id of the appropriate entry in insurance_data

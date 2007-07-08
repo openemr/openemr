@@ -1316,7 +1316,12 @@ class Patient Extends DataObjectBase {
 
 		$retval = "";
 
-		$sql = "SELECT id FROM insurance_data WHERE pid = '$patientkey' AND type = '$instype'";
+    // TBD: This needs to compensate for the encounter date which is not given
+    // to us, but we are getting rid of freeb anyway.  Also I'm not sure this
+    // function is even used; Procedure::InsuredKey seems to be used instead.
+    $sql = "SELECT id FROM insurance_data WHERE pid = '$patientkey' AND " .
+      "type = '$instype' ORDER BY date DESC LIMIT 1";
+
 		$db = $GLOBALS['adodb']['db'];
 		$results = $db->Execute($sql);	
 		

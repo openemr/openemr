@@ -29,7 +29,7 @@
    "FROM patient_data AS p " .
    "LEFT OUTER JOIN insurance_data AS i ON " .
    "i.pid = p.pid AND i.type = 'primary' " .
-   "WHERE p.pid = '$pid' LIMIT 1");
+   "WHERE p.pid = '$pid' ORDER BY i.date DESC LIMIT 1");
 
  $alertmsg = ''; // anything here pops up in an alert box
 

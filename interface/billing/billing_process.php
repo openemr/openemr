@@ -2,6 +2,7 @@
 include_once("../globals.php");
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/billrep.inc");
+include_once("$srcdir/billing.inc");
 include_once("$srcdir/gen_x12_837.inc.php");
 include_once(dirname(__FILE__) . "/../../library/classes/WSClaim.class.php");
 
@@ -42,6 +43,7 @@ $bat_yymmdd   = date('ymd', $bat_time);
 $bat_yyyymmdd = date('Ymd', $bat_time);
 // Minutes since 1/1/1970 00:00:00 GMT will be our interchange control number:
 $bat_icn = sprintf('%09.0f', $bat_time/60);
+$bat_filename = date("Y-m-d-Hi", $bat_time) . "-batch.txt";
 
 function append_claim(&$segs) {
   global $bat_content, $bat_sendid, $bat_recvid, $bat_sender, $bat_stcount;
@@ -89,11 +91,10 @@ function append_claim_close() {
 }
 
 function send_batch() {
-  global $bat_content, $bat_time, $webserver_root;
-  $fname = date("Y-m-d-Hi", $bat_time) . "-batch.txt";
+  global $bat_content, $bat_filename, $webserver_root;
   // If a writable edi directory exists, log the batch to it.
   // I guarantee you'll be glad we did this.  :-)
-  $fh = @fopen("$webserver_root/edi/$fname", 'a');
+  $fh = @fopen("$webserver_root/edi/$bat_filename", 'a');
   if ($fh) {
     fwrite($fh, $bat_content);
     fclose($fh);
@@ -102,7 +103,7 @@ function send_batch() {
   header("Expires: 0");
   header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
   header("Content-Type: application/force-download");
-  header("Content-Disposition: attachment; filename=$fname");
+  header("Content-Disposition: attachment; filename=$bat_filename");
   header("Content-Description: File Transfer");
   header("Content-Length: " . strlen($bat_content));
   echo $bat_content;
@@ -185,6 +186,7 @@ if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
         $pid = $tmpvars[0];
         $encounter = $tmpvars[1];
         if (!empty($encounter) && !empty($pid)) {
+          /****
           $sql = "UPDATE billing set billed = 1 where encounter = '" . $encounter .
             "' and pid = '" . $pid . "' and activity != 0";
           $result = $db->execute($sql);
@@ -192,11 +194,14 @@ if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
             $error = true;
             $bill_info[] = xl("Marking claim "). $claimid . xl(" had a db error: ") . $db->ErrorMsg() . "\n";
           }
-
-          //send claim to the web services code to sync to external system if enabled
-          //remeber that in openemr it is only the encounter and patient id that make a group of
-          //billing line items unique so they can be grouped or associated as 1 claim
+          // send claim to the web services code to sync to external system if enabled
+          // remember that in openemr it is only the encounter and patient id that make a group of
+          // billing line items unique so they can be grouped or associated as 1 claim
           $ws = new WSClaim($pid, $encounter);
+          ****/
+          if (!updateClaim(false, $pid, $encounter, -1, 2)) {
+            $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
+          }
         }
       }
     }
@@ -212,7 +217,7 @@ else {
 }
 
 function process_form($ar) {
-  global $bill_info, $webserver_root;
+  global $bill_info, $webserver_root, $bat_filename;
 
   if (isset($ar['bn_x12'])) {
     $hlog = fopen("$webserver_root/library/freeb/process_bills.log", 'w');
@@ -251,33 +256,43 @@ function process_form($ar) {
         }
       }
 
-      $sql = "UPDATE billing set bill_date = NOW(), ";
+      // $sql = "UPDATE billing set bill_date = NOW(), ";
+      $tmp = 1;
 
       if (isset($ar['bn_hcfa_print'])) {
-        $sql .= " bill_process = 5, target = 'hcfa', ";
+        // $sql .= " bill_process = 5, target = 'hcfa', ";
+        $tmp = updateClaim(true, $patient_id, $encounter, $payer, 1, 5, '', 'hcfa');
       } else if (isset($ar['bn_hcfa'])) {
-        $sql .= " bill_process = 1, target = 'hcfa', ";
+        // $sql .= " bill_process = 1, target = 'hcfa', ";
+        $tmp = updateClaim(true, $patient_id, $encounter, $payer, 1, 1, '', 'hcfa');
       } else if (isset($ar['bn_ub92_print'])) {
-        $sql .= " bill_process = 5, target = 'ub92', ";
+        // $sql .= " bill_process = 5, target = 'ub92', ";
+        $tmp = updateClaim(true, $patient_id, $encounter, $payer, 1, 5, '', 'ub92');
       } else if (isset($ar['bn_ub92'])) {
-        $sql .= " bill_process = 1, target = 'ub92', ";
+        // $sql .= " bill_process = 1, target = 'ub92', ";
+        $tmp = updateClaim(true, $patient_id, $encounter, $payer, 1, 1, '', 'ub92');
       } else if (isset($ar['bn_x12'])) {
-        $sql .= " bill_process = 1, target = '" . $target . "', x12_partner_id = '" . mysql_real_escape_string($claim_array['partner']) . "', ";
+        // $sql .= " bill_process = 1, target = '" . $target . "', x12_partner_id = '" .
+        //   mysql_real_escape_string($claim_array['partner']) . "', ";
+        $tmp = updateClaim(true, $patient_id, $encounter, $payer, 1, 1, '', $target, $claim_array['partner']);
       } else if (isset($ar['bn_mark'])) {
-        $sql .= " billed = 1, ";
+        // $sql .= " billed = 1, ";
+        $tmp = updateClaim(true, $patient_id, $encounter, $payer, 2);
         $mark_only = true;
       } else if (isset($ar['bn_external'])) {
-        $sql .= " billed = 1, ";
+        // $sql .= " billed = 1, ";
+        $tmp = updateClaim(true, $patient_id, $encounter, $payer, 2);
       }
 
-      $sql .= " payer_id = '$payer' where encounter = " . $encounter . " and pid = " . $patient_id;
+      // $sql .= " payer_id = '$payer' where encounter = " . $encounter . " and pid = " . $patient_id;
+      // $result = $db->Execute($sql);
 
-      //echo $sql;
-      $result = $db->Execute($sql);
+      // if(!$result) {
+      //   die(xl("Claim ") . $claimid . xl(" could not be queued due to error: ") . $db->ErrorMsg());
+      // }
 
-      if(!$result) {
-        // $bill_info[] = xl("Claim "). $claimid . xl(" could not be queued due to error: ") . $db->ErrorMsg() . "\n";
-        die(xl("Claim ") . $claimid . xl(" could not be queued due to error: ") . $db->ErrorMsg());
+      if (!$tmp) {
+        die(xl("Claim ") . $claimid . xl(" update failed, not in database?"));
       }
       else {
         if($mark_only) {
@@ -289,23 +304,32 @@ function process_form($ar) {
           $segs = explode("~\n", gen_x12_837($patient_id, $encounter, $log));
           fwrite($hlog, $log);
           append_claim($segs);
+
+          /****
           $db->execute("UPDATE billing SET billed = 1, bill_process = 2, " .
             "process_date = NOW(), process_file = '' WHERE " .
             "encounter = '$encounter' AND pid = '$patient_id' AND activity != 0");
-          $ws = new WSClaim($patient_id, $encounter);
-        }
+          $ws = new WSClaim($patient_id, $encounter); // requires billed=1
+          ****/
+          if (!updateClaim(false, $patient_id, $encounter, -1, 2, 2, $bat_filename)) {
+            $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
+          }
 
+        }
         else {
           $bill_info[] = xl("Claim ") . $claimid . xl(" was queued successfully.") . "\n";
         }
       }
+
+      /****
       if ($mark_only) {
         //send claim to the web services code to sync to external system if enabled
         //remeber that in openemr it is only the encounter and patient id that make a group of
         //billing line items unique so they can be grouped or associated as 1 claim
-
         $ws = new WSClaim($patient_id,$encounter);
       }
+      ****/
+
     }
 
   }

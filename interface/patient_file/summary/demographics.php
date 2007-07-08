@@ -331,7 +331,6 @@ echo $result{"postal_code"}?>
      <td valign='top'>
 <?php if (($result2{"street"} != "") || ($result2{"city"} != "") || ($result2{"state"} != "") || ($result2{"country"} != "") || ($result2{"postal_code"} != "")) { ?>
       <span class='bold'><? xl('Employer Address','e'); ?>:</span>
-<?php } ?>
       <br>
       <span class='text'>
 <?php echo $result2{"street"}?><br><?php echo $result2{"city"} ?><?php if($result2{"city"} != "") { echo ", "; } ?><?php echo $result2{"state"} ?>
@@ -339,6 +338,7 @@ echo $result{"postal_code"}?>
 <?php if($result2{"postal_code"} != "") {echo " "; } ?>
 <?php echo $result2{"postal_code"} ?>
       </span>
+<?php } ?>
      </td>
      <td valign='top'>
 <?php
@@ -405,7 +405,9 @@ echo $result{"postal_code"}?>
 <?php } ///// end not omit_employers ///// ?>
 
 <?php
+
 //////////////////////////////////REFERRAL SECTION
+
 if ($result{"referrer"} != "" || $result{"referrerID"} != "")
 {
 ?>
@@ -418,171 +420,106 @@ if ($result{"referrer"} != "" || $result{"referrerID"} != "")
 <?php
 }
 
-/////////////////////////////////INSURANCE SECTION
-$result3 = getInsuranceData($pid, "primary");
-if ($result3{"provider"}) {
-  $icobj = new InsuranceCompany($result3['provider']);
-  $adobj = $icobj->get_address();
+///////////////////////////////// INSURANCE SECTION
+
+foreach (array('primary','secondary','tertiary') as $instype) {
+  $enddate = 'Present';
+
+  $query = "SELECT * FROM insurance_data WHERE " .
+    "pid = '$pid' AND type = '$instype' " .
+    "ORDER BY date DESC";
+  $res = sqlStatement($query);
+  while ($row = sqlFetchArray($res)) {
+    if ($row['provider']) {
+      $icobj = new InsuranceCompany($row['provider']);
+      $adobj = $icobj->get_address();
+      $insco_name = trim($icobj->get_name());
 ?>
     <tr>
+     <td valign='top' colspan='3'>
+      <br><span class='bold'>
+      <?php if (strcmp($enddate, 'Present') != 0) echo "Old "; ?>
+      <?php xl(ucfirst($instype) . ' Insurance','e'); ?>
+<?php if (strcmp($row['date'], '0000-00-00') != 0) { ?>
+      <?php xl(' from','e'); echo ' ' . $row['date']; ?>
+<?php } ?>
+      <?php xl(' until ','e'); echo $enddate; ?>
+      :</span>
+     </td>
+    </tr>
+    <tr>
      <td valign='top'>
-      <span class='bold'><?php xl('Primary Insurance','e'); ?>:</span><br><span class='text'>
+      <span class='text'>
 <?php
-  if (trim($result3['provider_name'])) {
-    echo $result3['provider_name'] . '<br>';
-    if (trim($adobj->get_line1())) {
-      echo $adobj->get_line1() . '<br>';
-      echo $adobj->get_city() . ', ' . $adobj->get_state() . ' ' . $adobj->get_zip();
-    }
-  } else {
-    echo "<font color='red'><b>Unassigned</b></font>";
-  }
+      if ($insco_name) {
+        echo $insco_name . '<br>';
+        if (trim($adobj->get_line1())) {
+          echo $adobj->get_line1() . '<br>';
+          echo $adobj->get_city() . ', ' . $adobj->get_state() . ' ' . $adobj->get_zip();
+        }
+      } else {
+        echo "<font color='red'><b>Unassigned</b></font>";
+      }
 ?>
-      </span><br>
-      <span class='text'><? xl('Policy Number','e'); ?>: <?echo $result3{"policy_number"}?><br>
-      Plan Name: <?=$result3{"plan_name"}?><br>
-      Group Number: <?echo $result3{"group_number"}?></span>
+      <br>
+      <?php xl('Policy Number','e'); ?>: <?php echo $row['policy_number'] ?><br>
+      Plan Name: <?php echo $row['plan_name']; ?><br>
+      Group Number: <?echo $row['group_number']; ?></span>
      </td>
      <td valign='top'>
-      <span class='bold'><? xl('Subscriber','e'); ?>: </span><br><span class='text'><?=$result3{"subscriber_fname"}?> <?=$result3{"subscriber_mname"}?> <?=$result3{"subscriber_lname"}?> <?if ($result3{"subscriber_relationship"} != "") {echo "(".$result3{"subscriber_relationship"}.")";}?><br>
-      S.S.: <?echo $result3{"subscriber_ss"}?><br>
-      <?php xl('D.O.B.','e'); ?>: <?if ($result3{"subscriber_DOB"} != "0000-00-00 00:00:00") {echo $result3{"subscriber_DOB"};}?><br>
-      Phone: <? echo $result3{"subscriber_phone"}?>
+      <span class='bold'><?php xl('Subscriber','e'); ?>: </span><br>
+      <span class='text'><?php echo $row['subscriber_fname'] . ' ' . $row['subscriber_mname'] . ' ' . $row['subscriber_lname'] ?>
+<?php
+      if ($row['subscriber_relationship'] != "") {
+        echo "(" . $row['subscriber_relationship'] . ")";
+      }
+?>
+      <br>
+      S.S.: <?php echo $row['subscriber_ss']; ?><br>
+      <?php xl('D.O.B.','e'); ?>:
+      <?php if ($row['subscriber_DOB'] != "0000-00-00 00:00:00") echo $row['subscriber_DOB']; ?><br>
+      Phone: <?php echo $row['subscriber_phone'] ?>
       </span>
      </td>
      <td valign='top'>
-      <span class='bold'><? xl('Subscriber Address','e'); ?>: </span><br><span class='text'><?echo $result3{"subscriber_street"}?><br><?echo $result3{"subscriber_city"}?><?if($result3{"subscriber_state"} != ""){echo ", ";}?><?echo $result3{"subscriber_state"}?><?if($result3{"subscriber_country"} != ""){echo ", ";}?><?echo $result3{"subscriber_country"}?> <?echo " ".$result3{"subscriber_postal_code"}?></span>
+      <span class='bold'><?php xl('Subscriber Address','e'); ?>: </span><br>
+      <span class='text'><?php echo $row['subscriber_street']; ?><br>
+      <?php echo $row['subscriber_city']; ?>
+      <?php if($row['subscriber_state'] != "") echo ", "; echo $row['subscriber_state']; ?>
+      <?php if($row['subscriber_country'] != "") echo ", "; echo $row['subscriber_country']; ?>
+      <?php echo " " . $row['subscriber_postal_code']; ?></span>
 
-<?php if (trim($result3['subscriber_employer'])) { ?>
+<?php if (trim($row['subscriber_employer'])) { ?>
       <br><span class='bold'><?php xl('Subscriber Employer','e'); ?>: </span><br>
-      <span class='text'><?php echo $result3{"subscriber_employer"}?><br>
-      <?php echo $result3{"subscriber_employer_street"}?><br>
-      <?php echo $result3{"subscriber_employer_city"}?>
-      <?php if($result3{"subscriber_employer_city"} != ""){echo ", ";} echo $result3{"subscriber_employer_state"}?>
-      <?php if($result3{"subscriber_employer_country"} != ""){echo ", ";} echo $result3{"subscriber_employer_country"}?>
-      <?php echo " ".$result3{"subscriber_employer_postal_code"}?>
+      <span class='text'><?php echo $row['subscriber_employer']; ?><br>
+      <?php echo $row['subscriber_employer_street']; ?><br>
+      <?php echo $row['subscriber_employer_city']; ?>
+      <?php if($row['subscriber_employer_city'] != "") echo ", "; echo $row['subscriber_employer_state']; ?>
+      <?php if($row['subscriber_employer_country'] != "") echo ", "; echo $row['subscriber_employer_country']; ?>
+      <?php echo " " . $row['subscriber_employer_postal_code']; ?>
       </span>
 <?php } ?>
 
      </td>
     </tr>
     <tr>
-     <td><? if ($result3{"copay"} != "") {?><span class='bold'><? xl('CoPay','e'); ?>: </span><span class='text'><?=$result3{"copay"}?></span><?}?></td>
+     <td>
+<?php if ($row['copay'] != "") { ?>
+      <span class='bold'><?php xl('CoPay','e'); ?>: </span>
+      <span class='text'><?php echo $row['copay']; ?></span>
+<?php } ?>
+     </td>
      <td valign='top'></td>
      <td valign='top'></td>
    </tr>
-<? } ?>
-<?
-$result4 = getInsuranceData($pid, "secondary");
-if ($result4{"provider"} != "") {
-  $icobj = new InsuranceCompany($result4['provider']);
-  $adobj = $icobj->get_address();
-?>
-    <tr>
-     <td valign='top'>
-      <span class='bold'><? xl('Secondary Insurance','e'); ?>:</span><br><span class='text'>
 <?php
-  if (trim($result4['provider_name'])) {
-    echo $result4['provider_name'] . '<br>';
-    if (trim($adobj->get_line1())) {
-      echo $adobj->get_line1() . '<br>';
-      echo $adobj->get_city() . ', ' . $adobj->get_state() . ' ' . $adobj->get_zip();
-    }
-  } else {
-    echo "<font color='red'><b>Unassigned</b></font>";
-  }
-?>
-      </span><br>
-      <span class='text'><? xl('Policy Number','e'); ?>: <?echo $result4{"policy_number"}?><br>
-      Plan Name: <?=$result4{"plan_name"}?><br>
-      Group Number: <?echo $result4{"group_number"}?></span>
-     </td>
-     <td valign='top'>
-      <span class='bold'><? xl('Subscriber','e'); ?>: </span><br><span class='text'><?=$result4{"subscriber_fname"}?> <?=$result4{"subscriber_mname"}?> <?=$result4{"subscriber_lname"}?> <?if ($result4{"subscriber_relationship"} != "") {echo "(".$result4{"subscriber_relationship"}.")";}?><br>
-      S.S.: <?echo $result4{"subscriber_ss"}?> <? xl('D.O.B.','e'); ?>: <?if ($result4{"subscriber_DOB"} != "0000-00-00 00:00:00") {echo $result4{"subscriber_DOB"};}?><br>
-      Phone: <? echo $result4{"subscriber_phone"}?>
-      </span>
-     </td>
-     <td valign='top'>
-      <span class='bold'><? xl('Subscriber Address','e'); ?>: </span><br><span class='text'><?echo $result4{"subscriber_street"}?><br><?echo $result4{"subscriber_city"}?><?if($result4{"subscriber_state"} != ""){echo ", ";}?><?echo $result4{"subscriber_state"}?><?if($result4{"subscriber_country"} != ""){echo ", ";}?><?echo $result4{"subscriber_country"}?> <?echo " ".$result4{"subscriber_postal_code"}?></span>
+    } // end if ($row['provider'])
+    $enddate = $row['date'];
+  } // end while
+} // end foreach
 
-<?php if (trim($result4['subscriber_employer'])) { ?>
-      <br><span class='bold'><?php xl('Subscriber Employer','e'); ?>: </span><br>
-      <span class='text'><?php echo $result4{"subscriber_employer"}?><br>
-      <?php echo $result4{"subscriber_employer_street"}?><br>
-      <?php echo $result4{"subscriber_employer_city"}?>
-      <?php if($result4{"subscriber_employer_city"} != ""){echo ", ";} echo $result4{"subscriber_employer_state"}?>
-      <?php if($result4{"subscriber_employer_country"} != ""){echo ", ";} echo $result4{"subscriber_employer_country"}?>
-      <?php echo " ".$result4{"subscriber_employer_postal_code"}?>
-      </span>
-<?php } ?>
+///////////////////////////////// END INSURANCE SECTION
 
-     </td>
-    </tr>
-    <tr>
-     <td>
-      <? if ($result4{"copay"} != "") {?><span class='bold'><? xl('CoPay','e'); ?>: </span><span class='text'><?=$result4{"copay"}?></span><?}?>
-     </td>
-     <td valign='top'></td>
-     <td valign='top'></td>
-    </tr>
-<? } ?>
-<?
-$result5 = getInsuranceData($pid, "tertiary");
-if ($result5{"provider"}) {
-  $icobj = new InsuranceCompany($result5['provider']);
-  $adobj = $icobj->get_address();
-?>
-    <tr>
-     <td valign='top'>
-      <span class='bold'><? xl('Tertiary Insurance','e'); ?>:</span><br><span class='text'>
-<?php
-  if (trim($result5['provider_name'])) {
-    echo $result5['provider_name'] . '<br>';
-    if (trim($adobj->get_line1())) {
-      echo $adobj->get_line1() . '<br>';
-      echo $adobj->get_city() . ', ' . $adobj->get_state() . ' ' . $adobj->get_zip();
-    }
-  } else {
-    echo "<font color='red'><b>Unassigned</b></font>";
-  }
-?>
-      </span><br>
-      <span class='text'><? xl('Policy Number','e'); ?>: <?echo $result5{"policy_number"}?><br>
-      Plan Name: <?=$result5{"plan_name"}?><br>
-      Group Number: <?echo $result5{"group_number"}?></span>
-     </td>
-     <td valign='top'>
-      <span class='bold'><? xl('Subscriber','e'); ?>: </span><br><span class='text'><?=$result5{"subscriber_fname"}?> <?=$result5{"subscriber_mname"}?> <?=$result5{"subscriber_lname"}?> <?if ($result5{"subscriber_relationship"} != "") {echo "(".$result5{"subscriber_relationship"}.")";}?><br>
-      S.S.: <?echo $result5{"subscriber_ss"}?> <? xl('D.O.B.','e'); ?>: <?if ($result5{"subscriber_DOB"} != "0000-00-00 00:00:00") {echo $result5{"subscriber_DOB"};}?><br>
-      Phone: <? echo $result5{"subscriber_phone"}?>
-      </span>
-     </td>
-     <td valign='top'>
-      <span class='bold'><? xl('Subscriber Address','e'); ?>: </span><br><span class='text'><?echo $result5{"subscriber_street"}?><br><?echo $result5{"subscriber_city"}?><?if($result5{"subscriber_state"} != ""){echo ", ";}?><?echo $result5{"subscriber_state"}?><?if($result5{"subscriber_country"} != ""){echo ", ";}?><?echo $result5{"subscriber_country"}?> <?echo " ".$result5{"subscriber_postal_code"}?></span>
-
-<?php if (trim($result5['subscriber_employer'])) { ?>
-      <br><span class='bold'><?php xl('Subscriber Employer','e'); ?>: </span><br>
-      <span class='text'><?php echo $result5{"subscriber_employer"}?><br>
-      <?php echo $result5{"subscriber_employer_street"}?><br>
-      <?php echo $result5{"subscriber_employer_city"}?>
-      <?php if($result5{"subscriber_employer_city"} != ""){echo ", ";} echo $result5{"subscriber_employer_state"}?>
-      <?php if($result5{"subscriber_employer_country"} != ""){echo ", ";} echo $result5{"subscriber_employer_country"}?>
-      <?php echo " ".$result5{"subscriber_employer_postal_code"}?>
-      </span>
-<?php } ?>
-
-     </td>
-    </tr>
-    <tr>
-     <td>
-      <? if ($result5{"copay"} != "") {?><span class='bold'><? xl('CoPay','e'); ?>: </span><span class='text'><?=$result5{"copay"}?></span><?}?>
-     </td>
-     <td valign='top'></td>
-     <td valign='top'></td>
-    </tr>
-<?
-}
 ?>
    </table>
   </td>
