@@ -62,9 +62,6 @@ ALTER TABLE openemr_postcalendar_events
 ALTER TABLE billing
   ADD `ndc_info` varchar(255) NOT NULL DEFAULT '';
 
-ALTER TABLE openemr_postcalendar_events
-  ADD `pc_multiple` int(10) unsigned NOT NULL;
-
 CREATE TABLE claims (
   patient_id        int(11)      NOT NULL,
   encounter_id      int(11)      NOT NULL,
