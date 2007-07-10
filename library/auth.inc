@@ -26,7 +26,7 @@ else
 {
 	if (authCheckSession())
 	{
-		if (isset($_SESSION['pid']) && !$GLOBALS['DAEMON_FLAG'])
+		if (isset($_SESSION['pid']) && empty($GLOBALS['DAEMON_FLAG']))
 		{
 			require_once("{$GLOBALS['srcdir']}/patient.inc");
 			$logpatient = getPatientData($_SESSION['pid'], "lname, fname, mname");
@@ -52,7 +52,7 @@ if (!isset($_SESSION["last_update"])) {
 		authCloseSession();
 		authLoginScreen();
 	} else {
-		if (!empty($GLOBALS['DAEMON_FLAG'])) $_SESSION["last_update"] = time();
+		if (empty($GLOBALS['DAEMON_FLAG'])) $_SESSION["last_update"] = time();
 	}
 }
 
