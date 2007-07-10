@@ -24,22 +24,22 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-define('_CALVIEWEVENT','Event Details');
-define('_CALEVENTDATEPREVIEW','Event Date');
-define('_CALSTARTTIME','Start');
-define('_CALENDTIME','End');
-define('_CALARTICLETEXT','Event Description');
-define('_CALLOCATION','Location');
-define('_CONTTEL','Phone Number');
-define('_CONTNAME','Name');
-define('_CONTEMAIL','Email');
-define('_CONTWEBSITE','Website');
-define('_FEE','Fee');
-define('_CALPOSTEDBY','Submitted by');
-define('_CALPOSTEDON','Posted on');
-define('_PC_AM','AM');
-define('_PC_PM','PM');
+define('_CALVIEWEVENT', xl ('Event Details') );
+define('_CALEVENTDATEPREVIEW', xl ('Event Date') );
+define('_CALSTARTTIME', xl ('Start') );
+define('_CALENDTIME', xl ('End') );
+define('_CALARTICLETEXT', xl ('Event Description') );
+define('_CALLOCATION', xl ('Location') );
+define('_CONTTEL', xl ('Phone Number') );
+define('_CONTNAME', xl ('Name') );
+define('_CONTEMAIL', xl ('Email') );
+define('_CONTWEBSITE', xl ('Website') );
+define('_FEE', xl ('Fee') );
+define('_CALPOSTEDBY', xl ('Submitted by') );
+define('_CALPOSTEDON', xl ('Posted on') );
+define('_PC_AM', xl ('AM') );
+define('_PC_PM', xl ('PM') );
 if (!defined('_POSTCALENDARNOAUTH')) {
-	define('_POSTCALENDARNOAUTH','Not authorised to access PostCalendar module');
+	define('_POSTCALENDARNOAUTH', xl ('Not authorised to access PostCalendar module') );
 }
 ?>

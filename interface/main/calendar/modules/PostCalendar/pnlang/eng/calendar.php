@@ -1,5 +1,5 @@
 <?php 
-/**
+/*
  *  $Id$
  *
  *  PostCalendar::PostNuke Events Calendar Module
@@ -24,34 +24,34 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-@define('_CALSUBMITEVENT', 'Submit');
-@define('_CALSEARCHEVENT', 'Search');
-@define('_EVENTS_OPEN_IN_NEW_WINDOW', 'Events open in new window');
+@define('_CALSUBMITEVENT', xl ('Submit') );
+@define('_CALSEARCHEVENT', xl ('Search') );
+@define('_EVENTS_OPEN_IN_NEW_WINDOW', xl ('Events open in new window') );
 
-@define('_CALMONDAYSHORT',   'M');
-@define('_CALTUESDAYSHORT',  'T');
-@define('_CALWEDNESDAYSHORT','W');
-@define('_CALTHURSDAYSHORT', 'T');
-@define('_CALFRIDAYSHORT',   'F');
-@define('_CALSATURDAYSHORT', 'S');
-@define('_CALSUNDAYSHORT',   'S');
-@define('_PC_CALENDAR_BLOCK_PREV','Prev');
-@define('_PC_CALENDAR_BLOCK_NEXT','Next');
-@define('_PC_BLOCK_TOPIC_DISPLAY','Display topic in block?');
-@define('_PC_BLOCK_EVENTS_DATE_DISPLAY','Display event dates in block?');
-@define('_PC_BLOCK_LOCATION_DISPLAY','Display location in block?');
-@define('_PC_BLOCK_EVENT_OVERVIEW','Display today\'s events in the block?');
-@define('_PC_BLOCK_EVENTS_DISPLAY_LIMIT','Display how many events?');
-@define('_PC_BLOCK_EVENTS_DISPLAY_RANGE','How many months ahead to query for upcoming events?');
-@define('_PC_BLOCK_SHOW_CALENDAR','Display the calendar?');
-@define('_PC_BLOCK_UPCOMING_EVENTS','Display upcoming events in block?');
-@define('_PC_BLOCK_USE_POPUPS','Show hovering event text on mouseover?');
-@define('_PC_SHOW_SS_LINKS','Show search/submit links in block?');
-@define('_PC_BLOCK_NO_EVENTS','No Events');
-@define('_PC_TODAYS_EVENTS','Today\'s Events');
-@define('_PC_UPCOMING_EVENTS','Upcoming Events');
-@define('_PC_SUBMIT_EVENT','Submit');
-@define('_PC_SEARCH_EVENT','Search');
-@define('_PC_AM','AM');
-@define('_PC_PM','PM');
+@define('_CALMONDAYSHORT', xl('_CALMONDAYSHORT') );
+@define('_CALTUESDAYSHORT', xl('_CALTUESDAYSHORT') );
+@define('_CALWEDNESDAYSHORT', xl ('_CALWEDNESDAYSHORT') );
+@define('_CALTHURSDAYSHORT', xl ('_CALTHURSDAYSHORT') );
+@define('_CALFRIDAYSHORT', xl( '_CALFRIDAYSHORT') );
+@define('_CALSATURDAYSHORT', xl ('_CALSATURDAYSHORT') );
+@define('_CALSUNDAYSHORT',xl('_CALSUNDAYSHORT') );
+@define('_PC_CALENDAR_BLOCK_PREV', xl ('Prev') );
+@define('_PC_CALENDAR_BLOCK_NEXT', xl ('Next') );
+@define('_PC_BLOCK_TOPIC_DISPLAY', xl ('Display topic in block?') );
+@define('_PC_BLOCK_EVENTS_DATE_DISPLAY', xl ('Display event dates in block?') );
+@define('_PC_BLOCK_LOCATION_DISPLAY', xl ('Display location in block?') );
+@define('_PC_BLOCK_EVENT_OVERVIEW', xl ('Display today\'s events in the block?') );
+@define('_PC_BLOCK_EVENTS_DISPLAY_LIMIT', xl ('Display how many events?') );
+@define('_PC_BLOCK_EVENTS_DISPLAY_RANGE', xl ('How many months ahead to query for upcoming events?') );
+@define('_PC_BLOCK_SHOW_CALENDAR', xl ('Display the calendar?') );
+@define('_PC_BLOCK_UPCOMING_EVENTS', xl ('Display upcoming events in block?') );
+@define('_PC_BLOCK_USE_POPUPS', xl ('Show hovering event text on mouseover?') );
+@define('_PC_SHOW_SS_LINKS', xl ('Show search/submit links in block?') );
+@define('_PC_BLOCK_NO_EVENTS', xl ('No Events') );
+@define('_PC_TODAYS_EVENTS', xl ('Today\'s Events') );
+@define('_PC_UPCOMING_EVENTS', xl ('Upcoming Events') );
+@define('_PC_SUBMIT_EVENT', xl ('Submit') );
+@define('_PC_SEARCH_EVENT', xl ('Search') );
+@define('_PC_AM', xl ('AM') );
+@define('_PC_PM', xl ('PM') );
 ?>

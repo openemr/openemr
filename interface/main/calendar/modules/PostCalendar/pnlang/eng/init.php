@@ -24,6 +24,6 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-define('_CREATETABLEFAILED', 'Table creation failed');
-define('_UPDATETABLEFAILED', 'Table update failed');
+define('_CREATETABLEFAILED', xl ('Table creation failed'));
+define('_UPDATETABLEFAILED', xl ('Table update failed'));
 ?>

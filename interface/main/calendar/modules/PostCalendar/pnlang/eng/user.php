@@ -1,5 +1,5 @@
 <?php 
-/**
+/*
  *  $Id$
  *
  *  PostCalendar::PostNuke Events Calendar Module
@@ -27,23 +27,23 @@
 //=========================================================================
 //  ok, here's the rest of the language defines
 //=========================================================================
-define('_POSTCALENDAR',         'PostCalendar');
-define('_CALEVENTLINK',         'Create an Event');
-define('_CALDAYLINK',           'Day View');
-define('_CALWEEKLINK',          'Week View');
-define('_CALMONTHLINK',         'Month View');
-define('_CALYEARLINK',          'Year View');
-define('_PC_LEGEND',            'Legend:');
-define('_CALSUBMITEVENT',       'Submit');
-define('_CALSEARCHEVENT',       'Search');
-define('_PC_PREV_MONTH',        'Prev');
-define('_PC_NEXT_MONTH',        'Next');
-define('_PC_PREV_DAY',          'Prev');
-define('_PC_NEXT_DAY',          'Next');
-define('_PC_EVENTS',            '<b>Events for </b>');
-define('_PC_SEARCH_FORM',       'Search the Events');
-define('_PC_SEARCH_RESULTS',    'Search Results:');
-define('_PC_SEARCH_KEYWORDS',   'Keywords');
-define('_PC_SEARCH_PERFORM',    'Perform Search');
-define('_PC_SEARCH_MAX',        'More than 50 results, please make your search more specific.');
+define('_POSTCALENDAR', xl ('PostCalendar') ) ;
+define('_CALEVENTLINK', xl ('Create an Event') );
+define('_CALDAYLINK', xl ('Day View') );
+define('_CALWEEKLINK', xl ('Week View') );
+define('_CALMONTHLINK', xl ('Month View') );
+define('_CALYEARLINK', xl ('Year View') );
+define('_PC_LEGEND',   xl ('Legend:') );
+define('_CALSUBMITEVENT', xl ('Submit') );
+define('_CALSEARCHEVENT', xl ('Search') );
+define('_PC_PREV_MONTH', xl ('Prev') );
+define('_PC_NEXT_MONTH', xl ( 'Next') );
+define('_PC_PREV_DAY', xl ('Prev') );
+define('_PC_NEXT_DAY', xl ('Next') );
+define('_PC_EVENTS', xl ('Events for' ,'', '<b>', '</b>') );
+define('_PC_SEARCH_FORM', xl ('Search the Events') );
+define('_PC_SEARCH_RESULTS', xl ('Search Results:') );
+define('_PC_SEARCH_KEYWORDS', xl ('Keywords') );
+define('_PC_SEARCH_PERFORM',  xl ('Perform Search') );
+define('_PC_SEARCH_MAX', xl ('More than 50 results, please make your search more specific.') );
 ?>

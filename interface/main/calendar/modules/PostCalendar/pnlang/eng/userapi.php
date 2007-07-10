@@ -1,5 +1,5 @@
 <?php 
-/** 
+/*
  *  $Id$
  *
  *  PostCalendar::PostNuke Events Calendar Module
@@ -28,32 +28,32 @@
 //=========================================================================
 //  ok, here's the rest of the language defines
 //=========================================================================
-define('_GETFAILED',            'Items load failed');
-define('_CALAPPOINTMENTS',      'Appointments');
-define('_CALEVENTS',            'Events');
-define('_CALMORNING',           'AM');
-define('_CALEVENING',           'PM');
-define('_PC_WEEK',              'week');
-define('_PC_ADD_EVENT',         'add an event for ');
-define('_CALVIEWEVENT',         'Event Details');
-define('_CALEVENTDATEPREVIEW',  'Event Begins');
-define('_CALENDDATEPREVIEW',    'Event Duration');
-define('_CALSTARTTIME',         'Start');
-define('_CALENDTIME',           'End');
-define('_CALARTICLETEXT',       'Event Description');
-define('_CALLOCATION',          'Location');
-define('_CONTTEL',              'Phone Number');
-define('_CONTNAME',             'Name');
-define('_CONTEMAIL',            'Email');
-define('_CONTWEBSITE',          'Website');
-define('_FEE',                  'Fee');
-define('_CALPOSTEDBY',          'Submitted by');
-define('_CALPOSTEDON',          'Posted on');
-define('_CALCLOSEWINDOW',       'close window');
-define('_CALSAMEDAY',           'Same Day');
-define('_CALALLDAY',            'All Day');
-define('_PC_DUR_HOURS',         'h');
-define('_PC_DUR_MINUTES',       'm');
-define('_PC_OL_CLOSE',          'Close');
-define('_PC_CLICK_FOR_MORE',    'click for more');
+define('_GETFAILED', xl ('Items load failed') );
+define('_CALAPPOINTMENTS', xl ('Appointments') );
+define('_CALEVENTS', xl ('Events') );
+define('_CALMORNING', xl ('AM') );
+define('_CALEVENING', xl ('PM') );
+define('_PC_WEEK', xl ('week') );
+define('_PC_ADD_EVENT', xl ('add an event for ') );
+define('_CALVIEWEVENT', xl ('Event Details') );
+define('_CALEVENTDATEPREVIEW', xl ('Event Begins') );
+define('_CALENDDATEPREVIEW', xl ('Event Duration') );
+define('_CALSTARTTIME', xl ('Start') );
+define('_CALENDTIME', xl ('End') );
+define('_CALARTICLETEXT', xl ('Event Description') );
+define('_CALLOCATION', xl ('Location') );
+define('_CONTTEL', xl ('Phone Number') );
+define('_CONTNAME', xl ('Name') );
+define('_CONTEMAIL', xl ('Email') );
+define('_CONTWEBSITE', xl ('Website') );
+define('_FEE', xl ('Fee') );
+define('_CALPOSTEDBY', xl ('Submitted by') );
+define('_CALPOSTEDON', xl ('Posted on') );
+define('_CALCLOSEWINDOW', xl ('close window') );
+define('_CALSAMEDAY', xl ('Same Day') );
+define('_CALALLDAY', xl ('All Day') );
+define('_PC_DUR_HOURS', xl ('_PC_DUR_HOURS') );
+define('_PC_DUR_MINUTES', xl ('_PC_DUR_MINUTES') );
+define('_PC_OL_CLOSE', xl ('Close') );
+define('_PC_CLICK_FOR_MORE', xl ('click for more') );
 ?>
