@@ -206,15 +206,16 @@ div.tiny { width:1px; height:1px; font-size:1px; }
  echo " <tr>\n";
  echo "  <td align='center' width='34%' nowrap>\n";
  $atmp = array_keys($A_EVENTS);
- if ($MULTIDAY) {
+ 
+if ($MULTIDAY) {
   echo "<a href='$PREV_WEEK_URL'>&lt;&lt;</a>&nbsp;\n";
-  echo date("F j Y", strtotime($atmp[0]));
+  echo dateformat(strtotime($atmp[0]));
   echo " - ";
-  echo date("F j Y", strtotime($atmp[count($atmp)-1]));
+  echo dateformat(strtotime($atmp[count($atmp)-1]));
   echo "&nbsp;<a href='$NEXT_WEEK_URL'>&gt;&gt;</a>\n";
  } else {
   echo "<a href='$PREV_DAY_URL'>&lt;&lt;</a>&nbsp;\n";
-  echo date("l, F j, Y", strtotime($atmp[0]));
+  echo dateformat();
   echo "&nbsp;<a href='$NEXT_DAY_URL'>&gt;&gt;</a>\n";
  }
  echo "  </td>\n";
@@ -254,9 +255,9 @@ div.tiny { width:1px; height:1px; font-size:1px; }
   if ($MULTIDAY) {
    echo " <tr>\n";
    echo "  <td colspan='" . (count($providers) * 2) . "' align='center'>" .
-        date("l, F j, Y", strtotime($date)) . "</td>";
+        dateformat(strtotime($date)) . "</td>";
    echo " </tr>\n";
-  }
+  } 
 
   $arr_events = $S_EVENTS[$date];
   list($slotkey, $slotevent) = each($arr_events);
