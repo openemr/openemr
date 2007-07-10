@@ -215,7 +215,7 @@ if ($MULTIDAY) {
   echo "&nbsp;<a href='$NEXT_WEEK_URL'>&gt;&gt;</a>\n";
  } else {
   echo "<a href='$PREV_DAY_URL'>&lt;&lt;</a>&nbsp;\n";
-  echo dateformat();
+  echo dateformat(strtotime($atmp[0]));
   echo "&nbsp;<a href='$NEXT_DAY_URL'>&gt;&gt;</a>\n";
  }
  echo "  </td>\n";
