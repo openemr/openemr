@@ -34,9 +34,9 @@ require_once("$srcdir/classes/Pharmacy.class.php");
 
  if(!empty($encounter)){
   $subresult = getEncounterDateByEncounter($encounter);
-  $encounter_date = date("D F jS Y", strtotime($subresult['date']));
+  $encounter_date = dateformat(strtotime($subresult['date']));
  } else {
-  $encounter_date = date("D F jS Y"); //otherwise, set today's date
+  $encounter_date = dateformat(); //otherwise, set today's date
  }
 ?>
 
@@ -47,10 +47,10 @@ require_once("$srcdir/classes/Pharmacy.class.php");
    <span style="font-size:8pt;">(<?php echo $info; ?>)</span>
   </td>
   <td width="33%" align="center" valign="middle" nowrap>
-   <span class="title"><?php xl('Logged in as: ','e'); echo $provider_results{"fname"}.' '.$provider_results{"lname"};?></span>
+   <span class="title"><?php xl('Logged in as: ','e', '', ' '); echo $provider_results{"fname"}.' '.$provider_results{"lname"};?></span>
   </td>
   <td width="33%" align="right" valign="middle" nowrap>
-   <span class="title_bar_top"><?php xl('Encounter','e'); echo $encounter_date; ?> </span>
+   <span class="title_bar_top"><?php xl('Encounter','e', '', ' '); echo $encounter_date; ?> </span>
   </td>
  </tr>
 </table>
