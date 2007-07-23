@@ -94,6 +94,8 @@
    }
    $target = "$docdir/$ffname$ffmod$ffsuff";
 
+   $docdate = fixDate($_POST['form_docdate']);
+
    // Create the target PDF.  Note that we are relying on the .tif files for
    // the individual pages to already exist in the faxcache directory.
    //
@@ -108,10 +110,10 @@
     $catid = (int) $_POST['form_category'];
     // Update the database.
     $query = "INSERT INTO documents ( " .
-      "id, type, size, date, url, mimetype, foreign_id" .
+      "id, type, size, date, url, mimetype, foreign_id, docdate" .
       " ) VALUES ( " .
       "'$newid', 'file_url', '$fsize', NOW(), 'file://$target', " .
-      "'application/pdf', $patient_id " .
+      "'application/pdf', $patient_id, '$docdate' " .
       ")";
     sqlStatement($query);
     $query = "INSERT INTO categories_to_documents ( " .
@@ -316,9 +318,14 @@ div.section {
 
 </style>
 
+<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+
 <script type="text/javascript" src="../../library/topdialog.js"></script>
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script type="text/javascript" src="../../library/textformat.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 
 <script language="JavaScript">
 
@@ -454,6 +461,7 @@ div.section {
     </select>
    </td>
   </tr>
+
   <tr>
    <td class='itemtitle' nowrap><?php xl('Filename','e'); ?></td>
    <td>
@@ -462,6 +470,20 @@ div.section {
      title='Name for this document in the patient chart' />
    </td>
   </tr>
+
+  <tr>
+   <td class='itemtitle' nowrap><?php xl('Document Date','e'); ?></td>
+   <td>
+    <input type='text' size='10' name='form_docdate' id='form_docdate'
+     value='<?php echo date('Y-m-d'); ?>'
+     title='<?php xl('yyyy-mm-dd date associated with this document','e'); ?>'
+     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
+    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+     id='img_docdate' border='0' alt='[?]' style='cursor:pointer'
+     title='<?php xl('Click here to choose a date','e'); ?>' />
+   </td>
+  </tr>
+
   <tr>
    <td colspan='2' style='padding-top:0.5em;'>
     <input type='checkbox' name='form_cb_note' value='1'
@@ -597,6 +619,10 @@ div.section {
 </table>
 </center>
 </form>
+
+<script language='JavaScript'>
+ Calendar.setup({inputField:"form_docdate", ifFormat:"%Y-%m-%d", button:"img_docdate"});
+</script>
 
 </body>
 </html>
