@@ -215,7 +215,7 @@ if ($MULTIDAY) {
   echo "&nbsp;<a href='$NEXT_WEEK_URL'>&gt;&gt;</a>\n";
  } else {
   echo "<a href='$PREV_DAY_URL'>&lt;&lt;</a>&nbsp;\n";
-  echo dateformat(strtotime($atmp[0]));
+  echo dateformat(strtotime($atmp[0]), true);
   echo "&nbsp;<a href='$NEXT_DAY_URL'>&gt;&gt;</a>\n";
  }
  echo "  </td>\n";
@@ -255,7 +255,7 @@ if ($MULTIDAY) {
   if ($MULTIDAY) {
    echo " <tr>\n";
    echo "  <td colspan='" . (count($providers) * 2) . "' align='center'>" .
-        dateformat(strtotime($date)) . "</td>";
+        dateformat(strtotime($date), true) . "</td>";
    echo " </tr>\n";
   } 
 

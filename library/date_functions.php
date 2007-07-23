@@ -13,7 +13,7 @@
 // ============================================================
 
 
-function dateformat ($strtime = '') {
+function dateformat ($strtime = '', $with_dow = false) {
 
 // without an argument, display current date
 if ( !$strtime ) {
@@ -36,7 +36,7 @@ switch ($day) {
 	case 6: $dow = xl ('Saturday'); break;
 }
 
-$dow .=" ";
+// $dow .=" ";
 
 // name of the month in different languages
 $month = (int) date('m', $strtime);
@@ -61,15 +61,18 @@ $nom .= " ";
 // Date string format
 switch (LANGUAGE) {
 	// english
-	case 1: $dt = date ("F jS Y", $strtime); break;
+  case 1:
+    $dt = date ("F j, Y", $strtime);
+    if ($with_dow) $dt = "$dow, $dt";
+    break;
 	
 	// swedish (sweden)
-	case 2: $dt = $dow . date ("Y", $strtime) . " $nom ". date("d", $strtime); break;
+	case 2: $dt = "$dow " . date ("Y", $strtime) . " $nom " . date("d", $strtime); break;
 	
 	// spanish + german + dutch
 	case 3: 
 	case 4: 
-	case 5: $dt = $dow .date ("d", $strtime) . " $nom ". date("Y", $strtime); break;
+	case 5: $dt = "$dow " . date ("d", $strtime) . " $nom " . date("Y", $strtime); break;
 	
 	// hebrew (israel) // display english NOT jewish calendar
 	case 6: $dt = date ("F jS Y", $strtime); break;
