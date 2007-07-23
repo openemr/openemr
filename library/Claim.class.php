@@ -365,6 +365,11 @@ class Claim {
   // Return the amount already paid by the patient.
   //
   function patientPaidAmount() {
+
+    // TBD: This does not work for a primary claim because $this->invoice
+    // is not loaded.  Might be good to get the co-pay from the billing
+    // table in that case.
+
     $amount = 0;
     foreach($this->invoice as $codekey => $codeval) {
       foreach ($codeval['dtl'] as $key => $value) {
