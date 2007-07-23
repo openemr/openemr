@@ -63,9 +63,11 @@ function showDocument(&$drow) {
   }
   echo "$linkend</td>\n";
 
-  // show document name
-  echo "<td valign='top' colspan='3'>$linkbeg" . xl('Document') . ": " .
-    basename($drow['url']) . "$linkend</td>\n";
+  // show document name and category
+  echo "<td valign='top' colspan='3'>$linkbeg" .
+    xl('Document') . ": " .
+    basename($drow['url']) . ' (' . $drow['name'] . ')' .
+    "$linkend</td>\n";
 
   // skip insurance column
   if (!$GLOBALS['athletic_team']) {
@@ -136,9 +138,16 @@ function showDocument(&$drow) {
 
 <?
 // Query the documents for this patient.
+/****
 $dres = sqlStatement("SELECT id, type, url, docdate, list_id " .
   "FROM documents WHERE foreign_id = '$pid' " .
   "ORDER BY docdate DESC, id DESC");
+****/
+$dres = sqlStatement("SELECT d.id, d.type, d.url, d.docdate, d.list_id, c.name " .
+  "FROM documents AS d, categories_to_documents AS cd, categories AS c WHERE " .
+  "d.foreign_id = '$pid' AND cd.document_id = d.id AND c.id = cd.category_id " .
+  "ORDER BY d.docdate DESC, d.id DESC");
+
 $drow = sqlFetchArray($dres);
 
 $count = 0;
