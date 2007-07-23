@@ -55,8 +55,15 @@ if ($_POST['bn_save']) {
 		$code      = $iter['code'];
 		$modifier  = trim($iter['mod']);
 		$units     = max(1, intval(trim($iter['units'])));
-		$fee       = trim($iter['fee']);
-		$auth      = $iter['auth'] ? "1" : "0";
+		$fee       = 0 + trim($iter['fee']);
+    if ($code_type == 'COPAY') {
+      if ($fee > 0) $fee = 0 - $fee;
+      $code = sprintf('%01.2f', 0 - $fee);
+    }
+    $justify   = trim($iter['justify']);
+    if ($justify) $justify = str_replace(',', ':', $justify) . ':';
+		// $auth      = $iter['auth'] ? "1" : "0";
+		$auth      = "1";
 		$del       = $iter['del'];
 
     $ndc_info = '';
@@ -72,10 +79,10 @@ if ($_POST['bn_save']) {
 			}
 			else {
 				// authorizeBilling($id, $auth);
-        sqlQuery("UPDATE billing SET " .
+        sqlQuery("UPDATE billing SET code = '$code', " .
           "units = '$units', fee = '$fee', modifier = '$modifier', " .
           "authorized = $auth, provider_id = '$provid', " .
-          "ndc_info = '$ndc_info' WHERE " .
+          "ndc_info = '$ndc_info', justify = '$justify' WHERE " .
           "id = '$id' AND billed = 0 AND activity = 1");
 			}
 		}
@@ -93,15 +100,17 @@ if ($_POST['bn_save']) {
 			$result = sqlQuery($query);
 			$code_text = addslashes($result['code_text']);
 			addBilling($encounter, $code_type, $code, $code_text, $pid, $auth,
-				$provid, $modifier, $units, $fee, $ndc_info);
+				$provid, $modifier, $units, $fee, $ndc_info, $justify);
 		}
-	}
+	} // end for
 
 	formHeader("Redirecting....");
 	formJump();
 	formFooter();
 	exit;
 }
+
+$billresult = getBillingByEncounter($pid, $encounter, "*");
 ?>
 <html>
 <head>
@@ -111,6 +120,33 @@ if ($_POST['bn_save']) {
 </style>
 <script language="JavaScript">
 
+var diags = new Array();
+
+<?php
+// Generate JavaScript to build the array of diagnoses.
+function genDiagJS($code_type, $code) {
+  if ($code_type == 'ICD9') {
+    echo "diags.push('$code');\n";
+  }
+}
+if ($billresult) {
+  foreach ($billresult as $iter) {
+    genDiagJS($iter["code_type"], trim($iter["code"]));
+  }
+}
+if ($_POST['bill']) {
+  foreach ($_POST['bill'] as $iter) {
+    if ($iter["del"]) continue; // skip if Delete was checked
+    if ($iter["id"])  continue; // skip if it came from the database
+    genDiagJS($iter["code_type"], $iter["code"]);
+  }
+}
+if ($_POST['newtype']) {
+  list($code, $modifier) = explode("-", $_POST['newcode']);
+  genDiagJS($_POST['newtype'], $code);
+}
+?>
+
 function codeselect(selobj, newtype) {
  var i = selobj.selectedIndex;
  if (i > 0) {
@@ -119,6 +155,12 @@ function codeselect(selobj, newtype) {
   f.newtype.value = newtype;
   f.submit();
  }
+}
+
+function copayselect() {
+ var f = document.forms[0];
+ f.newtype.value = 'COPAY';
+ f.submit();
 }
 
 function validate(f) {
@@ -134,6 +176,39 @@ function validate(f) {
   }
  }
  return true;
+}
+
+// When a justify selection is made, apply it to the current list for
+// this procedure and then rebuild its selection list.
+//
+function setJustify(seljust) {
+ var theopts = seljust.options;
+ var jdisplay = theopts[0].text;
+
+ // Compute revised justification string.  Note this does nothing if
+ // the first entry is still selected, which is handy at startup.
+ if (seljust.selectedIndex > 0) {
+  var newdiag = seljust.value;
+  if (newdiag.length == 0) {
+   jdisplay = '';
+  }
+  else {
+   if (jdisplay.length) jdisplay += ',';
+   jdisplay += newdiag;
+  }
+ }
+
+ // Rebuild selection list.
+ var jhaystack = ',' + jdisplay + ',';
+ var j = 0;
+ theopts.length = 0;
+ theopts[j++] = new Option(jdisplay,jdisplay,true,true);
+ for (var i = 0; i < diags.length; ++i) {
+  if (jhaystack.indexOf(',' + diags[i] + ',') < 0) {
+   theopts[j++] = new Option(diags[i],diags[i],false,false);
+  }
+ }
+ theopts[j++] = new Option('Clear','',false,false);
 }
 
 </script>
@@ -232,6 +307,10 @@ echo " </tr>\n";
 <table>
  <tr>
   <td>
+   <input type='button' value='<?php xl('Add Copay','e');?>'
+    onclick="copayselect()" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </td>
+  <td>
    <?php xl('Search','e'); ?>&nbsp;
 <?
 	foreach ($code_types as $key => $value) {
@@ -263,21 +342,28 @@ echo " </tr>\n";
 <? if (fees_are_used()) { ?>
   <td class='billcell' align='center'><b><?php xl('Units','e');?></b></td>
   <td class='billcell' align='right'><b><?php xl('Fee','e');?></b>&nbsp;</td>
+  <td class='billcell' align='center'><b><?php xl('Justify','e');?></b></td>
 <? } ?>
   <td class='billcell' align='center'><b><?php xl('Auth','e');?></b></td>
   <td class='billcell' align='center'><b><?php xl('Delete','e');?></b></td>
   <td class='billcell'><b><?php xl('Description','e');?></b></td>
  </tr>
-<?
+
+<?php
+$justinit = "var f = document.forms[0];\n";
 
 // This writes a billing line item to the output page.
 //
 function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
   $auth = TRUE, $del = FALSE, $units = NULL, $fee = NULL, $id = NULL,
-  $billed = FALSE, $code_text = NULL)
+  $billed = FALSE, $code_text = NULL, $justify = NULL)
 {
-  global $code_types, $ndc_applies, $ndc_uom_choices;
+  global $code_types, $ndc_applies, $ndc_uom_choices, $justinit;
 
+  if ($codetype == 'COPAY') {
+    if (!$code_text) $code_text = 'Cash';
+    if ($fee > 0) $fee = 0 - $fee;
+  }
 	if (! $code_text) {
 		$query = "select units, fee, code_text from codes where code_type = '" .
 			$code_types[$codetype]['id'] . "' and " .
@@ -292,6 +378,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
 		if (empty($units)) $units = max(1, intval($result['units']));
 		if (!isset($fee)) $fee = $result['fee'];
 	}
+  $fee = sprintf('%01.2f', $fee);
 	$strike1 = ($id && $del) ? "<strike>" : "";
 	$strike2 = ($id && $del) ? "</strike>" : "";
 	echo " <tr>\n";
@@ -303,47 +390,74 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
 	echo "<input type='hidden' name='bill[$lino][code]' value='$code'>";
 	echo "<input type='hidden' name='bill[$lino][billed]' value='$billed'>";
 	echo "</td>\n";
-	echo "  <td class='billcell'>$strike1$code$strike2</td>\n";
-	if ($billed) {
-		if (modifiers_are_used()) {
-			echo "  <td class='billcell'>$strike1$modifier$strike2" .
-				"<input type='hidden' name='bill[$lino][mod]' value='$modifier'></td>\n";
-		}
-		if (fees_are_used()) {
-			echo "  <td class='billcell' align='center'>$units</td>\n";
-			echo "  <td class='billcell' align='right'>$fee</td>\n";
-		}
-		echo "  <td class='billcell' align='center'><input type='checkbox'" .
-			($auth ? " checked" : "") . " disabled /></td>\n";
-		echo "  <td class='billcell' align='center'><input type='checkbox'" .
-			" disabled /></td>\n";
-	} else {
-		if (modifiers_are_used()) {
-			if ($code_types[$codetype]['mod'] || $modifier) {
-				echo "  <td class='billcell'><input type='text' name='bill[$lino][mod]' " .
-					"value='$modifier' size='" . $code_types[$codetype]['mod'] . "'></td>\n";
-			} else {
-				echo "  <td class='billcell'>&nbsp;</td>\n";
-			}
-		}
-		if (fees_are_used()) {
-			if ($code_types[$codetype]['fee'] || $fee != 0) {
-				echo "  <td class='billcell' align='center'><input type='text' name='bill[$lino][units]' " .
-					"value='$units' size='2' style='text-align:right'></td>\n";
-				echo "  <td class='billcell' align='right'><input type='text' name='bill[$lino][fee]' " .
-					"value='$fee' size='6' style='text-align:right'></td>\n";
-			} else {
-				echo "  <td class='billcell'>&nbsp;</td>\n";
-				echo "  <td class='billcell'>&nbsp;</td>\n";
-			}
-		}
-		echo "  <td class='billcell' align='center'><input type='checkbox' name='bill[$lino][auth]' " .
-			"value='1'" . ($auth ? " checked" : "") . " /></td>\n";
-		echo "  <td class='billcell' align='center'><input type='checkbox' name='bill[$lino][del]' " .
-			"value='1'" . ($del ? " checked" : "") . " /></td>\n";
-	}
-	echo "  <td class='billcell'>$strike1" . ucfirst(strtolower($code_text)) . "$strike2</td>\n";
-	echo " </tr>\n";
+  if ($codetype != 'COPAY') {
+    echo "  <td class='billcell'>$strike1$code$strike2</td>\n";
+  } else {
+    echo "  <td class='billcell'>&nbsp;</td>\n";
+  }
+  if ($billed) {
+    if (modifiers_are_used()) {
+      echo "  <td class='billcell'>$strike1$modifier$strike2" .
+        "<input type='hidden' name='bill[$lino][mod]' value='$modifier'></td>\n";
+    }
+    if (fees_are_used()) {
+      if ($codetype != 'COPAY') {
+        echo "  <td class='billcell' align='center'>$units</td>\n";
+      } else {
+        echo "  <td class='billcell'>&nbsp;</td>\n";
+      }
+      echo "  <td class='billcell' align='right'>$fee</td>\n";
+      echo "  <td class='billcell' align='center'>$justify</td>\n";
+    }
+    echo "  <td class='billcell' align='center'><input type='checkbox'" .
+      ($auth ? " checked" : "") . " disabled /></td>\n";
+    echo "  <td class='billcell' align='center'><input type='checkbox'" .
+      " disabled /></td>\n";
+  } else {
+    if (modifiers_are_used()) {
+      if ($codetype != 'COPAY' && ($code_types[$codetype]['mod'] || $modifier)) {
+        echo "  <td class='billcell'><input type='text' name='bill[$lino][mod]' " .
+          "value='$modifier' size='" . $code_types[$codetype]['mod'] . "'></td>\n";
+      } else {
+        echo "  <td class='billcell'>&nbsp;</td>\n";
+      }
+    }
+    if (fees_are_used()) {
+      if ($codetype == 'COPAY' || $code_types[$codetype]['fee'] || $fee != 0) {
+        echo "  <td class='billcell' align='center'>";
+        if ($codetype != 'COPAY') {
+          echo "<input type='text' name='bill[$lino][units]' " .
+          "value='$units' size='2' style='text-align:right'>";
+        } else {
+          echo "<input type='hidden' name='bill[$lino][units]' value='$units'>";
+        }
+        echo "</td>\n";
+        echo "  <td class='billcell' align='right'>" .
+          "<input type='text' name='bill[$lino][fee]' " .
+          "value='$fee' size='6' style='text-align:right'></td>\n";
+        if ($code_types[$codetype]['just'] || $justify) {
+          echo "  <td class='billcell' align='center'>";
+          echo "<select name='bill[$lino][justify]' onchange='setJustify(this)'>";
+          echo "<option value='$justify'>$justify</option></select>";
+          echo "</td>\n";
+          $justinit .= "setJustify(f['bill[$lino][justify]']);\n";
+        } else {
+          echo "  <td class='billcell'>&nbsp;</td>\n";
+        }
+      } else {
+        echo "  <td class='billcell'>&nbsp;</td>\n";
+        echo "  <td class='billcell'>&nbsp;</td>\n";
+        echo "  <td class='billcell'>&nbsp;</td>\n";
+      }
+    }
+    echo "  <td class='billcell' align='center'><input type='checkbox' name='bill[$lino][auth]' " .
+      "value='1'" . ($auth ? " checked" : "") . " /></td>\n";
+    echo "  <td class='billcell' align='center'><input type='checkbox' name='bill[$lino][del]' " .
+      "value='1'" . ($del ? " checked" : "") . " /></td>\n";
+  }
+
+  echo "  <td class='billcell'>$strike1" . ucfirst(strtolower($code_text)) . "$strike2</td>\n";
+  echo " </tr>\n";
 
   // If NDC info exists or may be required, add a line for it.
   if ($codetype == 'HCPCS' && $ndc_applies && !$billed) {
@@ -390,18 +504,42 @@ if ($tmp['id']) $encounter_provid = $tmp['id'];
 // Generate lines for items already in the database.
 //
 $lino = 0;
-if ($result = getBillingByEncounter($pid, $encounter, "*") ) {
-	foreach ($result as $iter) {
-		++$lino;
-		$del = $_POST['bill']["$lino"]['del']; // preserve Delete if checked
-		// list($code, $modifier) = explode("-", $iter["code"]);
+if ($billresult) {
+  foreach ($billresult as $iter) {
+    ++$lino;
+    $bline = $_POST['bill']["$lino"];
+    $del = $bline['del']; // preserve Delete if checked
+
+    $modifier   = trim($iter["modifier"]);
+    $units      = $iter["units"];
+    $fee        = $iter["fee"];
+    $authorized = $iter["authorized"];
+    $ndc_info   = $iter["ndc_info"];
+    $justify    = trim($iter['justify']);
+    if ($justify) $justify = substr(str_replace(':', ',', $justify), 0, strlen($justify) - 1);
+
+    // Also preserve other items from the form, if present.
+    if ($bline['id'] && !$iter["billed"]) {
+      $modifier   = trim($bline['mod']);
+      $units      = trim($bline['units']);
+      $fee        = trim($bline['fee']);
+      $authorized = $bline['auth'];
+      $ndc_info   = '';
+      if ($bline['ndcnum']) {
+        $ndc_info = 'N4' . trim($bline['ndcnum']) . '   ' . $bline['ndcuom'] .
+        trim($bline['ndcqty']);
+      }
+      $justify    = $bline['justify'];
+    }
+
+    // list($code, $modifier) = explode("-", $iter["code"]);
     echoLine($lino, $iter["code_type"], trim($iter["code"]),
-      trim($iter["modifier"]), $iter["ndc_info"],  $iter["authorized"],
-      $del, $iter["units"], $iter["fee"], $iter["id"], $iter["billed"],
-      $iter["code_text"]);
-		// If no default provider yet then try this one.
-		if ($encounter_provid < 0 && ! $del) $encounter_provid = $iter["provider_id"];
-	}
+      $modifier, $ndc_info,  $authorized,
+      $del, $units, $fee, $iter["id"], $iter["billed"],
+      $iter["code_text"], $justify);
+    // If no default provider yet then try this one.
+    if ($encounter_provid < 0 && ! $del) $encounter_provid = $iter["provider_id"];
+  }
 }
 
 // If still no default provider then make it the logged-in user.
@@ -417,12 +555,14 @@ if ($_POST['bill']) {
 		if ($iter["del"]) continue; // skip if Delete was checked
     $ndc_info = '';
     if ($iter['ndcnum']) {
-    $ndc_info = 'N4' . trim($iter['ndcnum']) . '   ' . $iter['ndcuom'] .
+      $ndc_info = 'N4' . trim($iter['ndcnum']) . '   ' . $iter['ndcuom'] .
       trim($iter['ndcqty']);
     }
+    $fee = 0 + trim($iter['fee']);
+    if ($iter['code_type'] == 'COPAY' && $fee > 0) $fee = 0 - $fee;
     echoLine(++$lino, $iter["code_type"], $iter["code"], trim($iter["mod"]),
-      $ndc_info, $iter["auth"], $iter["del"], $iter["units"],
-      $iter["fee"]);
+      $ndc_info, $iter["auth"], $iter["del"], trim($iter["units"]),
+      $fee, NULL, FALSE, NULL, $iter["justify"]);
 	}
 }
 
@@ -430,24 +570,32 @@ if ($_POST['bill']) {
 // case allow HCPCS codes to be included in the CPT drop-lists, and
 // CPT4 codes included in OPCS drop-lists.
 //
-if ($_POST['newcode']) {
-	list($code, $modifier) = explode("-", $_POST['newcode']);
-	$newtype = $_POST['newtype'];
-	if ($newtype == "CPT4" && preg_match("/^[A-Z]/", $code))
-		$newtype = "HCPCS";
-	else if ($newtype == "OPCS" && preg_match("/^[0-9]/", $code))
-		$newtype = "CPT4";
-
-  $ndc_info = '';
-  // If HCPCS, find last NDC string used for this code.
-  if ($newtype == 'HCPCS' && $ndc_applies) {
-    $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
-      "code_type = '$newtype' AND code = '$code' AND ndc_info LIKE 'N4%' " .
-      "ORDER BY date DESC LIMIT 1");
-    if (!empty($tmp)) $ndc_info = $tmp['ndc_info'];
+if ($_POST['newtype']) {
+  $newtype = $_POST['newtype'];
+  if ($newtype == 'COPAY') {
+    $tmp = sqlQuery("SELECT copay FROM insurance_data WHERE pid = '$pid' " .
+      "AND type = 'primary' ORDER BY date DESC LIMIT 1");
+    $code = sprintf('%01.2f', 0 + $tmp['copay']);
+    echoLine(++$lino, $newtype, $code, '', '', '1', '0', '1',
+      sprintf('%01.2f', 0 - $code));
+  }
+  else {
+    list($code, $modifier) = explode("-", $_POST['newcode']);
+    if ($newtype == "CPT4" && preg_match("/^[A-Z]/", $code))
+      $newtype = "HCPCS";
+    else if ($newtype == "OPCS" && preg_match("/^[0-9]/", $code))
+      $newtype = "CPT4";
+    $ndc_info = '';
+    // If HCPCS, find last NDC string used for this code.
+    if ($newtype == 'HCPCS' && $ndc_applies) {
+      $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
+        "code_type = '$newtype' AND code = '$code' AND ndc_info LIKE 'N4%' " .
+        "ORDER BY date DESC LIMIT 1");
+      if (!empty($tmp)) $ndc_info = $tmp['ndc_info'];
+    }
+    echoLine(++$lino, $newtype, $code, trim($modifier), $ndc_info);
   }
 
-  echoLine(++$lino, $newtype, $code, trim($modifier), $ndc_info);
 }
 
 ?>
@@ -501,8 +649,14 @@ echo "   </select>\n";
 </center>
 
 </form>
+
 <?php
 // TBD: If $alertmsg, display it with a JavaScript alert().
 ?>
+
+<script language='JavaScript'>
+<?php echo $justinit; ?>
+</script>
+
 </body>
 </html>
