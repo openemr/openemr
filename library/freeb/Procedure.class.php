@@ -119,12 +119,15 @@ class Procedure Extends DataObjectBase {
 		$this->_addFunc("billingservicekey",array(	"name"	=>	"FreeB.FBProcedure.BillingServiceKey",
 															"sig"	=>	array(XMLRPCSTRING,XMLRPCINT),
 															"doc"	=>	""));
-		$this->_addFunc("isusingbillingservice",array(	"name"	=>	"FreeB.FBProcedure.isUsingBillingService",
+		$this->_addFunc("isusingbillingservice",array("name"	=>	"FreeB.FBProcedure.isUsingBillingService",
 															"sig"	=>	array(XMLRPCSTRING,XMLRPCINT),
 															"doc"	=>	""));
 		$this->_addFunc("clearinghousekey", array(	"name"	=>	"FreeB.FBProcedure.ClearingHouseKey",
 															"sig"	=>	array(XMLRPCSTRING,XMLRPCINT),
 															"doc"	=>	""));
+		$this->_addFunc("ndcline",					array("name" => "FreeB.FBProcedure.NDCLine",
+															"sig" => array(XMLRPCSTRING,XMLRPCINT),
+															"doc" => ""));
 
 	}
 
@@ -1365,7 +1368,29 @@ class Procedure Extends DataObjectBase {
 
 	}
 
-
+	function ndcline($m) {
+		$err="";
+		$retval = "";
+		$obj= $m->getparam(0);
+		$key = $obj->getval();
+		$sql = "SELECT ndc_info FROM billing where id = '$key'";
+		$db = $GLOBALS['adodb']['db'];
+		$results = $db->Execute($sql);
+		if (!$results) {
+			$err = $db->ErrorMsg();
+		}
+		else {
+			if (!$results->EOF) {
+				$retval = $results->fields['ndc_info'];
+			}
+		}
+		if ($err) {
+			return $this->_handleError($err);
+		}
+		else {
+			return new xmlrpcresp(new xmlrpcval($retval, "string"));
+		}
+	}
 
 }
 
