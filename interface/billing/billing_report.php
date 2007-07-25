@@ -119,9 +119,9 @@ function select_all() {
 
 function set_button_states() {
 	var f = document.update_form;
-	var count0 = 0;
-	var count1 = 0;
-	var count2 = 0;
+	var count0 = 0; // selected and not billed or queued
+	var count1 = 0; // selected and queued
+	var count2 = 0; // selected and billed
 	for($i = 0; $i < f.length; ++$i) {
 		$name = f[$i].name;
 		if ($name.substring(0, 7) == "claims[" && $name.substring($name.length -6) == "[bill]" && f[$i].checked == true) {
@@ -144,6 +144,7 @@ function set_button_states() {
 	f.bn_ub92.disabled            = !can_generate;
 	f.bn_x12.disabled             = !can_generate;
 	f.bn_electronic_file.disabled = !can_bill;
+	f.bn_reopen.disabled          = !can_bill;
 <?php } ?>
 	f.bn_mark.disabled            = !can_mark;
 }
@@ -307,6 +308,7 @@ function topatient(pid) {
  title="<?php xl('Generate X12 claims and create batch','e')?>"
  onclick="alert('After saving your batch, click [view log] to check for errors.')">
 <input type="submit" class="subbtn" name="bn_mark" value="Mark as Cleared" title="<?php xl('Post to accounting and mark as billed','e')?>">
+<input type="submit" class="subbtn" name="bn_reopen" value="Re-Open" title="<?php xl('Mark as not billed','e')?>">
 <input type="submit" class="subbtn" name="bn_electronic_file" value="Make Electronic Batch &amp; Clear" title="<?php xl('Download billing file, post to accounting and mark as billed','e')?>">
 <?php } ?>
 
@@ -591,9 +593,14 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
               xl("billing to ") . $irow['name'];
             ++$lcount;
           }
-          else {
+          else if ($crow['status'] > 1) {
             $lhtml .= "<br>\n&nbsp;" . substr($crow['bill_time'], 0, 16) . " " .
               xl("Marked as cleared");
+            ++$lcount;
+          }
+          else {
+            $lhtml .= "<br>\n&nbsp;" . substr($crow['bill_time'], 0, 16) . " " .
+              xl("Re-opened");
             ++$lcount;
           }
 

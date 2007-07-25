@@ -278,7 +278,8 @@ function process_form($ar) {
       } else if (isset($ar['bn_mark'])) {
         // $sql .= " billed = 1, ";
         $tmp = updateClaim(true, $patient_id, $encounter, $payer, 2);
-        $mark_only = true;
+      } else if (isset($ar['bn_reopen'])) {
+        $tmp = updateClaim(true, $patient_id, $encounter, $payer, 1, 0);
       } else if (isset($ar['bn_external'])) {
         // $sql .= " billed = 1, ";
         $tmp = updateClaim(true, $patient_id, $encounter, $payer, 2);
@@ -295,8 +296,12 @@ function process_form($ar) {
         die(xl("Claim ") . $claimid . xl(" update failed, not in database?"));
       }
       else {
-        if($mark_only) {
+        if(isset($ar['bn_mark'])) {
           $bill_info[] = xl("Claim ") . $claimid . xl(" was marked as billed only.") . "\n";
+        }
+
+        else if (isset($ar['bn_reopen'])) {
+          $bill_info[] = xl("Claim ") . $claimid . xl(" has been re-opened.") . "\n";
         }
 
         else if (isset($ar['bn_x12'])) {
