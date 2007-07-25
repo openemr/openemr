@@ -427,7 +427,7 @@ function npopup(pid) {
     }
 
     $query = "SELECT ar.id, ar.invnumber, ar.duedate, ar.amount, ar.paid, " .
-      "ar.intnotes, ar.notes, ar.shipvia, customer.name, " .
+      "ar.intnotes, ar.notes, ar.shipvia, customer.name, customer.id AS custid, " .
       "substring(trim(both from customer.name) from '% #\"%#\"' for '#') AS lname, " .
       "substring(trim(both from customer.name) from '#\"%#\" %' for '#') AS fname, " .
       "(SELECT SUM(invoice.fxsellprice) FROM invoice WHERE " .
@@ -486,7 +486,7 @@ function npopup(pid) {
    <?xl('Prv','e')?>
   </td>
 <?php if (!$eracount) { ?>
-  <td class="dehead" align="center">
+  <td class="dehead" align="left">
    <?xl('Sel','e')?>
   </td>
 <?php } ?>
@@ -553,6 +553,16 @@ function npopup(pid) {
           "encounter = $encounter");
         $svcdate = substr($tmp['date'], 0, 10);
       }
+
+      // Get billing note to determine if customer is in collections.
+      //
+      $pdrow = sqlQuery("SELECT pd.genericname2, pd.genericval2 FROM " .
+        "integration_mapping AS im, patient_data AS pd WHERE " .
+        "im.foreign_id = " . $row['custid'] . " AND " .
+        "im.foreign_table = 'customer' AND " .
+        "pd.id = im.local_id");
+      $row['billnote'] = ($pdrow['genericname2'] == 'Billing') ? $pdrow['genericval2'] : '';
+      $in_collections = stristr($row['billnote'], 'IN COLLECTIONS') !== false;
 ?>
  <tr bgcolor='<?php echo $bgcolor ?>'>
   <td class="detail">
@@ -585,8 +595,9 @@ function npopup(pid) {
    <?php echo $duncount ? $duncount : "&nbsp;" ?>
   </td>
 <?php if (!$eracount) { ?>
-  <td class="detail" align="center">
+  <td class="detail" align="left">
    <input type='checkbox' name='form_cb[<?php echo($row['id']) ?>]'<?php echo $isduept ?> />
+   <?php if ($in_collections) echo "<b><font color='red'>IC</font></b>"; ?>
   </td>
 <?php } ?>
  </tr>
