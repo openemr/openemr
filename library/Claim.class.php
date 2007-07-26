@@ -550,6 +550,7 @@ class Claim {
   }
 
   function claimType($ins=0) {
+    if (empty($this->payers[$ins]['object'])) return '';
     return $this->payers[$ins]['object']->get_freeb_claim_type();
   }
 
@@ -598,24 +599,28 @@ class Claim {
   }
 
   function payerStreet($ins=0) {
+    if (empty($this->payers[$ins]['object'])) return '';
     $tmp = $this->payers[$ins]['object'];
     $tmp = $tmp->get_address();
     return x12clean(trim($tmp->get_line1()));
   }
 
   function payerCity($ins=0) {
+    if (empty($this->payers[$ins]['object'])) return '';
     $tmp = $this->payers[$ins]['object'];
     $tmp = $tmp->get_address();
     return x12clean(trim($tmp->get_city()));
   }
 
   function payerState($ins=0) {
+    if (empty($this->payers[$ins]['object'])) return '';
     $tmp = $this->payers[$ins]['object'];
     $tmp = $tmp->get_address();
     return x12clean(trim($tmp->get_state()));
   }
 
   function payerZip($ins=0) {
+    if (empty($this->payers[$ins]['object'])) return '';
     $tmp = $this->payers[$ins]['object'];
     $tmp = $tmp->get_address();
     return x12clean(trim($tmp->get_zip()));
