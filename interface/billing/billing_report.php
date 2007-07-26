@@ -132,7 +132,7 @@ function set_button_states() {
 	}
 
 	var can_generate = (count0 > 0 || count1 > 0 || count2 > 0);
-	var can_mark     = (count1 == 0 && (count0 > 0 || count2 > 0));
+	var can_mark     = (count1 > 0 || count0 > 0 || count2 > 0);
 	var can_bill     = (count0 == 0 && count1 == 0 && count2 > 0);
 
 <?php if (file_exists($EXPORT_INC)) { ?>
