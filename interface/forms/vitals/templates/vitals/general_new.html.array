@@ -37,7 +37,8 @@ a {
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
 <p><span class="title">Vitals</span></p>
-<form name="vitals" method="post" action="{$FORM_ACTION}/interface/forms/vitals/save.php">
+<form name="vitals" method="post" action="{$FORM_ACTION}/interface/forms/vitals/save.php"
+ onsubmit="return top.restoreSession()">
 <table>
 	<tr><th align="left">Name</th><th align="left">Unit</th>
 	{foreach item=vital from=$vitals}

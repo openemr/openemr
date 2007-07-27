@@ -38,7 +38,8 @@ a {
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
 <p><span class="title">SOAP</span></p>
-<form name="soap" method="post" action="{$FORM_ACTION}/interface/forms/soap/save.php">
+<form name="soap" method="post" action="{$FORM_ACTION}/interface/forms/soap/save.php"
+ onsubmit="return top.restoreSession()">
 <table>
 	<tr>
 		<td align="left">Subjective</td>
@@ -65,7 +66,8 @@ a {
 		</td>
 	</tr>
 	<tr>
-		<td><input type="submit" name="Submit" value="Save Form"></td><td><a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
+		<td><input type="submit" name="Submit" value="Save Form"></td>
+    <td><a href="{$DONT_SAVE_LINK}" class="link" onclick="top.restoreSession()">[Don't Save]</a></td>
 	</tr>
 </table>
 <input type="hidden" name="id" value="{$data->get_id()}" />

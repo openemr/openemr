@@ -9,7 +9,8 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<form method=post action="<?echo $rootdir;?>/forms/reviewofs/save.php?mode=new" name="my_form">
+<form method=post action="<?echo $rootdir;?>/forms/reviewofs/save.php?mode=new"
+ name="my_form" onsubmit="return top.restoreSession()">
 <span class="title"><?php xl('Review of Systems Checks','e'); ?></span><br><br>
 
 <table><tr><td valign=top>
@@ -149,16 +150,12 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 </tr>
 </table>
 
-
-
-
-
-
 <span class=text><?php xl('Additional Notes: ','e'); ?></span><br><textarea cols=40 rows=8 wrap=virtual name="additional_notes" ></textarea><br>
 <br>
-<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e');?>]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e');?>]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link">[<?php xl('Don\'t Save','e');?>]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link"
+ onclick="top.restoreSession()">[<?php xl('Don\'t Save','e');?>]</a>
 </form>
 <?php
 formFooter();

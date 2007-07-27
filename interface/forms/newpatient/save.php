@@ -120,6 +120,7 @@ if ($mode == 'new' && $GLOBALS['default_new_encounter_form'] == 'football_injury
  parent.left_nav.setEncounter(<?php echo "'$date', $encounter, window.name"; ?>);
  parent.left_nav.setRadio(window.name, 'enc');
 <?php } ?>
+ top.restoreSession();
  window.location="<?php echo $nexturl; ?>";
 </script>
 

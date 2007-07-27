@@ -63,7 +63,8 @@
   "line_id = '$line_id' ORDER BY ordering, diagnosis"
  );
 ?>
-<form method='post' name='theform' action='edit_diagnoses.php?lineid=<?php  echo $line_id ?>'>
+<form method='post' name='theform' action='edit_diagnoses.php?lineid=<?php  echo $line_id ?>'
+ onsubmit='return top.restoreSession()'>
 <center>
 
 <table border='0' width='100%'>

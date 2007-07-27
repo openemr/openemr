@@ -34,9 +34,10 @@ formHeader("Form: misc_billing_options");
 <br>
 </tr>
 
-<a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>" class="link" target=Main>[Don't Save Changes]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>"
+ class="link" target="Main" onclick="top.restoreSession()">[Don't Save Changes]</a>
 </form>
 <?php
 formFooter();

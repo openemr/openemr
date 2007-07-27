@@ -11,7 +11,8 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 include_once("$srcdir/api.inc");
 $obj = formFetch("form_reviewofs", $_GET["id"]);
 ?>
-<form method=post action="<?echo $rootdir?>/forms/reviewofs/save.php?mode=update&id=<?echo $_GET["id"];?>" name="my_form">
+<form method=post action="<?echo $rootdir?>/forms/reviewofs/save.php?mode=update&id=<?echo $_GET["id"];?>"
+ name="my_form" onsubmit="return top.restoreSession()">
 <span class="title"><?php xl('Review of Systems Checks','e'); ?></span><Br><br>
 
 <table>
@@ -147,16 +148,12 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
 </tr>
 </table>
 
-
-
-
-
-
 <span class=text><?php xl('Additional Notes: ','e'); ?></span><br><textarea cols=40 rows=8 wrap=virtual name="additional_notes" ><?echo $obj{"additional_notes"};?></textarea><br>
 <br>
-<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link">[<?php xl('Don\'t Save Changes','e'); ?>]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link"
+ onclick="top.restoreSession()">[<?php xl('Don\'t Save Changes','e'); ?>]</a>
 </form>
 <?php
 formFooter();

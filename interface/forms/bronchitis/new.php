@@ -44,9 +44,10 @@ topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight
 <span class="title" ><?php xl('Bronchitis Form','e'); ?></span>
 <br></br>
 
-<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" style="color: #483D8B">[<?php xl('Don\'t Save','e'); ?>]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" style="color: #483D8B"
+ onclick="top.restoreSession()">[<?php xl('Don\'t Save','e'); ?>]</a>
 <br></br>
 <span class="text" ><?php xl('Onset of Illness:','e'); ?> </span><input type="entry" name="bronchitis_date_of_illness" value=""></input>
 <br></br>
@@ -421,9 +422,10 @@ topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight
 <br></br>
 <input type="Button" value="<?php xl('Check Input Data','e'); ?>" style="color: #483D8B" onClick = "onset_check(my_form)"<br> 
 <br>
-<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" style="color: #483D8B">[<?php xl('Don\'t Save','e'); ?>]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" style="color: #483D8B"
+ onclick="top.restoreSession()">[<?php xl('Don\'t Save','e'); ?>]</a>
 </form>
 
 <?php

@@ -15,9 +15,10 @@ topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight
 <form method=post action="<?echo $rootdir;?>/forms/ankleinjury/save.php?mode=new" name="my_form">
 <span class="title"><?php xl('Ankle Evaluation Form','e'); ?></span><br></br>
 
-<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" style="color: #483D8B">[<?php xl('Don\'t Save','e'); ?>]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" style="color: #483D8B"
+ onclick="top.restoreSession()">[<?php xl('Don\'t Save','e'); ?>]</a>
 <br></br>
 
 <span class="text" ><?php xl('Date of Injury','e'); ?>: </span><input type="entry" name="ankle_date_of_injuary" value=""></input>
@@ -205,8 +206,9 @@ wrap="virtual name"><?php xl('1.Rest
 </tr>
 </table>
 
-<a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" style="color: #483D8B">[<?php xl('Don\'t Save','e');?>]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" style="color: #483D8B"
+ onclick="top.restoreSession()">[<?php xl('Don\'t Save','e');?>]</a>
 </form>
 <?php
 formFooter();

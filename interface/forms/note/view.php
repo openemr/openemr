@@ -32,9 +32,10 @@ $obj = formFetch("form_note", $_GET["id"]);
 <form method=post action="<?echo $rootdir?>/forms/note/save.php?mode=update&id=<?echo $_GET["id"];?>" name="my_form">
 <span class="title"><?php xl('Work/School Note','e'); ?></span><br></br>
 
-<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link">[<?php xl('Don\'t Save Changes','e'); ?>]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link"
+ onclick="top.restoreSession()">[<?php xl('Don\'t Save Changes','e'); ?>]</a>
 </br>
 
 <tr>
@@ -56,9 +57,10 @@ stripslashes($obj{"note_type"});?>" size="50">
 <span class=text><?php xl('Date:','e'); ?> </span><input type=entry name="date_of_signature" value="<?echo stripslashes($obj{"date_of_signature"});?>" >
 <br></br>
 
-<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link">[<?php xl('Don\'t Save Changes','e'); ?>]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link"
+ onclick="top.restoreSession()">[<?php xl('Don\'t Save Changes','e'); ?>]</a>
 </form>
 <?php
 formFooter();

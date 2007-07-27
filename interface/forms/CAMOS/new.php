@@ -557,11 +557,13 @@ if ($error != '') {
 <input type=button name='submit form' value='submit all content' onClick="js_button('submit','submit')">
 <input type=button name='submit form' value='submit selected content' onClick="js_button('submit','submit_selection')">
 <?
-echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl'>[" .xl('do not save'). "]</a>";
-echo "<a href='".$GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [" .xl ('help'). "]</a>";
+echo "<a href='".$GLOBALS['webroot'] .
+  "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[" .
+  xl('do not save'). "]</a>";
+echo "<a href='" . $GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [" .
+  xl ('help'). "]</a>";
 echo $previous_encounter_data;
 ?>
-
 
 </form>
 <?php

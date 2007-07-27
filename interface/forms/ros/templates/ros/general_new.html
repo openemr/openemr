@@ -57,7 +57,8 @@ border-color:black;
 {/literal}
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
-<form name="ros" method="post" action="{$FORM_ACTION}/interface/forms/ros/save.php">
+<form name="ros" method="post" action="{$FORM_ACTION}/interface/forms/ros/save.php"
+ onsubmit="return top.restoreSession()">
 <table><tr><td colspan='10'>
 <p><span class="main_title">Review Of Systems</span></p>
 </td></tr>

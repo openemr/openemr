@@ -150,6 +150,7 @@ if ($_POST['newtype']) {
 function codeselect(selobj, newtype) {
  var i = selobj.selectedIndex;
  if (i > 0) {
+  top.restoreSession();
   var f = document.forms[0];
   f.newcode.value = selobj.options[i].value;
   f.newtype.value = newtype;
@@ -158,6 +159,7 @@ function codeselect(selobj, newtype) {
 }
 
 function copayselect() {
+ top.restoreSession();
  var f = document.forms[0];
  f.newtype.value = 'COPAY';
  f.submit();
@@ -175,6 +177,7 @@ function validate(f) {
    }
   }
  }
+ top.restoreSession();
  return true;
 }
 
@@ -637,7 +640,8 @@ echo "   </select>\n";
 &nbsp;
 <input type='submit' name='bn_refresh' value='<?php xl('Refresh','e');?>'>
 &nbsp;
-<input type='button' value='<?php xl('Cancel','e');?>' onclick="location='<? echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
+<input type='button' value='<?php xl('Cancel','e');?>'
+ onclick="top.restoreSession();location='<? echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
 
 <?php if ($code_types['UCSMC']) { ?>
 <p style='font-family:sans-serif;font-size:8pt;color:#666666;'>

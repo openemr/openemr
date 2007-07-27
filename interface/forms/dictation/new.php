@@ -14,9 +14,10 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 <span class=text><?php xl('Dictation: ','e'); ?></span><br><textarea cols=80 rows=24 wrap=virtual name="dictation" ></textarea><br>
 <span class=text><?php xl('Additional Notes:','e'); ?> </span><br><textarea cols=80 rows=8 wrap=virtual name="additional_notes" ></textarea><br>
 <br>
-<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link">[<?php xl('Don\'t Save','e'); ?>]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link"
+ onclick="top.restoreSession()">[<?php xl('Don\'t Save','e'); ?>]</a>
 </form>
 <?php
 formFooter();

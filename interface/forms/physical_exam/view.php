@@ -151,6 +151,7 @@ if ($formid) {
  }
 
  function refreshme() {
+  top.restoreSession();
   var f = document.forms[0];
   f.form_refresh.value = '1';
   f.submit();
@@ -161,7 +162,8 @@ if ($formid) {
 
 <body <?echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2"
  bottommargin="0" marginwidth="2" marginheight="0">
-<form method="post" action="<? echo $rootdir ?>/forms/physical_exam/new.php?id=<? echo $formid ?>">
+<form method="post" action="<? echo $rootdir ?>/forms/physical_exam/new.php?id=<? echo $formid ?>"
+ onsubmit="return top.restoreSession()">
 
 <center>
 
@@ -204,7 +206,8 @@ if ($formid) {
 <input type='hidden' name='form_refresh' value='' />
 <input type='submit' name='bn_save' value='<?php xl('Save','e'); ?>' />
 &nbsp;
-<input type='button' value='<?php xl('Cancel','e'); ?>' onclick="location='<? echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
+<input type='button' value='<?php xl('Cancel','e'); ?>'
+ onclick="top.restoreSession();location='<? echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
 </p>
 
 </center>

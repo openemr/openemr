@@ -13,9 +13,10 @@ $obj = formFetch("form_ankleinjury", $_GET["id"]);
 <form method=post action="<?echo $rootdir?>/forms/ankleinjury/save.php?mode=update&id=<?echo $_GET["id"];?>" name="my_form">
 <span class="title"><?php xl('Ankle Evaluation Form','e');?></span><br></br>
 
-<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e');?>]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e');?>]</a>
 <br>
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[<?php xl('Don\'t Save Changes','e');?>]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
+ onclick="top.restoreSession()">[<?php xl('Don\'t Save Changes','e');?>]</a>
 <br></br>
 
 <span class=text>Date of Injury: </span><input type=entry name="ankle_date_of_injuary" value="<?echo stripslashes($obj{"ankle_date_of_injuary"});?>" >
@@ -150,9 +151,10 @@ stripslashes($obj{"ankle_diagnosis4"});?>" size="50"></td>
 <?echo stripslashes($obj{"ankle_plan"});?></textarea>
 </td></tr></table>
 
-<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e');?>]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e');?>]</a>
 <br>
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[<?php xl('Don\'t Save Changes','e');?>]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
+ onclick="top.restoreSession()">[<?php xl('Don\'t Save Changes','e');?>]</a>
 </form>
 <?php
 formFooter();

@@ -14,9 +14,10 @@ $obj = formFetch("form_bronchitis", $_GET["id"]);
 <form method=post action="<?echo $rootdir?>/forms/bronchitis/save.php?mode=update&id=<?echo $_GET["id"];?>" name="my_form">
 <span class="title"><?php xl('Bronchitis Form','e'); ?></span><br><br>
 
-<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link">[<?php xl('Don\'t Save Changes','e'); ?>]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link"
+ onclick="top.restoreSession()">[<?php xl('Don\'t Save Changes','e'); ?>]</a>
 <br></br>
 
 <span class=text><?php xl('Onset of Ilness: ','e'); ?></span><input type=entry name="bronchitis_date_of_illness" value="<?echo stripslashes($obj{"bronchitis_date_of_illness"});?>" ><br></br>
@@ -418,9 +419,10 @@ stripslashes($obj{"diagnosis3_bronchitis_form"});?>" size="40"><br>
 <?echo stripslashes($obj{"bronchitis_treatment"});?></textarea>
 </br>
 
-<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?> ]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?> ]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link">[<?php xl('Don\'t Save Changes','e'); ?> ]</a>
+<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link"
+ onclick="top.restoreSession()">[<?php xl('Don\'t Save Changes','e'); ?> ]</a>
 
 </form>
 <?php
