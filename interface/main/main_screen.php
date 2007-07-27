@@ -23,6 +23,21 @@
 </title>
 <script type="text/javascript" src="../../library/topdialog.js"></script>
 
+<script language='JavaScript'>
+
+// login.php makes sure the session ID captured here is different for each
+// new login.  We maintain it here because most browsers do not have separate
+// cookie storage for different top-level windows.  This function should be
+// called just prior to invoking any server script that requires correct
+// session data.  onclick="top.restoreSession()" usually does the job.
+//
+function restoreSession() {
+ document.cookie = '<?php echo session_name() . '=' . session_id(); ?>; path=/';
+ return true;
+}
+
+</script>
+
 <?php if ($GLOBALS['concurrent_layout']) { // start new layout ?>
 
 </head>

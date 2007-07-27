@@ -1,4 +1,4 @@
-<?
+<?php
  include_once("../../globals.php");
  include_once("$srcdir/lists.inc");
 ?>
@@ -30,7 +30,8 @@
 
 <font class='title'><? xl('Patient Report','e'); ?></font><br>
 
-<a class="link_submit" href="full_report.php">[<? xl('View Comprehensive Patient Report','e'); ?>]</a>
+<a class="link_submit" href="full_report.php" onclick="top.restoreSession()">
+[<? xl('View Comprehensive Patient Report','e'); ?>]</a>
 
 <form name='report_form' method='post' action='custom_report.php'>
 
@@ -60,7 +61,7 @@
 </table>
 
 <br>
-<a href='javascript:document.report_form.submit()' class='link_submit'><? xl('Generate Report','e'); ?></a>
+<a href='javascript:top.restoreSession();document.report_form.submit()' class='link_submit'><? xl('Generate Report','e'); ?></a>
 <hr>
 
 <table>
@@ -220,7 +221,7 @@ foreach($registry_form_name as $var) {
 </ul>
 </form>
 
-<a href='javascript:document.report_form.submit()' class='link_submit'><? xl('Generate Report','e'); ?></a>
+<a href='javascript:top.restoreSession();document.report_form.submit()' class='link_submit'><? xl('Generate Report','e'); ?></a>
 
 </body>
 </html>

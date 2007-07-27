@@ -1,4 +1,4 @@
-<?
+<?php
  include_once("../../globals.php");
  include_once("$srcdir/patient.inc");
  include_once("history.inc.php");
@@ -31,7 +31,8 @@
 ?>
 
 <? if ($thisauth == 'write' || $thisauth == 'addonly') { ?>
-<a href="history_full.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>>
+<a href="history_full.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>
+ onclick="top.restoreSession()">
 <font class=title><? xl('Patient History / Lifestyle','e'); ?></font>
 <font class=more><?echo $tmore;?></font></a><br>
 <? } ?>

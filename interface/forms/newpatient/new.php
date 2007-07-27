@@ -1,4 +1,4 @@
-<?
+<?php
  include_once("../../globals.php");
  include_once("$srcdir/calendar.inc");
  include_once("$srcdir/lists.inc");
@@ -190,15 +190,18 @@
 </table>
 
 <p>
-<a href="javascript:document.new_encounter.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
+<a href="javascript:document.new_encounter.submit();" class="link_submit"
+ onclick="top.restoreSession()">[<?php xl('Save','e'); ?>]</a>
 <? if (!isset($_GET["autoloaded"]) || $_GET["autoloaded"] != "1") { ?>
 &nbsp; &nbsp;
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href="<?php echo "$rootdir/patient_file/encounter/encounter_top.php"; ?>"
+ onclick="top.restoreSession()"
  class="link_submit">[<?php xl('Cancel','e'); ?>]</a>
 <?php } else { ?>
 <a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>"
+ onclick="top.restoreSession()"
  class="link_submit">[<?php xl('Don\'t Save','e'); ?>]</a>
 <?php } ?>
 

@@ -152,6 +152,13 @@
 <script type="text/javascript" src="../../library/dialog.js"></script>
 
 <script language="JavaScript">
+
+// See main_screen.php for an explanation of this.
+function restoreSession() {
+ document.cookie = '<?php echo session_name() . '=' . session_id(); ?>; path=/';
+ return true;
+}
+
 </script>
 
 </head>
@@ -159,7 +166,8 @@
 <body <?echo $top_bg_line;?> leftmargin='0' topmargin='0' marginwidth='0'
  marginheight='0' onunload='imclosing()'>
 
-<form method='post' action='front_payment.php<?php if ($payid) echo "?payid=$payid"; ?>'>
+<form method='post' action='front_payment.php<?php if ($payid) echo "?payid=$payid"; ?>'
+ onsubmit='return top.restoreSession()'>
 <input type='hidden' name='form_pid' value='<?php echo $pid ?>' />
 
 <center>

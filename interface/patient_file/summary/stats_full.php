@@ -1,4 +1,4 @@
-<?
+<?php
  // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -41,6 +41,7 @@ tr.detail { font-size:10pt; }
 
 // callback from add_edit_issue.php:
 function refreshIssue(issue, title) {
+ top.restoreSession();
  location.reload();
 }
 
@@ -60,6 +61,7 @@ function doeclick(id) {
 // Add Encounter button is clicked.
 function newEncounter() {
  var f = document.forms[0];
+ top.restoreSession();
 <?php if ($GLOBALS['concurrent_layout']) { ?>
  parent.left_nav.setRadio(window.name, 'nen');
  location.href='../../forms/newpatient/new.php?autoloaded=1&calenc=';
@@ -74,7 +76,7 @@ function newEncounter() {
 </head>
 
 <body <?echo $top_bg_line;?>>
-<form method='post' action='stats_full.php'>
+<form method='post' action='stats_full.php' onsubmit='return top.restoreSession()'>
 
 <table width='100%' cellpadding='1' cellspacing='2'>
  <tr class='head'>
@@ -161,16 +163,16 @@ function newEncounter() {
   style='background-color:transparent' /> &nbsp;
  <input type='button' value='<?xl('To History','e'); ?>'
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-  onclick="parent.left_nav.setRadio(window.name,'his');location='../history/history_full.php';"
+  onclick="top.restoreSession();parent.left_nav.setRadio(window.name,'his');location='../history/history_full.php';"
 <?php } else { ?>
-  onclick="location='../history/history_full.php';"
+  onclick="top.restoreSession();location='../history/history_full.php';"
 <?php } ?>
   style='background-color:transparent' /> &nbsp;
  <input type='button' value='<?xl('Back','e'); ?>'
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-  onclick="parent.left_nav.setRadio(window.name,'dem');location='demographics.php';"
+  onclick="top.restoreSession();parent.left_nav.setRadio(window.name,'dem');location='demographics.php';"
 <?php } else { ?>
-  onclick='location="patient_summary.php"'
+  onclick='top.restoreSession();location="patient_summary.php"'
 <?php } ?>
 
   style='background-color:transparent' />

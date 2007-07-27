@@ -16,6 +16,7 @@ include_once("../globals.php");
    return false;
   }
 <?php } ?>
+  top.restoreSession();
   return true;
  }
 
@@ -34,7 +35,8 @@ include_once("../globals.php");
 <?php } else { ?>
 <form name='new_patient' method='post' action="new_patient_save.php"
  target='_top' onsubmit='return validate()'>
-<a class="title" href="../main/main_screen.php" target="_top"><?php xl('New Patient','e');?></a>
+<a class="title" href="../main/main_screen.php" target="_top" onclick="top.restoreSession()">
+<?php xl('New Patient','e');?></a>
 <?php } ?>
 
 <br><br>

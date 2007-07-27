@@ -56,7 +56,7 @@
    echo "  <td colspan='$numcols' valign='top'>\n";
    echo "   <a href='stats_full.php?active=all' target='";
    echo $GLOBALS['concurrent_layout'] ? "_parent" : "Main";
-   echo "'><font class='title'>" .
+   echo "' onclick='top.restoreSession()'><font class='title'>" .
         $arr[0] . "</font><font class='more'>$tmore</font></a>\n";
    echo "  </td>\n";
    echo " </tr>\n";
@@ -136,7 +136,7 @@
     echo "  <td colspan='$numcols'>&nbsp;&nbsp;";
     echo "<a class='link' target='_blank' ";
     echo "href='../../forms/$formname/new.php?popup=1&id=";
-    echo $row['id'] . "'>$start_date $template_name</a></td>\n";
+    echo $row['id'] . "' onclick='top.restoreSession()'>$start_date $template_name</a></td>\n";
     echo " </tr>\n";
    }
   }
@@ -147,7 +147,8 @@
 <tr>
 <td colspan='<?php echo $numcols ?>' valign='top'>
 <a href="immunizations.php"
- target="<?php echo $GLOBALS['concurrent_layout'] ? "_parent" : "Main"; ?>">
+ target="<?php echo $GLOBALS['concurrent_layout'] ? "_parent" : "Main"; ?>"
+ onclick="top.restoreSession()">
 <font class="title"><? xl('Immunizations','e'); ?></font>
 <font class=more><?echo $tmore;?></font></a><br>
 
@@ -167,7 +168,8 @@
   while ($row=sqlFetchArray($result)){
     echo "<a class='link' target='";
     echo $GLOBALS['concurrent_layout'] ? "_parent" : "Main";
-    echo "' href='immunizations.php'>" . $row{'immunization_data'} . "</a><br>\n";
+    echo "' href='immunizations.php' onclick='top.restoreSession()'>" .
+    $row{'immunization_data'} . "</a><br>\n";
   }
 ?>
 </td>

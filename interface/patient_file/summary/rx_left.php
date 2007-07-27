@@ -11,9 +11,11 @@ include_once("../../globals.php");
 <dl>
 <dt><span class="title"><?php xl('Prescriptions','e'); ?></span></dt>
 <dd><a class="text" href="<?=$GLOBALS['webroot']?>/controller.php?prescription&list&id=<?=$pid?>"
- target="RxRight"><?php xl('List Prescriptions','e'); ?></a></dd>
+ target="RxRight" onclick="top.restoreSession()">
+<?php xl('List Prescriptions','e'); ?></a></dd>
 <dd><a class="text" href="<?=$GLOBALS['webroot']?>/controller.php?prescription&edit&id=&pid=<?=$pid?>"
- target="RxRight"><?php xl('Add Prescription','e'); ?></a></dd>
+ target="RxRight" onclick="top.restoreSession()">
+<?php xl('Add Prescription','e'); ?></a></dd>
 </dl>
 
 </body>

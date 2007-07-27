@@ -28,13 +28,14 @@ if (!is_array($result)) {
 }
 ?>
 
-<form action="history_save.php" name='history_form' method='post'>
+<form action="history_save.php" name='history_form' method='post'
+ onsubmit='return top.restoreSession()'>
 <input type='hidden' name='mode' value='save'>
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-<a href="history.php">
+<a href='history.php' onclick='top.restoreSession()'>
 <?php } else { ?>
-<a href='patient_history.php' target='Main'>
+<a href='patient_history.php' target='Main' onclick='top.restoreSession()'>
 <?php } ?>
 <font class='title'><?php xl('Patient History / Lifestyle','e'); ?></font>
 <font class=back><?echo $tback;?></font></a><br>
@@ -139,15 +140,15 @@ if (!is_array($result)) {
    <input type='submit' value='<?xl('Save','e'); ?>.' />&nbsp;
    <input type='button' value='<?xl('To Issues','e'); ?>'
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-    onclick="parent.left_nav.setRadio(window.name,'iss');location='../summary/stats_full.php';" />&nbsp;
+    onclick="top.restoreSession();parent.left_nav.setRadio(window.name,'iss');location='../summary/stats_full.php';" />&nbsp;
 <?php } else { ?>
-    onclick="location='../summary/stats_full.php';" />&nbsp;
+    onclick="top.restoreSession();location='../summary/stats_full.php';" />&nbsp;
 <?php } ?>
    <input type='button' value='<?php xl('Back','e'); ?>'
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-    onclick="location='history.php';" />
+    onclick="top.restoreSession();location='history.php';" />
 <?php } else { ?>
-    onclick="location='patient_history.php';" />
+    onclick="top.restoreSession();location='patient_history.php';" />
 <?php } ?>
   </td>
  </tr>

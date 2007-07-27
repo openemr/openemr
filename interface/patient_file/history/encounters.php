@@ -85,6 +85,7 @@ function showDocument(&$drow) {
 <script language="JavaScript">
 
  function toencounter(enc, datestr) {
+  top.restoreSession();
 <?php if ($GLOBALS['concurrent_layout']) { ?>
   parent.left_nav.setEncounter(datestr, enc, window.name);
   parent.left_nav.setRadio(window.name, 'enc');
@@ -97,6 +98,7 @@ function showDocument(&$drow) {
 
  function todocument(docid) {
   h = '../../../controller.php?document&view&patient_id=<?php echo $pid ?>&doc_id=' + docid;
+  top.restoreSession();
 <?php if ($GLOBALS['concurrent_layout']) { ?>
   parent.left_nav.setRadio(window.name, 'doc');
   location.href = h;
@@ -157,7 +159,10 @@ if ($result = getEncounters($pid)) {
     // $count++; // Forget about limiting the number of encounters
     if ($count > $N) {
       //we have more encounters to print, but we've reached our display maximum
-      print "<tr><td colspan='4' align='center'><a target='Main' href='encounters_full.php' class='alert'>".xl('Some encounters were not displayed. Click here to view all.')."</a></td></tr>\n";
+      print "<tr><td colspan='4' align='center'>" .
+        "<a target='Main' href='encounters_full.php' class='alert' onclick='top.restoreSession()'>" .
+        xl('Some encounters were not displayed. Click here to view all.') .
+        "</a></td></tr>\n";
       break;
     }
 
@@ -222,7 +227,7 @@ if ($result = getEncounters($pid)) {
       echo "$tcode: " . $irow['title'];
      }
     } else {
-     echo "(".xl('No access').")";
+     echo "(" . xl('No access') . ")";
     }
     echo "$linkend</td>\n";
 

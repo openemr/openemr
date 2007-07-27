@@ -463,7 +463,7 @@ td { font-size:10pt; }
 
  var durations = new Array();
  // var rectypes  = new Array();
-<?
+<?php
  // Read the event categories, generate their options list, and get
  // the default event duration from them if this is a new event.
  $catoptions = "";
@@ -499,6 +499,12 @@ td { font-size:10pt; }
 
  }
 ?>
+
+ // See main_screen.php for an explanation of this.
+ function restoreSession() {
+  document.cookie = '<?php echo session_name() . '=' . session_id(); ?>; path=/';
+  return true;
+ }
 
  // This is for callback by the find-patient popup.
  function setpatient(pid, lname, fname, dob) {
@@ -607,6 +613,7 @@ td { font-size:10pt; }
 
  // Invoke the find-available popup.
  function find_available() {
+  top.restoreSession();
   var s = document.forms[0].form_provider;
   var c = document.forms[0].form_category;
   dlgopen('find_appt_popup.php?providerid=' + s.options[s.selectedIndex].value +
@@ -621,6 +628,7 @@ td { font-size:10pt; }
    alert('An end date later than the start date is required for repeated events!');
    return false;
   }
+  top.restoreSession();
   return true;
  }
 

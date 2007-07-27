@@ -100,8 +100,15 @@ var pselected = new Object();
 var eselected = new Object();
 var keyid = null; // id of currently hilited key, if any
 
+// See main_screen.php for an explanation of this.
+function restoreSession() {
+ document.cookie = '<?php echo session_name() . '=' . session_id(); ?>; path=/';
+ return true;
+}
+
 // callback from add_edit_issue.php:
 function refreshIssue(issue, title) {
+ top.restoreSession();
  location.reload();
 }
 
@@ -119,6 +126,7 @@ function newEncounter() {
   if (!confirm('This will abandon your unsaved changes.  Are you sure?'))
    return;
  }
+ top.restoreSession();
  var tmp = (keyid && f.form_key[0].checked) ? ('&issue=' + keyid) : '';
  opener.top.Title.location.href='encounter/encounter_title.php';
  opener.top.Main.location.href='encounter/patient_encounter.php?mode=new' + tmp;
@@ -252,7 +260,7 @@ function doclick(pfx, id) {
 </head>
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'
  bgcolor='#ffffff' onunload='imclosing()'>
-<form method='post' action='problem_encounter.php'>
+<form method='post' action='problem_encounter.php' onsubmit='return top.restoreSession()'>
 <?
  echo "<input type='hidden' name='form_pid' value='$pid' />\n";
  // pelist looks like /problem,encounter/problem,encounter/[...].

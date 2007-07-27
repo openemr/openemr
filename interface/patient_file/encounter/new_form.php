@@ -6,15 +6,6 @@ include_once("../../globals.php");
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 </head>
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<!-- outdated
-<dl>
-<dt><span class="title">New Form</span></dt>
-<dd><a href="<?echo "$rootdir/patient_file/encounter/load_form.php?formname=physical";?>" class="link" target=Main>Physical Examination</a></dd>
-<dd><a href="<?echo "$rootdir/patient_file/encounter/load_form.php?formname=newpatient";?>" class="link" target=Main>New Patient Form</a></dd>
-<dd><a href="<?echo "$rootdir/patient_file/encounter/load_form.php?formname=sencounter";?>" class="link" target=Main>Small Patient Encounter</a></dd>
-<dd><a href="<?echo "$rootdir/patient_file/encounter/load_form.php?formname=reviewofs";?>" class="link" target=Main>Review Of Systems</a></dd>
-</dl>
--->
 <dl>
 <?php //DYNAMIC FORM RETREIVAL
 include_once("$srcdir/registry.inc");
@@ -47,7 +38,7 @@ foreach ($reg as $entry) {
 		$new_category_ = $new_category;
 		$new_category_ = str_replace(' ','_',$new_category_);
 		if ($old_category != '') {echo "</select>\n";}
-		echo "<select name=" . $new_category_ . " onchange='";
+		echo "<select name=" . $new_category_ . " onchange='top.restoreSession();";
 		echo $GLOBALS['concurrent_layout'] ? "parent" : "top.frames[\"Main\"]";
 		echo ".location.href = document.choose." . $new_category_ .
 			".options[document.choose." . $new_category_ . ".selectedIndex].value'>\n";

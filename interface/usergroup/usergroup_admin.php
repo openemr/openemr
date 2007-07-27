@@ -1,4 +1,4 @@
-<?
+<?php
 include_once("../globals.php");
 include_once("$srcdir/md5.js");
 include_once("$srcdir/sql.inc");
@@ -138,7 +138,8 @@ if (isset($_GET["mode"])) {
 
 <td valign=top>
 
-<form name='facility' method='post' action="usergroup_admin.php">
+<form name='facility' method='post' action="usergroup_admin.php"
+ onsubmit='return top.restoreSession()'>
 <input type=hidden name=mode value="facility">
 <span class=bold><? xl('New Facility Information','e'); ?>: </span>
 </td><td>
@@ -182,7 +183,8 @@ if (isset($_GET["mode"])) {
 <tr>
 <td valign=top>
 
-<form name='facility' method='post' action="usergroup_admin.php">
+<form name='facility' method='post' action="usergroup_admin.php"
+ onsubmit='return top.restoreSession()'>
 <input type=hidden name=mode value=<? xl('facility','e'); ?>>
 <span class=bold><? xl('Edit Facilities','e'); ?>: </span>
 </td><td valign=top>
@@ -195,7 +197,9 @@ if ($fres) {
     $result2[$iter3] = $frow;
   foreach($result2 as $iter3) {
 ?>
-<span class=text><?echo $iter3{name};?></span><a href="facility_admin.php?fid=<?echo $iter3{id};?>" class=link_submit>(Edit)</a><br>
+<span class=text><?echo $iter3{name};?></span>
+<a href="facility_admin.php?fid=<?echo $iter3{id};?>" class=link_submit
+ onclick="top.restoreSession()">(Edit)</a><br>
 <?
   }
 }
@@ -204,7 +208,8 @@ if ($fres) {
 </td>
 </tr>
 <tr><td valign=top>
-<form name='new_user' method='post' action="usergroup_admin.php">
+<form name='new_user' method='post' action="usergroup_admin.php"
+ onsubmit='return top.restoreSession()'>
 <input type=hidden name=mode value=new_user>
 <span class=bold><? xl('New User','e'); ?>:</span>
 </td><td>
@@ -280,7 +285,8 @@ if ($fres) {
 </tr><tr>
 
 <td valign=top>
-<form name=new_group method=post action="usergroup_admin.php">
+<form name='new_group' method='post' action="usergroup_admin.php"
+ onsubmit='return top.restoreSession()'>
 <input type=hidden name=mode value=new_group>
 <span class=bold><? xl('New Group','e'); ?>:</span>
 </td><td>
@@ -305,7 +311,8 @@ foreach ($result as $iter) {
 </tr><tr>
 
 <td valign=top>
-<form name=new_group method=post action="usergroup_admin.php">
+<form name='new_group' method='post' action="usergroup_admin.php"
+ onsubmit='return top.restoreSession()'>
 <input type=hidden name=mode value=new_group>
 <span class=bold><? xl('Add User To Group','e'); ?>:</span>
 </td><td>
@@ -359,12 +366,13 @@ foreach ($result4 as $iter) {
 
   print "<tr><td><span class=text>" . $iter{"username"} .
     "</span><a href='user_admin.php?id=" . $iter{"id"} .
-    "' class=link_submit>(Edit)</a></td><td><span class=text>" .
+    "' class='link_submit' onclick='top.restoreSession()'>(Edit)</a>" .
+    "</td><td><span class=text>" .
     $iter{"fname"} . ' ' . $iter{"lname"}."</span></td><td><span class=text>" .
     $iter{"info"} . "</span></td><td align='center'><span class=text>" .
     $iter{"authorized"} . "</span></td>";
   print "<td><!--<a href='usergroup_admin.php?mode=delete&id=" . $iter{"id"} .
-    "' class=link_submit>[Delete]</a>--></td>";
+    "' class='link_submit'>[Delete]</a>--></td>";
   print "</tr>\n";
 }
 ?>
@@ -380,8 +388,8 @@ for ($iter = 0;$row = sqlFetchArray($res);$iter++)
 
 foreach ($result5 as $iter) {
   $grouplist{$iter{"name"}} .= $iter{"user"} .
-    "(<a class=link_submit href='usergroup_admin.php?mode=delete_group&id=" .
-    $iter{"id"} . "'>Remove</a>), ";
+    "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
+    $iter{"id"} . "' onclick='top.restoreSession()'>Remove</a>), ";
 }
 
 foreach ($grouplist as $groupname => $list) {

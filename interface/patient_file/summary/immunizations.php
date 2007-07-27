@@ -1,4 +1,4 @@
-<?
+<?php
 include_once("../../globals.php");
 include_once("$srcdir/sql.inc");
 // include_once("$srcdir/overlib_mini.js");
@@ -58,7 +58,7 @@ include_once("$srcdir/sql.inc");
 <?php if ($GLOBALS['concurrent_layout']) { ?>
     <font class="title"><? xl('Immunizations','e'); ?></font>
 <?php } else { ?>
-    <a href="patient_summary.php" target="Main">
+    <a href="patient_summary.php" target="Main" onclick="top.restoreSession()">
     <font class="title"><? xl('Immunizations','e'); ?></font>
     <font class=back><?echo $tback;?></font></a>
 <?php } ?>
@@ -177,14 +177,17 @@ include_once("$srcdir/sql.inc");
         </tr>
         <tr>
           <td align="center">
-            <br /><a href='shot_record.php' class=link>[<? xl('Print Shot Record','e'); ?>]</a>
+            <br /><a href='shot_record.php' class='link' onclick='top.restoreSession()'>
+            [<? xl('Print Shot Record','e'); ?>]</a>
           </td>
           <td align="center">
             <input type="hidden" name="id" value="<?=$id?>"> 
-            <br /><a href='javascript:document.add_immunization.submit();' class=link>[<? xl('Save Immunization','e'); ?>]</a>
+            <br /><a href='javascript:top.restoreSession();document.add_immunization.submit();' class='link'>
+            [<? xl('Save Immunization','e'); ?>]</a>
           </td>
           <td align="center">
-            <br /><a href='immunizations.php?mode=clear' class=link>[<? xl('Clear','e'); ?>]</a>
+            <br /><a href='immunizations.php?mode=clear' class='link' onclick='top.restoreSession()'>
+            [<? xl('Clear','e'); ?>]</a>
           </td>
         </tr>
       </table>
@@ -213,7 +216,8 @@ include_once("$srcdir/sql.inc");
                         order by administered_date desc";
                 $result = sqlStatement($sql);
                 while($row = sqlFetchArray($result)){
-                  print "<tr><td><a class=link href='immunizations.php?mode=edit&id=".$row{"id"}."'>[".xl('Edit')."]</a></td>";
+                  print "<tr><td><a class='link' href='immunizations.php?mode=edit&id=" .
+                    $row{"id"} . "' onclick='top.restoreSession()'>[" . xl('Edit') . "]</a></td>";
                   print "<td><span class=text>" . $row{"administered_date"} . "</span></td>";
                   print "<td><span class=text>" . $row{"immunization"} . "</span></td>";
                   print "<td><span class=text>" . $row{"manufacturer"} . "</span></td>";
@@ -221,7 +225,9 @@ include_once("$srcdir/sql.inc");
                   print "<td><span class=text>" . $row{"administered_by"} . "</span></td>";
                   print "<td><span class=text>" . $row{"education_date"} . "</span></td>";
                   print "<td><span class=text>" . $row{"note"} . "</span></td>";
-                  print "<td><a class=link href='immunizations.php?mode=delete&id=".$row{"id"}."' style=\"color: red;\">[".xl('Delete')."]</a></td></tr>";
+                  print "<td><a class='link' href='immunizations.php?mode=delete&id=" .
+                    $row{"id"} . "' style='color: red;' onclick='top.restoreSession()'>[" .
+                    xl('Delete') . "]</a></td></tr>";
 
                 }
               ?>

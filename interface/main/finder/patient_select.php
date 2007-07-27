@@ -19,7 +19,8 @@ if ($patient=='') $patient=xl('Please enter some information','e');
 <body <?php echo $top_bg_line; ?> topmargin='0' rightmargin='0' leftmargin='2'
  bottommargin='0' marginwidth='2' marginheight='0'>
 
-<a class="title" href="../main_screen.php" target="_top"><?php echo xl('Select Patient') . ' ' . $patient . ' ' . xl('by') . ' ' . xl($findBy); ?></a>
+<a class="title" href="../main_screen.php" target="_top" onclick="top.restoreSession()">
+<?php echo xl('Select Patient') . ' ' . $patient . ' ' . xl('by') . ' ' . xl($findBy); ?></a>
 
 <br>
 
@@ -56,11 +57,11 @@ if ($result) {
 		// will set the pid and load all the other frames.
 		if ($GLOBALS['concurrent_layout']) {
 			$anchor = "<a href='../../patient_file/summary/demographics.php?set_pid=" .
-				$iter['pid'] . "' class='text'>";
+				$iter['pid'] . "' class='text' onclick='top.restoreSession()'>";
 		} else {
 			$anchor = "<a class='text' target='_top' " .
 				"href='../../patient_file/patient_file.php?set_pid=" .
-				$iter['pid'] . "'>";
+				$iter['pid'] . "' onclick='top.restoreSession()'>";
 		}
 		print "<tr><td>$anchor" . $iter['lname'] . ", " . $iter['fname'] . "</a></td>\n";
 		print "<td>$anchor" . $iter['ss'] . "</a></td>";

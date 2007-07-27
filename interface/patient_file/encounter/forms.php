@@ -23,6 +23,7 @@
 <?php if ($GLOBALS['concurrent_layout']) { ?>
   parent.parent.left_nav.clearEncounter();
 <?php } else { ?>
+  top.restoreSession();
   top.Title.location.href = '../patient_file/encounter/encounter_title.php';
   top.Main.location.href  = '../patient_file/encounter/patient_encounter.php?mode=new';
 <?php } ?>
@@ -85,7 +86,7 @@
    echo $GLOBALS['concurrent_layout'] ? "_parent" : "Main";
    echo "' href='$rootdir/patient_file/encounter/view_form.php?" .
     "formname=" . $formdir . "&id=" . $iter['form_id'] .
-    "' class='text'>$form_name</a></td>\n" .
+    "' class='text' onclick='top.restoreSession()'>$form_name</a></td>\n" .
     "<td width='25'></td>\n" .
     "<td valign='top'>";
 

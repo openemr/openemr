@@ -36,7 +36,8 @@ $iter = $result[0];
 
 ?>
 <span class="text"><? xl('Once you change your password, you will have to re-login.','e'); ?><br></span>
-<FORM NAME="user_form" METHOD="GET" ACTION="user_info.php">
+<FORM NAME="user_form" METHOD="GET" ACTION="user_info.php"
+ onsubmit="top.restoreSession()">
 <TABLE>
 <TR>
 <TD><span class=text><? xl('Real Name','e'); ?>: </span></TD>
@@ -67,7 +68,8 @@ $iter = $result[0];
 
 <?php if (! $GLOBALS['concurrent_layout']) { ?>
 &nbsp;&nbsp;&nbsp;
-[<a href="../main/main_screen.php" target="_top" class=link_submit><? xl('Back','e'); ?></font></a>]
+[<a href="../main/main_screen.php" target="_top" class="link_submit"
+  onclick="top.restoreSession()"><?php xl('Back','e'); ?></font></a>]
 <?php } ?>
 
 </FORM>

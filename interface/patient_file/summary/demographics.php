@@ -71,6 +71,7 @@ function get_patient_balance($pid) {
  }
 
  function refreshme() {
+  top.restoreSession();
   location.reload();
  }
 
@@ -85,6 +86,7 @@ function get_patient_balance($pid) {
 <?php if ($GLOBALS['concurrent_layout']) { ?>
   parent.left_nav.clearPatient();
 <?php } else { ?>
+  top.restoreSession();
   top.location.href = '../main/main_screen.php';
 <?php } ?>
  }
@@ -105,15 +107,16 @@ function get_patient_balance($pid) {
  }
 
  if (!$thisauth) {
-  echo "<p>(".xl('Demographics not authorized').")</p>\n";
+  echo "<p>(" . xl('Demographics not authorized') . ")</p>\n";
   echo "</body>\n</html>\n";
   exit();
  }
 
  if ($thisauth == 'write') {
   echo "<p><a href='demographics_full.php'";
-   if (! $GLOBALS['concurrent_layout']) echo " target='Main'";
-   echo "><font class='title'>" . xl('Demographics') . "</font>" .
+  if (! $GLOBALS['concurrent_layout']) echo " target='Main'";
+  echo " onclick='top.restoreSession()'><font class='title'>" .
+   xl('Demographics') . "</font>" .
    "<font class='more'>$tmore</font></a>";
   if (acl_check('admin', 'super')) {
    echo "&nbsp;&nbsp;<a href='' onclick='return deleteme()'>" .
@@ -146,7 +149,8 @@ if ($GLOBALS['patient_id_category_name']) {
       <span class='text'>
 <?php
 if ($document_id) echo "<a href='/openemr/controller.php?document&retrieve" .
-  "&patient_id=$pid&document_id=$document_id' style='color:#00cc00'>";
+  "&patient_id=$pid&document_id=$document_id' style='color:#00cc00' " .
+  "onclick='top.restoreSession()'>";
 if (!$GLOBALS['omit_employers']) echo $result['title'] . ' ';
 echo $result['fname'] . ' ' . $result['mname'] . ' ' . $result['lname'];
 if ($document_id) echo "</a>";
@@ -358,7 +362,7 @@ echo $result{"postal_code"}?>
 ?>
       <form method='post' action='demographics.php'>
       <span class='bold'><? xl('Fitness to Play','e'); ?>:</span><br>
-      <select name='form_fitness' onchange='document.forms[0].submit()' style='background-color:<? echo $fitcolor ?>'>
+      <select name='form_fitness' onchange='top.restoreSession();document.forms[0].submit()' style='background-color:<? echo $fitcolor ?>'>
        <option value='1'<? if ($fitness == 1) echo ' selected' ?>><? xl('Full Play','e'); ?></option>
        <option value='2'<? if ($fitness == 2) echo ' selected' ?>><? xl('Full Training','e'); ?></option>
        <option value='3'<? if ($fitness == 3) echo ' selected' ?>><? xl('Restricted Training','e'); ?></option>

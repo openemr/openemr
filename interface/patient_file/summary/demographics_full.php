@@ -98,6 +98,7 @@ function auto_populate_employer_address<?php echo $i ?>(){
 function popUp(URL) {
  day = new Date();
  id = day.getTime();
+ top.restoreSession();
  eval("page" + id + " = window.open(URL, '" + id + "', 'toolbar=0,scrollbars=1,location=0,statusbar=0,menubar=0,resizable=1,width=400,height=300,left = 440,top = 362');");
 }
 
@@ -163,9 +164,9 @@ function capitalizeMe(elem) {
 <input type=hidden name=mode value=save>
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-<a href="demographics.php">
+<a href="demographics.php" onclick="top.restoreSession()">
 <?php } else { ?>
-<a href="patient_summary.php" target=Main>
+<a href="patient_summary.php" target="Main" onclick="top.restoreSession()">
 <?php } ?>
 <font class=title><?php xl('Demographics','e'); ?></font>
 <font class=back><?php echo $tback;?></font></a>
@@ -373,7 +374,7 @@ function capitalizeMe(elem) {
 
  <tr>
   <td colspan='6'>
-   <a href="javascript:document.demographics_form.submit();" class='link_submit'>[<?php xl('Save Patient Demographics','e'); ?>]</a>
+   <a href="javascript:top.restoreSession();document.demographics_form.submit();" class='link_submit'>[<?php xl('Save Patient Demographics','e'); ?>]</a>
    <hr>
   </td>
  </tr>
@@ -427,7 +428,7 @@ function capitalizeMe(elem) {
  </tr>
  <tr>
   <td colspan='4'>
-   <a href="javascript:document.demographics_form.submit();" class=link_submit>[<?php xl('Save Patient Demographics','e'); ?>]</a>
+   <a href="javascript:top.restoreSession();document.demographics_form.submit();" class=link_submit>[<?php xl('Save Patient Demographics','e'); ?>]</a>
    <br><hr>
   </td>
  </tr>
@@ -516,7 +517,7 @@ function capitalizeMe(elem) {
 
  <tr>
   <td colspan=4>
-   <a href="javascript:document.demographics_form.submit();" class=link_submit>[<?php xl('Save Patient Demographics','e'); ?>]</a><hr></td>
+   <a href="javascript:top.restoreSession();document.demographics_form.submit();" class=link_submit>[<?php xl('Save Patient Demographics','e'); ?>]</a><hr></td>
  </tr>
 
 <?php if (! $GLOBALS['athletic_team'] && ! $GLOBALS['simplified_demographics']) { ?>
@@ -584,7 +585,7 @@ function capitalizeMe(elem) {
 
  <tr>
   <td colspan=4>
-   <a href="javascript:document.demographics_form.submit();" class=link_submit>[<?php xl('Save Patient Demographics','e'); ?>]</a>
+   <a href="javascript:top.restoreSession();document.demographics_form.submit();" class=link_submit>[<?php xl('Save Patient Demographics','e'); ?>]</a>
    <hr>
   </td>
  </tr>
@@ -761,7 +762,7 @@ function capitalizeMe(elem) {
   </td>
  </tr>
 </table>
-<a href="javascript:document.demographics_form.submit();" class=link_submit>[<?php xl('Save Patient Demographics','e'); ?>]</a>
+<a href="javascript:top.restoreSession();document.demographics_form.submit();" class=link_submit>[<?php xl('Save Patient Demographics','e'); ?>]</a>
 <hr>
 
 <?php

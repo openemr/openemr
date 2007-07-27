@@ -7,6 +7,19 @@ include_once("$srcdir/sql.inc");
 <html>
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+
+<script language='JavaScript'>
+
+function imsubmitted() {
+ // Delete the session cookie by setting its expiration date in the past.
+ // This forces the server to create a new session ID.
+ var olddate = new Date();
+ olddate.setFullYear(olddate.getFullYear() - 1);
+ document.cookie = '<?php echo session_name() . '=' . session_id() ?>; path=/; expires=' + olddate.toGMTString();
+}
+
+</script>
+
 </head>
 <body <?echo $login_body_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0 onload="javascript:document.login_form.authUser.focus();" >
 
@@ -14,7 +27,8 @@ include_once("$srcdir/sql.inc");
 
 <center>
 
-<form method="POST" action="../main/main_screen.php?auth=login" target="_top" name=login_form>
+<form method="POST" action="../main/main_screen.php?auth=login" target="_top"
+ name="login_form" onsubmit="imsubmitted();">
 
 <?
 $res = sqlStatement("select distinct name from groups");

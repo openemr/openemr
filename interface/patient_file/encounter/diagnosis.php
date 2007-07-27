@@ -96,7 +96,8 @@ if (isset($mode)) {
  }
 ?>
 
-<form name="diagnosis" method="post" action="diagnosis.php?mode=justify">
+<form name="diagnosis" method="post" action="diagnosis.php?mode=justify"
+ onsubmit="return top.restoreSession()">
 
 <table border=0 cellspacing=0 cellpadding=0 height=100%>
 <tr>
@@ -105,13 +106,13 @@ if (isset($mode)) {
 
 <dl>
 <dt>
-<a href="diagnosis_full.php" target="<?php echo $target; ?>">
+<a href="diagnosis_full.php" target="<?php echo $target; ?>" onclick="top.restoreSession()">
 <span class=title><?php echo ($GLOBALS['phone_country_code'] == '1') ? 'Billing' : 'Coding'; ?></span>
 <font class=more><?php echo $tmore;?></font></a>
 
 <?php
 if( !empty( $_GET["back"] ) || !empty( $_POST["back"] ) ){
-	print "&nbsp;<a href=\"superbill_codes.php\" target=\"$target\"><font class=more>$tback</font></a>";
+	print "&nbsp;<a href=\"superbill_codes.php\" target=\"$target\" onclick=\"top.restoreSession()\"><font class=more>$tback</font></a>";
 	print "<input type=\"hidden\" name=\"back\" value=\"1\">";
 }
 ?>
@@ -122,7 +123,7 @@ if( !empty( $_GET["back"] ) || !empty( $_POST["back"] ) ){
 </dt>
 </dl>
 
-<a href="cash_receipt.php?" class='link_submit' target='new'>
+<a href="cash_receipt.php?" class='link_submit' target='new' onclick='top.restoreSession()'>
 [<?php xl('Receipt','e'); ?>]
 </a>
 <table border="0">
@@ -136,7 +137,8 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 				$html .= "<td valign=\"middle\">" .
 					'<input  style="width: 11px;height: 11px;" name="code[diag][' .
 					$iter["code"] . ']" type="checkbox" value="' . $iter[code] . '">' .
-					"</td><td><div><a target='$target' class='small' href='diagnosis_full.php'><b>" .
+					"</td><td><div><a target='$target' class='small' " .
+          "href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
 					$iter{"code"} . "</b> " . ucwords(strtolower($iter{"code_text"})) .
 					"</a></div></td></tr>\n";
 				$billing_html[$iter["code_type"]] .= $html;
@@ -144,7 +146,8 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 		}
 		elseif ($iter["code_type"] == "COPAY") {
 			$billing_html[$iter["code_type"]] .=
-				"<tr><td></td><td><a target='$target' class='small' href='diagnosis_full.php'><b>" .
+				"<tr><td></td><td><a target='$target' class='small' " .
+        "href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
 				$iter['code'] . "</b> " .
 				ucwords(strtolower($iter['code_text'])) .
 				' payment entered on ' .
@@ -154,7 +157,8 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 			$billing_html[$iter["code_type"]] .=
 				"<tr><td>" . '<input  style="width: 11px;height: 11px;" name="code[proc][' .
 				$iter["code"] . ']" type="checkbox" value="' . $iter[code] . '">' .
-				"</td><td><a target='$target' class='small' href='diagnosis_full.php'><b>" .
+				"</td><td><a target='$target' class='small' " .
+        "href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
 				$iter{"code"} . ' ' . $iter['modifier'] . "</b> " .
 				ucwords(strtolower($iter{"code_text"})) . ' ' . $iter['fee'] .
 				"</a><span class=\"small\">";

@@ -212,6 +212,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
  // Load the specified url into the specified frame (RTop or RBot).
  // The URL provided must be relative to interface.
  function loadFrame(frame, url) {
+  top.restoreSession();
   var i = url.indexOf('{PID}');
   if (i >= 0) url = url.substring(0,i) + active_pid + url.substring(i+5);
   top.frames[frame].location = '<?php echo "$web_root/interface/" ?>' + url;
@@ -266,6 +267,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
   }
   f.findBy.value = findby;
   setRadio('rb_top', 'dem');
+  top.restoreSession();
   document.find_patient.submit();
  }
 
@@ -538,7 +540,8 @@ Active Encounter:<br />
 </table>
 
 <hr />
-<a href="../logout.php?auth=logout" target="_top" class="navitem" id="logout_link">
+<a href="../logout.php?auth=logout" target="_top" class="navitem" id="logout_link"
+ onclick="top.restoreSession()">
 <? xl('Logout','e'); ?></a>
 
 <input type='hidden' name='findBy' value='Last' />

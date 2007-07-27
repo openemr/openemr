@@ -39,8 +39,15 @@ $form_squads     = $_POST['form_squads']; // this is an array
 
  var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
 
+ // See main_screen.php for an explanation of this.
+ function restoreSession() {
+  document.cookie = '<?php echo session_name() . '=' . session_id(); ?>; path=/';
+  return true;
+ }
+
 // callback from add_edit_issue.php:
 function refreshIssue(issue, title) {
+ top.restoreSession();
  document.forms[0].submit();
 }
 
@@ -59,7 +66,8 @@ function dopclick(id,pid) {
 
 <h2><? xl('Injury Overview Report','e'); ?></h2>
 
-<form name='theform' method='post' action='injury_overview_report.php'>
+<form name='theform' method='post' action='injury_overview_report.php'
+ onsubmit='return top.restoreSession()'>
 
 <table border='0' cellspacing='0' cellpadding='2'>
 

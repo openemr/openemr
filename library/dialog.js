@@ -20,6 +20,7 @@ function cascwin(url, winname, width, height, options) {
   newx = 0;
   newy = 0;
  }
+ top.restoreSession();
  return window.open(url, winname, options +
   ",width="   + width + ",height="  + height +
   ",left="    + newx  + ",top="     + newy   +

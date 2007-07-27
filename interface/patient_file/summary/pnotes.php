@@ -1,4 +1,4 @@
-<?
+<?php
  include_once("../../globals.php");
  include_once("$srcdir/pnotes.inc");
  include_once("$srcdir/acl.inc");
@@ -34,9 +34,9 @@
 <? if ($thisauth == 'write' || $thisauth == 'addonly') { ?>
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-<a href="pnotes_full.php">
+<a href="pnotes_full.php" onclick="top.restoreSession()">
 <?php } else { ?>
-<a href="pnotes_full.php" target="Main">
+<a href="pnotes_full.php" target="Main" onclick="top.restoreSession()">
 <?php } ?>
 
 <font class="title"><?php xl('Notes','e'); ?></font><font class=more><?echo $tmore;?></font>
@@ -104,7 +104,7 @@ if ($result = getPnotesByDate("", 1, "id,date,body,user,title,assigned_to",
       echo "  <td colspan='3' align='center'>\n";
       echo "   <a ";
       if (!$GLOBALS['concurrent_layout']) echo "target='Main' ";
-      echo "href='pnotes_full.php?active=1' class='alert'>";
+      echo "href='pnotes_full.php?active=1' class='alert' onclick='top.restoreSession()'>";
       echo "Some notes were not displayed. Click here to view all.</a>\n";
       echo "  </td>\n";
       echo " </tr>\n";
@@ -123,7 +123,7 @@ if ($result = getPnotesByDate("", 1, "id,date,body,user,title,assigned_to",
     echo "  <td valign='top'>\n";
     echo "   <a href='pnotes_full.php?noteid=" . $iter['id'] . "&active=1'";
     if (!$GLOBALS['concurrent_layout']) echo " target='Main'";
-    echo " class='bold'>" . $iter['title'] . "</a>\n";
+    echo " class='bold' onclick='top.restoreSession()'>" . $iter['title'] . "</a>\n";
     echo "  </td>\n";
     echo "  <td valign='top'>\n";
     echo "   <font class='text'>$body</font>\n";
