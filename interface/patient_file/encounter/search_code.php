@@ -26,12 +26,6 @@ $code_type = $_GET['type'];
 <table border=0 cellspacing=0 cellpadding=0 height=100%>
 <tr>
 
-<!--
-<td background="<?echo $linepic;?>" width=7 height=100%>
-&nbsp;
-</td>
--->
-
 <td valign=top>
 
 <form name='search_form' method='post' action='search_code.php?type=<? echo $code_type ?>'>
@@ -39,7 +33,9 @@ $code_type = $_GET['type'];
 
 <span class="title" href="search_code.php"><?php echo $code_type ?> <?php xl('Codes','e'); ?></span><br>
 
-<input type=entry size=15 name=text><a href="javascript:document.search_form.submit();" class="text"><?php xl('Search','e'); ?></a>
+<input type=entry size=15 name=text>
+<a href="javascript:document.search_form.submit();" class="text" onclick="top.restoreSession()">
+<?php xl('Search','e'); ?></a>
 </form>
 
 <?php
@@ -74,7 +70,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search") {
 					"&units="    . urlencode($iter{"units"}) .
 					"&fee="      . urlencode($iter{"fee"}) .
 					"&text="     . urlencode($iter{"code_text"}) .
-					"'>" .
+					"' onclick='top.restoreSession()'>" .
 					ucwords("<b>" . strtoupper($iter{"code"}) . "&nbsp;" . $iter['modifier'] .
 					"</b>" . " " . strtolower($iter{"code_text"}))."</a><br>\n";
 		

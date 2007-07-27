@@ -30,17 +30,12 @@ $N=10
 <table border='0' cellspacing='0' cellpadding='0' height='100%'>
 <tr>
 
-<!--
-<td background="<?echo $linepic;?>" width=7 height=100%>
-&nbsp;
-</td>
--->
-
 <td valign=top>
 
 <dl>
 
-<form method=post name=copay_form action="diagnosis.php?mode=add&type=COPAY&text=copay" target=Diagnosis>
+<form method='post' name='copay_form' action="diagnosis.php?mode=add&type=COPAY&text=copay"
+ target='Diagnosis' onsubmit='return top.restoreSession()'>
 
 <dt><span class=title><?php xl('Copay','e'); ?></span></dt>
 

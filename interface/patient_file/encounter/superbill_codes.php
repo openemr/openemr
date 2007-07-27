@@ -45,14 +45,14 @@ if (isset($mode)) {
 
 <dt>
 
-<a href="superbill_custom_full.php" >
+<a href="superbill_custom_full.php" onclick="top.restoreSession()">
 <span class=title><?php xl('Superbill','e'); ?></span>
 <font class=more><?php echo $tmore;?></font></a>
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-<a href="encounter_bottom.php" >
+<a href="encounter_bottom.php" onclick="top.restoreSession()">
 <?php } else { ?>
-<a href="patient_encounter.php?codefrom=superbill" >
+<a href="patient_encounter.php?codefrom=superbill" onclick="top.restoreSession()">
 <?php } ?>
 
 <font class=more><?php echo $tback;?></font></a>
@@ -102,7 +102,8 @@ while ($index < $numlines) {
 				"&units="    . urlencode($code{"units"}) .
 				"&fee="      . urlencode($code{"fee"}) .
 				"&code="     . urlencode($code{"code"}) .
-				"&text="     . urlencode($code{"code_text"}) . "'>";
+				"&text="     . urlencode($code{"code_text"}) .
+        "' onclick='top.restoreSession()'>";
 			echo "<b>" . $code['code'] . "</b>" . "&nbsp;" . $code['modifier'] . "&nbsp;" . $code['code_text'] ;
 			echo "</a></dd>\n";
 		}

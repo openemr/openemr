@@ -25,9 +25,9 @@ if (isset($mode)) {
  bottommargin='0' marginheight='0'>
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-<a href="encounter_bottom.php" >
+<a href="encounter_bottom.php" onclick="top.restoreSession()">
 <?php } else { ?>
-<a href="patient_encounter.php" target="Main">
+<a href="patient_encounter.php" target="Main" onclick="top.restoreSession()">
 <?php } ?>
 
 <span class=title><?php xl('Billing','e'); ?></span>
@@ -42,7 +42,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 		if ($iter["code_type"] == "ICD9") {
 			$html = "<tr>";
 			$html .= "<td valign=\"middle\"></td>" .
-				"<td><div><a $targparm class='small' href='diagnosis_full.php'><b>" .
+				"<td><div><a $targparm class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
 				$iter{"code"} . "</b> " . ucwords(strtolower($iter{"code_text"})) .
 				"</a></div></td>\n";
 			$billing_html[$iter["code_type"]] .= $html;
@@ -50,13 +50,13 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 		}
 		elseif ($iter["code_type"] == "COPAY") {
 			$billing_html[$iter["code_type"]] .= "<tr><td></td>" .
-				"<td><a $targparm class='small' href='diagnosis_full.php'><b>" .
+				"<td><a $targparm class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
 				$iter{"code"}."</b> " . ucwords(strtolower($iter{"code_text"})) .
 				"</a></td>\n";
 		}
 		else {
 			$billing_html[$iter["code_type"]] .= "<tr><td></td>" .
-				"<td><a $targparm class='small' href='diagnosis_full.php'><b>" .
+				"<td><a $targparm class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
 				$iter{"code"} . "</b> " . ucwords(strtolower($iter{"code_text"})) .
 				"</a><span class=\"small\">";
 			$js = split(":",$iter['justify']);
@@ -76,13 +76,13 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 			$billing_html[$iter["code_type"]] .= "</span></td>";
 			$billing_html[$iter["code_type"]] .= "<td>" .
 				"<a class=\"link_submit\" href='diagnosis_full.php?mode=clear&id=" .
-				$iter{"id"} . "' class=link>[" . xl('Clear Justification') .
+				$iter{"id"} . "' class='link' onclick='top.restoreSession()'>[" . xl('Clear Justification') .
 				"]</a></td>";
 		}
 
 		$billing_html[$iter["code_type"]] .= "<td>" .
 			"<a class=\"link_submit\" href='diagnosis_full.php?mode=delete&id=" .
-			$iter{"id"} . "' class=link>[Delete]</a></td>";
+			$iter{"id"} . "' class='link' onclick='top.restoreSession()'>[Delete]</a></td>";
 		$billing_html[$iter["code_type"]] .= "</tr>\n";
 	}
 
