@@ -1,4 +1,4 @@
-<?
+<?php
 include_once("../globals.php");
 include_once("../../library/acl.inc");
 ?>
@@ -28,7 +28,8 @@ include_once("../../library/acl.inc");
 </td>
 
 <td width="5%" nowrap>
-<a href="javascript:document.find_patient.action='<?echo $rootdir?>/main/finder/patient_finder.php';document.find_patient.submit();" class=link>&nbsp;<? xl('Find','e'); ?>&nbsp;<? xl('Patient','e'); ?></a>
+<a href="javascript:top.restoreSession();document.find_patient.action='<?echo $rootdir?>/main/finder/patient_finder.php';document.find_patient.submit();"
+ class='link'>&nbsp;<? xl('Find','e'); ?>&nbsp;<? xl('Patient','e'); ?></a>
 &nbsp;
 </td>
 
@@ -37,32 +38,38 @@ include_once("../../library/acl.inc");
  if ($npauth == 'write' || $npauth == 'addonly') {
 ?>
 <td align="center" nowrap>
-&nbsp;<a class="menu" target=_top href="../new/new_patient.php"><? xl('New','e'); ?>&nbsp;<? xl('Patient','e'); ?></a>&nbsp;
+&nbsp;<a class="menu" target=_top href="../new/new_patient.php" onclick="top.restoreSession()">
+<? xl('New','e'); ?>&nbsp;<? xl('Patient','e'); ?></a>&nbsp;
 </td>
 <? } ?>
 
 <td align="center" nowrap>
-&nbsp;<a href="../usergroup/user_info.php" target="Main" class="menu"><? xl('Password','e'); ?></a>&nbsp;
+&nbsp;<a href="../usergroup/user_info.php" target="Main" class="menu" onclick="top.restoreSession()">
+<? xl('Password','e'); ?></a>&nbsp;
 </td>
 
 <? if (acl_check('admin', 'calendar') || acl_check('admin', 'database') ||
        acl_check('admin', 'forms')    || acl_check('admin', 'practice') ||
        acl_check('admin', 'users')) { ?>
 <td align="center" nowrap>
-&nbsp;<a class=menu target=_top href="../usergroup/usergroup.php"><? xl('Administration','e'); ?></a>&nbsp;
+&nbsp;<a class=menu target=_top href="../usergroup/usergroup.php" onclick="top.restoreSession()">
+<? xl('Administration','e'); ?></a>&nbsp;
 </td>
 <? } ?>
 
 <td align="center" nowrap>
-&nbsp;<a href="../reports/index.php" target="Main" class="menu"><? xl('Reports','e'); ?></a>&nbsp;
+&nbsp;<a href="../reports/index.php" target="Main" class="menu" onclick="top.restoreSession()">
+<? xl('Reports','e'); ?></a>&nbsp;
 </td>
 
 <td align="center" nowrap>
-&nbsp;<a href="onotes/office_comments.php" target="Main" class="menu"><? xl('Notes','e'); ?></a>&nbsp;
+&nbsp;<a href="onotes/office_comments.php" target="Main" class="menu" onclick="top.restoreSession()">
+<? xl('Notes','e'); ?></a>&nbsp;
 </td>
 
 <td align="center" nowrap>
-&nbsp;<a href="../usergroup/addrbook_list.php" target="Main" class="menu"><? xl('AB','e'); ?></a>&nbsp;
+&nbsp;<a href="../usergroup/addrbook_list.php" target="Main" class="menu" onclick="top.restoreSession()">
+<? xl('AB','e'); ?></a>&nbsp;
 </td>
 
 <?php
@@ -71,7 +78,8 @@ include_once("../../library/acl.inc");
     is_readable("$webserver_root/custom/import.php")) {
 ?>
 <td align="center" nowrap>
-&nbsp;<a href="<?php echo $web_root; ?>/custom/import.php" target="Main" class="menu"><? xl('Import','e'); ?></a>&nbsp;
+&nbsp;<a href="<?php echo $web_root; ?>/custom/import.php" target="Main" class="menu"
+ onclick="top.restoreSession()"><? xl('Import','e'); ?></a>&nbsp;
 </td>
 <?php } ?>
 
@@ -89,31 +97,37 @@ include_once("../../library/acl.inc");
   $faxcount = $faxcount ? "($faxcount)" : "";
 ?>
 <td align="center" nowrap>
-&nbsp;<a href="../fax/faxq.php" target="Main" class="menu"><?php echo xl('Docs') . $faxcount; ?></a>&nbsp;
+&nbsp;<a href="../fax/faxq.php" target="Main" class="menu" onclick="top.restoreSession()">
+<?php echo xl('Docs') . $faxcount; ?></a>&nbsp;
 </td>
 <?php } ?>
 
 <? if (acl_check('acct', 'rep') || acl_check('acct', 'eob') || acl_check('acct', 'bill')) { ?>
 <td align="center" nowrap>
-&nbsp;<a href="../billing/billing_report.php" target="Main" class="menu"><? xl('Billing','e'); ?></a>&nbsp;
+&nbsp;<a href="../billing/billing_report.php" target="Main" class="menu" onclick="top.restoreSession()">
+<? xl('Billing','e'); ?></a>&nbsp;
 </td>
 <? } ?>
 
 <? if ($GLOBALS['athletic_team']) { ?>
 <td align="center" nowrap>
-&nbsp;<a href="../reports/players_report.php?embed=1" target="Main" class="menu"><? xl('Roster','e'); ?></a>&nbsp;
+&nbsp;<a href="../reports/players_report.php?embed=1" target="Main" class="menu" onclick="top.restoreSession()">
+<? xl('Roster','e'); ?></a>&nbsp;
 </td>
 <td align="center" nowrap>
-&nbsp;<a href="main.php" target="Main" class="menu"><? xl('Calendar','e'); ?></a>&nbsp;
+&nbsp;<a href="main.php" target="Main" class="menu" onclick="top.restoreSession()">
+<? xl('Calendar','e'); ?></a>&nbsp;
 </td>
 <? } else { ?>
 <td align="center" nowrap>
-&nbsp;<a href="main.php" target="Main" class="menu"><? xl('Home','e'); ?></a>&nbsp;
+&nbsp;<a href="main.php" target="Main" class="menu" onclick="top.restoreSession()">
+<? xl('Home','e'); ?></a>&nbsp;
 </td>
 <? } ?>
 
 <td align="center" nowrap>
-&nbsp;<a href="../logout.php?auth=logout" target="_top" class="menu"><? xl('Logout','e'); ?></a>&nbsp;&nbsp;
+&nbsp;<a href="../logout.php?auth=logout" target="_top" class="menu" onclick="top.restoreSession()">
+<? xl('Logout','e'); ?></a>&nbsp;&nbsp;
 </td>
 
 </tr>

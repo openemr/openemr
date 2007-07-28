@@ -16,7 +16,6 @@ include_once("../globals.php");
 <table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
 <tr>
 <td valign="middle" width="10%" nowrap>
-<?php //<a href="javascript:document.find_patient.action='../main/finder/patient_finder_keyboard.php';document.find_patient.submit();" class=link>Find Patient:</a>?>
 <input type=entry size=10 name=patient>
   <select name="findBy" size=1> 
 	<option value="Last" selected><?php xl('Last Name','e');?></option>
@@ -27,12 +26,11 @@ include_once("../globals.php");
 </td>
 
 <td valign="middle" nowrap>
-<a href="javascript:document.find_patient.action='../main/finder/patient_finder.php';document.find_patient.submit();" class=link>&nbsp;<?php xl('Find Patient','e');?></a>
+<a href="javascript:top.restoreSession();document.find_patient.action='../main/finder/patient_finder.php';document.find_patient.submit();" class=link>&nbsp;<?php xl('Find Patient','e');?></a>
 </td>
 
 <td valign="middle" align="right" nowrap>
-<?php //<a href="../logout.php?auth=logout" target="_top" class="logout">Logout</a>?>
-<a href="../main/main_screen.php" target="_top" class="logout"><?php xl('Back','e'); ?></a>&nbsp;&nbsp;
+<a href="../main/main_screen.php" target="_top" class="logout" onclick="top.restoreSession()"><?php xl('Back','e'); ?></a>&nbsp;&nbsp;
 </td>
 </tr>
 </table>

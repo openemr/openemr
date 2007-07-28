@@ -42,25 +42,26 @@ function selpopup(selobj) {
 <table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
  <tr>
   <td align="center" valign="middle">
-   <a href="javascript:parent.Title.location.href='<?echo $rootdir;?>/patient_file/summary/summary_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/summary/patient_summary.php'" target="Main" class="menu"><? xl('Summary','e'); ?></a>
+   <a href="javascript:top.restoreSession();parent.Title.location.href='<?echo $rootdir;?>/patient_file/summary/summary_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/summary/patient_summary.php'" target="Main" class="menu"><? xl('Summary','e'); ?></a>
   </td>
   <td align="center" valign="middle">
-   <a href="javascript:parent.Title.location.href='<?echo $rootdir;?>/patient_file/history/history_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/history/patient_history.php'" target="Main" class="menu"><? xl('History','e'); ?></a>
+   <a href="javascript:top.restoreSession();parent.Title.location.href='<?echo $rootdir;?>/patient_file/history/history_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/history/patient_history.php'" target="Main" class="menu"><? xl('History','e'); ?></a>
   </td>
   <td align="center" valign="middle">
-   <a href="javascript:parent.Title.location.href='<?echo $rootdir;?>/patient_file/encounter/encounter_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/encounter/patient_encounter.php?mode=new'" target="Main" class="menu"><? xl('Encounter','e'); ?></a>
+   <a href="javascript:top.restoreSession();parent.Title.location.href='<?echo $rootdir;?>/patient_file/encounter/encounter_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/encounter/patient_encounter.php?mode=new'" target="Main" class="menu"><? xl('Encounter','e'); ?></a>
   </td>
   <td align="center" valign="middle">
-   <a href="javascript:parent.Title.location.href='<?echo $rootdir;?>/patient_file/transaction/transaction_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/transaction/patient_transaction.php'" target="Main" class="menu"><? xl('Transaction','e'); ?></a>
+   <a href="javascript:top.restoreSession();parent.Title.location.href='<?echo $rootdir;?>/patient_file/transaction/transaction_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/transaction/patient_transaction.php'" target="Main" class="menu"><? xl('Transaction','e'); ?></a>
   </td>
   <td align="center" valign="middle">
-   <a href="<?echo $GLOBALS['web_root'];?>/controller.php?document&list&patient_id=<?=$pid?>" target="Main" class="menu"><? xl('Documents','e'); ?></a>
+   <a href="<?echo $GLOBALS['web_root'];?>/controller.php?document&list&patient_id=<?=$pid?>"
+    target="Main" class="menu" onclick="top.restoreSession()"><? xl('Documents','e'); ?></a>
   </td>
   <td align="center" valign="middle">
-   <a href="javascript:parent.Title.location.href='<?echo $rootdir;?>/patient_file/report/report_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/report/patient_report.php'" target="Main" class="menu"><? xl('Report','e'); ?></a>
+   <a href="javascript:top.restoreSession();parent.Title.location.href='<?echo $rootdir;?>/patient_file/report/report_title.php';parent.Main.location.href='<?echo $rootdir;?>/patient_file/report/patient_report.php'" target="Main" class="menu"><? xl('Report','e'); ?></a>
   </td>
   <td align="center" align="right" valign="middle">
-   <a href="../main/main_screen.php" target="_top" class="logout"><? xl('Close','e'); ?></a>&nbsp;&nbsp;
+   <a href="../main/main_screen.php" target="_top" class="logout" onclick="top.restoreSession()"><? xl('Close','e'); ?></a>&nbsp;&nbsp;
   </td>
   <td align="right" valign="middle">
     <select onchange='selpopup(this)' style='background-color:transparent'>
