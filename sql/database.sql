@@ -27642,9 +27642,11 @@ CREATE TABLE `registry` (
 INSERT INTO `registry` VALUES ('New Encounter Form',1,'newpatient',1,1,1,'2003-09-14 15:16:45');
 INSERT INTO `registry` VALUES ('Review of Systems Checks',1,'reviewofs',9,1,1,'2003-09-14 15:16:45');
 INSERT INTO `registry` VALUES ('Speech Dictation',1,'dictation',10,1,1,'2003-09-14 15:16:45');
-INSERT INTO `registry` VALUES ('SOAP\n',1,'soap',11,1,1,'2005-03-03 00:16:35');
-INSERT INTO `registry` VALUES ('Vitals\n',1,'vitals',12,1,1,'2005-03-03 00:16:34');
-INSERT INTO `registry` VALUES ('Review Of Systems\n',1,'ros',13,1,1,'2005-03-03 00:16:30');
+INSERT INTO `registry` VALUES ('SOAP',1,'soap',11,1,1,'2005-03-03 00:16:35');
+INSERT INTO `registry` VALUES ('Vitals',1,'vitals',12,1,1,'2005-03-03 00:16:34');
+INSERT INTO `registry` VALUES ('Review Of Systems',1,'ros',13,1,1,'2005-03-03 00:16:30');
+INSERT INTO `registry` VALUES ('Fee Sheet',1,'fee_sheet',14,1,1,'2007-07-28 00:00:00');
+INSERT INTO `registry` VALUES ('Misc Billing Options HCFA',1,'misc_billing_options',15,1,1,'2007-07-28 00:00:00');
 
 --
 -- Table structure for table `sequences`
@@ -31031,4 +31033,31 @@ CREATE TABLE claims (
   target            varchar(30)  NOT NULL DEFAULT '',
   x12_partner_id    int(11)      NOT NULL DEFAULT 0,
   PRIMARY KEY (patient_id, encounter_id, version)
+) TYPE=MyISAM;
+
+CREATE TABLE form_misc_billing_options (
+  id                          bigint(20)   NOT NULL auto_increment,
+  date                        datetime     default NULL,
+  pid                         bigint(20)   default NULL,
+  user                        varchar(255) default NULL,
+  groupname                   varchar(255) default NULL,
+  authorized                  tinyint(4)   default NULL,
+  activity                    tinyint(4)   default NULL,
+  employment_related          tinyint(1)   default NULL,
+  auto_accident               tinyint(1)   default NULL,
+  accident_state              varchar(2)   default NULL,
+  other_accident              tinyint(1)   default NULL,
+  outside_lab                 tinyint(1)   default NULL,
+  lab_amount                  decimal(5,2) default NULL,
+  is_unable_to_work           tinyint(1)   default NULL,
+  off_work_from               date         default NULL,
+  off_work_to                 date         default NULL,
+  is_hospitalized             tinyint(1)   default NULL,
+  hospitalization_date_from   date         default NULL,
+  hospitalization_date_to     date         default NULL,
+  medicaid_resubmission_code  varchar(10)  default NULL,
+  medicaid_original_reference varchar(15)  default NULL,
+  prior_auth_number           varchar(20)  default NULL,
+  comments                    varchar(255) default NULL,
+  PRIMARY KEY (id)
 ) TYPE=MyISAM;
