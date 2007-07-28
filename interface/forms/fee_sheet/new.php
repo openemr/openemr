@@ -166,13 +166,40 @@ function copayselect() {
 }
 
 function validate(f) {
- for (var lino = 1; f['bill[' + lino + '][code_type]']; ++lino) {
-  var pfx = 'bill[' + lino + ']';
-  if (f[pfx + '[ndcnum]'] && f[pfx + '[ndcnum]'].value) {
-   if (isNaN(f[pfx + '[ndcqty]'].value - 0)) {
-    alert('<?php xl('Quantity for NDC ','e') ?>' + f[pfx + '[ndcnum]'].value +
-     '<?php xl(' is not numeric (decimal fractions are OK).','e') ?>');
-    if (f[pfx + '[ndcqty]'].focus) f[pfx + '[ndcqty]'].focus();
+ for (var lino = 1; f['bill['+lino+'][code_type]']; ++lino) {
+  var pfx = 'bill['+lino+']';
+  if (f[pfx+'[ndcnum]'] && f[pfx+'[ndcnum]'].value) {
+   // Check NDC number format.
+   var ndcok = true;
+   var ndc = f[pfx+'[ndcnum]'].value;
+   var a = ndc.split('-');
+   if (a.length != 3) {
+    ndcok = false;
+   }
+   else if (a[0].length < 1 || a[1].length < 1 || a[2].length < 1 ||
+    a[0].length > 5 || a[1].length > 4 || a[2].length > 2) {
+    ndcok = false;
+   }
+   else {
+    for (var i = 0; i < 3; ++i) {
+     for (var j = 0; j < a[i].length; ++j) {
+      var c = a[i].charAt(j);
+      if (c < '0' || c > '9') ndcok = false;
+     }
+    }
+   }
+   if (!ndcok) {
+    alert('<?php xl('Format incorrect for NDC','e') ?> "' + ndc +
+     '", <?php xl('should be like nnnnn-nnnn-nn','e') ?>');
+    if (f[pfx+'[ndcnum]'].focus) f[pfx+'[ndcnum]'].focus();
+    return false;
+   }
+   // Check for valid quantity.
+   var qty = f[pfx+'[ndcqty]'].value - 0;
+   if (isNaN(qty) || qty <= 0) {
+    alert('<?php xl('Quantity for NDC','e') ?> "' + ndc +
+     '" <?php xl('is not valid (decimal fractions are OK).','e') ?>');
+    if (f[pfx+'[ndcqty]'].focus) f[pfx+'[ndcqty]'].focus();
     return false;
    }
   }
