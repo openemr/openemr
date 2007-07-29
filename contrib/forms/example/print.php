@@ -26,7 +26,7 @@ echo $data['cats'];
 
 <br><Br>
 <hr>
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>">i'm all done</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" onclick="top.restoreSession()">i'm all done</a>
 
 <?php
 formFooter();

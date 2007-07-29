@@ -94,7 +94,7 @@ formHeader("Form: FORM_NAME");
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<form method=post action="<?echo $rootdir;?>/forms/FORM_NAME/save.php?mode=new" name="FORM_NAME">
+<form method=post action="<?echo $rootdir;?>/forms/FORM_NAME/save.php?mode=new" name="FORM_NAME" onsubmit="return top.restoreSession()">
 <hr>
 <h1> FORM_NAME </h1>
 <hr>
@@ -116,7 +116,7 @@ formHeader("Form: FORM_NAME");
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<form method=post action="<?echo $rootdir;?>/forms/FORM_NAME/save.php?mode=new" name="my_form">
+<form method=post action="<?echo $rootdir;?>/forms/FORM_NAME/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
 <h1> FORM_NAME </h1>
 <hr>
 DATABASEFIELDS
@@ -290,7 +290,7 @@ function chkdata_Txt(&$obj, $var)
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<form method=post action="<?echo $rootdir?>/forms/FORM_NAME/save.php?mode=update&id=<?echo $_GET["id"];?>" name="my_form">
+<form method=post action="<?echo $rootdir?>/forms/FORM_NAME/save.php?mode=update&id=<?echo $_GET["id"];?>" name="my_form" onsubmit="return top.restoreSession()">
 <h1> FORM_NAME </h1>
 <hr>
 DATABASEFIELDS

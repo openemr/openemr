@@ -19,10 +19,9 @@ formHeader("newerpatient form");
 <br>
 
 <--REM note our nifty jscript submit
-<a href="javascript:document.newerpatient.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.newerpatient.submit();" class="link_submit">[Save]</a>
 <br>
 </form>
-
 
 <br><br>
 <hr>

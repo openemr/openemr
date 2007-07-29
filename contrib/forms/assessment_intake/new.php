@@ -10,9 +10,10 @@ formHeader("Form: assessment_intake");
 <form method=post action="<?echo $rootdir;?>/forms/assessment_intake/save.php?mode=new" name="my_form">
 <br>
 <span class="title"><center>Assessment and Intake</center></span><br><br>
-<center><a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
+<center><a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
 <img src="../../../images/space.gif" width="5" height="1">
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save]</a></center>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
+ onclick="top.restoreSession()">[Don't Save]</a></center>
 <br>
 
 <?php $res = sqlStatement("SELECT fname,mname,lname,ss,street,city,state,postal_code,phone_home,DOB FROM patient_data WHERE pid = $pid");
@@ -284,9 +285,10 @@ $result = SqlFetchArray($res); ?>
 	<textarea cols=100 rows=2 wrap=virtual name="referrals_or" ></textarea><br><br>
 
 
-<center><a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
+<center><a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
 <img src="../../../images/space.gif" width="5" height="1">
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save]</a></center>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
+ onclick="top.restoreSession()">[Don't Save]</a></center>
 <br>
 </form>
 <?php

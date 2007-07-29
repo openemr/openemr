@@ -49,7 +49,8 @@ function calculate_bmi(button) {
 </script>
 {/literal}
 <p><span class="title">Evaluation Examination</span></p>
-<form name="evaluation" method="post" action="{$FORM_ACTION}/interface/forms/evaluation/save.php">
+<form name="evaluation" method="post" action="{$FORM_ACTION}/interface/forms/evaluation/save.php"
+ onsubmit="return top.restoreSession()">
 <table>
 <tr>
 	<td>
@@ -139,7 +140,8 @@ function calculate_bmi(button) {
 </tr>
 {if $VIEW != true}
 <tr>
-	<td><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
+	<td><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="{$DONT_SAVE_LINK}" class="link" onclick="top.restoreSession()">[Don't Save]</a></td>
 </tr>
 {/if}
 </table>

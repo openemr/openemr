@@ -11,7 +11,7 @@ formHeader("Habits form");
 
 ?>
 <hr>
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>">Done</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" onclick="top.restoreSession()">Done</a>
 
 <?php
 formFooter();

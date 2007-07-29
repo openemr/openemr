@@ -21,10 +21,9 @@ echo $result["reason"];
 echo "<input type='text' name='cats' value='{$result['cats']}'>";
 ?>
 <br>
-<a href="javascript:document.new_encounter.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.new_encounter.submit();" class="link_submit">[Save]</a>
 <br>
 </form>
-
 
 <?php
 formFooter();

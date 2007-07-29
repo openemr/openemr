@@ -117,6 +117,7 @@ if ($formid) {
 
  // Called by the deleteme.php window on a successful delete.
  function imdeleted() {
+  top.restoreSession();
   location = '<?php echo $GLOBALS['form_exit_url']; ?>';
  }
 
@@ -128,7 +129,8 @@ if ($formid) {
  bottommargin="0" marginwidth="2" marginheight="0">
 
 <form method="post" enctype="multipart/form-data"
- action="<? echo $rootdir ?>/forms/scanned_notes/new.php?id=<? echo $formid ?>">
+ action="<? echo $rootdir ?>/forms/scanned_notes/new.php?id=<? echo $formid ?>"
+ onsubmit="return top.restoreSession()">
 
 <center>
 
@@ -169,7 +171,7 @@ if ($formid && is_file($imagepath)) {
 &nbsp;
 <input type='button' value='Add Appointment' onclick='newEvt()' />
 &nbsp;
-<input type='button' value='Back' onclick="location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
+<input type='button' value='Back' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" />
 <?php if ($formrow['id'] && acl_check('admin', 'super')) { ?>
 &nbsp;
 <input type='button' value='Delete' onclick='deleteme()' style='color:red' />

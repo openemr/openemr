@@ -38,7 +38,8 @@ a {
 <body bgcolor="{$STYLE.BGCOLOR2}">
 
 <p><span class="title">Adult Progress Note</span></p>
-<form name="adult_progress_note" method="post" action="{$FORM_ACTION}/interface/forms/adult_progress_note/save.php">
+<form name="adult_progress_note" method="post" action="{$FORM_ACTION}/interface/forms/adult_progress_note/save.php"
+ onsubmit="return top.restoreSession()">
 <table>
 <tr>
 	<td>

@@ -37,7 +37,8 @@ a {
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
 <p><span class="title">Head Pain and Temporomandibular Jaw Examination</span></p>
-<form name="hptje" method="post" action="{$FORM_ACTION}/interface/forms/hp_tje_primary/save.php">
+<form name="hptje" method="post" action="{$FORM_ACTION}/interface/forms/hp_tje_primary/save.php"
+ onsubmit="return top.restoreSession()">
 <table>
 <tr>
 	<td>REFERRED BY &nbsp&nbsp;<input type="text" name="referred_by" size="39"value="{$hptje_primary->get_referred_by()}"></td>
@@ -157,7 +158,8 @@ a {
 </tr>
 {if $VIEW != true}
 <tr>
-	<td><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
+	<td><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="{$DONT_SAVE_LINK}" class="link" onclick="top.restoreSession()">[Don't Save]</a></td>
 </tr>
 {/if}
 </table>

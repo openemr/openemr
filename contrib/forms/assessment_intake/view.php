@@ -9,17 +9,16 @@ include_once("../../globals.php");
 <?php
 include_once("$srcdir/api.inc");
 
-
 $obj = formFetch("form_assessment_intake", $_GET["id"]);
-
 
 ?>
 <form method=post action="<?echo $rootdir?>/forms/assessment_intake/save.php?mode=update&id=<?echo $_GET["id"];?>" name="my_form">
 <span class="title"><center><b>Assessment and Intake</b></center></span><br><br>
 
-<a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save Changes]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
+ onclick="top.restoreSession()">[Don't Save Changes]</a>
 <br></br>
 
 <?php $res = sqlStatement("SELECT fname,mname,lname,ss,street,city,state,postal_code,phone_home,DOB FROM patient_data WHERE pid = $pid");
@@ -290,31 +289,13 @@ $result = SqlFetchArray($res); ?>
 <b>Other needed resources and services:</b><br>
 	<textarea cols=100 rows=2 wrap=virtual name="referrals_or" ><? echo stripslashes($obj{"referrals_or"});?></textarea><br><br>
 
-
-
-
-
-
-
-
-
-
 <? /* From New */ ?>
 
-
-
-
-
-
-
-
-
-
-
 <br>
-<a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save Changes]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
+ onclick="top.restoreSession()">[Don't Save Changes]</a>
 </form>
 <?php
 formFooter();

@@ -128,10 +128,10 @@
 </TR>
 <TR>
 	<TD>
-<a href="javascript:document.habits_form.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.habits_form.submit();" class="link_submit">[Save]</a>
 <br>
 
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" onclick="top.restoreSession()">[Don't Save]</a>
 
 	</TD>
 </TR>
@@ -142,8 +142,6 @@
 </form>
 </table>
 <!-- ends main form -->
-
-
 
 <?php
 formFooter();

@@ -124,7 +124,8 @@ if ($formid) {
 
 <body <?echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2"
  bottommargin="0" marginwidth="2" marginheight="0">
-<form method="post" action="<? echo $rootdir ?>/forms/clinical_notes/new.php?id=<? echo $formid ?>">
+<form method="post" action="<? echo $rootdir ?>/forms/clinical_notes/new.php?id=<? echo $formid ?>"
+ onsubmit="return top.restoreSession()">
 
 <center>
 
@@ -225,7 +226,7 @@ if ($formid) {
 <p>
 <input type='submit' name='bn_save' value='Save' />
 &nbsp;
-<input type='button' value='Cancel' onclick="location='<?php echo $GLOBALS['form_exit_url'] ?>'" />
+<input type='button' value='Cancel' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url'] ?>'" />
 </p>
 
 </center>
