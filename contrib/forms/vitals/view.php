@@ -15,9 +15,9 @@ $obj = formFetch("form_vitals", $_GET["id"]);
 <form method=post action="<?echo $rootdir?>/forms/vitals/save.php?mode=update&id=<?echo $_GET["id"];?>" name="my_form">
 <span class="title">Vital Signs</span><br><br>
 
-<a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save Changes]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" onclick="top.restoreSession()">[Don't Save Changes]</a>
 <br></br>
 <!-- Form goes here -->
 
@@ -26,9 +26,9 @@ $obj = formFetch("form_vitals", $_GET["id"]);
 ?>
 
 <!-- Form ends here -->
-<a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save Changes]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" onclick="top.restoreSession()">[Don't Save Changes]</a>
 
 </form>
 <?php

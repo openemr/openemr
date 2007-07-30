@@ -306,6 +306,7 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
    }
    return;
   }
+  top.restoreSession();
   document.forms[0].submit();
  }
 
@@ -317,6 +318,7 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
 <?php if ($popup) { ?>
    window.close();
 <?php } else { ?>
+   top.restoreSession();
    location='<?php echo $GLOBALS['form_exit_url'] ?>';
 <?php } ?>
   }
@@ -523,7 +525,8 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
 
 <body <?echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="0"
  bottommargin="0" marginwidth="0" marginheight="0">
-<form method="post" action="<?php echo "$rootdir/forms/$spreadsheet_form_name/new.php?id=$formid"; if ($popup) echo '&popup=1'; ?>">
+<form method="post" action="<?php echo "$rootdir/forms/$spreadsheet_form_name/new.php?id=$formid"; if ($popup) echo '&popup=1'; ?>"
+ onsubmit="return top.restoreSession()">
 <center>
 
 <table border='0' cellpadding='5' cellspacing='0' style='margin:8pt'>

@@ -38,7 +38,8 @@ a {
 <body bgcolor="{$STYLE.BGCOLOR2}">
 
 <p><span class="title">Well Child Visit</span></p>
-<form name="well_child" method="post" action="{$FORM_ACTION}/interface/forms/well_child/save.php">
+<form name="well_child" method="post" action="{$FORM_ACTION}/interface/forms/well_child/save.php"
+ onsubmit="return top.restoreSession()">
 <table>
 <tr>
 	<td>
@@ -281,7 +282,8 @@ a {
 </table>
 
 <tr>
-	<td><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
+	<td><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="{$DONT_SAVE_LINK}" class="link" onclick="top.restoreSession()">[Don't Save]</a></td>
 </tr>
 </table>
 <input type="hidden" name="id" value="{$well_child->get_id()}" />

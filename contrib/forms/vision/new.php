@@ -12,7 +12,6 @@ formHeader("Form: vision");
 <span class="title">Vision</span><br><br>
 <span class=bold>Keratometry</span><br>
 
-
 <table>
 <tr>
 <td><span class=text>OD K1: </span></td><td><input size=3 type=entry name="od_k1" value="" ></td>
@@ -27,8 +26,6 @@ formHeader("Form: vision");
 </td>
 </tr>
 </table>
-
-
 
 <table>
 <tr>
@@ -45,12 +42,11 @@ formHeader("Form: vision");
 </tr>
 </table>
 
-
 <span class=text>Additional Notes: </span><br><textarea cols=40 rows=8 wrap=virtual name="additional_notes" ></textarea>
 <br>
-<a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" onclick="top.restoreSession()">[Don't Save]</a>
 </form>
 <?php
 formFooter();

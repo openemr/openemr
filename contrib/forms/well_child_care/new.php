@@ -1,13 +1,10 @@
-<?
+<?php
 // file new.php for well child evaluation
 // input designed by Lowell Gordon, MD lgordon@whssf.org
-
 
 include_once("../../globals.php");
 include_once("../../../library/api.inc");
 include_once("C_WellChildCare.class.php");
-
-
 ?>
 <html><head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
@@ -27,13 +24,11 @@ include_once("C_WellChildCare.class.php");
 <!-- the form ends here -->
 
 <!--REM note our nifty jscript submit -->
-<a href="javascript:document.well_child_care.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.well_child_care.submit();" class="link_submit">[Save]</a>
 <br>
 
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" onclick="top.restoreSession()">[Don't Save]</a>
 </form>
-
-
 
 <?php
 formFooter();

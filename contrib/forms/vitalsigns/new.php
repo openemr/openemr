@@ -71,9 +71,9 @@ formHeader("Form: vitalsigns");
 <span class=text>Additional Notes: </span><br><textarea cols=40 rows=8 wrap=virtual name="additional_notes" ></textarea>
 
 <br>
-<a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" onclick="top.restoreSession()">[Don't Save]</a>
 </form>
 <?php
 formFooter();

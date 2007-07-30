@@ -1,4 +1,4 @@
-<?
+<?php
 // file new.php
 // presents a vital signs form 
 // this file made by andres@paglayan.com on 2004-09-23
@@ -6,7 +6,6 @@
 include_once("../../globals.php");
 include_once("../../../library/api.inc");
 formHeader("Vital Signs");
-
 ?>
 <html><head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
@@ -26,13 +25,11 @@ formHeader("Vital Signs");
 <!-- the form ends here -->
 
 <!--REM note our nifty jscript submit -->
-<a href="javascript:document.vitals.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.vitals.submit();" class="link_submit">[Save]</a>
 <br>
 
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" onclick="top.restoreSession()">[Don't Save]</a>
 </form>
-
-
 
 <?php
 formFooter();
