@@ -66,7 +66,7 @@ id = "findfirstpopup";
     }
 
 
-
+  top.restoreSession();
 eval("page" + id + " = window.open(location, '" + id + "', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=350,height=400,left = 825,top = 400');");
 
 }
@@ -120,6 +120,7 @@ function reloadForm(select) {
     if (s_ampm != "undefined") {
     	location = location + '&event_startampm=' + s_ampm;
     }
+    top.restoreSession();
     window.location.href=location;
 }
 
@@ -246,7 +247,7 @@ if(EventCats.eval(cat).end_date_flag > 0)
 		[-assign var=disable value="disabled"-]
 	[-/if-]
 
-<form name="find_first" action="find_patient.php?no_nav=1" method="post" enctype="application/x-www-form-urlencoded">
+<form name="find_first" action="find_patient.php?no_nav=1" method="post" enctype="application/x-www-form-urlencoded" onsubmit="return top.restoreSession()">
         <table width="100%" border="0" cellpadding="2" cellspacing="0" >
 <!-- EVENT INFO ROWS -->
             <tr>

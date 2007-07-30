@@ -13,16 +13,17 @@
  {literal}}{/literal}
  // Called by the deleter.php window on a successful delete.
  function imdeleted() {literal}{{/literal}
+  top.restoreSession();
   window.location.href='{$REFRESH_ACTION}';
  {literal}}{/literal}
 </script>
 <table valign="top">
 	<tr>
 		<td valign="top">
-			<a href="{$web_path}">{xl t='Click to download'}</a>
+			<a href="{$web_path}" onclick="top.restoreSession()">{xl t='Click to download'}</a>
 			&nbsp;&nbsp;&nbsp;{$delete_string}
 
-			<p><form method="post" name="document_update" action="{$UPDATE_ACTION}">
+			<p><form method="post" name="document_update" action="{$UPDATE_ACTION}" onsubmit="return top.restoreSession()">
 			{xl t='Date'}:
 			<input type='text' size='10' name='docdate' id='docdate'
 			 value='{$DOCDATE}' title='{xl t='yyyy-mm-dd document date'}'
@@ -36,17 +37,17 @@
 			<input type="submit" name="docupdate" value="{xl t='Update'}" />
 			</form>
 
-			<p><form method="post" name="document_move" action="{$MOVE_ACTION}">
+			<p><form method="post" name="document_move" action="{$MOVE_ACTION}" onsubmit="return top.restoreSession()">
 			<select name="new_category_id">{$tree_html_listbox}</select>&nbsp;
 			{xl t='Move to Patient'} # <input type="text" name="new_patient_id" size="4" />
 			<a href="javascript:{literal}{}{/literal}"
-			 onclick="var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|escape:"url"}&form_name={"document_move['new_patient_name']"|escape:"url"}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left=425,top=250');">
+			 onclick="top.restoreSession();var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|escape:"url"}&form_name={"document_move['new_patient_name']"|escape:"url"}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left=425,top=250');">
 			<img src="images/stock_search-16.png" border="0" /></a>
 			<input type="hidden" name="new_patient_name" value="" />
 			&nbsp;&nbsp;&nbsp;<input type="submit" name="move" value="{xl t='Move'}" />
 			</form>
 
-			<p><form name="notes" method="post" action="{$NOTE_ACTION}">
+			<p><form name="notes" method="post" action="{$NOTE_ACTION}" onsubmit="return top.restoreSession()">
 			<textarea cols="53" rows="4" wrap="virtual" name="note"></textarea><br>
 			<input type="submit" name="add note" value="{xl t='Add Note'}">
 			<input type="hidden" name="process" value="{$PROCESS}" />

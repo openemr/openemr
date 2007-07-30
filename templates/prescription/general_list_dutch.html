@@ -35,7 +35,7 @@ var myRegExp = new RegExp(":" + value + ":");
 <table>
 	<tr>
 		<td colspan="12" align="right">
-		<a id="multiprint" target="_new" href="{$CONTROLLER}prescriptiondutch&multiprint&id={$printm}">Print Multiple</a>
+		<a id="multiprint" target="_new" href="{$CONTROLLER}prescriptiondutch&multiprint&id={$printm}" onclick="top.restoreSession()">Print Multiple</a>
 		</td>
 	</tr>
 
@@ -56,8 +56,8 @@ var myRegExp = new RegExp(":" + value + ":");
 	</tr>
 	{foreach from=$prescriptions item=prescription}
 	<tr>
-		<td><a href="{$CONTROLLER}prescriptiondutch&edit&id={$prescription->id}">{$prescription->drug}</a></td>
-		<td><a href="{$CONTROLLER}prescriptiondutch&edit&id={$prescription->id}">{$prescription->date_added}</a><br /><a href="{$CONTROLLER}prescription&edit&id={$prescription->id}">{$prescription->date_modified}</a></td>
+		<td><a href="{$CONTROLLER}prescriptiondutch&edit&id={$prescription->id}" onclick="top.restoreSession()">{$prescription->drug}</a></td>
+		<td><a href="{$CONTROLLER}prescriptiondutch&edit&id={$prescription->id}" onclick="top.restoreSession()">{$prescription->date_added}</a><br /><a href="{$CONTROLLER}prescription&edit&id={$prescription->id}" onclick="top.restoreSession()">{$prescription->date_modified}</a></td>
 		<td>{$prescription->get_dosage_display()}</td>
 		<td>{$prescription->get_unit_display()}</td>
 		<td>{$prescription->quantity}</td>

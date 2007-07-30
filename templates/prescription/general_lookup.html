@@ -40,10 +40,10 @@ textarea {
 </head>
 <body onload="javascript:document.lookup.drug.focus();"
 <div ALIGN="CENTER">
-	<form NAME="lookup" ACTION="{$FORM_ACTION}" METHOD="POST">
+	<form NAME="lookup" ACTION="{$FORM_ACTION}" METHOD="POST" onsubmit="return top.restoreSession()">
 	{if $drug_options}
 		{html_options name="drug" values=$drug_values options=$drug_options}<input class="button" TYPE="BUTTON" NAME="select" VALUE="{xl t='Select'}" onClick="my_process(); return true;">
-		<br><a href="{$CONTROLLER_THIS}">{xl t='search again'}</a>
+		<br><a href="{$CONTROLLER_THIS}" onclick="top.restoreSession()">{xl t='search again'}</a>
 	{else}
 		{$NO_RESULTS}
 
@@ -63,4 +63,3 @@ textarea {
 </div>
 </body>
 </html>
-

@@ -1,7 +1,7 @@
 {if $ERROR}
  {$ERROR}
 {else}
-<form name="provider" method="post" action="{$FORM_ACTION}">
+<form name="provider" method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
 <!-- it is important that the hidden form_id field be listed first, when it is called it populates any old information attached with the id, this allows for partial edits
                 if it were called last, the settings from the form would be overwritten with the old information-->
 <input type="hidden" name="form_id" value="{$ins->id}" />
@@ -17,7 +17,7 @@
 <tr>
         <td ALIGN="LEFT" VALIGN="MIDDLE"></td>
         <td ALIGN="LEFT" VALIGN="MIDDLE">
-                        <a href="{$CURRENT_ACTION}action=edit&id={$num_set->get_id()}" class="small">{$num_set->get_insurance_company_name()}</a>
+                        <a href="{$CURRENT_ACTION}action=edit&id={$num_set->get_id()}" class="small" onclick="top.restoreSession()">{$num_set->get_insurance_company_name()}</a>
         </td>
         <td class="small">{xl t='Provider'} #</td>
         <td class="small">{$num_set->get_provider_number()}</td>
@@ -37,7 +37,7 @@
         {if $smarty.foreach.inums.last}
         <tr>
                 <td></td>
-                <td><a class="small" href="{$CURRENT_ACTION}action=edit&id=&provider_id={$provider->get_id()}">{xl t='Add New'}...</a></td>
+                <td><a class="small" href="{$CURRENT_ACTION}action=edit&id=&provider_id={$provider->get_id()}" onclick="top.restoreSession()">{xl t='Add New'}...</a></td>
                 <td></td>
                 <td></td>
         </tr>

@@ -81,7 +81,7 @@ textarea {
 {/literal}
 </head>
 <body {$STYLE.BOTTOM_BG_LINE}>
-<form name="prescribe" method="post" action="{$FORM_ACTION}">
+<form name="prescribe" method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
 <table CELLSPACING="0" CELLPADDING="3">
 <tr>
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Starting Date'}</td>

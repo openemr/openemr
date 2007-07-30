@@ -8,7 +8,7 @@
 [-config_load file="lang.$USER_LANG"-]
 [-*Main Navigation*-]
 <table width="100%" border="0" cellpadding="0" cellspacing="0" style="border: 1px solid black;"><tr><td>
-<form name="search" action="[-$FORM_ACTION-]&no_nav=1" method="POST">
+<form name="search" action="[-$FORM_ACTION-]&no_nav=1" method="POST" onsubmit="return top.restoreSession()">
 <br />
 <table>
 <tr><td>Provider</td>
@@ -72,7 +72,7 @@
 	<table width="100%" border="0" cellpadding="5" cellspacing="0" class="dayheader">
 		<tr>
 			<td width="100%">
-    			<a href="[-pc_url action=day date=$cdate-]">
+    			<a href="[-pc_url action=day date=$cdate-]" onclick="top.restoreSession()">
 			[-if $USE_INT_DATES eq true-]
 				[-pc_date_format date=$date format="%A, %d %B %Y"-]
 			[-else-]
@@ -99,7 +99,7 @@
 						[-assign var="ampm" value=2-]
 					[-/if-]
 					&nbsp;&nbsp;&nbsp; 
-					<a href="javascript:{}" onclick="window.opener.location = 'find_patient.php?no_nav=1&event_startmonth=[-$entry.startTime|date_format:"%m"-]&event_startday=[-$entry.startTime|date_format:"%d"-]&event_startyear=[-$entry.startTime|date_format:"%Y"-]&patient_id=[-$patient_id-]&provider_id=[-$provider_id-]&event_starttimeh=[-$entry.startTime|date_format:"%I"-]&event_starttimem=[-$entry.startTime|date_format:"%M"-]&event_startampm=[-$ampm-]&event_dur_hours=[-$event_dur_hours-]&event_dur_minutes=[-$event_dur_minutes-]&event_category=[-$event_category-]&event_subject=[-$event_subject-]';window.close();">
+					<a href="javascript:{}" onclick="top.restoreSession();window.opener.location = 'find_patient.php?no_nav=1&event_startmonth=[-$entry.startTime|date_format:"%m"-]&event_startday=[-$entry.startTime|date_format:"%d"-]&event_startyear=[-$entry.startTime|date_format:"%Y"-]&patient_id=[-$patient_id-]&provider_id=[-$provider_id-]&event_starttimeh=[-$entry.startTime|date_format:"%I"-]&event_starttimem=[-$entry.startTime|date_format:"%M"-]&event_startampm=[-$ampm-]&event_dur_hours=[-$event_dur_hours-]&event_dur_minutes=[-$event_dur_minutes-]&event_category=[-$event_category-]&event_subject=[-$event_subject-]';window.close();">
 					[-assign var="durhours" value=$entry.endTime|date_format:"%H"-]
 					[-if $durhours > 0-]
 						[-$durhours-] hours and

@@ -24,7 +24,7 @@ textarea {
 {/literal}
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
-<form name="prescribe" method="post" action="{$FORM_ACTION}">
+<form name="prescribe" method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
 <table CELLSPACING="0" CELLPADDING="3">
 <!--<tr><td>Example HL7 data<td></tr>
 <tr><td>MSH|^~\&|ADT1|CUH|LABADT|CUH|198808181127|SECURITY|ADT^A01|MSG00001|P|2.3|

@@ -164,7 +164,7 @@ if(EventCats.eval(cat).end_date_flag > 0)
 
 </script>[-/literal-]
 
-<form name="add_event" action="[-pc_url action="submit"-]" method="post" enctype="application/x-www-form-urlencoded">
+<form name="add_event" action="[-pc_url action="submit"-]" method="post" enctype="application/x-www-form-urlencoded" onsubmit="return top.restoreSession()">
 <table border="0" cellpadding="1" cellspacing="0" bgcolor="[-$STYLE.BGCOLOR2-]" width="100%">
 	[-if $double_book eq 1-]
 		[-assign var=disable value=" readonly "-]
@@ -236,7 +236,7 @@ if(EventCats.eval(cat).end_date_flag > 0)
 				<tr><td>Patient<br />
 				<input type="text"	name="patient_name" size="15" value="[-$patient_value-]" readonly >
 				<input type="hidden" name="event_pid" value="[-$event_pid-]" size="4">
-				<a href="javascript:{}" onclick="var URL='[-$webroot-]/controller.php?patient_finder&find&form_id=add_event[\'event_pid\']&form_name=add_event[\'patient_name\']&pid=true'; window.open(URL, 'add_event', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left = 425,top = 250');">
+				<a href="javascript:{}" onclick="top.restoreSession();var URL='[-$webroot-]/controller.php?patient_finder&find&form_id=add_event[\'event_pid\']&form_name=add_event[\'patient_name\']&pid=true'; window.open(URL, 'add_event', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left = 425,top = 250');">
 					<img src="[-$webroot-]/images/stock_search-16.png" border="0"</a>
                 
 				</td><td>&nbsp;</td><td>

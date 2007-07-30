@@ -37,24 +37,24 @@ INPUT.nav 		{ color: [-$TEXTCOLOR1-]; background-color:[-$BGCOLOR1-]; }
             <table id="bnav" class="bnav" border="0" cellpadding="3" cellspacing="0" width="100%" bgcolor="[-#TABLE_BGCOLOR#-]">
                 <tr>
                     <td nowrap align="center" valign="bottom" [-if $VIEW_TYPE eq "day"-]class="snav"[-else-]class="nav"[-/if-]>
-                        <a class="nav" href="[-pc_url action="day"-]">[-#_PC_THEME_DAY#-]</a>
+                        <a class="nav" href="[-pc_url action="day"-]" onclick="top.restoreSession()">[-#_PC_THEME_DAY#-]</a>
                     </td>
                     <td nowrap align="center" valign="bottom" [-if $VIEW_TYPE eq "week"-]class="snav"[-else-]class="nav"[-/if-]>
-                        <a class="nav" href="[-pc_url action="week"-]">[-#_PC_THEME_WEEK#-]</a>
+                        <a class="nav" href="[-pc_url action="week"-]" onclick="top.restoreSession()">[-#_PC_THEME_WEEK#-]</a>
                     </td>
                     <td nowrap align="center" valign="bottom" [-if $VIEW_TYPE eq "month"-]class="snav"[-else-]class="nav"[-/if-]>
-                        <a class="nav" href="[-pc_url action="month"-]">[-#_PC_THEME_MONTH#-]</a>
+                        <a class="nav" href="[-pc_url action="month"-]" onclick="top.restoreSession()">[-#_PC_THEME_MONTH#-]</a>
                     </td>
                     <td nowrap align="center" valign="bottom" [-if $VIEW_TYPE eq "year"-]class="snav"[-else-]class="nav"[-/if-]>
-                        <a class="nav" href="[-pc_url action="year"-]">[-#_PC_THEME_YEAR#-]</a>
+                        <a class="nav" href="[-pc_url action="year"-]" onclick="top.restoreSession()">[-#_PC_THEME_YEAR#-]</a>
                     </td>
 					[-if $ACCESS_ADD eq true-]
                     <td nowrap align="center" valign="bottom" [-if $FUNCTION eq "submit"-]class="snav"[-else-]class="nav"[-/if-]>
-                        <a class="nav" href="[-pc_url action="submit"-]">[-#_PC_THEME_SUBMIT#-]</a>
+                        <a class="nav" href="[-pc_url action="submit"-]" onclick="top.restoreSession()">[-#_PC_THEME_SUBMIT#-]</a>
                     </td>
 					[-/if-]
                     <td nowrap align="center" valign="bottom" [-if $FUNCTION eq "search"-]class="rsnav"[-else-]class="rnav"[-/if-]>
-                        <a class="nav" href="[-pc_url action="search"-]">[-#_PC_THEME_SEARCH#-]</a>
+                        <a class="nav" href="[-pc_url action="search"-]" onclick="top.restoreSession()">[-#_PC_THEME_SEARCH#-]</a>
                     </td>
                 </tr>
             </table>

@@ -75,6 +75,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 
  // This is called from the event editor popup.
  function refreshme() {
+  top.restoreSession();
   document.forms[0].submit();
  }
 
@@ -90,6 +91,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
  }
 
  function goPid(pid) {
+  top.restoreSession();
 [-php-]
  if ($GLOBALS['concurrent_layout']) {
   echo "  top.RTop.location = '../../patient_file/summary/demographics.php' " .
@@ -106,6 +108,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
   var theMonth = todays_date.getMonth() + 1;
   theMonth = theMonth < 10 ? "0" + theMonth : theMonth;
   theForm.jumpdate.value = todays_date.getFullYear() + "-" + theMonth + "-" + todays_date.getDate();
+  top.restoreSession();
   theForm.submit();
  }
 
@@ -153,7 +156,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 
  echo "<form name='theform' action='index.php?module=PostCalendar&func=view" .
       "&tplview=default&pc_category=&pc_topic=' " .
-      "method='post'>\n";
+      "method='post' onsubmit='return top.restoreSession()'>\n";
  echo "<center>\n";
  echo "<table border='0' cellpadding='0' cellspacing='0' width='99%'>\n";
  echo " <tr><td colspan='3' height='5'></td></tr>\n";
@@ -208,15 +211,15 @@ div.tiny { width:1px; height:1px; font-size:1px; }
  $atmp = array_keys($A_EVENTS);
  
 if ($MULTIDAY) {
-  echo "<a href='$PREV_WEEK_URL'>&lt;&lt;</a>&nbsp;\n";
+  echo "<a href='$PREV_WEEK_URL' onclick='top.restoreSession()'>&lt;&lt;</a>&nbsp;\n";
   echo dateformat(strtotime($atmp[0]));
   echo " - ";
   echo dateformat(strtotime($atmp[count($atmp)-1]));
-  echo "&nbsp;<a href='$NEXT_WEEK_URL'>&gt;&gt;</a>\n";
+  echo "&nbsp;<a href='$NEXT_WEEK_URL' onclick='top.restoreSession()'>&gt;&gt;</a>\n";
  } else {
-  echo "<a href='$PREV_DAY_URL'>&lt;&lt;</a>&nbsp;\n";
+  echo "<a href='$PREV_DAY_URL' onclick='top.restoreSession()'>&lt;&lt;</a>&nbsp;\n";
   echo dateformat(strtotime($atmp[0]));
-  echo "&nbsp;<a href='$NEXT_DAY_URL'>&gt;&gt;</a>\n";
+  echo "&nbsp;<a href='$NEXT_DAY_URL' onclick='top.restoreSession()'>&gt;&gt;</a>\n";
  }
  echo "  </td>\n";
  echo "  <td align='right' width='33%' nowrap>\n";

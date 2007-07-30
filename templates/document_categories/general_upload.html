@@ -17,7 +17,7 @@ a {
 {/literal}
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
-<form method=post enctype="multipart/form-data" action="{$FORM_ACTION}">
+<form method=post enctype="multipart/form-data" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
 <input type="hidden" name="MAX_FILE_SIZE" value="12000000" />
 <table>
 	<tr>

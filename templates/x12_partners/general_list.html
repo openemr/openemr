@@ -10,7 +10,7 @@
 	</tr>
 	{foreach from=$partners item=partner}
 	<tr>
-		<td><a href="{$CURRENT_ACTION}action=edit&x12_partner_id={$partner->id}">{$partner->get_name()}</a></td>
+		<td><a href="{$CURRENT_ACTION}action=edit&x12_partner_id={$partner->id}" onclick="top.restoreSession()">{$partner->get_name()}</a></td>
 		<td></td>
 		<td>{$partner->get_x12_sender_id()}</td>
 		<td></td>
@@ -27,6 +27,6 @@
 		<td>&nbsp;</td>
 	</tr>
 	<tr>
-		<td><a href="{$CURRENT_ACTION}action=edit&id=default">{xl t='Add New Partner'}</a></td>
+		<td><a href="{$CURRENT_ACTION}action=edit&id=default" onclick="top.restoreSession()">{xl t='Add New Partner'}</a></td>
 	</tr>
 </table>
