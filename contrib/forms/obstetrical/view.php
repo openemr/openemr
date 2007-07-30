@@ -40,8 +40,6 @@ $obj = formFetch("form_obstetrical", $_GET["id"]);
 </tr>
 </table>
 
-
-
 <table>
 <tr>
 <td><span class=text>Reactions to Medications and Immunizations: </span><br><textarea cols=40 rows=4 wrap=virtual name="reactions_to_medications_and_immunizations" ><?echo $obj{"reactions_to_medications_and_immunizations"};?></textarea></td>
@@ -61,9 +59,10 @@ $obj = formFetch("form_obstetrical", $_GET["id"]);
 </tr>
 </table>
 <br>
-<a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save Changes]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
+ onclick="top.restoreSession()">[Don't Save Changes]</a>
 </form>
 <?php
 formFooter();

@@ -9,16 +9,15 @@ include_once("../../globals.php");
 <?php
 include_once("$srcdir/api.inc");
 
-
 $obj = formFetch("form_mh_therapy_progress", $_GET["id"]);
-
 
 ?>
 <form method=post action="<?echo $rootdir?>/forms/mh_therapy_progress/save.php?mode=update&id=<?echo $_GET["id"];?>" name="my_form">
 <span class="title"><center><b>Therapy Progress Note</b></center></span><br><br>
 <center>
-<a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save Changes]</a></center>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
+ onclick="top.restoreSession()">[Don't Save Changes]</a></center>
 <br></br>
 
 <? /* From New */ ?>
@@ -291,22 +290,12 @@ $result = SqlFetchArray($res); ?>
 <img src="../../../images/space.gif" width="6" height="1">
 <input type="text" name='followups_call_for'  value="<? echo stripslashes($obj{"followups_call_for"});?>"><br>
 
-
-
-
-
-
-
-
-
-
-
-
-<? /* From New */ ?>
+<?php /* From New */ ?>
 <br>
-<a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save Changes]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
+ onclick="top.restoreSession()">[Don't Save Changes]</a>
 </form>
 <?php
 formFooter();

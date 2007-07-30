@@ -530,9 +530,10 @@ formHeader("Form: progressnotes");
 
 
 <br>
-<a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
+ onclick="top.restoreSession()">[Don't Save]</a>
 </form>
 <?php
 formFooter();

@@ -37,7 +37,8 @@ a {
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
 <p><span class="title">Prosthestics & Orthostics Form</span></p>
-<form name="prosthesis" method="post" action="{$FORM_ACTION}/interface/forms/prosthesis/save.php">
+<form name="prosthesis" method="post" action="{$FORM_ACTION}/interface/forms/prosthesis/save.php"
+ onsubmit="return top.restoreSession()">
 <table width="766" border="0">
 <tr>
 	<td>Therapist</td><td rowspan="50" width="25">&nbsp;&nbsp;&nbsp;</td><td class="form_text"><input type="text" size="35" name="therapist" value="{$prosthesis->get_therapist()}"></td>
@@ -129,7 +130,8 @@ a {
 	<td>Add Code</td><td><select name="cpt_code"><option value=""></option>{html_options options=$prosthesis->cpt_array}</select></td>
 </tr>
 <tr>
-	<td colspan="3"><br><br><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
+	<td colspan="3"><br><br><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   <a href="{$DONT_SAVE_LINK}" class="link" onclick="top.restoreSession()">[Don't Save]</a></td>
 </tr>
 {/if}
 </table>

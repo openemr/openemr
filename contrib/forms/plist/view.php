@@ -103,9 +103,11 @@ $pli++;
 <p>&nbsp;</p>
 <table width="100%" border="0">
   <tr>
-    <td align="left" width="100"> <a href="javascript:document.my_form.submit();" class="link_submit">[Save Data]</a> </td>
-    <td align="left" nowrap> <a href="<? echo $rootdir; ?>/patient_file/encounter/print_form.php?id=<? echo $id; ?>&formname=plist" target="_blank" class="link_submit">[Printable form]</a> </td>
-    <td align="right"> <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link_submit">[Don't Save]</a> </td>
+    <td align="left" width="100"> <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save Data]</a> </td>
+    <td align="left" nowrap> <a href="<? echo $rootdir; ?>/patient_file/encounter/print_form.php?id=<? echo $id; ?>&formname=plist"
+     target="_blank" class="link_submit" onclick="top.restoreSession()">[Printable form]</a> </td>
+    <td align="right"> <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link_submit"
+     onclick="top.restoreSession()">[Don't Save]</a> </td>
   </tr>
 </table>
 </form>

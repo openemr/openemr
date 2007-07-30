@@ -1,4 +1,4 @@
-<?
+<?php
 // file new.php for pediatric EMESIS evaluation
 // presents a blank form for evaluating pediatric FEVER
 // this file made by andres@paglayan.com on 2004-09-23
@@ -28,13 +28,11 @@ formHeader("Pediatric GI Evaluation");
 <!-- the form ends here -->
 
 <!--REM note our nifty jscript submit -->
-<a href="javascript:document.ped_GI.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.ped_GI.submit();" class="link_submit">[Save]</a>
 <br>
 
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" onclick="top.restoreSession()">[Don't Save]</a>
 </form>
-
-
 
 <?php
 formFooter();

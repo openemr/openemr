@@ -52,9 +52,10 @@ formHeader("Form: obstetrical");
 <td><span class=text>Additional Notes: </span><br><textarea cols=40 rows=4 wrap=virtual name="additional_notes" ></textarea></td></tr>
 </table>
 <br>
-<a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
+ onclick="top.restoreSession()">[Don't Save]</a>
 </form>
 <?php
 formFooter();

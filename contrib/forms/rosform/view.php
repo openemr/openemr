@@ -223,9 +223,9 @@ $obj = formFetch("form_rosform", $_GET["id"]);
 <input type=checkbox name="conclusions_advance_directive"  <?if ($obj{"conclusions_advance_directive"} == "on") {echo "checked";};?>><span class=text>Advance Directive</span><br>
 <span class=text>Follow-up: </span><br><textarea cols=40 rows=8 wrap=virtual name="follow_up" ><?echo $obj{"follow_up"};?></textarea><br>
 <br>
-<a href="javascript:document.my_form.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
 <br>
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save Changes]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" onclick="top.restoreSession()">[Don't Save Changes]</a>
 </form>
 <?php
 formFooter();

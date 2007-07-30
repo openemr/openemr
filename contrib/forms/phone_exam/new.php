@@ -1,9 +1,8 @@
-<?
+<?php
 // file new.php
 include_once("../../globals.php");
 include_once("../../../library/api.inc");
 formHeader("Phone Exam");
-
 ?>
 <html><head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
@@ -18,17 +17,13 @@ formHeader("Phone Exam");
 <span class=text>Notes:</span><br>
 <textarea name="notes" wrap="virtual" cols="45" rows="10"></textarea><br>
 
-
 <!--REM note our nifty jscript submit -->
 <input type="hidden" name="action" value="submit">
-<a href="javascript:document.phone_exam_form.submit();" class="link_submit">[Save]</a>
+<a href="javascript:top.restoreSession();document.phone_exam_form.submit();" class="link_submit">[Save]</a>
 <br>
 
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link">[Don't Save]</a>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" onclick="top.restoreSession()">[Don't Save]</a>
 </form>
-
-
-
 
 <?php
 formFooter();

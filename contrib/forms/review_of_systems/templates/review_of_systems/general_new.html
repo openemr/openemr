@@ -37,7 +37,8 @@ a {
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
 <p><span class="title">Review Of Systems</span></p>
-<form name="review_of_systems" method="post" action="{$FORM_ACTION}/interface/forms/review_of_systems/save.php">
+<form name="review_of_systems" method="post" action="{$FORM_ACTION}/interface/forms/review_of_systems/save.php"
+ onsubmit="return top.restoreSession()">
 <table>
 <tr>
 	<td colspan="6">
@@ -136,7 +137,8 @@ a {
 
 {if $VIEW != true}
 <tr>
-	<td colspan="3"><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
+	<td colspan="3"><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="{$DONT_SAVE_LINK}" class="link" onclick="top.restoreSession()">[Don't Save]</a></td>
 </tr>
 {/if}
 </table>
