@@ -39,11 +39,7 @@ $form_squads     = $_POST['form_squads']; // this is an array
 
  var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
 
- // See main_screen.php for an explanation of this.
- function restoreSession() {
-  document.cookie = '<?php echo session_name() . '=' . session_id(); ?>; path=/';
-  return true;
- }
+<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
 // callback from add_edit_issue.php:
 function refreshIssue(issue, title) {

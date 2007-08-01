@@ -9,15 +9,11 @@ setpid($_GET["set_pid"]);
 <?php echo $openemr_name ?>
 </TITLE>
 <script type="text/javascript" src="../../library/topdialog.js"></script>
+
 <script language="JavaScript">
-
-// See main_screen.php for an explanation of this.
-function restoreSession() {
- document.cookie = '<?php echo session_name() . '=' . session_id(); ?>; path=/';
- return true;
-}
-
+<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 </script>
+
 </HEAD>
 <frameset rows="<?echo "$GLOBALS[navBarHeight],$GLOBALS[titleBarHeight]" ?>,*"
  cols="*" frameborder="0" border="0" framespacing="0" onunload="imclosing()">

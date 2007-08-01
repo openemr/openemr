@@ -9,12 +9,7 @@ $_SESSION["encounter"] = "";
 </TITLE>
 
 <script language='JavaScript'>
-
-function restoreSession() {
- document.cookie = '<?php echo session_name() . '=' . session_id(); ?>; path=/';
- return true;
-}
-
+<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 </script>
 
 </HEAD>

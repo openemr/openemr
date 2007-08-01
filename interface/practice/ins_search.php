@@ -72,11 +72,7 @@ td { font-size:10pt; }
 
  var mypcc = '<?php  echo $GLOBALS['phone_country_code'] ?>';
 
- // See main_screen.php for an explanation of this.
- function restoreSession() {
-  document.cookie = '<?php echo session_name() . '=' . session_id(); ?>; path=/';
-  return true;
- }
+<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
  function doescape(value) {
   return escape(value);

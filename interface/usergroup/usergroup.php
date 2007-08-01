@@ -1,4 +1,4 @@
-<?
+<?php
 include_once("../globals.php");
 include_once("../../library/acl.inc");
 
@@ -11,24 +11,29 @@ if (/*$userauthorized*/ true) {
 <TITLE>
 <?php echo $openemr_name ?>
 </TITLE>
+
+<script language='JavaScript'>
+<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+</script>
+
 </HEAD>
 <frameset rows="<?echo "$GLOBALS[navBarHeight],$GLOBALS[titleBarHeight]" ?>,*" cols="*" frameborder="NO" border="0" framespacing="0">
   <frame src="usergroup_navigation.php" name="Navigation" scrolling="no" noresize frameborder="NO">
   <frame src="usergroup_title.php" name="Title" scrolling="no" noresize frameborder="NO">
   <frame
-<? if (acl_check('admin', 'users')) { ?>
+<?php if (acl_check('admin', 'users')) { ?>
    src="usergroup_admin.php"
-<? } else if (acl_check('admin', 'forms')) { ?>
+<?php } else if (acl_check('admin', 'forms')) { ?>
    src="../forms_admin/forms_admin.php"
-<? } else if (acl_check('admin', 'practice')) { ?>
+<?php } else if (acl_check('admin', 'practice')) { ?>
    src="<?=$GLOBALS['webroot']?>/controller.php?practice_settings"
-<? } else if (acl_check('admin', 'calendar')) { ?>
+<?php } else if (acl_check('admin', 'calendar')) { ?>
    src="../main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig"
-<? } else if (acl_check('admin', 'database')) { ?>
+<?php } else if (acl_check('admin', 'database')) { ?>
    src="../main/myadmin/index.php"
-<? } else { ?>
+<?php } else { ?>
    src="<?echo $rootdir?>/logview/logview.php"
-<? } ?>
+<?php } ?>
    name="Main" scrolling="auto" noresize frameborder="NO">
 </frameset>
 
@@ -38,7 +43,7 @@ if (/*$userauthorized*/ true) {
 
 </HTML>
 
-<?
+<?php
 } else {
 ?>
 
@@ -53,6 +58,6 @@ window.location="<?echo "$rootdir/main/main_screen.php";?>";
 </body>
 </html>
 
-<?
+<?php
 }
 ?>

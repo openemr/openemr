@@ -1,4 +1,4 @@
-<?
+<?php
 $ignoreAuth=true;
 include_once("../globals.php");
 include_once("$srcdir/md5.js");
@@ -11,11 +11,14 @@ include_once("$srcdir/sql.inc");
 <script language='JavaScript'>
 
 function imsubmitted() {
+<?php if (!empty($GLOBALS['restore_sessions'])) { ?>
  // Delete the session cookie by setting its expiration date in the past.
  // This forces the server to create a new session ID.
  var olddate = new Date();
  olddate.setFullYear(olddate.getFullYear() - 1);
  document.cookie = '<?php echo session_name() . '=' . session_id() ?>; path=/; expires=' + olddate.toGMTString();
+<?php } ?>
+ return true;
 }
 
 </script>
@@ -28,9 +31,9 @@ function imsubmitted() {
 <center>
 
 <form method="POST" action="../main/main_screen.php?auth=login" target="_top"
- name="login_form" onsubmit="imsubmitted();">
+ name="login_form" onsubmit="return imsubmitted();">
 
-<?
+<?php
 $res = sqlStatement("select distinct name from groups");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
 	$result[$iter] = $row;
@@ -47,21 +50,21 @@ if (count($result) == 1) {
 </td>
 <td align='center' valign='middle' width=34%>
 <table>
-<?
+<?php
 if (count($result) != 1) {
 ?>
 <tr>
 <td><span class="text"><? xl('Group:','e'); ?></span></td>
 <td>
 <select name=authProvider>
-<?
+<?php
 	foreach ($result as $iter) {
 		echo "<option value='".$iter{"name"}."'>".$iter{"name"}."</option>\n";
 	}
 ?>
 </select>
 </td></tr>
-<?
+<?php
 }
 ?>
 <tr>
@@ -91,8 +94,6 @@ if (count($result) != 1) {
 
 </td>
 </table>
-
-
 
 </form>
 

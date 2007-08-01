@@ -500,11 +500,7 @@ td { font-size:10pt; }
  }
 ?>
 
- // See main_screen.php for an explanation of this.
- function restoreSession() {
-  document.cookie = '<?php echo session_name() . '=' . session_id(); ?>; path=/';
-  return true;
- }
+<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
  // This is for callback by the find-patient popup.
  function setpatient(pid, lname, fname, dob) {
