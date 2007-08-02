@@ -606,7 +606,10 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 
           if ($crow['process_time']) {
             $lhtml .= "<br>\n&nbsp;" . substr($crow['process_time'], 0, 16) . " " .
-              xl("Claim was generated to file ") . $crow['process_file'];
+              xl("Claim was generated to file ") .
+              "<a href='get_claim_file.php?key=" . $crow['process_file'] .
+              "' onclick='top.restoreSession()'>" .
+              $crow['process_file'] . "</a>";
             ++$lcount;
           }
 
