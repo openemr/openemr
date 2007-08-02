@@ -82,12 +82,12 @@ session_start();
 //
 $GLOBALS['concurrent_layout'] = true;
 
-// If true this will enforce a separate PHP session for each top-level
+// If >0 this will enforce a separate PHP session for each top-level
 // browser window.  You must log in separately for each.  This is not
 // thoroughly tested yet and some browsers might have trouble with it,
-// so make it false if you must.  Alternatively, you can set it to the
-// string 'debug' to be notified when the session ID changes.
-$GLOBALS['restore_sessions'] = true;
+// so make it 0 if you must.  Alternatively, you can set it to 2 to be
+// notified when the session ID changes.
+$GLOBALS['restore_sessions'] = 1; // 0=no, 1=yes, 2=yes+debug
 
 // used in Add new event for multiple providers
 $GLOBALS['select_multi_providers'] = false;

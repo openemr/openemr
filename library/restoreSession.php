@@ -9,15 +9,14 @@ var oemr_session_id   = '<?php echo session_id(); ?>';
 //
 function restoreSession() {
 <?php if (!empty($GLOBALS['restore_sessions'])) { ?>
- var mystatus = '';
  var ca = document.cookie.split('; ');
  for (var i = 0; i < ca.length; ++i) {
   var c = ca[i].split('=');
   if (c[0] == oemr_session_name && c[1] != oemr_session_id) {
-   document.cookie = oemr_session_name + '=' + oemr_session_id + '; path=/';
-<?php if (strcasecmp($GLOBALS['restore_sessions'], 'debug') == 0) { ?>
-   alert('Session ID changed from\n"' + c[1] + '" to\n"' + oemr_session_id + '"');
+<?php if ($GLOBALS['restore_sessions'] == 2) { ?>
+   alert('Changing session ID from\n"' + c[1] + '" to\n"' + oemr_session_id + '"');
 <?php } ?>
+   document.cookie = oemr_session_name + '=' + oemr_session_id + '; path=/';
   }
  }
 <?php } ?>
