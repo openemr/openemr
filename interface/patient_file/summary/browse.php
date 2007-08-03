@@ -136,7 +136,7 @@ function auto_populate_employer_address(){
 <td><span class=text><?php  xl('Policy Number','e'); ?>:</span></td><td><span class=text><?php echo $result3{policy_number};?></span></td>
 </tr>
 
-<?php if (usingEmployer()) { ?>
+<?php if (empty($GLOBALS['omit_employers'])) { ?>
 
 <tr>
 <td><span class=text><?php  xl('Subscriber Employer','e'); ?>:</span></td><td><span class=text><?php echo $result3{subscriber_employer};?></span></td>
