@@ -151,6 +151,7 @@ function set_button_states() {
 
 // Process a click to go to an encounter.
 function toencounter(pid, pname, enc, datestr) {
+ top.restoreSession();
 <?php if ($GLOBALS['concurrent_layout']) { ?>
  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
  parent.left_nav.setPatient(pname,pid,'');
@@ -167,6 +168,7 @@ function toencounter(pid, pname, enc, datestr) {
 
 // Process a click to go to patient demographics.
 function topatient(pid) {
+ top.restoreSession();
 <?php if ($GLOBALS['concurrent_layout']) { ?>
  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
  parent.frames[othername].location.href =
@@ -184,13 +186,13 @@ function topatient(pid) {
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <font class='title'><?php xl('Billing Report','e') ?></font>
 <?php } else if ($userauthorized) { ?>
-<a href="../main/main.php" target=Main><font class=title><?php xl('Billing Report','e') ?></font><font class=more> <?php echo $tback; ?></font></a>
+<a href="../main/main.php" target='Main' onclick='top.restoreSession()'><font class=title><?php xl('Billing Report','e') ?></font><font class=more> <?php echo $tback; ?></font></a>
 <?php } else { ?>
-<a href="../main/onotes/office_comments.php" target=Main><font class=title><?php xl('Billing Report','e') ?></font><font class=more><?php echo $tback; ?></font></a>
+<a href="../main/onotes/office_comments.php" target='Main' onclick='top.restoreSession()'><font class=title><?php xl('Billing Report','e') ?></font><font class=more><?php echo $tback; ?></font></a>
 <?php } ?>
 </p>
 
-<form name=the_form method=post action=billing_report.php>
+<form name='the_form' method='post' action='billing_report.php' onsubmit='return top.restoreSession()'>
 
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../library/dialog.js"></script>
@@ -246,16 +248,16 @@ function topatient(pid) {
   </td>
 
   <td align='right' width='10%' nowrap>
-   &nbsp;<span class='text'><a href="javascript:document.the_form.mode.value='change';document.the_form.submit()" class=link_submit><?php xl('[Change View]','e') ?></a>
+   &nbsp;<span class='text'><a href="javascript:top.restoreSession();document.the_form.mode.value='change';document.the_form.submit()" class=link_submit><?php xl('[Change View]','e') ?></a>
    or
-   <a href="javascript:document.the_form.mode.value='export';document.the_form.submit()" class='link_submit'><?php xl('[Export OFX]','e') ?></a></span>&nbsp;
+   <a href="javascript:top.restoreSession();document.the_form.mode.value='export';document.the_form.submit()" class='link_submit'><?php xl('[Export OFX]','e') ?></a></span>&nbsp;
   </td>
  </tr>
 
  <tr>
   <td nowrap>
    &nbsp;<a href="print_billing_report.php?<?php print "from_date=".urlencode($ofrom_date)."&to_date=".urlencode($oto_date)."&code_type=".urlencode($ocode_type)."&unbilled=".urlencode($ounbilled)."&authorized=".urlencode($oauthorized); ?>"
-    class='link_submit' target='new'><?php xl('[View Printable Report]','e') ?></a>
+    class='link_submit' target='new' onclick='top.restoreSession()'><?php xl('[View Printable Report]','e') ?></a>
   </td>
 
   <td nowrap>
@@ -265,10 +267,10 @@ function topatient(pid) {
   if($acct_config['enabled'] == true) {
     print '<span class=text><a href="javascript:void window.open(\'' . $acct_config['url_path'] . '\')">' . xl("[SQL-Ledger]") . '</a></span>';
     if (acl_check('acct', 'rep')) {
-      print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_receipts_report.php\')">' . xl('[Reports]') . '</a></span>';
+      print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_receipts_report.php\')" onclick="top.restoreSession()">' . xl('[Reports]') . '</a></span>';
     }
     if (acl_check('acct', 'eob')) {
-      print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_eob_search.php\')">' . xl('[EOBs]') . '</a></span>';
+      print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_eob_search.php\')" onclick="top.restoreSession()">' . xl('[EOBs]') . '</a></span>';
     }
   }
 ?>
@@ -277,7 +279,7 @@ function topatient(pid) {
   <td colspan='2' nowrap>
    &nbsp;
 <?php if (! file_exists($EXPORT_INC)) { ?>
-   <a href="javascript:document.the_form.mode.value='process';document.the_form.submit()" class="link_submit"
+   <a href="javascript:top.restoreSession();document.the_form.mode.value='process';document.the_form.submit()" class="link_submit"
     title="Process all queued bills to create electronic data (and print if requested)"><?php xl('[Start Batch Processing]','e') ?></a>
    &nbsp; <a href='../../library/freeb/process_bills.log' target='_blank' class='link_submit'
     title='See messages from the last batch processing run'><?php xl('[view log]','e') ?></a>
@@ -292,7 +294,7 @@ function topatient(pid) {
 </table>
 </form>
 
-<form name='update_form' method='post' action='billing_process.php'>
+<form name='update_form' method='post' action='billing_process.php' onsubmit='return top.restoreSession()'>
 
 <center>
 
