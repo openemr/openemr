@@ -121,7 +121,7 @@ $GLOBALS['oer_config']['prescriptions']['logo'] = dirname(__FILE__) .
   "/../interface/pic/" . $GLOBALS['oer_config']['prescriptions']['logo_pic'];
 $GLOBALS['oer_config']['prescriptions']['signature'] = dirname(__FILE__) .
   "/../interface/pic/" . $GLOBALS['oer_config']['prescriptions']['sig_pic'];
-$GLOBALS['oer_config']['prescriptions']['signature'] = '';
+// $GLOBALS['oer_config']['prescriptions']['signature'] = ''; // What was this for???
 
 $GLOBALS['oer_config']['druglabels']['logo'] = dirname(__FILE__) .
   "/../interface/pic/" . $GLOBALS['oer_config']['druglabels']['logo_pic'];
