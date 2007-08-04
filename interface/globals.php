@@ -25,6 +25,14 @@
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA //
 //  ------------------------------------------------------------------------ //
 
+// Emulates register_globals = On.  Moved to here from the bottom of this file
+// to address security issues.  Need to change everything requiring this!
+$ps = strpos($_SERVER['REQUEST_URI'],"myadmin");
+if ($ps === false) {
+  extract($_GET);
+  extract($_POST);
+}
+
 require_once(dirname(__FILE__) . "/../includes/config.php");
 // Global variable file in which colors and paths are set for the interface.
 ///////////////////////////////////////////////////////////////////
@@ -279,13 +287,6 @@ function strterm($string,$length) {
 	} else {
 		return $string;
 	}
-}
-
-// required for normal operation because of recent changes in PHP:
-$ps = strpos($_SERVER['REQUEST_URI'],"myadmin");
-if ($ps === false) {
-	extract($_GET);
-	extract($_POST);
 }
 
 // turn off PHP compatibility warnings

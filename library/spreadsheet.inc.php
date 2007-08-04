@@ -6,9 +6,9 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-include_once("$srcdir/api.inc");
-include_once("$srcdir/forms.inc");
-include_once("$include_root/forms/fee_sheet/codes.php");
+include_once(dirname(__FILE__) . '/api.inc');
+include_once(dirname(__FILE__) . '/forms.inc');
+include_once(dirname(__FILE__) . '/../interface/forms/fee_sheet/codes.php');
 
 $celltypes = array(
  '0' => 'Unused',

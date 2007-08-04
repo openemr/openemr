@@ -1,5 +1,6 @@
 <?php
-  include_once($GLOBALS['srcdir'] . '/sql.inc');
+// include_once($GLOBALS['srcdir'] . '/sql.inc');
+include_once(dirname(__FILE__) . '/sql.inc'); // fixes vulnerability with register_globals
 
 // this function is related to the interface/language module.
 

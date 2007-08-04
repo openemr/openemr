@@ -6,9 +6,9 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-include_once("$srcdir/api.inc");
-include_once("$webserver_root/interface/forms/fee_sheet/codes.php");
-include_once("$webserver_root/custom/code_types.inc.php");
+include_once(dirname(__FILE__) . '/api.inc');
+include_once(dirname(__FILE__) . '/../interface/forms/fee_sheet/codes.php');
+include_once(dirname(__FILE__) . '/../custom/code_types.inc.php');
 
 // $FEE_SHEET_COLUMNS should be defined in codes.php.
 if (empty($FEE_SHEET_COLUMNS)) $FEE_SHEET_COLUMNS = 2;
