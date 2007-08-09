@@ -3,22 +3,32 @@ include_once("../../globals.php");
 include_once("../../../library/api.inc");
 include_once("../../../library/sql.inc");
 formHeader("Form: CAMOS");
-$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
+function myauth() {
+  return 1;
+}
 ?>
 
 
 <?
+$out_of_encounter = false;
+if (($_SESSION['encounter'] == '') || ($_SESSION['pid'] == '')) {
+  $out_of_encounter = true;
+}
 $select_size = 20;
 $textarea_rows = 25;
 $textarea_cols = 55;
 $debug = '';
 $error = '';
-$previous_encounter_data = '<hr><p>'. xl('Previous Encounter CAMOS entries') .'</p><hr>';
-//get data from previous encounter to show at bottom of form for reference
-$query = "SELECT t1.category, t1.subcategory, t1.item, t1.content FROM form_CAMOS as t1 JOIN forms as t2 on (t1.id = t2.form_id) where t2.encounter=(select max(encounter) from forms where form_name like 'CAMOS%' and encounter < ".$_SESSION['encounter']." and pid=".$_SESSION['pid'].") and t1.pid=".$_SESSION['pid'];
-$statement = sqlStatement($query);
-while ($result = sqlFetchArray($statement)) { 
-$previous_encounter_data .= $result['category']." | ".$result['subcategory']." | ".$result['item']."<p><pre>".$result['content']."</pre></p><hr>";
+$previous_encounter_data = '';
+if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
+  $previous_encounter_data = '<hr><p>Previous Encounter CAMOS entries</p><hr>';
+  //get data from previous encounter to show at bottom of form for reference
+  $query = "SELECT t1.category, t1.subcategory, t1.item, t1.content FROM form_CAMOS as t1 JOIN forms as t2 on (t1.id = t2.form_id) where t2.encounter=(select max(encounter) from forms where form_name like 'CAMOS%' and encounter < ".$_SESSION['encounter']." and pid=".$_SESSION['pid'].") and t1.pid=".$_SESSION['pid'];
+  $statement = sqlStatement($query);
+  while ($result = sqlFetchArray($statement)) { 
+    $previous_encounter_data .= $result['category']." | ".$result['subcategory'].
+    " | ".$result['item']."<p><pre>".$result['content']."</pre></p><hr>";
+  }
 }
 
 //end of get data from previous encounter
@@ -132,28 +142,79 @@ else if ($_POST['hidden_mode'] == 'alter') {
 }
 // end handle changes to database
 
-//preselect column items
-//either a database change has been made, so the user should be made to feel that they never left the same CAMOS screen
-//or, CAMOS has been started freshly, therefore the last entry of the current patient should be selected. 
-$preselect_mode = '';
-if ($preselect_category == '') {
-  $preselect_mode = 'by name';
-  //at this point, if this variable has not been set, CAMOS must have been start over
-  //so let's get the most recent values from form_CAMOS for this patient's pid 
-  $query = "SELECT category, subcategory, item FROM form_CAMOS WHERE id =(SELECT max(id) from form_CAMOS WHERE pid=".$_SESSION['pid'].")";
-  $statement = sqlStatement($query);
-  if ($result = sqlFetchArray($statement)) {
-    $preselect_category = $result['category'];
-    $preselect_subcategory = $result['subcategory'];
-    $preselect_item = $result['item'];
+  //preselect column items
+  //either a database change has been made, so the user should be made to feel that they never left the same CAMOS screen
+  //or, CAMOS has been started freshly, therefore the last entry of the current patient should be selected. 
+  $preselect_mode = '';
+  if ($preselect_category == '' && !$out_of_encounter) {
+    $preselect_mode = 'by name';
+    //at this point, if this variable has not been set, CAMOS must have been start over
+    //so let's get the most recent values from form_CAMOS for this patient's pid 
+    $query = "SELECT category, subcategory, item FROM form_CAMOS WHERE id =(SELECT max(id) from form_CAMOS WHERE pid=".$_SESSION['pid'].")";
+    $statement = sqlStatement($query);
+    if ($result = sqlFetchArray($statement)) {
+      $preselect_category = $result['category'];
+      $preselect_subcategory = $result['subcategory'];
+      $preselect_item = $result['item'];
+    }
+    else {$preselect_mode = '';}
   }
-  else {$preselect_mode = '';}
-}
-else {
-  $preselect_mode = 'by number';
-}
-
-//end preselect column items
+  else {
+    $preselect_mode = 'by number';
+  }
+if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
+  //cloning - similar process to preselect set to first time starting CAMOS 
+  //as above
+  $clone_category = '';
+  $clone_subcategory = '';
+  $clone_item = '';
+  $clone_content = '';
+  $clone_data1 = '';
+  $clone_data2 = '';
+  $clone_data_array = array();
+  if (substr($_POST['hidden_mode'],0,5) == 'clone') {
+    $clone_category = $_POST['category'];
+    $query = "SELECT subcategory, item, content FROM form_CAMOS WHERE category like '".$clone_category."' and pid=".$_SESSION['pid']." order by id"; 
+    if ($_POST['hidden_mode'] == 'clone last visit') {
+      $query = "SELECT category, subcategory, item, content FROM form_CAMOS WHERE date(date) like (SELECT 
+    date(MAX(date)) FROM form_CAMOS where date(date) < date(now()) and pid=".$_SESSION['pid'].") and pid=".$_SESSION['pid']." order by id"; 
+    }
+    $statement = sqlStatement($query);
+    while ($result = sqlFetchArray($statement)) {
+      if (preg_match('/^[\s\r\n]*$/',$result['content']) == 0) {
+        if ($_POST['hidden_mode'] == 'clone last visit') {
+          $clone_category = $result['category'];
+        }
+        $clone_subcategory = $result['subcategory'];
+        $clone_item = $result['item'];
+        $clone_content = $result['content'];
+        $clone_data1 = "/* camos :: $clone_category :: $clone_subcategory :: $clone_item :: ";
+        $clone_data2 = "$clone_content */";
+        $clone_data_array[$clone_data1] = $clone_data2;
+      }
+    }
+    if ($_POST['hidden_mode'] == 'clone last visit') {
+      $query = "SELECT code_type, code, code_text, modifier, units, fee FROM billing WHERE date(date) like (SELECT 
+    date(MAX(date)) FROM form_CAMOS where date(date) < date(now()) and pid=".$_SESSION['pid'].") and pid=".$_SESSION['pid']." and activity=1 order by id"; 
+      $statement = sqlStatement($query);
+      while ($result = sqlFetchArray($statement)) {
+        $clone_code_type = $result['code_type'];
+        $clone_code = $result['code'];
+        $clone_code_text = $result['code_text'];
+        $clone_modifier = $result['modifier'];
+        $clone_units = $result['units'];
+        $clone_fee = $result['fee'];
+        $clone_billing_data = "/* billing :: $clone_code_type :: $clone_code :: $clone_code_text :: $clone_modifier :: $clone_units :: $clone_fee */"; 
+        $clone_data_array[$clone_billing_data] = '';
+      }
+    }
+    //foreach($clone_data_array as $key => $val) {
+    //  print "<h2> $key </h2>\n";
+    //}
+    
+  }
+  //end preselect column items
+} //end of 'do only if in an encounter stuff
 ?>
 
 <html><head>
@@ -216,20 +277,22 @@ function content_blur() {
   }
 }
 <?
-//ICD9
-$icd9_flag = false;
-$query = "SELECT code_text, code FROM billing WHERE encounter=".$_SESSION['encounter'].
-  " AND pid=".$_SESSION['pid']." AND code_type like 'ICD9'";
-$statement = sqlStatement($query);
-if ($result = sqlFetchArray($statement)) {
-  $icd9_flag = true;
-  echo "icd9_list = \"\\n\\n\\\n";
-  echo $result['code']." ".$result['code_text']."\\n\\\n";
+if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
+  //ICD9
+  $icd9_flag = false;
+  $query = "SELECT code_text, code FROM billing WHERE encounter=".$_SESSION['encounter'].
+    " AND pid=".$_SESSION['pid']." AND code_type like 'ICD9' AND activity=1";
+  $statement = sqlStatement($query);
+  if ($result = sqlFetchArray($statement)) {
+    $icd9_flag = true;
+    echo "icd9_list = \"\\n\\n\\\n";
+    echo $result['code']." ".$result['code_text']."\\n\\\n";
+  }
+  while ($result = sqlFetchArray($statement)) {
+    echo $result['code']." ".$result['code_text']."\\n\\\n";
+  }
+  if ($icd9_flag) {echo "\";\n";}
 }
-while ($result = sqlFetchArray($statement)) {
-  echo $result['code']." ".$result['code_text']."\\n\\\n";
-}
-if ($icd9_flag) {echo "\";\n";}
 
 $query = "SELECT id, category FROM form_CAMOS_category ORDER BY category";
 $statement = sqlStatement($query);
@@ -359,6 +422,15 @@ function click_item() {
   for (var i1=0;i1<array3.length;i1++) {
     if (array3[i1][3] == sel) {
       f2.textarea_content.value= array3[i1][1];
+<?
+if (substr($_POST['hidden_mode'],0,5) == 'clone') {
+  print "f2.textarea_content.value= ''\n";
+  foreach($clone_data_array as $key => $val) {
+  print "f2.textarea_content.value += \"\\n".str_replace(array("\r","\n","'","\""),array("\\r","\\n","\\'","\\\""),$key.$val)."\\n\"\n";
+  }
+}
+
+?>
     }
   }
 }
@@ -468,15 +540,16 @@ if ( (mode == 'add') || (mode == 'alter') ) {
     f2.submit();
   }
   else {
+    if (mode.substr(0,5) == 'clone') {
+      f2.category.value = f2.select_category.options[f2.select_category.selectedIndex].text;
+    }
     f2.hidden_mode.value = mode;
     f2.hidden_selection.value = selection;
     f2.hidden_category.value = category;
     f2.hidden_subcategory.value = subcategory;
     f2.hidden_item.value = item;
     f2.action = '<? print $GLOBALS['webroot'] ?>/interface/patient_file/encounter/load_form.php?formname=CAMOS';
-<?php if (!$GLOBALS['concurrent_layout']) { ?>
-    f2.target = 'Main';
-<?php } ?>
+    f2.target = '_self';
     f2.submit();
   }
 }
@@ -500,46 +573,78 @@ if ($error != '') {
 <table border=1>
 <tr>
   <td>
-    <?php xl('Category','e');?>
+    Category
   </td>
   <td>
-    <?php xl('Subcategory','e');?>
+    Subcategory
   </td>
   <td>
-    <?php xl('Item','e');?>
+    Item
   </td>
   <td>
-    <?php xl('Content','e');?>
+    Content 
   </td>
 </tr>
 
 <tr>
   <td>
     <select name=select_category size=<? echo $select_size ?> onchange="click_category()"></select><br>
+<?
+if (myAuth() == 1) {//root user only can see administration option 
+?>
     <input type=text name=change_category><br>
     <input type=button name=add1 value=add onClick="js_button('add','change_category')">
     <input type=button name=alter1 value=alter onClick="js_button('alter','change_category')">
     <input type=button name=del1 value=del onClick="js_button('delete','change_category')"><br>
+<?
+}
+?>
   </td>
   <td>
     <select name=select_subcategory size=<? echo $select_size ?> onchange="click_subcategory()"></select><br>
+<?
+if (myAuth() == 1) {//root user only can see administration option 
+?>
     <input type=text name=change_subcategory><br>
     <input type=button name=add2 value=add onClick="js_button('add','change_subcategory')">
     <input type=button name=alter1 value=alter onClick="js_button('alter','change_subcategory')">
     <input type=button name=del2 value=del onClick="js_button('delete','change_subcategory')"><br>
+<?
+}
+?>
   </td>
   <td>
     <select name=select_item size=<? echo $select_size ?> onchange="click_item()"></select><br>
+<?
+if (myAuth() == 1) {//root user only can see administration option 
+?>
     <input type=text name=change_item><br>
     <input type=button name=add3 value=add onClick="js_button('add','change_item')">
     <input type=button name=alter1 value=alter onClick="js_button('alter','change_item')">
     <input type=button name=del3 value=del onClick="js_button('delete','change_item')"><br>
+<?
+}
+?>
   </td>
   <td>
     <textarea name=textarea_content cols=<? echo $textarea_cols ?> rows=<? echo $textarea_rows ?> onFocus="content_focus()" onBlur="content_blur()"></textarea><br>
+<?
+if (myAuth() == 1) {//root user only can see administration option 
+?>
     <input type=button name=add4 value=add onClick="js_button('add','change_content')">
-    <input type=button name=icd9 value=icd9 onClick="append_icd9()">
     <input type=button name=lock value=lock onClick="lock_content()">
+<?
+if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
+?>
+    <input type=button name=icd9 value=icd9 onClick="append_icd9()">
+    <input type=button name=clone value=clone onClick="js_button('clone', 'clone')">
+    <input type=button name=clone_visit value='clone last visit' onClick="js_button('clone last visit', 'clone last visit')">
+<?
+}
+?>
+<?
+}
+?>
   </td>
 </tr>
 </table>
@@ -554,16 +659,22 @@ if ($error != '') {
 <input type=hidden name=subcategory>
 <input type=hidden name=item>
 <input type=hidden name=content>
+<?
+if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
+?>
 <input type=button name='submit form' value='submit all content' onClick="js_button('submit','submit')">
 <input type=button name='submit form' value='submit selected content' onClick="js_button('submit','submit_selection')">
 <?
-echo "<a href='".$GLOBALS['webroot'] .
-  "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[" .
-  xl('do not save'). "]</a>";
-echo "<a href='" . $GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [" .
-  xl ('help'). "]</a>";
-echo $previous_encounter_data;
+}
 ?>
+<?
+if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
+  echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/patient_encounter.php'>[do not save]</a>";
+  echo "<a href='".$GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [help]</a>";
+  echo $previous_encounter_data;
+}
+?>
+
 
 </form>
 <?php
