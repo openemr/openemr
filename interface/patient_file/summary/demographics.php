@@ -4,6 +4,7 @@
  require_once("$srcdir/acl.inc");
  require_once("$srcdir/classes/Address.class.php");
  require_once("$srcdir/classes/InsuranceCompany.class.php");
+ require_once("./patient_picture.php");
 
  if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
   include_once("$srcdir/pid.inc");
@@ -568,6 +569,11 @@ if (isset($pid)) {
 <?php } ?>
 </script>
 <?php } ?>
-
+<?php
+$patient_pics = pic_array();
+foreach ($patient_pics as $var) {
+  print $var;
+}
+?>
 </body>
 </html>
