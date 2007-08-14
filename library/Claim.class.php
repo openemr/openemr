@@ -48,14 +48,13 @@ class Claim {
       "pid = '{$this->pid}' AND provider != '' AND " .
       "date <= '$encounter_date' " .
       "ORDER BY type ASC, date DESC";
-    // echo "<br>$query<br>"; // debugging
     $dres = sqlStatement($query);
     $prevtype = '';
     while ($drow = sqlFetchArray($dres)) {
       if (strcmp($prevtype, $drow['type']) == 0) continue;
       $prevtype = $drow['type'];
-      $ins = ($drow['provider'] == $billrow['payer_id']) ?
-        0 : count($this->payers);
+      $ins = count($this->payers);
+      if ($drow['provider'] == $billrow['payer_id'] && empty($this->payers[0]['data'])) $ins = 0;
       $crow = sqlQuery("SELECT * FROM insurance_companies WHERE " .
         "id = '" . $drow['provider'] . "'");
       $orow = new InsuranceCompany($drow['provider']);
@@ -63,6 +62,20 @@ class Claim {
       $this->payers[$ins]['data']    = $drow;
       $this->payers[$ins]['company'] = $crow;
       $this->payers[$ins]['object']  = $orow;
+    }
+
+    // This kludge hands most cases of a rare ambiguous situation, where
+    // the primary insurance company is the same as the secondary.  It seems
+    // nobody planned for that!
+    //
+    for ($i = 1; $i < count($this->payers); ++$i) {
+      if ($billrow['process_date'] &&
+        $this->payers[0]['data']['payer_id'] == $this->payers[$i]['data']['payer_id'])
+      {
+        $tmp = $this->payers[0];
+        $this->payers[0] = $this->payers[$i];
+        $this->payers[$i] = $tmp;
+      }
     }
 
     $this->using_modifiers = true;
@@ -294,6 +307,7 @@ class Claim {
             continue; // it's for primary and that's not us
           }
 
+          if ($rcode == '42') $rcode= '45'; // reason 42 is obsolete
           $aadj[] = array($date, $gcode, $rcode, sprintf('%.2f', $chg));
 
         } // end if
@@ -713,8 +727,9 @@ class Claim {
   // NDC drug number of units.
   function cptNDCQuantity($prockey) {
     $ndcinfo = $this->procs[$prockey]['ndc_info'];
-    if (preg_match('/^N4(\S+)\s+(\S\S)(.*)/', $ndcinfo, $tmp))
-      return x12clean($tmp[3]);
+    if (preg_match('/^N4(\S+)\s+(\S\S)(.*)/', $ndcinfo, $tmp)) {
+      return x12clean(ltrim($tmp[3], '0'));
+    }
     return '';
   }
 

@@ -149,7 +149,6 @@ function gen_x12_837($pid, $encounter, &$log) {
     "~\n";
 
   // Add a REF*EI*<ein> segment if NPI was specified in the NM1 above.
-
   if ($claim->billingFacilityNPI() && $claim->billingFacilityETIN()) {
     ++$edicount;
     $out .= "REF" .
@@ -460,8 +459,18 @@ function gen_x12_837($pid, $encounter, &$log) {
     "*207Q00000X" .
     "~\n";
 
+  // REF*1C is required here for the Medicare provider number if NPI was
+  // specified in NM109.  Not sure if other payers require anything here.
+  if ($claim->providerNumber()) {
+    ++$edicount;
+    $out .= "REF" .
+      "*" . $claim->providerNumberType() .
+      "*" . $claim->providerNumber() .
+      "~\n";
+  }
+
   ++$edicount;
-  $out .= "NM1" .       // Loop 2310B Service Location
+  $out .= "NM1" .       // Loop 2310D Service Location
     "*77" .
     "*2" .
     "*" . $claim->facilityName() .
@@ -646,10 +655,12 @@ function gen_x12_837($pid, $encounter, &$log) {
       }
 
       ++$edicount;
+      $tmpunits = $claim->cptNDCQuantity($prockey) * $claim->cptUnits($prockey);
+      if (!$tmpunits) $tmpunits = 1;
       $out .= "CTP" . // Drug Pricing. Page 500+ (Addendum pg 74).
         "*" .
         "*" .
-        "*0" . // dummy price, required by HIPAA
+        "*" . sprintf('%.2f', $claim->cptCharges($prockey) / $tmpunits) .
         "*" . $claim->cptNDCQuantity($prockey) .
         "*" . $claim->cptNDCUOM($prockey) .
         "~\n";
