@@ -16,8 +16,16 @@ $insurance_company = $_REQUEST['insurance_company'];
 
 $target = $GLOBALS['concurrent_layout'] ? '_parent' : 'Main';
 
+// Possible units of measure for NDC drug quantities.
+$ndc_uom_choices = array(
+  'ML' => 'ML',
+  'GR' => 'Grams',
+  'F2' => 'I.U.',
+  'UN' => 'Units'
+);
+
 if ($payment_method == "insurance") {
-	$payment_method = "insurance: ".$insurance_company;
+	$payment_method = "insurance: " . $insurance_company;
 }
 if (isset($mode)) {
 	if ($mode == "add") {
@@ -40,8 +48,16 @@ if (isset($mode)) {
 				$provid, $modifier, $units, sprintf("%01.2f", $fee));
 		}
 		else {
-			addBilling($encounter, $type, $code, $text, $pid, $userauthorized,
-				$provid, $modifier, $units, $fee);
+      $ndc_info = '';
+      // If HCPCS, get and save default NDC data.
+      if (strtolower($type) == "hcpcs") {
+        $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
+          "code_type = 'HCPCS' AND code = '$code' AND ndc_info LIKE 'N4%' " .
+          "ORDER BY date DESC LIMIT 1");
+        if (!empty($tmp)) $ndc_info = $tmp['ndc_info'];
+      }
+      addBilling($encounter, $type, $code, $text, $pid, $userauthorized,
+        $provid, $modifier, $units, $fee, $ndc_info);
 		}
 	}
 	elseif ($mode == "justify") {
@@ -63,14 +79,78 @@ if (isset($mode)) {
 			foreach ($sql as $q) {
 				$results = sqlQ($q);
 			}
-		}	
-	}
+		}
+
+    // Save NDC fields, if present.
+    $ndcarr = $_POST['ndc'];
+    for ($lino = 1; !empty($ndcarr["$lino"]['code']); ++$lino) {
+      $ndc = $ndcarr["$lino"];
+      $ndc_info = '';
+      if ($ndc['ndcnum']) {
+        $ndc_info = 'N4' . trim($ndc['ndcnum']) . '   ' . $ndc['ndcuom'] .
+          trim($ndc['ndcqty']);
+      }
+      sqlStatement("UPDATE billing SET ndc_info = '$ndc_info' WHERE " .
+        "encounter = '" . mysql_real_escape_string($_POST['encounter_id']) . "' AND " .
+        "pid = '" . mysql_real_escape_string($_POST['patient_id']) . "' AND " .
+        "code = '" . mysql_real_escape_string($ndc['code']) . "'");
+    }
+
+  }
 }
 
 ?>
 <html>
 <head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+
+<script language="JavaScript">
+
+function validate(f) {
+ for (var lino = 1; f['ndc['+lino+'][code]']; ++lino) {
+  var pfx = 'ndc['+lino+']';
+  if (f[pfx+'[ndcnum]'] && f[pfx+'[ndcnum]'].value) {
+   // Check NDC number format.
+   var ndcok = true;
+   var ndc = f[pfx+'[ndcnum]'].value;
+   var a = ndc.split('-');
+   if (a.length != 3) {
+    ndcok = false;
+   }
+   else if (a[0].length < 1 || a[1].length < 1 || a[2].length < 1 ||
+    a[0].length > 5 || a[1].length > 4 || a[2].length > 2) {
+    ndcok = false;
+   }
+   else {
+    for (var i = 0; i < 3; ++i) {
+     for (var j = 0; j < a[i].length; ++j) {
+      var c = a[i].charAt(j);
+      if (c < '0' || c > '9') ndcok = false;
+     }
+    }
+   }
+   if (!ndcok) {
+    alert('<?php xl('Format incorrect for NDC','e') ?> "' + ndc +
+     '", <?php xl('should be like nnnnn-nnnn-nn','e') ?>');
+    if (f[pfx+'[ndcnum]'].focus) f[pfx+'[ndcnum]'].focus();
+    return false;
+   }
+   // Check for valid quantity.
+   var qty = f[pfx+'[ndcqty]'].value - 0;
+   if (isNaN(qty) || qty <= 0) {
+    alert('<?php xl('Quantity for NDC','e') ?> "' + ndc +
+     '" <?php xl('is not valid (decimal fractions are OK).','e') ?>');
+    if (f[pfx+'[ndcqty]'].focus) f[pfx+'[ndcqty]'].focus();
+    return false;
+   }
+  }
+ }
+ top.restoreSession();
+ return true;
+}
+
+</script>
+
 </head>
 
 <body <?php echo $bottom_bg_line;?> topmargin='0' rightmargin='0' leftmargin='4'
@@ -97,7 +177,7 @@ if (isset($mode)) {
 ?>
 
 <form name="diagnosis" method="post" action="diagnosis.php?mode=justify"
- onsubmit="return top.restoreSession()">
+ onsubmit="return validate(this)">
 
 <table border=0 cellspacing=0 cellpadding=0 height=100%>
 <tr>
@@ -118,7 +198,7 @@ if( !empty( $_GET["back"] ) || !empty( $_POST["back"] ) ){
 ?>
 <?php if (!$GLOBALS['weight_loss_clinic']) { ?>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="submit" name="justify" value="<?php xl('Justify','e');?>">
+<input type="submit" name="justify" value="<?php xl('Justify/Save','e');?>">
 <?php } ?>
 </dt>
 </dl>
@@ -131,6 +211,7 @@ if( !empty( $_GET["back"] ) || !empty( $_POST["back"] ) ){
 if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 	$billing_html = array();
 	$total = 0.0;
+  $ndclino = 0;
 	foreach ($result as $iter) {
 		if ($iter["code_type"] == "ICD9") {
 				$html = "<tr>";
@@ -176,8 +257,32 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 					$counter++;
 				}
 			}
-
 			$billing_html[$iter["code_type"]] .= "</span></td></tr>\n";
+
+      // If this is HCPCS, write NDC line.
+      if ($iter['code_type'] == 'HCPCS') {
+        ++$ndclino;
+        $ndcnum = ''; $ndcuom = ''; $ndcqty = '';
+        if (preg_match('/^N4(\S+)\s+(\S\S)(.*)/', $iter['ndc_info'], $tmp)) {
+          $ndcnum = $tmp[1]; $ndcuom = $tmp[2]; $ndcqty = $tmp[3];
+        }
+        $billing_html[$iter["code_type"]] .=
+          "<tr><td>&nbsp;</td><td class='small'>NDC:&nbsp;\n" .
+          "<input type='hidden' name='ndc[$ndclino][code]' value='" . $iter[code] . "'>" .
+          "<input type='text' name='ndc[$ndclino][ndcnum]' value='$ndcnum' " .
+          "size='11' style='background-color:transparent'>" .
+          " &nbsp;Qty:&nbsp;" .
+          "<input type='text' name='ndc[$ndclino][ndcqty]' value='$ndcqty' " .
+          "size='3' style='background-color:transparent;text-align:right'> " .
+          "<select name='ndc[$ndclino][ndcuom]' style='background-color:transparent'>";
+        foreach ($ndc_uom_choices as $key => $value) {
+          $billing_html[$iter["code_type"]] .= "<option value='$key'";
+          if ($key == $ndcuom) $billing_html[$iter["code_type"]] .= " selected";
+          $billing_html[$iter["code_type"]] .= ">$value</option>";
+        }
+        $billing_html[$iter["code_type"]] .= "</select></td></tr>\n";
+      }
+
 		}
 	}
 
