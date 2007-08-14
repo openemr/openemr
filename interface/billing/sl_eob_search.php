@@ -257,7 +257,7 @@ function npopup(pid) {
   </td>
   <td>
    <input type='text' name='form_name' size='10' value='<?php echo $_POST['form_name']; ?>'
-    title='<?xl("Any part of the patient name, or 'last,first', or 'X-Y'","e")?>'>
+    title='<?xl("Any part of the patient name, or \"last,first\", or \"X-Y\"","e")?>'>
   </td>
   <td>
    <?xl('Chart ID:','e')?>
@@ -372,7 +372,9 @@ function npopup(pid) {
         } else if (preg_match('/^(\S)\s*-\s*(\S)$/', $form_name, $matches)) {
           $tmp = '1 = 2';
           while (ord($matches[1]) <= ord($matches[2])) {
-            $tmp .= " OR customer.name ILIKE '% " . $matches[1] . "%'";
+            // $tmp .= " OR customer.name ILIKE '% " . $matches[1] . "%'";
+            // Fixing the above which was also matching on middle names:
+            $tmp .= " OR customer.name ~* ' " . $matches[1] . "[A-Z]*$'";
             $matches[1] = chr(ord($matches[1]) + 1);
           }
           $where .= "( $tmp ) ";
