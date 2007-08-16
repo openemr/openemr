@@ -19,8 +19,7 @@ if (isset($_POST["mode"])) {
     postal_code='{$_POST['postal_code']}',
     country_code='{$_POST['country_code']}',
     federal_ein='{$_POST['federal_ein']}',
-    specialty='{$_POST['specialty']}',
-	facility_npi='{$_POST['facility_npi']}'");
+    facility_npi='{$_POST['facility_npi']}'");
   } elseif ($_POST["mode"] == "new_user") {
     if ($_POST["authorized"] != "1") {
       $_POST["authorized"] = 0;
