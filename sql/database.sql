@@ -26472,6 +26472,7 @@ CREATE TABLE `facility` (
   `postal_code` varchar(11) default NULL,
   `country_code` varchar(10) default NULL,
   `federal_ein` varchar(15) default NULL,
+  `service_location` tinyint(1) NOT NULL default '1',
   `billing_location` tinyint(1) NOT NULL default '0',
   `accepts_assignment` tinyint(1) NOT NULL default '0',
   `pos_code` tinyint(4) default NULL,
@@ -26488,7 +26489,7 @@ CREATE TABLE `facility` (
 
 
 /*!40000 ALTER TABLE `facility` DISABLE KEYS */;
-INSERT INTO `facility` VALUES (3,'Your Clinic Name Here','000-000-0000','000-000-0000','','','','','','',0,0,NULL,'','','','');
+INSERT INTO `facility` VALUES (3,'Your Clinic Name Here','000-000-0000','000-000-0000','','','','','','',1,0,0,NULL,'','','','');
 /*!40000 ALTER TABLE `facility` ENABLE KEYS */;
 
 --
@@ -26527,6 +26528,7 @@ CREATE TABLE `form_encounter` (
   `date` datetime default NULL,
   `reason` longtext,
   `facility` longtext,
+  `facility_id` int(11) NOT NULL DEFAULT 0,
   `pid` bigint(20) default NULL,
   `encounter` bigint(20) default NULL,
   `onset_date` datetime default NULL,
@@ -27702,6 +27704,7 @@ CREATE TABLE `users` (
   `federaldrugid` varchar(255) default NULL,
   `upin`       varchar(255) default NULL,
   `facility`   varchar(255) default NULL,
+  `facility_id` int(11)     NOT NULL DEFAULT 0,
   `see_auth`   int(11)      NOT NULL DEFAULT 1,
   `active`     tinyint(1)   NOT NULL DEFAULT 1,
   `npi`        varchar(15)  NOT NULL DEFAULT '',

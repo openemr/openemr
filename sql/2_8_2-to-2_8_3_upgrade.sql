@@ -97,3 +97,18 @@ ALTER TABLE insurance_data
   DROP KEY pid_type,
   DROP KEY pid,
   ADD UNIQUE KEY pid_type_date (pid, type, date);
+
+ALTER TABLE facility
+  ADD `service_location` tinyint(1) NOT NULL DEFAULT 1;
+
+ALTER TABLE form_encounter
+  ADD facility_id int(11) NOT NULL DEFAULT 0;
+UPDATE form_encounter, facility
+  SET form_encounter.facility_id = facility.id WHERE
+  facility.name = form_encounter.facility;
+
+ALTER TABLE users
+  ADD facility_id int(11) NOT NULL DEFAULT 0;
+UPDATE users, facility
+  SET users.facility_id = facility.id WHERE
+  facility.name = users.facility;
