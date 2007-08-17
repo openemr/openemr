@@ -146,8 +146,8 @@ class Claim {
     $this->x12_partner = sqlQuery($sql);
 
     $sql = "SELECT * FROM facility WHERE " .
-      "name = '" . addslashes($this->encounter['facility']) . "' " .
-      "ORDER BY id LIMIT 1";
+      "id = '" . addslashes($this->encounter['facility_id']) . "' " .
+      "LIMIT 1";
     $this->facility = sqlQuery($sql);
 
     $sql = "SELECT * FROM users WHERE " .

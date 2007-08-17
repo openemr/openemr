@@ -954,12 +954,13 @@ class Procedure Extends DataObjectBase {
 		}
 	}
 
+  // Practice Key is the billing location.
+  //
 	function practicekey($m) {
 
 		$err="";
 
-		$sql = "SELECT * FROM form_encounter where encounter = '" . $_SESSION['billkey'] ."' and pid = '" . $_SESSION['patient_id'] ."'";
-		//echo $sql;
+		$sql = "SELECT * FROM facility ORDER BY billing_location DESC, id ASC LIMIT 1";
 		$db = $GLOBALS['adodb']['db'];
 		$results = $db->Execute($sql);
 
@@ -968,31 +969,14 @@ class Procedure Extends DataObjectBase {
 		}
 		else {
 			if (!$results->EOF) {
-				$fname = $results->fields['facility'];
+				$fkey = $results->fields['id'];
 			}
 		}
 
-		$sql = "SELECT * FROM facility where name = '" . $fname ."'";
-		//echo $sql;
-		$db = $GLOBALS['adodb']['db'];
-		$results = $db->Execute($sql);
-
-		if (!$results) {
-			$err = $db->ErrorMsg();
-		}
-		else {
-			if (!$results->EOF) {
-				$fkey =	$results->fields['id'];
-			}
-		}
-
-		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
 		}
   		else {
-			// otherwise, we create the right response
-			// with the state name
 			return new xmlrpcresp(new xmlrpcval($fkey,"i4"));
 		}
 	}
@@ -1194,16 +1178,18 @@ class Procedure Extends DataObjectBase {
 		}
 	}
 
+  // This is for the facility where service was rendered.
+  //
 	function facilitykey($m) {
 
-				$eid = "";
+		$eid = "";
 		$patient_id = "";
 		$fname ="";
 
 		$obj= $m->getparam(0);
 		$key = $obj->getval();
 
-		$sql = "SELECT * FROM billing where id = '" . $key . "'";
+		$sql = "SELECT pid, encounter FROM billing where id = '$key'";
 
 		$db = $GLOBALS['adodb']['db'];
 		$results = $db->Execute($sql);
@@ -1218,7 +1204,7 @@ class Procedure Extends DataObjectBase {
 			}
 		}
 
-		$sql = "SELECT * FROM form_encounter where encounter = '" . $eid ."' and pid = '" . $patient_id ."'";
+		$sql = "SELECT facility_id FROM form_encounter where encounter = '$eid' and pid = '$patient_id'";
 
 		$results = $db->Execute($sql);
 
@@ -1227,11 +1213,12 @@ class Procedure Extends DataObjectBase {
 		}
 		else {
 			if (!$results->EOF) {
-				$fname = $results->fields['facility'];
+				$facility_id = $results->fields['facility_id'];
 			}
 		}
 
-		$sql = "SELECT * FROM facility where name = '" . $fname ."'";
+    /****
+		$sql = "SELECT * FROM facility where name = '" . $fname . "'";
 		$results = $db->Execute($sql);
 		if (!$results) {
 			echo "error";
@@ -1242,15 +1229,13 @@ class Procedure Extends DataObjectBase {
 				$fkey =	$results->fields['id'];
 			}
 		}
+    ****/
 
-		// if we generated an error, create an error return response
 		if ($err) {
 			return $this->_handleError($err);
 		}
-  		else {
-			// otherwise, we create the right response
-			// with the state name
-			return new xmlrpcresp(new xmlrpcval($fkey,"i4"));
+		else {
+			return new xmlrpcresp(new xmlrpcval($facility_id, "i4"));
 		}
 	}
 

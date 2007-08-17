@@ -1,4 +1,4 @@
-<?
+<?php
  // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -317,10 +317,11 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
     $tmprow = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
       "pid = '" . $_POST['form_pid'] . "' AND date = '$event_date 00:00:00'");
     if ($tmprow['count'] == 0) {
-      $tmprow = sqlQuery("SELECT username, facility FROM users WHERE id = '" .
+      $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = '" .
         $_POST['form_provider'] . "'");
       $username = $tmprow['username'];
       $facility = $tmprow['facility'];
+      $facility_id = $tmprow['facility_id'];
       $conn = $GLOBALS['adodb']['db'];
       $encounter = $conn->GenID("sequences");
       addForm($encounter, "New Patient Encounter",
@@ -329,6 +330,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
           "onset_date = '$event_date', " .
           "reason = '" . $_POST['form_comments'] . "', " .
           "facility = '$facility', " .
+          "facility_id = '$facility_id', " .
           "pid = '" . $_POST['form_pid'] . "', " .
           "encounter = '$encounter'"
         ),

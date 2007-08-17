@@ -16,6 +16,7 @@ if ($_POST["mode"] == "facility")
 		postal_code='{$_POST['postal_code']}',
 		country_code='{$_POST['country_code']}',
 		federal_ein='{$_POST['federal_ein']}',
+		service_location='{$_POST['service_location']}',
 		billing_location='{$_POST['billing_location']}',
 		accepts_assignment='{$_POST['accepts_assignment']}',
 		pos_code='{$_POST['pos_code']}',
@@ -79,9 +80,18 @@ ax size=20 value="<?=$facility['fax']?>"></td>
 
 </tr>
 <tr>
-	<td><span class=text><? xl('Billing Location','e'); ?>: </span></td><td><input type=checkbox name="billing_location" value="1" <?if ($facility['billing_location'] == 1) echo "checked"?>"></td>
-	<td><span class=text><? xl('Accepts Assignment','e'); ?><br>(<? xl('only if billing location','e'); ?>): </span></td><td><input type=checkbox name="accepts_assignment" value="1" <?if ($facility['accepts_assignment'] == 1) echo "checked"?>"></td>
+  <td><span class='text'><?php xl('Billing Location','e'); ?>: </span></td>
+  <td><input type='checkbox' name="billing_location" value="1" <?php if ($facility['billing_location'] == 1) echo "checked"?>"></td>
+  <td rowspan='2'><span class='text'><?php xl('Accepts Assignment','e'); ?><br>(<?php xl('only if billing location','e'); ?>): </span></td>
+  <td><input type='checkbox' name="accepts_assignment" value="1" <?php if ($facility['accepts_assignment'] == 1) echo "checked"?>"></td>
 </tr>
+
+<tr>
+  <td><span class='text'><?php xl('Service Location','e'); ?>: </span></td>
+  <td><input type='checkbox' name="service_location" value="1" <?php if ($facility['service_location']) echo "checked"?>"></td>
+  <td>&nbsp;</td>
+</tr>
+
 <tr>
 	<td><span class=text><? xl('POS Code','e'); ?>: </span></td>
 	<td colspan="6">

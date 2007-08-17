@@ -111,19 +111,19 @@
  <tr>
   <td class='text' width='1%' nowrap><?php xl('Facility:','e'); ?></td>
   <td>
-   <select name='facility'>
-<?
- $dres = sqlStatement("select facility from users where username='".$_SESSION{"authUser"}."'");
+   <select name='facility_id'>
+<?php
+ $dres = sqlStatement("select facility_id from users where username = '" . $_SESSION['authUser'] . "'");
  $drow = sqlFetchArray($dres);
- $fres = sqlStatement("select * from facility order by name");
+ $fres = sqlStatement("select * from facility where service_location != 0 order by name");
  if ($fres) {
   $result = array();
   for ($iter = 0; $frow = sqlFetchArray($fres); $iter++)
    $result[$iter] = $frow;
   foreach($result as $iter) {
 ?>
-    <option value="<?echo $iter{name};?>" <?if ($drow{facility} == $iter{name}) {echo "selected";};?>><?echo $iter{name};?></option>
-<?
+    <option value="<?php echo $iter['id']; ?>" <?php if ($drow['facility_id'] == $iter['id']) echo "selected"; ?>><?php echo $iter['name']; ?></option>
+<?php
   }
  }
 ?>

@@ -76,7 +76,7 @@
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<form method='post' action="<?echo $rootdir?>/forms/newpatient/save.php" name='new_encounter'
+<form method='post' action="<?php echo $rootdir ?>/forms/newpatient/save.php" name='new_encounter'
  <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>>
 <input type=hidden name='mode' value='update'>
 <input type=hidden name='id' value='<? echo $_GET["id"] ?>'>
@@ -120,16 +120,16 @@
  <tr>
   <td class='text' width='1%' nowrap><?php xl('Facility:','e'); ?></td>
   <td>
-   <select name='facility'>
+   <select name='facility_id'>
 <?
- $fres = sqlStatement("select * from facility order by name");
+ $fres = sqlStatement("select * from facility where service_location != 0 order by name");
  if ($fres) {
   $fresult = array();
   for ($iter = 0; $frow = sqlFetchArray($fres); $iter++)
    $fresult[$iter] = $frow;
   foreach($fresult as $iter) {
 ?>
-    <option value="<?echo $iter{name};?>" <?if ($result{facility} == $iter{name}) echo "selected";?>><?echo $iter{name};?></option>
+    <option value="<?php echo $iter['id']; ?>" <?php if ($result['facility_id'] == $iter['id']) echo "selected";?>><?php echo $iter['name']; ?></option>
 <?
   }
  }

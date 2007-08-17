@@ -1,8 +1,7 @@
-<?
+<?php
 include_once("../globals.php");
 include_once("$srcdir/auth.inc");
 include_once("../../library/acl.inc");
-
 include_once("$srcdir/md5.js");
 include_once("$srcdir/sql.inc");
 require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
@@ -12,16 +11,15 @@ require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
 <head>
 
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
 
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-
-<a href="usergroup_admin.php"><span class="title"><? xl('User Administration','e'); ?></span></a>
+<a href="usergroup_admin.php"><span class="title"><?php xl('User Administration','e'); ?></span></a>
 <br><br>
 
-<?
+<?php
 if (!$_GET["id"] || !acl_check('admin', 'users'))
   exit();
 
@@ -61,9 +59,9 @@ if ($_GET["mode"] == "update") {
           $tqvar = addslashes($_GET["mname"]);
           sqlStatement("update users set mname='$tqvar' where id={$_GET["id"]}");
   }
-  if ($_GET["facility"]) {
-          $tqvar = addslashes($_GET["facility"]);
-          sqlStatement("update users set facility='$tqvar' where id={$_GET["id"]}");
+  if ($_GET["facility_id"]) {
+          $tqvar = addslashes($_GET["facility_id"]);
+          sqlStatement("update users set facility_id = '$tqvar' where id = {$_GET["id"]}");
   }
   if ($_GET["fname"]) {
           $tqvar = addslashes($_GET["fname"]);
@@ -83,7 +81,7 @@ if ($_GET["mode"] == "update") {
 
   if ($_GET["comments"]) {
     $tqvar = addslashes($_GET["comments"]);
-    sqlStatement("update users set info='$tqvar' where id={$_GET["id"]}");
+    sqlStatement("update users set info = '$tqvar' where id = {$_GET["id"]}");
   }
   $ws = new WSProvider($_GET['id']);
 }
@@ -119,16 +117,16 @@ $iter = $result[0];
 
 <TR>
 <td><span class=text><? xl('Last Name','e'); ?>: </span></td><td><input type=entry name=lname size=20 value="<? echo $iter["lname"]; ?>"></td>
-<td><span class=text><? xl('Default Facility','e'); ?>: </span></td><td><select name=facility>
-<?
-$fres = sqlStatement("select * from facility order by name");
+<td><span class=text><? xl('Default Facility','e'); ?>: </span></td><td><select name=facility_id>
+<?php
+$fres = sqlStatement("select * from facility where service_location != 0 order by name");
 if ($fres) {
-for ($iter2 = 0;$frow = sqlFetchArray($fres);$iter2++)
+for ($iter2 = 0; $frow = sqlFetchArray($fres); $iter2++)
                 $result[$iter2] = $frow;
 foreach($result as $iter2) {
 ?>
-<option value="<?echo $iter2{name};?>" <?if ($iter{"facility"} == $iter2{name}) {echo "selected";};?>><?echo $iter2{name};?></option>
-<?
+<option value="<?php echo $iter2['id']; ?>" <?php if ($iter['facility_id'] == $iter2['id']) echo "selected"; ?>><?php echo $iter2['name']; ?></option>
+<?php
 }
 }
 ?>
@@ -180,7 +178,6 @@ foreach($result as $iter2) {
 </BODY>
 </HTML>
 
-<?
+<?php
 //  d41d8cd98f00b204e9800998ecf8427e == blank
-
 ?>

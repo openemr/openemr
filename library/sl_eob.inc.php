@@ -294,7 +294,7 @@
     $employee_id = $arrow['employee_id'];
 
     // Get the OpenEMR provider info corresponding to the SQL-Ledger salesman.
-    $drrow = sqlQuery("SELECT users.id, users.username, users.facility " .
+    $drrow = sqlQuery("SELECT users.id, users.username, users.facility_id " .
       "FROM integration_mapping, users WHERE " .
       "integration_mapping.foreign_id = $employee_id AND " .
       "integration_mapping.foreign_table = 'salesman' AND " .
@@ -311,11 +311,11 @@
     // Create the "new encounter".
     $encounter_id = 0;
     $query = "INSERT INTO form_encounter ( " .
-      "date, reason, facility, pid, encounter, onset_date " .
+      "date, reason, facility_id, pid, encounter, onset_date " .
       ") VALUES ( " .
       "'$date_of_service', " .
       "'" . xl('Imported from Accounting') . "', " .
-      "'" . addslashes($drrow['facility']) . "', " .
+      "'" . addslashes($drrow['facility_id']) . "', " .
       "$pid, " .
       "$new_encounter, " .
       "'$date_of_service' " .

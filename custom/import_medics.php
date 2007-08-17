@@ -494,6 +494,7 @@ while (!empty($_POST['pt' . ++$ptsequence])) {
     $alertmsg .= "Facility \\'$tmp\\' not found, patient skipped! ";
     continue;
   }
+  $patient_facility_id   = $row['id'];
   $patient_facility_name = $row['name'];
 
   if (!$patient_pid) {
@@ -693,6 +694,7 @@ while (!empty($_POST['pt' . ++$ptsequence])) {
       "onset_date = '$dos', " .
       "reason = '$encounter_reason', " .
       "facility = '$patient_facility_name', " .
+      "facility_id = '$patient_facility_id', " .
       "sensitivity = 'normal', " .
       "pid = '$patient_pid', " .
       "encounter = '$encounter_id'"

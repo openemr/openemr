@@ -1,4 +1,4 @@
-<?
+<?php
  include_once("../../globals.php");
  include_once("$srcdir/forms.inc");
  include_once("$srcdir/sql.inc");
@@ -18,7 +18,7 @@ $conn = $GLOBALS['adodb']['db'];
 $date        = $_POST['form_date'];
 $onset_date  = $_POST['form_onset_date'];
 $sensitivity = $_POST['form_sensitivity'];
-$facility    = $_POST['facility'];
+$facility_id = $_POST['facility_id'];
 $reason      = $_POST['reason'];
 $mode        = $_POST['mode'];
 
@@ -37,7 +37,7 @@ if ($mode == 'new')
       "date = '$date', " .
       "onset_date = '$onset_date', " .
       "reason = '$reason', " .
-      "facility = '$facility', " .
+      "facility_id = '$facility_id', " .
       "sensitivity = '$sensitivity', " .
       "pid = '$pid', " .
       "encounter = '$encounter'"),
@@ -58,7 +58,7 @@ else if ($mode == 'update')
     $datepart .
     "onset_date = '$onset_date', " .
     "reason = '$reason', " .
-    "facility = '$facility', " .
+    "facility_id = '$facility_id', " .
     "sensitivity = '$sensitivity' " .
     "WHERE id = '$id'");
 }
