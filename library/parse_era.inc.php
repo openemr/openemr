@@ -330,8 +330,14 @@ function parse_era($filename, $cb) {
 			// TBD: Other qualifiers are possible; see IG pages 140-141.
 			$i = count($out['svc']);
 			$out['svc'][$i] = array();
-			$out['svc'][$i]['code'] = $svc[1];
-			$out['svc'][$i]['mod']  = $svc[2] ? $svc[2] : '';
+      // It seems some payers append the modifier with no separator!
+      if (strlen($svc[1]) == 7 && empty($svc[2])) {
+        $out['svc'][$i]['code'] = substr($svc[1], 0, 5);
+        $out['svc'][$i]['mod']  = substr($svc[1], 5);
+      } else {
+        $out['svc'][$i]['code'] = $svc[1];
+        $out['svc'][$i]['mod']  = $svc[2] ? $svc[2] : '';
+      }
 			// TBD: There may be up to 4 procedure modifiers in $svc[2] thru [5].
 			$out['svc'][$i]['chg']  = $seg[2];
 			$out['svc'][$i]['paid'] = $seg[3];
