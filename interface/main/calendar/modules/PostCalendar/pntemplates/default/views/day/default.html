@@ -451,6 +451,7 @@ if ($MULTIDAY) {
      $patient_dob = $event['patient_dob'];
      $patient_age = $event['patient_age'];
      $catid = $event['catid'];
+     $comment = $event['hometext'];
      $catname = $event['catname'];
      $title = "Age $patient_age ($patient_dob)";
      if ($event['hometext'] && $GLOBALS['calendar_appt_style'] < 4)
@@ -464,7 +465,7 @@ if ($MULTIDAY) {
       // Omit lunch, vacation, etc. if the doc is not in-office.
       if ($provstat[$providerid]['in'] || $catid < 4) {
        $content .= "<a href='javascript:oldEvt($eventdate,$eventid)'>";
-       $content .= $catname . "</a>";
+       $content .= $catname . " - $comment</a>";
       }
      }
      else { // some sort of patient appointment
