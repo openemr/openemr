@@ -1,512 +1,136 @@
 [-*Smarty*-]
-[-*****************************************************************************-]
-[-* This is the source code for both day/default.html and week/default.html.  *-]
-[-* They should always be identical.  If you change one, copy to the other!   *-]
-[-*****************************************************************************-]
-[-* Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com> and others      *-]
-[-*                                                                           *-]
-[-* This program is free software; you can redistribute it and/or             *-]
-[-* modify it under the terms of the GNU General Public License               *-]
-[-* as published by the Free Software Foundation; either version 2            *-]
-[-* of the License, or (at your option) any later version.                    *-]
-[-*****************************************************************************-]
 [-config_load file="default.conf"-]
 [-*Load the Language Definitions*-]
 [-config_load file="lang.$USER_LANG"-]
 [-include file="$TPL_NAME/views/header.html"-]
 [-* we want to include out stylesheet for this view*-]
-[-fetch file="$TPL_STYLE_PATH/day.css" assign="css"-]
+[-fetch file="$TPL_STYLE_PATH/month.css" assign="css"-]
 [-eval var=$css-]
-
-<style>
-a {
- text-decoration:none;
-}
-td {
- font-family: Arial, Helvetica, sans-serif;
-}
-.tacell {
- font-size:10pt;
- background-color:#ddffdd;
- text-align:right;
-}
-.tucell {
- font-size:10pt;
- background-color:#ffbbbb;
- text-align:right;
-}
-.eacell {
- font-size:10pt;
- background-color:#ffffff;
-}
-.eucell {
- font-size:10pt;
- background-color:#ffbbbb;
-}
-.bordyy {
-}
-.bordyn {
- border-top-width:0px;
- padding-top:0px;
-}
-.bordny {
- border-bottom-width:0px;
- padding-bottom:0px;
-}
-.bordnn {
- border-top-width:0px;
- border-bottom-width:0px;
- padding-top:0px;
- padding-bottom:0px;
-}
-div.tiny { width:1px; height:1px; font-size:1px; }
-</style>
-
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../../library/dialog.js"></script>
-<script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
-
-<script language='JavaScript'>
-
- var mypcc = '[-php-] echo $GLOBALS['phone_country_code'] [-/php-]';
-
- // This is called from the event editor popup.
- function refreshme() {
-  top.restoreSession();
-  document.forms[0].submit();
- }
-
- function newEvt(startampm, starttimeh, starttimem, eventdate, providerid, catid) {
-  dlgopen('add_edit_event.php?startampm=' + startampm +
-   '&starttimeh=' + starttimeh + '&starttimem=' + starttimem +
-   '&date=' + eventdate + '&userid=' + providerid + '&catid=' + catid,
-   '_blank', 550, 270);
- }
-
- function oldEvt(eventdate, eventid) {
-  dlgopen('add_edit_event.php?eid=' + eventid, '_blank', 550, 270);
- }
-
- function goPid(pid) {
-  top.restoreSession();
-[-php-]
- if ($GLOBALS['concurrent_layout']) {
-  echo "  top.RTop.location = '../../patient_file/summary/demographics.php' " .
-   "+ '?set_pid=' + pid;\n";
- } else {
-  echo "  top.location = '../../patient_file/patient_file.php' " .
-   "+ '?set_pid=' + pid + '&pid=' + pid;\n";
- }
-[-/php-]
- }
-
- function GoToToday(theForm){
-  var todays_date = new Date();
-  var theMonth = todays_date.getMonth() + 1;
-  theMonth = theMonth < 10 ? "0" + theMonth : theMonth;
-  theForm.jumpdate.value = todays_date.getFullYear() + "-" + theMonth + "-" + todays_date.getDate();
-  top.restoreSession();
-  theForm.submit();
- }
-
-</script>
-
-<!-- Required for the popup date selectors -->
-<div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
-
-[-php-]
-
- // A_CATEGORY is an ordered array of associative-array categories.
- // Keys of interest are: id, name, color, desc, event_duration.
- //
- // echo "<!-- A_CATEGORY = "; print_r($this->_tpl_vars['A_CATEGORY']); echo " -->\n"; // debugging
- // echo "<!-- A_EVENTS = "; print_r($this->_tpl_vars['A_EVENTS']); echo " -->\n"; // debugging
-
- $A_CATEGORY  =& $this->_tpl_vars['A_CATEGORY'];
-
- // [-if $PRINT_VIEW != 1-]
- // [-*Main Navigation*-]
- // [-include file="$TPL_NAME/views/global/navigation.html"-]
- // [-/if-]
-
- $A_EVENTS  =& $this->_tpl_vars['A_EVENTS'];
- // $S_EVENTS  =& $this->_tpl_vars['S_EVENTS']; // Deleted by Rod
- $providers =& $this->_tpl_vars['providers'];
- $times     =& $this->_tpl_vars['times'];
- $interval  =  $this->_tpl_vars['interval'];
- $viewtype  =  $this->_tpl_vars['VIEW_TYPE'];
- $PREV_WEEK_URL = $this->_tpl_vars['PREV_WEEK_URL'];
- $NEXT_WEEK_URL = $this->_tpl_vars['NEXT_WEEK_URL'];
- $PREV_DAY_URL  = $this->_tpl_vars['PREV_DAY_URL'];
- $NEXT_DAY_URL  = $this->_tpl_vars['NEXT_DAY_URL'];
-
- $Date =  postcalendar_getDate();
- if (!isset($y)) $y = substr($Date, 0, 4);
- if (!isset($m)) $m = substr($Date, 4, 2);
- if (!isset($d)) $d = substr($Date, 6, 2);
-
- // echo "<!-- There are " . count($A_EVENTS) . " A_EVENTS days -->\n";
-
- $MULTIDAY = count($A_EVENTS) > 1;
-
- $provinfo = getProviderInfo();
-
- echo "<form name='theform' action='index.php?module=PostCalendar&func=view" .
-      "&tplview=default&pc_category=&pc_topic=' " .
-      "method='post' onsubmit='return top.restoreSession()'>\n";
- echo "<center>\n";
- echo "<table border='0' cellpadding='0' cellspacing='0' width='99%'>\n";
- echo " <tr><td colspan='3' height='5'></td></tr>\n";
- echo " <tr>\n";
-
- // Build the scrolling selection list of providers.
- echo "  <td rowspan='2' align='left' valign='top' width='33%' nowrap>\n";
- echo "   <select multiple size='3' name='pc_username[]'>\n";
- echo "    <option value='__PC_ALL__'>"  .xl ("All Users"). "</option>\n";
- foreach ($provinfo as $doc) {
-  $username = $doc['username'];
-  echo "    <option value='$username'";
-  foreach ($providers as $provider)
-   if ($provider['username'] == $username) echo " selected";
-  echo ">" . $doc['fname'] . " " . $doc['lname'] . "</option>\n";
- }
- echo "   </select>\n";
- echo "  </td>\n";
-
- // Build the date and view type selectors and the Go button and the Today button.
- echo "  <td align='center' valign='top' width='34%' nowrap>\n";
-
- echo "    <input type='text' size='10' name='jumpdate' id='jumpdate'\n" .
-  "     value='$y-$m-$d' title='yyyy-mm-dd date to go to'\n" .
-  "     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />\n" .
-  "     <img src='../../pic/show_calendar.gif' id='img_jumpdate' align='absbottom'\n" .
-  "      width='24' height='22' border='0' alt='[?]' style='cursor:pointer'\n" .
-  "     title='" .xl ("Click here to choose a date"). "'>\n";
-
- echo "   &nbsp;<select name='viewtype'>\n";
- foreach ( array ('day' => xl("Day View"), 'week' => xl("Week View"), 'month' => xl("Month View"), 'year' => xl("Year View"))
-          as $key => $value)  {
-  echo "    <option value='$key'";
-  if ($key == $viewtype) echo " selected";
-  echo ">$value</option>\n";
- }
- echo "   </select>\n";
- echo "   &nbsp;<input type='submit' name='bnsubmit' value='" .xl ("Go"). "' />\n";
- echo "   &nbsp;<input type='submit' name='bnsubmit' value='" .xl ("Today"). "' onClick='GoToToday(theform);' />\n";
- echo "  </td>\n";
-
- // Show the Add and Search buttons.
- echo "  <td align='right' valign='top' width='33%' nowrap>\n";
- echo "   <input type='button' value='" .xl ("Add"). "' onclick='newEvt(1, 9, 00, $Date, 0, 0)' />\n";
- echo "   <input type='button' value='" .xl ("Search"). "' onclick='location=\"index.php?module=PostCalendar&func=search\"' />\n";
- echo "  </td>\n";
- echo " </tr>\n";
-
- // Show the date/range and its previous- and next-day/week selectors.
- echo " <tr>\n";
- echo "  <td align='center' width='34%' nowrap>\n";
- $atmp = array_keys($A_EVENTS);
- 
-if ($MULTIDAY) {
-  echo "<a href='$PREV_WEEK_URL' onclick='top.restoreSession()'>&lt;&lt;</a>&nbsp;\n";
-  echo dateformat(strtotime($atmp[0]));
-  echo " - ";
-  echo dateformat(strtotime($atmp[count($atmp)-1]));
-  echo "&nbsp;<a href='$NEXT_WEEK_URL' onclick='top.restoreSession()'>&gt;&gt;</a>\n";
- } else {
-  echo "<a href='$PREV_DAY_URL' onclick='top.restoreSession()'>&lt;&lt;</a>&nbsp;\n";
-  echo dateformat(strtotime($atmp[0]));
-  echo "&nbsp;<a href='$NEXT_DAY_URL' onclick='top.restoreSession()'>&gt;&gt;</a>\n";
- }
- echo "  </td>\n";
- echo "  <td align='right' width='33%' nowrap>\n";
- echo "   &nbsp;\n";
- echo "  </td>\n";
-
- echo " </tr>\n";
- echo "</table>\n";
- echo "</center>\n";
- echo "</form>\n";
-
-[-/php-]
-
-<script language='JavaScript'>
- Calendar.setup({inputField:"jumpdate", ifFormat:"%Y-%m-%d", button:"img_jumpdate"});
-</script>
-
-[-assign var="dayname" value=$DATE|date_format:"%w"-]
-[-assign var="day"     value=$DATE|date_format:"%d"|string_format:"%1d"-]
-[-assign var="month"   value=$DATE|date_format:"%m"|string_format:"%1d"-]
-[-assign var="year"    value=$DATE|date_format:"%Y"|string_format:"%4d"-]
-
-[-pc_sort_events var="S_EVENTS" sort="time" order="asc" value=$A_EVENTS-]
-
-[-php-]
-
- echo "<table width='100%' border='1' cellpadding='1' cellspacing='0' >\n";
- $tdstylearr = array('bordyy', 'bordny', 'bordyn', 'bordnn');
-
- // For each day...
- foreach ($A_EVENTS as $date => $events) {
-  $need_headers = true;
-  $eventdate = substr($date, 0, 4) . substr($date, 5, 2) . substr($date, 8, 2);
-
-  // If multiple days then show a date header for each.
-  if ($MULTIDAY) {
-   echo " <tr>\n";
-   echo "  <td colspan='" . (count($providers) * 2) . "' align='center'>" .
-        dateformat(strtotime($date)) . "</td>";
-   echo " </tr>\n";
-  } 
-
-  $arr_events = $S_EVENTS[$date];
-  list($slotkey, $slotevent) = each($arr_events);
-
-  // This is an array of provider status information for this day,
-  // used to properly assign table cell attributes.
-  $provstat = array();
-
-  $slotindex = 0;
-  $lastslotindex = count($times) - 1;
-
-  // For each time slot...
-  foreach ($times as $slottime) {
-   $startampm = ($slottime['mer']) == "pm" ? 2 : 1;
-   $starttimeh = $slottime['hour'];
-   $starttimem = $slottime['minute'];
-   $slotendmins = $starttimeh * 60 + $starttimem + $interval;
-
-   // Repeat doc names at 1PM.  This is a kludge; omit it for released code.
-   // if ($starttimeh == 13 && $starttimem == 0) $need_headers = true;
-
-   // Get all events for all providers just for this time slot now, because we
-   // can pick up where we left off and because we don't want to re-scan all
-   // events for the day for each table cell.
-   //
-   $arr_slot = array();
-   for (; isset($slotkey); list($slotkey, $slotevent) = each($arr_events)) {
-    $starth = substr($slotevent['startTime'], 0, 2);
-    $startm = substr($slotevent['startTime'], 3, 2);
-
-    if (($starth * 60 + $startm) >= $slotendmins) break;
-
-    $arr_slot[$slotkey] = $slotevent;
-
-    $catid = $slotevent['catid'];
-    $providerid = $slotevent['aid'];
-    $durminutes = ceil($slotevent['duration'] / 60);
-    $durslots = ceil($durminutes / $interval);
-
-    // While we're here, collect information for cell cosmetics.
-    if ($catid == 2) { // in office
-     $provstat[$providerid]['in'] = true;
-
-     // Save preferred category info for this IN event.
-     $provstat[$providerid]['in_cat'] = -1;
-     $provstat[$providerid]['in_slot0'] = $slotindex;
-     $provstat[$providerid]['in_slots'] = 1;
-     if ($slotevent['prefcatid']) {
-      foreach ($A_CATEGORY as $catkey => $catval) {
-       if ($catval['id'] == $slotevent['prefcatid']) {
-        $provstat[$providerid]['in_cat'] = $catkey;
-        $provstat[$providerid]['in_slots'] =
-         ceil(ceil($catval['event_duration'] / 60) / $interval);
-        break;
-       }
-      }
-      // Debugging:
-      if ($provstat[$providerid]['in_cat'] < 0) {
-       echo "<!-- Unmatched prefcatid = " . $slotevent['prefcatid'] . " -->\n"; // debugging
-      }
-     }
-
-    }
-    else if ($catid == 3) { // out of office
-     $provstat[$providerid]['in'] = false;
-    }
-    else if ($catid == 4 || $catid == 8 || $catid == 11) { // unavailable types
-     // unavailable slots are marked 'res' for appropriate coloring.
-     $endindex = $slotindex + $durslots;
-     for ($i = $slotindex; $i < $endindex; ++$i) {
-      $provstat[$providerid][$i]['res'] = true;
-     }
-    }
-    // If duration > slot size then mark slots for border control.  A slot
-    // marked 'ext' is not to have a border between itself and the slot below.
-    if ($durslots > 1) {
-     $endindex = $slotindex + $durslots - 1;
-     for ($i = $slotindex; $i < $endindex; ++$i) {
-      $provstat[$providerid][$i]['ext'] = true;
-     }
-    }
-   }
-   // Finished getting event information for this time slot.
-
-   // Write a header row with the provider names if appropriate.
-   if ($need_headers) {
-    $need_headers = false;
-    echo " <tr>\n";
-    foreach ($providers as $provider) {
-     echo "  <td colspan='2' align='center'>";
-     echo $provider['fname'][0] . " " . $provider['lname'];
-     echo "</td>\n";
-    }
-    echo " </tr>\n";
-   }
-
-   echo " <tr>\n";
-
-   // We are now ready to write the table row for the current time slot.
-   // This loops once for each provider to be displayed.
-   //
-   foreach ($providers as $provider) {
-    $providerid = $provider['id'];
-
-    // Mark this as a no-bottom-border slot if the preferred category
-    // duration extends beyond it.
-    //
-    // echo "<!-- slotindex=$slotindex in=" . $provstat[$providerid]['in'] .
-    //  " in_cat=" . $provstat[$providerid]['in_cat'] .
-    //  " in_slot0=" . $provstat[$providerid]['in_slot0'] .
-    //  " in_slots=" . $provstat[$providerid]['in_slots'] . " -->\n"; // debugging
-    //
-    if ($provstat[$providerid]['in']) {
-     if (($slotindex + 1 - $provstat[$providerid]['in_slot0']) % $provstat[$providerid]['in_slots'])
-      $provstat[$providerid][$slotindex]['ext'] = true;
-    }
-
-    $content = ""; // this will be the event cell content
-
-    $clsuffix = "acell";
-    if ($provstat[$providerid][$slotindex]['res'] || ! $provstat[$providerid]['in']) {
-      $clsuffix = "ucell";
-    }
-
-    // Remove top and/or bottom table cell borders using CSS when events span
-    // time slots or when the practitioner is not in-office.  Using "rowspan"
-    // would be a difficult and inferior solution to this problem.
-    //
-    $tdstyleix = 0;
-    $timelabel = true;
-    if ($slotindex < $lastslotindex &&
-        ($provstat[$providerid][$slotindex]['ext'] || !$provstat[$providerid]['in'])) {
-     $tdstyleix += 1; // no bottom
-    }
-    if ($slotindex > 0 && ($provstat[$providerid][$slotindex-1]['ext'] ||
-        !($provstat[$providerid]['in'] || $provstat[$providerid]['wasin']))) {
-     $tdstyleix += 2; // no top
-     $timelabel = false;
-    }
-    $tdstyle = ' ' . $tdstylearr[$tdstyleix];
-
-    $disptimeh = ($starttimeh > 12) ? ($starttimeh - 12) : $starttimeh;
-
-    $in_cat_id = 0;
-    if ($provstat[$providerid]['in_cat'] >= 0) {
-     $category =& $A_CATEGORY[$provstat[$providerid]['in_cat']];
-     if ($category['id']) $in_cat_id = $category['id'];
-    }
-
-    // If a slot omits the top border, then we omit the TOD cell's top border
-    // and skip writing its time-of-day text.  This way we can get some rows
-    // with no content at all, which should produce a more compact and readable
-    // calendar display.
-
-    echo "  <td class='t$clsuffix$tdstyle'";
-    if ($slotindex == 0) echo " width='1%'";
-    echo ">";
-    if ($timelabel) {
-     echo "<a href='javascript:newEvt($startampm,$starttimeh,$starttimem,$eventdate,$providerid,$in_cat_id)'>";
-     echo "$disptimeh:$starttimem</a>";
-    } else {
-     echo "<div class=tiny></div>"; // 1x1 px content so the browser does not suppress borders
-    }
-    echo "</td>\n";
-
-    echo "  <td class='e$clsuffix$tdstyle'";
-    if ($clsuffix == "acell" && $in_cat_id) {
-     echo " style='background-color:" . $category['color'] . "'";
-     echo " title='" . $category['name'] . "'";
-    }
-    echo ">";
-
-    // Scan all events for this time slot and generate the associated HTML for
-    // this doc.  JavaScript is used in hrefs to reduce the volume of output.
-    //
-    reset($arr_slot);
-    while (list($eventkey, $event) = each($arr_slot)) {
-     if ($event['aid'] != $providerid) continue;
-     if ($content) $content .= " ";
-     $starth = substr($event['startTime'], 0, 2);
-     $startm = substr($event['startTime'], 3, 2);
-     $eventid = $event['eid'];
-     $patientid = $event['pid'];
-     $commapos = strpos($event['patient_name'], ",");
-     $lname = addslashes(ucfirst(strtolower(substr($event['patient_name'], 0, $commapos))));
-     $fname = addslashes(ucfirst(strtolower(substr($event['patient_name'], $commapos + 2))));
-     $patient_dob = $event['patient_dob'];
-     $patient_age = $event['patient_age'];
-     $catid = $event['catid'];
-     $catname = $event['catname'];
-     $title = "Age $patient_age ($patient_dob)";
-     if ($event['hometext'] && $GLOBALS['calendar_appt_style'] < 4)
-      $title .= " " . addslashes($event['hometext']);
-     if ($catid == 2 || $catid == 3 || $catid == 4 || $catid == 8 || $catid == 11) {
-      if      ($catid ==  2) $catname = "IN";
-      else if ($catid ==  3) $catname = "OUT";
-      else if ($catid ==  4) $catname = "VACATION";
-      else if ($catid ==  8) $catname = "LUNCH";
-      else if ($catid == 11) $catname = "RESERVED";
-      // Omit lunch, vacation, etc. if the doc is not in-office.
-      if ($provstat[$providerid]['in'] || $catid < 4) {
-       $content .= "<a href='javascript:oldEvt($eventdate,$eventid)'>";
-       $content .= $catname . "</a>";
-      }
-     }
-     else { // some sort of patient appointment
-      $content .= "<a href='javascript:oldEvt($eventdate,$eventid)' title='$catname'>";
-      $content .= $starth . ':' . $startm . htmlspecialchars($event['apptstatus']) . "</a>";
-      $content .= "<a href='javascript:goPid($patientid)' title='$title'>";
-      if ($catid == 1) $content .= "<strike>";
-      $content .= $lname;
-      if ($GLOBALS['calendar_appt_style'] != 1) {
-       $content .= "," . $fname;
-       if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
-        $content .= "(" . $event['title'];
-        if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4)
-         $content .= ": <font color='green'>" . htmlspecialchars(trim($event['hometext'])) . "</font>";
-        $content .= ")";
-       }
-      }
-      if ($catid == 1) $content .= "</strike>";
-      $content .= "</a>";
-     }
-    } // end while
-
-    if (! $content) $content = "<div class=tiny></div>"; // so the browser does not suppress borders
-    echo $content . "</td>\n";
-
-    // Keep track of whether the doc was in during the previous time slot.
-    $provstat[$providerid]['wasin'] = $provstat[$providerid]['in'];
-
-   } // end provider
-
-   echo " </tr>\n";
-
-   ++$slotindex;
-  } // end time slot
- } // end day
-
- echo "</table>\n";
-
- // [-*footer*-]
- // [-include file="$TPL_NAME/views/global/footer.html"-]
- // [-include file="$TPL_NAME/views/footer.html"-]
-
-[-/php-]
-
-</body>
-</html>
+[-if $PRINT_VIEW != 1-]
+[-*Main Navigation*-]
+[-include file="$TPL_NAME/views/global/navigation.html"-]
+[-/if-]
+<table width="100%" border="0" cellpadding="5" cellspacing="0" class="monthheader">
+	<tr align="center">
+    	<td nowrap width="100%" align="center" valign="top" class="monthheader">
+			<a href="[-$PREV_MONTH_URL-]">&lt;&lt;</a>
+    		[-$DATE|pc_date_format:#_PC_DATE_FORMAT_MY#-]
+			<a href="[-$NEXT_MONTH_URL-]">&gt;&gt;</a>
+		</td>
+		[-if $PRINT_VIEW != 1-]
+		<td nowrap align="right" valign="top" class="monthheader">
+		</td>
+		[-/if-]
+	</tr>
+</table>
+
+<table width="100%" border="0" cellpadding="1" cellspacing="0" class="calcontainer"><tr><td>
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+    <tr>
+        [-foreach from=$S_LONG_DAY_NAMES item=day-]
+        <td width="14%" align="center" valign="middle" class="daynames">[-$day-]</td>
+        [-/foreach-]
+    </tr>
+    [-* CREATE THE CALENDAR *-]
+	[-foreach name=weeks item=days from=$CAL_FORMAT-]
+	<tr>
+		[-foreach name=days item=date from=$days-]
+		[-if $date == $TODAY_DATE-]
+			[-assign var="stylesheet" value="monthtoday"-]
+		[-elseif ($date < $MONTH_START_DATE || $date > $MONTH_END_DATE)-]
+			[-assign var="stylesheet" value="monthoff"-]
+		[-else-]
+			[-assign var="stylesheet" value="monthon"-]
+		[-/if-]
+		<td height="75" align="left" valign="top" class="[-$stylesheet-]"
+		    onmouseover="this.style.backgroundColor='[-#CellHighlight#-]'"
+			onmouseout="this.style.backgroundColor=''"
+			onclick="javascript:location.href='[-pc_url action=day date=$date-]';">
+			<table width="100%" border="0" cellpadding="0" cellspacing="0">
+				<tr>
+					<td align="left" valign="top"><a
+						href="[-pc_url action=day date=$date-]">[-$date|date_format:"%d"-]</a>
+					[-if $smarty.foreach.days.iteration == 1-]
+					<a href="[-pc_url action=week date=$date-]">[[-#_PC_MV_WEEK#-]]</a>
+					[-/if-]
+					</td>
+					<td align="right" valign="top">
+						[-if $ACCESS_ADD eq true-]
+						<a href="[-pc_url action=submit date=$date-]"><img
+                 		src="[-$TPL_IMAGE_PATH-]/new.gif" width="10" height="10" border="0" /></a>
+						[-/if-]
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2" valign="top" align="left">
+					[-*sort the events by category so we can make it pretty*-]
+					[-pc_sort_events var="S_EVENTS" sort="time" order="asc" value=$A_EVENTS-]
+					[-assign var="oldCat" value=""-]
+					[-foreach name=events item=event from=$S_EVENTS.$date-]
+						[-assign var="cCat" value=$event.catname-]
+						[-if $oldCat != $cCat-]
+							[-if $smarty.foreach.event.first != true-]
+								</div>
+							[-/if-]
+							<div width="100%" style="padding: 1px; background-color: [-$event.catcolor-];">
+								<span style="font-size:10pt;">[-$event.catname-]</span>
+							</div>
+							<div width="100%" style="padding: 2px; border:solid 1px [-$event.catcolor-];">
+						[-/if-]
+
+						[-* Here we determine if the event is an
+							all day event or a timed event
+							and determine how to display the time *-]
+						[-if $event.alldayevent != true-]
+							[-if $24HOUR_TIME-]
+								[-assign var="timestamp" value=$event.startTime|date_format:#_PC_TIME_FORMAT_24#-]
+							[-else-]
+								[-assign var="timestamp" value=$event.startTime|date_format:#_PC_TIME_FORMAT_12#-]
+							[-/if-]
+							[-*assign var="title" value=$event.title|truncate:15:"...":true*-]
+							[-assign var="title" value=$event.title|strip_tags-]
+
+						[-else-]
+							[-assign var="timestamp" value=""-]
+							[-*assign var="title" value=$event.title|truncate:30:"...":true*-]
+							[-assign var="title" value=$event.title|strip_tags-]
+						[-/if-]
+						[-assign var="desc" value=$event.hometext|truncate:255:"..."-]
+						[-* Here we start the actual display of the event *-]
+						<a style="font-size: 7pt; text-decoration: none;"
+						   href="[-pc_url action=detail eid=$event.eid date=$date-]"
+						[-pc_popup delay="500"
+					               bgcolor="$event[catcolor]"
+								   timeout="3600"
+								   caption="$timestamp $event[title]"
+								   text="$desc"-]>
+                    	[-$timestamp-] [-$title-]</a>
+						<span style="font-size:7pt;text-decoration:none;">
+						[-include file="$TPL_NAME/user/patient_line.html" event=$event show_icons=false show_provider=true show_patient=true -]</span><br />
+						[-assign var="oldCat" value=$event.catname-]
+						[-if $smarty.foreach.event.last-]
+							[-* we need to close out the <div> tag *-]
+							</div>
+						[-/if-]
+					[-/foreach-]
+					</td>
+				</tr>
+			</table>			
+		</td>
+		[-/foreach-]
+	</tr>
+	[-/foreach-]
+</table>
+</td></tr></table>
+[-if $PRINT_VIEW != 1-]
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+    <tr>
+        <td align="right">
+            <a href="[-pc_url action="month" print="true"-]">[-#_PC_THEME_PRINT#-]</a>
+        </td>
+    </tr>
+</table>
+[-/if-]
+[-*footer*-]
+[-include file="$TPL_NAME/views/global/footer.html"-]
+[-include file="$TPL_NAME/views/footer.html"-]
