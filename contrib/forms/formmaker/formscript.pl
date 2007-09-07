@@ -5,6 +5,11 @@ use warnings;
 
 use CGI qw(:standard);
 
+#if -noxl command line option is used, xl function will not be put into form
+use Getopt::Long;
+my $noxl = '';
+GetOptions('noxl' => \$noxl);
+
 #file templates here
 
 #documentation
@@ -14,8 +19,6 @@ my $documentation =<<'START';
 *      Form Generating Script 2.0   *
 *************************************
 
-This is a complete rewrite of an earlier Perl script I wrote to generate
-forms for OpenEMR.  It is now all self contained within a single .pl file.
 To run at the shell command line, type:
 
 Perl formscript.pl [filename]
@@ -69,11 +72,11 @@ for a textfield or text area.  You can also start a line with a '#' as the first
 will be an ignored comment line.  If you put html tags on their own lines, they will be integrated
 into the form.  It will be most helpful to look at 'sample.txt' to see how this works.
 
-This is 1.1 and is tested to the extent of installing the form and entering data within an encounter.  
-Please send feedback to mail@doc99.com.  I will definitely
-be fixing and improving it.
+By default now, the xl function which is for performing language translation is used.  To disable this feature in creating a form, use the commandline option -noxl as in:
 
-Mark Leeds
+./formscript.pl -noxl sample.txt
+
+Please send feedback to drleeds@gmail.com.
 
 
 START
@@ -96,7 +99,7 @@ formHeader("Form: FORM_NAME");
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <form method=post action="<?echo $rootdir;?>/forms/FORM_NAME/save.php?mode=new" name="FORM_NAME" onsubmit="return top.restoreSession()">
 <hr>
-<h1> FORM_NAME </h1>
+<h1>FORM_NAME</h1>
 <hr>
 DATABASEFIELDS
 </form>
@@ -127,6 +130,7 @@ formFooter();
 START
 
 #report.php
+#The variable $mykey and $myval are used by the xl_fix function for replacement purposes
 my $report_php=<<'START';
 <?php
 //------------report.php
@@ -136,7 +140,7 @@ function FORM_NAME_report( $pid, $encounter, $cols, $id) {
 $count = 0;
 $data = formFetch("form_FORM_NAME", $id);
 if ($data) {
-print "<table><tr>";
+print "<hr><table><tr>";
 foreach($data as $key => $value) {
 if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" || $key == "authorized" || $key == "activity" || $key == "date" || $value == "" || $value == "0000-00-00 00:00:00") {
 	continue;
@@ -145,7 +149,9 @@ if ($value == "on") {
 $value = "yes";
 }
 $key=ucwords(str_replace("_"," ",$key));
-print "<td><span class=bold>$key: </span><span class=text>".stripslashes($value)."</span></td>";
+$mykey = $key.": ";
+$myval = stripslashes($value);
+print "<td><span class=bold>".$mykey."</span><span class=text>".$myval."</span></td>";
 $count++;
 if ($count == $cols) {
 $count = 0;
@@ -153,7 +159,7 @@ print "</tr><tr>\n";
 }
 }
 }
-print "</tr></table>";
+print "</tr></table><hr>";
 }
 ?> 
 START
@@ -435,16 +441,19 @@ to_file("$form_name/info.txt",$out);
 #new.php
 $out = replace($new_php, 'FORM_NAME', $form_name);
 $out = replace($out, 'DATABASEFIELDS', $make_form_results);
+$out = xl_fix($out);
 to_file("$form_name/new.php",$out);
 
 #print.php
 $out = replace($print_php, 'FORM_NAME', $form_name);
 $out = replace($out, 'DATABASEFIELDS', $make_form_results);
+$out = xl_fix($out);
 to_file("$form_name/print.php",$out);
 
 #report.php
 $out = replace($report_php, 'FORM_NAME', $form_name);	#Here's where we set $out = to it's corresponding input (whatever_php) and replace the place holder 'FORM_NAME' with the correct $form_name
 $out = replace($out, 'DATABASEFIELDS', $make_form_results);		#Then replace 'DATABASEFIELDS' in 'whatever_php' with $make_form_results, generated from make_form subroutine.
+$out = xl_fix2($out);
 to_file("$form_name/report.php",$out);
 
 #save.php
@@ -456,6 +465,7 @@ to_file("$form_name/save.php",$out);
 $out = replace($view_php, 'FORM_NAME', $form_name);
 $out = replace($out, 'DATABASEFIELDS', $make_form_results);
 $out = replace_view_php($out);
+$out = xl_fix($out);
 to_file("$form_name/view.php",$out);
 
 #table.sql
@@ -653,4 +663,18 @@ sub to_file
 	open $file, '>', $filename or die "cannot open $filename: $!";
 	print $file $string;
 	close $file or die "cannot close $filename: $!";
+}
+sub xl_fix #make compliant with translation feature
+{
+	my $string = shift;
+	return $string if $noxl;
+	$string =~ s/>([^\s][^<>]+?)<\//> <\? xl("$1",'e') \?> <\//gs; 
+        return $string;
+}
+sub xl_fix2 #make compliant with translation feature for report.php
+{
+	my $string = shift;
+	return $string if $noxl;
+	$string =~ s/\.(\$\w+)\./\.xl("$1")\./gs; 
+        return $string;
 }
