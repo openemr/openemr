@@ -62,7 +62,7 @@ textarea {
  function dispense() {
   var f = document.forms[0];
   dlgopen('interface/drugs/dispense_drug.php' +
-   '?drug_id=' + f.drug_id.value +
+   {/literal}'?drug_id={$prescription->get_drug_id()}' +{literal}
    '&prescription=' + f.id.value +
    '&quantity=' + f.disp_quantity.value +
    '&fee=' + f.disp_fee.value,
