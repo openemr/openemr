@@ -28,6 +28,8 @@
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script language="JavaScript">
 
+<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+
  var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
 
  // The OnClick handler for receipt display.
