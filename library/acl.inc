@@ -18,7 +18,8 @@
   //   superbill   Superbill Codes Administration
   //   users       Users/Groups/Logs Administration
   //   batchcom    Batch Communication Tool
-  //   language    Language Interface Tool	
+  //   language    Language Interface Tool
+  //   drugs       Drugs Administration
   //
   // Section "acct" (Accounting):
   //   bill        Billing (write optional)
