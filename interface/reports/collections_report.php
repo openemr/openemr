@@ -26,17 +26,21 @@ $is_due_ins     = $_POST['form_category'] == xl('Due Ins');
 $is_due_pt      = $_POST['form_category'] == xl('Due Pt');
 
 if ($_POST['form_search'] || $_POST['form_export']) {
-  $form_cb_ssn   = $_POST['form_cb_ssn']   ? true : false;
-  $form_cb_phone = $_POST['form_cb_phone'] ? true : false;
-  $form_cb_city  = $_POST['form_cb_city']  ? true : false;
-  $form_cb_idays = $_POST['form_cb_idays'] ? true : false;
-  $form_cb_err   = $_POST['form_cb_err']   ? true : false;
+  $form_cb_ssn    = $_POST['form_cb_ssn']    ? true : false;
+  $form_cb_dob    = $_POST['form_cb_dob']    ? true : false;
+  $form_cb_policy = $_POST['form_cb_policy'] ? true : false;
+  $form_cb_phone  = $_POST['form_cb_phone']  ? true : false;
+  $form_cb_city   = $_POST['form_cb_city']   ? true : false;
+  $form_cb_idays  = $_POST['form_cb_idays']  ? true : false;
+  $form_cb_err    = $_POST['form_cb_err']    ? true : false;
 } else {
-  $form_cb_ssn   = true;
-  $form_cb_phone = true;
-  $form_cb_city  = false;
-  $form_cb_idays = false;
-  $form_cb_err   = false;
+  $form_cb_ssn    = true;
+  $form_cb_dob    = false;
+  $form_cb_policy = false;
+  $form_cb_phone  = true;
+  $form_cb_city   = false;
+  $form_cb_idays  = false;
+  $form_cb_err    = false;
 }
 $form_age_cols = (int) $_POST['form_age_cols'];
 $form_age_inc  = (int) $_POST['form_age_inc'];
@@ -48,10 +52,12 @@ if ($form_age_cols > 0 && $form_age_cols < 10) {
 }
 
 $initial_colspan = 1;
-if ($is_due_ins   ) ++$initial_colspan;
-if ($form_cb_ssn  ) ++$initial_colspan;
-if ($form_cb_phone) ++$initial_colspan;
-if ($form_cb_city ) ++$initial_colspan;
+if ($is_due_ins    ) ++$initial_colspan;
+if ($form_cb_ssn   ) ++$initial_colspan;
+if ($form_cb_dob   ) ++$initial_colspan;
+if ($form_cb_policy) ++$initial_colspan;
+if ($form_cb_phone ) ++$initial_colspan;
+if ($form_cb_city  ) ++$initial_colspan;
 
 $grand_total_charges     = 0;
 $grand_total_adjustments = 0;
@@ -177,6 +183,10 @@ function checkAll(checked) {
   <td align='center'>
    <input type='checkbox' name='form_cb_ssn'<?php if ($form_cb_ssn) echo ' checked'; ?>>
    <?php xl('SSN','e') ?>&nbsp;
+   <input type='checkbox' name='form_cb_dob'<?php if ($form_cb_dob) echo ' checked'; ?>>
+   <?php xl('DOB','e') ?>&nbsp;
+   <input type='checkbox' name='form_cb_policy'<?php if ($form_cb_policy) echo ' checked'; ?>>
+   <?php xl('Policy','e') ?>&nbsp;
    <input type='checkbox' name='form_cb_phone'<?php if ($form_cb_phone) echo ' checked'; ?>>
    <?php xl('Phone','e') ?>&nbsp;
    <input type='checkbox' name='form_cb_city'<?php if ($form_cb_city) echo ' checked'; ?>>
@@ -308,9 +318,11 @@ function checkAll(checked) {
       // But if we have not yet billed the patient, then compute $duncount as a
       // negative count of the number of insurance plans for which we have not
       // yet closed out insurance.  Here we also compute $insname as the name of
-      // the insurance plan from which we are awaiting payment.
+      // the insurance plan from which we are awaiting payment, and its sequence
+      // number $insposition (1-3).
       //
       $insname = '';
+      $insposition = 0;
       $inseobs = strtolower($row['shipvia']);
       if (! $duncount) {
         $insgot = strtolower($row['notes']);
@@ -322,6 +334,7 @@ function checkAll(checked) {
               $j = strpos($insgot, "\n", $i);
               if (!$j) $j = strlen($insgot);
               $insname = trim(substr($row['notes'], $i + 5, $j - $i - 5));
+              $insposition = substr($value, 3); // 1, 2 or 3
             }
           }
         }
@@ -392,20 +405,31 @@ function checkAll(checked) {
       $row['inactive_days'] = floor((time() - $latime) / (60 * 60 * 24));
 
       $pdrow = sqlQuery("SELECT pd.fname, pd.lname, pd.mname, pd.ss, " .
-        "pd.genericname2, pd.genericval2 FROM " .
+        "pd.genericname2, pd.genericval2, pd.pid, pd.DOB FROM " .
         "integration_mapping AS im, patient_data AS pd WHERE " .
         "im.foreign_id = " . $row['custid'] . " AND " .
         "im.foreign_table = 'customer' AND " .
         "pd.id = im.local_id");
 
       $row['ss'] = $pdrow['ss'];
+      $row['DOB'] = $pdrow['DOB'];
       $row['billnote'] = ($pdrow['genericname2'] == 'Billing') ? $pdrow['genericval2'] : '';
 
       $ptname = $pdrow['lname'] . ", " . $pdrow['fname'];
       if ($pdrow['mname']) $ptname .= " " . substr($pdrow['mname'], 0, 1);
 
+      // Look up insurance policy number if we need it.
+      if ($form_cb_policy) {
+        $patient_id = $pdrow['pid'];
+        $instype = ($insposition == 2) ? 'secondary' : (($insposition == 3) ? 'tertiary' : 'primary');
+        $insrow = sqlQuery("SELECT policy_number FROM insurance_data WHERE " .
+          "pid = '$patient_id' AND type = '$instype' AND date <= '$svcdate' " .
+          "ORDER BY date DESC LIMIT 1");
+        $row['policy'] = $insrow['policy_number'];
+      }
+
       // $rows[$ptname] = $row;
-      $rows[$insname . '|' . $ptname . '|' . $encounter] = $row; // new
+      $rows[$insname . '|' . $ptname . '|' . $encounter] = $row;
     }
 
     ksort($rows);
@@ -425,6 +449,12 @@ function checkAll(checked) {
   <td class="dehead">&nbsp;<?php xl('Name','e')?></td>
 <?php if ($form_cb_ssn) { ?>
   <td class="dehead">&nbsp;<?php xl('SSN','e')?></td>
+<?php } ?>
+<?php if ($form_cb_dob) { ?>
+  <td class="dehead">&nbsp;<?php xl('DOB','e')?></td>
+<?php } ?>
+<?php if ($form_cb_policy) { ?>
+  <td class="dehead">&nbsp;<?php xl('Policy','e')?></td>
 <?php } ?>
 <?php if ($form_cb_phone) { ?>
   <td class="dehead">&nbsp;<?php xl('Phone','e')?></td>
@@ -507,6 +537,12 @@ function checkAll(checked) {
           echo "  <td class='detail'>&nbsp;$ptname</td>\n";
           if ($form_cb_ssn) {
             echo "  <td class='detail'>&nbsp;" . $row['ss'] . "</td>\n";
+          }
+          if ($form_cb_dob) {
+            echo "  <td class='detail'>&nbsp;" . $row['DOB'] . "</td>\n";
+          }
+          if ($form_cb_policy) {
+            echo "  <td class='detail'>&nbsp;" . $row['policy'] . "</td>\n";
           }
           if ($form_cb_phone) {
             echo "  <td class='detail'>&nbsp;" . $row['phone'] . "</td>\n";
