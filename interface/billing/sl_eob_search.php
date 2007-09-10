@@ -73,6 +73,7 @@
   if ($sl_err) die($sl_err);
 
   $stmt = array();
+  $stmt_count = 0;
 
   for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
    $row = SLGetRow($res, $irow);
@@ -116,6 +117,7 @@
    //    detail  = array of details, see invoice_summary.inc.php
    //
    if ($stmt['cid'] != $row['customer_id']) {
+    if (!empty($stmt)) ++$stmt_count;
     fwrite($fhprint, create_statement($stmt));
     $stmt['cid'] = $row['customer_id'];
     $stmt['pid'] = $pid;
@@ -161,6 +163,7 @@
    }
   }
 
+  if (!empty($stmt)) ++$stmt_count;
   fwrite($fhprint, create_statement($stmt));
 
   if ($DEBUG) {
@@ -168,9 +171,9 @@
   } else {
    exec("$STMT_PRINT_CMD $STMT_TEMP_FILE");
    if ($_POST['form_without']) {
-    $alertmsg = xl("Now printing statements; invoices will not be updated.");
+    $alertmsg = xl("Now printing $stmt_count statements; invoices will not be updated.");
    } else {
-    $alertmsg = xl("Now printing statements and updating invoices.");
+    $alertmsg = xl("Now printing $stmt_count statements and updating invoices.");
    }
   }
  }
