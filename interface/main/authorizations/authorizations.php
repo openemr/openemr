@@ -23,9 +23,10 @@ $imauthorized = $_SESSION['userauthorized'] || $see_auth > 2;
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
   $retVal = getProviderId($_SESSION['authUser']);	
   newEvent("view", $_SESSION["authUser"], $_SESSION["authProvider"], $_GET["pid"]);
-  sqlStatement("update billing set authorized=1, provider_id = '" .
-    mysql_real_escape_string($retVal[0]['id']) .
-    "' where pid='" . $_GET["pid"] . "'");
+  // sqlStatement("update billing set authorized=1, provider_id = '" .
+  //   mysql_real_escape_string($retVal[0]['id']) .
+  //   "' where pid='" . $_GET["pid"] . "'");
+  sqlStatement("update billing set authorized=1 where pid='" . $_GET["pid"] . "'");
   sqlStatement("update forms set authorized=1 where pid='" . $_GET["pid"] . "'");
   sqlStatement("update pnotes set authorized=1 where pid='" . $_GET["pid"] . "'");
   sqlStatement("update transactions set authorized=1 where pid='" . $_GET["pid"] . "'");
