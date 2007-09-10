@@ -210,6 +210,9 @@ function gen_x12_837($pid, $encounter, &$log) {
 
   $HLSubscriber = $HLcount++;
 
+  if (!$claim->payerSequence()) {
+    $log .= "*** Error: Insurance information is missing!\n";
+  }
   ++$edicount;
   $out .= "SBR" .       // Subscriber Information
     "*" . $claim->payerSequence() .
