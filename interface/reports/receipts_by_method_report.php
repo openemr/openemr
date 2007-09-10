@@ -1,4 +1,4 @@
-<?
+<?php
   // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
   //
   // This program is free software; you can redistribute it and/or
@@ -56,6 +56,8 @@
    &nbsp;
    <input type='checkbox' name='form_details' value='1'<? if ($_POST['form_details']) echo " checked"; ?>><?xl('Details','e')?>
    &nbsp;
+   <input type='checkbox' name='form_checkno' value='1'<? if ($_POST['form_checkno']) echo " checked"; ?>><?xl('Check#','e')?>
+   &nbsp;
    <input type='submit' name='form_refresh' value="<?xl('Refresh','e')?>">
   </td>
  </tr>
@@ -83,31 +85,47 @@
    <?xl('Procedure','e')?>
   </td>
   <td class="dehead" align="right">
-   <?xl('Amount','e')?>
+   <?xl('Adjustments','e')?>
+  </td>
+  <td class="dehead" align="right">
+   <?xl('Payments','e')?>
   </td>
  </tr>
 <?
   $chart_id_cash = SLQueryValue("select id from chart where accno = '$sl_cash_acc'");
+  if ($sl_err) die($sl_err);
+  $chart_id_income = SLQueryValue("select id from chart where accno = '$sl_income_acc'");
   if ($sl_err) die($sl_err);
 
   if ($_POST['form_refresh']) {
     $from_date = $form_from_date;
     $to_date   = $form_to_date;
 
+    /*****************************************************************
     $query = "select acc_trans.amount, acc_trans.transdate, acc_trans.memo, " .
       "acc_trans.source, ar.invnumber, ar.employee_id from acc_trans, ar where " .
       "acc_trans.chart_id = $chart_id_cash and " .
       "ar.id = acc_trans.trans_id and ";
+    *****************************************************************/
+    $query = "SELECT acc_trans.amount, acc_trans.transdate, acc_trans.memo, " .
+      "replace(acc_trans.source, 'InvAdj ', '') AS source, " .
+      "acc_trans.chart_id, ar.invnumber, ar.employee_id " .
+      "FROM acc_trans, ar WHERE " .
+      "( acc_trans.chart_id = $chart_id_cash OR " .
+      "( acc_trans.chart_id = $chart_id_income AND " .
+      "acc_trans.source LIKE 'InvAdj %' ) ) AND " .
+      "ar.id = acc_trans.trans_id AND ";
 
     if ($form_use_edate) {
-      $query .= "ar.transdate >= '$from_date' and " .
+      $query .= "ar.transdate >= '$from_date' AND " .
       "ar.transdate <= '$to_date'";
     } else {
-      $query .= "acc_trans.transdate >= '$from_date' and " .
+      $query .= "acc_trans.transdate >= '$from_date' AND " .
       "acc_trans.transdate <= '$to_date'";
     }
 
-    $query .= " order by acc_trans.source, acc_trans.transdate, ar.invnumber, acc_trans.memo";
+    // $query .= " order by acc_trans.source, acc_trans.transdate, ar.invnumber, acc_trans.memo";
+    $query .= " ORDER BY source, acc_trans.transdate, ar.invnumber, acc_trans.memo";
 
     echo "<!-- $query -->\n";
 
@@ -116,16 +134,27 @@
 
     $paymethod   = "";
     $paymethodleft = "";
-    $methodtotal = 0;
-    $grandtotal  = 0;
+    $methodpaytotal = 0;
+    $grandpaytotal  = 0;
+    $methodadjtotal  = 0;
+    $grandadjtotal  = 0;
 
     for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
       $row = SLGetRow($t_res, $irow);
-      $rowamount = 0 - $row['amount'];
+      $rowpayamount = 0 - $row['amount'];
+      $rowadjamount = 0;
+      if ($row['chart_id'] == $chart_id_income) {
+        $rowadjamount = $rowpayamount;
+        $rowpayamount = 0;
+      }
 
-      // Extract only the first word as the payment method because any following
-      // text will be some petty detail like a check number.
-      $rowmethod = substr($row['source'], 0, strcspn($row['source'], ' /'));
+      $rowmethod = trim($row['source']);
+      if (!$_POST['form_checkno']) {
+        // Extract only the first word as the payment method because any
+        // following text will be some petty detail like a check number.
+        $rowmethod = substr($rowmethod, 0, strcspn($rowmethod, ' /'));
+      }
+
       if (! $rowmethod) $rowmethod = 'Unknown';
 
       if ($paymethod != $rowmethod) {
@@ -138,12 +167,16 @@
    <? echo xl('Total for ') . $paymethod ?>
   </td>
   <td class="dehead" align="right">
-   <? bucks($methodtotal) ?>
+   <? bucks($methodadjtotal) ?>
+  </td>
+  <td class="dehead" align="right">
+   <? bucks($methodpaytotal) ?>
   </td>
  </tr>
-<?
+<?php
         }
-        $methodtotal = 0;
+        $methodpaytotal = 0;
+        $methodadjtotal  = 0;
         $paymethod = $rowmethod;
         $paymethodleft = $paymethod;
       }
@@ -153,25 +186,30 @@
 
  <tr>
   <td class="detail">
-   <? echo $paymethodleft; $paymethodleft = "&nbsp;" ?>
+   <?php echo $paymethodleft; $paymethodleft = "&nbsp;" ?>
   </td>
   <td class="dehead">
-   <? echo $row['transdate'] ?>
+   <?php echo $row['transdate'] ?>
   </td>
   <td class="detail">
-   <? echo $row['invnumber'] ?>
+   <?php echo $row['invnumber'] ?>
   </td>
   <td class="dehead">
-   <? echo $row['memo'] ?>
+   <?php echo $row['memo'] ?>
   </td>
   <td class="dehead" align="right">
-   <? bucks($rowamount) ?>
+   <?php bucks($rowadjamount) ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php bucks($rowpayamount) ?>
   </td>
  </tr>
-<?
+<?php
       }
-      $methodtotal += $rowamount;
-      $grandtotal  += $rowamount;
+      $methodpaytotal += $rowpayamount;
+      $grandpaytotal  += $rowpayamount;
+      $methodadjtotal += $rowadjamount;
+      $grandadjtotal  += $rowadjamount;
     }
 ?>
 
@@ -180,20 +218,26 @@
    <?echo xl('Total for ') . $paymethod ?>
   </td>
   <td class="dehead" align="right">
-   <? bucks($methodtotal) ?>
+   <?php bucks($methodadjtotal) ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php bucks($methodpaytotal) ?>
   </td>
  </tr>
 
  <tr bgcolor="#ffdddd">
   <td class="detail" colspan="4">
-   <?xl('Grand Total','e')?>
+   <?php xl('Grand Total','e') ?>
   </td>
   <td class="dehead" align="right">
-   <? bucks($grandtotal) ?>
+   <?php bucks($grandadjtotal) ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php bucks($grandpaytotal) ?>
   </td>
  </tr>
 
-<?
+<?php
   }
   SLClose();
 ?>
