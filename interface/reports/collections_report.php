@@ -25,7 +25,7 @@ $form_to_date   = fixDate($_POST['form_to_date'], "");
 $is_due_ins     = $_POST['form_category'] == xl('Due Ins');
 $is_due_pt      = $_POST['form_category'] == xl('Due Pt');
 
-if ($_POST['form_search'] || $_POST['form_export']) {
+if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) {
   $form_cb_ssn    = $_POST['form_cb_ssn']    ? true : false;
   $form_cb_dob    = $_POST['form_cb_dob']    ? true : false;
   $form_cb_policy = $_POST['form_cb_policy'] ? true : false;
@@ -108,6 +108,10 @@ function endPatient($ptrow) {
         "genericval2 = CONCAT('IN COLLECTIONS " . date("Y-m-d") . "', genericval2) " .
         "WHERE pid = '" . $ptrow['pid'] . "'");
     }
+    $export_patient_count += 1;
+    $export_dollars += $pt_balance;
+  }
+  else if ($_POST['form_csvexport']) {
     $export_patient_count += 1;
     $export_dollars += $pt_balance;
   }
@@ -234,10 +238,10 @@ function checkAll(checked) {
 </table>
 
 <?php
-  if ($_POST['form_search'] || $_POST['form_export']) {
+  if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) {
     $where = "";
 
-    if ($_POST['form_export']) {
+    if ($_POST['form_export'] || $_POST['form_csvexport']) {
       $where = "( 1 = 2";
       foreach ($_POST['form_cb'] as $key => $value) $where .= " OR ar.customer_id = $key";
       $where .= ' )';
@@ -434,7 +438,7 @@ function checkAll(checked) {
 
     ksort($rows);
 
-    if ($_POST['form_export']) {
+    if ($_POST['form_export'] || $_POST['form_csvexport']) {
       echo "<textarea rows='35' cols='100' readonly>";
     }
     else {
@@ -509,7 +513,7 @@ function checkAll(checked) {
 
       if ($insname != $ptrow['insname'] || $pid != $ptrow['pid']) {
         // For the report, this will write the patient totals.  For the
-        // export this writes everything for the patient:
+        // collections export this writes everything for the patient:
         endPatient($ptrow);
         $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
         $ptrow = array('insname' => $insname, 'ptname' => $ptname, 'pid' => $pid, 'count' => 1);
@@ -523,7 +527,7 @@ function checkAll(checked) {
         ++$ptrow['count'];
       }
 
-      if (!$_POST['form_export']) {
+      if (!$_POST['form_export'] && !$_POST['form_csvexport']) {
 
         $in_collections = stristr($row['billnote'], 'IN COLLECTIONS') !== false;
 
@@ -624,7 +628,21 @@ function checkAll(checked) {
 ?>
  </tr>
 <?
-      } // end not $form_export
+      } // end not export
+
+      else if ($_POST['form_csvexport']) {
+        $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
+        echo '"' . $insname                             . '",';
+        echo '"' . $ptname                              . '",';
+        echo '"' . $row['invnumber']                    . '",';
+        echo '"' . $row['dos']                          . '",';
+        echo '"' . sprintf('%.2f', $row['charges'])     . '",';
+        echo '"' . sprintf('%.2f', $row['adjustments']) . '",';
+        echo '"' . sprintf('%.2f', $row['paid'])        . '",';
+        echo '"' . sprintf('%.2f', $balance)            . '",';
+        echo '"' . $row['inactive_days']                . '"' . "\n";
+      } // end $form_csvexport
+
     } // end loop
 
     endPatient($ptrow);
@@ -638,6 +656,11 @@ function checkAll(checked) {
       } else {
         $alertmsg .= "AND flagged as in collections.";
       }
+    }
+    else if ($_POST['form_csvexport']) {
+      echo "</textarea>\n";
+      $alertmsg .= "$export_patient_count patients representing $" .
+        sprintf("%.2f", $export_dollars) . " have been exported.";
     }
     else {
       echo " <tr bgcolor='#ffffff'>\n";
@@ -672,9 +695,10 @@ function checkAll(checked) {
 ?>
 
 <p>
-<?php if (!$_POST['form_export']) { ?>
+<?php if (!$_POST['form_export'] && !$_POST['form_csvexport']) { ?>
 <input type='button' value='Select All' onclick='checkAll(true)' /> &nbsp;
 <input type='button' value='Clear All' onclick='checkAll(false)' /> &nbsp;
+<input type='submit' name='form_csvexport' value='Export Selected as CSV' /> &nbsp; &nbsp;
 <input type='submit' name='form_export' value='Export Selected to Collections' /> &nbsp;
 <input type='checkbox' name='form_without' value='1' /> <?php xl('Without Update','e') ?>
 <?php } ?>
