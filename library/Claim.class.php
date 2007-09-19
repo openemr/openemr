@@ -70,7 +70,7 @@ class Claim {
     //
     for ($i = 1; $i < count($this->payers); ++$i) {
       if ($billrow['process_date'] &&
-        $this->payers[0]['data']['payer_id'] == $this->payers[$i]['data']['payer_id'])
+        $this->payers[0]['data']['provider'] == $this->payers[$i]['data']['provider'])
       {
         $tmp = $this->payers[0];
         $this->payers[0] = $this->payers[$i];
