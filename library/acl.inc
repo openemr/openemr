@@ -6,7 +6,7 @@
   //
   // $phpgacl_location = "/var/www/gacl";
 
-  // Tentatively, the following Access Control Objects will be supported.
+  // The following Access Control Objects are currently be supported.
   // These are the "things to be protected":
   //
   // Section "admin" (Administration):
@@ -19,7 +19,7 @@
   //   users       Users/Groups/Logs Administration
   //   batchcom    Batch Communication Tool
   //   language    Language Interface Tool
-  //   drugs       Drugs Administration
+  //   drugs       Pharmacy Dispensary
   //
   // Section "acct" (Accounting):
   //   bill        Billing (write optional)
@@ -48,6 +48,10 @@
   //
   // Section "squads" applies to sports team use only:
   //   acos in this section define the user-specified list of squads
+  //
+  // Section "sensitivities" (Sensitivities):
+  //   normal     Normal
+  //   high       High
 
   if (isset ($phpgacl_location)) {
     include_once("$phpgacl_location/gacl.class.php");

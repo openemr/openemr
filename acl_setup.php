@@ -46,6 +46,7 @@
  $gacl->add_object('admin', 'Users/Groups/Logs Administration', 'users'    , 10, 0, 'ACO');
  $gacl->add_object('admin', 'Batch Communication Tool'        , 'batchcom' , 10, 0, 'ACO');
  $gacl->add_object('admin', 'Language Interface Tool'         , 'language' , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Pharmacy Dispensary'             , 'drugs'    , 10, 0, 'ACO');
 
  // Create ACOs for encounters.
  //
@@ -96,7 +97,7 @@
  $gacl->add_acl(
   array(
    'acct'=>array('bill', 'eob', 'rep', 'rep_a'),
-   'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super'),
+   'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs'),
    'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
    'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes'),
    'sensitivities'=>array('normal', 'high')
@@ -110,6 +111,7 @@
  $gacl->add_acl(
   array(
    'acct'=>array('rep'),
+   'admin'=>array('drugs'),
    'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
    'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes'),
    'sensitivities'=>array('normal', 'high')
@@ -131,6 +133,7 @@
  );
  $gacl->add_acl(
   array(
+   'admin'=>array('drugs'),
    'encounters'=>array('coding'),
    'patients'=>array('appt')
   ),
