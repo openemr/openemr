@@ -131,6 +131,10 @@ class C_Prescription extends Controller {
 			return;
 		//print_r($_POST);
 
+    // Stupid Smarty code treats empty values as not specified values.
+    // Since active is a checkbox, represent the unchecked state as -1.
+    if (empty($_POST['active'])) $_POST['active'] = '-1';
+
 		$this->prescriptions[0] = new Prescription($_POST['id']);
 		parent::populate_object($this->prescriptions[0]);
 		//echo $this->prescriptions[0]->toString(true);
@@ -149,7 +153,11 @@ class C_Prescription extends Controller {
 			return $this->edit_action($this->prescriptions[0]->id);
 		}
 
-		return $this->send_action($this->prescriptions[0]->id);
+    if ($this->prescriptions[0]->get_active() > 0) {
+      return $this->send_action($this->prescriptions[0]->id);
+    }
+    $this->list_action($this->prescriptions[0]->get_patient_id());
+    exit;
 	}
 
 	function send_action($id) {

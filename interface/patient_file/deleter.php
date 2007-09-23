@@ -77,8 +77,9 @@ td { font-size:10pt; }
   if ($patient) {
    row_modify("billing"       , "activity = 0", "pid = '$patient'");
    row_modify("pnotes"        , "activity = 0", "pid = '$patient'");
-   row_modify("prescriptions" , "active = 0"  , "patient_id = '$patient'");
+   // row_modify("prescriptions" , "active = 0"  , "patient_id = '$patient'");
 
+   row_delete("prescriptions"  , "patient_id = '$patient'");
    row_delete("claims"         , "patient_id = '$patient'");
    row_delete("drug_sales"     , "pid = '$patient'");
    row_delete("payments"       , "pid = '$patient'");

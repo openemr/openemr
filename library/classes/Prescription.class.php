@@ -108,6 +108,7 @@ class Prescription extends ORDataObject {
 	var $medication;
 
 	var $drug_id;
+  var $active;
 
 	/**
 	 * Constructor sets all Prescription attributes to their default value
@@ -132,7 +133,7 @@ class Prescription extends ORDataObject {
       xl("q.8h"), xl("q.d."));
 
     $this->substitute_array = array("",xl("substitution allowed"),
-      xl ("substitution not allowed"));
+      xl ("do not substitute"));
 
     $this->medication_array = array(0 => xl('No'), 1 => xl('Yes'));
 
@@ -165,6 +166,7 @@ class Prescription extends ORDataObject {
 		$this->note = "";
 
 		$this->drug_id = 0;
+    $this->active = 1;
 
 		for($i=0;$i<21;$i++) {
 			$this->refills_array[$i] = sprintf("%02d",$i);
@@ -216,7 +218,8 @@ class Prescription extends ORDataObject {
 			."Substitute: " . $this->substitute_array[$this->substitute]. "\n"
 			."Refills: " . $this->refills. "\n"
 			."Per Refill: " . $this->per_refill . "\n"
-			."Drug ID: " . $this->drug_id;
+			."Drug ID: " . $this->drug_id . "\n"
+			."Active: " . $this->active;
 
 		if ($html) {
 			return nl2br($string);
@@ -474,13 +477,18 @@ class Prescription extends ORDataObject {
 			return $this->pharmacist->id = $id;
 		}
 	}
-
 	function set_drug_id($drug_id) {
 			$this->drug_id = $drug_id;
 	}
 	function get_drug_id() {
 		return $this->drug_id;
 	}
+  function set_active($active) {
+      $this->active = $active;
+  }
+  function get_active() {
+    return $this->active;
+  }
 
 	function get_prescription_display() {
 		
@@ -588,19 +596,21 @@ class Prescription extends ORDataObject {
 		return $string;
 	}
 
-	function prescriptions_factory($patient_id,$order_by = "active DESC, date_modified DESC, date_added DESC") {
-		$prescriptions = array();
-	        require_once (dirname(__FILE__) . "/../translation.inc.php");
-
-                $p = new Prescription();
-		$sql = "SELECT id FROM  " . $p->_table . " WHERE patient_id = " .mysql_real_escape_string($patient_id) . " and active = 1 ORDER BY " . mysql_real_escape_string($order_by);
-		$results = sqlQ($sql);
-		//echo "sql: $sql";
-		while ($row = mysql_fetch_array($results) ) {
-			$prescriptions[] = new Prescription($row['id']);
-		}
-		return $prescriptions;
-	}
+  function prescriptions_factory($patient_id,
+    $order_by = "active DESC, date_modified DESC, date_added DESC")
+  {
+    $prescriptions = array();
+    require_once (dirname(__FILE__) . "/../translation.inc.php");
+    $p = new Prescription();
+    $sql = "SELECT id FROM  " . $p->_table . " WHERE patient_id = " .
+      mysql_real_escape_string($patient_id) .
+      " ORDER BY " . mysql_real_escape_string($order_by);
+    $results = sqlQ($sql);
+    while ($row = mysql_fetch_array($results) ) {
+      $prescriptions[] = new Prescription($row['id']);
+    }
+    return $prescriptions;
+  }
 
 	function get_dispensation_count() {
 		$refills_row = sqlQuery("SELECT count(*) AS count FROM drug_sales " .

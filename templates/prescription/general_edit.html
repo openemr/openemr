@@ -84,6 +84,12 @@ textarea {
 <form name="prescribe" method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
 <table CELLSPACING="0" CELLPADDING="3">
 <tr>
+  <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Currently Active'}</td>
+  <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+    <input type="checkbox" name="active" value="1"{if $prescription->get_active() > 0} checked{/if} />
+  </td>
+</tr>
+<tr>
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Starting Date'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		{html_select_date start_year="-10" end_year="+5" time=$prescription->start_date prefix="start_date_"}
@@ -167,33 +173,42 @@ textarea {
 {/if}
 	</td>
 </tr>
+<!--
 <tr>
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Substitution'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-	{html_options name="substitute" options=$prescription->substitute_array selected=$prescription->substitute}
+    {html_options name="substitute" options=$prescription->substitute_array selected=$prescription->substitute}
 	</td>
 </tr>
+-->
 <tr>
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Notes'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 	<textarea name="note" cols="30" rows="2" wrap="virtual">{$prescription->note}</textarea>
 	</td>
 </tr>
-{if !$WEIGHT_LOSS_CLINIC}
 <tr>
-        <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Add to Medication List'}</td>
-        <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-        {html_radios name="medication" options=$prescription->medication_array selected=$prescription->medication}
-        </td>
-</tr>
+{if $WEIGHT_LOSS_CLINIC}
+  <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Substitution'}</td>
+  <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+    {html_options name="substitute" options=$prescription->substitute_array selected=$prescription->substitute}
+  </td>
+{else}
+  <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Add to Medication List'}</td>
+  <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+    {html_radios name="medication" options=$prescription->medication_array selected=$prescription->medication}
+    &nbsp; &nbsp;
+    {html_options name="substitute" options=$prescription->substitute_array selected=$prescription->substitute}
+  </td>
 {/if}
+</tr>
 <tr>
 	<td colspan="3">
-		<input type="submit" value="{xl t='Prescribe'}" />
+		<input type="submit" value="{xl t='Save'}" />
 		{if $DRUG_ARRAY_VALUES}
 		&nbsp; &nbsp; &nbsp; &nbsp;
 		{if $prescription->get_refills() >= $prescription->get_dispensation_count()}
-		<input type="submit" name="disp_button" value="{xl t='Prescribe and Dispense'}" />
+		<input type="submit" name="disp_button" value="{xl t='Save and Dispense'}" />
 		<input type="text" name="disp_quantity" size="2" maxlength="10" value="{$DISP_QUANTITY}" />
 		units, $
 		<input type="text" name="disp_fee" size="5" maxlength="10" value="{$DISP_FEE}" />

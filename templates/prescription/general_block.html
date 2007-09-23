@@ -12,9 +12,11 @@ td {
 </style>
 <table>
 	{foreach from=$prescriptions item=prescription}
+  {if $prescription->get_active() > 0}
 	<tr>
 		<td>{$prescription->drug}</td>
 		<td>{$prescription->get_dosage_display()}</td>
 	</tr>
+  {/if}
 	{/foreach}
 </table>

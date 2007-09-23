@@ -4,14 +4,17 @@
  <style type="text/css" title="mystyles" media="all">
 <!--
 td {
-	font-size:8pt;
-	font-family:helvetica;
+  font-size:8pt;
+  font-family:helvetica;
 }
 a {
-	font-size:8pt;
-	font-family:helvetica;
+  font-size:8pt;
+  font-family:helvetica;
+  text-decoration:none;
 }
-
+.inactive {
+  color:#777777;
+}
 -->
 </style>
 
@@ -55,16 +58,30 @@ var myRegExp = new RegExp(":" + value + ":");
 
 	</tr>
 	{foreach from=$prescriptions item=prescription}
-	<tr>
-		<td><a href="{$CONTROLLER}prescription&edit&id={$prescription->id}" onclick="top.restoreSession()">{$prescription->drug}</a></td>
-		<td><a href="{$CONTROLLER}prescription&edit&id={$prescription->id}" onclick="top.restoreSession()">{$prescription->date_added}</a><br /><a href="{$CONTROLLER}prescription&edit&id={$prescription->id}" onclick="top.restoreSession()">{$prescription->date_modified}</a></td>
-		<td>{$prescription->get_dosage_display()}</td>
-		<td>{$prescription->get_unit_display()}</td>
-		<td>{$prescription->quantity}</td>
-		<td>{$prescription->provider->get_name_display()}</td>
-                <td><input type=checkbox value="{$prescription->id}" onclick="changeLinkHref('multiprint',this.checked, this
-.value)"></td>
-	</tr>
+  <tr>
+    <td{if $prescription->active <= 0} class="inactive"{/if}>
+      {if $prescription->active > 0}<b>{/if}<a href="{$CONTROLLER}prescription&edit&id={$prescription->id}" onclick="top.restoreSession()"{if $prescription->active <= 0} class="inactive"{/if}>{$prescription->drug}</a>{if $prescription->active > 0}</b>{/if}
+    </td>
+    <td{if $prescription->active <= 0} class="inactive"{/if}>
+      <a href="{$CONTROLLER}prescription&edit&id={$prescription->id}" onclick="top.restoreSession()"{if $prescription->active <= 0} class="inactive"{/if}>{$prescription->date_added}</a><br />
+      <a href="{$CONTROLLER}prescription&edit&id={$prescription->id}" onclick="top.restoreSession()"{if $prescription->active <= 0} class="inactive"{/if}>{$prescription->date_modified}</a>
+    </td>
+    <td{if $prescription->active <= 0} class="inactive"{/if}>
+      {$prescription->get_dosage_display()}
+    </td>
+    <td{if $prescription->active <= 0} class="inactive"{/if}>
+      {$prescription->get_unit_display()}
+    </td>
+    <td{if $prescription->active <= 0} class="inactive"{/if}>
+      {$prescription->quantity}
+    </td>
+    <td{if $prescription->active <= 0} class="inactive"{/if}>
+      {$prescription->provider->get_name_display()}
+    </td>
+    <td{if $prescription->active <= 0} class="inactive"{/if}>
+      <input type=checkbox value="{$prescription->id}" onclick="changeLinkHref('multiprint',this.checked, this.value)">
+    </td>
+  </tr>
 	{foreachelse}
 	<tr>
 		<td colspan="6">{xl t='No Prescriptions Found'}</td>
