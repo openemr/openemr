@@ -86,6 +86,20 @@ my $info_txt=<<'START';
 FORM_NAME
 START
 
+#date header
+#if there is one or more date fields, this will need to be inserted into the body of new.php
+#for the popup javascript calendar
+my $date_field_exists = 0;
+my $date_header =<<'START';
+<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="../../../library/textformat.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+<script language='JavaScript'> var mypcc = '1'; </script>
+START
+
 #new.php
 my $new_php =<<'START';
 <?php
@@ -97,6 +111,7 @@ formHeader("Form: FORM_NAME");
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+DATE_HEADER
 <form method=post action="<?echo $rootdir;?>/forms/FORM_NAME/save.php?mode=new" name="FORM_NAME" onsubmit="return top.restoreSession()">
 <hr>
 <h1>FORM_NAME</h1>
@@ -179,6 +194,8 @@ $negatives = array(NEGATIVES);
 //process each field according to it's type
 foreach($field_names as $key=>$val)
 {
+  $pos = '';
+  $nev = '';
 	if ($val == "checkbox")
 	{
 		if ($_POST[$key]) {$field_names[$key] = "yes";}
@@ -186,24 +203,33 @@ foreach($field_names as $key=>$val)
 	}
 	elseif (($val == "checkbox_group")||($val == "scrolling_list_multiples"))
 	{
-		$neg = '';
 		if (array_key_exists($key,$negatives)) #a field requests reporting of negatives
 		{
-			foreach($_POST[$key] as $pos) #check positives against list
+                  if ($_POST[$key]) 
+                  {
+			foreach($_POST[$key] as $var) #check positives against list
 			{
-				if (array_key_exists($pos, $negatives[$key]))
+				if (array_key_exists($var, $negatives[$key]))
 				{	#remove positives from list, leaving negatives
-					unset($negatives[$key][$pos]);
+					unset($negatives[$key][$var]);
 				}
 			}
-			$neg = ".   Negative for ".implode(',',$negatives[$key]);
+                  }
+			if ($negatives[$key]) {$neg = "Negative for ".implode(', ',$negatives[$key]);}
 		}
-		$field_names[$key] = implode(',',$_POST[$key]).$neg;	
+		if ($_POST[$key]) {$pos = implode(', ',$_POST[$key]);}
+		if($pos) {$pos = 'Positive for '.$pos.'.  ';}
+		$field_names[$key] = $pos.$neg;	
 	}
 	else
 	{
 		$field_names[$key] = $_POST[$key];
 	}
+        if ($field_names[$key] != '')
+        {
+          $field_names[$key] .= '.';
+          $field_names[$key] = preg_replace('/\s*,\s*([^,]+)\./',' and $1.',$field_names[$key]); // replace last comma with 'and' and ending period
+        } 
 }
 
 //end special processing
@@ -324,17 +350,17 @@ START
 
 #sample.txt
 my $sample_txt =<<'START';
-a1_preop_physical
+physical_sample
 
 chief_complaints::textarea
 
 <h3>past surgical history</h3>
-+surgical history::checkbox_group::cholecystectomy::tonsillectomy::apendectomy
++surgical history::checkbox_group::cholecystectomy::tonsillectomy::apendectomy::hernia
 <h4>other</h4>
 surgical history other::textfield
 
-<h3>past surgical history</h3>
-+medical history::scrolling_list_multiples::asthma::diabetes::hypertension
+<h3>past medical history</h3>
++medical history::scrolling_list_multiples::asthma::diabetes::hypertension::GERD
 <h4>other</h4>
 medical history other::textfield
 
@@ -396,7 +422,7 @@ for (@field_data)
 	if ($_->[0] and $_->[1])	#$_->[0] is field name and $_->[1] is field type.  IE:  @field_data[4]->[0] and @field_data[4]->[1]
 	{
 		$_->[0] =~ s/^\s+(\S)\s+$/$1/;        #\s means spaces, \S means non spaces. (\S) creates backreference pointed to by $1 at end. ***FIELD NAME***
-		$_->[0] = lc $_->[0];		#MAKE SURE FIELNAMES ARE ALL LOWERCASE (to avoid problems later)
+		$_->[0] = lc $_->[0];		#MAKE SURE FILENAMES ARE ALL LOWERCASE (to avoid problems later)
 		$_->[0] =~ s/\s+|-+/_/g;                 # So now @field_data[1]->[0] contains the field name without spaces at beginning or end and this replaces spaces with _  ie: "field type" becomes "field_type"
 		push @reserved_used, $_->[0] if $reserved{$_->[0]};
 		$_->[1] =~ s/^\s+(\S)\s+$/$1/;
@@ -442,6 +468,8 @@ to_file("$form_name/info.txt",$out);
 $out = replace($new_php, 'FORM_NAME', $form_name);
 $out = replace($out, 'DATABASEFIELDS', $make_form_results);
 $out = xl_fix($out);
+$date_header = '' if not $date_field_exists;
+$out = replace($out,'DATE_HEADER',$date_header);
 to_file("$form_name/new.php",$out);
 
 #print.php
@@ -516,7 +544,7 @@ sub replace_save_php #a special case
 			if ($negatives{$_->[0]})
 			{	
 				my @temp;
-				my $count = 2;
+				my $count = 3;
 				while ($count < scalar(@$_))
 				{
 					push @temp, "'$_->[$count]' => '$_->[$count]'"; 
@@ -536,11 +564,20 @@ sub replace_save_php #a special case
 sub replace_sql #a special case
 {
 	my $text = shift;
-	my @fields = map {$_->[0]} grep{$_->[0] and $_->[1]} @_;
 	my $replace = '';
-	$replace .= "$_ TEXT,\n" for @fields;
+        for (grep{$_->[0] and $_->[1]} @_) 
+        {
+	  $replace .= $_->[0]." TEXT,\n" if $_->[1] !~ /^date$/;
+	  $replace .= $_->[0]." DATE,\n" if $_->[1] =~ /^date$/;
+        }
 	$text =~ s/DATABASEFIELDS/$replace/;
 	return $text;
+
+#	my @fields = map {$_->[0]} grep{$_->[0] and $_->[1]} @_;
+#	my $replace = '';
+#	$replace .= "$_ TEXT,\n" for @fields;
+#	$text =~ s/DATABASEFIELDS/$replace/;
+#	return $text;
 }
 
 sub replace_view_php           #a special case  (They're all special cases aren't they? ;^ )  )
@@ -627,6 +664,24 @@ sub make_form
 			elsif ($field_type =~ /^scrolling_list_multiples/)
 			{
 			  	$return .= Tr(td($label),td(scrolling_list(-name=>$field_name.'[]', -values=>$_, -size=>scalar(@$_), -multiple=>'true')))."\n";
+			}
+			elsif ($field_type =~ /^date$/)
+			{
+$date_field_exists = 1;
+$return .= <<"START";
+<tr><td>
+<span class='text'><?php xl('$label (yyyy-mm-dd): ','e') ?></span>
+<input type='text' size='10' name='$field_name' id='$field_name'
+onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+title='yyyy-mm-dd last date of this event' />
+<img src='../../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
+id='img_$field_name' border='0' alt='[?]' style='cursor:pointer'
+title='Click here to choose a date'>
+<script>
+Calendar.setup({inputField:'$field_name', ifFormat:'%Y-%m-%d', button:'img_$field_name'});
+</script>
+</td></tr>
+START
 			}
 		unshift @$_, $label;
 		unshift @$_, $field_type;
