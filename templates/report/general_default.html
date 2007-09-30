@@ -33,6 +33,67 @@ function dopopup(aurl) {
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
 
+{php}
+//get directories that might contain reports 
+$reportsdir = './myreports/';
+if (is_dir($reportsdir)) {
+  $folder_array = array();
+  if ($handle = opendir($reportsdir)) {
+      while (false !== ($file = readdir($handle))) {
+        if ($file != '.' && $file != '..' && is_dir($reportsdir.$file)) {
+          $folder_array[$file] = array();
+        }
+      }
+      closedir($handle);
+  }
+  
+  //fill elements of $folder_array with the php files in each directory
+  foreach ($folder_array as $key => $val) {
+    $reportsubdir = $reportsdir.$key.'/';
+    if ($handle = opendir($reportsubdir)) {
+        while (false !== ($file = readdir($handle))) {
+          if ($file != '.' && $file != '..' && substr($file,-4,4) == '.php') {
+          //if ($file != '.' && $file != '..') {
+            $filename = substr($file,0,strlen($file)-4);
+            $folder_array[$key][$filename] = $GLOBALS['webroot'].'/interface/reports/myreports/'.$key.'/'.$file;
+          }
+        }
+        closedir($handle);
+    }
+  }
+  //generate drop down menus
+  echo "<FORM METHOD=POST NAME=choose>\n";
+  foreach ($folder_array as $title => $link) {
+    if (count($link) > 0) { //only create menus for those subdirectories with php reports in them
+       echo "<select name=" . $title. " onchange='top.restoreSession();window.open(document.choose.".$title.".options[document.choose.".$title.".selectedIndex].value);".$title.".selectedIndex = 0'>\n";
+       echo "<option value=".$GLOBALS['webroot'].'/interface/reports/myreports/'.$title.">".xl($title)."</option>\n";
+       foreach ($link as $eachlink_name => $eachlink) {
+         echo "<option value='".$eachlink."'>".xl($eachlink_name)."</option>\n";
+       }
+       echo "</select><br>\n";
+    }
+  }
+  echo "</FORM>\n";
+  
+  //now deal with the reports that are just under myreports, not organized into subdirectories
+  $reportsdir = './myreports/';
+  $dir_array = array();
+  if ($handle = opendir($reportsdir)) {
+      while (false !== ($file = readdir($handle))) {
+        if ($file != '.' && $file != '..' && substr($file,-4,4) == '.php') {
+          $filename = substr($file,0,strlen($file)-4);
+          array_push($dir_array,"<a href='$reportsdir$file' target='_new' onclick='top.restoreSession()'>".xl($filename)."</a><br>\n");
+        }
+      }
+      closedir($handle);
+  }
+  //print the links for reports under myreports
+  foreach($dir_array as $var) {
+    echo $var;
+  }
+}
+{/php}
+
 <a href="custom_report_range.php" target="_new" onclick="top.restoreSession()">{xl t='Superbill Report'}</a>
 <br/>
 
