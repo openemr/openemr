@@ -1,4 +1,4 @@
-<?
+<?php
 include_once("../../globals.php");
 include_once("$srcdir/log.inc");
 include_once("$srcdir/billing.inc");
@@ -197,7 +197,7 @@ if ($res = sqlStatement("select * from forms where authorized = 0 and " .
 <tr>
 <td valign='top'>
 
-<?
+<?php
 if ($authorize) {
   $count = 0;
 
@@ -243,7 +243,7 @@ if ($authorize) {
     ****/
     // Don't use sqlQuery because there might be no match.
     $providerName = sqlFetchArray(sqlStatement(
-      "select lname from users where id = " . $name['providerID']));
+      "select lname from users where id = '" . $name['providerID'] . "'"));
     /****/
 
     echo "<td valign=top><span class=bold>".xl('Provider').":</span><span class=text><br>" .
