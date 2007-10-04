@@ -92,7 +92,7 @@ CREATE TABLE `form_CAMOS_category` (
   `activity` tinyint(4) default NULL,
   `category` text,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM;
 
 --
 -- Dumping data for table `form_CAMOS_category`
@@ -121,7 +121,7 @@ CREATE TABLE `form_CAMOS_subcategory` (
   `subcategory` text,
   `category_id` bigint(20) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM;
 
 --
 -- Dumping data for table `form_CAMOS_subcategory`
@@ -151,7 +151,7 @@ CREATE TABLE `form_CAMOS_item` (
   `content` text,
   `subcategory_id` bigint(20) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM;
 
 --
 -- Dumping data for table `form_CAMOS_item`

@@ -23,7 +23,13 @@ $previous_encounter_data = '';
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
   $previous_encounter_data = '<hr><p>Previous Encounter CAMOS entries</p><hr>';
   //get data from previous encounter to show at bottom of form for reference
-  $query = "SELECT t1.category, t1.subcategory, t1.item, t1.content FROM form_CAMOS as t1 JOIN forms as t2 on (t1.id = t2.form_id) where t2.encounter=(select max(encounter) from forms where form_name like 'CAMOS%' and encounter < ".$_SESSION['encounter']." and pid=".$_SESSION['pid'].") and t1.pid=".$_SESSION['pid'];
+  $tmp = sqlQuery("SELECT max(encounter) AS max FROM forms WHERE " .
+    "form_name LIKE 'CAMOS%' AND encounter < '" . $_SESSION['encounter'] .
+    "' AND pid = '" . $_SESSION['pid'] . "'");
+  $last_encounter_id = $tmp['max'] ? $tmp['max'] : 0;
+  $query = "SELECT t1.category, t1.subcategory, t1.item, t1.content " .
+    "FROM form_CAMOS as t1 JOIN forms as t2 on (t1.id = t2.form_id) where " .
+    "t2.encounter = '$last_encounter_id' and t1.pid = " . $_SESSION['pid'];
   $statement = sqlStatement($query);
   while ($result = sqlFetchArray($statement)) { 
     $previous_encounter_data .= $result['category']." | ".$result['subcategory'].
@@ -150,7 +156,10 @@ else if ($_POST['hidden_mode'] == 'alter') {
     $preselect_mode = 'by name';
     //at this point, if this variable has not been set, CAMOS must have been start over
     //so let's get the most recent values from form_CAMOS for this patient's pid 
-    $query = "SELECT category, subcategory, item FROM form_CAMOS WHERE id =(SELECT max(id) from form_CAMOS WHERE pid=".$_SESSION['pid'].")";
+    $tmp = sqlQuery("SELECT max(id) AS max FROM form_CAMOS WHERE pid = '" .
+      $_SESSION['pid'] . "'");
+    $query = "SELECT category, subcategory, item FROM form_CAMOS WHERE " .
+      "id = '" . $tmp['max'] . "'";
     $statement = sqlStatement($query);
     if ($result = sqlFetchArray($statement)) {
       $preselect_category = $result['category'];
