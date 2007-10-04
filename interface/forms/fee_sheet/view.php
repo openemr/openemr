@@ -522,14 +522,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
   }
 }
 
-// Try setting the default provider to that of the new encounter form.
-//
 $encounter_provid = -1;
-$tmp = sqlQuery("SELECT users.id FROM forms, users WHERE " .
-	"forms.pid = '$pid' AND forms.encounter = '$encounter' AND " .
-	"forms.formdir='newpatient' AND users.username = forms.user AND " .
-	"users.authorized = 1");
-if ($tmp['id']) $encounter_provid = $tmp['id'];
 
 // Generate lines for items already in the database.
 //
@@ -570,6 +563,18 @@ if ($billresult) {
     // If no default provider yet then try this one.
     if ($encounter_provid < 0 && ! $del) $encounter_provid = $iter["provider_id"];
   }
+}
+
+// If no valid provider yet, try setting it to that of the new encounter form.
+//
+$tmp = sqlQuery("SELECT authorized FROM users WHERE id = '$encounter_provid'");
+if (empty($tmp['authorized'])) {
+  $encounter_provid = -1;
+  $tmp = sqlQuery("SELECT users.id FROM forms, users WHERE " .
+    "forms.pid = '$pid' AND forms.encounter = '$encounter' AND " .
+    "forms.formdir='newpatient' AND users.username = forms.user AND " .
+    "users.authorized = 1");
+  if ($tmp['id']) $encounter_provid = $tmp['id'];
 }
 
 // If still no default provider then make it the logged-in user.
