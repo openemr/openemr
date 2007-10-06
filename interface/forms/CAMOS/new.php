@@ -3,6 +3,7 @@ include_once("../../globals.php");
 include_once("../../../library/api.inc");
 include_once("../../../library/sql.inc");
 formHeader("Form: CAMOS");
+$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 function myauth() {
   return 1;
 }
@@ -21,7 +22,7 @@ $debug = '';
 $error = '';
 $previous_encounter_data = '';
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
-  $previous_encounter_data = '<hr><p>Previous Encounter CAMOS entries</p><hr>';
+  $previous_encounter_data = '<hr><p>'.xl('Previous Encounter CAMOS entries').'</p><hr>';
   //get data from previous encounter to show at bottom of form for reference
   $query = "SELECT t1.category, t1.subcategory, t1.item, t1.content FROM form_CAMOS as t1 JOIN forms as t2 on (t1.id = t2.form_id) where t2.encounter=(select max(encounter) from forms where form_name like 'CAMOS%' and encounter < ".$_SESSION['encounter']." and pid=".$_SESSION['pid'].") and t1.pid=".$_SESSION['pid'];
   $statement = sqlStatement($query);
@@ -588,16 +589,16 @@ if ($error != '') {
 <table border=1>
 <tr>
   <td>
-    Category
+    <?php xl('Category',e)?>
   </td>
   <td>
-    Subcategory
+    <?php xl('Subcategory',e)?>
   </td>
   <td>
-    Item
+    <?php xl('Item',e)?>
   </td>
   <td>
-    Content 
+    <?php xl('Content',e)?>
   </td>
 </tr>
 
@@ -684,8 +685,8 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 ?>
 <?
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
-  echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/patient_encounter.php'>[do not save]</a>";
-  echo "<a href='".$GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [help]</a>";
+  echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[".xl('do not save')."]</a>";
+  echo "<a href='".$GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [".xl('help')."]</a>";
   echo $previous_encounter_data;
 }
 ?>
