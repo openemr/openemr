@@ -23,13 +23,7 @@ $previous_encounter_data = '';
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
   $previous_encounter_data = '<hr><p>Previous Encounter CAMOS entries</p><hr>';
   //get data from previous encounter to show at bottom of form for reference
-  $tmp = sqlQuery("SELECT max(encounter) AS max FROM forms WHERE " .
-    "form_name LIKE 'CAMOS%' AND encounter < '" . $_SESSION['encounter'] .
-    "' AND pid = '" . $_SESSION['pid'] . "'");
-  $last_encounter_id = $tmp['max'] ? $tmp['max'] : 0;
-  $query = "SELECT t1.category, t1.subcategory, t1.item, t1.content " .
-    "FROM form_CAMOS as t1 JOIN forms as t2 on (t1.id = t2.form_id) where " .
-    "t2.encounter = '$last_encounter_id' and t1.pid = " . $_SESSION['pid'];
+  $query = "SELECT t1.category, t1.subcategory, t1.item, t1.content FROM form_CAMOS as t1 JOIN forms as t2 on (t1.id = t2.form_id) where t2.encounter=(select max(encounter) from forms where form_name like 'CAMOS%' and encounter < ".$_SESSION['encounter']." and pid=".$_SESSION['pid'].") and t1.pid=".$_SESSION['pid'];
   $statement = sqlStatement($query);
   while ($result = sqlFetchArray($statement)) { 
     $previous_encounter_data .= $result['category']." | ".$result['subcategory'].
@@ -45,6 +39,15 @@ $preselect_item= '';
 $preselect_category_override = '';
 $preselect_subcategory_override = '';
 $preselect_item_override = '';
+
+$quote_search = array("\r","\n","'","\"");
+$quote_replace = array("\\r","\\n","\\\'","\\\"");
+$quote_search_content = array("\r","\n","'","\"");
+$quote_replace_content = array("\\r","\\n","\\\'","\\\"");
+$category = str_replace($quote_search,$quote_replace,$_POST['change_category']); 
+$subcategory = str_replace($quote_search,$quote_replace,$_POST['change_subcategory']); 
+$item = str_replace($quote_search,$quote_replace,$_POST['change_item']); 
+$content = str_replace($quote_search_content,$quote_replace_content,$_POST['textarea_content']); 
 if ($_POST['hidden_category']) {$preselect_category = $_POST['hidden_category'];}
 if ($_POST['hidden_subcategory']) {$preselect_subcategory = $_POST['hidden_subcategory'];}
 if ($_POST['hidden_item']) {$preselect_item = $_POST['hidden_item'];}
@@ -53,7 +56,7 @@ if ($_POST['hidden_mode'] == 'add') {
   if ($_POST['hidden_selection'] == 'change_category') {
     $preselect_category_override = $_POST['change_category'];
     $query = "INSERT INTO form_CAMOS_category (category) values ('";
-    $query .= $_POST['change_category']."')"; 
+    $query .= $category."')"; 
     sqlInsert($query);
   }
   else if ($_POST['hidden_selection'] == 'change_subcategory') {
@@ -61,7 +64,7 @@ if ($_POST['hidden_mode'] == 'add') {
     $category_id = $_POST['hidden_category']; 
     if ($category_id >= 0 ) {
       $query = "INSERT INTO form_CAMOS_subcategory (subcategory, category_id) values ('";
-      $query .= $_POST['change_subcategory']."', '".$category_id."')";
+      $query .= $subcategory."', '".$category_id."')";
       sqlInsert($query);
     }
   }
@@ -71,14 +74,13 @@ if ($_POST['hidden_mode'] == 'add') {
     $subcategory_id = $_POST['hidden_subcategory']; 
     if (($category_id >= 0 ) && ($subcategory_id >=0)) {
       $query = "INSERT INTO form_CAMOS_item (item, content, subcategory_id) values ('";
-      $query .= $_POST['change_item']."', '".$_POST['textarea_content']."', '".$subcategory_id."')";
+      $query .= $item."', '".$content."', '".$subcategory_id."')";
       sqlInsert($query);
     }
     
   }
   else if ($_POST['hidden_selection'] == 'change_content') {
     $item_id = $_POST['hidden_item'];
-    $content = $_POST['textarea_content'];
     if ($item_id >= 0) {
       $query = "UPDATE form_CAMOS_item set content = '".$content."' where id = ".$item_id;
       sqlInsert($query);
@@ -156,10 +158,7 @@ else if ($_POST['hidden_mode'] == 'alter') {
     $preselect_mode = 'by name';
     //at this point, if this variable has not been set, CAMOS must have been start over
     //so let's get the most recent values from form_CAMOS for this patient's pid 
-    $tmp = sqlQuery("SELECT max(id) AS max FROM form_CAMOS WHERE pid = '" .
-      $_SESSION['pid'] . "'");
-    $query = "SELECT category, subcategory, item FROM form_CAMOS WHERE " .
-      "id = '" . $tmp['max'] . "'";
+    $query = "SELECT category, subcategory, item FROM form_CAMOS WHERE id =(SELECT max(id) from form_CAMOS WHERE pid=".$_SESSION['pid'].")";
     $statement = sqlStatement($query);
     if ($result = sqlFetchArray($statement)) {
       $preselect_category = $result['category'];
@@ -184,10 +183,16 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
   if (substr($_POST['hidden_mode'],0,5) == 'clone') {
     $clone_category = $_POST['category'];
     $query = "SELECT subcategory, item, content FROM form_CAMOS WHERE category like '".$clone_category."' and pid=".$_SESSION['pid']." order by id"; 
+//    if ($_POST['hidden_mode'] == 'clone last visit') {
+//      $query = "SELECT category, subcategory, item, content FROM form_CAMOS WHERE date(date) like (SELECT 
+//    date(MAX(date)) FROM form_CAMOS where date(date) < date(now()) and pid=".$_SESSION['pid'].") and pid=".$_SESSION['pid']." order by id"; 
+//    }
+
     if ($_POST['hidden_mode'] == 'clone last visit') {
-      $query = "SELECT category, subcategory, item, content FROM form_CAMOS WHERE date(date) like (SELECT 
-    date(MAX(date)) FROM form_CAMOS where date(date) < date(now()) and pid=".$_SESSION['pid'].") and pid=".$_SESSION['pid']." order by id"; 
+      $query = "SELECT category, subcategory, item, content FROM form_CAMOS left join forms on (form_CAMOS.id = forms.form_id) where forms.encounter = (select max(encounter) from forms where encounter < ".$_SESSION['encounter']." and pid = ".$_SESSION['pid']." and form_name like 'CAMOS%') and form_CAMOS.pid=".$_SESSION['pid']." order by form_CAMOS.id"; 
     }
+
+
     $statement = sqlStatement($query);
     while ($result = sqlFetchArray($statement)) {
       if (preg_match('/^[\s\r\n]*$/',$result['content']) == 0) {
@@ -199,12 +204,13 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
         $clone_content = $result['content'];
         $clone_data1 = "/* camos :: $clone_category :: $clone_subcategory :: $clone_item :: ";
         $clone_data2 = "$clone_content */";
+        if ($_POST['hidden_mode'] == 'clone last visit') {
+          //figure out how to make two orders of same category/subcat/item in same last visit appear 
+        }
         $clone_data_array[$clone_data1] = $clone_data2;
-      }
     }
     if ($_POST['hidden_mode'] == 'clone last visit') {
-      $query = "SELECT code_type, code, code_text, modifier, units, fee FROM billing WHERE date(date) like (SELECT 
-    date(MAX(date)) FROM form_CAMOS where date(date) < date(now()) and pid=".$_SESSION['pid'].") and pid=".$_SESSION['pid']." and activity=1 order by id"; 
+      $query = "SELECT code_type, code, code_text, modifier, units, fee FROM billing WHERE encounter = (SELECT max(encounter) FROM billing where encounter < ".$_SESSION['encounter']." and pid=".$_SESSION['pid'].") and pid=".$_SESSION['pid']." and activity=1 order by id";} 
       $statement = sqlStatement($query);
       while ($result = sqlFetchArray($statement)) {
         $clone_code_type = $result['code_type'];
@@ -321,7 +327,7 @@ $i=0;
 $query = "SELECT id, item, content, subcategory_id FROM form_CAMOS_item ORDER BY item";
 $statement = sqlStatement($query);
 while ($result = sqlFetchArray($statement)) {
-  echo "array3[".$i."] = new Array('".$result['item']."', '".str_replace(array("\r","\n","'","\""),array("\\r","\\n","\\'","\\\""),strip_tags($result['content'],"<b>,<i>"))."', '".$result['subcategory_id'].
+  echo "array3[".$i."] = new Array('".$result['item']."', '".str_replace($quote_search_content,$quote_replace_content,strip_tags($result['content'],"<b>,<i>"))."', '".$result['subcategory_id'].
     "','".$result['id']."');\n";
   $i++;
 }
@@ -430,12 +436,12 @@ function click_item() {
   var sel = f2.select_item.options[item_index].value;
   for (var i1=0;i1<array3.length;i1++) {
     if (array3[i1][3] == sel) {
-      f2.textarea_content.value= array3[i1][1];
+      f2.textarea_content.value= array3[i1][1].replace(/\\/g,'');
 <?
 if (substr($_POST['hidden_mode'],0,5) == 'clone') {
   print "f2.textarea_content.value= ''\n";
   foreach($clone_data_array as $key => $val) {
-  print "f2.textarea_content.value += \"\\n".str_replace(array("\r","\n","'","\""),array("\\r","\\n","\\'","\\\""),$key.$val)."\\n\"\n";
+  print "f2.textarea_content.value += \"\\n".str_replace($quote_search,$quote_replace,$key.$val)."\\n\"\n";
   }
 }
 
