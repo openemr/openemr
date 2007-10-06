@@ -107,18 +107,21 @@ my $new_php =<<'START';
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 formHeader("Form: FORM_NAME");
+$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 ?>
 <html><head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 DATE_HEADER
+<a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'>[do not save]</a>
 <form method=post action="<?echo $rootdir;?>/forms/FORM_NAME/save.php?mode=new" name="FORM_NAME" onsubmit="return top.restoreSession()">
 <hr>
 <h1>FORM_NAME</h1>
 <hr>
 DATABASEFIELDS
 </form>
+<a href='<?php echo $GLOBALS['webroot']?>/interface/patient_file/encounter/<?php echo $returnurl?>' onclick='top.restoreSession()'>[do not save]</a>
 <?php
 formFooter();
 ?>
