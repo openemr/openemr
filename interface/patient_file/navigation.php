@@ -83,6 +83,7 @@ function selpopup(selobj) {
 <?php } else { ?>
      <option value='front_payment.php'><? xl('Payment','e'); ?></option>
 <?php } ?>
+     <option value='letter.php'><? xl('Letter','e'); ?></option>
     </select>
   </td>
  </tr>
