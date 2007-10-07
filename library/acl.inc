@@ -6,7 +6,7 @@
   //
   // $phpgacl_location = "/var/www/gacl";
 
-  // The following Access Control Objects are currently be supported.
+  // The following Access Control Objects (ACO) are currently supported.
   // These are the "things to be protected":
   //
   // Section "admin" (Administration):

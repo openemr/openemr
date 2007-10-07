@@ -5,11 +5,27 @@
  // modify it under the terms of the GNU General Public License
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
-
- // This program may be run after phpGACL has been installed, to
+ //
+ // This program may be run after phpGACL has been installed, and will
  // create the Access Control Objects and their sections as required
- // by OpenEMR.  Also created are some sample ARO groups, an "admin"
- // ARO, and some reasonable ACL entries for the groups.
+ // by OpenEMR.  See openemr/library/acl.inc file for the list of
+ // currently supported Access Control Objects(ACO), which this
+ // script will install.  This script also creates several
+ // ARO groups, an "admin" ARO, and some reasonable ACL entries for
+ // the groups.
+ //   ARO groups include:
+ //      Administrators
+ //      Physicians     (Doctors)
+ //      Clinicians     (Nurses, Physician Assistants, etc.)
+ //      Front Office   (Receptionist)
+ //      Accounting
+ //
+ // Upgrade Howto
+ // If you have previously installed phpGACL, and have since upgraded
+ // to a new version of OpenEMR, then should consider upgrading
+ // the phpGACL database with the acl_upgrade.php script to ensure
+ // the database includes all the required Access Control Objects(ACO).
+ //
 
  include_once('library/acl.inc');
 

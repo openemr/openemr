@@ -5,8 +5,9 @@
 OpenEMR by default does not use or require phpGACL, though it is
 highly recommended.  Setting it up takes some careful study, planning
 and a bit of time.  If you don't have the time then you should hire
-an experienced person to set things up for you.  The following tips
-are for the adventurous only!
+an experienced person to set things up for you.  Helpful installation
+and configuration instructions can be found on the wiki at the
+www.oemr.org site.
 
 Alternatively, it's possible to set up your own access rules without
 using phpGACL by customizing the code in library/acl.inc.  See that
@@ -14,6 +15,8 @@ module for more information.
 
 phpGACL is available from http://phpgacl.sourceforge.net/.  Read
 its documentation and install it according to its instructions.
+Helpful installation and configuration instructions can also be
+found on the wiki at the www.oemr.org site.
 
 The admin GUI needs to be protected, so add something like this
 to your Apache configuration:
@@ -39,8 +42,8 @@ create some required and sample objects in the phpGACL database for
 OpenEMR.
 
 acl_setup.php creates required Access Control Objects (ACOs, the
-things to be protected), a sample Access Request Object (AROs are
-the users requesting access), and their corresponding sections.
+things to be protected), several sample Access Request Object (AROs
+are the users requesting access), and their corresponding sections.
 You may also create such objects yourself using the "ACL Admin"
 tab of the phpGACL GUI.
 
@@ -87,3 +90,21 @@ Then if "write" or "wsome" or "addonly" access applies, key in that
 as the return value, otherwise a return value is not required.  Then
 click the Submit button to save that particular access rule.  Repeat
 until all your ACL rules are defined.
+
+
+Upgrading Instructions
+
+After you have upgraded to a new version of OpenEMR, you should
+consider running the acl_upgrade.php program using your web browser
+(e.g. http://openemr.location/acl_upgrade.php). This will ensure your
+phpGACL database contains all the required OpenEMR Access Control
+Objects.
+
+
+For Developers
+
+If you add a new Access Control Object to the OpenEMR codebase, then
+also add it to the following three sites:
+1. Header notes of the library/acl.inc file
+2. acl_setup.php file
+3. acl_upgrade.php file
