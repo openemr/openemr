@@ -18,6 +18,8 @@ if (($_SESSION['encounter'] == '') || ($_SESSION['pid'] == '')) {
 $select_size = 20;
 $textarea_rows = 25;
 $textarea_cols = 55;
+$multibox_rows = 25;
+$multibox_cols = 55;
 $debug = '';
 $error = '';
 $previous_encounter_data = '';
@@ -41,14 +43,19 @@ $preselect_category_override = '';
 $preselect_subcategory_override = '';
 $preselect_item_override = '';
 
-$quote_search = array("\r","\n","'","\"");
-$quote_replace = array("\\r","\\n","\\\'","\\\"");
-$quote_search_content = array("\r","\n","'","\"");
-$quote_replace_content = array("\\r","\\n","\\\'","\\\"");
+$quote_search = array("\r","\n");
+$quote_replace = array("\\r","\\n");
+$quote_search_content = array("\r","\n");
+$quote_replace_content = array("\\r","\\n");
 $category = str_replace($quote_search,$quote_replace,$_POST['change_category']); 
 $subcategory = str_replace($quote_search,$quote_replace,$_POST['change_subcategory']); 
 $item = str_replace($quote_search,$quote_replace,$_POST['change_item']); 
 $content = str_replace($quote_search_content,$quote_replace_content,$_POST['textarea_content']); 
+$category = fixquotes($category); 
+$subcategory = fixquotes($subcategory); 
+$item = fixquotes($item); 
+$content = fixquotes($content); 
+
 if ($_POST['hidden_category']) {$preselect_category = $_POST['hidden_category'];}
 if ($_POST['hidden_subcategory']) {$preselect_subcategory = $_POST['hidden_subcategory'];}
 if ($_POST['hidden_item']) {$preselect_item = $_POST['hidden_item'];}
@@ -245,7 +252,38 @@ var icd9_list = '';
 var preselect_off = false;
 var content_change_flag = false;
 var lock_override_flag = false;
+var switchbox_status = 'main';
 
+
+function addbox() {
+  f2 = document.CAMOS;
+  f3 = document.CAMOS.textarea_content.value;
+  document.CAMOS.textarea_multibox.value =  
+    document.CAMOS.textarea_multibox.value + "/*camos::" + 
+    f2.select_category.options[f2.select_category.selectedIndex].text +
+    "::" +
+    f2.select_subcategory.options[f2.select_subcategory.selectedIndex].text +
+    "::" +
+    f2.select_item.options[f2.select_item.selectedIndex].text +
+    "::" +
+    f3 + "*/\n\n";
+}
+function switchbox() {
+  var mainbox = document.getElementById('mainbox');
+  var multibox = document.getElementById('multibox');
+  if (switchbox_status == 'main') {
+    switchbox_status = 'multi';
+    mainbox.style.display = 'none';
+    multibox.style.display = 'block';
+    document.CAMOS.switch_box.value = 'hide multibox';
+  }
+  else {
+    switchbox_status = 'main';
+    multibox.style.display = 'none';
+    mainbox.style.display = 'block';
+    document.CAMOS.switch_box.value = 'show multibox';
+  }
+}
 //deal with locking of content = prevent accidental overwrite
 
 function trimString (str) {
@@ -328,7 +366,7 @@ $i=0;
 $query = "SELECT id, item, content, subcategory_id FROM form_CAMOS_item ORDER BY item";
 $statement = sqlStatement($query);
 while ($result = sqlFetchArray($statement)) {
-  echo "array3[".$i."] = new Array('".$result['item']."', '".str_replace($quote_search_content,$quote_replace_content,strip_tags($result['content'],"<b>,<i>"))."', '".$result['subcategory_id'].
+  echo "array3[".$i."] = new Array('".$result['item']."', '".fixquotes(str_replace($quote_search_content,$quote_replace_content,strip_tags($result['content'],"<b>,<i>")))."', '".$result['subcategory_id'].
     "','".$result['id']."');\n";
   $i++;
 }
@@ -442,7 +480,7 @@ function click_item() {
 if (substr($_POST['hidden_mode'],0,5) == 'clone') {
   print "f2.textarea_content.value= ''\n";
   foreach($clone_data_array as $key => $val) {
-  print "f2.textarea_content.value += \"\\n".str_replace($quote_search,$quote_replace,$key.$val)."\\n\"\n";
+  print "f2.textarea_content.value += \"\\n".fixquotes(str_replace($quote_search,$quote_replace,$key.$val))."\\n\"\n";
   }
 }
 
@@ -551,6 +589,7 @@ if ( (mode == 'add') || (mode == 'alter') ) {
     if (selection == 'submit_selection') {
       f2.content.value = (f2.textarea_content.value).substring(f2.textarea_content.selectionStart, f2.textarea_content.selectionEnd);
     }
+    else if (selection == 'multibox') {f2.content.value = f2.textarea_multibox.value;}
     else {f2.content.value = f2.textarea_content.value;}
     f2.action = '<?echo $rootdir;?>/forms/CAMOS/save.php?mode=new';
     f2.submit();
@@ -580,7 +619,13 @@ function selectItem () {
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0 onload="init()">
 <form method=post action="<?echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="CAMOS">
-
+<input type=button name='switch_box' value='show multibox' onClick="switchbox()">
+<input type=button name='add_multibox' value='add to multibox' onClick="addbox()">
+<input type=button name='submit_multibox' value='submit multibox' onClick="js_button('submit','multibox')">
+<?  
+echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[".xl('do not save')."]</a>";
+?>
+<div id=mainbox style="display:block">
 <?  
 if ($error != '') {
   echo "<h1> error: ".$error."</h1>\n"; 
@@ -687,12 +732,22 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
   echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[".xl('do not save')."]</a>";
   echo "<a href='".$GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [".xl('help')."]</a>";
-  echo $previous_encounter_data;
+//  echo $previous_encounter_data; //probably don't need anymore now that we have clone last visit
 }
 ?>
-
-
+</div>
+<div id=multibox style="display:none">
+<textarea name=textarea_multibox cols=<? echo $multibox_cols ?> rows=<? echo $multibox_rows ?> onFocus="content_focus()" onBlur="content_blur()"></textarea>
+</div>
 </form>
 <?php
 formFooter();
+
+//PHP FUNCTIONS
+
+function fixquotes ($string) { 
+  $string =  preg_replace('/([\\\])*\'/', "\\\'", $string);
+  $string =  preg_replace('/([\\\])*\"/', "\\\"", $string);
+  return $string;
+}
 ?>
