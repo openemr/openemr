@@ -26,7 +26,13 @@ $previous_encounter_data = '';
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
   $previous_encounter_data = '<hr><p>'.xl('Previous Encounter CAMOS entries').'</p><hr>';
   //get data from previous encounter to show at bottom of form for reference
-  $query = "SELECT t1.category, t1.subcategory, t1.item, t1.content FROM form_CAMOS as t1 JOIN forms as t2 on (t1.id = t2.form_id) where t2.encounter=(select max(encounter) from forms where form_name like 'CAMOS%' and encounter < ".$_SESSION['encounter']." and pid=".$_SESSION['pid'].") and t1.pid=".$_SESSION['pid'];
+  $tmp = sqlQuery("SELECT max(encounter) AS max FROM forms WHERE " .
+    "form_name LIKE 'CAMOS%' AND encounter < '" . $_SESSION['encounter'] .
+    "' AND pid = '" . $_SESSION['pid'] . "'");
+  $last_encounter_id = $tmp['max'] ? $tmp['max'] : 0;
+  $query = "SELECT t1.category, t1.subcategory, t1.item, t1.content " .
+    "FROM form_CAMOS as t1 JOIN forms as t2 on (t1.id = t2.form_id) where " .
+    "t2.encounter = '$last_encounter_id' and t1.pid = " . $_SESSION['pid'];
   $statement = sqlStatement($query);
   while ($result = sqlFetchArray($statement)) { 
     $previous_encounter_data .= $result['category']." | ".$result['subcategory'].
@@ -178,66 +184,6 @@ else if ($_POST['hidden_mode'] == 'alter') {
   else {
     $preselect_mode = 'by number';
   }
-if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
-  //cloning - similar process to preselect set to first time starting CAMOS 
-  //as above
-  $clone_category = '';
-  $clone_subcategory = '';
-  $clone_item = '';
-  $clone_content = '';
-  $clone_data1 = '';
-  $clone_data2 = '';
-  $clone_data_array = array();
-  if (substr($_POST['hidden_mode'],0,5) == 'clone') {
-    $clone_category = $_POST['category'];
-    $query = "SELECT subcategory, item, content FROM form_CAMOS WHERE category like '".$clone_category."' and pid=".$_SESSION['pid']." order by id"; 
-//    if ($_POST['hidden_mode'] == 'clone last visit') {
-//      $query = "SELECT category, subcategory, item, content FROM form_CAMOS WHERE date(date) like (SELECT 
-//    date(MAX(date)) FROM form_CAMOS where date(date) < date(now()) and pid=".$_SESSION['pid'].") and pid=".$_SESSION['pid']." order by id"; 
-//    }
-
-    if ($_POST['hidden_mode'] == 'clone last visit') {
-      $query = "SELECT category, subcategory, item, content FROM form_CAMOS left join forms on (form_CAMOS.id = forms.form_id) where forms.encounter = (select max(encounter) from forms where encounter < ".$_SESSION['encounter']." and pid = ".$_SESSION['pid']." and form_name like 'CAMOS%') and form_CAMOS.pid=".$_SESSION['pid']." order by form_CAMOS.id"; 
-    }
-
-
-    $statement = sqlStatement($query);
-    while ($result = sqlFetchArray($statement)) {
-      if (preg_match('/^[\s\r\n]*$/',$result['content']) == 0) {
-        if ($_POST['hidden_mode'] == 'clone last visit') {
-          $clone_category = $result['category'];
-        }
-        $clone_subcategory = $result['subcategory'];
-        $clone_item = $result['item'];
-        $clone_content = $result['content'];
-        $clone_data1 = "/* camos :: $clone_category :: $clone_subcategory :: $clone_item :: ";
-        $clone_data2 = "$clone_content */";
-        if ($_POST['hidden_mode'] == 'clone last visit') {
-          //figure out how to make two orders of same category/subcat/item in same last visit appear 
-        }
-        $clone_data_array[$clone_data1] = $clone_data2;
-    }
-    if ($_POST['hidden_mode'] == 'clone last visit') {
-      $query = "SELECT code_type, code, code_text, modifier, units, fee FROM billing WHERE encounter = (SELECT max(encounter) FROM billing where encounter < ".$_SESSION['encounter']." and pid=".$_SESSION['pid'].") and pid=".$_SESSION['pid']." and activity=1 order by id";} 
-      $statement = sqlStatement($query);
-      while ($result = sqlFetchArray($statement)) {
-        $clone_code_type = $result['code_type'];
-        $clone_code = $result['code'];
-        $clone_code_text = $result['code_text'];
-        $clone_modifier = $result['modifier'];
-        $clone_units = $result['units'];
-        $clone_fee = $result['fee'];
-        $clone_billing_data = "/* billing :: $clone_code_type :: $clone_code :: $clone_code_text :: $clone_modifier :: $clone_units :: $clone_fee */"; 
-        $clone_data_array[$clone_billing_data] = '';
-      }
-    }
-    //foreach($clone_data_array as $key => $val) {
-    //  print "<h2> $key </h2>\n";
-    //}
-    
-  }
-  //end preselect column items
-} //end of 'do only if in an encounter stuff
 ?>
 
 <html><head>
@@ -253,7 +199,13 @@ var preselect_off = false;
 var content_change_flag = false;
 var lock_override_flag = false;
 var switchbox_status = 'main';
+var clone_mode = false;
 
+<?
+if (substr($_POST['hidden_mode'],0,5) == 'clone') {
+  echo "clone_mode = true;\n";
+}
+?>
 
 function addbox() {
   f2 = document.CAMOS;
@@ -394,9 +346,87 @@ function select_word(mode, mystring, myselect) { //take a string and select it i
   }
   return 1;
 }
+<?
+if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
+  //cloning - similar process to preselect set to first time starting CAMOS 
+  //as above
+  $clone_category = '';
+  $clone_subcategory = '';
+  $clone_item = '';
+  $clone_content = '';
+  $clone_data1 = '';
+  $clone_data2 = '';
+  $clone_data_array = array();
+  if (substr($_POST['hidden_mode'],0,5) == 'clone') {
+    $clone_category = $_POST['category'];
+    $query = "SELECT subcategory, item, content FROM form_CAMOS WHERE category like '".$clone_category."' and pid=".$_SESSION['pid']." order by id"; 
+//    if ($_POST['hidden_mode'] == 'clone last visit') {
+//      $query = "SELECT category, subcategory, item, content FROM form_CAMOS WHERE date(date) like (SELECT 
+//    date(MAX(date)) FROM form_CAMOS where date(date) < date(now()) and pid=".$_SESSION['pid'].") and pid=".$_SESSION['pid']." order by id"; 
+//    }
 
+    if ($_POST['hidden_mode'] == 'clone last visit') {
+      $tmp = sqlQuery("SELECT max(encounter) AS max FROM forms WHERE " .
+        "form_name LIKE 'CAMOS%' AND encounter < '" . $_SESSION['encounter'] .
+        "' AND pid = '" . $_SESSION['pid'] . "'");
+      $last_encounter_id = $tmp['max'] ? $tmp['max'] : 0;
+      $query = "SELECT category, subcategory, item, content FROM form_CAMOS " .
+        "left join forms on (form_CAMOS.id = forms.form_id) where " . 
+        "forms.encounter = '$last_encounter_id' and form_CAMOS.pid=" .
+        $_SESSION['pid']." order by form_CAMOS.id"; 
+    }
+    $statement = sqlStatement($query);
+    while ($result = sqlFetchArray($statement)) {
+      if (preg_match('/^[\s\r\n]*$/',$result['content']) == 0) {
+        if ($_POST['hidden_mode'] == 'clone last visit') {
+          $clone_category = $result['category'];
+        }
+        $clone_subcategory = $result['subcategory'];
+        $clone_item = $result['item'];
+        $clone_content = $result['content'];
+        $clone_data1 = "/* camos :: $clone_category :: $clone_subcategory :: $clone_item :: ";
+        $clone_data2 = "$clone_content */";
+        $clone_data3 = $clone_data1 . $clone_data2;
+        if ($_POST['hidden_mode'] == 'clone last visit') {
+          $clone_data1 = $clone_data3; //make key include whole entry so all 'last visit' data gets recorded and shown
+        }
+        $clone_data_array[$clone_data1] = $clone_data3;
+    }
+    if ($_POST['hidden_mode'] == 'clone last visit') {
+//      $tmp = sqlQuery("SELECT max(encounter) as max FROM billing where encounter < " .
+//        $_SESSION['encounter'] . " and pid= " . $_SESSION['pid']);
+//      $last_encounter_id = $tmp['max'] ? $tmp['max'] : 0;
+      $query = "SELECT code_type, code, code_text, modifier, units, fee FROM billing WHERE encounter = '$last_encounter_id' and pid=".$_SESSION['pid']." and activity=1 order by id";} 
+      $statement = sqlStatement($query);
+      while ($result = sqlFetchArray($statement)) {
+        $clone_code_type = $result['code_type'];
+        $clone_code = $result['code'];
+        $clone_code_text = $result['code_text'];
+        $clone_modifier = $result['modifier'];
+        $clone_units = $result['units'];
+        $clone_fee = $result['fee'];
+        $clone_billing_data = "/* billing :: $clone_code_type :: $clone_code :: $clone_code_text :: $clone_modifier :: $clone_units :: $clone_fee */"; 
+        $clone_data_array[$clone_billing_data] = $clone_billing_data;
+      }
+    }
+  }
+  //end preselect column items
+} //end of clone stuff
+?>
 function init() {
   var f2 = document.CAMOS;
+  if (clone_mode) {
+    clone_mode = false;
+<?
+if (substr($_POST['hidden_mode'],0,5) == 'clone') {
+  foreach($clone_data_array as $key => $val) {
+  echo "f2.textarea_multibox.value += \"".fixquotes(str_replace($quote_search,$quote_replace,$val))."\\n\"\n";
+  }
+  echo "switchbox();\n";
+}
+
+?>
+  }
   for (i1=0;i1<array1.length;i1++) {
     f2.select_category.options[f2.select_category.length] = new Option(array1[i1][0], array1[i1][1]);
   }
@@ -476,15 +506,6 @@ function click_item() {
   for (var i1=0;i1<array3.length;i1++) {
     if (array3[i1][3] == sel) {
       f2.textarea_content.value= array3[i1][1].replace(/\\/g,'');
-<?
-if (substr($_POST['hidden_mode'],0,5) == 'clone') {
-  print "f2.textarea_content.value= ''\n";
-  foreach($clone_data_array as $key => $val) {
-  print "f2.textarea_content.value += \"\\n".fixquotes(str_replace($quote_search,$quote_replace,$key.$val))."\\n\"\n";
-  }
-}
-
-?>
     }
   }
 }
@@ -497,7 +518,7 @@ function selectContains(myselect, str) {
 
 function js_button(mode,selection) {
   var f2 = document.CAMOS;
-//check lock first
+//check lock next 
 if ( (mode == 'add') && (selection == 'change_content') && (isLocked()) ) {
   alert("You have attempted to alter content which is locked.\nRemove the lock if you want to do this.\nTo unlock, remove the line, '/*lock::*/'");
   return;
@@ -582,6 +603,18 @@ if ( (mode == 'add') || (mode == 'alter') ) {
   else {
     item = f2.select_item.options[item_index].value;
   }
+//deal with clone buttons 
+  if (mode.substr(0,5) == 'clone') {
+    f2.category.value = f2.select_category.options[f2.select_category.selectedIndex].text;
+    f2.hidden_mode.value = mode;
+    f2.hidden_selection.value = selection;
+    f2.hidden_category.value = category;
+    f2.hidden_subcategory.value = subcategory;
+    f2.hidden_item.value = item;
+    f2.action = '<? print $GLOBALS['webroot'] ?>/interface/patient_file/encounter/load_form.php?formname=CAMOS';
+    f2.target = '_self';
+    f2.submit();
+  }
   if (mode == 'submit') {
     f2.category.value = f2.select_category.options[f2.select_category.selectedIndex].text;
     f2.subcategory.value = f2.select_subcategory.options[f2.select_subcategory.selectedIndex].text;
@@ -592,19 +625,6 @@ if ( (mode == 'add') || (mode == 'alter') ) {
     else if (selection == 'multibox') {f2.content.value = f2.textarea_multibox.value;}
     else {f2.content.value = f2.textarea_content.value;}
     f2.action = '<?echo $rootdir;?>/forms/CAMOS/save.php?mode=new';
-    f2.submit();
-  }
-  else {
-    if (mode.substr(0,5) == 'clone') {
-      f2.category.value = f2.select_category.options[f2.select_category.selectedIndex].text;
-    }
-    f2.hidden_mode.value = mode;
-    f2.hidden_selection.value = selection;
-    f2.hidden_category.value = category;
-    f2.hidden_subcategory.value = subcategory;
-    f2.hidden_item.value = item;
-    f2.action = '<? print $GLOBALS['webroot'] ?>/interface/patient_file/encounter/load_form.php?formname=CAMOS';
-    f2.target = '_self';
     f2.submit();
   }
 }
@@ -622,6 +642,8 @@ function selectItem () {
 <input type=button name='switch_box' value='show multibox' onClick="switchbox()">
 <input type=button name='add_multibox' value='add to multibox' onClick="addbox()">
 <input type=button name='submit_multibox' value='submit multibox' onClick="js_button('submit','multibox')">
+<input type=button name=clone value=clone onClick="js_button('clone', 'clone')">
+<input type=button name=clone_visit value='clone last visit' onClick="js_button('clone last visit', 'clone last visit')">
 <?  
 echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[".xl('do not save')."]</a>";
 ?>
@@ -698,8 +720,6 @@ if (myAuth() == 1) {//root user only can see administration option
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
 ?>
     <input type=button name=icd9 value=icd9 onClick="append_icd9()">
-    <input type=button name=clone value=clone onClick="js_button('clone', 'clone')">
-    <input type=button name=clone_visit value='clone last visit' onClick="js_button('clone last visit', 'clone last visit')">
 <?
 }
 ?>
