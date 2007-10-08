@@ -19,7 +19,7 @@ $select_size = 20;
 $textarea_rows = 25;
 $textarea_cols = 55;
 $multibox_rows = 25;
-$multibox_cols = 55;
+$multibox_cols = 100;
 $debug = '';
 $error = '';
 $previous_encounter_data = '';
@@ -366,12 +366,15 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 //    }
 
     if ($_POST['hidden_mode'] == 'clone last visit') {
-      $tmp = sqlQuery("SELECT max(encounter) AS max FROM forms WHERE " .
-        "form_name LIKE 'CAMOS%' AND encounter < '" . $_SESSION['encounter'] .
-        "' AND pid = '" . $_SESSION['pid'] . "'");
+      $tmp = sqlQuery("SELECT max(encounter) as max FROM billing where encounter < " .
+        $_SESSION['encounter'] . " and pid= " . $_SESSION['pid']);
+      $last_encounter_id = $tmp['max'] ? $tmp['max'] : 0;
+//      $tmp = sqlQuery("SELECT max(encounter) AS max FROM forms WHERE " .
+//        "form_name LIKE 'CAMOS%' AND encounter < '" . $_SESSION['encounter'] .
+//        "' AND pid = '" . $_SESSION['pid'] . "'");
       $last_encounter_id = $tmp['max'] ? $tmp['max'] : 0;
       $query = "SELECT category, subcategory, item, content FROM form_CAMOS " .
-        "left join forms on (form_CAMOS.id = forms.form_id) where " . 
+        "join forms on (form_CAMOS.id = forms.form_id) where " . 
         "forms.encounter = '$last_encounter_id' and form_CAMOS.pid=" .
         $_SESSION['pid']." order by form_CAMOS.id"; 
     }
@@ -391,12 +394,13 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
           $clone_data1 = $clone_data3; //make key include whole entry so all 'last visit' data gets recorded and shown
         }
         $clone_data_array[$clone_data1] = $clone_data3;
+      }
     }
     if ($_POST['hidden_mode'] == 'clone last visit') {
 //      $tmp = sqlQuery("SELECT max(encounter) as max FROM billing where encounter < " .
 //        $_SESSION['encounter'] . " and pid= " . $_SESSION['pid']);
 //      $last_encounter_id = $tmp['max'] ? $tmp['max'] : 0;
-      $query = "SELECT code_type, code, code_text, modifier, units, fee FROM billing WHERE encounter = '$last_encounter_id' and pid=".$_SESSION['pid']." and activity=1 order by id";} 
+      $query = "SELECT code_type, code, code_text, modifier, units, fee FROM billing WHERE encounter = '$last_encounter_id' and pid=".$_SESSION['pid']." and activity=1 order by id"; 
       $statement = sqlStatement($query);
       while ($result = sqlFetchArray($statement)) {
         $clone_code_type = $result['code_type'];
@@ -420,7 +424,7 @@ function init() {
 <?
 if (substr($_POST['hidden_mode'],0,5) == 'clone') {
   foreach($clone_data_array as $key => $val) {
-  echo "f2.textarea_multibox.value += \"".fixquotes(str_replace($quote_search,$quote_replace,$val))."\\n\"\n";
+  echo "f2.textarea_multibox.value = f2.textarea_multibox.value + \"".fixquotes(str_replace($quote_search,$quote_replace,$val))."\\n\"\n";
   }
   echo "switchbox();\n";
 }
@@ -752,7 +756,7 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
   echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[".xl('do not save')."]</a>";
   echo "<a href='".$GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [".xl('help')."]</a>";
-//  echo $previous_encounter_data; //probably don't need anymore now that we have clone last visit
+  echo $previous_encounter_data; //probably don't need anymore now that we have clone last visit
 }
 ?>
 </div>
