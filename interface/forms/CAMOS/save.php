@@ -11,13 +11,17 @@ $field_names = array('category' => $_POST['category'], 'subcategory' => $_POST['
 //to add codes to billing from CAMOS content field
 //addBilling($encounter, $type, $code, $text, $pid, $userauthorized,$_SESSION['authUserID'],$modifier,$units,$fee);
 
+$multibox_array = array();
+$camos_array = array();
+create_multibox_array($field_names['content'],$multibox_array);
+clean_multibox_array($multibox_array, $camos_array);
+remove_multibox_data($field_names['content']);
 
 foreach ($field_names as $k => $var) {
-$field_names[$k] = mysql_real_escape_string($var);
-echo "$var\n";
+  $field_names[$k] = mysql_real_escape_string($var);
+  echo "$var\n";
 }
-
-process_commands($field_names['content'], $embedded_camos); 
+process_commands($field_names['content'],$camos_array); 
 
 $CAMOS_form_name = "CAMOS-".$field_names['category'].'-'.$field_names['subcategory'].'-'.$field_names['item'];
 
@@ -29,7 +33,7 @@ if ($_GET["mode"] == "new"){
     addForm($encounter, $CAMOS_form_name, $newid, "CAMOS", $pid, $userauthorized);
   }
   //deal with embedded camos submissions here
-  foreach($embedded_camos as $val) {
+  foreach($camos_array as $val) {
     if (preg_match("/^[\s\\r\\n\\\\r\\\\n]*$/",$val['content']) == 0) { //make sure blanks not submitted
       foreach($val as $k => $v) {
         $val[$k] = trim($v);  
