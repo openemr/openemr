@@ -16,7 +16,7 @@ if (($_SESSION['encounter'] == '') || ($_SESSION['pid'] == '')) {
   $out_of_encounter = true;
 }
 $select_size = 20;
-$textarea_rows = 25;
+$textarea_rows = 19;
 $textarea_cols = 55;
 $multibox_rows = 25;
 $multibox_cols = 100;
@@ -200,6 +200,7 @@ var content_change_flag = false;
 var lock_override_flag = false;
 var switchbox_status = 'main';
 var clone_mode = false;
+var multibox_count = 0;
 
 <?
 if (substr($_POST['hidden_mode'],0,5) == 'clone') {
@@ -208,17 +209,27 @@ if (substr($_POST['hidden_mode'],0,5) == 'clone') {
 ?>
 
 function addbox() {
+  multibox_count++;
+  var separator1 = '/*[begin: ' + multibox_count + ']*/';
+  var separator2 = '/*[end: ' + multibox_count + ']*/\n\n';
+  var multibox_function_name = 'camos';
+  var outer_delim1 = '/* ';
+  var outer_delim2 = ' */';
+  var inner_delim = ' :: ';
   f2 = document.CAMOS;
   f3 = document.CAMOS.textarea_content.value;
   document.CAMOS.textarea_multibox.value =  
-    document.CAMOS.textarea_multibox.value + "/*camos::" + 
-    f2.select_category.options[f2.select_category.selectedIndex].text +
-    "::" +
-    f2.select_subcategory.options[f2.select_subcategory.selectedIndex].text +
-    "::" +
-    f2.select_item.options[f2.select_item.selectedIndex].text +
-    "::" +
-    f3 + "*/\n\n";
+    document.CAMOS.textarea_multibox.value + 
+      separator1 +
+      outer_delim1 + multibox_function_name + inner_delim +
+      f2.select_category.options[f2.select_category.selectedIndex].text +
+      inner_delim +
+      f2.select_subcategory.options[f2.select_subcategory.selectedIndex].text +
+      inner_delim +
+      f2.select_item.options[f2.select_item.selectedIndex].text +
+      inner_delim +
+      f3 + outer_delim2 + 
+      separator2;
 }
 function switchbox() {
   var mainbox = document.getElementById('mainbox');
@@ -701,7 +712,8 @@ if (myAuth() == 1) {//root user only can see administration option
 ?>
   </td>
   <td>
-    <select name=select_item size=<? echo $select_size ?> onchange="click_item()"></select><br>
+    <select name=select_item size=<? echo $select_size ?> onchange="click_item()"
+      ondblclick="addbox()"></select><br>
 <?
 if (myAuth() == 1) {//root user only can see administration option 
 ?>
