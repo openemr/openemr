@@ -1,4 +1,9 @@
-<?
+<?php
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
  include_once("../../globals.php");
  include_once("$srcdir/forms.inc");
  include_once("$srcdir/billing.inc");
@@ -6,6 +11,11 @@
  include_once("$srcdir/patient.inc");
  include_once("$srcdir/lists.inc");
  include_once("$srcdir/acl.inc");
+ include_once("$srcdir/sql-ledger.inc");
+ include_once("$srcdir/invoice_summary.inc.php");
+ include_once("../../../custom/code_types.inc.php");
+
+ $accounting_enabled = $GLOBALS['oer_config']['ws_accounting']['enabled'];
 
  //maximum number of encounter entries to display on this page:
  $N = 12;
@@ -29,6 +39,14 @@
   echo "</body>\n</html>\n";
   exit();
  }
+
+// Perhaps the view choice should be saved as a session variable.
+//
+$tmp = sqlQuery("select authorized from users " .
+  "where id = '" . $_SESSION['authUserID'] . "'");
+$billing_view = $tmp['authorized'] ? 0 : 1;
+if (isset($_GET['billing']))
+  $billing_view = empty($_GET['billing']) ? 0 : 1;
 
 // This is called to generate a line of output for a patient document.
 //
@@ -107,6 +125,35 @@ function showDocument(&$drow) {
 <?php } ?>
  }
 
+ // Helper function to set the contents of a div.
+ function setDivContent(id, content) {
+  if (document.getElementById) {
+   var x = document.getElementById(id);
+   x.innerHTML = '';
+   x.innerHTML = content;
+  }
+  else if (document.all) {
+   var x = document.all[id];
+   x.innerHTML = content;
+  }
+ }
+
+ // Called when clicking on a billing note.
+ function editNote(feid) {
+  top.restoreSession(); // this is probably not needed
+  var c = "<iframe src='edit_billnote.php?feid=" + feid +
+    "' style='width:100%;height:88pt;'></iframe>";
+  setDivContent('note_' + feid, c);
+ }
+
+ // Called when the billing note editor closes.
+ function closeNote(feid, fenote) {
+  var c = "<div onclick='editNote(" + feid +
+   ")' title='Click to edit' class='text' style='cursor:pointer'>" +
+   fenote + "</div>";
+  setDivContent('note_' + feid, c);
+ }
+
 </script>
 
 </head>
@@ -124,36 +171,59 @@ function showDocument(&$drow) {
 <!-- <a href='encounters_full.php' target='Main'> -->
 <?php } ?>
 <font class='title'><? xl('Past Encounters and Documents','e'); ?></font>
-<!-- <font class='more'><?echo $tmore;?></font></a> --><br>
+&nbsp;&nbsp;
+
+<?php if ($billing_view) { ?>
+<a href='encounters.php?billing=0' onclick='top.restoreSession()' style='font-size:8pt'>(To Clinical View)</a>
+<?php } else { ?>
+<a href='encounters.php?billing=1' onclick='top.restoreSession()' style='font-size:8pt'>(To Billing View)</a>
+<?php } ?>
+
+<br>
 
 <table width="100%">
-<tr>
-<td><span class='bold'><?php xl('Date','e'); ?></span></td>
-<td><span class='bold'><?php xl('Issue','e'); ?></span></td>
-<td><span class='bold'><?php xl('Reason/Form','e'); ?></span></td>
-<td><span class='bold'><?php echo ($GLOBALS['phone_country_code'] == '1') ? 'Billing' : 'Coding' ?></span></td>
-<td><span class='bold'><?php xl('Provider','e'); ?></span></td>
-<?php if (!$GLOBALS['athletic_team']) { ?>
-<td><span class='bold'><?php xl(($GLOBALS['weight_loss_clinic'] ? 'Payment' : 'Insurance'),'e'); ?></span></td>
+ <tr>
+  <td class='bold'><?php xl('Date','e');        ?></td>
+
+<?php if ($billing_view) { ?>
+  <td class='bold' style='width:25%'><?php xl('Billing Note','e'); ?></td>
+<?php } else { ?>
+  <td class='bold'><?php xl('Issue','e');       ?></td>
+  <td class='bold'><?php xl('Reason/Form','e'); ?></td>
+  <td class='bold'><?php xl('Provider','e');    ?></td>
 <?php } ?>
-</tr>
 
-<?
-// Query the documents for this patient.
-/****
-$dres = sqlStatement("SELECT id, type, url, docdate, list_id " .
-  "FROM documents WHERE foreign_id = '$pid' " .
-  "ORDER BY docdate DESC, id DESC");
-****/
-$dres = sqlStatement("SELECT d.id, d.type, d.url, d.docdate, d.list_id, c.name " .
-  "FROM documents AS d, categories_to_documents AS cd, categories AS c WHERE " .
-  "d.foreign_id = '$pid' AND cd.document_id = d.id AND c.id = cd.category_id " .
-  "ORDER BY d.docdate DESC, d.id DESC");
+<?php if ($billing_view && $accounting_enabled) { ?>
+  <td class='bold'>Code</td>
+  <td class='bold' align='right'>Chg</td>
+  <td class='bold' align='right'>Paid</td>
+  <td class='bold' align='right'>Adj</td>
+  <td class='bold' align='right'>Bal</td>
+<?php } else { ?>
+  <td class='bold' colspan='5'><?php echo ($GLOBALS['phone_country_code'] == '1') ? 'Billing' : 'Coding' ?></td>
+<?php } ?>
 
-$drow = sqlFetchArray($dres);
+<?php if (!$GLOBALS['athletic_team']) { ?>
+  <td class='bold'>&nbsp;<?php xl(($GLOBALS['weight_loss_clinic'] ? 'Payment' : 'Insurance'),'e'); ?></td>
+<?php } ?>
+
+ </tr>
+
+<?php
+$drow = false;
+if (! $billing_view) {
+  // Query the documents for this patient.
+  $dres = sqlStatement("SELECT d.id, d.type, d.url, d.docdate, d.list_id, c.name " .
+    "FROM documents AS d, categories_to_documents AS cd, categories AS c WHERE " .
+    "d.foreign_id = '$pid' AND cd.document_id = d.id AND c.id = cd.category_id " .
+    "ORDER BY d.docdate DESC, d.id DESC");
+  $drow = sqlFetchArray($dres);
+}
 
 $count = 0;
 if ($result = getEncounters($pid)) {
+
+  if ($billing_view && $accounting_enabled) SLConnect();
 
   foreach ($result as $iter ) {
     // $count++; // Forget about limiting the number of encounters
@@ -206,81 +276,188 @@ if ($result = getEncounters($pid)) {
       $drow = sqlFetchArray($dres);
     }
 
+    // Fetch all forms for this encounter, if the user is authorized to see
+    // this encounter's notes and this is the clinical view.
+    //
+    $encarr = array();
+    $encounter_rows = 1;
+    if (!$billing_view && $auth_sensitivity &&
+      ($auth_notes_a || ($auth_notes && $iter['user'] == $_SESSION['authUser'])))
+    {
+      $encarr = getFormByEncounter($pid, $iter['encounter'], "formdir, user, form_name, form_id");
+      $encounter_rows = count($encarr);
+    }
+
     echo "<tr>\n";
 
     // show encounter date
     echo "<td valign='top'>$linkbeg$raw_encounter_date$linkend</td>\n";
 
-    // show issues for this encounter
-    echo "<td valign='top'>$linkbeg";
-    if ($auth_med && $auth_sensitivity) {
-     $ires = sqlStatement("SELECT lists.type, lists.title, lists.begdate " .
-      "FROM issue_encounter, lists WHERE " .
-      "issue_encounter.pid = '$pid' AND " .
-      "issue_encounter.encounter = '" . $iter['encounter'] . "' AND " .
-      "lists.id = issue_encounter.list_id " .
-      "ORDER BY lists.type, lists.begdate");
-     for ($i = 0; $irow = sqlFetchArray($ires); ++$i) {
-      if ($i > 0) echo "<br>";
-      $tcode = $irow['type'];
-      if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
-      echo "$tcode: " . $irow['title'];
-     }
-    } else {
-     echo "(" . xl('No access') . ")";
-    }
-    echo "$linkend</td>\n";
+    if ($billing_view) {
 
-    // show encounter reason/title
-    echo "<td valign='top'>$linkbeg" .
-      $reason_string . "$linkend</td>\n";
+      // Show billing note that you can click on to edit.
+      $feid = $result4['id'] ? $result4['id'] : 0; // form_encounter id
+      echo "<td valign='top'>";
+      echo "<div id='note_$feid'>";
+      echo "<div onclick='editNote($feid)' title='Click to edit' class='text' style='cursor:pointer'>";
+      echo $result4['billing_note'] ? nl2br($result4['billing_note']) : '[Add]';
+      echo "</div>";
+      echo "</div>";
+      echo "</td>\n";
+
+    } // end billing view
+    else {
+
+      // show issues for this encounter
+      echo "<td valign='top'>$linkbeg";
+      if ($auth_med && $auth_sensitivity) {
+        $ires = sqlStatement("SELECT lists.type, lists.title, lists.begdate " .
+          "FROM issue_encounter, lists WHERE " .
+          "issue_encounter.pid = '$pid' AND " .
+          "issue_encounter.encounter = '" . $iter['encounter'] . "' AND " .
+          "lists.id = issue_encounter.list_id " .
+          "ORDER BY lists.type, lists.begdate");
+        for ($i = 0; $irow = sqlFetchArray($ires); ++$i) {
+          if ($i > 0) echo "<br>";
+          $tcode = $irow['type'];
+          if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
+          echo "$tcode: " . $irow['title'];
+        }
+      } else {
+        echo "(" . xl('No access') . ")";
+      }
+      echo "$linkend</td>\n";
+
+      // show encounter reason/title
+      echo "<td valign='top'>$linkbeg" .
+        $reason_string . "$linkend</td>\n";
+
+      // show user who created the encounter
+      echo "<td valign='top'>$linkbeg" .
+        $erow['user'] . "$linkend</td>\n";
+
+    } // end not billing view
 
     //this is where we print out the text of the billing that occurred on this encounter
     $thisauth = $auth_coding_a;
     if (!$thisauth && $auth_coding) {
-     if ($erow['user'] == $_SESSION['authUser'])
-      $thisauth = $auth_coding;
+      if ($erow['user'] == $_SESSION['authUser'])
+        $thisauth = $auth_coding;
     }
     $coded = "";
+    $arid = 0;
     if ($thisauth && $auth_sensitivity) {
-     if ($subresult2 = getBillingByEncounter($pid,$iter{"encounter"})) {
-      foreach ($subresult2 as $iter2) {
-       $title = addslashes($iter2['code_text']);
-       // $coded .= "<span title='$title' onmouseover='return showTitle(\"$title\")'>";
-       $coded .= "<span " .
-         "onmouseover='ttshow(this,\"$title\")' onmouseout='tthide()'>";
-       $coded .= $iter2{"code"} . "</span>, ";
+     $binfo = array('', '', '', '', '');
+     if ($subresult2 = getBillingByEncounter($pid, $iter['encounter'],
+      "code_type, code, modifier, code_text, fee"))
+     {
+      // Get A/R info, if available, for this encounter.
+      $arinvoice = array();
+      $arlinkbeg = "";
+      $arlinkend = "";
+      if ($billing_view && $accounting_enabled) {
+        $arid = SLQueryValue("SELECT id FROM ar WHERE invnumber = " .
+          "'$pid.{$iter['encounter']}'");
+        if ($arid) {
+          $arinvoice = get_invoice_summary($arid, true);
+          $arlinkbeg = "<a href='../../billing/sl_eob_invoice.php?id=$arid'" .
+            " target='_blank' class='text' style='color:#00cc00'>";
+          $arlinkend = "</a>";
+        }
       }
-      $coded = substr($coded, 0, strlen($coded) - 2);
-     }
-    } else {
-     $coded = "(No access)";
-    }
-    echo "<td valign='top'>$linkbeg" .
-      $coded . "$linkend</td>\n";
 
-    // show user who created the encounter
-    echo "<td valign='top'>$linkbeg" .
-      $erow['user'] . "$linkend</td>\n";
+      // This creates 5 columns of billing information:
+      // billing code, charges, payments, adjustments, balance.
+      foreach ($subresult2 as $iter2) {
+        if ($iter2['code_type'] != 'COPAY' &&
+          !$code_types[$iter2['code_type']]['fee']) continue;
+        $title = addslashes($iter2['code_text']);
+        $codekey = $iter2['code'];
+        if ($iter2['code_type'] == 'COPAY') $codekey = 'CO-PAY';
+        if ($iter2['modifier']) $codekey .= ':' . $iter2['modifier'];
+        if ($binfo[0]) $binfo[0] .= '<br>';
+        $binfo[0] .= "<span " .
+          "onmouseover='ttshow(this,\"$title\")' onmouseout='tthide()'>" .
+          $arlinkbeg . $codekey . $arlinkend . "</span>";
+        if ($billing_view && $accounting_enabled) {
+          if ($binfo[1]) {
+            for ($i = 1; $i < 5; ++$i) $binfo[$i] .= '<br>';
+          }
+          if (empty($arinvoice[$codekey])) {
+            // If no invoice, show the fee.
+            if ($arlinkbeg)
+              $binfo[1] .= '&nbsp;';
+            else
+              $binfo[1] .= sprintf('%.2f', $iter2['fee']);
+            for ($i = 2; $i < 5; ++$i) $binfo[$i] .= '&nbsp;';
+          }
+          else {
+            $binfo[1] .= sprintf('%.2f', $arinvoice[$codekey]['chg'] + $arinvoice[$codekey]['adj']);
+            $binfo[2] .= sprintf('%.2f', $arinvoice[$codekey]['chg'] - $arinvoice[$codekey]['bal']);
+            $binfo[3] .= sprintf('%.2f', $arinvoice[$codekey]['adj']);
+            $binfo[4] .= sprintf('%.2f', $arinvoice[$codekey]['bal']);
+            unset($arinvoice[$codekey]);
+          }
+        }
+      } // end foreach
+      // Pick up any remaining unmatched invoice items from the accounting
+      // system.  Display them in red, as they should be unusual.
+      if ($accounting_enabled && !empty($arinvoice)) {
+        foreach ($arinvoice as $codekey => $val) {
+          if ($binfo[0]) {
+            for ($i = 0; $i < 5; ++$i) $binfo[$i] .= '<br>';
+          }
+          for ($i = 0; $i < 5; ++$i) $binfo[$i] .= "<font color='red'>";
+          $binfo[0] .= $codekey;
+          $binfo[1] .= sprintf('%.2f', $val['chg'] + $val['adj']);
+          $binfo[2] .= sprintf('%.2f', $val['chg'] - $val['bal']);
+          $binfo[3] .= sprintf('%.2f', $val['adj']);
+          $binfo[4] .= sprintf('%.2f', $val['bal']);
+          for ($i = 0; $i < 5; ++$i) $binfo[$i] .= "</font>";
+        }
+      }
+     } // end if there is billing
+     echo "<td class='text' valign='top' rowspan='$encounter_rows' nowrap>" .
+       $binfo[0] . "</td>\n";
+     for ($i = 1; $i < 5; ++$i) {
+       echo "<td class='text' valign='top' align='right' rowspan='$encounter_rows' nowrap>" .
+         $binfo[$i] . "</td>\n";
+     }
+    } // end if authorized
+    else {
+      echo "<td class='text' valign='top' colspan='5' rowspan='$encounter_rows'>(No access)</td>\n";
+    }
 
     // show insurance
     if (!$GLOBALS['athletic_team']) {
       $insured = "$raw_encounter_date";
       if ($auth_demo) {
+        $responsible = $arid ? responsible_party($arid) : -1;
+
         $subresult5 = getInsuranceDataByDate($pid, $raw_encounter_date, "primary");
         if ($subresult5 && $subresult5{"provider_name"}) {
-          $insured = "<span class='text'>".xl('Primary').": " . $subresult5{"provider_name"} . "</span><br>\n";
+          $style = $responsible == 1 ? " style='color:red'" : "";
+          $insured = "<span class='text'$style>&nbsp;" . xl('Primary') . ": " .
+            $subresult5{"provider_name"} . "</span><br>\n";
         }
         $subresult6 = getInsuranceDataByDate($pid, $raw_encounter_date, "secondary");
         if ($subresult6 && $subresult6{"provider_name"}) {
-          $insured .= "<span class='text'>".xl('Secondary').": ".$subresult6{"provider_name"}."</span><br>\n";
+          $style = $responsible == 2 ? " style='color:red'" : "";
+          $insured .= "<span class='text'$style>&nbsp;" . xl('Secondary') . ": " .
+            $subresult6{"provider_name"} . "</span><br>\n";
         }
         $subresult7 = getInsuranceDataByDate($pid, $raw_encounter_date, "tertiary");
         if ($subresult6 && $subresult7{"provider_name"}) {
-          $insured .= "<span class='text'>".xl('Tertiary').": ".$subresult7{"provider_name"}."</span><br>\n";
+          $style = $responsible == 3 ? " style='color:red'" : "";
+          $insured .= "<span class='text'$style>&nbsp;" . xl('Tertiary') . ": " .
+            $subresult7{"provider_name"} . "</span><br>\n";
+        }
+        if ($responsible == 0) {
+          $insured .= "<span class='text' style='color:red'>&nbsp;" . xl('Patient') .
+            "</span><br>\n";
         }
       } else {
-        $insured = "(No access)";
+        $insured = " (No access)";
       }
       echo "<td valign='top'>$linkbeg" .
         $insured . "$linkend</td>\n";
@@ -288,11 +465,11 @@ if ($result = getEncounters($pid)) {
 
     echo "</tr>\n";
 
-    // Now show a line for each encounter form, if the user is authorized to
-    // see this encounter's notes.
-    //
-    if ($auth_sensitivity && ($auth_notes_a || ($auth_notes && $iter['user'] == $_SESSION['authUser']))) {
-      $encarr = getFormByEncounter($pid, $iter['encounter'], "formdir, user, form_name, form_id");
+    if (! $billing_view) {
+
+      // Now show a line for each encounter form, if the user is authorized to
+      // see this encounter's notes.
+      //
       foreach ($encarr as $enc) {
         if ($enc['formdir'] == 'newpatient') continue;
 
@@ -310,18 +487,21 @@ if ($result = getEncounters($pid)) {
 
         echo "<tr>\n";
         echo " <td valign='top' colspan='2'></td>\n";
-        // echo " <td valign='top' colspan='2' title='$title' onmouseover='return showTitle(\"$title\")'>" .
-        echo " <td valign='top' colspan='2' " .
+        echo " <td valign='top' " .
           "onmouseover='ttshow(this,\"$title\")' onmouseout='tthide()'>" .
           "$linkbeg&nbsp;&nbsp;&nbsp;" .
           $enc['form_name'] . "$linkend</td>\n";
-        echo " <td valign='top'>$linkbeg" .
+        echo " <td valign='top' colspan='2'>$linkbeg" .
           $enc['user'] . "$linkend</td>\n";
         echo "</tr>\n";
       } // end foreach $encarr
-    } // end if
+
+    } // end if not billing view
 
   } // end foreach $result
+
+  if ($billing_view && $accounting_enabled) SLClose();
+
 } // end if
 
 // Dump remaining document lines if count not exceeded.

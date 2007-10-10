@@ -114,4 +114,24 @@ function get_invoice_summary($trans_id, $with_detail = false) {
 
   return $codes;
 }
+
+// This determines the party from whom payment is currently expected.
+// Returns: -1=Nobody, 0=Patient, 1=Ins1, 2=Ins2, 3=Ins3.
+//
+function responsible_party($trans_id) {
+  global $sl_err;
+  $arres = SLQuery("select * from ar where id = $trans_id");
+  if ($sl_err) die($sl_err);
+  $arrow = SLGetRow($arres, 0);
+  if (! $arrow) die(xl("There is no match for invoice id = ") . $trans_id);
+  if ($arrow['paid'] >= $arrow['netamount']) return -1;
+  $insgot  = strtolower($arrow['notes']);
+  $insdone = strtolower($arrow['shipvia']);
+  for ($i = 1; $i <= 3; ++$i) {
+    $lcvalue = "ins$i";
+    if (strpos($insgot, $lcvalue) !== false && strpos($insdone, $lcvalue) === false)
+      return $i;
+  }
+  return 0;
+}
 ?>
