@@ -89,6 +89,8 @@ td { font-size:10pt; }
     "lname = "        . invalue('form_lname')        . ", " .
     "mname = "        . invalue('form_mname')        . ", " .
     "specialty = "    . invalue('form_specialty')    . ", " .
+    "organization = " . invalue('form_organization') . ", " .
+    "valedictory = "  . invalue('form_valedictory')  . ", " .
     "assistant = "    . invalue('form_assistant')    . ", " .
     "federaltaxid = " . invalue('form_federaltaxid') . ", " .
     "upin = "         . invalue('form_upin')         . ", " .
@@ -119,8 +121,8 @@ td { font-size:10pt; }
    $userid = sqlInsert("INSERT INTO users ( " .
     "username, password, authorized, info, source, " .
     "title, fname, lname, mname,  " .
-    "federaltaxid, federaldrugid, upin, facility, see_auth, active, " .
-    "npi, specialty, assistant, billname, email, url, " .
+    "federaltaxid, federaldrugid, upin, facility, see_auth, active, npi, " .
+    "specialty, organization, valedictory, assistant, billname, email, url, " .
     "street, streetb, city, state, zip, " .
     "street2, streetb2, city2, state2, zip2, " .
     "phone, phonew1, phonew2, phonecell, fax, notes "            .
@@ -142,6 +144,8 @@ td { font-size:10pt; }
     "1, "                                . // active
     invalue('form_npi')           . ", " .
     invalue('form_specialty')     . ", " .
+    invalue('form_organization')  . ", " .
+    invalue('form_valedictory')   . ", " .
     invalue('form_assistant')     . ", " .
     "'', "                               . // billname
     invalue('form_email')         . ", " .
@@ -222,6 +226,24 @@ td { font-size:10pt; }
   <td>
    <input type='text' size='40' name='form_specialty' maxlength='250'
     value='<?php echo $row['specialty'] ?>'
+    style='width:100%' class='inputtext' />
+  </td>
+ </tr>
+
+ <tr>
+  <td nowrap><b><?php xl('Organization','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='40' name='form_organization' maxlength='250'
+    value='<?php echo $row['organization'] ?>'
+    style='width:100%' class='inputtext' />
+  </td>
+ </tr>
+
+ <tr>
+  <td nowrap><b><?php xl('Valedictory','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='40' name='form_valedictory' maxlength='250'
+    value='<?php echo $row['valedictory'] ?>'
     style='width:100%' class='inputtext' />
   </td>
  </tr>

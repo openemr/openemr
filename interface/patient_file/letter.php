@@ -12,7 +12,7 @@ include_once("$srcdir/patient.inc");
 $template_dir = "$webserver_root/custom/letter_templates";
 
 $patdata = sqlQuery("SELECT " .
-  "p.fname, p.mname, p.lname, p.pubpid " .
+  "p.fname, p.mname, p.lname, p.pubpid, p.DOB " .
   "FROM patient_data AS p " .
   "WHERE p.pid = '$pid' LIMIT 1");
 
@@ -53,6 +53,8 @@ if ($_POST['form_generate']) {
   ob_start();
 
   $datestr = date('j F Y', strtotime($form_date));
+  $from_title = $frow['title'] ? $frow['title'] . ' ' : '';
+  $to_title   = $trow['title'] ? $trow['title'] . ' ' : '';
 
   // Create the temporary data file and process it with enscript.
   $tmpfn = tempnam("/tmp", "oemr_letter");
@@ -61,22 +63,33 @@ if ($_POST['form_generate']) {
   $fh = fopen("$template_dir/$form_template", 'r');
   while (!feof($fh)) $cpstring .= fread($fh, 8192);
   fclose($fh);
-  $cpstring = str_replace('{DATE}'       , $datestr, $cpstring);
-  $cpstring = str_replace('{FROM_FNAME}' , $frow['fname'], $cpstring);
-  $cpstring = str_replace('{FROM_LNAME}' , $frow['lname'], $cpstring);
-  $cpstring = str_replace('{FROM_MNAME}' , $frow['mname'], $cpstring);
-  $cpstring = str_replace('{FROM_STREET}', $frow['street'], $cpstring);
-  $cpstring = str_replace('{FROM_CITY}'  , $frow['city'], $cpstring);
-  $cpstring = str_replace('{FROM_STATE}' , $frow['state'], $cpstring);
-  $cpstring = str_replace('{FROM_POSTAL}', $frow['zip'], $cpstring);
-  $cpstring = str_replace('{TO_FNAME}'   , $trow['fname']  , $cpstring);
-  $cpstring = str_replace('{TO_LNAME}'   , $trow['lname'], $cpstring);
-  $cpstring = str_replace('{TO_MNAME}'   , $trow['mname'], $cpstring);
-  $cpstring = str_replace('{TO_STREET}'  , $trow['street'], $cpstring);
-  $cpstring = str_replace('{TO_CITY}'    , $trow['city'], $cpstring);
-  $cpstring = str_replace('{TO_STATE}'   , $trow['state'], $cpstring);
-  $cpstring = str_replace('{TO_POSTAL}'  , $trow['zip'], $cpstring);
-  $cpstring = str_replace('{MESSAGE}'    , $form_body, $cpstring);
+  $cpstring = str_replace('{DATE}'            , $datestr, $cpstring);
+  $cpstring = str_replace('{FROM_TITLE}'      , $from_title, $cpstring);
+  $cpstring = str_replace('{FROM_FNAME}'      , $frow['fname'], $cpstring);
+  $cpstring = str_replace('{FROM_LNAME}'      , $frow['lname'], $cpstring);
+  $cpstring = str_replace('{FROM_MNAME}'      , $frow['mname'], $cpstring);
+  $cpstring = str_replace('{FROM_STREET}'     , $frow['street'], $cpstring);
+  $cpstring = str_replace('{FROM_CITY}'       , $frow['city'], $cpstring);
+  $cpstring = str_replace('{FROM_STATE}'      , $frow['state'], $cpstring);
+  $cpstring = str_replace('{FROM_POSTAL}'     , $frow['zip'], $cpstring);
+  $cpstring = str_replace('{FROM_VALEDICTORY}', $frow['valedictory'], $cpstring);
+  $cpstring = str_replace('{FROM_PHONECELL}'  , $frow['phonecell'], $cpstring);
+  $cpstring = str_replace('{TO_TITLE}'        , $to_title, $cpstring);
+  $cpstring = str_replace('{TO_FNAME}'        , $trow['fname'], $cpstring);
+  $cpstring = str_replace('{TO_LNAME}'        , $trow['lname'], $cpstring);
+  $cpstring = str_replace('{TO_MNAME}'        , $trow['mname'], $cpstring);
+  $cpstring = str_replace('{TO_STREET}'       , $trow['street'], $cpstring);
+  $cpstring = str_replace('{TO_CITY}'         , $trow['city'], $cpstring);
+  $cpstring = str_replace('{TO_STATE}'        , $trow['state'], $cpstring);
+  $cpstring = str_replace('{TO_POSTAL}'       , $trow['zip'], $cpstring);
+  $cpstring = str_replace('{TO_VALEDICTORY}'  , $trow['valedictory'], $cpstring);
+  $cpstring = str_replace('{TO_FAX}'          , $trow['fax'], $cpstring);
+  $cpstring = str_replace('{TO_ORGANIZATION}' , $trow['organization'], $cpstring);
+  $cpstring = str_replace('{PT_FNAME}'        , $patdata['fname'], $cpstring);
+  $cpstring = str_replace('{PT_LNAME}'        , $patdata['lname'], $cpstring);
+  $cpstring = str_replace('{PT_MNAME}'        , $patdata['mname'], $cpstring);
+  $cpstring = str_replace('{PT_DOB}'          , $patdata['DOB'], $cpstring);
+  $cpstring = str_replace('{MESSAGE}'         , $form_body, $cpstring);
   fwrite($tmpfh, $cpstring);
   fclose($tmpfh);
   $tmp0 = passthru("cd $template_dir; enscript -M A4 -B -e^ " .
@@ -98,22 +111,35 @@ if ($_POST['form_generate']) {
 // This is the case where we display the form for data entry.
 
 // Get the users list.
-$ures = sqlStatement("SELECT id, fname, lname FROM users " .
+$ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
   "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
   "ORDER BY lname, fname");
-
+$i = 0;
 $optfrom = '';
 $optto = '';
+$ulist = "var ulist = new Array();\n";
 while ($urow = sqlFetchArray($ures)) {
+  $uname = $urow['lname'];
+  if ($urow['fname']) $uname .= ", " . $urow['fname'];
   $tmp1 = " <option value='" . $urow['id'] . "'";
-  $tmp2 = ">" . $urow['lname'];
-  if ($urow['fname']) $tmp2 .= ", " . $urow['fname'];
-  $tmp2 .= "</option>\n";
+  $tmp2 = ">$uname</option>\n";
   $optto .= $tmp1 . $tmp2;
   if ($urow['id'] == $_SESSION['authUserID']) $tmp1 .= " selected";
   $optfrom .= $tmp1 . $tmp2;
+  $ulist .= "ulist[$i] = '" . addslashes($uname) . "|" .
+    $urow['id'] . "|" . addslashes($urow['specialty']) . "';\n";
+  ++$i;
 }
 
+// Get the unique specialties.
+$sres = sqlStatement("SELECT DISTINCT specialty FROM users " .
+  "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
+  "ORDER BY specialty");
+$optspec = "<option value='All'>All</option>\n";
+while ($srow = sqlFetchArray($sres)) {
+  $optspec .= " <option value='" . $srow['specialty'] . "'>" .
+    $srow['specialty'] . "</option>\n";
+}
 ?>
 <html>
 <head>
@@ -133,7 +159,23 @@ while ($urow = sqlFetchArray($ures)) {
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 
 <script language="JavaScript">
-<?php // require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php echo $ulist; ?>
+
+ // React to selection of a specialty.  This rebuilds the "to" users list
+ // with users having that specialty, or all users if "All" is selected.
+ function newspecialty() {
+  var f = document.forms[0];
+  var s = f.form_specialty.value;
+  var theopts = f.form_to.options;
+  theopts.length = 0;
+  var j = 0;
+  for (var i = 0; i < ulist.length; ++i) {
+   tmp = ulist[i].split("|");
+   if (s != 'All' && s != tmp[2]) continue;
+   theopts[j++] = new Option(tmp[0], tmp[1], false, false);
+  }
+ }
+
 </script>
 
 </head>
@@ -190,12 +232,12 @@ while ($urow = sqlFetchArray($ures)) {
  <tr>
 
   <td>
-   <?php xl('To','e'); ?>:
+   <?php xl('Specialty','e'); ?>:
   </td>
 
   <td>
-   <select name='form_to'>
-<?php echo $optto; ?>
+   <select name='form_specialty' onchange='newspecialty()'>
+<?php echo $optspec; ?>
    </select>
   </td>
 
@@ -226,11 +268,13 @@ closedir($dh);
  <tr>
 
   <td>
-   &nbsp;
+   <?php xl('To','e'); ?>:
   </td>
 
   <td>
-   &nbsp;
+   <select name='form_to'>
+<?php echo $optto; ?>
+   </select>
   </td>
 
   <td>
