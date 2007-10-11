@@ -172,7 +172,12 @@ else if ($_POST['hidden_mode'] == 'alter') {
     $preselect_mode = 'by name';
     //at this point, if this variable has not been set, CAMOS must have been start over
     //so let's get the most recent values from form_CAMOS for this patient's pid 
-    $query = "SELECT category, subcategory, item FROM form_CAMOS WHERE id =(SELECT max(id) from form_CAMOS WHERE pid=".$_SESSION['pid'].")";
+
+    $tmp = sqlQuery("SELECT max(id) AS max FROM form_CAMOS WHERE " .
+      "pid = '" . $_SESSION['pid'] . "'");
+    $maxid = $tmp['max'] ? $tmp['max'] : 0;
+
+    $query = "SELECT category, subcategory, item FROM form_CAMOS WHERE id = $maxid";
     $statement = sqlStatement($query);
     if ($result = sqlFetchArray($statement)) {
       $preselect_category = $result['category'];
