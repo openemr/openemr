@@ -156,13 +156,13 @@ and custom/faxcover.txt; it also requires the following utilities:
 
 IV. Setting Up Access Control
 
-As of this writing the option of adding phpGACL to your OpenEMR installation is
-a work in progress.  You can choose to do nothing about this, in which case
-OpenEMR's traditional and very limited access controls will be used, or you can
-choose to install phpGACL (see http://phpgacl.sourceforge.net/), in which case
-you should read the phpGACL manual and the comments in library/acl.inc and also
-modify that file to point to your phpGACL installation directory.  See
-Documentation/README.phpgacl for more information.
+You can either choose to install phpGACL, which is very powerful access control
+software, or you can use the default OpenEMR access controls, which are very
+limited. If you choose to install phpGACL (see http://phpgacl.sourceforge.net/),
+recommend reading the phpGACL manual, the /openemr/Documentation/README.phpgacl
+file, and the online wiki at www.oemr.org for installation and configuration
+instructions. Also recommend reading the comments in /openemr/library/acl.inc
+and also modifying that file to point to your phpGACL installation directory.
 
 It is reasonable to first get a basic OpenEMR installation working and then add
 these extended access controls later.
@@ -183,6 +183,10 @@ new parameters that need to be included.  If there are other files that you
 have customized, then you will also need to treat those carefully.
 
 When upgrading, check the directory openemr/sql/ for files named *upgrade.sql
-Those files have sql statements to modify tables in your database so they will 
+Those files have sql statements to modify tables in your database so they will
 match the layout of the current version.
 Be sure to backup the content of your database before doing so.
+
+If phpGACL is installed, then you should should upgrade your Access Controls
+by running the acl_upgrade.php program using your web browser
+(e.g. http://openemr.location/acl_upgrade.php).
