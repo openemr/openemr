@@ -15,13 +15,16 @@
 // Updates included:
 //   2.8.2
 //     Section "sensitivities" (Sensitivities):
-//       normal   Normal              (Administrators, Physicians, Clinicians(addonly))
-//       high     High                (Administrators, Physicians)
+//       ADD  normal   Normal              (Administrators, Physicians, Clinicians(addonly))
+//       ADD  high     High                (Administrators, Physicians)
 //     Section "admin"         (Administration):
-//       super    Superuser           (Adminstrators)
+//       ADD  super    Superuser           (Adminstrators)
 //   2.8.4
 //     Section "admin"         (Administration):
-//       drugs    Pharmacy Dispensary (Administrators, Physicians, Clinicians(write))
+//       ADD  drugs    Pharmacy Dispensary (Administrators, Physicians, Clinicians(write))
+//       ADD  acl      ACL Administration (Administrators)
+//     Section "sensitivities" (Sensitivities):
+//       EDIT high     High               (ensure the order variable is '20')
 
 
 //Ensure that phpGACL has been installed
@@ -59,12 +62,20 @@ addObjectSectionAcl('sensitivities', 'Sensitivities');
 
 //Add new Objects
 echo "<BR/><B>Adding new objects</B><BR/>";
-//Add 'Normal' sensitivity object (added in 2.8.2)
+//Add 'Normal' sensitivity object, order variable is default 10 (added in 2.8.2)
 addObjectAcl('sensitivities', 'Sensitivities', 'normal', 'Normal');
-//Add 'High' sensitivity object (added in 2.8.2)
-addObjectAcl('sensitivities', 'Sensitivities', 'high', 'High');
+//Add 'High' sensitivity object, order variable is set to 20 (added in 2.8.2)
+addObjectAclWithOrder('sensitivities', 'Sensitivities', 'high', 'High', 20);
 //Add 'Pharmacy Dispensary' object (added in 2.8.4)
 addObjectAcl('admin', 'Administration', 'drugs', 'Pharmacy Dispensary');
+//Add 'ACL Administration' object (added in 2.8.4)
+addObjectAcl('admin', 'Administration', 'acl', 'ACL Administration');
+
+
+//Update already existing Objects
+echo "<BR/><B>Upgrading objects</B><BR/>";
+//Ensure that 'High' sensitivity object order variable is set to 20
+editObjectAcl('sensitivities', 'Sensitivities', 'high', 'High', 20);
 
 
 //Add new User Defined Groups (ARO) here
@@ -91,6 +102,8 @@ updateAcl($admin_write, 'Administrators', 'admin', 'Administration', 'drugs', 'P
 updateAcl($doc_write, 'Physicians', 'admin', 'Administration', 'drugs', 'Pharmacy Dispensary', 'write');
 //Insert the 'drugs' object from the 'admin' section into the Clinicians group write ACL (added in 2.8.4)
 updateAcl($clin_write, 'Clinicians', 'admin', 'Administration', 'drugs', 'Pharmacy Dispensary', 'write');
+//Insert the 'acl' object from the 'admin' section into the Administrators group write ACL (added in 2.8.4)
+updateAcl($admin_write, 'Administrators', 'admin', 'Administration', 'acl', 'ACL Administration', 'write');
 
 
 //Function will return an array that contains the ACL ID number.
@@ -167,6 +180,68 @@ function addObjectAcl($section_name, $section_title, $object_name, $object_title
 		else {
 			echo "<B>ERROR</B>,unable to create the '$object_title' object in the '$section_title' section.</BR>";
 		}
+	}
+	return;
+}
+
+
+//Function to add an object and set the 'order' variable.
+//It will check to ensure the object doesn't already exist.
+//  $section_name = Identifier(string) of section
+//  $section_title = Title(string) of section
+//  $object_name = Identifier(string) of object
+//  $object_title = Title(string) of object
+//  $order_number = number to determine order in list. used in sensitivities to order the choices
+//                  in openemr
+function addObjectAclWithOrder($section_name, $section_title, $object_name, $object_title, $order_number) {
+	global $gacl;
+	if ($gacl->get_object_id($section_name, $object_name, 'ACO')) {
+		echo "The '$object_title' object in the '$section_title' section already exist.</BR>";
+	}
+	else {
+		$tmp_boolean = $gacl->add_object($section_name, $object_title, $object_name, $order_number, 0, 'ACO');
+		if ($tmp_boolean) {
+			echo "The '$object_title' object in the '$section_title' section has been successfully added.</BR>";
+		}
+		else {
+			echo "<B>ERROR</B>,unable to create the '$object_title' object in the '$section_title' section.</BR>";
+		}
+	}
+	return;
+}
+
+
+//Function to edit an object and set the 'order' variable.
+//It will check to ensure the object already exist, and hasn't been upgraded yet.
+//  $section_name = Identifier(string) of section
+//  $section_title = Title(string) of section
+//  $object_name = Identifier(string) of object
+//  $object_title = Title(string) of object
+//  $order_number = number to determine order in list. used in sensitivities to order the choices
+//                  in openemr
+function editObjectAcl($section_name, $section_title, $object_name, $object_title, $order_number) {
+	global $gacl;
+	$tmp_objectID = $gacl->get_object_id($section_name, $object_name, 'ACO');
+	if ($tmp_objectID) {
+		$tmp_object = $gacl->get_object_data($tmp_objectID, 'ACO');
+		if ($tmp_object[0][2] ==  $order_number && 
+		    $tmp_object[0][0] ==  $section_name &&
+		    $tmp_object[0][1] ==  $object_name &&
+		    $tmp_object[0][3] ==  $object_title) {
+			echo "The '$object_title' object in the '$section_title' section has already been updated.</BR>";
+		}
+		else {
+			$tmp_boolean = $gacl->edit_object($tmp_objectID, $section_name, $object_title, $object_name, $order_number, 0, 'ACO');
+			if ($tmp_boolean) {
+				echo "The '$object_title' object in the '$section_title' section has been successfully updated.</BR>";
+			}
+			else {
+				echo "<B>ERROR</B>,unable to update the '$object_title' object in the '$section_title' section.</BR>";
+			}
+		}
+	}
+	else {
+		echo "<B>ERROR</B>, the '$object_title' object in the '$section_title' section does not exist.</BR>";
 	}
 	return;
 }
