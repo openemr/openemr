@@ -56,6 +56,8 @@
   if (isset ($phpgacl_location)) {
     include_once("$phpgacl_location/gacl.class.php");
     $gacl_object = new gacl();
+    //DO NOT CHANGE BELOW VARIABLE
+    $section_aro_value = 'users';
   }
 
   // acl_check should return 0 if access is denied.  Otherwise it may
@@ -69,11 +71,11 @@
   // * addonly - the user may view and add but not modify entries
   //
   function acl_check($section, $value, $user = '') {
-    global $gacl_object, $phpgacl_location;
+    global $gacl_object, $phpgacl_location, $section_aro_value;
     if (! $user) $user = $_SESSION['authUser'];
 
     if ($phpgacl_location) {
-      return $gacl_object->acl_check($section, $value, 'users', $user);
+      return $gacl_object->acl_check($section, $value, $section_aro_value, $user);
     }
 
     // If no phpgacl, then apply the old static rules whereby "authorized"
@@ -143,4 +145,140 @@
     return acl_get_section_acos('sensitivities');
   }
 
+  //
+  // Returns a sorted array of all available Group Titles.
+  //
+  function acl_get_group_title_list() {
+    global $phpgacl_location;
+    if (isset ($phpgacl_location)) {
+      include_once("$phpgacl_location/gacl_api.class.php");
+      $gacl = new gacl_api();
+      $parent_id = $gacl->get_root_group_id();
+      $arr_group_ids = $gacl->get_group_children($parent_id, 'ARO');
+      $arr_group_titles = array();
+      foreach ($arr_group_ids as $value) {
+        $arr_group_data = $gacl->get_group_data($value, 'ARO');
+        $arr_group_titles[$value] = $arr_group_data[3];
+      }
+      sort($arr_group_titles);
+      return $arr_group_titles;
+    }
+    return 0;
+  }
+
+  //
+  // Returns an array of group Titles that Username belongs to.
+  // Returns 0 if does not belong to any group yet.
+  //   $user_name = Username, which is login name.
+  //
+  function acl_get_group_titles($user_name) {
+    global $phpgacl_location, $section_aro_value;
+    if (isset ($phpgacl_location)) {
+      include_once("$phpgacl_location/gacl_api.class.php");
+      $gacl = new gacl_api();
+      $user_aro_id = $gacl->get_object_id($section_aro_value, $user_name, 'ARO');
+      if ($user_aro_id) {
+        $arr_group_id = $gacl->get_object_groups($user_aro_id, 'ARO', 'NO_RECURSE');
+        if ($arr_group_id) {
+          foreach ($arr_group_id as $key => $value) {
+            $arr_group_data = $gacl->get_group_data($value, 'ARO');
+            $arr_group_titles[$key] =  $arr_group_data[3];
+          }
+        return $arr_group_titles;
+        }
+      }
+    }
+    return 0;
+  }
+
+  //
+  // This will either create or edit a user aro object, and then place it
+  // in the requested groups. It will not allow removal of the 'admin'
+  // user from the 'admin' group.
+  //   $arr_group_titles = titles of the groups that user will be added to.
+  //   $user_name = username, which is login name.
+  //   $first_name = first name
+  //   $middle_name = middle name
+  //   $last_name = last name
+  //
+  function set_user_aro($arr_group_titles, $user_name, $first_name, $middle_name, $last_name) {
+    global $phpgacl_location, $section_aro_value;
+
+    if (isset ($phpgacl_location)) {
+      include_once("$phpgacl_location/gacl_api.class.php");
+      $gacl = new gacl_api();
+
+      //get array of all available group ID numbers
+      $parent_id = $gacl->get_root_group_id();
+      $arr_all_group_ids = $gacl->get_group_children($parent_id, 'ARO');
+
+      //Cycle through ID array to find and process each selected group
+      //Create a counter since processing of first hit is unique
+      $counter = 0;
+      foreach ($arr_all_group_ids as $value) {
+        $arr_group_data = $gacl->get_group_data($value, 'ARO');
+        if (in_array($arr_group_data[3], $arr_group_titles)) {
+          //We have a hit, so need to add group and increment counter
+          //  because processing of first hit is unique
+          $counter = $counter + 1;
+          //create user full name field
+          if ($middle_name) {
+            $full_name = $first_name . " " . $middle_name . " " .  $last_name;
+          }
+          else {
+            $full_name = $first_name . " " . $last_name;
+          }
+
+          //If this is not the first group to be added, then will skip below
+          // and will be added. If this is the first group, then need to
+          // go thru several steps before adding the group.
+          if ($counter == 1) {
+            //get ID of user ARO object, if it exist
+            $user_aro_id = $gacl->get_object_id($section_aro_value, $user_name, 'ARO');
+            if ($user_aro_id) {
+              //user ARO object already exist, so will edit it
+              $gacl->edit_object($user_aro_id, $section_aro_value, $full_name, $user_name, 10, 0, 'ARO');
+
+              //remove all current user ARO object group associations
+              $arr_remove_group_ids = $gacl->get_object_groups($user_aro_id, 'ARO', 'NO_RECURSE');
+              foreach ($arr_remove_group_ids as $value2) {
+                $gacl->del_group_object($value2, $section_aro_value, $user_name, 'ARO');
+              }
+            }
+            else {
+              //user ARO object does not exist, so will create it
+              $gacl->add_object($section_aro_value, $full_name, $user_name, 10, 0, 'ARO');
+            }
+          }
+
+          //place the user ARO object in the selected group
+          $gacl->add_group_object($value, $section_aro_value, $user_name, 'ARO');
+
+          //
+          //Below will not allow 'admin' user to be removed from 'admin' group
+          //
+          if ($user_name == 'admin') {
+            $boolean_admin=0;
+            $admin_id = $gacl->get_object_id($section_aro_value, 'admin', 'ARO');
+            $arr_admin = $gacl->get_object_groups($admin_id, 'ARO', 'NO_RECURSE');
+            foreach ($arr_admin as $value3) {
+              $arr_admin_data = $gacl->get_group_data($value3, 'ARO');
+              if (in_array($arr_admin_data[2], 'admin')) {
+                $boolean_admin=1;
+              }
+            }
+            if (!$boolean_admin) {
+              foreach ($arr_all_group_ids as $value4) {
+                $arr_temp = $gacl->get_group_data($value4, 'ARO');
+                if ($arr_temp[2] == 'admin') {
+                  $gacl->add_group_object($value4, $section_aro_value, 'admin', 'ARO');
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+   return;
+  }
 ?>
