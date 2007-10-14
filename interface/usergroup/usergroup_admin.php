@@ -1,5 +1,6 @@
 <?php
 include_once("../globals.php");
+include_once("../../library/acl.inc");
 include_once("$srcdir/md5.js");
 include_once("$srcdir/sql.inc");
 require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
@@ -53,6 +54,12 @@ if (isset($_POST["mode"])) {
         "'");
       sqlStatement("insert into groups set name = '" . $_POST["groupname"] .
         "', user = '" . $_POST["username"] . "'");
+
+      if (isset($phpgacl_location) && acl_check('admin', 'acl') && $_POST["access_group"]) {
+        // Set the access control group of user
+        set_user_aro($_POST["access_group"], $_POST["username"], $_POST["fname"], $_POST["mname"], $_POST["lname"]);
+      }
+
       $ws = new WSProvider($prov_id);
     } else {
       $alertmsg .= "User " . $_POST["username"] . " already exists. ";
@@ -177,7 +184,7 @@ if (isset($_GET["mode"])) {
 </tr>
 </table>
 </form>
-<br><br>
+<br>
 </tr>
 <tr>
 <td valign=top>
@@ -273,6 +280,31 @@ if ($fres) {
 <td><span class="text"><? xl('NPI','e'); ?>: </span></td><td><input type="entry" name="npi" size="20"></td>
 <td><span class="text"><? xl('Job Description','e'); ?>: </span></td><td><input type="entry" name="specialty" size="20"></td>
 </tr>
+
+<?php
+ // List the access control groups if phpgacl installed
+ if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
+?>
+  <tr>
+  <td class='text'><? xl('Access Control','e'); ?>:</td>
+  <td><select name="access_group[]" multiple>
+  <?php
+   $list_acl_groups = acl_get_group_title_list();
+   $default_acl_group = 'Administrators';
+   foreach ($list_acl_groups as $value) {
+    if ($default_acl_group == $value) {
+     echo " <option selected>$value</option>\n";
+    }
+    else {
+     echo " <option>$value</option>\n";
+    }
+   }
+  ?>
+  </select></td></tr>
+<?php
+ }
+?>
+
 </table>
 <span class=text><? xl('Additional Info','e'); ?>: </span><br>
 <textarea name=info cols=40 rows=4 wrap=auto></textarea>
@@ -286,6 +318,7 @@ if ($fres) {
 <td valign=top>
 <form name='new_group' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
+<br>
 <input type=hidden name=mode value=new_group>
 <span class=bold><? xl('New Group','e'); ?>:</span>
 </td><td>

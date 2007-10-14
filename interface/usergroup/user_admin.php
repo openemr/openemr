@@ -83,6 +83,13 @@ if ($_GET["mode"] == "update") {
     $tqvar = addslashes($_GET["comments"]);
     sqlStatement("update users set info = '$tqvar' where id = {$_GET["id"]}");
   }
+
+  if (isset($phpgacl_location) && acl_check('admin', 'acl') && $_GET["access_group"]) {
+    // Set the access control group of user
+    $user_data = mysql_fetch_array(sqlStatement("select username from users where id={$_GET["id"]}"));
+    set_user_aro($_GET["access_group"], $user_data["username"], $_GET["fname"], $_GET["mname"], $_GET["lname"]);
+  }
+
   $ws = new WSProvider($_GET['id']);
 }
 
@@ -154,14 +161,41 @@ foreach($result as $iter2) {
 </tr>
 <tr>
 <td><span class="text"><? xl('NPI','e'); ?>: </span></td><td><input type="text" name="npi" size="20" value="<? echo $iter["npi"]?>"></td>
-</tr>
 
-<tr>
 <td><span class="text"><? xl('Job Description','e'); ?>: </span></td><td><input type="text" name="job" size="20" value="<? echo $iter["specialty"]?>"></td>
 </tr>
 
+<?php
+ // Collect the access control group of user
+ if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
+?>
+  <tr>
+  <td class='text'><? xl('Access Control','e'); ?>:</td>
+  <td><select name="access_group[]" multiple>
+  <?php
+   $list_acl_groups = acl_get_group_title_list();
+   $username_acl_groups = acl_get_group_titles($iter["username"]);
+   if (!$username_acl_groups) {
+    //set default if not yet set
+    $username_acl_groups = array('Administrators');
+   }
+   foreach ($list_acl_groups as $value) {
+    if (in_array($value,$username_acl_groups)) {
+     echo " <option selected>$value</option>\n";
+    }
+    else {
+     echo " <option>$value</option>\n";
+    }
+   }
+  ?>
+  </select></td></tr>
+<?php
+ }
+?>
+
 </tr>
 </table>
+
 <span class=text><? xl('Additional Info','e'); ?>:</span><br>
 <textarea name="comments" wrap=auto rows=4 cols=30><? echo $iter["info"];?></textarea>
 
