@@ -16,8 +16,8 @@ if (($_SESSION['encounter'] == '') || ($_SESSION['pid'] == '')) {
   $out_of_encounter = true;
 }
 $select_size = 20;
-$textarea_rows = 19;
-$textarea_cols = 55;
+$textarea_rows = 9;
+$textarea_cols = 40;
 $multibox_rows = 25;
 $multibox_cols = 100;
 $debug = '';
@@ -172,7 +172,6 @@ else if ($_POST['hidden_mode'] == 'alter') {
     $preselect_mode = 'by name';
     //at this point, if this variable has not been set, CAMOS must have been start over
     //so let's get the most recent values from form_CAMOS for this patient's pid 
-
     $tmp = sqlQuery("SELECT max(id) AS max FROM form_CAMOS WHERE " .
       "pid = '" . $_SESSION['pid'] . "'");
     $maxid = $tmp['max'] ? $tmp['max'] : 0;
@@ -199,11 +198,13 @@ else if ($_POST['hidden_mode'] == 'alter') {
 var array1 = new Array();
 var array2 = new Array();
 var array3 = new Array();
+var buffer = new Array();
 var icd9_list = '';
 var preselect_off = false;
 var content_change_flag = false;
 var lock_override_flag = false;
 var switchbox_status = 'main';
+var columns_status = 'show';
 var clone_mode = false;
 var multibox_count = 0;
 
@@ -212,6 +213,12 @@ if (substr($_POST['hidden_mode'],0,5) == 'clone') {
   echo "clone_mode = true;\n";
 }
 ?>
+
+function clear_box(obj) {
+  var hold = obj.value;
+  obj.value = buffer[obj] ? buffer[obj] : '';
+  buffer[obj] = hold;
+}
 
 function addbox() {
   multibox_count++;
@@ -222,9 +229,14 @@ function addbox() {
   var outer_delim2 = ' */';
   var inner_delim = ' :: ';
   f2 = document.CAMOS;
-  f3 = document.CAMOS.textarea_content.value;
+  var active_content = f2.textarea_content;
+  if (f2.top_bottom_active[1].checked) {
+    active_content = f2.textarea_content02;
+  }
+  f3 = active_content.value;
   document.CAMOS.textarea_multibox.value =  
-    document.CAMOS.textarea_multibox.value + 
+      "\n" +
+      document.CAMOS.textarea_multibox.value + 
       separator1 +
       outer_delim1 + multibox_function_name + inner_delim +
       f2.select_category.options[f2.select_category.selectedIndex].text +
@@ -234,11 +246,11 @@ function addbox() {
       f2.select_item.options[f2.select_item.selectedIndex].text +
       inner_delim +
       f3 + outer_delim2 + 
-      separator2;
+      separator2 + "\n";
 }
 function switchbox() {
-  var mainbox = document.getElementById('mainbox');
-  var multibox = document.getElementById('multibox');
+  var mainbox = document.getElementById('id_mainbox');
+  var multibox = document.getElementById('id_multibox');
   if (switchbox_status == 'main') {
     switchbox_status = 'multi';
     mainbox.style.display = 'none';
@@ -250,6 +262,33 @@ function switchbox() {
     multibox.style.display = 'none';
     mainbox.style.display = 'block';
     document.CAMOS.switch_box.value = 'show multibox';
+  }
+}
+function hide_columns() {
+  var column01 = document.getElementById('id_category_column');
+  var column02 = document.getElementById('id_subcategory_column');
+  var column03 = document.getElementById('id_item_column');
+  var columnheader01 = document.getElementById('id_category_column_header');
+  var columnheader02 = document.getElementById('id_subcategory_column_header');
+  var columnheader03 = document.getElementById('id_item_column_header');
+
+  if (columns_status == 'show') {
+    columns_status = 'hide';
+    column01.style.display = 'none';
+    column02.style.display = 'none';
+    column03.style.display = 'none';
+    columnheader01.style.display = 'none';
+    columnheader02.style.display = 'none';
+    columnheader03.style.display = 'none';
+  }
+  else {
+    columns_status = 'show';
+    column01.style.display = 'inline';
+    column02.style.display = 'inline';
+    column03.style.display = 'inline';
+    columnheader01.style.display = 'inline';
+    columnheader02.style.display = 'inline';
+    columnheader03.style.display = 'inline';
   }
 }
 //deal with locking of content = prevent accidental overwrite
@@ -536,6 +575,29 @@ function selectContains(myselect, str) {
   }
 }
 
+function insert_content(direction) {
+  var f2 = document.CAMOS;
+  var source_box = f2.textarea_content;
+  var target_box = f2.textarea_content02;
+  if (direction == 'up') {
+    source_box = f2.textarea_content02;
+    target_box = f2.textarea_content;
+  }
+  var sba = source_box.selectionStart;
+  var sbb = source_box.selectionEnd;
+  var tba = target_box.selectionStart;
+  var tbb = target_box.selectionEnd;
+  if (sbb-sba == 0) {
+    sba = 0;
+    sbb = source_box.value.length;
+  }
+  var insert_text = (source_box.value).
+    substring(sba, sbb);
+  target_box.value = (target_box.value).
+    substring(0,tba) + insert_text + 
+    (target_box.value).substring(tba,target_box.value.length);
+}
+
 function js_button(mode,selection) {
   var f2 = document.CAMOS;
 //check lock next 
@@ -624,7 +686,8 @@ if ( (mode == 'add') || (mode == 'alter') ) {
     item = f2.select_item.options[item_index].value;
   }
 //deal with clone buttons 
-  if (mode.substr(0,5) == 'clone') {
+  if ( (mode.substr(0,5) == 'clone') || (mode == 'add') ||
+    (mode == 'alter') || (mode =='delete') ) {
     f2.category.value = f2.select_category.options[f2.select_category.selectedIndex].text;
     f2.hidden_mode.value = mode;
     f2.hidden_selection.value = selection;
@@ -636,14 +699,18 @@ if ( (mode == 'add') || (mode == 'alter') ) {
     f2.submit();
   }
   if (mode == 'submit') {
+    var active_content = f2.textarea_content;
+    if (f2.top_bottom_active[1].checked) {
+      active_content = f2.textarea_content02;
+    }
     f2.category.value = f2.select_category.options[f2.select_category.selectedIndex].text;
     f2.subcategory.value = f2.select_subcategory.options[f2.select_subcategory.selectedIndex].text;
     f2.item.value = f2.select_item.options[f2.select_item.selectedIndex].text;
     if (selection == 'submit_selection') {
-      f2.content.value = (f2.textarea_content.value).substring(f2.textarea_content.selectionStart, f2.textarea_content.selectionEnd);
+      f2.content.value = (active_content.value).substring(active_content.selectionStart, active_content.selectionEnd);
     }
     else if (selection == 'multibox') {f2.content.value = f2.textarea_multibox.value;}
-    else {f2.content.value = f2.textarea_content.value;}
+    else {f2.content.value = active_content.value;}
     f2.action = '<?echo $rootdir;?>/forms/CAMOS/save.php?mode=new';
     f2.submit();
   }
@@ -667,7 +734,7 @@ function selectItem () {
 <?  
 echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[".xl('do not save')."]</a>";
 ?>
-<div id=mainbox style="display:block">
+<div id=id_mainbox style="display:inline">
 <?  
 if ($error != '') {
   echo "<h1> error: ".$error."</h1>\n"; 
@@ -676,13 +743,19 @@ if ($error != '') {
 <table border=1>
 <tr>
   <td>
+  <div id=id_category_column_header style="display:inline">
     <?php xl('Category',e)?>
+  </div> <!-- end of id_category_column_header -->
   </td>
   <td>
-    <?php xl('Subcategory',e)?>
+  <div id=id_subcategory_column_header style="display:inline">
+    <?php xl('Subsubcategory',e)?>
+  </div> <!-- end of id_subcategory_column_header -->
   </td>
   <td>
+  <div id=id_item_column_header style="display:inline">
     <?php xl('Item',e)?>
+  </div> <!-- end of id_item_column_header -->
   </td>
   <td>
     <?php xl('Content',e)?>
@@ -691,6 +764,7 @@ if ($error != '') {
 
 <tr>
   <td>
+  <div id=id_category_column style="display:inline">
     <select name=select_category size=<? echo $select_size ?> onchange="click_category()"></select><br>
 <?
 if (myAuth() == 1) {//root user only can see administration option 
@@ -702,8 +776,10 @@ if (myAuth() == 1) {//root user only can see administration option
 <?
 }
 ?>
+  </div> <!-- end of id_category_column -->
   </td>
   <td>
+  <div id=id_subcategory_column style="display:inline">
     <select name=select_subcategory size=<? echo $select_size ?> onchange="click_subcategory()"></select><br>
 <?
 if (myAuth() == 1) {//root user only can see administration option 
@@ -715,8 +791,10 @@ if (myAuth() == 1) {//root user only can see administration option
 <?
 }
 ?>
+  </div> <!-- end of id_subcategory_column -->
   </td>
   <td>
+  <div id=id_item_column style="display:inline">
     <select name=select_item size=<? echo $select_size ?> onchange="click_item()"
       ondblclick="addbox()"></select><br>
 <?
@@ -729,18 +807,34 @@ if (myAuth() == 1) {//root user only can see administration option
 <?
 }
 ?>
+  </div> <!-- end of id_item_column -->
   </td>
   <td>
-    <textarea name=textarea_content cols=<? echo $textarea_cols ?> rows=<? echo $textarea_rows ?> onFocus="content_focus()" onBlur="content_blur()"></textarea><br>
+<div id=id_textarea_content style="display:inline">
+    <textarea name=textarea_content cols=<? echo $textarea_cols ?> rows=<? echo $textarea_rows ?> onFocus="content_focus()" onBlur="content_blur()" ondblclick="clear_box(this)"></textarea>
+    <br/>
+    <input type=button name=insert_down value='insert down' onClick="insert_content('down')">
+    <input type=radio name=top_bottom_active value=top checked>
+</div> <!-- end of id_textarea_content -->
+<br>
+<div id=id_textarea_content02 style="display:inline">
+    <textarea name=textarea_content02 cols=<? echo $textarea_cols ?> rows=<? echo $textarea_rows ?> onFocus="content_focus()" onBlur="content_blur()" ondblclick="clear_box(this)"></textarea>
+    <br/>
+    <input type=button name=insert_up value='insert up' onClick="insert_content('up')">
+    <input type=radio name=top_bottom_active value=bottom>
+</div> <!-- end of id_textarea_content02 -->
+<br>
 <?
 if (myAuth() == 1) {//root user only can see administration option 
 ?>
+<div id=id_main_content_buttons style="display:none">
     <input type=button name=add4 value=add onClick="js_button('add','change_content')">
     <input type=button name=lock value=lock onClick="lock_content()">
 <?
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
 ?>
     <input type=button name=icd9 value=icd9 onClick="append_icd9()">
+</div> <!-- end of id_main_content_buttons-->
 <?
 }
 ?>
@@ -777,9 +871,9 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 }
 ?>
 </div>
-<div id=multibox style="display:none">
+<div id=id_multibox style="display:none">
 <textarea name=textarea_multibox cols=<? echo $multibox_cols ?> rows=<? echo $multibox_rows ?> onFocus="content_focus()" onBlur="content_blur()"></textarea>
-</div>
+</div> <!-- end of id_multibox -->
 </form>
 <?php
 formFooter();
