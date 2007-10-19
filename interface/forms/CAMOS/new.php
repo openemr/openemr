@@ -193,7 +193,7 @@ else if ($_POST['hidden_mode'] == 'alter') {
 <html><head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 
-<script language="javascript" type="text/javascript">
+<script language="javascript" type="text/javascript"> 
 
 var array1 = new Array();
 var array2 = new Array();
@@ -205,6 +205,9 @@ var content_change_flag = false;
 var lock_override_flag = false;
 var switchbox_status = 'main';
 var columns_status = 'show';
+var hs_status = false;
+var vs_status = false;
+var hide_tc02_status = false;
 var clone_mode = false;
 var multibox_count = 0;
 
@@ -291,6 +294,64 @@ function hide_columns() {
     columnheader03.style.display = 'inline';
   }
 }
+
+//function hs_button() {
+//  f2 = document.CAMOS;
+//  if (hs_status) {
+//    hide_columns();
+//    f2.textarea_content.cols /= 3;
+//    f2.textarea_content02.cols /= 3;
+//    hs_status = false;
+//  } else {
+//    hide_columns(); 
+////    f2.textarea_content.cols *= 3;
+//    f2.textarea_content02.cols *= 3;
+//    hs_status = true;
+//  }
+//}
+
+function hide_textarea_content02() {
+  var tc02 = document.getElementById('id_textarea_content02');
+  var tc02_hide = document.getElementById('id_textarea_content02_show_button');
+  f2 = document.CAMOS;
+  if (hide_tc02_status) {
+    tc02.style.display = 'inline'; //show
+    f2.textarea_content.rows /= 2;
+    f2.textarea_content02.rows /= 2;
+    hide_tc02_status = false;
+    tc02_hide.style.display = 'none';
+  } else {
+    tc02.style.display = 'none'; //hide
+    f2.textarea_content.rows *= 2;
+    f2.textarea_content02.rows *= 2;
+    hide_tc02_status = true;
+    tc02_hide.style.display = 'inline';
+  }
+}
+
+function vs_button() { //expand
+  f2 = document.CAMOS;
+  if (vs_status) {
+    hide_columns();
+    f2.textarea_content.cols /= 3;
+    f2.textarea_content02.cols /= 3;
+    f2.textarea_content.rows /= 2;
+    f2.textarea_content02.rows /= 2;
+    hs_status = false;
+    vs_status = false;
+    f2.vs.value = 'expand';
+  } else {
+    hide_columns(); 
+    f2.textarea_content.cols *= 3;
+    f2.textarea_content02.cols *= 3;
+    f2.textarea_content.rows *= 2;
+    f2.textarea_content02.rows *= 2;
+    hs_status = true;
+    vs_status = true;
+    f2.vs.value = 'unexpand';
+  }
+}
+
 //deal with locking of content = prevent accidental overwrite
 
 function trimString (str) {
@@ -598,6 +659,73 @@ function insert_content(direction) {
     (target_box.value).substring(tba,target_box.value.length);
 }
 
+//AJAX FUNCTIONS
+//Function to create an XMLHttp Object.
+function getxmlhttp (){
+  //Create a boolean variable to check for a valid microsoft active X instance.
+  var xmlhttp = false;
+  
+  //Check if we are using internet explorer.
+  try {
+    //If the javascript version is greater than 5.
+    xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
+  } catch (e) {
+    //If not, then use the older active x object.
+    try {
+      //If we are using internet explorer.
+      xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    } catch (E) {
+      //Else we must be using a non-internet explorer browser.
+      xmlhttp = false;
+    }
+  }
+  
+  //If we are using a non-internet explorer browser, create a javascript instance of the object.
+  if (!xmlhttp && typeof XMLHttpRequest != 'undefined') {
+  xmlhttp = new XMLHttpRequest();
+  }
+  
+  return xmlhttp;
+}
+
+//Function to process an XMLHttpRequest.
+function processajax (serverPage, obj, getOrPost, str){
+  //Get an XMLHttpRequest object for use.
+  xmlhttp = getxmlhttp ();
+  if (getOrPost == "get"){
+    xmlhttp.open("GET", serverPage);
+    xmlhttp.onreadystatechange = function() {
+      if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+        obj.innerHTML = xmlhttp.responseText;
+      }
+    }
+    xmlhttp.send(null);
+  } else {
+    xmlhttp.open("POST", serverPage, true);
+    xmlhttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded; charset=UTF-8");
+    xmlhttp.onreadystatechange = function() {
+      if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+        obj.innerHTML = xmlhttp.responseText;
+      } 
+    }
+    xmlhttp.send(str);
+  }
+}
+
+
+function setformvalues(form_array){
+  
+  //Run through a list of all objects
+  var str = '';
+  for(key in form_array) {
+    str += key + "=" + escape(form_array[key]) + "&";
+  }
+  //Then return the string values.
+  return str;
+}
+
+//END OF AJAX RELATED FUNCTIONS
+
 function js_button(mode,selection) {
   var f2 = document.CAMOS;
 //check lock next 
@@ -703,18 +831,45 @@ if ( (mode == 'add') || (mode == 'alter') ) {
     if (f2.top_bottom_active[1].checked) {
       active_content = f2.textarea_content02;
     }
-    f2.category.value = f2.select_category.options[f2.select_category.selectedIndex].text;
-    f2.subcategory.value = f2.select_subcategory.options[f2.select_subcategory.selectedIndex].text;
-    f2.item.value = f2.select_item.options[f2.select_item.selectedIndex].text;
+//    f2.category.value = f2.select_category.options[f2.select_category.selectedIndex].text;
+//    f2.subcategory.value = f2.select_subcategory.options[f2.select_subcategory.selectedIndex].text;
+//    f2.item.value = f2.select_item.options[f2.select_item.selectedIndex].text;
+//    if (selection == 'submit_selection') {
+//      f2.content.value = (active_content.value).substring(active_content.selectionStart, active_content.selectionEnd);
+//    }
+//    else if (selection == 'multibox') {f2.content.value = f2.textarea_multibox.value;}
+//    else {f2.content.value = active_content.value;}
+//    f2.action = '<?echo $rootdir;?>/forms/CAMOS/save.php?mode=new';
+//    f2.submit();
+//experimental ajax code
+    var myobj = document.getElementById('id_info');
+    myarray = new Array();
+    myarray['category'] = f2.select_category.options[f2.select_category.selectedIndex].text;
+    myarray['subcategory'] = f2.select_subcategory.options[f2.select_subcategory.selectedIndex].text;
+    myarray['item'] = f2.select_item.options[f2.select_item.selectedIndex].text;
+    myarray['content']
     if (selection == 'submit_selection') {
-      f2.content.value = (active_content.value).substring(active_content.selectionStart, active_content.selectionEnd);
+      myarray['content'] = (active_content.value).substring(active_content.selectionStart, active_content.selectionEnd);
     }
-    else if (selection == 'multibox') {f2.content.value = f2.textarea_multibox.value;}
-    else {f2.content.value = active_content.value;}
-    f2.action = '<?echo $rootdir;?>/forms/CAMOS/save.php?mode=new';
-    f2.submit();
+    else if (selection == 'multibox') {myarray['content'] = f2.textarea_multibox.value;}
+    else {myarray['content'] = active_content.value;}
+    var str = setformvalues(myarray);
+//    alert(str);
+    processajax ('/openemr/interface/forms/CAMOS/ajax_save.php', myobj, "post", str);
+//end experimental ajax code
   }
 }
+//function runit () {
+//  var myobj = document.getElementById('mytarget');
+//  myarray = new Array();
+//  myarray['category'] = 'testcategory01';
+//  myarray['subcategory'] = 'testsubcategory01';
+//  myarray['item'] = 'item01';
+//  myarray['content'] = 'content01';
+//  var str = setformvalues(myarray);
+//  alert(str);
+//  processajax ('ajax_save.php', myobj, "post", str);
+//}
 
 function selectItem () {
   f2 = document.CAMOS;
@@ -732,8 +887,11 @@ function selectItem () {
 <input type=button name=clone value=clone onClick="js_button('clone', 'clone')">
 <input type=button name=clone_visit value='clone last visit' onClick="js_button('clone last visit', 'clone last visit')">
 <?  
-echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[".xl('do not save')."]</a>";
+echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[".xl('Leave The Form')."]</a>";
 ?>
+<div id=id_info style="display:inline">
+<!-- supposedly where ajax induced php pages can print their output to... -->
+</div>
 <div id=id_mainbox style="display:inline">
 <?  
 if ($error != '') {
@@ -813,15 +971,20 @@ if (myAuth() == 1) {//root user only can see administration option
 <div id=id_textarea_content style="display:inline">
     <textarea name=textarea_content cols=<? echo $textarea_cols ?> rows=<? echo $textarea_rows ?> onFocus="content_focus()" onBlur="content_blur()" ondblclick="clear_box(this)"></textarea>
     <br/>
-    <input type=button name=insert_down value='insert down' onClick="insert_content('down')">
     <input type=radio name=top_bottom_active value=top checked>
+    <input type=button name=insert_down value='insert down' onClick="insert_content('down')">
+    <input type=button name=vs value='expand' onClick="vs_button()">
+    <div id=id_textarea_content02_show_button style="display:none">
+    <input type=button name=textarea_content02_show value='show' onClick="hide_textarea_content02()">
+    </div> <!-- end of id_textarea_content_02_show_button -->
 </div> <!-- end of id_textarea_content -->
 <br>
 <div id=id_textarea_content02 style="display:inline">
     <textarea name=textarea_content02 cols=<? echo $textarea_cols ?> rows=<? echo $textarea_rows ?> onFocus="content_focus()" onBlur="content_blur()" ondblclick="clear_box(this)"></textarea>
     <br/>
-    <input type=button name=insert_up value='insert up' onClick="insert_content('up')">
     <input type=radio name=top_bottom_active value=bottom>
+    <input type=button name=insert_up value='insert up' onClick="insert_content('up')">
+    <input type=button name=textarea_content02_hide value='hide' onClick="hide_textarea_content02()">
 </div> <!-- end of id_textarea_content02 -->
 <br>
 <?
@@ -865,7 +1028,7 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 ?>
 <?
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
-  echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[".xl('do not save')."]</a>";
+  echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[".xl('Leave The Form')."]</a>";
   echo "<a href='".$GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [".xl('help')."]</a>";
   echo $previous_encounter_data; //probably don't need anymore now that we have clone last visit
 }
