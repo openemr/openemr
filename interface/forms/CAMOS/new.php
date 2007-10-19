@@ -855,7 +855,7 @@ if ( (mode == 'add') || (mode == 'alter') ) {
     else {myarray['content'] = active_content.value;}
     var str = setformvalues(myarray);
 //    alert(str);
-    processajax ('/openemr/interface/forms/CAMOS/ajax_save.php', myobj, "post", str);
+    processajax ('<? print $GLOBALS['webroot'] ?>/interface/forms/CAMOS/ajax_save.php', myobj, "post", str);
 //end experimental ajax code
   }
 }
