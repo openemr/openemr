@@ -142,7 +142,7 @@ if ($_POST['bill']) {
   }
 }
 if ($_POST['newtype']) {
-  list($code, $modifier) = explode("-", $_POST['newcode']);
+  list($code, $modifier) = explode(":", $_POST['newcode']);
   genDiagJS($_POST['newtype'], $code);
 }
 ?>
@@ -321,7 +321,7 @@ echo "    <option value=''> Search Results ($numrows items)\n";
 if ($numrows) {
 	while ($row = sqlFetchArray($res)) {
 		$code = $row['code'];
-		if ($row['modifier']) $code .= "-" . $row['modifier'];
+		if ($row['modifier']) $code .= ":" . $row['modifier'];
 		echo "    <option value='$code'>$code " . ucfirst(strtolower($row['code_text'])) . "\n";
 	}
 }
@@ -615,7 +615,7 @@ if ($_POST['newtype']) {
       sprintf('%01.2f', 0 - $code));
   }
   else {
-    list($code, $modifier) = explode("-", $_POST['newcode']);
+    list($code, $modifier) = explode(":", $_POST['newcode']);
     if ($newtype == "CPT4" && preg_match("/^[A-Z]/", $code))
       $newtype = "HCPCS";
     else if ($newtype == "OPCS" && preg_match("/^[0-9]/", $code))
