@@ -44,7 +44,7 @@ if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) 
 }
 $form_age_cols = (int) $_POST['form_age_cols'];
 $form_age_inc  = (int) $_POST['form_age_inc'];
-if ($form_age_cols > 0 && $form_age_cols < 10) {
+if ($form_age_cols > 0 && $form_age_cols < 50) {
   if ($form_age_inc <= 0) $form_age_inc = 30;
 } else {
   $form_age_cols = 0;
