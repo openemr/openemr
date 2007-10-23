@@ -52,7 +52,7 @@ $query = "SELECT " .
   "f.formdir, f.form_name, " .
   "p.fname, p.mname, p.lname, p.pid, " .
   "u.lname AS ulname, u.fname AS ufname, u.mname AS umname " .
-  "FROM form_encounter AS fe, forms AS f " .
+  "FROM ( form_encounter AS fe, forms AS f ) " .
   "LEFT OUTER JOIN patient_data AS p ON p.pid = fe.pid " .
   "LEFT OUTER JOIN users AS u ON u.username = f.user " .
   "WHERE f.encounter = fe.encounter AND f.formdir = 'newpatient' ";
