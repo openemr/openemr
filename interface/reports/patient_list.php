@@ -126,7 +126,7 @@
 
   $query = "SELECT " .
    "p.fname, p.mname, p.lname, p.street, p.city, p.state, " .
-   "p.postal_code, p.phone_home, p.phone_biz, " .
+   "p.postal_code, p.phone_home, p.phone_biz, p.pid, " .
    "count(e.date) AS ecount, max(e.date) AS edate, " .
    "i1.date AS idate1, i2.date AS idate2, " .
    "c1.name AS cname1, c2.name AS cname2 " .
