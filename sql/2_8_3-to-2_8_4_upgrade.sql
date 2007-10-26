@@ -4,3 +4,6 @@ ALTER TABLE form_encounter
 ALTER TABLE users
   ADD organization varchar(255) NOT NULL DEFAULT '',
   ADD valedictory  varchar(255) NOT NULL DEFAULT '';
+
+ALTER TABLE openemr_postcalendar_events
+  ADD pc_facility smallint(6) NOT NULL default '0' COMMENT 'facility id for this event';

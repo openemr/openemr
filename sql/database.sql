@@ -836,6 +836,7 @@ CREATE TABLE `openemr_postcalendar_events` (
   `pc_language` varchar(30) default '',
   `pc_apptstatus` char(1) NOT NULL DEFAULT '-',
   `pc_prefcatid` int(11) NOT NULL default '0',
+   `pc_facility` smallint(6) NOT NULL default '0' COMMENT 'facility id for this event',
   PRIMARY KEY  (`pc_eid`),
   KEY `basic_event` (`pc_catid`,`pc_aid`,`pc_eventDate`,`pc_endDate`,`pc_eventstatus`,`pc_sharing`,`pc_topic`)
 ) ;
@@ -843,9 +844,9 @@ CREATE TABLE `openemr_postcalendar_events` (
 --
 -- Dumping data for table `openemr_postcalendar_events`
 --
-INSERT INTO `openemr_postcalendar_events` VALUES (3,2,0,'1','','In Office','2005-03-03 12:22:31',':text:',0,0,0,'1','2005-03-03','2007-03-03',0,1,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,'09:00:00','09:00:00',0,'a:6:{s:14:\"event_location\";N;s:13:\"event_street1\";N;s:13:\"event_street2\";N;s:10:\"event_city\";N;s:11:\"event_state\";N;s:12:\"event_postal\";N;}','','','','','',1,1,'','-',0);
-INSERT INTO `openemr_postcalendar_events` VALUES (5,3,0,'1','','Out Of Office','2005-03-03 12:22:52',':text:',0,0,0,'1','2005-03-03','2007-03-03',0,1,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,'17:00:00','17:00:00',0,'a:6:{s:14:\"event_location\";N;s:13:\"event_street1\";N;s:13:\"event_street2\";N;s:10:\"event_city\";N;s:11:\"event_state\";N;s:12:\"event_postal\";N;}','','','','','',1,1,'','-',0);
-INSERT INTO `openemr_postcalendar_events` VALUES (6,8,0,'1','','Lunch','2005-03-03 12:23:31',':text:',0,0,0,'1','2005-03-03','2007-03-03',3600,1,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,'12:00:00','13:00:00',0,'a:6:{s:14:\"event_location\";N;s:13:\"event_street1\";N;s:13:\"event_street2\";N;s:10:\"event_city\";N;s:11:\"event_state\";N;s:12:\"event_postal\";N;}','','','','','',1,1,'','-',0);
+INSERT INTO `openemr_postcalendar_events` VALUES (3,2,0,'1','','In Office','2005-03-03 12:22:31',':text:',0,0,0,'1','2005-03-03','2007-03-03',0,1,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,'09:00:00','09:00:00',0,'a:6:{s:14:\"event_location\";N;s:13:\"event_street1\";N;s:13:\"event_street2\";N;s:10:\"event_city\";N;s:11:\"event_state\";N;s:12:\"event_postal\";N;}','','','','','',1,1,'','-',0, 0);
+INSERT INTO `openemr_postcalendar_events` VALUES (5,3,0,'1','','Out Of Office','2005-03-03 12:22:52',':text:',0,0,0,'1','2005-03-03','2007-03-03',0,1,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,'17:00:00','17:00:00',0,'a:6:{s:14:\"event_location\";N;s:13:\"event_street1\";N;s:13:\"event_street2\";N;s:10:\"event_city\";N;s:11:\"event_state\";N;s:12:\"event_postal\";N;}','','','','','',1,1,'','-',0, 0);
+INSERT INTO `openemr_postcalendar_events` VALUES (6,8,0,'1','','Lunch','2005-03-03 12:23:31',':text:',0,0,0,'1','2005-03-03','2007-03-03',3600,1,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,'12:00:00','13:00:00',0,'a:6:{s:14:\"event_location\";N;s:13:\"event_street1\";N;s:13:\"event_street2\";N;s:10:\"event_city\";N;s:11:\"event_state\";N;s:12:\"event_postal\";N;}','','','','','',1,1,'','-',0, 0);
 
 /*!40000 ALTER TABLE `openemr_postcalendar_events` DISABLE KEYS */;
 /*!40000 ALTER TABLE `openemr_postcalendar_events` ENABLE KEYS */;
