@@ -78,8 +78,8 @@ function postcalendar_user_view()
 function postcalendar_user_display($args)
 {
     list($eid, $viewtype, $tplview,
-		 $pc_username, $Date, $print, $category, $topic) = pnVarCleanFromInput('eid', 'viewtype', 'tplview',
-		                                                 'pc_username', 'Date', 'print', 'pc_category', 'pc_topic');
+		 $pc_username, $Date, $print, $category, $topic, $pc_facility) = pnVarCleanFromInput('eid', 'viewtype', 'tplview',
+		                                                 'pc_username', 'Date', 'print', 'pc_category', 'pc_topic', 'pc_facility');
 
 	extract($args);
     if(empty($Date) && empty($viewtype)) {

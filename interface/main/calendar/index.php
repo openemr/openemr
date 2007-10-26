@@ -40,6 +40,9 @@ include 'includes/pnAPI.php';
 // From Michael Brinson 2006-09-19:
 if ($_POST['pc_username']) $_SESSION['pc_username'] = $_POST['pc_username'];
 
+// FACILITY FILTERING (lemonsoftware)
+$_SESSION['pc_facility'] = ( $_POST['pc_facility'] ) ? $_POST['pc_facility'] : '0';
+
 //if (empty($_GET['no_nav'])) {
 //        $_SESSION['last_calendar_page'] = $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING'];
 //}

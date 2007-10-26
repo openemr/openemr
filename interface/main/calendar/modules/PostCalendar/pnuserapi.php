@@ -966,6 +966,15 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "(a.pc_endDate = '0000-00-00' AND a.pc_eventDate >= '$start' AND " .
     "a.pc_eventDate <= '$end')) ";
 
+  //==================================
+  //FACILITY FILTERING (lemonsoftware)
+    if ( $pc_facility ) {
+            $sql .= " AND a.pc_facility = $pc_facility ";
+    }
+  //EOS FACILITY FILTERING (lemonsoftware)
+  //==================================
+
+
   // The above 3 lines replaced these:
   //   AND (a.pc_endDate >= '$start' OR a.pc_endDate = '0000-00-00')
   //   AND a.pc_eventDate <= '$end' ";
