@@ -53,6 +53,33 @@
 
  $info_msg = "";
 
+// ===========================
+// EVENTS TO FACILITIES (lemonsoftware)
+// edit event case - if there is no association made, then insert one with the first facility
+if ( $eid ) {
+    $selfacil = ''; 
+    $facility = sqlQuery("SELECT pc_facility, pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+    if ( !$facility['pc_facility'] ) {
+        $qmin = sqlQuery("SELECT MIN(id) as minId FROM facility");
+        $min  = $qmin['minId'];
+
+        // multiple providers case
+        if ( $GLOBALS['select_multi_providers'] ) {
+            $mul  = $facility['pc_multiple'];
+            sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = $min WHERE pc_multiple = $mul");
+        }
+        // EOS multiple
+
+        sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = $min WHERE pc_eid = $eid");
+        $e2f = $minId;
+    } else {
+        $e2f = $facility['pc_facility'];
+    }
+}
+// EOS E2F
+// ===========================
+
+
  // If we are saving, then save and close the window.
  //
  if ($_POST['form_save']) {
@@ -136,7 +163,7 @@
         $r2 = array_diff ($providers_new, $providers_current);
         if (count ($r2)) {
             foreach ($r2 as $to_be_inserted) {
-                sqlInsert("INSERT INTO openemr_postcalendar_events ( pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing) 
+                sqlInsert("INSERT INTO openemr_postcalendar_events ( pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility) 
                 VALUES ( " .
                     "'" . $_POST['form_category']             . "', " .
                     "'" . $row['pc_multiple']             . "', " .
@@ -158,7 +185,7 @@
                     "'" . $_POST['form_prefcat']              . "', " .
                     "'$locationspec', "                               .
                     "1, " .
-                    "1 )");
+                    "1, " .(int)$_POST['facility']. " )"); // FF stuff
             } // foreach
        } //if count
 
@@ -183,6 +210,7 @@
             "pc_alldayevent = '" . $_POST['form_allday']               . "', " .
             "pc_apptstatus = '"  . $_POST['form_apptstatus']           . "', "  .
             "pc_prefcatid = '"   . $_POST['form_prefcat']              . "' "  .
+             "pc_facility = '"   .(int)$_POST['facility']               ."' "  . // FF stuff
               "WHERE pc_aid = '$provider' AND pc_multiple={$row['pc_multiple']}");
         } // foreach
 
@@ -220,6 +248,13 @@
 
     }
 
+// =======================================
+// EOS multi providers case
+// =======================================
+
+  // EVENTS TO FACILITIES
+  $e2f = (int)$eid;
+
 /* =======================================================
 //                                  INSERT EVENTS
 ========================================================*/
@@ -241,7 +276,7 @@ if (is_array($_POST['form_provider'])) {
     "pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
     "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
     "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
-    "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing " .
+    "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility " .
     ") VALUES ( " .
     "'" . $_POST['form_category']             . "', " .
     "'" . $new_multiple_value             . "', " .
@@ -263,13 +298,9 @@ if (is_array($_POST['form_provider'])) {
     "'" . $_POST['form_prefcat']              . "', " .
     "'$locationspec', "                               .
     "1, " .
-    "1 )");
+    "1, " .(int)$_POST['facility']. " )"); // FF stuff
 
     } // foreach
-
-// =======================================
-// EOS multi providers case
-// =======================================
 
 } else {
 sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
@@ -297,10 +328,9 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
     "'" . $_POST['form_prefcat']              . "', " .
     "'$locationspec', "                               .
     "1, " .
-    "1 )");
-  }
+    "1," .(int)$_POST['facility']. ")"); // FF stuff
+  } // INSERT single
  } // else - insert
-
 
   // Save new DOB if it's there.
   $patient_dob = trim($_POST['form_dob']);
@@ -715,6 +745,27 @@ td { font-size:10pt; }
     title='<?php xl('Event duration in minutes','e'); ?>' /> <? xl('minutes','e'); ?>
   </td>
  </tr>
+
+    <tr>
+      <td nowrap><b><?php xl('Facility','e'); ?>:</b></td>
+      <td>
+      <select name="facility" id="facility">
+      <?php
+      // ===========================
+      // EVENTS TO FACILITIES
+      // get the facilities
+      $qsql = sqlStatement("SELECT * FROM facility");
+      while ($row = sqlFetchArray($qsql)) {
+        $selected = ( $row['id'] == $e2f ) ? 'selected="selected"' : '' ;
+        echo "<option value={$row['id']} $selected>{$row['name']}</option>";
+      }
+      // EOS E2F
+      // ===========================
+      ?>
+      </td>
+      </select>
+    </tr>
+
 
  <tr>
   <td nowrap>
