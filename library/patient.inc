@@ -78,6 +78,29 @@ function getProviders() {
 	return $returnval;
 }
 
+/**
+GET FACILITIES
+
+returns all facilities or just the id for the first one
+(FACILITY FILTERING (lemonsoftware))
+
+@param string - if 'first' return first facility ordered by id
+@return array | int for 'first' case
+*/
+function getFacilities($first = '') {
+	$r = sqlStatement("SELECT * FROM facility ORDER BY id");
+	$ret = array();
+	while ( $row = sqlFetchArray($r) ) {
+	   $ret[] = $row;
+}
+	
+        if ( $first == 'first') {
+            return $ret[0]['id'];
+        } else {
+            return $ret;
+        }
+}
+
 function getProviderInfo($providerID = "%", $providers_only = true) {
 	$param1 = "";
 	if ($providers_only) {
