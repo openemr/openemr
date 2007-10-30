@@ -79,7 +79,8 @@ function selpopup(selobj) {
      <option value='../../custom/refer.php'><? xl('Refer','e'); ?></option>
 <?php } ?>
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
-     <option value='pos_checkout.php'><? xl('Payment','e'); ?></option>
+     <option value='front_payment.php'><? xl('Prepay','e'); ?></option>
+     <option value='pos_checkout.php'><? xl('Checkout','e'); ?></option>
 <?php } else { ?>
      <option value='front_payment.php'><? xl('Payment','e'); ?></option>
 <?php } ?>
