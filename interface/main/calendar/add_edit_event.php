@@ -209,7 +209,7 @@ if ( $eid ) {
             "pc_endTime = '$endtime', "                                        .
             "pc_alldayevent = '" . $_POST['form_allday']               . "', " .
             "pc_apptstatus = '"  . $_POST['form_apptstatus']           . "', "  .
-            "pc_prefcatid = '"   . $_POST['form_prefcat']              . "' "  .
+            "pc_prefcatid = '"   . $_POST['form_prefcat']              . "' ,"  .
              "pc_facility = '"   .(int)$_POST['facility']               ."' "  . // FF stuff
               "WHERE pc_aid = '$provider' AND pc_multiple={$row['pc_multiple']}");
         } // foreach
@@ -243,7 +243,8 @@ if ( $eid ) {
             "pc_endTime = '$endtime', "                                        .
             "pc_alldayevent = '" . $_POST['form_allday']               . "', " .
             "pc_apptstatus = '"  . $_POST['form_apptstatus']           . "', "  .
-            "pc_prefcatid = '"   . $_POST['form_prefcat']              . "' "  .
+            "pc_prefcatid = '"   . $_POST['form_prefcat']              . "' ,"  .
+             "pc_facility = '"   .(int)$_POST['facility']               ."' "  . // FF stuff
             "WHERE pc_eid = '$eid'");
 
     }
