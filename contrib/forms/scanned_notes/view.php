@@ -68,9 +68,10 @@ if ($_POST['bn_save']) {
    if ($tmp2) die("mkdir returned $tmp2: $tmp0");
    exec("touch '$imagedir/index.html'");
   }
+  if (is_file($imagepath)) unlink($imagepath);
   $tmp_name = $_FILES['form_image']['tmp_name'];
   // $cmd = "convert '$tmp_name' '$imagepath'"; // default density is 72 dpi
-  $cmd = "convert -density 96 '$tmp_name' '$imagepath'";
+  $cmd = "convert -density 96 '$tmp_name' -append '$imagepath'";
   $tmp0 = exec($cmd, $tmp1, $tmp2);
   if ($tmp2) die("\"$cmd\" returned $tmp2: $tmp0");
  }
