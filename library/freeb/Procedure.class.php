@@ -1366,7 +1366,16 @@ class Procedure Extends DataObjectBase {
 		}
 		else {
 			if (!$results->EOF) {
-				$retval = $results->fields['ndc_info'];
+        // Medicare says the NDC number must be 11 digits with no dashes.
+        $ndcinfo = $results->fields['ndc_info'];
+        if (preg_match('/^N4(\S+)\s+(\S*)/', $ndcinfo, $tmpa)) {
+          $ndc = $tmpa[1];
+          if (preg_match('/^(\d+)-(\d+)-(\d+)$/', $ndc, $tmpb)) {
+            $ndc = sprintf('%05d%04d%02d', $tmpb[1], $tmpb[2], $tmpb[3]);
+          }
+          $ndcinfo = "N4$ndc   " . $tmpa[2];
+        }
+				$retval = $ndcinfo;
 			}
 		}
 		if ($err) {
