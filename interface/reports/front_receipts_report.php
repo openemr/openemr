@@ -1,5 +1,5 @@
 <?
- // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2007 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -33,8 +33,9 @@
  var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
 
  // The OnClick handler for receipt display.
- function show_receipt(payid) {
-  dlgopen('../patient_file/front_payment.php?receipt=1&payid=' + payid, '_blank', 550, 400);
+ function show_receipt(pid,timestamp) {
+  dlgopen('../patient_file/front_payment.php?receipt=1&patient=' + pid +
+   '&time=' + timestamp, '_blank', 550, 400);
   return false;
  }
 
@@ -113,26 +114,32 @@
   $total1 = 0.00;
   $total2 = 0.00;
 
-  $query = "SELECT " .
-   "r.id, r.dtime, r.method, r.source, r.amount1, r.amount2, " .
-   "p.fname, p.mname, p.lname, p.pubpid " .
-   "FROM  payments AS r " .
-   "LEFT OUTER JOIN patient_data AS p ON " .
-   "p.pid = r.pid " .
-   "WHERE " .
-   "r.dtime >= '$from_date 00:00:00' AND " .
-   "r.dtime <= '$to_date 23:59:59' " .
-   "ORDER BY r.dtime";
+  $query = "SELECT r.pid, r.dtime, " .
+    "SUM(r.amount1) AS amount1, " .
+    "SUM(r.amount2) AS amount2, " .
+    "MAX(r.method) AS method, " .
+    "MAX(r.source) AS source, " .
+    "MAX(r.user) AS user, " .
+    "p.fname, p.mname, p.lname, p.pubpid " .
+    "FROM payments AS r " .
+    "LEFT OUTER JOIN patient_data AS p ON " .
+    "p.pid = r.pid " .
+    "WHERE " .
+    "r.dtime >= '$from_date 00:00:00' AND " .
+    "r.dtime <= '$to_date 23:59:59' " .
+    "GROUP BY r.dtime, r.pid ORDER BY r.dtime, r.pid";
 
   // echo "<!-- $query -->\n"; // debugging
   $res = sqlStatement($query);
 
   while ($row = sqlFetchArray($res)) {
+    // Make the timestamp URL-friendly.
+    $timestamp = preg_replace('/[^0-9]/', '', $row['dtime']);
 ?>
  <tr>
   <td class='detail'>
-   <a href='' onclick='return show_receipt(<?php echo $row['id'] ?>)'>
-   <?php echo substr($row['dtime'], 0, 16) ?>
+   <a href='' onclick="return show_receipt(<?php echo $row['pid'] . ",'$timestamp'"; ?>)">
+   <?php echo substr($row['dtime'], 0, 16); ?>
    </a>
   </td>
   <td class='detail'>

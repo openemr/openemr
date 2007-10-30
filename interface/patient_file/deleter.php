@@ -1,20 +1,22 @@
 <?
- // Copyright (C) 2005, 2006 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2007 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
- include_once("../globals.php");
- include_once("$srcdir/log.inc");
- include_once("$srcdir/acl.inc");
+ require_once("../globals.php");
+ require_once("$srcdir/log.inc");
+ require_once("$srcdir/acl.inc");
+ require_once("$srcdir/sl_eob.inc.php");
 
  $patient     = $_REQUEST['patient'];
  $encounterid = $_REQUEST['encounterid'];
  $formid      = $_REQUEST['formid'];
  $issue       = $_REQUEST['issue'];
  $document    = $_REQUEST['document'];
+ $payment     = $_REQUEST['payment'];
 
  $info_msg = "";
 
@@ -55,6 +57,23 @@
    sqlStatement($query);
   }
  }
+
+// We use this to put dashes, colons, etc. back into a timestamp.
+//
+function decorateString($fmt, $str) {
+  $res = '';
+  while ($fmt) {
+    $fc = substr($fmt, 0, 1);
+    $fmt = substr($fmt, 1);
+    if ($fc == '.') {
+      $res .= substr($str, 0, 1);
+      $str = substr($str, 1);
+    } else {
+      $res .= $fc;
+    }
+  }
+  return $res;
+}
 
 ?>
 <html>
@@ -136,8 +155,48 @@ td { font-size:10pt; }
     @unlink(substr($url, 7));
    }
   }
+  else if ($payment) {
+    list($patient_id, $timestamp) = explode(".", $payment);
+    $timestamp = decorateString('....-..-.. ..:..:..', $timestamp);
+    $payres = sqlStatement("SELECT * FROM payments WHERE " .
+      "pid = '$patient_id' AND dtime = '$timestamp'");
+    while ($payrow = sqlFetchArray($payres)) {
+      if ($payrow['amount1'] != 0) {
+        // Mark the payment as inactive.
+        row_modify("billing", "activity = 0",
+          "pid = '$patient_id' AND " .
+          "encounter = '" . $payrow['encounter'] . "' AND " .
+          "code_type = 'COPAY' AND " .
+          "fee = '" . (0 - $payrow['amount1']) . "' AND " .
+          "LEFT(date, 10) = '" . substr($timestamp, 0, 10) . "' AND " .
+          "activity = 1 LIMIT 1");
+      }
+      if ($payrow['amount2'] != 0) {
+        // Look up the matching invoice and post an offsetting payment.
+        slInitialize();
+        $invnum = "$patient_id." . $payrow['encounter'];
+        $thissrc = 'Pt/';
+        if ($payrow['method']) {
+          $thissrc .= $payrow['method'];
+          if ($payrow['source']) $thissrc .= ' ' . $payrow['source'];
+        }
+        $thissrc .= ' front office reversal';
+        $trans_id = SLQueryValue("SELECT id FROM ar WHERE " .
+          "ar.invnumber = '$invnum' LIMIT 1");
+        if ($trans_id) {
+          slPostPayment($trans_id, 0 - $payrow['amount2'], date('Y-m-d'),
+            $thissrc, '', 0, 0);
+        } else {
+          $info_msg .= "Invoice '$invnum' not found; could not delete its " .
+            "payment of \$" . $payrow['amount2'] . ". ";
+        }
+        SLClose();
+      }
+      row_delete("payments", "id = '" . $payrow['id'] . "'");
+    }
+  }
   else {
-   die("Nothing was specified to delete!");
+   die("Nothing was recognized to delete!");
   }
 
   if (! $info_msg) $info_msg = "Delete successful.";
@@ -153,7 +212,7 @@ td { font-size:10pt; }
  }
 ?>
 
-<form method='post' action='deleter.php?patient=<? echo $patient ?>&encounterid=<? echo $encounterid ?>&formid=<? echo $formid ?>&issue=<? echo $issue ?>&document=<? echo $document ?>'>
+<form method='post' action='deleter.php?patient=<? echo $patient ?>&encounterid=<? echo $encounterid ?>&formid=<? echo $formid ?>&issue=<? echo $issue ?>&document=<? echo $document ?>&payment=<? echo $payment ?>'>
 
 <p>&nbsp;<br><?php xl('
 Do you really want to delete','e'); ?>
@@ -169,6 +228,8 @@ Do you really want to delete','e'); ?>
   echo "issue $issue";
  } else if ($document) {
   echo "document $document";
+ } else if ($payment) {
+  echo "payment $payment";
  }
 ?> <? xl('and all subordinate data? This action will be logged','e'); ?>!</p>
 
