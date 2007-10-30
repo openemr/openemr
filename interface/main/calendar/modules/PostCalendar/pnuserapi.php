@@ -969,6 +969,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
   //==================================
   //FACILITY FILTERING (lemonsoftware)
     if ( $pc_facility ) {
+            $pc_facility = $_SESSION['pc_facility'];
             $sql .= " AND a.pc_facility = $pc_facility ";
     }
   //EOS FACILITY FILTERING (lemonsoftware)
@@ -1213,7 +1214,7 @@ function &postcalendar_userapi_pcGetEvents($args)
 	if ($faFlag && !isset($events)) {
 		$a = array('faFlag' => true,'start'=>$start_date,'end'=>$end_date,'s_keywords'=>$s_keywords,'s_category'=>$s_category,'s_topic'=>$s_topic,'viewtype'=>$viewtype, 'provider_id' => $provider_id, 'event_status' => $event_status);
 		//print_r($a);
-		$events =& pnModAPIFunc(__POSTCALENDAR__,'user','pcQueryEventsFA',$a);
+		$events =& pnModAPIFunc(__POSTCALENDAR__,'user','<strong></strong>pcQueryEventsFA',$a);
 	}
 	elseif ($collideFlag && !isset($events)) {
 
