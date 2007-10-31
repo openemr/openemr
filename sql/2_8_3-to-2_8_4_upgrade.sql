@@ -9,4 +9,5 @@ ALTER TABLE openemr_postcalendar_events
   ADD pc_facility smallint(6) NOT NULL default '0' COMMENT 'facility id for this event';
 
 ALTER TABLE payments
-  ADD encounter bigint(20) NOT NULL DEFAULT 0;
+  ADD encounter bigint(20) NOT NULL DEFAULT 0,
+  ADD KEY pid (pid);

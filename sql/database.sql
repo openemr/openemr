@@ -1612,6 +1612,7 @@ CREATE TABLE `payments` (
   `id`          bigint(20)    NOT NULL auto_increment,
   `pid`         bigint(20)    NOT NULL DEFAULT 0,
   `dtime`       datetime      NOT NULL,
+  `encounter`   bigint(20)    NOT NULL DEFAULT 0,
   `user`        varchar(255)  NOT NULL DEFAULT '',
   `method`      varchar(255)  NOT NULL DEFAULT '',
   `source`      varchar(255)  NOT NULL DEFAULT '',
@@ -1619,7 +1620,8 @@ CREATE TABLE `payments` (
   `amount2`     decimal(7,2)  NOT NULL DEFAULT 0,
   `posted1`     decimal(7,2)  NOT NULL DEFAULT 0,
   `posted2`     decimal(7,2)  NOT NULL DEFAULT 0,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `pid` (`pid`)
 ) ;
 
 ### changes for 2.8.1 to 2.8.2
