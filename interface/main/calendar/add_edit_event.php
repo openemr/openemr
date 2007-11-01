@@ -308,7 +308,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
     "pc_catid, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
     "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
     "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
-    "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing " .
+    "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility " .
     ") VALUES ( " .
     "'" . $_POST['form_category']             . "', " .
     "'" . $_POST['form_provider']             . "', " .

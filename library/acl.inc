@@ -1,4 +1,4 @@
-<?
+<?php
   // If you have installed phpGACL (http://phpgacl.sourceforge.net/)
   // and have configured it for your site, then uncomment the following
   // statement and change it to point to the location where
@@ -263,7 +263,7 @@
             $arr_admin = $gacl->get_object_groups($admin_id, 'ARO', 'NO_RECURSE');
             foreach ($arr_admin as $value3) {
               $arr_admin_data = $gacl->get_group_data($value3, 'ARO');
-              if (in_array($arr_admin_data[2], 'admin')) {
+              if (strcmp($arr_admin_data[2], 'admin') == 0) {
                 $boolean_admin=1;
               }
             }
