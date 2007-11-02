@@ -10,7 +10,7 @@ class C_Prescription extends Controller {
 	var $template_mod;
 	var $pconfig;
 	var $providerid = 0;
-	var $use_signature_images = false;
+	var $is_faxing = false;
 
 	function C_Prescription($template_mod = "general") {
 		parent::Controller();
@@ -194,7 +194,14 @@ class C_Prescription extends Controller {
 		$my_y = $pdf->y;
 		$pdf->ezNewPage();
 		$pdf->ezText('<b>' . $p->provider->get_name_display() . '</b>',12);
-		$pdf->ezText('<b>DEA:</b>' . $p->provider->federal_drug_id,12);
+    // A client had a bad experience with a patient misusing a DEA number, so
+    // now the doctors write those in on printed prescriptions and only when
+    // necessary.  If you need to change this back, then please make it a
+    // configurable option.  Faxed prescriptions were not changed.  -- Rod
+    if ($this->is_faxing)
+      $pdf->ezText('<b>DEA:</b>' . $p->provider->federal_drug_id, 12);
+    else
+      $pdf->ezText('<b>DEA:</b> ________________________', 12);
 		$pdf->ezColumnsStop();
 		if ($my_y < $pdf->y){
 			$pdf->ezSetY($my_y);
@@ -227,7 +234,7 @@ class C_Prescription extends Controller {
 	}
 
 	function multiprint_footer(& $pdf) {
-		if($this->pconfig['use_signature'] && $this->use_signature_images) {
+		if($this->pconfig['use_signature'] && $this->is_faxing) {
 			$sigfile = str_replace('{userid}', $this->providerid, $this->pconfig['signature']);
 			if (file_exists($sigfile)) {
 				$pdf->ezText("Signature: ",12);
@@ -407,7 +414,7 @@ class C_Prescription extends Controller {
 		$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
 
 		// Signature images are to be used only when faxing.
-		if(!empty($toFile)) $this->use_signature_images = true;
+		if(!empty($toFile)) $this->is_faxing = true;
 
 		$this->multiprint_header($pdf, $p);
 		$this->multiprint_body($pdf, $p);
