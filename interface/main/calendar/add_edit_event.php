@@ -756,9 +756,9 @@ td { font-size:10pt; }
       // EVENTS TO FACILITIES
       // get the facilities
       $qsql = sqlStatement("SELECT * FROM facility");
-      while ($row = sqlFetchArray($qsql)) {
-        $selected = ( $row['id'] == $e2f ) ? 'selected="selected"' : '' ;
-        echo "<option value={$row['id']} $selected>{$row['name']}</option>";
+      while ($facrow = sqlFetchArray($qsql)) {
+        $selected = ( $facrow['id'] == $e2f ) ? 'selected="selected"' : '' ;
+        echo "<option value={$facrow['id']} $selected>{$facrow['name']}</option>";
       }
       // EOS E2F
       // ===========================
