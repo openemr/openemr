@@ -1253,132 +1253,149 @@ function &postcalendar_userapi_pcGetEvents($args)
 }
 
 function calculateEvents($days,$events,$viewtype) {
-		$date =& postcalendar_getDate();
-    $cy = substr($date,0,4);
-    $cm = substr($date,4,2);
-    $cd = substr($date,6,2);
+  $date =& postcalendar_getDate();
+  $cy = substr($date,0,4);
+  $cm = substr($date,4,2);
+  $cd = substr($date,6,2);
 
-foreach($events as $event) {
-        // get the name of the topic
-        $topicname = pcGetTopicName($event['topic']);
+  foreach($events as $event) {
+    // get the name of the topic
+    $topicname = pcGetTopicName($event['topic']);
 
-		// parse the event start date
-        list($esY,$esM,$esD) = explode('-',$event['eventDate']);
-        // grab the recurring specs for the event
-        $event_recurrspec = @unserialize($event['recurrspec']);
-        // determine the stop date for this event
-        if($event['endDate'] == '0000-00-00') {
-            $stop = $end_date;
-        } else {
-            $stop = $event['endDate'];
+    // parse the event start date
+    list($esY,$esM,$esD) = explode('-',$event['eventDate']);
+
+    // grab the recurring specs for the event
+    $event_recurrspec = @unserialize($event['recurrspec']);
+
+    // determine the stop date for this event
+    if($event['endDate'] == '0000-00-00') {
+      $stop = $end_date;
+    } else {
+      $stop = $event['endDate'];
+    }
+
+    $start_date = "$cy-$cm-$cd";
+
+    // Optimization of the stop date to not be much later than required.
+    $tmpsecs = strtotime($start_date);
+    if      ($viewtype == 'day')   $tmpsecs +=  2 * 24 * 3600;
+    else if ($viewtype == 'week')  $tmpsecs +=  8 * 24 * 3600;
+    else if ($viewtype == 'month') $tmpsecs += 32 * 24 * 3600;
+    else $tmpsecs += 367 * 24 * 3600;
+    $tmp = date('Y-m-d', $tmpsecs);
+    if ($stop > $tmp) $stop = $tmp;
+
+    $eventD = $event['eventDate'];
+    $eventS = $event['startTime'];
+
+    switch($event['recurrtype']) {
+
+      //==============================================================
+      //  Events that do not repeat only have a startday
+      //==============================================================
+      case NO_REPEAT :
+
+        if(isset($days[$event['eventDate']])) {
+          array_push($days[$event['eventDate']],$event);
+          if ($viewtype == "week") {
+            //echo "non repeating date eventdate: $eventD  startime:$eventS block #: " . getBlockTime($eventS) ."<br />";
+
+            fillBlocks($eventD,&$days);
+            //echo "for $eventD loading " . getBlockTime($eventS) . "<br /><br />";
+            $gbt = getBlockTime($eventS);
+            $days[$eventD]['blocks'][$gbt][$eventD][] = $event;
+            //echo "event is: " . print_r($days[$eventD]['blocks'][$gbt],true) . " <br />";
+            //echo "begin printing blocks for $eventD<br />";
+            //print_r($days[$eventD]['blocks']);
+            //echo "end printing blocks<br />";
+          }
         }
 
-		$eventD = $event['eventDate'];
-		$eventS = $event['startTime'];
+        break;
 
-        switch($event['recurrtype']) {
-            //==============================================================
-            //  Events that do not repeat only have a startday
-            //==============================================================
-            case NO_REPEAT :
+      //==============================================================
+      //  Find events that repeat at a certain frequency
+      //  Every,Every Other,Every Third,Every Fourth
+      //  Day,Week,Month,Year,MWF,TR,M-F,SS
+      //==============================================================
+      case REPEAT :
 
-				if(isset($days[$event['eventDate']])) {
-					array_push($days[$event['eventDate']],$event);
-					if ($viewtype == "week") {
-						//echo "non repeating date eventdate: $eventD  startime:$eventS block #: " . getBlockTime($eventS) ."<br />";
+        $rfreq = $event_recurrspec['event_repeat_freq'];
+        $rtype = $event_recurrspec['event_repeat_freq_type'];
+        // we should bring the event up to date to make this a tad bit faster
+        // any ideas on how to do that, exactly??? dateToDays probably.
+        $nm = $esM; $ny = $esY; $nd = $esD;
+        $occurance = Date_Calc::dateFormat($nd,$nm,$ny,'%Y-%m-%d');
+        while($occurance < $start_date) {
+          $occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
+          list($ny,$nm,$nd) = explode('-',$occurance);
+        }
+        while($occurance <= $stop) {
+          if(isset($days[$occurance])) {
+            array_push($days[$occurance],$event);
+            if ($viewtype == "week") {
+              fillBlocks($occurance,&$days);
+              //echo "for $occurance loading " . getBlockTime($eventS) . "<br /><br />";
+              $gbt = getBlockTime($eventS);
+              $days[$occurance]['blocks'][$gbt][$occurance][] = $event;
+              //echo "begin printing blocks for $eventD<br />";
+              //print_r($days[$occurance]['blocks']);
+              //echo "end printing blocks<br />";
+            }
+          }
+          $occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
+          list($ny,$nm,$nd) = explode('-',$occurance);
+        }
 
-						fillBlocks($eventD,&$days);
-						//echo "for $eventD loading " . getBlockTime($eventS) . "<br /><br />";
-						$gbt = getBlockTime($eventS);
-						$days[$eventD]['blocks'][$gbt][$eventD][] = $event;
-						//echo "event is: " . print_r($days[$eventD]['blocks'][$gbt],true) . " <br />";
-						//echo "begin printing blocks for $eventD<br />";
-						//print_r($days[$eventD]['blocks']);
-						//echo "end printing blocks<br />";
-					}
-                }
+        break;
 
-                break;
-            //==============================================================
-            //  Find events that repeat at a certain frequency
-            //  Every,Every Other,Every Third,Every Fourth
-            //  Day,Week,Month,Year,MWF,TR,M-F,SS
-            //==============================================================
-            case REPEAT :
-                $rfreq = $event_recurrspec['event_repeat_freq'];
-                $rtype = $event_recurrspec['event_repeat_freq_type'];
-                // we should bring the event up to date to make this a tad bit faster
-				// any ideas on how to do that, exactly??? dateToDays probably.
-				$nm = $esM; $ny = $esY; $nd = $esD;
-                $occurance = Date_Calc::dateFormat($nd,$nm,$ny,'%Y-%m-%d');
-				while($occurance < $start_date) {
-					$occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
-					list($ny,$nm,$nd) = explode('-',$occurance);
-				}
-				while($occurance <= $stop) {
-                    if(isset($days[$occurance])) {
-						array_push($days[$occurance],$event);
-						if ($viewtype == "week") {
-							fillBlocks($occurance,&$days);
-							//echo "for $occurance loading " . getBlockTime($eventS) . "<br /><br />";
-							$gbt = getBlockTime($eventS);
-							$days[$occurance]['blocks'][$gbt][$occurance][] = $event;
-							//echo "begin printing blocks for $eventD<br />";
-							//print_r($days[$occurance]['blocks']);
-							//echo "end printing blocks<br />";
-						}
-					}
-                    $occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
-					list($ny,$nm,$nd) = explode('-',$occurance);
-                }
-				break;
+      //==============================================================
+      //  Find events that repeat on certain parameters
+      //  On 1st,2nd,3rd,4th,Last
+      //  Sun,Mon,Tue,Wed,Thu,Fri,Sat
+      //  Every N Months
+      //==============================================================
+      case REPEAT_ON :
 
-            //==============================================================
-            //  Find events that repeat on certain parameters
-            //  On 1st,2nd,3rd,4th,Last
-            //  Sun,Mon,Tue,Wed,Thu,Fri,Sat
-            //  Every N Months
-            //==============================================================
-            case REPEAT_ON :
-                $rfreq = $event_recurrspec['event_repeat_on_freq'];
-                $rnum  = $event_recurrspec['event_repeat_on_num'];
-                $rday  = $event_recurrspec['event_repeat_on_day'];
+        $rfreq = $event_recurrspec['event_repeat_on_freq'];
+        $rnum  = $event_recurrspec['event_repeat_on_num'];
+        $rday  = $event_recurrspec['event_repeat_on_day'];
 
-                //==============================================================
-                //  Populate - Enter data into the event array
-                //==============================================================
-                $nm = $esM; $ny = $esY; $nd = $esD;
-                 // make us current
+        //==============================================================
+        //  Populate - Enter data into the event array
+        //==============================================================
+        $nm = $esM; $ny = $esY; $nd = $esD;
+        // make us current
 
-                while($ny < $cy) {
+        while($ny < $cy) {
+          $occurance = date('Y-m-d',mktime(0,0,0,$nm+$rfreq,$nd,$ny));
+          list($ny,$nm,$nd) = explode('-',$occurance);
+        }
+        // populate the event array
+        while($ny <= $cy) {
+          $dnum = $rnum; // get day event repeats on
+          do {
+              $occurance = Date_Calc::NWeekdayOfMonth($dnum--,$rday,$nm,$ny,$format="%Y-%m-%d");
+          } while($occurance === -1);
+          if(isset($days[$occurance]) && $occurance <= $stop) {
+            array_push($days[$occurance],$event);
+            if ($viewtype == "week") {
+              fillBlocks($occurance,&$days);
+              //echo "for $occurance loading " . getBlockTime($eventS) . "<br /><br />";
+              $gbt = getBlockTime($eventS);
+              $days[$occurance]['blocks'][$gbt][$occurance][] = $event;
+            }
+          }
+          $occurance = date('Y-m-d',mktime(0,0,0,$nm+$rfreq,$nd,$ny));
+          list($ny,$nm,$nd) = explode('-',$occurance);
+        }
 
-                    $occurance = date('Y-m-d',mktime(0,0,0,$nm+$rfreq,$nd,$ny));
-					list($ny,$nm,$nd) = explode('-',$occurance);
+        break;
 
-                }
-                // populate the event array
-                while($ny <= $cy) {
-
-                    $dnum = $rnum; // get day event repeats on
-                    do {
-                        $occurance = Date_Calc::NWeekdayOfMonth($dnum--,$rday,$nm,$ny,$format="%Y-%m-%d");
-                    } while($occurance === -1);
-                    if(isset($days[$occurance]) && $occurance <= $stop) {
-						array_push($days[$occurance],$event);
-						if ($viewtype == "week") {
-							fillBlocks($occurance,&$days);
-							//echo "for $occurance loading " . getBlockTime($eventS) . "<br /><br />";
-							$gbt = getBlockTime($eventS);
-							$days[$occurance]['blocks'][$gbt][$occurance][] = $event;
-						}
-					}
-                    $occurance = date('Y-m-d',mktime(0,0,0,$nm+$rfreq,$nd,$ny));
-					list($ny,$nm,$nd) = explode('-',$occurance);
-                }
-                break;
-        } // <- end of switch($event['recurrtype'])
-    } // <- end of foreach($events as $event)
-	return $days;
+    } // <- end of switch($event['recurrtype'])
+  } // <- end of foreach($events as $event)
+  return $days;
 }
 
 function fillBlocks($td,&$ar) {
