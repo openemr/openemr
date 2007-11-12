@@ -152,8 +152,8 @@ else {
 
 $v_major = '2';
 $v_minor = '8';
-$v_patch = '3';
-$tag = ''; // release candidate, e.g. '-rc1'
+$v_patch = '4';
+$tag = '-dev'; // release candidate, e.g. '-rc1'
 
 // This name appears on the login page and in the title bar of most windows.
 // It's nice to customize this to be the name of your clinic.
