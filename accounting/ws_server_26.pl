@@ -28,6 +28,10 @@ my $add_salesman = \&rpc_add_employee;
 my $add_invoice = \&rpc_add_invoice;
 my $customer_balance = \&rpc_customer_balance;
 
+# In case we are running under Windows, do not strip carriage returns
+# from POSTed data, otherwise Frontier::Responder may fail.
+binmode(STDIN);
+
 my $res = Frontier::Responder->new( methods => {
   'ezybiz.add_invoice' => $add_invoice,
   'ezybiz.add_salesman' => $add_salesman,
