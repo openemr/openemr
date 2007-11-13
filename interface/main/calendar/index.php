@@ -40,6 +40,9 @@ include 'includes/pnAPI.php';
 // From Michael Brinson 2006-09-19:
 if ($_POST['pc_username']) $_SESSION['pc_username'] = $_POST['pc_username'];
 
+// bug fix to allow default selection of a provider
+if ($_GET['pc_username']) $_SESSION['pc_username'] = $_GET['pc_username'];
+
 // FACILITY FILTERING (lemonsoftware)
 $_SESSION['pc_facility'] = ( $_POST['pc_facility'] ) ? $_POST['pc_facility'] : '0';
 
