@@ -198,7 +198,9 @@ class C_Prescription extends Controller {
     // now the doctors write those in on printed prescriptions and only when
     // necessary.  If you need to change this back, then please make it a
     // configurable option.  Faxed prescriptions were not changed.  -- Rod
-    if ($this->is_faxing)
+    // Now it is configureable. Change value in
+    //     <openemr root>/includes/config.php - Tekknogenius
+    if ($this->is_faxing || $GLOBALS['oer_config']['prescriptions']['show_DEA'])
       $pdf->ezText('<b>DEA:</b>' . $p->provider->federal_drug_id, 12);
     else
       $pdf->ezText('<b>DEA:</b> ________________________', 12);
