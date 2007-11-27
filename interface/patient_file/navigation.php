@@ -78,6 +78,9 @@ function selpopup(selobj) {
 <?php if (file_exists("$webserver_root/custom/refer.php")) { ?>
      <option value='../../custom/refer.php'><? xl('Refer','e'); ?></option>
 <?php } ?>
+<?php if (file_exists("$webserver_root/custom/fee_sheet_codes.php")) { ?>
+ <option value='printed_fee_sheet.php'><? xl('Superbill','e'); ?></option>
+<?php } ?>
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
      <option value='front_payment.php'><? xl('Prepay','e'); ?></option>
      <option value='pos_checkout.php'><? xl('Checkout','e'); ?></option>

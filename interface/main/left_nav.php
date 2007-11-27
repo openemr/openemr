@@ -503,6 +503,9 @@ Active Encounter:<br />
 <?php if (file_exists("$webserver_root/custom/refer.php")) { ?>
  <option value='../../custom/refer.php'><? xl('Refer','e'); ?></option>
 <?php } ?>
+<?php if (file_exists("$webserver_root/custom/fee_sheet_codes.php")) { ?>
+ <option value='../patient_file/printed_fee_sheet.php'><? xl('Superbill','e'); ?></option>
+<?php } ?>
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
  <option value='../patient_file/front_payment.php'><? xl('Prepay','e'); ?></option>
  <option value='../patient_file/pos_checkout.php'><? xl('Checkout','e'); ?></option>
