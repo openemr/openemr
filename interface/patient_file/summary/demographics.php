@@ -25,20 +25,6 @@ function print_as_money($money) {
 	}
 }
 
-/****
-function get_billing_note($pid) {
-	$conn = $GLOBALS['adodb']['db'];
-	$billing_note = "";
-	$sql = "select genericname2, genericval2 " .
-		"from patient_data where pid = '$pid' limit 1";
-	$resnote = $conn->Execute($sql);
-	if($resnote && !$resnote->EOF && $resnote->fields['genericname2'] == 'Billing') {
-		$billing_note = $resnote->fields['genericval2'];
-	}
-	return $billing_note;
-}
-****/
-
 function get_patient_balance($pid) {
 	require_once($GLOBALS['fileroot'] . "/library/classes/WSWrapper.class.php");
 	$conn = $GLOBALS['adodb']['db'];
@@ -142,13 +128,172 @@ if ($GLOBALS['patient_id_category_name']) {
 
 <table border="0" width="100%">
  <tr>
+
+  <!-- Left column of main table; contains another table -->
+
   <td align="left" valign="top">
-   <table border='0' cellpadding='0' width='100%'>
+   <table border='0' cellpadding='0'>
+
+<?php
+
+$CPR = 4; // cells per row of generic data
+
+function end_cell() {
+  global $item_count, $cell_count;
+  if ($item_count > 0) {
+    echo "</td>";
+    $item_count = 0;
+  }
+}
+
+function end_row() {
+  global $cell_count, $CPR;
+  end_cell();
+  if ($cell_count > 0) {
+    for (; $cell_count < $CPR; ++$cell_count) echo "<td></td>";
+    echo "</tr>\n";
+    $cell_count = 0;
+  }
+}
+
+function end_group() {
+  global $last_group;
+  if (strlen($last_group) > 0) {
+    end_row();
+  }
+}
+
+$fres = sqlStatement("SELECT * FROM layout_options " .
+  "WHERE form_id = 'DEM' AND uor > 0 " .
+  "ORDER BY group_name, seq");
+$last_group = '';
+$cell_count = 0;
+$item_count = 0;
+
+while ($frow = sqlFetchArray($fres)) {
+  $this_group = $frow['group_name'];
+  $titlecols  = $frow['titlecols'];
+  $datacols   = $frow['datacols'];
+  $data_type  = $frow['data_type'];
+  $field_id   = $frow['field_id'];
+  $list_id    = $frow['list_id'];
+  $currvalue  = '';
+  if (strpos($field_id, 'em_') === 0) {
+    $tmp = substr($field_id, 3);
+    if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
+  }
+  else {
+    if (isset($result[$field_id])) $currvalue = $result[$field_id];
+  }
+
+  // Handle a data category (group) change.
+  if (strcmp($this_group, $last_group) != 0) {
+    end_group();
+    $group_name = substr($this_group, 1);
+    $last_group = $this_group;
+  }
+
+  // Handle starting of a new row.
+  if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
+    end_row();
+    echo "  <tr><td class='bold'>";
+    if ($group_name) {
+      echo "<font color='#008800'>$group_name</font>";
+      $group_name = '';
+    } else {
+      echo '&nbsp;';
+    }
+    echo "</td>";
+  }
+
+  if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
+
+  // Handle starting of a new label cell.
+  if ($titlecols > 0) {
+    end_cell();
+    echo "<td class='bold' colspan='$titlecols'";
+    if ($cell_count == 2) echo " style='padding-left:10pt'";
+    echo ">";
+    $cell_count += $titlecols;
+  }
+  ++$item_count;
+
+  if ($frow['title']) echo $frow['title'] . ":"; else echo "&nbsp;";
+
+  // Handle starting of a new data cell.
+  if ($datacols > 0) {
+    end_cell();
+    echo "<td colspan='$datacols' class='text'";
+    if ($cell_count > 0) echo " style='padding-left:5pt'";
+    echo ">";
+    $cell_count += $datacols;
+  }
+  ++$item_count;
+
+  if ($data_type == 1) { // generic selection list ////////////////////////////
+    $lrow = sqlQuery("SELECT title FROM list_options " .
+      "WHERE list_id = '$list_id' AND option_id = '$currvalue'");
+    echo $lrow['title'];
+  }
+
+  else if ($data_type == 2) { // simple text field ////////////////////////////
+    echo $currvalue;
+  }
+
+  else if ($data_type == 11) { // provider list ///////////////////////////////
+    $provideri = getProviderInfo();
+    foreach ($provideri as $s) {
+      if ($s['id'] == $result[$field_id]) {
+        echo ucwords($s['fname'] . " " . $s['lname']);
+      }
+    }
+  }
+
+  else if ($data_type == 12) { // pharmacy list ///////////////////////////////
+    $pres = sqlStatement("SELECT d.id, d.name, a.line1, a.city, " .
+      "p.area_code, p.prefix, p.number FROM pharmacies AS d " .
+      "LEFT OUTER JOIN addresses AS a ON a.foreign_id = d.id " .
+      "LEFT OUTER JOIN phone_numbers AS p ON p.foreign_id = d.id AND p.type = 2 " .
+      "ORDER BY name, area_code, prefix, number");
+    while ($prow = sqlFetchArray($pres)) {
+      $key = $prow['id'];
+      if ($result[$field_id] == $key) {
+        echo $prow['name'] . ' ' . $prow['area_code'] . '-' .
+          $prow['prefix'] . '-' . $prow['number'] . ' / ' .
+          $prow['line1'] . ' / ' . $prow['city'];
+      }
+    }
+  }
+
+  else if ($data_type == 13) { // squads //////////////////////////////////////
+    $squads = acl_get_squads();
+    if ($squads) {
+      foreach ($squads as $key => $value) {
+        echo "<option value='$key'";
+        if ($result[$field_id] == $key) {
+          echo $value[3];
+        }
+      }
+    }
+  }
+
+}
+
+end_group();
+
+echo "   </table>\n";
+echo "   <table border='0' cellpadding='0' width='100%'>\n";
+
+/*********************************************************************
+?>
+
     <tr>
      <td valign='top' width='33%'>
       <span class='bold'><?php xl('Name','e'); ?>: </span>
       <span class='text'>
 <?php
+// If there is a patient ID card, then the patient name becomes a link to it.
+// Otherwise show the patient name as normal text.
 if ($document_id) echo "<a href='/openemr/controller.php?document&retrieve" .
   "&patient_id=$pid&document_id=$document_id' style='color:#00cc00' " .
   "onclick='top.restoreSession()'>";
@@ -422,8 +567,11 @@ if ($result{"referrer"} != "" || $result{"referrerID"} != "")
       <!--<span class='bold'>Primary Provider ID: </span><span class='text'><?=$result{"referrerID"}?></span>-->
      </td>
     </tr>
+
 <?php
 }
+
+*********************************************************************/
 
 ///////////////////////////////// INSURANCE SECTION
 
@@ -528,8 +676,30 @@ foreach (array('primary','secondary','tertiary') as $instype) {
 ?>
    </table>
   </td>
+
+  <!-- Right column of main table -->
+
   <td valign="top" class="text">
 <?php
+
+// Show current balance and billing note, if any.
+echo "<span class='bold'><font color='#ee6600'>Balance Due: $" .
+  get_patient_balance($pid) . "</font><br />";
+if ($result['genericname2'] == 'Billing') {
+  xl('Billing Note') . ":";
+  echo "<span class='bold'><font color='red'>" .
+    $result['genericval2'] . "</font></span>";
+}
+echo "</span><br />";
+
+// If there is a patient ID card, then show a link to it.
+if ($document_id) {
+  echo "<a href='/openemr/controller.php?document&retrieve" .
+    "&patient_id=$pid&document_id=$document_id' style='color:#00cc00' " .
+    "onclick='top.restoreSession()'>Click for ID card</a><br />";
+}
+
+// Show current and upcoming appointments.
 if (isset($pid)) {
  $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
   "e.pc_startTime, u.fname, u.lname, u.mname " .
@@ -555,6 +725,8 @@ if (isset($pid)) {
 }
 ?>
   </td>
+
+
  </tr>
 </table>
 

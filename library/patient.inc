@@ -493,20 +493,46 @@ function fixDate($date, $default="0000-00-00") {
 
 function updatePatientData($pid,$new)
 {
+  /*******************************************************************
 	$real = getPatientData($pid);
 	$new['DOB'] = fixDate($new['DOB']);
 	while(list($key, $value) = each ($new))
 		$real[$key] = $value;
 	$real['date'] = "'+NOW()+'";
 	$real['id'] = "";
-
 	$sql = "insert into patient_data set ";
 	while(list($key, $value) = each($real))
 		$sql .= $key." = '$value', ";
 	$sql = substr($sql, 0, -2);
-
-
 	return sqlInsert($sql);
+  *******************************************************************/
+
+  // The above was broken, though seems intent to insert a new patient_data
+  // row for each update.  A good idea, but nothing is doing that yet so
+  // the code below does not yet attempt it.
+
+  $new['DOB'] = fixDate($new['DOB']);
+  $db_id = $new['id'];
+
+  $rez = sqlQuery("SELECT * FROM patient_data WHERE id = '$db_id'");
+  // Check for brain damage:
+  if ($pid != $rez['pid']) {
+    $errmsg = "Internal error: Attempt to change patient data with pid = '" .
+      $rez['pid'] . "' when current pid is '$pid' for id '$db_id'";
+    die($errmsg);
+  }
+  $sql = "UPDATE patient_data SET date = NOW()";
+  foreach ($new as $key => $value) {
+    $sql .= ", $key = '$value'";
+  }
+  $sql .= " WHERE id = '$db_id'";
+  $id = sqlInsert($sql);
+
+  sync_patient($db_id,$rez['fname'],$rez['lname'],$rez['street'],$rez['city'],
+    $rez['postal_code'],$rez['state'],$rez['phone_home'],$rez['phone_biz'],
+    $rez['email'],$rez['pid']);
+
+  return $id;
 }
 
 function newEmployerData(	$pid,

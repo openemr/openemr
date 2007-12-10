@@ -1,20 +1,20 @@
-<?
- include_once("../../globals.php");
- include_once("$srcdir/patient.inc");
- include_once("$srcdir/acl.inc");
+<?php
+include_once("../../globals.php");
+include_once("$srcdir/patient.inc");
+include_once("$srcdir/acl.inc");
 
- // Check authorization.
- $thisauth = acl_check('patients', 'demo');
- if ($pid) {
+// Check authorization.
+$thisauth = acl_check('patients', 'demo');
+if ($pid) {
   if ($thisauth != 'write')
-   die("Updating demographics is not authorized.");
+    die("Updating demographics is not authorized.");
   $tmp = getPatientData($pid, "squad");
   if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-   die("You are not authorized to access this squad.");
- } else {
+    die("You are not authorized to access this squad.");
+} else {
   if ($thisauth != 'write' && $thisauth != 'addonly')
-   die("Adding demographics is not authorized.");
- }
+    die("Adding demographics is not authorized.");
+}
 
 foreach ($_POST as $key => $val) {
   if ($val == "MM/DD/YYYY") {
@@ -22,19 +22,45 @@ foreach ($_POST as $key => $val) {
   }
 }
 
-if ($_POST["sex"] == "Unselected") {
-	$var_sex = "";
+if ($_POST["form_sex"] == "Unselected") {
+  $var_sex = "";
 } else {
-	$var_sex = $_POST["sex"];
+  $var_sex = $_POST["form_sex"];
 }
 
-if ($_POST{dob} != "") {
-	$dob = $_POST["dob"];
+if ($_POST['form_dob'] != "") {
+  $dob = $_POST["form_dob"];
 } else {
-	$dob = "";
+  $dob = "";
 }
 
-$finrev = fixDate($_POST["financial_review"]);
+$finrev = fixDate($_POST["form_financial_review"]);
+
+// Update patient_data and employer_data:
+//
+$newdata = array();
+$newdata['patient_data']['id'] = $_POST['db_id'];
+$fres = sqlStatement("SELECT * FROM layout_options " .
+  "WHERE form_id = 'DEM' AND uor > 0 " .
+  "ORDER BY group_name, seq");
+while ($frow = sqlFetchArray($fres)) {
+  $data_type = $frow['data_type'];
+  $field_id  = $frow['field_id'];
+
+  $value  = '';
+  $colname = $field_id;
+  $table = 'patient_data';
+  if (strpos($field_id, 'em_') === 0) {
+    $colname = substr($field_id, 3);
+    $table = 'employer_data';
+  }
+  if (isset($_POST["form_$field_id"])) $value = $_POST["form_$field_id"];
+  $newdata[$table][$colname] = $value;
+}
+updatePatientData($pid, $newdata['patient_data']);
+updateEmployerData($pid, $newdata['employer_data']);
+
+/*********************************************************************
 
 newPatientData(
   $_POST["db_id"],
@@ -93,6 +119,8 @@ newEmployerData(
   $_POST["estate"],
   $_POST["ecountry"]
 );
+
+*********************************************************************/
 
 $i1dob = fixDate($_POST["i1subscriber_DOB"]);
 $i1date = fixDate($_POST["i1effective_date"], date('Y-m-d'));

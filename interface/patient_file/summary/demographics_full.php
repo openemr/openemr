@@ -27,18 +27,42 @@
    die("Adding demographics is not authorized.");
  }
 
-$relats = array('','self','spouse','child','other');
-$statii = array('married','single','divorced','widowed','separated','domestic partner');
+$CPR = 4; // cells per row
 
-$langi = getLanguages();
-$ethnoraciali = getEthnoRacials();
-$provideri = getProviderInfo();
+// Might want to use the list_options table and then trash this.
+$relats = array('','self','spouse','child','other');
+
+// $statii = array('married','single','divorced','widowed','separated','domestic partner');
+// $langi = getLanguages();
+// $ethnoraciali = getEthnoRacials();
+// $provideri = getProviderInfo();
+
 $insurancei = getInsuranceProviders();
 ?>
 <html>
 <head>
 
 <link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
+
+<style>
+body, td, input, select, textarea {
+ font-family: Arial, Helvetica, sans-serif;
+ font-size: 10pt;
+}
+
+body {
+ padding: 5pt 5pt 5pt 5pt;
+}
+
+div.section {
+ border: solid;
+ border-width: 1px;
+ border-color: #0000ff;
+ margin: 0 0 0 10pt;
+ padding: 5pt;
+}
+
+</style>
 
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
@@ -72,24 +96,24 @@ function upperFirst(string,text) {
 <?php for ($i=1;$i<=3;$i++) { ?>
 function auto_populate_employer_address<?php echo $i ?>(){
  if (document.demographics_form.i<?php echo $i?>subscriber_relationship.options[document.demographics_form.i<?php echo $i?>subscriber_relationship.selectedIndex].value == "self") {
-  document.demographics_form.i<?php echo $i?>subscriber_fname.value=document.demographics_form.fname.value;
-  document.demographics_form.i<?php echo $i?>subscriber_mname.value=document.demographics_form.mname.value;
-  document.demographics_form.i<?php echo $i?>subscriber_lname.value=document.demographics_form.lname.value;
-  document.demographics_form.i<?php echo $i?>subscriber_street.value=document.demographics_form.street.value;
-  document.demographics_form.i<?php echo $i?>subscriber_city.value=document.demographics_form.city.value;
-  document.demographics_form.i<?php echo $i?>subscriber_state.value=document.demographics_form.state.value;
-  document.demographics_form.i<?php echo $i?>subscriber_postal_code.value=document.demographics_form.postal_code.value;
-  document.demographics_form.i<?php echo $i?>subscriber_country.value=document.demographics_form.country_code.value;
-  document.demographics_form.i<?php echo $i?>subscriber_phone.value=document.demographics_form.phone_home.value;
-  document.demographics_form.i<?php echo $i?>subscriber_DOB.value=document.demographics_form.dob.value;
-  document.demographics_form.i<?php echo $i?>subscriber_ss.value=document.demographics_form.ss.value;
-  document.demographics_form.i<?php echo $i?>subscriber_sex.selectedIndex = document.demographics_form.sex.selectedIndex;
-  document.demographics_form.i<?php echo $i?>subscriber_employer.value=document.demographics_form.ename.value;
-  document.demographics_form.i<?php echo $i?>subscriber_employer_street.value=document.demographics_form.estreet.value;
-  document.demographics_form.i<?php echo $i?>subscriber_employer_city.value=document.demographics_form.ecity.value;
-  document.demographics_form.i<?php echo $i?>subscriber_employer_state.value=document.demographics_form.estate.value;
-  document.demographics_form.i<?php echo $i?>subscriber_employer_postal_code.value=document.demographics_form.epostal_code.value;
-  document.demographics_form.i<?php echo $i?>subscriber_employer_country.value=document.demographics_form.ecountry.value;
+  document.demographics_form.i<?php echo $i?>subscriber_fname.value=document.demographics_form.form_fname.value;
+  document.demographics_form.i<?php echo $i?>subscriber_mname.value=document.demographics_form.form_mname.value;
+  document.demographics_form.i<?php echo $i?>subscriber_lname.value=document.demographics_form.form_lname.value;
+  document.demographics_form.i<?php echo $i?>subscriber_street.value=document.demographics_form.form_street.value;
+  document.demographics_form.i<?php echo $i?>subscriber_city.value=document.demographics_form.form_city.value;
+  document.demographics_form.i<?php echo $i?>subscriber_state.value=document.demographics_form.form_state.value;
+  document.demographics_form.i<?php echo $i?>subscriber_postal_code.value=document.demographics_form.form_postal_code.value;
+  document.demographics_form.i<?php echo $i?>subscriber_country.value=document.demographics_form.form_country_code.value;
+  document.demographics_form.i<?php echo $i?>subscriber_phone.value=document.demographics_form.form_phone_home.value;
+  document.demographics_form.i<?php echo $i?>subscriber_DOB.value=document.demographics_form.form_DOB.value;
+  document.demographics_form.i<?php echo $i?>subscriber_ss.value=document.demographics_form.form_ss.value;
+  document.demographics_form.i<?php echo $i?>subscriber_sex.selectedIndex = document.demographics_form.form_sex.selectedIndex;
+  document.demographics_form.i<?php echo $i?>subscriber_employer.value=document.demographics_form.form_em_name.value;
+  document.demographics_form.i<?php echo $i?>subscriber_employer_street.value=document.demographics_form.form_em_street.value;
+  document.demographics_form.i<?php echo $i?>subscriber_employer_city.value=document.demographics_form.form_em_city.value;
+  document.demographics_form.i<?php echo $i?>subscriber_employer_state.value=document.demographics_form.form_em_state.value;
+  document.demographics_form.i<?php echo $i?>subscriber_employer_postal_code.value=document.demographics_form.form_em_postal_code.value;
+  document.demographics_form.i<?php echo $i?>subscriber_employer_country.value=document.demographics_form.form_em_country.value;
  }
 }
 
@@ -153,6 +177,16 @@ function capitalizeMe(elem) {
  elem.value = s;
 }
 
+function divclick(cb, divid) {
+ var divstyle = document.getElementById(divid).style;
+ if (cb.checked) {
+  divstyle.display = 'block';
+ } else {
+  divstyle.display = 'none';
+ }
+ return true;
+}
+
 //-->
 
 </script>
@@ -161,7 +195,8 @@ function capitalizeMe(elem) {
 <body <?php echo $top_bg_line; ?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 <form action='demographics_save.php' name='demographics_form' method='post'>
-<input type=hidden name=mode value=save>
+<input type='hidden' name='mode' value='save' />
+<input type='hidden' name='db_id' value="<?php echo $result['id']?>" />
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href="demographics.php" onclick="top.restoreSession()">
@@ -170,6 +205,195 @@ function capitalizeMe(elem) {
 <?php } ?>
 <font class=title><?php xl('Demographics','e'); ?></font>
 <font class=back><?php echo $tback;?></font></a>
+
+<?php
+
+function end_cell() {
+  global $item_count, $cell_count;
+  if ($item_count > 0) {
+    echo "</td>";
+    $item_count = 0;
+  }
+}
+
+function end_row() {
+  global $cell_count, $CPR;
+  end_cell();
+  if ($cell_count > 0) {
+    for (; $cell_count < $CPR; ++$cell_count) echo "<td></td>";
+    echo "</tr>\n";
+    $cell_count = 0;
+  }
+}
+
+function end_group() {
+  global $last_group;
+  if (strlen($last_group) > 0) {
+    end_row();
+    echo " </table>\n";
+    echo "</div>\n";
+  }
+}
+
+$fres = sqlStatement("SELECT * FROM layout_options " .
+  "WHERE form_id = 'DEM' AND uor > 0 " .
+  "ORDER BY group_name, seq");
+$last_group = '';
+$cell_count = 0;
+$item_count = 0;
+$display_style = 'block';
+
+while ($frow = sqlFetchArray($fres)) {
+  $this_group = $frow['group_name'];
+  $titlecols  = $frow['titlecols'];
+  $datacols   = $frow['datacols'];
+  $data_type  = $frow['data_type'];
+  $field_id   = $frow['field_id'];
+  $list_id    = $frow['list_id'];
+  $currvalue  = '';
+  if (strpos($field_id, 'em_') === 0) {
+    $tmp = substr($field_id, 3);
+    if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
+  }
+  else {
+    if (isset($result[$field_id])) $currvalue = $result[$field_id];
+  }
+
+  // Handle a data category (group) change.
+  if (strcmp($this_group, $last_group) != 0) {
+    end_group();
+    $group_seq  = substr($this_group, 0, 1);
+    $group_name = substr($this_group, 1);
+    $last_group = $this_group;
+    echo "<br /><span class='bold'><input type='checkbox' name='form_cb_$group_seq' value='1' " .
+      "onclick='return divclick(this,\"div_$group_seq\");'";
+    if ($display_style == 'block') echo " checked";
+    echo " /><b>$group_name</b></span>\n";
+    echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
+    echo " <table border='0' cellpadding='0'>\n";
+    $display_style = 'none';
+  }
+
+  // Handle starting of a new row.
+  if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
+    end_row();
+    echo "  <tr>";
+  }
+
+  if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
+
+  // Handle starting of a new label cell.
+  if ($titlecols > 0) {
+    end_cell();
+    echo "<td colspan='$titlecols'";
+    echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
+    if ($cell_count == 2) echo " style='padding-left:10pt'";
+    echo ">";
+    $cell_count += $titlecols;
+  }
+  ++$item_count;
+
+  echo "<b>";
+  if ($frow['title']) echo $frow['title'] . ":"; else echo "&nbsp;";
+  echo "</b>";
+
+  // Handle starting of a new data cell.
+  if ($datacols > 0) {
+    end_cell();
+    echo "<td colspan='$datacols' class='text'";
+    if ($cell_count > 0) echo " style='padding-left:5pt'";
+    echo ">";
+    $cell_count += $datacols;
+  }
+  ++$item_count;
+
+  if ($data_type == 1) { // generic selection list ////////////////////////////
+    echo "<select name='form_$field_id'>";
+    $lres = sqlStatement("SELECT * FROM list_options " .
+      "WHERE list_id = '$list_id' ORDER BY seq");
+    $got_selected = FALSE;
+    while ($lrow = sqlFetchArray($lres)) {
+      echo "<option value='" . $lrow['option_id'] . "'";
+      if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
+          (strlen($currvalue)  > 0 && $lrow['option_id'] == $currvalue))
+      {
+        echo " selected";
+        $got_selected = TRUE;
+      }
+      echo ">" . $lrow['title'] . "</option>\n";
+    }
+    if (! $got_selected) {
+      echo "<option value='$currvalue' selected>* $currvalue *</option>";
+    }
+    echo "</select>";
+    if (! $got_selected) {
+      echo " <font color='red' title='Please choose a valid selection " .
+        "from the list'>Fix this!</font>";
+    }
+  }
+
+  else if ($data_type == 2) { // simple text field ////////////////////////////
+    echo "<input type='text'" .
+      " name='form_$field_id'" .
+      " size='" . $frow['fld_length'] . "'" .
+      " maxlength='" . $frow['max_length'] . "'" .
+      " value='$currvalue'";
+    if (strpos($frow['edit_options'], 'C') !== FALSE)
+      echo " onchange='capitalizeMe(this)'";
+    echo " />";
+  }
+
+  else if ($data_type == 11) { // provider list ///////////////////////////////
+    echo "<select name='form_$field_id'>";
+    echo "<option value=''>" . xl('Unassigned') . "</option>";
+    $provideri = getProviderInfo();
+    foreach ($provideri as $s) {
+      echo "<option value='" . $s['id'] . "'";
+      if ($s['id'] == $result[$field_id]) echo " selected";
+      echo ">" . ucwords($s['fname'] . " " . $s['lname']) . "</option>";
+    }
+    echo "</select>";
+  }
+
+  else if ($data_type == 12) { // pharmacy list ///////////////////////////////
+    echo "<select name='form_$field_id'>";
+    echo "<option value='0'></option>";
+    $pres = sqlStatement("SELECT d.id, d.name, a.line1, a.city, " .
+      "p.area_code, p.prefix, p.number FROM pharmacies AS d " .
+      "LEFT OUTER JOIN addresses AS a ON a.foreign_id = d.id " .
+      "LEFT OUTER JOIN phone_numbers AS p ON p.foreign_id = d.id AND p.type = 2 " .
+      "ORDER BY name, area_code, prefix, number");
+    while ($prow = sqlFetchArray($pres)) {
+      $key = $prow['id'];
+      echo "<option value='$key'";
+      if ($result[$field_id] == $key) echo " selected";
+      echo '>' . $prow['name'] . ' ' . $prow['area_code'] . '-' .
+        $prow['prefix'] . '-' . $prow['number'] . ' / ' .
+        $prow['line1'] . ' / ' . $prow['city'] . "</option>";
+    }
+    echo "</select>";
+  }
+
+  else if ($data_type == 13) { // squads //////////////////////////////////////
+    echo "<select name='form_$field_id'>";
+    echo "<option value=''>&nbsp;</option>";
+    $squads = acl_get_squads();
+    if ($squads) {
+      foreach ($squads as $key => $value) {
+        echo "<option value='$key'";
+        if ($result[$field_id] == $key) echo " selected";
+        echo ">" . $value[3] . "</option>\n";
+      }
+    }
+    echo "</select>";
+  }
+
+}
+
+end_group();
+
+/************************************************************
+?>
 
 <table border="0" cellpadding="0" width='100%'>
 
@@ -594,6 +818,8 @@ function capitalizeMe(elem) {
 
 </table>
 
+<?php ************************************************************/ ?>
+
 <?php
  if (! $GLOBALS['simplified_demographics']) {
   $insurance_headings = array("Primary Insurance Provider:", "Secondary Insurance Provider", "Tertiary Insurance provider");
@@ -601,6 +827,13 @@ function capitalizeMe(elem) {
   $insurance_info[1] = getInsuranceData($pid,"primary");
   $insurance_info[2] = getInsuranceData($pid,"secondary");
   $insurance_info[3] = getInsuranceData($pid,"tertiary");
+
+  echo "<br /><span class='bold'><input type='checkbox' name='form_cb_ins' value='1' " .
+    "onclick='return divclick(this,\"div_ins\");'";
+  if ($display_style == 'block') echo " checked";
+  echo " /><b>Insurance</b></span>\n";
+  echo "<div id='div_ins' class='section' style='display:$display_style;'>\n";
+
   for($i=1;$i<=3;$i++) {
    $result3 = $insurance_info[$i];
 ?>
@@ -762,13 +995,18 @@ function capitalizeMe(elem) {
   </td>
  </tr>
 </table>
-<a href="javascript:top.restoreSession();document.demographics_form.submit();" class=link_submit>[<?php xl('Save Patient Demographics','e'); ?>]</a>
-<hr>
 
 <?php
+    if ($i < 3) echo "<hr />\n";
   } //end insurer for loop
+  echo "</div>\n";
  } // end of "if not simplified_demographics"
 ?>
+
+<center><br />
+<a href="javascript:top.restoreSession();document.demographics_form.submit();"
+ class='link_submit'>[<?php xl('Save Patient Demographics','e'); ?>]</a>
+</center>
 
 </form>
 

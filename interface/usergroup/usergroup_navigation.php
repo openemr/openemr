@@ -80,6 +80,19 @@ include_once("../../library/acl.inc");
 </td>
 <? } ?>
 
+<? if (acl_check('admin', 'super')) { ?>
+<td valign="middle" nowrap>
+&nbsp;<a class="menu" target=Main href="../super/edit_list.php"
+ onclick="top.restoreSession()"
+ title="Selection List Management"><? xl('Lists','e'); ?></a>&nbsp;
+</td>
+<td valign="middle" nowrap>
+&nbsp;<a class="menu" target=Main href="../super/edit_layout.php"
+ onclick="top.restoreSession()"
+ title="Form Layout Management"><? xl('Layouts','e'); ?></a>&nbsp;
+</td>
+<? } ?>
+
 <? if (acl_check('admin', 'users')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="<?echo $rootdir?>/logview/logview.php"
