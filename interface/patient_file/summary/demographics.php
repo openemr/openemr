@@ -196,7 +196,7 @@ while ($frow = sqlFetchArray($fres)) {
   // Handle starting of a new row.
   if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
     end_row();
-    echo "  <tr><td class='bold'>";
+    echo "  <tr><td class='bold' style='padding-right:5pt'>";
     if ($group_name) {
       echo "<font color='#008800'>$group_name</font>";
       $group_name = '';
