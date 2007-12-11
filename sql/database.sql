@@ -957,6 +957,11 @@ CREATE TABLE `patient_data` (
   `squad`      varchar(32)   NOT NULL DEFAULT '',
   `fitness`    int(11)       NOT NULL DEFAULT 0,
   `referral_source` varchar(30) NOT NULL DEFAULT '',
+  `usertext1` varchar(255) NOT NULL DEFAULT '',
+  `usertext2` varchar(255) NOT NULL DEFAULT '',
+  `userlist1` varchar(255) NOT NULL DEFAULT '',
+  `userlist2` varchar(255) NOT NULL DEFAULT '',
+  `pricelevel` varchar(255) NOT NULL DEFAULT '',
   UNIQUE KEY `pid` (`pid`),
   KEY `id` (`id`),
   KEY `pid_2` (`pid`)
@@ -4625,6 +4630,14 @@ INSERT INTO list_options VALUES ('ethrace','Asian'    ,'Asian'    ,2,0);
 INSERT INTO list_options VALUES ('ethrace','Black'    ,'Black'    ,3,0);
 INSERT INTO list_options VALUES ('ethrace','Hispanic' ,'Hispanic' ,4,0);
 
+INSERT INTO list_options VALUES ('userlist1','sample','Sample',1,1);
+
+INSERT INTO list_options VALUES ('userlist2','sample','Sample',1,1);
+
+INSERT INTO list_options VALUES ('pricelevel','standard','Standard',1,1);
+INSERT INTO list_options VALUES ('pricelevel','level1'  ,'Level 1' ,2,0);
+INSERT INTO list_options VALUES ('pricelevel','level2'  ,'Level 2' ,3,0);
+
 CREATE TABLE layout_options (
   form_id        varchar(31)   NOT NULL,
   field_id       varchar(31)   NOT NULL,
@@ -4659,6 +4672,7 @@ INSERT INTO layout_options VALUES ('DEM','genericval1'    ,'1Who',''            
 INSERT INTO layout_options VALUES ('DEM','genericname2'   ,'1Who',''              ,13, 2,1,15,63,''       ,0,0,'','' ,'User Defined Field');
 INSERT INTO layout_options VALUES ('DEM','genericval2'    ,'1Who',''              ,14, 2,1,15,63,''       ,0,0,'','' ,'User Defined Field');
 INSERT INTO layout_options VALUES ('DEM','squad'          ,'1Who','Squad'         ,15,13,0, 0, 0,''       ,1,3,'','' ,'Squad Membership');
+INSERT INTO layout_options VALUES ('DEM','pricelevel'     ,'1Who','Price Level'   ,16, 1,0, 0, 0,'pricelevel',1,1,'','' ,'Discount Level');
 
 INSERT INTO layout_options VALUES ('DEM','street'              ,'2Contact','Address'          , 1, 2,1,25,63,''     ,1,1,'','C','Street and Number');
 INSERT INTO layout_options VALUES ('DEM','city'                ,'2Contact','City'             , 2, 2,1,15,63,''     ,1,1,'','C','City Name');
@@ -4695,3 +4709,8 @@ INSERT INTO layout_options VALUES ('DEM','monthly_income'  ,'5Stats','Monthly In
 INSERT INTO layout_options VALUES ('DEM','homeless'        ,'5Stats','Homeless, etc.'       , 6, 2,1,20,63,''        ,1,1,'','' ,'Homeless or similar?');
 INSERT INTO layout_options VALUES ('DEM','interpretter'    ,'5Stats','Interpreter'          , 7, 2,1,20,63,''        ,1,1,'','' ,'Interpreter needed?');
 INSERT INTO layout_options VALUES ('DEM','migrantseasonal' ,'5Stats','Migrant/Seasonal'     , 8, 2,1,20,63,''        ,1,1,'','' ,'Migrant or seasonal worker?');
+
+INSERT INTO layout_options VALUES ('DEM','usertext1'       ,'6Misc','User Defined Text 1'   , 1, 2,0,10,63,''         ,1,1,'','' ,'User Defined');
+INSERT INTO layout_options VALUES ('DEM','usertext2'       ,'6Misc','User Defined Text 2'   , 2, 2,0,10,63,''         ,1,1,'','' ,'User Defined');
+INSERT INTO layout_options VALUES ('DEM','userlist1'       ,'6Misc','User Defined List 1'   , 3, 1,0, 0, 0,'userlist1',1,1,'','' ,'User Defined');
+INSERT INTO layout_options VALUES ('DEM','userlist2'       ,'6Misc','User Defined List 2'   , 4, 1,0, 0, 0,'userlist2',1,1,'','' ,'User Defined');

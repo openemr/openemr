@@ -10,12 +10,15 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 
 $lists = array(
-  'language' => xl('Language'),
-  'marital'  => xl('Marital Status'),
-  'ethrace'  => xl('Race/Ethnicity'),
-  'sex'      => xl('Sex'),
-  'titles'   => xl('Titles'),
-  'yesno'    => xl('Yes/No'),
+  'language'   => xl('Language'),
+  'marital'    => xl('Marital Status'),
+  'pricelevel' => xl('Price Level'),
+  'ethrace'    => xl('Race/Ethnicity'),
+  'sex'        => xl('Sex'),
+  'titles'     => xl('Titles'),
+  'yesno'      => xl('Yes/No'),
+  'userlist1'  => xl('User Defined List 1'),
+  'userlist2'  => xl('User Defined List 2'),
 );
 
 $list_id = empty($_REQUEST['list_id']) ? 'language' : $_REQUEST['list_id'];
