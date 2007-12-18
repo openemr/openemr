@@ -14,9 +14,11 @@ $lists = array(
   'marital'    => xl('Marital Status'),
   'pricelevel' => xl('Price Level'),
   'ethrace'    => xl('Race/Ethnicity'),
+  'risklevel'  => xl('Risk Level'),
   'sex'        => xl('Sex'),
   'titles'     => xl('Titles'),
   'yesno'      => xl('Yes/No'),
+  'boolean'    => xl('Boolean'),
   'userlist1'  => xl('User Defined List 1'),
   'userlist2'  => xl('User Defined List 2'),
 );

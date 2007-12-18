@@ -138,3 +138,44 @@ INSERT INTO layout_options VALUES ('DEM','usertext1'       ,'6Misc','User Define
 INSERT INTO layout_options VALUES ('DEM','usertext2'       ,'6Misc','User Defined Text 2'   , 2, 2,0,10,63,''         ,1,1,'','' ,'User Defined');
 INSERT INTO layout_options VALUES ('DEM','userlist1'       ,'6Misc','User Defined List 1'   , 3, 1,0, 0, 0,'userlist1',1,1,'','' ,'User Defined');
 INSERT INTO layout_options VALUES ('DEM','userlist2'       ,'6Misc','User Defined List 2'   , 4, 1,0, 0, 0,'userlist2',1,1,'','' ,'User Defined');
+
+ALTER TABLE transactions
+  ADD `refer_date`              date         DEFAULT NULL,
+  ADD `refer_from`              int(11)      NOT NULL DEFAULT 0,
+  ADD `refer_to`                int(11)      NOT NULL DEFAULT 0,
+  ADD `refer_diag`              varchar(255) NOT NULL DEFAULT '',
+  ADD `refer_risk_level`        varchar(255) NOT NULL DEFAULT '',
+  ADD `refer_vitals`            tinyint(1)   NOT NULL DEFAULT 0,
+  ADD `reply_date`              date         DEFAULT NULL,
+  ADD `reply_from`              varchar(255) NOT NULL DEFAULT '',
+  ADD `reply_init_diag`         varchar(255) NOT NULL DEFAULT '',
+  ADD `reply_final_diag`        varchar(255) NOT NULL DEFAULT '',
+  ADD `reply_documents`         varchar(255) NOT NULL DEFAULT '',
+  ADD `reply_findings`          text         NOT NULL DEFAULT '',
+  ADD `reply_services`          text         NOT NULL DEFAULT '',
+  ADD `reply_recommend`         text         NOT NULL DEFAULT '',
+  ADD `reply_rx_refer`          text         NOT NULL DEFAULT '';
+
+INSERT INTO layout_options VALUES ('REF','refer_date'      ,'','Referral Date'          , 1, 4,2, 0,  0,''         ,1,1,'C','D','Date of referral');
+INSERT INTO layout_options VALUES ('REF','refer_from'      ,'','Refer From'             , 2,14,2, 0,  0,''         ,1,1,'' ,'' ,'Referral By');
+INSERT INTO layout_options VALUES ('REF','refer_to'        ,'','Refer To'               , 3,14,2, 0,  0,''         ,1,1,'' ,'' ,'Referral To');
+INSERT INTO layout_options VALUES ('REF','body'            ,'','Reason'                 , 4, 3,2,30,  3,''         ,1,1,'' ,'' ,'Reason for referral');
+INSERT INTO layout_options VALUES ('REF','refer_diag'      ,'','Referrer Diagnosis'     , 5, 2,1,30,255,''         ,1,1,'' ,'X','Referrer diagnosis');
+INSERT INTO layout_options VALUES ('REF','refer_risk_level','','Risk Level'             , 6, 1,1, 0,  0,'risklevel',1,1,'' ,'' ,'Level of urgency');
+INSERT INTO layout_options VALUES ('REF','refer_vitals'    ,'','Include Vitals'         , 7, 1,1, 0,  0,'boolean'  ,1,1,'' ,'' ,'Include vitals data?');
+INSERT INTO layout_options VALUES ('REF','reply_date'      ,'','Reply Date'             , 8, 4,1, 0,  0,''         ,1,1,'' ,'D','Date of reply');
+INSERT INTO layout_options VALUES ('REF','reply_from'      ,'','Reply From'             , 9, 2,1,30,255,''         ,1,1,'' ,'' ,'Who replied?');
+INSERT INTO layout_options VALUES ('REF','reply_init_diag' ,'','Presumed Diagnosis'     ,10, 2,1,30,255,''         ,1,1,'' ,'' ,'Presumed diagnosis by specialist');
+INSERT INTO layout_options VALUES ('REF','reply_final_diag','','Final Diagnosis'        ,11, 2,1,30,255,''         ,1,1,'' ,'' ,'Final diagnosis by specialist');
+INSERT INTO layout_options VALUES ('REF','reply_documents' ,'','Documents'              ,12, 2,1,30,255,''         ,1,1,'' ,'' ,'Where may related scanned or paper documents be found?');
+INSERT INTO layout_options VALUES ('REF','reply_findings'  ,'','Findings'               ,13, 3,1,30,  3,''         ,1,1,'' ,'' ,'Findings by specialist');
+INSERT INTO layout_options VALUES ('REF','reply_services'  ,'','Services Provided'      ,14, 3,1,30,  3,''         ,1,1,'' ,'' ,'Service provided by specialist');
+INSERT INTO layout_options VALUES ('REF','reply_recommend' ,'','Recommendations'        ,15, 3,1,30,  3,''         ,1,1,'' ,'' ,'Recommendations by specialist');
+INSERT INTO layout_options VALUES ('REF','reply_rx_refer'  ,'','Prescriptions/Referrals',16, 3,1,30,  3,''         ,1,1,'' ,'' ,'Prescriptions and/or referrals by specialist');
+
+INSERT INTO list_options VALUES ('risklevel','low'   ,'Low'   ,1,0);
+INSERT INTO list_options VALUES ('risklevel','medium','Medium',2,1);
+INSERT INTO list_options VALUES ('risklevel','high'  ,'High'  ,3,0);
+
+INSERT INTO list_options VALUES ('boolean','0','No' ,1,1);
+INSERT INTO list_options VALUES ('boolean','1','Yes',2,0);

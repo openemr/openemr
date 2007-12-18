@@ -11,6 +11,7 @@ require_once("$srcdir/acl.inc");
 
 $layouts = array(
   'DEM' => xl('Demographics'),
+  'REF' => xl('Referrals'),
 );
 
 $layout_id = empty($_REQUEST['layout_id']) ? 'DEM' : $_REQUEST['layout_id'];
