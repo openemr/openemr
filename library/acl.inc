@@ -20,6 +20,7 @@
   //   batchcom    Batch Communication Tool
   //   language    Language Interface Tool
   //   drugs       Pharmacy Dispensary
+  //   acl         ACL Administration
   //
   // Section "acct" (Accounting):
   //   bill        Billing (write optional)
@@ -167,7 +168,7 @@
   }
 
   //
-  // Returns an array of group Titles that Username belongs to.
+  // Returns a sorted array of group Titles that a user belongs to.
   // Returns 0 if does not belong to any group yet.
   //   $user_name = Username, which is login name.
   //
@@ -184,11 +185,72 @@
             $arr_group_data = $gacl->get_group_data($value, 'ARO');
             $arr_group_titles[$key] =  $arr_group_data[3];
           }
+	sort($arr_group_titles);
         return $arr_group_titles;
         }
       }
     }
     return 0;
+  }
+
+  //
+  // This will place the user aro object into selected group(s)
+  // It uses the set_user_aro() function
+  //   $username = username (string)
+  //   $group = title of group(s) (string or array)
+  //
+  function add_user_aros($username, $group) {
+   $current_user_groups = acl_get_group_titles($username);
+   if (!$current_user_groups) {
+    $current_user_groups = array();
+   }
+   if (is_array($group)){
+    foreach ($group as $value) {
+       if (!in_array($value, $current_user_groups)) { 
+        array_push($current_user_groups, $value);
+       }
+    }
+   }
+   else {   
+    if (!in_array($group, $current_user_groups)) {
+     array_push($current_user_groups, $group);
+    }
+   }    
+   $user_data = mysql_fetch_array(sqlStatement("select * from users where username='" .
+    $username . "'"));
+   set_user_aro($current_user_groups, $username, $user_data["fname"],
+    $user_data["mname"], $user_data["lname"]);
+   return;
+  }
+
+  //
+  // This will remove the user aro object from the selected group(s)
+  // It uses the set_user_aro() function
+  //   $username = username (string)
+  //   $group = title of group(s) (string or array)
+  //
+  function remove_user_aros($username, $group) {
+   $current_user_groups = acl_get_group_titles($username);
+   $new_user_groups = array();
+   if (is_array($group)){
+    foreach ($current_user_groups as $value) {    
+     if (!in_array($value, $group)) {
+      array_push($new_user_groups, $value);
+     }
+    }    
+   }
+   else {   
+    foreach ($current_user_groups as $value) {     
+     if ($value != $group) {
+      array_push($new_user_groups, $value);
+     }
+    }
+   }
+   $user_data = mysql_fetch_array(sqlStatement("select * from users where username='" .
+    $username . "'"));
+   set_user_aro($new_user_groups, $username, $user_data["fname"],
+    $user_data["mname"], $user_data["lname"]);
+   return;
   }
 
   //
@@ -280,5 +342,150 @@
       }
     }
    return;
+  }
+
+  //
+  // Returns true if acl exist
+  // Returns false if acl doesn't exist
+  //  EITHER $title or $name is required(send FALSE in variable
+  //  not being used). If both are sent, then only $title will be
+  //  used.
+  //  $return_value is required
+  //    $title = title of acl (string)
+  //    $name = name of acl (string)
+  //    $return_value = return value of acl (string)
+  //
+  function acl_exist($title, $name, $return_value) {
+   global $phpgacl_location;
+   if (isset ($phpgacl_location)) {
+    include_once("$phpgacl_location/gacl_api.class.php");
+    $gacl = new gacl_api();
+    if (!$name) {
+     $acl = $gacl->search_acl(FALSE, FALSE, FALSE, FALSE, $title, FALSE, FALSE, FALSE, $return_value);
+    }
+    else if (!$title) {
+     $group_id = $gacl->get_group_id($name, NULL, 'ARO');
+     if ($group_id) {
+      $group_data = $gacl->get_group_data($group_id, 'ARO');
+      $acl = $gacl->search_acl(FALSE, FALSE, FALSE, FALSE, $group_data[3], FALSE, FALSE, FALSE, $return_value);
+     }
+     else {
+     return false;
+     }
+    }
+    else {
+     $acl = $gacl->search_acl(FALSE, FALSE, FALSE, FALSE, $title, FALSE, FALSE, FALSE, $return_value);
+    }
+    if (!empty($acl)) {
+     return true;
+    }
+    else {
+     return false;
+    }
+   }
+  }
+
+  //
+  // This will add a new acl and group(if group doesn't yet exist)
+  // with one aco in it.
+  //   $acl_title = title of acl (string)
+  //   $acl_name = name of acl (string)
+  //   $return_value = return value of acl (string)
+  //   $note = description of acl (array)
+  //
+  function acl_add($acl_title, $acl_name, $return_value, $note) {
+   global $phpgacl_location;
+   if (isset ($phpgacl_location)) {
+    include_once("$phpgacl_location/gacl_api.class.php");
+    $gacl = new gacl_api();
+    $group_id = $gacl->get_group_id($acl_name, $acl_title, 'ARO');
+    if ($group_id) {
+     //group already exist, so just create acl
+     $gacl->add_acl(array("patients"=>array("appt")),
+      NULL, array($group_id), NULL, NULL, 1, 1, $return_value, $note);
+    }
+    else {
+     //create group, then create acl
+     $parent_id = $gacl->get_root_group_id();
+     $aro_id = $gacl->add_group($acl_name, $acl_title, $parent_id, 'ARO');
+     $gacl->add_acl(array("patients"=>array("appt")),
+      NULL, array($aro_id), NULL, NULL, 1, 1, $return_value, $note);
+    }
+    return;
+   }
+   return 0;
+  }
+
+  //
+  // This will remove acl. It will also remove group(if the group
+  // is no longer associated with any acl's).
+  //   $acl_title = title of acl (string)
+  //   $acl_name = name of acl (string)
+  //   $return_value = return value of acl (string)
+  //   $note = description of acl (array)
+  //
+  function acl_remove($acl_title, $return_value) {
+   global $phpgacl_location;
+   if (isset ($phpgacl_location)) {
+    include_once("$phpgacl_location/gacl_api.class.php");
+    $gacl = new gacl_api();
+    //First, delete the acl
+    $acl_id=$gacl->search_acl(FALSE, FALSE, FALSE, FALSE, $acl_title, FALSE, FALSE, FALSE, $return_value);
+    $gacl->del_acl($acl_id[0]);
+    //Then, remove the group(if no more acl's are remaining)
+    $acl_search=$gacl->search_acl(FALSE, FALSE, FALSE, FALSE, $acl_title, FALSE, FALSE, FALSE, FALSE);
+    if (empty($acl_search)){
+     $group_id=$gacl-> get_group_id(NULL, $acl_title, 'ARO');
+     $gacl->del_group($group_id, TRUE, 'ARO');
+    }
+    return;
+   }
+   return 0;
+  }
+
+  //
+  // This will place the aco(s) into the selected acl
+  //   $acl_title = title of acl (string)
+  //   $return_value = return value of acl (string)
+  //   $aco_id = id of aco (array)
+  //
+  function acl_add_acos($acl_title, $return_value, $aco_id) {
+   global $phpgacl_location;
+   if (isset ($phpgacl_location)) {
+    include_once("$phpgacl_location/gacl_api.class.php");
+    $gacl = new gacl_api();
+    $acl_id = $gacl->search_acl(FALSE, FALSE, FALSE, FALSE, $acl_title, FALSE, FALSE, FALSE, $return_value);
+    foreach ($aco_id as $value) { 
+     $aco_data = $gacl->get_object_data($value, 'ACO');
+     $aco_section = $aco_data[0][0];
+     $aco_name = $aco_data[0][1];   
+     $gacl->append_acl($acl_id[0], NULL, NULL, NULL, NULL, array($aco_section=>array($aco_name)));
+    }
+    return;
+   }
+   return 0;
+  }
+
+  //
+  // This will remove the aco(s) from the selected acl
+  //   $acl_title = title of acl (string)
+  //   $return_value = return value of acl (string)
+  //   $aco_id = id of aco (array)
+  //
+  function acl_remove_acos($acl_title, $return_value, $aco_id) {
+   global $phpgacl_location;
+   if (isset ($phpgacl_location)) {
+    include_once("$phpgacl_location/gacl_api.class.php");
+    $gacl = new gacl_api();
+    $acl_id = $gacl->search_acl(FALSE, FALSE, FALSE, FALSE, $acl_title, FALSE, FALSE, FALSE, $return_value);
+    foreach ($aco_id as $value) {
+     $aco_data = $gacl->get_object_data($value, 'ACO');
+     $aco_section = $aco_data[0][0];
+     $aco_name = $aco_data[0][1];
+     $gacl->shift_acl($acl_id[0], NULL, NULL, NULL, NULL, array($aco_section=>array($aco_name)));
+     }
+    return;
+   }
+   return 0;
   }
 ?>
