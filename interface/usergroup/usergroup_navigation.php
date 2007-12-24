@@ -40,6 +40,14 @@ include_once("../../library/acl.inc");
 </td>
 <? } ?>
 
+<? if (acl_check('admin', 'acl') && isset($phpgacl_location)) { ?>
+<td valign="middle" nowrap>
+&nbsp;<a class=menu target=Main href="adminacl.php"
+ onclick="top.restoreSession()"
+ title="Access Control List Administration"><?xl('ACL','e');?></a>&nbsp;
+</td>
+<? } ?>
+	
 <? if (acl_check('admin', 'calendar')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig"
