@@ -488,4 +488,26 @@
    }
    return 0;
   }
+
+  //
+  // This will return the number of aco objects
+  //  in a specified acl.
+  //   $acl_title = title of acl (string)
+  //   $return_value = return value of acl (string)
+  //
+  function acl_count_acos($acl_title, $return_value) {
+   global $phpgacl_location;
+   if (isset ($phpgacl_location)) {
+    include_once("$phpgacl_location/gacl_api.class.php");
+    $gacl = new gacl_api();
+    $acl_id = $gacl->search_acl(FALSE, FALSE, FALSE, FALSE, $acl_title, FALSE, FALSE, FALSE, $return_value);
+    $acl_data = $gacl->get_acl($acl_id[0]);
+    $aco_count = 0;
+    foreach ($acl_data['aco'] as $key => $value) {
+     $aco_count = $aco_count + count($acl_data['aco'][$key]);
+    }
+    return $aco_count;
+   }
+   return 0;
+  }
 ?>
