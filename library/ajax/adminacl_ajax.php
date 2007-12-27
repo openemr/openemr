@@ -23,12 +23,12 @@ $error = array();
 //PENDING, need to clean this up on client side
 //ensure user has proper access
 if (!acl_check('admin', 'acl')) {
-echo error_xml("ACL Administration Not Authorized");
+echo error_xml(xl('ACL Administration Not Authorized'));
 exit;
 }
 //ensure php is installed
 if (!isset($phpgacl_location)) {
-echo error_xml("PHP-gacl needs to be installed");
+echo error_xml(xl('PHP-gacl is not installed'));
 exit;
 }
 
@@ -52,7 +52,7 @@ if ($_POST["control"] == "membership") {
  if ($_POST["action"] == "add") {     
   if ($_POST["selection"][0] == "null") { 
    //no selection, return soft error, and just return membership data
-   array_push($error, "No group was selected!");
+   array_push($error, (xl('No group was selected') . "!"));
    echo user_group_listings_xml($_POST["name"], $error);
    exit;
   }     
@@ -64,20 +64,20 @@ if ($_POST["control"] == "membership") {
  if ($_POST["action"] == "remove") {
   if ($_POST["selection"][0] == "null") {
    //no selection, return soft error, and just return membership data
-   array_push($error, "No group was selected!");
+   array_push($error, (xl('No group was selected') . "!"));
    echo user_group_listings_xml($_POST["name"], $error);
    exit;
   }
   if (count(acl_get_group_titles($_POST["name"])) == count($_POST["selection"])) {
    //trying to remove from all groups, send soft error, and return data
-   array_push($error, "User has to be a member of at least one group");
+   array_push($error, (xl('User has to be a member of at least one group') . "!"));
    echo user_group_listings_xml($_POST["name"], $error);
    exit;
   }
   if (($_POST["name"] == "admin") && in_array("Administrators",$_POST["selection"])) {
    //unable to remove admin user from administrators group, process remove,
    // send soft error, then return data
-   array_push($error, "Not allowed to remove the 'admin' user from the 'Administrators' group");
+   array_push($error, (xl('Not allowed to remove the admin user from the Administrators group') . "!"));
    remove_user_aros($_POST["name"], $_POST["selection"]);
    echo user_group_listings_xml($_POST["name"], $error);
    exit;
@@ -101,39 +101,39 @@ if ($_POST["control"] == "acl") {
   $form_error = false;
   if (empty($_POST["title"])) {
    $form_error = true;
-   array_push($error, "title_Need to enter title!");
+   array_push($error, ("title_" . xl('Need to enter title') . "!"));
   }
   else if (!ctype_alpha(str_replace(' ', '', $_POST["title"]))) {
    $form_error = true;
-   array_push($error, "title_Please only use alphabetic characters!");
+   array_push($error, ("title_" . xl('Please only use alphabetic characters') . "!"));
   }
   else if (acl_exist($_POST["title"], FALSE, $_POST["return_value"])) {
    $form_error = true;
-   array_push($error, "title_Already used, choose another title!");
+   array_push($error, ("title_" . xl('Already used, choose another title') . "!"));
   }
   if (empty($_POST["identifier"])) {
    $form_error = true;
-   array_push($error, "identifier_Need to enter identifier!");
+   array_push($error, ("identifier_" . xl('Need to enter identifier') . "!"));
   }
   else if (!ctype_alpha($_POST["identifier"])) {   
    $form_error = true;
-   array_push($error, "identifier_Please only use alphabetic characters with no spaces!");
+   array_push($error, ("identifier_" . xl('Please only use alphabetic characters with no spaces') . "!"));
   }
   else if (acl_exist(FALSE, $_POST["identifier"], $_POST["return_value"])) {
    $form_error = true;
-   array_push($error, "identifier_Already used, choose another identifier!");
+   array_push($error, ("identifier_" . xl('Already used, choose another identifier') . "!"));
   }
   if (empty($_POST["return_value"])) {
    $form_error = true;
-   array_push($error, "return_Need to enter a Return Value!");
+   array_push($error, ("return_" . xl('Need to enter a Return Value') . "!"));
   }
   if (empty($_POST["description"])) {
    $form_error = true;
-   array_push($error, "description_Need to enter a description!");
+   array_push($error, ("description_" . xl('Need to enter a description') . "!"));
   }
   else if (!ctype_alpha(str_replace(' ', '', $_POST["description"]))) {
    $form_error = true;
-   array_push($error, "description_Please only use alphabetic characters!");
+   array_push($error, ("description_" . xl('Please only use alphabetic characters') . "!"));
   }
   //process if data is valid
   if (!$form_error) {   
@@ -153,7 +153,7 @@ if ($_POST["control"] == "acl") {
   $form_error = false;
   if ($_POST["title"] == "Administrators") {
    $form_error = true;
-   array_push($error, "aclTitle_Not allowed to delete the Administrators group!");
+   array_push($error, ("aclTitle_" . xl('Not allowed to delete the Administrators group') . "!"));
   }
   //process if data is valid
   if (!$form_error) {
@@ -185,7 +185,7 @@ if ($_POST["control"] == "aco") {
  if ($_POST["action"] == "add") {
   if ($_POST["selection"][0] == "null") {
    //no selection, return soft error, and just return data
-   array_push($error, "Nothing was selected!");
+   array_push($error, (xl('Nothing was selected') . "!"));
    echo aco_listings_xml($_POST["name"], $_POST["return_value"], $error);
    exit;
   }
@@ -197,13 +197,19 @@ if ($_POST["control"] == "aco") {
  if ($_POST["action"] == "remove") {
   if ($_POST["selection"][0] == "null") {
    //no selection, return soft error, and just return data
-   array_push($error, "Nothing was selected!");
+   array_push($error, (xl('Nothing was selected') . "!"));
    echo aco_listings_xml($_POST["name"], $_POST["return_value"], $error);
    exit;
   }
   if ($_POST["name"] == "Administrators") {
    //will not allow removal of acos from Administrators ACL
-   array_push($error, "Not allowed to inactivate anything from the 'Administrators' ACL");
+   array_push($error, (xl('Not allowed to inactivate anything from the Administrators ACL') . "!"));
+   echo aco_listings_xml($_POST["name"], $_POST["return_value"], $error);
+   exit;
+  }
+  if (count($_POST["selection"]) == acl_count_acos($_POST["name"], $_POST["return_value"])) {
+   //will not allow removal of all aco objects
+   array_push($error, (xl('Not allowed to inactivate all security objects') . "!"));
    echo aco_listings_xml($_POST["name"], $_POST["return_value"], $error);
    exit;
   }
@@ -417,7 +423,7 @@ function return_values_xml($err) {
  return $message;
 }
 
-// ADD ARRAY FUNCTIONALITY
+//
 // Returns error string(s) via xml   
 //   $err = error (string or array)
 //
