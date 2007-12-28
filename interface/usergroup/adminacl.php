@@ -141,13 +141,13 @@ if (!isset($phpgacl_location)) {
     return;
    }
    //Ensure confirmed before deleting group
-   confirm = $("input[@name=acl_remove_confirm]:checked").val();
-   if (confirm == "no") { //send confirm alert and exit
+   confirmDelete = $("input[@name=acl_remove_confirm]:checked").val();
+   if (confirmDelete == "no") { //send confirm alert and exit
     $("#remove_confirm_error").empty();
     $("#remove_confirm_error").append("Select Yes to confirm group deletion");    
     return false;
    }	
-   //Submit selected, so send ajax request
+   //Delete and confirmed, so send ajax request
    temparray = $("#acl_field").val().split("-");
    title = temparray[0];
    return_value = temparray[1];	
@@ -590,7 +590,7 @@ if (!isset($phpgacl_location)) {
       </td>
      </tr>
     </table>
-    <input type="submit" class="button_acl_remove" title="Submit" value="Submit">
+    <input type="submit" class="button_acl_remove" title="Delete" value="Delete">
     <input type="reset" class="button_acl_remove" id="button_acl_remove_cancel" title="Cancel" value="Cancel">
    </form>
   </div>
