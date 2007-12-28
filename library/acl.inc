@@ -155,7 +155,7 @@
       include_once("$phpgacl_location/gacl_api.class.php");
       $gacl = new gacl_api();
       $parent_id = $gacl->get_root_group_id();
-      $arr_group_ids = $gacl->get_group_children($parent_id, 'ARO');
+      $arr_group_ids = $gacl->get_group_children($parent_id, 'ARO', 'RECURSE');
       $arr_group_titles = array();
       foreach ($arr_group_ids as $value) {
         $arr_group_data = $gacl->get_group_data($value, 'ARO');
@@ -272,7 +272,7 @@
 
       //get array of all available group ID numbers
       $parent_id = $gacl->get_root_group_id();
-      $arr_all_group_ids = $gacl->get_group_children($parent_id, 'ARO');
+      $arr_all_group_ids = $gacl->get_group_children($parent_id, 'ARO', 'RECURSE');
 
       //Cycle through ID array to find and process each selected group
       //Create a counter since processing of first hit is unique
