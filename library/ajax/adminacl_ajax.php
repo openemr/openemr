@@ -11,6 +11,8 @@
 // ACL(php-gacl) administration within OpenEMR. All returns are 
 // done via xml.
 //
+// Important - Ensure that display_errors=Off in php.ini settings.
+//
 include_once("../../interface/globals.php");
 include_once("$srcdir/acl.inc");
 
@@ -151,6 +153,10 @@ if ($_POST["control"] == "acl") {
  if ($_POST["action"] == "remove") {
   //validate form data
   $form_error = false;
+  if (empty($_POST["title"])) {
+   $form_error = true;
+   array_push($error, ("aclTitle_" . xl('Need to enter title') . "!"));
+  }
   if ($_POST["title"] == "Administrators") {
    $form_error = true;
    array_push($error, ("aclTitle_" . xl('Not allowed to delete the Administrators group') . "!"));
@@ -344,9 +350,9 @@ function aco_listings_xml($group, $return_value, $err) {
   "<response>\n" .
   "\t<inactive>\n";
  foreach ($list_aco_objects as $key => $value) {
-  $counter = 0;
+  $counter = 0;   
   foreach($list_aco_objects[$key] as $value2) {
-   if (!in_array($value2, $active_aco_objects[$key])) {
+   if (!array_key_exists($key,$active_aco_objects) || !in_array($value2, $active_aco_objects[$key])) {
     if ($counter == 0) {
      $counter = $counter + 1;
      $message .= "\t\t<section>\n" .
