@@ -2,12 +2,10 @@
 /* $Id$ */
 // vim: expandtab sw=4 ts=4 sts=4:
 ini_set("magic_quotes","0");
-include_once ("../../../library/sqlconf.php");
-include_once("../../globals.php");
-include_once("$srcdir/auth.inc");
-include_once("../../../library/acl.inc");
+require_once ("../../../library/sqlconf.php");
+require_once("../../globals.php");
+require_once("../../../library/acl.inc");
 
-// if($_SESSION['userauthorized'] != 1){
 if (! acl_check('admin', 'database')) {
   echo "You do not have access to this resource<br>";
   exit;

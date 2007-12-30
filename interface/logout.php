@@ -1,24 +1,16 @@
-<?
-include_once("globals.php");
-include_once("$srcdir/auth.inc");
-
+<?php
+require_once("globals.php");
 ?>
-
 
 <html>
 <head>
 
-
 <link rel=stylesheet href="style.css" type="text/css">
-
 
 </head>
 <body bgcolor=#ffffff topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-
-
 <span class=text><?xl('Logged out.','e')?></span>
-
 
 <br><br>
 
@@ -29,7 +21,6 @@ include_once("$srcdir/auth.inc");
 <a class=link href="login_screen.php"><?xl('Relogin','e')?></a>
 
 <br><br>
-
 
 </body>
 </html>

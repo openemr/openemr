@@ -1,15 +1,13 @@
 <?php
-include_once("../globals.php");
-include_once("$srcdir/auth.inc");
-include_once("../../library/acl.inc");
-include_once("$srcdir/md5.js");
-include_once("$srcdir/sql.inc");
+require_once("../globals.php");
+require_once("../../library/acl.inc");
+require_once("$srcdir/md5.js");
+require_once("$srcdir/sql.inc");
 require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
 ?>
 
 <html>
 <head>
-
 
 <link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
 

@@ -1,6 +1,5 @@
-<?
-include_once("../globals.php");
-include_once("$srcdir/auth.inc");
+<?php
+require_once("../globals.php");
 ?>
 <HTML>
 <HEAD>
