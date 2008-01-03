@@ -1,5 +1,5 @@
-<?
- // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
+<?php
+ // Copyright (C) 2006, 2008 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -14,6 +14,16 @@
 
  $from_date = fixDate($_POST['form_from_date'], date('Y-01-01'));
  $to_date   = fixDate($_POST['form_to_date'], date('Y-12-31'));
+
+ if ($_POST['form_labels']) {
+  header("Pragma: public");
+  header("Expires: 0");
+  header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+  header("Content-Type: application/force-download");
+  header("Content-Disposition: attachment; filename=labels.txt");
+  header("Content-Description: File Transfer");
+ }
+ else {
 ?>
 <html>
 <head>
@@ -35,7 +45,7 @@
 
 <center>
 
-<h2><? xl('Unique Seen Patients','e'); ?></h2>
+<h2><?php xl('Unique Seen Patients','e'); ?></h2>
 
 <form name='theform' method='post' action='unique_seen_patients_report.php'>
 
@@ -56,7 +66,8 @@
     title=".xl('Click here to choose a date')."
     ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
    &nbsp;
-   <input type='submit' name='form_refresh' value=<? xl('Refresh','e'); ?>>
+   <input type='submit' name='form_refresh' value=<? xl('Refresh','e'); ?>> &nbsp;
+   <input type='submit' name='form_labels' value=<? xl('Labels','e'); ?>>
   </td>
  </tr>
 
@@ -71,62 +82,39 @@
 
  <tr bgcolor="#dddddd">
   <td class="dehead">
-   <? xl('Last Visit','e'); ?>
+   <?php xl('Last Visit','e'); ?>
   </td>
   <td class='dehead'>
-   <? xl('Patient','e'); ?>
+   <?php xl('Patient','e'); ?>
   </td>
   <td class='dehead' align='right'>
-   <? xl('Visits','e'); ?>
+   <?php xl('Visits','e'); ?>
   </td>
   <td class='dehead' align='right'>
-   <? xl('Age','e'); ?>
+   <?php xl('Age','e'); ?>
   </td>
   <td class='dehead'>
-   <? xl('Sex','e'); ?>
+   <?php xl('Sex','e'); ?>
   </td>
   <td class='dehead'>
-   <? xl('Race','e'); ?>
+   <?php xl('Race','e'); ?>
   </td>
   <td class='dehead'>
-   <? xl('Primary Insurance','e'); ?>
+   <?php xl('Primary Insurance','e'); ?>
   </td>
   <td class='dehead'>
-   <? xl('Secondary Insurance','e'); ?>
+   <?php xl('Secondary Insurance','e'); ?>
   </td>
  </tr>
-<?
- if ($_POST['form_refresh']) {
+<?php
+ } // end not generating labels
+
+ if ($_POST['form_refresh'] || $_POST['form_labels']) {
   $totalpts = 0;
-
-  /****
-  $query = "SELECT " .
-   "p.fname, p.mname, p.lname, p.DOB, p.sex, p.ethnoracial, " .
-   "count(e.date) AS ecount, max(e.date) AS edate, " .
-   "c1.name AS cname1, c2.name AS cname2 " .
-   "FROM patient_data AS p " .
-   "JOIN form_encounter AS e ON " .
-   "e.pid = p.pid AND " .
-   "e.date >= '$from_date 00:00:00' AND " .
-   "e.date <= '$to_date 23:59:59' " .
-   "LEFT OUTER JOIN insurance_data AS i1 ON " .
-   "i1.pid = p.pid AND i1.type = 'primary' " .
-   "LEFT OUTER JOIN insurance_companies AS c1 ON " .
-   "c1.id = i1.provider " .
-   "LEFT OUTER JOIN insurance_data AS i2 ON " .
-   "i2.pid = p.pid AND i2.type = 'secondary' " .
-   "LEFT OUTER JOIN insurance_companies AS c2 ON " .
-   "c2.id = i2.provider " .
-   "GROUP BY p.lname, p.fname, p.mname, p.pid " .
-   "ORDER BY p.lname, p.fname, p.mname, p.pid";
-  // echo "<!-- $query -->\n"; // debugging
-  $res = sqlStatement($query);
-  while ($row = sqlFetchArray($res)) {
-
-  ****/
 
   $query = "SELECT " .
    "p.pid, p.fname, p.mname, p.lname, p.DOB, p.sex, p.ethnoracial, " .
+   "p.street, p.city, p.state, p.postal_code, " .
    "count(e.date) AS ecount, max(e.date) AS edate, " .
    "i1.date AS idate1, i2.date AS idate2, " .
    "c1.name AS cname1, c2.name AS cname2 " .
@@ -152,8 +140,6 @@
    if ($row['pid'] == $prevpid) continue;
    $prevpid = $row['pid'];
 
-  /****/
-
    $age = '';
    if ($row['DOB']) {
     $dob = $row['DOB'];
@@ -164,6 +150,13 @@
     if ($dayDiff < 0) --$ageInMonths;
     $age = intval($ageInMonths/12);
    }
+
+   if ($_POST['form_labels']) {
+    echo '"' . $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] . '","' .
+      $row['street'] . '","' . $row['city'] . '","' . $row['state'] . '","' .
+      $row['postal_code'] . '"' . "\n";
+   }
+   else { // not labels
 ?>
  <tr>
   <td class='detail'>
@@ -192,10 +185,12 @@
   </td>
  </tr>
 <?php
+   } // end not labels
    ++$totalpts;
   }
-?>
 
+  if (!$_POST['form_labels']) {
+?>
  <tr>
   <td class='dehead' colspan='8'>
    &nbsp;
@@ -212,7 +207,10 @@
  </tr>
 
 <?php
- }
+  } // end not labels
+ } // end refresh or labels
+
+ if (!$_POST['form_labels']) {
 ?>
 
 </table>
@@ -220,3 +218,6 @@
 </center>
 </body>
 </html>
+<?php
+ } // end not labels
+?>
