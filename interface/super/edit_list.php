@@ -92,7 +92,7 @@ if ($_POST['form_save'] && $list_id) {
   sqlStatement("DELETE FROM list_options WHERE list_id = '$list_id'");
   for ($lino = 1; isset($opt["$lino"]['id']); ++$lino) {
     $iter = $opt["$lino"];
-    if (trim($iter['id'])) {
+    if (strlen(trim($iter['id'])) > 0) {
       sqlInsert("INSERT INTO list_options ( " .
       "list_id, option_id, title, seq, is_default " .
       ") VALUES ( " .

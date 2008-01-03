@@ -24,6 +24,7 @@ function generate_form_field($frow, $currvalue) {
   // generic selection list
   if ($data_type == 1) {
     echo "<select name='form_$field_id' title='$description'>";
+    echo "<option value=''>" . xl('Unassigned') . "</option>";
     $lres = sqlStatement("SELECT * FROM list_options " .
       "WHERE list_id = '$list_id' ORDER BY seq");
     $got_selected = FALSE;
@@ -37,13 +38,14 @@ function generate_form_field($frow, $currvalue) {
       }
       echo ">" . $lrow['title'] . "</option>\n";
     }
-    if (! $got_selected) {
+    if (!$got_selected && strlen($currvalue) > 0) {
       echo "<option value='$currescaped' selected>* $currescaped *</option>";
-    }
-    echo "</select>";
-    if (! $got_selected) {
+      echo "</select>";
       echo " <font color='red' title='Please choose a valid selection " .
         "from the list'>Fix this!</font>";
+    }
+    else {
+      echo "</select>";
     }
   }
 
@@ -149,35 +151,36 @@ function generate_display_field($frow, $currvalue) {
   $data_type  = $frow['data_type'];
   $field_id   = $frow['field_id'];
   $list_id    = $frow['list_id'];
+  $s = '';
 
   // generic selection list
   if ($data_type == 1) {
     $lrow = sqlQuery("SELECT title FROM list_options " .
       "WHERE list_id = '$list_id' AND option_id = '$currvalue'");
-    echo $lrow['title'];
+    $s = $lrow['title'];
   }
 
   // simple text field
   else if ($data_type == 2) {
-    echo $currvalue;
+    $s = $currvalue;
   }
 
   // long or multi-line text field
   else if ($data_type == 3) {
-    echo nl2br($currvalue);
+    $s = nl2br($currvalue);
   }
 
   // date
   else if ($data_type == 4) {
-    echo $currvalue;
+    $s = $currvalue;
   }
 
   // provider list
   else if ($data_type == 11) {
     $provideri = getProviderInfo();
-    foreach ($provideri as $s) {
-      if ($s['id'] == $currvalue) {
-        echo ucwords($s['fname'] . " " . $s['lname']);
+    foreach ($provideri as $p) {
+      if ($p['id'] == $currvalue) {
+        $s .= ucwords($p['fname'] . " " . $p['lname']);
       }
     }
   }
@@ -188,7 +191,7 @@ function generate_display_field($frow, $currvalue) {
     while ($prow = sqlFetchArray($pres)) {
       $key = $prow['id'];
       if ($currvalue == $key) {
-        echo $prow['name'] . ' ' . $prow['area_code'] . '-' .
+        $s .= $prow['name'] . ' ' . $prow['area_code'] . '-' .
           $prow['prefix'] . '-' . $prow['number'] . ' / ' .
           $prow['line1'] . ' / ' . $prow['city'];
       }
@@ -200,9 +203,8 @@ function generate_display_field($frow, $currvalue) {
     $squads = acl_get_squads();
     if ($squads) {
       foreach ($squads as $key => $value) {
-        echo "<option value='$key'";
         if ($currvalue == $key) {
-          echo $value[3];
+          $s .= $value[3];
         }
       }
     }
@@ -214,8 +216,9 @@ function generate_display_field($frow, $currvalue) {
       "WHERE id = '$currvalue'");
     $uname = $urow['lname'];
     if ($urow['fname']) $uname .= ", " . $urow['fname'];
-    echo $uname;
+    $s = $uname;
   }
 
+  return $s;
 }
 ?>

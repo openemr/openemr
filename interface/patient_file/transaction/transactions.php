@@ -22,15 +22,24 @@ include_once("$srcdir/transactions.inc");
 if ($result = getTransByPid($pid)) {
   foreach ($result as $iter) {
     $transid = $iter['id'];
-    $link = "<a href='add_transaction.php?transid=$transid' onclick='top.restoreSession()'>";
+    $elink = "<a href='add_transaction.php?transid=$transid' " .
+      "onclick='top.restoreSession()' title='Click to edit'>";
+    $plink = "<a href='print_referral.php?transid=$transid' target='_blank' " .
+      "onclick='top.restoreSession()' title='Click to print'>";
     if (getdate() == strtotime($iter['date'])) {
       $date_string = "Today, " . date( "D F dS" ,strtotime($iter['date']));
     } else {
       $date_string = date( "D F dS" ,strtotime($iter['date']));
     }
-    echo "<tr><td class='bold'>$link" . $date_string . " (" . $iter['user'] . ")</a></td>";
-    echo "<td class='text'>$link" . $iter['title'] . "</a></td>";
-    echo "<td class='text'>$link" . stripslashes($iter['body']) . "</a></td></tr>\n";
+    echo "<tr><td class='bold'>$elink" . $date_string . " (" . $iter['user'] . ")</a></td>";
+    echo "<td class='text'>";
+    if ($iter['title'] == 'Referral') {
+      echo $plink . $iter['title'] . "</a>";
+    } else {
+      echo $iter['title'];
+    }
+    echo "</td>";
+    echo "<td class='text'>" . stripslashes($iter['body']) . "</td></tr>\n";
   }
 }
 ?>

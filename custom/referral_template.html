@@ -1,0 +1,332 @@
+<html>
+<head>
+
+<style>
+body, td {
+ font-family: sans-serif;
+ font-weight: normal;
+ font-size: 9pt;
+}
+.borderdiv {
+ width: 524pt;
+ height: 704pt;
+ padding: 0;
+ border-style: solid;
+ border-width: 1px;
+ border-color: #000000;
+}
+.paddingdiv {
+ padding: 10pt;
+}
+.bigtable, .linetable {
+ width: 504pt;
+}
+.linetable {
+ margin: 11pt 0 0 0;
+}
+.mainhead {
+ font-weight: bold;
+ font-size: 14pt;
+ text-align: center;
+}
+.under {
+ border-style: solid;
+ border-width: 0 0 1px 0;
+ border-color: #999999;
+}
+</style>
+
+<title>Referral Form</title>
+</head>
+
+<body bgcolor='#ffffff' onload='window.print()'>
+
+<!-- The double div resolves a difference between Firefox and IE in treatment of padding. -->
+<div class='borderdiv'><div class='paddingdiv'>
+
+ <table cellspacing='0' cellpadding='0' class='bigtable'>
+  <tr>
+   <td class='mainhead'>{fac_name}<br />&nbsp;</td>
+   <td rowspan='2' align='right' width='10%' nowrap>
+    <table border='1' cellpadding='2' cellspacing='0'>
+     <tr>
+      <td nowrap>Clinic ID</td>
+      <td nowrap>&nbsp;</td>
+     </tr>
+     <tr>
+      <td nowrap>Client ID</td>
+      <td nowrap>{ref_pid}</td>
+     </tr>
+     <tr>
+      <td nowrap>Control No.</td>
+      <td nowrap>{ref_id}</td>
+     </tr>
+     <tr>
+      <td nowrap>Date</td>
+      <td nowrap>{ref_refer_date}</td>
+     </tr>
+    </table>
+   </td>
+  </tr>
+  <tr>
+   <td align='center' valign='top'><b>REFERRAL FORM</b></td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Name &nbsp;</td>
+   <td class='under'>{pt_title} {pt_fname} {pt_mname} {pt_lname}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; Age &nbsp;</td>
+   <td class='under'>{pt_age}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; Gender &nbsp;</td>
+   <td class='under'>{pt_sex}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Address &nbsp;</td>
+   <td class='under'>{pt_street}, {pt_city} {pt_state}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; Postal &nbsp;</td>
+   <td class='under'>{pt_postal_code}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; Phone &nbsp;</td>
+   <td class='under'>{pt_phone_home}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Reference Reason &nbsp;</td>
+   <td class='under'>{ref_body}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Diagnosis &nbsp;</td>
+   <td class='under'>{ref_refer_diag}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Reference classification (risk level) &nbsp;</td>
+   <td class='under'>{ref_refer_risk_level}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Doctor's name and sign &nbsp;</td>
+   <td class='under'>{ref_refer_from}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Referred to &nbsp;</td>
+   <td class='under'>{ref_refer_to} / {to_organization}&nbsp;</td>
+  </tr>
+ </table>
+
+ <hr style='border:0;height:6pt;color:#999999;background-color:#999999;margin:12pt 0 12pt 0;' />
+
+ <table cellspacing='0' cellpadding='0' class='bigtable'>
+  <tr>
+   <td class='mainhead'>{fac_name}<br />&nbsp;</td>
+   <td rowspan='2' align='right' width='10%' nowrap>
+    <table border='1' cellpadding='2' cellspacing='0'>
+     <tr>
+      <td nowrap>Clinic ID</td>
+      <td nowrap>&nbsp;</td>
+     </tr>
+     <tr>
+      <td nowrap>Client ID</td>
+      <td nowrap>{ref_pid}</td>
+     </tr>
+     <tr>
+      <td nowrap>Control No.</td>
+      <td nowrap>{ref_id}</td>
+     </tr>
+     <tr>
+      <td nowrap>Date</td>
+      <td nowrap>{ref_refer_date}</td>
+     </tr>
+    </table>
+   </td>
+  </tr>
+  <tr>
+   <td align='center' valign='top'>&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Name &nbsp;</td>
+   <td class='under'>{pt_title} {pt_fname} {pt_mname} {pt_lname}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; Age &nbsp;</td>
+   <td class='under'>{pt_age}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; Gender &nbsp;</td>
+   <td class='under'>{pt_sex}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Health centre/clinic &nbsp;</td>
+   <td class='under'>{to_organization}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Address &nbsp;</td>
+   <td class='under'>{to_street}, {to_city} {to_state}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; Postal &nbsp;</td>
+   <td class='under'>{to_zip}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; Phone &nbsp;</td>
+   <td class='under'>{to_phone}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Reference Reason &nbsp;</td>
+   <td class='under'>{ref_body}&nbsp;</td>
+  </tr>
+ </table>
+
+ <br />&nbsp;<br />Client medical history summary:
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Blood pressure &nbsp;</td>
+   <td class='under'>{v_bps}/{v_bpd}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; Height &nbsp;</td>
+   <td class='under'>{v_height}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; Weight &nbsp;</td>
+   <td class='under'>{v_weight}&nbsp;</td>
+  </tr>
+ </table>
+
+ <p>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Referer name and signature &nbsp;</td>
+   <td class='under'>{ref_refer_from}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Specialist name and signature &nbsp;</td>
+   <td class='under'>{ref_refer_to}&nbsp;</td>
+  </tr>
+ </table>
+
+</div></div>
+
+<div class='borderdiv' style='page-break-before:always;'><div class='paddingdiv'>
+
+ <table cellspacing='0' cellpadding='0' class='bigtable'>
+  <tr>
+   <td class='mainhead'>{fac_name}<br />&nbsp;</td>
+   <td rowspan='2' align='right' width='10%' nowrap>
+    <table border='1' cellpadding='2' cellspacing='0'>
+     <tr>
+      <td nowrap>Clinic ID</td>
+      <td nowrap>&nbsp;</td>
+     </tr>
+     <tr>
+      <td nowrap>Client ID</td>
+      <td nowrap>{ref_pid}</td>
+     </tr>
+     <tr>
+      <td nowrap>Control No.</td>
+      <td nowrap>{ref_id}</td>
+     </tr>
+     <tr>
+      <td nowrap>Date</td>
+      <td nowrap>{ref_reply_date}&nbsp;</td>
+     </tr>
+    </table>
+   </td>
+  </tr>
+  <tr>
+   <td align='center' valign='top'><b>CONTRA REFERENCE SHEET</b></td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Name &nbsp;</td>
+   <td class='under'>{pt_title} {pt_fname} {pt_mname} {pt_lname}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; Age &nbsp;</td>
+   <td class='under'>{pt_age}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; Gender &nbsp;</td>
+   <td class='under'>{pt_sex}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Health centre/clinic &nbsp;</td>
+   <td class='under'>{to_organization}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Diagnosis &nbsp;</td>
+   <td class='under'>{ref_reply_init_diag}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Findings &nbsp;</td>
+   <td class='under'>{ref_reply_findings}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Final Diagnosis &nbsp;</td>
+   <td class='under'>{ref_reply_final_diag}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Services provided &nbsp;</td>
+   <td class='under'>{ref_reply_services}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Recommendations and treatment &nbsp;</td>
+   <td class='under'>{ref_reply_recommend}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Prescriptions and other referrals &nbsp;</td>
+   <td class='under'>{ref_reply_rx_refer}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>Specialist name and signature &nbsp;</td>
+   <td class='under'>{ref_refer_to}&nbsp;</td>
+  </tr>
+ </table>
+
+</div></div>
+
+</body>
+</html>

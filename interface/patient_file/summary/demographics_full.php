@@ -39,6 +39,10 @@ $relats = array('','self','spouse','child','other');
 // $provideri = getProviderInfo();
 
 $insurancei = getInsuranceProviders();
+
+$fres = sqlStatement("SELECT * FROM layout_options " .
+  "WHERE form_id = 'DEM' AND uor > 0 " .
+  "ORDER BY group_name, seq");
 ?>
 <html>
 <head>
@@ -188,6 +192,63 @@ function divclick(cb, divid) {
  return true;
 }
 
+// Compute the length of a string without leading and trailing spaces.
+function trimlen(s) {
+ var i = 0;
+ var j = s.length - 1;
+ for (; i <= j && s.charAt(i) == ' '; ++i);
+ for (; i <= j && s.charAt(j) == ' '; --j);
+ if (i > j) return 0;
+ return j + 1 - i;
+}
+
+function validate(f) {
+<?php
+// Generate JavaScript validation logic for the required fields.
+while ($frow = sqlFetchArray($fres)) {
+  if ($frow['uor'] < 2) continue;
+  $data_type = $frow['data_type'];
+  $field_id  = $frow['field_id'];
+  $fldtitle  = $frow['title'];
+  if (!$fldtitle) $fldtitle  = $frow['description'];
+  $fldname   = "form_$field_id";
+  switch($data_type) {
+    case  1:
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+      echo
+      " if (f.$fldname.selectedIndex <= 0) {\n" .
+      "  alert('Please choose a value for $fldtitle');\n" .
+      "  if (f.$fldname.focus) f.$fldname.focus();\n" .
+      "  return false;\n" .
+      " }\n";
+      break;
+    case 2:
+    case 3:
+    case 4:
+      echo
+      " if (trimlen(f.$fldname.value) == 0) {\n" .
+      "  alert('Please enter a value for $fldtitle');\n" .
+      "  if (f.$fldname.focus) f.$fldname.focus();\n" .
+      "  return false;\n" .
+      " }\n";
+      break;
+  }
+}
+?>
+ return true;
+}
+
+function submitme() {
+ var f = document.forms[0];
+ if (validate(f)) {
+  top.restoreSession();
+  f.submit();
+ }
+}
+
 //-->
 
 </script>
@@ -195,7 +256,8 @@ function divclick(cb, divid) {
 
 <body <?php echo $top_bg_line; ?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-<form action='demographics_save.php' name='demographics_form' method='post'>
+<form action='demographics_save.php' name='demographics_form' method='post'
+ onsubmit='return validate(this)'>
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo $result['id']?>" />
 
@@ -236,13 +298,12 @@ function end_group() {
   }
 }
 
-$fres = sqlStatement("SELECT * FROM layout_options " .
-  "WHERE form_id = 'DEM' AND uor > 0 " .
-  "ORDER BY group_name, seq");
 $last_group = '';
 $cell_count = 0;
 $item_count = 0;
 $display_style = 'block';
+
+mysql_data_seek($fres, 0); // TBD: Move this to sql.inc.
 
 while ($frow = sqlFetchArray($fres)) {
   $this_group = $frow['group_name'];
@@ -496,7 +557,7 @@ end_group();
 ?>
 
 <center><br />
-<a href="javascript:top.restoreSession();document.demographics_form.submit();"
+<a href="javascript:submitme();"
  class='link_submit'>[<?php xl('Save Patient Demographics','e'); ?>]</a>
 </center>
 
@@ -508,10 +569,10 @@ end_group();
 
  // fix inconsistently formatted phone numbers from the database
  var f = document.forms[0];
- phonekeyup(f.phone_contact,mypcc);
- phonekeyup(f.phone_home,mypcc);
- phonekeyup(f.phone_biz,mypcc);
- phonekeyup(f.phone_cell,mypcc);
+ if (f.form_phone_contact) phonekeyup(f.form_phone_contact,mypcc);
+ if (f.form_phone_home   ) phonekeyup(f.form_phone_home   ,mypcc);
+ if (f.form_phone_biz    ) phonekeyup(f.form_phone_biz    ,mypcc);
+ if (f.form_phone_cell   ) phonekeyup(f.form_phone_cell   ,mypcc);
 
 <?php if (! $GLOBALS['simplified_demographics']) { ?>
  phonekeyup(f.i1subscriber_phone,mypcc);

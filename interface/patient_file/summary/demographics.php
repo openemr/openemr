@@ -231,7 +231,7 @@ while ($frow = sqlFetchArray($fres)) {
   }
 
   ++$item_count;
-  generate_display_field($frow, $currvalue);
+  echo generate_display_field($frow, $currvalue);
 }
 
 end_group();
