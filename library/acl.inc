@@ -114,9 +114,11 @@
       $gacl = new gacl_api();
       $arr1 = $gacl->get_objects($section, 1, 'ACO');
       $arr = array();
-      foreach ($arr1[$section] as $value) {
-        $odata = $gacl->get_object_data($gacl->get_object_id($section, $value, 'ACO'), 'ACO');
-        $arr[$value] = $odata[0];
+      if (!empty($arr1[$section])) {
+        foreach ($arr1[$section] as $value) {
+          $odata = $gacl->get_object_data($gacl->get_object_id($section, $value, 'ACO'), 'ACO');
+          $arr[$value] = $odata[0];
+        }
       }
       return $arr;
     }
