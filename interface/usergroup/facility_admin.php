@@ -48,8 +48,6 @@ if (isset($_POST["fid"])) {
 <form name='facility' method='post' action="facility_admin.php">
 <input type=hidden name=mode value="facility">
 <input type=hidden name=fid value="<?echo $my_fid;?>">
-<span class=bold><?php xl('Facility Information','e'); ?>: </span>
-</td><td>
 <?php $facility = sqlQuery("select * from facility where id='$my_fid'"); ?>
 <br><br>
 <table border=0 cellpadding=0 cellspacing=0>
@@ -57,7 +55,7 @@ if (isset($_POST["fid"])) {
   <td width='24'><span class='text'><?php xl('Name','e'); ?>: </span></td>
   <td width='120'><input type='entry' name='facility' size='20' value='<?php echo $facility['name'] ?>'></td>
   <td rowspan='10' width='15'></td>
-  <td><span class='text'><?php xl('Phone','e'); ?> <?php xl('as','e'); ?> (000) 000-0000:</span></td>
+  <td><span class='text'><?php xl('Phone','e'); ?> <?php xl('as','e'); ?> (000) 000-0000:</span></td>
   <td width='210'><input type='entry' name='phone' size='20' value='<?php echo $facility['phone'] ?>'></td>
  </tr>
  <tr>
