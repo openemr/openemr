@@ -968,7 +968,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
   //==================================
   //FACILITY FILTERING (lemonsoftware)
-    if ( $pc_facility ) {
+    if ( $_SESSION['pc_facility'] ) {
             $pc_facility = $_SESSION['pc_facility'];
             $sql .= " AND a.pc_facility = $pc_facility ";
     }
