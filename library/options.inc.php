@@ -84,15 +84,19 @@ function generate_form_field($frow, $currvalue) {
     $date_init .= " Calendar.setup({inputField:'form_$field_id', ifFormat:'%Y-%m-%d', button:'img_$field_id'});\n";
   }
 
-  // local provider list
+  // provider list, including address book entries with an NPI number
   else if ($data_type == 11) {
+    $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
+      "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
+      "AND ( authorized = 1 OR ( username = '' AND npi != '' ) ) " .
+      "ORDER BY lname, fname");
     echo "<select name='form_$field_id' title='$description'>";
     echo "<option value=''>" . xl('Unassigned') . "</option>";
-    $provideri = getProviderInfo();
-    foreach ($provideri as $s) {
-      echo "<option value='" . $s['id'] . "'";
-      if ($s['id'] == $currvalue) echo " selected";
-      echo ">" . ucwords($s['fname'] . " " . $s['lname']) . "</option>";
+    while ($urow = sqlFetchArray($ures)) {
+      $uname = $urow['fname'] . ' ' . $urow['lname'];
+      echo "<option value='" . $urow['id'] . "'";
+      if ($urow['id'] == $currvalue) echo " selected";
+      echo ">$uname</option>";
     }
     echo "</select>";
   }
@@ -175,14 +179,11 @@ function generate_display_field($frow, $currvalue) {
     $s = $currvalue;
   }
 
-  // provider list
+  // provider
   else if ($data_type == 11) {
-    $provideri = getProviderInfo();
-    foreach ($provideri as $p) {
-      if ($p['id'] == $currvalue) {
-        $s .= ucwords($p['fname'] . " " . $p['lname']);
-      }
-    }
+    $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
+      "WHERE id = '$currvalue'");
+    $s = ucwords($urow['fname'] . " " . $urow['lname']);
   }
 
   // pharmacy list
