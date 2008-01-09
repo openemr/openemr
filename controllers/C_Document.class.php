@@ -205,6 +205,13 @@ class C_Document extends Controller {
 		//strip url of protocol handler
 		$url = preg_replace("|^(.*)://|","",$url);
 		
+		//change full path to current webroot.  this is for documents that may have
+		//been moved from a different filesystem and the full path in the database
+		//is not current.
+                $temp_url = $GLOBALS["fileroot"].'/documents/'.$_SESSION["pid"].'/'.basename($url);
+		if (file_exists($temp_url)) {
+			$url = $temp_url;
+		}
 		if (!file_exists($url)) {
 			echo "The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it. $url";	
 		}
