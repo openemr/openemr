@@ -461,7 +461,7 @@ function newPatientData(	$db_id="",
 	$foo = sqlQuery("select pid from patient_data where id='$id' order by date limit 0,1");
 
 	sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone_home,
-				$phone_biz,$email,$pid);
+				$phone_biz,$phone_cell,$email,$pid);
 
 	return $foo['pid'];
 }
@@ -530,7 +530,7 @@ function updatePatientData($pid,$new)
 
   sync_patient($db_id,$rez['fname'],$rez['lname'],$rez['street'],$rez['city'],
     $rez['postal_code'],$rez['state'],$rez['phone_home'],$rez['phone_biz'],
-    $rez['email'],$rez['pid']);
+    $rez['phone_cell'],$rez['email'],$rez['pid']);
 
   return $id;
 }
@@ -762,7 +762,7 @@ function updateHistoryData($pid,$new)
 }
 
 function sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone_home,
-				$phone_biz,$email,$pid="")
+				$phone_biz,$phone_cell,$email,$pid="")
 {
 	$db = $GLOBALS['adodb']['db'];
 	$customer_info = array();
@@ -801,11 +801,12 @@ function sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone
 		$customer_info['geo_country_id'] = $result->fields['countries_id'];
 	}
 
-
 	$customer_info['phone1'] = $phone_home;
 	$customer_info['phone1comment'] = "Home Phone";
 	$customer_info['phone2'] = $phone_biz;
 	$customer_info['phone2comment'] = "Business Phone";
+  $customer_info['phone3'] = $phone_cell;
+  $customer_info['phone3comment'] = "Cell Phone";
 	$customer_info['email'] = $email;
 	$customer_info['customernumber'] = $pid;
 

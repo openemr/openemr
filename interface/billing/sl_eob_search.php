@@ -50,6 +50,10 @@
 
  SLConnect();
 
+ // This will be true starting with SQL-Ledger 2.8.x:
+ $got_address_table = SLQueryValue("SELECT count(*) FROM pg_tables WHERE " .
+  "schemaname = 'public' AND tablename = 'address'");
+
  // Print statements if requested.
  //
  if ($_POST['form_print'] && $_POST['form_cb']) {
@@ -62,14 +66,27 @@
 
   // Sort by patient so that multiple invoices can be
   // represented on a single statement.
-  $res = SLQuery("SELECT ar.*, customer.name, " .
-   "customer.address1, customer.address2, " .
-   "customer.city, customer.state, customer.zipcode, " .
-   "substring(trim(both from customer.name) from '% #\"%#\"' for '#') AS lname, " .
-   "substring(trim(both from customer.name) from '#\"%#\" %' for '#') AS fname " .
-   "FROM ar, customer WHERE ( $where ) AND " .
-   "customer.id = ar.customer_id " .
-   "ORDER BY lname, fname, ar.customer_id, ar.transdate");
+  if ($got_address_table) {
+   $res = SLQuery("SELECT ar.*, customer.name, " .
+    "address.address1, address.address2, " .
+    "address.city, address.state, address.zipcode, " .
+    "substring(trim(both from customer.name) from '% #\"%#\"' for '#') AS fname, " .
+    "substring(trim(both from customer.name) from '#\"%#\" %' for '#') AS lname " .
+    "FROM ar, customer, address WHERE ( $where ) AND " .
+    "customer.id = ar.customer_id AND " .
+    "address.trans_id = ar.customer_id " .
+    "ORDER BY lname, fname, ar.customer_id, ar.transdate");
+  }
+  else {
+   $res = SLQuery("SELECT ar.*, customer.name, " .
+    "customer.address1, customer.address2, " .
+    "customer.city, customer.state, customer.zipcode, " .
+    "substring(trim(both from customer.name) from '% #\"%#\"' for '#') AS lname, " .
+    "substring(trim(both from customer.name) from '#\"%#\" %' for '#') AS fname " .
+    "FROM ar, customer WHERE ( $where ) AND " .
+    "customer.id = ar.customer_id " .
+    "ORDER BY lname, fname, ar.customer_id, ar.transdate");
+  }
   if ($sl_err) die($sl_err);
 
   $stmt = array();
@@ -121,8 +138,15 @@
     fwrite($fhprint, create_statement($stmt));
     $stmt['cid'] = $row['customer_id'];
     $stmt['pid'] = $pid;
-    $stmt['patient'] = $row['name'];
-    $stmt['to'] = array($row['name']);
+
+    if ($got_address_table) {
+      $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
+      $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
+    } else {
+      $stmt['patient'] = $row['name'];
+      $stmt['to'] = array($row['name']);
+    }
+
     if ($row['address1']) $stmt['to'][] = $row['address1'];
     if ($row['address2']) $stmt['to'][] = $row['address2'];
     $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['zipcode'];
@@ -432,9 +456,14 @@ function npopup(pid) {
     }
 
     $query = "SELECT ar.id, ar.invnumber, ar.duedate, ar.amount, ar.paid, " .
-      "ar.intnotes, ar.notes, ar.shipvia, customer.name, customer.id AS custid, " .
+      "ar.intnotes, ar.notes, ar.shipvia, customer.name, customer.id AS custid, ";
+    if ($got_address_table) $query .=
+      "substring(trim(both from customer.name) from '#\"%#\" %' for '#') AS lname, " .
+      "substring(trim(both from customer.name) from '% #\"%#\"' for '#') AS fname, ";
+    else $query .=
       "substring(trim(both from customer.name) from '% #\"%#\"' for '#') AS lname, " .
-      "substring(trim(both from customer.name) from '#\"%#\" %' for '#') AS fname, " .
+      "substring(trim(both from customer.name) from '#\"%#\" %' for '#') AS fname, ";
+    $query .=
       "(SELECT SUM(invoice.fxsellprice) FROM invoice WHERE " .
       "invoice.trans_id = ar.id AND invoice.fxsellprice > 0) AS charges, " .
       "(SELECT SUM(invoice.fxsellprice) FROM invoice WHERE " .
