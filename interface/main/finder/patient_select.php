@@ -113,12 +113,12 @@ if ($result) {
                 $next_appt_date= ''; 
 		$pid = '';
 		//calculate date differences based on date of last cpt4 entry
-		$query = "select DATE_FORMAT(date(max(date)),'%m/%d/%y') as mydate," .
-  		  " (to_days(current_date())-to_days(max(date))) as day_diff," . 
-  		  " DATE_FORMAT(date(max(date)) + interval " . $add_days . 
-  		  " day,'%m/%d/%y') as next_appt, dayname(max(date) + interval " . 
-  		  $add_days." day) as next_appt_day from billing where code_type". 
-  		  " like 'CPT4' and pid=" . $iter{"pid"}; 
+		$query = "select DATE_FORMAT(date(max(form_encounter.date)),'%m/%d/%y') as mydate," .
+  		  " (to_days(current_date())-to_days(max(form_encounter.date))) as day_diff," . 
+  		  " DATE_FORMAT(date(max(form_encounter.date)) + interval " . $add_days . 
+  		  " day,'%m/%d/%y') as next_appt, dayname(max(form_encounter.date) + interval " . 
+  		  $add_days." day) as next_appt_day from form_encounter join billing on (billing.encounter = form_encounter.encounter) where billing.code_type". 
+  		  " like 'CPT4' and form_encounter.pid=" . $iter{"pid"}; 
                 $statement= sqlStatement($query);
                 if ($results = mysql_fetch_array($statement, MYSQL_ASSOC)) {
                   $last_date_seen = $results['mydate']; 
