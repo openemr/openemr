@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2008 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -623,14 +623,20 @@ function gen_x12_837($pid, $encounter, &$log) {
       "*" . $claim->cptUnits($prockey) .
       "*" .
       "*" .
-      "*" . $claim->diagIndex($prockey) .
-      "~\n";
+      "*";
+    $dia = $claim->diagIndexArray($prockey);
+    $separator = '';
+    foreach ($dia as $dindex) {
+      $out .= $separator . $dindex;
+      $separator = ':';
+    }
+    $out .= "~\n";
 
     if (!$claim->cptCharges($prockey)) {
       $log .= "*** Procedure '" . $claim->cptKey($prockey) . "' has no charges!\n";
     }
 
-    if (!$claim->diagIndex($prockey)) {
+    if (empty($dia)) {
       $log .= "*** Procedure '" . $claim->cptKey($prockey) . "' is not justified!\n";
     }
 

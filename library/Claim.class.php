@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2008 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -745,20 +745,23 @@ class Claim {
     return x12clean(trim($this->billing_options['prior_auth_number']));
   }
 
-  // Returns an array of unique primary diagnoses.  Periods are stripped.
+  // Returns an array of unique diagnoses.  Periods are stripped.
   function diagArray() {
     $da = array();
     foreach ($this->procs as $row) {
-      $tmp = explode(':', $row['justify']);
-      if (count($tmp)) {
-        $diag = str_replace('.', '', $tmp[0]);
-        $da[$diag] = $diag;
+      $atmp = explode(':', $row['justify']);
+      foreach ($atmp as $tmp) {
+        if (!empty($tmp)) {
+          $diag = str_replace('.', '', $tmp);
+          $da[$diag] = $diag;
+        }
       }
     }
     return $da;
   }
 
-  // Compute the 1-relative index in diagArray for the given procedure.
+  // Compute one 1-relative index in diagArray for the given procedure.
+  // This function is obsolete, use diagIndexArray() instead.
   function diagIndex($prockey) {
     $da = $this->diagArray();
     $tmp = explode(':', $this->procs[$prockey]['justify']);
@@ -770,6 +773,24 @@ class Claim {
       if (strcmp($value,$diag) == 0) return $i;
     }
     return '';
+  }
+
+  // Compute array of 1-relative diagArray indices for the given procedure.
+  function diagIndexArray($prockey) {
+    $dia = array();
+    $da = $this->diagArray();
+    $atmp = explode(':', $this->procs[$prockey]['justify']);
+    foreach ($atmp as $tmp) {
+      if (!empty($tmp)) {
+        $diag = str_replace('.', '', $tmp);
+        $i = 0;
+        foreach ($da as $value) {
+          ++$i;
+          if (strcmp($value,$diag) == 0) $dia[] = $i;
+        }
+      }
+    }
+    return $dia;
   }
 
   function providerLastName() {
