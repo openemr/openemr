@@ -1,0 +1,75 @@
+#rx1 {
+	position: absolute;
+	top: 0in;
+	left: 0in;
+}
+#rx2 {
+	position: absolute;
+	top: 0in;
+	left: 5.5in;
+}
+#rx3 {
+	position: absolute;
+	top: 4.25in;
+	left: 0in;
+}
+#rx4 {
+	position: absolute;
+	top: 4.25in;
+	left: 5.5in;
+}
+.rx {
+	width: 5.3in;
+	height: 4.05in;
+	padding-left: 0.09in;
+	padding-top: 0.09in;
+	padding-right: 0.09in;
+	padding-bottom: 0.09in;
+}
+.topheader {
+	font-family: times;
+	font-weight: bold;	
+	font-size: 12px;	
+	text-align: center;
+}
+.bottomheader {
+	font-family: times;
+	font-weight: normal;	
+	font-size: 12px;	
+	text-align: left;
+}
+.content {
+	font-family: courier;
+	font-weight: normal;	
+	font-size: 14px;	
+	text-align: left;
+}
+.signature {
+	position: absolute;
+	top: 3.5in;
+	font-weight: normal;	
+	font-size: 12px;	
+}
+.mytagname {
+	font-weight: bold;	
+	font-size: 12px;	
+}
+.mydata {
+	font-weight: normal;	
+	font-size: 12px;	
+        text-decoration: underline;
+}
+.symbol {
+	font-weight: bold;	
+	font-size: 24px;	
+}
+#vline {
+	position: absolute;
+	top: 0in;
+	left: 5.43in;
+}
+#hline {
+	position: absolute;
+	top: 4.12in;
+	left: 0in;
+}
