@@ -110,6 +110,9 @@ if ($camos_content[0]) { //decide if we are printing this rx
 </div> <!-- end of rx block -->
 <?
 } // end of deciding if we are printing the above rx block
+else {
+  print "<img src='./xout.jpg' id='rx1'>\n";
+}
 ?>
 <?
 if ($camos_content[1]) { //decide if we are printing this rx
@@ -155,6 +158,9 @@ if ($camos_content[1]) { //decide if we are printing this rx
 </div> <!-- end of rx block -->
 <?
 } // end of deciding if we are printing the above rx block
+else {
+  print "<img src='./xout.jpg' id='rx2'>\n";
+}
 ?>
 <?
 if ($camos_content[2]) { //decide if we are printing this rx
@@ -200,6 +206,9 @@ if ($camos_content[2]) { //decide if we are printing this rx
 </div> <!-- end of rx block -->
 <?
 } // end of deciding if we are printing the above rx block
+else {
+  print "<img src='./xout.jpg' id='rx3'>\n";
+}
 ?>
 <?
 if ($camos_content[3]) { //decide if we are printing this rx
@@ -245,6 +254,9 @@ if ($camos_content[3]) { //decide if we are printing this rx
 </div> <!-- end of rx block -->
 <?
 } // end of deciding if we are printing the above rx block
+else {
+  print "<img src='./xout.jpg' id='rx4'>\n";
+}
 ?>
 </body>
 </html>
