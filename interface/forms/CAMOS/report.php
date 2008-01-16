@@ -9,6 +9,8 @@ function CAMOS_report( $pid, $encounter, $cols, $id) {
     //echo "(category) ".stripslashes($data['category'])." | ";
     //echo "(subcategory) ".stripslashes($data['subcategory'])." | ";
     //echo "(item) ".stripslashes($data['item']);
+    echo "<a href='" . $GLOBALS['webroot'] .
+      "/interface/forms/CAMOS/rx_print.php' target=_new>rx</a>\n";
     echo "<pre>".wordwrap(stripslashes(content_parser($data['content'])))."</pre><hr>\n";
   }
 }
