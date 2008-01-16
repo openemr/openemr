@@ -16,6 +16,7 @@
 <div id='mymenu'>
       <a href="#intro">Introduction</a> |
       <a href="#basic">Basic Use</a> |
+      <a href="#rx">Prescription Printing [New!]</a> |
       <a href="#advanced">Advanced Use</a> 
 </div>
 <a name='intro'>
@@ -57,29 +58,26 @@ and easy to use.
 <b>icd9</b> button - Inserts icd9 codes from billing table for this encounter.  You have to remember to enter them first before viewing this form.
 </p>
 </h3>Top Row of Buttons:</h3>
-<p>
-<b>show/hide multibox</b> button - Toggles between main screen (three column view) and multibox screen.  Note that the text on the button changes to indicate what it will do next when you click it.
-</p>
-<p>
-<b>add to multibox</b> button - Adds content from content box to multibox.  This works regardless of whether the multibox is visible or whether it is not. [begin] and [end] tags that are appended in the multibox to entries are used for parsing.  Double clicking on an item in the item column has the same effect as this button.
-</p>
-<p>
-<p>
-<b>submit multibox</b> button - Submits contents of multibox to the patient's chart.  You can edit text in multibox prior to submission, but if you mess with formatting data (things like /*blahblah*/ or [begin/end]) you will mess up the data that is submitted.
-</p>
 <b>clone</b> button - Searches for list of entries in this patient's history under the selected category and returns the most recent of each.  Data is displayed in the multibox in camos function format (see advanced section below).
 </p>
 <p>
 <b>clone last visit</b> button - Returns all CAMOS submitted items from last encounter plus billing table data.  Data is displayed in the multibox in camos function format (see advanced section below).  By last encounter, we mean the last encounter which has billing entries associated with it.
 </p>
 <p>
-<b>do not save</b> link - Leave the CAMOS form without saving data to patient's chart.
+<b>Leave The Form</b> link - Leave the CAMOS form without saving data to patient's chart.
 </p>
 <p>
 <b>help</b> link - Access this help page.
 </p>
 
 </a>
+<a name='rx'>
+<hr/>
+<h1>Prescription Printing</h1>
+<p><a href='#top'>Top</a></p>
+<p>
+After leaving the CAMOS form, Your entries will show with a link titled 'Rx'.  Click on this link, choose which items to print with checkboxes and submit.  Make sure to set all margins to zero and print in landscape mode.
+
 <a name='advanced'>
 <hr/>
 <h1>Advanced Use</h1>
