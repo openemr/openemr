@@ -16,10 +16,8 @@ if (($_SESSION['encounter'] == '') || ($_SESSION['pid'] == '')) {
   $out_of_encounter = true;
 }
 $select_size = 20;
-$textarea_rows = 9;
+$textarea_rows = 20;
 $textarea_cols = 40;
-$multibox_rows = 25;
-$multibox_cols = 100;
 $debug = '';
 $error = '';
 $previous_encounter_data = '';
@@ -203,13 +201,11 @@ var icd9_list = '';
 var preselect_off = false;
 var content_change_flag = false;
 var lock_override_flag = false;
-var switchbox_status = 'main';
 var columns_status = 'show';
 var hs_status = false;
 var vs_status = false;
 var hide_tc02_status = false;
 var clone_mode = false;
-var multibox_count = 0;
 
 <?
 if (substr($_POST['hidden_mode'],0,5) == 'clone') {
@@ -223,50 +219,6 @@ function clear_box(obj) {
   buffer[obj] = hold;
 }
 
-function addbox() {
-  multibox_count++;
-  var separator1 = '/*[begin: ' + multibox_count + ']*/';
-  var separator2 = '/*[end: ' + multibox_count + ']*/\n\n';
-  var multibox_function_name = 'camos';
-  var outer_delim1 = '/* ';
-  var outer_delim2 = ' */';
-  var inner_delim = ' :: ';
-  f2 = document.CAMOS;
-  var active_content = f2.textarea_content;
-  if (f2.top_bottom_active[1].checked) {
-    active_content = f2.textarea_content02;
-  }
-  f3 = active_content.value;
-  document.CAMOS.textarea_multibox.value =  
-      "\n" +
-      document.CAMOS.textarea_multibox.value + 
-      separator1 +
-      outer_delim1 + multibox_function_name + inner_delim +
-      f2.select_category.options[f2.select_category.selectedIndex].text +
-      inner_delim +
-      f2.select_subcategory.options[f2.select_subcategory.selectedIndex].text +
-      inner_delim +
-      f2.select_item.options[f2.select_item.selectedIndex].text +
-      inner_delim +
-      f3 + outer_delim2 + 
-      separator2 + "\n";
-}
-function switchbox() {
-  var mainbox = document.getElementById('id_mainbox');
-  var multibox = document.getElementById('id_multibox');
-  if (switchbox_status == 'main') {
-    switchbox_status = 'multi';
-    mainbox.style.display = 'none';
-    multibox.style.display = 'block';
-    document.CAMOS.switch_box.value = 'hide multibox';
-  }
-  else {
-    switchbox_status = 'main';
-    multibox.style.display = 'none';
-    mainbox.style.display = 'block';
-    document.CAMOS.switch_box.value = 'show multibox';
-  }
-}
 function hide_columns() {
   var column01 = document.getElementById('id_category_column');
   var column02 = document.getElementById('id_subcategory_column');
@@ -310,47 +262,7 @@ function hide_columns() {
 //  }
 //}
 
-function hide_textarea_content02() {
-  var tc02 = document.getElementById('id_textarea_content02');
-  var tc02_hide = document.getElementById('id_textarea_content02_show_button');
-  f2 = document.CAMOS;
-  if (hide_tc02_status) {
-    tc02.style.display = 'inline'; //show
-    f2.textarea_content.rows /= 2;
-    f2.textarea_content02.rows /= 2;
-    hide_tc02_status = false;
-    tc02_hide.style.display = 'none';
-  } else {
-    tc02.style.display = 'none'; //hide
-    f2.textarea_content.rows *= 2;
-    f2.textarea_content02.rows *= 2;
-    hide_tc02_status = true;
-    tc02_hide.style.display = 'inline';
-  }
-}
 
-function vs_button() { //expand
-  f2 = document.CAMOS;
-  if (vs_status) {
-    hide_columns();
-    f2.textarea_content.cols /= 3;
-    f2.textarea_content02.cols /= 3;
-    f2.textarea_content.rows /= 2;
-    f2.textarea_content02.rows /= 2;
-    hs_status = false;
-    vs_status = false;
-    f2.vs.value = 'expand';
-  } else {
-    hide_columns(); 
-    f2.textarea_content.cols *= 3;
-    f2.textarea_content02.cols *= 3;
-    f2.textarea_content.rows *= 2;
-    f2.textarea_content02.rows *= 2;
-    hs_status = true;
-    vs_status = true;
-    f2.vs.value = 'unexpand';
-  }
-}
 
 //deal with locking of content = prevent accidental overwrite
 
@@ -537,15 +449,6 @@ function init() {
   var f2 = document.CAMOS;
   if (clone_mode) {
     clone_mode = false;
-<?
-if (substr($_POST['hidden_mode'],0,5) == 'clone') {
-  foreach($clone_data_array as $key => $val) {
-  echo "f2.textarea_multibox.value = f2.textarea_multibox.value + \"".fixquotes(str_replace($quote_search,$quote_replace,$val))."\\n\"\n";
-  }
-  echo "switchbox();\n";
-}
-
-?>
   }
   for (i1=0;i1<array1.length;i1++) {
     f2.select_category.options[f2.select_category.length] = new Option(array1[i1][0], array1[i1][1]);
@@ -560,6 +463,15 @@ if (substr($_POST['hidden_mode'],0,5) == 'clone') {
   if (select_word('<? echo $temp_preselect_mode."', '".$preselect_category; ?>' ,f2.select_category)) {
     click_category();
   }
+<?
+if (substr($_POST['hidden_mode'],0,5) == 'clone') {
+  echo "f2.textarea_content.value = '';\n";
+  foreach($clone_data_array as $key => $val) {
+  echo "f2.textarea_content.value = f2.textarea_content.value + \"".fixquotes(str_replace($quote_search,$quote_replace,$val))."\\n\"\n";
+  }
+}
+
+?>
 }
 
 function click_category() {
@@ -827,21 +739,9 @@ if ( (mode == 'add') || (mode == 'alter') ) {
     f2.submit();
   }
   if (mode == 'submit') {
-    var active_content = f2.textarea_content;
-    if (f2.top_bottom_active[1].checked) {
-      active_content = f2.textarea_content02;
+      active_content = f2.textarea_content; //left over variable from when I tried two content boxes
     }
-//    f2.category.value = f2.select_category.options[f2.select_category.selectedIndex].text;
-//    f2.subcategory.value = f2.select_subcategory.options[f2.select_subcategory.selectedIndex].text;
-//    f2.item.value = f2.select_item.options[f2.select_item.selectedIndex].text;
-//    if (selection == 'submit_selection') {
-//      f2.content.value = (active_content.value).substring(active_content.selectionStart, active_content.selectionEnd);
-//    }
-//    else if (selection == 'multibox') {f2.content.value = f2.textarea_multibox.value;}
-//    else {f2.content.value = active_content.value;}
-//    f2.action = '<?echo $rootdir;?>/forms/CAMOS/save.php?mode=new';
-//    f2.submit();
-//experimental ajax code
+//ajax code
     var myobj = document.getElementById('id_info');
     myarray = new Array();
     myarray['category'] = f2.select_category.options[f2.select_category.selectedIndex].text;
@@ -851,13 +751,11 @@ if ( (mode == 'add') || (mode == 'alter') ) {
     if (selection == 'submit_selection') {
       myarray['content'] = (active_content.value).substring(active_content.selectionStart, active_content.selectionEnd);
     }
-    else if (selection == 'multibox') {myarray['content'] = f2.textarea_multibox.value;}
     else {myarray['content'] = active_content.value;}
     var str = setformvalues(myarray);
-//    alert(str);
     processajax ('<? print $GLOBALS['webroot'] ?>/interface/forms/CAMOS/ajax_save.php', myobj, "post", str);
-//end experimental ajax code
-  }
+    alert("submitted!");
+//ajax code
 }
 //function runit () {
 //  var myobj = document.getElementById('mytarget');
@@ -881,9 +779,6 @@ function selectItem () {
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0 onload="init()">
 <form method=post action="<?echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="CAMOS">
-<input type=button name='switch_box' value='show multibox' onClick="switchbox()">
-<input type=button name='add_multibox' value='add to multibox' onClick="addbox()">
-<input type=button name='submit_multibox' value='submit multibox' onClick="js_button('submit','multibox')">
 <input type=button name=clone value=clone onClick="js_button('clone', 'clone')">
 <input type=button name=clone_visit value='clone last visit' onClick="js_button('clone last visit', 'clone last visit')">
 <?  
@@ -954,7 +849,7 @@ if (myAuth() == 1) {//root user only can see administration option
   <td>
   <div id=id_item_column style="display:inline">
     <select name=select_item size=<? echo $select_size ?> onchange="click_item()"
-      ondblclick="addbox()"></select><br>
+      ></select><br>
 <?
 if (myAuth() == 1) {//root user only can see administration option 
 ?>
@@ -971,26 +866,10 @@ if (myAuth() == 1) {//root user only can see administration option
 <div id=id_textarea_content style="display:inline">
     <textarea name=textarea_content cols=<? echo $textarea_cols ?> rows=<? echo $textarea_rows ?> onFocus="content_focus()" onBlur="content_blur()" ondblclick="clear_box(this)"></textarea>
     <br/>
-    <input type=radio name=top_bottom_active value=top checked>
-    <input type=button name=insert_down value='insert down' onClick="insert_content('down')">
-    <input type=button name=vs value='expand' onClick="vs_button()">
-    <div id=id_textarea_content02_show_button style="display:none">
-    <input type=button name=textarea_content02_show value='show' onClick="hide_textarea_content02()">
-    </div> <!-- end of id_textarea_content_02_show_button -->
-</div> <!-- end of id_textarea_content -->
-<br>
-<div id=id_textarea_content02 style="display:inline">
-    <textarea name=textarea_content02 cols=<? echo $textarea_cols ?> rows=<? echo $textarea_rows ?> onFocus="content_focus()" onBlur="content_blur()" ondblclick="clear_box(this)"></textarea>
-    <br/>
-    <input type=radio name=top_bottom_active value=bottom>
-    <input type=button name=insert_up value='insert up' onClick="insert_content('up')">
-    <input type=button name=textarea_content02_hide value='hide' onClick="hide_textarea_content02()">
-</div> <!-- end of id_textarea_content02 -->
-<br>
 <?
 if (myAuth() == 1) {//root user only can see administration option 
 ?>
-<div id=id_main_content_buttons style="display:none">
+<div id=id_main_content_buttons style="display:block">
     <input type=button name=add4 value=add onClick="js_button('add','change_content')">
     <input type=button name=lock value=lock onClick="lock_content()">
 <?
@@ -1034,9 +913,6 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 }
 ?>
 </div>
-<div id=id_multibox style="display:none">
-<textarea name=textarea_multibox cols=<? echo $multibox_cols ?> rows=<? echo $multibox_rows ?> onFocus="content_focus()" onBlur="content_blur()"></textarea>
-</div> <!-- end of id_multibox -->
 </form>
 <?php
 formFooter();
