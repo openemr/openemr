@@ -757,17 +757,6 @@ if ( (mode == 'add') || (mode == 'alter') ) {
     alert("submitted!");
 //ajax code
 }
-//function runit () {
-//  var myobj = document.getElementById('mytarget');
-//  myarray = new Array();
-//  myarray['category'] = 'testcategory01';
-//  myarray['subcategory'] = 'testsubcategory01';
-//  myarray['item'] = 'item01';
-//  myarray['content'] = 'content01';
-//  var str = setformvalues(myarray);
-//  alert(str);
-//  processajax ('ajax_save.php', myobj, "post", str);
-//}
 
 function selectItem () {
   f2 = document.CAMOS;
