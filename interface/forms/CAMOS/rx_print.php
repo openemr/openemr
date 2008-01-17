@@ -10,6 +10,8 @@ Four Pane Prescription Printer
 <?
 //practice data
 $physician_name = ''; 
+$practice_fname = '';
+$practice_lname = '';
 $practice_address = ''; 
 $practice_city = ''; 
 $practice_state = '';
@@ -36,9 +38,28 @@ if ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
   $patient_phone = $result['phone_home'];
   $patient_dob = $result['DOB'];
 }
+//update user information if selected from form
+if ($_POST['update']) {
+  $query = "update users set " .
+    "fname = '" . $_POST['practice_fname'] . "', " .  
+    "lname = '" . $_POST['practice_lname'] . "', " .  
+    "title = '" . $_POST['practice_title'] . "', " .  
+    "street = '" . $_POST['practice_address'] . "', " .  
+    "city = '" . $_POST['practice_city'] . "', " .  
+    "state = '" . $_POST['practice_state'] . "', " .  
+    "zip = '" . $_POST['practice_zip'] . "', " .  
+    "phone = '" . $_POST['practice_phone'] . "', " .  
+    "fax = '" . $_POST['practice_fax'] . "', " .  
+    "federaldrugid = '" . $_POST['practice_dea'] . "' " .  
+    "where id =" . $_SESSION['authUserID'];
+  sqlInsert($query);
+}
+//get user information
 $query = sqlStatement("select * from users where id =" . $_SESSION['authUserID']);
 if ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
-  $physician_name = $result['fname'] . ' ' . $result['lname']; 
+  $physician_name = $result['fname'] . ' ' . $result['lname'] . ', ' . $result['title']; 
+  $practice_fname = $result['fname'];
+  $practice_lname = $result['lname'];
   $practice_address = $result['street']; 
   $practice_city = $result['city']; 
   $practice_state = $result['state'];
@@ -264,19 +285,77 @@ else {
 }
 else {//pick
 ?>
+<h1>Select CAMOS Entries for printing</h1>
 <form method=POST name='pick_items'>
 <?
-$query = sqlStatement("select * from form_CAMOS where date(date) like current_date() and pid = " . $_SESSION['pid']);
+//foreach ($_SESSION as $key => $val) {
+//echo "$key => $val <br/>\n";
+//}
+$query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " . 
+ "form_CAMOS  as x join forms as y on (date(x.date) like date(y.date)) " . 
+ "where y.encounter = " .  $_SESSION['encounter'] . 
+ " and x.pid = " . $_SESSION['pid'] .  " and x.activity = 1");
+$results = array();
 while ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
-  echo "<input type=checkbox name='ch_" . $result['id'] . "'>" .
-    $result['category'] . ':' . $result['subcategory'] . ':' . $result['item'] . "<br/>\n";
+  $results["<input type=checkbox name='ch_" . $result['id'] . "'>" .
+    $result['category'] . ':' . $result['subcategory'] . ':' . $result['item'] . "<br/>\n"]++;
+}
+foreach($results as $key => $val) {
+  echo $key;
 }
 ?>
 <input type=submit name=print value=print>
 </form>
+<h1>Update User Information</h1>
+<form method=POST name='pick_items'>
+<table>
+<tr>
+  <td> First Name: </td> 
+  <td> <input type=text name=practice_fname value ='<? echo $practice_fname ?>'> </td>
+</tr>
+<tr>
+  <td> Last Name: </td> 
+  <td> <input type=text name=practice_lname value ='<? echo $practice_lname ?>'> </td>
+</tr>
+<tr>
+  <td> Title: </td> 
+  <td> <input type=text name=practice_title value ='<? echo $practice_title ?>'> </td>
+</tr>
+<tr>
+  <td> Street Address: </td> 
+  <td> <input type=text name=practice_address value ='<? echo $practice_address ?>'> </td>
+</tr>
+<tr>
+  <td> City: </td> 
+  <td> <input type=text name=practice_city value ='<? echo $practice_city ?>'> </td>
+</tr>
+<tr>
+  <td> State: </td> 
+  <td> <input type=text name=practice_state value ='<? echo $practice_state ?>'> </td>
+</tr>
+<tr>
+  <td> Zip: </td> 
+  <td> <input type=text name=practice_zip value ='<? echo $practice_zip ?>'> </td>
+</tr>
+<tr>
+  <td> Phone: </td> 
+  <td> <input type=text name=practice_phone value ='<? echo $practice_phone ?>'> </td>
+</tr>
+<tr>
+  <td> Fax: </td> 
+  <td> <input type=text name=practice_fax value ='<? echo $practice_fax ?>'> </td>
+</tr>
+<tr>
+  <td> DEA: </td> 
+  <td> <input type=text name=practice_dea value ='<? echo $practice_dea ?>'> </td>
+</tr>
+</table>
+<input type=submit name=update value=update>
+</form>
+
 <?
 
-}
+} //end of else statement
 //$query = sqlStatement("");
 //while ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
 //}
