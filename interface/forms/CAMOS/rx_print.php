@@ -290,20 +290,14 @@ else {//pick
 <h1>Select CAMOS Entries for printing</h1>
 <form method=POST name='pick_items'>
 <?
-//foreach ($_SESSION as $key => $val) {
-//echo "$key => $val <br/>\n";
-//}
 $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " . 
- "form_CAMOS  as x join forms as y on (date(x.date) like date(y.date)) " . 
+ "form_CAMOS  as x join forms as y on (x.id = y.form_id) " . 
  "where y.encounter = " .  $_SESSION['encounter'] . 
  " and x.pid = " . $_SESSION['pid'] .  " and x.activity = 1");
 $results = array();
 while ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
-  $results["<input type=checkbox name='ch_" . $result['id'] . "'>" .
-    $result['category'] . ':' . $result['subcategory'] . ':' . $result['item'] . "<br/>\n"]++;
-}
-foreach($results as $key => $val) {
-  echo $key;
+  echo "<input type=checkbox name='ch_" . $result['id'] . "'>" .
+    $result['category'] . ':' . $result['subcategory'] . ':' . $result['item'] . "<br/>\n";
 }
 ?>
 <input type=submit name=print value=print>
