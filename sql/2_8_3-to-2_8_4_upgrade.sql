@@ -59,8 +59,6 @@ INSERT INTO list_options VALUES ('userlist1','sample','Sample',1,0);
 INSERT INTO list_options VALUES ('userlist2','sample','Sample',1,0);
 
 INSERT INTO list_options VALUES ('pricelevel','standard','Standard',1,1);
-INSERT INTO list_options VALUES ('pricelevel','level1'  ,'Level 1' ,2,0);
-INSERT INTO list_options VALUES ('pricelevel','level2'  ,'Level 2' ,3,0);
 
 CREATE TABLE layout_options (
   form_id        varchar(31)   NOT NULL,
@@ -182,4 +180,19 @@ INSERT INTO list_options VALUES ('boolean','1','Yes',2,0);
 
 INSERT INTO `categories` VALUES (6,'Patient Photograph','',1,9,10);
 
-INSERT INTO `registry` VALUES ('CAMOS',1,'CAMOS',16,1,1,'2008-01-01 00:00:00');
+INSERT INTO `registry` VALUES ('CAMOS',1,'CAMOS',16,1,1,'2008-01-01 00:00:00',0,'category','');
+
+ALTER TABLE codes
+  ADD related_code varchar(10) NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code';
+
+CREATE TABLE prices (
+  pr_id          varchar(11)   NOT NULL            COMMENT 'references codes.id or drugs.id',
+  pr_selector    varchar(15)   NOT NULL DEFAULT '' COMMENT 'template selector for drugs, empty for codes',
+  pr_level       varchar(31)   NOT NULL DEFAULT '' COMMENT 'price level',
+  pr_price       decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'price in local currency',
+  PRIMARY KEY (pr_id, pr_selector, pr_level)
+) TYPE=MyISAM;
+
+INSERT INTO prices ( pr_id, pr_level, pr_price )
+  SELECT codes.id, 'standard', codes.fee FROM codes
+  WHERE codes.fee IS NOT NULL AND codes.fee > 0;

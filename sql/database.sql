@@ -124,6 +124,7 @@ CREATE TABLE `codes` (
   `units` tinyint(3) default NULL,
   `fee` decimal(7,2) default NULL,
   `superbill` tinyint(1) NOT NULL default '0',
+  `related_code` varchar(10) NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code',
   PRIMARY KEY  (`id`),
   KEY `code` (`code`)
 ) ;
@@ -4734,3 +4735,11 @@ INSERT INTO layout_options VALUES ('REF','reply_findings'  ,'','Findings'       
 INSERT INTO layout_options VALUES ('REF','reply_services'  ,'','Services Provided'      ,14, 3,1,30,  3,''         ,1,1,'' ,'' ,'Service provided by specialist');
 INSERT INTO layout_options VALUES ('REF','reply_recommend' ,'','Recommendations'        ,15, 3,1,30,  3,''         ,1,1,'' ,'' ,'Recommendations by specialist');
 INSERT INTO layout_options VALUES ('REF','reply_rx_refer'  ,'','Prescriptions/Referrals',16, 3,1,30,  3,''         ,1,1,'' ,'' ,'Prescriptions and/or referrals by specialist');
+
+CREATE TABLE prices (
+  pr_id          varchar(11)   NOT NULL            COMMENT 'references codes.id or drugs.id',
+  pr_selector    varchar(15)   NOT NULL DEFAULT '' COMMENT 'template selector for drugs, empty for codes',
+  pr_level       varchar(31)   NOT NULL DEFAULT '' COMMENT 'price level',
+  pr_price       decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'price in local currency',
+  PRIMARY KEY (pr_id, pr_selector, pr_level)
+) TYPE=MyISAM;

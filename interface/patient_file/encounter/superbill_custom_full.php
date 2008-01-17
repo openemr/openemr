@@ -3,223 +3,417 @@ include_once("../../globals.php");
 include_once("../../../custom/code_types.inc.php");
 include_once("$srcdir/sql.inc");
 
-if (isset($mode)) {
-
-
-	// ERROR!  $id and other variables here are not set!
-
-	if ($mode == "delete" ) {
-		sqlStatement("delete from codes where id='$id'");
-	} elseif ($mode == "add" ) {
-		$sql = "REPLACE INTO codes set 
-										code		= '" . mysql_real_escape_string($code) . "',
-										code_type	= '" . mysql_real_escape_string($code_type) . "',
-										code_text	= '" . mysql_real_escape_string($code_text) . "',
-										modifier 	= '" . mysql_real_escape_string($modifier) . "',
-										units 		= '" . mysql_real_escape_string($units) . "',
-										fee 		= '" . mysql_real_escape_string($fee) . "',
-										superbill 	= '" . mysql_real_escape_string($superbill) . "',
-										id 	= '" . mysql_real_escape_string($id) . "'";
-		sqlStatement($sql);
-		$code=$code_type=$code_text=$modifier=$units=$fee=$superbill=$id="";
-	}
-	elseif ($mode == "edit" ) {
-		$sql = "select * from codes where id = " . mysql_real_escape_string($id);
-		$results = sqlQ($sql);
-		while ($row = mysql_fetch_assoc($results)) {
-			$GLOBALS['code'] = $row['code'];
-			$GLOBALS['code_text'] = $row['code_text'];
-			$GLOBALS['code_type'] = $row['code_type'];
-			$GLOBALS['modifier'] = $row['modifier'];
-			$GLOBALS['units'] = $row['units'];
-			$GLOBALS['fee'] = $row['fee'];
-			$GLOBALS['superbill'] = $row['superbill'];
-			$GLOBALS['id'] = $row['id'];
-		}
-	}
-
+// Translation for form fields.
+function ffescape($field) {
+  return mysql_real_escape_string($field);
 }
 
-//the number of records to display before forming a new column:
-$N = 12;
+// Format dollars for display.
+//
+function bucks($amount) {
+  if ($amount) {
+    $amount = sprintf("%.2f", $amount);
+    if ($amount != 0.00) return $amount;
+  }
+  return '';
+}
+
+$pagesize = 100;
+
+$mode    = $_POST['mode'];
+$code_id = 0;
+$related_code = '';
+
+if (isset($mode)) {
+  $code_id    = $_POST['code_id'] + 0;
+  $code       = $_POST['code'];
+  $code_type  = $_POST['code_type'];
+  $code_text  = $_POST['code_text'];
+  $modifier   = $_POST['modifier'];
+  // $units      = $_POST['units'];
+  // $superbill  = $_POST['superbill'];
+  $related_code = $_POST['related_code'];
+
+  if ($mode == "delete") {
+    sqlStatement("DELETE FROM codes WHERE id = '$code_id'");
+    $code_id = 0;
+  }
+  else if ($mode == "add") {
+    $sql =
+      "code = '"         . ffescape($code)         . "', " .
+      "code_type = '"    . ffescape($code_type)    . "', " .
+      "code_text = '"    . ffescape($code_text)    . "', " .
+      "modifier = '"     . ffescape($modifier)     . "', " .
+      // "units = '"        . ffescape($units)        . "', " .
+      // "superbill = '"    . ffescape($superbill)    . "', " .
+      "related_code = '" . ffescape($related_code) . "'";
+    if ($code_id) {
+      sqlStatement("UPDATE codes SET $sql WHERE id = '$code_id'");
+      sqlStatement("DELETE FROM prices WHERE pr_id = '$code_id' AND " .
+        "pr_selector = ''");
+    }
+    else {
+      $code_id = sqlInsert("INSERT INTO codes SET $sql");
+    }
+    foreach ($_POST['fee'] as $key => $value) {
+      $value = $value + 0;
+      if ($value) {
+        sqlStatement("INSERT INTO prices ( " .
+          "pr_id, pr_selector, pr_level, pr_price ) VALUES ( " .
+          "'$code_id', '', '$key', '$value' )");
+      }
+    }
+    $code = $code_type = $code_text = $modifier = $superbill = "";
+    $code_id = 0;
+    $related_code = '';
+  }
+  else if ($mode == "edit") {
+    $sql = "SELECT * FROM codes WHERE id = '$code_id'";
+    $results = sqlQ($sql);
+    while ($row = mysql_fetch_assoc($results)) {
+      $code         = $row['code'];
+      $code_text    = $row['code_text'];
+      $code_type    = $row['code_type'];
+      $modifier     = $row['modifier'];
+      // $units        = $row['units'];
+      // $superbill    = $row['superbill'];
+      $related_code = $row['related_code'];
+    }
+  }
+}
+
+$related_desc = '';
+if (!empty($related_code)) {
+  $relrow = sqlQuery("SELECT code_text FROM codes WHERE code = '$related_code'");
+  $related_desc = $related_code . ': ' . trim($relrow['code_text']);
+}
+
+$fstart = $_REQUEST['fstart'] + 0;
+$filter = $_REQUEST['filter'] + 0;
+$search = $_REQUEST['search'];
+
+$where = "1 = 1";
+if ($filter) {
+  $where .= " AND code_type = '$filter'";
+}
+if (!empty($search)) {
+  $where .= " AND code LIKE '" . ffescape($search) . "%'";
+}
+
+$crow = sqlQuery("SELECT count(*) AS count FROM codes WHERE $where");
+$count = $crow['count'];
+if ($fstart >= $count) $fstart -= $pagesize;
+if ($fstart < 0) $fstart = 0;
+$fend = $fstart + $pagesize;
+if ($fend > $count) $fend = $count;
 ?>
 
 <html>
 <head>
-
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<script type="text/javascript" src="../../../library/dialog.js"></script>
+
+<script language="JavaScript">
+
+// This is for callback by the find-code popup.
+function set_related(code, codedesc) {
+ var f = document.forms[0];
+ if (code) {
+  f.related_desc.value = code + ': ' + codedesc;
+ } else {
+  f.related_desc.value = '';
+ }
+ f.related_code.value = code;
+}
+
+// This invokes the find-code popup.
+function sel_related() {
+ var f = document.forms[0];
+ var i = f.code_type.selectedIndex;
+ var codetype = '';
+ if (i >= 0) {
+  var myid = f.code_type.options[i].value;
+<?php
+foreach ($code_types as $key => $value) {
+  $codeid = $value['id'];
+  $coderel = $value['rel'];
+  if (!$coderel) continue;
+  echo "  if (myid == $codeid) codetype = '$coderel';";
+}
+?>
+ }
+ if (!codetype) {
+  alert('This code type has no related type defined.');
+  return;
+ }
+ dlgopen('find_code_popup.php?codetype=' + codetype, '_blank', 500, 400);
+}
+
+function submitAdd() {
+ var f = document.forms[0];
+ if (!f.code.value) {
+  alert('No code was specified!');
+  return;
+ }
+ f.mode.value = 'add';
+ f.code_id.value = '';
+ f.submit();
+}
+
+function submitUpdate() {
+ var f = document.forms[0];
+ if (! parseInt(f.code_id.value)) {
+  alert('Cannot update because you are not editing an existing entry!');
+  return;
+ }
+ if (!f.code.value) {
+  alert('No code was specified!');
+  return;
+ }
+ f.mode.value = 'add';
+ f.submit();
+}
+
+function submitList(offset) {
+ var f = document.forms[0];
+ var i = parseInt(f.fstart.value) + offset;
+ if (i < 0) i = 0;
+ f.fstart.value = i;
+ f.submit();
+}
+
+function submitEdit(id) {
+ var f = document.forms[0];
+ f.mode.value = 'edit';
+ f.code_id.value = id;
+ f.submit();
+}
+
+function submitDelete(id) {
+ var f = document.forms[0];
+ f.mode.value = 'delete';
+ f.code_id.value = id;
+ f.submit();
+}
+
+</script>
 
 </head>
-<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body <?php echo $top_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
+ bottommargin='0' marginwidth='2' marginheight='0'>
 
-<?php if ($GLOBALS['concurrent_layout']) { ?>
-<a href="superbill_codes.php">
-<?php } else { ?>
-<a href="patient_encounter.php?codefrom=superbill" target="Main">
+<?php if ($GLOBALS['concurrent_layout']) {
+// <a href="superbill_codes.php">
+// <span class=title>??php xl('Superbill Codes','e'); ??</span>
+// <font class=more>??php echo $tback;??</font></a>
+} else { ?>
+<a href='patient_encounter.php?codefrom=superbill' target='Main'>
+<span class='title'><?php xl('Superbill Codes','e'); ?></span>
+<font class='more'><?php echo $tback;?></font></a>
 <?php } ?>
 
-<span class=title><?php xl('Superbill Codes','e'); ?></span>
-<font class=more><?php echo $tback;?></font></a>
+<form method='post' action='superbill_custom_full.php' name='theform'>
 
-<form action="superbill_custom_full.php" name=add_code>
-<input type=hidden name=mode value="add">
+<input type='hidden' name='mode' value=''>
+
 <br>
-<table border=0 cellpadding=0 cellspacing=0>
-<tr>
-<td colspan="3"> <?php xl('Not all fields are required for all codes or code types.','e'); ?><br><br></td>
-</tr>
-<tr>
-	<td><?php xl('Code Type','e'); ?>:</td>
-	<td width="5" rowspan="7"></td>
-	<td>
-		<select name="code_type">
+
+<center>
+<table border='0' cellpadding='0' cellspacing='0'>
+
+ <tr>
+  <td colspan="3"> <?php xl('Not all fields are required for all codes or code types.','e'); ?><br><br></td>
+ </tr>
+
+ <tr>
+  <td><?php xl('Type','e'); ?>:</td>
+  <td width="5"></td>
+  <td>
+   <select name="code_type">
 <?php foreach ($code_types as $key => $value) { ?>
-			<option value="<?php  echo $value['id'] ?>"<?php if ($GLOBALS['code_type'] == $value['id']) echo " selected" ?>><?php echo $key ?></option>
+    <option value="<?php  echo $value['id'] ?>"<?php if ($GLOBALS['code_type'] == $value['id']) echo " selected" ?>><?php echo $key ?></option>
 <?php } ?>
-		</select>
-	</td>
-</tr>
-<tr>
-	<td><?php xl('Code','e'); ?>:</td><td><input type=entry size=25 name="code" value="<?=$GLOBALS['code']?>"></td>
-</tr>
-<tr>
-	<td><?php xl('Code Text','e'); ?>:</td><td><input type=entry size=25 name="code_text" value="<?=$GLOBALS['code_text']?>"></td>
-</tr>
-<tr>
-	<td><?php xl('Modifier','e'); ?>:</td><td><input type=entry size=3 name="modifier" value="<?=$GLOBALS['modifier']?>"></td>
-</tr>
-<tr>
-	<td><?php xl('Units','e'); ?>:</td><td><input type=entry size=4 name="units" value="<?=$GLOBALS['units']?>"></td>
-</tr>
-<tr>
-	<td><?php xl('Fee','e'); ?>:</td><td><input type=entry size=6 name="fee" value="<?=$GLOBALS['fee']?>" ></td>
-</tr>
-<tr>
-	<td><?php xl('Include in Superbill','e'); ?>:</td><td><select name="superbill"><option value="0" <?php if ($GLOBALS['superbill'] == 0) echo "selected"?>>No</option><option value="1" <?php if ($GLOBALS['superbill'] == 1) echo "selected"?>><?php xl('Yes','e'); ?></option></td>
-</tr>
-<tr>
-	<td colspan="3" align="center">
-	<input type="hidden" name="id" value="<?=$GLOBALS['id']?>"> 
-	<br><a href='javascript:document.add_code.submit();' class=link>[<? xl('Add Code','e'); ?>]</a></td>
-</tr>
+   </select>
+   &nbsp;&nbsp;
+   <?php xl('Code','e'); ?>:
+   <input type='text' size='6' name='code' value='<?php echo $code ?>'>
+   &nbsp;&nbsp;<?php xl('Modifier','e'); ?>:
+   <input type='text' size='3' name='modifier' value='<?php echo $modifier ?>'>
+  </td>
+ </tr>
+
+ <tr>
+  <td><?php xl('Description','e'); ?>:</td>
+  <td></td>
+  <td>
+   <input type='text' size='50' name="code_text" value='<?php echo $code_text ?>'>
+  </td>
+ </tr>
+
+ <tr>
+  <td><?php xl('Relate To','e'); ?>:</td>
+  <td></td>
+  <td>
+   <input type='text' size='50' name='related_desc'
+    value='<?php echo $related_desc ?>' onclick="sel_related()"
+    title='<?php xl('Click to select related code','e'); ?>' readonly />
+   <input type='hidden' name='related_code' value='<?php echo $related_code ?>' />
+  </td>
+ </tr>
+
+ <tr>
+  <td><?php xl('Fees','e'); ?>:</td>
+  <td></td>
+  <td>
+<?php
+$pres = sqlStatement("SELECT lo.option_id, lo.title, p.pr_price " .
+  "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
+  "p.pr_id = '$code_id' AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
+  "WHERE list_id = 'pricelevel' ORDER BY lo.seq");
+for ($i = 0; $prow = sqlFetchArray($pres); ++$i) {
+  if ($i) echo "&nbsp;&nbsp;";
+  echo $prow['title'] . " ";
+  echo "<input type='text' size='6' name='fee[" . $prow['option_id'] . "]' " .
+    "value='" . $prow['pr_price'] . "' >\n";
+}
+?>
+  </td>
+ </tr>
+
+ <tr>
+  <td colspan="3" align="center">
+   <input type="hidden" name="code_id" value="<?php echo $code_id ?>"><br>
+   <a href='javascript:submitUpdate();' class='link'>[<? xl('Update','e'); ?>]</a>
+   &nbsp;&nbsp;
+   <a href='javascript:submitAdd();' class='link'>[<? xl('Add as New','e'); ?>]</a>
+  </td>
+ </tr>
 
 </table>
+
+<table border='0' cellpadding='5' cellspacing='0' width='96%'>
+ <tr>
+
+  <td class='text'>
+   <select name='filter' onchange='submitList(0)'>
+    <option value='0'>All</option>
+<?php
+foreach ($code_types as $key => $value) {
+  echo "<option value='" . $value['id'] . "'";
+  if ($value['id'] == $filter) echo " selected";
+  echo ">$key</option>\n";
+}
+?>
+   </select>
+   &nbsp;&nbsp;&nbsp;&nbsp;
+
+   <input type="text" name="search" size="5" value="<?php echo $search ?>">&nbsp;
+   <input type="submit" name="go" value="Search">
+   <input type='hidden' name='fstart' value='<?php echo $fstart ?>'>
+  </td>
+
+  <td class='text' align='right'>
+<?php if ($fstart) { ?>
+   <a href="javascript:submitList(-<?php echo $pagesize ?>)">
+    &lt;&lt;
+   </a>
+   &nbsp;&nbsp;
+<?php } ?>
+   <?php echo ($fstart + 1) . " - $fend of $count" ?>
+   &nbsp;&nbsp;
+   <a href="javascript:submitList(<?php echo $pagesize ?>)">
+    &gt;&gt;
+   </a>
+  </td>
+
+ </tr>
+</table>
+
+</form>
+
+<table border='0' cellpadding='5' cellspacing='0' width='96%'>
+ <tr>
+  <td><span class='bold'><?php xl('Code','e'); ?></span></td>
+  <td><span class='bold'><?php xl('Mod','e'); ?></span></td>
+  <td><span class='bold'><?php xl('Type','e'); ?></span></td>
+  <td><span class='bold'><?php xl('Description','e'); ?></span></td>
+  <!--
+  <td><span class='bold'><?php // xl('Modifier','e'); ?></span></td>
+  <td><span class='bold'><?php // xl('Units','e'); ?></span></td>
+  <td><span class='bold'><?php // xl('Fee','e'); ?></span></td>
+  -->
+<?php
+$pres = sqlStatement("SELECT title FROM list_options " .
+  "WHERE list_id = 'pricelevel' ORDER BY seq");
+while ($prow = sqlFetchArray($pres)) {
+  echo "  <td class='bold' align='right' nowrap>" . $prow['title'] . "</td>\n";
+}
+?>
+  <td></td>
+  <td></td>
+ </tr>
 <?php
 
-$fstart = $_GET['fstart'];
-if (empty($fstart)) {
-	$fstart = 0;
-}
-elseif (!is_numeric($fstart)) {
-	$fstart = 100;	
-}
+$res = sqlStatement("SELECT * FROM codes WHERE $where " .
+  "ORDER BY code_type, code, code_text LIMIT $fstart, " . ($fend - $fstart));
 
-$fend = $fstart + 100;
+for ($i = 0; $row = sqlFetchArray($res); $i++) $all[$i] = $row;
+
+if (!empty($all)) {
+  $count = 0;
+  foreach($all as $iter) {
+    $count++;
+
+    $has_fees = false;
+    foreach ($code_types as $key => $value) {
+      if ($value['id'] == $iter['code_type']) {
+        $has_fees = $value['fee'];
+        break;
+      }
+    }
+
+    echo " <tr>\n";
+    echo "  <td class='text'>" . $iter["code"] . "</td>\n";
+    echo "  <td class='text'" . $iter["modifier"] . "</td>\n";
+    echo "  <td class='text'>$key</td>\n";
+    echo "  <td class='text'>" . $iter['code_text'] . "</td>\n";
+
+    // echo "<td>";
+    // if ($has_fees) {
+    //   echo "<span class='text'>" . $iter['modifier'] . "</span>";
+    // }
+    // echo "</td>";
+    // echo "<td>";
+    // if ($has_fees) {
+    //   echo "<span class='text'>" . $iter['units'] . "</span>";
+    // }
+    // echo "</td>";
+    // echo "<td>";
+    // if ($has_fees) {
+    //   echo "<span class='text'>$" . sprintf("%01.2f", $iter['fee']) . "</span>";
+    // }
+    // echo "</td>";
+
+    $pres = sqlStatement("SELECT p.pr_price " .
+      "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
+      "p.pr_id = '" . $iter['id'] . "' AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
+      "WHERE list_id = 'pricelevel' ORDER BY lo.seq");
+    while ($prow = sqlFetchArray($pres)) {
+      echo "<td class='text' align='right'>" . bucks($prow['pr_price']) . "</td>\n";
+    }
+
+    echo "  <td align='right'><a class='link' href='javascript:submitDelete(" . $iter['id'] . ")'>[Del]</a></td>\n";
+    echo "  <td align='right'><a class='link' href='javascript:submitEdit("   . $iter['id'] . ")'>[Edit]</a></td>\n";
+    echo " </tr>\n";
+
+  }
+}
 
 ?>
 
-</form>
-<form method="get" action="superbill_custom_full.php">
-<table>
-<tr>
-<?php if ($fstart > 0) { ?>
-<td>
-<a href="superbill_custom_full.php?fstart=<?=($fstart - 100)?>&filter=<?=$_GET['filter']?>&search=<?=$_GET['search']?>"><?php xl('Prev 100','e'); ?></a>
-&nbsp;&nbsp;
-</td>
-<?php } ?>
-
-<td>
-<a href="superbill_custom_full.php?fstart=<?=($fstart + 100)?>&filter=<?=$_GET['filter']?>&search=<?=$_GET['search']?>"><?php xl('Next 100','e'); ?></a>
-&nbsp;&nbsp;
-</td>
-<td>
-<a href="superbill_custom_full.php?fstart=<?=$_GET['fstart']?>&filter="><?php xl('ALL','e'); ?></a>&nbsp;&nbsp;
-</td>
-
-<?php foreach ($code_types as $key => $value) { ?>
-<td>
-<a href="superbill_custom_full.php?fstart=<?=$_GET['fstart']?>&filter=<? echo $value['id'] ?>"><?php echo $key ?></a>&nbsp;&nbsp;
-</td>
-<?php } ?>
-
-<td>
-<input type="text" name="search" size="5">&nbsp;<input type="submit" name="go" value="search">
-</td>
-</tr>
 </table>
-</form>
 
-<table border=0 cellpadding=0 cellspacing=0>
-<tr>
-<td valign=top>
-<table border=0 cellpadding=5 cellspacing=0>
-<th><td></td><td><span class=bold><?php xl('Code','e'); ?></span></td><td><span class=bold><? xl('Modifier','e'); ?></span></td><td><span class=bold><?php xl('Type','e'); ?></span></td><td><span class=bold><?php xl('Text','e'); ?></span></td><td><span class=bold><?php xl('Modifier','e'); ?></span></td><td><span class=bold><?php xl('Units','e'); ?></span></td><td><span class=bold><?php xl('Fee','e'); ?></span></td><td></td></th>
-<?php
-
-$filter = $_GET['filter'];
-$search = $_GET['search'];
-
-$sql = "select * from codes ";
-if (!is_numeric($filter) && empty($search)) {
-	$filter = "";
-}
-elseif (!empty($search)) {
-	$sql .= " where code like '%" . mysql_real_escape_string($search) . "%'";
-}
-else {
-	$sql .= " where code_type = $filter ";	
-}
-$sql .= " order by code_type, code, units, code_text limit $fstart, $fend";
-
-$res = sqlStatement($sql);
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-	$all[$iter] = $row;
-
-if ($all) {
-	$count =0;
-	foreach($all as $iter) {
-		$count++;
-
-		$has_fees = false;
-		foreach ($code_types as $key => $value) {
-			if ($value['id'] == $iter['code_type']) {
-				$has_fees = $value['fee'];
-				break;
-			}
-		}
-
-		print "<tr><td></td><td><span class=text target=Diagnosis href='diagnosis.php?mode=add" .
-			"&type=" . urlencode($iter{"code_type"}) .
-			"&code=" . urlencode($iter{"code"}) .
-			"&text=" . urlencode($iter{"code_text"})."'>";
-		print "</td><td><span class=text>" . $iter["code"] .
-			"</span></td><td><span class=text" .
-			$iter["modifier"] . "</span></td><td><span class=text>" .
-			$key .
-			"</span></td><td><span class=text>" . $iter{"code_text"};
-		print "</span></td><td>";
-		if ($has_fees) {
-			echo "<span class=text>" . $iter['modifier'] . "</span>";
-		}
-		echo "</td><td>";
-		if ($has_fees) {
-			echo "<span class=text>" . $iter['units'] . "</span>";
-		}
-		echo "</td><td>";
-		if ($has_fees) {
-			echo "<span class=text>$" . sprintf("%01.2f", $iter['fee']) . "</span>";
-		}
-		echo "</td><td><a class=link href='superbill_custom_full.php?mode=delete&id=".$iter{"id"}."'>[Delete]</a></td>\n";
-		echo "<td><a class=link href='superbill_custom_full.php?mode=edit&id=".$iter{"id"}."'>[Edit]</a></td></tr>\n";
-
-	}
-}
-
-?>
-
-</td></tr></table>
-</table>
+</center>
 
 </body>
 </html>

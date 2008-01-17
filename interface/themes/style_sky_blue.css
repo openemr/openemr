@@ -1,10 +1,10 @@
 a {
-  color: #000000;
+  color: #0000cc;
   text-decoration: none;
 }
 
 a:visited {
-  color: #000000;
+  color: #0000cc;
 }
 
 a:hover {
@@ -78,7 +78,7 @@ a:hover {
 .link {
 	font-family: sans-serif;
 	text-decoration: none;
-	color: #000000;
+	color: #0000cc;
 	font-size: 70%;
 }
 

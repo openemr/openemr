@@ -16,9 +16,19 @@
 
  if (!acl_check('admin', 'drugs')) die("Not authorized!");
 
- // Write a line of data for one template to the form.
- //
- function writeTemplateLine($selector, $dosage, $period, $quantity, $refills) {
+// Format dollars for display.
+//
+function bucks($amount) {
+  if ($amount) {
+    $amount = sprintf("%.2f", $amount);
+    if ($amount != 0.00) return $amount;
+  }
+  return '';
+}
+
+// Write a line of data for one template to the form.
+//
+function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $prices) {
   global $tmpl_line_no, $interval_array;
   ++$tmpl_line_no;
 
@@ -32,9 +42,9 @@
   echo "  <td class='tmplcell'>";
   echo "<select name='tmpl[$tmpl_line_no][period]'>";
   foreach ($interval_array as $key => $value) {
-   echo "<option value='$key'";
-   if ($key == $period) echo " selected";
-   echo ">$value</option>";
+    echo "<option value='$key'";
+    if ($key == $period) echo " selected";
+    echo ">$value</option>";
   }
   echo "</td>\n";
   echo "  <td class='tmplcell'>";
@@ -43,8 +53,14 @@
   echo "  <td class='tmplcell'>";
   echo "<input type='text' name='tmpl[$tmpl_line_no][refills]' value='$refills' size='3' maxlength='5'>";
   echo "</td>\n";
+  foreach ($prices as $pricelevel => $price) {
+    echo "  <td class='tmplcell'>";
+    echo "<input type='text' name='tmpl[$tmpl_line_no][price][$pricelevel]' value='$price' size='7' maxlength='12'>";
+    echo "</td>\n";
+  }
+
   echo " </tr>\n";
- }
+}
 ?>
 <html>
 <head>
@@ -67,7 +83,7 @@ td { font-size:10pt; }
  if ($_POST['form_save'] || $_POST['form_delete']) {
   $new_drug = false;
   if ($drug_id) {
-   if ($_POST['form_save']) {
+   if ($_POST['form_save']) { // updating an existing drug
     sqlStatement("UPDATE drugs SET " .
      "name = '"          . $_POST['form_name']          . "', " .
      "ndc_number = '"    . $_POST['form_ndc_number']    . "', " .
@@ -80,14 +96,16 @@ td { font-size:10pt; }
      "WHERE drug_id = '$drug_id'");
     sqlStatement("DELETE FROM drug_templates WHERE drug_id = '$drug_id'");
    }
-   else {
+   else { // deleting
     if (acl_check('admin', 'super')) {
      sqlStatement("DELETE FROM drug_inventory WHERE drug_id = '$drug_id'");
      sqlStatement("DELETE FROM drug_templates WHERE drug_id = '$drug_id'");
      sqlStatement("DELETE FROM drugs WHERE drug_id = '$drug_id'");
+     sqlStatement("DELETE FROM prices WHERE pr_id = '$drug_id' AND pr_selector != ''");
     }
    }
-  } else if ($_POST['form_save']) {
+  }
+  else if ($_POST['form_save']) { // saving a new drug
    $new_drug = true;
    $drug_id = sqlInsert("INSERT INTO drugs ( " .
     "name, ndc_number, on_order, reorder_point, form, " .
@@ -106,22 +124,34 @@ td { font-size:10pt; }
 
   if ($_POST['form_save'] && $drug_id) {
    $tmpl = $_POST['tmpl'];
+   sqlStatement("DELETE FROM prices WHERE pr_id = '$drug_id' AND pr_selector != ''");
    for ($lino = 1; isset($tmpl["$lino"]['selector']); ++$lino) {
     $iter = $tmpl["$lino"];
-    if (trim($iter['selector'])) {
+    $selector = trim($iter['selector']);
+    if ($selector) {
      sqlInsert("INSERT INTO drug_templates ( " .
       "drug_id, selector, dosage, period, quantity, refills " .
       ") VALUES ( " .
       "$drug_id, "                          .
-      "'" . trim($iter['selector']) . "', " .
+      "'" . $selector               . "', " .
       "'" . trim($iter['dosage'])   . "', " .
       "'" . trim($iter['period'])   . "', " .
       "'" . trim($iter['quantity']) . "', " .
       "'" . trim($iter['refills'])  . "' "  .
       ")");
-    }
-   }
-  }
+
+     // Add prices for this drug ID and selector.
+     foreach ($iter['price'] as $key => $value) {
+      $value = $value + 0;
+      if ($value) {
+        sqlStatement("INSERT INTO prices ( " .
+          "pr_id, pr_selector, pr_level, pr_price ) VALUES ( " .
+          "'$drug_id', '$selector', '$key', '$value' )");
+      }
+     } // end foreach price
+    } // end if selector is present
+   } // end for each selector
+  } // end if saving a drug
 
   // Close this window and redisplay the updated list of drugs.
   //
@@ -239,20 +269,42 @@ td { font-size:10pt; }
      <td><b><?php xl('Interval','e'); ?></b></td>
      <td><b><?php xl('Qty'     ,'e'); ?></b></td>
      <td><b><?php xl('Refills' ,'e'); ?></b></td>
+<?php
+  // Show a heading for each price level.  Also create an array of prices
+  // for new template lines.
+  $emptyPrices = array();
+  $pres = sqlStatement("SELECT option_id, title FROM list_options " .
+    "WHERE list_id = 'pricelevel' ORDER BY seq");
+  while ($prow = sqlFetchArray($pres)) {
+    $emptyPrices[$prow['option_id']] = '';
+    echo "     <td nowrap><b>" . $prow['title'] . "</b></td>\n";
+  }
+?>
     </tr>
-    <?php
-     $blank_lines = 3;
-     if ($tres) {
-      $blank_lines = 1;
-      while ($trow = sqlFetchArray($tres)) {
-       writeTemplateLine($trow['selector'], $trow['dosage'], $trow['period'],
-        $trow['quantity'], $trow['refills']);
+<?php
+  $blank_lines = 3;
+  if ($tres) {
+    $blank_lines = 1;
+    while ($trow = sqlFetchArray($tres)) {
+      $selector = $trow['selector'];
+      // Get array of prices.
+      $prices = array();
+      $pres = sqlStatement("SELECT lo.option_id, p.pr_price " .
+        "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
+        "p.pr_id = '$drug_id' AND p.pr_selector = '$selector' AND " .
+        "p.pr_level = lo.option_id " .
+        "WHERE list_id = 'pricelevel' ORDER BY lo.seq");
+      while ($prow = sqlFetchArray($pres)) {
+        $prices[$prow['option_id']] = $prow['pr_price'];
       }
-     }
-     for ($i = 0; $i < $blank_lines; ++$i) {
-      writeTemplateLine('', '', '', '', '');
-     }
-    ?>
+      writeTemplateLine($selector, $trow['dosage'], $trow['period'],
+      $trow['quantity'], $trow['refills'], $prices);
+    }
+  }
+  for ($i = 0; $i < $blank_lines; ++$i) {
+    writeTemplateLine('', '', '', '', '', $emptyPrices);
+  }
+?>
    </table>
   </td>
  </tr>
