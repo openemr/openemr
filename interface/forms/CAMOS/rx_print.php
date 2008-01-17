@@ -311,43 +311,43 @@ foreach($results as $key => $val) {
 <table>
 <tr>
   <td> First Name: </td> 
-  <td> <input type=text name=practice_fname value ='<? echo $practice_fname ?>'> </td>
+  <td> <input type=text name=practice_fname value ='<? echo $practice_fname; ?>'> </td>
 </tr>
 <tr>
   <td> Last Name: </td> 
-  <td> <input type=text name=practice_lname value ='<? echo $practice_lname ?>'> </td>
+  <td> <input type=text name=practice_lname value ='<? echo $practice_lname; ?>'> </td>
 </tr>
 <tr>
   <td> Title: </td> 
-  <td> <input type=text name=practice_title value ='<? echo $practice_title ?>'> </td>
+  <td> <input type=text name=practice_title value ='<? echo $practice_title; ?>'> </td>
 </tr>
 <tr>
   <td> Street Address: </td> 
-  <td> <input type=text name=practice_address value ='<? echo $practice_address ?>'> </td>
+  <td> <input type=text name=practice_address value ='<? echo $practice_address; ?>'> </td>
 </tr>
 <tr>
   <td> City: </td> 
-  <td> <input type=text name=practice_city value ='<? echo $practice_city ?>'> </td>
+  <td> <input type=text name=practice_city value ='<? echo $practice_city; ?>'> </td>
 </tr>
 <tr>
   <td> State: </td> 
-  <td> <input type=text name=practice_state value ='<? echo $practice_state ?>'> </td>
+  <td> <input type=text name=practice_state value ='<? echo $practice_state; ?>'> </td>
 </tr>
 <tr>
   <td> Zip: </td> 
-  <td> <input type=text name=practice_zip value ='<? echo $practice_zip ?>'> </td>
+  <td> <input type=text name=practice_zip value ='<? echo $practice_zip; ?>'> </td>
 </tr>
 <tr>
   <td> Phone: </td> 
-  <td> <input type=text name=practice_phone value ='<? echo $practice_phone ?>'> </td>
+  <td> <input type=text name=practice_phone value ='<? echo $practice_phone; ?>'> </td>
 </tr>
 <tr>
   <td> Fax: </td> 
-  <td> <input type=text name=practice_fax value ='<? echo $practice_fax ?>'> </td>
+  <td> <input type=text name=practice_fax value ='<? echo $practice_fax; ?>'> </td>
 </tr>
 <tr>
   <td> DEA: </td> 
-  <td> <input type=text name=practice_dea value ='<? echo $practice_dea ?>'> </td>
+  <td> <input type=text name=practice_dea value ='<? echo $practice_dea; ?>'> </td>
 </tr>
 </table>
 <input type=submit name=update value=update>
