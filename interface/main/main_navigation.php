@@ -53,10 +53,13 @@ include_once("../../library/acl.inc");
        acl_check('admin', 'users')) { ?>
 <td align="center" nowrap>
 &nbsp;<a class=menu target=_top href="../usergroup/usergroup.php" onclick="top.restoreSession()">
-<? xl('Administration','e'); ?></a>&nbsp;
+<? xl('Admin','e'); ?></a>&nbsp;
 </td>
 <? } ?>
 
+<td align="center" nowrap>
+&nbsp;<a href="../reports/appointments_report.php" target="_new" class="menu"> <? xl('Appts','e'); ?></a>&nbsp;&nbsp;
+</td>
 <td align="center" nowrap>
 &nbsp;<a href="../reports/index.php" target="Main" class="menu" onclick="top.restoreSession()">
 <? xl('Reports','e'); ?></a>&nbsp;
