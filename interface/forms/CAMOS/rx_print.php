@@ -12,6 +12,7 @@ Four Pane Prescription Printer
 $physician_name = ''; 
 $practice_fname = '';
 $practice_lname = '';
+$practice_title = '';
 $practice_address = ''; 
 $practice_city = ''; 
 $practice_state = '';
@@ -60,6 +61,7 @@ if ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
   $physician_name = $result['fname'] . ' ' . $result['lname'] . ', ' . $result['title']; 
   $practice_fname = $result['fname'];
   $practice_lname = $result['lname'];
+  $practice_title = $result['title'];
   $practice_address = $result['street']; 
   $practice_city = $result['city']; 
   $practice_state = $result['state'];
