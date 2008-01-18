@@ -40,9 +40,20 @@ $code_type = $_GET['type'];
 
 <?php
 if (isset($_POST["mode"]) && $_POST["mode"] == "search") {
-	$sql = "select * from codes where (code_text like '%" . $_POST["text"] .
-		"%' or code like '%" . $_POST["text"] . "%') and code_type = '" .
-		$code_types[$code_type]['id'] . "' order by code limit " . ($M + 1);
+  // $sql = "SELECT * FROM codes WHERE (code_text LIKE '%" . $_POST["text"] .
+  //   "%' OR code LIKE '%" . $_POST["text"] . "%') AND code_type = '" .
+  //   $code_types[$code_type]['id'] . "' ORDER BY code LIMIT " . ($M + 1);
+
+  // The above is obsolete now, fees come from the prices table:
+  $sql = "SELECT codes.*, prices.pr_price FROM codes " .
+    "LEFT OUTER JOIN patient_data ON patient_data.pid = '$pid' " .
+    "LEFT OUTER JOIN prices ON prices.pr_id = codes.id AND " .
+    "prices.pr_selector = '' AND " .
+    "prices.pr_level = patient_data.pricelevel " .
+    "WHERE (code_text LIKE '%" . $_POST["text"] . "%' OR " .
+    "code LIKE '%" . $_POST["text"] . "%') AND " .
+    "code_type = '" . $code_types[$code_type]['id'] . "' " .
+    "ORDER BY code LIMIT " . ($M + 1);
 
 	if ($res = sqlStatement($sql) ) {
 		for($iter=0; $row=sqlFetchArray($res); $iter++)
@@ -68,12 +79,13 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search") {
 					"&code="     . urlencode($iter{"code"}) .
 					"&modifier=" . urlencode($iter{"modifier"}) .
 					"&units="    . urlencode($iter{"units"}) .
-					"&fee="      . urlencode($iter{"fee"}) .
+          // "&fee="      . urlencode($iter{"fee"}) .
+          "&fee="      . urlencode($iter['pr_price']) .
 					"&text="     . urlencode($iter{"code_text"}) .
 					"' onclick='top.restoreSession()'>" .
 					ucwords("<b>" . strtoupper($iter{"code"}) . "&nbsp;" . $iter['modifier'] .
 					"</b>" . " " . strtolower($iter{"code_text"}))."</a><br>\n";
-		
+
 				$count++;
 				$total++;
 				if ($total == $M) {

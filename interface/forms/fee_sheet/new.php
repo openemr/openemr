@@ -388,14 +388,15 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
   $auth = TRUE, $del = FALSE, $units = NULL, $fee = NULL, $id = NULL,
   $billed = FALSE, $code_text = NULL, $justify = NULL)
 {
-  global $code_types, $ndc_applies, $ndc_uom_choices, $justinit;
+  global $code_types, $ndc_applies, $ndc_uom_choices, $justinit, $pid;
 
   if ($codetype == 'COPAY') {
     if (!$code_text) $code_text = 'Cash';
     if ($fee > 0) $fee = 0 - $fee;
   }
 	if (! $code_text) {
-		$query = "select units, fee, code_text from codes where code_type = '" .
+		// $query = "select units, fee, code_text from codes where code_type = '" .
+		$query = "select id, units, code_text from codes where code_type = '" .
 			$code_types[$codetype]['id'] . "' and " .
 			"code = '$code' and ";
 		if ($modifier) {
@@ -406,7 +407,20 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
 		$result = sqlQuery($query);
 		$code_text = $result['code_text'];
 		if (empty($units)) $units = max(1, intval($result['units']));
-		if (!isset($fee)) $fee = $result['fee'];
+    if (!isset($fee)) {
+      // $fee = $result['fee'];
+      // The above is obsolete now, fees come from the prices table:
+      $query = "SELECT prices.pr_price " .
+        "FROM patient_data, prices WHERE " .
+        "patient_data.pid = '$pid' AND " .
+        "prices.pr_id = '" . $result['id'] . "' AND " .
+        "prices.pr_selector = '' AND " .
+        "prices.pr_level = patient_data.pricelevel " .
+        "LIMIT 1";
+      echo "\n<!-- $query -->\n"; // debugging
+      $prrow = sqlQuery($query);
+      $fee = empty($prrow) ? 0 : $prrow['pr_price'];
+    }
 	}
   $fee = sprintf('%01.2f', $fee);
 	$strike1 = ($id && $del) ? "<strike>" : "";
