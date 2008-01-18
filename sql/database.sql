@@ -70,7 +70,6 @@ INSERT INTO `categories` VALUES (2,'Lab Report','',1,1,2);
 INSERT INTO `categories` VALUES (3,'Medical Record','',1,3,4);
 INSERT INTO `categories` VALUES (4,'Patient Information','',1,5,8);
 INSERT INTO `categories` VALUES (5,'Patient ID card','',4,6,7);
-INSERT INTO `categories` VALUES (6,'Patient Photograph','',1,9,10);
 /*!40000 ALTER TABLE `categories` ENABLE KEYS */;
 
 --
@@ -1196,7 +1195,6 @@ INSERT INTO `registry` VALUES ('Vitals',1,'vitals',12,1,1,'2005-03-03 00:16:34')
 INSERT INTO `registry` VALUES ('Review Of Systems',1,'ros',13,1,1,'2005-03-03 00:16:30');
 INSERT INTO `registry` VALUES ('Fee Sheet',1,'fee_sheet',14,1,1,'2007-07-28 00:00:00');
 INSERT INTO `registry` VALUES ('Misc Billing Options HCFA',1,'misc_billing_options',15,1,1,'2007-07-28 00:00:00');
-INSERT INTO `registry` VALUES ('CAMOS',1,'CAMOS',16,1,1,'2008-01-01 00:00:00');
 
 --
 -- Table structure for table `sequences`
