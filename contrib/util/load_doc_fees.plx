@@ -4,7 +4,7 @@ use strict;
 use DBI;
 
 #######################################################################
-# Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+# Copyright (C) 2005, 2008 Rod Roark <rod@sunsetsystems.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@ use DBI;
 #
 # Run it like this:
 #
-#   ./load_doc_fees.plx < PFALL06A.TXT
+#   ./load_doc_fees.plx < PFALL08A.TXT
 #
 # Fee schedules as of this writing are at:
 #   http://www.cms.hhs.gov/PhysicianFeeSched/PFSNPAF/list.asp
@@ -82,20 +82,28 @@ while (my $line = <STDIN>) {
   my @urow = $usth->fetchrow_array();
 
   my $query;
+  my $codes_id;
+
   if (! @urow) {
     $query = "INSERT INTO codes " .
       "( code_text, code, code_type, modifier, fee ) VALUES " .
-      "( '', '$code', 1, '$modifier', $fee )";
+      "( '', '$code', 1, '$modifier', 0 )";
+    $dbh->do($query) or die $query;
+    $codes_id = $oe_dbh->{'mysql_insertid'};
+    print $query . "\n";
     ++$countnew;
   }
   else {
-    $query = "UPDATE codes SET fee = $fee " .
-      "WHERE code_type = 1 AND code = '$code' AND modifier = '$modifier'";
+    $codes_id = $urow{'id'};
+    $query = "DELETE FROM prices WHERE pr_id = $codes_id AND pr_selector = ''";
+    $dbh->do($query) or die $query;
+    print $query . "\n";
     ++$countup;
   }
 
+  $query = "INSERT INTO prices ( pr_id, pr_level, pr_price ) " .
+    "VALUES ( $codes_id, 'standard', $fee )";
   $dbh->do($query) or die $query;
-
   print $query . "\n";
 }
 
