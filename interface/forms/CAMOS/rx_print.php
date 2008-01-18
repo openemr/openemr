@@ -117,7 +117,7 @@ if ($camos_content[0]) { //decide if we are printing this rx
     print "<span class='mytagname'>DOB:</span>\n";
     print "<span class='mydata'> $patient_dob </span>\n";
     print "<span class='mytagname'>Date:</span>\n";
-    print "<span class='mydata'>" . date("F m, Y") . "</span><br/><br/>\n";
+    print "<span class='mydata'>" . date("F d, Y") . "</span><br/><br/>\n";
     print "<div class='symbol'>Rx</div><br/>\n";
   ?>
   </div>
