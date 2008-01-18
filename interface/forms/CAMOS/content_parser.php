@@ -10,7 +10,6 @@ function addBilling2($encounter, $code_type, $code, $code_text, $modifier="",$un
   {
     $justify_string = implode(":",$justify).":";
   }
-  $authorized = 1;
   $sql = "insert into billing (date, encounter, code_type, code, code_text, pid, authorized, user, groupname,activity,billed,provider_id,modifier,units,fee,justify) values (NOW(), '".$_SESSION['encounter']."', '$code_type', '$code', '$code_text', '".$_SESSION['pid']."', '$authorized', '" . $_SESSION['authId'] . "', '" . $_SESSION['authProvider'] . "',1,0,".$_SESSION['authUserID'].",'$modifier','$units','$fee','$justify_string')";
 	
   return sqlInsert($sql);
@@ -36,11 +35,7 @@ function content_parser($input) {
 
 // implement C style comments ie remove anything between /* and */
 function remove_comments($string_to_process) {
-   return preg_replace("/\/\*.*?\*\//","",$string_to_process);
-}
-// This function is useless for now, don't use it
-function remove_dangling_comments($string_to_process) {
-   return preg_replace("/(\/\*)|(\*\/)/","",$string_to_process);
+   return preg_replace("/\/\*.*?\*\//s","",$string_to_process);
 }
 
 //process commands embedded in C style comments where function name is first
@@ -70,9 +65,10 @@ function process_commands(&$string_to_process, &$camos_return_data) {
 
   //end of special case of replace function
   $return_value = 0;
+  $camos_return_data = array(); // to be filled with additional camos form submissions if any embedded
   $command_array = array();  //to be filled with potential commands
   $matches= array();  //to be filled with potential commands
-  if (!preg_match_all("/\/\*.*?\*\//",$string_to_process, $matches)) {return $return_value;}
+  if (!preg_match_all("/\/\*.*?\*\//s",$string_to_process, $matches)) {return $return_value;}
   $command_array = $matches[0];
   foreach($command_array as $val) {
     //process each command 
@@ -91,6 +87,7 @@ function process_commands(&$string_to_process, &$camos_return_data) {
       //in function call 'addBilling' note last param is the remainder of the array.  we will look for justifications here...
       addBilling2($encounter, $type, $code, $text, $modifier,$units,$fee,$comm_array);
     }
+    $command_count = 0;
     if (trim($comm_array[0]) == 'camos') {
       $command_count++;
       //data to be submitted as separate camos forms
@@ -107,36 +104,5 @@ function process_commands(&$string_to_process, &$camos_return_data) {
   $string_to_process = remove_comments($string_to_process);
   return $return_value;
 } 
-
-
-function clean_multibox_array (&$multibox_array, &$camos_array) {
-  foreach($multibox_array as $key => $var) {
-    $head = '';
-    $body = '';
-    $tail = '';
-    $all = '';
-    if (preg_match('/^(\/\* camos :: .*? :: .*? :: .*? :: )(.*?)(\*\/)$/s', $var, $matches) > 0) {
-      $head = $matches[1];
-      $body = $matches[2];
-      $tail = $matches[3];
-      process_commands($body, $camos_array);
-    } 
-    $all = $head.$body.$tail;
-    if (preg_match('/^\/\* camos :: (.*?) :: (.*?) :: (.*?) :: (.*?) \*\/$/s', 
-      $all, $matches)) {
-      array_push($camos_array, array('category' => $matches[1], 'subcategory' => $matches[2],
-        'item' => $matches[3], 'content' => $matches[4])); 
-    }
-  }
-}
-function create_multibox_array (&$string_to_parse, &$multibox_array) {
-  if (preg_match_all('/\/\*\[begin.+?\]\*\/\s*(\/\* camos.+?)\s*\/\*\[end.+?\]/s', 
-    $string_to_parse, $matches,PREG_SET_ORDER)) {
-    foreach($matches as $match) {
-      array_push($multibox_array, $match[1]); 
-    }
-  }
-}
-function remove_multibox_data (&$string_to_parse) {
-  $string_to_parse = preg_replace('/\/\*\[begin.+?\].*?\[end.+?\]\*\//s', '', $string_to_parse);
-}
+// I was using this for debugging.  touch logging, chmod 777 logging, then can use.
+  //file_put_contents('./logging',$string_to_process."\n\n*************\n\n",FILE_APPEND);//DEBUG
