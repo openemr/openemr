@@ -178,10 +178,6 @@ INSERT INTO list_options VALUES ('risklevel','high'  ,'High'  ,3,0);
 INSERT INTO list_options VALUES ('boolean','0','No' ,1,0);
 INSERT INTO list_options VALUES ('boolean','1','Yes',2,0);
 
-INSERT INTO `categories` VALUES (6,'Patient Photograph','',1,9,10);
-
-INSERT INTO `registry` VALUES ('CAMOS',1,'CAMOS',16,1,1,'2008-01-01 00:00:00',0,'category','');
-
 ALTER TABLE codes
   ADD related_code varchar(10) NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code';
 
