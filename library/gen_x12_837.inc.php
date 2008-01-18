@@ -157,11 +157,16 @@ function gen_x12_837($pid, $encounter, &$log) {
       "~\n";
   }
 
-  ++$edicount;
-  $out .= "REF" .
-    "*" . $claim->providerNumberType() .
-    "*" . $claim->providerNumber() .
-    "~\n";
+  if ($claim->providerNumberType() && $claim->providerNumber()) {
+    ++$edicount;
+    $out .= "REF" .
+      "*" . $claim->providerNumberType() .
+      "*" . $claim->providerNumber() .
+      "~\n";
+  }
+  else if ($claim->providerNumber()) {
+    $log .= "*** Payer-specific provider insurance number is present but has no type assigned.\n";
+  }
 
   ++$edicount;
   $out .= "NM1" .       // Loop 2010AB Pay-To Provider
