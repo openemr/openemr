@@ -16,6 +16,7 @@ $lists = array(
   'ethrace'    => xl('Race/Ethnicity'),
   'risklevel'  => xl('Risk Level'),
   'sex'        => xl('Sex'),
+  'taxrate'    => xl('Tax Rate'),
   'titles'     => xl('Titles'),
   'yesno'      => xl('Yes/No'),
   'boolean'    => xl('Boolean'),
@@ -33,28 +34,40 @@ $opt_line_no = 0;
 
 // Write one option line to the form.
 //
-function writeOptionLine($option_id, $title, $seq, $default) {
-  global $opt_line_no;
+function writeOptionLine($option_id, $title, $seq, $default, $value) {
+  global $opt_line_no, $list_id;
   ++$opt_line_no;
   $bgcolor = "#" . (($opt_line_no & 1) ? "ddddff" : "ffdddd");
   $checked = $default ? " checked" : "";
 
   echo " <tr bgcolor='$bgcolor'>\n";
+
   echo "  <td align='center' class='optcell'>";
   echo "<input type='text' name='opt[$opt_line_no][id]' value='" .
        htmlspecialchars($option_id, ENT_QUOTES) . "' size='20' maxlength='63' class='optin' />";
   echo "</td>\n";
+
   echo "  <td align='center' class='optcell'>";
   echo "<input type='text' name='opt[$opt_line_no][title]' value='" .
        htmlspecialchars($title, ENT_QUOTES) . "' size='20' maxlength='63' class='optin' />";
   echo "</td>\n";
+
   echo "  <td align='center' class='optcell'>";
   echo "<input type='text' name='opt[$opt_line_no][seq]' value='" .
        htmlspecialchars($seq, ENT_QUOTES) . "' size='4' maxlength='10' class='optin' />";
   echo "</td>\n";
+
   echo "  <td align='center' class='optcell'>";
   echo "<input type='checkbox' name='opt[$opt_line_no][default]' value='1'$checked class='optin' />";
   echo "</td>\n";
+
+  if ($list_id == 'taxrate') {
+    echo "  <td align='center' class='optcell'>";
+    echo "<input type='text' name='opt[$opt_line_no][value]' value='" .
+        htmlspecialchars($value, ENT_QUOTES) . "' size='8' maxlength='15' class='optin' />";
+    echo "</td>\n";
+  }
+
   echo " </tr>\n";
 }
 ?>
@@ -92,15 +105,17 @@ if ($_POST['form_save'] && $list_id) {
   sqlStatement("DELETE FROM list_options WHERE list_id = '$list_id'");
   for ($lino = 1; isset($opt["$lino"]['id']); ++$lino) {
     $iter = $opt["$lino"];
+    $value = empty($iter['value']) ? 0 : (trim($iter['value']) + 0);
     if (strlen(trim($iter['id'])) > 0) {
       sqlInsert("INSERT INTO list_options ( " .
-      "list_id, option_id, title, seq, is_default " .
+      "list_id, option_id, title, seq, is_default, option_value " .
       ") VALUES ( " .
       "'$list_id', "                       .
       "'" . trim($iter['id'])      . "', " .
       "'" . trim($iter['title'])   . "', " .
       "'" . trim($iter['seq'])     . "', " .
-      "'" . trim($iter['default']) . "' "  .
+      "'" . trim($iter['default']) . "', " .
+      "'" . $value                 . "' "  .
       ")");
     }
   }
@@ -134,16 +149,19 @@ foreach ($lists as $key => $value) {
   <td><b><?php  xl('Title','e'); ?></b></td>
   <td><b><?php  xl('Order','e'); ?></b></td>
   <td><b><?php  xl('Default','e'); ?></b></td>
+<?php if ($list_id == 'taxrate') { ?>
+  <td><b><?php  xl('Rate','e'); ?></b></td>
+<?php } ?>
  </tr>
 
 <?php 
 while ($row = sqlFetchArray($res)) {
   writeOptionLine($row['option_id'], $row['title'], $row['seq'],
-    $row['is_default']);
+    $row['is_default'], $row['option_value']);
 }
 
 for ($i = 0; $i < 3; ++$i) {
-  writeOptionLine('', '', '', '');
+  writeOptionLine('', '', '', '', 0);
 }
 ?>
 

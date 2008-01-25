@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006, 2008 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -28,16 +28,16 @@ function bucks($amount) {
 
 // Write a line of data for one template to the form.
 //
-function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $prices) {
+function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $prices, $taxrates) {
   global $tmpl_line_no, $interval_array;
   ++$tmpl_line_no;
 
   echo " <tr>\n";
   echo "  <td class='tmplcell'>";
-  echo "<input type='text' name='tmpl[$tmpl_line_no][selector]' value='$selector' size='10' maxlength='100'>";
+  echo "<input type='text' name='tmpl[$tmpl_line_no][selector]' value='$selector' size='8' maxlength='100'>";
   echo "</td>\n";
   echo "  <td class='tmplcell'>";
-  echo "<input type='text' name='tmpl[$tmpl_line_no][dosage]' value='$dosage' size='10' maxlength='10'>";
+  echo "<input type='text' name='tmpl[$tmpl_line_no][dosage]' value='$dosage' size='6' maxlength='10'>";
   echo "</td>\n";
   echo "  <td class='tmplcell'>";
   echo "<select name='tmpl[$tmpl_line_no][period]'>";
@@ -48,17 +48,24 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
   }
   echo "</td>\n";
   echo "  <td class='tmplcell'>";
-  echo "<input type='text' name='tmpl[$tmpl_line_no][quantity]' value='$quantity' size='5' maxlength='7'>";
+  echo "<input type='text' name='tmpl[$tmpl_line_no][quantity]' value='$quantity' size='3' maxlength='7'>";
   echo "</td>\n";
   echo "  <td class='tmplcell'>";
   echo "<input type='text' name='tmpl[$tmpl_line_no][refills]' value='$refills' size='3' maxlength='5'>";
   echo "</td>\n";
   foreach ($prices as $pricelevel => $price) {
     echo "  <td class='tmplcell'>";
-    echo "<input type='text' name='tmpl[$tmpl_line_no][price][$pricelevel]' value='$price' size='7' maxlength='12'>";
+    echo "<input type='text' name='tmpl[$tmpl_line_no][price][$pricelevel]' value='$price' size='6' maxlength='12'>";
     echo "</td>\n";
   }
-
+  $pres = sqlStatement("SELECT option_id FROM list_options " .
+    "WHERE list_id = 'taxrate' ORDER BY seq");
+  while ($prow = sqlFetchArray($pres)) {
+    echo "  <td class='tmplcell'>";
+    echo "<input type='checkbox' name='tmpl[$tmpl_line_no][taxrate][" . $prow['option_id'] . "]' value='1'";
+    if (strpos(":$taxrates", $prow['option_id']) !== false) echo " checked";
+    echo " /></td>\n";
+  }
   echo " </tr>\n";
 }
 ?>
@@ -129,15 +136,22 @@ td { font-size:10pt; }
     $iter = $tmpl["$lino"];
     $selector = trim($iter['selector']);
     if ($selector) {
+     $taxrates = "";
+     if (!empty($iter['taxrate'])) {
+      foreach ($iter['taxrate'] as $key => $value) {
+       $taxrates .= "$key:";
+      }
+     }
      sqlInsert("INSERT INTO drug_templates ( " .
-      "drug_id, selector, dosage, period, quantity, refills " .
+      "drug_id, selector, dosage, period, quantity, refills, taxrates " .
       ") VALUES ( " .
       "$drug_id, "                          .
       "'" . $selector               . "', " .
       "'" . trim($iter['dosage'])   . "', " .
       "'" . trim($iter['period'])   . "', " .
       "'" . trim($iter['quantity']) . "', " .
-      "'" . trim($iter['refills'])  . "' "  .
+      "'" . trim($iter['refills'])  . "', " .
+      "'" . $taxrates               . "' "  .
       ")");
 
      // Add prices for this drug ID and selector.
@@ -277,7 +291,13 @@ td { font-size:10pt; }
     "WHERE list_id = 'pricelevel' ORDER BY seq");
   while ($prow = sqlFetchArray($pres)) {
     $emptyPrices[$prow['option_id']] = '';
-    echo "     <td nowrap><b>" . $prow['title'] . "</b></td>\n";
+    echo "     <td><b>" . $prow['title'] . "</b></td>\n";
+  }
+  // Show a heading for each tax rate.
+  $pres = sqlStatement("SELECT option_id, title FROM list_options " .
+    "WHERE list_id = 'taxrate' ORDER BY seq");
+  while ($prow = sqlFetchArray($pres)) {
+    echo "     <td><b>" . $prow['title'] . "</b></td>\n";
   }
 ?>
     </tr>
@@ -298,11 +318,11 @@ td { font-size:10pt; }
         $prices[$prow['option_id']] = $prow['pr_price'];
       }
       writeTemplateLine($selector, $trow['dosage'], $trow['period'],
-      $trow['quantity'], $trow['refills'], $prices);
+        $trow['quantity'], $trow['refills'], $prices, $trow['taxrates']);
     }
   }
   for ($i = 0; $i < $blank_lines; ++$i) {
-    writeTemplateLine('', '', '', '', '', $emptyPrices);
+    writeTemplateLine('', '', '', '', '', $emptyPrices, '');
   }
 ?>
    </table>

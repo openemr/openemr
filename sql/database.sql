@@ -124,6 +124,7 @@ CREATE TABLE `codes` (
   `fee` decimal(7,2) default NULL,
   `superbill` tinyint(1) NOT NULL default '0',
   `related_code` varchar(10) NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code',
+  `taxrates` varchar(255) NOT NULL DEFAULT '' COMMENT 'tax rate names delimited by colons',
   PRIMARY KEY  (`id`),
   KEY `code` (`code`)
 ) ;
@@ -4520,6 +4521,7 @@ CREATE TABLE drug_templates (
   period        int(11)      NOT NULL DEFAULT 0,
   quantity      int(11)      NOT NULL DEFAULT 0,
   refills       int(11)      NOT NULL DEFAULT 0,
+  taxrates      varchar(255) NOT NULL DEFAULT '' COMMENT 'tax rate names delimited by colons',
   PRIMARY KEY (drug_id, selector)
 ) TYPE=MyISAM;
 
@@ -4549,6 +4551,7 @@ CREATE TABLE drug_sales (
   sale_date       date         NOT NULL,
   quantity        int(11)      NOT NULL DEFAULT 0,
   fee             decimal(7,2) NOT NULL DEFAULT 0.00,
+  billed          tinyint(1)   NOT NULL DEFAULT 0 COMMENT 'indicates if the sale is posted to accounting',
   PRIMARY KEY (sale_id)
 ) TYPE=MyISAM;
 
@@ -4601,49 +4604,48 @@ CREATE TABLE list_options (
   title          varchar(255)  NOT NULL DEFAULT '',
   seq            int(11)       NOT NULL DEFAULT 0,
   is_default     tinyint(1)    NOT NULL DEFAULT 0,
+  option_value   float         NOT NULL DEFAULT 0,
   PRIMARY KEY (list_id, option_id)
 ) TYPE=MyISAM;
 
-INSERT INTO list_options VALUES ('yesno'  ,'NO' ,'NO' ,1,0);
-INSERT INTO list_options VALUES ('yesno'  ,'YES','YES',2,0);
+INSERT INTO list_options VALUES ('yesno'  ,'NO' ,'NO' ,1,0,0);
+INSERT INTO list_options VALUES ('yesno'  ,'YES','YES',2,0,0);
 
-INSERT INTO list_options VALUES ('titles' ,'Mr.'   ,'Mr.'    ,1,0);
-INSERT INTO list_options VALUES ('titles' ,'Mrs.'  ,'Mrs.'   ,2,0);
-INSERT INTO list_options VALUES ('titles' ,'Ms.'   ,'Ms.'    ,3,0);
-INSERT INTO list_options VALUES ('titles' ,'Dr.'   ,'Dr.'    ,4,0);
+INSERT INTO list_options VALUES ('titles' ,'Mr.'   ,'Mr.'    ,1,0,0);
+INSERT INTO list_options VALUES ('titles' ,'Mrs.'  ,'Mrs.'   ,2,0,0);
+INSERT INTO list_options VALUES ('titles' ,'Ms.'   ,'Ms.'    ,3,0,0);
+INSERT INTO list_options VALUES ('titles' ,'Dr.'   ,'Dr.'    ,4,0,0);
 
-INSERT INTO list_options VALUES ('sex'    ,'Female','Female' ,1,0);
-INSERT INTO list_options VALUES ('sex'    ,'Male'  ,'Male'   ,2,0);
+INSERT INTO list_options VALUES ('sex'    ,'Female','Female' ,1,0,0);
+INSERT INTO list_options VALUES ('sex'    ,'Male'  ,'Male'   ,2,0,0);
 
-INSERT INTO list_options VALUES ('marital','married'         ,'Married'         ,1,0);
-INSERT INTO list_options VALUES ('marital','single'          ,'Single'          ,2,0);
-INSERT INTO list_options VALUES ('marital','divorced'        ,'Divorced'        ,3,0);
-INSERT INTO list_options VALUES ('marital','widowed'         ,'Widowed'         ,4,0);
-INSERT INTO list_options VALUES ('marital','separated'       ,'Separated'       ,5,0);
-INSERT INTO list_options VALUES ('marital','domestic partner','Domestic Partner',6,0);
+INSERT INTO list_options VALUES ('marital','married'         ,'Married'         ,1,0,0);
+INSERT INTO list_options VALUES ('marital','single'          ,'Single'          ,2,0,0);
+INSERT INTO list_options VALUES ('marital','divorced'        ,'Divorced'        ,3,0,0);
+INSERT INTO list_options VALUES ('marital','widowed'         ,'Widowed'         ,4,0,0);
+INSERT INTO list_options VALUES ('marital','separated'       ,'Separated'       ,5,0,0);
+INSERT INTO list_options VALUES ('marital','domestic partner','Domestic Partner',6,0,0);
 
-INSERT INTO list_options VALUES ('language','English','English',1,1);
-INSERT INTO list_options VALUES ('language','Spanish','Spanish',2,0);
+INSERT INTO list_options VALUES ('language','English','English',1,1,0);
+INSERT INTO list_options VALUES ('language','Spanish','Spanish',2,0,0);
 
-INSERT INTO list_options VALUES ('ethrace','Caucasian','Caucasian',1,1);
-INSERT INTO list_options VALUES ('ethrace','Asian'    ,'Asian'    ,2,0);
-INSERT INTO list_options VALUES ('ethrace','Black'    ,'Black'    ,3,0);
-INSERT INTO list_options VALUES ('ethrace','Hispanic' ,'Hispanic' ,4,0);
+INSERT INTO list_options VALUES ('ethrace','Caucasian','Caucasian',1,0,0);
+INSERT INTO list_options VALUES ('ethrace','Asian'    ,'Asian'    ,2,0,0);
+INSERT INTO list_options VALUES ('ethrace','Black'    ,'Black'    ,3,0,0);
+INSERT INTO list_options VALUES ('ethrace','Hispanic' ,'Hispanic' ,4,0,0);
 
-INSERT INTO list_options VALUES ('userlist1','sample','Sample',1,1);
+INSERT INTO list_options VALUES ('userlist1','sample','Sample',1,0,0);
 
-INSERT INTO list_options VALUES ('userlist2','sample','Sample',1,1);
+INSERT INTO list_options VALUES ('userlist2','sample','Sample',1,0,0);
 
-INSERT INTO list_options VALUES ('pricelevel','standard','Standard',1,1);
-INSERT INTO list_options VALUES ('pricelevel','level1'  ,'Level 1' ,2,0);
-INSERT INTO list_options VALUES ('pricelevel','level2'  ,'Level 2' ,3,0);
+INSERT INTO list_options VALUES ('pricelevel','standard','Standard',1,1,0);
 
-INSERT INTO list_options VALUES ('risklevel','low'   ,'Low'   ,1,0);
-INSERT INTO list_options VALUES ('risklevel','medium','Medium',2,1);
-INSERT INTO list_options VALUES ('risklevel','high'  ,'High'  ,3,0);
+INSERT INTO list_options VALUES ('risklevel','low'   ,'Low'   ,1,0,0);
+INSERT INTO list_options VALUES ('risklevel','medium','Medium',2,1,0);
+INSERT INTO list_options VALUES ('risklevel','high'  ,'High'  ,3,0,0);
 
-INSERT INTO list_options VALUES ('boolean','0','No' ,1,0);
-INSERT INTO list_options VALUES ('boolean','1','Yes',2,0);
+INSERT INTO list_options VALUES ('boolean','0','No' ,1,0,0);
+INSERT INTO list_options VALUES ('boolean','1','Yes',2,0,0);
 
 CREATE TABLE layout_options (
   form_id        varchar(31)   NOT NULL,

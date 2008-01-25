@@ -51,9 +51,13 @@
  // If there is no sale_id then this is a new dispensation.
  //
  if (! $sale_id) {
-  // Find and update inventory, deal with errors.
+  // Post the order and update inventory, deal with errors.
   //
   if ($drug_id) {
+   $sale_id = sellDrug($drug_id, $quantity, $fee, $pid, 0, $prescription_id, $today, $user);
+   if (!$sale_id) die("Inventory is not available for this order.");
+
+   /******************************************************************
    $res = sqlStatement("SELECT * FROM drug_inventory WHERE " .
     "drug_id = '$drug_id' AND on_hand > 0 AND destroy_date IS NULL " .
     "ORDER BY expiration, inventory_id");
@@ -94,16 +98,22 @@
 
    // TBD: Set and check a reorder notification date so we don't
    // send zillions of redundant emails.
+   ******************************************************************/
 
-  }
+  } // end if $drug_id
 
+  /*******************************************************************
   $sale_id = sqlInsert("INSERT INTO drug_sales ( " .
    "drug_id, inventory_id, prescription_id, pid, user, sale_date, quantity, fee " .
    ") VALUES ( " .
    "'$drug_id', '$inventory_id', '$prescription_id', '$pid', '$user', '$today',
    '$quantity', '$fee' "  .
    ")");
- }
+  *******************************************************************/
+
+  if (!$sale_id) die("Internal error, no drug ID specified!");
+
+ } // end if not $sale_id
 
  // Generate the bottle label for the sale identified by $sale_id.
 

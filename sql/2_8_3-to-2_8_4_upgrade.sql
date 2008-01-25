@@ -25,40 +25,41 @@ CREATE TABLE list_options (
   title          varchar(255)  NOT NULL DEFAULT '',
   seq            int(11)       NOT NULL DEFAULT 0,
   is_default     tinyint(1)    NOT NULL DEFAULT 0,
+  option_value   float         NOT NULL DEFAULT 0,
   PRIMARY KEY (list_id, option_id)
 ) TYPE=MyISAM;
 
-INSERT INTO list_options VALUES ('yesno'  ,'NO' ,'NO' ,1,0);
-INSERT INTO list_options VALUES ('yesno'  ,'YES','YES',2,0);
+INSERT INTO list_options VALUES ('yesno'  ,'NO' ,'NO' ,1,0,0);
+INSERT INTO list_options VALUES ('yesno'  ,'YES','YES',2,0,0);
 
-INSERT INTO list_options VALUES ('titles' ,'Mr.'   ,'Mr.'    ,1,0);
-INSERT INTO list_options VALUES ('titles' ,'Mrs.'  ,'Mrs.'   ,2,0);
-INSERT INTO list_options VALUES ('titles' ,'Ms.'   ,'Ms.'    ,3,0);
-INSERT INTO list_options VALUES ('titles' ,'Dr.'   ,'Dr.'    ,4,0);
+INSERT INTO list_options VALUES ('titles' ,'Mr.'   ,'Mr.'    ,1,0,0);
+INSERT INTO list_options VALUES ('titles' ,'Mrs.'  ,'Mrs.'   ,2,0,0);
+INSERT INTO list_options VALUES ('titles' ,'Ms.'   ,'Ms.'    ,3,0,0);
+INSERT INTO list_options VALUES ('titles' ,'Dr.'   ,'Dr.'    ,4,0,0);
 
-INSERT INTO list_options VALUES ('sex'    ,'Female','Female' ,1,0);
-INSERT INTO list_options VALUES ('sex'    ,'Male'  ,'Male'   ,2,0);
+INSERT INTO list_options VALUES ('sex'    ,'Female','Female' ,1,0,0);
+INSERT INTO list_options VALUES ('sex'    ,'Male'  ,'Male'   ,2,0,0);
 
-INSERT INTO list_options VALUES ('marital','married'         ,'Married'         ,1,0);
-INSERT INTO list_options VALUES ('marital','single'          ,'Single'          ,2,0);
-INSERT INTO list_options VALUES ('marital','divorced'        ,'Divorced'        ,3,0);
-INSERT INTO list_options VALUES ('marital','widowed'         ,'Widowed'         ,4,0);
-INSERT INTO list_options VALUES ('marital','separated'       ,'Separated'       ,5,0);
-INSERT INTO list_options VALUES ('marital','domestic partner','Domestic Partner',6,0);
+INSERT INTO list_options VALUES ('marital','married'         ,'Married'         ,1,0,0);
+INSERT INTO list_options VALUES ('marital','single'          ,'Single'          ,2,0,0);
+INSERT INTO list_options VALUES ('marital','divorced'        ,'Divorced'        ,3,0,0);
+INSERT INTO list_options VALUES ('marital','widowed'         ,'Widowed'         ,4,0,0);
+INSERT INTO list_options VALUES ('marital','separated'       ,'Separated'       ,5,0,0);
+INSERT INTO list_options VALUES ('marital','domestic partner','Domestic Partner',6,0,0);
 
-INSERT INTO list_options VALUES ('language','English','English',1,1);
-INSERT INTO list_options VALUES ('language','Spanish','Spanish',2,0);
+INSERT INTO list_options VALUES ('language','English','English',1,1,0);
+INSERT INTO list_options VALUES ('language','Spanish','Spanish',2,0,0);
 
-INSERT INTO list_options VALUES ('ethrace','Caucasian','Caucasian',1,0);
-INSERT INTO list_options VALUES ('ethrace','Asian'    ,'Asian'    ,2,0);
-INSERT INTO list_options VALUES ('ethrace','Black'    ,'Black'    ,3,0);
-INSERT INTO list_options VALUES ('ethrace','Hispanic' ,'Hispanic' ,4,0);
+INSERT INTO list_options VALUES ('ethrace','Caucasian','Caucasian',1,0,0);
+INSERT INTO list_options VALUES ('ethrace','Asian'    ,'Asian'    ,2,0,0);
+INSERT INTO list_options VALUES ('ethrace','Black'    ,'Black'    ,3,0,0);
+INSERT INTO list_options VALUES ('ethrace','Hispanic' ,'Hispanic' ,4,0,0);
 
-INSERT INTO list_options VALUES ('userlist1','sample','Sample',1,0);
+INSERT INTO list_options VALUES ('userlist1','sample','Sample',1,0,0);
 
-INSERT INTO list_options VALUES ('userlist2','sample','Sample',1,0);
+INSERT INTO list_options VALUES ('userlist2','sample','Sample',1,0,0);
 
-INSERT INTO list_options VALUES ('pricelevel','standard','Standard',1,1);
+INSERT INTO list_options VALUES ('pricelevel','standard','Standard',1,1,0);
 
 CREATE TABLE layout_options (
   form_id        varchar(31)   NOT NULL,
@@ -155,7 +156,7 @@ ALTER TABLE transactions
   ADD `reply_rx_refer`          text         NOT NULL DEFAULT '';
 
 INSERT INTO layout_options VALUES ('REF','refer_date'      ,'','Referral Date'          , 1, 4,2, 0,  0,''         ,1,1,'C','D','Date of referral');
-INSERT INTO layout_options VALUES ('REF','refer_from'      ,'','Refer From'             , 2,14,2, 0,  0,''         ,1,1,'' ,'' ,'Referral By');
+INSERT INTO layout_options VALUES ('REF','refer_from'      ,'','Refer By'               , 2,10,2, 0,  0,''         ,1,1,'' ,'' ,'Referral By');
 INSERT INTO layout_options VALUES ('REF','refer_to'        ,'','Refer To'               , 3,14,2, 0,  0,''         ,1,1,'' ,'' ,'Referral To');
 INSERT INTO layout_options VALUES ('REF','body'            ,'','Reason'                 , 4, 3,2,30,  3,''         ,1,1,'' ,'' ,'Reason for referral');
 INSERT INTO layout_options VALUES ('REF','refer_diag'      ,'','Referrer Diagnosis'     , 5, 2,1,30,255,''         ,1,1,'' ,'X','Referrer diagnosis');
@@ -171,15 +172,15 @@ INSERT INTO layout_options VALUES ('REF','reply_services'  ,'','Services Provide
 INSERT INTO layout_options VALUES ('REF','reply_recommend' ,'','Recommendations'        ,15, 3,1,30,  3,''         ,1,1,'' ,'' ,'Recommendations by specialist');
 INSERT INTO layout_options VALUES ('REF','reply_rx_refer'  ,'','Prescriptions/Referrals',16, 3,1,30,  3,''         ,1,1,'' ,'' ,'Prescriptions and/or referrals by specialist');
 
-INSERT INTO list_options VALUES ('risklevel','low'   ,'Low'   ,1,0);
-INSERT INTO list_options VALUES ('risklevel','medium','Medium',2,1);
-INSERT INTO list_options VALUES ('risklevel','high'  ,'High'  ,3,0);
+INSERT INTO list_options VALUES ('risklevel','low'   ,'Low'   ,1,0,0);
+INSERT INTO list_options VALUES ('risklevel','medium','Medium',2,1,0);
+INSERT INTO list_options VALUES ('risklevel','high'  ,'High'  ,3,0,0);
 
-INSERT INTO list_options VALUES ('boolean','0','No' ,1,0);
-INSERT INTO list_options VALUES ('boolean','1','Yes',2,0);
+INSERT INTO list_options VALUES ('boolean','0','No' ,1,0,0);
+INSERT INTO list_options VALUES ('boolean','1','Yes',2,0,0);
 
 ALTER TABLE codes
-  ADD related_code varchar(10) NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code';
+  ADD related_code varchar(10)  NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code';
 
 CREATE TABLE prices (
   pr_id          varchar(11)   NOT NULL            COMMENT 'references codes.id or drugs.id',
@@ -192,3 +193,14 @@ CREATE TABLE prices (
 INSERT INTO prices ( pr_id, pr_level, pr_price )
   SELECT codes.id, 'standard', codes.fee FROM codes
   WHERE codes.fee IS NOT NULL AND codes.fee > 0;
+
+ALTER TABLE codes
+  ADD taxrates varchar(255) NOT NULL DEFAULT '' COMMENT 'tax rate names delimited by colons';
+
+ALTER TABLE drug_templates
+  ADD taxrates varchar(255) NOT NULL DEFAULT '' COMMENT 'tax rate names delimited by colons';
+
+ALTER TABLE drug_sales
+  ADD billed tinyint(1) NOT NULL DEFAULT 0 COMMENT 'indicates if the sale is posted to accounting';
+UPDATE drug_sales
+  SET billed = 1 WHERE encounter > 0;

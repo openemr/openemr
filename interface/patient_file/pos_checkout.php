@@ -13,17 +13,16 @@
  // Important notes about system design:
  //
  // (1) Drug sales may or may not be associated with an encounter;
- //     they are if they are paid for concurrently with an encounter.
+ //     they are if they are paid for concurrently with an encounter, or
+ //     if they are "product" (non-prescription) sales via the Fee Sheet.
  // (2) Drug sales without an encounter will have 20YYMMDD, possibly
  //     with a suffix, as the encounter-number portion of their invoice
  //     number.
  // (3) Payments are saved in SL only, don't mess with the billing table.
  //     See library/classes/WSClaim.class.php for posting code.
- // (4) On checkout, the billing table entries are marked as billed and
- //     so become unavailable for further billing.
- // (5) On checkout, drug_sales entries are marked as billed by having
- //     an invoice number assigned.
- // (6) Receipt printing must be a separate operation from payment,
+ // (4) On checkout, the billing and drug_sales table entries are marked
+ //     as billed and so become unavailable for further billing.
+ // (5) Receipt printing must be a separate operation from payment,
  //     and repeatable, therefore driven from the SL database and
  //     mirroring the contents of the invoice.
 
@@ -32,6 +31,7 @@
  require_once("$srcdir/sql-ledger.inc");
  require_once("$srcdir/freeb/xmlrpc.inc");
  require_once("$srcdir/freeb/xmlrpcs.inc");
+ require_once("../../custom/code_types.inc.php");
 
  // Get the patient's name and chart number.
  $patdata = getPatientData($pid, 'fname,mname,lname,pubpid,street,city,state,postal_code');
@@ -179,9 +179,9 @@ function invoice_post(& $invoice_info)
 
 /////////////////// End of invoice posting functions /////////////////
 
- // Generate a receipt from the last-billed invoice for this patient.
- //
- function generate_receipt($patient_id) {
+// Generate a receipt from the last-billed invoice for this patient.
+//
+function generate_receipt($patient_id) {
   global $sl_err, $sl_cash_acc, $css_header;
 
   // Get details for what we guess is the primary facility.
@@ -198,8 +198,8 @@ function invoice_post(& $invoice_info)
     "invnumber LIKE '$patient_id.%' " .
     "ORDER BY id DESC LIMIT 1");
   if ($sl_err) die($sl_err);
+  if (!SLRowCount($arres)) die(xl("This patient has no activity."));
   $arrow = SLGetRow($arres, 0);
-  if (! $arrow) die(xl("This patient has no activity."));
 
   $trans_id = $arrow['id'];
 
@@ -251,9 +251,9 @@ function invoice_post(& $invoice_info)
  </tr>
 <?php
  $charges = 0.00;
-
  // Request all line items with money belonging to the invoice.
- $inres = SLQuery("select * from invoice where trans_id = $trans_id and sellprice != 0");
+ $inres = SLQuery("SELECT * FROM invoice WHERE " .
+  "trans_id = $trans_id AND sellprice != 0 ORDER BY id");
  if ($sl_err) die($sl_err);
 
  for ($irow = 0; $irow < SLRowCount($inres); ++$irow) {
@@ -272,7 +272,8 @@ function invoice_post(& $invoice_info)
  if (! $chart_id_cash) die("There is no COA entry for cash account '$sl_cash_acc'");
 
  // Request all cash entries belonging to the invoice.
- $atres = SLQuery("select * from acc_trans where trans_id = $trans_id and chart_id = $chart_id_cash");
+ $atres = SLQuery("SELECT * FROM acc_trans WHERE " .
+  "trans_id = $trans_id AND chart_id = $chart_id_cash ORDER BY transdate");
  if ($sl_err) die($sl_err);
 
  for ($irow = 0; $irow < SLRowCount($atres); ++$irow) {
@@ -303,14 +304,15 @@ function invoice_post(& $invoice_info)
 </html>
 <?php
   SLClose();
- } // end function
+} // end function
 
- // Function to output a line item for the input form.
- //
- $lino = 0;
- function write_form_line($code_type, $code, $id, $date, $description, $amount) {
+// Function to output a line item for the input form.
+//
+$lino = 0;
+function write_form_line($code_type, $code, $id, $date, $description, $amount) {
   global $lino;
   $amount = sprintf("%01.2f", $amount);
+  if ($code_type == 'COPAY' && !$description) $description = xl('Payment');
   echo " <tr>\n";
   echo "  <td>$date";
   echo "<input type='hidden' name='line[$lino][code_type]' value='$code_type'>";
@@ -323,7 +325,29 @@ function invoice_post(& $invoice_info)
        "value='$amount' size='6' maxlength='8' style='text-align:right'></td>\n";
   echo " </tr>\n";
   ++$lino;
- }
+}
+
+// Create the taxes array.  Key is tax id, value is
+// (description, rate, accumulated total).
+$taxes = array();
+$pres = sqlStatement("SELECT option_id, title, option_value " .
+  "FROM list_options WHERE list_id = 'taxrate' ORDER BY seq");
+while ($prow = sqlFetchArray($pres)) {
+  $taxes[$prow['option_id']] = array($prow['title'], $prow['option_value'], 0);
+}
+
+// Accumulate taxes given a price and a list of the applicable tax rates.
+function accumTaxes($fee, $taxrates) {
+  global $taxes;
+  // echo "<!-- $fee $taxrates -->\n"; // debugging
+  $arates = explode(':', $taxrates);
+  if (empty($arates)) return;
+  foreach ($arates as $value) {
+    if (!empty($taxes[$value])) {
+      $taxes[$value][2] += $fee * $taxes[$value][1];
+    }
+  }
+}
 
  $payment_methods = array(
   'Cash',
@@ -393,9 +417,9 @@ function invoice_post(& $invoice_info)
     $line['code'], $line['description'], $amount);
    if ($msg) die($msg);
 
-   if ($code_type == 'MED') {
+   if ($code_type == 'PROD') {
     $query = "update drug_sales SET fee = '$amount', " .
-     "encounter = '$form_encounter' WHERE " .
+     "encounter = '$form_encounter', billed = 1 WHERE " .
      "sale_id = '$id'";
     sqlQuery($query);
    }
@@ -403,8 +427,8 @@ function invoice_post(& $invoice_info)
     // Because there is no insurance here, there is no need for a claims
     // table entry and so we do not call updateClaim().  Note we should not
     // eliminate billed and bill_date from the billing table!
-    $query = "UPDATE billing SET billed = 1, bill_date = NOW() WHERE " .
-     "id = '$id'";
+    $query = "UPDATE billing SET fee = '$amount', billed = 1, " .
+     "bill_date = NOW() WHERE id = '$id'";
     sqlQuery($query);
    }
   }
@@ -428,7 +452,7 @@ function invoice_post(& $invoice_info)
  // Get the unbilled billing table items and prescription sales for
  // this patient.
 
- $query = "SELECT id, date, code_type, code, code_text, " .
+ $query = "SELECT id, date, code_type, code, modifier, code_text, " .
   "provider_id, payer_id, fee, encounter " .
   "FROM billing " .
   "WHERE pid = '$pid' AND activity = 1 AND billed = 0 " .
@@ -436,11 +460,11 @@ function invoice_post(& $invoice_info)
  $bres = sqlStatement($query);
 
  $query = "SELECT s.sale_id, s.sale_date, s.prescription_id, s.fee, " .
-  "d.name, r.provider_id " .
+  "s.encounter, s.drug_id, d.name, r.provider_id " .
   "FROM drug_sales AS s " .
   "LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
-  "LEFT JOIN prescriptions AS r ON r.id = s.prescription_id " .
-  "WHERE s.pid = '$pid' AND s.encounter = 0 " .
+  "LEFT OUTER JOIN prescriptions AS r ON r.id = s.prescription_id " .
+  "WHERE s.pid = '$pid' AND s.billed = 0 " .
   "ORDER BY s.sale_id";
  $dres = sqlStatement($query);
 
@@ -496,29 +520,70 @@ function invoice_post(& $invoice_info)
   <td align='right'><b><?php xl('Amount','e'); ?></b>&nbsp;</td>
  </tr>
 <?php
- $inv_encounter = '';
- $inv_date      = '';
- $inv_provider  = 0;
- $inv_payer     = 0;
- $total         = 0.00;
- while ($brow = sqlFetchArray($bres)) {
+$inv_encounter = '';
+$inv_date      = '';
+$inv_provider  = 0;
+$inv_payer     = 0;
+$total         = 0.00;
+
+while ($brow = sqlFetchArray($bres)) {
   $thisdate = substr($brow['date'], 0, 10);
-  write_form_line($brow['code_type'], $brow['code'], $brow['id'],
-   $thisdate, $brow['code_text'], $brow['fee']);
-  $inv_encounter = $brow['encounter'];
-  $inv_provider  = $brow['provider_id'];
-  $inv_payer     = $brow['payer_id'];
+  $code_type = $brow['code_type'];
+  write_form_line($code_type, $brow['code'], $brow['id'],
+   $thisdate, ucfirst(strtolower($brow['code_text'])), $brow['fee']);
+  if (!$inv_encounter) $inv_encounter = $brow['encounter'];
+  if (!$inv_provider ) $inv_provider  = $brow['provider_id'];
+  $inv_payer = $brow['payer_id'];
   if (!$inv_date || $inv_date < $thisdate) $inv_date = $thisdate;
   $total += $brow['fee'];
- }
- while ($drow = sqlFetchArray($dres)) {
+  // Accumulate taxes for this service item.
+  if ($code_type != 'COPAY' && $code_type != 'TAX') {
+    $query = "SELECT taxrates FROM codes WHERE code_type = '" .
+      $code_types[$code_type]['id'] . "' AND " .
+      "code = '" . $brow['code'] . "' AND ";
+    if ($brow['modifier']) {
+      $query .= "modifier = '" . $brow['modifier'] . "'";
+    } else {
+      $query .= "(modifier IS NULL OR modifier = '')";
+    }
+    $query .= " LIMIT 1";
+    $tmp = sqlQuery($query);
+    // echo "<!-- $query -->\n"; // debugging
+    accumTaxes($brow['fee'], $tmp['taxrates']);
+  }
+}
+
+while ($drow = sqlFetchArray($dres)) {
   $thisdate = $drow['sale_date'];
-  write_form_line('MED', $drow['prescription_id'], $drow['sale_id'],
+  write_form_line('PROD', $drow['drug_id'], $drow['sale_id'],
    $thisdate, $drow['name'], $drow['fee']);
-  $inv_provider = $drow['provider_id'];
+  if (!$inv_encounter) $inv_encounter = $drow['encounter'];
+  if (!$inv_provider ) $inv_provider  = $drow['provider_id'] + 0;
   if (!$inv_date || $inv_date < $thisdate) $inv_date = $thisdate;
   $total += $drow['fee'];
- }
+  // Accumulate taxes for this product.
+  $tmp = sqlQuery("SELECT taxrates FROM drug_templates WHERE drug_id = '" .
+    $drow['drug_id'] . "' ORDER BY selector LIMIT 1");
+  accumTaxes($drow['fee'], $tmp['taxrates']);
+}
+
+// Write a form line for each tax that has money, adding to $total.
+foreach ($taxes as $key => $value) {
+  if ($value[2]) {
+    write_form_line('TAX', $key, $key, date('Y-m-d'), $value[0], $value[2]);
+    $total += $value[2];
+  }
+}
+
+// If there were only products without prescriptions then there is no
+// provider yet, so get it from the encounter.
+if ($inv_encounter && !$inv_provider) {
+  $erow = sqlQuery("SELECT users.id FROM forms, users WHERE " .
+    "forms.encounter = '$inv_encounter' AND " .
+    "forms.formdir = 'newpatient' AND " .
+    "users.username = forms.user LIMIT 1");
+  $inv_provider = $erow['id'];
+}
 ?>
 </table>
 

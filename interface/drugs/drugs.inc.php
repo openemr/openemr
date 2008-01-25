@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006, 2008 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -47,4 +47,79 @@
   xl('in nostril'));
 
  $substitute_array = array('', xl('Allowed'), xl('Not Allowed'));
+
+function send_drug_email($subject, $body) {
+  require($GLOBALS['srcdir'] . "/classes/class.phpmailer.php");
+  $recipient = $GLOBALS['practice_return_email_path'];
+  $mail = new PHPMailer();
+  $mail->SetLanguage("en", $GLOBALS['fileroot'] . "/library/" );
+  $mail->From = $recipient;
+  $mail->FromName = 'In-House Pharmacy';
+  $mail->isMail();
+  $mail->Host = "localhost";
+  $mail->Mailer = "mail";
+  $mail->Body = $body;
+  $mail->Subject = $subject;
+  $mail->AddAddress($recipient);
+  if(!$mail->Send()) {
+    die("There has been a mail error sending to " . $recipient .
+      " " . $mail->ErrorInfo);
+  }
+}
+
+function sellDrug($drug_id, $quantity, $fee, $patient_id=0, $encounter_id=0,
+  $prescription_id=0, $sale_date='', $user='') {
+
+  if (empty($patient_id))   $patient_id   = $GLOBALS['pid'];
+  if (empty($sale_date))    $sale_date    = date('Y-m-d');
+  if (empty($user))         $user         = $_SESSION['authUser'];
+
+  // Find and update inventory, deal with errors.
+  //
+  $res = sqlStatement("SELECT * FROM drug_inventory WHERE " .
+    "drug_id = '$drug_id' AND on_hand > 0 AND destroy_date IS NULL " .
+    "ORDER BY expiration, inventory_id");
+  $bad_lot_list = '';
+  while ($row = sqlFetchArray($res)) {
+    if ($row['expiration'] > $sale_date && $row['on_hand'] >= $quantity) {
+      break;
+    }
+    $tmp = $row['lot_number'];
+    if (! $tmp) $tmp = '[missing lot number]';
+    if ($bad_lot_list) $bad_lot_list .= ', ';
+    $bad_lot_list .= $tmp;
+  }
+
+  if ($bad_lot_list) {
+    send_drug_email("Lot destruction needed",
+      "The following lot(s) are expired or too small to fill the order for " .
+      "patient $patient_id and should be destroyed: $bad_lot_list\n");
+  }
+
+  if (! $row) return 0; // Inventory is not available for this order.
+
+  $inventory_id = $row['inventory_id'];
+
+  sqlStatement("UPDATE drug_inventory SET " .
+    "on_hand = on_hand - $quantity " .
+    "WHERE inventory_id = $inventory_id");
+
+  $rowsum = sqlQuery("SELECT sum(on_hand) AS sum FROM drug_inventory WHERE " .
+    "drug_id = '$drug_id' AND on_hand > '$quantity' AND expiration > CURRENT_DATE");
+  $rowdrug = sqlQuery("SELECT * FROM drugs WHERE " .
+    "drug_id = '$drug_id'");
+  if ($rowsum['sum'] <= $rowdrug['reorder_point']) {
+    send_drug_email("Product re-order required",
+      "Product '" . $rowdrug['name'] . "' has reached its reorder point.\n");
+  }
+
+  // TBD: Maybe set and check a reorder notification date so we don't
+  // send zillions of redundant emails.
+
+  return sqlInsert("INSERT INTO drug_sales ( " .
+    "drug_id, inventory_id, prescription_id, pid, encounter, user, " .
+    "sale_date, quantity, fee ) VALUES ( " .
+    "'$drug_id', '$inventory_id', '$prescription_id', '$patient_id', " .
+    "'$encounter_id', '$user', '$sale_date', '$quantity', '$fee' )");
+}
 ?>

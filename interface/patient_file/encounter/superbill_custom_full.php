@@ -34,6 +34,13 @@ if (isset($mode)) {
   // $superbill  = $_POST['superbill'];
   $related_code = $_POST['related_code'];
 
+  $taxrates = "";
+  if (!empty($_POST['taxrate'])) {
+    foreach ($_POST['taxrate'] as $key => $value) {
+      $taxrates .= "$key:";
+    }
+  }
+
   if ($mode == "delete") {
     sqlStatement("DELETE FROM codes WHERE id = '$code_id'");
     $code_id = 0;
@@ -46,7 +53,8 @@ if (isset($mode)) {
       "modifier = '"     . ffescape($modifier)     . "', " .
       // "units = '"        . ffescape($units)        . "', " .
       // "superbill = '"    . ffescape($superbill)    . "', " .
-      "related_code = '" . ffescape($related_code) . "'";
+      "related_code = '" . ffescape($related_code) . "', " .
+      "taxrates = '"     . ffescape($taxrates)     . "'";
     if ($code_id) {
       sqlStatement("UPDATE codes SET $sql WHERE id = '$code_id'");
       sqlStatement("DELETE FROM prices WHERE pr_id = '$code_id' AND " .
@@ -66,6 +74,7 @@ if (isset($mode)) {
     $code = $code_type = $code_text = $modifier = $superbill = "";
     $code_id = 0;
     $related_code = '';
+    $taxrates = '';
   }
   else if ($mode == "edit") {
     $sql = "SELECT * FROM codes WHERE id = '$code_id'";
@@ -78,6 +87,7 @@ if (isset($mode)) {
       // $units        = $row['units'];
       // $superbill    = $row['superbill'];
       $related_code = $row['related_code'];
+      $taxrates     = $row['taxrates'];
     }
   }
 }
@@ -279,6 +289,28 @@ for ($i = 0; $prow = sqlFetchArray($pres); ++$i) {
 ?>
   </td>
  </tr>
+
+<?php
+$taxline = '';
+$pres = sqlStatement("SELECT option_id, title FROM list_options " .
+  "WHERE list_id = 'taxrate' ORDER BY seq");
+while ($prow = sqlFetchArray($pres)) {
+  if ($taxline) $taxline .= "&nbsp;&nbsp;";
+  $taxline .= "<input type='checkbox' name='taxrate[" . $prow['option_id'] . "]' value='1'";
+  if (strpos(":$taxrates", $prow['option_id']) !== false) $taxline .= " checked";
+  $taxline .= " />\n";
+  $taxline .= $prow['title'] . "\n";
+}
+if ($taxline) {
+?>
+ <tr>
+  <td><?php xl('Taxes','e'); ?>:</td>
+  <td></td>
+  <td>
+   <?php echo $taxline ?>
+  </td>
+ </tr>
+<?php } ?>
 
  <tr>
   <td colspan="3" align="center">

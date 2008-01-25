@@ -84,6 +84,23 @@ function generate_form_field($frow, $currvalue) {
     $date_init .= " Calendar.setup({inputField:'form_$field_id', ifFormat:'%Y-%m-%d', button:'img_$field_id'});\n";
   }
 
+  // provider list, local providers only
+  else if ($data_type == 10) {
+    $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
+      "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
+      "AND authorized = 1 " .
+      "ORDER BY lname, fname");
+    echo "<select name='form_$field_id' title='$description'>";
+    echo "<option value=''>" . xl('Unassigned') . "</option>";
+    while ($urow = sqlFetchArray($ures)) {
+      $uname = $urow['fname'] . ' ' . $urow['lname'];
+      echo "<option value='" . $urow['id'] . "'";
+      if ($urow['id'] == $currvalue) echo " selected";
+      echo ">$uname</option>";
+    }
+    echo "</select>";
+  }
+
   // provider list, including address book entries with an NPI number
   else if ($data_type == 11) {
     $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
@@ -138,7 +155,7 @@ function generate_form_field($frow, $currvalue) {
       "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
       "ORDER BY lname, fname");
     echo "<select name='form_$field_id' title='$description'>";
-    echo "<option value='0'>&nbsp;</option>";
+    echo "<option value=''>" . xl('Unassigned') . "</option>";
     while ($urow = sqlFetchArray($ures)) {
       $uname = $urow['lname'];
       if ($urow['fname']) $uname .= ", " . $urow['fname'];
@@ -180,7 +197,7 @@ function generate_display_field($frow, $currvalue) {
   }
 
   // provider
-  else if ($data_type == 11) {
+  else if ($data_type == 10 || $data_type == 11) {
     $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
       "WHERE id = '$currvalue'");
     $s = ucwords($urow['fname'] . " " . $urow['lname']);
