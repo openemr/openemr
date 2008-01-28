@@ -79,6 +79,7 @@ function sellDrug($drug_id, $quantity, $fee, $patient_id=0, $encounter_id=0,
   $res = sqlStatement("SELECT * FROM drug_inventory WHERE " .
     "drug_id = '$drug_id' AND on_hand > 0 AND destroy_date IS NULL " .
     "ORDER BY expiration, inventory_id");
+  $rowsleft = mysql_num_rows($res);
   $bad_lot_list = '';
   while ($row = sqlFetchArray($res)) {
     if ($row['expiration'] > $sale_date && $row['on_hand'] >= $quantity) {
@@ -88,6 +89,7 @@ function sellDrug($drug_id, $quantity, $fee, $patient_id=0, $encounter_id=0,
     if (! $tmp) $tmp = '[missing lot number]';
     if ($bad_lot_list) $bad_lot_list .= ', ';
     $bad_lot_list .= $tmp;
+    if (! --$rowsleft) break; // to retain the last $row
   }
 
   if ($bad_lot_list) {
@@ -96,7 +98,7 @@ function sellDrug($drug_id, $quantity, $fee, $patient_id=0, $encounter_id=0,
       "patient $patient_id and should be destroyed: $bad_lot_list\n");
   }
 
-  if (! $row) return 0; // Inventory is not available for this order.
+  if (! $row) return 0; // No inventory exists
 
   $inventory_id = $row['inventory_id'];
 
