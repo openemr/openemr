@@ -123,20 +123,27 @@ if ($_POST['bn_save']) {
     // If the item is already in the database...
     if ($sale_id) {
       if ($del) {
-        // Zero out this sale and reverse its inventory update.
-        sqlStatement("UPDATE drug_sales AS ds, drug_inventory AS di " .
-          "SET di.on_hand = di.on_hand + ds.quantity, " .
+        // Zero out this sale and reverse its inventory update.  We bring in
+        // drug_sales twice so that the original quantity can be referenced
+        // unambiguously.
+        sqlStatement("UPDATE drug_sales AS dsr, drug_sales AS ds, " .
+          "drug_inventory AS di " .
+          "SET di.on_hand = di.on_hand + dsr.quantity, " .
           "ds.quantity = 0, ds.fee = 0 WHERE " .
-          "ds.sale_id = '$sale_id AND di.inventory_id = ds.inventory_id'");
+          "dsr.sale_id = '$sale_id' AND ds.sale_id = dsr.sale_id AND " .
+          "di.inventory_id = ds.inventory_id");
         // And delete the sale for good measure.
         sqlStatement("DELETE FROM drug_sales WHERE sale_id = '$sale_id'");
       }
       else {
         // Modify the sale and adjust inventory accordingly.
-        sqlStatement("UPDATE drug_sales AS ds, drug_inventory AS di " .
-          "SET di.on_hand = di.on_hand + ds.quantity - $units, " .
+        $query = "UPDATE drug_sales AS dsr, drug_sales AS ds, " .
+          "drug_inventory AS di " .
+          "SET di.on_hand = di.on_hand + dsr.quantity - $units, " .
           "ds.quantity = '$units', ds.fee = '$fee' WHERE " .
-          "ds.sale_id = '$sale_id AND di.inventory_id = ds.inventory_id'");
+          "dsr.sale_id = '$sale_id' AND ds.sale_id = dsr.sale_id AND " .
+          "di.inventory_id = ds.inventory_id";
+        sqlStatement($query);
       }
     }
 
