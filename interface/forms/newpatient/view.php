@@ -96,7 +96,7 @@
   <td colspan='2'>
    <textarea name='reason' cols='40' rows='4' wrap='virtual' style='width:96%'><? echo htmlspecialchars($result['reason']) ?></textarea>
   </td>
-  <td rowspan='5' valign='top'>
+  <td rowspan='6' valign='top'>
    <select multiple name='issues[]' size='10' style='width:100%'
     title='<?php xl('Hold down [Ctrl] for multiple selections or to unselect','e'); ?>'>
 <?
@@ -111,6 +111,25 @@
   if ($perow['count']) echo " selected";
   echo ">$tcode: " . $irow['begdate'] . " " .
    htmlspecialchars(substr($irow['title'], 0, 40)) . "</option>\n";
+ }
+?>
+   </select>
+  </td>
+ </tr>
+
+ <tr>
+  <td class='text' width='1%' nowrap><?php xl('Visit Category:','e'); ?></td>
+  <td>
+   <select name='pc_catid'>
+<?php
+ $cres = sqlStatement("SELECT pc_catid, pc_catname " .
+  "FROM openemr_postcalendar_categories ORDER BY pc_catname");
+ while ($crow = sqlFetchArray($cres)) {
+  $catid = $crow['pc_catid'];
+  if ($catid < 9 && $catid != 5) continue;
+  echo "    <option value='$catid'";
+  if ($crow['pc_catid'] == $result['pc_catid']) echo " selected";
+  echo ">" . $crow['pc_catname'] . "</option>\n";
  }
 ?>
    </select>

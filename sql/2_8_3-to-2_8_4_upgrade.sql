@@ -204,3 +204,6 @@ ALTER TABLE drug_sales
   ADD billed tinyint(1) NOT NULL DEFAULT 0 COMMENT 'indicates if the sale is posted to accounting';
 UPDATE drug_sales
   SET billed = 1 WHERE encounter > 0;
+
+ALTER TABLE form_encounter
+  ADD pc_catid int(11) NOT NULL DEFAULT 5 COMMENT 'event category from openemr_postcalendar_categories';

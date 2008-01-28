@@ -18,6 +18,7 @@ $conn = $GLOBALS['adodb']['db'];
 $date        = $_POST['form_date'];
 $onset_date  = $_POST['form_onset_date'];
 $sensitivity = $_POST['form_sensitivity'];
+$pc_catid    = $_POST['pc_catid'];
 $facility_id = $_POST['facility_id'];
 $reason      = $_POST['reason'];
 $mode        = $_POST['mode'];
@@ -37,6 +38,7 @@ if ($mode == 'new')
       "date = '$date', " .
       "onset_date = '$onset_date', " .
       "reason = '$reason', " .
+      "pc_catid = '$pc_catid', " .
       "facility_id = '$facility_id', " .
       "sensitivity = '$sensitivity', " .
       "pid = '$pid', " .
@@ -58,6 +60,7 @@ else if ($mode == 'update')
     $datepart .
     "onset_date = '$onset_date', " .
     "reason = '$reason', " .
+    "pc_catid = '$pc_catid', " .
     "facility_id = '$facility_id', " .
     "sensitivity = '$sensitivity' " .
     "WHERE id = '$id'");

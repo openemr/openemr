@@ -276,6 +276,7 @@ CREATE TABLE `form_encounter` (
   `onset_date` datetime default NULL,
   `sensitivity` varchar(30) NOT NULL default '',
   `billing_note` text NOT NULL DEFAULT '',
+  `pc_catid` int(11) NOT NULL DEFAULT 5 COMMENT 'event category from openemr_postcalendar_categories',
   PRIMARY KEY  (`id`)
 ) ;
 
