@@ -339,12 +339,12 @@ while ($prow = sqlFetchArray($pres)) {
 // Accumulate taxes given a price and a list of the applicable tax rates.
 function accumTaxes($fee, $taxrates) {
   global $taxes;
-  // echo "<!-- $fee $taxrates -->\n"; // debugging
   $arates = explode(':', $taxrates);
   if (empty($arates)) return;
   foreach ($arates as $value) {
     if (!empty($taxes[$value])) {
-      $taxes[$value][2] += $fee * $taxes[$value][1];
+      $taxes[$value][2] = sprintf('%01.2f',
+        $fee * $taxes[$value][1] + $taxes[$value][2]);
     }
   }
 }
