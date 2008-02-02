@@ -3,6 +3,10 @@
 // Change this to 1 if your drop-downs are too wide for 2 columns:
 $FEE_SHEET_COLUMNS = 2;
 
+// The $bcodes table is obsolete.  You can customize the dropdowns
+// now via the Admin/Lists page.
+
+/*********************************************************************
 $bcodes = array();
 
 $bcodes['CPT4']  = array();
@@ -146,4 +150,6 @@ $bcodes['HCPCS']['Therapeutic Injections'] = array(
 	'J2680' => 'Prolixin 25 mg',
 	'J3410' => 'Vistaril up to 25 mg',
 );
+*********************************************************************/
+
 ?>

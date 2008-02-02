@@ -207,3 +207,19 @@ UPDATE drug_sales
 
 ALTER TABLE form_encounter
   ADD pc_catid int(11) NOT NULL DEFAULT 5 COMMENT 'event category from openemr_postcalendar_categories';
+
+CREATE TABLE fee_sheet_options (
+  fs_category varchar(63)  NOT NULL DEFAULT '' COMMENT 'Descriptive category name',
+  fs_option   varchar(63)  NOT NULL DEFAULT '' COMMENT 'Descriptive option name',
+  fs_codes    varchar(255) NOT NULL DEFAULT '' COMMENT 'multiple instances of type:id:selector;'
+) TYPE=MyISAM;
+INSERT INTO fee_sheet_options VALUES ('1New Patient','1Brief'  ,'CPT4|99201|');
+INSERT INTO fee_sheet_options VALUES ('1New Patient','2Limited','CPT4|99202|');
+INSERT INTO fee_sheet_options VALUES ('1New Patient','3Detailed','CPT4|99203|');
+INSERT INTO fee_sheet_options VALUES ('1New Patient','4Extended','CPT4|99204|');
+INSERT INTO fee_sheet_options VALUES ('1New Patient','5Comprehensive','CPT4|99205|');
+INSERT INTO fee_sheet_options VALUES ('2Established Patient','1Brief'  ,'CPT4|99211|');
+INSERT INTO fee_sheet_options VALUES ('2Established Patient','2Limited','CPT4|99212|');
+INSERT INTO fee_sheet_options VALUES ('2Established Patient','3Detailed','CPT4|99213|');
+INSERT INTO fee_sheet_options VALUES ('2Established Patient','4Extended','CPT4|99214|');
+INSERT INTO fee_sheet_options VALUES ('2Established Patient','5Comprehensive','CPT4|99215|');

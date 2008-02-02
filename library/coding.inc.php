@@ -74,12 +74,14 @@ if ($_POST['bn_save']) {
 </style>
 <script language="JavaScript">
 
-function codeselect(selobj, newtype) {
+// This is invoked by <select onchange> for the various dropdowns,
+// including search results.
+function codeselect(selobj) {
  var i = selobj.selectedIndex;
  if (i > 0) {
+  top.restoreSession();
   var f = document.forms[0];
-  f.newcode.value = selobj.options[i].value;
-  f.newtype.value = newtype;
+  f.newcodes.value = selobj.options[i].value;
   f.submit();
  }
 }
@@ -88,34 +90,45 @@ function codeselect(selobj, newtype) {
 
 <form method="post" action="<?php echo coding_form_action(); ?>">
 <span class="title"><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Fee' : 'Coding' ?> Sheet</span><br>
-<input type='hidden' name='newtype' value=''>
-<input type='hidden' name='newcode' value=''>
+<input type='hidden' name='newcodes' value=''>
 
 <center>
 <table width='95%'>
-<?
+<?php
 $i = 0;
+$last_category = '';
 
-// Create all the drop-lists of preselected codes.
-//
-foreach ($bcodes as $key0 => $value0) {
-	foreach ($value0 as $key1 => $value1) {
-		++$i;
-		echo ($i <= 1) ? " <tr>\n" : "";
-		echo "  <td width='50%' align='center' nowrap>\n";
-		echo "   <select name='$key1' style='width:96%' onchange='codeselect(this, \"$key0\")'>\n";
-		echo "    <option value=''> $key1\n";
-		foreach ($value0[$key1] as $key2 => $value2) {
-			echo "    <option value='$key2'>$key2 $value2\n";
-		}
-		echo "   </select>\n";
-		echo "  </td>\n";
-		if ($i >= $FEE_SHEET_COLUMNS) {
-			echo " </tr>\n";
-			$i = 0;
-		}
-	}
+// Helper function for creating drop-lists.
+function endFSCategory() {
+  global $i, $last_category, $FEE_SHEET_COLUMNS;
+  if (! $last_category) return;
+  echo "   </select>\n";
+  echo "  </td>\n";
+  if ($i >= $FEE_SHEET_COLUMNS) {
+    echo " </tr>\n";
+    $i = 0;
+  }
 }
+
+// Create all the drop-lists of preselected service codes.
+$res = sqlStatement("SELECT * FROM fee_sheet_options " .
+  "ORDER BY fs_category, fs_option");
+while ($row = sqlFetchArray($res)) {
+  $fs_category = $row['fs_category'];
+  $fs_option   = $row['fs_option'];
+  $fs_codes    = $row['fs_codes'];
+  if($fs_category !== $last_category) {
+    endFSCategory();
+    $last_category = $fs_category;
+    ++$i;
+    echo ($i <= 1) ? " <tr>\n" : "";
+    echo "  <td width='50%' align='center' nowrap>\n";
+    echo "   <select style='width:96%' onchange='codeselect(this)'>\n";
+    echo "    <option value=''> " . substr($fs_category, 1) . "\n";
+  }
+  echo "    <option value='$fs_codes'>" . substr($fs_option, 1) . "\n";
+}
+endFSCategory();
 
 $search_type = $default_search_type;
 if ($_POST['search_type']) $search_type = $_POST['search_type'];
@@ -139,17 +152,18 @@ if ($_POST['bn_search'] && $_POST['search_term']) {
 }
 
 echo "   <select name='Search Results' style='width:98%' " .
-	"onchange='codeselect(this, \"$search_type\")'";
+	"onchange='codeselect(this)'";
 if (! $numrows) echo ' disabled';
 echo ">\n";
 echo "    <option value=''> Search Results ($numrows items)\n";
 
 if ($numrows) {
-	while ($row = sqlFetchArray($res)) {
-		$code = $row['code'];
-		if ($row['modifier']) $code .= "-" . $row['modifier'];
-		echo "    <option value='$code'>$code " . ucfirst(strtolower($row['code_text'])) . "\n";
-	}
+  while ($row = sqlFetchArray($res)) {
+    $code = $row['code'];
+    if ($row['modifier']) $code .= ":" . $row['modifier'];
+    echo "    <option value='$search_type|$code|'>$code " .
+      ucfirst(strtolower($row['code_text'])) . "</option>\n";
+  }
 }
 
 echo "   </select>\n";
@@ -300,20 +314,51 @@ if ($_POST['bill']) {
 	}
 }
 
-// If a new billing code was <select>ed, add its line here.  As a special
-// case allow HCPCS codes to be included in the CPT drop-lists, and
-// CPT4 codes included in OPCS drop-lists.
+// If new billing code(s) were <select>ed, add their line(s) here.
 //
-if ($_POST['newcode']) {
-	list($code, $modifier) = explode("-", $_POST['newcode']);
-	$newtype = $_POST['newtype'];
-	if ($newtype == "CPT4" && preg_match("/^[A-Z]/", $code))
-		$newtype = "HCPCS";
-	else if ($newtype == "OPCS" && preg_match("/^[0-9]/", $code))
-		$newtype = "CPT4";
-	echoLine(++$lino, $newtype, $code, trim($modifier));
+if ($_POST['newcodes']) {
+  $arrcodes = explode('~', $_POST['newcodes']);
+  foreach ($arrcodes as $codestring) {
+    if ($codestring === '') continue;
+    $arrcode = explode('|', $codestring);
+    $newtype = $arrcode[0];
+    $newcode = $arrcode[1];
+    $newsel  = $arrcode[2];
+    if ($newtype == 'COPAY') {
+      $tmp = sqlQuery("SELECT copay FROM insurance_data WHERE pid = '$pid' " .
+        "AND type = 'primary' ORDER BY date DESC LIMIT 1");
+      $code = sprintf('%01.2f', 0 + $tmp['copay']);
+      echoLine(++$bill_lino, $newtype, $code, '', '', '1', '0', '1',
+        sprintf('%01.2f', 0 - $code));
+    }
+    else if ($newtype == 'PROD') {
+      $result = sqlQuery("SELECT * FROM drug_templates WHERE " .
+        "drug_id = '$newcode' AND selector = '$newsel'");
+      $units = max(1, intval($result['quantity']));
+      $prrow = sqlQuery("SELECT prices.pr_price " .
+        "FROM patient_data, prices WHERE " .
+        "patient_data.pid = '$pid' AND " .
+        "prices.pr_id = '$newcode' AND " .
+        "prices.pr_selector = '$newsel' AND " .
+        "prices.pr_level = patient_data.pricelevel " .
+        "LIMIT 1");
+      $fee = empty($prrow) ? 0 : $prrow['pr_price'];
+      echoProdLine(++$prod_lino, $newcode, FALSE, $units, $fee);
+    }
+    else {
+      list($code, $modifier) = explode(":", $newcode);
+      $ndc_info = '';
+      // If HCPCS, find last NDC string used for this code.
+      if ($newtype == 'HCPCS' && $ndc_applies) {
+        $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
+          "code_type = '$newtype' AND code = '$code' AND ndc_info LIKE 'N4%' " .
+          "ORDER BY date DESC LIMIT 1");
+        if (!empty($tmp)) $ndc_info = $tmp['ndc_info'];
+      }
+      echoLine(++$bill_lino, $newtype, $code, trim($modifier), $ndc_info);
+    }
+  }
 }
-
 ?>
 </table>
 </p>

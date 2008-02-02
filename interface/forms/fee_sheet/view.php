@@ -111,7 +111,6 @@ if ($_POST['bn_save']) {
   for ($lino = 1; $prod["$lino"]['drug_id']; ++$lino) {
     $iter = $prod["$lino"];
 
-    // TBD: Add a "billed" flag to drug_sales!
     if (!empty($iter['billed'])) continue;
 
     $drug_id   = $iter['drug_id'];
@@ -196,19 +195,25 @@ if ($_POST['bill']) {
     genDiagJS($iter["code_type"], $iter["code"]);
   }
 }
-if ($_POST['newtype']) {
-  list($code, $modifier) = explode(":", $_POST['newcode']);
-  genDiagJS($_POST['newtype'], $code);
+if ($_POST['newcodes']) {
+  $arrcodes = explode('~', $_POST['newcodes']);
+  foreach ($arrcodes as $codestring) {
+    if ($codestring === '') continue;
+    $arrcode = explode('|', $codestring);
+    list($code, $modifier) = explode(":", $arrcode[1]);
+    genDiagJS($arrcode[0], $code);
+  }
 }
 ?>
 
-function codeselect(selobj, newtype) {
+// This is invoked by <select onchange> for the various dropdowns,
+// including search results.
+function codeselect(selobj) {
  var i = selobj.selectedIndex;
  if (i > 0) {
   top.restoreSession();
   var f = document.forms[0];
-  f.newcode.value = selobj.options[i].value;
-  f.newtype.value = newtype;
+  f.newcodes.value = selobj.options[i].value;
   f.submit();
  }
 }
@@ -216,7 +221,7 @@ function codeselect(selobj, newtype) {
 function copayselect() {
  top.restoreSession();
  var f = document.forms[0];
- f.newtype.value = 'COPAY';
+ f.newcodes.value = 'COPAY||';
  f.submit();
 }
 
@@ -269,7 +274,6 @@ function validate(f) {
 function setJustify(seljust) {
  var theopts = seljust.options;
  var jdisplay = theopts[0].text;
-
  // Compute revised justification string.  Note this does nothing if
  // the first entry is still selected, which is handy at startup.
  if (seljust.selectedIndex > 0) {
@@ -282,7 +286,6 @@ function setJustify(seljust) {
    jdisplay += newdiag;
   }
  }
-
  // Rebuild selection list.
  var jhaystack = ',' + jdisplay + ',';
  var j = 0;
@@ -304,50 +307,60 @@ function setJustify(seljust) {
 <form method="post" action="<?php echo $rootdir; ?>/forms/fee_sheet/new.php"
  onsubmit="return validate(this)">
 <span class="title"><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Fee' : 'Coding' ?> <?php xl('Sheet','e');?></span><br>
-<input type='hidden' name='newtype' value=''>
-<input type='hidden' name='newcode' value=''>
+<input type='hidden' name='newcodes' value=''>
 
 <center>
 <table width='95%'>
 <?php
 $i = 0;
+$last_category = '';
 
-// Create all the drop-lists of preselected codes.
-//
-foreach ($bcodes as $key0 => $value0) {
-  foreach ($value0 as $key1 => $value1) {
+// Helper function for creating drop-lists.
+function endFSCategory() {
+  global $i, $last_category, $FEE_SHEET_COLUMNS;
+  if (! $last_category) return;
+  echo "   </select>\n";
+  echo "  </td>\n";
+  if ($i >= $FEE_SHEET_COLUMNS) {
+    echo " </tr>\n";
+    $i = 0;
+  }
+}
+
+// Create all the drop-lists of preselected service codes.
+$res = sqlStatement("SELECT * FROM fee_sheet_options " .
+  "ORDER BY fs_category, fs_option");
+while ($row = sqlFetchArray($res)) {
+  $fs_category = $row['fs_category'];
+  $fs_option   = $row['fs_option'];
+  $fs_codes    = $row['fs_codes'];
+  if($fs_category !== $last_category) {
+    endFSCategory();
+    $last_category = $fs_category;
     ++$i;
     echo ($i <= 1) ? " <tr>\n" : "";
     echo "  <td width='50%' align='center' nowrap>\n";
-    echo "   <select name='$key1' style='width:96%' onchange='codeselect(this, \"$key0\")'>\n";
-    echo "    <option value=''> $key1\n";
-    foreach ($value0[$key1] as $key2 => $value2) {
-      echo "    <option value='$key2'>$key2 $value2\n";
-    }
-    echo "   </select>\n";
-    echo "  </td>\n";
-    if ($i >= $FEE_SHEET_COLUMNS) {
-      echo " </tr>\n";
-      $i = 0;
-    }
+    echo "   <select style='width:96%' onchange='codeselect(this)'>\n";
+    echo "    <option value=''> " . substr($fs_category, 1) . "\n";
   }
+  echo "    <option value='$fs_codes'>" . substr($fs_option, 1) . "\n";
 }
+endFSCategory();
 
 // Create one more drop-list, for Products.
 if ($GLOBALS['sell_non_drug_products']) {
   ++$i;
   echo ($i <= 1) ? " <tr>\n" : "";
   echo "  <td width='50%' align='center' nowrap>\n";
-  echo "   <select name='Products' style='width:96%' onchange='codeselect(this, \"*PROD*\")'>\n";
+  echo "   <select name='Products' style='width:96%' onchange='codeselect(this)'>\n";
   echo "    <option value=''> " . xl('Products') . "\n";
   $tres = sqlStatement("SELECT dt.drug_id, dt.selector, d.name " .
     "FROM drug_templates AS dt, drugs AS d WHERE " .
     "d.drug_id = dt.drug_id " .
     "ORDER BY d.name, dt.selector, dt.drug_id");
   while ($trow = sqlFetchArray($tres)) {
-    $tmp = $trow['drug_id'] . ':' . $trow['selector'];
-    echo "    <option value='" . $trow['drug_id'] . ':' . $trow['selector'] . "'>" .
-      $trow['name'] . " (" . $trow['selector'] . ")</option>\n";
+    echo "    <option value='PROD|" . $trow['drug_id'] . '|' . $trow['selector'] . "'>" .
+      $trow['drug_id'] . ':' . $trow['selector'] . ' ' . $trow['name'] . "</option>\n";
   }
   echo "   </select>\n";
   echo "  </td>\n";
@@ -381,7 +394,7 @@ if ($_POST['bn_search'] && $_POST['search_term']) {
 }
 
 echo "   <select name='Search Results' style='width:98%' " .
-  "onchange='codeselect(this, \"$search_type\")'";
+  "onchange='codeselect(this)'";
 if (! $numrows) echo ' disabled';
 echo ">\n";
 echo "    <option value=''> Search Results ($numrows items)\n";
@@ -390,7 +403,8 @@ if ($numrows) {
   while ($row = sqlFetchArray($res)) {
     $code = $row['code'];
     if ($row['modifier']) $code .= ":" . $row['modifier'];
-    echo "    <option value='$code'>$code " . ucfirst(strtolower($row['code_text'])) . "\n";
+    echo "    <option value='$search_type|$code|'>$code " .
+      ucfirst(strtolower($row['code_text'])) . "</option>\n";
   }
 }
 
@@ -781,49 +795,49 @@ if ($_POST['prod']) {
   }
 }
 
-// If a new billing code was <select>ed, add its line here.  As a special
-// case allow HCPCS codes to be included in the CPT drop-lists, and
-// CPT4 codes included in OPCS drop-lists.
+// If new billing code(s) were <select>ed, add their line(s) here.
 //
-if ($_POST['newtype']) {
-  $newtype = $_POST['newtype'];
-  if ($newtype == 'COPAY') {
-    $tmp = sqlQuery("SELECT copay FROM insurance_data WHERE pid = '$pid' " .
-      "AND type = 'primary' ORDER BY date DESC LIMIT 1");
-    $code = sprintf('%01.2f', 0 + $tmp['copay']);
-    echoLine(++$bill_lino, $newtype, $code, '', '', '1', '0', '1',
-      sprintf('%01.2f', 0 - $code));
-  }
-  else if ($newtype == '*PROD*') {
-    list ($drug_id, $selector) = explode(':', $_POST['newcode']);
-    $result = sqlQuery("SELECT * FROM drug_templates WHERE " .
-      "drug_id = '$drug_id' AND selector = '$selector'");
-    $units = max(1, intval($result['quantity']));
-    $prrow = sqlQuery("SELECT prices.pr_price " .
-      "FROM patient_data, prices WHERE " .
-      "patient_data.pid = '$pid' AND " .
-      "prices.pr_id = '$drug_id' AND " .
-      "prices.pr_selector = '$selector' AND " .
-      "prices.pr_level = patient_data.pricelevel " .
-      "LIMIT 1");
-    $fee = empty($prrow) ? 0 : $prrow['pr_price'];
-    echoProdLine(++$prod_lino, $drug_id, FALSE, $units, $fee);
-  }
-  else {
-    list($code, $modifier) = explode(":", $_POST['newcode']);
-    if ($newtype == "CPT4" && preg_match("/^[A-Z]/", $code))
-      $newtype = "HCPCS";
-    else if ($newtype == "OPCS" && preg_match("/^[0-9]/", $code))
-      $newtype = "CPT4";
-    $ndc_info = '';
-    // If HCPCS, find last NDC string used for this code.
-    if ($newtype == 'HCPCS' && $ndc_applies) {
-      $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
-        "code_type = '$newtype' AND code = '$code' AND ndc_info LIKE 'N4%' " .
-        "ORDER BY date DESC LIMIT 1");
-      if (!empty($tmp)) $ndc_info = $tmp['ndc_info'];
+if ($_POST['newcodes']) {
+  $arrcodes = explode('~', $_POST['newcodes']);
+  foreach ($arrcodes as $codestring) {
+    if ($codestring === '') continue;
+    $arrcode = explode('|', $codestring);
+    $newtype = $arrcode[0];
+    $newcode = $arrcode[1];
+    $newsel  = $arrcode[2];
+    if ($newtype == 'COPAY') {
+      $tmp = sqlQuery("SELECT copay FROM insurance_data WHERE pid = '$pid' " .
+        "AND type = 'primary' ORDER BY date DESC LIMIT 1");
+      $code = sprintf('%01.2f', 0 + $tmp['copay']);
+      echoLine(++$bill_lino, $newtype, $code, '', '', '1', '0', '1',
+        sprintf('%01.2f', 0 - $code));
     }
-    echoLine(++$bill_lino, $newtype, $code, trim($modifier), $ndc_info);
+    else if ($newtype == 'PROD') {
+      $result = sqlQuery("SELECT * FROM drug_templates WHERE " .
+        "drug_id = '$newcode' AND selector = '$newsel'");
+      $units = max(1, intval($result['quantity']));
+      $prrow = sqlQuery("SELECT prices.pr_price " .
+        "FROM patient_data, prices WHERE " .
+        "patient_data.pid = '$pid' AND " .
+        "prices.pr_id = '$newcode' AND " .
+        "prices.pr_selector = '$newsel' AND " .
+        "prices.pr_level = patient_data.pricelevel " .
+        "LIMIT 1");
+      $fee = empty($prrow) ? 0 : $prrow['pr_price'];
+      echoProdLine(++$prod_lino, $newcode, FALSE, $units, $fee);
+    }
+    else {
+      list($code, $modifier) = explode(":", $newcode);
+      $ndc_info = '';
+      // If HCPCS, find last NDC string used for this code.
+      if ($newtype == 'HCPCS' && $ndc_applies) {
+        $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
+          "code_type = '$newtype' AND code = '$code' AND ndc_info LIKE 'N4%' " .
+          "ORDER BY date DESC LIMIT 1");
+        if (!empty($tmp)) $ndc_info = $tmp['ndc_info'];
+      }
+      echoLine(++$bill_lino, $newtype, $code, trim($modifier), $ndc_info);
+    }
   }
 }
 
