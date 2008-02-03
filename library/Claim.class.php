@@ -84,15 +84,17 @@ class Claim {
     //
     $this->invoice = array();
     if ($this->payerSequence() != 'P') {
-      SLConnect();
-      $arres = SLQuery("select id from ar where invnumber = " .
-        "'{$this->pid}.{$this->encounter_id}'");
-      if ($sl_err) die($sl_err);
-      $arrow = SLGetRow($arres, 0);
-      if ($arrow) {
-        $this->invoice = get_invoice_summary($arrow['id'], true);
-      }
-      SLClose();
+      if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
+        SLConnect();
+        $arres = SLQuery("select id from ar where invnumber = " .
+          "'{$this->pid}.{$this->encounter_id}'");
+        if ($sl_err) die($sl_err);
+        $arrow = SLGetRow($arres, 0);
+        if ($arrow) {
+          $this->invoice = get_invoice_summary($arrow['id'], true);
+        }
+        SLClose();
+      } 
       // Secondary claims might not have modifiers in SQL-Ledger data.
       // In that case, note that we should not try to match on them.
       $this->using_modifiers = false;
