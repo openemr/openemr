@@ -40,11 +40,19 @@ include 'includes/pnAPI.php';
 // From Michael Brinson 2006-09-19:
 if ($_POST['pc_username']) $_SESSION['pc_username'] = $_POST['pc_username'];
 
+//(CHEMED) Facility filter
+if ($_POST['all_users']) $_SESSION['pc_username'] = $_POST['all_users'];
+
 // bug fix to allow default selection of a provider
 if ($_GET['pc_username']) $_SESSION['pc_username'] = $_GET['pc_username'];
 
-// FACILITY FILTERING (lemonsoftware)
-$_SESSION['pc_facility'] = ( $_POST['pc_facility'] ) ? $_POST['pc_facility'] : '0';
+// (CHEMED) Get the width of vieport
+if ($_GET['framewidth']) $_SESSION['pc_framewidth'] = $_GET['framewidth'];
+
+// FACILITY FILTERING (lemonsoftware) (CHEMED)
+$_SESSION['pc_facility'] = 0;
+if ($_POST['pc_facility'])  $_SESSION['pc_facility'] = $_POST['pc_facility'];
+if ($_GET['pc_facility'])  $_SESSION['pc_facility'] = $_GET['pc_facility'];
 
 //if (empty($_GET['no_nav'])) {
 //        $_SESSION['last_calendar_page'] = $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING'];

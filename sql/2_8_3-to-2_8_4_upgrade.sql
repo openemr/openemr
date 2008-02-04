@@ -223,3 +223,6 @@ INSERT INTO fee_sheet_options VALUES ('2Established Patient','2Limited','CPT4|99
 INSERT INTO fee_sheet_options VALUES ('2Established Patient','3Detailed','CPT4|99213|');
 INSERT INTO fee_sheet_options VALUES ('2Established Patient','4Extended','CPT4|99214|');
 INSERT INTO fee_sheet_options VALUES ('2Established Patient','5Comprehensive','CPT4|99215|');
+
+ALTER TABLE `users`
+  ADD COLUMN `cal_ui` tinyint(4) NOT NULL DEFAULT 1 COMMENT 'Specifies calendar display style';

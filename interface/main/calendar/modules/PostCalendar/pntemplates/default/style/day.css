@@ -11,4 +11,5 @@ td.eventslist { border-style: ridge;border-color:#ffffff ;font-size: 10pt; backg
 td.eventsentry { border-style: ridge;border-color:#ffffff ; font-size: 10pt;background-color: #EEEEEE; }
 table.eventsentry { background-color: #EEEEEE; }
 table.calcontainer { border: 1px solid #000000; }
+.framed {border: 1px solid #000000}
 </style>

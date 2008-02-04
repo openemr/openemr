@@ -93,7 +93,7 @@ function getFacilities($first = '') {
 	while ( $row = sqlFetchArray($r) ) {
 	   $ret[] = $row;
 }
-	
+
         if ( $first == 'first') {
             return $ret[0]['id'];
         } else {
@@ -101,18 +101,51 @@ function getFacilities($first = '') {
         }
 }
 
-function getProviderInfo($providerID = "%", $providers_only = true) {
+/**
+GET SERVICE FACILITIES
+
+returns all service_location facilities or just the id for the first one
+(FACILITY FILTERING (CHEMED))
+
+@param string - if 'first' return first facility ordered by id
+@return array | int for 'first' case
+*/
+function getServiceFacilities($first = '') {
+	$r = sqlStatement("SELECT * FROM facility WHERE service_location != 0 ORDER BY id");
+	$ret = array();
+	while ( $row = sqlFetchArray($r) ) {
+	   $ret[] = $row;
+}
+
+        if ( $first == 'first') {
+            return $ret[0]['id'];
+        } else {
+            return $ret;
+        }
+}
+
+//(CHEMED) facility filter
+function getProviderInfo($providerID = "%", $providers_only = true, $facility = '' ) {
 	$param1 = "";
-	if ($providers_only) {
-		$param1 = "AND authorized=1";
-	}
+    if ($providers_only) {
+        $param1 = " AND authorized=1 ";
+    }
+
+    //--------------------------------
+    //(CHEMED) facility filter
+    $param2 = "";
+    if ($facility) {
+        $param2 = " AND facility_id = $facility ";
+    }
+    //--------------------------------
+
 	$command = "=";
 	if ($providerID == "%") {
 		$command = "like";
 	}
 	$query = "select distinct id, username, lname, fname, authorized, info, facility " .
 		"from users where username != '' and active = 1 and id $command '" .
-		mysql_real_escape_string($providerID) . "' " . $param1;
+		mysql_real_escape_string($providerID) . "' " . $param1 . $param2;
 	$rez = sqlStatement($query);
 	for($iter=0; $row=sqlFetchArray($rez); $iter++)
 		$returnval[$iter]=$row;
@@ -316,6 +349,23 @@ function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $ord
 function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
 	$sql="select $given from patient_data where ss like '$ss%' " .
+		"order by $orderby";
+
+	if ($limit != "all")
+		$sql .= " limit $start, $limit";
+
+	$rez = sqlStatement($sql);
+	for($iter=0; $row=sqlFetchArray($rez); $iter++)
+		$returnval[$iter]=$row;
+
+	return $returnval;
+}
+
+//(CHEMED) Search by phone number
+function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
+{
+    $phone = ereg_replace( "[[:punct:]]","", $phone );
+	$sql="select $given from patient_data where REPLACE(REPLACE(phone_home, '-', ''), ' ', '') REGEXP '$phone' " .
 		"order by $orderby";
 
 	if ($limit != "all")
@@ -840,7 +890,7 @@ function getPatientAge($dobYMD)
     return $age;
 }
 
-function dateToDB ($date) 
+function dateToDB ($date)
 {
 	$date=substr ($date,6,4)."-".substr ($date,3,2)."-".substr($date, 0,2);
 	return $date;

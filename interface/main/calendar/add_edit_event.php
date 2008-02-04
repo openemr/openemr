@@ -56,8 +56,8 @@
 // ===========================
 // EVENTS TO FACILITIES (lemonsoftware)
 // edit event case - if there is no association made, then insert one with the first facility
-if ( $eid ) {
-    $selfacil = ''; 
+/*if ( $eid ) {
+    $selfacil = '';
     $facility = sqlQuery("SELECT pc_facility, pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
     if ( !$facility['pc_facility'] ) {
         $qmin = sqlQuery("SELECT MIN(id) as minId FROM facility");
@@ -74,6 +74,39 @@ if ( $eid ) {
         $e2f = $minId;
     } else {
         $e2f = $facility['pc_facility'];
+    }
+}*/
+// EOS E2F
+// ===========================
+// ===========================
+
+// EVENTS TO FACILITIES (lemonsoftware)
+//(CHEMED) get facility name
+// edit event case - if there is no association made, then insert one with the first facility
+if ( $eid ) {
+    $selfacil = '';
+    $facility = sqlQuery("SELECT pc_facility, pc_multiple, pc_aid, facility.name
+                            FROM openemr_postcalendar_events
+                              LEFT JOIN facility ON (openemr_postcalendar_events.pc_facility = facility.id)
+                              WHERE pc_eid = $eid");
+    if ( !$facility['pc_facility'] ) {
+        $qmin = sqlQuery("SELECT facility_id as minId, facility FROM users WHERE id = ".$facility['pc_aid']);
+        $minId  = $qmin['minId'];
+        $min_name = $qmin['facility'];
+
+        // multiple providers case
+        if ( $GLOBALS['select_multi_providers'] ) {
+            $mul  = $facility['pc_multiple'];
+            sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = $min WHERE pc_multiple = $mul");
+        }
+        // EOS multiple
+
+        sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = $min WHERE pc_eid = $eid");
+        $e2f = $minId;
+        $e2f_name = $min_name;
+    } else {
+        $e2f = $facility['pc_facility'];
+        $e2f_name = $facility['name'];
     }
 }
 // EOS E2F
@@ -145,7 +178,7 @@ if ( $eid ) {
         $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple={$row['pc_multiple']}");
         while ($current = sqlFetchArray($up)) {
             $providers_current[] = $current['pc_aid'];
-        } 
+        }
 
         $providers_new = $_POST['form_provider'];
 
@@ -158,12 +191,12 @@ if ( $eid ) {
             }
         }
 
-        // this difference means that some providers was added 
-        // so we must insert this event for them 
+        // this difference means that some providers was added
+        // so we must insert this event for them
         $r2 = array_diff ($providers_new, $providers_current);
         if (count ($r2)) {
             foreach ($r2 as $to_be_inserted) {
-                sqlInsert("INSERT INTO openemr_postcalendar_events ( pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility) 
+                sqlInsert("INSERT INTO openemr_postcalendar_events ( pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility)
                 VALUES ( " .
                     "'" . $_POST['form_category']             . "', " .
                     "'" . $row['pc_multiple']             . "', " .
@@ -254,6 +287,7 @@ if ( $eid ) {
 // =======================================
 
   // EVENTS TO FACILITIES
+
   $e2f = (int)$eid;
 
 /* =======================================================
@@ -304,6 +338,7 @@ if (is_array($_POST['form_provider'])) {
     } // foreach
 
 } else {
+
 sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
     "pc_catid, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
     "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
@@ -401,7 +436,6 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
   echo "</script>\n</body>\n</html>\n";
   exit();
  }
-
  // If we get this far then we are displaying the form.
 
  $statuses = array(
@@ -438,7 +472,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
   $starttimem = substr($row['pc_startTime'], 3, 2);
   $repeats = $row['pc_recurrtype'];
   $multiple_value = $row['pc_multiple'];
- 
+
   if (preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', $row['pc_recurrspec'], $matches)) {
    $repeattype = $matches[1];
   }
@@ -462,6 +496,16 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
  $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE " .
   "authorized != 0 AND active = 1 ORDER BY lname, fname");
 
+ //-------------------------------------
+ //(CHEMED)
+ //Set default facility for a new event
+ if ($userid) {
+     $pref_facility = sqlFetchArray(sqlStatement("SELECT facility_id, facility FROM users WHERE id = $userid"));
+     $e2f = $pref_facility['facility_id'];
+     $e2f_name = $pref_facility['facility'];
+ }
+ //END of CHEMED -----------------------
+
  // Get event categories.
  $cres = sqlStatement("SELECT pc_catid, pc_catname, pc_recurrtype, pc_duration, pc_end_all_day " .
   "FROM openemr_postcalendar_categories ORDER BY pc_catname");
@@ -472,6 +516,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
   $startampm = '2';
   if ($starttimeh > 12) $starttimeh -= 12;
  }
+
 ?>
 <html>
 <head>
@@ -643,10 +688,16 @@ td { font-size:10pt; }
  // Invoke the find-available popup.
  function find_available() {
   top.restoreSession();
-  var s = document.forms[0].form_provider;
+  // (CHEMED) Conditional value selection, because there is no <select> element when making an appointment for a specific provider
+  <?php if ($userid != 0) { ?>
+      var s = document.forms[0].form_provider.value;
+  <?php } else {?>
+      var s = document.forms[0].form_provider.options[s.selectedIndex].value;
+  <?php }?>
   var c = document.forms[0].form_category;
-  dlgopen('find_appt_popup.php?providerid=' + s.options[s.selectedIndex].value +
+  dlgopen('find_appt_popup.php?providerid=' + s +
    '&catid=' + c.options[c.selectedIndex].value, '_blank', 500, 400);
+  //END (CHEMED) modifications
  }
 
  // Check for errors when the form is submitted.
@@ -750,12 +801,19 @@ td { font-size:10pt; }
     <tr>
       <td nowrap><b><?php xl('Facility','e'); ?>:</b></td>
       <td>
-      <select name="facility" id="facility">
+      <?php /*{CHEMED}*/
+       if ($userid != 0) { ?>
+      <input type='hidden' name="facility" id="facility" value='<?php echo $e2f; ?>'/>
+      <input type='input' readonly='readonly' name="facility_txt" value='<?php echo $e2f_name; ?>'/>
+      <?php } else {?>
+      <select name="facility" id="facility" >
       <?php
+
       // ===========================
       // EVENTS TO FACILITIES
+      //(CHEMED) added service_location WHERE clause
       // get the facilities
-      $qsql = sqlStatement("SELECT * FROM facility");
+      $qsql = sqlStatement("SELECT * FROM facility WHERE service_location != 0");
       while ($facrow = sqlFetchArray($qsql)) {
         $selected = ( $facrow['id'] == $e2f ) ? 'selected="selected"' : '' ;
         echo "<option value={$facrow['id']} $selected>{$facrow['name']}</option>";
@@ -763,6 +821,8 @@ td { font-size:10pt; }
       // EOS E2F
       // ===========================
       ?>
+      <?php }
+      //END (CHEMED) IF ?>
       </td>
       </select>
     </tr>
@@ -812,43 +872,58 @@ if ($eid) {
     }
 }
 
-// build the selection tool
-echo "<select name='form_provider[]' style='width:100%' multiple='multiple' size='5'>";
+        // build the selection tool
+        echo "<select name='form_provider[]' style='width:100%' multiple='multiple' size='5' >";
 
-while ($urow = sqlFetchArray($ures)) {
-    echo "    <option value='" . $urow['id'] . "'";
+        while ($urow = sqlFetchArray($ures)) {
+            echo "    <option value='" . $urow['id'] . "'";
 
-    if ($userid) {
-        if ( in_array($urow['id'], $providers_array) || ($urow['id'] == $userid) ) echo " selected";
-    }
+            if ($userid) {
+                if ( in_array($urow['id'], $providers_array) || ($urow['id'] == $userid) ) echo " selected";
+            }
 
-    echo ">" . $urow['lname'];
-    if ($urow['fname']) echo ", " . $urow['fname'];
-    echo "</option>\n";
- }
+            echo ">" . $urow['lname'];
+            if ($urow['fname']) echo ", " . $urow['fname'];
+            echo "</option>\n";
+         }
 
-echo '</select>';
+        echo '</select>';
+
 
 // =======================================
 // EOS  multi providers case
 // =======================================
 } else {
 ?>
-<select name='form_provider' style='width:100%'>
-<?
- while ($urow = sqlFetchArray($ures)) {
-  echo "    <option value='" . $urow['id'] . "'";
-  if ($userid) {
-   if ($urow['id'] == $userid) echo " selected";
-  } else {
-   if ($urow['id'] == $_SESSION['authUserID']) echo " selected";
-  }
-  echo ">" . $urow['lname'];
-  if ($urow['fname']) echo ", " . $urow['fname'];
-  echo "</option>\n";
- }
-?>
-   </select>
+ <?php /*{CHEMED}*/
+   if ($userid != 0) {
+     $urow = sqlFetchArray(sqlStatement("SELECT id, username, fname, lname FROM users WHERE id = $userid"));
+    // print_r($urow);exit;
+   ?>
+      <input type='hidden' name="form_provider" value='<?php echo $urow["id"] ?>'/>
+      <input type='input' readonly='readonly' name="form_provider_txt" value='<?php echo $urow['lname']; if ($urow['fname']) echo ", ".$urow['fname']; ?>'/>
+   <?php } else {?>
+
+    <select name='form_provider' style='width:100%' <?php if ($userid != 0) {echo "readonly=readonly";}/*{CHEMED}*/ ?>>
+    <?
+     while ($urow = sqlFetchArray($ures)) {
+      echo "    <option value='" . $urow['id'] . "'";
+      if ($userid) {
+       if ($urow['id'] == $userid) echo " selected";
+      } else {
+       if ($urow['id'] == $_SESSION['authUserID']) echo " selected";
+      }
+      echo ">" . $urow['lname'];
+      if ($urow['fname']) echo ", " . $urow['fname'];
+      echo "</option>\n";
+     }
+    ?>
+    </select>
+
+   <?php }
+   //END (CHEMED) IF
+ ?>
+
 <?php } ?>
 
 

@@ -1,0 +1,621 @@
+[-*Smarty*-]
+[-*********************************************************************************-]
+[-* This is the source code for both day/default.html and week/default.html.      *-]
+[-* They should always be identical.  If you change one, copy to the other!       *-]
+[-*********************************************************************************-]
+[-* Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com> and others          *-]
+[-* Copyright (C) 2008 CHEMED (Nethanel Vilensky) <techsupport@chemedhealth.org>  *-]
+[-*                                                                               *-]
+[-* This program is free software; you can redistribute it and/or                 *-]
+[-* modify it under the terms of the GNU General Public License                   *-]
+[-* as published by the Free Software Foundation; either version 2                *-]
+[-* of the License, or (at your option) any later version.                        *-]
+[-*********************************************************************************-]
+
+[-if $PRINT_VIEW == 1-]
+    [-* The new calendar interface is not printed correctly by Firefox (because of abs. positioned DOM elements) *-]
+    [-* so we have to use the older interface instead *-]
+    [-include file="$TPL_NAME/views/day/orig_default.html"-]
+[-else-]
+
+[-config_load file="default.conf"-]
+[-*Load the Language Definitions*-]
+[-config_load file="lang.$USER_LANG"-]
+[-include file="$TPL_NAME/views/header.html"-]
+[-* we want to include out stylesheet for this view*-]
+[-fetch file="$TPL_STYLE_PATH/day.css" assign="css"-]
+[-eval var=$css-]
+
+[-*Main Navigation*-]
+[-include file="$TPL_NAME/views/global/navigation.html"-]
+
+[-assign var="dayname" value=$DATE|date_format:"%w"-]
+[-assign var="day"     value=$DATE|date_format:"%d"|string_format:"%1d"-]
+[-assign var="month"   value=$DATE|date_format:"%m"|string_format:"%1d"-]
+[-assign var="year"    value=$DATE|date_format:"%Y"|string_format:"%4d"-]
+
+[-pc_sort_events var="S_EVENTS" sort="time" order="asc" value=$A_EVENTS-]
+
+<div class='cal_labels'>                                  [-* START Column labels *-]
+    [-foreach from=$providers item=provider-]
+    <div class='cal_column_line_label'></div>
+    <div class='cal_column_label'>[-$provider.lname-]</div>
+    [-/foreach-]
+</div>                                                    [-* END Column labels *-]
+
+
+<div class='cal_container'>                               [-* Main scrollable container *-]
+
+[-php-]
+
+//Used for sorting the event later
+function compareEvents($a,$b) {
+    $start_a = $a['start_slot'];
+    $start_b = $b['start_slot'];
+    $end_a = $a['end_slot'];
+    $end_b = $b['end_slot'];
+    $dur_a = $a['data']['duration'];
+    $dur_b = $b['data']['duration'];
+    $cat_a = $a['data']['catid'];
+    $cat_b = $b['data']['catid'];
+
+    //IN-OUT events are always the lowest in the list and show up right-most in the UI
+    if (($cat_a == '2') || ($cat_a == '3') || ($cat_a == '4') || ($cat_a == '8') || ($cat_a == '11')) {
+        return 1;
+    }
+    if (($cat_b == '2') || ($cat_b == '3') || ($cat_b == '4') || ($cat_b == '8') || ($cat_b == '11')) {
+        return -1;
+    }
+
+    if (($start_a == $start_b) &&
+       ($end_a == $end_b) &&
+       ($dur_a == $dur_b)) {return 0;} //Events are alike
+
+    if ($start_a == $start_b) { //Events start together
+        if ($dur_a != $dur_b) { //Simply sort by duration
+            return ($dur_a > $dur_b) ? -1 : 1;
+        } else {
+            return 0;
+        }
+    }
+
+    if ($start_a < $start_b) {    //a starts earlier than b
+        if ($end_a >= $end_b) { //events share slots
+            if ($dur_a != $dur_b) { //Simply sort by duration
+                return ($dur_a > $dur_b) ? -1 : 1;
+            } else {
+                return 0;
+            }
+        } else {                  //events do not share slots and $a is earlier than $b
+        return -1;
+        }
+    }
+
+    if ($start_b < $start_a) {    //b starts earlier than a
+        if ($end_b >= $end_a) { //events share slots
+            if ($dur_a != $dur_b) { //Simply sort by duration
+                return ($dur_a > $dur_b) ? -1 : 1;
+            } else {
+                return 0;
+            }
+        } else {                  //events do not share slots and $b is earlier than $a
+        return 1;
+        }
+    }
+}
+
+    //Configuration
+
+    /*
+    ------------------------ <= $calendar_width => -------------------------------------------
+    |<= $line_label_width => | <= $column_width => ||...         |...                        |
+    ------------------------------------------------------------------------------------------
+    |...                     | ...                 ||...         |...                        |
+    ------------------------------------------------------------------------------------------
+
+    In a couple of places I am adding +1 to sizes. This is to account for extra 1px wide border around elements.
+    */
+
+    $day_start_y        = 30; //Used for multiday display
+
+    $start_hour         = $GLOBALS['schedule_start'];
+    $end_hour           = $GLOBALS['schedule_end'];
+
+    $slot_minutes       = $GLOBALS['calendar_interval'];
+
+    if ($PRINT_VIEW != 1) {
+        $container_width    = $_SESSION['pc_framewidth'] - 20;
+    } else {
+        $container_width    = 900; //Make it fit to a landscape letter-sized paper
+    }
+
+    $line_height        = 80;
+
+    $line_label_width   = 40;
+    $scrollbar_width    = 30;
+
+    $calendar_width     = $container_width - $scrollbar_width;
+
+    $columns            = count($providers);
+    $column_width       = ($calendar_width / $columns) - $line_label_width;
+
+    $hour_slots         = 60 / $slot_minutes;
+    $hour_height        = $hour_slots * $slot_height;
+
+    $slots_count = ($end_hour - $start_hour) * $hour_slots + 1; //How many slots will we have per day
+    $calendar_height = $line_height * ($slots_count + 1) + 20;
+
+    //Generate columns (each column is a provider)
+    // ['count']        how many columns we have altogether
+    // ['pid']['index'] which column is it counting from the left (0 based)
+    // ['pid']['x']     how far from the left edge the column starts (in pixels)
+    $columns = array('count' => 0);
+    foreach ($providers as $provider) {
+        $pid = $provider['id'];
+        $columns[$pid]['index'] = $columns['count']++;
+        $columns[$pid]['x'] = (($columns[$pid]['index'] + 1) * ($line_label_width + 1)) + ($column_width * $columns[$pid]['index']);
+    }
+
+    //Re-Index categories array to make it more usefull
+    $categories = array();
+    foreach ($A_CATEGORY as & $category) {
+        $categories[$category['id']] = $category;
+    }
+
+    //For each day...
+    foreach ($A_EVENTS as $date => $event_list) {
+
+        //Generate labels and positions for all the calendar lines
+        $lines = array();           //This will hold metadata for each visual calendar line
+        $hour = $start_hour;
+        $minutes = 0;
+
+        for ($i = 1; $i <= $slots_count; $i++) {
+            $lines[$i] = array();
+            $lines[$i]['index'] = $i;
+            $lines[$i]['ampm'] = $hour >= 12 ? '2' : '1';             //For the links
+            $lines[$i]['ampm_char'] = $hour >= 12 ? 'pm' : 'am';      //Visual representation
+            $lines[$i]['hour'] = $hour > 12 ? $hour - 12 : $hour;
+            $lines[$i]['min'] = $minutes;
+            $lines[$i]['date'] = $date;
+            $lines[$i]['label'] = $lines[$i]['hour'].":".str_pad($minutes, 2, '0', STR_PAD_LEFT).'&nbsp;<br />'.$lines[$i]['ampm_char'].'&nbsp;';
+            $lines[$i]['y'] = ($i-1) * ($line_height + 1) + $day_start_y; //Where to absolutely position the line
+
+            //Go to the next slot
+            $minutes += $slot_minutes;
+            if (($i % $hour_slots) == 0) { //New hour starts
+                $hour++;
+                $minutes = 0;
+            }
+        }
+
+        $arr_events = $S_EVENTS[$date];
+
+        $events = array();      //Temporary array for enumerating the events
+        $slots = array();       //This is the map of slots showing how many events share the slot and the CSS style for IN-OUT events
+        $provstat = array();    //Used to gray out the slots for which the provider is not available (out of office)
+
+        //Initialize the slot map with defaul values
+        // ['adj']      Used for adjusting the chip's width and position from the left column edge (see further below)
+        // ['n']        How many events share the same slot
+        // ['provstat'] CSS style name as a visual cue that provider is available or not
+        foreach($providers as $provider) {
+            $slots[$provider['id']] = array();
+            for ($i = 1; $i <= $slots_count; $i++) {
+                $slots[$provider['id']][$i] = array('adj' => 0, 'n' => 0, 'provstat' => 'cal_slot_out');
+            }
+        }
+
+        //Go through all the events for the day
+        list($slotkey, $slotevent) = each($arr_events);
+        for (; isset($slotkey); list($slotkey, $slotevent) = each($arr_events)) {
+            $starth = substr($slotevent['startTime'], 0, 2);
+            $startm = substr($slotevent['startTime'], 3, 2);
+            $providerid = $slotevent['aid'];
+
+            $start_slot = ($starth - $start_hour) * $hour_slots + floor($startm / $slot_minutes) + 1;
+            $durminutes = ceil($slotevent['duration'] / 60); //Convert from seconds to minutes
+
+            //$durslots is the amount of slots the chip touches, even if it does not fill a complete slot
+            $durslots = ceil((($startm % $slot_minutes) + $durminutes) / $slot_minutes);
+            if ($durslots == 0) {                                //Event should take up at least one slot
+                $durslots = 1;
+                $durminutes = $slot_minutes;
+            }
+
+            if (($start_slot + $durslots) > $slots_count) {      //Event should not be longer than visible calendar
+                $durslots = $slots_count - $start_slot + 1;
+                $durminutes = $durslots * $slot_minutes;
+            }
+
+            $end_slot = $start_slot + $durslots;
+
+            //Events such as IN, OUT etc. require special handling (setting the CSS class name in the $slots map)
+            if ($slotevent['catid'] == 2) {
+                for ($i = $start_slot; $i <= $slots_count; $i++) {
+                    $slots[$providerid][$i]['provstat'] = 'cal_slot_in';
+                }
+            }
+
+            if ($slotevent['catid'] == 3) {
+                for ($i = $start_slot; $i <= $slots_count; $i++) {
+                    $slots[$providerid][$i]['provstat'] = 'cal_slot_out';
+                }
+            }
+
+            if ($slotevent['catid'] == 4) {
+                for ($i = $start_slot; $i < $start_slot + $durslots; $i++) {
+                    $slots[$providerid][$i]['provstat'] = 'cal_slot_out';
+                }
+            }
+
+            if ($slotevent['catid'] == 8) {
+                for ($i = $start_slot; $i < $start_slot + $durslots; $i++) {
+                    $slots[$providerid][$i]['provstat'] = 'cal_slot_out';
+                }
+            }
+            //END special events handling
+
+            //Mark slots as taken and count the chips in each slot
+            for ($i = $start_slot; $i < $end_slot; $i++) {
+                $slots[$providerid][$i]['n']++;
+            }
+
+            //Calculate event chip dimensions
+            $x = $columns[$providerid]['x'];
+            $y = $lines[$start_slot]['y'];
+            $w = $column_width;
+            $h = $durslots * ($line_height + 1) - 2;
+
+            $slotevent['duration'] = $durminutes; //Convert from seconds to minutes
+
+            //Add event to the list for rendering
+            //attaching the category and event data from the database
+            if ($slotevent['eid'] != '') { //For some reason empty $slotevent sometimes exist. TODO: Figure out why
+                $events[$providerid][] = array(
+                    'left'       => $x,
+                    'top'        => $y,
+                    'width'      => $w,
+                    'height'     => $h,
+                    'start_slot' => $start_slot,
+                    'end_slot'   => $end_slot,
+                    'category'   => $categories[$slotevent['catid']],
+                    'data'       => $slotevent
+                );
+            }
+
+        }
+
+        $ready_events = array(); //This array will hold events with fully adjusted position
+
+
+        list($providerid, $events_list) = each($events);
+        for (; isset($providerid); list($providerid, $events_list) = each($events)) {
+
+/* Sorting debug:           foreach ($events_list as $ev) {
+                print('ID: '.$ev['data']['eid'].'&nbsp;');
+                print('Start: '.$ev['start_slot'].'&nbsp;End:'.$ev['end_slot'].'&nbsp;');
+                print('Duration: '.$ev['data']['duration'].'&nbsp;');
+                print('Top: '.$ev['top'].'&nbsp;Left:'.$ev['left'].'&nbsp;');
+                print('---------------<br />');
+            }
+            print "#########################################################################Sorting...<br />";*/
+
+            //Sort events so that they as much as possible do NOT overlap
+            usort($events_list, "compareEvents");
+
+/* Sorting debug:            foreach ($events_list as $ev) {
+                print('ID: '.$ev['data']['eid'].'&nbsp;');
+                print('Start: '.$ev['start_slot'].'&nbsp;End:'.$ev['end_slot'].'&nbsp;');
+                print('Duration: '.$ev['data']['duration'].'&nbsp;');
+                print('Top: '.$ev['top'].'&nbsp;Left:'.$ev['left'].'&nbsp;');
+                print('---------------<br />');
+            }
+            exit;*/
+
+            if (!isset($ready_events[$providerid])) {$ready_events[$providerid] = array();}
+            foreach ($events_list as $event) {
+                $neighbors = 1;
+                //Find the max neccesary width divisor (how thin to make this chip)
+                //by going over each slot the chip overlays and seeing how many others are there
+                for ($i = $event['start_slot']; $i < $event['end_slot']; $i++) {
+                    if ($slots[$providerid][$i]['n'] > $neighbors) {$neighbors = $slots[$providerid][$i]['n'];}
+                    $slots[$providerid][$i]['adj']++;
+                }
+                //Adjust chip position and width (the magic number 3 adjusts for chip borders and the space between chips)
+                $event['width'] = floor(($column_width - ($neighbors * 3)) / $neighbors);
+                $event['left']  = $event['left'] + (($event['width'] + 3) * ($slots[$providerid][$event['start_slot']]['adj'] - 1));
+                $ready_events[$providerid][] = $event;
+            }
+          //usort($ready_events[$providerid], "compareEvents");
+        }
+
+
+        //Marshall some variables to Smarty engine
+        $this->assign('container_width', $container_width);
+        $this->assign('calendar_width', $calendar_width);
+        $this->assign('date', $date);
+        $this->assign_by_ref('lines', $lines);
+        $this->assign('line_height', $line_height);
+        $this->assign('hour_height', $hour_height);
+        $this->assign('line_label_width', $line_label_width);
+        $this->assign('column_width', $column_width);
+        $this->assign_by_ref('events', $ready_events);
+        $this->assign_by_ref('slots', $slots);
+        $this->assign('date_label_y', $day_start_y - 30);
+        $this->assign('calendar_height', $calendar_height);
+
+[-/php-]
+
+
+    <div class='cal_underlay'>
+        <div class='cal_date_label' style='top: [-$date_label_y-]'>[-$date|date_format:"%A, %B %d, %Y"-]</div>
+        [-foreach from=$lines item=line-]                       [-* START Lines *-]
+        <div class='cal_line' style='top: [-$line.y-]px;'>
+            [-foreach from=$providers item=provider-]              [-* START Columns (Providers) *-]
+            <div class='cal_line_label' onClick="javascript:newEvt([-$line.ampm-], [-$line.hour-], [-$line.min-], [-$line.date|date_format:'%Y%m%d'-], [-$provider.id-], 0)">
+                [-*<a href="javascript:newEvt([-$line.ampm-], [-$line.hour-], [-$line.min-], [-$line.date|date_format:'%Y%m%d'-], [-$provider.id-], 0)">*-]
+                [-$line.label-]&nbsp;
+                [-*</a>*-]
+            </div>      [-* Line label (hour:min) *-]
+
+            [-assign var=pid value=$provider.id-]
+            [-assign var=lineindex value=$line.index-]
+            <div class='cal_slot [-$slots.$pid.$lineindex.provstat-]'>&nbsp;</div>
+            [-*php-]print_r($slots);Exit;[-/php*-]
+            [-/foreach-]                                           [-* END Columns (Providers) *-]
+        </div>
+        [-/foreach-]                                            [-* END Lines *-]
+    </div>
+
+    <div class='cal_overlay'>                                [-* START Events overlay *-]
+    [-* We should access $events through $provider.id index to only show events for selected providers *-]
+    [-foreach from=$providers item=provider-]                  [-* START Columns (Providers) *-]
+        [-assign var=pid value=$provider.id-]
+        [-assign var=column value=$events.$pid-]
+        [-foreach from=$column item=event-]                      [-* START Events  *-]
+        [-if $event.data.catid eq 2 || $event.data.catid eq 3 || $event.data.catid eq 4 || $event.data.catid eq 8 || $event.data.catid eq 11-]
+            <div class='cal_event_na' style='top:    [-$event.top-]px;
+                                             left:   [-$event.left-]px;
+                                             width:  [-$event.width-]px;
+                                             height: [-$event.height-]px;'>
+            <a href='javascript:oldEvt([-$event.data.eventDate|date_format:"%Y%m%d"-], [-$event.data.eid-])'>
+            [-if $event.data.catid eq 2-]
+            IN
+            [-elseif $event.data.catid eq 3-]
+            OUT
+            [-elseif $event.data.catid eq 4-]
+            VACATION
+            [-elseif $event.data.catid eq 8-]
+            LUNCH
+            [-elseif $event.data.catid eq 11-]
+            RESERVED
+            [-else-]
+            Not Available
+            [-/if-]
+            </a>
+            </div>
+        [-else-]
+            <div class='cal_event' style='top:    [-$event.top-]px;
+                                          left:   [-$event.left-]px;
+                                          width:  [-$event.width-]px;
+                                          height: [-$event.height-]px;
+                                          background-color: [-$event.category.color-];'>
+           <p>
+              <span class='cal_event_status'>[-$event.data.apptstatus-]</span>
+              <a href='javascript:oldEvt([-$event.data.eventDate|date_format:"%Y%m%d"-], [-$event.data.eid-])'>
+               [-$event.data.startTime|date_format:"%I:%M %p"-]
+              </a>
+           </p>
+           <p>[-$event.data.duration-]min</p>
+           <p><a href='javascript:goPid([-$event.data.pid-])'>[-$event.data.patient_name|default:'No name'-]</a></p>
+           <p>[-if $event.data.patient_dob ne ''-]Age: [-$event.data.patient_age-][-/if-]</p>
+           [-if $event.data.hometext ne ''-]<p>[-$event.data.hometext|escape-]</p>[-/if-]
+
+            </div>
+        [-/if-]
+        [-/foreach-]                                             [-* END Events *-]
+    [-/foreach-]                                                [-* END Columns (Providers) *-]
+    </div>                                                    [-* END Events overlay *-]
+
+
+[-php-]
+        //For multiday display we have to make the calendar larger
+        $day_start_y += ($line_height * ($slots_count+1)) + 50;
+        $calendar_height += $calendar_height;
+    }
+
+[-/php-]
+</div>                                                    [-* END Main scrollable container *-]
+<style>
+    p {
+        margin: 0px 0px 0px 2px;
+        padding: 0px;
+    }
+
+    .cal_container {
+        [-if $PRINT_VIEW != 1-]
+            position: absolute;
+            top: 80px;
+        [-else-]
+            position: relative;
+            top: 60px;
+        [-/if-]
+        left: 2px;
+        width: [-$container_width-]px;
+        [-if $PRINT_VIEW != 1-]
+            height: 82%; /* Unfortunately there is no way to reliably get a viewport height. */
+            overflow-y: scroll;
+        [-else-]
+            height: [-$calendar_height-]px;
+            overflow: visible;
+        [-/if-]
+        border: solid 1px #A2BBDD;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .cal_underlay {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        top: 0px;
+        left: 0px;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .cal_overlay {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        padding: 0px;
+        margin: 0px;
+    }
+
+
+    .cal_line {
+        position: absolute;
+        width: 100%;
+        height: [-$line_height-]px;
+        border-bottom: solid 1px #CCCCCC;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .cal_slot {
+        width: [-$column_width-]px;
+        height: 100%;
+        float: left;
+        border-left: solid 1px #CCCCCC;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .cal_slot_in {
+        background-color: #FFFFFF;
+    }
+    .cal_slot_out {
+        background-color: #EEEEEE;
+    }
+
+    .cal_line_label {
+        width: [-$line_label_width-]px;
+        height: [-$line_height-]px;
+        float: left;
+        background-color: #E8EEF7;
+        color: #333399;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        font-weight: normal;
+        text-align: right;
+        vertical-align: top;
+        padding: 0px 0px 0px 0px;
+        margin: 0px;
+    }
+
+    .cal_column_line_label {
+        width: [-$line_label_width-]px;
+        height: 100%;
+        float: left;
+        padding: 0px;
+        margin: 0px;
+        background-color: #E8EEF7;
+        color: #333399;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        font-weight: normal;
+        text-align: right;
+        vertical-align: top;
+        padding: 0px 0px 0px 0px;
+        margin: 0px;
+
+    }
+
+    .cal_labels {
+        position: absolute;
+        width: [-$container_width-]px;
+        height: 20px;
+        border: solid 1px #CCCCCC;
+        padding: 0px;
+        margin: 0px;
+        [-if $PRINT_VIEW != 1-]
+            top: 57px;
+        [-else-]
+            top: 20px;
+        [-/if-]
+    }
+
+    .cal_column_label {
+        top: 80px;
+        left: 0px;
+        width: [-$column_width-]px;
+        height: 100%;
+        float: left;
+        border-left: solid 1px #CCCCCC;
+        text-align: center;
+        font-weight: bold;
+        padding: 0px;
+        margin: 0px;
+    }
+
+    .cal_date_label {
+        position: absolute;
+        left: 0px;
+        width: 100%;
+        height: 20;
+        text-align: center;
+        font-weight: bold;
+        padding: 0px;
+        margin: 0px;
+        background-color: #B0C4DE;
+    }
+
+    .cal_event {
+        position: absolute;
+        font-size: 9px;
+        border-top: solid 1px #EEEEEE;
+        border-bottom: solid 1px #000000;
+        border-left: solid 1px #EEEEEE;
+        border-right: solid 1px #000000;
+        padding: 0px;
+        margin: 0px;
+        z-index: 1;
+        background-color: #FFFFFF;
+        font-family: Arial, Helvetica, sans-serif;
+        font-style: italic;
+        font-weight: normal;
+        font-size: 11px;
+        overflow: hidden;
+    }
+
+    .cal_event_na {
+        position: absolute;
+        font-size: 9px;
+        padding: 2px;
+        z-index: 1;
+        margin: 0px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-style: italic;
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    .cal_event_status {
+        background-color:  #E8EEF7;
+        color: #000000;
+        font-family: Courier, mono;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: bold;
+        float: right;
+        border-left: solid 1px #CCCCCC;
+        border-bottom: solid 1px #CCCCCC;
+        margin: 0px;
+        padding: 0px 1px 0px 2px;
+    }
+</style>
+
+</body>
+</html>
+[-/if-]

@@ -5,12 +5,12 @@
  *  PostCalendar::PostNuke Events Calendar Module
  *  Copyright (C) 2002  The PostCalendar Team
  *  http://postcalendar.tv
- *  
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
- *  
+ *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -47,7 +47,12 @@ function smarty_function_pc_url($args)
 
 	$template_view = pnVarCleanFromInput('tplview');
 	$viewtype = strtolower(pnVarCleanFromInput('viewtype'));
-    $pc_username = pnVarCleanFromInput('pc_username');
+    // pnVarCleanFromInput('pc_username'); //(CHEMED) replaced by the code below
+    //(CHEMED) Facility filtering
+    $pc_username = $_SESSION['pc_username'];
+    $pc_facility = $_SESSION['pc_facility'];
+    //END (CHEMED)
+
 	$category = pnVarCleanFromInput('pc_category');
 	$topic = pnVarCleanFromInput('pc_topic');
 	$popup = pnVarCleanFromInput('popup');
@@ -84,6 +89,7 @@ function smarty_function_pc_url($args)
             $link = pnModURL(__POSTCALENDAR__,'user','view',array('tplview'=>$template_view,
 																  'viewtype'=>'day',
 																  'Date'=>$Date,
+                                                                  'pc_facility'=>$pc_facility,
 																  'pc_username'=>$pc_username,
 																  'pc_category'=>$category,
 																  'pc_topic'=>$topic,
@@ -94,6 +100,7 @@ function smarty_function_pc_url($args)
             $link = pnModURL(__POSTCALENDAR__,'user','view',array('tplview'=>$template_view,
 																  'viewtype'=>'week',
 																  'Date'=>$Date,
+                                                                  'pc_facility'=>$pc_facility,
 																  'pc_username'=>$pc_username,
 																  'pc_category'=>$category,
 																  'pc_topic'=>$topic,
@@ -104,6 +111,7 @@ function smarty_function_pc_url($args)
             $link = pnModURL(__POSTCALENDAR__,'user','view',array('tplview'=>$template_view,
 																  'viewtype'=>'month',
 																  'Date'=>$Date,
+                                                                  'pc_facility'=>$pc_facility,
 																  'pc_username'=>$pc_username,
 																  'pc_category'=>$category,
 																  'pc_topic'=>$topic,
@@ -114,6 +122,7 @@ function smarty_function_pc_url($args)
             $link = pnModURL(__POSTCALENDAR__,'user','view',array('tplview'=>$template_view,
 																  'viewtype'=>'year',
 																  'Date'=>$Date,
+                                                                  'pc_facility'=>$pc_facility,
 																  'pc_username'=>$pc_username,
 																  'pc_category'=>$category,
 																  'pc_topic'=>$topic,

@@ -1279,6 +1279,7 @@ CREATE TABLE `users` (
   `phonew2`    varchar(30)  NOT NULL DEFAULT '',
   `phonecell`  varchar(30)  NOT NULL DEFAULT '',
   `notes`      text         NOT NULL DEFAULT '',
+  `cal_ui`     tinyint(4)   NOT NULL DEFAULT 1,
   PRIMARY KEY  (`id`)
 ) ;
 

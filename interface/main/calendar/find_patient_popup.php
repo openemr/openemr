@@ -19,6 +19,8 @@
 
   if ($searchby == "Last") {
    $result = getPatientLnames("$searchparm","*");
+  } elseif ($searchby == "Phone") {                  //(CHEMED) Search by phone number
+   $result = getPatientPhone("$searchparm","*");
   } elseif ($searchby == "ID") {
    $result = getPatientId("$searchparm","*");
   } elseif ($searchby == "DOB") {
@@ -71,6 +73,8 @@ td { font-size:10pt; }
    <?php xl('Search by:','e'); ?>
    <select name='searchby'>
     <option value="Last"><? xl ('Name','e'); ?></option>
+    <!-- (CHEMED) Search by phone number -->
+    <option value="Phone"<? if ($searchby == 'Phone') echo ' selected' ?>><? xl ('Phone','e'); ?></option>
     <option value="ID"<? if ($searchby == 'ID') echo ' selected' ?>><? xl ('ID','e'); ?></option>
     <option value="SSN"<? if ($searchby == 'SSN') echo ' selected' ?>><? xl ('SSN','e'); ?></option>
     <option value="DOB"<? if ($searchby == 'DOB') echo ' selected' ?>><? xl ('DOB','e'); ?></option>
@@ -97,6 +101,7 @@ td { font-size:10pt; }
 <table border='0'>
  <tr>
   <td><b><? xl ('Name','e'); ?></b></td>
+  <td><b><? xl ('Phone','e'); ?></b></td> <!-- (CHEMED) Search by phone number -->
   <td><b><? xl ('SS','e'); ?></b></td>
   <td><b><? xl ('DOB','e'); ?></b></td>
   <td><b><? xl ('ID','e'); ?></b></td>
@@ -112,6 +117,7 @@ td { font-size:10pt; }
     "onclick='return selpid($iterpid, \"$iterlname\", \"$iterfname\", \"$iterdob\")'>";
    echo " <tr>";
    echo "  <td>$anchor$iterlname, $iterfname $itermname</a></td>\n";
+   echo "  <td>$anchor" . $iter['phone_home'] . "</a></td>\n"; //(CHEMED) Search by phone number
    echo "  <td>$anchor" . $iter['ss'] . "</a></td>\n";
    echo "  <td>$anchor" . $iter['DOB'] . "</a></td>\n";
    echo "  <td>$anchor" . $iter['pubpid'] . "</a></td>\n";

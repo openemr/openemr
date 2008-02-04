@@ -60,11 +60,22 @@ if ($_GET["mode"] == "update") {
   if ($_GET["facility_id"]) {
           $tqvar = addslashes($_GET["facility_id"]);
           sqlStatement("update users set facility_id = '$tqvar' where id = {$_GET["id"]}");
+          //(CHEMED) Update facility name when changing the id
+          sqlStatement("update users set facility = (SELECT facility.name FROM facility WHERE facility.id = '$tqvar' LIMIT 1) where id = {$_GET["id"]}");
+          //END (CHEMED)
   }
   if ($_GET["fname"]) {
           $tqvar = addslashes($_GET["fname"]);
           sqlStatement("update users set fname='$tqvar' where id={$_GET["id"]}");
   }
+
+  //(CHEMED) Calendar UI preference
+  if ($_GET["cal_ui"]) {
+          $tqvar = addslashes($_GET["cal_ui"]);
+          sqlStatement("update users set cal_ui = '$tqvar' where id = {$_GET["id"]}");
+  }
+  //END (CHEMED) Calendar UI preference
+
   if ($_GET["newauthPass"] && $_GET["newauthPass"] != "d41d8cd98f00b204e9800998ecf8427e") { // account for empty
     $tqvar = addslashes($_GET["newauthPass"]);
     sqlStatement("update users set password='$tqvar' where id={$_GET["id"]}");
@@ -162,6 +173,21 @@ foreach($result as $iter2) {
 
 <td><span class="text"><? xl('Job Description','e'); ?>: </span></td><td><input type="text" name="job" size="20" value="<? echo $iter["specialty"]?>"></td>
 </tr>
+<!-- (CHEMED) Calendar UI preference -->
+<tr>
+<td><span class="text"><? xl('Calendar UI','e'); ?>: </span></td><td><select name="cal_ui">
+<?php
+ foreach (array(1 => xl('Default'), 2 => xl('Fancy')) as $key => $value)
+ {
+  echo " <option value='$key'";
+  if ($key == $iter['cal_ui']) echo " selected";
+  echo ">$value</option>\n";
+ }
+?>
+</select></td>
+<td>&nbsp;</td>
+</tr>
+<!-- END (CHEMED) Calendar UI preference -->
 
 <?php
  // Collect the access control group of user

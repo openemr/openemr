@@ -66,7 +66,10 @@ function authNewSession ($user, $pass, $provider)
 	  session_start();
 	}
 	//echo "user is: $user pass is: $pass provider is: $provider<br />";
-	$authDB = sqlQuery("select id, password, authorized, see_auth from users " .
+
+    //(CHEMED) added cal_ui to the list of fields, so we can change calendar UI for this user.
+    // Is this the right place to do it?
+	$authDB = sqlQuery("select id, password, authorized, see_auth, cal_ui from users " .
 		"where username = '$user'");
 	//echo "<br>auth pass: ".$authDB['password'];
 	if ($authDB['password'] == $pass)
@@ -79,6 +82,7 @@ function authNewSession ($user, $pass, $provider)
 			$_SESSION['authPass'] = $pass;
 			$_SESSION['authProvider'] = $provider;
 			$_SESSION['authId'] = $authDB{'id'};
+            $_SESSION['cal_ui'] = $authDB['cal_ui'];
 			$_SESSION['userauthorized'] = $authDB['authorized'];
 			// Some users may be able to authorize without being providers:
 			if ($authDB['see_auth'] > '2') $_SESSION['userauthorized'] = '1';

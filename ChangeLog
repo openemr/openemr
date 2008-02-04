@@ -1,3 +1,27 @@
+2008-02-04 Changes made to OpenEMR by CHEMED
+1. Each user is associated with one facility (Default Facility) in the interface
+2. Calendar will not be able to schedule appointments in a facility other than default for the user.
+3. When clicking on the time slot to make an appointment the popup form is populated with relevant user and his facility.
+   These fields are made read only.
+4. When scheduling a new appointment using "Add" button the user and facility fields are editable.
+5. The Calendar is redesigned.
+   a) All the columns are of equial width.
+   b) Calendar view resizes itself on the browser window resize
+   c) Events are presented as colored chips overlaying the calendar, so the length of event is apparent.
+   d) IN/OUT/LUNCH etc. events are visually different from others (do not look like chips).
+   e) View (day/week/year) is selected by buttons.
+   f) When mousing over an icon to the left of jumpdate field user is presented with a popup overlay that
+      allows him to select a date from a calendar or some users from a list or a facility.
+   g) Facility change is immediate (no need to click on "Go" button).
+   h) To dismiss this popup user have to mouse over the icon again.
+   i) When printing the calendar old template wil be used, because of the problem in Firefox, which only
+      prints a first page of absolutely positioned DOM elements. New interface printing does work in IE.
+   j) The column headers stay in place and only the events list scrolls down.
+   k) Appointment Status symbol is shown in a top-right corner of event chip.
+6. When selecting a patient for an appointment it is possible to search by whole or part of a phone number.
+7. Bug: Calendar showed '12pm' as '12am'
+8. Bug: The time on the event chip was in 24 hours format, changed to am/pm format.
+9. Calendar UI choice is now a per-user option (new field added to users table).
 ------------------------------------------------------------------------
 2007-06-05 lemonsoftware Added multiple_providers option 
 This customization was made for Dutch version. It is controlled in globals.php

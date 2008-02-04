@@ -280,6 +280,21 @@ if ($fres) {
 <td><span class="text"><? xl('NPI','e'); ?>: </span></td><td><input type="entry" name="npi" size="20"></td>
 <td><span class="text"><? xl('Job Description','e'); ?>: </span></td><td><input type="entry" name="specialty" size="20"></td>
 </tr>
+<!-- (CHEMED) Calendar UI preference -->
+<tr>
+<td><span class="text"><? xl('Calendar UI','e'); ?>: </span></td><td><select name="cal_ui">
+<?php
+ foreach (array(1 => xl('Default'), 2 => xl('Fancy')) as $key => $value)
+ {
+  echo " <option value='$key'";
+  if ($key == $iter['cal_ui']) echo " selected";
+  echo ">$value</option>\n";
+ }
+?>
+</select></td>
+<td>&nbsp;</td>
+</tr>
+<!-- END (CHEMED) Calendar UI preference -->
 
 <?php
  // List the access control groups if phpgacl installed

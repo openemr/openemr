@@ -146,7 +146,7 @@ Calendar.setup = function (params) {
 		}
 		cal.create(params.flat);
 		cal.show();
-		return false;
+		return cal; // was "return false;" (fix from Nethanel Vilensky for OpenEMR)
 	}
 
 	var triggerEl = params.button || params.displayArea || params.inputField;

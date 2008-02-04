@@ -420,7 +420,19 @@ function postcalendar_userapi_buildView($args)
 
 		$tpl->assign('STYLE',$GLOBALS['style']);
 		$tpl->assign('show_days',$show_days);
-		$provinfo = getProviderInfo();
+        //==================================
+        //FACILITY FILTERING (CHEMED)
+          if ( $_SESSION['pc_facility'] ) {
+       		$provinfo = getProviderInfo('%', true, $_SESSION['pc_facility']);
+          } else {
+       		$provinfo = getProviderInfo();
+          }
+
+        //EOS FACILITY FILTERING (CHEMED)
+        //==================================
+
+
+
 		$single = array();
 
 		// filter the display on the requested username, the provinfo array is
@@ -967,10 +979,12 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "a.pc_eventDate <= '$end')) ";
 
   //==================================
-  //FACILITY FILTERING (lemonsoftware)
+  //FACILITY FILTERING (lemonsoftware)(CHEMED)
     if ( $_SESSION['pc_facility'] ) {
             $pc_facility = $_SESSION['pc_facility'];
-            $sql .= " AND a.pc_facility = $pc_facility ";
+            $sql .= " AND a.pc_facility = $pc_facility
+                      AND u.facility_id = $pc_facility
+                      AND u2.facility_id = $pc_facility ";
     }
   //EOS FACILITY FILTERING (lemonsoftware)
   //==================================
