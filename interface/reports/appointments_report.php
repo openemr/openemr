@@ -39,6 +39,7 @@
  }
  $to_date   = fixDate($_POST['form_to_date'], '');
  $provider  = $_POST['form_provider'];
+ $facility  = $_POST['form_facility'];  //(CHEMED) facility filter
 
  $form_orderby = $ORDERHASH[$_REQUEST['form_orderby']] ?
   $_REQUEST['form_orderby'] : 'time';
@@ -48,6 +49,13 @@
 
  if ($to_date ) $where .= " AND e.pc_eventDate <= '$to_date'";
  if ($provider) $where .= " AND e.pc_aid = '$provider'";
+ //(CHEMED) facility filter
+ $facility_filter = '';
+ if ($facility) {
+     $event_facility_filter = " AND e.pc_facility = '$facility'";
+     $provider_facility_filter = " AND users.facility_id = '$facility'";
+ }
+ //END (CHEMED)
  if ($patient ) $where .= " AND e.pc_pid = '$patient'";
 
  // Get the info.
@@ -61,7 +69,7 @@
   "LEFT OUTER JOIN patient_data AS p ON p.pid = e.pc_pid " .
   "LEFT OUTER JOIN users AS u ON u.id = e.pc_aid " .
   "LEFT OUTER JOIN openemr_postcalendar_categories AS c ON c.pc_catid = e.pc_catid " .
-  "WHERE $where ORDER BY $orderby";
+  "WHERE $where $event_facility_filter ORDER BY $orderby";  //(CHEMED) facility filter
 
  $res = sqlStatement($query);
 ?>
@@ -114,12 +122,31 @@
 
  <tr>
   <td>
+<?php //(CHEMED) Facility filter
+
+ xl('Facility','e');
+ // Build a drop-down list of facilities.
+ //
+ $query = "SELECT id, name FROM facility WHERE " .
+  "service_location = 1 ORDER BY name ";
+ $ures = sqlStatement($query);
+ echo "   <select name='form_facility' onChange='document.all.theform.submit()'>\n";
+ echo "    <option value=''>-- All --\n";
+ while ($urow = sqlFetchArray($ures)) {
+  $fid = $urow['id'];
+  echo "    <option value='$fid'";
+  if ($fid == $_POST['form_facility']) echo " selected";
+  echo ">" . $urow['name'] . "\n";
+ }
+ echo "   </select>\n";
+//END (CHEMED) Facility filter?>
+
    <?php xl('Provider','e'); ?>:
 <?
  // Build a drop-down list of providers.
  //
- $query = "SELECT id, lname, fname FROM users WHERE " .
-  "authorized = 1 ORDER BY lname, fname";
+ $query = "SELECT id, lname, fname FROM users WHERE ".
+  "authorized = 1 $provider_facility_filter ORDER BY lname, fname"; //(CHEMED) facility filter
  $ures = sqlStatement($query);
  echo "   <select name='form_provider'>\n";
  echo "    <option value=''>-- All --\n";
@@ -131,6 +158,7 @@
  }
  echo "   </select>\n";
 ?>
+
    &nbsp;<?php  xl('From','e'); ?>:
    <input type='text' name='form_from_date' size='10' value='<?php echo $from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
