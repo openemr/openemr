@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006, 2008 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -150,6 +150,26 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
 
  $disallowed['imp'] = $disallowed['new'] ||
   !is_readable("$webserver_root/custom/import.php");
+
+ // Helper functions for treeview generation.
+ function genTreeLink($frame, $name, $title) {
+  global $primary_docs, $disallowed;
+  if (empty($disallowed[$name])) {
+   $id = $name . $primary_docs[$name][1];
+   echo "<li><a href='' id='$id' " .
+        "onclick=\"return loadFrame2('$id','$frame','" .
+        $primary_docs[$name][2] . "')\">$title</a></li>";
+  }
+ }
+ function genMiscLink($frame, $name, $level, $title, $url) {
+  global $primary_docs, $disallowed;
+  if (empty($disallowed[$name])) {
+   $id = $name . $level;
+   echo "<li><a href='' id='$id' " .
+        "onclick=\"return loadFrame2('$id','$frame','" .
+        $url . "')\">$title</a></li>";
+  }
+ }
 ?>
 <html>
 <head>
@@ -184,7 +204,15 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
  border-color: #000000;
  background-color:transparent;
 }
+
+#navigation ul {
+ background-color:transparent;
+}
 </style>
+
+<link rel="stylesheet" href="../../library/js/jquery.treeview-1.3/jquery.treeview.css" />
+<script src="../../library/js/jquery-1.2.2.min.js" type="text/javascript"></script>
+<script src="../../library/js/jquery.treeview-1.3/jquery.treeview.min.js" type="text/javascript"></script>
 
 <script type="text/javascript" src="../../library/dialog.js"></script>
 
@@ -193,6 +221,10 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
  // Master values for current pid and encounter.
  var active_pid = 0;
  var active_encounter = 0;
+
+ // Current selections in the top and bottom frames.
+ var topName = '';
+ var botName = '';
 
  // Expand and/or collapse frames in response to checkbox clicks.
  // fnum indicates which checkbox was clicked (1=left, 2=right).
@@ -211,11 +243,35 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
 
  // Load the specified url into the specified frame (RTop or RBot).
  // The URL provided must be relative to interface.
- function loadFrame(frame, url) {
+ function loadFrame(fname, frame, url) {
   top.restoreSession();
   var i = url.indexOf('{PID}');
   if (i >= 0) url = url.substring(0,i) + active_pid + url.substring(i+5);
   top.frames[frame].location = '<?php echo "$web_root/interface/" ?>' + url;
+  if (frame == 'RTop') topName = fname; else botName = fname;
+ }
+
+ // Load the specified url into a frame to be determined, with the specified
+ // frame as the default; the url must be relative to interface.
+ function loadFrame2(fname, frame, url) {
+  var usage = fname.substring(3);
+  if (active_pid == 0 && usage > '0') {
+   alert('<?php xl('You must first select or add a patient.','e') ?>');
+   return false;
+  }
+  if (active_encounter == 0 && usage > '1') {
+   alert('<?php xl('You must first select or create an encounter.','e') ?>');
+   return false;
+  }
+  var f = document.forms[0];
+  top.restoreSession();
+  var i = url.indexOf('{PID}');
+  if (i >= 0) url = url.substring(0,i) + active_pid + url.substring(i+5);
+  var fi = f.sel_frame.selectedIndex;
+  if (fi == 1) frame = 'RTop'; else if (fi == 2) frame = 'RBot';
+  top.frames[frame].location = '<?php echo "$web_root/interface/" ?>' + url;
+  if (frame == 'RTop') topName = fname; else botName = fname;
+  return false;
  }
 
  // Select a designated radio button. raname may be either the radio button
@@ -223,6 +279,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
  // You should call this if you directly load a document that does not
  // correspond to the current radio button setting.
  function setRadio(raname, rbid) {
+<?php if ($GLOBALS['concurrent_layout'] != 2) { ?>
   var f = document.forms[0];
   if (raname == 'RTop') raname = 'rb_top';
   if (raname == 'RBot') raname = 'rb_bot';
@@ -232,6 +289,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
     return true;
    }
   }
+<?php } ?>
   return false;
  }
 
@@ -239,6 +297,20 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
  // depending on whether there is an active patient or encounter.
  function syncRadios() {
   var f = document.forms[0];
+<?php if ($GLOBALS['concurrent_layout'] == 2) { ?>
+  var nlinks = document.links.length;
+  for (var i = 0; i < nlinks; ++i) {
+   var lnk = document.links[i];
+   if (lnk.id.length != 4) continue;
+   var usage = lnk.id.substring(3);
+   if (usage == '1' || usage == '2') {
+    var da = false;
+    if (active_pid == 0) da = true;
+    if (active_encounter == 0 && usage > '1') da = true;
+    lnk.style.color = da ? '#888888' : '#0000ff';
+   }
+  }
+<?php } else { ?>
   for (var i = 0; i < f.rb_top.length; ++i) {
    var da = false;
    var rb1 = f.rb_top[i];
@@ -255,6 +327,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
     document.getElementById('lbl_' + rbid).style.color = da ? '#888888' : '#000000';
    }
   }
+<?php } ?>
   f.popups.disabled = (active_pid == 0);
  }
 
@@ -291,17 +364,13 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
  // assumed to be set, so this function will only load global data.
  function reloadPatient(frname) {
   var f = document.forms[0];
-  for (var i = 0; i < f.rb_top.length; ++i) {
-   if (f.rb_top[i].value.substring(3) > '0') {
-    if (frname != 'RTop' && f.rb_top[i].checked) {
-     loadFrame('RTop', '<?php echo $primary_docs['cal'][2]; ?>');
-     setRadio('rb_top', 'cal');
-    }
-    if (frname != 'RBot' && f.rb_bot[i].checked) {
-     loadFrame('RBot', '<?php echo $primary_docs['aun'][2]; ?>');
-     setRadio('rb_bot', 'aun');
-    }
-   }
+  if (topName.length > 3 && topName.substring(3) > '0' && frname != 'RTop') {
+   loadFrame('cal0','RTop', '<?php echo $primary_docs['cal'][2]; ?>');
+   setRadio('rb_top', 'cal');
+  }
+  if (botName.length > 3 && botName.substring(3) > '0' && frname != 'RBot') {
+   loadFrame('aun0','RBot', '<?php echo $primary_docs['aun'][2]; ?>');
+   setRadio('rb_bot', 'aun');
   }
  }
 
@@ -310,17 +379,13 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
  // document for the new encounter will not work, so load patient info instead.
  function reloadEncounter(frname) {
   var f = document.forms[0];
-  for (var i = 0; i < f.rb_top.length; ++i) {
-   if (f.rb_top[i].value.substring(3) > '1') {
-    if (frname != 'RTop' && f.rb_top[i].checked) {
-     loadFrame('RTop', '<?php echo $primary_docs['dem'][2]; ?>');
-     setRadio('rb_top', 'dem');
-    }
-    if (frname != 'RBot' && f.rb_bot[i].checked) {
-     loadFrame('RBot', '<?php echo $primary_docs['ens'][2]; ?>');
-     setRadio('rb_bot', 'ens');
-    }
-   }
+  if (topName.length > 3 && topName.substring(3) > '1' && frname != 'RTop') {
+   loadFrame('dem1','RTop', '<?php echo $primary_docs['dem'][2]; ?>');
+   setRadio('rb_top', 'dem');
+  }
+  if (botName.length > 3 && botName.substring(3) > '1' && frname != 'RBot') {
+   loadFrame('ens1','RBot', '<?php echo $primary_docs['ens'][2]; ?>');
+   setRadio('rb_bot', 'ens');
   }
  }
 
@@ -426,6 +491,18 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
   selobj.selectedIndex = 0;
  }
 
+ // Treeview activation stuff:
+ $(document).ready(function(){
+  $("#navigation").treeview({
+   animated: "fast",
+   collapsed: true,
+   unique: true,
+   toggle: function() {
+    window.console && console.log("%o was toggled", this);
+   }
+  });
+ });
+
 </script>
 
 </head>
@@ -435,6 +512,97 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
 
 <form method='post' name='find_patient' target='RTop'
  action='<?php echo $rootdir ?>/main/finder/patient_select.php'>
+
+<?php if ($GLOBALS['concurrent_layout'] == 2) { ?>
+
+<select name='sel_frame' style='background-color:transparent;font-size:9pt;width:100%;'>
+ <option value='0'><? xl('Default','e'); ?></option>
+ <option value='1'><? xl('Top','e'); ?></option>
+ <option value='2'><? xl('Bottom','e'); ?></option>
+</select>
+
+<table cellpadding='0' cellspacing='0' border='0' width='100%'>
+ <tr>
+  <td class='smalltext' nowrap>
+   <input type='checkbox' name='cb_top' onclick='toggleFrame(1)' checked /><b>Top</b>
+  </td>
+  <td class='smalltext' align='right' nowrap>
+   <b>Bot</b><input type='checkbox' name='cb_bot' onclick='toggleFrame(2)' checked />
+  </td>
+ </tr>
+</table>
+
+<ul id="navigation">
+  <li class="open"><span>Patient/Client</span>
+    <ul>
+      <li class="open"><span>Management</span>
+        <ul>
+          <?php genTreeLink('RTop','new','New'); ?>
+          <?php genTreeLink('RTop','dem','Current'); ?>
+          <?php genTreeLink('RBot','sum','Summary'); ?>
+        </ul>
+      </li>
+      <li><span>Visits</span>
+        <ul>
+          <?php genTreeLink('RTop','cal','Calendar'); ?>
+          <?php genTreeLink('RBot','nen','New'); ?>
+          <?php genTreeLink('RBot','enc','Current'); ?>
+          <?php genTreeLink('RBot','ens','List'); ?>
+        </ul>
+      </li>
+      <li><span>Chart</span>
+        <ul>
+          <?php genTreeLink('RBot','pre','Rx'); ?>
+          <?php genTreeLink('RTop','his','History'); ?>
+          <?php genTreeLink('RTop','iss','Issues'); ?>
+          <?php genTreeLink('RBot','imm','Immunize'); ?>
+          <?php genTreeLink('RTop','doc','Documents'); ?>
+          <?php genTreeLink('RBot','pno','Notes'); ?>
+          <?php genTreeLink('RBot','tra','Transact'); ?>
+          <?php genTreeLink('RTop','prp','Report'); ?>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><span>Fees</span>
+    <ul>
+      <li>Fee Sheet</li>
+      <?php genTreeLink('RBot','cod','Charges'); ?>
+      <li>Checkout</li>
+      <?php genTreeLink('RTop','bil','Billing'); ?>
+    </ul>
+  </li>
+  <li><span>Administration</span>
+    <ul>
+      <?php genMiscLink('RTop','adm','0','Users','usergroup/usergroup_admin.php'); ?>
+      <?php genMiscLink('RTop','adm','0','Practice','../controller.php?practice_settings'); ?>
+      <?php genTreeLink('RTop','sup','Services'); ?>
+      <?php genMiscLink('RTop','adm','0','Products','drugs/drug_inventory.php'); ?>
+      <?php genMiscLink('RTop','adm','0','Layouts','super/edit_layout.php'); ?>
+      <?php genMiscLink('RTop','adm','0','Lists','super/edit_list.php'); ?>
+      <li><span>Other</span>
+        <ul>
+          <?php genMiscLink('RTop','adm','0','Language','language/language.php'); ?>
+          <?php genMiscLink('RTop','adm','0','Forms','forms_admin/forms_admin.php'); ?>
+          <?php genMiscLink('RTop','adm','0','Calendar','main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig'); ?>
+          <?php genMiscLink('RTop','adm','0','Logs','logview/logview.php'); ?>
+          <?php genMiscLink('RTop','adm','0','Database','main/myadmin/index.php'); ?>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <?php genTreeLink('RTop','rep','Reports'); ?>
+  <li><span>Miscellaneous</span>
+    <ul>
+      <?php genTreeLink('RTop','adb','Addr Book'); ?>
+      <?php genTreeLink('RTop','ono','Ofc Notes'); ?>
+      <?php genMiscLink('RTop','adm','0','BatchCom','batchcom/batchcom.php'); ?>
+      <?php genTreeLink('RTop','pwd','Password'); ?>
+    </ul>
+  </li>
+</ul>
+
+<?php } else { ?>
 
 <table cellpadding='0' cellspacing='0' border='0'>
  <tr>
@@ -463,18 +631,20 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
   $url   = $varr[2];
   echo " <tr>\n";
   echo "  <td class='smalltext'><input type='radio' name='rb_top' value='$key$usage' " .
-       "onclick=\"loadFrame('RTop','$url')\"";
+       "onclick=\"loadFrame('$key$usage','RTop','$url')\"";
   if ($key == $default_top_rbid) echo " checked";
   echo " /></td>\n";
   echo "  <td class='smalltext' id='lbl_$key'>$label</td>\n";
   echo "  <td class='smalltext'><input type='radio' name='rb_bot' value='$key$usage' " .
-       "onclick=\"loadFrame('RBot','$url')\"";
+       "onclick=\"loadFrame('$key$usage','RBot','$url')\"";
   if ($key == 'aun') echo " checked";
   echo " /></td>\n";
   echo " </tr>\n";
  }
 ?>
 </table>
+
+<?php } ?>
 
 <br /><hr />
 

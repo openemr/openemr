@@ -403,7 +403,7 @@ if (isset($pid)) {
 <?php if (!$_GET['is_new']) { // if new pt, do not load other frame ?>
  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
  parent.left_nav.setRadio(othername, 'sum');
- parent.left_nav.loadFrame(othername, 'patient_file/summary/summary_bottom.php');
+ parent.left_nav.loadFrame('sum1', othername, 'patient_file/summary/summary_bottom.php');
 <?php } ?>
 </script>
 <?php } ?>

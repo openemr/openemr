@@ -86,9 +86,12 @@ session_name("OpenEMR");
 
 session_start();
 
-// Set this to true to activate support for the new frame layout.
+// Set this to 1 or 2 to activate support for the new frame layout.
+// 0 = Old-style layout
+// 1 = Navigation menu consists of pairs of radio buttons
+// 2 = Navigation menu is a tree view
 //
-$GLOBALS['concurrent_layout'] = true;
+$GLOBALS['concurrent_layout'] = 1;
 
 // If >0 this will enforce a separate PHP session for each top-level
 // browser window.  You must log in separately for each.  This is not

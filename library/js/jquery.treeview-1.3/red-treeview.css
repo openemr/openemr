@@ -1,0 +1,6 @@
+#red.treeview li { background: url(images/red/tv-item.gif) 0 0 no-repeat; }
+#red.treeview .collapsable { background-image: url(images/red/tv-collapsable.gif); }
+#red.treeview .expandable { background-image: url(images/red/tv-expandable.gif); }
+#red.treeview .last { background-image: url(images/red/tv-item-last.gif); }
+#red.treeview .lastCollapsable { background-image: url(images/red/tv-collapsable-last.gif); }
+#red.treeview .lastExpandable { background-image: url(images/red/tv-expandable-last.gif); }
