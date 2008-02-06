@@ -31,9 +31,7 @@ class WSClaim extends WSWrapper{
 			$function['ezybiz.add_invoice'] = array(new xmlrpcval($this->claim,"struct"));
 			$this->send($function);
 		}
-
 		//print_r($this->claim);
-
 	}
 
 	function load_claim() {
@@ -185,18 +183,25 @@ class WSClaim extends WSWrapper{
 		return true;
 	}
 
-	function load_provider_foreign_id() {
-		$sql = "SELECT foreign_id from integration_mapping as im LEFT JOIN billing as b on im.local_id=b.provider_id where encounter = '" . $this->encounter . "' and b.pid = '" . $this->patient_id . "' and im.local_table='users' and im.foreign_table='salesman'";
-		$result = $this->_db->Execute($sql);
-		if($result && !$result->EOF) {
-				$this->foreign_provider_id = $result->fields['foreign_id'];
-				return true;
-		}
-		else {
-			echo "Entry has not been previously sent to external system or no entry was found for them in the integration mapping, could not send claim. Provider: '" . $this->patient_id . "'<br>";
-			return false;
-		}
-	}
+  function load_provider_foreign_id() {
+    $sql = "SELECT foreign_id FROM integration_mapping AS im " .
+      "LEFT JOIN billing AS b ON im.local_id = b.provider_id WHERE " .
+      "b.encounter = '" . $this->encounter . "' AND " .
+      "b.pid = '" . $this->patient_id . "' AND im.local_table = 'users' " .
+      "AND im.foreign_table = 'salesman'";
+    $result = $this->_db->Execute($sql);
+    if($result && !$result->EOF) {
+        $this->foreign_provider_id = $result->fields['foreign_id'];
+        return true;
+    }
+    else {
+      echo "Provider has not been previously sent to external system or no " .
+        "entry was found for them in the integration mapping, could not " .
+        "send claim. Patient: '" . $this->patient_id . "', Encounter: '" .
+        $this->encounter . "'<br>";
+      return false;
+    }
+  }
 
 	function load_patient_foreign_id() {
 		$sql = "SELECT foreign_id from integration_mapping as im LEFT JOIN patient_data as pd on im.local_id=pd.id where pd.pid = '" . $this->patient_id . "' and im.local_table='patient_data' and im.foreign_table='customer'";
