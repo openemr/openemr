@@ -24,23 +24,28 @@ $form_date      = fixDate($_POST['form_date'], "");
 $form_to_date   = fixDate($_POST['form_to_date'], "");
 $is_due_ins     = $_POST['form_category'] == xl('Due Ins');
 $is_due_pt      = $_POST['form_category'] == xl('Due Pt');
+$is_all         = $_POST['form_category'] == xl('All');
 
 if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) {
-  $form_cb_ssn    = $_POST['form_cb_ssn']    ? true : false;
-  $form_cb_dob    = $_POST['form_cb_dob']    ? true : false;
-  $form_cb_policy = $_POST['form_cb_policy'] ? true : false;
-  $form_cb_phone  = $_POST['form_cb_phone']  ? true : false;
-  $form_cb_city   = $_POST['form_cb_city']   ? true : false;
-  $form_cb_idays  = $_POST['form_cb_idays']  ? true : false;
-  $form_cb_err    = $_POST['form_cb_err']    ? true : false;
+  $form_cb_ssn      = $_POST['form_cb_ssn']      ? true : false;
+  $form_cb_dob      = $_POST['form_cb_dob']      ? true : false;
+  $form_cb_policy   = $_POST['form_cb_policy']   ? true : false;
+  $form_cb_phone    = $_POST['form_cb_phone']    ? true : false;
+  $form_cb_city     = $_POST['form_cb_city']     ? true : false;
+  $form_cb_ins1     = $_POST['form_cb_ins1']     ? true : false;
+  $form_cb_referrer = $_POST['form_cb_referrer'] ? true : false;
+  $form_cb_idays    = $_POST['form_cb_idays']    ? true : false;
+  $form_cb_err      = $_POST['form_cb_err']      ? true : false;
 } else {
-  $form_cb_ssn    = true;
-  $form_cb_dob    = false;
-  $form_cb_policy = false;
-  $form_cb_phone  = true;
-  $form_cb_city   = false;
-  $form_cb_idays  = false;
-  $form_cb_err    = false;
+  $form_cb_ssn      = true;
+  $form_cb_dob      = false;
+  $form_cb_policy   = false;
+  $form_cb_phone    = true;
+  $form_cb_city     = false;
+  $form_cb_ins1     = false;
+  $form_cb_referrer = false;
+  $form_cb_idays    = false;
+  $form_cb_err      = false;
 }
 $form_age_cols = (int) $_POST['form_age_cols'];
 $form_age_inc  = (int) $_POST['form_age_inc'];
@@ -52,12 +57,14 @@ if ($form_age_cols > 0 && $form_age_cols < 50) {
 }
 
 $initial_colspan = 1;
-if ($is_due_ins    ) ++$initial_colspan;
-if ($form_cb_ssn   ) ++$initial_colspan;
-if ($form_cb_dob   ) ++$initial_colspan;
-if ($form_cb_policy) ++$initial_colspan;
-if ($form_cb_phone ) ++$initial_colspan;
-if ($form_cb_city  ) ++$initial_colspan;
+if ($is_due_ins      ) ++$initial_colspan;
+if ($form_cb_ssn     ) ++$initial_colspan;
+if ($form_cb_dob     ) ++$initial_colspan;
+if ($form_cb_policy  ) ++$initial_colspan;
+if ($form_cb_phone   ) ++$initial_colspan;
+if ($form_cb_city    ) ++$initial_colspan;
+if ($form_cb_ins1    ) ++$initial_colspan;
+if ($form_cb_referrer) ++$initial_colspan;
 
 $grand_total_charges     = 0;
 $grand_total_adjustments = 0;
@@ -144,6 +151,17 @@ function endPatient($ptrow) {
     $grand_total_agedbal[$c] += $ptrow['agedbal'][$c];
   }
 }
+
+// In the case of CSV export only, a download will be forced.
+if ($_POST['form_csvexport']) {
+  header("Pragma: public");
+  header("Expires: 0");
+  header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+  header("Content-Type: application/force-download");
+  header("Content-Disposition: attachment; filename=collections_report.csv");
+  header("Content-Description: File Transfer");
+}
+else {
 ?>
 <html>
 <head>
@@ -195,19 +213,25 @@ function checkAll(checked) {
    <?php xl('Phone','e') ?>&nbsp;
    <input type='checkbox' name='form_cb_city'<?php if ($form_cb_city) echo ' checked'; ?>>
    <?php xl('City','e') ?>&nbsp;
+   <input type='checkbox' name='form_cb_ins1'<?php if ($form_cb_ins1) echo ' checked'; ?>>
+   <?php xl('Primary Ins','e') ?>&nbsp;
+   <input type='checkbox' name='form_cb_referrer'<?php if ($form_cb_referrer) echo ' checked'; ?>>
+   <?php xl('Referrer','e') ?>&nbsp;
    <input type='checkbox' name='form_cb_idays'<?php if ($form_cb_idays) echo ' checked'; ?>>
    <?php xl('Inactive Days','e') ?>&nbsp;
    <input type='checkbox' name='form_cb_err'<?php if ($form_cb_err) echo ' checked'; ?>>
-   <?php xl('Errors','e') ?>&nbsp;
-   <?php xl('Age Cols:','e') ?>
-   <input type='text' name='form_age_cols' size='2' value='<?php echo $form_age_cols; ?>'>
-   <?php xl('Age Increment:','e') ?>
-   <input type='text' name='form_age_inc' size='3' value='<?php echo $form_age_inc; ?>'>
+   <?php xl('Errors','e') ?>
   </td>
  </tr>
 
  <tr bgcolor='#ddddff'>
   <td align='center'>
+   <?php xl('Age Cols:','e') ?>
+   <input type='text' name='form_age_cols' size='2' value='<?php echo $form_age_cols; ?>'>
+   &nbsp;
+   <?php xl('Age Increment:','e') ?>
+   <input type='text' name='form_age_inc' size='3' value='<?php echo $form_age_inc; ?>'>
+   &nbsp;
    <?xl('Svc Date:','e')?>
    <input type='text' name='form_date' size='10' value='<?php echo $_POST['form_date']; ?>'
     title='<?xl("Date of service mm/dd/yyyy","e")?>'>
@@ -218,7 +242,7 @@ function checkAll(checked) {
    &nbsp;
    <select name='form_category'>
 <?php
- foreach (array(xl('Open'), xl('Due Pt'), xl('Due Ins'), xl('Credits')) as $value) {
+ foreach (array(xl('Open'), xl('Due Pt'), xl('Due Ins'), xl('Credits'), xl('All')) as $value) {
   echo "    <option value='$value'";
   if ($_POST['form_category'] == $value) echo " selected";
   echo ">$value</option>\n";
@@ -238,6 +262,9 @@ function checkAll(checked) {
 </table>
 
 <?php
+
+} // end not form_csvexport
+
   if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) {
     $where = "";
 
@@ -289,7 +316,7 @@ function checkAll(checked) {
       // "invoice.trans_id = ar.id AND invoice.fxsellprice < 0) AS adjustments " .
       "FROM ar JOIN customer ON customer.id = ar.customer_id " .
       "WHERE ( $where ) ";
-    if ($_POST['form_search']) {
+    if ($_POST['form_search'] && ! $is_all) {
       $query .= "AND ar.amount != ar.paid ";
     }
     $query .= "ORDER BY ar.invnumber";
@@ -310,9 +337,6 @@ function checkAll(checked) {
       if ($_POST['form_category'] == 'Credits') {
         if ($pt_balance > 0) continue;
       }
-      // else {
-      //   if ($pt_balance < 0) continue;
-      // }
 
       // $duncount was originally supposed to be the number of times that
       // the patient was sent a statement for this invoice.
@@ -328,8 +352,8 @@ function checkAll(checked) {
       $insname = '';
       $insposition = 0;
       $inseobs = strtolower($row['shipvia']);
+      $insgot = strtolower($row['notes']);
       if (! $duncount) {
-        $insgot = strtolower($row['notes']);
         foreach (array('ins1', 'ins2', 'ins3') as $value) {
           $i = strpos($insgot, $value);
           if ($i !== false && strpos($inseobs, $value) === false) {
@@ -342,6 +366,15 @@ function checkAll(checked) {
             }
           }
         }
+      }
+
+      // Also get the primary insurance company name whenever there is one.
+      $row['ins1'] = '';
+      $i = strpos($insgot, 'ins1');
+      if ($i !== false) {
+        $j = strpos($insgot, "\n", $i);
+        if (!$j) $j = strlen($insgot);
+        $row['ins1'] = trim(substr($row['notes'], $i + 5, $j - $i - 5));
       }
 
       // An invoice is now due from the patient if money is owed and we are
@@ -409,15 +442,18 @@ function checkAll(checked) {
       $row['inactive_days'] = floor((time() - $latime) / (60 * 60 * 24));
 
       $pdrow = sqlQuery("SELECT pd.fname, pd.lname, pd.mname, pd.ss, " .
-        "pd.genericname2, pd.genericval2, pd.pid, pd.DOB FROM " .
-        "integration_mapping AS im, patient_data AS pd WHERE " .
-        "im.foreign_id = " . $row['custid'] . " AND " .
+        "pd.genericname2, pd.genericval2, pd.pid, pd.DOB, " .
+        "CONCAT(u.lname, ', ', u.fname) AS referrer FROM " .
+        "integration_mapping AS im, patient_data AS pd " .
+        "LEFT OUTER JOIN users AS u ON u.id = pd.providerID " .
+        "WHERE im.foreign_id = " . $row['custid'] . " AND " .
         "im.foreign_table = 'customer' AND " .
         "pd.id = im.local_id");
 
       $row['ss'] = $pdrow['ss'];
       $row['DOB'] = $pdrow['DOB'];
       $row['billnote'] = ($pdrow['genericname2'] == 'Billing') ? $pdrow['genericval2'] : '';
+      $row['referrer'] = $pdrow['referrer'];
 
       $ptname = $pdrow['lname'] . ", " . $pdrow['fname'];
       if ($pdrow['mname']) $ptname .= " " . substr($pdrow['mname'], 0, 1);
@@ -438,8 +474,23 @@ function checkAll(checked) {
 
     ksort($rows);
 
-    if ($_POST['form_export'] || $_POST['form_csvexport']) {
+    if ($_POST['form_export']) {
       echo "<textarea rows='35' cols='100' readonly>";
+    }
+    else if ($_POST['form_csvexport']) {
+      // CSV headers:
+      if (true) {
+        echo '"Insurance",';
+        echo '"Name",';
+        echo '"Invoice",';
+        echo '"DOS",';
+        echo '"Referrer",';
+        echo '"Charge",';
+        echo '"Adjust",';
+        echo '"Paid",';
+        echo '"Balance",';
+        echo '"IDays"' . "\n";
+      }
     }
     else {
 ?>
@@ -465,6 +516,12 @@ function checkAll(checked) {
 <?php } ?>
 <?php if ($form_cb_city) { ?>
   <td class="dehead">&nbsp;<?php xl('City','e')?></td>
+<?php } ?>
+<?php if ($form_cb_ins1) { ?>
+  <td class="dehead">&nbsp;<?php xl('Primary Ins','e')?></td>
+<?php } ?>
+<?php if ($form_cb_referrer) { ?>
+  <td class="dehead">&nbsp;<?php xl('Referrer','e')?></td>
 <?php } ?>
   <td class="dehead">&nbsp;<?php xl('Invoice','e') ?></td>
   <td class="dehead">&nbsp;<?php xl('Svc Date','e') ?></td>
@@ -502,7 +559,7 @@ function checkAll(checked) {
  </tr>
 
 <?php
-    }
+    } // end not export
 
     $ptrow = array('insname' => '', 'pid' => 0);
     $orow = -1;
@@ -528,9 +585,7 @@ function checkAll(checked) {
       }
 
       if (!$_POST['form_export'] && !$_POST['form_csvexport']) {
-
         $in_collections = stristr($row['billnote'], 'IN COLLECTIONS') !== false;
-
 ?>
  <tr bgcolor='<?php echo $bgcolor ?>'>
 <?php
@@ -553,6 +608,12 @@ function checkAll(checked) {
           }
           if ($form_cb_city) {
             echo "  <td class='detail'>&nbsp;" . $row['city'] . "</td>\n";
+          }
+          if ($form_cb_ins1) {
+            echo "  <td class='detail'>&nbsp;" . $row['ins1'] . "</td>\n";
+          }
+          if ($form_cb_referrer) {
+            echo "  <td class='detail'>&nbsp;" . $row['referrer'] . "</td>\n";
           }
         } else {
           echo "  <td class='detail' colspan='$initial_colspan'>";
@@ -631,11 +692,14 @@ function checkAll(checked) {
       } // end not export
 
       else if ($_POST['form_csvexport']) {
+        // The CSV detail line is written here.
         $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
-        echo '"' . $insname                             . '",';
+        // echo '"' . $insname                             . '",';
+        echo '"' . $row['ins1']                         . '",';
         echo '"' . $ptname                              . '",';
         echo '"' . $row['invnumber']                    . '",';
         echo '"' . $row['dos']                          . '",';
+        echo '"' . $row['referrer']                     . '",';
         echo '"' . sprintf('%.2f', $row['charges'])     . '",';
         echo '"' . sprintf('%.2f', $row['adjustments']) . '",';
         echo '"' . sprintf('%.2f', $row['paid'])        . '",';
@@ -658,9 +722,9 @@ function checkAll(checked) {
       }
     }
     else if ($_POST['form_csvexport']) {
-      echo "</textarea>\n";
-      $alertmsg .= "$export_patient_count patients representing $" .
-        sprintf("%.2f", $export_dollars) . " have been exported.";
+      // echo "</textarea>\n";
+      // $alertmsg .= "$export_patient_count patients representing $" .
+      //   sprintf("%.2f", $export_dollars) . " have been exported.";
     }
     else {
       echo " <tr bgcolor='#ffffff'>\n";
@@ -692,26 +756,31 @@ function checkAll(checked) {
     }
   } // end if form_search
   SLClose();
-?>
 
+if (!$_POST['form_csvexport']) {
+  if (!$_POST['form_export']) {
+?>
 <p>
-<?php if (!$_POST['form_export'] && !$_POST['form_csvexport']) { ?>
 <input type='button' value='Select All' onclick='checkAll(true)' /> &nbsp;
 <input type='button' value='Clear All' onclick='checkAll(false)' /> &nbsp;
 <input type='submit' name='form_csvexport' value='Export Selected as CSV' /> &nbsp; &nbsp;
 <input type='submit' name='form_export' value='Export Selected to Collections' /> &nbsp;
 <input type='checkbox' name='form_without' value='1' /> <?php xl('Without Update','e') ?>
-<?php } ?>
 </p>
-
+<?php
+  } // end not export
+?>
 </form>
 </center>
 <script language="JavaScript">
 <?php
-if ($alertmsg) {
-  echo "alert('" . htmlentities($alertmsg) . "');\n";
-}
+  if ($alertmsg) {
+    echo "alert('" . htmlentities($alertmsg) . "');\n";
+  }
 ?>
 </script>
 </body>
 </html>
+<?php
+} // end not form_csvexport
+?>
