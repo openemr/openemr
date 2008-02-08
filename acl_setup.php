@@ -37,7 +37,13 @@
 
  // Create the ACO sections.  Every ACO must have a section.
  //
- $gacl->add_object_section('Accounting'    , 'acct'         , 10, 0, 'ACO');
+ if ($gacl->add_object_section('Accounting', 'acct', 10, 0, 'ACO') === FALSE) {
+  die("<br>This is not working.  Make sure you have:<br>" .
+   "* Set the correct phpgacl database name, user and password in gacl.ini.php<br>" .
+   "* Done the same in gacl.class.php<br>" .
+   "* Run setup.php from the phpGACL distribution<br>" .
+   "* Not already run this script successfully<br>");
+ }
  $gacl->add_object_section('Administration', 'admin'        , 10, 0, 'ACO');
  $gacl->add_object_section('Encounters'    , 'encounters'   , 10, 0, 'ACO');
  $gacl->add_object_section('Patients'      , 'patients'     , 10, 0, 'ACO');
