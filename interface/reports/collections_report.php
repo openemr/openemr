@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006-2007 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2008 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -459,7 +459,7 @@ function checkAll(checked) {
       if ($pdrow['mname']) $ptname .= " " . substr($pdrow['mname'], 0, 1);
 
       // Look up insurance policy number if we need it.
-      if ($form_cb_policy) {
+      if ($form_cb_policy || $_POST['form_csvexport']) {
         $patient_id = $pdrow['pid'];
         $instype = ($insposition == 2) ? 'secondary' : (($insposition == 3) ? 'tertiary' : 'primary');
         $insrow = sqlQuery("SELECT policy_number FROM insurance_data WHERE " .
@@ -482,6 +482,9 @@ function checkAll(checked) {
       if (true) {
         echo '"Insurance",';
         echo '"Name",';
+        echo '"DOB",';
+        echo '"SSN",';
+        echo '"Policy",';
         echo '"Invoice",';
         echo '"DOS",';
         echo '"Referrer",';
@@ -697,6 +700,9 @@ function checkAll(checked) {
         // echo '"' . $insname                             . '",';
         echo '"' . $row['ins1']                         . '",';
         echo '"' . $ptname                              . '",';
+        echo '"' . $row['DOB']                          . '",';
+        echo '"' . $row['ss']                           . '",';
+        echo '"' . $row['policy']                       . '",';
         echo '"' . $row['invnumber']                    . '",';
         echo '"' . $row['dos']                          . '",';
         echo '"' . $row['referrer']                     . '",';
