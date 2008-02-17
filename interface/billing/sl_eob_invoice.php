@@ -35,7 +35,8 @@
     xl("Pt refund"),
     xl("Ins overpaid"),
     xl("Pt overpaid"),
-    xl("Adm adjust")
+    xl("Adm adjust"),
+    xl("Untimely filing")
   );
 
   $info_msg = "";
