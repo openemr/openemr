@@ -606,21 +606,24 @@ function newEmployerData(	$pid,
 		");
 }
 
-function updateEmployerData($pid,$new)
+function updateEmployerData($pid, $new)
 {
-        $real = getEmployerData($pid);
-        while(list($key, $value) = each ($new))
-                $real[$key] = $value;
-        $real['date'] = "'+NOW()+'";
-        $real['id'] = "";
-
-        $sql = "insert into employer_data set ";
-        while(list($key, $value) = each($real))
-                $sql .= $key." = '$value', ";
-        $sql = substr($sql, 0, -2);
-
-
-        return sqlInsert($sql);
+  $old = getEmployerData($pid);
+  $set = '';
+  $modified = false;
+  foreach (array('name','street','city','state','postal_code','country') as $key) {
+    $value = empty($old[$key]) ? '' : addslashes($old[$key]);
+    if (isset($new[$key]) && strcmp($new[$key], $value) != 0) {
+      $value = $new[$key];
+      $modified = true;
+    }
+    $set .= "$key = '$value', ";
+  }
+  if ($modified) {
+    $set .= "pid = '$pid', date = NOW()";
+    return sqlInsert("INSERT INTO employer_data SET $set");
+  }
+  return $old['id'];
 }
 
 // This updates or adds the given insurance data info, while retaining any
