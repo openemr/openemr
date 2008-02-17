@@ -170,6 +170,11 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
         $url . "')\">$title</a></li>";
   }
  }
+ function genPopLink($title, $url) {
+  echo "<li><a href='' " .
+       "onclick=\"return repPopup('$url')\"" .
+       ">$title</a></li>";
+ }
 ?>
 <html>
 <head>
@@ -269,6 +274,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
   if (i >= 0) url = url.substring(0,i) + active_pid + url.substring(i+5);
   var fi = f.sel_frame.selectedIndex;
   if (fi == 1) frame = 'RTop'; else if (fi == 2) frame = 'RBot';
+  if (!f.cb_bot.checked) frame = 'RTop'; else if (!f.cb_top.checked) frame = 'RBot';
   top.frames[frame].location = '<?php echo "$web_root/interface/" ?>' + url;
   if (frame == 'RTop') topName = fname; else botName = fname;
   return false;
@@ -471,6 +477,13 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
   return true;
  }
 
+ // Pop up a report.
+ function repPopup(aurl) {
+  top.restoreSession();
+  window.open('<?php echo "$web_root/interface/reports/" ?>' + aurl, '_blank', 'width=750,height=550,resizable=1,scrollbars=1');
+  return false;
+ }
+
  // This is invoked to pop up some window when a popup item is selected.
  function selpopup(selobj) {
   var i = selobj.selectedIndex;
@@ -535,14 +548,14 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
 <ul id="navigation">
   <li class="open"><span>Patient/Client</span>
     <ul>
-      <li class="open"><span>Management</span>
+      <li><span>Management</span>
         <ul>
           <?php genTreeLink('RTop','new','New'); ?>
           <?php genTreeLink('RTop','dem','Current'); ?>
           <?php genTreeLink('RBot','sum','Summary'); ?>
         </ul>
       </li>
-      <li><span>Visits</span>
+      <li class="open"><span>Visits</span>
         <ul>
           <?php genTreeLink('RTop','cal','Calendar'); ?>
           <?php genTreeLink('RBot','nen','New'); ?>
@@ -566,34 +579,91 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
   </li>
   <li><span>Fees</span>
     <ul>
-      <li>Fee Sheet</li>
-      <?php genTreeLink('RBot','cod','Charges'); ?>
-      <li>Checkout</li>
+      <?php genMiscLink('RBot','cod','2','Fee Sheet','patient_file/encounter/load_form.php?formname=fee_sheet'); ?>
+      <?php if (false) genTreeLink('RBot','cod','Charges'); ?>
+      <?php genMiscLink('RBot','bil','1','Checkout','patient_file/pos_checkout.php?framed=1'); ?>
       <?php genTreeLink('RTop','bil','Billing'); ?>
     </ul>
   </li>
+  <?php if (acl_check('admin', 'drugs')) genMiscLink('RTop','adm','0','Inventory','drugs/drug_inventory.php'); ?>
   <li><span>Administration</span>
     <ul>
-      <?php genMiscLink('RTop','adm','0','Users','usergroup/usergroup_admin.php'); ?>
-      <?php genMiscLink('RTop','adm','0','Practice','../controller.php?practice_settings'); ?>
-      <?php genTreeLink('RTop','sup','Services'); ?>
-      <?php genMiscLink('RTop','adm','0','Products','drugs/drug_inventory.php'); ?>
-      <?php genMiscLink('RTop','adm','0','Layouts','super/edit_layout.php'); ?>
-      <?php genMiscLink('RTop','adm','0','Lists','super/edit_list.php'); ?>
+      <?php if (acl_check('admin', 'users'    )) genMiscLink('RTop','adm','0','Users','usergroup/usergroup_admin.php'); ?>
+      <?php if (acl_check('admin', 'practice' )) genMiscLink('RTop','adm','0','Practice','../controller.php?practice_settings'); ?>
+      <?php if (acl_check('admin', 'superbill')) genTreeLink('RTop','sup','Services'); ?>
+      <?php if (acl_check('admin', 'super'    )) genMiscLink('RTop','adm','0','Layouts','super/edit_layout.php'); ?>
+      <?php if (acl_check('admin', 'super'    )) genMiscLink('RTop','adm','0','Lists','super/edit_list.php'); ?>
+      <?php if (acl_check('admin', 'acl'      )) genMiscLink('RTop','adm','0','ACL','usergroup/adminacl.php'); ?>
       <li><span>Other</span>
         <ul>
-          <?php genMiscLink('RTop','adm','0','Language','language/language.php'); ?>
-          <?php genMiscLink('RTop','adm','0','Forms','forms_admin/forms_admin.php'); ?>
-          <?php genMiscLink('RTop','adm','0','Calendar','main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig'); ?>
-          <?php genMiscLink('RTop','adm','0','Logs','logview/logview.php'); ?>
-          <?php genMiscLink('RTop','adm','0','Database','main/myadmin/index.php'); ?>
+          <?php if (acl_check('admin', 'language')) genMiscLink('RTop','adm','0','Language','language/language.php'); ?>
+          <?php if (acl_check('admin', 'forms'   )) genMiscLink('RTop','adm','0','Forms','forms_admin/forms_admin.php'); ?>
+          <?php if (acl_check('admin', 'calendar')) genMiscLink('RTop','adm','0','Calendar','main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig'); ?>
+          <?php if (acl_check('admin', 'users'   )) genMiscLink('RTop','adm','0','Logs','logview/logview.php'); ?>
+          <?php if (acl_check('admin', 'database')) genMiscLink('RTop','adm','0','Database','main/myadmin/index.php'); ?>
         </ul>
       </li>
     </ul>
   </li>
-  <?php genTreeLink('RTop','rep','Reports'); ?>
+  <li><span>Reports</span>
+    <ul>
+      <li><span>Clients</span>
+        <ul>
+          <?php genPopLink('List','patient_list.php'); ?>
+          <?php genPopLink('Rx','prescriptions_report.php'); ?>
+          <?php genPopLink('Referrals','referrals_report.php'); ?>
+        </ul>
+      </li>
+      <li class="open"><span>Visits</span>
+        <ul>
+          <?php genPopLink('Appointments','appointments_report.php'); ?>
+          <?php genPopLink('Encounters','encounters_report.php'); ?>
+          <?php genPopLink('Appt-Enc','appt_encounter_report.php'); ?>
+        </ul>
+      </li>
+<?php if (acl_check('acct', 'rep_a')) { ?>
+      <li><span>Financial</span>
+        <ul>
+          <?php genPopLink('Sales','sales_by_item.php'); ?>
+          <?php genPopLink('Cash Rec','../billing/sl_receipts_report.php'); ?>
+          <?php genPopLink('Front Rec','front_receipts_report.php'); ?>
+          <?php genPopLink('Pmt Method','receipts_by_method_report.php'); ?>
+          <?php genPopLink('Collections','collections_report.php'); ?>
+        </ul>
+      </li>
+<?php } ?>
+<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
+      <li><span>Inventory</span>
+        <ul>
+          <?php genPopLink('Destroyed','destroyed_drugs_report.php'); ?>
+        </ul>
+      </li>
+<?php } ?>
+<?php if (! $GLOBALS['simplified_demographics']) { ?>
+      <li><span>Insurance</span>
+        <ul>
+          <?php genPopLink('Distribution','insurance_allocation_report.php'); ?>
+          <?php genPopLink('Indigents','../billing/indigent_patients_report.php'); ?>
+          <?php genPopLink('Unique SP','unique_seen_patients_report.php'); ?>
+        </ul>
+      </li>
+<?php } ?>
+<?php if ($GLOBALS['athletic_team']) { ?>
+      <li><span>Athletic</span>
+        <ul>
+          <?php genPopLink('Roster','players_report.php'); ?>
+          <?php genPopLink('Missed','absences_report.php'); ?>
+          <?php genPopLink('Injuries','football_injury_report.php'); ?>
+          <?php genPopLink('Inj Ov','injury_overview_report.php'); ?>
+        </ul>
+      </li>
+<?php } ?>
+      <?php // genTreeLink('RTop','rep','Other'); ?>
+    </ul>
+  </li>
   <li><span>Miscellaneous</span>
     <ul>
+      <?php genTreeLink('RTop','fax','Fax/Scan'); ?>
       <?php genTreeLink('RTop','adb','Addr Book'); ?>
       <?php genTreeLink('RTop','ono','Ofc Notes'); ?>
       <?php genMiscLink('RTop','adm','0','BatchCom','batchcom/batchcom.php'); ?>
