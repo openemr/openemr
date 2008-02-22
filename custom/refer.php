@@ -10,6 +10,7 @@
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title>Referrals</title>
 </head>
 <body>

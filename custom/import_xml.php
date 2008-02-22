@@ -190,6 +190,7 @@
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <title>Import Patient Demographics</title>
 </head>
