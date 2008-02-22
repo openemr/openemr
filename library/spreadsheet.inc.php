@@ -237,6 +237,7 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <style  type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 <style>

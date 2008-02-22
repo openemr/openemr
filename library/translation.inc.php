@@ -15,11 +15,23 @@ function xl($constant,$mode='r',$prepend='',$append='') {
 	$string=$row['definition'];
 	if ($string=='') { $string="$constant"; }
 	$string="$prepend"."$string"."$append";
-	if ($mode=='e'){ 
+	if ($mode=='e'){
 		echo $string;
 	} else {
-		return $string;	
+		return $string;
 	}
+}
+
+/**
+HEADER HTML
+
+shows some informations for pages html header 
+
+@param none
+@return void
+*/
+function html_header_show() {
+    echo '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> '."\n";
 }
 
 ?>
