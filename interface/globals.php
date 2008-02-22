@@ -299,4 +299,7 @@ function strterm($string,$length) {
 
 // turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn","off");
+
+if( $database->databaseType=='mysql' ) mysql_query("SET NAMES 'utf8'");
+
 ?>
