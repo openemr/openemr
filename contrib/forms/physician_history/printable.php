@@ -9,6 +9,7 @@ include_once("$srcdir/calendar.inc");
 
 <html>
 <head>
+<? html_header_show();?>
 <title>Physician history</title>
 
 <? 

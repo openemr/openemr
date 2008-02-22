@@ -26,6 +26,7 @@ if ($old) {
 
 <html>
 <head>
+<? html_header_show();?>
 <title>Form: High risk screening record</title>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <link rel=stylesheet href="../../acog.css" type="text/css">

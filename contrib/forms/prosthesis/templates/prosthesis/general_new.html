@@ -1,144 +1,288 @@
 <html>
+
 <head>
+{php}html_header_show();{/php}
+
 {literal}
+
  <style type="text/css" title="mystyles" media="all">
+
 <!--
+
 td {
+
 	font-size:12pt;
+
 	font-family:helvetica;
+
 }
+
 li{
+
 	font-size:11pt;
+
 	font-family:helvetica;
+
 	margin-left: 15px;
+
 }
+
 a {
+
 	font-size:11pt;
+
 	font-family:helvetica;
+
 }
+
 .title {
+
 	font-family: sans-serif;
+
 	font-size: 12pt;
+
 	font-weight: bold;
+
 	text-decoration: none;
+
 	color: #000000;
+
 }
+
+
 
 .form_text{
+
 	font-family: sans-serif;
+
 	font-size: 9pt;
+
 	text-decoration: none;
+
 	color: #000000;
+
 }
 
+
+
 -->
+
 </style>
+
 {/literal}
+
 </head>
+
 <body bgcolor="{$STYLE.BGCOLOR2}">
+
 <p><span class="title">Prosthestics & Orthostics Form</span></p>
+
 <form name="prosthesis" method="post" action="{$FORM_ACTION}/interface/forms/prosthesis/save.php"
+
  onsubmit="return top.restoreSession()">
+
 <table width="766" border="0">
+
 <tr>
+
 	<td>Therapist</td><td rowspan="50" width="25">&nbsp;&nbsp;&nbsp;</td><td class="form_text"><input type="text" size="35" name="therapist" value="{$prosthesis->get_therapist()}"></td>
+
 </tr>
+
 <tr>
+
 	<td>Involvement</td><td class="form_text"><input type="checkbox" name="involvement_left" value="1" {if $prosthesis->get_involvement_left() eq 1}checked{/if}"> Left&nbsp;&nbsp;&nbsp;
+
 							<input type="checkbox" name="involvement_right" value="1" {if $prosthesis->get_involvement_right() eq 1}checked{/if}"> Right&nbsp;&nbsp;&nbsp;
+
 							<input type="checkbox" name="involvement_bilateral" value="1" {if $prosthesis->get_involvement_bilateral() eq 1}checked{/if}"> Bilateral&nbsp;&nbsp;&nbsp;</td>
+
 </tr>
+
 <tr>
+
 	<td>Location of Evaluation</td><td class="form_text">{html_options name="location" selected=$prosthesis->get_location() options=$prosthesis->location_array}</td>
+
 </tr>
+
 <tr>
+
 	<td valign="top">Prescription Diagnosis</td><td class="form_text"><input type="text" name="diagnosis" size="75" value="{$prosthesis->get_diagnosis()}"><br><br></td>
+
 </tr>
+
 <tr>
+
 	<td valign="top">Hx</td><td class="form_text"><input type="text" name="hx" size="75" value="{$prosthesis->get_hx()}"><br>
+
 					<input type="checkbox" name="worn_le_past_five" value="1" {if $prosthesis->get_involvement_bilateral() eq 1}checked{/if}"> Pt has worn a L.E. orthosis in the past 5 yrs.<br><br><br></td>
+
 </tr>
+
 <tr>
+
 	<td valign="top">Item to be Supplied</td>
+
 	<td><table>
+
 		<tr>
+
 			<td class="form_text">Model # <input type="text" name="model" size="30" value="{$prosthesis->get_model()}"></td>
+
 			<td class="form_text"><input type="checkbox" name="new" value="1" {if $prosthesis->get_new() eq 1}checked{/if}"> New</td>
+
 		</tr>
+
 		<tr>
+
 			<td class="form_text">Size <input type="text" name="size" size="35" value="{$prosthesis->get_size()}"></td>
+
 			<td class="form_text"><input type="checkbox" name="replacement" value="1" {if $prosthesis->get_replacement() eq 1}checked{/if}"> Replacement</td>
+
 		</tr>
+
 		<tr>
+
 			<td class="form_text">Measurements</td>
+
 			<td></td>
+
 		</tr>
+
 		<tr>
+
 			<td class="form_text">&nbsp;&nbsp;<input type="checkbox" name="foam_impressions" value="1" {if $prosthesis->get_foam_impressions() eq 1}checked{/if}"> Partial Weight bearing Foam Impressions</td>
+
 			<td></td>
+
 		</tr>
+
 		<tr>
+
 			<td class="form_text">Shoe Size <input type="text" name="shoe_size" size="15" value="{$prosthesis->get_shoe_size()}"><br><br></td>
+
 			<td></td>
+
 		</tr>
+
 		<tr>
+
 			<td valign="top" class="form_text">Calf <input type="text" name="calf" size="10" value="{$prosthesis->get_calf()}">&nbsp;&nbsp;&nbsp;Ankle <input type="text" name="ankle" size="10" value="{$prosthesis->get_ankle()}"></td>
+
 			<td><br><br><br></td>
+
 		</tr>
+
 		</table>	 	
+
 	</td>
+
 </tr>
+
 <tr>
+
 	<td>Purpose</td><td class="form_text">{html_options name="purpose" selected=$prosthesis->get_purpose() options=$prosthesis->purpose_array}
+
 						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Other: <input type="text" name="purpose_other" size="25" value="{$prosthesis->get_purpose_other()}"></td>
+
 </tr>
+
 <tr>
+
 	<td><br><br>Notes</td>
+
 </tr>
+
 <tr>
+
 	<td colspan="3" class="form_text"><textarea name="notes" value="{$prosthesis->get_notes()}" wrap="virtual" cols="75" rows="4">{$prosthesis->get_notes()}</textarea><br><br><br></td>
+
 </tr>
+
 <tr>
+
 	<td valign="top"><nobr><input type="checkbox" name="goals_discussed" value="1" {if $prosthesis->get_goals_discussed() eq 1}checked{/if}">&nbsp;Pathomechanics</nobr> & Orthotic goals discussed.</td>
+
 	<td valign="top"><table>
+
 		<tr>
+
 			<td valign="top" class="form_text"><input type="checkbox" name="use_reviewed" value="1" {if $prosthesis->get_use_reviewed() eq 1}checked{/if}"> &nbsp;Donning, doffing, skin precautions, and orthotic use reviewed with patient</td>
+
 			<td valign="top" class="form_text"><input type="checkbox" name="wear_reviewed" value="1" {if $prosthesis->get_wear_reviewed() eq 1}checked{/if}"> &nbsp;Initial wear schedule reviewed with patient.<br><br><br></td>
+
 		</tr>
+
 		</table>	 	
+
 	</td>
+
 </tr>
+
 <tr>
+
 	<td valign="top">Product Longeveity And Patient Wearing Schedule</td>
+
 	<td class="form_text">Number of years patient has worn an orthosis/prosthesis <input type="text" size="2" name="worn_years" value="{$prosthesis->get_worn_years()}"> year(s)<br>
+
 		Age of current orthosis/prothesis <input type="text" size="2" name="age_months" value="{$prosthesis->get_age_months()}"> months or <input type="text" size="2" name="age_years" value="{$prosthesis->get_age_years()}"> year(s)<br>
+
 		Daily wearing schedule <input type="text" size="2" name="wear_hours" value="{$prosthesis->get_wear_hours()}"> hours per day<br><br><br></td>
+
 </tr>
+
 <tr>
+
 	<td valign="top">Clinical Plan</td>
+
 	<td class="form_text"><input type="checkbox" name="plan_to_order" value="1" {if $prosthesis->get_plan_to_order() eq 1}checked{/if}"> Plan to order orthosis/prosthesis/product and fit on return date: <input type="text" size="8" name="plan_to_order_date" value="{$prosthesis->get_plan_to_order_date()}"><br>
+
 		<input type="checkbox" name="received_product" value="1" {if $prosthesis->get_received_product() eq 1}checked{/if}"> Patient has received orthosis/prosthesis/product on this date: <input type="text" size="8" name="received_product_date" value="{$prosthesis->get_received_product_date()}"><br>
+
 		<input type="checkbox" name="given_instructions" value="1" {if $prosthesis->get_given_instructions() eq 1}checked{/if}"> Patient been given instructions for the device/service prescribed, understands the instructions, and is able to demonstrate its appropriate use
+
 		&nbsp&nbsp&nbsp;<input type="checkbox" name="patient_understands" value="1" {if $prosthesis->get_patient_understands() eq 1}checked{/if}"> Yes<br><br><br></td>
+
 </tr>
+
+
+
+
+
 
 
 
 
 {if $VIEW != true}
+
 <tr>
+
 	<td>Add Code</td><td><select name="cpt_code"><option value=""></option>{html_options options=$prosthesis->cpt_array}</select></td>
+
 </tr>
+
 <tr>
+
 	<td colspan="3"><br><br><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
    <a href="{$DONT_SAVE_LINK}" class="link" onclick="top.restoreSession()">[Don't Save]</a></td>
+
 </tr>
+
 {/if}
+
 </table>
+
 <input type="hidden" name="id" value="{$prosthesis->get_id()}" />
+
 <input type="hidden" name="activity" value="{$prosthesis->get_activity()}">
+
 <input type="hidden" name="pid" value="{$prosthesis->get_pid()}">
+
 <input type="hidden" name="process" value="true">
+
 </form>
+
 </body>
+
 </html>

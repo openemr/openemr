@@ -183,6 +183,7 @@ if ($formid) {
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <style>
 .billcell { font-family: sans-serif; font-size: 10pt }

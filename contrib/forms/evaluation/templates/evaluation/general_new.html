@@ -1,154 +1,308 @@
 <html>
+
 <head>
+{php}html_header_show();{/php}
+
 {literal}
+
  <style type="text/css" title="mystyles" media="all">
+
 <!--
+
 td {
+
 	font-size:12pt;
+
 	font-family:helvetica;
+
 }
+
 li{
+
 	font-size:11pt;
+
 	font-family:helvetica;
+
 	margin-left: 15px;
+
 }
+
 a {
+
 	font-size:11pt;
+
 	font-family:helvetica;
+
 }
+
 .title {
+
 	font-family: sans-serif;
+
 	font-size: 12pt;
+
 	font-weight: bold;
+
 	text-decoration: none;
+
 	color: #000000;
+
 }
+
+
 
 .form_text{
+
 	font-family: sans-serif;
+
 	font-size: 9pt;
+
 	text-decoration: none;
+
 	color: #000000;
+
 }
+
+
 
 -->
+
 </style>
+
 {/literal}
+
 </head>
+
 <body bgcolor="{$STYLE.BGCOLOR2}">
+
 {literal}
+
 <script language="javascript">
 
+
+
 function calculate_bmi(button) {
+
 	bmi = ( ( document.evaluation.wt.value  / ( document.evaluation.ht.value * document.evaluation.ht.value ) ) * 703);
+
 	if (!isNaN(bmi)) {
+
 		document.evaluation.bmi.value = Math.round(bmi*100)/100;
+
 	}
+
 }
 
+
+
 </script>
+
 {/literal}
+
 <p><span class="title">Evaluation Examination</span></p>
+
 <form name="evaluation" method="post" action="{$FORM_ACTION}/interface/forms/evaluation/save.php"
+
  onsubmit="return top.restoreSession()">
-<table>
-<tr>
-	<td>
-		<span class=text>TEMP: </span><input size=3 type=entry name="temp" value="{$evaluation->get_temp()}" ></input>
-		<span class=text>P: </span><input size=3 type=entry name="p" value="{$evaluation->get_p()}" ></input>
-		<span class=text>R: </span><input size=3 type=entry name="r" value="{$evaluation->get_r()}" ></input>
-		<span class=text>BP: </span><input size=3 type=entry name="bp" value="{$evaluation->get_bp()}" ></input>
-		<span class=text>HT: </span><input size=3 type=entry name="ht" value="{$evaluation->get_ht()}" ></input>
-		<span class=text>WT: </span><input size=3 type=entry name="wt" value="{$evaluation->get_wt()}" ></input>
-		<span class=text>LMP: </span><input size=10 type=entry name="lmp" value="{$evaluation->get_lmp()}" ></input>
-	</td>
-<tr>
-	<td>
-		<span class=text>BMI: </span><input size=5 type=entry name="bmi" value="{$evaluation->get_bmi()}" ></input>
-		<input type="button" onClick="calculate_bmi(this);" value="Calculate">
-	</td>
-</tr>
-<tr>
-	<td><br><br></td>
-</tr>
-<tr>
-	<td>Chief Complaint</td>
-</tr>
-<tr>
-	<td><p><textarea name="complaint" cols="75" rows="3" wrap="virtual" >{$evaluation->get_complaint()}</textarea></p><br /></td>
-</tr>
-<tr>
-	<td>HPI</td>
-</tr>
-<tr>
-	<td><p><textarea name="hpi" cols="75" rows="3" wrap="virtual" >{$evaluation->get_hpi()}</textarea></p><br /></td>
-</tr>
-</table>
+
 <table>
 
-{foreach name=loops item=headings key=title from=$checks}
 <tr>
+
 	<td>
-		{if $smarty.foreach.loops.first ne 1}<br>{/if}
-		{$title}
+
+		<span class=text>TEMP: </span><input size=3 type=entry name="temp" value="{$evaluation->get_temp()}" ></input>
+
+		<span class=text>P: </span><input size=3 type=entry name="p" value="{$evaluation->get_p()}" ></input>
+
+		<span class=text>R: </span><input size=3 type=entry name="r" value="{$evaluation->get_r()}" ></input>
+
+		<span class=text>BP: </span><input size=3 type=entry name="bp" value="{$evaluation->get_bp()}" ></input>
+
+		<span class=text>HT: </span><input size=3 type=entry name="ht" value="{$evaluation->get_ht()}" ></input>
+
+		<span class=text>WT: </span><input size=3 type=entry name="wt" value="{$evaluation->get_wt()}" ></input>
+
+		<span class=text>LMP: </span><input size=10 type=entry name="lmp" value="{$evaluation->get_lmp()}" ></input>
+
 	</td>
-</tr>
+
 <tr>
+
 	<td>
-	  {foreach item=row key=row_title from=$headings}
-			<tr>
-				{if !is_numeric($row_title)}
-					<td>{$row_title}</td>
-					<td class="form_text">{html_checkboxes name="checks" options=$row selected=$evaluation->checks separator="&nbsp;</td><td class=\"form_text\">"}</td>
-				{else}
-					<td width="20"></td>
-					<td colspan="6"><table><tr><td class="form_text">
-					
-					{html_checkboxes name="checks" options=$row selected=$evaluation->checks separator="&nbsp;&nbsp;&nbsp;</td><td class=\"form_text\">"}
-					
-					</td></tr></table></td>
-					{if $title eq "Eyes" and $row_title == 2}
-						</tr>
-						<tr>
-						<td></td>
-						<td class="form_text">OD 20/<input type="text" name="eyes_od" size="4" value="{$evaluation->get_eyes_od()}"></td>
-						<td class="form_text">OS 20/<input type="text" name="eyes_os" size="4" value="{$evaluation->get_eyes_os()}"></td>
-						<td class="form_text">OU 20/<input type="text" name="eyes_ou" size="4" value="{$evaluation->get_eyes_ou()}"></td>
-					{/if}
-				{/if}
-				
-			</tr>
-	  {/foreach}
-	  
+
+		<span class=text>BMI: </span><input size=5 type=entry name="bmi" value="{$evaluation->get_bmi()}" ></input>
+
+		<input type="button" onClick="calculate_bmi(this);" value="Calculate">
+
 	</td>
+
 </tr>
-{/foreach}
+
+<tr>
+
+	<td><br><br></td>
+
+</tr>
+
+<tr>
+
+	<td>Chief Complaint</td>
+
+</tr>
+
+<tr>
+
+	<td><p><textarea name="complaint" cols="75" rows="3" wrap="virtual" >{$evaluation->get_complaint()}</textarea></p><br /></td>
+
+</tr>
+
+<tr>
+
+	<td>HPI</td>
+
+</tr>
+
+<tr>
+
+	<td><p><textarea name="hpi" cols="75" rows="3" wrap="virtual" >{$evaluation->get_hpi()}</textarea></p><br /></td>
+
+</tr>
+
 </table>
-<br><br>
+
 <table>
+
+
+
+{foreach name=loops item=headings key=title from=$checks}
+
 <tr>
-	<td>Comments/Abnormal Findings</td>
+
+	<td>
+
+		{if $smarty.foreach.loops.first ne 1}<br>{/if}
+
+		{$title}
+
+	</td>
+
 </tr>
+
 <tr>
-	<td><textarea name="comments" wrap="virtual" cols="75" rows="8">{$evaluation->get_comments()}</textarea></td>
+
+	<td>
+
+	  {foreach item=row key=row_title from=$headings}
+
+			<tr>
+
+				{if !is_numeric($row_title)}
+
+					<td>{$row_title}</td>
+
+					<td class="form_text">{html_checkboxes name="checks" options=$row selected=$evaluation->checks separator="&nbsp;</td><td class=\"form_text\">"}</td>
+
+				{else}
+
+					<td width="20"></td>
+
+					<td colspan="6"><table><tr><td class="form_text">
+
+					
+
+					{html_checkboxes name="checks" options=$row selected=$evaluation->checks separator="&nbsp;&nbsp;&nbsp;</td><td class=\"form_text\">"}
+
+					
+
+					</td></tr></table></td>
+
+					{if $title eq "Eyes" and $row_title == 2}
+
+						</tr>
+
+						<tr>
+
+						<td></td>
+
+						<td class="form_text">OD 20/<input type="text" name="eyes_od" size="4" value="{$evaluation->get_eyes_od()}"></td>
+
+						<td class="form_text">OS 20/<input type="text" name="eyes_os" size="4" value="{$evaluation->get_eyes_os()}"></td>
+
+						<td class="form_text">OU 20/<input type="text" name="eyes_ou" size="4" value="{$evaluation->get_eyes_ou()}"></td>
+
+					{/if}
+
+				{/if}
+
+				
+
+			</tr>
+
+	  {/foreach}
+
+	  
+
+	</td>
+
 </tr>
-<tr>
-	<td>Assesment/Plan</td>
-</tr>
-<tr>
-	<td><textarea name="assesment" wrap="virtual" cols="75" rows="8">{$evaluation->get_assesment()}</textarea></td>
-</tr>
-{if $VIEW != true}
-<tr>
-	<td><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="{$DONT_SAVE_LINK}" class="link" onclick="top.restoreSession()">[Don't Save]</a></td>
-</tr>
-{/if}
+
+{/foreach}
+
 </table>
+
+<br><br>
+
+<table>
+
+<tr>
+
+	<td>Comments/Abnormal Findings</td>
+
+</tr>
+
+<tr>
+
+	<td><textarea name="comments" wrap="virtual" cols="75" rows="8">{$evaluation->get_comments()}</textarea></td>
+
+</tr>
+
+<tr>
+
+	<td>Assesment/Plan</td>
+
+</tr>
+
+<tr>
+
+	<td><textarea name="assesment" wrap="virtual" cols="75" rows="8">{$evaluation->get_assesment()}</textarea></td>
+
+</tr>
+
+{if $VIEW != true}
+
+<tr>
+
+	<td><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+  <a href="{$DONT_SAVE_LINK}" class="link" onclick="top.restoreSession()">[Don't Save]</a></td>
+
+</tr>
+
+{/if}
+
+</table>
+
 <input type="hidden" name="id" value="{$evaluation->get_id()}" />
+
 <input type="hidden" name="activity" value="{$evaluation->get_activity()}">
+
 <input type="hidden" name="pid" value="{$evaluation->get_pid()}">
+
 <input type="hidden" name="process" value="true">
+
 </form>
+
 </body>
+
 </html>

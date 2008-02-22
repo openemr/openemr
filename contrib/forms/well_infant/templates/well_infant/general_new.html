@@ -1,236 +1,473 @@
 <html>
+
 <head>
+{php}html_header_show();{/php}
+
 {literal}
+
  <style type="text/css" title="mystyles" media="all">
+
 <!--
+
 td {
+
 	font-size:12pt;
+
 	font-family:helvetica;
+
 }
+
 li{
+
 	font-size:11pt;
+
 	font-family:helvetica;
+
 	margin-left: 15px;
+
 }
+
 a {
+
 	font-size:11pt;
+
 	font-family:helvetica;
+
 }
+
 .title {
+
 	font-family: sans-serif;
+
 	font-size: 12pt;
+
 	font-weight: bold;
+
 	text-decoration: none;
+
 	color: #000000;
+
 }
+
+
 
 .form_text{
+
 	font-family: sans-serif;
+
 	font-size: 9pt;
+
 	text-decoration: none;
+
 	color: #000000;
+
 }
 
+
+
 -->
+
 </style>
+
 {/literal}
+
 </head>
+
 <body bgcolor="{$STYLE.BGCOLOR2}">
 
+
+
 <p><span class="title">Well Infant Visit</span></p>
+
 <form name="well_infant" method="post" action="{$FORM_ACTION}/interface/forms/well_infant/save.php"
+
  onsubmit="return top.restoreSession()">
+
 <table>
+
 <tr>
+
 	<td>
+
 		<span class=text>WT: </span><input size=3 type=entry name="wt" value="{$well_infant->get_wt()}" ></input>
+
 		<span class=text>HT: </span><input size=3 type=entry name="ht" value="{$well_infant->get_ht()}" ></input>
+
 		<span class=text>H.CIRC: </span><input size=3 type=entry name="hcirc" value="{$well_infant->get_hcirc()}" ></input>
+
 		<span class=text>TEMP: </span><input size=3 type=entry name="t" value="{$well_infant->get_t()}" ></input>
+
 		<span class=text>Years: </span><input size=3 type=entry name="years" value="{$well_infant->get_years()}" ></input>
+
 		<span class=text>Months: </span><input size=3 type=entry name="months" value="{$well_infant->get_months()}" ></input>
+
 	</td>
+
 </tr>
+
 <tr>
+
 	<td>
+
 		<span class=text>WT%: </span><input size=3 type=entry name="wt_percentile" value="{$well_infant->get_wt_percentile()}" ></input>
+
 		<span class=text>HT%: </span><input size=3 type=entry name="ht_percentile" value="{$well_infant->get_ht_percentile()}" ></input>
+
 	</td>
+
 </tr>
+
 <tr>
+
 	<td><br><br></td>
+
 </tr>
+
 </table>
+
 <table>
+
+
 
 {foreach name=loops item=headings key=title from=$checks}
+
 <tr>
+
 	{if $title eq "Genitalia"}
+
 		<td valign="top" align="right">{$title}</td>
+
 	{else}
+
 		<td align="right">{$title}</td>
+
 	{/if}
+
 	<td valign="top" align="left">
+
 	  {foreach item=row key=row_title from=$headings}
+
 			<table><tr>
+
 				{if !is_numeric($row_title)}
+
 					<td class="form_text">&nbsp;&nbsp;&nbsp;<b>{$row_title}</b></td>
+
 					<td class="form_text"><nobr>{html_checkboxes name="checks" options=$row selected=$well_infant->checks separator="&nbsp;&nbsp;&nbsp;"}</nobr>
+
 					</td>
+
 				{else}
+
 					<td colspan="6" class="form_text">
+
 					
+
 					<nobr>{html_checkboxes name="checks" options=$row selected=$well_infant->checks separator="&nbsp;&nbsp;&nbsp;"}</nobr>
+
 					{if $title eq "Head"}
+
 					Open
+
 						<input type="text" name="head_open_cm" value="{$well_infant->get_head_open_cm()}" size="4"> CM Closed
+
 					{elseif $title eq "Feeding"}
+
 					<br><input size="4" type="text" name="feeding_oz" value="{$well_infant->get_feeding_oz()}">oz/Feeding,<input type="text" name="feeding_24h" value="{$well_infant->get_feeding_24h()}" size="4">Feedings/24h 
+
 					{/if}
+
 					</td>
+
 				{/if}
+
 				
+
 			</tr></table>
+
 	  {/foreach}
+
 	  
+
 	</td>
+
 </tr>
+
 {/foreach}
+
 </table>
 
+
+
 <table>
+
 <tr>
+
 	<td><br><br></td>
+
 </tr>
+
 <tr>
+
 	<td>History:</td>
+
 </tr>
+
 <tr>
+
 	<td colspan="2"><textarea name="history" wrap="virtual" cols="75" rows="3">{$well_infant->get_history()}</textarea></td>
+
 </tr>
+
 <tr>
+
 	<td><span class=text>Formula Type: </span></td>
+
 </tr>
+
 <tr>
+
 	<td><input size=80 type=entry name="formula_type" value="{$well_infant->get_formula_type()}" ></input></td>
+
 </tr>
+
 </table>
+
 <br><br>
+
 <table>
+
 <tr>
+
 	<td>Additional or Abnormal Findings</td>
+
 </tr>
+
 <tr>
+
 	<td> <textarea name="additional_findings" wrap="virtual" cols="75" rows="8">{$well_infant->get_additional_findings()}</textarea></td>
+
 </tr>
+
 <tr>
+
 	<td>Assesment/Diagnosis</td>
+
 </tr>
+
 <tr>
+
 	<td><textarea name="assesment" wrap="virtual" cols="75" rows="8">{$well_infant->get_assesment()}</textarea></td>
+
 </tr>
+
 </table>
+
 <table>
+
 <tr>
+
 	<td>
+
 	{foreach name=loops item=headings key=title from=$checks2}
+
 	<tr>
+
 		<td>
+
 			{$title}
+
 		</td>
+
 		<td><table>
+
 		  {foreach item=row key=row_title from=$headings}
+
 		  
+
 				<tr>
+
 					{if !is_numeric($row_title)}
+
 						<td>{$row_title}</td>
+
 						<td class="form_text"><nobr>{html_checkboxes name="checks2" options=$row selected=$well_infant->checks2 separator="&nbsp;&nbsp;&nbsp;"}</nobr></td>
+
 					{else}
+
 						<td class="form_text">
+
 						<nobr>{html_checkboxes name="checks2" options=$row selected=$well_infant->checks2 separator="&nbsp;&nbsp;&nbsp;"}</nobr>
+
 						</td>
+
 					{/if}
+
 					
+
 				</tr>
+
 		  {/foreach}
+
 		  </table>
+
 		</td>
+
 	</tr>
+
 	{/foreach}
+
 	<td>
+
 </tr>
+
 </table>
+
 <table>
+
 <tr>
+
 	<td>
+
 		<span class=text>PPD:</span><input size=3 type=entry name="ppd" value="{$well_infant->get_ppd()}" ></input>
+
 		<span class=text>HCT:</span><input size=3 type=entry name="hct" value="{$well_infant->get_hct()}" ></input>
+
 		<span class=text>LEAD:</span><input size=3 type=entry name="lead" value="{$well_infant->get_lead()}" ></input>
+
 	</td>
+
 </tr>
+
 <tr>
+
 	<td>Feeding</td>
+
 </tr>
+
 <tr>
+
 	<td colspan="6"><textarea name="feeding" wrap="virtual" cols="75" rows="3">{$well_infant->get_feeding()}</textarea></td>
+
 </tr>
+
 <tr>
+
 	<td>Advice/Referrals</td>
+
 </tr>
+
 <tr>
+
 	<td colspan="6"><textarea name="advice" wrap="virtual" cols="75" rows="3">{$well_infant->get_advice()}</textarea></td>
+
 </tr>
 
+
+
 <tr>
+
 	<td>RTC</td>
+
 </tr>
-<tr>
-	<td colspan="6"><textarea name="rtc" wrap="virtual" cols="75" rows="2">{$well_infant->get_rtc()}</textarea></td>
-</tr>
-<tr>
-	<td><br><br></td>
-</tr>
-</table>
-<table>
-<tr>
-	<td>
-	{foreach name=loops item=headings key=title from=$checks3}
-	<tr>
-		<td>
-			{$title}
-		</td>
-		<td><table>
-		  {foreach item=row key=row_title from=$headings}
-		  
-				<tr>
-					{if !is_numeric($row_title)}
-						<td>{$row_title}</td>
-						<td class="form_text"><nobr>{html_checkboxes name="checks3" options=$row selected=$well_infant->checks3 separator="&nbsp;&nbsp;&nbsp;"}</nobr></td>
-					{else}
-						<td class="form_text">
-						<nobr>{html_checkboxes name="checks3" options=$row selected=$well_infant->checks3 separator="&nbsp;&nbsp;&nbsp;"}</nobr>
-						</td>
-					{/if}
-					
-				</tr>
-		  {/foreach}
-		  </table>
-		</td>
-	</tr>
-	{/foreach}
-	<td>
-</tr>
-</table>
 
 <tr>
-	<td><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-   <a href="{$DONT_SAVE_LINK}" class="link" onclick="top.restoreSession()">[Don't Save]</a></td>
+
+	<td colspan="6"><textarea name="rtc" wrap="virtual" cols="75" rows="2">{$well_infant->get_rtc()}</textarea></td>
+
 </tr>
+
+<tr>
+
+	<td><br><br></td>
+
+</tr>
+
 </table>
+
+<table>
+
+<tr>
+
+	<td>
+
+	{foreach name=loops item=headings key=title from=$checks3}
+
+	<tr>
+
+		<td>
+
+			{$title}
+
+		</td>
+
+		<td><table>
+
+		  {foreach item=row key=row_title from=$headings}
+
+		  
+
+				<tr>
+
+					{if !is_numeric($row_title)}
+
+						<td>{$row_title}</td>
+
+						<td class="form_text"><nobr>{html_checkboxes name="checks3" options=$row selected=$well_infant->checks3 separator="&nbsp;&nbsp;&nbsp;"}</nobr></td>
+
+					{else}
+
+						<td class="form_text">
+
+						<nobr>{html_checkboxes name="checks3" options=$row selected=$well_infant->checks3 separator="&nbsp;&nbsp;&nbsp;"}</nobr>
+
+						</td>
+
+					{/if}
+
+					
+
+				</tr>
+
+		  {/foreach}
+
+		  </table>
+
+		</td>
+
+	</tr>
+
+	{/foreach}
+
+	<td>
+
+</tr>
+
+</table>
+
+
+
+<tr>
+
+	<td><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+   <a href="{$DONT_SAVE_LINK}" class="link" onclick="top.restoreSession()">[Don't Save]</a></td>
+
+</tr>
+
+</table>
+
 <input type="hidden" name="id" value="{$well_infant->get_id()}" />
+
 <input type="hidden" name="activity" value="{$well_infant->get_activity()}">
+
 <input type="hidden" name="pid" value="{$well_infant->get_pid()}">
+
 <input type="hidden" name="process" value="true">
+
 </form>
+
 </body>
+
 </html>
+

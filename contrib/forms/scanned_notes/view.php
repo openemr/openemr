@@ -94,6 +94,7 @@ if ($formid) {
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <style type="text/css">
  body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
