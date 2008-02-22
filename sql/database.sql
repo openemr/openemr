@@ -1,530 +1,1409 @@
+-- phpMyAdmin SQL Dump
+-- version 2.6.4-pl4
+-- http://www.phpmyadmin.net
+-- 
+-- Host: localhost
+-- Generation Time: Feb 21, 2008 at 06:19 PM
+-- Server version: 5.0.17
+-- PHP Version: 5.1.1
+-- 
+-- Database: `openemr`
+-- 
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `addresses`
+-- 
+
 DROP TABLE IF EXISTS `addresses`;
 CREATE TABLE `addresses` (
   `id` int(11) NOT NULL default '0',
-  `line1` varchar(255) default NULL,
-  `line2` varchar(255) default NULL,
-  `city` varchar(255) default NULL,
-  `state` varchar(35) default NULL,
-  `zip` varchar(10) default NULL,
-  `plus_four` varchar(4) default NULL,
-  `country` varchar(255) default NULL,
+  `line1` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `line2` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `city` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `state` varchar(35) character set utf8 collate utf8_unicode_ci default NULL,
+  `zip` varchar(10) character set utf8 collate utf8_unicode_ci default NULL,
+  `plus_four` varchar(4) character set utf8 collate utf8_unicode_ci default NULL,
+  `country` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `foreign_id` int(11) default NULL,
   PRIMARY KEY  (`id`),
   KEY `foreign_id` (`foreign_id`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- 
+-- Dumping data for table `addresses`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `array`
+-- 
+
+DROP TABLE IF EXISTS `array`;
+CREATE TABLE `array` (
+  `array_key` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `array_value` longtext character set utf8 collate utf8_unicode_ci
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- 
+-- Dumping data for table `array`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `batchcom`
+-- 
+
+DROP TABLE IF EXISTS `batchcom`;
+CREATE TABLE `batchcom` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `patient_id` int(11) NOT NULL default '0',
+  `sent_by` bigint(20) NOT NULL default '0',
+  `msg_type` varchar(60) character set utf8 collate utf8_unicode_ci default NULL,
+  `msg_subject` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `msg_text` mediumtext character set utf8 collate utf8_unicode_ci,
+  `msg_date_sent` datetime NOT NULL default '0000-00-00 00:00:00',
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `batchcom`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `billing`
+-- 
 
 DROP TABLE IF EXISTS `billing`;
 CREATE TABLE `billing` (
   `id` int(11) NOT NULL auto_increment,
   `date` datetime default NULL,
-  `code_type` varchar(7) default NULL,
-  `code` varchar(9) default NULL,
+  `code_type` varchar(7) character set utf8 collate utf8_unicode_ci default NULL,
+  `code` varchar(9) character set utf8 collate utf8_unicode_ci default NULL,
   `pid` int(11) default NULL,
   `provider_id` int(11) default NULL,
   `user` int(11) default NULL,
-  `groupname` varchar(255) default NULL,
+  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `authorized` tinyint(1) default NULL,
   `encounter` int(11) default NULL,
-  `code_text` longtext,
+  `code_text` longtext character set utf8 collate utf8_unicode_ci,
   `billed` tinyint(1) default NULL,
   `activity` tinyint(1) default NULL,
   `payer_id` int(11) default NULL,
   `bill_process` tinyint(2) NOT NULL default '0',
   `bill_date` datetime default NULL,
   `process_date` datetime default NULL,
-  `process_file` varchar(255) default NULL,
-  `modifier` varchar(5) default NULL,
+  `process_file` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `modifier` varchar(5) character set utf8 collate utf8_unicode_ci default NULL,
   `units` tinyint(3) default NULL,
   `fee` decimal(7,2) default NULL,
-  `justify` varchar(35) NOT NULL default '',
-  `target` varchar(30) default NULL,
+  `justify` varchar(35) character set utf8 collate utf8_unicode_ci default NULL,
+  `target` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
   `x12_partner_id` int(11) default NULL,
-  `ndc_info` varchar(255) NOT NULL DEFAULT '',
+  `ndc_info` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   PRIMARY KEY  (`id`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
---
+-- 
+-- Dumping data for table `billing`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `categories`
---
+-- 
 
 DROP TABLE IF EXISTS `categories`;
 CREATE TABLE `categories` (
   `id` int(11) NOT NULL default '0',
-  `name` varchar(255) NOT NULL default '',
-  `value` varchar(255) NOT NULL default '',
+  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `value` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `parent` int(11) NOT NULL default '0',
   `lft` int(11) NOT NULL default '0',
   `rght` int(11) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `parent` (`parent`),
   KEY `lft` (`lft`,`rght`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
---
+-- 
 -- Dumping data for table `categories`
---
+-- 
 
-/*!40000 ALTER TABLE `categories` DISABLE KEYS */;
-INSERT INTO `categories` VALUES (1,'Categories','',0,0,9);
-INSERT INTO `categories` VALUES (2,'Lab Report','',1,1,2);
-INSERT INTO `categories` VALUES (3,'Medical Record','',1,3,4);
-INSERT INTO `categories` VALUES (4,'Patient Information','',1,5,8);
-INSERT INTO `categories` VALUES (5,'Patient ID card','',4,6,7);
-/*!40000 ALTER TABLE `categories` ENABLE KEYS */;
+INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 9);
+INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2);
+INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4);
+INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 8);
+INSERT INTO `categories` VALUES (5, 'Patient ID card', '', 4, 6, 7);
 
---
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `categories_seq`
---
+-- 
 
 DROP TABLE IF EXISTS `categories_seq`;
 CREATE TABLE `categories_seq` (
   `id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
---
+-- 
 -- Dumping data for table `categories_seq`
---
+-- 
 
-/*!40000 ALTER TABLE `categories_seq` DISABLE KEYS */;
 INSERT INTO `categories_seq` VALUES (5);
-/*!40000 ALTER TABLE `categories_seq` ENABLE KEYS */;
 
---
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `categories_to_documents`
---
+-- 
 
 DROP TABLE IF EXISTS `categories_to_documents`;
 CREATE TABLE `categories_to_documents` (
   `category_id` int(11) NOT NULL default '0',
   `document_id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`category_id`,`document_id`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
---
+-- 
 -- Dumping data for table `categories_to_documents`
---
+-- 
 
-/*!40000 ALTER TABLE `categories_to_documents` DISABLE KEYS */;
-/*!40000 ALTER TABLE `categories_to_documents` ENABLE KEYS */;
 
---
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `claims`
+-- 
+
+DROP TABLE IF EXISTS `claims`;
+CREATE TABLE `claims` (
+  `patient_id` int(11) NOT NULL,
+  `encounter_id` int(11) NOT NULL,
+  `version` int(10) unsigned NOT NULL auto_increment,
+  `payer_id` int(11) NOT NULL default '0',
+  `status` tinyint(2) NOT NULL default '0',
+  `payer_type` tinyint(4) NOT NULL default '0',
+  `bill_process` tinyint(2) NOT NULL default '0',
+  `bill_time` datetime default NULL,
+  `process_time` datetime default NULL,
+  `process_file` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `target` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `x12_partner_id` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`patient_id`,`encounter_id`,`version`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `claims`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `codes`
---
+-- 
 
 DROP TABLE IF EXISTS `codes`;
 CREATE TABLE `codes` (
   `id` int(11) NOT NULL auto_increment,
-  `code_text` varchar(255) default NULL,
-  `code_text_short` varchar(24) default NULL,
-  `code` varchar(10) default NULL,
+  `code_text` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `code_text_short` varchar(24) character set utf8 collate utf8_unicode_ci default NULL,
+  `code` varchar(10) character set utf8 collate utf8_unicode_ci default NULL,
   `code_type` tinyint(2) default NULL,
-  `modifier` varchar(5) default NULL,
+  `modifier` varchar(5) character set utf8 collate utf8_unicode_ci default NULL,
   `units` tinyint(3) default NULL,
   `fee` decimal(7,2) default NULL,
   `superbill` tinyint(1) NOT NULL default '0',
-  `related_code` varchar(10) NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code',
-  `taxrates` varchar(255) NOT NULL DEFAULT '' COMMENT 'tax rate names delimited by colons',
+  `related_code` varchar(10) character set utf8 collate utf8_unicode_ci default NULL,
+  `taxrates` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   PRIMARY KEY  (`id`),
   KEY `code` (`code`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
---
+-- 
+-- Dumping data for table `codes`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `config`
---
+-- 
 
 DROP TABLE IF EXISTS `config`;
 CREATE TABLE `config` (
   `id` int(11) NOT NULL default '0',
-  `name` varchar(255) NOT NULL default '',
-  `value` varchar(255) NOT NULL default '',
+  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `value` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `parent` int(11) NOT NULL default '0',
   `lft` int(11) NOT NULL default '0',
   `rght` int(11) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `parent` (`parent`),
   KEY `lft` (`lft`,`rght`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
---
+-- 
+-- Dumping data for table `config`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `config_seq`
---
+-- 
 
 DROP TABLE IF EXISTS `config_seq`;
 CREATE TABLE `config_seq` (
   `id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
---
+-- 
 -- Dumping data for table `config_seq`
---
+-- 
 
-/*!40000 ALTER TABLE `config_seq` DISABLE KEYS */;
 INSERT INTO `config_seq` VALUES (0);
-/*!40000 ALTER TABLE `config_seq` ENABLE KEYS */;
 
---
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `documents`
---
+-- 
 
 DROP TABLE IF EXISTS `documents`;
 CREATE TABLE `documents` (
   `id` int(11) NOT NULL default '0',
-  `type` enum('file_url','blob','web_url') default NULL,
+  `type` enum('file_url','blob','web_url') character set latin1 default NULL,
   `size` int(11) default NULL,
   `date` datetime default NULL,
-  `url` varchar(255) default NULL,
-  `mimetype` varchar(255) default NULL,
+  `url` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `mimetype` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `pages` int(11) default NULL,
   `owner` int(11) default NULL,
-  `revision` timestamp,
+  `revision` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   `foreign_id` int(11) default NULL,
-  `docdate` date       DEFAULT NULL,
-  `list_id` bigint(20) NOT NULL DEFAULT 0,
+  `docdate` date default NULL,
+  `list_id` bigint(20) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
   KEY `owner` (`owner`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
---
+-- 
+-- Dumping data for table `documents`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `drug_inventory`
+-- 
+
+DROP TABLE IF EXISTS `drug_inventory`;
+CREATE TABLE `drug_inventory` (
+  `inventory_id` int(11) NOT NULL auto_increment,
+  `drug_id` int(11) NOT NULL,
+  `lot_number` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
+  `expiration` date default NULL,
+  `manufacturer` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `on_hand` int(11) NOT NULL default '0',
+  `last_notify` date NOT NULL default '0000-00-00',
+  `destroy_date` date default NULL,
+  `destroy_method` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `destroy_witness` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `destroy_notes` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  PRIMARY KEY  (`inventory_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `drug_inventory`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `drug_sales`
+-- 
+
+DROP TABLE IF EXISTS `drug_sales`;
+CREATE TABLE `drug_sales` (
+  `sale_id` int(11) NOT NULL auto_increment,
+  `drug_id` int(11) NOT NULL,
+  `inventory_id` int(11) NOT NULL,
+  `prescription_id` int(11) NOT NULL default '0',
+  `pid` int(11) NOT NULL default '0',
+  `encounter` int(11) NOT NULL default '0',
+  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `sale_date` date NOT NULL,
+  `quantity` int(11) NOT NULL default '0',
+  `fee` decimal(7,2) NOT NULL default '0.00',
+  `billed` tinyint(1) NOT NULL default '0' COMMENT 'indicates if the sale is posted to accounting',
+  PRIMARY KEY  (`sale_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `drug_sales`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `drug_templates`
+-- 
+
+DROP TABLE IF EXISTS `drug_templates`;
+CREATE TABLE `drug_templates` (
+  `drug_id` int(11) NOT NULL,
+  `selector` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `dosage` varchar(10) character set utf8 collate utf8_unicode_ci default NULL,
+  `period` int(11) NOT NULL default '0',
+  `quantity` int(11) NOT NULL default '0',
+  `refills` int(11) NOT NULL default '0',
+  `taxrates` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  PRIMARY KEY  (`drug_id`,`selector`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- 
+-- Dumping data for table `drug_templates`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `drugs`
+-- 
+
+DROP TABLE IF EXISTS `drugs`;
+CREATE TABLE `drugs` (
+  `drug_id` int(11) NOT NULL auto_increment,
+  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `ndc_number` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
+  `on_order` int(11) NOT NULL default '0',
+  `reorder_point` int(11) NOT NULL default '0',
+  `last_notify` date NOT NULL default '0000-00-00',
+  `reactions` text character set utf8 collate utf8_unicode_ci,
+  `form` int(3) NOT NULL default '0',
+  `size` float unsigned NOT NULL default '0',
+  `unit` int(11) NOT NULL default '0',
+  `route` int(11) NOT NULL default '0',
+  `substitute` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`drug_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `drugs`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `employer_data`
---
+-- 
 
 DROP TABLE IF EXISTS `employer_data`;
 CREATE TABLE `employer_data` (
   `id` bigint(20) NOT NULL auto_increment,
-  `name` varchar(255) default NULL,
-  `street` varchar(255) default NULL,
-  `postal_code` varchar(255) default NULL,
-  `city` varchar(255) default NULL,
-  `state` varchar(255) default NULL,
-  `country` varchar(255) default NULL,
+  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `street` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `postal_code` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `city` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `state` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `country` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `date` datetime default NULL,
   `pid` bigint(20) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
---
+-- 
+-- Dumping data for table `employer_data`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `facility`
---
+-- 
 
 DROP TABLE IF EXISTS `facility`;
 CREATE TABLE `facility` (
   `id` int(11) NOT NULL auto_increment,
-  `name` varchar(255) default NULL,
-  `phone` varchar(30) default NULL,
-  `fax` varchar(30) default NULL,
-  `street` varchar(255) default NULL,
-  `city` varchar(255) default NULL,
-  `state` varchar(50) default NULL,
-  `postal_code` varchar(11) default NULL,
-  `country_code` varchar(10) default NULL,
-  `federal_ein` varchar(15) default NULL,
+  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `phone` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `fax` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `street` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `city` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `state` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
+  `postal_code` varchar(11) character set utf8 collate utf8_unicode_ci default NULL,
+  `country_code` varchar(10) character set utf8 collate utf8_unicode_ci default NULL,
+  `federal_ein` varchar(15) character set utf8 collate utf8_unicode_ci default NULL,
   `service_location` tinyint(1) NOT NULL default '1',
   `billing_location` tinyint(1) NOT NULL default '0',
   `accepts_assignment` tinyint(1) NOT NULL default '0',
   `pos_code` tinyint(4) default NULL,
-  `x12_sender_id` varchar(25) default NULL,
-  `attn` varchar(65) default NULL,
-  `domain_identifier` varchar(60) default NULL,
-  `facility_npi` varchar(15)  NOT NULL DEFAULT '',
+  `x12_sender_id` varchar(25) character set utf8 collate utf8_unicode_ci default NULL,
+  `attn` varchar(65) character set utf8 collate utf8_unicode_ci default NULL,
+  `domain_identifier` varchar(60) character set utf8 collate utf8_unicode_ci default NULL,
+  `facility_npi` varchar(15) character set utf8 collate utf8_unicode_ci default NULL,
   PRIMARY KEY  (`id`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=4 ;
 
---
+-- 
 -- Dumping data for table `facility`
---
+-- 
 
-/*!40000 ALTER TABLE `facility` DISABLE KEYS */;
-INSERT INTO `facility` VALUES (3,'Your Clinic Name Here','000-000-0000','000-000-0000','','','','','','',1,0,0,NULL,'','','','');
-/*!40000 ALTER TABLE `facility` ENABLE KEYS */;
+INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', 1, 0, 0, NULL, '', '', '', '');
 
---
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `fee_sheet_options`
+-- 
+
+DROP TABLE IF EXISTS `fee_sheet_options`;
+CREATE TABLE `fee_sheet_options` (
+  `fs_category` varchar(63) character set utf8 collate utf8_unicode_ci default NULL,
+  `fs_option` varchar(63) character set utf8 collate utf8_unicode_ci default NULL,
+  `fs_codes` varchar(255) character set utf8 collate utf8_unicode_ci default NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- 
+-- Dumping data for table `fee_sheet_options`
+-- 
+
+INSERT INTO `fee_sheet_options` VALUES ('1New Patient', '1Brief', 'CPT4|99201|');
+INSERT INTO `fee_sheet_options` VALUES ('1New Patient', '2Limited', 'CPT4|99202|');
+INSERT INTO `fee_sheet_options` VALUES ('1New Patient', '3Detailed', 'CPT4|99203|');
+INSERT INTO `fee_sheet_options` VALUES ('1New Patient', '4Extended', 'CPT4|99204|');
+INSERT INTO `fee_sheet_options` VALUES ('1New Patient', '5Comprehensive', 'CPT4|99205|');
+INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '1Brief', 'CPT4|99211|');
+INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '2Limited', 'CPT4|99212|');
+INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '3Detailed', 'CPT4|99213|');
+INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '4Extended', 'CPT4|99214|');
+INSERT INTO `fee_sheet_options` VALUES ('2Established Patient', '5Comprehensive', 'CPT4|99215|');
+
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `form_dictation`
---
+-- 
 
 DROP TABLE IF EXISTS `form_dictation`;
 CREATE TABLE `form_dictation` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
   `pid` bigint(20) default NULL,
-  `user` varchar(255) default NULL,
-  `groupname` varchar(255) default NULL,
+  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `authorized` tinyint(4) default NULL,
   `activity` tinyint(4) default NULL,
-  `dictation` longtext,
-  `additional_notes` longtext,
+  `dictation` longtext character set utf8 collate utf8_unicode_ci,
+  `additional_notes` longtext character set utf8 collate utf8_unicode_ci,
   PRIMARY KEY  (`id`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
---
+-- 
+-- Dumping data for table `form_dictation`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `form_encounter`
---
+-- 
 
 DROP TABLE IF EXISTS `form_encounter`;
 CREATE TABLE `form_encounter` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
-  `reason` longtext,
-  `facility` longtext,
-  `facility_id` int(11) NOT NULL DEFAULT 0,
+  `reason` longtext character set utf8 collate utf8_unicode_ci,
+  `facility` longtext character set utf8 collate utf8_unicode_ci,
+  `facility_id` int(11) NOT NULL default '0',
   `pid` bigint(20) default NULL,
   `encounter` bigint(20) default NULL,
   `onset_date` datetime default NULL,
-  `sensitivity` varchar(30) NOT NULL default '',
-  `billing_note` text NOT NULL DEFAULT '',
-  `pc_catid` int(11) NOT NULL DEFAULT 5 COMMENT 'event category from openemr_postcalendar_categories',
+  `sensitivity` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `billing_note` text character set utf8 collate utf8_unicode_ci,
+  `pc_catid` int(11) NOT NULL default '5' COMMENT 'event category from openemr_postcalendar_categories',
   PRIMARY KEY  (`id`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
---
+-- 
+-- Dumping data for table `form_encounter`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `form_misc_billing_options`
+-- 
+
+DROP TABLE IF EXISTS `form_misc_billing_options`;
+CREATE TABLE `form_misc_billing_options` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `date` datetime default NULL,
+  `pid` bigint(20) default NULL,
+  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `authorized` tinyint(4) default NULL,
+  `activity` tinyint(4) default NULL,
+  `employment_related` tinyint(1) default NULL,
+  `auto_accident` tinyint(1) default NULL,
+  `accident_state` varchar(2) character set utf8 collate utf8_unicode_ci default NULL,
+  `other_accident` tinyint(1) default NULL,
+  `outside_lab` tinyint(1) default NULL,
+  `lab_amount` decimal(5,2) default NULL,
+  `is_unable_to_work` tinyint(1) default NULL,
+  `off_work_from` date default NULL,
+  `off_work_to` date default NULL,
+  `is_hospitalized` tinyint(1) default NULL,
+  `hospitalization_date_from` date default NULL,
+  `hospitalization_date_to` date default NULL,
+  `medicaid_resubmission_code` varchar(10) character set utf8 collate utf8_unicode_ci default NULL,
+  `medicaid_original_reference` varchar(15) character set utf8 collate utf8_unicode_ci default NULL,
+  `prior_auth_number` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
+  `comments` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `form_misc_billing_options`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `form_reviewofs`
---
+-- 
 
 DROP TABLE IF EXISTS `form_reviewofs`;
 CREATE TABLE `form_reviewofs` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
   `pid` bigint(20) default NULL,
-  `user` varchar(255) default NULL,
-  `groupname` varchar(255) default NULL,
+  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `authorized` tinyint(4) default NULL,
   `activity` tinyint(4) default NULL,
-  `fever` varchar(255) default NULL,
-  `chills` varchar(255) default NULL,
-  `night_sweats` varchar(255) default NULL,
-  `weight_loss` varchar(255) default NULL,
-  `poor_appetite` varchar(255) default NULL,
-  `insomnia` varchar(255) default NULL,
-  `fatigued` varchar(255) default NULL,
-  `depressed` varchar(255) default NULL,
-  `hyperactive` varchar(255) default NULL,
-  `exposure_to_foreign_countries` varchar(255) default NULL,
-  `cataracts` varchar(255) default NULL,
-  `cataract_surgery` varchar(255) default NULL,
-  `glaucoma` varchar(255) default NULL,
-  `double_vision` varchar(255) default NULL,
-  `blurred_vision` varchar(255) default NULL,
-  `poor_hearing` varchar(255) default NULL,
-  `headaches` varchar(255) default NULL,
-  `ringing_in_ears` varchar(255) default NULL,
-  `bloody_nose` varchar(255) default NULL,
-  `sinusitis` varchar(255) default NULL,
-  `sinus_surgery` varchar(255) default NULL,
-  `dry_mouth` varchar(255) default NULL,
-  `strep_throat` varchar(255) default NULL,
-  `tonsillectomy` varchar(255) default NULL,
-  `swollen_lymph_nodes` varchar(255) default NULL,
-  `throat_cancer` varchar(255) default NULL,
-  `throat_cancer_surgery` varchar(255) default NULL,
-  `heart_attack` varchar(255) default NULL,
-  `irregular_heart_beat` varchar(255) default NULL,
-  `chest_pains` varchar(255) default NULL,
-  `shortness_of_breath` varchar(255) default NULL,
-  `high_blood_pressure` varchar(255) default NULL,
-  `heart_failure` varchar(255) default NULL,
-  `poor_circulation` varchar(255) default NULL,
-  `vascular_surgery` varchar(255) default NULL,
-  `cardiac_catheterization` varchar(255) default NULL,
-  `coronary_artery_bypass` varchar(255) default NULL,
-  `heart_transplant` varchar(255) default NULL,
-  `stress_test` varchar(255) default NULL,
-  `emphysema` varchar(255) default NULL,
-  `chronic_bronchitis` varchar(255) default NULL,
-  `interstitial_lung_disease` varchar(255) default NULL,
-  `shortness_of_breath_2` varchar(255) default NULL,
-  `lung_cancer` varchar(255) default NULL,
-  `lung_cancer_surgery` varchar(255) default NULL,
-  `pheumothorax` varchar(255) default NULL,
-  `stomach_pains` varchar(255) default NULL,
-  `peptic_ulcer_disease` varchar(255) default NULL,
-  `gastritis` varchar(255) default NULL,
-  `endoscopy` varchar(255) default NULL,
-  `polyps` varchar(255) default NULL,
-  `colonoscopy` varchar(255) default NULL,
-  `colon_cancer` varchar(255) default NULL,
-  `colon_cancer_surgery` varchar(255) default NULL,
-  `ulcerative_colitis` varchar(255) default NULL,
-  `crohns_disease` varchar(255) default NULL,
-  `appendectomy` varchar(255) default NULL,
-  `divirticulitis` varchar(255) default NULL,
-  `divirticulitis_surgery` varchar(255) default NULL,
-  `gall_stones` varchar(255) default NULL,
-  `cholecystectomy` varchar(255) default NULL,
-  `hepatitis` varchar(255) default NULL,
-  `cirrhosis_of_the_liver` varchar(255) default NULL,
-  `splenectomy` varchar(255) default NULL,
-  `kidney_failure` varchar(255) default NULL,
-  `kidney_stones` varchar(255) default NULL,
-  `kidney_cancer` varchar(255) default NULL,
-  `kidney_infections` varchar(255) default NULL,
-  `bladder_infections` varchar(255) default NULL,
-  `bladder_cancer` varchar(255) default NULL,
-  `prostate_problems` varchar(255) default NULL,
-  `prostate_cancer` varchar(255) default NULL,
-  `kidney_transplant` varchar(255) default NULL,
-  `sexually_transmitted_disease` varchar(255) default NULL,
-  `burning_with_urination` varchar(255) default NULL,
-  `discharge_from_urethra` varchar(255) default NULL,
-  `rashes` varchar(255) default NULL,
-  `infections` varchar(255) default NULL,
-  `ulcerations` varchar(255) default NULL,
-  `pemphigus` varchar(255) default NULL,
-  `herpes` varchar(255) default NULL,
-  `osetoarthritis` varchar(255) default NULL,
-  `rheumotoid_arthritis` varchar(255) default NULL,
-  `lupus` varchar(255) default NULL,
-  `ankylosing_sondlilitis` varchar(255) default NULL,
-  `swollen_joints` varchar(255) default NULL,
-  `stiff_joints` varchar(255) default NULL,
-  `broken_bones` varchar(255) default NULL,
-  `neck_problems` varchar(255) default NULL,
-  `back_problems` varchar(255) default NULL,
-  `back_surgery` varchar(255) default NULL,
-  `scoliosis` varchar(255) default NULL,
-  `herniated_disc` varchar(255) default NULL,
-  `shoulder_problems` varchar(255) default NULL,
-  `elbow_problems` varchar(255) default NULL,
-  `wrist_problems` varchar(255) default NULL,
-  `hand_problems` varchar(255) default NULL,
-  `hip_problems` varchar(255) default NULL,
-  `knee_problems` varchar(255) default NULL,
-  `ankle_problems` varchar(255) default NULL,
-  `foot_problems` varchar(255) default NULL,
-  `insulin_dependent_diabetes` varchar(255) default NULL,
-  `noninsulin_dependent_diabetes` varchar(255) default NULL,
-  `hypothyroidism` varchar(255) default NULL,
-  `hyperthyroidism` varchar(255) default NULL,
-  `cushing_syndrom` varchar(255) default NULL,
-  `addison_syndrom` varchar(255) default NULL,
-  `additional_notes` longtext,
+  `fever` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `chills` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `night_sweats` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `weight_loss` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `poor_appetite` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `insomnia` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `fatigued` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `depressed` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `hyperactive` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `exposure_to_foreign_countries` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `cataracts` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `cataract_surgery` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `glaucoma` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `double_vision` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `blurred_vision` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `poor_hearing` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `headaches` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `ringing_in_ears` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `bloody_nose` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `sinusitis` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `sinus_surgery` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `dry_mouth` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `strep_throat` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `tonsillectomy` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `swollen_lymph_nodes` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `throat_cancer` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `throat_cancer_surgery` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `heart_attack` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `irregular_heart_beat` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `chest_pains` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `shortness_of_breath` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `high_blood_pressure` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `heart_failure` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `poor_circulation` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `vascular_surgery` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `cardiac_catheterization` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `coronary_artery_bypass` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `heart_transplant` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `stress_test` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `emphysema` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `chronic_bronchitis` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `interstitial_lung_disease` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `shortness_of_breath_2` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `lung_cancer` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `lung_cancer_surgery` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `pheumothorax` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `stomach_pains` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `peptic_ulcer_disease` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `gastritis` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `endoscopy` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `polyps` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `colonoscopy` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `colon_cancer` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `colon_cancer_surgery` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `ulcerative_colitis` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `crohns_disease` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `appendectomy` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `divirticulitis` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `divirticulitis_surgery` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `gall_stones` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `cholecystectomy` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `hepatitis` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `cirrhosis_of_the_liver` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `splenectomy` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `kidney_failure` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `kidney_stones` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `kidney_cancer` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `kidney_infections` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `bladder_infections` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `bladder_cancer` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `prostate_problems` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `prostate_cancer` varchar(255) character set latin1 default NULL,
+  `kidney_transplant` varchar(255) character set latin1 default NULL,
+  `sexually_transmitted_disease` varchar(255) character set latin1 default NULL,
+  `burning_with_urination` varchar(255) character set latin1 default NULL,
+  `discharge_from_urethra` varchar(255) character set latin1 default NULL,
+  `rashes` varchar(255) character set latin1 default NULL,
+  `infections` varchar(255) character set latin1 default NULL,
+  `ulcerations` varchar(255) character set latin1 default NULL,
+  `pemphigus` varchar(255) character set latin1 default NULL,
+  `herpes` varchar(255) character set latin1 default NULL,
+  `osetoarthritis` varchar(255) character set latin1 default NULL,
+  `rheumotoid_arthritis` varchar(255) character set latin1 default NULL,
+  `lupus` varchar(255) character set latin1 default NULL,
+  `ankylosing_sondlilitis` varchar(255) character set latin1 default NULL,
+  `swollen_joints` varchar(255) character set latin1 default NULL,
+  `stiff_joints` varchar(255) character set latin1 default NULL,
+  `broken_bones` varchar(255) character set latin1 default NULL,
+  `neck_problems` varchar(255) character set latin1 default NULL,
+  `back_problems` varchar(255) character set latin1 default NULL,
+  `back_surgery` varchar(255) character set latin1 default NULL,
+  `scoliosis` varchar(255) character set latin1 default NULL,
+  `herniated_disc` varchar(255) character set latin1 default NULL,
+  `shoulder_problems` varchar(255) character set latin1 default NULL,
+  `elbow_problems` varchar(255) character set latin1 default NULL,
+  `wrist_problems` varchar(255) character set latin1 default NULL,
+  `hand_problems` varchar(255) character set latin1 default NULL,
+  `hip_problems` varchar(255) character set latin1 default NULL,
+  `knee_problems` varchar(255) character set latin1 default NULL,
+  `ankle_problems` varchar(255) character set latin1 default NULL,
+  `foot_problems` varchar(255) character set latin1 default NULL,
+  `insulin_dependent_diabetes` varchar(255) character set latin1 default NULL,
+  `noninsulin_dependent_diabetes` varchar(255) character set latin1 default NULL,
+  `hypothyroidism` varchar(255) character set latin1 default NULL,
+  `hyperthyroidism` varchar(255) character set latin1 default NULL,
+  `cushing_syndrom` varchar(255) character set latin1 default NULL,
+  `addison_syndrom` varchar(255) character set latin1 default NULL,
+  `additional_notes` longtext character set utf8 collate utf8_unicode_ci,
   PRIMARY KEY  (`id`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
---
+-- 
+-- Dumping data for table `form_reviewofs`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `form_ros`
+-- 
+
+DROP TABLE IF EXISTS `form_ros`;
+CREATE TABLE `form_ros` (
+  `id` int(11) NOT NULL auto_increment,
+  `pid` int(11) NOT NULL,
+  `activity` int(11) NOT NULL default '1',
+  `date` datetime default NULL,
+  `weight_change` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `weakness` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `fatigue` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `anorexia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `fever` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `chills` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `night_sweats` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `insomnia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `irritability` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `heat_or_cold` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `intolerance` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `change_in_vision` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `glaucoma_history` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `eye_pain` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `irritation` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `redness` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `excessive_tearing` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `double_vision` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `blind_spots` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `photophobia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `hearing_loss` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `discharge` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `pain` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `vertigo` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `tinnitus` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `frequent_colds` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `sore_throat` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `sinus_problems` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `post_nasal_drip` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `nosebleed` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `snoring` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `apnea` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `breast_mass` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `breast_discharge` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `biopsy` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `abnormal_mammogram` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `cough` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `sputum` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `shortness_of_breath` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `wheezing` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `hemoptsyis` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `asthma` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `copd` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `chest_pain` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `palpitation` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `syncope` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `pnd` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `doe` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `orthopnea` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `peripheal` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `edema` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `legpain_cramping` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `history_murmur` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `arrythmia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `heart_problem` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `dysphagia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `heartburn` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `bloating` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `belching` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `flatulence` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `nausea` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `vomiting` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `hematemesis` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `gastro_pain` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `food_intolerance` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `hepatitis` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `jaundice` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `hematochezia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `changed_bowel` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `diarrhea` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `constipation` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `polyuria` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `polydypsia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `dysuria` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `hematuria` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `frequency` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `urgency` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `incontinence` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `renal_stones` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `utis` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `hesitancy` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `dribbling` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `stream` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `nocturia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `erections` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `ejaculations` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `g` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `p` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `ap` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `lc` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `mearche` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `menopause` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `lmp` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `f_frequency` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `f_flow` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `f_symptoms` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `abnormal_hair_growth` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `f_hirsutism` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `joint_pain` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `swelling` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `m_redness` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `m_warm` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `m_stiffness` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `muscle` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `m_aches` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `fms` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `arthritis` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `loc` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `seizures` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `stroke` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `tia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `n_numbness` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `n_weakness` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `paralysis` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `intellectual_decline` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `memory_problems` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `dementia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `n_headache` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `s_cancer` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `psoriasis` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `s_acne` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `s_other` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `s_disease` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `p_diagnosis` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `p_medication` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `depression` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `anxiety` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `social_difficulties` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `thyroid_problems` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `diabetes` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `abnormal_blood` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `anemia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `fh_blood_problems` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `bleeding_problems` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `allergies` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `frequent_illness` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `hiv` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `hai_status` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `form_ros`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `form_soap`
+-- 
+
+DROP TABLE IF EXISTS `form_soap`;
+CREATE TABLE `form_soap` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `date` datetime default NULL,
+  `pid` bigint(20) default '0',
+  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `authorized` tinyint(4) default '0',
+  `activity` tinyint(4) default '0',
+  `subjective` text character set utf8 collate utf8_unicode_ci,
+  `objective` text character set utf8 collate utf8_unicode_ci,
+  `assessment` text character set utf8 collate utf8_unicode_ci,
+  `plan` text character set utf8 collate utf8_unicode_ci,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `form_soap`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `form_vitals`
+-- 
+
+DROP TABLE IF EXISTS `form_vitals`;
+CREATE TABLE `form_vitals` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `date` datetime default NULL,
+  `pid` bigint(20) default '0',
+  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `authorized` tinyint(4) default '0',
+  `activity` tinyint(4) default '0',
+  `bps` varchar(40) character set utf8 collate utf8_unicode_ci default NULL,
+  `bpd` varchar(40) character set utf8 collate utf8_unicode_ci default NULL,
+  `weight` float(5,2) default '0.00',
+  `height` float(5,2) default '0.00',
+  `temperature` float(5,2) default '0.00',
+  `temp_method` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `pulse` float(5,2) default '0.00',
+  `respiration` float(5,2) default '0.00',
+  `note` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `BMI` float(4,1) default '0.0',
+  `BMI_status` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `waist_circ` float(5,2) default '0.00',
+  `head_circ` float(4,2) default '0.00',
+  `oxygen_saturation` float(5,2) default '0.00',
+  `temp_methods` enum('Oral','Rectal','Axillary') character set latin1 NOT NULL default 'Axillary',
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `form_vitals`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `forms`
---
+-- 
 
 DROP TABLE IF EXISTS `forms`;
 CREATE TABLE `forms` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
   `encounter` bigint(20) default NULL,
-  `form_name` longtext,
+  `form_name` longtext character set utf8 collate utf8_unicode_ci,
   `form_id` bigint(20) default NULL,
   `pid` bigint(20) default NULL,
-  `user` varchar(255) default NULL,
-  `groupname` varchar(255) default NULL,
+  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `authorized` tinyint(4) default NULL,
-  `formdir` longtext,
+  `formdir` longtext character set utf8 collate utf8_unicode_ci,
   PRIMARY KEY  (`id`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
---
+-- 
+-- Dumping data for table `forms`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `geo_country_reference`
---
+-- 
 
 DROP TABLE IF EXISTS `geo_country_reference`;
 CREATE TABLE `geo_country_reference` (
   `countries_id` int(5) NOT NULL auto_increment,
-  `countries_name` varchar(64) NOT NULL default '',
-  `countries_iso_code_2` char(2) NOT NULL default '',
-  `countries_iso_code_3` char(3) NOT NULL default '',
+  `countries_name` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `countries_iso_code_2` char(2) character set latin1 NOT NULL default '',
+  `countries_iso_code_3` char(3) character set latin1 NOT NULL default '',
   PRIMARY KEY  (`countries_id`),
   KEY `IDX_COUNTRIES_NAME` (`countries_name`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=240 ;
 
---
+-- 
 -- Dumping data for table `geo_country_reference`
---
+-- 
 
-/*!40000 ALTER TABLE `geo_country_reference` DISABLE KEYS */;
-INSERT INTO `geo_country_reference` VALUES (1,'Afghanistan','AF','AFG'),(2,'Albania','AL','ALB'),(3,'Algeria','DZ','DZA'),(4,'American Samoa','AS','ASM'),(5,'Andorra','AD','AND'),(6,'Angola','AO','AGO'),(7,'Anguilla','AI','AIA'),(8,'Antarctica','AQ','ATA'),(9,'Antigua and Barbuda','AG','ATG'),(10,'Argentina','AR','ARG'),(11,'Armenia','AM','ARM'),(12,'Aruba','AW','ABW'),(13,'Australia','AU','AUS'),(14,'Austria','AT','AUT'),(15,'Azerbaijan','AZ','AZE'),(16,'Bahamas','BS','BHS'),(17,'Bahrain','BH','BHR'),(18,'Bangladesh','BD','BGD'),(19,'Barbados','BB','BRB'),(20,'Belarus','BY','BLR'),(21,'Belgium','BE','BEL'),(22,'Belize','BZ','BLZ'),(23,'Benin','BJ','BEN'),(24,'Bermuda','BM','BMU'),(25,'Bhutan','BT','BTN'),(26,'Bolivia','BO','BOL'),(27,'Bosnia and Herzegowina','BA','BIH'),(28,'Botswana','BW','BWA'),(29,'Bouvet Island','BV','BVT'),(30,'Brazil','BR','BRA'),(31,'British Indian Ocean Territory','IO','IOT'),(32,'Brunei Darussalam','BN','BRN'),(33,'Bulgaria','BG','BGR'),(34,'Burkina Faso','BF','BFA'),(35,'Burundi','BI','BDI'),(36,'Cambodia','KH','KHM'),(37,'Cameroon','CM','CMR'),(38,'Canada','CA','CAN'),(39,'Cape Verde','CV','CPV'),(40,'Cayman Islands','KY','CYM'),(41,'Central African Republic','CF','CAF'),(42,'Chad','TD','TCD'),(43,'Chile','CL','CHL'),(44,'China','CN','CHN'),(45,'Christmas Island','CX','CXR'),(46,'Cocos (Keeling) Islands','CC','CCK'),(47,'Colombia','CO','COL'),(48,'Comoros','KM','COM'),(49,'Congo','CG','COG'),(50,'Cook Islands','CK','COK'),(51,'Costa Rica','CR','CRI'),(52,'Cote D Ivoire','CI','CIV'),(53,'Croatia','HR','HRV'),(54,'Cuba','CU','CUB'),(55,'Cyprus','CY','CYP'),(56,'Czech Republic','CZ','CZE'),(57,'Denmark','DK','DNK'),(58,'Djibouti','DJ','DJI'),(59,'Dominica','DM','DMA'),(60,'Dominican Republic','DO','DOM'),(61,'East Timor','TP','TMP'),(62,'Ecuador','EC','ECU'),(63,'Egypt','EG','EGY'),(64,'El Salvador','SV','SLV'),(65,'Equatorial Guinea','GQ','GNQ'),(66,'Eritrea','ER','ERI'),(67,'Estonia','EE','EST'),(68,'Ethiopia','ET','ETH'),(69,'Falkland Islands (Malvinas)','FK','FLK'),(70,'Faroe Islands','FO','FRO'),(71,'Fiji','FJ','FJI'),(72,'Finland','FI','FIN'),(73,'France','FR','FRA'),(74,'France, MEtropolitan','FX','FXX'),(75,'French Guiana','GF','GUF'),(76,'French Polynesia','PF','PYF'),(77,'French Southern Territories','TF','ATF'),(78,'Gabon','GA','GAB'),(79,'Gambia','GM','GMB'),(80,'Georgia','GE','GEO'),(81,'Germany','DE','DEU'),(82,'Ghana','GH','GHA'),(83,'Gibraltar','GI','GIB'),(84,'Greece','GR','GRC'),(85,'Greenland','GL','GRL'),(86,'Grenada','GD','GRD'),(87,'Guadeloupe','GP','GLP'),(88,'Guam','GU','GUM'),(89,'Guatemala','GT','GTM'),(90,'Guinea','GN','GIN'),(91,'Guinea-bissau','GW','GNB'),(92,'Guyana','GY','GUY'),(93,'Haiti','HT','HTI'),(94,'Heard and Mc Donald Islands','HM','HMD'),(95,'Honduras','HN','HND'),(96,'Hong Kong','HK','HKG'),(97,'Hungary','HU','HUN'),(98,'Iceland','IS','ISL'),(99,'India','IN','IND'),(100,'Indonesia','ID','IDN'),(101,'Iran (Islamic Republic of)','IR','IRN'),(102,'Iraq','IQ','IRQ'),(103,'Ireland','IE','IRL'),(104,'Israel','IL','ISR'),(105,'Italy','IT','ITA'),(106,'Jamaica','JM','JAM'),(107,'Japan','JP','JPN'),(108,'Jordan','JO','JOR'),(109,'Kazakhstan','KZ','KAZ'),(110,'Kenya','KE','KEN'),(111,'Kiribati','KI','KIR'),(112,'Korea, Democratic Peoples Republic of','KP','PRK'),(113,'Korea, Republic of','KR','KOR'),(114,'Kuwait','KW','KWT'),(115,'Kyrgyzstan','KG','KGZ'),(116,'Lao Peoples Democratic Republic','LA','LAO'),(117,'Latvia','LV','LVA'),(118,'Lebanon','LB','LBN'),(119,'Lesotho','LS','LSO'),(120,'Liberia','LR','LBR'),(121,'Libyan Arab Jamahiriya','LY','LBY'),(122,'Liechtenstein','LI','LIE'),(123,'Lithuania','LT','LTU'),(124,'Luxembourg','LU','LUX'),(125,'Macau','MO','MAC'),(126,'Macedonia, The Former Yugoslav Republic of','MK','MKD'),(127,'Madagascar','MG','MDG'),(128,'Malawi','MW','MWI'),(129,'Malaysia','MY','MYS'),(130,'Maldives','MV','MDV'),(131,'Mali','ML','MLI'),(132,'Malta','MT','MLT'),(133,'Marshall Islands','MH','MHL'),(134,'Martinique','MQ','MTQ'),(135,'Mauritania','MR','MRT'),(136,'Mauritius','MU','MUS'),(137,'Mayotte','YT','MYT'),(138,'Mexico','MX','MEX'),(139,'Micronesia, Federated States of','FM','FSM'),(140,'Moldova, Republic of','MD','MDA'),(141,'Monaco','MC','MCO'),(142,'Mongolia','MN','MNG'),(143,'Montserrat','MS','MSR'),(144,'Morocco','MA','MAR'),(145,'Mozambique','MZ','MOZ'),(146,'Myanmar','MM','MMR'),(147,'Namibia','NA','NAM'),(148,'Nauru','NR','NRU'),(149,'Nepal','NP','NPL'),(150,'Netherlands','NL','NLD'),(151,'Netherlands Antilles','AN','ANT'),(152,'New Caledonia','NC','NCL'),(153,'New Zealand','NZ','NZL'),(154,'Nicaragua','NI','NIC'),(155,'Niger','NE','NER'),(156,'Nigeria','NG','NGA'),(157,'Niue','NU','NIU'),(158,'Norfolk Island','NF','NFK'),(159,'Northern Mariana Islands','MP','MNP'),(160,'Norway','NO','NOR'),(161,'Oman','OM','OMN'),(162,'Pakistan','PK','PAK'),(163,'Palau','PW','PLW'),(164,'Panama','PA','PAN'),(165,'Papua New Guinea','PG','PNG'),(166,'Paraguay','PY','PRY'),(167,'Peru','PE','PER'),(168,'Philippines','PH','PHL'),(169,'Pitcairn','PN','PCN'),(170,'Poland','PL','POL'),(171,'Portugal','PT','PRT'),(172,'Puerto Rico','PR','PRI'),(173,'Qatar','QA','QAT'),(174,'Reunion','RE','REU'),(175,'Romania','RO','ROM'),(176,'Russian Federation','RU','RUS'),(177,'Rwanda','RW','RWA'),(178,'Saint Kitts and Nevis','KN','KNA'),(179,'Saint Lucia','LC','LCA'),(180,'Saint Vincent and the Grenadines','VC','VCT'),(181,'Samoa','WS','WSM'),(182,'San Marino','SM','SMR'),(183,'Sao Tome and Principe','ST','STP'),(184,'Saudi Arabia','SA','SAU'),(185,'Senegal','SN','SEN'),(186,'Seychelles','SC','SYC'),(187,'Sierra Leone','SL','SLE'),(188,'Singapore','SG','SGP'),(189,'Slovakia (Slovak Republic)','SK','SVK'),(190,'Slovenia','SI','SVN'),(191,'Solomon Islands','SB','SLB'),(192,'Somalia','SO','SOM'),(193,'south Africa','ZA','ZAF'),(194,'South Georgia and the South Sandwich Islands','GS','SGS'),(195,'Spain','ES','ESP'),(196,'Sri Lanka','LK','LKA'),(197,'St. Helena','SH','SHN'),(198,'St. Pierre and Miquelon','PM','SPM'),(199,'Sudan','SD','SDN'),(200,'Suriname','SR','SUR'),(201,'Svalbard and Jan Mayen Islands','SJ','SJM'),(202,'Swaziland','SZ','SWZ'),(203,'Sweden','SE','SWE'),(204,'Switzerland','CH','CHE'),(205,'Syrian Arab Republic','SY','SYR'),(206,'Taiwan, Province of China','TW','TWN'),(207,'Tajikistan','TJ','TJK'),(208,'Tanzania, United Republic of','TZ','TZA'),(209,'Thailand','TH','THA'),(210,'Togo','TG','TGO'),(211,'Tokelau','TK','TKL'),(212,'Tonga','TO','TON'),(213,'Trinidad and Tobago','TT','TTO'),(214,'Tunisia','TN','TUN'),(215,'Turkey','TR','TUR'),(216,'Turkmenistan','TM','TKM'),(217,'Turks and Caicos Islands','TC','TCA'),(218,'Tuvalu','TV','TUV'),(219,'Uganda','UG','UGA'),(220,'Ukraine','UA','UKR'),(221,'United Arab Emirates','AE','ARE'),(222,'United Kingdom','GB','GBR'),(223,'United States','US','USA'),(224,'United States Minor Outlying Islands','UM','UMI'),(225,'Uruguay','UY','URY'),(226,'Uzbekistan','UZ','UZB'),(227,'Vanuatu','VU','VUT'),(228,'Vatican City State (Holy See)','VA','VAT'),(229,'Venezuela','VE','VEN'),(230,'Viet Nam','VN','VNM'),(231,'Virgin Islands (British)','VG','VGB'),(232,'Virgin Islands (U.S.)','VI','VIR'),(233,'Wallis and Futuna Islands','WF','WLF'),(234,'Western Sahara','EH','ESH'),(235,'Yemen','YE','YEM'),(236,'Yugoslavia','YU','YUG'),(237,'Zaire','ZR','ZAR'),(238,'Zambia','ZM','ZMB'),(239,'Zimbabwe','ZW','ZWE');
-/*!40000 ALTER TABLE `geo_country_reference` ENABLE KEYS */;
+INSERT INTO `geo_country_reference` VALUES (1, 'Afghanistan', 'AF', 'AFG');
+INSERT INTO `geo_country_reference` VALUES (2, 'Albania', 'AL', 'ALB');
+INSERT INTO `geo_country_reference` VALUES (3, 'Algeria', 'DZ', 'DZA');
+INSERT INTO `geo_country_reference` VALUES (4, 'American Samoa', 'AS', 'ASM');
+INSERT INTO `geo_country_reference` VALUES (5, 'Andorra', 'AD', 'AND');
+INSERT INTO `geo_country_reference` VALUES (6, 'Angola', 'AO', 'AGO');
+INSERT INTO `geo_country_reference` VALUES (7, 'Anguilla', 'AI', 'AIA');
+INSERT INTO `geo_country_reference` VALUES (8, 'Antarctica', 'AQ', 'ATA');
+INSERT INTO `geo_country_reference` VALUES (9, 'Antigua and Barbuda', 'AG', 'ATG');
+INSERT INTO `geo_country_reference` VALUES (10, 'Argentina', 'AR', 'ARG');
+INSERT INTO `geo_country_reference` VALUES (11, 'Armenia', 'AM', 'ARM');
+INSERT INTO `geo_country_reference` VALUES (12, 'Aruba', 'AW', 'ABW');
+INSERT INTO `geo_country_reference` VALUES (13, 'Australia', 'AU', 'AUS');
+INSERT INTO `geo_country_reference` VALUES (14, 'Austria', 'AT', 'AUT');
+INSERT INTO `geo_country_reference` VALUES (15, 'Azerbaijan', 'AZ', 'AZE');
+INSERT INTO `geo_country_reference` VALUES (16, 'Bahamas', 'BS', 'BHS');
+INSERT INTO `geo_country_reference` VALUES (17, 'Bahrain', 'BH', 'BHR');
+INSERT INTO `geo_country_reference` VALUES (18, 'Bangladesh', 'BD', 'BGD');
+INSERT INTO `geo_country_reference` VALUES (19, 'Barbados', 'BB', 'BRB');
+INSERT INTO `geo_country_reference` VALUES (20, 'Belarus', 'BY', 'BLR');
+INSERT INTO `geo_country_reference` VALUES (21, 'Belgium', 'BE', 'BEL');
+INSERT INTO `geo_country_reference` VALUES (22, 'Belize', 'BZ', 'BLZ');
+INSERT INTO `geo_country_reference` VALUES (23, 'Benin', 'BJ', 'BEN');
+INSERT INTO `geo_country_reference` VALUES (24, 'Bermuda', 'BM', 'BMU');
+INSERT INTO `geo_country_reference` VALUES (25, 'Bhutan', 'BT', 'BTN');
+INSERT INTO `geo_country_reference` VALUES (26, 'Bolivia', 'BO', 'BOL');
+INSERT INTO `geo_country_reference` VALUES (27, 'Bosnia and Herzegowina', 'BA', 'BIH');
+INSERT INTO `geo_country_reference` VALUES (28, 'Botswana', 'BW', 'BWA');
+INSERT INTO `geo_country_reference` VALUES (29, 'Bouvet Island', 'BV', 'BVT');
+INSERT INTO `geo_country_reference` VALUES (30, 'Brazil', 'BR', 'BRA');
+INSERT INTO `geo_country_reference` VALUES (31, 'British Indian Ocean Territory', 'IO', 'IOT');
+INSERT INTO `geo_country_reference` VALUES (32, 'Brunei Darussalam', 'BN', 'BRN');
+INSERT INTO `geo_country_reference` VALUES (33, 'Bulgaria', 'BG', 'BGR');
+INSERT INTO `geo_country_reference` VALUES (34, 'Burkina Faso', 'BF', 'BFA');
+INSERT INTO `geo_country_reference` VALUES (35, 'Burundi', 'BI', 'BDI');
+INSERT INTO `geo_country_reference` VALUES (36, 'Cambodia', 'KH', 'KHM');
+INSERT INTO `geo_country_reference` VALUES (37, 'Cameroon', 'CM', 'CMR');
+INSERT INTO `geo_country_reference` VALUES (38, 'Canada', 'CA', 'CAN');
+INSERT INTO `geo_country_reference` VALUES (39, 'Cape Verde', 'CV', 'CPV');
+INSERT INTO `geo_country_reference` VALUES (40, 'Cayman Islands', 'KY', 'CYM');
+INSERT INTO `geo_country_reference` VALUES (41, 'Central African Republic', 'CF', 'CAF');
+INSERT INTO `geo_country_reference` VALUES (42, 'Chad', 'TD', 'TCD');
+INSERT INTO `geo_country_reference` VALUES (43, 'Chile', 'CL', 'CHL');
+INSERT INTO `geo_country_reference` VALUES (44, 'China', 'CN', 'CHN');
+INSERT INTO `geo_country_reference` VALUES (45, 'Christmas Island', 'CX', 'CXR');
+INSERT INTO `geo_country_reference` VALUES (46, 'Cocos (Keeling) Islands', 'CC', 'CCK');
+INSERT INTO `geo_country_reference` VALUES (47, 'Colombia', 'CO', 'COL');
+INSERT INTO `geo_country_reference` VALUES (48, 'Comoros', 'KM', 'COM');
+INSERT INTO `geo_country_reference` VALUES (49, 'Congo', 'CG', 'COG');
+INSERT INTO `geo_country_reference` VALUES (50, 'Cook Islands', 'CK', 'COK');
+INSERT INTO `geo_country_reference` VALUES (51, 'Costa Rica', 'CR', 'CRI');
+INSERT INTO `geo_country_reference` VALUES (52, 'Cote D Ivoire', 'CI', 'CIV');
+INSERT INTO `geo_country_reference` VALUES (53, 'Croatia', 'HR', 'HRV');
+INSERT INTO `geo_country_reference` VALUES (54, 'Cuba', 'CU', 'CUB');
+INSERT INTO `geo_country_reference` VALUES (55, 'Cyprus', 'CY', 'CYP');
+INSERT INTO `geo_country_reference` VALUES (56, 'Czech Republic', 'CZ', 'CZE');
+INSERT INTO `geo_country_reference` VALUES (57, 'Denmark', 'DK', 'DNK');
+INSERT INTO `geo_country_reference` VALUES (58, 'Djibouti', 'DJ', 'DJI');
+INSERT INTO `geo_country_reference` VALUES (59, 'Dominica', 'DM', 'DMA');
+INSERT INTO `geo_country_reference` VALUES (60, 'Dominican Republic', 'DO', 'DOM');
+INSERT INTO `geo_country_reference` VALUES (61, 'East Timor', 'TP', 'TMP');
+INSERT INTO `geo_country_reference` VALUES (62, 'Ecuador', 'EC', 'ECU');
+INSERT INTO `geo_country_reference` VALUES (63, 'Egypt', 'EG', 'EGY');
+INSERT INTO `geo_country_reference` VALUES (64, 'El Salvador', 'SV', 'SLV');
+INSERT INTO `geo_country_reference` VALUES (65, 'Equatorial Guinea', 'GQ', 'GNQ');
+INSERT INTO `geo_country_reference` VALUES (66, 'Eritrea', 'ER', 'ERI');
+INSERT INTO `geo_country_reference` VALUES (67, 'Estonia', 'EE', 'EST');
+INSERT INTO `geo_country_reference` VALUES (68, 'Ethiopia', 'ET', 'ETH');
+INSERT INTO `geo_country_reference` VALUES (69, 'Falkland Islands (Malvinas)', 'FK', 'FLK');
+INSERT INTO `geo_country_reference` VALUES (70, 'Faroe Islands', 'FO', 'FRO');
+INSERT INTO `geo_country_reference` VALUES (71, 'Fiji', 'FJ', 'FJI');
+INSERT INTO `geo_country_reference` VALUES (72, 'Finland', 'FI', 'FIN');
+INSERT INTO `geo_country_reference` VALUES (73, 'France', 'FR', 'FRA');
+INSERT INTO `geo_country_reference` VALUES (74, 'France, MEtropolitan', 'FX', 'FXX');
+INSERT INTO `geo_country_reference` VALUES (75, 'French Guiana', 'GF', 'GUF');
+INSERT INTO `geo_country_reference` VALUES (76, 'French Polynesia', 'PF', 'PYF');
+INSERT INTO `geo_country_reference` VALUES (77, 'French Southern Territories', 'TF', 'ATF');
+INSERT INTO `geo_country_reference` VALUES (78, 'Gabon', 'GA', 'GAB');
+INSERT INTO `geo_country_reference` VALUES (79, 'Gambia', 'GM', 'GMB');
+INSERT INTO `geo_country_reference` VALUES (80, 'Georgia', 'GE', 'GEO');
+INSERT INTO `geo_country_reference` VALUES (81, 'Germany', 'DE', 'DEU');
+INSERT INTO `geo_country_reference` VALUES (82, 'Ghana', 'GH', 'GHA');
+INSERT INTO `geo_country_reference` VALUES (83, 'Gibraltar', 'GI', 'GIB');
+INSERT INTO `geo_country_reference` VALUES (84, 'Greece', 'GR', 'GRC');
+INSERT INTO `geo_country_reference` VALUES (85, 'Greenland', 'GL', 'GRL');
+INSERT INTO `geo_country_reference` VALUES (86, 'Grenada', 'GD', 'GRD');
+INSERT INTO `geo_country_reference` VALUES (87, 'Guadeloupe', 'GP', 'GLP');
+INSERT INTO `geo_country_reference` VALUES (88, 'Guam', 'GU', 'GUM');
+INSERT INTO `geo_country_reference` VALUES (89, 'Guatemala', 'GT', 'GTM');
+INSERT INTO `geo_country_reference` VALUES (90, 'Guinea', 'GN', 'GIN');
+INSERT INTO `geo_country_reference` VALUES (91, 'Guinea-bissau', 'GW', 'GNB');
+INSERT INTO `geo_country_reference` VALUES (92, 'Guyana', 'GY', 'GUY');
+INSERT INTO `geo_country_reference` VALUES (93, 'Haiti', 'HT', 'HTI');
+INSERT INTO `geo_country_reference` VALUES (94, 'Heard and Mc Donald Islands', 'HM', 'HMD');
+INSERT INTO `geo_country_reference` VALUES (95, 'Honduras', 'HN', 'HND');
+INSERT INTO `geo_country_reference` VALUES (96, 'Hong Kong', 'HK', 'HKG');
+INSERT INTO `geo_country_reference` VALUES (97, 'Hungary', 'HU', 'HUN');
+INSERT INTO `geo_country_reference` VALUES (98, 'Iceland', 'IS', 'ISL');
+INSERT INTO `geo_country_reference` VALUES (99, 'India', 'IN', 'IND');
+INSERT INTO `geo_country_reference` VALUES (100, 'Indonesia', 'ID', 'IDN');
+INSERT INTO `geo_country_reference` VALUES (101, 'Iran (Islamic Republic of)', 'IR', 'IRN');
+INSERT INTO `geo_country_reference` VALUES (102, 'Iraq', 'IQ', 'IRQ');
+INSERT INTO `geo_country_reference` VALUES (103, 'Ireland', 'IE', 'IRL');
+INSERT INTO `geo_country_reference` VALUES (104, 'Israel', 'IL', 'ISR');
+INSERT INTO `geo_country_reference` VALUES (105, 'Italy', 'IT', 'ITA');
+INSERT INTO `geo_country_reference` VALUES (106, 'Jamaica', 'JM', 'JAM');
+INSERT INTO `geo_country_reference` VALUES (107, 'Japan', 'JP', 'JPN');
+INSERT INTO `geo_country_reference` VALUES (108, 'Jordan', 'JO', 'JOR');
+INSERT INTO `geo_country_reference` VALUES (109, 'Kazakhstan', 'KZ', 'KAZ');
+INSERT INTO `geo_country_reference` VALUES (110, 'Kenya', 'KE', 'KEN');
+INSERT INTO `geo_country_reference` VALUES (111, 'Kiribati', 'KI', 'KIR');
+INSERT INTO `geo_country_reference` VALUES (112, 'Korea, Democratic Peoples Republic of', 'KP', 'PRK');
+INSERT INTO `geo_country_reference` VALUES (113, 'Korea, Republic of', 'KR', 'KOR');
+INSERT INTO `geo_country_reference` VALUES (114, 'Kuwait', 'KW', 'KWT');
+INSERT INTO `geo_country_reference` VALUES (115, 'Kyrgyzstan', 'KG', 'KGZ');
+INSERT INTO `geo_country_reference` VALUES (116, 'Lao Peoples Democratic Republic', 'LA', 'LAO');
+INSERT INTO `geo_country_reference` VALUES (117, 'Latvia', 'LV', 'LVA');
+INSERT INTO `geo_country_reference` VALUES (118, 'Lebanon', 'LB', 'LBN');
+INSERT INTO `geo_country_reference` VALUES (119, 'Lesotho', 'LS', 'LSO');
+INSERT INTO `geo_country_reference` VALUES (120, 'Liberia', 'LR', 'LBR');
+INSERT INTO `geo_country_reference` VALUES (121, 'Libyan Arab Jamahiriya', 'LY', 'LBY');
+INSERT INTO `geo_country_reference` VALUES (122, 'Liechtenstein', 'LI', 'LIE');
+INSERT INTO `geo_country_reference` VALUES (123, 'Lithuania', 'LT', 'LTU');
+INSERT INTO `geo_country_reference` VALUES (124, 'Luxembourg', 'LU', 'LUX');
+INSERT INTO `geo_country_reference` VALUES (125, 'Macau', 'MO', 'MAC');
+INSERT INTO `geo_country_reference` VALUES (126, 'Macedonia, The Former Yugoslav Republic of', 'MK', 'MKD');
+INSERT INTO `geo_country_reference` VALUES (127, 'Madagascar', 'MG', 'MDG');
+INSERT INTO `geo_country_reference` VALUES (128, 'Malawi', 'MW', 'MWI');
+INSERT INTO `geo_country_reference` VALUES (129, 'Malaysia', 'MY', 'MYS');
+INSERT INTO `geo_country_reference` VALUES (130, 'Maldives', 'MV', 'MDV');
+INSERT INTO `geo_country_reference` VALUES (131, 'Mali', 'ML', 'MLI');
+INSERT INTO `geo_country_reference` VALUES (132, 'Malta', 'MT', 'MLT');
+INSERT INTO `geo_country_reference` VALUES (133, 'Marshall Islands', 'MH', 'MHL');
+INSERT INTO `geo_country_reference` VALUES (134, 'Martinique', 'MQ', 'MTQ');
+INSERT INTO `geo_country_reference` VALUES (135, 'Mauritania', 'MR', 'MRT');
+INSERT INTO `geo_country_reference` VALUES (136, 'Mauritius', 'MU', 'MUS');
+INSERT INTO `geo_country_reference` VALUES (137, 'Mayotte', 'YT', 'MYT');
+INSERT INTO `geo_country_reference` VALUES (138, 'Mexico', 'MX', 'MEX');
+INSERT INTO `geo_country_reference` VALUES (139, 'Micronesia, Federated States of', 'FM', 'FSM');
+INSERT INTO `geo_country_reference` VALUES (140, 'Moldova, Republic of', 'MD', 'MDA');
+INSERT INTO `geo_country_reference` VALUES (141, 'Monaco', 'MC', 'MCO');
+INSERT INTO `geo_country_reference` VALUES (142, 'Mongolia', 'MN', 'MNG');
+INSERT INTO `geo_country_reference` VALUES (143, 'Montserrat', 'MS', 'MSR');
+INSERT INTO `geo_country_reference` VALUES (144, 'Morocco', 'MA', 'MAR');
+INSERT INTO `geo_country_reference` VALUES (145, 'Mozambique', 'MZ', 'MOZ');
+INSERT INTO `geo_country_reference` VALUES (146, 'Myanmar', 'MM', 'MMR');
+INSERT INTO `geo_country_reference` VALUES (147, 'Namibia', 'NA', 'NAM');
+INSERT INTO `geo_country_reference` VALUES (148, 'Nauru', 'NR', 'NRU');
+INSERT INTO `geo_country_reference` VALUES (149, 'Nepal', 'NP', 'NPL');
+INSERT INTO `geo_country_reference` VALUES (150, 'Netherlands', 'NL', 'NLD');
+INSERT INTO `geo_country_reference` VALUES (151, 'Netherlands Antilles', 'AN', 'ANT');
+INSERT INTO `geo_country_reference` VALUES (152, 'New Caledonia', 'NC', 'NCL');
+INSERT INTO `geo_country_reference` VALUES (153, 'New Zealand', 'NZ', 'NZL');
+INSERT INTO `geo_country_reference` VALUES (154, 'Nicaragua', 'NI', 'NIC');
+INSERT INTO `geo_country_reference` VALUES (155, 'Niger', 'NE', 'NER');
+INSERT INTO `geo_country_reference` VALUES (156, 'Nigeria', 'NG', 'NGA');
+INSERT INTO `geo_country_reference` VALUES (157, 'Niue', 'NU', 'NIU');
+INSERT INTO `geo_country_reference` VALUES (158, 'Norfolk Island', 'NF', 'NFK');
+INSERT INTO `geo_country_reference` VALUES (159, 'Northern Mariana Islands', 'MP', 'MNP');
+INSERT INTO `geo_country_reference` VALUES (160, 'Norway', 'NO', 'NOR');
+INSERT INTO `geo_country_reference` VALUES (161, 'Oman', 'OM', 'OMN');
+INSERT INTO `geo_country_reference` VALUES (162, 'Pakistan', 'PK', 'PAK');
+INSERT INTO `geo_country_reference` VALUES (163, 'Palau', 'PW', 'PLW');
+INSERT INTO `geo_country_reference` VALUES (164, 'Panama', 'PA', 'PAN');
+INSERT INTO `geo_country_reference` VALUES (165, 'Papua New Guinea', 'PG', 'PNG');
+INSERT INTO `geo_country_reference` VALUES (166, 'Paraguay', 'PY', 'PRY');
+INSERT INTO `geo_country_reference` VALUES (167, 'Peru', 'PE', 'PER');
+INSERT INTO `geo_country_reference` VALUES (168, 'Philippines', 'PH', 'PHL');
+INSERT INTO `geo_country_reference` VALUES (169, 'Pitcairn', 'PN', 'PCN');
+INSERT INTO `geo_country_reference` VALUES (170, 'Poland', 'PL', 'POL');
+INSERT INTO `geo_country_reference` VALUES (171, 'Portugal', 'PT', 'PRT');
+INSERT INTO `geo_country_reference` VALUES (172, 'Puerto Rico', 'PR', 'PRI');
+INSERT INTO `geo_country_reference` VALUES (173, 'Qatar', 'QA', 'QAT');
+INSERT INTO `geo_country_reference` VALUES (174, 'Reunion', 'RE', 'REU');
+INSERT INTO `geo_country_reference` VALUES (175, 'Romania', 'RO', 'ROM');
+INSERT INTO `geo_country_reference` VALUES (176, 'Russian Federation', 'RU', 'RUS');
+INSERT INTO `geo_country_reference` VALUES (177, 'Rwanda', 'RW', 'RWA');
+INSERT INTO `geo_country_reference` VALUES (178, 'Saint Kitts and Nevis', 'KN', 'KNA');
+INSERT INTO `geo_country_reference` VALUES (179, 'Saint Lucia', 'LC', 'LCA');
+INSERT INTO `geo_country_reference` VALUES (180, 'Saint Vincent and the Grenadines', 'VC', 'VCT');
+INSERT INTO `geo_country_reference` VALUES (181, 'Samoa', 'WS', 'WSM');
+INSERT INTO `geo_country_reference` VALUES (182, 'San Marino', 'SM', 'SMR');
+INSERT INTO `geo_country_reference` VALUES (183, 'Sao Tome and Principe', 'ST', 'STP');
+INSERT INTO `geo_country_reference` VALUES (184, 'Saudi Arabia', 'SA', 'SAU');
+INSERT INTO `geo_country_reference` VALUES (185, 'Senegal', 'SN', 'SEN');
+INSERT INTO `geo_country_reference` VALUES (186, 'Seychelles', 'SC', 'SYC');
+INSERT INTO `geo_country_reference` VALUES (187, 'Sierra Leone', 'SL', 'SLE');
+INSERT INTO `geo_country_reference` VALUES (188, 'Singapore', 'SG', 'SGP');
+INSERT INTO `geo_country_reference` VALUES (189, 'Slovakia (Slovak Republic)', 'SK', 'SVK');
+INSERT INTO `geo_country_reference` VALUES (190, 'Slovenia', 'SI', 'SVN');
+INSERT INTO `geo_country_reference` VALUES (191, 'Solomon Islands', 'SB', 'SLB');
+INSERT INTO `geo_country_reference` VALUES (192, 'Somalia', 'SO', 'SOM');
+INSERT INTO `geo_country_reference` VALUES (193, 'south Africa', 'ZA', 'ZAF');
+INSERT INTO `geo_country_reference` VALUES (194, 'South Georgia and the South Sandwich Islands', 'GS', 'SGS');
+INSERT INTO `geo_country_reference` VALUES (195, 'Spain', 'ES', 'ESP');
+INSERT INTO `geo_country_reference` VALUES (196, 'Sri Lanka', 'LK', 'LKA');
+INSERT INTO `geo_country_reference` VALUES (197, 'St. Helena', 'SH', 'SHN');
+INSERT INTO `geo_country_reference` VALUES (198, 'St. Pierre and Miquelon', 'PM', 'SPM');
+INSERT INTO `geo_country_reference` VALUES (199, 'Sudan', 'SD', 'SDN');
+INSERT INTO `geo_country_reference` VALUES (200, 'Suriname', 'SR', 'SUR');
+INSERT INTO `geo_country_reference` VALUES (201, 'Svalbard and Jan Mayen Islands', 'SJ', 'SJM');
+INSERT INTO `geo_country_reference` VALUES (202, 'Swaziland', 'SZ', 'SWZ');
+INSERT INTO `geo_country_reference` VALUES (203, 'Sweden', 'SE', 'SWE');
+INSERT INTO `geo_country_reference` VALUES (204, 'Switzerland', 'CH', 'CHE');
+INSERT INTO `geo_country_reference` VALUES (205, 'Syrian Arab Republic', 'SY', 'SYR');
+INSERT INTO `geo_country_reference` VALUES (206, 'Taiwan, Province of China', 'TW', 'TWN');
+INSERT INTO `geo_country_reference` VALUES (207, 'Tajikistan', 'TJ', 'TJK');
+INSERT INTO `geo_country_reference` VALUES (208, 'Tanzania, United Republic of', 'TZ', 'TZA');
+INSERT INTO `geo_country_reference` VALUES (209, 'Thailand', 'TH', 'THA');
+INSERT INTO `geo_country_reference` VALUES (210, 'Togo', 'TG', 'TGO');
+INSERT INTO `geo_country_reference` VALUES (211, 'Tokelau', 'TK', 'TKL');
+INSERT INTO `geo_country_reference` VALUES (212, 'Tonga', 'TO', 'TON');
+INSERT INTO `geo_country_reference` VALUES (213, 'Trinidad and Tobago', 'TT', 'TTO');
+INSERT INTO `geo_country_reference` VALUES (214, 'Tunisia', 'TN', 'TUN');
+INSERT INTO `geo_country_reference` VALUES (215, 'Turkey', 'TR', 'TUR');
+INSERT INTO `geo_country_reference` VALUES (216, 'Turkmenistan', 'TM', 'TKM');
+INSERT INTO `geo_country_reference` VALUES (217, 'Turks and Caicos Islands', 'TC', 'TCA');
+INSERT INTO `geo_country_reference` VALUES (218, 'Tuvalu', 'TV', 'TUV');
+INSERT INTO `geo_country_reference` VALUES (219, 'Uganda', 'UG', 'UGA');
+INSERT INTO `geo_country_reference` VALUES (220, 'Ukraine', 'UA', 'UKR');
+INSERT INTO `geo_country_reference` VALUES (221, 'United Arab Emirates', 'AE', 'ARE');
+INSERT INTO `geo_country_reference` VALUES (222, 'United Kingdom', 'GB', 'GBR');
+INSERT INTO `geo_country_reference` VALUES (223, 'United States', 'US', 'USA');
+INSERT INTO `geo_country_reference` VALUES (224, 'United States Minor Outlying Islands', 'UM', 'UMI');
+INSERT INTO `geo_country_reference` VALUES (225, 'Uruguay', 'UY', 'URY');
+INSERT INTO `geo_country_reference` VALUES (226, 'Uzbekistan', 'UZ', 'UZB');
+INSERT INTO `geo_country_reference` VALUES (227, 'Vanuatu', 'VU', 'VUT');
+INSERT INTO `geo_country_reference` VALUES (228, 'Vatican City State (Holy See)', 'VA', 'VAT');
+INSERT INTO `geo_country_reference` VALUES (229, 'Venezuela', 'VE', 'VEN');
+INSERT INTO `geo_country_reference` VALUES (230, 'Viet Nam', 'VN', 'VNM');
+INSERT INTO `geo_country_reference` VALUES (231, 'Virgin Islands (British)', 'VG', 'VGB');
+INSERT INTO `geo_country_reference` VALUES (232, 'Virgin Islands (U.S.)', 'VI', 'VIR');
+INSERT INTO `geo_country_reference` VALUES (233, 'Wallis and Futuna Islands', 'WF', 'WLF');
+INSERT INTO `geo_country_reference` VALUES (234, 'Western Sahara', 'EH', 'ESH');
+INSERT INTO `geo_country_reference` VALUES (235, 'Yemen', 'YE', 'YEM');
+INSERT INTO `geo_country_reference` VALUES (236, 'Yugoslavia', 'YU', 'YUG');
+INSERT INTO `geo_country_reference` VALUES (237, 'Zaire', 'ZR', 'ZAR');
+INSERT INTO `geo_country_reference` VALUES (238, 'Zambia', 'ZM', 'ZMB');
+INSERT INTO `geo_country_reference` VALUES (239, 'Zimbabwe', 'ZW', 'ZWE');
 
---
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `geo_zone_reference`
---
+-- 
 
 DROP TABLE IF EXISTS `geo_zone_reference`;
 CREATE TABLE `geo_zone_reference` (
   `zone_id` int(5) NOT NULL auto_increment,
   `zone_country_id` int(5) NOT NULL default '0',
-  `zone_code` varchar(5) NOT NULL default '',
-  `zone_name` varchar(32) NOT NULL default '',
+  `zone_code` varchar(5) character set utf8 collate utf8_unicode_ci default NULL,
+  `zone_name` varchar(32) character set utf8 collate utf8_unicode_ci default NULL,
   PRIMARY KEY  (`zone_id`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=83 ;
 
---
+-- 
 -- Dumping data for table `geo_zone_reference`
---
+-- 
 
-/*!40000 ALTER TABLE `geo_zone_reference` DISABLE KEYS */;
-INSERT INTO `geo_zone_reference` VALUES (1,223,'AL','Alabama'),(2,223,'AK','Alaska'),(3,223,'AS','American Samoa'),(4,223,'AZ','Arizona'),(5,223,'AR','Arkansas'),(6,223,'AF','Armed Forces Africa'),(7,223,'AA','Armed Forces Americas'),(8,223,'AC','Armed Forces Canada'),(9,223,'AE','Armed Forces Europe'),(10,223,'AM','Armed Forces Middle East'),(11,223,'AP','Armed Forces Pacific'),(12,223,'CA','California'),(13,223,'CO','Colorado'),(14,223,'CT','Connecticut'),(15,223,'DE','Delaware'),(16,223,'DC','District of Columbia'),(17,223,'FM','Federated States Of Micronesia'),(18,223,'FL','Florida'),(19,223,'GA','Georgia'),(20,223,'GU','Guam'),(21,223,'HI','Hawaii'),(22,223,'ID','Idaho'),(23,223,'IL','Illinois'),(24,223,'IN','Indiana'),(25,223,'IA','Iowa'),(26,223,'KS','Kansas'),(27,223,'KY','Kentucky'),(28,223,'LA','Louisiana'),(29,223,'ME','Maine'),(30,223,'MH','Marshall Islands'),(31,223,'MD','Maryland'),(32,223,'MA','Massachusetts'),(33,223,'MI','Michigan'),(34,223,'MN','Minnesota'),(35,223,'MS','Mississippi'),(36,223,'MO','Missouri'),(37,223,'MT','Montana'),(38,223,'NE','Nebraska'),(39,223,'NV','Nevada'),(40,223,'NH','New Hampshire'),(41,223,'NJ','New Jersey'),(42,223,'NM','New Mexico'),(43,223,'NY','New York'),(44,223,'NC','North Carolina'),(45,223,'ND','North Dakota'),(46,223,'MP','Northern Mariana Islands'),(47,223,'OH','Ohio'),(48,223,'OK','Oklahoma'),(49,223,'OR','Oregon'),(50,223,'PW','Palau'),(51,223,'PA','Pennsylvania'),(52,223,'PR','Puerto Rico'),(53,223,'RI','Rhode Island'),(54,223,'SC','South Carolina'),(55,223,'SD','South Dakota'),(56,223,'TN','Tenessee'),(57,223,'TX','Texas'),(58,223,'UT','Utah'),(59,223,'VT','Vermont'),(60,223,'VI','Virgin Islands'),(61,223,'VA','Virginia'),(62,223,'WA','Washington'),(63,223,'WV','West Virginia'),(64,223,'WI','Wisconsin'),(65,223,'WY','Wyoming'),(66,38,'AB','Alberta'),(67,38,'BC','British Columbia'),(68,38,'MB','Manitoba'),(69,38,'NF','Newfoundland'),(70,38,'NB','New Brunswick'),(71,38,'NS','Nova Scotia'),(72,38,'NT','Northwest Territories'),(73,38,'NU','Nunavut'),(74,38,'ON','Ontario'),(75,38,'PE','Prince Edward Island'),(76,38,'QC','Quebec'),(77,38,'SK','Saskatchewan'),(78,38,'YT','Yukon Territory'),(79,61,'QLD','Queensland'),(80,61,'SA','South Australia'),(81,61,'ACT','Australian Capital Territory'),(82,61,'VIC','Victoria');
-/*!40000 ALTER TABLE `geo_zone_reference` ENABLE KEYS */;
+INSERT INTO `geo_zone_reference` VALUES (1, 223, 'AL', 'Alabama');
+INSERT INTO `geo_zone_reference` VALUES (2, 223, 'AK', 'Alaska');
+INSERT INTO `geo_zone_reference` VALUES (3, 223, 'AS', 'American Samoa');
+INSERT INTO `geo_zone_reference` VALUES (4, 223, 'AZ', 'Arizona');
+INSERT INTO `geo_zone_reference` VALUES (5, 223, 'AR', 'Arkansas');
+INSERT INTO `geo_zone_reference` VALUES (6, 223, 'AF', 'Armed Forces Africa');
+INSERT INTO `geo_zone_reference` VALUES (7, 223, 'AA', 'Armed Forces Americas');
+INSERT INTO `geo_zone_reference` VALUES (8, 223, 'AC', 'Armed Forces Canada');
+INSERT INTO `geo_zone_reference` VALUES (9, 223, 'AE', 'Armed Forces Europe');
+INSERT INTO `geo_zone_reference` VALUES (10, 223, 'AM', 'Armed Forces Middle East');
+INSERT INTO `geo_zone_reference` VALUES (11, 223, 'AP', 'Armed Forces Pacific');
+INSERT INTO `geo_zone_reference` VALUES (12, 223, 'CA', 'California');
+INSERT INTO `geo_zone_reference` VALUES (13, 223, 'CO', 'Colorado');
+INSERT INTO `geo_zone_reference` VALUES (14, 223, 'CT', 'Connecticut');
+INSERT INTO `geo_zone_reference` VALUES (15, 223, 'DE', 'Delaware');
+INSERT INTO `geo_zone_reference` VALUES (16, 223, 'DC', 'District of Columbia');
+INSERT INTO `geo_zone_reference` VALUES (17, 223, 'FM', 'Federated States Of Micronesia');
+INSERT INTO `geo_zone_reference` VALUES (18, 223, 'FL', 'Florida');
+INSERT INTO `geo_zone_reference` VALUES (19, 223, 'GA', 'Georgia');
+INSERT INTO `geo_zone_reference` VALUES (20, 223, 'GU', 'Guam');
+INSERT INTO `geo_zone_reference` VALUES (21, 223, 'HI', 'Hawaii');
+INSERT INTO `geo_zone_reference` VALUES (22, 223, 'ID', 'Idaho');
+INSERT INTO `geo_zone_reference` VALUES (23, 223, 'IL', 'Illinois');
+INSERT INTO `geo_zone_reference` VALUES (24, 223, 'IN', 'Indiana');
+INSERT INTO `geo_zone_reference` VALUES (25, 223, 'IA', 'Iowa');
+INSERT INTO `geo_zone_reference` VALUES (26, 223, 'KS', 'Kansas');
+INSERT INTO `geo_zone_reference` VALUES (27, 223, 'KY', 'Kentucky');
+INSERT INTO `geo_zone_reference` VALUES (28, 223, 'LA', 'Louisiana');
+INSERT INTO `geo_zone_reference` VALUES (29, 223, 'ME', 'Maine');
+INSERT INTO `geo_zone_reference` VALUES (30, 223, 'MH', 'Marshall Islands');
+INSERT INTO `geo_zone_reference` VALUES (31, 223, 'MD', 'Maryland');
+INSERT INTO `geo_zone_reference` VALUES (32, 223, 'MA', 'Massachusetts');
+INSERT INTO `geo_zone_reference` VALUES (33, 223, 'MI', 'Michigan');
+INSERT INTO `geo_zone_reference` VALUES (34, 223, 'MN', 'Minnesota');
+INSERT INTO `geo_zone_reference` VALUES (35, 223, 'MS', 'Mississippi');
+INSERT INTO `geo_zone_reference` VALUES (36, 223, 'MO', 'Missouri');
+INSERT INTO `geo_zone_reference` VALUES (37, 223, 'MT', 'Montana');
+INSERT INTO `geo_zone_reference` VALUES (38, 223, 'NE', 'Nebraska');
+INSERT INTO `geo_zone_reference` VALUES (39, 223, 'NV', 'Nevada');
+INSERT INTO `geo_zone_reference` VALUES (40, 223, 'NH', 'New Hampshire');
+INSERT INTO `geo_zone_reference` VALUES (41, 223, 'NJ', 'New Jersey');
+INSERT INTO `geo_zone_reference` VALUES (42, 223, 'NM', 'New Mexico');
+INSERT INTO `geo_zone_reference` VALUES (43, 223, 'NY', 'New York');
+INSERT INTO `geo_zone_reference` VALUES (44, 223, 'NC', 'North Carolina');
+INSERT INTO `geo_zone_reference` VALUES (45, 223, 'ND', 'North Dakota');
+INSERT INTO `geo_zone_reference` VALUES (46, 223, 'MP', 'Northern Mariana Islands');
+INSERT INTO `geo_zone_reference` VALUES (47, 223, 'OH', 'Ohio');
+INSERT INTO `geo_zone_reference` VALUES (48, 223, 'OK', 'Oklahoma');
+INSERT INTO `geo_zone_reference` VALUES (49, 223, 'OR', 'Oregon');
+INSERT INTO `geo_zone_reference` VALUES (50, 223, 'PW', 'Palau');
+INSERT INTO `geo_zone_reference` VALUES (51, 223, 'PA', 'Pennsylvania');
+INSERT INTO `geo_zone_reference` VALUES (52, 223, 'PR', 'Puerto Rico');
+INSERT INTO `geo_zone_reference` VALUES (53, 223, 'RI', 'Rhode Island');
+INSERT INTO `geo_zone_reference` VALUES (54, 223, 'SC', 'South Carolina');
+INSERT INTO `geo_zone_reference` VALUES (55, 223, 'SD', 'South Dakota');
+INSERT INTO `geo_zone_reference` VALUES (56, 223, 'TN', 'Tenessee');
+INSERT INTO `geo_zone_reference` VALUES (57, 223, 'TX', 'Texas');
+INSERT INTO `geo_zone_reference` VALUES (58, 223, 'UT', 'Utah');
+INSERT INTO `geo_zone_reference` VALUES (59, 223, 'VT', 'Vermont');
+INSERT INTO `geo_zone_reference` VALUES (60, 223, 'VI', 'Virgin Islands');
+INSERT INTO `geo_zone_reference` VALUES (61, 223, 'VA', 'Virginia');
+INSERT INTO `geo_zone_reference` VALUES (62, 223, 'WA', 'Washington');
+INSERT INTO `geo_zone_reference` VALUES (63, 223, 'WV', 'West Virginia');
+INSERT INTO `geo_zone_reference` VALUES (64, 223, 'WI', 'Wisconsin');
+INSERT INTO `geo_zone_reference` VALUES (65, 223, 'WY', 'Wyoming');
+INSERT INTO `geo_zone_reference` VALUES (66, 38, 'AB', 'Alberta');
+INSERT INTO `geo_zone_reference` VALUES (67, 38, 'BC', 'British Columbia');
+INSERT INTO `geo_zone_reference` VALUES (68, 38, 'MB', 'Manitoba');
+INSERT INTO `geo_zone_reference` VALUES (69, 38, 'NF', 'Newfoundland');
+INSERT INTO `geo_zone_reference` VALUES (70, 38, 'NB', 'New Brunswick');
+INSERT INTO `geo_zone_reference` VALUES (71, 38, 'NS', 'Nova Scotia');
+INSERT INTO `geo_zone_reference` VALUES (72, 38, 'NT', 'Northwest Territories');
+INSERT INTO `geo_zone_reference` VALUES (73, 38, 'NU', 'Nunavut');
+INSERT INTO `geo_zone_reference` VALUES (74, 38, 'ON', 'Ontario');
+INSERT INTO `geo_zone_reference` VALUES (75, 38, 'PE', 'Prince Edward Island');
+INSERT INTO `geo_zone_reference` VALUES (76, 38, 'QC', 'Quebec');
+INSERT INTO `geo_zone_reference` VALUES (77, 38, 'SK', 'Saskatchewan');
+INSERT INTO `geo_zone_reference` VALUES (78, 38, 'YT', 'Yukon Territory');
+INSERT INTO `geo_zone_reference` VALUES (79, 61, 'QLD', 'Queensland');
+INSERT INTO `geo_zone_reference` VALUES (80, 61, 'SA', 'South Australia');
+INSERT INTO `geo_zone_reference` VALUES (81, 61, 'ACT', 'Australian Capital Territory');
+INSERT INTO `geo_zone_reference` VALUES (82, 61, 'VIC', 'Victoria');
 
---
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `groups`
---
+-- 
 
 DROP TABLE IF EXISTS `groups`;
 CREATE TABLE `groups` (
   `id` bigint(20) NOT NULL auto_increment,
-  `name` longtext,
-  `user` longtext,
+  `name` longtext character set utf8 collate utf8_unicode_ci,
+  `user` longtext character set utf8 collate utf8_unicode_ci,
   PRIMARY KEY  (`id`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
---
+-- 
+-- Dumping data for table `groups`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
 -- Table structure for table `history_data`
--- See interface/patient_file/history/history.inc.php which should be
--- modified whenever corresponding changes are made to this table.
---
+-- 
 
 DROP TABLE IF EXISTS `history_data`;
 CREATE TABLE `history_data` (
   `id` bigint(20) NOT NULL auto_increment,
-  `coffee` longtext,
-  `tobacco` longtext,
-  `alcohol` longtext,
-  `sleep_patterns` longtext,
-  `exercise_patterns` longtext,
-  `seatbelt_use` longtext,
-  `counseling` longtext,
-  `hazardous_activities` longtext,
-  `last_breast_exam`               varchar(255) NOT NULL default '',
-  `last_mammogram`                 varchar(255) NOT NULL default '',
-  `last_gynocological_exam`        varchar(255) NOT NULL default '',
-  `last_rectal_exam`               varchar(255) NOT NULL default '',
-  `last_prostate_exam`             varchar(255) NOT NULL default '',
-  `last_physical_exam`             varchar(255) NOT NULL default '',
-  `last_sigmoidoscopy_colonoscopy` varchar(255) NOT NULL default '',
-  `last_ecg`                       varchar(255) NOT NULL DEFAULT '',
-  `last_cardiac_echo`              varchar(255) NOT NULL DEFAULT '',
-  `last_retinal`                   varchar(255) NOT NULL DEFAULT '',
-  `last_fluvax`                    varchar(255) NOT NULL DEFAULT '',
-  `last_pneuvax`                   varchar(255) NOT NULL DEFAULT '',
-  `last_ldl`                       varchar(255) NOT NULL DEFAULT '',
-  `last_hemoglobin`                varchar(255) NOT NULL DEFAULT '',
-  `last_psa`                       varchar(255) NOT NULL DEFAULT '',
-  `last_exam_results`              varchar(255) NOT NULL DEFAULT '0000000000000000',
-  `history_mother` longtext,
-  `history_father` longtext,
-  `history_siblings` longtext,
-  `history_offspring` longtext,
-  `history_spouse` longtext,
-  `relatives_cancer` longtext,
-  `relatives_tuberculosis` longtext,
-  `relatives_diabetes` longtext,
-  `relatives_high_blood_pressure` longtext,
-  `relatives_heart_problems` longtext,
-  `relatives_stroke` longtext,
-  `relatives_epilepsy` longtext,
-  `relatives_mental_illness` longtext,
-  `relatives_suicide` longtext,
+  `coffee` longtext character set utf8 collate utf8_unicode_ci,
+  `tobacco` longtext character set utf8 collate utf8_unicode_ci,
+  `alcohol` longtext character set utf8 collate utf8_unicode_ci,
+  `sleep_patterns` longtext character set utf8 collate utf8_unicode_ci,
+  `exercise_patterns` longtext character set utf8 collate utf8_unicode_ci,
+  `seatbelt_use` longtext character set utf8 collate utf8_unicode_ci,
+  `counseling` longtext character set utf8 collate utf8_unicode_ci,
+  `hazardous_activities` longtext character set utf8 collate utf8_unicode_ci,
+  `last_breast_exam` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `last_mammogram` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `last_gynocological_exam` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `last_rectal_exam` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `last_prostate_exam` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `last_physical_exam` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `last_sigmoidoscopy_colonoscopy` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `last_ecg` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `last_cardiac_echo` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `last_retinal` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `last_fluvax` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `last_pneuvax` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `last_ldl` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `last_hemoglobin` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `last_psa` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `last_exam_results` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `history_mother` longtext character set utf8 collate utf8_unicode_ci,
+  `history_father` longtext character set utf8 collate utf8_unicode_ci,
+  `history_siblings` longtext character set utf8 collate utf8_unicode_ci,
+  `history_offspring` longtext character set utf8 collate utf8_unicode_ci,
+  `history_spouse` longtext character set utf8 collate utf8_unicode_ci,
+  `relatives_cancer` longtext character set utf8 collate utf8_unicode_ci,
+  `relatives_tuberculosis` longtext character set utf8 collate utf8_unicode_ci,
+  `relatives_diabetes` longtext character set utf8 collate utf8_unicode_ci,
+  `relatives_high_blood_pressure` longtext character set utf8 collate utf8_unicode_ci,
+  `relatives_heart_problems` longtext character set utf8 collate utf8_unicode_ci,
+  `relatives_stroke` longtext character set utf8 collate utf8_unicode_ci,
+  `relatives_epilepsy` longtext character set utf8 collate utf8_unicode_ci,
+  `relatives_mental_illness` longtext character set utf8 collate utf8_unicode_ci,
+  `relatives_suicide` longtext character set utf8 collate utf8_unicode_ci,
   `cataract_surgery` datetime default NULL,
   `tonsillectomy` datetime default NULL,
   `cholecystestomy` datetime default NULL,
@@ -536,970 +1415,37 @@ CREATE TABLE `history_data` (
   `appendectomy` datetime default NULL,
   `date` datetime default NULL,
   `pid` bigint(20) NOT NULL default '0',
-  `name_1` varchar(255) default NULL,
-  `value_1` varchar(255) default NULL,
-  `name_2` varchar(255) default NULL,
-  `value_2` varchar(255) default NULL,
-  `additional_history` text,
+  `name_1` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `value_1` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `name_2` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `value_2` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `additional_history` text character set utf8 collate utf8_unicode_ci,
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
-) ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
---
--- Table structure for table `insurance_companies`
---
+-- 
+-- Dumping data for table `history_data`
+-- 
 
-DROP TABLE IF EXISTS `insurance_companies`;
-CREATE TABLE `insurance_companies` (
-  `id` int(11) NOT NULL default '0',
-  `name` varchar(255) NOT NULL default '',
-  `attn` varchar(255) default NULL,
-  `cms_id` varchar(15) default NULL,
-  `freeb_type` tinyint(2) default NULL,
-  `x12_receiver_id` varchar(25) default NULL,
-  `x12_default_partner_id` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ;
 
---
--- Table structure for table `insurance_data`
---
+-- --------------------------------------------------------
 
-DROP TABLE IF EXISTS `insurance_data`;
-CREATE TABLE `insurance_data` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `type` enum('primary','secondary','tertiary') default NULL,
-  `provider` varchar(255) default NULL,
-  `plan_name` varchar(255) default NULL,
-  `policy_number` varchar(255) default NULL,
-  `group_number` varchar(255) default NULL,
-  `subscriber_lname` varchar(255) default NULL,
-  `subscriber_mname` varchar(255) default NULL,
-  `subscriber_fname` varchar(255) default NULL,
-  `subscriber_relationship` varchar(255) default NULL,
-  `subscriber_ss` varchar(255) default NULL,
-  `subscriber_DOB` date default NULL,
-  `subscriber_street` varchar(255) default NULL,
-  `subscriber_postal_code` varchar(255) default NULL,
-  `subscriber_city` varchar(255) default NULL,
-  `subscriber_state` varchar(255) default NULL,
-  `subscriber_country` varchar(255) default NULL,
-  `subscriber_phone` varchar(255) default NULL,
-  `subscriber_employer` varchar(255) default NULL,
-  `subscriber_employer_street` varchar(255) default NULL,
-  `subscriber_employer_postal_code` varchar(255) default NULL,
-  `subscriber_employer_state` varchar(255) default NULL,
-  `subscriber_employer_country` varchar(255) default NULL,
-  `subscriber_employer_city` varchar(255) default NULL,
-  `copay` varchar(255) default NULL,
-  `date` date NOT NULL default '0000-00-00',
-  `pid` bigint(20) NOT NULL default '0',
-  `subscriber_sex` varchar(25) default NULL,
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `pid_type_date` (`pid`, `type`, `date`)
-) ;
+-- 
+-- Table structure for table `immunization`
+-- 
 
---
--- Table structure for table `insurance_numbers`
---
-
-DROP TABLE IF EXISTS `insurance_numbers`;
-CREATE TABLE `insurance_numbers` (
-  `id` int(11) NOT NULL default '0',
-  `provider_id` int(11) NOT NULL default '0',
-  `insurance_company_id` int(11) default NULL,
-  `provider_number` varchar(20) default NULL,
-  `rendering_provider_number` varchar(20) default NULL,
-  `group_number` varchar(20) default NULL,
-  `provider_number_type` varchar(4) default NULL,
-  `rendering_provider_number_type` varchar(4) default NULL,
-  PRIMARY KEY  (`id`)
-) ;
-
---
--- Table structure for table `integration_mapping`
---
-
-DROP TABLE IF EXISTS `integration_mapping`;
-CREATE TABLE `integration_mapping` (
-  `id` int(11) NOT NULL default '0',
-  `foreign_id` int(11) NOT NULL default '0',
-  `foreign_table` varchar(125) NOT NULL default '',
-  `local_id` int(11) NOT NULL default '0',
-  `local_table` varchar(125) NOT NULL default '',
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `foreign_id` (`foreign_id`,`foreign_table`,`local_id`,`local_table`)
-) ;
-
---
--- Table structure for table `lists`
---
-
-DROP TABLE IF EXISTS `lists`;
-CREATE TABLE `lists` (
-  `id`          bigint(20)    NOT NULL auto_increment,
-  `date`        datetime      DEFAULT NULL,
-  `type`        varchar(255)  DEFAULT NULL,
-  `title`       varchar(255)  DEFAULT NULL,
-  begdate       date          DEFAULT NULL,
-  enddate       date          DEFAULT NULL,
-  returndate    date          DEFAULT NULL,
-  occurrence    int(11)       DEFAULT 0,
-  classification int(11)      DEFAULT 0,
-  referredby    varchar(255)  DEFAULT NULL,
-  extrainfo     varchar(255)  DEFAULT NULL,
-  diagnosis     varchar(255)  NOT NULL DEFAULT '',
-  `activity`    tinyint(4)    DEFAULT NULL,
-  `comments`    longtext      ,
-  `pid`         bigint(20)    DEFAULT NULL,
-  `user`        varchar(255)  DEFAULT NULL,
-  `groupname`   varchar(255)  DEFAULT NULL,
-  `outcome`     int(11)       NOT NULL DEFAULT 0,
-  `destination` varchar(255)  DEFAULT NULL,
-  PRIMARY KEY  (`id`)
-) ;
-
---
--- Table structure for table `log`
---
-
-DROP TABLE IF EXISTS `log`;
-CREATE TABLE `log` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `date` datetime default NULL,
-  `event` varchar(255) default NULL,
-  `user` varchar(255) default NULL,
-  `groupname` varchar(255) default NULL,
-  `comments` longtext,
-  `user_notes` longtext,
-  PRIMARY KEY  (`id`)
-) ;
-
---
--- Table structure for table `notes`
---
-
-DROP TABLE IF EXISTS `notes`;
-CREATE TABLE `notes` (
-  `id` int(11) NOT NULL default '0',
-  `foreign_id` int(11) NOT NULL default '0',
-  `note` varchar(255) default NULL,
-  `owner` int(11) default NULL,
-  `date` datetime default NULL,
-  `revision` timestamp,
-  PRIMARY KEY  (`id`),
-  KEY `foreign_id` (`owner`),
-  KEY `foreign_id_2` (`foreign_id`),
-  KEY `date` (`date`)
-) ;
-
---
--- Table structure for table `onotes`
---
-
-DROP TABLE IF EXISTS `onotes`;
-CREATE TABLE `onotes` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `date` datetime default NULL,
-  `body` longtext,
-  `user` varchar(255) default NULL,
-  `groupname` varchar(255) default NULL,
-  `activity` tinyint(4) default NULL,
-  PRIMARY KEY  (`id`)
-) ;
-
---
--- Table structure for table `openemr_module_vars`
---
-
-DROP TABLE IF EXISTS `openemr_module_vars`;
-CREATE TABLE `openemr_module_vars` (
-  `pn_id` int(11) unsigned NOT NULL auto_increment,
-  `pn_modname` varchar(64) NOT NULL default '',
-  `pn_name` varchar(64) NOT NULL default '',
-  `pn_value` longtext,
-  PRIMARY KEY  (`pn_id`),
-  KEY `pn_modname` (`pn_modname`),
-  KEY `pn_name` (`pn_name`)
-) ;
-
---
--- Dumping data for table `openemr_module_vars`
---
-
-/*!40000 ALTER TABLE `openemr_module_vars` DISABLE KEYS */;
-INSERT INTO `openemr_module_vars` VALUES (234,'PostCalendar','pcNotifyEmail',''),(233,'PostCalendar','pcNotifyAdmin','0'),(232,'PostCalendar','pcCacheLifetime','3600'),(231,'PostCalendar','pcUseCache','0'),(230,'PostCalendar','pcDefaultView','day'),(229,'PostCalendar','pcTimeIncrement','5'),(228,'PostCalendar','pcAllowUserCalendar','1'),(227,'PostCalendar','pcAllowSiteWide','1'),(226,'PostCalendar','pcTemplate','default'),(225,'PostCalendar','pcEventDateFormat','%Y-%m-%d'),(224,'PostCalendar','pcDisplayTopics','0'),(223,'PostCalendar','pcListHowManyEvents','15'),(222,'PostCalendar','pcAllowDirectSubmit','1'),(221,'PostCalendar','pcUsePopups','0'),(220,'PostCalendar','pcDayHighlightColor','#EEEEEE'),(219,'PostCalendar','pcFirstDayOfWeek','1'),(218,'PostCalendar','pcUseInternationalDates','0'),(217,'PostCalendar','pcEventsOpenInNewWindow','0'),(216,'PostCalendar','pcTime24Hours','0');
-/*!40000 ALTER TABLE `openemr_module_vars` ENABLE KEYS */;
-
---
--- Table structure for table `openemr_modules`
---
-
-DROP TABLE IF EXISTS `openemr_modules`;
-CREATE TABLE `openemr_modules` (
-  `pn_id` int(11) unsigned NOT NULL auto_increment,
-  `pn_name` varchar(64) NOT NULL default '',
-  `pn_type` int(6) NOT NULL default '0',
-  `pn_displayname` varchar(64) NOT NULL default '',
-  `pn_description` varchar(255) NOT NULL default '',
-  `pn_regid` int(11) unsigned NOT NULL default '0',
-  `pn_directory` varchar(64) NOT NULL default '',
-  `pn_version` varchar(10) NOT NULL default '0',
-  `pn_admin_capable` tinyint(1) NOT NULL default '0',
-  `pn_user_capable` tinyint(1) NOT NULL default '0',
-  `pn_state` tinyint(1) NOT NULL default '0',
-  PRIMARY KEY  (`pn_id`)
-) ;
-
---
--- Dumping data for table `openemr_modules`
---
-
-/*!40000 ALTER TABLE `openemr_modules` DISABLE KEYS */;
-INSERT INTO `openemr_modules` VALUES (46,'PostCalendar',2,'PostCalendar','PostNuke Calendar Module',0,'PostCalendar','4.0.0',1,1,3);
-/*!40000 ALTER TABLE `openemr_modules` ENABLE KEYS */;
-
---
--- Table structure for table `openemr_postcalendar_categories`
---
-
-DROP TABLE IF EXISTS `openemr_postcalendar_categories`;
-CREATE TABLE `openemr_postcalendar_categories` (
-  `pc_catid` int(11) unsigned NOT NULL auto_increment,
-  `pc_catname` varchar(100) NOT NULL default 'Undefined',
-  `pc_catcolor` varchar(50) NOT NULL default '#DDDDDD',
-  `pc_catdesc` text,
-  `pc_recurrtype` int(1) NOT NULL default '0',
-  `pc_enddate` date default NULL,
-  `pc_recurrspec` text,
-  `pc_recurrfreq` int(3) NOT NULL default '0',
-  `pc_duration` bigint(20) NOT NULL default '0',
-  `pc_end_date_flag` tinyint(1) NOT NULL default '0',
-  `pc_end_date_type` int(2) default NULL,
-  `pc_end_date_freq` int(11) NOT NULL default '0',
-  `pc_end_all_day` tinyint(1) NOT NULL default '0',
-  `pc_dailylimit` int(2) NOT NULL default '0',
-  PRIMARY KEY  (`pc_catid`),
-  KEY `basic_cat` (`pc_catname`,`pc_catcolor`)
-) ;
-
---
--- Dumping data for table `openemr_postcalendar_categories`
---
-
-/*!40000 ALTER TABLE `openemr_postcalendar_categories` DISABLE KEYS */;
---
--- Dumping data for table `openemr_postcalendar_categories`
---
-
-INSERT INTO `openemr_postcalendar_categories` VALUES (5,'Office Visit','#FFFFCC','Normal Office Visit',0,NULL,'a:5:{s:17:\"event_repeat_freq\";s:1:\"0\";s:22:\"event_repeat_freq_type\";s:1:\"0\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,900,0,0,0,0,0);
-INSERT INTO `openemr_postcalendar_categories` VALUES (4,'Vacation','#EFEFEF','Reserved for use to define Scheduled Vacation Time',0,NULL,'a:5:{s:17:\"event_repeat_freq\";s:1:\"0\";s:22:\"event_repeat_freq_type\";s:1:\"0\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,0,0,0,0,1,0);
-INSERT INTO `openemr_postcalendar_categories` VALUES (1,'No Show','#DDDDDD','Reserved to define when an event did not occur as specified.',0,NULL,'a:5:{s:17:\"event_repeat_freq\";s:1:\"0\";s:22:\"event_repeat_freq_type\";s:1:\"0\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,0,0,0,0,0,0);
-INSERT INTO `openemr_postcalendar_categories` VALUES (2,'In Office','#99CCFF','Reserved todefine when a provider may haveavailable appointments after.',1,NULL,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,0,1,3,2,0,0);
-INSERT INTO `openemr_postcalendar_categories` VALUES (3,'Out Of Office','#99FFFF','Reserved to define when a provider may not have available appointments after.',1,NULL,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,0,1,3,2,0,0);
-INSERT INTO `openemr_postcalendar_categories` VALUES (8,'Lunch','#FFFF33','Lunch',1,NULL,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,3600,0,3,2,0,0);
-INSERT INTO `openemr_postcalendar_categories` VALUES (9,'Established Patient','#CCFF33','',0,NULL,'a:5:{s:17:\"event_repeat_freq\";s:1:\"0\";s:22:\"event_repeat_freq_type\";s:1:\"0\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,900,0,0,0,0,0);
-INSERT INTO `openemr_postcalendar_categories` VALUES (10,'New Patient','#CCFFFF','',0,NULL,'a:5:{s:17:\"event_repeat_freq\";s:1:\"0\";s:22:\"event_repeat_freq_type\";s:1:\"0\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,1800,0,0,0,0,0);
-
---
--- Table structure for table `openemr_postcalendar_events`
---
-
-DROP TABLE IF EXISTS `openemr_postcalendar_events`;
-CREATE TABLE `openemr_postcalendar_events` (
-  `pc_eid` int(11) unsigned NOT NULL auto_increment,
-  `pc_catid` int(11) NOT NULL default '0',
-  `pc_multiple` int(10) unsigned NOT NULL,
-  `pc_aid` varchar(30) NOT NULL default '',
-  `pc_pid` varchar(11) NOT NULL default '',
-  `pc_title` varchar(150) default '',
-  `pc_time` datetime default NULL,
-  `pc_hometext` text,
-  `pc_comments` int(11) default '0',
-  `pc_counter` mediumint(8) unsigned default '0',
-  `pc_topic` int(3) NOT NULL default '1',
-  `pc_informant` varchar(20) NOT NULL default '',
-  `pc_eventDate` date NOT NULL default '0000-00-00',
-  `pc_endDate` date NOT NULL default '0000-00-00',
-  `pc_duration` bigint(20) NOT NULL default '0',
-  `pc_recurrtype` int(1) NOT NULL default '0',
-  `pc_recurrspec` text,
-  `pc_recurrfreq` int(3) NOT NULL default '0',
-  `pc_startTime` time default NULL,
-  `pc_endTime` time default NULL,
-  `pc_alldayevent` int(1) NOT NULL default '0',
-  `pc_location` text,
-  `pc_conttel` varchar(50) default '',
-  `pc_contname` varchar(50) default '',
-  `pc_contemail` varchar(255) default '',
-  `pc_website` varchar(255) default '',
-  `pc_fee` varchar(50) default '',
-  `pc_eventstatus` int(11) NOT NULL default '0',
-  `pc_sharing` int(11) NOT NULL default '0',
-  `pc_language` varchar(30) default '',
-  `pc_apptstatus` char(1) NOT NULL DEFAULT '-',
-  `pc_prefcatid` int(11) NOT NULL default '0',
-   `pc_facility` smallint(6) NOT NULL default '0' COMMENT 'facility id for this event',
-  PRIMARY KEY  (`pc_eid`),
-  KEY `basic_event` (`pc_catid`,`pc_aid`,`pc_eventDate`,`pc_endDate`,`pc_eventstatus`,`pc_sharing`,`pc_topic`)
-) ;
-
---
--- Dumping data for table `openemr_postcalendar_events`
---
-INSERT INTO `openemr_postcalendar_events` VALUES (3,2,0,'1','','In Office','2005-03-03 12:22:31',':text:',0,0,0,'1','2005-03-03','2007-03-03',0,1,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,'09:00:00','09:00:00',0,'a:6:{s:14:\"event_location\";N;s:13:\"event_street1\";N;s:13:\"event_street2\";N;s:10:\"event_city\";N;s:11:\"event_state\";N;s:12:\"event_postal\";N;}','','','','','',1,1,'','-',0, 0);
-INSERT INTO `openemr_postcalendar_events` VALUES (5,3,0,'1','','Out Of Office','2005-03-03 12:22:52',':text:',0,0,0,'1','2005-03-03','2007-03-03',0,1,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,'17:00:00','17:00:00',0,'a:6:{s:14:\"event_location\";N;s:13:\"event_street1\";N;s:13:\"event_street2\";N;s:10:\"event_city\";N;s:11:\"event_state\";N;s:12:\"event_postal\";N;}','','','','','',1,1,'','-',0, 0);
-INSERT INTO `openemr_postcalendar_events` VALUES (6,8,0,'1','','Lunch','2005-03-03 12:23:31',':text:',0,0,0,'1','2005-03-03','2007-03-03',3600,1,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,'12:00:00','13:00:00',0,'a:6:{s:14:\"event_location\";N;s:13:\"event_street1\";N;s:13:\"event_street2\";N;s:10:\"event_city\";N;s:11:\"event_state\";N;s:12:\"event_postal\";N;}','','','','','',1,1,'','-',0, 0);
-
-/*!40000 ALTER TABLE `openemr_postcalendar_events` DISABLE KEYS */;
-/*!40000 ALTER TABLE `openemr_postcalendar_events` ENABLE KEYS */;
-
---
--- Table structure for table `openemr_postcalendar_limits`
---
-
-DROP TABLE IF EXISTS `openemr_postcalendar_limits`;
-CREATE TABLE `openemr_postcalendar_limits` (
-  `pc_limitid` int(11) NOT NULL auto_increment,
-  `pc_catid` int(11) NOT NULL default '0',
-  `pc_starttime` time NOT NULL default '00:00:00',
-  `pc_endtime` time NOT NULL default '00:00:00',
-  `pc_limit` int(11) NOT NULL default '1',
-  PRIMARY KEY  (`pc_limitid`)
-) ;
-
---
--- Table structure for table `openemr_postcalendar_topics`
---
-
-DROP TABLE IF EXISTS `openemr_postcalendar_topics`;
-CREATE TABLE `openemr_postcalendar_topics` (
-  `pc_catid` int(11) unsigned NOT NULL auto_increment,
-  `pc_catname` varchar(100) NOT NULL default 'Undefined',
-  `pc_catcolor` varchar(50) NOT NULL default '#DDDDDD',
-  `pc_catdesc` text,
-  PRIMARY KEY  (`pc_catid`),
-  KEY `basic_cat` (`pc_catname`,`pc_catcolor`)
-) ;
-
---
--- Table structure for table `openemr_session_info`
---
-
-DROP TABLE IF EXISTS `openemr_session_info`;
-CREATE TABLE `openemr_session_info` (
-  `pn_sessid` varchar(32) NOT NULL default '',
-  `pn_ipaddr` varchar(20) NOT NULL default '',
-  `pn_firstused` int(11) NOT NULL default '0',
-  `pn_lastused` int(11) NOT NULL default '0',
-  `pn_uid` int(11) NOT NULL default '0',
-  `pn_vars` blob,
-  PRIMARY KEY  (`pn_sessid`)
-) ;
-
---
--- Dumping data for table `openemr_session_info`
---
-
-/*!40000 ALTER TABLE `openemr_session_info` DISABLE KEYS */;
-INSERT INTO `openemr_session_info` VALUES ('978d31441dccd350d406bfab98978f20','127.0.0.1',1109233952,1109234177,0,NULL);
-/*!40000 ALTER TABLE `openemr_session_info` ENABLE KEYS */;
-
---
--- Table structure for table `patient_data`
---
-
-DROP TABLE IF EXISTS `patient_data`;
-CREATE TABLE `patient_data` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `title` varchar(255) default NULL,
-  `language` varchar(255) default NULL,
-  `financial` varchar(255) default NULL,
-  `fname` varchar(255) default NULL,
-  `lname` varchar(255) default NULL,
-  `mname` varchar(255) NOT NULL default '',
-  `DOB` date default NULL,
-  `street` varchar(255) default NULL,
-  `postal_code` varchar(255) default NULL,
-  `city` varchar(255) default NULL,
-  `state` varchar(255) default NULL,
-  `country_code` varchar(255) default NULL,
-  `drivers_license` varchar(255) default NULL,
-  `ss` varchar(255) default NULL,
-  `occupation` longtext,
-  `phone_home` varchar(255) default NULL,
-  `phone_biz` varchar(255) default NULL,
-  `phone_contact` varchar(255) default NULL,
-  `phone_cell` varchar(255) NOT NULL default '',
-  `pharmacy_id` int(11) NOT NULL default 0,
-  `status` varchar(255) default NULL,
-  `contact_relationship` varchar(255) default NULL,
-  `date` datetime default NULL,
-  `sex` varchar(255) default NULL,
-  `referrer` varchar(255) default NULL,
-  `referrerID` varchar(255) default NULL,
-  `providerID` int(11) default NULL,
-  `email` varchar(255) default NULL,
-  `ethnoracial` varchar(255) default NULL,
-  `interpretter` varchar(255) default NULL,
-  `migrantseasonal` varchar(255) default NULL,
-  `family_size` varchar(255) default NULL,
-  `monthly_income` varchar(255) default NULL,
-  `homeless` varchar(255) default NULL,
-  `financial_review` datetime default NULL,
-  `pubpid` varchar(255) default NULL,
-  `pid` bigint(20) NOT NULL default '0',
-  `genericname1` varchar(255) NOT NULL default '',
-  `genericval1` varchar(255) NOT NULL default '',
-  `genericname2` varchar(255) NOT NULL default '',
-  `genericval2` varchar(255) NOT NULL default '',
-  `hipaa_mail` VARCHAR( 3 ) DEFAULT 'NO' NOT NULL,
-  `hipaa_voice` VARCHAR( 3 ) DEFAULT 'NO' NOT NULL,
-  `hipaa_notice` VARCHAR( 3 ) DEFAULT 'NO' NOT NULL,
-  `hipaa_message` VARCHAR( 20 ) DEFAULT NULL,
-  `squad`      varchar(32)   NOT NULL DEFAULT '',
-  `fitness`    int(11)       NOT NULL DEFAULT 0,
-  `referral_source` varchar(30) NOT NULL DEFAULT '',
-  `usertext1` varchar(255) NOT NULL DEFAULT '',
-  `usertext2` varchar(255) NOT NULL DEFAULT '',
-  `userlist1` varchar(255) NOT NULL DEFAULT '',
-  `userlist2` varchar(255) NOT NULL DEFAULT '',
-  `pricelevel` varchar(255) NOT NULL DEFAULT '',
-  UNIQUE KEY `pid` (`pid`),
-  KEY `id` (`id`),
-  KEY `pid_2` (`pid`)
-) ;
-
---
--- Table structure for table `pharmacies`
---
-
-DROP TABLE IF EXISTS `pharmacies`;
-CREATE TABLE `pharmacies` (
-  `id` int(11) NOT NULL default '0',
-  `name` varchar(255) NOT NULL default '',
-  `transmit_method` int(11) NOT NULL default '1',
-  `email` varchar(255) NOT NULL default '',
-  PRIMARY KEY  (`id`)
-) ;
-
---
--- Dumping data for table `pharmacies`
---
-
-/*!40000 ALTER TABLE `pharmacies` DISABLE KEYS */;
-/*!40000 ALTER TABLE `pharmacies` ENABLE KEYS */;
-
---
--- Table structure for table `phone_numbers`
---
-
-DROP TABLE IF EXISTS `phone_numbers`;
-CREATE TABLE `phone_numbers` (
-  `id` int(11) NOT NULL default '0',
-  `country_code` varchar(5) default NULL,
-  `area_code` char(3) default NULL,
-  `prefix` char(3) default NULL,
-  `number` varchar(4) default NULL,
-  `type` int(11) default NULL,
-  `foreign_id` int(11) default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `foreign_id` (`foreign_id`)
-) ;
-
---
--- Table structure for table `pma_bookmark`
---
-
-DROP TABLE IF EXISTS `pma_bookmark`;
-CREATE TABLE `pma_bookmark` (
+DROP TABLE IF EXISTS `immunization`;
+CREATE TABLE `immunization` (
   `id` int(11) NOT NULL auto_increment,
-  `dbase` varchar(255) NOT NULL default '',
-  `user` varchar(255) NOT NULL default '',
-  `label` varchar(255) NOT NULL default '',
-  `query` text NOT NULL,
-  PRIMARY KEY  (`id`)
-)  COMMENT='Bookmarks';
-
---
--- Dumping data for table `pma_bookmark`
---
-
-/*!40000 ALTER TABLE `pma_bookmark` DISABLE KEYS */;
-INSERT INTO `pma_bookmark` VALUES (2,'openemr','openemr','Aggregate Race Statistics','SELECT ethnoracial as \"Race/Ethnicity\", count(*) as Count FROM  `patient_data` WHERE 1 group by ethnoracial'),(9,'openemr','openemr','Search by Code','SELECT  b.code, concat(pd.fname,\" \", pd.lname) as \"Patient Name\", concat(u.fname,\" \", u.lname) as \"Provider Name\", en.reason as \"Encounter Desc.\", en.date\r\nFROM billing as b\r\nLEFT JOIN users AS u ON b.user = u.id\r\nLEFT JOIN patient_data as pd on b.pid = pd.pid\r\nLEFT JOIN form_encounter as en on b.encounter = en.encounter and b.pid = en.pid\r\nWHERE 1 /* and b.code like ''%[VARIABLE]%'' */ ORDER BY b.code'),(8,'openemr','openemr','Count No Shows By Provider since Interval ago','SELECT concat( u.fname,  \" \", u.lname )  AS  \"Provider Name\", u.id AS  \"Provider ID\", count(  DISTINCT ev.pc_eid )  AS  \"Number of No Shows\"/* , concat(DATE_FORMAT(NOW(),''%Y-%m-%d''), '' and '',DATE_FORMAT(DATE_ADD(now(), INTERVAL [VARIABLE]),''%Y-%m-%d'') ) as \"Between Dates\" */ FROM  `openemr_postcalendar_events`  AS ev LEFT  JOIN users AS u ON ev.pc_aid = u.id WHERE ev.pc_catid =1/* and ( ev.pc_eventDate >= DATE_SUB(now(), INTERVAL [VARIABLE]) )  */\r\nGROUP  BY u.id;'),(6,'openemr','openemr','Appointments By Race/Ethnicity from today plus interval','SELECT  count(pd.ethnoracial) as \"Number of Appointments\", pd.ethnoracial AS  \"Race/Ethnicity\" /* , concat(DATE_FORMAT(NOW(),''%Y-%m-%d''), '' and '',DATE_FORMAT(DATE_ADD(now(), INTERVAL [VARIABLE]),''%Y-%m-%d'') ) as \"Between Dates\" */ FROM openemr_postcalendar_events AS ev LEFT  JOIN   `patient_data`  AS pd ON  pd.pid = ev.pc_pid where ev.pc_eventstatus=1 and ev.pc_catid = 5 and ev.pc_eventDate >= now()  /* and ( ev.pc_eventDate <= DATE_ADD(now(), INTERVAL [VARIABLE]) )  */ group by pd.ethnoracial');
-/*!40000 ALTER TABLE `pma_bookmark` ENABLE KEYS */;
-
---
--- Table structure for table `pma_column_info`
---
-
-DROP TABLE IF EXISTS `pma_column_info`;
-CREATE TABLE `pma_column_info` (
-  `id` int(5) unsigned NOT NULL auto_increment,
-  `db_name` varchar(64) NOT NULL default '',
-  `table_name` varchar(64) NOT NULL default '',
-  `column_name` varchar(64) NOT NULL default '',
-  `comment` varchar(255) NOT NULL default '',
-  `mimetype` varchar(255) NOT NULL default '',
-  `transformation` varchar(255) NOT NULL default '',
-  `transformation_options` varchar(255) NOT NULL default '',
-  PRIMARY KEY  (`id`),
-  UNIQUE KEY `db_name` (`db_name`,`table_name`,`column_name`)
-)  COMMENT='Column Information for phpMyAdmin';
-
---
--- Table structure for table `pma_history`
---
-
-DROP TABLE IF EXISTS `pma_history`;
-CREATE TABLE `pma_history` (
-  `id` bigint(20) unsigned NOT NULL auto_increment,
-  `username` varchar(64) NOT NULL default '',
-  `db` varchar(64) NOT NULL default '',
-  `table` varchar(64) NOT NULL default '',
-  `timevalue` timestamp,
-  `sqlquery` text NOT NULL,
-  PRIMARY KEY  (`id`),
-  KEY `username` (`username`,`db`,`table`,`timevalue`)
-)  COMMENT='SQL history';
-
---
--- Table structure for table `pma_pdf_pages`
---
-
-DROP TABLE IF EXISTS `pma_pdf_pages`;
-CREATE TABLE `pma_pdf_pages` (
-  `db_name` varchar(64) NOT NULL default '',
-  `page_nr` int(10) unsigned NOT NULL auto_increment,
-  `page_descr` varchar(50) NOT NULL default '',
-  PRIMARY KEY  (`page_nr`),
-  KEY `db_name` (`db_name`)
-)  COMMENT='PDF Relationpages for PMA';
-
---
--- Table structure for table `pma_relation`
---
-
-DROP TABLE IF EXISTS `pma_relation`;
-CREATE TABLE `pma_relation` (
-  `master_db` varchar(64) NOT NULL default '',
-  `master_table` varchar(64) NOT NULL default '',
-  `master_field` varchar(64) NOT NULL default '',
-  `foreign_db` varchar(64) NOT NULL default '',
-  `foreign_table` varchar(64) NOT NULL default '',
-  `foreign_field` varchar(64) NOT NULL default '',
-  PRIMARY KEY  (`master_db`,`master_table`,`master_field`),
-  KEY `foreign_field` (`foreign_db`,`foreign_table`)
-)  COMMENT='Relation table';
-
---
--- Table structure for table `pma_table_coords`
---
-
-DROP TABLE IF EXISTS `pma_table_coords`;
-CREATE TABLE `pma_table_coords` (
-  `db_name` varchar(64) NOT NULL default '',
-  `table_name` varchar(64) NOT NULL default '',
-  `pdf_page_number` int(11) NOT NULL default '0',
-  `x` float unsigned NOT NULL default '0',
-  `y` float unsigned NOT NULL default '0',
-  PRIMARY KEY  (`db_name`,`table_name`,`pdf_page_number`)
-)  COMMENT='Table coordinates for phpMyAdmin PDF output';
-
---
--- Table structure for table `pma_table_info`
---
-
-DROP TABLE IF EXISTS `pma_table_info`;
-CREATE TABLE `pma_table_info` (
-  `db_name` varchar(64) NOT NULL default '',
-  `table_name` varchar(64) NOT NULL default '',
-  `display_field` varchar(64) NOT NULL default '',
-  PRIMARY KEY  (`db_name`,`table_name`)
-)  COMMENT='Table information for phpMyAdmin';
-
---
--- Table structure for table `pnotes`
---
-
-DROP TABLE IF EXISTS `pnotes`;
-CREATE TABLE `pnotes` (
-  `id`          bigint(20)   NOT NULL auto_increment,
-  `date`        datetime     default NULL,
-  `body`        longtext,
-  `pid`         bigint(20)   default NULL,
-  `user`        varchar(255) default NULL,
-  `groupname`   varchar(255) default NULL,
-  `activity`    tinyint(4)   default NULL,
-  `authorized`  tinyint(4)   default NULL,
-  `title`       varchar(255) NOT NULL DEFAULT 'Unassigned',
-  `assigned_to` varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY  (`id`)
-) ;
-
---
--- Table structure for table `prescriptions`
---
-
-DROP TABLE IF EXISTS `prescriptions`;
-CREATE TABLE `prescriptions` (
-  `id` int(11) NOT NULL auto_increment,
-  `patient_id` int(11) default NULL,
-  `filled_by_id` int(11) default NULL,
-  `pharmacy_id` int(11) default NULL,
-  `date_added` date default NULL,
-  `date_modified` date default NULL,
-  `provider_id` int(11) default NULL,
-  `start_date` date default NULL,
-  `drug` varchar(150) default NULL,
-  `drug_id` int(11) NOT NULL DEFAULT 0,
-  `form` int(3) default NULL,
-  `dosage` varchar(100) default NULL,
-  `quantity` varchar(11) default NULL,
-  `size` float unsigned default NULL,
-  `unit` int(11) default NULL,
-  `route` int(11) default NULL,
-  `interval` int(11) default NULL,
-  `substitute` int(11) default NULL,
-  `refills` int(11) default NULL,
-  `per_refill` int(11) default NULL,
-  `filled_date` date default NULL,
-  `medication` int(11) default NULL,
-  `note` text,
-  `active` int(11) NOT NULL default '1',
-  PRIMARY KEY  (`id`)
-) ;
-
---
--- Table structure for table `registry`
---
-
-DROP TABLE IF EXISTS `registry`;
-CREATE TABLE `registry` (
-  `name` varchar(255) default NULL,
-  `state` tinyint(4) default NULL,
-  `directory` varchar(255) default NULL,
-  `id` bigint(20) NOT NULL auto_increment,
-  `sql_run` tinyint(4) default NULL,
-  `unpackaged` tinyint(4) default NULL,
-  `date` datetime default NULL,
-  PRIMARY KEY  (`id`)
-) ;
-
---
--- Dumping data for table `registry`
---
-INSERT INTO `registry` VALUES ('New Encounter Form',1,'newpatient',1,1,1,'2003-09-14 15:16:45');
-INSERT INTO `registry` VALUES ('Review of Systems Checks',1,'reviewofs',9,1,1,'2003-09-14 15:16:45');
-INSERT INTO `registry` VALUES ('Speech Dictation',1,'dictation',10,1,1,'2003-09-14 15:16:45');
-INSERT INTO `registry` VALUES ('SOAP',1,'soap',11,1,1,'2005-03-03 00:16:35');
-INSERT INTO `registry` VALUES ('Vitals',1,'vitals',12,1,1,'2005-03-03 00:16:34');
-INSERT INTO `registry` VALUES ('Review Of Systems',1,'ros',13,1,1,'2005-03-03 00:16:30');
-INSERT INTO `registry` VALUES ('Fee Sheet',1,'fee_sheet',14,1,1,'2007-07-28 00:00:00');
-INSERT INTO `registry` VALUES ('Misc Billing Options HCFA',1,'misc_billing_options',15,1,1,'2007-07-28 00:00:00');
-
---
--- Table structure for table `sequences`
---
-
-DROP TABLE IF EXISTS `sequences`;
-CREATE TABLE `sequences` (
-  `id` int(11) unsigned NOT NULL default '0'
-) ;
-
---
--- Dumping data for table `sequences`
---
-
-/*!40000 ALTER TABLE `sequences` DISABLE KEYS */;
-INSERT INTO `sequences` VALUES (1);
-/*!40000 ALTER TABLE `sequences` ENABLE KEYS */;
-
---
--- Table structure for table `transactions`
---
-
-DROP TABLE IF EXISTS `transactions`;
-CREATE TABLE `transactions` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `date` datetime default NULL,
-  `title` varchar(255) default NULL,
-  `body` longtext,
-  `pid` bigint(20) default NULL,
-  `user` varchar(255) default NULL,
-  `groupname` varchar(255) default NULL,
-  `authorized` tinyint(4) default NULL,
-  PRIMARY KEY  (`id`)
-) ;
-
---
--- Table structure for table `users`
---
-
-DROP TABLE IF EXISTS `users`;
-CREATE TABLE `users` (
-  `id`         bigint(20)   NOT NULL auto_increment,
-  `username`   varchar(255) default NULL,
-  `password`   longtext,
-  `authorized` tinyint(4)   default NULL,
-  `info`       longtext,
-  `source`     tinyint(4)   default NULL,
-  `fname`      varchar(255) default NULL,
-  `mname`      varchar(255) default NULL,
-  `lname`      varchar(255) default NULL,
-  `federaltaxid` varchar(255) default NULL,
-  `federaldrugid` varchar(255) default NULL,
-  `upin`       varchar(255) default NULL,
-  `facility`   varchar(255) default NULL,
-  `facility_id` int(11)     NOT NULL DEFAULT 0,
-  `see_auth`   int(11)      NOT NULL DEFAULT 1,
-  `active`     tinyint(1)   NOT NULL DEFAULT 1,
-  `npi`        varchar(15)  NOT NULL DEFAULT '',
-  `title`      varchar(30)  NOT NULL DEFAULT '',
-  `specialty`  varchar(255) NOT NULL DEFAULT '',
-  `billname`   varchar(255) NOT NULL DEFAULT '',
-  `email`      varchar(255) NOT NULL DEFAULT '',
-  `url`        varchar(255) NOT NULL DEFAULT '',
-  `assistant`  varchar(255) NOT NULL DEFAULT '',
-  `organization` varchar(255) NOT NULL DEFAULT '',
-  `valedictory` varchar(255) NOT NULL DEFAULT '',
-  `street`     varchar(60)  NOT NULL DEFAULT '',
-  `streetb`    varchar(60)  NOT NULL DEFAULT '',
-  `city`       varchar(30)  NOT NULL DEFAULT '',
-  `state`      varchar(30)  NOT NULL DEFAULT '',
-  `zip`        varchar(20)  NOT NULL DEFAULT '',
-  `street2`    varchar(60)  NOT NULL DEFAULT '',
-  `streetb2`   varchar(60)  NOT NULL DEFAULT '',
-  `city2`      varchar(30)  NOT NULL DEFAULT '',
-  `state2`     varchar(30)  NOT NULL DEFAULT '',
-  `zip2`       varchar(20)  NOT NULL DEFAULT '',
-  `phone`      varchar(30)  NOT NULL DEFAULT '',
-  `fax`        varchar(30)  NOT NULL DEFAULT '',
-  `phonew1`    varchar(30)  NOT NULL DEFAULT '',
-  `phonew2`    varchar(30)  NOT NULL DEFAULT '',
-  `phonecell`  varchar(30)  NOT NULL DEFAULT '',
-  `notes`      text         NOT NULL DEFAULT '',
-  `cal_ui`     tinyint(4)   NOT NULL DEFAULT 1,
-  PRIMARY KEY  (`id`)
-) ;
-
---
--- Table structure for table `x12_partners`
---
-
-DROP TABLE IF EXISTS `x12_partners`;
-CREATE TABLE `x12_partners` (
-  `id` int(11) NOT NULL default '0',
-  `name` varchar(255) default NULL,
-  `id_number` varchar(255) default NULL,
-  `x12_sender_id` varchar(255) default NULL,
-  `x12_receiver_id` varchar(255) default NULL,
-  `x12_version` varchar(255) default NULL,
-  `processing_format` enum('standard','medi-cal','cms','proxymed') default NULL,
-  PRIMARY KEY  (`id`)
-) ;
-
-CREATE TABLE IF NOT EXISTS `form_soap` (
-`id` bigint(20) NOT NULL auto_increment,
-`date` datetime default NULL,
-`pid` bigint(20) default 0,
-`user` varchar(255) default NULL,
-`groupname` varchar(255) default NULL,
-`authorized` tinyint(4) default 0,
-`activity` tinyint(4) default 0,
-`subjective` text default NULL,
-`objective` text default NULL,
-`assessment` text default NULL,
-`plan` text default NULL,
-PRIMARY KEY (id)
-) ;
-
-CREATE TABLE `form_ros` (
-	`id` int(11) NOT NULL auto_increment,
-	`pid` int(11) NOT NULL,
-	`activity` int(11) NOT NULL default '1',
-	`date` datetime default NULL,
-	`weight_change` varchar(3) NOT NULL default 'N/A',
-	`weakness` varchar(3) NOT NULL default 'N/A',
-	`fatigue` varchar(3) NOT NULL default 'N/A',
-	`anorexia` varchar(3) NOT NULL default 'N/A',
-	`fever` varchar(3) NOT NULL default 'N/A',
-	`chills` varchar(3) NOT NULL default 'N/A',
-	`night_sweats` varchar(3) NOT NULL default 'N/A',
-	`insomnia` varchar(3) NOT NULL default 'N/A',
-	`irritability` varchar(3) NOT NULL default 'N/A',
-	`heat_or_cold` varchar(3) NOT NULL default 'N/A',
-	`intolerance` varchar(3) NOT NULL default 'N/A',
-	`change_in_vision` varchar(3) NOT NULL default 'N/A',
-	`glaucoma_history` varchar(3) NOT NULL default 'N/A',
-	`eye_pain` varchar(3) NOT NULL default 'N/A',
-	`irritation` varchar(3) NOT NULL default 'N/A',
-	`redness` varchar(3) NOT NULL default 'N/A',
-	`excessive_tearing` varchar(3) NOT NULL default 'N/A',
-	`double_vision` varchar(3) NOT NULL default 'N/A',
-	`blind_spots` varchar(3) NOT NULL default 'N/A',
-	`photophobia` varchar(3) NOT NULL default 'N/A',
-	`hearing_loss` varchar(3) NOT NULL default 'N/A',
-	`discharge` varchar(3) NOT NULL default 'N/A',
-	`pain` varchar(3) NOT NULL default 'N/A',
-	`vertigo` varchar(3) NOT NULL default 'N/A',
-	`tinnitus` varchar(3) NOT NULL default 'N/A',
-	`frequent_colds` varchar(3) NOT NULL default 'N/A',
-	`sore_throat` varchar(3) NOT NULL default 'N/A',
-	`sinus_problems` varchar(3) NOT NULL default 'N/A',
-	`post_nasal_drip` varchar(3) NOT NULL default 'N/A',
-	`nosebleed` varchar(3) NOT NULL default 'N/A',
-	`snoring` varchar(3) NOT NULL default 'N/A',
-	`apnea` varchar(3) NOT NULL default 'N/A',
-	`breast_mass` varchar(3) NOT NULL default 'N/A',
-	`breast_discharge` varchar(3) NOT NULL default 'N/A',
-	`biopsy` varchar(3) NOT NULL default 'N/A',
-	`abnormal_mammogram` varchar(3) NOT NULL default 'N/A',
-	`cough` varchar(3) NOT NULL default 'N/A',
-	`sputum` varchar(3) NOT NULL default 'N/A',
-	`shortness_of_breath` varchar(3) NOT NULL default 'N/A',
-	`wheezing` varchar(3) NOT NULL default 'N/A',
-	`hemoptsyis` varchar(3) NOT NULL default 'N/A',
-	`asthma` varchar(3) NOT NULL default 'N/A',
-	`copd` varchar(3) NOT NULL default 'N/A',
-	`chest_pain` varchar(3) NOT NULL default 'N/A',
-	`palpitation` varchar(3) NOT NULL default 'N/A',
-	`syncope` varchar(3) NOT NULL default 'N/A',
-	`pnd` varchar(3) NOT NULL default 'N/A',
-	`doe` varchar(3) NOT NULL default 'N/A',
-	`orthopnea` varchar(3) NOT NULL default 'N/A',
-	`peripheal` varchar(3) NOT NULL default 'N/A',
-	`edema` varchar(3) NOT NULL default 'N/A',
-	`legpain_cramping` varchar(3) NOT NULL default 'N/A',
-	`history_murmur` varchar(3) NOT NULL default 'N/A',
-	`arrythmia` varchar(3) NOT NULL default 'N/A',
-	`heart_problem` varchar(3) NOT NULL default 'N/A',
-	`dysphagia` varchar(3) NOT NULL default 'N/A',
-	`heartburn` varchar(3) NOT NULL default 'N/A',
-	`bloating` varchar(3) NOT NULL default 'N/A',
-	`belching` varchar(3) NOT NULL default 'N/A',
-	`flatulence` varchar(3) NOT NULL default 'N/A',
-	`nausea` varchar(3) NOT NULL default 'N/A',
-	`vomiting` varchar(3) NOT NULL default 'N/A',
-	`hematemesis` varchar(3) NOT NULL default 'N/A',
-	`gastro_pain` varchar(3) NOT NULL default 'N/A',
-	`food_intolerance` varchar(3) NOT NULL default 'N/A',
-	`hepatitis` varchar(3) NOT NULL default 'N/A',
-	`jaundice` varchar(3) NOT NULL default 'N/A',
-	`hematochezia` varchar(3) NOT NULL default 'N/A',
-	`changed_bowel` varchar(3) NOT NULL default 'N/A',
-	`diarrhea` varchar(3) NOT NULL default 'N/A',
-	`constipation` varchar(3) NOT NULL default 'N/A',
-	`polyuria` varchar(3) NOT NULL default 'N/A',
-	`polydypsia` varchar(3) NOT NULL default 'N/A',
-	`dysuria` varchar(3) NOT NULL default 'N/A',
-	`hematuria` varchar(3) NOT NULL default 'N/A',
-	`frequency` varchar(3) NOT NULL default 'N/A',
-	`urgency` varchar(3) NOT NULL default 'N/A',
-	`incontinence` varchar(3) NOT NULL default 'N/A',
-	`renal_stones` varchar(3) NOT NULL default 'N/A',
-	`utis` varchar(3) NOT NULL default 'N/A',
-	`hesitancy` varchar(3) NOT NULL default 'N/A',
-	`dribbling` varchar(3) NOT NULL default 'N/A',
-	`stream` varchar(3) NOT NULL default 'N/A',
-	`nocturia` varchar(3) NOT NULL default 'N/A',
-	`erections` varchar(3) NOT NULL default 'N/A',
-	`ejaculations` varchar(3) NOT NULL default 'N/A',
-	`g` varchar(3) NOT NULL default 'N/A',
-	`p` varchar(3) NOT NULL default 'N/A',
-	`ap` varchar(3) NOT NULL default 'N/A',
-	`lc` varchar(3) NOT NULL default 'N/A',
-	`mearche` varchar(3) NOT NULL default 'N/A',
-	`menopause` varchar(3) NOT NULL default 'N/A',
-	`lmp` varchar(3) NOT NULL default 'N/A',
-	`f_frequency` varchar(3) NOT NULL default 'N/A',
-	`f_flow` varchar(3) NOT NULL default 'N/A',
-	`f_symptoms` varchar(3) NOT NULL default 'N/A',
-	`abnormal_hair_growth` varchar(3) NOT NULL default 'N/A',
-	`f_hirsutism` varchar(3) NOT NULL default 'N/A',
-	`joint_pain` varchar(3) NOT NULL default 'N/A',
-	`swelling` varchar(3) NOT NULL default 'N/A',
-	`m_redness` varchar(3) NOT NULL default 'N/A',
-	`m_warm` varchar(3) NOT NULL default 'N/A',
-	`m_stiffness` varchar(3) NOT NULL default 'N/A',
-	`muscle` varchar(3) NOT NULL default 'N/A',
-	`m_aches` varchar(3) NOT NULL default 'N/A',
-	`fms` varchar(3) NOT NULL default 'N/A',
-	`arthritis` varchar(3) NOT NULL default 'N/A',
-	`loc` varchar(3) NOT NULL default 'N/A',
-	`seizures` varchar(3) NOT NULL default 'N/A',
-	`stroke` varchar(3) NOT NULL default 'N/A',
-	`tia` varchar(3) NOT NULL default 'N/A',
-	`n_numbness` varchar(3) NOT NULL default 'N/A',
-	`n_weakness` varchar(3) NOT NULL default 'N/A',
-	`paralysis` varchar(3) NOT NULL default 'N/A',
-	`intellectual_decline` varchar(3) NOT NULL default 'N/A',
-	`memory_problems` varchar(3) NOT NULL default 'N/A',
-	`dementia` varchar(3) NOT NULL default 'N/A',
-	`n_headache` varchar(3) NOT NULL default 'N/A',
-	`s_cancer` varchar(3) NOT NULL default 'N/A',
-	`psoriasis` varchar(3) NOT NULL default 'N/A',
-	`s_acne` varchar(3) NOT NULL default 'N/A',
-	`s_other` varchar(3) NOT NULL default 'N/A',
-	`s_disease` varchar(3) NOT NULL default 'N/A',
-	`p_diagnosis` varchar(3) NOT NULL default 'N/A',
-	`p_medication` varchar(3) NOT NULL default 'N/A',
-	`depression` varchar(3) NOT NULL default 'N/A',
-	`anxiety` varchar(3) NOT NULL default 'N/A',
-	`social_difficulties` varchar(3) NOT NULL default 'N/A',
-	`thyroid_problems` varchar(3) NOT NULL default 'N/A',
-	`diabetes` varchar(3) NOT NULL default 'N/A',
-	`abnormal_blood` varchar(3) NOT NULL default 'N/A',
-	`anemia` varchar(3) NOT NULL default 'N/A',
-	`fh_blood_problems` varchar(3) NOT NULL default 'N/A',
-	`bleeding_problems` varchar(3) NOT NULL default 'N/A',
-	`allergies` varchar(3) NOT NULL default 'N/A',
-	`frequent_illness` varchar(3) NOT NULL default 'N/A',
-	`hiv` varchar(3) NOT NULL default 'N/A',
-	`hai_status` varchar(3) NOT NULL default 'N/A',
-	PRIMARY KEY (id)
-	) ;
-
-CREATE TABLE IF NOT EXISTS `form_vitals` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `date` datetime default NULL,
-  `pid` bigint(20) default 0,
-  `user` varchar(255) default NULL,
-  `groupname` varchar(255) default NULL,
-  `authorized` tinyint(4) default 0,
-  `activity` tinyint(4) default 0,
-  `bps` varchar (40) default 0,
-  `bpd` varchar (40) default 0,
-  `weight` FLOAT(5,2) default 0,
-  `height` FLOAT(5,2) default 0,
-  `temperature` FLOAT (5,2) default 0,
-  `temp_method` VARCHAR (255) default NULL,
-  `pulse` FLOAT (5,2) default 0,
-  `respiration` FLOAT (5,2) default 0,
-  `note` VARCHAR (255) default NULL,
-  `BMI` FLOAT(4,1) default 0,
-  `BMI_status` VARCHAR (255) default NULL,
-  `waist_circ` FLOAT (5,2) default 0,
-  `head_circ` FLOAT (4,2) default 0,
-  `oxygen_saturation` FLOAT (5,2) default 0,
-  `temp_methods` ENUM( 'Oral', 'Rectal', 'Axillary' ) DEFAULT 'Axillary' NOT NULL,
-PRIMARY KEY (id)
-) TYPE=MyISAM;
-
-CREATE TABLE IF NOT EXISTS issue_encounter (
-  pid       int(11)    NOT NULL,
-  list_id   int(11)    NOT NULL,
-  encounter int(11)    NOT NULL,
-  resolved  tinyint(1) NOT NULL,
-  PRIMARY KEY (pid, list_id, encounter)
-);
-
-CREATE TABLE IF NOT EXISTS `immunization` (
-  `id` int(11) NOT NULL auto_increment,
-  `name` varchar(255) NOT NULL default '',
+  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   PRIMARY KEY  (`id`),
   KEY `immunization_name` (`name`)
-) TYPE=MyISAM AUTO_INCREMENT=36 ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=36 ;
+
+-- 
+-- Dumping data for table `immunization`
+-- 
 
 INSERT INTO `immunization` VALUES (1, 'DTaP 1');
 INSERT INTO `immunization` VALUES (2, 'DTaP 2');
@@ -1537,122 +1483,186 @@ INSERT INTO `immunization` VALUES (33, 'Hepatitis A 1');
 INSERT INTO `immunization` VALUES (34, 'Hepatitis A 2');
 INSERT INTO `immunization` VALUES (35, 'Other');
 
+-- --------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS `immunizations` (
+-- 
+-- Table structure for table `immunizations`
+-- 
+
+DROP TABLE IF EXISTS `immunizations`;
+CREATE TABLE `immunizations` (
   `id` bigint(20) NOT NULL auto_increment,
   `patient_id` int(11) default NULL,
   `administered_date` date default NULL,
   `immunization_id` int(11) default NULL,
-  `manufacturer` varchar(100) default NULL,
-  `lot_number` varchar(50) default NULL,
+  `manufacturer` varchar(100) character set utf8 collate utf8_unicode_ci default NULL,
+  `lot_number` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
   `administered_by_id` bigint(20) default NULL,
   `education_date` date default NULL,
-  `note` text,
+  `note` text character set utf8 collate utf8_unicode_ci,
   `create_date` datetime default NULL,
-  `update_date` timestamp(14) NOT NULL,
+  `update_date` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   `created_by` bigint(20) default NULL,
   `updated_by` bigint(20) default NULL,
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS `batchcom` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `patient_id` int(11) NOT NULL default '0',
-  `sent_by` bigint(20) NOT NULL default '0',
-  `msg_type` varchar(60) NOT NULL default '',
-  `msg_subject` varchar(255) NOT NULL default '',
-  `msg_text` mediumtext NOT NULL,
-  `msg_date_sent` datetime NOT NULL default '0000-00-00 00:00:00',
+-- 
+-- Dumping data for table `immunizations`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `insurance_companies`
+-- 
+
+DROP TABLE IF EXISTS `insurance_companies`;
+CREATE TABLE `insurance_companies` (
+  `id` int(11) NOT NULL default '0',
+  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `attn` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `cms_id` varchar(15) character set utf8 collate utf8_unicode_ci default NULL,
+  `freeb_type` tinyint(2) default NULL,
+  `x12_receiver_id` varchar(25) character set utf8 collate utf8_unicode_ci default NULL,
+  `x12_default_partner_id` int(11) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- 
+-- Dumping data for table `insurance_companies`
+-- 
 
 
-## Table structure for table `lang_constants`
+-- --------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS `lang_constants` (
+-- 
+-- Table structure for table `insurance_data`
+-- 
+
+DROP TABLE IF EXISTS `insurance_data`;
+CREATE TABLE `insurance_data` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `type` enum('primary','secondary','tertiary') character set latin1 default NULL,
+  `provider` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `plan_name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `policy_number` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `group_number` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_lname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_mname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_fname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_relationship` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_ss` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_DOB` date default NULL,
+  `subscriber_street` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_postal_code` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_city` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_state` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_country` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_phone` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_employer` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_employer_street` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_employer_postal_code` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_employer_state` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_employer_country` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_employer_city` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `copay` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `date` date NOT NULL default '0000-00-00',
+  `pid` bigint(20) NOT NULL default '0',
+  `subscriber_sex` varchar(25) character set utf8 collate utf8_unicode_ci default NULL,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `pid_type_date` (`pid`,`type`,`date`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `insurance_data`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `insurance_numbers`
+-- 
+
+DROP TABLE IF EXISTS `insurance_numbers`;
+CREATE TABLE `insurance_numbers` (
+  `id` int(11) NOT NULL default '0',
+  `provider_id` int(11) NOT NULL default '0',
+  `insurance_company_id` int(11) default NULL,
+  `provider_number` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
+  `rendering_provider_number` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
+  `group_number` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
+  `provider_number_type` varchar(4) character set utf8 collate utf8_unicode_ci default NULL,
+  `rendering_provider_number_type` varchar(4) character set utf8 collate utf8_unicode_ci default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- 
+-- Dumping data for table `insurance_numbers`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `integration_mapping`
+-- 
+
+DROP TABLE IF EXISTS `integration_mapping`;
+CREATE TABLE `integration_mapping` (
+  `id` int(11) NOT NULL default '0',
+  `foreign_id` int(11) NOT NULL default '0',
+  `foreign_table` varchar(125) character set utf8 collate utf8_unicode_ci default NULL,
+  `local_id` int(11) NOT NULL default '0',
+  `local_table` varchar(125) character set utf8 collate utf8_unicode_ci default NULL,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `foreign_id` (`foreign_id`,`foreign_table`,`local_id`,`local_table`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- 
+-- Dumping data for table `integration_mapping`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `issue_encounter`
+-- 
+
+DROP TABLE IF EXISTS `issue_encounter`;
+CREATE TABLE `issue_encounter` (
+  `pid` int(11) NOT NULL,
+  `list_id` int(11) NOT NULL,
+  `encounter` int(11) NOT NULL,
+  `resolved` tinyint(1) NOT NULL,
+  PRIMARY KEY  (`pid`,`list_id`,`encounter`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- 
+-- Dumping data for table `issue_encounter`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `lang_constants`
+-- 
+
+DROP TABLE IF EXISTS `lang_constants`;
+CREATE TABLE `lang_constants` (
   `cons_id` int(11) NOT NULL auto_increment,
-  `constant_name` varchar(255) NOT NULL default '',
+  `constant_name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   UNIQUE KEY `cons_id` (`cons_id`),
   KEY `cons_name` (`constant_name`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=2640 ;
 
-##
-## Table structure for table `lang_definitions`
-##
-
-CREATE TABLE IF NOT EXISTS `lang_definitions` (
-  `def_id` int(11) NOT NULL auto_increment,
-  `cons_id` int(11) NOT NULL default '0',
-  `lang_id` int(11) NOT NULL default '0',
-  `definition` mediumtext NOT NULL,
-  UNIQUE KEY `def_id` (`def_id`),
-  KEY `definition` (`definition`(100))
-) ENGINE=MyISAM ;
-
-##
-## Table structure for table `lang_languages`
-##
-
-CREATE TABLE IF NOT EXISTS `lang_languages` (
-  `lang_id` int(11) NOT NULL auto_increment,
-  `lang_code` char(2) NOT NULL default '',
-  `lang_description` varchar(100) NOT NULL default '',
-  UNIQUE KEY `lang_id` (`lang_id`)
-) ENGINE=MyISAM ;
-
-##
-## Dumping data for table `lang_languages`
-##
-
-INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (1, 'en', 'English');
-INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (2, 'se', 'Swedish');
-INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (3, 'es', 'Spanish');
-INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (4, 'de', 'German');
-INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (5, 'du', 'Dutch');
-INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (6, 'he', 'Hebrew');
-
---
--- Table structure for table `payments`
---
-
-DROP TABLE IF EXISTS `payments`;
-CREATE TABLE `payments` (
-  `id`          bigint(20)    NOT NULL auto_increment,
-  `pid`         bigint(20)    NOT NULL DEFAULT 0,
-  `dtime`       datetime      NOT NULL,
-  `encounter`   bigint(20)    NOT NULL DEFAULT 0,
-  `user`        varchar(255)  NOT NULL DEFAULT '',
-  `method`      varchar(255)  NOT NULL DEFAULT '',
-  `source`      varchar(255)  NOT NULL DEFAULT '',
-  `amount1`     decimal(7,2)  NOT NULL DEFAULT 0,
-  `amount2`     decimal(7,2)  NOT NULL DEFAULT 0,
-  `posted1`     decimal(7,2)  NOT NULL DEFAULT 0,
-  `posted2`     decimal(7,2)  NOT NULL DEFAULT 0,
-  PRIMARY KEY  (`id`),
-  KEY `pid` (`pid`)
-) ;
-
-### changes for 2.8.1 to 2.8.2
-
-##
-##  Data for language translations
-##
-
-## phpMyAdmin SQL Dump
-## version 2.6.4-pl1-Debian-1ubuntu1.1
-## http://www.phpmyadmin.net
-## 
-## Host: localhost
-## Generation Time: Feb 07, 2006 at 05:39 PM
-## Server version: 4.1.12
-## PHP Version: 4.4.0-3ubuntu1
-##
-## Database: `openemr`
-##
-
-##
-## Dumping data for table `lang_constants`
-##
+-- 
+-- Dumping data for table `lang_constants`
+-- 
 
 INSERT INTO `lang_constants` VALUES (1, 'Upload this file:');
 INSERT INTO `lang_constants` VALUES (2, 'Start Date');
@@ -4294,25 +4304,25 @@ INSERT INTO `lang_constants` VALUES (2637, 'Find Available');
 INSERT INTO `lang_constants` VALUES (2638, 'minutes');
 INSERT INTO `lang_constants` VALUES (2639, 'q.d.');
 
-##
-## now translations
-##
+-- --------------------------------------------------------
 
-# phpMyAdmin SQL Dump
-# version 2.5.5-pl1
-# http://www.phpmyadmin.net
-#
-# Host: localhost
-# Generation Time: Feb 14, 2006 at 09:21 AM
-# Server version: 4.1.12
-# PHP Version: 4.4.0-3ubuntu1
-#
-# Database : `openemr`
-#
+-- 
+-- Table structure for table `lang_definitions`
+-- 
 
-#
-# Dumping data for table `lang_definitions`
-#
+DROP TABLE IF EXISTS `lang_definitions`;
+CREATE TABLE `lang_definitions` (
+  `def_id` int(11) NOT NULL auto_increment,
+  `cons_id` int(11) NOT NULL default '0',
+  `lang_id` int(11) NOT NULL default '0',
+  `definition` mediumtext character set utf8 collate utf8_unicode_ci,
+  UNIQUE KEY `def_id` (`def_id`),
+  KEY `definition` (`definition`(100))
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=174 ;
+
+-- 
+-- Dumping data for table `lang_definitions`
+-- 
 
 INSERT INTO `lang_definitions` VALUES (1, 6, 3, 'Grupo');
 INSERT INTO `lang_definitions` VALUES (2, 8, 3, 'Usuario:');
@@ -4485,279 +4495,1049 @@ INSERT INTO `lang_definitions` VALUES (171, 177, 3, 'Correo Electrónico');
 INSERT INTO `lang_definitions` VALUES (172, 176, 3, 'Lista de llamadas telefónicas');
 INSERT INTO `lang_definitions` VALUES (173, 178, 3, 'Cualquier');
 
-## alters to categorize forms / per Mark 
+-- --------------------------------------------------------
 
-ALTER TABLE registry ADD COLUMN priority INT DEFAULT 0 AFTER date;
-ALTER TABLE registry ADD COLUMN category VARCHAR(255) DEFAULT "category" AFTER priority;
-ALTER TABLE registry ADD COLUMN nickname VARCHAR(255) DEFAULT '' AFTER category;
+-- 
+-- Table structure for table `lang_languages`
+-- 
 
-## array table for storing configuration data and string lists etc...
+DROP TABLE IF EXISTS `lang_languages`;
+CREATE TABLE `lang_languages` (
+  `lang_id` int(11) NOT NULL auto_increment,
+  `lang_code` char(2) character set latin1 NOT NULL default '',
+  `lang_description` varchar(100) character set utf8 collate utf8_unicode_ci default NULL,
+  UNIQUE KEY `lang_id` (`lang_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=7 ;
 
-CREATE TABLE `array` (
-  `array_key` varchar(255) default NULL,
-  `array_value` longtext
-) TYPE=MyISAM;
+-- 
+-- Dumping data for table `lang_languages`
+-- 
 
-## Drug information.
+INSERT INTO `lang_languages` VALUES (1, 'en', 'English');
+INSERT INTO `lang_languages` VALUES (2, 'se', 'Swedish');
+INSERT INTO `lang_languages` VALUES (3, 'es', 'Spanish');
+INSERT INTO `lang_languages` VALUES (4, 'de', 'German');
+INSERT INTO `lang_languages` VALUES (5, 'du', 'Dutch');
+INSERT INTO `lang_languages` VALUES (6, 'he', 'Hebrew');
 
-CREATE TABLE drugs (
-  drug_id       int(11)      NOT NULL auto_increment,
-  name          varchar(255) NOT NULL DEFAULT '',
-  ndc_number    varchar(20)  NOT NULL DEFAULT '',
-  on_order      int(11)      NOT NULL DEFAULT 0,
-  reorder_point int(11)      NOT NULL DEFAULT 0,
-  last_notify   date         NOT NULL DEFAULT '0000-00-00',
-  reactions     text         NOT NULL DEFAULT '',
-  form          int(3)       NOT NULL DEFAULT 0,
-  `size`        float unsigned NOT NULL DEFAULT 0,
-  unit          int(11)      NOT NULL DEFAULT 0,
-  route         int(11)      NOT NULL DEFAULT 0,
-  substitute    int(11)      NOT NULL DEFAULT 0,
-  PRIMARY KEY (drug_id)
-) TYPE=MyISAM;
+-- --------------------------------------------------------
 
-CREATE TABLE drug_templates (
-  drug_id       int(11)      NOT NULL,
-  selector      varchar(255) NOT NULL,
-  dosage        varchar(10)  NOT NULL DEFAULT '',
-  period        int(11)      NOT NULL DEFAULT 0,
-  quantity      int(11)      NOT NULL DEFAULT 0,
-  refills       int(11)      NOT NULL DEFAULT 0,
-  taxrates      varchar(255) NOT NULL DEFAULT '' COMMENT 'tax rate names delimited by colons',
-  PRIMARY KEY (drug_id, selector)
-) TYPE=MyISAM;
+-- 
+-- Table structure for table `layout_options`
+-- 
 
-CREATE TABLE drug_inventory (
-  inventory_id    int(11)      NOT NULL auto_increment,
-  drug_id         int(11)      NOT NULL,
-  lot_number      varchar(20)  NOT NULL DEFAULT '',
-  expiration      date         DEFAULT NULL,
-  manufacturer    varchar(255) NOT NULL DEFAULT '',
-  on_hand         int(11)      NOT NULL DEFAULT 0,
-  last_notify     date         NOT NULL DEFAULT '0000-00-00',
-  destroy_date    date         DEFAULT NULL,
-  destroy_method  varchar(255) NOT NULL DEFAULT '',
-  destroy_witness varchar(255) NOT NULL DEFAULT '',
-  destroy_notes   varchar(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (inventory_id)
-) TYPE=MyISAM;
+DROP TABLE IF EXISTS `layout_options`;
+CREATE TABLE `layout_options` (
+  `form_id` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `field_id` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `group_name` varchar(15) character set utf8 collate utf8_unicode_ci default NULL,
+  `title` varchar(63) character set utf8 collate utf8_unicode_ci default NULL,
+  `seq` int(11) NOT NULL default '0',
+  `data_type` tinyint(3) NOT NULL default '0',
+  `uor` tinyint(1) NOT NULL default '1',
+  `fld_length` int(11) NOT NULL default '15',
+  `max_length` int(11) NOT NULL default '0',
+  `list_id` varchar(31) character set utf8 collate utf8_unicode_ci default NULL,
+  `titlecols` tinyint(3) NOT NULL default '1',
+  `datacols` tinyint(3) NOT NULL default '1',
+  `default_value` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `edit_options` varchar(36) character set utf8 collate utf8_unicode_ci default NULL,
+  `description` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  PRIMARY KEY  (`form_id`,`field_id`,`seq`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-CREATE TABLE drug_sales (
-  sale_id         int(11)      NOT NULL auto_increment,
-  drug_id         int(11)      NOT NULL,
-  inventory_id    int(11)      NOT NULL,
-  prescription_id int(11)      NOT NULL DEFAULT 0,
-  pid             int(11)      NOT NULL DEFAULT 0,
-  encounter       int(11)      NOT NULL DEFAULT 0,
-  user            varchar(255) NOT NULL DEFAULT '',
-  sale_date       date         NOT NULL,
-  quantity        int(11)      NOT NULL DEFAULT 0,
-  fee             decimal(7,2) NOT NULL DEFAULT 0.00,
-  billed          tinyint(1)   NOT NULL DEFAULT 0 COMMENT 'indicates if the sale is posted to accounting',
-  PRIMARY KEY (sale_id)
-) TYPE=MyISAM;
+-- 
+-- Dumping data for table `layout_options`
+-- 
 
-CREATE TABLE claims (
-  patient_id        int(11)      NOT NULL,
-  encounter_id      int(11)      NOT NULL,
-  version           int unsigned NOT NULL AUTO_INCREMENT,
-  payer_id          int(11)      NOT NULL DEFAULT 0,
-  status            tinyint(2)   NOT NULL DEFAULT 0,
-  payer_type        tinyint(4)   NOT NULL DEFAULT 0,
-  bill_process      tinyint(2)   NOT NULL DEFAULT 0,
-  bill_time         datetime     DEFAULT NULL,
-  process_time      datetime     DEFAULT NULL,
-  process_file      varchar(255) NOT NULL DEFAULT '',
-  target            varchar(30)  NOT NULL DEFAULT '',
-  x12_partner_id    int(11)      NOT NULL DEFAULT 0,
-  PRIMARY KEY (patient_id, encounter_id, version)
-) TYPE=MyISAM;
+INSERT INTO `layout_options` VALUES ('DEM', 'title', '1Who', 'Name', 1, 1, 1, 0, 0, 'titles', 1, 1, '', '', 'Title');
+INSERT INTO `layout_options` VALUES ('DEM', 'fname', '1Who', '', 2, 2, 2, 10, 63, '', 0, 0, '', 'C', 'First Name');
+INSERT INTO `layout_options` VALUES ('DEM', 'mname', '1Who', '', 3, 2, 1, 2, 63, '', 0, 0, '', 'C', 'Middle Name');
+INSERT INTO `layout_options` VALUES ('DEM', 'lname', '1Who', '', 4, 2, 2, 10, 63, '', 0, 0, '', 'C', 'Last Name');
+INSERT INTO `layout_options` VALUES ('DEM', 'pubpid', '1Who', 'External ID', 5, 2, 1, 10, 15, '', 1, 1, '', '', 'External identifier');
+INSERT INTO `layout_options` VALUES ('DEM', 'DOB', '1Who', 'DOB', 6, 2, 2, 10, 10, '', 1, 1, '', 'D', 'Date of Birth');
+INSERT INTO `layout_options` VALUES ('DEM', 'sex', '1Who', 'Sex', 7, 1, 2, 0, 0, 'sex', 1, 1, '', '', 'Sex');
+INSERT INTO `layout_options` VALUES ('DEM', 'ss', '1Who', 'S.S.', 8, 2, 1, 11, 11, '', 1, 1, '', '', 'Social Security Number');
+INSERT INTO `layout_options` VALUES ('DEM', 'drivers_license', '1Who', 'License/ID', 9, 2, 1, 15, 63, '', 1, 1, '', '', 'Drivers License or State ID');
+INSERT INTO `layout_options` VALUES ('DEM', 'status', '1Who', 'Marital Status', 10, 1, 1, 0, 0, 'marital', 1, 3, '', '', 'Marital Status');
+INSERT INTO `layout_options` VALUES ('DEM', 'genericname1', '1Who', 'User Defined', 11, 2, 1, 15, 63, '', 1, 3, '', '', 'User Defined Field');
+INSERT INTO `layout_options` VALUES ('DEM', 'genericval1', '1Who', '', 12, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field');
+INSERT INTO `layout_options` VALUES ('DEM', 'genericname2', '1Who', '', 13, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field');
+INSERT INTO `layout_options` VALUES ('DEM', 'genericval2', '1Who', '', 14, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field');
+INSERT INTO `layout_options` VALUES ('DEM', 'squad', '1Who', 'Squad', 15, 13, 0, 0, 0, '', 1, 3, '', '', 'Squad Membership');
+INSERT INTO `layout_options` VALUES ('DEM', 'pricelevel', '1Who', 'Price Level', 16, 1, 0, 0, 0, 'pricelevel', 1, 1, '', '', 'Discount Level');
+INSERT INTO `layout_options` VALUES ('DEM', 'street', '2Contact', 'Address', 1, 2, 1, 25, 63, '', 1, 1, '', 'C', 'Street and Number');
+INSERT INTO `layout_options` VALUES ('DEM', 'city', '2Contact', 'City', 2, 2, 1, 15, 63, '', 1, 1, '', 'C', 'City Name');
+INSERT INTO `layout_options` VALUES ('DEM', 'state', '2Contact', 'State', 3, 2, 1, 15, 63, '', 1, 1, '', 'C', 'State/Locality');
+INSERT INTO `layout_options` VALUES ('DEM', 'postal_code', '2Contact', 'Postal Code', 4, 2, 1, 6, 63, '', 1, 1, '', '', 'Postal Code');
+INSERT INTO `layout_options` VALUES ('DEM', 'country_code', '2Contact', 'Country', 5, 2, 1, 10, 63, '', 1, 1, '', 'C', 'Country');
+INSERT INTO `layout_options` VALUES ('DEM', 'contact_relationship', '2Contact', 'Emergency Contact', 6, 2, 1, 10, 63, '', 1, 1, '', 'C', 'Emergency Contact Person');
+INSERT INTO `layout_options` VALUES ('DEM', 'phone_contact', '2Contact', 'Emergency Phone', 7, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Emergency Contact Phone Number');
+INSERT INTO `layout_options` VALUES ('DEM', 'phone_home', '2Contact', 'Home Phone', 8, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Home Phone Number');
+INSERT INTO `layout_options` VALUES ('DEM', 'phone_biz', '2Contact', 'Work Phone', 9, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Work Phone Number');
+INSERT INTO `layout_options` VALUES ('DEM', 'phone_cell', '2Contact', 'Mobile Phone', 10, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Cell Phone Number');
+INSERT INTO `layout_options` VALUES ('DEM', 'email', '2Contact', 'Contact Email', 11, 2, 1, 30, 95, '', 1, 1, '', '', 'Contact Email Address');
+INSERT INTO `layout_options` VALUES ('DEM', 'providerID', '3Choices', 'Provider', 1, 11, 2, 0, 0, '', 1, 3, '', '', 'Referring Provider');
+INSERT INTO `layout_options` VALUES ('DEM', 'pharmacy_id', '3Choices', 'Pharmacy', 2, 12, 1, 0, 0, '', 1, 3, '', '', 'Preferred Pharmacy');
+INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_notice', '3Choices', 'HIPAA Notice Received', 3, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Did you receive a copy of the HIPAA Notice?');
+INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_voice', '3Choices', 'Allow Voice Message', 4, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow telephone messages?');
+INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_mail', '3Choices', 'Allow Mail Message', 5, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow email messages?');
+INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_message', '3Choices', 'Leave Message With', 6, 2, 1, 20, 63, '', 1, 1, '', '', 'With whom may we leave a message?');
+INSERT INTO `layout_options` VALUES ('DEM', 'occupation', '4Employer', 'Occupation', 1, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Occupation');
+INSERT INTO `layout_options` VALUES ('DEM', 'em_name', '4Employer', 'Employer Name', 2, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Employer Name');
+INSERT INTO `layout_options` VALUES ('DEM', 'em_street', '4Employer', 'Employer Address', 3, 2, 1, 25, 63, '', 1, 1, '', 'C', 'Street and Number');
+INSERT INTO `layout_options` VALUES ('DEM', 'em_city', '4Employer', 'City', 4, 2, 1, 15, 63, '', 1, 1, '', 'C', 'City Name');
+INSERT INTO `layout_options` VALUES ('DEM', 'em_state', '4Employer', 'State', 5, 2, 1, 15, 63, '', 1, 1, '', 'C', 'State/Locality');
+INSERT INTO `layout_options` VALUES ('DEM', 'em_postal_code', '4Employer', 'Postal Code', 6, 2, 1, 6, 63, '', 1, 1, '', '', 'Postal Code');
+INSERT INTO `layout_options` VALUES ('DEM', 'em_country', '4Employer', 'Country', 7, 2, 1, 10, 63, '', 1, 1, '', 'C', 'Country');
+INSERT INTO `layout_options` VALUES ('DEM', 'language', '5Stats', 'Language', 1, 1, 1, 0, 0, 'language', 1, 1, '', '', 'Preferred Language');
+INSERT INTO `layout_options` VALUES ('DEM', 'ethnoracial', '5Stats', 'Race/Ethnicity', 2, 1, 1, 0, 0, 'ethrace', 1, 1, '', '', 'Ethnicity or Race');
+INSERT INTO `layout_options` VALUES ('DEM', 'financial_review', '5Stats', 'Financial Review Date', 3, 2, 1, 10, 10, '', 1, 1, '', 'D', 'Financial Review Date');
+INSERT INTO `layout_options` VALUES ('DEM', 'family_size', '5Stats', 'Family Size', 4, 2, 1, 20, 63, '', 1, 1, '', '', 'Family Size');
+INSERT INTO `layout_options` VALUES ('DEM', 'monthly_income', '5Stats', 'Monthly Income', 5, 2, 1, 20, 63, '', 1, 1, '', '', 'Monthly Income');
+INSERT INTO `layout_options` VALUES ('DEM', 'homeless', '5Stats', 'Homeless, etc.', 6, 2, 1, 20, 63, '', 1, 1, '', '', 'Homeless or similar?');
+INSERT INTO `layout_options` VALUES ('DEM', 'interpretter', '5Stats', 'Interpreter', 7, 2, 1, 20, 63, '', 1, 1, '', '', 'Interpreter needed?');
+INSERT INTO `layout_options` VALUES ('DEM', 'migrantseasonal', '5Stats', 'Migrant/Seasonal', 8, 2, 1, 20, 63, '', 1, 1, '', '', 'Migrant or seasonal worker?');
+INSERT INTO `layout_options` VALUES ('DEM', 'usertext1', '6Misc', 'User Defined Text 1', 1, 2, 0, 10, 63, '', 1, 1, '', '', 'User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'usertext2', '6Misc', 'User Defined Text 2', 2, 2, 0, 10, 63, '', 1, 1, '', '', 'User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'userlist1', '6Misc', 'User Defined List 1', 3, 1, 0, 0, 0, 'userlist1', 1, 1, '', '', 'User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'userlist2', '6Misc', 'User Defined List 2', 4, 1, 0, 0, 0, 'userlist2', 1, 1, '', '', 'User Defined');
+INSERT INTO `layout_options` VALUES ('REF', 'refer_date', '', 'Referral Date', 1, 4, 2, 0, 0, '', 1, 1, 'C', 'D', 'Date of referral');
+INSERT INTO `layout_options` VALUES ('REF', 'refer_from', '', 'Refer From', 2, 14, 2, 0, 0, '', 1, 1, '', '', 'Referral By');
+INSERT INTO `layout_options` VALUES ('REF', 'refer_to', '', 'Refer To', 3, 14, 2, 0, 0, '', 1, 1, '', '', 'Referral To');
+INSERT INTO `layout_options` VALUES ('REF', 'body', '', 'Reason', 4, 3, 2, 30, 3, '', 1, 1, '', '', 'Reason for referral');
+INSERT INTO `layout_options` VALUES ('REF', 'refer_diag', '', 'Referrer Diagnosis', 5, 2, 1, 30, 255, '', 1, 1, '', 'X', 'Referrer diagnosis');
+INSERT INTO `layout_options` VALUES ('REF', 'refer_risk_level', '', 'Risk Level', 6, 1, 1, 0, 0, 'risklevel', 1, 1, '', '', 'Level of urgency');
+INSERT INTO `layout_options` VALUES ('REF', 'refer_vitals', '', 'Include Vitals', 7, 1, 1, 0, 0, 'boolean', 1, 1, '', '', 'Include vitals data?');
+INSERT INTO `layout_options` VALUES ('REF', 'reply_date', '', 'Reply Date', 8, 4, 1, 0, 0, '', 1, 1, '', 'D', 'Date of reply');
+INSERT INTO `layout_options` VALUES ('REF', 'reply_from', '', 'Reply From', 9, 2, 1, 30, 255, '', 1, 1, '', '', 'Who replied?');
+INSERT INTO `layout_options` VALUES ('REF', 'reply_init_diag', '', 'Presumed Diagnosis', 10, 2, 1, 30, 255, '', 1, 1, '', '', 'Presumed diagnosis by specialist');
+INSERT INTO `layout_options` VALUES ('REF', 'reply_final_diag', '', 'Final Diagnosis', 11, 2, 1, 30, 255, '', 1, 1, '', '', 'Final diagnosis by specialist');
+INSERT INTO `layout_options` VALUES ('REF', 'reply_documents', '', 'Documents', 12, 2, 1, 30, 255, '', 1, 1, '', '', 'Where may related scanned or paper documents be found?');
+INSERT INTO `layout_options` VALUES ('REF', 'reply_findings', '', 'Findings', 13, 3, 1, 30, 3, '', 1, 1, '', '', 'Findings by specialist');
+INSERT INTO `layout_options` VALUES ('REF', 'reply_services', '', 'Services Provided', 14, 3, 1, 30, 3, '', 1, 1, '', '', 'Service provided by specialist');
+INSERT INTO `layout_options` VALUES ('REF', 'reply_recommend', '', 'Recommendations', 15, 3, 1, 30, 3, '', 1, 1, '', '', 'Recommendations by specialist');
+INSERT INTO `layout_options` VALUES ('REF', 'reply_rx_refer', '', 'Prescriptions/Referrals', 16, 3, 1, 30, 3, '', 1, 1, '', '', 'Prescriptions and/or referrals by specialist');
 
-CREATE TABLE form_misc_billing_options (
-  id                          bigint(20)   NOT NULL auto_increment,
-  date                        datetime     default NULL,
-  pid                         bigint(20)   default NULL,
-  user                        varchar(255) default NULL,
-  groupname                   varchar(255) default NULL,
-  authorized                  tinyint(4)   default NULL,
-  activity                    tinyint(4)   default NULL,
-  employment_related          tinyint(1)   default NULL,
-  auto_accident               tinyint(1)   default NULL,
-  accident_state              varchar(2)   default NULL,
-  other_accident              tinyint(1)   default NULL,
-  outside_lab                 tinyint(1)   default NULL,
-  lab_amount                  decimal(5,2) default NULL,
-  is_unable_to_work           tinyint(1)   default NULL,
-  off_work_from               date         default NULL,
-  off_work_to                 date         default NULL,
-  is_hospitalized             tinyint(1)   default NULL,
-  hospitalization_date_from   date         default NULL,
-  hospitalization_date_to     date         default NULL,
-  medicaid_resubmission_code  varchar(10)  default NULL,
-  medicaid_original_reference varchar(15)  default NULL,
-  prior_auth_number           varchar(20)  default NULL,
-  comments                    varchar(255) default NULL,
-  PRIMARY KEY (id)
-) TYPE=MyISAM;
+-- --------------------------------------------------------
 
-CREATE TABLE list_options (
-  list_id        varchar(31)   NOT NULL,
-  option_id      varchar(31)   NOT NULL,
-  title          varchar(255)  NOT NULL DEFAULT '',
-  seq            int(11)       NOT NULL DEFAULT 0,
-  is_default     tinyint(1)    NOT NULL DEFAULT 0,
-  option_value   float         NOT NULL DEFAULT 0,
-  PRIMARY KEY (list_id, option_id)
-) TYPE=MyISAM;
+-- 
+-- Table structure for table `list_options`
+-- 
 
-INSERT INTO list_options VALUES ('yesno'  ,'NO' ,'NO' ,1,0,0);
-INSERT INTO list_options VALUES ('yesno'  ,'YES','YES',2,0,0);
+DROP TABLE IF EXISTS `list_options`;
+CREATE TABLE `list_options` (
+  `list_id` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `option_id` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `title` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `seq` int(11) NOT NULL default '0',
+  `is_default` tinyint(1) NOT NULL default '0',
+  `option_value` float NOT NULL default '0',
+  PRIMARY KEY  (`list_id`,`option_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-INSERT INTO list_options VALUES ('titles' ,'Mr.'   ,'Mr.'    ,1,0,0);
-INSERT INTO list_options VALUES ('titles' ,'Mrs.'  ,'Mrs.'   ,2,0,0);
-INSERT INTO list_options VALUES ('titles' ,'Ms.'   ,'Ms.'    ,3,0,0);
-INSERT INTO list_options VALUES ('titles' ,'Dr.'   ,'Dr.'    ,4,0,0);
+-- 
+-- Dumping data for table `list_options`
+-- 
 
-INSERT INTO list_options VALUES ('sex'    ,'Female','Female' ,1,0,0);
-INSERT INTO list_options VALUES ('sex'    ,'Male'  ,'Male'   ,2,0,0);
+INSERT INTO `list_options` VALUES ('yesno', 'NO', 'NO', 1, 0, 0);
+INSERT INTO `list_options` VALUES ('yesno', 'YES', 'YES', 2, 0, 0);
+INSERT INTO `list_options` VALUES ('titles', 'Mr.', 'Mr.', 1, 0, 0);
+INSERT INTO `list_options` VALUES ('titles', 'Mrs.', 'Mrs.', 2, 0, 0);
+INSERT INTO `list_options` VALUES ('titles', 'Ms.', 'Ms.', 3, 0, 0);
+INSERT INTO `list_options` VALUES ('titles', 'Dr.', 'Dr.', 4, 0, 0);
+INSERT INTO `list_options` VALUES ('sex', 'Female', 'Female', 1, 0, 0);
+INSERT INTO `list_options` VALUES ('sex', 'Male', 'Male', 2, 0, 0);
+INSERT INTO `list_options` VALUES ('marital', 'married', 'Married', 1, 0, 0);
+INSERT INTO `list_options` VALUES ('marital', 'single', 'Single', 2, 0, 0);
+INSERT INTO `list_options` VALUES ('marital', 'divorced', 'Divorced', 3, 0, 0);
+INSERT INTO `list_options` VALUES ('marital', 'widowed', 'Widowed', 4, 0, 0);
+INSERT INTO `list_options` VALUES ('marital', 'separated', 'Separated', 5, 0, 0);
+INSERT INTO `list_options` VALUES ('marital', 'domestic partner', 'Domestic Partner', 6, 0, 0);
+INSERT INTO `list_options` VALUES ('language', 'English', 'English', 1, 1, 0);
+INSERT INTO `list_options` VALUES ('language', 'Spanish', 'Spanish', 2, 0, 0);
+INSERT INTO `list_options` VALUES ('ethrace', 'Caucasian', 'Caucasian', 1, 0, 0);
+INSERT INTO `list_options` VALUES ('ethrace', 'Asian', 'Asian', 2, 0, 0);
+INSERT INTO `list_options` VALUES ('ethrace', 'Black', 'Black', 3, 0, 0);
+INSERT INTO `list_options` VALUES ('ethrace', 'Hispanic', 'Hispanic', 4, 0, 0);
+INSERT INTO `list_options` VALUES ('userlist1', 'sample', 'Sample', 1, 0, 0);
+INSERT INTO `list_options` VALUES ('userlist2', 'sample', 'Sample', 1, 0, 0);
+INSERT INTO `list_options` VALUES ('pricelevel', 'standard', 'Standard', 1, 1, 0);
+INSERT INTO `list_options` VALUES ('risklevel', 'low', 'Low', 1, 0, 0);
+INSERT INTO `list_options` VALUES ('risklevel', 'medium', 'Medium', 2, 1, 0);
+INSERT INTO `list_options` VALUES ('risklevel', 'high', 'High', 3, 0, 0);
+INSERT INTO `list_options` VALUES ('boolean', '0', 'No', 1, 0, 0);
+INSERT INTO `list_options` VALUES ('boolean', '1', 'Yes', 2, 0, 0);
 
-INSERT INTO list_options VALUES ('marital','married'         ,'Married'         ,1,0,0);
-INSERT INTO list_options VALUES ('marital','single'          ,'Single'          ,2,0,0);
-INSERT INTO list_options VALUES ('marital','divorced'        ,'Divorced'        ,3,0,0);
-INSERT INTO list_options VALUES ('marital','widowed'         ,'Widowed'         ,4,0,0);
-INSERT INTO list_options VALUES ('marital','separated'       ,'Separated'       ,5,0,0);
-INSERT INTO list_options VALUES ('marital','domestic partner','Domestic Partner',6,0,0);
+-- --------------------------------------------------------
 
-INSERT INTO list_options VALUES ('language','English','English',1,1,0);
-INSERT INTO list_options VALUES ('language','Spanish','Spanish',2,0,0);
+-- 
+-- Table structure for table `lists`
+-- 
 
-INSERT INTO list_options VALUES ('ethrace','Caucasian','Caucasian',1,0,0);
-INSERT INTO list_options VALUES ('ethrace','Asian'    ,'Asian'    ,2,0,0);
-INSERT INTO list_options VALUES ('ethrace','Black'    ,'Black'    ,3,0,0);
-INSERT INTO list_options VALUES ('ethrace','Hispanic' ,'Hispanic' ,4,0,0);
+DROP TABLE IF EXISTS `lists`;
+CREATE TABLE `lists` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `date` datetime default NULL,
+  `type` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `title` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `begdate` date default NULL,
+  `enddate` date default NULL,
+  `returndate` date default NULL,
+  `occurrence` int(11) default '0',
+  `classification` int(11) default '0',
+  `referredby` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `extrainfo` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `diagnosis` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `activity` tinyint(4) default NULL,
+  `comments` longtext character set utf8 collate utf8_unicode_ci,
+  `pid` bigint(20) default NULL,
+  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `outcome` int(11) NOT NULL default '0',
+  `destination` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
-INSERT INTO list_options VALUES ('userlist1','sample','Sample',1,0,0);
+-- 
+-- Dumping data for table `lists`
+-- 
 
-INSERT INTO list_options VALUES ('userlist2','sample','Sample',1,0,0);
 
-INSERT INTO list_options VALUES ('pricelevel','standard','Standard',1,1,0);
+-- --------------------------------------------------------
 
-INSERT INTO list_options VALUES ('risklevel','low'   ,'Low'   ,1,0,0);
-INSERT INTO list_options VALUES ('risklevel','medium','Medium',2,1,0);
-INSERT INTO list_options VALUES ('risklevel','high'  ,'High'  ,3,0,0);
+-- 
+-- Table structure for table `log`
+-- 
 
-INSERT INTO list_options VALUES ('boolean','0','No' ,1,0,0);
-INSERT INTO list_options VALUES ('boolean','1','Yes',2,0,0);
+DROP TABLE IF EXISTS `log`;
+CREATE TABLE `log` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `date` datetime default NULL,
+  `event` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `comments` longtext character set utf8 collate utf8_unicode_ci,
+  `user_notes` longtext character set utf8 collate utf8_unicode_ci,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
-CREATE TABLE layout_options (
-  form_id        varchar(31)   NOT NULL,
-  field_id       varchar(31)   NOT NULL,
-  group_name     varchar(15)   NOT NULL DEFAULT '',
-  title          varchar(63)   NOT NULL DEFAULT '',
-  seq            int(11)       NOT NULL DEFAULT 0,
-  data_type      tinyint(3)    NOT NULL DEFAULT 0,
-  uor            tinyint(1)    NOT NULL DEFAULT 1,
-  fld_length     int(11)       NOT NULL DEFAULT 15,
-  max_length     int(11)       NOT NULL DEFAULT 0,
-  list_id        varchar(31)   NOT NULL DEFAULT '',
-  titlecols      tinyint(3)    NOT NULL DEFAULT 1,
-  datacols       tinyint(3)    NOT NULL DEFAULT 1,
-  default_value  varchar(255)  NOT NULL DEFAULT '',
-  edit_options   varchar(36)   NOT NULL DEFAULT '',
-  description    varchar(255)  NOT NULL DEFAULT '',
-  PRIMARY KEY (form_id, field_id, seq)
-) TYPE=MyISAM;
+-- 
+-- Dumping data for table `log`
+-- 
 
-INSERT INTO layout_options VALUES ('DEM','title'          ,'1Who','Name'          , 1, 1,1, 0, 0,'titles' ,1,1,'','' ,'Title');
-INSERT INTO layout_options VALUES ('DEM','fname'          ,'1Who',''              , 2, 2,2,10,63,''       ,0,0,'','C','First Name');
-INSERT INTO layout_options VALUES ('DEM','mname'          ,'1Who',''              , 3, 2,1, 2,63,''       ,0,0,'','C','Middle Name');
-INSERT INTO layout_options VALUES ('DEM','lname'          ,'1Who',''              , 4, 2,2,10,63,''       ,0,0,'','C','Last Name');
-INSERT INTO layout_options VALUES ('DEM','pubpid'         ,'1Who','External ID'   , 5, 2,1,10,15,''       ,1,1,'','' ,'External identifier');
-INSERT INTO layout_options VALUES ('DEM','DOB'            ,'1Who','DOB'           , 6, 2,2,10,10,''       ,1,1,'','D','Date of Birth');
-INSERT INTO layout_options VALUES ('DEM','sex'            ,'1Who','Sex'           , 7, 1,2, 0, 0,'sex'    ,1,1,'','' ,'Sex');
-INSERT INTO layout_options VALUES ('DEM','ss'             ,'1Who','S.S.'          , 8, 2,1,11,11,''       ,1,1,'','' ,'Social Security Number');
-INSERT INTO layout_options VALUES ('DEM','drivers_license','1Who','License/ID'    , 9, 2,1,15,63,''       ,1,1,'','' ,'Drivers License or State ID');
-INSERT INTO layout_options VALUES ('DEM','status'         ,'1Who','Marital Status',10, 1,1, 0, 0,'marital',1,3,'','' ,'Marital Status');
-INSERT INTO layout_options VALUES ('DEM','genericname1'   ,'1Who','User Defined'  ,11, 2,1,15,63,''       ,1,3,'','' ,'User Defined Field');
-INSERT INTO layout_options VALUES ('DEM','genericval1'    ,'1Who',''              ,12, 2,1,15,63,''       ,0,0,'','' ,'User Defined Field');
-INSERT INTO layout_options VALUES ('DEM','genericname2'   ,'1Who',''              ,13, 2,1,15,63,''       ,0,0,'','' ,'User Defined Field');
-INSERT INTO layout_options VALUES ('DEM','genericval2'    ,'1Who',''              ,14, 2,1,15,63,''       ,0,0,'','' ,'User Defined Field');
-INSERT INTO layout_options VALUES ('DEM','squad'          ,'1Who','Squad'         ,15,13,0, 0, 0,''       ,1,3,'','' ,'Squad Membership');
-INSERT INTO layout_options VALUES ('DEM','pricelevel'     ,'1Who','Price Level'   ,16, 1,0, 0, 0,'pricelevel',1,1,'','' ,'Discount Level');
-INSERT INTO layout_options VALUES ('DEM','street'              ,'2Contact','Address'          , 1, 2,1,25,63,''     ,1,1,'','C','Street and Number');
-INSERT INTO layout_options VALUES ('DEM','city'                ,'2Contact','City'             , 2, 2,1,15,63,''     ,1,1,'','C','City Name');
-INSERT INTO layout_options VALUES ('DEM','state'               ,'2Contact','State'            , 3, 2,1,15,63,''     ,1,1,'','C','State/Locality');
-INSERT INTO layout_options VALUES ('DEM','postal_code'         ,'2Contact','Postal Code'      , 4, 2,1, 6,63,''     ,1,1,'','' ,'Postal Code');
-INSERT INTO layout_options VALUES ('DEM','country_code'        ,'2Contact','Country'          , 5, 2,1,10,63,''     ,1,1,'','C','Country');
-INSERT INTO layout_options VALUES ('DEM','contact_relationship','2Contact','Emergency Contact', 6, 2,1,10,63,''     ,1,1,'','C','Emergency Contact Person');
-INSERT INTO layout_options VALUES ('DEM','phone_contact'       ,'2Contact','Emergency Phone'  , 7, 2,1,20,63,''     ,1,1,'','P','Emergency Contact Phone Number');
-INSERT INTO layout_options VALUES ('DEM','phone_home'          ,'2Contact','Home Phone'       , 8, 2,1,20,63,''     ,1,1,'','P','Home Phone Number');
-INSERT INTO layout_options VALUES ('DEM','phone_biz'           ,'2Contact','Work Phone'       , 9, 2,1,20,63,''     ,1,1,'','P','Work Phone Number');
-INSERT INTO layout_options VALUES ('DEM','phone_cell'          ,'2Contact','Mobile Phone'     ,10, 2,1,20,63,''     ,1,1,'','P','Cell Phone Number');
-INSERT INTO layout_options VALUES ('DEM','email'               ,'2Contact','Contact Email'    ,11, 2,1,30,95,''     ,1,1,'','' ,'Contact Email Address');
-INSERT INTO layout_options VALUES ('DEM','providerID'   ,'3Choices','Provider'             , 1,11,2, 0, 0,''       ,1,3,'','' ,'Referring Provider');
-INSERT INTO layout_options VALUES ('DEM','pharmacy_id'  ,'3Choices','Pharmacy'             , 2,12,1, 0, 0,''       ,1,3,'','' ,'Preferred Pharmacy');
-INSERT INTO layout_options VALUES ('DEM','hipaa_notice' ,'3Choices','HIPAA Notice Received', 3, 1,1, 0, 0,'yesno'  ,1,1,'','' ,'Did you receive a copy of the HIPAA Notice?');
-INSERT INTO layout_options VALUES ('DEM','hipaa_voice'  ,'3Choices','Allow Voice Message'  , 4, 1,1, 0, 0,'yesno'  ,1,1,'','' ,'Allow telephone messages?');
-INSERT INTO layout_options VALUES ('DEM','hipaa_mail'   ,'3Choices','Allow Mail Message'   , 5, 1,1, 0, 0,'yesno'  ,1,1,'','' ,'Allow email messages?');
-INSERT INTO layout_options VALUES ('DEM','hipaa_message','3Choices','Leave Message With'   , 6, 2,1,20,63,''       ,1,1,'','' ,'With whom may we leave a message?');
-INSERT INTO layout_options VALUES ('DEM','occupation'    ,'4Employer','Occupation'      , 1, 2,1,20,63,''     ,1,1,'','C','Occupation');
-INSERT INTO layout_options VALUES ('DEM','em_name'       ,'4Employer','Employer Name'   , 2, 2,1,20,63,''     ,1,1,'','C','Employer Name');
-INSERT INTO layout_options VALUES ('DEM','em_street'     ,'4Employer','Employer Address', 3, 2,1,25,63,''     ,1,1,'','C','Street and Number');
-INSERT INTO layout_options VALUES ('DEM','em_city'       ,'4Employer','City'            , 4, 2,1,15,63,''     ,1,1,'','C','City Name');
-INSERT INTO layout_options VALUES ('DEM','em_state'      ,'4Employer','State'           , 5, 2,1,15,63,''     ,1,1,'','C','State/Locality');
-INSERT INTO layout_options VALUES ('DEM','em_postal_code','4Employer','Postal Code'     , 6, 2,1, 6,63,''     ,1,1,'','' ,'Postal Code');
-INSERT INTO layout_options VALUES ('DEM','em_country'    ,'4Employer','Country'         , 7, 2,1,10,63,''     ,1,1,'','C','Country');
-INSERT INTO layout_options VALUES ('DEM','language'        ,'5Stats','Language'             , 1, 1,1, 0, 0,'language',1,1,'','' ,'Preferred Language');
-INSERT INTO layout_options VALUES ('DEM','ethnoracial'     ,'5Stats','Race/Ethnicity'       , 2, 1,1, 0, 0,'ethrace' ,1,1,'','' ,'Ethnicity or Race');
-INSERT INTO layout_options VALUES ('DEM','financial_review','5Stats','Financial Review Date', 3, 2,1,10,10,''        ,1,1,'','D','Financial Review Date');
-INSERT INTO layout_options VALUES ('DEM','family_size'     ,'5Stats','Family Size'          , 4, 2,1,20,63,''        ,1,1,'','' ,'Family Size');
-INSERT INTO layout_options VALUES ('DEM','monthly_income'  ,'5Stats','Monthly Income'       , 5, 2,1,20,63,''        ,1,1,'','' ,'Monthly Income');
-INSERT INTO layout_options VALUES ('DEM','homeless'        ,'5Stats','Homeless, etc.'       , 6, 2,1,20,63,''        ,1,1,'','' ,'Homeless or similar?');
-INSERT INTO layout_options VALUES ('DEM','interpretter'    ,'5Stats','Interpreter'          , 7, 2,1,20,63,''        ,1,1,'','' ,'Interpreter needed?');
-INSERT INTO layout_options VALUES ('DEM','migrantseasonal' ,'5Stats','Migrant/Seasonal'     , 8, 2,1,20,63,''        ,1,1,'','' ,'Migrant or seasonal worker?');
-INSERT INTO layout_options VALUES ('DEM','usertext1'       ,'6Misc','User Defined Text 1'   , 1, 2,0,10,63,''         ,1,1,'','' ,'User Defined');
-INSERT INTO layout_options VALUES ('DEM','usertext2'       ,'6Misc','User Defined Text 2'   , 2, 2,0,10,63,''         ,1,1,'','' ,'User Defined');
-INSERT INTO layout_options VALUES ('DEM','userlist1'       ,'6Misc','User Defined List 1'   , 3, 1,0, 0, 0,'userlist1',1,1,'','' ,'User Defined');
-INSERT INTO layout_options VALUES ('DEM','userlist2'       ,'6Misc','User Defined List 2'   , 4, 1,0, 0, 0,'userlist2',1,1,'','' ,'User Defined');
 
-INSERT INTO layout_options VALUES ('REF','refer_date'      ,'','Referral Date'          , 1, 4,2, 0,  0,''         ,1,1,'C','D','Date of referral');
-INSERT INTO layout_options VALUES ('REF','refer_from'      ,'','Refer From'             , 2,14,2, 0,  0,''         ,1,1,'' ,'' ,'Referral By');
-INSERT INTO layout_options VALUES ('REF','refer_to'        ,'','Refer To'               , 3,14,2, 0,  0,''         ,1,1,'' ,'' ,'Referral To');
-INSERT INTO layout_options VALUES ('REF','body'            ,'','Reason'                 , 4, 3,2,30,  3,''         ,1,1,'' ,'' ,'Reason for referral');
-INSERT INTO layout_options VALUES ('REF','refer_diag'      ,'','Referrer Diagnosis'     , 5, 2,1,30,255,''         ,1,1,'' ,'X','Referrer diagnosis');
-INSERT INTO layout_options VALUES ('REF','refer_risk_level','','Risk Level'             , 6, 1,1, 0,  0,'risklevel',1,1,'' ,'' ,'Level of urgency');
-INSERT INTO layout_options VALUES ('REF','refer_vitals'    ,'','Include Vitals'         , 7, 1,1, 0,  0,'boolean'  ,1,1,'' ,'' ,'Include vitals data?');
-INSERT INTO layout_options VALUES ('REF','reply_date'      ,'','Reply Date'             , 8, 4,1, 0,  0,''         ,1,1,'' ,'D','Date of reply');
-INSERT INTO layout_options VALUES ('REF','reply_from'      ,'','Reply From'             , 9, 2,1,30,255,''         ,1,1,'' ,'' ,'Who replied?');
-INSERT INTO layout_options VALUES ('REF','reply_init_diag' ,'','Presumed Diagnosis'     ,10, 2,1,30,255,''         ,1,1,'' ,'' ,'Presumed diagnosis by specialist');
-INSERT INTO layout_options VALUES ('REF','reply_final_diag','','Final Diagnosis'        ,11, 2,1,30,255,''         ,1,1,'' ,'' ,'Final diagnosis by specialist');
-INSERT INTO layout_options VALUES ('REF','reply_documents' ,'','Documents'              ,12, 2,1,30,255,''         ,1,1,'' ,'' ,'Where may related scanned or paper documents be found?');
-INSERT INTO layout_options VALUES ('REF','reply_findings'  ,'','Findings'               ,13, 3,1,30,  3,''         ,1,1,'' ,'' ,'Findings by specialist');
-INSERT INTO layout_options VALUES ('REF','reply_services'  ,'','Services Provided'      ,14, 3,1,30,  3,''         ,1,1,'' ,'' ,'Service provided by specialist');
-INSERT INTO layout_options VALUES ('REF','reply_recommend' ,'','Recommendations'        ,15, 3,1,30,  3,''         ,1,1,'' ,'' ,'Recommendations by specialist');
-INSERT INTO layout_options VALUES ('REF','reply_rx_refer'  ,'','Prescriptions/Referrals',16, 3,1,30,  3,''         ,1,1,'' ,'' ,'Prescriptions and/or referrals by specialist');
+-- --------------------------------------------------------
 
-CREATE TABLE prices (
-  pr_id          varchar(11)   NOT NULL            COMMENT 'references codes.id or drugs.id',
-  pr_selector    varchar(15)   NOT NULL DEFAULT '' COMMENT 'template selector for drugs, empty for codes',
-  pr_level       varchar(31)   NOT NULL DEFAULT '' COMMENT 'price level',
-  pr_price       decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'price in local currency',
-  PRIMARY KEY (pr_id, pr_selector, pr_level)
-) TYPE=MyISAM;
+-- 
+-- Table structure for table `notes`
+-- 
 
-CREATE TABLE fee_sheet_options (
-  fs_category varchar(63)  NOT NULL DEFAULT '' COMMENT 'Descriptive category name',
-  fs_option   varchar(63)  NOT NULL DEFAULT '' COMMENT 'Descriptive option name',
-  fs_codes    varchar(255) NOT NULL DEFAULT '' COMMENT 'multiple instances of type:id:selector;'
-) TYPE=MyISAM;
-INSERT INTO fee_sheet_options VALUES ('1New Patient','1Brief'  ,'CPT4|99201|');
-INSERT INTO fee_sheet_options VALUES ('1New Patient','2Limited','CPT4|99202|');
-INSERT INTO fee_sheet_options VALUES ('1New Patient','3Detailed','CPT4|99203|');
-INSERT INTO fee_sheet_options VALUES ('1New Patient','4Extended','CPT4|99204|');
-INSERT INTO fee_sheet_options VALUES ('1New Patient','5Comprehensive','CPT4|99205|');
-INSERT INTO fee_sheet_options VALUES ('2Established Patient','1Brief'  ,'CPT4|99211|');
-INSERT INTO fee_sheet_options VALUES ('2Established Patient','2Limited','CPT4|99212|');
-INSERT INTO fee_sheet_options VALUES ('2Established Patient','3Detailed','CPT4|99213|');
-INSERT INTO fee_sheet_options VALUES ('2Established Patient','4Extended','CPT4|99214|');
-INSERT INTO fee_sheet_options VALUES ('2Established Patient','5Comprehensive','CPT4|99215|');
+DROP TABLE IF EXISTS `notes`;
+CREATE TABLE `notes` (
+  `id` int(11) NOT NULL default '0',
+  `foreign_id` int(11) NOT NULL default '0',
+  `note` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `owner` int(11) default NULL,
+  `date` datetime default NULL,
+  `revision` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+  PRIMARY KEY  (`id`),
+  KEY `foreign_id` (`owner`),
+  KEY `foreign_id_2` (`foreign_id`),
+  KEY `date` (`date`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- 
+-- Dumping data for table `notes`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `onotes`
+-- 
+
+DROP TABLE IF EXISTS `onotes`;
+CREATE TABLE `onotes` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `date` datetime default NULL,
+  `body` longtext character set utf8 collate utf8_unicode_ci,
+  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `activity` tinyint(4) default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `onotes`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `openemr_module_vars`
+-- 
+
+DROP TABLE IF EXISTS `openemr_module_vars`;
+CREATE TABLE `openemr_module_vars` (
+  `pn_id` int(11) unsigned NOT NULL auto_increment,
+  `pn_modname` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `pn_name` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `pn_value` longtext character set utf8 collate utf8_unicode_ci,
+  PRIMARY KEY  (`pn_id`),
+  KEY `pn_modname` (`pn_modname`),
+  KEY `pn_name` (`pn_name`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=235 ;
+
+-- 
+-- Dumping data for table `openemr_module_vars`
+-- 
+
+INSERT INTO `openemr_module_vars` VALUES (234, 'PostCalendar', 'pcNotifyEmail', '');
+INSERT INTO `openemr_module_vars` VALUES (233, 'PostCalendar', 'pcNotifyAdmin', '0');
+INSERT INTO `openemr_module_vars` VALUES (232, 'PostCalendar', 'pcCacheLifetime', '3600');
+INSERT INTO `openemr_module_vars` VALUES (231, 'PostCalendar', 'pcUseCache', '0');
+INSERT INTO `openemr_module_vars` VALUES (230, 'PostCalendar', 'pcDefaultView', 'day');
+INSERT INTO `openemr_module_vars` VALUES (229, 'PostCalendar', 'pcTimeIncrement', '5');
+INSERT INTO `openemr_module_vars` VALUES (228, 'PostCalendar', 'pcAllowUserCalendar', '1');
+INSERT INTO `openemr_module_vars` VALUES (227, 'PostCalendar', 'pcAllowSiteWide', '1');
+INSERT INTO `openemr_module_vars` VALUES (226, 'PostCalendar', 'pcTemplate', 'default');
+INSERT INTO `openemr_module_vars` VALUES (225, 'PostCalendar', 'pcEventDateFormat', '%Y-%m-%d');
+INSERT INTO `openemr_module_vars` VALUES (224, 'PostCalendar', 'pcDisplayTopics', '0');
+INSERT INTO `openemr_module_vars` VALUES (223, 'PostCalendar', 'pcListHowManyEvents', '15');
+INSERT INTO `openemr_module_vars` VALUES (222, 'PostCalendar', 'pcAllowDirectSubmit', '1');
+INSERT INTO `openemr_module_vars` VALUES (221, 'PostCalendar', 'pcUsePopups', '0');
+INSERT INTO `openemr_module_vars` VALUES (220, 'PostCalendar', 'pcDayHighlightColor', '#EEEEEE');
+INSERT INTO `openemr_module_vars` VALUES (219, 'PostCalendar', 'pcFirstDayOfWeek', '1');
+INSERT INTO `openemr_module_vars` VALUES (218, 'PostCalendar', 'pcUseInternationalDates', '0');
+INSERT INTO `openemr_module_vars` VALUES (217, 'PostCalendar', 'pcEventsOpenInNewWindow', '0');
+INSERT INTO `openemr_module_vars` VALUES (216, 'PostCalendar', 'pcTime24Hours', '0');
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `openemr_modules`
+-- 
+
+DROP TABLE IF EXISTS `openemr_modules`;
+CREATE TABLE `openemr_modules` (
+  `pn_id` int(11) unsigned NOT NULL auto_increment,
+  `pn_name` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `pn_type` int(6) NOT NULL default '0',
+  `pn_displayname` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `pn_description` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `pn_regid` int(11) unsigned NOT NULL default '0',
+  `pn_directory` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `pn_version` varchar(10) character set utf8 collate utf8_unicode_ci default NULL,
+  `pn_admin_capable` tinyint(1) NOT NULL default '0',
+  `pn_user_capable` tinyint(1) NOT NULL default '0',
+  `pn_state` tinyint(1) NOT NULL default '0',
+  PRIMARY KEY  (`pn_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=47 ;
+
+-- 
+-- Dumping data for table `openemr_modules`
+-- 
+
+INSERT INTO `openemr_modules` VALUES (46, 'PostCalendar', 2, 'PostCalendar', 'PostNuke Calendar Module', 0, 'PostCalendar', '4.0.0', 1, 1, 3);
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `openemr_postcalendar_categories`
+-- 
+
+DROP TABLE IF EXISTS `openemr_postcalendar_categories`;
+CREATE TABLE `openemr_postcalendar_categories` (
+  `pc_catid` int(11) unsigned NOT NULL auto_increment,
+  `pc_catname` varchar(100) character set utf8 collate utf8_unicode_ci default NULL,
+  `pc_catcolor` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
+  `pc_catdesc` text character set utf8 collate utf8_unicode_ci,
+  `pc_recurrtype` int(1) NOT NULL default '0',
+  `pc_enddate` date default NULL,
+  `pc_recurrspec` text character set utf8 collate utf8_unicode_ci,
+  `pc_recurrfreq` int(3) NOT NULL default '0',
+  `pc_duration` bigint(20) NOT NULL default '0',
+  `pc_end_date_flag` tinyint(1) NOT NULL default '0',
+  `pc_end_date_type` int(2) default NULL,
+  `pc_end_date_freq` int(11) NOT NULL default '0',
+  `pc_end_all_day` tinyint(1) NOT NULL default '0',
+  `pc_dailylimit` int(2) NOT NULL default '0',
+  PRIMARY KEY  (`pc_catid`),
+  KEY `basic_cat` (`pc_catname`,`pc_catcolor`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=11 ;
+
+-- 
+-- Dumping data for table `openemr_postcalendar_categories`
+-- 
+
+INSERT INTO `openemr_postcalendar_categories` VALUES (5, 'Office Visit', '#FFFFCC', 'Normal Office Visit', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0);
+INSERT INTO `openemr_postcalendar_categories` VALUES (4, 'Vacation', '#EFEFEF', 'Reserved for use to define Scheduled Vacation Time', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 0, 0, 0, 1, 0);
+INSERT INTO `openemr_postcalendar_categories` VALUES (1, 'No Show', '#DDDDDD', 'Reserved to define when an event did not occur as specified.', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 0, 0, 0, 0, 0);
+INSERT INTO `openemr_postcalendar_categories` VALUES (2, 'In Office', '#99CCFF', 'Reserved todefine when a provider may haveavailable appointments after.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 1, 3, 2, 0, 0);
+INSERT INTO `openemr_postcalendar_categories` VALUES (3, 'Out Of Office', '#99FFFF', 'Reserved to define when a provider may not have available appointments after.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 1, 3, 2, 0, 0);
+INSERT INTO `openemr_postcalendar_categories` VALUES (8, 'Lunch', '#FFFF33', 'Lunch', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 3600, 0, 3, 2, 0, 0);
+INSERT INTO `openemr_postcalendar_categories` VALUES (9, 'Established Patient', '#CCFF33', '', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0);
+INSERT INTO `openemr_postcalendar_categories` VALUES (10, 'New Patient', '#CCFFFF', '', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 1800, 0, 0, 0, 0, 0);
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `openemr_postcalendar_events`
+-- 
+
+DROP TABLE IF EXISTS `openemr_postcalendar_events`;
+CREATE TABLE `openemr_postcalendar_events` (
+  `pc_eid` int(11) unsigned NOT NULL auto_increment,
+  `pc_catid` int(11) NOT NULL default '0',
+  `pc_multiple` int(10) unsigned NOT NULL,
+  `pc_aid` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `pc_pid` varchar(11) character set utf8 collate utf8_unicode_ci default NULL,
+  `pc_title` varchar(150) character set utf8 collate utf8_unicode_ci default NULL,
+  `pc_time` datetime default NULL,
+  `pc_hometext` text character set utf8 collate utf8_unicode_ci,
+  `pc_comments` int(11) default '0',
+  `pc_counter` mediumint(8) unsigned default '0',
+  `pc_topic` int(3) NOT NULL default '1',
+  `pc_informant` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
+  `pc_eventDate` date NOT NULL default '0000-00-00',
+  `pc_endDate` date NOT NULL default '0000-00-00',
+  `pc_duration` bigint(20) NOT NULL default '0',
+  `pc_recurrtype` int(1) NOT NULL default '0',
+  `pc_recurrspec` text character set utf8 collate utf8_unicode_ci,
+  `pc_recurrfreq` int(3) NOT NULL default '0',
+  `pc_startTime` time default NULL,
+  `pc_endTime` time default NULL,
+  `pc_alldayevent` int(1) NOT NULL default '0',
+  `pc_location` text character set utf8 collate utf8_unicode_ci,
+  `pc_conttel` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
+  `pc_contname` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
+  `pc_contemail` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `pc_website` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `pc_fee` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
+  `pc_eventstatus` int(11) NOT NULL default '0',
+  `pc_sharing` int(11) NOT NULL default '0',
+  `pc_language` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `pc_apptstatus` char(1) character set latin1 NOT NULL default '-',
+  `pc_prefcatid` int(11) NOT NULL default '0',
+  `pc_facility` smallint(6) NOT NULL default '0' COMMENT 'facility id for this event',
+  PRIMARY KEY  (`pc_eid`),
+  KEY `basic_event` (`pc_catid`,`pc_aid`,`pc_eventDate`,`pc_endDate`,`pc_eventstatus`,`pc_sharing`,`pc_topic`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=7 ;
+
+-- 
+-- Dumping data for table `openemr_postcalendar_events`
+-- 
+
+INSERT INTO `openemr_postcalendar_events` VALUES (3, 2, 0, '1', '', 'In Office', '2005-03-03 12:22:31', ':text:', 0, 0, 0, '1', '2005-03-03', '2007-03-03', 0, 1, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, '09:00:00', '09:00:00', 0, 'a:6:{s:14:"event_location";N;s:13:"event_street1";N;s:13:"event_street2";N;s:10:"event_city";N;s:11:"event_state";N;s:12:"event_postal";N;}', '', '', '', '', '', 1, 1, '', '-', 0, 0);
+INSERT INTO `openemr_postcalendar_events` VALUES (5, 3, 0, '1', '', 'Out Of Office', '2005-03-03 12:22:52', ':text:', 0, 0, 0, '1', '2005-03-03', '2007-03-03', 0, 1, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, '17:00:00', '17:00:00', 0, 'a:6:{s:14:"event_location";N;s:13:"event_street1";N;s:13:"event_street2";N;s:10:"event_city";N;s:11:"event_state";N;s:12:"event_postal";N;}', '', '', '', '', '', 1, 1, '', '-', 0, 0);
+INSERT INTO `openemr_postcalendar_events` VALUES (6, 8, 0, '1', '', 'Lunch', '2005-03-03 12:23:31', ':text:', 0, 0, 0, '1', '2005-03-03', '2007-03-03', 3600, 1, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, '12:00:00', '13:00:00', 0, 'a:6:{s:14:"event_location";N;s:13:"event_street1";N;s:13:"event_street2";N;s:10:"event_city";N;s:11:"event_state";N;s:12:"event_postal";N;}', '', '', '', '', '', 1, 1, '', '-', 0, 0);
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `openemr_postcalendar_limits`
+-- 
+
+DROP TABLE IF EXISTS `openemr_postcalendar_limits`;
+CREATE TABLE `openemr_postcalendar_limits` (
+  `pc_limitid` int(11) NOT NULL auto_increment,
+  `pc_catid` int(11) NOT NULL default '0',
+  `pc_starttime` time NOT NULL default '00:00:00',
+  `pc_endtime` time NOT NULL default '00:00:00',
+  `pc_limit` int(11) NOT NULL default '1',
+  PRIMARY KEY  (`pc_limitid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `openemr_postcalendar_limits`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `openemr_postcalendar_topics`
+-- 
+
+DROP TABLE IF EXISTS `openemr_postcalendar_topics`;
+CREATE TABLE `openemr_postcalendar_topics` (
+  `pc_catid` int(11) unsigned NOT NULL auto_increment,
+  `pc_catname` varchar(100) character set utf8 collate utf8_unicode_ci default NULL,
+  `pc_catcolor` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
+  `pc_catdesc` text character set utf8 collate utf8_unicode_ci,
+  PRIMARY KEY  (`pc_catid`),
+  KEY `basic_cat` (`pc_catname`,`pc_catcolor`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `openemr_postcalendar_topics`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `openemr_session_info`
+-- 
+
+DROP TABLE IF EXISTS `openemr_session_info`;
+CREATE TABLE `openemr_session_info` (
+  `pn_sessid` varchar(32) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `pn_ipaddr` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
+  `pn_firstused` int(11) NOT NULL default '0',
+  `pn_lastused` int(11) NOT NULL default '0',
+  `pn_uid` int(11) NOT NULL default '0',
+  `pn_vars` blob,
+  PRIMARY KEY  (`pn_sessid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- 
+-- Dumping data for table `openemr_session_info`
+-- 
+
+INSERT INTO `openemr_session_info` VALUES ('978d31441dccd350d406bfab98978f20', '127.0.0.1', 1109233952, 1109234177, 0, NULL);
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `patient_data`
+-- 
+
+DROP TABLE IF EXISTS `patient_data`;
+CREATE TABLE `patient_data` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `title` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `language` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `financial` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `fname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `lname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `mname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `DOB` date default NULL,
+  `street` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `postal_code` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `city` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `state` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `country_code` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `drivers_license` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `ss` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `occupation` longtext character set utf8 collate utf8_unicode_ci,
+  `phone_home` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `phone_biz` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `phone_contact` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `phone_cell` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `pharmacy_id` int(11) NOT NULL default '0',
+  `status` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `contact_relationship` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `date` datetime default NULL,
+  `sex` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `referrer` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `referrerID` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `providerID` int(11) default NULL,
+  `email` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `ethnoracial` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `interpretter` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `migrantseasonal` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `family_size` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `monthly_income` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `homeless` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `financial_review` datetime default NULL,
+  `pubpid` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `pid` bigint(20) NOT NULL default '0',
+  `genericname1` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `genericval1` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `genericname2` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `genericval2` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `hipaa_mail` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `hipaa_voice` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `hipaa_notice` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `hipaa_message` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
+  `squad` varchar(32) character set utf8 collate utf8_unicode_ci default NULL,
+  `fitness` int(11) NOT NULL default '0',
+  `referral_source` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `usertext1` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `usertext2` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `userlist1` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `userlist2` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `pricelevel` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  UNIQUE KEY `pid` (`pid`),
+  KEY `id` (`id`),
+  KEY `pid_2` (`pid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `patient_data`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `payments`
+-- 
+
+DROP TABLE IF EXISTS `payments`;
+CREATE TABLE `payments` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `pid` bigint(20) NOT NULL default '0',
+  `dtime` datetime NOT NULL,
+  `encounter` bigint(20) NOT NULL default '0',
+  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `method` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `source` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `amount1` decimal(7,2) NOT NULL default '0.00',
+  `amount2` decimal(7,2) NOT NULL default '0.00',
+  `posted1` decimal(7,2) NOT NULL default '0.00',
+  `posted2` decimal(7,2) NOT NULL default '0.00',
+  PRIMARY KEY  (`id`),
+  KEY `pid` (`pid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `payments`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `pharmacies`
+-- 
+
+DROP TABLE IF EXISTS `pharmacies`;
+CREATE TABLE `pharmacies` (
+  `id` int(11) NOT NULL default '0',
+  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `transmit_method` int(11) NOT NULL default '1',
+  `email` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- 
+-- Dumping data for table `pharmacies`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `phone_numbers`
+-- 
+
+DROP TABLE IF EXISTS `phone_numbers`;
+CREATE TABLE `phone_numbers` (
+  `id` int(11) NOT NULL default '0',
+  `country_code` varchar(5) character set utf8 collate utf8_unicode_ci default NULL,
+  `area_code` char(3) character set latin1 default NULL,
+  `prefix` char(3) character set latin1 default NULL,
+  `number` varchar(4) character set utf8 collate utf8_unicode_ci default NULL,
+  `type` int(11) default NULL,
+  `foreign_id` int(11) default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `foreign_id` (`foreign_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- 
+-- Dumping data for table `phone_numbers`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `pma_bookmark`
+-- 
+
+DROP TABLE IF EXISTS `pma_bookmark`;
+CREATE TABLE `pma_bookmark` (
+  `id` int(11) NOT NULL auto_increment,
+  `dbase` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `label` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `query` text character set utf8 collate utf8_unicode_ci,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Bookmarks' AUTO_INCREMENT=10 ;
+
+-- 
+-- Dumping data for table `pma_bookmark`
+-- 
+
+INSERT INTO `pma_bookmark` VALUES (2, 'openemr', 'openemr', 'Aggregate Race Statistics', 'SELECT ethnoracial as "Race/Ethnicity", count(*) as Count FROM  `patient_data` WHERE 1 group by ethnoracial');
+INSERT INTO `pma_bookmark` VALUES (9, 'openemr', 'openemr', 'Search by Code', 'SELECT  b.code, concat(pd.fname," ", pd.lname) as "Patient Name", concat(u.fname," ", u.lname) as "Provider Name", en.reason as "Encounter Desc.", en.date\r\nFROM billing as b\r\nLEFT JOIN users AS u ON b.user = u.id\r\nLEFT JOIN patient_data as pd on b.pid = pd.pid\r\nLEFT JOIN form_encounter as en on b.encounter = en.encounter and b.pid = en.pid\r\nWHERE 1 /* and b.code like ''%[VARIABLE]%'' */ ORDER BY b.code');
+INSERT INTO `pma_bookmark` VALUES (8, 'openemr', 'openemr', 'Count No Shows By Provider since Interval ago', 'SELECT concat( u.fname,  " ", u.lname )  AS  "Provider Name", u.id AS  "Provider ID", count(  DISTINCT ev.pc_eid )  AS  "Number of No Shows"/* , concat(DATE_FORMAT(NOW(),''%Y-%m-%d''), '' and '',DATE_FORMAT(DATE_ADD(now(), INTERVAL [VARIABLE]),''%Y-%m-%d'') ) as "Between Dates" */ FROM  `openemr_postcalendar_events`  AS ev LEFT  JOIN users AS u ON ev.pc_aid = u.id WHERE ev.pc_catid =1/* and ( ev.pc_eventDate >= DATE_SUB(now(), INTERVAL [VARIABLE]) )  */\r\nGROUP  BY u.id;');
+INSERT INTO `pma_bookmark` VALUES (6, 'openemr', 'openemr', 'Appointments By Race/Ethnicity from today plus interval', 'SELECT  count(pd.ethnoracial) as "Number of Appointments", pd.ethnoracial AS  "Race/Ethnicity" /* , concat(DATE_FORMAT(NOW(),''%Y-%m-%d''), '' and '',DATE_FORMAT(DATE_ADD(now(), INTERVAL [VARIABLE]),''%Y-%m-%d'') ) as "Between Dates" */ FROM openemr_postcalendar_events AS ev LEFT  JOIN   `patient_data`  AS pd ON  pd.pid = ev.pc_pid where ev.pc_eventstatus=1 and ev.pc_catid = 5 and ev.pc_eventDate >= now()  /* and ( ev.pc_eventDate <= DATE_ADD(now(), INTERVAL [VARIABLE]) )  */ group by pd.ethnoracial');
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `pma_column_info`
+-- 
+
+DROP TABLE IF EXISTS `pma_column_info`;
+CREATE TABLE `pma_column_info` (
+  `id` int(5) unsigned NOT NULL auto_increment,
+  `db_name` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `table_name` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `column_name` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `comment` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `mimetype` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `transformation` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `transformation_options` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `db_name` (`db_name`,`table_name`,`column_name`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Column Information for phpMyAdmin' AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `pma_column_info`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `pma_history`
+-- 
+
+DROP TABLE IF EXISTS `pma_history`;
+CREATE TABLE `pma_history` (
+  `id` bigint(20) unsigned NOT NULL auto_increment,
+  `username` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `db` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `table` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `timevalue` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+  `sqlquery` text character set utf8 collate utf8_unicode_ci,
+  PRIMARY KEY  (`id`),
+  KEY `username` (`username`,`db`,`table`,`timevalue`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='SQL history' AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `pma_history`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `pma_pdf_pages`
+-- 
+
+DROP TABLE IF EXISTS `pma_pdf_pages`;
+CREATE TABLE `pma_pdf_pages` (
+  `db_name` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `page_nr` int(10) unsigned NOT NULL auto_increment,
+  `page_descr` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
+  PRIMARY KEY  (`page_nr`),
+  KEY `db_name` (`db_name`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='PDF Relationpages for PMA' AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `pma_pdf_pages`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `pma_relation`
+-- 
+
+DROP TABLE IF EXISTS `pma_relation`;
+CREATE TABLE `pma_relation` (
+  `master_db` varchar(64) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `master_table` varchar(64) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `master_field` varchar(64) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `foreign_db` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `foreign_table` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `foreign_field` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  PRIMARY KEY  (`master_db`,`master_table`,`master_field`),
+  KEY `foreign_field` (`foreign_db`,`foreign_table`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Relation table';
+
+-- 
+-- Dumping data for table `pma_relation`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `pma_table_coords`
+-- 
+
+DROP TABLE IF EXISTS `pma_table_coords`;
+CREATE TABLE `pma_table_coords` (
+  `db_name` varchar(64) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `table_name` varchar(64) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `pdf_page_number` int(11) NOT NULL default '0',
+  `x` float unsigned NOT NULL default '0',
+  `y` float unsigned NOT NULL default '0',
+  PRIMARY KEY  (`db_name`,`table_name`,`pdf_page_number`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Table coordinates for phpMyAdmin PDF output';
+
+-- 
+-- Dumping data for table `pma_table_coords`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `pma_table_info`
+-- 
+
+DROP TABLE IF EXISTS `pma_table_info`;
+CREATE TABLE `pma_table_info` (
+  `db_name` varchar(64) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `table_name` varchar(64) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `display_field` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  PRIMARY KEY  (`db_name`,`table_name`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Table information for phpMyAdmin';
+
+-- 
+-- Dumping data for table `pma_table_info`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `pnotes`
+-- 
+
+DROP TABLE IF EXISTS `pnotes`;
+CREATE TABLE `pnotes` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `date` datetime default NULL,
+  `body` longtext character set utf8 collate utf8_unicode_ci,
+  `pid` bigint(20) default NULL,
+  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `activity` tinyint(4) default NULL,
+  `authorized` tinyint(4) default NULL,
+  `title` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `assigned_to` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `pnotes`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `prescriptions`
+-- 
+
+DROP TABLE IF EXISTS `prescriptions`;
+CREATE TABLE `prescriptions` (
+  `id` int(11) NOT NULL auto_increment,
+  `patient_id` int(11) default NULL,
+  `filled_by_id` int(11) default NULL,
+  `pharmacy_id` int(11) default NULL,
+  `date_added` date default NULL,
+  `date_modified` date default NULL,
+  `provider_id` int(11) default NULL,
+  `start_date` date default NULL,
+  `drug` varchar(150) character set utf8 collate utf8_unicode_ci default NULL,
+  `drug_id` int(11) NOT NULL default '0',
+  `form` int(3) default NULL,
+  `dosage` varchar(100) character set utf8 collate utf8_unicode_ci default NULL,
+  `quantity` varchar(11) character set utf8 collate utf8_unicode_ci default NULL,
+  `size` float unsigned default NULL,
+  `unit` int(11) default NULL,
+  `route` int(11) default NULL,
+  `interval` int(11) default NULL,
+  `substitute` int(11) default NULL,
+  `refills` int(11) default NULL,
+  `per_refill` int(11) default NULL,
+  `filled_date` date default NULL,
+  `medication` int(11) default NULL,
+  `note` text character set utf8 collate utf8_unicode_ci,
+  `active` int(11) NOT NULL default '1',
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `prescriptions`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `prices`
+-- 
+
+DROP TABLE IF EXISTS `prices`;
+CREATE TABLE `prices` (
+  `pr_id` varchar(11) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `pr_selector` varchar(15) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `pr_level` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `pr_price` decimal(12,2) NOT NULL default '0.00' COMMENT 'price in local currency',
+  PRIMARY KEY  (`pr_id`,`pr_selector`,`pr_level`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- 
+-- Dumping data for table `prices`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `registry`
+-- 
+
+DROP TABLE IF EXISTS `registry`;
+CREATE TABLE `registry` (
+  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `state` tinyint(4) default NULL,
+  `directory` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `id` bigint(20) NOT NULL auto_increment,
+  `sql_run` tinyint(4) default NULL,
+  `unpackaged` tinyint(4) default NULL,
+  `date` datetime default NULL,
+  `priority` int(11) default '0',
+  `category` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `nickname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=16 ;
+
+-- 
+-- Dumping data for table `registry`
+-- 
+
+INSERT INTO `registry` VALUES ('New Encounter Form', 1, 'newpatient', 1, 1, 1, '2003-09-14 15:16:45', 0, 'category', '');
+INSERT INTO `registry` VALUES ('Review of Systems Checks', 1, 'reviewofs', 9, 1, 1, '2003-09-14 15:16:45', 0, 'category', '');
+INSERT INTO `registry` VALUES ('Speech Dictation', 1, 'dictation', 10, 1, 1, '2003-09-14 15:16:45', 0, 'category', '');
+INSERT INTO `registry` VALUES ('SOAP', 1, 'soap', 11, 1, 1, '2005-03-03 00:16:35', 0, 'category', '');
+INSERT INTO `registry` VALUES ('Vitals', 1, 'vitals', 12, 1, 1, '2005-03-03 00:16:34', 0, 'category', '');
+INSERT INTO `registry` VALUES ('Review Of Systems', 1, 'ros', 13, 1, 1, '2005-03-03 00:16:30', 0, 'category', '');
+INSERT INTO `registry` VALUES ('Fee Sheet', 1, 'fee_sheet', 14, 1, 1, '2007-07-28 00:00:00', 0, 'category', '');
+INSERT INTO `registry` VALUES ('Misc Billing Options HCFA', 1, 'misc_billing_options', 15, 1, 1, '2007-07-28 00:00:00', 0, 'category', '');
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `sequences`
+-- 
+
+DROP TABLE IF EXISTS `sequences`;
+CREATE TABLE `sequences` (
+  `id` int(11) unsigned NOT NULL default '0'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- 
+-- Dumping data for table `sequences`
+-- 
+
+INSERT INTO `sequences` VALUES (1);
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `transactions`
+-- 
+
+DROP TABLE IF EXISTS `transactions`;
+CREATE TABLE `transactions` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `date` datetime default NULL,
+  `title` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `body` longtext character set utf8 collate utf8_unicode_ci,
+  `pid` bigint(20) default NULL,
+  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `authorized` tinyint(4) default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `transactions`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `users`
+-- 
+
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE `users` (
+  `id` bigint(20) NOT NULL auto_increment,
+  `username` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `password` longtext character set utf8 collate utf8_unicode_ci,
+  `authorized` tinyint(4) default NULL,
+  `info` longtext character set utf8 collate utf8_unicode_ci,
+  `source` tinyint(4) default NULL,
+  `fname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `mname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `lname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `federaltaxid` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `federaldrugid` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `upin` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `facility` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `facility_id` int(11) NOT NULL default '0',
+  `see_auth` int(11) NOT NULL default '1',
+  `active` tinyint(1) NOT NULL default '1',
+  `npi` varchar(15) character set utf8 collate utf8_unicode_ci default NULL,
+  `title` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `specialty` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `billname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `email` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `url` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `assistant` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `organization` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `valedictory` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `street` varchar(60) character set utf8 collate utf8_unicode_ci default NULL,
+  `streetb` varchar(60) character set utf8 collate utf8_unicode_ci default NULL,
+  `city` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `state` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `zip` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
+  `street2` varchar(60) character set utf8 collate utf8_unicode_ci default NULL,
+  `streetb2` varchar(60) character set utf8 collate utf8_unicode_ci default NULL,
+  `city2` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `state2` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `zip2` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
+  `phone` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `fax` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `phonew1` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `phonew2` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `phonecell` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `notes` text character set utf8 collate utf8_unicode_ci,
+  `cal_ui` tinyint(4) NOT NULL default '1',
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+
+-- 
+-- Dumping data for table `users`
+-- 
+
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `x12_partners`
+-- 
+
+DROP TABLE IF EXISTS `x12_partners`;
+CREATE TABLE `x12_partners` (
+  `id` int(11) NOT NULL default '0',
+  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `id_number` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `x12_sender_id` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `x12_receiver_id` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `x12_version` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `processing_format` enum('standard','medi-cal','cms','proxymed') character set latin1 default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- 
+-- Dumping data for table `x12_partners`
+-- 
+
