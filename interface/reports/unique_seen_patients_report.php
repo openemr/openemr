@@ -27,6 +27,7 @@
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title><? xl('Front Office Receipts','e'); ?></title>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>

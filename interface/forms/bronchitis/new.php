@@ -7,6 +7,7 @@ formHeader("Form: bronchitis");
 $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 ?>
 <html><head>
+<? html_header_show();?>
 <SCRIPT LANGUAGE="JavaScript">
 <!-- 
 

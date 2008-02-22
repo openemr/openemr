@@ -7,6 +7,7 @@
 <html>
 
 <head>
+<? html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 

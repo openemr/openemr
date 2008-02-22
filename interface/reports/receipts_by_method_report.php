@@ -31,6 +31,7 @@
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title><?xl('Receipts by Payment Method','e')?></title>
 </head>
 

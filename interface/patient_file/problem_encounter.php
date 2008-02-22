@@ -74,6 +74,7 @@
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <title><? xl('Issues and Encounters','e'); ?></title>
 

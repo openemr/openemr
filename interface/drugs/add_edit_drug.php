@@ -71,6 +71,7 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title><?php echo $drug_id ? xl("Edit") : xl("Add New"); xl (' Drug','e'); ?></title>
 <link rel=stylesheet href='<?php echo $css_header ?>' type='text/css'>
 

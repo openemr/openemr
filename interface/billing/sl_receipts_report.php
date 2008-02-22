@@ -38,6 +38,7 @@
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title><?xl('Receipts for Medical Services','e')?></title>
 </head>
 

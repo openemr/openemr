@@ -100,6 +100,7 @@ function writeFieldLine($field_id, $group, $title, $seq, $uor, $length,
 <html>
 
 <head>
+<? html_header_show();?>
 
 <link rel=stylesheet href='<?php  echo $css_header ?>' type='text/css'>
 <title><?php  xl('Layout Editor','e'); ?></title>

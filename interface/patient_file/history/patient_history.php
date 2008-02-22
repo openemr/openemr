@@ -3,7 +3,8 @@ include_once("../../globals.php");
 ?>
 
 <HTML>
-<HEAD>
+<head>
+<? html_header_show();?>
 <TITLE>
 <?php xl('Patient History','e'); ?>
 </TITLE>

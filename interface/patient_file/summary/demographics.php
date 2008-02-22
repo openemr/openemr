@@ -6,7 +6,6 @@
  require_once("$srcdir/classes/InsuranceCompany.class.php");
  require_once("./patient_picture.php");
  require_once("$srcdir/options.inc.php");
-
  if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
   include_once("$srcdir/pid.inc");
   setpid($_GET['set_pid']);
@@ -50,6 +49,7 @@ function get_patient_balance($pid) {
 <html>
 
 <head>
+<? html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script language="JavaScript">

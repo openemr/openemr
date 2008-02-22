@@ -4,7 +4,8 @@ include_once ("../globals.php");
 include_once ("$srcdir/classes/Filtreatment_class.php");
 ?>
 <HTML>
-<HEAD>
+<head>
+<? html_header_show();?>
     <TITLE><?php xl ('Login','e'); ?></TITLE>
 </HEAD>
 

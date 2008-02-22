@@ -102,6 +102,7 @@ if (isset($mode)) {
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 
 <script language="JavaScript">

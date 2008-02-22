@@ -163,6 +163,7 @@ $arr_types_ucsmc = array(
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title><?php xl('Football Injury Report','e'); ?></title>
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 <style type="text/css">

@@ -24,6 +24,7 @@
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title><?php echo $lot_id ? xl("Edit") : xl("Add New"); xl(' Lot', 'e'); ?></title>
 <link rel=stylesheet href='<?php echo $css_header ?>' type='text/css'>
 

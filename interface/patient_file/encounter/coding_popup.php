@@ -29,6 +29,7 @@
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title>Coding</title>
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
 <script language='JavaScript'>

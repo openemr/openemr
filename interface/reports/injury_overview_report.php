@@ -22,6 +22,7 @@ $form_squads     = $_POST['form_squads']; // this is an array
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title><?php xl('Injury Overview Report','e'); ?></title>
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 <style type="text/css">

@@ -168,6 +168,7 @@
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title><?php xl('Find Available Appointments','e'); ?></title>
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
 

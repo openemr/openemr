@@ -143,6 +143,7 @@ while ($srow = sqlFetchArray($sres)) {
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <title><? xl('Letter Generator','e'); ?></title>
 

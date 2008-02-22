@@ -78,6 +78,7 @@ function decorateString($fmt, $str) {
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title><? xl('Delete Patient, Encounter, Form, Issue or Document','e'); ?></title>
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
 

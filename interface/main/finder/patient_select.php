@@ -12,6 +12,7 @@ if ($patient=='') $patient=xl('Please enter some information','e');
 
 <html>
 <head>
+<? html_header_show();?>
 
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 

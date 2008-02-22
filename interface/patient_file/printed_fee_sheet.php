@@ -21,6 +21,7 @@ $padding = 0;
 ?>
 <html>
 <head>
+<? html_header_show();?>
 
 <style>
 body {

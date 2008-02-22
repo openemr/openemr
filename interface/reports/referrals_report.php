@@ -16,6 +16,7 @@
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title><? xl('Referrals','e'); ?></title>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 

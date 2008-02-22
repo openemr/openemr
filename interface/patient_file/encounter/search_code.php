@@ -19,6 +19,7 @@ $code_type = $_GET['type'];
 
 <html>
 <head>
+<? html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 </head>
 <body <?echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>

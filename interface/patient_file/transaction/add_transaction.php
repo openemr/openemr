@@ -79,6 +79,7 @@ $trow = $transid ? getTransById($transid) : array();
 ?>
 <html>
 <head>
+<? html_header_show();?>
 
 <style>
 body, td, input, select, textarea {

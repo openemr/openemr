@@ -44,6 +44,7 @@
 
 <html>
 <head>
+<? html_header_show();?>
 <title><?php xl('Patient Encounter','e'); ?></title>
 
 <script type="text/javascript" src="../../../library/dialog.js"></script>

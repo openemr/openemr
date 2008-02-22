@@ -18,6 +18,7 @@
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title><? xl('Destroyed Drugs','e'); ?></title>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 

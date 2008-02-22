@@ -4,6 +4,7 @@ include_once("../../../custom/code_types.inc.php");
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 </head>
 <body <?php echo $bottom_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'

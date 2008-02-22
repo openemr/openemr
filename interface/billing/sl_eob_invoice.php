@@ -35,8 +35,7 @@
     xl("Pt refund"),
     xl("Ins overpaid"),
     xl("Pt overpaid"),
-    xl("Adm adjust"),
-    xl("Untimely filing")
+    xl("Adm adjust")
   );
 
   $info_msg = "";
@@ -50,6 +49,7 @@
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <title><?php xl('EOB Posting - Invoice','e')?></title>
 <script language="JavaScript">

@@ -4,7 +4,8 @@ include_once("$srcdir/pid.inc");
 setpid($_GET["set_pid"]);
 ?>
 <HTML>
-<HEAD>
+<head>
+<? html_header_show();?>
 <TITLE>
 <?php echo $openemr_name ?>
 </TITLE>

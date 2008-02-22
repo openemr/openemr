@@ -15,6 +15,7 @@ require_once("$srcdir/invoice_summary.inc.php");
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <?php
 

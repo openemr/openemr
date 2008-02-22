@@ -25,6 +25,7 @@
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title><?php xl ('Destroy Lot','e') ?></title>
 <link rel=stylesheet href='<?php  echo $css_header ?>' type='text/css'>
 

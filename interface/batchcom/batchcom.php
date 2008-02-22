@@ -143,6 +143,7 @@ if ($_POST['form_action']=='Process') {
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <link rel=stylesheet href="batchcom.css" type="text/css">
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>

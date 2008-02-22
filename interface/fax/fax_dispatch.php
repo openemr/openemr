@@ -290,6 +290,7 @@
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title><?php xl('Dispatch Received Document','e'); ?></title>
 <link rel=stylesheet href='<?php echo $css_header ?>' type='text/css'>
 

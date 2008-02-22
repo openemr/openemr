@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006, 2008 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -222,6 +222,7 @@ function generate_receipt($patient_id) {
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <title><? xl('Receipt for Payment','e'); ?></title>
 </head>
@@ -309,9 +310,7 @@ function generate_receipt($patient_id) {
 // Function to output a line item for the input form.
 //
 $lino = 0;
-function write_form_line($code_type, $code, $id, $date, $description,
-  $amount, $taxrates) {
-  // TBD: Depending on permissions, the amount might be readonly.
+function write_form_line($code_type, $code, $id, $date, $description, $amount) {
   global $lino;
   $amount = sprintf("%01.2f", $amount);
   if ($code_type == 'COPAY' && !$description) $description = xl('Payment');
@@ -321,16 +320,10 @@ function write_form_line($code_type, $code, $id, $date, $description,
   echo "<input type='hidden' name='line[$lino][code]' value='$code'>";
   echo "<input type='hidden' name='line[$lino][id]' value='$id'>";
   echo "<input type='hidden' name='line[$lino][description]' value='$description'>";
-  echo "<input type='hidden' name='line[$lino][taxrates]' value='$taxrates'>";
   echo "</td>\n";
   echo "  <td>$description</td>";
   echo "  <td align='right'><input type='text' name='line[$lino][amount]' " .
-       "value='$amount' size='6' maxlength='8'";
-  if ($code_type == 'TAX')
-   echo " style='text-align:right;background-color:transparent' readonly";
-  else
-   echo " style='text-align:right' onkeyup='computeTotals()'";
-  echo "></td>\n";
+       "value='$amount' size='6' maxlength='8' style='text-align:right'></td>\n";
   echo " </tr>\n";
   ++$lino;
 }
@@ -344,13 +337,16 @@ while ($prow = sqlFetchArray($pres)) {
   $taxes[$prow['option_id']] = array($prow['title'], $prow['option_value'], 0);
 }
 
-// Mark the tax rates that are referenced in this invoice.
-function markTaxes($taxrates) {
+// Accumulate taxes given a price and a list of the applicable tax rates.
+function accumTaxes($fee, $taxrates) {
   global $taxes;
   $arates = explode(':', $taxrates);
   if (empty($arates)) return;
   foreach ($arates as $value) {
-    if (!empty($taxes[$value])) $taxes[$value][2] = '1';
+    if (!empty($taxes[$value])) {
+      $taxes[$value][2] = sprintf('%01.2f',
+        $fee * $taxes[$value][1] + $taxes[$value][2]);
+    }
   }
 }
 
@@ -489,6 +485,7 @@ function markTaxes($taxrates) {
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <title><? xl('Patient Checkout','e'); ?></title>
 <style>
@@ -500,55 +497,6 @@ function markTaxes($taxrates) {
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 <script language="JavaScript">
  var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
-
- function clearTax() {
-  var f = document.forms[0];
-  for (var lino = 0; true; ++lino) {
-   var pfx = 'line[' + lino + ']';
-   if (! f[pfx + '[code_type]']) break;
-   if (f[pfx + '[code_type]'].value != 'TAX') continue;
-   f[pfx + '[amount]'].value = '0.00';
-  }
- }
-
- function addTax(rateid, amount) {
-  if (rateid.length == 0) return 0;
-  var f = document.forms[0];
-  for (var lino = 0; true; ++lino) {
-   var pfx = 'line[' + lino + ']';
-   if (! f[pfx + '[code_type]']) break;
-   if (f[pfx + '[code_type]'].value != 'TAX') continue;
-   if (f[pfx + '[code]'].value != rateid) continue;
-   var tax = amount * parseFloat(f[pfx + '[taxrates]'].value);
-   tax = parseFloat(tax.toFixed(2));
-   var cumtax = parseFloat(f[pfx + '[amount]'].value) + tax;
-   f[pfx + '[amount]'].value = cumtax.toFixed(2); // requires JS 1.5
-   if (isNaN(tax)) alert('Tax rate not numeric at line ' + lino);
-   return tax;
-  }
-  return 0;
- }
-
- function computeTotals() {
-  clearTax();
-  var f = document.forms[0];
-  var total = 0;
-  for (var lino = 0; f['line[' + lino + '][code_type]']; ++lino) {
-   var code_type = f['line[' + lino + '][code_type]'].value;
-   var taxrates  = f['line[' + lino + '][taxrates]'].value;
-   var amount = parseFloat(f['line[' + lino + '][amount]'].value);
-   if (isNaN(amount)) alert('Amount not numeric at line ' + lino);
-   // alert('Adding amount ' + amount + ' at line ' + lino); // debugging
-   total += amount;
-   if (code_type == 'COPAY' || code_type == 'TAX') continue;
-   var taxids = taxrates.split(':');
-   for (var j = 0; j < taxids.length; ++j) {
-    addTax(taxids[j], amount);
-   }
-  }
-  f.form_amount.value = total.toFixed(2);
-  return true;
- }
 </script>
 </head>
 
@@ -578,12 +526,19 @@ $inv_encounter = '';
 $inv_date      = '';
 $inv_provider  = 0;
 $inv_payer     = 0;
+$total         = 0.00;
 
 while ($brow = sqlFetchArray($bres)) {
   $thisdate = substr($brow['date'], 0, 10);
   $code_type = $brow['code_type'];
-
-  $taxrates = '';
+  write_form_line($code_type, $brow['code'], $brow['id'],
+   $thisdate, ucfirst(strtolower($brow['code_text'])), $brow['fee']);
+  if (!$inv_encounter) $inv_encounter = $brow['encounter'];
+  if (!$inv_provider ) $inv_provider  = $brow['provider_id'];
+  $inv_payer = $brow['payer_id'];
+  if (!$inv_date || $inv_date < $thisdate) $inv_date = $thisdate;
+  $total += $brow['fee'];
+  // Accumulate taxes for this service item.
   if ($code_type != 'COPAY' && $code_type != 'TAX') {
     $query = "SELECT taxrates FROM codes WHERE code_type = '" .
       $code_types[$code_type]['id'] . "' AND " .
@@ -595,40 +550,30 @@ while ($brow = sqlFetchArray($bres)) {
     }
     $query .= " LIMIT 1";
     $tmp = sqlQuery($query);
-    $taxrates = $tmp['taxrates'];
-    markTaxes($taxrates);
+    // echo "<!-- $query -->\n"; // debugging
+    accumTaxes($brow['fee'], $tmp['taxrates']);
   }
-
-  write_form_line($code_type, $brow['code'], $brow['id'], $thisdate,
-    ucfirst(strtolower($brow['code_text'])), $brow['fee'], $taxrates);
-  if (!$inv_encounter) $inv_encounter = $brow['encounter'];
-  if (!$inv_provider ) $inv_provider  = $brow['provider_id'];
-  $inv_payer = $brow['payer_id'];
-  if (!$inv_date || $inv_date < $thisdate) $inv_date = $thisdate;
 }
 
 while ($drow = sqlFetchArray($dres)) {
   $thisdate = $drow['sale_date'];
+  write_form_line('PROD', $drow['drug_id'], $drow['sale_id'],
+   $thisdate, $drow['name'], $drow['fee']);
   if (!$inv_encounter) $inv_encounter = $drow['encounter'];
   if (!$inv_provider ) $inv_provider  = $drow['provider_id'] + 0;
   if (!$inv_date || $inv_date < $thisdate) $inv_date = $thisdate;
-  // $total += $drow['fee'];
-
+  $total += $drow['fee'];
   // Accumulate taxes for this product.
   $tmp = sqlQuery("SELECT taxrates FROM drug_templates WHERE drug_id = '" .
     $drow['drug_id'] . "' ORDER BY selector LIMIT 1");
-  // accumTaxes($drow['fee'], $tmp['taxrates']);
-  $taxrates = $tmp['taxrates'];
-  markTaxes($taxrates);
-
-  write_form_line('PROD', $drow['drug_id'], $drow['sale_id'],
-   $thisdate, $drow['name'], $drow['fee'], $taxrates);
+  accumTaxes($drow['fee'], $tmp['taxrates']);
 }
 
 // Write a form line for each tax that has money, adding to $total.
 foreach ($taxes as $key => $value) {
   if ($value[2]) {
-    write_form_line('TAX', $key, $key, date('Y-m-d'), $value[0], 0, $value[1]);
+    write_form_line('TAX', $key, $key, date('Y-m-d'), $value[0], $value[2]);
+    $total += $value[2];
   }
 }
 
@@ -677,7 +622,7 @@ if ($inv_encounter && !$inv_provider) {
    <? xl('Amount Paid','e'); ?>:
   </td>
   <td>
-   <input type='text' name='form_amount' size='10' value='0.00'>
+   <input type='text' name='form_amount' size='10' value='<?php echo sprintf("%01.2f", $total) ?>'>
   </td>
  </tr>
 
@@ -700,9 +645,7 @@ if ($inv_encounter && !$inv_provider) {
   <td colspan='2' align='center'>
    &nbsp;<br>
    <input type='submit' name='form_save' value='<?php xl('Save','e'); ?>' /> &nbsp;
-<?php if (empty($_GET['framed'])) { ?>
    <input type='button' value='Cancel' onclick='window.close()' />
-<?php } ?>
    <input type='hidden' name='form_provider'  value='<?php echo $inv_provider  ?>' />
    <input type='hidden' name='form_payer'     value='<?php echo $inv_payer     ?>' />
    <input type='hidden' name='form_encounter' value='<?php echo $inv_encounter ?>' />
@@ -716,7 +659,6 @@ if ($inv_encounter && !$inv_provider) {
 
 <script language='JavaScript'>
  Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_date"});
- computeTotals();
 </script>
 
 </body>

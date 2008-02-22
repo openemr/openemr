@@ -16,6 +16,7 @@
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title><?php xl('Absences by Diagnosis','e'); ?></title>
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/calendar.js"></script>

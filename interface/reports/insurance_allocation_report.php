@@ -34,6 +34,7 @@ else {
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title><? xl('Patient Insurance Distribution','e'); ?></title>
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/calendar.js"></script>

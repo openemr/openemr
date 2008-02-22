@@ -3,7 +3,8 @@ include_once("../globals.php");
 $_SESSION["encounter"] = "";
 ?>
 <HTML>
-<HEAD>
+<head>
+<? html_header_show();?>
 <TITLE>
 <?php echo $openemr_name; ?>
 </TITLE>

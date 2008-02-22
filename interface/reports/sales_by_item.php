@@ -28,6 +28,7 @@
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title><?xl('Sales by Item','e')?></title>
 </head>
 

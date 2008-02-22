@@ -16,6 +16,7 @@ $form_code_type = $_POST['form_code_type'];
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title><?php xl('Code Finder','e'); ?></title>
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
 

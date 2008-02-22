@@ -2,6 +2,7 @@
 <?  include_once ('../../../library/sql.inc'); ?> 
 <html>
 <head>
+<? html_header_show();?>
 <title>
 Four Pane Prescription Printer
 </title>

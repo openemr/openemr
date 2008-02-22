@@ -189,6 +189,7 @@ else if ($_POST['hidden_mode'] == 'alter') {
 ?>
 
 <html><head>
+<? html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 
 <script language="javascript" type="text/javascript"> 

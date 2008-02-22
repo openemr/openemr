@@ -25,6 +25,7 @@
 <html>
 
 <head>
+<? html_header_show();?>
 
 <link rel=stylesheet href='<?php  echo $css_header ?>' type='text/css'>
 <title><?php  xl('Drug Inventory','e'); ?></title>

@@ -1,5 +1,6 @@
 <html>
 <head>
+<? html_header_show();?>
 <title>
 Help Searching for Patients
 </title>

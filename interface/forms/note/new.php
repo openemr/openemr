@@ -23,6 +23,7 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 ?>
 
 <html><head>
+<? html_header_show();?>
 <SCRIPT language="JavaScript"><!--
 /******************************************
    Today's Date           

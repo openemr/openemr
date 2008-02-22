@@ -45,6 +45,7 @@
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <title><? echo $issue ? "Edit" : "Add New" ?><?php xl('Issue','e'); ?></title>
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
 

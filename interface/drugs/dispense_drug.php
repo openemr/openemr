@@ -190,6 +190,7 @@
 ?>
 <html>
 <head>
+<? html_header_show();?>
 <style type="text/css">
  body {
   font-family: sans-serif;

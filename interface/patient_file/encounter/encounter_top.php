@@ -16,6 +16,7 @@ if (isset($_GET["set_encounter"])) {
 ?>
 <html>
 <head>
+<? html_header_show();?>
 </head>
 <frameset cols="*,200">
  <frame src="forms.php" name="Forms" scrolling="auto">

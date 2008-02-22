@@ -34,7 +34,8 @@ if (isset($_GET["set_encounter"])) {
 	setencounter($_GET["set_encounter"]);
 ?>
 <HTML>
-<HEAD>
+<head>
+<? html_header_show();?>
 <TITLE>
 <?php xl('Patient Encounters','e'); ?>
 </TITLE>
@@ -73,7 +74,8 @@ if (isset($_GET["mode"])  && $_GET["mode"] == "new") {
 ?>
 
 <HTML>
-<HEAD>
+<head>
+<? html_header_show();?>
 <TITLE>
 <?php xl('New Patient Encounter','e'); ?>
 </TITLE>
@@ -94,7 +96,8 @@ if (isset($_GET["mode"])  && $_GET["mode"] == "new") {
 }
 ?>
 <HTML>
-<HEAD>
+<head>
+<? html_header_show();?>
 <TITLE>
 <?php xl('Patient Encounters','e'); ?>
 </TITLE>
