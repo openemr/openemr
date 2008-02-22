@@ -4,6 +4,7 @@ require_once("globals.php");
 
 <html>
 <head>
+<? html_header_show();?>
 
 <link rel=stylesheet href="style.css" type="text/css">
 

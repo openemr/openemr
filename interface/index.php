@@ -5,6 +5,7 @@ include_once("./globals.php");
 
 <html>
 <head>
+<? html_header_show();?>
 
 
 </head>
