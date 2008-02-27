@@ -53,6 +53,7 @@
  // Create Accounting ACOs.
  //
  $gacl->add_object('acct', 'Billing (write optional)'           , 'bill' , 10, 0, 'ACO');
+ $gacl->add_object('acct', 'Price Discounting'                  , 'disc' , 10, 0, 'ACO');
  $gacl->add_object('acct', 'EOB Data Entry'                     , 'eob'  , 10, 0, 'ACO');
  $gacl->add_object('acct', 'Financial Reporting - my encounters', 'rep'  , 10, 0, 'ACO');
  $gacl->add_object('acct', 'Financial Reporting - anything'     , 'rep_a', 10, 0, 'ACO');
@@ -119,7 +120,7 @@
  //
  $gacl->add_acl(
   array(
-   'acct'=>array('bill', 'eob', 'rep', 'rep_a'),
+   'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
    'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl'),
    'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
    'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes'),
@@ -133,7 +134,7 @@
  //
  $gacl->add_acl(
   array(
-   'acct'=>array('rep'),
+   'acct'=>array('disc', 'rep'),
    'admin'=>array('drugs'),
    'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
    'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes'),
@@ -178,7 +179,7 @@
  //
  $gacl->add_acl(
   array(
-   'acct'=>array('bill', 'eob', 'rep', 'rep_a'),
+   'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
    'admin'=>array('practice', 'superbill'),
    'encounters'=>array('auth_a', 'coding_a', 'date_a'),
    'patients'=>array('appt', 'demo')

@@ -19,6 +19,7 @@
 // of the License, or (at your option) any later version.
 
 require_once("../../globals.php");
+require_once("$srcdir/acl.inc");
 require_once("$srcdir/api.inc");
 require_once("codes.php");
 require_once("../../../custom/code_types.inc.php");
@@ -168,7 +169,7 @@ $billresult = getBillingByEncounter($pid, $encounter, "*");
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show(); ?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <style>
 .billcell { font-family: sans-serif; font-size: 10pt }
@@ -561,7 +562,12 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
         echo "</td>\n";
         echo "  <td class='billcell' align='right'>" .
           "<input type='text' name='bill[$lino][fee]' " .
-          "value='$fee' size='6' style='text-align:right'></td>\n";
+          "value='$fee' size='6'";
+        if (acl_check('acct','disc'))
+          echo " style='text-align:right'";
+        else
+          echo " style='text-align:right;background-color:transparent' readonly";
+        echo "></td>\n";
         if ($code_types[$codetype]['just'] || $justify) {
           echo "  <td class='billcell' align='center'>";
           echo "<select name='bill[$lino][justify]' onchange='setJustify(this)'>";
@@ -684,7 +690,12 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
       echo "</td>\n";
       echo "  <td class='billcell' align='right'>" .
         "<input type='text' name='prod[$lino][fee]' " .
-        "value='$fee' size='6' style='text-align:right'></td>\n";
+        "value='$fee' size='6'";
+      if (acl_check('acct','disc'))
+        echo " style='text-align:right'";
+      else
+        echo " style='text-align:right;background-color:transparent' readonly";
+      echo "></td>\n";
       echo "  <td class='billcell'>&nbsp;</td>\n";
     }
     echo "  <td class='billcell' align='center'>&nbsp;</td>\n"; // auth

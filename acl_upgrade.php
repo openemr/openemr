@@ -25,6 +25,8 @@
 //       ADD  acl      ACL Administration (Administrators)
 //     Section "sensitivities" (Sensitivities):
 //       EDIT high     High               (ensure the order variable is '20')
+//     Section "acct"          (Accounting):
+//       ADD  disc     Price Discounting (Administrators, Physicians, Accounting(write))
 
 
 //Ensure that phpGACL has been installed
@@ -70,6 +72,8 @@ addObjectAclWithOrder('sensitivities', 'Sensitivities', 'high', 'High', 20);
 addObjectAcl('admin', 'Administration', 'drugs', 'Pharmacy Dispensary');
 //Add 'ACL Administration' object (added in 2.8.4)
 addObjectAcl('admin', 'Administration', 'acl', 'ACL Administration');
+//Add 'Price Discounting' object (added in 2.8.4)
+addObjectAcl('acct', 'Accounting', 'disc', 'Price Discounting');
 
 
 //Update already existing Objects
@@ -104,6 +108,12 @@ updateAcl($doc_write, 'Physicians', 'admin', 'Administration', 'drugs', 'Pharmac
 updateAcl($clin_write, 'Clinicians', 'admin', 'Administration', 'drugs', 'Pharmacy Dispensary', 'write');
 //Insert the 'acl' object from the 'admin' section into the Administrators group write ACL (added in 2.8.4)
 updateAcl($admin_write, 'Administrators', 'admin', 'Administration', 'acl', 'ACL Administration', 'write');
+//Insert the 'disc' object from the 'acct' section into the Administrators group write ACL (added in 2.8.4)
+updateAcl($admin_write, 'Administrators', 'acct', 'Accounting', 'disc', 'Price Discounting', 'write');
+//Insert the 'disc' object from the 'acct' section into the Accounting group write ACL (added in 2.8.4)
+updateAcl($back_write, 'Accounting', 'acct', 'Accounting', 'disc', 'Price Discounting', 'write');
+//Insert the 'disc' object from the 'acct' section into the Physicians group write ACL (added in 2.8.4)
+updateAcl($doc_write, 'Physicians', 'acct', 'Accounting', 'disc', 'Price Discounting', 'write');
 
 
 //Function will return an array that contains the ACL ID number.
