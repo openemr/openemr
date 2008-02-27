@@ -64,7 +64,7 @@ INSERT INTO list_options VALUES ('pricelevel','standard','Standard',1,1,0);
 CREATE TABLE layout_options (
   form_id        varchar(31)   NOT NULL,
   field_id       varchar(31)   NOT NULL,
-  group_name     varchar(15)   NOT NULL DEFAULT '',
+  group_name     varchar(31)   NOT NULL DEFAULT '',
   title          varchar(63)   NOT NULL DEFAULT '',
   seq            int(11)       NOT NULL DEFAULT 0,
   data_type      tinyint(3)    NOT NULL DEFAULT 0,
