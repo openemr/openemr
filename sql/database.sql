@@ -4530,19 +4530,19 @@ DROP TABLE IF EXISTS `layout_options`;
 CREATE TABLE `layout_options` (
   `form_id` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
   `field_id` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `group_name` varchar(15) character set utf8 collate utf8_unicode_ci default NULL,
-  `title` varchar(63) character set utf8 collate utf8_unicode_ci default NULL,
+  `group_name` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `title` varchar(63) character set utf8 collate utf8_unicode_ci NOT NULL default '',
   `seq` int(11) NOT NULL default '0',
   `data_type` tinyint(3) NOT NULL default '0',
   `uor` tinyint(1) NOT NULL default '1',
   `fld_length` int(11) NOT NULL default '15',
   `max_length` int(11) NOT NULL default '0',
-  `list_id` varchar(31) character set utf8 collate utf8_unicode_ci default NULL,
+  `list_id` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
   `titlecols` tinyint(3) NOT NULL default '1',
   `datacols` tinyint(3) NOT NULL default '1',
-  `default_value` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `edit_options` varchar(36) character set utf8 collate utf8_unicode_ci default NULL,
-  `description` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `default_value` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `edit_options` varchar(36) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `description` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
   PRIMARY KEY  (`form_id`,`field_id`,`seq`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -4629,7 +4629,7 @@ DROP TABLE IF EXISTS `list_options`;
 CREATE TABLE `list_options` (
   `list_id` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
   `option_id` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `title` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `title` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
   `seq` int(11) NOT NULL default '0',
   `is_default` tinyint(1) NOT NULL default '0',
   `option_value` float NOT NULL default '0',
@@ -4880,7 +4880,8 @@ INSERT INTO `openemr_postcalendar_categories` VALUES (2, 'In Office', '#99CCFF',
 INSERT INTO `openemr_postcalendar_categories` VALUES (3, 'Out Of Office', '#99FFFF', 'Reserved to define when a provider may not have available appointments after.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 1, 3, 2, 0, 0);
 INSERT INTO `openemr_postcalendar_categories` VALUES (8, 'Lunch', '#FFFF33', 'Lunch', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 3600, 0, 3, 2, 0, 0);
 INSERT INTO `openemr_postcalendar_categories` VALUES (9, 'Established Patient', '#CCFF33', '', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0);
-INSERT INTO `openemr_postcalendar_categories` VALUES (10, 'New Patient', '#CCFFFF', '', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 1800, 0, 0, 0, 0, 0);
+INSERT INTO `openemr_postcalendar_categories` VALUES (10,'New Patient', '#CCFFFF', '', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 1800, 0, 0, 0, 0, 0);
+INSERT INTO `openemr_postcalendar_categories` VALUES (11,'Reserved','#FF7777','Reserved',1,NULL,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,900,0,3,2,0,0);
 
 -- --------------------------------------------------------
 
