@@ -74,14 +74,24 @@ function end_row() {
   }
 }
 
+function end_group() {
+  global $last_group;
+  if (strlen($last_group) > 0) {
+    end_row();
+    echo " </table>\n";
+    echo "</div>\n";
+  }
+}
+
 // If we are editing a transaction, get its ID and data.
 $trow = $transid ? getTransById($transid) : array();
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show(); ?>
 
 <style>
+
 body, td, input, select, textarea {
  font-family: Arial, Helvetica, sans-serif;
  font-size: 10pt;
@@ -90,6 +100,15 @@ body, td, input, select, textarea {
 body {
  padding: 5pt 5pt 5pt 5pt;
 }
+
+div.section {
+ border: solid;
+ border-width: 1px;
+ border-color: #0000ff;
+ margin: 0 0 0 10pt;
+ padding: 5pt;
+}
+
 </style>
 
 <link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
@@ -112,6 +131,16 @@ function titleChanged() {
  } else {
   document.getElementById('referdiv').style.display = 'none';
   document.getElementById('otherdiv').style.display = 'block';
+ }
+ return true;
+}
+
+function divclick(cb, divid) {
+ var divstyle = document.getElementById(divid).style;
+ if (cb.checked) {
+  divstyle.display = 'block';
+ } else {
+  divstyle.display = 'none';
  }
  return true;
 }
@@ -148,7 +177,6 @@ foreach ($trans_types as $key => $value) {
 <p>
 <div id='referdiv' style='display:none'>
 <?php
-echo "<table border='0' cellpadding='0'>\n";
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'REF' AND uor > 0 " .
   "ORDER BY group_name, seq");
@@ -158,6 +186,7 @@ $item_count = 0;
 $display_style = 'block';
 
 while ($frow = sqlFetchArray($fres)) {
+  $this_group = $frow['group_name'];
   $titlecols  = $frow['titlecols'];
   $datacols   = $frow['datacols'];
   $data_type  = $frow['data_type'];
@@ -177,6 +206,21 @@ while ($frow = sqlFetchArray($fres)) {
         "pid = '$pid' ORDER BY date DESC LIMIT 1");
       if (!empty($tmp)) $currvalue = $tmp['reason'];
     }
+  }
+
+  // Handle a data category (group) change.
+  if (strcmp($this_group, $last_group) != 0) {
+    end_group();
+    $group_seq  = substr($this_group, 0, 1);
+    $group_name = substr($this_group, 1);
+    $last_group = $this_group;
+    echo "<br /><span class='bold'><input type='checkbox' name='form_cb_$group_seq' value='1' " .
+      "onclick='return divclick(this,\"div_$group_seq\");'";
+    if ($display_style == 'block') echo " checked";
+    echo " /><b>$group_name</b></span>\n";
+    echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
+    echo " <table border='0' cellpadding='0'>\n";
+    $display_style = 'none';
   }
 
   // Handle starting of a new row.
@@ -215,8 +259,7 @@ while ($frow = sqlFetchArray($fres)) {
   generate_form_field($frow, $currvalue);
 }
 
-end_row();
-echo " </table>\n";
+end_group();
 ?>
 </div>
 </p>
