@@ -24,6 +24,7 @@
   //
   // Section "acct" (Accounting):
   //   bill        Billing (write optional)
+  //   disc        Allowed to discount prices (in Fee Sheet or Checkout form)
   //   eob         EOB Data Entry
   //   rep         Financial Reporting - my encounters
   //   rep_a       Financial Reporting - anything
