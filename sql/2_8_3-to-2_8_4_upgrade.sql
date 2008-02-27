@@ -17,7 +17,7 @@ ALTER TABLE patient_data
   ADD `usertext2`  varchar(255) NOT NULL DEFAULT '',
   ADD `userlist1`  varchar(255) NOT NULL DEFAULT '',
   ADD `userlist2`  varchar(255) NOT NULL DEFAULT '',
-  ADD `pricelevel` varchar(255) NOT NULL DEFAULT '';
+  ADD `pricelevel` varchar(255) NOT NULL DEFAULT 'standard';
 
 CREATE TABLE list_options (
   list_id        varchar(31)   NOT NULL,
