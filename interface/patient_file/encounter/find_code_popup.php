@@ -16,7 +16,7 @@ $form_code_type = $_POST['form_code_type'];
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show(); ?>
 <title><?php xl('Code Finder','e'); ?></title>
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
 
@@ -57,19 +57,22 @@ td { font-size:10pt; }
    <b>
 
 <?php
-echo "   <select name='form_code_type'";
-if ($codetype) echo " disabled";
-echo ">\n";
-foreach ($code_types as $key => $value) {
-  echo "    <option value='$key'";
-  // if ($codetype == $value['id'] || $form_code_type == $value['id']) echo " selected";
-  if ($codetype == $key || $form_code_type == $key) echo " selected";
-  echo ">$key</option>\n";
+if ($codetype) {
+  echo "<input type='text' name='form_code_type' value='$codetype' size='5' readonly>\n";
 }
-echo "    <option value='PROD'";
-if ($codetype == 'PROD' || $form_code_type == 'PROD') echo " selected";
-echo ">Product</option>\n";
-echo "   </select>&nbsp;&nbsp;\n";
+else {
+  echo "   <select name='form_code_type'";
+  echo ">\n";
+  foreach ($code_types as $key => $value) {
+    echo "    <option value='$key'";
+    if ($codetype == $key || $form_code_type == $key) echo " selected";
+    echo ">$key</option>\n";
+  }
+  echo "    <option value='PROD'";
+  if ($codetype == 'PROD' || $form_code_type == 'PROD') echo " selected";
+  echo ">Product</option>\n";
+  echo "   </select>&nbsp;&nbsp;\n";
+}
 ?>
 
  <?php xl('Search for:','e'); ?>
