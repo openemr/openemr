@@ -91,7 +91,7 @@ if ( $eid ) {
                               WHERE pc_eid = $eid");
     if ( !$facility['pc_facility'] ) {
         $qmin = sqlQuery("SELECT facility_id as minId, facility FROM users WHERE id = ".$facility['pc_aid']);
-        $minId  = $qmin['minId'];
+        $min  = $qmin['minId'];
         $min_name = $qmin['facility'];
 
         // multiple providers case
@@ -102,7 +102,7 @@ if ( $eid ) {
         // EOS multiple
 
         sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = $min WHERE pc_eid = $eid");
-        $e2f = $minId;
+        $e2f = $min;
         $e2f_name = $min_name;
     } else {
         $e2f = $facility['pc_facility'];
@@ -520,7 +520,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+<?php html_header_show(); ?>
 <title><? echo $eid ? "Edit" : "Add New" ?> <?php xl('Event','e');?></title>
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
 
