@@ -1,11 +1,17 @@
 <?php
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
 include_once("../../globals.php");
 include_once("../../../custom/code_types.inc.php");
 include_once("$srcdir/sql.inc");
 
 // Translation for form fields.
 function ffescape($field) {
-  return mysql_real_escape_string($field);
+  if (!get_magic_quotes_gpc()) $field = addslashes($field);
+  return trim($field);
 }
 
 // Format dollars for display.
@@ -56,7 +62,9 @@ if (isset($mode)) {
       "related_code = '" . ffescape($related_code) . "', " .
       "taxrates = '"     . ffescape($taxrates)     . "'";
     if ($code_id) {
-      sqlStatement("UPDATE codes SET $sql WHERE id = '$code_id'");
+      $query = "UPDATE codes SET $sql WHERE id = '$code_id'";
+      // echo "<!-- $query -->\n"; // debugging
+      sqlStatement($query);
       sqlStatement("DELETE FROM prices WHERE pr_id = '$code_id' AND " .
         "pr_selector = ''");
     }
@@ -94,8 +102,9 @@ if (isset($mode)) {
 
 $related_desc = '';
 if (!empty($related_code)) {
-  $relrow = sqlQuery("SELECT code_text FROM codes WHERE code = '$related_code'");
-  $related_desc = $related_code . ': ' . trim($relrow['code_text']);
+  // $relrow = sqlQuery("SELECT code_text FROM codes WHERE code = '$related_code'");
+  // $related_desc = $related_code . ': ' . trim($relrow['code_text']);
+  $related_desc = $related_code;
 }
 
 $fstart = $_REQUEST['fstart'] + 0;
@@ -120,21 +129,25 @@ if ($fend > $count) $fend = $count;
 
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show(); ?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 
 <script language="JavaScript">
 
 // This is for callback by the find-code popup.
-function set_related(code, codedesc) {
+// Appends to or erases the current list of related codes.
+function set_related(codetype, code, selector, codedesc) {
  var f = document.forms[0];
+ var s = f.related_code.value;
  if (code) {
-  f.related_desc.value = code + ': ' + codedesc;
+  if (s.length > 0) s += ';';
+  s += codetype + ':' + code;
  } else {
-  f.related_desc.value = '';
+  s = '';
  }
- f.related_code.value = code;
+ f.related_code.value = s;
+ f.related_desc.value = s;
 }
 
 // This invokes the find-code popup.
@@ -154,10 +167,11 @@ foreach ($code_types as $key => $value) {
 ?>
  }
  if (!codetype) {
-  alert('This code type has no related type defined.');
+  alert('<?php xl('This code type does not accept relations.','e') ?>');
   return;
  }
- dlgopen('find_code_popup.php?codetype=' + codetype, '_blank', 500, 400);
+ // dlgopen('find_code_popup.php?codetype=' + codetype, '_blank', 500, 400);
+ dlgopen('find_code_popup.php', '_blank', 500, 400);
 }
 
 function submitAdd() {
@@ -174,11 +188,11 @@ function submitAdd() {
 function submitUpdate() {
  var f = document.forms[0];
  if (! parseInt(f.code_id.value)) {
-  alert('Cannot update because you are not editing an existing entry!');
+  alert('<?php xl('Cannot update because you are not editing an existing entry!','e') ?>');
   return;
  }
  if (!f.code.value) {
-  alert('No code was specified!');
+  alert('<?php xl('No code was specified!','e') ?>');
   return;
  }
  f.mode.value = 'add';
