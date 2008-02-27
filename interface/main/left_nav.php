@@ -585,7 +585,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
       <?php genTreeLink('RTop','bil','Billing'); ?>
     </ul>
   </li>
-  <?php if (acl_check('admin', 'drugs')) genMiscLink('RTop','adm','0','Inventory','drugs/drug_inventory.php'); ?>
+  <?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) genMiscLink('RTop','adm','0','Inventory','drugs/drug_inventory.php'); ?>
   <li><span>Administration</span>
     <ul>
       <?php if (acl_check('admin', 'users'    )) genMiscLink('RTop','adm','0','Users','usergroup/usergroup_admin.php'); ?>
