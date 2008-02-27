@@ -1,4 +1,4 @@
-<?
+<?php
 // This array provides abstraction of billing code types.  This is desirable
 // because different countries or fields of practice use different methods for
 // coding diagnoses, procedures and supplies.  Fees will not be relevant where
@@ -23,10 +23,18 @@ $code_types = array(
  'PTCJ'    => array('id' =>  7, 'fee' => 0, 'mod' => 0, 'just' => '', 'rel' => ''),
  'CPT4'    => array('id' =>  1, 'fee' => 0, 'mod' => 0, 'just' => '', 'rel' => ''),
  'SMPC'    => array('id' => 10, 'fee' => 0, 'mod' => 0, 'just' => '', 'rel' => '') */
+
+ /* IPPF:
+ 'ICD9'  => array('id' =>  2, 'fee' => 0, 'mod' => 2, 'just' => ''    , 'rel' => ''),
+ 'MA'    => array('id' => 12, 'fee' => 1, 'mod' => 0, 'just' => ''    , 'rel' => 'ACCT'),
+ 'IPPF'  => array('id' => 11, 'fee' => 0, 'mod' => 0, 'just' => ''    , 'rel' => ''),
+ 'CPT4'  => array('id' =>  1, 'fee' => 0, 'mod' => 2, 'just' => ''    , 'rel' => 'IPPF'),
+ 'ACCT'  => array('id' => 13, 'fee' => 0, 'mod' => 0, 'just' => ''    , 'rel' => 'IPPF'), */
 );
 
 $default_search_type = 'ICD9'; // US
 // $default_search_type = 'OSICS10'; // UK Sports
+// $default_search_type = 'MA';      // IPPF
 
 function fees_are_used() {
  global $code_types;
