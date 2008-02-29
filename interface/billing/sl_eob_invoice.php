@@ -35,7 +35,10 @@
     xl("Pt refund"),
     xl("Ins overpaid"),
     xl("Pt overpaid"),
-    xl("Adm adjust")
+    xl("Adm adjust"),
+    xl("Untimely filing"),
+    xl("Ins bundling"),
+    xl("After hrs calls")
   );
 
   $info_msg = "";
