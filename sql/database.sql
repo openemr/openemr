@@ -227,7 +227,7 @@ CREATE TABLE `codes` (
   `units` tinyint(3) default NULL,
   `fee` decimal(7,2) default NULL,
   `superbill` tinyint(1) NOT NULL default '0',
-  `related_code` varchar(10) character set utf8 collate utf8_unicode_ci default NULL,
+  `related_code` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `taxrates` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   PRIMARY KEY  (`id`),
   KEY `code` (`code`)
@@ -397,8 +397,8 @@ CREATE TABLE `drug_templates` (
 DROP TABLE IF EXISTS `drugs`;
 CREATE TABLE `drugs` (
   `drug_id` int(11) NOT NULL auto_increment,
-  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `ndc_number` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
+  `name` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `ndc_number` varchar(20) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
   `on_order` int(11) NOT NULL default '0',
   `reorder_point` int(11) NOT NULL default '0',
   `last_notify` date NOT NULL default '0000-00-00',
@@ -408,6 +408,7 @@ CREATE TABLE `drugs` (
   `unit` int(11) NOT NULL default '0',
   `route` int(11) NOT NULL default '0',
   `substitute` int(11) NOT NULL default '0',
+  `related_code` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code',
   PRIMARY KEY  (`drug_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 

@@ -33,13 +33,13 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
   ++$tmpl_line_no;
 
   echo " <tr>\n";
-  echo "  <td class='tmplcell'>";
+  echo "  <td class='tmplcell drugsonly'>";
   echo "<input type='text' name='tmpl[$tmpl_line_no][selector]' value='$selector' size='8' maxlength='100'>";
   echo "</td>\n";
-  echo "  <td class='tmplcell'>";
+  echo "  <td class='tmplcell drugsonly'>";
   echo "<input type='text' name='tmpl[$tmpl_line_no][dosage]' value='$dosage' size='6' maxlength='10'>";
   echo "</td>\n";
-  echo "  <td class='tmplcell'>";
+  echo "  <td class='tmplcell drugsonly'>";
   echo "<select name='tmpl[$tmpl_line_no][period]'>";
   foreach ($interval_array as $key => $value) {
     echo "<option value='$key'";
@@ -47,10 +47,10 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
     echo ">$value</option>";
   }
   echo "</td>\n";
-  echo "  <td class='tmplcell'>";
+  echo "  <td class='tmplcell drugsonly'>";
   echo "<input type='text' name='tmpl[$tmpl_line_no][quantity]' value='$quantity' size='3' maxlength='7'>";
   echo "</td>\n";
-  echo "  <td class='tmplcell'>";
+  echo "  <td class='tmplcell drugsonly'>";
   echo "<input type='text' name='tmpl[$tmpl_line_no][refills]' value='$refills' size='3' maxlength='5'>";
   echo "</td>\n";
   foreach ($prices as $pricelevel => $price) {
@@ -68,6 +68,13 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
   }
   echo " </tr>\n";
 }
+
+// Translation for form fields.
+function escapedff($name) {
+  $field = trim($_POST[$name]);
+  if (!get_magic_quotes_gpc()) return addslashes($field);
+  return $field;
+}
 ?>
 <html>
 <head>
@@ -77,9 +84,41 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
 
 <style>
 td { font-size:10pt; }
+
+<?php if ($GLOBALS['sell_non_drug_products'] == 2) { ?>
+.drugsonly { display:none; }
+<?php } else { ?>
+.drugsonly { }
+<?php } ?>
+
 </style>
 
+<script type="text/javascript" src="../../library/topdialog.js"></script>
+<script type="text/javascript" src="../../library/dialog.js"></script>
+
 <script language="JavaScript">
+
+<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+
+// This is for callback by the find-code popup.
+// Appends to or erases the current list of related codes.
+function set_related(codetype, code, selector, codedesc) {
+ var f = document.forms[0];
+ var s = f.form_related_code.value;
+ if (code) {
+  if (s.length > 0) s += ';';
+  s += codetype + ':' + code;
+ } else {
+  s = '';
+ }
+ f.form_related_code.value = s;
+}
+
+// This invokes the find-code popup.
+function sel_related() {
+ dlgopen('../patient_file/encounter/find_code_popup.php', '_blank', 500, 400);
+}
+
 </script>
 
 </head>
@@ -93,14 +132,15 @@ td { font-size:10pt; }
   if ($drug_id) {
    if ($_POST['form_save']) { // updating an existing drug
     sqlStatement("UPDATE drugs SET " .
-     "name = '"          . $_POST['form_name']          . "', " .
-     "ndc_number = '"    . $_POST['form_ndc_number']    . "', " .
-     "on_order = '"      . $_POST['form_on_order']      . "', " .
-     "reorder_point = '" . $_POST['form_reorder_point'] . "', " .
-     "form = '"          . $_POST['form_form']          . "', " .
-     "size = '"          . $_POST['form_size']          . "', " .
-     "unit = '"          . $_POST['form_unit']          . "', " .
-     "route = '"         . $_POST['form_route']         . "' "  .
+     "name = '"          . escapedff('form_name')          . "', " .
+     "ndc_number = '"    . escapedff('form_ndc_number')    . "', " .
+     "on_order = '"      . escapedff('form_on_order')      . "', " .
+     "reorder_point = '" . escapedff('form_reorder_point') . "', " .
+     "form = '"          . escapedff('form_form')          . "', " .
+     "size = '"          . escapedff('form_size')          . "', " .
+     "unit = '"          . escapedff('form_unit')          . "', " .
+     "route = '"         . escapedff('form_route')         . "', " .
+     "related_code = '"  . escapedff('form_related_code')  . "' "  .
      "WHERE drug_id = '$drug_id'");
     sqlStatement("DELETE FROM drug_templates WHERE drug_id = '$drug_id'");
    }
@@ -117,21 +157,27 @@ td { font-size:10pt; }
    $new_drug = true;
    $drug_id = sqlInsert("INSERT INTO drugs ( " .
     "name, ndc_number, on_order, reorder_point, form, " .
-    "size, unit, route " .
+    "size, unit, route, related_code " .
     ") VALUES ( " .
-    "'" . $_POST['form_name']          . "', " .
-    "'" . $_POST['form_ndc_number']    . "', " .
-    "'" . $_POST['form_on_order']      . "', " .
-    "'" . $_POST['form_reorder_point'] . "', " .
-    "'" . $_POST['form_form']          . "', " .
-    "'" . $_POST['form_size']          . "', " .
-    "'" . $_POST['form_unit']          . "', " .
-    "'" . $_POST['form_route']         . "' "  .
+    "'" . escapedff('form_name')          . "', " .
+    "'" . escapedff('form_ndc_number')    . "', " .
+    "'" . escapedff('form_on_order')      . "', " .
+    "'" . escapedff('form_reorder_point') . "', " .
+    "'" . escapedff('form_form')          . "', " .
+    "'" . escapedff('form_size')          . "', " .
+    "'" . escapedff('form_unit')          . "', " .
+    "'" . escapedff('form_route')         . "', " .
+    "'" . escapedff('form_related_code')  . "' "  .
     ")");
   }
 
   if ($_POST['form_save'] && $drug_id) {
    $tmpl = $_POST['tmpl'];
+   // If using the simplified drug form, then force the one and only
+   // selector name to be the same as the product name.
+   if ($GLOBALS['sell_non_drug_products'] == 2) {
+    $tmpl["1"]['selector'] = escapedff('form_name');
+   }
    sqlStatement("DELETE FROM prices WHERE pr_id = '$drug_id' AND pr_selector != ''");
    for ($lino = 1; isset($tmpl["$lino"]['selector']); ++$lino) {
     $iter = $tmpl["$lino"];
@@ -201,7 +247,7 @@ td { font-size:10pt; }
   </td>
  </tr>
 
- <tr>
+ <tr class='drugsonly'>
   <td valign='top' nowrap><b><?php xl('NDC Number','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_ndc_number' maxlength='20' value='<?php echo $row['ndc_number'] ?>' style='width:100%' />
@@ -222,7 +268,7 @@ td { font-size:10pt; }
   </td>
  </tr>
 
- <tr>
+ <tr class='drugsonly'>
   <td valign='top' nowrap><b><?php xl('Form','e'); ?>:</b></td>
   <td>
    <select name='form_form'>
@@ -237,14 +283,14 @@ td { font-size:10pt; }
   </td>
  </tr>
 
- <tr>
+ <tr class='drugsonly'>
   <td valign='top' nowrap><b><?php xl('Pill Size','e'); ?>:</b></td>
   <td>
    <input type='text' size='5' name='form_size' maxlength='7' value='<?php echo $row['size'] ?>' />
   </td>
  </tr>
 
- <tr>
+ <tr class='drugsonly'>
   <td valign='top' nowrap><b><?php xl('Units','e'); ?>:</b></td>
   <td>
    <select name='form_unit'>
@@ -259,7 +305,7 @@ td { font-size:10pt; }
   </td>
  </tr>
 
- <tr>
+ <tr class='drugsonly'>
   <td valign='top' nowrap><b><?php xl('Route','e'); ?>:</b></td>
   <td>
    <select name='form_route'>
@@ -275,15 +321,27 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php xl('Templates','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Relate To','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='50' name='form_related_code'
+    value='<?php echo $row['related_code'] ?>' onclick='sel_related()'
+    title='<?php xl('Click to select related code','e'); ?>'
+    style='width:100%' readonly />
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' nowrap>
+   <b><?php xl($GLOBALS['sell_non_drug_products'] == 2 ? 'Fees' : 'Templates','e'); ?>:</b>
+  </td>
   <td>
    <table border='0' width='100%'>
     <tr>
-     <td><b><?php xl('Name'    ,'e'); ?></b></td>
-     <td><b><?php xl('Schedule','e'); ?></b></td>
-     <td><b><?php xl('Interval','e'); ?></b></td>
-     <td><b><?php xl('Qty'     ,'e'); ?></b></td>
-     <td><b><?php xl('Refills' ,'e'); ?></b></td>
+     <td class='drugsonly'><b><?php xl('Name'    ,'e'); ?></b></td>
+     <td class='drugsonly'><b><?php xl('Schedule','e'); ?></b></td>
+     <td class='drugsonly'><b><?php xl('Interval','e'); ?></b></td>
+     <td class='drugsonly'><b><?php xl('Qty'     ,'e'); ?></b></td>
+     <td class='drugsonly'><b><?php xl('Refills' ,'e'); ?></b></td>
 <?php
   // Show a heading for each price level.  Also create an array of prices
   // for new template lines.
@@ -303,10 +361,10 @@ td { font-size:10pt; }
 ?>
     </tr>
 <?php
-  $blank_lines = 3;
+  $blank_lines = $GLOBALS['sell_non_drug_products'] == 2 ? 1 : 3;
   if ($tres) {
-    $blank_lines = 1;
     while ($trow = sqlFetchArray($tres)) {
+      $blank_lines = $GLOBALS['sell_non_drug_products'] == 2 ? 0 : 1;
       $selector = $trow['selector'];
       // Get array of prices.
       $prices = array();
@@ -323,7 +381,8 @@ td { font-size:10pt; }
     }
   }
   for ($i = 0; $i < $blank_lines; ++$i) {
-    writeTemplateLine('', '', '', '', '', $emptyPrices, '');
+    $selector = $GLOBALS['sell_non_drug_products'] == 2 ? $row['name'] : '';
+    writeTemplateLine($selector, '', '', '', '', $emptyPrices, '');
   }
 ?>
    </table>

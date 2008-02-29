@@ -219,10 +219,12 @@ $GLOBALS['docs_see_entire_calendar'] = false;
 // prescription dispensing.
 $GLOBALS['inhouse_pharmacy'] = false;
 
-// Make this true if you want the ability to sell products other than
+// Make this nonzero if you want the ability to sell products other than
 // prescription drugs.  Also requires inhouse_pharmacy to be true.
 // This allows selection of products from the Fee Sheet.
-$GLOBALS['sell_non_drug_products'] = false;
+// Set this to 2 if you want a simplified interface (no templates, no
+// prescription drugs), otherwise to 1.
+$GLOBALS['sell_non_drug_products'] = 0;
 
 // True to omit insurance and some other things from the demographics form:
 $GLOBALS['simplified_demographics'] = false;

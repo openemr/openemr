@@ -180,7 +180,7 @@ INSERT INTO list_options VALUES ('boolean','0','No' ,1,0,0);
 INSERT INTO list_options VALUES ('boolean','1','Yes',2,0,0);
 
 ALTER TABLE codes
-  ADD related_code varchar(10)  NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code';
+  ADD related_code varchar(255)  NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code';
 
 CREATE TABLE prices (
   pr_id          varchar(11)   NOT NULL            COMMENT 'references codes.id or drugs.id',
@@ -226,3 +226,6 @@ INSERT INTO fee_sheet_options VALUES ('2Established Patient','5Comprehensive','C
 
 ALTER TABLE `users`
   ADD COLUMN `cal_ui` tinyint(4) NOT NULL DEFAULT 1 COMMENT 'Specifies calendar display style';
+
+ALTER TABLE drugs
+  ADD related_code varchar(255)  NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code';
