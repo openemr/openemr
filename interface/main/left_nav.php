@@ -663,6 +663,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
   </li>
   <li><span>Miscellaneous</span>
     <ul>
+      <?php genTreeLink('RBot','aun','Pt Notes/Auth'); ?>
       <?php genTreeLink('RTop','fax','Fax/Scan'); ?>
       <?php genTreeLink('RTop','adb','Addr Book'); ?>
       <?php genTreeLink('RTop','ono','Ofc Notes'); ?>
