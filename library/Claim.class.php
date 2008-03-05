@@ -152,8 +152,8 @@ class Claim {
       "LIMIT 1";
     $this->facility = sqlQuery($sql);
 
-    $sql = "SELECT * FROM users WHERE " .
-      "id = '" . $this->procs[0]['provider_id'] . "'";
+    $provider_id = $this->procs[0]['provider_id'];
+    $sql = "SELECT * FROM users WHERE id = '$provider_id'";
     $this->provider = sqlQuery($sql);
 
     $sql = "SELECT * FROM facility " .
@@ -180,8 +180,8 @@ class Claim {
       "ORDER BY forms.date";
     $this->billing_options = sqlQuery($sql);
 
-    $sql = "SELECT * FROM users WHERE " .
-      "id = '" . $this->patient_data['providerID'] . "'";
+    $referrer_id = empty($GLOBALS['ReferrerIsRenderer']) ? $this->patient_data['providerID'] : $provider_id;
+    $sql = "SELECT * FROM users WHERE id = '$referrer_id'";
     $this->referrer = sqlQuery($sql);
     if (!$this->referrer) $this->referrer = array();
 

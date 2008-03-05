@@ -249,6 +249,12 @@ $GLOBALS['auto_create_new_encounters'] = true;
 // If you don't want employer information, country, title in patient demographics.
 $GLOBALS['omit_employers'] = false;
 
+// This is for insurance billing.  Make it true if you always want the referring
+// provider to be the same as the rendering provider, instead of coming from the
+// patient demographics.  In that case also change the corresponding variable in
+// freeb/formatbin/new_hcfa_1500.pl.
+$GLOBALS['ReferrerIsRenderer'] = false;
+
 // You can set this to the category name of a document to link to from the
 // patient summary page.  Normally this is the category for insurance cards.
 // This lets you click on the patient's name to see their ID card.
