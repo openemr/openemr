@@ -3,8 +3,8 @@ include_once("../../globals.php");
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
 </head>
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <dl>
@@ -52,7 +52,7 @@ foreach ($reg as $entry) {
 	else {
 		echo "<option value='" . $rootdir .
 			'/patient_file/encounter/load_form.php?formname=' .
-			urlencode($entry['directory']) . "'>" . $nickname . "</option>\n";
+			urlencode($entry['directory']) . "'>" . xl($nickname) . "</option>\n";
 	}
 }
 echo "</select>\n";

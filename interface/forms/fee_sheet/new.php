@@ -308,7 +308,7 @@ function setJustify(seljust) {
  bottommargin="0" marginwidth="2" marginheight="0">
 <form method="post" action="<?php echo $rootdir; ?>/forms/fee_sheet/new.php"
  onsubmit="return validate(this)">
-<span class="title"><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Fee' : 'Coding' ?> <?php xl('Sheet','e');?></span><br>
+<span class="title"><?php xl('Fee Sheet','e'); ?></span><br>
 <input type='hidden' name='newcodes' value=''>
 
 <center>

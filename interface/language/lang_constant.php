@@ -21,7 +21,7 @@ if ($_POST['Submit']=='Add'){
 	
 
 
-echo "$sql here ";
+// echo "$sql here ";
 }
 
 ?>

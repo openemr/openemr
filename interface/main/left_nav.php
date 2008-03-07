@@ -158,7 +158,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
    $id = $name . $primary_docs[$name][1];
    echo "<li><a href='' id='$id' " .
         "onclick=\"return loadFrame2('$id','$frame','" .
-        $primary_docs[$name][2] . "')\">$title</a></li>";
+        $primary_docs[$name][2] . "')\">" . xl($title) . "</a></li>";
   }
  }
  function genMiscLink($frame, $name, $level, $title, $url) {
@@ -167,13 +167,13 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
    $id = $name . $level;
    echo "<li><a href='' id='$id' " .
         "onclick=\"return loadFrame2('$id','$frame','" .
-        $url . "')\">$title</a></li>";
+        $url . "')\">" . xl($title) . "</a></li>";
   }
  }
  function genPopLink($title, $url) {
   echo "<li><a href='' " .
        "onclick=\"return repPopup('$url')\"" .
-       ">$title</a></li>";
+       ">" . xl($title) . "</a></li>";
  }
 ?>
 <html>
