@@ -260,6 +260,11 @@ $GLOBALS['ReferrerIsRenderer'] = false;
 // This lets you click on the patient's name to see their ID card.
 $GLOBALS['patient_id_category_name'] = '';
 
+// Traditionally OpenEMR has allowed creation of user groups (not the same
+// as access control groups).  However this has never done anything very
+// useful and creates confusion.  Make this false if you really want it.
+$GLOBALS['disable_non_default_groups'] = true;
+
 // If you want Hylafax support then uncomment and customize the following
 // statements, and also customize custom/faxcover.txt:
 //

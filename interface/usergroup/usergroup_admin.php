@@ -8,8 +8,7 @@ require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
 $alertmsg = '';
 
 if (isset($_POST["mode"])) {
-  if ($_POST["mode"] == "facility")
-  {
+  if ($_POST["mode"] == "facility") {
     sqlStatement("insert into facility set
     name='{$_POST['facility']}',
     phone='{$_POST['phone']}',
@@ -21,7 +20,8 @@ if (isset($_POST["mode"])) {
     country_code='{$_POST['country_code']}',
     federal_ein='{$_POST['federal_ein']}',
     facility_npi='{$_POST['facility_npi']}'");
-  } elseif ($_POST["mode"] == "new_user") {
+  }
+  else if ($_POST["mode"] == "new_user") {
     if ($_POST["authorized"] != "1") {
       $_POST["authorized"] = 0;
     }
@@ -47,9 +47,9 @@ if (isset($_POST["mode"])) {
         "', info = '"          . $_POST["info"] .
         "', federaldrugid = '" . $_POST["federaldrugid"] .
         "', upin = '"          . $_POST["upin"] .
-		"', npi  = '"          . $_POST["npi"].
+        "', npi  = '"          . $_POST["npi"].
         "', facility = '"      . $_POST["facility"] .
-		"', specialty = '"     . $_POST["specialty"] .
+        "', specialty = '"     . $_POST["specialty"] .
         "', see_auth = '"      . $_POST["see_auth"] .
         "'");
       sqlStatement("insert into groups set name = '" . $_POST["groupname"] .
@@ -65,7 +65,7 @@ if (isset($_POST["mode"])) {
       $alertmsg .= "User " . $_POST["username"] . " already exists. ";
     }
   }
-  elseif ($_POST["mode"] == "new_group") {
+  else if ($_POST["mode"] == "new_group") {
     $res = sqlStatement("select distinct name, user from groups");
     for ($iter = 0; $row = sqlFetchArray($res); $iter++)
       $result[$iter] = $row;
@@ -135,7 +135,7 @@ if (isset($_GET["mode"])) {
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
-<span class="title"><? xl('User & Group Administration','e'); ?></span>
+<span class="title"><? xl('User and Facility Administration','e'); ?></span>
 
 <br><br>
 
@@ -194,7 +194,7 @@ if (isset($_GET["mode"])) {
 <input type=hidden name=mode value=<? xl('facility','e'); ?>>
 <span class=bold><? xl('Edit Facilities','e'); ?>: </span>
 </td><td valign=top>
-<?
+<?php
 $fres = 0;
 $fres = sqlStatement("select * from facility order by name");
 if ($fres) {
@@ -206,7 +206,7 @@ if ($fres) {
 <span class=text><?echo $iter3{name};?></span>
 <a href="facility_admin.php?fid=<?echo $iter3{id};?>" class=link_submit
  onclick="top.restoreSession()">(Edit)</a><br>
-<?
+<?php
   }
 }
 ?>
@@ -227,8 +227,9 @@ if ($fres) {
 <tr>
 <td><span class=text><? xl('Groupname','e'); ?>: </span></td><td>
 <select name=groupname>
-<?
+<?php
 $res = sqlStatement("select distinct name from groups");
+$result2 = array();
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
   $result2[$iter] = $row;
 foreach ($result2 as $iter) {
@@ -245,7 +246,7 @@ foreach ($result2 as $iter) {
 <tr>
 <td><span class=text><? xl('Last Name','e'); ?>: </span></td><td><input type=entry name='lname' size=20></td>
 <td><span class=text><? xl('Default Facility','e'); ?>: </span></td><td><select name=facility>
-<?
+<?php
 $fres = sqlStatement("select * from facility order by name");
 if ($fres) {
   for ($iter = 0;$frow = sqlFetchArray($fres);$iter++)
@@ -253,7 +254,7 @@ if ($fres) {
   foreach($result as $iter) {
 ?>
 <option value="<?echo $iter{name};?>"><?echo $iter{name};?></option>
-<?
+<?php
   }
 }
 ?>
@@ -328,7 +329,9 @@ if ($fres) {
 </form>
 </td>
 
-</tr><tr>
+</tr>
+
+<tr<?php if ($GLOBALS['disable_non_default_groups']) echo " style='display:none'"; ?>>
 
 <td valign=top>
 <form name='new_group' method='post' action="usergroup_admin.php"
@@ -341,7 +344,7 @@ if ($fres) {
 &nbsp;&nbsp;&nbsp;
 <span class=text><? xl('Initial User','e'); ?>: </span>
 <select name=username>
-<?
+<?php
 $res = sqlStatement("select distinct username from users where username != ''");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
   $result[$iter] = $row;
@@ -355,7 +358,9 @@ foreach ($result as $iter) {
 </form>
 </td>
 
-</tr><tr>
+</tr>
+
+<tr<?php if ($GLOBALS['disable_non_default_groups']) echo " style='display:none'"; ?>>
 
 <td valign=top>
 <form name='new_group' method='post' action="usergroup_admin.php"
@@ -367,7 +372,7 @@ foreach ($result as $iter) {
 <? xl('User','e'); ?>
 : </span>
 <select name=username>
-<?
+<?php
 $res = sqlStatement("select distinct username from users where username != ''");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
   $result3[$iter] = $row;
@@ -379,8 +384,9 @@ foreach ($result3 as $iter) {
 &nbsp;&nbsp;&nbsp;
 <span class=text><? xl('Groupname','e'); ?>: </span>
 <select name=groupname>
-<?
+<?php
 $res = sqlStatement("select distinct name from groups");
+$result2 = array();
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
   $result2[$iter] = $row;
 foreach ($result2 as $iter) {
@@ -394,13 +400,14 @@ foreach ($result2 as $iter) {
 </td>
 
 </tr>
+
 </table>
 
 <hr>
 
 <table border=0 cellpadding=1 cellspacing=2>
 <tr><td><span class=bold><? xl('Username','e'); ?></span></td><td><span class=bold><? xl('Real Name','e'); ?></span></td><td><span class=bold><? xl('Info','e'); ?></span></td><td><span class=bold><? xl('Authorized','e'); ?>?</span></td></tr>
-<?
+<?php
 $res = sqlStatement("select * from users where username != '' order by username");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
   $result4[$iter] = $row;
@@ -428,25 +435,27 @@ foreach ($result4 as $iter) {
 
 <hr>
 
-<?
-$res = sqlStatement("select * from groups order by name");
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-  $result5[$iter] = $row;
+<?php
+if (empty($GLOBALS['disable_non_default_groups'])) {
+  $res = sqlStatement("select * from groups order by name");
+  for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+    $result5[$iter] = $row;
 
-foreach ($result5 as $iter) {
-  $grouplist{$iter{"name"}} .= $iter{"user"} .
-    "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
-    $iter{"id"} . "' onclick='top.restoreSession()'>Remove</a>), ";
-}
+  foreach ($result5 as $iter) {
+    $grouplist{$iter{"name"}} .= $iter{"user"} .
+      "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
+      $iter{"id"} . "' onclick='top.restoreSession()'>Remove</a>), ";
+  }
 
-foreach ($grouplist as $groupname => $list) {
-  print "<span class=bold>" . $groupname . "</span><br>\n<span class=text>" .
-    substr($list,0,strlen($list)-2) . "</span><br>\n";
+  foreach ($grouplist as $groupname => $list) {
+    print "<span class=bold>" . $groupname . "</span><br>\n<span class=text>" .
+      substr($list,0,strlen($list)-2) . "</span><br>\n";
+  }
 }
 ?>
 
 <script language="JavaScript">
-<?
+<?php
   if ($alertmsg = trim($alertmsg)) {
     echo "alert('$alertmsg');\n";
   }
