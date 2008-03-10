@@ -428,6 +428,7 @@ echo " </tr>\n";
    <?php xl('Search','e'); ?>&nbsp;
 <?
   foreach ($code_types as $key => $value) {
+    if (!empty($value['nofs'])) continue;
     echo "   <input type='radio' name='search_type' value='$key'";
     if ($key == $default_search_type) echo " checked";
     echo " />$key&nbsp;\n";
@@ -450,7 +451,7 @@ echo " </tr>\n";
  <tr>
   <td class='billcell'><b><?php xl('Type','e');?></b></td>
   <td class='billcell'><b><?php xl('Code','e');?></b></td>
-<? if (modifiers_are_used()) { ?>
+<? if (modifiers_are_used(true)) { ?>
   <td class='billcell'><b><?php xl('Mod','e');?></b></td>
 <? } ?>
 <? if (fees_are_used()) { ?>
@@ -524,7 +525,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
     echo "  <td class='billcell'>&nbsp;</td>\n";
   }
   if ($billed) {
-    if (modifiers_are_used()) {
+    if (modifiers_are_used(true)) {
       echo "  <td class='billcell'>$strike1$modifier$strike2" .
         "<input type='hidden' name='bill[$lino][mod]' value='$modifier'></td>\n";
     }
@@ -542,7 +543,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
     echo "  <td class='billcell' align='center'><input type='checkbox'" .
       " disabled /></td>\n";
   } else {
-    if (modifiers_are_used()) {
+    if (modifiers_are_used(true)) {
       if ($codetype != 'COPAY' && ($code_types[$codetype]['mod'] || $modifier)) {
         echo "  <td class='billcell'><input type='text' name='bill[$lino][mod]' " .
           "value='$modifier' size='" . $code_types[$codetype]['mod'] . "'></td>\n";
@@ -670,7 +671,7 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
   echo "<input type='hidden' name='prod[$lino][billed]' value='$billed'>";
   echo "</td>\n";
   echo "  <td class='billcell'>$strike1$drug_id$strike2</td>\n";
-  if (modifiers_are_used()) {
+  if (modifiers_are_used(true)) {
     echo "  <td class='billcell'>&nbsp;</td>\n";
   }
   if ($billed) {
