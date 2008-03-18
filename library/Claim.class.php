@@ -180,7 +180,9 @@ class Claim {
       "ORDER BY forms.date";
     $this->billing_options = sqlQuery($sql);
 
-    $referrer_id = empty($GLOBALS['ReferrerIsRenderer']) ? $this->patient_data['providerID'] : $provider_id;
+    $referrer_id = (empty($GLOBALS['MedicareReferrerIsRenderer']) ||
+      $this->insurance_numbers['provider_number_type'] != '1C') ?
+      $this->patient_data['providerID'] : $provider_id;
     $sql = "SELECT * FROM users WHERE id = '$referrer_id'";
     $this->referrer = sqlQuery($sql);
     if (!$this->referrer) $this->referrer = array();
