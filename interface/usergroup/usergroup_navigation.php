@@ -68,8 +68,8 @@ include_once("../../library/acl.inc");
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../batchcom/batchcom.php"
  onclick="top.restoreSession()"
- title="Batch Communication and Export"><?xl('BatchCom','e');?></a>&nbsp;
-</td>
+   title="Batch Communication and Export"><?xl('Notification','e');?></a>&nbsp;
+     </td>
 <? } ?>
 
 <? if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) { ?>
