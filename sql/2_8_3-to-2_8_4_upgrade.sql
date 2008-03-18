@@ -229,3 +229,6 @@ ALTER TABLE `users`
 
 ALTER TABLE drugs
   ADD related_code varchar(255)  NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code';
+
+ALTER TABLE billing
+  MODIFY `justify` varchar(255) NOT NULL DEFAULT '';

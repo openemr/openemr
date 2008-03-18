@@ -105,7 +105,7 @@ CREATE TABLE `billing` (
   `modifier` varchar(5) character set utf8 collate utf8_unicode_ci default NULL,
   `units` tinyint(3) default NULL,
   `fee` decimal(7,2) default NULL,
-  `justify` varchar(35) character set utf8 collate utf8_unicode_ci default NULL,
+  `justify` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `target` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
   `x12_partner_id` int(11) default NULL,
   `ndc_info` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
