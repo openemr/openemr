@@ -10,6 +10,7 @@
  require_once("$srcdir/acl.inc");
  require_once("drugs.inc.php");
 
+ $alertmsg = '';
  $drug_id = $_REQUEST['drug'];
  $info_msg = "";
  $tmpl_line_no = 0;
@@ -125,9 +126,23 @@ function sel_related() {
 
 <body <?php echo $top_bg_line;?>>
 <?php
- // If we are saving, then save and close the window.
- //
- if ($_POST['form_save'] || $_POST['form_delete']) {
+// If we are saving, then save and close the window.
+// First check for duplicates.
+//
+if ($_POST['form_save']) {
+  $crow = sqlQuery("SELECT COUNT(*) AS count FROM drugs WHERE " .
+    "name = '"  . escapedff('form_name')  . "' AND " .
+    "form = '"  . escapedff('form_form')  . "' AND " .
+    "size = '"  . escapedff('form_size')  . "' AND " .
+    "unit = '"  . escapedff('form_unit')  . "' AND " .
+    "route = '" . escapedff('form_route') . "' AND " .
+    "drug_id != '$drug_id'");
+  if ($crow['count']) {
+    $alertmsg = "Cannot add this entry because it already exists!";
+  }
+}
+
+if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
   $new_drug = false;
   if ($drug_id) {
    if ($_POST['form_save']) { // updating an existing drug
@@ -226,13 +241,13 @@ function sel_related() {
   }
   echo "</script></body></html>\n";
   exit();
- }
+}
 
- if ($drug_id) {
+if ($drug_id) {
   $row = sqlQuery("SELECT * FROM drugs WHERE drug_id = '$drug_id'");
   $tres = sqlStatement("SELECT * FROM drug_templates WHERE " .
    "drug_id = '$drug_id' ORDER BY selector");
- }
+}
 ?>
 
 <form method='post' name='theform' action='add_edit_drug.php?drug=<?php echo $drug_id; ?>'>
@@ -406,5 +421,14 @@ function sel_related() {
 
 </center>
 </form>
+
+<script language="JavaScript">
+<?php
+ if ($alertmsg) {
+  echo "alert('" . htmlentities($alertmsg) . "');\n";
+ }
+?>
+</script>
+
 </body>
 </html>

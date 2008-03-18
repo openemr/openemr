@@ -24,9 +24,9 @@ function bucks($amount) {
   return '';
 }
 
+$alertmsg = '';
 $pagesize = 100;
-
-$mode    = $_POST['mode'];
+$mode = $_POST['mode'];
 $code_id = 0;
 $related_code = '';
 
@@ -51,40 +51,51 @@ if (isset($mode)) {
     sqlStatement("DELETE FROM codes WHERE id = '$code_id'");
     $code_id = 0;
   }
-  else if ($mode == "add") {
-    $sql =
-      "code = '"         . ffescape($code)         . "', " .
-      "code_type = '"    . ffescape($code_type)    . "', " .
-      "code_text = '"    . ffescape($code_text)    . "', " .
-      "modifier = '"     . ffescape($modifier)     . "', " .
-      // "units = '"        . ffescape($units)        . "', " .
-      // "superbill = '"    . ffescape($superbill)    . "', " .
-      "related_code = '" . ffescape($related_code) . "', " .
-      "taxrates = '"     . ffescape($taxrates)     . "'";
-    if ($code_id) {
-      $query = "UPDATE codes SET $sql WHERE id = '$code_id'";
-      // echo "<!-- $query -->\n"; // debugging
-      sqlStatement($query);
-      sqlStatement("DELETE FROM prices WHERE pr_id = '$code_id' AND " .
-        "pr_selector = ''");
+  else if ($mode == "add") { // this covers both adding and modifying
+    $crow = sqlQuery("SELECT COUNT(*) AS count FROM codes WHERE " .
+      "code_type = '"    . ffescape($code_type)    . "' AND " .
+      "code = '"         . ffescape($code)         . "' AND " .
+      "modifier = '"     . ffescape($modifier)     . "' AND " .
+      "id != '$code_id'");
+    if ($crow['count']) {
+      $alertmsg = "Cannot add/update this entry because a duplicate already exists!";
     }
     else {
-      $code_id = sqlInsert("INSERT INTO codes SET $sql");
-    }
-    foreach ($_POST['fee'] as $key => $value) {
-      $value = $value + 0;
-      if ($value) {
-        sqlStatement("INSERT INTO prices ( " .
-          "pr_id, pr_selector, pr_level, pr_price ) VALUES ( " .
-          "'$code_id', '', '$key', '$value' )");
+      $sql =
+        "code = '"         . ffescape($code)         . "', " .
+        "code_type = '"    . ffescape($code_type)    . "', " .
+        "code_text = '"    . ffescape($code_text)    . "', " .
+        "modifier = '"     . ffescape($modifier)     . "', " .
+        // "units = '"        . ffescape($units)        . "', " .
+        // "superbill = '"    . ffescape($superbill)    . "', " .
+        "related_code = '" . ffescape($related_code) . "', " .
+        "taxrates = '"     . ffescape($taxrates)     . "'";
+      if ($code_id) {
+        $query = "UPDATE codes SET $sql WHERE id = '$code_id'";
+        sqlStatement($query);
+        sqlStatement("DELETE FROM prices WHERE pr_id = '$code_id' AND " .
+          "pr_selector = ''");
+      }
+      else {
+        $code_id = sqlInsert("INSERT INTO codes SET $sql");
+      }
+      if (!$alertmsg) {
+        foreach ($_POST['fee'] as $key => $value) {
+          $value = $value + 0;
+          if ($value) {
+            sqlStatement("INSERT INTO prices ( " .
+              "pr_id, pr_selector, pr_level, pr_price ) VALUES ( " .
+              "'$code_id', '', '$key', '$value' )");
+          }
+        }
+        $code = $code_type = $code_text = $modifier = $superbill = "";
+        $code_id = 0;
+        $related_code = '';
+        $taxrates = '';
       }
     }
-    $code = $code_type = $code_text = $modifier = $superbill = "";
-    $code_id = 0;
-    $related_code = '';
-    $taxrates = '';
   }
-  else if ($mode == "edit") {
+  else if ($mode == "edit") { // someone clicked [Edit]
     $sql = "SELECT * FROM codes WHERE id = '$code_id'";
     $results = sqlQ($sql);
     while ($row = mysql_fetch_assoc($results)) {
@@ -262,8 +273,12 @@ function submitDelete(id) {
    &nbsp;&nbsp;
    <?php xl('Code','e'); ?>:
    <input type='text' size='6' name='code' value='<?php echo $code ?>'>
+<?php if (modifiers_are_used()) { ?>
    &nbsp;&nbsp;<?php xl('Modifier','e'); ?>:
    <input type='text' size='3' name='modifier' value='<?php echo $modifier ?>'>
+<?php } else { ?>
+   <input type='hidden' name='modifier' value='<?php echo $modifier ?>'>
+<?php } ?>
   </td>
  </tr>
 
@@ -275,7 +290,7 @@ function submitDelete(id) {
   </td>
  </tr>
 
- <tr>
+ <tr<?php if (!related_codes_are_used()) echo " style='display:none'"; ?>>
   <td><?php xl('Relate To','e'); ?>:</td>
   <td></td>
   <td>
@@ -461,6 +476,14 @@ if (!empty($all)) {
 </table>
 
 </center>
+
+<script language="JavaScript">
+<?php
+ if ($alertmsg) {
+  echo "alert('" . htmlentities($alertmsg) . "');\n";
+ }
+?>
+</script>
 
 </body>
 </html>
