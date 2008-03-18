@@ -285,7 +285,7 @@ if ($fres) {
 <tr>
 <td><span class="text"><? xl('Calendar UI','e'); ?>: </span></td><td><select name="cal_ui">
 <?php
- foreach (array(1 => xl('Default'), 2 => xl('Fancy')) as $key => $value)
+ foreach (array(1 => xl('Default'), 2 => xl('Fancy'), 3 => xl('Outlook')) as $key => $value)
  {
   echo " <option value='$key'";
   if ($key == $iter['cal_ui']) echo " selected";

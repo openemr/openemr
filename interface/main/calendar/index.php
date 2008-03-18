@@ -29,7 +29,6 @@
 
 // include base api
 
-
 //$ignoreAuth = true;
 include_once("../../globals.php");
 include_once("$srcdir/calendar.inc");
@@ -44,7 +43,9 @@ if ($_POST['pc_username']) $_SESSION['pc_username'] = $_POST['pc_username'];
 if ($_POST['all_users']) $_SESSION['pc_username'] = $_POST['all_users'];
 
 // bug fix to allow default selection of a provider
+// added 'if..POST' check -- JRM
 if ($_GET['pc_username']) $_SESSION['pc_username'] = $_GET['pc_username'];
+if ($_POST['pc_username']) $_SESSION['pc_username'] = $_POST['pc_username'];
 
 // (CHEMED) Get the width of vieport
 if ($_GET['framewidth']) $_SESSION['pc_framewidth'] = $_GET['framewidth'];
@@ -54,10 +55,19 @@ $_SESSION['pc_facility'] = 0;
 if ($_POST['pc_facility'])  $_SESSION['pc_facility'] = $_POST['pc_facility'];
 if ($_GET['pc_facility'])  $_SESSION['pc_facility'] = $_GET['pc_facility'];
 
+// allow tracking of current viewtype -- JRM
+if ($_GET['viewtype']) $_SESSION['viewtype'] = $_GET['viewtype'];
+if ($_POST['viewtype']) $_SESSION['viewtype'] = $_POST['viewtype'];
+
 //if (empty($_GET['no_nav'])) {
 //        $_SESSION['last_calendar_page'] = $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING'];
 //}
-
+/*
+print_r($_POST);
+print_r($_GET);
+print_r($_SESSION);
+die;
+*/
 //print_r($_SESSION);
 // start PN
 pnInit();
@@ -113,9 +123,6 @@ if ($modinfo['type'] == 2)
     } else {
         $return = false;
     }
-
-
-
 
     // Sort out return of function.  Can be
     // true - finished
@@ -181,8 +188,6 @@ if ($modinfo['type'] == 2)
             break;
     }
 
-
 }
-
 
 ?>

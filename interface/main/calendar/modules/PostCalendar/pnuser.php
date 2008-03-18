@@ -67,6 +67,11 @@ function postcalendar_user_view()
                                           'jumpyear');
     $Date =& postcalendar_getDate();
     if(!isset($viewtype))   $viewtype = _SETTING_DEFAULT_VIEW;
+    
+    // added to allow the view & providers to remain as the user last saw it -- JRM
+    if ($_SESSION['viewtype']) $viewtype = $_SESSION['viewtype'];
+    if ($_SESSION['pc_username']) $pc_username = $_SESSION['pc_username'];
+
     return postcalendar_user_display(array('viewtype'=>$viewtype,'Date'=>$Date,'print'=>$print)) . postcalendar_footer();
 }
 
@@ -80,6 +85,9 @@ function postcalendar_user_display($args)
     list($eid, $viewtype, $tplview,
 		 $pc_username, $Date, $print, $category, $topic, $pc_facility) = pnVarCleanFromInput('eid', 'viewtype', 'tplview',
 		                                                 'pc_username', 'Date', 'print', 'pc_category', 'pc_topic', 'pc_facility');
+    // added to allow the view & providers to remain as the user last saw it -- JRM
+    if ($_SESSION['viewtype']) $viewtype = $_SESSION['viewtype'];
+    if ($_SESSION['pc_username']) $pc_username = $_SESSION['pc_username'];
 
 	extract($args);
     if(empty($Date) && empty($viewtype)) {
@@ -828,7 +836,6 @@ function postcalendar_user_submit($args)
  */
 function postcalendar_user_search()
 {
-
     if (!(bool)PC_ACCESS_OVERVIEW) {
         return _POSTCALENDARNOAUTH;
     }
@@ -852,7 +859,6 @@ function postcalendar_user_search()
 	$tpl->assign('event_dur_minutes', $event_dur_minutes);
 
 	$ProviderID = pnVarCleanFromInput("provider_id");
-	//echo "prov is: " . $ProviderID . "<br />";
 	if (is_numeric($ProviderID)) {
 	  $tpl->assign('ProviderID',			$ProviderID);;
 	}

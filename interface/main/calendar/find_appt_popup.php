@@ -168,13 +168,22 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show(); ?>
 <title><?php xl('Find Available Appointments','e'); ?></title>
 <link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }
 </style>
+
+<!-- for the pop up calendar -->
+<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+
+<!-- for ajax-y stuff -->
+<script type="text/javascript" src="/openemr/library/js/jquery-1.2.2.min.js"></script>
 
 <script language="JavaScript">
 
@@ -189,102 +198,172 @@ td { font-size:10pt; }
 
 </script>
 
+
+<style>
+body {
+    font-size: 1em;
+    font-family: helvetica, arial;
+}
+form {
+    /* this eliminates the padding normally around a FORM tag */
+    padding: 0px;
+    margin: 0px;
+}
+#searchCriteria {
+    text-align: center;
+    width: 100%;
+    font-size: 0.8em;
+    background-color: #ddddff;
+    font-weight: bold;
+    padding: 3px;
+}
+#searchResultsHeader { 
+    width: 100%;
+    background-color: lightgrey;
+}
+#searchResultsHeader table { 
+    width: 96%;  /* not 100% because the 'searchResults' table has a scrollbar */
+    border-collapse: collapse;
+}
+#searchResultsHeader th {
+    font-size: 0.7em;
+}
+#searchResults {
+    width: 100%;
+    height: 350px; 
+    overflow: auto;
+}
+
+.srDate { width: 20%; }
+.srTimes { width: 80%; }
+
+#searchResults table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+}
+#searchResults td {
+    font-size: 0.7em;
+    border-bottom: 1px solid gray;
+    padding: 1px 5px 1px 5px;
+}
+.highlight { background-color: yellow; }
+#am {
+    border-bottom: 1px solid lightgrey;
+}
+#pm {
+}
+</style>
+
 </head>
 
 <body <?php echo $top_bg_line;?>>
-<?
-?>
+
+<div id="searchCriteria">
 <form method='post' name='theform' action='find_appt_popup.php?providerid=<?php echo $providerid ?>&catid=<?php echo $input_catid ?>'>
-<center>
-
-<table border='0' cellpadding='5' cellspacing='0'>
-
- <tr>
-  <td height="1">
-  </td>
- </tr>
-
- <tr bgcolor='#ddddff'>
-  <td>
-   <b>
    <?php xl('Start date:','e'); ?>
    <input type='text' name='startdate' size='10' value='<? echo $sdate ?>'
     title='yyyy-mm-dd starting date for search' />
+   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
    <?php xl('for','e'); ?>
    <input type='text' name='searchdays' size='3' value='<? echo $searchdays ?>'
     title='Number of days to search from the start date' />
    <?php xl('days','e'); ?>&nbsp;
    <input type='submit' value='<?php xl('Search','e'); ?>'>
-   </b>
-  </td>
- </tr>
+</div>
 
+<?php if (!empty($slots)) : ?>
+
+<div id="searchResultsHeader">
+<table>
  <tr>
-  <td height="1">
-  </td>
+  <th class="srDate"><?php xl ('Day','e'); ?></th>
+  <th class="srTimes"><?php xl ('Available Times','e'); ?></th>
  </tr>
-
 </table>
+</div>
 
-<? if (!empty($slots)) { ?>
+<div id="searchResults">
+<table> 
+<?php
+    $lastdate = "";
+    $ampmFlag = "am"; // establish an AM-PM line break flag
+    for ($i = 0; $i < $slotcount; ++$i) {
 
-<table border='0'>
- <tr>
-  <td><b><?php xl('Day','e'); ?></b></td>
-  <td><b><?php xl('Date','e'); ?></b></td>
-  <td><b><?php xl('Available Times','e'); ?></b><?php xl('(red = p.m.)','e'); ?></td>
- </tr>
-<?
-  $lastdate = "";
-  for ($i = 0; $i < $slotcount; ++$i) {
+        $available = true;
+        for ($j = $i; $j < $i + $catslots; ++$j) {
+            if ($slots[$j] >= 4) $available = false;
+        }
+        if (!$available) continue; // skip reserved slots
 
-   $available = true;
-   for ($j = $i; $j < $i + $catslots; ++$j) {
-    if ($slots[$j] >= 4) $available = false;
-   }
-   if (!$available) continue; // skip reserved slots
+        $utime = ($slotbase + $i) * $slotsecs;
+        $thisdate = date("Y-m-d", $utime);
+        if ($thisdate != $lastdate) { // if a new day, start a new row
+            if ($lastdate) {
+                echo "</div>";
+                echo "</td>\n";
+                echo " </tr>\n";
+            }
+            $lastdate = $thisdate;
+            echo " <tr class='oneresult'>\n";
+            echo "  <td class='srDate'>" . date("l", $utime)."<br>".date("Y-m-d", $utime) . "</td>\n";
+            echo "  <td class='srTimes'>";
+            echo "<div id='am'>AM ";
+            $ampmFlag = "am";  // reset the AMPM flag
+        }
+        
+        $ampm = date('a', $utime);
+        if ($ampmFlag != $ampm) { echo "</div><div id='pm'>PM "; }
+        $ampmFlag = $ampm;
 
-   $utime = ($slotbase + $i) * $slotsecs;
-   $thisdate = date("Y-m-d", $utime);
-   if ($thisdate != $lastdate) { // if a new day, start a new row
-    if ($lastdate) {
-     echo "</td>\n";
-     echo " </tr>\n";
+        $atitle = "Choose ".date("h:i a", $utime);
+        $adate = getdate($utime);
+        $anchor = "<a href='' style='color:" .
+            ($ampm == 'am' ? '#0000cc' : '#cc0000') .
+            "' onclick='return setappt(" .
+            $adate['year'] . "," .
+            $adate['mon'] . "," .
+            $adate['mday'] . "," .
+            $adate['hours'] . "," .
+            $adate['minutes'] . ")'".
+            " title='$atitle' alt='$atitle'".
+            ">";
+        echo (strlen(date('g',$utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
+            $anchor . date("g:i", $utime) . "</a> ";
+
+        // If category duration is more than 1 slot, increment $i appropriately.
+        // This is to avoid reporting available times on undesirable boundaries.
+        $i += $catslots - 1;
     }
-    $lastdate = $thisdate;
-    echo " <tr>\n";
-    echo "  <td valign='top'>" . date("l", $utime) . "</td>\n";
-    echo "  <td valign='top'>" . date("Y-m-d", $utime) . "</td>\n";
-    echo "  <td valign='top'>";
-   }
-   $adate = getdate($utime);
-   $anchor = "<a href='' style='color:" .
-    (date('a', $utime) == 'am' ? '#0000cc' : '#cc0000') .
-    "' onclick='return setappt(" .
-    $adate['year'] . "," .
-    $adate['mon'] . "," .
-    $adate['mday'] . "," .
-    $adate['hours'] . "," .
-    $adate['minutes'] . ")'>";
-   echo (strlen(date('g',$utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
-    $anchor . date("g:i", $utime) . "</a> ";
-
-   // If category duration is more than 1 slot, increment $i appropriately.
-   // This is to avoid reporting available times on undesirable boundaries.
-   $i += $catslots - 1;
-  }
-  if ($lastdate) {
-   echo "</td>\n";
-   echo " </tr>\n";
-  } else {
-   echo " <tr><td colspan='3'> " . xl('No openings were found for this period.','e') . "</td></tr>\n";
-  }
+    if ($lastdate) {
+        echo "</td>\n";
+        echo " </tr>\n";
+    } else {
+        echo " <tr><td colspan='2'> " . xl('No openings were found for this period.','e') . "</td></tr>\n";
+    }
 ?>
 </table>
+</div>
+</div>
+<?php endif; ?>
 
-<? } ?>
-
-</center>
 </form>
 </body>
+
+<!-- for the pop up calendar -->
+<script language='JavaScript'>
+ Calendar.setup({inputField:"startdate", ifFormat:"%Y-%m-%d", button:"img_date"});
+
+// jQuery stuff to make the page a little easier to use
+
+$(document).ready(function(){
+    $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
+    $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
+    //$(".event").dblclick(function() { EditEvent(this); });
+});
+
+</script>
+
 </html>

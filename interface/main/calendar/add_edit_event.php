@@ -521,8 +521,8 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
 <html>
 <head>
 <?php html_header_show(); ?>
-<title><? echo $eid ? "Edit" : "Add New" ?> <?php xl('Event','e');?></title>
-<link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
+<title><?php echo $eid ? "Edit" : "Add New" ?> <?php xl('Event','e');?></title>
+<link rel=stylesheet href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }
@@ -538,7 +538,7 @@ td { font-size:10pt; }
 
 <script language="JavaScript">
 
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  var durations = new Array();
  // var rectypes  = new Array();
@@ -686,20 +686,24 @@ td { font-size:10pt; }
   f.form_minute.value = ('' + (minutes + 100)).substring(1);
  }
 
- // Invoke the find-available popup.
- function find_available() {
-  top.restoreSession();
-  // (CHEMED) Conditional value selection, because there is no <select> element when making an appointment for a specific provider
-  <?php if ($userid != 0) { ?>
-      var s = document.forms[0].form_provider.value;
-  <?php } else {?>
-      var s = document.forms[0].form_provider.options[s.selectedIndex].value;
-  <?php }?>
-  var c = document.forms[0].form_category;
-  dlgopen('find_appt_popup.php?providerid=' + s +
-   '&catid=' + c.options[c.selectedIndex].value, '_blank', 500, 400);
-  //END (CHEMED) modifications
- }
+    // Invoke the find-available popup.
+    function find_available() {
+        top.restoreSession();
+        // (CHEMED) Conditional value selection, because there is no <select> element 
+        // when making an appointment for a specific provider
+        var s = document.forms[0].form_provider;
+        <?php if ($userid != 0) { ?>
+            s = document.forms[0].form_provider.value;
+        <?php } else {?>
+            s = document.forms[0].form_provider.options[s.selectedIndex].value;
+        <?php }?>
+        var c = document.forms[0].form_category;
+        var formDate = document.forms[0].form_date;
+        dlgopen('find_appt_popup.php?providerid=' + s +
+                '&catid=' + c.options[c.selectedIndex].value +
+                '&startdate=' + formDate.value, '_blank', 500, 400);
+        //END (CHEMED) modifications
+    }
 
  // Check for errors when the form is submitted.
  function validate() {
@@ -717,9 +721,9 @@ td { font-size:10pt; }
 
 </head>
 
-<body <?echo $top_bg_line;?> onunload='imclosing()'>
+<body <?php echo $top_bg_line;?> onunload='imclosing()'>
 
-<form method='post' name='theform' action='add_edit_event.php?eid=<? echo $eid ?>'
+<form method='post' name='theform' action='add_edit_event.php?eid=<?php echo $eid ?>'
  onsubmit='return validate()'>
 <center>
 
@@ -727,75 +731,75 @@ td { font-size:10pt; }
 
  <tr>
   <td width='1%' nowrap>
-   <b><? xl('Category','e'); ?>:</b>
+   <b><?php xl('Category','e'); ?>:</b>
   </td>
   <td nowrap>
    <select name='form_category' onchange='set_category()' style='width:100%'>
-<? echo $catoptions ?>
+<?php echo $catoptions ?>
    </select>
   </td>
   <td width='1%' nowrap>
    &nbsp;&nbsp;
    <input type='radio' name='form_allday' onclick='set_allday()' value='1' id='rballday1'
-    <? if ($thisduration == 1440) echo "checked " ?>/>
+    <?php if ($thisduration == 1440) echo "checked " ?>/>
   </td>
   <td colspan='2' nowrap id='tdallday1'>
-   <? xl('All day event','e'); ?>
+   <?php xl('All day event','e'); ?>
   </td>
  </tr>
 
  <tr>
   <td nowrap>
-   <b><? xl('Date','e'); ?>:</b>
+   <b><?php xl('Date','e'); ?>:</b>
   </td>
   <td nowrap>
    <input type='text' size='10' name='form_date' id='form_date'
-    value='<? echo $eid ? $row['pc_eventDate'] : $date ?>'
+    value='<?php echo $eid ? $row['pc_eventDate'] : $date ?>'
     title='<?php xl('yyyy-mm-dd event date or starting date','e'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_date' border='0' alt='[?]' style='cursor:pointer'
+    id='img_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
     title='<?php xl('Click here to choose a date','e'); ?>'>
   </td>
   <td nowrap>
    &nbsp;&nbsp;
    <input type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2'
-    <? if ($thisduration != 1440) echo "checked " ?>/>
+    <?php if ($thisduration != 1440) echo "checked " ?>/>
   </td>
   <td width='1%' nowrap id='tdallday2'>
-   <? xl('Time','e'); ?>
+   <?php xl('Time','e'); ?>
   </td>
   <td width='1%' nowrap id='tdallday3'>
    <input type='text' size='2' name='form_hour'
-    value='<? echo $starttimeh ?>'
+    value='<?php echo $starttimeh ?>'
     title='<?php xl('Event start time','e'); ?>' /> :
    <input type='text' size='2' name='form_minute'
-    value='<? echo $starttimem ?>'
+    value='<?php echo $starttimem ?>'
     title='<?php xl('Event start time','e'); ?>' />&nbsp;
    <select name='form_ampm' title='Note: 12:00 noon is PM, not AM'>
     <option value='1'><?php xl('AM','e'); ?></option>
-    <option value='2'<? if ($startampm == '2') echo " selected" ?>><?php xl('PM','e'); ?></option>
+    <option value='2'<?php if ($startampm == '2') echo " selected" ?>><?php xl('PM','e'); ?></option>
    </select>
   </td>
  </tr>
  <tr>
   <td nowrap>
-   <b><? xl('Title','e'); ?>:</b>
+   <b><?php xl('Title','e'); ?>:</b>
   </td>
   <td nowrap>
    <input type='text' size='10' name='form_title'
-    value='<? echo addslashes($row['pc_title']) ?>'
+    value='<?php echo addslashes($row['pc_title']) ?>'
     style='width:100%'
     title='<?php xl('Event title','e'); ?>' />
   </td>
   <td nowrap>
    &nbsp;
   </td>
-  <td nowrap id='tdallday4'><? xl('duration','e'); ?>
+  <td nowrap id='tdallday4'><?php xl('duration','e'); ?>
   </td>
   <td nowrap id='tdallday5'>
-   <input type='text' size='4' name='form_duration' value='<? echo $thisduration ?>'
-    title='<?php xl('Event duration in minutes','e'); ?>' /> <? xl('minutes','e'); ?>
+   <input type='text' size='4' name='form_duration' value='<?php echo $thisduration ?>'
+    title='<?php xl('Event duration in minutes','e'); ?>' /> <?php xl('minutes','e'); ?>
   </td>
  </tr>
 
@@ -831,22 +835,22 @@ td { font-size:10pt; }
 
  <tr>
   <td nowrap>
-   <b><? xl('Patient','e'); ?>:</b>
+   <b><?php xl('Patient','e'); ?>:</b>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_patient' style='width:100%'
-    value='<? echo $patientname ?>' onclick='sel_patient()'
+   <input type='text' size='10' name='form_patient' style='width:100%;cursor:pointer;cursor:hand'
+    value='<?php echo $patientname ?>' onclick='sel_patient()'
     title='<?php xl('Click to select patient','e'); ?>' readonly />
-   <input type='hidden' name='form_pid' value='<? echo $patientid ?>' />
+   <input type='hidden' name='form_pid' value='<?php echo $patientid ?>' />
   </td>
   <td colspan='3' nowrap style='font-size:8pt'>
-   &nbsp;<? echo $patienttitle ?>
+   &nbsp;<?php echo $patienttitle ?>
   </td>
  </tr>
 
  <tr>
   <td nowrap>
-   <b><? xl('Provider','e'); ?>:</b>
+   <b><?php xl('Provider','e'); ?>:</b>
   </td>
   <td nowrap>
 
@@ -906,7 +910,7 @@ if ($eid) {
    <?php } else {?>
 
     <select name='form_provider' style='width:100%' <?php if ($userid != 0) {echo "readonly=readonly";}/*{CHEMED}*/ ?>>
-    <?
+    <?php
      while ($urow = sqlFetchArray($ures)) {
       echo "    <option value='" . $urow['id'] . "'";
       if ($userid) {
@@ -932,14 +936,14 @@ if ($eid) {
   <td nowrap>
    &nbsp;&nbsp;
    <input type='checkbox' name='form_repeat' onclick='set_repeat(this)'
-    value='1'<? if ($repeats) echo " checked" ?>/>
+    value='1'<?php if ($repeats) echo " checked" ?>/>
   </td>
-  <td nowrap id='tdrepeat1'><? xl('Repeats','e'); ?>
+  <td nowrap id='tdrepeat1'><?php xl('Repeats','e'); ?>
   </td>
   <td nowrap>
 
    <select name='form_repeat_freq' title='Every, every other, every 3rd, etc.'>
-<?
+<?php
  foreach (array(1 => 'every', 2 => '2nd', 3 => '3rd', 4 => '4th', 5 => '5th', 6 => '6th')
   as $key => $value)
  {
@@ -951,7 +955,7 @@ if ($eid) {
    </select>
 
    <select name='form_repeat_type'>
-<?
+<?php
  // See common.api.php for these:
  foreach (array(0 => 'day' , 4 => 'workday', 1 => 'week', 2 => 'month', 3 => 'year')
   as $key => $value)
@@ -968,13 +972,13 @@ if ($eid) {
 
  <tr>
   <td nowrap>
-   <span id='title_apptstatus'><b><? xl('Status','e'); ?>:</b></span>
-   <span id='title_prefcat' style='display:none'><b><? xl('Pref Cat','e'); ?>:</b></span>
+   <span id='title_apptstatus'><b><?php xl('Status','e'); ?>:</b></span>
+   <span id='title_prefcat' style='display:none'><b><?php xl('Pref Cat','e'); ?>:</b></span>
   </td>
   <td nowrap>
 
    <select name='form_apptstatus' style='width:100%' title='<?php xl('Appointment status','e'); ?>'>
-<?
+<?php
  foreach ($statuses as $key => $value) {
   echo "    <option value='$key'";
   if ($key == $row['pc_apptstatus']) echo " selected";
@@ -987,33 +991,33 @@ if ($eid) {
     event, in which case form_apptstatus (above) is to be invisible.
    -->
    <select name='form_prefcat' style='width:100%;display:none' title='<?php xl('Preferred Event Category','e');?>'>
-<? echo $prefcat_options ?>
+<?php echo $prefcat_options ?>
    </select>
 
   </td>
   <td nowrap>
    &nbsp;
   </td>
-  <td nowrap id='tdrepeat2'><? xl('until','e'); ?>
+  <td nowrap id='tdrepeat2'><?php xl('until','e'); ?>
   </td>
   <td nowrap>
    <input type='text' size='10' name='form_enddate' id='form_enddate'
-    value='<? echo $row['pc_endDate'] ?>'
+    value='<?php echo $row['pc_endDate'] ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='<?php xl('yyyy-mm-dd last date of this event','e');?>' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_enddate' border='0' alt='[?]' style='cursor:pointer'
+    id='img_enddate' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
     title='<?php xl('Click here to choose a date','e');?>'>
   </td>
  </tr>
 
  <tr>
   <td nowrap>
-   <b><? xl('Comments','e'); ?>:</b>
+   <b><?php xl('Comments','e'); ?>:</b>
   </td>
   <td colspan='4' nowrap>
    <input type='text' size='40' name='form_comments' style='width:100%'
-    value='<? echo $hometext ?>'
+    value='<?php echo $hometext ?>'
     title='<?php xl('Optional information about this event','e');?>' />
   </td>
  </tr>
@@ -1028,14 +1032,14 @@ if ($eid) {
 ?>
  <tr id='dob_row' style='display:<?php echo $dobstyle ?>'>
   <td colspan='4' nowrap>
-   <b><font color='red'><? xl('DOB is missing, please enter if possible','e'); ?>:</font></b>
+   <b><font color='red'><?php xl('DOB is missing, please enter if possible','e'); ?>:</font></b>
   </td>
   <td nowrap>
    <input type='text' size='10' name='form_dob' id='form_dob'
     title='<?php xl('yyyy-mm-dd date of birth','e');?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_dob' border='0' alt='[?]' style='cursor:pointer'
+    id='img_dob' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
     title='<?php xl('Click here to choose a date','e');?>'>
   </td>
  </tr>
@@ -1047,7 +1051,7 @@ if ($eid) {
 &nbsp;
 <input type='button' value='<?php xl('Find Available','e');?>' onclick='find_available()' />
 &nbsp;
-<input type='submit' name='form_delete' value='<?php xl('Delete','e');?>'<? if (!$eid) echo " disabled" ?> />
+<input type='submit' name='form_delete' value='<?php xl('Delete','e');?>'<?php if (!$eid) echo " disabled" ?> />
 &nbsp;
 <input type='button' value='<?php xl('Cancel','e');?>' onclick='window.close()' />
 </p>
@@ -1055,11 +1059,11 @@ if ($eid) {
 </form>
 
 <script language='JavaScript'>
-<? if ($eid) { ?>
+<?php if ($eid) { ?>
  set_display();
-<? } else { ?>
+<?php } else { ?>
  set_category();
-<? } ?>
+<?php } ?>
  set_allday();
  set_repeat();
 
