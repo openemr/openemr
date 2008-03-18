@@ -1,3 +1,28 @@
+2008-03-17 Added sms/email reminder by Larry
+- interface/globals.php - added log folder, smtp settings and sms gateway access  - line 281 to 299
+- added folder log/ - to store various openemr logs
+- added folder modules/ - attempt for future modularity
+- added folder modules/sms_email_reminder - backend scripts for sms/email reminder functionality
+- modules/sms_email_reminder/cron_functions.php - general purpose functions for sms/email notification
+- modules/sms_email_reminder/cron_email_notification.php - email notification script
+- modules/sms_email_reminder/cron_sms_notification.php - sms notification script
+- modules/sms_email_reminder/sms_clickatell.php - sms class to send via clickatell
+- modules/sms_email_reminder/sms_tmb4.php - sms class to send via tmb4
+- modules/sms_email_reminder/readme.txt - quick instructions on how to set the cron jobs
+- library/classes/smtp/smtp.php, sasl.php, login_sasl_client.php - smtp access classes
+- interface/usergroup/usergroup_navigation.php - changed batchcom label to notification - line 68 to 72
+- interface/batchcom/batchcom.php - to include batch_navigation.php submenu with sms/email and setting for notifications (include the original batch com from the main menu ) - line 155 to 157
+- interface/batchcom/batch_navigation.php - sub menu added with sms/email notification front end settings
+- interface/batchcom/smsnotification.php - sms notification setup page
+- interface/batchcom/emailnotification.php - email notification setup page
+- interface/batchcom/settingsnotification.php - general purpose notification settings 
+- sql/database.sql:
+   - added in table patient_data at line 5060 - 5061 hipaa_allowsms and hipaa_allowemail
+   - added in table openemr_postcalendar_events at line 4927-4928 pc_sendalertsms and pc_sendalertemail
+   - insert in layout_options from line 4621-4622 hipaa_allowsms and hipaa_allowemail
+   - added at the buttom from line 5549 tables automatic_notification, notification_log, notification_settings
+- sql/add_sms_email_reminder.sql - just changes to apply to upgrade db to sms/email reminder func
+------------------------------------------------------------------------
 2008-02-04 Changes made to OpenEMR by CHEMED
 1. Each user is associated with one facility (Default Facility) in the interface
 2. Calendar will not be able to schedule appointments in a facility other than default for the user.
