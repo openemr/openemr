@@ -232,3 +232,6 @@ ALTER TABLE drugs
 
 ALTER TABLE billing
   MODIFY `justify` varchar(255) NOT NULL DEFAULT '';
+
+ALTER TABLE prescriptions
+  MODIFY `quantity` varchar(31) default '';

@@ -5353,7 +5353,7 @@ CREATE TABLE `prescriptions` (
   `drug_id` int(11) NOT NULL default '0',
   `form` int(3) default NULL,
   `dosage` varchar(100) character set utf8 collate utf8_unicode_ci default NULL,
-  `quantity` varchar(11) character set utf8 collate utf8_unicode_ci default NULL,
+  `quantity` varchar(31) character set utf8 collate utf8_unicode_ci default NULL,
   `size` float unsigned default NULL,
   `unit` int(11) default NULL,
   `route` int(11) default NULL,
