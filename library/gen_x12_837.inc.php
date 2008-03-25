@@ -512,13 +512,21 @@ function gen_x12_837($pid, $encounter, &$log) {
   //
   for ($ins = 1; $ins < $claim->payerCount(); ++$ins) {
 
+    $tmp1 = $claim->claimType($ins);
+    $tmp2 = 'C1'; // Here a kludge. See page 321.
+    if ($tmp1 === 'CI') $tmp2 = 'C1';
+    if ($tmp1 === 'AM') $tmp2 = 'AP';
+    if ($tmp1 === 'HM') $tmp2 = 'HM';
+    if ($tmp1 === 'MB') $tmp2 = 'MB';
+    if ($tmp1 === 'MC') $tmp2 = 'MC';
+    if ($tmp1 === '09') $tmp2 = 'PP';
     ++$edicount;
     $out .= "SBR" . // Loop 2320, Subscriber Information - page 318
       "*" . $claim->payerSequence($ins) .
       "*" . $claim->insuredRelationship($ins) .
       "*" . $claim->groupNumber($ins) .
       "*" . $claim->groupName($ins) .
-      "*" .
+      "*" . $tmp2 .
       "*" .
       "*" .
       "*" .
