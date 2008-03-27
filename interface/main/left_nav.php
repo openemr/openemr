@@ -179,11 +179,10 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
 <html>
 <head>
 <title>Navigation</title>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <style type="text/css">
  body {
-  font-family:sans-serif;
   font-size:8pt;
   font-weight:normal;
   padding: 5px 3px 5px 3px;
@@ -520,8 +519,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
 
 </head>
 
-<body <?echo $nav_bg_line;?> topmargin='0' rightmargin='4' leftmargin='2'
- bottommargin='0' marginheight='0'>
+<body class="body_nav">
 
 <form method='post' name='find_patient' target='RTop'
  action='<?php echo $rootdir ?>/main/finder/patient_select.php'>
@@ -529,9 +527,9 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
 <?php if ($GLOBALS['concurrent_layout'] == 2) { ?>
 
 <select name='sel_frame' style='background-color:transparent;font-size:9pt;width:100%;'>
- <option value='0'><? xl('Default','e'); ?></option>
- <option value='1'><? xl('Top','e'); ?></option>
- <option value='2'><? xl('Bottom','e'); ?></option>
+ <option value='0'><?php xl('Default','e'); ?></option>
+ <option value='1'><?php xl('Top','e'); ?></option>
+ <option value='2'><?php xl('Bottom','e'); ?></option>
 </select>
 
 <table cellpadding='0' cellspacing='0' border='0' width='100%'>
@@ -729,29 +727,28 @@ Active Encounter:<br />
 <b>None</b>
 </div>
 
-<select name='popups' onchange='selpopup(this)'
- style='background-color:transparent;font-size:9pt;'>
- <option value=''><? xl('Popups','e'); ?></option>
+<select name='popups' onchange='selpopup(this)' style='background-color:transparent;font-size:9pt;'>
+ <option value=''><?php xl('Popups','e'); ?></option>
 <?php if (!$disallowed['iss']) { ?>
- <option value='../patient_file/problem_encounter.php'><? xl('Issues','e'); ?></option>
+ <option value='../patient_file/problem_encounter.php'><?php xl('Issues','e'); ?></option>
 <?php } ?>
- <option value='../../custom/export_xml.php'><? xl('Export','e'); ?></option>
- <option value='../../custom/import_xml.php'><? xl('Import','e'); ?></option>
+ <option value='../../custom/export_xml.php'><?php xl('Export','e'); ?></option>
+ <option value='../../custom/import_xml.php'><?php xl('Import','e'); ?></option>
 <?php if ($GLOBALS['athletic_team']) { ?>
- <option value='../reports/players_report.php'><? xl('Roster','e'); ?></option>
+ <option value='../reports/players_report.php'><?php xl('Roster','e'); ?></option>
 <?php } ?>
- <option value='../reports/appointments_report.php?patient=<?php echo $pid ?>'><? xl('Appts','e'); ?></option>
+ <option value='../reports/appointments_report.php?patient=<?php echo $pid ?>'><?php xl('Appts','e'); ?></option>
 <?php if (file_exists("$webserver_root/custom/refer.php")) { ?>
- <option value='../../custom/refer.php'><? xl('Refer','e'); ?></option>
+ <option value='../../custom/refer.php'><?php xl('Refer','e'); ?></option>
 <?php } ?>
 <?php if (file_exists("$webserver_root/custom/fee_sheet_codes.php")) { ?>
- <option value='../patient_file/printed_fee_sheet.php'><? xl('Superbill','e'); ?></option>
+ <option value='../patient_file/printed_fee_sheet.php'><?php xl('Superbill','e'); ?></option>
 <?php } ?>
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
- <option value='../patient_file/front_payment.php'><? xl('Prepay','e'); ?></option>
- <option value='../patient_file/pos_checkout.php'><? xl('Checkout','e'); ?></option>
+ <option value='../patient_file/front_payment.php'><?php xl('Prepay','e'); ?></option>
+ <option value='../patient_file/pos_checkout.php'><?php xl('Checkout','e'); ?></option>
 <?php } else { ?>
- <option value='../patient_file/front_payment.php'><? xl('Payment','e'); ?></option>
+ <option value='../patient_file/front_payment.php'><?php xl('Payment','e'); ?></option>
 <?php } ?>
 </select>
 
@@ -787,7 +784,7 @@ Active Encounter:<br />
 <hr />
 <a href="../logout.php?auth=logout" target="_top" class="navitem" id="logout_link"
  onclick="top.restoreSession()">
-<? xl('Logout','e'); ?></a>
+<?php xl('Logout','e'); ?></a>
 
 <input type='hidden' name='findBy' value='Last' />
 

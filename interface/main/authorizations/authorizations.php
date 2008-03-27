@@ -34,30 +34,49 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <link rel='stylesheet' href="<?echo $css_header;?>" type="text/css">
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
+<style>
+#min {
+    float: right;
+    padding: 3px;
+    margin: 2px;
+    cursor: pointer; cursor: hand;
+}
+#max {
+    float: right;
+    padding: 3px;
+    margin: 2px;
+    cursor: pointer; cursor: hand;
+}
+</style>
 </head>
+<body class="body_bottom">
 
-<body <?echo $bottom_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2' bottommargin='0'
- marginwidth='2' marginheight='0'>
+<!-- 'buttons' to min/max the bottom frame -JRM -->
+<div id="max" title="Restore this information">
+<img src="<?php echo $GLOBALS['webroot']; ?>/images/max.gif">
+</div>
+<div id="min" title="Minimize this information">
+<img src="<?php echo $GLOBALS['webroot']; ?>/images/min.gif">
+</div>
 
 <?php
 	$_GET['show_all']=='yes' ? $lnkvar="'authorizations.php?show_all=no' name='Just Mine'> (".xl('Just Mine').") " : $lnkvar="'authorizations.php?show_all=yes' name='See All'>(".xl('See All').")"; 
 ?>
 
-<font class='title'><?xl('Patient Notes','e')?> </font>
+<font class='title'><?php xl('Patient Notes','e')?> </font>
 <a class='more' style='font-size:8pt;' href=<?php echo $lnkvar; ?></a> </font>
 
-<?php 
-	if ($imauthorized) { 
-?>
-<font class='title'><?xl('and ','e')?>
+<?php if ($imauthorized) { ?>
+<font class='title'><?php xl('and ','e')?>
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href='authorizations_full.php'>
 <?php } else { ?>
 <a href='authorizations_full.php' target='Main'>
 <?php } ?>
-<?xl('Authorizations','e')?><font class='more'><?echo (xl($tmore));?></font></a>
+<?php xl('Authorizations','e')?><font class='more'><?php echo (xl($tmore));?></font></a>
 <?php 
 	}
 ?>
@@ -65,7 +84,7 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 
 <?php if (!$GLOBALS['concurrent_layout']) { ?>
 <font class='more'> &nbsp;
-<a class='more' style='font-size:8pt;' href='../calendar/find_patient.php?no_nav=1&mode=reset' name='Find Patients'>(<?xl('Find Patient','e')?>)</a>
+<a class='more' href="#" id="findpatients" style='font-size:8pt;' name='Find Patients'>(<?php xl('Find Patient','e')?>)</a>
 </font>
 <?php } ?>
 
@@ -273,4 +292,30 @@ if ($authorize) {
 <?php } ?>
 
 </body>
+<script language='JavaScript'>
+
+/* added to adjust the height of this frame by the min/max buttons */
+var origRows = null;
+$(document).ready(function(){
+    $("#min").click(function() { MinimizeFrame(this); });
+    $("#max").click(function() { RestoreFrame(this); });
+    $("#findpatients").click(function() { RestoreFrame(this); document.location.href='../calendar/find_patient.php?no_nav=1&mode=reset'; return true; });
+
+    var frmset = parent.document.getElementById('Main');
+    origRows = frmset.rows;
+});
+
+var MinimizeFrame = function(eventObject) {
+    var frmset = parent.document.getElementById('Main');
+    origRows = frmset.rows;  // save the original frameset sizes
+    frmset.rows = "*, 10%";
+}
+var RestoreFrame = function(eventObject) {
+    // restore the original frameset size
+    var frmset = parent.document.getElementById('Main');
+    if (origRows != null) { frmset.rows = origRows; }
+}
+
+</script>
+
 </html>
