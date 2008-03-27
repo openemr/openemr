@@ -1,3 +1,10 @@
+body {
+    margin: 0px 0px 0px 2px;
+    /* set the base font and size for all DOM children */
+    font-family: sans-serif; 
+    font-size: 1em;  /* set the base font size for all DOM children */
+}
+
 a {
   color: #0000cc;
   text-decoration: none;
@@ -12,107 +19,107 @@ a:hover {
 }
 
 .menu {
-	font-family: sans-serif;
-	font-style: italic;
-	font-size: 11pt;
-	color: #0000cc;
-	text-decoration: none;
-	text-align: left;
+    font-family: sans-serif;
+    font-style: italic;
+    font-size: 11pt;
+    color: #0000cc;
+    text-decoration: none;
+    text-align: left;
 }
 
 .menu_selected {
-	font-family: sans-serif;
-	font-style: italic;
-	font-size: 11pt;
-	color: #000000;
-	text-decoration: none;
-	text-align: left;
+    font-family: sans-serif;
+    font-style: italic;
+    font-size: 11pt;
+    color: #000000;
+    text-decoration: none;
+    text-align: left;
 }
 
 .logout {
-	font-family: sans-serif;
-	font-style: italic;
-	font-size: 11pt;
-	color: #000000;
-	text-decoration: none;
-	text-align: right;
+    font-family: sans-serif;
+    font-style: italic;
+    font-size: 11pt;
+    color: #000000;
+    text-decoration: none;
+    text-align: right;
 }
 
 .text {
-	font-family: sans-serif;
-	text-decoration: none;
-	color: #000000;
-	font-size: 10pt;
+    font-family: sans-serif;
+    text-decoration: none;
+    color: #000000;
+    font-size: 10pt;
 }
 
 .required {
-	font-family: sans-serif;
-	text-decoration: none;
-	font-size: 10pt;
-	color: #880000;
-	font-weight: bold;
+    font-family: sans-serif;
+    text-decoration: none;
+    font-size: 10pt;
+    color: #880000;
+    font-weight: bold;
 }
 
 .bold {
-	font-family: sans-serif;
-	text-decoration: none;
-	font-size: 10pt;
-	color: #000000;
-	font-weight: bold;
+    font-family: sans-serif;
+    text-decoration: none;
+    font-size: 10pt;
+    color: #000000;
+    font-weight: bold;
 }
 
 .alert {
-	font-family: sans-serif;
-	font-size: 70%;
-	color: #FF0000;
-	text-decoration: none;
+    font-family: sans-serif;
+    font-size: 70%;
+    color: #FF0000;
+    text-decoration: none;
 }
 
 .small {
-	text-decoration: none;
-	color: #000000;
-	font-family: sans-serif;
-	font-size: 80%;
+    text-decoration: none;
+    color: #000000;
+    font-family: sans-serif;
+    font-size: 80%;
 }
 
 .link {
-	font-family: sans-serif;
-	text-decoration: none;
-	color: #0000cc;
-	font-size: 70%;
+    font-family: sans-serif;
+    text-decoration: none;
+    color: #0000cc;
+    font-size: 70%;
 }
 
 .more {
-	font-family: sans-serif;
-	text-decoration: none;
-	font-size: 70%;
+    font-family: sans-serif;
+    text-decoration: none;
+    font-size: 70%;
 }
 
 .back {
-	font-family: sans-serif;
-	text-decoration: none;
-	font-size: 70%;
+    font-family: sans-serif;
+    text-decoration: none;
+    font-size: 70%;
 }
 
 .link_selected {
-	font-family: sans-serif;
-	text-decoration: none;
-	color: #0000FF;
-	font-size: 70%;
+    font-family: sans-serif;
+    text-decoration: none;
+    color: #0000FF;
+    font-size: 70%;
 }
 
 .link_selected:visited {
-	font-family: sans-serif;
-	text-decoration: none;
-	color: #0000FF;
-	font-size: 70%;
+    font-family: sans-serif;
+    text-decoration: none;
+    color: #0000FF;
+    font-size: 70%;
 }
 
 .link_submit {
-	font-family: sans-serif;
-	text-decoration: none;
-	color: #000077;
-	font-size: 10pt;
+    font-family: sans-serif;
+    text-decoration: none;
+    color: #000077;
+    font-size: 10pt;
 }
 
 .link_submit:visited {
@@ -124,29 +131,52 @@ a:hover {
 }
 
 .items {
-	font-family: sans-serif;
-	font-size: 6pt;
+    font-family: sans-serif;
+    font-size: 6pt;
 }
 
 .title {
-	font-family: sans-serif;
-	font-size: 12pt;
-	font-weight: bold;
-	text-decoration: none;
+    font-family: sans-serif;
+    font-size: 12pt;
+    font-weight: bold;
+    text-decoration: none;
 }
 
+/* see .titlebar below */
 .title_bar {
-	font-family: sans-serif;
-	font-size: 12pt;
-	font-weight: bold;
-	text-decoration: none;
-	color: #000000;
+    font-family: sans-serif;
+    font-size: 12pt;
+    font-weight: bold;
+    text-decoration: none;
+    color: #000000;
 }
 
 .title_bar_top {
-	font-family: sans-serif;
-	font-size: 13px;
-	font-weight: bold;
-	text-decoration: none;
-	color: #000000;
+    font-family: sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #000000;
 }
+
+/*=============================================================
+ * Here we have taken variables from globals.php and turned them into CSS classes 
+ * these should be used in place of the GLOBAL variables -- JRM March 2008
+ *=============================================================*/
+.body_top { background-color: #94d6e7; }    /* $top_bg_line */
+.bgcolor2 { background-color: #94d6e7; }    /* $GLOBALS['style']['BGCOLOR2'] */
+.body_bottom { background: url('pic/aquabg.gif') repeat-y; }  /* $bottom_bg_line */
+.body_title { background-color: #aaffff; }  /* $title_bg_line */
+.body_nav { background-color: #94d6e7; }    /* $nav_bg_line */
+.body_filler { background-color: #f7f0d5; } /* $login_filler_line */
+.body_login { background: url('pic/aquabg.gif') repeat-y; } /* $login_body_line */
+.table_bg { background-color: #ccc; }           /* $table_bg */
+.bgcolor1 { background-color: #ccc; }       /* $GLOBALS['style']['BGCOLOR1'] */
+.textcolor11 { background-color: #222; }    /* $GLOBALS['style']['TEXTCOLOR11'] */
+.highlightcolor { background-color: #ddd; } /* $GLOBALS['style']['HIGHLIGHTCOLOR'] */
+.bottom_line { background: url('pic/aquabg.gif') repeat-y; }    /* $GLOBALS['style']['BOTTOM_BG_LINE'] */
+.logobar { height: 110px; }                 /* $GLOBALS['logoBarHeight'] */
+.navbar { height: 22px; }                   /* $GLOBALS['navBarHeight'] */
+.titlebar { height: 20px; }                 /* $GLOBALS['titleBarHeight'] */
+
+
