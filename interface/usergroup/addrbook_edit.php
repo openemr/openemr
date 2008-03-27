@@ -44,7 +44,7 @@
 <html>
 <head>
 <title><?php echo $userid ? "Edit" : "Add New" ?> Person</title>
-<link rel=stylesheet href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }
@@ -75,7 +75,7 @@ td { font-size:10pt; }
 
 </head>
 
-<body <?echo $top_bg_line;?>>
+<body class="body_top">
 <?php
  // If we are saving, then save and close the window.
  //

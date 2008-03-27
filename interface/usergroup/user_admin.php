@@ -9,10 +9,10 @@ require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
 <html>
 <head>
 
-<link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="body_top">
 
 <a href="usergroup_admin.php"><span class="title"><?php xl('User Administration','e'); ?></span></a>
 <br><br>
@@ -111,29 +111,29 @@ $iter = $result[0];
 <FORM NAME="user_form" METHOD="GET" ACTION="user_admin.php">
 <TABLE border=0 cellpadding=0 cellspacing=0>
 <TR>
-<TD><span class=text><? xl('Username','e'); ?>: </span></TD><TD><input type=entry name=username size=20 value="<? echo $iter["username"]; ?>" disabled> &nbsp;</td>
-<TD><span class=text><? xl('Password','e'); ?>: </span></TD><TD class='text'><input type=password name=clearPass size=20 value=""> * <? xl('Leave blank to keep password unchanged.','e'); ?></td>
+<TD><span class=text><?php xl('Username','e'); ?>: </span></TD><TD><input type=entry name=username size=20 value="<?php echo $iter["username"]; ?>" disabled> &nbsp;</td>
+<TD><span class=text><?php xl('Password','e'); ?>: </span></TD><TD class='text'><input type=password name=clearPass size=20 value=""> * <?php xl('Leave blank to keep password unchanged.','e'); ?></td>
 </TR>
 
 <TR>
 <td><span class="text">&nbsp;</span></td><td>&nbsp;</td>
-<TD><span class=text><? xl('Authorized','e'); ?>: </TD>
+<TD><span class=text><?php xl('Authorized','e'); ?>: </TD>
 <TD>
  <input type="checkbox" name="authorized"<?php if ($iter["authorized"]) echo " checked"; ?> />
- &nbsp;&nbsp;<span class='text'><? xl('Active','e'); ?>:
+ &nbsp;&nbsp;<span class='text'><?php xl('Active','e'); ?>:
  <input type="checkbox" name="active"<?php if ($iter["active"]) echo " checked"; ?> />
 </TD>
 </TR>
 
 <TR>
-<TD><span class=text><? xl('First Name','e'); ?>: </span></TD>
-<TD><input type=entry name=fname size=20 value="<? echo $iter["fname"]; ?>"></td>
-<td><span class=text><? xl('Middle Name','e'); ?>: </span></TD><td><input type=entry name=mname size=20 value="<? echo $iter["mname"]; ?>"></td>
+<TD><span class=text><?php xl('First Name','e'); ?>: </span></TD>
+<TD><input type=entry name=fname size=20 value="<?php echo $iter["fname"]; ?>"></td>
+<td><span class=text><?php xl('Middle Name','e'); ?>: </span></TD><td><input type=entry name=mname size=20 value="<?php echo $iter["mname"]; ?>"></td>
 </TR>
 
 <TR>
-<td><span class=text><? xl('Last Name','e'); ?>: </span></td><td><input type=entry name=lname size=20 value="<? echo $iter["lname"]; ?>"></td>
-<td><span class=text><? xl('Default Facility','e'); ?>: </span></td><td><select name=facility_id>
+<td><span class=text><?php xl('Last Name','e'); ?>: </span></td><td><input type=entry name=lname size=20 value="<?php echo $iter["lname"]; ?>"></td>
+<td><span class=text><?php xl('Default Facility','e'); ?>: </span></td><td><select name=facility_id>
 <?php
 $fres = sqlStatement("select * from facility where service_location != 0 order by name");
 if ($fres) {
@@ -150,13 +150,13 @@ foreach($result as $iter2) {
 </tr>
 
 <TR>
-<TD><span class=text><? xl('Federal Tax ID','e'); ?>: </span></TD><TD><input type=text name=taxid size=20 value="<? echo $iter["federaltaxid"]?>"></td>
-<TD><span class=text><? xl('Federal Drug ID','e'); ?>: </span></TD><TD><input type=text name=drugid size=20 value="<? echo $iter["federaldrugid"]?>"></td>
+<TD><span class=text><?php xl('Federal Tax ID','e'); ?>: </span></TD><TD><input type=text name=taxid size=20 value="<?php echo $iter["federaltaxid"]?>"></td>
+<TD><span class=text><?php xl('Federal Drug ID','e'); ?>: </span></TD><TD><input type=text name=drugid size=20 value="<?php echo $iter["federaldrugid"]?>"></td>
 </TR>
 
 <tr>
-<td><span class="text"><? xl('UPIN','e'); ?>: </span></td><td><input type="text" name="upin" size="20" value="<? echo $iter["upin"]?>"></td>
-<td class='text'><? xl('See Authorizations','e'); ?>: </td>
+<td><span class="text"><?php xl('UPIN','e'); ?>: </span></td><td><input type="text" name="upin" size="20" value="<?php echo $iter["upin"]?>"></td>
+<td class='text'><?php xl('See Authorizations','e'); ?>: </td>
 <td><select name="see_auth">
 <?php
  foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value)
@@ -169,13 +169,13 @@ foreach($result as $iter2) {
 </select></td>
 </tr>
 <tr>
-<td><span class="text"><? xl('NPI','e'); ?>: </span></td><td><input type="text" name="npi" size="20" value="<? echo $iter["npi"]?>"></td>
+<td><span class="text"><?php xl('NPI','e'); ?>: </span></td><td><input type="text" name="npi" size="20" value="<?php echo $iter["npi"]?>"></td>
 
-<td><span class="text"><? xl('Job Description','e'); ?>: </span></td><td><input type="text" name="job" size="20" value="<? echo $iter["specialty"]?>"></td>
+<td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="text" name="job" size="20" value="<?php echo $iter["specialty"]?>"></td>
 </tr>
 <!-- (CHEMED) Calendar UI preference -->
 <tr>
-<td><span class="text"><? xl('Calendar UI','e'); ?>: </span></td><td><select name="cal_ui">
+<td><span class="text"><?php xl('Calendar UI','e'); ?>: </span></td><td><select name="cal_ui">
 <?php
  foreach (array(1 => xl('Default'), 2 => xl('Fancy'), 3 => xl('Outlook')) as $key => $value)
  {
@@ -194,7 +194,7 @@ foreach($result as $iter2) {
  if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
 ?>
   <tr>
-  <td class='text'><? xl('Access Control','e'); ?>:</td>
+  <td class='text'><?php xl('Access Control','e'); ?>:</td>
   <td><select name="access_group[]" multiple>
   <?php
    $list_acl_groups = acl_get_group_title_list();
@@ -220,16 +220,16 @@ foreach($result as $iter2) {
 </tr>
 </table>
 
-<span class=text><? xl('Additional Info','e'); ?>:</span><br>
-<textarea name="comments" wrap=auto rows=4 cols=30><? echo $iter["info"];?></textarea>
+<span class=text><?php xl('Additional Info','e'); ?>:</span><br>
+<textarea name="comments" wrap=auto rows=4 cols=30><?php echo $iter["info"];?></textarea>
 
 <br>&nbsp;&nbsp;&nbsp;
-<INPUT TYPE="HIDDEN" NAME="id" VALUE="<? echo $_GET["id"]; ?>">
+<INPUT TYPE="HIDDEN" NAME="id" VALUE="<?php echo $_GET["id"]; ?>">
 <INPUT TYPE="HIDDEN" NAME="mode" VALUE="update">
 <INPUT TYPE="HIDDEN" NAME="newauthPass" VALUE="">
-<INPUT TYPE="Submit" VALUE=<? xl('Save Changes','e'); ?> onClick="javascript:this.form.newauthPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';">
+<INPUT TYPE="Submit" VALUE=<?php xl('Save Changes','e'); ?> onClick="javascript:this.form.newauthPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';">
 &nbsp;&nbsp;&nbsp;
-<a href="usergroup_admin.php" class=link_submit>[<? xl('Back','e'); ?>]</font></a>
+<a href="usergroup_admin.php" class=link_submit>[<?php xl('Back','e'); ?>]</font></a>
 </FORM>
 
 <br><br>

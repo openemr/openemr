@@ -24,7 +24,7 @@
 
 <head>
 
-<link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <title><?php xl('Address Book','e'); ?></title>
 
 <style>
@@ -91,7 +91,7 @@ function doedclick(userid) {
 
 </head>
 
-<body <?echo $top_bg_line;?>>
+<body class="body_top">
 
 <form method='post' action='addrbook_list.php'>
 
@@ -102,16 +102,16 @@ function doedclick(userid) {
  </tr>
  <tr class='search'> <!-- bgcolor='#ddddff' -->
   <td>
-   <?xl('First Name:','e')?>
+   <?php xl('First Name:','e')?>
    <input type='text' name='form_fname' size='10' value='<?php echo $form_fname; ?>'
     class='inputtext' title='<?php xl("All or part of the first name","e") ?>' />&nbsp;
-   <?xl('Last Name:','e')?>
+   <?php xl('Last Name:','e')?>
    <input type='text' name='form_lname' size='10' value='<?php echo $form_lname; ?>'
     class='inputtext' title='<?php xl("All or part of the last name","e") ?>' />&nbsp;
-   <?xl('Specialty:','e')?>
+   <?php xl('Specialty:','e')?>
    <input type='text' name='form_specialty' size='10' value='<?php echo $form_specialty; ?>'
     class='inputtext' title='<?php xl("Any part of the desired specialty","e") ?>' />&nbsp;&nbsp;
-   <input type='submit' class='button' name='form_search' value='<?xl("Search","e")?>' />
+   <input type='submit' class='button' name='form_search' value='<?php xl("Search","e")?>' />
   </td>
   <td align='right'>
    <input type='button' class='button' value='Add New' onclick='doedclick(0)' />

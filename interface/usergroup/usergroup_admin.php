@@ -130,12 +130,12 @@ if (isset($_GET["mode"])) {
 <html>
 <head>
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="body_top">
 
-<span class="title"><? xl('User and Facility Administration','e'); ?></span>
+<span class="title"><?php xl('User and Facility Administration','e'); ?></span>
 
 <br><br>
 
@@ -147,40 +147,40 @@ if (isset($_GET["mode"])) {
 <form name='facility' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
 <input type=hidden name=mode value="facility">
-<span class=bold><? xl('New Facility Information','e'); ?>: </span>
+<span class="bold"><?php xl('New Facility Information','e'); ?>: </span>
 </td><td>
 
 <table border=0 cellpadding=0 cellspacing=0>
 <tr>
-<td><span class=text><? xl('Name','e'); ?>: </span></td><td><input type=entry name=facility size=20 value=""></td>
-<td><span class=text><? xl('Phone','e'); ?>: </span></td><td><input type=entry name=phone size=20 value=""></td>
+<td><span class="text"><?php xl('Name','e'); ?>: </span></td><td><input type=entry name=facility size=20 value=""></td>
+<td><span class="text"><?php xl('Phone','e'); ?>: </span></td><td><input type=entry name=phone size=20 value=""></td>
 </tr>
 <tr>
 <td>&nbsp;</td><td>&nbsp;</td>
-<td><span class=text><? xl('Fax','e'); ?>: </span></td><td><input type=entry name=fax size=20 value=""></td>
+<td><span class="text"><?php xl('Fax','e'); ?>: </span></td><td><input type=entry name=fax size=20 value=""></td>
 </tr>
 <tr>
-<td><span class=text><? xl('Address','e'); ?>: </span></td><td><input type=entry size=20 name=street value=""></td>
-<td><span class=text><? xl('City','e'); ?>: </span></td><td><input type=entry size=20 name=city value=""></td>
+<td><span class="text"><?php xl('Address','e'); ?>: </span></td><td><input type=entry size=20 name=street value=""></td>
+<td><span class="text"><?php xl('City','e'); ?>: </span></td><td><input type=entry size=20 name=city value=""></td>
 </tr>
 <tr>
-<td><span class=text><? xl('State','e'); ?>: </span></td><td><input type=entry size=20 name=state value=""></td>
-<td><span class=text><? xl('Zip Code','e'); ?>: </span></td><td><input type=entry size=20 name=postal_code value=""></td>
+<td><span class="text"><?php xl('State','e'); ?>: </span></td><td><input type=entry size=20 name=state value=""></td>
+<td><span class="text"><?php xl('Zip Code','e'); ?>: </span></td><td><input type=entry size=20 name=postal_code value=""></td>
 </tr>
 <tr>
-<td height="22"><span class=text><? xl('Country','e'); ?>: </span></td>
+<td height="22"><span class="text"><?php xl('Country','e'); ?>: </span></td>
 <td><input type=entry size=20 name=country_code value=""></td>
-<td><span class=text><? xl('Federal EIN','e'); ?>: </span></td><td><input type=entry size=20 name=federal_ein value=""></td>
+<td><span class="text"><?php xl('Federal EIN','e'); ?>: </span></td><td><input type=entry size=20 name=federal_ein value=""></td>
 </tr>
 <tr>
 <td>&nbsp;</td><td>&nbsp;</td>
 
-<td><span class=text><? xl('Facility NPI','e'); ?>: </span></td><td><input type=entry size=20 name=facility_npi value=""></td>
+<td><span class="text"><?php xl('Facility NPI','e'); ?>: </span></td><td><input type=entry size=20 name=facility_npi value=""></td>
 
 </tr>
 <tr>
 <td>&nbsp;</td><td>&nbsp;</td>
-<td>&nbsp;</td><td><input type="submit" value=<? xl('Add Facility','e'); ?>></td>
+<td>&nbsp;</td><td><input type="submit" value=<?php xl('Add Facility','e'); ?>></td>
 </tr>
 </table>
 </form>
@@ -191,8 +191,8 @@ if (isset($_GET["mode"])) {
 
 <form name='facility' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
-<input type=hidden name=mode value=<? xl('facility','e'); ?>>
-<span class=bold><? xl('Edit Facilities','e'); ?>: </span>
+<input type=hidden name=mode value=<?php xl('facility','e'); ?>>
+<span class="bold"><?php xl('Edit Facilities','e'); ?>: </span>
 </td><td valign=top>
 <?php
 $fres = 0;
@@ -203,8 +203,8 @@ if ($fres) {
     $result2[$iter3] = $frow;
   foreach($result2 as $iter3) {
 ?>
-<span class=text><?echo $iter3{name};?></span>
-<a href="facility_admin.php?fid=<?echo $iter3{id};?>" class=link_submit
+<span class="text"><?php echo $iter3{name};?></span>
+<a href="facility_admin.php?fid=<?php echo $iter3{id};?>" class="link_submit"
  onclick="top.restoreSession()">(Edit)</a><br>
 <?php
   }
@@ -217,15 +217,15 @@ if ($fres) {
 <form name='new_user' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
 <input type=hidden name=mode value=new_user>
-<span class=bold><? xl('New User','e'); ?>:</span>
+<span class="bold"><?php xl('New User','e'); ?>:</span>
 </td><td>
 <table border=0 cellpadding=0 cellspacing=0>
 <tr>
-<td><span class=text><? xl('Username','e'); ?>: </span></td><td><input type=entry name=username size=20> &nbsp;</td>
-<td><span class=text><? xl('Password','e'); ?>: </span></td><td><input type="password" size=20 name=clearPass></td>
+<td><span class="text"><?php xl('Username','e'); ?>: </span></td><td><input type=entry name=username size=20> &nbsp;</td>
+<td><span class="text"><?php xl('Password','e'); ?>: </span></td><td><input type="password" size=20 name=clearPass></td>
 </tr>
 <tr>
-<td><span class=text><? xl('Groupname','e'); ?>: </span></td><td>
+<td><span class="text"><?php xl('Groupname','e'); ?>: </span></td><td>
 <select name=groupname>
 <?php
 $res = sqlStatement("select distinct name from groups");
@@ -237,15 +237,15 @@ foreach ($result2 as $iter) {
 }
 ?>
 </select></td>
-<td><span class=text><? xl('Authorized','e'); ?>: </span></td><td><input type=checkbox name='authorized' value="1"></td>
+<td><span class="text"><?php xl('Authorized','e'); ?>: </span></td><td><input type=checkbox name='authorized' value="1"></td>
 </tr>
 <tr>
-<td><span class=text><? xl('First Name','e'); ?>: </span></td><td><input type=entry name='fname' size=20></td>
-<td><span class=text><? xl('Middle Name','e'); ?>: </span></td><td><input type=entry name='mname' size=20></td>
+<td><span class="text"><?php xl('First Name','e'); ?>: </span></td><td><input type=entry name='fname' size=20></td>
+<td><span class="text"><?php xl('Middle Name','e'); ?>: </span></td><td><input type=entry name='mname' size=20></td>
 </tr>
 <tr>
-<td><span class=text><? xl('Last Name','e'); ?>: </span></td><td><input type=entry name='lname' size=20></td>
-<td><span class=text><? xl('Default Facility','e'); ?>: </span></td><td><select name=facility>
+<td><span class="text"><?php xl('Last Name','e'); ?>: </span></td><td><input type=entry name='lname' size=20></td>
+<td><span class="text"><?php xl('Default Facility','e'); ?>: </span></td><td><select name=facility>
 <?php
 $fres = sqlStatement("select * from facility order by name");
 if ($fres) {
@@ -253,7 +253,7 @@ if ($fres) {
     $result[$iter] = $frow;
   foreach($result as $iter) {
 ?>
-<option value="<?echo $iter{name};?>"><?echo $iter{name};?></option>
+<option value="<?php echo $iter{name};?>"><?php echo $iter{name};?></option>
 <?php
   }
 }
@@ -261,12 +261,12 @@ if ($fres) {
 </select></td>
 </tr>
 <tr>
-<td><span class=text><? xl('Federal Tax ID','e'); ?>: </span></td><td><input type=entry name='federaltaxid' size=20></td>
-<td><span class=text><? xl('Federal Drug ID','e'); ?>: </span></td><td><input type=entry name='federaldrugid' size=20></td>
+<td><span class="text"><?php xl('Federal Tax ID','e'); ?>: </span></td><td><input type=entry name='federaltaxid' size=20></td>
+<td><span class="text"><?php xl('Federal Drug ID','e'); ?>: </span></td><td><input type=entry name='federaldrugid' size=20></td>
 </tr>
 <tr>
-<td><span class="text"><? xl('UPIN','e'); ?>: </span></td><td><input type="entry" name="upin" size="20"></td>
-<td class='text'><? xl('See Authorizations','e'); ?>: </td>
+<td><span class="text"><?php xl('UPIN','e'); ?>: </span></td><td><input type="entry" name="upin" size="20"></td>
+<td class='text'><?php xl('See Authorizations','e'); ?>: </td>
 <td><select name="see_auth">
 <?php
  foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value)
@@ -278,12 +278,12 @@ if ($fres) {
 </select></td>
 
 <tr>
-<td><span class="text"><? xl('NPI','e'); ?>: </span></td><td><input type="entry" name="npi" size="20"></td>
-<td><span class="text"><? xl('Job Description','e'); ?>: </span></td><td><input type="entry" name="specialty" size="20"></td>
+<td><span class="text"><?php xl('NPI','e'); ?>: </span></td><td><input type="entry" name="npi" size="20"></td>
+<td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="entry" name="specialty" size="20"></td>
 </tr>
 <!-- (CHEMED) Calendar UI preference -->
 <tr>
-<td><span class="text"><? xl('Calendar UI','e'); ?>: </span></td><td><select name="cal_ui">
+<td><span class="text"><?php xl('Calendar UI','e'); ?>: </span></td><td><select name="cal_ui">
 <?php
  foreach (array(1 => xl('Default'), 2 => xl('Fancy'), 3 => xl('Outlook')) as $key => $value)
  {
@@ -302,7 +302,7 @@ if ($fres) {
  if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
 ?>
   <tr>
-  <td class='text'><? xl('Access Control','e'); ?>:</td>
+  <td class='text'><?php xl('Access Control','e'); ?>:</td>
   <td><select name="access_group[]" multiple>
   <?php
    $list_acl_groups = acl_get_group_title_list();
@@ -322,10 +322,10 @@ if ($fres) {
 ?>
 
 </table>
-<span class=text><? xl('Additional Info','e'); ?>: </span><br>
+<span class="text"><?php xl('Additional Info','e'); ?>: </span><br>
 <textarea name=info cols=40 rows=4 wrap=auto></textarea>
 <br><input type="hidden" name="newauthPass">
-<input type="submit" onClick="javascript:this.form.newauthPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';" value=<? xl('Add User','e'); ?>>
+<input type="submit" onClick="javascript:this.form.newauthPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';" value=<?php xl('Add User','e'); ?>>
 </form>
 </td>
 
@@ -338,11 +338,11 @@ if ($fres) {
  onsubmit='return top.restoreSession()'>
 <br>
 <input type=hidden name=mode value=new_group>
-<span class=bold><? xl('New Group','e'); ?>:</span>
+<span class="bold"><?php xl('New Group','e'); ?>:</span>
 </td><td>
-<span class=text><? xl('Groupname','e'); ?>: </span><input type=entry name=groupname size=10>
+<span class="text"><?php xl('Groupname','e'); ?>: </span><input type=entry name=groupname size=10>
 &nbsp;&nbsp;&nbsp;
-<span class=text><? xl('Initial User','e'); ?>: </span>
+<span class="text"><?php xl('Initial User','e'); ?>: </span>
 <select name=username>
 <?php
 $res = sqlStatement("select distinct username from users where username != ''");
@@ -354,7 +354,7 @@ foreach ($result as $iter) {
 ?>
 </select>
 &nbsp;&nbsp;&nbsp;
-<input type="submit" value=<? xl('Add Group','e'); ?>>
+<input type="submit" value=<?php xl('Add Group','e'); ?>>
 </form>
 </td>
 
@@ -366,10 +366,10 @@ foreach ($result as $iter) {
 <form name='new_group' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
 <input type=hidden name=mode value=new_group>
-<span class=bold><? xl('Add User To Group','e'); ?>:</span>
+<span class="bold"><?php xl('Add User To Group','e'); ?>:</span>
 </td><td>
-<span class=text>
-<? xl('User','e'); ?>
+<span class="text">
+<?php xl('User','e'); ?>
 : </span>
 <select name=username>
 <?php
@@ -382,7 +382,7 @@ foreach ($result3 as $iter) {
 ?>
 </select>
 &nbsp;&nbsp;&nbsp;
-<span class=text><? xl('Groupname','e'); ?>: </span>
+<span class="text"><?php xl('Groupname','e'); ?>: </span>
 <select name=groupname>
 <?php
 $res = sqlStatement("select distinct name from groups");
@@ -395,7 +395,7 @@ foreach ($result2 as $iter) {
 ?>
 </select>
 &nbsp;&nbsp;&nbsp;
-<input type="submit" value=<? xl('Add User To Group','e'); ?>>
+<input type="submit" value=<?php xl('Add User To Group','e'); ?>>
 </form>
 </td>
 
@@ -406,7 +406,7 @@ foreach ($result2 as $iter) {
 <hr>
 
 <table border=0 cellpadding=1 cellspacing=2>
-<tr><td><span class=bold><? xl('Username','e'); ?></span></td><td><span class=bold><? xl('Real Name','e'); ?></span></td><td><span class=bold><? xl('Info','e'); ?></span></td><td><span class=bold><? xl('Authorized','e'); ?>?</span></td></tr>
+<tr><td><span class="bold"><?php xl('Username','e'); ?></span></td><td><span class="bold"><?php xl('Real Name','e'); ?></span></td><td><span class="bold"><?php xl('Info','e'); ?></span></td><td><span class="bold"><?php xl('Authorized','e'); ?>?</span></td></tr>
 <?php
 $res = sqlStatement("select * from users where username != '' order by username");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
@@ -418,12 +418,12 @@ foreach ($result4 as $iter) {
       $iter{"authorized"} = "";
   }
 
-  print "<tr><td><span class=text>" . $iter{"username"} .
+  print "<tr><td><span class='text'>" . $iter{"username"} .
     "</span><a href='user_admin.php?id=" . $iter{"id"} .
     "' class='link_submit' onclick='top.restoreSession()'>(Edit)</a>" .
-    "</td><td><span class=text>" .
-    $iter{"fname"} . ' ' . $iter{"lname"}."</span></td><td><span class=text>" .
-    $iter{"info"} . "</span></td><td align='center'><span class=text>" .
+    "</td><td><span class='text'>" .
+    $iter{"fname"} . ' ' . $iter{"lname"}."</span></td><td><span class='text'>" .
+    $iter{"info"} . "</span></td><td align='center'><span class='text'>" .
     $iter{"authorized"} . "</span></td>";
   print "<td><!--<a href='usergroup_admin.php?mode=delete&id=" . $iter{"id"} .
     "' class='link_submit'>[Delete]</a>--></td>";
@@ -448,7 +448,7 @@ if (empty($GLOBALS['disable_non_default_groups'])) {
   }
 
   foreach ($grouplist as $groupname => $list) {
-    print "<span class=bold>" . $groupname . "</span><br>\n<span class=text>" .
+    print "<span class='bold'>" . $groupname . "</span><br>\n<span class='text'>" .
       substr($list,0,strlen($list)-2) . "</span><br>\n";
   }
 }

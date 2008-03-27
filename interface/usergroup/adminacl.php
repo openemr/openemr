@@ -478,7 +478,7 @@ if (!isset($phpgacl_location)) {
  });
  </script>
 		
- <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+ <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
  <style type="text/css">
   body {
    padding: 5pt 15pt 5pt 5pt;
@@ -507,7 +507,7 @@ if (!isset($phpgacl_location)) {
  </style>	
 </head>
 
-<body<?php echo $top_bg_line;?>>
+<body class="body_top">
  <span class='title'><?php xl('Access Control List Administration','e'); ?></span>
  <br><br>	
  <div id='membership_edit'>

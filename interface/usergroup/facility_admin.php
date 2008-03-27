@@ -38,16 +38,16 @@ if (isset($_POST["fid"])) {
 <html>
 <head>
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 </head>
-<body <?php echo $top_bg_line; ?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="body_top">
 
 <span class="title"><?php xl('Edit Facility Information','e'); ?></span>
 
 <form name='facility' method='post' action="facility_admin.php">
 <input type=hidden name=mode value="facility">
-<input type=hidden name=fid value="<?echo $my_fid;?>">
+<input type=hidden name=fid value="<?php echo $my_fid;?>">
 <?php $facility = sqlQuery("select * from facility where id='$my_fid'"); ?>
 <br><br>
 <table border=0 cellpadding=0 cellspacing=0>

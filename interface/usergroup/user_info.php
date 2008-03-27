@@ -6,12 +6,12 @@ include_once("$srcdir/sql.inc");
 <html>
 <head>
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="body_top">
 
-<span class="title"><? xl('Password Change','e'); ?></span>
+<span class="title"><?php xl('Password Change','e'); ?></span>
 <br><br>
 
 <?php
@@ -35,32 +35,32 @@ for ($iter = 0;$row = sqlFetchArray($res);$iter++)
 $iter = $result[0];
 
 ?>
-<span class="text"><? xl('Once you change your password, you will have to re-login.','e'); ?><br></span>
+<span class="text"><?php xl('Once you change your password, you will have to re-login.','e'); ?><br></span>
 <FORM NAME="user_form" METHOD="GET" ACTION="user_info.php"
  onsubmit="top.restoreSession()">
 <TABLE>
 <TR>
-<TD><span class=text><? xl('Real Name','e'); ?>: </span></TD>
-<TD><span class=text><? echo $iter["realname"]; ?></span></td>
+<TD><span class=text><?php xl('Real Name','e'); ?>: </span></TD>
+<TD><span class=text><?php echo $iter["realname"]; ?></span></td>
 </TR>
 
 <TR>
-<TD><span class=text><? xl('Username','e'); ?>: </span></TD>
-<TD><span class=text><? echo $iter["username"]; ?></span></td>
+<TD><span class=text><?php xl('Username','e'); ?>: </span></TD>
+<TD><span class=text><?php echo $iter["username"]; ?></span></td>
 </TR>
 
 <TR>
-<TD><span class=text><? xl('Password','e'); ?>: </span></TD>
+<TD><span class=text><?php xl('Password','e'); ?>: </span></TD>
 <TD><input type=password name=clearPass size=20 value=""></td>
 </TR>
 <TR>
-<TD><span class=text><? xl('Password','e'); ?> (<?xl('Again','e');?>): </span></TD>
+<TD><span class=text><?php xl('Password','e'); ?> (<?xl('Again','e');?>): </span></TD>
 <TD><input type=password name=clearPass2 size=20 value=""></td>
 </TR>
 
 </TABLE>
 <br>&nbsp;&nbsp;&nbsp;
-<INPUT TYPE="HIDDEN" NAME="id" VALUE="<? echo $_GET["id"]; ?>">
+<INPUT TYPE="HIDDEN" NAME="id" VALUE="<?php echo $_GET["id"]; ?>">
 <INPUT TYPE="HIDDEN" NAME="mode" VALUE="update">
 <INPUT TYPE="HIDDEN" NAME="authPass" VALUE="">
 <INPUT TYPE="HIDDEN" NAME="authPass2" VALUE="">
