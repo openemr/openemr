@@ -4,13 +4,13 @@ include_once("../globals.php");
 
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <title><?php xl('Navigation','e'); ?></title>
 
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 </head>
-<body <?php echo $nav_bg_line; ?> topmargin=0 rightmargin=4 leftmargin=2 marginheight=0 bottommargin=0 link=#000000 vlink=#000000 alink=#000000>
+<body class="body_nav">
 
 <form border=0 method=post target="_top" name="find_patient" action="../main/finder/patient_finder.php">
 

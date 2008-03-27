@@ -8,10 +8,10 @@ require_once("$srcdir/classes/Pharmacy.class.php");
 <head>
 <?php html_header_show();?>
 
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 </head>
-<body <?php echo $title_bg_line;?> >
+<body class="body_title">
 
 <?php
  $result = getPatientData($pid, "fname,lname,pid,pubpid,phone_home,pharmacy_id,DOB,DATE_FORMAT(DOB,'%Y%m%d') as DOB_YMD");

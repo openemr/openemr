@@ -4,12 +4,12 @@ include_once("../globals.php");
 
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 </head>
-<body <?php echo $title_bg_line;?> topmargin=0 rightmargin=4 leftmargin=2 bottommargin=0 marginheight=0>
+<body class="body_title">
 
 <?php 
 $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'");

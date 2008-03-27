@@ -4,116 +4,116 @@ include_once("../../library/acl.inc");
 ?>
 <html>
 <head>
-<title><? xl('Navigation','e'); ?></title>
+<title><?php xl('Navigation','e'); ?></title>
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 </head>
-<body <?echo $nav_bg_line;?> topmargin=0 rightmargin=4 leftmargin=2 marginheight=0 bottommargin=0 link=#000000 vlink=#000000 alink=#000000>
+<body class="body_nav">
 
 <form border=0 method=post target="_top" name="find_patient" action="../main/finder/patient_finder.php">
 
 <table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
 <tr>
 
-<? if (acl_check('admin', 'users')) { ?>
+<?php if (acl_check('admin', 'users')) { ?>
 <td valign="middle" nowrap>
 &nbsp;&nbsp;<a class=menu target=Main href="usergroup_admin.php"
  onclick="top.restoreSession()"
- title="Add or Edit Users, Groups and Facilities"><? xl('Users & Groups','e'); ?></a>&nbsp;
+ title="Add or Edit Users, Groups and Facilities"><?php xl('Users & Groups','e'); ?></a>&nbsp;
 </td>
-<? } ?>
+<?php } ?>
 
-<? if (acl_check('admin', 'forms')) { ?>
+<?php if (acl_check('admin', 'forms')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../forms_admin/forms_admin.php"
  onclick="top.restoreSession()"
- title="Activate New Forms"><? xl('Forms','e'); ?></a>&nbsp;
+ title="Activate New Forms"><?php xl('Forms','e'); ?></a>&nbsp;
 </td>
-<? } ?>
+<?php } ?>
 
-<? if (acl_check('admin', 'practice')) { ?>
+<?php if (acl_check('admin', 'practice')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="<?=$GLOBALS['webroot']?>/controller.php?practice_settings"
  onclick="top.restoreSession()"
- title="Practice Settings"><?xl('Practice','e');?></a>&nbsp;
+ title="Practice Settings"><?php xl('Practice','e');?></a>&nbsp;
 </td>
-<? } ?>
+<?php } ?>
 
-<? if (acl_check('admin', 'acl') && isset($phpgacl_location)) { ?>
+<?php if (acl_check('admin', 'acl') && isset($phpgacl_location)) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="adminacl.php"
  onclick="top.restoreSession()"
- title="Access Control List Administration"><?xl('ACL','e');?></a>&nbsp;
+ title="Access Control List Administration"><?php xl('ACL','e');?></a>&nbsp;
 </td>
-<? } ?>
+<?php } ?>
 	
-<? if (acl_check('admin', 'calendar')) { ?>
+<?php if (acl_check('admin', 'calendar')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig"
  onclick="top.restoreSession()"
- title="Calendar Settings"><? xl('Calendar','e'); ?></a>&nbsp;
+ title="Calendar Settings"><?php xl('Calendar','e'); ?></a>&nbsp;
 </td>
-<? } ?>
+<?php } ?>
 
-<? if (acl_check('admin', 'database')) { ?>
+<?php if (acl_check('admin', 'database')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../main/myadmin/index.php"
  onclick="top.restoreSession()"
- title="Database Reporting"><? xl('Database','e'); ?></a>&nbsp;
+ title="Database Reporting"><?php xl('Database','e'); ?></a>&nbsp;
 </td>
-<? } ?>
+<?php } ?>
 
-<? if (acl_check('admin', 'batchcom')) { ?>
+<?php if (acl_check('admin', 'batchcom')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../batchcom/batchcom.php"
  onclick="top.restoreSession()"
-   title="Batch Communication and Export"><?xl('Notification','e');?></a>&nbsp;
+   title="Batch Communication and Export"><?php xl('Notification','e');?></a>&nbsp;
      </td>
-<? } ?>
+<?php } ?>
 
-<? if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) { ?>
+<?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../drugs/drug_inventory.php"
  onclick="top.restoreSession()"
- title="Drug Inventory Management"><?xl('Drugs','e');?></a>&nbsp;
+ title="Drug Inventory Management"><?php xl('Drugs','e');?></a>&nbsp;
 </td>
-<? } ?>
+<?php } ?>
 
-<? if (acl_check('admin', 'language')) { ?>
+<?php if (acl_check('admin', 'language')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../language/language.php"
  onclick="top.restoreSession()"
- title="Language Management"><? xl('Language','e'); ?></a>&nbsp;
+ title="Language Management"><?php xl('Language','e'); ?></a>&nbsp;
 </td>
-<? } ?>
+<?php } ?>
 
-<? if (acl_check('admin', 'super')) { ?>
+<?php if (acl_check('admin', 'super')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class="menu" target=Main href="../super/edit_list.php"
  onclick="top.restoreSession()"
- title="Selection List Management"><? xl('Lists','e'); ?></a>&nbsp;
+ title="Selection List Management"><?php xl('Lists','e'); ?></a>&nbsp;
 </td>
 <td valign="middle" nowrap>
 &nbsp;<a class="menu" target=Main href="../super/edit_layout.php"
  onclick="top.restoreSession()"
- title="Form Layout Management"><? xl('Layouts','e'); ?></a>&nbsp;
+ title="Form Layout Management"><?php xl('Layouts','e'); ?></a>&nbsp;
 </td>
-<? } ?>
+<?php } ?>
 
-<? if (acl_check('admin', 'users')) { ?>
+<?php if (acl_check('admin', 'users')) { ?>
 <td valign="middle" nowrap>
-&nbsp;<a class=menu target=Main href="<?echo $rootdir?>/logview/logview.php"
+&nbsp;<a class=menu target=Main href="<?php echo $rootdir?>/logview/logview.php"
  onclick="top.restoreSession()"
- title="View Logs"><? xl('Logs','e'); ?></a>&nbsp;
+ title="View Logs"><?php xl('Logs','e'); ?></a>&nbsp;
 </td>
-<? } ?>
+<?php } ?>
 
 <?php if (! $GLOBALS['concurrent_layout']) { ?>
 <td valign="middle" align="right" nowrap>
 &nbsp;<a class=menu href="../main/main_screen.php" target="_top" class="menu"
  onclick="top.restoreSession()"
- title=<? xl('Exit from Administration','e'); ?>><?xl('Back','e');?></a>&nbsp;&nbsp;
+ title=<?php xl('Exit from Administration','e'); ?>><?php xl('Back','e');?></a>&nbsp;&nbsp;
 </td>
 <?php } ?>
 
