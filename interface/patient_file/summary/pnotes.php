@@ -5,15 +5,14 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 </head>
-<body <?echo $bottom_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
- bottommargin='0' marginwidth='2' marginheight='0'>
+<body class="body_bottom">
 
-<?
+<?php
  $thisauth = acl_check('patients', 'notes');
  if ($thisauth) {
   $tmp = getPatientData($pid, "squad");
@@ -32,7 +31,7 @@
 
 <td valign='top'>
 
-<? if ($thisauth == 'write' || $thisauth == 'addonly') { ?>
+<?php if ($thisauth == 'write' || $thisauth == 'addonly') { ?>
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href="pnotes_full.php" onclick="top.restoreSession()">
@@ -40,15 +39,15 @@
 <a href="pnotes_full.php" target="Main" onclick="top.restoreSession()">
 <?php } ?>
 
-<font class="title"><?php xl('Notes','e'); ?></font><font class=more><?echo $tmore;?></font>
+<font class="title"><?php xl('Notes','e'); ?></font><font class=more><?php echo $tmore;?></font>
 </a>
-<? } ?>
+<?php } ?>
 
 <br>
 
 <table border='0'>
 
-<?
+<?php
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
 $N = 15;
 

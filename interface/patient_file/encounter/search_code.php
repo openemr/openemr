@@ -19,17 +19,17 @@ $code_type = $_GET['type'];
 
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="body_bottom">
 
 <table border=0 cellspacing=0 cellpadding=0 height=100%>
 <tr>
 
 <td valign=top>
 
-<form name='search_form' method='post' action='search_code.php?type=<? echo $code_type ?>'>
+<form name='search_form' method='post' action='search_code.php?type=<?php echo $code_type ?>'>
 <input type=hidden name=mode value="search">
 
 <span class="title" href="search_code.php"><?php echo $code_type ?> <?php xl('Codes','e'); ?></span><br>

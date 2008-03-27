@@ -6,8 +6,8 @@
 <html>
 
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <style>
 .link {
  font-family: sans-serif;
@@ -18,8 +18,7 @@
 </style>
 </head>
 
-<body <?echo $bottom_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
- bottommargin='0' marginwidth='2' marginheight='0'>
+<body class="body_bottom">
 
 <?php
  $thisauth = acl_check('patients', 'med');
@@ -150,8 +149,8 @@
 <a href="immunizations.php"
  target="<?php echo $GLOBALS['concurrent_layout'] ? "_parent" : "Main"; ?>"
  onclick="top.restoreSession()">
-<font class="title"><? xl('Immunizations','e'); ?></font>
-<font class=more><?echo $tmore;?></font></a><br>
+<font class="title"><?php xl('Immunizations','e'); ?></font>
+<font class=more><?php echo $tmore;?></font></a><br>
 
 <?php
   $sql = "select if(i1.administered_date

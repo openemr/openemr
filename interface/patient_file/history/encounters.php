@@ -97,8 +97,8 @@ function showDocument(&$drow) {
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../../library/tooltip.js"></script>
 
 <script language="JavaScript">
@@ -159,8 +159,7 @@ function showDocument(&$drow) {
 
 </head>
 
-<body <?echo $bottom_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
- bottommargin='0' marginwidth='2' marginheight='0'>
+<body class="body_bottom">
 
 <div id='tooltipdiv'
  style='position:absolute;width:500px;border:1px solid black;padding:2px;background-color:#ffffaa;visibility:hidden;z-index:1000;font-size:9pt;'
@@ -171,7 +170,7 @@ function showDocument(&$drow) {
 <?php } else { ?>
 <!-- <a href='encounters_full.php' target='Main'> -->
 <?php } ?>
-<font class='title'><? xl('Past Encounters and Documents','e'); ?></font>
+<font class='title'><?php xl('Past Encounters and Documents','e'); ?></font>
 &nbsp;&nbsp;
 
 <?php if ($billing_view) { ?>

@@ -6,10 +6,10 @@ include_once("$srcdir/transactions.inc");
 <head>
 <?php html_header_show();?>
 
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 </head>
-<body <?php echo $bottom_bg_line;?> >
+<body class="body_bottom">
 
 <a href="add_transaction.php" onclick="top.restoreSession()">
 <font class="title"><?php xl('Patient Transactions','e'); ?></font>

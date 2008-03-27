@@ -11,18 +11,18 @@ include_once("$srcdir/sql.inc");
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 </head>
-<body <?php echo $bottom_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="body_bottom">
 
 <!--
 <table border=0 cellspacing=0 cellpadding=0 height=100%>
 <tr>
-<td background="<?echo $linepic;?>" width=7 height=100%>
+<td background="<?php echo $linepic;?>" width=7 height=100%>
 &nbsp;
 </td>
 </tr>

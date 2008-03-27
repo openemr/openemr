@@ -102,8 +102,8 @@ if (isset($mode)) {
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <script language="JavaScript">
 
@@ -154,8 +154,7 @@ function validate(f) {
 
 </head>
 
-<body <?php echo $bottom_bg_line;?> topmargin='0' rightmargin='0' leftmargin='4'
- bottommargin='0' marginheight='0'>
+<body class="body_bottom">
 
 <?php
  $thisauth = acl_check('encounters', 'coding_a');
@@ -296,8 +295,8 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 </tr></table>
 </td>
 </tr>
-<input type="hidden" name="encounter_id" value="<?= $encounter?>">
-<input type="hidden" name="patient_id" value="<?= $pid?>">
+<input type="hidden" name="encounter_id" value="<?php echo  $encounter?>">
+<input type="hidden" name="patient_id" value="<?php echo $pid?>">
 </form>
 </table>
 
