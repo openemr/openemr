@@ -143,9 +143,9 @@ while ($srow = sqlFetchArray($sres)) {
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<title><? xl('Letter Generator','e'); ?></title>
+<title><?php xl('Letter Generator','e'); ?></title>
 
 <style>
 </style>
@@ -181,8 +181,7 @@ while ($srow = sqlFetchArray($sres)) {
 
 </head>
 
-<body <?echo $top_bg_line;?> leftmargin='0' topmargin='0' marginwidth='0'
- marginheight='0' onunload='imclosing()'>
+<body class="body_top" onunload='imclosing()'>
 
 <!-- <form method='post' action='letter.php' onsubmit='return top.restoreSession()'> -->
 <form method='post' action='letter.php'>

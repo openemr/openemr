@@ -137,8 +137,8 @@ if ($formid) {
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script language="JavaScript">
 
@@ -161,9 +161,8 @@ if ($formid) {
 </script>
 </head>
 
-<body <?echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2"
- bottommargin="0" marginwidth="2" marginheight="0">
-<form method="post" action="<? echo $rootdir ?>/forms/physical_exam/new.php?id=<? echo $formid ?>"
+<body class="body_top">
+<form method="post" action="<?php echo $rootdir ?>/forms/physical_exam/new.php?id=<?php echo $formid ?>"
  onsubmit="return top.restoreSession()">
 
 <center>
@@ -208,7 +207,7 @@ if ($formid) {
 <input type='submit' name='bn_save' value='<?php xl('Save','e'); ?>' />
 &nbsp;
 <input type='button' value='<?php xl('Cancel','e'); ?>'
- onclick="top.restoreSession();location='<? echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
+ onclick="top.restoreSession();location='<?php echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
 </p>
 
 </center>

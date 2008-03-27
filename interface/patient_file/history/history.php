@@ -6,12 +6,12 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="body_top">
 
-<?
+<?php
  $thisauth = acl_check('patients', 'med');
  if ($thisauth) {
   $tmp = getPatientData($pid, "squad");
@@ -31,47 +31,47 @@
  }
 ?>
 
-<? if ($thisauth == 'write' || $thisauth == 'addonly') { ?>
+<?php if ($thisauth == 'write' || $thisauth == 'addonly') { ?>
 <a href="history_full.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>
  onclick="top.restoreSession()">
-<font class=title><? xl('Patient History / Lifestyle','e'); ?></font>
-<font class=more><?echo $tmore;?></font></a><br>
-<? } ?>
+<font class=title><?php xl('Patient History / Lifestyle','e'); ?></font>
+<font class=more><?php echo $tmore;?></font></a><br>
+<?php } ?>
 
 <table border='0' cellpadding='2' width='100%'>
  <tr>
   <td valign='top' width='34%'>
-   <span class='bold'><? xl('Family History','e'); ?>:</span><br>
-   <?if ($result{"history_father"} != "") {?><span class='text'><? xl('Father','e'); ?>: </span><span class='text'><?echo $result{"history_father"};?></span><br><?}?>
-   <?if ($result{"history_mother"} != "") {?><span class='text'><? xl('Mother','e'); ?>: </span><span class='text'><?echo $result{"history_mother"};?></span><br><?}?>
-   <?if ($result{"history_siblings"} != "") {?><span class='text'><? xl('Siblings','e'); ?>: </span><span class='text'><?echo $result{"history_siblings"};?></span><br><?}?>
-   <?if ($result{"history_spouse"} != "") {?><span class='text'><? xl('Spouse','e'); ?>: </span><span class='text'><?echo $result{"history_spouse"};?></span><br><?}?>
-   <?if ($result{"history_offspring"} != "") {?><span class='text'><? xl('Offspring','e'); ?>: </span><span class='text'><?echo $result{"history_offspring"};?></span><br><?}?>
+   <span class='bold'><?php xl('Family History','e'); ?>:</span><br>
+   <?php if ($result{"history_father"} != "") {?><span class='text'><?php xl('Father','e'); ?>: </span><span class='text'><?php echo $result{"history_father"};?></span><br><?php } ?>
+   <?php if ($result{"history_mother"} != "") {?><span class='text'><?php xl('Mother','e'); ?>: </span><span class='text'><?php echo $result{"history_mother"};?></span><br><?php } ?>
+   <?php if ($result{"history_siblings"} != "") {?><span class='text'><?php xl('Siblings','e'); ?>: </span><span class='text'><?php echo $result{"history_siblings"};?></span><br><?php } ?>
+   <?php if ($result{"history_spouse"} != "") {?><span class='text'><?php xl('Spouse','e'); ?>: </span><span class='text'><?php echo $result{"history_spouse"};?></span><br><?php } ?>
+   <?php if ($result{"history_offspring"} != "") {?><span class='text'><?php xl('Offspring','e'); ?>: </span><span class='text'><?php echo $result{"history_offspring"};?></span><br><?php } ?>
   </td>
 
   <td valign='top' width='33%'>
-   <span class='bold'><? xl('Relatives','e'); ?>:</span><br>
-   <?if ($result{"relatives_cancer"} != "") {?><span class='text'><? xl('Cancer','e'); ?>: </span><span class='text'><?echo $result{"relatives_cancer"};?></span><br><?}?>
-   <?if ($result{"relatives_tuberculosis"} != "") {?><span class='text'><? xl('Tuberculosis','e'); ?>: </span><span class='text'><?echo $result{"relatives_tuberculosis"};?></span><br><?}?>
-   <?if ($result{"relatives_diabetes"} != "") {?><span class='text'><? xl('Diabetes','e'); ?>: </span><span class='text'><?echo $result{"relatives_diabetes"};?></span><br><?}?>
-   <?if ($result{"relatives_high_blood_pressure"} != "") {?><span class='text'><? xl('High Blood Pressure','e'); ?>: </span><span class='text'><?echo $result{"relatives_high_blood_pressure"};?></span><br><?}?>
-   <?if ($result{"relatives_heart_problems"} != "") {?><span class='text'><? xl('Heart Problems','e'); ?>: </span><span class='text'><?echo $result{"relatives_heart_problems"};?></span><br><?}?>
-   <?if ($result{"relatives_stroke"} != "") {?><span class='text'><? xl('Stroke','e'); ?>: </span><span class='text'><?echo $result{"relatives_stroke"};?></span><br><?}?>
-   <?if ($result{"relatives_epilepsy"} != "") {?><span class='text'><? xl('Epilepsy','e'); ?>: </span><span class='text'><?echo $result{"relatives_epilepsy"};?></span><br><?}?>
-   <?if ($result{"relatives_mental_illness"} != "") {?><span class='text'><? xl('Mental Illness','e'); ?>: </span><span class='text'><?echo $result{"relatives_mental_illness"};?></span><br><?}?>
-   <?if ($result{"relatives_suicide"} != "") {?><span class='text'><? xl('Suicide','e'); ?>: </span><span class='text'><?echo $result{"relatives_suicide"};?></span><br><?}?>
+   <span class='bold'><?php xl('Relatives','e'); ?>:</span><br>
+   <?php if ($result{"relatives_cancer"} != "") {?><span class='text'><?php xl('Cancer','e'); ?>: </span><span class='text'><?php echo $result{"relatives_cancer"};?></span><br><?php } ?>
+   <?php if ($result{"relatives_tuberculosis"} != "") {?><span class='text'><?php xl('Tuberculosis','e'); ?>: </span><span class='text'><?php echo $result{"relatives_tuberculosis"};?></span><br><?php } ?>
+   <?php if ($result{"relatives_diabetes"} != "") {?><span class='text'><?php xl('Diabetes','e'); ?>: </span><span class='text'><?php echo $result{"relatives_diabetes"};?></span><br><?php } ?>
+   <?php if ($result{"relatives_high_blood_pressure"} != "") {?><span class='text'><?php xl('High Blood Pressure','e'); ?>: </span><span class='text'><?php echo $result{"relatives_high_blood_pressure"};?></span><br><?php } ?>
+   <?php if ($result{"relatives_heart_problems"} != "") {?><span class='text'><?php xl('Heart Problems','e'); ?>: </span><span class='text'><?php echo $result{"relatives_heart_problems"};?></span><br><?php } ?>
+   <?php if ($result{"relatives_stroke"} != "") {?><span class='text'><?php xl('Stroke','e'); ?>: </span><span class='text'><?php echo $result{"relatives_stroke"};?></span><br><?php } ?>
+   <?php if ($result{"relatives_epilepsy"} != "") {?><span class='text'><?php xl('Epilepsy','e'); ?>: </span><span class='text'><?php echo $result{"relatives_epilepsy"};?></span><br><?php } ?>
+   <?php if ($result{"relatives_mental_illness"} != "") {?><span class='text'><?php xl('Mental Illness','e'); ?>: </span><span class='text'><?php echo $result{"relatives_mental_illness"};?></span><br><?php } ?>
+   <?php if ($result{"relatives_suicide"} != "") {?><span class='text'><?php xl('Suicide','e'); ?>: </span><span class='text'><?php echo $result{"relatives_suicide"};?></span><br><?php } ?>
   </td>
 
   <td valign='top' width='33%'>
-   <span class='bold'><? xl('Lifestyle','e'); ?>:</span><br>
-   <?if ($result{"coffee"} != "") {?><span class='text'><? xl('Coffee','e'); ?>: </span><span class='text'><?echo $result{"coffee"};?></span><br><?}?>
-   <?if ($result{"tobacco"} != "") {?><span class='text'><? xl('Tobacco','e'); ?>: </span><span class='text'><?echo $result{"tobacco"};?></span><br><?}?>
-   <?if ($result{"alcohol"} != "") {?><span class='text'><? xl('Alcohol','e'); ?>: </span><span class='text'><?echo $result{"alcohol"};?></span><br><?}?>
-   <?if ($result{"sleep_patterns"} != "") {?><span class='text'><? xl('Sleep Patterns','e'); ?>: </span><span class='text'><?echo $result{"sleep_patterns"};?></span><br><?}?>
-   <?if ($result{"exercise_patterns"} != "") {?><span class='text'><? xl('Exercise Patterns','e'); ?>: </span><span class='text'><?echo $result{"exercise_patterns"};?></span><br><?}?>
-   <?if ($result{"seatbelt_use"} != "") {?><span class='text'><? xl('Seatbelt Use','e'); ?>: </span><span class='text'><?echo $result{"seatbelt_use"};?></span><br><?}?>
-   <?if ($result{"counseling"} != "") {?><span class='text'><? xl('Counseling','e'); ?>: </span><span class='text'><?echo $result{"counseling"};?></span><br><?}?>
-   <?if ($result{"hazardous_activities"} != "") {?><span class='text'><? xl('Hazardous Activities','e'); ?>: </span><span class='text'><?echo $result{"hazardous_activities"};?></span><br><?}?>
+   <span class='bold'><?php xl('Lifestyle','e'); ?>:</span><br>
+   <?php if ($result{"coffee"} != "") {?><span class='text'><?php xl('Coffee','e'); ?>: </span><span class='text'><?php echo $result{"coffee"};?></span><br><?php } ?>
+   <?php if ($result{"tobacco"} != "") {?><span class='text'><?php xl('Tobacco','e'); ?>: </span><span class='text'><?php echo $result{"tobacco"};?></span><br><?php } ?>
+   <?php if ($result{"alcohol"} != "") {?><span class='text'><?php xl('Alcohol','e'); ?>: </span><span class='text'><?php echo $result{"alcohol"};?></span><br><?php } ?>
+   <?php if ($result{"sleep_patterns"} != "") {?><span class='text'><?php xl('Sleep Patterns','e'); ?>: </span><span class='text'><?php echo $result{"sleep_patterns"};?></span><br><?php } ?>
+   <?php if ($result{"exercise_patterns"} != "") {?><span class='text'><?php xl('Exercise Patterns','e'); ?>: </span><span class='text'><?php echo $result{"exercise_patterns"};?></span><br><?php } ?>
+   <?php if ($result{"seatbelt_use"} != "") {?><span class='text'><?php xl('Seatbelt Use','e'); ?>: </span><span class='text'><?php echo $result{"seatbelt_use"};?></span><br><?php } ?>
+   <?php if ($result{"counseling"} != "") {?><span class='text'><?php xl('Counseling','e'); ?>: </span><span class='text'><?php echo $result{"counseling"};?></span><br><?php } ?>
+   <?php if ($result{"hazardous_activities"} != "") {?><span class='text'><?php xl('Hazardous Activities','e'); ?>: </span><span class='text'><?php echo $result{"hazardous_activities"};?></span><br><?php } ?>
   </td>
  </tr>
 
@@ -81,9 +81,9 @@
 
  <tr>
   <td valign='top' class='text'>
-   <span class='bold'><? xl('Date of Last','e'); ?>:</span>
-<?
- foreach ($exams as $key => $value) {
+   <span class='bold'><?php xl('Date of Last','e'); ?>:</span>
+<?php
+foreach ($exams as $key => $value) {
   if ($result[$key]) {
    $testresult = substr($result['last_exam_results'], substr($value, 0, 2), 1);
    echo "   <br>";
@@ -103,11 +103,11 @@
   </td>
 
   <td valign='top' class='text' colspan='2'>
-   <span class='bold'><? xl('Additional History','e'); ?>:</span><br>
-   <?if (!empty($result{"name_1"})) {?><span class='text'><b><?=$result{"name_1"}?></b>: </span><span class='text'><?echo $result{"value_1"}?></span><br><?}?>
-   <?if (!empty($result{"name_2"})) {?><span class='text'><b><?=$result{"name_2"}?></b>: </span><span class='text'><?echo $result{"value_2"}?></span><br><?}?>
+   <span class='bold'><?php xl('Additional History','e'); ?>:</span><br>
+   <?php if (!empty($result{"name_1"})) {?><span class='text'><b><?=$result{"name_1"}?></b>: </span><span class='text'><?php echo $result{"value_1"}?></span><br><?php } ?>
+   <?php if (!empty($result{"name_2"})) {?><span class='text'><b><?=$result{"name_2"}?></b>: </span><span class='text'><?php echo $result{"value_2"}?></span><br><?php } ?>
 
-   <?if (!empty($result{"additional_history"})) {?><span class='text'><?echo $result{"additional_history"}?></span><br><?}?>
+   <?php if (!empty($result{"additional_history"})) {?><span class='text'><?php echo $result{"additional_history"}?></span><br><?php } ?>
   </td>
  </tr>
 </table>

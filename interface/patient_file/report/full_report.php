@@ -17,14 +17,14 @@ if (!isset($_GET["viewnum"])) {
 
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
 
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 
 </head>
-<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="body_top">
 
 <a href="patient_report.php"><font class="title"><?php  xl('Patient Record Report','e'); ?></font><font class=back><?php echo $tback;?></font></a>
 <br><br>
@@ -129,21 +129,6 @@ printPatientTransactions($pid);
 <table><tr><td><?php 
 printPatientForms($pid, $N);
 ?></td></tr></table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 </body>
 </html>

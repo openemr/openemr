@@ -23,7 +23,7 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 ?>
 
 <html><head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <SCRIPT language="JavaScript"><!--
 /******************************************
    Today's Date           
@@ -98,22 +98,21 @@ document.write(dateline[Style]);
 //--></SCRIPT>
 
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 
 
-<body <?echo $top_bg_line;?>
-topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<form method=post action="<?echo $rootdir;?>/forms/note/save.php?mode=new" name="my_form">
+<body class="body_top">
+<form method=post action="<?php echo $rootdir;?>/forms/note/save.php?mode=new" name="my_form">
 <span class="title"><?php xl('Work/School Note','e'); ?></span><br></br>
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link"
+<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link"
  style="color: #483D8B" onclick="top.restoreSession()">[<?php xl('Don\'t Save','e'); ?>]</a>
 <br></br>
 
-<?
+<?php
 //print "$name";
 //print "Date:<input type=entry name=$date value=".date("Y-m-d")."> ";
 ?>
@@ -162,7 +161,7 @@ topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight
 </tr>
 <br><br>
 
-<?
+<?php
 //global $date;
 //$date = date("Y-m-d");
 //print "Date:$encounter";
@@ -177,7 +176,7 @@ value="<?php echo date("Y-m-d") ?>">
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link"
+<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link"
  style="color: #483D8B" onclick="top.restoreSession()">[<?php xl('Don\'t Save','e'); ?>]</a>
 </form>
 <?php

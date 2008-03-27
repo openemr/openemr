@@ -48,20 +48,20 @@ include_once("$srcdir/sql.inc");
 ?>
 <html>
   <head>
-<? html_header_show();?>
-    <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
     <script type="text/javascript" src="../../../library/overlib_mini.js"></script>
     <script type="text/javascript" src="../../../library/calendar.js"></script>
   </head>
 
-  <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+  <body class="body_top">
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-    <font class="title"><? xl('Immunizations','e'); ?></font>
+    <font class="title"><?php xl('Immunizations','e'); ?></font>
 <?php } else { ?>
     <a href="patient_summary.php" target="Main" onclick="top.restoreSession()">
-    <font class="title"><? xl('Immunizations','e'); ?></font>
-    <font class=back><?echo $tback;?></font></a>
+    <font class="title"><?php xl('Immunizations','e'); ?></font>
+    <font class=back><?php echo $tback;?></font></a>
 <?php } ?>
 
     <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
@@ -74,7 +74,7 @@ include_once("$srcdir/sql.inc");
         <tr>
           <td align="right">
             <span class=text>
-              <? xl('Immunization','e'); ?>
+              <?php xl('Immunization','e'); ?>
             </span>
           </td>
           <td>
@@ -94,18 +94,18 @@ include_once("$srcdir/sql.inc");
         <tr>
           <td align="right">
             <span class=text>
-              <? xl('Date Administered','e'); ?>
+              <?php xl('Date Administered','e'); ?>
             </span>
           </td>
           <td>
             <input class=text type=entry name="administered_date" size=10 value="<?php echo $administered_date ? $administered_date : date('Y-m-d'); ?>">
-            <a href="javascript:show_calendar('add_immunization.administered_date');" onMouseOver="window.status='Date Picker'; overlib('Click here to choose a date.'); return true;" onMouseOut="window.status=''; nd(); return true;"><img src='<?echo "$rootdir/pic/show_calendar.gif";?>' align='absbottom' width='24' height='22' border='0'></a>
+            <a href="javascript:show_calendar('add_immunization.administered_date');" onMouseOver="window.status='Date Picker'; overlib('Click here to choose a date.'); return true;" onMouseOut="window.status=''; nd(); return true;"><img src='<?php echo "$rootdir/pic/show_calendar.gif";?>' align='absbottom' width='24' height='22' border='0'></a>
           </td>
         </tr>
         <tr>
           <td align="right">
             <span class=text>
-              <? xl('Immunization Manufacturer','e'); ?>
+              <?php xl('Immunization Manufacturer','e'); ?>
             </span>
           </td>
           <td>
@@ -115,7 +115,7 @@ include_once("$srcdir/sql.inc");
         <tr>
           <td align="right">
             <span class=text>
-              <? xl('Immunization Lot Number','e'); ?>
+              <?php xl('Immunization Lot Number','e'); ?>
             </span>
           </td>
           <td>
@@ -125,7 +125,7 @@ include_once("$srcdir/sql.inc");
         <tr>
           <td align="right">
             <span class=text>
-              <? xl('Name and Title of Immunization Administrator','e'); ?>
+              <?php xl('Name and Title of Immunization Administrator','e'); ?>
             </span>
           </td>
           <td>
@@ -158,18 +158,18 @@ include_once("$srcdir/sql.inc");
         <tr>
           <td align="right">
             <span class=text>
-              <? xl('Date Immunization Information Statements Given','e'); ?>
+              <?php xl('Date Immunization Information Statements Given','e'); ?>
             </span>
           </td>
           <td>
             <input class=text type=entry name="education_date" size=10 value="<?php echo $education_date? $education_date : date('Y-m-d'); ?>">
-            <a href="javascript:show_calendar('add_immunization.education_date');" onMouseOver="window.status='Date Picker'; overlib('Click here to choose a date.'); return true;" onMouseOut="window.status=''; nd(); return true;"><img src='<?echo "$rootdir/pic/show_calendar.gif";?>' align='absbottom' width='24' height='22' border='0'></a>
+            <a href="javascript:show_calendar('add_immunization.education_date');" onMouseOver="window.status='Date Picker'; overlib('Click here to choose a date.'); return true;" onMouseOut="window.status=''; nd(); return true;"><img src='<?php echo "$rootdir/pic/show_calendar.gif";?>' align='absbottom' width='24' height='22' border='0'></a>
           </td>
         </tr>
         <tr>
           <td align="right">
             <span class=text>
-              <? xl('Notes','e'); ?>
+              <?php xl('Notes','e'); ?>
             </span>
           </td>
           <td>
@@ -179,16 +179,16 @@ include_once("$srcdir/sql.inc");
         <tr>
           <td align="center">
             <br /><a href='shot_record.php' class='link' onclick='top.restoreSession()'>
-            [<? xl('Print Shot Record','e'); ?>]</a>
+            [<?php xl('Print Shot Record','e'); ?>]</a>
           </td>
           <td align="center">
-            <input type="hidden" name="id" value="<?=$id?>"> 
+            <input type="hidden" name="id" value="<?php echo $id?>"> 
             <br /><a href='javascript:top.restoreSession();document.add_immunization.submit();' class='link'>
-            [<? xl('Save Immunization','e'); ?>]</a>
+            [<?php xl('Save Immunization','e'); ?>]</a>
           </td>
           <td align="center">
             <br /><a href='immunizations.php?mode=clear' class='link' onclick='top.restoreSession()'>
-            [<? xl('Clear','e'); ?>]</a>
+            [<?php xl('Clear','e'); ?>]</a>
           </td>
         </tr>
       </table>
@@ -198,7 +198,7 @@ include_once("$srcdir/sql.inc");
       <tr>
         <td valign=top>
           <table border=0 cellpadding=5 cellspacing=0>
-            <th><td><span class=bold><? xl('Date','e'); ?></span></td><td><span class=bold><? xl('Vaccine','e'); ?></span></td><td><span class=bold><? xl('Manufacturer','e'); ?></span></td><td><span class=bold><? xl('Lot Number','e'); ?></span></td><td><span class=bold><? xl('Administered By','e'); ?></span></td><td><span class=bold><? xl('Education Date','e'); ?></span></td><td><span class=bold><? xl('Note','e'); ?></span></td><td></td></th>
+            <th><td><span class=bold><?php xl('Date','e'); ?></span></td><td><span class=bold><?php xl('Vaccine','e'); ?></span></td><td><span class=bold><?php xl('Manufacturer','e'); ?></span></td><td><span class=bold><?php xl('Lot Number','e'); ?></span></td><td><span class=bold><?php xl('Administered By','e'); ?></span></td><td><span class=bold><?php xl('Education Date','e'); ?></span></td><td><span class=bold><?php xl('Note','e'); ?></span></td><td></td></th>
               <?php
                 $sql = "select i1.id
                               ,i1.administered_date

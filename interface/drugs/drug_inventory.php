@@ -25,9 +25,9 @@
 <html>
 
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
-<link rel=stylesheet href='<?php  echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 <title><?php  xl('Drug Inventory','e'); ?></title>
 
 <style>
@@ -59,7 +59,7 @@ function doiclick(id, lot) {
 
 </head>
 
-<body <?php echo $top_bg_line;?>>
+<body class="body_top">
 <form method='post' action='drug_inventory.php'>
 
 <table width='100%' cellpadding='1' cellspacing='2'>

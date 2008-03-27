@@ -225,9 +225,9 @@ function generate_receipt($patient_id) {
 <head>
 <?php html_header_show(); ?>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<title><? xl('Receipt for Payment','e'); ?></title>
+<title><?php xl('Receipt for Payment','e'); ?></title>
 </head>
-<body <?echo $top_bg_line;?> leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
+<body class="body_top">
 <center>
 <p><b><?php echo $frow['name'] ?>
 <br><?php echo $frow['street'] ?>
@@ -492,7 +492,7 @@ function markTaxes($taxrates) {
 <html>
 <head>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<title><? xl('Patient Checkout','e'); ?></title>
+<title><?php xl('Patient Checkout','e'); ?></title>
 <style>
 </style>
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
@@ -501,7 +501,7 @@ function markTaxes($taxrates) {
 <script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 <script language="JavaScript">
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  function clearTax() {
   var f = document.forms[0];
@@ -554,8 +554,7 @@ function markTaxes($taxrates) {
 </script>
 </head>
 
-<body <?echo $top_bg_line;?> leftmargin='0' topmargin='0' marginwidth='0'
- marginheight='0'>
+<body class="body_top">
 
 <form method='post' action='pos_checkout.php'>
 <input type='hidden' name='form_pid' value='<?php echo $pid ?>' />
@@ -566,7 +565,7 @@ function markTaxes($taxrates) {
 <table cellspacing='5'>
  <tr>
   <td colspan='3' align='center'>
-   <b><? xl('Patient Checkout for ','e'); ?><?php echo $patdata['fname'] . " " .
+   <b><?php xl('Patient Checkout for ','e'); ?><?php echo $patdata['fname'] . " " .
     $patdata['lname'] . " (" . $patdata['pubpid'] . ")" ?></b>
   </td>
  </tr>
@@ -651,7 +650,7 @@ if ($inv_encounter && !$inv_provider) {
 
  <tr>
   <td>
-   <? xl('Payment Method','e'); ?>:
+   <?php xl('Payment Method','e'); ?>:
   </td>
   <td>
    <select name='form_method'>
@@ -667,7 +666,7 @@ if ($inv_encounter && !$inv_provider) {
 
  <tr>
   <td>
-   <? xl('Check/Reference Number','e'); ?>:
+   <?php xl('Check/Reference Number','e'); ?>:
   </td>
   <td>
    <input type='text' name='form_source' size='10' value=''>
@@ -676,7 +675,7 @@ if ($inv_encounter && !$inv_provider) {
 
  <tr>
   <td>
-   <? xl('Amount Paid','e'); ?>:
+   <?php xl('Amount Paid','e'); ?>:
   </td>
   <td>
    <input type='text' name='form_amount' size='10' value='0.00'>
@@ -689,7 +688,7 @@ if ($inv_encounter && !$inv_provider) {
   </td>
   <td>
    <input type='text' size='10' name='form_date' id='form_date'
-    value='<? echo $inv_date ?>'
+    value='<?php echo $inv_date ?>'
     title='yyyy-mm-dd date of service'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'

@@ -75,32 +75,31 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
-<link rel='stylesheet' href="<?echo $css_header;?>" type="text/css">
+<link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
 
 </head>
-<body <?echo $top_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
- bottommargin='0' marginwidth='2' marginheight='0'>
+<body class="body_top">
 
 <form border='0' method='post' name='new_note' action='pnotes_full.php'>
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href="pnotes.php" onclick="top.restoreSession()">
-<font class='title'><? xl('Patient Notes','e'); ?></font>
-<font class='back'>(<? xl('Back','e'); ?>)</font></a>
+<font class='title'><?php xl('Patient Notes','e'); ?></font>
+<font class='back'>(<?php xl('Back','e'); ?>)</font></a>
 <?php } else { ?>
 <a href="../summary/patient_summary.php" target="Main" onclick="top.restoreSession()">
-<font class='title'><? xl('Patient Notes','e'); ?></font>
-<font class='back'>(<? xl('Back','e'); ?>)</font></a>
+<font class='title'><?php xl('Patient Notes','e'); ?></font>
+<font class='back'>(<?php xl('Back','e'); ?>)</font></a>
 <?php } ?>
 
 <br>
 
 <input type='hidden' name='mode' value="new">
-<input type='hidden' name='offset' value="<? echo $offset ?>">
-<input type='hidden' name='active' value="<? echo $active ?>">
-<input type='hidden' name='noteid' value="<? echo $noteid ?>">
+<input type='hidden' name='offset' value="<?php echo $offset ?>">
+<input type='hidden' name='active' value="<?php echo $active ?>">
+<input type='hidden' name='noteid' value="<?php echo $noteid ?>">
 
 <center>
 
@@ -118,9 +117,9 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
  </tr>
  <tr>
   <td class='text' align='center'>
-   <b><? xl('Type','e'); ?>:</b>
+   <b><?php xl('Type','e'); ?>:</b>
    <select name='title'>
-<?
+<?php
  foreach ($patient_note_types as $value) {
   echo "    <option value='$value'";
   if ($value == $title) echo " selected";
@@ -129,10 +128,10 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 ?>
    </select>
    &nbsp; &nbsp;
-   <b><? xl('To','e'); ?>:</b>
+   <b><?php xl('To','e'); ?>:</b>
    <select name='assigned_to'>
-    <option value=''>** <? xl('Close','e'); ?> **</option>
-<?
+    <option value=''>** <?php xl('Close','e'); ?> **</option>
+<?php
  while ($urow = sqlFetchArray($ures)) {
   echo "    <option value='" . $urow['username'] . "'";
   if ($urow['username'] == $assigned_to) echo " selected";
@@ -154,18 +153,18 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 <?php if ($noteid) { ?>
 
 <a href="javascript:top.restoreSession();document.new_note.submit();" class='link_submit'>
-[<? xl('Append to This Note','e'); ?>]
+[<?php xl('Append to This Note','e'); ?>]
 </a>
 &nbsp;&nbsp;&nbsp;&nbsp;
 <a href='pnotes_print.php?noteid=<?php echo $noteid; ?>' class='link_submit'
  target='_blank' onclick='top.restoreSession()'>
-[<? xl('Print This Note','e'); ?>]
+[<?php xl('Print This Note','e'); ?>]
 </a>
 
 <?php } else { ?>
 
 <a href="javascript:top.restoreSession();document.new_note.submit();" class='link_submit'>
-[<? xl('Add New Note','e'); ?>]
+[<?php xl('Add New Note','e'); ?>]
 </a>
 
 <?php } ?>
@@ -175,7 +174,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 
 <form border='0' method='post' name='update_activity' action="pnotes_full.php">
 
-<?//change the view on the current mode, whether all, active, or inactive
+<?php //change the view on the current mode, whether all, active, or inactive
 $all_class = "link"; $active_class = "link"; $inactive_class = "link";
 if ($active=="all") {
   $all_class="link_selected";
@@ -187,23 +186,23 @@ if ($active=="all") {
 ?>
 
 <br>
-<font class='text'><? xl('View','e'); ?>: </font> 
-<a href="pnotes_full.php?offset=0&active=all" class='<?echo $all_class;?>'
- onclick='top.restoreSession()'>[<? xl('All','e'); ?>]</a>
-<a href="pnotes_full.php?offset=0&active=1" class='<?echo $active_class;?>'
- onclick='top.restoreSession()'>[<? xl('Only Active','e'); ?>]</a>
-<a href="pnotes_full.php?offset=0&active=0" class='<?echo $inactive_class;?>'
- onclick='top.restoreSession()'>[<? xl('Only Inactive','e'); ?>]</a>
+<font class='text'><?php xl('View','e'); ?>: </font> 
+<a href="pnotes_full.php?offset=0&active=all" class='<?php echo $all_class;?>'
+ onclick='top.restoreSession()'>[<?php xl('All','e'); ?>]</a>
+<a href="pnotes_full.php?offset=0&active=1" class='<?php echo $active_class;?>'
+ onclick='top.restoreSession()'>[<?php xl('Only Active','e'); ?>]</a>
+<a href="pnotes_full.php?offset=0&active=0" class='<?php echo $inactive_class;?>'
+ onclick='top.restoreSession()'>[<?php xl('Only Inactive','e'); ?>]</a>
 
 <input type='hidden' name='mode' value="update">
-<input type='hidden' name='offset' value="<?echo $offset;?>">
-<input type='hidden' name='active' value="<?echo $active;?>">
+<input type='hidden' name='offset' value="<?php echo $offset;?>">
+<input type='hidden' name='active' value="<?php echo $active;?>">
 <input type='hidden' name='noteid' value="0">
 
 <table border='0'>
  <tr>
   <td colspan='3' align='left'>
-   <a href="javascript:top.restoreSession();document.update_activity.submit();" class='link_submit'>[<? xl('Change Activity','e'); ?>]</a>
+   <a href="javascript:top.restoreSession();document.update_activity.submit();" class='link_submit'>[<?php xl('Change Activity','e'); ?>]</a>
   </td>
  </tr>
 <?
@@ -256,7 +255,7 @@ if ($result = getPnotesByDate("", $active,
 ?>
  <tr>
   <td colspan='3' align='left'>
-   <a href="javascript:top.restoreSession();document.update_activity.submit();" class='link_submit'>[<? xl('Change Activity','e'); ?>]</a>
+   <a href="javascript:top.restoreSession();document.update_activity.submit();" class='link_submit'>[<?php xl('Change Activity','e'); ?>]</a>
   </td>
  </tr>
 
@@ -266,7 +265,7 @@ if ($result = getPnotesByDate("", $active,
 <table width='400' border='0' cellpadding='0' cellspacing='0'>
  <tr>
   <td>
-<?
+<?php
 if ($offset > ($N-1)) {
   echo "   <a class='link' href='pnotes_full.php?active=" . $active .
     "&offset=" . ($offset-$N) . "' onclick='top.restoreSession()'>[" .
@@ -275,7 +274,7 @@ if ($offset > ($N-1)) {
 ?>
   </td>
   <td align='right'>
-<?
+<?php
 if ($result_count == $N) {
   echo "   <a class='link' href='pnotes_full.php?active=" . $active .
     "&offset=" . ($offset+$N) . "' onclick='top.restoreSession()'>[" .

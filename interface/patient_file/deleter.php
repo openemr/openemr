@@ -1,4 +1,4 @@
-<?
+<?php
  // Copyright (C) 2005-2007 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -78,9 +78,9 @@ function decorateString($fmt, $str) {
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<title><? xl('Delete Patient, Encounter, Form, Issue or Document','e'); ?></title>
-<link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
+<?php html_header_show();?>
+<title><?php xl('Delete Patient, Encounter, Form, Issue or Document','e'); ?></title>
+<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }
@@ -88,8 +88,8 @@ td { font-size:10pt; }
 
 </head>
 
-<body <?echo $top_bg_line;?>>
-<?
+<body class="body_top">
+<?php
  // If the delete is confirmed...
  //
  if ($_POST['form_submit']) {
@@ -213,7 +213,7 @@ td { font-size:10pt; }
  }
 ?>
 
-<form method='post' action='deleter.php?patient=<? echo $patient ?>&encounterid=<? echo $encounterid ?>&formid=<? echo $formid ?>&issue=<? echo $issue ?>&document=<? echo $document ?>&payment=<? echo $payment ?>'>
+<form method='post' action='deleter.php?patient=<?php echo $patient ?>&encounterid=<?php echo $encounterid ?>&formid=<?php echo $formid ?>&issue=<?php echo $issue ?>&document=<?php echo $document ?>&payment=<?php echo $payment ?>'>
 
 <p>&nbsp;<br><?php xl('
 Do you really want to delete','e'); ?>
@@ -232,7 +232,7 @@ Do you really want to delete','e'); ?>
  } else if ($payment) {
   echo "payment $payment";
  }
-?> <? xl('and all subordinate data? This action will be logged','e'); ?>!</p>
+?> <?php xl('and all subordinate data? This action will be logged','e'); ?>!</p>
 
 <center>
 

@@ -7,8 +7,8 @@
 <html>
 
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 
 <script language="JavaScript">
@@ -34,7 +34,7 @@
 
 </head>
 
-<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="body_top">
 
 <span class="title"><?php xl('This Encounter','e'); ?></span>
 <?php

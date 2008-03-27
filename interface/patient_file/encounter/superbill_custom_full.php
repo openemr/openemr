@@ -141,7 +141,7 @@ if ($fend > $count) $fend = $count;
 <html>
 <head>
 <?php html_header_show(); ?>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 
 <script language="JavaScript">
@@ -235,8 +235,7 @@ function submitDelete(id) {
 </script>
 
 </head>
-<body <?php echo $top_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
- bottommargin='0' marginwidth='2' marginheight='0'>
+<body class="body_top">
 
 <?php if ($GLOBALS['concurrent_layout']) {
 // <a href="superbill_codes.php">
@@ -345,9 +344,9 @@ if ($taxline) {
  <tr>
   <td colspan="3" align="center">
    <input type="hidden" name="code_id" value="<?php echo $code_id ?>"><br>
-   <a href='javascript:submitUpdate();' class='link'>[<? xl('Update','e'); ?>]</a>
+   <a href='javascript:submitUpdate();' class='link'>[<?php xl('Update','e'); ?>]</a>
    &nbsp;&nbsp;
-   <a href='javascript:submitAdd();' class='link'>[<? xl('Add as New','e'); ?>]</a>
+   <a href='javascript:submitAdd();' class='link'>[<?php xl('Add as New','e'); ?>]</a>
   </td>
  </tr>
 

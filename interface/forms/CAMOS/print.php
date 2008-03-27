@@ -5,11 +5,11 @@ formHeader("Form: CAMOS");
 $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 ?>
 <html><head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<form method=post action="<?echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="my_form"
+<body class='body_top'>
+<form method=post action="<?php echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="my_form"
  onsubmit="return top.restoreSession()">
 <h1><php xl ('CAMOS','e'); ?> </h1>
 <hr>

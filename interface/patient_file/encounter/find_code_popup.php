@@ -18,7 +18,7 @@ $form_code_type = $_POST['form_code_type'];
 <head>
 <?php html_header_show(); ?>
 <title><?php xl('Code Finder','e'); ?></title>
-<link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }
@@ -39,9 +39,7 @@ td { font-size:10pt; }
 
 </head>
 
-<body <?echo $top_bg_line;?>>
-<?
-?>
+<body class="body_top">
 <form method='post' name='theform' action='find_code_popup.php?codetype=<?php echo $codetype ?>'>
 <center>
 
@@ -76,7 +74,7 @@ else {
 ?>
 
  <?php xl('Search for:','e'); ?>
-   <input type='text' name='search_term' size='12' value='<? echo $_REQUEST['search_term']; ?>'
+   <input type='text' name='search_term' size='12' value='<?php echo $_REQUEST['search_term']; ?>'
     title='<?php xl('Any part of the desired code or its description','e'); ?>' />
    &nbsp;
    <input type='submit' name='bn_search' value='<?php xl('Search','e'); ?>' />
@@ -144,7 +142,7 @@ else {
 ?>
 </table>
 
-<? } ?>
+<?php } ?>
 
 </center>
 </form>

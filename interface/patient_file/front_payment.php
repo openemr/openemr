@@ -15,7 +15,7 @@ require_once("$srcdir/invoice_summary.inc.php");
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <?php
 
@@ -218,7 +218,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
   // Now proceed with printing the receipt.
 ?>
 
-<title><? xl('Receipt for Payment','e'); ?></title>
+<title><?php xl('Receipt for Payment','e'); ?></title>
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script language="JavaScript">
 
@@ -246,7 +246,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
 <body bgcolor='#ffffff'>
 <center>
 
-<p><h2><? xl('Receipt for Payment','e'); ?></h2>
+<p><h2><?php xl('Receipt for Payment','e'); ?></h2>
 
 <p><?php echo htmlentities($frow['name']) ?>
 <br><?php echo htmlentities($frow['street']) ?>
@@ -257,32 +257,32 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
 <p>
 <table border='0' cellspacing='8'>
  <tr>
-  <td><? xl('Date','e'); ?>:</td>
+  <td><?php xl('Date','e'); ?>:</td>
   <td><?php echo date('Y-m-d', strtotime($payrow['dtime'])) ?></td>
  </tr>
  <tr>
-  <td><? xl('Patient','e'); ?>:</td>
+  <td><?php xl('Patient','e'); ?>:</td>
   <td><?php echo $patdata['fname'] . " " . $patdata['mname'] . " " .
        $patdata['lname'] . " (" . $patdata['pubpid'] . ")" ?></td>
  </tr>
  <tr>
-  <td><? xl('Paid Via','e'); ?>:</td>
+  <td><?php xl('Paid Via','e'); ?>:</td>
   <td><?php echo $payrow['method'] ?></td>
  </tr>
  <tr>
-  <td><? xl('Check/Ref Number','e'); ?>:</td>
+  <td><?php xl('Check/Ref Number','e'); ?>:</td>
   <td><?php echo $payrow['source'] ?></td>
  </tr>
  <tr>
-  <td><? xl('Amount for This Visit','e'); ?>:</td>
+  <td><?php xl('Amount for This Visit','e'); ?>:</td>
   <td><?php echo $payrow['amount1'] ?></td>
  </tr>
  <tr>
-  <td><? xl('Amount for Past Balance','e'); ?>:</td>
+  <td><?php xl('Amount for Past Balance','e'); ?>:</td>
   <td><?php echo $payrow['amount2'] ?></td>
  </tr>
  <tr>
-  <td><? xl('Received By','e'); ?>:</td>
+  <td><?php xl('Received By','e'); ?>:</td>
   <td><?php echo $payrow['user'] ?></td>
  </tr>
 </table>
@@ -309,7 +309,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
   // Here we display the form for data entry.
   //
 ?>
-<title><? xl('Record Payment','e'); ?></title>
+<title><?php xl('Record Payment','e'); ?></title>
 
 <style type="text/css">
  body    { font-family:sans-serif; font-size:10pt; font-weight:normal }
@@ -341,8 +341,7 @@ function calctotal() {
 
 </head>
 
-<body <?echo $top_bg_line;?> leftmargin='0' topmargin='0' marginwidth='0'
- marginheight='0' onunload='imclosing()'>
+<body class="body_top" onunload='imclosing()'>
 
 <form method='post' action='front_payment.php<?php if ($payid) echo "?payid=$payid"; ?>'
  onsubmit='return top.restoreSession()'>
@@ -355,7 +354,7 @@ function calctotal() {
  <tr>
   <td colspan='2' align='center'>
    &nbsp;<br>
-   <b><? xl('Accept Payment for ','e'); ?><?php echo $patdata['fname'] . " " .
+   <b><?php xl('Accept Payment for ','e'); ?><?php echo $patdata['fname'] . " " .
     $patdata['lname'] . " (" . $patdata['pubpid'] . ")" ?></b>
     <br>&nbsp;
   </td>
@@ -363,7 +362,7 @@ function calctotal() {
 
  <tr>
   <td>
-   <? xl('Payment Method','e'); ?>:
+   <?php xl('Payment Method','e'); ?>:
   </td>
   <td>
    <select name='form_method'>
@@ -380,7 +379,7 @@ function calctotal() {
 
  <tr>
   <td>
-   <? xl('Check/Reference Number','e'); ?>:
+   <?php xl('Check/Reference Number','e'); ?>:
   </td>
   <td>
    <input type='text' name='form_source' size='10' value='<?php echo $payrow['source'] ?>'>

@@ -92,13 +92,9 @@ $trow = $transid ? getTransById($transid) : array();
 
 <style>
 
-body, td, input, select, textarea {
+td, input, select, textarea {
  font-family: Arial, Helvetica, sans-serif;
  font-size: 10pt;
-}
-
-body {
- padding: 5pt 5pt 5pt 5pt;
 }
 
 div.section {
@@ -112,6 +108,7 @@ div.section {
 </style>
 
 <link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
+
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
@@ -120,7 +117,7 @@ div.section {
 
 <script language="JavaScript">
 
-var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 function titleChanged() {
  var sel = document.forms[0].title;
@@ -148,15 +145,12 @@ function divclick(cb, divid) {
 </script>
 
 </head>
-<body <?php echo $top_bg_line; ?> onload="<?php echo $body_onload_code; ?>"
- topmargin='4' rightmargin='4' leftmargin='4' bottommargin='4'
- marginwidth='4' marginheight='4'>
+<body class="body_top" onload="<?php echo $body_onload_code; ?>" >
 
-<form name='new_transaction' method='post'
- action='add_transaction.php?transid=<?php echo $transid ?>'>
+<form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo $transid ?>'>
 <input type='hidden' name='mode' value='add'>
 
-<span class='bold'><? xl('Transaction Type','e'); ?>:</span>&nbsp;
+<span class='bold'><?php xl('Transaction Type','e'); ?>:</span>&nbsp;
 <select name='title' onchange='titleChanged()'>
 <?php
 foreach ($trans_types as $key => $value) {
@@ -169,7 +163,7 @@ foreach ($trans_types as $key => $value) {
 
 <p>
 <div id='otherdiv' style='display:none'>
-<span class='bold'><? xl('Details','e'); ?>:</span><br>
+<span class='bold'><?php xl('Details','e'); ?>:</span><br>
 <textarea name='body' rows='6' cols='40' wrap='virtual'></textarea>
 </div>
 </p>

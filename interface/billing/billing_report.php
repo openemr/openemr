@@ -1,370 +1,176 @@
 <?php
-
 include_once("../globals.php");
-
 include_once("../../library/acl.inc");
-
 include_once("../../custom/code_types.inc.php");
 
-
-
 include_once("$srcdir/patient.inc");
-
 include_once("$srcdir/billrep.inc");
-
 include_once(dirname(__FILE__) . "/../../library/classes/OFX.class.php");
-
 include_once(dirname(__FILE__) . "/../../library/classes/X12Partner.class.php");
-
-
 
 $EXPORT_INC = "$webserver_root/custom/BillingExport.php";
 
-
-
 $alertmsg = '';
 
-
-
 if ($_POST['mode'] == 'export') {
+    $sdate = $_POST['from_date'];
+    $edate = $_POST['to_date'];
 
-	$sdate = $_POST['from_date'];
-
-	$edate = $_POST['to_date'];
-
-
-
-	$sql = "SELECT billing.*, concat(pd.fname, ' ', pd.lname) as name from billing "
-
-	. "join patient_data as pd on pd.pid = billing.pid where billed = '1' and "
-
-	. "(process_date > '" . mysql_real_escape_string($sdate)
-
-	. "' or DATE_FORMAT( process_date, '%Y-%m-%d' ) = '" . mysql_real_escape_string($sdate) ."') "
-
-	. "and (process_date < '" . mysql_real_escape_string($edate)
-
-	. "'or DATE_FORMAT( process_date, '%Y-%m-%d' ) = '" . mysql_real_escape_string($edate) ."') "
-
-	. "order by pid,encounter";
-
-	$db = get_db();
-
-	$results = $db->Execute($sql);
-
-	$billings = array();
-
-	if ($results->RecordCount() == 0) {
-
-		echo xl("No Bills Found to Include in OFX Export<br>");
-
-	}
-
-	else {
-
-		while(!$results->EOF) {
-
-			$billings[] = $results->fields;
-
-			$results->MoveNext();
-
-		}
-
-		$ofx = new OFX($billings);
-
-		header("Pragma: public");
-
-		header("Expires: 0");
-
-		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-
-		header("Content-Disposition: attachment; filename=openemr_ofx.ofx");
-
-		header("Content-Type: text/xml");
-
-		echo $ofx->get_OFX();
-
-		exit;
-
-	}
-
+    $sql = "SELECT billing.*, concat(pd.fname, ' ', pd.lname) as name from billing "
+    . "join patient_data as pd on pd.pid = billing.pid where billed = '1' and "
+    . "(process_date > '" . mysql_real_escape_string($sdate)
+    . "' or DATE_FORMAT( process_date, '%Y-%m-%d' ) = '" . mysql_real_escape_string($sdate) ."') "
+    . "and (process_date < '" . mysql_real_escape_string($edate)
+    . "'or DATE_FORMAT( process_date, '%Y-%m-%d' ) = '" . mysql_real_escape_string($edate) ."') "
+    . "order by pid,encounter";
+    $db = get_db();
+    $results = $db->Execute($sql);
+    $billings = array();
+    if ($results->RecordCount() == 0) {
+        echo xl("No Bills Found to Include in OFX Export<br>");
+    }
+    else {
+        while(!$results->EOF) {
+            $billings[] = $results->fields;
+            $results->MoveNext();
+        }
+        $ofx = new OFX($billings);
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Content-Disposition: attachment; filename=openemr_ofx.ofx");
+        header("Content-Type: text/xml");
+        echo $ofx->get_OFX();
+        exit;
+    }
 }
-
-
 
 if ($_POST['mode'] == 'process') {
-
-	if (exec("ps x | grep 'process_bills[.]php'")) {
-
-		$alertmsg = xl('Request ignored - claims processing is already running!');
-
-	}
-
-	else {
-
-		exec("cd $webserver_root/library/freeb;" .
-
-			"php -q process_bills.php bill > process_bills.log 2>&1 &");
-
-		$alertmsg = xl('Batch processing initiated; this may take a while.');
-
-	}
-
+    if (exec("ps x | grep 'process_bills[.]php'")) {
+        $alertmsg = xl('Request ignored - claims processing is already running!');
+    }
+    else {
+        exec("cd $webserver_root/library/freeb;" .
+            "php -q process_bills.php bill > process_bills.log 2>&1 &");
+        $alertmsg = xl('Batch processing initiated; this may take a while.');
+    }
 }
-
-
 
 //global variables:
-
 if (!isset($_POST["mode"])) {
+    if (!isset($_POST["from_date"])) { $from_date=date("Y-m-d"); } 
+        else { $from_date = $_POST["from_date"]; }
+    if (!isset($_POST["to_date"])) { $to_date = date("Y-m-d"); } 
+        else { $to_date = $_POST["to_date"]; }
+    if (!isset($_POST["code_type"])) { $code_type="all"; } 
+        else { $code_type = $_POST["code_type"]; }
+    if (!isset($_POST["unbilled"])) { $unbilled = "on"; } 
+        else { $unbilled = $_POST["unbilled"]; }
 
-	if (!isset($_POST["from_date"])) {
-
-		$from_date=date("Y-m-d");
-
-	} else {
-
-		$from_date = $_POST["from_date"];
-
-	}
-
-	if (!isset($_POST["to_date"])) {
-
-		$to_date = date("Y-m-d");
-
-	} else {
-
-		$to_date = $_POST["to_date"];
-
-	}
-
-	if (!isset($_POST["code_type"])) {
-
-		$code_type="all";
-
-	} else {
-
-		$code_type = $_POST["code_type"];
-
-	}
-
-	if (!isset($_POST["unbilled"])) {
-
-		$unbilled = "on";
-
-	} else {
-
-		$unbilled = $_POST["unbilled"];
-
-	}
-
-	// if (!isset($_POST["authorized"])) {
-
-	//  $my_authorized = "on";
-
-	// } else {
-
-	$my_authorized = $_POST["authorized"];
-
-	// }
-
+    // if (!isset($_POST["authorized"])) {
+    //  $my_authorized = "on";
+    // } else {
+    $my_authorized = $_POST["authorized"];
+    // }
 } else {
-
-	$from_date = $_POST["from_date"];
-
-	$to_date = $_POST["to_date"];
-
-	$code_type = $_POST["code_type"];
-
-	$unbilled = $_POST["unbilled"];
-
-	$my_authorized = $_POST["authorized"];
-
+    $from_date = $_POST["from_date"];
+    $to_date = $_POST["to_date"];
+    $code_type = $_POST["code_type"];
+    $unbilled = $_POST["unbilled"];
+    $my_authorized = $_POST["authorized"];
 }
 
-
-
 $ofrom_date = $from_date;
-
 $oto_date = $to_date;
-
 $ocode_type = $code_type;
-
 $ounbilled = $unbilled;
-
 $oauthorized = $my_authorized;
-
-
 
 ?>
 
-
-
 <html>
-
 <head>
-<? html_header_show();?>
-
-<link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
-
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 <style>
-
 .subbtn { margin-top:3px; margin-bottom:3px; margin-left:2px; margin-right:2px }
-
 </style>
-
 <script>
 
-
-
 function select_all() {
-
-	for($i=0;$i < document.update_form.length;$i++) {
-
-		$name = document.update_form[$i].name;
-
-		if ($name.substring(0,7) == "claims[" && $name.substring($name.length -6) == "[bill]") {
-
-			document.update_form[$i].checked = true;
-
-		}
-
-	}
-
-	set_button_states();
-
+    for($i=0;$i < document.update_form.length;$i++) {
+        $name = document.update_form[$i].name;
+        if ($name.substring(0,7) == "claims[" && $name.substring($name.length -6) == "[bill]") {
+            document.update_form[$i].checked = true;
+        }
+    }
+    set_button_states();
 }
-
-
 
 function set_button_states() {
+    var f = document.update_form;
+    var count0 = 0; // selected and not billed or queued
+    var count1 = 0; // selected and queued
+    var count2 = 0; // selected and billed
+    for($i = 0; $i < f.length; ++$i) {
+        $name = f[$i].name;
+        if ($name.substring(0, 7) == "claims[" && $name.substring($name.length -6) == "[bill]" && f[$i].checked == true) {
+            if      (f[$i].value == '0') ++count0;
+            else if (f[$i].value == '1' || f[$i].value == '5') ++count1;
+            else ++count2;
+        }
+    }
 
-	var f = document.update_form;
-
-	var count0 = 0; // selected and not billed or queued
-
-	var count1 = 0; // selected and queued
-
-	var count2 = 0; // selected and billed
-
-	for($i = 0; $i < f.length; ++$i) {
-
-		$name = f[$i].name;
-
-		if ($name.substring(0, 7) == "claims[" && $name.substring($name.length -6) == "[bill]" && f[$i].checked == true) {
-
-			if      (f[$i].value == '0') ++count0;
-
-			else if (f[$i].value == '1' || f[$i].value == '5') ++count1;
-
-			else ++count2;
-
-		}
-
-	}
-
-
-
-	var can_generate = (count0 > 0 || count1 > 0 || count2 > 0);
-
-	var can_mark     = (count1 > 0 || count0 > 0 || count2 > 0);
-
-	var can_bill     = (count0 == 0 && count1 == 0 && count2 > 0);
-
-
+    var can_generate = (count0 > 0 || count1 > 0 || count2 > 0);
+    var can_mark     = (count1 > 0 || count0 > 0 || count2 > 0);
+    var can_bill     = (count0 == 0 && count1 == 0 && count2 > 0);
 
 <?php if (file_exists($EXPORT_INC)) { ?>
-
   f.bn_external.disabled        = !can_generate;
-
 <?php } else { ?>
-
-	f.bn_hcfa_print.disabled      = !can_generate;
-
-	f.bn_hcfa.disabled            = !can_generate;
-
-	f.bn_ub92_print.disabled      = !can_generate;
-
-	f.bn_ub92.disabled            = !can_generate;
-
-	f.bn_x12.disabled             = !can_generate;
-
-	f.bn_electronic_file.disabled = !can_bill;
-
-	f.bn_reopen.disabled          = !can_bill;
-
+    f.bn_hcfa_print.disabled      = !can_generate;
+    f.bn_hcfa.disabled            = !can_generate;
+    f.bn_ub92_print.disabled      = !can_generate;
+    f.bn_ub92.disabled            = !can_generate;
+    f.bn_x12.disabled             = !can_generate;
+    f.bn_electronic_file.disabled = !can_bill;
+    f.bn_reopen.disabled          = !can_bill;
 <?php } ?>
-
-	f.bn_mark.disabled            = !can_mark;
-
+    f.bn_mark.disabled            = !can_mark;
 }
-
-
 
 // Process a click to go to an encounter.
-
 function toencounter(pid, pname, enc, datestr) {
-
  top.restoreSession();
-
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-
  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
-
  parent.left_nav.setPatient(pname,pid,'');
-
  parent.left_nav.setEncounter(datestr, enc, othername);
-
  parent.left_nav.setRadio(othername, 'enc');
-
  parent.frames[othername].location.href =
-
   '../patient_file/encounter/encounter_top.php?set_encounter='
-
   + enc + '&pid=' + pid;
-
 <?php } else { ?>
-
  location.href = '../patient_file/encounter/patient_encounter.php?set_encounter='
-
   + enc + '&pid=' + pid;
-
 <?php } ?>
-
 }
-
-
 
 // Process a click to go to patient demographics.
-
 function topatient(pid) {
-
  top.restoreSession();
-
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-
  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
-
  parent.frames[othername].location.href =
-
   '../patient_file/summary/demographics_full.php?pid=' + pid;
-
 <?php } else { ?>
-
  location.href = '../patient_file/summary/demographics_full.php?pid=' + pid;
-
 <?php } ?>
-
 }
 
-
-
 </script>
-
 </head>
-
-<body <?php echo $top_bg_line; ?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-
+<body class="body_top">
 
 
 <p style='margin-top:5px;margin-bottom:5px;margin-left:5px'>
@@ -651,11 +457,11 @@ function topatient(pid) {
 
 if ($my_authorized == "on" ) {
 
-	$my_authorized = "1";
+    $my_authorized = "1";
 
 } else {
 
-	$my_authorized = "%";
+    $my_authorized = "%";
 
 }
 
@@ -663,11 +469,11 @@ if ($my_authorized == "on" ) {
 
 if ($unbilled == "on") {
 
-	$unbilled = "0";
+    $unbilled = "0";
 
 } else {
 
-	$unbilled = "%";
+    $unbilled = "%";
 
 }
 
@@ -687,77 +493,77 @@ print $list;
 
 if (!isset($_POST["mode"])) {
 
-	if (!isset($_POST["from_date"])) {
+    if (!isset($_POST["from_date"])) {
 
-		$from_date=date("Y-m-d");
+        $from_date=date("Y-m-d");
 
-	} else {
+    } else {
 
-		$from_date = $_POST["from_date"];
+        $from_date = $_POST["from_date"];
 
-	}
+    }
 
-	if (!isset($_POST["to_date"])) {
+    if (!isset($_POST["to_date"])) {
 
-		$to_date = date("Y-m-d");
+        $to_date = date("Y-m-d");
 
-	} else {
+    } else {
 
-		$to_date = $_POST["to_date"];
+        $to_date = $_POST["to_date"];
 
-	}
+    }
 
-	if (!isset($_POST["code_type"])) {
+    if (!isset($_POST["code_type"])) {
 
-		$code_type="all";
+        $code_type="all";
 
-	} else {
+    } else {
 
-		$code_type = $_POST["code_type"];
+        $code_type = $_POST["code_type"];
 
-	}
+    }
 
-	if (!isset($_POST["unbilled"])) {
+    if (!isset($_POST["unbilled"])) {
 
-		$unbilled = "on";
+        $unbilled = "on";
 
-	} else {
+    } else {
 
-		$unbilled = $_POST["unbilled"];
+        $unbilled = $_POST["unbilled"];
 
-	}
+    }
 
-	if (!isset($_POST["authorized"])) {
+    if (!isset($_POST["authorized"])) {
 
-		$my_authorized = "on";
+        $my_authorized = "on";
 
-	} else {
+    } else {
 
-		$my_authorized = $_POST["authorized"];
+        $my_authorized = $_POST["authorized"];
 
-	}
+    }
 
 } else {
 
-	$from_date = $_POST["from_date"];
+    $from_date = $_POST["from_date"];
 
-	$to_date = $_POST["to_date"];
+    $to_date = $_POST["to_date"];
 
-	$code_type = $_POST["code_type"];
+    $code_type = $_POST["code_type"];
 
-	$unbilled = $_POST["unbilled"];
+    $unbilled = $_POST["unbilled"];
 
-	$my_authorized = $_POST["authorized"];
+    $my_authorized = $_POST["authorized"];
 
 }
 
 if ($my_authorized == "on" ) {
 
-	$my_authorized = "1";
+    $my_authorized = "1";
 
 } else {
 
-	$my_authorized = "%";
+    $my_authorized = "%";
 
 }
 
@@ -765,11 +571,11 @@ if ($my_authorized == "on" ) {
 
 if ($unbilled == "on") {
 
-	$unbilled = "0";
+    $unbilled = "0";
 
 } else {
 
-	$unbilled = "%";
+    $unbilled = "%";
 
 }
 
@@ -777,7 +583,7 @@ if ($unbilled == "on") {
 
 if (isset($_POST["mode"]) && $_POST["mode"] == "bill") {
 
-	billCodesList($list);
+    billCodesList($list);
 
 }
 
@@ -791,205 +597,205 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "bill") {
 
 
 
-<?
+<?php
 
 if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 
-	$loop = 0;
+    $loop = 0;
 
-	$oldcode = "";
+    $oldcode = "";
 
-	$last_encounter_id = "";
+    $last_encounter_id = "";
 
-	$lhtml = "";
+    $lhtml = "";
 
-	$rhtml = "";
+    $rhtml = "";
 
-	$lcount = 0;
+    $lcount = 0;
 
-	$rcount = 0;
+    $rcount = 0;
 
-	$bgcolor = "";
+    $bgcolor = "";
 
-	$skipping = FALSE;
+    $skipping = FALSE;
 
 
 
-	foreach ($ret as $iter) {
+    foreach ($ret as $iter) {
 
 
 
-		// We include encounters here that have never been billed.  However
+        // We include encounters here that have never been billed.  However
 
-		// if it had no selected billing items but does have non-selected
+        // if it had no selected billing items but does have non-selected
 
-		// billing items, then it is not of interest.
+        // billing items, then it is not of interest.
 
-		if (!$iter['id']) {
+        if (!$iter['id']) {
 
-			$res = sqlQuery("SELECT count(*) AS count FROM billing WHERE " .
+            $res = sqlQuery("SELECT count(*) AS count FROM billing WHERE " .
 
-				"encounter = '" . $iter['enc_encounter'] . "' AND " .
+                "encounter = '" . $iter['enc_encounter'] . "' AND " .
 
-				"pid='" . $iter['enc_pid'] . "' AND " .
+                "pid='" . $iter['enc_pid'] . "' AND " .
 
-				"activity = 1");
+                "activity = 1");
 
-			if ($res['count'] > 0) continue;
+            if ($res['count'] > 0) continue;
 
-		}
+        }
 
 
 
-		$this_encounter_id = $iter['enc_pid'] . "-" . $iter['enc_encounter'];
+        $this_encounter_id = $iter['enc_pid'] . "-" . $iter['enc_encounter'];
 
 
 
-		// echo "<!-- $this_encounter_id -->\n"; // debugging
+        // echo "<!-- $this_encounter_id -->\n"; // debugging
 
 
 
-		if ($last_encounter_id != $this_encounter_id) {
+        if ($last_encounter_id != $this_encounter_id) {
 
-			if ($lhtml) {
+            if ($lhtml) {
 
-				while ($rcount < $lcount) {
+                while ($rcount < $lcount) {
 
-					$rhtml .= "<tr bgcolor='$bgcolor'><td colspan='7'>&nbsp;</td></tr>";
+                    $rhtml .= "<tr bgcolor='$bgcolor'><td colspan='7'>&nbsp;</td></tr>";
 
-					++$rcount;
+                    ++$rcount;
 
-				}
+                }
 
-				echo "<tr bgcolor='$bgcolor'>\n<td rowspan='$rcount' valign='top'>\n$lhtml</td>$rhtml\n";
+                echo "<tr bgcolor='$bgcolor'>\n<td rowspan='$rcount' valign='top'>\n$lhtml</td>$rhtml\n";
 
-				echo "<tr bgcolor='$bgcolor'><td colspan='8' height='5'></td></tr>\n\n";
+                echo "<tr bgcolor='$bgcolor'><td colspan='8' height='5'></td></tr>\n\n";
 
-			}
+            }
 
 
 
-			$lhtml = "";
+            $lhtml = "";
 
-			$rhtml = "";
+            $rhtml = "";
 
 
 
-			// If there are ANY unauthorized items in this encounter and this is
+            // If there are ANY unauthorized items in this encounter and this is
 
-			// the normal case of viewing only authorized billing, then skip the
+            // the normal case of viewing only authorized billing, then skip the
 
-			// entire encounter.
+            // entire encounter.
 
-			//
+            //
 
-			$skipping = FALSE;
+            $skipping = FALSE;
 
-			if ($my_authorized == '1') {
+            if ($my_authorized == '1') {
 
-				$res = sqlQuery("select count(*) as count from billing where " .
+                $res = sqlQuery("select count(*) as count from billing where " .
 
-					"encounter = '" . $iter['enc_encounter'] . "' and " .
+                    "encounter = '" . $iter['enc_encounter'] . "' and " .
 
-					"pid='" . $iter['enc_pid'] . "' and " .
+                    "pid='" . $iter['enc_pid'] . "' and " .
 
-					"activity = 1 and authorized = 0");
+                    "activity = 1 and authorized = 0");
 
-				if ($res['count'] > 0) {
+                if ($res['count'] > 0) {
 
-					$skipping = TRUE;
+                    $skipping = TRUE;
 
-					$last_encounter_id = $this_encounter_id;
+                    $last_encounter_id = $this_encounter_id;
 
-					continue;
+                    continue;
 
-				}
+                }
 
-			}
+            }
 
 
 
-			$name = getPatientData($iter['enc_pid'], "fname, mname, lname");
+            $name = getPatientData($iter['enc_pid'], "fname, mname, lname");
 
 
 
-			# Check if patient has primary insurance and a subscriber exists for it.
+            # Check if patient has primary insurance and a subscriber exists for it.
 
-			# If not we will highlight their name in red.
+            # If not we will highlight their name in red.
 
-			# TBD: more checking here.
+            # TBD: more checking here.
 
-			#
+            #
 
-			$res = sqlQuery("select count(*) as count from insurance_data where " .
+            $res = sqlQuery("select count(*) as count from insurance_data where " .
 
-				"pid = " . $iter['enc_pid'] . " and " .
+                "pid = " . $iter['enc_pid'] . " and " .
 
-				"type='primary' and " .
+                "type='primary' and " .
 
-				"subscriber_lname is not null and " .
+                "subscriber_lname is not null and " .
 
-				"subscriber_lname != '' limit 1");
+                "subscriber_lname != '' limit 1");
 
-			$namecolor = ($res['count'] > 0) ? "black" : "#ff7777";
+            $namecolor = ($res['count'] > 0) ? "black" : "#ff7777";
 
 
 
-			++$encount;
+            ++$encount;
 
-			$bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
+            $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
 
-			echo "<tr bgcolor='$bgcolor'><td colspan='8' height='5'></td></tr>\n";
+            echo "<tr bgcolor='$bgcolor'><td colspan='8' height='5'></td></tr>\n";
 
-			$lcount = 1;
+            $lcount = 1;
 
-			$rcount = 0;
+            $rcount = 0;
 
-			$oldcode = "";
+            $oldcode = "";
 
 
 
-			$ptname = $name['fname'] . " " . $name['lname'];
+            $ptname = $name['fname'] . " " . $name['lname'];
 
-			$raw_encounter_date = date("Y-m-d", strtotime($iter['enc_date']));
+            $raw_encounter_date = date("Y-m-d", strtotime($iter['enc_date']));
 
 
 
-			$lhtml .= "&nbsp;<span class=bold><font color='$namecolor'>$ptname" .
+            $lhtml .= "&nbsp;<span class=bold><font color='$namecolor'>$ptname" .
 
-				"</font></span><span class=small>&nbsp;(" . $iter['enc_pid'] . "-" .
+                "</font></span><span class=small>&nbsp;(" . $iter['enc_pid'] . "-" .
 
-				$iter['enc_encounter'] . ")</span>";
+                $iter['enc_encounter'] . ")</span>";
 
 
 
-			$lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" " .
+            $lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" " .
 
-				"href=\"javascript:window.toencounter(" . $iter['enc_pid'] .
+                "href=\"javascript:window.toencounter(" . $iter['enc_pid'] .
 
-				",'" . addslashes($ptname) . "'," . $iter['enc_encounter'] .
+                ",'" . addslashes($ptname) . "'," . $iter['enc_encounter'] .
 
-				",'$raw_encounter_date')\">[To&nbsp;Encounter]</a>";
+                ",'$raw_encounter_date')\">[To&nbsp;Encounter]</a>";
 
 
 
-			$lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" " .
+            $lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" " .
 
-				"href=\"javascript:window.topatient(" . $iter['enc_pid'] .
+                "href=\"javascript:window.topatient(" . $iter['enc_pid'] .
 
-				")\">[To&nbsp;Demographics]</a>";
+                ")\">[To&nbsp;Demographics]</a>";
 
 
 
-			if ($iter['id']) {
+            if ($iter['id']) {
 
-				$lcount += 2;
+                $lcount += 2;
 
-				$lhtml .= "<br />\n";
+                $lhtml .= "<br />\n";
 
-				$lhtml .= "&nbsp;<span class=text>Bill: ";
+                $lhtml .= "&nbsp;<span class=text>Bill: ";
 
-				$lhtml .= "<select name='claims[" . $this_encounter_id . "][payer]' style='background-color:$bgcolor'>";
+                $lhtml .= "<select name='claims[" . $this_encounter_id . "][payer]' style='background-color:$bgcolor'>";
 
 
 
@@ -1009,103 +815,103 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 
 
 
-				$result = sqlStatement($query);
+                $result = sqlStatement($query);
 
-				$count = 0;
+                $count = 0;
 
-				$default_x12_partner = $iter['ic_x12id'];
+                $default_x12_partner = $iter['ic_x12id'];
 
         $prevtype = '';
 
-				while ($row = mysql_fetch_array($result)) {
+                while ($row = mysql_fetch_array($result)) {
 
           if (strcmp($row['type'], $prevtype) == 0) continue;
 
           $prevtype = $row['type'];
 
-					if (strlen($row['provider']) > 0) {
+                    if (strlen($row['provider']) > 0) {
 
-						// This preserves any existing insurance company selection, which is
+                        // This preserves any existing insurance company selection, which is
 
-						// important when EOB posting has re-queued for secondary billing.
+                        // important when EOB posting has re-queued for secondary billing.
 
-						$lhtml .= "<option value=\"" . $row['id'] . "\"";
+                        $lhtml .= "<option value=\"" . $row['id'] . "\"";
 
-						if (($count == 0 && !$iter['payer_id']) || $row['id'] == $iter['payer_id']) {
+                        if (($count == 0 && !$iter['payer_id']) || $row['id'] == $iter['payer_id']) {
 
-							$lhtml .= " selected";
+                            $lhtml .= " selected";
 
-							if (!is_numeric($default_x12_partner)) $default_x12_partner = $row['ic_x12id'];
+                            if (!is_numeric($default_x12_partner)) $default_x12_partner = $row['ic_x12id'];
 
-						}
+                        }
 
-						$lhtml .= ">" . $row['type'] . ": " . $row['provider'] . "</option>";
+                        $lhtml .= ">" . $row['type'] . ": " . $row['provider'] . "</option>";
 
-					}
+                    }
 
-					$count++;
+                    $count++;
 
-				}
+                }
 
-				$lhtml .= "<option value='-1'>Unassigned</option>\n";
+                $lhtml .= "<option value='-1'>Unassigned</option>\n";
 
-				$lhtml .= "</select>&nbsp;&nbsp;\n";
+                $lhtml .= "</select>&nbsp;&nbsp;\n";
 
-				$lhtml .= "<select name='claims[" . $this_encounter_id . "][partner]' style='background-color:$bgcolor'>";
+                $lhtml .= "<select name='claims[" . $this_encounter_id . "][partner]' style='background-color:$bgcolor'>";
 
-				$x = new X12Partner();
+                $x = new X12Partner();
 
-				$partners = $x->_utility_array($x->x12_partner_factory());
+                $partners = $x->_utility_array($x->x12_partner_factory());
 
-				foreach ($partners as $xid => $xname) {
+                foreach ($partners as $xid => $xname) {
 
-					$lhtml .= '<option label="' . $xname . '" value="' . $xid .'"';
+                    $lhtml .= '<option label="' . $xname . '" value="' . $xid .'"';
 
-					if ($xid == $default_x12_partner) {
+                    if ($xid == $default_x12_partner) {
 
-						$lhtml .= "selected";
+                        $lhtml .= "selected";
 
-					}
+                    }
 
-					$lhtml .= '>' . $xname . '</option>';
+                    $lhtml .= '>' . $xname . '</option>';
 
-				}
+                }
 
-				$lhtml .= "</select>";
+                $lhtml .= "</select>";
 
 
 
         /****
 
-				$lhtml .= "<br>\n&nbsp;".xl("Encounter was coded: ")  . $iter['date'];
+                $lhtml .= "<br>\n&nbsp;".xl("Encounter was coded: ")  . $iter['date'];
 
-				if ($iter['billed'] == 1) {
+                if ($iter['billed'] == 1) {
 
-					$lhtml .= "<br>\n&nbsp;".xl("Claim was billed: ")  . $iter['bill_date'];
+                    $lhtml .= "<br>\n&nbsp;".xl("Claim was billed: ")  . $iter['bill_date'];
 
-					++$lcount;
+                    ++$lcount;
 
-				}
+                }
 
-				if ($iter['bill_process'] == 1) {
+                if ($iter['bill_process'] == 1) {
 
-					$lhtml .= "<br>\n&nbsp;".xl("Claim is queued for processing");
+                    $lhtml .= "<br>\n&nbsp;".xl("Claim is queued for processing");
 
-					++$lcount;
+                    ++$lcount;
 
-				}
+                }
 
-				if ($iter['bill_process'] == 5) {
+                if ($iter['bill_process'] == 5) {
 
-					$lhtml .= "<br>\n&nbsp;".xl("Claim is queued for printing and processing");
+                    $lhtml .= "<br>\n&nbsp;".xl("Claim is queued for printing and processing");
 
-					++$lcount;
+                    ++$lcount;
 
-				}
+                }
 
-				if ($iter['bill_process'] == 2) {
+                if ($iter['bill_process'] == 2) {
 
-					$lhtml .= "<br>\n&nbsp;".xl("Claim was processed: ")  . $iter['process_date'];
+                    $lhtml .= "<br>\n&nbsp;".xl("Claim was processed: ")  . $iter['process_date'];
 
           if ($iter['process_file']) {
 
@@ -1123,15 +929,15 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 
           ++$lcount;
 
-				}
+                }
 
-				if ($iter['bill_process'] == 3) {
+                if ($iter['bill_process'] == 3) {
 
-					$lhtml .= "<br>\n&nbsp;".xl("Claim was processed: ")  . $iter['process_date'] . xl(" but there was an error: "). $iter['process_file'];
+                    $lhtml .= "<br>\n&nbsp;".xl("Claim was processed: ")  . $iter['process_date'] . xl(" but there was an error: "). $iter['process_file'];
 
-					++$lcount;
+                    ++$lcount;
 
-				}
+                }
 
         ****/
 
@@ -1257,141 +1063,141 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 
 
 
-			} // end if ($iter['id'])
+            } // end if ($iter['id'])
 
-		}
+        }
 
 
 
-		if ($skipping) continue;
+        if ($skipping) continue;
 
 
 
-		++$rcount;
+        ++$rcount;
 
-		if ($rhtml) {
+        if ($rhtml) {
 
-			$rhtml .= "<tr bgcolor='$bgcolor'>\n";
+            $rhtml .= "<tr bgcolor='$bgcolor'>\n";
 
-		}
+        }
 
-		$rhtml .= "<td width='50'>";
+        $rhtml .= "<td width='50'>";
 
-		if ($iter['id'] && $oldcode != $iter['code_type']) {
+        if ($iter['id'] && $oldcode != $iter['code_type']) {
 
-			$rhtml .= "<span class=text>" . $iter['code_type'] . ": </span>";
+            $rhtml .= "<span class=text>" . $iter['code_type'] . ": </span>";
 
-		}
+        }
 
-		$oldcode = $iter['code_type'];
+        $oldcode = $iter['code_type'];
 
-		$rhtml .= "</td>\n";
+        $rhtml .= "</td>\n";
 
-		$justify = "";
+        $justify = "";
 
-		if ($iter['id'] && $code_types[$iter['code_type']]['just']) {
+        if ($iter['id'] && $code_types[$iter['code_type']]['just']) {
 
-			$js = split(":",$iter['justify']);
+            $js = split(":",$iter['justify']);
 
-			$counter = 0;
+            $counter = 0;
 
-			foreach ($js as $j) {
+            foreach ($js as $j) {
 
-				if(!empty($j)) {
+                if(!empty($j)) {
 
-					if ($counter == 0) {
+                    if ($counter == 0) {
 
-						$justify .= " (<b>$j</b>)";
+                        $justify .= " (<b>$j</b>)";
 
-					}
+                    }
 
-					else {
+                    else {
 
-						$justify .= " ($j)";
+                        $justify .= " ($j)";
 
-					}
+                    }
 
-					$counter++;
+                    $counter++;
 
-				}
+                }
 
-			}
+            }
 
-		}
+        }
 
 
 
-		$rhtml .= "<td><span class=text>" . $iter{"code"}. "</span>" . '<span style="font-size:8pt;">' . $justify . "</span></td>\n";
+        $rhtml .= "<td><span class=text>" . $iter{"code"}. "</span>" . '<span style="font-size:8pt;">' . $justify . "</span></td>\n";
 
-		$rhtml .= '<td align="right"><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
+        $rhtml .= '<td align="right"><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
 
-		if ($iter['id'] && $iter['fee'] > 0) {
+        if ($iter['id'] && $iter['fee'] > 0) {
 
-			$rhtml .= '$' . $iter['fee'];
+            $rhtml .= '$' . $iter['fee'];
 
-		}
+        }
 
-		$rhtml .= "</span></td>\n";
+        $rhtml .= "</span></td>\n";
 
-		$rhtml .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
+        $rhtml .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
 
-		if ($iter['id']) $rhtml .= getProviderName($iter['provider_id']);
+        if ($iter['id']) $rhtml .= getProviderName($iter['provider_id']);
 
-		$rhtml .= "</span></td>\n";
+        $rhtml .= "</span></td>\n";
 
-		$rhtml .= '<td width=100>&nbsp;&nbsp;&nbsp;<span style="font-size:8pt;">';
+        $rhtml .= '<td width=100>&nbsp;&nbsp;&nbsp;<span style="font-size:8pt;">';
 
-		if ($iter['id']) $rhtml .= date("Y-m-d",strtotime($iter{"date"}));
+        if ($iter['id']) $rhtml .= date("Y-m-d",strtotime($iter{"date"}));
 
-		$rhtml .= "</span></td>\n";
+        $rhtml .= "</span></td>\n";
 
-		if ($iter['id'] && $iter['authorized'] != 1) {
+        if ($iter['id'] && $iter['authorized'] != 1) {
 
-			$rhtml .= "<td><span class=alert>".xl("Note: This code was not entered by an authorized user. Only authorized codes may be uploaded to the Open Medical Billing Network for processing. If you wish to upload these codes, please select an authorized user here.")."</span></td>\n";
+            $rhtml .= "<td><span class=alert>".xl("Note: This code was not entered by an authorized user. Only authorized codes may be uploaded to the Open Medical Billing Network for processing. If you wish to upload these codes, please select an authorized user here.")."</span></td>\n";
 
-		}
+        }
 
-		else {
+        else {
 
-			$rhtml .= "<td></td>\n";
+            $rhtml .= "<td></td>\n";
 
-		}
+        }
 
-		if ($iter['id'] && $last_encounter_id != $this_encounter_id) {
+        if ($iter['id'] && $last_encounter_id != $this_encounter_id) {
 
-			$rhtml .= "<td><input type='checkbox' value='" . $iter['bill_process'] . "$procstatus' name='claims[" . $this_encounter_id . "][bill]' onclick='set_button_states()'>&nbsp;</td>\n";
+            $rhtml .= "<td><input type='checkbox' value='" . $iter['bill_process'] . "$procstatus' name='claims[" . $this_encounter_id . "][bill]' onclick='set_button_states()'>&nbsp;</td>\n";
 
-		}
+        }
 
-		else {
+        else {
 
-			$rhtml .= "<td></td>\n";
+            $rhtml .= "<td></td>\n";
 
-		}
+        }
 
-		$rhtml .= "</tr>\n";
+        $rhtml .= "</tr>\n";
 
-		$last_encounter_id = $this_encounter_id;
+        $last_encounter_id = $this_encounter_id;
 
-	}
+    }
 
 
 
-	if ($lhtml) {
+    if ($lhtml) {
 
-		while ($rcount < $lcount) {
+        while ($rcount < $lcount) {
 
-			$rhtml .= "<tr bgcolor='$bgcolor'><td colspan='7'>&nbsp;</td></tr>";
+            $rhtml .= "<tr bgcolor='$bgcolor'><td colspan='7'>&nbsp;</td></tr>";
 
-			++$rcount;
+            ++$rcount;
 
-		}
+        }
 
-		echo "<tr bgcolor='$bgcolor'>\n<td rowspan='$rcount' valign='top'>\n$lhtml</td>$rhtml\n";
+        echo "<tr bgcolor='$bgcolor'>\n<td rowspan='$rcount' valign='top'>\n$lhtml</td>$rhtml\n";
 
-		echo "<tr bgcolor='$bgcolor'><td colspan='8' height='5'></td></tr>\n";
+        echo "<tr bgcolor='$bgcolor'><td colspan='8' height='5'></td></tr>\n";
 
-	}
+    }
 
 }
 
@@ -1411,23 +1217,13 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
 
 set_button_states();
 
-
-
 <?php
-
-	if ($alertmsg) {
-
-		echo "alert('$alertmsg');\n";
-
-	}
-
+    if ($alertmsg) {
+        echo "alert('$alertmsg');\n";
+    }
 ?>
 
-
-
 </script>
-
 </body>
-
 </html>
 

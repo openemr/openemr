@@ -7,7 +7,7 @@ formHeader("Form: bronchitis");
 $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 ?>
 <html><head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <SCRIPT LANGUAGE="JavaScript">
 <!-- 
 
@@ -35,19 +35,18 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
    }
 </SCRIPT>
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $top_bg_line;?>
-topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="body_top">
 
-<form method=post action="<?echo $rootdir;?>/forms/bronchitis/save.php?mode=new" name="my_form">
+<form method=post action="<?php echo $rootdir;?>/forms/bronchitis/save.php?mode=new" name="my_form">
 <br></br>
 <span class="title" ><?php xl('Bronchitis Form','e'); ?></span>
 <br></br>
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" style="color: #483D8B"
+<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" style="color: #483D8B"
  onclick="top.restoreSession()">[<?php xl('Don\'t Save','e'); ?>]</a>
 <br></br>
 <span class="text" ><?php xl('Onset of Illness:','e'); ?> </span><input type="entry" name="bronchitis_date_of_illness" value=""></input>
@@ -425,7 +424,7 @@ topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight
 <br>
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 <br>
-<a href="<?echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" style="color: #483D8B"
+<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link" style="color: #483D8B"
  onclick="top.restoreSession()">[<?php xl('Don\'t Save','e'); ?>]</a>
 </form>
 

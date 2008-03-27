@@ -9,11 +9,11 @@ $browsenum = (is_numeric($_REQUEST['browsenum'])) ? $_REQUEST['browsenum'] : 1;
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
 </head>
 
-<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="body_top">
 
 <a href="javascript:window.close();"><font class=title><?php  xl('Browse for Record','e'); ?></font><font class=back><?php echo $tback;?></font></a>
 
@@ -47,40 +47,40 @@ if (isset($_GET{set_pid})) {
 <!--
 function auto_populate_employer_address(){
  var df = opener.document.demographics_form;
- df.i<?=$browsenum?>subscriber_fname.value='<?echo $result3{subscriber_fname};?>';
- df.i<?=$browsenum?>subscriber_mname.value='<?echo $result3{subscriber_mname};?>';
- df.i<?=$browsenum?>subscriber_lname.value='<?echo $result3{subscriber_lname};?>';
- df.i<?=$browsenum?>subscriber_street.value='<?echo $result3{subscriber_street};?>';
- df.i<?=$browsenum?>subscriber_city.value='<?echo $result3{subscriber_city};?>';
- df.i<?=$browsenum?>subscriber_state.value='<?echo $result3{subscriber_state};?>';
- df.i<?=$browsenum?>subscriber_postal_code.value='<?echo $result3{subscriber_postal_code};?>';
- if (df.i<?=$browsenum?>subscriber_country) // in case this is commented out
-  df.i<?=$browsenum?>subscriber_country.value='<?echo $result3{subscriber_country};?>';
- df.i<?=$browsenum?>subscriber_phone.value='<?echo $result3{subscriber_phone};?>';
- df.i<?=$browsenum?>subscriber_DOB.value='<?=$result3{subscriber_DOB};?>';
- df.i<?=$browsenum?>subscriber_ss.value='<?echo $result3{subscriber_ss};?>';
- df.i<?=$browsenum?>subscriber_sex.value='<?echo $result3{subscriber_sex};?>';
+ df.i<?php echo $browsenum?>subscriber_fname.value='<?php echo $result3{subscriber_fname};?>';
+ df.i<?php echo $browsenum?>subscriber_mname.value='<?php echo $result3{subscriber_mname};?>';
+ df.i<?php echo $browsenum?>subscriber_lname.value='<?php echo $result3{subscriber_lname};?>';
+ df.i<?php echo $browsenum?>subscriber_street.value='<?php echo $result3{subscriber_street};?>';
+ df.i<?php echo $browsenum?>subscriber_city.value='<?php echo $result3{subscriber_city};?>';
+ df.i<?php echo $browsenum?>subscriber_state.value='<?php echo $result3{subscriber_state};?>';
+ df.i<?php echo $browsenum?>subscriber_postal_code.value='<?php echo $result3{subscriber_postal_code};?>';
+ if (df.i<?php echo $browsenum?>subscriber_country) // in case this is commented out
+  df.i<?php echo $browsenum?>subscriber_country.value='<?php echo $result3{subscriber_country};?>';
+ df.i<?php echo $browsenum?>subscriber_phone.value='<?php echo $result3{subscriber_phone};?>';
+ df.i<?php echo $browsenum?>subscriber_DOB.value='<?php echo $result3{subscriber_DOB};?>';
+ df.i<?php echo $browsenum?>subscriber_ss.value='<?php echo $result3{subscriber_ss};?>';
+ df.i<?php echo $browsenum?>subscriber_sex.value='<?php echo $result3{subscriber_sex};?>';
 
- df.i<?=$browsenum?>plan_name.value='<?echo $result3{plan_name};?>';
- df.i<?=$browsenum?>policy_number.value='<?echo $result3{policy_number};?>';
- df.i<?=$browsenum?>group_number.value='<?echo $result3{group_number};?>';
- df.i<?=$browsenum?>provider.value='<?echo $result3{provider};?>';
+ df.i<?php echo $browsenum?>plan_name.value='<?php echo $result3{plan_name};?>';
+ df.i<?php echo $browsenum?>policy_number.value='<?php echo $result3{policy_number};?>';
+ df.i<?php echo $browsenum?>group_number.value='<?php echo $result3{group_number};?>';
+ df.i<?php echo $browsenum?>provider.value='<?php echo $result3{provider};?>';
 
  // One clinic comments out the subscriber employer stuff.
- if (df.i<?=$browsenum?>subscriber_employer) {
-  df.i<?=$browsenum?>subscriber_employer.value='<?echo $result3{subscriber_employer};?>';
-  df.i<?=$browsenum?>subscriber_employer_street.value='<?echo $result3{subscriber_employer_street};?>';
-  df.i<?=$browsenum?>subscriber_employer_city.value='<?echo $result3{subscriber_employer_city};?>';
-  df.i<?=$browsenum?>subscriber_employer_state.value='<?echo $result3{subscriber_employer_state};?>';
-  df.i<?=$browsenum?>subscriber_employer_postal_code.value='<?echo $result3{subscriber_employer_postal_code};?>';
-  df.i<?=$browsenum?>subscriber_employer_country.value='<?echo $result3{subscriber_employer_country};?>';
+ if (df.i<?php echo $browsenum?>subscriber_employer) {
+  df.i<?php echo $browsenum?>subscriber_employer.value='<?php echo $result3{subscriber_employer};?>';
+  df.i<?php echo $browsenum?>subscriber_employer_street.value='<?php echo $result3{subscriber_employer_street};?>';
+  df.i<?php echo $browsenum?>subscriber_employer_city.value='<?php echo $result3{subscriber_employer_city};?>';
+  df.i<?php echo $browsenum?>subscriber_employer_state.value='<?php echo $result3{subscriber_employer_state};?>';
+  df.i<?php echo $browsenum?>subscriber_employer_postal_code.value='<?php echo $result3{subscriber_employer_postal_code};?>';
+  df.i<?php echo $browsenum?>subscriber_employer_country.value='<?php echo $result3{subscriber_employer_country};?>';
  }
 }
 //-->
 </script>
 
-<form method=post name=insurance_form action=browse.php?browsenum=<?=$browsenum?>&set_pid=<?php echo $_GET{set_pid};?>>
-<input type="hidden" name="browsenum" value="<?=$browsenum?>">
+<form method=post name=insurance_form action=browse.php?browsenum=<?php echo $browsenum?>&set_pid=<?php echo $_GET{set_pid};?>>
+<input type="hidden" name="browsenum" value="<?php echo $browsenum?>">
 <span class=bold> <?php  xl('Insurance Provider','e'); ?>:</span>
 <select name=insurance onchange="javascript:document.insurance_form.submit();">
 <option value="primary"><?php  xl('Primary','e'); ?></option>

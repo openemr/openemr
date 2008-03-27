@@ -49,8 +49,8 @@ function get_patient_balance($pid) {
 <html>
 
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script language="JavaScript">
 
@@ -82,7 +82,7 @@ function get_patient_balance($pid) {
 </script>
 </head>
 
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="body_top">
 
 <?php
  $result = getPatientData($pid);
@@ -283,7 +283,7 @@ foreach (array('primary','secondary','tertiary') as $instype) {
       <br>
       <?php xl('Policy Number','e'); ?>: <?php echo $row['policy_number'] ?><br>
       Plan Name: <?php echo $row['plan_name']; ?><br>
-      Group Number: <?echo $row['group_number']; ?></span>
+      Group Number: <?php echo $row['group_number']; ?></span>
      </td>
      <td valign='top'>
       <span class='bold'><?php xl('Subscriber','e'); ?>: </span><br>

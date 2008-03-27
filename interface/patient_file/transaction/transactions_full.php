@@ -5,16 +5,16 @@ include_once("$srcdir/transactions.inc");
 
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="body_top">
 
 <a href="patient_transaction.php" target="Main" onclick="top.restoreSession()">
-<font class="title"><? xl('Patient Transactions','e'); ?></font>
-<font class=more><?echo $tback;?></font></a>
+<font class="title"><?php xl('Patient Transactions','e'); ?></font>
+<font class=more><?php echo $tback;?></font></a>
 
 <br>
 <table>

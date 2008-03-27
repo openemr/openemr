@@ -17,16 +17,16 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <title><?php xl('Edit Diagnoses for','e');?><?php echo $line_id ?></title>
-<link rel=stylesheet href='<?php  echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 
 <script language="JavaScript">
 </script>
 
 </head>
 
-<body <?php echo $top_bg_line;?>>
+<body class="body_top">
 <?php
  // If we are saving, then save and close the window.
  //
@@ -78,7 +78,7 @@
 <?php for ($i = 1; $drow = sqlFetchArray($dres); ++$i) { ?>
  <tr>
   <td><input type='text' size='3' maxlength='5' name='form_ordering[<?php echo $i?>]' value='<?php echo $i?>' /></td>
-  <td><input type='text' size='20' maxlength='250' name='form_diagnosis[<?php echo $i?>]' value='<? echo $drow['diagnosis'] ?>' style='width:100%' /></td>
+  <td><input type='text' size='20' maxlength='250' name='form_diagnosis[<?php echo $i?>]' value='<?php echo $drow['diagnosis'] ?>' style='width:100%' /></td>
  </tr>
 <?php } ?>
 

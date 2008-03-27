@@ -237,8 +237,8 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <style  type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 <style>
 .sstable td {
@@ -524,8 +524,7 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
 
 </head>
 
-<body <?echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="0"
- bottommargin="0" marginwidth="0" marginheight="0">
+<body class="body_top">
 <form method="post" action="<?php echo "$rootdir/forms/$spreadsheet_form_name/new.php?id=$formid"; if ($popup) echo '&popup=1'; ?>"
  onsubmit="return top.restoreSession()">
 <center>

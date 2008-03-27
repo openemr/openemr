@@ -4,8 +4,8 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script language='JavaScript'>
  // When an issue is checked, auto-check all the related encounters.
  function issueClick(icb) {
@@ -26,50 +26,49 @@
 </script>
 </head>
 
-<body <?echo $top_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
- bottommargin='0' marginwidth='2' marginheight='0'>
+<body class="body_top">
 
-<font class='title'><? xl('Patient Report','e'); ?></font><br>
+<font class='title'><?php xl('Patient Report','e'); ?></font><br>
 
 <a class="link_submit" href="full_report.php" onclick="top.restoreSession()">
-[<? xl('View Comprehensive Patient Report','e'); ?>]</a>
+[<?php xl('View Comprehensive Patient Report','e'); ?>]</a>
 
 <form name='report_form' method='post' action='custom_report.php'>
 
 <table>
  <tr>
   <td class='text' valign='top'>
-   <input type='checkbox' name='include_demographics' value="demographics" checked><? xl('Demographics','e'); ?><br>
-   <input type='checkbox' name='include_history' value="history"><? xl(' History','e'); ?><br>
-   <input type='checkbox' name='include_employer' value="employer"><? xl('Employer','e'); ?><br>
-   <input type='checkbox' name='include_insurance' value="insurance"><? xl('Insurance','e'); ?><br>
-   <input type='checkbox' name='include_billing' value="billing" checked><? xl('Billing','e'); ?><br>
+   <input type='checkbox' name='include_demographics' value="demographics" checked><?php xl('Demographics','e'); ?><br>
+   <input type='checkbox' name='include_history' value="history"><?php xl(' History','e'); ?><br>
+   <input type='checkbox' name='include_employer' value="employer"><?php xl('Employer','e'); ?><br>
+   <input type='checkbox' name='include_insurance' value="insurance"><?php xl('Insurance','e'); ?><br>
+   <input type='checkbox' name='include_billing' value="billing" checked><?php xl('Billing','e'); ?><br>
   </td>
   <td class='text' valign='top'>
    <!--
    <input type='checkbox' name='include_allergies' value="allergies">Allergies<br>
    <input type='checkbox' name='include_medications' value="medications">Medications<br>
    -->
-   <input type='checkbox' name='include_immunizations' value="immunizations"><? xl('Immunizations','e'); ?><br>
+   <input type='checkbox' name='include_immunizations' value="immunizations"><?php xl('Immunizations','e'); ?><br>
    <!--
    <input type='checkbox' name='include_medical_problems' value="medical_problems">Medical Problems<br>
    -->
-   <input type='checkbox' name='include_notes' value="notes"><? xl('Patient Notes','e'); ?><br>
-   <input type='checkbox' name='include_transactions' value="transactions"><? xl('Transactions','e'); ?><br>
-   <input type='checkbox' name='include_batchcom' value="batchcom"><? xl('Communications','e'); ?><br>
+   <input type='checkbox' name='include_notes' value="notes"><?php xl('Patient Notes','e'); ?><br>
+   <input type='checkbox' name='include_transactions' value="transactions"><?php xl('Transactions','e'); ?><br>
+   <input type='checkbox' name='include_batchcom' value="batchcom"><?php xl('Communications','e'); ?><br>
   </td>
  </tr>
 </table>
 
 <br>
-<a href='javascript:top.restoreSession();document.report_form.submit()' class='link_submit'><? xl('Generate Report','e'); ?></a>
+<a href='javascript:top.restoreSession();document.report_form.submit()' class='link_submit'><?php xl('Generate Report','e'); ?></a>
 <hr>
 
 <table>
  <tr>
 
   <td valign='top' class='text'>
-   <span class='bold'><? xl('Issues to Include in this Report','e'); ?>: &nbsp; &nbsp;</span>
+   <span class='bold'><?php xl('Issues to Include in this Report','e'); ?>: &nbsp; &nbsp;</span>
    <br>&nbsp;
    <table cellpadding='1' cellspacing='2'>
     <!--
@@ -80,8 +79,8 @@
      <td>End &nbsp; &nbsp; &nbsp;</td>
     </tr>
     -->
-<?
- // get issues
+<?php
+// get issues
  $pres = sqlStatement("SELECT * FROM lists WHERE pid = $pid " .
   "ORDER BY type, begdate");
  $lasttype = "";
@@ -134,9 +133,9 @@
   </td>
 
   <td valign='top' class='text'>
-<span class='bold'><? xl('Encounter Forms to Include in this Report','e'); ?>:</span>
+<span class='bold'><?php xl('Encounter Forms to Include in this Report','e'); ?>:</span>
 <br><br>
-<?
+<?php
  $isfirst = 1;
  $res = sqlStatement("SELECT forms.encounter, forms.form_id, forms.form_name, " .
   "forms.formdir, forms.date AS fdate, form_encounter.date " .
@@ -199,10 +198,10 @@ foreach($registry_form_name as $var) {
  </tr>
 </table>
 
-<span class="bold"><? xl('Documents','e'); ?></span>:<br>
+<span class="bold"><?php xl('Documents','e'); ?></span>:<br>
 <ul>
-<?
- //code lists available images
+<?php
+//code lists available images
  $db = $GLOBALS['adodb']['db'];
  $sql = "SELECT d.id, d.url, c.name FROM documents AS d " .
   "LEFT JOIN categories_to_documents AS ctd ON d.id=ctd.document_id " .
@@ -222,7 +221,7 @@ foreach($registry_form_name as $var) {
 </ul>
 </form>
 
-<a href='javascript:top.restoreSession();document.report_form.submit()' class='link_submit'><? xl('Generate Report','e'); ?></a>
+<a href='javascript:top.restoreSession();document.report_form.submit()' class='link_submit'><?php xl('Generate Report','e'); ?></a>
 
 </body>
 </html>

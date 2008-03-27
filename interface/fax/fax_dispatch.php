@@ -290,19 +290,14 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <title><?php xl('Dispatch Received Document','e'); ?></title>
-<link rel=stylesheet href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
 
-body, td, input, select, textarea {
- font-family: Arial, Helvetica, sans-serif;
+td, input, select, textarea {
  font-size: 10pt;
-}
-
-body {
- padding: 0.2em 1em 1em 1em;
 }
 
 .itemtitle {
@@ -429,13 +424,12 @@ div.section {
 
 </head>
 
-<body <?php echo $top_bg_line;?> onunload='imclosing()'>
+<body class="body_top" onunload='imclosing()'>
 
 <center><h2><?php xl('Dispatch Received Document','e'); ?></h2></center>
 
 <form method='post' name='theform'
- action='fax_dispatch.php?<?php echo ($mode == 'fax') ? 'file' : 'scan'; ?>=<?php echo $filename ?>'
- onsubmit='return validate()'>
+ action='fax_dispatch.php?<?php echo ($mode == 'fax') ? 'file' : 'scan'; ?>=<?php echo $filename ?>' onsubmit='return validate()'>
 
 <p><input type='checkbox' name='form_cb_copy' value='1'
  onclick='return divclick(this,"div_copy");' />

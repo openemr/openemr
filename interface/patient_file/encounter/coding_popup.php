@@ -29,9 +29,9 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <title>Coding</title>
-<link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <script language='JavaScript'>
  function docancel() {
   window.close();
@@ -39,7 +39,7 @@
 </script>
 </head>
 
-<body <?echo $top_bg_line;?>>
+<body class="body_top">
 <?php
  // This has all the interesting stuff.
  include_once("$srcdir/coding.inc.php");

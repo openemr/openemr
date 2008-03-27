@@ -170,7 +170,7 @@ $billresult = getBillingByEncounter($pid, $encounter, "*");
 <html>
 <head>
 <?php html_header_show(); ?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <style>
 .billcell { font-family: sans-serif; font-size: 10pt }
 </style>
@@ -304,8 +304,7 @@ function setJustify(seljust) {
 </script>
 </head>
 
-<body <?echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2"
- bottommargin="0" marginwidth="2" marginheight="0">
+<body class="body_top">
 <form method="post" action="<?php echo $rootdir; ?>/forms/fee_sheet/new.php"
  onsubmit="return validate(this)">
 <span class="title"><?php xl('Fee Sheet','e'); ?></span><br>
@@ -426,7 +425,7 @@ echo " </tr>\n";
   </td>
   <td>
    <?php xl('Search','e'); ?>&nbsp;
-<?
+<?php
   foreach ($code_types as $key => $value) {
     if (!empty($value['nofs'])) continue;
     echo "   <input type='radio' name='search_type' value='$key'";
@@ -451,14 +450,14 @@ echo " </tr>\n";
  <tr>
   <td class='billcell'><b><?php xl('Type','e');?></b></td>
   <td class='billcell'><b><?php xl('Code','e');?></b></td>
-<? if (modifiers_are_used(true)) { ?>
+<?php if (modifiers_are_used(true)) { ?>
   <td class='billcell'><b><?php xl('Mod','e');?></b></td>
-<? } ?>
-<? if (fees_are_used()) { ?>
+<?php } ?>
+<?php if (fees_are_used()) { ?>
   <td class='billcell' align='center'><b><?php xl('Units','e');?></b></td>
   <td class='billcell' align='right'><b><?php xl('Fee','e');?></b>&nbsp;</td>
   <td class='billcell' align='center'><b><?php xl('Justify','e');?></b></td>
-<? } ?>
+<?php } ?>
   <td class='billcell' align='center'><b><?php xl('Auth','e');?></b></td>
   <td class='billcell' align='center'><b><?php xl('Delete','e');?></b></td>
   <td class='billcell'><b><?php xl('Description','e');?></b></td>
@@ -909,14 +908,14 @@ echo "   </select>\n";
 <input type='submit' name='bn_refresh' value='<?php xl('Refresh','e');?>'>
 &nbsp;
 <input type='button' value='<?php xl('Cancel','e');?>'
- onclick="top.restoreSession();location='<? echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
+ onclick="top.restoreSession();location='<?php echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
 
 <?php if ($code_types['UCSMC']) { ?>
 <p style='font-family:sans-serif;font-size:8pt;color:#666666;'>
 &nbsp;<br>
 <?php xl('UCSMC codes provided by the University of Calgary Sports Medicine Centre','e');?>
 </p>
-<? } ?>
+<?php } ?>
 
 </center>
 

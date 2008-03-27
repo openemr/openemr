@@ -1,4 +1,4 @@
-<?
+<?php
  include_once("../../globals.php");
  include_once("$srcdir/forms.inc");
  include_once("$srcdir/billing.inc");
@@ -29,8 +29,8 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script language="JavaScript">
  function toencounter(enc, datestr) {
 <?php if ($GLOBALS['concurrent_layout']) { ?>
@@ -45,26 +45,25 @@
 </script>
 </head>
 
-<body <?echo $top_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
- bottommargin='0' marginwidth='2' marginheight='0'>
+<body class="body_top">
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href='encounters.php'>
 <?php } else { ?>
 <a href="patient_history.php" target="Main">
 <?php } ?>
-<font class="title"><? xl('Past Encounters','e'); ?></font>
-<font class=back><?echo $tback;?></font></a><br>
+<font class="title"><?php xl('Past Encounters','e'); ?></font>
+<font class=back><?php echo $tback;?></font></a><br>
 
 <table width='100%'>
 <tr>
-<td><span class='bold'><? xl('Date','e'); ?></span></td>
-<td><span class='bold'><? xl('Issue','e'); ?></span></td>
-<td><span class='bold'><? xl('Reason','e'); ?></span></td>
-<td><span class='bold'><? echo ($GLOBALS['phone_country_code'] == '1') ? 'Billing' : 'Coding' ?></span></td>
-<td><span class='bold'><? xl('Provider','e'); ?></span></td>
+<td><span class='bold'><?php xl('Date','e'); ?></span></td>
+<td><span class='bold'><?php xl('Issue','e'); ?></span></td>
+<td><span class='bold'><?php xl('Reason','e'); ?></span></td>
+<td><span class='bold'><?php echo ($GLOBALS['phone_country_code'] == '1') ? 'Billing' : 'Coding' ?></span></td>
+<td><span class='bold'><?php xl('Provider','e'); ?></span></td>
 <?php if (!$GLOBALS['athletic_team']) { ?>
-<td><span class='bold'><? xl('Insurance','e'); ?></span></td>
+<td><span class='bold'><?php xl('Insurance','e'); ?></span></td>
 <?php } ?>
 </tr>
 

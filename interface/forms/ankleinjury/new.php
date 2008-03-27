@@ -7,13 +7,12 @@ formHeader("Form: ankleinjury");
 ?>
 
 <html><head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 
-<body <?echo $top_bg_line;?>
-topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<form method=post action="<?echo $rootdir;?>/forms/ankleinjury/save.php?mode=new" name="my_form">
+<body class="body_top">
+<form method=post action="<?php echo $rootdir;?>/forms/ankleinjury/save.php?mode=new" name="my_form">
 <span class="title"><?php xl('Ankle Evaluation Form','e'); ?></span><br></br>
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>

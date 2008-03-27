@@ -40,11 +40,11 @@
   "ORDER BY type, begdate");
 ?>
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <title><?php xl('Patient Encounter','e'); ?></title>
 
 <script type="text/javascript" src="../../../library/dialog.js"></script>
@@ -54,7 +54,7 @@
 
 <script language="JavaScript">
 
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  // Process click on issue title.
  function newissue() {
@@ -71,8 +71,7 @@
 </script>
 </head>
 
-<body <?echo $top_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2' bottommargin='0'
- marginwidth='2' marginheight='0'>
+<body class="body_top">
 
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
@@ -80,7 +79,7 @@
 <form method='post' action="<?php echo $rootdir ?>/forms/newpatient/save.php" name='new_encounter'
  <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>>
 <input type=hidden name='mode' value='update'>
-<input type=hidden name='id' value='<? echo $_GET["id"] ?>'>
+<input type=hidden name='id' value='<?php echo $_GET["id"] ?>'>
 <span class=title><?php xl('Patient Encounter Form','e'); ?></span>
 <br>
 <center>
@@ -95,12 +94,12 @@
 
  <tr>
   <td colspan='2'>
-   <textarea name='reason' cols='40' rows='4' wrap='virtual' style='width:96%'><? echo htmlspecialchars($result['reason']) ?></textarea>
+   <textarea name='reason' cols='40' rows='4' wrap='virtual' style='width:96%'><?php echo htmlspecialchars($result['reason']) ?></textarea>
   </td>
   <td rowspan='6' valign='top'>
    <select multiple name='issues[]' size='10' style='width:100%'
     title='<?php xl('Hold down [Ctrl] for multiple selections or to unselect','e'); ?>'>
-<?
+<?php
  while ($irow = sqlFetchArray($ires)) {
   $list_id = $irow['id'];
   $tcode = $irow['type'];
@@ -141,7 +140,7 @@
   <td class='text' width='1%' nowrap><?php xl('Facility:','e'); ?></td>
   <td>
    <select name='facility_id'>
-<?
+<?php
  $fres = sqlStatement("select * from facility where service_location != 0 order by name");
  if ($fres) {
   $fresult = array();
@@ -150,7 +149,7 @@
   foreach($fresult as $iter) {
 ?>
     <option value="<?php echo $iter['id']; ?>" <?php if ($result['facility_id'] == $iter['id']) echo "selected";?>><?php echo $iter['name']; ?></option>
-<?
+<?php
   }
  }
 ?>
@@ -194,8 +193,8 @@
  <tr>
   <td class='text' nowrap><?php xl('Date of Service:','e'); ?></td>
   <td nowrap>
-   <input type='text' size='10' name='form_date' <? echo $disabled ?>
-    value='<? echo substr($result['date'], 0, 10) ?>'
+   <input type='text' size='10' name='form_date' <?php echo $disabled ?>
+    value='<?php echo substr($result['date'], 0, 10) ?>'
     title='<?php xl('yyyy-mm-dd Date of service','e'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
    <a href="javascript:show_calendar('new_encounter.form_date')"
@@ -208,7 +207,7 @@
   <td class='text' nowrap><?php xl('Onset/hospitalization date:','e'); ?></td>
   <td nowrap>
    <input type='text' size='10' name='form_onset_date'
-    value='<? echo substr($result['onset_date'], 0, 10) ?>'
+    value='<?php echo substr($result['onset_date'], 0, 10) ?>'
     title='<?php xl('yyyy-mm-dd Date of onset or hospitalization','e'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
    <a href="javascript:show_calendar('new_encounter.form_onset_date')"

@@ -1,4 +1,4 @@
-<?
+<?php
  include_once("../../globals.php");
  include_once("$srcdir/forms.inc");
  include_once("$srcdir/billing.inc");
@@ -28,14 +28,13 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 
-<body <?echo $top_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
- bottommargin='0' marginwidth='2' marginheight='0'>
+<body class="body_top">
 
-<?
+<?php
  if (sizeof($_GET) > 0) {
   $ar = $_GET;
  } else {
@@ -44,15 +43,15 @@
 ?>
 
 <a href="patient_report.php">
- <font class='title'><? xl('Patient Report','e'); ?></font>
- <font class='back'><?echo $tback;?></font>
+ <font class='title'><?php xl('Patient Report','e'); ?></font>
+ <font class='back'><?php echo $tback;?></font>
 </a><br><br>
 
-<a href="print_custom_report.php?<?print postToGet($ar);?>" class='link_submit' target='new'>
- [<? xl('Printable Version','e'); ?>]
+<a href="print_custom_report.php?<?php print postToGet($ar);?>" class='link_submit' target='new'>
+ [<?php xl('Printable Version','e'); ?>]
 </a><br>
 
-<?
+<?php
  $inclookupres = sqlStatement("select distinct formdir from forms where pid = '$pid'");
  while($result = sqlFetchArray($inclookupres)) {
   include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");

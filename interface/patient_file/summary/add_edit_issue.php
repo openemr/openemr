@@ -45,9 +45,9 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<title><? echo $issue ? "Edit" : "Add New" ?><?php xl('Issue','e'); ?></title>
-<link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
+<?php html_header_show();?>
+<title><?php echo $issue ? "Edit" : "Add New" ?><?php xl('Issue','e'); ?></title>
+<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }
@@ -62,7 +62,7 @@ td { font-size:10pt; }
 
 <script language="JavaScript">
 
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  var aitypes = new Array(); // issue type attributes
  var aopts   = new Array(); // Option objects
@@ -154,7 +154,7 @@ td { font-size:10pt; }
 
 </head>
 
-<body <?echo $top_bg_line;?>>
+<body class="body_top">
 <?php
  // If we are saving, then save and close the window.
  //
@@ -263,13 +263,13 @@ td { font-size:10pt; }
   );
  }
 ?>
-<form method='post' name='theform' action='add_edit_issue.php?issue=<? echo $issue ?>'>
+<form method='post' name='theform' action='add_edit_issue.php?issue=<?php echo $issue ?>'>
 <center>
 
 <table border='0' width='100%'>
 
  <tr>
-  <td valign='top' width='1%' nowrap><b><? xl('Type','e'); ?>:</b></td>
+  <td valign='top' width='1%' nowrap><b><?php xl('Type','e'); ?>:</b></td>
   <td>
 <?php
  $index = 0;
@@ -284,20 +284,20 @@ td { font-size:10pt; }
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Title','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Title','e'); ?>:</b></td>
   <td>
    <select name='form_titles' size='4' onchange='set_text()' style='width:100%'>
    </select><br>
-   <input type='text' size='40' name='form_title' value='<? echo $irow['title'] ?>' style='width:100%' />
+   <input type='text' size='40' name='form_title' value='<?php echo $irow['title'] ?>' style='width:100%' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><? xl('Begin Date','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Begin Date','e'); ?>:</b></td>
   <td>
 
    <input type='text' size='10' name='form_begin' id='form_begin'
-    value='<? echo $irow['begdate'] ?>'
+    value='<?php echo $irow['begdate'] ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='<?php xl('yyyy-mm-dd date of onset, surgery or start of medication','e'); ?>' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
@@ -307,47 +307,47 @@ td { font-size:10pt; }
  </tr>
 
  <tr id='row_enddate'>
-  <td valign='top' nowrap><b><? xl('End Date','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('End Date','e'); ?>:</b></td>
   <td>
    <input type='text' size='10' name='form_end' id='form_end'
-    value='<? echo $irow['enddate'] ?>'
+    value='<?php echo $irow['enddate'] ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='<?php xl('yyyy-mm-dd date of recovery or end of medication','e'); ?>' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_end' border='0' alt='[?]' style='cursor:pointer'
     title='<?php xl('Click here to choose a date','e'); ?>' />
-    &nbsp;(<? xl('leave blank if still active','e'); ?>)
+    &nbsp;(<?php xl('leave blank if still active','e'); ?>)
   </td>
  </tr>
 
  <tr id='row_active'>
-  <td valign='top' nowrap><b><? xl('Active','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Active','e'); ?>:</b></td>
   <td>
-   <input type='checkbox' name='form_active' value='1' <? echo $irow['enddate'] ? "" : "checked"; ?>
+   <input type='checkbox' name='form_active' value='1' <?php echo $irow['enddate'] ? "" : "checked"; ?>
     onclick='activeClicked(this);'
     title='<?php xl('Indicates if this issue is currently active','e'); ?>' />
   </td>
  </tr>
 
  <tr<?php if (! $GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_returndate'>
-  <td valign='top' nowrap><b><? xl('Returned to Play','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Returned to Play','e'); ?>:</b></td>
   <td>
    <input type='text' size='10' name='form_return' id='form_return'
-    value='<? echo $irow['returndate'] ?>'
+    value='<?php echo $irow['returndate'] ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='<?php xl('yyyy-mm-dd date returned to play','e'); ?>' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_return' border='0' alt='[?]' style='cursor:pointer'
     title='<?php xl('Click here to choose a date','e'); ?>' />
-    &nbsp;(<? xl('leave blank if still active','e'); ?>)
+    &nbsp;(<?php xl('leave blank if still active','e'); ?>)
   </td>
  </tr>
 
  <tr id='row_diagnosis'>
-  <td valign='top' nowrap><b><? xl('Diagnosis','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Diagnosis','e'); ?>:</b></td>
   <td>
    <select name='form_diagnosis' title='<?php xl('Diagnosis must be coded into a linked encounter','e'); ?>'>
-    <option value=""><? xl('Unknown or N/A','e'); ?></option>
+    <option value=""><?php xl('Unknown or N/A','e'); ?></option>
 <?php
  while ($brow = sqlFetchArray($bres)) {
   echo "   <option value='" . $brow['code'] . "'";
@@ -360,7 +360,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr id='row_occurrence'>
-  <td valign='top' nowrap><b><? xl('Occurrence','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Occurrence','e'); ?>:</b></td>
   <td>
    <select name='form_occur'>
 <?php
@@ -375,7 +375,7 @@ td { font-size:10pt; }
  </tr>
 
  <tr id='row_classification'>
-  <td valign='top' nowrap><b><? xl('Classification','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Classification','e'); ?>:</b></td>
   <td>
    <select name='form_classification'>
 <?php
@@ -390,51 +390,51 @@ td { font-size:10pt; }
  </tr>
 
  <tr<?php if (! $GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_missed'>
-  <td valign='top' nowrap><b><? xl('Missed','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Missed','e'); ?>:</b></td>
   <td>
-   <input type='text' size='3' name='form_missed' value='<? echo $irow['extrainfo'] ?>'
+   <input type='text' size='3' name='form_missed' value='<?php echo $irow['extrainfo'] ?>'
     title='<?php xl('Number of games or events missed, if any','e'); ?>' />
-   &nbsp;<? xl('games/events','e'); ?>
+   &nbsp;<?php xl('games/events','e'); ?>
   </td>
  </tr>
 
  <tr<?php if ($GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_referredby'>
-  <td valign='top' nowrap><b><? xl('Referred by','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Referred by','e'); ?>:</b></td>
   <td>
-   <input type='text' size='40' name='form_referredby' value='<? echo $irow['referredby'] ?>'
+   <input type='text' size='40' name='form_referredby' value='<?php echo $irow['referredby'] ?>'
     style='width:100%' title='<?php xl('Referring physician and practice','e'); ?>' />
   </td>
  </tr>
 
  <tr id='row_comments'>
-  <td valign='top' nowrap><b><? xl('Comments','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Comments','e'); ?>:</b></td>
   <td>
-   <textarea name='form_comments' rows='4' cols='40' wrap='virtual' style='width:100%'><? echo $irow['comments'] ?></textarea>
+   <textarea name='form_comments' rows='4' cols='40' wrap='virtual' style='width:100%'><?php echo $irow['comments'] ?></textarea>
   </td>
  </tr>
 
  <tr<?php if ($GLOBALS['athletic_team']) echo " style='display:none;'"; ?>>
-  <td valign='top' nowrap><b><? xl('Outcome','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Outcome','e'); ?>:</b></td>
   <td>
-   <? echo rbinput('form_outcome', '1', 'Resolved'        , 'outcome') ?>&nbsp;
-   <? echo rbinput('form_outcome', '2', 'Improved'        , 'outcome') ?>&nbsp;
-   <? echo rbinput('form_outcome', '3', 'Status quo'      , 'outcome') ?>&nbsp;
-   <? echo rbinput('form_outcome', '4', 'Worse'           , 'outcome') ?>&nbsp;
-   <? echo rbinput('form_outcome', '5', 'Pending followup', 'outcome') ?>
+   <?php echo rbinput('form_outcome', '1', 'Resolved'        , 'outcome') ?>&nbsp;
+   <?php echo rbinput('form_outcome', '2', 'Improved'        , 'outcome') ?>&nbsp;
+   <?php echo rbinput('form_outcome', '3', 'Status quo'      , 'outcome') ?>&nbsp;
+   <?php echo rbinput('form_outcome', '4', 'Worse'           , 'outcome') ?>&nbsp;
+   <?php echo rbinput('form_outcome', '5', 'Pending followup', 'outcome') ?>
   </td>
  </tr>
 
  <tr<?php if ($GLOBALS['athletic_team']) echo " style='display:none;'"; ?>>
-  <td valign='top' nowrap><b><? xl('Destination','e'); ?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Destination','e'); ?>:</b></td>
   <td>
 <?php if (true) { ?>
-   <input type='text' size='40' name='form_destination' value='<? echo $irow['destination'] ?>'
+   <input type='text' size='40' name='form_destination' value='<?php echo $irow['destination'] ?>'
     style='width:100%' title='GP, Secondary care specialist, etc.' />
 <?php } else { // leave this here for now, please -- Rod ?>
-   <? echo rbinput('form_destination', '1', 'GP'                 , 'destination') ?>&nbsp;
-   <? echo rbinput('form_destination', '2', 'Secondary care spec', 'destination') ?>&nbsp;
-   <? echo rbinput('form_destination', '3', 'GP via physio'      , 'destination') ?>&nbsp;
-   <? echo rbinput('form_destination', '4', 'GP via podiatry'    , 'destination') ?>
+   <?php echo rbinput('form_destination', '1', 'GP'                 , 'destination') ?>&nbsp;
+   <?php echo rbinput('form_destination', '2', 'Secondary care spec', 'destination') ?>&nbsp;
+   <?php echo rbinput('form_destination', '3', 'GP via physio'      , 'destination') ?>&nbsp;
+   <?php echo rbinput('form_destination', '4', 'GP via podiatry'    , 'destination') ?>
 <?php } ?>
   </td>
  </tr>
@@ -456,7 +456,7 @@ td { font-size:10pt; }
 </center>
 </form>
 <script language='JavaScript'>
- newtype(<? echo $type_index ?>);
+ newtype(<?php echo $type_index ?>);
  Calendar.setup({inputField:"form_begin", ifFormat:"%Y-%m-%d", button:"img_begin"});
  Calendar.setup({inputField:"form_end", ifFormat:"%Y-%m-%d", button:"img_end"});
  Calendar.setup({inputField:"form_return", ifFormat:"%Y-%m-%d", button:"img_return"});

@@ -26,10 +26,10 @@
 <html>
 
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
-<link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
-<title><? xl('Patient Issues','e'); ?></title>
+<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<title><?php xl('Patient Issues','e'); ?></title>
 
 <style>
 tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
@@ -76,26 +76,26 @@ function newEncounter() {
 
 </head>
 
-<body <?echo $top_bg_line;?>>
+<body class="body_top">
 <form method='post' action='stats_full.php' onsubmit='return top.restoreSession()'>
 
 <table width='100%' cellpadding='1' cellspacing='2'>
  <tr class='head'>
-  <td><? xl('Type','e'); ?></td>
-  <td><? xl('Title','e'); ?></td>
-  <td><? xl('Begin','e'); ?></td>
-  <td><? xl('End','e'); ?></td>
-  <td><? xl('Diag','e'); ?></td>
-  <td><? xl('Occurrence','e'); ?></td>
-<? if ($GLOBALS['athletic_team']) { ?>
-  <td><? xl('Missed','e'); ?></td>
-<? } else { ?>
-  <td><? xl('RefBy','e'); ?></td>
-<? } ?>
-  <td><? xl('Comments','e'); ?></td>
-  <td><? xl('Enc','e'); ?></td>
+  <td><?php xl('Type','e'); ?></td>
+  <td><?php xl('Title','e'); ?></td>
+  <td><?php xl('Begin','e'); ?></td>
+  <td><?php xl('End','e'); ?></td>
+  <td><?php xl('Diag','e'); ?></td>
+  <td><?php xl('Occurrence','e'); ?></td>
+<?php if ($GLOBALS['athletic_team']) { ?>
+  <td><?php xl('Missed','e'); ?></td>
+<?php } else { ?>
+  <td><?php xl('RefBy','e'); ?></td>
+<?php } ?>
+  <td><?php xl('Comments','e'); ?></td>
+  <td><?php xl('Enc','e'); ?></td>
  </tr>
-<?
+<?php
  $encount = 0;
  $lasttype = "";
  while ($row = sqlFetchArray($pres)) {
@@ -156,20 +156,20 @@ function newEncounter() {
 </table>
 
 <center><p>
- <input type='button' value='<?xl('Add Issue','e'); ?>'
+ <input type='button' value='<?php xl('Add Issue','e'); ?>'
   onclick='dopclick(0)'
   style='background-color:transparent' /> &nbsp;
- <input type='button' value='<?xl('Add Encounter','e'); ?>'
+ <input type='button' value='<?php xl('Add Encounter','e'); ?>'
   onclick='newEncounter()'
   style='background-color:transparent' /> &nbsp;
- <input type='button' value='<?xl('To History','e'); ?>'
+ <input type='button' value='<?php xl('To History','e'); ?>'
 <?php if ($GLOBALS['concurrent_layout']) { ?>
   onclick="top.restoreSession();parent.left_nav.setRadio(window.name,'his');location='../history/history_full.php';"
 <?php } else { ?>
   onclick="top.restoreSession();location='../history/history_full.php';"
 <?php } ?>
   style='background-color:transparent' /> &nbsp;
- <input type='button' value='<?xl('Back','e'); ?>'
+ <input type='button' value='<?php xl('Back','e'); ?>'
 <?php if ($GLOBALS['concurrent_layout']) { ?>
   onclick="top.restoreSession();parent.left_nav.setRadio(window.name,'dem');location='demographics.php';"
 <?php } else { ?>

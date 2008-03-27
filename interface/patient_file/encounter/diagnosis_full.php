@@ -18,12 +18,11 @@ if (isset($mode)) {
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 
-<body <?php echo $top_bg_line;?> topmargin='0' rightmargin='0' leftmargin='4'
- bottommargin='0' marginheight='0'>
+<body class="body_top">
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href="encounter_bottom.php" onclick="top.restoreSession()">

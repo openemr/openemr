@@ -75,9 +75,9 @@
 <html>
 
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
-<link rel=stylesheet href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <title><?php xl('Received Faxes','e'); ?></title>
 
 <style>
@@ -173,7 +173,7 @@ function dosdclick(sfname) {
 
 </head>
 
-<body <?php echo $top_bg_line;?>>
+<body class="body_top">
 <table cellspacing='0' cellpadding='0' style='margin: 0 0 0 0; border: 2px solid #000000;'
  id='bigtable' width='100%' height='100%'>
  <tr style='height: 20px;'>
@@ -238,7 +238,7 @@ function dosdclick(sfname) {
      <td><?php xl('TTS','e'); ?></td>
      <td><?php xl('Status','e'); ?></td>
     </tr>
-<?
+<?php
  $encount = 0;
  foreach ($dlines as $matches) {
   ++$encount;
@@ -273,7 +273,7 @@ function dosdclick(sfname) {
      <td><?php xl('Scanned','e'); ?></td>
      <td align='right'><?php xl('Length','e'); ?></td>
     </tr>
-<?
+<?php
  $encount = 0;
  foreach ($slines as $sline) {
   ++$encount;

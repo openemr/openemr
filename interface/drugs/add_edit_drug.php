@@ -79,9 +79,9 @@ function escapedff($name) {
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <title><?php echo $drug_id ? xl("Edit") : xl("Add New"); xl (' Drug','e'); ?></title>
-<link rel=stylesheet href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }
@@ -124,7 +124,7 @@ function sel_related() {
 
 </head>
 
-<body <?php echo $top_bg_line;?>>
+<body class="body_top">
 <?php
 // If we are saving, then save and close the window.
 // First check for duplicates.

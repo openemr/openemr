@@ -4,8 +4,8 @@ include_once("../globals.php");
 <html>
 
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?php echo xl($css_header,'e');?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo xl($css_header,'e');?>" type="text/css">
 
 <script LANGUAGE="JavaScript">
 
@@ -25,9 +25,7 @@ include_once("../globals.php");
 
 </head>
 
-<body <?php echo $top_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2'
- bottommargin='0' marginwidth='2' marginheight='0'
- onload="javascript:document.new_patient.fname.focus();">
+<body class="body_top" onload="javascript:document.new_patient.fname.focus();">
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <form name='new_patient' method='post' action="new_patient_save.php"

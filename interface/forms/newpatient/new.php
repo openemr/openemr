@@ -37,11 +37,11 @@
   "ORDER BY type, begdate");
 ?>
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <title><?php xl('New Encounter','e'); ?></title>
 
 <script type="text/javascript" src="../../../library/dialog.js"></script>
@@ -51,7 +51,7 @@
 
 <script language="JavaScript">
 
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  // Process click on issue title.
  function newissue() {
@@ -68,13 +68,12 @@
 </script>
 </head>
 
-<body <?echo $top_bg_line;?> topmargin='0' rightmargin='0' leftmargin='2' bottommargin='0'
- marginwidth='2' marginheight='0' onload="javascript:document.new_encounter.reason.focus();">
+<body class="body_top" onload="javascript:document.new_encounter.reason.focus();">
 
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<form method='post' action="<?echo $rootdir?>/forms/newpatient/save.php" name='new_encounter'
+<form method='post' action="<?php echo $rootdir?>/forms/newpatient/save.php" name='new_encounter'
  <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>>
 <input type='hidden' name='mode' value='new'>
 <span class='title'><?php xl('New Encounter Form','e'); ?></span>
@@ -97,7 +96,7 @@
   <td rowspan='6' valign='top'>
    <select multiple name='issues[]' size='10' style='width:100%'
     title='<?php xl('Hold down [Ctrl] for multiple selections or to unselect','e'); ?>'>
-<?
+<?php
  while ($irow = sqlFetchArray($ires)) {
   $tcode = $irow['type'];
   if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
@@ -183,27 +182,26 @@
  <tr>
   <td class='text' nowrap><?php xl('Date of Service:','e'); ?></td>
   <td nowrap>
-   <input type='text' size='10' name='form_date' <? echo $disabled ?>
-    value='<? echo date('Y-m-d') ?>'
+   <input type='text' size='10' name='form_date' <?php echo $disabled ?>
+    value='<?php echo date('Y-m-d') ?>'
     title='<?php xl('yyyy-mm-dd Date of service','e'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <a href="javascript:show_calendar('new_encounter.form_date')"
-    title="<?php xl('Click here to choose a date','e'); ?>"
-    ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
+   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_service_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
   </td>
  </tr>
 
  <tr>
   <td class='text' nowrap><?php xl('Onset/hospitalization date:','e'); ?></td>
   <td nowrap>
-
    <input type='text' size='10' name='form_onset_date'
-    value='<? echo date('Y-m-d') ?>'
+    value='<?php echo date('Y-m-d') ?>'
     title='<?php xl('yyyy-mm-dd Date of onset or hospitalization','e'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <a href="javascript:show_calendar('new_encounter.form_onset_date')"
-    title="<?php xl('Click here to choose a date','e'); ?>"
-    ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
+   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_onset_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
   </td>
  </tr>
 
@@ -212,7 +210,7 @@
 <p>
 <a href="javascript:document.new_encounter.submit();" class="link_submit"
  onclick="top.restoreSession()">[<?php xl('Save','e'); ?>]</a>
-<? if (!isset($_GET["autoloaded"]) || $_GET["autoloaded"] != "1") { ?>
+<?php if (!isset($_GET["autoloaded"]) || $_GET["autoloaded"] != "1") { ?>
 &nbsp; &nbsp;
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
@@ -220,12 +218,12 @@
  onclick="top.restoreSession()"
  class="link_submit">[<?php xl('Cancel','e'); ?>]</a>
 <?php } else { ?>
-<a href="<?echo "$rootdir/patient_file/encounter/patient_encounter.php";?>"
+<a href="<?php echo "$rootdir/patient_file/encounter/patient_encounter.php";?>"
  onclick="top.restoreSession()"
  class="link_submit">[<?php xl('Don\'t Save','e'); ?>]</a>
 <?php } ?>
 
-<? } ?>
+<?php } ?>
 &nbsp; &nbsp;
 <a href="" onclick="return newissue()" class="link_submit">[<?php xl('Add Issue','e'); ?>]</a>
 
@@ -234,4 +232,13 @@
 </form>
 
 </body>
+<!-- stuff for the popup calendar -->
+<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+<script language="Javascript">
+ Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_service_date"});
+ Calendar.setup({inputField:"form_onset_date", ifFormat:"%Y-%m-%d", button:"img_onset_date"});
+</script>
 </html>

@@ -46,9 +46,9 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
-<link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 
 <style>
 body, td, input, select, textarea {
@@ -255,10 +255,9 @@ function submitme() {
 </script>
 </head>
 
-<body <?php echo $top_bg_line; ?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="body_top">
 
-<form action='demographics_save.php' name='demographics_form' method='post'
- onsubmit='return validate(this)'>
+<form action='demographics_save.php' name='demographics_form' method='post' onsubmit='return validate(this)'>
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo $result['id']?>" />
 
@@ -520,6 +519,11 @@ end_group();
     value='<?php echo $result3['subscriber_DOB'] ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='yyyy-mm-dd' />
+
+   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_i<?php echo $i; ?>dob_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
+
    <span class=bold><?php xl('S.S.','e'); ?>: </span><input type=entry size=11 name=i<?php echo $i?>subscriber_ss value="<?php echo $result3{"subscriber_ss"}?> ">&nbsp;
    <span class=bold><?php xl('Sex','e'); ?>: </span>
    <select name=i<?php echo $i?>subscriber_sex>
@@ -589,4 +593,15 @@ end_group();
 </script>
 
 </body>
+<!-- stuff for the popup calendar -->
+<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+<script language="Javascript">
+ //Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
+<?php for($i=1; $i<=3; $i++): ?>
+ Calendar.setup({inputField:"i<?php echo $i?>subscriber_DOB", ifFormat:"%Y-%m-%d", button:"img_i<?php echo $i?>dob_date"});
+<?php endfor; ?>
+</script>
 </html>

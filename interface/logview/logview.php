@@ -4,13 +4,48 @@ include_once("$srcdir/log.inc");
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
+
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<style>
+#logview_header {
+    width: 100%;
+}
+#logview_header table {
+    width:100%;
+    border-collapse: collapse;
+}
+#logview_header tr {
+    width: 20%;
+    background-color: #ccc;
+    cursor: pointer; cursor: hand;
+}
+#logview_data {
+    width: 100%;
+    height: 50%;
+    overflow: auto;
+}
+#logview_data table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+}
+#logview_data td {
+    width: 20%;
+    border-bottom: 1px solid #eee;
+    cursor: default;
+}
+.highlight {
+    background-color: #336699;
+    color: #fff;
+}
+</style>
 
 </head>
-<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<font class=title><?php  xl('Logs Viewer','e'); ?></font>
+<body class="body_top">
+<font class="title"><?php  xl('Logs Viewer','e'); ?></font>
 <br>
 
 <?php
@@ -22,14 +57,16 @@ for($iter=0;$row=sqlFetchArray($res);$iter++) {
 }
 
 // Get the users list.
-$ures = sqlStatement("SELECT username, fname, lname FROM users " .
-  "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
-  "ORDER BY lname, fname");
+$sqlQuery = "SELECT username, fname, lname FROM users " .
+  "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) ";
+
+$ures = sqlStatement($sqlQuery);
 ?>
 
 <br>
-<FORM METHOD="GET" name=the_form>
-<span class=text><?php  xl('Date','e'); ?>: </span>
+<FORM METHOD="GET" name="theform" id="theform">
+<input type="hidden" name="sortby" id="sortby" value="<?php echo $_GET['sortby']; ?>">
+<span class="text"><?php  xl('Date','e'); ?>: </span>
 <SELECT NAME="date">
 <?php
 $getdate = $_GET["date"] ? $_GET["date"] : date("Y-m-d");
@@ -69,7 +106,7 @@ echo "</select>\n";
 $res = sqlStatement("select distinct event from log order by event ASC");
 
 $found = 0;
-echo "&nbsp;<span class=text>";
+echo "<br> <span class='text'>";
 for($iter=0;$row=sqlFetchArray($res);$iter++) {
 ?>
 <input type="radio" name="event" value="<?php echo $row["event"];?>"
@@ -79,41 +116,45 @@ for($iter=0;$row=sqlFetchArray($res);$iter++) {
     $found++;
   }
 ?>
-><?echo $row["event"]?>&nbsp;&nbsp;
+><?php echo $row["event"]?>&nbsp;&nbsp;
 <?php
   $ret[$iter] = $row;
 }
 ?>
 <input type="radio" name="event" value="*"<?php if (!$found) echo " checked";?>><?php xl('All','e'); ?>
 </span>&nbsp;
-<a href="javascript:document.the_form.submit();" class=link_submit>[<?php  xl('Refresh','e'); ?>]</a>
+<a href="javascript:document.theform.submit();" class='link_submit'>[<?php  xl('Refresh','e'); ?>]</a>
 </FORM>
-<?php
-if ($_GET["date"]) {
-?>
-<TABLE BORDER=1 CELLPADDING=4>
+
+<?php if ($_GET["date"]) { ?>
+<div id="logview_header">
+<TABLE>
  <tr>
-  <TD><span class=bold><?php  xl('Date'); ?></span></TD>
-  <TD><span class=bold><?php  xl('Event','e'); ?></span></TD>
-  <TD><span class=bold><?php  xl('User','e'); ?></span></TD>
-  <TD><span class=bold><?php  xl('Group','e'); ?></span></TD>
-  <TD><span class=bold><?php  xl('Comments','e'); ?></span></TD>
+  <!-- <TH><?php  xl('Date', 'e'); ?><TD> -->
+  <th id="sortby_date" class="text" title="Sort by date/time">Date</th>
+  <TH id="sortby_event" class="text" title="Sort by Event"><?php  xl('Event','e'); ?></TD>
+  <TH id="sortby_user" class="text" title="Sort by User"><?php  xl('User','e'); ?></TD>
+  <TH id="sortby_group" class="text" title="Sort by Group"><?php  xl('Group','e'); ?></TD>
+  <TH id="sortby_comments" class="text" title="Sort by Comments"><?php  xl('Comments','e'); ?></TD>
  </tr>
+</table>
+</div>
+
+<div id="logview_data">
+<table>
 <?php
-  if ($ret = getEventByDate($getdate, $form_user)) {
-    if (!$_GET["event"])
-      $gev = "*";
-    else
-      $gev = $_GET["event"];
+  if ($ret = getEvents(array('date' => $getdate, 'user' => $form_user, 'sortby' => $_GET['sortby']))) {
+    if (!$_GET["event"]) $gev = "*";
+    else $gev = $_GET["event"];
     foreach ($ret as $iter) {
       if (($gev == "*") || ($gev == $iter["event"])) {
 ?>
- <TR>
-  <TD nowrap><span class=text><?php echo $iter["date"]?></span></TD>
-  <TD><span class=text><?php echo $iter["event"]?></span></TD>
-  <TD><span class=text><?php echo $iter["user"]?></span></TD>
-  <TD><span class=text><?php echo $iter["groupname"]?></span></TD>
-  <TD><span class=text><?php echo $iter["comments"]?></span></TD>
+ <TR class="oneresult">
+  <TD class="text"><?php echo $iter["date"]?></TD>
+  <TD class="text"><?php echo $iter["event"]?></TD>
+  <TD class="text"><?php echo $iter["user"]?></TD>
+  <TD class="text"><?php echo $iter["groupname"]?></TD>
+  <TD class="text"><?php echo $iter["comments"]?></TD>
  </TR>
 
 <?php
@@ -122,10 +163,34 @@ if ($_GET["date"]) {
   }
 ?>
 </table>
-<?php
-}
-?>
-<br><br>
+</div>
+
+<?php } ?>
 
 </body>
+
+<script language="javascript">
+
+// jQuery stuff to make the page a little easier to use
+$(document).ready(function(){
+    // funny thing here... good learning experience
+    // the TR has TD children which have their own background and text color
+    // toggling the TR color doesn't change the TD color
+    // so we need to change all the TR's children (the TD's) just as we did the TR
+    // thus we have two calls to toggleClass:
+    // 1 - for the parent (the TR)
+    // 2 - for each of the children (the TDs)
+    $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); $(this).children().toggleClass("highlight"); });
+    $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); $(this).children().toggleClass("highlight"); });
+
+    // click-able column headers to sort the list
+    $("#sortby_date").click(function() { $("#sortby").val("date"); $("#theform").submit(); });
+    $("#sortby_event").click(function() { $("#sortby").val("event"); $("#theform").submit(); });
+    $("#sortby_user").click(function() { $("#sortby").val("user"); $("#theform").submit(); });
+    $("#sortby_group").click(function() { $("#sortby").val("groupname"); $("#theform").submit(); });
+    $("#sortby_comments").click(function() { $("#sortby").val("comments"); $("#theform").submit(); });
+});
+
+</script>
+
 </html>

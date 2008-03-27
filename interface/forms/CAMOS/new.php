@@ -10,7 +10,7 @@ function myauth() {
 ?>
 
 
-<?
+<?php
 $out_of_encounter = false;
 if (($_SESSION['encounter'] == '') || ($_SESSION['pid'] == '')) {
   $out_of_encounter = true;
@@ -189,8 +189,8 @@ else if ($_POST['hidden_mode'] == 'alter') {
 ?>
 
 <html><head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <script language="javascript" type="text/javascript"> 
 
@@ -208,7 +208,7 @@ var vs_status = false;
 var hide_tc02_status = false;
 var clone_mode = false;
 
-<?
+<?php
 if (substr($_POST['hidden_mode'],0,5) == 'clone') {
   echo "clone_mode = true;\n";
 }
@@ -311,7 +311,7 @@ function content_blur() {
     content_change_flag = false;
   }
 }
-<?
+<?php
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
   //ICD9
   $icd9_flag = false;
@@ -375,7 +375,7 @@ function select_word(mode, mystring, myselect) { //take a string and select it i
   }
   return 1;
 }
-<?
+<?php
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
   //cloning - similar process to preselect set to first time starting CAMOS 
   //as above
@@ -454,17 +454,17 @@ function init() {
   for (i1=0;i1<array1.length;i1++) {
     f2.select_category.options[f2.select_category.length] = new Option(array1[i1][0], array1[i1][1]);
   }
-<?
+<?php
   $temp_preselect_mode = $preselect_mode;
   if ($preselect_category_override != '') {
     $temp_preselect_mode = "by name";
     $preselect_category = $preselect_category_override;
   }
 ?>
-  if (select_word('<? echo $temp_preselect_mode."', '".$preselect_category; ?>' ,f2.select_category)) {
+  if (select_word('<?php echo $temp_preselect_mode."', '".$preselect_category; ?>' ,f2.select_category)) {
     click_category();
   }
-<?
+<?php
 if (substr($_POST['hidden_mode'],0,5) == 'clone') {
   echo "f2.textarea_content.value = '';\n";
   foreach($clone_data_array as $key => $val) {
@@ -492,14 +492,14 @@ function click_category() {
       }
     }
   }
-<?
+<?php
   $temp_preselect_mode = $preselect_mode;
   if ($preselect_subcategory_override != '') {
     $temp_preselect_mode = "by name";
     $preselect_subcategory = $preselect_subcategory_override;
   }
 ?>
-  if (select_word('<? echo $temp_preselect_mode."', '".$preselect_subcategory; ?>' ,f2.select_subcategory)) {
+  if (select_word('<?php echo $temp_preselect_mode."', '".$preselect_subcategory; ?>' ,f2.select_subcategory)) {
     click_subcategory();
   }
 }
@@ -519,14 +519,14 @@ function click_subcategory() {
       }
     }
   }
-<?
+<?php
   $temp_preselect_mode = $preselect_mode;
   if ($preselect_item_override != '') {
     $temp_preselect_mode = "by name";
     $preselect_item = $preselect_item_override;
   }
 ?>
-  if (select_word('<? echo $temp_preselect_mode."', '".$preselect_item; ?>' ,f2.select_item)) {
+  if (select_word('<?php echo $temp_preselect_mode."', '".$preselect_item; ?>' ,f2.select_item)) {
     click_item();
     preselect_off = true;
   }
@@ -735,7 +735,7 @@ if ( (mode == 'add') || (mode == 'alter') ) {
     f2.hidden_category.value = category;
     f2.hidden_subcategory.value = subcategory;
     f2.hidden_item.value = item;
-    f2.action = '<? print $GLOBALS['webroot'] ?>/interface/patient_file/encounter/load_form.php?formname=CAMOS';
+    f2.action = '<?php print $GLOBALS['webroot'] ?>/interface/patient_file/encounter/load_form.php?formname=CAMOS';
     f2.target = '_self';
     f2.submit();
   }
@@ -754,7 +754,7 @@ if ( (mode == 'add') || (mode == 'alter') ) {
     }
     else {myarray['content'] = active_content.value;}
     var str = setformvalues(myarray);
-    processajax ('<? print $GLOBALS['webroot'] ?>/interface/forms/CAMOS/ajax_save.php', myobj, "post", str);
+    processajax ('<?php print $GLOBALS['webroot'] ?>/interface/forms/CAMOS/ajax_save.php', myobj, "post", str);
     alert("submitted!");
 //ajax code
 }
@@ -767,18 +767,18 @@ function selectItem () {
 
 </script>
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0 onload="init()">
-<form method=post action="<?echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="CAMOS">
+<body class="body_top" onload="init()">
+<form method=post action="<?php echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="CAMOS">
 <input type=button name=clone value=clone onClick="js_button('clone', 'clone')">
 <input type=button name=clone_visit value='clone last visit' onClick="js_button('clone last visit', 'clone last visit')">
-<?  
+<?php
 echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[".xl('Leave The Form')."]</a>";
 ?>
 <div id=id_info style="display:inline">
 <!-- supposedly where ajax induced php pages can print their output to... -->
 </div>
 <div id=id_mainbox style="display:inline">
-<?  
+<?php
 if ($error != '') {
   echo "<h1> error: ".$error."</h1>\n"; 
 }
@@ -808,69 +808,69 @@ if ($error != '') {
 <tr>
   <td>
   <div id=id_category_column style="display:inline">
-    <select name=select_category size=<? echo $select_size ?> onchange="click_category()"></select><br>
-<?
+    <select name=select_category size=<?php echo $select_size ?> onchange="click_category()"></select><br>
+<?php
 if (myAuth() == 1) {//root user only can see administration option 
 ?>
     <input type=text name=change_category><br>
     <input type=button name=add1 value=add onClick="js_button('add','change_category')">
     <input type=button name=alter1 value=alter onClick="js_button('alter','change_category')">
     <input type=button name=del1 value=del onClick="js_button('delete','change_category')"><br>
-<?
+<?php
 }
 ?>
   </div> <!-- end of id_category_column -->
   </td>
   <td>
   <div id=id_subcategory_column style="display:inline">
-    <select name=select_subcategory size=<? echo $select_size ?> onchange="click_subcategory()"></select><br>
-<?
+    <select name=select_subcategory size=<?php echo $select_size ?> onchange="click_subcategory()"></select><br>
+<?php
 if (myAuth() == 1) {//root user only can see administration option 
 ?>
     <input type=text name=change_subcategory><br>
     <input type=button name=add2 value=add onClick="js_button('add','change_subcategory')">
     <input type=button name=alter1 value=alter onClick="js_button('alter','change_subcategory')">
     <input type=button name=del2 value=del onClick="js_button('delete','change_subcategory')"><br>
-<?
+<?php
 }
 ?>
   </div> <!-- end of id_subcategory_column -->
   </td>
   <td>
   <div id=id_item_column style="display:inline">
-    <select name=select_item size=<? echo $select_size ?> onchange="click_item()"
+    <select name=select_item size=<?php echo $select_size ?> onchange="click_item()"
       ></select><br>
-<?
+<?php
 if (myAuth() == 1) {//root user only can see administration option 
 ?>
     <input type=text name=change_item><br>
     <input type=button name=add3 value=add onClick="js_button('add','change_item')">
     <input type=button name=alter1 value=alter onClick="js_button('alter','change_item')">
     <input type=button name=del3 value=del onClick="js_button('delete','change_item')"><br>
-<?
+<?php
 }
 ?>
   </div> <!-- end of id_item_column -->
   </td>
   <td>
 <div id=id_textarea_content style="display:inline">
-    <textarea name=textarea_content cols=<? echo $textarea_cols ?> rows=<? echo $textarea_rows ?> onFocus="content_focus()" onBlur="content_blur()" ondblclick="clear_box(this)"></textarea>
+    <textarea name=textarea_content cols=<?php echo $textarea_cols ?> rows=<?php echo $textarea_rows ?> onFocus="content_focus()" onBlur="content_blur()" ondblclick="clear_box(this)"></textarea>
     <br/>
-<?
+<?php
 if (myAuth() == 1) {//root user only can see administration option 
 ?>
 <div id=id_main_content_buttons style="display:block">
     <input type=button name=add4 value=add onClick="js_button('add','change_content')">
     <input type=button name=lock value=lock onClick="lock_content()">
-<?
+<?php
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
 ?>
     <input type=button name=icd9 value=icd9 onClick="append_icd9()">
 </div> <!-- end of id_main_content_buttons-->
-<?
+<?php
 }
 ?>
-<?
+<?php
 }
 ?>
   </td>
@@ -887,15 +887,15 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 <input type=hidden name=subcategory>
 <input type=hidden name=item>
 <input type=hidden name=content>
-<?
+<?php
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
 ?>
 <input type=button name='submit form' value='submit all content' onClick="js_button('submit','submit')">
 <input type=button name='submit form' value='submit selected content' onClick="js_button('submit','submit_selection')">
-<?
+<?php
 }
 ?>
-<?
+<?php
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
   echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[".xl('Leave The Form')."]</a>";
   echo "<a href='".$GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [".xl('help')."]</a>";
