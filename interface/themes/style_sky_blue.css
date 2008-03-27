@@ -165,16 +165,16 @@ a:hover {
  *=============================================================*/
 .body_top { background-color: #94d6e7; }    /* $top_bg_line */
 .bgcolor2 { background-color: #94d6e7; }    /* $GLOBALS['style']['BGCOLOR2'] */
-.body_bottom { background: url('pic/aquabg.gif') repeat-y; }  /* $bottom_bg_line */
+.body_bottom { background: url('../pic/aquabg.gif') repeat; }  /* $bottom_bg_line */
 .body_title { background-color: #aaffff; }  /* $title_bg_line */
 .body_nav { background-color: #94d6e7; }    /* $nav_bg_line */
 .body_filler { background-color: #f7f0d5; } /* $login_filler_line */
-.body_login { background: url('pic/aquabg.gif') repeat-y; } /* $login_body_line */
+.body_login { background: url('../pic/aquabg.gif') repeat; } /* $login_body_line */
 .table_bg { background-color: #ccc; }           /* $table_bg */
 .bgcolor1 { background-color: #ccc; }       /* $GLOBALS['style']['BGCOLOR1'] */
 .textcolor11 { background-color: #222; }    /* $GLOBALS['style']['TEXTCOLOR11'] */
 .highlightcolor { background-color: #ddd; } /* $GLOBALS['style']['HIGHLIGHTCOLOR'] */
-.bottom_line { background: url('pic/aquabg.gif') repeat-y; }    /* $GLOBALS['style']['BOTTOM_BG_LINE'] */
+.bottom_line { background: url('../pic/aquabg.gif') repeat; }    /* $GLOBALS['style']['BOTTOM_BG_LINE'] */
 .logobar { height: 110px; }                 /* $GLOBALS['logoBarHeight'] */
 .navbar { height: 22px; }                   /* $GLOBALS['navBarHeight'] */
 .titlebar { height: 20px; }                 /* $GLOBALS['titleBarHeight'] */
