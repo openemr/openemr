@@ -1,12 +1,11 @@
-<?
+<?php
 include_once("../../globals.php");
 ?>
 
 <HTML>
 <head>
-<? html_header_show();?>
-<TITLE><? xl('
-Patient Summary','e'); ?>
+<?php html_header_show();?>
+<TITLE><?php xl('Patient Summary','e'); ?>
 </TITLE>
 </HEAD>
 <frameset rows="50%,50%" cols="*">
@@ -16,7 +15,7 @@ Patient Summary','e'); ?>
 </frameset>
 
 <noframes><body bgcolor="#FFFFFF">
-
+Frames support required
 </body></noframes>
 
 </HTML>
