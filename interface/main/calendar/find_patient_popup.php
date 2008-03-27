@@ -41,13 +41,9 @@
 <head>
 <?php html_header_show();?>
 <title><?php xl('Patient Finder','e'); ?></title>
-<link rel=stylesheet href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
-body {
-    font-size: 1em;
-    font-family: helvetica, arial;
-}
 form {
     padding: 0px;
     margin: 0px;
@@ -94,8 +90,7 @@ form {
 }
 #searchResults td {
     font-size: 0.7em;
-    border-bottom: 1px solid gray;
-    padding: 1px 5px 1px 5px;
+    border-bottom: 1px solid #eee;
 }
 .oneResult { }
 .billing { color: red; font-weight: bold; }
@@ -104,18 +99,24 @@ form {
     font-weight: bold;
     padding: 1px 1px 10px 1px;
     font-style: italic;
-    color: red;
+    color: black;
+    background-color: #fc0;
 }
 #howManyResults {
     font-size: 0.8em;
     font-weight: bold;
     padding: 1px 1px 10px 1px;
     font-style: italic;
+    color: black;
+    background-color: #9f6;
 }
-.highlight { background-color: yellow; }
+.highlight {
+    background-color: #336699;
+    color: white;
+}
 </style>
 
-<script type="text/javascript" src="/openemr/library/js/jquery-1.2.2.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
 
 <script language="JavaScript">
 
@@ -132,7 +133,7 @@ form {
 
 </head>
 
-<body <?echo $top_bg_line;?>>
+<body class="body_top">
 
 <div id="searchCriteria">
 <form method='post' name='theform' action='find_patient_popup.php?'>

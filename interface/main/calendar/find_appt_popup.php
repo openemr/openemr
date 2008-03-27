@@ -1,4 +1,4 @@
-<?
+<?php
  // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -170,7 +170,7 @@
 <head>
 <?php html_header_show(); ?>
 <title><?php xl('Find Available Appointments','e'); ?></title>
-<link rel=stylesheet href='<? echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }
@@ -183,7 +183,7 @@ td { font-size:10pt; }
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 
 <!-- for ajax-y stuff -->
-<script type="text/javascript" src="/openemr/library/js/jquery-1.2.2.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
 
 <script language="JavaScript">
 
@@ -200,10 +200,6 @@ td { font-size:10pt; }
 
 
 <style>
-body {
-    font-size: 1em;
-    font-family: helvetica, arial;
-}
 form {
     /* this eliminates the padding normally around a FORM tag */
     padding: 0px;
@@ -257,18 +253,18 @@ form {
 
 </head>
 
-<body <?php echo $top_bg_line;?>>
+<body class="body_top">
 
 <div id="searchCriteria">
 <form method='post' name='theform' action='find_appt_popup.php?providerid=<?php echo $providerid ?>&catid=<?php echo $input_catid ?>'>
    <?php xl('Start date:','e'); ?>
-   <input type='text' name='startdate' size='10' value='<? echo $sdate ?>'
+   <input type='text' name='startdate' size='10' value='<?php echo $sdate ?>'
     title='yyyy-mm-dd starting date for search' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_date' border='0' alt='[?]' style='cursor:pointer'
     title='<?php xl('Click here to choose a date','e'); ?>'>
    <?php xl('for','e'); ?>
-   <input type='text' name='searchdays' size='3' value='<? echo $searchdays ?>'
+   <input type='text' name='searchdays' size='3' value='<?php echo $searchdays ?>'
     title='Number of days to search from the start date' />
    <?php xl('days','e'); ?>&nbsp;
    <input type='submit' value='<?php xl('Search','e'); ?>'>
