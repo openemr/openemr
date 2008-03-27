@@ -1,4 +1,4 @@
-<?
+<?php
  // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -190,11 +190,11 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <title>Import Patient Demographics</title>
 </head>
-<body <? echo $top_bg_line ?> onload="javascript:document.forms[0].form_import_data.focus()">
+<body class="body_top" onload="javascript:document.forms[0].form_import_data.focus()">
 
 <p>Paste the data to import into the text area below:</p>
 

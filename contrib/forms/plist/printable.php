@@ -15,15 +15,16 @@ include_once("$srcdir/api.inc");
 <html>
 
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
-<? include("../../acog_printable_v.css"); ?>
+<?php include("../../acog_printable_v.css"); ?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 </head>
 
 
 
-<? 
+<?php
 
    $fres = sqlStatement("select * from form_plist where id=$id");
 
@@ -39,7 +40,7 @@ include_once("$srcdir/api.inc");
 
 ?>
 
-<body <?echo $top_bg_line;?>>
+<body class="body_top">
 
 <table width="70%"  border="0" cellspacing="0" cellpadding="4">
 
@@ -47,7 +48,7 @@ include_once("$srcdir/api.inc");
 
     <td width="120" align="left" valign="bottom" class="srvCaption">Patient name:</td>
 
-    <td align="left" valign="bottom" class="fibody5"><? echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'}; ?></td>
+    <td align="left" valign="bottom" class="fibody5"><?php echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'}; ?></td>
 
   </tr>
 
@@ -55,7 +56,7 @@ include_once("$srcdir/api.inc");
 
     <td width="120" align="left" valign="bottom" class="srvCaption">Birth date: </td>
 
-    <td align="left" valign="bottom" class="fibody5"><?  echo $patient{'DOB'};  ?></td>
+    <td align="left" valign="bottom" class="fibody5"><?php  echo $patient{'DOB'};  ?></td>
 
   </tr>
 
@@ -63,7 +64,7 @@ include_once("$srcdir/api.inc");
 
     <td width="120" align="left" valign="bottom" class="srvCaption">ID No:</td>
 
-    <td align="left" valign="bottom" class="fibody5"><? echo $patient{'id'};  ?></td>
+    <td align="left" valign="bottom" class="fibody5"><?php echo $patient{'id'};  ?></td>
 
   </tr>
 
@@ -71,7 +72,7 @@ include_once("$srcdir/api.inc");
 
     <td width="120" align="left" valign="bottom" class="srvCaption">Date</td>
 
-    <td align="left" valign="bottom" class="fibody5"><? echo date('Y-m-d'); ?></td>
+    <td align="left" valign="bottom" class="fibody5"><?php echo date('Y-m-d'); ?></td>
 
   </tr>
 
@@ -93,9 +94,9 @@ include_once("$srcdir/api.inc");
 
     <tr>
 
-      <td class="fibody5" id="bordR"><? echo $repdata{'pl_high_risk'} ?>&nbsp;</td>
+      <td class="fibody5" id="bordR"><?php echo $repdata{'pl_high_risk'} ?>&nbsp;</td>
 
-      <td class="fibody5"><? echo $repdata{'pl_family_history'} ?>&nbsp;</td>
+      <td class="fibody5"><?php echo $repdata{'pl_family_history'} ?>&nbsp;</td>
 
     </tr>
 
@@ -109,9 +110,9 @@ include_once("$srcdir/api.inc");
 
     <tr>
 
-      <td class="fibody5" id="bordR"><? echo $repdata{'pl_reactions'} ?>&nbsp;</td>
+      <td class="fibody5" id="bordR"><?php echo $repdata{'pl_reactions'} ?>&nbsp;</td>
 
-      <td class="fibody5"><? echo $repdata{'pl_medications'} ?>&nbsp;</td>
+      <td class="fibody5"><?php echo $repdata{'pl_medications'} ?>&nbsp;</td>
 
     </tr>
 
@@ -139,7 +140,7 @@ include_once("$srcdir/api.inc");
 
     </tr>
 
-<?
+<?php
 
 $pli = 1;
 

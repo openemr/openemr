@@ -27,10 +27,10 @@ if ($old) {
 
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <title>Physician history</title>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<link rel=stylesheet href="../../acog.css" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="../../acog.css" type="text/css">
 <script language="JavaScript" src="../../acog.js" type="text/JavaScript"></script>
 <script language="JavaScript" src="../../acogros.js" type="text/JavaScript"></script>
 <script language="JavaScript" type="text/JavaScript">
@@ -38,7 +38,7 @@ window.onload = initialize;
 </script>
 </head>
 
-<? 
+<?php
    $fres=sqlStatement("select * from patient_data where pid='".$pid."'");
    if ($fres){
      $patient = sqlFetchArray($fres);
@@ -54,9 +54,9 @@ window.onload = initialize;
      $history = sqlFetchArray($fres);
    }
 ?>
-<body <?echo $top_bg_line;?>>
-<form action="<?echo $rootdir;?>/forms/physician_history/save.php?mode=new" method="post" enctype="multipart/form-data" name="my_form">
-<?
+<body class="body_top">
+<form action="<?php echo $rootdir;?>/forms/physician_history/save.php?mode=new" method="post" enctype="multipart/form-data" name="my_form">
+<?php
 $addmenu = <<<EOL
 <blockquote>
 <small><strong>Local sections:</strong><br>
@@ -67,39 +67,39 @@ $addmenu = <<<EOL
 </blockquote>
 EOL;
 ?> 
-<? include("../../acog_menu.inc"); ?>
+<?php include("../../acog_menu.inc"); ?>
 <table width="70%"  border="0" cellspacing="0" cellpadding="4">
   <tr>
     <td width="120" align="left" valign="bottom" class="srvCaption">Patient name:</td>
-    <td align="left" valign="bottom"><input name="pname" type="text" class="fullin" id="pname" value="<?
+    <td align="left" valign="bottom"><input name="pname" type="text" class="fullin" id="pname" value="<?php
           echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'};
           ?>"></td>
   </tr>
   <tr>
     <td width="120" align="left" valign="bottom" class="srvCaption">Birth date: </td>
-    <td align="left" valign="bottom"><input name="pbdate" type="text" class="fullin" id="pbdate" value="<?
+    <td align="left" valign="bottom"><input name="pbdate" type="text" class="fullin" id="pbdate" value="<?php
           echo $patient{'DOB'};
           ?>"></td>
   </tr>
   <tr>
     <td width="120" align="left" valign="bottom" class="srvCaption">ID No:</td>
-    <td align="left" valign="bottom"><input name="ph_pid" type="text" class="fullin" id="ph_pid" value="<?
+    <td align="left" valign="bottom"><input name="ph_pid" type="text" class="fullin" id="ph_pid" value="<?php
           echo $patient{'id'};
           ?>"></td>
   </tr>
   <tr>
     <td width="120" align="left" valign="bottom" class="srvCaption">Date</td>
-    <td align="left" valign="bottom"><input name="ph_date" type="text" class="fullin" id="ph_date" value="<?
+    <td align="left" valign="bottom"><input name="ph_date" type="text" class="fullin" id="ph_date" value="<?php
         echo date('Y-m-d');
         ?>"></td>
   </tr>
 </table>
-<?
+<?php
 $tip1 = <<<EOL
 The <strong>Physician History</strong> can be used record the history for every type of outpatient encounter, including consultations. A new Physician History should be completed by the physician at each visit when clinically indicated.
 EOL;
 ?>
-<div class="srvChapter">Physician history <a href="#" onMouseOver="toolTip('<? echo $tip1; ?>', 300)" onMouseOut="toolTip();"><img src="../../pic/mark_q.png" width="13" height="13" border="0" align="texttop"></a></div>
+<div class="srvChapter">Physician history <a href="#" onMouseOver="toolTip('<?php echo $tip1; ?>', 300)" onMouseOut="toolTip();"><img src="../../pic/mark_q.png" width="13" height="13" border="0" align="texttop"></a></div>
 <div style="border: solid 2px black; background-color:#FFFFFF;">
   <table width="100%"  border="0" cellspacing="0" cellpadding="0">
     <tr>
@@ -140,9 +140,9 @@ EOL;
             <td width="50%" class="ficaption2">Current prescription medications: </td>
           </tr>
           <tr align="left" valign="baseline">
-            <td width="50%" nowrap class="fibody2" id="bordR"><textarea name="chief_complaint" rows="3" wrap="VIRTUAL" class="fullin2" id="chief_complaint"><? echo $edata['reason']; ?></textarea>
+            <td width="50%" nowrap class="fibody2" id="bordR"><textarea name="chief_complaint" rows="3" wrap="VIRTUAL" class="fullin2" id="chief_complaint"><?php echo $edata['reason']; ?></textarea>
             </td>
-            <td width="50%" nowrap class="fibody2"><textarea name="current_prescription" rows="3" wrap="VIRTUAL" class="fullin2" id="current_prescription"><?
+            <td width="50%" nowrap class="fibody2"><textarea name="current_prescription" rows="3" wrap="VIRTUAL" class="fullin2" id="current_prescription"><?php
 if ($result = getListByType($pid, "medication", "id,title,comments,activity,date", 1, "all", 0)){
 	foreach ($result as $iter) {
 	  $tmp_med[] = $iter{"title"}.' ('.$iter{"comments"}.') ';
@@ -218,7 +218,7 @@ echo join(', ', $tmp_med);
     <tr>
       <td><table width="100%"  border="0" cellspacing="0" cellpadding="2">
           <tr align="left" valign="bottom">
-            <?
+            <?php
 $allergies = ''; $checked = 'checked';
 if ($result = getListByType($pid, "allergy", "id,title,comments,activity,date", 1, "all", 0)){
 	foreach ($result as $iter) {
@@ -229,9 +229,9 @@ if ($result = getListByType($pid, "allergy", "id,title,comments,activity,date", 
 }
 ?>
             <td width="225" class="fibody2"><a name="allergies"></a>Allergies (describe reaction):
-                <input name="ph_allergies_none" type="checkbox" id="ph_allergies_none" value="1" <? echo $checked ?>>
+                <input name="ph_allergies_none" type="checkbox" id="ph_allergies_none" value="1" <?php echo $checked ?>>
               None</td>
-            <td class="fibody2"><input name="ph_allergies_data" type="text" class="fullin2" id="ph_allergies_data" value="<? echo $allergies; ?>"></td>
+            <td class="fibody2"><input name="ph_allergies_data" type="text" class="fullin2" id="ph_allergies_data" value="<?php echo $allergies; ?>"></td>
           </tr>
       </table></td>
     </tr>
@@ -249,7 +249,7 @@ if ($result = getListByType($pid, "allergy", "id,title,comments,activity,date", 
           </tr>
           <tr align="left" valign="bottom">
             <td width="70%" class="fibody2" id="bordR">last mammogram:
-                <input name="last_mammogram" type="text" class="fullin2" id="last_mammogram" style="width: 70px" value="<? echo $history{'last_mammogram'}; ?>"></td>
+                <input name="last_mammogram" type="text" class="fullin2" id="last_mammogram" style="width: 70px" value="<?php echo $history{'last_mammogram'}; ?>"></td>
         <td class="fibody2"><input name="last_mammogram_notes" type="text" class="fullin2" id="last_mammogram_notes"></td>
       </tr>
       <tr align="left" valign="bottom">
@@ -353,7 +353,7 @@ No&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Number of partners (Life
           <td class="ficaption2" id="bordR">type of delivery (<small>vaginal, cesarian etc.</small>) </td>
           <td class="ficaption2">physician's notes</td>
         </tr>
-<?
+<?php
   $bi = 0;
   while ($bi<4) {
     $n = $bi+1;
@@ -431,7 +431,7 @@ EOL;
     <tr>
       <td class="fibody2">Immunizations/Tuberculosis test: <br>
 <textarea name="ph_immunizations_tuberculosis" rows="3" wrap="VIRTUAL" class="fullin2" id="ph_immunizations_tuberculosis">
-<?
+<?php
 if ($result = getListByType($pid, "immunization", "id,title,comments,activity,date", 1, "all", 0)){
 foreach ($result as $iter) {
   $tmp_im[] = $iter{'date'}.' - '.$iter{'title'}.' ('.$iter{'comments'}.')';

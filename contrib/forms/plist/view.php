@@ -19,11 +19,11 @@ include_once("$srcdir/calendar.inc");
 <html>
 
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
-<link rel=stylesheet href="../../acog.css" type="text/css">
+<link rel="stylesheet" href="../../acog.css" type="text/css">
 
 <script language="JavaScript" src="../../acog.js" type="text/JavaScript"></script>
 
@@ -39,7 +39,7 @@ window.onload = initialize;
 
 </head>
 
-<? 
+<?php
 
    $fres = sqlStatement("select * from form_plist where id=$id");
 
@@ -57,13 +57,13 @@ window.onload = initialize;
 
 ?>
 
-<body <?echo $top_bg_line;?>>
+<body class="body_top">
 
 
 
-<form action="<?echo $rootdir;?>/forms/plist/save.php?mode=update&id=<?echo $_GET["id"];?>" method="post" enctype="multipart/form-data" name="my_form">
+<form action="<?php echo $rootdir;?>/forms/plist/save.php?mode=update&id=<?php echo $_GET["id"];?>" method="post" enctype="multipart/form-data" name="my_form">
 
-<? include("../../acog_menu.inc"); ?>
+<?php include("../../acog_menu.inc"); ?>
 
   <table width="70%"  border="0" cellspacing="0" cellpadding="4">
 
@@ -71,7 +71,7 @@ window.onload = initialize;
 
     <td width="120" align="left" valign="bottom" class="srvCaption">Patient name:</td>
 
-    <td align="left" valign="bottom"><input name="pname" type="text" class="fullin" id="pname" value="<? echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'}; ?>"></td>
+    <td align="left" valign="bottom"><input name="pname" type="text" class="fullin" id="pname" value="<?php echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'}; ?>"></td>
 
   </tr>
 
@@ -79,7 +79,7 @@ window.onload = initialize;
 
     <td width="120" align="left" valign="bottom" class="srvCaption">Birth date: </td>
 
-    <td align="left" valign="bottom"><input name="pbdate" type="text" class="fullin" id="pbdate" value="<?  echo $patient{'DOB'};  ?>"></td>
+    <td align="left" valign="bottom"><input name="pbdate" type="text" class="fullin" id="pbdate" value="<?php  echo $patient{'DOB'};  ?>"></td>
 
   </tr>
 
@@ -87,7 +87,7 @@ window.onload = initialize;
 
     <td width="120" align="left" valign="bottom" class="srvCaption">ID No:</td>
 
-    <td align="left" valign="bottom"><input name="pl_pid" type="text" class="fullin" id="pl_pid" value="<? echo $patient{'id'};  ?>" readonly="true"></td>
+    <td align="left" valign="bottom"><input name="pl_pid" type="text" class="fullin" id="pl_pid" value="<?php echo $patient{'id'};  ?>" readonly="true"></td>
 
   </tr>
 
@@ -95,7 +95,7 @@ window.onload = initialize;
 
     <td width="120" align="left" valign="bottom" class="srvCaption">Date</td>
 
-    <td align="left" valign="bottom"><input name="pl_date" type="text" class="fullin" id="pl_date" value="<? echo date('Y-m-d'); ?>"></td>
+    <td align="left" valign="bottom"><input name="pl_date" type="text" class="fullin" id="pl_date" value="<?php echo date('Y-m-d'); ?>"></td>
 
   </tr>
 
@@ -117,9 +117,9 @@ window.onload = initialize;
 
     <tr>
 
-      <td class="fibody2" id="bordR"><textarea name="pl_high_risk" rows="6" wrap="VIRTUAL" class="fullin2" id="pl_high_risk"><? echo $obj{'pl_high_risk'} ?></textarea></td>
+      <td class="fibody2" id="bordR"><textarea name="pl_high_risk" rows="6" wrap="VIRTUAL" class="fullin2" id="pl_high_risk"><?php echo $obj{'pl_high_risk'} ?></textarea></td>
 
-      <td class="fibody2"><textarea name="pl_family_history" rows="6" wrap="VIRTUAL" class="fullin2" id="pl_family_history"><? echo $obj{'pl_family_history'} ?></textarea></td>
+      <td class="fibody2"><textarea name="pl_family_history" rows="6" wrap="VIRTUAL" class="fullin2" id="pl_family_history"><?php echo $obj{'pl_family_history'} ?></textarea></td>
 
     </tr>
 
@@ -133,9 +133,9 @@ window.onload = initialize;
 
     <tr>
 
-      <td class="fibody3" id="bordR"><textarea name="pl_reactions" rows="6" wrap="VIRTUAL" class="fullin2" id="pl_reactions"><? echo $obj{'pl_reactions'} ?></textarea></td>
+      <td class="fibody3" id="bordR"><textarea name="pl_reactions" rows="6" wrap="VIRTUAL" class="fullin2" id="pl_reactions"><?php echo $obj{'pl_reactions'} ?></textarea></td>
 
-      <td class="fibody3"><textarea name="pl_medications" rows="6" wrap="VIRTUAL" class="fullin2" id="pl_medications"><? echo $obj{'pl_medications'} ?></textarea></td>
+      <td class="fibody3"><textarea name="pl_medications" rows="6" wrap="VIRTUAL" class="fullin2" id="pl_medications"><?php echo $obj{'pl_medications'} ?></textarea></td>
 
     </tr>
 
@@ -163,7 +163,7 @@ window.onload = initialize;
 
     </tr>
 
-<?
+<?php
 
 $pli = 1;
 
@@ -211,7 +211,7 @@ $pli++;
 
     <td align="left" width="100"> <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save Data]</a> </td>
 
-    <td align="left" nowrap> <a href="<? echo $rootdir; ?>/patient_file/encounter/print_form.php?id=<? echo $id; ?>&formname=plist"
+    <td align="left" nowrap> <a href="<?php echo $rootdir; ?>/patient_file/encounter/print_form.php?id=<?php echo $id; ?>&formname=plist"
 
      target="_blank" class="link_submit" onclick="top.restoreSession()">[Printable form]</a> </td>
 

@@ -94,10 +94,9 @@ if ($formid) {
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <style type="text/css">
- body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
  .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
  .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
 </style>
@@ -106,7 +105,7 @@ if ($formid) {
 <script language='JavaScript'>
 
  function newEvt() {
-  dlgopen('../../main/calendar/add_edit_event.php?patientid=<? echo $pid ?>',
+  dlgopen('../../main/calendar/add_edit_event.php?patientid=<?php echo $pid ?>',
    '_blank', 550, 270);
   return false;
  }
@@ -127,11 +126,10 @@ if ($formid) {
 
 </head>
 
-<body <?echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2"
- bottommargin="0" marginwidth="2" marginheight="0">
+<body class="body_top">
 
 <form method="post" enctype="multipart/form-data"
- action="<? echo $rootdir ?>/forms/scanned_notes/new.php?id=<? echo $formid ?>"
+ action="<?php echo $rootdir ?>/forms/scanned_notes/new.php?id=<?php echo $formid ?>"
  onsubmit="return top.restoreSession()">
 
 <center>
@@ -146,7 +144,7 @@ if ($formid) {
  <tr>
   <td width='5%'  class='dehead' nowrap>&nbsp;Comments&nbsp;</td>
   <td width='95%' class='detail' nowrap>
-   <textarea name='form_notes' rows='4' style='width:100%'><? echo $row['notes'] ?></textarea>
+   <textarea name='form_notes' rows='4' style='width:100%'><?php echo $row['notes'] ?></textarea>
   </td>
  </tr>
 

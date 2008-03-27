@@ -5,11 +5,11 @@ include_once("$srcdir/api.inc");
 formHeader("Form: vitalsigns");
 ?>
 <html><head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<form method=post action="<?echo $rootdir;?>/forms/vitalsigns/save.php?mode=new" name="my_form">
+<body class="body_top">
+<form method=post action="<?php echo $rootdir;?>/forms/vitalsigns/save.php?mode=new" name="my_form">
 <span class="title">Vital Signs</span><br><br>
 <span class=bold>Blood Pressure</span><br>
 

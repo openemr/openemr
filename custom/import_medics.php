@@ -391,13 +391,10 @@ if ($thisauth != 'write')
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <style type="text/css">
- body {
-  font-family:sans-serif;
- }
 .indata {
  font-family:monospace;
  font-size:11pt;
@@ -416,7 +413,7 @@ if ($thisauth != 'write')
 
 <title>Import Encounters</title>
 </head>
-<body <? echo $top_bg_line ?>>
+<body class="body_top">
 <form method='post' action='import_medics.php' enctype='multipart/form-data'>
 <?php
 

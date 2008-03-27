@@ -19,13 +19,13 @@ include_once("$srcdir/calendar.inc");formHeader("Form: Routine screening record"
 <html>
 
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
 <title>Form: Routine screening record</title>
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
-<link rel=stylesheet href="../../acog.css" type="text/css">
+<link rel="stylesheet" href="../../acog.css" type="text/css">
 
 <script language="JavaScript" src="../../acog.js" type="text/JavaScript"></script>
 
@@ -39,7 +39,7 @@ window.onload = initialize;
 
 
 
-<? 
+<?php
 
    $fres=sqlStatement("select * from patient_data where pid='".$pid."'");
 
@@ -59,13 +59,13 @@ window.onload = initialize;
 
 ?>
 
-<body <?echo $top_bg_line;?>>
+<body class="body_top">
 
 
 
-<form action="<?echo $rootdir;?>/forms/routine_screening_record/save.php?mode=update&id=<? echo $id;?>" method="post" enctype="multipart/form-data" name="my_form">
+<form action="<?php echo $rootdir;?>/forms/routine_screening_record/save.php?mode=update&id=<?php echo $id;?>" method="post" enctype="multipart/form-data" name="my_form">
 
-<? include("../../acog_menu.inc"); ?>
+<?php include("../../acog_menu.inc"); ?>
 
 <div class="srvChapter">Routine screening record <a href="#" onMouseOver="toolTip('The <strong>Routine Screening Record</strong> includes those screening tests recommended by ACOG for routine use and provides reminders for recommended frequency of services.', 300)" onMouseOut="toolTip();"><img src="../../pic/mark_q.png" width="13" height="13" border="0" align="texttop"></a></div>
 
@@ -77,7 +77,7 @@ window.onload = initialize;
 
       <td colspan="4" class="fibody2" id="bordR">patient name: 
 
-        <input name="pname" type="text" class="fullin" id="pname" style="width: 74%" value="<?
+        <input name="pname" type="text" class="fullin" id="pname" style="width: 74%" value="<?php
 
           echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'};
 
@@ -85,7 +85,7 @@ window.onload = initialize;
 
       <td colspan="4" class="fibody2" id="bordR">Birth date: 
 
-        <input name="pbdate" type="text" class="fullin" id="pbdate" style="width: 65%" value="<?
+        <input name="pbdate" type="text" class="fullin" id="pbdate" style="width: 65%" value="<?php
 
           echo $patient{'DOB'};
 
@@ -93,7 +93,7 @@ window.onload = initialize;
 
       <td colspan="3" class="fibody2">ID No:
 
-        <input name="rs_pid" type="text" class="fullin" id="rs_pid" style="width:80%" value="<?
+        <input name="rs_pid" type="text" class="fullin" id="rs_pid" style="width:80%" value="<?php
 
           echo $patient{'id'};
 
@@ -337,7 +337,7 @@ UNDER AGE 25</td>
 
       </tr>
 
-<?	
+<?php
 
 $factors = array("cervical", "lipid", "mammo", "colorectal",
 
@@ -445,7 +445,7 @@ $rsi++;
 
   <tr><td align="left" width="120"> <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save Data]</a> </td>
 
-  <td align="left" nowrap> <a href="<? echo $rootdir; ?>/patient_file/encounter/print_form.php?id=<? echo $id; ?>&formname=<? echo $formname; ?>"
+  <td align="left" nowrap> <a href="<?php echo $rootdir; ?>/patient_file/encounter/print_form.php?id=<?php echo $id; ?>&formname=<?php echo $formname; ?>"
 
    target="_blank" class="link_submit" onclick="top.restoreSession()">[Printable form]</a> </td>
 

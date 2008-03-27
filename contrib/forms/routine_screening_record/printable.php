@@ -19,17 +19,18 @@ include_once("$srcdir/calendar.inc");formHeader("Form: Routine screening record"
 <html>
 
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
 <title>Form: Routine screening record</title>
 
-<? include("../../acog_printable_h.css"); ?>
+<?php include("../../acog_printable_h.css"); ?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 </head>
 
 
 
-<? 
+<?php
 
    $fres=sqlStatement("select * from patient_data where pid='".$pid."'");
 
@@ -49,7 +50,7 @@ include_once("$srcdir/calendar.inc");formHeader("Form: Routine screening record"
 
 ?>
 
-<body <?echo $top_bg_line;?>>
+<body class="body_top">
 
 <div class="srvChapter">Routine screening record </div>
 
@@ -59,11 +60,11 @@ include_once("$srcdir/calendar.inc");formHeader("Form: Routine screening record"
 
     <tr align="left" valign="bottom">
 
-      <td colspan="4" class="fibody2" id="bordR">Patient name: <?  echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'}; ?></td>
+      <td colspan="4" class="fibody2" id="bordR">Patient name: <?php  echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'}; ?></td>
 
-      <td colspan="4" class="fibody2" id="bordR">Birth date: <?   echo $patient{'DOB'};  ?></td>
+      <td colspan="4" class="fibody2" id="bordR">Birth date: <?php   echo $patient{'DOB'};  ?></td>
 
-      <td colspan="3" class="fibody2">ID No: <?    echo $patient{'id'};   ?></td>
+      <td colspan="3" class="fibody2">ID No: <?php    echo $patient{'id'};   ?></td>
 
     </tr>
 
@@ -303,7 +304,7 @@ UNDER AGE 25</td>
 
     </tr>
 
-<?	
+<?php
 
 $factors = array("cervical", "lipid", "mammo", "colorectal",
 

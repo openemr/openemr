@@ -93,22 +93,20 @@ if ($formid) {
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script language='JavaScript'>
  function newEvt() {
-  dlgopen('../../main/calendar/add_edit_event.php?patientid=<? echo $pid ?>',
+  dlgopen('../../main/calendar/add_edit_event.php?patientid=<?php echo $pid ?>',
    '_blank', 550, 270);
   return false;
  }
 </script>
 </head>
 
-<body <?echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2"
- bottommargin="0" marginwidth="2" marginheight="0">
-<form method="post" action="<? echo $rootdir ?>/forms/specialist_notes/new.php?id=<? echo $formid ?>"
- onsubmit="return top.restoreSession()">
+<body class="body_top">
+<form method="post" action="<?php echo $rootdir ?>/forms/specialist_notes/new.php?id=<?php echo $formid ?>" onsubmit="return top.restoreSession()">
 
 <center>
 
@@ -122,7 +120,7 @@ if ($formid) {
  <tr>
   <td width='5%'  nowrap> Notes </td>
   <td width='95%' nowrap>
-   <textarea name='form_notes' rows='18' style='width:100%'><? echo $row['notes'] ?></textarea>
+   <textarea name='form_notes' rows='18' style='width:100%'><?php echo $row['notes'] ?></textarea>
   </td>
  </tr>
 
@@ -132,12 +130,12 @@ if ($formid) {
    <table width='100%'>
     <tr>
      <td width='1%' nowrap>
-      <? echo cbinput('fu_required', 'followup_required') ?>Required on&nbsp;
+      <?php echo cbinput('fu_required', 'followup_required') ?>Required on&nbsp;
      </td>
      <td width='49%' nowrap>
       <input type='text' name='fu_timing' size='10' style='width:100%'
        title='When to follow up'
-       value='<? echo addslashes($row['followup_timing']) ?>' />
+       value='<?php echo addslashes($row['followup_timing']) ?>' />
      </td>
      <td width='1%' nowrap>
       &nbsp;at&nbsp;
@@ -145,7 +143,7 @@ if ($formid) {
      <td width='49%' nowrap>
       <input type='text' name='fu_location' size='10' style='width:100%'
        title='Where to follow up'
-       value='<? echo addslashes($row['followup_location']) ?>' />
+       value='<?php echo addslashes($row['followup_location']) ?>' />
      </td>
     </tr>
    </table>

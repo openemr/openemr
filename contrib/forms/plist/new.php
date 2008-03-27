@@ -27,41 +27,41 @@ if ($old) {
 
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<link rel=stylesheet href="../../acog.css" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="../../acog.css" type="text/css">
 <script language="JavaScript" src="../../acog.js" type="text/JavaScript"></script>
 <script language="JavaScript" type="text/JavaScript">
   window.onload = initialize;
 </script>
 </head>
-<? 
+<?php
    $fres=sqlStatement("select * from patient_data where pid=".$_SESSION["pid"]);
    if ($fres){
      $patient = sqlFetchArray($fres);
    }
    $history = getHistoryData($_SESSION["pid"]);
 ?>
-<body <?echo $top_bg_line;?> >
+<body class="body_top">
 
-<form action="<?echo $rootdir;?>/forms/plist/save.php?mode=new" method="post" enctype="multipart/form-data" name="my_form">
-<? include("../../acog_menu.inc"); ?>
+<form action="<?php echo $rootdir;?>/forms/plist/save.php?mode=new" method="post" enctype="multipart/form-data" name="my_form">
+<?php include("../../acog_menu.inc"); ?>
   <table width="70%"  border="0" cellspacing="0" cellpadding="4">
   <tr>
     <td width="120" align="left" valign="bottom" class="srvCaption">Patient name:</td>
-    <td align="left" valign="bottom"><input name="pname" type="text" class="fullin" id="pname" value="<? echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'}; ?>"></td>
+    <td align="left" valign="bottom"><input name="pname" type="text" class="fullin" id="pname" value="<?php echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'}; ?>"></td>
   </tr>
   <tr>
     <td width="120" align="left" valign="bottom" class="srvCaption">Birth date: </td>
-    <td align="left" valign="bottom"><input name="pbdate" type="text" class="fullin" id="pbdate" value="<?  echo $patient{'DOB'};  ?>"></td>
+    <td align="left" valign="bottom"><input name="pbdate" type="text" class="fullin" id="pbdate" value="<?php  echo $patient{'DOB'};  ?>"></td>
   </tr>
   <tr>
     <td width="120" align="left" valign="bottom" class="srvCaption">ID No:</td>
-    <td align="left" valign="bottom"><input name="pl_pid" type="text" class="fullin" id="pl_pid" value="<? echo $patient{'id'};  ?>" readonly="true"></td>
+    <td align="left" valign="bottom"><input name="pl_pid" type="text" class="fullin" id="pl_pid" value="<?php echo $patient{'id'};  ?>" readonly="true"></td>
   </tr>
   <tr>
     <td width="120" align="left" valign="bottom" class="srvCaption">Date</td>
-    <td align="left" valign="bottom"><input name="pl_date" type="text" class="fullin" id="pl_date" value="<? echo date('Y-m-d'); ?>"></td>
+    <td align="left" valign="bottom"><input name="pl_date" type="text" class="fullin" id="pl_date" value="<?php echo date('Y-m-d'); ?>"></td>
   </tr>
 </table>
 <div class="srvChapter">Problem list <a href="#" onMouseOver="toolTip('The Problem List captures problems, allergies, family history, and current medication use.')" onMouseOut="toolTip();"><img src="../../pic/mark_q.png" width="13" height="13" border="0"></a></div>
@@ -72,8 +72,8 @@ if ($old) {
       <td width="50%" class="ficaption3">Family history:</td>
     </tr>
     <tr>
-      <td class="fibody2" id="bordR"><textarea name="pl_high_risk" rows="6" wrap="VIRTUAL" class="fullin2" id="pl_high_risk"><? echo $obj{'pl_high_risk'} ?></textarea></td>
-      <td class="fibody2"><textarea name="pl_family_history" rows="6" wrap="VIRTUAL" class="fullin2" id="pl_family_history"><?
+      <td class="fibody2" id="bordR"><textarea name="pl_high_risk" rows="6" wrap="VIRTUAL" class="fullin2" id="pl_high_risk"><?php echo $obj{'pl_high_risk'} ?></textarea></td>
+      <td class="fibody2"><textarea name="pl_family_history" rows="6" wrap="VIRTUAL" class="fullin2" id="pl_family_history"><?php
 //	  ($history['history_mother'] != ''   ) ? $tmp[] = "Mother: "    . $history['history_mother']    : '';
 //	  ($history['history_father'] != ''   ) ? $tmp[] = "Father: "    . $history['history_father']    : '';
 //	  ($history['history_siblings'] != '' ) ? $tmp[] = "Siblings: "  . $history['history_siblings']  : '';
@@ -94,7 +94,7 @@ if ($old) {
       <td class="ficaption3">Current medications:</td>
     </tr>
     <tr>
-      <td class="fibody3" id="bordR"><textarea name="pl_reactions" rows="6" wrap="VIRTUAL" class="fullin2" id="pl_reactions"><?
+      <td class="fibody3" id="bordR"><textarea name="pl_reactions" rows="6" wrap="VIRTUAL" class="fullin2" id="pl_reactions"><?php
 $allergies = ''; $checked = 'checked';
 if ($result = getListByType($pid, "allergy", "id,title,comments,activity,date", 1, "all", 0)){
 	foreach ($result as $iter) {
@@ -105,7 +105,7 @@ if ($result = getListByType($pid, "allergy", "id,title,comments,activity,date", 
 }
 echo $allergies;
 ?></textarea></td>
-      <td class="fibody3"><textarea name="pl_medications" rows="6" wrap="VIRTUAL" class="fullin2" id="pl_medications"><?
+      <td class="fibody3"><textarea name="pl_medications" rows="6" wrap="VIRTUAL" class="fullin2" id="pl_medications"><?php
 if ($result = getListByType($pid, "medication", "id,title,comments,activity,date", 1, "all", 0)){
 	foreach ($result as $iter) {
 	  $tmp_med[] = $iter{"title"}.' ('.$iter{"comments"}.') ';
@@ -126,7 +126,7 @@ echo join(', ', $tmp_med);
       <td width="120" align="center" valign="bottom" class="ficaption2" id="bordR">Onset age and date </td>
       <td width="120" align="center" valign="bottom" class="ficaption2">Resolution date </td>
     </tr>
-<?
+<?php
 $pli = 1;
 
 while ($pli < 26){

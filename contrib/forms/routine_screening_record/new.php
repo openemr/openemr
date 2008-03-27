@@ -26,40 +26,40 @@ if ($old) {
 
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <title>Form: Routine screening record</title>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<link rel=stylesheet href="../../acog.css" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="../../acog.css" type="text/css">
 <script language="JavaScript" src="../../acog.js" type="text/JavaScript"></script>
 <script language="JavaScript" type="text/JavaScript">
 window.onload = initialize;
 </script>
 </head>
 
-<? 
+<?php
    $fres=sqlStatement("select * from patient_data where pid='".$pid."'");
    if ($fres){
      $patient = sqlFetchArray($fres);
    }
 ?>
-<body <?echo $top_bg_line;?>>
+<body class="body_top">
 
-<form action="<?echo $rootdir;?>/forms/routine_screening_record/save.php?mode=new" method="post" enctype="multipart/form-data" name="my_form">
-<? include("../../acog_menu.inc"); ?>
+<form action="<?php echo $rootdir;?>/forms/routine_screening_record/save.php?mode=new" method="post" enctype="multipart/form-data" name="my_form">
+<?php include("../../acog_menu.inc"); ?>
 <div class="srvChapter">Routine screening record <a href="#" onMouseOver="toolTip('The <strong>Routine Screening Record</strong> includes those screening tests recommended by ACOG for routine use and provides reminders for recommended frequency of services.', 300)" onMouseOut="toolTip();"><img src="../../pic/mark_q.png" width="13" height="13" border="0" align="texttop"></a></div>
 <div style="border: solid 2px black; background-color:#FFFFFF;">
   <table  border="0" cellpadding="2" cellspacing="0">
     <tr align="left" valign="bottom">
       <td colspan="4" class="fibody2" id="bordR">patient name: 
-        <input name="pname" type="text" class="fullin" id="pname" style="width: 74%" value="<?
+        <input name="pname" type="text" class="fullin" id="pname" style="width: 74%" value="<?php
           echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'};
           ?>"></td>
       <td colspan="4" class="fibody2" id="bordR">Birth date: 
-        <input name="pbdate" type="text" class="fullin" id="pbdate" style="width: 65%" value="<?
+        <input name="pbdate" type="text" class="fullin" id="pbdate" style="width: 65%" value="<?php
           echo $patient{'DOB'};
           ?>"></td>
       <td colspan="3" class="fibody2">ID No:
-        <input name="rs_pid" type="text" class="fullin" id="rs_pid" style="width:80%" value="<?
+        <input name="rs_pid" type="text" class="fullin" id="rs_pid" style="width:80%" value="<?php
           echo $patient{'id'};
           ?>"></td>
       </tr>
@@ -181,7 +181,7 @@ UNDER AGE 25</td>
     <tr align="left" valign="bottom">
       <td colspan="11" class="fibody2" style="border-bottom: 2px solid black;">&nbsp;</td>
       </tr>
-<?	
+<?php
 $rsi = 1;
 while ($rsi <  9){
 print <<<EOL

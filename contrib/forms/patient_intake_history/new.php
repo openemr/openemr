@@ -32,25 +32,25 @@ if ($old) {
 
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<link rel=stylesheet href="../../acog.css" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="../../acog.css" type="text/css">
 <script language="JavaScript" src="../../acog.js" type="text/JavaScript"></script>
 <script language="JavaScript" type="text/JavaScript">
 window.onload = initialize;
 </script>
 </head>
 
-<body <?echo $top_bg_line;?>>
+<body class="body_top">
 
-<? 
+<?php 
    $fres=sqlStatement("select * from patient_data where pid='".$pid."'");
    if ($fres){
      $patient = sqlFetchArray($fres);
    }
 ?>
-<form action="<?echo $rootdir;?>/forms/patient_intake_history/save.php?mode=new" method="post" enctype="multipart/form-data" name="my_form">
-<?
+<form action="<?php echo $rootdir;?>/forms/patient_intake_history/save.php?mode=new" method="post" enctype="multipart/form-data" name="my_form">
+<?php
 $addmenu = <<<EOL
 <blockquote>
   <small><strong>Local sections: </strong><br>
@@ -64,7 +64,7 @@ $addmenu = <<<EOL
 </blockquote>
 EOL;
 ?> 
-<? include("../../acog_menu.inc"); ?>  
+<?php include("../../acog_menu.inc"); ?>  
   <table width="50%"  border="0" cellspacing="0" cellpadding="2">
     <tr>
       <td align="left" valign="bottom" nowrap class="fibody3">For office use only </td>
@@ -87,7 +87,7 @@ EOL;
       <input name="pih_report_sent_date" type="text" class="fullin" id="pih_report_sent_date" style="width:90px" value="YYYY-MM-DD"></td>
     </tr>
 </table>
-<?
+<?php
 $tip1 = <<<EOL
 <strong>Patient Intake History</strong> is an optional form
 giving practices the flexibility to have patients complete
@@ -100,27 +100,27 @@ a new Patient Intake History.
 EOL;
 $tip1 = strtr($tip1, "\n\r", "  ");
 ?>
-<div class="srvChapter">Patient Intake history <a href="#" onMouseOver="toolTip('<? echo $tip1; ?>', 300)" onMouseOut="toolTip();"><img src="../../pic/mark_q.png" width="13" height="13" border="0" align="texttop"></a></div>
+<div class="srvChapter">Patient Intake history <a href="#" onMouseOver="toolTip('<?php echo $tip1; ?>', 300)" onMouseOut="toolTip();"><img src="../../pic/mark_q.png" width="13" height="13" border="0" align="texttop"></a></div>
 <div style="border: solid 2px black; background-color: white;">
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
     <td align="left" valign="top" class="fibody2" style="border-bottom: 2px solid black"><table width="100%"  border="0" cellspacing="0" cellpadding="5">
       <tr align="left" valign="bottom" class="fibody">
         <td width="40%" class="bordR">Patient name <br>          
-          <input name="pname" type="text" class="fullin" id="pname" value="<?
+          <input name="pname" type="text" class="fullin" id="pname" value="<?php
           echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'};
           ?>"></td>
         <td width="20%" class="bordR">birth date
           <br>          
-          <input name="pbdate" type="text" class="fullin" id="pbdate" value="<?
+          <input name="pbdate" type="text" class="fullin" id="pbdate" value="<?php
           echo $patient{'DOB'};
           ?>" size="12"> </td>
         <td width="20%" class="bordR">ID No<br>          
-          <input name="pih_pid" type="text" class="fullin" id="pih_pid" size="12" value="<?
+          <input name="pih_pid" type="text" class="fullin" id="pih_pid" size="12" value="<?php
           echo $patient{'id'};
           ?>"></td>
         <td width="20%">date<br>
-        <input name="pih_date" type="text" class="fullin" id="pih_date" value="<?
+        <input name="pih_date" type="text" class="fullin" id="pih_date" value="<?php
         echo date('Y-m-d');
         ?>" size="12"></td>
       </tr>
@@ -131,21 +131,21 @@ $tip1 = strtr($tip1, "\n\r", "  ");
     <td align="left" valign="top"><table width="100%"  border="0" cellspacing="0" cellpadding="2">
       <tr align="left" valign="bottom">
         <td colspan="3" class="fibody2">Address:
-          <input name="address" type="text" class="fullin" id="address" style="width: 90%" value="<? echo $patient{'street'}; ?>"></td>
+          <input name="address" type="text" class="fullin" id="address" style="width: 90%" value="<?php echo $patient{'street'}; ?>"></td>
         </tr>
       <tr align="left" valign="bottom">
         <td width="50%" class="fibody2" id="bordR">City:
-          <input name="city" type="text" class="fullin" id="city" style="width: 250px" value="<? echo $patient{'city'}; ?>"></td>
+          <input name="city" type="text" class="fullin" id="city" style="width: 250px" value="<?php echo $patient{'city'}; ?>"></td>
         <td width="50%" colspan="2" class="fibody2">State/ZIP:
-          <input name="state" type="text" class="fullin" id="state" style="width: 250px" value="<? echo $patient{'state'}; ?>"></td>
+          <input name="state" type="text" class="fullin" id="state" style="width: 250px" value="<?php echo $patient{'state'}; ?>"></td>
       </tr>
       <tr align="left" valign="bottom">
         <td class="fibody2" id="bordR">Home telephone: 
           <span style="width:auto">
-          <input name="home_phone" type="text" class="fullin" id="home_phone" style="width: 120px" value="<? echo $patient{'phone_home'}; ?>">
+          <input name="home_phone" type="text" class="fullin" id="home_phone" style="width: 120px" value="<?php echo $patient{'phone_home'}; ?>">
           </span></td>
         <td colspan="2" class="fibody2">Work telephone: 
-          <input name="work_phone" type="text" class="fullin" id="work_phone" style="width: 120px" value="<? echo $patient{'phone_biz'}; ?>"></td>
+          <input name="work_phone" type="text" class="fullin" id="work_phone" style="width: 120px" value="<?php echo $patient{'phone_biz'}; ?>"></td>
       </tr>
       <tr align="left" valign="bottom">
         <td class="fibody2" id="bordR">Employer:
@@ -167,12 +167,12 @@ $tip1 = strtr($tip1, "\n\r", "  ");
       <tr align="left" valign="bottom">
         <td width="40%" class="fibody2" id="bordR">Name of spouse/partner: </td>
         <td colspan="2" class="fibody2">Emergency contact: 
-          <input name="partner_emergency_contact" type="text" class="fullin" id="partner_emergency_contact" style="width: 70%" value="<? echo $patient{'phone_contact'}; ?>"></td>
+          <input name="partner_emergency_contact" type="text" class="fullin" id="partner_emergency_contact" style="width: 70%" value="<?php echo $patient{'phone_contact'}; ?>"></td>
         </tr>
       <tr align="left" valign="bottom">
         <td rowspan="2" valign="top" class="fibody2" id="bordR"><textarea name="partner_name" rows="2" wrap="VIRTUAL" class="fullin2" id="partner_name" style="height:100%"></textarea></td>
         <td colspan="2" class="fibody2">Relationship: 
-          <input name="relationship" type="text" class="fullin" id="relationship" style="width:80%" value="<? echo $patient{'contact_relationship'}; ?>"></td>
+          <input name="relationship" type="text" class="fullin" id="relationship" style="width:80%" value="<?php echo $patient{'contact_relationship'}; ?>"></td>
         </tr>
       <tr align="left" valign="bottom">
         <td width="30%" class="fibody2" id="bordR">Home telephone: 
@@ -372,7 +372,7 @@ No </td>
               <td class="ficaption2" id="bordR">type of delivery (<small>vaginal, cesarian etc.</small>) </td>
               <td class="ficaption2">physician's notes</td>
             </tr>
-<?
+<?php
   $bi = 0;
   while ($bi<4) {
     $n = $bi+1;
@@ -438,7 +438,7 @@ EOL;
         <td valign="top" class="ficaption2" id="bordR">Dosage</td>
         <td valign="top" class="ficaption2">Who prescribed</td>
       </tr>
-<?	  
+<?php
   $bi = 0;
   while ($bi<5) {
     $bi2 = $bi+5;
@@ -1089,7 +1089,7 @@ Age:
         <td width="90" align="center" valign="bottom" class="ficaption2" id="bordR">Date</td>
         <td align="center" valign="bottom" class="ficaption2">Hospital</td>
       </tr>
-<?	
+<?php
 $ii = 0;
 while ($ii<6){
 print <<<EOL
@@ -1115,7 +1115,7 @@ $ii++;
         <td align="left" class="ficaption2" id="bordR">Type</td>
         <td width="90" align="center" nowrap class="ficaption2">date</td>
       </tr>
-<?	
+<?php
 $ii = 0;
 while ($ii<6){
 $ij = $ii+6;

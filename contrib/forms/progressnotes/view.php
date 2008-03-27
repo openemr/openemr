@@ -13,13 +13,13 @@ include_once("../../globals.php");
 ?>
 
 <html><head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 </head>
 
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="body_top">
 
 <?php
 
@@ -29,7 +29,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
 ?>
 
-<form method=post action="<?echo $rootdir?>/forms/progressnotes/save.php?mode=update&id=<?echo $_GET["id"];?>" name="my_form">
+<form method=post action="<?php echo $rootdir?>/forms/progressnotes/save.php?mode=update&id=<?php echo $_GET["id"];?>" name="my_form">
 
 <span class="title">Progress Notes</span><Br><br>
 
@@ -39,27 +39,27 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
 <b>
 
-<span class=text>P: </span><input size=3 type=entry name="prog_p" value="<?echo $obj{"prog_p"};?>" >
+<span class=text>P: </span><input size=3 type=entry name="prog_p" value="<?php echo $obj{"prog_p"};?>" >
 
-<span class=text>R: </span><input size=3 type=entry name="prog_r" value="<?echo $obj{"prog_r"};?>" >
+<span class=text>R: </span><input size=3 type=entry name="prog_r" value="<?php echo $obj{"prog_r"};?>" >
 
-<span class=text>BP: </span><input size=3 type=entry name="prog_bp" value="<?echo $obj{"prog_bp"};?>" >
+<span class=text>BP: </span><input size=3 type=entry name="prog_bp" value="<?php echo $obj{"prog_bp"};?>" >
 
-<span class=text>HT: </span><input size=3 type=entry name="prog_ht" value="<?echo $obj{"prog_ht"};?>" >
+<span class=text>HT: </span><input size=3 type=entry name="prog_ht" value="<?php echo $obj{"prog_ht"};?>" >
 
-<span class=text>WT: </span><input size=3 type=entry name="prog_wt" value="<?echo $obj{"prog_wt"};?>" >
+<span class=text>WT: </span><input size=3 type=entry name="prog_wt" value="<?php echo $obj{"prog_wt"};?>" >
 
-<span class=text>TEMP: </span><input size=3 type=entry name="prog_temp" value="<?echo $obj{"prog_temp"};?>" >
+<span class=text>TEMP: </span><input size=3 type=entry name="prog_temp" value="<?php echo $obj{"prog_temp"};?>" >
 
-<span class=text>LMP: </span><input size=3 type=entry name="prog_lmp" value="<?echo $obj{"prog_lmp"};?>" >
+<span class=text>LMP: </span><input size=3 type=entry name="prog_lmp" value="<?php echo $obj{"prog_lmp"};?>" >
 
-<br><span class=text>Last Pap Smear: </span><input size=3 type=entry name="prog_last_pap_smear" value="<?echo $obj{"prog_last_pap_smear"};?>" >
+<br><span class=text>Last Pap Smear: </span><input size=3 type=entry name="prog_last_pap_smear" value="<?php echo $obj{"prog_last_pap_smear"};?>" >
 
-<span class=text>Last Td. Booster: </span><input size=3 type=entry name="prog_last_td_booster" value="<?echo $obj{"prog_last_td_booster"};?>" >
+<span class=text>Last Td. Booster: </span><input size=3 type=entry name="prog_last_td_booster" value="<?php echo $obj{"prog_last_td_booster"};?>" >
 
-<span class=text>Allergies: </span><input size=3 type=entry name="prog_allergies" value="<?echo $obj{"prog_allergies"};?>" >
+<span class=text>Allergies: </span><input size=3 type=entry name="prog_allergies" value="<?php echo $obj{"prog_allergies"};?>" >
 
-<span class=text>Last Mammogram: </span><input size=3 type=entry name="prog_last_mammogram" value="<?echo $obj{"prog_last_mammogram"};?>" >
+<span class=text>Last Mammogram: </span><input size=3 type=entry name="prog_last_mammogram" value="<?php echo $obj{"prog_last_mammogram"};?>" >
 
 </b>
 
@@ -69,7 +69,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
 
 
-<span class=text><b>Present Complaint*:</b> </span><br><textarea cols=40 rows=8 wrap=virtual name="prog_present_complaint" ><?echo $obj{"prog_present_complaint"};?></textarea>
+<span class=text><b>Present Complaint*:</b> </span><br><textarea cols=40 rows=8 wrap=virtual name="prog_present_complaint" ><?php echo $obj{"prog_present_complaint"};?></textarea>
 
 
 
@@ -1031,7 +1031,7 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
 
 
-<span class=text><b>HEALTH EDUCATION PROVIDED<br>ASSESSMENT:</b></span><br><textarea cols=40 rows=8 wrap=virtual name="prog_assessment" ><?echo $obj{"prog_assessment"};?></textarea>
+<span class=text><b>HEALTH EDUCATION PROVIDED<br>ASSESSMENT:</b></span><br><textarea cols=40 rows=8 wrap=virtual name="prog_assessment" ><?php echo $obj{"prog_assessment"};?></textarea>
 
 
 
@@ -1039,27 +1039,27 @@ $obj = formFetch("form_progressnotes", $_GET["id"]);
 
 
 
-<span class=text><b>Plan:</b></span><br><textarea cols=40 rows=8 wrap=virtual name="prog_plan" ><?echo $obj{"prog_plan"};?></textarea>
+<span class=text><b>Plan:</b></span><br><textarea cols=40 rows=8 wrap=virtual name="prog_plan" ><?php echo $obj{"prog_plan"};?></textarea>
 
 
 
 <br><br>
 
-<td><input size=3 type=entry name="prog_breast_se" value="<?echo $obj{"prog_breast_se"};?>" >&nbsp;<span class=text><b>Breast Self Examination </span></td><br></b>
+<td><input size=3 type=entry name="prog_breast_se" value="<?php echo $obj{"prog_breast_se"};?>" >&nbsp;<span class=text><b>Breast Self Examination </span></td><br></b>
 
-<td><input size=3 type=entry name="prog_dental_h" value="<?echo $obj{"prog_dental_h"};?>" >&nbsp;<span class=text><b>Dental Health </span></td><br></b>
+<td><input size=3 type=entry name="prog_dental_h" value="<?php echo $obj{"prog_dental_h"};?>" >&nbsp;<span class=text><b>Dental Health </span></td><br></b>
 
-<td><input size=3 type=entry name="prog_diagnosis" value="<?echo $obj{"prog_diagnosis"};?>" >&nbsp;<span class=text><b>Diagnosis/Prognosis </span></td><br></b>
+<td><input size=3 type=entry name="prog_diagnosis" value="<?php echo $obj{"prog_diagnosis"};?>" >&nbsp;<span class=text><b>Diagnosis/Prognosis </span></td><br></b>
 
-<td><input size=3 type:entry name="prog_injur_p" value="<?echo $obj{"prog_injur_p"};?>" >&nbsp;<span class=text><b>Injury Prevention </span></td><br></b>
+<td><input size=3 type:entry name="prog_injur_p" value="<?php echo $obj{"prog_injur_p"};?>" >&nbsp;<span class=text><b>Injury Prevention </span></td><br></b>
 
-<td><input size=3 type=entry name="prog_new_treat" value="<?echo $obj{"prog_new_treat"};?>" >&nbsp;<span class=text><b>New Treatment/Medication </span></td><br></b>
+<td><input size=3 type=entry name="prog_new_treat" value="<?php echo $obj{"prog_new_treat"};?>" >&nbsp;<span class=text><b>New Treatment/Medication </span></td><br></b>
 
-<td><input size=3 type=entry name="prog_nutrition_e" value="<?echo $obj{"prog_nutrition_e"};?>" >&nbsp;<span class=text><b>Nutrition/Exercise </span></td><br></b>
+<td><input size=3 type=entry name="prog_nutrition_e" value="<?php echo $obj{"prog_nutrition_e"};?>" >&nbsp;<span class=text><b>Nutrition/Exercise </span></td><br></b>
 
-<td><input size=3 type=entry name="prog_sexual_p" value="<?echo $obj{"prog_sexual_p"};?>" >&nbsp;<span class=text><b>Sexual Practice </span></td><br></b>
+<td><input size=3 type=entry name="prog_sexual_p" value="<?php echo $obj{"prog_sexual_p"};?>" >&nbsp;<span class=text><b>Sexual Practice </span></td><br></b>
 
-<td><input size=3 type=entry name="prog_substance_a" value="<?echo $obj{"prog_substance_a"};?>" >&nbsp;<span class=text><b>Substance Abuse </span></td><br></b>
+<td><input size=3 type=entry name="prog_substance_a" value="<?php echo $obj{"prog_substance_a"};?>" >&nbsp;<span class=text><b>Substance Abuse </span></td><br></b>
 
 
 

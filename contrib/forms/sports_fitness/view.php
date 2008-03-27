@@ -115,14 +115,14 @@ if ($formid) {
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script language="JavaScript">
 </script>
 </head>
 
-<body <?echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
-<form method="post" action="<? echo $rootdir ?>/forms/sports_fitness/new.php?id=<? echo $formid ?>"
+<body class="body_top">
+<form method="post" action="<?php echo $rootdir ?>/forms/sports_fitness/new.php?id=<?php echo $formid ?>"
  onsubmit="return top.restoreSession()">
 
 <center>
@@ -145,7 +145,7 @@ if ($formid) {
      <td width='13%' nowrap>
       <input type='text' name='form_height_meters' size='6'
        title='Height in meters'
-       value='<? echo addslashes($row['height_meters']) ?>' /> &nbsp;
+       value='<?php echo addslashes($row['height_meters']) ?>' /> &nbsp;
      </td>
      <td width='20%' nowrap>
       Weight (kg):
@@ -153,7 +153,7 @@ if ($formid) {
      <td width='13%' nowrap>
       <input type='text' name='form_weight_kg' size='6'
        title='Weight in kilograms'
-       value='<? echo addslashes($row['weight_kg']) ?>' /> &nbsp;
+       value='<?php echo addslashes($row['weight_kg']) ?>' /> &nbsp;
      </td>
      <td width='20%' nowrap>
       &nbsp;
@@ -169,7 +169,7 @@ if ($formid) {
      <td nowrap>
       <input type='text' name='form_pulse' size='6'
        title='Resting pulse rate per minute'
-       value='<? echo addslashes($row['pulse']) ?>' /> &nbsp;
+       value='<?php echo addslashes($row['pulse']) ?>' /> &nbsp;
      </td>
      <td nowrap>
       Systolic BP:
@@ -177,7 +177,7 @@ if ($formid) {
      <td nowrap>
       <input type='text' name='form_bps' size='6'
        title='mm Hg'
-       value='<? echo addslashes($row['bps']) ?>' /> &nbsp;
+       value='<?php echo addslashes($row['bps']) ?>' /> &nbsp;
      </td>
      <td nowrap>
       Dyastolic BP:
@@ -185,7 +185,7 @@ if ($formid) {
      <td nowrap>
       <input type='text' name='form_bpd' size='6'
        title='mm Hg'
-       value='<? echo addslashes($row['bps']) ?>' /> &nbsp;
+       value='<?php echo addslashes($row['bps']) ?>' /> &nbsp;
      </td>
     </tr>
    </table>
@@ -203,7 +203,7 @@ if ($formid) {
      <td width='13%' nowrap>
       <input type='text' name='form_skin_folds_9x' size='6'
        title='Total of 9 skin fold readings in cm'
-       value='<? echo addslashes($row['skin_folds_9x']) ?>' /> &nbsp;
+       value='<?php echo addslashes($row['skin_folds_9x']) ?>' /> &nbsp;
      </td>
      <td width='20%' nowrap>
       Skin Folds 5x:
@@ -211,7 +211,7 @@ if ($formid) {
      <td width='13%' nowrap>
       <input type='text' name='form_skin_folds_5x' size='6'
        title='Total of 5 skin fold readings in cm'
-       value='<? echo addslashes($row['skin_folds_5x']) ?>' /> &nbsp;
+       value='<?php echo addslashes($row['skin_folds_5x']) ?>' /> &nbsp;
      </td>
      <td width='20%' nowrap>
       % Body Fat:
@@ -219,15 +219,15 @@ if ($formid) {
      <td nowrap>
       <input type='text' name='form_pct_body_fat' size='6'
        title='Percent body fat'
-       value='<? echo addslashes($row['pct_body_fat']) ?>' /> &nbsp;
+       value='<?php echo addslashes($row['pct_body_fat']) ?>' /> &nbsp;
      </td>
     </tr>
     <tr>
      <td colspan='6' nowrap>
       B.F. Method Used:&nbsp;
-      <? echo rbinput('form_method_body_fat', 'Caliper'    , 'Caliper'    , 'method_body_fat') ?>&nbsp;
-      <? echo rbinput('form_method_body_fat', 'Electronic' , 'Electronic' , 'method_body_fat') ?>&nbsp;
-      <? echo rbinput('form_method_body_fat', 'Hydrostatic', 'Hydrostatic', 'method_body_fat') ?>
+      <?php echo rbinput('form_method_body_fat', 'Caliper'    , 'Caliper'    , 'method_body_fat') ?>&nbsp;
+      <?php echo rbinput('form_method_body_fat', 'Electronic' , 'Electronic' , 'method_body_fat') ?>&nbsp;
+      <?php echo rbinput('form_method_body_fat', 'Hydrostatic', 'Hydrostatic', 'method_body_fat') ?>
      </td>
     </tr>
    </table>
@@ -245,7 +245,7 @@ if ($formid) {
      <td width='13%' nowrap>
       <input type='text' name='form_beep_level' size='6'
        title='Level Reached'
-       value='<? echo addslashes($row['beep_level']) ?>' /> &nbsp;
+       value='<?php echo addslashes($row['beep_level']) ?>' /> &nbsp;
      </td>
      <td width='20%' nowrap>
       Shuttles:
@@ -253,7 +253,7 @@ if ($formid) {
      <td width='13%' nowrap>
       <input type='text' name='form_beep_shuttles' size='6'
        title='Number of shuttles at this level'
-       value='<? echo addslashes($row['beep_shuttles']) ?>' /> &nbsp;
+       value='<?php echo addslashes($row['beep_shuttles']) ?>' /> &nbsp;
      </td>
      <td width='20%' nowrap>
       VO2 Max:
@@ -261,7 +261,7 @@ if ($formid) {
      <td nowrap>
       <input type='text' name='form_beep_vo2_max' size='6'
        title='ml/kg/min'
-       value='<? echo addslashes($row['beep_vo2_max']) ?>' /> &nbsp;
+       value='<?php echo addslashes($row['beep_vo2_max']) ?>' /> &nbsp;
      </td>
     </tr>
    </table>
@@ -279,7 +279,7 @@ if ($formid) {
      <td width='13%' nowrap>
       <input type='text' name='form_vertical_jump_meters' size='6'
        title='Vertical Jump Test in Meters'
-       value='<? echo addslashes($row['vertical_jump_meters']) ?>' /> &nbsp;
+       value='<?php echo addslashes($row['vertical_jump_meters']) ?>' /> &nbsp;
      </td>
      <td width='20%' nowrap>
       505 Agility:
@@ -287,7 +287,7 @@ if ($formid) {
      <td width='13%' nowrap>
       <input type='text' name='form_agility_505' size='6'
        title='505 Agility Test in Seconds'
-       value='<? echo addslashes($row['agility_505']) ?>' /> &nbsp;
+       value='<?php echo addslashes($row['agility_505']) ?>' /> &nbsp;
      </td>
      <td width='20%' nowrap>
       Sit &amp; Reach:
@@ -295,7 +295,7 @@ if ($formid) {
      <td nowrap>
       <input type='text' name='form_sit_and_reach_cm' size='6'
        title='Sit and Reach Test in cm + or - ve'
-       value='<? echo addslashes($row['sit_and_reach_cm']) ?>' /> &nbsp;
+       value='<?php echo addslashes($row['sit_and_reach_cm']) ?>' /> &nbsp;
      </td>
     </tr>
    </table>
@@ -305,7 +305,7 @@ if ($formid) {
  <tr>
   <td nowrap>Still More</td>
   <td nowrap>
-   <textarea name='form_other' rows='8' style='width:100%'><? echo $row['other'] ?></textarea>
+   <textarea name='form_other' rows='8' style='width:100%'><?php echo $row['other'] ?></textarea>
   </td>
  </tr>
 

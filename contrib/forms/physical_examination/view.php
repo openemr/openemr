@@ -17,13 +17,13 @@ include_once("$srcdir/calendar.inc");
 <html>
 
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
 <title>Physical examination</title>
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
-<link rel=stylesheet href="../../acog.css" type="text/css">
+<link rel="stylesheet" href="../../acog.css" type="text/css">
 
 <script language="JavaScript" src="../../acog.js" type="text/JavaScript"></script>
 
@@ -37,7 +37,7 @@ window.onload = initialize;
 
 
 
-<body <?echo $top_bg_line;?>>
+<body class="body_top">
 
 
 
@@ -89,9 +89,9 @@ $tip1 = strtr($tip1, "\n\r", "  ");
 
 ?>
 
-<div class="srvChapter">Physical examination <a href="#" onMouseOver="toolTip('<? echo $tip1; ?>', 300)" onMouseOut="toolTip();"><img src="../../pic/mark_q.png" width="13" height="13" border="0" align="texttop"></a></div>
+<div class="srvChapter">Physical examination <a href="#" onMouseOver="toolTip('<?php echo $tip1; ?>', 300)" onMouseOut="toolTip();"><img src="../../pic/mark_q.png" width="13" height="13" border="0" align="texttop"></a></div>
 
-<? 
+<?php 
 
    $fres=sqlStatement("select * from patient_data where pid='".$pid."'");
 
@@ -111,9 +111,9 @@ $tip1 = strtr($tip1, "\n\r", "  ");
 
 ?>
 
-<form action="<?echo $rootdir;?>/forms/physical_examination/save.php?mode=update&id=<? echo $id; ?>" method="post" enctype="multipart/form-data" name="my_form">
+<form action="<?php echo $rootdir;?>/forms/physical_examination/save.php?mode=update&id=<?php echo $id; ?>" method="post" enctype="multipart/form-data" name="my_form">
 
-<? include("../../acog_menu.inc"); ?>
+<?php include("../../acog_menu.inc"); ?>
 
 <div style="border: solid 2px black; background-color: white;">
 
@@ -127,7 +127,7 @@ $tip1 = strtr($tip1, "\n\r", "  ");
 
         <td width="40%" class="bordR">Patient name <br> 
 
-          <input name="pname" type="text" class="fullin" id="pname" value="<?
+          <input name="pname" type="text" class="fullin" id="pname" value="<?php
 
           echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'};
 
@@ -137,7 +137,7 @@ $tip1 = strtr($tip1, "\n\r", "  ");
 
           <br> 
 
-          <input name="pbdate" type="text" class="fullin" id="pbdate" value="<?
+          <input name="pbdate" type="text" class="fullin" id="pbdate" value="<?php
 
           echo $patient{'DOB'};
 
@@ -145,7 +145,7 @@ $tip1 = strtr($tip1, "\n\r", "  ");
 
         <td width="20%" class="bordR">ID No<br> 
 
-          <input name="pe_id" type="text" class="fullin" id="pe_id" size="12" value="<?
+          <input name="pe_id" type="text" class="fullin" id="pe_id" size="12" value="<?php
 
           echo $patient{'id'};
 
@@ -153,7 +153,7 @@ $tip1 = strtr($tip1, "\n\r", "  ");
 
         <td width="20%">date<br>
 
-        <input name="pe_date" type="text" class="fullin" id="pe_date" value="<?
+        <input name="pe_date" type="text" class="fullin" id="pe_date" value="<?php
 
         echo date('Y-m-d');
 
@@ -177,31 +177,31 @@ $tip1 = strtr($tip1, "\n\r", "  ");
 
           <td width="14%" nowrap>Height<br>
 
-            <input name="height" type="text" class="fullin"  value="<? echo $fdata{'height'}; ?>"></td>
+            <input name="height" type="text" class="fullin"  value="<?php echo $fdata{'height'}; ?>"></td>
 
           <td width="14%" nowrap>Weight<br>
 
-            <input name="weight" type="text" class="fullin"  value="<? echo $fdata{'weight'}; ?>"></td>
+            <input name="weight" type="text" class="fullin"  value="<?php echo $fdata{'weight'}; ?>"></td>
 
           <td width="14%" nowrap>BMI<br>
 
-            <input name="bmi" type="text" class="fullin"  value="<? echo $fdata{'bmi'}; ?>"></td>
+            <input name="bmi" type="text" class="fullin"  value="<?php echo $fdata{'bmi'}; ?>"></td>
 
           <td nowrap>Blood pressure (sitting) <br>
 
-            <input name="blood_pressure" type="text" class="fullin"  value="<? echo $fdata{'blood_pressure'}; ?>"></td>
+            <input name="blood_pressure" type="text" class="fullin"  value="<?php echo $fdata{'blood_pressure'}; ?>"></td>
 
           <td width="14%" nowrap>Temperature<br>
 
-            <input name="temperature" type="text" class="fullin"  value="<? echo $fdata{'temperature'}; ?>"></td>
+            <input name="temperature" type="text" class="fullin"  value="<?php echo $fdata{'temperature'}; ?>"></td>
 
           <td width="14%" nowrap>Pulse<br>
 
-            <input name="pulse" type="text" class="fullin"  value="<? echo $fdata{'pulse'}; ?>"></td>
+            <input name="pulse" type="text" class="fullin"  value="<?php echo $fdata{'pulse'}; ?>"></td>
 
           <td width="14%" nowrap>Respiration<br>
 
-            <input name="respiration" type="text" class="fullin"  value="<? echo $fdata{'respiration'}; ?>"></td>
+            <input name="respiration" type="text" class="fullin"  value="<?php echo $fdata{'respiration'}; ?>"></td>
 
         </tr>
 
@@ -211,13 +211,13 @@ $tip1 = strtr($tip1, "\n\r", "  ");
 
         <tr class="fibody">
 
-          <td width="150" nowrap><input name="general_well_developed" type="radio" value="0"  <? echo (($fdata{'general_well_developed'} == '0')?' checked ':''); ?>> 
+          <td width="150" nowrap><input name="general_well_developed" type="radio" value="0"  <?php echo (($fdata{'general_well_developed'} == '0')?' checked ':''); ?>> 
 
             Well-developed
 
 </td>
 
-          <td width="90" nowrap><input name="general_well_developed" type="radio" value="1" <? echo (($fdata{'general_well_developed'} == '1')?' checked ':''); ?>> 
+          <td width="90" nowrap><input name="general_well_developed" type="radio" value="1" <?php echo (($fdata{'general_well_developed'} == '1')?' checked ':''); ?>> 
 
             Other
 
@@ -227,13 +227,13 @@ $tip1 = strtr($tip1, "\n\r", "  ");
 
           <td>&nbsp;</td>
 
-          <td width="120"><input name="general_no_deformities" type="radio" value="0"  <? echo (($fdata{'general_no_deformities'} == '0')?' checked ':''); ?>> 
+          <td width="120"><input name="general_no_deformities" type="radio" value="0"  <?php echo (($fdata{'general_no_deformities'} == '0')?' checked ':''); ?>> 
 
             No deformities
 
 </td>
 
-          <td width="100"><input name="general_no_deformities" type="radio" value="1" <? echo (($fdata{'general_no_deformities'} == '1')?' checked ':''); ?>> 
+          <td width="100"><input name="general_no_deformities" type="radio" value="1" <?php echo (($fdata{'general_no_deformities'} == '1')?' checked ':''); ?>> 
 
             Other
 
@@ -245,13 +245,13 @@ $tip1 = strtr($tip1, "\n\r", "  ");
 
         <tr class="fibody">
 
-          <td width="150" nowrap><input name="general_well_nourished" type="radio" value="0"  <? echo (($fdata{'general_well_nourished'} == '0')?' checked ':''); ?>> 
+          <td width="150" nowrap><input name="general_well_nourished" type="radio" value="0"  <?php echo (($fdata{'general_well_nourished'} == '0')?' checked ':''); ?>> 
 
             Well-nourished
 
 </td>
 
-          <td width="90" nowrap><input name="general_well_nourished" type="radio" value="1" <? echo (($fdata{'general_well_nourished'} == '1')?' checked ':''); ?>> 
+          <td width="90" nowrap><input name="general_well_nourished" type="radio" value="1" <?php echo (($fdata{'general_well_nourished'} == '1')?' checked ':''); ?>> 
 
             Other
 
@@ -261,13 +261,13 @@ $tip1 = strtr($tip1, "\n\r", "  ");
 
           <td>&nbsp;</td>
 
-          <td width="120"><input name="general_well_groomed" type="radio" value="0"  <? echo (($fdata{'general_well_groomed'} == '0')?' checked ':''); ?>> 
+          <td width="120"><input name="general_well_groomed" type="radio" value="0"  <?php echo (($fdata{'general_well_groomed'} == '0')?' checked ':''); ?>> 
 
             Well-groomed
 
 </td>
 
-          <td width="100"><input name="general_well_groomed" type="radio" value="1" <? echo (($fdata{'general_well_groomed'} == '1')?' checked ':''); ?>> 
+          <td width="100"><input name="general_well_groomed" type="radio" value="1" <?php echo (($fdata{'general_well_groomed'} == '1')?' checked ':''); ?>> 
 
             Other
 
@@ -279,15 +279,15 @@ $tip1 = strtr($tip1, "\n\r", "  ");
 
         <tr class="fibody">
 
-          <td width="150" nowrap><input name="general_normal_habitus" type="radio" value="0"  <? echo (($fdata{'general_normal_habitus'} == '0')?' checked ':''); ?>> 
+          <td width="150" nowrap><input name="general_normal_habitus" type="radio" value="0"  <?php echo (($fdata{'general_normal_habitus'} == '0')?' checked ':''); ?>> 
 
             Normal habitus</td>
 
-          <td width="90" nowrap><input name="general_normal_habitus" type="radio" value="2" <? echo (($fdata{'general_normal_habitus'} == '2')?' checked ':''); ?>> 
+          <td width="90" nowrap><input name="general_normal_habitus" type="radio" value="2" <?php echo (($fdata{'general_normal_habitus'} == '2')?' checked ':''); ?>> 
 
             Obese</td>
 
-          <td width="100" nowrap><input name="general_normal_habitus" type="radio" value="1" <? echo (($fdata{'general_normal_habitus'} == '1')?' checked ':''); ?>> 
+          <td width="100" nowrap><input name="general_normal_habitus" type="radio" value="1" <?php echo (($fdata{'general_normal_habitus'} == '1')?' checked ':''); ?>> 
 
             Other</td>
 
@@ -315,15 +315,15 @@ $tip1 = strtr($tip1, "\n\r", "  ");
 
           <td width="150" nowrap><li>Neck</li></td>
 
-          <td width="90" nowrap> <input name="neck_neck" type="radio" value="0"  <? echo (($fdata{'neck_neck'} == '0')?' checked ':''); ?>>
+          <td width="90" nowrap> <input name="neck_neck" type="radio" value="0"  <?php echo (($fdata{'neck_neck'} == '0')?' checked ':''); ?>>
 
       Normal</td>
 
-          <td width="100" nowrap><input name="neck_neck" type="radio" value="1" <? echo (($fdata{'neck_neck'} == '1')?' checked ':''); ?>>
+          <td width="100" nowrap><input name="neck_neck" type="radio" value="1" <?php echo (($fdata{'neck_neck'} == '1')?' checked ':''); ?>>
 
             ABNormal</td>
 
-          <td><input name="neck_neck_data" type="text" class="fullin"  value="<? echo $fdata{'neck_neck_data'}; ?>"></td>
+          <td><input name="neck_neck_data" type="text" class="fullin"  value="<?php echo $fdata{'neck_neck_data'}; ?>"></td>
 
           </tr>
 
@@ -333,15 +333,15 @@ $tip1 = strtr($tip1, "\n\r", "  ");
 
           <td width="90" nowrap>
 
-            <input name="neck_thyroid" type="radio" value="0"  <? echo (($fdata{'neck_thyroid'} == '0')?' checked ':''); ?>>
+            <input name="neck_thyroid" type="radio" value="0"  <?php echo (($fdata{'neck_thyroid'} == '0')?' checked ':''); ?>>
 
   Normal</td>
 
-          <td width="100" nowrap><input name="neck_thyroid" type="radio" value="1" <? echo (($fdata{'neck_thyroid'} == '1')?' checked ':''); ?>>
+          <td width="100" nowrap><input name="neck_thyroid" type="radio" value="1" <?php echo (($fdata{'neck_thyroid'} == '1')?' checked ':''); ?>>
 
 ABNormal</td>
 
-          <td><input name="neck_thyroid_data" type="text" class="fullin"  value="<? echo $fdata{'neck_thyroid_data'}; ?>"></td>
+          <td><input name="neck_thyroid_data" type="text" class="fullin"  value="<?php echo $fdata{'neck_thyroid_data'}; ?>"></td>
 
           </tr>
 
@@ -361,15 +361,15 @@ ABNormal</td>
 
           <td nowrap>
 
-            <input name="respiratory_effort" type="radio" value="0"  <? echo (($fdata{'respiratory_effort'} == '0')?' checked ':''); ?>>
+            <input name="respiratory_effort" type="radio" value="0"  <?php echo (($fdata{'respiratory_effort'} == '0')?' checked ':''); ?>>
 
   Normal</td>
 
-          <td nowrap><input name="respiratory_effort" type="radio" value="1" <? echo (($fdata{'respiratory_effort'} == '1')?' checked ':''); ?>>
+          <td nowrap><input name="respiratory_effort" type="radio" value="1" <?php echo (($fdata{'respiratory_effort'} == '1')?' checked ':''); ?>>
 
   ABNormal</td>
 
-          <td><input name="respiratory_effort_data" type="text" class="fullin"  value="<? echo $fdata{'respiratory_effort_data'}; ?>"></td>
+          <td><input name="respiratory_effort_data" type="text" class="fullin"  value="<?php echo $fdata{'respiratory_effort_data'}; ?>"></td>
 
         </tr>
 
@@ -377,15 +377,15 @@ ABNormal</td>
 
           <td width="150" nowrap><li>Auscultated lungs </li></td>
 
-          <td width="90" nowrap><input name="auscultated_lungs" type="radio" value="0"  <? echo (($fdata{'auscultated_lungs'} == '0')?' checked ':''); ?>>
+          <td width="90" nowrap><input name="auscultated_lungs" type="radio" value="0"  <?php echo (($fdata{'auscultated_lungs'} == '0')?' checked ':''); ?>>
 
 Normal</td>
 
-          <td width="100" nowrap><input name="auscultated_lungs" type="radio" value="1" <? echo (($fdata{'auscultated_lungs'} == '1')?' checked ':''); ?>>
+          <td width="100" nowrap><input name="auscultated_lungs" type="radio" value="1" <?php echo (($fdata{'auscultated_lungs'} == '1')?' checked ':''); ?>>
 
 ABNormal</td>
 
-          <td><input name="auscultated_lungs_data" type="text" class="fullin"  value="<? echo $fdata{'auscultated_lungs_data'}; ?>"></td>
+          <td><input name="auscultated_lungs_data" type="text" class="fullin"  value="<?php echo $fdata{'auscultated_lungs_data'}; ?>"></td>
 
         </tr>
 
@@ -415,15 +415,15 @@ ABNormal</td>
 
           <td width="150" nowrap><blockquote> Sounds</blockquote></td>
 
-          <td width="90" nowrap><input name="auscultated_heart_sounds" type="radio" value="0"  <? echo (($fdata{'auscultated_heart_sounds'} == '0')?' checked ':''); ?>>
+          <td width="90" nowrap><input name="auscultated_heart_sounds" type="radio" value="0"  <?php echo (($fdata{'auscultated_heart_sounds'} == '0')?' checked ':''); ?>>
 
 Normal</td>
 
-          <td width="100" nowrap><input name="auscultated_heart_sounds" type="radio" value="1" <? echo (($fdata{'auscultated_heart_sounds'} == '1')?' checked ':''); ?>>
+          <td width="100" nowrap><input name="auscultated_heart_sounds" type="radio" value="1" <?php echo (($fdata{'auscultated_heart_sounds'} == '1')?' checked ':''); ?>>
 
 ABNormal</td>
 
-          <td><input name="auscultated_heart_sounds_data" type="text" class="fullin"  value="<? echo $fdata{'auscultated_heart_sounds_data'}; ?>"></td>
+          <td><input name="auscultated_heart_sounds_data" type="text" class="fullin"  value="<?php echo $fdata{'auscultated_heart_sounds_data'}; ?>"></td>
 
         </tr>
 
@@ -431,15 +431,15 @@ ABNormal</td>
 
           <td nowrap><blockquote> Murmurs</blockquote></td>
 
-          <td nowrap><input name="auscultated_heart_murmurs" type="radio" value="0"  <? echo (($fdata{'auscultated_heart_murmurs'} == '0')?' checked ':''); ?>>
+          <td nowrap><input name="auscultated_heart_murmurs" type="radio" value="0"  <?php echo (($fdata{'auscultated_heart_murmurs'} == '0')?' checked ':''); ?>>
 
 Normal</td>
 
-          <td nowrap><input name="auscultated_heart_murmurs" type="radio" value="1" <? echo (($fdata{'auscultated_heart_murmurs'} == '1')?' checked ':''); ?>>
+          <td nowrap><input name="auscultated_heart_murmurs" type="radio" value="1" <?php echo (($fdata{'auscultated_heart_murmurs'} == '1')?' checked ':''); ?>>
 
 ABNormal</td>
 
-          <td><input name="auscultated_heart_murmurs_data" type="text" class="fullin"  value="<? echo $fdata{'auscultated_heart_murmurs_data'}; ?>"></td>
+          <td><input name="auscultated_heart_murmurs_data" type="text" class="fullin"  value="<?php echo $fdata{'auscultated_heart_murmurs_data'}; ?>"></td>
 
         </tr>
 
@@ -447,15 +447,15 @@ ABNormal</td>
 
           <td nowrap><li>Perirheral vascular </li></td>
 
-          <td nowrap><input name="peripheral_vascular" type="radio" value="0"  <? echo (($fdata{'peripheral_vascular'} == '0')?' checked ':''); ?>>
+          <td nowrap><input name="peripheral_vascular" type="radio" value="0"  <?php echo (($fdata{'peripheral_vascular'} == '0')?' checked ':''); ?>>
 
 Normal</td>
 
-          <td nowrap><input name="peripheral_vascular" type="radio" value="1" <? echo (($fdata{'peripheral_vascular'} == '1')?' checked ':''); ?>>
+          <td nowrap><input name="peripheral_vascular" type="radio" value="1" <?php echo (($fdata{'peripheral_vascular'} == '1')?' checked ':''); ?>>
 
 ABNormal</td>
 
-          <td><input name="peripheral_vascular_data" type="text" class="fullin"  value="<? echo $fdata{'peripheral_vascular_data'}; ?>"></td>
+          <td><input name="peripheral_vascular_data" type="text" class="fullin"  value="<?php echo $fdata{'peripheral_vascular_data'}; ?>"></td>
 
         </tr>
 
@@ -473,15 +473,15 @@ ABNormal</td>
 
           <td width="150" nowrap><li>Abdomen</li></td>
 
-          <td width="90" nowrap><input name="gastr_abdomen" type="radio" value="0"  <? echo (($fdata{'gastr_abdomen'} == '0')?' checked ':''); ?>>
+          <td width="90" nowrap><input name="gastr_abdomen" type="radio" value="0"  <?php echo (($fdata{'gastr_abdomen'} == '0')?' checked ':''); ?>>
 
 Normal</td>
 
-          <td width="100" nowrap><input name="gastr_abdomen" type="radio" value="1" <? echo (($fdata{'gastr_abdomen'} == '1')?' checked ':''); ?>>
+          <td width="100" nowrap><input name="gastr_abdomen" type="radio" value="1" <?php echo (($fdata{'gastr_abdomen'} == '1')?' checked ':''); ?>>
 
 ABNormal</td>
 
-          <td><input name="gastr_abdomen_data" type="text" class="fullin"  value="<? echo $fdata{'gastr_abdomen_data'}; ?>"></td>
+          <td><input name="gastr_abdomen_data" type="text" class="fullin"  value="<?php echo $fdata{'gastr_abdomen_data'}; ?>"></td>
 
         </tr>
 
@@ -489,15 +489,15 @@ ABNormal</td>
 
           <td width="150" nowrap><li>Hernia</li></td>
 
-          <td width="90" nowrap><input name="gastr_hernia" type="radio" value="0"  <? echo (($fdata{'gastr_hernia'} == '0')?' checked ':''); ?>>
+          <td width="90" nowrap><input name="gastr_hernia" type="radio" value="0"  <?php echo (($fdata{'gastr_hernia'} == '0')?' checked ':''); ?>>
 
       none</td>
 
-          <td width="100" nowrap><input name="gastr_hernia" type="radio" value="1" <? echo (($fdata{'gastr_hernia'} == '1')?' checked ':''); ?>>
+          <td width="100" nowrap><input name="gastr_hernia" type="radio" value="1" <?php echo (($fdata{'gastr_hernia'} == '1')?' checked ':''); ?>>
 
       present</td>
 
-          <td><input name="gastr_hernia_data" type="text" class="fullin"  value="<? echo $fdata{'gastr_hernia_data'}; ?>"></td>
+          <td><input name="gastr_hernia_data" type="text" class="fullin"  value="<?php echo $fdata{'gastr_hernia_data'}; ?>"></td>
 
         </tr>
 
@@ -517,15 +517,15 @@ ABNormal</td>
 
           <td nowrap><blockquote> Liver </blockquote></td>
 
-          <td nowrap><input name="gastr_liver" type="radio" value="0"  <? echo (($fdata{'gastr_liver'} == '0')?' checked ':''); ?>>
+          <td nowrap><input name="gastr_liver" type="radio" value="0"  <?php echo (($fdata{'gastr_liver'} == '0')?' checked ':''); ?>>
 
     Normal</td>
 
-          <td nowrap><input name="gastr_liver" type="radio" value="1" <? echo (($fdata{'gastr_liver'} == '1')?' checked ':''); ?>>
+          <td nowrap><input name="gastr_liver" type="radio" value="1" <?php echo (($fdata{'gastr_liver'} == '1')?' checked ':''); ?>>
 
     ABNormal</td>
 
-          <td><input name="gastr_liver_data" type="text" class="fullin"  value="<? echo $fdata{'gastr_liver_data'}; ?>"></td>
+          <td><input name="gastr_liver_data" type="text" class="fullin"  value="<?php echo $fdata{'gastr_liver_data'}; ?>"></td>
 
         </tr>
 
@@ -533,15 +533,15 @@ ABNormal</td>
 
           <td nowrap><blockquote> Spleen </blockquote></td>
 
-          <td nowrap><input name="gastr_spleen" type="radio" value="0"  <? echo (($fdata{'gastr_spleen'} == '0')?' checked ':''); ?>>
+          <td nowrap><input name="gastr_spleen" type="radio" value="0"  <?php echo (($fdata{'gastr_spleen'} == '0')?' checked ':''); ?>>
 
     Normal</td>
 
-          <td nowrap><input name="gastr_spleen" type="radio" value="1" <? echo (($fdata{'gastr_spleen'} == '1')?' checked ':''); ?>>
+          <td nowrap><input name="gastr_spleen" type="radio" value="1" <?php echo (($fdata{'gastr_spleen'} == '1')?' checked ':''); ?>>
 
     ABNormal</td>
 
-          <td><input name="gastr_spleen_data" type="text" class="fullin"  value="<? echo $fdata{'gastr_spleen_data'}; ?>"></td>
+          <td><input name="gastr_spleen_data" type="text" class="fullin"  value="<?php echo $fdata{'gastr_spleen_data'}; ?>"></td>
 
         </tr>
 
@@ -549,15 +549,15 @@ ABNormal</td>
 
           <td nowrap><li><a name="sg"></a>Stool guaIac, if indic.</li></td>
 
-          <td nowrap><input name="gastr_stool_guaiac" type="radio" value="0"  <? echo (($fdata{'gastr_stool_guaiac'} == '0')?' checked ':''); ?>>
+          <td nowrap><input name="gastr_stool_guaiac" type="radio" value="0"  <?php echo (($fdata{'gastr_stool_guaiac'} == '0')?' checked ':''); ?>>
 
     positive</td>
 
-          <td nowrap><input name="gastr_stool_guaiac" type="radio" value="1" <? echo (($fdata{'gastr_stool_guaiac'} == '1')?' checked ':''); ?>>
+          <td nowrap><input name="gastr_stool_guaiac" type="radio" value="1" <?php echo (($fdata{'gastr_stool_guaiac'} == '1')?' checked ':''); ?>>
 
     negative</td>
 
-          <td><input name="gastr_stool_guaiac_data" type="text" class="fullin"  value="<? echo $fdata{'gastr_stool_guaiac_data'}; ?>"></td>
+          <td><input name="gastr_stool_guaiac_data" type="text" class="fullin"  value="<?php echo $fdata{'gastr_stool_guaiac_data'}; ?>"></td>
 
         </tr>
 
@@ -581,15 +581,15 @@ ABNormal</td>
 
           <td width="150" nowrap><blockquote> Neck </blockquote></td>
 
-          <td width="90" nowrap><input name="lymph_neck" type="radio" value="0"  <? echo (($fdata{'lymph_neck'} == '0')?' checked ':''); ?>>
+          <td width="90" nowrap><input name="lymph_neck" type="radio" value="0"  <?php echo (($fdata{'lymph_neck'} == '0')?' checked ':''); ?>>
 
       Normal</td>
 
-          <td width="100" nowrap><input name="lymph_neck" type="radio" value="1" <? echo (($fdata{'lymph_neck'} == '1')?' checked ':''); ?>>
+          <td width="100" nowrap><input name="lymph_neck" type="radio" value="1" <?php echo (($fdata{'lymph_neck'} == '1')?' checked ':''); ?>>
 
       ABNormal</td>
 
-          <td><input name="lymph_neck_data" type="text" class="fullin"  value="<? echo $fdata{'lymph_neck_data'}; ?>"></td>
+          <td><input name="lymph_neck_data" type="text" class="fullin"  value="<?php echo $fdata{'lymph_neck_data'}; ?>"></td>
 
         </tr>
 
@@ -597,15 +597,15 @@ ABNormal</td>
 
           <td nowrap><blockquote> Axilla </blockquote></td>
 
-          <td nowrap><input name="lymph_axilla" type="radio" value="0"  <? echo (($fdata{'lymph_axilla'} == '0')?' checked ':''); ?>>
+          <td nowrap><input name="lymph_axilla" type="radio" value="0"  <?php echo (($fdata{'lymph_axilla'} == '0')?' checked ':''); ?>>
 
       Normal</td>
 
-          <td nowrap><input name="lymph_axilla" type="radio" value="1" <? echo (($fdata{'lymph_axilla'} == '1')?' checked ':''); ?>>
+          <td nowrap><input name="lymph_axilla" type="radio" value="1" <?php echo (($fdata{'lymph_axilla'} == '1')?' checked ':''); ?>>
 
       ABNormal</td>
 
-          <td><input name="lymph_axilla_data" type="text" class="fullin"  value="<? echo $fdata{'lymph_axilla_data'}; ?>"></td>
+          <td><input name="lymph_axilla_data" type="text" class="fullin"  value="<?php echo $fdata{'lymph_axilla_data'}; ?>"></td>
 
         </tr>
 
@@ -613,15 +613,15 @@ ABNormal</td>
 
           <td nowrap><blockquote> Groin </blockquote></td>
 
-          <td nowrap><input name="lymph_groin" type="radio" value="0"  <? echo (($fdata{'lymph_groin'} == '0')?' checked ':''); ?>>
+          <td nowrap><input name="lymph_groin" type="radio" value="0"  <?php echo (($fdata{'lymph_groin'} == '0')?' checked ':''); ?>>
 
     Normal</td>
 
-          <td nowrap><input name="lymph_groin" type="radio" value="1" <? echo (($fdata{'lymph_groin'} == '1')?' checked ':''); ?>>
+          <td nowrap><input name="lymph_groin" type="radio" value="1" <?php echo (($fdata{'lymph_groin'} == '1')?' checked ':''); ?>>
 
     ABNormal</td>
 
-          <td><input name="lymph_groin_data" type="text" class="fullin"  value="<? echo $fdata{'lymph_groin_data'}; ?>"></td>
+          <td><input name="lymph_groin_data" type="text" class="fullin"  value="<?php echo $fdata{'lymph_groin_data'}; ?>"></td>
 
         </tr>
 
@@ -629,15 +629,15 @@ ABNormal</td>
 
           <td nowrap><blockquote> Other site </blockquote></td>
 
-          <td nowrap><input name="lymph_other" type="radio" value="0"  <? echo (($fdata{'lymph_other'} == '0')?' checked ':''); ?>>
+          <td nowrap><input name="lymph_other" type="radio" value="0"  <?php echo (($fdata{'lymph_other'} == '0')?' checked ':''); ?>>
 
     Normal</td>
 
-          <td nowrap><input name="lymph_other" type="radio" value="1" <? echo (($fdata{'lymph_other'} == '1')?' checked ':''); ?>>
+          <td nowrap><input name="lymph_other" type="radio" value="1" <?php echo (($fdata{'lymph_other'} == '1')?' checked ':''); ?>>
 
     ABNormal</td>
 
-          <td><input name="lymph_other_data" type="text" class="fullin"  value="<? echo $fdata{'lymph_other_data'}; ?>"></td>
+          <td><input name="lymph_other_data" type="text" class="fullin"  value="<?php echo $fdata{'lymph_other_data'}; ?>"></td>
 
         </tr>
 
@@ -655,15 +655,15 @@ ABNormal</td>
 
           <td width="150" nowrap><li>inspected/palpated</li></td>
 
-          <td width="90" nowrap><input name="skin_inspected" type="radio" value="0"  <? echo (($fdata{'skin_inspected'} == '0')?' checked ':''); ?>>
+          <td width="90" nowrap><input name="skin_inspected" type="radio" value="0"  <?php echo (($fdata{'skin_inspected'} == '0')?' checked ':''); ?>>
 
       Normal</td>
 
-          <td width="100" nowrap><input name="skin_inspected" type="radio" value="1" <? echo (($fdata{'skin_inspected'} == '1')?' checked ':''); ?>>
+          <td width="100" nowrap><input name="skin_inspected" type="radio" value="1" <?php echo (($fdata{'skin_inspected'} == '1')?' checked ':''); ?>>
 
       ABNormal</td>
 
-          <td><input name="skin_inspected_data" type="text" class="fullin"  value="<? echo $fdata{'skin_inspected_data'}; ?>"></td>
+          <td><input name="skin_inspected_data" type="text" class="fullin"  value="<?php echo $fdata{'skin_inspected_data'}; ?>"></td>
 
         </tr>
 
@@ -681,21 +681,21 @@ ABNormal</td>
 
           <td width="150" nowrap><li>Orientation</li></td>
 
-          <td width="90" nowrap><input name="neur_orient_time" type="checkbox"  value="1" <? echo (($fdata{'neur_orient_time'} == '1')?' checked ':''); ?>>
+          <td width="90" nowrap><input name="neur_orient_time" type="checkbox"  value="1" <?php echo (($fdata{'neur_orient_time'} == '1')?' checked ':''); ?>>
 
       Time</td>
 
-          <td width="100" nowrap><input name="neur_orient_place" type="checkbox"  value="1" <? echo (($fdata{'neur_orient_place'} == '1')?' checked ':''); ?>>
+          <td width="100" nowrap><input name="neur_orient_place" type="checkbox"  value="1" <?php echo (($fdata{'neur_orient_place'} == '1')?' checked ':''); ?>>
 
       Place</td>
 
-          <td width="100"><input name="neur_orient_person" type="checkbox"  value="1" <? echo (($fdata{'neur_orient_person'} == '1')?' checked ':''); ?>> 
+          <td width="100"><input name="neur_orient_person" type="checkbox"  value="1" <?php echo (($fdata{'neur_orient_person'} == '1')?' checked ':''); ?>> 
 
             Person
 
 </td>
 
-          <td width="100"><input name="neur_orient_comments" type="checkbox"  value="1" <? echo (($fdata{'neur_orient_comments'} == '1')?' checked ':''); ?>> 
+          <td width="100"><input name="neur_orient_comments" type="checkbox"  value="1" <?php echo (($fdata{'neur_orient_comments'} == '1')?' checked ':''); ?>> 
 
             Comments
 
@@ -709,27 +709,27 @@ ABNormal</td>
 
           <td width="150" nowrap><li>Mood and affect </li></td>
 
-          <td width="90" nowrap><input name="neur_mood_normal" type="checkbox"  value="1" <? echo (($fdata{'neur_mood_normal'} == '1')?' checked ':''); ?>>
+          <td width="90" nowrap><input name="neur_mood_normal" type="checkbox"  value="1" <?php echo (($fdata{'neur_mood_normal'} == '1')?' checked ':''); ?>>
 
       Normal</td>
 
-          <td width="100" nowrap><input name="neur_mood_depressed" type="checkbox"  value="1" <? echo (($fdata{'neur_mood_depressed'} == '1')?' checked ':''); ?>>
+          <td width="100" nowrap><input name="neur_mood_depressed" type="checkbox"  value="1" <?php echo (($fdata{'neur_mood_depressed'} == '1')?' checked ':''); ?>>
 
       Depressed</td>
 
-          <td width="100"><input name="neur_mood_anxious" type="checkbox"  value="1" <? echo (($fdata{'neur_mood_anxious'} == '1')?' checked ':''); ?>> 
+          <td width="100"><input name="neur_mood_anxious" type="checkbox"  value="1" <?php echo (($fdata{'neur_mood_anxious'} == '1')?' checked ':''); ?>> 
 
             Anxious
 
 </td>
 
-          <td width="100"><input name="neur_mood_agitated" type="checkbox"  value="1" <? echo (($fdata{'neur_mood_agitated'} == '1')?' checked ':''); ?>> 
+          <td width="100"><input name="neur_mood_agitated" type="checkbox"  value="1" <?php echo (($fdata{'neur_mood_agitated'} == '1')?' checked ':''); ?>> 
 
             Agitated
 
 </td>
 
-          <td><input name="neur_mood_other" type="checkbox"  value="1" <? echo (($fdata{'neur_mood_other'} == '1')?' checked ':''); ?>> 
+          <td><input name="neur_mood_other" type="checkbox"  value="1" <?php echo (($fdata{'neur_mood_other'} == '1')?' checked ':''); ?>> 
 
             Other
 
@@ -751,19 +751,19 @@ ABNormal</td>
 
           <td width="150" nowrap><li>Breasts</li></td>
 
-          <td width="90" nowrap><input name="gynec_breasts" type="radio" value="0"  <? echo (($fdata{'gynec_breasts'} == '0')?' checked ':''); ?>>
+          <td width="90" nowrap><input name="gynec_breasts" type="radio" value="0"  <?php echo (($fdata{'gynec_breasts'} == '0')?' checked ':''); ?>>
 
       Normal</td>
 
-          <td width="100" nowrap><input name="gynec_breasts" type="radio" value="1" <? echo (($fdata{'gynec_breasts'} == '1')?' checked ':''); ?>>
+          <td width="100" nowrap><input name="gynec_breasts" type="radio" value="1" <?php echo (($fdata{'gynec_breasts'} == '1')?' checked ':''); ?>>
 
       ABNormal</td>
 
-          <td><input name="gynec_breasts_data" type="text" class="fullin"  value="<? echo $fdata{'gynec_breasts_data'}; ?>"></td>
+          <td><input name="gynec_breasts_data" type="text" class="fullin"  value="<?php echo $fdata{'gynec_breasts_data'}; ?>"></td>
 
           <td width="231" rowspan="12" align="center" valign="middle">
 
-          <img src="<?
+          <img src="<?php
 
           echo "$rootdir/forms/$formname/";
 
@@ -775,15 +775,15 @@ ABNormal</td>
 
           <td nowrap><li>External genitalia </li></td>
 
-          <td nowrap><input name="gynec_ext_genitalia" type="radio" value="0"  <? echo (($fdata{'gynec_ext_genitalia'} == '0')?' checked ':''); ?>>
+          <td nowrap><input name="gynec_ext_genitalia" type="radio" value="0"  <?php echo (($fdata{'gynec_ext_genitalia'} == '0')?' checked ':''); ?>>
 
   Normal</td>
 
-          <td nowrap><input name="gynec_ext_genitalia" type="radio" value="1" <? echo (($fdata{'gynec_ext_genitalia'} == '1')?' checked ':''); ?>>
+          <td nowrap><input name="gynec_ext_genitalia" type="radio" value="1" <?php echo (($fdata{'gynec_ext_genitalia'} == '1')?' checked ':''); ?>>
 
   ABNormal</td>
 
-          <td><input name="gynec_ext_genitalia_data" type="text" class="fullin"  value="<? echo $fdata{'gynec_ext_genitalia_data'}; ?>"></td>
+          <td><input name="gynec_ext_genitalia_data" type="text" class="fullin"  value="<?php echo $fdata{'gynec_ext_genitalia_data'}; ?>"></td>
 
           </tr>
 
@@ -791,15 +791,15 @@ ABNormal</td>
 
           <td nowrap><li>Urethral meatus </li></td>
 
-          <td nowrap><input name="gynec_urethral_meatus" type="radio" value="0"  <? echo (($fdata{'gynec_urethral_meatus'} == '0')?' checked ':''); ?>>
+          <td nowrap><input name="gynec_urethral_meatus" type="radio" value="0"  <?php echo (($fdata{'gynec_urethral_meatus'} == '0')?' checked ':''); ?>>
 
   Normal</td>
 
-          <td nowrap><input name="gynec_urethral_meatus" type="radio" value="1" <? echo (($fdata{'gynec_urethral_meatus'} == '1')?' checked ':''); ?>>
+          <td nowrap><input name="gynec_urethral_meatus" type="radio" value="1" <?php echo (($fdata{'gynec_urethral_meatus'} == '1')?' checked ':''); ?>>
 
   ABNormal</td>
 
-          <td><input name="gynec_urethral_meatus_data" type="text" class="fullin"  value="<? echo $fdata{'gynec_urethral_meatus_data'}; ?>"></td>
+          <td><input name="gynec_urethral_meatus_data" type="text" class="fullin"  value="<?php echo $fdata{'gynec_urethral_meatus_data'}; ?>"></td>
 
           </tr>
 
@@ -807,15 +807,15 @@ ABNormal</td>
 
           <td width="150" nowrap><li>Urethra</li></td>
 
-          <td width="90" nowrap><input name="gynec_urethra" type="radio" value="0"  <? echo (($fdata{'gynec_urethra'} == '0')?' checked ':''); ?>>
+          <td width="90" nowrap><input name="gynec_urethra" type="radio" value="0"  <?php echo (($fdata{'gynec_urethra'} == '0')?' checked ':''); ?>>
 
   Normal</td>
 
-          <td width="100" nowrap><input name="gynec_urethra" type="radio" value="1" <? echo (($fdata{'gynec_urethra'} == '1')?' checked ':''); ?>>
+          <td width="100" nowrap><input name="gynec_urethra" type="radio" value="1" <?php echo (($fdata{'gynec_urethra'} == '1')?' checked ':''); ?>>
 
   ABNormal</td>
 
-          <td><input name="gynec_urethra_data" type="text" class="fullin"  value="<? echo $fdata{'gynec_urethra_data'}; ?>"></td>
+          <td><input name="gynec_urethra_data" type="text" class="fullin"  value="<?php echo $fdata{'gynec_urethra_data'}; ?>"></td>
 
           </tr>
 
@@ -823,15 +823,15 @@ ABNormal</td>
 
           <td nowrap><li>Bladder</li></td>
 
-          <td nowrap><input name="gynec_bladder" type="radio" value="0"  <? echo (($fdata{'gynec_bladder'} == '0')?' checked ':''); ?>>
+          <td nowrap><input name="gynec_bladder" type="radio" value="0"  <?php echo (($fdata{'gynec_bladder'} == '0')?' checked ':''); ?>>
 
   Normal</td>
 
-          <td nowrap><input name="gynec_bladder" type="radio" value="1" <? echo (($fdata{'gynec_bladder'} == '1')?' checked ':''); ?>>
+          <td nowrap><input name="gynec_bladder" type="radio" value="1" <?php echo (($fdata{'gynec_bladder'} == '1')?' checked ':''); ?>>
 
   ABNormal</td>
 
-          <td><input name="gynec_bladder_data" type="text" class="fullin"  value="<? echo $fdata{'gynec_bladder_data'}; ?>"></td>
+          <td><input name="gynec_bladder_data" type="text" class="fullin"  value="<?php echo $fdata{'gynec_bladder_data'}; ?>"></td>
 
           </tr>
 
@@ -839,15 +839,15 @@ ABNormal</td>
 
           <td nowrap><li>Vagina/Pelvic support</li></td>
 
-          <td nowrap><input name="gynec_vagina_support" type="radio" value="0"  <? echo (($fdata{'gynec_vagina_support'} == '0')?' checked ':''); ?>>
+          <td nowrap><input name="gynec_vagina_support" type="radio" value="0"  <?php echo (($fdata{'gynec_vagina_support'} == '0')?' checked ':''); ?>>
 
   Normal</td>
 
-          <td nowrap><input name="gynec_vagina_support" type="radio" value="1" <? echo (($fdata{'gynec_vagina_support'} == '1')?' checked ':''); ?>>
+          <td nowrap><input name="gynec_vagina_support" type="radio" value="1" <?php echo (($fdata{'gynec_vagina_support'} == '1')?' checked ':''); ?>>
 
   ABNormal</td>
 
-          <td><input name="gynec_vagina_support_data" type="text" class="fullin"  value="<? echo $fdata{'gynec_vagina_support_data'}; ?>"></td>
+          <td><input name="gynec_vagina_support_data" type="text" class="fullin"  value="<?php echo $fdata{'gynec_vagina_support_data'}; ?>"></td>
 
           </tr>
 
@@ -855,15 +855,15 @@ ABNormal</td>
 
           <td width="150" nowrap><li>Cervix</li></td>
 
-          <td width="90" nowrap><input name="gynec_cervix" type="radio" value="0"  <? echo (($fdata{'gynec_cervix'} == '0')?' checked ':''); ?>>
+          <td width="90" nowrap><input name="gynec_cervix" type="radio" value="0"  <?php echo (($fdata{'gynec_cervix'} == '0')?' checked ':''); ?>>
 
   Normal</td>
 
-          <td width="100" nowrap><input name="gynec_cervix" type="radio" value="1" <? echo (($fdata{'gynec_cervix'} == '1')?' checked ':''); ?>>
+          <td width="100" nowrap><input name="gynec_cervix" type="radio" value="1" <?php echo (($fdata{'gynec_cervix'} == '1')?' checked ':''); ?>>
 
   ABNormal</td>
 
-          <td><input name="gynec_cervix_data" type="text" class="fullin"  value="<? echo $fdata{'gynec_cervix_data'}; ?>"></td>
+          <td><input name="gynec_cervix_data" type="text" class="fullin"  value="<?php echo $fdata{'gynec_cervix_data'}; ?>"></td>
 
           </tr>
 
@@ -871,15 +871,15 @@ ABNormal</td>
 
           <td nowrap><li>Uterus</li></td>
 
-          <td nowrap><input name="gynec_uterus" type="radio" value="0"  <? echo (($fdata{'gynec_uterus'} == '0')?' checked ':''); ?>>
+          <td nowrap><input name="gynec_uterus" type="radio" value="0"  <?php echo (($fdata{'gynec_uterus'} == '0')?' checked ':''); ?>>
 
   Normal</td>
 
-          <td nowrap><input name="gynec_uterus" type="radio" value="1" <? echo (($fdata{'gynec_uterus'} == '1')?' checked ':''); ?>>
+          <td nowrap><input name="gynec_uterus" type="radio" value="1" <?php echo (($fdata{'gynec_uterus'} == '1')?' checked ':''); ?>>
 
   ABNormal</td>
 
-          <td><input name="gynec_uterus_data" type="text" class="fullin"  value="<? echo $fdata{'gynec_uterus_data'}; ?>"></td>
+          <td><input name="gynec_uterus_data" type="text" class="fullin"  value="<?php echo $fdata{'gynec_uterus_data'}; ?>"></td>
 
           </tr>
 
@@ -887,15 +887,15 @@ ABNormal</td>
 
           <td nowrap><li>Adnexa/Parametria</li></td>
 
-          <td nowrap><input name="gynec_adnexa" type="radio" value="0"  <? echo (($fdata{'gynec_adnexa'} == '0')?' checked ':''); ?>>
+          <td nowrap><input name="gynec_adnexa" type="radio" value="0"  <?php echo (($fdata{'gynec_adnexa'} == '0')?' checked ':''); ?>>
 
   Normal</td>
 
-          <td nowrap><input name="gynec_adnexa" type="radio" value="1" <? echo (($fdata{'gynec_adnexa'} == '1')?' checked ':''); ?>>
+          <td nowrap><input name="gynec_adnexa" type="radio" value="1" <?php echo (($fdata{'gynec_adnexa'} == '1')?' checked ':''); ?>>
 
   ABNormal</td>
 
-          <td><input name="gynec_adnexa_data" type="text" class="fullin"  value="<? echo $fdata{'gynec_adnexa_data'}; ?>"></td>
+          <td><input name="gynec_adnexa_data" type="text" class="fullin"  value="<?php echo $fdata{'gynec_adnexa_data'}; ?>"></td>
 
           </tr>
 
@@ -903,15 +903,15 @@ ABNormal</td>
 
           <td width="150" nowrap><li>Anus/Perineum</li></td>
 
-          <td width="90" nowrap><input name="gynec_anus" type="radio" value="0"  <? echo (($fdata{'gynec_anus'} == '0')?' checked ':''); ?>>
+          <td width="90" nowrap><input name="gynec_anus" type="radio" value="0"  <?php echo (($fdata{'gynec_anus'} == '0')?' checked ':''); ?>>
 
   Normal</td>
 
-          <td width="100" nowrap><input name="gynec_anus" type="radio" value="1" <? echo (($fdata{'gynec_anus'} == '1')?' checked ':''); ?>>
+          <td width="100" nowrap><input name="gynec_anus" type="radio" value="1" <?php echo (($fdata{'gynec_anus'} == '1')?' checked ':''); ?>>
 
   ABNormal</td>
 
-          <td><input name="gynec_anus_data" type="text" class="fullin"  value="<? echo $fdata{'gynec_anus_data'}; ?>"></td>
+          <td><input name="gynec_anus_data" type="text" class="fullin"  value="<?php echo $fdata{'gynec_anus_data'}; ?>"></td>
 
           </tr>
 
@@ -919,15 +919,15 @@ ABNormal</td>
 
           <td nowrap><li>Rectal</li></td>
 
-          <td nowrap><input name="gynec_rectal" type="radio" value="0"  <? echo (($fdata{'gynec_rectal'} == '0')?' checked ':''); ?>>
+          <td nowrap><input name="gynec_rectal" type="radio" value="0"  <?php echo (($fdata{'gynec_rectal'} == '0')?' checked ':''); ?>>
 
   Normal</td>
 
-          <td nowrap><input name="gynec_rectal" type="radio" value="1" <? echo (($fdata{'gynec_rectal'} == '1')?' checked ':''); ?>>
+          <td nowrap><input name="gynec_rectal" type="radio" value="1" <?php echo (($fdata{'gynec_rectal'} == '1')?' checked ':''); ?>>
 
   ABNormal</td>
 
-          <td><input name="gynec_rectal_data" type="text" class="fullin"  value="<? echo $fdata{'gynec_rectal_data'}; ?>"></td>
+          <td><input name="gynec_rectal_data" type="text" class="fullin"  value="<?php echo $fdata{'gynec_rectal_data'}; ?>"></td>
 
           </tr>
 
@@ -947,7 +947,7 @@ ABNormal</td>
 
     <td align="left" valign="top" style="border-bottom:2px solid black;border-top:2px solid black;">Total number of bulleted elements examined 
 
-      <input name="tot_num_examined" type="text"  value="<? echo $fdata{'tot_num_examined'}; ?>"></td>
+      <input name="tot_num_examined" type="text"  value="<?php echo $fdata{'tot_num_examined'}; ?>"></td>
 
   </tr>
 
@@ -961,7 +961,7 @@ ABNormal</td>
 
   <tr><td align="left" width="120"> <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save Data]</a> </td>
 
-  <td align="left" nowrap> <a href="<? echo $rootdir; ?>/patient_file/encounter/print_form.php?id=<? echo $id; ?>&formname=<? echo $formname; ?>"
+  <td align="left" nowrap> <a href="<?php echo $rootdir; ?>/patient_file/encounter/print_form.php?id=<?php echo $id; ?>&formname=<?php echo $formname; ?>"
 
    target="_blank" class="link_submit" onclick="top.restoreSession()">[Printable form]</a> </td>
 

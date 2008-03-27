@@ -10,26 +10,26 @@ formHeader("Phone Exam");
 
 ?>
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 
 
 
 <html>
 
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
 <title>New Patient Encounter</title>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 
 
 </head>
 
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="body_top">
 
 <br><br>
 
-<?
+<?php
 
 $row = formFetch('form_phone_exam', $_GET['id']);
 

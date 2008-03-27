@@ -26,19 +26,19 @@ if ($old) {
 
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <title>Physical examination</title>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<link rel=stylesheet href="../../acog.css" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="../../acog.css" type="text/css">
 <script language="JavaScript" src="../../acog.js" type="text/JavaScript"></script>
 <script language="JavaScript" type="text/JavaScript">
 window.onload = initialize;
 </script>
 </head>
 
-<body <?echo $top_bg_line;?>>
+<body class="body_top">
 
-<?
+<?php
 $tip1 = <<<EOL
 The <b>Physical Examination</b> section
 should be completed by the physician each time a
@@ -62,35 +62,35 @@ ANY 7 BULLETS IN GYNECOLOGIC, AT LEAST 1 BULLET IN ALL OTHER SYSTEMS</td></tr>
 EOL;
 $tip1 = strtr($tip1, "\n\r", "  ");
 ?>
-<div class="srvChapter">Physical examination <a href="#" onMouseOver="toolTip('<? echo $tip1; ?>', 300)" onMouseOut="toolTip();"><img src="../../pic/mark_q.png" width="13" height="13" border="0" align="texttop"></a> </div>
-<? 
+<div class="srvChapter">Physical examination <a href="#" onMouseOver="toolTip('<?php echo $tip1; ?>', 300)" onMouseOut="toolTip();"><img src="../../pic/mark_q.png" width="13" height="13" border="0" align="texttop"></a> </div>
+<?php 
    $fres=sqlStatement("select * from patient_data where pid='".$pid."'");
    if ($fres){
      $patient = sqlFetchArray($fres);
    }
 ?>
-<form action="<?echo $rootdir;?>/forms/physical_examination/save.php?mode=new" method="post" enctype="multipart/form-data" name="my_form">
-<? include("../../acog_menu.inc"); ?>
+<form action="<?php echo $rootdir;?>/forms/physical_examination/save.php?mode=new" method="post" enctype="multipart/form-data" name="my_form">
+<?php include("../../acog_menu.inc"); ?>
 <div style="border: solid 2px black; background-color: white;">
 <table width="100%"  border="0" cellspacing="0" cellpadding="3">
   <tr>
     <td align="left" valign="top" style="border-bottom: 2px solid black;"><table width="100%"  border="0" cellspacing="0" cellpadding="5">
       <tr align="left" valign="bottom" class="fibody">
         <td width="40%" class="bordR">Patient name <br>          
-          <input name="pname" type="text" class="fullin" id="pname" value="<?
+          <input name="pname" type="text" class="fullin" id="pname" value="<?php
           echo $patient{'fname'}.' '.$patient{'mname'}.' '.$patient{'lname'};
           ?>"></td>
         <td width="20%" class="bordR">birth date
           <br>          
-          <input name="pbdate" type="text" class="fullin" id="pbdate" value="<?
+          <input name="pbdate" type="text" class="fullin" id="pbdate" value="<?php
           echo $patient{'DOB'};
           ?>" size="12"> </td>
         <td width="20%" class="bordR">ID No<br>          
-          <input name="pe_id" type="text" class="fullin" id="pe_id" size="12" value="<?
+          <input name="pe_id" type="text" class="fullin" id="pe_id" size="12" value="<?php
           echo $patient{'id'};
           ?>"></td>
         <td width="20%">date<br>
-        <input name="pe_date" type="text" class="fullin" id="pe_date" value="<?
+        <input name="pe_date" type="text" class="fullin" id="pe_date" value="<?php
         echo date('Y-m-d');
         ?>" size="12"></td>
       </tr>
@@ -395,7 +395,7 @@ ABNormal</td>
       ABNormal</td>
           <td><input name="gynec_breasts_data" type="text" class="fullin" id="gynec_breasts_data"></td>
           <td width="231" rowspan="12" align="center" valign="middle">
-          <img src="<?
+          <img src="<?php
           echo "$rootdir/forms/$formname/";
           ?>genit01.gif" width="231" height="222"></td>
         </tr>

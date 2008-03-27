@@ -21,13 +21,13 @@ formHeader("Pediatric Fever Evaluation");
 ?>
 
 <html><head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 </head>
 
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="body_top">
 
 
 
@@ -37,7 +37,7 @@ formHeader("Pediatric Fever Evaluation");
 
 <br>
 
-<form method='post' action="<?echo $rootdir;?>/forms/ped_fever/save.php?mode=new" name='ped_fever' >
+<form method='post' action="<?php echo $rootdir;?>/forms/ped_fever/save.php?mode=new" name='ped_fever' >
 
 
 
