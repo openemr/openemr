@@ -1,4 +1,4 @@
-<?
+<?php
 include_once("../../globals.php");
 include_once("$srcdir/patient.inc");
 
@@ -13,10 +13,10 @@ sqlStatement("update transactions set authorized=1 where pid='".$_GET["pid"]."'"
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="body_top">
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href="authorizations.php">
@@ -24,9 +24,9 @@ sqlStatement("update transactions set authorized=1 where pid='".$_GET["pid"]."'"
 <a href="../main.php" target=Main>
 <?php } ?>
 <font class=title>Authorizations</font>
-<font class=more><?echo $tback;?></font></a>
+<font class=more><?php echo $tback;?></font></a>
 
-<?
+<?php
 //	billing
 //	forms
 //	pnotes
@@ -105,7 +105,7 @@ $authorize{$iter{"pid"}}{"forms"} .= "<span class=small>" . $iter{"user"} . ": <
 <tr>
 <td valign=top>
 
-<?
+<?php
 if ($authorize) {
 
 while(list($ppid,$patient) = each($authorize)){

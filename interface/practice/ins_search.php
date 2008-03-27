@@ -58,7 +58,7 @@
 <html>
 <head>
 <title><?php xl('Insurance Company Search/Add','e');?></title>
-<link rel=stylesheet href='<?php  echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }
@@ -137,7 +137,7 @@ td { font-size:10pt; }
 
 </head>
 
-<body <?php echo $top_bg_line;?> onunload='imclosing()'>
+<body class="body_top" onunload='imclosing()'>
 <?php
  // If we are saving, then save and close the window.
  //

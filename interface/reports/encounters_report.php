@@ -37,7 +37,7 @@ function show_doc_total($lastdocname, $doc_encounters) {
 }
 
 $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-$form_to_date   = fixDate($_POST['form_to_date'], '');
+$form_to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_provider  = $_POST['form_provider'];
 $form_details   = $_POST['form_details'] ? true : false;
 
@@ -70,17 +70,67 @@ $res = sqlStatement($query);
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
 <title><?php xl('Encounters Report','e'); ?></title>
+
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <style type="text/css">
- body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
- .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold;
-              padding-left:3px; padding-right:3px; }
- .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal;
-              padding-left:3px; padding-right:3px; }
+
+/* specifically include & exclude from printing */
+@media print {
+    #encreport_parameters {
+        visibility: hidden;
+        display: none;
+    }
+    #encreport_parameters_daterange {
+        visibility: visible;
+        display: inline;
+    }
+}
+
+/* specifically exclude some from the screen */
+@media screen {
+    #encreport_parameters_daterange {
+        visibility: hidden;
+        display: none;
+    }
+}
+
+#encreport_parameters {
+    width: 100%;
+    background-color: #ddf;
+}
+#encreport_parameters table {
+    border: none;
+    border-collapse: collapse;
+}
+#encreport_parameters table td {
+    padding: 3px;
+}
+
+#encreport_results {
+    width: 100%;
+    margin-top: 10px;
+}
+#encreport_results table {
+   border: 1px solid black;
+   width: 98%;
+   border-collapse: collapse;
+}
+#encreport_results table thead {
+    display: table-header-group;
+    background-color: #ddd;
+}
+#encreport_results table th {
+    border-bottom: 1px solid black;
+}
+#encreport_results table td {
+    padding: 1px;
+    margin: 2px;
+    border-bottom: 1px solid #eee;
+}
 </style>
 
 <script type="text/javascript" src="../../library/textformat.js"></script>
@@ -108,20 +158,24 @@ $res = sqlStatement($query);
 
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
+<body class="body_top">
 
 <center>
 
 <h2><?php xl('Encounters Report','e'); ?></h2>
 
-<form method='post' name='theform' action='encounters_report.php'>
+<div id="encreport_parameters_daterange">
+<?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
+</div>
 
-<table border='0' cellpadding='3'>
+<div id="encreport_parameters">
+<form method='post' name='theform' action='encounters_report.php'>
+<table>
 
  <tr>
   <td>
    <?php xl('Provider','e'); ?>:
-<?
+<?php
  // Build a drop-down list of providers.
  //
  $query = "SELECT username, lname, fname FROM users WHERE " .
@@ -137,7 +191,7 @@ $res = sqlStatement($query);
  }
  echo "   </select>\n";
 ?>
-
+<br>
    &nbsp;<?php  xl('From','e'); ?>:
    <input type='text' name='form_from_date' id='form_from_date' size='10' value='<?php echo $form_from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='Start date yyyy-mm-dd'>
@@ -167,38 +221,41 @@ $res = sqlStatement($query);
  </tr>
 
 </table>
+</div> <!-- end encreport_parameters -->
 
-<table border='0' cellpadding='1' cellspacing='2'>
+<div id="encreport_results">
+<table>
 
- <tr bgcolor="#dddddd">
+ <thead>
 <?php if ($form_details) { ?>
-  <td class="dehead">
+  <th>
    <a href="nojs.php" onclick="return dosort('doctor')"
    <?php if ($form_orderby == "doctor") echo " style=\"color:#00cc00\"" ?>><?php  xl('Provider','e'); ?> </a>
-  </td>
-  <td class="dehead">
+  </th>
+  <th>
    <a href="nojs.php" onclick="return dosort('time')"
-   <?php if ($form_orderby == "time") echo " style=\"color:#00cc00\"" ?>><?php  xl('Time','e'); ?></a>
-  </td>
-  <td class="dehead">
+   <?php if ($form_orderby == "time") echo " style=\"color:#00cc00\"" ?>><?php  xl('Date','e'); ?></a>
+  </th>
+  <th>
    <a href="nojs.php" onclick="return dosort('patient')"
    <?php if ($form_orderby == "patient") echo " style=\"color:#00cc00\"" ?>><?php  xl('Patient','e'); ?></a>
-  </td>
-  <td class="dehead">
+  </th>
+  <th>
    <?php  xl('Encounter','e'); ?>
-  </td>
-  <td class="dehead">
+  </th>
+  <th>
    <?php  xl('Form','e'); ?>
-  </td>
-  <td class="dehead">
+  </th>
+  <th>
    <?php  xl('Coding','e'); ?>
-  </td>
+  </th>
 <?php } else { ?>
-  <td class="dehead"><?php  xl('Provider','e'); ?></td>
-  <td class="dehead" align="right"><?php  xl('Encounters','e'); ?></td>
+  <th><?php  xl('Provider','e'); ?></td>
+  <th><?php  xl('Encounters','e'); ?></td>
 <?php } ?>
- </tr>
-<?
+ </thead>
+ <tbody>
+<?php
 if ($res) {
   $lastdocname = "";
   $doc_encounters = 0;
@@ -209,19 +266,19 @@ if ($res) {
     if ($form_details) {
 ?>
  <tr bgcolor='<?php echo $bgcolor ?>'>
-  <td class="detail" valign="top">
+  <td>
    <?php echo ($docname == $lastdocname) ? "" : $docname ?>
   </td>
-  <td class="detail" valign="top">
+  <td>
    <?php echo substr($row['date'], 0, 10) ?>
   </td>
-  <td class="detail" valign="top">
+  <td>
    <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']; ?>
   </td>
-  <td class="detail" valign="top">
+  <td>
    <?php echo $row['reason']; ?>
   </td>
-  <td class="detail" valign="top">
+  <td>
 <?php
       // Fetch and show all other forms for this encounter
       $encnames = '';
@@ -235,7 +292,7 @@ if ($res) {
       echo $encnames;
 ?>
   </td>
-  <td class="detail" valign="top">
+  <td>
 <?php
       // Fetch and show coding for this encounter
       $coded = "";
@@ -264,21 +321,22 @@ if ($res) {
   if (!$form_details) show_doc_total($lastdocname, $doc_encounters);
 }
 ?>
-
+</tbody>
 </table>
+</div>  <!-- end encresults -->
 
 <input type="hidden" name="form_orderby" value="<?php echo $form_orderby ?>" />
 
 </form>
 </center>
+</body>
+
 <script language='JavaScript'>
  Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
  Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
-<?php
-  if ($alertmsg) {
-    echo " alert('$alertmsg');\n";
-  }
-?>
+
+<?php if ($alertmsg) { echo " alert('$alertmsg');\n"; } ?>
+
 </script>
-</body>
+
 </html>

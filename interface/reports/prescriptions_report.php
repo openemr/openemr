@@ -1,4 +1,4 @@
-<?
+<?php
  // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -21,16 +21,14 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<title><? xl('Prescriptions and Dispensations','e'); ?></title>
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<?php html_header_show();?>
+<title><?php xl('Prescriptions and Dispensations','e'); ?></title>
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/calendar.js"></script>
 <script type="text/javascript" src="../../library/textformat.js"></script>
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script language="JavaScript">
 
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  // The OnClick handler for receipt display.
  function show_receipt(payid) {
@@ -39,100 +37,140 @@
  }
 
 </script>
+
+<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<style type="text/css">
+
+/* specifically include & exclude from printing */
+@media print {
+    #rxdrugreport_parameters {
+        visibility: hidden;
+        display: none;
+    }
+    #rxdrugreport_parameters_daterange {
+        visibility: visible;
+        display: inline;
+    }
+}
+
+/* specifically exclude some from the screen */
+@media screen {
+    #rxdrugreport_parameters_daterange {
+        visibility: hidden;
+        display: none;
+    }
+}
+
+#rxdrugreport_parameters {
+    width: 100%;
+    background-color: #ddf;
+}
+#rxdrugreport_parameters table {
+    border: none;
+    border-collapse: collapse;
+}
+#rxdrugreport_parameters table td {
+    padding: 3px;
+}
+
+#rxdrugreport_results {
+    width: 100%;
+    margin-top: 10px;
+}
+#rxdrugreport_results table {
+   border: 1px solid black;
+   width: 98%;
+   border-collapse: collapse;
+}
+#rxdrugreport_results table thead {
+    display: table-header-group;
+    background-color: #ddd;
+}
+#rxdrugreport_results table th {
+    border-bottom: 1px solid black;
+    font-size: 0.7em;
+}
+#rxdrugreport_results table td {
+    padding: 1px;
+    margin: 2px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.7em;
+}
+.rxdrugreport_totals td {
+    background-color: #77ff77;
+    font-weight: bold;
+}
+</style>
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
+<body class="body_top">
 
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
 <center>
 
-<h2><? xl('Prescriptions and Dispensations','e'); ?></h2>
+<h2><?php xl('Prescriptions and Dispensations','e'); ?></h2>
+
+<div id="rxdrugreport_parameters_daterange">
+<?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
+</div>
+
+<div id="rxdrugreport_parameters">
 
 <form name='theform' method='post' action='prescriptions_report.php'>
 
-<table border='0' cellpadding='3'>
-
+<table>
  <tr>
   <td>
-   <? xl('From','e'); ?>:
-   <input type='text' name='form_from_date' size='10' value='<? echo $form_from_date ?>'
+   <?php xl('From','e'); ?>:
+   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-   <a href="javascript:show_calendar('theform.form_from_date')"
-    title=".xl('Click here to choose a date')."
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
-   &nbsp;<? xl('To','e'); ?>:
-   <input type='text' name='form_to_date' size='10' value='<? echo $form_to_date ?>'
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
+   &nbsp;<?php xl('To','e'); ?>:
+   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-   <a href="javascript:show_calendar('theform.form_to_date')"
-    title=".xl('Click here to choose a date')."
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
-   &nbsp;<? xl('Patient ID','e'); ?>:
-   <input type='text' name='form_patient_id' size='6' maxlength='6' value='<? echo $form_patient_id ?>'
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
+   <br>
+   &nbsp;<?php xl('Patient ID','e'); ?>:
+   <input type='text' name='form_patient_id' size='6' maxlength='6' value='<?php echo $form_patient_id ?>'
     title='Optional numeric patient ID' />
-   &nbsp;<? xl('Drug','e'); ?>:
-   <input type='text' name='form_drug_name' size='10' maxlength='250' value='<? echo $form_drug_name ?>'
+   &nbsp;<?php xl('Drug','e'); ?>:
+   <input type='text' name='form_drug_name' size='10' maxlength='250' value='<?php echo $form_drug_name ?>'
     title='Optional drug name, use % as a wildcard' />
-   &nbsp;<? xl('Lot','e'); ?>:
-   <input type='text' name='form_lot_number' size='10' maxlength='20' value='<? echo $form_lot_number ?>'
+   &nbsp;<?php xl('Lot','e'); ?>:
+   <input type='text' name='form_lot_number' size='10' maxlength='20' value='<?php echo $form_lot_number ?>'
     title='Optional lot number, use % as a wildcard' />
    &nbsp;
-   <input type='submit' name='form_refresh' value=<? xl('Refresh','e'); ?>>
+   <input type='submit' name='form_refresh' value=<?php xl('Refresh','e'); ?>>
   </td>
  </tr>
-
- <tr>
-  <td height="1">
-  </td>
- </tr>
-
 </table>
+</div> <!-- end of parameters -->
 
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
-
- <tr bgcolor="#dddddd">
-  <td class='dehead'>
-   <? xl('Patient','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('ID','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('RX','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('Drug Name','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('NDC','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('Units','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('Refills','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('Instructed','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('Reactions','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('Dispensed','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('Qty','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('Manufacturer','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('Lot','e'); ?>
-  </td>
- </tr>
-<?
+<div id="rxdrugreport_results">
+<table>
+ <thead>
+  <th> <?php xl('Patient','e'); ?> </th>
+  <th> <?php xl('ID','e'); ?> </th>
+  <th> <?php xl('RX','e'); ?> </th>
+  <th> <?php xl('Drug Name','e'); ?> </th>
+  <th> <?php xl('NDC','e'); ?> </th>
+  <th> <?php xl('Units','e'); ?> </th>
+  <th> <?php xl('Refills','e'); ?> </th>
+  <th> <?php xl('Instructed','e'); ?> </th>
+  <th> <?php xl('Reactions','e'); ?> </th>
+  <th> <?php xl('Dispensed','e'); ?> </th>
+  <th> <?php xl('Qty','e'); ?> </th>
+  <th> <?php xl('Manufacturer','e'); ?> </th>
+  <th> <?php xl('Lot','e'); ?> </th>
+ </thead>
+ <tbody>
+<?php
  if ($_POST['form_refresh']) {
   $where = "r.date_modified >= '$form_from_date' AND " .
    "r.date_modified <= '$form_to_date'";
@@ -185,46 +223,46 @@
    }
 ?>
  <tr>
-  <td class='detail'>
+  <td>
    <?php echo $patient_name ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $patient_id ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $prescription_id ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $drug_name ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $ndc_number ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $drug_units ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $refills ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $instructed ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $reactions ?>
   </td>
-  <td class='detail'>
+  <td>
    <a href='../drugs/dispense_drug.php?sale_id=<?php echo $row['sale_id'] ?>'
     style='color:#0000ff' target='_blank'>
     <?php echo $row['sale_date'] ?>
    </a>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $row['quantity'] ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $row['manufacturer'] ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $row['lot_number'] ?>
   </td>
  </tr>
@@ -234,9 +272,20 @@
   } // end while
  } // end if
 ?>
-
+</tbody>
 </table>
+</div> <!-- end of results -->
 </form>
 </center>
 </body>
+
+<!-- stuff for the popup calendar -->
+<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script language="Javascript">
+ Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
+ Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
+</script>
 </html>

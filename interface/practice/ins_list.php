@@ -65,7 +65,7 @@
 <html>
 <head>
 <title><?php xl('List Insurance Companies','e');?></title>
-<link rel=stylesheet href='<?php  echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }
@@ -87,7 +87,7 @@ td { font-size:10pt; }
 
 </head>
 
-<body <?php echo $top_bg_line;?>>
+<body class="body_top">
 <form method='post' name='theform'>
 <center>
 

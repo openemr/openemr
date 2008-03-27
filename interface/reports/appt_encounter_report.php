@@ -34,28 +34,27 @@
  $grand_total_encounters = 0;
 
  function bucks($amount) {
-  if ($amount)
-   printf("%.2f", $amount);
+  if ($amount) printf("%.2f", $amount);
  }
 
  function endDoctor(&$docrow) {
   global $grand_total_charges, $grand_total_copays, $grand_total_encounters;
   if (!$docrow['docname']) return;
 
-  echo " <tr bgcolor='#ffff00'>\n";
-  echo "  <td class='detail' colspan='4'>\n";
+  echo " <tr class='apptencreport_totals'>\n";
+  echo "  <td colspan='4'>\n";
   echo "   &nbsp;Totals for " . $docrow['docname'] . "\n";
   echo "  </td>\n";
-  echo "  <td class='detotal' align='right'>\n";
+  echo "  <td align='right'>\n";
   echo "   &nbsp;" . $docrow['encounters'] . "&nbsp;\n";
   echo "  </td>\n";
-  echo "  <td class='detotal' align='right'>\n";
+  echo "  <td align='right'>\n";
   echo "   &nbsp;"; bucks($docrow['charges']); echo "&nbsp;\n";
   echo "  </td>\n";
-  echo "  <td class='detotal' align='right'>\n";
+  echo "  <td align='right'>\n";
   echo "   &nbsp;"; bucks($docrow['copays']); echo "&nbsp;\n";
   echo "  </td>\n";
-  echo "  <td class='detail' colspan='2'>\n";
+  echo "  <td colspan='2'>\n";
   echo "   &nbsp;\n";
   echo "  </td>\n";
   echo " </tr>\n";
@@ -69,8 +68,10 @@
   $docrow['encounters']  = 0;
  }
 
+ $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
+ $form_to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
  if ($_POST['form_search']) {
-  $form_date    = fixDate($_POST['form_date'], date('Y-m-d'));
+  $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
   $form_to_date = fixDate($_POST['form_to_date'], "");
 
   // MySQL doesn't grok full outer joins so we do it the hard way.
@@ -90,9 +91,9 @@
    // "LEFT OUTER JOIN users AS u ON u.id = e.pc_aid WHERE ";
    "LEFT OUTER JOIN users AS u ON u.username = f.user WHERE ";
   if ($form_to_date) {
-   $query .= "e.pc_eventDate >= '$form_date' AND e.pc_eventDate <= '$form_to_date' ";
+   $query .= "e.pc_eventDate >= '$form_from_date' AND e.pc_eventDate <= '$form_to_date' ";
   } else {
-   $query .= "e.pc_eventDate = '$form_date' ";
+   $query .= "e.pc_eventDate = '$form_from_date' ";
   }
   // $query .= "AND ( e.pc_catid = 5 OR e.pc_catid = 9 OR e.pc_catid = 10 ) " .
   $query .= "AND e.pc_pid != '' AND e.pc_apptstatus != '?' " .
@@ -112,11 +113,11 @@
    "LEFT OUTER JOIN patient_data AS p ON p.pid = fe.pid " .
    "LEFT OUTER JOIN users AS u ON u.username = f.user WHERE ";
   if ($form_to_date) {
-   // $query .= "LEFT(fe.date, 10) >= '$form_date' AND LEFT(fe.date, 10) <= '$form_to_date' ";
-   $query .= "fe.date >= '$form_date 00:00:00' AND fe.date <= '$form_to_date 23:59:59' ";
+   // $query .= "LEFT(fe.date, 10) >= '$form_from_date' AND LEFT(fe.date, 10) <= '$form_to_date' ";
+   $query .= "fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_to_date 23:59:59' ";
   } else {
-   // $query .= "LEFT(fe.date, 10) = '$form_date' ";
-   $query .= "fe.date >= '$form_date 00:00:00' AND fe.date <= '$form_date 23:59:59' ";
+   // $query .= "LEFT(fe.date, 10) = '$form_from_date' ";
+   $query .= "fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_from_date 23:59:59' ";
   }
   $query .= ") ORDER BY docname, pc_eventDate, pc_startTime";
 
@@ -125,81 +126,126 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<style type="text/css">
+
+/* specifically include & exclude from printing */
+@media print {
+    #apptencreport_parameters {
+        visibility: hidden;
+        display: none;
+    }
+    #apptencreport_parameters_daterange {
+        visibility: visible;
+        display: inline;
+    }
+}
+
+/* specifically exclude some from the screen */
+@media screen {
+    #apptencreport_parameters_daterange {
+        visibility: hidden;
+        display: none;
+    }
+}
+
+#apptencreport_parameters {
+    width: 100%;
+    margin: 10px;
+    text-align: center;
+    background-color: #ddf;
+}
+#apptencreport_parameters table {
+    text-align: center;
+    border: none;
+    width: 100%;
+    border-collapse: collapse;
+}
+#apptencreport_parameters table td {
+    padding: 3px;
+}
+
+#apptencreport_results {
+    width: 100%;
+    margin-top: 10px;
+}
+#apptencreport_results table {
+   border: 1px solid black;
+   width: 98%;
+   border-collapse: collapse;
+}
+#apptencreport_results table thead {
+    display: table-header-group;
+    background-color: #ddd;
+}
+#apptencreport_results table th {
+    border-bottom: 1px solid black;
+}
+#apptencreport_results table td {
+    padding: 1px;
+    margin: 2px;
+    border-bottom: 1px solid #eee;
+}
+.apptencreport_totals td {
+    background-color: #77ff77;
+    font-weight: bold;
+}
+</style>
 <title><?php  xl('Appointments and Encounters','e'); ?></title>
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
+<body class="body_top">
 <center>
 
+<h2><?php  xl('Appointments and Encounters','e'); ?></h2>
+<div id="apptencreport_parameters_daterange">
+<?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
+</div>
+
+<div id="apptencreport_parameters">
 <form method='post' action='appt_encounter_report.php'>
-
-<table border='0' cellpadding='5' cellspacing='0' width='98%'>
-
+<table>
  <tr>
-  <td height="1" colspan="2">
-  </td>
- </tr>
-
- <tr bgcolor='#ddddff'>
-  <td align='left'>
-   <h2><?php  xl('Appointments and Encounters','e'); ?></h2>
-  </td>
-  <td align='right'>
+  <td>
    <?php  xl('DOS','e'); ?>:
-   <input type='text' name='form_date' size='10' value='<?php  echo $_POST['form_date']; ?>'
+   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php  echo $form_from_date; ?>'
     title='Date of appointments mm/dd/yyyy' >
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
    &nbsp;
    <?php  xl('to','e'); ?>:
-   <input type='text' name='form_to_date' size='10' value='<?php  echo $_POST['form_to_date']; ?>'
+   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php  echo $form_to_date; ?>'
     title='Optional end date mm/dd/yyyy' >
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
    &nbsp;
    <input type='checkbox' name='form_details'
-    value='1'<? if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details','e') ?>
+    value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details','e') ?>
    &nbsp;
    <input type='submit' name='form_search' value='Search'>
   </td>
  </tr>
-
- <tr>
-  <td height="1" colspan="2">
-  </td>
- </tr>
-
 </table>
+</div> <!-- end apptenc_report_parameters -->
 
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
+<div id="apptencreport_results">
+<table>
 
- <tr bgcolor="#dddddd">
-  <td class="dehead">
-   &nbsp;<?php  xl('Practitioner','e'); ?>
-  </td>
-  <td class="dehead">
-   &nbsp;<?php  xl('Time','e'); ?>
-  </td>
-  <td class="dehead">
-   &nbsp;<?php  xl('Patient','e'); ?>
-  </td>
-  <td class="dehead" align="right">
-   <?php  xl('Chart','e'); ?>&nbsp;
-  </td>
-  <td class="dehead" align="right">
-   <?php  xl('Encounter','e'); ?>&nbsp;
-  </td>
-  <td class="dehead" align="right">
-   <?php  xl('Charges','e'); ?>&nbsp;
-  </td>
-  <td class="dehead" align="right">
-   <?php  xl('Copays','e'); ?>&nbsp;
-  </td>
-  <td class="dehead" align="center">
-   <?php  xl('Billed','e'); ?>
-  </td>
-  <td class="dehead">
-   &nbsp;<?php  xl('Error','e'); ?>
-  </td>
- </tr>
+ <thead>
+  <th> &nbsp;<?php  xl('Practitioner','e'); ?> </th>
+  <th> &nbsp;<?php  xl('Time','e'); ?> </th>
+  <th> &nbsp;<?php  xl('Patient','e'); ?> </th>
+  <th> <?php  xl('Chart','e'); ?>&nbsp; </th>
+  <th> <?php  xl('Encounter','e'); ?>&nbsp; </th>
+  <th> <?php  xl('Charges','e'); ?>&nbsp; </th>
+  <th> <?php  xl('Copays','e'); ?>&nbsp; </th>
+  <th> <?php  xl('Billed','e'); ?> </th>
+  <th> &nbsp;<?php  xl('Error','e'); ?> </th>
+ </thead>
+ <tbody>
 <?php 
  if ($res) {
   $docrow = array('docname' => '', 'charges' => 0, 'copays' => 0, 'encounters' => 0);
@@ -250,32 +296,36 @@
    if ($_POST['form_details']) {
 ?>
  <tr>
-  <td class="detail">
+  <td>
    &nbsp;<?php  echo ($docname == $docrow['docname']) ? "" : $docname ?>
   </td>
-  <td class="detail">
-   &nbsp;<?php if ($form_to_date) echo $row['pc_eventDate'] . ' ';
-    echo substr($row['pc_startTime'], 0, 5) ?>
+  <td>
+   &nbsp;<?php 
+    if ($form_to_date) {
+        echo $row['pc_eventDate'] . '<br>';
+        echo substr($row['pc_startTime'], 0, 5);
+    }
+    ?>
   </td>
-  <td class="detail">
+  <td>
    &nbsp;<?php  echo $row['fname'] . " " . $row['lname'] ?>
   </td>
-  <td class="detail" align="right">
+  <td>
    <?php  echo $row['pid'] ?>&nbsp;
   </td>
-  <td class="detail" align="right">
+  <td>
    <?php  echo $encounter ?>&nbsp;
   </td>
-  <td class="detail" align="right">
+  <td>
    <?php  bucks($charges) ?>&nbsp;
   </td>
-  <td class="detail" align="right">
+  <td>
    <?php  bucks($copays) ?>&nbsp;
   </td>
-  <td class="detail" align="center">
+  <td>
    <?php  echo $billed ?>
   </td>
-  <td class="detail" align="left">
+  <td>
    &nbsp;<?php  echo $errmsg ?>
   </td>
  </tr>
@@ -287,37 +337,45 @@
 
   endDoctor($docrow);
 
-  echo " <tr bgcolor='#77ff77'>\n";
-  echo "  <td class='detail' colspan='4'>\n";
+  echo " <tr class='apptencreport_totals'>\n";
+  echo "  <td colspan='4'>\n";
   echo "   &nbsp;Grand Totals\n";
   echo "  </td>\n";
-  echo "  <td class='detotal' align='right'>\n";
+  echo "  <td align='right'>\n";
   echo "   &nbsp;" . $grand_total_encounters . "&nbsp;\n";
   echo "  </td>\n";
-  echo "  <td class='detotal' align='right'>\n";
+  echo "  <td align='right'>\n";
   echo "   &nbsp;"; bucks($grand_total_charges); echo "&nbsp;\n";
   echo "  </td>\n";
-  echo "  <td class='detotal' align='right'>\n";
+  echo "  <td align='right'>\n";
   echo "   &nbsp;"; bucks($grand_total_copays); echo "&nbsp;\n";
   echo "  </td>\n";
-  echo "  <td class='detail' colspan='2'>\n";
+  echo "  <td colspan='2'>\n";
   echo "   &nbsp;\n";
   echo "  </td>\n";
   echo " </tr>\n";
 
  }
 ?>
-
+</tbody>
 </table>
+</div> <!-- end the apptenc_report_results -->
 
 </form>
 </center>
 <script>
-<?php 
-	if ($alertmsg) {
-		echo " alert('$alertmsg');\n";
-	}
-?>
+<?php if ($alertmsg) { echo " alert('$alertmsg');\n"; } ?>
 </script>
 </body>
+
+<!-- stuff for the popup calendar -->
+<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script language="Javascript">
+ Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
+ Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
+</script>
+
 </html>

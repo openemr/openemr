@@ -100,9 +100,9 @@ function writeFieldLine($field_id, $group, $title, $seq, $uor, $length,
 <html>
 
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
-<link rel=stylesheet href='<?php  echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 <title><?php  xl('Layout Editor','e'); ?></title>
 
 <style>
@@ -122,7 +122,7 @@ a, a:visited, a:hover { color:#0000cc; }
 
 </head>
 
-<body <?php echo $top_bg_line;?>>
+<body class="body_top">
 
 <?php
 // If we are saving, then save.

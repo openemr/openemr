@@ -16,9 +16,8 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<title><? xl('Referrals','e'); ?></title>
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<?php html_header_show();?>
+<title><?php xl('Referrals','e'); ?></title>
 
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 
@@ -31,7 +30,7 @@
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  // The OnClick handler for referral display.
  function show_referral(transid) {
@@ -41,21 +40,88 @@
  }
 
 </script>
+
+<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<style type="text/css">
+
+/* specifically include & exclude from printing */
+@media print {
+    #referreport_parameters {
+        visibility: hidden;
+        display: none;
+    }
+    #referreport_parameters_daterange {
+        visibility: visible;
+        display: inline;
+    }
+}
+
+/* specifically exclude some from the screen */
+@media screen {
+    #referreport_parameters_daterange {
+        visibility: hidden;
+        display: none;
+    }
+}
+
+#referreport_parameters {
+    width: 100%;
+    background-color: #ddf;
+}
+#referreport_parameters table {
+    border: none;
+    border-collapse: collapse;
+}
+#referreport_parameters table td {
+    padding: 3px;
+}
+
+#referreport_results {
+    width: 100%;
+    margin-top: 10px;
+}
+#referreport_results table {
+   border: 1px solid black;
+   width: 98%;
+   border-collapse: collapse;
+}
+#referreport_results table thead {
+    display: table-header-group;
+    background-color: #ddd;
+}
+#referreport_results table th {
+    border-bottom: 1px solid black;
+    font-size: 0.7em;
+}
+#referreport_results table td {
+    padding: 1px;
+    margin: 2px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.7em;
+}
+.referreport_totals td {
+    background-color: #77ff77;
+    font-weight: bold;
+}
+</style>
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
+<body class="body_top">
 
 <center>
 
 <h2><?php xl('Referrals','e'); ?></h2>
 
+<div id="referreport_parameters_daterange">
+<?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
+</div>
+
+<div id="referreport_parameters">
 <form name='theform' method='post' action='referrals_report.php'>
-
-<table border='0' cellpadding='3'>
-
+<table>
  <tr>
   <td>
-   <? xl('From','e'); ?>:
+   <?php xl('From','e'); ?>:
    <input type='text' size='10' name='form_from_date' id='form_from_date'
     value='<?php echo $from_date ?>'
     title='<?php xl('yyyy-mm-dd','e'); ?>'
@@ -63,7 +129,7 @@
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
     title='<?php xl('Click here to choose a date','e'); ?>' />
-   &nbsp;<? xl('To','e'); ?>:
+   &nbsp;<?php xl('To','e'); ?>:
    <input type='text' size='10' name='form_to_date' id='form_to_date'
     value='<?php echo $to_date ?>'
     title='<?php xl('yyyy-mm-dd','e'); ?>'
@@ -72,36 +138,24 @@
     id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
     title='<?php xl('Click here to choose a date','e'); ?>' />
    &nbsp;
-   <input type='submit' name='form_refresh' value=<? xl('Refresh','e'); ?>>
+   <input type='submit' name='form_refresh' value=<?php xl('Refresh','e'); ?>>
   </td>
  </tr>
-
- <tr>
-  <td height="1">
-  </td>
- </tr>
-
 </table>
+</div> <!-- end of parameters -->
 
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
- <tr bgcolor="#dddddd">
-  <td class="dehead" nowrap>
-   <?php xl('Refer To','e'); ?>
-  </td>
-  <td class='dehead' nowrap>
-   <?php xl('Refer Date','e'); ?>
-  </td>
-  <td class='dehead' nowrap>
-   <?php xl('Reply Date','e'); ?>
-  </td>
-  <td class='dehead' nowrap>
-   <?php xl('Patient','e'); ?>
-  </td>
-  <td class='dehead' nowrap>
-   <?php xl('Reason','e'); ?>
-  </td>
- </tr>
-<?
+
+<div id="referreport_results">
+<table>
+ <thead>
+  <th> <?php xl('Refer To','e'); ?> </th>
+  <th> <?php xl('Refer Date','e'); ?> </th>
+  <th> <?php xl('Reply Date','e'); ?> </th>
+  <th> <?php xl('Patient','e'); ?> </th>
+  <th> <?php xl('Reason','e'); ?> </th>
+ </thead>
+ <tbody>
+<?php
  if ($_POST['form_refresh']) {
   $query = "SELECT t.id, t.refer_date, t.reply_date, t.body, " .
     "ut.organization, " .
@@ -121,21 +175,21 @@
   while ($row = sqlFetchArray($res)) {
 ?>
  <tr>
-  <td class='detail'>
+  <td>
    <?php echo $row['organization'] ?>
   </td>
-  <td class='detail'>
+  <td>
    <a href='' onclick="return show_referral(<?php echo $row['id']; ?>)">
    <?php echo $row['refer_date']; ?>&nbsp;
    </a>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $row['reply_date'] ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $row['patient_name'] ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $row['body'] ?>
   </td>
  </tr>
@@ -143,8 +197,9 @@
   }
  }
 ?>
-
+</tbody>
 </table>
+</div> <!-- end of results -->
 </form>
 </center>
 

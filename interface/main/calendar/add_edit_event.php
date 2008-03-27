@@ -522,7 +522,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
 <head>
 <?php html_header_show(); ?>
 <title><?php echo $eid ? "Edit" : "Add New" ?> <?php xl('Event','e');?></title>
-<link rel=stylesheet href='<?php echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
 td { font-size:10pt; }
@@ -721,10 +721,9 @@ td { font-size:10pt; }
 
 </head>
 
-<body <?php echo $top_bg_line;?> onunload='imclosing()'>
+<body class="body_top" onunload='imclosing()'>
 
-<form method='post' name='theform' action='add_edit_event.php?eid=<?php echo $eid ?>'
- onsubmit='return validate()'>
+<form method='post' name='theform' action='add_edit_event.php?eid=<?php echo $eid ?>' onsubmit='return validate()'>
 <center>
 
 <table border='0' width='100%'>

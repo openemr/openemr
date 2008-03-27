@@ -149,9 +149,9 @@ function writeFSLine($category, $option, $codes) {
 <html>
 
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
-<link rel=stylesheet href='<?php  echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 <title><?php  xl('List Editor','e'); ?></title>
 
 <style>
@@ -237,7 +237,7 @@ function set_related(codetype, code, selector, codedesc) {
 
 </head>
 
-<body <?php echo $top_bg_line;?>>
+<body class="body_top">
 
 <?php
 // If we are saving, then save.

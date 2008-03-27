@@ -1,4 +1,4 @@
-<?
+<?php
  // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -17,86 +17,131 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<title><? xl('Patient List','e'); ?></title>
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<?php html_header_show();?>
+<title><?php xl('Patient List','e'); ?></title>
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/calendar.js"></script>
 <script type="text/javascript" src="../../library/textformat.js"></script>
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script language="JavaScript">
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 </script>
+<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<style type="text/css">
+
+/* specifically include & exclude from printing */
+@media print {
+    #patlstreport_parameters {
+        visibility: hidden;
+        display: none;
+    }
+    #patlstreport_parameters_daterange {
+        visibility: visible;
+        display: inline;
+    }
+}
+
+/* specifically exclude some from the screen */
+@media screen {
+    #patlstreport_parameters_daterange {
+        visibility: hidden;
+        display: none;
+    }
+}
+
+#patlstreport_parameters {
+    width: 100%;
+    background-color: #ddf;
+}
+#patlstreport_parameters table {
+    border: none;
+    border-collapse: collapse;
+}
+#patlstreport_parameters table td {
+    padding: 3px;
+}
+
+#patlstreport_results {
+    width: 100%;
+    margin-top: 10px;
+}
+#patlstreport_results table {
+   border: 1px solid black;
+   width: 98%;
+   border-collapse: collapse;
+}
+#patlstreport_results table thead {
+    display: table-header-group;
+    background-color: #ddd;
+}
+#patlstreport_results table th {
+    border-bottom: 1px solid black;
+}
+#patlstreport_results table td {
+    padding: 1px;
+    margin: 2px;
+    border-bottom: 1px solid #eee;
+}
+.patlstreport_totals td {
+    background-color: #77ff77;
+    font-weight: bold;
+}
+</style>
+
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
+<body class="body_top">
 
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
 <center>
 
-<h2><? xl('Patient List','e'); ?></h2>
+<h2><?php xl('Patient List','e'); ?></h2>
+
+<div id="patlstreport_parameters_daterange">
+<?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
+</div>
+
+<div id="patlstreport_parameters">
 
 <form name='theform' method='post' action='patient_list.php'>
 
-<table border='0' cellpadding='3'>
-
+<table>
  <tr>
   <td>
-   <? xl('Visits From','e'); ?>:
-   <input type='text' name='form_from_date' size='10' value='<? echo $from_date ?>'
+   <?php xl('Visits From','e'); ?>:
+   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-   <a href="javascript:show_calendar('theform.form_from_date')"
-    title=".xl('Click here to choose a date')."
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
-   &nbsp;<? xl('To','e'); ?>:
-   <input type='text' name='form_to_date' size='10' value='<? echo $to_date ?>'
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
+   &nbsp;<?php xl('To','e'); ?>:
+   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $to_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-   <a href="javascript:show_calendar('theform.form_to_date')"
-    title=".xl('Click here to choose a date')."
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
    &nbsp;
-   <input type='submit' name='form_refresh' value=<? xl('Refresh','e'); ?>>
+   <input type='submit' name='form_refresh' value=<?php xl('Refresh','e'); ?>>
   </td>
  </tr>
-
- <tr>
-  <td height="1">
-  </td>
- </tr>
-
 </table>
+</div> <!-- end of parameters -->
 
-<table border='0' cellpadding='1' cellspacing='3' width='98%'>
-
- <tr bgcolor="#dddddd">
-  <td class="dehead">
-   <? xl('Last Visit','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('Patient','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('Street','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('City','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('State','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('Zip','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('Home Phone','e'); ?>
-  </td>
-  <td class='dehead'>
-   <? xl('Work Phone','e'); ?>
-  </td>
- </tr>
-<?
+<div id="patlstreport_results">
+<table>
+ <thead>
+  <th> <?php xl('Last Visit','e'); ?> </th>
+  <th> <?php xl('Patient','e'); ?> </th>
+  <th> <?php xl('Street','e'); ?> </th>
+  <th> <?php xl('City','e'); ?> </th>
+  <th> <?php xl('State','e'); ?> </th>
+  <th> <?php xl('Zip','e'); ?> </th>
+  <th> <?php xl('Home Phone','e'); ?> </th>
+  <th> <?php xl('Work Phone','e'); ?> </th>
+ </thead>
+ <tbody>
+<?php
  if ($_POST['form_refresh']) {
   $totalpts = 0;
 
@@ -167,28 +212,28 @@
    }
 ?>
  <tr>
-  <td class='detail'>
+  <td>
    <?php echo substr($row['edate'], 0, 10) ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $row['street'] ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $row['city'] ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $row['state'] ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $row['postal_code'] ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $row['phone_home'] ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $row['phone_biz'] ?>
   </td>
  </tr>
@@ -197,17 +242,10 @@
   }
 ?>
 
- <tr>
-  <td class='dehead' colspan='8'>
-   &nbsp;
-  </td>
- </tr>
-
- <tr>
-  <td class='dehead' colspan='3'>
-   <? xl('Total Number of Patients','e'); ?>
-  </td>
-  <td class='detail' colspan='4'>
+ <tr class="patlstreport_totals">
+  <td colspan='8'>
+   <?php xl('Total Number of Patients','e'); ?>
+   :
    <?php echo $totalpts ?>
   </td>
  </tr>
@@ -215,9 +253,20 @@
 <?php
  }
 ?>
-
+</tbody>
 </table>
+</div> <!-- end of results -->
 </form>
 </center>
 </body>
+
+<!-- stuff for the popup calendar -->
+<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script language="Javascript">
+ Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
+ Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
+</script>
 </html>

@@ -27,19 +27,80 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<title><? xl('Front Office Receipts','e'); ?></title>
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<?php html_header_show();?>
+<title><?php xl('Front Office Receipts','e'); ?></title>
+
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/calendar.js"></script>
 <script type="text/javascript" src="../../library/textformat.js"></script>
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script language="JavaScript">
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 </script>
+
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<style type="text/css">
+
+/* specifically include & exclude from printing */
+@media print {
+    #unipatreport_parameters {
+        visibility: hidden;
+        display: none;
+    }
+    #unipatreport_parameters_daterange {
+        visibility: visible;
+        display: inline;
+    }
+}
+
+/* specifically exclude some from the screen */
+@media screen {
+    #unipatreport_parameters_daterange {
+        visibility: hidden;
+        display: none;
+    }
+}
+
+#unipatreport_parameters {
+    width: 100%;
+    background-color: #ddf;
+}
+#unipatreport_parameters table {
+    border: none;
+    border-collapse: collapse;
+}
+#unipatreport_parameters table td {
+    padding: 3px;
+}
+
+#unipatreport_results {
+    width: 100%;
+    margin-top: 10px;
+}
+#unipatreport_results table {
+   border: 1px solid black;
+   width: 98%;
+   border-collapse: collapse;
+}
+#unipatreport_results table thead {
+    display: table-header-group;
+    background-color: #ddd;
+}
+#unipatreport_results table th {
+    border-bottom: 1px solid black;
+}
+#unipatreport_results table td {
+    padding: 1px;
+    margin: 2px;
+    border-bottom: 1px solid #eee;
+}
+.unipatreport_totals td {
+    background-color: #77ff77;
+    font-weight: bold;
+}
+</style>
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
+<body class="body_top">
 
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
@@ -48,65 +109,49 @@
 
 <h2><?php xl('Unique Seen Patients','e'); ?></h2>
 
+<div id="unipatreport_parameters_daterange">
+<?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
+</div>
+
+<div id="unipatreport_parameters">
 <form name='theform' method='post' action='unique_seen_patients_report.php'>
-
-<table border='0' cellpadding='3'>
-
+<table>
  <tr>
   <td>
-   <? xl('Visits From','e'); ?>:
-   <input type='text' name='form_from_date' size='10' value='<? echo $from_date ?>'
+   <?php xl('Visits From','e'); ?>:
+   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-   <a href="javascript:show_calendar('theform.form_from_date')"
-    title=".xl('Click here to choose a date')."
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
-   &nbsp;<? xl('To','e'); ?>:
-   <input type='text' name='form_to_date' size='10' value='<? echo $to_date ?>'
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
+   &nbsp;<?php xl('To','e'); ?>:
+   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $to_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-   <a href="javascript:show_calendar('theform.form_to_date')"
-    title=".xl('Click here to choose a date')."
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
    &nbsp;
-   <input type='submit' name='form_refresh' value=<? xl('Refresh','e'); ?>> &nbsp;
-   <input type='submit' name='form_labels' value=<? xl('Labels','e'); ?>>
+   <input type='submit' name='form_refresh' value=<?php xl('Refresh','e'); ?>> &nbsp;
+   <input type='submit' name='form_labels' value=<?php xl('Labels','e'); ?>>
   </td>
  </tr>
-
- <tr>
-  <td height="1">
-  </td>
- </tr>
-
 </table>
+</div> <!-- end of parameters -->
 
-<table border='0' cellpadding='1' cellspacing='3' width='98%'>
+<div id="unipatreport_results">
+<table>
 
- <tr bgcolor="#dddddd">
-  <td class="dehead">
-   <?php xl('Last Visit','e'); ?>
-  </td>
-  <td class='dehead'>
-   <?php xl('Patient','e'); ?>
-  </td>
-  <td class='dehead' align='right'>
-   <?php xl('Visits','e'); ?>
-  </td>
-  <td class='dehead' align='right'>
-   <?php xl('Age','e'); ?>
-  </td>
-  <td class='dehead'>
-   <?php xl('Sex','e'); ?>
-  </td>
-  <td class='dehead'>
-   <?php xl('Race','e'); ?>
-  </td>
-  <td class='dehead'>
-   <?php xl('Primary Insurance','e'); ?>
-  </td>
-  <td class='dehead'>
-   <?php xl('Secondary Insurance','e'); ?>
-  </td>
- </tr>
+ <thead>
+  <th> <?php xl('Last Visit','e'); ?> </th>
+  <th> <?php xl('Patient','e'); ?> </th>
+  <th align='right'> <?php xl('Visits','e'); ?> </th>
+  <th align='right'> <?php xl('Age','e'); ?> </th>
+  <th> <?php xl('Sex','e'); ?> </th>
+  <th> <?php xl('Race','e'); ?> </th>
+  <th> <?php xl('Primary Insurance','e'); ?> </th>
+  <th> <?php xl('Secondary Insurance','e'); ?> </th>
+ </thead>
+ <tbody>
 <?php
  } // end not generating labels
 
@@ -160,28 +205,28 @@
    else { // not labels
 ?>
  <tr>
-  <td class='detail'>
+  <td>
    <?php echo substr($row['edate'], 0, 10) ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] ?>
   </td>
-  <td class='detail' align='right'>
+  <td style="text-align:center">
    <?php echo $row['ecount'] ?>
   </td>
-  <td class='detail' align='right'>
+  <td>
    <?php echo $age ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $row['sex'] ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $row['ethnoracial'] ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $row['cname1'] ?>
   </td>
-  <td class='detail'>
+  <td>
    <?php echo $row['cname2'] ?>
   </td>
  </tr>
@@ -192,19 +237,14 @@
 
   if (!$_POST['form_labels']) {
 ?>
- <tr>
-  <td class='dehead' colspan='8'>
-   &nbsp;
+ <tr class='unipatreport_totals'>
+  <td colspan='2'>
+   <?php xl('Total Number of Patients','e'); ?>
   </td>
- </tr>
-
- <tr>
-  <td class='dehead' colspan='3'>
-   <? xl('Total Number of Patients','e'); ?>
-  </td>
-  <td class='detail' colspan='4'>
+  <td style="padding-left: 20px;">
    <?php echo $totalpts ?>
   </td>
+  <td colspan='5'>&nbsp;</td>
  </tr>
 
 <?php
@@ -213,11 +253,22 @@
 
  if (!$_POST['form_labels']) {
 ?>
-
+</tbody>
 </table>
+</div>
 </form>
 </center>
 </body>
+
+<!-- stuff for the popup calendar -->
+<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script language="Javascript">
+ Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
+ Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
+</script>
 </html>
 <?php
  } // end not labels

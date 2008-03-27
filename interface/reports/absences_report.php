@@ -16,17 +16,17 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <title><?php xl('Absences by Diagnosis','e'); ?></title>
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/calendar.js"></script>
 <script type="text/javascript" src="../../library/textformat.js"></script>
 <script language="JavaScript">
  var mypcc = '<?php  echo $GLOBALS['phone_country_code'] ?>';
 </script>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
+<body class="body_top">
 
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
@@ -49,15 +49,15 @@
    <?php  xl('From:','e'); ?>
    <input type='text' name='form_from_date' size='10' value='<?php  echo $from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-   <a href="javascript:show_calendar('theform.form_from_date')"
-    title=".xl('Click here to choose a date')."
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
    &nbsp;<?php  xl('To:','e'); ?>
    <input type='text' name='form_to_date' size='10' value='<?php  echo $to_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-   <a href="javascript:show_calendar('theform.form_to_date')"
-    title=".xl('Click here to choose a date')."
-    ><img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0'></a>
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
    &nbsp;
    <input type='submit' name='form_refresh' value='<?php  xl('Refresh','e'); ?>'>
   </td>
@@ -163,4 +163,13 @@
 </form>
 </center>
 </body>
+<!-- stuff for the popup calendar -->
+<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script language="Javascript">
+ Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
+ Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
+</script>
 </html>
