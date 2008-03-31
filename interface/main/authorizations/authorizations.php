@@ -35,7 +35,7 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 <html>
 <head>
 <?php html_header_show();?>
-<link rel='stylesheet' href="<?echo $css_header;?>" type="text/css">
+<link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
 <style>
 #min {
