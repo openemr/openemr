@@ -1,27 +1,23 @@
 [-*Smarty*-]
-<html>
-<head>
-<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/js/jquery-1.2.2.min.js"></script>
-
-<link rel="stylesheet" href="[-php-]global $css_header; echo $css_header [-/php-]" type="text/css">
+[-include file="$TPL_NAME/views/header.html"-]
 
 [-* we want to include our stylesheet for this view*-]
 <link rel="stylesheet" href="[-$TPL_STYLE_PATH-]/ajax_search.css" type="text/css">
+
+<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/js/jquery-1.2.2.min.js"></script>
+
+<!-- js for the popup window -->
+<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/dialog.js"></script>
 
 <!-- main navigation -->
 [-*Load the Language Definitions*-]
 [-config_load file="lang.$USER_LANG"-]
 
-</head>
-<body class="">
-
 <!-- search parameters -->
-<div id="search_params">
-<table>
-<tr><td>
-<form name="search" action="[-$FORM_ACTION-]" method="POST" onsubmit="return top.restoreSession()">
-<br />
-[-#_PC_SEARCH_KEYWORDS#-]: <input type="text" name="pc_keywords" value="" />
+<h2>Searching for appointments</h2>
+<div id="calsearch_params">
+<form name="theform" id="theform" action="[-$FORM_ACTION-]" method="POST"> <!-- onsubmit="return top.restoreSession()"> -->
+[-#_PC_SEARCH_KEYWORDS#-]: <input type="text" name="pc_keywords" id="pc_keywords" value="[-php-]echo $_POST['pc_keywords'];[-/php-]" />
 <select name="pc_keywords_andor">
     <option value="AND">[-#_PC_SEARCH_AND#-]</option>
     <option value="OR">[-#_PC_SEARCH_OR#-]</option>
@@ -37,86 +33,146 @@
     [-$TOPIC_OPTIONS-]
 </select>
 [-/if-]
-<input type="submit" name="submit" value="[-#_PC_SUBMIT#-]" />
+<br>
+between 
+<input type="text" name="start" id="start" value="[-$DATE_START-]" size="10"/>
+<img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_from_date' border='0' alt='[?]' style='cursor:pointer' title='[-php-] xl('Click here to choose a date','e'); [-/php-]'>
+and 
+<input type="text" name="end" id="end" value="[-$DATE_END-]" size="10"/>
+<img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_to_date' border='0' alt='[?]' style='cursor:pointer' title='[-php-] xl('Click here to choose a date','e'); [-/php-]'>
+<br>
+for
+<select name="provider_id" id="provider_id">
+[-$PROVIDER_OPTIONS-]
+</select>
+at
+<select name="pc_facility" id="pc_facility">
+[-$FACILITY_OPTIONS-]
+</select>
+<input type="submit" name="submit" id="submit" value="[-#_PC_SUBMIT#-]" />
+<div id="calsearch_status"><img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/ajax-loader.gif'> Searching...</div>
 </form>
-</td></tr>
-</table>
 </div>
 <!-- end of search parameters -->
 
 [-if $SEARCH_PERFORMED-]
-<br />
-[-*We should have results and should display them*-]
-[-counter start=0 print=false assign="eventCount"-]
-[-pc_sort_events var="S_EVENTS" sort="category" order="asc" value=$A_EVENTS-]
-[-foreach name=dates item=date key=cdate from=$S_EVENTS-]
-    [-if $date|@count > 0-]
-    [-assign var="dayname" value=$cdate|date_format:"%w"-]
-    [-assign var="day" value=$cdate|date_format:"%d"|string_format:"%1d"-]
-    [-assign var="month" value=$cdate|date_format:"%m"|string_format:"%1d"-]
-    [-assign var="month" value=$month-1-]
-    [-assign var="year" value=$cdate|date_format:"%Y"|string_format:"%4d"-]
-    <table width="100%" border="0" cellpadding="5" cellspacing="0" class="dayheader">
-        <tr>
-            <td width="100%">
-                <a href="[-pc_url action=day date=$cdate-]" onclick="top.restoreSession()">
-            [-if $USE_INT_DATES eq true-]
-                [-pc_date_format date=$cdate format="%A, %d %B %Y"-]
-            [-else-]    
-                [-pc_date_format date=$cdate format="%A, %B %d %Y"-]
-            [-/if-]</a>
-            </td>
-        </tr>
-    </table>
-    <table width="100%" border="0" cellpadding="5" cellspacing="0" class="calcontainer">
-        <tr>
-            <td width="100%" class="eventslist">
-                [-assign var="oldCat" value=""-]
-                [-foreach name=events item=event from=$date-]
-                    [-counter-]
-                    [-assign var="cCat" value=$event.catname-]
-                    [-if $oldCat != $cCat-]
-                    [-if $smarty.foreach.events.first != true-]
-                        </div>
-                    [-/if-]
-                    <div width="100%" style="padding: 2px; background-color: [-$event.catcolor-];">
-                        [-$event.catname-]
-                    </div>
-                    <div width="100%" style="padding: 2px; border:solid 1px [-$event.catcolor-];">
-                    [-/if-]
-                    [-if $24HOUR_TIME-]
-                        [-assign var="timestamp" value=$event.startTime|date_format:"%H:%M"-]
-                    [-else-]
-                        [-assign var="timestamp" value=$event.startTime|date_format:"%I:%M %p"-]
-                    [-/if-]
-                    [-if $event.alldayevent != true-]
-                        [-$timestamp-]
-                    [-/if-]
-                    <a href="[-pc_url action=detail eid=$event.eid date=$cdate-]" onclick="top.restoreSession()"
-                    [-pc_popup delay="500"
-                               bgcolor=$event.catcolor
-                               caption=$event.title
-                               text=$event.hometext-]>
-                    [-$event.title|strip_tags-]</a>
-                    [-if $event.alldayevent != true-]
-                        ([-$event.duration_hours-]:[-$event.duration_minutes-])
-                    [-/if-]
-                    [-include file="$TPL_NAME/user/patient_line.html" event=$event show_patient=true show_icons=true show_provider=true-]
-                    <br />
-                    [-assign var="oldCat" value=$event.catname-]
-                    [-if $smarty.foreach.events.last-]
-                        [-* we need to close out the <div> tag *-]
-                        </div>
-                    [-/if-]
-                [-/foreach-]
-            </td>
-        </tr>
-    </table>
-    [-/if-]
-[-/foreach-]
-[-if $eventCount == 0-]
-[-#_PC_SEARCH_NO_RESULTS#-]
-[-/if-]
-[-/if-]
+<div id="calsearch_results">
+
+<div id="calsearch_results_header">
+<table>
+<tr>
+<th class="calsearch_datetime">Date-Time</th>
+<th class="calsearch_provider">Provider</th>
+<th class="calsearch_category">Category</th>
+<th class="calsearch_patient">Patient</th>
+</tr>
+</table>
+</div>
+
+<div id="calsearch_results_data">
+<table>
+[-php-]
+/* I've given up on playing nice with the Smarty tag crap, it's pointlessly used
+ * in the original search. I mean, there's no clean separation between the code
+ * and HTML so we may as well just go full-bore PHP here -- JRM March 2008
+ */
+
+if (count($A_EVENTS) == 0) {
+    echo "<tr><td colspan='4'>No Results</td></tr>";
+}
+
+
+foreach ($A_EVENTS as $eDate => $date_events) {
+    foreach ($date_events as $event) {
+        $eData = $event['eid']."~";
+        $trTitle = "Click to edit this event";
+        echo "<tr class='calsearch_event' id='".$eData."' title='".$trTitle."'>";
+
+        // date and time
+        $eDatetime = strtotime($eDate." ".$event['startTime']);
+        echo "<td class='calsearch_datetime'>";
+        echo date("Y-m-d h:i a", $eDatetime);
+        echo "</td>";
+
+        // provider
+        echo "<td class='calsearch_provider'>".$event['provider_name']." </td>";
+
+        // category
+        echo "<td class='calsearch_category'>";
+        echo $event['catname'];
+        echo " </td>";
+
+        // patient
+        echo "<td class='calsearch_patient'>";
+        echo $event['patient_name'];
+        echo "</td>";
+/*
+        echo "<td>";
+        print_r($event);
+        echo "</td>";
+*/
+        echo "</tr>\n";
+    }
+}
+[-/php-]
+</table>
+</div>  <!-- end results-data DIV -->
+
+</div>  <!-- end outer results DIV -->
+
+[-/if-]  [-*end of SEARCH_PERFORMED*-]
+
+<!-- stuff for the popup calendar -->
+<style type="text/css">@import url([-php-] echo $GLOBALS['webroot'] [-/php-]/library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/dynarch_calendar_setup.js"></script>
+<script language="Javascript">
+ Calendar.setup({inputField:"start", ifFormat:"%m/%d/%Y", button:"img_from_date"});
+ Calendar.setup({inputField:"end", ifFormat:"%m/%d/%Y", button:"img_to_date"});
+</script>
+
+<script language="javascript">
+// jQuery stuff to make the page a little easier to use
+
+$(document).ready(function(){
+    $("#pc_keywords").focus();
+    $("#theform").submit(function() { SubmitForm(this); });
+    $(".calsearch_event").mouseover(function() { $(this).toggleClass("highlight"); });
+    $(".calsearch_event").mouseout(function() { $(this).toggleClass("highlight"); });
+    //$(".calsearch_event").mouseover(function() { $(this).toggleClass("highlight"); $(this).children().toggleClass("highlight"); });
+    //$(".calsearch_event").mouseout(function() { $(this).toggleClass("highlight"); $(this).children().toggleClass("highlight"); });
+    $(".calsearch_event").click(function() { EditEvent(this); });
+});
+
+// open a pop up to edit the event
+// parts[] ==>  0=eventID
+var EditEvent = function (eObj) {
+    objID = eObj.id;
+    var parts = objID.split("~");
+    dlgopen('add_edit_event.php?eid=' + parts[0], '_blank', 550, 270);
+}
+
+// show the 'searching...' status and submit the form
+var SubmitForm = function(eObj) {
+    $("submit").css("disabled", "true");
+    $("#calsearch_status").css("visibility", "visible");
+    return top.restoreSession();
+}
+
+function goPid(pid) {
+    top.restoreSession();
+    [-php-]
+    if ($GLOBALS['concurrent_layout']) {
+        echo "top.RTop.location = '../../patient_file/summary/demographics.php' " .
+            "+ '?set_pid=' + pid;\n";
+    } else {
+        echo "top.location = '../../patient_file/patient_file.php' " .
+            "+ '?set_pid=' + pid + '&pid=' + pid;\n";
+    }
+    [-/php-]
+ }
+</script>
+
 [-*include file="$TPL_NAME/views/footer.html"*-]
 
