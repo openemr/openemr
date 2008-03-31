@@ -18,6 +18,7 @@
 [-*Values used in setting timeslot and event heights*-]
 [-php-]$timeslotHeightVal=20; $timeslotHeightUnit="px";[-/php-]
 
+<link rel="stylesheet" href="[-php-]echo $css_header;[-/php-]" type="text/css">
 <style>
 a {
  text-decoration:none;
@@ -53,6 +54,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 }
 #viewPicker {
     float: right;
+    margin-right: 10px;
 }
 #datePicker {
     width: 25%;
@@ -245,12 +247,13 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     width: 100%;
     font-size: 0.8em;
 }
+.event_highlight { font-weight: bold; }
 </style>
 
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
 
-<script type="text/javascript" src="../../../library/js/jquery-1.2.2.min.js"></script>
+<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/js/jquery-1.2.2.min.js"></script>
 
 <script language='JavaScript'>
 
@@ -369,8 +372,8 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 <input type="hidden" name="viewtype" id="viewtype" value="[-php-]echo $viewtype;[-/php-]">
 [-php-]
 echo "   <input type='button' value='" .xl ("Add"). "' onclick='newEvt(1, 9, 00, $Date, 0, 0)' />\n";
-//echo "   <input type='button' value='" . xl ("Search") .
-//    "' onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"' />\n";
+echo "   <input type='button' value='" . xl ("Search") .
+    "' onclick='top.restoreSession();location=\"index.php?module=PostCalendar&func=search\"' />\n";
 [-/php-]
 </div>
 
@@ -881,6 +884,8 @@ echo "<P>";
         $(".tdDatePicker").click(function() { ChangeDate(this); });
         $("#print").click(function() { PrintView(this); });
         $(".event").dblclick(function() { EditEvent(this); });
+        $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
+        $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
     });
 
     /* edit an existing event */
