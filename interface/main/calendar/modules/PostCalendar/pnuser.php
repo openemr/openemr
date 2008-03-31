@@ -846,29 +846,69 @@ function postcalendar_user_search()
     $k = pnVarCleanFromInput('pc_keywords');
     $k_andor = pnVarCleanFromInput('pc_keywords_andor');
     $pc_category = pnVarCleanFromInput('pc_category');
+    $pc_facility = pnVarCleanFromInput('pc_facility');
     $pc_topic = pnVarCleanFromInput('pc_topic');
     $submit = pnVarCleanFromInput('submit');
     $event_dur_hours = pnVarCleanFromInput('event_dur_hours');
     $event_dur_minutes = pnVarCleanFromInput('event_dur_minutes');
+    $start = pnVarCleanFromInput('start');
+    $end = pnVarCleanFromInput('end');
 
+    // get list of categories for the user to choose from
     $categories = postcalendar_userapi_getCategories();
     $cat_options = '';
     foreach($categories as $category) {
-        $cat_options .= "<option value=\"$category[id]\">$category[name]</option>";
+        $selected = "";
+        if ($pc_category == $category[id]) { $selected = " SELECTED "; }
+        $cat_options .= "<option value=\"$category[id]\" $selected>$category[name]</option>";
     }
     $tpl->assign_by_ref('CATEGORY_OPTIONS',$cat_options);
+
     $tpl->assign('event_dur_hours', $event_dur_hours);
     $tpl->assign('event_dur_minutes', $event_dur_minutes);
 
+    // create default start and end dates for the search form
+    if (isset($start) && $start != "") $tpl->assign('DATE_START', $start);
+    else $tpl->assign('DATE_START', date("m/d/Y"));
+    if (isset($end) && $end!= "") $tpl->assign('DATE_END', $end);
+    else $tpl->assign('DATE_END', date("m/d/Y", strtotime("+7 Days", time())));
+
+    // then override the setting if we have a value from the submitted form
     $ProviderID = pnVarCleanFromInput("provider_id");
-    if (is_numeric($ProviderID)) {
-      $tpl->assign('ProviderID',            $ProviderID);;
-    }
-    else {
-      $tpl->assign('ProviderID',            "");
-    }
+    if (is_numeric($ProviderID)) { $tpl->assign('ProviderID', $ProviderID);; }
+    else { $tpl->assign('ProviderID', ""); }
+
     $provinfo = getProviderInfo();
-    $tpl->assign('providers',                $provinfo);
+    $tpl->assign('providers', $provinfo);
+    // build a list of provider-options for the select box on the input form -- JRM
+    //$provider_options = "<option value=''>All Providers</option>";
+    foreach ($provinfo as $provider) {
+        $selected = "";
+        // if we don't have a ProviderID chosen, pick the first one from the 
+        // pc_username Session variable
+        if ($ProviderID == "") {
+            // that variable stores the 'username' and not the numeric 'id'
+            if ($_SESSION['pc_username'][0] == $provider['username']) {
+                $selected = " SELECTED ";
+            }
+        }
+        else if ($ProviderID == $provider['id']) { $selected = " SELECTED "; }
+        $provider_options .= "<option value=\"".$provider['id']."\" ".$selected.">";
+        $provider_options .= $provider['lname'].", ".$provider['fname']."</option>";
+    }
+    $tpl->assign_by_ref('PROVIDER_OPTIONS',$provider_options);
+
+    // build a list of facility options for the select box on the input form -- JRM
+    $facilities = getFacilities();
+    $fac_options = "<option value=''>All Facilities</option>";
+    foreach ($facilities as $facility) {
+        $selected = "";
+        if ($facility['id'] == $pc_facility) $selected = " SELECTED ";
+        $fac_options .= "<option value=\"".$facility['id']."\" ".$selected.">";
+        $fac_options .= $facility['name']."</option>";
+    }
+    $tpl->assign_by_ref('FACILITY_OPTIONS',$fac_options);
+
     $PatientID = pnVarCleanFromInput("patient_id");
     // limit the number of results returned by getPatientPID
     // this helps to prevent the server from stalling on a request with
@@ -954,7 +994,7 @@ function postcalendar_user_search()
     //  Perform the search if we have data
     //=================================================================
     if(!empty($submit) && strtolower($submit) == "find first") {
-
+        // not sure how we get here...
         $searchargs = array();
         $searchargs['start'] = pnVarCleanFromInput("event_startmonth") . "/" . pnVarCleanFromInput("event_startday") ."/". pnVarCleanFromInput("event_startyear");
         $searchargs['end'] = pnVarCleanFromInput("event_endmonth") . "/" . pnVarCleanFromInput("event_endday") ."/". pnVarCleanFromInput("event_endyear");
@@ -980,7 +1020,7 @@ function postcalendar_user_search()
         $tpl->assign('A_EVENTS',$eventsByDate);
     }
     if(!empty($submit) && strtolower($submit) == "listapps") {
-
+        // not sure how we get here...
         $searchargs = array();
         $searchargs['start'] = date("m/d/Y");
         $searchargs['end'] = date("m/d/Y",strtotime("+1 year",strtotime($searchargs['start'])));
@@ -1000,6 +1040,9 @@ function postcalendar_user_search()
         $tpl->assign('A_EVENTS',$eventsByDate);
     }
     elseif(!empty($submit)) {
+
+
+        // we get here by searching via the PostCalendar search
         $sqlKeywords = '';
         $keywords = explode(' ',$k);
         // build our search query
@@ -1029,7 +1072,32 @@ function postcalendar_user_search()
         if(!empty($sqlKeywords)) $searchargs['s_keywords'] = $sqlKeywords;
         if(!empty($s_category)) $searchargs['s_category'] = $s_category;
         if(!empty($s_topic)) $searchargs['s_topic'] = $s_topic;
+        
+        // some new search parameters introduced in the ajax_search form...  JRM March 2008
+        
+        // the ajax_search form has form parameters for 'start' and 'end' already built in
+        // so use them if available
+        $tmpDate = pnVarCleanFromInput("start");
+        if (isset($tmpDate) && $tmpDate != "")
+            $searchargs['start'] = pnVarCleanFromInput("start");
+        else $searchargs['start'] = "//";
+        $tmpDate = pnVarCleanFromInput("end");
+        if (isset($tmpDate) && $tmpDate != "")
+            $searchargs['end'] = pnVarCleanFromInput("end");
+        else $searchargs['end'] = "//";
+
+        // we can limit our search by provider -- JRM March 2008
+        if (isset($ProviderID) && $ProviderID!= "") {
+            $searchargs['provider_id'] = array();
+            array_push($searchargs['provider_id'], $ProviderID);
+        }
         $eventsByDate =& postcalendar_userapi_pcGetEvents($searchargs);
+
+        // we can limit our search by facility -- JRM March 2008
+        if (isset($pc_facility) && $pc_facility != "") {
+            $searchargs['pc_facility'] = $pc_facility;
+        }
+
         //print_r($eventsByDate);
         $tpl->assign('SEARCH_PERFORMED',true);
         $tpl->assign('A_EVENTS',$eventsByDate);
