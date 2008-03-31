@@ -38,17 +38,20 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 <link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
 <style>
+/* min & max buttons are hidden in the newer concurrent layout */
 #min {
     float: right;
     padding: 3px;
     margin: 2px;
     cursor: pointer; cursor: hand;
+    <?php if ($GLOBALS['concurrent_layout']) echo "display: none;"; ?>
 }
 #max {
     float: right;
     padding: 3px;
     margin: 2px;
     cursor: pointer; cursor: hand;
+    <?php if ($GLOBALS['concurrent_layout']) echo "display: none;"; ?>
 }
 </style>
 </head>
@@ -302,7 +305,7 @@ $(document).ready(function(){
     $("#findpatients").click(function() { RestoreFrame(this); document.location.href='../calendar/find_patient.php?no_nav=1&mode=reset'; return true; });
 
     var frmset = parent.document.getElementById('Main');
-    origRows = frmset.rows;
+    origRows = frmset.rows;  // save the original frameset sizes
 });
 
 var MinimizeFrame = function(eventObject) {
