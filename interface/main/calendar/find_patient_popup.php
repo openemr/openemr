@@ -73,6 +73,7 @@ form {
     overflow: auto;
 }
 
+/* search results column widths */
 .srName { width: 30%; }
 .srPhone { width: 21%; }
 .srSS { width: 17%; }
@@ -94,22 +95,25 @@ form {
 }
 .oneResult { }
 .billing { color: red; font-weight: bold; }
-#tooManyResults {
+
+/* for search results or 'searching' notification */
+#searchstatus {
     font-size: 0.8em;
     font-weight: bold;
     padding: 1px 1px 10px 1px;
     font-style: italic;
     color: black;
-    background-color: #fc0;
+    text-align: center;
 }
-#howManyResults {
-    font-size: 0.8em;
-    font-weight: bold;
-    padding: 1px 1px 10px 1px;
-    font-style: italic;
-    color: black;
-    background-color: #9f6;
+.noResults { background-color: #ccc; }
+.tooManyResults { background-color: #fc0; }
+.howManyResults { background-color: #9f6; }
+#searchspinner { 
+    display: inline;
+    visibility: hidden;
 }
+
+/* highlight for the mouse-over */
 .highlight {
     background-color: #336699;
     color: white;
@@ -136,7 +140,7 @@ form {
 <body class="body_top">
 
 <div id="searchCriteria">
-<form method='post' name='theform' action='find_patient_popup.php?'>
+<form method='post' name='theform' id="theform" action='find_patient_popup.php?'>
    <?php xl('Search by:','e'); ?>
    <select name='searchby'>
     <option value="Last"><?php xl ('Name','e'); ?></option>
@@ -150,18 +154,24 @@ form {
    <input type='text' id='searchparm' name='searchparm' size='12' value='<?php echo $_REQUEST['searchparm']; ?>'
     title='<?php xl('If name, any part of lastname or lastname,firstname','e'); ?>'>
    &nbsp;
-   <input type='submit' value='<?php xl('Search','e'); ?>'>
+   <input type='submit' id="submitbtn" value='<?php xl('Search','e'); ?>'>
    <!-- &nbsp; <input type='button' value='<?php xl('Close','e'); ?>' onclick='window.close()' /> -->
+   <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
 </form>
 </div>
 
-<?php if (isset($result)): ?>
 
-<?php if (count($result)>=100): ?>
-<div id="tooManyResults">More than 100 records found. Please narrow your search criteria.</div>
-<?php else: ?>
-<div id="howManyResults"><?php echo count($result); ?> records found.</div>
+<?php if (! isset($_REQUEST['searchparm'])): ?>
+<div id="searchstatus">Enter your search criteria above</div>
+<?php elseif (count($result) == 0): ?>
+<div id="searchstatus" class="noResults">No records found. Please expand your search criteria.</div>
+<?php elseif (count($result)>=100): ?>
+<div id="searchstatus" class="tooManyResults">More than 100 records found. Please narrow your search criteria.</div>
+<?php elseif (count($result)<100): ?>
+<div id="searchstatus" class="howManyResults"><?php echo count($result); ?> records found.</div>
 <?php endif; ?>
+
+<?php if (isset($result)): ?>
 
 <div id="searchResultsHeader">
 <table>
@@ -216,7 +226,16 @@ $(document).ready(function(){
     $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").click(function() { SelectPatient(this); });
     //$(".event").dblclick(function() { EditEvent(this); });
+    $("#theform").submit(function() { SubmitForm(this); });
 });
+
+// show the 'searching...' status and submit the form
+var SubmitForm = function(eObj) {
+    $("#submitbtn").css("disabled", "true");
+    $("#searchspinner").css("visibility", "visible");
+    return true;
+}
+
 
 // another way to select a patient from the list of results
 // parts[] ==>  0=PID, 1=LName, 2=FName, 3=DOB

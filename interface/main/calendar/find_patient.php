@@ -146,30 +146,30 @@ form {
 }
 .oneResult { }
 .billing { color: red; font-weight: bold; }
-#tooManyResults {
+/* for search results or 'searching' notification */
+#searchstatus {
     font-size: 0.8em;
     font-weight: bold;
     padding: 1px 1px 10px 1px;
     font-style: italic;
     color: black;
-    background-color: #fc0;
+    text-align: center;
 }
-#howManyResults {
-    font-size: 0.8em;
-    font-weight: bold;
-    padding: 1px 1px 10px 1px;
-    font-style: italic;
-    color: black;
-    background-color: #9f6;
+.noResults { background-color: #ccc; }
+.tooManyResults { background-color: #fc0; }
+.howManyResults { background-color: #9f6; }
+#searchspinner { 
+    display: inline;
+    visibility: hidden;
 }
+
 .highlight {
     background-color: #336699;
     color: white;
 }
 </style>
 
-
-<script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
 
 <script language='JavaScript'>
@@ -207,7 +207,7 @@ form {
 <?php  } ?>
 
 <div id="searchCriteria">
-<form method='post' name='findpatientform' action='find_patient.php?no_nav=1'>
+<form method='post' id="theform" name='findpatientform' action='find_patient.php?no_nav=1'>
    <input type='hidden' name='mode' value="findpatient">
    <?php xl('Search by:','e'); ?>
    <select name='findBy'>
@@ -221,13 +221,19 @@ form {
  <?php xl('for:','e'); ?>
    <input type='text' id='lastname' name='lastname' size='12' value='<?php echo $_REQUEST['lastname']; ?>' title='<?php xl('If name, any part of lastname or lastname,firstname','e'); ?>'>
    &nbsp;
-   <input type='submit' value='<?php xl('Search','e'); ?>'>
+   <input type='submit' id="submitbtn" value='<?php xl('Search','e'); ?>'>
+   <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
 
-<?php if (count($result)>=100): ?>
-<span id="tooManyResults">More than 100 records found. Please narrow your search criteria.</span>
-<?php elseif (isset($result)): ?>
-<span id="howManyResults"><?php echo count($result) . " ". xl ('Records Found'); ?></span>
+<?php if (! isset($_REQUEST['lastname'])): ?>
+<div id="searchstatus">Enter your search criteria above</div>
+<?php elseif (count($result) == 0): ?>
+<div id="searchstatus" class="noResults">No records found. Please expand your search criteria.</div>
+<?php elseif (count($result)>=100): ?>
+<div id="searchstatus" class="tooManyResults">More than 100 records found. Please narrow your search criteria.</div>
+<?php elseif (count($result)<100): ?>
+<div id="searchstatus" class="howManyResults"><?php echo count($result); ?> records found.</div>
 <?php endif; ?>
+
 <a class='text' href="../../new/new_patient.php" target="_top"><?php  xl ('(New Patient)','e'); ?></a>
 
 </form>
@@ -251,11 +257,6 @@ form {
 <div id="searchResults">
 <table> 
 <?php 
-  echo "<tr><td><span class='text'>". xl ('Name','e') ."</span></td>" .
-    "<td><span class='text'>". xl ('SS','e') ."</span></td>" .
-    "<td><span class='text'>". xl ('DOB','e') ."</span></td>" .
-    "<td><span class='text'>". xl ('ID','e') ."</span></td></tr>\n";
-
   //set ampm default for find patient results links event_startampm
   $ampm = 1;
   if (date("H") >= 12) { $ampm = 2; }
@@ -320,7 +321,15 @@ $(document).ready(function(){
     $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").click(function() { SelectPatient(this); });
+    $("#theform").submit(function() { SubmitForm(this); });
 });
+
+// show the 'searching...' status and submit the form
+var SubmitForm = function(eObj) {
+    $("#submitbtn").css("disabled", "true");
+    $("#searchspinner").css("visibility", "visible");
+    return true;
+}
 
 // another way to select a patient from the list of results
 // parts[] ==>  0=PID, 1=ProviderID
