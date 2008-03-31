@@ -924,6 +924,10 @@ function &postcalendar_userapi_pcQueryEventsFA($args)	{
 
 /**
  *  postcalendar_userapi_pcQueryEvents
+ *  INPUT
+ *  $args = Array of values possibly containing:
+ *     $provider_id = array of provider ID numbers
+ *     
  *  Returns an array containing the event's information
  *  @params array(key=>value)
  *  @params string key eventstatus
@@ -997,6 +1001,12 @@ function &postcalendar_userapi_pcQueryEvents($args)
             $sql .= " AND a.pc_facility = $pc_facility
                       AND u.facility_id = $pc_facility
                       AND u2.facility_id = $pc_facility ";
+    }
+    else if ($pc_facility) {
+        // pc_facility could be provided in the search arguments -- JRM March 2008
+        $sql .= " AND a.pc_facility = $pc_facility".
+                " AND u.facility_id = $pc_facility".
+                " AND u2.facility_id = $pc_facility ";
     }
   //EOS FACILITY FILTERING (lemonsoftware)
   //==================================
