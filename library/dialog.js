@@ -21,10 +21,23 @@ function cascwin(url, winname, width, height, options) {
   newy = 0;
  }
  top.restoreSession();
+
+ // MS IE version detection taken from
+ // http://msdn2.microsoft.com/en-us/library/ms537509.aspx
+ // to adjust the height of this box for IE only -- JRM
+ if (navigator.appName == 'Microsoft Internet Explorer')
+ {
+    var ua = navigator.userAgent;
+    var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+    if (re.exec(ua) != null)
+    rv = parseFloat( RegExp.$1 ); // this holds the version number
+    height = height + 28;
+ }
+
  return window.open(url, winname, options +
-  ",width="   + width + ",height="  + height +
-  ",left="    + newx  + ",top="     + newy   +
-  ",screenX=" + newx  + ",screenY=" + newy);
+ ",width="   + width + ",height="  + height +
+ ",left="    + newx  + ",top="     + newy   +
+ ",screenX=" + newx  + ",screenY=" + newy);
 }
 
 // recursive window focus-event grabber
@@ -55,7 +68,7 @@ function dlgopen(url, winname, width, height) {
   }
  }
  top.modaldialog = cascwin(url, winname, width, height,
-  "resizable=1,scrollbars=1");
+  "resizable=1,scrollbars=1,location=0,toolbar=0");
  grabfocus(top);
  return false;
 }
