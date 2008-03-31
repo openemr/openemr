@@ -35,7 +35,8 @@ if (isset($mode)) {
 <form border=0 method=post name=new_note action="office_comments_full.php">
 
 <?php
-if ($userauthorized) { $backurl="../main.php"; }
+/* BACK should go to the main Office Notes screen */
+if ($userauthorized) { $backurl="office_comments.php"; }
 else { $backurl="../main_info.php"; }
 ?>
 
