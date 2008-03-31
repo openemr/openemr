@@ -1,0 +1,70 @@
+#calsearch_params {
+    width: 100%;
+    background-color: #ddddff;
+    border: 1px solid black;
+    padding: 10px;
+}
+#calsearch_params form {
+    margin: 0px;
+    padding: 0px;
+}
+#calsearch_search_params table {
+    width: 100%;
+}
+#calsearch_results {
+    width: 100%;
+}
+#calsearch_results_header {
+    background-color: #ddd;
+    width: 100%;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+}
+#calsearch_results_header table {
+    width: 100%;
+    border-collapse: collapse;
+}
+#calsearch_results_data {
+    width: 100%;
+    height: 200px;
+    overflow: auto;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+}
+#calsearch_results_data table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+}
+#calsearch_results_data td {
+    border-bottom: 1px solid #eee;
+}
+#calsearch_results_data a {
+    text-decoration: underline;
+}
+/* for the DIV that makes people think the computer is doing something 
+ * after they press the 'search' button */
+#calsearch_status {
+    display: inline;
+    margin: 0px;
+    padding: 0px;
+    visibility: hidden;
+    text-decoration: blink;
+}
+/* column widths */
+.calsearch_datetime { width: 20%; }
+.calsearch_provider { width: 30%; }
+.calsearch_category { width: 20%; }
+.calsearch_patient  { width: 30%; }
+/* class for one row of data */
+.calsearch_event {
+    font-size: 0.8em;
+    cursor: hand; cursor: pointer;
+}
+/* for the mouse-over highlighting */
+.highlight {
+    background-color: #336699;
+    color: white;
+}
+submit { margin: 0px; padding: 0px; }
