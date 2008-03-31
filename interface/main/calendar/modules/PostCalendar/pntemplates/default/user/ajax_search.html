@@ -77,11 +77,7 @@ at
  * and HTML so we may as well just go full-bore PHP here -- JRM March 2008
  */
 
-if (count($A_EVENTS) == 0) {
-    echo "<tr><td colspan='4'>No Results</td></tr>";
-}
-
-
+$eventCount = 0;
 foreach ($A_EVENTS as $eDate => $date_events) {
     foreach ($date_events as $event) {
         $eData = $event['eid']."~";
@@ -112,8 +108,20 @@ foreach ($A_EVENTS as $eDate => $date_events) {
         echo "</td>";
 */
         echo "</tr>\n";
+
+        $eventCount++;
     }
 }
+
+
+/* the A_EVENTS array holds an array of dates, which in turn hold the array of events
+ * so it will always be non-zero, so we need to count the events as they are
+ * displayed and if the count is zero, then we have no search results
+ */
+if ($eventCount == 0) {
+    echo "<tr><td colspan='4' style='text-align: center'>No Results</td></tr>";
+}
+
 [-/php-]
 </table>
 </div>  <!-- end results-data DIV -->
