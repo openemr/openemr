@@ -172,10 +172,6 @@
 <title><?php xl('Find Available Appointments','e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
-<style>
-td { font-size:10pt; }
-</style>
-
 <!-- for the pop up calendar -->
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
@@ -243,12 +239,14 @@ form {
     border-bottom: 1px solid gray;
     padding: 1px 5px 1px 5px;
 }
-.highlight { background-color: yellow; }
+.highlight { background-color: #ff9; }
+.blue_highlight { background-color: #336699; color: white; }
 #am {
     border-bottom: 1px solid lightgrey;
+    color: #00c;
 }
-#pm {
-}
+#pm { color: #c00; }
+#pm a { color: #c00; }
 </style>
 
 </head>
@@ -296,7 +294,8 @@ form {
 
         $utime = ($slotbase + $i) * $slotsecs;
         $thisdate = date("Y-m-d", $utime);
-        if ($thisdate != $lastdate) { // if a new day, start a new row
+        if ($thisdate != $lastdate) { 
+            // if a new day, start a new row
             if ($lastdate) {
                 echo "</div>";
                 echo "</td>\n";
@@ -316,9 +315,7 @@ form {
 
         $atitle = "Choose ".date("h:i a", $utime);
         $adate = getdate($utime);
-        $anchor = "<a href='' style='color:" .
-            ($ampm == 'am' ? '#0000cc' : '#cc0000') .
-            "' onclick='return setappt(" .
+        $anchor = "<a href='' onclick='return setappt(" .
             $adate['year'] . "," .
             $adate['mon'] . "," .
             $adate['mday'] . "," .
@@ -357,6 +354,8 @@ form {
 $(document).ready(function(){
     $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
+    $(".oneresult a").mouseover(function () { $(this).toggleClass("blue_highlight"); $(this).children().toggleClass("blue_highlight"); });
+    $(".oneresult a").mouseout(function() { $(this).toggleClass("blue_highlight"); $(this).children().toggleClass("blue_highlight"); });
     //$(".event").dblclick(function() { EditEvent(this); });
 });
 
