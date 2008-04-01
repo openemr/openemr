@@ -153,6 +153,12 @@ if (is_dir($reportsdir)) {
   echo "<br/>\n";
   echo "<a href='javascript:dopopup(\"injury_overview_report.php\")'>Injury Overview Report</a>\n";
  }
+ if (!empty($GLOBALS['code_types']['IPPF'])) {
+  echo "<br/>\n";
+  echo "<a href='javascript:dopopup(\"ippf_statistics.php?t=i\")'>IPPF Statistics</a>\n";
+  echo "<br/>\n";
+  echo "<a href='javascript:dopopup(\"ippf_statistics.php?t=m\")'>MA Statistics</a>\n";
+ }
 {/php}
 <br/>
 &nbsp;

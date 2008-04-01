@@ -316,6 +316,14 @@ function setJustify(seljust) {
 $i = 0;
 $last_category = '';
 
+function alphaCodeType($id) {
+  global $code_types;
+  foreach ($code_types as $key => $value) {
+    if ($value['id'] == $id) return $key;
+  }
+  return '';
+}
+
 // Helper function for creating drop-lists.
 function endFSCategory() {
   global $i, $last_category, $FEE_SHEET_COLUMNS;
@@ -328,7 +336,7 @@ function endFSCategory() {
   }
 }
 
-// Create all the drop-lists of preselected service codes.
+// Create drop-lists based on the fee_sheet_options table.
 $res = sqlStatement("SELECT * FROM fee_sheet_options " .
   "ORDER BY fs_category, fs_option");
 while ($row = sqlFetchArray($res)) {
@@ -342,11 +350,35 @@ while ($row = sqlFetchArray($res)) {
     echo ($i <= 1) ? " <tr>\n" : "";
     echo "  <td width='50%' align='center' nowrap>\n";
     echo "   <select style='width:96%' onchange='codeselect(this)'>\n";
-    echo "    <option value=''> " . substr($fs_category, 1) . "\n";
+    echo "    <option value=''> " . substr($fs_category, 1) . "</option>\n";
   }
-  echo "    <option value='$fs_codes'>" . substr($fs_option, 1) . "\n";
+  echo "    <option value='$fs_codes'>" . substr($fs_option, 1) . "</option>\n";
 }
 endFSCategory();
+
+// Create drop-lists based on categories defined within the codes.
+$pres = sqlStatement("SELECT option_id, title FROM list_options " .
+  "WHERE list_id = 'superbill' ORDER BY seq");
+while ($prow = sqlFetchArray($pres)) {
+  ++$i;
+  echo ($i <= 1) ? " <tr>\n" : "";
+  echo "  <td width='50%' align='center' nowrap>\n";
+  echo "   <select style='width:96%' onchange='codeselect(this)'>\n";
+  echo "    <option value=''> " . $prow['title'] . "\n";
+  $res = sqlStatement("SELECT code_type, code, code_text FROM codes " .
+    "WHERE superbill = '" . $prow['option_id'] . "' " .
+    "ORDER BY code_text");
+  while ($row = sqlFetchArray($res)) {
+    echo "    <option value='" . alphaCodeType($row['code_type']) . '|' .
+      $row['code'] . "|'>" . $row['code_text'] . "</option>\n";
+  }
+  echo "   </select>\n";
+  echo "  </td>\n";
+  if ($i >= $FEE_SHEET_COLUMNS) {
+    echo " </tr>\n";
+    $i = 0;
+  }
+}
 
 // Create one more drop-list, for Products.
 if ($GLOBALS['sell_non_drug_products']) {

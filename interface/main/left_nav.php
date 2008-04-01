@@ -86,6 +86,7 @@
 
  include_once("../globals.php");
  include_once("../../library/acl.inc");
+ include_once("../../custom/code_types.inc.php");
 
  // This array defines the list of primary documents that may be
  // chosen.  Each element value is an array of 3 values:
@@ -610,6 +611,8 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
           <?php genPopLink('List','patient_list.php'); ?>
           <?php genPopLink('Rx','prescriptions_report.php'); ?>
           <?php genPopLink('Referrals','referrals_report.php'); ?>
+          <?php if (!empty($GLOBALS['code_types']['IPPF'])) genPopLink('IPPF Stats','ippf_statistics.php?t=i'); ?>
+          <?php if (!empty($GLOBALS['code_types']['IPPF'])) genPopLink('MA Stats','ippf_statistics.php?t=m'); ?>
         </ul>
       </li>
       <li class="open"><span>Visits</span>

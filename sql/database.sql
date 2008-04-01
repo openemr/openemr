@@ -219,16 +219,16 @@ CREATE TABLE `claims` (
 DROP TABLE IF EXISTS `codes`;
 CREATE TABLE `codes` (
   `id` int(11) NOT NULL auto_increment,
-  `code_text` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `code_text_short` varchar(24) character set utf8 collate utf8_unicode_ci default NULL,
-  `code` varchar(10) character set utf8 collate utf8_unicode_ci default NULL,
+  `code_text` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `code_text_short` varchar(24) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `code` varchar(10) character set utf8 collate utf8_unicode_ci NOT NULL default '',
   `code_type` tinyint(2) default NULL,
-  `modifier` varchar(5) character set utf8 collate utf8_unicode_ci default NULL,
+  `modifier` varchar(5) character set utf8 collate utf8_unicode_ci NOT NULL default '',
   `units` tinyint(3) default NULL,
   `fee` decimal(7,2) default NULL,
-  `superbill` tinyint(1) NOT NULL default '0',
-  `related_code` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `taxrates` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `superbill` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `related_code` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `taxrates` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
   PRIMARY KEY  (`id`),
   KEY `code` (`code`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;

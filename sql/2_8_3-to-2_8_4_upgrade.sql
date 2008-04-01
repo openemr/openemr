@@ -235,3 +235,8 @@ ALTER TABLE billing
 
 ALTER TABLE prescriptions
   MODIFY `quantity` varchar(31) default '';
+
+ALTER TABLE codes
+  MODIFY `superbill` varchar(31) default '';
+INSERT INTO list_options VALUES ('superbill','newpt','New Patient'        ,1,0,0);
+INSERT INTO list_options VALUES ('superbill','estpt','Established Patient',2,0,0);

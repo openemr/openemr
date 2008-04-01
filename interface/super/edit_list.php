@@ -18,6 +18,7 @@ $lists = array(
   'pricelevel' => xl('Price Level'),
   'ethrace'    => xl('Race/Ethnicity'),
   'risklevel'  => xl('Risk Level'),
+  'superbill'  => xl('Service Category'),
   'sex'        => xl('Sex'),
   'taxrate'    => xl('Tax Rate'),
   'titles'     => xl('Titles'),

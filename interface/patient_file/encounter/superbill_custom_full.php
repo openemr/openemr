@@ -37,7 +37,7 @@ if (isset($mode)) {
   $code_text  = $_POST['code_text'];
   $modifier   = $_POST['modifier'];
   // $units      = $_POST['units'];
-  // $superbill  = $_POST['superbill'];
+  $superbill  = $_POST['superbill'];
   $related_code = $_POST['related_code'];
 
   $taxrates = "";
@@ -67,7 +67,7 @@ if (isset($mode)) {
         "code_text = '"    . ffescape($code_text)    . "', " .
         "modifier = '"     . ffescape($modifier)     . "', " .
         // "units = '"        . ffescape($units)        . "', " .
-        // "superbill = '"    . ffescape($superbill)    . "', " .
+        "superbill = '"    . ffescape($superbill)    . "', " .
         "related_code = '" . ffescape($related_code) . "', " .
         "taxrates = '"     . ffescape($taxrates)     . "'";
       if ($code_id) {
@@ -104,7 +104,7 @@ if (isset($mode)) {
       $code_type    = $row['code_type'];
       $modifier     = $row['modifier'];
       // $units        = $row['units'];
-      // $superbill    = $row['superbill'];
+      $superbill    = $row['superbill'];
       $related_code = $row['related_code'];
       $taxrates     = $row['taxrates'];
     }
@@ -286,6 +286,25 @@ function submitDelete(id) {
   <td></td>
   <td>
    <input type='text' size='50' name="code_text" value='<?php echo $code_text ?>'>
+  </td>
+ </tr>
+
+ <tr>
+  <td><?php xl('Category','e'); ?>:</td>
+  <td></td>
+  <td>
+   <select name="superbill">
+    <option value=''>Unassigned</option>
+<?php
+$pres = sqlStatement("SELECT option_id, title FROM list_options " .
+  "WHERE list_id = 'superbill' ORDER BY seq");
+while ($prow = sqlFetchArray($pres)) {
+  echo '    <option value="' . $prow['option_id'] . '"';
+  if ($superbill == $prow['option_id']) echo " selected";
+  echo ">" . $prow['title'] . "</option>\n";
+}
+?>
+   </select>
   </td>
  </tr>
 
