@@ -315,4 +315,13 @@ ini_set("session.bug_compat_warn","off");
 
 if( $database->databaseType=='mysql' ) mysql_query("SET NAMES 'utf8'");
 
+//settings for cronjob
+// SEND SMS NOTIFICATION BEFORE HH HOUR
+$SMS_NOTIFICATION_HOUR 		= 50;
+// SEND EMAIL NOTIFICATION BEFORE HH HOUR
+$EMAIL_NOTIFICATION_HOUR 	= 50;
+$SMS_GATEWAY_USENAME 			= 'SMS_GATEWAY_USENAME';
+$SMS_GATEWAY_PASSWORD 		= 'SMS_GATEWAY_PASSWORD';
+$SMS_GATEWAY_APIKEY 				= 'SMS_GATEWAY_APIKEY';
+
 ?>
