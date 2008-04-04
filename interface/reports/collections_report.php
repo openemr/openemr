@@ -165,9 +165,9 @@ else {
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<title><?xl('Collections Report','e')?></title>
+<?php html_header_show();?>
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<title><?php xl('Collections Report','e')?></title>
 <style type="text/css">
  body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
  .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
@@ -233,13 +233,19 @@ function checkAll(checked) {
    <?php xl('Age Increment:','e') ?>
    <input type='text' name='form_age_inc' size='3' value='<?php echo $form_age_inc; ?>'>
    &nbsp;
-   <?xl('Svc Date:','e')?>
+   <?php xl('Svc Date:','e')?>
    <input type='text' name='form_date' size='10' value='<?php echo $_POST['form_date']; ?>'
-    title='<?xl("Date of service mm/dd/yyyy","e")?>'>
+    title='<?php xl("Date of service mm/dd/yyyy","e")?>'>
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
    &nbsp;
-   <?xl('To:','e')?>
+   <?php xl('To:','e')?>
    <input type='text' name='form_to_date' size='10' value='<?php echo $_POST['form_to_date']; ?>'
-    title='<?xl("Ending DOS mm/dd/yyyy if you wish to enter a range","e")?>'>
+    title='<?php xl("Ending DOS mm/dd/yyyy if you wish to enter a range","e")?>'>
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
    &nbsp;
    <select name='form_category'>
 <?php
@@ -251,7 +257,7 @@ function checkAll(checked) {
 ?>
    </select>
    &nbsp;
-   <input type='submit' name='form_search' value='<?xl("Search","e")?>'>
+   <input type='submit' name='form_search' value='<?php xl("Search","e")?>'>
   </td>
  </tr>
 
@@ -689,7 +695,7 @@ function checkAll(checked) {
         }
 ?>
  </tr>
-<?
+<?php
       } // end not export
 
       else if ($_POST['form_csvexport']) {
@@ -781,6 +787,15 @@ if (!$_POST['form_csvexport']) {
 ?>
 </script>
 </body>
+<!-- stuff for the popup calendar -->
+<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script language="Javascript">
+ Calendar.setup({inputField:"form_date", ifFormat:"%m/%d/%Y", button:"img_from_date"});
+ Calendar.setup({inputField:"form_to_date", ifFormat:"%%m/%d/%Y", button:"img_to_date"});
+</script>
 </html>
 <?php
 } // end not form_csvexport
