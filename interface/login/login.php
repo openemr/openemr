@@ -6,8 +6,8 @@ include_once("$srcdir/sql.inc");
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show(); ?>
+<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 
 <script language='JavaScript'>
 
@@ -25,7 +25,7 @@ function imsubmitted() {
 </script>
 
 </head>
-<body <?echo $login_body_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0 onload="javascript:document.login_form.authUser.focus();" >
+<body <?php echo $login_body_line;?> onload="javascript:document.login_form.authUser.focus();" >
 
 <span class="text"></span>
 
@@ -47,7 +47,7 @@ if (count($result) == 1) {
 <table width=100% height="90%">
 <tr>
 <td valign=middle width=33%>
-<?echo $logocode;?>
+<?php echo $logocode;?>
 </td>
 <td align='center' valign='middle' width=34%>
 <table>
@@ -55,7 +55,7 @@ if (count($result) == 1) {
 if (count($result) != 1) {
 ?>
 <tr>
-<td><span class="text"><? xl('Group:','e'); ?></span></td>
+<td><span class="text"><?php xl('Group:','e'); ?></span></td>
 <td>
 <select name=authProvider>
 <?php
@@ -69,17 +69,21 @@ if (count($result) != 1) {
 }
 ?>
 <tr>
-<td><span class="text"><? xl('Username:','e'); ?></span></td>
+<td><span class="text"><?php xl('Username:','e'); ?></span></td>
 <td>
 <input type="entry" size=10 name=authUser>
 </td></tr><tr>
-<td><span class="text"><? xl('Password:','e'); ?></span></td>
+<td><span class="text"><?php xl('Password:','e'); ?></span></td>
 <td>
 <input type="password" size=10 name=clearPass>
 </td></tr>
 <tr><td>&nbsp;</td><td>
 <input type="hidden" name="authPass">
-<input type="submit" onClick="javascript:this.form.authPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';" value=<? xl('Login','e');?>>
+<?php if ($GLOBALS['use_adldap_auth'] == true): ?>
+<input type="submit" onClick="javascript:this.form.authPass.value=MD5(this.form.clearPass.value);" value=<?php xl('Login','e');?>>
+<?php else: ?>
+<input type="submit" onClick="javascript:this.form.authPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';" value=<?php xl('Login','e');?>>
+<?php endif; ?>
 </td></tr>
 </table>
 
@@ -99,7 +103,7 @@ if (count($result) != 1) {
 </form>
 
 <address>
-<a href="copyright_notice.html" target="main"><? xl('Copyright Notice','e'); ?></a><br />
+<a href="copyright_notice.html" target="main"><?php xl('Copyright Notice','e'); ?></a><br />
 </address>
 
 </center>
