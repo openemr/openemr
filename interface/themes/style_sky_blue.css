@@ -175,7 +175,7 @@ a:hover {
 .textcolor11 { background-color: #222; }    /* $GLOBALS['style']['TEXTCOLOR11'] */
 .highlightcolor { background-color: #ddd; } /* $GLOBALS['style']['HIGHLIGHTCOLOR'] */
 .bottom_line { background: url('../pic/aquabg.gif') repeat; }    /* $GLOBALS['style']['BOTTOM_BG_LINE'] */
-.logobar { height: 110px; }                 /* $GLOBALS['logoBarHeight'] */
+.logobar { background-color: #24262c; height: 110px; }                 /* $GLOBALS['logoBarHeight'] */
 .navbar { height: 22px; }                   /* $GLOBALS['navBarHeight'] */
 .titlebar { height: 20px; }                 /* $GLOBALS['titleBarHeight'] */
 
