@@ -498,7 +498,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
 
  //-------------------------------------
  //(CHEMED)
- //Set default facility for a new event
+ //Set default facility for a new event based on the given 'userid'
  if ($userid) {
      $pref_facility = sqlFetchArray(sqlStatement("SELECT facility_id, facility FROM users WHERE id = $userid"));
      $e2f = $pref_facility['facility_id'];
@@ -525,7 +525,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
-td { font-size:10pt; }
+td { font-size:0.8em; }
 </style>
 
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
@@ -808,7 +808,7 @@ td { font-size:10pt; }
       <?php /*{CHEMED}*/
        if ($userid != 0) { ?>
       <input type='hidden' name="facility" id="facility" value='<?php echo $e2f; ?>'/>
-      <input type='input' readonly='readonly' name="facility_txt" value='<?php echo $e2f_name; ?>'/>
+      <input type='input' readonly name="facility_txt" value='<?php echo $e2f_name; ?>'/>
       <?php } else {?>
       <select name="facility" id="facility" >
       <?php
@@ -876,60 +876,55 @@ if ($eid) {
     }
 }
 
-        // build the selection tool
-        echo "<select name='form_provider[]' style='width:100%' multiple='multiple' size='5' >";
+// build the selection tool
+echo "<select name='form_provider[]' style='width:100%' multiple='multiple' size='5' >";
 
-        while ($urow = sqlFetchArray($ures)) {
-            echo "    <option value='" . $urow['id'] . "'";
+while ($urow = sqlFetchArray($ures)) {
+    echo "    <option value='" . $urow['id'] . "'";
 
-            if ($userid) {
-                if ( in_array($urow['id'], $providers_array) || ($urow['id'] == $userid) ) echo " selected";
-            }
+    if ($userid) {
+        if ( in_array($urow['id'], $providers_array) || ($urow['id'] == $userid) ) echo " selected";
+    }
 
-            echo ">" . $urow['lname'];
-            if ($urow['fname']) echo ", " . $urow['fname'];
-            echo "</option>\n";
-         }
+    echo ">" . $urow['lname'];
+    if ($urow['fname']) echo ", " . $urow['fname'];
+    echo "</option>\n";
+}
 
-        echo '</select>';
+echo '</select>';
 
 
 // =======================================
 // EOS  multi providers case
 // =======================================
 } else {
+    /*{CHEMED}*/
+    if ($userid != 0) {
+        // userid (a.k.a. provider ID) has been set so don't let the user change it
+        $urow = sqlFetchArray(sqlStatement("SELECT id, username, fname, lname FROM users WHERE id = $userid"));
+        // print_r($urow);exit;
+
+        echo "<input type='hidden' name='form_provider' value='".$urow["id"]."'/>";
+        echo "<input type='input' readonly name='form_provider_txt' value='".$urow['lname'];
+        if ($urow['fname']) echo ", ".$urow['fname'];
+        echo "'/>";
+    } 
+    else {
+        // present a list of providers to choose from
+        // default to the currently logged-in user
+        echo "<select name='form_provider' style='width:100%' />";
+        while ($urow = sqlFetchArray($ures)) {
+            echo "    <option value='" . $urow['id'] . "'";
+            if ($urow['id'] == $_SESSION['authUserID']) echo " selected"; 
+            echo ">" . $urow['lname'];
+            if ($urow['fname']) echo ", " . $urow['fname'];
+            echo "</option>\n";
+        }
+        echo "</select>";
+
+    } //END (CHEMED) IF
+}
 ?>
- <?php /*{CHEMED}*/
-   if ($userid != 0) {
-     $urow = sqlFetchArray(sqlStatement("SELECT id, username, fname, lname FROM users WHERE id = $userid"));
-    // print_r($urow);exit;
-   ?>
-      <input type='hidden' name="form_provider" value='<?php echo $urow["id"] ?>'/>
-      <input type='input' readonly='readonly' name="form_provider_txt" value='<?php echo $urow['lname']; if ($urow['fname']) echo ", ".$urow['fname']; ?>'/>
-   <?php } else {?>
-
-    <select name='form_provider' style='width:100%' <?php if ($userid != 0) {echo "readonly=readonly";}/*{CHEMED}*/ ?>>
-    <?php
-     while ($urow = sqlFetchArray($ures)) {
-      echo "    <option value='" . $urow['id'] . "'";
-      if ($userid) {
-       if ($urow['id'] == $userid) echo " selected";
-      } else {
-       if ($urow['id'] == $_SESSION['authUserID']) echo " selected";
-      }
-      echo ">" . $urow['lname'];
-      if ($urow['fname']) echo ", " . $urow['fname'];
-      echo "</option>\n";
-     }
-    ?>
-    </select>
-
-   <?php }
-   //END (CHEMED) IF
- ?>
-
-<?php } ?>
-
 
   </td>
   <td nowrap>
