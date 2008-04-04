@@ -4602,6 +4602,12 @@ INSERT INTO `layout_options` VALUES ('DEM', 'usertext1', '6Misc', 'User Defined 
 INSERT INTO `layout_options` VALUES ('DEM', 'usertext2', '6Misc', 'User Defined Text 2', 2, 2, 0, 10, 63, '', 1, 1, '', '', 'User Defined');
 INSERT INTO `layout_options` VALUES ('DEM', 'userlist1', '6Misc', 'User Defined List 1', 3, 1, 0, 0, 0, 'userlist1', 1, 1, '', '', 'User Defined');
 INSERT INTO `layout_options` VALUES ('DEM', 'userlist2', '6Misc', 'User Defined List 2', 4, 1, 0, 0, 0, 'userlist2', 1, 1, '', '', 'User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'userlist3', '6Misc', 'User Defined List 3', 5, 1, 0, 0, 0, 'userlist3', 1, 1, '', '' , 'User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'userlist4', '6Misc', 'User Defined List 4', 6, 1, 0, 0, 0, 'userlist4', 1, 1, '', '' , 'User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'userlist5', '6Misc', 'User Defined List 5', 7, 1, 0, 0, 0, 'userlist5', 1, 1, '', '' , 'User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'userlist6', '6Misc', 'User Defined List 6', 8, 1, 0, 0, 0, 'userlist6', 1, 1, '', '' , 'User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'userlist7', '6Misc', 'User Defined List 7', 9, 1, 0, 0, 0, 'userlist7', 1, 1, '', '' , 'User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'regdate'  , '6Misc', 'Registration Date'  ,10, 2, 0,10,10, ''         , 1, 1, '', 'D', 'Start Date at This Clinic');
 INSERT INTO `layout_options` VALUES ('REF', 'refer_date', '', 'Referral Date', 1, 4, 2, 0, 0, '', 1, 1, 'C', 'D', 'Date of referral');
 INSERT INTO `layout_options` VALUES ('REF', 'refer_from', '', 'Refer From', 2, 14, 2, 0, 0, '', 1, 1, '', '', 'Referral By');
 INSERT INTO `layout_options` VALUES ('REF', 'refer_to', '', 'Refer To', 3, 14, 2, 0, 0, '', 1, 1, '', '', 'Referral To');
@@ -4664,6 +4670,11 @@ INSERT INTO `list_options` VALUES ('ethrace', 'Black', 'Black', 3, 0, 0);
 INSERT INTO `list_options` VALUES ('ethrace', 'Hispanic', 'Hispanic', 4, 0, 0);
 INSERT INTO `list_options` VALUES ('userlist1', 'sample', 'Sample', 1, 0, 0);
 INSERT INTO `list_options` VALUES ('userlist2', 'sample', 'Sample', 1, 0, 0);
+INSERT INTO `list_options` VALUES ('userlist3','sample','Sample',1,0,0);
+INSERT INTO `list_options` VALUES ('userlist4','sample','Sample',1,0,0);
+INSERT INTO `list_options` VALUES ('userlist5','sample','Sample',1,0,0);
+INSERT INTO `list_options` VALUES ('userlist6','sample','Sample',1,0,0);
+INSERT INTO `list_options` VALUES ('userlist7','sample','Sample',1,0,0);
 INSERT INTO `list_options` VALUES ('pricelevel', 'standard', 'Standard', 1, 1, 0);
 INSERT INTO `list_options` VALUES ('risklevel', 'low', 'Low', 1, 0, 0);
 INSERT INTO `list_options` VALUES ('risklevel', 'medium', 'Medium', 2, 1, 0);
@@ -5064,11 +5075,17 @@ CREATE TABLE `patient_data` (
   `squad` varchar(32) character set utf8 collate utf8_unicode_ci NOT NULL default '',
   `fitness` int(11) NOT NULL default '0',
   `referral_source` varchar(30) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `usertext1` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `usertext2` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `userlist1` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `userlist2` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `usertext1` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext2` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `userlist1` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `userlist2` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `userlist3` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `userlist4` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `userlist5` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `userlist6` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `userlist7` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
   `pricelevel` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default 'standard',
+  `regdate`    date DEFAULT NULL COMMENT 'Registration Date',
   UNIQUE KEY `pid` (`pid`),
   KEY `id` (`id`),
   KEY `pid_2` (`pid`)
@@ -5627,4 +5644,3 @@ CREATE TABLE `notification_settings` (
 
 INSERT INTO `notification_settings` (`SettingsId`, `Send_SMS_Before_Hours`, `Send_Email_Before_Hours`, `SMS_gateway_username`, `SMS_gateway_password`, `SMS_gateway_apikey`, `type`) VALUES (1, 150, 150, 'sms username', 'sms password', 'sms api key', 'SMS/Email Settings');
 ------------------------------------------------------------------------------------- 
-

@@ -240,3 +240,24 @@ ALTER TABLE codes
   MODIFY `superbill` varchar(31) default '';
 INSERT INTO list_options VALUES ('superbill','newpt','New Patient'        ,1,0,0);
 INSERT INTO list_options VALUES ('superbill','estpt','Established Patient',2,0,0);
+
+ALTER TABLE patient_data
+  ADD `userlist3`  varchar(255) NOT NULL DEFAULT '',
+  ADD `userlist4`  varchar(255) NOT NULL DEFAULT '',
+  ADD `userlist5`  varchar(255) NOT NULL DEFAULT '',
+  ADD `userlist6`  varchar(255) NOT NULL DEFAULT '',
+  ADD `userlist7`  varchar(255) NOT NULL DEFAULT '',
+  ADD `regdate`    date DEFAULT NULL COMMENT 'Registration Date';
+
+INSERT INTO list_options VALUES ('userlist3','sample','Sample',1,0,0);
+INSERT INTO list_options VALUES ('userlist4','sample','Sample',1,0,0);
+INSERT INTO list_options VALUES ('userlist5','sample','Sample',1,0,0);
+INSERT INTO list_options VALUES ('userlist6','sample','Sample',1,0,0);
+INSERT INTO list_options VALUES ('userlist7','sample','Sample',1,0,0);
+
+INSERT INTO layout_options VALUES ('DEM','userlist3'       ,'6Misc','User Defined List 3'   , 5, 1,0, 0, 0,'userlist3',1,1,'','' ,'User Defined');
+INSERT INTO layout_options VALUES ('DEM','userlist4'       ,'6Misc','User Defined List 4'   , 6, 1,0, 0, 0,'userlist4',1,1,'','' ,'User Defined');
+INSERT INTO layout_options VALUES ('DEM','userlist5'       ,'6Misc','User Defined List 5'   , 7, 1,0, 0, 0,'userlist5',1,1,'','' ,'User Defined');
+INSERT INTO layout_options VALUES ('DEM','userlist6'       ,'6Misc','User Defined List 6'   , 8, 1,0, 0, 0,'userlist6',1,1,'','' ,'User Defined');
+INSERT INTO layout_options VALUES ('DEM','userlist7'       ,'6Misc','User Defined List 7'   , 9, 1,0, 0, 0,'userlist7',1,1,'','' ,'User Defined');
+INSERT INTO layout_options VALUES ('DEM','regdate'         ,'6Misc','Registration Date'     ,10, 2,0,10,10,''         ,1,1,'','D','Start Date at This Clinic');
