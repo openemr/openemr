@@ -5,6 +5,9 @@ include_once("$srcdir/patient.inc");
 //the maximum number of patient records to display:
 $M = 100;
 
+$patient = $_REQUEST['patient'];
+$findBy  = $_REQUEST['findBy'];
+
 // this is a quick fix so it doesn't go to thousands records.
 // the searching functions on patient.inc need improvement.
 if ($patient=='') $patient=xl('Please enter some information','e');
@@ -100,9 +103,9 @@ form {
 
 <!-- This link seems to have a misleading name since it just returns you to the main_screen 
 Perhaps it applies to new layouts, not the old original one?
-<a class="title" href="../main_screen.php" target="_top" onclick="top.restoreSession()">
-<?php echo xl('Select Patient') . ' ' . $patient . ' ' . xl('by') . ' ' . xl($findBy); ?></a>
--->
+<a class="title" href="../main_screen.php" target="_top" onclick="top.restoreSession()"> -->
+<?php echo xl('Select Patient') . ' ' . $patient . ' ' . xl('by') . ' ' . xl($findBy); ?>
+<!-- </a> -->
 
 <?php
 if ($findBy == "Last")
