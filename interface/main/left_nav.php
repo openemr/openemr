@@ -536,25 +536,25 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
 <table cellpadding='0' cellspacing='0' border='0' width='100%'>
  <tr>
   <td class='smalltext' nowrap>
-   <input type='checkbox' name='cb_top' onclick='toggleFrame(1)' checked /><b>Top</b>
+   <input type='checkbox' name='cb_top' onclick='toggleFrame(1)' checked /><b><?php xl('Top','e') ?></b>
   </td>
   <td class='smalltext' align='right' nowrap>
-   <b>Bot</b><input type='checkbox' name='cb_bot' onclick='toggleFrame(2)' checked />
+   <b><?php xl('Bot','e') ?></b><input type='checkbox' name='cb_bot' onclick='toggleFrame(2)' checked />
   </td>
  </tr>
 </table>
 
 <ul id="navigation">
-  <li class="open"><span>Patient/Client</span>
+  <li class="open"><span><?php xl('Patient/Client','e') ?></span>
     <ul>
-      <li><span>Management</span>
+      <li><span><?php xl('Management','e') ?></span>
         <ul>
           <?php genTreeLink('RTop','new','New'); ?>
           <?php genTreeLink('RTop','dem','Current'); ?>
           <?php genTreeLink('RBot','sum','Summary'); ?>
         </ul>
       </li>
-      <li class="open"><span>Visits</span>
+      <li class="open"><span><?php xl('Visits','e') ?></span>
         <ul>
           <?php genTreeLink('RTop','cal','Calendar'); ?>
           <?php genTreeLink('RBot','nen','New'); ?>
@@ -562,7 +562,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
           <?php genTreeLink('RBot','ens','List'); ?>
         </ul>
       </li>
-      <li><span>Chart</span>
+      <li><span><?php xl('Medical Record','e') ?></span>
         <ul>
           <?php genTreeLink('RBot','pre','Rx'); ?>
           <?php genTreeLink('RTop','his','History'); ?>
@@ -576,7 +576,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
       </li>
     </ul>
   </li>
-  <li><span>Fees</span>
+  <li><span><?php xl('Fees','e') ?></span>
     <ul>
       <?php genMiscLink('RBot','cod','2','Fee Sheet','patient_file/encounter/load_form.php?formname=fee_sheet'); ?>
       <?php if (false) genTreeLink('RBot','cod','Charges'); ?>
@@ -585,7 +585,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
     </ul>
   </li>
   <?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) genMiscLink('RTop','adm','0','Inventory','drugs/drug_inventory.php'); ?>
-  <li><span>Administration</span>
+  <li><span><?php xl('Administration','e') ?></span>
     <ul>
       <?php if (acl_check('admin', 'users'    )) genMiscLink('RTop','adm','0','Users','usergroup/usergroup_admin.php'); ?>
       <?php if (acl_check('admin', 'practice' )) genMiscLink('RTop','adm','0','Practice','../controller.php?practice_settings'); ?>
@@ -593,7 +593,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
       <?php if (acl_check('admin', 'super'    )) genMiscLink('RTop','adm','0','Layouts','super/edit_layout.php'); ?>
       <?php if (acl_check('admin', 'super'    )) genMiscLink('RTop','adm','0','Lists','super/edit_list.php'); ?>
       <?php if (acl_check('admin', 'acl'      )) genMiscLink('RTop','adm','0','ACL','usergroup/adminacl.php'); ?>
-      <li><span>Other</span>
+      <li><span><?php xl('Other','e') ?></span>
         <ul>
           <?php if (acl_check('admin', 'language')) genMiscLink('RTop','adm','0','Language','language/language.php'); ?>
           <?php if (acl_check('admin', 'forms'   )) genMiscLink('RTop','adm','0','Forms','forms_admin/forms_admin.php'); ?>
@@ -604,9 +604,9 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
       </li>
     </ul>
   </li>
-  <li><span>Reports</span>
+  <li><span><?php xl('Reports','e') ?></span>
     <ul>
-      <li><span>Clients</span>
+      <li><span><?php xl('Clients','e') ?></span>
         <ul>
           <?php genPopLink('List','patient_list.php'); ?>
           <?php genPopLink('Rx','prescriptions_report.php'); ?>
@@ -615,7 +615,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
           <?php if (!empty($GLOBALS['code_types']['IPPF'])) genPopLink('MA Stats','ippf_statistics.php?t=m'); ?>
         </ul>
       </li>
-      <li class="open"><span>Visits</span>
+      <li class="open"><span><?php xl('Visits','e') ?></span>
         <ul>
           <?php genPopLink('Appointments','appointments_report.php'); ?>
           <?php genPopLink('Encounters','encounters_report.php'); ?>
@@ -623,7 +623,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
         </ul>
       </li>
 <?php if (acl_check('acct', 'rep_a')) { ?>
-      <li><span>Financial</span>
+      <li><span><?php xl('Financial','e') ?></span>
         <ul>
           <?php genPopLink('Sales','sales_by_item.php'); ?>
           <?php genPopLink('Cash Rec','../billing/sl_receipts_report.php'); ?>
@@ -634,14 +634,14 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
       </li>
 <?php } ?>
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
-      <li><span>Inventory</span>
+      <li><span><?php xl('Inventory','e') ?></span>
         <ul>
           <?php genPopLink('Destroyed','destroyed_drugs_report.php'); ?>
         </ul>
       </li>
 <?php } ?>
 <?php if (! $GLOBALS['simplified_demographics']) { ?>
-      <li><span>Insurance</span>
+      <li><span><?php xl('Insurance','e') ?></span>
         <ul>
           <?php genPopLink('Distribution','insurance_allocation_report.php'); ?>
           <?php genPopLink('Indigents','../billing/indigent_patients_report.php'); ?>
@@ -650,7 +650,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
       </li>
 <?php } ?>
 <?php if ($GLOBALS['athletic_team']) { ?>
-      <li><span>Athletic</span>
+      <li><span><?php xl('Athletic','e') ?></span>
         <ul>
           <?php genPopLink('Roster','players_report.php'); ?>
           <?php genPopLink('Missed','absences_report.php'); ?>
@@ -662,7 +662,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
       <?php // genTreeLink('RTop','rep','Other'); ?>
     </ul>
   </li>
-  <li><span>Miscellaneous</span>
+  <li><span><?php xl('Miscellaneous','e') ?></span>
     <ul>
       <?php genTreeLink('RBot','aun','Pt Notes/Auth'); ?>
       <?php genTreeLink('RTop','fax','Fax/Scan'); ?>
@@ -682,10 +682,10 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
    <table cellpadding='0' cellspacing='0' border='0' width='100%'>
     <tr>
      <td class='smalltext' nowrap>
-      <input type='checkbox' name='cb_top' onclick='toggleFrame(1)' checked /><b>Top</b>
+      <input type='checkbox' name='cb_top' onclick='toggleFrame(1)' checked /><b><?php xl('Top','e') ?></b>
      </td>
      <td class='smalltext' align='right' nowrap>
-      <b>Bot</b><input type='checkbox' name='cb_bot' onclick='toggleFrame(2)' checked />
+      <b><?php xl('Bot','e') ?></b><input type='checkbox' name='cb_bot' onclick='toggleFrame(2)' checked />
      </td>
     </tr>
    </table>
@@ -720,12 +720,12 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
 
 <br /><hr />
 
-Active Patient:<br />
+<?php xl('Active Patient','e') ?>:<br />
 <div id='current_patient'>
 <b>None</b>
 </div>
 
-Active Encounter:<br />
+<?php xl('Active Encounter','e') ?>:<br />
 <div id='current_encounter'>
 <b>None</b>
 </div>
@@ -759,13 +759,13 @@ Active Encounter:<br />
 
 <table cellpadding='0' cellspacing='0' border='0'>
  <tr>
-  <td class='smalltext'>Find:&nbsp;</td>
+  <td class='smalltext'><?php xl('Find','e') ?>:&nbsp;</td>
   <td class='smalltext' colspan='2'>
    <input type="entry" size="7" name="patient" class='inputtext' style='width:65px;' />
   </td>
  </tr>
  <tr>
-  <td class='smalltext'>by:</td>
+  <td class='smalltext'><?php xl('by','e') ?>:</td>
   <td class='smalltext'>
    <a href="javascript:findPatient('Last');" class="navitem">Name</a>
   </td>
