@@ -149,16 +149,19 @@ function generate_form_field($frow, $currvalue) {
     echo "</select>";
   }
 
-  // address book
+  // address book, preferring organization name if it exists and is not in parentheses
   else if ($data_type == 14) {
-    $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
+    $ures = sqlStatement("SELECT id, fname, lname, organization FROM users " .
       "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
-      "ORDER BY lname, fname");
+      "ORDER BY organization, lname, fname");
     echo "<select name='form_$field_id' title='$description'>";
     echo "<option value=''>" . xl('Unassigned') . "</option>";
     while ($urow = sqlFetchArray($ures)) {
-      $uname = $urow['lname'];
-      if ($urow['fname']) $uname .= ", " . $urow['fname'];
+      $uname = $urow['organization'];
+      if (empty($uname) || substr($uname, 0, 1) == '(') {
+        $uname = $urow['lname'];
+        if ($urow['fname']) $uname .= ", " . $urow['fname'];
+      }
       echo "<option value='" . $urow['id'] . "'";
       if ($urow['id'] == $currvalue) echo " selected";
       echo ">$uname</option>";
