@@ -29,14 +29,51 @@ function GetInnerX () {
 }
 
 var x = GetInnerX();
-var framesrc = '';
-<?php if ($_SESSION['userauthorized'] && $GLOBALS['docs_see_entire_calendar']) { ?>
-framesrc +='  <frame src="calendar/index.php?module=PostCalendar&viewtype=day&func=view';
-<?php } else if ($_SESSION['userauthorized']) { ?>
-framesrc +='  <frame src="calendar/index.php?module=PostCalendar&viewtype=day&func=view&pc_username=<?=$_SESSION['authUser']?>';
-<?php } else { ?>
-framesrc +='  <frame src="calendar/index.php?module=PostCalendar&func=view';
-<?php } ?>
+var framesrc = '<frame ';
+
+<?php
+
+// this allows us to keep our viewtype between screens -- JRM
+$viewtype = 'day';
+if ($_SESSION['viewtype']) { $viewtype = $_SESSION['viewtype']; }
+
+// this allows us to keep our selected providers between screens -- JRM
+$pcuStr = "pc_username=".$_SESSION['authUser'];
+if ($_SESSION['pc_username']) {
+    $pcuStr = "";
+    if (count($_SESSION['pc_username']) > 1) {
+        // loop over the array of values in pc_username to build
+        // a list of pc_username HTTP vars
+        foreach ($_SESSION['pc_username'] as $pcu) {
+            $pcuStr .= "&pc_username[]=".$pcu;
+        }
+    }
+    else {
+        // two possibilities here
+        // 1) pc_username is an array with a single element
+        // 2) pc_username is just a string, not an array
+        if (is_string($_SESSION['pc_username'])) {
+            $pcuStr .= "&pc_username[]=".$_SESSION['pc_username'];
+        }
+        else {
+            $pcuStr .= "&pc_username[]=".$_SESSION['pc_username'][0];
+        }
+    }
+}
+
+// different frame source page depending on session vars
+if ($_SESSION['userauthorized'] && $GLOBALS['docs_see_entire_calendar']) {
+    $framesrc = "calendar/index.php?module=PostCalendar&viewtype=".$viewtype."&func=view";
+}
+else if ($_SESSION['userauthorized']) {
+    $framesrc = "calendar/index.php?module=PostCalendar&viewtype=".$viewtype."&func=view&".$pcuStr;
+}
+else {
+    $framesrc = "calendar/index.php?module=PostCalendar&func=view&viewtype=".$viewtype;
+}
+?>
+
+framesrc += ' src="<?php echo $framesrc; ?>';
 framesrc += '&framewidth='+x+'"   name="Calendar" scrolling="auto" frameborder="YES">';
 
 </script>
@@ -55,7 +92,7 @@ framesrc += '&framewidth='+x+'"   name="Calendar" scrolling="auto" frameborder="
 
 
 <noframes><body bgcolor="#FFFFFF">
-
+Frame support required
 </body></noframes>
 
 </HTML>
