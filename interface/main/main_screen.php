@@ -1,4 +1,4 @@
-<?
+<?php
  include_once("../globals.php");
  $_SESSION["encounter"] = "";
 
@@ -10,8 +10,10 @@
    if (isset($_GET['date'])) $frame1url .= "&date=" . $_GET['date'];
   } else {
    if ($GLOBALS['concurrent_layout'])
+    // new layout
     $frame1url = "main_info.php";
    else
+    // old layout
     $frame1url = "main.php?mode=" . $_GET['mode'];
   }
  }
@@ -32,7 +34,6 @@
 </head>
 <!-- border (mozilla) and framespacing (ie) are the same thing.      -->
 <!-- frameborder specifies a 3d look, not whether there are borders. -->
-
 <frameset rows='<?php echo $GLOBALS['titleBarHeight'] ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>
  <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' noresize />
  <frameset cols='130,*' id='fsbody' frameborder='1' border='4' framespacing='4'>
@@ -51,7 +52,7 @@
 <?php } else { // start old layout ?>
 
 </head>
-<frameset rows="<?echo "$GLOBALS[navBarHeight],$GLOBALS[titleBarHeight]" ?>,*"
+<frameset rows="<?php echo "$GLOBALS[navBarHeight],$GLOBALS[titleBarHeight]" ?>,*"
   cols="*" frameborder="no" border="0" framespacing="0"
   onunload="imclosing()">
   <frame src="main_navigation.php" name="Navigation" scrolling="no" noresize frameborder="no">
@@ -59,6 +60,7 @@
   <frame src='<?php echo $frame1url ?>' name='Main' scrolling='auto' noresize frameborder='no'>
 </frameset>
 <noframes><body bgcolor="#FFFFFF">
+Frame support required
 </body></noframes>
 
 <?php } // end old layout ?>
