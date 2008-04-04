@@ -59,6 +59,7 @@ if ($_GET['pc_facility'])  $_SESSION['pc_facility'] = $_GET['pc_facility'];
 if ($_GET['viewtype']) $_SESSION['viewtype'] = $_GET['viewtype'];
 if ($_POST['viewtype']) $_SESSION['viewtype'] = $_POST['viewtype'];
 
+
 //if (empty($_GET['no_nav'])) {
 //        $_SESSION['last_calendar_page'] = $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING'];
 //}
@@ -86,17 +87,13 @@ list($module,
                                   'type');
 
 // Defaults for variables
-if (isset($catid)) {
-    pnVarCleanFromInput('catid');
-}
+if (isset($catid)) { pnVarCleanFromInput('catid'); }
 
 // check requested module and set to start module if not present
 if (empty($name)) {
     $name = pnConfigGetVar('startpage');
     // fixed for the new style of loading modules and set start page for them [class007]
-    if (empty($module)) {
-        $module = $name;
-    }
+    if (empty($module)) { $module = $name; }
 }
 
 // get module information
@@ -105,12 +102,8 @@ $modinfo = pnModGetInfo(pnModGetIDFromName($module));
 if ($modinfo['type'] == 2)
 {
     // New-new style of loading modules
-    if (empty($type)) {
-        $type = 'user';
-    }
-    if (empty($func)) {
-        $func="main";
-    }
+    if (empty($type)) { $type = 'user'; }
+    if (empty($func)) { $func="main"; }
 
     // it should be $module not $name [class007]
     if (pnModAvailable($module)) {
@@ -145,9 +138,8 @@ if ($modinfo['type'] == 2)
         $output->SetInputMode(_PNH_PARSEINPUT);
         //$output->EndPage();
         $output->PrintPage();
-
     } else {
-
+        // duh?
     }
 
 	exit;

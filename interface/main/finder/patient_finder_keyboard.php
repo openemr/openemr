@@ -1,11 +1,10 @@
 <?php 
 include_once("../../globals.php");
-
 ?>
 
 <HTML>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <TITLE>
 <?php xl('Patient Finder','e'); ?>
 </TITLE>
@@ -18,11 +17,9 @@ include_once("../../globals.php");
   
 </frameset>
 
-
-<noframes><body bgcolor="#FFFFFF">
-
-</body></noframes>
-
-
-
+<noframes>
+<body bgcolor="#FFFFFF">
+Frame support required
+</body>
+</noframes>
 </HTML>
