@@ -262,7 +262,7 @@ if ($drug_id) {
   </td>
  </tr>
 
- <tr class='drugsonly'>
+ <tr>
   <td valign='top' nowrap><b><?php xl('NDC Number','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_ndc_number' maxlength='20' value='<?php echo $row['ndc_number'] ?>' style='width:100%' />
