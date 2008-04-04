@@ -1,9 +1,4 @@
 <?php
-    // check to see if the user belongs to *any* OpenEMR groups in phpGACL -- JRM
-    if (isset ($phpgacl_location)) {
-        if (acl_get_group_titles($user) == 0) return false;
-    }
-
 //----------THINGS WE ALWAYS DO
 
 require_once("{$GLOBALS['srcdir']}/log.inc");
