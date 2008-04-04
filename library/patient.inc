@@ -448,10 +448,12 @@ function newPatientData(    $db_id="",
                 $pharmacy_id = 0,
                 $drivers_license = "",
                 $hipaa_notice = "",
-                $hipaa_message = ""
+                $hipaa_message = "",
+                $regdate = ""
             )
 {
     $DOB = fixDate($DOB);
+    $regdate = fixDate($regdate);
 
     $fitness = 0;
     $referral_source = '';
@@ -515,6 +517,7 @@ function newPatientData(    $db_id="",
         squad = '$squad',
         fitness='$fitness',
         referral_source='$referral_source',
+        regdate='$regdate',
         date=NOW()
             ");
 

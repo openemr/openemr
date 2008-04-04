@@ -1,13 +1,26 @@
 <?php 
 include_once("../globals.php");
+
+// Determine if the registration date should be requested.
+$crow = sqlQuery("SELECT count(*) AS count FROM layout_options WHERE " .
+  "form_id = 'DEM' AND field_id = 'regdate' AND uor > 0");
+$regstyle = $crow['count'] ? "" : " style='display:none'";
 ?>
 <html>
 
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo xl($css_header,'e');?>" type="text/css">
+<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+
+<script type="text/javascript" src="../../library/textformat.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 
 <script LANGUAGE="JavaScript">
+
+ var mypcc = '1';
 
  function validate() {
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
@@ -30,12 +43,12 @@ include_once("../globals.php");
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <form name='new_patient' method='post' action="new_patient_save.php"
  onsubmit='return validate()'>
-<span class='title'><?php xl('New Patient','e');?></span>
+<span class='title'><?php xl('Add Patient Record','e');?></span>
 <?php } else { ?>
 <form name='new_patient' method='post' action="new_patient_save.php"
  target='_top' onsubmit='return validate()'>
 <a class="title" href="../main/main_screen.php" target="_top" onclick="top.restoreSession()">
-<?php xl('New Patient','e');?></a>
+<?php xl('Add Patient Record','e');?></a>
 <?php } ?>
 
 <br><br>
@@ -109,6 +122,24 @@ include_once("../globals.php");
   </td>
  </tr>
 <?php } ?>
+
+ <tr<?php echo $regstyle ?>>
+  <td>
+   <span class='bold'><?php xl('Registration Date','e');?>: </span>
+  </td>
+  <td>
+   <input type='text' size='10' name='regdate' id='regdate'
+    value='<?php echo date('Y-m-d') ?>'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+    title='yyyy-mm-dd' />
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_regdate' border='0' alt='[?]' style='cursor:pointer'
+    title='Click here to choose a date'>
+   <script LANGUAGE="JavaScript">
+    Calendar.setup({inputField:"regdate", ifFormat:"%Y-%m-%d", button:"img_regdate"});
+   </script>
+  </td>
+ </tr>
 
  <tr>
   <td>
