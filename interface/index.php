@@ -1,17 +1,14 @@
-<?
+<?php
 include_once("./globals.php");
-
 ?>
 
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 
 
 </head>
-<body ONLOAD="javascript:top.location.href='<?echo "$rootdir/login/login_frame.php"?>';">
-
-
+<body ONLOAD="javascript:top.location.href='<?php echo "$rootdir/login/login_frame.php"; ?>';">
 
 </body>
 </html>

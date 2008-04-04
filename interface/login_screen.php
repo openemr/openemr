@@ -1,4 +1,4 @@
-<?
+<?php
 $ignoreAuth=true;
 include_once("./globals.php");
 ?>
@@ -6,13 +6,13 @@ include_once("./globals.php");
 <body>
 
 <script LANGUAGE="JavaScript">
- top.location.href='<?echo "$rootdir/login/login_frame.php"?>';
+ top.location.href='<?php echo "$rootdir/login/login_frame.php"; ?>';
 </script>
 
-<a href='<?echo "$rootdir/login/login_frame.php"?>'><?xl('Follow manually','e')?></a>
+<a href='<?php echo "$rootdir/login/login_frame.php"; ?>'><?php xl('Follow manually','e'); ?></a>
 
 <p>
-<?xl('OpenEMR requires Javascript to perform user authentication.','e')?>
+<?php xl('OpenEMR requires Javascript to perform user authentication.','e'); ?>
 
 </body>
 </html>
