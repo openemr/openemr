@@ -11,247 +11,18 @@
 [-*Load the Language Definitions*-]
 [-config_load file="lang.$USER_LANG"-]
 [-include file="$TPL_NAME/views/header.html"-]
-[-* we want to include out stylesheet for this view*-]
-[-fetch file="$TPL_STYLE_PATH/day.css" assign="css"-]
-[-eval var=$css-]
 
 [-*Values used in setting timeslot and event heights*-]
-[-php-]$timeslotHeightVal=20; $timeslotHeightUnit="px";[-/php-]
+[-php-]
+/* if you change these be sure to change their matching values in
+ * the CSS for the calendar, found in interface/themes/ajax_calendar.css
+ */
+$timeslotHeightVal=20;
+$timeslotHeightUnit="px";
+[-/php-]
 
-<style>
-a {
- text-decoration:none;
-}
-td {
- font-family: Arial, Helvetica, sans-serif;
-}
-div.tiny { width:1px; height:1px; font-size:1px; }
-#weekview {
-    border: 2px solid blue;
-}
-#print, #dayview, #monthview {
-    cursor: pointer;
-    cursor: hand;
-}
-#functions {
-    width: 20%; /* can't make this 25% for some reason */
-    float: left;
-    padding: 0px 5px 0px 5px;
-    margin-right: 5%; /* added because of the width issue above */
-}
-#topToolbarRight {
-    float: right;
-    width: 70%;
-}
-#dateNAV {
-    float: left;
-}
-#dateDisplay {
-    float: left;
-    padding-left: 10px;
-    font-family: Arial, Helvetica, sans-serif;
-}
-#viewPicker {
-    float: right;
-    margin-right: 10px;
-}
-#datePicker {
-    width: 25%;
-    float: left;
-    position: absolute;
-    display: inline;
-    top: 50px;
-    left: 0px;
-    padding: 5px;
-    text-align: center;
-    background-color: lightblue;
-}
-#datePicker td {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 0.7em;
-    /* font-size: 9pt;  */
-}
-#bigCalHeader {
-    width:70%;
-    float: right;
-    text-align:center;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 14pt;
-}
-#providerPicker {
-    font-family: Arial, Helvetica, sans-serif;
-    width: 25%;
-    float: left;
-    position: absolute;
-    display: inline;
-    top: 200px;
-    left: 0px;
-    padding: 5px;
-    background-color: lightblue;
-    text-align:center;
-}
-#providerPicker #pc_facility {
-    width: 150px;
-}
-#providerPicker #pc_username {
-    width: 150px;
-}
-#bigCal {
-    width:70%;
-    height: 280px;
-    height: 80%;
-    overflow: auto;
-    float: right;
-    background-color: lightblue;
-    position: relative;
-}
-#bigCal table {
-    border-collapse: collapse;
-}
-
-/* these are for the small datepicker DIV */
-#datePicker table {
-    border-collapse: collapse;
-    border: 3px solid lightblue;
-    margin-left: auto;
-    margin-right: auto;
-}
-#datePicker .tdDOW-small {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 10px;
-    vertical-align: top; 
-    background-color: lightblue;
-    text-align: center;
-    border: none;
-    padding: 2px 3px 2px 3px;
-}
-#datePicker .tdDatePicker {
-    cursor: pointer;
-    cursor: hand;
-}
-#datePicker .tdWeekend-small {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 10px;
-    vertical-align: top;
-    border: none;
-    padding: 2px 3px 2px 3px;
-    background-color: #dddddd;
-    color: #999999;
-}
-
-#datePicker .tdOtherMonthDay-small {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 10px;
-    vertical-align: top;
-    border: none;
-    padding: 2px 3px 2px 3px;
-    background-color: #ffffff;
-    color: #999999;
-}
-
-#datePicker .tdMonthName-small {
-    text-align: center;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 12px;
-    font-style: normal 
-}
-
-#datePicker .tdMonthDay-small {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 10px;
-    vertical-align: top;
-    border: none;
-    padding: 2px 3px 2px 3px;
-    background-color: #ffffff;
-}
-#datePicker .currentWeek {
-    border-top: 1px solid blue;
-    border-bottom: 1px solid blue;
-    background-color: lightblue;
-}
-#datePicker .currentDate {
-    border: 1px solid blue;
-    background-color: blue;
-    color: lightblue;
-}
-
-/* the DIV of times */
-#times {
-    border-right: 1px solid #999;
-}
-#times table {
-    border-collapse: collapse;
-    width: 100%;
-    margin: 0px;
-    padding: 0px;
-}
-#times table td {
-    border: 0px;
-    border-top: 1px solid #999;
-    margin: 0px;
-    padding: 0px;
-    font-size: 10pt;
-}
-.timeslot {
-    height: [-php-]echo $timeslotHeightVal.$timeslotHeightUnit;[-/php-];
-    margin: 0px; 
-    padding: 0px;
-}
-.schedule {
-    background-color: lightgrey;
-    vertical-align: top;
-    padding: 0px;
-    margin: 0px;
-    border-right: 1px solid black;
-}
-/* types of events */
-.event_in {
-    position: absolute;
-    background-color: white;
-    width: 100%; 
-    z-index:1;
-    font-size: 0.8em;
-}
-.event_out {
-    position: absolute;
-    background-color: lightgray;
-    width: 100%; 
-    z-index:1;
-    font-size: 0.8em;
-}
-.event_appointment {
-    position: absolute;
-    background-color: white;
-    z-index:2;
-    overflow: hidden;
-    border: 1px solid #ccc;
-    width: 100%;
-    font-size: 0.8em;
-}
-.event_noshow {
-    position: absolute;
-    background-color: pink;
-    z-index:2;
-    overflow: hidden;
-    border: 1px solid #fcc;
-    width: 100%;
-    font-size: 0.8em;
-}
-.event_reserved {
-    position: absolute;
-    background-color: pink;
-    z-index:2;
-    overflow: hidden;
-    border: 1px solid #cfc;
-    width: 100%;
-    font-size: 0.8em;
-}
-.event_highlight { font-weight: bold; }
-</style>
-
-<script type="text/javascript" src="../../../library/dialog.js"></script>
-<script type="text/javascript" src="../../../library/textformat.js"></script>
-
+<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/dialog.js"></script>
+<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/textformat.js"></script>
 <script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/js/jquery-1.2.2.min.js"></script>
 
 <script language='JavaScript'>
@@ -388,11 +159,11 @@ echo "   <input type='button' value='" . xl ("Search") .
 </div>
 
 <div id="viewPicker">
-<img id="print" src="[-$TPL_IMAGE_PATH-]/print.gif" border="0" title="[-php-]echo xl("Print View")[-/php-]" alt="[-php-]echo xl ("Print View")[-/php-]" />
+<img id="printview" src="[-$TPL_IMAGE_PATH-]/print.gif" border="0" title="[-php-]echo xl("Print View")[-/php-]" alt="[-php-]echo xl ("Print View")[-/php-]" />
 &nbsp;
 <img id="dayview" src="[-$TPL_IMAGE_PATH-]/day.gif" border="0" title="[-php-]echo xl("Day View")[-/php-]" alt="[-php-]echo xl ("Day View")[-/php-]" />
 &nbsp;
-<img id="weekview" src="[-$TPL_IMAGE_PATH-]/week.gif" border="0" title="[-php-]echo xl ("Week View")[-/php-]" alt="[-php-]echo xl ("Week View")[-/php-]" />
+<img id="weekview" class="currentview" src="[-$TPL_IMAGE_PATH-]/week.gif" border="0" title="[-php-]echo xl ("Week View")[-/php-]" alt="[-php-]echo xl ("Week View")[-/php-]" />
 &nbsp;
 <img id="monthview" src="[-$TPL_IMAGE_PATH-]/month.gif" border="0" title="[-php-]echo xl ("Month View")[-/php-]" alt="[-php-]echo xl ("Month View")[-/php-]" />
 </div>
@@ -585,15 +356,15 @@ foreach ($providers as $provider) {
 
     echo "<table border='0' cellpadding='1' cellspacing='0' width='100%'>\n";
     echo " <tr>\n";
-    echo "  <td colspan='8' style='text-align: center; background-color:#ddd;'>";
+    echo "  <td colspan='8' class='providerheader'>";
     echo $provider['fname'] . " " . $provider['lname'];
     echo "</td>\n";
     echo " </tr>\n";
 
     // output column (date) headers
-    $colWidth = 100/8;
+    $colWidth = 100/7; // intentionally '7' and not '8'
     echo " <tr>\n";
-    echo " <td style='width:".$colWidth."%;'><div class=tiny></div></td>"; // 1x1 px content so the browser does not suppress borders
+    echo " <td>&nbsp;</td>"; // blank TD for the header above the Times column
     $defaultDate = ""; // used when creating link for a 'new' event
     $in_cat_id = 0; // used when creating link for a 'new' event
     foreach ($A_EVENTS as $date => $events) {
@@ -606,9 +377,9 @@ foreach ($providers as $provider) {
                         'pc_category'=>$category,
                         'pc_topic'=>$topic));
         if ($defaultDate == "") $defaultDate = $dateFmt;
-        echo "<td align='center' style='width:".$colWidth."%; border-left: 1px solid #999; border-right: 1px solid #999; font-size: 0.7em;";
-        if ($Date == $dateFmt) { echo "background-color: #ddd;"; }
-        echo "'>";
+        $currclass = "";
+        if ($Date == $dateFmt) { $currclass= "week_currday"; }
+        echo "<td align='center' class='week_dateheader $currclass' style='width:".$colWidth."%;' >";
         echo "<a href='$gotoURL'>";
         echo date("D m/d", strtotime($date));
         echo "</a></td>";
@@ -642,8 +413,8 @@ foreach ($providers as $provider) {
         // having a 'title' for the TD makes the date appear by the mouse pointer
         // this is nice when all you see are times on the left side and no head
         // row with the dates or day-of-week (DOW)
-        echo "<td class='schedule' style='border: 1px solid #999;' title='".date("l, d M Y", strtotime($date))."'>";
-        echo "<div style='position: relative; height: 100%; width: 100%;'>\n";
+        echo "<td class='schedule' title='".date("l, d M Y", strtotime($date))."'>";
+        echo "<div class='calendar_day'>";
 
         // determine if events overlap and adjust their width and left position as needed
         // 26 Feb 2008 - This needs fine tuning or total replacement
@@ -869,7 +640,6 @@ foreach ($providers as $provider) {
                     "; background-color:".$event["catcolor"].
                     "; $divWidth".
                     "; $divLeft".
-                    "; cursor:default".
                     "' title='".$divTitle."'".
                     " id='".$eventdate."-".$eventid."'".
                     ">";
