@@ -74,6 +74,7 @@ define ('LANGUAGE',1);
 include_once (dirname(__FILE__) . "/../library/translation.inc.php");
 
 include_once (dirname(__FILE__) . "/../library/date_functions.php");
+include_once (dirname(__FILE__) . "/../library/classes/Filtreatment_class.php");
 
 // Default category for find_patient screen
 $GLOBALS['default_category'] = 5;
