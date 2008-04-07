@@ -1,0 +1,179 @@
+body {
+    margin: 0px 0px 0px 2px;
+    /* set the base font and size for all DOM children */
+    font-family: sans-serif; 
+    font-size: 1em;
+    background-color: #94d6e7;
+}
+
+a {
+  color: #0000cc;
+  text-decoration: none;
+}
+
+a:visited { color: #0000cc; }
+a:hover { color: #A28268; text-decoration: underline; }
+
+.menu {
+    font-style: italic;
+    color: #0000cc;
+    text-decoration: none;
+    text-align: left;
+}
+
+.menu_selected {
+    font-style: italic;
+    color: #000000;
+    text-decoration: none;
+    text-align: left;
+}
+
+.logout {
+    font-style: italic;
+    color: #000000;
+    text-decoration: none;
+    text-align: right;
+}
+
+.text {
+    text-decoration: none;
+    color: #000000;
+    font-size: 10pt;
+}
+
+.required {
+    text-decoration: none;
+    font-size: 10pt;
+    color: #880000;
+    font-weight: bold;
+}
+
+.bold {
+    text-decoration: none;
+    font-size: 10pt;
+    color: #000000;
+    font-weight: bold;
+}
+
+.alert {
+    font-size: 70%;
+    color: #FF0000;
+    text-decoration: none;
+}
+
+.small {
+    text-decoration: none;
+    color: #000000;
+    font-size: 80%;
+}
+
+.link {
+    text-decoration: none;
+    color: #0000cc;
+    font-size: 70%;
+}
+
+.more {
+    text-decoration: none;
+    font-size: 70%;
+}
+
+.back {
+    text-decoration: none;
+    font-size: 70%;
+}
+
+.link_selected {
+    text-decoration: none;
+    color: #0000FF;
+    font-size: 70%;
+}
+
+.link_selected:visited {
+    text-decoration: none;
+    color: #0000FF;
+    font-size: 70%;
+}
+
+.link_submit {
+    text-decoration: none;
+    color: #000077;
+    font-size: 10pt;
+}
+
+.link_submit:visited {
+  color: #000077;
+}
+
+.link_submit:hover {
+  color: #ff5555;
+}
+
+.items {
+    font-size: 6pt;
+}
+
+.title {
+    font-size: 12pt;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* see .titlebar below */
+.title_bar {
+    font-size: 12pt;
+    font-weight: bold;
+    text-decoration: none;
+    color: #000000;
+}
+
+.title_bar_top {
+    font-size: 13px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #000000;
+}
+
+/*=============================================================
+ * Here we have taken variables from globals.php and turned them into CSS classes 
+ * these should be used in place of the GLOBAL variables -- JRM March 2008
+ *=============================================================*/
+.body_top { background-color: #94d6e7; }    /* $top_bg_line */
+.bgcolor2 { background-color: #94d6e7; }    /* $GLOBALS['style']['BGCOLOR2'] */
+.body_bottom { background: url('../pic/aquabg.gif') repeat; }  /* $bottom_bg_line */
+.body_title { background-color: #D1F5FF; }  /* $title_bg_line */
+.body_nav { background-color: #94D5E7; }    /* $nav_bg_line */
+.body_filler { background-color: #f7f0d5; } /* $login_filler_line */
+.body_login { background: url('../pic/aquabg.gif') repeat; } /* $login_body_line */
+.table_bg { background-color: #ccc; }           /* $table_bg */
+.bgcolor1 { background-color: #ccc; }       /* $GLOBALS['style']['BGCOLOR1'] */
+.textcolor11 { background-color: #222; }    /* $GLOBALS['style']['TEXTCOLOR11'] */
+.highlightcolor { background-color: #ddd; } /* $GLOBALS['style']['HIGHLIGHTCOLOR'] */
+.bottom_line { background: url('../pic/aquabg.gif') repeat; }    /* $GLOBALS['style']['BOTTOM_BG_LINE'] */
+.logobar { background-color: #24262c; height: 110px; }                 /* $GLOBALS['logoBarHeight']  262331 */
+.navbar { height: 22px; }                   /* $GLOBALS['navBarHeight'] */
+.titlebar { height: 20px; }                 /* $GLOBALS['titleBarHeight'] */
+
+/*==========================================================
+ * box with 'info' icon in the background
+ * useful for small information boxes
+ *=========================================================*/
+.infobox {
+    background: #FFF9E8 url('../../images/info.png') no-repeat center left;
+    padding: 3px 3px 3px 19px;
+}
+
+/*==========================================================
+ * Calendars
+ *
+ * All the calendar CSS files are held in the directory:
+ *   interface/main/calendar/modules/PostCalendar/pntemplates/default/style
+ * However, there may be some cross-over between this main
+ * CSS file and that other one. 
+ *
+ * ONE EXCEPTION is the Outlook-style calendar 
+ * it relies on a CSS file in this same folder 
+ * named ajax_calendar.css
+ *
+ *=========================================================*/
+
