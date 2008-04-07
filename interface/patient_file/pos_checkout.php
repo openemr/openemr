@@ -131,16 +131,24 @@ function invoice_initialize(& $invoice_info, $patient_id, $provider_id,
 }
 
 function invoice_add_line_item(& $invoice_info, $code_type, $code,
-	$code_text, $amount)
+	$code_text, $amount, $units=1)
 {
+  $units = max(1, intval(trim($units)));
+  $amount = sprintf("%01.2f", $amount);
+  $price = $amount / $units;
+  $tmp = sprintf("%01.2f", $price);
+  if (abs($price - $tmp) < 0.000001) $price = $tmp;
 	$tii = array();
 	$tii['maincode'] = $code;
 	$tii['itemtext'] = "$code_type:$code";
 	if ($code_text) $tii['itemtext'] .= " $code_text";
-	$tii['qty'] = 1;
-	$tii['price'] = sprintf("%01.2f", $amount);
+	// $tii['qty'] = 1;
+	// $tii['price'] = sprintf("%01.2f", $amount);
+  $tii['qty'] = $units;
+  $tii['price'] = $price;
 	$tii['glaccountid'] = $GLOBALS['oer_config']['ws_accounting']['income_acct'];
-	$invoice_info['total'] = sprintf("%01.2f", $invoice_info['total'] + $tii['price']);
+	// $invoice_info['total'] = sprintf("%01.2f", $invoice_info['total'] + $tii['price']);
+  $invoice_info['total'] = sprintf("%01.2f", $invoice_info['total'] + $amount);
 	$invoice_info['items'][] = $tii;
 	return '';
 }
@@ -249,7 +257,9 @@ function generate_receipt($patient_id) {
  <tr>
   <td><b><?php xl('Date','e'); ?></b></td>
   <td><b><?php xl('Description','e'); ?></b></td>
-  <td align='right'><b><?php xl('Amount','e'); ?></b></td>
+  <td align='right'><b><?php xl('Price','e'); ?></b></td>
+  <td align='right'><b><?php xl('Qty'  ,'e'); ?></b></td>
+  <td align='right'><b><?php xl('Total','e'); ?></b></td>
  </tr>
 <?php
  $charges = 0.00;
@@ -260,11 +270,16 @@ function generate_receipt($patient_id) {
 
  for ($irow = 0; $irow < SLRowCount($inres); ++$irow) {
   $row = SLGetRow($inres, $irow);
-  $amount = sprintf('%01.2f', $row['sellprice']);
+  $price = sprintf('%01.2f', $row['sellprice']);
+  $tmp   = sprintf('%01.4f', $row['sellprice']);
+  if ($tmp != $price) $price = $tmp;
+  $amount = sprintf('%01.2f', $row['sellprice'] * $row['qty']);
   $charges += $amount;
   echo " <tr>\n";
   echo "  <td>$svcdate</td>\n";
   echo "  <td>" . $row['description'] . "</td>\n";
+  echo "  <td align='right'>$price</td>\n";
+  echo "  <td align='right'>" . $row['qty'] . "</td>\n";
   echo "  <td align='right'>$amount</td>\n";
   echo " </tr>\n";
  }
@@ -286,7 +301,9 @@ function generate_receipt($patient_id) {
   if (strtolower($rowsource) == 'co-pay') $rowsource = '';
   echo " <tr>\n";
   echo "  <td>" . $row['transdate'] . "</td>\n";
-  echo "  <td>Payment $rowsource</td>\n";
+  echo "  <td>" . xl('Payment') . " $rowsource</td>\n";
+  echo "  <td>&nbsp;</td>\n";
+  echo "  <td>&nbsp;</td>\n";
   echo "  <td align='right'>$amount</td>\n";
   echo " </tr>\n";
  }
@@ -297,6 +314,8 @@ function generate_receipt($patient_id) {
  <tr>
   <td>&nbsp;</td>
   <td><b><?php xl('Balance Due','e'); ?></b></td>
+  <td align='right'>&nbsp;</td>
+  <td align='right'>&nbsp;</td>
   <td align='right'><?php echo sprintf('%01.2f', $charges) ?></td>
  </tr>
 </table>
@@ -312,7 +331,7 @@ function generate_receipt($patient_id) {
 //
 $lino = 0;
 function write_form_line($code_type, $code, $id, $date, $description,
-  $amount, $taxrates) {
+  $amount, $units, $taxrates) {
   global $lino;
   $amount = sprintf("%01.2f", $amount);
   if ($code_type == 'COPAY' && !$description) $description = xl('Payment');
@@ -323,6 +342,7 @@ function write_form_line($code_type, $code, $id, $date, $description,
   echo "<input type='hidden' name='line[$lino][id]' value='$id'>";
   echo "<input type='hidden' name='line[$lino][description]' value='$description'>";
   echo "<input type='hidden' name='line[$lino][taxrates]' value='$taxrates'>";
+  echo "<input type='hidden' name='line[$lino][units]' value='$units'>";
   echo "</td>\n";
   echo "  <td>$description</td>";
   echo "  <td align='right'><input type='text' name='line[$lino][amount]' " .
@@ -421,7 +441,7 @@ function markTaxes($taxrates) {
    $amount    = sprintf('%01.2f', trim($line['amount']));
 
    $msg = invoice_add_line_item($invoice_info, $code_type,
-    $line['code'], $line['description'], $amount);
+    $line['code'], $line['description'], $amount, $line['units']);
    if ($msg) die($msg);
 
    if ($code_type == 'PROD') {
@@ -460,14 +480,14 @@ function markTaxes($taxrates) {
  // this patient.
 
  $query = "SELECT id, date, code_type, code, modifier, code_text, " .
-  "provider_id, payer_id, fee, encounter " .
+  "provider_id, payer_id, units, fee, encounter " .
   "FROM billing " .
   "WHERE pid = '$pid' AND activity = 1 AND billed = 0 " .
   "ORDER BY encounter";
  $bres = sqlStatement($query);
 
  $query = "SELECT s.sale_id, s.sale_date, s.prescription_id, s.fee, " .
-  "s.encounter, s.drug_id, d.name, r.provider_id " .
+  "s.quantity, s.encounter, s.drug_id, d.name, r.provider_id " .
   "FROM drug_sales AS s " .
   "LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
   "LEFT OUTER JOIN prescriptions AS r ON r.id = s.prescription_id " .
@@ -601,7 +621,8 @@ while ($brow = sqlFetchArray($bres)) {
   }
 
   write_form_line($code_type, $brow['code'], $brow['id'], $thisdate,
-    ucfirst(strtolower($brow['code_text'])), $brow['fee'], $taxrates);
+    ucfirst(strtolower($brow['code_text'])), $brow['fee'], $brow['units'],
+    $taxrates);
   if (!$inv_encounter) $inv_encounter = $brow['encounter'];
   if (!$inv_provider ) $inv_provider  = $brow['provider_id'];
   $inv_payer = $brow['payer_id'];
@@ -623,13 +644,13 @@ while ($drow = sqlFetchArray($dres)) {
   markTaxes($taxrates);
 
   write_form_line('PROD', $drow['drug_id'], $drow['sale_id'],
-   $thisdate, $drow['name'], $drow['fee'], $taxrates);
+   $thisdate, $drow['name'], $drow['fee'], $drow['quantity'], $taxrates);
 }
 
 // Write a form line for each tax that has money, adding to $total.
 foreach ($taxes as $key => $value) {
   if ($value[2]) {
-    write_form_line('TAX', $key, $key, date('Y-m-d'), $value[0], 0, $value[1]);
+    write_form_line('TAX', $key, $key, date('Y-m-d'), $value[0], 0, 1, $value[1]);
   }
 }
 

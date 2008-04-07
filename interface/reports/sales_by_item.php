@@ -1,4 +1,4 @@
-<?
+<?php
   // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
   //
   // This program is free software; you can redistribute it and/or
@@ -86,7 +86,7 @@
     $to_date   = $form_to_date;
 
     $query = "SELECT ar.invnumber, ar.transdate, " .
-      "invoice.description, invoice.qty, invoice.fxsellprice " .
+      "invoice.description, invoice.qty, invoice.sellprice " .
       "FROM ar, invoice WHERE " .
       "ar.transdate >= '$from_date' AND ar.transdate <= '$to_date' " .
       "AND invoice.trans_id = ar.id " .
@@ -106,7 +106,8 @@
 
     for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
       $row = SLGetRow($t_res, $irow);
-      $rowamount = $row['fxsellprice'];
+      // $rowamount = $row['fxsellprice'];
+      $rowamount = sprintf('%01.2f', $row['sellprice'] * $row['qty']);
 
       // Extract only the first word as the payment method because any following
       // text will be some petty detail like a check number.

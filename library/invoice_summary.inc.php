@@ -72,7 +72,8 @@ function get_invoice_summary($trans_id, $with_detail = false) {
   $keysuffix = 1000;
   for ($irow = 0; $irow < SLRowCount($inres); ++$irow) {
     $row = SLGetRow($inres, $irow);
-    $amount = $row['sellprice'];
+    // $amount = $row['sellprice'];
+    $amount = sprintf('%01.2f', $row['sellprice'] * $row['qty']);
     $ins_id = $row['project_id'];
 
     $code = "Unknown";

@@ -58,7 +58,7 @@ if ($_POST['bn_save']) {
     $code      = $iter['code'];
     $modifier  = trim($iter['mod']);
     $units     = max(1, intval(trim($iter['units'])));
-    $fee       = 0 + trim($iter['fee']);
+    $fee       = sprintf('%01.2f',(0 + trim($iter['price'])) * $units);
     if ($code_type == 'COPAY') {
       if ($fee > 0) $fee = 0 - $fee;
       $code = sprintf('%01.2f', 0 - $fee);
@@ -117,7 +117,7 @@ if ($_POST['bn_save']) {
     $drug_id   = $iter['drug_id'];
     $sale_id   = $iter['sale_id']; // present only if already saved
     $units     = max(1, intval(trim($iter['units'])));
-    $fee       = 0 + trim($iter['fee']);
+    $fee       = sprintf('%01.2f',(0 + trim($iter['price'])) * $units);
     $del       = $iter['del'];
 
     // If the item is already in the database...
@@ -486,8 +486,8 @@ echo " </tr>\n";
   <td class='billcell'><b><?php xl('Mod','e');?></b></td>
 <?php } ?>
 <?php if (fees_are_used()) { ?>
+  <td class='billcell' align='right'><b><?php xl('Price','e');?></b>&nbsp;</td>
   <td class='billcell' align='center'><b><?php xl('Units','e');?></b></td>
-  <td class='billcell' align='right'><b><?php xl('Fee','e');?></b>&nbsp;</td>
   <td class='billcell' align='center'><b><?php xl('Justify','e');?></b></td>
 <?php } ?>
   <td class='billcell' align='center'><b><?php xl('Auth','e');?></b></td>
@@ -539,6 +539,10 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
     }
   }
   $fee = sprintf('%01.2f', $fee);
+  if (empty($units)) $units = 1;
+  $units = max(1, intval($units));
+  // We put unit price on the screen, not the total line item fee.
+  $price = sprintf('%01.2f', $fee / $units);
   $strike1 = ($id && $del) ? "<strike>" : "";
   $strike2 = ($id && $del) ? "</strike>" : "";
   echo " <tr>\n";
@@ -561,12 +565,12 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
         "<input type='hidden' name='bill[$lino][mod]' value='$modifier'></td>\n";
     }
     if (fees_are_used()) {
+      echo "  <td class='billcell' align='right'>$price</td>\n";
       if ($codetype != 'COPAY') {
         echo "  <td class='billcell' align='center'>$units</td>\n";
       } else {
         echo "  <td class='billcell'>&nbsp;</td>\n";
       }
-      echo "  <td class='billcell' align='right'>$fee</td>\n";
       echo "  <td class='billcell' align='center'>$justify</td>\n";
     }
     echo "  <td class='billcell' align='center'><input type='checkbox'" .
@@ -584,6 +588,14 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
     }
     if (fees_are_used()) {
       if ($codetype == 'COPAY' || $code_types[$codetype]['fee'] || $fee != 0) {
+        echo "  <td class='billcell' align='right'>" .
+          "<input type='text' name='bill[$lino][price]' " .
+          "value='$price' size='6'";
+        if (acl_check('acct','disc'))
+          echo " style='text-align:right'";
+        else
+          echo " style='text-align:right;background-color:transparent' readonly";
+        echo "></td>\n";
         echo "  <td class='billcell' align='center'>";
         if ($codetype != 'COPAY') {
           echo "<input type='text' name='bill[$lino][units]' " .
@@ -592,14 +604,6 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
           echo "<input type='hidden' name='bill[$lino][units]' value='$units'>";
         }
         echo "</td>\n";
-        echo "  <td class='billcell' align='right'>" .
-          "<input type='text' name='bill[$lino][fee]' " .
-          "value='$fee' size='6'";
-        if (acl_check('acct','disc'))
-          echo " style='text-align:right'";
-        else
-          echo " style='text-align:right;background-color:transparent' readonly";
-        echo "></td>\n";
         if ($code_types[$codetype]['just'] || $justify) {
           echo "  <td class='billcell' align='center'>";
           echo "<select name='bill[$lino][justify]' onchange='setJustify(this)'>";
@@ -693,6 +697,10 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
   /******************************************************************/
 
   $fee = sprintf('%01.2f', $fee);
+  if (empty($units)) $units = 1;
+  $units = max(1, intval($units));
+  // We put unit price on the screen, not the total line item fee.
+  $price = sprintf('%01.2f', $fee / $units);
   $strike1 = ($sale_id && $del) ? "<strike>" : "";
   $strike2 = ($sale_id && $del) ? "</strike>" : "";
   echo " <tr>\n";
@@ -707,8 +715,8 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
   }
   if ($billed) {
     if (fees_are_used()) {
+      echo "  <td class='billcell' align='right'>$price</td>\n";
       echo "  <td class='billcell' align='center'>$units</td>\n";
-      echo "  <td class='billcell' align='right'>$fee</td>\n";
       echo "  <td class='billcell' align='center'>&nbsp;</td>\n";         // justify
     }
     echo "  <td class='billcell' align='center'>&nbsp;</td>\n";           // auth
@@ -716,18 +724,18 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
       " disabled /></td>\n";
   } else {
     if (fees_are_used()) {
-      echo "  <td class='billcell' align='center'>";
-      echo "<input type='text' name='prod[$lino][units]' " .
-        "value='$units' size='2' style='text-align:right'>";
-      echo "</td>\n";
       echo "  <td class='billcell' align='right'>" .
-        "<input type='text' name='prod[$lino][fee]' " .
-        "value='$fee' size='6'";
+        "<input type='text' name='prod[$lino][price]' " .
+        "value='$price' size='6'";
       if (acl_check('acct','disc'))
         echo " style='text-align:right'";
       else
         echo " style='text-align:right;background-color:transparent' readonly";
       echo "></td>\n";
+      echo "  <td class='billcell' align='center'>";
+      echo "<input type='text' name='prod[$lino][units]' " .
+        "value='$units' size='2' style='text-align:right'>";
+      echo "</td>\n";
       echo "  <td class='billcell'>&nbsp;</td>\n";
     }
     echo "  <td class='billcell' align='center'>&nbsp;</td>\n"; // auth
@@ -762,8 +770,10 @@ if ($billresult) {
     // Also preserve other items from the form, if present.
     if ($bline['id'] && !$iter["billed"]) {
       $modifier   = trim($bline['mod']);
-      $units      = trim($bline['units']);
-      $fee        = trim($bline['fee']);
+      // $units      = trim($bline['units']);
+      // $fee        = trim($bline['fee']);
+      $units      = max(1, intval(trim($bline['units'])));
+      $fee        = sprintf('%01.2f',(0 + trim($bline['price'])) * $units);
       $authorized = $bline['auth'];
       $ndc_info   = '';
       if ($bline['ndcnum']) {
@@ -795,10 +805,12 @@ if ($_POST['bill']) {
       $ndc_info = 'N4' . trim($iter['ndcnum']) . '   ' . $iter['ndcuom'] .
       trim($iter['ndcqty']);
     }
-    $fee = 0 + trim($iter['fee']);
+    // $fee = 0 + trim($iter['fee']);
+    $units = max(1, intval(trim($iter['units'])));
+    $fee = sprintf('%01.2f',(0 + trim($iter['price'])) * $units);
     if ($iter['code_type'] == 'COPAY' && $fee > 0) $fee = 0 - $fee;
     echoLine(++$bill_lino, $iter["code_type"], $iter["code"], trim($iter["mod"]),
-      $ndc_info, $iter["auth"], $iter["del"], trim($iter["units"]),
+      $ndc_info, $iter["auth"], $iter["del"], $units,
       $fee, NULL, FALSE, NULL, $iter["justify"]);
   }
 }
@@ -821,8 +833,10 @@ while ($srow = sqlFetchArray($sres)) {
   $billed  = $srow['billed'];
   // Also preserve other items from the form, if present and unbilled.
   if ($pline['sale_id'] && !$srow['billed']) {
-    $units      = trim($pline['units']);
-    $fee        = trim($pline['fee']);
+    // $units      = trim($pline['units']);
+    // $fee        = trim($pline['fee']);
+    $units = max(1, intval(trim($pline['units'])));
+    $fee   = sprintf('%01.2f',(0 + trim($pline['price'])) * $units);
   }
   echoProdLine($prod_lino, $drug_id, $del, $units, $fee, $sale_id, $billed);
 }
@@ -834,8 +848,10 @@ if ($_POST['prod']) {
   foreach ($_POST['prod'] as $key => $iter) {
     if ($iter["sale_id"])  continue; // skip if it came from the database
     if ($iter["del"]) continue; // skip if Delete was checked
-    $fee = 0 + trim($iter['fee']);
-    echoProdLine(++$prod_lino, $iter['drug_id'], FALSE, trim($iter["units"]), $fee);
+    // $fee = 0 + trim($iter['fee']);
+    $units = max(1, intval(trim($iter['units'])));
+    $fee   = sprintf('%01.2f',(0 + trim($iter['price'])) * $units);
+    echoProdLine(++$prod_lino, $iter['drug_id'], FALSE, $units, $fee);
   }
 }
 

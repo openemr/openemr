@@ -236,7 +236,7 @@
 				// was inserted, or in red if we are in error mode).
 				$description = "CPT4:$codekey Added by $inslabel $production_date";
 				if (!$error && !$debug) {
-					slPostCharge($arrow['id'], $svc['chg'], $service_date, $codekey,
+					slPostCharge($arrow['id'], $svc['chg'], 1, $service_date, $codekey,
 						$insurance_id, $description, $debug);
 					$invoice_total += $svc['chg'];
 				}

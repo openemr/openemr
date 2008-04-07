@@ -454,10 +454,10 @@ function calctotal() {
   // Query for all open invoices.
   $query = "SELECT ar.id, ar.invnumber, ar.amount, ar.paid, " .
     "ar.intnotes, ar.notes, ar.shipvia, " .
-    "(SELECT SUM(invoice.fxsellprice) FROM invoice WHERE " .
-    "invoice.trans_id = ar.id AND invoice.fxsellprice > 0) AS charges, " .
-    "(SELECT SUM(invoice.fxsellprice) FROM invoice WHERE " .
-    "invoice.trans_id = ar.id AND invoice.fxsellprice < 0) AS adjustments, " .
+    "(SELECT SUM(invoice.sellprice * invoice.qty) FROM invoice WHERE " .
+    "invoice.trans_id = ar.id AND invoice.sellprice > 0) AS charges, " .
+    "(SELECT SUM(invoice.sellprice * invoice.qty) FROM invoice WHERE " .
+    "invoice.trans_id = ar.id AND invoice.sellprice < 0) AS adjustments, " .
     "(SELECT SUM(acc_trans.amount) FROM acc_trans WHERE " .
     "acc_trans.trans_id = ar.id AND acc_trans.chart_id = $chart_id_cash " .
     "AND acc_trans.source NOT LIKE 'Ins%') AS ptpayments " .

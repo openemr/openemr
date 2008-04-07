@@ -1,4 +1,4 @@
-<?
+<?php
   // This module was written for one of my clients to report on cash
   // receipts by practitioner.  It is not as complete as it should be
   // but I wanted to make the code available to the project because
@@ -145,15 +145,14 @@
     if ($form_cptcode) {
       $query = "SELECT acc_trans.amount, acc_trans.transdate, " .
         "acc_trans.memo, acc_trans.project_id, acc_trans.trans_id, " .
-        "ar.invnumber, ar.employee_id, invoice.fxsellprice " .
+        "ar.invnumber, ar.employee_id, invoice.sellprice, invoice.qty " .
         "FROM acc_trans, ar, invoice WHERE " .
         "acc_trans.chart_id = $chart_id_cash AND " .
         "acc_trans.memo ILIKE '$form_cptcode' AND " .
         "ar.id = acc_trans.trans_id AND " .
         "invoice.trans_id = acc_trans.trans_id AND " .
         "invoice.serialnumber ILIKE acc_trans.memo AND " .
-        "invoice.fxsellprice >= 0.00 AND " .
-        "invoice.fxsellprice >= 0.00 AND " .
+        "invoice.sellprice >= 0.00 AND " .
         "( invoice.description ILIKE 'CPT%' OR invoice.description ILIKE 'Proc%' ) AND ";
     }
     else {
@@ -275,7 +274,7 @@
   </td>
 <?php if ($form_cptcode) { ?>
   <td class="detail" align='right'>
-   <?php bucks($row['fxsellprice']) ?>
+   <?php bucks($row['sellprice'] * $row['qty']) ?>
   </td>
 <?php } ?>
 <?php if ($form_cptcode) { ?>

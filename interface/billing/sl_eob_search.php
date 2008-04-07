@@ -465,10 +465,10 @@ function npopup(pid) {
       "substring(trim(both from customer.name) from '% #\"%#\"' for '#') AS lname, " .
       "substring(trim(both from customer.name) from '#\"%#\" %' for '#') AS fname, ";
     $query .=
-      "(SELECT SUM(invoice.fxsellprice) FROM invoice WHERE " .
-      "invoice.trans_id = ar.id AND invoice.fxsellprice > 0) AS charges, " .
-      "(SELECT SUM(invoice.fxsellprice) FROM invoice WHERE " .
-      "invoice.trans_id = ar.id AND invoice.fxsellprice < 0) AS adjustments " .
+      "(SELECT SUM(invoice.sellprice * invoice.qty) FROM invoice WHERE " .
+      "invoice.trans_id = ar.id AND invoice.sellprice > 0) AS charges, " .
+      "(SELECT SUM(invoice.sellprice * invoice.qty) FROM invoice WHERE " .
+      "invoice.trans_id = ar.id AND invoice.sellprice < 0) AS adjustments " .
       "FROM ar, customer WHERE ( $where ) AND customer.id = ar.customer_id ";
     if ($_POST['form_category'] != 'All' && !$eracount) {
       $query .= "AND ar.amount != ar.paid ";

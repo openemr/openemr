@@ -140,12 +140,22 @@ class WSClaim extends WSWrapper{
 //			$tii['qty'] = 1;
 //		}
 
-      // We always store units as 1 in order to avoid awkward round-off errors
-      // that might happen when dividing the fee by units.
-      $tii['qty'] = 1;
+      // // We always store units as 1 in order to avoid awkward round-off errors
+      // // that might happen when dividing the fee by units.
+      // $tii['qty'] = 1;
+      // $tii['price'] = sprintf("%01.2f",$result->fields['fee']);
+      // $total += $tii['price'];
 
-			$tii['price'] = sprintf("%01.2f",$result->fields['fee']);
-			$total += $tii['price'];
+      // New logic that respects units:
+      $units = max(1, intval($result->fields['units']));
+      $amount = sprintf("%01.2f", $result->fields['fee']);
+      $price = $amount / $units;
+      $tmp = sprintf("%01.2f", $price);
+      if (abs($price - $tmp) < 0.000001) $price = $tmp;
+      $tii['qty'] = $units;
+      $tii['price'] = $price;
+      $total += $amount;
+
 			$tii['glaccountid'] = $this->_config['income_acct'];
 			$invoice_info['items'][] = $tii;
 

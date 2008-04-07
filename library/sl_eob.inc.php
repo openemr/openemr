@@ -113,8 +113,12 @@
 
   // Insert a row into the invoice table.
   //
-  function slAddLineItem($invid, $serialnumber, $amount, $insplan, $description, $debug) {
+  function slAddLineItem($invid, $serialnumber, $amount, $units, $insplan, $description, $debug) {
     global $sl_err, $services_id;
+    $units = max(1, intval($units));
+    $price = $amount / $units;
+    $tmp = sprintf("%01.2f", $price);
+    if (abs($price - $tmp) < 0.000001) $price = $tmp;
     $query = "INSERT INTO invoice ( " .
       "trans_id, "          .
       "parts_id, "          .
@@ -131,10 +135,10 @@
       "$invid, "            . // trans_id
       "$services_id, "      . // parts_id
       "'$description', "    . // description
-      "1, "                 . // qty
+      "$units, "            . // qty
       "0, "                 . // allocated
-      "$amount, "           . // sellprice
-      "$amount, "           . // fxsellprice
+      "$price, "            . // sellprice
+      "$price, "            . // fxsellprice
       "0, "                 . // discount
       "'', "                . // unit
       "$insplan, "          . // project_id
@@ -174,10 +178,10 @@
     slUpdateAR($trans_id, 0, $thispay, $thisdate, $debug);
   }
 
-  function slPostCharge($trans_id, $thisamt, $thisdate, $code, $thisins, $description, $debug) {
+  function slPostCharge($trans_id, $thisamt, $thisunits, $thisdate, $code, $thisins, $description, $debug) {
     global $chart_id_income, $chart_id_ar;
     // Post an adjustment: add negative invoice item, add to ar, subtract from income
-    slAddLineItem($trans_id, $code, $thisamt, $thisins, $description, $debug);
+    slAddLineItem($trans_id, $code, $thisamt, $thisunits, $thisins, $description, $debug);
     if ($thisamt) {
       slAddTransaction($trans_id, $chart_id_ar    , 0 - $thisamt, $thisdate, $description, $code, $thisins, $debug);
       slAddTransaction($trans_id, $chart_id_income, $thisamt    , $thisdate, $description, $code, $thisins, $debug);
@@ -190,7 +194,7 @@
     // Post an adjustment: add negative invoice item, add to ar, subtract from income
     $adjdate = fixDate($thisdate);
     $description = "Adjustment $adjdate $reason";
-    slAddLineItem($trans_id, $code, 0 - $thisadj, $thisins, $description, $debug);
+    slAddLineItem($trans_id, $code, 0 - $thisadj, 1, $thisins, $description, $debug);
     if ($thisadj) {
       slAddTransaction($trans_id, $chart_id_ar, $thisadj, $thisdate, "InvAdj $thissrc", $code, $thisins, $debug);
       slAddTransaction($trans_id, $chart_id_income, 0 - $thisadj, $thisdate, "InvAdj $thissrc", $code, $thisins, $debug);
@@ -346,7 +350,8 @@
 
     for ($irow = 0; $irow < SLRowCount($inres); ++$irow) {
       $row = SLGetRow($inres, $irow);
-      $amount   = $row['sellprice'];
+      // $amount = $row['sellprice'];
+      $amount = sprintf('%01.2f', $row['sellprice'] * $row['qty']);
 
       // Extract the billing code.
       $code = xl("Unknown");
