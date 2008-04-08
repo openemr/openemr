@@ -2,6 +2,7 @@
 <head>
 {php}html_header_show();{/php}
 
+<link rel="stylesheet" href="{$css_header}" type="text/css">
 {literal}
 
 <style type="text/css" title="mystyles" media="all">
@@ -35,6 +36,7 @@ function dopopup(aurl) {
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
 
+<div id="reports_list">
 {php}
 //get directories that might contain reports 
 $reportsdir = './myreports/';
@@ -96,73 +98,77 @@ if (is_dir($reportsdir)) {
 }
 {/php}
 
+<ul>
+<li>
 <a href="custom_report_range.php" target="_new" onclick="top.restoreSession()">{xl t='Superbill Report'}</a>
-<br/>
-
+</li><li>
 <a href="appointments_report.php" target="_new" onclick="top.restoreSession()">{xl t='Appointments Report'}</a>
-<br/>
-
+</li><li>
 <a href="encounters_report.php" target="_new" onclick="top.restoreSession()">{xl t='Encounters Report'}</a>
 <br/>
-
+</li><li>
 <a href="appt_encounter_report.php" target="_new" onclick="top.restoreSession()">{xl t='Appointments-Encounters Report'}</a>
-<br/>
-
+</li>
 {php} if (! $GLOBALS['simplified_demographics']) { {/php}
+<li>
 <a href="insurance_allocation_report.php" target="_new" onclick="top.restoreSession()">{xl t='Patient Insurance Distribution Report'}</a>
-<br/>
+</li><li>
 <a href="../billing/indigent_patients_report.php" target="_new" onclick="top.restoreSession()">{xl t='Indigent Patients Report'}</a>
-<br/>
+</li><li>
 <a href="unique_seen_patients_report.php" target="_new" onclick="top.restoreSession()">{xl t='Unique Seen Patients Report'}</a>
-<br/>
+</li><li>
 <a href="patient_list.php" target="_new" onclick="top.restoreSession()">{xl t='Patient List'}</a>
-<br/>
+</li>
 {php} } {/php}
 
 {php} if (! $GLOBALS['weight_loss_clinic']) { {/php}
+<li>
 <a href="front_receipts_report.php" target="_new" onclick="top.restoreSession()">{xl t='Front Office Receipts Report'}</a>
-<br/>
+</li>
 {php} } {/php}
 
+<li>
 <a href="prescriptions_report.php" target="_new" onclick="top.restoreSession()">{xl t='Prescriptions Report'}</a>
-<br/>
-
+</li><li>
 <a href="sales_by_item.php" target="_new" onclick="top.restoreSession()">{xl t='Sales by Product Report'}</a>
-<br/>
-
+</li><li>
 <a href="collections_report.php" target="_new" onclick="top.restoreSession()">{xl t='Collections Report'}</a>
-<br/>
-
+</li><li>
 <a href="referrals_report.php" target="_new" onclick="top.restoreSession()">{xl t='Referrals Report'}</a>
-<br/>
+</li>
 
 {php} if ($GLOBALS['inhouse_pharmacy']) { {/php}
+<li>
 <a href="destroyed_drugs_report.php" target="_new" onclick="top.restoreSession()">{xl t='Destroyed Drugs Report'}</a>
-<br/>
+</li>
 {php} } {/php}
-
+<li>
 <a href="receipts_by_method_report.php" target="_new" onclick="top.restoreSession()">{xl t='Receipts by Payment Method Report'}</a>
+</li>
+</ul>
 {php}
  if ($GLOBALS['athletic_team']) {
-  echo "<br/>\n";
+  echo "<li>\n";
   echo "<a href='javascript:dopopup(\"players_report.php\")'>Team Roster</a>\n";
-  echo "<br/>\n";
+  echo "</li><li>\n";
   echo "<a href='javascript:dopopup(\"absences_report.php\")'>Days and Games Missed</a>\n";
-  echo "<br/>\n";
+  echo "</li><li>\n";
   echo "<a href='javascript:dopopup(\"football_injury_report.php\")'>Football Injury Reports</a>\n";
-  echo "<br/>\n";
+  echo "</li><li>\n";
   echo "<a href='javascript:dopopup(\"injury_overview_report.php\")'>Injury Overview Report</a>\n";
+  echo "</li>\n";
  }
  if (!empty($GLOBALS['code_types']['IPPF'])) {
-  echo "<br/>\n";
+  echo "<li>\n";
   echo "<a href='javascript:dopopup(\"ippf_statistics.php?t=i\")'>IPPF Statistics</a>\n";
-  echo "<br/>\n";
+  echo "</li><li>\n";
   echo "<a href='javascript:dopopup(\"ippf_statistics.php?t=m\")'>MA Statistics</a>\n";
+  echo "</li>\n";
  }
 {/php}
-<br/>
-&nbsp;
-<br/>
+
+</ul>
+
 <a href="{$printable_link}" target="_new" onclick="top.restoreSession()">[{xl t='printable'}]</a>
 &nbsp;
 <br/>
@@ -191,5 +197,6 @@ if (is_dir($reportsdir)) {
 	</tr>
 </table>
 </form>
+</div> <!-- end of reports_list -->
 </body>
 </html>
