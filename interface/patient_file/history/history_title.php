@@ -30,14 +30,14 @@ require_once("$srcdir/classes/Pharmacy.class.php");
 
 <table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%">
  <tr>
-  <td width="45%" valign="middle" nowrap>
+  <td style="width:45%; vertical-align:middle; white-space: nowrap">
    <span class="title_bar_top"><?php echo $result{"fname"} . " " . $result{"lname"};?></span>
-   <span style="font-size:8pt;">(<?php echo $info ?>)</span>
+   <span style="font-size:0.7em;">(<?php echo $info ?>)</span>
   </td>
-  <td width="35%" align="center" valign="middle" nowrap>
-   <span class="title"><?php xl('Logged in as','e'); ?>: <?php echo $provider_results{"fname"}.' '.$provider_results{"lname"};?></span>
+  <td style="width:35%; text-align: center; vertical-align:middle; white-space: nowrap">
+   <span class="title_bar_top"><?php xl('Logged in as','e'); ?>: <?php echo $provider_results{"fname"}.' '.$provider_results{"lname"};?></span>
   </td>
-  <td width="20%" align="right" valign="middle" nowrap>
+  <td style="width:20%; text-align: right; vertical-align:middle; white-space: nowrap">
    &nbsp;
   </td>
  </tr>
