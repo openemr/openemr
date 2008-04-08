@@ -37,6 +37,7 @@ function selpopup(selobj) {
 
 <body class="body_nav">
 
+<div id="nav_topmenu">
 <form>
 <table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
  <tr>
@@ -92,6 +93,7 @@ function selpopup(selobj) {
  </tr>
 </table>
 </form>
+</div>
 
 </body>
 </html>
