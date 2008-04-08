@@ -1,3 +1,9 @@
+/*=============================================================
+ *
+ * This stylesheet was built with this color scheme
+ * http://www.wellstyled.com/tools/colorscheme2/index-en.html?tetrad;50;0;217;0.35930735930735924;0.9058823529411765;0.35930735930735924;0.6341176470588235;0.08982683982683981;1;0.17965367965367962;1;0.35930735930735924;0.9058823529411765;0.35930735930735924;0.6341176470588235;0.08982683982683981;1;0.17965367965367962;1;0.35930735930735924;0.9058823529411765;0.35930735930735924;0.6341176470588235;0.08982683982683981;1;0.17965367965367962;1;0.35930735930735924;0.9058823529411765;0.35930735930735924;0.6341176470588235;0.08982683982683981;1;0.17965367965367962;1;0
+ *
+ *============================================================*/
 body {
     margin: 0px 0px 0px 2px;
     /* set the base font and size for all DOM children */
@@ -7,31 +13,65 @@ body {
 }
 
 a {
-  color: #0000cc;
+  color: #250DA6;
   text-decoration: none;
 }
 
 a:visited { color: #0000cc; }
 a:hover { color: #A28268; text-decoration: underline; }
 
-.menu {
-    font-style: italic;
-    color: #0000cc;
+
+/*=============================================================
+ * The top-menu in the old style, non-concurrent, layout where
+ * the menu runs across the top of the window
+ *============================================================*/
+#nav_topmenu {
+    width: 100%;
+    overflow: hidden;
+    padding: 0px; margin: 0px;
+}
+#nav_topmenu form {
+    padding: 0px; margin: 0px;
+}
+#nav_topmenu table {
+    width: 100%;
+    padding: 0px; margin: 0px;
+    border-collapse: collapse;
+}
+#nav_topmenu tr {
+    padding: 0px; margin: 0px;
+}
+#nav_topmenu td {
+    padding: 0px; margin: 0px;
+    text-align: center;
+}
+#nav_topmenu a {
+    padding: 1px 2px 1px 2px;
     text-decoration: none;
+    color: #004E63;
+}
+#nav_topmenu a:hover {
+    background-color: #6895A2;
+    color: #E8FAFF;
+}
+/* menu, menu_selected, and logout are older classes still used */
+.menu {
+    font-size: 0.8em;
+    color: #6895A2;
     text-align: left;
 }
-
+.menu a:hover {
+    background-color: #6895A2;
+    color: #E8FAFF;
+}
 .menu_selected {
     font-style: italic;
     color: #000000;
-    text-decoration: none;
     text-align: left;
 }
-
 .logout {
     font-style: italic;
     color: #000000;
-    text-decoration: none;
     text-align: right;
 }
 
@@ -91,7 +131,7 @@ a:hover { color: #A28268; text-decoration: underline; }
 
 .link_selected:visited {
     text-decoration: none;
-    color: #0000FF;
+    color: #6895A2;
     font-size: 70%;
 }
 
@@ -126,13 +166,14 @@ a:hover { color: #A28268; text-decoration: underline; }
     text-decoration: none;
     color: #000000;
 }
-
+/* the title bar showing the logged in user, date, etc */
 .title_bar_top {
-    font-size: 13px;
+    font-size: 0.8em;
     font-weight: bold;
     text-decoration: none;
-    color: #000000;
+    color: #004E63;
 }
+
 
 /*=============================================================
  * Here we have taken variables from globals.php and turned them into CSS classes 
@@ -154,6 +195,7 @@ a:hover { color: #A28268; text-decoration: underline; }
 .navbar { height: 22px; }                   /* $GLOBALS['navBarHeight'] */
 .titlebar { height: 20px; }                 /* $GLOBALS['titleBarHeight'] */
 
+
 /*==========================================================
  * box with 'info' icon in the background
  * useful for small information boxes
@@ -162,6 +204,7 @@ a:hover { color: #A28268; text-decoration: underline; }
     background: #FFF9E8 url('../../images/info.png') no-repeat center left;
     padding: 3px 3px 3px 19px;
 }
+
 
 /*==========================================================
  * Calendars
@@ -176,4 +219,25 @@ a:hover { color: #A28268; text-decoration: underline; }
  * named ajax_calendar.css
  *
  *=========================================================*/
+
+
+/*=============================================================
+ * For the reports list page
+ *============================================================*/
+#reports_list {
+    font-family: sans-serif;
+    margin-top: 5px;
+}
+#reports_list a {
+    font-size: 1em;
+}
+#reports_list td {
+    font-size: 1em;
+}
+#reports_list ul {
+    list-style: none;
+}
+#reports_list li {
+    padding: 2px 0px 0px 0px;
+}
 
