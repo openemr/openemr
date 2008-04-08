@@ -194,13 +194,13 @@ if ($nMonth > 12) { $nMonth = 1; $nYear = $cYear + 1; }
 while (! checkdate($nMonth, $nDay, $nYear)) { $nDay = $nDay - 1; }
 $nextMonth = sprintf("%d%02d%02d",$nYear,$nMonth,$nDay);
 [-/php-]
-<td class="tdDOW-small tdDatePicker" id="[-php-]echo $prevMonth[-/php-]" title="[-php-]echo date("F", strtotime($prevMonth));[-/php-]">&lt;</td>
+<td class="tdDOW-small tdDatePicker tdNav" id="[-php-]echo $prevMonth[-/php-]" title="[-php-]echo date("F", strtotime($prevMonth));[-/php-]">&lt;</td>
 <td colspan="5" class="tdMonthName-small">
 [-php-]
 echo date('F', $caldate);
 [-/php-]
 </td>
-<td class="tdDOW-small tdDatePicker" id="[-php-]echo $nextMonth[-/php-]" title="[-php-]echo date("F", strtotime($nextMonth));[-/php-]">&gt;</td>
+<td class="tdDOW-small tdDatePicker tdNav" id="[-php-]echo $nextMonth[-/php-]" title="[-php-]echo date("F", strtotime($nextMonth));[-/php-]">&gt;</td>
 <tr>
 [-php-]
 foreach ($DOWlist as $dow) {
@@ -225,7 +225,7 @@ $currdate = $startdate;
 while ($currdate <= $enddate) {
     if (date('w', $currdate) == $DOWlist[0]) {
         // start of week row
-        $tr = "<tr>";
+        $tr = "<tr class='trDateRow'>";
         echo $tr;
     }
 
@@ -673,6 +673,10 @@ foreach ($providers as $provider) {
         $("#monthview").click(function() { ChangeView(this); });
         //$("#yearview").click(function() { ChangeView(this); });
         $(".tdDatePicker").click(function() { ChangeDate(this); });
+        $("#datePicker .trDateRow").mouseover(function() { $(this).children().toggleClass("tdDatePickerHighlight"); });
+        $("#datePicker .trDateRow").mouseout(function() { $(this).children().toggleClass("tdDatePickerHighlight"); });
+        $("#datePicker .tdNav").mouseover(function() { $(this).toggleClass("tdDatePickerHighlight"); });
+        $("#datePicker .tdNav").mouseout(function() { $(this).toggleClass("tdDatePickerHighlight"); });
         $("#print").click(function() { PrintView(this); });
         $(".event").dblclick(function() { EditEvent(this); });
         $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });

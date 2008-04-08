@@ -646,6 +646,8 @@ echo "<P>";
         $("#monthview").click(function() { ChangeView(this); });
         //$("#yearview").click(function() { ChangeView(this); });
         $(".tdDatePicker").click(function() { ChangeDate(this); });
+        $(".tdDatePicker").mouseover(function() { $(this).toggleClass("tdDatePickerHighlight"); });
+        $(".tdDatePicker").mouseout(function() { $(this).toggleClass("tdDatePickerHighlight"); });
         $("#print").click(function() { PrintView(this); });
         $(".event").dblclick(function() { EditEvent(this); });
         $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
