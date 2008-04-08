@@ -333,7 +333,7 @@ function getPatientPID($args)
 function getPatientName($pid) {
     if (empty($pid))
         return "";
-    $patientData = getPatientPID($pid);
+    $patientData = getPatientPID(array("pid"=>$pid));
     if (empty($patientData[0]['lname']))
         return "";
     $patientName =  $patientData[0]['lname'] . ", " . $patientData[0]['fname'];
