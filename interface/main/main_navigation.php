@@ -13,6 +13,7 @@ include_once("../../library/acl.inc");
 
 <form border=0 method=post target="_top" name="find_patient" action="<?php echo $rootdir?>/main/finder/patient_finder.php">
 
+<div id="nav_topmenu">
 <table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
 <tr>
 <td width="10%" nowrap>
@@ -112,6 +113,7 @@ include_once("../../library/acl.inc");
 <?php } ?>
 
 <?php if ($GLOBALS['athletic_team']) { ?>
+
 <td align="center" nowrap>
 &nbsp;<a href="../reports/players_report.php?embed=1" target="Main" class="menu" onclick="top.restoreSession()">
 <?php xl('Roster','e'); ?></a>&nbsp;
@@ -120,11 +122,14 @@ include_once("../../library/acl.inc");
 &nbsp;<a href="main.php" target="Main" class="menu" onclick="top.restoreSession()">
 <?php xl('Calendar','e'); ?></a>&nbsp;
 </td>
+
 <?php } else { ?>
+
 <td align="center" nowrap>
 &nbsp;<a href="main.php" target="Main" class="menu" onclick="top.restoreSession()">
 <?php xl('Home','e'); ?></a>&nbsp;
 </td>
+
 <?php } ?>
 
 <td align="center" nowrap>
@@ -134,6 +139,7 @@ include_once("../../library/acl.inc");
 
 </tr>
 </table>
+</div>
 
 </form>
 
