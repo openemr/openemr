@@ -14,6 +14,7 @@ $N = 10;
 </head>
 <body class="body_top">
 
+<div id="officenotes_list">
 <a href="office_comments_full.php" <?php if (!$GLOBALS['concurrent_layout']) echo 'target="Main"'; ?>>
 <font class="title"><?php xl('Office Notes','e'); ?></font>
 <font class="more"><?php echo $tmore;?></font></a>
@@ -30,7 +31,7 @@ if($result = getOnoteByDate("", 1, "date,body,user","all",0)) {
 $notes_count = 0;//number of notes so far displayed
 foreach ($result as $iter) {
     if ($notes_count >= $N) {
-        //we have more active notes to print, but we've reached our display maximum
+        //we have more active notes to print, but we've reached our display maximum (defined at top of this file)
         print "<tr><td colspan=3 align=center><a target=Main href='office_comments_full.php?active=1' class='alert'>Some notes were not displayed. Click here to view all</a></td></tr>\n";
         break;
     }
@@ -52,6 +53,7 @@ foreach ($result as $iter) {
 ?>
 
 </table>
+</div>
 
 </body>
 </html>

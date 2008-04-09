@@ -66,29 +66,29 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 </div>
 
 <?php
-	$_GET['show_all']=='yes' ? $lnkvar="'authorizations.php?show_all=no' name='Just Mine'> (".xl('Just Mine').") " : $lnkvar="'authorizations.php?show_all=yes' name='See All'>(".xl('See All').")"; 
+$_GET['show_all']=='yes' ? $lnkvar="'authorizations.php?show_all=no' name='Just Mine'> (".xl('Just Mine').") " : $lnkvar="'authorizations.php?show_all=yes' name='See All'>(".xl('See All').")"; 
 ?>
 
-<font class='title'><?php xl('Patient Notes','e')?> </font>
-<a class='more' style='font-size:8pt;' href=<?php echo $lnkvar; ?></a> </font>
+<span class='title'><?php xl('Patient Notes','e')?> </span>
+<a class='more' href=<?php echo $lnkvar; ?></a>
 
 <?php if ($imauthorized) { ?>
-<font class='title'><?php xl('and ','e')?>
+<span class='title'><?php xl('and ','e')?>
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href='authorizations_full.php'>
 <?php } else { ?>
 <a href='authorizations_full.php' target='Main'>
 <?php } ?>
-<?php xl('Authorizations','e')?><font class='more'><?php echo (xl($tmore));?></font></a>
+<?php xl('Authorizations','e')?> <span class='more'><?php echo (xl($tmore));?></span></a>
 <?php 
 	}
 ?>
-</font>
+</span>
 
 <?php if (!$GLOBALS['concurrent_layout']) { ?>
-<font class='more'> &nbsp;
-<a class='more' href="#" id="findpatients" style='font-size:8pt;' name='Find Patients'>(<?php xl('Find Patient','e')?>)</a>
-</font>
+<span class='more'> &nbsp;
+<a href="#" id="findpatients" name='Find Patients'>(<?php xl('Find Patient','e')?>)</a>
+</span>
 <?php } ?>
 
 <?php
@@ -214,6 +214,7 @@ if ($res = sqlStatement("select * from forms where authorized = 0 and " .
     //$authorize[$iter{"pid"}]{"forms"} = substr($authorize[$iter{"pid"}]{"forms"},0,strlen($authorize[$iter{"pid"}]{"forms"}));
   }
 }
+echo "HERE";
 ?>
 
 <table border='0' cellpadding='0' cellspacing='2' width='100%'>

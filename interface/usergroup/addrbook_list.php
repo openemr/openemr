@@ -27,50 +27,7 @@
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <title><?php xl('Address Book','e'); ?></title>
 
-<style>
-td {
- font-family: Arial, Helvetica, sans-serif;
- padding-left: 4px;
- padding-right: 4px;
-}
-a, a:visited, a:hover {
- color:#0000cc;
-}
-tr.search {
- font-size:9pt;
- font-weight:bold;
-}
-tr.head {
- font-size:10pt;
- background-color:#cccccc;
- font-weight:bold;
-}
-tr.detail {
- font-size:10pt;
-}
-
-.inputtext {
- font-family:monospace;
- font-size:9pt;
- font-weight:normal;
- border-style:solid;
- border-width:1px;
- /*
- border-top-width:0px;
- border-bottom-width:1px;
- border-left-width:0px;
- border-right-width:0px;
- */
- border-color: #000000;
- background-color:transparent;
-}
-
-.button {
- font-family:sans-serif;
- font-size:8pt;
- font-weight:bold;
-}
-</style>
+<!-- style tag moved into proper CSS file -->
 
 <script type="text/javascript" src="../../library/dialog.js"></script>
 
@@ -93,13 +50,10 @@ function doedclick(userid) {
 
 <body class="body_top">
 
+<div id="addressbook_list">
 <form method='post' action='addrbook_list.php'>
 
-<table border='0' cellpadding='5' cellspacing='0' width='100%'>
- <tr>
-  <td height="1" colspan="2">
-  </td>
- </tr>
+<table>
  <tr class='search'> <!-- bgcolor='#ddddff' -->
   <td>
    <?php xl('First Name:','e')?>
@@ -117,13 +71,9 @@ function doedclick(userid) {
    <input type='button' class='button' value='Add New' onclick='doedclick(0)' />
   </td>
  </tr>
- <tr>
-  <td height="1" colspan="2">
-  </td>
- </tr>
 </table>
 
-<table width='100%' cellpadding='1' cellspacing='2'>
+<table>
  <tr class='head'>
   <td title='Click to view or edit'><?php xl('Name','e'); ?></td>
   <td><?php xl('Local','e'); ?></td><!-- empty for external -->
@@ -137,15 +87,18 @@ function doedclick(userid) {
   <td><?php xl('State','e'); ?></td>
   <td><?php xl('Postal','e'); ?></td>
  </tr>
+
 <?php
  $encount = 0;
  while ($row = sqlFetchArray($res)) {
   ++$encount;
-  $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
+  //$bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
+  $bgclass = (($encount & 1) ? "evenrow" : "oddrow");
   $username = $row['username'];
   if (! $row['active']) $username = '--';
-  echo " <tr class='detail' bgcolor='$bgcolor' style='cursor:pointer' " .
-       "onclick='doedclick(" . $row['id'] . ")'>\n";
+  $trTitle = "Edit ". $row['fname'] . ' ' . $row['mname'] . $row['lname'];
+  echo " <tr class='detail $bgclass' style='cursor:pointer' " .
+       "onclick='doedclick(" . $row['id'] . ")' title='$trTitle'>\n";
   echo "  <td>" . $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] . "</td>\n";
   echo "  <td>" . ($username ? '*' : '') . "</td>\n";
   echo "  <td>" . $row['specialty'] . "</td>\n";
