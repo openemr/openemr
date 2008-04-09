@@ -2,39 +2,27 @@
 <head>
 {php}html_header_show();{/php}
 
-{literal}
- <style type="text/css" title="mystyles" media="all">
-<!--
-td {
-	font-size:8pt;
-	font-family:helvetica;
-}
-a {
-	font-size:8pt;
-	font-family:helvetica;
-}
-.treeMenuDefault {
-	font-style: italic;
-}
-		
-.treeMenuBold {
-	font-style: italic;
-	font-weight: bold;
-}
+<link rel="stylesheet" href="{php}echo $GLOBALS['css_header']; {/php}" type="text/css">
 
--->
-</style>
+{literal}
 {/literal}
+
 <script src="DocumentTreeMenu.js" language="JavaScript" type="text/javascript"></script>
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
+<div id="documents_list">
 <table>
 	<tr>
 		<td height="20" valign="top">{xl t='Document Categories'}<br>
 			&nbsp;&nbsp;&nbsp;<a href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">{xl t='collapse all'}</a>
 		</td>
-		<td width="25"></td>
-		<td valign="top" rowspan="2">
+	</tr>
+	<tr>
+		<td valign="top">{$tree_html}</td>
+	</tr>
+</table>
+</div>
+<div id="documents_actions">
 		{if $message}
 			{$message}<br>
 		{/if}
@@ -42,11 +30,6 @@ a {
 			{$messages}<br>
 		{/if}
 		{$activity}
-		</td>
-	</tr>
-	<tr>
-		<td valign="top">{$tree_html}</td>
-	</tr>
-</table>
+</div>
 </body>
 </html>
