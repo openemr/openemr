@@ -125,3 +125,93 @@ A:{visited: #000000;}
 a {
 	text-decoration: none;
 }
+
+/* style taken out of the addressbook code and put here instead */
+#addressbook_list td {
+font-family: Arial, Helvetica, sans-serif;
+padding-left: 4px;
+padding-right: 4px;
+}
+#addressbook_list a, #addressbook_list a:visited, #addressbook_list a:hover {
+color:#0000cc;
+}
+#addressbook_list tr.search {
+font-size:9pt;
+font-weight:bold;
+}
+#addressbook_list tr.head {
+font-size:10pt;
+background-color:#cccccc;
+font-weight:bold;
+}
+#addressbook_list tr.detail {
+font-size:10pt;
+}
+#addressbook_list .inputtext {
+font-family:monospace;
+font-size:9pt;
+font-weight:normal;
+border-style:solid;
+border-width:1px;
+border-color: #000000;
+background-color:transparent;
+}
+#addressbook_list .button {
+font-family:sans-serif;
+font-size:8pt;
+font-weight:bold;
+
+/* styles taken out of templates/report/general_default.html */
+#reports_list td {
+font-size:8pt;
+font-family:helvetica;
+}
+#reports_list a {
+font-size:8pt;
+font-family:helvetica;
+}
+
+/* styles taken out of templates/documents/general_list.html */
+#documents_list td {
+font-size:8pt;
+font-family:helvetica;
+}
+#documents_list a {
+font-size:8pt;
+font-family:helvetica;
+}
+#documents_list .treeMenuDefault {
+font-style: italic;
+}
+#documents_list .treeMenuBold {
+font-style: italic;
+font-weight: bold;
+}
+#documents_list {
+    width: 25%;
+    height: 90%; 
+    overflow: auto; 
+    border: 2px inset;
+    float: left;
+}
+#documents_actions {
+    padding-top: 10px;
+    width: 70%;
+    height: 90%; 
+    float: right;
+    overflow: auto;
+}
+#documents_actions iframe {
+    display: inline;
+    border:none; 
+    width:100%; 
+    height:600px; 
+    overflow: auto;
+}
+#documents_actions form {
+    margin: 0px; padding: 0px;
+}
+#documents_actions table {
+    width: 100%;
+    height: 100%;
+}

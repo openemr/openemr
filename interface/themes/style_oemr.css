@@ -123,12 +123,14 @@ a:hover { color: #A28268; text-decoration: underline; }
     font-size: 70%;
 }
 
+/* this class is used sporadically through the application as an 
+ * alternative to the typical anchor
+ */
 .link_selected {
     text-decoration: none;
     color: #0000FF;
     font-size: 70%;
 }
-
 .link_selected:visited {
     text-decoration: none;
     color: #6895A2;
@@ -137,17 +139,11 @@ a:hover { color: #A28268; text-decoration: underline; }
 
 .link_submit {
     text-decoration: none;
-    color: #000077;
-    font-size: 10pt;
+    font-size: 0.8em;
+    color: #250DA6;
 }
-
-.link_submit:visited {
-  color: #000077;
-}
-
-.link_submit:hover {
-  color: #ff5555;
-}
+.link_submit a:visited { color: #0000cc; }
+.link_submit a:hover { color: #A28268; text-decoration:underline; }
 
 .items {
     font-size: 6pt;
@@ -228,9 +224,6 @@ a:hover { color: #A28268; text-decoration: underline; }
     font-family: sans-serif;
     margin-top: 5px;
 }
-#reports_list a {
-    font-size: 1em;
-}
 #reports_list td {
     font-size: 1em;
 }
@@ -239,5 +232,121 @@ a:hover { color: #A28268; text-decoration: underline; }
 }
 #reports_list li {
     padding: 2px 0px 0px 0px;
+    font-size: 0.9em;
 }
 
+/*=============================================================
+ * For the list of office notes page
+ *============================================================*/
+#officenotes_list {
+    width: 100%;
+}
+#officenotes_list table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid black;
+}
+#officenotes_list td {
+    padding: 3px;
+    border-bottom: 1px solid black;
+    background-color: #FFF9E8;
+}
+
+/*=============================================================
+ * For the editing office notes page
+ *============================================================*/
+#officenotes_edit table {
+    border-collapse: collapse;
+}
+#officenotes_edit form {
+    padding: 0px; margin: 0px;
+}
+#officenotes_edit .existingnotes table {
+    /* for some unexplicable reason this particular style block is being ignored */
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+#officenotes_edit .existingnotes td {
+    padding: 3px;
+    border-bottom: 1px solid black;
+    background-color: #FFF9E8;
+}
+
+
+/*=============================================================
+ * For the the address book list
+ *============================================================*/
+#addressbook_list table { border-collapse: collapse; }
+#addressbook_list td { padding: 0px 4px 0px 4px; }
+#addressbook_list a, #addressbook_list a:visited, #addressbook_list a:hover { color:#0000cc; }
+#addressbook_list .search td {
+    padding: 3px 0px 10px 0px;
+}
+#addressbook_list .head td {
+    font-size: 0.8em;
+    background-color:#cccccc;
+    font-weight:bold;
+}
+#addressbook_list .detail td {
+    font-size: 0.8em;
+}
+#addressbook_list .inputtext {
+    font-weight:normal;
+    border-style:solid;
+    border-width:1px;
+    border-color: #000000;
+}
+#addressbook_list .button {
+}
+#addressbook_list .evenrow { background-color: #E7D294; }
+#addressbook_list .oddrow { background-color: #FFF3D1; }
+
+/*=============================================================
+ * For the patient documents list
+ *============================================================*/
+#documents_list form {
+    margin: 0px; padding: 0px;
+}
+#documents_list table {
+    width: 25%;
+    overflow: hidden;
+    margin: 10px;
+}
+#documents_list td {
+    font-size: 0.8em;
+    vertical-align: top;
+}
+#documents_list a {
+}
+#documents_list .treeMenuDefault {
+}
+#documents_list .treeMenuBold {
+    font-weight: bold;
+}
+#documents_list {
+    width: 25%;
+    height: 90%; 
+    overflow: auto; 
+    border: 2px inset;
+    float: left;
+}
+#documents_actions {
+    padding-top: 10px;
+    width: 70%;
+    height: 90%; 
+    float: right;
+    overflow: auto;
+}
+#documents_actions iframe {
+    display: inline;
+    border:none; 
+    width:100%; 
+    height:600px; 
+    overflow: auto;
+}
+#documents_actions form {
+    margin: 0px; padding: 0px;
+}
+#documents_actions table {
+    width: 100%;
+}
