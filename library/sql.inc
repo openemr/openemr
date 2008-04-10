@@ -17,7 +17,7 @@ if (!$GLOBALS['dbh']) {
   } else {
     echo "Check that you can ping the server '$host'.<p>";
   }//if local
-  HelpfulDie("Could not connect to server!", mysql_error());
+  HelpfulDie("Could not connect to server!", mysql_error($GLOBALS['dbh']));
   exit;
 }//if no connection
 
@@ -30,7 +30,7 @@ function sqlStatement($statement)
 {
   //----------run a mysql query, return the handle
   $query = mysql_query($statement, $GLOBALS['dbh']) or 
-    HelpfulDie("query failed: $statement (" . mysql_error() . ")");
+    HelpfulDie("query failed: $statement", mysql_error($GLOBALS['dbh']));
   return $query;
 }
 
@@ -43,7 +43,7 @@ function sqlClose()
 {
   //----------Close our mysql connection
   $closed = mysql_close($GLOBALS['dbh']) or
-    HelpfulDie("could not disconnect from mysql server link (" . mysql_error() . ")");
+    HelpfulDie("could not disconnect from mysql server link", mysql_error($GLOBALS['dbh']));
   return $closed;
 }
 
@@ -51,7 +51,7 @@ function sqlInsert($statement)
 {
   //----------run a mysql insert, return the last id generated
   mysql_query($statement, $GLOBALS['dbh']) or 
-    HelpfulDie("insert failed: $statement (" . mysql_error() . ")");
+    HelpfulDie("insert failed: $statement", mysql_error($GLOBALS['dbh']));
   return mysql_insert_id($GLOBALS['dbh']);
 }
 
@@ -72,7 +72,7 @@ function sqlQuery ($statement)
   //echo "[$statement]<br>";
   //echo "link is: " . $GLOBALS['dbh'];
   $query = mysql_query($statement, $GLOBALS['dbh']) or 
-    HelpfulDie("query failed: $statement (" . mysql_error() . ")");
+    HelpfulDie("query failed: $statement", mysql_error($GLOBALS['dbh']));
   $rez = @mysql_fetch_array($query, MYSQL_ASSOC);
   if ($rez == FALSE)
     return FALSE;
@@ -98,7 +98,7 @@ function sqlQ ($statement)
   //echo "[$statement]<br>";
   //echo "link is: " . $GLOBALS['dbh'];
   $query = mysql_query($statement, $GLOBALS['dbh']) or
-    HelpfulDie("query failed: $statement (" . mysql_error() . ")");
+    HelpfulDie("query failed: $statement", mysql_error($GLOBALS['dbh']));
   return $query;
 }
 
