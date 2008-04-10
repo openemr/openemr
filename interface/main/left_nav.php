@@ -560,6 +560,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
           <?php genTreeLink('RBot','nen','New'); ?>
           <?php genTreeLink('RBot','enc','Current'); ?>
           <?php genTreeLink('RBot','ens','List'); ?>
+          <?php genTreeLink('RBot','tra','Transact'); ?>
         </ul>
       </li>
       <li><span><?php xl('Medical Record','e') ?></span>
@@ -570,7 +571,6 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
           <?php genTreeLink('RBot','imm','Immunize'); ?>
           <?php genTreeLink('RTop','doc','Documents'); ?>
           <?php genTreeLink('RBot','pno','Notes'); ?>
-          <?php genTreeLink('RBot','tra','Transact'); ?>
           <?php genTreeLink('RTop','prp','Report'); ?>
         </ul>
       </li>
