@@ -194,13 +194,16 @@ if ($result) {
         $next_appt_date= ''; 
         $pid = '';
 
-        //calculate date differences based on date of last cpt4 entry
+        // calculate date differences based on date of last encounter with billing entries
         $query = "select DATE_FORMAT(date(max(form_encounter.date)),'%m/%d/%y') as mydate," .
-                " (to_days(current_date())-to_days(max(form_encounter.date))) as day_diff," . 
-                " DATE_FORMAT(date(max(form_encounter.date)) + interval " . $add_days . 
-                " day,'%m/%d/%y') as next_appt, dayname(max(form_encounter.date) + interval " . 
-                $add_days." day) as next_appt_day from form_encounter join billing on (billing.encounter = form_encounter.encounter) where billing.code_type". 
-                " like 'CPT4' and form_encounter.pid=" . $iter{"pid"}; 
+                " (to_days(current_date())-to_days(max(form_encounter.date))) as day_diff," .
+                " DATE_FORMAT(date(max(form_encounter.date)) + interval " . $add_days .
+                " day,'%m/%d/%y') as next_appt, dayname(max(form_encounter.date) + interval " .
+                $add_days." day) as next_appt_day from form_encounter " .
+                "join billing on billing.encounter = form_encounter.encounter and " .
+                "billing.pid = form_encounter.pid and billing.activity = 1 and " .
+                "billing.code_type not like 'COPAY' where ".
+                "form_encounter.pid = " . $iter{"pid"};
         $statement= sqlStatement($query);
         if ($results = mysql_fetch_array($statement, MYSQL_ASSOC)) {
             $last_date_seen = $results['mydate']; 
@@ -210,12 +213,12 @@ if ($result) {
 
         //calculate count of encounters by distinct billing dates with cpt4
         //entries
-        $query = "select count(distinct date) as encounter_count " . 
-                "from billing where code_type like 'CPT4' and activity=1 " . 
-                "and pid=".$iter{"pid"}; 
+        $query = "select count(distinct date) as encounter_count " .
+                "from billing where code_type not like 'COPAY' and activity = 1 " .
+                "and pid = ".$iter{"pid"};
         $statement= sqlStatement($query);
         if ($results = mysql_fetch_array($statement, MYSQL_ASSOC)) {
-            $encounter_count = $results['encounter_count']; 
+            $encounter_count = $results['encounter_count'];
         }
         echo "<td class='srNumEnc'>".$encounter_count."</td>";
         echo "<td class='srNumDay'>".$day_diff."</td>";
