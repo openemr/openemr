@@ -115,7 +115,7 @@ if ( $eid ) {
 
  // If we are saving, then save and close the window.
  //
- if ($_POST['form_save']) {
+ if ($_POST['form_action'] == "save") {
 
   $event_date = fixDate($_POST['form_date']);
 
@@ -407,7 +407,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
   }
 
  }
- else if ($_POST['form_delete']) {
+ else if ($_POST['form_action'] == "delete") {
         // =======================================
         //  multi providers case
         // =======================================
@@ -427,7 +427,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
         }
  }
 
- if ($_POST['form_save'] || $_POST['form_delete']) {
+ if ($_POST['form_action'] != "") {
   // Close this window and refresh the calendar display.
   echo "<html>\n<body>\n<script language='JavaScript'>\n";
   if ($info_msg) echo " alert('$info_msg');\n";
@@ -707,14 +707,28 @@ td { font-size:0.8em; }
 
  // Check for errors when the form is submitted.
  function validate() {
-  var f = document.forms[0];
+  var f = document.getElementById('theform');
   if (f.form_repeat.checked &&
       (! f.form_enddate.value || f.form_enddate.value < f.form_date.value)) {
    alert('An end date later than the start date is required for repeated events!');
    return false;
   }
+  var form_action = document.getElementById('form_action');
+  form_action.value="save";
+  f.submit();
   top.restoreSession();
   return true;
+ }
+
+ function deleteEvent() {
+    if (confirm("Deleting this event cannot be undone. It cannot be recovered once it is gone.\nAre you sure you wish to delete this event?")) {
+        var f = document.getElementById('theform');
+        var form_action = document.getElementById('form_action');
+        form_action.value="delete";
+        f.submit();
+        return true;
+    }
+    return false;
  }
 
 </script>
@@ -723,7 +737,8 @@ td { font-size:0.8em; }
 
 <body class="body_top" onunload='imclosing()'>
 
-<form method='post' name='theform' action='add_edit_event.php?eid=<?php echo $eid ?>' onsubmit='return validate()'>
+<form method='post' name='theform' id='theform' action='add_edit_event.php?eid=<?php echo $eid ?>' />
+<input type="hidden" name="form_action" id="form_action" value="">
 <center>
 
 <table border='0' width='100%'>
@@ -762,18 +777,15 @@ td { font-size:0.8em; }
   </td>
   <td nowrap>
    &nbsp;&nbsp;
-   <input type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2'
-    <?php if ($thisduration != 1440) echo "checked " ?>/>
+   <input type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2' <?php if ($thisduration != 1440) echo "checked " ?>/>
   </td>
   <td width='1%' nowrap id='tdallday2'>
    <?php xl('Time','e'); ?>
   </td>
   <td width='1%' nowrap id='tdallday3'>
-   <input type='text' size='2' name='form_hour'
-    value='<?php echo $starttimeh ?>'
+   <input type='text' size='2' name='form_hour' value='<?php echo $starttimeh ?>'
     title='<?php xl('Event start time','e'); ?>' /> :
-   <input type='text' size='2' name='form_minute'
-    value='<?php echo $starttimem ?>'
+   <input type='text' size='2' name='form_minute' value='<?php echo $starttimem ?>'
     title='<?php xl('Event start time','e'); ?>' />&nbsp;
    <select name='form_ampm' title='Note: 12:00 noon is PM, not AM'>
     <option value='1'><?php xl('AM','e'); ?></option>
@@ -786,8 +798,7 @@ td { font-size:0.8em; }
    <b><?php xl('Title','e'); ?>:</b>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_title'
-    value='<?php echo addslashes($row['pc_title']) ?>'
+   <input type='text' size='10' name='form_title' value='<?php echo addslashes($row['pc_title']) ?>'
     style='width:100%'
     title='<?php xl('Event title','e'); ?>' />
   </td>
@@ -797,8 +808,8 @@ td { font-size:0.8em; }
   <td nowrap id='tdallday4'><?php xl('duration','e'); ?>
   </td>
   <td nowrap id='tdallday5'>
-   <input type='text' size='4' name='form_duration' value='<?php echo $thisduration ?>'
-    title='<?php xl('Event duration in minutes','e'); ?>' /> <?php xl('minutes','e'); ?>
+   <input type='text' size='4' name='form_duration' value='<?php echo $thisduration ?>' title='<?php xl('Event duration in minutes','e'); ?>' /> 
+    <?php xl('minutes','e'); ?>
   </td>
  </tr>
 
@@ -837,13 +848,14 @@ td { font-size:0.8em; }
    <b><?php xl('Patient','e'); ?>:</b>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_patient' style='width:100%;cursor:pointer;cursor:hand'
-    value='<?php echo $patientname ?>' onclick='sel_patient()'
-    title='<?php xl('Click to select patient','e'); ?>' readonly />
+   <input type='text' size='10' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo $patientname ?>' onclick='sel_patient()' title='<?php xl('Click to select patient','e'); ?>' readonly />
    <input type='hidden' name='form_pid' value='<?php echo $patientid ?>' />
   </td>
   <td colspan='3' nowrap style='font-size:8pt'>
-   &nbsp;<?php echo $patienttitle ?>
+   &nbsp; 
+   <span class="infobox">
+   <?php if ($patienttitle != "") { echo $patienttitle; } ?>
+   </span>
   </td>
  </tr>
 
@@ -929,8 +941,7 @@ echo '</select>';
   </td>
   <td nowrap>
    &nbsp;&nbsp;
-   <input type='checkbox' name='form_repeat' onclick='set_repeat(this)'
-    value='1'<?php if ($repeats) echo " checked" ?>/>
+   <input type='checkbox' name='form_repeat' onclick='set_repeat(this)' value='1'<?php if ($repeats) echo " checked" ?>/>
   </td>
   <td nowrap id='tdrepeat1'><?php xl('Repeats','e'); ?>
   </td>
@@ -995,10 +1006,7 @@ echo '</select>';
   <td nowrap id='tdrepeat2'><?php xl('until','e'); ?>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_enddate' id='form_enddate'
-    value='<?php echo $row['pc_endDate'] ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='<?php xl('yyyy-mm-dd last date of this event','e');?>' />
+   <input type='text' size='10' name='form_enddate' id='form_enddate' value='<?php echo $row['pc_endDate'] ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php xl('yyyy-mm-dd last date of this event','e');?>' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_enddate' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
     title='<?php xl('Click here to choose a date','e');?>'>
@@ -1010,9 +1018,7 @@ echo '</select>';
    <b><?php xl('Comments','e'); ?>:</b>
   </td>
   <td colspan='4' nowrap>
-   <input type='text' size='40' name='form_comments' style='width:100%'
-    value='<?php echo $hometext ?>'
-    title='<?php xl('Optional information about this event','e');?>' />
+   <input type='text' size='40' name='form_comments' style='width:100%' value='<?php echo $hometext ?>' title='<?php xl('Optional information about this event','e');?>' />
   </td>
  </tr>
 
@@ -1029,9 +1035,7 @@ echo '</select>';
    <b><font color='red'><?php xl('DOB is missing, please enter if possible','e'); ?>:</font></b>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_dob' id='form_dob'
-    title='<?php xl('yyyy-mm-dd date of birth','e');?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
+   <input type='text' size='10' name='form_dob' id='form_dob' title='<?php xl('yyyy-mm-dd date of birth','e');?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_dob' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
     title='<?php xl('Click here to choose a date','e');?>'>
@@ -1041,11 +1045,11 @@ echo '</select>';
 </table>
 
 <p>
-<input type='submit' name='form_save' value='<?php xl('Save','e');?>' />
+<input type='button' name='form_save' value='<?php xl('Save','e');?>' onclick="validate()" />
 &nbsp;
 <input type='button' value='<?php xl('Find Available','e');?>' onclick='find_available()' />
 &nbsp;
-<input type='submit' name='form_delete' value='<?php xl('Delete','e');?>'<?php if (!$eid) echo " disabled" ?> />
+<input type='button' name='form_delete' value='<?php xl('Delete','e');?>'<?php if (!$eid) echo " disabled" ?> onclick='deleteEvent()'/>
 &nbsp;
 <input type='button' value='<?php xl('Cancel','e');?>' onclick='window.close()' />
 </p>
