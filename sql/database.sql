@@ -4598,6 +4598,7 @@ INSERT INTO `layout_options` VALUES ('DEM', 'monthly_income', '5Stats', 'Monthly
 INSERT INTO `layout_options` VALUES ('DEM', 'homeless', '5Stats', 'Homeless, etc.', 6, 2, 1, 20, 63, '', 1, 1, '', '', 'Homeless or similar?');
 INSERT INTO `layout_options` VALUES ('DEM', 'interpretter', '5Stats', 'Interpreter', 7, 2, 1, 20, 63, '', 1, 1, '', '', 'Interpreter needed?');
 INSERT INTO `layout_options` VALUES ('DEM', 'migrantseasonal', '5Stats', 'Migrant/Seasonal', 8, 2, 1, 20, 63, '', 1, 1, '', '', 'Migrant or seasonal worker?');
+INSERT INTO `layout_options` VALUES ('DEM', 'contrastart', '5Stats', 'Contraceptives Start',9,2,0,10,10,'',1,1,'','D','Date contraceptive services initially provided');
 INSERT INTO `layout_options` VALUES ('DEM', 'usertext1', '6Misc', 'User Defined Text 1', 1, 2, 0, 10, 63, '', 1, 1, '', '', 'User Defined');
 INSERT INTO `layout_options` VALUES ('DEM', 'usertext2', '6Misc', 'User Defined Text 2', 2, 2, 0, 10, 63, '', 1, 1, '', '', 'User Defined');
 INSERT INTO `layout_options` VALUES ('DEM', 'userlist1', '6Misc', 'User Defined List 1', 3, 1, 0, 0, 0, 'userlist1', 1, 1, '', '', 'User Defined');
@@ -4681,6 +4682,7 @@ INSERT INTO `list_options` VALUES ('risklevel', 'medium', 'Medium', 2, 1, 0);
 INSERT INTO `list_options` VALUES ('risklevel', 'high', 'High', 3, 0, 0);
 INSERT INTO `list_options` VALUES ('boolean', '0', 'No', 1, 0, 0);
 INSERT INTO `list_options` VALUES ('boolean', '1', 'Yes', 2, 0, 0);
+INSERT INTO `list_options` VALUES ('country', 'USA', 'USA', 1, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -5085,7 +5087,8 @@ CREATE TABLE `patient_data` (
   `userlist6` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
   `userlist7` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
   `pricelevel` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default 'standard',
-  `regdate`    date DEFAULT NULL COMMENT 'Registration Date',
+  `regdate`     date DEFAULT NULL COMMENT 'Registration Date',
+  `contrastart` date DEFAULT NULL COMMENT 'Date contraceptives initially used',
   UNIQUE KEY `pid` (`pid`),
   KEY `id` (`id`),
   KEY `pid_2` (`pid`)

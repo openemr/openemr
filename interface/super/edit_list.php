@@ -12,11 +12,13 @@ require_once("../../custom/code_types.inc.php");
 
 $lists = array(
   'boolean'    => xl('Boolean'),
+  'country'    => xl('Country'),
   'feesheet'   => xl('Fee Sheet'),
   'language'   => xl('Language'),
   'marital'    => xl('Marital Status'),
   'pricelevel' => xl('Price Level'),
   'ethrace'    => xl('Race/Ethnicity'),
+  'refsource'  => xl('Referral Source'),
   'risklevel'  => xl('Risk Level'),
   'superbill'  => xl('Service Category'),
   'sex'        => xl('Sex'),
@@ -25,6 +27,11 @@ $lists = array(
   'yesno'      => xl('Yes/No'),
   'userlist1'  => xl('User Defined List 1'),
   'userlist2'  => xl('User Defined List 2'),
+  'userlist3'  => xl('User Defined List 3'),
+  'userlist4'  => xl('User Defined List 4'),
+  'userlist5'  => xl('User Defined List 5'),
+  'userlist6'  => xl('User Defined List 6'),
+  'userlist7'  => xl('User Defined List 7'),
 );
 
 $list_id = empty($_REQUEST['list_id']) ? 'language' : $_REQUEST['list_id'];

@@ -154,6 +154,13 @@ if ($_POST['bn_save']) {
     }
   } // end for
 
+  // This part exists for IPPF clinics and will not be invoked unless
+  // contrastart is enabled in the demographics layout.
+  if (!empty($_POST['contrastart'])) {
+    sqlStatement("UPDATE patient_data SET contrastart = '" .
+      $_POST['contrastart'] . "' WHERE pid = '$pid'");
+  }
+
   // Note: I was going to compute taxes here, but now I think better to
   // do that at checkout time (in pos_checkout.php which also posts to SL).
   // Currently taxes with insurance claims make no sense, so for now we'll
@@ -923,7 +930,30 @@ if ($encounter_provid < 0) $encounter_provid = $_SESSION["authUserID"];
 <br>
 &nbsp;
 
-<span class="billcell"><?php xl('PROVIDER:','e');?></span>
+<?php
+// If applicable, ask for the contraceptive services start date.
+$trow = sqlQuery("SELECT count(*) AS count FROM layout_options WHERE " .
+  "form_id = 'DEM' AND field_id = 'contrastart' AND uor > 0");
+if ($trow['count']) {
+  $trow = sqlQuery("SELECT contrastart " .
+    "FROM patient_data, prices WHERE " .
+    "patient_data.pid = '$pid' LIMIT 1");
+  if (empty($trow['contrastart']) || substr($trow['contrastart'], 0, 4) == '0000') {
+    $trow = sqlQuery("SELECT date FROM form_encounter WHERE " .
+      "pid = '$pid' AND encounter = '$encounter' LIMIT 1");
+    $date1 = substr($trow['date'], 0, 10);
+    $date0 = date('Y-m-d', strtotime($date1) - (60 * 60 * 24));
+    echo "   <select name='contrastart'>\n";
+    echo "    <option value='$date1'>" . xl('This visit begins new contraceptive use') . "</option>\n";
+    echo "    <option value='$date0'>" . xl('Contraceptive services previously started') . "</option>\n";
+    echo "    <option value=''>" . xl('None of the above') . "</option>\n";
+    echo "   </select>\n";
+    echo "&nbsp; &nbsp; &nbsp;\n";
+  }
+}
+?>
+
+<span class="billcell"><b><?php xl('Provider:','e');?></b></span>
 
 <?php
 // Build a drop-down list of providers.  This includes users who
@@ -949,7 +979,7 @@ while ($row = sqlFetchArray($res)) {
 echo "   </select>\n";
 ?>
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp;
 
 <input type='submit' name='bn_save' value='<?php xl('Save','e');?>' />
 &nbsp;

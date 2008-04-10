@@ -68,10 +68,14 @@ $regstyle = $crow['count'] ? "" : " style='display:none'";
   </td>
   <td>
    <select name='title'>
-    <option value="Mrs."><?php xl('Mrs.','e');?></option>
-    <option value="Ms."><?php xl('Ms.','e');?></option>
-    <option value="Mr."><?php xl('Mr.','e');?></option>
-    <option value="Dr."><?php xl('Dr.','e');?></option>
+<?php
+$ores = sqlStatement("SELECT option_id, title FROM list_options " .
+  "WHERE list_id = 'titles' ORDER BY seq");
+while ($orow = sqlFetchArray($ores)) {
+  echo "    <option value='" . $orow['option_id'] . "'>" . $orow['title'] .
+    "</option>\n";
+}
+?>
    </select>
   </td>
  </tr>
@@ -111,12 +115,14 @@ $regstyle = $crow['count'] ? "" : " style='display:none'";
   </td>
   <td>
    <select name='refsource'>
+    <option value=''>Unassigned</option>
 <?php
- foreach (array('', 'Patient', 'Employee', 'Walk-In', 'Newspaper', 'Radio',
-  'T.V.', 'Direct Mail', 'Coupon', 'Referral Card', 'Other') as $rs)
- {
-  echo "    <option value='$rs'>$rs</option>\n";
- }
+$ores = sqlStatement("SELECT option_id, title FROM list_options " .
+  "WHERE list_id = 'refsource' ORDER BY seq");
+while ($orow = sqlFetchArray($ores)) {
+  echo "    <option value='" . $orow['option_id'] . "'>" . $orow['title'] .
+    "</option>\n";
+}
 ?>
    </select>
   </td>

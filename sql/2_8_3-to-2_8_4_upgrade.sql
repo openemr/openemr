@@ -101,7 +101,7 @@ INSERT INTO layout_options VALUES ('DEM','street'              ,'2Contact','Addr
 INSERT INTO layout_options VALUES ('DEM','city'                ,'2Contact','City'             , 2, 2,1,15,63,''     ,1,1,'','C','City Name');
 INSERT INTO layout_options VALUES ('DEM','state'               ,'2Contact','State'            , 3, 2,1,15,63,''     ,1,1,'','C','State/Locality');
 INSERT INTO layout_options VALUES ('DEM','postal_code'         ,'2Contact','Postal Code'      , 4, 2,1, 6,63,''     ,1,1,'','' ,'Postal Code');
-INSERT INTO layout_options VALUES ('DEM','country_code'        ,'2Contact','Country'          , 5, 2,1,10,63,''     ,1,1,'','C','Country');
+INSERT INTO layout_options VALUES ('DEM','country_code'        ,'2Contact','Country'          , 5, 1,1, 0, 0,'country',1,1,'','','Country');
 INSERT INTO layout_options VALUES ('DEM','contact_relationship','2Contact','Emergency Contact', 6, 2,1,10,63,''     ,1,1,'','C','Emergency Contact Person');
 INSERT INTO layout_options VALUES ('DEM','phone_contact'       ,'2Contact','Emergency Phone'  , 7, 2,1,20,63,''     ,1,1,'','P','Emergency Contact Phone Number');
 INSERT INTO layout_options VALUES ('DEM','phone_home'          ,'2Contact','Home Phone'       , 8, 2,1,20,63,''     ,1,1,'','P','Home Phone Number');
@@ -261,3 +261,19 @@ INSERT INTO layout_options VALUES ('DEM','userlist5'       ,'6Misc','User Define
 INSERT INTO layout_options VALUES ('DEM','userlist6'       ,'6Misc','User Defined List 6'   , 8, 1,0, 0, 0,'userlist6',1,1,'','' ,'User Defined');
 INSERT INTO layout_options VALUES ('DEM','userlist7'       ,'6Misc','User Defined List 7'   , 9, 1,0, 0, 0,'userlist7',1,1,'','' ,'User Defined');
 INSERT INTO layout_options VALUES ('DEM','regdate'         ,'6Misc','Registration Date'     ,10, 2,0,10,10,''         ,1,1,'','D','Start Date at This Clinic');
+
+INSERT INTO list_options VALUES ('refsource','Patient'      ,'Patient'      , 1,0,0);
+INSERT INTO list_options VALUES ('refsource','Employee'     ,'Employee'     , 2,0,0);
+INSERT INTO list_options VALUES ('refsource','Walk-In'      ,'Walk-In'      , 3,0,0);
+INSERT INTO list_options VALUES ('refsource','Newspaper'    ,'Newspaper'    , 4,0,0);
+INSERT INTO list_options VALUES ('refsource','Radio'        ,'Radio'        , 5,0,0);
+INSERT INTO list_options VALUES ('refsource','T.V.'         ,'T.V.'         , 6,0,0);
+INSERT INTO list_options VALUES ('refsource','Direct Mail'  ,'Direct Mail'  , 7,0,0);
+INSERT INTO list_options VALUES ('refsource','Coupon'       ,'Coupon'       , 8,0,0);
+INSERT INTO list_options VALUES ('refsource','Referral Card','Referral Card', 9,0,0);
+INSERT INTO list_options VALUES ('refsource','Other'        ,'Other'        ,10,0,0);
+
+INSERT INTO list_options VALUES ('country','USA','USA',1,0,0);
+
+ALTER TABLE patient_data ADD `contrastart` date DEFAULT NULL COMMENT 'Date contraceptives initially used';
+INSERT INTO layout_options VALUES ('DEM','contrastart','5Stats','Contraceptives Start',9,2,0,10,10,'',1,1,'','D','Date contraceptive services initially provided');
