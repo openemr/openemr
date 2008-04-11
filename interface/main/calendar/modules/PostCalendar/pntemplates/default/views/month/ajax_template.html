@@ -507,9 +507,9 @@ foreach ($providers as $provider) {
         $("#datePicker .tdNav").mouseover(function() { $(this).toggleClass("tdDatePickerHighlight"); });
         $("#datePicker .tdNav").mouseout(function() { $(this).toggleClass("tdDatePickerHighlight"); });
         $("#printview").click(function() { PrintView(this); });
-        $(".event").dblclick(function() { EditEvent(this); });
-        $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
-        $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
+        $(".month_event").dblclick(function() { EditEvent(this); });
+        $(".month_event").mouseover(function() { $(this).toggleClass("event_highlight"); });
+        $(".month_event").mouseout(function() { $(this).toggleClass("event_highlight"); });
     });
     
     /* edit an existing event */
