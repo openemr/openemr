@@ -442,6 +442,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
   '-' => '',
   '*' => xl('* Reminder done'),
   '+' => xl('+ Chart pulled'),
+  'x' => xl('x Cancelled'), // added Apr 2008 by JRM
   '?' => xl('? No show'),
   '@' => xl('@ Arrived'),
   '~' => xl('~ Arrived late'),
