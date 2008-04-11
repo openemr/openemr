@@ -64,7 +64,6 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 }
 #bigCal {
     width:70%;
-    height: 280px;
     height: 80%;
     overflow: auto;
     float: right;
@@ -238,51 +237,45 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     font-size: 0.7em;
     width:13%;
 }
+.month_event {
+    font-size: 0.8em;
+    width: 100%;
+}
 
 /* types of events */
+.event {
+    position: absolute;
+    font-size: 0.8em;
+    width: 100%;
+}
 .event img {
     vertical-align:middle;
 }
 .event_in {
-    position: absolute;
     background-color: white;
-    width: 100%; 
     z-index:1;
-    font-size: 0.8em;
 }
 .event_out {
-    position: absolute;
     background-color: lightgray;
-    width: 100%; 
     z-index:1;
-    font-size: 0.8em;
 }
 .event_appointment {
-    position: absolute;
     background-color: white;
     z-index:2;
     overflow: hidden;
     border: 1px solid #ccc;
-    width: 100%;
-    font-size: 0.8em;
 }
 .event_noshow {
-    position: absolute;
     background-color: pink;
     z-index:2;
     overflow: hidden;
     border: 1px solid #fcc;
-    width: 100%;
-    font-size: 0.8em;
 }
 .event_reserved {
-    position: absolute;
     background-color: pink;
     z-index:2;
     overflow: hidden;
     border: 1px solid #cfc;
-    width: 100%;
-    font-size: 0.8em;
 }
 .event_highlight { font-weight: bold; }
 
