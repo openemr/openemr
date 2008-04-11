@@ -389,6 +389,15 @@ foreach ($providers as $provider) {
                 // skip events for other providers
                 if ($providerid != $e1['aid']) { continue; }
             
+                // specially handle all-day events
+                if ($e1['alldayevent'] == 1) {
+                    $tmpTime = $times[0];
+                    if (strlen($tmpTime['hour']) < 2) { $tmpTime['hour'] = "0".$tmpTime['hour']; }
+                    if (strlen($tmpTime['minute']) < 2) { $tmpTime['minute'] = "0".$tmpTime['minute']; }
+                    $e1['startTime'] = $tmpTime['hour'].":".$tmpTime['minute'].":00";
+                    $e1['duration'] = ($calEndMin - $calStartMin) * 60;  // measured in seconds
+                }
+
                 // create a numeric start and end for comparison
                 $starth = substr($e1['startTime'], 0, 2);
                 $startm = substr($e1['startTime'], 3, 2);
@@ -433,6 +442,15 @@ foreach ($providers as $provider) {
 
             // skip events without an ID (why they are in the loop, I have no idea)
             if ($event['eid'] == "") { continue; }
+                
+            // specially handle all-day events
+            if ($event['alldayevent'] == 1) {
+                $tmpTime = $times[0];
+                if (strlen($tmpTime['hour']) < 2) { $tmpTime['hour'] = "0".$tmpTime['hour']; }
+                if (strlen($tmpTime['minute']) < 2) { $tmpTime['minute'] = "0".$tmpTime['minute']; }
+                $event['startTime'] = $tmpTime['hour'].":".$tmpTime['minute'].":00";
+                $event['duration'] = ($calEndMin - $calStartMin) * 60;  // measured in seconds
+            }
 
             // figure the start time and minutes (from midnight)
             $starth = substr($event['startTime'], 0, 2);

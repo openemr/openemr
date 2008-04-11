@@ -323,7 +323,7 @@ foreach ($providers as $provider) {
         if (isset($A_EVENTS[date("Y-m-d", $dateplusfour)])) {
             echo "<div id='dowheader'>".date("D m/d", $dateplusfour)."</div>";
             $tmpEvents = $A_EVENTS[date("Y-m-d", $dateplusfour)];
-            PrintEvents($tmpEvents);
+            PrintEvents($tmpEvents, $providerid);
         }
         echo "</tr>";
 
@@ -338,6 +338,8 @@ foreach ($providers as $provider) {
 
 /* print out the array of events */
 function PrintEvents($events, $providerid) {
+    global $times, $calStartMin, $calEndMin;
+
         // now loop over the events for the day and output their DIVs
         foreach ($events as $event) {
             // skip events for other providers
@@ -346,6 +348,15 @@ function PrintEvents($events, $providerid) {
 
             // skip events without an ID (why they are in the loop, I have no idea)
             if ($event['eid'] == "") { continue; }
+            
+            // specially handle all-day events
+            if ($event['alldayevent'] == 1) {
+                $tmpTime = $times[0];
+                if (strlen($tmpTime['hour']) < 2) { $tmpTime['hour'] = "0".$tmpTime['hour']; }
+                if (strlen($tmpTime['minute']) < 2) { $tmpTime['minute'] = "0".$tmpTime['minute']; }
+                $event['startTime'] = $tmpTime['hour'].":".$tmpTime['minute'].":00";
+                $event['duration'] = ($calEndMin - $calStartMin) * 60;  // measured in seconds
+            }
 
             // figure the start time and minutes (from midnight)
             $starth = substr($event['startTime'], 0, 2);
@@ -496,6 +507,8 @@ function PrintEvents($events, $providerid) {
             echo $content;
             echo "</div>";
         } // end EVENT loop
+
+    return;
 }
 
 /* output a small calendar, based on the date-picker code from the normal calendar */
