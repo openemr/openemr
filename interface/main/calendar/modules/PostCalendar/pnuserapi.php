@@ -1319,7 +1319,7 @@ function calculateEvents($days,$events,$viewtype) {
 
     // determine the stop date for this event
     if($event['endDate'] == '0000-00-00') {
-      $stop = $end_date;
+      $stop = $end_date;  // <--- this isn't previously defined !!
     } else {
       $stop = $event['endDate'];
     }
@@ -1336,9 +1336,9 @@ function calculateEvents($days,$events,$viewtype) {
 
     // Optimization of the stop date to not be much later than required.
     $tmpsecs = strtotime($start_date);
-    if      ($viewtype == 'day')   $tmpsecs +=  2 * 24 * 3600;
-    else if ($viewtype == 'week')  $tmpsecs +=  8 * 24 * 3600;
-    else if ($viewtype == 'month') $tmpsecs += 32 * 24 * 3600;
+    if      ($viewtype == 'day')   $tmpsecs +=  3 * 24 * 3600;
+    else if ($viewtype == 'week')  $tmpsecs +=  9 * 24 * 3600;
+    else if ($viewtype == 'month') $tmpsecs += 34 * 24 * 3600;
     else $tmpsecs += 367 * 24 * 3600;
     $tmp = date('Y-m-d', $tmpsecs);
     if ($stop > $tmp) $stop = $tmp;
