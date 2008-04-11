@@ -10,13 +10,16 @@
 [-config_load file="default.conf"-]
 [-*Load the Language Definitions*-]
 [-config_load file="lang.$USER_LANG"-]
-[-include file="$TPL_NAME/views/header.html"-]
-[-* we want to include out stylesheet for this view*-]
-[-fetch file="$TPL_STYLE_PATH/day.css" assign="css"-]
-[-eval var=$css-]
+[-* DO NOT INCLUDE the default header, 
+  * which includes a stylesheet to screw up 
+  * our styles below *-]
+[-*include file="$TPL_NAME/views/header.html"*-]
 
 [-*Values used in setting timeslot and event heights*-]
 [-php-]$timeslotHeightVal=20; $timeslotHeightUnit="px";[-/php-]
+
+<html>
+<head>
 
 <style>
 a {
@@ -197,6 +200,9 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 </style>
 
 <script type="text/javascript" src="../../../library/textformat.js"></script>
+
+</head>
+<body>
 
 [-php-]
 

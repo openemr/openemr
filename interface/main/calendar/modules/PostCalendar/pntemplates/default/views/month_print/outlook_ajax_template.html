@@ -10,11 +10,13 @@
 [-config_load file="default.conf"-]
 [-*Load the Language Definitions*-]
 [-config_load file="lang.$USER_LANG"-]
-[-include file="$TPL_NAME/views/header.html"-]
-[-* we want to include out stylesheet for this view*-]
-[-fetch file="$TPL_STYLE_PATH/day.css" assign="css"-]
-[-eval var=$css-]
+[-* DO NOT INCLUDE the default header, 
+  * which includes a stylesheet to screw up 
+  * our styles below *-]
+[-*include file="$TPL_NAME/views/header.html"*-]
 
+<html>
+<head>
 <style>
 a {
  text-decoration:none;
@@ -196,6 +198,9 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 </style>
 
 <script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/js/jquery-1.2.2.min.js"></script>
+
+</head>
+<body>
 
 [-php-]
 
