@@ -270,10 +270,10 @@ function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, 
         .$search_for_pieces1."$lname%' "
         ."and fname like '"
         .$search_for_pieces2."$fname%' "
-        ."order by $orderby limit 100";
+        ."order by $orderby ";
 
-    if ($limit != "all")
-        $sql .= " limit $start, $limit";
+    if ($limit != "all") $sql .= " limit $start, $limit";
+
     $rez = sqlStatement($sql);
 
     for($iter=0; $row=sqlFetchArray($rez); $iter++)
@@ -469,7 +469,9 @@ function newPatientData(    $db_id="",
         $referral_source = $rez['referral_source'];
     }
 
-    $query = ("replace into patient_data set
+    // this was a 'replace into' statement but that would overwrite data
+    // seems like a HIPAA violation of some sort to me -- JRM Apr 2008
+    $query = ("insert into patient_data set
         id='$db_id',
         title='$title',
         fname='$fname',
@@ -518,8 +520,7 @@ function newPatientData(    $db_id="",
         fitness='$fitness',
         referral_source='$referral_source',
         regdate='$regdate',
-        date=NOW()
-            ");
+        date=NOW()");
 
     $id = sqlInsert($query);
     $foo = sqlQuery("select pid from patient_data where id='$id' order by date limit 0,1");
