@@ -2,9 +2,6 @@
 include_once("../../globals.php");
 include_once("$srcdir/patient.inc");
 
-//the maximum number of patient records to display:
-$M = 100;
-
 $patient = $_REQUEST['patient'];
 $findBy  = $_REQUEST['findBy'];
 
@@ -101,21 +98,21 @@ form {
 <body class="body_top">
 <a href="./patient_select_help.php" target=_new>[Help]&nbsp</a>
 
-<!-- This link seems to have a misleading name since it just returns you to the main_screen 
-Perhaps it applies to new layouts, not the old original one?
-<a class="title" href="../main_screen.php" target="_top" onclick="top.restoreSession()"> -->
-<?php echo xl('Select Patient') . ' ' . $patient . ' ' . xl('by') . ' ' . xl($findBy); ?>
-<!-- </a> -->
-
 <?php
+//the maximum number of patient records to display:
+$sqllimit = 100;
+
 if ($findBy == "Last")
-    $result = getPatientLnames("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
+    //$result = getPatientLnames("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
+    $result = getPatientLnames("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
 else if ($findBy == "ID")
-    $result = getPatientId("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
+    $result = getPatientId("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
 else if ($findBy == "DOB")
-    $result = getPatientDOB("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
+    $result = getPatientDOB("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
 else if ($findBy == "SSN")
-    $result = getPatientSSN("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
+    $result = getPatientSSN("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
+elseif ($findBy == "Phone")                  //(CHEMED) Search by phone number
+    $result = getPatientPhone("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
 ?>
 
 <?php if (count($result)>=100): ?>
@@ -156,11 +153,8 @@ if (preg_match('/^(\d+)\s*(.*)/',$patient,$matches) > 0) {
 <table>
 <tr>
 <?php
-$total=0;
 if ($result) {
     foreach ($result as $iter) {
-        if ($total >= $M) break;
-
         echo "<tr class='oneresult' id='".$iter['pid']."'>";
         echo  "<td class='srName'>" . $iter['lname'] . ", " . $iter['fname'] . "</td>\n";
         //other phone number display setup for tooltip
@@ -225,7 +219,6 @@ if ($result) {
         echo "<td class='srDateLast'>".$last_date_seen."</td>";
         echo "<td class='srDateNext'>".$next_appt_date."</td>";
         echo "\n";
-        $total++;
     }
 }
 ?>
