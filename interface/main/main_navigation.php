@@ -20,8 +20,9 @@ include_once("../../library/acl.inc");
 <?php ///<a href="javascript:document.find_patient.action='finder/patient_finder_keyboard.php';document.find_patient.submit();" class='link'>Find Patient:</a> ?>
 	<input type="entry" size="10" name="patient" />
 	<select name="findBy" size=1>
-	<option value="ID"><?php xl ('ID','e'); ?></option>
 	<option value="Last" selected><?php xl ('Name','e'); ?></option>
+        <option value="Phone"><?php xl ('Phone','e'); ?></option>
+	<option value="ID"><?php xl ('ID','e'); ?></option>
 	<option value="SSN"><?php xl ('SSN','e'); ?></option>
 	<option value="DOB"><?php xl ('DOB','e'); ?></option>
 </select>
