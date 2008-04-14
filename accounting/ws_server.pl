@@ -229,7 +229,8 @@ sub rpc_add_invoice
 			} else {
 				$form->{"source_$j"} = 'Co-pay';
 			}
-			$form->{"paid_$j"} =  abs($$line_item{'price'});
+			# $form->{"paid_$j"} =  abs($$line_item{'price'});
+      $form->{"paid_$j"} =  0 - $$line_item{'price'};
 			$form->{"AR_paid_$j"} = "$oemr_cash_acc" . "--";
 			$j++;
 		}

@@ -12,6 +12,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/invoice_summary.inc.php");
+require_once("../../custom/code_types.inc.php");
 ?>
 <html>
 <head>
@@ -78,12 +79,14 @@ function frontPayment($patient_id, $encounter, $method, $source, $amount1, $amou
 }
 
 // Get the patient's encounter ID for today, creating it if there is none.
+// In the case of more than one encounter today, pick the last one.
 //
 function todaysEncounter($patient_id) {
   global $today;
 
   $tmprow = sqlQuery("SELECT encounter FROM form_encounter WHERE " .
-    "pid = '$patient_id' AND date = '$today 00:00:00'");
+    "pid = '$patient_id' AND date = '$today 00:00:00' " .
+    "ORDER BY encounter DESC LIMIT 1");
 
   if (!empty($tmprow['encounter'])) return $tmprow['encounter'];
 
@@ -126,6 +129,28 @@ function decorateString($fmt, $str) {
   return $res;
 }
 
+// Compute taxes from a tax rate string and a possibly taxable amount.
+//
+function calcTaxes($row, $amount) {
+  $total = 0;
+  if (empty($row['taxrates'])) return $total;
+  $arates = explode(':', $row['taxrates']);
+  if (empty($arates)) return $total;
+  foreach ($arates as $value) {
+    if (empty($value)) continue;
+    $trow = sqlQuery("SELECT option_value FROM list_options WHERE " .
+      "list_id = 'taxrate' AND option_id = '$value' LIMIT 1");
+    if (empty($trow['option_value'])) {
+      echo "<!-- Missing tax rate '$value'! -->\n";
+      continue;
+    }
+    $tax = sprintf("%01.2f", $amount * $trow['option_value']);
+    echo "<!-- Rate = '$value', amount = '$amount', tax = '$tax' -->\n";
+    $total += $tax;
+  }
+  return $total;
+}
+
 $payment_methods = array(
   xl('Cash'),
   xl('Check'),
@@ -158,29 +183,35 @@ if ($_POST['form_save']) {
   $form_method = trim($_POST['form_method']);
   $form_source = trim($_POST['form_source']);
 
-  foreach ($_POST['form_upay'] as $encounter => $payment) {
-    if ($amount = 0 + $payment) {
-      if (!$encounter) $encounter = todaysEncounter($form_pid);
-      addBilling($encounter, 'COPAY', sprintf('%.2f', $amount),
-        $form_method, $form_pid, 1, $_SESSION["authUserID"],
-        '', 1, 0 - $amount, '', '');
-      frontPayment($form_pid, $encounter, $form_method, $form_source, $amount, 0);
+  // Post payments for unbilled encounters.  These go into the billing table.
+  if ($_POST['form_upay']) {
+    foreach ($_POST['form_upay'] as $enc => $payment) {
+      if ($amount = 0 + $payment) {
+        if (!$enc) $enc = todaysEncounter($form_pid);
+        addBilling($enc, 'COPAY', sprintf('%.2f', $amount),
+          $form_method, $form_pid, 1, $_SESSION["authUserID"],
+          '', 1, 0 - $amount, '', '');
+        frontPayment($form_pid, $enc, $form_method, $form_source, $amount, 0);
+      }
     }
   }
 
-  foreach ($_POST['form_bpay'] as $encounter => $payment) {
-    if ($amount = 0 + $payment) {
-      $thissrc = 'Pt/';
-      if ($form_method) {
-        $thissrc .= $form_method;
-        if ($form_source) $thissrc .= " $form_source";
+  // Post payments for previously billed encounters.  These go to SQL-Ledger.
+  if ($_POST['form_bpay']) {
+    foreach ($_POST['form_bpay'] as $enc => $payment) {
+      if ($amount = 0 + $payment) {
+        $thissrc = 'Pt/';
+        if ($form_method) {
+          $thissrc .= $form_method;
+          if ($form_source) $thissrc .= " $form_source";
+        }
+        $trans_id = SLQueryValue("SELECT id FROM ar WHERE " .
+          "ar.invnumber = '$form_pid.$enc' LIMIT 1");
+        if (! $trans_id) die("Cannot find invoice '$form_pid.$enc'!");
+        slPostPayment($trans_id, $amount, date('Y-m-d'), $thissrc,
+          '', 0, 0);
+        frontPayment($form_pid, $enc, $form_method, $form_source, 0, $amount);
       }
-      $trans_id = SLQueryValue("SELECT id FROM ar WHERE " .
-        "ar.invnumber = '$form_pid.$encounter' LIMIT 1");
-      if (! $trans_id) die("Cannot find invoice '$form_pid.$encounter'!");
-      slPostPayment($trans_id, $amount, date('Y-m-d'), $thissrc,
-        '', 0, 0);
-      frontPayment($form_pid, $encounter, $form_method, $form_source, 0, $amount);
     }
   }
 }
@@ -414,32 +445,86 @@ function calctotal() {
  </tr>
 
 <?php
-  $gottoday = false;
+  $encs = array();
 
-  // Show the unbilled charges and payments by encounter for this patient.
+  // Get the unbilled service charges and payments by encounter for this patient.
   //
-  $query = "SELECT b.encounter, " .
-    "SUM(IF(b.code_type = 'COPAY', 0, b.fee)) AS charges, " .
-    "SUM(IF(b.code_type = 'COPAY', 0 - b.fee, 0)) AS payments, " .
+  $query = "SELECT b.encounter, b.code_type, b.code, b.modifier, b.fee, " .
     "LEFT(fe.date, 10) AS encdate " .
     "FROM billing AS b, form_encounter AS fe " .
     "WHERE b.pid = '$pid' AND b.activity = 1 AND b.billed = 0 " .
     "AND fe.pid = b.pid AND fe.encounter = b.encounter " .
-    "GROUP BY b.encounter ORDER BY b.encounter";
+    "ORDER BY b.encounter";
   $bres = sqlStatement($query);
   //
   while ($brow = sqlFetchArray($bres)) {
-    $dispdate = $brow['encdate'];
-    if (strcmp($dispdate, $today) == 0) {
+    $key = 0 - $brow['encounter'];
+    if (empty($encs[$key])) {
+      $encs[$key] = array(
+        'encounter' => $brow['encounter'],
+        'date' => $brow['encdate'],
+        'charges' => 0,
+        'payments' => 0);
+    }
+    if ($brow['code_type'] === 'COPAY') {
+      $encs[$key]['payments'] -= $brow['fee'];
+    } else {
+      $encs[$key]['charges']  += $brow['fee'];
+      // Add taxes.
+      $query = "SELECT taxrates FROM codes WHERE " .
+        "code_type = '" . $code_types[$brow['code_type']]['id'] . "' AND " .
+        "code = '" . $brow['code'] . "' AND ";
+      if ($brow['modifier']) {
+        $query .= "modifier = '" . $brow['modifier'] . "'";
+      } else {
+        $query .= "(modifier IS NULL OR modifier = '')";
+      }
+      $query .= " LIMIT 1";
+      $trow = sqlQuery($query);
+      $encs[$key]['charges'] += calcTaxes($trow, $brow['fee']);
+    }
+  }
+
+  // Do the same for unbilled product sales.
+  //
+  $query = "SELECT s.encounter, s.drug_id, s.fee, " .
+    "LEFT(fe.date, 10) AS encdate " .
+    "FROM drug_sales AS s, form_encounter AS fe " .
+    "WHERE s.pid = '$pid' AND s.billed = 0 " .
+    "AND fe.pid = s.pid AND fe.encounter = s.encounter " .
+    "ORDER BY s.encounter";
+  $dres = sqlStatement($query);
+  //
+  while ($drow = sqlFetchArray($dres)) {
+    $key = 0 - $drow['encounter'];
+    if (empty($encs[$key])) {
+      $encs[$key] = array(
+        'encounter' => $drow['encounter'],
+        'date' => $drow['encdate'],
+        'charges' => 0,
+        'payments' => 0);
+    }
+    $encs[$key]['charges'] += $drow['fee'];
+    // Add taxes.
+    $trow = sqlQuery("SELECT taxrates FROM drug_templates WHERE drug_id = '" .
+      $drow['drug_id'] . "' ORDER BY selector LIMIT 1");
+    $encs[$key]['charges'] += calcTaxes($trow, $drow['fee']);
+  }
+
+  ksort($encs, SORT_NUMERIC);
+  $gottoday = false;
+  foreach ($encs as $key => $value) {
+    $enc = $value['encounter'];
+    $dispdate = $value['date'];
+    if (strcmp($dispdate, $today) == 0 && !$gottoday) {
       $dispdate = 'Today';
       $gottoday = true;
     }
-    $inscopay = getCopay($pid, $brow['encdate']);
-    $encounter = $brow['encounter'];
-    $balance = bucks($brow['charges'] - $brow['payments']);
-    $duept = (($inscopay >= 0) ? $inscopay : $brow['charges']) - $brow['payments'];
-    echoLine("form_upay[$encounter]", $dispdate, $brow['charges'],
-      $brow['payments'], 0, $duept);
+    $inscopay = getCopay($pid, $value['date']);
+    $balance = bucks($value['charges'] - $value['payments']);
+    $duept = (($inscopay >= 0) ? $inscopay : $value['charges']) - $value['payments'];
+    echoLine("form_upay[$enc]", $dispdate, $value['charges'],
+      $value['payments'], 0, $duept);
   }
 
   // If no billing was entered yet for today, then generate a line for
@@ -472,9 +557,9 @@ function calctotal() {
     $irow = SLGetRow($ires, $ix);
 
     // Get encounter ID and date of service.
-    list($patient_id, $encounter) = explode(".", $irow['invnumber']);
+    list($patient_id, $enc) = explode(".", $irow['invnumber']);
     $tmp = sqlQuery("SELECT LEFT(date, 10) AS encdate FROM form_encounter " .
-      "WHERE encounter = '$encounter'");
+      "WHERE encounter = '$enc'");
     $svcdate = $tmp['encdate'];
 
     // Compute $duncount as in sl_eob_search.php to determine if
@@ -494,7 +579,7 @@ function calctotal() {
     $balance = $irow['amount'] - $irow['paid'];
     $duept  = ($duncount < 0) ? 0 : $balance;
 
-    echoLine("form_bpay[$encounter]", $svcdate, $irow['charges'],
+    echoLine("form_bpay[$enc]", $svcdate, $irow['charges'],
       0 - $irow['ptpayments'], $inspaid, $duept);
   }
 

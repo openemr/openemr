@@ -275,15 +275,32 @@ function generate_receipt($patient_id) {
   if ($tmp != $price) $price = $tmp;
   $amount = sprintf('%01.2f', $row['sellprice'] * $row['qty']);
   $charges += $amount;
+  $desc = preg_replace('/^.{1,6}:/', '', $row['description']);
   echo " <tr>\n";
   echo "  <td>$svcdate</td>\n";
-  echo "  <td>" . $row['description'] . "</td>\n";
+  echo "  <td>$desc</td>\n";
   echo "  <td align='right'>$price</td>\n";
   echo "  <td align='right'>" . $row['qty'] . "</td>\n";
   echo "  <td align='right'>$amount</td>\n";
   echo " </tr>\n";
  }
+?>
 
+ <tr>
+  <td colspan='5'>&nbsp;</td>
+ </tr>
+ <tr>
+  <td>&nbsp;</td>
+  <td><b><?php xl('Total Charges','e'); ?></b></td>
+  <td align='right'>&nbsp;</td>
+  <td align='right'>&nbsp;</td>
+  <td align='right'><?php echo sprintf('%01.2f', $charges) ?></td>
+ </tr>
+ <tr>
+  <td colspan='5'>&nbsp;</td>
+ </tr>
+
+<?php
  $chart_id_cash = SLQueryValue("select id from chart where accno = '$sl_cash_acc'");
  if ($sl_err) die($sl_err);
  if (! $chart_id_cash) die("There is no COA entry for cash account '$sl_cash_acc'");
@@ -302,20 +319,18 @@ function generate_receipt($patient_id) {
   echo " <tr>\n";
   echo "  <td>" . $row['transdate'] . "</td>\n";
   echo "  <td>" . xl('Payment') . " $rowsource</td>\n";
-  echo "  <td>&nbsp;</td>\n";
-  echo "  <td>&nbsp;</td>\n";
+  echo "  <td colspan='2'>&nbsp;</td>\n";
   echo "  <td align='right'>$amount</td>\n";
   echo " </tr>\n";
  }
 ?>
  <tr>
-  <td colspan='3'>&nbsp;</td>
+  <td colspan='5'>&nbsp;</td>
  </tr>
  <tr>
   <td>&nbsp;</td>
   <td><b><?php xl('Balance Due','e'); ?></b></td>
-  <td align='right'>&nbsp;</td>
-  <td align='right'>&nbsp;</td>
+  <td colspan='2'>&nbsp;</td>
   <td align='right'><?php echo sprintf('%01.2f', $charges) ?></td>
  </tr>
 </table>
@@ -334,6 +349,8 @@ function write_form_line($code_type, $code, $id, $date, $description,
   $amount, $units, $taxrates) {
   global $lino;
   $amount = sprintf("%01.2f", $amount);
+  if (empty($units)) $units = 1;
+  $price = $amount / $units; // should be even cents, but ok here if not
   if ($code_type == 'COPAY' && !$description) $description = xl('Payment');
   echo " <tr>\n";
   echo "  <td>$date";
@@ -342,16 +359,17 @@ function write_form_line($code_type, $code, $id, $date, $description,
   echo "<input type='hidden' name='line[$lino][id]' value='$id'>";
   echo "<input type='hidden' name='line[$lino][description]' value='$description'>";
   echo "<input type='hidden' name='line[$lino][taxrates]' value='$taxrates'>";
+  echo "<input type='hidden' name='line[$lino][price]' value='$price'>";
   echo "<input type='hidden' name='line[$lino][units]' value='$units'>";
   echo "</td>\n";
   echo "  <td>$description</td>";
+  echo "  <td align='right'>$units</td>";
   echo "  <td align='right'><input type='text' name='line[$lino][amount]' " .
        "value='$amount' size='6' maxlength='8'";
   // Modifying prices requires the acct/disc permission.
-  if ($code_type == 'TAX' || ($code_type != 'COPAY' && !acl_check('acct','disc')))
-    echo " style='text-align:right;background-color:transparent' readonly";
-  else
-    echo " style='text-align:right' onkeyup='computeTotals()'";
+  // if ($code_type == 'TAX' || ($code_type != 'COPAY' && !acl_check('acct','disc')))
+  echo " style='text-align:right;background-color:transparent' readonly";
+  // else echo " style='text-align:right' onkeyup='computeTotals()'";
   echo "></td>\n";
   echo " </tr>\n";
   ++$lino;
@@ -465,7 +483,7 @@ function markTaxes($taxrates) {
    $msg = invoice_add_line_item($invoice_info, 'COPAY',
     $_POST['form_method'],
     $paydesc,
-    $_POST['form_amount']);
+    0 - $_POST['form_amount']);
    if ($msg) die($msg);
   }
 
@@ -483,7 +501,7 @@ function markTaxes($taxrates) {
   "provider_id, payer_id, units, fee, encounter " .
   "FROM billing " .
   "WHERE pid = '$pid' AND activity = 1 AND billed = 0 " .
-  "ORDER BY encounter";
+  "ORDER BY encounter DESC, id ASC";
  $bres = sqlStatement($query);
 
  $query = "SELECT s.sale_id, s.sale_date, s.prescription_id, s.fee, " .
@@ -492,7 +510,7 @@ function markTaxes($taxrates) {
   "LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
   "LEFT OUTER JOIN prescriptions AS r ON r.id = s.prescription_id " .
   "WHERE s.pid = '$pid' AND s.billed = 0 " .
-  "ORDER BY s.sale_id";
+  "ORDER BY s.encounter DESC, s.sale_id ASC";
  $dres = sqlStatement($query);
 
  // If there are none, just redisplay the last receipt and exit.
@@ -530,6 +548,7 @@ function markTaxes($taxrates) {
    if (! f[pfx + '[code_type]']) break;
    if (f[pfx + '[code_type]'].value != 'TAX') continue;
    f[pfx + '[amount]'].value = '0.00';
+   f[pfx + '[price]'].value = '0.00';
   }
  }
 
@@ -543,7 +562,8 @@ function markTaxes($taxrates) {
    if (f[pfx + '[code]'].value != rateid) continue;
    var tax = amount * parseFloat(f[pfx + '[taxrates]'].value);
    tax = parseFloat(tax.toFixed(2));
-   var cumtax = parseFloat(f[pfx + '[amount]'].value) + tax;
+   var cumtax = parseFloat(f[pfx + '[price]'].value) + tax;
+   f[pfx + '[price]'].value  = cumtax.toFixed(2); // requires JS 1.5
    f[pfx + '[amount]'].value = cumtax.toFixed(2); // requires JS 1.5
    if (isNaN(tax)) alert('Tax rate not numeric at line ' + lino);
    return tax;
@@ -551,26 +571,42 @@ function markTaxes($taxrates) {
   return 0;
  }
 
+ // This mess applies the discount percentage.
  function computeTotals() {
   clearTax();
   var f = document.forms[0];
-  var total = 0;
+  var total = 0.00;
+  var discount = parseFloat(f.form_discount.value);
+  if (isNaN(discount)) discount = 0;
   for (var lino = 0; f['line[' + lino + '][code_type]']; ++lino) {
    var code_type = f['line[' + lino + '][code_type]'].value;
-   var taxrates  = f['line[' + lino + '][taxrates]'].value;
-   var amount = parseFloat(f['line[' + lino + '][amount]'].value);
-   if (isNaN(amount)) alert('Amount not numeric at line ' + lino);
-   // alert('Adding amount ' + amount + ' at line ' + lino); // debugging
+   var price = parseFloat(f['line[' + lino + '][price]'].value);
+   if (isNaN(price)) alert('Price not numeric at line ' + lino);
+   if (code_type == 'COPAY' || code_type == 'TAX') {
+    total += parseFloat(price.toFixed(2));
+    continue;
+   }
+   var units = f['line[' + lino + '][units]'].value;
+   if (discount > 100) discount = 100;
+   if (discount < 0  ) discount = 0;
+   var amount = price * units;
+   if (discount > 0) {
+    amount = ((amount * (100 - discount) / 100) / units).toFixed(2) * units;
+   }
+   amount = parseFloat(amount.toFixed(2));
+   f['line[' + lino + '][amount]'].value = amount.toFixed(2);
    total += amount;
-   if (code_type == 'COPAY' || code_type == 'TAX') continue;
+   var taxrates  = f['line[' + lino + '][taxrates]'].value;
    var taxids = taxrates.split(':');
    for (var j = 0; j < taxids.length; ++j) {
     addTax(taxids[j], amount);
    }
   }
+  // f.form_amount.value = total.toFixed(2);
   f.form_amount.value = total.toFixed(2);
   return true;
  }
+
 </script>
 </head>
 
@@ -592,7 +628,8 @@ function markTaxes($taxrates) {
  <tr>
   <td><b><?php xl('Date','e'); ?></b></td>
   <td><b><?php xl('Description','e'); ?></b></td>
-  <td align='right'><b><?php xl('Amount','e'); ?></b>&nbsp;</td>
+  <td align='right'><b><?php xl('Qty','e'); ?></b></td>
+  <td align='right'><b><?php xl('Amount','e'); ?></b></td>
  </tr>
 <?php
 $inv_encounter = '';
@@ -601,6 +638,9 @@ $inv_provider  = 0;
 $inv_payer     = 0;
 
 while ($brow = sqlFetchArray($bres)) {
+  // Skip all but the most recent encounter.
+  if ($inv_encounter && $brow['encounter'] != $inv_encounter) continue;
+
   $thisdate = substr($brow['date'], 0, 10);
   $code_type = $brow['code_type'];
 
@@ -630,6 +670,8 @@ while ($brow = sqlFetchArray($bres)) {
 }
 
 while ($drow = sqlFetchArray($dres)) {
+  if ($inv_encounter && $drow['encounter'] && $drow['encounter'] != $inv_encounter) continue;
+
   $thisdate = $drow['sale_date'];
   if (!$inv_encounter) $inv_encounter = $drow['encounter'];
   if (!$inv_provider ) $inv_provider  = $drow['provider_id'] + 0;
@@ -668,6 +710,16 @@ if ($inv_encounter && !$inv_provider) {
 
 <p>
 <table border='0' cellspacing='8'>
+
+ <tr>
+  <td>
+   <?php xl('Discount Percentage','e'); ?>:
+  </td>
+  <td>
+   <input type='text' name='form_discount' size='3' value=''
+    style='text-align:right' onkeyup='computeTotals()'>
+  </td>
+ </tr>
 
  <tr>
   <td>
