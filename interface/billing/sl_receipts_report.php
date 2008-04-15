@@ -81,12 +81,14 @@
    <input type='text' name='form_from_date' size='10' value='<? echo $_POST['form_from_date']; ?>' title='MM/DD/YYYY'>
    &nbsp;To:
    <input type='text' name='form_to_date' size='10' value='<? echo $_POST['form_to_date']; ?>' title='MM/DD/YYYY'>
-   &nbsp;CPT:
+   <?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('CPT') . ':'; ?>
    <input type='text' name='form_cptcode' size='5' value='<? echo $form_cptcode; ?>'
-    title='<?php xl('Optional procedure code','e'); ?>'>
-   &nbsp;ICD:
+    title='<?php xl('Optional procedure code','e'); ?>'
+    <?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?>>
+   <?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('ICD') . ':'; ?>
    <input type='text' name='form_icdcode' size='5' value='<? echo $form_icdcode; ?>'
-    title='<?php xl('Enter a diagnosis code to exclude all invoices not containing it','e'); ?>'>
+    title='<?php xl('Enter a diagnosis code to exclude all invoices not containing it','e'); ?>'
+    <?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?>>
    &nbsp;
    <input type='checkbox' name='form_details' value='1'<? if ($_POST['form_details']) echo " checked"; ?>><?xl('Details','e')?>
    &nbsp;
