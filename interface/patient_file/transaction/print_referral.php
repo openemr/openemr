@@ -49,7 +49,7 @@ if (empty($vrow)) $vrow = array(
   'height' => '',
 );
 
-$facrow = sqlQuery("SELECT name FROM facility ORDER BY " .
+$facrow = sqlQuery("SELECT name, facility_npi FROM facility ORDER BY " .
   "service_location DESC, billing_location DESC, id ASC LIMIT 1");
 
 $s = '';
@@ -57,10 +57,11 @@ $fh = fopen($template_file, 'r');
 while (!feof($fh)) $s .= fread($fh, 8192);
 fclose($fh);
 
-$s = str_replace("{fac_name}", $facrow['name'], $s);
-$s = str_replace("{ref_id}"  , $trow['id']    , $s);
-$s = str_replace("{ref_pid}" , $patient_id    , $s);
-$s = str_replace("{pt_age}"  , $patient_age   , $s);
+$s = str_replace("{fac_name}"        , $facrow['name']        , $s);
+$s = str_replace("{fac_facility_npi}", $facrow['facility_npi'], $s);
+$s = str_replace("{ref_id}"          , $trow['id']            , $s);
+$s = str_replace("{ref_pid}"         , $patient_id            , $s);
+$s = str_replace("{pt_age}"          , $patient_age           , $s);
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'REF' ORDER BY group_name, seq");
