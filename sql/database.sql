@@ -4609,24 +4609,26 @@ INSERT INTO `layout_options` VALUES ('DEM', 'userlist5', '6Misc', 'User Defined 
 INSERT INTO `layout_options` VALUES ('DEM', 'userlist6', '6Misc', 'User Defined List 6', 8, 1, 0, 0, 0, 'userlist6', 1, 1, '', '' , 'User Defined');
 INSERT INTO `layout_options` VALUES ('DEM', 'userlist7', '6Misc', 'User Defined List 7', 9, 1, 0, 0, 0, 'userlist7', 1, 1, '', '' , 'User Defined');
 INSERT INTO `layout_options` VALUES ('DEM', 'regdate'  , '6Misc', 'Registration Date'  ,10, 2, 0,10,10, ''         , 1, 1, '', 'D', 'Start Date at This Clinic');
-INSERT INTO `layout_options` VALUES ('REF', 'refer_date', '', 'Referral Date', 1, 4, 2, 0, 0, '', 1, 1, 'C', 'D', 'Date of referral');
-INSERT INTO `layout_options` VALUES ('REF', 'refer_from', '', 'Refer From', 2, 14, 2, 0, 0, '', 1, 1, '', '', 'Referral By');
-INSERT INTO `layout_options` VALUES ('REF', 'refer_to', '', 'Refer To', 3, 14, 2, 0, 0, '', 1, 1, '', '', 'Referral To');
-INSERT INTO `layout_options` VALUES ('REF', 'body', '', 'Reason', 4, 3, 2, 30, 3, '', 1, 1, '', '', 'Reason for referral');
-INSERT INTO `layout_options` VALUES ('REF', 'refer_diag', '', 'Referrer Diagnosis', 5, 2, 1, 30, 255, '', 1, 1, '', 'X', 'Referrer diagnosis');
-INSERT INTO `layout_options` VALUES ('REF', 'refer_risk_level', '', 'Risk Level', 6, 1, 1, 0, 0, 'risklevel', 1, 1, '', '', 'Level of urgency');
-INSERT INTO `layout_options` VALUES ('REF', 'refer_vitals', '', 'Include Vitals', 7, 1, 1, 0, 0, 'boolean', 1, 1, '', '', 'Include vitals data?');
-INSERT INTO `layout_options` VALUES ('REF', 'reply_date', '', 'Reply Date', 8, 4, 1, 0, 0, '', 1, 1, '', 'D', 'Date of reply');
-INSERT INTO `layout_options` VALUES ('REF', 'reply_from', '', 'Reply From', 9, 2, 1, 30, 255, '', 1, 1, '', '', 'Who replied?');
-INSERT INTO `layout_options` VALUES ('REF', 'reply_init_diag', '', 'Presumed Diagnosis', 10, 2, 1, 30, 255, '', 1, 1, '', '', 'Presumed diagnosis by specialist');
-INSERT INTO `layout_options` VALUES ('REF', 'reply_final_diag', '', 'Final Diagnosis', 11, 2, 1, 30, 255, '', 1, 1, '', '', 'Final diagnosis by specialist');
-INSERT INTO `layout_options` VALUES ('REF', 'reply_documents', '', 'Documents', 12, 2, 1, 30, 255, '', 1, 1, '', '', 'Where may related scanned or paper documents be found?');
-INSERT INTO `layout_options` VALUES ('REF', 'reply_findings', '', 'Findings', 13, 3, 1, 30, 3, '', 1, 1, '', '', 'Findings by specialist');
-INSERT INTO `layout_options` VALUES ('REF', 'reply_services', '', 'Services Provided', 14, 3, 1, 30, 3, '', 1, 1, '', '', 'Service provided by specialist');
-INSERT INTO `layout_options` VALUES ('REF', 'reply_recommend', '', 'Recommendations', 15, 3, 1, 30, 3, '', 1, 1, '', '', 'Recommendations by specialist');
-INSERT INTO `layout_options` VALUES ('REF', 'reply_rx_refer', '', 'Prescriptions/Referrals', 16, 3, 1, 30, 3, '', 1, 1, '', '', 'Prescriptions and/or referrals by specialist');
-INSERT INTO layout_options VALUES ('DEM', 'hipaa_allowsms', '3Choices', 'Allow SMS', 5, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow SMS (text messages)?');
-INSERT INTO layout_options VALUES ('DEM', 'hipaa_allowemail', '3Choices', 'Allow Email', 5, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow Email?');
+INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_allowsms', '3Choices', 'Allow SMS', 5, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow SMS (text messages)?');
+INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_allowemail', '3Choices', 'Allow Email', 5, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow Email?');
+
+INSERT INTO layout_options VALUES ('REF','refer_date'      ,'1Referral','Referral Date'                  , 1, 4,2, 0,  0,''         ,1,1,'C','D','Date of referral');
+INSERT INTO layout_options VALUES ('REF','refer_from'      ,'1Referral','Refer By'                       , 2,10,2, 0,  0,''         ,1,1,'' ,'' ,'Referral By');
+INSERT INTO layout_options VALUES ('REF','refer_to'        ,'1Referral','Refer To'                       , 3,14,2, 0,  0,''         ,1,1,'' ,'' ,'Referral To');
+INSERT INTO layout_options VALUES ('REF','body'            ,'1Referral','Reason'                         , 4, 3,2,30,  3,''         ,1,1,'' ,'' ,'Reason for referral');
+INSERT INTO layout_options VALUES ('REF','refer_external'  ,'1Referral','External Referral'              , 5, 1,1, 0,  0,'boolean'  ,1,1,'' ,'' ,'External referral?');
+INSERT INTO layout_options VALUES ('REF','refer_diag'      ,'1Referral','Referrer Diagnosis'             , 6, 2,1,30,255,''         ,1,1,'' ,'X','Referrer diagnosis');
+INSERT INTO layout_options VALUES ('REF','refer_risk_level','1Referral','Risk Level'                     , 7, 1,1, 0,  0,'risklevel',1,1,'' ,'' ,'Level of urgency');
+INSERT INTO layout_options VALUES ('REF','refer_vitals'    ,'1Referral','Include Vitals'                 , 8, 1,1, 0,  0,'boolean'  ,1,1,'' ,'' ,'Include vitals data?');
+INSERT INTO layout_options VALUES ('REF','reply_date'      ,'2Counter-Referral','Reply Date'             , 9, 4,1, 0,  0,''         ,1,1,'' ,'D','Date of reply');
+INSERT INTO layout_options VALUES ('REF','reply_from'      ,'2Counter-Referral','Reply From'             ,10, 2,1,30,255,''         ,1,1,'' ,'' ,'Who replied?');
+INSERT INTO layout_options VALUES ('REF','reply_init_diag' ,'2Counter-Referral','Presumed Diagnosis'     ,11, 2,1,30,255,''         ,1,1,'' ,'' ,'Presumed diagnosis by specialist');
+INSERT INTO layout_options VALUES ('REF','reply_final_diag','2Counter-Referral','Final Diagnosis'        ,12, 2,1,30,255,''         ,1,1,'' ,'' ,'Final diagnosis by specialist');
+INSERT INTO layout_options VALUES ('REF','reply_documents' ,'2Counter-Referral','Documents'              ,13, 2,1,30,255,''         ,1,1,'' ,'' ,'Where may related scanned or paper documents be found?');
+INSERT INTO layout_options VALUES ('REF','reply_findings'  ,'2Counter-Referral','Findings'               ,14, 3,1,30,  3,''         ,1,1,'' ,'' ,'Findings by specialist');
+INSERT INTO layout_options VALUES ('REF','reply_services'  ,'2Counter-Referral','Services Provided'      ,15, 3,1,30,  3,''         ,1,1,'' ,'' ,'Service provided by specialist');
+INSERT INTO layout_options VALUES ('REF','reply_recommend' ,'2Counter-Referral','Recommendations'        ,16, 3,1,30,  3,''         ,1,1,'' ,'' ,'Recommendations by specialist');
+INSERT INTO layout_options VALUES ('REF','reply_rx_refer'  ,'2Counter-Referral','Prescriptions/Referrals',17, 3,1,30,  3,''         ,1,1,'' ,'' ,'Prescriptions and/or referrals by specialist');
 
 -- --------------------------------------------------------
 
@@ -5472,14 +5474,30 @@ INSERT INTO `sequences` VALUES (1);
 
 DROP TABLE IF EXISTS `transactions`;
 CREATE TABLE `transactions` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `date` datetime default NULL,
-  `title` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `body` longtext character set utf8 collate utf8_unicode_ci,
-  `pid` bigint(20) default NULL,
-  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `authorized` tinyint(4) default NULL,
+  `id`                      bigint(20)   NOT NULL auto_increment,
+  `date`                    datetime     default NULL,
+  `title`                   varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `body`                    longtext     character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `pid`                     bigint(20)   default NULL,
+  `user`                    varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `groupname`               varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `authorized`              tinyint(4)   default NULL,
+  `refer_date`              date         DEFAULT NULL,
+  `refer_from`              int(11)      NOT NULL DEFAULT 0,
+  `refer_to`                int(11)      NOT NULL DEFAULT 0,
+  `refer_diag`              varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `refer_risk_level`        varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `refer_vitals`            tinyint(1)   NOT NULL DEFAULT 0,
+  `refer_external`          tinyint(1)   NOT NULL DEFAULT 0,
+  `reply_date`              date         DEFAULT NULL,
+  `reply_from`              varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `reply_init_diag`         varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `reply_final_diag`        varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `reply_documents`         varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `reply_findings`          text         character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `reply_services`          text         character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `reply_recommend`         text         character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `reply_rx_refer`          text         character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
