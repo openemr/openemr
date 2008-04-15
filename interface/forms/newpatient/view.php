@@ -86,7 +86,7 @@
 <table width='96%'>
 
  <tr>
-  <td colspan='2' width='50%' nowrap class='text'><?php xl('Chief Complaint:','e'); ?></td>
+  <td colspan='2' width='50%' nowrap class='text'><?php xl('Chief Complaint','e'); ?>:</td>
   <td class='text' width='50%' nowrap>
    <?php xl('Issues (Problems, Medications, Surgeries, Allergies):','e'); ?>
   </td>
