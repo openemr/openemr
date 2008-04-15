@@ -581,7 +581,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
       <?php genMiscLink('RBot','cod','2','Fee Sheet','patient_file/encounter/load_form.php?formname=fee_sheet'); ?>
       <?php if (false) genTreeLink('RBot','cod','Charges'); ?>
       <?php genMiscLink('RBot','bil','1','Checkout','patient_file/pos_checkout.php?framed=1'); ?>
-      <?php genTreeLink('RTop','bil','Billing'); ?>
+      <?php if (! $GLOBALS['simplified_demographics']) genTreeLink('RTop','bil','Billing'); ?>
     </ul>
   </li>
   <?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) genMiscLink('RTop','adm','0','Inventory','drugs/drug_inventory.php'); ?>
