@@ -159,9 +159,19 @@ div.tiny { width:1px; height:1px; font-size:1px; }
  function goPid(pid) {
   top.restoreSession();
     [-php-]
-     if ($GLOBALS['concurrent_layout']) {
-      echo "  top.RTop.location = '../../patient_file/summary/demographics.php' " .
-       "+ '?set_pid=' + pid;\n";
+     if ($GLOBALS['concurrent_layout'])
+     {
+     	// larry :: dbc change
+     	if( $GLOBALS['dutchpc'] )
+     	{
+	      echo "  top.RTop.location = '../../patient_file/summary/demographics_dutch.php' " .
+	       "+ '?set_pid=' + pid;\n";
+	} else
+	{
+	      echo "  top.RTop.location = '../../patient_file/summary/demographics.php' " .
+	       "+ '?set_pid=' + pid;\n";	
+	}
+	// larry :: end of dbc change
      } else {
       echo "  top.location = '../../patient_file/patient_file.php' " .
        "+ '?set_pid=' + pid + '&pid=' + pid;\n";

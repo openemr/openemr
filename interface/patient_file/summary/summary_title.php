@@ -42,6 +42,18 @@ require_once("$srcdir/classes/Pharmacy.class.php");
 <table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%">
  <tr>
   <td style="width:45%; vertical-align:middle; white-space: nowrap; text-align:left">
+ <?php
+ // ==================================
+ // DBC DUTCH SYSTEM
+ if ( $GLOBALS['dutchpc']) { ?>
+   <span class="title_bar_top"><?php echo sutf8(dutch_name($pid)); ?></span>
+   <span style="font-size:0.8em; color: green;"><?php  $aa = has_ztndbc($pid); echo ' -- ' .$aa['str']. ' -- ' ?></span>
+<?php } else { ?>
+  <span class="title_bar_top"><?php echo $result{"fname"} . " " . $result{"lname"};?></span>
+<?php
+} // EOS DBC DUTCH SYSTEM
+  // ==================================
+?>   
    <span class="title_bar_top"><?php echo $result{"fname"} . " " . $result{"lname"};?></span>
    <span style="font-size:0.7em;">(<?php echo $info ?>)</span>
   </td>

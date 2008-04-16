@@ -43,14 +43,26 @@ require_once("$srcdir/classes/Pharmacy.class.php");
 
 <table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%">
  <tr>
-  <td style="width:45%; vertical-align:middle; white-space: nowrap">
+  <td width="33%" valign="middle" nowrap>
+<?php
+// ==================================
+// DBC DUTCH SYSTEM
+if ( $GLOBALS['dutchpc']) { ?>
+   <span class="title_bar_top"><?php echo sutf8(dutch_name($pid)); ?></span>
+   <span style="font-size:0.8em; color: green;"><?php $aa = has_ztndbc($pid); echo ' -- ' .$aa['str']. ' -- ' ?></span>
+<?php } else { ?>
    <span class="title_bar_top"><?php echo $result{"fname"} . " " . $result{"lname"};?></span>
-   <span style="font-size:0.7em;">(<?php echo $info; ?>)</span>
+<?php
+} // EOS DBC DUTCH SYSTEM
+// ==================================
+?>
+
+   <span style="font-size:8pt;">(<?php echo $info; ?>)</span>
   </td>
-  <td style="width:35%; vertical-align:middle; white-space: nowrap; text-align:center">
-   <span class="title_bar_top"><?php xl('Logged in as: ','e', '', ' '); echo $provider_results{"fname"}.' '.$provider_results{"lname"};?></span>
+  <td width="33%" align="center" valign="middle" nowrap>
+   <span class="title"><?php xl('Logged in as: ','e', '', ' '); echo $provider_results{"fname"}.' '.$provider_results{"lname"};?></span>
   </td>
-  <td style="width:20%; vertical-align:middle; white-space: nowrap; text-align:right">
+  <td width="33%" align="right" valign="middle" nowrap>
    <span class="title_bar_top"><?php xl('Encounter','e', '', ' '); echo $encounter_date; ?> </span>
   </td>
  </tr>

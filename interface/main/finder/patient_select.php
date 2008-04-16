@@ -242,8 +242,16 @@ var SelectPatient = function (eObj) {
 // For the old layout we load a frameset that also sets up the new pid.
 // The new layout loads just the demographics frame here, which in turn
 // will set the pid and load all the other frames.
-if ($GLOBALS['concurrent_layout']) {
-    $newPage = "../../patient_file/summary/demographics.php?set_pid=";
+if ($GLOBALS['concurrent_layout']) 
+{
+
+    // larry :: dbc insert
+    if( $GLOBALS['dutchpc'] )
+        $newPage = "../../patient_file/summary/demographics_dutch.php?set_pid=";
+    else
+        $newPage = "../../patient_file/summary/demographics.php?set_pid=";
+    // larry :: end of dbc insert
+
     $target = "document";
 } else {
     $newPage = "../../patient_file/patient_file.php?set_pid=";

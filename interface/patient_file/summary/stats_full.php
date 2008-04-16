@@ -171,7 +171,15 @@ function newEncounter() {
   style='background-color:transparent' /> &nbsp;
  <input type='button' value='<?php xl('Back','e'); ?>'
 <?php if ($GLOBALS['concurrent_layout']) { ?>
+
+  <?php if( $GLOBALS['dutchpc'] )
+  { ?>
+  onclick="top.restoreSession();parent.left_nav.setRadio(window.name,'dem');location='demographics_dutch.php';"
+  <?php } else
+  { ?>
   onclick="top.restoreSession();parent.left_nav.setRadio(window.name,'dem');location='demographics.php';"
+  <?php } ?>
+  
 <?php } else { ?>
   onclick='top.restoreSession();location="patient_summary.php"'
 <?php } ?>

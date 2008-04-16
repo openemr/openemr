@@ -11,8 +11,7 @@ include_once("../../library/acl.inc");
 </head>
 <body class="body_nav">
 
-<div id="nav_topmenu">
-<form method="post" target="_top" name="find_patient" action="../main/finder/patient_finder.php">
+<form border=0 method=post target="_top" name="find_patient" action="../main/finder/patient_finder.php">
 
 <table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
 <tr>
@@ -108,7 +107,26 @@ include_once("../../library/acl.inc");
  onclick="top.restoreSession()"
  title="View Logs"><?php xl('Logs','e'); ?></a>&nbsp;
 </td>
+
 <?php } ?>
+
+<!-- DBC menu ============================ -->
+<? if ( (acl_check('admin', 'dbc')) && ($GLOBALS['dutchpc']) ) { ?>
+<td valign="middle" nowrap>
+&nbsp;<a class=menu target=Main href="<?echo $rootdir?>/dbc/dbc_main.php"
+ title="DBC Administration">DBC</a>&nbsp;
+</td>
+<? } ?>
+<!-- end DBC menu ====================== -->
+
+<!-- vektis menu ============================ -->
+<? if ( (acl_check('admin', 'vektis')) && ($GLOBALS['dutchpc']) ) { ?>
+<td valign="middle" nowrap>
+&nbsp;<a class=menu target=Main href="<?echo $rootdir?>/vektis/vk_main.php"
+ title="Vektis Administration">Vektis</a>&nbsp;
+</td>
+<? } ?>
+<!-- end vektis menu ====================== -->
 
 <?php if (! $GLOBALS['concurrent_layout']) { ?>
 <td valign="middle" align="right" nowrap>
@@ -122,7 +140,6 @@ include_once("../../library/acl.inc");
 </table>
 
 </form>
-</div>
 
 </body>
 </html>

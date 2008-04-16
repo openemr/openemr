@@ -39,6 +39,14 @@ if ($_POST['form_create']) {
  $form_lname = ucwords(trim($_POST["lname"]));
  $form_mname = ucwords(trim($_POST["mname"]));
 
+ // ===================
+ // DBC SYSTEM
+    $form_dbcprefix         = ( $GLOBALS['dutchpc'] ) ? ucwords(trim($_POST["dbc_prefix"])) : '' ;
+    $form_dbcprefixpartner  = ( $GLOBALS['dutchpc'] ) ? trim($_POST["dbc_prefix_partner"]) : '' ;
+    $form_dbclastpartner    = ( $GLOBALS['dutchpc'] ) ? trim($_POST["dbc_lastname_partner"]) : '' ;
+ // EOS DBC
+ // ===================
+
  newPatientData(
   $_POST["db_id"],
   $_POST["title"],
@@ -48,6 +56,9 @@ if ($_POST['form_create']) {
   "", // sex
   "", // dob
   "", // street
+  "", // DBC use ---- $nstreet
+  "", // DBC use ---- $nnr
+  "", // DBC use ---- $nadd
   "", // postal_code
   "", // city
   "", // state
@@ -71,21 +82,25 @@ if ($_POST['form_create']) {
   "", // homeless
   "", // financial_review
   "$mypubpid",
-  $pid,
-  "", // providerID
-  "", // genericname1
-  "", // genericval1
-  "", // genericname2
-  "", // genericval2
-  "", // phone_cell
-  "", // hipaa_mail
-  "", // hipaa_voice
-  0,  // squad
-  0,  // $pharmacy_id = 0,
-  "", // $drivers_license = "",
-  "", // $hipaa_notice = "",
-  "", // $hipaa_message = ""
-  $_POST['regdate']
+  $pid,   // providerID
+  "",    // genericname1
+  "",    // genericval1
+  "",    // genericname2
+  "",    // genericval2
+  "",    // phone_cell
+  "",    // hipaa_mail
+  "",    // hipaa_voice
+  "",    // squad
+  "",   // $pharmacy_id
+  "",   // $drivers_license
+  "",   // $hipaa_notice
+  "",   // $hipaa_message
+  // ======== dutch specific
+  $form_dbcprefix,          // $prefixlast 
+  $form_dbcprefixpartner,   // $prefixlastpartner 
+  $form_dbclastpartner,	    // $lastpartner
+  "",	// $provider_data
+  ""	// $referer_data 
  );
 
  newEmployerData($pid);
@@ -100,6 +115,12 @@ if ($_POST['form_create']) {
   sqlQuery("UPDATE patient_data SET referral_source = '$refsource' " .
    "WHERE pid = '$pid'");
  }
+
+  // DBC Dutch System
+   if ( $GLOBALS['dutchpc'] ) {
+      generate_id1250($pid); // generate an ID1250 number
+  }
+
 }
 ?>
 <html>

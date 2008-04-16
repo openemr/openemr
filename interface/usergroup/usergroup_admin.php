@@ -61,6 +61,14 @@ if (isset($_POST["mode"])) {
       }
 
       $ws = new WSProvider($prov_id);
+
+      // DBC DUTCH SYSTEM
+      if ( $GLOBALS['dutchpc'] ) {
+        sqlStatement("INSERT INTO cl_user_beroep SET cl_beroep_userid = ' ".$prov_id." ',
+        cl_beroep_sysid = ' ".$_POST['beroep']." '");
+      }
+      // EOS DBC
+
     } else {
       $alertmsg .= "User " . $_POST["username"] . " already exists. ";
     }
@@ -279,7 +287,20 @@ if ($fres) {
 
 <tr>
 <td><span class="text"><?php xl('NPI','e'); ?>: </span></td><td><input type="entry" name="npi" size="20"></td>
-<td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="entry" name="specialty" size="20"></td>
+
+<?php
+// ===========================
+// DBC DUTCH SYSTEM
+// if DBC don't show Job Description; show instead Beroep Box
+if ( !$GLOBALS['dutchpc']) { ?>
+    <td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="entry" name="specialty" size="20"></td>
+<?php } else { ?>
+  <td><span class="text">Beroep</span></td>
+  <td><?php beroep_dropdown() ?></td>
+<?php }
+// ===========================
+?>
+
 </tr>
 <!-- (CHEMED) Calendar UI preference -->
 <tr>
@@ -417,6 +438,14 @@ foreach ($result4 as $iter) {
   } else {
       $iter{"authorized"} = "";
   }
+
+// ===========================
+// DBC DUTCH SYSTEM
+// overwrite 'info' field with dutch job description
+
+if ( $GLOBALS['dutchpc'] ) $iter{"info"} = what_beroep($iter{"id"});
+
+// ===========================
 
   print "<tr><td><span class='text'>" . $iter{"username"} .
     "</span><a href='user_admin.php?id=" . $iter{"id"} .

@@ -99,6 +99,16 @@ if ($_GET["mode"] == "update") {
     set_user_aro($_GET["access_group"], $user_data["username"], $_GET["fname"], $_GET["mname"], $_GET["lname"]);
   }
 
+  // ===========================
+  // DBC DUTCH SYSTEM  
+  if ( $_GET["beroep"] ) {
+         $tqvar = (int)($_GET["beroep"]);
+         sqlStatement("INSERT INTO cl_user_beroep SET cl_beroep_sysid='$tqvar', cl_beroep_userid={$_GET['id']}
+         ON DUPLICATE KEY UPDATE cl_beroep_sysid='$tqvar'");
+  }
+  // EOS
+  // ===========================
+
   $ws = new WSProvider($_GET['id']);
 }
 
@@ -106,6 +116,13 @@ $res = sqlStatement("select * from users where id={$_GET["id"]}");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
                 $result[$iter] = $row;
 $iter = $result[0];
+
+// ===========================
+// DBC DUTCH SYSTEM
+$beroep = sqlStatement("SELECT * FROM cl_user_beroep WHERE cl_beroep_userid={$_GET["id"]}");
+$rowberoep = sqlFetchArray($beroep);
+// EOS DBC
+// ===========================
 
 ?>
 <FORM NAME="user_form" METHOD="GET" ACTION="user_admin.php">
@@ -171,7 +188,19 @@ foreach($result as $iter2) {
 <tr>
 <td><span class="text"><?php xl('NPI','e'); ?>: </span></td><td><input type="text" name="npi" size="20" value="<?php echo $iter["npi"]?>"></td>
 
-<td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="text" name="job" size="20" value="<?php echo $iter["specialty"]?>"></td>
+<?php
+// ===========================
+// DBC DUTCH SYSTEM
+// if DBC don't show Job Description; show instead Beroep Box
+if ( !$GLOBALS['dutchpc']) { ?>
+    <td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="text" name="job" size="20" value="<?php echo $iter["specialty"]?>"></td>
+<?php } else { ?>
+  <td><span class="text">Beroep</span></td>
+  <td><?php beroep_dropdown($rowberoep['cl_beroep_sysid']) ?></td>
+<?php } 
+// ===========================
+?>
+
 </tr>
 <!-- (CHEMED) Calendar UI preference -->
 <tr>

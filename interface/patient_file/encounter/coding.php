@@ -5,12 +5,63 @@ include_once("../../../custom/code_types.inc.php");
 <html>
 <head>
 <?php html_header_show();?>
+
+<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<script type="text/javascript" src="../../../library/js/jquery.js"></script>
+
+<!-- DBC STUFF ================ -->
+
+<script type="text/javascript">
+$(document).ready(function(){
+
+$('#closeztn').bind('click', function(){
+    if ( confirm("Do you really want to close the ZTN?") ) {
+        $.ajax({ 
+            type: 'POST',
+            url: 'as.php',
+            data: 'cztn=1',
+            async: false
+        }); 
+    }
+    window.location.reload(true);
+});
+
+});
+</script>
+
+<script language="JavaScript">
+<!-- hide from JavaScript-challenged browsers
+
+function selas() {
+  popupWin = window.open('dbc_aschoose.php', 'remote', 'width=800,height=700,scrollbars');
+};
+
+function selcl() {
+  popupWin = window.open('dbc_close.php', 'remote', 'width=960,height=630,left=200,top=100,scrollbars');
+};
+
+function selfl() {
+  popupWin = window.open('dbc_showfollowup.php', 'remote', 'width=500,height=270,left=200,top=100,scrollbars');
+}
+// done hiding --></script>
+
+
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 <body class="body_bottom">
 
+
+<?php
+if ( LANGUAGE == 5 ) $pres = "prescriptiondutch";
+else $pres = "prescription";
+?>
+
 <dl>
 <dt><span href="coding.php" class="title"><?php xl('Coding','e'); ?></span></dt>
+<?php 
+// regular openemr 
+ if ( !$GLOBALS['dutchpc'] ) { ?>
+
 <dd><a class="text" href="superbill_codes.php"
  target="<?php echo $GLOBALS['concurrent_layout'] ? '_parent' : 'Main'; ?>"
  onclick="top.restoreSession()">
@@ -22,13 +73,38 @@ include_once("../../../custom/code_types.inc.php");
 <?php echo $key; ?> <?php xl('Search','e'); ?></a></dd>
 <?php } ?>
 
-<?php
-if ( LANGUAGE == 5 ) $pres = "prescriptiondutch";
-else $pres = "prescription";
-?>
-
 <dd><a class="text" href="copay.php" target="Codes" onclick="top.restoreSession()"><?php xl('Copay','e'); ?></a></dd>
 <dd><a class="text" href="other.php" target="Codes" onclick="top.restoreSession()"><?php xl('Other','e'); ?></a></dd><br />
+
+<?php } else { 
+// implement DBC Dutch System
+// DBC Dutch SYSTEM
+  if ( !$_SESSION['newdbc'] || !isset($_SESSION['newdbc']) ) {
+    $_SESSION['posas'] = 1; // we need these to automatically select first radiobutton in dbc choose
+  }
+
+    $_SESSION['newdbc'] = TRUE;
+    $_SESSION['show_axid'] = FALSE; 
+    
+  if ( $_SESSION['save'] ) { // prevent erasing session vars at refresh
+    // reset session variables
+    for ( $i = 1 ; $i <= 5 ; $i++) {
+      $varr = "as$i";
+      if ( isset($_SESSION[$varr]) ) {
+        unset($_SESSION[$varr]);
+      }
+    } // for
+  
+    $_SESSION['save'] = TRUE;
+    $_SESSION['newdbc'] = FALSE;
+  } 
+ 
+    // display the required links, function of ZTN situation
+    display_links(); 
+
+} // EOS DBC
+?>
+
 <dt><span href="coding.php" class="title"><?php xl('Prescriptions','e'); ?></span></dt>
 <dd><a class="text" href="<?php echo $GLOBALS['webroot']?>/controller.php?<?php echo $pres?>&list&id=<?php echo $pid?>"
  target="Codes" onclick="top.restoreSession()"><?php xl('List Prescriptions','e'); ?></a></dd>
