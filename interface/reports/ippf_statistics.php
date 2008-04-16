@@ -694,6 +694,8 @@ function process_icd_code($row) {
   }
 ?>
    </select>
+   <br />&nbsp;<br />
+   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
   </td>
  </tr>
  <tr>

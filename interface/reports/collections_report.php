@@ -234,14 +234,16 @@ function checkAll(checked) {
    <input type='text' name='form_age_inc' size='3' value='<?php echo $form_age_inc; ?>'>
    &nbsp;
    <?php xl('Svc Date:','e')?>
-   <input type='text' name='form_date' size='10' value='<?php echo $_POST['form_date']; ?>'
+   <input type='text' name='form_date' id="form_date" size='10' value='<?php echo $_POST['form_date']; ?>'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='<?php xl("Date of service mm/dd/yyyy","e")?>'>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
     title='<?php xl('Click here to choose a date','e'); ?>'>
    &nbsp;
    <?php xl('To:','e')?>
-   <input type='text' name='form_to_date' size='10' value='<?php echo $_POST['form_to_date']; ?>'
+   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $_POST['form_to_date']; ?>'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='<?php xl("Ending DOS mm/dd/yyyy if you wish to enter a range","e")?>'>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
@@ -258,6 +260,8 @@ function checkAll(checked) {
    </select>
    &nbsp;
    <input type='submit' name='form_search' value='<?php xl("Search","e")?>'>
+   &nbsp;
+   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
   </td>
  </tr>
 
@@ -794,7 +798,7 @@ if (!$_POST['form_csvexport']) {
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 <script language="Javascript">
  Calendar.setup({inputField:"form_date", ifFormat:"%m/%d/%Y", button:"img_from_date"});
- Calendar.setup({inputField:"form_to_date", ifFormat:"%%m/%d/%Y", button:"img_to_date"});
+ Calendar.setup({inputField:"form_to_date", ifFormat:"%m/%d/%Y", button:"img_to_date"});
 </script>
 </html>
 <?php

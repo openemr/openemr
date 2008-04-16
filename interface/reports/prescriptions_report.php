@@ -135,7 +135,6 @@
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
     title='<?php xl('Click here to choose a date','e'); ?>'>
-   <br>
    &nbsp;<?php xl('Patient ID','e'); ?>:
    <input type='text' name='form_patient_id' size='6' maxlength='6' value='<?php echo $form_patient_id ?>'
     title='Optional numeric patient ID' />
@@ -147,6 +146,8 @@
     title='Optional lot number, use % as a wildcard' />
    &nbsp;
    <input type='submit' name='form_refresh' value=<?php xl('Refresh','e'); ?>>
+   &nbsp;
+   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
   </td>
  </tr>
 </table>

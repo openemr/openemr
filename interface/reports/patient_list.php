@@ -123,6 +123,8 @@
     title='<?php xl('Click here to choose a date','e'); ?>'>
    &nbsp;
    <input type='submit' name='form_refresh' value=<?php xl('Refresh','e'); ?>>
+   &nbsp;
+   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
   </td>
  </tr>
 </table>
@@ -144,31 +146,6 @@
 <?php
  if ($_POST['form_refresh']) {
   $totalpts = 0;
-
-  /****
-  $query = "SELECT " .
-   "p.fname, p.mname, p.lname, p.street, p.city, p.state, " .
-   "p.postal_code, p.phone_home, p.phone_biz, " .
-   "count(e.date) AS ecount, max(e.date) AS edate, " .
-   "c1.name AS cname1, c2.name AS cname2 " .
-   "FROM patient_data AS p " .
-   "JOIN form_encounter AS e ON " .
-   "e.pid = p.pid AND " .
-   "e.date >= '$from_date 00:00:00' AND " .
-   "e.date <= '$to_date 23:59:59' " .
-   "LEFT OUTER JOIN insurance_data AS i1 ON " .
-   "i1.pid = p.pid AND i1.type = 'primary' " .
-   "LEFT OUTER JOIN insurance_companies AS c1 ON " .
-   "c1.id = i1.provider " .
-   "LEFT OUTER JOIN insurance_data AS i2 ON " .
-   "i2.pid = p.pid AND i2.type = 'secondary' " .
-   "LEFT OUTER JOIN insurance_companies AS c2 ON " .
-   "c2.id = i2.provider " .
-   "GROUP BY p.lname, p.fname, p.mname, p.pid " .
-   "ORDER BY p.lname, p.fname, p.mname, p.pid";
-  $res = sqlStatement($query);
-  while ($row = sqlFetchArray($res)) {
-  ****/
 
   $query = "SELECT " .
    "p.fname, p.mname, p.lname, p.street, p.city, p.state, " .

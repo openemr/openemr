@@ -226,6 +226,8 @@
     value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details','e') ?>
    &nbsp;
    <input type='submit' name='form_search' value='Search'>
+   &nbsp;
+   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
   </td>
  </tr>
 </table>

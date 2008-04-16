@@ -469,6 +469,11 @@ function newPatientData(    $db_id="",
         $referral_source = $rez['referral_source'];
     }
 
+    // Get the default price level.
+    $lrow = sqlQuery("SELECT option_id FROM list_options WHERE " .
+      "list_id = 'pricelevel' ORDER BY is_default DESC, seq ASC LIMIT 1");
+    $pricelevel = empty($lrow['option_id']) ? '' : $lrow['option_id'];
+
     // this was a 'replace into' statement but that would overwrite data
     // seems like a HIPAA violation of some sort to me -- JRM Apr 2008
     $query = ("insert into patient_data set
@@ -520,6 +525,7 @@ function newPatientData(    $db_id="",
         fitness='$fitness',
         referral_source='$referral_source',
         regdate='$regdate',
+        pricelevel='$pricelevel',
         date=NOW()");
 
     $id = sqlInsert($query);

@@ -58,11 +58,13 @@
     size='10' value='<? echo $form_to_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_date' border='0' alt='[?]' style='cursor:pointer'
+    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
     title='Click here to choose a date'>
 
    &nbsp;
    <input type='submit' name='form_refresh' value=<? xl('Refresh','e'); ?>>
+   &nbsp;
+   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
   </td>
  </tr>
 

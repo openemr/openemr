@@ -85,7 +85,7 @@ INSERT INTO layout_options VALUES ('DEM','fname'          ,'1Who',''            
 INSERT INTO layout_options VALUES ('DEM','mname'          ,'1Who',''              , 3, 2,1, 2,63,''       ,0,0,'','C','Middle Name');
 INSERT INTO layout_options VALUES ('DEM','lname'          ,'1Who',''              , 4, 2,2,10,63,''       ,0,0,'','C','Last Name');
 INSERT INTO layout_options VALUES ('DEM','pubpid'         ,'1Who','External ID'   , 5, 2,1,10,15,''       ,1,1,'','' ,'External identifier');
-INSERT INTO layout_options VALUES ('DEM','DOB'            ,'1Who','DOB'           , 6, 2,2,10,10,''       ,1,1,'','D','Date of Birth');
+INSERT INTO layout_options VALUES ('DEM','DOB'            ,'1Who','DOB'           , 6, 4,2,10,10,''       ,1,1,'','D','Date of Birth');
 INSERT INTO layout_options VALUES ('DEM','sex'            ,'1Who','Sex'           , 7, 1,2, 0, 0,'sex'    ,1,1,'','' ,'Sex');
 INSERT INTO layout_options VALUES ('DEM','ss'             ,'1Who','S.S.'          , 8, 2,1,11,11,''       ,1,1,'','' ,'Social Security Number');
 INSERT INTO layout_options VALUES ('DEM','drivers_license','1Who','License/ID'    , 9, 2,1,15,63,''       ,1,1,'','' ,'Drivers License or State ID');
@@ -261,7 +261,7 @@ INSERT INTO layout_options VALUES ('DEM','userlist4'       ,'6Misc','User Define
 INSERT INTO layout_options VALUES ('DEM','userlist5'       ,'6Misc','User Defined List 5'   , 7, 1,0, 0, 0,'userlist5',1,1,'','' ,'User Defined');
 INSERT INTO layout_options VALUES ('DEM','userlist6'       ,'6Misc','User Defined List 6'   , 8, 1,0, 0, 0,'userlist6',1,1,'','' ,'User Defined');
 INSERT INTO layout_options VALUES ('DEM','userlist7'       ,'6Misc','User Defined List 7'   , 9, 1,0, 0, 0,'userlist7',1,1,'','' ,'User Defined');
-INSERT INTO layout_options VALUES ('DEM','regdate'         ,'6Misc','Registration Date'     ,10, 2,0,10,10,''         ,1,1,'','D','Start Date at This Clinic');
+INSERT INTO layout_options VALUES ('DEM','regdate'         ,'6Misc','Registration Date'     ,10, 4,0,10,10,''         ,1,1,'','D','Start Date at This Clinic');
 
 INSERT INTO list_options VALUES ('refsource','Patient'      ,'Patient'      , 1,0,0);
 INSERT INTO list_options VALUES ('refsource','Employee'     ,'Employee'     , 2,0,0);

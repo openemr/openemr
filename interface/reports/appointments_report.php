@@ -244,7 +244,6 @@
 
 ?>
 
-<br>
    &nbsp;<?php  xl('From','e'); ?>:
 
    <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $from_date ?>'
@@ -262,8 +261,9 @@
     title='<?php xl('Click here to choose a date','e'); ?>'>
 
    &nbsp;
-
    <input type='submit' name='form_refresh' value='<?php  xl('Refresh','e'); ?>'>
+   &nbsp;
+   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
 
   </td>
  </tr>

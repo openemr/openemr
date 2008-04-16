@@ -70,8 +70,13 @@ div.section {
 
 </style>
 
+<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 
 <SCRIPT LANGUAGE="JavaScript"><!--
 
@@ -590,18 +595,18 @@ end_group();
  parent.left_nav.setRadio(window.name, 'dem');
 <?php } ?>
 
+<?php echo $date_init; ?>
+<?php if (! $GLOBALS['simplified_demographics']) { for ($i=1; $i<=3; $i++): ?>
+ Calendar.setup({inputField:"i<?php echo $i?>subscriber_DOB", ifFormat:"%Y-%m-%d", button:"img_i<?php echo $i?>dob_date"});
+<?php endfor; } ?>
 </script>
 
 </body>
-<!-- stuff for the popup calendar -->
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
-<script language="Javascript">
- //Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
-<?php for($i=1; $i<=3; $i++): ?>
- Calendar.setup({inputField:"i<?php echo $i?>subscriber_DOB", ifFormat:"%Y-%m-%d", button:"img_i<?php echo $i?>dob_date"});
-<?php endfor; ?>
-</script>
+<?php
+// <!-- stuff for the popup calendar -->
+// <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+// <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
+// <script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
+// <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+?>
 </html>

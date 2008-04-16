@@ -51,15 +51,25 @@
     <option value='1'<?php if ($form_use_edate) echo ' selected' ?>><?php xl('Invoice Date','e'); ?></option>
    </select>
    &nbsp;<?xl('From:','e')?>
-   <input type='text' name='form_from_date' size='10' value='<? echo $form_from_date; ?>' title='MM/DD/YYYY'>
+   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
    &nbsp;<?php xl('To:','e'); ?>
-   <input type='text' name='form_to_date' size='10' value='<? echo $form_to_date; ?>' title='MM/DD/YYYY'>
+   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
    &nbsp;
    <input type='checkbox' name='form_details' value='1'<? if ($_POST['form_details']) echo " checked"; ?>><?xl('Details','e')?>
    &nbsp;
    <input type='checkbox' name='form_checkno' value='1'<? if ($_POST['form_checkno']) echo " checked"; ?>><?xl('Check#','e')?>
    &nbsp;
    <input type='submit' name='form_refresh' value="<?xl('Refresh','e')?>">
+   &nbsp;
+   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
   </td>
  </tr>
 
@@ -247,4 +257,15 @@
 </form>
 </center>
 </body>
+
+<!-- stuff for the popup calendar -->
+<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script language="Javascript">
+ Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
+ Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
+</script>
+
 </html>
