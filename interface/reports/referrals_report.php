@@ -181,7 +181,7 @@
    <?php echo $row['organization'] ?>
   </td>
   <td>
-   <a href='' onclick="return show_referral(<?php echo $row['id']; ?>)">
+   <a href='#' onclick="return show_referral(<?php echo $row['id']; ?>)">
    <?php echo $row['refer_date']; ?>&nbsp;
    </a>
   </td>
