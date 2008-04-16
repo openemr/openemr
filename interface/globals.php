@@ -104,6 +104,13 @@ $GLOBALS['restore_sessions'] = 1; // 0=no, 1=yes, 2=yes+debug
 // used in Add new event for multiple providers
 $GLOBALS['select_multi_providers'] = false;
 
+// used for Dutch Mental Health Facility
+$GLOBALS['dutchpc'] = FALSE;
+
+if ( $GLOBALS['dutchpc'] ) {
+	include_once (dirname(__FILE__) . "/../library/DBC_include.php");
+}
+
 // Theme definition:
 if ($GLOBALS['concurrent_layout']) {
  $top_bg_line = ' bgcolor="#dddddd" ';
