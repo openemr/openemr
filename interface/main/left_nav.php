@@ -95,6 +95,12 @@
  // * Usage: 0 = global, 1 = patient-specific, 2 = encounter-specific
  // * The URL relative to the interface directory
  //
+
+ // larry :: dbc insert 
+ $demovarbase = ( $GLOBALS['dutchpc'] ) ? 'demographics_dutch.php' : 'demographics.php';
+ // larry :: end of dbc insert
+
+
  $primary_docs = array(
   'ros' => array('Roster'    , 0, 'reports/players_report.php?embed=1'),
   'cal' => array('Calendar'  , 0, 'main/main_info.php'),
@@ -109,7 +115,7 @@
   'sup' => array('Superbill' , 0, 'patient_file/encounter/superbill_custom_full.php'),
   'aun' => array('Auth/notes', 0, 'main/authorizations/authorizations.php'),
   'new' => array('New Pt'    , 0, 'new/new.php'),
-  'dem' => array('Patient'   , 1, 'patient_file/summary/demographics.php'),
+  'dem' => array('Patient'   , 1,  $demovarbase ),
   'his' => array('History'   , 1, 'patient_file/history/history.php'),
   'ens' => array('Encounters', 1, 'patient_file/history/encounters.php'),
   'nen' => array('New Enctr' , 1, 'forms/newpatient/new.php?autoloaded=1&calenc='),
