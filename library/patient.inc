@@ -78,6 +78,22 @@ function getProviders() {
     return $returnval;
 }
 
+// ----------------------------------------------------------------------------
+/**
+ * GET ADDITIONAL INFORMATIONS 
+ * 
+ * only Dutch use
+ * 
+ * @param $pid - patient id
+ * @return array
+ */
+function getPatientDataNL($pid) {
+    mysql_query("SET NAMES 'utf8'");
+    $sql = "SELECT * FROM patient_data_NL WHERE pdn_id = '$pid'";
+    return sqlQuery($sql);
+}
+
+
 /**
 GET FACILITIES
 
@@ -333,7 +349,10 @@ function getPatientPID($args)
 function getPatientName($pid) {
     if (empty($pid))
         return "";
-    $patientData = getPatientPID(array("pid"=>$pid));
+	// larry :: DBC change 
+	//    $patientData = getPatientPID(array("pid"=>$pid));
+	$patientData = getPatientPID($pid);
+	// END OF DBC CHANGE
     if (empty($patientData[0]['lname']))
         return "";
     $patientName =  $patientData[0]['lname'] . ", " . $patientData[0]['fname'];
@@ -412,6 +431,11 @@ function newPatientData(    $db_id="",
                 $sex = "",
                 $DOB = "",
                 $street = "",
+                // DBC dutch use
+                $nstreet = "",
+                $nnr = "",
+                $nadd = "",
+                // EOS DBC
                 $postal_code = "",
                 $city = "",
                 $state = "",
@@ -449,7 +473,16 @@ function newPatientData(    $db_id="",
                 $drivers_license = "",
                 $hipaa_notice = "",
                 $hipaa_message = "",
-                $regdate = ""
+                $regdate = "",
+		// dutch specific
+		$prefixlast = "",
+		$prefixlastpartner = "",
+		$lastpartner = "",
+                $initials = "",
+		$provider_data = "",
+		$referer_data = ""
+		// DBC Dutch System
+
             )
 {
     $DOB = fixDate($DOB);
@@ -529,7 +562,79 @@ function newPatientData(    $db_id="",
         date=NOW()");
 
     $id = sqlInsert($query);
+
+    // DBC 
+    if ( !$db_id ) {
+        // find the last inserted id for new patient case
+	$db_id = mysql_insert_id();
+    }
+    // EOS DBC
+
     $foo = sqlQuery("select pid from patient_data where id='$id' order by date limit 0,1");
+
+         // dutch use
+	if ( $GLOBALS['dutchpc'] ) {
+            $querynl = ("REPLACE INTO patient_data_NL SET
+                    pdn_id = '$db_id',
+                    pdn_pxlast = '$prefixlast',
+                    pdn_pxlastpar = '$prefixlastpartner',
+                    pdn_lastpar = '$lastpartner',
+                    pdn_street = '$nstreet',
+                    pdn_number = '$nnr',
+                    pdn_addition = '$nadd',
+                    pdn_initials = '$initials'
+            ");
+
+            if ( $db_id ) $idnl = sqlInsert($querynl); // only if exists
+        }
+        // EOS dutch use
+
+
+       // DBC Dutch System
+	// provider first
+	if ( $GLOBALS['dutchpc'] && ( $db_id ) ) {
+	   $querypr = ("INSERT INTO cl_providers(pro_pid, pro_company, pro_initials, pro_prefix, pro_lname,
+	           pro_street, pro_number, pro_addition, pro_city, pro_zipcode,  pro_phone, pro_fax, pro_email, pro_referer ) 
+	           VALUES ($db_id, '{$provider_data['pro_company']}', '{$provider_data['pro_initials']}',
+                  '{$provider_data['pro_prefix']}', '{$provider_data['pro_lname']}',  
+                  '{$provider_data['pro_street']}', '{$provider_data['pro_number']}', '{$provider_data['pro_addition']}', 
+                  '{$provider_data['pro_city']}',  '{$provider_data['pro_zipcode']}',
+                  '{$provider_data['pro_phone']}', '{$provider_data['pro_fax']}',  '{$provider_data['pro_email']}', 
+                  '{$provider_data['pro_referer']}') 
+                  ON DUPLICATE KEY UPDATE  pro_referer = '{$provider_data['pro_referer']}',
+                  pro_company = '{$provider_data['pro_company']}', pro_initials = '{$provider_data['pro_initials']}',
+                  pro_prefix = '{$provider_data['pro_prefix']}',
+                  pro_lname = '{$provider_data['pro_lname']}', pro_street = '{$provider_data['pro_street']}',
+                  pro_number = '{$provider_data['pro_number']}', pro_addition = '{$provider_data['pro_addition']}',
+                  pro_city = '{$provider_data['pro_city']}', pro_zipcode = '{$provider_data['pro_zipcode']}',
+                  pro_phone = '{$provider_data['pro_phone']}', pro_fax = '{$provider_data['pro_fax']}',
+                  pro_email = '{$provider_data['pro_email']}'
+            ");
+	   $idpr = sqlInsert($querypr);
+
+	// referer if it's the case
+	if ( $referer_data['ref_code'] ) {
+	   $queryre = ("INSERT INTO cl_referers(ref_pid, ref_code, ref_company, ref_initials, ref_prefix,
+                   ref_lname, ref_street, ref_number, ref_addition, ref_city, ref_zipcode,  ref_phone, ref_fax,
+                   ref_email) 
+	           VALUES ($db_id, {$referer_data['ref_code']}, '{$referer_data['ref_company']}', 
+                   '{$referer_data['ref_initials']}', '{$referer_data['ref_prefix']}',
+                   '{$referer_data['ref_lname']}', '{$referer_data['ref_street']}', '{$referer_data['ref_number']}', 
+                   '{$referer_data['ref_addition']}', '{$referer_data['ref_city']}', '{$referer_data['ref_zipcode']}',
+                  '{$referer_data['ref_phone']}', '{$referer_data['ref_fax']}',  '{$referer_data['ref_email']}')
+	          ON DUPLICATE KEY UPDATE ref_code = {$referer_data['ref_code']},
+                  ref_company = '{$referer_data['ref_company']}', ref_initials = '{$referer_data['ref_initials']}',
+                  ref_prefix = '{$referer_data['ref_prefix']}',
+                  ref_lname = '{$referer_data['ref_lname']}', ref_street = '{$referer_data['ref_street']}',
+                  ref_number = '{$referer_data['ref_number']}', ref_addition = '{$referer_data['ref_addition']}',
+                  ref_city = '{$referer_data['ref_city']}', ref_zipcode = '{$referer_data['ref_zipcode']}',
+                  ref_phone = '{$referer_data['ref_phone']}', ref_fax = '{$referer_data['ref_fax']}',
+                  ref_email = '{$referer_data['ref_email']}'
+            ");
+	   $idre = sqlInsert($queryre);
+	} 
+	} // if globals
+        // EOS DBC
 
     sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone_home,
                 $phone_biz,$phone_cell,$email,$pid);
@@ -919,6 +1024,248 @@ function dateToDB ($date)
     $date=substr ($date,6,4)."-".substr ($date,3,2)."-".substr($date, 0,2);
     return $date;
 }
+
+
+// ----------------------------------------------------------------------------
+/**
+ * DROPDOWN FOR COUNTRIES
+ * 
+ * build a dropdown with all countries from geo_country_reference
+ * 
+ * @param int $selected - id for selected record
+ * @param string $name - the name/id for select form
+ * @return void - just echo the html encoded string
+ */
+function dropdown_countries($selected = 0, $name = 'country_code') {
+    $r = sqlStatement("SELECT * FROM geo_country_reference ORDER BY countries_name");
+
+    $string = "<select name='$name' id='$name'>";
+    while ( $row = sqlFetchArray($r) ) {
+        $sufix = ( $selected == $row['countries_id']) ? 'selected="selected"' : '';
+        $string .= "<option value='{$row['countries_id']}' $sufix>{$row['countries_name']}</option>";
+    }
+
+    $string .= '</select>';
+    echo $string;
+}
+
+
+// ----------------------------------------------------------------------------
+/**
+ * DROPDOWN FOR YES/NO
+ * 
+ * build a dropdown with two options (yes - 1, no - 0)
+ * 
+ * @param int $selected - id for selected record
+ * @param string $name - the name/id for select form
+ * @return void - just echo the html encoded string 
+ */
+function dropdown_yesno($selected = 0, $name = 'yesno') {
+    $string = "<select name='$name' id='$name'>";
+
+    $selected = (int)$selected;
+    if ( $selected == 0) { $sel1 = 'selected="selected"'; $sel2 = ''; }
+    else { $sel2 = 'selected="selected"'; $sel1 = ''; }
+
+    $string .= "<option value='0' $sel1>" .xl('No'). "</option>";
+    $string .= "<option value='1' $sel2>" .xl('Yes'). "</option>";
+    $string .= '</select>';
+
+    echo $string;
+}
+
+// ----------------------------------------------------------------------------
+/**
+ * DROPDOWN FOR MALE/FEMALE options
+ * 
+ * build a dropdown with three options (unselected/male/female)
+ * 
+ * @param int $selected - id for selected record
+ * @param string $name - the name/id for select form
+ * @return void - just echo the html encoded string
+ */
+function dropdown_sex($selected = 0, $name = 'sex') {
+    $string = "<select name='$name' id='$name'>";
+
+    if ( $selected == 1) { $sel1 = 'selected="selected"'; $sel2 = ''; $sel0 = ''; }
+    else if ($selected == 2) { $sel2 = 'selected="selected"'; $sel1 = ''; $sel0 = ''; }
+    else { $sel0 = 'selected="selected"'; $sel1 = ''; $sel2 = ''; }
+
+    $string .= "<option value='0' $sel0>" .xl('Unselected'). "</option>";
+    $string .= "<option value='1' $sel1>" .xl('Male'). "</option>";
+    $string .= "<option value='2' $sel2>" .xl('Female'). "</option>";
+    $string .= '</select>';
+
+    echo $string;
+}
+
+// ----------------------------------------------------------------------------
+/**
+ * DROPDOWN FOR MARITAL STATUS
+ * 
+ * build a dropdown with marital status
+ * 
+ * @param int $selected - id for selected record
+ * @param string $name - the name/id for select form
+ * @return void - just echo the html encoded string
+ */
+function dropdown_marital($selected = 0, $name = 'status') {
+    $string = "<select name='$name' id='$name'>";
+
+    $statii = array('married','single','divorced','widowed','separated','domestic partner');
+
+    foreach ( $statii as $st ) {
+        $sel = ( $st == $selected ) ? 'selected="selected"' : '';
+        $string .= '<option value="' .$st. '" '.$sel.' >' .xl($st). '</option>';
+    }
+
+    $string .= '</select>';
+
+    echo $string;
+}
+
+// ----------------------------------------------------------------------------
+/**
+ * DROPDOWN FOR PROVIDERS
+ * 
+ * build a dropdown with all providers
+ * 
+ * @param int $selected - id for selected record
+ * @param string $name - the name/id for select form
+ * @return void - just echo the html encoded string
+ */
+function dropdown_providers($selected = 0, $name = 'status') {
+    $provideri = getProviderInfo();
+
+    $string = "<select name='$name' id='$name'>";
+    $string .= '<option value="">' .xl('Unassigned'). '</option>';
+    foreach ( $provideri as $s ) {
+        $sel = ( $s['id'] == $selected ) ? 'selected="selected"' : '';
+        $string .= '<option value="' .$s['id']. '" '.$sel.' >' .ucwords($s['fname']." ".$s['lname']). '</option>';
+    }
+
+    $string .= '</select>';
+
+    echo $string;
+}
+
+// ----------------------------------------------------------------------------
+/**
+ * DROPDOWN FOR INSURANCE COMPANIES
+ * 
+ * build a dropdown with all insurers
+ * 
+ * @param int $selected - id for selected record
+ * @param string $name - the name/id for select form
+ * @return void - just echo the html encoded string
+ */
+function dropdown_insurance($selected = 0, $name = 'iprovider') {
+    $insurancei = getInsuranceProviders();
+
+    $string = "<select name='$name' id='$name'>";
+    $string .= '<option value="0">Onbekend</option>';
+    foreach ( $insurancei as $iid => $iname ) {
+        $sel = ( strtolower($iid) == strtolower($selected) ) ? 'selected="selected"' : '';
+        $string .= '<option value="' .$iid. '" '.$sel.' >' .$iname. '(' .$iid. ')</option>';
+    }
+
+    $string .= '</select>';
+
+    echo $string;
+}
+
+
+// ----------------------------------------------------------------------------
+/**
+ * COUNTRY CODE
+ * 
+ * return the name or the country code, function of arguments
+ * 
+ * @param int $country_code
+ * @param string $country_name
+ * @return string | int - name or code
+ */
+function country_code($country_code = 0, $country_name = '') {
+    $strint = '';
+    if ( $country_code ) {
+        $sql = "SELECT countries_name AS res FROM geo_country_reference WHERE countries_id = '$country_code'";
+    } else {
+        $sql = "SELECT countries_id AS res FROM geo_country_reference WHERE countries_name = '$country_name'";
+    }
+
+    $db = $GLOBALS['adodb']['db'];
+    $result = $db->Execute($sql);
+    if ($result && !$result->EOF) {
+        $strint = $result->fields['res'];
+    }
+
+    return $strint;
+}
+
+// ----------------------------------------------------------------------------
+/**
+ * GET INSURANCE DATA
+ * (Dutch usage)
+ * 
+ * return the insurer(s) and some patient
+ * 
+ * @param int $pid - patient id
+ * @param int $current 1-current 0-all insurers
+ * @return array
+ */
+function get_insurers_nl($pid = 0, $current = 1) {
+    if ( !$pid ) return FALSE;
+
+    $q = sprintf("SELECT * FROM patient_insurers_NL pi JOIN insurance_companies ic ON ic.id = pi.pin_provider
+                  WHERE pin_pid = %d ORDER BY pin_date DESC", $pid);
+    $r = mysql_query($q) or die(mysql_error());
+
+    while ( $row = mysql_fetch_array($r) ) {
+        $rez[] = $row;
+    } // while
+
+    return ( $current ? $rez[0] : $rez );
+}
+
+// ----------------------------------------------------------------------------
+/**
+ * SET INSURANCE DATA
+ * (Dutch usage)
+ * 
+ * set the insurer for a patient
+ * 
+ * @param int $pid - patient id
+ * @param int $insid - insurer id
+ * @return void
+ */
+function set_insurer_nl($pid = 0, $insid = 0, $date = '', $policy = '') {
+    if ( !$pid || !$insid || ($date == '0000-00-00') ) return FALSE;
+
+    $q = sprintf("INSERT INTO patient_insurers_NL(pin_pid, pin_provider, pin_date, pin_policy) 
+                  VALUES(%d, %d, '%s', '%s')", $pid, $insid, $date, $policy);
+    $r = mysql_query($q) or die(mysql_error());
+}
+
+// ----------------------------------------------------------------------------
+/**
+ * FIND THE INSURERS STATUS FOR A PATIENT
+ * (Dutch usage)
+ * 
+ * return the answer for the question: is this the first insurer or not?
+ * 
+ * @param int $pid - patient id
+ * @return int - the number of insurer records ( 0 - no insurer; >0 some insurers)
+ */
+function total_insurers($pid = 0) {
+    if ( !$pid ) return FALSE;
+
+    $q = sprintf("SELECT COUNT(*) AS c FROM patient_insurers_NL WHERE pin_pid = %d ", $pid);
+    $r = mysql_query($q) or die(mysql_error());
+    $row = mysql_fetch_array($r);
+
+    return $row['c'];
+}
+
 
 function DBToDate ($date)
 {
