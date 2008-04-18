@@ -257,7 +257,7 @@ function validate(f) {
   // Otherwise look it up in the form_encounter table.
   //
   $svcdate = "";
-  list($trash, $encounter) = explode(".", $arrow['invnumber']);
+  list($patient_id, $encounter) = explode(".", $arrow['invnumber']);
   if (strlen($encounter) == 8) {
     $svcdate = substr($encounter, 0, 4) . "-" . substr($encounter, 4, 2) .
       "-" . substr($encounter, 6, 2);
@@ -267,6 +267,9 @@ function validate(f) {
       "encounter = $encounter");
     $svcdate = substr($tmp['date'], 0, 10);
   }
+
+  $pdrow = sqlQuery("select genericname2, genericval2 " .
+    "from patient_data where pid = '$patient_id' limit 1");
 
   // Get invoice charge details.
   $codes = get_invoice_summary($trans_id, true);
@@ -365,6 +368,16 @@ function validate(f) {
    <input type='button' value='<?php xl('Cancel','e')?>' onclick='window.close()'>
   </td>
  </tr>
+<?php if ($pdrow['genericname2'] == 'Billing') { ?>
+ <tr>
+  <td>
+   <?php xl('Billing Note:','e')?>
+  </td>
+  <td colspan='3' style='color:red'>
+   <?php echo $pdrow['genericval2'] ?>
+  </td>
+ </tr>
+<?php } ?>
  <tr>
   <td height="1">
   </td>
