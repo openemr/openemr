@@ -53,51 +53,6 @@
 
  $info_msg = "";
 
-
-// used for DBC Dutch System
- $_SESSION['event_date'] = $date;
- $link = '../../../library/DBC_functions.php'; // ajax stuff and db work
- ?><script type="text/javascript" src="../../../library/js/jquery.js"></script><?php
- 
- // =====================================
- // DBC Dutch System
- // ACTIVITIES / TIMES 
- if ( $eid ) {
-    if ( $GLOBALS['select_multi_providers'] ) {
-        // ------------------------------------------
-        // what is multiple key around this $eid?
-        $rowmulti = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
-
-        // what are all pc_eid's grouped by multiple key
-        $eventsrow = array();
-        $rezev = mysql_query("SELECT pc_eid FROM openemr_postcalendar_events WHERE pc_multiple = {$rowmulti['pc_multiple']}");
-        while ( $row = mysql_fetch_array($rezev) ) {
-            $eventsrow[] = $row['pc_eid'];
-        }
-
-        // we look in cl_event_activiteit / cl_time_activiteit for a matching record
-        foreach ( $eventsrow as $ev) {
-            $activ = sqlQuery("SELECT * FROM cl_event_activiteit WHERE event_id = $ev");
-            if ( $activ['event_id'] ) $singleeid = $activ['event_id'];
-
-            $time = sqlQuery("SELECT * FROM cl_time_activiteit WHERE event_id = $ev");
-            if ( $time ) $timerow = $time;
-        }
-
-        // prevent blank values for $singleeid
-        if ( !$singleeid) $singleeid = $eid;
-
-        // ------------------------------------------
-    } else {
-        // ------------------------------------------
-        // single providers case
-        $timerow = sqlQuery("SELECT * FROM cl_time_activiteit WHERE event_id = $eid");
-        $singleeid = $eid;
-        // ------------------------------------------
-    }
- } // if ($eid)
-
-
 // ===========================
 // EVENTS TO FACILITIES (lemonsoftware)
 // edit event case - if there is no association made, then insert one with the first facility
@@ -160,20 +115,7 @@ if ( $eid ) {
 
  // If we are saving, then save and close the window.
  //
- if ($_POST['form_save']) {
-
-    // ========================================
-    // DBC SYSTEM
-    // check if for activity act_3.2 we have times completed
-
-    $sa = selected_ac();
-    if ( $sa == 'act_3.2') {
-        $duration = (int)$_POST['form_duration'];
-        if ( empty($duration) ) exit();
-    }
-
-    // ========================================
-
+ if ($_POST['form_action'] == "save") {
 
   $event_date = fixDate($_POST['form_date']);
 
@@ -226,13 +168,6 @@ if ( $eid ) {
 
     // what is multiple key around this $eid?
     $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
-
-    // timing-activity validation
-    if ( $_SESSION['editactiv'] ) { 
-        $activ = selected_ac();
-    } else {
-        $activ = what_activity($eid);
-    }
 
     if ($GLOBALS['select_multi_providers'] && $row['pc_multiple']) {
         /* ==========================================
@@ -347,36 +282,6 @@ if ( $eid ) {
 
     }
 
-    // ===================================
-    // DBC change activity /  times
-    $activ = ''; // activity could be an old value or a new one
-    if ( $_SESSION['editactiv'] ) {
-        $ac = selected_ac(); $activ = $ac;
-        $acid = what_sysid($ac);
-
-        if ( $acid ) sqlInsert("INSERT INTO cl_event_activiteit (event_id, activity_sysid)".
-        " VALUES ('" .$singleeid. "', '" .$acid. "') ON DUPLICATE KEY UPDATE activity_sysid = " .$acid );
-
-        $_SESSION['editactiv'] = FALSE; // otherwise you'll get a nasty bug!
-    } else {
-        $activcode = what_activity($singleeid);
-        $activ = what_code_activity($activcode);
-    }
-
-    // timing-activity validation
-    if ( vl_activity_travel($activ) ) {
-        $itime  = (int)$_POST['form_duration_indirect']; $ttime  = 0;
-    } else {
-        $itime  = (int)$_POST['form_duration_indirect']; $ttime  = (int)$_POST['form_duration_travel'];
-    }
-    sqlInsert("INSERT INTO cl_time_activiteit (event_id, indirect_time, travel_time)".
-          " VALUES ('" .$singleeid. "', '" .$itime. "', '" .$ttime. "') ON DUPLICATE KEY UPDATE indirect_time = " .$itime.
-          ", travel_time = " . $ttime);
-
-    // EOS DBC change activity / times
-    // ===================================
-
-
 // =======================================
 // EOS multi providers case
 // =======================================
@@ -461,35 +366,6 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
     "1, " .
     "1," .(int)$_POST['facility']. ")"); // FF stuff
   } // INSERT single
-
-  // ==============================================
-  // DBC Dutch System (insert case)
-  $lid = mysql_insert_id(); // obtain last inserted id 
-
-    $ac = selected_ac();
-    $acid = what_sysid($ac);
-    sqlInsert("INSERT INTO cl_event_activiteit (event_id, activity_sysid) VALUES ('" .$lid. "', '" .$acid. "')");
-
-    // timing-activity validation
-    if ( vl_activity_travel($activ) ) {
-        $itime  = (int)$_POST['form_duration_indirect']; $ttime  = 0;
-    } else {
-        $itime  = (int)$_POST['form_duration_indirect']; $ttime  = (int)$_POST['form_duration_travel'];
-    }
-    sqlInsert("INSERT INTO cl_time_activiteit (event_id, indirect_time, travel_time)".
-              " VALUES ('" .$lid. "', '" .$itime. "', '" .$ttime. "')");
-
-  // DBC Dutch System (insert case)
-  // ==============================================
-  
-    // new ZTN ?
-    $pid1007 = ( $_POST['form_pid']  ) ? $_POST['form_pid'] : $pid;
-    if ( $pid1007 ) {
-       $a = generate_id1007($pid1007, $event_date); //var_dump($a); exit();
-    }
-
-  // EOS DBC
-  // ==============================================
  } // else - insert
 
   // Save new DOB if it's there.
@@ -531,7 +407,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
   }
 
  }
- else if ($_POST['form_delete']) {
+ else if ($_POST['form_action'] == "delete") {
         // =======================================
         //  multi providers case
         // =======================================
@@ -551,7 +427,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
         }
  }
 
- if ($_POST['form_save'] || $_POST['form_delete']) {
+ if ($_POST['form_action'] != "") {
   // Close this window and refresh the calendar display.
   echo "<html>\n<body>\n<script language='JavaScript'>\n";
   if ($info_msg) echo " alert('$info_msg');\n";
@@ -566,6 +442,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
   '-' => '',
   '*' => xl('* Reminder done'),
   '+' => xl('+ Chart pulled'),
+  'x' => xl('x Cancelled'), // added Apr 2008 by JRM
   '?' => xl('? No show'),
   '@' => xl('@ Arrived'),
   '~' => xl('~ Arrived late'),
@@ -622,7 +499,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
 
  //-------------------------------------
  //(CHEMED)
- //Set default facility for a new event
+ //Set default facility for a new event based on the given 'userid'
  if ($userid) {
      $pref_facility = sqlFetchArray(sqlStatement("SELECT facility_id, facility FROM users WHERE id = $userid"));
      $e2f = $pref_facility['facility_id'];
@@ -649,7 +526,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
-td { font-size:10pt; }
+td { font-size:0.8em; }
 </style>
 
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
@@ -659,17 +536,6 @@ td { font-size:10pt; }
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
-
-<?php
-// ============================================================================
-// DBC SYSTEM JAVASCRIPT FILE
-
-if ( $GLOBALS['dutchpc'] ) { ?>
-<script type="text/javascript" src="../../../js/add_edit_event.js"></script>
-
-<?php } 
-// ============================================================================
-?>
 
 <script language="JavaScript">
 
@@ -842,52 +708,38 @@ if ( $GLOBALS['dutchpc'] ) { ?>
 
  // Check for errors when the form is submitted.
  function validate() {
-  var f = document.forms[0];
+  var f = document.getElementById('theform');
   if (f.form_repeat.checked &&
       (! f.form_enddate.value || f.form_enddate.value < f.form_date.value)) {
    alert('An end date later than the start date is required for repeated events!');
    return false;
   }
+  var form_action = document.getElementById('form_action');
+  form_action.value="save";
+  f.submit();
   top.restoreSession();
   return true;
  }
-</script>
 
-<?php 
-// =======================================
-// DBC Dutch System validation
-if ( $GLOBALS['dutchpc'] && $_SESSION['editactiv'] ) { 
-    echo 'return verify_selecteerbaar();';
-} ?>
-
-<?php 
-if ( $GLOBALS['dutchpc']) 
-{ ?>
-
-<script type="text/javascript">
-    boxes();
-
-<?php    
-if ( $eid ) { // editing case  
-?>
-    editcase();
-<?php  
-} // EOS editing case
-?>
+ function deleteEvent() {
+    if (confirm("Deleting this event cannot be undone. It cannot be recovered once it is gone.\nAre you sure you wish to delete this event?")) {
+        var f = document.getElementById('theform');
+        var form_action = document.getElementById('form_action');
+        form_action.value="delete";
+        f.submit();
+        return true;
+    }
+    return false;
+ }
 
 </script>
-
-<?php 
-} // EOS DBC DUTCH AJAX PART 
-?>
-
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
 </head>
 
 <body class="body_top" onunload='imclosing()'>
 
-<form method='post' name='theform' action='add_edit_event.php?eid=<?php echo $eid ?>' onsubmit='return validate()'>
+<form method='post' name='theform' id='theform' action='add_edit_event.php?eid=<?php echo $eid ?>' />
+<input type="hidden" name="form_action" id="form_action" value="">
 <center>
 
 <table border='0' width='100%'>
@@ -926,18 +778,15 @@ if ( $eid ) { // editing case
   </td>
   <td nowrap>
    &nbsp;&nbsp;
-   <input type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2'
-    <?php if ($thisduration != 1440) echo "checked " ?>/>
+   <input type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2' <?php if ($thisduration != 1440) echo "checked " ?>/>
   </td>
   <td width='1%' nowrap id='tdallday2'>
    <?php xl('Time','e'); ?>
   </td>
   <td width='1%' nowrap id='tdallday3'>
-   <input type='text' size='2' name='form_hour'
-    value='<?php echo $starttimeh ?>'
+   <input type='text' size='2' name='form_hour' value='<?php echo $starttimeh ?>'
     title='<?php xl('Event start time','e'); ?>' /> :
-   <input type='text' size='2' name='form_minute'
-    value='<?php echo $starttimem ?>'
+   <input type='text' size='2' name='form_minute' value='<?php echo $starttimem ?>'
     title='<?php xl('Event start time','e'); ?>' />&nbsp;
    <select name='form_ampm' title='Note: 12:00 noon is PM, not AM'>
     <option value='1'><?php xl('AM','e'); ?></option>
@@ -950,8 +799,7 @@ if ( $eid ) { // editing case
    <b><?php xl('Title','e'); ?>:</b>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_title'
-    value='<?php echo addslashes($row['pc_title']) ?>'
+   <input type='text' size='10' name='form_title' value='<?php echo addslashes($row['pc_title']) ?>'
     style='width:100%'
     title='<?php xl('Event title','e'); ?>' />
   </td>
@@ -961,82 +809,10 @@ if ( $eid ) { // editing case
   <td nowrap id='tdallday4'><?php xl('duration','e'); ?>
   </td>
   <td nowrap id='tdallday5'>
-   <input type='text' size='4' name='form_duration' value='<?php echo $thisduration ?>'
-    title='<?php xl('Event duration in minutes','e'); ?>' /> <?php xl('minutes','e'); ?>
+   <input type='text' size='4' name='form_duration' value='<?php echo $thisduration ?>' title='<?php xl('Event duration in minutes','e'); ?>' /> 
+    <?php xl('minutes','e'); ?>
   </td>
  </tr>
-
-<?php 
- // =============================================
- // DBC DUTCH SYSTEMS
- // minutes issue
- if ( $GLOBALS['dutchpc'] ) { ?>
- <tr>
-   <td colspan="3">&nbsp;</td>
-   <td>indirect</td>
-   <td><input type='text' name='form_duration_indirect' id='form_duration_indirect' size='4' 
-   value='<?php if ( isset($timerow['indirect_time']) ) echo $timerow['indirect_time']; ?>'/>minutes</td>
- </tr>
- <tr>
-   <td colspan="3">&nbsp;</td>
-   <td>travel</td>
-   <td><input type='text' name='form_duration_travel' name='form_duration_travel' size='4'
-   value='<?php if ( isset($timerow['travel_time']) ) echo $timerow['travel_time']; ?>'/>minutes</td>
- </tr>
-<?php 
-// =======================================================
-// DBC DUTCH SYSTEM
-// cascading dropdowns
-// =======================================================
-       
-if ( $eid ) { // editing mode
-  $activ = what_activity( $singleeid );
-
-  if ( empty($activ) ) {
-    $activ = "No activity selected.";
-  } else {
-    $activ = what_full_sysid($activ);
-    $_SESSION['editactiv'] = FALSE;
-  }
-}
-?>
-    <tr>
-        <td><b>Current activity:</b><br /><a href="#" id="addc">&lt;&lt;Add/Change&gt;&gt;</a></td>
-        <td><?=$activ?><br /> <td colspan="3">&nbsp;</td></td>
-    </tr>
-    <tr>
-        <td nowrap><b>Activiteit:</b></td>  
-        <td width='1%' nowrap>
-        <select name="box1" id="box1">
-        <?php
-        $rlvone = records_level1('ev');
-        foreach ($rlvone as $rlv) {
-            echo '<option value=\'' .$rlv['cl_activiteit_code']. '\'>' .$rlv['cl_activiteit_element']. '</option>'; 
-        } ?>
-        </select>      
-        </td>
-        <td colspan="3"><?php if ( $patientid ) $are = has_ztndbc($patientid); else $are = ' '; ?>
-            <p style="background-color: #78AEBC; padding: 3px; text-align: center"><?=$are['str']?></p>
-        </td>
-    </tr>
-
-    <tr colspan="2"><td></td><td>
-    <select id="box2" name="box2">
-    </select></td></tr>
-
-    <tr colspan="2"><td></td><td>
-    <select id="box3" name="box3"></select>
-    </td></tr>
-    
-    <tr colspan="2"><td></td><td>
-    <select id="box4" name="box4"></select>
-    </td></tr>
-    
-    <tr colspan="2"><td></td><td>
-    <select id="box5" name="box5"></select>
-    </td></tr>
-
-<?php }  ?>
 
     <tr>
       <td nowrap><b><?php xl('Facility','e'); ?>:</b></td>
@@ -1044,7 +820,7 @@ if ( $eid ) { // editing mode
       <?php /*{CHEMED}*/
        if ($userid != 0) { ?>
       <input type='hidden' name="facility" id="facility" value='<?php echo $e2f; ?>'/>
-      <input type='input' readonly='readonly' name="facility_txt" value='<?php echo $e2f_name; ?>'/>
+      <input type='input' readonly name="facility_txt" value='<?php echo $e2f_name; ?>'/>
       <?php } else {?>
       <select name="facility" id="facility" >
       <?php
@@ -1073,13 +849,14 @@ if ( $eid ) { // editing mode
    <b><?php xl('Patient','e'); ?>:</b>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_patient' style='width:100%;cursor:pointer;cursor:hand'
-    value='<?php echo $patientname ?>' onclick='sel_patient()'
-    title='<?php xl('Click to select patient','e'); ?>' readonly />
+   <input type='text' size='10' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo $patientname ?>' onclick='sel_patient()' title='<?php xl('Click to select patient','e'); ?>' readonly />
    <input type='hidden' name='form_pid' value='<?php echo $patientid ?>' />
   </td>
   <td colspan='3' nowrap style='font-size:8pt'>
-   &nbsp;<?php echo $patienttitle ?>
+   &nbsp; 
+   <span class="infobox">
+   <?php if ($patienttitle != "") { echo $patienttitle; } ?>
+   </span>
   </td>
  </tr>
 
@@ -1112,66 +889,60 @@ if ($eid) {
     }
 }
 
-        // build the selection tool
-        echo "<select name='form_provider[]' style='width:100%' multiple='multiple' size='5' >";
+// build the selection tool
+echo "<select name='form_provider[]' style='width:100%' multiple='multiple' size='5' >";
 
-        while ($urow = sqlFetchArray($ures)) {
-            echo "    <option value='" . $urow['id'] . "'";
+while ($urow = sqlFetchArray($ures)) {
+    echo "    <option value='" . $urow['id'] . "'";
 
-            if ($userid) {
-                if ( in_array($urow['id'], $providers_array) || ($urow['id'] == $userid) ) echo " selected";
-            }
+    if ($userid) {
+        if ( in_array($urow['id'], $providers_array) || ($urow['id'] == $userid) ) echo " selected";
+    }
 
-            echo ">" . $urow['lname'];
-            if ($urow['fname']) echo ", " . $urow['fname'];
-            echo "</option>\n";
-         }
+    echo ">" . $urow['lname'];
+    if ($urow['fname']) echo ", " . $urow['fname'];
+    echo "</option>\n";
+}
 
-        echo '</select>';
+echo '</select>';
 
 
 // =======================================
 // EOS  multi providers case
 // =======================================
 } else {
+    /*{CHEMED}*/
+    if ($userid != 0) {
+        // userid (a.k.a. provider ID) has been set so don't let the user change it
+        $urow = sqlFetchArray(sqlStatement("SELECT id, username, fname, lname FROM users WHERE id = $userid"));
+        // print_r($urow);exit;
+
+        echo "<input type='hidden' name='form_provider' value='".$urow["id"]."'/>";
+        echo "<input type='input' readonly name='form_provider_txt' value='".$urow['lname'];
+        if ($urow['fname']) echo ", ".$urow['fname'];
+        echo "'/>";
+    } 
+    else {
+        // present a list of providers to choose from
+        // default to the currently logged-in user
+        echo "<select name='form_provider' style='width:100%' />";
+        while ($urow = sqlFetchArray($ures)) {
+            echo "    <option value='" . $urow['id'] . "'";
+            if ($urow['id'] == $_SESSION['authUserID']) echo " selected"; 
+            echo ">" . $urow['lname'];
+            if ($urow['fname']) echo ", " . $urow['fname'];
+            echo "</option>\n";
+        }
+        echo "</select>";
+
+    } //END (CHEMED) IF
+}
 ?>
- <?php /*{CHEMED}*/
-   if ($userid != 0) {
-     $urow = sqlFetchArray(sqlStatement("SELECT id, username, fname, lname FROM users WHERE id = $userid"));
-    // print_r($urow);exit;
-   ?>
-      <input type='hidden' name="form_provider" value='<?php echo $urow["id"] ?>'/>
-      <input type='input' readonly='readonly' name="form_provider_txt" value='<?php echo $urow['lname']; if ($urow['fname']) echo ", ".$urow['fname']; ?>'/>
-   <?php } else {?>
-
-    <select name='form_provider' style='width:100%' <?php if ($userid != 0) {echo "readonly=readonly";}/*{CHEMED}*/ ?>>
-    <?php
-     while ($urow = sqlFetchArray($ures)) {
-      echo "    <option value='" . $urow['id'] . "'";
-      if ($userid) {
-       if ($urow['id'] == $userid) echo " selected";
-      } else {
-       if ($urow['id'] == $_SESSION['authUserID']) echo " selected";
-      }
-      echo ">" . $urow['lname'];
-      if ($urow['fname']) echo ", " . $urow['fname'];
-      echo "</option>\n";
-     }
-    ?>
-    </select>
-
-   <?php }
-   //END (CHEMED) IF
- ?>
-
-<?php } ?>
-
 
   </td>
   <td nowrap>
    &nbsp;&nbsp;
-   <input type='checkbox' name='form_repeat' onclick='set_repeat(this)'
-    value='1'<?php if ($repeats) echo " checked" ?>/>
+   <input type='checkbox' name='form_repeat' onclick='set_repeat(this)' value='1'<?php if ($repeats) echo " checked" ?>/>
   </td>
   <td nowrap id='tdrepeat1'><?php xl('Repeats','e'); ?>
   </td>
@@ -1236,10 +1007,7 @@ if ($eid) {
   <td nowrap id='tdrepeat2'><?php xl('until','e'); ?>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_enddate' id='form_enddate'
-    value='<?php echo $row['pc_endDate'] ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='<?php xl('yyyy-mm-dd last date of this event','e');?>' />
+   <input type='text' size='10' name='form_enddate' id='form_enddate' value='<?php echo $row['pc_endDate'] ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php xl('yyyy-mm-dd last date of this event','e');?>' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_enddate' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
     title='<?php xl('Click here to choose a date','e');?>'>
@@ -1251,9 +1019,7 @@ if ($eid) {
    <b><?php xl('Comments','e'); ?>:</b>
   </td>
   <td colspan='4' nowrap>
-   <input type='text' size='40' name='form_comments' style='width:100%'
-    value='<?php echo $hometext ?>'
-    title='<?php xl('Optional information about this event','e');?>' />
+   <input type='text' size='40' name='form_comments' style='width:100%' value='<?php echo $hometext ?>' title='<?php xl('Optional information about this event','e');?>' />
   </td>
  </tr>
 
@@ -1270,9 +1036,7 @@ if ($eid) {
    <b><font color='red'><?php xl('DOB is missing, please enter if possible','e'); ?>:</font></b>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_dob' id='form_dob'
-    title='<?php xl('yyyy-mm-dd date of birth','e');?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
+   <input type='text' size='10' name='form_dob' id='form_dob' title='<?php xl('yyyy-mm-dd date of birth','e');?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_dob' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
     title='<?php xl('Click here to choose a date','e');?>'>
@@ -1282,11 +1046,11 @@ if ($eid) {
 </table>
 
 <p>
-<input type='submit' name='form_save' value='<?php xl('Save','e');?>' />
+<input type='button' name='form_save' value='<?php xl('Save','e');?>' onclick="validate()" />
 &nbsp;
 <input type='button' value='<?php xl('Find Available','e');?>' onclick='find_available()' />
 &nbsp;
-<input type='submit' name='form_delete' value='<?php xl('Delete','e');?>'<?php if (!$eid) echo " disabled" ?> />
+<input type='button' name='form_delete' value='<?php xl('Delete','e');?>'<?php if (!$eid) echo " disabled" ?> onclick='deleteEvent()'/>
 &nbsp;
 <input type='button' value='<?php xl('Cancel','e');?>' onclick='window.close()' />
 </p>
