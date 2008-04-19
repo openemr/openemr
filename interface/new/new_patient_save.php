@@ -82,19 +82,21 @@ if ($_POST['form_create']) {
   "", // homeless
   "", // financial_review
   "$mypubpid",
-  $pid,   // providerID
-  "",    // genericname1
-  "",    // genericval1
-  "",    // genericname2
-  "",    // genericval2
-  "",    // phone_cell
-  "",    // hipaa_mail
-  "",    // hipaa_voice
-  "",    // squad
-  "",   // $pharmacy_id
-  "",   // $drivers_license
-  "",   // $hipaa_notice
-  "",   // $hipaa_message
+  $pid,
+  "", // providerID
+  "", // genericname1
+  "", // genericval1
+  "", // genericname2
+  "", // genericval2
+  "", // phone_cell
+  "", // hipaa_mail
+  "", // hipaa_voice
+  0,  // squad
+  0,  // $pharmacy_id = 0,
+  "", // $drivers_license = "",
+  "", // $hipaa_notice = "",
+  "", // $hipaa_message = ""
+  $_POST['regdate'],
   // ======== dutch specific
   $form_dbcprefix,          // $prefixlast 
   $form_dbcprefixpartner,   // $prefixlastpartner 

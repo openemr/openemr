@@ -1,13 +1,26 @@
 <?php 
 include_once("../globals.php");
+
+// Determine if the registration date should be requested.
+$crow = sqlQuery("SELECT count(*) AS count FROM layout_options WHERE " .
+  "form_id = 'DEM' AND field_id = 'regdate' AND uor > 0");
+$regstyle = $crow['count'] ? "" : " style='display:none'";
 ?>
 <html>
 
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo xl($css_header,'e');?>" type="text/css">
+<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+
+<script type="text/javascript" src="../../library/textformat.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 
 <script LANGUAGE="JavaScript">
+
+ var mypcc = '1';
 
  function validate() {
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
@@ -30,7 +43,7 @@ include_once("../globals.php");
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <form name='new_patient' method='post' action="new_patient_save.php"
  onsubmit='return validate()'>
-<span class='title'><?php xl('New Patient','e');?></span>
+<span class='title'><?php xl('Add Patient Record','e');?></span>
 <?php } else { ?>
 <form name='new_patient' method='post' action="new_patient_save.php"
  target='_top' onsubmit='return validate()'>
@@ -55,10 +68,14 @@ include_once("../globals.php");
   </td>
   <td>
    <select name='title'>
-    <option value="Mrs."><?php xl('Mrs.','e');?></option>
-    <option value="Ms."><?php xl('Ms.','e');?></option>
-    <option value="Mr."><?php xl('Mr.','e');?></option>
-    <option value="Dr."><?php xl('Dr.','e');?></option>
+<?php
+$ores = sqlStatement("SELECT option_id, title FROM list_options " .
+  "WHERE list_id = 'titles' ORDER BY seq");
+while ($orow = sqlFetchArray($ores)) {
+  echo "    <option value='" . $orow['option_id'] . "'>" . $orow['title'] .
+    "</option>\n";
+}
+?>
    </select>
   </td>
  </tr>
@@ -117,17 +134,37 @@ if ( $GLOBALS['dutchpc'] ) { ?>
   </td>
   <td>
    <select name='refsource'>
+    <option value=''>Unassigned</option>
 <?php
- foreach (array('', 'Patient', 'Employee', 'Walk-In', 'Newspaper', 'Radio',
-  'T.V.', 'Direct Mail', 'Coupon', 'Referral Card', 'Other') as $rs)
- {
-  echo "    <option value='$rs'>$rs</option>\n";
- }
+$ores = sqlStatement("SELECT option_id, title FROM list_options " .
+  "WHERE list_id = 'refsource' ORDER BY seq");
+while ($orow = sqlFetchArray($ores)) {
+  echo "    <option value='" . $orow['option_id'] . "'>" . $orow['title'] .
+    "</option>\n";
+}
 ?>
    </select>
   </td>
  </tr>
 <?php } ?>
+
+ <tr<?php echo $regstyle ?>>
+  <td>
+   <span class='bold'><?php xl('Registration Date','e');?>: </span>
+  </td>
+  <td>
+   <input type='text' size='10' name='regdate' id='regdate'
+    value='<?php echo date('Y-m-d') ?>'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+    title='yyyy-mm-dd' />
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_regdate' border='0' alt='[?]' style='cursor:pointer'
+    title='Click here to choose a date'>
+   <script LANGUAGE="JavaScript">
+    Calendar.setup({inputField:"regdate", ifFormat:"%Y-%m-%d", button:"img_regdate"});
+   </script>
+  </td>
+ </tr>
 
  <tr>
   <td>
