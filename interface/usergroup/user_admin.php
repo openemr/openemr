@@ -119,8 +119,10 @@ $iter = $result[0];
 
 // ===========================
 // DBC DUTCH SYSTEM
-$beroep = sqlStatement("SELECT * FROM cl_user_beroep WHERE cl_beroep_userid={$_GET["id"]}");
-$rowberoep = sqlFetchArray($beroep);
+if ($GLOBALS['dutchpc']) {
+  $beroep = sqlStatement("SELECT * FROM cl_user_beroep WHERE cl_beroep_userid={$_GET["id"]}");
+  $rowberoep = sqlFetchArray($beroep);
+}
 // EOS DBC
 // ===========================
 
