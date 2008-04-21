@@ -61,6 +61,10 @@ function parse_era_2100(&$out, $cb) {
 }
 
 function parse_era($filename, $cb) {
+  $delimiter1 = '~';
+  $delimiter2 = '|';
+  $delimiter3 = '^';
+
 	$infh = fopen($filename, 'r');
 	if (! $infh) return "ERA input file open failed";
 
@@ -71,14 +75,19 @@ function parse_era($filename, $cb) {
 	$segid = '';
 
 	while (true) {
-		if (strlen($buffer) < 2048 && ! feof($infh))
-			$buffer .= fread($infh, 2048);
-		$tpos = strpos($buffer, '~');
+    if (strlen($buffer) < 2048 && ! feof($infh)) $buffer .= fread($infh, 2048);
+		$tpos = strpos($buffer, $delimiter1);
 		if ($tpos === false) break;
 		$inline = substr($buffer, 0, $tpos);
 		$buffer = substr($buffer, $tpos + 1);
 
-		$seg = explode('|', $inline);
+    // If this is the ISA segment then figure out what the delimiters are.
+    if ($segid === '' && substr($inline, 0, 3) === 'ISA') {
+      $delimiter2 = substr($inline, 3, 1);
+      $delimiter3 = substr($inline, -1);
+    }
+
+		$seg = explode($delimiter2, $inline);
 		$segid = $seg[0];
 
 		if ($segid == 'ISA') {
@@ -319,12 +328,12 @@ function parse_era($filename, $cb) {
 				// SVC06 if present is our original procedure code that they are changing.
 				// We will not put their crap in our invoice, but rather log a note and
 				// treat it as adjustments to our originally submitted coding.
-				$svc = explode('^', $seg[6]);
-				$tmp = explode('^', $seg[1]);
+				$svc = explode($delimiter3, $seg[6]);
+				$tmp = explode($delimiter3, $seg[1]);
 				$out['warnings'] .= "Payer is restating our procedure " . $svc[1] .
 					" as " . $tmp[1] . ".\n";
 			} else {
-				$svc = explode('^', $seg[1]);
+				$svc = explode($delimiter3, $seg[1]);
 			}
 			if ($svc[0] != 'HC') return 'SVC segment has unexpected qualifier';
 			// TBD: Other qualifiers are possible; see IG pages 140-141.
