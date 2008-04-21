@@ -254,11 +254,11 @@
 				// A problem here is that some payers will include an adjustment
 				// reflecting the allowed amount, others not.  So here we need to
 				// check if the adjustment exists, and if not then create it.  We
-				// assume that any nonzero CO (Contractual Obligation) adjustment
-				// is good enough.
+				// assume that any nonzero CO (Contractual Obligation) or PI
+        // (Payer Initiated) adjustment is good enough.
 				$contract_adj = sprintf("%.2f", $svc['chg'] - $svc['allowed']);
 				foreach ($svc['adj'] as $adj) {
-					if ($adj['group_code'] == 'CO' && $adj['amount'] != 0)
+					if (($adj['group_code'] == 'CO' || $adj['group_code'] == 'PI') && $adj['amount'] != 0)
 						$contract_adj = 0;
 				}
 				if ($contract_adj > 0) {
