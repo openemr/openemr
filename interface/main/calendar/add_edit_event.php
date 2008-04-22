@@ -53,6 +53,49 @@
 
  $info_msg = "";
 
+// used for DBC Dutch System
+ $_SESSION['event_date'] = $date;
+ $link = '../../../library/DBC_functions.php'; // ajax stuff and db work
+ ?><script type="text/javascript" src="../../../library/js/jquery.js"></script><?php
+ 
+ // =====================================
+ // DBC Dutch System
+ // ACTIVITIES / TIMES 
+ if ( $eid ) {
+    if ( $GLOBALS['select_multi_providers'] ) {
+        // ------------------------------------------
+        // what is multiple key around this $eid?
+        $rowmulti = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+
+        // what are all pc_eid's grouped by multiple key
+        $eventsrow = array();
+        $rezev = mysql_query("SELECT pc_eid FROM openemr_postcalendar_events WHERE pc_multiple = {$rowmulti['pc_multiple']}");
+        while ( $row = mysql_fetch_array($rezev) ) {
+            $eventsrow[] = $row['pc_eid'];
+        }
+
+        // we look in cl_event_activiteit / cl_time_activiteit for a matching record
+        foreach ( $eventsrow as $ev) {
+            $activ = sqlQuery("SELECT * FROM cl_event_activiteit WHERE event_id = $ev");
+            if ( $activ['event_id'] ) $singleeid = $activ['event_id'];
+
+            $time = sqlQuery("SELECT * FROM cl_time_activiteit WHERE event_id = $ev");
+            if ( $time ) $timerow = $time;
+        }
+
+        // prevent blank values for $singleeid
+        if ( !$singleeid) $singleeid = $eid;
+
+        // ------------------------------------------
+    } else {
+        // ------------------------------------------
+        // single providers case
+        $timerow = sqlQuery("SELECT * FROM cl_time_activiteit WHERE event_id = $eid");
+        $singleeid = $eid;
+        // ------------------------------------------
+    }
+ } // if ($eid)
+
 // ===========================
 // EVENTS TO FACILITIES (lemonsoftware)
 // edit event case - if there is no association made, then insert one with the first facility
@@ -117,6 +160,18 @@ if ( $eid ) {
  //
  if ($_POST['form_action'] == "save") {
 
+    // ========================================
+    // DBC SYSTEM
+    // check if for activity act_3.2 we have times completed
+
+    $sa = selected_ac();
+    if ( $sa == 'act_3.2') {
+        $duration = (int)$_POST['form_duration'];
+        if ( empty($duration) ) exit();
+    }
+
+    // ========================================
+
   $event_date = fixDate($_POST['form_date']);
 
   // Compute start and end time strings to be saved.
@@ -168,6 +223,14 @@ if ( $eid ) {
 
     // what is multiple key around this $eid?
     $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+
+    // timing-activity validation - larry :: DBC ????
+    if ( $_SESSION['editactiv'] ) { 
+        $activ = selected_ac();
+    } else {
+        $activ = what_activity($eid);
+    }
+    // eof DBC
 
     if ($GLOBALS['select_multi_providers'] && $row['pc_multiple']) {
         /* ==========================================
@@ -282,6 +345,36 @@ if ( $eid ) {
 
     }
 
+    // ===================================
+    // DBC change activity /  times
+    $activ = ''; // activity could be an old value or a new one
+    if ( $_SESSION['editactiv'] ) {
+        $ac = selected_ac(); $activ = $ac;
+        $acid = what_sysid($ac);
+
+        if ( $acid ) sqlInsert("INSERT INTO cl_event_activiteit (event_id, activity_sysid)".
+        " VALUES ('" .$singleeid. "', '" .$acid. "') ON DUPLICATE KEY UPDATE activity_sysid = " .$acid );
+
+        $_SESSION['editactiv'] = FALSE; // otherwise you'll get a nasty bug!
+    } else {
+        $activcode = what_activity($singleeid);
+        $activ = what_code_activity($activcode);
+    }
+
+    // timing-activity validation
+    if ( vl_activity_travel($activ) ) {
+        $itime  = (int)$_POST['form_duration_indirect']; $ttime  = 0;
+    } else {
+        $itime  = (int)$_POST['form_duration_indirect']; $ttime  = (int)$_POST['form_duration_travel'];
+    }
+    sqlInsert("INSERT INTO cl_time_activiteit (event_id, indirect_time, travel_time)".
+          " VALUES ('" .$singleeid. "', '" .$itime. "', '" .$ttime. "') ON DUPLICATE KEY UPDATE indirect_time = " .$itime.
+          ", travel_time = " . $ttime);
+
+    // EOS DBC change activity / times
+    // ===================================
+
+
 // =======================================
 // EOS multi providers case
 // =======================================
@@ -366,6 +459,37 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
     "1, " .
     "1," .(int)$_POST['facility']. ")"); // FF stuff
   } // INSERT single
+
+  // ==============================================
+  // DBC Dutch System (insert case)
+  $lid = mysql_insert_id(); // obtain last inserted id 
+
+    $ac = selected_ac();
+    $acid = what_sysid($ac);
+    sqlInsert("INSERT INTO cl_event_activiteit (event_id, activity_sysid) VALUES ('" .$lid. "', '" .$acid. "')");
+
+    // timing-activity validation
+    if ( vl_activity_travel($activ) ) {
+        $itime  = (int)$_POST['form_duration_indirect']; $ttime  = 0;
+    } else {
+        $itime  = (int)$_POST['form_duration_indirect']; $ttime  = (int)$_POST['form_duration_travel'];
+    }
+    sqlInsert("INSERT INTO cl_time_activiteit (event_id, indirect_time, travel_time)".
+              " VALUES ('" .$lid. "', '" .$itime. "', '" .$ttime. "')");
+
+  // DBC Dutch System (insert case)
+  // ==============================================
+  
+    // new ZTN ?
+    $pid1007 = ( $_POST['form_pid']  ) ? $_POST['form_pid'] : $pid;
+    if ( $pid1007 ) {
+       $a = generate_id1007($pid1007, $event_date); //var_dump($a); exit();
+    }
+
+  // EOS DBC
+  // ==============================================
+
+
  } // else - insert
 
   // Save new DOB if it's there.
@@ -536,6 +660,17 @@ td { font-size:0.8em; }
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+
+<?php
+// ============================================================================
+// DBC SYSTEM JAVASCRIPT FILE
+
+if ( $GLOBALS['dutchpc'] ) { ?>
+<script type="text/javascript" src="../../../js/add_edit_event.js"></script>
+
+<?php } 
+// ============================================================================
+?>
 
 <script language="JavaScript">
 
@@ -734,6 +869,36 @@ td { font-size:0.8em; }
 
 </script>
 
+<?php 
+// =======================================
+// DBC Dutch System validation
+if ( $GLOBALS['dutchpc'] && $_SESSION['editactiv'] ) { 
+    echo 'return verify_selecteerbaar();';
+} ?>
+
+<?php 
+if ( $GLOBALS['dutchpc']) 
+{ ?>
+
+<script type="text/javascript">
+    boxes();
+
+<?php    
+if ( $eid ) { // editing case  
+?>
+    editcase();
+<?php  
+} // EOS editing case
+?>
+
+</script>
+
+<?php 
+} // EOS DBC DUTCH AJAX PART 
+?>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
 </head>
 
 <body class="body_top" onunload='imclosing()'>
@@ -813,6 +978,79 @@ td { font-size:0.8em; }
     <?php xl('minutes','e'); ?>
   </td>
  </tr>
+
+<?php 
+ // =============================================
+ // DBC DUTCH SYSTEMS
+ // minutes issue
+ if ( $GLOBALS['dutchpc'] ) { ?>
+ <tr>
+   <td colspan="3">&nbsp;</td>
+   <td>indirect</td>
+   <td><input type='text' name='form_duration_indirect' id='form_duration_indirect' size='4' 
+   value='<?php if ( isset($timerow['indirect_time']) ) echo $timerow['indirect_time']; ?>'/>minutes</td>
+ </tr>
+ <tr>
+   <td colspan="3">&nbsp;</td>
+   <td>travel</td>
+   <td><input type='text' name='form_duration_travel' name='form_duration_travel' size='4'
+   value='<?php if ( isset($timerow['travel_time']) ) echo $timerow['travel_time']; ?>'/>minutes</td>
+ </tr>
+<?php 
+// =======================================================
+// DBC DUTCH SYSTEM
+// cascading dropdowns
+// =======================================================
+       
+if ( $eid ) { // editing mode
+  $activ = what_activity( $singleeid );
+
+  if ( empty($activ) ) {
+    $activ = "No activity selected.";
+  } else {
+    $activ = what_full_sysid($activ);
+    $_SESSION['editactiv'] = FALSE;
+  }
+}
+?>
+    <tr>
+        <td><b>Current activity:</b><br /><a href="#" id="addc">&lt;&lt;Add/Change&gt;&gt;</a></td>
+        <td><?=$activ?><br /> <td colspan="3">&nbsp;</td></td>
+    </tr>
+    <tr>
+        <td nowrap><b>Activiteit:</b></td>  
+        <td width='1%' nowrap>
+        <select name="box1" id="box1">
+        <?php
+        $rlvone = records_level1('ev');
+        foreach ($rlvone as $rlv) {
+            echo '<option value=\'' .$rlv['cl_activiteit_code']. '\'>' .$rlv['cl_activiteit_element']. '</option>'; 
+        } ?>
+        </select>      
+        </td>
+        <td colspan="3"><?php if ( $patientid ) $are = has_ztndbc($patientid); else $are = ' '; ?>
+            <p style="background-color: #78AEBC; padding: 3px; text-align: center"><?=$are['str']?></p>
+        </td>
+    </tr>
+
+    <tr colspan="2"><td></td><td>
+    <select id="box2" name="box2">
+    </select></td></tr>
+
+    <tr colspan="2"><td></td><td>
+    <select id="box3" name="box3"></select>
+    </td></tr>
+    
+    <tr colspan="2"><td></td><td>
+    <select id="box4" name="box4"></select>
+    </td></tr>
+    
+    <tr colspan="2"><td></td><td>
+    <select id="box5" name="box5"></select>
+    </td></tr>
+
+<?php }  ?>
+
 
     <tr>
       <td nowrap><b><?php xl('Facility','e'); ?>:</b></td>
