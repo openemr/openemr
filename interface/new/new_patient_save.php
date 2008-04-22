@@ -95,7 +95,7 @@ if ($_POST['form_create']) {
   0,  // $pharmacy_id = 0,
   "", // $drivers_license = "",
   "", // $hipaa_notice = "",
-  "", // $hipaa_message = ""
+  "", // $hipaa_message = "",
   $_POST['regdate'],
   // ======== dutch specific
   $form_dbcprefix,          // $prefixlast 
@@ -103,6 +103,7 @@ if ($_POST['form_create']) {
   $form_dbclastpartner,	    // $lastpartner
   "",	// $provider_data
   ""	// $referer_data 
+
  );
 
  newEmployerData($pid);

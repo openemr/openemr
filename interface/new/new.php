@@ -48,7 +48,7 @@ $regstyle = $crow['count'] ? "" : " style='display:none'";
 <form name='new_patient' method='post' action="new_patient_save.php"
  target='_top' onsubmit='return validate()'>
 <a class="title" href="../main/main_screen.php" target="_top" onclick="top.restoreSession()">
-<?php xl('New Patient','e');?></a>
+<?php xl('Add Patient Record','e');?></a>
 <?php } ?>
 
 <br><br>
