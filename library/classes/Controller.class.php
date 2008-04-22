@@ -22,6 +22,7 @@ class Controller extends Smarty {
                $this->assign("FOOTER", "</body></html>");
                $this->assign("CONTROLLER", "controller.php?");
                $this->assign("CONTROLLER_THIS", "controller.php?" . $_SERVER['QUERY_STRING']);
+               $this->assign("WEBROOT", $GLOBALS['webroot']);
        }
 
        function set_current_action($action) {
