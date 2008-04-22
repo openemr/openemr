@@ -30,6 +30,20 @@ $patient_state = '';
 $patient_zip = '';
 $patient_phone = '';
 $patient_dob = '';
+$sigline = array();
+$sigline['plain'] =  
+    "<div class='signature'>" 
+  . " ______________________________________________<br/>"
+  . "</div>\n";
+$sigline['embossed'] =  
+    "<div class='signature'>" 
+  . " ______________________________________________<br/>"
+  . "Signature - Call to verify if not embossed."
+  . "</div>\n";
+$sigline['signed'] =  
+    "<div class='sig'>"
+  . "<img src='./sig.jpg'>"
+  . "</div>\n";
 $query = sqlStatement("select fname,lname,street,city,state,postal_code,phone_home,DATE_FORMAT(DOB,'%m/%d/%y') as DOB from patient_data where pid =" . $_SESSION['pid']);
 if ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
   $patient_name = $result['fname'] . ' ' . $result['lname'];
@@ -127,10 +141,7 @@ if ($camos_content[0]) { //decide if we are printing this rx
         print $camos_content[0]; 
     ?>
   </div>
-  <div class='signature'>
-    ______________________________________________<br/>
-    Signature
-  </div>
+  <? print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
 <?
 } // end of deciding if we are printing the above rx block
@@ -175,10 +186,7 @@ if ($camos_content[1]) { //decide if we are printing this rx
         print $camos_content[1]; 
     ?>
   </div>
-  <div class='signature'>
-    ______________________________________________<br/>
-    Signature
-  </div>
+  <? print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
 <?
 } // end of deciding if we are printing the above rx block
@@ -223,10 +231,7 @@ if ($camos_content[2]) { //decide if we are printing this rx
         print $camos_content[2]; 
     ?>
   </div>
-  <div class='signature'>
-    ______________________________________________<br/>
-    Signature
-  </div>
+  <? print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
 <?
 } // end of deciding if we are printing the above rx block
@@ -271,10 +276,7 @@ if ($camos_content[3]) { //decide if we are printing this rx
         print $camos_content[3]; 
     ?>
   </div>
-  <div class='signature'>
-    ______________________________________________<br/>
-    Signature
-  </div>
+  <? print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
 <?
 } // end of deciding if we are printing the above rx block
