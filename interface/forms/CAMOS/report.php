@@ -10,7 +10,9 @@ function CAMOS_report( $pid, $encounter, $cols, $id) {
     //echo "(subcategory) ".stripslashes($data['subcategory'])." | ";
     //echo "(item) ".stripslashes($data['item']);
     echo "<a href='" . $GLOBALS['webroot'] .
-      "/interface/forms/CAMOS/rx_print.php' target=_new>rx</a>\n";
+      "/interface/forms/CAMOS/rx_print.php?sigline=embossed' target=_new>rx</a>\n";
+    echo "<a href='" . $GLOBALS['webroot'] .
+      "/interface/forms/CAMOS/rx_print.php?sigline=signed' target=_new>sig_rx</a>\n";
     echo "<pre>".wordwrap(stripslashes(content_parser($data['content'])))."</pre><hr>\n";
   }
 }
