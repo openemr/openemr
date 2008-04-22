@@ -43,6 +43,12 @@ var myRegExp = new RegExp(":" + value + ":");
 		<a id="multiprint" target="_new" href="{$CONTROLLER}prescription&multiprint&id={$printm}" onclick="top.restoreSession()">Print Multiple</a>
 		</td>
 	</tr>
+	<tr>
+		<td colspan="12" align="right">
+                <?php echo $GLOBALS['webroot']; ?>
+		<a id="four_panel_rx" target="_new" href="{$WEBROOT}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()">Print Four Panel</a>
+		</td>
+	</tr>
 
 	<tr>
 		<td>{xl t='Drug'}</td>
