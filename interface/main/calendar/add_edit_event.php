@@ -57,10 +57,10 @@
  $_SESSION['event_date'] = $date;
  $link = '../../../library/DBC_functions.php'; // ajax stuff and db work
  ?><script type="text/javascript" src="../../../library/js/jquery.js"></script><?php
- 
+
  // =====================================
  // DBC Dutch System
- // ACTIVITIES / TIMES 
+ // ACTIVITIES / TIMES
  if ( $eid ) {
     if ( $GLOBALS['select_multi_providers'] ) {
         // ------------------------------------------
@@ -225,7 +225,7 @@ if ( $eid ) {
     $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
 
     // timing-activity validation - larry :: DBC ????
-    if ( $_SESSION['editactiv'] ) { 
+    if ( $_SESSION['editactiv'] ) {
         $activ = selected_ac();
     } else {
         $activ = what_activity($eid);
@@ -462,7 +462,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
 
   // ==============================================
   // DBC Dutch System (insert case)
-  $lid = mysql_insert_id(); // obtain last inserted id 
+  $lid = mysql_insert_id(); // obtain last inserted id
 
     $ac = selected_ac();
     $acid = what_sysid($ac);
@@ -479,7 +479,7 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
 
   // DBC Dutch System (insert case)
   // ==============================================
-  
+
     // new ZTN ?
     $pid1007 = ( $_POST['form_pid']  ) ? $_POST['form_pid'] : $pid;
     if ( $pid1007 ) {
@@ -666,9 +666,9 @@ td { font-size:0.8em; }
 // DBC SYSTEM JAVASCRIPT FILE
 
 if ( $GLOBALS['dutchpc'] ) { ?>
-<script type="text/javascript" src="../../../js/add_edit_event.js"></script>
+<script type="text/javascript" src="../../../library/js/add_edit_event.js"></script>
 
-<?php } 
+<?php }
 // ============================================================================
 ?>
 
@@ -825,7 +825,7 @@ if ( $GLOBALS['dutchpc'] ) { ?>
     // Invoke the find-available popup.
     function find_available() {
         top.restoreSession();
-        // (CHEMED) Conditional value selection, because there is no <select> element 
+        // (CHEMED) Conditional value selection, because there is no <select> element
         // when making an appointment for a specific provider
         var s = document.forms[0].form_provider;
         <?php if ($userid != 0) { ?>
@@ -869,32 +869,32 @@ if ( $GLOBALS['dutchpc'] ) { ?>
 
 </script>
 
-<?php 
+<?php
 // =======================================
 // DBC Dutch System validation
-if ( $GLOBALS['dutchpc'] && $_SESSION['editactiv'] ) { 
+if ( $GLOBALS['dutchpc'] && $_SESSION['editactiv'] ) {
     echo 'return verify_selecteerbaar();';
 } ?>
 
-<?php 
-if ( $GLOBALS['dutchpc']) 
+<?php
+if ( $GLOBALS['dutchpc'])
 { ?>
 
 <script type="text/javascript">
     boxes();
 
-<?php    
-if ( $eid ) { // editing case  
+<?php
+if ( $eid ) { // editing case
 ?>
     editcase();
-<?php  
+<?php
 } // EOS editing case
 ?>
 
 </script>
 
-<?php 
-} // EOS DBC DUTCH AJAX PART 
+<?php
+} // EOS DBC DUTCH AJAX PART
 ?>
 
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -974,12 +974,12 @@ if ( $eid ) { // editing case
   <td nowrap id='tdallday4'><?php xl('duration','e'); ?>
   </td>
   <td nowrap id='tdallday5'>
-   <input type='text' size='4' name='form_duration' value='<?php echo $thisduration ?>' title='<?php xl('Event duration in minutes','e'); ?>' /> 
+   <input type='text' size='4' name='form_duration' value='<?php echo $thisduration ?>' title='<?php xl('Event duration in minutes','e'); ?>' />
     <?php xl('minutes','e'); ?>
   </td>
  </tr>
 
-<?php 
+<?php
  // =============================================
  // DBC DUTCH SYSTEMS
  // minutes issue
@@ -987,7 +987,7 @@ if ( $eid ) { // editing case
  <tr>
    <td colspan="3">&nbsp;</td>
    <td>indirect</td>
-   <td><input type='text' name='form_duration_indirect' id='form_duration_indirect' size='4' 
+   <td><input type='text' name='form_duration_indirect' id='form_duration_indirect' size='4'
    value='<?php if ( isset($timerow['indirect_time']) ) echo $timerow['indirect_time']; ?>'/>minutes</td>
  </tr>
  <tr>
@@ -996,12 +996,12 @@ if ( $eid ) { // editing case
    <td><input type='text' name='form_duration_travel' name='form_duration_travel' size='4'
    value='<?php if ( isset($timerow['travel_time']) ) echo $timerow['travel_time']; ?>'/>minutes</td>
  </tr>
-<?php 
+<?php
 // =======================================================
 // DBC DUTCH SYSTEM
 // cascading dropdowns
 // =======================================================
-       
+
 if ( $eid ) { // editing mode
   $activ = what_activity( $singleeid );
 
@@ -1018,15 +1018,15 @@ if ( $eid ) { // editing mode
         <td><?=$activ?><br /> <td colspan="3">&nbsp;</td></td>
     </tr>
     <tr>
-        <td nowrap><b>Activiteit:</b></td>  
+        <td nowrap><b>Activiteit:</b></td>
         <td width='1%' nowrap>
         <select name="box1" id="box1">
         <?php
         $rlvone = records_level1('ev');
         foreach ($rlvone as $rlv) {
-            echo '<option value=\'' .$rlv['cl_activiteit_code']. '\'>' .$rlv['cl_activiteit_element']. '</option>'; 
+            echo '<option value=\'' .$rlv['cl_activiteit_code']. '\'>' .$rlv['cl_activiteit_element']. '</option>';
         } ?>
-        </select>      
+        </select>
         </td>
         <td colspan="3"><?php if ( $patientid ) $are = has_ztndbc($patientid); else $are = ' '; ?>
             <p style="background-color: #78AEBC; padding: 3px; text-align: center"><?=$are['str']?></p>
@@ -1040,11 +1040,11 @@ if ( $eid ) { // editing mode
     <tr colspan="2"><td></td><td>
     <select id="box3" name="box3"></select>
     </td></tr>
-    
+
     <tr colspan="2"><td></td><td>
     <select id="box4" name="box4"></select>
     </td></tr>
-    
+
     <tr colspan="2"><td></td><td>
     <select id="box5" name="box5"></select>
     </td></tr>
@@ -1091,7 +1091,7 @@ if ( $eid ) { // editing mode
    <input type='hidden' name='form_pid' value='<?php echo $patientid ?>' />
   </td>
   <td colspan='3' nowrap style='font-size:8pt'>
-   &nbsp; 
+   &nbsp;
    <span class="infobox">
    <?php if ($patienttitle != "") { echo $patienttitle; } ?>
    </span>
@@ -1159,14 +1159,14 @@ echo '</select>';
         echo "<input type='input' readonly name='form_provider_txt' value='".$urow['lname'];
         if ($urow['fname']) echo ", ".$urow['fname'];
         echo "'/>";
-    } 
+    }
     else {
         // present a list of providers to choose from
         // default to the currently logged-in user
         echo "<select name='form_provider' style='width:100%' />";
         while ($urow = sqlFetchArray($ures)) {
             echo "    <option value='" . $urow['id'] . "'";
-            if ($urow['id'] == $_SESSION['authUserID']) echo " selected"; 
+            if ($urow['id'] == $_SESSION['authUserID']) echo " selected";
             echo ">" . $urow['lname'];
             if ($urow['fname']) echo ", " . $urow['fname'];
             echo "</option>\n";
