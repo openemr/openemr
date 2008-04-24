@@ -95,6 +95,9 @@ function smarty_function_html_select_date($params, &$smarty)
             case 'month_extra':
             case 'year_extra':
             case 'field_order':
+                $$_key = (string)$_value;
+                break;
+              
             case 'field_separator':
             case 'month_value_format':
             case 'month_empty':
@@ -159,7 +162,7 @@ function smarty_function_html_select_date($params, &$smarty)
             $month_values[''] = '';
         }
         for ($i = 1; $i <= 12; $i++) {
-            $month_names[$i] = strftime($month_format, mktime(0, 0, 0, $i, 1, 2000));
+            $month_names[$i] = xl( strftime($month_format, mktime(0, 0, 0, $i, 1, 2000)) );
             $month_values[$i] = strftime($month_value_format, mktime(0, 0, 0, $i, 1, 2000));
         }
 
