@@ -1,0 +1,226 @@
+<html>
+<head>
+{php}html_header_show();{/php}
+
+{literal}
+ <style type="text/css" title="mystyles" media="all">
+<!--
+td {
+	font-size:8pt;
+	font-family:helvetica;
+}
+input {
+	font-size:8pt;
+	font-family:helvetica;
+}
+select {
+	font-size:8pt;
+	font-family:helvetica;
+}
+textarea {
+	font-size:8pt;
+	font-family:helvetica;
+}
+-->
+</style>
+<script type="text/javascript" src="library/dialog.js"></script>
+<script language='JavaScript'>
+
+ // This holds all the default drug attributes.
+{/literal}
+ var drugopts = [{$DRUG_ATTRIBUTES}];
+{literal}
+
+ // Helper to choose an option from its value.
+ function selchoose(sel, value) {
+  var o = sel.options;
+  for (i = 0; i < o.length; ++i) {
+   o[i].selected = (o[i].value == value);
+  }
+ }
+
+ // Fill in default values when a drop-down drug is selected.
+ function drugselected(sel) {
+  var f = document.forms[0];
+  var i = f.drug_id.selectedIndex - 1;
+  if (i >= 0) {
+   var d = drugopts[i];
+   f.drug.value = d[0];
+   selchoose(f.form, d[1]);
+   f.dosage.value = d[2];
+   f.size.value = d[3];
+   selchoose(f.unit, d[4]);
+   selchoose(f.route, d[5]);
+   selchoose(f.interval, d[6]);
+   selchoose(f.substitute, d[7]);
+   f.quantity.value = d[8];
+   f.disp_quantity.value = d[8];
+   selchoose(f.refills, d[9]);
+   f.per_refill.value = d[10];
+  }
+ }
+
+ // Invoke the popup to dispense a drug.
+ function dispense() {
+  var f = document.forms[0];
+  dlgopen('interface/drugs/dispense_drug.php' +
+   {/literal}'?drug_id={$prescription->get_drug_id()}' +{literal}
+   '&prescription=' + f.id.value +
+   '&quantity=' + f.disp_quantity.value +
+   '&fee=' + f.disp_fee.value,
+   '_blank', 400, 200);
+ }
+
+ function quantityChanged() {
+  var f = document.forms[0];
+  f.per_refill.value = f.quantity.value;
+  if (f.disp_quantity) {
+   f.disp_quantity.value = f.quantity.value;
+  }
+ }
+
+</script>
+{/literal}
+</head>
+<body {$STYLE.BOTTOM_BG_LINE}>
+<form name="prescribe" method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
+<table CELLSPACING="0" CELLPADDING="3">
+<tr>
+  <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Currently Active'}</td>
+  <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+    <input type="checkbox" name="active" value="1"{if $prescription->get_active() > 0} checked{/if} />
+  </td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Starting Date'}</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+		{html_select_date field_order="DMY" start_year="-10" end_year="+5" time=$prescription->start_date prefix="start_date_"}
+	</td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Provider'}</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+		{html_options name="provider_id" options=$prescription->provider->utility_provider_array() selected=$prescription->provider->get_id()}
+		<input type="hidden" name="patient_id" value="{$prescription->patient->id}" />
+	</td>
+</tr>
+<!--
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Patient Name</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >{$prescription->patient->get_name_display()}</td>
+</tr>
+-->
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Drug'}</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+		<input type="input" size="20" name="drug" value="{$prescription->drug}"/>
+	</td>
+</tr>
+
+{if $DRUG_ARRAY_VALUES}
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >&nbsp; {xl t='in-house'}</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+		<select name="drug_id" onchange="drugselected(this)">
+		{html_options values=$DRUG_ARRAY_VALUES output=$DRUG_ARRAY_OUTPUT}
+		</select>
+	</td>
+</tr>
+{/if}
+
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Quantity'}</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+		<input TYPE="TEXT" NAME="quantity" SIZE="10" MAXLENGTH="31"
+		 VALUE="{$prescription->quantity}"
+		 onchange="quantityChanged()" />
+	</td>
+</tr>
+{if $SIMPLIFIED_PRESCRIPTIONS && !$prescription->size}
+<tr style='display:none;'>
+{else}
+<tr>
+{/if}
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Medicine Units'}</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+		<input TYPE="TEXT" NAME="size" SIZE="11" MAXLENGTH="10" VALUE="{$prescription->size}"/>
+		<select name="unit">{html_options options=$prescription->unit_array selected=$prescription->unit}</select>
+	</td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Take'}</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+{if $SIMPLIFIED_PRESCRIPTIONS && !$prescription->form && !$prescription->route && !$prescription->interval}
+		<input TYPE="text" NAME="dosage" SIZE="30" MAXLENGTH="100" VALUE="{$prescription->dosage}" />
+		<input type="hidden" name="form" value="0" />
+		<input type="hidden" name="route" value="0" />
+		<input type="hidden" name="interval" value="0" />
+{else}
+		<select name="interval">{html_options options=$prescription->interval_array selected=$prescription->interval}</select>
+		<input TYPE="TEXT" NAME="dosage" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->dosage}"/>
+{/if}
+	</td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Refills'}</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+		{html_options name="refills" options=$prescription->refills_array selected=$prescription->refills}
+{if $SIMPLIFIED_PRESCRIPTIONS}
+		<input TYPE="hidden" ID="per_refill" NAME="per_refill" VALUE="{$prescription->per_refill}" />
+{else}
+		&nbsp; &nbsp; {xl t='# of tablets:'}
+		<input TYPE="TEXT" ID="per_refill" NAME="per_refill" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->per_refill}" />
+{/if}
+	</td>
+</tr>
+<!--
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Substitution'}</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+    {html_options name="substitute" options=$prescription->substitute_array selected=$prescription->substitute}
+	</td>
+</tr>
+-->
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Notes'}</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	<textarea name="note" cols="30" rows="2" wrap="virtual">{$prescription->note}</textarea>
+	</td>
+</tr>
+<tr>
+{if $WEIGHT_LOSS_CLINIC}
+  <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" ></td>
+  <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+  </td>
+{else}
+  <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Add to Medication List'}</td>
+  <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+    {html_radios name="medication" options=$prescription->medication_array selected=$prescription->medication}
+  </td>
+{/if}
+</tr>
+<tr>
+	<td colspan="3">
+		<input type="submit" value="{xl t='Save'}" />
+		{if $DRUG_ARRAY_VALUES}
+		&nbsp; &nbsp; &nbsp; &nbsp;
+		{if $prescription->get_refills() >= $prescription->get_dispensation_count()}
+		<input type="submit" name="disp_button" value="{xl t='Save and Dispense'}" />
+		<input type="text" name="disp_quantity" size="2" maxlength="10" value="{$DISP_QUANTITY}" />
+		units, $
+		<input type="text" name="disp_fee" size="5" maxlength="10" value="{$DISP_FEE}" />
+		{else}
+		{xl t=' prescription has reached its limit of'} {$prescription->get_refills()} {xl t='refills'}.
+		{/if}
+		{/if}
+	</td>
+</tr>
+</table>
+<input type="hidden" name="id" value="{$prescription->id}" />
+<input type="hidden" name="process" value="{$PROCESS}" />
+<script language='JavaScript'>
+{$ENDING_JAVASCRIPT}
+</script>
+</form>
+</body>
+</html>
