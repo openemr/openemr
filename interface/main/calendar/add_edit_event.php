@@ -163,13 +163,16 @@ if ( $eid ) {
     // ========================================
     // DBC SYSTEM
     // check if for activity act_3.2 we have times completed
-
-    $sa = selected_ac();
-    if ( $sa == 'act_3.2') {
-        $duration = (int)$_POST['form_duration'];
-        if ( empty($duration) ) exit();
-    }
-
+    // larry :: fix dbc
+	if ( $GLOBALS['dutchpc'] )
+	{
+		$sa = selected_ac();
+		if ( $sa == 'act_3.2')
+		{
+			$duration = (int)$_POST['form_duration'];
+			if ( empty($duration) ) exit();
+		}
+	}
     // ========================================
 
   $event_date = fixDate($_POST['form_date']);
@@ -464,28 +467,34 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
   // DBC Dutch System (insert case)
   $lid = mysql_insert_id(); // obtain last inserted id
 
-    $ac = selected_ac();
-    $acid = what_sysid($ac);
-    sqlInsert("INSERT INTO cl_event_activiteit (event_id, activity_sysid) VALUES ('" .$lid. "', '" .$acid. "')");
+	// larry :: fix dbc
+	if ( $GLOBALS['dutchpc'] )
+	{
+		$ac = selected_ac();
+		$acid = what_sysid($ac);
+		sqlInsert("INSERT INTO cl_event_activiteit (event_id, activity_sysid) VALUES ('" .$lid. "', '" .$acid. "')");
 
-    // timing-activity validation
-    if ( vl_activity_travel($activ) ) {
-        $itime  = (int)$_POST['form_duration_indirect']; $ttime  = 0;
-    } else {
-        $itime  = (int)$_POST['form_duration_indirect']; $ttime  = (int)$_POST['form_duration_travel'];
-    }
-    sqlInsert("INSERT INTO cl_time_activiteit (event_id, indirect_time, travel_time)".
-              " VALUES ('" .$lid. "', '" .$itime. "', '" .$ttime. "')");
+		// timing-activity validation
+		if ( vl_activity_travel($activ) )
+		{
+			$itime  = (int)$_POST['form_duration_indirect']; $ttime  = 0;
+		} else {
+			$itime  = (int)$_POST['form_duration_indirect']; $ttime  = (int)$_POST['form_duration_travel'];
+		}
+		sqlInsert("INSERT INTO cl_time_activiteit (event_id, indirect_time, travel_time)".
+				  " VALUES ('" .$lid. "', '" .$itime. "', '" .$ttime. "')");
 
-  // DBC Dutch System (insert case)
-  // ==============================================
+	  // DBC Dutch System (insert case)
+	  // ==============================================
 
-    // new ZTN ?
-    $pid1007 = ( $_POST['form_pid']  ) ? $_POST['form_pid'] : $pid;
-    if ( $pid1007 ) {
-       $a = generate_id1007($pid1007, $event_date); //var_dump($a); exit();
-    }
+		// new ZTN ?
+		$pid1007 = ( $_POST['form_pid']  ) ? $_POST['form_pid'] : $pid;
+		if ( $pid1007 )
+		{
+		   $a = generate_id1007($pid1007, $event_date); //var_dump($a); exit();
+		}
 
+	}
   // EOS DBC
   // ==============================================
 
