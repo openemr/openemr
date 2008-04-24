@@ -66,7 +66,7 @@ class C_Prescriptiondutch extends Controller {
 
        function default_action() {
                $this->assign("prescription",$this->prescriptions[0]);
-               $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_edit.html");
+               $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_edit_dutch.html");
        }
 
        function edit_action($id = "",$patient_id="",$p_obj = null) {
