@@ -12,15 +12,16 @@
 // some constants in our newly generated files
 //
 
+require_once('sql.inc');
 
 define('DECLINST', '73730925');   // declaring institution code
 define('LOCATION', '0');          // location code for declaring institution
 define('TEPR', 'TEST');          // TEST or PRODuction ?
-define('DBC_WORKINGDIR', '/var/www/html/openemr/temp/dbc'); // working directory for our archive - server path w/out trailing slash
-define('HOST', 'localhost');      // mysql host
-define('USER', 'openemr');           // user for database quering
-define('PASS', 'tt-allbusy.gsm');       // password for user
-define('DATABASE', 'openemr');    // database name
+define('DBC_WORKINGDIR', $webserver_root . '/temp/dbc'); // working directory for our archive - server path w/out trailing slash
+define('HOST', $host );      // mysql host
+define('USER', $login );           // user for database quering
+define('PASS', $pass );       // password for user
+define('DATABASE', $dbase );    // database name
 
 $pk_patients = 0;
 $pk_careroutes = 0;
