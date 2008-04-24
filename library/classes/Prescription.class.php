@@ -229,8 +229,13 @@ class Prescription extends ORDataObject {
 		}
 	}
 
-	function get_unit_display() {
-		return $this->unit_array[$this->unit];
+	// larry :: added unit size too
+	function get_unit_display( $display_form="" )
+	{
+		if( $display_form == "dutch" )
+			return( $this->size . " " . $this->unit_array[$this->unit] );
+		else
+			return( $this->unit_array[$this->unit] );
 	}
 	function get_unit() {
 		return $this->unit;
@@ -248,13 +253,19 @@ class Prescription extends ORDataObject {
 	function get_id() {
 		return $this->id;
 	}
-	function get_dosage_display() {
-		if (empty($this->form) && empty($this->interval)) {
-		  return ($this->dosage);
-		}
-		else {
+	function get_dosage_display( $display_form="" )
+	{
+		if( empty($this->form) && empty($this->interval) )
+		{
+		  return( $this->dosage );
+		  
+		} elseif( $display_form == "dutch" )
+		{
+			return( $this->form_array[$this->form] . " " . $this->interval_array[$this->interval] . " " . $this->dosage );
+		} else
+		{
 		  return ($this->dosage . " in " . $this->form_array[$this->form] . " " . $this->interval_array[$this->interval]);
-		}
+		} 
 	}
 	function set_dosage($dosage) {
 			$this->dosage = $dosage;
