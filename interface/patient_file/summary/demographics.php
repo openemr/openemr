@@ -360,7 +360,7 @@ echo "</span><br />";
 
 // If there is a patient ID card, then show a link to it.
 if ($document_id) {
-  echo "<a href='/openemr/controller.php?document&retrieve" .
+  echo "<a href='/".$web_root."/controller.php?document&retrieve" .
     "&patient_id=$pid&document_id=$document_id' style='color:#00cc00' " .
     "onclick='top.restoreSession()'>Click for ID card</a><br />";
 }

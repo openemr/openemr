@@ -153,7 +153,7 @@ if ($GLOBALS['patient_id_category_name']) {
       <span class='bold'><?php xl('Name','e'); ?>: </span>
       <span class='text'>
 <?php
-if ($document_id) echo "<a href='/openemr/controller.php?document&retrieve" .
+if ($document_id) echo "<a href='/".$web_root."/controller.php?document&retrieve" .
   "&patient_id=$pid&document_id=$document_id' style='color:#00cc00'>";
 if (!$GLOBALS['omit_employers']) echo $result['title'] . ' ';
 

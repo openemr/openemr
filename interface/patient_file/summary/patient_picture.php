@@ -11,7 +11,7 @@ function pic_array() {
         $expl = explode("/",$results['url']);
         $filename = $expl[sizeof($expl)-1];
         $doc_id = $results['id'];
-        array_push($pics,"<iframe border='0' frameborder='0' style='border:none;' width='320' height='240' type='image/pjpeg' src='/openemr/controller.php?document&retrieve&patient_id=".$pid."&document_id=".$doc_id."&".$filename."&as_file=true'></iframe>");
+        array_push($pics,"<iframe border='0' frameborder='0' style='border:none;' width='320' height='240' type='image/pjpeg' src='/".$web_root."/controller.php?document&retrieve&patient_id=".$pid."&document_id=".$doc_id."&".$filename."&as_file=true'></iframe>");
       }
     }
     return $pics;
