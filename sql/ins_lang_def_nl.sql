@@ -2700,6 +2700,13 @@ INSERT INTO `lang_definitions` VALUES (2897,2672,5,'');
 INSERT INTO `lang_definitions` VALUES (2898,2677,5,'Gebruik');
 INSERT INTO `lang_definitions` VALUES (2899,2674,5,'');
 INSERT INTO `lang_definitions` VALUES (2900,2678,5,'Huisarts');
+INSERT INTO `lang_definitions` VALUES (2901,2679,5,'Huidige medicatie');
+
+INSERT INTO `lang_definitions` VALUES (2902,2680,5,'Datum');
+INSERT INTO `lang_definitions` VALUES (2903,2681,5,'Veranderd');
+INSERT INTO `lang_definitions` VALUES (2904,2682,5,'Afdrukken');
+INSERT INTO `lang_definitions` VALUES (2905,2683,5,'Selecteer');
+
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
