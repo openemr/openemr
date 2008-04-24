@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS `form_psychiatrisch_onderzoek` (
+  `id` bigint(20) unsigned NOT NULL auto_increment,
+  `date` datetime default NULL,
+  `pid` bigint(20) default NULL,
+  `user` varchar(255) character set latin1 default NULL,
+  `groupname` varchar(255) character set latin1 default NULL,
+  `authorized` tinyint(4) default NULL,
+  `activity` tinyint(4) default NULL,
+  `datum_onderzoek` datetime default NULL,
+  `reden_van_aanmelding` longtext character set latin1,
+  `conclusie_van_intake` longtext character set latin1,
+  `medicatie` longtext character set latin1,	
+  `anamnese` longtext character set latin1,
+  `psychiatrisch_onderzoek` longtext character set latin1,
+  `beschrijvende_conclusie` longtext character set latin1,
+  `behandelvoorstel` longtext character set latin1,
+  `autosave_flag` tinyint(4) default 1,
+  `autosave_datetime` datetime default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=2 ;
