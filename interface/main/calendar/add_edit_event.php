@@ -56,72 +56,51 @@
 // used for DBC Dutch System
  $_SESSION['event_date'] = $date;
  $link = '../../../library/DBC_functions.php'; // ajax stuff and db work
- ?><script type="text/javascript" src="../../../library/js/jquery.js"></script><?php
+ ?>
+ 
+ <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
+ 
+ <?php
 
  // =====================================
  // DBC Dutch System
  // ACTIVITIES / TIMES
- if ( $eid ) {
-    if ( $GLOBALS['select_multi_providers'] ) {
-        // ------------------------------------------
-        // what is multiple key around this $eid?
-        $rowmulti = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
-
-        // what are all pc_eid's grouped by multiple key
-        $eventsrow = array();
-        $rezev = mysql_query("SELECT pc_eid FROM openemr_postcalendar_events WHERE pc_multiple = {$rowmulti['pc_multiple']}");
-        while ( $row = mysql_fetch_array($rezev) ) {
-            $eventsrow[] = $row['pc_eid'];
-        }
-
-        // we look in cl_event_activiteit / cl_time_activiteit for a matching record
-        foreach ( $eventsrow as $ev) {
-            $activ = sqlQuery("SELECT * FROM cl_event_activiteit WHERE event_id = $ev");
-            if ( $activ['event_id'] ) $singleeid = $activ['event_id'];
-
-            $time = sqlQuery("SELECT * FROM cl_time_activiteit WHERE event_id = $ev");
-            if ( $time ) $timerow = $time;
-        }
-
-        // prevent blank values for $singleeid
-        if ( !$singleeid) $singleeid = $eid;
-
-        // ------------------------------------------
-    } else {
-        // ------------------------------------------
-        // single providers case
-        $timerow = sqlQuery("SELECT * FROM cl_time_activiteit WHERE event_id = $eid");
-        $singleeid = $eid;
-        // ------------------------------------------
-    }
- } // if ($eid)
-
-// ===========================
-// EVENTS TO FACILITIES (lemonsoftware)
-// edit event case - if there is no association made, then insert one with the first facility
-/*if ( $eid ) {
-    $selfacil = '';
-    $facility = sqlQuery("SELECT pc_facility, pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
-    if ( !$facility['pc_facility'] ) {
-        $qmin = sqlQuery("SELECT MIN(id) as minId FROM facility");
-        $min  = $qmin['minId'];
-
-        // multiple providers case
+ if ( $GLOBALS['dutchpc'] ) {
+     if ( $eid ) {
         if ( $GLOBALS['select_multi_providers'] ) {
-            $mul  = $facility['pc_multiple'];
-            sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = $min WHERE pc_multiple = $mul");
-        }
-        // EOS multiple
+            // ------------------------------------------
+            // what is multiple key around this $eid?
+            $rowmulti = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
 
-        sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = $min WHERE pc_eid = $eid");
-        $e2f = $minId;
-    } else {
-        $e2f = $facility['pc_facility'];
-    }
-}*/
-// EOS E2F
-// ===========================
-// ===========================
+            // what are all pc_eid's grouped by multiple key
+            $eventsrow = array();
+            $rezev = mysql_query("SELECT pc_eid FROM openemr_postcalendar_events WHERE pc_multiple = {$rowmulti['pc_multiple']}");
+            while ( $row = mysql_fetch_array($rezev) ) {
+                $eventsrow[] = $row['pc_eid'];
+            }
+
+            // we look in cl_event_activiteit / cl_time_activiteit for a matching record
+            foreach ( $eventsrow as $ev) {
+                $activ = sqlQuery("SELECT * FROM cl_event_activiteit WHERE event_id = $ev");
+                if ( $activ['event_id'] ) $singleeid = $activ['event_id'];
+
+                $time = sqlQuery("SELECT * FROM cl_time_activiteit WHERE event_id = $ev");
+                if ( $time ) $timerow = $time;
+            }
+
+            // prevent blank values for $singleeid
+            if ( !$singleeid) $singleeid = $eid;
+
+            // ------------------------------------------
+        } else {
+            // ------------------------------------------
+            // single providers case
+            $timerow = sqlQuery("SELECT * FROM cl_time_activiteit WHERE event_id = $eid");
+            $singleeid = $eid;
+            // ------------------------------------------
+        }
+    } // if ($eid)
+ } // if (dutchpc)
 
 // EVENTS TO FACILITIES (lemonsoftware)
 //(CHEMED) get facility name
