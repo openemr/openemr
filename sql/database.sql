@@ -1420,6 +1420,32 @@ CREATE TABLE `history_data` (
   `name_2` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `value_2` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `additional_history` text character set utf8 collate utf8_unicode_ci,
+  `exams`      text         character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext11` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext12` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext13` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext14` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext15` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext16` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext17` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext18` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext19` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext20` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext21` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext22` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext23` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext24` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext25` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext26` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext27` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext28` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext29` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext30` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `userdate11` date DEFAULT NULL,
+  `userdate12` date DEFAULT NULL,
+  `userdate13` date DEFAULT NULL,
+  `userdate14` date DEFAULT NULL,
+  `userdate15` date DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
@@ -4675,6 +4701,36 @@ INSERT INTO layout_options VALUES ('REF','reply_services'  ,'2Counter-Referral',
 INSERT INTO layout_options VALUES ('REF','reply_recommend' ,'2Counter-Referral','Recommendations'        ,16, 3,1,30,  3,''         ,1,1,'' ,'' ,'Recommendations by specialist');
 INSERT INTO layout_options VALUES ('REF','reply_rx_refer'  ,'2Counter-Referral','Prescriptions/Referrals',17, 3,1,30,  3,''         ,1,1,'' ,'' ,'Prescriptions and/or referrals by specialist');
 
+INSERT INTO layout_options VALUES ('HIS','usertext11','1General','Risk Factors',1,21,1,0,0,'riskfactors',1,1,'','' ,'Risk Factors');
+INSERT INTO layout_options VALUES ('HIS','exams'     ,'1General','Exams/Tests' ,2,23,1,0,0,'exams'      ,1,1,'','' ,'Exam and test results');
+INSERT INTO layout_options VALUES ('HIS','history_father'   ,'2Family History','Father'   ,1, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','history_mother'   ,'2Family History','Mother'   ,2, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','history_siblings' ,'2Family History','Siblings' ,3, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','history_spouse'   ,'2Family History','Spouse'   ,4, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','history_offspring','2Family History','Offspring',5, 2,1,20,255,'',1,3,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_cancer'             ,'3Relatives','Cancer'             ,1, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_tuberculosis'       ,'3Relatives','Tuberculosis'       ,2, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_diabetes'           ,'3Relatives','Diabetes'           ,3, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_high_blood_pressure','3Relatives','High Blood Pressure',4, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_heart_problems'     ,'3Relatives','Heart Problems'     ,5, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_stroke'             ,'3Relatives','Stroke'             ,6, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_epilepsy'           ,'3Relatives','Epilepsy'           ,7, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_mental_illness'     ,'3Relatives','Mental Illness'     ,8, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_suicide'            ,'3Relatives','Suicide'            ,9, 2,1,20,255,'',1,3,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','coffee'              ,'4Lifestyle','Coffee'              ,1, 2,1,20,255,'',1,1,'','' ,'Caffeine consumption');
+INSERT INTO layout_options VALUES ('HIS','tobacco'             ,'4Lifestyle','Tobacco'             ,2, 2,1,20,255,'',1,1,'','' ,'Tobacco use');
+INSERT INTO layout_options VALUES ('HIS','alcohol'             ,'4Lifestyle','Alcohol'             ,3, 2,1,20,255,'',1,1,'','' ,'Alcohol consumption');
+INSERT INTO layout_options VALUES ('HIS','sleep_patterns'      ,'4Lifestyle','Sleep Patterns'      ,4, 2,1,20,255,'',1,1,'','' ,'Sleep patterns');
+INSERT INTO layout_options VALUES ('HIS','exercise_patterns'   ,'4Lifestyle','Exercise Patterns'   ,5, 2,1,20,255,'',1,1,'','' ,'Exercise patterns');
+INSERT INTO layout_options VALUES ('HIS','seatbelt_use'        ,'4Lifestyle','Seatbelt Use'        ,6, 2,1,20,255,'',1,1,'','' ,'Seatbelt use');
+INSERT INTO layout_options VALUES ('HIS','counseling'          ,'4Lifestyle','Counseling'          ,7, 2,1,20,255,'',1,1,'','' ,'Counseling activities');
+INSERT INTO layout_options VALUES ('HIS','hazardous_activities','4Lifestyle','Hazardous Activities',8, 2,1,20,255,'',1,1,'','' ,'Hazardous activities');
+INSERT INTO layout_options VALUES ('HIS','name_1'            ,'5Other','Name/Value'        ,1, 2,1,10,255,'',1,1,'','' ,'Name 1' );
+INSERT INTO layout_options VALUES ('HIS','value_1'           ,'5Other',''                  ,2, 2,1,10,255,'',0,0,'','' ,'Value 1');
+INSERT INTO layout_options VALUES ('HIS','name_2'            ,'5Other','Name/Value'        ,3, 2,1,10,255,'',1,1,'','' ,'Name 2' );
+INSERT INTO layout_options VALUES ('HIS','value_2'           ,'5Other',''                  ,4, 2,1,10,255,'',0,0,'','' ,'Value 2');
+INSERT INTO layout_options VALUES ('HIS','additional_history','5Other','Additional History',5, 3,1,30,  3,'',1,3,'' ,'' ,'Additional history notes');
+
 -- --------------------------------------------------------
 
 -- 
@@ -4730,6 +4786,74 @@ INSERT INTO `list_options` VALUES ('risklevel', 'high', 'High', 3, 0, 0);
 INSERT INTO `list_options` VALUES ('boolean', '0', 'No', 1, 0, 0);
 INSERT INTO `list_options` VALUES ('boolean', '1', 'Yes', 2, 0, 0);
 INSERT INTO `list_options` VALUES ('country', 'USA', 'USA', 1, 0, 0);
+INSERT INTO list_options VALUES ('refsource','Patient'      ,'Patient'      , 1,0,0);
+INSERT INTO list_options VALUES ('refsource','Employee'     ,'Employee'     , 2,0,0);
+INSERT INTO list_options VALUES ('refsource','Walk-In'      ,'Walk-In'      , 3,0,0);
+INSERT INTO list_options VALUES ('refsource','Newspaper'    ,'Newspaper'    , 4,0,0);
+INSERT INTO list_options VALUES ('refsource','Radio'        ,'Radio'        , 5,0,0);
+INSERT INTO list_options VALUES ('refsource','T.V.'         ,'T.V.'         , 6,0,0);
+INSERT INTO list_options VALUES ('refsource','Direct Mail'  ,'Direct Mail'  , 7,0,0);
+INSERT INTO list_options VALUES ('refsource','Coupon'       ,'Coupon'       , 8,0,0);
+INSERT INTO list_options VALUES ('refsource','Referral Card','Referral Card', 9,0,0);
+INSERT INTO list_options VALUES ('refsource','Other'        ,'Other'        ,10,0,0);
+INSERT INTO list_options VALUES ('riskfactors','vv' ,'Varicose Veins'                      , 1,0,0);
+INSERT INTO list_options VALUES ('riskfactors','ht' ,'Hypertension'                        , 2,0,0);
+INSERT INTO list_options VALUES ('riskfactors','db' ,'Diabetes'                            , 3,0,0);
+INSERT INTO list_options VALUES ('riskfactors','sc' ,'Sickle Cell'                         , 4,0,0);
+INSERT INTO list_options VALUES ('riskfactors','fib','Fibroids'                            , 5,0,0);
+INSERT INTO list_options VALUES ('riskfactors','pid','PID (Pelvic Inflammatory Disease)'   , 6,0,0);
+INSERT INTO list_options VALUES ('riskfactors','mig','Severe Migraine'                     , 7,0,0);
+INSERT INTO list_options VALUES ('riskfactors','hd' ,'Heart Disease'                       , 8,0,0);
+INSERT INTO list_options VALUES ('riskfactors','str','Thrombosis/Stroke'                   , 9,0,0);
+INSERT INTO list_options VALUES ('riskfactors','hep','Hepatitis'                           ,10,0,0);
+INSERT INTO list_options VALUES ('riskfactors','gb' ,'Gall Bladder Condition'              ,11,0,0);
+INSERT INTO list_options VALUES ('riskfactors','br' ,'Breast Disease'                      ,12,0,0);
+INSERT INTO list_options VALUES ('riskfactors','dpr','Depression'                          ,13,0,0);
+INSERT INTO list_options VALUES ('riskfactors','all','Allergies'                           ,14,0,0);
+INSERT INTO list_options VALUES ('riskfactors','inf','Infertility'                         ,15,0,0);
+INSERT INTO list_options VALUES ('riskfactors','ast','Asthma'                              ,16,0,0);
+INSERT INTO list_options VALUES ('riskfactors','ep' ,'Epilepsy'                            ,17,0,0);
+INSERT INTO list_options VALUES ('riskfactors','cl' ,'Contact Lenses'                      ,18,0,0);
+INSERT INTO list_options VALUES ('riskfactors','coc','Contraceptive Complication (specify)',19,0,0);
+INSERT INTO list_options VALUES ('riskfactors','oth','Other (specify)'                     ,20,0,0);
+INSERT INTO list_options VALUES ('exams' ,'brs','Breast Exam'          , 1,0,0);
+INSERT INTO list_options VALUES ('exams' ,'cec','Cardiac Echo'         , 2,0,0);
+INSERT INTO list_options VALUES ('exams' ,'ecg','ECG'                  , 3,0,0);
+INSERT INTO list_options VALUES ('exams' ,'gyn','Gynecological Exam'   , 4,0,0);
+INSERT INTO list_options VALUES ('exams' ,'mam','Mammogram'            , 5,0,0);
+INSERT INTO list_options VALUES ('exams' ,'phy','Physical Exam'        , 6,0,0);
+INSERT INTO list_options VALUES ('exams' ,'pro','Prostate Exam'        , 7,0,0);
+INSERT INTO list_options VALUES ('exams' ,'rec','Rectal Exam'          , 8,0,0);
+INSERT INTO list_options VALUES ('exams' ,'sic','Sigmoid/Colonoscopy'  , 9,0,0);
+INSERT INTO list_options VALUES ('exams' ,'ret','Retinal Exam'         ,10,0,0);
+INSERT INTO list_options VALUES ('exams' ,'flu','Flu Vaccination'      ,11,0,0);
+INSERT INTO list_options VALUES ('exams' ,'pne','Pneumonia Vaccination',12,0,0);
+INSERT INTO list_options VALUES ('exams' ,'ldl','LDL'                  ,13,0,0);
+INSERT INTO list_options VALUES ('exams' ,'hem','Hemoglobin'           ,14,0,0);
+INSERT INTO list_options VALUES ('exams' ,'psa','PSA'                  ,15,0,0);
+INSERT INTO list_options VALUES ('lists' ,'boolean'    ,'Boolean'            , 1,0,0);
+INSERT INTO list_options VALUES ('lists' ,'country'    ,'Country'            , 2,0,0);
+INSERT INTO list_options VALUES ('lists' ,'feesheet'   ,'Fee Sheet'          , 3,0,0);
+INSERT INTO list_options VALUES ('lists' ,'language'   ,'Language'           , 4,0,0);
+INSERT INTO list_options VALUES ('lists' ,'marital'    ,'Marital Status'     , 5,0,0);
+INSERT INTO list_options VALUES ('lists' ,'pricelevel' ,'Price Level'        , 6,0,0);
+INSERT INTO list_options VALUES ('lists' ,'ethrace'    ,'Race/Ethnicity'     , 7,0,0);
+INSERT INTO list_options VALUES ('lists' ,'refsource'  ,'Referral Source'    , 8,0,0);
+INSERT INTO list_options VALUES ('lists' ,'risklevel'  ,'Risk Level'         , 9,0,0);
+INSERT INTO list_options VALUES ('lists' ,'superbill'  ,'Service Category'   ,10,0,0);
+INSERT INTO list_options VALUES ('lists' ,'sex'        ,'Sex'                ,11,0,0);
+INSERT INTO list_options VALUES ('lists' ,'taxrate'    ,'Tax Rate'           ,12,0,0);
+INSERT INTO list_options VALUES ('lists' ,'titles'     ,'Titles'             ,13,0,0);
+INSERT INTO list_options VALUES ('lists' ,'yesno'      ,'Yes/No'             ,14,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist1'  ,'User Defined List 1',15,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist2'  ,'User Defined List 2',16,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist3'  ,'User Defined List 3',17,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist4'  ,'User Defined List 4',18,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist5'  ,'User Defined List 5',19,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist6'  ,'User Defined List 6',20,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist7'  ,'User Defined List 7',21,0,0);
+INSERT INTO list_options VALUES ('lists' ,'riskfactors','Risk Factors'       ,22,0,0);
+INSERT INTO list_options VALUES ('lists' ,'exams'      ,'Exams/Tests'        ,23,0,0);
 
 -- --------------------------------------------------------
 

@@ -17,10 +17,62 @@
 foreach ($_POST as $key => $val) {
 	if ($val == "YYYY-MM-DD") {
 		$_POST[$key] = "";
-	} elseif ($val == "on") {
-		$_POST[$key] = "1";
+	// } elseif ($val == "on") {
+	//   $_POST[$key] = "1";
 	}
 }
+
+/********************************************************************/
+
+// Update history_data:
+//
+$newdata = array();
+$fres = sqlStatement("SELECT * FROM layout_options " .
+  "WHERE form_id = 'HIS' AND uor > 0 " .
+  "ORDER BY group_name, seq");
+while ($frow = sqlFetchArray($fres)) {
+  $data_type = $frow['data_type'];
+  $field_id  = $frow['field_id'];
+  $value  = '';
+  $colname = $field_id;
+  if (isset($_POST["form_$field_id"])) {
+    if ($data_type == 21) {
+      // $_POST["form_$field_id"] is an array of checkboxes and its keys
+      // must be concatenated into a |-separated string.
+      foreach ($_POST["form_$field_id"] as $key => $val) {
+        if (strlen($value)) $value .= '|';
+        $value .= $key;
+      }
+    }
+    else if ($data_type == 22) {
+      // $_POST["form_$field_id"] is an array of text fields to be imploded
+      // into "key:value|key:value|...".
+      foreach ($_POST["form_$field_id"] as $key => $val) {
+        $val = str_replace('|', ' ', $val);
+        if (strlen($value)) $value .= '|';
+        $value .= "$key:$val";
+      }
+    }
+    else if ($data_type == 23) {
+      // $_POST["form_$field_id"] is an array of text fields with companion
+      // radio buttons to be imploded into "key:n:notes|key:n:notes|...".
+      foreach ($_POST["form_$field_id"] as $key => $val) {
+        $restype = $_POST["radio_{$field_id}"][$key];
+        if (empty($restype)) $restype = '0';
+        $val = str_replace('|', ' ', $val);
+        if (strlen($value)) $value .= '|';
+        $value .= "$key:$restype:$val";
+      }
+    }
+    else {
+      $value = $_POST["form_$field_id"];
+    }
+  }
+  $newdata[$colname] = $value;
+}
+updateHistoryData($pid, $newdata);
+
+/*********************************************************************
 
 // Compute the string of radio button values representing
 // normal/abnormal exam results.
@@ -91,6 +143,8 @@ newHistoryData($pid,
   'last_exam_results'              => $ltr
  )
 );
+
+*********************************************************************/
 
 if ($GLOBALS['concurrent_layout']) {
  include_once("history.php");

@@ -21,7 +21,7 @@ function generate_form_field($frow, $currvalue) {
   $list_id     = $frow['list_id'];
   $description = htmlspecialchars($frow['description'], ENT_QUOTES);
 
-  // generic selection list
+  // generic single-selection list
   if ($data_type == 1) {
     echo "<select name='form_$field_id' title='$description'>";
     echo "<option value=''>" . xl('Unassigned') . "</option>";
@@ -169,6 +169,85 @@ function generate_form_field($frow, $currvalue) {
     echo "</select>";
   }
 
+  // a set of labeled checkboxes
+  else if ($data_type == 21) {
+    $avalue = explode('|', $currvalue);
+    $lres = sqlStatement("SELECT * FROM list_options " .
+      "WHERE list_id = '$list_id' ORDER BY seq");
+    for ($count = 0; $lrow = sqlFetchArray($lres); ++$count) {
+      $option_id = $lrow['option_id'];
+      if ($count) echo "<br />";
+      echo "<input type='checkbox' name='form_{$field_id}[$option_id]' value='1'";
+      if (in_array($option_id, $avalue)) echo " checked";
+      echo ">" . $lrow['title'];
+    }
+  }
+
+  // a set of labeled text input fields
+  else if ($data_type == 22) {
+    $tmp = explode('|', $currvalue);
+    $avalue = array();
+    foreach ($tmp as $value) {
+      if (preg_match('/^(\w+?):(.*)$/', $value, $matches)) {
+        $avalue[$matches[1]] = $matches[2];
+      }
+    }
+    $lres = sqlStatement("SELECT * FROM list_options " .
+      "WHERE list_id = '$list_id' ORDER BY seq");
+    echo "<table cellpadding='0' cellspacing='0'>";
+    while ($lrow = sqlFetchArray($lres)) {
+      $option_id = $lrow['option_id'];
+      $maxlength = empty($frow['max_length']) ? 255 : $frow['max_length'];
+      $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
+      echo "<tr><td>" . $lrow['title'] . "&nbsp;</td>";
+      echo "<td><input type='text'" .
+        " name='form_{$field_id}[$option_id]'" .
+        " size='" . $frow['fld_length'] . "'" .
+        " maxlength='$maxlength'" .
+        " value='" . $avalue[$option_id] . "'";
+      echo " /></td></tr>";
+    }
+    echo "</table>";
+  }
+
+  // a set of exam results; 3 radio buttons and a text field:
+  else if ($data_type == 23) {
+    $tmp = explode('|', $currvalue);
+    $avalue = array();
+    foreach ($tmp as $value) {
+      if (preg_match('/^(\w+?):(.*)$/', $value, $matches)) {
+        $avalue[$matches[1]] = $matches[2];
+      }
+    }
+    $lres = sqlStatement("SELECT * FROM list_options " .
+      "WHERE list_id = '$list_id' ORDER BY seq");
+    echo "<table cellpadding='0' cellspacing='0'>";
+    echo "<tr><td>&nbsp;</td><td class='bold'>N/A&nbsp;</td><td class='bold'>Nor&nbsp;</td>" .
+      "<td class='bold'>Abn&nbsp;</td><td class='bold'>Date/Notes</td></tr>";
+    while ($lrow = sqlFetchArray($lres)) {
+      $option_id = $lrow['option_id'];
+      $maxlength = empty($frow['max_length']) ? 255 : $frow['max_length'];
+      $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
+      $restype = substr($avalue[$option_id], 0, 1);
+      $resnote = substr($avalue[$option_id], 2);
+      echo "<tr><td>" . $lrow['title'] . "&nbsp;</td>";
+      for ($i = 0; $i < 3; ++$i) {
+        echo "<td><input type='radio'" .
+          " name='radio_{$field_id}[$option_id]'" .
+          " value='$i'";
+        if ($restype === "$i") echo " checked";
+        echo " /></td>";
+      }
+      echo "<td><input type='text'" .
+        " name='form_{$field_id}[$option_id]'" .
+        " size='" . $frow['fld_length'] . "'" .
+        " maxlength='$maxlength'" .
+        " value='$resnote' /></td>";
+      echo "</tr>";
+    }
+    echo "</table>";
+  }
+
 }
 
 function generate_display_field($frow, $currvalue) {
@@ -238,6 +317,68 @@ function generate_display_field($frow, $currvalue) {
     $uname = $urow['lname'];
     if ($urow['fname']) $uname .= ", " . $urow['fname'];
     $s = $uname;
+  }
+
+  // a set of labeled checkboxes
+  else if ($data_type == 21) {
+    $avalue = explode('|', $currvalue);
+    $lres = sqlStatement("SELECT * FROM list_options " .
+      "WHERE list_id = '$list_id' ORDER BY seq");
+    $count = 0;
+    while ($lrow = sqlFetchArray($lres)) {
+      $option_id = $lrow['option_id'];
+      if (in_array($option_id, $avalue)) {
+        if ($count++) $s .= "<br />";
+        $s .= $lrow['title'];
+      }
+    }
+  }
+
+  // a set of labeled text input fields
+  else if ($data_type == 22) {
+    $tmp = explode('|', $currvalue);
+    $avalue = array();
+    foreach ($tmp as $value) {
+      if (preg_match('/^(\w+?):(.*)$/', $value, $matches)) {
+        $avalue[$matches[1]] = $matches[2];
+      }
+    }
+    $lres = sqlStatement("SELECT * FROM list_options " .
+      "WHERE list_id = '$list_id' ORDER BY seq");
+    $s .= "<table cellpadding='0' cellspacing='0'>";
+    while ($lrow = sqlFetchArray($lres)) {
+      $option_id = $lrow['option_id'];
+      if (empty($avalue[$option_id])) continue;
+      $s .= "<tr><td class='bold'>" . $lrow['title'] . ":&nbsp;</td>";
+      $s .= "<td class='text'>" . $avalue[$option_id] . "</td></tr>";
+    }
+    $s .= "</table>";
+  }
+
+  // a set of exam results; 3 radio buttons and a text field:
+  else if ($data_type == 23) {
+    $tmp = explode('|', $currvalue);
+    $avalue = array();
+    foreach ($tmp as $value) {
+      if (preg_match('/^(\w+?):(.*)$/', $value, $matches)) {
+        $avalue[$matches[1]] = $matches[2];
+      }
+    }
+    $lres = sqlStatement("SELECT * FROM list_options " .
+      "WHERE list_id = '$list_id' ORDER BY seq");
+    $s .= "<table cellpadding='0' cellspacing='0'>";
+    while ($lrow = sqlFetchArray($lres)) {
+      $option_id = $lrow['option_id'];
+      $restype = substr($avalue[$option_id], 0, 1);
+      $resnote = substr($avalue[$option_id], 2);
+      if (empty($restype) && empty($resnote)) continue;
+      $s .= "<tr><td class='bold'>" . $lrow['title'] . "&nbsp;</td>";
+      $restype = ($restype == '1') ? 'Normal' : (($restype == '2') ? 'Abnormal' : 'N/A');
+      $s .= "<td class='text'>$restype</td></tr>";
+      $s .= "<td class='text'>$resnote</td></tr>";
+      $s .= "</tr>";
+    }
+    $s .= "</table>";
   }
 
   return $s;

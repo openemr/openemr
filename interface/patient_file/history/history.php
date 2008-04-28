@@ -1,8 +1,9 @@
 <?php
- include_once("../../globals.php");
- include_once("$srcdir/patient.inc");
- include_once("history.inc.php");
- include_once("$srcdir/acl.inc");
+ require_once("../../globals.php");
+ require_once("$srcdir/patient.inc");
+ require_once("history.inc.php");
+ require_once("$srcdir/options.inc.php");
+ require_once("$srcdir/acl.inc");
 ?>
 <html>
 <head>
@@ -37,6 +38,111 @@
 <font class=title><?php xl('Patient History / Lifestyle','e'); ?></font>
 <font class=more><?php echo $tmore;?></font></a><br>
 <?php } ?>
+
+<!-- New stuff begins here. -->
+
+<table border='0' cellpadding='0' width='100%'>
+
+<?php
+
+$CPR = 4; // cells per row of generic data
+
+function end_cell() {
+  global $item_count, $cell_count;
+  if ($item_count > 0) {
+    echo "</td>";
+    $item_count = 0;
+  }
+}
+
+function end_row() {
+  global $cell_count, $CPR;
+  end_cell();
+  if ($cell_count > 0) {
+    for (; $cell_count < $CPR; ++$cell_count) echo "<td></td>";
+    echo "</tr>\n";
+    $cell_count = 0;
+  }
+}
+
+function end_group() {
+  global $last_group;
+  if (strlen($last_group) > 0) {
+    end_row();
+  }
+}
+
+$fres = sqlStatement("SELECT * FROM layout_options " .
+  "WHERE form_id = 'HIS' AND uor > 0 " .
+  "ORDER BY group_name, seq");
+$last_group = '';
+$cell_count = 0;
+$item_count = 0;
+
+while ($frow = sqlFetchArray($fres)) {
+  $this_group = $frow['group_name'];
+  $titlecols  = $frow['titlecols'];
+  $datacols   = $frow['datacols'];
+  $data_type  = $frow['data_type'];
+  $field_id   = $frow['field_id'];
+  $list_id    = $frow['list_id'];
+  $currvalue  = isset($result[$field_id]) ? $result[$field_id] : '';
+
+  // Handle a data category (group) change.
+  if (strcmp($this_group, $last_group) != 0) {
+    end_group();
+    $group_name = substr($this_group, 1);
+    $last_group = $this_group;
+  }
+
+  // Handle starting of a new row.
+  if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
+    end_row();
+    echo "  <tr><td class='bold' valign='top' style='padding-right:5pt'>";
+    if ($group_name) {
+      echo "<font color='#008800'>$group_name</font>";
+      $group_name = '';
+    } else {
+      echo '&nbsp;';
+    }
+    echo "</td>";
+  }
+
+  if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
+
+  // Handle starting of a new label cell.
+  if ($titlecols > 0) {
+    end_cell();
+    echo "<td class='bold' colspan='$titlecols' valign='top'";
+    if ($cell_count == 2) echo " style='padding-left:10pt'";
+    echo ">";
+    $cell_count += $titlecols;
+  }
+  ++$item_count;
+
+  if ($frow['title']) echo $frow['title'] . ":";
+
+  // Handle starting of a new data cell.
+  if ($datacols > 0) {
+    end_cell();
+    echo "<td colspan='$datacols' class='text'";
+    if ($cell_count > 0) echo " style='padding-left:5pt'";
+    echo ">";
+    $cell_count += $datacols;
+  }
+
+  ++$item_count;
+  echo generate_display_field($frow, $currvalue);
+}
+
+end_group();
+?>
+
+</table>
+
+
+
+<!-- Old stuff commented out:
 
 <table border='0' cellpadding='2' width='100%'>
  <tr>
@@ -111,6 +217,10 @@ foreach ($exams as $key => $value) {
   </td>
  </tr>
 </table>
+
+-->
+
+
 
 </body>
 </html>

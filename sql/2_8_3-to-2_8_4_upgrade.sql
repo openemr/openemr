@@ -277,7 +277,172 @@ INSERT INTO list_options VALUES ('refsource','Other'        ,'Other'        ,10,
 INSERT INTO list_options VALUES ('country','USA','USA',1,0,0);
 
 ALTER TABLE patient_data ADD `contrastart` date DEFAULT NULL COMMENT 'Date contraceptives initially used';
-INSERT INTO layout_options VALUES ('DEM','contrastart','5Stats','Contraceptives Start',9,2,0,10,10,'',1,1,'','D','Date contraceptive services initially provided');
+INSERT INTO layout_options VALUES ('DEM','contrastart','5Stats','Contraceptives Start',9,4,0,10,10,'',1,1,'','D','Date contraceptive services initially provided');
 
 ALTER TABLE transactions
   ADD `refer_external`          tinyint(1)   NOT NULL DEFAULT 0;
+
+ALTER TABLE history_data
+  ADD `exams`      text         NOT NULL DEFAULT '',
+  ADD `usertext11` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext12` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext13` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext14` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext15` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext16` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext17` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext18` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext19` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext20` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext21` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext22` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext23` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext24` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext25` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext26` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext27` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext28` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext29` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext30` varchar(255) NOT NULL DEFAULT '',
+  ADD `userdate11` date DEFAULT NULL,
+  ADD `userdate12` date DEFAULT NULL,
+  ADD `userdate13` date DEFAULT NULL,
+  ADD `userdate14` date DEFAULT NULL,
+  ADD `userdate15` date DEFAULT NULL;
+
+UPDATE history_data SET exams = CONCAT(exams, '|brs:1:', last_breast_exam              ) WHERE SUBSTR(last_exam_results, 1, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|brs:2:', last_breast_exam              ) WHERE SUBSTR(last_exam_results, 1, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|mam:1:', last_mammogram                ) WHERE SUBSTR(last_exam_results, 2, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|mam:2:', last_mammogram                ) WHERE SUBSTR(last_exam_results, 2, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|gyn:1:', last_gynocological_exam       ) WHERE SUBSTR(last_exam_results, 3, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|gyn:2:', last_gynocological_exam       ) WHERE SUBSTR(last_exam_results, 3, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|rec:1:', last_rectal_exam              ) WHERE SUBSTR(last_exam_results, 4, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|rec:2:', last_rectal_exam              ) WHERE SUBSTR(last_exam_results, 4, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|pro:1:', last_prostate_exam            ) WHERE SUBSTR(last_exam_results, 5, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|pro:2:', last_prostate_exam            ) WHERE SUBSTR(last_exam_results, 5, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|phy:1:', last_physical_exam            ) WHERE SUBSTR(last_exam_results, 6, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|phy:2:', last_physical_exam            ) WHERE SUBSTR(last_exam_results, 6, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|sic:1:', last_sigmoidoscopy_colonoscopy) WHERE SUBSTR(last_exam_results, 7, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|sic:2:', last_sigmoidoscopy_colonoscopy) WHERE SUBSTR(last_exam_results, 7, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|ecg:1:', last_ecg                      ) WHERE SUBSTR(last_exam_results, 8, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|ecg:2:', last_ecg                      ) WHERE SUBSTR(last_exam_results, 8, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|cec:1:', last_cardiac_echo             ) WHERE SUBSTR(last_exam_results, 9, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|cec:2:', last_cardiac_echo             ) WHERE SUBSTR(last_exam_results, 9, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|ret:1:', last_retinal                  ) WHERE SUBSTR(last_exam_results,10, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|ret:2:', last_retinal                  ) WHERE SUBSTR(last_exam_results,10, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|flu:1:', last_fluvax                   ) WHERE SUBSTR(last_exam_results,11, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|flu:2:', last_fluvax                   ) WHERE SUBSTR(last_exam_results,11, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|pne:1:', last_pneuvax                  ) WHERE SUBSTR(last_exam_results,12, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|pne:2:', last_pneuvax                  ) WHERE SUBSTR(last_exam_results,12, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|ldl:1:', last_ldl                      ) WHERE SUBSTR(last_exam_results,13, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|ldl:2:', last_ldl                      ) WHERE SUBSTR(last_exam_results,13, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|hem:1:', last_hemoglobin               ) WHERE SUBSTR(last_exam_results,14, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|hem:2:', last_hemoglobin               ) WHERE SUBSTR(last_exam_results,14, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|psa:1:', last_psa                      ) WHERE SUBSTR(last_exam_results,15, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|psa:2:', last_psa                      ) WHERE SUBSTR(last_exam_results,15, 1) = '2';
+
+DELETE FROM layout_options WHERE form_id = 'HIS' AND group_name = '1General';
+INSERT INTO layout_options VALUES ('HIS','usertext11','1General','Risk Factors',1,21,1,0,0,'riskfactors',1,1,'','' ,'Risk Factors');
+INSERT INTO layout_options VALUES ('HIS','exams'     ,'1General','Exams/Tests' ,2,23,1,0,0,'exams'      ,1,1,'','' ,'Exam and test results');
+
+DELETE FROM layout_options WHERE form_id = 'HIS' AND group_name = '2Family History';
+INSERT INTO layout_options VALUES ('HIS','history_father'   ,'2Family History','Father'   ,1, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','history_mother'   ,'2Family History','Mother'   ,2, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','history_siblings' ,'2Family History','Siblings' ,3, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','history_spouse'   ,'2Family History','Spouse'   ,4, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','history_offspring','2Family History','Offspring',5, 2,1,20,255,'',1,3,'','' ,'');
+
+DELETE FROM layout_options WHERE form_id = 'HIS' AND group_name = '3Relatives';
+INSERT INTO layout_options VALUES ('HIS','relatives_cancer'             ,'3Relatives','Cancer'             ,1, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_tuberculosis'       ,'3Relatives','Tuberculosis'       ,2, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_diabetes'           ,'3Relatives','Diabetes'           ,3, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_high_blood_pressure','3Relatives','High Blood Pressure',4, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_heart_problems'     ,'3Relatives','Heart Problems'     ,5, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_stroke'             ,'3Relatives','Stroke'             ,6, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_epilepsy'           ,'3Relatives','Epilepsy'           ,7, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_mental_illness'     ,'3Relatives','Mental Illness'     ,8, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_suicide'            ,'3Relatives','Suicide'            ,9, 2,1,20,255,'',1,3,'','' ,'');
+
+DELETE FROM layout_options WHERE form_id = 'HIS' AND group_name = '4Lifestyle';
+INSERT INTO layout_options VALUES ('HIS','coffee'              ,'4Lifestyle','Coffee'              ,1, 2,1,20,255,'',1,1,'','' ,'Caffeine consumption');
+INSERT INTO layout_options VALUES ('HIS','tobacco'             ,'4Lifestyle','Tobacco'             ,2, 2,1,20,255,'',1,1,'','' ,'Tobacco use');
+INSERT INTO layout_options VALUES ('HIS','alcohol'             ,'4Lifestyle','Alcohol'             ,3, 2,1,20,255,'',1,1,'','' ,'Alcohol consumption');
+INSERT INTO layout_options VALUES ('HIS','sleep_patterns'      ,'4Lifestyle','Sleep Patterns'      ,4, 2,1,20,255,'',1,1,'','' ,'Sleep patterns');
+INSERT INTO layout_options VALUES ('HIS','exercise_patterns'   ,'4Lifestyle','Exercise Patterns'   ,5, 2,1,20,255,'',1,1,'','' ,'Exercise patterns');
+INSERT INTO layout_options VALUES ('HIS','seatbelt_use'        ,'4Lifestyle','Seatbelt Use'        ,6, 2,1,20,255,'',1,1,'','' ,'Seatbelt use');
+INSERT INTO layout_options VALUES ('HIS','counseling'          ,'4Lifestyle','Counseling'          ,7, 2,1,20,255,'',1,1,'','' ,'Counseling activities');
+INSERT INTO layout_options VALUES ('HIS','hazardous_activities','4Lifestyle','Hazardous Activities',8, 2,1,20,255,'',1,1,'','' ,'Hazardous activities');
+
+DELETE FROM layout_options WHERE form_id = 'HIS' AND group_name = '5Other';
+INSERT INTO layout_options VALUES ('HIS','name_1'            ,'5Other','Name/Value'        ,1, 2,1,10,255,'',1,1,'','' ,'Name 1' );
+INSERT INTO layout_options VALUES ('HIS','value_1'           ,'5Other',''                  ,2, 2,1,10,255,'',0,0,'','' ,'Value 1');
+INSERT INTO layout_options VALUES ('HIS','name_2'            ,'5Other','Name/Value'        ,3, 2,1,10,255,'',1,1,'','' ,'Name 2' );
+INSERT INTO layout_options VALUES ('HIS','value_2'           ,'5Other',''                  ,4, 2,1,10,255,'',0,0,'','' ,'Value 2');
+INSERT INTO layout_options VALUES ('HIS','additional_history','5Other','Additional History',5, 3,1,30,  3,'',1,3,'' ,'' ,'Additional history notes');
+
+DELETE FROM list_options WHERE list_id = 'riskfactors';
+INSERT INTO list_options VALUES ('riskfactors','vv' ,'Varicose Veins'                      , 1,0,0);
+INSERT INTO list_options VALUES ('riskfactors','ht' ,'Hypertension'                        , 2,0,0);
+INSERT INTO list_options VALUES ('riskfactors','db' ,'Diabetes'                            , 3,0,0);
+INSERT INTO list_options VALUES ('riskfactors','sc' ,'Sickle Cell'                         , 4,0,0);
+INSERT INTO list_options VALUES ('riskfactors','fib','Fibroids'                            , 5,0,0);
+INSERT INTO list_options VALUES ('riskfactors','pid','PID (Pelvic Inflammatory Disease)'   , 6,0,0);
+INSERT INTO list_options VALUES ('riskfactors','mig','Severe Migraine'                     , 7,0,0);
+INSERT INTO list_options VALUES ('riskfactors','hd' ,'Heart Disease'                       , 8,0,0);
+INSERT INTO list_options VALUES ('riskfactors','str','Thrombosis/Stroke'                   , 9,0,0);
+INSERT INTO list_options VALUES ('riskfactors','hep','Hepatitis'                           ,10,0,0);
+INSERT INTO list_options VALUES ('riskfactors','gb' ,'Gall Bladder Condition'              ,11,0,0);
+INSERT INTO list_options VALUES ('riskfactors','br' ,'Breast Disease'                      ,12,0,0);
+INSERT INTO list_options VALUES ('riskfactors','dpr','Depression'                          ,13,0,0);
+INSERT INTO list_options VALUES ('riskfactors','all','Allergies'                           ,14,0,0);
+INSERT INTO list_options VALUES ('riskfactors','inf','Infertility'                         ,15,0,0);
+INSERT INTO list_options VALUES ('riskfactors','ast','Asthma'                              ,16,0,0);
+INSERT INTO list_options VALUES ('riskfactors','ep' ,'Epilepsy'                            ,17,0,0);
+INSERT INTO list_options VALUES ('riskfactors','cl' ,'Contact Lenses'                      ,18,0,0);
+INSERT INTO list_options VALUES ('riskfactors','coc','Contraceptive Complication (specify)',19,0,0);
+INSERT INTO list_options VALUES ('riskfactors','oth','Other (specify)'                     ,20,0,0);
+
+DELETE FROM list_options WHERE list_id = 'exams';
+INSERT INTO list_options VALUES ('exams' ,'brs','Breast Exam'          , 1,0,0);
+INSERT INTO list_options VALUES ('exams' ,'cec','Cardiac Echo'         , 2,0,0);
+INSERT INTO list_options VALUES ('exams' ,'ecg','ECG'                  , 3,0,0);
+INSERT INTO list_options VALUES ('exams' ,'gyn','Gynecological Exam'   , 4,0,0);
+INSERT INTO list_options VALUES ('exams' ,'mam','Mammogram'            , 5,0,0);
+INSERT INTO list_options VALUES ('exams' ,'phy','Physical Exam'        , 6,0,0);
+INSERT INTO list_options VALUES ('exams' ,'pro','Prostate Exam'        , 7,0,0);
+INSERT INTO list_options VALUES ('exams' ,'rec','Rectal Exam'          , 8,0,0);
+INSERT INTO list_options VALUES ('exams' ,'sic','Sigmoid/Colonoscopy'  , 9,0,0);
+INSERT INTO list_options VALUES ('exams' ,'ret','Retinal Exam'         ,10,0,0);
+INSERT INTO list_options VALUES ('exams' ,'flu','Flu Vaccination'      ,11,0,0);
+INSERT INTO list_options VALUES ('exams' ,'pne','Pneumonia Vaccination',12,0,0);
+INSERT INTO list_options VALUES ('exams' ,'ldl','LDL'                  ,13,0,0);
+INSERT INTO list_options VALUES ('exams' ,'hem','Hemoglobin'           ,14,0,0);
+INSERT INTO list_options VALUES ('exams' ,'psa','PSA'                  ,15,0,0);
+
+DELETE FROM list_options WHERE list_id = 'lists';
+INSERT INTO list_options VALUES ('lists' ,'boolean'    ,'Boolean'            , 1,0,0);
+INSERT INTO list_options VALUES ('lists' ,'country'    ,'Country'            , 2,0,0);
+INSERT INTO list_options VALUES ('lists' ,'feesheet'   ,'Fee Sheet'          , 3,0,0);
+INSERT INTO list_options VALUES ('lists' ,'language'   ,'Language'           , 4,0,0);
+INSERT INTO list_options VALUES ('lists' ,'marital'    ,'Marital Status'     , 5,0,0);
+INSERT INTO list_options VALUES ('lists' ,'pricelevel' ,'Price Level'        , 6,0,0);
+INSERT INTO list_options VALUES ('lists' ,'ethrace'    ,'Race/Ethnicity'     , 7,0,0);
+INSERT INTO list_options VALUES ('lists' ,'refsource'  ,'Referral Source'    , 8,0,0);
+INSERT INTO list_options VALUES ('lists' ,'risklevel'  ,'Risk Level'         , 9,0,0);
+INSERT INTO list_options VALUES ('lists' ,'superbill'  ,'Service Category'   ,10,0,0);
+INSERT INTO list_options VALUES ('lists' ,'sex'        ,'Sex'                ,11,0,0);
+INSERT INTO list_options VALUES ('lists' ,'taxrate'    ,'Tax Rate'           ,12,0,0);
+INSERT INTO list_options VALUES ('lists' ,'titles'     ,'Titles'             ,13,0,0);
+INSERT INTO list_options VALUES ('lists' ,'yesno'      ,'Yes/No'             ,14,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist1'  ,'User Defined List 1',15,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist2'  ,'User Defined List 2',16,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist3'  ,'User Defined List 3',17,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist4'  ,'User Defined List 4',18,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist5'  ,'User Defined List 5',19,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist6'  ,'User Defined List 6',20,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist7'  ,'User Defined List 7',21,0,0);
+INSERT INTO list_options VALUES ('lists' ,'riskfactors','Risk Factors'       ,22,0,0);
+INSERT INTO list_options VALUES ('lists' ,'exams'      ,'Exams/Tests'        ,23,0,0);
+
+INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_allowsms', '3Choices', 'Allow SMS', 5, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow SMS (text messages)?');
+INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_allowemail', '3Choices', 'Allow Email', 5, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow Email?');

@@ -10,30 +10,6 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("../../custom/code_types.inc.php");
 
-$lists = array(
-  'boolean'    => xl('Boolean'),
-  'country'    => xl('Country'),
-  'feesheet'   => xl('Fee Sheet'),
-  'language'   => xl('Language'),
-  'marital'    => xl('Marital Status'),
-  'pricelevel' => xl('Price Level'),
-  'ethrace'    => xl('Race/Ethnicity'),
-  'refsource'  => xl('Referral Source'),
-  'risklevel'  => xl('Risk Level'),
-  'superbill'  => xl('Service Category'),
-  'sex'        => xl('Sex'),
-  'taxrate'    => xl('Tax Rate'),
-  'titles'     => xl('Titles'),
-  'yesno'      => xl('Yes/No'),
-  'userlist1'  => xl('User Defined List 1'),
-  'userlist2'  => xl('User Defined List 2'),
-  'userlist3'  => xl('User Defined List 3'),
-  'userlist4'  => xl('User Defined List 4'),
-  'userlist5'  => xl('User Defined List 5'),
-  'userlist6'  => xl('User Defined List 6'),
-  'userlist7'  => xl('User Defined List 7'),
-);
-
 $list_id = empty($_REQUEST['list_id']) ? 'language' : $_REQUEST['list_id'];
 
 // Check authorization.
@@ -297,10 +273,15 @@ if ($_POST['form_save'] && $list_id) {
 <p><b>Edit list:</b>&nbsp;
 <select name ='list_id' onchange='form.submit()'>
 <?php
-foreach ($lists as $key => $value) {
+// The list of lists is also kept incestuously in the lists table.
+// It could include itself, but to maintain sanity we avoid that.
+$res = sqlStatement("SELECT * FROM list_options WHERE " .
+  "list_id = 'lists' ORDER BY seq");
+while ($row = sqlFetchArray($res)) {
+  $key = $row['option_id'];
   echo "<option value='$key'";
   if ($key == $list_id) echo " selected";
-  echo ">$value</option>\n";
+  echo ">" . $row['title'] . "</option>\n";
 }
 ?>
 </select></p>

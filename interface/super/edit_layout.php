@@ -11,6 +11,7 @@ require_once("$srcdir/acl.inc");
 
 $layouts = array(
   'DEM' => xl('Demographics'),
+  'HIS' => xl('History'),
   'REF' => xl('Referrals'),
 );
 
