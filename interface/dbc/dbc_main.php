@@ -28,15 +28,7 @@ if (!$thisauth) die("Not authorized.");
 <p><a href="dbc_generate.php" target="Main">Generate the DBC file</a></p>
 <p><a href="dbc_future.php" target="Main">List open DBC's w/out future events</a></p>
 <p><a href="dbc_totaldbc.php" target="Main">List open DBC's (2007/2008)</a></p>
-
-<!--
-<form method="POST" action="dbc_prestatie.php">
-    <input type="text" id="zorg" name="zorg"/>
-    <input type="text" id="pgroep" name="pgroep"/>
-    <input type="text" id="dbcid" name="dbcid"/>
-    <input type="submit" value="send">
-</form>
--->
+<p><a href="dbc_dbcvalues.php" target="Main">DBC Values</a></p>
 
 </body>
 </html>

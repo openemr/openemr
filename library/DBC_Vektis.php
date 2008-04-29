@@ -43,10 +43,14 @@ function vk_main($dbcid) {
     $patientglobal = what_patient($dbcid);
 
     $lines = array();
-    $lines[]  = vk_generate_insurer();
-    //$lines[]  = vk_generate_debtor();
-    $lines[]  = vk_generate_service();
+    $prev_amount = vk_prev_amount();
 
+    if ( $prev_amount ) {
+        $lines[]  = vk_generate_insurer();
+        //$lines[]  = vk_generate_debtor();
+        $lines[]  = vk_generate_service();
+        //echo "DBC $dbcid - " .$prev_amount . '<br/>'; // debug
+    }
     //$line6  = vk_generate_closing() . VK_EOF;
 
     foreach ( $lines as $ln ) {
@@ -204,6 +208,7 @@ function vk_generate_preamble() {
  * @return void
  */
 function vk_generate_insurer() {
+
     // 0201	ATTRIBUTE RECORD
     $_201 = '02';
 
@@ -353,7 +358,8 @@ function vk_generate_service() {
     $_406 = str_repeat(' ', 15);
 
     // 0407	FORWARDING ALLOWED
-    $_407 = C407;
+    global $_407global;
+    $_407 = $_407global;
 
     // 0408	INDICATION SERVICE CODE LIST
     $_408 = C408;
@@ -552,6 +558,7 @@ function vk_whatinsurance($uzflag = 1) {
         $policy = '';
     }
 
+    if ( strlen($policy) > 15 ) $policy = ''; // to prevent string bigger than 15 char (max allowed by vk)
     $retval   = ( $uzflag == 1 ) ? str_pad($uzovi, 4, '0', STR_PAD_LEFT) : str_pad($policy, 15, ' ', STR_PAD_LEFT);
     return $retval;
 }
@@ -1516,6 +1523,40 @@ function vk_deduction($dbcid = 0) {
     $total_sum = round($total_sum);
     
     return $total_sum;
+}
+
+
+//-----------------------------------------------------------------------------
+/**
+ * CALCULATE THE TARIFF BEFORE ACTUALLY WRITE TO FILE
+ * 
+ * it's used to remove the lines with 0 euros amount
+ * almost the same code as in generating service line (04)
+ * 
+ * @param int $dbcid
+ * @return int value of the DBC in eurocents
+ */
+function vk_prev_amount($dbcid = 0) {
+    global $arr_database, $dbcidglobal;
+
+    // 0418	TARIFF DBC/SERVICE (VAT INCL.)
+    $_418 = vk_dbcinfo('tariff');
+
+    // DEDUCTION AMOUNT
+    $dedamo = ( vk_is_overloop_dbc($dbcidglobal) ) ? vk_deduction($dbcidglobal) : 0 ;
+
+    // 0417	CALCULATION PERCENTAGE
+    $_417 = C417;
+
+    // 0421	AMOUNT CHARGED (VAT INCL.)
+    $_421i = round (((int)$_418 * $_417) / 10000);
+
+    // 0424	CLAIM AMOUNT (VAT INCL.)
+    $_424i = $_421i - $dedamo;
+    if ( $_424i < 0 ) $_424i = 0;
+
+    return $_424i;
+    
 }
 
 //----------------------------------------------------------------------------- 
