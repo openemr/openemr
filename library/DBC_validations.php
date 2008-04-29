@@ -493,7 +493,8 @@ function vl_validdbc_combinations($dbcid) {
 
     // find all events from DBC opening to DBC closing and look for activities
     $q = sprintf("SELECT pc_eid FROM openemr_postcalendar_events 
-                WHERE pc_pid = %d AND pc_eventDate >= '%s' AND pc_eventDate <= '%s' AND pc_apptstatus = '@' ",
+                WHERE pc_pid = %d AND pc_eventDate >= '%s' AND pc_eventDate <= '%s' AND pc_apptstatus = '@' 
+                AND pc_title != 'Blokkeren' ",
                 $pid, $odate, $cdate);
     $r = mysql_query($q) or die(mysql_error());
 
@@ -511,6 +512,7 @@ function vl_validdbc_combinations($dbcid) {
         else if ( strpos($ac, 'act_7') === 0 )      $acodes[] = 'act_7';
         else if ( strpos($ac, 'act_9') === 0 )      $acodes[] = 'act_9';
         else    $acodes[] = $ac;
+
     } // while
 
     // now we analyze all the activities codes

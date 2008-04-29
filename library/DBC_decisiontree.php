@@ -85,7 +85,7 @@ function dt_main($node = 1, $dbcid = 0, $end = '') {
             // called from within openemr
             $_SESSION['pgroep'] = $a['id'];
             echo $a['name']; 
-        }
+        } 
     }
 
 
@@ -105,7 +105,7 @@ function dt_preinit($dbc, $end) {
     // it sets some globals
     global $beslis_table, $dbcid, $enddate;
     $dbcid = $dbc;
-    $enddate = $end;
+    $enddate = ( $end ) ? $end : $_SESSION['eind'];
 
     $dbc = content_diagnose($dbcid);
     $odate = $dbc['ax_odate'];
@@ -614,6 +614,8 @@ function dt_times($eid = 0) {
         $rez['indtime'] = $rowi['indirect_time'];
         // travel time
         $rez['tratime'] = $rowi['travel_time'];
+    } else {
+        $rez['indtime'] = $rez['tratime'] = 0;
     }
 
     return $rez;
@@ -630,14 +632,14 @@ function dt_times($eid = 0) {
  * @return array - two values id|name
  */
 function dt_whatproductgroep($rfsum, $endate) {
-    global $dbcid;
-
     // to avoid the bug: first time, it doesn't display properly
     if ( !$endate ) {
+        global $dbcid;
         $dc = content_diagnose($dbcid);
         $endate = $dc['ax_cdate'];
     }
- 
+
+
     $q = sprintf("SELECT cl_productgroep_sysid as cps, cl_productgroep_beschrijving as cpb 
     FROM cl_productgroep WHERE cl_productgroep_code = %d 
     AND cl_productgroep_begindatum <= '%s' AND cl_productgroep_einddatum >= '%s' ", $rfsum, $endate, $endate);
@@ -655,13 +657,14 @@ function dt_whatproductgroep($rfsum, $endate) {
  * SET PRESTATIECODE
  * 
  * last step in the decision tree
- * 
+ * if called with $retflag = 1, just return the value
+ *
  * @param int $zsysid - zorg sysid
  * @param int $pgroep - productgroep sysid
  * @param int $dbcid - dbcid
- * @return 
+ * @return string|void
  */
-function dt_prestatiecode($zsysid, $pgroep, $dbcid) {
+function dt_prestatiecode($zsysid, $pgroep, $dbcid = 0, $retflag = 0) {
     $resstr = '';
 
     // ZORGTYPE ----------------
@@ -685,7 +688,7 @@ function dt_prestatiecode($zsysid, $pgroep, $dbcid) {
         // find CL_DIAGNOSE_PRESTATIECODEDEEL for the main diagnose
         $maind = df_get_main_diagnose($dbcid);
         $qpre = sprintf("SELECT cl_diagnose_prestatiecodedeel FROM cl_diagnose WHERE cl_diagnose_code = '%s' ",
-                        $maind);
+                        $maind); 
         $rpre = mysql_query($qpre) or die(mysql_error());
         $rowpre = mysql_fetch_array($rpre);
 
@@ -695,9 +698,14 @@ function dt_prestatiecode($zsysid, $pgroep, $dbcid) {
     // PRODUCTGROEP CODE ----------------
     $resstr .= str_pad($rod['cpc'], 6, '0', STR_PAD_LEFT);
 
-    // save it to the table
-    $qu = sprintf("UPDATE cl_axes SET ax_pcode='%s' WHERE ax_id = %d ", $resstr, $dbcid);
-    mysql_query($qu) or die(mysql_error());
+    // save it to the table only if $dbcid is given
+    // otherwise just return the value
+    if ( !$retflag ) {
+        $qu = sprintf("UPDATE cl_axes SET ax_pcode='%s' WHERE ax_id = %d ", $resstr, $dbcid);
+        mysql_query($qu) or die(mysql_error());
+    } else {
+        return $resstr;
+    }
 
 }
 //-----------------------------------------------------------------------------

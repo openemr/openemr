@@ -63,7 +63,8 @@ function content_diagnose($dbcid = 0){
 /**
  * DUPLICATE DBC
  * 
- * close a dbc and open a new one with the same content
+ * closes a dbc (modify the flag) and open a new one with the same content
+ * THE CLOSING OPERATION ITSELF IS NOT DONE BY THIS! (use close_dbc with $follow = 1)
  * for the new one, the opening date will be one day ahead (due of a restrain in validation stuff)
  * 
  * @param array|int $dbc - old dbc | $dbcid
@@ -80,9 +81,12 @@ function duplicate_dbc($dbc = 0) {
 
     mysql_query("START TRANSACTION");
     
-    $odate1     = ( $_SESSION['eind'] ) ? $_SESSION['eind'] : date('Y-m-d');
-    $odate2     = date ('Y-m-d', (strtotime($odate1) + 86400)); // one day ahead
-    $cdate      = '9999-12-31'; // mysql default
+    $cdate1     = ( $_SESSION['eind'] ) ? $_SESSION['eind'] : date('Y-m-d');
+    $cdate2     = '9999-12-31'; // mysql default
+
+    $odate1     = $dbc['ax_odate'];
+    $odate2     = date ('Y-m-d', (strtotime($cdate1) + 86400)); // one day ahead
+    
     
     // insert a new one
     $qi = sprintf("INSERT INTO cl_axes (ax_ztn, ax_open, ax_as1, ax_as2, ax_as3, ax_as4, ax_as5, ax_odate, ax_cdate, ax_sti)
@@ -95,14 +99,15 @@ function duplicate_dbc($dbc = 0) {
         $dbc['ax_as4'],
         $dbc['ax_as5'],
         $odate2,
-        $cdate,
+        $cdate2,
         0);
     mysql_query($qi) or die (msqyl_error());
     //echo "$qi \n";
     $newid = mysql_insert_id();
-    
+
+    // =====================
     // close the old one
-    $qu = sprintf("UPDATE cl_axes SET ax_open = 0, ax_cdate = '%s' WHERE ax_id = %d", $odate1, $dbc['ax_id']);
+    $qu = sprintf("UPDATE cl_axes SET ax_open = 0, ax_cdate = '%s' WHERE ax_id = %d", $cdate1, $dbc['ax_id']);
     mysql_query($qu) or die(mysql_error());
     //echo "$qu \n";
 
@@ -136,7 +141,7 @@ function df_cronlog($string){
         exit;
     }
 
-    $content = date('d-m-Y') . " $string \r\n";
+    $content = date('d-m-Y H:i') . " $string \r\n";
 
     // WRITE DATA TO FILE
     if ( fwrite($h, $content) === FALSE ) {
@@ -212,6 +217,52 @@ function df_get_main_diagnose($dbcid = 0){
     return $mainstr;
 }
 
+//-----------------------------------------------------------------------------
+/**
+ * GET THE LAST ENCOUNTER FOR A PID
+ * 
+ * gets the last encounter for a patient; if month and year are provided,
+ * compare if the last enc is before this date and return the comparision result
+ * 
+ * @param int $pid - patient id
+ * @return array (date => date itself, bool => TRUE|FALSE)
+ */
+function last_encounter($pid, $month = '01', $year = '2008') {
+    $q = sprintf("SELECT MAX(pc_eventDate) AS maxdate FROM openemr_postcalendar_events 
+    WHERE pc_pid = %d AND pc_apptstatus = '@'", $pid);
 
+    $r = mysql_query($q) or die(mysql_error());
+
+    while ( $row = mysql_fetch_array($r) ) {
+        $lastenc = $row['maxdate'];
+        if ( $lastenc ) $result['bool'] = ( $lastenc <= "$year-$month-31" ); else $result['bool'] = FALSE;
+        $result['date'] = $lastenc;
+    }
+
+    return $result;
+
+}
+
+
+//-----------------------------------------------------------------------------
+/**
+ * THERE ARE ANY FUTURE EVENTS?
+ * 
+ * finds out if there are future events for a patient after a specified date
+ * 
+ * @param int $pid - patient id
+ * @param string $date - date
+ * @return string - the last event
+ */
+function future_events($pid, $date) {
+    $q = sprintf("SELECT MAX(pc_eventDate) AS maxdate FROM openemr_postcalendar_events 
+                    WHERE pc_pid = %d AND pc_eventDate >= '%s'", $pid, $date);
+    $r = mysql_query($q) or die(mysql_error());
+
+    if ( mysql_num_rows($r) ) {
+        $row = mysql_fetch_array($r);
+        return $row['maxdate'];
+    } else return 0;
+}
 //-----------------------------------------------------------------------------
 ?>

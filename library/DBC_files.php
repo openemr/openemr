@@ -14,20 +14,21 @@
 
 require_once('sql.inc');
 
-define('DECLINST', '73730925');   // declaring institution code
-define('LOCATION', '0');          // location code for declaring institution
-define('TEPR', 'TEST');          // TEST or PRODuction ?
+define('DECLINST', '73730925');                         // declaring institution code
+define('LOCATION', '0');                                // location code for declaring institution
+define('TEPR', 'TEST');                                 // TEST or PRODuction ?
 define('DBC_WORKINGDIR', $webserver_root . '/temp/dbc'); // working directory for our archive - server path w/out trailing slash
-define('HOST', $host );      // mysql host
-define('USER', $login );           // user for database quering
-define('PASS', $pass );       // password for user
-define('DATABASE', $dbase );    // database name
+define('HOST', $host );                                 // mysql host
+define('USER', $login );                                // user for database quering
+define('PASS', $pass );                                 // password for user
+define('DATABASE', $dbase );                            // database name
 
 $pk_patients = 0;
 $pk_careroutes = 0;
 $pk_dbcs = 0;
 $pk_diagnoses = 0;
 $pk_tijdschrijven = 0;
+$dbcid_arr = array();
 
 //-----------------------------------------------------------------------------
 /**
@@ -52,14 +53,15 @@ function dbc_generatefile($file = 'all', $simulate = 1) {
         case 'all': gf_dbctraject(); gf_zorgtraject(); gf_diagnose(); gf_patient(); gf_tijdschrijven(); gf_empty(); break;
     }
 
+
    // final step; count the votes!
    gf_pakbon();
  
     // function to update some records (eg sti field from cl_axes AFTER generating
     // all the required files
     // THIS IS THE LAST STEP AFTER *ALL* ERRORS WERE CORRECTED!
-    //if ( !$simulate ) update_db();
-    if ( !$simulate ) update_db_2007();
+    if ( !$simulate ) update_db();
+    //if ( !$simulate ) update_db_2007();
  
     // create zip archive
     // if the directory it's not there, we'll create it
@@ -95,14 +97,15 @@ function gf_dbctraject() {
         exit;
     } 
 
-    //$q = sprintf("SELECT * FROM cl_axes WHERE ax_sti = 0 and ax_open = 0");
-    $q = sprintf("SELECT * FROM cl_axes WHERE ax_sti = 0 and ax_open = 99");
+    //$q = sprintf("SELECT * FROM cl_axes WHERE ax_sti = 0 and ax_open = 99");
+    $q = sprintf("SELECT * FROM cl_axes WHERE ax_sti = 0 and ax_open = 0");
     $r = mysql_query($q) or die(mysql_error());
 
     global $dbcid_arr;
 
     if ( mysql_num_rows($r) ) {
         while ( $row = mysql_fetch_array($r) ) {
+            // we write the dbc id in an array, used for REAL mode (update the values)
             $dbcid_arr[] = $row['ax_id'];
 
             // prepare data128
@@ -167,9 +170,9 @@ function gf_zorgtraject() {
     // get all ZTNs associated with processed DBCs (not sent to insurer and closed - because a ZTN can contain multiple
     // closed DBC's and just ONE opened DBC
     //$q = sprintf("SELECT * FROM cl_careroute_numbers JOIN cl_axes ON cl_axes.ax_ztn = cl_careroute_numbers.cn_ztn
-    //WHERE cl_axes.ax_sti = 0 AND cl_axes.ax_open = 0");
+    //WHERE cl_axes.ax_sti = 0 AND cl_axes.ax_open = 99");
     $q = sprintf("SELECT * FROM cl_careroute_numbers JOIN cl_axes ON cl_axes.ax_ztn = cl_careroute_numbers.cn_ztn
-    WHERE cl_axes.ax_sti = 0 AND cl_axes.ax_open = 99");
+    WHERE cl_axes.ax_sti = 0 AND cl_axes.ax_open = 0");
     $r = mysql_query($q) or die(mysql_error());
     
     if ( mysql_num_rows($r) ) {
@@ -184,11 +187,11 @@ function gf_zorgtraject() {
             $_1252  = str_pad(what_joining_number($row['cn_pid']), 15, ' ');
             $_1056  = '        '; // 8 spaces -  health care send that sent patient; not used for us
 
-//            $qs = sprintf("SELECT * FROM cl_axes WHERE ax_ztn = '%s' AND ax_open = 0", $row['cn_ztn']);
-            $qs = sprintf("SELECT * FROM cl_axes WHERE ax_ztn = '%s' AND ax_open = 99", $row['cn_ztn']);
+//          $qs = sprintf("SELECT * FROM cl_axes WHERE ax_ztn = '%s' AND ax_open = 99", $row['cn_ztn']);
+            $qs = sprintf("SELECT * FROM cl_axes WHERE ax_ztn = '%s' AND ax_open = 0", $row['cn_ztn']);
             $rs = mysql_query($qs) or die(mysql_error());
             $dbc = mysql_fetch_assoc($rs);
- 
+
             $as1 = unserialize($dbc['ax_as1']);
             $as1c = $as1['content']; $mainpos = (int)$as1['mainpos']; // mainpos is written in both places
             $as2brut = unserialize($dbc['ax_as2']); $as2 = $as2brut['content'];
@@ -205,6 +208,7 @@ function gf_zorgtraject() {
             } else {
                 // then look in provider table
                 $qpr  = sprintf("SELECT * FROM cl_providers WHERE pro_pid = %d", $row['cn_pid']);
+
                 $rpr = mysql_query($qpr) or die(mysql_error());
                 if ( mysql_num_rows($rpr) ) {
                     $_1057 = '0100'; //always huisarts
@@ -225,7 +229,7 @@ function gf_zorgtraject() {
                 $_948 = $record['code'];
             }
 
-            $_948 = str_pad($_948, 20, ' '); 
+            $_948 = str_pad($_948, 20, ' ');
             $_949 = str_replace('-','', $dbc['ax_odate']);
 
             $content = $_1000 . $_1001 . $_1007 . $_1255 . $_998 . $_999 . $_1252 . $_1056 . $_1057 . $_948 . $_1058 . $_949 ."\r\n";
@@ -264,20 +268,19 @@ function gf_patient() {
     } 
 
     // select all patients for ready-to-be-sent DBCs
-    //$q = sprintf("SELECT DISTINCT cn_pid FROM cl_careroute_numbers JOIN cl_axes ON cl_axes.ax_ztn = cl_careroute_numbers.cn_ztn WHERE cl_axes.ax_sti = 0 and cl_axes.ax_open = 0");
-    $q = sprintf("SELECT DISTINCT cn_pid FROM cl_careroute_numbers JOIN cl_axes ON cl_axes.ax_ztn = cl_careroute_numbers.cn_ztn WHERE cl_axes.ax_sti = 0 and cl_axes.ax_open = 99");
+    //$q = sprintf("SELECT DISTINCT cn_pid FROM cl_careroute_numbers JOIN cl_axes ON cl_axes.ax_ztn = cl_careroute_numbers.cn_ztn WHERE cl_axes.ax_sti = 0 and cl_axes.ax_open = 99");
+    $q = sprintf("SELECT DISTINCT cn_pid FROM cl_careroute_numbers JOIN cl_axes ON cl_axes.ax_ztn = cl_careroute_numbers.cn_ztn WHERE cl_axes.ax_sti = 0 and cl_axes.ax_open = 0");
     $r = mysql_query($q) or die(mysql_error());
 
     if ( mysql_num_rows($r) ) {
         while ( $row = mysql_fetch_array($r) ) {
             // prepare data
             $infopatient = info_patient($row['cn_pid']);
-            switch ((int)$infopatient['sex']) {
-                case 0: $sex = 0; break; // unknown
-                case 1: $sex = 1; break; // male
-                case 2: $sex = 2; break; // female
-                case 9: $sex = 9; break; // not specified
-                default: $sex = 9;
+            switch ( $infopatient['sex'] ) {
+                case 'Male': $sex = 1; break; // male
+                case 'Female': $sex = 2; break; // female
+                //case : $sex = 9; break; // not specified - what openemr correspondent?
+                default: $sex = 0;
             }
 
             $names  = names($row['cn_pid']);
@@ -338,9 +341,11 @@ function gf_diagnose() {
         exit;
     } 
 
-    //$q = sprintf("SELECT * FROM cl_axes WHERE ax_sti = 0 and ax_open = 0");
-    $q = sprintf("SELECT * FROM cl_axes WHERE ax_sti = 0 and ax_open = 99");
+    //$q = sprintf("SELECT * FROM cl_axes WHERE ax_sti = 0 and ax_open = 99");
+    $q = sprintf("SELECT * FROM cl_axes WHERE ax_sti = 0 and ax_open = 0");
     $r = mysql_query($q) or die(mysql_error());
+
+    $GLOBALS['pk_diagnoses'] = 0;
 
     if ( mysql_num_rows($r) ) {
         while ( $row = mysql_fetch_array($r) ) {
@@ -363,7 +368,6 @@ function gf_diagnose() {
 
             $partial_content = ''; // represents all the lines associated with a single DBC
             $counter = 1;
-            $GLOBALS['pk_diagnoses'] = 0;
             
             foreach ( $as1c as $a) {
                 if ( $counter != $mainpos ) {
@@ -447,8 +451,8 @@ function gf_tijdschrijven() {
 
     // for every DBC we find events associated
     //$q = sprintf("SELECT * FROM cl_axes WHERE ax_sti = 0");
-    //$q = sprintf("SELECT * FROM cl_axes WHERE ax_sti = 0 and ax_open = 0");
-    $q = sprintf("SELECT * FROM cl_axes WHERE ax_sti = 0 and ax_open = 99");
+    //$q = sprintf("SELECT * FROM cl_axes WHERE ax_sti = 0 and ax_open = 99");
+    $q = sprintf("SELECT * FROM cl_axes WHERE ax_sti = 0 and ax_open = 0");
     $r = mysql_query($q) or die(mysql_error());
 
     if ( mysql_num_rows($r) ) {
@@ -473,7 +477,7 @@ function gf_tijdschrijven() {
 
             // find all events between DBC's dates and sum up total times
             $qevent = sprintf("SELECT * FROM openemr_postcalendar_events 
-            WHERE pc_pid = '%s' AND pc_eventDate $sign '%s' AND pc_eventDate <= '%s' AND pc_apptstatus = '@'",
+            WHERE pc_pid = '%s' AND pc_eventDate $sign '%s' AND pc_eventDate <= '%s' AND pc_apptstatus = '@' ",
             $pid, $bd_dbc, $ed_dbc);
             $revent = mysql_query($qevent) or die(mysql_error());
 
@@ -499,13 +503,13 @@ function gf_tijdschrijven() {
             // we build for every event a $content
             foreach ( $revent_good as $rg ) {
                 $_922 = str_pad($rg['pc_eid'], 20, ' ');
-                $_873 = str_pad(what_activity_event($rg['pc_eid']), 20, ' ');
+                $_873 = str_pad(what_activity_event($rg['pc_eid'], $bd_dbc), 20, ' ');
 
                 if ( empty($rg['pc_eventDate']) ) 
                     fl_log("Event eid = {$rg['eid']} has an empty date for pc_eventDate!");
                 $_874 = str_replace('-','', $rg['pc_eventDate']);
 
-                $_877 = str_pad(what_profession_provider($rg['pc_aid']), 20, ' ');
+                $_877 = str_pad(what_profession_provider($rg['pc_aid'], $bd_dbc), 20, ' ');
 
                 if ( empty($rg['pc_duration']) ) $rg['pc_duration'] = 0;
                 $_880 = str_pad($rg['pc_duration']/60, 6, ' ');
@@ -790,21 +794,28 @@ RETURN ACTIVITY CODE
 query cl_event_activiteit for activity id
 
 @param int $eid - eventid
+@param string $date
 @return string
 */
-function what_activity_event($eid = 0) {
-    if ( !$eid ) return FALSE;
+function what_activity_event($eid = 0, $date = '') {
+    if ( !$eid || !$date) return FALSE;
 
     $eidq = sprintf("SELECT cl_activiteit_code FROM cl_activiteit ca JOIN cl_event_activiteit cea 
-    ON ca.cl_activiteit_sysid = cea.activity_sysid WHERE cea.event_id = %d", $eid);
-    //$eidq = sprintf("SELECT activity_sysid FROM cl_event_activiteit WHERE event_id = %d", $eid);
+    ON ca.cl_activiteit_sysid = cea.activity_sysid 
+    WHERE cea.event_id = %d AND cl_activiteit_begindatum <= '%s' AND cl_activiteit_einddatum >= '%s'", $eid, $date, $date);
+
     $r = mysql_query($eidq) or die( mysql_error() );
     if ( mysql_num_rows($r) ) {
         $row = mysql_fetch_array($r);
-        //return (int)$row['activity_sysid'];
         return $row['cl_activiteit_code'];
     } else {
-        fl_log("Event with eid = $eid don't have an associated activity code in cl_event_activiteit");
+        $qa = mysql_query("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = $eid")  or die( mysql_error());
+        $ra = mysql_fetch_array($qa);
+
+        $date_aux   = $ra['pc_eventDate'];
+        $pid        = $ra['pc_pid'];
+
+        fl_log("Event with eid = $eid (Date: $date_aux / PID: $pid) don't have an associated activity code in cl_event_activiteit");
         return 0;
     }
 }
@@ -818,12 +829,14 @@ query cl_user_beroep for profession id
 @param int $pid -  provider id
 @return int
 */
-function what_profession_provider($pid = 0) {
+function what_profession_provider($pid = 0, $date = '') {
     if ( !$pid ) return FALSE;
 
     //$pidq = sprintf("SELECT * FROM cl_user_beroep WHERE cl_beroep_userid = %d", $pid);
     $pidq = sprintf("SELECT cl_beroep_code FROM cl_beroep cb JOIN cl_user_beroep cub 
-    ON cb.cl_beroep_sysid = cub.cl_beroep_sysid WHERE cub.cl_beroep_userid = %d", $pid);
+    ON cb.cl_beroep_sysid = cub.cl_beroep_sysid WHERE cub.cl_beroep_userid = %d
+    AND cb.cl_beroep_begindatum <= '%s' AND cb.cl_beroep_einddatum >= '%s'", $pid, $date, $date) ;
+
     $r = mysql_query($pidq) or die( mysql_error() );
     if ( mysql_num_rows($r) ) {
         $row = mysql_fetch_array($r);
@@ -893,7 +906,6 @@ function what_time_event($eid = 0) {
 /**
 UPDATE DATABASE
 
-
 @param none
 @return void
 */
@@ -918,6 +930,7 @@ function update_db() {
 
 }
 
+
 //-----------------------------------------------------------------------------
 /**
 UPDATE DATABASE
@@ -930,11 +943,10 @@ DON'T USE IT IN A REGULAR PRODUCTION ENV
 */
 function update_db_2007() {
     global $dbcid_arr;
-
     foreach ( $dbcid_arr as $dbc ) {
         $q = sprintf("UPDATE cl_axes SET ax_sti = 1, ax_open = 0 WHERE ax_id = %d", $dbc);
-        echo $q . '<br />';
         mysql_query($q) or die(mysql_error());
+        echo $q . '<br />';
     }
 }
 
@@ -1050,7 +1062,7 @@ function names($pid = 0) {
 /**
 FIRST DBC?
 
-find if a dbc is the first or a 'follow-up' or there is no DBC yet.
+find if a dbc is the first or a 'follow-up'
 (the same function is in DBC_functions with a small modification here --> ztn arg)
 
 @param int - ax_id - the DBC id
@@ -1058,11 +1070,19 @@ find if a dbc is the first or a 'follow-up' or there is no DBC yet.
 @return bool | int
 */
 function first_dbc_2($ax_id, $ztn_id) {
-    // to be the first means there is only one DBC per open ZTN  
-    $qz = sprintf("SELECT * FROM cl_axes WHERE ax_ztn='%s' AND ax_id < %d", $ztn_id, $ax_id);
+    // look for all dbcs in a careroute
+    $qz = sprintf("SELECT * FROM cl_axes WHERE ax_ztn='%s' ORDER BY ax_id", $ztn_id);
     $rez = mysql_query($qz) or die(mysql_error());
-    
-    return ( !mysql_num_rows($rez) );
+
+    while ( $row = mysql_fetch_array($rez) ) {
+        $arrdbc[] = $row['ax_id'];
+    }
+
+    // and now, the analysis:
+    // - first means the ax_id is the first in array
+    // - followup means the ax_id is NOT the first in array (because after the first, all dbcs
+    // are followups)
+    return ( $arrdbc[0] == $ax_id );
 }
 
 //-----------------------------------------------------------------------------
@@ -1130,8 +1150,8 @@ function fl_sumup_time($duration, $indirect = 0, $travel = 0, $axid = 0, $eid = 
     if ( !$sum ) {
         fl_log("DBC id:$axid EVENT: $eid has total time = 0 (E:$duration/I:$indirect/T:$travel)");
         return FALSE;
-    } else if ( $indirect > 0 && ($duration == 0 && $travel == 0) ) {
-        fl_log("DBC id:$axid has indirect time = $indirect but direct and travel time = 0.");
+    } else if ( ($duration == 0 || $indirect == 0 ) && ($travel > 0) ) {
+        fl_log("DBC id:$axid has travel time = $indirect but no direct OR indirect.");
         return FALSE;
     }
 

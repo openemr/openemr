@@ -12,9 +12,6 @@
  */
 
 require_once(dirname(__FILE__) . '/../interface/globals.php');
-require_once(dirname(__FILE__) . '/sql.inc');
-require_once('DBC_cfunctions.php');
-
 
 if ( isset($_POST['code']) ) {
   request_for_records($_POST['code']);
@@ -46,6 +43,7 @@ function request_for_records($parent_code) {
   $q = sprintf("SELECT cl_activiteit_element AS elem, cl_activiteit_code AS code
    FROM cl_activiteit WHERE cl_activiteit_groepcode = '%s'  AND cl_activiteit_einddatum > '%s'
    AND cl_activiteit_begindatum < '%s'", $parent_code, $_SESSION['event_date'], $_SESSION['event_date']);
+
   $r = mysql_query($q) or die(mysql_error()); 
   if ( mysql_num_rows($r) ) {
     while ( $row = mysql_fetch_array($r) ) {
@@ -721,18 +719,26 @@ function zorgtype_codes() {
  * find if a dbc is the first , a 'follow-up' or there is no DBC yet.
  * (the same function is in DBC_files)
  * 
- * @param none
+ * @param int $ax_id - dbc's id
  * @return bool - true if it's the first, 0 - otherwise
  */
 function first_dbc($ax_id) {
     // to be the first means there is only one DBC per open ZTN  
     $openztn = verify_ztn();
-    
-    // to be the first means there is only one DBC per open ZTN  
-    $qz = sprintf("SELECT * FROM cl_axes WHERE ax_ztn='%s' AND ax_id < %d", $openztn, $ax_id);
+
+    // look for all dbcs in a careroute
+    $qz = sprintf("SELECT * FROM cl_axes WHERE ax_ztn='%s' ORDER BY ax_id", $openztn);
     $rez = mysql_query($qz) or die(mysql_error());
-    
-    return ( !mysql_num_rows($rez) );
+
+    while ( $row = mysql_fetch_array($rez) ) {
+        $arrdbc[] = $row['ax_id'];
+    }
+
+    // and now, the analysis:
+    // - first means the ax_id is the first in array
+    // - followup means the ax_id is NOT the first in array (because after the first, all dbcs
+    // are followups)
+    return ( $arrdbc[0] == $ax_id );
 }
 
 
@@ -855,10 +861,10 @@ function close_dbc($follow = 0, $stoornis = 0, $ztc, $rtc, $gaf, $dbcid = 0, $ei
     $einddate = ( $dbcid ) ? $eind : $_SESSION['eind'];
     $dbc_id   = ( $dbcid ) ? $dbcid : $_SESSION['show_axid'];
     $pid      = ( $dbcid ) ? $patid : $_SESSION['pid'];
-
+//echo "$dbcid / $stoornis / $ztc / $rtc / $gaf / $eind <br>"; // debug
     // close the open dbc; also mark for vektis
-    // $q = sprintf("UPDATE cl_axes SET ax_open = 0, ax_cdate = '%s', ax_vkstatus = 1
-    $q = sprintf("UPDATE cl_axes SET ax_open = 99, ax_cdate = '%s', ax_vkstatus = 1
+    //$q = sprintf("UPDATE cl_axes SET ax_open = 99, ax_cdate = '%s', ax_vkstatus = 1
+    $q = sprintf("UPDATE cl_axes SET ax_open = 0, ax_cdate = '%s', ax_vkstatus = 1
                  WHERE ax_id = %d", $einddate, $dbc_id);
     mysql_query($q) or die(mysql_error());
 
@@ -866,6 +872,7 @@ function close_dbc($follow = 0, $stoornis = 0, $ztc, $rtc, $gaf, $dbcid = 0, $ei
     // NOTE: we must run this here because the following statement
     // retrieves the content for DBC; otherwise the duplicated dbc will not contain
     // the new $gaf array
+
     update_gaf($dbc_id, $gaf);
 
     // this MUST be run after update_gaf
@@ -883,6 +890,8 @@ function close_dbc($follow = 0, $stoornis = 0, $ztc, $rtc, $gaf, $dbcid = 0, $ei
     if ( $follow ) {
         $newid = duplicate_dbc($ldbc);
         if ( !$dbcid ) $_SESSION['show_axid'] = $newid;
+
+        return $newid;
     } else {
         $qztn = sprintf("UPDATE cl_careroute_numbers SET cn_open = 0, cn_dclosed = '%s' 
         WHERE cn_pid = %d", $einddate, $pid);  
@@ -894,6 +903,7 @@ function close_dbc($follow = 0, $stoornis = 0, $ztc, $rtc, $gaf, $dbcid = 0, $ei
     mysql_query('COMMIT');
 }
 
+
 //-----------------------------------------------------------------------------
 /**
  * TOTAL TIME SPENT
@@ -901,22 +911,22 @@ function close_dbc($follow = 0, $stoornis = 0, $ztc, $rtc, $gaf, $dbcid = 0, $ei
  * adds all direct, indirect + travel time from the first day of this DBC to the last day
  * only for encounters (events with @ pc_apptstatus)
  * 
- * @param int $dbcid - if used instead of $_SESSION
+ * @param int $dbc - if used instead of $_SESSION
  * @return array - contains the three times (indirect, travel, total)
  */
-function total_time_spent($dbcid = 0, $btime = '', $etime = '') {
+function total_time_spent($dbc = 0, $btime = '', $etime = '') {
     // our big results
     $total_time = 0 ; $indirect_time = 0 ; $travel_time = 0;
     
     // DBC ID
     // we have a session var or a given value?
-    $dbc  = ( $dbcid ) ? $_SESSION['show_axid'] : $dbcid;
+    $dbcid  = ( $dbc ) ? $dbc : $_SESSION['show_axid'];
 
     // begin date for DBC
     if ( $btime ) {
         $bd_dbc = $btime;
     } else {
-        $cd   = content_diagnose($dbc);  
+        $cd   = content_diagnose($dbcid); 
         $bd_dbc = $cd['ax_odate'];
     }
 
@@ -927,8 +937,8 @@ function total_time_spent($dbcid = 0, $btime = '', $etime = '') {
         $ed_dbc = ( $_SESSION['eind'] ) ? $_SESSION['eind'] : date('Y-m-d');
     }
 
-    // if we have a $dbcid we must find a $pid
-    if ( $dbcid ) {
+    // if we have a $dbc (given as arg) we must find a $pid
+    if ( $dbc ) {
         $pid = what_patient($dbcid);
     } else {
         $pid = $_SESSION['pid'];
@@ -960,7 +970,7 @@ function total_time_spent($dbcid = 0, $btime = '', $etime = '') {
             $travel_time += $row1['travel_time'];
         } 
     } // while
-    
+
     // if it is the first DBC we look for previous events
     // which weren't included in DBC and add timing too
     if ( $check_first && first_dbc($dbc) ) {
@@ -974,7 +984,7 @@ function total_time_spent($dbcid = 0, $btime = '', $etime = '') {
                     $pid, $bdztn, $bd_dbc);
         $r = mysql_query($q) or die(mysql_error()); 
         while ($row = mysql_fetch_array($r)) {
-            $total_time += $row['pc_duration'];  
+            $total_time += $row['pc_duration']; 
             // get indirect+travel time
             $q2 = sprintf("SELECT * FROM cl_time_activiteit WHERE event_id = %d", $row['pc_eid']);
             $r2 = mysql_query($q2) or die(mysql_error());
@@ -1128,13 +1138,14 @@ function get_circuitcode($dbcid) {
  * write zorg sysid for a closing dbc
  * 
  * @param int - zorg sysid
+ * @param int - $dbcid - dbc id
  * @return none
  */
-function write_zorg($zsysid) {
+function write_zorg($zsysid, $dbcid) {
     // validate the code
     $izsysid = ( vl_validate_zorg($zsysid) ) ? $zsysid : 1 ;
 
-    $qz = sprintf("INSERT INTO cl_zorg_dbc VALUES(%d, %d)", $_SESSION['show_axid'], $izsysid);
+    $qz = sprintf("INSERT INTO cl_zorg_dbc VALUES(%d, %d)", $dbcid, $izsysid);
     $r = mysql_query($qz) or die(mysql_error());
 }
 
@@ -1145,11 +1156,12 @@ function write_zorg($zsysid) {
  * save the value from stoornis dropdown
  * 
  * @param int - cl_productgroep_sysid
+ * @param int - $dbcid - dbc id
  * @return none
  */
-function write_stoornis($zsysid) {
-  $qz = sprintf("INSERT INTO cl_productgroep_dbc VALUES(%d, %d)", $zsysid, $_SESSION['show_axid']);
-  $r = mysql_query($qz) or die(mysql_error());
+function write_stoornis($zsysid, $dbcid) {
+    $qz = sprintf("INSERT INTO cl_productgroep_dbc VALUES(%d, %d)", $zsysid, $dbcid);
+    $r = mysql_query($qz) or die(mysql_error());
 }
 
 //-----------------------------------------------------------------------------
@@ -1157,13 +1169,14 @@ function write_stoornis($zsysid) {
  * WRITE REDEN
  * 
  * @param int cl_redensluiten_code
+ * @param int - $dbcid - dbc id
  * @return void
  */
-function write_reden($rcode) {
+function write_reden($rcode, $dbcid) {
     // validate the code
     $ircode = ( vl_validate_redencode($rcode) ) ? $rcode : 1 ;
 
-    $qz = sprintf("INSERT INTO cl_redensluiten_dbc VALUES(%d, %d)", $ircode, $_SESSION['show_axid']);
+    $qz = sprintf("INSERT INTO cl_redensluiten_dbc VALUES(%d, %d)", $ircode, $dbcid);
     $r = mysql_query($qz) or die(mysql_error());
 }
 
@@ -1671,7 +1684,7 @@ function selected_ac() {
  */
 function df_dbcvalues(){
     $dbcdata = array(); // dummy array for result
-    $ztn = 180101 ; // default zorgtraject at closing (Reguliere zorg)
+    $ztn = 180202 ; // default zorgtraject at closing ()
     $today  = date('Y-m-d');
     $q = mysql_query("SELECT * FROM cl_axes ca WHERE ca.ax_open = 1 ORDER BY ca.ax_odate") or die(mysql_error());
 
@@ -1680,10 +1693,11 @@ function df_dbcvalues(){
         global $rfsum;
         while ( $row = mysql_fetch_array($q) ) {
             $dbcid = $row['ax_id'];
+            $odate = $row['ax_odate'];
 
             $rfsum = 0; // reset the rfsum!
             dt_main(1, $dbcid, $today);
-            $z = dt_whatproductgroep($rfsum, $today);
+            $z = dt_whatproductgroep($rfsum, $odate);
             $pcode = $z['id'];
 
             $prestatie = dt_prestatiecode($ztn, $pcode, $dbcid, 1);
