@@ -189,9 +189,9 @@ if ($result) {
         $pid = '';
 
         // calculate date differences based on date of last encounter with billing entries
-        $query = "select DATE_FORMAT(date(max(form_encounter.date)),'%m/%d/%y') as mydate," .
+        $query = "select DATE_FORMAT(max(form_encounter.date),'%m/%d/%y') as mydate," .
                 " (to_days(current_date())-to_days(max(form_encounter.date))) as day_diff," .
-                " DATE_FORMAT(date(max(form_encounter.date)) + interval " . $add_days .
+                " DATE_FORMAT(max(form_encounter.date) + interval " . $add_days .
                 " day,'%m/%d/%y') as next_appt, dayname(max(form_encounter.date) + interval " .
                 $add_days." day) as next_appt_day from form_encounter " .
                 "join billing on billing.encounter = form_encounter.encounter and " .
