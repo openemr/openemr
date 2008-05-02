@@ -30,6 +30,7 @@
  $date          = $_GET['date'];        // this and below only for new events
  $userid        = $_GET['userid'];
  $default_catid = $_GET['catid'] ? $_GET['catid'] : '5';
+ 
  //
  if ($date)
   $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
@@ -61,6 +62,39 @@
  <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
  
  <?php
+
+// insert an event
+// $args is mainly filled with content from the POST http var
+function InsertEvent($args) {
+    return sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
+                    "pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
+                    "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
+                    "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
+                    "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility " .
+                    ") VALUES ( " .
+                    "'" . $args['form_category']             . "', " .
+                    "'" . $args['new_multiple_value']             . "', " .
+                    "'" . $args['form_provider']                           . "', " .
+                    "'" . $args['form_pid']                  . "', " .
+                    "'" . $args['form_title']                . "', " .
+                    "NOW(), "                                         .
+                    "'" . $args['form_comments']             . "', " .
+                    "'" . $_SESSION['authUserID']             . "', " .
+                    "'" . $args['event_date']                         . "', " .
+                    "'" . fixDate($args['form_enddate'])     . "', " .
+                    "'" . $args['duration']                    . "', " .
+                    "'" . ($args['form_repeat'] ? '1' : '0') . "', " .
+                    "'" . serialize($args['recurrspec'])              . "', " .
+                    "'" . $args['starttime'] ."', " .
+                    "'" . $args['endtime'] ."', " .
+                    "'" . $args['form_allday']               . "', " .
+                    "'" . $args['form_apptstatus']           . "', " .
+                    "'" . $args['form_prefcat']              . "', " .
+                    "'" . $args['locationspec'] ."', "                               .
+                    "1, " .
+                    "1, " .(int)$args['facility']. " )"
+                );
+}
 
  // =====================================
  // DBC Dutch System
@@ -135,407 +169,564 @@ if ( $eid ) {
 // ===========================
 
 
- // If we are saving, then save and close the window.
- //
- if ($_POST['form_action'] == "save") {
+// If we are saving, then save and close the window.
+//
+if ($_POST['form_action'] == "save") {
 
     // ========================================
     // DBC SYSTEM
     // check if for activity act_3.2 we have times completed
     // larry :: fix dbc
-	if ( $GLOBALS['dutchpc'] )
-	{
-		$sa = selected_ac();
-		if ( $sa == 'act_3.2')
-		{
-			$duration = (int)$_POST['form_duration'];
-			if ( empty($duration) ) exit();
-		}
-	}
+    if ( $GLOBALS['dutchpc'] ) {
+        $sa = selected_ac();
+        if ( $sa == 'act_3.2') {
+            $duration = (int)$_POST['form_duration'];
+            if ( empty($duration) ) exit();
+        }
+    }
     // ========================================
 
-  $event_date = fixDate($_POST['form_date']);
+    $event_date = fixDate($_POST['form_date']);
 
-  // Compute start and end time strings to be saved.
-  if ($_POST['form_allday']) {
-   $tmph = 0;
-   $tmpm = 0;
-   $duration = 24 * 60;
-  } else {
-   $tmph = $_POST['form_hour'] + 0;
-   $tmpm = $_POST['form_minute'] + 0;
-   if ($_POST['form_ampm'] == '2' && $tmph < 12) $tmph += 12;
-   $duration = $_POST['form_duration'];
-  }
-  $starttime = "$tmph:$tmpm:00";
-  //
-  $tmpm += $duration;
-  while ($tmpm >= 60) {
-   $tmpm -= 60;
-   ++$tmph;
-  }
-  $endtime = "$tmph:$tmpm:00";
-
-  // Useless garbage that we must save.
-  $locationspec = 'a:6:{s:14:"event_location";N;s:13:"event_street1";N;' .
-   's:13:"event_street2";N;s:10:"event_city";N;s:11:"event_state";N;s:12:"event_postal";N;}';
-
-  // More garbage, but this time 1 character of it is used to save the
-  // repeat type.
-  if ($_POST['form_repeat']) {
-   $recurrspec = 'a:5:{' .
-    's:17:"event_repeat_freq";s:1:"' . $_POST['form_repeat_freq'] . '";' .
-    's:22:"event_repeat_freq_type";s:1:"' . $_POST['form_repeat_type'] . '";' .
-    's:19:"event_repeat_on_num";s:1:"1";' .
-    's:19:"event_repeat_on_day";s:1:"0";' .
-    's:20:"event_repeat_on_freq";s:1:"0";}';
-  } else {
-   $recurrspec = 'a:5:{' .
-    's:17:"event_repeat_freq";N;' .
-    's:22:"event_repeat_freq_type";s:1:"0";' .
-    's:19:"event_repeat_on_num";s:1:"1";' .
-    's:19:"event_repeat_on_day";s:1:"0";' .
-    's:20:"event_repeat_on_freq";s:1:"1";}';
-  }
-
-/* =======================================================
-//                                  UPDATE EVENTS
-========================================================*/
-  if ($eid) {
-
-    // what is multiple key around this $eid?
-    $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
-
-    // timing-activity validation - larry :: DBC ????
-    if ( $_SESSION['editactiv'] ) {
-        $activ = selected_ac();
+    // Compute start and end time strings to be saved.
+    if ($_POST['form_allday']) {
+        $tmph = 0;
+        $tmpm = 0;
+        $duration = 24 * 60;
     } else {
-        $activ = what_activity($eid);
+        $tmph = $_POST['form_hour'] + 0;
+        $tmpm = $_POST['form_minute'] + 0;
+        if ($_POST['form_ampm'] == '2' && $tmph < 12) $tmph += 12;
+        $duration = $_POST['form_duration'];
     }
-    // eof DBC
+    $starttime = "$tmph:$tmpm:00";
+    //
+    $tmpm += $duration;
+    while ($tmpm >= 60) {
+        $tmpm -= 60;
+        ++$tmph;
+    }
+    $endtime = "$tmph:$tmpm:00";
 
-    if ($GLOBALS['select_multi_providers'] && $row['pc_multiple']) {
-        /* ==========================================
-        // multi providers BOS
-        ==========================================*/
+    // Useless garbage that we must save.
+    $locationspecs = array("event_location" => "",
+                            "event_street1" => "",
+                            "event_street2" => "",
+                            "event_city" => "",
+                            "event_state" => "",
+                            "event_postal" => ""
+                        );
+    $locationspec = serialize($locationspecs);
 
-        // obtain current list of providers regarding the multiple key
-        $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple={$row['pc_multiple']}");
-        while ($current = sqlFetchArray($up)) {
-            $providers_current[] = $current['pc_aid'];
+    // capture the recurring specifications
+    $recurrspec = array("event_repeat_freq" => $_POST['form_repeat_freq'],
+                        "event_repeat_freq_type" => $_POST['form_repeat_type'],
+                        "event_repeat_on_num" => "1",
+                        "event_repeat_on_day" => "0",
+                        "event_repeat_on_freq" => "0",
+                        "exdate" => $_POST['form_repeat_exdate']
+                    );
+
+    // no recurr specs, this is used for adding a new non-recurring event
+    $noRecurrspec = array("event_repeat_freq" => "",
+                        "event_repeat_freq_type" => "",
+                        "event_repeat_on_num" => "1",
+                        "event_repeat_on_day" => "0",
+                        "event_repeat_on_freq" => "0",
+                        "exdate" => ""
+                    );
+
+    /* =======================================================
+     *                    UPDATE EVENTS
+     * =====================================================*/
+    if ($eid) {
+
+        // what is multiple key around this $eid?
+        $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+
+        // timing-activity validation - larry :: DBC ????
+        $activ = "";
+        if ( $GLOBALS['dutchpc'] ) {
+            if ( $_SESSION['editactiv'] ) { $activ = selected_ac(); }
+            else { $activ = what_activity($eid); }
         }
+        // eof DBC
+   
 
-        $providers_new = $_POST['form_provider'];
+        // ====================================
+        // multiple providers
+        // ====================================
+        if ($GLOBALS['select_multi_providers'] && $row['pc_multiple']) {
+    
+            // obtain current list of providers regarding the multiple key
+            $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple={$row['pc_multiple']}");
+            while ($current = sqlFetchArray($up)) { $providers_current[] = $current['pc_aid']; }
+   
+            // get the new list of providers from the submitted form
+            $providers_new = $_POST['form_provider'];
 
-        // this difference means that some providers from current was UNCHECKED
-        // so we must delete this event for them
-        $r1 = array_diff ($providers_current, $providers_new);
-        if (count ($r1)) {
-            foreach ($r1 as $to_be_removed) {
-            sqlQuery("DELETE FROM openemr_postcalendar_events WHERE pc_aid='$to_be_removed' AND pc_multiple={$row['pc_multiple']}");
+            // ===== Only current event of repeating series =====
+            if ($_POST['recurr_affect'] == 'current') {
+
+                // update all existing event records to exlude the current date
+                foreach ($providers_current as $provider) {
+                    // update the provider's original event
+                    // get the original event's repeat specs
+                    $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events ".
+                        " WHERE pc_aid = '$provider' AND pc_multiple={$row['pc_multiple']}");
+                    $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
+                    $selected_date = date("Ymd", strtotime($_POST['selected_date']));
+                    if ($oldRecurrspec['exdate'] != "") { $oldRecurrspec['exdate'] .= ",".$selected_date; }
+                    else { $oldRecurrspec['exdate'] .= $selected_date; }
+                
+                    // mod original event recur specs to exclude this date
+                    sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                        " pc_recurrspec = '" . serialize($oldRecurrspec) ."' ".
+                        " WHERE pc_aid = '$provider' AND pc_multiple={$row['pc_multiple']}");
+                }
+            
+                // obtain the next available unique key to group multiple providers around some event
+                $q = sqlStatement ("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
+                $max = sqlFetchArray($q);
+                $new_multiple_value = $max['max'] + 1;
+
+                // insert a new event record for each provider selected on the form
+                foreach ($providers_new as $provider) {
+                    // insert a new event on this date with POST form data
+                    $args = $_POST;
+                    // specify some special variables needed for the INSERT
+                    $args['new_multiple_value'] = $new_multiple_value;
+                    $args['form_provider'] = $provider;
+                    $args['event_date'] = $event_date;
+                    $args['duration'] = $duration * 60;
+                    // this event is forced to NOT REPEAT
+                    $args['form_repeat'] = "0";
+                    $args['recurrspec'] = $noRecurrspec;
+                    $args['form_enddate'] = "0000-00-00";
+                    $args['starttime'] = $starttime;
+                    $args['endtime'] = $endtime;
+                    $args['locationspec'] = $locationspec;
+                    InsertEvent($args);
+                }
             }
-        }
 
-        // this difference means that some providers was added
-        // so we must insert this event for them
-        $r2 = array_diff ($providers_new, $providers_current);
-        if (count ($r2)) {
-            foreach ($r2 as $to_be_inserted) {
-                sqlInsert("INSERT INTO openemr_postcalendar_events ( pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility)
-                VALUES ( " .
-                    "'" . $_POST['form_category']             . "', " .
-                    "'" . $row['pc_multiple']             . "', " .
-                    "'" . $to_be_inserted            . "', " .
-                    "'" . $_POST['form_pid']                  . "', " .
-                    "'" . $_POST['form_title']                . "', " .
-                    "NOW(), "                                         .
-                    "'" . $_POST['form_comments']             . "', " .
-                    "'" . $_SESSION['authUserID']             . "', " .
-                    "'" . $event_date                         . "', " .
-                    "'" . fixDate($_POST['form_enddate'])     . "', " .
-                    "'" . ($duration * 60)                    . "', " .
-                    "'" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
-                    "'$recurrspec', "                                 .
-                    "'$starttime', "                                  .
-                    "'$endtime', "                                    .
-                    "'" . $_POST['form_allday']               . "', " .
-                    "'" . $_POST['form_apptstatus']           . "', " .
-                    "'" . $_POST['form_prefcat']              . "', " .
-                    "'$locationspec', "                               .
-                    "1, " .
-                    "1, " .(int)$_POST['facility']. " )"); // FF stuff
-            } // foreach
-       } //if count
+            // ===== Future Recurring events of a repeating series =====
+            else if ($_POST['recurr_affect'] == 'future') {
+                // update all existing event records to
+                // stop recurring on this date-1
+                $selected_date = date("Ymd", (strtotime($_POST['selected_date'])-24*60*60));
+                foreach ($providers_current as $provider) {
+                    // mod original event recur specs to end on this date
+                    sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                        " pc_enddate = '" . $selected_date ."' ".
+                        " WHERE pc_aid = '$provider' AND pc_multiple={$row['pc_multiple']}");
+                }
+                
+                // obtain the next available unique key to group multiple providers around some event
+                $q = sqlStatement ("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
+                $max = sqlFetchArray($q);
+                $new_multiple_value = $max['max'] + 1;
+
+                // insert a new event record for each provider selected on the form
+                foreach ($providers_new as $provider) {
+                    // insert a new event on this date with POST form data
+                    $args = $_POST;
+                    // specify some special variables needed for the INSERT
+                    $args['new_multiple_value'] = $new_multiple_value;
+                    $args['form_provider'] = $provider;
+                    $args['event_date'] = $event_date;
+                    $args['duration'] = $duration * 60;
+                    $args['recurrspec'] = $recurrspec;
+                    $args['starttime'] = $starttime;
+                    $args['endtime'] = $endtime;
+                    $args['locationspec'] = $locationspec;
+                    InsertEvent($args);
+                }
+            }
 
 
-    // after the two diffs above, we must update for remaining providers
-   // those who are intersected in $providers_current and $providers_new
-   foreach ($_POST['form_provider'] as $provider) {
-            sqlStatement("UPDATE openemr_postcalendar_events SET " .
-            "pc_catid = '"       . $_POST['form_category']             . "', " .
-            "pc_pid = '"         . $_POST['form_pid']                  . "', " .
-            "pc_title = '"       . $_POST['form_title']                . "', " .
-            "pc_time = NOW(), "                                                .
-            "pc_hometext = '"    . $_POST['form_comments']             . "', " .
-            "pc_informant = '"   . $_SESSION['authUserID']             . "', " .
-            "pc_eventDate = '"   . $event_date                         . "', " .
-            "pc_endDate = '"     . fixDate($_POST['form_enddate'])     . "', " .
-            "pc_duration = '"    . ($duration * 60)                    . "', " .
-            "pc_recurrtype = '"  . ($_POST['form_repeat'] ? '1' : '0') . "', " .
-            "pc_recurrspec = '$recurrspec', "                                  .
-            "pc_startTime = '$starttime', "                                    .
-            "pc_endTime = '$endtime', "                                        .
-            "pc_alldayevent = '" . $_POST['form_allday']               . "', " .
-            "pc_apptstatus = '"  . $_POST['form_apptstatus']           . "', "  .
-            "pc_prefcatid = '"   . $_POST['form_prefcat']              . "' ,"  .
-             "pc_facility = '"   .(int)$_POST['facility']               ."' "  . // FF stuff
-              "WHERE pc_aid = '$provider' AND pc_multiple={$row['pc_multiple']}");
-        } // foreach
+            // ===== a Single event or All events in a repeating series ==========
+            else {
+                // this difference means that some providers from current was UNCHECKED
+                // so we must delete this event for them
+                $r1 = array_diff ($providers_current, $providers_new);
+                if (count ($r1)) {
+                    foreach ($r1 as $to_be_removed) {
+                        sqlQuery("DELETE FROM openemr_postcalendar_events WHERE pc_aid='$to_be_removed' AND pc_multiple={$row['pc_multiple']}");
+                    }
+                }
 
-/* ==========================================
-// multi providers EOS
-==========================================*/
+                // this difference means that some providers were added
+                // so we must insert this event for them
+                $r2 = array_diff ($providers_new, $providers_current);
+                if (count ($r2)) {
+                    foreach ($r2 as $to_be_inserted) {
+                        $args = $_POST;
+                        // specify some special variables needed for the INSERT
+                        $args['new_multiple_value'] = $row['pc_multiple'];
+                        $args['form_provider'] = $to_be_inserted;
+                        $args['event_date'] = $event_date;
+                        $args['duration'] = $duration * 60;
+                        $args['recurrspec'] = $recurrspec;
+                        $args['starttime'] = $starttime;
+                        $args['endtime'] = $endtime;
+                        $args['locationspec'] = $locationspec;
+                        InsertEvent($args);
+                    } 
+                } 
 
-    } elseif (  !$row['pc_multiple'] ) {
+                // after the two diffs above, we must update for remaining providers
+                // those who are intersected in $providers_current and $providers_new
+                foreach ($_POST['form_provider'] as $provider) {
+                    sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                        "pc_catid = '" . $_POST['form_category'] . "', " .
+                        "pc_pid = '" . $_POST['form_pid'] . "', " .
+                        "pc_title = '" . $_POST['form_title'] . "', " .
+                        "pc_time = NOW(), " .
+                        "pc_hometext = '" . $_POST['form_comments'] . "', " .
+                        "pc_informant = '" . $_SESSION['authUserID'] . "', " .
+                        "pc_eventDate = '" . $event_date . "', " .
+                        "pc_endDate = '" . fixDate($_POST['form_enddate']) . "', " .
+                        "pc_duration = '" . ($duration * 60) . "', " .
+                        "pc_recurrtype = '" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
+                        "pc_recurrspec = '" . serialize($recurrspec) . "', " .
+                        "pc_startTime = '$starttime', " .
+                        "pc_endTime = '$endtime', " .
+                        "pc_alldayevent = '" . $_POST['form_allday'] . "', " .
+                        "pc_apptstatus = '" . $_POST['form_apptstatus'] . "', "  .
+                        "pc_prefcatid = '" . $_POST['form_prefcat'] . "' ,"  .
+                        "pc_facility = '" .(int)$_POST['facility'] ."' "  . // FF stuff
+                        "WHERE pc_aid = '$provider' AND pc_multiple={$row['pc_multiple']}");
+                } // foreach
+            }
+
+
+        // ====================================
+        // single provider
+        // ====================================
+        } elseif ( !$row['pc_multiple'] ) {
             if ( $GLOBALS['select_multi_providers'] ) {
                 $prov = $_POST['form_provider'][0];
             } else {
                 $prov =  $_POST['form_provider'];
             }
+    
+            if ($_POST['recurr_affect'] == 'current') {
+                // get the original event's repeat specs
+                $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+                $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
+                $selected_date = date("Ymd", strtotime($_POST['selected_date']));
+                if ($oldRecurrspec['exdate'] != "") { $oldRecurrspec['exdate'] .= ",".$selected_date; }
+                else { $oldRecurrspec['exdate'] .= $selected_date; }
+                
+                // mod original event recur specs to exclude this date
+                sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                    " pc_recurrspec = '" . serialize($oldRecurrspec) ."' ".
+                    " WHERE pc_eid = '$eid'");
 
-            // simple provider case
-            sqlStatement("UPDATE openemr_postcalendar_events SET " .
-            "pc_catid = '"       . $_POST['form_category']             . "', " .
-            "pc_aid = '"         . $prov            . "', " .
-            "pc_pid = '"         . $_POST['form_pid']                  . "', " .
-            "pc_title = '"       . $_POST['form_title']                . "', " .
-            "pc_time = NOW(), "                                                .
-            "pc_hometext = '"    . $_POST['form_comments']             . "', " .
-            "pc_informant = '"   . $_SESSION['authUserID']             . "', " .
-            "pc_eventDate = '"   . $event_date                         . "', " .
-            "pc_endDate = '"     . fixDate($_POST['form_enddate'])     . "', " .
-            "pc_duration = '"    . ($duration * 60)                    . "', " .
-            "pc_recurrtype = '"  . ($_POST['form_repeat'] ? '1' : '0') . "', " .
-            "pc_recurrspec = '$recurrspec', "                                  .
-            "pc_startTime = '$starttime', "                                    .
-            "pc_endTime = '$endtime', "                                        .
-            "pc_alldayevent = '" . $_POST['form_allday']               . "', " .
-            "pc_apptstatus = '"  . $_POST['form_apptstatus']           . "', "  .
-            "pc_prefcatid = '"   . $_POST['form_prefcat']              . "' ,"  .
-             "pc_facility = '"   .(int)$_POST['facility']               ."' "  . // FF stuff
-            "WHERE pc_eid = '$eid'");
+                // insert a new event on this date with POST form data
+                $args = $_POST;
+                // specify some special variables needed for the INSERT
+                $args['event_date'] = $event_date;
+                $args['duration'] = $duration * 60;
+                // this event is forced to NOT REPEAT
+                $args['form_repeat'] = "0";
+                $args['recurrspec'] = $noRecurrspec;
+                $args['form_enddate'] = "0000-00-00";
+                $args['starttime'] = $starttime;
+                $args['endtime'] = $endtime;
+                $args['locationspec'] = $locationspec;
+                InsertEvent($args);
+            }
+            else if ($_POST['recurr_affect'] == 'future') {
+                // mod original event to stop recurring on this date-1
+                $selected_date = date("Ymd", (strtotime($_POST['selected_date'])-24*60*60));
+                sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                    " pc_enddate = '" . $selected_date ."' ".
+                    " WHERE pc_eid = '$eid'");
 
-    }
+                // insert a new event starting on this date with POST form data
+                $args = $_POST;
+                // specify some special variables needed for the INSERT
+                $args['event_date'] = $event_date;
+                $args['duration'] = $duration * 60;
+                $args['recurrspec'] = $recurrspec;
+                $args['starttime'] = $starttime;
+                $args['endtime'] = $endtime;
+                $args['locationspec'] = $locationspec;
+                InsertEvent($args);
+            }
+            else {
+                // mod the SINGLE event or ALL EVENTS in a repeating series
+                // simple provider case
+                sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                    "pc_catid = '" . $_POST['form_category'] . "', " .
+                    "pc_aid = '" . $prov . "', " .
+                    "pc_pid = '" . $_POST['form_pid'] . "', " .
+                    "pc_title = '" . $_POST['form_title'] . "', " .
+                    "pc_time = NOW(), " .
+                    "pc_hometext = '" . $_POST['form_comments'] . "', " .
+                    "pc_informant = '" . $_SESSION['authUserID'] . "', " .
+                    "pc_eventDate = '" . $event_date . "', " .
+                    "pc_endDate = '" . fixDate($_POST['form_enddate']) . "', " .
+                    "pc_duration = '" . ($duration * 60) . "', " .
+                    "pc_recurrtype = '" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
+                    "pc_recurrspec = '" . serialize($recurrspec) . "', " .
+                    "pc_startTime = '$starttime', " .
+                    "pc_endTime = '$endtime', " .
+                    "pc_alldayevent = '" . $_POST['form_allday'] . "', " .
+                    "pc_apptstatus = '" . $_POST['form_apptstatus'] . "', "  .
+                    "pc_prefcatid = '" . $_POST['form_prefcat'] . "' ,"  .
+                    "pc_facility = '" .(int)$_POST['facility'] ."' "  . // FF stuff
+                    "WHERE pc_eid = '$eid'");
+            }
+        }
 
-    // ===================================
-    // DBC change activity /  times
-    $activ = ''; // activity could be an old value or a new one
-    if ( $_SESSION['editactiv'] ) {
-        $ac = selected_ac(); $activ = $ac;
-        $acid = what_sysid($ac);
+        // ===================================
+        // DBC change activity /  times
+        $activ = ''; // activity could be an old value or a new one
+        if ( $GLOBALS['dutchpc'] ) {
+            if ( $_SESSION['editactiv'] ) {
+                $ac = selected_ac(); $activ = $ac;
+                $acid = what_sysid($ac);
+        
+                if ( $acid ) sqlInsert("INSERT INTO cl_event_activiteit (event_id, activity_sysid)".
+                " VALUES ('" .$singleeid. "', '" .$acid. "') ON DUPLICATE KEY UPDATE activity_sysid = " .$acid );
+        
+                $_SESSION['editactiv'] = FALSE; // otherwise you'll get a nasty bug!
+            } else {
+                $activcode = what_activity($singleeid);
+                $activ = what_code_activity($activcode);
+            }
+    
+            // timing-activity validation
+            if ( vl_activity_travel($activ) ) {
+                $itime  = (int)$_POST['form_duration_indirect']; $ttime  = 0;
+            } else {
+                $itime  = (int)$_POST['form_duration_indirect']; $ttime  = (int)$_POST['form_duration_travel'];
+            }
+            sqlInsert("INSERT INTO cl_time_activiteit (event_id, indirect_time, travel_time)".
+                  " VALUES ('" .$singleeid. "', '" .$itime. "', '" .$ttime. "') ON DUPLICATE KEY UPDATE indirect_time = " .$itime.
+                  ", travel_time = " . $ttime);
+        }
+    
+        // end DBC change activity / times
+        // ===================================
 
-        if ( $acid ) sqlInsert("INSERT INTO cl_event_activiteit (event_id, activity_sysid)".
-        " VALUES ('" .$singleeid. "', '" .$acid. "') ON DUPLICATE KEY UPDATE activity_sysid = " .$acid );
+        // =======================================
+        // end Update Multi providers case
+        // =======================================
 
-        $_SESSION['editactiv'] = FALSE; // otherwise you'll get a nasty bug!
+        // EVENTS TO FACILITIES
+        $e2f = (int)$eid;
+
+
     } else {
-        $activcode = what_activity($singleeid);
-        $activ = what_code_activity($activcode);
+        /* =======================================================
+         *                    INSERT NEW EVENT(S)
+         * ======================================================*/
+
+        // =======================================
+        // multi providers case
+        // =======================================
+        if (is_array($_POST['form_provider'])) {
+        
+            // obtain the next available unique key to group multiple providers around some event
+            $q = sqlStatement ("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
+            $max = sqlFetchArray($q);
+            $new_multiple_value = $max['max'] + 1;
+        
+            foreach ($_POST['form_provider'] as $provider) {
+                $args = $_POST;
+                // specify some special variables needed for the INSERT
+                $args['new_multiple_value'] = $new_multiple_value;
+                $args['form_provider'] = $provider;
+                $args['event_date'] = $event_date;
+                $args['duration'] = $duration * 60;
+                $args['recurrspec'] = $recurrspec;
+                $args['starttime'] = $starttime;
+                $args['endtime'] = $endtime;
+                $args['locationspec'] = $locationspec;
+                InsertEvent($args);
+            }
+
+        // ====================================
+        // single provider
+        // ====================================
+        } else {
+            $args = $_POST;
+            // specify some special variables needed for the INSERT
+            $args['new_multiple_value'] = "";
+            $args['form_provider'] = $provider;
+            $args['event_date'] = $event_date;
+            $args['duration'] = $duration * 60;
+            $args['recurrspec'] = $recurrspec;
+            $args['starttime'] = $starttime;
+            $args['endtime'] = $endtime;
+            $args['locationspec'] = $locationspec;
+            InsertEvent($args);
+        }
+    
+        // ==============================================
+        // DBC Dutch System (insert case)
+        $lid = mysql_insert_id(); // obtain last inserted id
+
+        // larry :: fix dbc
+        if ( $GLOBALS['dutchpc'] ) {
+            $ac = selected_ac();
+            $acid = what_sysid($ac);
+            sqlInsert("INSERT INTO cl_event_activiteit (event_id, activity_sysid) VALUES ('" .$lid. "', '" .$acid. "')");
+
+            // timing-activity validation
+            if ( vl_activity_travel($activ) ) {
+                $itime  = (int)$_POST['form_duration_indirect']; $ttime  = 0;
+            } else {
+                $itime  = (int)$_POST['form_duration_indirect']; $ttime  = (int)$_POST['form_duration_travel'];
+            }
+            sqlInsert("INSERT INTO cl_time_activiteit (event_id, indirect_time, travel_time)".
+                    " VALUES ('" .$lid. "', '" .$itime. "', '" .$ttime. "')");
+
+            // DBC Dutch System (insert case)
+            // ==============================================
+
+            // new ZTN ?
+            $pid1007 = ( $_POST['form_pid']  ) ? $_POST['form_pid'] : $pid;
+            if ( $pid1007 ) {
+                $a = generate_id1007($pid1007, $event_date); //var_dump($a); exit();
+            }
+        }
+        // end DBC
+        // ==============================================
+
     }
 
-    // timing-activity validation
-    if ( vl_activity_travel($activ) ) {
-        $itime  = (int)$_POST['form_duration_indirect']; $ttime  = 0;
-    } else {
-        $itime  = (int)$_POST['form_duration_indirect']; $ttime  = (int)$_POST['form_duration_travel'];
+    // done with EVENT insert/update statements
+
+    // Save new DOB if it's there.
+    $patient_dob = trim($_POST['form_dob']);
+    if ($patient_dob && $_POST['form_pid']) {
+        sqlStatement("UPDATE patient_data SET DOB = '$patient_dob' WHERE " .
+                    "pid = '" . $_POST['form_pid'] . "'");
     }
-    sqlInsert("INSERT INTO cl_time_activiteit (event_id, indirect_time, travel_time)".
-          " VALUES ('" .$singleeid. "', '" .$itime. "', '" .$ttime. "') ON DUPLICATE KEY UPDATE indirect_time = " .$itime.
-          ", travel_time = " . $ttime);
 
-    // EOS DBC change activity / times
-    // ===================================
-
-
-// =======================================
-// EOS multi providers case
-// =======================================
-
-  // EVENTS TO FACILITIES
-
-  $e2f = (int)$eid;
-
-/* =======================================================
-//                                  INSERT EVENTS
-========================================================*/
-  } else {
-
-// =======================================
-// multi providers case
-// =======================================
-
-if (is_array($_POST['form_provider'])) {
-
-    // obtain the next available unique key to group multiple providers around some event
-    $q = sqlStatement ("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
-    $max = sqlFetchArray($q);
-    $new_multiple_value = $max['max'] + 1;
-
-    foreach ($_POST['form_provider'] as $provider) {
-    sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
-    "pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
-    "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
-    "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
-    "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility " .
-    ") VALUES ( " .
-    "'" . $_POST['form_category']             . "', " .
-    "'" . $new_multiple_value             . "', " .
-    "'" . $provider                           . "', " .
-    "'" . $_POST['form_pid']                  . "', " .
-    "'" . $_POST['form_title']                . "', " .
-    "NOW(), "                                         .
-    "'" . $_POST['form_comments']             . "', " .
-    "'" . $_SESSION['authUserID']             . "', " .
-    "'" . $event_date                         . "', " .
-    "'" . fixDate($_POST['form_enddate'])     . "', " .
-    "'" . ($duration * 60)                    . "', " .
-    "'" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
-    "'$recurrspec', "                                 .
-    "'$starttime', "                                  .
-    "'$endtime', "                                    .
-    "'" . $_POST['form_allday']               . "', " .
-    "'" . $_POST['form_apptstatus']           . "', " .
-    "'" . $_POST['form_prefcat']              . "', " .
-    "'$locationspec', "                               .
-    "1, " .
-    "1, " .(int)$_POST['facility']. " )"); // FF stuff
-
-    } // foreach
-
-} else {
-
-sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
-    "pc_catid, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
-    "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
-    "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
-    "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility " .
-    ") VALUES ( " .
-    "'" . $_POST['form_category']             . "', " .
-    "'" . $_POST['form_provider']             . "', " .
-    "'" . $_POST['form_pid']                  . "', " .
-    "'" . $_POST['form_title']                . "', " .
-    "NOW(), "                                         .
-    "'" . $_POST['form_comments']             . "', " .
-    "'" . $_SESSION['authUserID']             . "', " .
-    "'" . $event_date                         . "', " .
-    "'" . fixDate($_POST['form_enddate'])     . "', " .
-    "'" . ($duration * 60)                    . "', " .
-    "'" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
-    "'$recurrspec', "                                 .
-    "'$starttime', "                                  .
-    "'$endtime', "                                    .
-    "'" . $_POST['form_allday']               . "', " .
-    "'" . $_POST['form_apptstatus']           . "', " .
-    "'" . $_POST['form_prefcat']              . "', " .
-    "'$locationspec', "                               .
-    "1, " .
-    "1," .(int)$_POST['facility']. ")"); // FF stuff
-  } // INSERT single
-
-  // ==============================================
-  // DBC Dutch System (insert case)
-  $lid = mysql_insert_id(); // obtain last inserted id
-
-	// larry :: fix dbc
-	if ( $GLOBALS['dutchpc'] )
-	{
-		$ac = selected_ac();
-		$acid = what_sysid($ac);
-		sqlInsert("INSERT INTO cl_event_activiteit (event_id, activity_sysid) VALUES ('" .$lid. "', '" .$acid. "')");
-
-		// timing-activity validation
-		if ( vl_activity_travel($activ) )
-		{
-			$itime  = (int)$_POST['form_duration_indirect']; $ttime  = 0;
-		} else {
-			$itime  = (int)$_POST['form_duration_indirect']; $ttime  = (int)$_POST['form_duration_travel'];
-		}
-		sqlInsert("INSERT INTO cl_time_activiteit (event_id, indirect_time, travel_time)".
-				  " VALUES ('" .$lid. "', '" .$itime. "', '" .$ttime. "')");
-
-	  // DBC Dutch System (insert case)
-	  // ==============================================
-
-		// new ZTN ?
-		$pid1007 = ( $_POST['form_pid']  ) ? $_POST['form_pid'] : $pid;
-		if ( $pid1007 )
-		{
-		   $a = generate_id1007($pid1007, $event_date); //var_dump($a); exit();
-		}
-
-	}
-  // EOS DBC
-  // ==============================================
-
-
- } // else - insert
-
-  // Save new DOB if it's there.
-  $patient_dob = trim($_POST['form_dob']);
-  if ($patient_dob && $_POST['form_pid']) {
-   sqlStatement("UPDATE patient_data SET DOB = '$patient_dob' WHERE " .
-    "pid = '" . $_POST['form_pid'] . "'");
-  }
-
-  // Auto-create a new encounter if appropriate.
-  //
-  if ($GLOBALS['auto_create_new_encounters'] &&
-    $_POST['form_apptstatus'] == '@' && $event_date == date('Y-m-d'))
-  {
-    $tmprow = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
-      "pid = '" . $_POST['form_pid'] . "' AND date = '$event_date 00:00:00'");
-    if ($tmprow['count'] == 0) {
-      $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = '" .
-        $_POST['form_provider'] . "'");
-      $username = $tmprow['username'];
-      $facility = $tmprow['facility'];
-      $facility_id = $tmprow['facility_id'];
-      $conn = $GLOBALS['adodb']['db'];
-      $encounter = $conn->GenID("sequences");
-      addForm($encounter, "New Patient Encounter",
-        sqlInsert("INSERT INTO form_encounter SET " .
-          "date = '$event_date', " .
-          "onset_date = '$event_date', " .
-          "reason = '" . $_POST['form_comments'] . "', " .
-          "facility = '$facility', " .
-          "facility_id = '$facility_id', " .
-          "pid = '" . $_POST['form_pid'] . "', " .
-          "encounter = '$encounter'"
-        ),
-        "newpatient", $_POST['form_pid'], "1", "NOW()", $username
-      );
-      $info_msg .= "New encounter $encounter was created. ";
+    // Auto-create a new encounter if appropriate.
+    //
+    if ($GLOBALS['auto_create_new_encounters'] &&
+            $_POST['form_apptstatus'] == '@' && $event_date == date('Y-m-d'))
+    {
+        $tmprow = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
+                        "pid = '" . $_POST['form_pid'] . "' AND date = '$event_date 00:00:00'");
+        if ($tmprow['count'] == 0) {
+            $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = '" .
+                        $_POST['form_provider'] . "'");
+                        $username = $tmprow['username'];
+                        $facility = $tmprow['facility'];
+                        $facility_id = $tmprow['facility_id'];
+                        $conn = $GLOBALS['adodb']['db'];
+                        $encounter = $conn->GenID("sequences");
+            addForm($encounter, "New Patient Encounter",
+                    sqlInsert("INSERT INTO form_encounter SET " .
+                        "date = '$event_date', " .
+                        "onset_date = '$event_date', " .
+                        "reason = '" . $_POST['form_comments'] . "', " .
+                        "facility = '$facility', " .
+                        "facility_id = '$facility_id', " .
+                        "pid = '" . $_POST['form_pid'] . "', " .
+                        "encounter = '$encounter'"
+                    ),
+                    "newpatient", $_POST['form_pid'], "1", "NOW()", $username
+                );
+            $info_msg .= "New encounter $encounter was created. ";
+        }
     }
-  }
-
  }
+
+// =======================================
+//    DELETE EVENT(s)
+// =======================================
  else if ($_POST['form_action'] == "delete") {
         // =======================================
-        //  multi providers case
+        //  multi providers event
         // =======================================
         if ($GLOBALS['select_multi_providers']) {
-             // what is multiple key around this $eid?
+
+            // what is multiple key around this $eid?
             $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
-			if ( $row['pc_multiple'] ) {
-				sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_multiple = {$row['pc_multiple']}");
-			} else {
-                                sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = $eid");
-                        }
+            
+            // obtain current list of providers regarding the multiple key
+            $providers_current = array();
+            $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple={$row['pc_multiple']}");
+            while ($current = sqlFetchArray($up)) { $providers_current[] = $current['pc_aid']; }
+
+            // establish a WHERE clause
+            if ( $row['pc_multiple'] ) { $whereClause = "pc_multiple = {$row['pc_multiple']}"; }
+            else { $whereClause = "pc_eid = $eid"; }
+            
+            if ($_POST['recurr_affect'] == 'current') {
+                // update all existing event records to exlude the current date
+                foreach ($providers_current as $provider) {
+                    // update the provider's original event
+                    // get the original event's repeat specs
+                    $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events ".
+                        " WHERE pc_aid = '$provider' AND pc_multiple={$row['pc_multiple']}");
+                    $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
+                    $selected_date = date("Ymd", strtotime($_POST['selected_date']));
+                    if ($oldRecurrspec['exdate'] != "") { $oldRecurrspec['exdate'] .= ",".$selected_date; }
+                    else { $oldRecurrspec['exdate'] .= $selected_date; }
+                
+                    // mod original event recur specs to exclude this date
+                    sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                        " pc_recurrspec = '" . serialize($oldRecurrspec) ."' ".
+                        " WHERE ". $whereClause);
+                }
+            }
+            else if ($_POST['recurr_affect'] == 'future') {
+                // update all existing event records to stop recurring on this date-1
+                $selected_date = date("Ymd", (strtotime($_POST['selected_date'])-24*60*60));
+                foreach ($providers_current as $provider) {
+                    // update the provider's original event
+                    sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                        " pc_enddate = '" . $selected_date ."' ".
+                        " WHERE ".$whereClause);
+                }
+            }
+            else {
+                // really delete the event from the database
+                sqlStatement("DELETE FROM openemr_postcalendar_events WHERE ".$whereClause);
+            }
+        }
+
         // =======================================
-        //  EOS multi providers case
+        //  single provider event
         // =======================================
-        } else {
-            sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = '$eid'");
+        else {
+
+            if ($_POST['recurr_affect'] == 'current') {
+                // mod original event recur specs to exclude this date
+                
+                // get the original event's repeat specs
+                $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+                $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
+                $selected_date = date("Ymd", strtotime($_POST['selected_date']));
+                if ($oldRecurrspec['exdate'] != "") { $oldRecurrspec['exdate'] .= ",".$selected_date; }
+                else { $oldRecurrspec['exdate'] .= $selected_date; }
+                sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                    " pc_recurrspec = '" . serialize($oldRecurrspec) ."' ".
+                    " WHERE pc_eid = '$eid'");
+            }
+
+            else if ($_POST['recurr_affect'] == 'future') {
+                // mod original event to stop recurring on this date-1
+                $selected_date = date("Ymd", (strtotime($_POST['selected_date'])-24*60*60));
+                sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                    " pc_enddate = '" . $selected_date ."' ".
+                    " WHERE pc_eid = '$eid'");
+            }
+
+            else {
+                // fully delete the event from the database
+                sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = '$eid'");
+            }
         }
  }
 
@@ -578,7 +769,9 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
  // If we are editing an existing event, then get its data.
  if ($eid) {
   $row = sqlQuery("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = $eid");
-  $date = $row['pc_eventDate'];
+  // instead of using the event's starting date, keep what has been provided
+  // via the GET array, see the top of this file
+  //$date = $row['pc_eventDate'];
   $userid = $row['pc_aid'];
   $patientid = $row['pc_pid'];
   $starttimeh = substr($row['pc_startTime'], 0, 2) + 0;
@@ -586,12 +779,12 @@ sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
   $repeats = $row['pc_recurrtype'];
   $multiple_value = $row['pc_multiple'];
 
-  if (preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', $row['pc_recurrspec'], $matches)) {
-   $repeattype = $matches[1];
-  }
-  if (preg_match('/"event_repeat_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches)) {
-   $repeatfreq = $matches[1];
-  }
+  // parse out the repeating data, if any
+  $rspecs = unserialize($row['pc_recurrspec']); // extract recurring data
+  $repeattype = $rspecs['event_repeat_freq_type'];
+  $repeatfreq = $rspecs['event_repeat_freq'];
+  $repeatexdate = $rspecs['exdate']; // repeating date exceptions
+
   $hometext = $row['pc_hometext'];
   if (substr($hometext, 0, 6) == ':text:') $hometext = substr($hometext, 6);
  }
@@ -829,31 +1022,6 @@ if ( $GLOBALS['dutchpc'] ) { ?>
         //END (CHEMED) modifications
     }
 
- // Check for errors when the form is submitted.
- function validate() {
-  var f = document.getElementById('theform');
-  if (f.form_repeat.checked &&
-      (! f.form_enddate.value || f.form_enddate.value < f.form_date.value)) {
-   alert('An end date later than the start date is required for repeated events!');
-   return false;
-  }
-  var form_action = document.getElementById('form_action');
-  form_action.value="save";
-  f.submit();
-  top.restoreSession();
-  return true;
- }
-
- function deleteEvent() {
-    if (confirm("Deleting this event cannot be undone. It cannot be recovered once it is gone.\nAre you sure you wish to delete this event?")) {
-        var f = document.getElementById('theform');
-        var form_action = document.getElementById('form_action');
-        form_action.value="delete";
-        f.submit();
-        return true;
-    }
-    return false;
- }
 
 </script>
 
@@ -893,6 +1061,9 @@ if ( $eid ) { // editing case
 
 <form method='post' name='theform' id='theform' action='add_edit_event.php?eid=<?php echo $eid ?>' />
 <input type="hidden" name="form_action" id="form_action" value="">
+<input type="hidden" name="recurr_affect" id="recurr_affect" value="">
+<!-- used for recurring events -->
+<input type="hidden" name="selected_date" id="selected_date" value="<?php echo $date; ?>">
 <center>
 
 <table border='0' width='100%'>
@@ -922,7 +1093,7 @@ if ( $eid ) { // editing case
   </td>
   <td nowrap>
    <input type='text' size='10' name='form_date' id='form_date'
-    value='<?php echo $eid ? $row['pc_eventDate'] : $date ?>'
+    value='<?php echo $date ?>'
     title='<?php xl('yyyy-mm-dd event date or starting date','e'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
@@ -989,17 +1160,19 @@ if ( $eid ) { // editing case
 // DBC DUTCH SYSTEM
 // cascading dropdowns
 // =======================================================
-
-if ( $eid ) { // editing mode
-  $activ = what_activity( $singleeid );
-
-  if ( empty($activ) ) {
-    $activ = "No activity selected.";
-  } else {
-    $activ = what_full_sysid($activ);
-    $_SESSION['editactiv'] = FALSE;
-  }
+if ( $GLOBALS['dutchpc'] ) {
+    if ( $eid ) { // editing mode
+      $activ = what_activity( $singleeid );
+    
+      if ( empty($activ) ) {
+        $activ = "No activity selected.";
+      } else {
+        $activ = what_full_sysid($activ);
+        $_SESSION['editactiv'] = FALSE;
+      }
+    }
 }
+// end DBC DUTCH SYSTEM
 ?>
     <tr>
         <td><b>Current activity:</b><br /><a href="#" id="addc">&lt;&lt;Add/Change&gt;&gt;</a></td>
@@ -1169,6 +1342,7 @@ echo '</select>';
   <td nowrap>
    &nbsp;&nbsp;
    <input type='checkbox' name='form_repeat' onclick='set_repeat(this)' value='1'<?php if ($repeats) echo " checked" ?>/>
+   <input type='hidden' name='form_repeat_exdate' id='form_repeat_exdate' value='<?php echo $repeatexdate; ?>' /> <!-- dates excluded from the repeat -->
   </td>
   <td nowrap id='tdrepeat1'><?php xl('Repeats','e'); ?>
   </td>
@@ -1237,6 +1411,18 @@ echo '</select>';
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_enddate' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
     title='<?php xl('Click here to choose a date','e');?>'>
+<?php
+if ($repeatexdate != "") {
+    $tmptitle = "The following dates are excluded from the repeating series";
+    if ($multiple_value) { $tmptitle .= " for one or more providers:\n"; }
+    else { $tmptitle .= "\n"; }
+    $exdates = explode(",", $repeatexdate);
+    foreach ($exdates as $exdate) {
+        $tmptitle .= date("d M Y", strtotime($exdate))."\n";
+    }
+    echo "<a href='#' title='$tmptitle' alt='$tmptitle'><img src='../../pic/warning.gif' title='$tmptitle' alt='*!*' style='border:none;'/></a>";
+}
+?>
   </td>
  </tr>
 
@@ -1272,16 +1458,27 @@ echo '</select>';
 </table>
 
 <p>
-<input type='button' name='form_save' value='<?php xl('Save','e');?>' onclick="validate()" />
+<input type='button' name='form_save' id='form_save' value='<?php xl('Save','e');?>' />
 &nbsp;
-<input type='button' value='<?php xl('Find Available','e');?>' onclick='find_available()' />
+<input type='button' id='find_available' value='<?php xl('Find Available','e');?>' />
 &nbsp;
-<input type='button' name='form_delete' value='<?php xl('Delete','e');?>'<?php if (!$eid) echo " disabled" ?> onclick='deleteEvent()'/>
+<input type='button' name='form_delete' id='form_delete' value='<?php xl('Delete','e');?>'<?php if (!$eid) echo " disabled" ?> />
 &nbsp;
-<input type='button' value='<?php xl('Cancel','e');?>' onclick='window.close()' />
+<input type='button' id='cancel' value='<?php xl('Cancel','e');?>' />
 </p>
 </center>
 </form>
+
+<div id="recurr_popup" style="visibility: hidden; position: absolute; top: 50px; left: 50px; width: 400px; border: 3px outset yellow; background-color: yellow; padding: 5px;">
+Apply the changes to the Current event only, to this and all Future occurrences, or to All occurances?
+<br>
+<input type="button" name="all_events" id="all_events" value="  All  ">
+<input type="button" name="future_events" id="future_events" value="Future">
+<input type="button" name="current_event" id="current_event" value="Current">
+<input type="button" name="recurr_cancel" id="recurr_cancel" value="Cancel">
+</div>
+
+</body>
 
 <script language='JavaScript'>
 <?php if ($eid) { ?>
@@ -1297,5 +1494,82 @@ echo '</select>';
  Calendar.setup({inputField:"form_dob", ifFormat:"%Y-%m-%d", button:"img_dob"});
 </script>
 
-</body>
+<script language="javascript">
+// jQuery stuff to make the page a little easier to use
+
+$(document).ready(function(){
+    $("#form_save").click(function() { validate(); });
+    $("#find_available").click(function() { find_available(); });
+    $("#form_delete").click(function() { deleteEvent(); });
+    $("#cancel").click(function() { window.close(); });
+
+    // buttons affecting the modification of a repeating event
+    $("#all_events").click(function() { $("#recurr_affect").val("all"); EnableForm(); SubmitForm(); });
+    $("#future_events").click(function() { $("#recurr_affect").val("future"); EnableForm(); SubmitForm(); });
+    $("#current_event").click(function() { $("#recurr_affect").val("current"); EnableForm(); SubmitForm(); });
+    $("#recurr_cancel").click(function() { $("#recurr_affect").val(""); EnableForm(); HideRecurrPopup(); });
+});
+
+// Check for errors when the form is submitted.
+function validate() {
+    var f = document.getElementById('theform');
+    if (f.form_repeat.checked &&
+        (! f.form_enddate.value || f.form_enddate.value < f.form_date.value)) {
+        alert('An end date later than the start date is required for repeated events!');
+        return false;
+    }
+    $('#form_action').val("save");
+
+    <?php if ($repeats): ?>
+    // existing repeating events need additional prompt
+    if ($("#recurr_affect").val() == "") {
+        DisableForm();
+        // show the current/future/all DIV for the user to choose one
+        $("#recurr_popup").css("visibility", "visible");
+        return false;
+    }
+    <?php endif; ?>
+
+    return SubmitForm();
+}
+
+// disable all the form elements outside the recurr_popup
+function DisableForm() {
+    $("#theform").children().attr("disabled", "true");
+}
+function EnableForm() {
+    $("#theform").children().removeAttr("disabled");
+}
+// hide the recurring popup DIV
+function HideRecurrPopup() {
+    $("#recurr_popup").css("visibility", "hidden");
+}
+
+function deleteEvent() {
+    if (confirm("Deleting this event cannot be undone. It cannot be recovered once it is gone.\nAre you sure you wish to delete this event?")) {
+        $('#form_action').val("delete");
+
+        <?php if ($repeats): ?>
+        // existing repeating events need additional prompt
+        if ($("#recurr_affect").val() == "") {
+            DisableForm();
+            // show the current/future/all DIV for the user to choose one
+            $("#recurr_popup").css("visibility", "visible");
+            return false;
+        }
+        <?php endif; ?>
+
+        return SubmitForm();
+    }
+    return false;
+}
+
+function SubmitForm() {
+    $('#theform').submit();
+    top.restoreSession();
+    return true;
+}
+
+</script>
+
 </html>
