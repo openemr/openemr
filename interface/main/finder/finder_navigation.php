@@ -19,12 +19,13 @@ include_once("../../globals.php");
 <tr>
 
 <td style="text-align:left; width: 250px; white-space: nowrap;">
-<input type="textbox" size="10" name="patient">
+<input type="textbox" size="10" name="patient" value="<?php echo $_REQUEST['patient']; ?>" >
 <select name="findBy">
-<option value="ID"><?php xl('ID','e');?></option>
-<option value="Last" selected><?php xl('Name','e');?></option>
-<option value="SSN"><?php xl('SSN','e');?></option>
-<option value="DOB"><?php xl('DOB','e');?></option>
+<option value="Last" <?php if ($_REQUEST['findBy'] == 'Last') echo 'selected' ?>><?php xl('Name','e');?></option>
+<option value="Phone" <?php if ($_REQUEST['findBy'] == 'Phone') echo 'selected' ?>><?php xl('Phone','e');?></option>
+<option value="ID" <?php if ($_REQUEST['findBy'] == 'ID') echo 'selected' ?>><?php xl('ID','e');?></option>
+<option value="SSN" <?php if ($_REQUEST['findBy'] == 'SSN') echo 'selected' ?>><?php xl('SSN','e');?></option>
+<option value="DOB" <?php if ($_REQUEST['findBy'] == 'DOB') echo 'selected' ?>><?php xl('DOB','e');?></option>
 </select>
 <a href="javascript:top.restoreSession();document.find_patient.action='<?php echo $rootdir?>/main/finder/patient_finder.php';document.find_patient.submit();" class="link">&nbsp;<?php xl('Find Patient','e');?></a>
 </td>
