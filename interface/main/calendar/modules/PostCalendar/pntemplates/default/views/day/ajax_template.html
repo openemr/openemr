@@ -39,7 +39,7 @@ $timeslotHeightUnit="px";
  }
 
  function oldEvt(eventdate, eventid) {
-  dlgopen('add_edit_event.php?eid=' + eventid, '_blank', 550, 270);
+  dlgopen('add_edit_event.php?date='+eventdate+'&eid=' + eventid, '_blank', 550, 270);
  }
 
  function goPid(pid) {
@@ -424,7 +424,6 @@ foreach ($providers as $provider) {
                     array_push($events_in_timeslot, $e1['eid']);
                 }
             }
-
             $leftpos = 0;
             $width = 100 / count($events_in_timeslot);
 
@@ -450,7 +449,7 @@ foreach ($providers as $provider) {
             // skip events for other providers
             // yeah, we've got that sort of overhead here... it ain't perfect
             if ($providerid != $event['aid']) { continue; }
-
+            
             // skip events without an ID (why they are in the loop, I have no idea)
             if ($event['eid'] == "") { continue; }
                 
