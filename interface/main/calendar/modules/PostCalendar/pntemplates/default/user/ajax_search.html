@@ -80,8 +80,10 @@ at
 
 $eventCount = 0;
 foreach ($A_EVENTS as $eDate => $date_events) {
+    $eventdate = substr($eDate, 0, 4) . substr($eDate, 5, 2) . substr($eDate, 8, 2);
+
     foreach ($date_events as $event) {
-        $eData = $event['eid']."~";
+        $eData = $event['eid']."~".$eventdate;
         $trTitle = "Click to edit this event";
         echo "<tr class='calsearch_event' id='".$eData."' title='".$trTitle."'>";
 
@@ -159,7 +161,7 @@ $(document).ready(function(){
 var EditEvent = function (eObj) {
     objID = eObj.id;
     var parts = objID.split("~");
-    dlgopen('add_edit_event.php?eid=' + parts[0], '_blank', 550, 270);
+    dlgopen('add_edit_event.php?date='+ parts[1] +'&eid=' + parts[0], '_blank', 550, 270);
 }
 
 // show the 'searching...' status and submit the form
