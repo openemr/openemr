@@ -1354,10 +1354,9 @@ function calculateEvents($days,$events,$viewtype) {
       case NO_REPEAT :
 
         if(isset($days[$event['eventDate']])) {
-          array_push($days[$event['eventDate']],$event);
+        array_push($days[$event['eventDate']],$event);
           if ($viewtype == "week") {
             //echo "non repeating date eventdate: $eventD  startime:$eventS block #: " . getBlockTime($eventS) ."<br />";
-
             fillBlocks($eventD,&$days);
             //echo "for $eventD loading " . getBlockTime($eventS) . "<br /><br />";
             $gbt = getBlockTime($eventS);
@@ -1380,6 +1379,8 @@ function calculateEvents($days,$events,$viewtype) {
 
         $rfreq = $event_recurrspec['event_repeat_freq'];
         $rtype = $event_recurrspec['event_repeat_freq_type'];
+        $exdate = $event_recurrspec['exdate']; // this attribute follows the iCalendar spec http://www.ietf.org/rfc/rfc2445.txt
+
         // we should bring the event up to date to make this a tad bit faster
         // any ideas on how to do that, exactly??? dateToDays probably.
         $nm = $esM; $ny = $esY; $nd = $esD;
@@ -1388,11 +1389,26 @@ function calculateEvents($days,$events,$viewtype) {
           $occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
           list($ny,$nm,$nd) = explode('-',$occurance);
         }
+
         while($occurance <= $stop) {
           if(isset($days[$occurance])) {
-            array_push($days[$occurance],$event);
+            // check for date exceptions before pushing the event into the days array -- JRM
+            $excluded = false;
+            if (isset($exdate)) {
+                foreach (explode(",", $exdate) as $exception) {
+                    // occurrance format == yyyy-mm-dd
+                    // exception format == yyyymmdd
+                    if (preg_replace("/-/", "", $occurance) == $exception) {
+                        $excluded = true;
+                    }
+                }
+            }
+
+            // push event into the days array
+            if ($excluded == false) array_push($days[$occurance],$event);
+
             if ($viewtype == "week") {
-              fillBlocks($occurance,&$days);
+              fillBlocks($occurance, &$days);
               //echo "for $occurance loading " . getBlockTime($eventS) . "<br /><br />";
               $gbt = getBlockTime($eventS);
               $days[$occurance]['blocks'][$gbt][$occurance][] = $event;
@@ -1417,25 +1433,41 @@ function calculateEvents($days,$events,$viewtype) {
         $rfreq = $event_recurrspec['event_repeat_on_freq'];
         $rnum  = $event_recurrspec['event_repeat_on_num'];
         $rday  = $event_recurrspec['event_repeat_on_day'];
+        $exdate = $event_recurrspec['exdate']; // this attribute follows the iCalendar spec http://www.ietf.org/rfc/rfc2445.txt
 
         //==============================================================
         //  Populate - Enter data into the event array
         //==============================================================
         $nm = $esM; $ny = $esY; $nd = $esD;
         // make us current
-
         while($ny < $cy) {
           $occurance = date('Y-m-d',mktime(0,0,0,$nm+$rfreq,$nd,$ny));
           list($ny,$nm,$nd) = explode('-',$occurance);
         }
+
         // populate the event array
         while($ny <= $cy) {
           $dnum = $rnum; // get day event repeats on
           do {
               $occurance = Date_Calc::NWeekdayOfMonth($dnum--,$rday,$nm,$ny,$format="%Y-%m-%d");
           } while($occurance === -1);
+
           if(isset($days[$occurance]) && $occurance <= $stop) {
-            array_push($days[$occurance],$event);
+            // check for date exceptions before pushing the event into the days array -- JRM
+            $excluded = false;
+            if (isset($exdate)) {
+                foreach (explode(",", $exdate) as $exception) {
+                    // occurrance format == yyyy-mm-dd
+                    // exception format == yyyymmdd
+                    if (preg_replace("/-/", "", $occurance) == $exception) {
+                        $excluded = true;
+                    }
+                }
+            }
+            
+            // push event into the days array
+            if ($excluded == false) array_push($days[$occurance],$event);
+
             if ($viewtype == "week") {
               fillBlocks($occurance,&$days);
               //echo "for $occurance loading " . getBlockTime($eventS) . "<br /><br />";
