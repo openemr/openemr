@@ -73,7 +73,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 #bigCal table {
     border-collapse: collapse;
     border: none;
-    vertical-align:middle
+    vertical-align:middle;
     width: 100%;
 }
 #bigCal td {
