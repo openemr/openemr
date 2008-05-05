@@ -1,3 +1,5 @@
+<?php include_once("../../../interface/globals.php");?>
+
 <html><head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
@@ -11,8 +13,6 @@ function win() {
 </script>
                                                                                 
 <?php
-include_once("../../../interface/globals.php");
-
 if ( isset($_POST['saveas']) ) { 
   $as1 = $_POST['box1']; $as2 = $_POST['box2']; $as3 = $_POST['box3'];
   //$_SESSION['as5'] = array('gaf1' => $as1, 'gaf2' => $as2, 'gaf3' => $as3);

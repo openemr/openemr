@@ -1,3 +1,5 @@
+<?php include_once("../../../interface/globals.php");?>
+
 <html><head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
@@ -11,8 +13,6 @@ function win() {
 </script>
                                                                                 
 <?php
-include_once("../../../interface/globals.php");
-
 if ( isset($_POST['saveas']) ) { 
   // only one level records for as = 4
   $as = $_POST['box1'];
