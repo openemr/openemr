@@ -214,7 +214,7 @@ if ($res = sqlStatement("select * from forms where authorized = 0 and " .
     //$authorize[$iter{"pid"}]{"forms"} = substr($authorize[$iter{"pid"}]{"forms"},0,strlen($authorize[$iter{"pid"}]{"forms"}));
   }
 }
-echo "HERE";
+// echo "HERE"; // what the heck was this for?
 ?>
 
 <table border='0' cellpadding='0' cellspacing='2' width='100%'>
