@@ -1,21 +1,31 @@
 <?php
 require_once("{$GLOBALS['srcdir']}/sql.inc");
 
-$ISSUE_TYPES = array(
- // table type               plural              singular    abbrev style
- 'medical_problem' => array('Medical Problems', 'Problem'   , 'P',  0),
- 'allergy'         => array('Allergies'       , 'Allergy'   , 'A',  0),
- 'medication'      => array('Medications'     , 'Medication', 'M',  0),
- 'surgery'         => array('Surgeries'       , 'Surgery'   , 'S',  0),
- 'dental'          => array('Dental Issues'   , 'Dental'    , 'D',  0)
- //
- // Styles are:
- // 0 - Normal, as in 2.8.1.
- // 1 - Simplified: only title, start date, comments and an Active checkbox;
- //     no diagnosis, occurrence, end date, referred-by or sports fields.
- //     Internally we'll still use a null end date to indicate active.
- //
-);
+if (empty($GLOBALS['athletic_team'])) {
+  $ISSUE_TYPES = array(
+    // table type               plural              singular    abbrev style
+    'medical_problem' => array('Medical Problems', 'Problem'   , 'P',  0),
+    'allergy'         => array('Allergies'       , 'Allergy'   , 'A',  0),
+    'medication'      => array('Medications'     , 'Medication', 'M',  0),
+    'surgery'         => array('Surgeries'       , 'Surgery'   , 'S',  0),
+    'dental'          => array('Dental Issues'   , 'Dental'    , 'D',  0),
+    //
+    // Styles are:
+    // 0 - Normal, as in 2.8.1.
+    // 1 - Simplified: only title, start date, comments and an Active checkbox;
+    //     no diagnosis, occurrence, end date, referred-by or sports fields.
+    //     Internally we'll still use a null end date to indicate active.
+    // 2 - Football Injury.
+    //
+  );
+}
+else { // sports team version
+  $ISSUE_TYPES = array(
+    'football_injury' => array('Football Injuries', 'Injury'    , 'I',  2),
+    'medical_problem' => array('Medical Problems' , 'Problem'   , 'P',  0),
+    'general'         => array('General'          , 'General'   , 'G',  1),
+  );
+}
 
 $ISSUE_OCCURRENCES = array(
   0   => xl('Unknown or N/A'),
