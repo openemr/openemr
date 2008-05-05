@@ -51,12 +51,20 @@
 <script language="JavaScript">
 
  function gopid(pid) {
-<?php  if ($_GET['embed']) { ?>
-  top.location = '../patient_file/patient_file.php?set_pid=' + pid;
-<?php  } else { ?>
-  opener.top.location = '../patient_file/patient_file.php?set_pid=' + pid;
-  window.close();
-<?php  } ?>
+<?php
+$maintop = $_GET['embed'] ? "top" : "opener.top";
+echo "  $maintop.restoreSession();\n";
+if ($GLOBALS['concurrent_layout']) {
+  if( $GLOBALS['dutchpc'] ) {
+    echo "  $maintop.RTop.location = '../patient_file/summary/demographics_dutch.php?set_pid=' + pid;\n";
+  } else {
+    echo "  $maintop.RTop.location = '../patient_file/summary/demographics.php?set_pid=' + pid;\n";
+  }
+} else {
+  echo "  $maintop.location = '../patient_file/patient_file.php?set_pid=' + pid;\n";
+}
+if (empty($_GET['embed'])) echo "  window.close();\n";
+?>
  }
 
 </script>
