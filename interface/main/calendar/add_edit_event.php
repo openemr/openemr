@@ -557,7 +557,6 @@ if ($_POST['form_action'] == "save") {
             $args = $_POST;
             // specify some special variables needed for the INSERT
             $args['new_multiple_value'] = "";
-            $args['form_provider'] = $provider;
             $args['event_date'] = $event_date;
             $args['duration'] = $duration * 60;
             $args['recurrspec'] = $recurrspec;
