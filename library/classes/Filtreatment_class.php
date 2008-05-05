@@ -89,6 +89,10 @@ function doTreatment($input, $flag, $param1 = '', $param2 = '') {
             $input_f = $this->_fXss($input, $param1); 
         break; 
 
+        case 'DATE':
+            $input_f = $this->ft_validdate($input); 
+        break; 
+        
         default: $input_f = false;
     }
 
@@ -499,6 +503,27 @@ function _html_entity_decode($str, $charset='ISO-8859-1') {
     return $str;
 }
 
+//-----------------------------------------------------------------------------
+/**
+ * VALIDATES A DATE
+ * 
+ * must be in YYYY-MM-DD format
+ *  NEW FUNCTION FROM 1.31 version - a 'patch' for this!
+ * 
+ * @param string $str - date in requested format
+ * @return string|bool - the string itselfs only for valid date
+ */
+function ft_validdate($str) {
+    if ( preg_match("/([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})/", $str) ) {
+        $arr = split("-",$str);     // splitting the array
+        $yy = $arr[0];            // first element of the array is year
+        $mm = $arr[1];            // second element is month
+        $dd = $arr[2];            // third element is days
+        return ( checkdate($mm, $dd, $yy) ? $str : FALSE );
+    } else {
+        return FALSE;
+    }
+}
 
 } // class
 
