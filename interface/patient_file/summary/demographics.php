@@ -347,16 +347,17 @@ foreach (array('primary','secondary','tertiary') as $instype) {
 
   <td valign="top" class="text">
 <?php
-
-// Show current balance and billing note, if any.
-echo "<span class='bold'><font color='#ee6600'>Balance Due: $" .
-  get_patient_balance($pid) . "</font><br />";
-if ($result['genericname2'] == 'Billing') {
-  xl('Billing Note') . ":";
-  echo "<span class='bold'><font color='red'>" .
-    $result['genericval2'] . "</font></span>";
+if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
+  // Show current balance and billing note, if any.
+  echo "<span class='bold'><font color='#ee6600'>Balance Due: $" .
+    get_patient_balance($pid) . "</font><br />";
+  if ($result['genericname2'] == 'Billing') {
+    xl('Billing Note') . ":";
+    echo "<span class='bold'><font color='red'>" .
+      $result['genericval2'] . "</font></span>";
+  }
+  echo "</span><br />";
 }
-echo "</span><br />";
 
 // If there is a patient ID card, then show a link to it.
 if ($document_id) {
