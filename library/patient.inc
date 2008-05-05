@@ -507,9 +507,7 @@ function newPatientData(    $db_id="",
       "list_id = 'pricelevel' ORDER BY is_default DESC, seq ASC LIMIT 1");
     $pricelevel = empty($lrow['option_id']) ? '' : $lrow['option_id'];
 
-    // this was a 'replace into' statement but that would overwrite data
-    // seems like a HIPAA violation of some sort to me -- JRM Apr 2008
-    $query = ("insert into patient_data set
+    $query = ("replace into patient_data set
         id='$db_id',
         title='$title',
         fname='$fname',
