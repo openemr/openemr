@@ -876,12 +876,15 @@ function postcalendar_user_search()
     // then override the setting if we have a value from the submitted form
     $ProviderID = pnVarCleanFromInput("provider_id");
     if (is_numeric($ProviderID)) { $tpl->assign('ProviderID', $ProviderID);; }
+    elseif ($ProviderID == "_ALL_") { } // do nothing
     else { $tpl->assign('ProviderID', ""); }
 
     $provinfo = getProviderInfo();
     $tpl->assign('providers', $provinfo);
     // build a list of provider-options for the select box on the input form -- JRM
-    //$provider_options = "<option value=''>All Providers</option>";
+    $provider_options = "<option value='_ALL_' ";
+    if ($ProviderID == "_ALL_") { $provider_options .= " SELECTED "; }
+    $provider_options .= ">All Providers</option>";
     foreach ($provinfo as $provider) {
         $selected = "";
         // if we don't have a ProviderID chosen, pick the first one from the 
@@ -1087,7 +1090,7 @@ function postcalendar_user_search()
         else $searchargs['end'] = "//";
 
         // we can limit our search by provider -- JRM March 2008
-        if (isset($ProviderID) && $ProviderID!= "") {
+        if (isset($ProviderID) && $ProviderID != "" && $ProviderID != "_ALL_") {
             $searchargs['provider_id'] = array();
             array_push($searchargs['provider_id'], $ProviderID);
         }
