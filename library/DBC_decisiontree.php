@@ -104,10 +104,14 @@ function dt_main($node = 1, $dbcid = 0, $end = '') {
 function dt_preinit($dbc, $end) {
     // it sets some globals
     global $beslis_table, $dbcid, $enddate;
-    $dbcid = $dbc;
+	$dbcid =  $dbc;
+
+    // we use this _local to obtain info about dbc but *global* dbcid
+    // must remain empty if $dbc is empty; empty means called from webinterface not from a script
+    $dbcid_local =  ( $dbc ) ? $dbc : $_SESSION['show_axid'];
     $enddate = ( $end ) ? $end : $_SESSION['eind'];
 
-    $dbc = content_diagnose($dbcid);
+    $dbc = content_diagnose($dbcid_local);
     $odate = $dbc['ax_odate'];
 
     if ( $odate <= '2007-12-31' ) {
