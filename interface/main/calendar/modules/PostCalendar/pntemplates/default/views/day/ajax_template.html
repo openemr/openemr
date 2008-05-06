@@ -583,6 +583,7 @@ foreach ($providers as $provider) {
                 $divTitle .= "\n[".$atitle ."]";
                 //$content .= "<a href='javascript:oldEvt($eventdate,$eventid)' title='$atitle'>";
                 $content .= $catname;
+                if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
                 if ($comment) $content .= " $comment";
                 //$content .= "</a>";
             }
@@ -591,7 +592,9 @@ foreach ($providers as $provider) {
                 $divTitle .= "\r\n[".$catname ."] ".$fname." ".$lname;
                 $content .= "<span class='appointment'>";
                 //$content .= "<a href='javascript:oldEvt($eventdate,$eventid)' title='$catname'>";
-                $content .= $dispstarth . ':' . $startm . htmlspecialchars($event['apptstatus']);
+                $content .= $dispstarth . ':' . $startm;
+                if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
+                $content .= htmlspecialchars($event['apptstatus']);
                 //$content .= "<img src='$TPL_IMAGE_PATH/clock02.gif' border='0' title='' alt='' />";
                 //$content .= "</a>";
                 $content .= "<a href='javascript:goPid($patientid)' title='View Patient'>";

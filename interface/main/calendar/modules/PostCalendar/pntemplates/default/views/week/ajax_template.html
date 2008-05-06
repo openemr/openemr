@@ -622,6 +622,7 @@ foreach ($providers as $provider) {
                 $divTitle .= "\n[".$atitle ."]";
                 //$content .= "<a href='javascript:oldEvt($eventdate,$eventid)' title='$atitle'>";
                 $content .= $catname;
+                if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
                 if ($comment) $content .= " $comment";
                 //$content .= "</a>";
             }
@@ -630,11 +631,15 @@ foreach ($providers as $provider) {
                 $divTitle .= "\r\n[".$catname ."] ".$fname." ".$lname;
                 $content .= "<span class='appointment".$apptToggle."'>";
                 //$content .= "<a href='javascript:oldEvt($eventdate,$eventid)' title='$catname'>";
-                $content .= $dispstarth . ':' . $startm . htmlspecialchars($event['apptstatus']);
+                $content .= $dispstarth . ':' . $startm;
+                if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
+                $content .= htmlspecialchars($event['apptstatus']);
                 //$content .= "</a>";
-                $content .= "<a href='javascript:goPid($patientid)' title='$title'>";
-                $iTitle = "View Patient [".$fname." ".$lname."]";
-                $content .= "<img src='$TPL_IMAGE_PATH/user-green.gif' border='0' title='".$iTitle."' alt='".$iTitle."' />";
+                if ($patientid) {
+                    // include patient name and link to their details
+                    $content .= "<a href='javascript:goPid($patientid)' title='$title'>";
+                    $iTitle = "View Patient [".$fname." ".$lname."]";
+                    $content .= "<img src='$TPL_IMAGE_PATH/user-green.gif' border='0' title='".$iTitle."' alt='".$iTitle."' />";
                 /*
                 if ($catid == 1) $content .= "<strike>";
                 $content .= $lname;
@@ -649,7 +654,12 @@ foreach ($providers as $provider) {
                 }
                 if ($catid == 1) $content .= "</strike>";
                 */
-                $content .= "</a>";
+                    $content .= "</a>";
+                }
+                else {
+                    // no patient id, just output the category name
+                    $content .= $catname;
+                }
                 $content .= "</span>";
             }
 
