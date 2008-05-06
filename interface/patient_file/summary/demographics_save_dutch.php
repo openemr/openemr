@@ -75,11 +75,11 @@ if ( $_POST['df_pcp_rfr'] == '1' ) {
 // filtreat the variables
 $obf = new Filtreatment();
 foreach ( $provider_data as $pd => $pdv) {
-    $provider_data_clean[$pd] = $obf->doTreatment($pdv, 'SQL');
+    $provider_data_clean[$pd] = $obf->ft_dbsql($pdv);
 }
 
 foreach ( $referer_data as $rf => $rfv) {
-    $referer_data_clean[$rf] = $obf->doTreatment($rfv, 'SQL');
+    $referer_data_clean[$rf] = $obf->ft_dbsql($rfv);
 }
 
 $finrev = fixDate($_POST["financial_review"]);
@@ -90,22 +90,22 @@ $nadd       = ( isset($_POST['df_toevoe']) ) ? $_POST['df_toevoe'] : '' ;
 
 $street = $nstreet .' '. $nnr .' '. $nadd;
 
-$nstreet_clean  = $obf->doTreatment($nstreet, 'SQL');
-$nnr_clean      = $obf->doTreatment($nnr, 'INT');
-$nadd_clean     = $obf->doTreatment($nadd, 'SQL');
-$street_clean   = $obf->doTreatment($street, 'SQL');
+$nstreet_clean  = $obf->ft_dbsql($nstreet, 'SQL');
+$nnr_clean      = $obf->ft_integer($nnr);
+$nadd_clean     = $obf->ft_dbsql($nadd, 'SQL');
+$street_clean   = $obf->ft_dbsql($street);
 
-$initials_clean = $obf->doTreatment($_POST['df_voorletters'], 'SQL');
-$achternaam     = $obf->doTreatment($_POST['df_achternaam'], 'SQL');
-$roepnaam       = $obf->doTreatment($_POST['df_roepnaam'], 'SQL');
-$dob            = $obf->doTreatment($_POST['df_geboorte'], 'DATE');
+$initials_clean = $obf->ft_dbsql($_POST['df_voorletters']); 
+$achternaam     = $obf->ft_dbsql($_POST['df_achternaam']);
+$roepnaam       = $obf->ft_dbsql($_POST['df_roepnaam']);
+$dob            = $obf->ft_validdate($_POST['df_geboorte']);
 
-$postal_clean   = $obf->doTreatment($_POST['df_postal'], 'SQL');
-$plaats_clean   = $obf->doTreatment($_POST['df_plaats'], 'SQL');
+$postal_clean   = $obf->ft_dbsql($_POST['df_postal']);
+$plaats_clean   = $obf->ft_dbsql($_POST['df_plaats']);
 
 $insurance_clean= (int)$_POST['df_insurance'];
-$policy_clean   = $obf->doTreatment($_POST['df_policy'], 'SQL');
-$insdate_clean  = $obf->doTreatment($_POST['df_insdatum'], 'DATE');
+$policy_clean   = $obf->ft_dbsql($_POST['df_policy']);
+$insdate_clean  = $obf->ft_validdate($_POST['df_insdatum']);
 
 // ================================================
 //                VALIDATION STUFF
@@ -121,7 +121,7 @@ if ( !$valid ) {
 }
 
 // date of birth validation
-if ( $dob == 'INVALID' ) {
+if ( !$dob ) {
     $_SESSION['errormsg'] = 'Date must be in the form YYYY-MM-DD and must be a valid date!<br />';
     reload_form(); 
 }
@@ -132,15 +132,13 @@ if ( $insurance_clean ) {
     if ( ($insurance_clean != 1) && (!$policy_clean) ) {
         $_SESSION['errormsg']  = 'The policy number is mandatory for a choosen insurer!<br />';
     }
-    if ( $insdate_clean == 'INVALID' ) {
+    if ( !$insdate_clean ) {
         $_SESSION['errormsg'] .= 'Date must be in the form YYYY-MM-DD and must be a valid date!<br />';
     }
     if ( $_SESSION['errormsg'] ) reload_form(); 
 }
 
 // ================================================
-
-
 
 // call the functions to save the infos
 newPatientData(
@@ -191,7 +189,8 @@ newPatientData(
   '', //$_POST["pharmacy_id"],
   $_POST["df_licid"],
   '', //$_POST["hipaa_notice"],
-  $_POST["df_allowmsg"],
+  '', //$_POST["hipaa_message"],
+  $_POST["df_allowmsg"], // $regdate
   $_POST["df_voorvoegsel"],
   $_POST["df_par_voorvoegsel"],
   $_POST["df_par_achternaam"],
