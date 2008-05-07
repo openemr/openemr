@@ -32,20 +32,23 @@
 
   SLConnect();
 
-  $form_use_edate = $_POST['form_use_edate'];
-  $form_cptcode = trim($_POST['form_cptcode']);
-  $form_icdcode = trim($_POST['form_icdcode']);
+  $form_use_edate  = $_POST['form_use_edate'];
+  $form_cptcode    = trim($_POST['form_cptcode']);
+  $form_icdcode    = trim($_POST['form_icdcode']);
+  $form_procedures = empty($_POST['form_procedures']) ? 0 : 1;
+  $form_from_date  = fixDate($_POST['form_from_date'], date('Y-m-01'));
+  $form_to_date    = fixDate($_POST['form_to_date'], date('Y-m-d'));
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<title><?xl('Receipts for Medical Services','e')?></title>
+<?php html_header_show();?>
+<title><?xl('Cash Receipts by Provider','e')?></title>
 </head>
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <center>
 
-<h2><?xl('Cash Receipts','e')?></h2>
+<h2><?xl('Cash Receipts by Provider','e')?></h2>
 
 <form method='post' action='sl_receipts_report.php'>
 
@@ -79,13 +82,13 @@
    </select>
    &nbsp;<?xl('From:','e')?>
 
-   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $_POST['form_from_date'] ?>'
+   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
     title='<?php xl('Click here to choose a date','e'); ?>'>
    &nbsp;To:
-   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $_POST['form_to_date'] ?>'
+   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
@@ -100,6 +103,8 @@
     <?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?>>
    &nbsp;
    <input type='checkbox' name='form_details' value='1'<? if ($_POST['form_details']) echo " checked"; ?>><?xl('Details','e')?>
+   &nbsp;
+   <input type='checkbox' name='form_procedures' value='1'<? if ($form_procedures) echo " checked"; ?>><?xl('Procedures','e')?>
    &nbsp;
    <input type='submit' name='form_refresh' value="<?xl('Refresh','e')?>">
    &nbsp;
@@ -118,33 +123,41 @@
 
  <tr bgcolor="#dddddd">
   <td class="dehead">
-   <?xl('Practitioner','e')?>
+   <?php xl('Practitioner','e') ?>
   </td>
   <td class="dehead">
-   <?xl('Date','e')?>
+   <?php xl('Date','e') ?>
   </td>
+<?php if ($form_procedures) { ?>
   <td class="dehead">
-   <?xl('Invoice','e')?>
+   <?php xl('Invoice','e') ?>
   </td>
+<?php } ?>
 <?php if ($form_cptcode) { ?>
   <td class="dehead" align='right'>
-   <?xl('InvAmt','e')?>
+   <?php xl('InvAmt','e') ?>
   </td>
 <?php } ?>
 <?php if ($form_cptcode) { ?>
   <td class="dehead">
-   <?xl('Insurance','e')?>
+   <?php xl('Insurance','e') ?>
   </td>
 <?php } ?>
+<?php if ($form_procedures) { ?>
   <td class="dehead">
-   <?xl('Procedure','e')?>
+   <?php xl('Procedure','e') ?>
   </td>
   <td class="dehead" align="right">
-   <?xl('Prof.','e')?>
+   <?php xl('Prof.','e') ?>
   </td>
   <td class="dehead" align="right">
-   <?xl('Clinic','e')?>
+   <?php xl('Clinic','e') ?>
   </td>
+<?php } else { ?>
+  <td class="dehead" align="right">
+   <?php xl('Received','e') ?>
+  </td>
+<?php } ?>
  </tr>
 <?
   $chart_id_cash = SLQueryValue("select id from chart where accno = '$sl_cash_acc'");
@@ -152,8 +165,6 @@
 
   if ($_POST['form_refresh']) {
     $form_doctor = $_POST['form_doctor'];
-    $from_date = fixDate($_POST['form_from_date']);
-    $to_date   = fixDate($_POST['form_to_date']);
 
     if ($form_cptcode) {
       $query = "SELECT acc_trans.amount, acc_trans.transdate, " .
@@ -177,11 +188,11 @@
     }
 
     if ($form_use_edate) {
-      $query .= "ar.transdate >= '$from_date' and " .
-      "ar.transdate <= '$to_date'";
+      $query .= "ar.transdate >= '$form_from_date' and " .
+      "ar.transdate <= '$form_to_date'";
     } else {
-      $query .= "acc_trans.transdate >= '$from_date' and " .
-      "acc_trans.transdate <= '$to_date'";
+      $query .= "acc_trans.transdate >= '$form_from_date' and " .
+      "acc_trans.transdate <= '$form_to_date'";
     }
 
     if ($form_doctor) {
@@ -242,7 +253,7 @@
 
       $amount1 = 0;
       $amount2 = 0;
-      if (is_clinic($row['memo']))
+      if ($form_procedures && is_clinic($row['memo']))
         $amount2 -= $row['amount'];
       else
         $amount1 -= $row['amount'];
@@ -253,15 +264,17 @@
 ?>
 
  <tr bgcolor="#ddddff">
-  <td class="detail" colspan="<?php echo $form_cptcode ? '6' : '4'; ?>">
+  <td class="detail" colspan="<?php echo ($form_cptcode ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
    <? echo xl('Totals for ') . $docname ?>
   </td>
   <td class="dehead" align="right">
-   <? bucks($doctotal1) ?>
+   <?php bucks($doctotal1) ?>
   </td>
+<?php if ($form_procedures) { ?>
   <td class="dehead" align="right">
-   <? bucks($doctotal2) ?>
+   <?php bucks($doctotal2) ?>
   </td>
+<?php } ?>
  </tr>
 <?
         }
@@ -277,14 +290,16 @@
 
  <tr>
   <td class="detail">
-   <? echo $docnameleft; $docnameleft = "&nbsp;" ?>
+   <?php echo $docnameleft; $docnameleft = "&nbsp;" ?>
   </td>
   <td class="detail">
-   <? echo $row['transdate'] ?>
+   <?php echo $row['transdate'] ?>
   </td>
+<?php if ($form_procedures) { ?>
   <td class="detail">
-   <? echo $row['invnumber'] ?>
+   <?php echo $row['invnumber'] ?>
   </td>
+<?php } ?>
 <?php if ($form_cptcode) { ?>
   <td class="detail" align='right'>
    <?php bucks($row['sellprice'] * $row['qty']) ?>
@@ -295,15 +310,19 @@
    <?php echo $insconame ?>
   </td>
 <?php } ?>
+<?php if ($form_procedures) { ?>
   <td class="detail">
-   <? echo $row['memo'] ?>
+   <?php echo $row['memo'] ?>
   </td>
+<?php } ?>
   <td class="detail" align="right">
-   <? bucks($amount1) ?>
+   <?php bucks($amount1) ?>
   </td>
+<?php if ($form_procedures) { ?>
   <td class="detail" align="right">
-   <? bucks($amount2) ?>
+   <?php bucks($amount2) ?>
   </td>
+<?php } ?>
  </tr>
 <?
       }
@@ -315,27 +334,31 @@
 ?>
 
  <tr bgcolor="#ddddff">
-  <td class="detail" colspan="<?php echo $form_cptcode ? '6' : '4'; ?>">
+  <td class="detail" colspan="<?php echo ($form_cptcode ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
    <?echo xl('Totals for ') . $docname ?>
   </td>
   <td class="dehead" align="right">
-   <? bucks($doctotal1) ?>
+   <?php bucks($doctotal1) ?>
   </td>
+<?php if ($form_procedures) { ?>
   <td class="dehead" align="right">
-   <? bucks($doctotal2) ?>
+   <?php bucks($doctotal2) ?>
   </td>
+<?php } ?>
  </tr>
 
  <tr bgcolor="#ffdddd">
-  <td class="detail" colspan="<?php echo $form_cptcode ? '6' : '4'; ?>">
-   <?xl('Grand Totals','e')?>
+  <td class="detail" colspan="<?php echo ($form_cptcode ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
+   <?php xl('Grand Totals','e') ?>
   </td>
   <td class="dehead" align="right">
-   <? bucks($grandtotal1) ?>
+   <?php bucks($grandtotal1) ?>
   </td>
+<?php if ($form_procedures) { ?>
   <td class="dehead" align="right">
-   <? bucks($grandtotal2) ?>
+   <?php bucks($grandtotal2) ?>
   </td>
+<?php } ?>
  </tr>
 
 <?
