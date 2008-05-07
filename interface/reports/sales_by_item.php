@@ -19,23 +19,53 @@
       printf("%.2f", $amount);
   }
 
+  function display_desc($desc) {
+    if (preg_match('/^\S*?:(.+)$/', $desc, $matches)) {
+      $desc = $matches[1];
+    }
+    return $desc;
+  }
+
   if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
 
   SLConnect();
 
   $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
   $form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
+
+  if ($_POST['form_csvexport']) {
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Content-Type: application/force-download");
+    header("Content-Disposition: attachment; filename=sales_by_item.csv");
+    header("Content-Description: File Transfer");
+    // CSV headers:
+    if ($_POST['form_details']) {
+      echo '"Item",';
+      echo '"Date",';
+      echo '"Invoice",';
+      echo '"Qty",';
+      echo '"Amount"' . "\n";
+    }
+    else {
+      echo '"Item",';
+      echo '"Qty",';
+      echo '"Total"' . "\n";
+    }
+  }
+  else {
 ?>
 <html>
 <head>
-<? html_header_show();?>
-<title><?xl('Sales by Item','e')?></title>
+<?php html_header_show();?>
+<title><?php xl('Sales by Item','e') ?></title>
 </head>
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <center>
 
-<h2><?xl('Sales by Item','e')?></h2>
+<h2><?php xl('Sales by Item','e')?></h2>
 
 <form method='post' action='sales_by_item.php'>
 
@@ -56,9 +86,11 @@
     id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
     title='<?php xl('Click here to choose a date','e'); ?>'>
    &nbsp;
-   <input type='checkbox' name='form_details' value='1'<? if ($_POST['form_details']) echo " checked"; ?>><?xl('Details','e')?>
+   <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details','e') ?>
    &nbsp;
-   <input type='submit' name='form_refresh' value="<?xl('Refresh','e')?>">
+   <input type='submit' name='form_refresh' value="<?php xl('Refresh','e') ?>">
+   &nbsp;
+   <input type='submit' name='form_csvexport' value="<?php xl('Export to CSV','e') ?>">
    &nbsp;
    <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
   </td>
@@ -90,8 +122,10 @@
    <?xl('Amount','e')?>
   </td>
  </tr>
-<?
-  if ($_POST['form_refresh']) {
+<?php
+  } // end not export
+
+  if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     $from_date = $form_from_date;
     $to_date   = $form_to_date;
 
@@ -127,11 +161,19 @@
       if ($product != $rowproduct) {
         if ($product) {
           // Print product total.
+          if ($_POST['form_csvexport']) {
+            if (! $_POST['form_details']) {
+              echo '"' . display_desc($product) . '",';
+              echo '"' . $productqty            . '",';
+              echo '"'; bucks($producttotal); echo '"' . "\n";
+            }
+          }
+          else {
 ?>
 
  <tr bgcolor="#ddddff">
   <td class="detail" colspan="3">
-   <? echo xl('Total for ') . $product ?>
+   <? echo xl('Total for ') . display_desc($product) ?>
   </td>
   <td class="dehead" align="right">
    <?php echo $productqty; ?>
@@ -140,7 +182,8 @@
    <?php bucks($producttotal); ?>
   </td>
  </tr>
-<?
+<?php
+          } // End not csv export
         }
         $producttotal = 0;
         $productqty = 0;
@@ -149,11 +192,19 @@
       }
 
       if ($_POST['form_details']) {
+        if ($_POST['form_csvexport']) {
+          echo '"' . display_desc($product         ) . '",';
+          echo '"' . display_desc($row['transdate']) . '",';
+          echo '"' . display_desc($row['invnumber']) . '",';
+          echo '"' . display_desc($row['qty']      ) . '",';
+          echo '"'; bucks($rowamount); echo '"' . "\n";
+        }
+        else {
 ?>
 
  <tr>
   <td class="detail">
-   <?php echo $productleft; $productleft = "&nbsp;"; ?>
+   <?php echo display_desc($productleft); $productleft = "&nbsp;"; ?>
   </td>
   <td class="dehead">
    <?php echo $row['transdate']; ?>
@@ -169,17 +220,27 @@
   </td>
  </tr>
 <?
+        } // End not csv export
       }
       $producttotal += $rowamount;
       $grandtotal   += $rowamount;
       $productqty   += $row['qty'];
       $grandqty     += $row['qty'];
     }
+
+    if ($_POST['form_csvexport']) {
+      if (! $_POST['form_details']) {
+        echo '"' . display_desc($product) . '",';
+        echo '"' . $productqty            . '",';
+        echo '"'; bucks($producttotal); echo '"' . "\n";
+      }
+    }
+    else {
 ?>
 
  <tr bgcolor="#ddddff">
   <td class="detail" colspan="3">
-   <?echo xl('Total for ') . $product ?>
+   <?php echo xl('Total for ') . display_desc($product) ?>
   </td>
   <td class="dehead" align="right">
    <?php echo $productqty; ?>
@@ -202,8 +263,11 @@
  </tr>
 
 <?
+    } // End not csv export
   }
   SLClose();
+
+  if (! $_POST['form_csvexport']) {
 ?>
 
 </table>
@@ -222,3 +286,6 @@
 </script>
 
 </html>
+<?php
+  } // End not csv export
+?>
