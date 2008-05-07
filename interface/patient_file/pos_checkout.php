@@ -242,7 +242,7 @@ function generate_receipt($patient_id) {
 <br><?php echo $frow['city'] . ', ' . $frow['state'] . ' ' . $frow['postal_code'] ?>
 <br><?php echo $frow['phone'] ?>
 <br>&nbsp;
-<br><?php echo date('F j, Y') ?>
+<br><?php echo xl("Receipt Generated") . date(' F j, Y') ?>
 <br>&nbsp;
 </b></p>
 </center>
@@ -253,7 +253,7 @@ function generate_receipt($patient_id) {
 <br>&nbsp;
 </p>
 <center>
-<table>
+<table cellpadding='5'>
  <tr>
   <td><b><?php xl('Date','e'); ?></b></td>
   <td><b><?php xl('Description','e'); ?></b></td>
@@ -268,6 +268,7 @@ function generate_receipt($patient_id) {
   "trans_id = $trans_id AND sellprice != 0 ORDER BY id");
  if ($sl_err) die($sl_err);
 
+ $svcdispdate = $svcdate;
  for ($irow = 0; $irow < SLRowCount($inres); ++$irow) {
   $row = SLGetRow($inres, $irow);
   $price = sprintf('%01.2f', $row['sellprice']);
@@ -277,12 +278,13 @@ function generate_receipt($patient_id) {
   $charges += $amount;
   $desc = preg_replace('/^.{1,6}:/', '', $row['description']);
   echo " <tr>\n";
-  echo "  <td>$svcdate</td>\n";
+  echo "  <td>$svcdispdate</td>\n";
   echo "  <td>$desc</td>\n";
   echo "  <td align='right'>$price</td>\n";
   echo "  <td align='right'>" . $row['qty'] . "</td>\n";
   echo "  <td align='right'>$amount</td>\n";
   echo " </tr>\n";
+  $svcdispdate = '&nbsp;';
  }
 ?>
 
