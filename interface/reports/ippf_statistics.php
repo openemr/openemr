@@ -269,10 +269,45 @@ function getAge($dob, $asof='') {
   return $age;
 }
 
+$cellcount = 0;
+
+function genStartRow($att) {
+  global $cellcount;
+  if (! $_POST['form_csvexport']) echo " <tr $att>\n";
+  $cellcount = 0;
+}
+
+function genEndRow() {
+  if ($_POST['form_csvexport']) {
+    echo "\n";
+  }
+  else {
+    echo " </tr>\n";
+  }
+}
+
+function genAnyCell($data, $right=false, $class='') {
+  global $cellcount;
+  if ($_POST['form_csvexport']) {
+    if ($cellcount) echo ',';
+    echo '"' . $data . '"';
+  }
+  else {
+    echo "  <td";
+    if ($class) echo " class='$class'";
+    if ($right) echo " align='right'";
+    echo ">$data</td>\n";
+  }
+  ++$cellcount;
+}
+
+function genHeadCell($data, $right=false) {
+  genAnyCell($data, $right, 'dehead');
+}
+
 function genNumCell($num) {
-  echo "  <td class='detail' align='right'>";
-  echo empty($num) ? '&nbsp;' : $num;
-  echo "</td>\n";
+  if (empty($num) && !$_POST['form_csvexport']) $num = '&nbsp;';
+  genAnyCell($num, $right, 'detail');
 }
 
 // Translate an IPPF code to the corresponding descriptive name of its
@@ -619,10 +654,22 @@ function process_icd_code($row) {
 }
 *********************************************************************/
 
+  // If we are doing the CSV export then generate the needed HTTP headers.
+  // Otherwise generate HTML.
+  //
+  if ($_POST['form_csvexport']) {
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Content-Type: application/force-download");
+    header("Content-Disposition: attachment; filename=service_statistics_report.csv");
+    header("Content-Description: File Transfer");
+  }
+  else {
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <title><?php xl('Service Statistics Report','e'); ?></title>
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 <style type="text/css">
@@ -664,10 +711,11 @@ function process_icd_code($row) {
 ?>
    </select>
   </td>
-  <td valign='top' rowspan='3' nowrap>
-   &nbsp;
-   <input type='submit' name='form_refresh' value='<?php xl('Show','e'); ?>' title='<?php xl('Click to generate the report','e'); ?>'> :
-  </td>
+  <td align='center' valign='top' rowspan='3' nowrap
+   ><input type='submit' name='form_refresh' value='<?php xl('Show','e'); ?>' title='<?php xl('Click to generate the report','e'); ?>'
+   /><br /><?php xl('or','e'); ?><br
+   /><input type='submit' name='form_csvexport' value='<?php xl('Export','e'); ?>' title='<?php xl('Click to downlaod in CSV format','e'); ?>'
+   /></td>
   <td valign='top' rowspan='3'>
    <select name='form_show[]' size='4' multiple
     title='<?php xl('Hold down Ctrl to select multiple items','e'); ?>'>
@@ -731,7 +779,9 @@ function process_icd_code($row) {
 </table>
 
 <?php
-  if ($_POST['form_refresh']) {
+  } // end not export
+
+  if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     $sexcond = '';
     if ($form_sexes == '1') $sexcond = "AND pd.sex NOT LIKE 'Male' ";
     else if ($form_sexes == '2') $sexcond = "AND pd.sex LIKE 'Male' ";
@@ -757,11 +807,6 @@ function process_icd_code($row) {
       "WHERE fe.date >= '$from_date 00:00:00' AND " .
       "fe.date <= '$to_date 23:59:59' " .
       "ORDER BY fe.pid, fe.encounter, b.code_type, b.code";
-
-
-    // TBD: Export to Excel!
-
-
     $res = sqlStatement($query);
 
     while ($row = sqlFetchArray($res)) {
@@ -787,54 +832,52 @@ function process_icd_code($row) {
     ksort($arr_titles['rel']);
     ksort($arr_titles['nat']);
     ksort($arr_titles['mar']);
-?>
 
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
+    if (! $_POST['form_csvexport']) {
+      echo "<table border='0' cellpadding='1' cellspacing='2' width='98%'>\n";
+    } // end not csv export
 
- <tr bgcolor="#dddddd">
-  <td class="dehead">
-   <?php echo $arr_by[$form_by]; ?>
-  </td>
+    genStartRow("bgcolor='#dddddd'");
+    genHeadCell($arr_by[$form_by]);
 
-<?php
     // Generate headings for values to be shown.
     foreach ($form_show as $value) {
       if ($value == '1') { // Total Services
-        echo "  <td class='dehead' align='right'>" . xl('Services') . "</td>\n";
+        genHeadCell(xl('Services'));
       }
       else if ($value == '2') { // Age
-        echo "  <td class='dehead' align='right'>" . xl('0-10' ) . "</td>\n";
-        echo "  <td class='dehead' align='right'>" . xl('11-14') . "</td>\n";
-        echo "  <td class='dehead' align='right'>" . xl('15-19') . "</td>\n";
-        echo "  <td class='dehead' align='right'>" . xl('20-24') . "</td>\n";
-        echo "  <td class='dehead' align='right'>" . xl('25-29') . "</td>\n";
-        echo "  <td class='dehead' align='right'>" . xl('30-34') . "</td>\n";
-        echo "  <td class='dehead' align='right'>" . xl('35-39') . "</td>\n";
-        echo "  <td class='dehead' align='right'>" . xl('40-44') . "</td>\n";
-        echo "  <td class='dehead' align='right'>" . xl('45+'  ) . "</td>\n";
+        genHeadCell(xl('0-10' ), true);
+        genHeadCell(xl('11-14'), true);
+        genHeadCell(xl('15-19'), true);
+        genHeadCell(xl('20-24'), true);
+        genHeadCell(xl('25-29'), true);
+        genHeadCell(xl('30-34'), true);
+        genHeadCell(xl('35-39'), true);
+        genHeadCell(xl('40-44'), true);
+        genHeadCell(xl('45+'  ), true);
       }
       else if ($value == '3') { // Sex
-        echo "  <td class='dehead' align='right'>" . xl('Women') . "</td>\n";
-        echo "  <td class='dehead' align='right'>" . xl('Men'  ) . "</td>\n";
+        genHeadCell(xl('Women'), true);
+        genHeadCell(xl('Men'  ), true);
       }
       else if ($value == '4') { // Religion
         foreach ($arr_titles['rel'] as $key => $value) {
-          echo "  <td class='dehead' align='right'>$key</td>\n";
+          genHeadCell($key, true);
         }
       }
       else if ($value == '5') { // Nationality
         foreach ($arr_titles['nat'] as $key => $value) {
-          echo "  <td class='dehead' align='right'>$key</td>\n";
+          genHeadCell($key, true);
         }
       }
       else if ($value == '6') { // Marital Status
         foreach ($arr_titles['mar'] as $key => $value) {
-          echo "  <td class='dehead' align='right'>$key</td>\n";
+          genHeadCell($key, true);
         }
       }
     }
 
-    echo " </tr>\n";
+    genEndRow();
 
     $encount = 0;
 
@@ -855,8 +898,9 @@ function process_icd_code($row) {
         if (!empty($crow['code_text'])) $dispkey .= ' ' . $crow['code_text'];
       }
 
-      echo " <tr bgcolor='$bgcolor'>\n";
-      echo "  <td class='detail'>$dispkey</td>\n";
+      genStartRow("bgcolor='$bgcolor'");
+
+      genAnyCell($dispkey, false, 'detail');
 
       // Generate data for this row.
       foreach ($form_show as $value) {
@@ -899,14 +943,14 @@ function process_icd_code($row) {
         }
       }
 
-      echo " </tr>\n";
+      genEndRow();
     } // end foreach
+
+    if (! $_POST['form_csvexport']) echo "</table>\n";
+  } // end of if refresh or export
+
+  if (! $_POST['form_csvexport']) {
 ?>
-
-</table>
-
-<?php } // end of if ($_POST['form_refresh']) ?>
-
 </form>
 </center>
 
@@ -917,3 +961,6 @@ function process_icd_code($row) {
 
 </body>
 </html>
+<?php
+  } // end not export
+?>
