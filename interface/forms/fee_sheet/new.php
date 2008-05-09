@@ -154,6 +154,13 @@ if ($_POST['bn_save']) {
     }
   } // end for
 
+  // Set the service provider also in the new-encounter form.  This matters
+  // when only products are sold and so there are no billing table items
+  // to hold the provider ID.
+  sqlStatement("UPDATE forms, users SET forms.user = users.username WHERE " .
+    "forms.pid = '$pid' AND forms.encounter = '$encounter' AND " .
+    "forms.formdir = 'newpatient' AND users.id = '$provid'");
+
   // This part exists for IPPF clinics and will not be invoked unless
   // contrastart is enabled in the demographics layout.
   if (!empty($_POST['contrastart'])) {
@@ -161,10 +168,9 @@ if ($_POST['bn_save']) {
       $_POST['contrastart'] . "' WHERE pid = '$pid'");
   }
 
-  // Note: I was going to compute taxes here, but now I think better to
-  // do that at checkout time (in pos_checkout.php which also posts to SL).
-  // Currently taxes with insurance claims make no sense, so for now we'll
-  // ignore tax computation in the insurance billing logic.
+  // Note: Taxes are computed at checkout time (in pos_checkout.php which
+  // also posts to SL).  Currently taxes with insurance claims make no sense,
+  // so for now we'll ignore tax computation in the insurance billing logic.
 
   formHeader("Redirecting....");
   formJump();
@@ -797,8 +803,10 @@ if ($billresult) {
       $modifier, $ndc_info,  $authorized,
       $del, $units, $fee, $iter["id"], $iter["billed"],
       $iter["code_text"], $justify);
-    // If no default provider yet then try this one.
-    if ($encounter_provid < 0 && ! $del) $encounter_provid = $iter["provider_id"];
+
+    // If no default provider yet then try this one (excluding copays).
+    if ($encounter_provid < 0 && !$del && $iter["code_type"] != 'COPAY')
+      $encounter_provid = $iter["provider_id"];
   }
 }
 
