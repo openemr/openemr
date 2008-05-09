@@ -43,6 +43,8 @@ function real2form($fldval) {
  return htmlspecialchars($fldval, ENT_QUOTES);
 }
 
+if (empty($spreadsheet_title)) $spreadsheet_title = 'Injury Log';
+
 // Putting an error message in here will result in a javascript alert.
 $alertmsg = '';
 
@@ -124,7 +126,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
         "'$form_completed|$start_date|$template_name' " .
         ")");
       sqlStatement("UNLOCK TABLES");
-      addForm($encounter, "Injury Log", $formid, "$spreadsheet_form_name",
+      addForm($encounter, $spreadsheet_title, $formid, "$spreadsheet_form_name",
         $pid, $userauthorized);
     }
     $saveid = $formid;
