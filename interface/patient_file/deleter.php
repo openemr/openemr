@@ -17,6 +17,7 @@
  $issue       = $_REQUEST['issue'];
  $document    = $_REQUEST['document'];
  $payment     = $_REQUEST['payment'];
+ $billing     = $_REQUEST['billing'];
 
  $info_msg = "";
 
@@ -79,7 +80,7 @@ function decorateString($fmt, $str) {
 <html>
 <head>
 <?php html_header_show();?>
-<title><?php xl('Delete Patient, Encounter, Form, Issue or Document','e'); ?></title>
+<title><?php xl('Delete Patient, Encounter, Form, Issue, Document, Payment or Billing','e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
@@ -196,6 +197,26 @@ td { font-size:10pt; }
       row_delete("payments", "id = '" . $payrow['id'] . "'");
     }
   }
+  else if ($billing) {
+    list($patient_id, $encounter_id) = explode(".", $billing);
+    slInitialize();
+    $trans_id = SLQueryValue("SELECT id FROM ar WHERE ar.invnumber = '$billing' LIMIT 1");
+    if ($trans_id) {
+      newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], "Invoice $billing from SQL-Ledger");
+      SLQuery("DELETE FROM acc_trans WHERE trans_id = '$trans_id'");
+      if ($sl_err) die($sl_err);
+      SLQuery("DELETE FROM invoice WHERE trans_id = '$trans_id'");
+      if ($sl_err) die($sl_err);
+      SLQuery("DELETE FROM ar WHERE id = '$trans_id'");
+      if ($sl_err) die($sl_err);
+      sqlStatement("UPDATE drug_sales SET billed = 0 WHERE " .
+        "pid = '$patient_id' AND encounter = '$encounter_id'");
+      updateClaim(true, $patient_id, $encounter_id, -1, 1, 0, ''); // clears for rebilling
+    } else {
+      $info_msg .= "Invoice '$billing' not found!";
+    }
+    SLClose();
+  }
   else {
    die("Nothing was recognized to delete!");
   }
@@ -213,7 +234,7 @@ td { font-size:10pt; }
  }
 ?>
 
-<form method='post' action='deleter.php?patient=<?php echo $patient ?>&encounterid=<?php echo $encounterid ?>&formid=<?php echo $formid ?>&issue=<?php echo $issue ?>&document=<?php echo $document ?>&payment=<?php echo $payment ?>'>
+<form method='post' action='deleter.php?patient=<?php echo $patient ?>&encounterid=<?php echo $encounterid ?>&formid=<?php echo $formid ?>&issue=<?php echo $issue ?>&document=<?php echo $document ?>&payment=<?php echo $payment ?>&billing=<?php echo $billing ?>'>
 
 <p>&nbsp;<br><?php xl('
 Do you really want to delete','e'); ?>
@@ -231,6 +252,8 @@ Do you really want to delete','e'); ?>
   echo "document $document";
  } else if ($payment) {
   echo "payment $payment";
+ } else if ($billing) {
+  echo "invoice $billing";
  }
 ?> <?php xl('and all subordinate data? This action will be logged','e'); ?>!</p>
 
