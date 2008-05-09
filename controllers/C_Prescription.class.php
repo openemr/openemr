@@ -492,12 +492,19 @@ class C_Prescription extends Controller {
 	}
 
 	function do_lookup() {
-		if ($_POST['process'] != "true")
-			return;
+		if ($_POST['process'] != "true") {
+                    // don't do a lookup
+		    $this->assign("drug", $_GET['drug']);
+                    return;
+                }
+
+                // process the lookup
+		$this->assign("drug", $_POST['drug']);
 		$list = array();
 		if (!empty($_POST['drug'])) {
 			$list = @RxList::get_list($_POST['drug']);
 		}
+
 		if (is_array($list)) {
 			$list = array_flip($list);
 			$this->assign("drug_options",$list);
