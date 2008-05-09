@@ -106,25 +106,31 @@ function upperFirst(string,text) {
 
 <?php for ($i=1;$i<=3;$i++) { ?>
 function auto_populate_employer_address<?php echo $i ?>(){
- if (document.demographics_form.i<?php echo $i?>subscriber_relationship.options[document.demographics_form.i<?php echo $i?>subscriber_relationship.selectedIndex].value == "self") {
-  document.demographics_form.i<?php echo $i?>subscriber_fname.value=document.demographics_form.form_fname.value;
-  document.demographics_form.i<?php echo $i?>subscriber_mname.value=document.demographics_form.form_mname.value;
-  document.demographics_form.i<?php echo $i?>subscriber_lname.value=document.demographics_form.form_lname.value;
-  document.demographics_form.i<?php echo $i?>subscriber_street.value=document.demographics_form.form_street.value;
-  document.demographics_form.i<?php echo $i?>subscriber_city.value=document.demographics_form.form_city.value;
-  document.demographics_form.i<?php echo $i?>subscriber_state.value=document.demographics_form.form_state.value;
-  document.demographics_form.i<?php echo $i?>subscriber_postal_code.value=document.demographics_form.form_postal_code.value;
-  document.demographics_form.i<?php echo $i?>subscriber_country.value=document.demographics_form.form_country_code.value;
-  document.demographics_form.i<?php echo $i?>subscriber_phone.value=document.demographics_form.form_phone_home.value;
-  document.demographics_form.i<?php echo $i?>subscriber_DOB.value=document.demographics_form.form_DOB.value;
-  document.demographics_form.i<?php echo $i?>subscriber_ss.value=document.demographics_form.form_ss.value;
-  document.demographics_form.i<?php echo $i?>subscriber_sex.selectedIndex = document.demographics_form.form_sex.selectedIndex;
-  document.demographics_form.i<?php echo $i?>subscriber_employer.value=document.demographics_form.form_em_name.value;
-  document.demographics_form.i<?php echo $i?>subscriber_employer_street.value=document.demographics_form.form_em_street.value;
-  document.demographics_form.i<?php echo $i?>subscriber_employer_city.value=document.demographics_form.form_em_city.value;
-  document.demographics_form.i<?php echo $i?>subscriber_employer_state.value=document.demographics_form.form_em_state.value;
-  document.demographics_form.i<?php echo $i?>subscriber_employer_postal_code.value=document.demographics_form.form_em_postal_code.value;
-  document.demographics_form.i<?php echo $i?>subscriber_employer_country.value=document.demographics_form.form_em_country.value;
+ var f = document.demographics_form;
+ if (f.i<?php echo $i?>subscriber_relationship.options[f.i<?php echo $i?>subscriber_relationship.selectedIndex].value == "self") {
+  f.i<?php echo $i?>subscriber_fname.value=f.form_fname.value;
+  f.i<?php echo $i?>subscriber_mname.value=f.form_mname.value;
+  f.i<?php echo $i?>subscriber_lname.value=f.form_lname.value;
+  f.i<?php echo $i?>subscriber_street.value=f.form_street.value;
+  f.i<?php echo $i?>subscriber_city.value=f.form_city.value;
+  f.i<?php echo $i?>subscriber_state.value=f.form_state.value;
+  f.i<?php echo $i?>subscriber_postal_code.value=f.form_postal_code.value;
+  if (f.form_country_code)
+    f.i<?php echo $i?>subscriber_country.value=f.form_country_code.value;
+  f.i<?php echo $i?>subscriber_phone.value=f.form_phone_home.value;
+  f.i<?php echo $i?>subscriber_DOB.value=f.form_DOB.value;
+  f.i<?php echo $i?>subscriber_ss.value=f.form_ss.value;
+  //
+  // TBD: This is a kludge. subscriber_sex should come from the same list as form_sex!
+  f.i<?php echo $i?>subscriber_sex.selectedIndex = f.form_sex.selectedIndex - 1;
+  //
+  f.i<?php echo $i?>subscriber_employer.value=f.form_em_name.value;
+  f.i<?php echo $i?>subscriber_employer_street.value=f.form_em_street.value;
+  f.i<?php echo $i?>subscriber_employer_city.value=f.form_em_city.value;
+  f.i<?php echo $i?>subscriber_employer_state.value=f.form_em_state.value;
+  f.i<?php echo $i?>subscriber_employer_postal_code.value=f.form_em_postal_code.value;
+  if (f.form_em_country)
+    f.i<?php echo $i?>subscriber_employer_country.value=f.form_em_country.value;
  }
 }
 
