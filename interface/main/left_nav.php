@@ -562,7 +562,8 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
       <li class="open"><span><?php xl('Visits','e') ?></span>
         <ul>
           <?php genTreeLink('RTop','cal','Calendar'); ?>
-          <?php genTreeLink('RBot','nen','New'); ?>
+          <?php if ($GLOBALS['athletic_team']) genTreeLink('RTop','ros','Roster'); ?>
+          <?php genTreeLink('RBot','nen','New Visit'); ?>
           <?php genTreeLink('RBot','enc','Current'); ?>
           <?php genTreeLink('RBot','ens','List'); ?>
           <?php genTreeLink('RBot','tra','Transact'); ?>
