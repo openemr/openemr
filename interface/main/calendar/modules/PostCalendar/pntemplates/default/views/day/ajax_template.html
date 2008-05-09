@@ -597,21 +597,27 @@ foreach ($providers as $provider) {
                 $content .= htmlspecialchars($event['apptstatus']);
                 //$content .= "<img src='$TPL_IMAGE_PATH/clock02.gif' border='0' title='' alt='' />";
                 //$content .= "</a>";
-                $content .= "<a href='javascript:goPid($patientid)' title='View Patient'>";
-                $content .= "<img src='$TPL_IMAGE_PATH/user-green.gif' border='0' title='View Patient' alt='View Patient' />";
-                if ($catid == 1) $content .= "<strike>";
-                $content .= $lname;
-                if ($GLOBALS['calendar_appt_style'] != 1) {
-                    $content .= "," . $fname;
-                    if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
-                        $content .= "(" . $event['title'];
-                        if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4)
-                        $content .= ": <font color='green'>" . htmlspecialchars(trim($event['hometext'])) . "</font>";
-                        $content .= ")";
+                if ($patientid) {
+                    $content .= "<a href='javascript:goPid($patientid)' title='View Patient'>";
+                    $content .= "<img src='$TPL_IMAGE_PATH/user-green.gif' border='0' title='View Patient' alt='View Patient' />";
+                    if ($catid == 1) $content .= "<strike>";
+                    $content .= $lname;
+                    if ($GLOBALS['calendar_appt_style'] != 1) {
+                        $content .= "," . $fname;
+                        if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
+                            $content .= "(" . $event['title'];
+                            if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4)
+                            $content .= ": <font color='green'>" . htmlspecialchars(trim($event['hometext'])) . "</font>";
+                            $content .= ")";
+                        }
                     }
+                    if ($catid == 1) $content .= "</strike>";
+                    $content .= "</a>";
                 }
-                if ($catid == 1) $content .= "</strike>";
-                $content .= "</a>";
+                else {
+                    // no patient id, just output the category name
+                    $content .= $catname;
+                }
                 $content .= "</span>";
             }
 
