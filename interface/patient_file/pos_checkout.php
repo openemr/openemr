@@ -234,6 +234,31 @@ function generate_receipt($patient_id) {
 <?php html_header_show(); ?>
 <link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <title><?php xl('Receipt for Payment','e'); ?></title>
+<script type="text/javascript" src="../../library/dialog.js"></script>
+<script language="JavaScript">
+
+<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+
+ // Process click on Print button.
+ function printme() {
+  var divstyle = document.getElementById('hideonprint').style;
+  divstyle.display = 'none';
+  window.print();
+  return false;
+ }
+
+ // Process click on Delete button.
+ function deleteme() {
+  dlgopen('deleter.php?billing=<?php echo "$patient_id.$encounter"; ?>', '_blank', 500, 450);
+  return false;
+ }
+
+ // Called by the deleteme.php window on a successful delete.
+ function imdeleted() {
+  window.close();
+ }
+
+</script>
 </head>
 <body class="body_top">
 <center>
@@ -337,7 +362,12 @@ function generate_receipt($patient_id) {
  </tr>
 </table>
 </center>
-<p>&nbsp;<a href='' onclick='window.print(); return false;'><?php xl('Print','e'); ?></a></p>
+<div id='hideonprint'>
+<p>&nbsp;<a href='#' onclick='return printme();'><?php xl('Print','e'); ?></a></p>
+<?php if (acl_check('admin', 'super')) { ?>
+<p>&nbsp;<a href='#' onclick='return deleteme();'><?php xl('Undo Checkout','e'); ?></a></p>
+<?php } ?>
+</div>
 </body>
 </html>
 <?php
@@ -522,6 +552,14 @@ function markTaxes($taxrates) {
   exit();
  }
 
+// Get the valid practitioners, including those not active.
+$arr_users = array();
+$ures = sqlStatement("SELECT id, username FROM users WHERE " .
+  "( authorized = 1 OR info LIKE '%provider%' ) AND username != ''");
+while ($urow = sqlFetchArray($ures)) {
+  $arr_users[$urow['id']] = '1';
+}
+
  // Now write a data entry form:
  // List unbilled billing items (cpt, hcpcs, copays) for the patient.
  // List unbilled prescription sales for the patient.
@@ -660,13 +698,15 @@ while ($brow = sqlFetchArray($bres)) {
     $tmp = sqlQuery($query);
     $taxrates = $tmp['taxrates'];
     markTaxes($taxrates);
+    // catch provider id from non-copay items if we do not have it yet.
+    if (!$inv_provider && !empty($arr_users[$brow['provider_id']]))
+      $inv_provider = $brow['provider_id'] + 0;
   }
 
   write_form_line($code_type, $brow['code'], $brow['id'], $thisdate,
     ucfirst(strtolower($brow['code_text'])), $brow['fee'], $brow['units'],
     $taxrates);
   if (!$inv_encounter) $inv_encounter = $brow['encounter'];
-  if (!$inv_provider ) $inv_provider  = $brow['provider_id'];
   $inv_payer = $brow['payer_id'];
   if (!$inv_date || $inv_date < $thisdate) $inv_date = $thisdate;
 }
@@ -676,7 +716,8 @@ while ($drow = sqlFetchArray($dres)) {
 
   $thisdate = $drow['sale_date'];
   if (!$inv_encounter) $inv_encounter = $drow['encounter'];
-  if (!$inv_provider ) $inv_provider  = $drow['provider_id'] + 0;
+  if (!$inv_provider && !empty($arr_users[$drow['provider_id']]))
+    $inv_provider = $drow['provider_id'] + 0;
   if (!$inv_date || $inv_date < $thisdate) $inv_date = $thisdate;
   // $total += $drow['fee'];
 
@@ -705,7 +746,7 @@ if ($inv_encounter && !$inv_provider) {
     "forms.encounter = '$inv_encounter' AND " .
     "forms.formdir = 'newpatient' AND " .
     "users.username = forms.user LIMIT 1");
-  $inv_provider = $erow['id'];
+  $inv_provider = $erow['id'] + 0;
 }
 ?>
 </table>
