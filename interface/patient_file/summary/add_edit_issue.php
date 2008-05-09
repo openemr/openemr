@@ -6,10 +6,19 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
- include_once("../../globals.php");
- include_once("$srcdir/lists.inc");
- include_once("$srcdir/patient.inc");
- include_once("$srcdir/acl.inc");
+ require_once("../../globals.php");
+ require_once("$srcdir/lists.inc");
+ require_once("$srcdir/patient.inc");
+ require_once("$srcdir/acl.inc");
+
+if ($ISSUE_TYPES['football_injury']) {
+  // Most of the logic for the "football injury" issue type comes from this
+  // included script.  We might eventually refine this approach to support
+  // a plug-in architecture for custom issue types.
+  require_once("$srcdir/football_injury.inc.php");
+}
+
+$diagnosis_type = $GLOBALS['athletic_team'] ? 'OSICS10' : 'ICD9';
 
  $issue = $_REQUEST['issue'];
  $thispid = $_REQUEST['thispid'] ? $_REQUEST['thispid'] : $pid;
@@ -28,19 +37,35 @@
   return "NULL";
  }
 
- function rbinput($name, $value, $desc, $colname) {
+function rbvalue($rbname) {
+  $tmp = $_POST[$rbname];
+  if (! $tmp) $tmp = '0';
+  return "'$tmp'";
+}
+
+function cbvalue($cbname) {
+  return $_POST[$cbname] ? '1' : '0';
+}
+
+function invalue($inname) {
+  return (int) trim($_POST[$inname]);
+}
+
+function txvalue($txname) {
+  return "'" . trim($_POST[$txname]) . "'";
+}
+
+function rbinput($name, $value, $desc, $colname) {
   global $irow;
   $ret  = "<input type='radio' name='$name' value='$value'";
   if ($irow[$colname] == $value) $ret .= " checked";
   $ret .= " />$desc";
   return $ret;
- }
+}
 
- function rbvalue($rbname) {
-  $tmp = $_POST[$rbname];
-  if (! $tmp) $tmp = '0';
-  return "'$tmp'";
- }
+function rbcell($name, $value, $desc, $colname) {
+ return "<td width='25%' nowrap>" . rbinput($name, $value, $desc, $colname) . "</td>\n";
+}
 
 ?>
 <html>
@@ -92,6 +117,8 @@ td { font-size:10pt; }
  }
 ?>
 
+<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+
  // React to selection of an issue type.  This loads the associated
  // shortcuts into the selection list of titles, and determines which
  // rows are displayed or hidden.
@@ -113,8 +140,14 @@ td { font-size:10pt; }
   document.getElementById('row_referredby').style.display = (f.form_referredby.value) ? '' : comdisp;
   document.getElementById('row_comments'  ).style.display = (f.form_comments.value) ? '' : revdisp;
 <?php if ($GLOBALS['athletic_team']) { ?>
-  document.getElementById('row_returndate').style.display = comdisp;
+  // document.getElementById('row_returndate').style.display = comdisp;
   document.getElementById('row_missed'    ).style.display = comdisp;
+<?php
+  if ($ISSUE_TYPES['football_injury']) {
+    // Generate more of these for football injury fields.
+    issue_football_injury_newtype();
+  }
+?>
 <?php } ?>
  }
 
@@ -149,6 +182,25 @@ td { font-size:10pt; }
     (today.getMonth() + 1) + '-' + today.getDate();
   }
  }
+
+// This is for callback by the find-code popup.
+// Appends to or erases the current list of diagnoses.
+function set_related(codetype, code, selector, codedesc) {
+ var f = document.forms[0];
+ var s = f.form_diagnosis.value;
+ if (code) {
+  if (s.length > 0) s += ';';
+  s += codetype + ':' + code;
+ } else {
+  s = '';
+ }
+ f.form_diagnosis.value = s;
+}
+
+// This invokes the find-code popup.
+function sel_diagnosis() {
+ dlgopen('../encounter/find_code_popup.php?codetype=<?php echo $diagnosis_type ?>', '_blank', 500, 400);
+}
 
 </script>
 
@@ -225,6 +277,8 @@ td { font-size:10pt; }
 
   }
 
+  if ($text_type == 'football_injury') issue_football_injury_save($issue);
+
   $tmp_title = $ISSUE_TYPES[$text_type][2] . ": $form_begin " .
    substr($_POST['form_title'], 0, 40);
 
@@ -248,6 +302,8 @@ td { font-size:10pt; }
    if ($key == $irow['type']) break;
    ++$type_index;
   }
+
+  /*******************************************************************
   // Get all of the eligible diagnoses.
   // We include the pid in this search for better performance,
   // because it's part of the primary key:
@@ -261,6 +317,8 @@ td { font-size:10pt; }
    "billing.code_type LIKE 'OSICS' OR " .
    "billing.code_type LIKE 'UCSMC' )"
   );
+  *******************************************************************/
+
  }
 ?>
 <form method='post' name='theform' action='add_edit_issue.php?issue=<?php echo $issue ?>'>
@@ -329,7 +387,7 @@ td { font-size:10pt; }
   </td>
  </tr>
 
- <tr<?php if (! $GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_returndate'>
+ <tr<?php if (true) echo " style='display:none;'"; // was if (! $GLOBALS['athletic_team']) ?> id='row_returndate'>
   <td valign='top' nowrap><b><?php xl('Returned to Play','e'); ?>:</b></td>
   <td>
    <input type='text' size='10' name='form_return' id='form_return'
@@ -346,6 +404,8 @@ td { font-size:10pt; }
  <tr id='row_diagnosis'>
   <td valign='top' nowrap><b><?php xl('Diagnosis','e'); ?>:</b></td>
   <td>
+
+<?php /************************************************************ ?>
    <select name='form_diagnosis' title='<?php xl('Diagnosis must be coded into a linked encounter','e'); ?>'>
     <option value=""><?php xl('Unknown or N/A','e'); ?></option>
 <?php
@@ -356,6 +416,13 @@ td { font-size:10pt; }
  }
 ?>
    </select>
+<?php ************************************************************/ ?>
+
+   <input type='text' size='50' name='form_diagnosis'
+    value='<?php echo $irow['diagnosis'] ?>' onclick='sel_diagnosis()'
+    title='<?php xl('Click to select or change diagnoses','e'); ?>'
+    style='width:100%' readonly />
+
   </td>
  </tr>
 
@@ -440,6 +507,12 @@ td { font-size:10pt; }
  </tr>
 
 </table>
+
+<?php
+  if ($ISSUE_TYPES['football_injury']) {
+    issue_football_injury_form($issue);
+  }
+?>
 
 <p>
 <input type='submit' name='form_save' value='<?php xl('Save','e'); ?>' />
