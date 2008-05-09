@@ -1,6 +1,7 @@
 <html>
 <head>
 {php}html_header_show();{/php}
+<link rel="stylesheet" href="{php}echo $GLOBALS['css_header']; {/php}" type="text/css">
 <script language="Javascript">
 {literal}
 		function my_process () {
@@ -55,7 +56,7 @@ textarea {
 		<input TYPE="HIDDEN" NAME="action" VALUE="{xl t='Search'}">
 		<div ALIGN="CENTER" CLASS="infobox">
 			Drug:
-			<input TYPE="TEXT" NAME="drug" VALUE=""/>
+			<input TYPE="TEXT" NAME="drug" VALUE="{$drug}"/>
 			<input TYPE="SUBMIT" NAME="action" VALUE="{xl t='Search'}" class="button"/>
 		</div>
 		<input type="hidden" name="process" value="{$PROCESS}" />
