@@ -350,3 +350,45 @@ a:hover { color: #A28268; text-decoration: underline; }
 #documents_actions table {
     width: 100%;
 }
+
+
+/*=============================================================
+ * For the prescription list page
+ *============================================================*/
+#prescription_list {
+    padding: 0px;
+    margin: 2px;
+    width: 100%;
+}
+#prescription_list table {
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px solid #999;
+    background-color: white;
+}
+#prescription_list th {
+    background-color: #999;
+    font-size:0.8em;
+}
+#prescription_list td {
+  font-size:0.7em;
+  border-bottom: 1px solid #999;
+}
+#prescription_list a {
+  font-size:0.8em;
+  text-decoration:none;
+}
+#prescription_list .onescript {
+    cursor: pointer; cursor: hand;
+}
+#prescription_list .inactive {
+  color:#777777;
+}
+#prescription_list .highlight {
+    background-color: #336699;
+    color: white;
+}
+#prescription_list #print_links {
+    width: 100%;
+    text-align: right;
+}
