@@ -2,8 +2,16 @@
 <head>
 {php}html_header_show();{/php}
 
+<link rel="stylesheet" href="{php}echo $GLOBALS['css_header']; {/php}" type="text/css">
+<link rel="stylesheet" href="{$WEBROOT}/interface/themes/jquery.autocomplete.css" type="text/css">
+
+<script type="text/javascript" src="{$WEBROOT}/library/dialog.js"></script>
+<script type="text/javascript" src="{$WEBROOT}/library/js/jquery-1.2.2.min.js"></script>
+<script type="text/javascript" src="{$WEBROOT}/library/js/jquery.bgiframe.min.js"></script>
+<script type="text/javascript" src="{$WEBROOT}/library/js/jquery.dimensions.pack.js"></script>
+<script type="text/javascript" src="{$WEBROOT}/library/js/jquery.autocomplete.pack.js"></script>
 {literal}
- <style type="text/css" title="mystyles" media="all">
+<style type="text/css" title="mystyles" media="all">
 <!--
 td {
 	font-size:8pt;
@@ -23,7 +31,6 @@ textarea {
 }
 -->
 </style>
-<script type="text/javascript" src="library/dialog.js"></script>
 <script language='JavaScript'>
 
  // This holds all the default drug attributes.
@@ -83,7 +90,7 @@ textarea {
 {/literal}
 </head>
 <body {$STYLE.BOTTOM_BG_LINE}>
-<form name="prescribe" method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
+<form name="prescribe" id="prescribe" method="post" action="{$FORM_ACTION}">
 <table CELLSPACING="0" CELLPADDING="3">
 <tr>
   <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Currently Active'}</td>
@@ -113,7 +120,8 @@ textarea {
 <tr>
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Drug'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-		<input type="input" size="20" name="drug" value="{$prescription->drug}"/><input class="button" type="BUTTON" onClick="drugPopup=window.open('controller.php?prescription&lookup', 'drugPopup', 'width=400,height=50,menubar=no,titlebar=no,left = 825,top = 400'); drugPopup.opener=self; return true;" value="Drug Lookup"/>
+            <input type="input" size="20" name="drug" id="drug" value="{$prescription->drug}"/>
+            <input id="druglookup" class="button" type="BUTTON" value="Drug Lookup"/>
 	</td>
 </tr>
 
@@ -131,7 +139,7 @@ textarea {
 <tr>
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Quantity'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-		<input TYPE="TEXT" NAME="quantity" SIZE="10" MAXLENGTH="31"
+		<input TYPE="TEXT" NAME="quantity" id="quantity" SIZE="10" MAXLENGTH="31"
 		 VALUE="{$prescription->quantity}"
 		 onchange="quantityChanged()" />
 	</td>
@@ -143,23 +151,23 @@ textarea {
 {/if}
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Medicine Units'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-		<input TYPE="TEXT" NAME="size" SIZE="11" MAXLENGTH="10" VALUE="{$prescription->size}"/>
-		<select name="unit">{html_options options=$prescription->unit_array selected=$prescription->unit}</select>
+		<input TYPE="TEXT" NAME="size" id="size" SIZE="11" MAXLENGTH="10" VALUE="{$prescription->size}"/>
+		<select name="unit" id="unit">{html_options options=$prescription->unit_array selected=$prescription->unit}</select>
 	</td>
 </tr>
 <tr>
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Take'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 {if $SIMPLIFIED_PRESCRIPTIONS && !$prescription->form && !$prescription->route && !$prescription->interval}
-		<input TYPE="text" NAME="dosage" SIZE="30" MAXLENGTH="100" VALUE="{$prescription->dosage}" />
-		<input type="hidden" name="form" value="0" />
-		<input type="hidden" name="route" value="0" />
-		<input type="hidden" name="interval" value="0" />
+		<input TYPE="text" NAME="dosage" id="dosage" SIZE="30" MAXLENGTH="100" VALUE="{$prescription->dosage}" />
+		<input type="hidden" name="form" id="form" value="0" />
+		<input type="hidden" name="route" id="route" value="0" />
+		<input type="hidden" name="interval" id="interval" value="0" />
 {else}
-		<input TYPE="TEXT" NAME="dosage" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->dosage}"/> {xl t='in'}
-		<select name="form">{html_options options=$prescription->form_array selected=$prescription->form}</select>
-		<select name="route">{html_options options=$prescription->route_array selected=$prescription->route}</select>
-		<select name="interval">{html_options options=$prescription->interval_array selected=$prescription->interval}</select>
+		<input TYPE="TEXT" NAME="dosage" id="dosage" SIZE="2" MAXLENGTH="10" VALUE="{$prescription->dosage}"/> {xl t='in'}
+		<select name="form" id="form">{html_options options=$prescription->form_array selected=$prescription->form}</select>
+		<select name="route" id="route">{html_options options=$prescription->route_array selected=$prescription->route}</select>
+		<select name="interval" id="interval">{html_options options=$prescription->interval_array selected=$prescription->interval}</select>
 {/if}
 	</td>
 </tr>
@@ -228,4 +236,72 @@ textarea {
 </script>
 </form>
 </body>
+
+{literal}
+<!-- for the fancy jQuery stuff -->
+<script type="text/javascript">
+$().ready(function() {
+    $("#drug").autocomplete('library/ajax/prescription_drugname_lookup.php', 
+                            {
+                            width: 200,
+                            scrollHeight: 100,
+                            selectFirst: true
+                            });
+    $("#drug").focus();
+    $("#prescribe").submit(function() { return CheckForErrors(this) });
+    $("#druglookup").click(function() { DoDrugLookup(this) });
+});
+
+
+// pop up a drug lookup window with the value of the drug name, if we have one
+function DoDrugLookup(eObj) {
+    drugname = "";
+    if ($('#drug').val() != "") { drugname = $('#drug').val(); }
+    drugPopup = window.open('controller.php?prescription&lookup&drug='+drugname, 'drugPopup', 'width=400,height=50,menubar=no,titlebar=no,left = 825,top = 400'); 
+    drugPopup.opener = self;
+    return true;
+}
+
+
+// check the form for required fields before submitting
+var CheckForErrors = function(eObj) {
+    // REQUIRED FIELDS
+    if (CheckRequired('drug') == false) { return false; }
+    //if (CheckRequired('quantity') == false) { return false; }
+    //if (CheckRequired('unit') == false) { return false; }
+    //if (CheckRequired('size') == false) { return false; }
+    //if (CheckRequired('dosage') == false) { return false; }
+    //if (CheckRequired('form') == false) { return false; }
+    //if (CheckRequired('route') == false) { return false; }
+    //if (CheckRequired('interval') == false) { return false; }
+
+    return top.restoreSession();
+};
+
+function CheckRequired(objID) {
+
+    // for text boxes
+    if ($('#'+objID).is('text')) {
+        if ($('#'+objID).val() == "") {
+            alert("Missing a required field");
+            $('#'+objID).css("backgroundColor", "pink");
+            return false;
+        }
+    }
+
+    // for select boxes
+    if ($('#'+objID).is('select')) {
+        if ($('#'+objID).val() == "0") {
+            alert("Missing a required field");
+            $('#'+objID).css("backgroundColor", "pink");
+            return false;
+        }
+    }
+
+    return true;
+}
+
+</script>
+{/literal}
+
 </html>
