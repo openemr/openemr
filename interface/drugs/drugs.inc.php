@@ -6,45 +6,52 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
- // These were adapted from library/classes/Prescription.class.php:
+function load_drug_attributes($id) {
+  $arr = array(0 => '');
+  $res = sqlStatement("SELECT * FROM list_options WHERE list_id = '$id' ORDER BY seq");
+  while ($row = sqlFetchArray($res)) $arr[$row['option_id']] = $row['title'];
+  return $arr;
+}
 
- $form_array = array('', xl('suspension'), xl('tablet'), xl('capsule'), xl('solution'), xl('tsp'),
-  xl('ml'), xl('units'), xl('inhalations'), xl('gtts(drops)'));
+$form_array     = load_drug_attributes('drug_form');
+$unit_array     = load_drug_attributes('drug_units');
+$route_array    = load_drug_attributes('drug_route');
+$interval_array = load_drug_attributes('drug_interval');
 
- $unit_array = array('', 'mg', 'mg/1cc', 'mg/2cc', 'mg/3cc', 'mg/4cc',
-  'mg/5cc', 'grams', 'mcg');
+// These were adapted from library/classes/Prescription.class.php:
 
- $route_array = array('', xl('Per Oris'), xl('Per Rectum'), xl('To Skin'),
-  xl('To Affected Area'), xl('Sublingual'), xl('OS'), xl('OD'), xl('OU'), xl('SQ'), xl('IM'), xl('IV'),
-  xl('Per Nostril'));
-
- $interval_array = array('', 'b.i.d.', 't.i.d.', 'q.i.d.', 'q.3h', 'q.4h',
-  'q.5h', 'q.6h', 'q.8h', 'q.d.');
-
- $interval_array_verbose = array('',
-  xl('twice daily'),
-  xl('3 times daily'),
-  xl('4 times daily'),
-  xl('every 3 hours'),
-  xl('every 4 hours'),
-  xl('every 5 hours'),
-  xl('every 6 hours'),
-  xl('every 8 hours'),
-  xl('daily'));
-
- $route_array_verbose = array('',
-  xl('by mouth'),
-  xl('rectally'),
-  xl('to skin'),
-  xl('to affected area'),
-  xl('under tongue'),
-  xl('in left eye'),
-  xl('in right eye'),
-  xl('in each eye'),
-  xl('subcutaneously'),
-  xl('intramuscularly'),
-  xl('intravenously'),
-  xl('in nostril'));
+// $form_array = array('', xl('suspension'), xl('tablet'), xl('capsule'), xl('solution'), xl('tsp'),
+//  xl('ml'), xl('units'), xl('inhalations'), xl('gtts(drops)'));
+// $unit_array = array('', 'mg', 'mg/1cc', 'mg/2cc', 'mg/3cc', 'mg/4cc',
+//  'mg/5cc', 'grams', 'mcg');
+// $route_array = array('', xl('Per Oris'), xl('Per Rectum'), xl('To Skin'),
+//  xl('To Affected Area'), xl('Sublingual'), xl('OS'), xl('OD'), xl('OU'), xl('SQ'), xl('IM'), xl('IV'),
+//  xl('Per Nostril'));
+// $interval_array = array('', 'b.i.d.', 't.i.d.', 'q.i.d.', 'q.3h', 'q.4h',
+//  'q.5h', 'q.6h', 'q.8h', 'q.d.');
+// $interval_array_verbose = array('',
+//  xl('twice daily'),
+//  xl('3 times daily'),
+//  xl('4 times daily'),
+//  xl('every 3 hours'),
+//  xl('every 4 hours'),
+//  xl('every 5 hours'),
+//  xl('every 6 hours'),
+//  xl('every 8 hours'),
+//  xl('daily'));
+// $route_array_verbose = array('',
+//  xl('by mouth'),
+//  xl('rectally'),
+//  xl('to skin'),
+//  xl('to affected area'),
+//  xl('under tongue'),
+//  xl('in left eye'),
+//  xl('in right eye'),
+//  xl('in each eye'),
+//  xl('subcutaneously'),
+//  xl('intramuscularly'),
+//  xl('intravenously'),
+//  xl('in nostril'));
 
  $substitute_array = array('', xl('Allowed'), xl('Not Allowed'));
 

@@ -153,8 +153,10 @@
   $row['quantity'] . "\n" .
   'Take ' . $row['dosage'] . ' ' . $form_array[$row['form']] .
   ($row['dosage'] > 1 ? 's ' : ' ') .
-  $interval_array_verbose[$row['interval']] . ' ' .
-  $route_array_verbose[$row['route']] . "\n" .
+  // $interval_array_verbose[$row['interval']] . ' ' .
+  $interval_array[$row['interval']] . ' ' .
+  // $route_array_verbose[$row['route']] . "\n" .
+  $route_array[$row['route']] . "\n" .
   'Lot ' . $row['lot_number'] . ' Exp ' . $row['expiration'] . "\n" .
   'NDC ' . $row['ndc_number'] . ' ' . $row['manufacturer'];
 
