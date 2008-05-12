@@ -44,72 +44,103 @@ a {
 	{foreach item=vital from=$vitals}
 		<th align="left">{$vital->get_date()|date_format:"%m/%d/%y"}</th><tr>
 	{/foreach}
+  </tr>
+
 	<tr><td>Height</td><td>in</td>
 	{foreach item=vital from=$vitals}	
 		<td><input type="text" width='5'
 		name="height" value="{$vital->get_height()}"/></td>
 	{/foreach}
+  </tr>
+
 	<tr><td>Weight</td><td>lbs</td>
 	{foreach item=vital from=$vitals}
 		<td><input type="text" 
 			name="weight" value="{$vital->get_weight()}"/></td>
 	{/foreach}
+  </tr>
+
 	<tr><td>BP Systolic</td><td>mm/hg</td>
 	{foreach item=vital from=$vitals}
 		<td><input type="text" 
 			name="bps" value="{$vital->get_bps()}"/></td>
 	{/foreach}
+  </tr>
+
 	<tr><td>BP Diastolic</td><td>mm/hg</td>
 	{foreach item=vital from=$vitals}
 		<td><input type="text" 
 			name="bpd" value="{$vital->get_bpd()}"/></td>
 	{/foreach}
+  </tr>
+
 	<tr><td>Pulse</td><td>per min</td>
 	{foreach item=vital from=$vitals}
 			<td><input type="text" 
 			name="pulse" value="{$vital->get_pulse()}"/></td>
 	{/foreach}
+  </tr>
+
 	<tr><td>Respiration</td><td>per min</td>
 	{foreach item=vital from=$vitals}
 		<td><input type="text" 
 			name="respiration" value="{$vital->get_respiration()}"/></td>
 	{/foreach}
+  </tr>
+
 	<tr><td>Temperature</td><td>F</td>
 	{foreach item=vital from=$vitals}
 		<td><input type="text" 
 			name="temperature" value="{$vital->get_temperature()}"/></td>
 	{/foreach}
+  </tr>
+
 	<tr><td>Temp Location</td><td> </td>
 		<td><select name="temp_method">
-		
 	</td></tr>
+
 	<tr><td>Head Circumference</td><td>cm</td>
 	{foreach item=vital from=$vitals}
 		<td><input type="text" 
 			name="head_circ" value="{$vital->get_head_circ()}"/></td>
 	{/foreach}
+  </tr>
+
 	<tr><td>BMI</td><td>%</td>
 	{foreach item=vital from=$vitals}
 		<td><input type="text" 
 			name="BMI" value="{$vital->get_BMI()}"/></td>
 	{/foreach}
+  </tr>
+
 	<tr><td>BMI Status</td><td>Type</td>
 	{foreach item=vital from=$vitals}
 		<td><input type="text" 
 			name="BMI_status" value="{$vital->get_BMI_status()}"/></td>
 	{/foreach}
+  </tr>
 
 	<tr><td>Oxygen Saturation</td><td>%</td>
 	{foreach item=vital from=$vitals}
 		<td><input type="text" 
 			name="oxygen_saturation" value="{$vital->get_oxygen_saturation()}"/></td>
 	{/foreach}
+  </tr>
+
 	<tr><td>Waist Circumference</td><td>in</td>
 	{foreach item=vital from=$vitals}
 		<td><input type="text" 
 			name="waist_circ" value="{$vital->get_waist_circ()}"/></td>
 	{/foreach}
 	</tr>
+
+  <tr><td>Is this form used?</td><td></td>
+  {foreach item=vital from=$vitals}
+    <td><input type="text"
+      name="note" value="{$vital->get_note()}"/></td>
+  {/foreach}
+  </tr>
+
 	<tr>
 	<td><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
 </tr>

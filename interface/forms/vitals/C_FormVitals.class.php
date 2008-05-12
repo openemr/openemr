@@ -7,7 +7,7 @@ require_once("FormVitals.class.php");
 class C_FormVitals extends Controller {
 
 	var $template_dir;
-	
+
     function C_FormVitals($template_mod = "general") {
     	parent::Controller();
     	$returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
@@ -17,7 +17,7 @@ class C_FormVitals extends Controller {
     	$this->assign("DONT_SAVE_LINK",$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
     	$this->assign("STYLE", $GLOBALS['style']);
     }
-    
+
     function default_action_old() {
     	//$vitals = array();
     	//array_push($vitals, new FormVitals());
@@ -26,7 +26,7 @@ class C_FormVitals extends Controller {
     	$this->assign("results", $results);
     	return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
 	}
-	
+
 	function default_action($form_id) {
 
 		if (is_numeric($form_id)) {
@@ -35,7 +35,7 @@ class C_FormVitals extends Controller {
     	else {
     		$vitals = new FormVitals();
     	}
-    	
+
     	$dbconn = $GLOBALS['adodb']['db'];
     	$sql = "SELECT * from form_vitals where id != $form_id and pid = ".$GLOBALS['pid'];
     	$result = $dbconn->Execute($sql);
@@ -55,16 +55,17 @@ class C_FormVitals extends Controller {
     		$results[$i]['pulse'] = $result->fields['pulse'];
     		$results[$i]['respiration'] = $result->fields['respiration'];
     		$results[$i]['BMI'] = $result->fields['BMI'];
-		$results[$i]['BMI_status'] = $result->fields['BMI_status'];
+    		$results[$i]['BMI_status'] = $result->fields['BMI_status'];
+        $results[$i]['note'] = $result->fields['note'];
     		$results[$i]['waist_circ'] = $result->fields['waist_circ'];
     		$results[$i]['head_circ'] = $result->fields['head_circ'];
     		$results[$i++]['oxygen_saturation'] = $result->fields['oxygen_saturation'];
     		$result->MoveNext();
     	}
-    	
+
     	$this->assign("vitals",$vitals);
     	$this->assign("results", $results);
-    	   	
+
     	$this->assign("VIEW",true);
 		return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
 
@@ -106,9 +107,7 @@ class C_FormVitals extends Controller {
 		}
 		return;
 	}
-    
+
 }
-
-
 
 ?>
