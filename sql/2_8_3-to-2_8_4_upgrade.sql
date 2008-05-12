@@ -444,5 +444,56 @@ INSERT INTO list_options VALUES ('lists' ,'userlist7'  ,'User Defined List 7',21
 INSERT INTO list_options VALUES ('lists' ,'riskfactors','Risk Factors'       ,22,0,0);
 INSERT INTO list_options VALUES ('lists' ,'exams'      ,'Exams/Tests'        ,23,0,0);
 
-INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_allowsms', '3Choices', 'Allow SMS', 5, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow SMS (text messages)?');
+ALTER TABLE patient_data
+  ADD hipaa_allowsms   varchar(3) NOT NULL DEFAULT 'NO',
+  ADD hipaa_allowemail varchar(3) NOT NULL DEFAULT 'NO';
+
+INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_allowsms'  , '3Choices', 'Allow SMS'  , 5, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow SMS (text messages)?');
 INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_allowemail', '3Choices', 'Allow Email', 5, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow Email?');
+
+INSERT INTO list_options VALUES ('drug_form','1','suspension' ,1,0,0);
+INSERT INTO list_options VALUES ('drug_form','2','tablet'     ,2,0,0);
+INSERT INTO list_options VALUES ('drug_form','3','capsule'    ,3,0,0);
+INSERT INTO list_options VALUES ('drug_form','4','solution'   ,4,0,0);
+INSERT INTO list_options VALUES ('drug_form','5','tsp'        ,5,0,0);
+INSERT INTO list_options VALUES ('drug_form','6','ml'         ,6,0,0);
+INSERT INTO list_options VALUES ('drug_form','7','units'      ,7,0,0);
+INSERT INTO list_options VALUES ('drug_form','8','inhalations',8,0,0);
+INSERT INTO list_options VALUES ('drug_form','9','gtts(drops)',9,0,0);
+
+INSERT INTO list_options VALUES ('drug_units','1','mg'    ,1,0,0);
+INSERT INTO list_options VALUES ('drug_units','2','mg/1cc',2,0,0);
+INSERT INTO list_options VALUES ('drug_units','3','mg/2cc',3,0,0);
+INSERT INTO list_options VALUES ('drug_units','4','mg/3cc',4,0,0);
+INSERT INTO list_options VALUES ('drug_units','5','mg/4cc',5,0,0);
+INSERT INTO list_options VALUES ('drug_units','6','mg/5cc',6,0,0);
+INSERT INTO list_options VALUES ('drug_units','7','grams' ,7,0,0);
+INSERT INTO list_options VALUES ('drug_units','8','mcg'   ,8,0,0);
+
+INSERT INTO list_options VALUES ('drug_route', '1','Per Oris'         , 1,0,0);
+INSERT INTO list_options VALUES ('drug_route', '2','Per Rectum'       , 2,0,0);
+INSERT INTO list_options VALUES ('drug_route', '3','To Skin'          , 3,0,0);
+INSERT INTO list_options VALUES ('drug_route', '4','To Affected Area' , 4,0,0);
+INSERT INTO list_options VALUES ('drug_route', '5','Sublingual'       , 5,0,0);
+INSERT INTO list_options VALUES ('drug_route',' 6','OS'               , 6,0,0);
+INSERT INTO list_options VALUES ('drug_route', '7','OD'               , 7,0,0);
+INSERT INTO list_options VALUES ('drug_route', '8','OU'               , 8,0,0);
+INSERT INTO list_options VALUES ('drug_route', '9','SQ'               , 9,0,0);
+INSERT INTO list_options VALUES ('drug_route','10','IM'               ,10,0,0);
+INSERT INTO list_options VALUES ('drug_route','11','IV'               ,11,0,0);
+INSERT INTO list_options VALUES ('drug_route','12','Per Nostril'      ,12,0,0);
+
+INSERT INTO list_options VALUES ('drug_interval','1','b.i.d.',1,0,0);
+INSERT INTO list_options VALUES ('drug_interval','2','t.i.d.',2,0,0);
+INSERT INTO list_options VALUES ('drug_interval','3','q.i.d.',3,0,0);
+INSERT INTO list_options VALUES ('drug_interval','4','q.3h'  ,4,0,0);
+INSERT INTO list_options VALUES ('drug_interval','5','q.4h'  ,5,0,0);
+INSERT INTO list_options VALUES ('drug_interval','6','q.5h'  ,6,0,0);
+INSERT INTO list_options VALUES ('drug_interval','7','q.6h'  ,7,0,0);
+INSERT INTO list_options VALUES ('drug_interval','8','q.8h'  ,8,0,0);
+INSERT INTO list_options VALUES ('drug_interval','9','q.d.'  ,9,0,0);
+
+INSERT INTO list_options VALUES ('lists' ,'drug_form'    ,'Drug Forms'    ,24,0,0);
+INSERT INTO list_options VALUES ('lists' ,'drug_units'   ,'Drug Units'    ,25,0,0);
+INSERT INTO list_options VALUES ('lists' ,'drug_route'   ,'Drug Routes'   ,26,0,0);
+INSERT INTO list_options VALUES ('lists' ,'drug_interval','Drug Intervals',27,0,0);
