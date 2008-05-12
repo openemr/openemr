@@ -347,14 +347,9 @@ function getPatientPID($args)
 }
 
 function getPatientName($pid) {
-    if (empty($pid))
-        return "";
-	// larry :: DBC change 
-	//    $patientData = getPatientPID(array("pid"=>$pid));
-	$patientData = getPatientPID($pid);
-	// END OF DBC CHANGE
-    if (empty($patientData[0]['lname']))
-        return "";
+    if (empty($pid)) return "";
+    $patientData = getPatientPID(array("pid"=>$pid));
+    if (empty($patientData[0]['lname'])) return "";
     $patientName =  $patientData[0]['lname'] . ", " . $patientData[0]['fname'];
     return $patientName;
 }
