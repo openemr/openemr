@@ -20,6 +20,8 @@ $smarty->compile_dir = dirname(__FILE__) . "/../main/calendar/modules/PostCalend
 //assign the styles setup in globals.php
 $smarty->assign("STYLE",$GLOBALS['style']);
 
+// assign the style sheet theme as defined in globals.php -- JRM
+$smarty->assign("css_header", $GLOBALS['css_header']);
 
 //There is not real ALL, so for this purpose we say 20,000
 $show_options = array ("10" => "10","20" => "20","50" => "50","100" => "100","20000" => "All");
