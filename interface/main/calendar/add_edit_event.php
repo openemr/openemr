@@ -753,6 +753,7 @@ if ($_POST['form_action'] == "save") {
   '<' => xl('< In exam room'),
   '>' => xl('> Checked out'),
   '$' => xl('$ Coding done'),
+   '%' => xl('% Cancelled <  24h ')
  );
 
  $repeats = 0; // if the event repeats
