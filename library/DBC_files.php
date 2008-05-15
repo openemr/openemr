@@ -779,7 +779,7 @@ query patient_data original database
 function info_patient($patientid = 0) {
     if ( !$patientid ) return FALSE;
 
-    $patq = sprintf("SELECT * FROM patient_data pd, patient_data_NL pdn JOIN patient_data_NL ON
+    $patq = sprintf("SELECT * FROM patient_data pd JOIN patient_data_NL pdn ON
     pdn.pdn_id = pd.id WHERE pd.id = %d", $patientid);
     $r = mysql_query($patq) or die( mysql_error() );
     $row = mysql_fetch_array($r);
