@@ -4374,6 +4374,7 @@ INSERT INTO `lang_constants`  VALUES (2680, 'Created');
 INSERT INTO `lang_constants`  VALUES (2681, 'Changed');
 INSERT INTO `lang_constants`  VALUES (2682, 'Print Multiple');
 INSERT INTO `lang_constants`  VALUES (2683, 'Select');
+INSERT INTO `lang_constants`  VALUES (2684, '% Cancelled < 24 h');
 
 -- --------------------------------------------------------
 
