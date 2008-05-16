@@ -37,17 +37,17 @@
   "ORDER BY type, begdate");
 ?>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <html>
 <head>
 <?php html_header_show();?>
 <title><?php xl('New Encounter','e'); ?></title>
 
-<script type="text/javascript" src="../../../library/dialog.js"></script>
-<script type="text/javascript" src="../../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../../library/calendar.js"></script>
-<script type="text/javascript" src="../../../library/textformat.js"></script>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/overlib_mini.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
 
 <script language="JavaScript">
 
@@ -182,7 +182,7 @@
  <tr>
   <td class='text' nowrap><?php xl('Date of Service:','e'); ?></td>
   <td nowrap>
-   <input type='text' size='10' name='form_date' <?php echo $disabled ?>
+   <input type='text' size='10' name='form_date' id='form_date' <?php echo $disabled ?>
     value='<?php echo date('Y-m-d') ?>'
     title='<?php xl('yyyy-mm-dd Date of service','e'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
@@ -195,7 +195,7 @@
  <tr>
   <td class='text' nowrap><?php xl('Onset/hospitalization date:','e'); ?></td>
   <td nowrap>
-   <input type='text' size='10' name='form_onset_date'
+   <input type='text' size='10' name='form_onset_date' id='form_onset_date'
     value='<?php echo date('Y-m-d') ?>'
     title='<?php xl('yyyy-mm-dd Date of onset or hospitalization','e'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
@@ -233,10 +233,10 @@
 
 </body>
 <!-- stuff for the popup calendar -->
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+<style type="text/css">@import url(<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar_setup.js"></script>
 <script language="Javascript">
  Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_service_date"});
  Calendar.setup({inputField:"form_onset_date", ifFormat:"%Y-%m-%d", button:"img_onset_date"});
