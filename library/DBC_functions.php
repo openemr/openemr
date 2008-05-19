@@ -11,7 +11,10 @@
  * @version 1.0 24-08-2007
  */
 
-require_once(dirname(__FILE__) . '/../interface/globals.php');
+if ( isset($_SESSION) ) {
+    // trick to make a difference between CLI and webspace
+    require_once(dirname(__FILE__) . '/../interface/globals.php');
+}
 
 if ( isset($_POST['code']) ) {
   request_for_records($_POST['code']);
