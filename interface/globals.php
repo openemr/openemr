@@ -273,6 +273,9 @@ $GLOBALS['patient_id_category_name'] = '';
 // useful and creates confusion.  Make this false if you really want it.
 $GLOBALS['disable_non_default_groups'] = true;
 
+// True for IPPF installations, otherwise false.
+$GLOBALS['ippf_specific'] = false;
+
 // If you want Hylafax support then uncomment and customize the following
 // statements, and also customize custom/faxcover.txt:
 //

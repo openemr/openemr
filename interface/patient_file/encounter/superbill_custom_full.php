@@ -39,6 +39,7 @@ if (isset($mode)) {
   // $units      = $_POST['units'];
   $superbill  = $_POST['superbill'];
   $related_code = $_POST['related_code'];
+  $cyp_factor = $_POST['cyp_factor'] + 0;
 
   $taxrates = "";
   if (!empty($_POST['taxrate'])) {
@@ -69,6 +70,7 @@ if (isset($mode)) {
         // "units = '"        . ffescape($units)        . "', " .
         "superbill = '"    . ffescape($superbill)    . "', " .
         "related_code = '" . ffescape($related_code) . "', " .
+        "cyp_factor = '"   . ffescape($cyp_factor)   . "', " .
         "taxrates = '"     . ffescape($taxrates)     . "'";
       if ($code_id) {
         $query = "UPDATE codes SET $sql WHERE id = '$code_id'";
@@ -91,6 +93,7 @@ if (isset($mode)) {
         $code = $code_type = $code_text = $modifier = $superbill = "";
         $code_id = 0;
         $related_code = '';
+        $cyp_factor = 0;
         $taxrates = '';
       }
     }
@@ -106,6 +109,7 @@ if (isset($mode)) {
       // $units        = $row['units'];
       $superbill    = $row['superbill'];
       $related_code = $row['related_code'];
+      $cyp_factor   = $row['cyp_factor'];
       $taxrates     = $row['taxrates'];
     }
   }
@@ -305,6 +309,14 @@ while ($prow = sqlFetchArray($pres)) {
 }
 ?>
    </select>
+  </td>
+ </tr>
+
+ <tr<?php if (empty($GLOBALS['ippf_specific'])) echo " style='display:none'"; ?>>
+  <td><?php xl('CYP Factor','e'); ?>:</td>
+  <td></td>
+  <td>
+   <input type='text' size='10' maxlength='20' name="cyp_factor" value='<?php echo $cyp_factor ?>'>
   </td>
  </tr>
 

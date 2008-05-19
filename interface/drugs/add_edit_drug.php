@@ -76,6 +76,10 @@ function escapedff($name) {
   if (!get_magic_quotes_gpc()) return addslashes($field);
   return $field;
 }
+function numericff($name) {
+  $field = trim($_POST[$name]) + 0;
+  return $field;
+}
 ?>
 <html>
 <head>
@@ -90,6 +94,12 @@ td { font-size:10pt; }
 .drugsonly { display:none; }
 <?php } else { ?>
 .drugsonly { }
+<?php } ?>
+
+<?php if (empty($GLOBALS['ippf_specific'])) { ?>
+.ippfonly { display:none; }
+<?php } else { ?>
+.ippfonly { }
 <?php } ?>
 
 </style>
@@ -155,6 +165,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
      "size = '"          . escapedff('form_size')          . "', " .
      "unit = '"          . escapedff('form_unit')          . "', " .
      "route = '"         . escapedff('form_route')         . "', " .
+     "cyp_factor = '"    . numericff('form_cyp_factor')    . "', " .
      "related_code = '"  . escapedff('form_related_code')  . "' "  .
      "WHERE drug_id = '$drug_id'");
     sqlStatement("DELETE FROM drug_templates WHERE drug_id = '$drug_id'");
@@ -172,7 +183,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
    $new_drug = true;
    $drug_id = sqlInsert("INSERT INTO drugs ( " .
     "name, ndc_number, on_order, reorder_point, form, " .
-    "size, unit, route, related_code " .
+    "size, unit, route, cyp_factor, related_code " .
     ") VALUES ( " .
     "'" . escapedff('form_name')          . "', " .
     "'" . escapedff('form_ndc_number')    . "', " .
@@ -182,6 +193,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
     "'" . escapedff('form_size')          . "', " .
     "'" . escapedff('form_unit')          . "', " .
     "'" . escapedff('form_route')         . "', " .
+    "'" . numericff('form_cyp_factor')    . "', " .
     "'" . escapedff('form_related_code')  . "' "  .
     ")");
   }
@@ -332,6 +344,13 @@ if ($drug_id) {
  }
 ?>
    </select>
+  </td>
+ </tr>
+
+ <tr class='ippfonly'>
+  <td valign='top' nowrap><b><?php xl('CYP Factor','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='10' name='form_cyp_factor' maxlength='20' value='<?php echo $row['cyp_factor'] ?>' />
   </td>
  </tr>
 
