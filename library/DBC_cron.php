@@ -35,7 +35,7 @@ function dc_yearly_closing() {
 
         // and calculate the age
         $age = df_dbc_age($dbcid);
-        if ( $age >= 340 ) { // MODIFICA IN 365!!!
+        if ( $age >= 365 ) { 
             $rfsum = 0; // reset the rfsum!
             dt_main(1, $dbcid, $odate);
             $z = dt_whatproductgroep($rfsum, $odate);
@@ -56,9 +56,9 @@ echo "$pid($dbcid) - $fe - LAST: {$lastenc['date']} F: $have_followup\n";
             $newid = close_dbc($have_followup, $pcode, '180101', '110003', $gaf, $dbcid, $today, $pid);
 
             if ( $newid ) {
-                df_cronlog("DBC id: $dbcid was duplicated with DBC id: $newid ");
+                df_cronlog("$today: DBC id: $dbcid (PID: $pid) was duplicated with DBC id: $newid ");
             } else {
-                df_cronlog("DBC id: $dbcid was closed without a followup. ");
+                df_cronlog("$today: DBC id: $dbcid (PID: $pid) was closed without a followup. ");
             }
         }
     }
