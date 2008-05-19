@@ -1767,6 +1767,39 @@ function df_tariff($decode, $date) {
     return $val;
 }
 
+//-----------------------------------------------------------------------------
+/**
+ * RETURN PATIENTS WITH OPENED ZTN BUT NO OPENED DBC
+ * 
+ *  
+ * @param 
+ * @return 
+ */
+function df_opztn_nodbc() {
+    $q = sprintf("SELECT id FROM patient_data WHERE 1");
+    $r = mysql_query($q) or die(mysql_error()); 
+
+    while ( $row = mysql_fetch_array($r) ) {
+        $pid = $row['id'];
+
+        $result = has_ztndbc($pid);
+        if ( $result['code'] ) {
+            $allztn = all_ztn($pid); 
+            $lastztn = end($allztn);
+
+            $alldbc = all_dbc($lastztn['cn_ztn']);
+            $lastdbc = end($alldbc);
+
+            if ( !$lastdbc['ax_open'] ) {
+                $pidres[$pid]['result'] = $result;
+                $pidres[$pid]['dbc'] = $lastdbc;
+                $pidres[$pid]['ztn'] = $lastztn;
+            } // if
+        }
+    } // while
+
+    return $pidres;
+}
 
 //-----------------------------------------------------------------------------
 ?>
