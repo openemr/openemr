@@ -21,9 +21,6 @@
 
  $info_msg = "";
 
- $thisauth = acl_check('admin', 'super');
- if (! $thisauth) die("Not authorized!");
-
  // Delete rows, with logging, for the specified table using the
  // specified WHERE clause.
  //
@@ -96,6 +93,7 @@ td { font-size:10pt; }
  if ($_POST['form_submit']) {
 
   if ($patient) {
+   if (!acl_check('admin', 'super')) die("Not authorized!");
    row_modify("billing"       , "activity = 0", "pid = '$patient'");
    row_modify("pnotes"        , "activity = 0", "pid = '$patient'");
    // row_modify("prescriptions" , "active = 0"  , "patient_id = '$patient'");
@@ -126,6 +124,7 @@ td { font-size:10pt; }
     "local_id = '" . $row['id'] . "'");
   }
   else if ($encounterid) {
+   if (!acl_check('admin', 'super')) die("Not authorized!");
    row_modify("billing", "activity = 0", "encounter = '$encounterid'");
    row_delete("claims", "encounter_id = '$encounterid'");
    row_delete("issue_encounter", "encounter = '$encounterid'");
@@ -137,6 +136,7 @@ td { font-size:10pt; }
    row_delete("forms", "encounter = '$encounterid'");
   }
   else if ($formid) {
+   if (!acl_check('admin', 'super')) die("Not authorized!");
    $row = sqlQuery("SELECT * FROM forms WHERE id = '$formid'");
    $formdir = $row['formdir'];
    if (! $formdir) die("There is no form with id '$formid'");
@@ -145,10 +145,12 @@ td { font-size:10pt; }
    row_delete("forms", "id = '$formid'");
   }
   else if ($issue) {
+   if (!acl_check('admin', 'super')) die("Not authorized!");
    row_delete("issue_encounter", "list_id = '$issue'");
    row_delete("lists", "id = '$issue'");
   }
   else if ($document) {
+   if (!acl_check('admin', 'super')) die("Not authorized!");
    $trow = sqlQuery("SELECT url FROM documents WHERE id = '$document'");
    $url = $trow['url'];
    row_delete("categories_to_documents", "document_id = '$document'");
@@ -158,6 +160,7 @@ td { font-size:10pt; }
    }
   }
   else if ($payment) {
+   if (!acl_check('admin', 'super')) die("Not authorized!");
     list($patient_id, $timestamp) = explode(".", $payment);
     $timestamp = decorateString('....-..-.. ..:..:..', $timestamp);
     $payres = sqlStatement("SELECT * FROM payments WHERE " .
@@ -198,6 +201,7 @@ td { font-size:10pt; }
     }
   }
   else if ($billing) {
+    if (!acl_check('acct','disc')) die("Not authorized!");
     list($patient_id, $encounter_id) = explode(".", $billing);
     slInitialize();
     $trans_id = SLQueryValue("SELECT id FROM ar WHERE ar.invnumber = '$billing' LIMIT 1");

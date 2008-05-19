@@ -364,7 +364,7 @@ function generate_receipt($patient_id) {
 </center>
 <div id='hideonprint'>
 <p>&nbsp;<a href='#' onclick='return printme();'><?php xl('Print','e'); ?></a></p>
-<?php if (acl_check('admin', 'super')) { ?>
+<?php if (acl_check('acct','disc')) { ?>
 <p>&nbsp;<a href='#' onclick='return deleteme();'><?php xl('Undo Checkout','e'); ?></a></p>
 <?php } ?>
 </div>
