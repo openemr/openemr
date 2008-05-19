@@ -29,6 +29,7 @@ if (!$thisauth) die("Not authorized.");
 <p><a href="dbc_future.php" target="Main">List open DBC's w/out future events</a></p>
 <p><a href="dbc_totaldbc.php" target="Main">List open DBC's (2007/2008)</a></p>
 <p><a href="dbc_dbcvalues.php" target="Main">DBC Values</a></p>
+<p><a href="dbc_nodbc.php" target="Main">Opened ZTNs; no DBC's</a></p>
 
 </body>
 </html>
