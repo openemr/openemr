@@ -639,13 +639,13 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
         </ul>
       </li>
 <?php } ?>
-<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
-      <li><span><?php xl('Inventory','e') ?></span>
+      <li><span><?php xl('General','e') ?></span>
         <ul>
-          <?php genPopLink('Destroyed','destroyed_drugs_report.php'); ?>
+          <?php genPopLink('Services','services_by_category.php'); ?>
+          <?php if ($GLOBALS['inhouse_pharmacy']) genPopLink('Inventory','inventory_list.php'); ?>
+          <?php if ($GLOBALS['inhouse_pharmacy']) genPopLink('Destroyed','destroyed_drugs_report.php'); ?>
         </ul>
       </li>
-<?php } ?>
 <?php if (! $GLOBALS['simplified_demographics']) { ?>
       <li><span><?php xl('Insurance','e') ?></span>
         <ul>
