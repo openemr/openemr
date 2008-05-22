@@ -10,6 +10,7 @@ require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once("../../library/lists.inc");
 require_once("../../library/acl.inc");
+require_once("../../custom/code_types.inc.php");
 
 // Might want something different here.
 //
@@ -19,6 +20,34 @@ $from_date       = fixDate($_POST['form_from_date']);
 $to_date         = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_issue_type = $_POST['form_issue_type'];
 $form_squads     = $_POST['form_squads']; // this is an array
+
+// Look up descriptions for one or more billing codes.  This should
+// probably be moved to an "include" file somewhere.
+//
+function lookup_code_descriptions($codes) {
+  global $code_types;
+  $code_text = '';
+  if (!empty($codes)) {
+    $relcodes = explode(';', $codes);
+    foreach ($relcodes as $codestring) {
+      if ($codestring === '') continue;
+      list($codetype, $code) = explode(':', $codestring);
+      $wheretype = "";
+      if (empty($code)) {
+        $code = $codetype;
+      } else {
+        $wheretype = "code_type = '" . $code_types[$codetype]['id'] . "' AND ";
+      }
+      $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
+        "$wheretype code = '$code' ORDER BY id LIMIT 1");
+      if (!empty($crow['code_text'])) {
+        if ($code_text) $code_text .= '; ';
+        $code_text .= $crow['code_text'];
+      }
+    }
+  }
+  return $code_text;
+}
 ?>
 <html>
 <head>
@@ -244,7 +273,7 @@ function dopclick(id,pid) {
 			echo "  <td class='detail'>$ptname</td>\n";
 			echo "  <td class='detail'>$fitness</td>\n";
 			echo "  <td class='detail'>$issue_title</td>\n";
-			echo "  <td class='detail'>" . $row['diagnosis'] . "</td>\n";
+			echo "  <td class='detail'>" . lookup_code_descriptions($row['diagnosis']) . "</td>\n";
 			echo "  <td class='detail'>" . $row['begdate'] . "</td>\n";
 			echo "  <td class='detail' align='right'>$daysmissed</td>\n";
 			echo "  <td class='detail' align='right'>" . $row['gmissed'] . "</td>\n";
