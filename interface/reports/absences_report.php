@@ -2,17 +2,46 @@
  // This module is for team sports use and reports on absences by
  // injury type (diagnosis) for a given time period.
 
- include_once("../globals.php");
- include_once("../../library/patient.inc");
- include_once("../../library/acl.inc");
+require_once("../globals.php");
+require_once("../../library/patient.inc");
+require_once("../../library/acl.inc");
+require_once("../../custom/code_types.inc.php");
 
- // Might want something different here.
- //
- // if (! acl_check('acct', 'rep')) die("Unauthorized access.");
+// Might want something different here.
+//
+// if (! acl_check('acct', 'rep')) die("Unauthorized access.");
 
- $from_date = fixDate($_POST['form_from_date']);
- $to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
- $form_by   = $_POST['form_by'];
+$from_date = fixDate($_POST['form_from_date']);
+$to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
+$form_by   = $_POST['form_by'];
+
+// Look up descriptions for one or more billing codes.  This should
+// probably be moved to an "include" file somewhere.
+//
+function lookup_code_descriptions($codes) {
+  global $code_types;
+  $code_text = '';
+  if (!empty($codes)) {
+    $relcodes = explode(';', $codes);
+    foreach ($relcodes as $codestring) {
+      if ($codestring === '') continue;
+      list($codetype, $code) = explode(':', $codestring);
+      $wheretype = "";
+      if (empty($code)) {
+        $code = $codetype;
+      } else {
+        $wheretype = "code_type = '" . $code_types[$codetype]['id'] . "' AND ";
+      }
+      $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
+        "$wheretype code = '$code' ORDER BY id LIMIT 1");
+      if (!empty($crow['code_text'])) {
+        if ($code_text) $code_text .= '; ';
+        $code_text .= $crow['code_text'];
+      }
+    }
+  }
+  return $code_text;
+}
 ?>
 <html>
 <head>
@@ -112,6 +141,7 @@
     "GROUP BY lname, fname, mname";
   }
   else {
+   /******************************************************************
    $query = "SELECT lists.diagnosis, codes.code_text, count(*) AS count, " .
     "SUM(lists.extrainfo) AS gmissed, " .
     "SUM(TO_DAYS(LEAST(IFNULL(lists.enddate,CURRENT_DATE),'$to_date')) - TO_DAYS(GREATEST(lists.begdate,'$from_date'))) AS dmissed " .
@@ -122,13 +152,21 @@
     "WHERE " .
     "(lists.enddate IS NULL OR lists.enddate >= '$from_date') AND lists.begdate <= '$to_date' " .
     "GROUP BY lists.diagnosis";
+   ******************************************************************/
+   $query = "SELECT lists.diagnosis, count(*) AS count, " .
+    "SUM(lists.extrainfo) AS gmissed, " .
+    "SUM(TO_DAYS(LEAST(IFNULL(lists.enddate,CURRENT_DATE),'$to_date')) - TO_DAYS(GREATEST(lists.begdate,'$from_date'))) AS dmissed " .
+    "FROM lists WHERE " .
+    "(lists.enddate IS NULL OR lists.enddate >= '$from_date') AND lists.begdate <= '$to_date' " .
+    "GROUP BY lists.diagnosis";
   }
 
-  echo "<!-- $query -->\n"; // debugging
+  // echo "<!-- $query -->\n"; // debugging
 
   $res = sqlStatement($query);
 
   while ($row = sqlFetchArray($res)) {
+    $code_text = lookup_code_descriptions($row['diagnosis']);
 ?>
 
  <tr>
@@ -141,7 +179,7 @@
    <?php  echo $row['diagnosis'] ?>
   </td>
   <td class='detail'>
-   <?php  echo $row['code_text'] ?>
+   <?php  echo $code_text ?>
   </td>
 <?php  } ?>
   <td class='detail' align='right'>
