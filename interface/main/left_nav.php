@@ -759,6 +759,9 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
 <?php } else { ?>
  <option value='../patient_file/front_payment.php'><?php xl('Payment','e'); ?></option>
 <?php } ?>
+<?php if (is_dir("$webserver_root/custom/letter_templates")) { ?>
+ <option value='../patient_file/letter.php'><?php xl('Letter','e'); ?></option>
+<?php } ?>
 </select>
 
 <hr />
