@@ -51,8 +51,15 @@ function get_patient_balance($pid) {
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../../library/textformat.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script language="JavaScript">
+
+ var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
 
  function oldEvt(eventid) {
   dlgopen('../../main/calendar/add_edit_event.php?eid=' + eventid, '_blank', 550, 270);
@@ -179,6 +186,13 @@ while ($frow = sqlFetchArray($fres)) {
   $field_id   = $frow['field_id'];
   $list_id    = $frow['list_id'];
   $currvalue  = '';
+
+  if ($GLOBALS['athletic_team']) {
+    // Skip fitness level and return-to-play date because those appear
+    // in a special display/update form on this page.
+    if ($field_id === 'fitness' || $field_id === 'userdate1') continue;
+  }
+
   if (strpos($field_id, 'em_') === 0) {
     $tmp = substr($field_id, 3);
     if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
@@ -347,6 +361,47 @@ foreach (array('primary','secondary','tertiary') as $instype) {
 
   <td valign="top" class="text">
 <?php
+
+// This stuff only applies to athletic team use of OpenEMR:
+if ($GLOBALS['athletic_team']) {
+  //                  blue       dk green   yellow     red        orange
+  $fitcolors = array('#6677ff', '#00cc00', '#ffff00', '#ff3333', '#ff8800', '#ffeecc', '#ffccaa');
+  $fitcolor = $fitcolors[0];
+  $form_fitness   = $_POST['form_fitness'];
+  $form_userdate1 = fixDate($_POST['form_userdate1']);
+  if ($form_submit) {
+    sqlStatement("UPDATE patient_data SET fitness = '$form_fitness', " .
+      "userdate1 = '$form_userdate1' WHERE pid = '$pid'");
+  } else {
+    $form_fitness = $result['fitness'];
+    if (! $form_fitness) $form_fitness = 1;
+    $form_userdate1 = $result['userdate1'];
+  }
+  $fitcolor = $fitcolors[$form_fitness - 1];
+  echo "   <form method='post' action='demographics.php'>\n";
+  echo "   <span class='bold'>Fitness to Play:</span><br />\n";
+  echo "   <select name='form_fitness' style='background-color:$fitcolor'>\n";
+  $res = sqlStatement("SELECT * FROM list_options WHERE " .
+    "list_id = 'fitness' ORDER BY seq");
+  while ($row = sqlFetchArray($res)) {
+    $key = $row['option_id'];
+    echo "    <option value='$key'";
+    if ($key == $form_fitness) echo " selected";
+    echo ">" . $row['title'] . "</option>\n";
+  }
+  echo "   </select>\n";
+  echo "   <br /><span class='bold'>Return to Play:</span><br>\n";
+  echo "   <input type='text' size='10' name='form_userdate1' id='form_userdate1' " .
+    "value='$form_userdate1' " .
+    "title='" . xl('yyyy-mm-dd Date of return to play') . "' " .
+    "onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />\n" .
+    "   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' " .
+    "id='img_userdate1' border='0' alt='[?]' style='cursor:pointer' " .
+    "title='" . xl('Click here to choose a date') . "'>\n";
+  echo "<p><input type='submit' name='form_submit' value='Change' /></p>\n";
+  echo "   </form>\n";
+}
+
 if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
   // Show current balance and billing note, if any.
   echo "<span class='bold'><font color='#ee6600'>Balance Due: $" .
@@ -393,7 +448,6 @@ if (isset($pid)) {
 ?>
   </td>
 
-
  </tr>
 </table>
 
@@ -414,5 +468,12 @@ foreach ($patient_pics as $var) {
   print $var;
 }
 ?>
+
+<?php if ($GLOBALS['athletic_team']) { ?>
+<script language='JavaScript'>
+ Calendar.setup({inputField:"form_userdate1", ifFormat:"%Y-%m-%d", button:"img_userdate1"});
+</script>
+<?php } ?>
+
 </body>
 </html>
