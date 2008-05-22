@@ -169,6 +169,19 @@ function generate_form_field($frow, $currvalue) {
     echo "</select>";
   }
 
+  // a billing code (only one of these allowed!)
+  else if ($data_type == 15) {
+    echo "<input type='text'" .
+      " name='form_$field_id'" .
+      " id='form_related_code'" .
+      " size='" . $frow['fld_length'] . "'" .
+      " maxlength='" . $frow['max_length'] . "'" .
+      " title='$description'" .
+      " value='$currescaped'" .
+      " onclick='sel_related()' readonly" .
+      " />";
+  }
+
   // a set of labeled checkboxes
   else if ($data_type == 21) {
     $avalue = explode('|', $currvalue);
@@ -317,6 +330,11 @@ function generate_display_field($frow, $currvalue) {
     $uname = $urow['lname'];
     if ($urow['fname']) $uname .= ", " . $urow['fname'];
     $s = $uname;
+  }
+
+  // billing code
+  else if ($data_type == 15) {
+    $s = $currvalue;
   }
 
   // a set of labeled checkboxes
