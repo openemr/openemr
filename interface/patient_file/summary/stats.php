@@ -1,7 +1,13 @@
 <?php
- include_once("../../globals.php");
- include_once("$srcdir/lists.inc");
- include_once("$srcdir/acl.inc");
+include_once("../../globals.php");
+include_once("$srcdir/lists.inc");
+include_once("$srcdir/acl.inc");
+
+// We used to present a more complex list for "medical problem" issues
+// for athletic teams.  However we decided in May 2008 to stop that.
+// The logic remains in case minds are again changed.  -- Rod
+//
+$fancy_stats = false; // $GLOBALS['athletic_team'];
 ?>
 <html>
 
@@ -37,13 +43,13 @@
 <table cellpadding='0' cellspacing='0'>
 
 <?php
- $numcols = $GLOBALS['athletic_team'] ? '7' : '1';
+ $numcols = $fancy_stats ? '7' : '1';
  $ix = 0;
  foreach ($ISSUE_TYPES as $key => $arr) {
   // $result = getListByType($pid, $key, "id,title,begdate,enddate,returndate,extrainfo", "all", "all", 0);
 
   $query = "SELECT * FROM lists WHERE pid = $pid AND type = '$key' AND ";
-  if ($GLOBALS['athletic_team']) {
+  if ($fancy_stats) {
    $query .= "( enddate IS NULL OR returndate IS NULL ) ";
   } else {
    $query .= "enddate IS NULL ";
@@ -62,7 +68,7 @@
    echo " </tr>\n";
 
    // Show headers if this is a long line.
-   if ($GLOBALS['athletic_team'] && $arr[3] == 0 && mysql_num_rows($pres) > 0) {
+   if ($fancy_stats && $arr[3] == 0 && mysql_num_rows($pres) > 0) {
     echo " <tr>\n";
     echo "  <td class='link'>&nbsp;&nbsp;<b>" .xl('Title'). "</b></td>\n";
     echo "  <td class='link'>&nbsp;<b>" .xl('Diag'). "</b></td>\n";
@@ -85,7 +91,7 @@
 
     echo " <tr style='color:$rowcolor;'>\n";
 
-    if ($GLOBALS['athletic_team'] && $arr[3] == 0) {
+    if ($fancy_stats && $arr[3] == 0) {
      $endsecs = $row['returndate'] ? strtotime($row['returndate']) : time();
      $daysmissed = round(($endsecs - strtotime($row['begdate'])) / (60 * 60 * 24));
      $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter " .
