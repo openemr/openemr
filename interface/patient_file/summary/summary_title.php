@@ -54,7 +54,6 @@ require_once("$srcdir/classes/Pharmacy.class.php");
 } // EOS DBC DUTCH SYSTEM
   // ==================================
 ?>   
-   <span class="title_bar_top"><?php echo $result{"fname"} . " " . $result{"lname"};?></span>
    <span style="font-size:0.7em;">(<?php echo $info ?>)</span>
   </td>
   <td style="width:35%; vertical-align:middle; white-space: nowrap; text-align:center">
