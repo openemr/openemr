@@ -229,6 +229,7 @@ CREATE TABLE `codes` (
   `superbill` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
   `related_code` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
   `taxrates` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `cyp_factor` float NOT NULL DEFAULT 0 COMMENT 'quantity representing a years supply',
   PRIMARY KEY  (`id`),
   KEY `code` (`code`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
@@ -409,6 +410,7 @@ CREATE TABLE `drugs` (
   `route` int(11) NOT NULL default '0',
   `substitute` int(11) NOT NULL default '0',
   `related_code` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code',
+  `cyp_factor` float NOT NULL DEFAULT 0 COMMENT 'quantity representing a years supply',
   PRIMARY KEY  (`drug_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
@@ -4640,9 +4642,9 @@ INSERT INTO `layout_options` VALUES ('DEM', 'squad', '1Who', 'Squad', 15, 13, 0,
 INSERT INTO `layout_options` VALUES ('DEM', 'pricelevel', '1Who', 'Price Level', 16, 1, 0, 0, 0, 'pricelevel', 1, 1, '', '', 'Discount Level');
 INSERT INTO `layout_options` VALUES ('DEM', 'street', '2Contact', 'Address', 1, 2, 1, 25, 63, '', 1, 1, '', 'C', 'Street and Number');
 INSERT INTO `layout_options` VALUES ('DEM', 'city', '2Contact', 'City', 2, 2, 1, 15, 63, '', 1, 1, '', 'C', 'City Name');
-INSERT INTO `layout_options` VALUES ('DEM', 'state', '2Contact', 'State', 3, 2, 1, 15, 63, '', 1, 1, '', 'C', 'State/Locality');
+INSERT INTO `layout_options` VALUES ('DEM', 'state', '2Contact', 'State', 3, 1, 1, 0, 0, 'state', 1, 1, '', '', 'State/Locality');
 INSERT INTO `layout_options` VALUES ('DEM', 'postal_code', '2Contact', 'Postal Code', 4, 2, 1, 6, 63, '', 1, 1, '', '', 'Postal Code');
-INSERT INTO `layout_options` VALUES ('DEM', 'country_code', '2Contact', 'Country', 5, 1, 1, 0, 0, 'country', 1, 1, '', 'C', 'Country');
+INSERT INTO `layout_options` VALUES ('DEM', 'country_code', '2Contact', 'Country', 5, 1, 1, 0, 0, 'country', 1, 1, '', '', 'Country');
 INSERT INTO `layout_options` VALUES ('DEM', 'contact_relationship', '2Contact', 'Emergency Contact', 6, 2, 1, 10, 63, '', 1, 1, '', 'C', 'Emergency Contact Person');
 INSERT INTO `layout_options` VALUES ('DEM', 'phone_contact', '2Contact', 'Emergency Phone', 7, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Emergency Contact Phone Number');
 INSERT INTO `layout_options` VALUES ('DEM', 'phone_home', '2Contact', 'Home Phone', 8, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Home Phone Number');
@@ -4692,15 +4694,16 @@ INSERT INTO layout_options VALUES ('REF','refer_external'  ,'1Referral','Externa
 INSERT INTO layout_options VALUES ('REF','refer_diag'      ,'1Referral','Referrer Diagnosis'             , 6, 2,1,30,255,''         ,1,1,'' ,'X','Referrer diagnosis');
 INSERT INTO layout_options VALUES ('REF','refer_risk_level','1Referral','Risk Level'                     , 7, 1,1, 0,  0,'risklevel',1,1,'' ,'' ,'Level of urgency');
 INSERT INTO layout_options VALUES ('REF','refer_vitals'    ,'1Referral','Include Vitals'                 , 8, 1,1, 0,  0,'boolean'  ,1,1,'' ,'' ,'Include vitals data?');
-INSERT INTO layout_options VALUES ('REF','reply_date'      ,'2Counter-Referral','Reply Date'             , 9, 4,1, 0,  0,''         ,1,1,'' ,'D','Date of reply');
-INSERT INTO layout_options VALUES ('REF','reply_from'      ,'2Counter-Referral','Reply From'             ,10, 2,1,30,255,''         ,1,1,'' ,'' ,'Who replied?');
-INSERT INTO layout_options VALUES ('REF','reply_init_diag' ,'2Counter-Referral','Presumed Diagnosis'     ,11, 2,1,30,255,''         ,1,1,'' ,'' ,'Presumed diagnosis by specialist');
-INSERT INTO layout_options VALUES ('REF','reply_final_diag','2Counter-Referral','Final Diagnosis'        ,12, 2,1,30,255,''         ,1,1,'' ,'' ,'Final diagnosis by specialist');
-INSERT INTO layout_options VALUES ('REF','reply_documents' ,'2Counter-Referral','Documents'              ,13, 2,1,30,255,''         ,1,1,'' ,'' ,'Where may related scanned or paper documents be found?');
-INSERT INTO layout_options VALUES ('REF','reply_findings'  ,'2Counter-Referral','Findings'               ,14, 3,1,30,  3,''         ,1,1,'' ,'' ,'Findings by specialist');
-INSERT INTO layout_options VALUES ('REF','reply_services'  ,'2Counter-Referral','Services Provided'      ,15, 3,1,30,  3,''         ,1,1,'' ,'' ,'Service provided by specialist');
-INSERT INTO layout_options VALUES ('REF','reply_recommend' ,'2Counter-Referral','Recommendations'        ,16, 3,1,30,  3,''         ,1,1,'' ,'' ,'Recommendations by specialist');
-INSERT INTO layout_options VALUES ('REF','reply_rx_refer'  ,'2Counter-Referral','Prescriptions/Referrals',17, 3,1,30,  3,''         ,1,1,'' ,'' ,'Prescriptions and/or referrals by specialist');
+INSERT INTO layout_options VALUES ('REF','refer_related_code','1Referral','Requested Service'            , 9,15,1,30,255,''         ,1,1,'' ,'' ,'Billing Code for Requested Service');
+INSERT INTO layout_options VALUES ('REF','reply_date'      ,'2Counter-Referral','Reply Date'             ,10, 4,1, 0,  0,''         ,1,1,'' ,'D','Date of reply');
+INSERT INTO layout_options VALUES ('REF','reply_from'      ,'2Counter-Referral','Reply From'             ,11, 2,1,30,255,''         ,1,1,'' ,'' ,'Who replied?');
+INSERT INTO layout_options VALUES ('REF','reply_init_diag' ,'2Counter-Referral','Presumed Diagnosis'     ,12, 2,1,30,255,''         ,1,1,'' ,'' ,'Presumed diagnosis by specialist');
+INSERT INTO layout_options VALUES ('REF','reply_final_diag','2Counter-Referral','Final Diagnosis'        ,13, 2,1,30,255,''         ,1,1,'' ,'' ,'Final diagnosis by specialist');
+INSERT INTO layout_options VALUES ('REF','reply_documents' ,'2Counter-Referral','Documents'              ,14, 2,1,30,255,''         ,1,1,'' ,'' ,'Where may related scanned or paper documents be found?');
+INSERT INTO layout_options VALUES ('REF','reply_findings'  ,'2Counter-Referral','Findings'               ,15, 3,1,30,  3,''         ,1,1,'' ,'' ,'Findings by specialist');
+INSERT INTO layout_options VALUES ('REF','reply_services'  ,'2Counter-Referral','Services Provided'      ,16, 3,1,30,  3,''         ,1,1,'' ,'' ,'Service provided by specialist');
+INSERT INTO layout_options VALUES ('REF','reply_recommend' ,'2Counter-Referral','Recommendations'        ,17, 3,1,30,  3,''         ,1,1,'' ,'' ,'Recommendations by specialist');
+INSERT INTO layout_options VALUES ('REF','reply_rx_refer'  ,'2Counter-Referral','Prescriptions/Referrals',18, 3,1,30,  3,''         ,1,1,'' ,'' ,'Prescriptions and/or referrals by specialist');
 
 INSERT INTO layout_options VALUES ('HIS','usertext11','1General','Risk Factors',1,21,1,0,0,'riskfactors',1,1,'','' ,'Risk Factors');
 INSERT INTO layout_options VALUES ('HIS','exams'     ,'1General','Exams/Tests' ,2,23,1,0,0,'exams'      ,1,1,'','' ,'Exam and test results');
@@ -4787,6 +4790,7 @@ INSERT INTO `list_options` VALUES ('risklevel', 'high', 'High', 3, 0, 0);
 INSERT INTO `list_options` VALUES ('boolean', '0', 'No', 1, 0, 0);
 INSERT INTO `list_options` VALUES ('boolean', '1', 'Yes', 2, 0, 0);
 INSERT INTO `list_options` VALUES ('country', 'USA', 'USA', 1, 0, 0);
+INSERT INTO `list_options` VALUES ('state','CA','California',1,0,0);
 INSERT INTO list_options VALUES ('refsource','Patient'      ,'Patient'      , 1,0,0);
 INSERT INTO list_options VALUES ('refsource','Employee'     ,'Employee'     , 2,0,0);
 INSERT INTO list_options VALUES ('refsource','Walk-In'      ,'Walk-In'      , 3,0,0);
@@ -4887,16 +4891,17 @@ INSERT INTO list_options VALUES ('lists' ,'riskfactors'  ,'Risk Factors'       ,
 INSERT INTO list_options VALUES ('lists' ,'risklevel'    ,'Risk Level'         ,15,0,0);
 INSERT INTO list_options VALUES ('lists' ,'superbill'    ,'Service Category'   ,16,0,0);
 INSERT INTO list_options VALUES ('lists' ,'sex'          ,'Sex'                ,17,0,0);
-INSERT INTO list_options VALUES ('lists' ,'taxrate'      ,'Tax Rate'           ,18,0,0);
-INSERT INTO list_options VALUES ('lists' ,'titles'       ,'Titles'             ,19,0,0);
-INSERT INTO list_options VALUES ('lists' ,'yesno'        ,'Yes/No'             ,20,0,0);
-INSERT INTO list_options VALUES ('lists' ,'userlist1'    ,'User Defined List 1',21,0,0);
-INSERT INTO list_options VALUES ('lists' ,'userlist2'    ,'User Defined List 2',22,0,0);
-INSERT INTO list_options VALUES ('lists' ,'userlist3'    ,'User Defined List 3',23,0,0);
-INSERT INTO list_options VALUES ('lists' ,'userlist4'    ,'User Defined List 4',24,0,0);
-INSERT INTO list_options VALUES ('lists' ,'userlist5'    ,'User Defined List 5',25,0,0);
-INSERT INTO list_options VALUES ('lists' ,'userlist6'    ,'User Defined List 6',26,0,0);
-INSERT INTO list_options VALUES ('lists' ,'userlist7'    ,'User Defined List 7',27,0,0);
+INSERT INTO list_options VALUES ('lists' ,'state'        ,'State'              ,18,0,0);
+INSERT INTO list_options VALUES ('lists' ,'taxrate'      ,'Tax Rate'           ,19,0,0);
+INSERT INTO list_options VALUES ('lists' ,'titles'       ,'Titles'             ,20,0,0);
+INSERT INTO list_options VALUES ('lists' ,'yesno'        ,'Yes/No'             ,21,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist1'    ,'User Defined List 1',22,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist2'    ,'User Defined List 2',23,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist3'    ,'User Defined List 3',24,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist4'    ,'User Defined List 4',25,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist5'    ,'User Defined List 5',26,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist6'    ,'User Defined List 6',27,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist7'    ,'User Defined List 7',28,0,0);
 
 -- --------------------------------------------------------
 
@@ -5701,6 +5706,7 @@ CREATE TABLE `transactions` (
   `refer_risk_level`        varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
   `refer_vitals`            tinyint(1)   NOT NULL DEFAULT 0,
   `refer_external`          tinyint(1)   NOT NULL DEFAULT 0,
+  `refer_related_code`      varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
   `reply_date`              date         DEFAULT NULL,
   `reply_from`              varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
   `reply_init_diag`         varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
