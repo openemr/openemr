@@ -568,7 +568,7 @@ if ($_POST['form_action'] == "save") {
     
         // ==============================================
         // DBC Dutch System (insert case)
-        $lid = mysql_insert_id(); // obtain last inserted id
+        $lid = mysql_insert_id($GLOBALS['dbh']); // obtain last inserted id
 
         // larry :: fix dbc
         if ( $GLOBALS['dutchpc'] ) {
@@ -1022,15 +1022,30 @@ if ( $GLOBALS['dutchpc'] ) { ?>
         //END (CHEMED) modifications
     }
 
+    //  ==============================
+    // DBC BOS
+    function verify_selecteerbaar (a) {
+        var f = document.forms[0];  var a;
+        if (f.box5.value != 0) a = f.box5.value; 
+        else if (f.box4.value != 0) a = f.box4.value; 
+        else if (f.box3.value != 0) a = f.box3.value;
+        else if (f.box2.value != 0) a = f.box2.value; 
+        else if (f.box1.value != 0) a = f.box1.value;
+        else { alert('You must choose an activity.'); return false; 
+        }
+        
+        var answer = $.ajax({
+                        url: "<?=$link?>",
+                        type: 'POST',
+                        data: 'vcode='+a,
+                        async: false
+                    }).responseText;
+        if ( answer == 'false') { alert("Please select again"); return false; }
+        else return true;
+    }
+    // EOS DBC
 
 </script>
-
-<?php
-// =======================================
-// DBC Dutch System validation
-if ( $GLOBALS['dutchpc'] && $_SESSION['editactiv'] ) {
-    echo 'return verify_selecteerbaar();';
-} ?>
 
 <?php
 if ( $GLOBALS['dutchpc'])
@@ -1577,6 +1592,13 @@ function deleteEvent() {
 }
 
 function SubmitForm() {
+    // DBC Dutch System validation
+    <?php if ( $GLOBALS['dutchpc'] && $_SESSION['editactiv']) { ?>
+        var a = verify_selecteerbaar();
+        if ( !a ) return false;
+    <?php } ?>
+    // DBC EOS
+
     $('#theform').submit();
     top.restoreSession();
     return true;
