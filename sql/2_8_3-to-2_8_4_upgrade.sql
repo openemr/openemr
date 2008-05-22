@@ -431,18 +431,18 @@ INSERT INTO list_options VALUES ('lists' ,'refsource'  ,'Referral Source'    , 8
 INSERT INTO list_options VALUES ('lists' ,'risklevel'  ,'Risk Level'         , 9,0,0);
 INSERT INTO list_options VALUES ('lists' ,'superbill'  ,'Service Category'   ,10,0,0);
 INSERT INTO list_options VALUES ('lists' ,'sex'        ,'Sex'                ,11,0,0);
-INSERT INTO list_options VALUES ('lists' ,'taxrate'    ,'Tax Rate'           ,12,0,0);
-INSERT INTO list_options VALUES ('lists' ,'titles'     ,'Titles'             ,13,0,0);
-INSERT INTO list_options VALUES ('lists' ,'yesno'      ,'Yes/No'             ,14,0,0);
-INSERT INTO list_options VALUES ('lists' ,'userlist1'  ,'User Defined List 1',15,0,0);
-INSERT INTO list_options VALUES ('lists' ,'userlist2'  ,'User Defined List 2',16,0,0);
-INSERT INTO list_options VALUES ('lists' ,'userlist3'  ,'User Defined List 3',17,0,0);
-INSERT INTO list_options VALUES ('lists' ,'userlist4'  ,'User Defined List 4',18,0,0);
-INSERT INTO list_options VALUES ('lists' ,'userlist5'  ,'User Defined List 5',19,0,0);
-INSERT INTO list_options VALUES ('lists' ,'userlist6'  ,'User Defined List 6',20,0,0);
-INSERT INTO list_options VALUES ('lists' ,'userlist7'  ,'User Defined List 7',21,0,0);
-INSERT INTO list_options VALUES ('lists' ,'riskfactors','Risk Factors'       ,22,0,0);
-INSERT INTO list_options VALUES ('lists' ,'exams'      ,'Exams/Tests'        ,23,0,0);
+INSERT INTO list_options VALUES ('lists' ,'taxrate'    ,'Tax Rate'           ,13,0,0);
+INSERT INTO list_options VALUES ('lists' ,'titles'     ,'Titles'             ,14,0,0);
+INSERT INTO list_options VALUES ('lists' ,'yesno'      ,'Yes/No'             ,15,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist1'  ,'User Defined List 1',16,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist2'  ,'User Defined List 2',17,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist3'  ,'User Defined List 3',18,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist4'  ,'User Defined List 4',19,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist5'  ,'User Defined List 5',20,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist6'  ,'User Defined List 6',21,0,0);
+INSERT INTO list_options VALUES ('lists' ,'userlist7'  ,'User Defined List 7',22,0,0);
+INSERT INTO list_options VALUES ('lists' ,'riskfactors','Risk Factors'       ,23,0,0);
+INSERT INTO list_options VALUES ('lists' ,'exams'      ,'Exams/Tests'        ,24,0,0);
 
 ALTER TABLE patient_data
   ADD hipaa_allowsms   varchar(3) NOT NULL DEFAULT 'NO',
@@ -497,3 +497,18 @@ INSERT INTO list_options VALUES ('lists' ,'drug_form'    ,'Drug Forms'    ,24,0,
 INSERT INTO list_options VALUES ('lists' ,'drug_units'   ,'Drug Units'    ,25,0,0);
 INSERT INTO list_options VALUES ('lists' ,'drug_route'   ,'Drug Routes'   ,26,0,0);
 INSERT INTO list_options VALUES ('lists' ,'drug_interval','Drug Intervals',27,0,0);
+
+ALTER TABLE drugs
+  ADD cyp_factor float NOT NULL DEFAULT 0 COMMENT 'quantity representing a years supply';
+
+ALTER TABLE codes
+  ADD cyp_factor float NOT NULL DEFAULT 0 COMMENT 'quantity representing a years supply';
+
+INSERT INTO list_options VALUES ('state','CA','California',1,0,0);
+INSERT INTO list_options VALUES ('lists' ,'state','State',12,0,0);
+UPDATE layout_options SET data_type = 1, list_id = 'state' WHERE form_id = 'DEM' AND field_id = 'state';
+
+ALTER TABLE transactions
+  ADD refer_related_code varchar(255) NOT NULL DEFAULT '' COMMENT 'may reference codes.code as referral reason';
+
+INSERT INTO layout_options VALUES ('REF','refer_related_code','1Referral','Requested Service',8,15,1,30,255,'',1,1,'','','Billing Code for Requested Service');
