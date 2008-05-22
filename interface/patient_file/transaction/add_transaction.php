@@ -114,6 +114,7 @@ div.section {
 <script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
+<script type="text/javascript" src="../../../library/dialog.js"></script>
 
 <script language="JavaScript">
 
@@ -140,6 +141,25 @@ function divclick(cb, divid) {
   divstyle.display = 'none';
  }
  return true;
+}
+
+// This is for callback by the find-code popup.
+// Appends to or erases the current list of related codes.
+function set_related(codetype, code, selector, codedesc) {
+ var frc = document.getElementById('form_related_code');
+ var s = frc.value;
+ if (code) {
+  if (s.length > 0) s += ';';
+  s += codetype + ':' + code;
+ } else {
+  s = '';
+ }
+ frc.value = s;
+}
+
+// This invokes the find-code popup.
+function sel_related() {
+ dlgopen('../encounter/find_code_popup.php', '_blank', 500, 400);
 }
 
 </script>
