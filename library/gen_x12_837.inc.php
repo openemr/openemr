@@ -434,11 +434,13 @@ function gen_x12_837($pid, $encounter, &$log) {
     }
     $out .= "~\n";
 
-    ++$edicount;
-    $out .= "REF" .     // Referring Provider Secondary Identification
-      "*1G" .
-      "*" . $claim->referrerUPIN() .
-      "~\n";
+    if ($claim->referrerUPIN()) {
+      ++$edicount;
+      $out .= "REF" .   // Referring Provider Secondary Identification
+        "*1G" .
+        "*" . $claim->referrerUPIN() .
+        "~\n";
+    }
   }
 
   ++$edicount;
