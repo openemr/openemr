@@ -163,7 +163,7 @@ $arr_types_ucsmc = array(
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <title><?php xl('Football Injury Report','e'); ?></title>
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 <style type="text/css">
@@ -285,6 +285,7 @@ $arr_types_ucsmc = array(
 		foreach ($form_squads as $squad)
 			$squadmatches .= " OR pd.squad = '$squad'";
 
+    /*****************************************************************
 		$query = "SELECT lists.id AS listid, lists.diagnosis, lists.pid, " .
 			"lists.extrainfo AS gmissed, lists.begdate, lists.enddate, " .
 			"lists.returndate, lists.title, fia.*, pd.lname, pd.fname, pd.mname " .
@@ -298,6 +299,17 @@ $arr_types_ucsmc = array(
 			"lists.begdate <= '$to_date' AND " .
 			"lists.type = 'medical_problem' AND lists.title NOT LIKE '%Illness%'" .
 			"ORDER BY lists.pid, lists.begdate";
+    *****************************************************************/
+    $query = "SELECT lists.id AS listid, lists.diagnosis, lists.pid, " .
+      "lists.extrainfo AS gmissed, lists.begdate, lists.enddate, " .
+      "lists.returndate, lists.title, lfi.*, pd.lname, pd.fname, pd.mname " .
+      "FROM lists " .
+      "JOIN lists_football_injury AS lfi ON lfi.id = lists.id " .
+      "JOIN patient_data AS pd ON pd.pid = lists.pid AND ( $squadmatches ) " .
+      "WHERE ( lists.enddate IS NULL OR lists.enddate >= '$from_date' ) AND " .
+      "lists.begdate <= '$to_date' AND lists.type = 'football_injury' " .
+      "ORDER BY lists.pid, lists.begdate";
+    /****************************************************************/
 
 		$res = sqlStatement($query);
 
@@ -306,29 +318,42 @@ $arr_types_ucsmc = array(
 		$arr_my_injury_types = array();
 		$arr_my_issue_titles = array();
 
-		$last_listid  = 0;
+    // $last_listid  = 0;
 		$last_pid     = 0;
 		$last_endsecs = 0;
 
 		while ($row = sqlFetchArray($res)) {
 
-			// Throw away extra injury forms.
-			if ($row['listid'] == $last_listid) continue;
-			$last_listid = $rows['listid'];
+      // // Throw away extra injury forms.
+      // if ($row['listid'] == $last_listid) continue;
+      // $last_listid = $rows['listid'];
+
+      // Determine the primary diagnosis.
+      $diagnosis = '';
+      if (!empty($row['diagnosis'])) {
+        $relcodes = explode(';', $row['diagnosis']);
+        foreach ($relcodes as $codestring) {
+          if ($codestring === '') continue;
+          list($codetype, $code) = explode(':', $codestring);
+          if (empty($code)) $code = $codetype;
+          $diagnosis = $code;
+          break;
+        }
+      }
 
 			$body_region = 'Undiagnosed';
-			if (preg_match('/^(.)..$/', $row['diagnosis'], $matches)) {
+      if (preg_match('/^(.)..$/', $diagnosis, $matches)) {
 				$body_region = $arr_regions_osics[$matches[1]];
 			}
-			else if (preg_match('/^(..)\...\...$/', $row['diagnosis'], $matches)) {
+      else if (preg_match('/^(..)\...\...$/', $diagnosis, $matches)) {
 				$body_region = $arr_regions_ucsmc[$matches[1]];
 			}
 
 			$injury_type = 'Undiagnosed';
-			if (preg_match('/^.(.).$/', $row['diagnosis'], $matches)) {
+      if (preg_match('/^.(.).$/', $diagnosis, $matches)) {
 				$injury_type = $arr_types_osics[$matches[1]];
 			}
-			else if (preg_match('/^..\...\.(..)$/', $row['diagnosis'], $matches)) {
+      else if (preg_match('/^..\...\.(..)$/', $diagnosis, $matches)) {
 				$injury_type = $arr_types_ucsmc[$matches[1]];
 			}
 
