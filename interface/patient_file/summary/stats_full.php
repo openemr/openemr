@@ -1,14 +1,43 @@
 <?php
- // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+// Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
 
- include_once("../../globals.php");
- include_once("$srcdir/lists.inc");
- include_once("$srcdir/acl.inc");
+require_once("../../globals.php");
+require_once("$srcdir/lists.inc");
+require_once("$srcdir/acl.inc");
+require_once("../../../custom/code_types.inc.php");
+
+// Look up descriptions for one or more billing codes.  This should
+// probably be moved to an "include" file somewhere.
+//
+function lookup_code_descriptions($codes) {
+  global $code_types;
+  $code_text = '';
+  if (!empty($codes)) {
+    $relcodes = explode(';', $codes);
+    foreach ($relcodes as $codestring) {
+      if ($codestring === '') continue;
+      list($codetype, $code) = explode(':', $codestring);
+      $wheretype = "";
+      if (empty($code)) {
+        $code = $codetype;
+      } else {
+        $wheretype = "code_type = '" . $code_types[$codetype]['id'] . "' AND ";
+      }
+      $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
+        "$wheretype code = '$code' ORDER BY id LIMIT 1");
+      if (!empty($crow['code_text'])) {
+        if ($code_text) $code_text .= '; ';
+        $code_text .= $crow['code_text'];
+      }
+    }
+  }
+  return $code_text;
+}
 
  // Check authorization.
  $thisauth = acl_check('patients', 'med');
@@ -141,7 +170,7 @@ function newEncounter() {
   }
   echo "  <td valign='top' bgcolor='$bgcolor'>" . $row['begdate'] . "&nbsp;</td>\n";
   echo "  <td valign='top' bgcolor='$bgcolor'>" . $row['enddate'] . "&nbsp;</td>\n";
-  echo "  <td valign='top' bgcolor='$bgcolor' nowrap>" . $row['diagnosis'] . "</td>\n";
+  echo "  <td valign='top' bgcolor='$bgcolor' nowrap>" . lookup_code_descriptions($row['diagnosis']) . "</td>\n";
   echo "  <td valign='top' bgcolor='$bgcolor' nowrap>" . $ISSUE_OCCURRENCES[$row['occurrence']] . "</td>\n";
   if ($GLOBALS['athletic_team'])
    echo "  <td valign='top' align='center' bgcolor='$bgcolor'>" . $row['extrainfo'] . "</td>\n"; // games missed
