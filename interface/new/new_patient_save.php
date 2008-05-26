@@ -1,4 +1,4 @@
-<?
+<?php
  include_once("../globals.php");
  include_once("$srcdir/sql.inc");
  include_once("$srcdir/pid.inc");
@@ -44,6 +44,24 @@ if ($_POST['form_create']) {
     $form_dbcprefix         = ( $GLOBALS['dutchpc'] ) ? ucwords(trim($_POST["dbc_prefix"])) : '' ;
     $form_dbcprefixpartner  = ( $GLOBALS['dutchpc'] ) ? trim($_POST["dbc_prefix_partner"]) : '' ;
     $form_dbclastpartner    = ( $GLOBALS['dutchpc'] ) ? trim($_POST["dbc_lastname_partner"]) : '' ;
+    $form_sex               = ( $GLOBALS['dutchpc'] ) ? trim($_POST["dbc_sex"]) : '' ;
+    // in db the value for sex is a word! so we must translate it
+    switch ( $form_sex ) {
+        case 1 : $form_sex = 'Male'; break;
+        case 2:  $form_sex = 'Female'; break;
+        default: $form_sex = 'Male';
+    }
+    $form_voorletters       = ( $GLOBALS['dutchpc'] ) ? trim($_POST["dbc_voorletters"]) : '' ;
+    $form_dob               = ( $GLOBALS['dutchpc'] ) ? trim($_POST["dbc_geboort"]) : '' ;
+    $form_street            = ( $GLOBALS['dutchpc'] ) ? trim($_POST["dbc_straat"]) : '' ;
+    $form_number            = ( $GLOBALS['dutchpc'] ) ? trim($_POST["dbc_nummer"]) : '' ;
+    $form_addition          = ( $GLOBALS['dutchpc'] ) ? trim($_POST["dbc_toevoe"]) : '' ;
+    $form_city              = ( $GLOBALS['dutchpc'] ) ? trim($_POST["dbc_plaats"]) : '' ;
+    $form_postcode          = ( $GLOBALS['dutchpc'] ) ? trim($_POST["dbc_postal"]) : '' ;
+    $form_countrycode       = ( $GLOBALS['dutchpc'] ) ? trim($_POST["dbc_land"]) : '' ;
+    $form_provider          = ( $GLOBALS['dutchpc'] ) ? trim($_POST["dbc_insurance"]) : '' ;
+    $form_insdate           = ( $GLOBALS['dutchpc'] ) ? trim($_POST["dbc_insdatum"]) : '' ;
+    $form_policy            = ( $GLOBALS['dutchpc'] ) ? trim($_POST["dbc_policy"]) : '' ;
  // EOS DBC
  // ===================
 
@@ -53,16 +71,16 @@ if ($_POST['form_create']) {
   $form_fname,
   $form_lname,
   $form_mname,
-  "", // sex
-  "", // dob
-  "", // street
-  "", // DBC use ---- $nstreet
-  "", // DBC use ---- $nnr
-  "", // DBC use ---- $nadd
-  "", // postal_code
-  "", // city
+  $form_sex, // sex
+  $form_dob, // dob
+  $form_street, // street
+    $form_street, // DBC use ---- $nstreet
+    $form_number, // DBC use ---- $nnr
+    $form_addition, // DBC use ---- $nadd
+  $form_postcode, // postal_code
+  $form_city, // city
   "", // state
-  "", // country_code
+  $form_countrycode, // country_code
   "", // ss
   "", // occupation
   "", // phone_home
@@ -101,8 +119,10 @@ if ($_POST['form_create']) {
   $form_dbcprefix,          // $prefixlast 
   $form_dbcprefixpartner,   // $prefixlastpartner 
   $form_dbclastpartner,	    // $lastpartner
+  $form_voorletters,         // initials
   "",	// $provider_data
   ""	// $referer_data 
+  // ======== EOS dutch specific
 
  );
 
@@ -111,6 +131,11 @@ if ($_POST['form_create']) {
  newInsuranceData($pid, "primary");
  newInsuranceData($pid, "secondary");
  newInsuranceData($pid, "tertiary");
+
+
+    // DBC DUTCH INSURANCE DATA
+    if ( $GLOBALS['dutchpc'] ) set_insurer_nl($pid, $form_provider, $form_insdate, $form_policy);
+    // EOS DBC
 
  // Set referral source separately because we don't want it messed
  // with later by newPatientData().
