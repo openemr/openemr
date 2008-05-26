@@ -126,21 +126,25 @@ td { font-size:10pt; }
   var f = document.forms[0];
   var theopts = f.form_titles.options;
   theopts.length = 0;
+  var i = 0;
   for (i = 0; i < aopts[index].length; ++i) {
    theopts[i] = aopts[index][i];
   }
+  document.getElementById('row_titles').style.display = i ? '' : 'none';
   // Show or hide various rows depending on issue type, except do not
   // hide the comments or referred-by fields if they have data.
   var comdisp = (aitypes[index] == 1) ? 'none' : '';
   var revdisp = (aitypes[index] == 1) ? '' : 'none';
-  document.getElementById('row_enddate'   ).style.display = comdisp;
-  document.getElementById('row_active'    ).style.display = revdisp;
-  document.getElementById('row_diagnosis' ).style.display = comdisp;
-  document.getElementById('row_occurrence').style.display = comdisp;
-  document.getElementById('row_referredby').style.display = (f.form_referredby.value) ? '' : comdisp;
-  document.getElementById('row_comments'  ).style.display = (f.form_comments.value) ? '' : revdisp;
+  var injdisp = (aitypes[index] == 2) ? '' : 'none';
+  document.getElementById('row_enddate'       ).style.display = comdisp;
+  document.getElementById('row_active'        ).style.display = revdisp;
+  document.getElementById('row_diagnosis'     ).style.display = comdisp;
+  document.getElementById('row_occurrence'    ).style.display = comdisp;
+  document.getElementById('row_classification').style.display = injdisp;
+  document.getElementById('row_referredby'    ).style.display = (f.form_referredby.value) ? '' : comdisp;
+  document.getElementById('row_comments'      ).style.display = (f.form_comments.value  ) ? '' : revdisp;
 <?php if ($GLOBALS['athletic_team']) { ?>
-  // document.getElementById('row_returndate').style.display = comdisp;
+  document.getElementById('row_returndate').style.display = comdisp;
   document.getElementById('row_missed'    ).style.display = comdisp;
 <?php
   if ($ISSUE_TYPES['football_injury']) {
@@ -200,6 +204,17 @@ function set_related(codetype, code, selector, codedesc) {
 // This invokes the find-code popup.
 function sel_diagnosis() {
  dlgopen('../encounter/find_code_popup.php?codetype=<?php echo $diagnosis_type ?>', '_blank', 500, 400);
+}
+
+// Check for errors when the form is submitted.
+function validate() {
+ var f = document.forms[0];
+ if (! f.form_title.value) {
+  alert('Please enter a title!');
+  return false;
+ }
+ top.restoreSession();
+ return true;
 }
 
 </script>
@@ -321,7 +336,8 @@ function sel_diagnosis() {
 
  }
 ?>
-<form method='post' name='theform' action='add_edit_issue.php?issue=<?php echo $issue ?>'>
+<form method='post' name='theform' action='add_edit_issue.php?issue=<?php echo $issue ?>'
+ onsubmit='return validate()'>
 <center>
 
 <table border='0' width='100%'>
@@ -341,11 +357,17 @@ function sel_diagnosis() {
   </td>
  </tr>
 
+ <tr id='row_titles'>
+  <td valign='top' nowrap>&nbsp;</td>
+  <td valign='top'>
+   <select name='form_titles' size='4' onchange='set_text()'>
+   </select> (Select one of these, or type your own title)
+  </td>
+ </tr>
+
  <tr>
   <td valign='top' nowrap><b><?php xl('Title','e'); ?>:</b></td>
   <td>
-   <select name='form_titles' size='4' onchange='set_text()' style='width:100%'>
-   </select><br>
    <input type='text' size='40' name='form_title' value='<?php echo $irow['title'] ?>' style='width:100%' />
   </td>
  </tr>
@@ -387,7 +409,7 @@ function sel_diagnosis() {
   </td>
  </tr>
 
- <tr<?php if (true) echo " style='display:none;'"; // was if (! $GLOBALS['athletic_team']) ?> id='row_returndate'>
+ <tr<?php if (! $GLOBALS['athletic_team']) echo " style='display:none;'"; ?> id='row_returndate'>
   <td valign='top' nowrap><b><?php xl('Returned to Play','e'); ?>:</b></td>
   <td>
    <input type='text' size='10' name='form_return' id='form_return'
