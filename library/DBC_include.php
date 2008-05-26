@@ -16,6 +16,7 @@ require_once('DBC_files.php');
 require_once('DBC_Vektis.php');
 require_once('DBC_validations.php');
 require_once('DBC_decisiontree.php');
+require_once('DBC_database.php');
 
 $css_dbc = "{$GLOBALS['rootdir']}/themes/style_dbc.css";
 
