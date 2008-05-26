@@ -88,7 +88,7 @@ function getProviders() {
  * @return array
  */
 function getPatientDataNL($pid) {
-    mysql_query("SET NAMES 'utf8'");
+    sqlQuery("SET NAMES 'utf8'");
     $sql = "SELECT * FROM patient_data_NL WHERE pdn_id = '$pid'";
     return sqlQuery($sql);
 }
@@ -474,8 +474,8 @@ function newPatientData(    $db_id="",
 		$prefixlastpartner = "",
 		$lastpartner = "",
                 $initials = "",
-		$provider_data = "",
-		$referer_data = ""
+		$provider_data = array(),
+		$referer_data = array()
 		// DBC Dutch System
 
             )
@@ -559,7 +559,7 @@ function newPatientData(    $db_id="",
     // DBC 
     if ( !$db_id ) {
         // find the last inserted id for new patient case
-	$db_id = mysql_insert_id();
+	$db_id = dsql_lastid();
     }
     // EOS DBC
 
@@ -567,6 +567,8 @@ function newPatientData(    $db_id="",
 
          // dutch use
 	if ( $GLOBALS['dutchpc'] ) {
+	        $init = strtoupper(preg_replace('/[\s\.\-_0-9]/','',$initials));
+	        
             $querynl = ("REPLACE INTO patient_data_NL SET
                     pdn_id = '$db_id',
                     pdn_pxlast = '$prefixlast',
@@ -575,7 +577,7 @@ function newPatientData(    $db_id="",
                     pdn_street = '$nstreet',
                     pdn_number = '$nnr',
                     pdn_addition = '$nadd',
-                    pdn_initials = '$initials'
+                    pdn_initials = '$init'
             ");
 
             if ( $db_id ) $idnl = sqlInsert($querynl); // only if exists
@@ -585,7 +587,7 @@ function newPatientData(    $db_id="",
 
        // DBC Dutch System
 	// provider first
-	if ( $GLOBALS['dutchpc'] && ( $db_id ) ) {
+	if ( $GLOBALS['dutchpc'] && $db_id && $provider_data && $referer_data) {
 	   $querypr = ("INSERT INTO cl_providers(pro_pid, pro_company, pro_initials, pro_prefix, pro_lname,
 	           pro_street, pro_number, pro_addition, pro_city, pro_zipcode,  pro_phone, pro_fax, pro_email, pro_referer ) 
 	           VALUES ($db_id, '{$provider_data['pro_company']}', '{$provider_data['pro_initials']}',
@@ -1209,15 +1211,15 @@ function country_code($country_code = 0, $country_name = '') {
 function get_insurers_nl($pid = 0, $current = 1) {
     if ( !$pid ) return FALSE;
 
-    $q = sprintf("SELECT * FROM patient_insurers_NL pi JOIN insurance_companies ic ON ic.id = pi.pin_provider
-                  WHERE pin_pid = %d ORDER BY pin_date DESC", $pid);
-    $r = mysql_query($q) or die(mysql_error());
+    $join = 'insurance_companies ic ON ic.id = pi.pin_provider';
+    $r = dsql_select('*', 'patient_insurers_NL pi', array('pin_pid' => $pid), 'pin_date DESC', $join);
 
     while ( $row = mysql_fetch_array($r) ) {
         $rez[] = $row;
     } // while
 
     return ( $current ? $rez[0] : $rez );
+
 }
 
 // ----------------------------------------------------------------------------
@@ -1234,9 +1236,9 @@ function get_insurers_nl($pid = 0, $current = 1) {
 function set_insurer_nl($pid = 0, $insid = 0, $date = '', $policy = '') {
     if ( !$pid || !$insid || ($date == '0000-00-00') ) return FALSE;
 
-    $q = sprintf("INSERT INTO patient_insurers_NL(pin_pid, pin_provider, pin_date, pin_policy) 
-                  VALUES(%d, %d, '%s', '%s')", $pid, $insid, $date, $policy);
-    $r = mysql_query($q) or die(mysql_error());
+    $fields = array('pin_pid', 'pin_provider', 'pin_date', 'pin_policy');
+    $values = array($pid, $insid, $date, $policy);
+    dsql_insert('patient_insurers_NL', $fields, $values);
 }
 
 // ----------------------------------------------------------------------------
@@ -1252,8 +1254,7 @@ function set_insurer_nl($pid = 0, $insid = 0, $date = '', $policy = '') {
 function total_insurers($pid = 0) {
     if ( !$pid ) return FALSE;
 
-    $q = sprintf("SELECT COUNT(*) AS c FROM patient_insurers_NL WHERE pin_pid = %d ", $pid);
-    $r = mysql_query($q) or die(mysql_error());
+    $r = dsql_select('COUNT(*) AS c', 'patient_insurers_NL', array('pin_pid' => $pid));
     $row = mysql_fetch_array($r);
 
     return $row['c'];
