@@ -90,24 +90,6 @@ while ($orow = sqlFetchArray($ores)) {
   </td>
  </tr>
 
-<?php 
-// DBC Dutch System
-// we don't use middle name; instead we use dutch prefixes for names
-if ( $GLOBALS['dutchpc'] ) { ?>
-    <tr>
-        <td><span class='bold'>Voorvoegsel:</span></td>
-        <td><input type='entry' size='7' name='dbc_prefix'></td>
-    </tr>
-    <tr style="background-color: #79B0BE">
-        <td><span class='bold'>Voorvoegsel partner:</span></td>
-        <td><input type='entry' size='7' name='dbc_prefix_partner'></td>
-    </tr>
-    <tr style="background-color: #79B0BE">
-        <td><span class='bold'>Achternaam partner:</span></td>
-        <td><input type='entry' size='15' name='dbc_lastname_partner'></td>
-    </tr>
-
-<?php } else { ?>
  <tr>
   <td>
    <span class='bold'><?php xl('Middle Name','e');?>: </span>
