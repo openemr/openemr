@@ -74,3 +74,8 @@
     color: #303637;
     padding: 3px;
 }
+
+.tblcontainer {
+    margin-left:5%;
+    float: left;
+}
