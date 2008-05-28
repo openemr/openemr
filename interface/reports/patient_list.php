@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2008 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -7,13 +7,17 @@
  // of the License, or (at your option) any later version.
 
  // This report lists patients that were seen within a given date
- // range.
+ // range, or all patients if no date range is entered.
 
- include_once("../globals.php");
- include_once("$srcdir/patient.inc");
+ require_once("../globals.php");
+ require_once("$srcdir/patient.inc");
 
- $from_date = fixDate($_POST['form_from_date'], date('Y-01-01'));
- $to_date   = fixDate($_POST['form_to_date'], date('Y-12-31'));
+ // $from_date = fixDate($_POST['form_from_date'], date('Y-01-01'));
+ // $to_date   = fixDate($_POST['form_to_date'], date('Y-12-31'));
+ $from_date = fixDate($_POST['form_from_date'], '');
+ $to_date   = fixDate($_POST['form_to_date'], '');
+ if (empty($to_date) && !empty($from_date)) $to_date = date('Y-12-31');
+ if (empty($from_date) && !empty($to_date)) $from_date = date('Y-01-01');
 ?>
 <html>
 <head>
@@ -153,11 +157,15 @@
    "count(e.date) AS ecount, max(e.date) AS edate, " .
    "i1.date AS idate1, i2.date AS idate2, " .
    "c1.name AS cname1, c2.name AS cname2 " .
-   "FROM patient_data AS p " .
+   "FROM patient_data AS p ";
+  if (!empty($from_date)) $query .=
    "JOIN form_encounter AS e ON " .
    "e.pid = p.pid AND " .
    "e.date >= '$from_date 00:00:00' AND " .
-   "e.date <= '$to_date 23:59:59' " .
+   "e.date <= '$to_date 23:59:59' ";
+  else $query .=
+   "LEFT OUTER JOIN form_encounter AS e ON e.pid = p.pid ";
+  $query .=
    "LEFT OUTER JOIN insurance_data AS i1 ON " .
    "i1.pid = p.pid AND i1.type = 'primary' " .
    "LEFT OUTER JOIN insurance_companies AS c1 ON " .
@@ -180,7 +188,7 @@
    $age = '';
    if ($row['DOB']) {
     $dob = $row['DOB'];
-    $tdy = $row['edate'];
+    $tdy = $row['edate'] ? $row['edate'] : date('Y-m-d');
     $ageInMonths = (substr($tdy,0,4)*12) + substr($tdy,5,2) -
                    (substr($dob,0,4)*12) - substr($dob,5,2);
     $dayDiff = substr($tdy,8,2) - substr($dob,8,2);
