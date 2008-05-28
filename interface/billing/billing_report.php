@@ -1184,9 +1184,9 @@ if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
         }
 
         if ($iter['id'] && $last_encounter_id != $this_encounter_id) {
-
-            $rhtml .= "<td><input type='checkbox' value='" . $iter['bill_process'] . "$procstatus' name='claims[" . $this_encounter_id . "][bill]' onclick='set_button_states()'>&nbsp;</td>\n";
-
+          $tmpbpr = $iter['bill_process'];
+          if ($tmpbpr == '0' && $iter['billed']) $tmpbpr = '2';
+          $rhtml .= "<td><input type='checkbox' value='$tmpbpr' name='claims[" . $this_encounter_id . "][bill]' onclick='set_button_states()'>&nbsp;</td>\n";
         }
 
         else {
