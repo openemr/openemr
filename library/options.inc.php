@@ -401,4 +401,119 @@ function generate_display_field($frow, $currvalue) {
 
   return $s;
 }
+
+$CPR = 4; // cells per row of generic data
+$last_group = '';
+$cell_count = 0;
+$item_count = 0;
+
+function disp_end_cell() {
+  global $item_count, $cell_count;
+  if ($item_count > 0) {
+    echo "</td>";
+    $item_count = 0;
+  }
+}
+
+function disp_end_row() {
+  global $cell_count, $CPR;
+  disp_end_cell();
+  if ($cell_count > 0) {
+    for (; $cell_count < $CPR; ++$cell_count) echo "<td></td>";
+    echo "</tr>\n";
+    $cell_count = 0;
+  }
+}
+
+function disp_end_group() {
+  global $last_group;
+  if (strlen($last_group) > 0) {
+    disp_end_row();
+  }
+}
+
+function display_layout_rows($formtype, $result1, $result2='') {
+  global $item_count, $cell_count, $last_group, $CPR;
+
+  $fres = sqlStatement("SELECT * FROM layout_options " .
+    "WHERE form_id = '$formtype' AND uor > 0 " .
+    "ORDER BY group_name, seq");
+
+  while ($frow = sqlFetchArray($fres)) {
+    $this_group = $frow['group_name'];
+    $titlecols  = $frow['titlecols'];
+    $datacols   = $frow['datacols'];
+    $data_type  = $frow['data_type'];
+    $field_id   = $frow['field_id'];
+    $list_id    = $frow['list_id'];
+    $currvalue  = '';
+
+    if ($formtype == 'DEM') {
+      if ($GLOBALS['athletic_team']) {
+        // Skip fitness level and return-to-play date because those appear
+        // in a special display/update form on this page.
+        if ($field_id === 'fitness' || $field_id === 'userdate1') continue;
+      }
+      if (strpos($field_id, 'em_') === 0) {
+        $tmp = substr($field_id, 3);
+        if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
+      }
+      else {
+        if (isset($result1[$field_id])) $currvalue = $result1[$field_id];
+      }
+    }
+    else {
+      if (isset($result1[$field_id])) $currvalue = $result1[$field_id];
+    }
+
+    // Handle a data category (group) change.
+    if (strcmp($this_group, $last_group) != 0) {
+      disp_end_group();
+      $group_name = substr($this_group, 1);
+      $last_group = $this_group;
+    }
+
+    // Handle starting of a new row.
+    if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
+      disp_end_row();
+      echo "  <tr><td class='bold' style='padding-right:5pt'>";
+      if ($group_name) {
+        echo "<font color='#008800'>$group_name</font>";
+        $group_name = '';
+      } else {
+        echo '&nbsp;';
+      }
+      echo "</td>";
+    }
+
+    if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
+
+    // Handle starting of a new label cell.
+    if ($titlecols > 0) {
+      disp_end_cell();
+      echo "<td class='bold' colspan='$titlecols'";
+      if ($cell_count == 2) echo " style='padding-left:10pt'";
+      echo ">";
+      $cell_count += $titlecols;
+    }
+    ++$item_count;
+
+    if ($frow['title']) echo $frow['title'] . ":"; else echo "&nbsp;";
+
+    // Handle starting of a new data cell.
+    if ($datacols > 0) {
+      disp_end_cell();
+      echo "<td colspan='$datacols' class='text'";
+      if ($cell_count > 0) echo " style='padding-left:5pt'";
+      echo ">";
+      $cell_count += $datacols;
+    }
+
+    ++$item_count;
+    echo generate_display_field($frow, $currvalue);
+  }
+
+  disp_end_group();
+}
+
 ?>

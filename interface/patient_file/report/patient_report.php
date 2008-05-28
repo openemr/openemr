@@ -40,7 +40,9 @@
   <td class='text' valign='top'>
    <input type='checkbox' name='include_demographics' value="demographics" checked><?php xl('Demographics','e'); ?><br>
    <input type='checkbox' name='include_history' value="history"><?php xl(' History','e'); ?><br>
+   <!--
    <input type='checkbox' name='include_employer' value="employer"><?php xl('Employer','e'); ?><br>
+   -->
    <input type='checkbox' name='include_insurance' value="insurance"><?php xl('Insurance','e'); ?><br>
    <input type='checkbox' name='include_billing' value="billing" checked><?php xl('Billing','e'); ?><br>
   </td>

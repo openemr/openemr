@@ -86,6 +86,30 @@ function get_patient_balance($pid) {
 <?php } ?>
  }
 
+ function validate() {
+  var f = document.forms[0];
+<?php
+if ($GLOBALS['athletic_team']) {
+  echo "  if (f.form_userdate1.value != f.form_original_userdate1.value) {\n";
+  $irow = sqlQuery("SELECT id, title FROM lists WHERE " .
+    "pid = '$pid' AND enddate IS NULL ORDER BY begdate DESC LIMIT 1");
+  if (!empty($irow)) {
+?>
+   if (confirm('Do you wish to also set this new return date in the issue titled "<?php echo addslashes($irow['title']) ?>"?')) {
+    f.form_issue_id.value = '<?php echo $irow['id'] ?>';
+   } else {
+    alert('OK, you will need to manually update the return date in any affected issue(s).');
+   }
+<?php } else { ?>
+   alert('You have changed the return date but there are no open issues. You probably need to create or modify one.');
+<?php
+  } // end empty $irow
+  echo "  }\n";
+} // end athletic team
+?>
+  return true;
+ }
+
 </script>
 </head>
 
@@ -143,113 +167,7 @@ if ($GLOBALS['patient_id_category_name']) {
    <table border='0' cellpadding='0'>
 
 <?php
-
-$CPR = 4; // cells per row of generic data
-
-function end_cell() {
-  global $item_count, $cell_count;
-  if ($item_count > 0) {
-    echo "</td>";
-    $item_count = 0;
-  }
-}
-
-function end_row() {
-  global $cell_count, $CPR;
-  end_cell();
-  if ($cell_count > 0) {
-    for (; $cell_count < $CPR; ++$cell_count) echo "<td></td>";
-    echo "</tr>\n";
-    $cell_count = 0;
-  }
-}
-
-function end_group() {
-  global $last_group;
-  if (strlen($last_group) > 0) {
-    end_row();
-  }
-}
-
-$fres = sqlStatement("SELECT * FROM layout_options " .
-  "WHERE form_id = 'DEM' AND uor > 0 " .
-  "ORDER BY group_name, seq");
-$last_group = '';
-$cell_count = 0;
-$item_count = 0;
-
-while ($frow = sqlFetchArray($fres)) {
-  $this_group = $frow['group_name'];
-  $titlecols  = $frow['titlecols'];
-  $datacols   = $frow['datacols'];
-  $data_type  = $frow['data_type'];
-  $field_id   = $frow['field_id'];
-  $list_id    = $frow['list_id'];
-  $currvalue  = '';
-
-  if ($GLOBALS['athletic_team']) {
-    // Skip fitness level and return-to-play date because those appear
-    // in a special display/update form on this page.
-    if ($field_id === 'fitness' || $field_id === 'userdate1') continue;
-  }
-
-  if (strpos($field_id, 'em_') === 0) {
-    $tmp = substr($field_id, 3);
-    if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
-  }
-  else {
-    if (isset($result[$field_id])) $currvalue = $result[$field_id];
-  }
-
-  // Handle a data category (group) change.
-  if (strcmp($this_group, $last_group) != 0) {
-    end_group();
-    $group_name = substr($this_group, 1);
-    $last_group = $this_group;
-  }
-
-  // Handle starting of a new row.
-  if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
-    end_row();
-    echo "  <tr><td class='bold' style='padding-right:5pt'>";
-    if ($group_name) {
-      echo "<font color='#008800'>$group_name</font>";
-      $group_name = '';
-    } else {
-      echo '&nbsp;';
-    }
-    echo "</td>";
-  }
-
-  if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
-
-  // Handle starting of a new label cell.
-  if ($titlecols > 0) {
-    end_cell();
-    echo "<td class='bold' colspan='$titlecols'";
-    if ($cell_count == 2) echo " style='padding-left:10pt'";
-    echo ">";
-    $cell_count += $titlecols;
-  }
-  ++$item_count;
-
-  if ($frow['title']) echo $frow['title'] . ":"; else echo "&nbsp;";
-
-  // Handle starting of a new data cell.
-  if ($datacols > 0) {
-    end_cell();
-    echo "<td colspan='$datacols' class='text'";
-    if ($cell_count > 0) echo " style='padding-left:5pt'";
-    echo ">";
-    $cell_count += $datacols;
-  }
-
-  ++$item_count;
-  echo generate_display_field($frow, $currvalue);
-}
-
-end_group();
-
+display_layout_rows('DEM', $result, $result2);
 echo "   </table>\n";
 echo "   <table border='0' cellpadding='0' width='100%'>\n";
 
@@ -362,23 +280,32 @@ foreach (array('primary','secondary','tertiary') as $instype) {
   <td valign="top" class="text">
 <?php
 
-// This stuff only applies to athletic team use of OpenEMR:
+// This stuff only applies to athletic team use of OpenEMR.  The client
+// insisted on being able to quickly change fitness and return date here:
+//
 if ($GLOBALS['athletic_team']) {
-  //                  blue       dk green   yellow     red        orange
-  $fitcolors = array('#6677ff', '#00cc00', '#ffff00', '#ff3333', '#ff8800', '#ffeecc', '#ffccaa');
+  //                  blue      green     yellow    red       orange
+  $fitcolors = array('#6677ff','#00cc00','#ffff00','#ff3333','#ff8800','#ffeecc','#ffccaa');
   $fitcolor = $fitcolors[0];
   $form_fitness   = $_POST['form_fitness'];
-  $form_userdate1 = fixDate($_POST['form_userdate1']);
+  $form_userdate1 = fixDate($_POST['form_userdate1'], '');
+  $form_issue_id  = $_POST['form_issue_id'];
   if ($form_submit) {
+    $returndate = $form_userdate1 ? "'$form_userdate1'" : "NULL";
     sqlStatement("UPDATE patient_data SET fitness = '$form_fitness', " .
-      "userdate1 = '$form_userdate1' WHERE pid = '$pid'");
+      "userdate1 = $returndate WHERE pid = '$pid'");
+    // Update return date in the designated issue, if requested.
+    if ($form_issue_id) {
+      sqlStatement("UPDATE lists SET returndate = $returndate WHERE " .
+        "id = '$form_issue_id'");
+    }
   } else {
     $form_fitness = $result['fitness'];
     if (! $form_fitness) $form_fitness = 1;
     $form_userdate1 = $result['userdate1'];
   }
   $fitcolor = $fitcolors[$form_fitness - 1];
-  echo "   <form method='post' action='demographics.php'>\n";
+  echo "   <form method='post' action='demographics.php' onsubmit='return validate()'>\n";
   echo "   <span class='bold'>Fitness to Play:</span><br />\n";
   echo "   <select name='form_fitness' style='background-color:$fitcolor'>\n";
   $res = sqlStatement("SELECT * FROM list_options WHERE " .
@@ -398,6 +325,8 @@ if ($GLOBALS['athletic_team']) {
     "   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' " .
     "id='img_userdate1' border='0' alt='[?]' style='cursor:pointer' " .
     "title='" . xl('Click here to choose a date') . "'>\n";
+  echo "   <input type='hidden' name='form_original_userdate1' value='$form_userdate1' />\n";
+  echo "   <input type='hidden' name='form_issue_id' value='' />\n";
   echo "<p><input type='submit' name='form_submit' value='Change' /></p>\n";
   echo "   </form>\n";
 }
