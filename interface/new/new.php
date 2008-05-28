@@ -1,4 +1,4 @@
-<?php 
+<?php
 include_once("../globals.php");
 
 // Determine if the registration date should be requested.
@@ -9,7 +9,7 @@ $regstyle = $crow['count'] ? "" : " style='display:none'";
 <html>
 
 <head>
-<?php html_header_show();?>
+<?php html_header_show(); ?>
 <link rel="stylesheet" href="<?php echo xl($css_header,'e');?>" type="text/css">
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 
@@ -98,7 +98,6 @@ while ($orow = sqlFetchArray($ores)) {
    <input type='entry' size='15' name='mname'>
   </td>
  </tr>
-<?php }  // EOS DBC ?>
 
  <tr>
   <td>

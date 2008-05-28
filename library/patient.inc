@@ -558,8 +558,8 @@ function newPatientData(    $db_id="",
 
     // DBC 
     if ( !$db_id ) {
-        // find the last inserted id for new patient case
-	$db_id = dsql_lastid();
+      // find the last inserted id for new patient case
+      $db_id = empty($GLOBALS['dutchpc']) ? mysql_insert_id() : dsql_lastid();
     }
     // EOS DBC
 
