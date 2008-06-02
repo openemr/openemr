@@ -512,3 +512,15 @@ ALTER TABLE transactions
   ADD refer_related_code varchar(255) NOT NULL DEFAULT '' COMMENT 'may reference codes.code as referral reason';
 
 INSERT INTO layout_options VALUES ('REF','refer_related_code','1Referral','Requested Service',8,15,1,30,255,'',1,1,'','','Billing Code for Requested Service');
+
+ALTER TABLE billing
+  MODIFY `fee` decimal(12,2) NOT NULL DEFAULT 0.00;
+ALTER TABLE codes
+  MODIFY `fee` decimal(12,2) NOT NULL DEFAULT 0.00;
+ALTER TABLE drug_sales
+  MODIFY `fee` decimal(12,2) NOT NULL DEFAULT 0.00;
+ALTER TABLE payments
+  MODIFY `amount1` decimal(12,2) NOT NULL DEFAULT 0.00,
+  MODIFY `amount2` decimal(12,2) NOT NULL DEFAULT 0.00,
+  MODIFY `posted1` decimal(12,2) NOT NULL DEFAULT 0.00,
+  MODIFY `posted2` decimal(12,2) NOT NULL DEFAULT 0.00;

@@ -104,7 +104,7 @@ CREATE TABLE `billing` (
   `process_file` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `modifier` varchar(5) character set utf8 collate utf8_unicode_ci default NULL,
   `units` tinyint(3) default NULL,
-  `fee` decimal(7,2) default NULL,
+  `fee` decimal(12,2) default NULL,
   `justify` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `target` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
   `x12_partner_id` int(11) default NULL,
@@ -225,7 +225,7 @@ CREATE TABLE `codes` (
   `code_type` tinyint(2) default NULL,
   `modifier` varchar(5) character set utf8 collate utf8_unicode_ci NOT NULL default '',
   `units` tinyint(3) default NULL,
-  `fee` decimal(7,2) default NULL,
+  `fee` decimal(12,2) default NULL,
   `superbill` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
   `related_code` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
   `taxrates` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
@@ -356,7 +356,7 @@ CREATE TABLE `drug_sales` (
   `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `sale_date` date NOT NULL,
   `quantity` int(11) NOT NULL default '0',
-  `fee` decimal(7,2) NOT NULL default '0.00',
+  `fee` decimal(12,2) NOT NULL default '0.00',
   `billed` tinyint(1) NOT NULL default '0' COMMENT 'indicates if the sale is posted to accounting',
   PRIMARY KEY  (`sale_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
@@ -5333,10 +5333,10 @@ CREATE TABLE `payments` (
   `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `method` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `source` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `amount1` decimal(7,2) NOT NULL default '0.00',
-  `amount2` decimal(7,2) NOT NULL default '0.00',
-  `posted1` decimal(7,2) NOT NULL default '0.00',
-  `posted2` decimal(7,2) NOT NULL default '0.00',
+  `amount1` decimal(12,2) NOT NULL default '0.00',
+  `amount2` decimal(12,2) NOT NULL default '0.00',
+  `posted1` decimal(12,2) NOT NULL default '0.00',
+  `posted2` decimal(12,2) NOT NULL default '0.00',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
