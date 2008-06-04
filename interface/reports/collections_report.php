@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006-2007 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2008 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,23 +22,40 @@ $today = date("Y-m-d");
 
 $form_date      = fixDate($_POST['form_date'], "");
 $form_to_date   = fixDate($_POST['form_to_date'], "");
-$is_due_ins     = $_POST['form_category'] == xl('Due Ins');
+$is_ins_summary = $_POST['form_category'] == xl('Ins Summary');
+$is_due_ins     = ($_POST['form_category'] == xl('Due Ins')) || $is_ins_summary;
 $is_due_pt      = $_POST['form_category'] == xl('Due Pt');
 $is_all         = $_POST['form_category'] == xl('All');
+$is_ageby_lad   = strpos($_POST['form_ageby'], 'Last') !== false;
 
 if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) {
-  $form_cb_ssn      = $_POST['form_cb_ssn']      ? true : false;
-  $form_cb_dob      = $_POST['form_cb_dob']      ? true : false;
-  $form_cb_policy   = $_POST['form_cb_policy']   ? true : false;
-  $form_cb_phone    = $_POST['form_cb_phone']    ? true : false;
-  $form_cb_city     = $_POST['form_cb_city']     ? true : false;
-  $form_cb_ins1     = $_POST['form_cb_ins1']     ? true : false;
-  $form_cb_referrer = $_POST['form_cb_referrer'] ? true : false;
-  $form_cb_idays    = $_POST['form_cb_idays']    ? true : false;
-  $form_cb_err      = $_POST['form_cb_err']      ? true : false;
+  if ($is_ins_summary) {
+    $form_cb_ssn      = false;
+    $form_cb_dob      = false;
+    $form_cb_adate    = false;
+    $form_cb_policy   = false;
+    $form_cb_phone    = false;
+    $form_cb_city     = false;
+    $form_cb_ins1     = false;
+    $form_cb_referrer = false;
+    $form_cb_idays    = false;
+    $form_cb_err      = false;
+  } else {
+    $form_cb_ssn      = $_POST['form_cb_ssn']      ? true : false;
+    $form_cb_dob      = $_POST['form_cb_dob']      ? true : false;
+    $form_cb_adate    = $_POST['form_cb_adate']    ? true : false;
+    $form_cb_policy   = $_POST['form_cb_policy']   ? true : false;
+    $form_cb_phone    = $_POST['form_cb_phone']    ? true : false;
+    $form_cb_city     = $_POST['form_cb_city']     ? true : false;
+    $form_cb_ins1     = $_POST['form_cb_ins1']     ? true : false;
+    $form_cb_referrer = $_POST['form_cb_referrer'] ? true : false;
+    $form_cb_idays    = $_POST['form_cb_idays']    ? true : false;
+    $form_cb_err      = $_POST['form_cb_err']      ? true : false;
+  }
 } else {
   $form_cb_ssn      = true;
   $form_cb_dob      = false;
+  $form_cb_adate    = false;
   $form_cb_policy   = false;
   $form_cb_phone    = true;
   $form_cb_city     = false;
@@ -66,6 +83,8 @@ if ($form_cb_city    ) ++$initial_colspan;
 if ($form_cb_ins1    ) ++$initial_colspan;
 if ($form_cb_referrer) ++$initial_colspan;
 
+$final_colspan = $form_cb_adate ? 6 : 5;
+
 $grand_total_charges     = 0;
 $grand_total_adjustments = 0;
 $grand_total_paid        = 0;
@@ -83,7 +102,7 @@ function endPatient($ptrow) {
   global $export_patient_count, $export_dollars, $bgcolor;
   global $grand_total_charges, $grand_total_adjustments, $grand_total_paid;
   global $grand_total_agedbal, $is_due_ins, $form_age_cols;
-  global $initial_colspan, $form_cb_idays, $form_cb_err;
+  global $initial_colspan, $final_colspan, $form_cb_idays, $form_cb_err;
 
   if (!$ptrow['pid']) return;
 
@@ -127,7 +146,7 @@ function endPatient($ptrow) {
       echo " <tr bgcolor='$bgcolor'>\n";
       echo "  <td class='detail' colspan='$initial_colspan'>";
       echo "&nbsp;</td>\n";
-      echo "  <td class='detotal' colspan='5'>&nbsp;Total Patient Balance:</td>\n";
+      echo "  <td class='detotal' colspan='$final_colspan'>&nbsp;Total Patient Balance:</td>\n";
       if ($form_age_cols) {
         for ($c = 0; $c < $form_age_cols; ++$c) {
           echo "  <td class='detotal' align='right'>&nbsp;" .
@@ -152,6 +171,47 @@ function endPatient($ptrow) {
   }
 }
 
+function endInsurance($insrow) {
+  global $export_patient_count, $export_dollars, $bgcolor;
+  global $grand_total_charges, $grand_total_adjustments, $grand_total_paid;
+  global $grand_total_agedbal, $is_due_ins, $form_age_cols;
+  global $initial_colspan, $form_cb_idays, $form_cb_err;
+  if (!$insrow['pid']) return;
+  $ins_balance = $insrow['amount'] - $insrow['paid'];
+  if ($_POST['form_export'] || $_POST['form_csvexport']) {
+    // No exporting of insurance summaries.
+    $export_patient_count += 1;
+    $export_dollars += $ins_balance;
+  }
+  else {
+    echo " <tr bgcolor='$bgcolor'>\n";
+    echo "  <td class='detail'>" . $insrow['insname'] . "</td>\n";
+    echo "  <td class='detotal' align='right'>&nbsp;" .
+      sprintf("%.2f", $insrow['charges']) . "&nbsp;</td>\n";
+    echo "  <td class='detotal' align='right'>&nbsp;" .
+      sprintf("%.2f", $insrow['adjustments']) . "&nbsp;</td>\n";
+    echo "  <td class='detotal' align='right'>&nbsp;" .
+      sprintf("%.2f", $insrow['paid']) . "&nbsp;</td>\n";
+    if ($form_age_cols) {
+      for ($c = 0; $c < $form_age_cols; ++$c) {
+        echo "  <td class='detotal' align='right'>&nbsp;" .
+          sprintf("%.2f", $insrow['agedbal'][$c]) . "&nbsp;</td>\n";
+      }
+    }
+    else {
+      echo "  <td class='detotal' align='right'>&nbsp;" .
+        sprintf("%.2f", $ins_balance) . "&nbsp;</td>\n";
+    }
+    echo " </tr>\n";
+  }
+  $grand_total_charges     += $insrow['charges'];
+  $grand_total_adjustments += $insrow['adjustments'];
+  $grand_total_paid        += $insrow['paid'];
+  for ($c = 0; $c < $form_age_cols; ++$c) {
+    $grand_total_agedbal[$c] += $insrow['agedbal'][$c];
+  }
+}
+
 // In the case of CSV export only, a download will be forced.
 if ($_POST['form_csvexport']) {
   header("Pragma: public");
@@ -165,7 +225,7 @@ else {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+<?php if (function_exists('html_header_show')) html_header_show(); ?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <title><?php xl('Collections Report','e')?></title>
 <style type="text/css">
@@ -218,6 +278,8 @@ function checkAll(checked) {
    <?php xl('Primary Ins','e') ?>&nbsp;
    <input type='checkbox' name='form_cb_referrer'<?php if ($form_cb_referrer) echo ' checked'; ?>>
    <?php xl('Referrer','e') ?>&nbsp;
+   <input type='checkbox' name='form_cb_adate'<?php if ($form_cb_adate) echo ' checked'; ?>>
+   <?php xl('Act Date','e') ?>&nbsp;
    <input type='checkbox' name='form_cb_idays'<?php if ($form_cb_idays) echo ' checked'; ?>>
    <?php xl('Inactive Days','e') ?>&nbsp;
    <input type='checkbox' name='form_cb_err'<?php if ($form_cb_err) echo ' checked'; ?>>
@@ -227,31 +289,46 @@ function checkAll(checked) {
 
  <tr bgcolor='#ddddff'>
   <td align='center'>
-   <?php xl('Age Cols:','e') ?>
-   <input type='text' name='form_age_cols' size='2' value='<?php echo $form_age_cols; ?>'>
+   <?php xl('Age By:','e') ?>
+   <select name='form_ageby'>
+<?php
+ foreach (array('Service Date', 'Last Activity Date') as $value) {
+  echo "    <option value='$value'";
+  if ($_POST['form_ageby'] == $value) echo " selected";
+  echo ">" . xl($value) . "</option>\n";
+ }
+?>
+   </select>
    &nbsp;
-   <?php xl('Age Increment:','e') ?>
-   <input type='text' name='form_age_inc' size='3' value='<?php echo $form_age_inc; ?>'>
+   <?php xl('Aging Columns:','e') ?>
+   <input type='text' name='form_age_cols' size='2' value='<?php echo $form_age_cols; ?>' />
    &nbsp;
-   <?php xl('Svc Date:','e')?>
+   <?php xl('Days per Column:','e') ?>
+   <input type='text' name='form_age_inc' size='3' value='<?php echo $form_age_inc; ?>' />
+  </td>
+ </tr>
+
+ <tr bgcolor='#ddddff'>
+  <td align='center'>
+   <?php xl('Service Date:','e')?>
    <input type='text' name='form_date' id="form_date" size='10' value='<?php echo $_POST['form_date']; ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='<?php xl("Date of service mm/dd/yyyy","e")?>'>
+    title='<?php xl("Date of service mm/dd/yyyy","e")?>' />
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
+    title='<?php xl('Click here to choose a date','e'); ?>' />
    &nbsp;
    <?php xl('To:','e')?>
    <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $_POST['form_to_date']; ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='<?php xl("Ending DOS mm/dd/yyyy if you wish to enter a range","e")?>'>
+    title='<?php xl("Ending DOS mm/dd/yyyy if you wish to enter a range","e")?>' />
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
+    title='<?php xl('Click here to choose a date','e'); ?>' />
    &nbsp;
    <select name='form_category'>
 <?php
- foreach (array(xl('Open'), xl('Due Pt'), xl('Due Ins'), xl('Credits'), xl('All')) as $value) {
+ foreach (array(xl('Open'),xl('Due Pt'),xl('Due Ins'),xl('Ins Summary'),xl('Credits'),xl('All')) as $value) {
   echo "    <option value='$value'";
   if ($_POST['form_category'] == $value) echo " selected";
   echo ">$value</option>\n";
@@ -313,7 +390,7 @@ function checkAll(checked) {
       $where = "1 = 1";
     }
 
-    // TBD: Instead of the subselects in the following query, we will call
+    // Instead of the subselects in the following query, we will call
     // get_invoice_summary() in order to get data at the procedure level and
     // thus decide if insurance appears to be done with each invoice.
 
@@ -378,6 +455,7 @@ function checkAll(checked) {
           }
         }
       }
+      $row['insname'] = $insname;
 
       // Also get the primary insurance company name whenever there is one.
       $row['ins1'] = '';
@@ -428,13 +506,11 @@ function checkAll(checked) {
       $row['adjustments'] = 0;
       $ins_seems_done = true;
       $ladate = $svcdate;
-      // echo "\n<!-- $ladate * -->\n"; // debugging
       foreach ($invlines as $key => $value) {
         $row['charges'] += $value['chg'] + $value['adj'];
         $row['adjustments'] += 0 - $value['adj'];
         foreach ($value['dtl'] as $dkey => $dvalue) {
           $dtldate = trim(substr($dkey, 0, 10));
-          // echo "\n<!-- $dtldate -->\n"; // debugging
           if ($dtldate && $dtldate > $ladate) $ladate = $dtldate;
         }
         $lckey = strtolower($key);
@@ -446,6 +522,8 @@ function checkAll(checked) {
         $row['billing_errmsg'] = 'Ins1 seems done';
       else if (strpos($inseobs, 'ins1') !== false && !$ins_seems_done)
         $row['billing_errmsg'] = 'Ins1 seems not done';
+
+      $row['ladate'] = $ladate;
 
       // Compute number of days since last activity.
       $latime = mktime(0, 0, 0, substr($ladate, 5, 2),
@@ -479,7 +557,6 @@ function checkAll(checked) {
         $row['policy'] = $insrow['policy_number'];
       }
 
-      // $rows[$ptname] = $row;
       $rows[$insname . '|' . $ptname . '|' . $encounter] = $row;
     }
 
@@ -500,7 +577,8 @@ function checkAll(checked) {
         echo '"Adjust",';
         echo '"Paid",';
         echo '"Balance",';
-        echo '"IDays"' . "\n";
+        echo '"IDays",';
+        echo '"LADate"' . "\n";
       }
     }
     else {
@@ -512,7 +590,9 @@ function checkAll(checked) {
 <?php if ($is_due_ins) { ?>
   <td class="dehead">&nbsp;<?php xl('Insurance','e')?></td>
 <?php } ?>
+<?php if (!$is_ins_summary) { ?>
   <td class="dehead">&nbsp;<?php xl('Name','e')?></td>
+<?php } ?>
 <?php if ($form_cb_ssn) { ?>
   <td class="dehead">&nbsp;<?php xl('SSN','e')?></td>
 <?php } ?>
@@ -534,8 +614,13 @@ function checkAll(checked) {
 <?php if ($form_cb_referrer) { ?>
   <td class="dehead">&nbsp;<?php xl('Referrer','e')?></td>
 <?php } ?>
+<?php if (!$is_ins_summary) { ?>
   <td class="dehead">&nbsp;<?php xl('Invoice','e') ?></td>
   <td class="dehead">&nbsp;<?php xl('Svc Date','e') ?></td>
+<?php if ($form_cb_adate) { ?>
+  <td class="dehead">&nbsp;<?php xl('Act Date','e')?></td>
+<?php } ?>
+<?php } ?>
   <td class="dehead" align="right"><?php xl('Charge','e') ?>&nbsp;</td>
   <td class="dehead" align="right"><?php xl('Adjust','e') ?>&nbsp;</td>
   <td class="dehead" align="right"><?php xl('Paid','e') ?>&nbsp;</td>
@@ -562,8 +647,10 @@ function checkAll(checked) {
 <?php if ($form_cb_idays) { ?>
   <td class="dehead" align="right"><?php xl('IDays','e')?>&nbsp;</td>
 <?php } ?>
+<?php if (!$is_ins_summary) { ?>
   <td class="dehead" align="center"><?php xl('Prv','e') ?></td>
   <td class="dehead" align="center"><?php xl('Sel','e') ?></td>
+<?php } ?>
 <?php if ($form_cb_err) { ?>
   <td class="dehead">&nbsp;<?php xl('Error','e')?></td>
 <?php } ?>
@@ -579,7 +666,14 @@ function checkAll(checked) {
       list($insname, $ptname, $trash) = explode('|', $key);
       list($pid, $encounter) = explode(".", $row['invnumber']);
 
-      if ($insname != $ptrow['insname'] || $pid != $ptrow['pid']) {
+      if ($is_ins_summary && $insname != $ptrow['insname']) {
+        endInsurance($ptrow);
+        $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
+        $ptrow = array('insname' => $insname, 'ptname' => $ptname, 'pid' => $pid, 'count' => 1);
+        foreach ($row as $key => $value) $ptrow[$key] = $value;
+        $ptrow['agedbal'] = array();
+      }
+      else if (!$is_ins_summary && ($insname != $ptrow['insname'] || $pid != $ptrow['pid'])) {
         // For the report, this will write the patient totals.  For the
         // collections export this writes everything for the patient:
         endPatient($ptrow);
@@ -595,7 +689,18 @@ function checkAll(checked) {
         ++$ptrow['count'];
       }
 
-      if (!$_POST['form_export'] && !$_POST['form_csvexport']) {
+      // Compute invoice balance and aging column number, and accumulate aging.
+      $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
+      if ($form_age_cols) {
+        $agedate = $is_ageby_lad ? $row['ladate'] : $row['dos'];
+        $agetime = mktime(0, 0, 0, substr($agedate, 5, 2),
+          substr($agedate, 8, 2), substr($agedate, 0, 4));
+        $days = floor((time() - $agetime) / (60 * 60 * 24));
+        $agecolno = min($form_age_cols - 1, max(0, floor($days / $form_age_inc)));
+        $ptrow['agedbal'][$agecolno] += $balance;
+      }
+
+      if (!$is_ins_summary && !$_POST['form_export'] && !$_POST['form_csvexport']) {
         $in_collections = stristr($row['billnote'], 'IN COLLECTIONS') !== false;
 ?>
  <tr bgcolor='<?php echo $bgcolor ?>'>
@@ -638,6 +743,11 @@ function checkAll(checked) {
   <td class="detail">
    &nbsp;<?php echo $row['dos']; ?>
   </td>
+<?php if ($form_cb_adate) { ?>
+  <td class='detail'>
+   &nbsp;<?php echo $row['ladate']; ?>
+  </td>
+<?php } ?>
   <td class="detail" align="right">
    <?php bucks($row['charges']) ?>&nbsp;
   </td>
@@ -647,18 +757,11 @@ function checkAll(checked) {
   <td class="detail" align="right">
    <?php bucks($row['paid']) ?>&nbsp;
   </td>
-
 <?php
-        $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
         if ($form_age_cols) {
-          $dostime = mktime(0, 0, 0, substr($row['dos'], 5, 2),
-            substr($row['dos'], 8, 2), substr($row['dos'], 0, 4));
-          $days = floor((time() - $dostime) / (60 * 60 * 24));
-          $colno = min($form_age_cols - 1, max(0, floor($days / $form_age_inc)));
-          $ptrow['agedbal'][$colno] += $balance;
           for ($c = 0; $c < $form_age_cols; ++$c) {
             echo "  <td class='detail' align='right'>";
-            if ($c == $colno) {
+            if ($c == $agecolno) {
               bucks($balance);
             }
             echo "&nbsp;</td>\n";
@@ -700,7 +803,7 @@ function checkAll(checked) {
 ?>
  </tr>
 <?php
-      } // end not export
+      } // end not export and not insurance summary
 
       else if ($_POST['form_csvexport']) {
         // The CSV detail line is written here.
@@ -715,12 +818,16 @@ function checkAll(checked) {
         echo '"' . sprintf('%.2f', $row['adjustments']) . '",';
         echo '"' . sprintf('%.2f', $row['paid'])        . '",';
         echo '"' . sprintf('%.2f', $balance)            . '",';
-        echo '"' . $row['inactive_days']                . '"' . "\n";
+        echo '"' . $row['inactive_days']                . '",';
+        echo '"' . $row['ladate']                       . '"' . "\n";
       } // end $form_csvexport
 
     } // end loop
 
-    endPatient($ptrow);
+    if ($is_ins_summary)
+      endInsurance($ptrow);
+    else
+      endPatient($ptrow);
 
     if ($_POST['form_export']) {
       echo "</textarea>\n";
@@ -739,9 +846,14 @@ function checkAll(checked) {
     }
     else {
       echo " <tr bgcolor='#ffffff'>\n";
-      echo "  <td class='detail' colspan='$initial_colspan'>\n";
-      echo "   &nbsp;</td>\n";
-      echo "  <td class='dehead' colspan='2'>&nbsp;Report Totals:</td>\n";
+      if ($is_ins_summary) {
+        echo "  <td class='dehead'>&nbsp;Report Totals:</td>\n";
+      } else {
+        echo "  <td class='detail' colspan='$initial_colspan'>\n";
+        echo "   &nbsp;</td>\n";
+        echo "  <td class='dehead' colspan='" . ($final_colspan - 3) .
+          "'>&nbsp;Report Totals:</td>\n";
+      }
       echo "  <td class='dehead' align='right'>&nbsp;" .
         sprintf("%.2f", $grand_total_charges) . "&nbsp;</td>\n";
       echo "  <td class='dehead' align='right'>&nbsp;" .
@@ -760,9 +872,9 @@ function checkAll(checked) {
           $grand_total_adjustments - $grand_total_paid) . "&nbsp;</td>\n";
       }
       if ($form_cb_idays) echo "  <td class='detail'>&nbsp;</td>\n";
-      echo "  <td class='detail' colspan='2'>&nbsp;</td>\n";
-      echo " </tr>\n";
+      if (!$is_ins_summary) echo "  <td class='detail' colspan='2'>&nbsp;</td>\n";
       if ($form_cb_err) echo "  <td class='detail'>&nbsp;</td>\n";
+      echo " </tr>\n";
       echo "</table>\n";
     }
   } // end if form_search
