@@ -34,6 +34,8 @@
  require_once("$srcdir/freeb/xmlrpcs.inc");
  require_once("../../custom/code_types.inc.php");
 
+ $details = empty($_GET['details']) ? 0 : 1;
+
  // Get the patient's name and chart number.
  $patdata = getPatientData($pid, 'fname,mname,lname,pubpid,street,city,state,postal_code');
 
@@ -191,7 +193,7 @@ function invoice_post(& $invoice_info)
 // Generate a receipt from the last-billed invoice for this patient.
 //
 function generate_receipt($patient_id) {
-  global $sl_err, $sl_cash_acc, $css_header;
+  global $sl_err, $sl_cash_acc, $css_header, $details;
 
   // Get details for what we guess is the primary facility.
   $frow = sqlQuery("SELECT * FROM facility " .
@@ -282,19 +284,19 @@ function generate_receipt($patient_id) {
  <tr>
   <td><b><?php xl('Date','e'); ?></b></td>
   <td><b><?php xl('Description','e'); ?></b></td>
-  <td align='right'><b><?php xl('Price','e'); ?></b></td>
-  <td align='right'><b><?php xl('Qty'  ,'e'); ?></b></td>
+  <td align='right'><b><?php echo $details ? xl('Price') : '&nbsp;'; ?></b></td>
+  <td align='right'><b><?php echo $details ? xl('Qty'  ) : '&nbsp;'; ?></b></td>
   <td align='right'><b><?php xl('Total','e'); ?></b></td>
  </tr>
 <?php
- $charges = 0.00;
- // Request all line items with money belonging to the invoice.
- $inres = SLQuery("SELECT * FROM invoice WHERE " .
+$charges = 0.00;
+// Request all line items with money belonging to the invoice.
+$inres = SLQuery("SELECT * FROM invoice WHERE " .
   "trans_id = $trans_id AND sellprice != 0 ORDER BY id");
- if ($sl_err) die($sl_err);
+if ($sl_err) die($sl_err);
 
- $svcdispdate = $svcdate;
- for ($irow = 0; $irow < SLRowCount($inres); ++$irow) {
+$svcdispdate = $svcdate;
+for ($irow = 0; $irow < SLRowCount($inres); ++$irow) {
   $row = SLGetRow($inres, $irow);
   $price = sprintf('%01.2f', $row['sellprice']);
   $tmp   = sprintf('%01.4f', $row['sellprice']);
@@ -302,22 +304,24 @@ function generate_receipt($patient_id) {
   $amount = sprintf('%01.2f', $row['sellprice'] * $row['qty']);
   $charges += $amount;
   $desc = preg_replace('/^.{1,6}:/', '', $row['description']);
-  echo " <tr>\n";
-  echo "  <td>$svcdispdate</td>\n";
-  echo "  <td>$desc</td>\n";
-  echo "  <td align='right'>$price</td>\n";
-  echo "  <td align='right'>" . $row['qty'] . "</td>\n";
-  echo "  <td align='right'>$amount</td>\n";
-  echo " </tr>\n";
-  $svcdispdate = '&nbsp;';
- }
+  if ($details) {
+    echo " <tr>\n";
+    echo "  <td>$svcdispdate</td>\n";
+    echo "  <td>$desc</td>\n";
+    echo "  <td align='right'>$price</td>\n";
+    echo "  <td align='right'>" . $row['qty'] . "</td>\n";
+    echo "  <td align='right'>$amount</td>\n";
+    echo " </tr>\n";
+    $svcdispdate = '&nbsp;';
+  }
+}
 ?>
 
  <tr>
   <td colspan='5'>&nbsp;</td>
  </tr>
  <tr>
-  <td>&nbsp;</td>
+  <td><?php echo $svcdispdate; ?></td>
   <td><b><?php xl('Total Charges','e'); ?></b></td>
   <td align='right'>&nbsp;</td>
   <td align='right'>&nbsp;</td>
@@ -363,10 +367,20 @@ function generate_receipt($patient_id) {
 </table>
 </center>
 <div id='hideonprint'>
-<p>&nbsp;<a href='#' onclick='return printme();'><?php xl('Print','e'); ?></a></p>
+<p>
+&nbsp;
+<a href='#' onclick='return printme();'><?php xl('Print','e'); ?></a>
 <?php if (acl_check('acct','disc')) { ?>
-<p>&nbsp;<a href='#' onclick='return deleteme();'><?php xl('Undo Checkout','e'); ?></a></p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href='#' onclick='return deleteme();'><?php xl('Undo Checkout','e'); ?></a>
 <?php } ?>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<?php if ($details) { ?>
+<a href='pos_checkout.php?details=0'><?php xl('Hide Details','e'); ?></a>
+<?php } else { ?>
+<a href='pos_checkout.php?details=1'><?php xl('Show Details','e'); ?></a>
+<?php } ?>
+</p>
 </div>
 </body>
 </html>
@@ -581,18 +595,22 @@ while ($urow = sqlFetchArray($ures)) {
 <script language="JavaScript">
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
- function clearTax() {
+ // This clears the tax line items in preparation for recomputing taxes.
+ function clearTax(visible) {
   var f = document.forms[0];
   for (var lino = 0; true; ++lino) {
    var pfx = 'line[' + lino + ']';
    if (! f[pfx + '[code_type]']) break;
    if (f[pfx + '[code_type]'].value != 'TAX') continue;
-   f[pfx + '[amount]'].value = '0.00';
    f[pfx + '[price]'].value = '0.00';
+   if (visible) f[pfx + '[amount]'].value = '0.00';
   }
  }
 
- function addTax(rateid, amount) {
+ // For a give tax ID and amount, compute the tax on that amount and add it
+ // to the "price" (same as "amount") of the corresponding tax line item.
+ // Note the tax line items include their "taxrate" to make this easy.
+ function addTax(rateid, amount, visible) {
   if (rateid.length == 0) return 0;
   var f = document.forms[0];
   for (var lino = 0; true; ++lino) {
@@ -604,45 +622,63 @@ while ($urow = sqlFetchArray($ures)) {
    tax = parseFloat(tax.toFixed(2));
    var cumtax = parseFloat(f[pfx + '[price]'].value) + tax;
    f[pfx + '[price]'].value  = cumtax.toFixed(2); // requires JS 1.5
-   f[pfx + '[amount]'].value = cumtax.toFixed(2); // requires JS 1.5
+   if (visible) f[pfx + '[amount]'].value = cumtax.toFixed(2); // requires JS 1.5
    if (isNaN(tax)) alert('Tax rate not numeric at line ' + lino);
    return tax;
   }
   return 0;
  }
 
- // This mess applies the discount percentage.
- function computeTotals() {
-  clearTax();
+ // This mess recomputes the invoice total, optionally applies a discount,
+ // and optionally alters the displayed amounts.
+ function computeDiscountedTotals(discount, visible) {
+  clearTax(visible);
   var f = document.forms[0];
   var total = 0.00;
-  var discount = parseFloat(f.form_discount.value);
-  if (isNaN(discount)) discount = 0;
   for (var lino = 0; f['line[' + lino + '][code_type]']; ++lino) {
    var code_type = f['line[' + lino + '][code_type]'].value;
+   // price is price per unit when the form was originally generated.
+   // By contrast, amount is the dynamically-generated discounted line total.
    var price = parseFloat(f['line[' + lino + '][price]'].value);
    if (isNaN(price)) alert('Price not numeric at line ' + lino);
    if (code_type == 'COPAY' || code_type == 'TAX') {
+    // This works because the tax lines come last.
     total += parseFloat(price.toFixed(2));
     continue;
    }
    var units = f['line[' + lino + '][units]'].value;
-   if (discount > 100) discount = 100;
-   if (discount < 0  ) discount = 0;
    var amount = price * units;
    if (discount > 0) {
+    // Force a discounted amount based on a whole number of cents per unit.
     amount = ((amount * (100 - discount) / 100) / units).toFixed(2) * units;
    }
    amount = parseFloat(amount.toFixed(2));
-   f['line[' + lino + '][amount]'].value = amount.toFixed(2);
+   if (visible) f['line[' + lino + '][amount]'].value = amount.toFixed(2);
    total += amount;
    var taxrates  = f['line[' + lino + '][taxrates]'].value;
    var taxids = taxrates.split(':');
    for (var j = 0; j < taxids.length; ++j) {
-    addTax(taxids[j], amount);
+    addTax(taxids[j], amount, visible);
    }
   }
-  // f.form_amount.value = total.toFixed(2);
+  return total;
+ }
+
+ // Recompute displayed amounts with any discount applied.
+ function computeTotals() {
+  var f = document.forms[0];
+  var discount = parseFloat(f.form_discount.value);
+<?php if ($GLOBALS['discount_by_money']) { ?>
+  // This site discounts by dollars instead of percentage.
+  // We first compute an undiscounted total and then convert
+  // the dollar discount to a percentage of the total,  This might
+  // introduce a bit of round-off error.
+  discount = 100 * discount / computeDiscountedTotals(0, false);
+<?php } ?>
+  if (isNaN(discount)) discount = 0;
+  if (discount > 100) discount = 100;
+  if (discount < 0  ) discount = 0;
+  var total = computeDiscountedTotals(discount, true);
   f.form_amount.value = total.toFixed(2);
   return true;
  }
@@ -686,6 +722,7 @@ while ($brow = sqlFetchArray($bres)) {
 
   $taxrates = '';
   if ($code_type != 'COPAY' && $code_type != 'TAX') {
+    if (empty($code_types[$code_type]['fee'])) continue;
     $query = "SELECT taxrates FROM codes WHERE code_type = '" .
       $code_types[$code_type]['id'] . "' AND " .
       "code = '" . $brow['code'] . "' AND ";
@@ -756,7 +793,7 @@ if ($inv_encounter && !$inv_provider) {
 
  <tr>
   <td>
-   <?php xl('Discount Percentage','e'); ?>:
+   <?php xl($GLOBALS['discount_by_money'] ? 'Discount Amount' : 'Discount Percentage','e'); ?>:
   </td>
   <td>
    <input type='text' name='form_discount' size='3' value=''

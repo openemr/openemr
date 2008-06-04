@@ -276,6 +276,9 @@ $GLOBALS['disable_non_default_groups'] = true;
 // True for IPPF installations, otherwise false.
 $GLOBALS['ippf_specific'] = false;
 
+// True to support discounts in the Checkout form by dollars instead of percentage.
+$GLOBALS['discount_by_money'] = false;
+
 // If you want Hylafax support then uncomment and customize the following
 // statements, and also customize custom/faxcover.txt:
 //
