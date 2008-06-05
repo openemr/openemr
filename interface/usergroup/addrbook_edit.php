@@ -95,6 +95,7 @@ td { font-size:10pt; }
     "federaltaxid = " . invalue('form_federaltaxid') . ", " .
     "upin = "         . invalue('form_upin')         . ", " .
     "npi = "          . invalue('form_npi')          . ", " .
+    "taxonomy = "     . invalue('form_taxonomy')     . ", " .
     "email = "        . invalue('form_email')        . ", " .
     "url = "          . invalue('form_url')          . ", " .
     "street = "       . invalue('form_street')       . ", " .
@@ -121,7 +122,7 @@ td { font-size:10pt; }
    $userid = sqlInsert("INSERT INTO users ( " .
     "username, password, authorized, info, source, " .
     "title, fname, lname, mname,  " .
-    "federaltaxid, federaldrugid, upin, facility, see_auth, active, npi, " .
+    "federaltaxid, federaldrugid, upin, facility, see_auth, active, npi, taxonomy, " .
     "specialty, organization, valedictory, assistant, billname, email, url, " .
     "street, streetb, city, state, zip, " .
     "street2, streetb2, city2, state2, zip2, " .
@@ -143,6 +144,7 @@ td { font-size:10pt; }
     "0, "                                . // see_auth
     "1, "                                . // active
     invalue('form_npi')           . ", " .
+    invalue('form_taxonomy')      . ", " .
     invalue('form_specialty')     . ", " .
     invalue('form_organization')  . ", " .
     invalue('form_valedictory')   . ", " .
@@ -365,7 +367,9 @@ td { font-size:10pt; }
    <b>NPI:</b> <input type='text' size='10' name='form_npi' maxlength='10'
     value='<?php echo $row['npi'] ?>' class='inputtext' />&nbsp;
    <b>TIN:</b> <input type='text' size='10' name='form_federaltaxid' maxlength='10'
-    value='<?php echo $row['federaltaxid'] ?>' class='inputtext' />
+    value='<?php echo $row['federaltaxid'] ?>' class='inputtext' />&nbsp;
+   <b>Taxonomy:</b> <input type='text' size='10' name='form_taxonomy' maxlength='10'
+    value='<?php echo $row['taxonomy'] ?>' class='inputtext' />
   </td>
  </tr>
 

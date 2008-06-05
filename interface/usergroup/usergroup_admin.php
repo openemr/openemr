@@ -48,6 +48,7 @@ if (isset($_POST["mode"])) {
         "', federaldrugid = '" . $_POST["federaldrugid"] .
         "', upin = '"          . $_POST["upin"] .
         "', npi  = '"          . $_POST["npi"].
+        "', taxonomy = '"      . $_POST["taxonomy"] .
         "', facility = '"      . $_POST["facility"] .
         "', specialty = '"     . $_POST["specialty"] .
         "', see_auth = '"      . $_POST["see_auth"] .
@@ -302,6 +303,8 @@ if ( !$GLOBALS['dutchpc']) { ?>
 ?>
 
 </tr>
+<td><span class="text"><?php xl('Taxonomy','e'); ?>: </span></td>
+<td><input type="entry" name="taxonomy" size="20" value="207Q00000X"></td>
 <!-- (CHEMED) Calendar UI preference -->
 <tr>
 <td><span class="text"><?php xl('Calendar UI','e'); ?>: </span></td><td><select name="cal_ui">
@@ -314,7 +317,6 @@ if ( !$GLOBALS['dutchpc']) { ?>
  }
 ?>
 </select></td>
-<td>&nbsp;</td>
 </tr>
 <!-- END (CHEMED) Calendar UI preference -->
 

@@ -5774,6 +5774,7 @@ CREATE TABLE `users` (
   `phonecell` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
   `notes` text character set utf8 collate utf8_unicode_ci,
   `cal_ui` tinyint(4) NOT NULL default '1',
+  `taxonomy` varchar(30) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '207Q00000X',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 

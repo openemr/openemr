@@ -41,9 +41,13 @@ if ($_GET["mode"] == "update") {
     $tqvar = addslashes($_GET["upin"]);
     sqlStatement("update users set upin='$tqvar' where id={$_GET["id"]}");
   }
-    if ($_GET["npi"]) {
+  if ($_GET["npi"]) {
     $tqvar = addslashes($_GET["npi"]);
     sqlStatement("update users set npi='$tqvar' where id={$_GET["id"]}");
+  }
+  if ($_GET["taxonomy"]) {
+    $tqvar = addslashes($_GET["taxonomy"]);
+    sqlStatement("update users set taxonomy = '$tqvar' where id= {$_GET["id"]}");
   }
   if ($_GET["lname"]) {
     $tqvar = addslashes($_GET["lname"]);
@@ -206,6 +210,8 @@ if ( !$GLOBALS['dutchpc']) { ?>
 </tr>
 <!-- (CHEMED) Calendar UI preference -->
 <tr>
+<td><span class="text"><?php xl('Taxonomy','e'); ?>: </span></td>
+<td><input type="text" name="taxonomy" size="20" value="<?php echo $iter["taxonomy"]?>"></td>
 <td><span class="text"><?php xl('Calendar UI','e'); ?>: </span></td><td><select name="cal_ui">
 <?php
  foreach (array(1 => xl('Default'), 2 => xl('Fancy'), 3 => xl('Outlook')) as $key => $value)
@@ -216,7 +222,6 @@ if ( !$GLOBALS['dutchpc']) { ?>
  }
 ?>
 </select></td>
-<td>&nbsp;</td>
 </tr>
 <!-- END (CHEMED) Calendar UI preference -->
 

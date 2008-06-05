@@ -434,6 +434,14 @@ function gen_x12_837($pid, $encounter, &$log) {
     }
     $out .= "~\n";
 
+    if ($claim->referrerTaxonomy()) {
+      ++$edicount;
+      $out .= "PRV" .
+        "*RF" . // ReFerring provider
+        "*" . $claim->referrerTaxonomy() .
+        "~\n";
+    }
+
     if ($claim->referrerUPIN()) {
       ++$edicount;
       $out .= "REF" .   // Referring Provider Secondary Identification
@@ -462,12 +470,22 @@ function gen_x12_837($pid, $encounter, &$log) {
   }
   $out .= "~\n";
 
+  /*******************************************************************
   ++$edicount;
   $out .= "PRV" .       // Rendering Provider Information
     "*PE" .
     "*ZZ" .
     "*207Q00000X" .
     "~\n";
+  *******************************************************************/
+  if ($claim->providerTaxonomy()) {
+    ++$edicount;
+    $out .= "PRV" .
+      "*PE" . // PErforming provider
+      "*" . $claim->providerTaxonomy() .
+      "~\n";
+  }
+  /******************************************************************/
 
   // REF*1C is required here for the Medicare provider number if NPI was
   // specified in NM109.  Not sure if other payers require anything here.

@@ -821,6 +821,10 @@ class Claim {
     return x12clean(trim(str_replace('-', '', $this->provider['federaltaxid'])));
   }
 
+  function providerTaxonomy() {
+    return x12clean(trim($this->provider['taxonomy']));
+  }
+
   function referrerLastName() {
     return x12clean(trim($this->referrer['lname']));
   }
@@ -843,6 +847,10 @@ class Claim {
 
   function referrerSSN() {
     return x12clean(trim(str_replace('-', '', $this->referrer['federaltaxid'])));
+  }
+
+  function referrerTaxonomy() {
+    return x12clean(trim($this->referrer['taxonomy']));
   }
 }
 ?>

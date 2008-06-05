@@ -524,3 +524,6 @@ ALTER TABLE payments
   MODIFY `amount2` decimal(12,2) NOT NULL DEFAULT 0.00,
   MODIFY `posted1` decimal(12,2) NOT NULL DEFAULT 0.00,
   MODIFY `posted2` decimal(12,2) NOT NULL DEFAULT 0.00;
+
+ALTER TABLE users
+  ADD `taxonomy` varchar(30) NOT NULL DEFAULT '207Q00000X';
