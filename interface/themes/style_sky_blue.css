@@ -214,6 +214,7 @@ background-color:transparent;
 font-family:sans-serif;
 font-size:8pt;
 font-weight:bold;
+}
 
 /* styles taken out of templates/report/general_default.html */
 #reports_list td {
