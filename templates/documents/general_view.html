@@ -68,11 +68,11 @@
 	<tr>
 		<td>
 			{if $file->get_mimetype() eq "image/tiff"}
-			<embed frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}{$file->get_url_web()}&as_file=false"></embed>
+			<embed frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}as_file=false"></embed>
 			{elseif $file->get_mimetype() eq "image/png" or $file->get_mimetype() eq "image/jpg" or $file->get_mimetype() eq "image/jpeg" or $file->get_mimetype() eq "image/gif"}
-			<iframe frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}{$file->get_url_web()}&as_file=false"></iframe>
+			<iframe frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}as_file=false"></iframe>
 			{else}
-			<iframe frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}{$file->get_url_web()}&as_file=true"></iframe>
+			<iframe frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}as_file=true"></iframe>
 			{/if}
 		</td>
 	</tr>
