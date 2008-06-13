@@ -39,8 +39,9 @@ function getFormByEncounter($pid,$encounter, $cols="form_id, form_name", $name="
 	if(!empty($name)){
 		$sql .= "and form_name='" . $name ."' ";
 	}
-	$sql .= "order by date DESC";
-	
+  // This puts vitals first in the list, and newpatient last:
+  $sql .= "ORDER BY FIND_IN_SET(formdir,'vitals') DESC, date DESC";
+
 	$res = sqlStatement($sql);
 
 	for($iter=0; $row=sqlFetchArray($res); $iter++)
