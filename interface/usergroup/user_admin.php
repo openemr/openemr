@@ -65,7 +65,7 @@ if ($_GET["mode"] == "update") {
           $tqvar = addslashes($_GET["facility_id"]);
           sqlStatement("update users set facility_id = '$tqvar' where id = {$_GET["id"]}");
           //(CHEMED) Update facility name when changing the id
-          sqlStatement("update users set facility = (SELECT facility.name FROM facility WHERE facility.id = '$tqvar' LIMIT 1) where id = {$_GET["id"]}");
+          sqlStatement("UPDATE users, facility SET users.facility = facility.name WHERE facility.id = '$tqvar' AND users.id = {$_GET["id"]}");
           //END (CHEMED)
   }
   if ($_GET["fname"]) {
