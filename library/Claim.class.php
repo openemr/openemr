@@ -33,6 +33,7 @@ class Claim {
   var $billing_options;   // row from form_misc_billing_options table
   var $invoice;           // result from get_invoice_summary()
   var $payers;            // array of arrays, for all payers
+  var $copay;             // total of copays from the billing table
 
   function loadPayerInfo(&$billrow) {
     global $sl_err;
@@ -94,7 +95,7 @@ class Claim {
           $this->invoice = get_invoice_summary($arrow['id'], true);
         }
         SLClose();
-      } 
+      }
       // Secondary claims might not have modifiers in SQL-Ledger data.
       // In that case, note that we should not try to match on them.
       $this->using_modifiers = false;
@@ -110,6 +111,7 @@ class Claim {
     $this->pid = $pid;
     $this->encounter_id = $encounter_id;
     $this->procs = array();
+    $this->copay = 0;
 
     // We need the encounter date before we can identify the payers.
     $sql = "SELECT * FROM form_encounter WHERE " .
@@ -121,10 +123,14 @@ class Claim {
     // we determine the provider from the first procedure in this array.
     $sql = "SELECT * FROM billing WHERE " .
       "encounter = '{$this->encounter_id}' AND pid = '{$this->pid}' AND " .
-      "(code_type = 'CPT4' OR code_type = 'HCPCS') AND " .
+      "(code_type = 'CPT4' OR code_type = 'HCPCS' OR code_type = 'COPAY') AND " .
       "activity = '1' ORDER BY date, id";
     $res = sqlStatement($sql);
     while ($row = sqlFetchArray($res)) {
+      if ($row['code_type'] == 'COPAY') {
+        $this->copay -= $row['fee'];
+        continue;
+      }
       if (!$row['units']) $row['units'] = 1;
       // Load prior payer data at the first opportunity in order to get
       // the using_modifiers flag that is referenced below.
@@ -383,11 +389,10 @@ class Claim {
   // Return the amount already paid by the patient.
   //
   function patientPaidAmount() {
-
-    // TBD: This does not work for a primary claim because $this->invoice
-    // is not loaded.  Might be good to get the co-pay from the billing
-    // table in that case.
-
+    // For primary claims $this->invoice is not loaded, so get the co-pay
+    // from the billing table instead.
+    if (empty($this->invoice)) return $this->copay;
+    //
     $amount = 0;
     foreach($this->invoice as $codekey => $codeval) {
       foreach ($codeval['dtl'] as $key => $value) {
@@ -465,6 +470,10 @@ class Claim {
 
   function billingFacilityNPI() {
     return x12clean(trim($this->billing_facility['facility_npi']));
+  }
+
+  function billingFacilityAssignment() {
+    return !empty($this->billing_facility['accepts_assignment']);
   }
 
   function billingContactName() {
@@ -559,6 +568,14 @@ class Claim {
     return (strcmp($tmp,'self') == 0);
   }
 
+  function planName($ins=0) {
+    return x12clean(trim($this->payers[$ins]['data']['plan_name']));
+  }
+
+  function policyNumber($ins=0) { // "ID"
+    return x12clean(trim($this->payers[$ins]['data']['policy_number']));
+  }
+
   function groupNumber($ins=0) {
     return x12clean(trim($this->payers[$ins]['data']['group_number']));
   }
@@ -567,6 +584,34 @@ class Claim {
     return x12clean(trim($this->payers[$ins]['data']['subscriber_employer']));
   }
 
+  // Claim types are:
+  // 16 Other HCFA
+  // MB Medicare Part B
+  // MC Medicaid
+  // CH ChampUSVA
+  // CH ChampUS
+  // BL Blue Cross Blue Shield
+  // 16 FECA
+  // 09 Self Pay
+  // 10 Central Certification
+  // 11 Other Non-Federal Programs
+  // 12 Preferred Provider Organization (PPO)
+  // 13 Point of Service (POS)
+  // 14 Exclusive Provider Organization (EPO)
+  // 15 Indemnity Insurance
+  // 16 Health Maintenance Organization (HMO) Medicare Risk
+  // AM Automobile Medical
+  // CI Commercial Insurance Co.
+  // DS Disability
+  // HM Health Maintenance Organization
+  // LI Liability
+  // LM Liability Medical
+  // OF Other Federal Program
+  // TV Title V
+  // VA Veterans Administration Plan
+  // WC Workers Compensation Health Plan
+  // ZZ Mutually Defined
+  //
   function claimType($ins=0) {
     if (empty($this->payers[$ins]['object'])) return '';
     return $this->payers[$ins]['object']->get_freeb_claim_type();
@@ -582,10 +627,6 @@ class Claim {
 
   function insuredMiddleName($ins=0) {
     return x12clean(trim($this->payers[$ins]['data']['subscriber_mname']));
-  }
-
-  function policyNumber($ins=0) { // "ID"
-    return x12clean(trim($this->payers[$ins]['data']['policy_number']));
   }
 
   function insuredStreet($ins=0) {
@@ -604,6 +645,13 @@ class Claim {
     return x12clean(trim($this->payers[$ins]['data']['subscriber_postal_code']));
   }
 
+  function insuredPhone($ins=0) {
+    if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/",
+      $this->payers[$ins]['data']['subscriber_phone'], $tmp))
+      return $tmp[1] . $tmp[2] . $tmp[3];
+    return '';
+  }
+
   function insuredDOB($ins=0) {
     return str_replace('-', '', $this->payers[$ins]['data']['subscriber_DOB']);
   }
@@ -614,6 +662,10 @@ class Claim {
 
   function payerName($ins=0) {
     return x12clean(trim($this->payers[$ins]['company']['name']));
+  }
+
+  function payerAttn($ins=0) {
+    return x12clean(trim($this->payers[$ins]['company']['attn']));
   }
 
   function payerStreet($ins=0) {
@@ -676,12 +728,32 @@ class Claim {
     return x12clean(trim($this->patient_data['postal_code']));
   }
 
+  function patientPhone() {
+    $ptphone = $this->patient_data['phone_home'];
+    if (!$ptphone) $ptphone = $this->patient_data['phone_biz'];
+    if (!$ptphone) $ptphone = $this->patient_data['phone_cell'];
+    if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", $ptphone, $tmp))
+      return $tmp[1] . $tmp[2] . $tmp[3];
+    return '';
+  }
+
   function patientDOB() {
     return str_replace('-', '', $this->patient_data['DOB']);
   }
 
   function patientSex() {
     return strtoupper(substr($this->patient_data['sex'], 0, 1));
+  }
+
+  // Patient Marital Status: M = Married, S = Single, or something else.
+  function patientStatus() {
+    return strtoupper(substr($this->patient_data['status'], 0, 1));
+  }
+
+  // This should be UNEMPLOYED, STUDENT, PT STUDENT, or anything else to
+  // indicate employed.
+  function patientOccupation() {
+    return strtoupper(x12clean(trim($this->patient_data['occupation'])));
   }
 
   function cptCode($prockey) {
@@ -747,6 +819,62 @@ class Claim {
 
   function priorAuth() {
     return x12clean(trim($this->billing_options['prior_auth_number']));
+  }
+
+  function isRelatedEmployment() {
+    return !empty($this->billing_options['employment_related']);
+  }
+
+  function isRelatedAuto() {
+    return !empty($this->billing_options['auto_accident']);
+  }
+
+  function isRelatedOther() {
+    return !empty($this->billing_options['other_accident']);
+  }
+
+  function autoAccidentState() {
+    return x12clean(trim($this->billing_options['accident_state']));
+  }
+
+  function isUnableToWork() {
+    return !empty($this->billing_options['is_unable_to_work']);
+  }
+
+  function offWorkFrom() {
+    return str_replace('-', '', substr($this->billing_options['off_work_from'], 0, 10));
+  }
+
+  function offWorkTo() {
+    return str_replace('-', '', substr($this->billing_options['off_work_to'], 0, 10));
+  }
+
+  function isHospitalized() {
+    return !empty($this->billing_options['is_hospitalized']);
+  }
+
+  function hospitalizedFrom() {
+    return str_replace('-', '', substr($this->billing_options['hospitalization_date_from'], 0, 10));
+  }
+
+  function hospitalizedTo() {
+    return str_replace('-', '', substr($this->billing_options['hospitalization_date_to'], 0, 10));
+  }
+
+  function isOutsideLab() {
+    return !empty($this->billing_options['outside_lab']);
+  }
+
+  function outsideLabAmount() {
+    return sprintf('%.2f', 0 + $this->billing_options['lab_amount']);
+  }
+
+  function medicaidResubmissionCode() {
+    return x12clean(trim($this->billing_options['medicaid_resubmission_code']));
+  }
+
+  function medicaidOriginalReference() {
+    return x12clean(trim($this->billing_options['medicaid_original_reference']));
   }
 
   // Returns an array of unique diagnoses.  Periods are stripped.
@@ -822,6 +950,7 @@ class Claim {
   }
 
   function providerTaxonomy() {
+    if (empty($this->provider['taxonomy'])) return '207Q00000X';
     return x12clean(trim($this->provider['taxonomy']));
   }
 
@@ -850,6 +979,7 @@ class Claim {
   }
 
   function referrerTaxonomy() {
+    if (empty($this->referrer['taxonomy'])) return '207Q00000X';
     return x12clean(trim($this->referrer['taxonomy']));
   }
 }

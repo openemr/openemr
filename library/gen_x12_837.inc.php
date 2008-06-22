@@ -618,6 +618,18 @@ function gen_x12_837($pid, $encounter, &$log) {
       "~\n";
 
     ++$edicount;
+    $out .= "N3" .
+      "*" . $claim->insuredStreet($ins) .
+      "~\n";
+
+    ++$edicount;
+    $out .= "N4" .
+      "*" . $claim->insuredCity($ins) .
+      "*" . $claim->insuredState($ins) .
+      "*" . $claim->insuredZip($ins) .
+      "~\n";
+
+    ++$edicount;
     $out .= "NM1" . // Loop 2330B Payer info for other insco. Page 359.
       "*PR" .
       "*2" .
@@ -633,6 +645,22 @@ function gen_x12_837($pid, $encounter, &$log) {
     // if (!$claim->payerID($ins)) {
     //   $log .= "*** CMS ID is missing for payer '" . $claim->payerName($ins) . "'.\n";
     // }
+
+    // Payer address (N3 and N4) are added below so that Gateway EDI can
+    // auto-generate secondary claims.  These do NOT appear in my copy of
+    // the spec!  -- Rod 2008-06-12
+
+    ++$edicount;
+    $out .= "N3" .
+      "*" . $claim->payerStreet($ins) .
+      "~\n";
+
+    ++$edicount;
+    $out .= "N4" .
+      "*" . $claim->payerCity($ins) .
+      "*" . $claim->payerState($ins) .
+      "*" . $claim->payerZip($ins) .
+      "~\n";
 
   } // End loops 2320/2330*.
 

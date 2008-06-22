@@ -13,7 +13,7 @@ $fname = preg_replace("[\\\\]","",$fname);
 
 if (strtolower(substr($fname,(strlen($fname)-4))) == ".pdf") {
   $content_type = "application/pdf";
-  $claim_file_dir = $fconfig['claim_file_dir'];
+  if (!strpos($fname,'-batch')) $claim_file_dir = $fconfig['claim_file_dir'];
 }
 
 $fname = $claim_file_dir . $fname;

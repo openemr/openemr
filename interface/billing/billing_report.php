@@ -45,6 +45,7 @@ if ($_POST['mode'] == 'export') {
   }
 }
 
+// This is obsolete.
 if ($_POST['mode'] == 'process') {
   if (exec("ps x | grep 'process_bills[.]php'")) {
     $alertmsg = xl('Request ignored - claims processing is already running!');
@@ -58,39 +59,40 @@ if ($_POST['mode'] == 'process') {
 
 //global variables:
 if (!isset($_POST["mode"])) {
-  if (!isset($_POST["from_date"])) { $from_date=date("Y-m-d"); } 
-  else { $from_date = $_POST["from_date"]; }
-  if (!isset($_POST["to_date"])) { $to_date = date("Y-m-d"); } 
-  else { $to_date = $_POST["to_date"]; }
-  if (!isset($_POST["code_type"])) { $code_type="all"; } 
-  else { $code_type = $_POST["code_type"]; }
-  if (!isset($_POST["unbilled"])) { $unbilled = "on"; } 
-  else { $unbilled = $_POST["unbilled"]; }
-
-  // if (!isset($_POST["authorized"])) {
-  //  $my_authorized = "on";
-  // } else {
+  $from_date = isset($_POST['from_date']) ? $_POST['from_date'] : date('Y-m-d');
+  $to_date   = isset($_POST['to_date'  ]) ? $_POST['to_date'  ] : '';
+  $code_type = isset($_POST['code_type']) ? $_POST['code_type'] : 'all';
+  $unbilled  = isset($_POST['unbilled' ]) ? $_POST['unbilled' ] : 'on';
   $my_authorized = $_POST["authorized"];
-  // }
 } else {
-  $from_date = $_POST["from_date"];
-  $to_date = $_POST["to_date"];
-  $code_type = $_POST["code_type"];
-  $unbilled = $_POST["unbilled"];
+  $from_date     = $_POST["from_date"];
+  $to_date       = $_POST["to_date"];
+  $code_type     = $_POST["code_type"];
+  $unbilled      = $_POST["unbilled"];
   $my_authorized = $_POST["authorized"];
 }
 
-$ofrom_date = $from_date;
-$oto_date = $to_date;
-$ocode_type = $code_type;
-$ounbilled = $unbilled;
-$oauthorized = $my_authorized;
+/*
+$from_date = isset($_POST['from_date']) ? $_POST['from_date'] : date('Y-m-d');
+$to_date   = empty($_POST['to_date'  ]) ? $from_date : $_POST['to_date'];
+$code_type = isset($_POST['code_type']) ? $_POST['code_type'] : 'all';
+$unbilled  = isset($_POST['unbilled' ]) ? $_POST['unbilled' ] : 'on';
+$my_authorized = $_POST["authorized"];
+*/
 
+$left_margin = isset($_POST["left_margin"]) ? $_POST["left_margin"] : 24;
+$top_margin  = isset($_POST["top_margin"] ) ? $_POST["top_margin" ] : 27;
+
+$ofrom_date  = $from_date;
+$oto_date    = $to_date;
+$ocode_type  = $code_type;
+$ounbilled   = $unbilled;
+$oauthorized = $my_authorized;
 ?>
 
 <html>
 <head>
-<?php html_header_show();?>
+<?php if (function_exists(html_header_show)) html_header_show(); ?>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 <style>
 .subbtn { margin-top:3px; margin-bottom:3px; margin-left:2px; margin-right:2px }
@@ -128,12 +130,13 @@ function set_button_states() {
 <?php if (file_exists($EXPORT_INC)) { ?>
   f.bn_external.disabled        = !can_generate;
 <?php } else { ?>
-  f.bn_hcfa_print.disabled      = !can_generate;
-  f.bn_hcfa.disabled            = !can_generate;
-  f.bn_ub92_print.disabled      = !can_generate;
-  f.bn_ub92.disabled            = !can_generate;
+  // f.bn_hcfa_print.disabled      = !can_generate;
+  // f.bn_hcfa.disabled            = !can_generate;
+  // f.bn_ub92_print.disabled      = !can_generate;
+  // f.bn_ub92.disabled            = !can_generate;
   f.bn_x12.disabled             = !can_generate;
-  f.bn_electronic_file.disabled = !can_bill;
+  f.bn_process_hcfa.disabled    = !can_generate;
+  // f.bn_electronic_file.disabled = !can_bill;
   f.bn_reopen.disabled          = !can_bill;
 <?php } ?>
   f.bn_mark.disabled            = !can_mark;
@@ -290,13 +293,16 @@ function topatient(pid) {
 ?>
   </td>
 
-  <td colspan='2' nowrap>
+  <td colspan='2' class='text' nowrap>
    &nbsp;
 <?php if (! file_exists($EXPORT_INC)) { ?>
+   <!--
    <a href="javascript:top.restoreSession();document.the_form.mode.value='process';document.the_form.submit()" class="link_submit"
     title="Process all queued bills to create electronic data (and print if requested)"><?php xl('[Start Batch Processing]','e') ?></a>
-   &nbsp; <a href='../../library/freeb/process_bills.log' target='_blank' class='link_submit'
-    title='See messages from the last batch processing run'><?php xl('[view log]','e') ?></a>
+   &nbsp;
+   -->
+   <a href='../../library/freeb/process_bills.log' target='_blank' class='link_submit'
+    title='See messages from the last set of generated claims'><?php xl('[View Log]','e') ?></a>
 <?php } ?>
   </td>
 
@@ -313,20 +319,39 @@ function topatient(pid) {
 
 <center>
 
+<span class='text'>
 <?php if (file_exists($EXPORT_INC)) { ?>
 <input type="submit" class="subbtn" name="bn_external" value="Export Billing" title="<?php xl('Export to external billing system','e') ?>">
 <input type="submit" class="subbtn" name="bn_mark" value="Mark as Cleared" title="<?php xl('Mark as billed but skip billing','e') ?>">
 <?php } else { ?>
+<!--
 <input type="submit" class="subbtn" name="bn_hcfa_print" value="Queue HCFA &amp; Print" title="<?php xl('Queue for HCFA batch processing and printing','e') ?>">
 <input type="submit" class="subbtn" name="bn_hcfa" value="Queue HCFA" title="<?php xl('Queue for HCFA batch processing','e')?>">
 <input type="submit" class="subbtn" name="bn_ub92_print" value="Queue UB92 &amp; Print" title="<?php xl('Queue for UB-92 batch processing and printing','e')?>">
 <input type="submit" class="subbtn" name="bn_ub92" value="Queue UB92" title="<?php xl('Queue for UB-92 batch processing','e')?>">
-<input type="submit" class="subbtn" name="bn_x12" value="Process X12"
- title="<?php xl('Generate X12 claims and create batch','e')?>"
- onclick="alert('After saving your batch, click [view log] to check for errors.')">
+-->
+<input type="submit" class="subbtn" name="bn_x12" value="Generate X12"
+ title="<?php xl('Generate and download X12 batch','e')?>"
+ onclick="alert('After saving your batch, click [View Log] to check for errors.')">
+<input type="submit" class="subbtn" name="bn_process_hcfa" value="Generate HCFA"
+ title="<?php xl('Generate and download HCFA 1500 paper claims','e')?>"
+ onclick="alert('After saving the PDF, click [View Log] to check for errors.')">
 <input type="submit" class="subbtn" name="bn_mark" value="Mark as Cleared" title="<?php xl('Post to accounting and mark as billed','e')?>">
 <input type="submit" class="subbtn" name="bn_reopen" value="Re-Open" title="<?php xl('Mark as not billed','e')?>">
+<!--
 <input type="submit" class="subbtn" name="bn_electronic_file" value="Make Electronic Batch &amp; Clear" title="<?php xl('Download billing file, post to accounting and mark as billed','e')?>">
+-->
+&nbsp;&nbsp;&nbsp;
+HCFA Margins:
+&nbsp;Left:
+<input type='text' size='2' name='left_margin'
+ value='<?php echo $left_margin; ?>'
+ title='HCFA left margin in points' />
+&nbsp;Top:
+<input type='text' size='2' name='top_margin'
+ value='<?php echo $top_margin; ?>'
+ title='HCFA top margin in points' />
+</span>
 <?php } ?>
 
 </center>
@@ -349,23 +374,25 @@ if ($unbilled == "on") {
 } else {
   $unbilled = "%";
 }
+
+$list = getBillsListBetween($from_date,
+  empty($to_date) ? $from_date : $to_date,
+  $my_authorized,$unbilled,"%");
 ?>
 
-<input type='hidden' name='bill_list'
- value="<?php $list = getBillsListBetween($from_date,$to_date,$my_authorized,$unbilled,"%"); print $list; ?>"
- />
+<input type='hidden' name='bill_list' value="<?php echo $list; ?>" />
 
 <!-- new form for uploading -->
 
 <?php
 if (!isset($_POST["mode"])) {
   if (!isset($_POST["from_date"])) {
-    $from_date=date("Y-m-d");
+    $from_date = date("Y-m-d");
   } else {
     $from_date = $_POST["from_date"];
   }
-  if (!isset($_POST["to_date"])) {
-    $to_date = date("Y-m-d");
+  if (empty($_POST["to_date"])) {
+    $to_date = '';
   } else {
     $to_date = $_POST["to_date"];
   }
@@ -413,7 +440,10 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "bill") {
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 
 <?php
-if ($ret = getBillsBetween($from_date,$to_date,$my_authorized,$unbilled,"%")) {
+if ($ret = getBillsBetween($from_date,
+  empty($to_date) ? $from_date : $to_date,
+  $my_authorized, $unbilled, "%"))
+{
   $loop = 0;
   $oldcode = "";
   $last_encounter_id = "";

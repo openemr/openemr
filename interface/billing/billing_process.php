@@ -4,7 +4,9 @@ include_once("$srcdir/patient.inc");
 include_once("$srcdir/billrep.inc");
 include_once("$srcdir/billing.inc");
 include_once("$srcdir/gen_x12_837.inc.php");
+include_once("$srcdir/gen_hcfa_1500.inc.php");
 include_once(dirname(__FILE__) . "/../../library/classes/WSClaim.class.php");
+require_once("$srcdir/classes/class.ezpdf.php");
 
 $EXPORT_INC = "$webserver_root/custom/BillingExport.php";
 if (file_exists($EXPORT_INC)) {
@@ -18,7 +20,7 @@ if (file_exists($EXPORT_INC)) {
 // The following works for Zirmed:
 $ISA07 = 'ZZ'; // ZZ = mutually defined, 01 = Duns, etc.
 $ISA14 = '0';  // 1 = Acknowledgment requested, else 0
-$ISA15 = 'T';  // T = testing, P = production
+$ISA15 = 'P';  // T = testing, P = production
 $GS02  = '';   // Empty to use the sender ID from the ISA segment
 $PER06 = '';   // The submitter's EDI Access Number, if any
 /**** For Availity:
@@ -43,7 +45,14 @@ $bat_yymmdd   = date('ymd', $bat_time);
 $bat_yyyymmdd = date('Ymd', $bat_time);
 // Minutes since 1/1/1970 00:00:00 GMT will be our interchange control number:
 $bat_icn = sprintf('%09.0f', $bat_time/60);
-$bat_filename = date("Y-m-d-Hi", $bat_time) . "-batch.txt";
+$bat_filename = date("Y-m-d-Hi", $bat_time) . "-batch.";
+$bat_filename .= isset($_POST['bn_process_hcfa']) ? 'pdf' : 'txt';
+
+if (isset($_POST['bn_process_hcfa'])) {
+  $pdf =& new Cezpdf('LETTER');
+  $pdf->ezSetMargins(trim($_POST['top_margin'])+0,0,trim($_POST['left_margin'])+0,0);
+  $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Courier.afm");
+}
 
 function append_claim(&$segs) {
   global $bat_content, $bat_sendid, $bat_recvid, $bat_sender, $bat_stcount;
@@ -109,117 +118,12 @@ function send_batch() {
   echo $bat_content;
 }
 
-//////////////////////////////////////////////////////////////////////
-
-if (isset($_POST['bn_electronic_file']) && !empty($_POST['claims'])) {
-
-  if (empty($_POST['claims'])) {
-    $bill_info[] = xl("No claims were selected for inclusion.");
-  }
-
-  foreach ($_POST['claims'] as $claim) {
-    if (isset($claim['bill'])) {
-      if (substr($claim['file'],strlen($claim['file']) -4) == '.pdf') {
-        $fname = substr($claim['file'],0,-4);
-      }
-      else {
-        $fname = $claim['file'];
-      }
-
-      $tmp = substr($fname, strrpos($fname, '.') + 1);
-      if (!$bat_type) {
-        $bat_type = $tmp;
-      } else if ($bat_type != $tmp) {
-        die("You cannot mix '$bat_type' and '$tmp' formats in the same batch!");
-      }
-
-      $fname = preg_replace("[/]","",$fname);
-      $fname = preg_replace("[\.\.]","",$fname);
-      $fname = preg_replace("[\\\\]","",$fname);
-      $fname = $fconfig['claim_file_dir'] . $fname;
-
-      if (file_exists($fname)) {
-      //less than 500 is almost definitely an error
-        if (filesize($fname) > 500) {
-          $bill_info[] = xl("Added: ") . $fname . "\n";
-
-          if ($bat_type != 'edi') {
-            $bat_content .= file_get_contents($fname);
-            continue;
-          }
-
-          // Begin obsolete section.
-          //
-          // If we get here, we are sending X12 837p data.  Strip off the ISA,
-          // GS, GE, and IEA segments from the individual files and send just
-          // one set of these for the whole batch.  We think this is what the
-          // partners are happiest with, and Availity for one requires
-          // (as of this writing) exactly one ISA/IEA pair per batch.
-          $segs = explode('~', file_get_contents($fname));
-          append_claim($segs);
-          //
-          // End obsolete section.
-
-        }
-        else {
-          $bill_info[] = xl("May have an error: ") . $fname . "\n";
-        }
-      }
-      else {
-        $bill_info[] = xl("Not found: ") . $fname . "\n";
-      }
-    }
-  }
-
-  // Begin obsolete section.
-  if ($bat_type == 'edi' && $bat_content) {
-    append_claim_close();
-  }
-  // End obsolete section.
-
-  if ($bat_content) {
-    $db = $GLOBALS['adodb']['db'];
-    $error = false;
-    foreach ($_POST['claims'] as $claimid => $claim) {
-      if (isset($claim['bill'])) {
-        $tmpvars = split("-",$claimid);
-        $pid = $tmpvars[0];
-        $encounter = $tmpvars[1];
-        if (!empty($encounter) && !empty($pid)) {
-          /****
-          $sql = "UPDATE billing set billed = 1 where encounter = '" . $encounter .
-            "' and pid = '" . $pid . "' and activity != 0";
-          $result = $db->execute($sql);
-          if(!$result) {
-            $error = true;
-            $bill_info[] = xl("Marking claim "). $claimid . xl(" had a db error: ") . $db->ErrorMsg() . "\n";
-          }
-          // send claim to the web services code to sync to external system if enabled
-          // remember that in openemr it is only the encounter and patient id that make a group of
-          // billing line items unique so they can be grouped or associated as 1 claim
-          $ws = new WSClaim($pid, $encounter);
-          ****/
-          if (!updateClaim(false, $pid, $encounter, -1, 2)) {
-            $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
-          }
-        }
-      }
-    }
-    if (!$error) {
-      send_batch();
-      exit;
-    }
-  }
-
-}
-else {
-  process_form($_POST);
-}
+process_form($_POST);
 
 function process_form($ar) {
-  global $bill_info, $webserver_root, $bat_filename;
+  global $bill_info, $webserver_root, $bat_filename, $pdf;
 
-  if (isset($ar['bn_x12'])) {
+  if (isset($ar['bn_x12']) || isset($ar['bn_process_hcfa'])) {
     $hlog = fopen("$webserver_root/library/freeb/process_bills.log", 'w');
   }
 
@@ -233,6 +137,7 @@ function process_form($ar) {
   if (empty($ar['claims'])) {
     $ar['claims'] = array();
   }
+  $claim_count = 0;
   foreach ($ar['claims'] as $claimid => $claim_array) {
 
     $ta = split("-",$claimid);
@@ -256,25 +161,12 @@ function process_form($ar) {
         }
       }
 
-      // $sql = "UPDATE billing set bill_date = NOW(), ";
       $tmp = 1;
 
-      if (isset($ar['bn_hcfa_print'])) {
-        // $sql .= " bill_process = 5, target = 'hcfa', ";
-        $tmp = updateClaim(true, $patient_id, $encounter, $payer, 1, 5, '', 'hcfa');
-      } else if (isset($ar['bn_hcfa'])) {
-        // $sql .= " bill_process = 1, target = 'hcfa', ";
-        $tmp = updateClaim(true, $patient_id, $encounter, $payer, 1, 1, '', 'hcfa');
-      } else if (isset($ar['bn_ub92_print'])) {
-        // $sql .= " bill_process = 5, target = 'ub92', ";
-        $tmp = updateClaim(true, $patient_id, $encounter, $payer, 1, 5, '', 'ub92');
-      } else if (isset($ar['bn_ub92'])) {
-        // $sql .= " bill_process = 1, target = 'ub92', ";
-        $tmp = updateClaim(true, $patient_id, $encounter, $payer, 1, 1, '', 'ub92');
-      } else if (isset($ar['bn_x12'])) {
-        // $sql .= " bill_process = 1, target = '" . $target . "', x12_partner_id = '" .
-        //   mysql_real_escape_string($claim_array['partner']) . "', ";
+      if (isset($ar['bn_x12'])) {
         $tmp = updateClaim(true, $patient_id, $encounter, $payer, 1, 1, '', $target, $claim_array['partner']);
+      } else if (isset($ar['bn_process_hcfa'])) {
+        $tmp = updateClaim(true, $patient_id, $encounter, $payer, 1, 1, '', 'hcfa');
       } else if (isset($ar['bn_mark'])) {
         // $sql .= " billed = 1, ";
         $tmp = updateClaim(true, $patient_id, $encounter, $payer, 2);
@@ -284,13 +176,6 @@ function process_form($ar) {
         // $sql .= " billed = 1, ";
         $tmp = updateClaim(true, $patient_id, $encounter, $payer, 2);
       }
-
-      // $sql .= " payer_id = '$payer' where encounter = " . $encounter . " and pid = " . $patient_id;
-      // $result = $db->Execute($sql);
-
-      // if(!$result) {
-      //   die(xl("Claim ") . $claimid . xl(" could not be queued due to error: ") . $db->ErrorMsg());
-      // }
 
       if (!$tmp) {
         die(xl("Claim ") . $claimid . xl(" update failed, not in database?"));
@@ -309,40 +194,53 @@ function process_form($ar) {
           $segs = explode("~\n", gen_x12_837($patient_id, $encounter, $log));
           fwrite($hlog, $log);
           append_claim($segs);
-
-          /****
-          $db->execute("UPDATE billing SET billed = 1, bill_process = 2, " .
-            "process_date = NOW(), process_file = '' WHERE " .
-            "encounter = '$encounter' AND pid = '$patient_id' AND activity != 0");
-          $ws = new WSClaim($patient_id, $encounter); // requires billed=1
-          ****/
           if (!updateClaim(false, $patient_id, $encounter, -1, 2, 2, $bat_filename)) {
             $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
           }
 
         }
+
+        else if (isset($ar['bn_process_hcfa'])) {
+          $log = '';
+          $lines = gen_hcfa_1500($patient_id, $encounter, $log);
+          fwrite($hlog, $log);
+          // Generate a(nother) PDF page.
+          if ($claim_count) $pdf->ezNewPage();
+          $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
+          $pdf->ezText($lines, 12, array('justification' => 'left', 'leading' => 12));
+          if (!updateClaim(false, $patient_id, $encounter, -1, 2, 2, $bat_filename)) {
+            $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
+          }
+        }
+
         else {
           $bill_info[] = xl("Claim ") . $claimid . xl(" was queued successfully.") . "\n";
         }
+
       }
+      ++$claim_count;
 
-      /****
-      if ($mark_only) {
-        //send claim to the web services code to sync to external system if enabled
-        //remeber that in openemr it is only the encounter and patient id that make a group of
-        //billing line items unique so they can be grouped or associated as 1 claim
-        $ws = new WSClaim($patient_id,$encounter);
-      }
-      ****/
+    } // end if this claim has billing
 
-    }
-
-  }
+  } // end foreach
 
   if (isset($ar['bn_x12'])) {
     append_claim_close();
     fclose($hlog);
     send_batch();
+    exit;
+  }
+
+  if (isset($ar['bn_process_hcfa'])) {
+    fclose($hlog);
+    // If a writable edi directory exists (and it should), write the pdf to it.
+    $fh = @fopen("$webserver_root/edi/$bat_filename", 'a');
+    if ($fh) {
+      fwrite($fh, $pdf->ezOutput());
+      fclose($fh);
+    }
+    // Send the PDF download.
+    $pdf->ezStream(array('Content-Disposition' => $bat_filename));
     exit;
   }
 
@@ -354,7 +252,7 @@ function process_form($ar) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+<?php if (function_exists(html_header_show)) html_header_show(); ?>
 
 <link rel="stylesheet" href="<?echo $css_header;?>" type="text/css">
 
