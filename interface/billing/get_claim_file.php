@@ -25,7 +25,7 @@ elseif ($_GET['action'] == "print") {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+<?php if (function_exists(html_header_show)) html_header_show(); ?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 <body class="body_top">
