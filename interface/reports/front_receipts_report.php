@@ -185,7 +185,7 @@
     $timestamp = preg_replace('/[^0-9]/', '', $row['dtime']);
 ?>
  <tr>
-  <td>
+  <td nowrap>
    <a href='' onclick="return show_receipt(<?php echo $row['pid'] . ",'$timestamp'"; ?>)">
    <?php echo substr($row['dtime'], 0, 16); ?>
    </a>
