@@ -39,7 +39,18 @@ td { font-size:10pt; }
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 
 <script language="JavaScript">
+
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+
+ function validate() {
+  var f = document.forms[0];
+  if (f.form_lot_number.value.search(/\S/) < 0) {
+   alert('<?php xl('A lot number is required!','e'); ?>');
+   return false;
+  }
+  return true;
+ }
+
 </script>
 
 </head>
@@ -88,7 +99,8 @@ td { font-size:10pt; }
  }
 ?>
 
-<form method='post' name='theform' action='add_edit_lot.php?drug=<?php echo $drug_id ?>&lot=<?php echo $lot_id ?>'>
+<form method='post' name='theform' action='add_edit_lot.php?drug=<?php echo $drug_id ?>&lot=<?php echo $lot_id ?>'
+ onsubmit='return validate()'>
 <center>
 
 <table border='0' width='100%'>
