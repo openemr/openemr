@@ -424,8 +424,6 @@ function gen_hcfa_1500($pid, $encounter, &$log) {
   }
 
   // 29. Amount Paid
-  // Due to a deficiency in the Claim class, for primary claims only this
-  // will not include the co-pay; however that seems irrelevant.
   put_hcfa(56, 62, 8, str_replace('.',' ',sprintf('%8.2f',$clm_amount_paid)));
 
   // 30. Balance Due
