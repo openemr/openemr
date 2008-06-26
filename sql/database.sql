@@ -1448,6 +1448,8 @@ CREATE TABLE `history_data` (
   `userdate13` date DEFAULT NULL,
   `userdate14` date DEFAULT NULL,
   `userdate15` date DEFAULT NULL,
+  `userarea11` text character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `userarea12` text character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
@@ -4675,15 +4677,21 @@ INSERT INTO `layout_options` VALUES ('DEM', 'migrantseasonal', '5Stats', 'Migran
 INSERT INTO `layout_options` VALUES ('DEM', 'contrastart', '5Stats', 'Contraceptives Start',9,4,0,10,10,'',1,1,'','','Date contraceptive services initially provided');
 INSERT INTO `layout_options` VALUES ('DEM', 'usertext1', '6Misc', 'User Defined Text 1', 1, 2, 0, 10, 63, '', 1, 1, '', '', 'User Defined');
 INSERT INTO `layout_options` VALUES ('DEM', 'usertext2', '6Misc', 'User Defined Text 2', 2, 2, 0, 10, 63, '', 1, 1, '', '', 'User Defined');
-INSERT INTO `layout_options` VALUES ('DEM', 'userlist1', '6Misc', 'User Defined List 1', 3, 1, 0, 0, 0, 'userlist1', 1, 1, '', '', 'User Defined');
-INSERT INTO `layout_options` VALUES ('DEM', 'userlist2', '6Misc', 'User Defined List 2', 4, 1, 0, 0, 0, 'userlist2', 1, 1, '', '', 'User Defined');
-INSERT INTO `layout_options` VALUES ('DEM', 'userlist3', '6Misc', 'User Defined List 3', 5, 1, 0, 0, 0, 'userlist3', 1, 1, '', '' , 'User Defined');
-INSERT INTO `layout_options` VALUES ('DEM', 'userlist4', '6Misc', 'User Defined List 4', 6, 1, 0, 0, 0, 'userlist4', 1, 1, '', '' , 'User Defined');
-INSERT INTO `layout_options` VALUES ('DEM', 'userlist5', '6Misc', 'User Defined List 5', 7, 1, 0, 0, 0, 'userlist5', 1, 1, '', '' , 'User Defined');
-INSERT INTO `layout_options` VALUES ('DEM', 'userlist6', '6Misc', 'User Defined List 6', 8, 1, 0, 0, 0, 'userlist6', 1, 1, '', '' , 'User Defined');
-INSERT INTO `layout_options` VALUES ('DEM', 'userlist7', '6Misc', 'User Defined List 7', 9, 1, 0, 0, 0, 'userlist7', 1, 1, '', '' , 'User Defined');
-INSERT INTO `layout_options` VALUES ('DEM', 'regdate'  , '6Misc', 'Registration Date'  ,10, 4, 0,10,10, ''         , 1, 1, '', 'D', 'Start Date at This Clinic');
-INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_allowsms', '3Choices', 'Allow SMS', 5, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow SMS (text messages)?');
+INSERT INTO `layout_options` VALUES ('DEM', 'usertext3', '6Misc', 'User Defined Text 3', 3,2,0,10,63,'',1,1,'','','User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'usertext4', '6Misc', 'User Defined Text 4', 4,2,0,10,63,'',1,1,'','','User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'usertext5', '6Misc', 'User Defined Text 5', 5,2,0,10,63,'',1,1,'','','User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'usertext6', '6Misc', 'User Defined Text 6', 6,2,0,10,63,'',1,1,'','','User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'usertext7', '6Misc', 'User Defined Text 7', 7,2,0,10,63,'',1,1,'','','User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'usertext8', '6Misc', 'User Defined Text 8', 8,2,0,10,63,'',1,1,'','','User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'userlist1', '6Misc', 'User Defined List 1', 9, 1, 0, 0, 0, 'userlist1', 1, 1, '', '', 'User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'userlist2', '6Misc', 'User Defined List 2',10, 1, 0, 0, 0, 'userlist2', 1, 1, '', '', 'User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'userlist3', '6Misc', 'User Defined List 3',11, 1, 0, 0, 0, 'userlist3', 1, 1, '', '' , 'User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'userlist4', '6Misc', 'User Defined List 4',12, 1, 0, 0, 0, 'userlist4', 1, 1, '', '' , 'User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'userlist5', '6Misc', 'User Defined List 5',13, 1, 0, 0, 0, 'userlist5', 1, 1, '', '' , 'User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'userlist6', '6Misc', 'User Defined List 6',14, 1, 0, 0, 0, 'userlist6', 1, 1, '', '' , 'User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'userlist7', '6Misc', 'User Defined List 7',15, 1, 0, 0, 0, 'userlist7', 1, 1, '', '' , 'User Defined');
+INSERT INTO `layout_options` VALUES ('DEM', 'regdate'  , '6Misc', 'Registration Date'  ,16, 4, 0,10,10, ''         , 1, 1, '', 'D', 'Start Date at This Clinic');
+INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_allowsms'  , '3Choices', 'Allow SMS'  , 5, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow SMS (text messages)?');
 INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_allowemail', '3Choices', 'Allow Email', 5, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow Email?');
 
 INSERT INTO layout_options VALUES ('REF','refer_date'      ,'1Referral','Referral Date'                  , 1, 4,2, 0,  0,''         ,1,1,'C','D','Date of referral');
@@ -4734,6 +4742,8 @@ INSERT INTO layout_options VALUES ('HIS','value_1'           ,'5Other',''       
 INSERT INTO layout_options VALUES ('HIS','name_2'            ,'5Other','Name/Value'        ,3, 2,1,10,255,'',1,1,'','' ,'Name 2' );
 INSERT INTO layout_options VALUES ('HIS','value_2'           ,'5Other',''                  ,4, 2,1,10,255,'',0,0,'','' ,'Value 2');
 INSERT INTO layout_options VALUES ('HIS','additional_history','5Other','Additional History',5, 3,1,30,  3,'',1,3,'' ,'' ,'Additional history notes');
+INSERT INTO layout_options VALUES ('HIS','userarea11'        ,'5Other','User Defined Area 11',6,3,0,30,3,'',1,3,'','','User Defined');
+INSERT INTO layout_options VALUES ('HIS','userarea12'        ,'5Other','User Defined Area 12',7,3,0,30,3,'',1,3,'','','User Defined');
 
 -- --------------------------------------------------------
 
@@ -5298,6 +5308,12 @@ CREATE TABLE `patient_data` (
   `referral_source` varchar(30) character set utf8 collate utf8_unicode_ci NOT NULL default '',
   `usertext1` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
   `usertext2` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext3` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext4` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext5` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext6` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext7` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `usertext8` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
   `userlist1` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
   `userlist2` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
   `userlist3` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',

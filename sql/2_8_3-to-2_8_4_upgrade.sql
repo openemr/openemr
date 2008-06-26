@@ -537,11 +537,11 @@ ALTER TABLE patient_data
   ADD `usertext8` varchar(255) NOT NULL DEFAULT '';
 
 INSERT INTO layout_options VALUES ('DEM','usertext3','6Misc','User Defined Text 3', 3,2,0,10,63,'',1,1,'','','User Defined');
-INSERT INTO layout_options VALUES ('DEM','usertext4','6Misc','User Defined Text 4', 3,2,0,10,63,'',1,1,'','','User Defined');
-INSERT INTO layout_options VALUES ('DEM','usertext5','6Misc','User Defined Text 5', 3,2,0,10,63,'',1,1,'','','User Defined');
-INSERT INTO layout_options VALUES ('DEM','usertext6','6Misc','User Defined Text 6', 3,2,0,10,63,'',1,1,'','','User Defined');
-INSERT INTO layout_options VALUES ('DEM','usertext7','6Misc','User Defined Text 7', 3,2,0,10,63,'',1,1,'','','User Defined');
-INSERT INTO layout_options VALUES ('DEM','usertext8','6Misc','User Defined Text 8', 3,2,0,10,63,'',1,1,'','','User Defined');
+INSERT INTO layout_options VALUES ('DEM','usertext4','6Misc','User Defined Text 4', 4,2,0,10,63,'',1,1,'','','User Defined');
+INSERT INTO layout_options VALUES ('DEM','usertext5','6Misc','User Defined Text 5', 5,2,0,10,63,'',1,1,'','','User Defined');
+INSERT INTO layout_options VALUES ('DEM','usertext6','6Misc','User Defined Text 6', 6,2,0,10,63,'',1,1,'','','User Defined');
+INSERT INTO layout_options VALUES ('DEM','usertext7','6Misc','User Defined Text 7', 7,2,0,10,63,'',1,1,'','','User Defined');
+INSERT INTO layout_options VALUES ('DEM','usertext8','6Misc','User Defined Text 8', 8,2,0,10,63,'',1,1,'','','User Defined');
 
 ALTER TABLE history_data
   ADD `userarea11` text NOT NULL DEFAULT '',
