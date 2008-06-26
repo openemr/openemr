@@ -135,8 +135,8 @@ INSERT INTO layout_options VALUES ('DEM','migrantseasonal' ,'5Stats','Migrant/Se
 
 INSERT INTO layout_options VALUES ('DEM','usertext1'       ,'6Misc','User Defined Text 1'   , 1, 2,0,10,63,''         ,1,1,'','' ,'User Defined');
 INSERT INTO layout_options VALUES ('DEM','usertext2'       ,'6Misc','User Defined Text 2'   , 2, 2,0,10,63,''         ,1,1,'','' ,'User Defined');
-INSERT INTO layout_options VALUES ('DEM','userlist1'       ,'6Misc','User Defined List 1'   , 3, 1,0, 0, 0,'userlist1',1,1,'','' ,'User Defined');
-INSERT INTO layout_options VALUES ('DEM','userlist2'       ,'6Misc','User Defined List 2'   , 4, 1,0, 0, 0,'userlist2',1,1,'','' ,'User Defined');
+INSERT INTO layout_options VALUES ('DEM','userlist1'       ,'6Misc','User Defined List 1'   , 9, 1,0, 0, 0,'userlist1',1,1,'','' ,'User Defined');
+INSERT INTO layout_options VALUES ('DEM','userlist2'       ,'6Misc','User Defined List 2'   ,10, 1,0, 0, 0,'userlist2',1,1,'','' ,'User Defined');
 
 ALTER TABLE transactions
   ADD `refer_date`              date         DEFAULT NULL,
@@ -256,12 +256,12 @@ INSERT INTO list_options VALUES ('userlist5','sample','Sample',1,0,0);
 INSERT INTO list_options VALUES ('userlist6','sample','Sample',1,0,0);
 INSERT INTO list_options VALUES ('userlist7','sample','Sample',1,0,0);
 
-INSERT INTO layout_options VALUES ('DEM','userlist3'       ,'6Misc','User Defined List 3'   , 5, 1,0, 0, 0,'userlist3',1,1,'','' ,'User Defined');
-INSERT INTO layout_options VALUES ('DEM','userlist4'       ,'6Misc','User Defined List 4'   , 6, 1,0, 0, 0,'userlist4',1,1,'','' ,'User Defined');
-INSERT INTO layout_options VALUES ('DEM','userlist5'       ,'6Misc','User Defined List 5'   , 7, 1,0, 0, 0,'userlist5',1,1,'','' ,'User Defined');
-INSERT INTO layout_options VALUES ('DEM','userlist6'       ,'6Misc','User Defined List 6'   , 8, 1,0, 0, 0,'userlist6',1,1,'','' ,'User Defined');
-INSERT INTO layout_options VALUES ('DEM','userlist7'       ,'6Misc','User Defined List 7'   , 9, 1,0, 0, 0,'userlist7',1,1,'','' ,'User Defined');
-INSERT INTO layout_options VALUES ('DEM','regdate'         ,'6Misc','Registration Date'     ,10, 4,0,10,10,''         ,1,1,'','D','Start Date at This Clinic');
+INSERT INTO layout_options VALUES ('DEM','userlist3'       ,'6Misc','User Defined List 3'   ,11, 1,0, 0, 0,'userlist3',1,1,'','' ,'User Defined');
+INSERT INTO layout_options VALUES ('DEM','userlist4'       ,'6Misc','User Defined List 4'   ,12, 1,0, 0, 0,'userlist4',1,1,'','' ,'User Defined');
+INSERT INTO layout_options VALUES ('DEM','userlist5'       ,'6Misc','User Defined List 5'   ,13, 1,0, 0, 0,'userlist5',1,1,'','' ,'User Defined');
+INSERT INTO layout_options VALUES ('DEM','userlist6'       ,'6Misc','User Defined List 6'   ,14, 1,0, 0, 0,'userlist6',1,1,'','' ,'User Defined');
+INSERT INTO layout_options VALUES ('DEM','userlist7'       ,'6Misc','User Defined List 7'   ,15, 1,0, 0, 0,'userlist7',1,1,'','' ,'User Defined');
+INSERT INTO layout_options VALUES ('DEM','regdate'         ,'6Misc','Registration Date'     ,16, 4,0,10,10,''         ,1,1,'','D','Start Date at This Clinic');
 
 INSERT INTO list_options VALUES ('refsource','Patient'      ,'Patient'      , 1,0,0);
 INSERT INTO list_options VALUES ('refsource','Employee'     ,'Employee'     , 2,0,0);
@@ -310,36 +310,36 @@ ALTER TABLE history_data
   ADD `userdate14` date DEFAULT NULL,
   ADD `userdate15` date DEFAULT NULL;
 
-UPDATE history_data SET exams = CONCAT(exams, '|brs:1:', last_breast_exam              ) WHERE SUBSTR(last_exam_results, 1, 1) = '1';
-UPDATE history_data SET exams = CONCAT(exams, '|brs:2:', last_breast_exam              ) WHERE SUBSTR(last_exam_results, 1, 1) = '2';
-UPDATE history_data SET exams = CONCAT(exams, '|mam:1:', last_mammogram                ) WHERE SUBSTR(last_exam_results, 2, 1) = '1';
-UPDATE history_data SET exams = CONCAT(exams, '|mam:2:', last_mammogram                ) WHERE SUBSTR(last_exam_results, 2, 1) = '2';
-UPDATE history_data SET exams = CONCAT(exams, '|gyn:1:', last_gynocological_exam       ) WHERE SUBSTR(last_exam_results, 3, 1) = '1';
-UPDATE history_data SET exams = CONCAT(exams, '|gyn:2:', last_gynocological_exam       ) WHERE SUBSTR(last_exam_results, 3, 1) = '2';
-UPDATE history_data SET exams = CONCAT(exams, '|rec:1:', last_rectal_exam              ) WHERE SUBSTR(last_exam_results, 4, 1) = '1';
-UPDATE history_data SET exams = CONCAT(exams, '|rec:2:', last_rectal_exam              ) WHERE SUBSTR(last_exam_results, 4, 1) = '2';
-UPDATE history_data SET exams = CONCAT(exams, '|pro:1:', last_prostate_exam            ) WHERE SUBSTR(last_exam_results, 5, 1) = '1';
-UPDATE history_data SET exams = CONCAT(exams, '|pro:2:', last_prostate_exam            ) WHERE SUBSTR(last_exam_results, 5, 1) = '2';
-UPDATE history_data SET exams = CONCAT(exams, '|phy:1:', last_physical_exam            ) WHERE SUBSTR(last_exam_results, 6, 1) = '1';
-UPDATE history_data SET exams = CONCAT(exams, '|phy:2:', last_physical_exam            ) WHERE SUBSTR(last_exam_results, 6, 1) = '2';
-UPDATE history_data SET exams = CONCAT(exams, '|sic:1:', last_sigmoidoscopy_colonoscopy) WHERE SUBSTR(last_exam_results, 7, 1) = '1';
-UPDATE history_data SET exams = CONCAT(exams, '|sic:2:', last_sigmoidoscopy_colonoscopy) WHERE SUBSTR(last_exam_results, 7, 1) = '2';
-UPDATE history_data SET exams = CONCAT(exams, '|ecg:1:', last_ecg                      ) WHERE SUBSTR(last_exam_results, 8, 1) = '1';
-UPDATE history_data SET exams = CONCAT(exams, '|ecg:2:', last_ecg                      ) WHERE SUBSTR(last_exam_results, 8, 1) = '2';
-UPDATE history_data SET exams = CONCAT(exams, '|cec:1:', last_cardiac_echo             ) WHERE SUBSTR(last_exam_results, 9, 1) = '1';
-UPDATE history_data SET exams = CONCAT(exams, '|cec:2:', last_cardiac_echo             ) WHERE SUBSTR(last_exam_results, 9, 1) = '2';
-UPDATE history_data SET exams = CONCAT(exams, '|ret:1:', last_retinal                  ) WHERE SUBSTR(last_exam_results,10, 1) = '1';
-UPDATE history_data SET exams = CONCAT(exams, '|ret:2:', last_retinal                  ) WHERE SUBSTR(last_exam_results,10, 1) = '2';
-UPDATE history_data SET exams = CONCAT(exams, '|flu:1:', last_fluvax                   ) WHERE SUBSTR(last_exam_results,11, 1) = '1';
-UPDATE history_data SET exams = CONCAT(exams, '|flu:2:', last_fluvax                   ) WHERE SUBSTR(last_exam_results,11, 1) = '2';
-UPDATE history_data SET exams = CONCAT(exams, '|pne:1:', last_pneuvax                  ) WHERE SUBSTR(last_exam_results,12, 1) = '1';
-UPDATE history_data SET exams = CONCAT(exams, '|pne:2:', last_pneuvax                  ) WHERE SUBSTR(last_exam_results,12, 1) = '2';
-UPDATE history_data SET exams = CONCAT(exams, '|ldl:1:', last_ldl                      ) WHERE SUBSTR(last_exam_results,13, 1) = '1';
-UPDATE history_data SET exams = CONCAT(exams, '|ldl:2:', last_ldl                      ) WHERE SUBSTR(last_exam_results,13, 1) = '2';
-UPDATE history_data SET exams = CONCAT(exams, '|hem:1:', last_hemoglobin               ) WHERE SUBSTR(last_exam_results,14, 1) = '1';
-UPDATE history_data SET exams = CONCAT(exams, '|hem:2:', last_hemoglobin               ) WHERE SUBSTR(last_exam_results,14, 1) = '2';
-UPDATE history_data SET exams = CONCAT(exams, '|psa:1:', last_psa                      ) WHERE SUBSTR(last_exam_results,15, 1) = '1';
-UPDATE history_data SET exams = CONCAT(exams, '|psa:2:', last_psa                      ) WHERE SUBSTR(last_exam_results,15, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|brs:1:', last_breast_exam              ) WHERE SUBSTRING(last_exam_results, 1, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|brs:2:', last_breast_exam              ) WHERE SUBSTRING(last_exam_results, 1, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|mam:1:', last_mammogram                ) WHERE SUBSTRING(last_exam_results, 2, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|mam:2:', last_mammogram                ) WHERE SUBSTRING(last_exam_results, 2, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|gyn:1:', last_gynocological_exam       ) WHERE SUBSTRING(last_exam_results, 3, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|gyn:2:', last_gynocological_exam       ) WHERE SUBSTRING(last_exam_results, 3, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|rec:1:', last_rectal_exam              ) WHERE SUBSTRING(last_exam_results, 4, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|rec:2:', last_rectal_exam              ) WHERE SUBSTRING(last_exam_results, 4, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|pro:1:', last_prostate_exam            ) WHERE SUBSTRING(last_exam_results, 5, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|pro:2:', last_prostate_exam            ) WHERE SUBSTRING(last_exam_results, 5, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|phy:1:', last_physical_exam            ) WHERE SUBSTRING(last_exam_results, 6, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|phy:2:', last_physical_exam            ) WHERE SUBSTRING(last_exam_results, 6, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|sic:1:', last_sigmoidoscopy_colonoscopy) WHERE SUBSTRING(last_exam_results, 7, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|sic:2:', last_sigmoidoscopy_colonoscopy) WHERE SUBSTRING(last_exam_results, 7, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|ecg:1:', last_ecg                      ) WHERE SUBSTRING(last_exam_results, 8, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|ecg:2:', last_ecg                      ) WHERE SUBSTRING(last_exam_results, 8, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|cec:1:', last_cardiac_echo             ) WHERE SUBSTRING(last_exam_results, 9, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|cec:2:', last_cardiac_echo             ) WHERE SUBSTRING(last_exam_results, 9, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|ret:1:', last_retinal                  ) WHERE SUBSTRING(last_exam_results,10, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|ret:2:', last_retinal                  ) WHERE SUBSTRING(last_exam_results,10, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|flu:1:', last_fluvax                   ) WHERE SUBSTRING(last_exam_results,11, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|flu:2:', last_fluvax                   ) WHERE SUBSTRING(last_exam_results,11, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|pne:1:', last_pneuvax                  ) WHERE SUBSTRING(last_exam_results,12, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|pne:2:', last_pneuvax                  ) WHERE SUBSTRING(last_exam_results,12, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|ldl:1:', last_ldl                      ) WHERE SUBSTRING(last_exam_results,13, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|ldl:2:', last_ldl                      ) WHERE SUBSTRING(last_exam_results,13, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|hem:1:', last_hemoglobin               ) WHERE SUBSTRING(last_exam_results,14, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|hem:2:', last_hemoglobin               ) WHERE SUBSTRING(last_exam_results,14, 1) = '2';
+UPDATE history_data SET exams = CONCAT(exams, '|psa:1:', last_psa                      ) WHERE SUBSTRING(last_exam_results,15, 1) = '1';
+UPDATE history_data SET exams = CONCAT(exams, '|psa:2:', last_psa                      ) WHERE SUBSTRING(last_exam_results,15, 1) = '2';
 
 DELETE FROM layout_options WHERE form_id = 'HIS' AND group_name = '1General';
 INSERT INTO layout_options VALUES ('HIS','usertext11','1General','Risk Factors',1,21,1,0,0,'riskfactors',1,1,'','' ,'Risk Factors');
@@ -527,3 +527,25 @@ ALTER TABLE payments
 
 ALTER TABLE users
   ADD `taxonomy` varchar(30) NOT NULL DEFAULT '207Q00000X';
+
+ALTER TABLE patient_data
+  ADD `usertext3` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext4` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext5` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext6` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext7` varchar(255) NOT NULL DEFAULT '',
+  ADD `usertext8` varchar(255) NOT NULL DEFAULT '';
+
+INSERT INTO layout_options VALUES ('DEM','usertext3','6Misc','User Defined Text 3', 3,2,0,10,63,'',1,1,'','','User Defined');
+INSERT INTO layout_options VALUES ('DEM','usertext4','6Misc','User Defined Text 4', 3,2,0,10,63,'',1,1,'','','User Defined');
+INSERT INTO layout_options VALUES ('DEM','usertext5','6Misc','User Defined Text 5', 3,2,0,10,63,'',1,1,'','','User Defined');
+INSERT INTO layout_options VALUES ('DEM','usertext6','6Misc','User Defined Text 6', 3,2,0,10,63,'',1,1,'','','User Defined');
+INSERT INTO layout_options VALUES ('DEM','usertext7','6Misc','User Defined Text 7', 3,2,0,10,63,'',1,1,'','','User Defined');
+INSERT INTO layout_options VALUES ('DEM','usertext8','6Misc','User Defined Text 8', 3,2,0,10,63,'',1,1,'','','User Defined');
+
+ALTER TABLE history_data
+  ADD `userarea11` text NOT NULL DEFAULT '',
+  ADD `userarea12` text NOT NULL DEFAULT '';
+
+INSERT INTO layout_options VALUES ('HIS','userarea11','5Other','User Defined Area 11',6,3,0,30,3,'',1,3,'','','User Defined');
+INSERT INTO layout_options VALUES ('HIS','userarea12','5Other','User Defined Area 12',7,3,0,30,3,'',1,3,'','','User Defined');
