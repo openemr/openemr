@@ -369,8 +369,9 @@ if ($result = getEncounters($pid)) {
       // This creates 5 columns of billing information:
       // billing code, charges, payments, adjustments, balance.
       foreach ($subresult2 as $iter2) {
-        if ($iter2['code_type'] != 'COPAY' &&
-          !$code_types[$iter2['code_type']]['fee']) continue;
+        // Next 2 lines were to skip diagnoses, but that seems unpopular.
+        // if ($iter2['code_type'] != 'COPAY' &&
+        //   !$code_types[$iter2['code_type']]['fee']) continue;
         $title = addslashes($iter2['code_text']);
         $codekey = $iter2['code'];
         if ($iter2['code_type'] == 'COPAY') $codekey = 'CO-PAY';
