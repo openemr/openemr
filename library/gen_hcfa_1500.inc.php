@@ -11,6 +11,7 @@ require_once("Claim.class.php");
 $hcfa_curr_line = 1;
 $hcfa_curr_col = 1;
 $hcfa_data = '';
+$hcfa_proc_index = 0;
 
 function put_hcfa($line, $col, $maxlen, $data) {
   global $hcfa_curr_line, $hcfa_curr_col, $hcfa_data;
@@ -34,11 +35,10 @@ function put_hcfa($line, $col, $maxlen, $data) {
 }
 
 function gen_hcfa_1500($pid, $encounter, &$log) {
-  global $hcfa_curr_line, $hcfa_curr_col, $hcfa_data;
+  global $hcfa_data, $hcfa_proc_index;
 
-  $hcfa_curr_line = 1;
-  $hcfa_curr_col = 1;
   $hcfa_data = '';
+  $hcfa_proc_index = 0;
 
   $today = time();
   $claim = new Claim($pid, $encounter);
@@ -48,6 +48,21 @@ function gen_hcfa_1500($pid, $encounter, &$log) {
     $claim->patientMiddleName() . ' ' .
     $claim->patientLastName()   . ' on ' .
     date('Y-m-d H:i', $today) . ".\n";
+
+  while ($hcfa_proc_index < $claim->procCount()) {
+    if ($hcfa_proc_index) $hcfa_data .= "\014"; // append form feed for new page
+    gen_hcfa_1500_page($pid, $encounter, &$log, &$claim);
+  }
+
+  $log .= "\n";
+  return $hcfa_data;
+}
+
+function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
+  global $hcfa_curr_line, $hcfa_curr_col, $hcfa_data, $hcfa_proc_index;
+
+  $hcfa_curr_line = 1;
+  $hcfa_curr_col = 1;
 
   // Payer name, attn, street.
   put_hcfa(2, 41, 31, $claim->payerName());
@@ -307,32 +322,38 @@ function gen_hcfa_1500($pid, $encounter, &$log) {
   put_hcfa(40, 50, 28, $claim->priorAuth());
 
   $proccount = $claim->procCount(); // number of procedures
-  $svccount = 0;                    // index for service lines
-  $clm_total_charges = 0;           // Accumulates original charges
+
+  // Charges, adjustments and payments are accumulated by line item so that
+  // each page of a multi-page claim will stand alone.  Payments include the
+  // co-pay for the first page only.
+  $clm_total_charges = 0;
+  $clm_amount_adjusted = 0;
+  $clm_amount_paid = $hcfa_proc_index ? 0 : $claim->patientPaidAmount();
 
   // Procedure loop starts here.
   //
-  for ($prockey = 0; $prockey < $proccount; ++$prockey) {
-    $dia = $claim->diagIndexArray($prockey);
+  for ($svccount = 0; $svccount < 6 && $hcfa_proc_index < $proccount; ++$hcfa_proc_index) {
+    $dia = $claim->diagIndexArray($hcfa_proc_index);
 
-    if (!$claim->cptCharges($prockey)) {
-      $log .= "*** Procedure '" . $claim->cptKey($prockey) .
+    if (!$claim->cptCharges($hcfa_proc_index)) {
+      $log .= "*** Procedure '" . $claim->cptKey($hcfa_proc_index) .
         "' has no charges!\n";
-      continue;
     }
-
-    $clm_total_charges += $claim->cptCharges($prockey);
 
     if (empty($dia)) {
-      $log .= "*** Procedure '" . $claim->cptKey($prockey) .
+      $log .= "*** Procedure '" . $claim->cptKey($hcfa_proc_index) .
         "' is not justified!\n";
-      continue;
     }
 
-    if ($svccount >= 6) {
-      $log .= "*** Procedure '" . $claim->cptKey($prockey) .
-        "' not printed, too many line items!\n";
-      continue;
+    $clm_total_charges += $claim->cptCharges($hcfa_proc_index);
+
+    // Compute prior payments and "hard" adjustments.
+    for ($ins = 1; $ins < $claim->payerCount(); ++$ins) {
+      if ($claim->payerSequence($ins) > $claim->payerSequence())
+        continue; // skip future payers
+      $payerpaid = $claim->payerTotals($ins, $claim->cptKey($hcfa_proc_index));
+      $clm_amount_paid += $payerpaid[1];
+      $clm_amount_adjusted += $payerpaid[2];
     }
 
     ++$svccount;
@@ -340,15 +361,15 @@ function gen_hcfa_1500($pid, $encounter, &$log) {
 
     // Drug Information. Medicaid insurers want this with HCPCS codes.
     //
-    $ndc = $claim->cptNDCID($prockey);
+    $ndc = $claim->cptNDCID($hcfa_proc_index);
     if ($ndc) {
       if (preg_match('/^\d\d\d\d\d-\d\d\d\d-\d\d$/', $ndc, $tmp)) {
         $ndc = $tmp[1] . $tmp[2] . $tmp[3];
       } else {
         $log .= "*** NDC code '$ndc' has invalid format!\n";
       }
-      put_hcfa($lino, 1, 50, "N4$ndc   " . $claim->cptNDCUOM($prockey) .
-        $claim->cptNDCQuantity($prockey));
+      put_hcfa($lino, 1, 50, "N4$ndc   " . $claim->cptNDCUOM($hcfa_proc_index) .
+        $claim->cptNDCQuantity($hcfa_proc_index));
     }
 
     // 24i and 24j Top. ID Qualifier and Rendering Provider ID
@@ -372,20 +393,20 @@ function gen_hcfa_1500($pid, $encounter, &$log) {
     // Not currently supported.
 
     // 24d. Procedures, Services or Supplies
-    put_hcfa($lino, 25, 7, $claim->cptCode($prockey));
-    put_hcfa($lino, 33, 6, $claim->cptModifier($prockey));
+    put_hcfa($lino, 25, 7, $claim->cptCode($hcfa_proc_index));
+    put_hcfa($lino, 33, 6, $claim->cptModifier($hcfa_proc_index));
 
     // 24e. Diagnosis Pointer
     $tmp = '';
-    foreach ($claim->diagIndexArray($prockey) as $value) $tmp .= $value;
+    foreach ($claim->diagIndexArray($hcfa_proc_index) as $value) $tmp .= $value;
     put_hcfa($lino, 45, 4, $tmp);
 
     // 24f. Charges
     put_hcfa($lino, 50, 8, str_replace('.', ' ',
-      sprintf('%8.2f', $claim->cptCharges($prockey))));
+      sprintf('%8.2f', $claim->cptCharges($hcfa_proc_index))));
 
     // 24g. Days or Units
-    put_hcfa($lino, 59, 3, $claim->cptUnits($prockey));
+    put_hcfa($lino, 59, 3, $claim->cptUnits($hcfa_proc_index));
 
     // 24h. EPSDT Family Plan
     // Not currently supported.
@@ -412,17 +433,6 @@ function gen_hcfa_1500($pid, $encounter, &$log) {
     $log .= "*** This claim has no charges!\n";
   }
 
-  // Compute prior payments and "hard" adjustments.
-  $clm_amount_paid = $claim->patientPaidAmount();
-  $clm_amount_adjusted = 0;
-  for ($ins = 1; $ins < $claim->payerCount(); ++$ins) {
-    if ($claim->payerSequence($ins) > $claim->payerSequence())
-      continue; // skip future payers
-    $payerpaid = $claim->payerTotals($ins);
-    $clm_amount_paid += $payerpaid[1];
-    $clm_amount_adjusted += $payerpaid[2];
-  }
-
   // 29. Amount Paid
   put_hcfa(56, 62, 8, str_replace('.',' ',sprintf('%8.2f',$clm_amount_paid)));
 
@@ -434,8 +444,8 @@ function gen_hcfa_1500($pid, $encounter, &$log) {
 
   // 33. Billing Provider: Phone Number
   $tmp = $claim->billingContactPhone();
-  put_hcfa(57, 67,  3, substr($tmp,0,3));
-  put_hcfa(57, 71,  7, substr($tmp,3));
+  put_hcfa(57, 66,  3, substr($tmp,0,3));
+  put_hcfa(57, 70,  7, substr($tmp,3));
 
   // 32. Service Facility Location Information: Name
   put_hcfa(58, 23, 25, $claim->facilityName());
@@ -489,7 +499,6 @@ function gen_hcfa_1500($pid, $encounter, &$log) {
     put_hcfa(61, 65, 14, $claim->groupNumber());
   }
 
-  $log .= "\n";
-  return $hcfa_data;
+  return;
 }
 ?>

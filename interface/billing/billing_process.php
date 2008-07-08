@@ -204,10 +204,12 @@ function process_form($ar) {
           $log = '';
           $lines = gen_hcfa_1500($patient_id, $encounter, $log);
           fwrite($hlog, $log);
-          // Generate a(nother) PDF page.
-          if ($claim_count) $pdf->ezNewPage();
-          $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
-          $pdf->ezText($lines, 12, array('justification' => 'left', 'leading' => 12));
+          $alines = explode("\014", $lines); // form feeds may separate pages
+          foreach ($alines as $tmplines) {
+            if ($claim_count++) $pdf->ezNewPage();
+            $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
+            $pdf->ezText($tmplines, 12, array('justification' => 'left', 'leading' => 12));
+          }
           if (!updateClaim(false, $patient_id, $encounter, -1, 2, 2, $bat_filename)) {
             $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
           }
@@ -218,7 +220,6 @@ function process_form($ar) {
         }
 
       }
-      ++$claim_count;
 
     } // end if this claim has billing
 
