@@ -380,11 +380,14 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
 
     ++$lino;
 
-    // 24a. Date(s) of Service
+    // 24a. Date of Service
     $tmp = $claim->serviceDate();
     put_hcfa($lino, 1, 2, substr($tmp,4,2));
     put_hcfa($lino, 4, 2, substr($tmp,6,2));
     put_hcfa($lino, 7, 2, substr($tmp,2,2));
+    put_hcfa($lino,10, 2, substr($tmp,4,2));
+    put_hcfa($lino,13, 2, substr($tmp,6,2));
+    put_hcfa($lino,16, 2, substr($tmp,2,2));
 
     // 24b. Place of Service
     put_hcfa($lino, 19, 2, $claim->facilityPOS());
