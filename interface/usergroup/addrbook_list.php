@@ -13,7 +13,7 @@
  $form_lname = trim($_POST['form_lname']);
  $form_specialty = trim($_POST['form_specialty']);
 
- $query = "SELECT * FROM users WHERE active = 1 ";
+ $query = "SELECT * FROM users WHERE active = 1 AND ( authorized = 1 OR username = '' ) ";
  if ($form_lname) $query .= "AND lname LIKE '$form_lname%' ";
  if ($form_fname) $query .= "AND fname LIKE '$form_fname%' ";
  if ($form_specialty) $query .= "AND specialty LIKE '%$form_specialty%' ";
