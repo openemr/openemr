@@ -261,6 +261,22 @@ function generate_form_field($frow, $currvalue) {
     echo "</table>";
   }
 
+  // the list of active allergies for the current patient
+  // this is read-only!
+  else if ($data_type == 24) {
+    $query = "SELECT title, comments FROM lists WHERE " .
+      "pid = '" . $GLOBALS['pid'] . "' AND type = 'allergy' AND enddate IS NULL " .
+      "ORDER BY begdate";
+    // echo "<!-- $query -->\n"; // debugging
+    $lres = sqlStatement($query);
+    $count = 0;
+    while ($lrow = sqlFetchArray($lres)) {
+      if ($count++) echo "<br />";
+      echo $lrow['title'];
+      if ($lrow['comments']) echo ' (' . $lrow['comments'] . ')';
+    }
+  }
+
 }
 
 function generate_display_field($frow, $currvalue) {
@@ -367,8 +383,8 @@ function generate_display_field($frow, $currvalue) {
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
       if (empty($avalue[$option_id])) continue;
-      $s .= "<tr><td class='bold'>" . $lrow['title'] . ":&nbsp;</td>";
-      $s .= "<td class='text'>" . $avalue[$option_id] . "</td></tr>";
+      $s .= "<tr><td class='bold' valign='top'>" . $lrow['title'] . ":&nbsp;</td>";
+      $s .= "<td class='text' valign='top'>" . $avalue[$option_id] . "</td></tr>";
     }
     $s .= "</table>";
   }
@@ -390,13 +406,28 @@ function generate_display_field($frow, $currvalue) {
       $restype = substr($avalue[$option_id], 0, 1);
       $resnote = substr($avalue[$option_id], 2);
       if (empty($restype) && empty($resnote)) continue;
-      $s .= "<tr><td class='bold'>" . $lrow['title'] . "&nbsp;</td>";
+      $s .= "<tr><td class='bold' valign='top'>" . $lrow['title'] . "&nbsp;</td>";
       $restype = ($restype == '1') ? 'Normal' : (($restype == '2') ? 'Abnormal' : 'N/A');
-      $s .= "<td class='text'>$restype</td></tr>";
-      $s .= "<td class='text'>$resnote</td></tr>";
+      $s .= "<td class='text' valign='top'>$restype</td></tr>";
+      $s .= "<td class='text' valign='top'>$resnote</td></tr>";
       $s .= "</tr>";
     }
     $s .= "</table>";
+  }
+
+  // the list of active allergies for the current patient
+  else if ($data_type == 24) {
+    $query = "SELECT title, comments FROM lists WHERE " .
+      "pid = '" . $GLOBALS['pid'] . "' AND type = 'allergy' AND enddate IS NULL " .
+      "ORDER BY begdate";
+    // echo "<!-- $query -->\n"; // debugging
+    $lres = sqlStatement($query);
+    $count = 0;
+    while ($lrow = sqlFetchArray($lres)) {
+      if ($count++) $s .= "<br />";
+      $s .= $lrow['title'];
+      if ($lrow['comments']) $s .= ' (' . $lrow['comments'] . ')';
+    }
   }
 
   return $s;
@@ -476,7 +507,7 @@ function display_layout_rows($formtype, $result1, $result2='') {
     // Handle starting of a new row.
     if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
       disp_end_row();
-      echo "  <tr><td class='bold' style='padding-right:5pt'>";
+      echo "  <tr><td class='bold' style='padding-right:5pt' valign='top'>";
       if ($group_name) {
         echo "<font color='#008800'>$group_name</font>";
         $group_name = '';
@@ -491,7 +522,7 @@ function display_layout_rows($formtype, $result1, $result2='') {
     // Handle starting of a new label cell.
     if ($titlecols > 0) {
       disp_end_cell();
-      echo "<td class='bold' colspan='$titlecols'";
+      echo "<td class='bold' colspan='$titlecols' valign='top'";
       if ($cell_count == 2) echo " style='padding-left:10pt'";
       echo ">";
       $cell_count += $titlecols;
@@ -503,7 +534,7 @@ function display_layout_rows($formtype, $result1, $result2='') {
     // Handle starting of a new data cell.
     if ($datacols > 0) {
       disp_end_cell();
-      echo "<td colspan='$datacols' class='text'";
+      echo "<td colspan='$datacols' class='text' valign='top'";
       if ($cell_count > 0) echo " style='padding-left:5pt'";
       echo ">";
       $cell_count += $datacols;
