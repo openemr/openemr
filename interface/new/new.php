@@ -5,6 +5,14 @@ include_once("../globals.php");
 $crow = sqlQuery("SELECT count(*) AS count FROM layout_options WHERE " .
   "form_id = 'DEM' AND field_id = 'regdate' AND uor > 0");
 $regstyle = $crow['count'] ? "" : " style='display:none'";
+
+$form_pubpid    = $_POST['pubpid'   ] ? trim($_POST['pubpid'   ]) : '';
+$form_title     = $_POST['title'    ] ? trim($_POST['title'    ]) : '';
+$form_fname     = $_POST['fname'    ] ? trim($_POST['fname'    ]) : '';
+$form_mname     = $_POST['mname'    ] ? trim($_POST['mname'    ]) : '';
+$form_lname     = $_POST['lname'    ] ? trim($_POST['lname'    ]) : '';
+$form_refsource = $_POST['refsource'] ? trim($_POST['refsource']) : '';
+$form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d');
 ?>
 <html>
 
@@ -72,8 +80,9 @@ $regstyle = $crow['count'] ? "" : " style='display:none'";
 $ores = sqlStatement("SELECT option_id, title FROM list_options " .
   "WHERE list_id = 'titles' ORDER BY seq");
 while ($orow = sqlFetchArray($ores)) {
-  echo "    <option value='" . $orow['option_id'] . "'>" . $orow['title'] .
-    "</option>\n";
+  echo "    <option value='" . $orow['option_id'] . "'";
+  if ($orow['option_id'] == $form_title) echo " selected";
+  echo ">" . $orow['title'] . "</option>\n";
 }
 ?>
    </select>
@@ -86,7 +95,7 @@ while ($orow = sqlFetchArray($ores)) {
    <span class='bold'><?php xl('First Name','e');?>: </span>
   </td>
   <td>
-   <input type='entry' size='15' name='fname'>
+   <input type='entry' size='15' name='fname' value='<?php echo $form_fname; ?>'>
   </td>
  </tr>
 
@@ -95,7 +104,7 @@ while ($orow = sqlFetchArray($ores)) {
    <span class='bold'><?php xl('Middle Name','e');?>: </span>
   </td>
   <td>
-   <input type='entry' size='15' name='mname'>
+   <input type='entry' size='15' name='mname' value='<?php echo $form_mname; ?>'>
   </td>
  </tr>
 
@@ -104,7 +113,7 @@ while ($orow = sqlFetchArray($ores)) {
    <span class='bold'><?php xl('Last Name','e');?>: </span>
   </td>
   <td>
-   <input type='entry' size='15' name='lname'>
+   <input type='entry' size='15' name='lname' value='<?php echo $form_lname; ?>'>
   </td>
  </tr>
 
@@ -120,8 +129,9 @@ while ($orow = sqlFetchArray($ores)) {
 $ores = sqlStatement("SELECT option_id, title FROM list_options " .
   "WHERE list_id = 'refsource' ORDER BY seq");
 while ($orow = sqlFetchArray($ores)) {
-  echo "    <option value='" . $orow['option_id'] . "'>" . $orow['title'] .
-    "</option>\n";
+  echo "    <option value='" . $orow['option_id'] . "'";
+  if ($orow['option_id'] == $form_refsource) echo " selected";
+  echo ">" . $orow['title'] . "</option>\n";
 }
 ?>
    </select>
@@ -135,7 +145,7 @@ while ($orow = sqlFetchArray($ores)) {
   </td>
   <td>
    <input type='text' size='10' name='regdate' id='regdate'
-    value='<?php echo date('Y-m-d') ?>'
+    value='<?php echo $form_regdate; ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
     title='yyyy-mm-dd' />
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
@@ -152,7 +162,7 @@ while ($orow = sqlFetchArray($ores)) {
    <span class='bold'><?php xl('Patient Number','e');?>: </span>
   </td>
   <td>
-   <input type='entry' size='5' name='pubpid'>
+   <input type='entry' size='5' name='pubpid' value='<?php echo $form_pubpid; ?>'>
    <span class='text'><?php xl('omit to autoassign','e');?> &nbsp; &nbsp; </span>
   </td>
  </tr>
@@ -169,6 +179,13 @@ while ($orow = sqlFetchArray($ores)) {
 </table>
 </center>
 </form>
+<script language="Javascript">
+<?php
+if ($form_pubpid) { 
+  echo "alert('" . xl('This patient ID is already in use!') . "');\n";
+}
+?>
+</script>
 
 </body>
 </html>
