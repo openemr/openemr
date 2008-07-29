@@ -20,7 +20,7 @@ if ($mode) {
     ", date = NOW()";
 
   $fres = sqlStatement("SELECT * FROM layout_options " .
-    "WHERE form_id = 'REF' AND uor > 0 " .
+    "WHERE form_id = 'REF' AND uor > 0 AND field_id != '' " .
     "ORDER BY group_name, seq");
   while ($frow = sqlFetchArray($fres)) {
     $data_type = $frow['data_type'];
