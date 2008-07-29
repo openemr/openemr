@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2008 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -11,17 +11,77 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/classes/Address.class.php");
 require_once("$srcdir/classes/InsuranceCompany.class.php");
-require_once("../../custom/fee_sheet_codes.php");
+
+// This file is optional.  You can create it to customize how the printed
+// fee sheet looks, otherwise you'll get a mirror of your actual fee sheet.
+//
+if (file_exists("../../custom/fee_sheet_codes.php"))
+  include_once ("../../custom/fee_sheet_codes.php");
 
 $fontsize = trim($_REQUEST['fontsize']) + 0;
 if (!$fontsize) $fontsize = 7;
 $page_height = trim($_REQUEST['page_height']) + 0;
 if (!$page_height) $page_height = 700;
 $padding = 0;
+
+// If $SBCODES is not provided, then manufacture it from the Fee Sheet.
+//
+if (empty($SBCODES)) {
+  $SBCODES = array();
+  $last_category = '';
+
+  // Create entries based on the fee_sheet_options table.
+  $res = sqlStatement("SELECT * FROM fee_sheet_options " .
+    "ORDER BY fs_category, fs_option");
+  while ($row = sqlFetchArray($res)) {
+    $fs_category = $row['fs_category'];
+    $fs_option   = $row['fs_option'];
+    $fs_codes    = $row['fs_codes'];
+    if($fs_category !== $last_category) {
+      $last_category = $fs_category;
+      $SBCODES[] = '*G|' . substr($fs_category, 1);
+    }
+    $SBCODES[] = " |" . substr($fs_option, 1);
+  }
+
+  // Create entries based on categories defined within the codes.
+  $pres = sqlStatement("SELECT option_id, title FROM list_options " .
+    "WHERE list_id = 'superbill' ORDER BY seq");
+  while ($prow = sqlFetchArray($pres)) {
+    $SBCODES[] = '*G|' . $prow['title'];
+    $res = sqlStatement("SELECT code_type, code, code_text FROM codes " .
+      "WHERE superbill = '" . $prow['option_id'] . "' " .
+      "ORDER BY code_text");
+    while ($row = sqlFetchArray($res)) {
+      $SBCODES[] = $row['code'] . '|' . $row['code_text'];
+    }
+  }
+
+  // Create one more group, for Products.
+  if ($GLOBALS['sell_non_drug_products']) {
+    $SBCODES[] = '*G|' . xl('Products');
+    $tres = sqlStatement("SELECT dt.drug_id, dt.selector, d.name " .
+      "FROM drug_templates AS dt, drugs AS d WHERE " .
+      "d.drug_id = dt.drug_id " .
+      "ORDER BY d.name, dt.selector, dt.drug_id");
+    while ($trow = sqlFetchArray($tres)) {
+      $tmp = $trow['selector'];
+      if ($trow['name'] !== $trow['selector']) $tmp .= ' ' . $trow['name'];
+      $SBCODES[] = $trow['drug_id'] . '|' . $tmp;
+    }
+  }
+
+  // Extra stuff for the labs section and splitting evenly into 3 columns.
+  $SBCODES[] = '*G|' . xl('Additional Labs');
+  $percol = intval((count($SBCODES) + 2) / 3);
+  while (count($SBCODES) < $percol * 3) $SBCODES[] = '*B|';
+  array_splice($SBCODES, $percol*2, 0, '*C|'); // ends 2nd column
+  array_splice($SBCODES, $percol*1, 0, '*C|'); // ends 1st column
+}
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show(); ?>
 
 <style>
 body {
@@ -95,25 +155,26 @@ function genColumn($ix) {
       return ++$ix; // column break
     }
     if ($cmd == '*B') { // Borderless and empty
-      echo "<tr><td colspan='4' class='fscode' style='border-width:0 1px 0 0;padding-top:1px;' nowrap>&nbsp;</td></tr>\n";
+      echo "<tr><td colspan='5' class='fscode' style='border-width:0 1px 0 0;padding-top:1px;' nowrap>&nbsp;</td></tr>\n";
     }
     else if ($cmd == '*G') {
       // $title = htmlentities(strtoupper($a[1]));
       $title = htmlentities($a[1]);
       if (!$title) $title='&nbsp;';
-      echo "<tr><td colspan='4' align='center' class='fsgroup' style='vertical-align:middle' nowrap>$title</td></tr>\n";
+      echo "<tr><td colspan='5' align='center' class='fsgroup' style='vertical-align:middle' nowrap>$title</td></tr>\n";
     }
     else if ($cmd == '*H') {
       // $title = htmlentities(strtoupper($a[1]));
       $title = htmlentities($a[1]);
       if (!$title) $title='&nbsp;';
-      echo "<tr><td colspan='4' class='fshead' style='vertical-align:middle' nowrap>$title</td></tr>\n";
+      echo "<tr><td colspan='5' class='fshead' style='vertical-align:middle' nowrap>$title</td></tr>\n";
     }
     else {
       $title = htmlentities($a[1]);
       if (!$title) $title='&nbsp;';
       $b = explode(':', $cmd);
       echo "<tr>";
+      echo "<td class='fscode' style='vertical-align:middle;width:14pt' nowrap>&nbsp;</td>\n";
       if (count($b) <= 1) {
         $code = $b[0];
         if (!$code) $code='&nbsp;';
@@ -180,7 +241,7 @@ $cindex = 0;
 ?>
     <tr>
      <td colspan='3' valign='top' class='fshead' style='height:50pt'>
-      Patient:&nbsp;
+      Patient:<br>
 <?php
 echo $patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname'] . "<br>\n";
 echo $patdata['street'] . "<br>\n";
@@ -188,8 +249,8 @@ echo $patdata['city'] . ', ' . $patdata['state'] . ' ' . $patdata['postal_code']
 ?>
      </td>
      <td valign='top' class='fshead'>
-      DOB:<br>
-      <?php echo $patdata['DOB'] . '&nbsp' ?>
+      DOB:<br><?php echo $patdata['DOB']; ?><br>
+      ID:<br><?php echo $patdata['pubpid']; ?>
      </td>
     </tr>
     <tr>
@@ -204,24 +265,31 @@ echo $patdata['city'] . ', ' . $patdata['state'] . ' ' . $patdata['postal_code']
     </tr>
     <tr>
      <td colspan='4' valign='top' class='fshead' style='height:25pt'>
-      Insurance:
 <?php
-foreach (array('primary','secondary','tertiary') as $instype) {
-  $query = "SELECT * FROM insurance_data WHERE " .
-    "pid = '$pid' AND type = '$instype' " .
-    "ORDER BY date DESC LIMIT 1";
-  $row = sqlQuery($query);
-  if ($row['provider']) {
-    $icobj = new InsuranceCompany($row['provider']);
-    $adobj = $icobj->get_address();
-    $insco_name = trim($icobj->get_name());
-    if ($instype != 'primary') echo ",";
-    if ($insco_name) {
-      echo "&nbsp;$insco_name";
-    } else {
-      echo "&nbsp;<font color='red'><b>Missing Name</b></font>";
+if (empty($GLOBALS['ippf_specific'])) {
+  echo "Insurance:\n";
+  foreach (array('primary','secondary','tertiary') as $instype) {
+    $query = "SELECT * FROM insurance_data WHERE " .
+      "pid = '$pid' AND type = '$instype' " .
+      "ORDER BY date DESC LIMIT 1";
+    $row = sqlQuery($query);
+    if ($row['provider']) {
+      $icobj = new InsuranceCompany($row['provider']);
+      $adobj = $icobj->get_address();
+      $insco_name = trim($icobj->get_name());
+      if ($instype != 'primary') echo ",";
+      if ($insco_name) {
+        echo "&nbsp;$insco_name";
+      } else {
+        echo "&nbsp;<font color='red'><b>Missing Name</b></font>";
+      }
     }
   }
+}
+else {
+  // IPPF wants a visit date box with the current date in it.
+  echo "Visit date:<br>\n";
+  echo date('Y-m-d') . "\n";
 }
 ?>
      </td>
