@@ -23,6 +23,7 @@ else { // sports team version
   $ISSUE_TYPES = array(
     'football_injury' => array('Football Injuries', 'Injury'    , 'I',  2),
     'medical_problem' => array('Medical Problems' , 'Problem'   , 'P',  0),
+    'allergy'         => array('Allergies'        , 'Allergy'   , 'A',  1),
     'general'         => array('General'          , 'General'   , 'G',  1),
   );
 }
