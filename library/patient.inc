@@ -262,6 +262,15 @@ function getEmployerData($pid, $given = "*")
     return sqlQuery($sql);
 }
 
+function _set_patient_inc_count($limit, $count, $where) {
+  // When the limit is exceeded, find out what the unlimited count would be.
+  $GLOBALS['PATIENT_INC_COUNT'] = $count;
+  if ($limit != "all" && $GLOBALS['PATIENT_INC_COUNT'] >= $limit) {
+    $tmp = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE $where");
+    $GLOBALS['PATIENT_INC_COUNT'] = $tmp['count'];
+  }
+}
+
 function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
     // Allow the last name to be followed by a comma and some part of a first name.
@@ -282,33 +291,31 @@ function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, 
     $search_for_pieces2 = '';
     if ($lname{0} != strtoupper($lname{0})) {$search_for_pieces1 = '%';}
     if ($fname{0} != strtoupper($fname{0})) {$search_for_pieces2 = '%';}
-    $sql="select $given from patient_data where lname like '"
-        .$search_for_pieces1."$lname%' "
-        ."and fname like '"
-        .$search_for_pieces2."$fname%' "
-        ."order by $orderby ";
 
-    if ($limit != "all") $sql .= " limit $start, $limit";
+    $where = "lname LIKE '" . $search_for_pieces1 . "$lname%' " .
+        "AND fname LIKE '" . $search_for_pieces2 . "$fname%'";
+    $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+    if ($limit != "all") $sql .= " LIMIT $start, $limit";
 
     $rez = sqlStatement($sql);
 
     for($iter=0; $row=sqlFetchArray($rez); $iter++)
-        $returnval[$iter]=$row;
+        $returnval[$iter] = $row;
 
+    _set_patient_inc_count($limit, count($returnval), $where);
     return $returnval;
 }
 
 function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
-    $sql = "select $given from patient_data where pubpid like '$pid%' " .
-        "order by $orderby";
-
-    if ($limit != "all")
-        $sql .= " limit $start, $limit";
+    $where = "pubpid LIKE '$pid%'";
+    $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+    if ($limit != "all") $sql .= " limit $start, $limit";
     $rez = sqlStatement($sql);
     for($iter=0; $row=sqlFetchArray($rez); $iter++)
         $returnval[$iter]=$row;
 
+    _set_patient_inc_count($limit, count($returnval), $where);
     return $returnval;
 }
 
@@ -357,32 +364,29 @@ function getPatientName($pid) {
 function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
     $DOB = fixDate($DOB, $DOB);
-
-    $sql="select $given from patient_data where DOB like '$DOB%' " .
-        "order by $orderby";
-
-    if ($limit != "all")
-        $sql .= " limit $start, $limit";
+    $where = "DOB like '$DOB%'";
+    $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+    if ($limit != "all") $sql .= " LIMIT $start, $limit";
 
     $rez = sqlStatement($sql);
     for($iter=0; $row=sqlFetchArray($rez); $iter++)
         $returnval[$iter]=$row;
 
+    _set_patient_inc_count($limit, count($returnval), $where);
     return $returnval;
 }
 
 function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
-    $sql="select $given from patient_data where ss like '$ss%' " .
-        "order by $orderby";
-
-    if ($limit != "all")
-        $sql .= " limit $start, $limit";
+    $where = "ss LIKE '$ss%'";
+    $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+    if ($limit != "all") $sql .= " LIMIT $start, $limit";
 
     $rez = sqlStatement($sql);
     for($iter=0; $row=sqlFetchArray($rez); $iter++)
         $returnval[$iter]=$row;
 
+    _set_patient_inc_count($limit, count($returnval), $where);
     return $returnval;
 }
 
@@ -390,16 +394,15 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
 function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
     $phone = ereg_replace( "[[:punct:]]","", $phone );
-    $sql="select $given from patient_data where REPLACE(REPLACE(phone_home, '-', ''), ' ', '') REGEXP '$phone' " .
-        "order by $orderby";
-
-    if ($limit != "all")
-        $sql .= " limit $start, $limit";
+    $where = "REPLACE(REPLACE(phone_home, '-', ''), ' ', '') REGEXP '$phone'";
+    $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+    if ($limit != "all") $sql .= " LIMIT $start, $limit";
 
     $rez = sqlStatement($sql);
     for($iter=0; $row=sqlFetchArray($rez); $iter++)
         $returnval[$iter]=$row;
 
+    _set_patient_inc_count($limit, count($returnval), $where);
     return $returnval;
 }
 
