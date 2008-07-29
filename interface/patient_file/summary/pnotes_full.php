@@ -291,9 +291,9 @@ if ($result_count == $N) {
 
 <?php
 if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
-  $ndata = getPatientData($pid, "fname, lname");
+  $ndata = getPatientData($pid, "fname, lname, pubpid");
 ?>
- parent.left_nav.setPatient(<?php echo "'" . $ndata['fname'] . " " . $ndata['lname'] . "',$pid,window.name"; ?>);
+ parent.left_nav.setPatient(<?php echo "'" . $ndata['fname'] . " " . $ndata['lname'] . "',$pid,'" . $ndata['pubpid'] . "',window.name"; ?>);
  parent.left_nav.setRadio(window.name, 'pno');
 <?php
 }
