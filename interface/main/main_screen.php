@@ -36,13 +36,17 @@
 <!-- frameborder specifies a 3d look, not whether there are borders. -->
 <frameset rows='<?php echo $GLOBALS['titleBarHeight'] ?>,*' frameborder='1' border='1' framespacing='1' onunload='imclosing()'>
  <frame src='main_title.php' name='Title' scrolling='no' frameborder='1' noresize />
- <frameset cols='130,*' id='fsbody' frameborder='1' border='4' framespacing='4'>
+ <frameset cols='<?php echo $GLOBALS['athletic_team'] ? '230' : '130'; ?>,*' id='fsbody' frameborder='1' border='4' framespacing='4'>
   <frameset rows='*,0' frameborder='0' border='0' framespacing='0'>
    <frame src='left_nav.php' name='left_nav' />
    <frame src='daemon_frame.php' name='Daemon' scrolling='no' frameborder='0'
     border='0' framespacing='0' />
   </frameset>
+<?php if (empty($GLOBALS['athletic_team'])) { ?>
   <frameset rows='60%,*' id='fsright' bordercolor='#999999' frameborder='1'>
+<?php } else { ?>
+  <frameset rows='100%,*' id='fsright' bordercolor='#999999' frameborder='1'>
+<?php } ?>
    <frame src='<?php echo $frame1url ?>' name='RTop' scrolling='auto' />
    <frame src='authorizations/authorizations.php' name='RBot' scrolling='auto' />
   </frameset>
