@@ -345,7 +345,7 @@ if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
 
 // If there is a patient ID card, then show a link to it.
 if ($document_id) {
-  echo "<a href='/".$web_root."/controller.php?document&retrieve" .
+  echo "<a href='" . $web_root . "/controller.php?document&retrieve" .
     "&patient_id=$pid&document_id=$document_id' style='color:#00cc00' " .
     "onclick='top.restoreSession()'>Click for ID card</a><br />";
 }
@@ -382,7 +382,7 @@ if (isset($pid)) {
 
 <?php if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) { ?>
 <script language='JavaScript'>
- parent.left_nav.setPatient(<?php echo "'" . $result['fname'] . " " . $result['lname'] . "',$pid,''"; ?>);
+ parent.left_nav.setPatient(<?php echo "'" . $result['fname'] . " " . $result['lname'] . "',$pid,'" . $result['pubpid'] . "',''"; ?>);
  parent.left_nav.setRadio(window.name, 'dem');
 <?php if (!$_GET['is_new']) { // if new pt, do not load other frame ?>
  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
