@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007, 2008 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -35,7 +35,8 @@ include_once("$srcdir/acl.inc");
 
 $x = array(
   'patient'    => array('Patient', array(
-    'pid'        => array('Patient ID'    , '2'),
+    'insured_id' => array('Patient ID'    , '2'),
+    'ssn'        => array('SSN'           , '2'),
     'lname'      => array('Last Name'     , '2'),
     'mname'      => array('Middle Name'   , '2'),
     'fname'      => array('First Name'    , '2'),
@@ -261,7 +262,7 @@ function write_html(&$sarr, &$darr) {
       // keys into the HTML field names so that PHP will parse them back
       // into the same familiar format.
       echo "<li>" . $sarr[$dkey][0] . ": ";
-      echo "<input type='text' name='pt$ptsequence";
+      echo "<input type='text' size='80' name='pt$ptsequence";
       foreach ($probearr as $pvalue) echo "[$pvalue]";
       echo "[$dkey]' class='indata' value='" . $dvalue . "'></li>\n";
     }
@@ -391,10 +392,15 @@ if ($thisauth != 'write')
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+<?php if (function_exists('html_header_show')) html_header_show(); ?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <style type="text/css">
+
+body {
+ font-family:sans-serif;
+}
+
 .indata {
  font-family:monospace;
  font-size:11pt;
@@ -414,7 +420,7 @@ if ($thisauth != 'write')
 <title>Import Encounters</title>
 </head>
 <body class="body_top">
-<form method='post' action='import_medics.php' enctype='multipart/form-data'>
+<form method='post' action='import.php' enctype='multipart/form-data'>
 <?php
 
 // echo '<p>$_POST = '; print_r($_POST); // debugging
@@ -432,10 +438,10 @@ while (!empty($_POST['pt' . ++$ptsequence])) {
 
   // echo '<p>$pta = '; print_r($pta); // debugging
 
-  // Check if $pta[pid] matches any pubpid.  If so, we will skip everything
+  // Check if $pta[insured_id] matches any pubpid.  If so, we will skip everything
   // except the encounter.
   //
-  $pubpid = $pta['pid'];
+  $pubpid = $pta['insured_id'];
   if (empty($pubpid)) {
     $alertmsg .= "Patient ID missing, patient skipped! ";
     continue;
@@ -567,6 +573,9 @@ while (!empty($_POST['pt' . ++$ptsequence])) {
       exam_result($pta, 'hemoglobin'       ) .
       exam_result($pta, 'psa'              ) .
       '0';
+
+    // TBD: The above is obsolete in 2.8.4.  Fill in history_data.exams instead.
+    // However this does not apply to the client's production installation.
 
     // Insert into history_data.
     newHistoryData($patient_pid, array(
@@ -761,12 +770,16 @@ while (!empty($_POST['pt' . ++$ptsequence])) {
   }
 
   if (!empty($pta['medical']['billable'])) {
-    $i = 0;
+    // $i = 0;
     foreach ($pta['medical']['billable'] as $key => $value) {
       if (strpos($key, 'service*') === 0) {
         if (empty($value['code'])) continue;
+        // add_billing($patient_pid, $encounter_id, $patient_provider_id,
+        //   'CPT4', $value['code'], $value['codenote'], $diags[$i++] . ':');
+        for ($justify = '', $j = 0; $j < 4 && $j < count($diags); ++$j)
+          $justify .= $diags[$j] . ':';
         add_billing($patient_pid, $encounter_id, $patient_provider_id,
-          'CPT4', $value['code'], $value['codenote'], $diags[$i++] . ':');
+          'CPT4', $value['code'], $value['codenote'], $justify);
       }
     }
   }
