@@ -4,6 +4,7 @@ include_once("$srcdir/patient.inc");
 
 $patient = $_REQUEST['patient'];
 $findBy  = $_REQUEST['findBy'];
+$MAXSHOW = 500; // maximum number of results to display at once
 
 // this is a quick fix so it doesn't go to thousands records.
 // the searching functions on patient.inc need improvement.
@@ -48,8 +49,9 @@ form {
 .srName { width: 12%; }
 .srPhone { width: 11%; }
 .srSS { width: 11%; }
-.srDOB { width: 11%; }
-.srID { width: 11%; }
+.srDOB { width: 8%; }
+.srID { width: 7%; }
+.srPID { width: 7%; }
 .srNumEnc { width: 11%; }
 .srNumDays { width: 11%; }
 .srDateLast { width: 11%; }
@@ -100,10 +102,9 @@ form {
 
 <?php
 //the maximum number of patient records to display:
-$sqllimit = 100;
+$sqllimit = $MAXSHOW;
 
 if ($findBy == "Last")
-    //$result = getPatientLnames("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
     $result = getPatientLnames("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
 else if ($findBy == "ID")
     $result = getPatientId("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
@@ -115,10 +116,10 @@ elseif ($findBy == "Phone")                  //(CHEMED) Search by phone number
     $result = getPatientPhone("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
 ?>
 
-<?php if (count($result)>=100): ?>
-<span id="tooManyResults">More than 100 records found. Please narrow your search criteria.</span>
+<?php if ($GLOBALS['PATIENT_INC_COUNT'] > $MAXSHOW): ?>
+<span id="tooManyResults"><?php echo $GLOBALS['PATIENT_INC_COUNT'] . " records found and truncated to $MAXSHOW."; ?></span>
 <?php else: ?>
-<span id="howManyResults"><?php echo count($result); ?> records found.</span>
+<span id="howManyResults"><?php echo count($result) . " records found."; ?></span>
 <?php endif; ?>
 
 <br>
@@ -131,6 +132,7 @@ elseif ($findBy == "Phone")                  //(CHEMED) Search by phone number
 <th class="srSS"><?php xl('SS','e');?></th>
 <th class="srDOB"><?php xl('DOB','e');?></th>
 <th class="srID"><?php xl('ID','e');?></th>
+<th class="srPID"><?php xl('PID','e');?></th>
 <th class="srNumEnc"><?php xl('[Number Of Encounters]','e');?></th>
 <th class="srNumDays"><?php xl('[Days Since Last Encounter]','e');?></th>
 <th class="srDateLast"><?php xl('[Date of Last Encounter]','e');?></th>
@@ -181,6 +183,7 @@ if ($result) {
             echo "<td class='srDOB'>&nbsp;</td>";
         }
         echo "<td class='srID'>" . $iter['pubpid'] . "</td>";
+        echo "<td class='srPID'>" . $iter['pid'] . "</td>";
         //setup for display of encounter date info
         $encounter_count = 0;
         $day_diff = ''; 
