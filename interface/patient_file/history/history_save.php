@@ -1,4 +1,4 @@
-<?
+<?php
  include_once("../../globals.php");
  include_once("$srcdir/patient.inc");
  include_once("history.inc.php");
@@ -28,7 +28,7 @@ foreach ($_POST as $key => $val) {
 //
 $newdata = array();
 $fres = sqlStatement("SELECT * FROM layout_options " .
-  "WHERE form_id = 'HIS' AND uor > 0 " .
+  "WHERE form_id = 'HIS' AND uor > 0 AND field_id != '' " .
   "ORDER BY group_name, seq");
 while ($frow = sqlFetchArray($fres)) {
   $data_type = $frow['data_type'];
