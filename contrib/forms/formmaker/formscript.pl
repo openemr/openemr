@@ -199,7 +199,7 @@ $negatives = array(NEGATIVES);
 foreach($field_names as $key=>$val)
 {
   $pos = '';
-  $nev = '';
+  $neg = '';
 	if ($val == "checkbox")
 	{
 		if ($_POST[$key]) {$field_names[$key] = "yes";}
