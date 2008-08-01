@@ -109,7 +109,8 @@ CREATE TABLE `billing` (
   `target` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
   `x12_partner_id` int(11) default NULL,
   `ndc_info` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `pid` (`pid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
 -- 
@@ -552,7 +553,8 @@ CREATE TABLE `form_encounter` (
   `sensitivity` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
   `billing_note` text character set utf8 collate utf8_unicode_ci,
   `pc_catid` int(11) NOT NULL default '5' COMMENT 'event category from openemr_postcalendar_categories',
-  PRIMARY KEY  (`id`)
+  PRIMARY KEY  (`id`),
+  KEY `pid` (`pid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
 -- 
@@ -5325,8 +5327,7 @@ CREATE TABLE `patient_data` (
   `regdate`     date DEFAULT NULL COMMENT 'Registration Date',
   `contrastart` date DEFAULT NULL COMMENT 'Date contraceptives initially used',
   UNIQUE KEY `pid` (`pid`),
-  KEY `id` (`id`),
-  KEY `pid_2` (`pid`)
+  KEY `id` (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
 -- 
