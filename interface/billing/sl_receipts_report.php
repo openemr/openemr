@@ -1,4 +1,11 @@
 <?php
+  // Copyright (C) 2006-2008 Rod Roark <rod@sunsetsystems.com>
+  //
+  // This program is free software; you can redistribute it and/or
+  // modify it under the terms of the GNU General Public License
+  // as published by the Free Software Foundation; either version 2
+  // of the License, or (at your option) any later version.
+
   // This module was written for one of my clients to report on cash
   // receipts by practitioner.  It is not as complete as it should be
   // but I wanted to make the code available to the project because
@@ -38,6 +45,7 @@
   $form_procedures = empty($_POST['form_procedures']) ? 0 : 1;
   $form_from_date  = fixDate($_POST['form_from_date'], date('Y-m-01'));
   $form_to_date    = fixDate($_POST['form_to_date'], date('Y-m-d'));
+  $form_facility   = $_POST['form_facility'];
 ?>
 <html>
 <head>
@@ -56,15 +64,30 @@
 
  <tr>
   <td>
-<?
+<?php
+ // Build a drop-down list of facilities.
+ //
+ $query = "SELECT id, name FROM facility ORDER BY name";
+ $fres = sqlStatement($query);
+ echo "   <select name='form_facility'>\n";
+ echo "    <option value=''>-- All Facilities --\n";
+ while ($frow = sqlFetchArray($fres)) {
+  $facid = $frow['id'];
+  echo "    <option value='$facid'";
+  if ($facid == $form_facility) echo " selected";
+  echo ">" . $frow['name'] . "\n";
+ }
+ echo "   </select>\n";
+?>
+<?php
 	if (acl_check('acct', 'rep_a')) {
 		// Build a drop-down list of providers.
 		//
 		$query = "select id, lname, fname from users where " .
 			"authorized = 1 order by lname, fname";
 		$res = sqlStatement($query);
-		echo "   <select name='form_doctor'>\n";
-		echo "    <option value=''>All Providers\n";
+		echo "   &nbsp;<select name='form_doctor'>\n";
+		echo "    <option value=''>-- All Providers --\n";
 		while ($row = sqlFetchArray($res)) {
 			$provid = $row['id'];
 			echo "    <option value='$provid'";
@@ -224,19 +247,33 @@
     for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
       $row = SLGetRow($t_res, $irow);
 
-      // If a diagnosis code was given then skip any invoices without
-      // that diagnosis.
-      if ($form_icdcode) {
-        if ($row['trans_id'] == $last_trans_id) {
-          if ($skipping) continue;
-          // same invoice and not skipping, do nothing.
-        } else { // new invoice
-          $skipping = false;
+      // Under some conditions we may skip invoices that matched the SQL query.
+      //
+      if ($row['trans_id'] == $last_trans_id) {
+        if ($skipping) continue;
+        // same invoice and not skipping, do nothing.
+      } else { // new invoice
+        $skipping = false;
+        // If a diagnosis code was given then skip any invoices without
+        // that diagnosis.
+        if ($form_icdcode) {
           if (!SLQueryValue("SELECT count(*) FROM invoice WHERE " .
             "invoice.trans_id = '" . $row['trans_id'] . "' AND " .
             "( invoice.description ILIKE 'ICD9:$form_icdcode %' OR " .
             "invoice.serialnumber ILIKE 'ICD9:$form_icdcode' )"))
           {
+            $skipping = true;
+            continue;
+          }
+        }
+        // If a facility was specified then skip invoices whose encounters
+        // do not indicate that facility.
+        if ($form_facility) {
+          list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
+          $tmp = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
+            "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
+            "facility_id = '$form_facility'");
+          if (empty($tmp['count'])) {
             $skipping = true;
             continue;
           }
