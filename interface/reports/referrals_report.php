@@ -13,6 +13,7 @@
 
  $from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
  $to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
+ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 ?>
 <html>
 <head>
@@ -121,7 +122,25 @@
 <table>
  <tr>
   <td>
-   <?php xl('From','e'); ?>:
+<?php
+ // Build a drop-down list of facilities.
+ //
+ $query = "SELECT id, name FROM facility ORDER BY name";
+ $fres = sqlStatement($query);
+ echo "   <select name='form_facility'>\n";
+ echo "    <option value=''>-- All Facilities --\n";
+ while ($frow = sqlFetchArray($fres)) {
+  $facid = $frow['id'];
+  echo "    <option value='$facid'";
+  if ($facid == $form_facility) echo " selected";
+  echo ">" . $frow['name'] . "\n";
+ }
+ echo "    <option value='0'";
+ if ($form_facility === '0') echo " selected";
+ echo ">-- Unspecified --\n";
+ echo "   </select>\n";
+?>
+   &nbsp;<?php xl('From','e'); ?>:
    <input type='text' size='10' name='form_from_date' id='form_from_date'
     value='<?php echo $from_date ?>'
     title='<?php xl('yyyy-mm-dd','e'); ?>'
@@ -154,13 +173,14 @@
   <th> <?php xl('Refer Date','e'); ?> </th>
   <th> <?php xl('Reply Date','e'); ?> </th>
   <th> <?php xl('Patient','e'); ?> </th>
+  <th> <?php xl('ID','e'); ?> </th>
   <th> <?php xl('Reason','e'); ?> </th>
  </thead>
  <tbody>
 <?php
  if ($_POST['form_refresh']) {
   $query = "SELECT t.id, t.refer_date, t.reply_date, t.body, " .
-    "ut.organization, " .
+    "ut.organization, uf.facility_id, p.pubpid, " .
     "CONCAT(uf.fname,' ', uf.lname) AS referer_name, " .
     "CONCAT(p.fname,' ', p.lname) AS patient_name " .
     "FROM transactions AS t " .
@@ -175,6 +195,15 @@
   $res = sqlStatement($query);
 
   while ($row = sqlFetchArray($res)) {
+    // If a facility is specified, ignore rows that do not match.
+    if ($form_facility !== '') {
+      if ($form_facility) {
+        if ($row['facility_id'] != $form_facility) continue;
+      }
+      else {
+        if (!empty($row['facility_id'])) continue;
+      }
+    }
 ?>
  <tr>
   <td>
@@ -190,6 +219,9 @@
   </td>
   <td>
    <?php echo $row['patient_name'] ?>
+  </td>
+  <td>
+   <?php echo $row['pubpid'] ?>
   </td>
   <td>
    <?php echo $row['body'] ?>
