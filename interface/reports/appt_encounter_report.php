@@ -1,5 +1,5 @@
 <?php 
- // Copyright (C) 2005-2007 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -68,6 +68,7 @@
   $docrow['encounters']  = 0;
  }
 
+ $form_facility  = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
  $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
  $form_to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
  if ($_POST['form_search']) {
@@ -81,7 +82,7 @@
    "e.pc_eventDate, e.pc_startTime, " .
    "fe.encounter, " .
    "f.authorized, " .
-   "p.fname, p.lname, p.pid, " .
+   "p.fname, p.lname, p.pid, p.pubpid, " .
    "u.lname AS docname " .
    "FROM openemr_postcalendar_events AS e " .
    "LEFT OUTER JOIN form_encounter AS fe " .
@@ -95,6 +96,9 @@
   } else {
    $query .= "e.pc_eventDate = '$form_from_date' ";
   }
+  if ($form_facility !== '') {
+   $query .= "AND e.pc_facility = '$form_facility' ";
+  }
   // $query .= "AND ( e.pc_catid = 5 OR e.pc_catid = 9 OR e.pc_catid = 10 ) " .
   $query .= "AND e.pc_pid != '' AND e.pc_apptstatus != '?' " .
    ") UNION ( " .
@@ -102,7 +106,7 @@
    "e.pc_eventDate, e.pc_startTime, " .
    "fe.encounter, " .
    "f.authorized, " .
-   "p.fname, p.lname, p.pid, " .
+   "p.fname, p.lname, p.pid, p.pubpid, " .
    "u.lname AS docname " .
    "FROM form_encounter AS fe " .
    "LEFT OUTER JOIN openemr_postcalendar_events AS e " .
@@ -118,6 +122,9 @@
   } else {
    // $query .= "LEFT(fe.date, 10) = '$form_from_date' ";
    $query .= "fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_from_date 23:59:59' ";
+  }
+  if ($form_facility !== '') {
+   $query .= "AND fe.facility_id = '$form_facility' ";
   }
   $query .= ") ORDER BY docname, pc_eventDate, pc_startTime";
 
@@ -208,6 +215,25 @@
 <table>
  <tr>
   <td>
+   <?php xl('Facility','e'); ?>:
+<?php
+ // Build a drop-down list of facilities.
+ //
+ $query = "SELECT id, name FROM facility ORDER BY name";
+ $fres = sqlStatement($query);
+ echo "   <select name='form_facility'>\n";
+ echo "    <option value=''>-- All --\n";
+ while ($frow = sqlFetchArray($fres)) {
+  $facid = $frow['id'];
+  echo "    <option value='$facid'";
+  if ($facid == $form_facility) echo " selected";
+  echo ">" . $frow['name'] . "\n";
+ }
+ echo "    <option value='0'";
+ if ($form_facility === '0') echo " selected";
+ echo ">-- Unspecified --\n";
+ echo "   </select>\n";
+?>
    <?php  xl('DOS','e'); ?>:
    <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php  echo $form_from_date; ?>'
     title='Date of appointments mm/dd/yyyy' >
@@ -240,6 +266,7 @@
   <th> &nbsp;<?php  xl('Practitioner','e'); ?> </th>
   <th> &nbsp;<?php  xl('Time','e'); ?> </th>
   <th> &nbsp;<?php  xl('Patient','e'); ?> </th>
+  <th> &nbsp;<?php  xl('ID','e'); ?> </th>
   <th> <?php  xl('Chart','e'); ?>&nbsp; </th>
   <th> <?php  xl('Encounter','e'); ?>&nbsp; </th>
   <th> <?php  xl('Charges','e'); ?>&nbsp; </th>
@@ -313,15 +340,18 @@
    &nbsp;<?php  echo $row['fname'] . " " . $row['lname'] ?>
   </td>
   <td>
+   &nbsp;<?php  echo $row['pubpid'] ?>
+  </td>
+  <td align='right'>
    <?php  echo $row['pid'] ?>&nbsp;
   </td>
-  <td>
+  <td align='right'>
    <?php  echo $encounter ?>&nbsp;
   </td>
-  <td>
+  <td align='right'>
    <?php  bucks($charges) ?>&nbsp;
   </td>
-  <td>
+  <td align='right'>
    <?php  bucks($copays) ?>&nbsp;
   </td>
   <td>
@@ -340,7 +370,7 @@
   endDoctor($docrow);
 
   echo " <tr class='apptencreport_totals'>\n";
-  echo "  <td colspan='4'>\n";
+  echo "  <td colspan='5'>\n";
   echo "   &nbsp;Grand Totals\n";
   echo "  </td>\n";
   echo "  <td align='right'>\n";

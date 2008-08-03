@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2008 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,6 +20,7 @@ $alertmsg = ''; // not used yet but maybe later
 $ORDERHASH = array(
   'doctor'  => 'lower(u.lname), lower(u.fname), fe.date',
   'patient' => 'lower(p.lname), lower(p.fname), fe.date',
+  'pubpid'  => 'lower(p.pubpid), fe.date',
   'time'    => 'fe.date, lower(u.lname), lower(u.fname)',
 );
 
@@ -39,6 +40,7 @@ function show_doc_total($lastdocname, $doc_encounters) {
 $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
 $form_to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_provider  = $_POST['form_provider'];
+$form_facility  = $_POST['form_facility'];
 $form_details   = $_POST['form_details'] ? true : false;
 
 $form_orderby = $ORDERHASH[$_REQUEST['form_orderby']] ?
@@ -50,7 +52,7 @@ $orderby = $ORDERHASH[$form_orderby];
 $query = "SELECT " .
   "fe.encounter, fe.date, fe.reason, " .
   "f.formdir, f.form_name, " .
-  "p.fname, p.mname, p.lname, p.pid, " .
+  "p.fname, p.mname, p.lname, p.pid, p.pubpid, " .
   "u.lname AS ulname, u.fname AS ufname, u.mname AS umname " .
   "FROM ( form_encounter AS fe, forms AS f ) " .
   "LEFT OUTER JOIN patient_data AS p ON p.pid = fe.pid " .
@@ -63,6 +65,9 @@ if ($form_to_date) {
 }
 if ($form_provider) {
   $query .= "AND f.user = '$form_provider' ";
+}
+if ($form_facility) {
+  $query .= "AND fe.facility_id = '$form_facility' ";
 }
 $query .= "ORDER BY $orderby";
 
@@ -174,6 +179,24 @@ $res = sqlStatement($query);
 
  <tr>
   <td>
+
+   <?php xl('Facility','e'); ?>:
+<?php
+ // Build a drop-down list of facilities.
+ //
+ $query = "SELECT id, name FROM facility ORDER BY name";
+ $fres = sqlStatement($query);
+ echo "   <select name='form_facility'>\n";
+ echo "    <option value=''>-- All --\n";
+ while ($frow = sqlFetchArray($fres)) {
+  $facid = $frow['id'];
+  echo "    <option value='$facid'";
+  if ($facid == $_POST['form_facility']) echo " selected";
+  echo ">" . $frow['name'] . "\n";
+ }
+ echo "   </select>\n";
+?>
+
    <?php xl('Provider','e'); ?>:
 <?php
  // Build a drop-down list of providers.
@@ -242,6 +265,10 @@ $res = sqlStatement($query);
    <?php if ($form_orderby == "patient") echo " style=\"color:#00cc00\"" ?>><?php  xl('Patient','e'); ?></a>
   </th>
   <th>
+   <a href="nojs.php" onclick="return dosort('pubpid')"
+   <?php if ($form_orderby == "pubpid") echo " style=\"color:#00cc00\"" ?>><?php  xl('ID','e'); ?></a>
+  </th>
+  <th>
    <?php  xl('Encounter','e'); ?>
   </th>
   <th>
@@ -275,6 +302,9 @@ if ($res) {
   </td>
   <td>
    <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']; ?>
+  </td>
+  <td>
+   <?php echo $row['pubpid']; ?>
   </td>
   <td>
    <?php echo $row['reason']; ?>

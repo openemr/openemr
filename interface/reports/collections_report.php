@@ -27,11 +27,13 @@ $is_due_ins     = ($_POST['form_category'] == xl('Due Ins')) || $is_ins_summary;
 $is_due_pt      = $_POST['form_category'] == xl('Due Pt');
 $is_all         = $_POST['form_category'] == xl('All');
 $is_ageby_lad   = strpos($_POST['form_ageby'], 'Last') !== false;
+$form_facility  = $_POST['form_facility'];
 
 if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) {
   if ($is_ins_summary) {
     $form_cb_ssn      = false;
     $form_cb_dob      = false;
+    $form_cb_pubpid   = false;
     $form_cb_adate    = false;
     $form_cb_policy   = false;
     $form_cb_phone    = false;
@@ -43,6 +45,7 @@ if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) 
   } else {
     $form_cb_ssn      = $_POST['form_cb_ssn']      ? true : false;
     $form_cb_dob      = $_POST['form_cb_dob']      ? true : false;
+    $form_cb_pubpid   = $_POST['form_cb_pubpid']   ? true : false;
     $form_cb_adate    = $_POST['form_cb_adate']    ? true : false;
     $form_cb_policy   = $_POST['form_cb_policy']   ? true : false;
     $form_cb_phone    = $_POST['form_cb_phone']    ? true : false;
@@ -55,6 +58,7 @@ if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) 
 } else {
   $form_cb_ssn      = true;
   $form_cb_dob      = false;
+  $form_cb_pubpid   = false;
   $form_cb_adate    = false;
   $form_cb_policy   = false;
   $form_cb_phone    = true;
@@ -77,6 +81,7 @@ $initial_colspan = 1;
 if ($is_due_ins      ) ++$initial_colspan;
 if ($form_cb_ssn     ) ++$initial_colspan;
 if ($form_cb_dob     ) ++$initial_colspan;
+if ($form_cb_pubpid  ) ++$initial_colspan;
 if ($form_cb_policy  ) ++$initial_colspan;
 if ($form_cb_phone   ) ++$initial_colspan;
 if ($form_cb_city    ) ++$initial_colspan;
@@ -268,6 +273,8 @@ function checkAll(checked) {
    <?php xl('SSN','e') ?>&nbsp;
    <input type='checkbox' name='form_cb_dob'<?php if ($form_cb_dob) echo ' checked'; ?>>
    <?php xl('DOB','e') ?>&nbsp;
+   <input type='checkbox' name='form_cb_pubpid'<?php if ($form_cb_pubpid) echo ' checked'; ?>>
+   <?php xl('ID','e') ?>&nbsp;
    <input type='checkbox' name='form_cb_policy'<?php if ($form_cb_policy) echo ' checked'; ?>>
    <?php xl('Policy','e') ?>&nbsp;
    <input type='checkbox' name='form_cb_phone'<?php if ($form_cb_phone) echo ' checked'; ?>>
@@ -289,7 +296,23 @@ function checkAll(checked) {
 
  <tr bgcolor='#ddddff'>
   <td align='center'>
-   <?php xl('Age By:','e') ?>
+<?php
+  // Build a drop-down list of facilities.
+  //
+  $query = "SELECT id, name FROM facility ORDER BY name";
+  $fres = sqlStatement($query);
+  echo "   <select name='form_facility'>\n";
+  echo "    <option value=''>-- All Facilities --\n";
+  while ($frow = sqlFetchArray($fres)) {
+    $facid = $frow['id'];
+    echo "    <option value='$facid'";
+    if ($facid == $form_facility) echo " selected";
+    echo ">" . $frow['name'] . "\n";
+  }
+  echo "   </select>\n";
+?>
+   &nbsp;
+   <?php xl('Age By','e') ?>:
    <select name='form_ageby'>
 <?php
  foreach (array('Service Date', 'Last Activity Date') as $value) {
@@ -420,6 +443,17 @@ function checkAll(checked) {
     $rows = array();
     for ($irow = 0; $irow < $num_invoices; ++$irow) {
       $row = SLGetRow($t_res, $irow);
+
+      // If a facility was specified then skip invoices whose encounters
+      // do not indicate that facility.
+      if ($form_facility) {
+        list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
+        $tmp = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
+          "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
+          "facility_id = '$form_facility'");
+        if (empty($tmp['count'])) continue;
+      }
+
       $pt_balance = sprintf("%.2f",$row['amount']) - sprintf("%.2f",$row['paid']);
 
       if ($_POST['form_category'] == 'Credits') {
@@ -531,7 +565,7 @@ function checkAll(checked) {
       $row['inactive_days'] = floor((time() - $latime) / (60 * 60 * 24));
 
       $pdrow = sqlQuery("SELECT pd.fname, pd.lname, pd.mname, pd.ss, " .
-        "pd.genericname2, pd.genericval2, pd.pid, pd.DOB, " .
+        "pd.genericname2, pd.genericval2, pd.pid, pd.pubpid, pd.DOB, " .
         "CONCAT(u.lname, ', ', u.fname) AS referrer FROM " .
         "integration_mapping AS im, patient_data AS pd " .
         "LEFT OUTER JOIN users AS u ON u.id = pd.providerID " .
@@ -541,6 +575,7 @@ function checkAll(checked) {
 
       $row['ss'] = $pdrow['ss'];
       $row['DOB'] = $pdrow['DOB'];
+      $row['pubpid'] = $pdrow['pubpid'];
       $row['billnote'] = ($pdrow['genericname2'] == 'Billing') ? $pdrow['genericval2'] : '';
       $row['referrer'] = $pdrow['referrer'];
 
@@ -598,6 +633,9 @@ function checkAll(checked) {
 <?php } ?>
 <?php if ($form_cb_dob) { ?>
   <td class="dehead">&nbsp;<?php xl('DOB','e')?></td>
+<?php } ?>
+<?php if ($form_cb_pubpid) { ?>
+  <td class="dehead">&nbsp;<?php xl('ID','e')?></td>
 <?php } ?>
 <?php if ($form_cb_policy) { ?>
   <td class="dehead">&nbsp;<?php xl('Policy','e')?></td>
@@ -715,6 +753,9 @@ function checkAll(checked) {
           }
           if ($form_cb_dob) {
             echo "  <td class='detail'>&nbsp;" . $row['DOB'] . "</td>\n";
+          }
+          if ($form_cb_pubpid) {
+            echo "  <td class='detail'>&nbsp;" . $row['pubpid'] . "</td>\n";
           }
           if ($form_cb_policy) {
             echo "  <td class='detail'>&nbsp;" . $row['policy'] . "</td>\n";
