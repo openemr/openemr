@@ -12,11 +12,12 @@ if (! acl_check('acct', 'rep')) die("Unauthorized access.");
 
 $report_type = empty($_GET['t']) ? 'i' : $_GET['t'];
 
-$from_date   = fixDate($_POST['form_from_date']);
-$to_date     = fixDate($_POST['form_to_date'], date('Y-m-d'));
-$form_by     = $_POST['form_by'];     // this is a scalar
-$form_show   = $_POST['form_show'];   // this is an array
-$form_sexes  = $_POST['form_sexes'];  // this is a scalar
+$from_date     = fixDate($_POST['form_from_date']);
+$to_date       = fixDate($_POST['form_to_date'], date('Y-m-d'));
+$form_by       = $_POST['form_by'];     // this is a scalar
+$form_show     = $_POST['form_show'];   // this is an array
+$form_sexes    = $_POST['form_sexes'];  // this is a scalar
+$form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 
 if (empty($form_by))    $form_by = '1';
 if (empty($form_show))  $form_show = array('1');
@@ -48,40 +49,6 @@ else {
   );
 }
 
-  /*******************************************************************
-
-  // 2 Rows: New, Old.
-  7  => xl('New and Old Clients'),
-
-  // 9 Rows: 0-10, 11-14, 15-19, 20-24, 25-29, 30-34, 35-39, 40-44, 45+.
-  8  => xl('Age Category'),
-
-  // 2 Rows: Male, Female.
-  9  => xl('Sex'),
-
-  // One row for each unique marital status.
-  10 => xl('Marital Status'),
-
-  // One row for each unique zone of residence.
-  11 => xl('Residence Zone'),
-
-  // One row for each unique country.
-  12 => xl('Nationality'),
-
-  // One row for each unique education level.
-  13 => xl('Education Level'),
-
-  // One row for each unique occupation.
-  14 => xl('Occupation'),
-
-  // One row for each unique number of living children.
-  15 => xl('Number of Living Children'),
-
-  // One row for each practitioner at the clinic.
-  16 => xl('Provider'),
-
-  *******************************************************************/
-
 // A reported value is either scalar, or an array listed horizontally.  If
 // multiple items are chosen then each starts in the next available column.
 //
@@ -94,10 +61,6 @@ $arr_show = array(
   6 => xl('Marital Status'),
   7 => xl('State/Parish'),
   8 => xl('Occupation'),
-  /*******************************************************************
-  7 => xl('Contraceptive Method'),
-  8 => xl('Type of Complication'),
-  *******************************************************************/
 );
 
 // These are ICD9 codes that indicate complications of abortion.
@@ -254,6 +217,9 @@ $arr_dx_attrs = array(
 // This will become the array of reportable values.
 $areport = array();
 
+// This accumulates the bottom line totals.
+$atotals = array();
+
 // Arrays of titles for some column headings.
 $arr_titles = array(
   'rel' => array(),
@@ -320,9 +286,13 @@ function genHeadCell($data, $right=false) {
   genAnyCell($data, $right, 'dehead');
 }
 
-function genNumCell($num) {
+// Create an HTML table cell containing a numeric value, and track totals.
+//
+function genNumCell($num, $cnum) {
+  global $atotals;
+  $atotals[$cnum] += $num;
   if (empty($num) && !$_POST['form_csvexport']) $num = '&nbsp;';
-  genAnyCell($num, $right, 'detail');
+  genAnyCell($num, true, 'detail');
 }
 
 // Translate an IPPF code to the corresponding descriptive name of its
@@ -494,94 +464,6 @@ function process_ippf_code($row, $code) {
     }
   }
 
-  /*******************************************************************
-  // Gynecology and Obstretrics.
-  //
-  else if ($form_by === '2') {
-    if (preg_match('/^25[56]/', $code)) { // All gynecological and obstretric
-      if (preg_match('/^255251/', $code)) {
-        $key = xl('Gyn Diagnostic Biopsy');
-      }
-      else if (preg_match('/^255252/', $code)) {
-        $key = xl('Gyn Diagnostic Endoscopy');
-      }
-      else if (preg_match('/^255253/', $code)) {
-        $key = xl('Gyn Diagnostic Imaging');
-      }
-      else if (preg_match('/^255254/', $code)) {
-        $key = xl('Gyn Diagnostic Exam');
-      }
-      else if (preg_match('/^255255/', $code)) {
-        $key = xl('Gyn Diagnostic Cytology');
-      }
-      else if (preg_match('/^255256/', $code)) {
-        $key = xl('Gyn Therapy');
-      }
-      else if (preg_match('/^255257/', $code)) {
-        $key = xl('Gyn Surgery');
-      }
-      else if (preg_match('/^255258/', $code)) {
-        $key = xl('Gyn Counseling');
-      }
-      else if (preg_match('/^256261/', $code)) {
-        $key = xl('Obs Pre Natal Diagn');
-      }
-      else if (preg_match('/^256262/', $code)) {
-        $key = xl('Obs Pre Natal Care');
-      }
-      else if (preg_match('/^256263/', $code)) {
-        $key = xl('Obs Pre Natal Counsel');
-      }
-      else if (preg_match('/^256264/', $code)) {
-        $key = xl('Obs Pregnancy Tests');
-      }
-      else if (preg_match('/^256265/', $code)) {
-        $key = xl('Obs Pre Natal Tests');
-      }
-      else if (preg_match('/^256267/', $code)) {
-        $key = xl('Obs Childbirth Surgery');
-      }
-      else if (preg_match('/^256268/', $code)) {
-        $key = xl('Obs Post Natal Care');
-      }
-      else if (preg_match('/^256269/', $code)) {
-        $key = xl('Obs Post Natal Counsel');
-      }
-      else {
-        $key = xl('Other Gyn/Obs');
-      }
-    }
-    else {
-      return; // not gynecological
-    }
-  }
-
-  // Urology
-  //
-  else if ($form_by === '3') {
-    if (preg_match('/^257/', $code)) { // All Urological
-      if (preg_match('/^257271/', $code)) {
-        $key = xl('Diag/Therapy Endoscopy');
-      }
-      else if (preg_match('/^257272/', $code)) {
-        $key = xl('Diag/Therapy Imaging');
-      }
-      else if (preg_match('/^257273/', $code)) {
-        $key = xl('Diagnostic Other');
-      }
-      else if (preg_match('/^257274/', $code)) {
-        $key = xl('Surgery');
-      }
-      else {
-        $key = xl('Other Urological');
-      }
-    }
-    else {
-      return; // not urological
-    }
-  }
-  *******************************************************************/
-
   // Specific Services. One row for each IPPF code.
   //
   else if ($form_by === '4') {
@@ -636,37 +518,6 @@ function process_ippf_code($row, $code) {
   else {
     return;
   }
-
-  // 2 Rows: New, Old.
-  // 7  => xl('New and Old Clients'),
-
-  // 9 Rows: 0-10, 11-14, 15-19, 20-24, 25-29, 30-34, 35-39, 40-44, 45+.
-  // 8  => xl('Age Category'),
-
-  // 2 Rows: Male, Female.
-  // 9  => xl('Sex'),
-
-  // One row for each unique marital status.
-  // 10 => xl('Marital Status'),
-
-  // One row for each unique zone of residence.
-  // 11 => xl('Residence Zone'),
-
-  // One row for each unique country.
-  // 12 => xl('Nationality'),
-
-  // One row for each unique education level.
-  // 13 => xl('Education Level'),
-
-  // One row for each unique occupation.
-  // 14 => xl('Occupation'),
-
-  // One row for each unique number of living children.
-  // 15 => xl('Number of Living Children'),
-
-  // One row for each practitioner at the clinic.
-  // 16 => xl('Provider'),
-
 
   // OK we now have the reporting key for this issue.
 
@@ -833,7 +684,23 @@ function process_referral($row) {
   }
 ?>
    </select>
-   <br />&nbsp;<br />
+   <br />
+<?php
+ // Build a drop-down list of facilities.
+ //
+ $query = "SELECT id, name FROM facility ORDER BY name";
+ $fres = sqlStatement($query);
+ echo "   <select name='form_facility'>\n";
+ echo "    <option value=''>-- All Facilities --\n";
+ while ($frow = sqlFetchArray($fres)) {
+  $facid = $frow['id'];
+  echo "    <option value='$facid'";
+  if ($facid == $_POST['form_facility']) echo " selected";
+  echo ">" . $frow['name'] . "\n";
+ }
+ echo "   </select>\n";
+?>
+   <br />
    <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
   </td>
  </tr>
@@ -913,9 +780,12 @@ function process_referral($row) {
         "LEFT OUTER JOIN list_options AS lo ON " .
         "lo.list_id = 'superbill' AND lo.option_id = c.superbill " .
         "WHERE fe.date >= '$from_date 00:00:00' AND " .
-        "fe.date <= '$to_date 23:59:59' " .
-        "ORDER BY fe.pid, fe.encounter, b.code_type DESC, b.code";
-        // Note: sorting to get MA codes before ICD9 codes.
+        "fe.date <= '$to_date 23:59:59' ";
+      if ($form_facility) {
+        $query .= "AND fe.facility_id = '$form_facility' ";
+      }
+      $query .= "ORDER BY fe.pid, fe.encounter, b.code_type DESC, b.code";
+      // Note: sorting to get MA codes before ICD9 codes.
       $res = sqlStatement($query);
       while ($row = sqlFetchArray($res)) {
         if ($row['code_type'] === 'MA') {
@@ -998,6 +868,10 @@ function process_referral($row) {
       }
     }
 
+    if (! $_POST['form_csvexport']) {
+      genHeadCell(xl('Total'), true);
+    }
+
     genEndRow();
 
     $encount = 0;
@@ -1023,63 +897,72 @@ function process_referral($row) {
 
       genAnyCell($dispkey, false, 'detail');
 
+      // This is the column index for accumulating column totals.
+      $cnum = 0;
+      $totalsvcs = $areport[$key]['wom'] + $areport[$key]['men'];
+
       // Generate data for this row.
       foreach ($form_show as $value) {
         if ($value == '1') { // Total Services
-          genNumCell($areport[$key]['wom'] + $areport[$key]['men']);
+          genNumCell($totalsvcs, $cnum++);
         }
         else if ($value == '2') { // Age
           for ($i = 0; $i < 9; ++$i) {
-            genNumCell($areport[$key]['age'][$i]);
+            genNumCell($areport[$key]['age'][$i], $cnum++);
           }
         }
         else if ($value == '3') { // Sex
-          genNumCell($areport[$key]['wom']);
-          genNumCell($areport[$key]['men']);
+          genNumCell($areport[$key]['wom'], $cnum++);
+          genNumCell($areport[$key]['men'], $cnum++);
         }
         else if ($value == '4') { // Religion
           foreach ($arr_titles['rel'] as $title => $nothing) {
-            genNumCell($areport[$key]['rel'][$title]);
+            genNumCell($areport[$key]['rel'][$title], $cnum++);
           }
         }
         else if ($value == '5') { // Nationality
           foreach ($arr_titles['nat'] as $title => $nothing) {
-            genNumCell($areport[$key]['nat'][$title]);
+            genNumCell($areport[$key]['nat'][$title], $cnum++);
           }
         }
         else if ($value == '6') { // Marital Status
           foreach ($arr_titles['mar'] as $title => $nothing) {
-            genNumCell($areport[$key]['mar'][$title]);
+            genNumCell($areport[$key]['mar'][$title], $cnum++);
           }
         }
         else if ($value == '7') { // State/Parish
           foreach ($arr_titles['sta'] as $title => $nothing) {
-            genNumCell($areport[$key]['sta'][$title]);
+            genNumCell($areport[$key]['sta'][$title], $cnum++);
           }
         }
         else if ($value == '8') { // Occupation
           foreach ($arr_titles['occ'] as $title => $nothing) {
-            genNumCell($areport[$key]['occ'][$title]);
+            genNumCell($areport[$key]['occ'][$title], $cnum++);
           }
         }
-        /*************************************************************
-        else if ($value == '7') { // Contraceptive Method
-          foreach ($arr_titles['met'] as $title => $nothing) { // TBD
-            genNumCell($areport[$key]['met'][$title]);
-          }
-        }
-        else if ($value == '8') { // Type of Complication
-          foreach ($arr_titles['toc'] as $title => $nothing) { // TBD
-            genNumCell($areport[$key]['toc'][$title]);
-          }
-        }
-        *************************************************************/
+      }
+
+      // Write the Total column data.
+      if (! $_POST['form_csvexport']) {
+        $atotals[$cnum] += $totalsvcs;
+        genAnyCell($totalsvcs, true, 'dehead');
       }
 
       genEndRow();
     } // end foreach
 
-    if (! $_POST['form_csvexport']) echo "</table>\n";
+    if (! $_POST['form_csvexport']) {
+      // Generate the line of totals.
+      genStartRow("bgcolor='#dddddd'");
+      genHeadCell("Totals");
+      for ($cnum = 0; $cnum < count($atotals); ++$cnum) {
+        genHeadCell($atotals[$cnum], true);
+      }
+      genEndRow();
+      // End of table.
+      echo "</table>\n";
+    }
+
   } // end of if refresh or export
 
   if (! $_POST['form_csvexport']) {
