@@ -117,10 +117,11 @@ elseif ($findBy == "Phone")                  //(CHEMED) Search by phone number
 ?>
 
 <?php if ($GLOBALS['PATIENT_INC_COUNT'] > $MAXSHOW): ?>
-<span id="tooManyResults"><?php echo $GLOBALS['PATIENT_INC_COUNT'] . " records found and truncated to $MAXSHOW."; ?></span>
+<span id="tooManyResults">
 <?php else: ?>
-<span id="howManyResults"><?php echo count($result) . " records found."; ?></span>
+<span id="howManyResults">
 <?php endif; ?>
+<?php echo "Showing " . count($result) . " of " . $GLOBALS['PATIENT_INC_COUNT'] . " records found."; ?></span>
 
 <br>
 
