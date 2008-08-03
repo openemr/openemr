@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -20,6 +20,7 @@
  $ORDERHASH = array(
   'doctor'  => 'lower(u.lname), lower(u.fname), pc_eventDate, pc_startTime',
   'patient' => 'lower(p.lname), lower(p.fname), pc_eventDate, pc_startTime',
+  'pubpid'  => 'lower(p.pubpid), pc_eventDate, pc_startTime',
   'time'    => 'pc_eventDate, pc_startTime, lower(u.lname), lower(u.fname)',
   'type'    => 'pc_catname, pc_eventDate, pc_startTime, lower(u.lname), lower(u.fname)'
  );
@@ -67,7 +68,7 @@
 
  $query = "SELECT " .
   "e.pc_eventDate, e.pc_startTime, e.pc_catid, e.pc_eid, " .
-  "p.fname, p.mname, p.lname, p.pid, " .
+  "p.fname, p.mname, p.lname, p.pid, p.pubpid, " .
   "u.fname AS ufname, u.mname AS umname, u.lname AS ulname, " .
   "c.pc_catname " .
   "FROM openemr_postcalendar_events AS e " .
@@ -296,6 +297,11 @@
   </th>
 
   <th>
+   <a href="nojs.php" onclick="return dosort('pubpid')"
+   <?php if ($form_orderby == "pubpid") echo " style=\"color:#00cc00\"" ?>><?php  xl('ID','e'); ?></a>
+  </th>
+
+  <th>
    <a href="nojs.php" onclick="return dosort('type')"
    <?php if ($form_orderby == "type") echo " style=\"color:#00cc00\"" ?>><?php  xl('Type','e'); ?></a>
   </th>
@@ -329,6 +335,10 @@
 
   <td class="detail">
    &nbsp;<?php echo $row['fname'] . " " . $row['lname'] ?>
+  </td>
+
+  <td class="detail">
+   &nbsp;<?php echo $row['pubpid'] ?>
   </td>
 
   <td class="detail">
