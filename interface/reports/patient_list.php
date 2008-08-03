@@ -139,6 +139,7 @@
  <thead>
   <th> <?php xl('Last Visit','e'); ?> </th>
   <th> <?php xl('Patient','e'); ?> </th>
+  <th> <?php xl('ID','e'); ?> </th>
   <th> <?php xl('Street','e'); ?> </th>
   <th> <?php xl('City','e'); ?> </th>
   <th> <?php xl('State','e'); ?> </th>
@@ -153,7 +154,7 @@
 
   $query = "SELECT " .
    "p.fname, p.mname, p.lname, p.street, p.city, p.state, " .
-   "p.postal_code, p.phone_home, p.phone_biz, p.pid, " .
+   "p.postal_code, p.phone_home, p.phone_biz, p.pid, p.pubpid, " .
    "count(e.date) AS ecount, max(e.date) AS edate, " .
    "i1.date AS idate1, i2.date AS idate2, " .
    "c1.name AS cname1, c2.name AS cname2 " .
@@ -202,6 +203,9 @@
   </td>
   <td>
    <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] ?>
+  </td>
+  <td>
+   <?php echo $row['pubpid'] ?>
   </td>
   <td>
    <?php echo $row['street'] ?>
