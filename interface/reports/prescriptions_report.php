@@ -18,6 +18,7 @@
  $form_patient_id = trim($_POST['form_patient_id']);
  $form_drug_name  = trim($_POST['form_drug_name']);
  $form_lot_number = trim($_POST['form_lot_number']);
+ $form_facility   = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 ?>
 <html>
 <head>
@@ -123,7 +124,25 @@
 <table>
  <tr>
   <td>
-   <?php xl('From','e'); ?>:
+<?php
+ // Build a drop-down list of facilities.
+ //
+ $query = "SELECT id, name FROM facility ORDER BY name";
+ $fres = sqlStatement($query);
+ echo "   <select name='form_facility'>\n";
+ echo "    <option value=''>-- All Facilities --\n";
+ while ($frow = sqlFetchArray($fres)) {
+  $facid = $frow['id'];
+  echo "    <option value='$facid'";
+  if ($facid == $form_facility) echo " selected";
+  echo ">" . $frow['name'] . "\n";
+ }
+ echo "    <option value='0'";
+ if ($form_facility === '0') echo " selected";
+ echo ">-- Unspecified --\n";
+ echo "   </select>\n";
+?>
+   &nbsp;<?php xl('From','e'); ?>:
    <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
@@ -184,12 +203,13 @@
    "d.name, d.ndc_number, d.form, d.size, d.unit, d.reactions, " .
    "s.sale_id, s.sale_date, s.quantity, " .
    "i.manufacturer, i.lot_number, i.expiration, " .
-   "p.fname, p.lname, p.mname " .
+   "p.fname, p.lname, p.mname, u.facility_id " .
    "FROM prescriptions AS r " .
    "LEFT OUTER JOIN drugs AS d ON d.drug_id = r.drug_id " .
    "LEFT OUTER JOIN drug_sales AS s ON s.prescription_id = r.id " .
    "LEFT OUTER JOIN drug_inventory AS i ON i.inventory_id = s.inventory_id " .
    "LEFT OUTER JOIN patient_data AS p ON p.pid = r.patient_id " .
+   "LEFT OUTER JOIN users AS u ON u.id = r.provider_id " .
    "WHERE $where " .
    "ORDER BY p.lname, p.fname, r.patient_id, r.id, s.sale_id";
 
@@ -199,6 +219,15 @@
   $last_patient_id      = 0;
   $last_prescription_id = 0;
   while ($row = sqlFetchArray($res)) {
+   // If a facility is specified, ignore rows that do not match.
+   if ($form_facility !== '') {
+     if ($form_facility) {
+       if ($row['facility_id'] != $form_facility) continue;
+     }
+     else {
+       if (!empty($row['facility_id'])) continue;
+     }
+   }
    $patient_name    = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
    $patient_id      = $row['patient_id'];
    $prescription_id = $row['id'];

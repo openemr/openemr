@@ -1,5 +1,5 @@
 <?php
-  // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
+  // Copyright (C) 2006-2008 Rod Roark <rod@sunsetsystems.com>
   //
   // This program is free software; you can redistribute it and/or
   // modify it under the terms of the GNU General Public License
@@ -28,6 +28,7 @@
   $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
   $form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
   $form_use_edate = $_POST['form_use_edate'];
+  $form_facility  = $_POST['form_facility'];
 ?>
 <html>
 <head>
@@ -46,6 +47,21 @@
 
  <tr>
   <td>
+<?php
+  // Build a drop-down list of facilities.
+  //
+  $query = "SELECT id, name FROM facility ORDER BY name";
+  $fres = sqlStatement($query);
+  echo "   <select name='form_facility'>\n";
+  echo "    <option value=''>-- All Facilities --\n";
+  while ($frow = sqlFetchArray($fres)) {
+    $facid = $frow['id'];
+    echo "    <option value='$facid'";
+    if ($facid == $form_facility) echo " selected";
+    echo ">" . $frow['name'] . "\n";
+  }
+  echo "   </select>\n";
+?>
    &nbsp;<select name='form_use_edate'>
     <option value='0'><?php xl('Payment Date','e'); ?></option>
     <option value='1'<?php if ($form_use_edate) echo ' selected' ?>><?php xl('Invoice Date','e'); ?></option>
@@ -112,12 +128,6 @@
     $from_date = $form_from_date;
     $to_date   = $form_to_date;
 
-    /*****************************************************************
-    $query = "select acc_trans.amount, acc_trans.transdate, acc_trans.memo, " .
-      "acc_trans.source, ar.invnumber, ar.employee_id from acc_trans, ar where " .
-      "acc_trans.chart_id = $chart_id_cash and " .
-      "ar.id = acc_trans.trans_id and ";
-    *****************************************************************/
     $query = "SELECT acc_trans.amount, acc_trans.transdate, acc_trans.memo, " .
       "replace(acc_trans.source, 'InvAdj ', '') AS source, " .
       "acc_trans.chart_id, ar.invnumber, ar.employee_id " .
@@ -152,6 +162,17 @@
 
     for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
       $row = SLGetRow($t_res, $irow);
+
+      // If a facility was specified then skip invoices whose encounters
+      // do not indicate that facility.
+      if ($form_facility) {
+        list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
+        $tmp = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
+          "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
+          "facility_id = '$form_facility'");
+        if (empty($tmp['count'])) continue;
+      }
+
       $rowpayamount = 0 - $row['amount'];
       $rowadjamount = 0;
       if ($row['chart_id'] == $chart_id_income) {
