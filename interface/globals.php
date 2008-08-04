@@ -2,7 +2,7 @@
 /* $Id$ */
 //  ------------------------------------------------------------------------ //
 //                OpenEMR Electronic Medical Records System                  //
-//                    Copyright (c) 2005 oemr.org                            //
+//                   Copyright (c) 2005-2008 oemr.org                        //
 //                       <http://www.oemr.org/>                              //
 //  ------------------------------------------------------------------------ //
 //  This program is free software; you can redistribute it and/or modify     //
@@ -39,7 +39,7 @@ require_once(dirname(__FILE__) . "/../includes/config.php");
 // THESE VALUES MUST BE SET BEFORE OPENEMR WILL FUNCTION:
 ///////////////////////////////////////////////////////////////////
 // Set this to the full absolute directory path for openemr:
-$webserver_root = "/mnt/htdocs/openemr";
+$webserver_root = "/var/www/openemr";
 
 // Set this to the relative html path, ie. what you would type into the web
 // browser after the server address to get to OpenEMR.  For example, if you
@@ -108,7 +108,7 @@ $GLOBALS['select_multi_providers'] = false;
 $GLOBALS['dutchpc'] = FALSE;
 
 if ( $GLOBALS['dutchpc'] ) {
-	include_once (dirname(__FILE__) . "/../library/DBC_include.php");
+  include_once (dirname(__FILE__) . "/../library/DBC_include.php");
 }
 
 // Theme definition:
@@ -152,19 +152,19 @@ $tback = "(Back)";
 // if a page has not been refreshed within this many seconds, the interface
 // will return to the login page
 if (!empty($special_timeout)) {
-	$timeout = intval($special_timeout);
+  $timeout = intval($special_timeout);
 }
 else {
-	// Max Idle Time in seconds before logout.  Default 7200 (2 hours):
-	$timeout = 7200;
+  // Max Idle Time in seconds before logout.  Default 7200 (2 hours):
+  $timeout = 7200;
 }
 
 //Version tags
 
 $v_major = '2';
-$v_minor = '8';
-$v_patch = '4';
-$tag = '-dev'; // release candidate, e.g. '-rc1'
+$v_minor = '9';
+$v_patch = '0';
+$tag = ''; // release candidate, e.g. '-rc1'
 
 // This name appears on the login page and in the title bar of most windows.
 // It's nice to customize this to be the name of your clinic.
@@ -195,7 +195,7 @@ $GLOBALS['calendar_interval'] = 15;
 // include loops.
 
 if (!$ignoreAuth) {
-	include_once("$srcdir/auth.inc");
+  include_once("$srcdir/auth.inc");
 }
 
 // If you do not want your accounting system to have a customer added to it
@@ -259,8 +259,7 @@ $GLOBALS['omit_employers'] = false;
 
 // This is for insurance billing and is specific to Medicare.  Make it true
 // to force the referring provider to be the same as the rendering provider,
-// instead of coming from the patient demographics.  In that case also change
-// the corresponding variable in freeb/formatbin/new_hcfa_1500.pl.
+// instead of coming from the patient demographics.
 $GLOBALS['MedicareReferrerIsRenderer'] = false;
 
 // You can set this to the category name of a document to link to from the
@@ -306,10 +305,10 @@ $sl_dbpass      = 'secret';     // sql-ledger database login password
 $encounter = empty($_SESSION['encounter']) ? 0 : $_SESSION['encounter'];
 
 if (!empty($_GET['pid']) && empty($_SESSION['pid'])) {
-	$_SESSION['pid'] = $_GET['pid'];
+  $_SESSION['pid'] = $_GET['pid'];
 }
 elseif (!empty($_POST['pid']) && empty($_SESSION['pid'])) {
-	$_SESSION['pid'] = $_POST['pid'];
+  $_SESSION['pid'] = $_POST['pid'];
 }
 $pid = empty($_SESSION['pid']) ? 0 : $_SESSION['pid'];
 $userauthorized = empty($_SESSION['userauthorized']) ? 0 : $_SESSION['userauthorized'];
@@ -317,11 +316,11 @@ $groupname = empty($_SESSION['authProvider']) ? 0 : $_SESSION['authProvider'];
 
 // global interface function to format text length using ellipses
 function strterm($string,$length) {
-	if (strlen($string) >= ($length-3)) {
-		return substr($string,0,$length-3) . "...";
-	} else {
-		return $string;
-	}
+  if (strlen($string) >= ($length-3)) {
+    return substr($string,0,$length-3) . "...";
+  } else {
+    return $string;
+  }
 }
 
 // turn off PHP compatibility warnings
@@ -331,11 +330,10 @@ if( $database->databaseType=='mysql' ) mysql_query("SET NAMES 'utf8'");
 
 //settings for cronjob
 // SEND SMS NOTIFICATION BEFORE HH HOUR
-$SMS_NOTIFICATION_HOUR 		= 50;
+$SMS_NOTIFICATION_HOUR = 50;
 // SEND EMAIL NOTIFICATION BEFORE HH HOUR
-$EMAIL_NOTIFICATION_HOUR 	= 50;
-$SMS_GATEWAY_USENAME 			= 'SMS_GATEWAY_USENAME';
-$SMS_GATEWAY_PASSWORD 		= 'SMS_GATEWAY_PASSWORD';
-$SMS_GATEWAY_APIKEY 				= 'SMS_GATEWAY_APIKEY';
-
+$EMAIL_NOTIFICATION_HOUR = 50;
+$SMS_GATEWAY_USENAME     = 'SMS_GATEWAY_USENAME';
+$SMS_GATEWAY_PASSWORD    = 'SMS_GATEWAY_PASSWORD';
+$SMS_GATEWAY_APIKEY      = 'SMS_GATEWAY_APIKEY';
 ?>
