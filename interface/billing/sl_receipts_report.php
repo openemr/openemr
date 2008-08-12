@@ -25,6 +25,8 @@
   include_once("../forms/fee_sheet/codes.php");
   function is_clinic($code) {
     global $bcodes;
+    $i = strpos(':', $code);
+    if ($i) $code = substr($code, 0, $i);
     return ($bcodes['CPT4'][xl('Lab')][$code]     ||
       $bcodes['CPT4'][xl('Immunizations')][$code] ||
       $bcodes['HCPCS'][xl('Therapeutic Injections')][$code]);
@@ -49,7 +51,7 @@
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+<?php if (function_exists('html_header_show')) html_header_show(); ?>
 <title><?xl('Cash Receipts by Provider','e')?></title>
 </head>
 
@@ -182,7 +184,7 @@
   </td>
 <?php } ?>
  </tr>
-<?
+<?php
   $chart_id_cash = SLQueryValue("select id from chart where accno = '$sl_cash_acc'");
   if ($sl_err) die($sl_err);
 
@@ -218,6 +220,8 @@
       "acc_trans.transdate <= '$form_to_date'";
     }
 
+    // Skipping this because we will not rely on ar.employee_id.
+    /*****************************************************************
     if ($form_doctor) {
       $tmp = sqlQuery("select foreign_id from integration_mapping where " .
         "foreign_table = 'salesman' and local_id = $form_doctor");
@@ -226,10 +230,12 @@
       $emplid = $tmp['foreign_id'];
       $query .= " and ar.employee_id = $emplid";
     }
+    *****************************************************************/
 
-    $query .= " order by ar.employee_id, acc_trans.transdate, ar.invnumber, acc_trans.memo";
+    // $query .= " order by ar.employee_id, acc_trans.transdate, ar.invnumber, acc_trans.memo";
+    $query .= " order by ar.invnumber";
 
-    echo "<!-- $query -->\n";
+    // echo "<!-- $query -->\n"; // debugging
 
     $t_res = SLQuery($query);
     if ($sl_err) die($sl_err);
@@ -243,9 +249,12 @@
     $grandtotal2 = 0;
     $last_trans_id = 0;
     $skipping      = false;
+    $arows         = array();
 
     for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
       $row = SLGetRow($t_res, $irow);
+
+      list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
 
       // Under some conditions we may skip invoices that matched the SQL query.
       //
@@ -269,7 +278,6 @@
         // If a facility was specified then skip invoices whose encounters
         // do not indicate that facility.
         if ($form_facility) {
-          list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
           $tmp = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
             "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
             "facility_id = '$form_facility'");
@@ -278,7 +286,38 @@
             continue;
           }
         }
-      }
+        // Find out who the practitioner is.
+        $tmp = sqlQuery("SELECT users.id, users.authorized FROM forms, users WHERE " .
+          "forms.pid = '$patient_id' AND forms.encounter = '$encounter_id' AND " .
+          "forms.formdir = 'newpatient' AND users.username = forms.user");
+        $docid = empty($tmp['id']) ? 0 : $tmp['id'];
+        if (empty($tmp['authorized'])) {
+          $tmp = sqlQuery("SELECT users.id FROM billing, users WHERE " .
+            "billing.pid = '$patient_id' AND billing.encounter = '$encounter_id' AND " .
+            "billing.activity = 1 AND billing.fee > 0 AND " .
+            "users.id = billing.provider_id AND users.authorized = 1 " .
+            "ORDER BY billing.fee DESC, billing.id ASC LIMIT 1");
+          if (!empty($tmp['id'])) $docid = $tmp['id'];
+        }
+        // If a practitioner was specified then skip other practitioners.
+        if ($form_doctor) {
+          if ($form_doctor != $docid) {
+            $skipping = true;
+            continue;
+          }
+        }
+      } // end new invoice
+
+      $row['docid'] = $docid;
+      $key = sprintf("%08u%s%08u%08u%06u", $docid, $row['transdate'],
+        $patient_id, $encounter_id, $irow);
+      $arows[$key] = $row;
+    }
+
+    ksort($arows);
+    $docid = 0;
+
+    foreach ($arows as $row) {
 
       // Get insurance company name
       $insconame = '';
@@ -295,7 +334,8 @@
       else
         $amount1 -= $row['amount'];
 
-      if ($docid != $row['employee_id']) {
+      // if ($docid != $row['employee_id']) {
+      if ($docid != $row['docid']) {
         if ($docid) {
           // Print doc totals.
 ?>
@@ -317,8 +357,13 @@
         }
         $doctotal1 = 0;
         $doctotal2 = 0;
-        $docid = $row['employee_id'];
-        $docname = SLQueryValue("select name from employee where id = $docid");
+
+        // $docid = $row['employee_id'];
+        // $docname = SLQueryValue("select name from employee where id = $docid");
+        $docid = $row['docid'];
+        $tmp = sqlQuery("SELECT lname, fname FROM users WHERE id = '$docid'");
+        $docname = empty($tmp) ? 'Unknown' : $tmp['fname'] . ' ' . $tmp['lname'];
+
         $docnameleft = $docname;
       }
 
