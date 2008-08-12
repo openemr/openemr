@@ -296,6 +296,19 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
   return false;
  }
 
+ // Make sure both frames are open.
+ function forceDual() {
+  var f = document.forms[0];
+  if (!f.cb_top.checked) {
+   f.cb_top.checked = true;
+   toggleFrame(1);
+  }
+  if (!f.cb_bot.checked) {
+   f.cb_bot.checked = true;
+   toggleFrame(2);
+  }
+ }
+
  // Load the specified url into a frame to be determined, with the specified
  // frame as the default; the url must be relative to interface.
  function loadFrameDual(tname, bname, topurl, boturl) {
@@ -310,6 +323,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
    return false;
   }
   var f = document.forms[0];
+  forceDual();
   top.restoreSession();
   var i = topurl.indexOf('{PID}');
   if (i >= 0) topurl = topurl.substring(0,i) + active_pid + topurl.substring(i+5);
