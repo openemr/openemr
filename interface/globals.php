@@ -278,6 +278,9 @@ $GLOBALS['ippf_specific'] = false;
 // True to support discounts in the Checkout form by dollars instead of percentage.
 $GLOBALS['discount_by_money'] = false;
 
+// If "SET NAMES 'utf8'" is supported and desired.
+$GLOBALS['use_set_names_utf8'] = false;
+
 // If you want Hylafax support then uncomment and customize the following
 // statements, and also customize custom/faxcover.txt:
 //
@@ -326,7 +329,7 @@ function strterm($string,$length) {
 // turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn","off");
 
-if( $database->databaseType=='mysql' ) mysql_query("SET NAMES 'utf8'");
+if ($GLOBALS['use_set_names_utf8']) mysql_query("SET NAMES 'utf8'");
 
 //settings for cronjob
 // SEND SMS NOTIFICATION BEFORE HH HOUR
