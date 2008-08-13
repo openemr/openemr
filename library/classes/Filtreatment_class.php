@@ -28,9 +28,9 @@ define('EPSILON', 1.0e-8);
  */
 class Filtreatment {
 
-public $minval = 0;
-public $maxval = 0;
-public $error = '';
+var $minval = 0;
+var $maxval = 0;
+var $error = '';
 
 /**
  * CONSTRUCTOR
@@ -58,7 +58,7 @@ function __construct() {
  * @param int $input - what to check/transform
  * @return int|bool
  */
-public function ft_integer($input) {
+function ft_integer($input) {
     $input_c    = (int)$input;
     $mnval      = (int)$this->minval;
     $mxval      = (int)$this->maxval;
@@ -93,7 +93,7 @@ public function ft_integer($input) {
  * @param int $input - what to check/transform
  * @return int|bool
  */
-public function ft_float($input) {
+function ft_float($input) {
     $input_c    = (float)$input;
     $mnval      = (float)$this->minval;
     $mxval      = (float)$this->maxval;
@@ -140,7 +140,7 @@ public function ft_float($input) {
  * @param string $str - date in requested format
  * @return string|bool - the string itselfs only for valid date
  */
-public function ft_validdate($str) {
+function ft_validdate($str) {
     if ( preg_match("/([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})/", $str) ) {
         $arr = split("-",$str);     // splitting the array
         $yy = $arr[0];            // first element of the array is year
@@ -161,7 +161,7 @@ public function ft_validdate($str) {
  * @param string $str - email to validate
  * @return string|bool - the string itselfs only for valid email
  */
-public function ft_email($email) {
+function ft_email($email) {
     if (MAGICQUOTES) {
         $value = stripslashes($email);
     }
@@ -205,7 +205,7 @@ public function ft_email($email) {
  * @param string $db_type - allow two constants MYSQL | PGSQL
  * @return string|bool $value sanitized value
  */
-public function ft_dbsql($value, $db_type = 'MYSQL') {
+function ft_dbsql($value, $db_type = 'MYSQL') {
    if (MAGICQUOTES) {
         $value = stripslashes($value);
     }
@@ -242,7 +242,7 @@ public function ft_dbsql($value, $db_type = 'MYSQL') {
  * @return string|bool return string if check succeed ($cv = 1) or string with replaced chars 
 
  */
-public function ft_strregex($value, $regex, $cv = 1) {
+function ft_strregex($value, $regex, $cv = 1) {
     $s = TRUE; //var control
     $regexfull = "/[^" . $regex . "]/";
 
@@ -276,7 +276,7 @@ public function ft_strregex($value, $regex, $cv = 1) {
  * @param string $charset - character set (default ISO-8859-1)
  * @return string|bool $value sanitized string
  */
-public function ft_xss($str, $charset = 'ISO-8859-1') {
+function ft_xss($str, $charset = 'ISO-8859-1') {
     /*
     * Remove Null Characters
     *
@@ -449,7 +449,7 @@ public function ft_xss($str, $charset = 'ISO-8859-1') {
  * @param int $mode - if 1 then echo the string; if 2 then echo the string
  * @return void
  */
-public function display_error($mode = 1) {
+function display_error($mode = 1) {
     $errstr = ( $this->error ) ? $this->error : '';
     if ( $mode == 1 ) {
         echo '<br />' .$this->ft_xss($errstr) . '<br />';
@@ -469,7 +469,7 @@ public function display_error($mode = 1) {
  * @param float $r2
  * @return int 
  */
-private function ft_realcmp($r1, $r2) {
+function ft_realcmp($r1, $r2) {
     $diff = $r1 - $r2;
 
     if ( abs($diff) < EPSILON ) return 0;
