@@ -4,7 +4,7 @@ use strict;
 use DBI;
 
 #######################################################################
-# Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+# Copyright (C) 2005, 2008 Rod Roark <rod@sunsetsystems.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -15,19 +15,20 @@ use DBI;
 # OpenEMR.  Both the long and short descriptions are loaded from the
 # same input file.
 #
-# For 2005, run it like this:
+# For 2008, run it like this:
 #
-#   ./load_hcpcs_desc.plx < 05anweb.txt
+#   ./load_hcpcs_desc.plx < 08anweb.txt
 #
-# To get this input file, download and extract anhcpc05.zip from
-# http://www.cms.hhs.gov/providers/pufdownload/.
+# To get this input file, download "2008 Alpha-Numeric HCPCS File" from
+# http://www.cms.hhs.gov/HCPCSReleaseCodeSets/ANHCPCS/list.asp
+# and unzip the resulting file.
 #######################################################################
 
 #######################################################################
 #                 Parameters that you may customize                   #
 #######################################################################
 
-my $DBNAME     = "openemr";  # database name
+my $DBNAME = "openemr";  # database name
 
 # To load the short descriptions (SHORTU.txt, not currently used by
 # OpenEMR but probably should), change this to "code_text_short":
