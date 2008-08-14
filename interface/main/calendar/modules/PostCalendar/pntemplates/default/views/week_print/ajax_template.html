@@ -598,6 +598,9 @@ foreach ($providers as $provider) {
             // calculate the HEIGHT value for the event DIV
             // diff between end and start of event
             $eEndMin = $eStartMin + ($event['duration']/60);
+            // prevent the overall height of the event from going beyond the bounds
+            // of the time table
+            if ($eEndMin > $calEndMin) { $eEndMin = $calEndMin + $interval; }
             $eMinDiff = $eEndMin - $eStartMin;
             // diff divided by the time interval of the schedule
             $eEndInterval = $eMinDiff / $interval;
