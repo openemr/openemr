@@ -1279,60 +1279,56 @@ if ( $GLOBALS['dutchpc'] ) {
 <?php
 
 // =======================================
-// multi providers case
+// multi providers 
 // =======================================
 if  ($GLOBALS['select_multi_providers']) {
 
-//  there are two posible situations: edit and new record
+    //  there are two posible situations: edit and new record
 
-// this is executed only on edit ($eid)
-if ($eid) {
-    if ( $multiple_value ) {
-        // find all the providers around multiple key
-        $qall = sqlStatement ("SELECT pc_aid AS providers FROM openemr_postcalendar_events WHERE pc_multiple = $multiple_value");
-        while ($r = sqlFetchArray($qall)) {
-            $providers_array[] = $r['providers'];
+    // this is executed only on edit ($eid)
+    if ($eid) {
+        if ( $multiple_value ) {
+            // find all the providers around multiple key
+            $qall = sqlStatement ("SELECT pc_aid AS providers FROM openemr_postcalendar_events WHERE pc_multiple = $multiple_value");
+            while ($r = sqlFetchArray($qall)) {
+                $providers_array[] = $r['providers'];
+            }
+        } else {
+            $qall = sqlStatement ("SELECT pc_aid AS providers FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+            $providers_array = sqlFetchArray($qall);
         }
-    } else {
-        $qall = sqlStatement ("SELECT pc_aid AS providers FROM openemr_postcalendar_events WHERE pc_eid = $eid");
-        $providers_array = sqlFetchArray($qall);
     }
-}
-
-// build the selection tool
-echo "<select name='form_provider[]' style='width:100%' multiple='multiple' size='5' >";
-
-while ($urow = sqlFetchArray($ures)) {
-    echo "    <option value='" . $urow['id'] . "'";
-
-    if ($userid) {
-        if ( in_array($urow['id'], $providers_array) || ($urow['id'] == $userid) ) echo " selected";
+    
+    // build the selection tool
+    echo "<select name='form_provider[]' style='width:100%' multiple='multiple' size='5' >";
+    
+    while ($urow = sqlFetchArray($ures)) {
+        echo "    <option value='" . $urow['id'] . "'";
+    
+        if ($userid) {
+            if ( in_array($urow['id'], $providers_array) || ($urow['id'] == $userid) ) echo " selected";
+        }
+    
+        echo ">" . $urow['lname'];
+        if ($urow['fname']) echo ", " . $urow['fname'];
+        echo "</option>\n";
     }
-
-    echo ">" . $urow['lname'];
-    if ($urow['fname']) echo ", " . $urow['fname'];
-    echo "</option>\n";
-}
-
-echo '</select>';
+    
+    echo '</select>';
 
 // =======================================
-// EOS  multi providers case
+// single provider 
 // =======================================
 } else {
-    /*{CHEMED}*/
-    if ($userid != 0) {
-        // userid (a.k.a. provider ID) has been set so don't let the user change it
-        $urow = sqlFetchArray(sqlStatement("SELECT id, username, fname, lname FROM users WHERE id = $userid"));
-        // print_r($urow);exit;
 
-        echo "<input type='hidden' name='form_provider' value='".$urow["id"]."'/>";
-        echo "<input type='input' readonly name='form_provider_txt' value='".$urow['lname'];
-        if ($urow['fname']) echo ", ".$urow['fname'];
-        echo "'/>";
+    if ($eid) {
+        // get provider from existing event
+        $qprov = sqlStatement ("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+        $provider = sqlFetchArray($qprov);
+        $defaultProvider = $provider['pc_aid'];
     }
     else {
-        // present a list of providers to choose from
+        // this is a new event so smartly choose a default provider 
 
         // default to the currently logged-in user
         $defaultProvider = $_SESSION['authUserID'];
@@ -1345,19 +1341,19 @@ echo '</select>';
             $firstProvider = sqlFetchArray(sqlStatement("select id from users where username='".$pc_username[0]."'"));
             $defaultProvider = $firstProvider['id'];
         }
+    }
 
-        echo "<select name='form_provider' style='width:100%' />";
-        while ($urow = sqlFetchArray($ures)) {
-            echo "    <option value='" . $urow['id'] . "'";
-            if ($urow['id'] == $defaultProvider) echo " selected";
-            echo ">" . $urow['lname'];
-            if ($urow['fname']) echo ", " . $urow['fname'];
-            echo "</option>\n";
-        }
-        echo "</select>";
-
-    } //END (CHEMED) IF
+    echo "<select name='form_provider' style='width:100%' />";
+    while ($urow = sqlFetchArray($ures)) {
+        echo "    <option value='" . $urow['id'] . "'";
+        if ($urow['id'] == $defaultProvider) echo " selected";
+        echo ">" . $urow['lname'];
+        if ($urow['fname']) echo ", " . $urow['fname'];
+        echo "</option>\n";
+    }
+    echo "</select>";
 }
+
 ?>
 
   </td>
