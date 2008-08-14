@@ -85,8 +85,8 @@
     // If you want custom access control but don't want to mess with phpGACL,
     // then you could customize the code below instead.
 
+    if ($user == 'admin') return 'write';
     if ($section == 'admin' && $value == 'super') return 0;
-
     if ($_SESSION['userauthorized']) return 'write';
 
     if ($section == 'patients') {
@@ -214,11 +214,11 @@
        }
     }
    }
-   else {   
+   else {
     if (!in_array($group, $current_user_groups)) {
      array_push($current_user_groups, $group);
     }
-   }    
+   }
    $user_data = mysql_fetch_array(sqlStatement("select * from users where username='" .
     $username . "'"));
    set_user_aro($current_user_groups, $username, $user_data["fname"],
@@ -236,14 +236,14 @@
    $current_user_groups = acl_get_group_titles($username);
    $new_user_groups = array();
    if (is_array($group)){
-    foreach ($current_user_groups as $value) {    
+    foreach ($current_user_groups as $value) {
      if (!in_array($value, $group)) {
       array_push($new_user_groups, $value);
      }
-    }    
+    }
    }
-   else {   
-    foreach ($current_user_groups as $value) {     
+   else {
+    foreach ($current_user_groups as $value) {
      if ($value != $group) {
       array_push($new_user_groups, $value);
      }
