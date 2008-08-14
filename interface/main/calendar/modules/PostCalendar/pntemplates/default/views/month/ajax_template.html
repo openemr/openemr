@@ -467,13 +467,20 @@ foreach ($providers as $provider) {
                 $content .= $displayTime;
                 //$content .= htmlspecialchars($event['apptstatus']);
                 //$content .= "</a>";
-                $content .= "<a href='javascript:goPid($patientid)' title='$title'>";
-                $iTitle = "View Patient [".$fname." ".$lname."]";
-                $content .= "<img src='$TPL_IMAGE_PATH/user-green.gif' border='0' title='".$iTitle."' alt='".$iTitle."' />";
-                //if ($catid == 1) $content .= "<strike>";
-                //$content .= $lname;
-                //if ($catid == 1) $content .= "</strike>";
-                $content .= "</a>";
+                if ($patientid) {
+                    // include patient name and link to their details
+                    $content .= "<a href='javascript:goPid($patientid)' title='$title'>";
+                    $iTitle = "View Patient [".$fname." ".$lname."]";
+                    $content .= "<img src='$TPL_IMAGE_PATH/user-green.gif' border='0' title='".$iTitle."' alt='".$iTitle."' />";
+                    //if ($catid == 1) $content .= "<strike>";
+                    //$content .= $lname;
+                    //if ($catid == 1) $content .= "</strike>";
+                    $content .= "</a>";
+                }
+                else {
+                    // no patient id, just output the category name
+                    $content .= " ".$catname;
+                }
             }
             $divTitle .= "\n(double click to edit)";
 
