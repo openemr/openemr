@@ -219,9 +219,15 @@ foreach($field_names as $key=>$val)
 				}
 			}
                   }
-			if ($negatives[$key]) {$neg = "Negative for ".implode(', ',$negatives[$key]);}
+			if (is_array($negatives[$key]) && count($negatives[$key])>0) 
+			{
+				$neg = "Negative for ".implode(', ',$negatives[$key]);
+			}
 		}
-		if ($_POST[$key]) {$pos = implode(', ',$_POST[$key]);}
+		if (is_array($_POST[$key]) && count($_POST[$key])>0) 
+		{
+			$pos = implode(', ',$_POST[$key]);
+		}
 		if($pos) {$pos = 'Positive for '.$pos.'.  ';}
 		$field_names[$key] = $pos.$neg;	
 	}
@@ -245,6 +251,7 @@ echo "$var\n";
 if ($encounter == "")
 $encounter = date("Ymd");
 if ($_GET["mode"] == "new"){
+reset($field_names);
 $newid = formSubmit("form_FORM_NAME", $field_names, $_GET["id"], $userauthorized);
 addForm($encounter, "FORM_NAME", $newid, "FORM_NAME", $pid, $userauthorized);
 }elseif ($_GET["mode"] == "update") {
