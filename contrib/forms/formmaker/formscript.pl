@@ -221,7 +221,7 @@ foreach($field_names as $key=>$val)
                   }
 			if (is_array($negatives[$key]) && count($negatives[$key])>0) 
 			{
-				$neg = "Negative for ".implode(', ',$negatives[$key]);
+				$neg = "Negative for ".implode(', ',$negatives[$key]).'.';
 			}
 		}
 		if (is_array($_POST[$key]) && count($_POST[$key])>0) 
@@ -237,7 +237,7 @@ foreach($field_names as $key=>$val)
 	}
         if ($field_names[$key] != '')
         {
-          $field_names[$key] .= '.';
+//          $field_names[$key] .= '.';
           $field_names[$key] = preg_replace('/\s*,\s*([^,]+)\./',' and $1.',$field_names[$key]); // replace last comma with 'and' and ending period
         } 
 }
