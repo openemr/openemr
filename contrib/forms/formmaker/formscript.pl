@@ -8,7 +8,10 @@ use CGI qw(:standard);
 #if -noxl command line option is used, xl function will not be put into form
 use Getopt::Long;
 my $noxl = '';
-GetOptions('noxl' => \$noxl);
+my $bigtable = '';
+my @redirect; #this array is for data if redirect field defined to send form data to other form...
+my $redirect_string = '';
+GetOptions('noxl' => \$noxl, 'bigtable' => \$bigtable);
 
 #file templates here
 
@@ -28,7 +31,7 @@ without a filename argument, a sample data file will be created in the same
 directory named 'sample.txt' that you can use to see how to create your own.
 
 The first line you enter in your textfile is the name of the form.
-In the example this is "a1_preop_physical"
+In the example this is "physical_sample"
 
 Basically you enter one database field item per line like this:
 
@@ -75,7 +78,15 @@ into the form.  It will be most helpful to look at 'sample.txt' to see how this 
 
 By default now, the xl function which is for performing language translation is used.  To disable this feature in creating a form, use the commandline option -noxl as in:
 
-./formscript.pl -noxl sample.txt
+./formscript.pl --noxl sample.txt
+
+The bigtable option.  This commandline option ignores anything in the template file that is not a field and creates the form layout in one tidy table.  This may look nicer.  You can rebuild the form with and without this option without breaking anything even after the form is installed and in use.
+
+./formscript.pl --bigtable sample.txt
+
+Redirect option.  This option is set within the template file by defining a redirect field just like any other field.  The redirect keyword is followed by the redirect keyword again and then by the table name to submit data to.  That is followed by the database column name to save data to.  All form data will be combined into one string and submitted to this table.  Optionally, you may then list other columns and a string to submit for each as a constant.  Example:
+
+redirect::redirect::CAMOS::content::category::exam::subcategory::by_dx::item::bronchitis
 
 Please send feedback to drleeds@gmail.com.
 
@@ -252,18 +263,22 @@ if ($encounter == "")
 $encounter = date("Ymd");
 if ($_GET["mode"] == "new"){
 reset($field_names);
-$newid = formSubmit("form_FORM_NAME", $field_names, $_GET["id"], $userauthorized);
-addForm($encounter, "FORM_NAME", $newid, "FORM_NAME", $pid, $userauthorized);
-}elseif ($_GET["mode"] == "update") {
-
-
-sqlInsert("update form_FORM_NAME set pid = {$_SESSION["pid"]},groupname='".$_SESSION["authProvider"]."',user='".$_SESSION["authUser"]."',authorized=$userauthorized,activity=1, date = NOW(), FIELDS where id=$id");
-}
+NOREDIRECT
 $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();
 ?>
+START
+
+#save_noredirect
+#if there is no redirect command, replace NOREDIRECT with this
+my $noredirect=<<'START';
+$newid = formSubmit("form_FORM_NAME", $field_names, $_GET["id"], $userauthorized);
+addForm($encounter, "FORM_NAME", $newid, "FORM_NAME", $pid, $userauthorized);
+}elseif ($_GET["mode"] == "update") {
+sqlInsert("update form_FORM_NAME set pid = {$_SESSION["pid"]},groupname='".$_SESSION["authProvider"]."',user='".$_SESSION["authUser"]."',authorized=$userauthorized,activity=1, date = NOW(), FIELDS where id=$id");
+}
 START
 
 #table.sql
@@ -498,7 +513,9 @@ $out = xl_fix2($out);
 to_file("$form_name/report.php",$out);
 
 #save.php
-$out = replace($save_php, 'FORM_NAME', $form_name);
+$out = replace($save_php, 'NOREDIRECT', $noredirect) if not $redirect_string;
+$out = replace($save_php, 'NOREDIRECT', $redirect_string) if $redirect_string;
+$out = replace($out, 'FORM_NAME', $form_name);
 $out = replace_save_php($out, @field_data);		#Or send it to a special case where extra things can be added to the output. ("replace_save_php" is down below under "sub-routines")
 to_file("$form_name/save.php",$out);
 
@@ -510,9 +527,12 @@ $out = xl_fix($out);
 to_file("$form_name/view.php",$out);
 
 #table.sql
-$out = replace($table_sql, 'FORM_NAME', $form_name);
-$out = replace_sql($out, @field_data);
-to_file("$form_name/table.sql",$out);
+if (!$redirect_string) 
+{
+	$out = replace($table_sql, 'FORM_NAME', $form_name);
+	$out = replace_sql($out, @field_data);
+	to_file("$form_name/table.sql",$out);
+}
 
 #preview.html
 $out = replace($preview_html, 'FORM_NAME', $form_name);
@@ -580,17 +600,12 @@ sub replace_sql #a special case
 	my $replace = '';
         for (grep{$_->[0] and $_->[1]} @_) 
         {
+	  next if $_->[0] eq 'redirect';
 	  $replace .= $_->[0]." TEXT,\n" if $_->[1] !~ /^date$/;
 	  $replace .= $_->[0]." DATE,\n" if $_->[1] =~ /^date$/;
         }
 	$text =~ s/DATABASEFIELDS/$replace/;
 	return $text;
-
-#	my @fields = map {$_->[0]} grep{$_->[0] and $_->[1]} @_;
-#	my $replace = '';
-#	$replace .= "$_ TEXT,\n" for @fields;
-#	$text =~ s/DATABASEFIELDS/$replace/;
-#	return $text;
 }
 
 sub replace_view_php           #a special case  (They're all special cases aren't they? ;^ )  )
@@ -629,11 +644,12 @@ sub replace_view_php           #a special case  (They're all special cases aren'
 }
 
 
-sub make_form
+sub make_form #MAKE_FORM
 {
 	my @data = @_;
 	my $return = submit(-name=>'submit form');
 	$return .= '<br>'."\n";
+	$return .= "\n".'<table>'."\n\n" if $bigtable;
 	for (@data)
 	{
 		next if not $_->[0];		#Go to next iteration of loop if no "field name"
@@ -645,7 +661,7 @@ sub make_form
 			my $label = $field_name;
 			$label =~ s/_/ /g;
 			$label = ucfirst($label);
-			$return .= "\n".'<table>'."\n\n";
+			$return .= "\n".'<table>'."\n\n" if not $bigtable;
 			if ($field_type =~ /^textfield$/)
 			{
 				$return .= Tr(td($label),td(textfield(-name=>$field_name, -value=> join @$_)))."\n";
@@ -684,7 +700,7 @@ $date_field_exists = 1;
 $return .= <<"START";
 <tr><td>
 <span class='text'><?php xl('$label (yyyy-mm-dd): ','e') ?></span>
-<input type='text' size='10' name='$field_name' id='$field_name'
+</td><td><input type='text' size='10' name='$field_name' id='$field_name'
 onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
 title='yyyy-mm-dd last date of this event' />
 <img src='../../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
@@ -696,12 +712,34 @@ Calendar.setup({inputField:'$field_name', ifFormat:'%Y-%m-%d', button:'img_$fiel
 </td></tr>
 START
 			}
-		unshift @$_, $label;
-		unshift @$_, $field_type;
-		unshift @$_, $field_name;
-		$return .= "\n".'</table>'."\n";
+			elsif ($field_type =~ /^redirect/)
+			{
+				#you could argue that this does not belong here and maybe more appropriately on the command line.
+				#I just wanted to make it so redirect could be part of the template file and leverage existing functionality.
+				@redirect = (@$_);
+				my $formname = shift(@redirect);
+				my $mainfield = shift(@redirect);
+				my $field_constants;
+				my %temp = @redirect;	
+				foreach(keys %temp) {
+					$field_constants .= "'$_' => '".$temp{$_}."', ";
+				}
+				$field_constants =~ s/, $/\)/;
+				$field_constants = "array('$mainfield' => \$data,".$field_constants;
+				$redirect_string = "}\nforeach (\$field_names as \$k => \$v) {\n" .
+					"  if (\$v != '') {\n" .
+					"    \$data .= \$k.': '.\$v.\"\\n\";\n" .
+					"  }\n" .
+					"}\n" .
+					"\$newid = formSubmit(\"form_$formname\", $field_constants, \$_GET[\"id\"], \$userauthorized);\n" .
+					"addForm(\$encounter, \"$formname\", \$newid, \"$formname\", \$pid, \$userauthorized);"
+			}
+			unshift @$_, $label;
+			unshift @$_, $field_type;
+			unshift @$_, $field_name;
+			$return .= "\n".'</table>'."\n" if not $bigtable;
 		}
-		else #probably an html tag or something -- Get to this point if no Field_name and Field_type found in array.
+		elsif (!$bigtable) #probably an html tag or something -- Get to this point if no Field_name and Field_type found in array.
 		{
 
 			  if ($_->[0] !~ /<br>\s*$|<\/td>\s*$|<\/tr>\s*$|<\/p>\s*$/) {
@@ -713,9 +751,9 @@ START
 			  
 		}
 	}		
-	$return .= "<table>";
-	$return .= submit(-name=>'submit form');
+	$return .= "<table>" if not $bigtable;
 	$return .= "</table>";
+	$return .= submit(-name=>'submit form');
 	return $return;
 }
 
