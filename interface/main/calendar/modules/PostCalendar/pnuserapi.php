@@ -1389,7 +1389,6 @@ function calculateEvents($days,$events,$viewtype) {
           $occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
           list($ny,$nm,$nd) = explode('-',$occurance);
         }
-
         while($occurance <= $stop) {
           if(isset($days[$occurance])) {
             // check for date exceptions before pushing the event into the days array -- JRM
@@ -1506,27 +1505,37 @@ function fillBlocks($td,&$ar) {
  */
 function &__increment($d,$m,$y,$f,$t)
 {
-	if($t == REPEAT_EVERY_DAY) {
-		return date('Y-m-d',mktime(0,0,0,$m,($d+$f),$y));
-	} elseif($t == REPEAT_EVERY_WORK_DAY) {
-		//echo "special occurance<br />";
-		$beginday = date("D",mktime(0,0,0,$m,$d,$y));
-		$dayincrement = 1;
-		if ($beginday == "Fri") {
-			$dayincrement = 3;
-		}
-		elseif ($beginday == "Sat") {
-			$dayincrement = 2;
-		}
-	return date('Y-m-d',mktime(0,0,0,$m,($d+$dayincrement),$y));
+    if($t == REPEAT_EVERY_DAY) {
+        return date('Y-m-d',mktime(0,0,0,$m,($d+$f),$y));
+    } elseif($t == REPEAT_EVERY_WORK_DAY) {
+        // a workday is defined as Mon,Tue,Wed,Thu,Fri
+        // repeating on every or Nth work day means to not include
+        // weekends (Sat/Sun) in the increment... tricky
 
-	} elseif($t == REPEAT_EVERY_WEEK) {
-		return date('Y-m-d',mktime(0,0,0,$m,($d+(7*$f)),$y));
-	} elseif($t == REPEAT_EVERY_MONTH) {
-		return date('Y-m-d',mktime(0,0,0,($m+$f),$d,$y));
-	} elseif($t == REPEAT_EVERY_YEAR) {
-		return date('Y-m-d',mktime(0,0,0,$m,$d,($y+$f)));
-	}
+        // ugh, a day-by-day loop seems necessary here, something where
+        // we can check to see if the day is a Sat/Sun and increment
+        // the frequency count so as to ignore the weekend. hmmmm....
+        $orig_freq = $f;
+        for ($daycount=1; $daycount<=$orig_freq; $daycount++) {
+            $nextWorkDOW = date('D',mktime(0,0,0,$m,($d+$daycount),$y));
+            if ($nextWorkDOW == "Sat") { $f++; }
+            else if ($nextWorkDOW == "Sun") { $f++; }
+        }
+        // and finally make sure we haven't landed on a Sat/Sun
+        // adjust as necessary
+        $nextWorkDOW = date('D',mktime(0,0,0,$m,($d+$f),$y));
+        if ($nextWorkDOW == "Sat") { $f+=2; }
+        else if ($nextWorkDOW == "Sun") { $f++; }
+
+        return date('Y-m-d',mktime(0,0,0,$m,($d+$f),$y));
+
+    } elseif($t == REPEAT_EVERY_WEEK) {
+        return date('Y-m-d',mktime(0,0,0,$m,($d+(7*$f)),$y));
+    } elseif($t == REPEAT_EVERY_MONTH) {
+        return date('Y-m-d',mktime(0,0,0,($m+$f),$d,$y));
+    } elseif($t == REPEAT_EVERY_YEAR) {
+        return date('Y-m-d',mktime(0,0,0,$m,$d,($y+$f)));
+    }
 }
 
 ?>
