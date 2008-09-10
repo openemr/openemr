@@ -88,7 +88,7 @@ while (my $line = <STDIN>) {
     $query = "INSERT INTO codes " .
       "( code_text, code, code_type, modifier, fee ) VALUES " .
       "( '', '$code', 1, '$modifier', 0 )";
-    #$dbh->do($query) or die $query;
+    $dbh->do($query) or die $query;
     $codes_id = $dbh->{'mysql_insertid'};
     print $query . "\n";
     ++$countnew;
@@ -96,14 +96,14 @@ while (my $line = <STDIN>) {
   else {
     $codes_id = $urow[0];
     $query = "DELETE FROM prices WHERE pr_id = $codes_id AND pr_selector = ''";
-    #$dbh->do($query) or die $query;
+    $dbh->do($query) or die $query;
     print $query . "\n";
     ++$countup;
   }
 
   $query = "INSERT INTO prices ( pr_id, pr_level, pr_price ) " .
     "VALUES ( $codes_id, 'standard', $fee )";
-  #$dbh->do($query) or die $query;
+  $dbh->do($query) or die $query;
   print $query . "\n";
 }
 
