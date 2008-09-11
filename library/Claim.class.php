@@ -537,6 +537,10 @@ class Claim {
     return x12clean(trim(str_replace('-', '', $this->insurance_numbers['provider_number'])));
   }
 
+  function providerGroupNumber() {
+    return x12clean(trim(str_replace('-', '', $this->insurance_numbers['group_number'])));
+  }
+
   // Returns 'P', 'S' or 'T'.
   //
   function payerSequence($ins=0) {

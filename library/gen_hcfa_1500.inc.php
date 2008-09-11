@@ -487,9 +487,9 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
 
   // 32b. Service Facility Other ID
   // Note that Medicare does NOT want this any more.
-  if ($claim->groupNumber()) {
+  if ($claim->providerGroupNumber()) {
     put_hcfa(61, 36,  2, $claim->providerNumberType());
-    put_hcfa(61, 39, 11, $claim->groupNumber());
+    put_hcfa(61, 38, 11, $claim->providerGroupNumber());
   }
 
   // 33a. Billing Facility NPI
@@ -497,9 +497,9 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
 
   // 33b. Billing Facility Other ID
   // Note that Medicare does NOT want this any more.
-  if ($claim->groupNumber()) {
+  if ($claim->providerGroupNumber()) {
     put_hcfa(61, 63,  2, $claim->providerNumberType());
-    put_hcfa(61, 65, 14, $claim->groupNumber());
+    put_hcfa(61, 65, 14, $claim->providerGroupNumber());
   }
 
   return;
