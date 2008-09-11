@@ -90,7 +90,7 @@
    "LEFT OUTER JOIN forms AS f ON f.encounter = fe.encounter AND f.formdir = 'newpatient' " .
    "LEFT OUTER JOIN patient_data AS p ON p.pid = e.pc_pid " .
    // "LEFT OUTER JOIN users AS u ON u.id = e.pc_aid WHERE ";
-   "LEFT OUTER JOIN users AS u ON u.username = f.user WHERE ";
+   "LEFT OUTER JOIN users AS u ON BINARY u.username = BINARY f.user WHERE ";
   if ($form_to_date) {
    $query .= "e.pc_eventDate >= '$form_from_date' AND e.pc_eventDate <= '$form_to_date' ";
   } else {
@@ -115,7 +115,7 @@
    "e.pc_pid != '' AND e.pc_apptstatus != '?' " .
    "LEFT OUTER JOIN forms AS f ON f.encounter = fe.encounter AND f.formdir = 'newpatient' " .
    "LEFT OUTER JOIN patient_data AS p ON p.pid = fe.pid " .
-   "LEFT OUTER JOIN users AS u ON u.username = f.user WHERE ";
+   "LEFT OUTER JOIN users AS u ON BINARY u.username = BINARY f.user WHERE ";
   if ($form_to_date) {
    // $query .= "LEFT(fe.date, 10) >= '$form_from_date' AND LEFT(fe.date, 10) <= '$form_to_date' ";
    $query .= "fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_to_date 23:59:59' ";
