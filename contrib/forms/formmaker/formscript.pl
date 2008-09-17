@@ -256,6 +256,7 @@ foreach($field_names as $key=>$val)
 //end special processing
 
 foreach ($field_names as $k => $var) {
+#if (strtolower($k) == strtolower($var)) {unset($field_names[$k]);}
 $field_names[$k] = mysql_escape_string($var);
 echo "$var\n";
 }
@@ -527,12 +528,9 @@ $out = xl_fix($out);
 to_file("$form_name/view.php",$out);
 
 #table.sql
-if (!$redirect_string) 
-{
-	$out = replace($table_sql, 'FORM_NAME', $form_name);
-	$out = replace_sql($out, @field_data);
-	to_file("$form_name/table.sql",$out);
-}
+$out = replace($table_sql, 'FORM_NAME', $form_name);
+$out = replace_sql($out, @field_data);
+to_file("$form_name/table.sql",$out);
 
 #preview.html
 $out = replace($preview_html, 'FORM_NAME', $form_name);
@@ -694,6 +692,10 @@ sub make_form #MAKE_FORM
 			{
 			  	$return .= Tr(td($label),td(scrolling_list(-name=>$field_name.'[]', -values=>$_, -size=>scalar(@$_), -multiple=>'true')))."\n";
 			}
+			elsif ($field_type =~ /^header/)
+			{
+			  	$return .= Tr(td($label),td(hidden(-name=>$field_name, -value=>$field_name)))."\n";
+			}
 			elsif ($field_type =~ /^date$/)
 			{
 $date_field_exists = 1;
@@ -720,17 +722,33 @@ START
 				my $formname = shift(@redirect);
 				my $mainfield = shift(@redirect);
 				my $field_constants;
-				my %temp = @redirect;	
-				foreach(keys %temp) {
-					$field_constants .= "'$_' => '".$temp{$_}."', ";
+				if (@redirect) {
+					my %temp = @redirect;	
+					foreach(keys %temp) {
+						$field_constants .= "'$_' => '".$temp{$_}."', ";
+					}
+					$field_constants =~ s/, $/\)/;
+					$field_constants = "array('$mainfield' => \$data,".$field_constants;
+				} else {
+					$field_constants = "array('$mainfield' => \$data)";
 				}
-				$field_constants =~ s/, $/\)/;
-				$field_constants = "array('$mainfield' => \$data,".$field_constants;
-				$redirect_string = "}\nforeach (\$field_names as \$k => \$v) {\n" .
-					"  if (\$v != '') {\n" .
-					"    \$data .= \$k.': '.\$v.\"\\n\";\n" .
+#				my $t1 = "<tr><td><b>";
+#				my $t2 = "</b></td></tr>";
+#				my $t3 = "<tr><td>";
+#				my $t4 = "</td>><td>";
+#				my $t5 = "</tr></td>";
+				my ($t1,$t2,$t3,$t4,$t5) = ('','','','','');
+				$redirect_string = "\n}\n" .
+#					"\$data = \"<table>\\n\";\n" .
+					"foreach (\$field_names as \$k => \$v) {\n" .
+					"  if (\$k == \$v && \$v != '') {\/\/header\n" .
+					"    \$data .= \"$t1\\n\\n\".\$k.\"$t2\\n\\n\";\n" .
+					"  }\n" .
+					"  elseif (\$v != '') {\n" .
+					"    \$data .= \"$t3\".\$k.\": $t4\".\$v.\"$t5\\n\";\n" .
 					"  }\n" .
 					"}\n" .
+#					"\$data .= \"</table>\\n\";\n" .
 					"\$newid = formSubmit(\"form_$formname\", $field_constants, \$_GET[\"id\"], \$userauthorized);\n" .
 					"addForm(\$encounter, \"$formname\", \$newid, \"$formname\", \$pid, \$userauthorized);"
 			}
