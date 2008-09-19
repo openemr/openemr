@@ -365,6 +365,11 @@ function parse_era($filename, $cb) {
 			$i = count($out['svc']) - 1;
 			for ($k = 2; $k < 20; $k += 3) {
 				if (!$seg[$k]) break;
+        if ($seg[1] == 'CO' && $seg[$k+1] < 0) {
+          $out['warnings'] .= "Negative Contractual Obligation adjustment " .
+            "seems wrong. Inverting, but should be checked!\n";
+          $seg[$k+1] = 0 - $seg[$k+1];
+        }
 				$j = count($out['svc'][$i]['adj']);
 				$out['svc'][$i]['adj'][$j] = array();
 				$out['svc'][$i]['adj'][$j]['group_code']  = $seg[1];
@@ -381,6 +386,9 @@ function parse_era($filename, $cb) {
 			$i = count($out['svc']) - 1;
 			$out['svc'][$i]['allowed'] = $seg[2]; // report this amount as a note
 		}
+    else if ($segid == 'AMT' && $out['loopid'] == '2110') {
+      $out['warnings'] .= "$inline at service level ignored.\n";
+    }
 		else if ($segid == 'LQ' && $seg[1] == 'HE' && $out['loopid'] == '2110') {
 			$i = count($out['svc']) - 1;
 			$out['svc'][$i]['remark'] = $seg[2];
