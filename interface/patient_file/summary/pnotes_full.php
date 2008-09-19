@@ -293,7 +293,7 @@ if ($result_count == $N) {
 if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
   $ndata = getPatientData($pid, "fname, lname, pubpid");
 ?>
- parent.left_nav.setPatient(<?php echo "'" . $ndata['fname'] . " " . $ndata['lname'] . "',$pid,'" . $ndata['pubpid'] . "',window.name"; ?>);
+ parent.left_nav.setPatient(<?php echo "'" . addslashes($ndata['fname']) . " " . addslashes($ndata['lname']) . "',$pid,'" . addslashes($ndata['pubpid']) . "',window.name"; ?>);
  parent.left_nav.setRadio(window.name, 'pno');
 <?php
 }

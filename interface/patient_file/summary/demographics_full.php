@@ -597,7 +597,7 @@ end_group();
 <?php } ?>
 
 <?php if ($GLOBALS['concurrent_layout'] && $set_pid) { ?>
- parent.left_nav.setPatient(<?php echo "'" . $result['fname'] . " " . $result['lname'] . "',$pid,'" . $result['pubpid'] . "',''"; ?>);
+ parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "',''"; ?>);
  parent.left_nav.setRadio(window.name, 'dem');
 <?php } ?>
 
