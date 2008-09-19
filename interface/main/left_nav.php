@@ -109,6 +109,7 @@
   'ono' => array('Ofc Notes' , 0, 'main/onotes/office_comments.php'),
   'fax' => array('Fax/Scan'  , 0, 'fax/faxq.php'),
   'adb' => array('Addr Bk'   , 0, 'usergroup/addrbook_list.php'),
+  'cht' => array('Chart Trk' , 0, '../custom/chart_tracker.php'),
   'imp' => array('Import'    , 0, '../custom/import.php'),
   'bil' => array('Billing'   , 0, 'billing/billing_report.php'),
   'sup' => array('Superbill' , 0, 'patient_file/encounter/superbill_custom_full.php'),
@@ -156,6 +157,8 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
 
  $disallowed['imp'] = $disallowed['new'] ||
   !is_readable("$webserver_root/custom/import.php");
+
+ $disallowed['cht'] = !is_readable("$webserver_root/custom/chart_tracker.php");
 
  // Helper functions for treeview generation.
  function genTreeLink($frame, $name, $title) {
@@ -698,6 +701,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
           <?php if (acl_check('admin', 'calendar')) genMiscLink('RTop','adm','0','Calendar','main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig'); ?>
           <?php if (acl_check('admin', 'users'   )) genMiscLink('RTop','adm','0','Logs','logview/logview.php'); ?>
           <?php if (acl_check('admin', 'database')) genMiscLink('RTop','adm','0','Database','main/myadmin/index.php'); ?>
+          <?php if (acl_check('admin', 'super'   )) genMiscLink('RTop','adm','0','Backup','main/backup.php'); ?>
         </ul>
       </li>
     </ul>
@@ -765,6 +769,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
       <?php if (acl_check('admin', 'super'    )) genMiscLink('RTop','adm','0','Layouts','super/edit_layout.php'); ?>
       <?php if (acl_check('admin', 'super'    )) genMiscLink('RTop','adm','0','Lists','super/edit_list.php'); ?>
       <?php if (acl_check('admin', 'acl'      )) genMiscLink('RTop','adm','0','ACL','usergroup/adminacl.php'); ?>
+      <?php if (acl_check('admin', 'super'    )) genMiscLink('RTop','adm','0','Backup','main/backup.php'); ?>
       <li><span><?php xl('Other','e') ?></span>
         <ul>
           <?php if (acl_check('admin', 'language')) genMiscLink('RTop','adm','0','Language','language/language.php'); ?>

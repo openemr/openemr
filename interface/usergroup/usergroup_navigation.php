@@ -20,7 +20,7 @@ include_once("../../library/acl.inc");
 <td valign="middle" nowrap>
 &nbsp;&nbsp;<a class=menu target=Main href="usergroup_admin.php"
  onclick="top.restoreSession()"
- title="Add or Edit Users, Groups and Facilities"><?php xl('Users & Groups','e'); ?></a>&nbsp;
+ title="Add or Edit Users, Groups and Facilities"><?php xl('Users','e'); ?></a>&nbsp;
 </td>
 <?php } ?>
 
@@ -98,6 +98,11 @@ include_once("../../library/acl.inc");
 &nbsp;<a class="menu" target=Main href="../super/edit_layout.php"
  onclick="top.restoreSession()"
  title="Form Layout Management"><?php xl('Layouts','e'); ?></a>&nbsp;
+</td>
+<td valign="middle" nowrap>
+&nbsp;<a class="menu" target=Main href="../main/backup.php"
+ onclick="top.restoreSession()"
+ title="System Backup"><?php xl('Backup','e'); ?></a>&nbsp;
 </td>
 <?php } ?>
 
