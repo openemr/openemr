@@ -170,7 +170,7 @@ function issue_football_injury_save($issue) {
 }
 
 function issue_football_injury_form($issue) {
-  global $firow;
+  global $firow, $arr_match_type;
   if ($issue) {
     $firow = sqlQuery ("SELECT * FROM lists_football_injury WHERE id = '$issue'");
   } else {
@@ -220,24 +220,20 @@ function issue_football_injury_form($issue) {
   <td nowrap>Match Type</td>
   <td nowrap>
    <table width='100%'>
-    <tr>
-     <? echo rbficell('form_matchtype', '1', 'Premiership'         , 'fimatchtype') ?>
-     <? echo rbficell('form_matchtype', '2', 'FA Cup'              , 'fimatchtype') ?>
-     <? echo rbficell('form_matchtype', '3', 'League Cup'          , 'fimatchtype') ?>
-     <? echo rbficell('form_matchtype', '4', 'Champions League Cup', 'fimatchtype') ?>
-    </tr>
-    <tr>
-     <? echo rbficell('form_matchtype', '5', 'Championship Match'  , 'fimatchtype') ?>
-     <? echo rbficell('form_matchtype', '6', 'League One Match'    , 'fimatchtype') ?>
-     <? echo rbficell('form_matchtype', '7', 'League Two Match'    , 'fimatchtype') ?>
-     <? echo rbficell('form_matchtype', '8', 'International Match' , 'fimatchtype') ?>
-    </tr>
-    <tr>
-     <? echo rbficell('form_matchtype', '9', 'Friendly'            , 'fimatchtype') ?>
-     <td width='25%'>&nbsp;</td>
-     <td width='25%'>&nbsp;</td>
-     <td width='25%'>&nbsp;</td>
-    </tr>
+<?php
+$i = 0;
+foreach ($arr_match_type as $key => $value) {
+  if ($i % 4 == 0) echo "    <tr>\n";
+  echo "     " . rbficell('form_matchtype', $key, $value, 'fimatchtype');
+  ++$i;
+  if ($i % 4 == 0) echo "    </tr>\n";
+}
+while ($i % 4 > 0) {
+  echo "     <td width='25%'>&nbsp;</td>\n";
+  ++$i;
+  if ($i % 4 == 0) echo "    </tr>\n";
+}
+?>
    </table>
   </td>
  </tr>
