@@ -715,7 +715,7 @@ function gen_x12_837($pid, $encounter, &$log) {
     if ($ndc) {
       ++$edicount;
       $out .= "LIN" . // Drug Identification. Page 500+ (Addendum pg 71).
-        "*4" .
+        "*" .         // Per addendum, LIN01 is not used.
         "*N4" .
         "*" . $ndc .
         "~\n";
