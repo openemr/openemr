@@ -10,28 +10,125 @@
 # This is for restoring a backup created by the "Backup" option
 # in OpenEMR's administration menu, which invokes
 # interface/main/backup.php.
+#
+# Xdialog is supported if available... dialog support is also in
+# here but is disabled, as it was found to be ugly and clumsy.
 
-echo "OpenEMR Restore from Backup"
-echo " "
-echo "WARNING: This script is experimental.  It may have serious bugs"
-echo "or omissions.  Use it at your own risk!"
-echo " "
+DLGCMD=""
+NOBUTTONS=""
+DEFAULTNO=""
+LEFT=""
+if [ ! -z "$DISPLAY" -a ! -z `which Xdialog` ]; then
+  DLGCMD="Xdialog"
+  NOBUTTONS="--no-buttons"
+  DEFAULTNO="--default-no"
+  LEFT="--left"
+# elif [ ! -z `which dialog` ]; then
+#   DLGCMD="dialog"
+fi
+
+dlg_msg() {
+  if [ ! -z "$DLGCMD" ]; then
+    local MSG="$1"
+    shift
+    while [ ! -z "$1" ]; do
+      MSG="$MSG\n$1"
+      shift
+    done
+    $DLGCMD --title 'OpenEMR Restore' $LEFT --msgbox "$MSG" 0 0
+    return 0
+  fi
+  while [ ! -z "$1" ]; do
+    echo "$1"
+    shift
+  done
+}
+
+dlg_info() {
+  if [ ! -z "$DLGCMD" ]; then
+    if [ "$DLGCMD" = "Xdialog" ]; then
+      echo "$1"
+    fi
+    $DLGCMD --title 'OpenEMR Restore' $LEFT --infobox "$1" 0 0
+    return 0
+  fi
+  echo "$1"
+}
+
+dlg_fselect() {
+  if [ ! -z "$DLGCMD" ]; then
+    exec 3>&1
+    RESULT=`$DLGCMD --title 'OpenEMR Restore' --backtitle "$1" $NOBUTTONS --fselect $HOME/ 0 70 2>&1 1>&3`
+    CODE=$?
+    exec 3>&-
+    if [ $CODE -eq 0 ]; then
+      return 0
+    fi
+    echo $RESULT
+    exit 1
+  fi
+  echo " "
+  read -e -p "$1: " RESULT
+}
+
+dlg_yesno() {
+  if [ ! -z "$DLGCMD" ]; then
+    local MSG="$1"
+    shift
+    while [ ! -z "$1" ]; do
+      MSG="$MSG\n$1"
+      shift
+    done
+    $DLGCMD --title 'OpenEMR Restore' $DEFAULTNO $LEFT --yesno "$MSG" 0 0
+    CODE=$?
+    exec 3>&-
+    if [ $CODE -eq 0 ]; then
+      RESULT="1"
+    elif [ $CODE -eq 1 ]; then
+      RESULT="0"
+    else
+      exit 1
+    fi
+    return 0
+  fi
+  echo " "
+  while [ ! -z "$2" ]; do
+    echo "$1"
+    shift
+  done
+  read -e -p "$1 [N/y] " RESULT
+  RESULT=`expr "$RESULT" : "[yY]"`
+  return 0
+}
+
+dlg_input() {
+  if [ ! -z "$DLGCMD" ]; then
+    exec 3>&1
+    RESULT=`$DLGCMD --title 'OpenEMR Restore' $LEFT --inputbox "$1" 0 0 2>&1 1>&3`
+    CODE=$?
+    exec 3>&-
+    if [ $CODE -eq 0 ]; then
+      return 0
+    fi
+    echo $RESULT
+    exit 1
+  fi
+  echo " "
+  read -e -p "$1 " RESULT
+}
+
+dlg_blank_line() {
+  if [ -z "$DLGCMD" ]; then
+    echo " "
+  fi
+}
+
+dlg_msg "WARNING: This script is experimental." "It may have serious bugs or omissions." "Use it at your own risk!"
 
 BAKDIR=/tmp/emr_backup
 
 if [ $UID -ne 0 ]; then
-  echo "Error: This script must be executed with root privileges."
-  exit 1
-fi
-
-# Do some argument checking.
-if [ $# -ne 1 ]; then
-  echo "This command requires one argument: the full path to the backup file."
-  exit 1
-fi
-TARFILE=$1
-if [ ! -f $TARFILE ]; then
-  echo "Error: '$TARFILE' is not found or is not a file."
+  dlg_msg "Error: This script must be executed with root privileges."
   exit 1
 fi
 
@@ -39,26 +136,39 @@ fi
 rm -rf $BAKDIR
 mkdir  $BAKDIR
 if [ $? -ne 0 ]; then
-  echo "Error: Cannot create directory '$BAKDIR'."
+  dlg_msg "Error: Cannot create directory '$BAKDIR'."
   exit 1
 fi
-cd $BAKDIR
 
-# Extract the backup tarball into the scratch directory.
-echo "Extracting $TARFILE ..."
-tar -xf $TARFILE
-if [ $? -ne 0 ]; then
-  echo "Error: tar could not extract '$TARFILE'."
-  exit 1
-fi
+dlg_msg "Now you will be asked for the backup file." "By default this is named emr_backup.tar, although you may have saved it as something else."
+
+LOOKING=1
+while [ $LOOKING -eq 1 ]; do
+  dlg_fselect "Enter path/name of backup file"
+  TARFILE=$RESULT
+  dlg_blank_line
+  if [ ! -f $TARFILE ]; then
+    dlg_msg "Error: '$TARFILE' is not found or is not a file."
+  else
+    # Extract the backup tarball into the scratch directory.
+    dlg_info "Extracting $TARFILE ..."
+    cd $BAKDIR
+    tar -xf $TARFILE
+    if [ $? -ne 0 ]; then
+      dlg_msg "Error: tar could not extract '$TARFILE'."
+    else
+      LOOKING=0
+    fi
+  fi
+done
 
 # Extract the OpenEMR web directory tree.
-echo "Extracting $BAKDIR/openemr.tar.gz ..."
+dlg_info "Extracting $BAKDIR/openemr.tar.gz ..."
 mkdir openemr
 cd openemr
 tar zxf ../openemr.tar.gz
 if [ $? -ne 0 ]; then
-  echo "Error: tar could not extract '$BAKDIR/openemr.tar.gz'."
+  dlg_msg "Error: tar could not extract '$BAKDIR/openemr.tar.gz'."
   exit 1
 fi
 
@@ -79,10 +189,10 @@ if [ -f ../phpgacl.tar.gz ]; then
   GADIR=`grep '^\s*\$phpgacl_location' library/acl.inc | cut -d \" -f 2`
   mkdir ../phpgacl
   cd    ../phpgacl
-  echo "Extracting $BAKDIR/phpgacl.tar.gz ..."
+  dlg_info "Extracting $BAKDIR/phpgacl.tar.gz ..."
   tar zxf ../phpgacl.tar.gz
   if [ $? -ne 0 ]; then
-    echo "Error: tar could not extract '$BAKDIR/phpgacl.tar.gz'."
+    dlg_msg "Error: tar could not extract '$BAKDIR/phpgacl.tar.gz'."
     exit 1
   fi
   if [ -f ../phpgacl.sql.gz ]; then
@@ -96,68 +206,74 @@ if [ -f ../sql-ledger.tar.gz ]; then
   SLDIR=`dirname $OEDIR`/sql-ledger
 fi
 
-echo " "
-read -e -p 'Do you want to specify new locations and database names for the restore? [N/y] ' CHANGES
-echo " "
-CHANGES=`expr "$CHANGES" : "[yY]"`
+dlg_yesno 'Do you want to specify new locations and database names for the restore?'
+CHANGES=$RESULT
+
+dlg_blank_line
+
 if [ $CHANGES -gt 0 ]; then
-  echo "Current values are shown in [brackets]. Just hit Enter to leave them as-is."
-  echo " "
+  dlg_msg "Current values are shown in [brackets]. Just hit Enter to leave them as-is."
   OLDOEDBNAME="$OEDBNAME"
-  read -e -p "OpenEMR database name [$OEDBNAME]? " Q
-  if [ ! -z "$Q" ]; then OEDBNAME="$Q"; fi
+  dlg_input "OpenEMR database name [$OEDBNAME]? "
+  if [ ! -z "$RESULT" ]; then OEDBNAME="$RESULT"; fi
   OLDOEDBUSER="$OEDBUSER"
-  read -e -p "OpenEMR database user [$OEDBUSER]? " Q
-  if [ ! -z "$Q" ]; then OEDBUSER="$Q"; fi
+  dlg_input "OpenEMR database user [$OEDBUSER]? "
+  if [ ! -z "$RESULT" ]; then OEDBUSER="$RESULT"; fi
   OLDOEDBPASS="$OEDBPASS"
-  read -e -p "OpenEMR database password [$OEDBPASS]? " Q
-  if [ ! -z "$Q" ]; then OEDBPASS="$Q"; fi
+  dlg_input "OpenEMR database password [$OEDBPASS]? "
+  if [ ! -z "$RESULT" ]; then OEDBPASS="$RESULT"; fi
   if [ ! -z "$GADBNAME" ]; then
     OLDGADBNAME="$GADBNAME"
-    read -e -p "phpGACL database name [$GADBNAME]? " Q
-    if [ ! -z "$Q" ]; then GADBNAME="$Q"; fi
+    dlg_input "phpGACL database name [$GADBNAME]? "
+    if [ ! -z "$RESULT" ]; then GADBNAME="$RESULT"; fi
     OLDGADBUSER="$GADBUSER"
-    read -e -p "phpGACL database user [$GADBUSER]? " Q
-    if [ ! -z "$Q" ]; then GADBUSER="$Q"; fi
+    LOOKING=1
+    while [ $LOOKING -eq 1 ]; do
+      dlg_input "phpGACL database user [$GADBUSER]? "
+      if [ ! -z "$RESULT" ]; then GADBUSER="$RESULT"; fi
+      if [ "$GADBUSER" = "$SLDBUSER" ]; then
+        dlg_msg "Error: OpenEMR and phpGACL have separate databases but the same user name." "They must be different user names."
+        GADBUSER="$OLDGADBUSER"
+      else
+        LOOKING=0
+      fi
+    done
     OLDGADBPASS="$GADBPASS"
-    read -e -p "phpGACL database password [$GADBPASS]? " Q
-    if [ ! -z "$Q" ]; then GADBPASS="$Q"; fi
+    dlg_input "phpGACL database password [$GADBPASS]? "
+    if [ ! -z "$RESULT" ]; then GADBPASS="$RESULT"; fi
   fi
   if [ ! -z "$SLDBNAME" ]; then
     OLDSLDBNAME="$SLDBNAME"
-    read -e -p "SQL-Ledger database name [$SLDBNAME]? " Q
-    if [ ! -z "$Q" ]; then SLDBNAME="$Q"; fi
+    dlg_input "SQL-Ledger database name [$SLDBNAME]? "
+    if [ ! -z "$RESULT" ]; then SLDBNAME="$RESULT"; fi
     OLDSLDBUSER="$SLDBUSER"
-    read -e -p "SQL-Ledger database user [$SLDBUSER]? " Q
-    if [ ! -z "$Q" ]; then SLDBUSER="$Q"; fi
+    dlg_input "SQL-Ledger database user [$SLDBUSER]? "
+    if [ ! -z "$RESULT" ]; then SLDBUSER="$RESULT"; fi
     OLDSLDBPASS="$SLDBPASS"
-    read -e -p "SQL-Ledger database password [$SLDBPASS]? " Q
-    if [ ! -z "$Q" ]; then SLDBPASS="$Q"; fi
+    dlg_input "SQL-Ledger database password [$SLDBPASS]? "
+    if [ ! -z "$RESULT" ]; then SLDBPASS="$RESULT"; fi
   fi
   OLDOEDIR="$OEDIR"
-  read -e -p "OpenEMR web directory [$OEDIR]? " Q
-  if [ ! -z "$Q" ]; then OEDIR="$Q"; fi
+  dlg_input "OpenEMR web directory [$OEDIR]? "
+  if [ ! -z "$RESULT" ]; then OEDIR="$RESULT"; fi
   if [ ! -z "$GADIR" ]; then
     OLDGADIR="$GADIR"
-    read -e -p "phpGACL web directory [$GADIR]? " Q
-    if [ ! -z "$Q" ]; then GADIR="$Q"; fi
+    dlg_input "phpGACL web directory [$GADIR]? "
+    if [ ! -z "$RESULT" ]; then GADIR="$RESULT"; fi
   fi
   if [ ! -z "$SLDIR" ]; then
     OLDSLDIR="$SLDIR"
-    read -e -p "SQL-Ledger web directory [$SLDIR]? " Q
-    if [ ! -z "$Q" ]; then SLDIR="$Q"; fi
+    dlg_input "SQL-Ledger web directory [$SLDIR]? "
+    if [ ! -z "$RESULT" ]; then SLDIR="$RESULT"; fi
   fi
 fi
-
-echo " "
 
 # If phpgacl has its own database, make sure the database user is not the
 # same as for openemr.  This is to prevent screwups caused by persistent
 # database connections in PHP.
 if [ ! -z "$GADBNAME" ]; then
   if [ "$GADBUSER" = "$SLDBUSER" ]; then
-    echo "Error: OpenEMR and phpGACL have separate databases but the same user name."
-    echo "They must be different user names."
+    dlg_msg "Error: OpenEMR and phpGACL have separate databases but the same user name." "They must be different user names."
     exit 1
   fi
 fi
@@ -167,105 +283,109 @@ fi
 
 TRASH=`expr "$OEDIR" : "[/]"`
 if [ $TRASH -ne 1 ]; then
-  echo "Error: The OpenEMR directory path '$OEDIR' does not start with '/'."
+  dlg_msg "Error: The OpenEMR directory path '$OEDIR' does not start with '/'."
   exit 1
 fi
 if [ -e "$OEDIR" -a ! -e "$OEDIR/interface/globals.php" ]; then
-  echo "Error: $OEDIR already exists but does not look like an OpenEMR directory."
-  echo "If you are really sure you want to replace it, please remove it first."
+  dlg_msg "Error: $OEDIR already exists but does not look like an OpenEMR directory." "If you are really sure you want to replace it, please remove it first."
   exit 1
 fi
 
 TRASH=`expr "$GADIR" : "[/]"`
 if [ $TRASH -ne 1 ]; then
-  echo "Error: The phpGACL directory path '$GADIR' does not start with '/'."
+  dlg_msg "Error: The phpGACL directory path '$GADIR' does not start with '/'."
   exit 1
 fi
 if [ -e "$GADIR" -a ! -e "$GADIR/gacl.class.php" ]; then
-  echo "Error: $GADIR already exists but does not look like a phpGACL directory."
-  echo "If you are really sure you want to replace it, please remove it first."
+  dlg_msg "Error: $GADIR already exists but does not look like a phpGACL directory." "If you are really sure you want to replace it, please remove it first."
   exit 1
 fi
 
 TRASH=`expr "$SLDIR" : "[/]"`
 if [ $TRASH -ne 1 ]; then
-  echo "Error: The SQL-Ledger directory path '$SLDIR' does not start with '/'."
+  dlg_msg "Error: The SQL-Ledger directory path '$SLDIR' does not start with '/'."
   exit 1
 fi
 if [ -e "$SLDIR" -a ! -e "$SLDIR/setup.pl" ]; then
-  echo "Error: $SLDIR already exists but does not look like a SQL-Ledger directory."
-  echo "If you are really sure you want to replace it, please remove it first."
+  dlg_msg "Error: $SLDIR already exists but does not look like a SQL-Ledger directory." "If you are really sure you want to replace it, please remove it first."
   exit 1
 fi
 
 # Ask the user to do final sanity checking.
-echo "I will restore the OpenEMR database backup to the MySQL database '$OEDBNAME'."
-echo "The OpenEMR database user will be '$OEDBUSER' with password '$OEDBPASS'."
+#
+MARGS="\"I will restore the OpenEMR database backup to the MySQL database '$OEDBNAME'.\""
+MARGS="$MARGS \"The OpenEMR database user will be '$OEDBUSER' with password '$OEDBPASS'.\""
 if [ ! -z "$GADBNAME" ]; then
-  echo "I will restore the phpGACL database backup to the MySQL database '$GADBNAME'."
-  echo "The phpGACL database user will be '$GADBUSER' with password '$GADBPASS'."
+  MARGS="$MARGS \"I will restore the phpGACL database backup to the MySQL database '$GADBNAME'.\""
+  MARGS="$MARGS \"The phpGACL database user will be '$GADBUSER' with password '$GADBPASS'.\""
 fi
 if [ ! -z "$SLDBNAME" ]; then
-  echo "I will restore the SQL-Ledger database backup to the PostgreSQL database '$SLDBNAME'."
-  echo "The SQL-Ledger database user will be '$SLDBUSER' with password '$SLDBPASS'."
+  MARGS="$MARGS \"I will restore the SQL-Ledger database backup to the PostgreSQL database '$SLDBNAME'.\""
+  MARGS="$MARGS \"The SQL-Ledger database user will be '$SLDBUSER' with password '$SLDBPASS'.\""
 fi
-echo "I will copy the OpenEMR web directory backup to '$OEDIR'."
+MARGS="$MARGS \"I will copy the OpenEMR web directory backup to '$OEDIR'.\""
 if [ ! -z "$GADIR" ]; then
-  echo "I will copy the phpGACL web directory backup to '$GADIR'."
+  MARGS="$MARGS \"I will copy the phpGACL web directory backup to '$GADIR'.\""
 fi
 if [ ! -z "$SLDIR" ]; then
-  echo "I will copy the SQL-Ledger web directory backup to '$SLDIR'."
+  MARGS="$MARGS \"I will copy the SQL-Ledger web directory backup to '$SLDIR'.\""
 fi
-echo " "
-echo "Please check the above very carefully!"
-echo "Any existing databases and directories matching these names will be DESTROYED."
-read -p "Press Ctrl-C now if you have any doubts!"
+MARGS="$MARGS \" \""
+MARGS="$MARGS \"Please check the above very carefully!\""
+MARGS="$MARGS \"Any existing databases and directories matching these names will be DESTROYED.\""
+MARGS="$MARGS \"Do you wish to continue?\""
+#
+eval "dlg_yesno $MARGS"
+if [ $RESULT -ne 1 ]; then
+  exit 1
+fi
 
-echo " "
-read -e -p 'Enter the password, if any, for the MySQL root user: ' MYROOTPASS
-echo " "
+dlg_input 'Enter the password, if any, for the MySQL root user: '
+MYROOTPASS="$RESULT"
 
-echo "Dropping old OpenEMR database if it exists ..."
+dlg_blank_line
+
+dlg_info "Dropping old OpenEMR database if it exists ..."
 mysqladmin --password="$MYROOTPASS" --force drop $OEDBNAME 2> /dev/null
 
-echo "Restoring MySQL database ..."
+dlg_info "Restoring OpenEMR database ..."
 cd $BAKDIR
 gunzip openemr.sql.gz
 if [ $? -ne 0 ]; then
-  echo "Error: Could not decompress '$BAKDIR/openemr.sql.gz'."
+  dlg_msg "Error: Could not decompress '$BAKDIR/openemr.sql.gz'."
   exit 1
 fi
 mysqladmin --password="$MYROOTPASS" create $OEDBNAME
 if [ $? -ne 0 ]; then
-  echo "Error: Could not create MySQL database '$OEDBNAME'."
+  dlg_msg "Error: Could not create MySQL database '$OEDBNAME'."
   exit 1
 fi
 mysql --password="$MYROOTPASS" --execute "GRANT ALL PRIVILEGES ON $OEDBNAME.* TO '$OEDBUSER'@'localhost' IDENTIFIED BY '$OEDBPASS'" $OEDBNAME
 mysql --user=$OEDBUSER --password="$OEDBPASS" $OEDBNAME < openemr.sql
 if [ $? -ne 0 ]; then
-  echo "Error: Restore to database '$OEDBNAME' failed."
+  dlg_msg "Error: Restore to database '$OEDBNAME' failed."
   exit 1
 fi
 
 if [ ! -z "$GADBNAME" ]; then
-  echo "Dropping old phpGACL database if it exists ..."
+  dlg_info "Dropping old phpGACL database if it exists ..."
   mysqladmin --password="$MYROOTPASS" --force drop $GADBNAME 2> /dev/null
-  echo "Restoring phpGACL database ..."
+  dlg_info "Restoring phpGACL database ..."
   cd $BAKDIR
   gunzip phpgacl.sql.gz
   if [ $? -ne 0 ]; then
-    echo "Error: Could not decompress '$BAKDIR/phpgacl.sql.gz'."
+    dlg_msg "Error: Could not decompress '$BAKDIR/phpgacl.sql.gz'."
     exit 1
   fi
   mysqladmin --password="$MYROOTPASS" create $GADBNAME
   if [ $? -ne 0 ]; then
-    echo "Error: Could not create MySQL database '$GADBNAME'."
+    dlg_msg "Error: Could not create MySQL database '$GADBNAME'."
     exit 1
   fi
   mysql --password="$MYROOTPASS" --execute "GRANT ALL PRIVILEGES ON $GADBNAME.* TO '$GADBUSER'@'localhost' IDENTIFIED BY '$GADBPASS'" $GADBNAME
   mysql --user=$GADBUSER --password="$GADBPASS" $GADBNAME < phpgacl.sql
   if [ $? -ne 0 ]; then
-    echo "Error: Restore to database '$GADBNAME' failed."
+    dlg_msg "Error: Restore to database '$GADBNAME' failed."
     exit 1
   fi
 fi
@@ -273,44 +393,55 @@ fi
 if [ ! -z "$SLDBNAME" ]; then
   unset PGUSER
   unset PGPASSWORD
-  echo "Restarting Apache to close persistent database connections ..."
+  dlg_info "Restarting Apache to close persistent database connections ..."
   apache2ctl graceful
-  echo "Dropping old SQL-Ledger database if it exists ..."
+  dlg_info "Dropping old SQL-Ledger database if it exists ..."
   sudo -u postgres psql --command "DROP DATABASE \"$SLDBNAME\"" template1 2> /dev/null
-  echo "Creating database user and procedural language ..."
-  sudo -u postgres psql --command "DROP ROLE \"$SLDBUSER\"" template1 2> /dev/null
-  sudo -u postgres psql --command "CREATE ROLE \"$SLDBUSER\" PASSWORD '$SLDBPASS' CREATEDB CREATEROLE INHERIT LOGIN" template1
+  dlg_info "Creating procedural language and database user ..."
   sudo -u postgres createlang plpgsql template1 2> /dev/null
-  echo "Restoring SQL-Ledger database ..."
-  sudo -u postgres psql --command "CREATE DATABASE \"$SLDBNAME\" WITH TEMPLATE template0" template1
+  sudo -u postgres psql --command "DROP ROLE \"$SLDBUSER\"" template1 2> /dev/null
+  #
+  # This next part merits some comment. The database is best loaded by the
+  # sql-ledger user, otherwise we will have the nasty task of granting that
+  # user access to all of its tables individually, which PostgreSQL does not
+  # provide a convenient way of doing.  However superuser privilege is needed
+  # to properly restore the dump.  Therefore we give the new role superuser
+  # privilege now and revoke it after the restore is done.
+  #
+  sudo -u postgres psql --command "CREATE ROLE \"$SLDBUSER\" PASSWORD '$SLDBPASS' SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN" template1
+  dlg_info "Creating and restoring SQL-Ledger database ..."
+  export PGUSER="$SLDBUSER"
+  export PGPASSWORD="$SLDBPASS"
+  psql --command "CREATE DATABASE \"$SLDBNAME\" WITH TEMPLATE template0" template1
   if [ $? -ne 0 ]; then
-    echo "Error: Could not create PostgreSQL database '$SLDBNAME'."
+    dlg_msg "Error: Could not create PostgreSQL database '$SLDBNAME'."
     exit 1
   fi
-  sudo -u postgres psql --command "ALTER DATABASE \"$SLDBNAME\" OWNER TO \"$SLDBUSER\"" template1
+  pg_restore --no-owner --dbname=$SLDBNAME sql-ledger.sql
   if [ $? -ne 0 ]; then
-    echo "Error: Could not set owner to '$SLDBUSER' for PostgreSQL database '$SLDBNAME'."
+    dlg_msg "Error: Restore to database '$SLDBNAME' failed."
     exit 1
   fi
-  sudo -u postgres pg_restore --no-owner --dbname=$SLDBNAME sql-ledger.sql
+  unset PGUSER
+  unset PGPASSWORD
+  sudo -u postgres psql --command "ALTER ROLE \"$SLDBUSER\" NOSUPERUSER" template1
   if [ $? -ne 0 ]; then
-    echo "Error: Restore to database '$SLDBNAME' failed."
-    exit 1
+    dlg_info "Warning: ALTER ROLE failed."
   fi
   sudo -u postgres psql --command "ANALYZE" $SLDBNAME
 fi
 
-echo "Restoring OpenEMR web directory tree ..."
+dlg_info "Restoring OpenEMR web directory tree ..."
 mkdir -p $OEDIR
 rm -rf $OEDIR
 mv $BAKDIR/openemr $OEDIR
 if [ $? -ne 0 ]; then
-  echo "Error: Cannot create directory '$OEDIR'."
+  dlg_msg "Error: Cannot create directory '$OEDIR'."
   exit 1
 fi
 #
 if [ $CHANGES -gt 0 ]; then
-  echo "Modifying $OEDIR/interface/globals.php ..."
+  dlg_info "Modifying $OEDIR/interface/globals.php ..."
   # Taking a guess as to the proper value for $web_root.  We could ask
   # the user for it, but I fear that confusion over what it means would
   # lead to more errors than fixes.
@@ -324,7 +455,7 @@ if [ $CHANGES -gt 0 ]; then
   sed "s^sl_dbpass *= '.*'^sl_dbpass = '$SLDBPASS'^"         \
   > globals.php
   #
-  echo "Modifying $OEDIR/library/sqlconf.php ..."
+  dlg_info "Modifying $OEDIR/library/sqlconf.php ..."
   cd $OEDIR/library
   mv sqlconf.php sqlconf.php.old
   sed "s^dbase\t= '.*'^dbase\t= '$OEDBNAME'^" sqlconf.php.old | \
@@ -333,29 +464,29 @@ if [ $CHANGES -gt 0 ]; then
 fi
 
 if [ ! -z "$GADIR" ]; then
-  echo "Restoring phpGACL web directory tree ..."
+  dlg_info "Restoring phpGACL web directory tree ..."
   mkdir -p $GADIR
   rm -rf $GADIR
   mv $BAKDIR/phpgacl $GADIR
   if [ $? -ne 0 ]; then
-    echo "Error: Cannot create directory '$GADIR'."
+    dlg_msg "Error: Cannot create directory '$GADIR'."
     exit 1
   fi
   #
   if [ $CHANGES -gt 0 ]; then
-    echo "Modifying $OEDIR/library/acl.inc ..."
+    dlg_info "Modifying $OEDIR/library/acl.inc ..."
     cd $OEDIR/library
     mv -f acl.inc acl.inc.old
     sed "s^$OLDGADIR^$GADIR^" acl.inc.old > acl.inc
     #
-    echo "Modifying $GADIR/gacl.class.php ..."
+    dlg_info "Modifying $GADIR/gacl.class.php ..."
     cd $GADIR
     mv -f gacl.class.php gacl.class.php.old
     sed "s^db_name *= *'$OLDGADBNAME'^db_name = '$GADBNAME'^" gacl.class.php.old | \
     sed "s^db_user *= *'$OLDGADBUSER'^db_user = '$GADBUSER'^"                    | \
     sed "s^db_password *= *'$OLDGADBPASS'^db_password = '$GADBPASS'^" > gacl.class.php
     #
-    echo "Modifying $GADIR/gacl.ini.php ..."
+    dlg_info "Modifying $GADIR/gacl.ini.php ..."
     cd $GADIR
     mv -f gacl.ini.php gacl.ini.php.old
     sed "s^db_name *= *\"$OLDGADBNAME\"^db_name = \"$GADBNAME\"^" gacl.ini.php.old | \
@@ -365,18 +496,18 @@ if [ ! -z "$GADIR" ]; then
 fi
 
 if [ ! -z "$SLDIR" ]; then
-  echo "Restoring SQL-Ledger web directory tree ..."
+  dlg_info "Restoring SQL-Ledger web directory tree ..."
   mkdir -p $SLDIR
   rm -rf $SLDIR
   mkdir $SLDIR
   cd $SLDIR
   if [ $? -ne 0 ]; then
-    echo "Error: Creating $SLDIR failed."
+    dlg_msg "Error: Creating $SLDIR failed."
     exit 1
   fi
   tar zxf $BAKDIR/sql-ledger.tar.gz
   if [ $? -ne 0 ]; then
-    echo "Error: Extracting '$BAKDIR/sql-ledger.tar.gz' failed."
+    dlg_msg "Error: Extracting '$BAKDIR/sql-ledger.tar.gz' failed."
     exit 1
   fi
   #
@@ -384,13 +515,13 @@ if [ ! -z "$SLDIR" ]; then
     # SQL-Ledger stores passwords in an obfuscated form.
     SLDBHASH=`perl -e "print pack u, '$SLDBPASS'"`
     #
-    echo "Modifying $SLDIR/ws_server.pl ..."
+    dlg_info "Modifying $SLDIR/ws_server.pl ..."
     cd $SLDIR
     mv -f ws_server.pl ws_server.pl.old
     sed "s^$OLDSLDIR^$SLDIR^" ws_server.pl.old > ws_server.pl
     chmod a+x ws_server.pl
     #
-    echo "Modifying $SLDIR/users/admin.conf ..."
+    dlg_info "Modifying $SLDIR/users/admin.conf ..."
     cd $SLDIR/users
     mv -f admin.conf admin.conf.old
     sed "s^dbname => '.*'^dbname => '$SLDBNAME'^" admin.conf.old | \
@@ -398,7 +529,7 @@ if [ ! -z "$SLDIR" ]; then
     sed "/dbpasswd =>/ c \  dbpasswd => '$SLDBHASH',"            | \
     sed "s^dbname=$OLDSLDBNAME^dbname=$SLDBNAME^" > admin.conf
     #
-    echo "Modifying $SLDIR/users/members ..."
+    dlg_info "Modifying $SLDIR/users/members ..."
     cd $SLDIR/users
     mv -f members members.old
     sed "s^dbname=.*^dbname=$SLDBNAME^g" members.old | \
@@ -407,5 +538,4 @@ if [ ! -z "$SLDIR" ]; then
   fi
 fi
 
-echo "All done."
-echo " "
+dlg_msg "All done."
