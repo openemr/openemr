@@ -438,6 +438,7 @@ function gen_x12_837($pid, $encounter, &$log) {
       ++$edicount;
       $out .= "PRV" .
         "*RF" . // ReFerring provider
+        "*ZZ" .
         "*" . $claim->referrerTaxonomy() .
         "~\n";
     }
@@ -470,22 +471,14 @@ function gen_x12_837($pid, $encounter, &$log) {
   }
   $out .= "~\n";
 
-  /*******************************************************************
-  ++$edicount;
-  $out .= "PRV" .       // Rendering Provider Information
-    "*PE" .
-    "*ZZ" .
-    "*207Q00000X" .
-    "~\n";
-  *******************************************************************/
   if ($claim->providerTaxonomy()) {
     ++$edicount;
     $out .= "PRV" .
       "*PE" . // PErforming provider
+      "*ZZ" .
       "*" . $claim->providerTaxonomy() .
       "~\n";
   }
-  /******************************************************************/
 
   // REF*1C is required here for the Medicare provider number if NPI was
   // specified in NM109.  Not sure if other payers require anything here.
@@ -497,34 +490,43 @@ function gen_x12_837($pid, $encounter, &$log) {
       "~\n";
   }
 
-  ++$edicount;
-  $out .= "NM1" .       // Loop 2310D Service Location
-    "*77" .
-    "*2" .
-    "*" . $claim->facilityName() .
-    "*" .
-    "*" .
-    "*" .
-    "*";
-  if ($claim->facilityNPI()) { $out .=
-    "*XX*" . $claim->facilityNPI();
-  } else { $out .=
-    "*24*" . $claim->facilityETIN();
-    $log .= "*** Service location has no NPI.\n";
+  // Loop 2310D is omitted in the case of home visits (POS=12).
+  if ($claim->facilityPOS() != 12) {
+    ++$edicount;
+    $out .= "NM1" .       // Loop 2310D Service Location
+      "*77" .
+      "*2";
+    if ($claim->facilityName() || $claim->facilityNPI() || $claim->facilityETIN()) { $out .=
+      "*" . $claim->facilityName();
+    }
+    if ($claim->facilityNPI() || $claim->facilityETIN()) { $out .=
+      "*" .
+      "*" .
+      "*" .
+      "*";
+      if ($claim->facilityNPI()) { $out .=
+        "*XX*" . $claim->facilityNPI();
+      } else { $out .=
+        "*24*" . $claim->facilityETIN();
+        $log .= "*** Service location has no NPI.\n";
+      }
+    }
+    $out .= "~\n";
+    if ($claim->facilityStreet()) {
+      ++$edicount;
+      $out .= "N3" .
+        "*" . $claim->facilityStreet() .
+        "~\n";
+    }
+    if ($claim->facilityState()) {
+      ++$edicount;
+      $out .= "N4" .
+        "*" . $claim->facilityCity() .
+        "*" . $claim->facilityState() .
+        "*" . $claim->facilityZip() .
+        "~\n";
+    }
   }
-  $out .= "~\n";
-
-  ++$edicount;
-  $out .= "N3" .
-    "*" . $claim->facilityStreet() .
-    "~\n";
-
-  ++$edicount;
-  $out .= "N4" .
-    "*" . $claim->facilityCity() .
-    "*" . $claim->facilityState() .
-    "*" . $claim->facilityZip() .
-    "~\n";
 
   $prev_pt_resp = $clm_total_charges; // for computation below
 
