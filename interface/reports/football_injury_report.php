@@ -44,6 +44,34 @@ $arr_show = array(
 	5 => array('Issue Title'),
 );
 
+$arr_regions_osi10 = array(
+  'A' => xl('Ankle'),
+  'B' => xl('Pelvis and buttock'),
+  'C' => xl('Chest'),
+  'D' => xl('Thoracic spine'),
+  'E' => xl('Elbow'),
+  'F' => xl('Foot'),
+  'G' => xl('Hip and groin'),
+  'H' => xl('Head'),
+  'I' => xl('Congenital'),
+  'J' => xl('Paedeatric'),
+  'K' => xl('Knee'),
+  'L' => xl('Lumbar spine'),
+  'M' => xl('Medical problem'),
+  'N' => xl('Neck'),
+  'O' => xl('Trunk and abdomen'),
+  'Q' => xl('Lower leg'),
+  'R' => xl('Forearm'),
+  'S' => xl('Shoulder'),
+  'T' => xl('Thigh'),
+  'U' => xl('Upper arm'),
+  'V' => xl('Disabled'),
+  'W' => xl('Wrist and hand'),
+  'X' => xl('Location unspecified'),
+  'Y' => xl('Post surgical'),
+  'Z' => xl('No presenting illness/injury'),
+);
+
 $arr_regions_osics = array(
 	'A' => xl('Ankle + heel'),
 	'B' => xl('Buttock + S.I.'),
@@ -101,32 +129,53 @@ $arr_regions_ucsmc = array(
 	'WR' => xl('Wrist')
 );
 
+$arr_types_osi10 = array(
+  'A' => xl('Arthritis'),
+  'C' => xl('Cartilage injury'),
+  'D' => xl('Joint dislocations'),
+  'F' => xl('Fracture'),
+  'G' => xl('Synovitis, impingement, bursitis'),
+  'H' => xl('Bruising/haematoma'),
+  'J' => xl('Joint sprains'),
+  'K' => xl('Laceration/abrasion'),
+  'M' => xl('Muscle injury'),
+  'N' => xl('Nerve injury'),
+  'O' => xl('Organ injury'),
+  'S' => xl('Stress fracture'),
+  'T' => xl('Tendon injury'),
+  'V' => xl('Vascular injury'),
+  'W' => xl('Whiplash'),
+  'X' => xl('Non specific injury'),
+  'Y' => xl('Other stress/Over use injury'),
+  'Z' => xl('Other injury not elsewhere specified'),
+);
+
 $arr_types_osics = array(
-	'A' => xl('Arthritis / degen joint disease'),
-	'B' => xl('Developmental abnormality'),
-	'C' => xl('Cartilage / chondral / disc damage'),
-	'D' => xl('Dislocation'),
-	'E' => xl('Tumour'),
-	'F' => xl('Fracture'),
-	'G' => xl('Avulsion / avulsion fracture'),
-	'H' => xl('Haematoma / bruising'),
-	'I' => xl('Infection / Abscess'),
-	'J' => xl('Minor joint strain +/- synovitis'),
-	'K' => xl('Laceration / skin condition'),
-	'L' => xl('Ligament tear or sprain'),
-	'M' => xl('Strain of muscle'),
-	'N' => xl('Neural condition / nerve damage'),
-	'O' => xl('Visceral damage/trauma/surgery'),
-	'P' => xl('Chronic synovitis / effusion / joint pain / gout'),
-	'Q' => xl('Old fracture non / malunion'),
-	'R' => xl('Rupture'),
-	'S' => xl('Stress fracture'),
-	'T' => xl('Tendonitis / osis / bursitis'),
-	'U' => xl('Instability / subluxation'),
-	'V' => xl('Vascular condition'),
-	'X' => xl('Medical problem'),
-	'Y' => xl('Trigger point / compartment syndrome / DOMS / cramp'),
-	'Z' => xl('Undiagnosed')
+  'A' => xl('Arthritis / degen joint disease'),
+  'B' => xl('Developmental abnormality'),
+  'C' => xl('Cartilage / chondral / disc damage'),
+  'D' => xl('Dislocation'),
+  'E' => xl('Tumour'),
+  'F' => xl('Fracture'),
+  'G' => xl('Avulsion / avulsion fracture'),
+  'H' => xl('Haematoma / bruising'),
+  'I' => xl('Infection / Abscess'),
+  'J' => xl('Minor joint strain +/- synovitis'),
+  'K' => xl('Laceration / skin condition'),
+  'L' => xl('Ligament tear or sprain'),
+  'M' => xl('Strain of muscle'),
+  'N' => xl('Neural condition / nerve damage'),
+  'O' => xl('Visceral damage/trauma/surgery'),
+  'P' => xl('Chronic synovitis / effusion / joint pain / gout'),
+  'Q' => xl('Old fracture non / malunion'),
+  'R' => xl('Rupture'),
+  'S' => xl('Stress fracture'),
+  'T' => xl('Tendonitis / osis / bursitis'),
+  'U' => xl('Instability / subluxation'),
+  'V' => xl('Vascular condition'),
+  'X' => xl('Medical problem'),
+  'Y' => xl('Trigger point / compartment syndrome / DOMS / cramp'),
+  'Z' => xl('Undiagnosed')
 );
 
 $arr_types_ucsmc = array(
@@ -341,21 +390,27 @@ $arr_types_ucsmc = array(
         }
       }
 
-			$body_region = 'Undiagnosed';
-      if (preg_match('/^(.)..$/', $diagnosis, $matches)) {
-				$body_region = $arr_regions_osics[$matches[1]];
-			}
+      $body_region = 'Undiagnosed';
+      if (preg_match('/^(.)...$/', $diagnosis, $matches)) {
+        $body_region = $arr_regions_osi10[$matches[1]];
+      }
+      else if (preg_match('/^(.)..$/', $diagnosis, $matches)) {
+        $body_region = $arr_regions_osics[$matches[1]];
+      }
       else if (preg_match('/^(..)\...\...$/', $diagnosis, $matches)) {
-				$body_region = $arr_regions_ucsmc[$matches[1]];
-			}
+        $body_region = $arr_regions_ucsmc[$matches[1]];
+      }
 
-			$injury_type = 'Undiagnosed';
-      if (preg_match('/^.(.).$/', $diagnosis, $matches)) {
-				$injury_type = $arr_types_osics[$matches[1]];
-			}
+      $injury_type = 'Undiagnosed';
+      if (preg_match('/^.(.)..$/', $diagnosis, $matches)) {
+        $injury_type = $arr_types_osi10[$matches[1]];
+      }
+      else if (preg_match('/^.(.).$/', $diagnosis, $matches)) {
+        $injury_type = $arr_types_osics[$matches[1]];
+      }
       else if (preg_match('/^..\...\.(..)$/', $diagnosis, $matches)) {
-				$injury_type = $arr_types_ucsmc[$matches[1]];
-			}
+        $injury_type = $arr_types_ucsmc[$matches[1]];
+      }
 
 			$issue_title = trim($row['title']);
 
