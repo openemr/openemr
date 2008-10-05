@@ -152,7 +152,8 @@ newInsuranceData(
   $_POST["i1subscriber_employer_country"],
   $_POST['i1copay'],
   $_POST['i1subscriber_sex'],
-  $i1date
+  $i1date,
+  $_POST['i1accept_assignment']
 );
 
 $i2dob = fixDate($_POST["i2subscriber_DOB"]);
@@ -185,7 +186,8 @@ newInsuranceData(
   $_POST["i2subscriber_employer_country"],
   $_POST['i2copay'],
   $_POST['i2subscriber_sex'],
-  $i2date
+  $i2date,
+  $_POST['i2accept_assignment']
 );
 
 $i3dob  = fixDate($_POST["i3subscriber_DOB"]);
@@ -218,7 +220,8 @@ newInsuranceData(
   $_POST["i3subscriber_employer_country"],
   $_POST['i3copay'],
   $_POST['i3subscriber_sex'],
-  $i3date
+  $i3date,
+  $_POST['i3accept_assignment']
 );
 
 if ($GLOBALS['concurrent_layout']) {

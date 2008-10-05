@@ -781,7 +781,8 @@ function newInsuranceData(
   $subscriber_employer_country = "",
   $copay = "",
   $subscriber_sex = "",
-  $effective_date = "0000-00-00")
+  $effective_date = "0000-00-00",
+  $accept_assignment = "TRUE")
 {
   if (strlen($type) <= 0) return FALSE;
 
@@ -854,6 +855,7 @@ function newInsuranceData(
     $data['subscriber_sex'] = $subscriber_sex;
     $data['pid'] = $pid;
     $data['date'] = $effective_date;
+    $data['accept_assignment'] = $accept_assignment;
     updateInsuranceData($idrow['id'], $data);
     return $idrow['id'];
   }
@@ -885,7 +887,8 @@ function newInsuranceData(
       copay = '$copay',
       subscriber_sex = '$subscriber_sex',
       pid = '$pid',
-      date = '$effective_date'
+      date = '$effective_date',
+      accept_assignment = '$accept_assignment'
     ");
   }
 }

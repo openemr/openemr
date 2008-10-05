@@ -561,6 +561,12 @@ end_group();
    <input type='text' size='20' name='i<?php echo $i?>subscriber_phone' value='<?php echo $result3["subscriber_phone"] ?>' onkeyup='phonekeyup(this,mypcc)' />
    </span><br />
    <span class=bold><?php xl('CoPay','e'); ?>: <input type=text size="6" name=i<?php echo $i?>copay value="<?php echo $result3{"copay"}?>">
+   </span><br />
+   <span class='required'><?php xl('Accept Assignment','e'); ?>: </span>
+   <select name=i<?php echo $i?>accept_assignment>
+     <option value="TRUE" <?php if (strtoupper($result3{"accept_assignment"}) == "TRUE") echo "selected"?>><?php xl('YES','e'); ?></option>
+     <option value="FALSE" <?php if (strtoupper($result3{"accept_assignment"}) == "FALSE") echo "selected"?>><?php xl('NO','e'); ?></option>
+   </select>
   </td>
  </tr>
 </table>

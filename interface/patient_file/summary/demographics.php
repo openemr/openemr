@@ -259,6 +259,10 @@ foreach (array('primary','secondary','tertiary') as $instype) {
       <span class='bold'><?php xl('CoPay','e'); ?>: </span>
       <span class='text'><?php echo $row['copay']; ?></span>
 <?php } ?>
+<br>
+      <span class='bold'><?php xl('Accept Assignment','e'); ?>:</span>
+      <span class='text'><?php if($row['accept_assignment'] == "TRUE") echo "YES"; ?>
+      <?php if($row['accept_assignment'] == "FALSE") echo "NO"; ?></span>
      </td>
      <td valign='top'></td>
      <td valign='top'></td>
