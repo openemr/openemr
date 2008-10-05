@@ -351,13 +351,13 @@ function gen_x12_837($pid, $encounter, &$log) {
   ++$edicount;
   $out .= "CLM" .       // Loop 2300 Claim
     "*$pid-$encounter" .
-    "*" . sprintf("%.2f",$clm_total_charges) . // Zirmed computes and replaces this
-    "*" .
-    "*" .
-    "*" . $claim->facilityPOS() . "::1" .
+    "*"  . sprintf("%.2f",$clm_total_charges) . // Zirmed computes and replaces this
+    "*"  .
+    "*"  .
+    "*"  . $claim->facilityPOS() . "::" . $claim->frequencyTypeCode() .
     "*Y" .
     "*A" .
-    "*Y" .
+    "*"  . ($claim->billingFacilityAssignment() ? 'Y' : 'N') .
     "*Y" .
     "*C" .
     "~\n";
@@ -403,6 +403,8 @@ function gen_x12_837($pid, $encounter, &$log) {
       "*" . $claim->cliaCode() .
       "~\n";
   }
+
+  // Note: This would be the place to implement the NTE segment for loop 2300.
 
   $da = $claim->diagArray();
   ++$edicount;

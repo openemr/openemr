@@ -472,7 +472,10 @@ class Claim {
     return x12clean(trim($this->billing_facility['facility_npi']));
   }
 
-  function billingFacilityAssignment() {
+  # The billing facility and the patient must both accept for this to return true.
+  function billingFacilityAssignment($ins=0) {
+    $tmp = strtoupper($this->payers[$ins]['data']['accept_assignment']);
+    if (strcmp($tmp,'FALSE') == 0) return '0';
     return !empty($this->billing_facility['accepts_assignment']);
   }
 
@@ -879,6 +882,10 @@ class Claim {
 
   function medicaidOriginalReference() {
     return x12clean(trim($this->billing_options['medicaid_original_reference']));
+  }
+
+  function frequencyTypeCode() {
+    return empty($this->billing_options['replacement_claim']) ? '1' : '7';
   }
 
   // Returns an array of unique diagnoses.  Periods are stripped.
