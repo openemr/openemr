@@ -593,6 +593,7 @@ CREATE TABLE `form_misc_billing_options` (
   `medicaid_original_reference` varchar(15) character set utf8 collate utf8_unicode_ci default NULL,
   `prior_auth_number` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
   `comments` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `replacement_claim` tinyint(1) default 0,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
@@ -1603,6 +1604,7 @@ CREATE TABLE `insurance_data` (
   `date` date NOT NULL default '0000-00-00',
   `pid` bigint(20) NOT NULL default '0',
   `subscriber_sex` varchar(25) character set utf8 collate utf8_unicode_ci default NULL,
+  `accept_assignment` varchar(5) NOT NULL DEFAULT 'TRUE',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `pid_type_date` (`pid`,`type`,`date`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
