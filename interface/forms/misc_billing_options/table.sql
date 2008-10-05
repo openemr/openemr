@@ -22,5 +22,6 @@ CREATE TABLE IF NOT EXISTS `form_misc_billing_options` (
   medicaid_original_reference varchar(15)  default NULL,
   prior_auth_number           varchar(20)  default NULL,
   comments                    varchar(255) default NULL,
+  replacement_claim           tinyint(1)   default 0,
   PRIMARY KEY (id)
 ) TYPE=MyISAM;
