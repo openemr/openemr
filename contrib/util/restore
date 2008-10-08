@@ -18,7 +18,7 @@ DLGCMD=""
 NOBUTTONS=""
 DEFAULTNO=""
 LEFT=""
-if [ ! -z "$DISPLAY" -a ! -z `which Xdialog` ]; then
+if [ ! -z "$DISPLAY" -a ! -z "`which Xdialog`" ]; then
   DLGCMD="Xdialog"
   NOBUTTONS="--no-buttons"
   DEFAULTNO="--default-no"
@@ -266,6 +266,29 @@ if [ $CHANGES -gt 0 ]; then
     dlg_input "SQL-Ledger web directory [$SLDIR]? "
     if [ ! -z "$RESULT" ]; then SLDIR="$RESULT"; fi
   fi
+  #
+  # The following is to figure out the proper value for $web_root.
+  #
+  LOOKING=1
+  DOCROOT=`dirname $OEDIR`
+  OEFILE=`basename $OEDIR`
+  while [ $LOOKING -eq 1 ]; do
+    dlg_yesno "Is the Apache document root '$DOCROOT'?"
+    if [ $RESULT -eq 1 ]; then
+      LOOKING=0
+    else
+      OEFILE=`basename $DOCROOT`/$OEFILE
+      DOCROOT=`dirname $DOCROOT`
+      if [ "$DOCROOT" = "/" ]; then
+        LOOKING=0
+        OEFILE=`basename $OEDIR`
+        DOCROOT=`dirname $OEDIR`
+        dlg_msg "Never mind, I will assume '$DOCROOT'. You may need to manually correct" "the value of \$web_root in '$OEDIR/interface/globals.php'."
+      fi
+    fi
+  done
+  unset DOCROOT
+  #
 fi
 
 # If phpgacl has its own database, make sure the database user is not the
@@ -301,14 +324,16 @@ if [ -e "$GADIR" -a ! -e "$GADIR/gacl.class.php" ]; then
   exit 1
 fi
 
-TRASH=`expr "$SLDIR" : "[/]"`
-if [ $TRASH -ne 1 ]; then
-  dlg_msg "Error: The SQL-Ledger directory path '$SLDIR' does not start with '/'."
-  exit 1
-fi
-if [ -e "$SLDIR" -a ! -e "$SLDIR/setup.pl" ]; then
-  dlg_msg "Error: $SLDIR already exists but does not look like a SQL-Ledger directory." "If you are really sure you want to replace it, please remove it first."
-  exit 1
+if [ ! -z "$SLDIR" ]; then
+  TRASH=`expr "$SLDIR" : "[/]"`
+  if [ $TRASH -ne 1 ]; then
+    dlg_msg "Error: The SQL-Ledger directory path '$SLDIR' does not start with '/'."
+    exit 1
+  fi
+  if [ -e "$SLDIR" -a ! -e "$SLDIR/setup.pl" ]; then
+    dlg_msg "Error: $SLDIR already exists but does not look like a SQL-Ledger directory." "If you are really sure you want to replace it, please remove it first."
+    exit 1
+  fi
 fi
 
 # Ask the user to do final sanity checking.
@@ -340,7 +365,13 @@ if [ $RESULT -ne 1 ]; then
   exit 1
 fi
 
-dlg_input 'Enter the password, if any, for the MySQL root user: '
+dlg_blank_line
+
+dlg_msg "In order to create MySQL databases and users on this computer, I will need to" \
+        "log into MySQL as its 'root' user.  The next question asks for the MySQL root" \
+        "user's password for this server, the one that you are restoring to.  This is"  \
+        "a MySQL password, not a system login password.  Often it is blank."
+dlg_input 'Enter the password, if any, for the MySQL root user:'
 MYROOTPASS="$RESULT"
 
 dlg_blank_line
@@ -391,6 +422,14 @@ if [ ! -z "$GADBNAME" ]; then
 fi
 
 if [ ! -z "$SLDBNAME" ]; then
+  # Avoid local domain connections for the sql-ledger user, because a
+  # default postgresql configuration is likely set to require "ident"
+  # authentication for them.
+  MYPGHOST=localhost
+  if [ ! -z "$PGHOST" ]; then
+    MYPGHOST="$PGHOST";
+  fi
+  #
   unset PGUSER
   unset PGPASSWORD
   dlg_info "Restarting Apache to close persistent database connections ..."
@@ -412,12 +451,12 @@ if [ ! -z "$SLDBNAME" ]; then
   dlg_info "Creating and restoring SQL-Ledger database ..."
   export PGUSER="$SLDBUSER"
   export PGPASSWORD="$SLDBPASS"
-  psql --command "CREATE DATABASE \"$SLDBNAME\" WITH TEMPLATE template0" template1
+  psql -h $MYPGHOST --command "CREATE DATABASE \"$SLDBNAME\" WITH TEMPLATE template0" template1
   if [ $? -ne 0 ]; then
     dlg_msg "Error: Could not create PostgreSQL database '$SLDBNAME'."
     exit 1
   fi
-  pg_restore --no-owner --dbname=$SLDBNAME sql-ledger.sql
+  pg_restore -h $MYPGHOST --no-owner --dbname=$SLDBNAME sql-ledger.sql
   if [ $? -ne 0 ]; then
     dlg_msg "Error: Restore to database '$SLDBNAME' failed."
     exit 1
@@ -442,10 +481,6 @@ fi
 #
 if [ $CHANGES -gt 0 ]; then
   dlg_info "Modifying $OEDIR/interface/globals.php ..."
-  # Taking a guess as to the proper value for $web_root.  We could ask
-  # the user for it, but I fear that confusion over what it means would
-  # lead to more errors than fixes.
-  OEFILE=`basename $OEDIR`
   cd $OEDIR/interface
   mv -f globals.php globals.php.old
   sed "s^$OLDOEDIR^$OEDIR^"                globals.php.old | \
@@ -461,6 +496,17 @@ if [ $CHANGES -gt 0 ]; then
   sed "s^dbase\t= '.*'^dbase\t= '$OEDBNAME'^" sqlconf.php.old | \
   sed "s^login\t= '.*'^login\t= '$OEDBUSER'^"                 | \
   sed "s^pass\t= '.*'^pass\t= '$OEDBPASS'^" > sqlconf.php
+  #
+  dlg_info "Modifying $OEDIR/includes/config.php ..."
+  SLFILE=`dirname /$OEFILE`
+  if [ "$SLFILE" = "/" ]; then
+    SLFILE="/sql-ledger"
+  else
+    SLFILE="$SLFILE/sql-ledger"
+  fi
+  cd $OEDIR/includes
+  cp -f config.php config.php.old
+  sed "s^\"/.*/ws_server.pl\"^\"$SLFILE/ws_server.pl\"^" config.php.old > config.php
 fi
 
 if [ ! -z "$GADIR" ]; then
@@ -479,19 +525,28 @@ if [ ! -z "$GADIR" ]; then
     mv -f acl.inc acl.inc.old
     sed "s^$OLDGADIR^$GADIR^" acl.inc.old > acl.inc
     #
+    if [ -z "$GADBNAME" ]; then
+      GADBNAME="$OEDBNAME"
+      GADBUSER="$OEDBUSER"
+      GADBPASS="$OEDBPASS"
+      OLDGADBNAME="$OLDOEDBNAME"
+      OLDGADBUSER="$OLDOEDBUSER"
+      OLDGADBPASS="$OLDOEDBPASS"
+    fi
+    #
     dlg_info "Modifying $GADIR/gacl.class.php ..."
     cd $GADIR
     mv -f gacl.class.php gacl.class.php.old
-    sed "s^db_name *= *'$OLDGADBNAME'^db_name = '$GADBNAME'^" gacl.class.php.old | \
-    sed "s^db_user *= *'$OLDGADBUSER'^db_user = '$GADBUSER'^"                    | \
-    sed "s^db_password *= *'$OLDGADBPASS'^db_password = '$GADBPASS'^" > gacl.class.php
+    sed "s^db_name *= *'.*'^db_name = '$GADBNAME'^" gacl.class.php.old | \
+    sed "s^db_user *= *'.*'^db_user = '$GADBUSER'^"                    | \
+    sed "s^db_password *= *'.*'^db_password = '$GADBPASS'^" > gacl.class.php
     #
     dlg_info "Modifying $GADIR/gacl.ini.php ..."
     cd $GADIR
     mv -f gacl.ini.php gacl.ini.php.old
-    sed "s^db_name *= *\"$OLDGADBNAME\"^db_name = \"$GADBNAME\"^" gacl.ini.php.old | \
-    sed "s^db_user *= *\"$OLDGADBUSER\"^db_user = \"$GADBUSER\"^"                  | \
-    sed "s^db_password *= *\"$OLDGADBPASS\"^db_password = \"$GADBPASS\"^" > gacl.ini.php
+    sed "s^db_name[ \t]*= *\".*\"^db_name\t\t\t= \"$GADBNAME\"^" gacl.ini.php.old | \
+    sed "s^db_user[ \t]*= *\".*\"^db_user\t\t\t= \"$GADBUSER\"^"                  | \
+    sed "s^db_password[ \t]*= *\".*\"^db_password\t\t= \"$GADBPASS\"^" > gacl.ini.php
   fi
 fi
 
@@ -523,7 +578,7 @@ if [ ! -z "$SLDIR" ]; then
     #
     dlg_info "Modifying $SLDIR/users/admin.conf ..."
     cd $SLDIR/users
-    mv -f admin.conf admin.conf.old
+    cp -f admin.conf admin.conf.old
     sed "s^dbname => '.*'^dbname => '$SLDBNAME'^" admin.conf.old | \
     sed "s^dbuser => '.*'^dbuser => '$SLDBUSER'^"                | \
     sed "/dbpasswd =>/ c \  dbpasswd => '$SLDBHASH',"            | \
@@ -531,7 +586,7 @@ if [ ! -z "$SLDIR" ]; then
     #
     dlg_info "Modifying $SLDIR/users/members ..."
     cd $SLDIR/users
-    mv -f members members.old
+    cp -f members members.old
     sed "s^dbname=.*^dbname=$SLDBNAME^g" members.old | \
     sed "s^dbuser=.*^dbuser=$SLDBUSER^g"             | \
     sed "/dbpasswd=/ c dbpasswd=$SLDBHASH" > members
