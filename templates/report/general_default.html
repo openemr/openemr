@@ -132,7 +132,13 @@ if (is_dir($reportsdir)) {
 <li>
 <a href="receipts_by_method_report.php" target="_new" onclick="top.restoreSession()">{xl t='Receipts by Payment Method Report'}</a>
 </li>
-</ul>
+<!-- </ul> -->
+<li>
+<a href="chart_location_activity.php" target="_new" onclick="top.restoreSession()">{xl t='Chart Check-in/out Activity Report'}</a>
+</li>
+<li>
+<a href="charts_checked_out.php" target="_new" onclick="top.restoreSession()">{xl t='Charts Checked Out'}</a>
+</li>
 {php}
  if ($GLOBALS['athletic_team']) {
   echo "<li>\n";
