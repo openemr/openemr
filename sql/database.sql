@@ -4888,7 +4888,9 @@ INSERT INTO list_options VALUES ('drug_interval','6','q.5h'  ,6,0,0);
 INSERT INTO list_options VALUES ('drug_interval','7','q.6h'  ,7,0,0);
 INSERT INTO list_options VALUES ('drug_interval','8','q.8h'  ,8,0,0);
 INSERT INTO list_options VALUES ('drug_interval','9','q.d.'  ,9,0,0);
+INSERT INTO list_options VALUES ('chartloc','fileroom','File Room'              ,1,0,0);
 INSERT INTO list_options VALUES ('lists' ,'boolean'      ,'Boolean'            , 1,0,0);
+INSERT INTO list_options VALUES ('lists' ,'chartloc'     ,'Chart Storage Locations',1,0,0);
 INSERT INTO list_options VALUES ('lists' ,'country'      ,'Country'            , 2,0,0);
 INSERT INTO list_options VALUES ('lists' ,'drug_form'    ,'Drug Forms'         , 3,0,0);
 INSERT INTO list_options VALUES ('lists' ,'drug_units'   ,'Drug Units'         , 4,0,0);
@@ -5903,3 +5905,11 @@ CREATE TABLE `notification_settings` (
 
 INSERT INTO `notification_settings` (`SettingsId`, `Send_SMS_Before_Hours`, `Send_Email_Before_Hours`, `SMS_gateway_username`, `SMS_gateway_password`, `SMS_gateway_apikey`, `type`) VALUES (1, 150, 150, 'sms username', 'sms password', 'sms api key', 'SMS/Email Settings');
 ------------------------------------------------------------------------------------- 
+
+CREATE TABLE chart_tracker (
+  ct_pid            int(11)       NOT NULL,
+  ct_when           datetime      NOT NULL,
+  ct_userid         bigint(20)    NOT NULL DEFAULT 0,
+  ct_location       varchar(31)   NOT NULL DEFAULT '',
+  PRIMARY KEY (ct_pid, ct_when)
+) ENGINE=MyISAM;
