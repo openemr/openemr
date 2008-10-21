@@ -185,6 +185,8 @@ if ($_POST['form_action'] == "save") {
     }
     // ========================================
 
+    // the starting date of the event, pay attention with this value
+    // when editing recurring events -- JRM Oct-08
     $event_date = fixDate($_POST['form_date']);
 
     // Compute start and end time strings to be saved.
@@ -353,6 +355,15 @@ if ($_POST['form_action'] == "save") {
                         sqlQuery("DELETE FROM openemr_postcalendar_events WHERE pc_aid='$to_be_removed' AND pc_multiple={$row['pc_multiple']}");
                     }
                 }
+    
+    // perform a check to see if user changed event date
+    // this is important when editing an existing recurring event
+    // oct-08 JRM
+    if ($_POST['form_date'] == $_POST['selected_date']) {
+        // user has NOT changed the start date of the event
+        $event_date = fixDate($_POST['event_start_date']);
+    }
+
 
                 // this difference means that some providers were added
                 // so we must insert this event for them
@@ -455,6 +466,15 @@ if ($_POST['form_action'] == "save") {
                 InsertEvent($args);
             }
             else {
+    
+    // perform a check to see if user changed event date
+    // this is important when editing an existing recurring event
+    // oct-08 JRM
+    if ($_POST['form_date'] == $_POST['selected_date']) {
+        // user has NOT changed the start date of the event
+        $event_date = fixDate($_POST['event_start_date']);
+    }
+
                 // mod the SINGLE event or ALL EVENTS in a repeating series
                 // simple provider case
                 sqlStatement("UPDATE openemr_postcalendar_events SET " .
@@ -736,7 +756,10 @@ if ($_POST['form_action'] == "save") {
   echo "</script>\n</body>\n</html>\n";
   exit();
  }
+
+ //*********************************
  // If we get this far then we are displaying the form.
+ //*********************************
 
  $statuses = array(
   '-' => '',
@@ -770,6 +793,7 @@ if ($_POST['form_action'] == "save") {
   // instead of using the event's starting date, keep what has been provided
   // via the GET array, see the top of this file
   if (empty($_GET['date'])) $date = $row['pc_eventDate'];
+  $eventstartdate = $row['pc_eventDate']; // for repeating event stuff - JRM Oct-08
   $userid = $row['pc_aid'];
   $patientid = $row['pc_pid'];
   $starttimeh = substr($row['pc_startTime'], 0, 2) + 0;
@@ -785,6 +809,10 @@ if ($_POST['form_action'] == "save") {
 
   $hometext = $row['pc_hometext'];
   if (substr($hometext, 0, 6) == ':text:') $hometext = substr($hometext, 6);
+ }
+ else {
+    // a NEW event
+    $eventstartdate = $date; // for repeating event stuff - JRM Oct-08
  }
 
  // If we have a patient ID, get the name and phone numbers to display.
@@ -1077,6 +1105,7 @@ if ( $eid ) { // editing case
 <input type="hidden" name="recurr_affect" id="recurr_affect" value="">
 <!-- used for recurring events -->
 <input type="hidden" name="selected_date" id="selected_date" value="<?php echo $date; ?>">
+<input type="hidden" name="event_start_date" id="event_start_date" value="<?php echo $eventstartdate; ?>">
 <center>
 
 <table border='0' width='100%'>
