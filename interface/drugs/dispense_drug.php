@@ -14,6 +14,7 @@
 
  function send_email($subject, $body) {
   $recipient = $GLOBALS['practice_return_email_path'];
+  if (empty($recipient)) return;
   $mail = new PHPMailer();
   $mail->SetLanguage("en", $GLOBALS['fileroot'] . "/library/" );
   $mail->From = $recipient;
@@ -25,7 +26,7 @@
   $mail->Subject = $subject;
   $mail->AddAddress($recipient);
   if(!$mail->Send()) {
-   die("There has been a mail error sending to " . $recipient .
+   error_log("There has been a mail error sending to " . $recipient .
     " " . $mail->ErrorInfo);
   }
  }

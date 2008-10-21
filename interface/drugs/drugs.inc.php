@@ -58,6 +58,7 @@ $interval_array = load_drug_attributes('drug_interval');
 function send_drug_email($subject, $body) {
   require_once ($GLOBALS['srcdir'] . "/classes/class.phpmailer.php");
   $recipient = $GLOBALS['practice_return_email_path'];
+  if (empty($recipient)) return;
   $mail = new PHPMailer();
   $mail->SetLanguage("en", $GLOBALS['fileroot'] . "/library/" );
   $mail->From = $recipient;
@@ -69,7 +70,7 @@ function send_drug_email($subject, $body) {
   $mail->Subject = $subject;
   $mail->AddAddress($recipient);
   if(!$mail->Send()) {
-    die("There has been a mail error sending to " . $recipient .
+    error_log("There has been a mail error sending to " . $recipient .
       " " . $mail->ErrorInfo);
   }
 }
