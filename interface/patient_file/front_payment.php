@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006-2007 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2008 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,6 +13,8 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once("../../custom/code_types.inc.php");
+
+$INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
 ?>
 <html>
 <head>
@@ -164,7 +166,7 @@ $now = time();
 $today = date('Y-m-d', $now);
 $timestamp = date('Y-m-d H:i:s', $now);
 
-slInitialize();
+if (!$INTEGRATED_AR) slInitialize();
 
 // $patdata = getPatientData($pid, 'fname,lname,pubpid');
 
@@ -196,20 +198,31 @@ if ($_POST['form_save']) {
     }
   }
 
-  // Post payments for previously billed encounters.  These go to SQL-Ledger.
+  // Post payments for previously billed encounters.  These go to A/R.
   if ($_POST['form_bpay']) {
     foreach ($_POST['form_bpay'] as $enc => $payment) {
       if ($amount = 0 + $payment) {
-        $thissrc = 'Pt/';
-        if ($form_method) {
-          $thissrc .= $form_method;
-          if ($form_source) $thissrc .= " $form_source";
+        if ($INTEGRATED_AR) {
+          $thissrc = '';
+          if ($form_method) {
+            $thissrc .= $form_method;
+            if ($form_source) $thissrc .= " $form_source";
+          }
+          $session_id = 0; // Is this OK?
+          arPostPayment($form_pid, $enc, $session_id, $amount, '', 0, $thissrc, 0);
         }
-        $trans_id = SLQueryValue("SELECT id FROM ar WHERE " .
-          "ar.invnumber = '$form_pid.$enc' LIMIT 1");
-        if (! $trans_id) die("Cannot find invoice '$form_pid.$enc'!");
-        slPostPayment($trans_id, $amount, date('Y-m-d'), $thissrc,
-          '', 0, 0);
+        else {
+          $thissrc = 'Pt/';
+          if ($form_method) {
+            $thissrc .= $form_method;
+            if ($form_source) $thissrc .= " $form_source";
+          }
+          $trans_id = SLQueryValue("SELECT id FROM ar WHERE " .
+            "ar.invnumber = '$form_pid.$enc' LIMIT 1");
+          if (! $trans_id) die("Cannot find invoice '$form_pid.$enc'!");
+          slPostPayment($trans_id, $amount, date('Y-m-d'), $thissrc,
+            '', 0, 0);
+        }
         frontPayment($form_pid, $enc, $form_method, $form_source, 0, $amount);
       }
     }
@@ -451,8 +464,9 @@ function calctotal() {
   //
   $query = "SELECT b.encounter, b.code_type, b.code, b.modifier, b.fee, " .
     "LEFT(fe.date, 10) AS encdate " .
-    "FROM billing AS b, form_encounter AS fe " .
-    "WHERE b.pid = '$pid' AND b.activity = 1 AND b.billed = 0 " .
+    "FROM billing AS b, form_encounter AS fe WHERE " .
+    "b.pid = '$pid' AND b.activity = 1 AND b.billed = 0 AND " .
+    "b.code_type != 'TAX' AND b.fee != 0 " .
     "AND fe.pid = b.pid AND fe.encounter = b.encounter " .
     "ORDER BY b.encounter";
   $bres = sqlStatement($query);
@@ -490,7 +504,7 @@ function calctotal() {
   $query = "SELECT s.encounter, s.drug_id, s.fee, " .
     "LEFT(fe.date, 10) AS encdate " .
     "FROM drug_sales AS s, form_encounter AS fe " .
-    "WHERE s.pid = '$pid' AND s.billed = 0 " .
+    "WHERE s.pid = '$pid' AND s.billed = 0 AND s.fee != 0 " .
     "AND fe.pid = s.pid AND fe.encounter = s.encounter " .
     "ORDER BY s.encounter";
   $dres = sqlStatement($query);
@@ -536,52 +550,110 @@ function calctotal() {
     echoLine("form_upay[0]", "Today", 0, 0, 0, $duept);
   }
 
-  // Query for all open invoices.
-  $query = "SELECT ar.id, ar.invnumber, ar.amount, ar.paid, " .
-    "ar.intnotes, ar.notes, ar.shipvia, " .
-    "(SELECT SUM(invoice.sellprice * invoice.qty) FROM invoice WHERE " .
-    "invoice.trans_id = ar.id AND invoice.sellprice > 0) AS charges, " .
-    "(SELECT SUM(invoice.sellprice * invoice.qty) FROM invoice WHERE " .
-    "invoice.trans_id = ar.id AND invoice.sellprice < 0) AS adjustments, " .
-    "(SELECT SUM(acc_trans.amount) FROM acc_trans WHERE " .
-    "acc_trans.trans_id = ar.id AND acc_trans.chart_id = $chart_id_cash " .
-    "AND acc_trans.source NOT LIKE 'Ins%') AS ptpayments " .
-    "FROM ar WHERE ar.invnumber LIKE '$pid.%' AND " .
-    "ar.amount != ar.paid " .
-    "ORDER BY ar.invnumber";
-  $ires = SLQuery($query);
-  if ($sl_err) die($sl_err);
-  $num_invoices = SLRowCount($ires);
+  // Now list previously billed visits.
 
-  for ($ix = 0; $ix < $num_invoices; ++$ix) {
-    $irow = SLGetRow($ires, $ix);
+  if ($INTEGRATED_AR) {
+    $query = "SELECT f.id, f.pid, f.encounter, f.date, " .
+      "f.last_level_billed, f.last_level_closed, f.stmt_count, " .
+      "p.fname, p.mname, p.lname, p.pubpid, p.genericname2, p.genericval2, " .
+      "( SELECT SUM(s.fee) FROM drug_sales AS s WHERE " .
+      "s.pid = f.pid AND s.encounter = f.encounter AND s.billed != 0 ) AS sales, " .
+      "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
+      "b.pid = f.pid AND b.encounter = f.encounter AND " .
+      "b.activity = 1 AND b.code_type != 'COPAY' AND b.billed != 0 ) AS charges, " .
+      "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
+      "b.pid = f.pid AND b.encounter = f.encounter AND " .
+      "b.activity = 1 AND b.code_type = 'COPAY' AND b.billed != 0 ) AS copays, " .
+      "( SELECT SUM(a.pay_amount) FROM ar_activity AS a WHERE " .
+      "a.pid = f.pid AND a.encounter = f.encounter AND " .
+      "a.payer_type = 0 ) AS ptpaid, " .
+      "( SELECT SUM(a.pay_amount) FROM ar_activity AS a WHERE " .
+      "a.pid = f.pid AND a.encounter = f.encounter AND " .
+      "a.payer_type != 0 ) AS inspaid, " .
+      "( SELECT SUM(a.adj_amount) FROM ar_activity AS a WHERE " .
+      "a.pid = f.pid AND a.encounter = f.encounter ) AS adjustments " .
+      "FROM form_encounter AS f " .
+      "JOIN patient_data AS p ON p.pid = f.pid " .
+      "WHERE f.pid = '$pid' " .
+      "ORDER BY f.pid, f.encounter";
 
-    // Get encounter ID and date of service.
-    list($patient_id, $enc) = explode(".", $irow['invnumber']);
-    $tmp = sqlQuery("SELECT LEFT(date, 10) AS encdate FROM form_encounter " .
-      "WHERE encounter = '$enc'");
-    $svcdate = $tmp['encdate'];
+    // Note that unlike the SQL-Ledger case, this query does not weed
+    // out encounters that are paid up.  Also the use of sub-selects
+    // will require MySQL 4.1 or greater.
 
-    // Compute $duncount as in sl_eob_search.php to determine if
-    // this invoice is at patient responsibility.
-    $duncount = substr_count(strtolower($irow['intnotes']), "statement sent");
-    if (! $duncount) {
-      $insgot = strtolower($irow['notes']);
-      $inseobs = strtolower($irow['shipvia']);
-      foreach (array('ins1', 'ins2', 'ins3') as $value) {
-        if (strpos($insgot, $value) !== false &&
-            strpos($inseobs, $value) === false)
-          --$duncount;
+    $ires = sqlStatement($query);
+    $num_invoices = mysql_num_rows($ires);
+
+    while ($irow = sqlFetchArray($ires)) {
+      $balance = $irow['charges'] + $irow['sales'] + $irow['copays']
+        - $irow['ptpaid'] - $irow['inspaid'] - $irow['adjustments'];
+      if (!$balance) continue;
+
+      $patient_id = $irow['pid'];
+      $enc = $irow['encounter'];
+      $svcdate = substr($irow['date'], 0, 10);
+      $duncount = $irow['stmt_count'];
+      if (! $duncount) {
+        for ($i = 1; $i <= 3 && arGetPayerID($irow['pid'], $irow['date'], $i); ++$i) ;
+        $duncount = $irow['last_level_closed'] + 1 - $i;
       }
+
+      $inspaid = $irow['inspaid'] + $irow['adjustments'];
+      $ptpaid  = $irow['ptpaid'] - $irow['copays'];
+      $duept   = ($duncount < 0) ? 0 : $balance;
+
+      echoLine("form_bpay[$enc]", $svcdate, $irow['charges'] + $irow['sales'],
+        $ptpaid, $inspaid, $duept);
     }
+  } // end $INTEGRATED_AR
+  else {
+    // Query for all open invoices.
+    $query = "SELECT ar.id, ar.invnumber, ar.amount, ar.paid, " .
+      "ar.intnotes, ar.notes, ar.shipvia, " .
+      "(SELECT SUM(invoice.sellprice * invoice.qty) FROM invoice WHERE " .
+      "invoice.trans_id = ar.id AND invoice.sellprice > 0) AS charges, " .
+      "(SELECT SUM(invoice.sellprice * invoice.qty) FROM invoice WHERE " .
+      "invoice.trans_id = ar.id AND invoice.sellprice < 0) AS adjustments, " .
+      "(SELECT SUM(acc_trans.amount) FROM acc_trans WHERE " .
+      "acc_trans.trans_id = ar.id AND acc_trans.chart_id = $chart_id_cash " .
+      "AND acc_trans.source NOT LIKE 'Ins%') AS ptpayments " .
+      "FROM ar WHERE ar.invnumber LIKE '$pid.%' AND " .
+      "ar.amount != ar.paid " .
+      "ORDER BY ar.invnumber";
+    $ires = SLQuery($query);
+    if ($sl_err) die($sl_err);
+    $num_invoices = SLRowCount($ires);
 
-    $inspaid = $irow['paid'] + $irow['ptpayments'] - $irow['adjustments'];
-    $balance = $irow['amount'] - $irow['paid'];
-    $duept  = ($duncount < 0) ? 0 : $balance;
+    for ($ix = 0; $ix < $num_invoices; ++$ix) {
+      $irow = SLGetRow($ires, $ix);
 
-    echoLine("form_bpay[$enc]", $svcdate, $irow['charges'],
-      0 - $irow['ptpayments'], $inspaid, $duept);
-  }
+      // Get encounter ID and date of service.
+      list($patient_id, $enc) = explode(".", $irow['invnumber']);
+      $tmp = sqlQuery("SELECT LEFT(date, 10) AS encdate FROM form_encounter " .
+        "WHERE encounter = '$enc'");
+      $svcdate = $tmp['encdate'];
+
+      // Compute $duncount as in sl_eob_search.php to determine if
+      // this invoice is at patient responsibility.
+      $duncount = substr_count(strtolower($irow['intnotes']), "statement sent");
+      if (! $duncount) {
+        $insgot = strtolower($irow['notes']);
+        $inseobs = strtolower($irow['shipvia']);
+        foreach (array('ins1', 'ins2', 'ins3') as $value) {
+          if (strpos($insgot, $value) !== false &&
+              strpos($inseobs, $value) === false)
+            --$duncount;
+        }
+      }
+
+      $inspaid = $irow['paid'] + $irow['ptpayments'] - $irow['adjustments'];
+      $balance = $irow['amount'] - $irow['paid'];
+      $duept  = ($duncount < 0) ? 0 : $balance;
+
+      echoLine("form_bpay[$enc]", $svcdate, $irow['charges'],
+        0 - $irow['ptpayments'], $inspaid, $duept);
+    }
+  } // end not $INTEGRATED_AR
 
   // Continue with display of the data entry form.
 ?>
@@ -611,6 +683,6 @@ function calctotal() {
 
 <?php
 }
-SLClose();
+if (!$INTEGRATED_AR) SLClose();
 ?>
 </html>

@@ -281,13 +281,15 @@ function topatient(pid) {
 <?php
   print '&nbsp;';
   $acct_config = $GLOBALS['oer_config']['ws_accounting'];
-  if($acct_config['enabled'] == true) {
-    print '<span class=text><a href="javascript:void window.open(\'' . $acct_config['url_path'] . '\')">' . xl("[SQL-Ledger]") . '</a></span>';
+  if($acct_config['enabled']) {
+    if($acct_config['enabled'] !== 2) {
+      print '<span class=text><a href="javascript:void window.open(\'' . $acct_config['url_path'] . '\')">' . xl("[SQL-Ledger]") . '</a> &nbsp; </span>';
+    }
     if (acl_check('acct', 'rep')) {
-      print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_receipts_report.php\')" onclick="top.restoreSession()">' . xl('[Reports]') . '</a></span>';
+      print '<span class=text><a href="javascript:void window.open(\'sl_receipts_report.php\')" onclick="top.restoreSession()">' . xl('[Reports]') . '</a> &nbsp; </span>';
     }
     if (acl_check('acct', 'eob')) {
-      print '<span class=text> &nbsp; <a href="javascript:void window.open(\'sl_eob_search.php\')" onclick="top.restoreSession()">' . xl('[EOBs]') . '</a></span>';
+      print '<span class=text><a href="javascript:void window.open(\'sl_eob_search.php\')" onclick="top.restoreSession()">' . xl('[EOBs]') . '</a></span>';
     }
   }
 ?>
@@ -562,7 +564,7 @@ if ($ret = getBillsBetween($from_date,
           if (strlen($row['provider']) > 0) {
             // This preserves any existing insurance company selection, which is
             // important when EOB posting has re-queued for secondary billing.
-            $lhtml .= "<option value=\"" . $row['id'] . "\"";
+            $lhtml .= "<option value=\"" . strtoupper(substr($row['type'],0,1)) . $row['id'] . "\"";
             if (($count == 0 && !$iter['payer_id']) || $row['id'] == $iter['payer_id']) {
               $lhtml .= " selected";
               if (!is_numeric($default_x12_partner)) $default_x12_partner = $row['ic_x12id'];

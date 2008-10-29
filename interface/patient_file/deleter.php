@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2005-2007 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -177,25 +177,38 @@ td { font-size:10pt; }
           "activity = 1 LIMIT 1");
       }
       if ($payrow['amount2'] != 0) {
-        // Look up the matching invoice and post an offsetting payment.
-        slInitialize();
-        $invnum = "$patient_id." . $payrow['encounter'];
-        $thissrc = 'Pt/';
-        if ($payrow['method']) {
-          $thissrc .= $payrow['method'];
-          if ($payrow['source']) $thissrc .= ' ' . $payrow['source'];
+        if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) {
+          $thissrc = '';
+          if ($payrow['method']) {
+            $thissrc .= $payrow['method'];
+            if ($payrow['source']) $thissrc .= ' ' . $payrow['source'];
+          }
+          $thissrc .= ' front office reversal';
+          $session_id = 0; // Is this OK?
+          arPostPayment($patient_id, $payrow['encounter'], $session_id,
+            0 - $payrow['amount2'], '', 0, $thissrc, 0);
         }
-        $thissrc .= ' front office reversal';
-        $trans_id = SLQueryValue("SELECT id FROM ar WHERE " .
-          "ar.invnumber = '$invnum' LIMIT 1");
-        if ($trans_id) {
-          slPostPayment($trans_id, 0 - $payrow['amount2'], date('Y-m-d'),
-            $thissrc, '', 0, 0);
-        } else {
-          $info_msg .= "Invoice '$invnum' not found; could not delete its " .
-            "payment of \$" . $payrow['amount2'] . ". ";
+        else {
+          // Look up the matching invoice and post an offsetting payment.
+          slInitialize();
+          $invnum = "$patient_id." . $payrow['encounter'];
+          $thissrc = 'Pt/';
+          if ($payrow['method']) {
+            $thissrc .= $payrow['method'];
+            if ($payrow['source']) $thissrc .= ' ' . $payrow['source'];
+          }
+          $thissrc .= ' front office reversal';
+          $trans_id = SLQueryValue("SELECT id FROM ar WHERE " .
+            "ar.invnumber = '$invnum' LIMIT 1");
+          if ($trans_id) {
+            slPostPayment($trans_id, 0 - $payrow['amount2'], date('Y-m-d'),
+              $thissrc, '', 0, 0);
+          } else {
+            $info_msg .= "Invoice '$invnum' not found; could not delete its " .
+              "payment of \$" . $payrow['amount2'] . ". ";
+          }
+          SLClose();
         }
-        SLClose();
       }
       row_delete("payments", "id = '" . $payrow['id'] . "'");
     }
@@ -203,23 +216,35 @@ td { font-size:10pt; }
   else if ($billing) {
     if (!acl_check('acct','disc')) die("Not authorized!");
     list($patient_id, $encounter_id) = explode(".", $billing);
-    slInitialize();
-    $trans_id = SLQueryValue("SELECT id FROM ar WHERE ar.invnumber = '$billing' LIMIT 1");
-    if ($trans_id) {
-      newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], "Invoice $billing from SQL-Ledger");
-      SLQuery("DELETE FROM acc_trans WHERE trans_id = '$trans_id'");
-      if ($sl_err) die($sl_err);
-      SLQuery("DELETE FROM invoice WHERE trans_id = '$trans_id'");
-      if ($sl_err) die($sl_err);
-      SLQuery("DELETE FROM ar WHERE id = '$trans_id'");
-      if ($sl_err) die($sl_err);
-      sqlStatement("UPDATE drug_sales SET billed = 0 WHERE " .
+    if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) {
+      sqlStatement("DELETE FROM ar_activity WHERE " .
         "pid = '$patient_id' AND encounter = '$encounter_id'");
-      updateClaim(true, $patient_id, $encounter_id, -1, 1, 0, ''); // clears for rebilling
-    } else {
-      $info_msg .= "Invoice '$billing' not found!";
+      sqlStatement("DELETE ar_session FROM ar_session LEFT JOIN " .
+        "ar_activity ON ar_session.session_id = ar_activity.session_id " .
+        "WHERE ar_activity.session_id IS NULL");
+      sqlStatement("UPDATE form_encounter SET last_level_billed = 0, " .
+        "last_level_closed = 0, stmt_count = 0, last_stmt_date = NULL " .
+        "WHERE pid = '$patient_id' AND encounter = '$encounter_id'");
     }
-    SLClose();
+    else {
+      slInitialize();
+      $trans_id = SLQueryValue("SELECT id FROM ar WHERE ar.invnumber = '$billing' LIMIT 1");
+      if ($trans_id) {
+        newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], "Invoice $billing from SQL-Ledger");
+        SLQuery("DELETE FROM acc_trans WHERE trans_id = '$trans_id'");
+        if ($sl_err) die($sl_err);
+        SLQuery("DELETE FROM invoice WHERE trans_id = '$trans_id'");
+        if ($sl_err) die($sl_err);
+        SLQuery("DELETE FROM ar WHERE id = '$trans_id'");
+        if ($sl_err) die($sl_err);
+      } else {
+        $info_msg .= "Invoice '$billing' not found!";
+      }
+      SLClose();
+    }
+    sqlStatement("UPDATE drug_sales SET billed = 0 WHERE " .
+      "pid = '$patient_id' AND encounter = '$encounter_id'");
+    updateClaim(true, $patient_id, $encounter_id, -1, -1, 1, 0, ''); // clears for rebilling
   }
   else {
    die("Nothing was recognized to delete!");

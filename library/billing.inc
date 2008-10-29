@@ -26,14 +26,14 @@ function getBillingByEncounter ($pid,$encounter, $cols = "code_type, code, code_
 
 function addBilling($encounter_id, $code_type, $code, $code_text, $pid,
   $authorized="0", $provider, $modifier="", $units="", $fee="0.00",
-  $ndc_info='', $justify='')
+  $ndc_info='', $justify='', $billed=0)
 {
   $sql = "insert into billing (date, encounter, code_type, code, code_text, " .
     "pid, authorized, user, groupname, activity, billed, provider_id, " .
     "modifier, units, fee, ndc_info, justify) values (" .
     "NOW(), '$encounter_id', '$code_type', '$code', '$code_text', '$pid', " .
     "'$authorized', '" . $_SESSION['authId'] . "', '" .
-    $_SESSION['authProvider'] . "', 1, 0, $provider, '$modifier', '$units', " .
+    $_SESSION['authProvider'] . "', 1, $billed, $provider, '$modifier', '$units', " .
     "'$fee', '$ndc_info', '$justify')";
   return sqlInsert($sql);
 }
@@ -85,7 +85,7 @@ function clearBilling($id)
 // Currently on the billing page the user can select any of the patient's
 // payers.  That logic will tailor the payer choices to the encounter date.
 //
-function updateClaim($newversion, $patient_id, $encounter_id, $payer_id=-1,
+function updateClaim($newversion, $patient_id, $encounter_id, $payer_id=-1, $payer_type=-1,
   $status=-1, $bill_process=-1, $process_file='', $target='', $partner_id=-1)
 {
   if (!$newversion) {
@@ -129,10 +129,7 @@ function updateClaim($newversion, $patient_id, $encounter_id, $payer_id=-1,
     $billset  .= ", target = '$target'";
   }
   if ($payer_id >= 0) {
-    $claimset .= ", payer_id = '$payer_id'";
-
-    // TBD: Compute and include payer type... or remove payer type from the schema?
-
+    $claimset .= ", payer_id = '$payer_id', payer_type = '$payer_type'";
     $billset  .= ", payer_id = '$payer_id'";
   }
   if ($partner_id >= 0) {
@@ -185,10 +182,19 @@ function updateClaim($newversion, $patient_id, $encounter_id, $payer_id=-1,
       "version = '" . $row['version'] . "'");
   }
 
-  // Whenever a claim is marked billed, post it to SQL-Ledger.
+  // Whenever a claim is marked billed, update A/R accordingly.
   //
   if ($status == 2) {
-    $ws = new WSClaim($patient_id, $encounter_id);
+    if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) {
+      if ($payer_type > 0) {
+        sqlStatement("UPDATE form_encounter SET " .
+          "last_level_billed = '$payer_type' WHERE " .
+          "pid = '$patient_id' AND encounter = '$encounter_id'");
+      }
+    }
+    else {
+      $ws = new WSClaim($patient_id, $encounter_id);
+    }
   }
 
   return 1;

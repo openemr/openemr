@@ -19,6 +19,8 @@
 
   $debug = 0; // set to 1 for debugging mode
 
+  $INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
+
   $reasons = array(
     "", // not choosing this allows a reason with no adjustment amount
     xl("Ins adjust"),
@@ -59,6 +61,7 @@
 
 // An insurance radio button is selected.
 function setins(istr) {
+<?php if (!$INTEGRATED_AR) { ?>
  var f = document.forms[0];
  for (var i = 0; i < f.elements.length; ++i) {
   var ename = f.elements[i].name;
@@ -73,6 +76,7 @@ function setins(istr) {
    evalue = evalue.substring(1);
   f.elements[i].value = istr + '/' + evalue;
  }
+<?php } ?>
  return true;
 }
 
@@ -98,6 +102,7 @@ function validate(f) {
   var pfx = ename.substring(0, pfxlen);
   var code = pfx.substring(pfx.indexOf('[')+1, pfxlen-1);
   if (f[pfx+'[pay]'].value || f[pfx+'[adj]'].value) {
+<?php if (!$INTEGRATED_AR) { // source validation not appropriate ?>
    var srcobj = f[pfx+'[src]'];
    while (srcobj.value.length) {
     var tmp = srcobj.value.substring(srcobj.value.length - 1);
@@ -134,6 +139,7 @@ function validate(f) {
      } // End of OC code
     }
    }
+<?php } ?>
    if (! f[pfx+'[date]'].value) {
     alert('<?php xl('Date is missing for code ','e')?>' + code);
     return false;
@@ -160,20 +166,56 @@ function validate(f) {
 </head>
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <?php
-  $trans_id = $_GET['id'];
+  $trans_id = 0 + $_GET['id'];
   if (! $trans_id) die(xl("You cannot access this page directly."));
 
-  slInitialize();
+  if ($INTEGRATED_AR) {
+    // In the Integrated A/R case, $trans_id matches form_encounter.id.
+    $ferow = sqlQuery("SELECT e.*, p.fname, p.mname, p.lname " .
+      "FROM form_encounter AS e, patient_data AS p WHERE " .
+      "e.id = '$trans_id' AND p.pid = e.pid");
+    if (empty($ferow)) die("There is no encounter with form_encounter.id = '$trans_id'.");
+    $patient_id        = 0 + $ferow['pid'];
+    $encounter_id      = 0 + $ferow['encounter'];
+    $svcdate           = substr($ferow['date'], 0, 10);
+    $form_payer_id     = 0 + $_POST['form_payer_id'];
+    $form_reference    = $_POST['form_reference'];
+    $form_check_date   = fixDate($_POST['form_check_date'], date('Y-m-d'));
+    $form_deposit_date = fixDate($_POST['form_deposit_date'], $form_check_date);
+    $form_pay_total    = 0 + $_POST['form_pay_total'];
+  }
+  else {
+    slInitialize();
+  }
+
+  $payer_type = 0;
+  if (preg_match('/^Ins(\d)/i', $_POST['form_insurance'], $matches)) {
+    $payer_type = $matches[1];
+  }
 
   if ($_POST['form_save'] || $_POST['form_cancel']) {
     if ($_POST['form_save']) {
       if ($debug) {
         echo xl("This module is in test mode. The database will not be changed.",'','<p><b>',"</b><p>\n");
       }
+
+      if ($INTEGRATED_AR) {
+        $session_id = arGetSession($form_payer_id, $form_reference,
+          $form_check_date, $form_deposit_date, $form_pay_total);
+        // The sl_eob_search page needs its invoice links modified to invoke
+        // javascript to load form parms for all the above and submit.
+        // At the same time that page would be modified to work off the
+        // openemr database exclusively.
+        // And back to the sl_eob_invoice page, I think we may want to move
+        // the source input fields from row level to header level.
+      }
+
       $paytotal = 0;
       foreach ($_POST['form_line'] as $code => $cdata) {
-        $thissrc  = trim($cdata['src']);
-        $thisdate = trim($cdata['date']);
+        if (!$INTEGRATED_AR) {
+          $thissrc  = trim($cdata['src']);
+          $thisdate = trim($cdata['date']);
+        }
         $thispay  = trim($cdata['pay']);
         $thisadj  = trim($cdata['adj']);
         $thisins  = trim($cdata['ins']);
@@ -183,7 +225,12 @@ function validate(f) {
         if (! $thisins) $thisins = 0;
 
         if ($thispay) {
-          slPostPayment($trans_id, $thispay, $thisdate, $thissrc, $code, $thisins, $debug);
+          if ($INTEGRATED_AR) {
+            arPostPayment($patient_id, $encounter_id, $session_id,
+              $thispay, $code, $payer_type, $reason, $debug);
+          } else {
+            slPostPayment($trans_id, $thispay, $thisdate, $thissrc, $code, $thisins, $debug);
+          }
           $paytotal += $thispay;
         }
 
@@ -199,36 +246,52 @@ function validate(f) {
             $reason = $_POST['form_insurance'] . " dedbl: $thisadj";
             $thisadj = 0;
           }
-          slPostAdjustment($trans_id, $thisadj, $thisdate, $thissrc, $code, $thisins, $reason, $debug);
+          if ($INTEGRATED_AR) {
+            arPostAdjustment($patient_id, $encounter_id, $session_id,
+              $thisadj, $code, $payer_type, $reason, $debug);
+          } else {
+            slPostAdjustment($trans_id, $thisadj, $thisdate, $thissrc, $code, $thisins, $reason, $debug);
+          }
         }
       }
 
-      $form_duedate = fixDate($_POST['form_duedate']);
-      $form_notes = trim($_POST['form_notes']);
+      // Maintain which insurances are marked as finished.
 
-      // Maintain the list of insurances that we mark as finished.
-      // We use the "Ship Via" field of the invoice to hold these.
-      //
-      $form_eobs = "";
-      foreach (array('Ins1', 'Ins2', 'Ins3') as $value) {
-        if ($_POST["form_done_$value"]) {
-          if ($form_eobs) $form_eobs .= ","; else $form_eobs = "Done: ";
-          $form_eobs .= $value;
+      if ($INTEGRATED_AR) {
+        $form_done = 0 + $_POST['form_done'];
+        sqlStatement("UPDATE form_encounter " .
+          "SET last_level_closed = $form_done WHERE " .
+          "pid = '$patient_id' AND encounter = '$encounter_id'");
+      }
+      else {
+        $form_duedate = fixDate($_POST['form_duedate']);
+        $form_notes = trim($_POST['form_notes']);
+        // We use the "Ship Via" field of the invoice to hold these.
+        $form_eobs = "";
+        foreach (array('Ins1', 'Ins2', 'Ins3') as $value) {
+          if ($_POST["form_done_$value"]) {
+            if ($form_eobs) $form_eobs .= ","; else $form_eobs = "Done: ";
+            $form_eobs .= $value;
+          }
+        }
+        $query = "UPDATE ar SET duedate = '$form_duedate', notes = '$form_notes', " .
+          "shipvia = '$form_eobs' WHERE id = $trans_id";
+        if ($debug) {
+          echo $query . "<br>\n";
+        } else {
+          SLQuery($query);
+          if ($sl_err) die($sl_err);
         }
       }
 
-      $query = "UPDATE ar SET duedate = '$form_duedate', notes = '$form_notes', " .
-        "shipvia = '$form_eobs' WHERE id = $trans_id";
-
-      if ($debug) {
-        echo $query . "<br>\n";
-      } else {
-        SLQuery($query);
-        if ($sl_err) die($sl_err);
-      }
       if ($_POST['form_secondary']) {
-        slSetupSecondary($trans_id, $debug);
+        if ($INTEGRATED_AR) {
+          arSetupSecondary($patient_id, $encounter_id, $debug);
+        } else {
+          slSetupSecondary($trans_id, $debug);
+        }
       }
+
       echo "<script language='JavaScript'>\n";
       echo " if (opener.document.forms[0].form_amount) {\n";
       echo "  var tmp = opener.document.forms[0].form_amount.value - $paytotal;\n";
@@ -240,39 +303,53 @@ function validate(f) {
     if ($info_msg) echo " alert('$info_msg');\n";
     if (! $debug) echo " window.close();\n";
     echo "</script></body></html>\n";
-    SLClose();
+    if (!$INTEGRATED_AR) SLClose();
     exit();
   }
 
-  // Get invoice data into $arrow.
-  $arres = SLQuery("select ar.*, customer.name, employee.name as doctor " .
-    "from ar, customer, employee where ar.id = $trans_id and " .
-    "customer.id = ar.customer_id and employee.id = ar.employee_id");
-  if ($sl_err) die($sl_err);
-  $arrow = SLGetRow($arres, 0);
-  if (! $arrow) die(xl("There is no match for invoice id = ") . $trans_id);
-
-  // Determine the date of service.  An 8-digit encounter number is
-  // presumed to be a date of service imported during conversion.
-  // Otherwise look it up in the form_encounter table.
-  //
-  $svcdate = "";
-  list($patient_id, $encounter) = explode(".", $arrow['invnumber']);
-  if (strlen($encounter) == 8) {
-    $svcdate = substr($encounter, 0, 4) . "-" . substr($encounter, 4, 2) .
-      "-" . substr($encounter, 6, 2);
+  if ($INTEGRATED_AR) {
+    /*****************************************************************
+    $ferow = sqlQuery("SELECT e.*, p.fname, p.mname, p.lname " .
+      "FROM form_encounter AS e, patient_data AS p WHERE " .
+      "e.pid = '$patient_id' AND e.encounter = '$encounter_id' AND ".
+      "p.pid = e.pid");
+    if (empty($ferow)) die("There is no encounter $patient_id.$encounter_id.");
+    $svcdate = substr($ferow['date'], 0, 10);
+    *****************************************************************/
+    // Get invoice charge details.
+    $codes = ar_get_invoice_summary($patient_id, $encounter_id, true);
   }
-  else if ($encounter) {
-    $tmp = sqlQuery("SELECT date FROM form_encounter WHERE " .
-      "encounter = $encounter");
-    $svcdate = substr($tmp['date'], 0, 10);
+  else {
+    // Get invoice data into $arrow.
+    $arres = SLQuery("select ar.*, customer.name, employee.name as doctor " .
+      "from ar, customer, employee where ar.id = $trans_id and " .
+      "customer.id = ar.customer_id and employee.id = ar.employee_id");
+    if ($sl_err) die($sl_err);
+    $arrow = SLGetRow($arres, 0);
+    if (! $arrow) die(xl("There is no match for invoice id = ") . $trans_id);
+    //
+    // Determine the date of service.  An 8-digit encounter number is
+    // presumed to be a date of service imported during conversion.
+    // Otherwise look it up in the form_encounter table.
+    //
+    $svcdate = "";
+    list($patient_id, $encounter) = explode(".", $arrow['invnumber']);
+    if (strlen($encounter) == 8) {
+      $svcdate = substr($encounter, 0, 4) . "-" . substr($encounter, 4, 2) .
+        "-" . substr($encounter, 6, 2);
+    }
+    else if ($encounter) {
+      $tmp = sqlQuery("SELECT date FROM form_encounter WHERE " .
+        "encounter = $encounter");
+      $svcdate = substr($tmp['date'], 0, 10);
+    }
+
+    // Get invoice charge details.
+    $codes = get_invoice_summary($trans_id, true);
   }
 
   $pdrow = sqlQuery("select genericname2, genericval2 " .
     "from patient_data where pid = '$patient_id' limit 1");
-
-  // Get invoice charge details.
-  $codes = get_invoice_summary($trans_id, true);
 ?>
 <center>
 
@@ -285,10 +362,32 @@ function validate(f) {
    <?php xl('Patient:','e')?>
   </td>
   <td>
-   <?php echo $arrow['name'] ?>
+<?php
+  if ($INTEGRATED_AR) {
+    echo $ferow['fname'] . ' ' . $ferow['mname'] . ' ' . $ferow['lname'];
+  }
+  else {
+    echo $arrow['name'];
+  }
+?>
   </td>
   <td colspan="2" rowspan="3">
-   <textarea name="form_notes" cols="50" style="height:100%"><?php echo $arrow['notes'] ?></textarea>
+<?php
+  if ($INTEGRATED_AR) {
+    for ($i = 1; $i <= 3; ++$i) {
+      $payerid = arGetPayerID($patient_id, $svcdate, $i);
+      if ($payerid) {
+        $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE id = $payerid");
+        echo "Ins$i: " . $tmp['name'] . "<br />";
+      }
+    }
+  }
+  else {
+    echo "   <textarea name='form_notes' cols='50' style='height:100%'>";
+    echo $arrow['notes'];
+    echo "</textarea>\n";
+  }
+?>
   </td>
  </tr>
  <tr>
@@ -296,7 +395,19 @@ function validate(f) {
    <?php xl('Provider:','e')?>
   </td>
   <td>
-   <?php echo $arrow['doctor'] ?>
+   <?php
+  if ($INTEGRATED_AR) {
+    $tmp = sqlQuery("SELECT u.fname, u.mname, u.lname " .
+      "FROM billing AS b, users AS u WHERE " .
+      "b.pid = '$patient_id' AND b.encounter = '$encounter_id' AND " .
+      "b.activity = 1 AND u.id = b.provider_id " .
+      "ORDER BY u.authorized DESC, b.fee DESC, b.id ASC LIMIT 1");
+    echo $tmp['fname'] . ' ' . $tmp['mname'] . ' ' . $tmp['lname'];
+  }
+  else {
+    echo $arrow['doctor'];
+  }
+?>
   </td>
  </tr>
  <tr>
@@ -304,36 +415,63 @@ function validate(f) {
    <?php xl('Invoice:','e')?>
   </td>
   <td>
-   <?php echo $arrow['invnumber'] ?>
+<?php
+  if ($INTEGRATED_AR) {
+    echo "$patient_id.$encounter_id";
+  }
+  else {
+    echo $arrow['invnumber'];
+  }
+?>
   </td>
  </tr>
 
  <tr>
   <td>
-   <?php xl('Svc Date:','e')?>
+<?php xl('Svc Date:','e'); ?>
   </td>
   <td>
-   <?php echo $svcdate ?>
-  </td>
-  <td colspan="2">
-   <!-- <?php echo $arrow['shipvia'] ?> -->
-   <?php xl('Done with:','e','',"&nbsp")?>;
 <?php
- // Write a checkbox for each insurance.  It is to be checked when
- // we no longer expect any payments from that company for the claim.
- // The information is stored in the 'shipvia' field of the invoice.
- //
- $insgot  = strtolower($arrow['notes']);
- $insdone = strtolower($arrow['shipvia']);
- foreach (array('Ins1', 'Ins2', 'Ins3') as $value) {
-  $lcvalue = strtolower($value);
-  $checked  = (strpos($insdone, $lcvalue) === false) ? "" : " checked";
-  if (strpos($insgot, $lcvalue) !== false) {
-   echo "   <input type='checkbox' name='form_done_$value' value='1'$checked />$value&nbsp;\n";
-  }
- }
+    echo $svcdate;
 ?>
   </td>
+  <td colspan="2">
+   <?php xl('Done with:','e','',"&nbsp")?>;
+<?php
+  // Write a checkbox for each insurance.  It is to be checked when
+  // we no longer expect any payments from that company for the claim.
+  if ($INTEGRATED_AR) {
+    $last_level_closed = 0 + $ferow['last_level_closed'];
+    foreach (array(0 => 'None', 1 => 'Ins1', 2 => 'Ins2', 3 => 'Ins3') as $key => $value) {
+      if ($key && !arGetPayerID($patient_id, $svcdate, $key)) continue;
+      $checked = ($last_level_closed == $key) ? " checked" : "";
+      echo "   <input type='radio' name='form_done' value='$key'$checked />$value&nbsp;\n";
+    }
+  }
+  else {
+    // The information is stored in the 'shipvia' field of the invoice.
+    $insgot  = strtolower($arrow['notes']);
+    $insdone = strtolower($arrow['shipvia']);
+    foreach (array('Ins1', 'Ins2', 'Ins3') as $value) {
+      $lcvalue = strtolower($value);
+      $checked  = (strpos($insdone, $lcvalue) === false) ? "" : " checked";
+      if (strpos($insgot, $lcvalue) !== false) {
+        echo "   <input type='checkbox' name='form_done_$value' value='1'$checked />$value&nbsp;\n";
+      }
+    }
+  }
+?>
+  </td>
+<?php
+  if ($INTEGRATED_AR) {
+    echo "<td>\n";
+    echo xl('Check/EOB No.:');
+    echo "</td>\n";
+    echo "<td>\n";
+    echo "<input type='text' name='form_reference' size='10' value='' />\n";
+    echo "</td>\n";
+  }
+?>
  </tr>
 
  <tr>
@@ -341,24 +479,55 @@ function validate(f) {
    <?php xl('Bill Date:','e') ?>
   </td>
   <td>
-   <?php echo $arrow['transdate'] ?>
+   <?php
+  if ($INTEGRATED_AR) {
+    echo $svcdate;
+  }
+  else {
+    echo $arrow['transdate'];
+  }
+?>
   </td>
   <td colspan="2">
    <?php xl('Now posting for:','e','',"&nbsp")?>;
+
+<?php
+  // TBD: check the first not-done-with insurance, not always Ins1!
+?>
    <input type='radio' name='form_insurance' value='Ins1' onclick='setins("Ins1")' checked /><?php xl('Ins1','e')?>&nbsp;
    <input type='radio' name='form_insurance' value='Ins2' onclick='setins("Ins2")' /><?php xl('Ins2','e')?>&nbsp;
    <input type='radio' name='form_insurance' value='Ins3' onclick='setins("Ins3")' /><?php xl('Ins3','e')?>&nbsp;
    <input type='radio' name='form_insurance' value='Pt'   onclick='setins("Pt")'   /><?php xl('Patient','e')?>
+
+<?php
+  // TBD: I think the following is unused and can be removed.
+?>
    <input type='hidden' name='form_eobs' value='<?php echo addslashes($arrow['shipvia']) ?>' />
+
   </td>
+<?php
+  if ($INTEGRATED_AR) {
+    echo "<td>\n";
+    echo xl('Check/EOB Date:');
+    echo "</td>\n";
+    echo "<td>\n";
+    echo "<input type='text' name='form_check_date' size='10' value='' />\n";
+    echo "</td>\n";
+  }
+?>
  </tr>
  <tr>
   <td>
-   <?php xl('Due Date:','e')?>
+   <?php
+  if (!$INTEGRATED_AR) xl('Due Date:','e');
+?>
   </td>
   <td>
+
+<?php if (!$INTEGRATED_AR) { ?>
    <input type='text' name='form_duedate' size='10' value='<?php echo $arrow['duedate'] ?>'
     title='<?php xl('Due date mm/dd/yyyy or yyyy-mm-dd','e')?>'>
+<?php } ?>
   </td>
   <td colspan="2">
    <input type="checkbox" name="form_secondary" value="1"> <?php xl('Needs secondary billing','e')?>
@@ -367,6 +536,21 @@ function validate(f) {
    &nbsp;
    <input type='button' value='<?php xl('Cancel','e')?>' onclick='window.close()'>
   </td>
+<?php
+  if ($INTEGRATED_AR) {
+    echo "<td>\n";
+    echo xl('Deposit Date:');
+    echo "</td>\n";
+    echo "<td>\n";
+    echo "<input type='text' name='form_deposit_date' size='10' value='' />\n";
+    echo "<input type='hidden' name='form_payer_id' value='' />\n";
+    echo "<input type='hidden' name='form_orig_reference' value='' />\n";
+    echo "<input type='hidden' name='form_orig_check_date' value='' />\n";
+    echo "<input type='hidden' name='form_orig_deposit_date' value='' />\n";
+    echo "<input type='hidden' name='form_pay_total' value='' />\n";
+    echo "</td>\n";
+  }
+?>
  </tr>
 <?php if ($pdrow['genericname2'] == 'Billing') { ?>
  <tr>
@@ -427,10 +611,16 @@ function validate(f) {
     }
     $tmpchg = "";
     $tmpadj = "";
+    /*****************************************************************
     if ($ddata['chg'] > 0)
      $tmpchg = $ddata['chg'];
     else if ($ddata['chg'] < 0)
      $tmpadj = 0 - $ddata['chg'];
+    *****************************************************************/
+    if ($ddata['chg'] != 0) {
+      if (isset($ddata['rsn'])) $tmpadj = 0 - $ddata['chg'];
+      else $tmpchg = $ddata['chg'];
+    }
 ?>
  <tr bgcolor='<?php echo $bgcolor ?>'>
   <td class="detail">
@@ -474,16 +664,21 @@ function validate(f) {
    <?php printf("%.2f", $cdata['bal']) ?>&nbsp;
   </td>
   <td class="detail">
+
+<?php if (!$INTEGRATED_AR) { ?>
    <input type="text" name="form_line[<?php echo $code ?>][src]" size="10"
-    style="background-color:<?php echo $bgcolor ?>"
-<?php if (false) { ?>
-    title="NM=notmet, CI=coins, CP=copay, NE=notelig, IT=insterm, PF=ptfull, PP=ptpart"
+    style="background-color:<?php echo $bgcolor ?>" />
+    <!-- title="NM=notmet, CI=coins, CP=copay, NE=notelig, IT=insterm, PF=ptfull, PP=ptpart" -->
 <?php } ?>
-   />
+
   </td>
   <td class="detail">
+
+<?php if (!$INTEGRATED_AR) { ?>
    <input type="text" name="form_line[<?php echo $code ?>][date]" size="10"
     style="background-color:<?php echo $bgcolor ?>" />
+<?php } ?>
+
   </td>
   <td class="detail">
    <input type="text" name="form_line[<?php echo $code ?>][pay]" size="10"
@@ -503,11 +698,15 @@ function validate(f) {
  }
 ?>
    </select>
+<?php
+    // TBD: Maybe a comment field would be good here, for appending
+    // to the reason.
+?>
   </td>
  </tr>
 <?php
   } // end of code
-  SLClose();
+  if (!$INTEGRATED_AR) SLClose();
 ?>
 
 </table>
@@ -518,9 +717,33 @@ function validate(f) {
  var f2 = document.forms[0];
  if (f1.form_source) {
 <?php
-  foreach ($codes as $code => $cdata) {
-    echo "  f2['form_line[$code][src]'].value  = f1.form_source.value;\n";
-    echo "  f2['form_line[$code][date]'].value = f1.form_paydate.value;\n";
+  if ($INTEGRATED_AR) {
+    // These support creation and lookup of ar_session table entries:
+    echo "  f2.form_reference.value         = f1.form_source.value;\n";
+    echo "  f2.form_check_date.value        = f1.form_paydate.value;\n";
+    echo "  f2.form_deposit_date.value      = f1.form_deposit_date.value;\n";
+    echo "  f2.form_payer_id.value          = f1.form_payer_id.value;\n";
+    echo "  f2.form_pay_total.value         = f1.form_amount.value;\n";
+    echo "  f2.form_orig_reference.value    = f1.form_source.value;\n";
+    echo "  f2.form_orig_check_date.value   = f1.form_paydate.value;\n";
+    echo "  f2.form_orig_deposit_date.value = f1.form_deposit_date.value;\n";
+
+    // While I'm thinking about it, some notes about eob sessions.
+    // If they do not have all of the session key fields in the search
+    // page, then show a warning at the top of the invoice page.
+    // Also when they go to save the invoice page and a session key
+    // field has changed, alert them to that and allow a cancel.
+
+    // Another point... when posting EOBs, the incoming payer ID might
+    // not match the payer ID for the patient's insurance.  This is
+    // because the same payer might be entered more than once into the
+    // insurance_companies table.  I don't think it matters much.
+  }
+  else {
+    foreach ($codes as $code => $cdata) {
+      echo "  f2['form_line[$code][src]'].value  = f1.form_source.value;\n";
+      echo "  f2['form_line[$code][date]'].value = f1.form_paydate.value;\n";
+    }
   }
 ?>
  }

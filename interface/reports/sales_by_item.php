@@ -1,34 +1,117 @@
 <?php
-  // Copyright (C) 2006-2008 Rod Roark <rod@sunsetsystems.com>
-  //
-  // This program is free software; you can redistribute it and/or
-  // modify it under the terms of the GNU General Public License
-  // as published by the Free Software Foundation; either version 2
-  // of the License, or (at your option) any later version.
+// Copyright (C) 2006-2008 Rod Roark <rod@sunsetsystems.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
 
-  // This is a report of sales by item description.  It's driven from
-  // SQL-Ledger so as to include all types of invoice items.
+// This is a report of sales by item description.  It's driven from
+// SQL-Ledger so as to include all types of invoice items.
 
-  include_once("../globals.php");
-  include_once("../../library/patient.inc");
-  include_once("../../library/sql-ledger.inc");
-  include_once("../../library/acl.inc");
+require_once("../globals.php");
+require_once("../../library/patient.inc");
+require_once("../../library/sql-ledger.inc");
+require_once("../../library/acl.inc");
 
-  function bucks($amount) {
-    if ($amount)
-      printf("%.2f", $amount);
+function bucks($amount) {
+  if ($amount)
+    printf("%.2f", $amount);
+}
+
+function display_desc($desc) {
+  if (preg_match('/^\S*?:(.+)$/', $desc, $matches)) {
+    $desc = $matches[1];
   }
+  return $desc;
+}
 
-  function display_desc($desc) {
-    if (preg_match('/^\S*?:(.+)$/', $desc, $matches)) {
-      $desc = $matches[1];
+function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty, $amount) {
+  global $product, $producttotal, $productqty, $grandtotal, $grandqty;
+
+  $invnumber = "$patient_id.$encounter_id";
+  $rowamount = sprintf('%01.2f', $amount);
+
+  // Extract only the first word as the payment method because any following
+  // text will be some petty detail like a check number.
+  $rowproduct = $description;
+  if (! $rowproduct) $rowproduct = 'Unknown';
+
+  if ($product != $rowproduct) {
+    if ($product) {
+      // Print product total.
+      if ($_POST['form_csvexport']) {
+        if (! $_POST['form_details']) {
+          echo '"' . display_desc($product) . '",';
+          echo '"' . $productqty            . '",';
+          echo '"'; bucks($producttotal); echo '"' . "\n";
+        }
+      }
+      else {
+?>
+
+ <tr bgcolor="#ddddff">
+  <td class="detail" colspan="3">
+   <? echo xl('Total for ') . display_desc($product) ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php echo $productqty; ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php bucks($producttotal); ?>
+  </td>
+ </tr>
+<?php
+      } // End not csv export
     }
-    return $desc;
+    $producttotal = 0;
+    $productqty = 0;
+    $product = $rowproduct;
+    $productleft = $product;
   }
+
+  if ($_POST['form_details']) {
+    if ($_POST['form_csvexport']) {
+      echo '"' . display_desc($product         ) . '",';
+      echo '"' . display_desc($transdate) . '",';
+      echo '"' . display_desc($invnumber) . '",';
+      echo '"' . display_desc($qty      ) . '",';
+      echo '"'; bucks($rowamount); echo '"' . "\n";
+    }
+    else {
+?>
+
+ <tr>
+  <td class="detail">
+   <?php echo display_desc($productleft); $productleft = "&nbsp;"; ?>
+  </td>
+  <td class="dehead">
+   <?php echo $transdate; ?>
+  </td>
+  <td class="detail">
+   <?php echo $invnumber; ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php echo $qty; ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php bucks($rowamount); ?>
+  </td>
+ </tr>
+<?
+    } // End not csv export
+  } // end details
+  $producttotal += $rowamount;
+  $grandtotal   += $rowamount;
+  $productqty   += $qty;
+  $grandqty     += $qty;
+} // end function
 
   if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
 
-  SLConnect();
+  $INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
+
+  if (!$INTEGRATED_AR) SLConnect();
 
   $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
   $form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
@@ -145,18 +228,6 @@
     $from_date = $form_from_date;
     $to_date   = $form_to_date;
 
-    $query = "SELECT ar.invnumber, ar.transdate, " .
-      "invoice.description, invoice.qty, invoice.sellprice " .
-      "FROM ar, invoice WHERE " .
-      "ar.transdate >= '$from_date' AND ar.transdate <= '$to_date' " .
-      "AND invoice.trans_id = ar.id " .
-      "ORDER BY invoice.description, ar.transdate, ar.id";
-
-    // echo "<!-- $query -->\n"; // debugging
-
-    $t_res = SLQuery($query);
-    if ($sl_err) die($sl_err);
-
     $product = "";
     $productleft = "";
     $producttotal = 0;
@@ -164,96 +235,67 @@
     $productqty = 0;
     $grandqty = 0;
 
-    for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
-      $row = SLGetRow($t_res, $irow);
-
-      // If a facility was specified then skip invoices whose encounters
-      // do not indicate that facility.
+    if ($INTEGRATED_AR) {
+      $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, b.code, b.units, " .
+        "fe.date, fe.facility_id " .
+        "FROM billing AS b " .
+        "JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter " .
+        "WHERE b.code_type != 'COPAY' AND b.activity = 1 AND b.fee != 0 AND " .
+        "fe.date >= '$from_date 00:00:00' AND fe.date <= '$to_date 23:59:59'";
+      // If a facility was specified.
       if ($form_facility) {
-        list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
-        $tmp = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
-          "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
-          "facility_id = '$form_facility'");
-        if (empty($tmp['count'])) continue;
+        $query .= " AND fe.facility_id = '$form_facility'";
       }
-
-      // $rowamount = $row['fxsellprice'];
-      $rowamount = sprintf('%01.2f', $row['sellprice'] * $row['qty']);
-
-      // Extract only the first word as the payment method because any following
-      // text will be some petty detail like a check number.
-      $rowproduct = $row['description'];
-      if (! $rowproduct) $rowproduct = 'Unknown';
-
-      if ($product != $rowproduct) {
-        if ($product) {
-          // Print product total.
-          if ($_POST['form_csvexport']) {
-            if (! $_POST['form_details']) {
-              echo '"' . display_desc($product) . '",';
-              echo '"' . $productqty            . '",';
-              echo '"'; bucks($producttotal); echo '"' . "\n";
-            }
-          }
-          else {
-?>
-
- <tr bgcolor="#ddddff">
-  <td class="detail" colspan="3">
-   <? echo xl('Total for ') . display_desc($product) ?>
-  </td>
-  <td class="dehead" align="right">
-   <?php echo $productqty; ?>
-  </td>
-  <td class="dehead" align="right">
-   <?php bucks($producttotal); ?>
-  </td>
- </tr>
-<?php
-          } // End not csv export
-        }
-        $producttotal = 0;
-        $productqty = 0;
-        $product = $rowproduct;
-        $productleft = $product;
+      $query .= " ORDER BY b.code, fe.date, fe.id";
+      //
+      $res = sqlStatement($query);
+      while ($row = sqlFetchArray($res)) {
+        thisLineItem($row['pid'], $row['encounter'], $row['code'],
+          substr($row['date'], 0, 10), $row['units'], $row['fee']);
       }
-
-      if ($_POST['form_details']) {
-        if ($_POST['form_csvexport']) {
-          echo '"' . display_desc($product         ) . '",';
-          echo '"' . display_desc($row['transdate']) . '",';
-          echo '"' . display_desc($row['invnumber']) . '",';
-          echo '"' . display_desc($row['qty']      ) . '",';
-          echo '"'; bucks($rowamount); echo '"' . "\n";
-        }
-        else {
-?>
-
- <tr>
-  <td class="detail">
-   <?php echo display_desc($productleft); $productleft = "&nbsp;"; ?>
-  </td>
-  <td class="dehead">
-   <?php echo $row['transdate']; ?>
-  </td>
-  <td class="detail">
-   <?php echo $row['invnumber']; ?>
-  </td>
-  <td class="dehead" align="right">
-   <?php echo $row['qty']; ?>
-  </td>
-  <td class="dehead" align="right">
-   <?php bucks($rowamount); ?>
-  </td>
- </tr>
-<?
-        } // End not csv export
+      //
+      $query = "SELECT s.sale_date, s.fee, s.quantity, s.pid, s.encounter, " .
+        "d.name, fe.date, fe.facility_id " .
+        "FROM drug_sales AS s " .
+        "JOIN drugs AS d ON d.drug_id = s.drug_id " .
+        "JOIN form_encounter AS fe ON fe.pid = s.pid AND fe.encounter = s.encounter " .
+        "WHERE s.fee != 0";
+      // If a facility was specified.
+      if ($form_facility) {
+        $query .= " AND fe.facility_id = '$form_facility'";
       }
-      $producttotal += $rowamount;
-      $grandtotal   += $rowamount;
-      $productqty   += $row['qty'];
-      $grandqty     += $row['qty'];
+      $query .= " ORDER BY d.name, fe.date, fe.id";
+      //
+      $res = sqlStatement($query);
+      while ($row = sqlFetchArray($res)) {
+        thisLineItem($row['pid'], $row['encounter'], $row['name'],
+          substr($row['date'], 0, 10), $row['quantity'], $row['fee']);
+      }
     }
+    else {
+      $query = "SELECT ar.invnumber, ar.transdate, " .
+        "invoice.description, invoice.qty, invoice.sellprice " .
+        "FROM ar, invoice WHERE " .
+        "ar.transdate >= '$from_date' AND ar.transdate <= '$to_date' " .
+        "AND invoice.trans_id = ar.id " .
+        "ORDER BY invoice.description, ar.transdate, ar.id";
+      $t_res = SLQuery($query);
+      if ($sl_err) die($sl_err);
+      for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
+        $row = SLGetRow($t_res, $irow);
+        list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
+        // If a facility was specified then skip invoices whose encounters
+        // do not indicate that facility.
+        if ($form_facility) {
+          $tmp = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
+            "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
+            "facility_id = '$form_facility'");
+          if (empty($tmp['count'])) continue;
+        }
+        thisLineItem($patient_id, $encounter_id, $row['description'],
+          $row['transdate'], $row['qty'], $row['sellprice'] * $row['qty']);
+      } // end for
+    } // end not $INTEGRATED_AR
 
     if ($_POST['form_csvexport']) {
       if (! $_POST['form_details']) {
@@ -292,7 +334,7 @@
 <?
     } // End not csv export
   }
-  SLClose();
+  if (!$INTEGRATED_AR) SLClose();
 
   if (! $_POST['form_csvexport']) {
 ?>

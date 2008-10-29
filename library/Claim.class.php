@@ -85,7 +85,10 @@ class Claim {
     //
     $this->invoice = array();
     if ($this->payerSequence() != 'P') {
-      if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
+      if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) {
+        $this->invoice = ar_get_invoice_summary($this->pid, $this->encounter_id, true);
+      }
+      else if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
         SLConnect();
         $arres = SLQuery("select id from ar where invnumber = " .
           "'{$this->pid}.{$this->encounter_id}'");

@@ -1,15 +1,18 @@
 <?php
-  // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
+  // Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
   //
   // This program is free software; you can redistribute it and/or
   // modify it under the terms of the GNU General Public License
   // as published by the Free Software Foundation; either version 2
   // of the License, or (at your option) any later version.
 
-  include_once("sql-ledger.inc");
   include_once("patient.inc");
   include_once("billing.inc");
-  include_once("invoice_summary.inc.php");
+
+  if ($GLOBALS['oer_config']['ws_accounting']['enabled'] !== 2) {
+    include_once("sql-ledger.inc");
+    include_once("invoice_summary.inc.php");
+  }
 
   $chart_id_cash   = 0;
   $chart_id_ar     = 0;
@@ -17,8 +20,11 @@
   $services_id     = 0;
 
   function slInitialize() {
+    if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) return;
+
     global $chart_id_cash, $chart_id_ar, $chart_id_income, $services_id;
     global $sl_cash_acc, $sl_ar_acc, $sl_income_acc, $sl_services_id;
+
     SLConnect();
 
     $chart_id_cash = SLQueryValue("select id from chart where accno = '$sl_cash_acc'");
@@ -39,6 +45,7 @@
   }
 
   function slTerminate() {
+    if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) return;
     SLClose();
   }
 
@@ -82,9 +89,12 @@
   }
 
   // Insert a row into the acc_trans table.
+  // This should never be called if SQL-Ledger is not used.
   //
   function slAddTransaction($invid, $chartid, $amount, $date, $source, $memo, $insplan, $debug) {
     global $sl_err;
+    if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2)
+      die("Internal error calling slAddTransaction()");
     $date = fixDate($date);
     $query = "INSERT INTO acc_trans ( " .
       "trans_id, "     .
@@ -112,9 +122,12 @@
   }
 
   // Insert a row into the invoice table.
+  // This should never be called if SQL-Ledger is not used.
   //
   function slAddLineItem($invid, $serialnumber, $amount, $units, $insplan, $description, $debug) {
     global $sl_err, $services_id;
+    if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2)
+      die("Internal error calling slAddLineItem()");
     $units = max(1, intval($units));
     $price = $amount / $units;
     $tmp = sprintf("%01.2f", $price);
@@ -154,9 +167,12 @@
 
   // Update totals and payment date in the invoice header.  Dollar amounts are
   // stored as double precision floats so we have to be careful about rounding.
+  // This should never be called if SQL-Ledger is not used.
   //
   function slUpdateAR($invid, $amount, $paid = 0, $paydate = "", $debug) {
     global $sl_err;
+    if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2)
+      die("Internal error calling slUpdateAR()");
     $paydate = fixDate($paydate);
     $query = "UPDATE ar SET amount = round(CAST (amount AS numeric) + $amount, 2), " .
       "netamount = round(CAST (netamount AS numeric) + $amount, 2)";
@@ -170,16 +186,121 @@
     }
   }
 
+  // This gets a posting session ID.  If the payer ID is not 0 and a matching
+  // session already exists, then its ID is returned.  Otherwise a new session
+  // is created.
+  //
+  function arGetSession($payer_id, $reference, $check_date, $deposit_date='', $pay_total=0) {
+    if (empty($deposit_date)) $deposit_date = $check_date;
+    if ($payer_id) {
+      $row = sqlQuery("SELECT session_id FROM ar_session WHERE " .
+        "payer_id = '$payer_id' AND reference = '$reference' AND " .
+        "check_date = '$check_date' AND deposit_date = '$deposit_date' " .
+        "ORDER BY session_id DESC LIMIT 1");
+      if (!empty($row['session_id'])) return $row['session_id'];
+    }
+    return sqlInsert("INSERT INTO ar_session ( " .
+      "payer_id, user_id, reference, check_date, deposit_date, pay_total " .
+      ") VALUES ( " .
+      "'$payer_id', " .
+      "'" . $_SESSION['authUserID'] . "', " .
+      "'$reference', " .
+      "'$check_date', " .
+      "'$deposit_date', " .
+      "'$pay_total' " .
+      ")");
+  }
+
+  // Post a payment, SQL-Ledger style.
+  //
   function slPostPayment($trans_id, $thispay, $thisdate, $thissrc, $code, $thisins, $debug) {
     global $chart_id_cash, $chart_id_ar;
+    if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2)
+      die("Internal error calling slPostPayment()");
     // Post a payment: add to ar, subtract from cash.
     slAddTransaction($trans_id, $chart_id_ar  , $thispay    , $thisdate, $thissrc, $code, $thisins, $debug);
     slAddTransaction($trans_id, $chart_id_cash, 0 - $thispay, $thisdate, $thissrc, $code, $thisins, $debug);
     slUpdateAR($trans_id, 0, $thispay, $thisdate, $debug);
   }
 
+  // Post a payment, new style.
+  //
+  function arPostPayment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $memo, $debug) {
+    $codeonly = $code;
+    $modifier = '';
+    $tmp = strpos($code, ':');
+    if ($tmp) {
+      $codeonly = substr($code, 0, $tmp);
+      $modifier = substr($code, $tmp+1);
+    }
+    $query = "INSERT INTO ar_activity ( " .
+      "pid, encounter, code, modifier, payer_type, post_time, post_user, " .
+      "session_id, memo, pay_amount " .
+      ") VALUES ( " .
+      "'$patient_id', " .
+      "'$encounter_id', " .
+      "'$codeonly', " .
+      "'$modifier', " .
+      "'$payer_type', " .
+      "NOW(), " .
+      "'" . $_SESSION['authUserID'] . "', " .
+      "'$session_id', " .
+      "'$memo', " .
+      "'$amount' " .
+      ")";
+    sqlStatement($query);
+    return;
+  }
+
+  // Post a charge.  This is called only from sl_eob_process.php where
+  // automated remittance processing can create a new service item.
+  // Here we add it as an unauthorized item to the billing table.
+  //
+  function arPostCharge($patient_id, $encounter_id, $session_id, $amount, $units, $thisdate, $code, $description, $debug) {
+    /*****************************************************************
+    // Select an existing billing item as a template.
+    $row= sqlQuery("SELECT * FROM billing WHERE " .
+      "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
+      "code_type = 'CPT4' AND activity = 1 " .
+      "ORDER BY id DESC LIMIT 1");
+    $this_authorized = 0;
+    $this_provider = 0;
+    if (!empty($row)) {
+      $this_authorized = $row['authorized'];
+      $this_provider = $row['provider_id'];
+    }
+    *****************************************************************/
+
+    $codeonly = $code;
+    $modifier = '';
+    $tmp = strpos($code, ':');
+    if ($tmp) {
+      $codeonly = substr($code, 0, $tmp);
+      $modifier = substr($code, $tmp+1);
+    }
+
+    addBilling($encounter_id,
+      'CPT4',
+      $codeonly,
+      addslashes($description),
+      $patient_id,
+      0,
+      0,
+      $modifier,
+      $units,
+      $amount,
+      '',
+      '');
+  }
+
+  // See comments above.
+  // In the SQL-Ledger case this service item is added only to SL and
+  // not to the billing table.
+  //
   function slPostCharge($trans_id, $thisamt, $thisunits, $thisdate, $code, $thisins, $description, $debug) {
     global $chart_id_income, $chart_id_ar;
+    if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2)
+      die("Internal error calling slPostCharge()");
     // Post an adjustment: add negative invoice item, add to ar, subtract from income
     slAddLineItem($trans_id, $code, $thisamt, $thisunits, $thisins, $description, $debug);
     if ($thisamt) {
@@ -189,8 +310,12 @@
     }
   }
 
+  // Post an adjustment, SQL-Ledger style.
+  //
   function slPostAdjustment($trans_id, $thisadj, $thisdate, $thissrc, $code, $thisins, $reason, $debug) {
     global $chart_id_income, $chart_id_ar;
+    if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2)
+      die("Internal error calling slPostAdjustment()");
     // Post an adjustment: add negative invoice item, add to ar, subtract from income
     $adjdate = fixDate($thisdate);
     $description = "Adjustment $adjdate $reason";
@@ -202,10 +327,85 @@
     }
   }
 
-  // Do whatever is necessary to make this invoice re-billable.
+  // Post an adjustment, new style.
+  //
+  function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $reason, $debug) {
+    $codeonly = $code;
+    $modifier = '';
+    $tmp = strpos($code, ':');
+    if ($tmp) {
+      $codeonly = substr($code, 0, $tmp);
+      $modifier = substr($code, $tmp+1);
+    }
+    $query = "INSERT INTO ar_activity ( " .
+      "pid, encounter, code, modifier, payer_type, post_user, post_time, " .
+      "session_id, memo, adj_amount " .
+      ") VALUES ( " .
+      "'$patient_id', " .
+      "'$encounter_id', " .
+      "'$codeonly', " .
+      "'$modifier', " .
+      "'$payer_type', " .
+      "'" . $_SESSION['authUserID'] . "', " .
+      "NOW(), " .
+      "'$session_id', " .
+      "'$reason', " .
+      "'$amount' " .
+      ")";
+    sqlStatement($query);
+    return;
+  }
+
+  function arGetPayerID($patient_id, $date_of_service, $payer_type) {
+    if ($payer_type < 1 || $payer_type > 3) return 0;
+    $tmp = array(1 => 'primary', 2 => 'secondary', 3 => 'tertiary');
+    $value = $tmp[$payer_type];
+    $query = "SELECT provider FROM insurance_data WHERE " .
+      "pid = '$patient_id' AND type = '$value' AND date <= '$date_of_service' " .
+      "ORDER BY date DESC LIMIT 1";
+    $nprow = sqlQuery($query);
+    echo "<!-- $query => '" . $nprow['provider'] . "' -->\n"; // debugging
+    if (empty($nprow)) return 0;
+    return $nprow['provider'];
+  }
+
+  // Make this invoice re-billable, new style.
+  //
+  function arSetupSecondary($patient_id, $encounter_id, $debug) {
+
+    // Determine the next insurance level to be billed.
+    $ferow = sqlQuery("SELECT date, last_level_billed " .
+      "FROM form_encounter WHERE " .
+      "pid = '$patient_id' AND encounter = '$encounter_id'");
+    $date_of_service = substr($ferow['date'], 0, 10);
+    $new_payer_type = 0 + $ferow['last_level_billed'];
+    if ($new_payer_type < 3 && !empty($ferow['last_level_billed']) || $new_payer_type == 0)
+      ++$new_payer_type;
+
+    $new_payer_id = arGetPayerID($patient_id, $date_of_service, $new_payer_type);
+
+    if ($new_payer_id) {
+      // Queue up the claim.
+      if (!$debug)
+        updateClaim(true, $patient_id, $encounter_id, $new_payer_id, $new_payer_type, 1, 5, '', 'hcfa');
+    }
+    else {
+      // Just reopen the claim.
+      if (!$debug)
+        updateClaim(true, $patient_id, $encounter_id, -1, -1, 1, 0, '');
+    }
+
+    return xl("Encounter ") . $encounter . xl(" is ready for re-billing.");
+  }
+
+  // Make this invoice re-billable, SQL-Ledger style.
   //
   function slSetupSecondary($invid, $debug) {
     global $sl_err, $GLOBALS;
+
+    if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2)
+      die("Internal error calling slSetupSecondary()");
+
     $info_msg = '';
 
     // Get some needed items from the SQL-Ledger invoice.
@@ -229,6 +429,7 @@
 
     // Determine the ID of the next insurance company (if any) to be billed.
     $new_payer_id = -1;
+    $new_payer_type = -1;
     $insdone = strtolower($arrow['shipvia']);
     foreach (array('ins1' => 'primary', 'ins2' => 'secondary', 'ins3' => 'tertiary') as $key => $value) {
       if (strpos($insdone, $key) === false) {
@@ -237,6 +438,7 @@
           "ORDER BY date DESC LIMIT 1");
         if (!empty($nprow['provider'])) {
           $new_payer_id = $nprow['provider'];
+          $new_payer_type = substr($key, 3);
         }
         break;
       }
@@ -256,31 +458,12 @@
       if ($new_payer_id > 0) {
         // TBD: implement a default bill_process and target in config.php,
         // it should not really be hard-coded here.
-        /****
-        $query = "UPDATE billing SET billed = 0, bill_process = 5, " .
-          "target = 'hcfa', payer_id = $new_payer_id, " .
-          "bill_date = NOW(), process_date = NULL, process_file = NULL " .
-          "WHERE encounter = $encounter AND pid = $pid AND activity = 1";
-        ****/
         if (!$debug)
-          updateClaim(true, $pid, $encounter, $new_payer_id, 1, 5, '', 'hcfa');
+          updateClaim(true, $pid, $encounter, $new_payer_id, $new_payer_type, 1, 5, '', 'hcfa');
       } else {
-        /****
-        $query = "UPDATE billing SET billed = 0, bill_process = 0, payer_id = -1, " .
-          "bill_date = NULL, process_date = NULL, process_file = NULL " .
-          "WHERE encounter = $encounter AND pid = $pid AND activity = 1";
-        ****/
         if (!$debug)
-          updateClaim(true, $pid, $encounter, -1, 1, 0, '');
+          updateClaim(true, $pid, $encounter, -1, -1, 1, 0, '');
       }
-
-      /****
-      if ($debug) {
-        echo $query . "<br>\n";
-      } else {
-        sqlQuery($query);
-      }
-      ****/
 
       $info_msg = xl("Encounter ") . $encounter . xl(" is ready for re-billing.");
       return;

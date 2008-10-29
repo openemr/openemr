@@ -1,32 +1,34 @@
 <?php
- // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+// Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
 
- // This is the first of two pages to support posting of EOBs.
- // The second is sl_eob_invoice.php.
+// This is the first of two pages to support posting of EOBs.
+// The second is sl_eob_invoice.php.
 
- include_once("../globals.php");
- include_once("../../library/patient.inc");
- include_once("../../library/sql-ledger.inc");
- include_once("../../library/invoice_summary.inc.php");
- include_once("../../custom/statement.inc.php");
- include_once("../../library/parse_era.inc.php");
- include_once("../../library/sl_eob.inc.php");
+include_once("../globals.php");
+include_once("../../library/patient.inc");
+include_once("../../library/sql-ledger.inc");
+include_once("../../library/invoice_summary.inc.php");
+include_once("../../custom/statement.inc.php");
+include_once("../../library/parse_era.inc.php");
+include_once("../../library/sl_eob.inc.php");
 
- $DEBUG = 0; // set to 0 for production, 1 to test
+$DEBUG = 0; // set to 0 for production, 1 to test
 
- $alertmsg = '';
- $where = '';
- $eraname = '';
- $eracount = 0;
+$INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
 
- // This is called back by parse_era() if we are processing X12 835's.
- //
- function era_callback(&$out) {
+$alertmsg = '';
+$where = '';
+$eraname = '';
+$eracount = 0;
+
+// This is called back by parse_era() if we are processing X12 835's.
+//
+function era_callback(&$out) {
   global $where, $eracount, $eraname;
   // print_r($out); // debugging
   ++$eracount;
@@ -36,177 +38,289 @@
   list($pid, $encounter, $invnumber) = slInvoiceNumber($out);
 
   if ($pid && $encounter) {
-   if ($where) $where .= ' OR ';
-   $where .= "invnumber = '$invnumber'";
+    if ($where) $where .= ' OR ';
+    $where .= "invnumber = '$invnumber'";
   }
- }
+}
 
- function bucks($amount) {
+function bucks($amount) {
   if ($amount)
-   printf("%.2f", $amount);
- }
+    printf("%.2f", $amount);
+}
 
- $today = date("Y-m-d");
+$today = date("Y-m-d");
 
- SLConnect();
+if ($INTEGRATED_AR) {
 
- // This will be true starting with SQL-Ledger 2.8.x:
- $got_address_table = SLQueryValue("SELECT count(*) FROM pg_tables WHERE " .
-  "schemaname = 'public' AND tablename = 'address'");
+  // Print statements if requested.
+  //
+  if ($_POST['form_print'] && $_POST['form_cb']) {
 
- // Print statements if requested.
- //
- if ($_POST['form_print'] && $_POST['form_cb']) {
+    $fhprint = fopen($STMT_TEMP_FILE, 'w');
 
-  $fhprint = fopen($STMT_TEMP_FILE, 'w');
+    $where = "";
+    foreach ($_POST['form_cb'] as $key => $value) $where .= " OR f.id = $key";
+    $where = substr($where, 4);
 
-  $where = "";
-  foreach ($_POST['form_cb'] as $key => $value) $where .= " OR ar.id = $key";
-  $where = substr($where, 4);
+    $res = sqlStatement("SELECT " .
+      "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, " .
+      "p.fname, p.mname, p.lname, p.street, p.city, p.state, p.postal_code " .
+      "FROM form_encounter AS f, patient_data AS p " .
+      "WHERE ( $where ) AND " .
+      "p.pid = f.pid" .
+      "ORDER BY p.lname, p.fname, f.pid, f.date, f.encounter");
 
-  // Sort by patient so that multiple invoices can be
-  // represented on a single statement.
-  if ($got_address_table) {
-   $res = SLQuery("SELECT ar.*, customer.name, " .
-    "address.address1, address.address2, " .
-    "address.city, address.state, address.zipcode, " .
-    "substring(trim(both from customer.name) from '% #\"%#\"' for '#') AS fname, " .
-    "substring(trim(both from customer.name) from '#\"%#\" %' for '#') AS lname " .
-    "FROM ar, customer, address WHERE ( $where ) AND " .
-    "customer.id = ar.customer_id AND " .
-    "address.trans_id = ar.customer_id " .
-    "ORDER BY lname, fname, ar.customer_id, ar.transdate");
-  }
-  else {
-   $res = SLQuery("SELECT ar.*, customer.name, " .
-    "customer.address1, customer.address2, " .
-    "customer.city, customer.state, customer.zipcode, " .
-    "substring(trim(both from customer.name) from '% #\"%#\"' for '#') AS lname, " .
-    "substring(trim(both from customer.name) from '#\"%#\" %' for '#') AS fname " .
-    "FROM ar, customer WHERE ( $where ) AND " .
-    "customer.id = ar.customer_id " .
-    "ORDER BY lname, fname, ar.customer_id, ar.transdate");
-  }
-  if ($sl_err) die($sl_err);
+    $stmt = array();
+    $stmt_count = 0;
 
-  $stmt = array();
-  $stmt_count = 0;
+    // This loops once for each invoice/encounter.
+    //
+    while ($row = sqlFetchArray($res)) {
+      $svcdate = substr($row['date'], 0, 10);
+      $duedate = $svcdate; // TBD?
+      $duncount = $row['stmt_count'];
 
-  for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
-   $row = SLGetRow($res, $irow);
+      // If this is a new patient then print the pending statement
+      // and start a new one.  This is an associative array:
+      //
+      //  cid     = same as pid
+      //  pid     = OpenEMR patient ID
+      //  patient = patient name
+      //  amount  = total amount due
+      //  adjust  = adjustments (already applied to amount)
+      //  duedate = due date of the oldest included invoice
+      //  age     = number of days from duedate to today
+      //  to      = array of addressee name/address lines
+      //  lines   = array of:
+      //    dos     = date of service "yyyy-mm-dd"
+      //    desc    = description
+      //    amount  = charge less adjustments
+      //    paid    = amount paid
+      //    notice  = 1 for first notice, 2 for second, etc.
+      //    detail  = array of details, see invoice_summary.inc.php
+      //
+      if ($stmt['cid'] != $row['pid']) {
+        if (!empty($stmt)) ++$stmt_count;
+        fwrite($fhprint, create_statement($stmt));
+        $stmt['cid'] = $row['pid'];
+        $stmt['pid'] = $row['pid'];
+        $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
+        $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
+        if ($row['street']) $stmt['to'][] = $row['street'];
+        $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['postal_code'];
+        $stmt['lines'] = array();
+        $stmt['amount'] = '0.00';
+        $stmt['today'] = $today;
+        $stmt['duedate'] = $duedate;
+      } else {
+        // Report the oldest due date.
+        if ($duedate < $stmt['duedate']) {
+          $stmt['duedate'] = $duedate;
+        }
+      }
 
-   // Determine the date of service.  An 8-digit encounter number is
-   // presumed to be a date of service imported during conversion.
-   // Otherwise look it up in the form_encounter table.
-   //
-   $svcdate = "";
-   list($pid, $encounter) = explode(".", $row['invnumber']);
-   if (strlen($encounter) == 8) {
-    $svcdate = substr($encounter, 0, 4) . "-" . substr($encounter, 4, 2) .
-      "-" . substr($encounter, 6, 2);
-   } else if ($encounter) {
-    $tmp = sqlQuery("SELECT date FROM form_encounter WHERE " .
-     "encounter = $encounter");
-    $svcdate = substr($tmp['date'], 0, 10);
-   }
+      // Recompute age at each invoice.
+      $stmt['age'] = round((strtotime($today) - strtotime($stmt['duedate'])) /
+        (24 * 60 * 60));
 
-   // How many times have we dunned them for this invoice?
-   $intnotes = trim($row['intnotes']);
-   $duncount = substr_count(strtolower($intnotes), "statement sent");
+      $invlines = ar_get_invoice_summary($row['pid'], $row['encounter'], true);
+      foreach ($invlines as $key => $value) {
+        $line = array();
+        $line['dos']     = $svcdate;
+        $line['desc']    = ($key == 'CO-PAY') ? "Patient Payment" : "Procedure $key";
+        $line['amount']  = sprintf("%.2f", $value['chg']);
+        $line['adjust']  = sprintf("%.2f", $value['adj']);
+        $line['paid']    = sprintf("%.2f", $value['chg'] - $value['bal']);
+        $line['notice']  = $duncount + 1;
+        $line['detail']  = $value['dtl'];
+        $stmt['lines'][] = $line;
+        $stmt['amount']  = sprintf("%.2f", $stmt['amount'] + $value['bal']);
+      }
 
-   // If this is a new patient then print the pending statement
-   // and start a new one.  This is an associative array:
-   //
-   //  cid     = SQL-Ledger customer ID
-   //  pid     = OpenEMR patient ID
-   //  patient = patient name
-   //  amount  = total amount due
-   //  adjust  = adjustments (already applied to amount)
-   //  duedate = due date of the oldest included invoice
-   //  age     = number of days from duedate to today
-   //  to      = array of addressee name/address lines
-   //  lines   = array of:
-   //    dos     = date of service "yyyy-mm-dd"
-   //    desc    = description
-   //    amount  = charge less adjustments
-   //    paid    = amount paid
-   //    notice  = 1 for first notice, 2 for second, etc.
-   //    detail  = array of details, see invoice_summary.inc.php
-   //
-   if ($stmt['cid'] != $row['customer_id']) {
+      // Record that this statement was run.
+      if (! $DEBUG && ! $_POST['form_without']) {
+        sqlStatement("UPDATE form_encounter SET " .
+          "last_stmt_date = '$today', stmt_count = stmt_count + 1 " .
+          "WHERE id = " . $row['id']);
+      }
+    } // end for
+
     if (!empty($stmt)) ++$stmt_count;
     fwrite($fhprint, create_statement($stmt));
-    $stmt['cid'] = $row['customer_id'];
-    $stmt['pid'] = $pid;
 
-    if ($got_address_table) {
-      $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
-      $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
+    if ($DEBUG) {
+      $alertmsg = xl("Printing skipped; see test output in ") . $STMT_TEMP_FILE;
     } else {
-      $stmt['patient'] = $row['name'];
-      $stmt['to'] = array($row['name']);
+      exec("$STMT_PRINT_CMD $STMT_TEMP_FILE");
+      if ($_POST['form_without']) {
+        $alertmsg = xl("Now printing $stmt_count statements; encounters will not be updated.");
+      } else {
+        $alertmsg = xl("Now printing $stmt_count statements and updating encounters.");
+      }
+    } // end not debug
+  } // end statements requested
+} // end $INTEGRATED_AR
+else {
+  SLConnect();
+
+  // This will be true starting with SQL-Ledger 2.8.x:
+  $got_address_table = SLQueryValue("SELECT count(*) FROM pg_tables WHERE " .
+    "schemaname = 'public' AND tablename = 'address'");
+
+  // Print statements if requested.
+  //
+  if ($_POST['form_print'] && $_POST['form_cb']) {
+
+    $fhprint = fopen($STMT_TEMP_FILE, 'w');
+
+    $where = "";
+    foreach ($_POST['form_cb'] as $key => $value) $where .= " OR ar.id = $key";
+    $where = substr($where, 4);
+
+    // Sort by patient so that multiple invoices can be
+    // represented on a single statement.
+    if ($got_address_table) {
+      $res = SLQuery("SELECT ar.*, customer.name, " .
+        "address.address1, address.address2, " .
+        "address.city, address.state, address.zipcode, " .
+        "substring(trim(both from customer.name) from '% #\"%#\"' for '#') AS fname, " .
+        "substring(trim(both from customer.name) from '#\"%#\" %' for '#') AS lname " .
+        "FROM ar, customer, address WHERE ( $where ) AND " .
+        "customer.id = ar.customer_id AND " .
+        "address.trans_id = ar.customer_id " .
+        "ORDER BY lname, fname, ar.customer_id, ar.transdate");
     }
-
-    if ($row['address1']) $stmt['to'][] = $row['address1'];
-    if ($row['address2']) $stmt['to'][] = $row['address2'];
-    $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['zipcode'];
-    $stmt['lines'] = array();
-    $stmt['amount'] = '0.00';
-    $stmt['today'] = $today;
-    $stmt['duedate'] = $row['duedate'];
-   } else {
-    // Report the oldest due date.
-    if ($row['duedate'] < $stmt['duedate']) {
-     $stmt['duedate'] = $row['duedate'];
+    else {
+      $res = SLQuery("SELECT ar.*, customer.name, " .
+        "customer.address1, customer.address2, " .
+        "customer.city, customer.state, customer.zipcode, " .
+        "substring(trim(both from customer.name) from '% #\"%#\"' for '#') AS lname, " .
+        "substring(trim(both from customer.name) from '#\"%#\" %' for '#') AS fname " .
+        "FROM ar, customer WHERE ( $where ) AND " .
+        "customer.id = ar.customer_id " .
+        "ORDER BY lname, fname, ar.customer_id, ar.transdate");
     }
-   }
-
-   $stmt['age'] = round((strtotime($today) - strtotime($stmt['duedate'])) /
-    (24 * 60 * 60));
-
-   $invlines = get_invoice_summary($row['id'], true); // true added by Rod 2006-06-09
-   foreach ($invlines as $key => $value) {
-    $line = array();
-    $line['dos']     = $svcdate;
-    $line['desc']    = ($key == 'CO-PAY') ? "Patient Payment" : "Procedure $key";
-    $line['amount']  = sprintf("%.2f", $value['chg']);
-    $line['adjust']  = sprintf("%.2f", $value['adj']);
-    $line['paid']    = sprintf("%.2f", $value['chg'] - $value['bal']);
-    $line['notice']  = $duncount + 1;
-    $line['detail']  = $value['dtl']; // Added by Rod 2006-06-09
-    $stmt['lines'][] = $line;
-    $stmt['amount']  = sprintf("%.2f", $stmt['amount'] + $value['bal']);
-   }
-
-   // Record something in ar.intnotes about this statement run.
-   if ($intnotes) $intnotes .= "\n";
-   $intnotes = addslashes($intnotes . "Statement sent $today");
-   if (! $DEBUG && ! $_POST['form_without']) {
-    SLQuery("UPDATE ar SET intnotes = '$intnotes' WHERE id = " . $row['id']);
     if ($sl_err) die($sl_err);
-   }
-  }
 
-  if (!empty($stmt)) ++$stmt_count;
-  fwrite($fhprint, create_statement($stmt));
+    $stmt = array();
+    $stmt_count = 0;
 
-  if ($DEBUG) {
-   $alertmsg = xl("Printing skipped; see test output in ").$STMT_TEMP_FILE;
-  } else {
-   exec("$STMT_PRINT_CMD $STMT_TEMP_FILE");
-   if ($_POST['form_without']) {
-    $alertmsg = xl("Now printing $stmt_count statements; invoices will not be updated.");
-   } else {
-    $alertmsg = xl("Now printing $stmt_count statements and updating invoices.");
-   }
-  }
- }
+    for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
+      $row = SLGetRow($res, $irow);
+
+      // Determine the date of service.  An 8-digit encounter number is
+      // presumed to be a date of service imported during conversion.
+      // Otherwise look it up in the form_encounter table.
+      //
+      $svcdate = "";
+      list($pid, $encounter) = explode(".", $row['invnumber']);
+      if (strlen($encounter) == 8) {
+        $svcdate = substr($encounter, 0, 4) . "-" . substr($encounter, 4, 2) .
+          "-" . substr($encounter, 6, 2);
+      } else if ($encounter) {
+        $tmp = sqlQuery("SELECT date FROM form_encounter WHERE " .
+          "encounter = $encounter");
+        $svcdate = substr($tmp['date'], 0, 10);
+      }
+
+      // How many times have we dunned them for this invoice?
+      $intnotes = trim($row['intnotes']);
+      $duncount = substr_count(strtolower($intnotes), "statement sent");
+
+      // If this is a new patient then print the pending statement
+      // and start a new one.  This is an associative array:
+      //
+      //  cid     = SQL-Ledger customer ID
+      //  pid     = OpenEMR patient ID
+      //  patient = patient name
+      //  amount  = total amount due
+      //  adjust  = adjustments (already applied to amount)
+      //  duedate = due date of the oldest included invoice
+      //  age     = number of days from duedate to today
+      //  to      = array of addressee name/address lines
+      //  lines   = array of:
+      //    dos     = date of service "yyyy-mm-dd"
+      //    desc    = description
+      //    amount  = charge less adjustments
+      //    paid    = amount paid
+      //    notice  = 1 for first notice, 2 for second, etc.
+      //    detail  = array of details, see invoice_summary.inc.php
+      //
+      if ($stmt['cid'] != $row['customer_id']) {
+        if (!empty($stmt)) ++$stmt_count;
+        fwrite($fhprint, create_statement($stmt));
+        $stmt['cid'] = $row['customer_id'];
+        $stmt['pid'] = $pid;
+
+        if ($got_address_table) {
+          $stmt['patient'] = $row['fname'] . ' ' . $row['lname'];
+          $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
+        } else {
+          $stmt['patient'] = $row['name'];
+          $stmt['to'] = array($row['name']);
+        }
+
+        if ($row['address1']) $stmt['to'][] = $row['address1'];
+        if ($row['address2']) $stmt['to'][] = $row['address2'];
+        $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['zipcode'];
+        $stmt['lines'] = array();
+        $stmt['amount'] = '0.00';
+        $stmt['today'] = $today;
+        $stmt['duedate'] = $row['duedate'];
+      } else {
+        // Report the oldest due date.
+        if ($row['duedate'] < $stmt['duedate']) {
+          $stmt['duedate'] = $row['duedate'];
+        }
+      }
+
+      $stmt['age'] = round((strtotime($today) - strtotime($stmt['duedate'])) /
+        (24 * 60 * 60));
+
+      $invlines = get_invoice_summary($row['id'], true); // true added by Rod 2006-06-09
+      foreach ($invlines as $key => $value) {
+        $line = array();
+        $line['dos']     = $svcdate;
+        $line['desc']    = ($key == 'CO-PAY') ? "Patient Payment" : "Procedure $key";
+        $line['amount']  = sprintf("%.2f", $value['chg']);
+        $line['adjust']  = sprintf("%.2f", $value['adj']);
+        $line['paid']    = sprintf("%.2f", $value['chg'] - $value['bal']);
+        $line['notice']  = $duncount + 1;
+        $line['detail']  = $value['dtl']; // Added by Rod 2006-06-09
+        $stmt['lines'][] = $line;
+        $stmt['amount']  = sprintf("%.2f", $stmt['amount'] + $value['bal']);
+      }
+
+      // Record something in ar.intnotes about this statement run.
+      if ($intnotes) $intnotes .= "\n";
+      $intnotes = addslashes($intnotes . "Statement sent $today");
+      if (! $DEBUG && ! $_POST['form_without']) {
+        SLQuery("UPDATE ar SET intnotes = '$intnotes' WHERE id = " . $row['id']);
+        if ($sl_err) die($sl_err);
+      }
+    } // end for
+
+    if (!empty($stmt)) ++$stmt_count;
+    fwrite($fhprint, create_statement($stmt));
+
+    if ($DEBUG) {
+      $alertmsg = xl("Printing skipped; see test output in ").$STMT_TEMP_FILE;
+    } else {
+      exec("$STMT_PRINT_CMD $STMT_TEMP_FILE");
+      if ($_POST['form_without']) {
+        $alertmsg = xl("Now printing $stmt_count statements; invoices will not be updated.");
+      } else {
+        $alertmsg = xl("Now printing $stmt_count statements and updating invoices.");
+      }
+    } // end not debug
+  } // end statements requested
+} // end not $INTEGRATED_AR
 ?>
 <html>
 <head>
 <? html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<title><?xl('EOB Posting - Search','e')?></title>
+<title><?php xl('EOB Posting - Search','e'); ?></title>
 <script type="text/javascript" src="../../library/textformat.js"></script>
 
 <script language="JavaScript">
@@ -237,83 +351,106 @@ function npopup(pid) {
 <form method='post' action='sl_eob_search.php' enctype='multipart/form-data'>
 
 <table border='0' cellpadding='5' cellspacing='0'>
-
  <tr>
-  <td height="1" colspan="10">
-  </td>
- </tr>
 
- <tr>
-  <td colspan='2'>
-   &nbsp;
-  </td>
+<?php
+if ($INTEGRATED_AR) {
+  // Identify the payer to support resumable posting sessions.
+  echo "  <td>\n";
+  echo "   " . xl('Payer') . ":\n";
+  echo "  </td>\n";
+  echo "  <td>\n";
+  $insurancei = getInsuranceProviders();
+  echo "   <select name='form_payer_id'>\n";
+  echo "    <option value='0'>-- " . xl('Patient') . " --</option>\n";
+  foreach ($insurancei as $iid => $iname) {
+    echo "<option value='$iid'";
+    if ($iid == $_POST['form_payer_id']) echo " selected";
+    echo ">" . $iname . "</option>\n";
+  }
+  echo "   </select>\n";
+  echo "  </td>\n";
+}
+?>
+
   <td>
-   <?xl('Source:','e')?>
+   <?php xl('Source:','e'); ?>
   </td>
   <td>
    <input type='text' name='form_source' size='10' value='<?php echo $_POST['form_source']; ?>'
-    title='<?xl("A check number or claim number to identify the payment","e")?>'>
+    title='<?php xl("A check number or claim number to identify the payment","e"); ?>'>
   </td>
   <td>
-   <?xl('Pay Date:','e')?>
+   <?php xl('Pay Date:','e'); ?>
   </td>
   <td>
    <input type='text' name='form_paydate' size='10' value='<?php echo $_POST['form_paydate']; ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='<?xl("Date of payment yyyy-mm-dd","e")?>'>
+    title='<?php xl("Date of payment yyyy-mm-dd","e"); ?>'>
+  </td>
+
+<?php if ($INTEGRATED_AR) { // include deposit date ?>
+  <td>
+   <?php xl('Deposit Date:','e'); ?>
   </td>
   <td>
-   <?xl('Amount:','e')?>
+   <input type='text' name='form_deposit_date' size='10' value='<?php echo $_POST['form_deposit_date']; ?>'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+    title='<?php xl("Date of bank deposit yyyy-mm-dd","e"); ?>'>
+  </td>
+<?php } ?>
+
+  <td>
+   <?php xl('Amount:','e'); ?>
   </td>
   <td>
    <input type='text' name='form_amount' size='10' value='<?php echo $_POST['form_amount']; ?>'
-    title='<?xl("Paid amount that you will allocate","e")?>'>
+    title='<?php xl("Paid amount that you will allocate","e"); ?>'>
   </td>
-  <td colspan='2' align='right'>
-   <a href='sl_eob_help.php' target='_blank'><?xl('Help','e')?></a>
+  <td align='right'>
+   <a href='sl_eob_help.php' target='_blank'><?php xl('Help','e'); ?></a>
   </td>
- </tr>
 
- <tr>
-  <td height="1" colspan="10">
-  </td>
  </tr>
+</table>
+
+<table border='0' cellpadding='5' cellspacing='0'>
 
  <tr bgcolor='#ddddff'>
   <td>
-   <?xl('Name:','e')?>
+   <?php xl('Name:','e'); ?>
   </td>
   <td>
    <input type='text' name='form_name' size='10' value='<?php echo $_POST['form_name']; ?>'
-    title='<?xl("Any part of the patient name, or \"last,first\", or \"X-Y\"","e")?>'>
+    title='<?php xl("Any part of the patient name, or \"last,first\", or \"X-Y\"","e"); ?>'>
   </td>
   <td>
-   <?xl('Chart ID:','e')?>
+   <?php xl('Chart ID:','e'); ?>
   </td>
   <td>
    <input type='text' name='form_pid' size='10' value='<?php echo $_POST['form_pid']; ?>'
-    title='<?xl("Patient chart ID","e")?>'>
+    title='<?php xl("Patient chart ID","e"); ?>'>
   </td>
   <td>
-   <?xl('Encounter:','e')?>
+   <?php xl('Encounter:','e'); ?>
   </td>
   <td>
    <input type='text' name='form_encounter' size='10' value='<?php echo $_POST['form_encounter']; ?>'
-    title='<?xl("Encounter number","e")?>'>
+    title='<?php xl("Encounter number","e"); ?>'>
   </td>
   <td>
-   <?xl('Svc Date:','e')?>
+   <?php xl('Svc Date:','e'); ?>
   </td>
   <td>
    <input type='text' name='form_date' size='10' value='<?php echo $_POST['form_date']; ?>'
-    title='<?xl("Date of service mm/dd/yyyy","e")?>'>
+    title='<?php xl("Date of service mm/dd/yyyy","e"); ?>'>
   </td>
   <td>
-   <?xl('To:','e')?>
+   <?php xl('To:','e'); ?>
   </td>
   <td>
    <input type='text' name='form_to_date' size='10' value='<?php echo $_POST['form_to_date']; ?>'
-    title='<?xl("Ending DOS mm/dd/yyyy if you wish to enter a range","e")?>'>
+    title='<?php xl("Ending DOS mm/dd/yyyy if you wish to enter a range","e"); ?>'>
   </td>
   <td>
    <select name='form_category'>
@@ -327,14 +464,14 @@ function npopup(pid) {
    </select>
   </td>
   <td>
-   <input type='submit' name='form_search' value='<?xl("Search","e")?>'>
+   <input type='submit' name='form_search' value='<?php xl("Search","e"); ?>'>
   </td>
  </tr>
 
  <!-- Support for X12 835 upload -->
  <tr bgcolor='#ddddff'>
   <td colspan='12'>
-   <?xl('Or upload ERA file:','e')?>
+   <?php xl('Or upload ERA file:','e'); ?>
    <input type="hidden" name="MAX_FILE_SIZE" value="5000000" />
    <input name="form_erafile" type="file" />
   </td>
@@ -348,46 +485,126 @@ function npopup(pid) {
 </table>
 
 <?php
-  if ($_POST['form_search'] || $_POST['form_print']) {
-    $form_name      = trim($_POST['form_name']);
-    $form_pid       = trim($_POST['form_pid']);
-    $form_encounter = trim($_POST['form_encounter']);
-    $form_date      = fixDate($_POST['form_date'], "");
-    $form_to_date   = fixDate($_POST['form_to_date'], "");
+if ($_POST['form_search'] || $_POST['form_print']) {
+  $form_name      = trim($_POST['form_name']);
+  $form_pid       = trim($_POST['form_pid']);
+  $form_encounter = trim($_POST['form_encounter']);
+  $form_date      = fixDate($_POST['form_date'], "");
+  $form_to_date   = fixDate($_POST['form_to_date'], "");
 
-    $where = "";
+  $where = "";
 
-    // Handle X12 835 file upload.
-    //
-    if ($_FILES['form_erafile']['size']) {
-      $tmp_name = $_FILES['form_erafile']['tmp_name'];
+  // Handle X12 835 file upload.
+  //
+  if ($_FILES['form_erafile']['size']) {
+    $tmp_name = $_FILES['form_erafile']['tmp_name'];
 
-      // Handle .zip extension if present.  Probably won't work on Windows.
-      if (strtolower(substr($_FILES['form_erafile']['name'], -4)) == '.zip') {
-        rename($tmp_name, "$tmp_name.zip");
-        exec("unzip -p $tmp_name.zip > $tmp_name");
-        unlink("$tmp_name.zip");
-      }
-
-      echo "<!-- Notes from ERA upload processing:\n";
-      $alertmsg .= parse_era($tmp_name, 'era_callback');
-      echo "-->\n";
-      $erafullname = "$webserver_root/era/$eraname.edi";
-
-      if (is_file($erafullname)) {
-        $alertmsg .= "Warning: Set $eraname was already uploaded ";
-        if (is_file("$webserver_root/era/$eraname.html"))
-          $alertmsg .= "and processed. ";
-        else
-          $alertmsg .= "but not yet processed. ";
-      }
-      // if (!move_uploaded_file($_FILES['form_erafile']['tmp_name'], $erafullname)) {
-      //   die("Upload failed! $alertmsg");
-      // }
-      rename($tmp_name, $erafullname);
+    // Handle .zip extension if present.  Probably won't work on Windows.
+    if (strtolower(substr($_FILES['form_erafile']['name'], -4)) == '.zip') {
+      rename($tmp_name, "$tmp_name.zip");
+      exec("unzip -p $tmp_name.zip > $tmp_name");
+      unlink("$tmp_name.zip");
     }
 
+    echo "<!-- Notes from ERA upload processing:\n";
+    $alertmsg .= parse_era($tmp_name, 'era_callback');
+    echo "-->\n";
+    $erafullname = "$webserver_root/era/$eraname.edi";
+
+    if (is_file($erafullname)) {
+      $alertmsg .= "Warning: Set $eraname was already uploaded ";
+      if (is_file("$webserver_root/era/$eraname.html"))
+        $alertmsg .= "and processed. ";
+      else
+        $alertmsg .= "but not yet processed. ";
+    }
+    rename($tmp_name, $erafullname);
+  } // End 835 upload
+
+  if ($INTEGRATED_AR) {
     if ($eracount) {
+      // Note that parse_era() modified $eracount and $where.
+      if (! $where) $where = '1 = 2';
+    }
+    else {
+      if ($form_name) {
+        if ($where) $where .= " AND ";
+        // Allow the last name to be followed by a comma and some part of a first name.
+        if (preg_match('/^(.*\S)\s*,\s*(.*)/', $form_name, $matches)) {
+          $where .= "p.lname LIKE '" . $matches[1] . "%' AND p.fname LIKE '" . $matches[1] . "%'";
+        // Allow a filter like "A-C" on the first character of the last name.
+        } else if (preg_match('/^(\S)\s*-\s*(\S)$/', $form_name, $matches)) {
+          $tmp = '1 = 2';
+          while (ord($matches[1]) <= ord($matches[2])) {
+            $tmp .= " OR p.lname LIKE '" . $matches[1] . "%'";
+            $matches[1] = chr(ord($matches[1]) + 1);
+          }
+          $where .= "( $tmp ) ";
+        } else {
+          $where .= "p.lname LIKE '%$form_name%'";
+        }
+      }
+      if ($form_pid) {
+        if ($where) $where .= " AND ";
+        $where .= "f.pid = '$form_pid'";
+      }
+      if ($form_encounter) {
+        if ($where) $where .= " AND ";
+        $where .= "f.encounter = '$form_encounter'";
+      }
+      if ($form_date) {
+        if ($where) $where .= " AND ";
+        if ($form_to_date) {
+          $where .= "f.date >= '$form_date' AND f.date <= '$form_to_date'";
+        }
+        else {
+          $where .= "f.date = '$form_date'";
+        }
+      }
+      if (! $where) {
+        if ($_POST['form_category'] == 'All') {
+          die("At least one search parameter is required if you select All.");
+        } else {
+          $where = "1 = 1";
+        }
+      }
+    }
+
+    $query = "SELECT f.id, f.pid, f.encounter, f.date, " .
+      "f.last_level_billed, f.last_level_closed, f.stmt_count, " .
+      "p.fname, p.mname, p.lname, p.pubpid, p.genericname2, p.genericval2, " .
+      "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
+      "b.pid = f.pid AND b.encounter = f.encounter AND " .
+      "b.activity = 1 AND b.code_type != 'COPAY' ) AS charges, " .
+      "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
+      "b.pid = f.pid AND b.encounter = f.encounter AND " .
+      "b.activity = 1 AND b.code_type = 'COPAY' ) AS copays, " .
+      "( SELECT SUM(a.pay_amount) FROM ar_activity AS a WHERE " .
+      "a.pid = f.pid AND a.encounter = f.encounter ) AS payments, " .
+      "( SELECT SUM(a.adj_amount) FROM ar_activity AS a WHERE " .
+      "a.pid = f.pid AND a.encounter = f.encounter ) AS adjustments " .
+      "FROM form_encounter AS f " .
+      "JOIN patient_data AS p ON p.pid = f.pid " .
+      "WHERE $where " .
+      "ORDER BY p.lname, p.fname, p.mname, f.pid, f.encounter";
+
+    // Note that unlike the SQL-Ledger case, this query does not weed
+    // out encounters that are paid up.  Also the use of sub-selects
+    // will require MySQL 4.1 or greater.
+
+    // echo "<!-- $query -->\n"; // debugging
+
+    $t_res = sqlStatement($query);
+
+    $num_invoices = mysql_num_rows($t_res);
+    if ($eracount && $num_invoices != $eracount) {
+      $alertmsg .= "Of $eracount remittances, there are $num_invoices " .
+        "matching encounters in OpenEMR. ";
+    }
+  } // end $INTEGRATED_AR
+  else {
+    if ($eracount) {
+      // Note that parse_era() modified $eracount and $where.
       if (! $where) $where = '1 = 2';
     }
     else {
@@ -478,7 +695,7 @@ function npopup(pid) {
     }
     $query .= "ORDER BY lname, fname, ar.invnumber";
 
-    echo "<!-- $query -->\n"; // debugging
+    // echo "<!-- $query -->\n"; // debugging
 
     $t_res = SLQuery($query);
     if ($sl_err) die($sl_err);
@@ -488,47 +705,134 @@ function npopup(pid) {
       $alertmsg .= "Of $eracount remittances, there are $num_invoices " .
         "matching claims in OpenEMR. ";
     }
+
+  } // end not $INTEGRATED_AR
 ?>
 
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
 
  <tr bgcolor="#dddddd">
   <td class="dehead">
-   &nbsp;<?xl('Patient','e')?>
+   &nbsp;<?php xl('Patient','e'); ?>
   </td>
   <td class="dehead">
-   &nbsp;<?xl('Invoice','e')?>
+   &nbsp;<?php xl('Invoice','e'); ?>
   </td>
   <td class="dehead">
-   &nbsp;<?xl('Svc Date','e')?>
+   &nbsp;<?php xl('Svc Date','e'); ?>
   </td>
   <td class="dehead">
-   &nbsp;<?xl('Due Date','e')?>
+   &nbsp;<?php xl('Due Date','e'); ?>
   </td>
   <td class="dehead" align="right">
-   <?xl('Charge','e')?>&nbsp;
+   <?php xl('Charge','e'); ?>&nbsp;
   </td>
   <td class="dehead" align="right">
-   <?xl('Adjust','e')?>&nbsp;
+   <?php xl('Adjust','e'); ?>&nbsp;
   </td>
   <td class="dehead" align="right">
-   <?xl('Paid','e')?>&nbsp;
+   <?php xl('Paid','e'); ?>&nbsp;
   </td>
   <td class="dehead" align="right">
-   <?xl('Balance','e')?>&nbsp;
+   <?php xl('Balance','e'); ?>&nbsp;
   </td>
   <td class="dehead" align="center">
-   <?xl('Prv','e')?>
+   <?php xl('Prv','e'); ?>
   </td>
 <?php if (!$eracount) { ?>
   <td class="dehead" align="left">
-   <?xl('Sel','e')?>
+   <?php xl('Sel','e'); ?>
   </td>
 <?php } ?>
  </tr>
 
 <?php
-    $orow = -1;
+  $orow = -1;
+
+  if ($INTEGRATED_AR) {
+    while ($row = sqlFetchArray($t_res)) {
+      $balance = $row['charges'] + $row['copays'] - $row['payments'] - $row['adjustments'];
+
+      if ($_POST['form_category'] != 'All' && !$eracount && !$balance) continue;
+
+      // $duncount was originally supposed to be the number of times that
+      // the patient was sent a statement for this invoice.
+      //
+      $duncount = $row['stmt_count'];
+
+      // But if we have not yet billed the patient, then compute $duncount as a
+      // negative count of the number of insurance plans for which we have not
+      // yet closed out insurance.
+      //
+      if (! $duncount) {
+        for ($i = 1; $i <= 3 && arGetPayerID($row['pid'], $row['date'], $i); ++$i) ;
+        $duncount = $row['last_level_closed'] + 1 - $i;
+      }
+
+      $isdueany = ($balance > 0);
+
+      // An invoice is now due from the patient if money is owed and we are
+      // not waiting for insurance to pay.
+      //
+      $isduept = ($duncount >= 0 && $isdueany) ? " checked" : "";
+
+      // Skip invoices not in the desired "Due..." category.
+      //
+      if (substr($_POST['form_category'], 0, 3) == 'Due' && !$isdueany) continue;
+      if ($_POST['form_category'] == 'Due Ins' && ($duncount >= 0 || !$isdueany)) continue;
+      if ($_POST['form_category'] == 'Due Pt'  && ($duncount <  0 || !$isdueany)) continue;
+
+      $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
+
+      $svcdate = substr($row['date'], 0, 10);
+
+      // Determine if customer is in collections.
+      //
+      $billnote = ($row['genericname2'] == 'Billing') ? $row['genericval2'] : '';
+      $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false;
+?>
+ <tr bgcolor='<?php echo $bgcolor ?>'>
+  <td class="detail">
+   &nbsp;<a href="" onclick="return npopup(<?php echo $pid ?>)"
+   ><?php echo $row['lname'] . ', ' . $row['fname']; ?></a>
+  </td>
+  <td class="detail">
+   &nbsp;<a href="sl_eob_invoice.php?id=<?php echo $row['id'] ?>"
+    target="_blank"><?php echo $row['pid'] . '.' . $row['encounter']; ?></a>
+  </td>
+  <td class="detail">
+   &nbsp;<?php echo $svcdate ?>
+  </td>
+  <td class="detail">
+   &nbsp;
+  </td>
+  <td class="detail" align="right">
+   <?php bucks($row['charges']) ?>&nbsp;
+  </td>
+  <td class="detail" align="right">
+   <?php bucks($row['adjustments']) ?>&nbsp;
+  </td>
+  <td class="detail" align="right">
+   <?php bucks($row['payments'] - $row['copays']); ?>&nbsp;
+  </td>
+  <td class="detail" align="right">
+   <?php bucks($row['charges'] - $row['adjustments'] - $row['payments'] + $row['copays']); ?>&nbsp;
+  </td>
+  <td class="detail" align="center">
+   <?php echo $duncount ? $duncount : "&nbsp;" ?>
+  </td>
+<?php if (!$eracount) { ?>
+  <td class="detail" align="left">
+   <input type='checkbox' name='form_cb[<?php echo($row['id']) ?>]'<?php echo $isduept ?> />
+   <?php if ($in_collections) echo "<b><font color='red'>IC</font></b>"; ?>
+  </td>
+<?php } ?>
+ </tr>
+<?php
+    } // end while
+  } // end $INTEGRATED_AR
+
+  else { // not $INTEGRATED_AR
     for ($irow = 0; $irow < $num_invoices; ++$irow) {
       $row = SLGetRow($t_res, $irow);
 
@@ -637,9 +941,11 @@ function npopup(pid) {
 <?php } ?>
  </tr>
 <?
-    }
-  }
-  SLClose();
+    } // end for
+  } // end not $INTEGRATED_AR
+} // end search/print logic
+
+if (!$INTEGRATED_AR) SLClose();
 ?>
 
 </table>
@@ -652,7 +958,7 @@ function npopup(pid) {
 <input type='button' value='Clear All' onclick='checkAll(false)' /> &nbsp;
 <input type='submit' name='form_print' value='Print Selected Statements' /> &nbsp;
 <?php } ?>
-<input type='checkbox' name='form_without' value='1' /> <?xl('Without Update','e')?>
+<input type='checkbox' name='form_without' value='1' /> <?php xl('Without Update','e'); ?>
 </p>
 
 </form>
@@ -666,9 +972,9 @@ function npopup(pid) {
   return false;
  }
 <?php
- if ($alertmsg) {
+if ($alertmsg) {
   echo "alert('" . htmlentities($alertmsg) . "');\n";
- }
+}
 ?>
 </script>
 </body>

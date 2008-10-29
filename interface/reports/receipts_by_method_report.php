@@ -1,45 +1,112 @@
 <?php
-  // Copyright (C) 2006-2008 Rod Roark <rod@sunsetsystems.com>
-  //
-  // This program is free software; you can redistribute it and/or
-  // modify it under the terms of the GNU General Public License
-  // as published by the Free Software Foundation; either version 2
-  // of the License, or (at your option) any later version.
+// Copyright (C) 2006-2008 Rod Roark <rod@sunsetsystems.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
 
-  // This is a report of receipts by payment method.  It's most useful for
-  // sites using pos_checkout.php (e.g. weight loss clinics) because this
-  // plugs a payment method like Cash, Check, VISA, etc. into the "source"
-  // column of the SQL-Ledger acc_trans table.
+// This is a report of receipts by payment method.  It's most useful for
+// sites using pos_checkout.php (e.g. weight loss clinics) because this
+// plugs a payment method like Cash, Check, VISA, etc. into the "source"
+// column of the SQL-Ledger acc_trans table or ar_session table.
 
-  include_once("../globals.php");
-  include_once("../../library/patient.inc");
-  include_once("../../library/sql-ledger.inc");
-  include_once("../../library/acl.inc");
+include_once("../globals.php");
+include_once("../../library/patient.inc");
+include_once("../../library/sql-ledger.inc");
+include_once("../../library/acl.inc");
 
-  function bucks($amount) {
-    if ($amount)
-      printf("%.2f", $amount);
+function bucks($amount) {
+  if ($amount)
+    printf("%.2f", $amount);
+}
+
+function thisLineItem($patient_id, $encounter_id, $memo, $transdate,
+  $rowmethod, $rowpayamount, $rowadjamount)
+{
+  global $paymethod, $paymethodleft, $methodpaytotal, $methodadjtotal,
+    $grandpaytotal, $grandadjtotal;
+
+  $invnumber = "$patient_id.$encounter_id";
+
+  if (! $rowmethod) $rowmethod = 'Unknown';
+
+  if ($paymethod != $rowmethod) {
+    if ($paymethod) {
+      // Print method total.
+?>
+
+ <tr bgcolor="#ddddff">
+  <td class="detail" colspan="4">
+   <?php echo xl('Total for ') . $paymethod ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php bucks($methodadjtotal) ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php bucks($methodpaytotal) ?>
+  </td>
+ </tr>
+<?php
+    }
+    $methodpaytotal = 0;
+    $methodadjtotal  = 0;
+    $paymethod = $rowmethod;
+    $paymethodleft = $paymethod;
   }
 
-  if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
+  if ($_POST['form_details']) {
+?>
 
-  SLConnect();
+ <tr>
+  <td class="detail">
+   <?php echo $paymethodleft; $paymethodleft = "&nbsp;" ?>
+  </td>
+  <td class="dehead">
+   <?php echo $transdate ?>
+  </td>
+  <td class="detail">
+   <?php echo $invnumber ?>
+  </td>
+  <td class="dehead">
+   <?php echo $memo ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php bucks($rowadjamount) ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php bucks($rowpayamount) ?>
+  </td>
+ </tr>
+<?php
+  }
+  $methodpaytotal += $rowpayamount;
+  $grandpaytotal  += $rowpayamount;
+  $methodadjtotal += $rowadjamount;
+  $grandadjtotal  += $rowadjamount;
+}
 
-  $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-  $form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
-  $form_use_edate = $_POST['form_use_edate'];
-  $form_facility  = $_POST['form_facility'];
+if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
+
+$INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
+
+if (!$INTEGRATED_AR) SLConnect();
+
+$form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
+$form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
+$form_use_edate = $_POST['form_use_edate'];
+$form_facility  = $_POST['form_facility'];
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <title><?xl('Receipts by Payment Method','e')?></title>
 </head>
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <center>
 
-<h2><?xl('Receipts by Payment Method','e')?></h2>
+<h2><?php xl('Receipts by Payment Method','e') ?></h2>
 
 <form method='post' action='receipts_by_method_report.php'>
 
@@ -48,19 +115,19 @@
  <tr>
   <td>
 <?php
-  // Build a drop-down list of facilities.
-  //
-  $query = "SELECT id, name FROM facility ORDER BY name";
-  $fres = sqlStatement($query);
-  echo "   <select name='form_facility'>\n";
-  echo "    <option value=''>-- All Facilities --\n";
-  while ($frow = sqlFetchArray($fres)) {
-    $facid = $frow['id'];
-    echo "    <option value='$facid'";
-    if ($facid == $form_facility) echo " selected";
-    echo ">" . $frow['name'] . "\n";
-  }
-  echo "   </select>\n";
+// Build a drop-down list of facilities.
+//
+$query = "SELECT id, name FROM facility ORDER BY name";
+$fres = sqlStatement($query);
+echo "   <select name='form_facility'>\n";
+echo "    <option value=''>-- All Facilities --\n";
+while ($frow = sqlFetchArray($fres)) {
+  $facid = $frow['id'];
+  echo "    <option value='$facid'";
+  if ($facid == $form_facility) echo " selected";
+  echo ">" . $frow['name'] . "\n";
+}
+echo "   </select>\n";
 ?>
    &nbsp;<select name='form_use_edate'>
     <option value='0'><?php xl('Payment Date','e'); ?></option>
@@ -118,16 +185,93 @@
    <?xl('Payments','e')?>
   </td>
  </tr>
-<?
+<?php
+
+if (!$INTEGRATED_AR) {
   $chart_id_cash = SLQueryValue("select id from chart where accno = '$sl_cash_acc'");
   if ($sl_err) die($sl_err);
   $chart_id_income = SLQueryValue("select id from chart where accno = '$sl_income_acc'");
   if ($sl_err) die($sl_err);
+}
 
-  if ($_POST['form_refresh']) {
-    $from_date = $form_from_date;
-    $to_date   = $form_to_date;
+if ($_POST['form_refresh']) {
+  $from_date = $form_from_date;
+  $to_date   = $form_to_date;
 
+  $paymethod   = "";
+  $paymethodleft = "";
+  $methodpaytotal = 0;
+  $grandpaytotal  = 0;
+  $methodadjtotal  = 0;
+  $grandadjtotal  = 0;
+
+  if ($INTEGRATED_AR) {
+    $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, " .
+      "fe.date, fe.facility_id " .
+      "FROM billing AS b " .
+      "JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter " .
+      "WHERE b.code_type = 'COPAY' AND b.activity = 1 AND b.fee != 0 AND " .
+      "fe.date >= '$from_date 00:00:00' AND fe.date <= '$to_date 23:59:59'";
+    // If a facility was specified.
+    if ($form_facility) $query .= " AND fe.facility_id = '$form_facility'";
+    $query .= " ORDER BY fe.date, b.pid, b.encounter, fe.id";
+    //
+    $res = sqlStatement($query);
+    while ($row = sqlFetchArray($res)) {
+      thisLineItem($row['pid'], $row['encounter'], $row['code_text'],
+        substr($row['date'], 0, 10), 'Co-Pay', 0 - $row['fee'], 0);
+    }
+    //
+    $query = "SELECT a.pid, a.encounter, a.post_time, a.pay_amount, " .
+      "a.adj_amount, a.memo, a.session_id, a.code, fe.id, fe.date, " .
+      "s.deposit_date, s.payer_id, s.reference " .
+      "FROM ar_activity AS a " .
+      "JOIN form_encounter AS fe ON fe.pid = a.pid AND fe.encounter = a.encounter " .
+      "JOIN forms AS f ON f.pid = a.pid AND f.encounter = a.encounter AND f.formdir = 'newpatient' " .
+      "LEFT OUTER JOIN ar_session AS s ON s.session_id = a.session_id " .
+      "WHERE ( a.pay_amount != 0 OR a.adj_amount != 0 )";
+    //
+    if ($form_use_edate) {
+      $query .= " AND fe.date >= '$from_date 00:00:00' AND fe.date <= '$to_date 23:59:59'";
+    } else {
+      $query .= " AND ( ( s.deposit_date IS NOT NULL AND " .
+        "s.deposit_date >= '$from_date' AND s.deposit_date <= '$to_date' ) OR " .
+        "( s.deposit_date IS NULL AND a.post_time >= '$from_date 00:00:00' AND " .
+        "a.post_time <= '$to_date 23:59:59' ) )";
+    }
+    // If a facility was specified.
+    if ($form_facility) $query .= " AND fe.facility_id = '$form_facility'";
+    //
+    if ($form_use_edate) {
+      $query .= " ORDER BY s.reference, fe.date, a.pid, a.encounter, fe.id";
+    } else {
+      $query .= " ORDER BY s.reference, s.deposit_date, a.post_time, a.pid, a.encounter, fe.id";
+    }
+    //
+    $res = sqlStatement($query);
+    while ($row = sqlFetchArray($res)) {
+      if ($form_use_edate) {
+        $thedate = substr($row['date'], 0, 10);
+      } else if (!empty($row['deposit_date'])) {
+        $thedate = $row['deposit_date'];
+      } else {
+        $thedate = substr($row['post_time'], 0, 10);
+      }
+      if (empty($row['session_id'])) {
+        $rowmethod = trim($row['memo']);
+      } else {
+        $rowmethod = trim($row['reference']);
+      }
+      if (!$_POST['form_checkno']) {
+        // Extract only the first word as the payment method because any
+        // following text will be some petty detail like a check number.
+        $rowmethod = substr($rowmethod, 0, strcspn($rowmethod, ' /'));
+      }
+      thisLineItem($row['pid'], $row['encounter'], $row['code'],
+        $thedate, $rowmethod, $row['pay_amount'], $row['adj_amount']);
+    }
+  } // end $INTEGRATED_AR
+  else {
     $query = "SELECT acc_trans.amount, acc_trans.transdate, acc_trans.memo, " .
       "replace(acc_trans.source, 'InvAdj ', '') AS source, " .
       "acc_trans.chart_id, ar.invnumber, ar.employee_id " .
@@ -144,29 +288,20 @@
       $query .= "acc_trans.transdate >= '$from_date' AND " .
       "acc_trans.transdate <= '$to_date'";
     }
-
-    // $query .= " order by acc_trans.source, acc_trans.transdate, ar.invnumber, acc_trans.memo";
     $query .= " ORDER BY source, acc_trans.transdate, ar.invnumber, acc_trans.memo";
 
-    echo "<!-- $query -->\n";
+    // echo "<!-- $query -->\n";
 
     $t_res = SLQuery($query);
     if ($sl_err) die($sl_err);
 
-    $paymethod   = "";
-    $paymethodleft = "";
-    $methodpaytotal = 0;
-    $grandpaytotal  = 0;
-    $methodadjtotal  = 0;
-    $grandadjtotal  = 0;
-
     for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
       $row = SLGetRow($t_res, $irow);
+      list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
 
       // If a facility was specified then skip invoices whose encounters
       // do not indicate that facility.
       if ($form_facility) {
-        list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
         $tmp = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
           "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
           "facility_id = '$form_facility'");
@@ -187,62 +322,10 @@
         $rowmethod = substr($rowmethod, 0, strcspn($rowmethod, ' /'));
       }
 
-      if (! $rowmethod) $rowmethod = 'Unknown';
-
-      if ($paymethod != $rowmethod) {
-        if ($paymethod) {
-          // Print method total.
-?>
-
- <tr bgcolor="#ddddff">
-  <td class="detail" colspan="4">
-   <? echo xl('Total for ') . $paymethod ?>
-  </td>
-  <td class="dehead" align="right">
-   <? bucks($methodadjtotal) ?>
-  </td>
-  <td class="dehead" align="right">
-   <? bucks($methodpaytotal) ?>
-  </td>
- </tr>
-<?php
-        }
-        $methodpaytotal = 0;
-        $methodadjtotal  = 0;
-        $paymethod = $rowmethod;
-        $paymethodleft = $paymethod;
-      }
-
-      if ($_POST['form_details']) {
-?>
-
- <tr>
-  <td class="detail">
-   <?php echo $paymethodleft; $paymethodleft = "&nbsp;" ?>
-  </td>
-  <td class="dehead">
-   <?php echo $row['transdate'] ?>
-  </td>
-  <td class="detail">
-   <?php echo $row['invnumber'] ?>
-  </td>
-  <td class="dehead">
-   <?php echo $row['memo'] ?>
-  </td>
-  <td class="dehead" align="right">
-   <?php bucks($rowadjamount) ?>
-  </td>
-  <td class="dehead" align="right">
-   <?php bucks($rowpayamount) ?>
-  </td>
- </tr>
-<?php
-      }
-      $methodpaytotal += $rowpayamount;
-      $grandpaytotal  += $rowpayamount;
-      $methodadjtotal += $rowadjamount;
-      $grandadjtotal  += $rowadjamount;
-    }
+      thisLineItem($patient_id, $encounter_id, $row['memo'],
+        $row['transdate'], $rowmethod, $rowpayamount, $rowadjamount);
+    } // end for
+  } // end not $INTEGRATED_AR
 ?>
 
  <tr bgcolor="#ddddff">
@@ -270,8 +353,8 @@
  </tr>
 
 <?php
-  }
-  SLClose();
+} // end form refresh
+if (!$INTEGRATED_AR) SLClose();
 ?>
 
 </table>

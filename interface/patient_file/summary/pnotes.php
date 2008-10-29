@@ -1,7 +1,8 @@
 <?php
- include_once("../../globals.php");
- include_once("$srcdir/pnotes.inc");
- include_once("$srcdir/acl.inc");
+ require_once("../../globals.php");
+ require_once("$srcdir/pnotes.inc");
+ require_once("$srcdir/acl.inc");
+ require_once("$srcdir/patient.inc");
 ?>
 <html>
 <head>
@@ -67,6 +68,7 @@ if($resnote && !$resnote->EOF && $resnote->fields['genericname2'] == 'Billing') 
 }
 
 //Display what the patient owes
+/*********************************************************************
 require_once($GLOBALS['fileroot'] ."/library/classes/WSWrapper.class.php");
 $customer_info['id'] = 0;
 $sql = "SELECT foreign_id from integration_mapping as im LEFT JOIN patient_data as pd on im.local_id=pd.id where pd.pid = '" . $pid . "' and im.local_table='patient_data' and im.foreign_table='customer'";
@@ -75,11 +77,18 @@ if($result && !$result->EOF)
 {
   $customer_info['id'] = $result->fields['foreign_id'];
 }
-
 $function['ezybiz.customer_balance'] = array(new xmlrpcval($customer_info,"struct"));
 $ws = new WSWrapper($function);
 if(is_numeric($ws->value)) {
   $formatted = sprintf('$%01.2f', $ws->value);
+  echo " <tr>\n";
+  echo "  <td>$colorbeg" . "Balance Due$colorend</td><td>$colorbeg$formatted$colorend</td>\n";
+  echo " </tr>\n";
+}
+*********************************************************************/
+$balance = get_patient_balance($pid);
+if($balance) {
+  $formatted = sprintf('$%01.2f', $balance);
   echo " <tr>\n";
   echo "  <td>$colorbeg" . "Balance Due$colorend</td><td>$colorbeg$formatted$colorend</td>\n";
   echo " </tr>\n";

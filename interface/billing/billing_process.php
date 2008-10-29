@@ -142,8 +142,10 @@ function process_form($ar) {
 
     $ta = split("-",$claimid);
     $patient_id = $ta[0];
-    $encounter = $ta[1];
-    $payer = $claim_array['payer'];
+    $encounter  = $ta[1];
+    $payer_id   = substr($claim_array['payer'], 1);
+    $payer_type = substr($claim_array['payer'], 0, 1);
+    $payer_type = $payer_type == 'T' ? 3 : $payer_type == 'S' ? 2 : 1;
 
     if (isset($claim_array['bill'])) {
 
@@ -164,17 +166,17 @@ function process_form($ar) {
       $tmp = 1;
 
       if (isset($ar['bn_x12'])) {
-        $tmp = updateClaim(true, $patient_id, $encounter, $payer, 1, 1, '', $target, $claim_array['partner']);
+        $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', $target, $claim_array['partner']);
       } else if (isset($ar['bn_process_hcfa'])) {
-        $tmp = updateClaim(true, $patient_id, $encounter, $payer, 1, 1, '', 'hcfa');
+        $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', 'hcfa');
       } else if (isset($ar['bn_mark'])) {
         // $sql .= " billed = 1, ";
-        $tmp = updateClaim(true, $patient_id, $encounter, $payer, 2);
+        $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 2);
       } else if (isset($ar['bn_reopen'])) {
-        $tmp = updateClaim(true, $patient_id, $encounter, $payer, 1, 0);
+        $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 0);
       } else if (isset($ar['bn_external'])) {
         // $sql .= " billed = 1, ";
-        $tmp = updateClaim(true, $patient_id, $encounter, $payer, 2);
+        $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 2);
       }
 
       if (!$tmp) {
@@ -194,7 +196,7 @@ function process_form($ar) {
           $segs = explode("~\n", gen_x12_837($patient_id, $encounter, $log));
           fwrite($hlog, $log);
           append_claim($segs);
-          if (!updateClaim(false, $patient_id, $encounter, -1, 2, 2, $bat_filename)) {
+          if (!updateClaim(false, $patient_id, $encounter, -1, -1, 2, 2, $bat_filename)) {
             $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
           }
 
@@ -210,7 +212,7 @@ function process_form($ar) {
             $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
             $pdf->ezText($tmplines, 12, array('justification' => 'left', 'leading' => 12));
           }
-          if (!updateClaim(false, $patient_id, $encounter, -1, 2, 2, $bat_filename)) {
+          if (!updateClaim(false, $patient_id, $encounter, -1, -1, 2, 2, $bat_filename)) {
             $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
           }
         }

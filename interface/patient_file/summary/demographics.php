@@ -24,27 +24,6 @@ function print_as_money($money) {
 		return "$ " . strrev($tmp);
 	}
 }
-
-function get_patient_balance($pid) {
-	require_once($GLOBALS['fileroot'] . "/library/classes/WSWrapper.class.php");
-	$conn = $GLOBALS['adodb']['db'];
-	$customer_info['id'] = 0;
-	$sql = "SELECT foreign_id FROM integration_mapping AS im " .
-		"LEFT JOIN patient_data AS pd ON im.local_id = pd.id WHERE " .
-		"pd.pid = '" . $pid . "' AND im.local_table = 'patient_data' AND " .
-		"im.foreign_table = 'customer'";
-	$result = $conn->Execute($sql);
-	if($result && !$result->EOF) {
-		$customer_info['id'] = $result->fields['foreign_id'];
-	}
-	$function['ezybiz.customer_balance'] = array(new xmlrpcval($customer_info,"struct"));
-	$ws = new WSWrapper($function);
-	if(is_numeric($ws->value)) {
-		return sprintf('%01.2f', $ws->value);
-	}
-	return '';
-}
-
 ?>
 <html>
 

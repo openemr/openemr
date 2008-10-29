@@ -92,6 +92,7 @@ if ($_POST['bn_save']) {
 
     // Otherwise it's a new item...
     else if (! $del) {
+      /***************************************************************
       $query = "select code_text from codes where code_type = '" .
         $code_types[$code_type]['id'] . "' and " .
         "code = '$code' and ";
@@ -100,6 +101,11 @@ if ($_POST['bn_save']) {
       } else {
         $query .= "(modifier is null or modifier = '')";
       }
+      ***************************************************************/
+      // I think now we should not try to match on the modifier here.
+      $query = "SELECT code_text FROM codes WHERE code_type = '" .
+        $code_types[$code_type]['id'] . "' AND code = '$code' LIMIT 1";
+      /**************************************************************/
       $result = sqlQuery($query);
       $code_text = addslashes($result['code_text']);
       addBilling($encounter, $code_type, $code, $code_text, $pid, $auth,

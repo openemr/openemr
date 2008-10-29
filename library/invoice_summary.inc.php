@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -116,6 +116,93 @@ function get_invoice_summary($trans_id, $with_detail = false) {
   return $codes;
 }
 
+// Like the above, but for Integrated A/R.
+//
+function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false) {
+  $codes = array();
+  $keysuff1 = 1000;
+  $keysuff2 = 5000;
+
+  // Get charges.
+  $res = sqlStatement("SELECT " .
+    "date, code_type, code, modifier, code_text, fee " .
+    "FROM billing WHERE " .
+    "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
+    "activity = 1 AND fee != 0.00 ORDER BY id");
+
+  while ($row = sqlFetchArray($res)) {
+    $amount = sprintf('%01.2f', $row['fee']);
+
+    if ($row['code_type'] == 'COPAY') {
+      $code = 'CO-PAY';
+      $codes[$code]['bal'] += $amount;
+    }
+    else {
+      $code = strtoupper($row['code']);
+      if (! $code) $code = "Unknown";
+      if ($row['modifier']) $code .= ':' . strtoupper($row['modifier']);
+      $codes[$code]['chg'] += $amount;
+      $codes[$code]['bal'] += $amount;
+    }
+    // Add the details if they want 'em.
+    if ($with_detail) {
+      if (! $codes[$code]['dtl']) $codes[$code]['dtl'] = array();
+      $tmp = array();
+      if ($row['code_type'] == 'COPAY') {
+        $tmp['pmt'] = 0 - $amount;
+        $tmp['src'] = 'Pt Paid';
+        $tmpkey = substr($row['date'], 0, 10) . $keysuff2++;
+      }
+      else {
+        $tmp['chg'] = $amount;
+        $tmpkey = "          " . $keysuff1++;
+      }
+      $codes[$code]['dtl'][$tmpkey] = $tmp;
+    }
+  }
+
+  // TBD: Product sales?
+
+  // Get payments and adjustments.
+  $res = sqlStatement("SELECT " .
+    "a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, " .
+    "a.post_time, a.session_id, " .
+    "s.payer_id, s.reference, s.check_date, s.deposit_date " .
+    "FROM ar_activity AS a " .
+    "LEFT OUTER JOIN ar_session AS s ON s.session_id = a.session_id " .
+    "WHERE a.pid = '$patient_id' AND a.encounter = '$encounter_id' " .
+    "ORDER BY s.check_date, a.sequence_no");
+  while ($row = sqlFetchArray($res)) {
+    $code = strtoupper($row['code']);
+    if (! $code) $code = "Unknown";
+    if ($row['modifier']) $code .= ':' . strtoupper($row['modifier']);
+    $ins_id = 0 + $row['payer_id'];
+    $codes[$code]['bal'] -= $row['pay_amount'];
+    $codes[$code]['bal'] -= $row['adj_amount'];
+    $codes[$code]['chg'] -= $row['adj_amount'];
+    $codes[$code]['adj'] += $row['adj_amount'];
+    if ($ins_id) $codes[$code]['ins'] = $ins_id;
+    // Add the details if they want 'em.
+    if ($with_detail) {
+      if (! $codes[$code]['dtl']) $codes[$code]['dtl'] = array();
+      $tmp = array();
+      $paydate = empty($row['deposit_date']) ? substr($row['post_time'], 0, 10) : $row['deposit_date'];
+      if ($row['pay_amount'] != 0) $tmp['pmt'] = $row['pay_amount'];
+      if ($row['adj_amount'] != 0 || $row['pay_amount'] == 0) {
+        $tmp['chg'] = 0 - $row['adj_amount'];
+        $tmp['rsn'] = (empty($row['memo']) || empty($row['session_id'])) ? 'Unknown adjustment' : $row['memo'];
+        $tmpkey = $paydate . $keysuff1++;
+      }
+      else {
+        $tmpkey = $paydate . $keysuff2++;
+      }
+      $tmp['src'] = empty($row['session_id']) ? $row['memo'] : $row['reference'];
+      $codes[$code]['dtl'][$tmpkey] = $tmp;
+    }
+  }
+  return $codes;
+}
+
 // This determines the party from whom payment is currently expected.
 // Returns: -1=Nobody, 0=Patient, 1=Ins1, 2=Ins2, 3=Ins3.
 //
@@ -134,5 +221,27 @@ function responsible_party($trans_id) {
       return $i;
   }
   return 0;
+}
+
+// As above but for Integrated A/R.
+//
+function ar_responsible_party($patient_id, $encounter_id) {
+  $row = sqlQuery("SELECT date, last_level_billed, last_level_closed " .
+    "FROM form_encounter WHERE " .
+    "pid = '$patient_id' AND encounter = '$encounter_id' " .
+    "ORDER BY id DESC LIMIT 1");
+  if (empty($row)) return -1;
+  $next_level = $row['last_level_closed'] + 1;
+  if ($next_level <= $row['last_level_billed'])
+    return $next_level;
+  if (arGetPayerID($patient_id, substr($row['date'], 0, 10), $payer_type))
+    return $next_level;
+  // There is no unclosed insurance, so see if there is an unpaid balance.
+  // Currently hoping that form_encounter.balance_due can be discarded.
+  $balance = 0;
+  $codes = ar_get_invoice_summary($patient_id, $encounter_id);
+  foreach ($codes as $cdata) $balance += $cdata['bal'];
+  if ($balance > 0) return 0;
+  return -1;
 }
 ?>

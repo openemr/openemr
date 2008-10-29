@@ -6,12 +6,13 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-include_once("../globals.php");
-include_once("../../library/patient.inc");
-include_once("../../library/sql-ledger.inc");
-include_once("../../library/invoice_summary.inc.php");
-// include_once("../../custom/statement.inc.php");
-// include_once("../../library/sl_eob.inc.php");
+require_once("../globals.php");
+require_once("../../library/patient.inc");
+require_once("../../library/sql-ledger.inc");
+require_once("../../library/invoice_summary.inc.php");
+require_once("../../library/sl_eob.inc.php");
+
+$INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
 
 $alertmsg = '';
 $bgcolor = "#aaaaaa";
@@ -96,7 +97,7 @@ $grand_total_paid        = 0;
 $grand_total_agedbal = array();
 for ($c = 0; $c < $form_age_cols; ++$c) $grand_total_agedbal[$c] = 0;
 
-SLConnect();
+if (!$INTEGRATED_AR) SLConnect();
 
 function bucks($amount) {
   if ($amount)
@@ -215,6 +216,11 @@ function endInsurance($insrow) {
   for ($c = 0; $c < $form_age_cols; ++$c) {
     $grand_total_agedbal[$c] += $insrow['agedbal'][$c];
   }
+}
+
+function getInsName($payerid) {
+  $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE id = '$payerid'");
+  return $tmp['name'];
 }
 
 // In the case of CSV export only, a download will be forced.
@@ -376,9 +382,187 @@ function checkAll(checked) {
 
 } // end not form_csvexport
 
-  if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) {
-    $where = "";
+if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) {
+  $rows = array();
+  $where = "";
 
+  if ($INTEGRATED_AR) {
+    if ($_POST['form_export'] || $_POST['form_csvexport']) {
+      $where = "( 1 = 2";
+      foreach ($_POST['form_cb'] as $key => $value) $where .= " OR f.id = $key";
+      $where .= ' )';
+    }
+    if ($form_date) {
+      if ($where) $where .= " AND ";
+      if ($form_to_date) {
+        $where .= "f.date >= '$form_date 00:00:00' AND f.date <= '$form_to_date 23:59:59'";
+      }
+      else {
+        $where .= "f.date >= '$form_date 00:00:00' AND f.date <= '$form_date 23:59:59'";
+      }
+    }
+    if ($form_facility) {
+      if ($where) $where .= " AND ";
+      $where .= "f.facility_id = '$form_facility'";
+    }
+    if (! $where) {
+      $where = "1 = 1";
+    }
+
+    $query = "SELECT f.id, f.date, f.pid, f.encounter, f.last_level_billed, " .
+      "f.last_level_closed, f.last_stmt_date, f.stmt_count, " .
+      "p.fname, p.mname, p.lname, p.street, p.city, p.state, " .
+      "p.postal_code, p.phone_home, p.ss, p.genericname2, p.genericval2, " .
+      "p.pubpid, p.DOB, CONCAT(u.lname, ', ', u.fname) AS referrer, " .
+      "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
+      "b.pid = f.pid AND b.encounter = f.encounter AND " .
+      "b.activity = 1 AND b.code_type != 'COPAY' ) AS charges, " .
+      "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
+      "b.pid = f.pid AND b.encounter = f.encounter AND " .
+      "b.activity = 1 AND b.code_type = 'COPAY' ) AS copays, " .
+      "( SELECT SUM(a.pay_amount) FROM ar_activity AS a WHERE " .
+      "a.pid = f.pid AND a.encounter = f.encounter ) AS payments, " .
+      "( SELECT SUM(a.adj_amount) FROM ar_activity AS a WHERE " .
+      "a.pid = f.pid AND a.encounter = f.encounter ) AS adjustments " .
+      "FROM form_encounter AS f " .
+      "JOIN patient_data AS p ON p.pid = f.pid " .
+      "LEFT OUTER JOIN users AS u ON u.id = p.providerID " .
+      "WHERE $where " .
+      "ORDER BY f.pid, f.encounter";
+    $eres = sqlStatement($query);
+
+    while ($erow = sqlFetchArray($eres)) {
+      $patient_id = $erow['pid'];
+      $encounter_id = $erow['encounter'];
+      $pt_balance = $erow['charges'] + $erow['copays'] - $erow['payments'] - $erow['adjustments'];
+      $svcdate = substr($erow['date'], 0, 10);
+
+      echo "<!-- " . $erow['charges'] . ' + ' . $erow['copays'] . ' - ' . $erow['payments'] . ' - ' . $erow['adjustments'] . "  -->\n"; // debugging
+
+      if ($_POST['form_search'] && ! $is_all) {
+        if ($pt_balance == 0) continue;
+      }
+      if ($_POST['form_category'] == 'Credits') {
+        if ($pt_balance > 0) continue;
+      }
+
+      // If we have not yet billed the patient, then compute $duncount as a
+      // negative count of the number of insurance plans for which we have not
+      // yet closed out insurance.  Here we also compute $insname as the name of
+      // the insurance plan from which we are awaiting payment, and its sequence
+      // number $insposition (1-3).
+      $last_level_closed = $erow['last_level_closed'];
+      $duncount = $erow['stmt_count'];
+      $payerids = array();
+      $insposition = 0;
+      $insname = '';
+      if (! $duncount) {
+        for ($i = 1; $i <= 3; ++$i) {
+          $tmp = arGetPayerID($patient_id, $svcdate, $i);
+          if (empty($tmp)) break;
+          $payerids[] = $tmp;
+        }
+        $duncount = $last_level_closed - count($payerids);
+        if ($duncount < 0) {
+          if (!empty($payerids[$last_level_closed])) {
+            $insname = getInsName($payerids[$last_level_closed]);
+            $insposition = $last_level_closed + 1;
+          }
+        }
+      }
+
+      // Skip invoices not in the desired "Due..." category.
+      //
+      if ($is_due_ins && $duncount >= 0) continue;
+      if ($is_due_pt  && $duncount <  0) continue;
+
+      // An invoice is due from the patient if money is owed and we are
+      // not waiting for insurance to pay.
+      $isduept = ($duncount >= 0) ? " checked" : "";
+
+      $row = array();
+
+      $row['id']        = $erow['id'];
+      $row['invnumber'] = "$patient_id.$encounter_id";
+      $row['custid']    = $patient_id;
+      $row['name']      = $erow['fname'] . ' ' . $erow['lname'];
+      $row['address1']  = $erow['street'];
+      $row['city']      = $erow['city'];
+      $row['state']     = $erow['state'];
+      $row['zipcode']   = $erow['postal_code'];
+      $row['phone']     = $erow['phone_home'];
+      $row['duncount']  = $duncount;
+      $row['dos']       = $svcdate;
+      $row['ss']        = $erow['ss'];
+      $row['DOB']       = $erow['DOB'];
+      $row['pubpid']    = $erow['pubpid'];
+      $row['billnote']  = ($erow['genericname2'] == 'Billing') ? $erow['genericval2'] : '';
+      $row['referrer']  = $erow['referrer'];
+
+      // Also get the primary insurance company name whenever there is one.
+      $row['ins1'] = '';
+      if ($insposition == 1) {
+        $row['ins1'] = $insname;
+      } else {
+        if (empty($payerids)) {
+          $tmp = arGetPayerID($patient_id, $svcdate, 1);
+          if (!empty($tmp)) $payerids[] = $tmp;
+        }
+        if (!empty($payerids)) {
+          $row['ins1'] = getInsName($payerids[0]);
+        }
+      }
+
+      // This computes the invoice's total original charges and adjustments,
+      // date of last activity, and determines if insurance has responded to
+      // all billing items.
+      $invlines = ar_get_invoice_summary($patient_id, $encounter_id, true);
+      $row['charges'] = 0;
+      $row['adjustments'] = 0;
+      $row['paid'] = 0;
+      $ins_seems_done = true;
+      $ladate = $svcdate;
+      foreach ($invlines as $key => $value) {
+        $row['charges'] += $value['chg'] + $value['adj'];
+        $row['adjustments'] += 0 - $value['adj'];
+        $row['paid'] += $value['chg'] - $value['bal'];
+        foreach ($value['dtl'] as $dkey => $dvalue) {
+          $dtldate = trim(substr($dkey, 0, 10));
+          if ($dtldate && $dtldate > $ladate) $ladate = $dtldate;
+        }
+        $lckey = strtolower($key);
+        if ($lckey == 'co-pay' || $lckey == 'claim') continue;
+        if (count($value['dtl']) <= 1) $ins_seems_done = false;
+      }
+      $row['billing_errmsg'] = '';
+      if ($is_due_ins && $last_level_closed < 1 && $ins_seems_done)
+        $row['billing_errmsg'] = 'Ins1 seems done';
+      else if ($last_level_closed >= 1 && !$ins_seems_done)
+        $row['billing_errmsg'] = 'Ins1 seems not done';
+
+      $row['ladate'] = $ladate;
+
+      // Compute number of days since last activity.
+      $latime = mktime(0, 0, 0, substr($ladate, 5, 2),
+        substr($ladate, 8, 2), substr($ladate, 0, 4));
+      $row['inactive_days'] = floor((time() - $latime) / (60 * 60 * 24));
+
+      // Look up insurance policy number if we need it.
+      if ($form_cb_policy) {
+        $instype = ($insposition == 2) ? 'secondary' : (($insposition == 3) ? 'tertiary' : 'primary');
+        $insrow = sqlQuery("SELECT policy_number FROM insurance_data WHERE " .
+          "pid = '$patient_id' AND type = '$instype' AND date <= '$svcdate' " .
+          "ORDER BY date DESC LIMIT 1");
+        $row['policy'] = $insrow['policy_number'];
+      }
+
+      $ptname = $erow['lname'] . ", " . $erow['fname'];
+      if ($erow['mname']) $ptname .= " " . substr($erow['mname'], 0, 1);
+
+      $rows[$insname . '|' . $ptname . '|' . $encounter_id] = $row;
+    } // end while
+  } // end $INTEGRATED_AR
+  else {
     if ($_POST['form_export'] || $_POST['form_csvexport']) {
       $where = "( 1 = 2";
       foreach ($_POST['form_cb'] as $key => $value) $where .= " OR ar.customer_id = $key";
@@ -440,7 +624,6 @@ function checkAll(checked) {
 
     //////////////////////////////////////////////////////////////////
 
-    $rows = array();
     for ($irow = 0; $irow < $num_invoices; ++$irow) {
       $row = SLGetRow($t_res, $irow);
 
@@ -593,30 +776,31 @@ function checkAll(checked) {
       }
 
       $rows[$insname . '|' . $ptname . '|' . $encounter] = $row;
-    }
+    } // end for
+  } // end not $INTEGRATED_AR
 
-    ksort($rows);
+  ksort($rows);
 
-    if ($_POST['form_export']) {
-      echo "<textarea rows='35' cols='100' readonly>";
+  if ($_POST['form_export']) {
+    echo "<textarea rows='35' cols='100' readonly>";
+  }
+  else if ($_POST['form_csvexport']) {
+    // CSV headers:
+    if (true) {
+      echo '"Insurance",';
+      echo '"Name",';
+      echo '"Invoice",';
+      echo '"DOS",';
+      echo '"Referrer",';
+      echo '"Charge",';
+      echo '"Adjust",';
+      echo '"Paid",';
+      echo '"Balance",';
+      echo '"IDays",';
+      echo '"LADate"' . "\n";
     }
-    else if ($_POST['form_csvexport']) {
-      // CSV headers:
-      if (true) {
-        echo '"Insurance",';
-        echo '"Name",';
-        echo '"Invoice",';
-        echo '"DOS",';
-        echo '"Referrer",';
-        echo '"Charge",';
-        echo '"Adjust",';
-        echo '"Paid",';
-        echo '"Balance",';
-        echo '"IDays",';
-        echo '"LADate"' . "\n";
-      }
-    }
-    else {
+  }
+  else {
 ?>
 
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
@@ -663,20 +847,20 @@ function checkAll(checked) {
   <td class="dehead" align="right"><?php xl('Adjust','e') ?>&nbsp;</td>
   <td class="dehead" align="right"><?php xl('Paid','e') ?>&nbsp;</td>
 <?php
-      // Generate aging headers if appropriate, else balance header.
-      if ($form_age_cols) {
-        for ($c = 0; $c < $form_age_cols;) {
-          echo "  <td class='dehead' align='right'>";
-          echo $form_age_inc * $c;
-          if (++$c < $form_age_cols) {
-            echo "-" . ($form_age_inc * $c - 1);
-          } else {
-            echo "+";
-          }
-          echo "</td>\n";
+    // Generate aging headers if appropriate, else balance header.
+    if ($form_age_cols) {
+      for ($c = 0; $c < $form_age_cols;) {
+        echo "  <td class='dehead' align='right'>";
+        echo $form_age_inc * $c;
+        if (++$c < $form_age_cols) {
+          echo "-" . ($form_age_inc * $c - 1);
+        } else {
+          echo "+";
         }
+        echo "</td>\n";
       }
-      else {
+    }
+    else {
 ?>
   <td class="dehead" align="right"><?php xl('Balance','e') ?>&nbsp;</td>
 <?php
@@ -695,87 +879,87 @@ function checkAll(checked) {
  </tr>
 
 <?php
-    } // end not export
+  } // end not export
 
-    $ptrow = array('insname' => '', 'pid' => 0);
-    $orow = -1;
+  $ptrow = array('insname' => '', 'pid' => 0);
+  $orow = -1;
 
-    foreach ($rows as $key => $row) {
-      list($insname, $ptname, $trash) = explode('|', $key);
-      list($pid, $encounter) = explode(".", $row['invnumber']);
+  foreach ($rows as $key => $row) {
+    list($insname, $ptname, $trash) = explode('|', $key);
+    list($pid, $encounter) = explode(".", $row['invnumber']);
 
-      if ($is_ins_summary && $insname != $ptrow['insname']) {
-        endInsurance($ptrow);
-        $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
-        $ptrow = array('insname' => $insname, 'ptname' => $ptname, 'pid' => $pid, 'count' => 1);
-        foreach ($row as $key => $value) $ptrow[$key] = $value;
-        $ptrow['agedbal'] = array();
-      }
-      else if (!$is_ins_summary && ($insname != $ptrow['insname'] || $pid != $ptrow['pid'])) {
-        // For the report, this will write the patient totals.  For the
-        // collections export this writes everything for the patient:
-        endPatient($ptrow);
-        $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
-        $ptrow = array('insname' => $insname, 'ptname' => $ptname, 'pid' => $pid, 'count' => 1);
-        foreach ($row as $key => $value) $ptrow[$key] = $value;
-        $ptrow['agedbal'] = array();
-      } else {
-        $ptrow['amount']      += $row['amount'];
-        $ptrow['paid']        += $row['paid'];
-        $ptrow['charges']     += $row['charges'];
-        $ptrow['adjustments'] += $row['adjustments'];
-        ++$ptrow['count'];
-      }
+    if ($is_ins_summary && $insname != $ptrow['insname']) {
+      endInsurance($ptrow);
+      $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
+      $ptrow = array('insname' => $insname, 'ptname' => $ptname, 'pid' => $pid, 'count' => 1);
+      foreach ($row as $key => $value) $ptrow[$key] = $value;
+      $ptrow['agedbal'] = array();
+    }
+    else if (!$is_ins_summary && ($insname != $ptrow['insname'] || $pid != $ptrow['pid'])) {
+      // For the report, this will write the patient totals.  For the
+      // collections export this writes everything for the patient:
+      endPatient($ptrow);
+      $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
+      $ptrow = array('insname' => $insname, 'ptname' => $ptname, 'pid' => $pid, 'count' => 1);
+      foreach ($row as $key => $value) $ptrow[$key] = $value;
+      $ptrow['agedbal'] = array();
+    } else {
+      $ptrow['amount']      += $row['amount'];
+      $ptrow['paid']        += $row['paid'];
+      $ptrow['charges']     += $row['charges'];
+      $ptrow['adjustments'] += $row['adjustments'];
+      ++$ptrow['count'];
+    }
 
-      // Compute invoice balance and aging column number, and accumulate aging.
-      $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
-      if ($form_age_cols) {
-        $agedate = $is_ageby_lad ? $row['ladate'] : $row['dos'];
-        $agetime = mktime(0, 0, 0, substr($agedate, 5, 2),
-          substr($agedate, 8, 2), substr($agedate, 0, 4));
-        $days = floor((time() - $agetime) / (60 * 60 * 24));
-        $agecolno = min($form_age_cols - 1, max(0, floor($days / $form_age_inc)));
-        $ptrow['agedbal'][$agecolno] += $balance;
-      }
+    // Compute invoice balance and aging column number, and accumulate aging.
+    $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
+    if ($form_age_cols) {
+      $agedate = $is_ageby_lad ? $row['ladate'] : $row['dos'];
+      $agetime = mktime(0, 0, 0, substr($agedate, 5, 2),
+        substr($agedate, 8, 2), substr($agedate, 0, 4));
+      $days = floor((time() - $agetime) / (60 * 60 * 24));
+      $agecolno = min($form_age_cols - 1, max(0, floor($days / $form_age_inc)));
+      $ptrow['agedbal'][$agecolno] += $balance;
+    }
 
-      if (!$is_ins_summary && !$_POST['form_export'] && !$_POST['form_csvexport']) {
-        $in_collections = stristr($row['billnote'], 'IN COLLECTIONS') !== false;
+    if (!$is_ins_summary && !$_POST['form_export'] && !$_POST['form_csvexport']) {
+      $in_collections = stristr($row['billnote'], 'IN COLLECTIONS') !== false;
 ?>
  <tr bgcolor='<?php echo $bgcolor ?>'>
 <?php
-        if ($ptrow['count'] == 1) {
-          if ($is_due_ins) {
-            echo "  <td class='detail'>&nbsp;$insname</td>\n";
-          }
-          echo "  <td class='detail'>&nbsp;$ptname</td>\n";
-          if ($form_cb_ssn) {
-            echo "  <td class='detail'>&nbsp;" . $row['ss'] . "</td>\n";
-          }
-          if ($form_cb_dob) {
-            echo "  <td class='detail'>&nbsp;" . $row['DOB'] . "</td>\n";
-          }
-          if ($form_cb_pubpid) {
-            echo "  <td class='detail'>&nbsp;" . $row['pubpid'] . "</td>\n";
-          }
-          if ($form_cb_policy) {
-            echo "  <td class='detail'>&nbsp;" . $row['policy'] . "</td>\n";
-          }
-          if ($form_cb_phone) {
-            echo "  <td class='detail'>&nbsp;" . $row['phone'] . "</td>\n";
-          }
-          if ($form_cb_city) {
-            echo "  <td class='detail'>&nbsp;" . $row['city'] . "</td>\n";
-          }
-          if ($form_cb_ins1) {
-            echo "  <td class='detail'>&nbsp;" . $row['ins1'] . "</td>\n";
-          }
-          if ($form_cb_referrer) {
-            echo "  <td class='detail'>&nbsp;" . $row['referrer'] . "</td>\n";
-          }
-        } else {
-          echo "  <td class='detail' colspan='$initial_colspan'>";
-          echo "&nbsp;</td>\n";
+      if ($ptrow['count'] == 1) {
+        if ($is_due_ins) {
+          echo "  <td class='detail'>&nbsp;$insname</td>\n";
         }
+        echo "  <td class='detail'>&nbsp;$ptname</td>\n";
+        if ($form_cb_ssn) {
+          echo "  <td class='detail'>&nbsp;" . $row['ss'] . "</td>\n";
+        }
+        if ($form_cb_dob) {
+          echo "  <td class='detail'>&nbsp;" . $row['DOB'] . "</td>\n";
+        }
+        if ($form_cb_pubpid) {
+          echo "  <td class='detail'>&nbsp;" . $row['pubpid'] . "</td>\n";
+        }
+        if ($form_cb_policy) {
+          echo "  <td class='detail'>&nbsp;" . $row['policy'] . "</td>\n";
+        }
+        if ($form_cb_phone) {
+          echo "  <td class='detail'>&nbsp;" . $row['phone'] . "</td>\n";
+        }
+        if ($form_cb_city) {
+          echo "  <td class='detail'>&nbsp;" . $row['city'] . "</td>\n";
+        }
+        if ($form_cb_ins1) {
+          echo "  <td class='detail'>&nbsp;" . $row['ins1'] . "</td>\n";
+        }
+        if ($form_cb_referrer) {
+          echo "  <td class='detail'>&nbsp;" . $row['referrer'] . "</td>\n";
+        }
+      } else {
+        echo "  <td class='detail' colspan='$initial_colspan'>";
+        echo "&nbsp;</td>\n";
+      }
 ?>
   <td class="detail">
    &nbsp;<a href="../billing/sl_eob_invoice.php?id=<?php echo $row['id'] ?>"
@@ -799,127 +983,128 @@ function checkAll(checked) {
    <?php bucks($row['paid']) ?>&nbsp;
   </td>
 <?php
-        if ($form_age_cols) {
-          for ($c = 0; $c < $form_age_cols; ++$c) {
-            echo "  <td class='detail' align='right'>";
-            if ($c == $agecolno) {
-              bucks($balance);
-            }
-            echo "&nbsp;</td>\n";
+      if ($form_age_cols) {
+        for ($c = 0; $c < $form_age_cols; ++$c) {
+          echo "  <td class='detail' align='right'>";
+          if ($c == $agecolno) {
+            bucks($balance);
           }
+          echo "&nbsp;</td>\n";
         }
-        else {
+      }
+      else {
 ?>
   <td class="detail" align="right"><?php bucks($balance) ?>&nbsp;</td>
 <?php
-        } // end else
+      } // end else
 ?>
 <?php
-        if ($form_cb_idays) {
-          echo "  <td class='detail' align='right'>";
-          echo $row['inactive_days'] . "&nbsp;</td>\n";
-        }
+      if ($form_cb_idays) {
+        echo "  <td class='detail' align='right'>";
+        echo $row['inactive_days'] . "&nbsp;</td>\n";
+      }
 ?>
   <td class="detail" align="center">
    <?php echo $row['duncount'] ? $row['duncount'] : "&nbsp;" ?>
   </td>
   <td class="detail" align="center">
 <?php
-        if ($ptrow['count'] == 1) {
-          if ($in_collections) {
-            echo "   <b><font color='red'>IC</font></b>\n";
-          } else {
-            echo "   <input type='checkbox' name='form_cb[" . $row['custid'] . "]' />\n";
-          }
+      if ($ptrow['count'] == 1) {
+        if ($in_collections) {
+          echo "   <b><font color='red'>IC</font></b>\n";
         } else {
-          echo "   &nbsp;\n";
+          echo "   <input type='checkbox' name='form_cb[" . $row['custid'] . "]' />\n";
         }
+      } else {
+        echo "   &nbsp;\n";
+      }
 ?>
   </td>
 <?php
-        if ($form_cb_err) {
-          echo "  <td class='detail'>&nbsp;";
-          echo $row['billing_errmsg'] . "</td>\n";
-        }
+      if ($form_cb_err) {
+        echo "  <td class='detail'>&nbsp;";
+        echo $row['billing_errmsg'] . "</td>\n";
+      }
 ?>
  </tr>
 <?php
-      } // end not export and not insurance summary
+    } // end not export and not insurance summary
 
-      else if ($_POST['form_csvexport']) {
-        // The CSV detail line is written here.
-        $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
-        // echo '"' . $insname                             . '",';
-        echo '"' . $row['ins1']                         . '",';
-        echo '"' . $ptname                              . '",';
-        echo '"' . $row['invnumber']                    . '",';
-        echo '"' . $row['dos']                          . '",';
-        echo '"' . $row['referrer']                     . '",';
-        echo '"' . sprintf('%.2f', $row['charges'])     . '",';
-        echo '"' . sprintf('%.2f', $row['adjustments']) . '",';
-        echo '"' . sprintf('%.2f', $row['paid'])        . '",';
-        echo '"' . sprintf('%.2f', $balance)            . '",';
-        echo '"' . $row['inactive_days']                . '",';
-        echo '"' . $row['ladate']                       . '"' . "\n";
-      } // end $form_csvexport
-
-    } // end loop
-
-    if ($is_ins_summary)
-      endInsurance($ptrow);
-    else
-      endPatient($ptrow);
-
-    if ($_POST['form_export']) {
-      echo "</textarea>\n";
-      $alertmsg .= "$export_patient_count patients representing $" .
-        sprintf("%.2f", $export_dollars) . " have been exported ";
-      if ($_POST['form_without']) {
-        $alertmsg .= "but NOT flagged as in collections.";
-      } else {
-        $alertmsg .= "AND flagged as in collections.";
-      }
-    }
     else if ($_POST['form_csvexport']) {
-      // echo "</textarea>\n";
-      // $alertmsg .= "$export_patient_count patients representing $" .
-      //   sprintf("%.2f", $export_dollars) . " have been exported.";
+      // The CSV detail line is written here.
+      $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
+      // echo '"' . $insname                             . '",';
+      echo '"' . $row['ins1']                         . '",';
+      echo '"' . $ptname                              . '",';
+      echo '"' . $row['invnumber']                    . '",';
+      echo '"' . $row['dos']                          . '",';
+      echo '"' . $row['referrer']                     . '",';
+      echo '"' . sprintf('%.2f', $row['charges'])     . '",';
+      echo '"' . sprintf('%.2f', $row['adjustments']) . '",';
+      echo '"' . sprintf('%.2f', $row['paid'])        . '",';
+      echo '"' . sprintf('%.2f', $balance)            . '",';
+      echo '"' . $row['inactive_days']                . '",';
+      echo '"' . $row['ladate']                       . '"' . "\n";
+    } // end $form_csvexport
+
+  } // end loop
+
+  if ($is_ins_summary)
+    endInsurance($ptrow);
+  else
+    endPatient($ptrow);
+
+  if ($_POST['form_export']) {
+    echo "</textarea>\n";
+    $alertmsg .= "$export_patient_count patients representing $" .
+      sprintf("%.2f", $export_dollars) . " have been exported ";
+    if ($_POST['form_without']) {
+      $alertmsg .= "but NOT flagged as in collections.";
+    } else {
+      $alertmsg .= "AND flagged as in collections.";
+    }
+  }
+  else if ($_POST['form_csvexport']) {
+    // echo "</textarea>\n";
+    // $alertmsg .= "$export_patient_count patients representing $" .
+    //   sprintf("%.2f", $export_dollars) . " have been exported.";
+  }
+  else {
+    echo " <tr bgcolor='#ffffff'>\n";
+    if ($is_ins_summary) {
+      echo "  <td class='dehead'>&nbsp;Report Totals:</td>\n";
+    } else {
+      echo "  <td class='detail' colspan='$initial_colspan'>\n";
+      echo "   &nbsp;</td>\n";
+      echo "  <td class='dehead' colspan='" . ($final_colspan - 3) .
+        "'>&nbsp;Report Totals:</td>\n";
+    }
+    echo "  <td class='dehead' align='right'>&nbsp;" .
+      sprintf("%.2f", $grand_total_charges) . "&nbsp;</td>\n";
+    echo "  <td class='dehead' align='right'>&nbsp;" .
+      sprintf("%.2f", $grand_total_adjustments) . "&nbsp;</td>\n";
+    echo "  <td class='dehead' align='right'>&nbsp;" .
+      sprintf("%.2f", $grand_total_paid) . "&nbsp;</td>\n";
+    if ($form_age_cols) {
+      for ($c = 0; $c < $form_age_cols; ++$c) {
+        echo "  <td class='dehead' align='right'>" .
+          sprintf("%.2f", $grand_total_agedbal[$c]) . "&nbsp;</td>\n";
+      }
     }
     else {
-      echo " <tr bgcolor='#ffffff'>\n";
-      if ($is_ins_summary) {
-        echo "  <td class='dehead'>&nbsp;Report Totals:</td>\n";
-      } else {
-        echo "  <td class='detail' colspan='$initial_colspan'>\n";
-        echo "   &nbsp;</td>\n";
-        echo "  <td class='dehead' colspan='" . ($final_colspan - 3) .
-          "'>&nbsp;Report Totals:</td>\n";
-      }
-      echo "  <td class='dehead' align='right'>&nbsp;" .
-        sprintf("%.2f", $grand_total_charges) . "&nbsp;</td>\n";
-      echo "  <td class='dehead' align='right'>&nbsp;" .
-        sprintf("%.2f", $grand_total_adjustments) . "&nbsp;</td>\n";
-      echo "  <td class='dehead' align='right'>&nbsp;" .
-        sprintf("%.2f", $grand_total_paid) . "&nbsp;</td>\n";
-      if ($form_age_cols) {
-        for ($c = 0; $c < $form_age_cols; ++$c) {
-          echo "  <td class='dehead' align='right'>" .
-            sprintf("%.2f", $grand_total_agedbal[$c]) . "&nbsp;</td>\n";
-        }
-      }
-      else {
-        echo "  <td class='dehead' align='right'>" .
-          sprintf("%.2f", $grand_total_charges +
-          $grand_total_adjustments - $grand_total_paid) . "&nbsp;</td>\n";
-      }
-      if ($form_cb_idays) echo "  <td class='detail'>&nbsp;</td>\n";
-      if (!$is_ins_summary) echo "  <td class='detail' colspan='2'>&nbsp;</td>\n";
-      if ($form_cb_err) echo "  <td class='detail'>&nbsp;</td>\n";
-      echo " </tr>\n";
-      echo "</table>\n";
+      echo "  <td class='dehead' align='right'>" .
+        sprintf("%.2f", $grand_total_charges +
+        $grand_total_adjustments - $grand_total_paid) . "&nbsp;</td>\n";
     }
-  } // end if form_search
-  SLClose();
+    if ($form_cb_idays) echo "  <td class='detail'>&nbsp;</td>\n";
+    if (!$is_ins_summary) echo "  <td class='detail' colspan='2'>&nbsp;</td>\n";
+    if ($form_cb_err) echo "  <td class='detail'>&nbsp;</td>\n";
+    echo " </tr>\n";
+    echo "</table>\n";
+  }
+} // end if form_search
+
+if (!$INTEGRATED_AR) SLClose();
 
 if (!$_POST['form_csvexport']) {
   if (!$_POST['form_export']) {

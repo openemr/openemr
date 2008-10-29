@@ -2,7 +2,7 @@
 /* $Id$ */
 //  ------------------------------------------------------------------------ //
 //                OpenEMR Electronic Medical Records System                  //
-//                    Copyright (c) 2005 oemr.org                            //
+//                    Copyright (c) 2005-2008 oemr.org                       //
 //                       <http://www.oemr.org/>                              //
 //  ------------------------------------------------------------------------ //
 //  This program is free software; you can redistribute it and/or modify     //
@@ -106,9 +106,15 @@ $GLOBALS['oer_config']['druglabels']['disclaimer'] =
   'Caution: Federal law prohibits dispensing without a prescription. ' .
   'Use only as directed.';
 
-//accounting system web services integration
-//whether to use the system
-$GLOBALS['oer_config']['ws_accounting']['enabled'] = false;
+// Accounts Receivable support. Use one of the following numeric values:
+//   0 = None
+//   1 = Using SQL-Ledger
+//   2 = A/R internal to OpenEMR (recommended)
+//
+$GLOBALS['oer_config']['ws_accounting']['enabled'] = 2;
+
+// If 1 is chosen above, then the following must be set correctly:
+//
 $GLOBALS['oer_config']['ws_accounting']['server'] = "localhost";
 $GLOBALS['oer_config']['ws_accounting']['port'] = "80";
 $GLOBALS['oer_config']['ws_accounting']['url'] = "/sql-ledger/ws_server.pl";

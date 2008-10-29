@@ -14,3 +14,40 @@ CREATE TABLE chart_tracker (
 
 INSERT INTO list_options VALUES ('lists'   ,'chartloc','Chart Storage Locations',1,0,0);
 INSERT INTO list_options VALUES ('chartloc','fileroom','File Room'              ,1,0,0);
+
+ALTER TABLE form_encounter
+  ADD last_level_billed int           NOT NULL DEFAULT 0 COMMENT '0=none, 1=ins1, 2=ins2, etc',
+  ADD last_level_closed int           NOT NULL DEFAULT 0 COMMENT '0=none, 1=ins1, 2=ins2, etc',
+  ADD last_stmt_date    date          DEFAULT NULL,
+  ADD stmt_count        int           NOT NULL DEFAULT 0;
+
+CREATE TABLE ar_session (
+  session_id     int unsigned  NOT NULL AUTO_INCREMENT,
+  payer_id       int(11)       NOT NULL            COMMENT '0=pt else references insurance_companies.id',
+  user_id        int(11)       NOT NULL            COMMENT 'references users.id for session owner',
+  closed         tinyint(1)    NOT NULL DEFAULT 0  COMMENT '0=no, 1=yes',
+  reference      varchar(255)  NOT NULL DEFAULT '' COMMENT 'check or EOB number',
+  check_date     date          DEFAULT NULL,
+  deposit_date   date          DEFAULT NULL,
+  pay_total      decimal(12,2) NOT NULL DEFAULT 0,
+  PRIMARY KEY (session_id),
+  KEY user_closed (user_id, closed),
+  KEY deposit_date (deposit_date)
+) ENGINE=MyISAM;
+
+CREATE TABLE ar_activity (
+  pid            int(11)       NOT NULL,
+  encounter      int(11)       NOT NULL,
+  sequence_no    int unsigned  NOT NULL AUTO_INCREMENT,
+  code           varchar(9)    NOT NULL            COMMENT 'empty means claim level',
+  modifier       varchar(5)    NOT NULL DEFAULT '',
+  payer_type     int           NOT NULL            COMMENT '0=pt, 1=ins1, 2=ins2, etc',
+  post_time      datetime      NOT NULL,
+  post_user      int(11)       NOT NULL            COMMENT 'references users.id',
+  session_id     int unsigned  NOT NULL            COMMENT 'references ar_session.session_id',
+  memo           varchar(255)  NOT NULL DEFAULT '' COMMENT 'adjustment reasons go here',
+  pay_amount     decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'either pay or adj will always be 0',
+  adj_amount     decimal(12,2) NOT NULL DEFAULT 0,
+  PRIMARY KEY (pid, encounter, sequence_no),
+  KEY session_id (session_id)
+) ENGINE=MyISAM;

@@ -1,30 +1,32 @@
-<?php 
- // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+<?php
+// Copyright (C) 2005, 2008 Rod Roark <rod@sunsetsystems.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
 
- // This is the Indigent Patients Report.  It displays a summary of
- // encounters within the specified time period for patients without
- // insurance.
+// This is the Indigent Patients Report.  It displays a summary of
+// encounters within the specified time period for patients without
+// insurance.
 
- include_once("../globals.php");
- include_once("../../library/patient.inc");
- include_once("../../library/sql-ledger.inc");
+require_once("../globals.php");
+require_once("../../library/patient.inc");
+require_once("../../library/sql-ledger.inc");
 
- $alertmsg = '';
+$alertmsg = '';
 
- function bucks($amount) {
+function bucks($amount) {
   if ($amount) return sprintf("%.2f", $amount);
   return "";
- }
+}
 
- $form_start_date = fixDate($_POST['form_start_date'], "2005-10-01");
- $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
+$form_start_date = fixDate($_POST['form_start_date'], date("Y-01-01"));
+$form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 
- SLConnect();
+$INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
+
+if (!$INTEGRATED_AR) SLConnect();
 ?>
 <html>
 <head>
@@ -131,18 +133,41 @@
     $total_paid   = 0;
 
     for ($irow = 0; $row = sqlFetchArray($rez); ++$irow) {
+      $patient_id = $row['pid'];
+      $encounter_id = $row['encounter'];
       $invnumber = $row['pid'] . "." . $row['encounter'];
 
-      $ares = SLQuery("SELECT duedate, amount, paid FROM ar WHERE " .
-        "ar.invnumber = '$invnumber'");
-      if ($sl_err) die($sl_err);
-
-      if (SLRowCount($ares) == 0) continue;
-
-      $arow = SLGetRow($ares, 0);
-
-      $total_amount += bucks($arow['amount']);
-      $total_paid   += bucks($arow['paid']);
+      if ($INTEGRATED_AR) {
+        $inv_duedate = '';
+        $arow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
+          "pid = '$patient_id' AND encounter = '$encounter_id'");
+        $inv_amount = $arow['amount'];
+        $arow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
+          "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
+          "activity = 1 AND code_type != 'COPAY'");
+        $inv_amount += $arow['amount'];
+        $arow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
+          "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
+          "activity = 1 AND code_type = 'COPAY'");
+        $inv_paid = 0 - $arow['amount'];
+        $arow = sqlQuery("SELECT SUM(pay_amount) AS pay, " .
+          "sum(adj_amount) AS adj FROM ar_activity WHERE " .
+          "pid = '$patient_id' AND encounter = '$encounter_id'");
+        $inv_paid   += $arow['pay'];
+        $inv_amount -= $arow['adj'];
+      }
+      else {
+        $ares = SLQuery("SELECT duedate, amount, paid FROM ar WHERE " .
+          "ar.invnumber = '$invnumber'");
+        if ($sl_err) die($sl_err);
+        if (SLRowCount($ares) == 0) continue;
+        $arow = SLGetRow($ares, 0);
+        $inv_amount  = $arow['amount'];
+        $inv_paid    = $arow['paid'];
+        $inv_duedate = $arow['duedate'];
+      }
+      $total_amount += bucks($inv_amount);
+      $total_paid   += bucks($inv_paid);
 
       $bgcolor = (($irow & 1) ? "#ffdddd" : "#ddddff");
 ?>
@@ -160,16 +185,16 @@
    &nbsp;<?php  echo substr($row['date'], 0, 10) ?>
   </td>
   <td class="detail">
-   &nbsp;<?php  echo $arow['duedate'] ?>
+   &nbsp;<?php  echo $inv_duedate ?>
   </td>
   <td class="detail" align="right">
-   <?php  echo bucks($arow['amount']) ?>&nbsp;
+   <?php  echo bucks($inv_amount) ?>&nbsp;
   </td>
   <td class="detail" align="right">
-   <?php  echo bucks($arow['paid']) ?>&nbsp;
+   <?php  echo bucks($inv_paid) ?>&nbsp;
   </td>
   <td class="detail" align="right">
-   <?php  echo bucks($arow['amount'] - $arow['paid']) ?>&nbsp;
+   <?php  echo bucks($inv_amount - $inv_paid) ?>&nbsp;
   </td>
  </tr>
 <?php 
@@ -203,7 +228,7 @@
  </tr>
 <?php 
   }
-  SLClose();
+  if (!$INTEGRATED_AR) SLClose();
 ?>
 
 </table>

@@ -19,6 +19,7 @@ class WSProvider extends WSWrapper{
 		$this->_db = $GLOBALS['adodb']['db'];
 
 		if (!$this->_config['enabled']) return;
+    if ($this->_config['enabled'] === 2) return;
 
 		if ($this->load_info()) {
 			$function['ezybiz.add_salesman'] = array(new xmlrpcval($this->data,"struct"));

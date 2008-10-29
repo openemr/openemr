@@ -944,6 +944,9 @@ function updateHistoryData($pid,$new)
 function sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone_home,
                 $phone_biz,$phone_cell,$email,$pid="")
 {
+    if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) return;
+    if (!$GLOBALS['oer_config']['ws_accounting']['enabled']) return;
+
     $db = $GLOBALS['adodb']['db'];
     $customer_info = array();
 
@@ -985,8 +988,8 @@ function sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone
     $customer_info['phone1comment'] = "Home Phone";
     $customer_info['phone2'] = $phone_biz;
     $customer_info['phone2comment'] = "Business Phone";
-  $customer_info['phone3'] = $phone_cell;
-  $customer_info['phone3comment'] = "Cell Phone";
+    $customer_info['phone3'] = $phone_cell;
+    $customer_info['phone3comment'] = "Cell Phone";
     $customer_info['email'] = $email;
     $customer_info['customernumber'] = $pid;
 
@@ -1266,10 +1269,40 @@ function total_insurers($pid = 0) {
     return $row['c'];
 }
 
-
 function DBToDate ($date)
 {
     $date=substr ($date,5,2)."/".substr ($date,8,2)."/".substr($date, 0,4);
     return $date;
+}
+
+function get_patient_balance($pid) {
+  if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) {
+    $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
+      "pid = '$pid' AND activity = 1");
+    $drow = sqlQuery("SELECT SUM(pay_amount) AS payments, " .
+      "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
+      "pid = '$pid'");
+    return sprintf('%01.2f', $brow['amount'] - $drow['payments'] -
+      $drow['adjustments']);
+  }
+  else if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
+    // require_once($GLOBALS['fileroot'] . "/library/classes/WSWrapper.class.php");
+    $conn = $GLOBALS['adodb']['db'];
+    $customer_info['id'] = 0;
+    $sql = "SELECT foreign_id FROM integration_mapping AS im " .
+      "LEFT JOIN patient_data AS pd ON im.local_id = pd.id WHERE " .
+      "pd.pid = '" . $pid . "' AND im.local_table = 'patient_data' AND " .
+      "im.foreign_table = 'customer'";
+    $result = $conn->Execute($sql);
+    if($result && !$result->EOF) {
+      $customer_info['id'] = $result->fields['foreign_id'];
+    }
+    $function['ezybiz.customer_balance'] = array(new xmlrpcval($customer_info,"struct"));
+    $ws = new WSWrapper($function);
+    if(is_numeric($ws->value)) {
+      return sprintf('%01.2f', $ws->value);
+    }
+  }
+  return '';
 }
 ?>
