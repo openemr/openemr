@@ -16,6 +16,7 @@
  include_once("../../../custom/code_types.inc.php");
 
  $accounting_enabled = $GLOBALS['oer_config']['ws_accounting']['enabled'];
+ $INTEGRATED_AR = $accounting_enabled === 2;
 
  //maximum number of encounter entries to display on this page:
  $N = 12;
@@ -223,7 +224,7 @@ if (! $billing_view) {
 $count = 0;
 if ($result = getEncounters($pid)) {
 
-  if ($billing_view && $accounting_enabled) SLConnect();
+  if ($billing_view && $accounting_enabled && !$INTEGRATED_AR) SLConnect();
 
   foreach ($result as $iter ) {
     // $count++; // Forget about limiting the number of encounters
@@ -356,10 +357,18 @@ if ($result = getEncounters($pid)) {
       $arlinkbeg = "";
       $arlinkend = "";
       if ($billing_view && $accounting_enabled) {
-        $arid = SLQueryValue("SELECT id FROM ar WHERE invnumber = " .
-          "'$pid.{$iter['encounter']}'");
+        if ($INTEGRATED_AR) {
+          $tmp = sqlQuery("SELECT id FROM form_encounter WHERE " .
+            "pid = '$pid' AND encounter = '" . $iter['encounter'] . "'");
+          $arid = 0 + $tmp['id'];
+          if ($arid) $arinvoice = ar_get_invoice_summary($pid, $iter['encounter'], true);
+        }
+        else {
+          $arid = SLQueryValue("SELECT id FROM ar WHERE invnumber = " .
+            "'$pid.{$iter['encounter']}'");
+          if ($arid) $arinvoice = get_invoice_summary($arid, true);
+        }
         if ($arid) {
-          $arinvoice = get_invoice_summary($arid, true);
           $arlinkbeg = "<a href='../../billing/sl_eob_invoice.php?id=$arid'" .
             " target='_blank' class='text' style='color:#00cc00'>";
           $arlinkend = "</a>";
@@ -433,8 +442,14 @@ if ($result = getEncounters($pid)) {
     if (!$GLOBALS['athletic_team']) {
       $insured = "$raw_encounter_date";
       if ($auth_demo) {
-        $responsible = $arid ? responsible_party($arid) : -1;
-
+        $responsible = -1;
+        if ($arid) {
+          if ($INTEGRATED_AR) {
+            $responsible = ar_responsible_party($pid, $iter['encounter']);
+          } else {
+            $responsible = responsible_party($arid);
+          }
+        }
         $subresult5 = getInsuranceDataByDate($pid, $raw_encounter_date, "primary");
         if ($subresult5 && $subresult5{"provider_name"}) {
           $style = $responsible == 1 ? " style='color:red'" : "";
@@ -501,7 +516,7 @@ if ($result = getEncounters($pid)) {
 
   } // end foreach $result
 
-  if ($billing_view && $accounting_enabled) SLClose();
+  if ($billing_view && $accounting_enabled && !$INTEGRATED_AR) SLClose();
 
 } // end if
 
