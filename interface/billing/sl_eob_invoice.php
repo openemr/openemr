@@ -581,7 +581,7 @@ function validate(f) {
    <?php xl('Balance','e')?>&nbsp;
   </td>
   <td class="dehead">
-   <?php xl('Source','e')?>
+   <?php xl('By/Source','e')?>
   </td>
   <td class="dehead">
    <?php xl('Date','e')?>
@@ -633,7 +633,13 @@ function validate(f) {
    &nbsp;
   </td>
   <td class="detail">
-   <?php echo $ddata['src'] ?>
+   <?php
+    if (isset($ddata['plv'])) {
+      if (!$ddata['plv']) echo 'Pt/';
+      else echo 'Ins' . $ddata['plv'] . '/';
+    }
+    echo $ddata['src'];
+   ?>
   </td>
   <td class="detail">
    <?php echo $ddate ?>

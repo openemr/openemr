@@ -225,7 +225,7 @@
 
   // Post a payment, new style.
   //
-  function arPostPayment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $memo, $debug) {
+  function arPostPayment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $memo, $debug, $time='') {
     $codeonly = $code;
     $modifier = '';
     $tmp = strpos($code, ':');
@@ -233,6 +233,7 @@
       $codeonly = substr($code, 0, $tmp);
       $modifier = substr($code, $tmp+1);
     }
+    if (empty($time)) $time = date('Y-m-d H:i:s');
     $query = "INSERT INTO ar_activity ( " .
       "pid, encounter, code, modifier, payer_type, post_time, post_user, " .
       "session_id, memo, pay_amount " .
@@ -242,7 +243,7 @@
       "'$codeonly', " .
       "'$modifier', " .
       "'$payer_type', " .
-      "NOW(), " .
+      "'$time', " .
       "'" . $_SESSION['authUserID'] . "', " .
       "'$session_id', " .
       "'$memo', " .
@@ -329,7 +330,7 @@
 
   // Post an adjustment, new style.
   //
-  function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $reason, $debug) {
+  function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $reason, $debug, $time='') {
     $codeonly = $code;
     $modifier = '';
     $tmp = strpos($code, ':');
@@ -337,6 +338,7 @@
       $codeonly = substr($code, 0, $tmp);
       $modifier = substr($code, $tmp+1);
     }
+    if (empty($time)) $time = date('Y-m-d H:i:s');
     $query = "INSERT INTO ar_activity ( " .
       "pid, encounter, code, modifier, payer_type, post_user, post_time, " .
       "session_id, memo, adj_amount " .
@@ -347,7 +349,7 @@
       "'$modifier', " .
       "'$payer_type', " .
       "'" . $_SESSION['authUserID'] . "', " .
-      "NOW(), " .
+      "'$time', " .
       "'$session_id', " .
       "'$reason', " .
       "'$amount' " .

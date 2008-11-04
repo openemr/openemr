@@ -13,7 +13,7 @@
 //  chg - the sum of line items, including adjustments, for the code
 //  bal - the unpaid balance
 //  adj - the (positive) sum of inverted adjustments
-//  ins - the id of the insurance company that was billed
+//  ins - the id of the insurance company that was billed (obsolete)
 //  dtl - associative array of details, if requested
 //
 // Where details are requested, each dtl array is keyed on a string
@@ -25,6 +25,7 @@
 //  chg - invoice line item amount amount, only for charges or
 //        adjustments (adjustments may be zero)
 //  rsn - adjustment reason, only for adjustments
+//  plv - provided for "integrated A/R" only: 0=pt, 1=Ins1, etc.
 
 function get_invoice_summary($trans_id, $with_detail = false) {
   global $sl_err, $sl_cash_acc;
@@ -58,6 +59,7 @@ function get_invoice_summary($trans_id, $with_detail = false) {
       $tmp = array();
       $tmp['pmt'] = 0 - $amount;
       $tmp['src'] = $row['source'];
+      if ($ins_id) $tmp['ins'] = $ins_id;
       $codes[$code]['dtl'][$tmpkey] = $tmp;
     }
   }
@@ -102,6 +104,7 @@ function get_invoice_summary($trans_id, $with_detail = false) {
         $tmp = array();
         $tmp['chg'] = $amount;
         $tmp['rsn'] = $matches[2];
+        if ($ins_id) $tmp['ins'] = $ins_id;
         $codes[$code]['dtl'][$tmpkey] = $tmp;
       }
       else {
@@ -123,7 +126,7 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
   $keysuff1 = 1000;
   $keysuff2 = 5000;
 
-  // Get charges.
+  // Get charges from services.
   $res = sqlStatement("SELECT " .
     "date, code_type, code, modifier, code_text, fee " .
     "FROM billing WHERE " .
@@ -151,6 +154,7 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
       if ($row['code_type'] == 'COPAY') {
         $tmp['pmt'] = 0 - $amount;
         $tmp['src'] = 'Pt Paid';
+        $tmp['plv'] = 0;
         $tmpkey = substr($row['date'], 0, 10) . $keysuff2++;
       }
       else {
@@ -161,7 +165,27 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
     }
   }
 
-  // TBD: Product sales?
+  // Get charges from product sales.
+  $query = "SELECT s.drug_id, s.sale_date, s.fee, s.quantity, d.name " .
+    "FROM drug_sales AS s " .
+    "JOIN drugs AS d ON d.drug_id = s.drug_id WHERE " .
+    "s.pid = '$patient_id' AND s.encounter = '$encounter_id' AND s.fee != 0 " .
+    "ORDER BY s.sale_id";
+  $res = sqlStatement($query);
+  while ($row = sqlFetchArray($res)) {
+    $amount = sprintf('%01.2f', $row['fee']);
+    $code = 'PROD:' . $row['drug_id'];
+    $codes[$code]['chg'] += $amount;
+    $codes[$code]['bal'] += $amount;
+    // Add the details if they want 'em.
+    if ($with_detail) {
+      if (! $codes[$code]['dtl']) $codes[$code]['dtl'] = array();
+      $tmp = array();
+      $tmp['chg'] = $amount;
+      $tmpkey = "          " . $keysuff1++;
+      $codes[$code]['dtl'][$tmpkey] = $tmp;
+    }
+  }
 
   // Get payments and adjustments.
   $res = sqlStatement("SELECT " .
@@ -197,6 +221,8 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
         $tmpkey = $paydate . $keysuff2++;
       }
       $tmp['src'] = empty($row['session_id']) ? $row['memo'] : $row['reference'];
+      if ($ins_id) $tmp['ins'] = $ins_id;
+      $tmp['plv'] = $row['payer_type'];
       $codes[$code]['dtl'][$tmpkey] = $tmp;
     }
   }
