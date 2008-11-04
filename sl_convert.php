@@ -58,7 +58,7 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
 
   $invlines = get_invoice_summary($row['id'], true);
 
-  print_r($invlines); // debugging
+  // print_r($invlines); // debugging
 
   ksort($invlines);
   foreach ($invlines as $codekey => $codeinfo) {
