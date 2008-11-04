@@ -303,15 +303,27 @@ foreach ($ar as $key => $val) {
       $form_id = $res[2];
       $formres = getFormNameByFormdir($res[1]);
       $dateres = getEncounterDateByEncounter($form_encounter);
+
       if ($res[1] == 'newpatient') print "<br>\n";
-      print "<span class='bold'>" . $formres{"form_name"} .
-        "</span><span class=text>(" . date("Y-m-d",strtotime($dateres{"date"})) .
-        ")" . "</span><br>\n";
+      echo "<span class='bold'>" . $formres{"form_name"} .
+        "</span><span class=text> (" . date("Y-m-d",strtotime($dateres{"date"})) .
+        ")";
+      if ($res[1] == 'newpatient') {
+        $tmp = sqlQuery("SELECT u.title, u.fname, u.mname, u.lname " .
+          "FROM forms AS f, users AS u WHERE " .
+          "f.pid = '$pid' AND f.encounter = '$form_encounter' AND " .
+          "f.formdir = 'newpatient' AND u.username = f.user " .
+          "ORDER BY f.id LIMIT 1");
+        echo ' '. xl('Provider') . ': ' . $tmp['title'] . ' ' .
+          $tmp['fname'] . ' ' . $tmp['mname'] . ' ' . $tmp['lname'];
+      }
+      echo "</span><br>\n";
+
       call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
       if ($res[1] == 'newpatient') {
         $bres = sqlStatement("SELECT date, code, code_text FROM billing WHERE " .
           "pid = '$pid' AND encounter = '$form_encounter' AND activity = 1 AND " .
-          "(code_type = 'CPT4' OR code_type = 'OPCS') " .
+          "( code_type = 'CPT4' OR code_type = 'OPCS' ) " .
           "ORDER BY date");
         while ($brow=sqlFetchArray($bres)) {
           echo "<span class='bold'>&nbsp;".xl('Procedure').": </span><span class='text'>" .
