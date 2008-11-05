@@ -420,6 +420,8 @@ if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) 
       "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
       "b.pid = f.pid AND b.encounter = f.encounter AND " .
       "b.activity = 1 AND b.code_type = 'COPAY' ) AS copays, " .
+      "( SELECT SUM(s.fee) FROM drug_sales AS s WHERE " .
+      "s.pid = f.pid AND s.encounter = f.encounter ) AS sales, " .
       "( SELECT SUM(a.pay_amount) FROM ar_activity AS a WHERE " .
       "a.pid = f.pid AND a.encounter = f.encounter ) AS payments, " .
       "( SELECT SUM(a.adj_amount) FROM ar_activity AS a WHERE " .
@@ -434,10 +436,10 @@ if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) 
     while ($erow = sqlFetchArray($eres)) {
       $patient_id = $erow['pid'];
       $encounter_id = $erow['encounter'];
-      $pt_balance = $erow['charges'] + $erow['copays'] - $erow['payments'] - $erow['adjustments'];
+      $pt_balance = $erow['charges'] + $erow['sales'] + $erow['copays'] - $erow['payments'] - $erow['adjustments'];
       $svcdate = substr($erow['date'], 0, 10);
 
-      echo "<!-- " . $erow['charges'] . ' + ' . $erow['copays'] . ' - ' . $erow['payments'] . ' - ' . $erow['adjustments'] . "  -->\n"; // debugging
+      // echo "<!-- " . $erow['charges'] . ' + ' . $erow['copays'] . ' - ' . $erow['payments'] . ' - ' . $erow['adjustments'] . "  -->\n"; // debugging
 
       if ($_POST['form_search'] && ! $is_all) {
         if ($pt_balance == 0) continue;
@@ -517,6 +519,13 @@ if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) 
       // date of last activity, and determines if insurance has responded to
       // all billing items.
       $invlines = ar_get_invoice_summary($patient_id, $encounter_id, true);
+
+      // if ($encounter_id == 185) { // debugging
+      //   echo "\n<!--\n";
+      //   print_r($invlines);
+      //   echo "\n-->\n";
+      // }
+
       $row['charges'] = 0;
       $row['adjustments'] = 0;
       $row['paid'] = 0;
@@ -534,6 +543,10 @@ if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) 
         if ($lckey == 'co-pay' || $lckey == 'claim') continue;
         if (count($value['dtl']) <= 1) $ins_seems_done = false;
       }
+
+      // Simulating ar.amount in SQL-Ledger which is charges with adjustments:
+      $row['amount'] = $row['charges'] + $row['adjustments'];
+
       $row['billing_errmsg'] = '';
       if ($is_due_ins && $last_level_closed < 1 && $ins_seems_done)
         $row['billing_errmsg'] = 'Ins1 seems done';

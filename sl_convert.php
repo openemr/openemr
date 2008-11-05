@@ -45,6 +45,7 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
   $copays = array();
   $provider_id = 0;
   $last_biller = 0;
+  $svcdate = $row['transdate'];
 
   // Scan billing table items to get the provider ID and copays.
   $bres = sqlStatement("SELECT * FROM billing WHERE " .
@@ -55,6 +56,11 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
     if (!$last_biller && !empty($brow['payer_id'])) $last_biller = $brow['payer_id'];
     if ($brow['code_type'] == 'COPAY') $copays[] = 0 - $brow['fee'];
   }
+
+  // Delete any TAX rows from billing for encounters in SQL-Ledger.
+  sqlStatement("UPDATE billing SET activity = 0 WHERE " .
+    "pid = '$pid' AND encounter = '$encounter' AND " .
+    "code_type = 'TAX'");
 
   $invlines = get_invoice_summary($row['id'], true);
 
@@ -68,7 +74,18 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
 
     foreach ($codeinfo['dtl'] as $dtlkey => $dtlinfo) {
       $dtldate = trim(substr($dtlkey, 0, 10));
-      if (empty($dtldate)) continue; // skip the charges
+      if (empty($dtldate)) {
+        // Insert taxes but ignore other charges.
+        if ($code == 'TAX') {
+          sqlInsert("INSERT INTO billing ( date, encounter, code_type, code, code_text, " .
+            "pid, authorized, user, groupname, activity, billed, provider_id, " .
+            "modifier, units, fee, ndc_info, justify ) values ( " .
+            "'$svcdate 00:00:00', '$encounter', 'TAX', 'TAX', '" . $dtlinfo['dsc'] . "', " .
+            "'$pid', '1', '$provider_id', 'Default', 1, 1, $provider_id, '', '1', " .
+            "'" . $dtlinfo['chg'] . "', '', '' )");
+        }
+        continue; // otherwise skip charges
+      }
       $payer_id = empty($dtlinfo['ins']) ? 0 : $dtlinfo['ins'];
       $session_id = 0;
 

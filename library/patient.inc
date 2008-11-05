@@ -1279,11 +1279,13 @@ function get_patient_balance($pid) {
   if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) {
     $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
       "pid = '$pid' AND activity = 1");
+    $srow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
+      "pid = '$pid'");
     $drow = sqlQuery("SELECT SUM(pay_amount) AS payments, " .
       "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
       "pid = '$pid'");
-    return sprintf('%01.2f', $brow['amount'] - $drow['payments'] -
-      $drow['adjustments']);
+    return sprintf('%01.2f', $brow['amount'] + $srow['amount']
+      - $drow['payments'] - $drow['adjustments']);
   }
   else if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
     // require_once($GLOBALS['fileroot'] . "/library/classes/WSWrapper.class.php");

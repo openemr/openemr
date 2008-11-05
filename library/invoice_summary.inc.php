@@ -26,6 +26,9 @@
 //        adjustments (adjustments may be zero)
 //  rsn - adjustment reason, only for adjustments
 //  plv - provided for "integrated A/R" only: 0=pt, 1=Ins1, etc.
+//  dsc - for tax charges, a description of the tax
+
+require_once("sl_eob.inc.php");
 
 function get_invoice_summary($trans_id, $with_detail = false) {
   global $sl_err, $sl_cash_acc;
@@ -88,6 +91,9 @@ function get_invoice_summary($trans_id, $with_detail = false) {
     else if (preg_match("/([A-Za-z0-9]\d\d\S*)/", $row['description'], $matches)) {
       $code = strtoupper($matches[1]);
     }
+    else if (preg_match("/^TAX:/", $row['description'])) {
+      $code = 'TAX';
+    }
 
     $codes[$code]['chg'] += $amount;
     $codes[$code]['bal'] += $amount;
@@ -111,6 +117,7 @@ function get_invoice_summary($trans_id, $with_detail = false) {
         $tmpkey = "          " . $keysuffix++;
         $tmp = array();
         $tmp['chg'] = $amount;
+        if ($code == 'TAX') $tmp['dsc'] = substr($row['description'], 4);
         $codes[$code]['dtl'][$tmpkey] = $tmp;
       }
     }
@@ -166,9 +173,9 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
   }
 
   // Get charges from product sales.
-  $query = "SELECT s.drug_id, s.sale_date, s.fee, s.quantity, d.name " .
+  $query = "SELECT s.drug_id, s.sale_date, s.fee, s.quantity " .
     "FROM drug_sales AS s " .
-    "JOIN drugs AS d ON d.drug_id = s.drug_id WHERE " .
+    "WHERE " .
     "s.pid = '$patient_id' AND s.encounter = '$encounter_id' AND s.fee != 0 " .
     "ORDER BY s.sale_id";
   $res = sqlStatement($query);
