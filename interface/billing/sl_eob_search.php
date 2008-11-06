@@ -67,7 +67,7 @@ if ($INTEGRATED_AR) {
       "p.fname, p.mname, p.lname, p.street, p.city, p.state, p.postal_code " .
       "FROM form_encounter AS f, patient_data AS p " .
       "WHERE ( $where ) AND " .
-      "p.pid = f.pid" .
+      "p.pid = f.pid " .
       "ORDER BY p.lname, p.fname, f.pid, f.date, f.encounter");
 
     $stmt = array();
