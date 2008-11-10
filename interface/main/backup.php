@@ -104,7 +104,9 @@ if ($form_step == 2) {
   }
 }
 if ($form_step == 3) {
-  if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
+  if ($GLOBALS['oer_config']['ws_accounting']['enabled'] &&
+      $GLOBALS['oer_config']['ws_accounting']['enabled'] !== 2)
+  {
     $form_status .= "Dumping SQL-Ledger database ...<br />";
     echo nl2br($form_status);
     $cmd = "PGPASSWORD=" . escapeshellarg($sl_dbpass) . " pg_dump -U " .
