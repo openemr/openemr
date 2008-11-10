@@ -258,7 +258,9 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
         "d.name, fe.date, fe.facility_id " .
         "FROM drug_sales AS s " .
         "JOIN drugs AS d ON d.drug_id = s.drug_id " .
-        "JOIN form_encounter AS fe ON fe.pid = s.pid AND fe.encounter = s.encounter " .
+        "JOIN form_encounter AS fe ON " .
+        "fe.pid = s.pid AND fe.encounter = s.encounter AND " .
+        "fe.date >= '$from_date 00:00:00' AND fe.date <= '$to_date 23:59:59' " .
         "WHERE s.fee != 0";
       // If a facility was specified.
       if ($form_facility) {
