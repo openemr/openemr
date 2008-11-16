@@ -281,7 +281,7 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   }
 
   // Box 19. Reserved for Local Use
-  // Not currently supported.
+  put_hcfa(36, 1, 48, $claim->additionalNotes());
 
   // Box 20. Outside Lab
   put_hcfa(36, $claim->isOutsideLab() ? 52 : 57, 1, 'X');
@@ -470,7 +470,7 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   //
   // $tmp = $claim->providerFirstName();
   // if ($claim->providerMiddleName()) $tmp .= ' ' . substr($claim->providerMiddleName(),0,1);
-  // put_hcfa(60, 1, 20, $tmp . ' ' . $claim->providerLastName);
+  // put_hcfa(60, 1, 20, $tmp . ' ' . $claim->providerLastName());
 
   // 32. Service Facility Location Information: City State Zip
   $tmp = $claim->facilityCity() ? ($claim->facilityCity() . ' ') : '';

@@ -891,6 +891,10 @@ class Claim {
     return empty($this->billing_options['replacement_claim']) ? '1' : '7';
   }
 
+  function additionalNotes() {
+    return x12clean(trim($this->billing_options['comments']));
+  }
+
   // Returns an array of unique diagnoses.  Periods are stripped.
   function diagArray() {
     $da = array();
