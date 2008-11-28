@@ -18,6 +18,13 @@
 
  $alertmsg = ''; // not used yet but maybe later
 
+// Get fitness level names and colors.
+$PLAYER_FITNESSES = array();
+$fres = sqlStatement("SELECT * FROM list_options WHERE " .
+  "list_id = 'fitness' ORDER BY seq");
+while ($frow = sqlFetchArray($fres)) $PLAYER_FITNESSES[] = $frow['title'];
+if (!empty($GLOBALS['fitness_colors'])) $PLAYER_FITCOLORS = $GLOBALS['fitness_colors'];
+
  $query = "SELECT pid, squad, fitness, lname, fname FROM " .
   "patient_data"; // ORDER BY squad, lname, fname
  $res = sqlStatement($query);
