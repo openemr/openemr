@@ -96,7 +96,7 @@ function doiclick(id, lot) {
    echo " <tr class='detail' bgcolor='$bgcolor'>\n";
    echo "  <td colspan='6'>&nbsp;</td>\n";
   }
-  if ($row['lot_number']) {
+  if (!empty($row['inventory_id'])) {
    $lot_number = htmlentities($row['lot_number']);
    echo "  <td onclick='doiclick($lastid," . $row['inventory_id'] . ")'>" .
     "<a href='' onclick='return false'>$lot_number</a></td>\n";
