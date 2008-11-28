@@ -63,4 +63,32 @@ function related_codes_are_used() {
  foreach ($code_types as $value) { if ($value['rel']) return true; }
  return false;
 }
+
+// Look up descriptions for one or more billing codes.  Input is of the
+// form "type:code;type:code; etc.".
+//
+function lookup_code_descriptions($codes) {
+  global $code_types;
+  $code_text = '';
+  if (!empty($codes)) {
+    $relcodes = explode(';', $codes);
+    foreach ($relcodes as $codestring) {
+      if ($codestring === '') continue;
+      list($codetype, $code) = explode(':', $codestring);
+      $wheretype = "";
+      if (empty($code)) {
+        $code = $codetype;
+      } else {
+        $wheretype = "code_type = '" . $code_types[$codetype]['id'] . "' AND ";
+      }
+      $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
+        "$wheretype code = '$code' ORDER BY id LIMIT 1");
+      if (!empty($crow['code_text'])) {
+        if ($code_text) $code_text .= '; ';
+        $code_text .= $crow['code_text'];
+      }
+    }
+  }
+  return $code_text;
+}
 ?>
