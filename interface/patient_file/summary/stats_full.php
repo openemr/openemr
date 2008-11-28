@@ -11,34 +11,6 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/acl.inc");
 require_once("../../../custom/code_types.inc.php");
 
-// Look up descriptions for one or more billing codes.  This should
-// probably be moved to an "include" file somewhere.
-//
-function lookup_code_descriptions($codes) {
-  global $code_types;
-  $code_text = '';
-  if (!empty($codes)) {
-    $relcodes = explode(';', $codes);
-    foreach ($relcodes as $codestring) {
-      if ($codestring === '') continue;
-      list($codetype, $code) = explode(':', $codestring);
-      $wheretype = "";
-      if (empty($code)) {
-        $code = $codetype;
-      } else {
-        $wheretype = "code_type = '" . $code_types[$codetype]['id'] . "' AND ";
-      }
-      $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
-        "$wheretype code = '$code' ORDER BY id LIMIT 1");
-      if (!empty($crow['code_text'])) {
-        if ($code_text) $code_text .= '; ';
-        $code_text .= $crow['code_text'];
-      }
-    }
-  }
-  return $code_text;
-}
-
  // Check authorization.
  $thisauth = acl_check('patients', 'med');
  if ($thisauth) {
@@ -77,7 +49,7 @@ function refreshIssue(issue, title) {
 
 // Process click on issue title.
 function dopclick(id) {
- dlgopen('add_edit_issue.php?issue=' + id, '_blank', 600, 475);
+ dlgopen('add_edit_issue.php?issue=' + id, '_blank', 850, 600);
 }
 
 // Process click on number of encounters.
