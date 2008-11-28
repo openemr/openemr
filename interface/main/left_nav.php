@@ -195,6 +195,40 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
         $primary_docs[$botname][2] . "')\">" . xl($title) . "</a></li>";
   }
  }
+
+function genPopupsList($style='') {
+  global $disallowed, $webserver_root;
+?>
+<select name='popups' onchange='selpopup(this)' style='background-color:transparent;font-size:9pt;<?php echo $style; ?>'>
+ <option value=''><?php xl('Popups','e'); ?></option>
+<?php if (!$disallowed['iss']) { ?>
+ <option value='../patient_file/problem_encounter.php'><?php xl('Issues','e'); ?></option>
+<?php } ?>
+ <option value='../../custom/export_xml.php'><?php xl('Export','e'); ?></option>
+ <option value='../../custom/import_xml.php'><?php xl('Import','e'); ?></option>
+<?php if ($GLOBALS['athletic_team']) { ?>
+ <option value='../reports/players_report.php'><?php xl('Roster','e'); ?></option>
+<?php } ?>
+ <option value='../reports/appointments_report.php?patient=<?php echo $pid ?>'><?php xl('Appts','e'); ?></option>
+<?php if (file_exists("$webserver_root/custom/refer.php")) { ?>
+ <option value='../../custom/refer.php'><?php xl('Refer','e'); ?></option>
+<?php } ?>
+<?php // if (file_exists("$webserver_root/custom/fee_sheet_codes.php")) { ?>
+ <option value='../patient_file/printed_fee_sheet.php'><?php xl('Superbill','e'); ?></option>
+<?php // } ?>
+<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
+ <option value='../patient_file/front_payment.php'><?php xl('Prepay','e'); ?></option>
+ <option value='../patient_file/pos_checkout.php'><?php xl('Checkout','e'); ?></option>
+<?php } else { ?>
+ <option value='../patient_file/front_payment.php'><?php xl('Payment','e'); ?></option>
+<?php } ?>
+<?php if (is_dir("$webserver_root/custom/letter_templates")) { ?>
+ <option value='../patient_file/letter.php'><?php xl('Letter','e'); ?></option>
+<?php } ?>
+</select>
+<?php
+}
+
 ?>
 <html>
 <head>
@@ -410,16 +444,22 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
  }
 
  // Helper function to set the contents of a div.
- function setDivContent(id, content) {
-  if (document.getElementById) {
-   var x = document.getElementById(id);
+ function setSomeContent(id, content, doc) {
+  if (doc.getElementById) {
+   var x = doc.getElementById(id);
    x.innerHTML = '';
    x.innerHTML = content;
   }
-  else if (document.all) {
-   var x = document.all[id];
+  else if (doc.all) {
+   var x = doc.all[id];
    x.innerHTML = content;
   }
+ }
+ function setDivContent(id, content) {
+  setSomeContent(id, content, document);
+ }
+ function setTitleContent(id, content) {
+  setSomeContent(id, content, parent.Title.document);
  }
 
  // This is called automatically when a new patient is set, to make sure
@@ -463,6 +503,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
  function setPatient(pname, pid, pubpid, frname) {
   var str = '<b>' + pname + ' (' + pubpid + ')</b>';
   setDivContent('current_patient', str);
+  setTitleContent('current_patient', str);
   if (pid == active_pid) return;
   setDivContent('current_encounter', '<b>None</b>');
   active_pid = pid;
@@ -498,6 +539,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
   active_encounter = 0;
   setDivContent('current_encounter', '<b>None</b>');
   setDivContent('current_patient', '<b>None</b>');
+  setTitleContent('current_patient', '<b>None</b>');
   reloadPatient('');
   syncRadios();
  }
@@ -586,11 +628,14 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
 
 <?php if ($GLOBALS['concurrent_layout'] == 2) { ?>
 
-<select name='sel_frame' style='background-color:transparent;font-size:9pt;width:100%;'>
+<center>
+<select name='sel_frame' style='background-color:transparent;font-size:9pt;width:<?php echo $GLOBALS['athletic_team'] ? 47 : 100; ?>%;'>
  <option value='0'><?php xl('Default','e'); ?></option>
  <option value='1'><?php xl('Top','e'); ?></option>
  <option value='2'><?php xl('Bottom','e'); ?></option>
 </select>
+<?php if ($GLOBALS['athletic_team']) genPopupsList('width:47%'); ?>
+</center>
 
 <table cellpadding='0' cellspacing='0' border='0' width='100%'>
  <tr>
@@ -614,14 +659,18 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
         <ul>
           <?php genTreeLink('RTop','new','New'); ?>
           <?php genTreeLink('RTop','dem','Current'); ?>
-          <?php genTreeLink('RBot','sum','Summary'); // james did not ask for this one ?>
+          <?php genDualLink('dem','sum','Summary'); // with dem on top ?>
         </ul>
       </li>
       <li class="open"><span><?php xl('Medical Records','e') ?></span>
         <ul>
+          <?php genPopLink ('Team Roster','players_report.php'); ?>
           <?php genDualLink('nen','ens','New Consultation'); // with ens on bottom ?>
-          <?php genDualLink('enc','ens','Current Consultation'); // with ens on bottom ?>
-          <?php genTreeLink('RBot','ens','Previous Consultations'); // james did not ask for this one ?>
+
+          <?php // genDualLink('enc','ens','Current Consultation'); // with ens on bottom ?>
+          <?php genTreeLink('RTop','enc','Current Consultation'); // encounter_top will itself load ens on bottom ?>
+
+          <?php genDualLink('dem','ens','Previous Consultations'); // with dem on top ?>
           <?php genDualLink('his','ens','Previous History/Screening'); // with ens on bottom ?>
           <?php genTreeLink('RBot','nen','New Allergy'); // nen with Allergy in chief complaint ?>
           <?php genTreeLink('RTop','iss','Edit Allergies'); // somehow emphasizing allergies...? ?>
@@ -634,6 +683,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
           <?php genTreeLink('RTop','prp','Patient Printed Report'); ?>
           <?php genDualLink('dem','pno','Additional Notes'); // with dem on top ?>
           <li><a href='' onclick="return repPopup('../patient_file/letter.php')" id='prp1'>Letter</a></li>
+          <?php genPopLink('Address Book','../usergroup/addrbook_list.php?popup=1'); ?>
          </ul>
       </li>
       <li><span><?php xl('View','e') ?></span>
@@ -653,7 +703,6 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
           <?php genPopLink('Games/Events Missed','absences_report.php'); ?>
           <?php genPopLink('Injury Surveillance','football_injury_report.php'); ?>
           <?php genPopLink('Team Injury Overview','injury_overview_report.php'); ?>
-          <?php genPopLink('Roster','players_report.php'); ?>
         </ul>
       </li>
       <li><span><?php xl('Patient/Client','e') ?></span>
@@ -899,33 +948,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
 <b>None</b>
 </div>
 
-<select name='popups' onchange='selpopup(this)' style='background-color:transparent;font-size:9pt;'>
- <option value=''><?php xl('Popups','e'); ?></option>
-<?php if (!$disallowed['iss']) { ?>
- <option value='../patient_file/problem_encounter.php'><?php xl('Issues','e'); ?></option>
-<?php } ?>
- <option value='../../custom/export_xml.php'><?php xl('Export','e'); ?></option>
- <option value='../../custom/import_xml.php'><?php xl('Import','e'); ?></option>
-<?php if ($GLOBALS['athletic_team']) { ?>
- <option value='../reports/players_report.php'><?php xl('Roster','e'); ?></option>
-<?php } ?>
- <option value='../reports/appointments_report.php?patient=<?php echo $pid ?>'><?php xl('Appts','e'); ?></option>
-<?php if (file_exists("$webserver_root/custom/refer.php")) { ?>
- <option value='../../custom/refer.php'><?php xl('Refer','e'); ?></option>
-<?php } ?>
-<?php // if (file_exists("$webserver_root/custom/fee_sheet_codes.php")) { ?>
- <option value='../patient_file/printed_fee_sheet.php'><?php xl('Superbill','e'); ?></option>
-<?php // } ?>
-<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
- <option value='../patient_file/front_payment.php'><?php xl('Prepay','e'); ?></option>
- <option value='../patient_file/pos_checkout.php'><?php xl('Checkout','e'); ?></option>
-<?php } else { ?>
- <option value='../patient_file/front_payment.php'><?php xl('Payment','e'); ?></option>
-<?php } ?>
-<?php if (is_dir("$webserver_root/custom/letter_templates")) { ?>
- <option value='../patient_file/letter.php'><?php xl('Letter','e'); ?></option>
-<?php } ?>
-</select>
+<?php if (!$GLOBALS['athletic_team']) genPopupsList(); ?>
 
 <hr />
 
