@@ -31,8 +31,9 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'HIS' AND uor > 0 AND field_id != '' " .
   "ORDER BY group_name, seq");
 while ($frow = sqlFetchArray($fres)) {
-  $data_type = $frow['data_type'];
   $field_id  = $frow['field_id'];
+  /*******************************************************************
+  $data_type = $frow['data_type'];
   $value  = '';
   $colname = $field_id;
   if (isset($_POST["form_$field_id"])) {
@@ -69,6 +70,8 @@ while ($frow = sqlFetchArray($fres)) {
     }
   }
   $newdata[$colname] = $value;
+  *******************************************************************/
+  $newdata[$field_id] = get_layout_form_value($frow);
 }
 updateHistoryData($pid, $newdata);
 
