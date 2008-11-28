@@ -83,7 +83,7 @@
    "fe.encounter, " .
    "f.authorized, " .
    "p.fname, p.lname, p.pid, p.pubpid, " .
-   "u.lname AS docname " .
+   "CONCAT( u.lname, ', ', u.fname ) AS docname " .
    "FROM openemr_postcalendar_events AS e " .
    "LEFT OUTER JOIN form_encounter AS fe " .
    "ON LEFT(fe.date, 10) = e.pc_eventDate AND fe.pid = e.pc_pid " .
@@ -107,7 +107,7 @@
    "fe.encounter, " .
    "f.authorized, " .
    "p.fname, p.lname, p.pid, p.pubpid, " .
-   "u.lname AS docname " .
+   "CONCAT( u.lname, ', ', u.fname ) AS docname " .
    "FROM form_encounter AS fe " .
    "LEFT OUTER JOIN openemr_postcalendar_events AS e " .
    "ON LEFT(fe.date, 10) = e.pc_eventDate AND fe.pid = e.pc_pid AND " .
