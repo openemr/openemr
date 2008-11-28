@@ -227,18 +227,25 @@ function receiptPaymentLine($paydate, $amount, $description='') {
 function generate_receipt($patient_id) {
   global $sl_err, $sl_cash_acc, $css_header, $details, $INTEGRATED_AR;
 
+  $encounter = empty($_GET['enc']) ? 0 : 0 + $_GET['enc'];
+
   // Get details for what we guess is the primary facility.
   $frow = sqlQuery("SELECT * FROM facility " .
     "ORDER BY billing_location DESC, accepts_assignment DESC, id LIMIT 1");
 
   $patdata = getPatientData($patient_id, 'fname,mname,lname,pubpid,street,city,state,postal_code');
 
-  // Get the most recent invoice data.
+  // Get the most recent invoice data or that for the specified encounter.
   //
   if ($INTEGRATED_AR) {
-    $ferow = sqlQuery("SELECT id, date, encounter FROM form_encounter " .
-      "WHERE pid = '$patient_id' " .
-      "ORDER BY id DESC LIMIT 1");
+    if ($encounter) {
+      $ferow = sqlQuery("SELECT id, date, encounter FROM form_encounter " .
+        "WHERE pid = '$patient_id' AND encounter = '$encounter'");
+    } else {
+      $ferow = sqlQuery("SELECT id, date, encounter FROM form_encounter " .
+        "WHERE pid = '$patient_id' " .
+        "ORDER BY id DESC LIMIT 1");
+    }
     if (empty($ferow)) die(xl("This patient has no activity."));
     $trans_id = $ferow['id'];
     $encounter = $ferow['encounter'];
@@ -467,9 +474,9 @@ function generate_receipt($patient_id) {
 <?php } ?>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <?php if ($details) { ?>
-<a href='pos_checkout.php?details=0'><?php xl('Hide Details','e'); ?></a>
+<a href='pos_checkout.php?details=0&enc=<?php echo $encounter; ?>'><?php xl('Hide Details','e'); ?></a>
 <?php } else { ?>
-<a href='pos_checkout.php?details=1'><?php xl('Show Details','e'); ?></a>
+<a href='pos_checkout.php?details=1&enc=<?php echo $encounter; ?>'><?php xl('Show Details','e'); ?></a>
 <?php } ?>
 </p>
 </div>
@@ -666,6 +673,13 @@ if ($_POST['form_save']) {
   }
 
   generate_receipt($_POST['form_pid']);
+  exit();
+}
+
+// If an encounter ID was given, then we must generate a receipt.
+//
+if (!empty($_GET['enc'])) {
+  generate_receipt($pid);
   exit();
 }
 
