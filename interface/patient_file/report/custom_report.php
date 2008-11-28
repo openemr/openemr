@@ -8,6 +8,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/report.inc");
 require_once(dirname(__file__) . "/../../../library/classes/Document.class.php");
 require_once(dirname(__file__) . "/../../../library/classes/Note.class.php");
+require_once(dirname(__file__) . "/../../../custom/code_types.inc.php");
 
 $printable = empty($_GET['printable']) ? false : true;
 unset($_GET['printable']);
@@ -285,12 +286,8 @@ foreach ($ar as $key => $val) {
         $irow['comments'] . "</span><br>\n";
       // Show issue's chief diagnosis and its description:
       if ($diagnosis) {
-        $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
-          "code = '$diagnosis' AND " .
-          "(code_type = 2 OR code_type = 4 OR code_type = 5)" .
-          "LIMIT 1");
         echo "<span class='bold'>&nbsp;".xl('Diagnosis').": </span><span class='text'>" .
-          $irow['diagnosis'] . " " . $crow['code_text'] . "</span><br>\n";
+          "$diagnosis " . lookup_code_descriptions($diagnosis) . "</span><br>\n";
       }
 
     // Otherwise we have an "encounter form" form field whose name is like
@@ -323,7 +320,7 @@ foreach ($ar as $key => $val) {
       if ($res[1] == 'newpatient') {
         $bres = sqlStatement("SELECT date, code, code_text FROM billing WHERE " .
           "pid = '$pid' AND encounter = '$form_encounter' AND activity = 1 AND " .
-          "( code_type = 'CPT4' OR code_type = 'OPCS' ) " .
+          "( code_type = 'CPT4' OR code_type = 'OPCS' OR code_type = 'OSICS10' ) " .
           "ORDER BY date");
         while ($brow=sqlFetchArray($bres)) {
           echo "<span class='bold'>&nbsp;".xl('Procedure').": </span><span class='text'>" .
