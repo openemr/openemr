@@ -269,6 +269,7 @@ foreach (array('primary','secondary','tertiary') as $instype) {
 if ($GLOBALS['athletic_team']) {
   //                  blue      green     yellow    red       orange
   $fitcolors = array('#6677ff','#00cc00','#ffff00','#ff3333','#ff8800','#ffeecc','#ffccaa');
+  if (!empty($GLOBALS['fitness_colors'])) $fitcolors = $GLOBALS['fitness_colors'];
   $fitcolor = $fitcolors[0];
   $form_fitness   = $_POST['form_fitness'];
   $form_userdate1 = fixDate($_POST['form_userdate1'], '');
