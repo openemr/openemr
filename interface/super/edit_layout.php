@@ -14,6 +14,10 @@ $layouts = array(
   'HIS' => xl('History'),
   'REF' => xl('Referrals'),
 );
+if ($GLOBALS['ippf_specific']) {
+  $layouts['GCA'] = xl('Abortion Issues');
+  $layouts['CON'] = xl('Contraception Issues');
+}
 
 $layout_id = empty($_REQUEST['layout_id']) ? 'DEM' : $_REQUEST['layout_id'];
 
