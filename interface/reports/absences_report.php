@@ -1,6 +1,13 @@
 <?php 
- // This module is for team sports use and reports on absences by
- // injury type (diagnosis) for a given time period.
+// Copyright (C) 2007, 2008 Rod Roark <rod@sunsetsystems.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+// This module is for team sports use and reports on absences by
+// injury type (diagnosis) for a given time period.
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -14,34 +21,6 @@ require_once("../../custom/code_types.inc.php");
 $from_date = fixDate($_POST['form_from_date']);
 $to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_by   = $_POST['form_by'];
-
-// Look up descriptions for one or more billing codes.  This should
-// probably be moved to an "include" file somewhere.
-//
-function lookup_code_descriptions($codes) {
-  global $code_types;
-  $code_text = '';
-  if (!empty($codes)) {
-    $relcodes = explode(';', $codes);
-    foreach ($relcodes as $codestring) {
-      if ($codestring === '') continue;
-      list($codetype, $code) = explode(':', $codestring);
-      $wheretype = "";
-      if (empty($code)) {
-        $code = $codetype;
-      } else {
-        $wheretype = "code_type = '" . $code_types[$codetype]['id'] . "' AND ";
-      }
-      $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
-        "$wheretype code = '$code' ORDER BY id LIMIT 1");
-      if (!empty($crow['code_text'])) {
-        if ($code_text) $code_text .= '; ';
-        $code_text .= $crow['code_text'];
-      }
-    }
-  }
-  return $code_text;
-}
 ?>
 <html>
 <head>
@@ -130,66 +109,86 @@ function lookup_code_descriptions($codes) {
   $from_date = fixDate($_POST['form_from_date']);
   $to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 
-  if ($form_by == 'p') {
-   $query = "SELECT patient_data.lname, patient_data.fname, patient_data.mname, " .
-    "count(*) AS count, " .
-    "SUM(lists.extrainfo) AS gmissed, " .
-    "SUM(TO_DAYS(LEAST(IFNULL(lists.enddate,CURRENT_DATE),'$to_date')) - TO_DAYS(GREATEST(lists.begdate,'$from_date'))) AS dmissed " .
-    "FROM lists, patient_data WHERE " .
-    "(lists.enddate IS NULL OR lists.enddate >= '$from_date') AND lists.begdate <= '$to_date' AND " .
-    "patient_data.pid = lists.pid " .
-    "GROUP BY lname, fname, mname";
-  }
-  else {
-   /******************************************************************
-   $query = "SELECT lists.diagnosis, codes.code_text, count(*) AS count, " .
-    "SUM(lists.extrainfo) AS gmissed, " .
-    "SUM(TO_DAYS(LEAST(IFNULL(lists.enddate,CURRENT_DATE),'$to_date')) - TO_DAYS(GREATEST(lists.begdate,'$from_date'))) AS dmissed " .
+  $query = "SELECT lists.diagnosis, lists.pid, lists.type, " .
+    "lists.extrainfo AS gmissed, " .
+    "lists.begdate, lists.enddate, lists.returndate, " .
+    "pd.lname, pd.fname, pd.mname " .
     "FROM lists " .
-    "LEFT OUTER JOIN codes " .
-    "ON codes.code = lists.diagnosis AND " .
-    "(codes.code_type = 2 OR codes.code_type = 4 OR codes.code_type = 5 OR codes.code_type = 8) " .
-    "WHERE " .
-    "(lists.enddate IS NULL OR lists.enddate >= '$from_date') AND lists.begdate <= '$to_date' " .
-    "GROUP BY lists.diagnosis";
-   ******************************************************************/
-   $query = "SELECT lists.diagnosis, count(*) AS count, " .
-    "SUM(lists.extrainfo) AS gmissed, " .
-    "SUM(TO_DAYS(LEAST(IFNULL(lists.enddate,CURRENT_DATE),'$to_date')) - TO_DAYS(GREATEST(lists.begdate,'$from_date'))) AS dmissed " .
-    "FROM lists WHERE " .
-    "(lists.enddate IS NULL OR lists.enddate >= '$from_date') AND lists.begdate <= '$to_date' " .
-    "GROUP BY lists.diagnosis";
-  }
-
-  // echo "<!-- $query -->\n"; // debugging
-
+    "JOIN patient_data AS pd ON pd.pid = lists.pid " .
+    "WHERE ( lists.returndate IS NULL OR lists.returndate >= '$from_date' ) AND " .
+    "( lists.begdate IS NULL OR lists.begdate <= '$to_date' )" .
+    "ORDER BY pd.lname, pd.fname, pd.mname, lists.pid, lists.begdate";
   $res = sqlStatement($query);
 
+  $areport = array();
+  $last_listid  = 0;
+  $last_pid     = 0;
+  $last_endsecs = 0;
+
   while ($row = sqlFetchArray($res)) {
-    $code_text = lookup_code_descriptions($row['diagnosis']);
+    $thispid = $row['pid'];
+    // Compute days missed.  Force non-overlap of multiple issues for the
+    // same player.  This logic assumes sorting on begdate within pid.
+    $begsecs = $row['begdate'] ? strtotime($row['begdate']) : 0;
+    $endsecs = $row['returndate'] ? strtotime($row['returndate']) : time();
+    if ($thispid == $last_pid) {
+      if ($begsecs < $last_endsecs) {
+        $begsecs = $last_endsecs;
+      }
+    }
+    else {
+      $last_pid = $thispid;
+      $last_endsecs = 0;
+      $ptname = trim($row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']);
+    }
+    $daysmissed = 0;
+    if ($row['begdate']) {
+      if ($begsecs > $endsecs) $begsecs = $endsecs;
+      if ($last_endsecs < $endsecs) $last_endsecs = $endsecs;
+      $daysmissed = round(($endsecs - $begsecs) / (60 * 60 * 24));
+    }
+    if ($form_by == 'p') {
+      $key = $ptname;
+    } else {
+      $key = $row['diagnosis'];
+    }
+    if (empty($areport[$key])) {
+      $areport[$key] = array();
+      $areport[$key]['count']   = 0;
+      $areport[$key]['dmissed'] = 0;
+      $areport[$key]['gmissed'] = 0;
+    }
+    $areport[$key]['count']   += 1;
+    $areport[$key]['dmissed'] += $daysmissed;
+    $areport[$key]['gmissed'] += $row['gmissed'];
+  }
+
+  ksort($areport);
+
+  foreach ($areport as $key => $row) {
 ?>
 
  <tr>
-<?php   if ($form_by == 'p') { ?>
+<?php if ($form_by == 'p') { ?>
   <td class='detail'>
-   <?php  echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] ?>
+   <?php echo $key ?>
   </td>
-<?php  } else { ?>
+<?php } else { ?>
   <td class='detail'>
-   <?php  echo $row['diagnosis'] ?>
+   <?php echo $key ?>
   </td>
   <td class='detail'>
-   <?php  echo $code_text ?>
+   <?php echo empty($key) ? xl('No Diagnosis') : lookup_code_descriptions($key) ?>
   </td>
 <?php  } ?>
   <td class='detail' align='right'>
-   <?php  echo $row['count'] ?>
+   <?php echo $row['count'] ?>
   </td>
   <td class='detail' align='right'>
-   <?php  echo $row['dmissed'] ?>
+   <?php echo $row['dmissed'] ?>
   </td>
   <td class='detail' align='right'>
-   <?php  echo $row['gmissed'] ?>
+   <?php echo $row['gmissed'] ?>
   </td>
  </tr>
 <?php 

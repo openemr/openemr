@@ -21,6 +21,7 @@ $to_date         = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_issue_type = $_POST['form_issue_type'];
 $form_squads     = $_POST['form_squads']; // this is an array
 
+/*********************************************************************
 // Look up descriptions for one or more billing codes.  This should
 // probably be moved to an "include" file somewhere.
 //
@@ -48,6 +49,7 @@ function lookup_code_descriptions($codes) {
   }
   return $code_text;
 }
+*********************************************************************/
 ?>
 <html>
 <head>
@@ -250,7 +252,8 @@ function dopclick(id,pid) {
 				$bgcolor = (++$encount & 1) ? "#ddddff" : "#ffdddd";
 			}
 			$daysmissed = '&nbsp;';
-			if ($row['begdate'] && $issue_style == 0) {
+			// if ($row['begdate'] && $issue_style == 0) { // huh? why?
+      if ($row['begdate']) {
 				if ($begsecs > $endsecs) $begsecs = $endsecs;
 				if ($last_endsecs < $endsecs) $last_endsecs = $endsecs;
 				$daysmissed = round(($endsecs - $begsecs) / (60 * 60 * 24));
