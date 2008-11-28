@@ -133,7 +133,10 @@ if ($form_step == 5) {
   }
 }
 if ($form_step == 6) {
-  if ($GLOBALS['oer_config']['ws_accounting']['enabled'] && is_dir("$webserver_root/../sql-ledger")) {
+  if ($GLOBALS['oer_config']['ws_accounting']['enabled'] &&
+    $GLOBALS['oer_config']['ws_accounting']['enabled'] !== 2 &&
+    is_dir("$webserver_root/../sql-ledger"))
+  {
     $form_status .= "Dumping SQL-Ledger web directory tree ...<br />";
     echo nl2br($form_status);
     $cmd = "cd $webserver_root/../sql-ledger; tar --same-owner --ignore-failed-read -zcphf $BACKUP_DIR/sql-ledger.tar.gz .";
