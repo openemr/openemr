@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2008 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -8,6 +8,8 @@
 
  require_once("../globals.php");
  require_once("$srcdir/acl.inc");
+
+ $popup = empty($_GET['popup']) ? 0 : 1;
 
  $form_fname = trim($_POST['form_fname']);
  $form_lname = trim($_POST['form_lname']);
@@ -29,9 +31,14 @@
 
 <!-- style tag moved into proper CSS file -->
 
+<?php if ($popup) { ?>
+<script type="text/javascript" src="../../library/topdialog.js"></script>
+<?php } ?>
 <script type="text/javascript" src="../../library/dialog.js"></script>
 
 <script language="JavaScript">
+
+<?php if ($popup) require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
 // Callback from popups to refresh this display.
 function refreshme() {
