@@ -1,7 +1,27 @@
 <?php
 require_once("{$GLOBALS['srcdir']}/sql.inc");
 
-if (empty($GLOBALS['athletic_team'])) {
+if (!empty($GLOBALS['ippf_specific'])) {
+  $ISSUE_TYPES = array(
+    // table type               plural              singular      abbrev style
+    'medical_problem' => array('Medical Problems', 'Problem'      , 'P',  0),
+    'allergy'         => array('Allergies'       , 'Allergy'      , 'Y',  0),
+    'medication'      => array('Medications'     , 'Medication'   , 'M',  0),
+    'surgery'         => array('Surgeries'       , 'Surgery'      , 'S',  0),
+    'contraceptive'   => array('Contraception'   , 'Contraception', 'C',  4),
+//  'pregnancy'       => array('Pregnancies'     , 'Pregnancy'    , 'R',  0),
+    'ippf_gcac'       => array('Abortions'       , 'Abortion'     , 'A',  3),
+  );
+}
+else if (!empty($GLOBALS['athletic_team'])) {
+  $ISSUE_TYPES = array(
+    'football_injury' => array('Football Injuries', 'Injury'    , 'I',  2),
+    'medical_problem' => array('Medical Problems' , 'Problem'   , 'P',  0),
+    'allergy'         => array('Allergies'        , 'Allergy'   , 'A',  1),
+    'general'         => array('General'          , 'General'   , 'G',  1),
+  );
+}
+else { // default version
   $ISSUE_TYPES = array(
     // table type               plural              singular    abbrev style
     'medical_problem' => array('Medical Problems', 'Problem'   , 'P',  0),
@@ -17,14 +37,6 @@ if (empty($GLOBALS['athletic_team'])) {
     //     Internally we'll still use a null end date to indicate active.
     // 2 - Football Injury.
     //
-  );
-}
-else { // sports team version
-  $ISSUE_TYPES = array(
-    'football_injury' => array('Football Injuries', 'Injury'    , 'I',  2),
-    'medical_problem' => array('Medical Problems' , 'Problem'   , 'P',  0),
-    'allergy'         => array('Allergies'        , 'Allergy'   , 'A',  1),
-    'general'         => array('General'          , 'General'   , 'G',  1),
   );
 }
 
