@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2005-2007 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -16,6 +16,10 @@ if ($ISSUE_TYPES['football_injury']) {
   // included script.  We might eventually refine this approach to support
   // a plug-in architecture for custom issue types.
   require_once("$srcdir/football_injury.inc.php");
+}
+if ($ISSUE_TYPES['ippf_gcac']) {
+  // Similarly for IPPF issues.
+  require_once("$srcdir/ippf_issues.inc.php");
 }
 
 $diagnosis_type = $GLOBALS['athletic_team'] ? 'OSICS10' : 'ICD9';
@@ -75,7 +79,20 @@ function rbcell($name, $value, $desc, $colname) {
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
-td { font-size:10pt; }
+
+td, input, select, textarea {
+ font-family: Arial, Helvetica, sans-serif;
+ font-size: 10pt;
+}
+
+div.section {
+ border: solid;
+ border-width: 1px;
+ border-color: #0000ff;
+ margin: 0 0 0 10pt;
+ padding: 5pt;
+}
+
 </style>
 
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
@@ -146,13 +163,18 @@ td { font-size:10pt; }
 <?php if ($GLOBALS['athletic_team']) { ?>
   document.getElementById('row_returndate').style.display = comdisp;
   document.getElementById('row_missed'    ).style.display = comdisp;
+<?php } ?>
 <?php
   if ($ISSUE_TYPES['football_injury']) {
     // Generate more of these for football injury fields.
     issue_football_injury_newtype();
   }
+  if ($ISSUE_TYPES['ippf_gcac']) {
+    // Generate more of these for gcac and contraceptive fields.
+    issue_ippf_gcac_newtype();
+    issue_ippf_con_newtype();
+  }
 ?>
-<?php } ?>
  }
 
  // If a clickoption title is selected, copy it to the title field.
@@ -217,11 +239,22 @@ function validate() {
  return true;
 }
 
+// Supports customizable forms (currently just for IPPF).
+function divclick(cb, divid) {
+ var divstyle = document.getElementById(divid).style;
+ if (cb.checked) {
+  divstyle.display = 'block';
+ } else {
+  divstyle.display = 'none';
+ }
+ return true;
+}
+
 </script>
 
 </head>
 
-<body class="body_top">
+<body class="body_top" style="padding-right:0.5em">
 <?php
  // If we are saving, then save and close the window.
  //
@@ -293,6 +326,8 @@ function validate() {
   }
 
   if ($text_type == 'football_injury') issue_football_injury_save($issue);
+  if ($text_type == 'ippf_gcac'      ) issue_ippf_gcac_save($issue);
+  if ($text_type == 'contraceptive'  ) issue_ippf_con_save($issue);
 
   $tmp_title = $ISSUE_TYPES[$text_type][2] . ": $form_begin " .
    substr($_POST['form_title'], 0, 40);
@@ -338,7 +373,6 @@ function validate() {
 ?>
 <form method='post' name='theform' action='add_edit_issue.php?issue=<?php echo $issue ?>'
  onsubmit='return validate()'>
-<center>
 
 <table border='0' width='100%'>
 
@@ -348,9 +382,16 @@ function validate() {
 <?php
  $index = 0;
  foreach ($ISSUE_TYPES as $value) {
-  echo "   <input type='radio' name='form_type' value='$index' onclick='newtype($index)'";
-  if ($index == $type_index) echo " checked";
-  echo " />" . $value[1] . "&nbsp;\n";
+  if ($issue) {
+    if ($index == $type_index) {
+      echo $value[1];
+      echo "<input type ='hidden' name='form_type' value='$index'>\n";
+    }
+  } else {
+    echo "   <input type='radio' name='form_type' value='$index' onclick='newtype($index)'";
+    if ($index == $type_index) echo " checked";
+    echo " />" . $value[1] . "&nbsp;\n";
+  }
   ++$index;
  }
 ?>
@@ -502,7 +543,7 @@ function validate() {
   </td>
  </tr>
 
- <tr<?php if ($GLOBALS['athletic_team']) echo " style='display:none;'"; ?>>
+ <tr<?php if ($GLOBALS['athletic_team'] || $GLOBALS['ippf_specific']) echo " style='display:none;'"; ?>>
   <td valign='top' nowrap><b><?php xl('Outcome','e'); ?>:</b></td>
   <td>
    <?php echo rbinput('form_outcome', '1', 'Resolved'        , 'outcome') ?>&nbsp;
@@ -513,7 +554,7 @@ function validate() {
   </td>
  </tr>
 
- <tr<?php if ($GLOBALS['athletic_team']) echo " style='display:none;'"; ?>>
+ <tr<?php if ($GLOBALS['athletic_team'] || $GLOBALS['ippf_specific']) echo " style='display:none;'"; ?>>
   <td valign='top' nowrap><b><?php xl('Destination','e'); ?>:</b></td>
   <td>
 <?php if (true) { ?>
@@ -534,9 +575,15 @@ function validate() {
   if ($ISSUE_TYPES['football_injury']) {
     issue_football_injury_form($issue);
   }
+  if ($ISSUE_TYPES['ippf_gcac']) {
+    issue_ippf_gcac_form($issue);
+    issue_ippf_con_form($issue);
+  }
 ?>
 
+<center>
 <p>
+
 <input type='submit' name='form_save' value='<?php xl('Save','e'); ?>' />
 
 <?php if ($issue && acl_check('admin', 'super')) { ?>
@@ -546,9 +593,10 @@ function validate() {
 
 &nbsp;
 <input type='button' value='<?php xl('Cancel','e'); ?>' onclick='window.close()' />
-</p>
 
+</p>
 </center>
+
 </form>
 <script language='JavaScript'>
  newtype(<?php echo $type_index ?>);
