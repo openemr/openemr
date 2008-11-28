@@ -44,7 +44,8 @@
    <input type='checkbox' name='include_employer' value="employer"><?php xl('Employer','e'); ?><br>
    -->
    <input type='checkbox' name='include_insurance' value="insurance"><?php xl('Insurance','e'); ?><br>
-   <input type='checkbox' name='include_billing' value="billing" checked><?php xl('Billing','e'); ?><br>
+   <input type='checkbox' name='include_billing' value="billing"
+    <?php if (!$GLOBALS['simplified_demographics']) echo 'checked'; ?>><?php xl('Billing','e'); ?><br>
   </td>
   <td class='text' valign='top'>
    <!--
