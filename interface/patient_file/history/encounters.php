@@ -45,7 +45,7 @@
 //
 $tmp = sqlQuery("select authorized from users " .
   "where id = '" . $_SESSION['authUserID'] . "'");
-$billing_view = $tmp['authorized'] ? 0 : 1;
+$billing_view = ($tmp['authorized'] || $GLOBALS['athletic_team']) ? 0 : 1;
 if (isset($_GET['billing']))
   $billing_view = empty($_GET['billing']) ? 0 : 1;
 
