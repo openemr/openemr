@@ -184,16 +184,34 @@ function generate_form_field($frow, $currvalue) {
 
   // a set of labeled checkboxes
   else if ($data_type == 21) {
+    // In this special case, fld_length is the number of columns generated.
+    $cols = max(1, $frow['fld_length']);
     $avalue = explode('|', $currvalue);
     $lres = sqlStatement("SELECT * FROM list_options " .
       "WHERE list_id = '$list_id' ORDER BY seq");
+    echo "<table cellpadding='0' cellspacing='0' width='100%'>";
+    $tdpct = (int) (100 / $cols);
     for ($count = 0; $lrow = sqlFetchArray($lres); ++$count) {
       $option_id = $lrow['option_id'];
-      if ($count) echo "<br />";
+      // if ($count) echo "<br />";
+      if ($count % $cols == 0) {
+        if ($count) echo "</tr>";
+        echo "<tr>";
+      }
+      echo "<td width='$tdpct%'>";
       echo "<input type='checkbox' name='form_{$field_id}[$option_id]' value='1'";
       if (in_array($option_id, $avalue)) echo " checked";
       echo ">" . $lrow['title'];
+      echo "</td>";
     }
+    if ($count) {
+      echo "</tr>";
+      if ($count > $cols) {
+        // Add some space after multiple rows of checkboxes.
+        echo "<tr><td colspan='$cols' style='height:0.7em'></td></tr>";
+      }
+    }
+    echo "</table>";
   }
 
   // a set of labeled text input fields
@@ -547,4 +565,46 @@ function display_layout_rows($formtype, $result1, $result2='') {
   disp_end_group();
 }
 
+// From the currently posted HTML form, this gets the value of the
+// field corresponding to the provided layout_options table row.
+//
+function get_layout_form_value($frow) {
+  $data_type = $frow['data_type'];
+  $field_id  = $frow['field_id'];
+  $value  = '';
+  if (isset($_POST["form_$field_id"])) {
+    if ($data_type == 21) {
+      // $_POST["form_$field_id"] is an array of checkboxes and its keys
+      // must be concatenated into a |-separated string.
+      foreach ($_POST["form_$field_id"] as $key => $val) {
+        if (strlen($value)) $value .= '|';
+        $value .= $key;
+      }
+    }
+    else if ($data_type == 22) {
+      // $_POST["form_$field_id"] is an array of text fields to be imploded
+      // into "key:value|key:value|...".
+      foreach ($_POST["form_$field_id"] as $key => $val) {
+        $val = str_replace('|', ' ', $val);
+        if (strlen($value)) $value .= '|';
+        $value .= "$key:$val";
+      }
+    }
+    else if ($data_type == 23) {
+      // $_POST["form_$field_id"] is an array of text fields with companion
+      // radio buttons to be imploded into "key:n:notes|key:n:notes|...".
+      foreach ($_POST["form_$field_id"] as $key => $val) {
+        $restype = $_POST["radio_{$field_id}"][$key];
+        if (empty($restype)) $restype = '0';
+        $val = str_replace('|', ' ', $val);
+        if (strlen($value)) $value .= '|';
+        $value .= "$key:$restype:$val";
+      }
+    }
+    else {
+      $value = $_POST["form_$field_id"];
+    }
+  }
+  return $value;
+}
 ?>
