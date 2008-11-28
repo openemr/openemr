@@ -21,6 +21,10 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 <span style="font-size:0.7em;"> (<?php echo $_SESSION['authGroup']?>)</span>
 </td>
 
+<td align="center" valign="middle" class="title_bar_top" nowrap>
+<?php xl('Active Patient','e'); ?>: <span id="current_patient"><b>None</b></span>
+</td>
+
 <td align="right" valign="middle" nowrap>
 <span class="title_bar_top"><?php echo dateformat();?></span>
 </td>
