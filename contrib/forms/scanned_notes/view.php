@@ -128,7 +128,8 @@ if ($formid) {
 
 <body class="body_top">
 
-<form method="post" enctype="multipart/form-data" action="<?php echo $rootdir ?>/forms/scanned_notes/new.php?id=<?php echo $formid ?>"
+<form method="post" enctype="multipart/form-data"
+ action="<?php echo $rootdir ?>/forms/scanned_notes/new.php?id=<?php echo $formid ?>"
  onsubmit="return top.restoreSession()">
 
 <center>
