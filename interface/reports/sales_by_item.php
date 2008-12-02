@@ -237,7 +237,7 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
 
     if ($INTEGRATED_AR) {
       $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, b.code, b.units, " .
-        "fe.date, fe.facility_id " .
+        "b.code_text, fe.date, fe.facility_id " .
         "FROM billing AS b " .
         "JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter " .
         "WHERE b.code_type != 'COPAY' AND b.activity = 1 AND b.fee != 0 AND " .
@@ -250,7 +250,8 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
       //
       $res = sqlStatement($query);
       while ($row = sqlFetchArray($res)) {
-        thisLineItem($row['pid'], $row['encounter'], $row['code'],
+        thisLineItem($row['pid'], $row['encounter'],
+          $row['code'] . ' ' . $row['code_text'],
           substr($row['date'], 0, 10), $row['units'], $row['fee']);
       }
       //
