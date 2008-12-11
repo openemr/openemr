@@ -813,6 +813,16 @@ if ($_POST['form_action'] == "save") {
  else {
     // a NEW event
     $eventstartdate = $date; // for repeating event stuff - JRM Oct-08
+ 
+    //-------------------------------------
+    //(CHEMED)
+    //Set default facility for a new event based on the given 'userid'
+    if ($userid) {
+        $pref_facility = sqlFetchArray(sqlStatement("SELECT facility_id, facility FROM users WHERE id = $userid"));
+        $e2f = $pref_facility['facility_id'];
+        $e2f_name = $pref_facility['facility'];
+    }
+    //END of CHEMED -----------------------
  }
 
  // If we have a patient ID, get the name and phone numbers to display.
@@ -827,16 +837,6 @@ if ($_POST['form_action'] == "save") {
  // Get the providers list.
  $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE " .
   "authorized != 0 AND active = 1 ORDER BY lname, fname");
-
- //-------------------------------------
- //(CHEMED)
- //Set default facility for a new event based on the given 'userid'
- if ($userid) {
-     $pref_facility = sqlFetchArray(sqlStatement("SELECT facility_id, facility FROM users WHERE id = $userid"));
-     $e2f = $pref_facility['facility_id'];
-     $e2f_name = $pref_facility['facility'];
- }
- //END of CHEMED -----------------------
 
  // Get event categories.
  $cres = sqlStatement("SELECT pc_catid, pc_catname, pc_recurrtype, pc_duration, pc_end_all_day " .
