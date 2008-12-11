@@ -82,6 +82,11 @@ foreach ($A_EVENTS as $eDate => $date_events) {
     $eventdate = substr($eDate, 0, 4) . substr($eDate, 5, 2) . substr($eDate, 8, 2);
 
     foreach ($date_events as $event) {
+        // pick up some demographic info about the provider
+        $provquery = "SELECT * FROM users WHERE id='".$event['aid']."'";
+        $res = sqlStatement($provquery);
+        $provinfo = sqlFetchArray($res);
+
         $eData = $event['eid']."~".$eventdate;
         $trTitle = "Click to edit this event";
         echo "<tr class='calsearch_event' id='".$eData."' title='".$trTitle."'>";
@@ -93,8 +98,12 @@ foreach ($A_EVENTS as $eDate => $date_events) {
         echo "</td>";
 
         // provider
-        echo "<td class='calsearch_provider'>".$event['provider_name']." </td>";
-
+        echo "<td class='calsearch_provider'>".$event['provider_name'];
+        $imgtitle = $provinfo['fname']."'s contact info:\n";
+        $imgtitle .= $provinfo['phonew1']."\n".$provinfo['street']."\n".$provinfo['city']." ".$provinfo['state'];
+        echo " <img class'provinfo' src='".$GLOBALS['webroot']."/images/info.png' title=\"".$imgtitle."\" />";
+        echo "</td>";
+        
         // category
         echo "<td class='calsearch_category'>";
         echo $event['catname'];
@@ -150,8 +159,6 @@ $(document).ready(function(){
     $("#theform").submit(function() { SubmitForm(this); });
     $(".calsearch_event").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".calsearch_event").mouseout(function() { $(this).toggleClass("highlight"); });
-    //$(".calsearch_event").mouseover(function() { $(this).toggleClass("highlight"); $(this).children().toggleClass("highlight"); });
-    //$(".calsearch_event").mouseout(function() { $(this).toggleClass("highlight"); $(this).children().toggleClass("highlight"); });
     $(".calsearch_event").click(function() { EditEvent(this); });
 });
 
