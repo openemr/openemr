@@ -4,7 +4,7 @@ include_once("../../globals.php");
 <html>
 <head>
 <?php html_header_show();?>
-<title><? xl('Patient Summary','e'); ?></title>
+<title><?php xl('Patient Summary','e'); ?></title>
 </head>
 
 <frameset rows="50%,50%">
