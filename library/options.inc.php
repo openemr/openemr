@@ -525,12 +525,16 @@ function display_layout_rows($formtype, $result1, $result2='') {
     // Handle starting of a new row.
     if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
       disp_end_row();
-      echo "  <tr><td class='bold' style='padding-right:5pt' valign='top'>";
+      echo "<tr>";
       if ($group_name) {
-        echo "<font color='#008800'>$group_name</font>";
+        echo "<td class='groupname'>";
+        //echo "<td class='groupname' style='padding-right:5pt' valign='top'>";
+        //echo "<font color='#008800'>$group_name</font>";
+        echo $group_name;
         $group_name = '';
       } else {
-        echo '&nbsp;';
+        //echo "<td class='' style='padding-right:5pt' valign='top'>";
+        echo '<td>&nbsp;';
       }
       echo "</td>";
     }
@@ -540,8 +544,9 @@ function display_layout_rows($formtype, $result1, $result2='') {
     // Handle starting of a new label cell.
     if ($titlecols > 0) {
       disp_end_cell();
-      echo "<td class='bold' colspan='$titlecols' valign='top'";
-      if ($cell_count == 2) echo " style='padding-left:10pt'";
+      //echo "<td class='label' colspan='$titlecols' valign='top'";
+      echo "<td class='label' colspan='$titlecols' ";
+      //if ($cell_count == 2) echo " style='padding-left:10pt'";
       echo ">";
       $cell_count += $titlecols;
     }
@@ -552,8 +557,9 @@ function display_layout_rows($formtype, $result1, $result2='') {
     // Handle starting of a new data cell.
     if ($datacols > 0) {
       disp_end_cell();
-      echo "<td colspan='$datacols' class='text' valign='top'";
-      if ($cell_count > 0) echo " style='padding-left:5pt'";
+      //echo "<td class='text data' colspan='$datacols' valign='top'";
+      echo "<td class='text data' colspan='$datacols'";
+      //if ($cell_count > 0) echo " style='padding-left:5pt'";
       echo ">";
       $cell_count += $datacols;
     }
