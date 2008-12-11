@@ -277,5 +277,13 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     overflow: hidden;
     border: 1px solid #cfc;
 }
-.event_highlight { font-weight: bold; }
+.event_highlight { 
+    font-weight: bold; 
+    border-top: 1px solid #999;
+    border-left: 1px solid #999;
+    border-right: 2px solid #666;
+    border-bottom: 2px solid #666;
+    margin: -3px;
+    background-color: black;
+}
 
