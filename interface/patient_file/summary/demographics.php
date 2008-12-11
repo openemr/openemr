@@ -113,12 +113,12 @@ if ($GLOBALS['athletic_team']) {
  if ($thisauth == 'write') {
   echo "<p><a href='demographics_full.php'";
   if (! $GLOBALS['concurrent_layout']) echo " target='Main'";
-  echo " onclick='top.restoreSession()'><font class='title'>" .
-   xl('Demographics') . "</font>" .
-   "<font class='more'>$tmore</font></a>";
+  echo " onclick='top.restoreSession()'><span class='title'>" .
+   xl('Demographics') . "</span>" .
+   " <span class='more'>$tmore</span></a>";
   if (acl_check('admin', 'super')) {
    echo "&nbsp;&nbsp;<a href='' onclick='return deleteme()'>" .
-    "<font class='more' style='color:red'>(".xl('Delete').")</font></a>";
+    "<span class='more' style='color:red'>(".xl('Delete').")</span></a>";
   }
   echo "</p>\n";
  }
@@ -139,17 +139,16 @@ if ($GLOBALS['patient_id_category_name']) {
 
 <table border="0" width="100%">
  <tr>
-
   <!-- Left column of main table; contains another table -->
-
   <td align="left" valign="top">
+   <div id="DEM">
    <table border='0' cellpadding='0'>
+<?php display_layout_rows('DEM', $result, $result2); ?>
+   </table>
+   </div>
 
+   <table border='0' cellpadding='0' width='100%'>
 <?php
-display_layout_rows('DEM', $result, $result2);
-echo "   </table>\n";
-echo "   <table border='0' cellpadding='0' width='100%'>\n";
-
 ///////////////////////////////// INSURANCE SECTION
 
 foreach (array('primary','secondary','tertiary') as $instype) {
@@ -337,12 +336,16 @@ if ($document_id) {
 // Show current and upcoming appointments.
 if (isset($pid)) {
  $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
-  "e.pc_startTime, u.fname, u.lname, u.mname " .
+  "e.pc_startTime, e.pc_hometext, u.fname, u.lname, u.mname " .
   "FROM openemr_postcalendar_events AS e, users AS u WHERE " .
   "e.pc_pid = '$pid' AND e.pc_eventDate >= CURRENT_DATE AND " .
   "u.id = e.pc_aid " .
   "ORDER BY e.pc_eventDate, e.pc_startTime";
  $res = sqlStatement($query);
+
+ if (isset($res) && $res != null) {
+    echo "<div id='appts'><span id='apptstitle'>Upcoming Appointments</span><br>";
+ }
  while($row = sqlFetchArray($res)) {
   $dayname = date("l", strtotime($row['pc_eventDate']));
   $dispampm = "am";
@@ -352,11 +355,16 @@ if (isset($pid)) {
    $dispampm = "pm";
    if ($disphour > 12) $disphour -= 12;
   }
-  echo "<a href='javascript:oldEvt(" . $row['pc_eid'] .
-       ")'><b>$dayname " . $row['pc_eventDate'] . "</b><br>";
+  $etitle = "(Click to edit)";
+  if ($row['pc_hometext'] != "") {
+    $etitle = "Comments: ".addslashes($row['pc_hometext'])."\r\n".$etitle;
+  }
+  echo "<a href='javascript:oldEvt(" . $row['pc_eid'] .  ")' title='$etitle'>";
+  echo "<b>$dayname, " . $row['pc_eventDate'] . "</b><br>";
   echo "$disphour:$dispmin $dispampm " . $row['pc_title'] . "<br>\n";
   echo $row['fname'] . " " . $row['lname'] . "</a><br>&nbsp;<br>\n";
  }
+ if (isset($res) && $res != null) { echo "</div>"; }
 }
 ?>
   </td>
