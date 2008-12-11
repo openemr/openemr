@@ -392,3 +392,51 @@ a:hover { color: #A28268; text-decoration: underline; }
     width: 100%;
     text-align: right;
 }
+
+
+/*=============================================================
+ * This section relates to the custom layouts that can be made
+ * using the OEMR tool in the Admin section. For example, the
+ * Patient Demographics are a custom layout.
+ *============================================================*/
+#DEM .groupname {
+    font-weight: bold;
+    color: #080;
+    font-size: 0.8em;
+    padding-right: 5px;
+    vertical-align: bottom;
+    height: 2em;
+}
+#DEM .label {
+    font-weight: bold;
+    font-size: 0.8em;
+    vertical-align: bottom;
+}
+#DEM .data {
+    font-size: 0.8em;
+    vertical-align: bottom;
+    text-align: left;
+    padding-right: 30px;
+}
+/* the upcoming events section of the demographics page */
+#appts {
+    border: 1px solid black;
+    background-color: #D1F5FF;
+    padding: 3px;
+}
+#appts #apptstitle {
+    font-weight: bold;
+    background-color: white; 
+    width: 100%;
+    text-align: center;
+    margin-bottom: 5px;
+    color: #005B74;
+}
+#appts a {
+    color: #004E63;
+}
+#appts a:hover {
+    background-color: #6895A2;
+    color: #E8FAFF;
+    text-decoration: none;
+}
