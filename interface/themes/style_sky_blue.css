@@ -270,3 +270,28 @@ font-weight: bold;
     width: 100%;
     height: 100%;
 }
+
+/*=============================================================
+ * This section relates to the custom layouts that can be made
+ * using the OEMR tool in the Admin section. For example, the
+ * Patient Demographics are a custom layout.
+ *============================================================*/
+#DEM .groupname {
+    font-weight: bold;
+    color: #080;
+    font-size: 0.8em;
+    padding-right: 5px;
+    vertical-align: bottom;
+}
+#DEM .label {
+    font-weight: bold;
+    font-size: 0.8em;
+    vertical-align: bottom;
+    text-align: right;
+}
+#DEM .data {
+    font-size: 0.8em;
+    vertical-align: bottom;
+    text-align: left;
+    padding-right: 30px;
+}
