@@ -35,12 +35,12 @@ if (isset($_GET["set_encounter"])) {
 ?>
 <HTML>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <TITLE>
 <?php xl('Patient Encounters','e'); ?>
 </TITLE>
 </HEAD>
-<frameset rows="50%,50%" cols="*">
+<frameset rows="60%,40%" cols="*">
   <frameset rows="*" cols="*,200">
 	<frame src="forms.php" name="Forms" scrolling="auto">
 	<frame src="new_form.php" name="New Form" scrolling="auto">
@@ -61,7 +61,7 @@ if (isset($_GET["set_encounter"])) {
 	    <frame src="coding.php" name="Codesets" scrolling="auto">
             <frame src="blank.php" name="Codes" scrolling="auto">
             <frame src="diagnosis.php" name="Diagnosis" scrolling="auto">
-	<? } 
+	<?php } 
 	// ==============================
 	?>
   </frameset>
@@ -89,12 +89,12 @@ if (isset($_GET["mode"])  && $_GET["mode"] == "new") {
 
 <HTML>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <TITLE>
 <?php xl('New Patient Encounter','e'); ?>
 </TITLE>
 </HEAD>
-<frameset rows="50%,50%" cols="*">
+<frameset rows="60%,40%" cols="*">
 	<frame src="<?php echo "$rootdir/forms/newpatient/new.php?autoloaded=1&calenc=".$_GET["calenc"].""; ?>" name="New" scrolling="auto">
 	<frame src="<?php echo "$rootdir/patient_file/history/encounters.php";?>" name="Diagnosis" scrolling="auto">
 </frameset>
@@ -111,12 +111,12 @@ if (isset($_GET["mode"])  && $_GET["mode"] == "new") {
 ?>
 <HTML>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <TITLE>
 <?php xl('Patient Encounters','e'); ?>
 </TITLE>
 </HEAD>
-<frameset rows="50%,50%" cols="*">
+<frameset rows="60%,40%" cols="*">
   <frameset rows="*" cols="*,200">
 	<frame src="forms.php" name="Forms" scrolling="auto">
 	<frame src="new_form.php" name="New Form" scrolling="auto">
