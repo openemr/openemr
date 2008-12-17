@@ -118,8 +118,9 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
       $payer_type = 0;
 
       if (!empty($dtlinfo['pmt'])) { // it's a payment
+        $tmp = strtolower($dtlinfo['src']);
         for ($i = 1; $i <= 3; ++$i) {
-          if (stripos($dtlinfo['src'], "Ins$i") !== false) $payer_type = $i;
+          if (strpos($tmp, "ins$i") !== false) $payer_type = $i;
         }
         arPostPayment($pid, $encounter, $session_id, $dtlinfo['pmt'], $code,
           $payer_type, $source, 0, "$dtldate 00:00:00");
@@ -129,8 +130,9 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
         }
       }
       else { // it's an adjustment
+        $tmp = strtolower($dtlinfo['rsn']);
         for ($i = 1; $i <= 3; ++$i) {
-          if (stripos($dtlinfo['rsn'], "Ins$i") !== false) $payer_type = $i;
+          if (strpos($tmp, "ins$i") !== false) $payer_type = $i;
         }
         arPostAdjustment($pid, $encounter, $session_id, 0 - $dtlinfo['chg'],
           $code, $payer_type, $dtlinfo['rsn'], 0, "$dtldate 00:00:00");
@@ -154,17 +156,19 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
 
   // Compute last insurance level closed.
   $last_level_closed = 0;
+  $tmp = strtolower($row['shipvia']);
   for ($i = 1; $i <= 3; ++$i) {
-    if (stripos($row['shipvia'], "Ins$i") !== false) $last_level_closed = $i;
+    if (strpos($tmp, "ins$i") !== false) $last_level_closed = $i;
   }
 
   // Compute last statement date and number of statements sent.
   $last_stmt_date = "NULL";
   $stmt_count = 0;
   $i = 0;
-  while ($i = stripos($row['intnotes'], 'Statement sent ', $i) !== false) {
+  $tmp = strtolower($row['intnotes']);
+  while (($i = strpos($tmp, 'statement sent ', $i)) !== false) {
     $i += 15;
-    $last_stmt_date = "'" . substr($row['intnotes'], $i, 10) . "'";
+    $last_stmt_date = "'" . substr($tmp, $i, 10) . "'";
     ++$stmt_count;
   }
 
