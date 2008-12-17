@@ -16,16 +16,17 @@ $from_date     = fixDate($_POST['form_from_date']);
 $to_date       = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_by       = $_POST['form_by'];     // this is a scalar
 $form_show     = $_POST['form_show'];   // this is an array
-$form_sexes    = $_POST['form_sexes'];  // this is a scalar
 $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
+$form_sexes    = isset($_POST['form_sexes']) ? $_POST['form_sexes'] : '3';
+$form_cors     = isset($_POST['form_cors']) ? $_POST['form_cors'] : '1';
 
 if (empty($form_by))    $form_by = '1';
 if (empty($form_show))  $form_show = array('1');
-if (empty($form_sexes)) $form_sexes = '3';
 
 // One of these is chosen as the left column, or Y-axis, of the report.
 //
 if ($report_type == 'm') {
+  $report_title = xl('Member Association Statistics Report');
   $arr_by = array(
     101 => xl('MA Category'),
     102 => xl('Specific Service'),
@@ -33,19 +34,27 @@ if ($report_type == 'm') {
     9   => xl('Referrals'),
   );
 }
+else if ($report_type == 'g') {
+  $report_title = xl('GCAC Statistics Report');
+  $arr_by = array(
+    1  => xl('Total SRH & Family Planning'),
+    12 => xl('Pre-Abortion Counseling'), // not yet implemented
+    5  => xl('Abortion Method'), // includes surgical and drug-induced
+    8  => xl('Post-Abortion Followup'),
+    7  => xl('Post-Abortion Contraception'),
+    11 => xl('Complications of Abortion'),
+  );
+}
 else {
+  $report_title = xl('IPPF Statistics Report');
   $arr_by = array(
     1  => xl('General Service Category'),
     // 2  => xl('Gynecology/Obstretrics'),
     // 3  => xl('Urology'),
     4  => xl('Specific Service'),
-    5  => xl('Abortion Method'),
     6  => xl('Contraceptive Method'),
-    7  => xl('Con. Method Following Abortion'),
-    8  => xl('Post-Abortion Care by Source'),
     9  => xl('Referrals'),
     // 10 => xl('Abortion Referral Followups'), // duplicates #8?
-    11 => xl('Complications of Abortion'),
   );
 }
 
@@ -53,7 +62,8 @@ else {
 // multiple items are chosen then each starts in the next available column.
 //
 $arr_show = array(
-  1 => xl('Total Services'),
+  1 => xl('Total'),
+  // 9 => xl('Total Clients'),
   2 => xl('Age Category'),
   3 => xl('Sex'),
   4 => xl('Religion'),
@@ -61,157 +71,6 @@ $arr_show = array(
   6 => xl('Marital Status'),
   7 => xl('State/Parish'),
   8 => xl('Occupation'),
-);
-
-// These are ICD9 codes that indicate complications of abortion.
-// Emailed to Rod by AM on 2008-03-19.
-//   A = Incomplete abortion or retention of ovular products
-//   B = Excessive bleeding/hemorrhage
-//   C = Trauma to vagina, cervix, or uterus
-//   D = Shock
-//   E = Infection
-//   F = Continuing pregnancy
-//   G = Ectopic pregnancy
-//   H = Other complications
-// They really want to use ICD10 instead, but the decision was to do
-// that later.
-$arr_dx_attrs = array(
-  '632'    => 'A',
-  '634'    => 'E',
-  '634.01' => 'EA',
-  '634.02' => 'E',
-  '634.1'  => 'B',
-  '634.11' => 'BA',
-  '634.12' => 'B',
-  '634.2'  => 'C',
-  '634.21' => 'CA',
-  '634.22' => 'C',
-  '634.3'  => 'D',
-  '634.31' => 'DA',
-  '634.32' => 'D',
-  '634.4'  => 'H',
-  '634.41' => 'HA',
-  '634.42' => 'H',
-  '634.5'  => 'D',
-  '634.51' => 'DA',
-  '634.52' => 'D',
-  '634.6'  => 'D',
-  '634.61' => 'DA',
-  '634.62' => 'D',
-  '634.7'  => 'H',
-  '634.71' => 'HA',
-  '634.72' => 'H',
-  '634.8'  => 'H',
-  '634.81' => 'HA',
-  '634.82' => 'H',
-  '634.91' => 'A',
-  '635'    => 'E',
-  '635.01' => 'EA',
-  '635.02' => 'E',
-  '635.1'  => 'B',
-  '635.11' => 'BA',
-  '635.12' => 'B',
-  '635.2'  => 'C',
-  '635.21' => 'CA',
-  '635.22' => 'C',
-  '635.3'  => 'D',
-  '635.31' => 'DA',
-  '635.32' => 'D',
-  '635.4'  => 'H',
-  '635.41' => 'HA',
-  '635.42' => 'H',
-  '635.5'  => 'D',
-  '635.51' => 'DA',
-  '635.52' => 'D',
-  '635.6'  => 'D',
-  '635.61' => 'DA',
-  '635.62' => 'D',
-  '635.7'  => 'H',
-  '635.71' => 'HA',
-  '635.72' => 'H',
-  '635.8'  => 'H',
-  '635.81' => 'HA',
-  '635.82' => 'H',
-  '635.91' => 'A',
-  '636'    => 'E',
-  '636.01' => 'EA',
-  '636.02' => 'E',
-  '636.1'  => 'B',
-  '636.11' => 'BA',
-  '636.12' => 'B',
-  '636.2'  => 'C',
-  '636.21' => 'CA',
-  '636.22' => 'C',
-  '636.3'  => 'D',
-  '636.31' => 'DA',
-  '636.32' => 'D',
-  '636.4'  => 'H',
-  '636.41' => 'HA',
-  '636.42' => 'H',
-  '636.5'  => 'D',
-  '636.51' => 'DA',
-  '636.52' => 'D',
-  '636.6'  => 'D',
-  '636.61' => 'DA',
-  '636.62' => 'D',
-  '636.7'  => 'H',
-  '636.71' => 'HA',
-  '636.72' => 'H',
-  '636.8'  => 'H',
-  '636.81' => 'HA',
-  '636.82' => 'H',
-  '636.91' => 'A',
-  '637'    => 'E',
-  '637.01' => 'AE',
-  '637.02' => 'E',
-  '637.1'  => 'B',
-  '637.11' => 'AB',
-  '637.12' => 'B',
-  '637.2'  => 'C',
-  '637.21' => 'AC',
-  '637.22' => 'C',
-  '637.3'  => 'D',
-  '637.31' => 'AD',
-  '637.32' => 'D',
-  '637.4'  => 'H',
-  '637.41' => 'AH',
-  '637.42' => 'H',
-  '637.5'  => 'D',
-  '637.51' => 'AD',
-  '637.52' => 'D',
-  '637.6'  => 'D',
-  '637.61' => 'AD',
-  '637.62' => 'D',
-  '637.7'  => 'H',
-  '637.71' => 'AH',
-  '637.72' => 'H',
-  '637.8'  => 'H',
-  '637.81' => 'AH',
-  '637.82' => 'H',
-  '637.9'  => 'H',
-  '637.91' => 'A',
-  '638'    => 'EF',
-  '638.1'  => 'BF',
-  '638.2'  => 'CF',
-  '638.3'  => 'DF',
-  '638.4'  => 'HF',
-  '638.5'  => 'DF',
-  '638.6'  => 'DF',
-  '638.7'  => 'HF',
-  '638.8'  => 'HF',
-  '638.9'  => 'F',
-  '639'    => 'Eg', // lower case means "possibly" ... how to handle that?
-  '639.1'  => 'Bg',
-  '639.2'  => 'Cg',
-  '639.3'  => 'Dg',
-  '639.4'  => 'Hg',
-  '639.5'  => 'Dg',
-  '639.6'  => 'Dg',
-  '639.8'  => 'Hg',
-  '639.9'  => 'Hg',
-  '640'    => 'A',
-  '640.01' => 'A',
-  '640.03' => 'A',
 );
 
 // This will become the array of reportable values.
@@ -231,12 +90,8 @@ $arr_titles = array(
   // 'toc' => array(),
 );
 
-// This tracks the descriptive name of the last abortion method
-// encountered for the current patient.
-$last_abortion_method = '';
-
-// This is so we know when the above-mentioned current patient changes.
-$last_pid = '';
+// This is so we know when the current patient changes.
+// $previous_pid = 0;
 
 // Compute age in years given a DOB and "as of" date.
 //
@@ -370,23 +225,82 @@ function getAbortionMethod($code) {
   return $key;
 }
 
+// Helper function to look up the GCAC issue associated with a visit.
+// Ideally this is the one and only GCAC issue linked to the encounter.
+// However if there are multiple such issues, or if only unlinked issues
+// are found, then we pick the one with its start date closest to the
+// encounter date.
+//
+function getGcacData($row, $what, $morejoins="") {
+  $patient_id = $row['pid'];
+  $encounter_id = $row['encounter'];
+  $encdate = substr($row['encdate'], 0, 10);
+  $query = "SELECT $what " .
+    "FROM lists AS l " .
+    "JOIN lists_ippf_gcac AS lg ON l.type = 'ippf_gcac' AND lg.id = l.id " .
+    "LEFT JOIN issue_encounter AS ie ON ie.pid = '$patient_id' AND " .
+    "ie.encounter = '$encounter_id' AND ie.list_id = l.id " .
+    "$morejoins " .
+    "WHERE l.pid = '$patient_id' AND " .
+    "l.activity = 1 AND l.type = 'ippf_gcac' " .
+    "ORDER BY ie.pid DESC, ABS(DATEDIFF(l.begdate, '$encdate')) ASC " .
+    "LIMIT 1";
+  // Note that reverse-ordering by ie.pid is a trick for sorting
+  // issues linked to the encounter (non-null values) first.
+  return sqlQuery($query);
+}
+
+// Get the "client status" field from the related GCAC issue.
+//
+function getGcacClientStatus($row) {
+  $irow = getGcacData($row, "lo.title", "LEFT JOIN list_options AS lo ON " .
+    "lo.list_id = 'clientstatus' AND lo.option_id = lg.client_status");
+  if (empty($irow['title'])) {
+    $key = xl('Indeterminate');
+  }
+  else {
+    // The client status description should be just fine for this.
+    $key = $irow['title'];
+  }
+  return $key;
+}
+
 // Helper function called after the reporting key is determined for a row.
 //
 function loadColumnData($key, $row) {
-  global $areport, $arr_titles;
+  global $areport, $arr_titles, $form_cors;
+
+  // global $previous_pid;
+  // if ($form_cors == '2' && $row['pid'] == $previous_pid) return;
+  // $previous_pid = $row['pid'];
 
   // If first instance of this key, initialize its arrays.
   if (empty($areport[$key])) {
     $areport[$key] = array();
     $areport[$key]['wom'] = 0;       // number of services for women
     $areport[$key]['men'] = 0;       // number of services for men
+    // $areport[$key]['cli'] = 0;       // number of clients
     $areport[$key]['age'] = array(0,0,0,0,0,0,0,0,0); // age array
     $areport[$key]['rel'] = array(); // religion array
     $areport[$key]['nat'] = array(); // nationality array
     $areport[$key]['mar'] = array(); // marital status array
     $areport[$key]['sta'] = array(); // state/parish array
     $areport[$key]['occ'] = array(); // occupation array
+    $areport[$key]['prp'] = 0;       // previous pid
   }
+
+  // Skip this key if we are counting unique patients and the key
+  // has already seen this patient.
+  if ($form_cors == '2' && $row['pid'] == $areport[$key]['prp']) return;
+  $areport[$key]['prp'] = $row['pid'];
+
+  /*******************************************************************
+  // Increment the number of unique clients.
+  if ($row['pid'] != $previous_pid) {
+    ++$areport[$key]['cli'];
+    $previous_pid = $row['pid'];
+  }
+  *******************************************************************/
 
   // Increment the correct sex category.
   if (strcasecmp($row['sex'], 'Male') == 0)
@@ -429,18 +343,7 @@ function loadColumnData($key, $row) {
 // This is called for each IPPF service code that is selected.
 //
 function process_ippf_code($row, $code) {
-  global $areport, $arr_titles, $form_by, $last_abortion_method, $last_pid;
-
-  // This tracks the last abortion method for the current patient.
-  // The reason for this is that when we encounter a diagnosis code
-  // for complication of abortion, we will know what the corresponding
-  // abortion method was.
-  if ($row['pid'] != $last_pid) {
-    $last_abortion_method = '';
-    $last_pid = $row['pid'];
-  }
-  $abortion_method = getAbortionMethod($code);
-  if ($abortion_method) $last_abortion_method = $abortion_method;
+  global $areport, $arr_titles, $form_by;
 
   $key = 'Unspecified';
 
@@ -473,8 +376,8 @@ function process_ippf_code($row, $code) {
   // Abortion Method.
   //
   else if ($form_by === '5') {
-    if (!$abortion_method) return;
-    $key = $abortion_method;
+    $key = getAbortionMethod($code);
+    if (empty($key)) return;
   }
 
   // Contraceptive Method.
@@ -485,15 +388,24 @@ function process_ippf_code($row, $code) {
   }
 
   // Contraceptive method for new contraceptive adoption following abortion.
+  // Get it from the IPPF code if an abortion issue is linked to the visit.
+  // Note we are handling this during processing of services rather than
+  // by enumerating issues, because we need the service date.
   //
   else if ($form_by === '7') {
-    // Determine if this is a post-abortion care visit.
-    if ($row['pc_catdesc'] !== 'fal' &&
-        $row['pc_catdesc'] !== 'far' &&
-        $row['pc_catdesc'] !== 'faw') return;
-    // If yes, generate a separate row for each contraceptive method.
     $key = getContraceptiveMethod($code);
     if (empty($key)) return;
+    $patient_id = $row['pid'];
+    $encounter_id = $row['encounter'];
+    $query = "SELECT COUNT(*) AS count " .
+      "FROM lists AS l " .
+      "JOIN issue_encounter AS ie ON ie.pid = '$patient_id' AND " .
+      "ie.encounter = '$encounter_id' AND ie.list_id = l.id " .
+      "WHERE l.pid = '$patient_id' AND " .
+      "l.activity = 1 AND l.type = 'ippf_gcac'";
+    // echo "<!-- $key: $query -->\n"; // debugging
+    $irow = sqlQuery($query);
+    if (empty($irow['count'])) return;
   }
 
   // Post-Abortion Care by Source.
@@ -501,12 +413,57 @@ function process_ippf_code($row, $code) {
   // can be anything - age category, religion, whatever.
   //
   else if ($form_by === '8') {
-    // We generate a row for each type of post-abortion visit.
-    // Skip all other visit categories.
-    if      ($row['pc_catdesc'] === 'fal') $key = xl('For abortions at this clinic');
-    else if ($row['pc_catdesc'] === 'far') $key = xl('For abortions referred out');
-    else if ($row['pc_catdesc'] === 'faw') $key = xl('For outside abortions');
-    else return;
+    if (preg_match('/^252226/', $code)) { // all post-abortion care
+      $key = getGcacClientStatus($row);
+    } else {
+      return;
+    }
+  }
+
+  // Complications from abortion by abortion method and complication type.
+  // These may be noted either during recovery or during a followup visit.
+  // Again, driven by services in order to report by service date.
+  // Note: If there are multiple complications, they will all be reported.
+  //
+  else if ($form_by === '11') {
+    $compl_type = '';
+    if (preg_match('/^25222[345]/', $code)) { // all abortions including incomplete
+      $compl_type = 'rec_compl';
+    }
+    else if (preg_match('/^252226/', $code)) { // all post-abortion care
+      $compl_type = 'fol_compl';
+    }
+    else {
+      return;
+    }
+    $irow = getGcacData($row, "lg.$compl_type, lo.title",
+      "LEFT JOIN list_options AS lo ON lo.list_id = 'in_ab_proc' AND " .
+      "lo.option_id = lg.in_ab_proc");
+    if (empty($irow)) return; // this should not happen
+    if (empty($irow[$compl_type])) return; // ok, no complications
+    // We have one or more complications.
+    $abtype = empty($irow['title']) ? xl('Indeterminate') : $irow['title'];
+    $acompl = explode('|', $irow[$compl_type]);
+    foreach ($acompl as $compl) {
+      $crow = sqlQuery("SELECT title FROM list_options WHERE " .
+        "list_id = 'complication' AND option_id = '$compl'");
+      $key = "$abtype / " . $crow['title'];
+      loadColumnData($key, $row);
+    }
+    return; // because loadColumnData() is already done.
+  }
+
+  // Pre-Abortion Counseling.  Three possible situations:
+  //   Provided abortion in the MA clinics
+  //   Referred to other service providers (govt,private clinics)
+  //   Decided not to have the abortion
+  //
+  else if ($form_by === '12') {
+    if (preg_match('/^252221/', $code)) { // all pre-abortion counseling
+      $key = getGcacClientStatus($row);
+    } else {
+      return;
+    }
   }
 
   // Patient Name.
@@ -550,33 +507,35 @@ function process_ma_code($row) {
   loadColumnData($key, $row);
 }
 
-// This is called for each icd9 code that is selected.
+/*********************************************************************
+// This is called for each issue that is selected.
 //
-function process_icd_code($row) {
-  global $form_by, $last_abortion_method, $arr_dx_attrs;
-  // echo "<!-- ICD9 = '" . $row['code'] . "' -->\n"; // debugging
+function process_issue($row) {
+  global $form_by;
 
-  // One row for each service category.
+  $key = 'Unspecified';
+
+  // Pre-Abortion Counseling.  Three possible rows:
+  //   Provided abortion in the MA clinics
+  //   Referred to other service providers (govt,private clinics)
+  //   Decided not to have the abortion
   //
-  if ($form_by === '11' && !empty($arr_dx_attrs[$row['code']])) {
-    $attrs = $arr_dx_attrs[$row['code']];
-    for ($i = 0; $i < strlen($attrs); ++$i) {
-      $c = strtoupper(substr($attrs, $i, 1));
-      if ($c == 'A') $ctype = 'Incomplete abortion or retention of ovular products';
-      else if ($c == 'B') $ctype = 'Excessive bleeding/hemorrhage';
-      else if ($c == 'C') $ctype = 'Trauma to vagina, cervix, or uterus';
-      else if ($c == 'D') $ctype = 'Shock';
-      else if ($c == 'E') $ctype = 'Infection';
-      else if ($c == 'F') $ctype = 'Continuing pregnancy';
-      else if ($c == 'G') $ctype = 'Ectopic pregnancy';
-      else if ($c == 'H') $ctype = 'Other complications';
-      else $ctype = '???';
-      $key = $last_abortion_method ? $last_abortion_method : 'Unknown';
-      $key .= ': ' . $ctype;
-      loadColumnData($key, $row);
-    }
+  if ($form_by === '12') {
+
+    // TBD: Assign one of the 3 keys, or just return.
+
   }
+
+  // Others TBD
+
+  else {
+    return;
+  }
+
+  // TBD: Load column data from the issue.
+  // loadColumnData($key, $row);
 }
+*********************************************************************/
 
 // This is called for each selected referral.
 // Row keys are the first specified MA code, if any.
@@ -611,8 +570,8 @@ function process_referral($row) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
-<title><?php xl('Service Statistics Report','e'); ?></title>
+<?php html_header_show(); ?>
+<title><?php echo $report_title; ?></title>
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 <style type="text/css">
  body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
@@ -624,7 +583,7 @@ function process_referral($row) {
 <script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 <script language="JavaScript">
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 </script>
 </head>
 
@@ -632,7 +591,7 @@ function process_referral($row) {
 
 <center>
 
-<h2><? xl('Service Statistics Report','e'); ?></h2>
+<h2><?php echo $report_title; ?></h2>
 
 <form name='theform' method='post' action='ippf_statistics.php?t=<?php echo $report_type ?>'>
 
@@ -672,9 +631,12 @@ function process_referral($row) {
   </td>
   <td valign='top' rowspan='3' nowrap>
    &nbsp;
-   for:
+   <?php if ($report_type !== 'g') echo xl('for'); ?>
   </td>
   <td valign='top' rowspan='3'>
+
+<?php if ($report_type !== 'g') { // sex and facility only if not GCAC reporting ?>
+
    <select name='form_sexes' title='<?php xl('To filter by sex','e'); ?>'>
 <?php
   foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Only')) as $key => $value) {
@@ -701,6 +663,20 @@ function process_referral($row) {
  echo "   </select>\n";
 ?>
    <br />
+
+<?php } // end not GCAC ?>
+
+   <select name='form_cors' title='<?php xl('Counting services provided, or unique clients?','e'); ?>'>
+<?php
+  foreach (array(1 => xl('Services'), 2 => xl('Unique Clients')) as $key => $value) {
+    echo "    <option value='$key'";
+    if ($key == $form_cors) echo " selected";
+    echo ">$value</option>\n";
+  }
+?>
+   </select>
+   <br />
+
    <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
   </td>
  </tr>
@@ -744,9 +720,10 @@ function process_referral($row) {
     if ($form_sexes == '1') $sexcond = "AND pd.sex NOT LIKE 'Male' ";
     else if ($form_sexes == '2') $sexcond = "AND pd.sex LIKE 'Male' ";
 
+    // Get referrals within a date range and related patient data.
     if ($form_by === '9') {
       $query = "SELECT " .
-        "t.refer_related_code, " .
+        "t.refer_related_code, t.pid, " .
         "pd.sex, pd.DOB, pd.lname, pd.fname, pd.mname, pd.userlist5, " .
         "pd.country_code, pd.status, pd.state, pd.occupation " .
         "FROM transactions AS t " .
@@ -759,33 +736,55 @@ function process_referral($row) {
         process_referral($row);
       }
     }
+    /*****************************************************************
+    else if ($form_by === '12') {
+      // We are reporting on a date range, and assume the applicable date is
+      // the issue start date which is presumably also the date of pre-
+      // abortion counseling.  The issue end date and the surgery date are
+      // not of interest here.
+      $query = "SELECT " .
+        "l.type, l.begdate, l.pid, " .
+        "pd.sex, pd.DOB, pd.lname, pd.fname, pd.mname, pd.userlist5, " .
+        "pd.country_code, pd.status, pd.state, pd.occupation, " .
+        "lg.client_status, lg.ab_location " .
+        "FROM lists AS l " .
+        "JOIN patient_data AS pd ON pd.pid = l.pid $sexcond" .
+        "LEFT OUTER JOIN lists_ippf_gcac AS lg ON l.type = 'ippf_gcac' AND lg.id = l.id " .
+        // "LEFT OUTER JOIN lists_ippf_con  AS lc ON l.type = 'contraceptive' AND lc.id = l.id " .
+        "WHERE l.begdate >= '$from_date' AND l.begdate <= '$to_date' AND " .
+        "l.activity = 1 AND l.type = 'ippf_gcac' " .
+        "ORDER BY l.pid, l.id";
+      $res = sqlStatement($query);
+      while ($row = sqlFetchArray($res)) {
+        process_issue($row);
+      }
+    }
+    *****************************************************************/
     else {
-      // This gets us all MA and ICD9 codes, with encounter and patient
+      // This gets us all MA codes, with encounter and patient
       // info attached and grouped by patient and encounter.
       $query = "SELECT " .
-        "fe.pid, fe.date AS encdate, opc.pc_catdesc, " .
+        "fe.pid, fe.encounter, fe.date AS encdate, " .
         "pd.sex, pd.DOB, pd.lname, pd.fname, pd.mname, pd.userlist5, " .
         "pd.country_code, pd.status, pd.state, pd.occupation, " .
         "b.code_type, b.code, " .
         "c.related_code, lo.title " .
         "FROM form_encounter AS fe " .
         "JOIN patient_data AS pd ON pd.pid = fe.pid $sexcond" .
-        "LEFT OUTER JOIN openemr_postcalendar_categories AS opc ON " .
-        "opc.pc_catid = fe.pc_catid " .
         "LEFT OUTER JOIN billing AS b ON " .
         "b.pid = fe.pid AND b.encounter = fe.encounter AND b.activity = 1 " .
-        "AND ( b.code_type = 'MA' OR b.code_type = 'ICD9' ) " .
+        "AND b.code_type = 'MA' " .
         "LEFT OUTER JOIN codes AS c ON b.code_type = 'MA' AND c.code_type = '12' AND " .
         "c.code = b.code AND c.modifier = b.modifier " .
         "LEFT OUTER JOIN list_options AS lo ON " .
         "lo.list_id = 'superbill' AND lo.option_id = c.superbill " .
         "WHERE fe.date >= '$from_date 00:00:00' AND " .
         "fe.date <= '$to_date 23:59:59' ";
+
       if ($form_facility) {
         $query .= "AND fe.facility_id = '$form_facility' ";
       }
-      $query .= "ORDER BY fe.pid, fe.encounter, b.code_type DESC, b.code";
-      // Note: sorting to get MA codes before ICD9 codes.
+      $query .= "ORDER BY fe.pid, fe.encounter, b.code";
       $res = sqlStatement($query);
       while ($row = sqlFetchArray($res)) {
         if ($row['code_type'] === 'MA') {
@@ -800,11 +799,8 @@ function process_referral($row) {
             }
           }
         }
-        else {
-          process_icd_code($row);
-        }
-      }
-    }
+      } // end while
+    } // end else
 
     // Sort everything by key for reporting.
     ksort($areport);
@@ -824,8 +820,13 @@ function process_referral($row) {
     // Generate headings for values to be shown.
     foreach ($form_show as $value) {
       if ($value == '1') { // Total Services
-        genHeadCell(xl('Services'));
+        genHeadCell(xl('Total'));
       }
+      /***************************************************************
+      else if ($value == '9') { // Total Unique Clients
+        genHeadCell(xl('Clients'));
+      }
+      ***************************************************************/
       else if ($value == '2') { // Age
         genHeadCell(xl('0-10' ), true);
         genHeadCell(xl('11-14'), true);
@@ -906,6 +907,11 @@ function process_referral($row) {
         if ($value == '1') { // Total Services
           genNumCell($totalsvcs, $cnum++);
         }
+        /*************************************************************
+        else if ($value == '9') { // Total Unique Clients
+          genNumCell($areport[$key]['cli'], $cnum++);
+        }
+        *************************************************************/
         else if ($value == '2') { // Age
           for ($i = 0; $i < 9; ++$i) {
             genNumCell($areport[$key]['age'][$i], $cnum++);
