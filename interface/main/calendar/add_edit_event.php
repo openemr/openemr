@@ -786,10 +786,18 @@ if ($_POST['form_action'] == "save") {
  $patienttitle = "";
  $hometext = "";
  $row = array();
+ $informant = "";
 
  // If we are editing an existing event, then get its data.
  if ($eid) {
-  $row = sqlQuery("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+  // $row = sqlQuery("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+
+  $row = sqlQuery("SELECT e.*, u.fname, u.mname, u.lname " .
+    "FROM openemr_postcalendar_events AS e " .
+    "LEFT OUTER JOIN users AS u ON u.id = e.pc_informant " .
+    "WHERE pc_eid = $eid");
+  $informant = $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname'];
+
   // instead of using the event's starting date, keep what has been provided
   // via the GET array, see the top of this file
   if (empty($_GET['date'])) $date = $row['pc_eventDate'];
@@ -1513,6 +1521,7 @@ if ($repeatexdate != "") {
 &nbsp;
 <input type='button' id='cancel' value='<?php xl('Cancel','e');?>' />
 </p>
+<?php if ($informant) echo "<p class='text'>Last update by $informant</p>\n"; ?>
 </center>
 </form>
 
