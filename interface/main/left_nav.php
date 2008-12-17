@@ -838,6 +838,7 @@ function genPopupsList($style='') {
           <?php genPopLink('Rx','prescriptions_report.php'); ?>
           <?php genPopLink('Referrals','referrals_report.php'); ?>
           <?php if (!empty($GLOBALS['code_types']['IPPF'])) genPopLink('IPPF Stats','ippf_statistics.php?t=i'); ?>
+          <?php if (!empty($GLOBALS['code_types']['IPPF'])) genPopLink('GCAC Stats','ippf_statistics.php?t=g'); ?>
           <?php if (!empty($GLOBALS['code_types']['IPPF'])) genPopLink('MA Stats','ippf_statistics.php?t=m'); ?>
         </ul>
       </li>
@@ -962,19 +963,19 @@ function genPopupsList($style='') {
  <tr>
   <td class='smalltext'><?php xl('by','e') ?>:</td>
   <td class='smalltext'>
-   <a href="javascript:findPatient('Last');" class="navitem">Name</a>
+   <a href="javascript:findPatient('Last');" class="navitem"><?php xl('Name','e'); ?></a>
   </td>
   <td class='smalltext' align='right'>
-   <a href="javascript:findPatient('ID');"   class="navitem">ID</a>
+   <a href="javascript:findPatient('ID');"   class="navitem"><?php xl('ID','e'); ?></a>
   </td>
  </tr>
  <tr>
   <td class='smalltext'>&nbsp;</td>
   <td class='smalltext'>
-   <a href="javascript:findPatient('SSN');"  class="navitem">SSN</a>
+   <a href="javascript:findPatient('SSN');"  class="navitem"><?php xl('SSN','e'); ?></a>
   </td>
   <td class='smalltext' align='right'>
-   <a href="javascript:findPatient('DOB');"  class="navitem">DOB</a>
+   <a href="javascript:findPatient('DOB');"  class="navitem"><?php xl('DOB','e'); ?></a>
   </td>
  </tr>
 </table>
