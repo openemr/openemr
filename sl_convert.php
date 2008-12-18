@@ -11,6 +11,9 @@
 // convert it to the OpenEMR tables that maintain A/R internally,
 // thus eliminating SQL-Ledger.
 
+// Disable PHP timeout.  This will not work in safe mode.
+ini_set('max_execution_time', '0');
+
 $ignoreAuth=true; // no login required
 
 require_once('interface/globals.php');
@@ -32,6 +35,9 @@ if ($tmp['count']) die("ar_activity and ar_session must be empty to run this scr
 <span class='text'>
 <?php
 SLConnect();
+
+echo "<p>Be patient, this will take a while...</p>";
+flush();
 
 $invoice_count = 0;
 $activity_count = 0;
@@ -80,7 +86,8 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
           sqlInsert("INSERT INTO billing ( date, encounter, code_type, code, code_text, " .
             "pid, authorized, user, groupname, activity, billed, provider_id, " .
             "modifier, units, fee, ndc_info, justify ) values ( " .
-            "'$svcdate 00:00:00', '$encounter', 'TAX', 'TAX', '" . $dtlinfo['dsc'] . "', " .
+            "'$svcdate 00:00:00', '$encounter', 'TAX', 'TAX', '" .
+            addslashes($dtlinfo['dsc']) . "', " .
             "'$pid', '1', '$provider_id', 'Default', 1, 1, $provider_id, '', '1', " .
             "'" . $dtlinfo['chg'] . "', '', '' )");
         }
@@ -100,7 +107,7 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
 
       // For insurance payers look up or create the session table entry.
       if ($payer_id) {
-        $session_id = arGetSession($payer_id, $source, $dtldate);
+        $session_id = arGetSession($payer_id, addslashes($source), $dtldate);
       }
       // For non-insurance payers deal with copay duplication.
       else if ($code == '') {
@@ -135,7 +142,7 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
           if (strpos($tmp, "ins$i") !== false) $payer_type = $i;
         }
         arPostAdjustment($pid, $encounter, $session_id, 0 - $dtlinfo['chg'],
-          $code, $payer_type, $dtlinfo['rsn'], 0, "$dtldate 00:00:00");
+          $code, $payer_type, addslashes($dtlinfo['rsn']), 0, "$dtldate 00:00:00");
       }
 
       ++$activity_count;
@@ -182,6 +189,7 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
   foreach ($copays as $copay) {
     echo "Co-pay of \$$copay in the encounter was not found in " .
       "SQL-Ledger invoice $pid.$encounter.<br />\n";
+    flush();
   }
 
   ++$invoice_count;
