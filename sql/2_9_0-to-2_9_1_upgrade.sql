@@ -1,9 +1,14 @@
+#IfMissingColumn form_misc_billing_options replacement_claim
 ALTER TABLE form_misc_billing_options
   ADD replacement_claim tinyint(1) DEFAULT 0;
+#EndIf
 
+#IfMissingColumn insurance_data accept_assignment
 ALTER TABLE insurance_data
   ADD accept_assignment varchar(5) NOT NULL DEFAULT 'TRUE';
+#EndIf
 
+#IfNotTable chart_tracker
 CREATE TABLE chart_tracker (
   ct_pid            int(11)       NOT NULL,
   ct_when           datetime      NOT NULL,
@@ -11,16 +16,22 @@ CREATE TABLE chart_tracker (
   ct_location       varchar(31)   NOT NULL DEFAULT '',
   PRIMARY KEY (ct_pid, ct_when)
 ) ENGINE=MyISAM;
+#EndIf
 
+#IfNotRow list_options list_id chartloc
 INSERT INTO list_options VALUES ('lists'   ,'chartloc','Chart Storage Locations',1,0,0);
 INSERT INTO list_options VALUES ('chartloc','fileroom','File Room'              ,1,0,0);
+#EndIf
 
+#IfMissingColumn form_encounter last_level_billed
 ALTER TABLE form_encounter
   ADD last_level_billed int           NOT NULL DEFAULT 0 COMMENT '0=none, 1=ins1, 2=ins2, etc',
   ADD last_level_closed int           NOT NULL DEFAULT 0 COMMENT '0=none, 1=ins1, 2=ins2, etc',
   ADD last_stmt_date    date          DEFAULT NULL,
   ADD stmt_count        int           NOT NULL DEFAULT 0;
+#EndIf
 
+#IfNotTable ar_session
 CREATE TABLE ar_session (
   session_id     int unsigned  NOT NULL AUTO_INCREMENT,
   payer_id       int(11)       NOT NULL            COMMENT '0=pt else references insurance_companies.id',
@@ -34,7 +45,9 @@ CREATE TABLE ar_session (
   KEY user_closed (user_id, closed),
   KEY deposit_date (deposit_date)
 ) ENGINE=MyISAM;
+#EndIf
 
+#IfNotTable ar_activity
 CREATE TABLE ar_activity (
   pid            int(11)       NOT NULL,
   encounter      int(11)       NOT NULL,
@@ -51,3 +64,4 @@ CREATE TABLE ar_activity (
   PRIMARY KEY (pid, encounter, sequence_no),
   KEY session_id (session_id)
 ) ENGINE=MyISAM;
+#EndIf

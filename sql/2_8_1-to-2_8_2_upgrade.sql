@@ -1,3 +1,5 @@
+#IfNotRow lang_constants cons_id 6
+
 ##
 ##  Data for language translations
 ##
@@ -5,18 +7,18 @@
 ## phpMyAdmin SQL Dump
 ## version 2.6.4-pl1-Debian-1ubuntu1.1
 ## http://www.phpmyadmin.net
-## 
+##
 ## Host: localhost
 ## Generation Time: Feb 07, 2006 at 05:39 PM
 ## Server version: 4.1.12
 ## PHP Version: 4.4.0-3ubuntu1
-## 
+##
 ## Database: `openemr`
-## 
+##
 
-## 
+##
 ## Dumping data for table `lang_constants`
-## 
+##
 
 INSERT INTO `lang_constants` VALUES (6, 'Group');
 INSERT INTO `lang_constants` VALUES (8, 'Username:');
@@ -260,29 +262,39 @@ INSERT INTO `lang_definitions` VALUES (171, 177, 3, 'Correo Electr�ico');
 INSERT INTO `lang_definitions` VALUES (172, 176, 3, 'Lista de llamadas telef�icas');
 INSERT INTO `lang_definitions` VALUES (173, 178, 3, 'Cualquier');
 
+#EndIf
 
+#IfMissingColumn registry priority
 ## alters to categorize forms / per Mark 
-
 ALTER TABLE registry ADD COLUMN priority INT DEFAULT 0 AFTER date;
 ALTER TABLE registry ADD COLUMN category VARCHAR(255) DEFAULT "category" AFTER priority;
 ALTER TABLE registry ADD COLUMN nickname VARCHAR(255) DEFAULT '' AFTER category;
+#EndIf
 
+#IfMissingColumn patient_data phone_pharmacy
 ALTER TABLE patient_data
   ADD phone_pharmacy varchar(255) NOT NULL default '';
+#EndIf
 
+#IfNotTable array
 ## array table for storing configuration data and string lists etc...
-
 CREATE TABLE `array` (
   `array_key` varchar(255) default NULL,
   `array_value` longtext
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
+#EndIf
 
+#IfMissingColumn patient_data drivers_license
 ALTER TABLE patient_data
   ADD drivers_license varchar(255) NOT NULL default '';
+#EndIf
 
+#IfNotColumnType form_vitals oxygen_saturation float(5,2)
 ALTER TABLE form_vitals
   MODIFY oxygen_saturation float(5,2) default 0;
+#EndIf
 
+#IfNotTable drugs
 CREATE TABLE drugs (
   drug_id       int(11)      NOT NULL auto_increment,
   name          varchar(255) NOT NULL DEFAULT '',
@@ -298,7 +310,6 @@ CREATE TABLE drugs (
   substitute    int(11)      NOT NULL DEFAULT 0,
   PRIMARY KEY (drug_id)
 ) TYPE=MyISAM;
-
 CREATE TABLE drug_inventory (
   inventory_id    int(11)      NOT NULL auto_increment,
   drug_id         int(11)      NOT NULL,
@@ -309,7 +320,6 @@ CREATE TABLE drug_inventory (
   last_notify     date         NOT NULL DEFAULT '0000-00-00',
   PRIMARY KEY (inventory_id)
 ) TYPE=MyISAM;
-
 CREATE TABLE drug_sales (
   sale_id         int(11)      NOT NULL auto_increment,
   drug_id         int(11)      NOT NULL,
@@ -322,31 +332,45 @@ CREATE TABLE drug_sales (
   quantity        int(11)      NOT NULL DEFAULT 0,
   fee             decimal(7,2) NOT NULL DEFAULT 0.00,
   PRIMARY KEY (sale_id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
+#EndIf
 
+#IfMissingColumn prescriptions drug_id
 ALTER TABLE prescriptions
   ADD drug_id    int(11) NOT NULL DEFAULT 0;
+#EndIf
 
+#IfMissingColumn patient_data pharmacy_id
 ALTER TABLE patient_data
   ADD pharmacy_id     int(11)     NOT NULL DEFAULT 0,
   ADD referral_source varchar(30) NOT NULL DEFAULT '';
+#EndIf
 
-#new options in lang tables  
+#IfNotRow lang_languages lang_id 4
+# new options in lang tables
 INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (4, 'de', 'German');
 INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (5, 'du', 'Dutch');
 INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (6, 'he', 'Hebrew');
+#EndIf
 
+#IfMissingColumn openemr_postcalendar_events pc_prefcatid
 ALTER TABLE openemr_postcalendar_events
   ADD pc_prefcatid int(11) NOT NULL DEFAULT 0;
+#EndIf
 
+#IfMissingColumn prescriptions medication
 # Option to deal with prescriptions on the medication list
 ALTER TABLE prescriptions
   ADD medication int(11);
+#EndIf
 
+#IfMissingColumn facility fax
 # Add fax to facility table
 ALTER TABLE facility
   ADD fax varchar(30) default NULL;
+#EndIf
 
+#IfNotTable drug_templates
 CREATE TABLE drug_templates (
   drug_id       int(11)      NOT NULL,
   selector      varchar(255) NOT NULL,
@@ -355,26 +379,38 @@ CREATE TABLE drug_templates (
   quantity      int(11)      NOT NULL DEFAULT 0,
   refills       int(11)      NOT NULL DEFAULT 0,
   PRIMARY KEY (drug_id, selector)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
+#EndIf
 
+#IfMissingColumn drug_inventory destroy_date
 ALTER TABLE drug_inventory
   ADD destroy_date    date         DEFAULT NULL,
   ADD destroy_method  varchar(255) NOT NULL DEFAULT '',
   ADD destroy_witness varchar(255) NOT NULL DEFAULT '',
   ADD destroy_notes   varchar(255) NOT NULL DEFAULT '';
+#EndIf
 
+#IfNotColumnType prescriptions size float
 ALTER TABLE prescriptions
   MODIFY `size` float unsigned DEFAULT NULL;
+#EndIf
 
+#IfNotColumnType drugs size float
 ALTER TABLE drugs
   MODIFY `size` float unsigned NOT NULL DEFAULT 0;
+#EndIf
 
+#IfMissingColumn form_encounter sensitivity
 ALTER TABLE form_encounter
   ADD sensitivity varchar(30) NOT NULL DEFAULT '';
+#EndIf
 
+#IfMissingColumn lists returndate
 ALTER TABLE lists
   ADD returndate date DEFAULT NULL;
+#EndIf
 
+#IfMissingColumn users active
 ALTER TABLE users
   ADD active    tinyint(1)   NOT NULL DEFAULT 1,
   ADD npi       varchar(15)  NOT NULL DEFAULT '',
@@ -397,11 +433,16 @@ ALTER TABLE users
   ADD city2     varchar(30)  NOT NULL DEFAULT '',
   ADD state2    varchar(30)  NOT NULL DEFAULT '',
   ADD zip2      varchar(20)  NOT NULL DEFAULT '';
+#EndIf
 
+#IfMissingColumn patient_data hipaa_notice
 ALTER TABLE patient_data
   ADD `hipaa_notice`  VARCHAR(3)  DEFAULT 'NO' NOT NULL,
   ADD `hipaa_message` VARCHAR(20);
+#EndIf
 
+#IfNotColumnType prescriptions dosage varchar(100)
 ALTER TABLE prescriptions
   MODIFY `dosage`   varchar(100) DEFAULT NULL,
   MODIFY `quantity` varchar(11)  DEFAULT NULL;
+#EndIf

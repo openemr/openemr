@@ -1,3 +1,5 @@
+#IfNotTable lang_constants
+
 ## ########################################################
 
 ##
@@ -56,20 +58,26 @@ INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES
 INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (2, 'se', 'Swedish');
 INSERT INTO `lang_languages` (`lang_id`, `lang_code`, `lang_description`) VALUES (3, 'es', 'Spanish');
 
+#EndIf
 
-
-
+#IfMissingColumn lists outcome
 ALTER TABLE lists
   ADD outcome     int(11) NOT NULL DEFAULT 0,
   ADD destination varchar(255) DEFAULT NULL;
+#EndIf
 
+#IfMissingColumn pnotes title
 ALTER TABLE pnotes
   ADD title       varchar(255) NOT NULL DEFAULT 'Unassigned',
   ADD assigned_to varchar(255) NOT NULL DEFAULT '';
+#EndIf
 
+#IfMissingColumn users see_auth
 ALTER TABLE users ADD see_auth int(11) NOT NULL DEFAULT 1;
 UPDATE users SET see_auth = 3 WHERE authorized = 1;
+#EndIf
 
+#IfNotTable payments
 CREATE TABLE `payments` (
   `id`          bigint(20)    NOT NULL auto_increment,
   `pid`         bigint(20)    NOT NULL DEFAULT 0,
@@ -83,12 +91,17 @@ CREATE TABLE `payments` (
   `posted2`     decimal(7,2)  NOT NULL DEFAULT 0,
   PRIMARY KEY  (`id`)
 ) ;
+#EndIf
 
+#IfNotColumnType form_vitals temperature float(5,2)
 ALTER TABLE form_vitals
   MODIFY temperature float(5,2) default 0,
   MODIFY pulse       float(5,2) default 0,
   MODIFY respiration float(5,2) default 0,
   MODIFY waist_circ  float(5,2) default 0;
+#EndIf
 
+#IfNotColumnType form_clinical_notes followup_required int(11)
 ALTER TABLE form_clinical_notes
   MODIFY followup_required int(11) NOT NULL DEFAULT 0;
+#EndIf

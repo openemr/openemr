@@ -38,6 +38,10 @@ Be sure to use the -p flag when using tar, as certain permissions must be preser
 
 OpenEMR will be extracted into a directory named openemr.
 
+Alternatively a Debian package may be available as a file named
+openemr-<version>.deb.  This may work with some other Debian-like
+Linux distributions such as Ubuntu.
+
 III. Setup
 
 To run OpenEMR, MySQL and Apache or another PHP-capable webserver must be configured.
@@ -169,24 +173,30 @@ these extended access controls later.
 
 V. Upgrading
 
+Be sure to back up your OpenEMR installation and database before upgrading!
+
 Upgrading OpenEMR is currently done by replacing the old openemr directory with
 a newer version. Before replacing the old openemr directory, copy the following
-two files out, and replace them into the new openemr folder afterwards:
+files out, and replace them into the new openemr folder afterwards:
 
   openemr/interface/globals.php
   openemr/library/sqlconf.php
-  openemr/library/sql-ledger.inc
   openemr/includes/config.php (if you have modified it)
 
 But before replacing them, compare the old and new files in case there are
 new parameters that need to be included.  If there are other files that you
 have customized, then you will also need to treat those carefully.
 
-When upgrading, check the directory openemr/sql/ for files named *upgrade.sql
-Those files have sql statements to modify tables in your database so they will
-match the layout of the current version.
-Be sure to backup the content of your database before doing so.
+To upgrade the database, run the sql_upgrade.php script from your web
+browser (for example http://openemr.location/sql_upgrade.php).  It will
+prompt you to select the old release number, and will display the SQL
+commands issued as the upgrade occurs.
 
-If phpGACL is installed, then you should should upgrade your Access Controls
+Next, if you are converting from SQL-Ledger to OpenEMR's internal A/R
+management (normally you should), run the sl_convert.php script
+(e.g. http://openemr.location/sl_convert.php).  Note this script may
+run for several minutes or longer.
+
+If phpGACL is installed, then you should also upgrade your Access Controls
 by running the acl_upgrade.php program using your web browser
 (e.g. http://openemr.location/acl_upgrade.php).

@@ -1,7 +1,7 @@
-## 
+#IfNotTable batchcom
+##
 ## Table structure for table `batchcom`
-## 
-
+##
 CREATE TABLE IF NOT EXISTS `batchcom` (
   `id` bigint(20) NOT NULL auto_increment,
   `patient_id` int(11) NOT NULL default '0',
@@ -12,6 +12,9 @@ CREATE TABLE IF NOT EXISTS `batchcom` (
   `msg_date_sent` datetime NOT NULL default '0000-00-00 00:00:00',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM ;
+#EndIf
 
+#IfNotColumnType billing code varchar(9)
 ALTER TABLE billing
   MODIFY `code` varchar(9) DEFAULT NULL;
+#EndIf
