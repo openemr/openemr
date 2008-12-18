@@ -25,6 +25,12 @@
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA //
 //  ------------------------------------------------------------------------ //
 
+// Some important php.ini overrides. Defaults for these values are often
+// too small.  You might choose to adjust them further.
+//
+ini_set('memory_limit', '64M');
+ini_set('session.gc_maxlifetime', '14400');
+
 // Emulates register_globals = On.  Moved to here from the bottom of this file
 // to address security issues.  Need to change everything requiring this!
 $ps = strpos($_SERVER['REQUEST_URI'],"myadmin");
@@ -163,8 +169,8 @@ else {
 
 $v_major = '2';
 $v_minor = '9';
-$v_patch = '1';
-$tag = '-dev'; // release candidate, e.g. '-rc1'
+$v_patch = '0';
+$tag = '.2'; // minor revision number, should be empty for production releases
 
 // This name appears on the login page and in the title bar of most windows.
 // It's nice to customize this to be the name of your clinic.
