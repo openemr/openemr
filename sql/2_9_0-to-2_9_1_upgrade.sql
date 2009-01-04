@@ -65,3 +65,8 @@ CREATE TABLE ar_activity (
   KEY session_id (session_id)
 ) ENGINE=MyISAM;
 #EndIf
+
+#IfMissingColumn users ssi_relayhealth
+ALTER TABLE users
+  ADD ssi_relayhealth varchar(64) NULL;
+#EndIf

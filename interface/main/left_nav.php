@@ -940,6 +940,14 @@ function genPopupsList($style='') {
 
 <br /><hr />
 
+<?php
+ // To use RelayHealth, see comments and parameters in includes/config.php.
+ if (!empty($GLOBALS['ssi']['rh'])) {
+  include_once("../../library/ssi.inc");
+  echo getRelayHealthLink() ."<br /><hr />\n";
+ }
+?>
+
 <?php xl('Active Patient','e') ?>:<br />
 <div id='current_patient'>
 <b>None</b>

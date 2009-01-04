@@ -1,4 +1,9 @@
 <?php
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/md5.js");
@@ -83,6 +88,12 @@ if ($_GET["mode"] == "update") {
   if ($_GET["newauthPass"] && $_GET["newauthPass"] != "d41d8cd98f00b204e9800998ecf8427e") { // account for empty
     $tqvar = addslashes($_GET["newauthPass"]);
     sqlStatement("update users set password='$tqvar' where id={$_GET["id"]}");
+  }
+
+  // for relay health single sign-on
+  if ($_GET["ssi_relayhealth"]) {
+    $tqvar = addslashes($_GET["ssi_relayhealth"]);
+    sqlStatement("update users set ssi_relayhealth = '$tqvar' where id = {$_GET["id"]}");
   }
 
   $tqvar  = $_GET["authorized"] ? 1 : 0;
@@ -208,6 +219,14 @@ if ( !$GLOBALS['dutchpc']) { ?>
 ?>
 
 </tr>
+
+<?php if (!empty($GLOBALS['ssi']['rh'])) { ?>
+<tr>
+<td><span class="text"><?php xl('Relay Health ID', 'e'); ?>: </span></td>
+<td><input type="password" name="ssi_relayhealth" size="20" value="<?php echo $iter["ssi_relayhealth"]; ?>"></td>
+</tr>
+<?php } ?>
+
 <!-- (CHEMED) Calendar UI preference -->
 <tr>
 <td><span class="text"><?php xl('Taxonomy','e'); ?>: </span></td>

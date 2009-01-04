@@ -25,6 +25,15 @@
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA //
 //  ------------------------------------------------------------------------ //
 
+// To use RelayHealth, Call 888-PHYAURA (749-2872) and press 1 to Sign-up
+// for the service and receive your Client ID.  Then you may uncomment
+// and alter the following as appropriate.
+//
+// $GLOBALS['ssi']['rh']['ApplicationName'] = 'PhyauraSSI';
+// $GLOBALS['ssi']['rh']['PartnerName']     = 'Phyaura';
+// $GLOBALS['ssi']['rh']['location']        = 'https://api.integration.relayhealth.com/SSI/SingleSignIn.svc';
+// $GLOBALS['ssi']['rh']['wsdl']            = 'https://api.integration.relayhealth.com/SSI/SingleSignIn.svc?wsdl';
+
 $GLOBALS['oer_config']['freeb']['claim_file_dir'] 	= "/usr/share/freeb/public/";
 //currently can be pdf or txt
 $GLOBALS['oer_config']['freeb']['default_format'] 	= "pdf";
