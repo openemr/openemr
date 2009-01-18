@@ -25,7 +25,7 @@
   include_once("../forms/fee_sheet/codes.php");
   function is_clinic($code) {
     global $bcodes;
-    $i = strpos(':', $code);
+    $i = strpos($code, ':');
     if ($i) $code = substr($code, 0, $i);
     return ($bcodes['CPT4'][xl('Lab')][$code]     ||
       $bcodes['CPT4'][xl('Immunizations')][$code] ||
