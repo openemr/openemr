@@ -1,0 +1,74 @@
+/* This CSS is used ONLY by the form defined in this same folder 
+ * customize it as you see fit for your specific form
+ */ 
+
+h1 {
+    font-size: 120%;
+    font-weight: bold;
+}
+
+#form_container {
+    border: 1px solid black;
+    background-color: #ffffcc;
+    width: 750px;
+    padding: 10px;
+    margin: 10px 0px 10px 0px;
+}
+
+#general {
+    padding: 10px;
+}
+
+#history {
+    padding: 10px;
+    border-top: 1px solid black;
+}
+
+#bottom {
+    padding: 10px;
+    border-top: 1px solid black;
+}
+
+.formtext {
+    font-family: courier;
+    font-size: 90%;
+}
+
+.link {
+    font-size: 80%;
+}
+
+.link_submit {
+    font-size: 120%;
+}
+
+.title {
+    font-size: 150%;
+    font-weight: bold;
+}
+
+.bold { 
+    font-size: 110%;
+    font-weight: bold;
+}
+
+#print_form_container {
+    border: 1px solid black;
+    background-color: #ffffcc;
+    padding: 10px;
+    margin: 10px 0px 10px 0px;
+}
+
+#print_general {
+    padding: 10px;
+}
+
+#print_history {
+    padding: 10px;
+    border-top: 1px solid black;
+}
+
+#print_bottom {
+    padding: 10px;
+    border-top: 1px solid black;
+}
