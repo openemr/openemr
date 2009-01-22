@@ -4,7 +4,7 @@ include_once("$srcdir/patient.inc");
 
 $patient = $_REQUEST['patient'];
 $findBy  = $_REQUEST['findBy'];
-$MAXSHOW = 500; // maximum number of results to display at once
+$MAXSHOW = 100; // maximum number of results to display at once
 
 // this is a quick fix so it doesn't go to thousands records.
 // the searching functions on patient.inc need improvement.
@@ -177,14 +177,17 @@ if ($result) {
         if ($all_other_phones == '') {$all_other_phones = 'No other phone numbers listed';}
         //end of phone number display setup, now display the phone number(s)
         echo "<td class='srPhone' title='$all_other_phones'>" . $iter['phone_home']. "</td>\n";
+        
         echo "<td class='srSS'>" . $iter['ss'] . "</td>";
         if ($iter{"DOB"} != "0000-00-00 00:00:00") {
             echo "<td class='srDOB'>" . $iter['DOB_TS'] . "</td>";
         } else {
             echo "<td class='srDOB'>&nbsp;</td>";
         }
+        
         echo "<td class='srID'>" . $iter['pubpid'] . "</td>";
         echo "<td class='srPID'>" . $iter['pid'] . "</td>";
+        
         //setup for display of encounter date info
         $encounter_count = 0;
         $day_diff = ''; 
@@ -208,17 +211,40 @@ if ($result) {
             $day_diff = $results['day_diff'];
             $next_appt_date= $results['next_appt_day'].', '.$results['next_appt'];
         }
+        // calculate date differences based on date of last encounter regardless of billing
+        $query = "select DATE_FORMAT(max(form_encounter.date),'%m/%d/%y') as mydate," .
+                " (to_days(current_date())-to_days(max(form_encounter.date))) as day_diff," .
+                " DATE_FORMAT(max(form_encounter.date) + interval " . $add_days .
+                " day,'%m/%d/%y') as next_appt, dayname(max(form_encounter.date) + interval " .
+                $add_days." day) as next_appt_day from form_encounter " .
+                " where form_encounter.pid = " . $iter{"pid"};
+        $statement= sqlStatement($query);
+        if ($results = mysql_fetch_array($statement, MYSQL_ASSOC)) {
+            $last_date_seen = $results['mydate']; 
+            $day_diff = $results['day_diff'];
+            $next_appt_date= $results['next_appt_day'].', '.$results['next_appt'];
+        }
 
         //calculate count of encounters by distinct billing dates with cpt4
         //entries
         $query = "select count(distinct date) as encounter_count " .
-                "from billing where code_type not like 'COPAY' and activity = 1 " .
-                "and pid = ".$iter{"pid"};
+                 " from billing ".
+                 " where code_type not like 'COPAY' and activity = 1 " .
+                 " and pid = ".$iter{"pid"};
+        $statement= sqlStatement($query);
+        if ($results = mysql_fetch_array($statement, MYSQL_ASSOC)) {
+            $encounter_count_billed = $results['encounter_count'];
+        }
+        // calculate count of encounters, regardless of billing
+        $query = "select count(date) as encounter_count ".
+                    " from form_encounter where ".
+                    " pid = ".$iter{"pid"};
         $statement= sqlStatement($query);
         if ($results = mysql_fetch_array($statement, MYSQL_ASSOC)) {
             $encounter_count = $results['encounter_count'];
         }
         echo "<td class='srNumEnc'>".$encounter_count."</td>";
+        //echo "<td class='srNumEnc'>".$encounter_count_billed."</td>";
         echo "<td class='srNumDay'>".$day_diff."</td>";
         echo "<td class='srDateLast'>".$last_date_seen."</td>";
         echo "<td class='srDateNext'>".$next_appt_date."</td>";
