@@ -87,7 +87,7 @@ if ($printable) {
 <?php } // end not printable ?>
 
 <?php
-$inclookupres = sqlStatement("select distinct formdir from forms where pid = '$pid'");
+$inclookupres = sqlStatement("select distinct formdir from forms where pid = '$pid' AND deleted=0");
 while($result = sqlFetchArray($inclookupres)) {
   include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
 }
@@ -310,6 +310,7 @@ foreach ($ar as $key => $val) {
           "FROM forms AS f, users AS u WHERE " .
           "f.pid = '$pid' AND f.encounter = '$form_encounter' AND " .
           "f.formdir = 'newpatient' AND u.username = f.user " .
+          " AND f.deleted=0 ". //--JRM--
           "ORDER BY f.id LIMIT 1");
         echo ' '. xl('Provider') . ': ' . $tmp['title'] . ' ' .
           $tmp['fname'] . ' ' . $tmp['mname'] . ' ' . $tmp['lname'];

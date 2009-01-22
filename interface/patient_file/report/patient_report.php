@@ -145,6 +145,7 @@
   "FROM forms, form_encounter WHERE " .
   "forms.pid = '$pid' AND form_encounter.pid = '$pid' AND " .
   "form_encounter.encounter = forms.encounter " .
+  " AND forms.deleted=0 ". // --JRM--
   "ORDER BY form_encounter.date DESC, fdate ASC");
  $res2 = sqlStatement("SELECT name FROM registry ORDER BY priority");
 $html_strings = array();

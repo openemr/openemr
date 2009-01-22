@@ -240,13 +240,13 @@ function getPatientBillingEncounter($pid,$encounter) {
 
 function printPatientForms($pid, $cols) {
 	//this function takes a $pid
-	$inclookupres = sqlStatement("select distinct formdir from forms where pid='$pid'");
+	$inclookupres = sqlStatement("select distinct formdir from forms where pid='$pid' AND deleted=0");
 	while($result = sqlFetchArray($inclookupres)) {
 		include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
 	}
 	
 	$isfirst=1;
-	$res = sqlStatement("select * from forms where pid='$pid' order by date");
+	$res = sqlStatement("select * from forms where pid='$pid' AND deleted=0 order by date");
 	while($result = sqlFetchArray($res)) {
 		if ($result{"form_name"} == "New Patient Encounter") {
 			if ($isfirst==0) {
