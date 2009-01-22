@@ -56,6 +56,7 @@
 // used for DBC Dutch System
  $_SESSION['event_date'] = $date;
  $link = '../../../library/DBC_functions.php'; // ajax stuff and db work
+
  ?>
 
  <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
@@ -344,9 +345,11 @@ if ($_POST['form_action'] == "save") {
                 }
             }
 
-
-            // ===== a Single event or All events in a repeating series ==========
             else {
+                /* =================================================================== */
+                // ===== a Single event or All events in a repeating series ==========
+                /* =================================================================== */
+
                 // this difference means that some providers from current was UNCHECKED
                 // so we must delete this event for them
                 $r1 = array_diff ($providers_current, $providers_new);
@@ -356,14 +359,13 @@ if ($_POST['form_action'] == "save") {
                     }
                 }
     
-    // perform a check to see if user changed event date
-    // this is important when editing an existing recurring event
-    // oct-08 JRM
-    if ($_POST['form_date'] == $_POST['selected_date']) {
-        // user has NOT changed the start date of the event
-        $event_date = fixDate($_POST['event_start_date']);
-    }
-
+                // perform a check to see if user changed event date
+                // this is important when editing an existing recurring event
+                // oct-08 JRM
+                if ($_POST['form_date'] == $_POST['selected_date']) {
+                    // user has NOT changed the start date of the event
+                    $event_date = fixDate($_POST['event_start_date']);
+                }
 
                 // this difference means that some providers were added
                 // so we must insert this event for them
@@ -466,7 +468,7 @@ if ($_POST['form_action'] == "save") {
                 InsertEvent($args);
             }
             else {
-    
+
     // perform a check to see if user changed event date
     // this is important when editing an existing recurring event
     // oct-08 JRM
