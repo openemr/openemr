@@ -21,6 +21,10 @@ $code_type = $_GET['type'];
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+
+<!-- add jQuery support -->
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
+
 </head>
 <body class="body_bottom">
 
@@ -29,18 +33,25 @@ $code_type = $_GET['type'];
 
 <td valign=top>
 
-<form name='search_form' method='post' action='search_code.php?type=<?php echo $code_type ?>'>
-<input type=hidden name=mode value="search">
+<form name="search_form" id="search_form" method="post" action="search_code.php?type=<?php echo $code_type ?>">
+<input type="hidden" name="mode" value="search">
 
-<span class="title" href="search_code.php"><?php echo $code_type ?> <?php xl('Codes','e'); ?></span><br>
+<span class="title"><?php echo $code_type ?> <?php xl('Codes','e'); ?></span><br>
 
-<input type=entry size=15 name=text>
-<a href="javascript:document.search_form.submit();" class="text" onclick="top.restoreSession()">
-<?php xl('Search','e'); ?></a>
+<input type="textbox" id="text" name="text" size=15>
+
+<input type='submit' id="submitbtn" name="submitbtn" value='<?php xl('Search','e'); ?>'>
+<div id="searchspinner" style="display: inline; visibility:hidden;"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
+
 </form>
 
 <?php
-if (isset($_POST["mode"]) && $_POST["mode"] == "search") {
+if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] == "") {
+    echo "<div id='resultsummary' style='background-color:lightgreen;'>";
+    echo "Enter search criteria above</div>";
+}
+
+if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "") {
   // $sql = "SELECT * FROM codes WHERE (code_text LIKE '%" . $_POST["text"] .
   //   "%' OR code LIKE '%" . $_POST["text"] . "%') AND code_type = '" .
   //   $code_types[$code_type]['id'] . "' ORDER BY code LIMIT " . ($M + 1);
@@ -54,49 +65,65 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search") {
     "WHERE (code_text LIKE '%" . $_POST["text"] . "%' OR " .
     "code LIKE '%" . $_POST["text"] . "%') AND " .
     "code_type = '" . $code_types[$code_type]['id'] . "' " .
-    "ORDER BY code LIMIT " . ($M + 1);
+    "ORDER BY code ".
+    " LIMIT " . ($M + 1).
+    "";
 
 	if ($res = sqlStatement($sql) ) {
 		for($iter=0; $row=sqlFetchArray($res); $iter++)
 		{
 			$result[$iter] = $row;
 		}
+        echo "<div id='resultsummary' style='background-color:lightgreen;'>";
+        if (count($result) > $M) {
+            echo "Showing the first ".$M." results";
+        }
+        else if (count($results) == 0) {
+            echo "No results found";
+        }
+        else {
+            echo "Showing all ".count($result)." results";
+        }
+        echo "</div>";
 ?>
-
+<div id="results">
 <table><tr><td valign=top>
 <?php
-		$count = 0;
-		$total = 0;
+$count = 0;
+$total = 0;
 
-		if ($result) {
-			foreach ($result as $iter) {
-				if ($count == $N) {
-					echo "</td><td valign=top>\n";
-					$count = 0;
-				}
-
-				echo "<a target='".xl('Diagnosis')."' class='text' href='diagnosis.php?mode=add" .
-					"&type="     . urlencode($code_type) .
-					"&code="     . urlencode($iter{"code"}) .
-					"&modifier=" . urlencode($iter{"modifier"}) .
-					"&units="    . urlencode($iter{"units"}) .
-          // "&fee="      . urlencode($iter{"fee"}) .
-          "&fee="      . urlencode($iter['pr_price']) .
-					"&text="     . urlencode($iter{"code_text"}) .
-					"' onclick='top.restoreSession()'>" .
-					ucwords("<b>" . strtoupper($iter{"code"}) . "&nbsp;" . $iter['modifier'] .
-					"</b>" . " " . strtolower($iter{"code_text"}))."</a><br>\n";
-
-				$count++;
-				$total++;
-				if ($total == $M) {
-					echo "</span><span class=alert>".xl('Some codes were not displayed.')."\n";
-					break;
-				}
-			}
-		}
+if ($result) {
+    foreach ($result as $iter) {
+        if ($count == $N) {
+            echo "</td><td valign=top class='oneresult'>\n";
+            $count = 0;
+        }
+    
+        echo "<a target='".xl('Diagnosis')."' class='text' href='diagnosis.php?mode=add" .
+            "&type="     . urlencode($code_type) .
+            "&code="     . urlencode($iter{"code"}) .
+            "&modifier=" . urlencode($iter{"modifier"}) .
+            "&units="    . urlencode($iter{"units"}) .
+            // "&fee="      . urlencode($iter{"fee"}) .
+            "&fee="      . urlencode($iter['pr_price']) .
+            "&text="     . urlencode($iter{"code_text"}) .
+            "' onclick='top.restoreSession()'>";
+        echo ucwords("<b>" . strtoupper($iter{"code"}) . "&nbsp;" . $iter['modifier'] .
+            "</b>" . " " . strtolower($iter{"code_text"}));
+        echo "</a><br>\n";
+    
+        $count++;
+        $total++;
+        
+        if ($total == $M) {
+            echo "</span><span class=alert>".xl('Some codes were not displayed.')."\n";
+            break;
+        }
+    }
+}
 ?>
 </td></tr></table>
+</div>
 <?php
 	}
 }
@@ -107,4 +134,27 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search") {
 </table>
 
 </body>
+
+<script language="javascript">
+
+// jQuery stuff to make the page a little easier to use
+
+$(document).ready(function(){
+    $("#text").focus();
+    $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
+    $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
+    //$(".oneresult").click(function() { SelectPatient(this); });
+    $("#search_form").submit(function() { SubmitForm(this); });
+});
+
+// show the 'searching...' status and submit the form
+var SubmitForm = function(eObj) {
+    $("#submitbtn").attr("disabled", "true"); 
+    $("#submitbtn").css("disabled", "true");
+    $("#searchspinner").css("visibility", "visible");
+    return top.restoreSession();
+}
+
+</script>
+
 </html>
