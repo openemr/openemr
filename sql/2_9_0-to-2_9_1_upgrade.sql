@@ -8,6 +8,11 @@ ALTER TABLE insurance_data
   ADD accept_assignment varchar(5) NOT NULL DEFAULT 'TRUE';
 #EndIf
 
+#IfMissingColumn forms deleted
+ALTER TABLE forms 
+    ADD deleted TINYINT DEFAULT '0' NOT NULL COMMENT 'flag indicates form has been deleted';
+#EndIf
+
 #IfNotTable chart_tracker
 CREATE TABLE chart_tracker (
   ct_pid            int(11)       NOT NULL,

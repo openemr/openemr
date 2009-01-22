@@ -863,6 +863,7 @@ CREATE TABLE `forms` (
   `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `authorized` tinyint(4) default NULL,
+  `deleted` tinyint(4) DEFAULT '0' NOT NULL COMMENT 'flag indicates form has been deleted',
   `formdir` longtext character set utf8 collate utf8_unicode_ci,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
