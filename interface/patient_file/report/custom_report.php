@@ -5,10 +5,20 @@ require_once("$srcdir/billing.inc");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
+include_once("$srcdir/acl.inc");
 require_once("$srcdir/report.inc");
 require_once(dirname(__file__) . "/../../../library/classes/Document.class.php");
 require_once(dirname(__file__) . "/../../../library/classes/Note.class.php");
 require_once(dirname(__file__) . "/../../../custom/code_types.inc.php");
+
+// get various authorization levels
+$auth_notes_a  = acl_check('encounters', 'notes_a');
+$auth_notes    = acl_check('encounters', 'notes');
+$auth_coding_a = acl_check('encounters', 'coding_a');
+$auth_coding   = acl_check('encounters', 'coding');
+$auth_relaxed  = acl_check('encounters', 'relaxed');
+$auth_med      = acl_check('patients'  , 'med');
+$auth_demo     = acl_check('patients'  , 'demo');
 
 $printable = empty($_GET['printable']) ? false : true;
 unset($_GET['printable']);
@@ -112,12 +122,14 @@ foreach ($ar as $key => $val) {
 
     } elseif ($val == "history") {
 
-      print "<br><font class='bold'>".xl('History Data').":</font><br>";
-      // printRecDataOne($history_data_array, getRecHistoryData ($pid), $N);
-      $result1 = getHistoryData($pid);
-      echo "   <table>\n";
-      display_layout_rows('HIS', $result1);
-      echo "   </table>\n";
+        if (acl_check('patients', 'med')) {
+            print "<br><font class='bold'>".xl('History Data').":</font><br>";
+            // printRecDataOne($history_data_array, getRecHistoryData ($pid), $N);
+            $result1 = getHistoryData($pid);
+            echo "   <table>\n";
+            display_layout_rows('HIS', $result1);
+            echo "   </table>\n";
+        }
 
     // } elseif ($val == "employer") {
     //   print "<br><font class='bold'>".xl('Employer Data').":</font><br>";
@@ -193,12 +205,14 @@ foreach ($ar as $key => $val) {
 
     } elseif ($val == "immunizations") {
 
-      print "<font class=bold>".xl('Patient Immunization').":</font><br>";
-      $sql = "select if(i1.administered_date,concat(i1.administered_date,' - ',i2.name) ,substring(i1.note,1,20) ) as immunization_data from immunizations i1 left join immunization i2 on i1.immunization_id = i2.id where i1.patient_id = $pid order by administered_date desc";
-      $result = sqlStatement($sql);
-      while ($row=sqlFetchArray($result)) {
-      echo "<span class=text> " . $row{'immunization_data'} . "</span><br>\n";
-      }
+        if (acl_check('patients', 'med')) {
+            print "<font class=bold>".xl('Patient Immunization').":</font><br>";
+            $sql = "select if(i1.administered_date,concat(i1.administered_date,' - ',i2.name) ,substring(i1.note,1,20) ) as immunization_data from immunizations i1 left join immunization i2 on i1.immunization_id = i2.id where i1.patient_id = $pid order by administered_date desc";
+            $result = sqlStatement($sql);
+            while ($row=sqlFetchArray($result)) {
+                echo "<span class=text> " . $row{'immunization_data'} . "</span><br>\n";
+            }
+        }
 
     // communication report
     } elseif ($val == "batchcom") {
@@ -295,39 +309,41 @@ foreach ($ar as $key => $val) {
     //
     } else {
 
-      $form_encounter = $val;
-      preg_match('/^(.*)_(\d+)$/', $key, $res);
-      $form_id = $res[2];
-      $formres = getFormNameByFormdir($res[1]);
-      $dateres = getEncounterDateByEncounter($form_encounter);
+        if (($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
+            $form_encounter = $val;
+            preg_match('/^(.*)_(\d+)$/', $key, $res);
+            $form_id = $res[2];
+            $formres = getFormNameByFormdir($res[1]);
+            $dateres = getEncounterDateByEncounter($form_encounter);
 
-      if ($res[1] == 'newpatient') print "<br>\n";
-      echo "<span class='bold'>" . $formres{"form_name"} .
-        "</span><span class=text> (" . date("Y-m-d",strtotime($dateres{"date"})) .
-        ")";
-      if ($res[1] == 'newpatient') {
-        $tmp = sqlQuery("SELECT u.title, u.fname, u.mname, u.lname " .
-          "FROM forms AS f, users AS u WHERE " .
-          "f.pid = '$pid' AND f.encounter = '$form_encounter' AND " .
-          "f.formdir = 'newpatient' AND u.username = f.user " .
-          " AND f.deleted=0 ". //--JRM--
-          "ORDER BY f.id LIMIT 1");
-        echo ' '. xl('Provider') . ': ' . $tmp['title'] . ' ' .
-          $tmp['fname'] . ' ' . $tmp['mname'] . ' ' . $tmp['lname'];
-      }
-      echo "</span><br>\n";
+            if ($res[1] == 'newpatient') print "<br>\n";
+            echo "<span class='bold'>" . $formres{"form_name"} .
+                "</span><span class=text> (" . date("Y-m-d",strtotime($dateres{"date"})) .
+                ")";
+            if ($res[1] == 'newpatient') {
+                $tmp = sqlQuery("SELECT u.title, u.fname, u.mname, u.lname " .
+                                "FROM forms AS f, users AS u WHERE " .
+                                "f.pid = '$pid' AND f.encounter = '$form_encounter' AND " .
+                                "f.formdir = 'newpatient' AND u.username = f.user " .
+                                " AND f.deleted=0 ". //--JRM--
+                                "ORDER BY f.id LIMIT 1");
+                echo ' '. xl('Provider') . ': ' . $tmp['title'] . ' ' .
+                $tmp['fname'] . ' ' . $tmp['mname'] . ' ' . $tmp['lname'];
+            }
+            echo "</span><br>\n";
 
-      call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
-      if ($res[1] == 'newpatient') {
-        $bres = sqlStatement("SELECT date, code, code_text FROM billing WHERE " .
-          "pid = '$pid' AND encounter = '$form_encounter' AND activity = 1 AND " .
-          "( code_type = 'CPT4' OR code_type = 'OPCS' OR code_type = 'OSICS10' ) " .
-          "ORDER BY date");
-        while ($brow=sqlFetchArray($bres)) {
-          echo "<span class='bold'>&nbsp;".xl('Procedure').": </span><span class='text'>" .
-            $brow['code'] . " " . $brow['code_text'] . "</span><br>\n";
-        }
-      }
+            call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
+            if ($res[1] == 'newpatient') {
+                $bres = sqlStatement("SELECT date, code, code_text FROM billing WHERE " .
+                "pid = '$pid' AND encounter = '$form_encounter' AND activity = 1 AND " .
+                "( code_type = 'CPT4' OR code_type = 'OPCS' OR code_type = 'OSICS10' ) " .
+                "ORDER BY date");
+                while ($brow=sqlFetchArray($bres)) {
+                    echo "<span class='bold'>&nbsp;".xl('Procedure').": </span><span class='text'>" .
+                    $brow['code'] . " " . $brow['code_text'] . "</span><br>\n";
+                }
+            }
+        } // end auth-check for encounter forms
 
     } // end else
 

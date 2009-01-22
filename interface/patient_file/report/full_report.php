@@ -6,6 +6,16 @@ include_once("$srcdir/billing.inc");
 include_once("$srcdir/pnotes.inc");
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/report.inc");
+include_once("$srcdir/acl.inc");
+
+// get various authorization levels
+$auth_notes_a  = acl_check('encounters', 'notes_a');
+$auth_notes    = acl_check('encounters', 'notes');
+$auth_coding_a = acl_check('encounters', 'coding_a');
+$auth_coding   = acl_check('encounters', 'coding');
+$auth_relaxed  = acl_check('encounters', 'relaxed');
+$auth_med      = acl_check('patients'  , 'med');
+$auth_demo     = acl_check('patients'  , 'demo');
 
 if (!isset($_GET["viewnum"])) {
 	$N = 6;
@@ -40,10 +50,11 @@ if (!isset($_GET["viewnum"])) {
 printRecData($patient_data_array, getRecPatientData ($pid), $N);
 ?><hr>
 
+<?php if (acl_check('patients', 'med')): ?>
 <font class=bold><?php  xl('History Data','e'); ?>:</font><br>
-<?php 
-printRecData($history_data_array, getRecHistoryData ($pid), $N);
-?><hr>
+<?php printRecData($history_data_array, getRecHistoryData ($pid), $N); ?>
+<hr>
+<?php endif; ?>
 
 
 <font class=bold><?php  xl('Employer Data','e'); ?>:</font><br>
@@ -69,21 +80,16 @@ printRecData($insurance_data_array, getRecInsuranceData ($pid,"secondary"), $N);
 printRecData($insurance_data_array, getRecInsuranceData ($pid,"tertiary"), $N);
 ?><hr>
 
-
+<!-- Patient Issues -->
+<?php if (acl_check('patients', 'med')): ?>
 <font class=bold><?php  xl('Allergies','e'); ?>:</font><br>
-<table><tr><td><?php 
-printListData($pid, "allergy", "1")
-?></td></tr></table>
+<table><tr><td><?php printListData($pid, "allergy", "1") ?> </td></tr></table>
 
 <font class=bold><?php  xl('Medications','e'); ?>:</font><br>
-<table><tr><td><?php 
-printListData($pid, "medication", "1")
-?></td></tr></table>
+<table><tr><td><?php printListData($pid, "medication", "1") ?></td></tr></table>
 
 <font class=bold><?php  xl('Medical Problems','e'); ?>:</font><br>
-<table><tr><td><?php 
-printListData($pid, "medical_problem", "1")
-?></td></tr></table>
+<table><tr><td><?php printListData($pid, "medical_problem", "1") ?></td></tr></table>
 
 <font class=bold><?php  xl('Immunizations','e'); ?>:</font><br>
 <table><tr><td><?php 
@@ -96,6 +102,10 @@ while ($row=sqlFetchArray($result)){
 }
 ?></td></tr></table>
 <hr>
+
+<?php endif; // end patient-issues ?>
+
+<!-- Patient communications -->
 <font class=bold><?php  xl('Patient Comunication Sent','e'); ?>:</font><br>
 <table><tr><td><?php 
 	   $sql="SELECT concat( 'Messsage Type: ', batchcom.msg_type, ', Message Subject: ', batchcom.msg_subject, ', Sent on:', batchcom.msg_date_sent ) AS batchcom_data, batchcom.msg_text, concat( users.fname, users.lname ) AS user_name FROM `batchcom` JOIN `users` ON users.id = batchcom.sent_by WHERE batchcom.patient_id='$pid'";
@@ -106,29 +116,24 @@ while ($row=sqlFetchArray($result)){
 	    }
 ?></td></tr></table>
 <hr>
+
 <font class=bold><?php  xl('Patient Notes','e'); ?>:</font><br>
-<table><tr><td><?php 
-printPatientNotes($pid);
-?></td></tr></table>
+<table><tr><td><?php printPatientNotes($pid); ?></td></tr></table>
 <hr>
 
 <font class=bold><?php  xl('Billing','e'); ?>:</font><br>
-<table><tr><td><?php 
-printPatientBilling($pid);
-?></td></tr></table>
+<table><tr><td><?php printPatientBilling($pid); ?></td></tr></table>
 <hr>
 
 <font class=bold><?php  xl('Transactions','e'); ?>:</font><br>
-<table><tr><td><?php 
-printPatientTransactions($pid);
-?></td></tr></table>
+<table><tr><td><?php printPatientTransactions($pid); ?></td></tr></table>
 <hr>
 
-
+<!-- Encounters and Forms -->
+<?php if (($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)): ?>
 <font class=bold><?php  xl('Forms','e'); ?>:</font><br>
-<table><tr><td><?php 
-printPatientForms($pid, $N);
-?></td></tr></table>
+<table><tr><td><?php printPatientForms($pid, $N); ?></td></tr></table>
+<?php endif; ?>
 
 </body>
 </html>
