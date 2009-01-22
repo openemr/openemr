@@ -256,7 +256,7 @@ if ($result = getEncounters($pid)) {
       //   $reason_string = "(No access)";
 
       $href = "javascript:window.toencounter(" . $iter['encounter'] . ",\"$raw_encounter_date\")";
-      $linkbeg = "<a class='text' href='$href'>";
+      $linkbeg = "<a class='text' href='$href' title='View Encounter'>";
 
       if ($result4['sensitivity']) {
         $auth_sensitivity = acl_check('sensitivities', $result4['sensitivity']);
@@ -285,7 +285,7 @@ if ($result = getEncounters($pid)) {
     if (!$billing_view && $auth_sensitivity &&
       ($auth_notes_a || ($auth_notes && $iter['user'] == $_SESSION['authUser'])))
     {
-      $encarr = getFormByEncounter($pid, $iter['encounter'], "formdir, user, form_name, form_id");
+      $encarr = getFormByEncounter($pid, $iter['encounter'], "formdir, user, form_name, form_id, deleted");
       $encounter_rows = count($encarr);
     }
 
@@ -488,7 +488,18 @@ if ($result = getEncounters($pid)) {
       //
       foreach ($encarr as $enc) {
         if ($enc['formdir'] == 'newpatient') continue;
+        
+        // skip forms whose 'deleted' flag is set to 1 --JRM--
+        if ($enc['deleted'] == 1) continue;
 
+        // Skip forms that we are not authorized to see. --JRM--
+        $formdir = $enc['formdir'];
+        if (($auth_notes_a) ||
+            ($auth_notes && $enc['user'] == $_SESSION['authUser']) ||
+            ($auth_relaxed && ($formdir == 'sports_fitness' || $formdir == 'podiatry'))) ;
+        else continue;
+
+        /* build the potentially HUGE tooltip used by ttshow */
         $title = "";
         if ($enc['formdir'] != 'physical_exam') {
           $frow = sqlQuery("select * from form_" . $enc['formdir'] .
@@ -504,7 +515,8 @@ if ($result = getEncounters($pid)) {
         echo "<tr>\n";
         echo " <td valign='top' colspan='2'></td>\n";
         echo " <td valign='top' " .
-          "onmouseover='ttshow(this,\"$title\")' onmouseout='tthide()'>" .
+          "onmouseover='ttshow(this,\"$title\")' onmouseout='tthide()'".
+          ">" .
           "$linkbeg&nbsp;&nbsp;&nbsp;" .
           $enc['form_name'] . "$linkend</td>\n";
         echo " <td valign='top' colspan='2'>$linkbeg" .
