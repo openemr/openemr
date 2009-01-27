@@ -91,11 +91,11 @@ $_GET['show_all']=='yes' ? $lnkvar="'authorizations.php?show_all=no' name='Just 
 </span>
 <?php } ?>
 
+<div id="pnotes">
 <?php
 // Retrieve all active notes addressed to me (or to anybody)
 $_GET['show_all']=='yes' ? $usrvar='' : $usrvar=$_SESSION['authUser'] ; 
-if ($result=getPnotesByDate("", 1, "id,date,body,pid,user,title,assigned_to",
-  '%', "all", 0, $usrvar))
+if ($result=getPnotesByDate("", 1, "id,date,body,pid,user,title,assigned_to", '%', "all", 0, $usrvar))
 {
   echo "<table border='0'>\n";
   echo " <tr>\n";
@@ -113,7 +113,7 @@ if ($result=getPnotesByDate("", 1, "id,date,body,pid,user,title,assigned_to",
         ' (' . $iter['user'] . ') ' . nl2br($body);
     }
 
-    echo " <tr>\n";
+    echo " <tr class='noterow' id='".$iter['pid']."~".$iter['id']."'>\n";
     echo "  <td valign='top' class='text'>\n";
     echo getPatientName($iter['pid']) . "\n";
     echo "  </td>\n";
@@ -139,6 +139,7 @@ if ($result=getPnotesByDate("", 1, "id,date,body,pid,user,title,assigned_to",
   echo "</table>\n";
 }
 ?>
+</div> <!-- end of pnotes -->
 
 <?php
 if ($imauthorized && $see_auth > 1) {
@@ -314,6 +315,10 @@ $(document).ready(function(){
     $("#min").click(function() { MinimizeFrame(this); });
     $("#max").click(function() { RestoreFrame(this); });
     $("#findpatients").click(function() { RestoreFrame(this); document.location.href='../calendar/find_patient.php?no_nav=1&mode=reset'; return true; });
+    
+    $(".noterow").mouseover(function() { $(this).toggleClass("highlight"); });
+    $(".noterow").mouseout(function() { $(this).toggleClass("highlight"); });
+    $(".noterow").click(function() { EditNote(this); });
 
     var frmset = parent.document.getElementById('Main');
     origRows = frmset.rows;  // save the original frameset sizes
@@ -328,6 +333,21 @@ var RestoreFrame = function(eventObject) {
     // restore the original frameset size
     var frmset = parent.document.getElementById('Main');
     if (origRows != null) { frmset.rows = origRows; }
+}
+
+var EditNote = function(note) {
+    var parts = note.id.split("~");
+<?php if (true): ?>
+    top.restoreSession();
+    <?php if ($GLOBALS['concurrent_layout']): ?>
+    location.href = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/pnotes_full.php?noteid=" + parts[1] + "&set_pid=" + parts[0] + "&active=1";
+    <?php else: ?>
+    top.location.href = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/patient_file.php?noteid=" + parts[1] + "&set_pid=" + parts[0];
+    <?php endif; ?>
+<?php else: ?>
+    // no-op
+    alert('You do not have access to view/edit this note');
+<?php endif; ?>
 }
 
 </script>
