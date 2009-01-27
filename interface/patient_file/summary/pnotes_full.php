@@ -1,21 +1,21 @@
 <?php
- include_once("../../globals.php");
- include_once("$srcdir/pnotes.inc");
- include_once("$srcdir/patient.inc");
- include_once("$srcdir/acl.inc");
+include_once("../../globals.php");
+include_once("$srcdir/pnotes.inc");
+include_once("$srcdir/patient.inc");
+include_once("$srcdir/acl.inc");
 
- if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
-  include_once("$srcdir/pid.inc");
-  setpid($_GET['set_pid']);
- }
+if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
+    include_once("$srcdir/pid.inc");
+    setpid($_GET['set_pid']);
+}
 
- // Check authorization.
- $thisauth = acl_check('patients', 'notes');
- if ($thisauth != 'write' && $thisauth != 'addonly')
-  die("Not authorized.");
- $tmp = getPatientData($pid, "squad");
- if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-  die("Not authorized for this squad.");
+// Check authorization.
+$thisauth = acl_check('patients', 'notes');
+if ($thisauth != 'write' && $thisauth != 'addonly')
+    die("Not authorized.");
+$tmp = getPatientData($pid, "squad");
+if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
+    die("Not authorized for this squad.");
 
 //the number of records to display per screen
 $N = 25;
@@ -61,7 +61,7 @@ if (isset($mode)) {
 $title = '';
 $assigned_to = $_SESSION['authUser'];
 if ($noteid) {
-  $prow = getPnoteById($noteid, 'title,assigned_to');
+  $prow = getPnoteById($noteid, 'title,assigned_to,body');
   $title = $prow['title'];
   $assigned_to = $prow['assigned_to'];
 }
@@ -72,17 +72,27 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
  "WHERE username != '' AND active = 1 AND " .
  "( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
  "ORDER BY lname, fname");
+
+//retrieve all notes
+$result = getPnotesByDate("", $active, 'id,date,body,user,activity,title,assigned_to', $pid, $N, $offset);
+
 ?>
+
 <html>
 <head>
 <?php html_header_show();?>
 
 <link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
 
+<!-- supporting javascript code -->
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
+
 </head>
 <body class="body_top">
 
-<form border='0' method='post' name='new_note' action='pnotes_full.php'>
+<div id="pnotes"> <!-- large outer DIV -->
+
+<form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php'>
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href="pnotes.php" onclick="top.restoreSession()">
@@ -96,10 +106,10 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 
 <br>
 
-<input type='hidden' name='mode' value="new">
-<input type='hidden' name='offset' value="<?php echo $offset ?>">
-<input type='hidden' name='active' value="<?php echo $active ?>">
-<input type='hidden' name='noteid' value="<?php echo $noteid ?>">
+<input type='hidden' name='mode' id="mode" value="new">
+<input type='hidden' name='offset' id="offset" value="<?php echo $offset ?>">
+<input type='hidden' name='active' id="active" value="<?php echo $active ?>">
+<input type='hidden' name='noteid' id="noteid" value="<?php echo $noteid ?>">
 
 <center>
 
@@ -145,7 +155,14 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
  </tr>
  <tr>
   <td>
-   <textarea name='note' rows='4' cols='80' wrap='virtual'></textarea>
+<?php
+if ($noteid) {
+    $body = $prow['body'];
+    $body = nl2br($body);
+    echo "<div class='text' style='background-color:white; color: gray; border:1px solid #999; padding: 5px;'>".$body."</div>";
+}
+?>
+   <textarea name='note' id='note' rows='4' cols='80'></textarea>
   </td>
  </tr>
 </table>
@@ -172,7 +189,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 <br>
 </form>
 
-<form border='0' method='post' name='update_activity' action="pnotes_full.php">
+<form border='0' method='post' name='update_activity' id='update_activity' action="pnotes_full.php">
 
 <?php //change the view on the current mode, whether all, active, or inactive
 $all_class = "link"; $active_class = "link"; $inactive_class = "link";
@@ -183,9 +200,12 @@ if ($active=="all") {
 } elseif ($active==0) {
   $inactive_class="link_selected";
 }
+
 ?>
 
-<br>
+<!-- start of previous notes DIV -->
+<div style="border-top: 1px dashed black; padding-top: 10px;">
+
 <font class='text'><?php xl('View','e'); ?>: </font> 
 <a href="pnotes_full.php?offset=0&active=all" class='<?php echo $all_class;?>'
  onclick='top.restoreSession()'>[<?php xl('All','e'); ?>]</a>
@@ -195,24 +215,23 @@ if ($active=="all") {
  onclick='top.restoreSession()'>[<?php xl('Only Inactive','e'); ?>]</a>
 
 <input type='hidden' name='mode' value="update">
-<input type='hidden' name='offset' value="<?php echo $offset;?>">
-<input type='hidden' name='active' value="<?php echo $active;?>">
-<input type='hidden' name='noteid' value="0">
+<input type='hidden' name='offset' id='noteid' value="<?php echo $offset;?>">
+<input type='hidden' name='active' id='noteid' value="<?php echo $active;?>">
+<input type='hidden' name='noteid' id='noteid' value="0">
 
-<table border='0'>
+<table border='0' style="border-collapse:collapse;">
+<?php if ($result != ""): ?>
  <tr>
-  <td colspan='3' align='left'>
-   <a href="javascript:top.restoreSession();document.update_activity.submit();" class='link_submit'>[<?php xl('Change Activity','e'); ?>]</a>
+  <td colspan='3' style="border-bottom: 1px solid black; padding: 5px;">
+   <input type="button" class="change_activity" value="<?php xl('Change Activity','e'); ?>" />
   </td>
  </tr>
+<?php endif; ?>
 <?
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
 
-//retrieve all notes
 
-if ($result = getPnotesByDate("", $active,
-  'id,date,body,user,activity,title,assigned_to', $pid, $N, $offset))
-{
+if ($result != "") {
   $result_count = 0;
   foreach ($result as $iter) {
     $result_count++;
@@ -231,17 +250,25 @@ if ($result = getPnotesByDate("", $active,
       $checked = "";
     }
 
-    echo " <tr>\n";
-    echo "  <td valign='top'>\n";
+    // highlight the row if it's been selected for updating
+    if ($_REQUEST['noteid'] == $iter['id']) {
+        echo " <tr class='noterow highlightcolor' id='".$iter['id']."'>\n";
+    }
+    else {
+        echo " <tr class='noterow' id='".$iter['id']."'>\n";
+    }
+    echo "  <td class='text bold'>\n";
     echo "   <input type='hidden' name='act" . $iter{"id"} . "' value='1'>\n";
     echo "   <input type='checkbox' name='chk" . $iter{"id"} . "' $checked>\n";
+    echo "  </td><td class='text bold notecell' id='".$iter['id']."'>\n";
 
-    echo "   <a href='javascript:document.forms[1].noteid.value=" .
-         $iter['id'] . ";top.restoreSession();document.update_activity.submit();' " .
-         "class='link_submit'>" . $iter['title'] . "</a>\n";
+//    echo "   <a href='javascript:document.forms[1].noteid.value=" .
+//         $iter['id'] . ";top.restoreSession();document.update_activity.submit();' " .
+//         "class='link_submit'>" . $iter['title'] . "</a>\n";
+    echo $iter['title'];
     echo "  </td>\n";
-    echo "  <td valign='top'>\n";
-    echo "   <font class='text'>$body</font>\n";
+    echo "  <td class='text notecell' id='".$iter['id']."'>\n";
+    echo "   $body";
     echo "  </td>\n";
     echo " </tr>\n";
 
@@ -249,15 +276,18 @@ if ($result = getPnotesByDate("", $active,
   }
 } else {
   //no results
-  print "<tr><td></td><td></td></tr>\n";
+  print "<tr><td colspan='3' class='text'><br>No notes</td></tr>\n";
 }
 
 ?>
+
+<?php if ($result != ""): ?>
  <tr>
-  <td colspan='3' align='left'>
-   <a href="javascript:top.restoreSession();document.update_activity.submit();" class='link_submit'>[<?php xl('Change Activity','e'); ?>]</a>
+  <td colspan='3' align='left' style="padding: 5px;">
+   <input type="button" class="change_activity" value="<?php xl('Change Activity','e'); ?>" />
   </td>
  </tr>
+<?php endif; ?>
 
 </table>
 </form>
@@ -284,6 +314,8 @@ if ($result_count == $N) {
   </td>
  </tr>
 </table>
+
+</div> <!-- close the previous-notes DIV -->
 
 </center>
 
@@ -316,5 +348,35 @@ if ($noteid /* && $title == 'New Document' */ ) {
 
 </script>
 
+</div> <!-- end outer 'pnotes' -->
+
 </body>
+
+<script language="javascript">
+
+// jQuery stuff to make the page a little easier to use
+
+$(document).ready(function(){
+    $(".append").click(function() { top.restoreSession(); document.my_form.submit(); });
+    $(".savenew").click(function() { $("noteid").value(""); });
+//    $(".printform").click(function() { PrintForm(); });
+    $(".change_activity").click(function() { top.restoreSession(); $("#update_activity").submit(); });
+    
+    $(".noterow").mouseover(function() { $(this).toggleClass("highlight"); });
+    $(".noterow").mouseout(function() { $(this).toggleClass("highlight"); });
+    $(".notecell").click(function() { EditNote(this); });
+
+    $("#note").focus();
+});
+
+var EditNote = function(note) {
+    top.restoreSession();
+    $("#noteid").val(note.id);
+    $("#mode").val("");
+    //alert($("#noteid").val());
+    $("#new_note").submit(); 
+}
+
+</script>
+
 </html>

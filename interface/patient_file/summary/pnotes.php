@@ -8,6 +8,7 @@
 <head>
 <?php html_header_show();?>
 
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 </head>
@@ -27,12 +28,9 @@
  }
 ?>
 
-<table border='0' cellspacing='0' cellpadding='0' height='100%'>
-<tr>
+<div id='pnotes'>
 
-<td valign='top'>
-
-<?php if ($thisauth == 'write' || $thisauth == 'addonly') { ?>
+<?php if ($thisauth == 'write' || $thisauth == 'addonly'): ?>
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href="pnotes_full.php" onclick="top.restoreSession()">
@@ -40,13 +38,13 @@
 <a href="pnotes_full.php" target="Main" onclick="top.restoreSession()">
 <?php } ?>
 
-<font class="title"><?php xl('Notes','e'); ?></font><font class=more><?php echo $tmore;?></font>
+<span class="title"><?php xl('Notes','e'); ?></span><span class=more><?php echo $tmore;?></span>
 </a>
-<?php } ?>
+<?php endif; ?>
 
 <br>
 
-<table border='0'>
+<table>
 
 <?php
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
@@ -63,8 +61,8 @@ $sql = "select genericname2, genericval2 " .
 $resnote = $conn->Execute($sql);
 if($resnote && !$resnote->EOF && $resnote->fields['genericname2'] == 'Billing') {
   $billing_note = $resnote->fields['genericval2'];
-  $colorbeg = "<font color='red'>";
-  $colorend = "<font>";
+  $colorbeg = "<span style='color:red'>";
+  $colorend = "</span>";
 }
 
 //Display what the patient owes
@@ -87,23 +85,23 @@ if(is_numeric($ws->value)) {
 }
 *********************************************************************/
 $balance = get_patient_balance($pid);
-if($balance) {
+if ($balance != "0") {
   $formatted = sprintf('$%01.2f', $balance);
-  echo " <tr>\n";
-  echo "  <td>$colorbeg" . "Balance Due$colorend</td><td>$colorbeg$formatted$colorend</td>\n";
+  echo " <tr class='text billing'>\n";
+  echo "  <td>".$colorbeg."Balance Due".$colorend."</td><td>".$colorbeg.$formatted.$colorend."</td>\n";
   echo " </tr>\n";
 }
 
-if($billing_note) {
-  echo " <tr>\n";
-  echo "  <td>$colorbeg" . "Billing Note$colorend</td><td>$colorbeg$billing_note$colorend</td>\n";
+if ($billing_note) {
+  echo " <tr class='text billing'>\n";
+  echo "  <td>".$colorbeg."Billing Note".$colorend."</td><td>".$colorbeg.$billing_note.$colorend."</td>\n";
   echo " </tr>\n";
 }
 
 //retrieve all active notes
-if ($result = getPnotesByDate("", 1, "id,date,body,user,title,assigned_to",
-  $pid, "all", 0))
-{
+$result = getPnotesByDate("", 1, "id,date,body,user,title,assigned_to", $pid, "all", 0);
+
+if ($result != null) {
   $notes_count = 0;//number of notes so far displayed
   foreach ($result as $iter) {
 
@@ -128,15 +126,9 @@ if ($result = getPnotesByDate("", 1, "id,date,body,user,title,assigned_to",
         ' (' . $iter['user'] . ') ' . nl2br($body);
     }
 
-    echo " <tr>\n";
-    echo "  <td valign='top'>\n";
-    echo "   <a href='pnotes_full.php?noteid=" . $iter['id'] . "&active=1'";
-    if (!$GLOBALS['concurrent_layout']) echo " target='Main'";
-    echo " class='bold' onclick='top.restoreSession()'>" . $iter['title'] . "</a>\n";
-    echo "  </td>\n";
-    echo "  <td valign='top'>\n";
-    echo "   <font class='text'>$body</font>\n";
-    echo "  </td>\n";
+    echo " <tr class='noterow' id='".$iter['id']."'>\n";
+    echo "  <td valign='top' class='text bold'>".$iter['title']."</td>\n";
+    echo "  <td valign='top' class='text'>$body</td>\n";
     echo " </tr>\n";
 
     $notes_count++;
@@ -146,9 +138,33 @@ if ($result = getPnotesByDate("", 1, "id,date,body,user,title,assigned_to",
 
 </table>
 
-</td>
-</tr>
-</table>
+</div> <!-- end pnotes -->
 
 </body>
+
+<script language="javascript">
+// jQuery stuff to make the page a little easier to use
+
+$(document).ready(function(){
+    $(".noterow").mouseover(function() { $(this).toggleClass("highlight"); });
+    $(".noterow").mouseout(function() { $(this).toggleClass("highlight"); });
+    $(".noterow").click(function() { EditNote(this); });
+});
+
+var EditNote = function(note) {
+<?php if ($thisauth == 'write' || $thisauth == 'addonly'): ?>
+    top.restoreSession();
+    <?php if (!$GLOBALS['concurrent_layout']): ?>
+    top.Main.location.href = "pnotes_full.php?noteid=" + note.id + "&active=1";
+    <?php else: ?>
+    location.href = "pnotes_full.php?noteid=" + note.id + "&active=1";
+    <?php endif; ?>
+<?php else: ?>
+    // no-op
+    alert('You do not have access to view/edit this note');
+<?php endif; ?>
+}
+
+</script>
+
 </html>
