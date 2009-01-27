@@ -379,7 +379,7 @@ a:hover { color: #A28268; text-decoration: underline; }
   text-decoration:none;
 }
 #prescription_list .onescript {
-    cursor: pointer; cursor: hand;
+    cursor: pointer;
 }
 #prescription_list .inactive {
   color:#777777;
@@ -391,6 +391,33 @@ a:hover { color: #A28268; text-decoration: underline; }
 #prescription_list #print_links {
     width: 100%;
     text-align: right;
+}
+
+/*=============================================================
+ * Patient Notes
+ * seen in the patient summary and notes screens
+ *============================================================*/
+#pnotes .billing {
+    background-color: #dfd;  
+}
+
+#pnotes .highlight {
+    background-color: #fff;
+}
+
+#pnotes table {
+    border-collapse:collapse;
+}
+
+#pnotes .noterow {
+    cursor: pointer; 
+}
+
+#pnotes .noterow td {
+    border-top:1px solid black;
+    vertical-align: top;
+    padding: 5px;
+    margin: 5px;
 }
 
 

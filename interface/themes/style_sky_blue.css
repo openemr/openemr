@@ -295,3 +295,31 @@ font-weight: bold;
     text-align: left;
     padding-right: 30px;
 }
+
+
+/*=============================================================
+ * Patient Notes
+ * seen in the patient summary and notes screens
+ *============================================================*/
+#pnotes .billing {
+    background-color: #dfd;  
+}
+
+#pnotes .highlight {
+    background-color: #fff;
+}
+
+#pnotes table {
+    border-collapse:collapse;
+}
+
+#pnotes .noterow {
+    cursor: pointer; 
+}
+
+#pnotes .noterow td {
+    border-top:1px solid black;
+    vertical-align: top;
+    padding: 5px;
+    margin: 5px;
+}
