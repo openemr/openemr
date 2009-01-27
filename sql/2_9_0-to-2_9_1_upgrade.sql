@@ -13,6 +13,11 @@ ALTER TABLE forms
     ADD deleted TINYINT DEFAULT '0' NOT NULL COMMENT 'flag indicates form has been deleted';
 #EndIf
 
+#IfMissingColumn immunizations vis_date
+ALTER TABLE immunizations
+  ADD `vis_date` date default NULL COMMENT 'Date of VIS Statement';
+#EndIf
+
 #IfNotTable chart_tracker
 CREATE TABLE chart_tracker (
   ct_pid            int(11)       NOT NULL,

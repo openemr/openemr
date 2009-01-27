@@ -1409,6 +1409,7 @@ CREATE TABLE `immunizations` (
   `lot_number` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
   `administered_by_id` bigint(20) default NULL,
   `education_date` date default NULL,
+  `vis_date` date default NULL COMMENT 'Date of VIS Statement', 
   `note` text character set utf8 collate utf8_unicode_ci,
   `create_date` datetime default NULL,
   `update_date` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
