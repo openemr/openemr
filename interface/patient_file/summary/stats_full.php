@@ -30,34 +30,31 @@ require_once("../../../custom/code_types.inc.php");
 <?php html_header_show();?>
 
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+
 <title><?php xl('Patient Issues','e'); ?></title>
 
-<style>
-tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
-tr.detail { font-size:10pt; }
-</style>
-
 <script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
 
 <script language="JavaScript">
 
 // callback from add_edit_issue.php:
 function refreshIssue(issue, title) {
- top.restoreSession();
- location.reload();
+    top.restoreSession();
+    location.reload();
 }
 
-// Process click on issue title.
 function dopclick(id) {
- dlgopen('add_edit_issue.php?issue=' + id, '_blank', 850, 600);
+    <?php if ($thisauth == 'write'): ?>
+    dlgopen('add_edit_issue.php?issue=' + id, '_blank', 550, 400);
+    <?php else: ?>
+    alert("You are not authorized to add/edit issues");
+    <?php endif; ?>
 }
 
 // Process click on number of encounters.
 function doeclick(id) {
- dlgopen('../problem_encounter.php?issue=' + id, '_blank', 700, 500);
- // window.open('../problem_encounter.php?issue=' + id, '_blank',
- //  'menubar=1,resizable=1,scrollbars=1');
- return false;
+    dlgopen('../problem_encounter.php?issue=' + id, '_blank', 550, 400);
 }
 
 // Add Encounter button is clicked.
@@ -78,31 +75,34 @@ function newEncounter() {
 </head>
 
 <body class="body_top">
+<div id='patient_stats'>
+
 <form method='post' action='stats_full.php' onsubmit='return top.restoreSession()'>
 
-<table width='100%' cellpadding='1' cellspacing='2'>
+<table>
  <tr class='head'>
-  <td><?php xl('Type','e'); ?></td>
-  <td><?php xl('Title','e'); ?></td>
-  <td><?php xl('Begin','e'); ?></td>
-  <td><?php xl('End','e'); ?></td>
-  <td><?php xl('Diag','e'); ?></td>
-  <td><?php xl('Occurrence','e'); ?></td>
+  <th><?php xl('Type','e'); ?></th>
+  <th><?php xl('Title','e'); ?></th>
+  <th><?php xl('Begin','e'); ?></th>
+  <th><?php xl('End','e'); ?></th>
+  <th><?php xl('Diag','e'); ?></th>
+  <th><?php xl('Occurrence','e'); ?></th>
 <?php if ($GLOBALS['athletic_team']) { ?>
-  <td><?php xl('Missed','e'); ?></td>
+  <th><?php xl('Missed','e'); ?></th>
 <?php } else { ?>
-  <td><?php xl('RefBy','e'); ?></td>
+  <th><?php xl('Referred By','e'); ?></th>
 <?php } ?>
-  <td><?php xl('Comments','e'); ?></td>
-  <td><?php xl('Enc','e'); ?></td>
+  <th><?php xl('Comments','e'); ?></th>
+  <th><?php xl('Enc','e'); ?></th>
  </tr>
+
 <?php
- $encount = 0;
- $lasttype = "";
- while ($row = sqlFetchArray($pres)) {
-  if ($lasttype != $row['type']) {
-   $encount = 0;
-   $lasttype = $row['type'];
+$encount = 0;
+$lasttype = "";
+while ($row = sqlFetchArray($pres)) {
+    if ($lasttype != $row['type']) {
+        $encount = 0;
+        $lasttype = $row['type'];
 
    /****
    $disptype = $lasttype;
@@ -114,80 +114,106 @@ function newEncounter() {
     case "surgery"        : $disptype = "Surgeries"       ; break;
    }
    ****/
-   $disptype = $ISSUE_TYPES[$lasttype][0];
+        $disptype = $ISSUE_TYPES[$lasttype][0];
 
-   echo " <tr class='detail'>\n";
-   echo "  <td valign='top' colspan='8'><b>$disptype</b></td>\n";
-   echo " </tr>\n";
-  }
+        echo " <tr class='detail'>\n";
+        echo "  <td class='typehead' colspan='9'><b>$disptype</b></td>\n";
+        echo " </tr>\n";
+    }
 
-  $rowid = $row['id'];
+    $rowid = $row['id'];
 
-  $disptitle = trim($row['title']) ? $row['title'] : "[Missing Title]";
+    $disptitle = trim($row['title']) ? $row['title'] : "[Missing Title]";
 
-  $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
-   "list_id = $rowid");
+    // encount is used to toggle the color of the table-row output below
+    ++$encount;
+    $bgclass = (($encount & 1) ? "bg1" : "bg2");
 
-  ++$encount;
-  $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
+    // look up the diag codes
+    $codetext = "";
+    if ($row['diagnosis'] != "") {
+        $diags = explode(";", $row['diagnosis']);
+        foreach ($diags as $diag) {
+            $codedesc = lookup_code_descriptions($diag);
+            $codetext .= $diag." (".$codedesc.")<br>";
+        }
+    }
 
-  echo " <tr class='detail'>\n";
-  echo "  <td valign='top'>&nbsp;</td>\n";
-  if ($thisauth == 'write') {
-   echo "  <td valign='top' id='p_$rowid' onclick='dopclick($rowid)' bgcolor='$bgcolor'>";
-   echo "<a href='' onclick='return false'>$disptitle</a></td>\n";
-  } else {
-   echo "  <td valign='top' id='p_$rowid' bgcolor='$bgcolor'>";
-   echo "$disptitle</td>\n";
-  }
-  echo "  <td valign='top' bgcolor='$bgcolor'>" . $row['begdate'] . "&nbsp;</td>\n";
-  echo "  <td valign='top' bgcolor='$bgcolor'>" . $row['enddate'] . "&nbsp;</td>\n";
-  echo "  <td valign='top' bgcolor='$bgcolor' nowrap>" . lookup_code_descriptions($row['diagnosis']) . "</td>\n";
-  echo "  <td valign='top' bgcolor='$bgcolor' nowrap>" . $ISSUE_OCCURRENCES[$row['occurrence']] . "</td>\n";
-  if ($GLOBALS['athletic_team'])
-   echo "  <td valign='top' align='center' bgcolor='$bgcolor'>" . $row['extrainfo'] . "</td>\n"; // games missed
-  else
-   echo "  <td valign='top' bgcolor='$bgcolor'>" . $row['referredby'] . "</td>\n";
-  echo "  <td valign='top' bgcolor='$bgcolor'>" . $row['comments'] . "</td>\n";
-  echo "  <td valign='top' align='center' id='e_$rowid' onclick='doeclick($rowid)' bgcolor='$bgcolor'>" .
-       "<a href='' onclick='return false'>&nbsp;" . $ierow['count'] . "&nbsp;</a></td>\n";
-  echo " </tr>\n";
- }
+    // output the TD row of info
+    echo " <tr class='$bgclass detail statrow' id='$rowid'>\n";
+    echo "  <td>&nbsp;</td>\n";
+    echo "  <td>$disptitle</td>\n";
+    echo "  <td>" . $row['begdate'] . "&nbsp;</td>\n";
+    echo "  <td>" . $row['enddate'] . "&nbsp;</td>\n";
+    echo "  <td>" . $codetext . "</td>\n";
+    echo "  <td class='nowrap'>" . $ISSUE_OCCURRENCES[$row['occurrence']] . "</td>\n";
+    if ($GLOBALS['athletic_team']) {
+        echo "  <td class='center'>" . $row['extrainfo'] . "</td>\n"; // games missed
+    }
+    else {
+        echo "  <td>" . $row['referredby'] . "</td>\n";
+    }
+    echo "  <td>" . $row['comments'] . "</td>\n";
+    echo "  <td id='e_$rowid' class='noclick center' title='View related encounters'>";
+    echo "  <input type='button' value='".xl('Enc >>')."' class='editenc' id='".$rowid."'/>";
+    echo "  </td>";
+    echo " </tr>\n";
+}
 ?>
 </table>
 
-<center><p>
- <input type='button' value='<?php xl('Add Issue','e'); ?>'
-  onclick='dopclick(0)'
-  style='background-color:transparent' /> &nbsp;
- <input type='button' value='<?php xl('Add Encounter','e'); ?>'
-  onclick='newEncounter()'
-  style='background-color:transparent' /> &nbsp;
- <input type='button' value='<?php xl('To History','e'); ?>'
-<?php if ($GLOBALS['concurrent_layout']) { ?>
-  onclick="top.restoreSession();parent.left_nav.setRadio(window.name,'his');location='../history/history_full.php';"
-<?php } else { ?>
-  onclick="top.restoreSession();location='../history/history_full.php';"
-<?php } ?>
-  style='background-color:transparent' /> &nbsp;
- <input type='button' value='<?php xl('Back','e'); ?>'
-<?php if ($GLOBALS['concurrent_layout']) { ?>
-
-  <?php if( $GLOBALS['dutchpc'] )
-  { ?>
-  onclick="top.restoreSession();parent.left_nav.setRadio(window.name,'dem');location='demographics_dutch.php';"
-  <?php } else
-  { ?>
-  onclick="top.restoreSession();parent.left_nav.setRadio(window.name,'dem');location='demographics.php';"
-  <?php } ?>
-  
-<?php } else { ?>
-  onclick='top.restoreSession();location="patient_summary.php"'
-<?php } ?>
-
-  style='background-color:transparent' />
-</p></center>
+<div style="text-align:center" class="buttons">
+ <input type='button' value='<?php xl('Add Issue','e'); ?>' id='addissue' class='btn' /> &nbsp;
+ <input type='button' value='<?php xl('Add Encounter','e'); ?>' id='newencounter' class='btn' /> &nbsp;
+ <input type='button' value='<?php xl('To History','e'); ?>' id='history' class='btn' /> &nbsp;
+ <input type='button' value='<?php xl('Back','e'); ?>' id='back' class='btn' />
+</div>
 
 </form>
+</div> <!-- end patient_stats -->
+
 </body>
+
+<script language="javascript">
+// jQuery stuff to make the page a little easier to use
+
+$(document).ready(function(){
+    $(".statrow").mouseover(function() { $(this).toggleClass("highlight"); });
+    $(".statrow").mouseout(function() { $(this).toggleClass("highlight"); });
+
+    $(".statrow").click(function() { dopclick(this.id); });
+    $(".editenc").click(function(event) { doeclick(this.id); event.stopPropagation(); });
+    $("#addissue").click(function() { dopclick(0); });
+    $("#newencounter").click(function() { newEncounter(); });
+    $("#history").click(function() { GotoHistory(); });
+    $("#back").click(function() { GoBack(); });
+});
+
+var GotoHistory = function() {
+    top.restoreSession();
+<?php if ($GLOBALS['concurrent_layout']): ?>
+    parent.left_nav.setRadio(window.name,'his');
+    location.href='../history/history_full.php';
+<?php else: ?>
+    location.href='../history/history_full.php';
+<?php endif; ?>
+}
+
+var GoBack = function () {
+    top.restoreSession();
+<?php if ($GLOBALS['concurrent_layout']): ?>
+  <?php if( $GLOBALS['dutchpc'] ): ?>
+    parent.left_nav.setRadio(window.name,'dem');
+    location.href='demographics_dutch.php';
+  <?php else: ?>
+    parent.left_nav.setRadio(window.name,'dem');
+    location.href='demographics.php';
+  <?php endif; ?>
+<?php else: ?>
+    location.href="patient_summary.php";
+<?php endif; ?>
+}
+
+</script>
+
 </html>

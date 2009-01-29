@@ -26,175 +26,192 @@ $fancy_stats = false; // $GLOBALS['athletic_team'];
 
 <body class="body_bottom">
 
+<div id="patient_stats_summary">
+
 <?php
- $thisauth = acl_check('patients', 'med');
- if ($thisauth) {
-  $tmp = getPatientData($pid, "squad");
-  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-   $thisauth = 0;
- }
- if (!$thisauth) {
-  echo "<p>(".xl('Issues not authorized').")</p>\n";
-  echo "</body>\n</html>\n";
-  exit();
- }
+$thisauth = acl_check('patients', 'med');
+if ($thisauth) {
+    $tmp = getPatientData($pid, "squad");
+    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
+        $thisauth = 0;
+}
+if (!$thisauth) {
+    echo "<p>(".xl('Issues not authorized').")</p>\n";
+    echo "</body>\n</html>\n";
+    exit();
+}
 ?>
 
-<table cellpadding='0' cellspacing='0'>
+<table id="patient_stats_issues">
 
 <?php
- $numcols = $fancy_stats ? '7' : '1';
- $ix = 0;
- foreach ($ISSUE_TYPES as $key => $arr) {
-  // $result = getListByType($pid, $key, "id,title,begdate,enddate,returndate,extrainfo", "all", "all", 0);
+$numcols = $fancy_stats ? '7' : '1';
+$ix = 0;
+foreach ($ISSUE_TYPES as $key => $arr) {
+    // $result = getListByType($pid, $key, "id,title,begdate,enddate,returndate,extrainfo", "all", "all", 0);
 
-  $query = "SELECT * FROM lists WHERE pid = $pid AND type = '$key' AND ";
-  if ($fancy_stats) {
-   $query .= "( enddate IS NULL OR returndate IS NULL ) ";
-  } else {
-   $query .= "enddate IS NULL ";
-  }
-  $query .= "ORDER BY begdate";
-  $pres = sqlStatement($query);
-
-  if (mysql_num_rows($pres) > 0 || $ix == 0) {
-   echo " <tr>\n";
-   echo "  <td colspan='$numcols' valign='top'>\n";
-   echo "   <a href='stats_full.php?active=all' target='";
-   echo $GLOBALS['concurrent_layout'] ? "_parent" : "Main";
-   echo "' onclick='top.restoreSession()'><font class='title'>" .
-        $arr[0] . "</font><font class='more'>$tmore</font></a>\n";
-   echo "  </td>\n";
-   echo " </tr>\n";
-
-   // Show headers if this is a long line.
-   if ($fancy_stats && $arr[3] == 0 && mysql_num_rows($pres) > 0) {
-    echo " <tr>\n";
-    echo "  <td class='link'>&nbsp;&nbsp;<b>" .xl('Title'). "</b></td>\n";
-    echo "  <td class='link'>&nbsp;<b>" .xl('Diag'). "</b></td>\n";
-    echo "  <td class='link'>&nbsp;<b>" .xl('Start'). "</b></td>\n";
-    echo "  <td class='link'>&nbsp;<b>" .xl('Return'). "</b></td>\n";
-    echo "  <td class='link'>&nbsp;<b>" .xl('Games'). "</b></td>\n";
-    echo "  <td class='link' align='right'>&nbsp;<b>" .xl('Days'). "</b></td>\n";
-    echo "  <td class='link' align='right'>&nbsp;<b>" .xl('Enc'). "</b></td>\n";
-    echo " </tr>\n";
-   }
-
-   while ($row = sqlFetchArray($pres)) {
-    $rowcolor = '#000000';
-    if (!$row['enddate'] && !$row['returndate'])
-     $rowcolor = '#ee0000';
-    else if (!$row['enddate'] && $row['returndate'])
-     $rowcolor = '#dd5500';
-    else if ($row['enddate'] && !$row['returndate'])
-     $rowcolor = '#0000ff';
-
-    echo " <tr style='color:$rowcolor;'>\n";
-
-    if ($fancy_stats && $arr[3] == 0) {
-     $endsecs = $row['returndate'] ? strtotime($row['returndate']) : time();
-     $daysmissed = round(($endsecs - strtotime($row['begdate'])) / (60 * 60 * 24));
-     $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter " .
-      "WHERE list_id = '" . $row['id'] . "'");
-     // echo "  <td><a class='link' target='Main' href='stats_full.php?active=1'>" .
-     //      $row['title'] . "</a></td>\n";
-     echo "  <td class='link' style='color:$rowcolor;'>&nbsp;&nbsp;" . $row['title'] . "</td>\n";
-     echo "  <td class='link' style='color:$rowcolor;'>&nbsp;" . $row['diagnosis'] . "</td>\n";
-     echo "  <td class='link' style='color:$rowcolor;'>&nbsp;" . $row['begdate'] . "</td>\n";
-     echo "  <td class='link' style='color:$rowcolor;'>&nbsp;" . $row['returndate'] . "</td>\n";
-     echo "  <td class='link' style='color:$rowcolor;'>&nbsp;" . $row['extrainfo'] . "</td>\n";
-     echo "  <td class='link' style='color:$rowcolor;' align='right'>&nbsp;$daysmissed</td>\n";
-     echo "  <td class='link' style='color:$rowcolor;' align='right'>&nbsp;" . $ierow['count'] . "</td>\n";
+    $query = "SELECT * FROM lists WHERE pid = $pid AND type = '$key' AND ";
+    if ($fancy_stats) {
+        $query .= "( enddate IS NULL OR returndate IS NULL ) ";
     } else {
-     echo "  <td colspan='$numcols' class='link'>&nbsp;&nbsp;" . $row['title'] . "</td>\n";
+        $query .= "enddate IS NULL ";
+    }
+    $query .= "ORDER BY begdate";
+    $pres = sqlStatement($query);
+
+    if (mysql_num_rows($pres) > 0 || $ix == 0) {
+
+        // output a header for the $ISSUE_TYPE
+        echo " <tr class='issuetitle'>\n";
+        echo "  <td colspan='$numcols'>\n";
+        echo "   <a href='stats_full.php?active=all' target='";
+        echo $GLOBALS['concurrent_layout'] ? "_parent" : "Main";
+        echo "' onclick='top.restoreSession()'><span class='title'>" .
+                $arr[0] . "</span> <span class='more'>$tmore</span></a>\n";
+        echo "  </td>\n";
+        echo " </tr>\n";
+
+        // Show headers if this is a long line.
+        if ($fancy_stats && $arr[3] == 0 && mysql_num_rows($pres) > 0) {
+            echo " <tr class='issueheaders'>\n";
+            echo "  <td>&nbsp;&nbsp;<b>" .xl('Title'). "</b></td>\n";
+            echo "  <td>&nbsp;<b>" .xl('Diag'). "</b></td>\n";
+            echo "  <td>&nbsp;<b>" .xl('Start'). "</b></td>\n";
+            echo "  <td>&nbsp;<b>" .xl('Return'). "</b></td>\n";
+            echo "  <td>&nbsp;<b>" .xl('Games'). "</b></td>\n";
+            echo "  <td class='right'>&nbsp;<b>" .xl('Days'). "</b></td>\n";
+            echo "  <td class='right'>&nbsp;<b>" .xl('Enc'). "</b></td>\n";
+            echo " </tr>\n";
+        }
+
+        while ($row = sqlFetchArray($pres)) {
+            // output each issue for the $ISSUE_TYPE
+            if (!$row['enddate'] && !$row['returndate'])
+                $rowclass="noend_noreturn";
+            else if (!$row['enddate'] && $row['returndate'])
+                $rowclass="noend";
+            else if ($row['enddate'] && !$row['returndate'])
+                $rowclass = "noreturn";
+
+            echo " <tr class='$rowclass;'>\n";
+
+            if ($fancy_stats && $arr[3] == 0) {
+                $endsecs = $row['returndate'] ? strtotime($row['returndate']) : time();
+                $daysmissed = round(($endsecs - strtotime($row['begdate'])) / (60 * 60 * 24));
+                $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter " .
+                                "WHERE list_id = '" . $row['id'] . "'");
+                // echo "  <td><a class='link' target='Main' href='stats_full.php?active=1'>" .
+                //      $row['title'] . "</a></td>\n";
+                echo "  <td>&nbsp;&nbsp;" . $row['title'] . "</td>\n";
+                echo "  <td>&nbsp;" . $row['diagnosis'] . "</td>\n";
+                echo "  <td>&nbsp;" . $row['begdate'] . "</td>\n";
+                echo "  <td>&nbsp;" . $row['returndate'] . "</td>\n";
+                echo "  <td>&nbsp;" . $row['extrainfo'] . "</td>\n";
+                echo "  <td class='right'>&nbsp;$daysmissed</td>\n";
+                echo "  <td class='right'>&nbsp;" . $ierow['count'] . "</td>\n";
+            } else {
+                echo "  <td colspan='$numcols'>&nbsp;&nbsp;" . $row['title'] . "</td>\n";
+            }
+
+            echo " </tr>\n";
+        }
+        // echo "  </td>\n";
+        // echo " </tr>\n";
     }
 
-    echo " </tr>\n";
-   }
-   // echo "  </td>\n";
-   // echo " </tr>\n";
-  }
-
-  ++$ix;
- }
-
- // Show spreadsheet forms if any are present.
- //
- $need_head = true;
- foreach (array('treatment_protocols','injury_log') as $formname) {
-  if (mysql_num_rows(sqlStatement("SHOW TABLES LIKE 'form_$formname'")) > 0) {
-   $dres = sqlStatement("SELECT tp.id, tp.value FROM forms, " .
-    "form_$formname AS tp WHERE forms.pid = $pid AND " .
-    "forms.formdir = '$formname' AND tp.id = forms.form_id AND " .
-    "tp.rownbr = -1 AND tp.colnbr = -1 AND tp.value LIKE '0%' " .
-    "ORDER BY tp.value DESC");
-   if (mysql_num_rows($dres) > 0 && $need_head) {
-    $need_head = false;
-    echo " <tr>\n";
-    echo "  <td colspan='$numcols' valign='top'>\n";
-    echo "   <font class='title'>Injury Log</font>\n";
-    echo "  </td>\n";
-    echo " </tr>\n";
-   }
-   while ($row = sqlFetchArray($dres)) {
-    list($completed, $start_date, $template_name) = explode('|', $row['value'], 3);
-    echo " <tr>\n";
-    echo "  <td colspan='$numcols'>&nbsp;&nbsp;";
-    echo "<a class='link' target='_blank' ";
-    echo "href='../../forms/$formname/new.php?popup=1&id=";
-    echo $row['id'] . "' onclick='top.restoreSession()'>$start_date $template_name</a></td>\n";
-    echo " </tr>\n";
-   }
-  }
- }
+    ++$ix;
+}
 ?>
+</table> <!-- end patient_stats_issues -->
+
+<table id="patient_stats_spreadsheets">
+<?php
+
+// Show spreadsheet forms if any are present.
+//
+$need_head = true;
+foreach (array('treatment_protocols','injury_log') as $formname) {
+    if (mysql_num_rows(sqlStatement("SHOW TABLES LIKE 'form_$formname'")) > 0) {
+        $dres = sqlStatement("SELECT tp.id, tp.value FROM forms, " .
+                            "form_$formname AS tp WHERE forms.pid = $pid AND " .
+                            "forms.formdir = '$formname' AND tp.id = forms.form_id AND " .
+                            "tp.rownbr = -1 AND tp.colnbr = -1 AND tp.value LIKE '0%' " .
+                            "ORDER BY tp.value DESC");
+        if (mysql_num_rows($dres) > 0 && $need_head) {
+            $need_head = false;
+            echo " <tr>\n";
+            echo "  <td colspan='$numcols' valign='top'>\n";
+            echo "   <span class='title'>Injury Log</span>\n";
+            echo "  </td>\n";
+            echo " </tr>\n";
+        }
+        while ($row = sqlFetchArray($dres)) {
+            list($completed, $start_date, $template_name) = explode('|', $row['value'], 3);
+            echo " <tr>\n";
+            echo "  <td colspan='$numcols'>&nbsp;&nbsp;";
+            echo "<a class='link' target='_blank' ";
+            echo "href='../../forms/$formname/new.php?popup=1&id=";
+            echo $row['id'] . "' onclick='top.restoreSession()'>$start_date $template_name</a></td>\n";
+            echo " </tr>\n";
+        }
+    }
+}
+?>
+</table> <!-- end patient_stats_spreadsheets -->
 
 <?php if (!$GLOBALS['weight_loss_clinic']) { ?>
-<tr>
+<table id="patient_stats_imm">
+<tr class='issuetitle'>
 <td colspan='<?php echo $numcols ?>' valign='top'>
 <a href="immunizations.php"
  target="<?php echo $GLOBALS['concurrent_layout'] ? "_parent" : "Main"; ?>"
  onclick="top.restoreSession()">
-<font class="title"><?php xl('Immunizations','e'); ?></font>
-<font class=more><?php echo $tmore;?></font></a><br>
+<span class="title"><?php xl('Immunizations','e'); ?></span>
+<span class=more><?php echo $tmore;?></span></a>
+</td></tr>
+<tr><td>
 
 <?php
-  $sql = "select if(i1.administered_date
-    ,concat(i1.administered_date,' - ',i2.name)
-    ,substring(i1.note,1,20)
-    ) as immunization_data
-    from immunizations i1
-    left join immunization i2
-    on i1.immunization_id = i2.id
-    where i1.patient_id = $pid
-    order by administered_date desc";
+  $sql = "select i1.id as id, ".
+         " if (i1.administered_date, concat(i1.administered_date,' - ',i2.name), substring(i1.note,1,20)) as immunization_data ".
+         " from immunizations i1 ".
+         " left join immunization i2 ".
+         " on i1.immunization_id = i2.id ".
+         " where i1.patient_id = $pid ".
+         " order by administered_date desc";
 
   $result = sqlStatement($sql);
 
   while ($row=sqlFetchArray($result)){
+    echo "&nbsp;&nbsp;";
     echo "<a class='link' target='";
     echo $GLOBALS['concurrent_layout'] ? "_parent" : "Main";
-    echo "' href='immunizations.php' onclick='top.restoreSession()'>" .
+    echo "' href='immunizations.php?mode=edit&id=".$row['id']."' onclick='top.restoreSession()'>" .
     $row{'immunization_data'} . "</a><br>\n";
   }
 ?>
 </td>
 </tr>
+</table> <!-- end patient_stats_imm-->
 <?php } ?>
 
-<tr>
-<td colspan='<?php echo $numcols ?>' valign='top'>
+
+<table id="patient_stats_prescriptions">
+<tr><td colspan='<?php echo $numcols ?>' class='issuetitle'>
+<span class='title'><?php echo xl('Prescriptions'); ?></span>
+</td></tr>
+</tr><td>
 <?php
 $cwd= getcwd();
 chdir("../../../");
 require_once("library/classes/Controller.class.php");
 $c = new Controller();
-echo '<font class="title">'.xl('Prescriptions').'</font>';
 echo $c->act(array("prescription" => "", "block" => "", "patient_id" => $pid));
 ?>
-</td>
-</tr>
-</table>
+</td></tr>
+</table> <!-- end patient_stats_prescriptions -->
+
+</div> <!-- end patient_stats_summary -->
 
 </body>
 </html>
