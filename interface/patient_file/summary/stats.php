@@ -178,7 +178,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
          " left join immunization i2 ".
          " on i1.immunization_id = i2.id ".
          " where i1.patient_id = $pid ".
-         " order by administered_date desc";
+         " order by i2.name, i1.administered_date desc";
 
   $result = sqlStatement($sql);
 
