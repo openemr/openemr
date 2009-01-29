@@ -123,6 +123,9 @@ a:hover { color: #A28268; text-decoration: underline; }
     font-size: 70%;
 }
 
+.center { text-align:center; }
+.right { text-align:right; }
+
 /* this class is used sporadically through the application as an 
  * alternative to the typical anchor
  */
@@ -391,6 +394,150 @@ a:hover { color: #A28268; text-decoration: underline; }
 #prescription_list #print_links {
     width: 100%;
     text-align: right;
+}
+
+
+/*=============================================================
+ * Immunizations
+ * seen in the patient immunization screen
+ *============================================================*/
+#immunization_list {
+    width: 100%;
+    text-align: center;
+}
+
+#immunization_list table {
+    border-collapse: collapse;
+    border: 1px solid black;
+    background-color: white;
+    width: 99%;
+}
+
+#immunization_list table th {
+    background-color: #ddd;
+}
+
+#immunization_list table td {
+    border-top: 1px solid black;
+}
+
+#immunization_list .selected {
+    background-color: #6699cc;
+    color: white;
+} 
+
+#immunization_list .highlight {
+    background-color: #336699;
+    color: white;
+    cursor: pointer;
+}    
+
+#immunization_list button {
+    font-size: 0.8em;
+}
+
+
+/*=============================================================
+ * Patient Stats
+ * seen in the patient stats screens
+ *============================================================*/
+#patient_stats {
+    width: 100%;
+    padding: 10px;
+}
+
+#patient_stats table {
+    width: 100%;
+    border-collapse: collapse;
+}
+#patient_stats td {
+    padding: 3px;
+}
+#patient_stats .statrow {
+    cursor: pointer;
+}
+
+#patient_stats .head {
+    font-size: 0.8em;
+}
+
+#patient_stats .detail {
+    font-size: 0.8em;
+    vertical-align: top;
+}
+
+#patient_stats .buttons {
+    margin: 10px;
+}
+
+#patient_stats .btn {
+}
+
+#patient_stats .bg1 {
+    background-color: #fff;
+}
+#patient_stats .bg2 {
+    background-color: #ffd;
+}
+
+#patient_stats .nowrap {
+    white-space: nowrap;
+}
+#patient_stats .typehead {
+    border-top: 2px solid black;
+    background-color: #ddd;
+}
+
+#patient_stats .highlight {
+    background-color: #336699;
+    color: white;
+}    
+
+
+
+/*=============================================================
+ * Patient Stats Summary
+ * seen in the patient summary screen
+ *============================================================*/
+#patient_stats_summary {
+    width:100%;
+}
+#patient_stats_summary table {
+    border-collapse: collapse;
+    background-color: white;
+}
+#patient_stats_summary .noend_noreturn {
+    color: #ee0000;
+}
+#patient_stats_summary .noend {
+    color: #dd5500;
+}
+#patient_stats_summary .noreturn {
+    color: #0000ff;
+}
+#patient_stats_summary .title {
+    font-size: 1.1em;
+}
+#patient_stats_summary .more {
+    font-size: 0.8em;
+}
+#patient_stats_summary .issuetitle {
+    background-color: #ddd;
+}
+#patient_stats_issues {
+    width: 100%;
+}
+#patient_stats_issues td {
+    color: black;
+}
+#patient_stats_spreadsheets {
+    width: 100%;
+}
+#patient_stats_imm {
+    width: 100%;
+}
+#patient_stats_prescriptions {
+    width: 100%;
 }
 
 /*=============================================================

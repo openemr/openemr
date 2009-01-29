@@ -323,3 +323,84 @@ font-weight: bold;
     padding: 5px;
     margin: 5px;
 }
+
+
+/*=============================================================
+ * Patient Stats
+ * seen in the patient stats screens
+ *============================================================*/
+#patient_stats {
+    width: 100%;
+    padding: 10px;
+}
+
+#patient_stats table {
+    width: 100%;
+    border-collapse: collapse;
+}
+#patient_stats td {
+    padding: 3px;
+}
+#patient_stats .statrow {
+    cursor: pointer;
+}
+
+#patient_stats .head {
+    font-size:10pt;
+    background-color:#cccccc;
+    text-align:center;
+}
+
+#patient_stats .detail {
+    font-size:10pt;
+    vertical-align: top;
+}
+
+#patient_stats .btn {
+    background-color:transparent;
+}
+
+#patient_stats .bg1 {
+    background-color: #ddddff;
+}
+#patient_stats .bg2 {
+    background-color: #ffdddd;
+}
+
+#patient_stats .center {
+    text-align: center;
+}
+
+
+/*=============================================================
+ * Patient Stats Summary
+ * seen in the patient summary screen
+ *============================================================*/
+#patient_stats_summary table {
+    border-collapse: collapse;
+}
+#patient_stats_summary .noend_noreturn {
+    color: #ee0000;
+}
+#patient_stats_summary .noend {
+    color: #dd5500;
+}
+#patient_stats_summary .noreturn {
+    color: #0000ff;
+}
+#patient_stats_summary .title {
+    font-size: 1.1em;
+}
+#patient_stats_issues {
+    width: 100%;
+}
+#patient_stats_spreadsheets {
+    width: 100%;
+}
+#patient_stats_imm {
+    width: 100%;
+}
+#patient_stats_prescriptions {
+    width: 100%;
+}
+
