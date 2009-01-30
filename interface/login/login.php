@@ -51,9 +51,7 @@ if (count($result) == 1) {
 </td>
 <td align='center' valign='middle' width=34%>
 <table>
-<?php
-if (count($result) != 1) {
-?>
+<?php if (count($result) != 1) { ?>
 <tr>
 <td><span class="text"><?php xl('Group:','e'); ?></span></td>
 <td>
@@ -65,17 +63,22 @@ if (count($result) != 1) {
 ?>
 </select>
 </td></tr>
-<?php
-}
-?>
+<?php } ?>
+
+<?php if ($_SESSION['loginfailure'] == 1): ?>
+<tr><td colspan='2' class='text' style='color:red'>
+Invalid username or password
+</td></tr>
+<?php endif; ?>
+
 <tr>
 <td><span class="text"><?php xl('Username:','e'); ?></span></td>
 <td>
-<input type="entry" size=10 name=authUser>
+<input type="text" size="10" name="authUser">
 </td></tr><tr>
 <td><span class="text"><?php xl('Password:','e'); ?></span></td>
 <td>
-<input type="password" size=10 name=clearPass>
+<input type="password" size="10" name="clearPass">
 </td></tr>
 <tr><td>&nbsp;</td><td>
 <input type="hidden" name="authPass">

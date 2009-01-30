@@ -12,9 +12,12 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
     if (!authNewSession($_POST['authUser'], $_POST['authPass'], $_POST['authProvider']))
     {
         newEvent("login",$_POST['authUser'], $_POST['authProvider'], "failure");
+        $_SESSION['loginfailure'] = 1;
         authLoginScreen();
     }
     newEvent("login", $_POST['authUser'], $_POST['authProvider'], "success");
+    $_SESSION['loginfailure'] = null;
+    unset($_SESSION['loginfailure']);
     //store the very first initial timestamp for timeout errors
     $_SESSION["last_update"] = time();
 }
@@ -71,12 +74,12 @@ function authNewSession ($user, $pass, $provider)
     //session_name("OpenEMR");
     //session_id("81279258720".str_replace(".", "", $_SERVER['REMOTE_ADDR']));
     if(!session_id()) { session_start(); }
-    //echo "user is: $user pass is: $pass provider is: $provider<br />";
 
     //(CHEMED) added cal_ui to the list of fields, so we can change calendar UI for this user.
     // Is this the right place to do it?
     $authDB = sqlQuery("select id, password, authorized, see_auth, cal_ui from users " .
         "where username = '$user'");
+    //echo "user is: $user pass is: $pass provider is: $provider<br />";
     //echo "<br>auth pass: ".$authDB['password'];
     if ($authDB['password'] == $pass)
     {
@@ -139,7 +142,7 @@ function authCloseSession ()
 function authLoginScreen()
 {
     //header("Location: https://{$_SERVER['HTTP_HOST']}{$GLOBALS['login_screen']}");
-    header("Location: {$GLOBALS['login_screen']}");
+    header("Location: {$GLOBALS['login_screen']}?error=1");
     exit;
 }
 
