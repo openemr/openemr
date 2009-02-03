@@ -122,6 +122,7 @@ function genEndRow() {
   }
 }
 
+/*********************************************************************
 function genAnyCell($data, $right=false, $class='') {
   global $cellcount;
   if ($_POST['form_csvexport']) {
@@ -135,6 +136,29 @@ function genAnyCell($data, $right=false, $class='') {
     echo ">$data</td>\n";
   }
   ++$cellcount;
+}
+*********************************************************************/
+
+// Usually this generates one cell, but allows for two or more.
+//
+function genAnyCell($data, $right=false, $class='') {
+  global $cellcount;
+  if (!is_array($data)) {
+    $data = array(0 => $data);
+  }
+  foreach ($data as $datum) {
+    if ($_POST['form_csvexport']) {
+      if ($cellcount) echo ',';
+      echo '"' . $datum . '"';
+    }
+    else {
+      echo "  <td";
+      if ($class) echo " class='$class'";
+      if ($right) echo " align='right'";
+      echo ">$datum</td>\n";
+    }
+    ++$cellcount;
+  }
 }
 
 function genHeadCell($data, $right=false) {
@@ -268,7 +292,7 @@ function getGcacClientStatus($row) {
 // Helper function called after the reporting key is determined for a row.
 //
 function loadColumnData($key, $row) {
-  global $areport, $arr_titles, $form_cors;
+  global $areport, $arr_titles, $form_cors, $from_date, $to_date;
 
   // global $previous_pid;
   // if ($form_cors == '2' && $row['pid'] == $previous_pid) return;
@@ -292,6 +316,17 @@ function loadColumnData($key, $row) {
   // Skip this key if we are counting unique patients and the key
   // has already seen this patient.
   if ($form_cors == '2' && $row['pid'] == $areport[$key]['prp']) return;
+
+  // If we are counting new acceptors, then require a unique patient
+  // whose contraceptive start date is within the reporting period.
+  if ($form_cors == '3') {
+    if ($row['pid'] == $areport[$key]['prp']) return;
+    // Check contraceptive start date.
+    if (!$row['contrastart'] || $row['contrastart'] < $from_date ||
+      $row['contrastart'] > $to_date) return;
+  }
+
+  // Flag this patient as having been encountered for this report row.
   $areport[$key]['prp'] = $row['pid'];
 
   /*******************************************************************
@@ -668,7 +703,7 @@ function process_referral($row) {
 
    <select name='form_cors' title='<?php xl('Counting services provided, or unique clients?','e'); ?>'>
 <?php
-  foreach (array(1 => xl('Services'), 2 => xl('Unique Clients')) as $key => $value) {
+  foreach (array(1 => xl('Services'), 2 => xl('Unique Clients'), 3 => xl('New Acceptors')) as $key => $value) {
     echo "    <option value='$key'";
     if ($key == $form_cors) echo " selected";
     echo ">$value</option>\n";
@@ -725,7 +760,7 @@ function process_referral($row) {
       $query = "SELECT " .
         "t.refer_related_code, t.pid, " .
         "pd.sex, pd.DOB, pd.lname, pd.fname, pd.mname, pd.userlist5, " .
-        "pd.country_code, pd.status, pd.state, pd.occupation " .
+        "pd.country_code, pd.status, pd.state, pd.occupation, pd.contrastart " .
         "FROM transactions AS t " .
         "JOIN patient_data AS pd ON pd.pid = t.pid $sexcond" .
         "WHERE t.title = 'Referral' AND t.refer_date >= '$from_date' AND " .
@@ -766,7 +801,7 @@ function process_referral($row) {
       $query = "SELECT " .
         "fe.pid, fe.encounter, fe.date AS encdate, " .
         "pd.sex, pd.DOB, pd.lname, pd.fname, pd.mname, pd.userlist5, " .
-        "pd.country_code, pd.status, pd.state, pd.occupation, " .
+        "pd.country_code, pd.status, pd.state, pd.occupation, pd.contrastart, " .
         "b.code_type, b.code, " .
         "c.related_code, lo.title " .
         "FROM form_encounter AS fe " .
@@ -815,7 +850,13 @@ function process_referral($row) {
     } // end not csv export
 
     genStartRow("bgcolor='#dddddd'");
-    genHeadCell($arr_by[$form_by]);
+
+    // If the key is an MA or IPPF code, then add a column for its description.
+    if ($form_by === '4' || $form_by === '102' || $form_by === '9') {
+      genHeadCell(array($arr_by[$form_by], xl('Description')));
+    } else {
+      genHeadCell($arr_by[$form_by]);
+    }
 
     // Generate headings for values to be shown.
     foreach ($form_show as $value) {
@@ -881,6 +922,8 @@ function process_referral($row) {
       $bgcolor = (++$encount & 1) ? "#ddddff" : "#ffdddd";
 
       $dispkey = $key;
+
+      /***************************************************************
       if ($form_by === '4') {
         // Append IPPF service descriptions to their codes.
         $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
@@ -892,6 +935,16 @@ function process_referral($row) {
         $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
           "code_type = '12' AND code = '$key' ORDER BY id LIMIT 1");
         if (!empty($crow['code_text'])) $dispkey .= ' ' . $crow['code_text'];
+      }
+      ***************************************************************/
+
+      // If the key is an MA or IPPF code, then add a column for its description.
+      if ($form_by === '4' || $form_by === '102' || $form_by === '9') {
+        $dispkey = array($key, '');
+        $type = $form_by === '4' ? 11 : 12; // IPPF or MA
+        $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
+          "code_type = '$type' AND code = '$key' ORDER BY id LIMIT 1");
+        if (!empty($crow['code_text'])) $dispkey[1] = $crow['code_text'];
       }
 
       genStartRow("bgcolor='$bgcolor'");
@@ -960,7 +1013,14 @@ function process_referral($row) {
     if (! $_POST['form_csvexport']) {
       // Generate the line of totals.
       genStartRow("bgcolor='#dddddd'");
-      genHeadCell("Totals");
+
+      // If the key is an MA or IPPF code, then add a column for its description.
+      if ($form_by === '4' || $form_by === '102' || $form_by === '9') {
+        genHeadCell(array(xl('Totals'), ''));
+      } else {
+        genHeadCell(xl('Totals'));
+      }
+
       for ($cnum = 0; $cnum < count($atotals); ++$cnum) {
         genHeadCell($atotals[$cnum], true);
       }
