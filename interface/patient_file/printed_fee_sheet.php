@@ -12,6 +12,9 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/classes/Address.class.php");
 require_once("$srcdir/classes/InsuranceCompany.class.php");
 
+$lines_per_page = 55;
+$lines_in_stats = 16;
+
 // This file is optional.  You can create it to customize how the printed
 // fee sheet looks, otherwise you'll get a mirror of your actual fee sheet.
 //
@@ -23,6 +26,15 @@ if (!$fontsize) $fontsize = 7;
 $page_height = trim($_REQUEST['page_height']) + 0;
 if (!$page_height) $page_height = 700;
 $padding = 0;
+
+// The $SBCODES table is a simple indexed array whose values are
+// strings of the form "code|text" where code may be either a billing
+// code or one of the following:
+//
+// *H - A main heading, where "text" is its title (to be centered).
+// *G - Specifies a new category, where "text" is its name.
+// *B - A borderless blank row.
+// *C - Ends the current column and starts a new one.
 
 // If $SBCODES is not provided, then manufacture it from the Fee Sheet.
 //
@@ -71,12 +83,30 @@ if (empty($SBCODES)) {
     }
   }
 
-  // Extra stuff for the labs section and splitting evenly into 3 columns.
+  // Extra stuff for the labs section.
   $SBCODES[] = '*G|' . xl('Additional Labs');
   $percol = intval((count($SBCODES) + 2) / 3);
   while (count($SBCODES) < $percol * 3) $SBCODES[] = '*B|';
-  array_splice($SBCODES, $percol*2, 0, '*C|'); // ends 2nd column
-  array_splice($SBCODES, $percol*1, 0, '*C|'); // ends 1st column
+
+  // Adjust lines per page to distribute lines evenly among the pages.
+  $pages = intval(($percol + $lines_in_stats + $lines_per_page - 1) / $lines_per_page);
+  $lines_per_page = intval($percol + $lines_in_stats + $pages - 1) / $pages;
+
+  // Figure out page and column breaks.
+  $pages = 1;
+  $lines = $percol;
+  $page_start_index = 0;
+  while ($lines + $lines_in_stats > $lines_per_page) {
+    ++$pages;
+    $lines_this_page = $lines > $lines_per_page ? $lines_per_page : $lines;
+    $lines -= $lines_this_page;
+    array_splice($SBCODES, $lines_this_page*3 + $page_start_index, 0, '*C|');
+    array_splice($SBCODES, $lines_this_page*2 + $page_start_index, 0, '*C|');
+    array_splice($SBCODES, $lines_this_page*1 + $page_start_index, 0, '*C|');
+    $page_start_index += $lines_this_page * 3 + 3;
+  }
+  array_splice($SBCODES, $lines*2 + $page_start_index, 0, '*C|');
+  array_splice($SBCODES, $lines*1 + $page_start_index, 0, '*C|');
 }
 ?>
 <html>
@@ -151,8 +181,8 @@ function genColumn($ix) {
   for ($imax = count($SBCODES); $ix < $imax; ++$ix) {
     $a = explode('|', $SBCODES[$ix], 2);
     $cmd = trim($a[0]);
-    if ($cmd == '*C') {
-      return ++$ix; // column break
+    if ($cmd == '*C') { // column break
+      return ++$ix;
     }
     if ($cmd == '*B') { // Borderless and empty
       echo "<tr><td colspan='5' class='fscode' style='border-width:0 1px 0 0;padding-top:1px;' nowrap>&nbsp;</td></tr>\n";
@@ -226,6 +256,8 @@ $cindex = 0;
  onsubmit='return top.restoreSession()'>
 <center>
 
+<?php while (--$pages >= 0) { ?>
+
 <table class='bordertbl' cellspacing='0' cellpadding='0' width='100%'>
  <tr>
   <td valign='top'>
@@ -239,6 +271,9 @@ $cindex = 0;
 <?php
   $cindex = genColumn($cindex); // Column 1
 ?>
+
+<?php if ($pages == 0) { // if this is the last page ?>
+
     <tr>
      <td colspan='3' valign='top' class='fshead' style='height:50pt'>
       Patient:<br>
@@ -314,6 +349,9 @@ else {
       Notes:<br>
      </td>
     </tr>
+
+<?php } // end if last page ?>
+
    </table>
   </td>
   <td valign='top'>
@@ -327,6 +365,9 @@ else {
 <?php
   $cindex = genColumn($cindex); // Column 2
 ?>
+
+<?php if ($pages == 0) { // if this is the last page ?>
+
     <tr>
      <td colspan='4' valign='top' class='fshead' style='height:100pt'>
       Additional procedures:<br>
@@ -337,6 +378,9 @@ else {
       Diagnosis:<br>
      </td>
     </tr>
+
+<?php } // end if last page ?>
+
    </table>
   </td>
   <td valign='top'>
@@ -350,6 +394,9 @@ else {
 <?php
   $cindex = genColumn($cindex); // Column 3
 ?>
+
+<?php if ($pages == 0) { // if this is the last page ?>
+
     <tr>
      <td valign='top' colspan='4' class='fshead' style='height:150pt;border-width:0 1px 0 0'>
       &nbsp;
@@ -360,11 +407,16 @@ else {
       M.D. Signature:<br>
      </td>
     </tr>
+
+<?php } // end if last page ?>
+
    </table>
   </td>
  </tr>
 
 </table>
+
+<?php } // end while ?>
 
 <div id='hideonprint'>
 <p>
