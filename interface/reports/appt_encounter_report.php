@@ -1,5 +1,5 @@
-<?php 
- // Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
+<?php
+ // Copyright (C) 2005-2009 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -301,8 +301,10 @@
    $bres = sqlStatement($query);
    //
    while ($brow = sqlFetchArray($bres)) {
-    if (! $brow['billed']) $billed = "";
-    if (! $brow['authorized']) $errmsg = "Needs Auth";
+    if ($code_types[$brow['code_type']]['fee'] && !$brow['billed'])
+      $billed = "";
+    if (!$GLOBALS['simplified_demographics'] && !$brow['authorized'])
+      $errmsg = "Needs Auth";
     if ($code_types[$brow['code_type']]['just']) {
      if (! $brow['justify']) $errmsg = "Needs Justify";
     }
@@ -313,9 +315,16 @@
      $charges += $brow['fee'];
      if ($brow['fee'] == 0 ) $errmsg = "Missing Fee";
     } else {
-     if ($brow['fee'] != 0) $errmsg = "Misplaced Fee";
+     if ($brow['fee'] != 0) $errmsg = "Fee is not allowed";
     }
    }
+
+   if (!$errmsg) {
+     if (!$billed) $errmsg = $GLOBALS['simplified_demographics'] ?
+       "Not checked out" : "Not billed";
+     if (!$encounter) $errmsg = "No visit";
+   }
+
    if (! $charges) $billed = "";
 
    $docrow['charges'] += $charges;
@@ -357,8 +366,8 @@
   <td>
    <?php  echo $billed ?>
   </td>
-  <td>
-   &nbsp;<?php  echo $errmsg ?>
+  <td style='color:#cc0000'>
+   &nbsp;<?php  echo xl($errmsg); ?>
   </td>
  </tr>
 <?php
@@ -371,7 +380,7 @@
 
   echo " <tr class='apptencreport_totals'>\n";
   echo "  <td colspan='5'>\n";
-  echo "   &nbsp;Grand Totals\n";
+  echo "   &nbsp;" . xl('Grand Totals') . "\n";
   echo "  </td>\n";
   echo "  <td align='right'>\n";
   echo "   &nbsp;" . $grand_total_encounters . "&nbsp;\n";
