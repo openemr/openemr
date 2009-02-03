@@ -17,6 +17,7 @@ $layouts = array(
 if ($GLOBALS['ippf_specific']) {
   $layouts['GCA'] = xl('Abortion Issues');
   $layouts['CON'] = xl('Contraception Issues');
+  $layouts['SRH'] = xl('SRH Visit Form');
 }
 
 $layout_id = empty($_REQUEST['layout_id']) ? 'DEM' : $_REQUEST['layout_id'];
