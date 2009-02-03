@@ -46,7 +46,7 @@ class Claim {
     $this->payers = array();
     $this->payers[0] = array();
     $query = "SELECT * FROM insurance_data WHERE " .
-      "pid = '{$this->pid}' AND provider != '' AND " .
+      "pid = '{$this->pid}' AND " .
       "date <= '$encounter_date' " .
       "ORDER BY type ASC, date DESC";
     $dres = sqlStatement($query);
@@ -54,6 +54,9 @@ class Claim {
     while ($drow = sqlFetchArray($dres)) {
       if (strcmp($prevtype, $drow['type']) == 0) continue;
       $prevtype = $drow['type'];
+      // Very important to look at entries with a missing provider because
+      // they indicate no insurance as of the given date.
+      if (empty($drow['provider'])) continue;
       $ins = count($this->payers);
       if ($drow['provider'] == $billrow['payer_id'] && empty($this->payers[0]['data'])) $ins = 0;
       $crow = sqlQuery("SELECT * FROM insurance_companies WHERE " .
