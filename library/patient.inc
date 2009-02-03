@@ -690,7 +690,7 @@ function updatePatientData($pid,$new)
   $new['DOB'] = fixDate($new['DOB']);
   $db_id = $new['id'];
 
-  $rez = sqlQuery("SELECT * FROM patient_data WHERE id = '$db_id'");
+  $rez = sqlQuery("SELECT pid FROM patient_data WHERE id = '$db_id'");
   // Check for brain damage:
   if ($pid != $rez['pid']) {
     $errmsg = "Internal error: Attempt to change patient data with pid = '" .
@@ -702,13 +702,14 @@ function updatePatientData($pid,$new)
     $sql .= ", $key = '$value'";
   }
   $sql .= " WHERE id = '$db_id'";
-  $id = sqlInsert($sql);
+  sqlStatement($sql);
 
+  $rez = sqlQuery("SELECT * FROM patient_data WHERE id = '$db_id'");
   sync_patient($db_id,$rez['fname'],$rez['lname'],$rez['street'],$rez['city'],
     $rez['postal_code'],$rez['state'],$rez['phone_home'],$rez['phone_biz'],
     $rez['phone_cell'],$rez['email'],$rez['pid']);
 
-  return $id;
+  return $db_id;
 }
 
 function newEmployerData(    $pid,
