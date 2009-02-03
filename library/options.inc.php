@@ -233,7 +233,7 @@ function generate_form_field($frow, $currvalue) {
       echo "<tr><td>" . $lrow['title'] . "&nbsp;</td>";
       echo "<td><input type='text'" .
         " name='form_{$field_id}[$option_id]'" .
-        " size='" . $frow['fld_length'] . "'" .
+        " size='$fldlength'" .
         " maxlength='$maxlength'" .
         " value='" . $avalue[$option_id] . "'";
       echo " /></td></tr>";
@@ -250,6 +250,8 @@ function generate_form_field($frow, $currvalue) {
         $avalue[$matches[1]] = $matches[2];
       }
     }
+    $maxlength = empty($frow['max_length']) ? 255 : $frow['max_length'];
+    $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
     $lres = sqlStatement("SELECT * FROM list_options " .
       "WHERE list_id = '$list_id' ORDER BY seq");
     echo "<table cellpadding='0' cellspacing='0'>";
@@ -257,8 +259,6 @@ function generate_form_field($frow, $currvalue) {
       "<td class='bold'>Abn&nbsp;</td><td class='bold'>Date/Notes</td></tr>";
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
-      $maxlength = empty($frow['max_length']) ? 255 : $frow['max_length'];
-      $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
       $restype = substr($avalue[$option_id], 0, 1);
       $resnote = substr($avalue[$option_id], 2);
       echo "<tr><td>" . $lrow['title'] . "&nbsp;</td>";
@@ -271,7 +271,7 @@ function generate_form_field($frow, $currvalue) {
       }
       echo "<td><input type='text'" .
         " name='form_{$field_id}[$option_id]'" .
-        " size='" . $frow['fld_length'] . "'" .
+        " size='$fldlength'" .
         " maxlength='$maxlength'" .
         " value='$resnote' /></td>";
       echo "</tr>";
@@ -293,6 +293,38 @@ function generate_form_field($frow, $currvalue) {
       echo $lrow['title'];
       if ($lrow['comments']) echo ' (' . $lrow['comments'] . ')';
     }
+  }
+
+  // a set of labeled checkboxes, each with a text field:
+  else if ($data_type == 25) {
+    $tmp = explode('|', $currvalue);
+    $avalue = array();
+    foreach ($tmp as $value) {
+      if (preg_match('/^(\w+?):(.*)$/', $value, $matches)) {
+        $avalue[$matches[1]] = $matches[2];
+      }
+    }
+    $maxlength = empty($frow['max_length']) ? 255 : $frow['max_length'];
+    $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
+    $lres = sqlStatement("SELECT * FROM list_options " .
+      "WHERE list_id = '$list_id' ORDER BY seq");
+    echo "<table cellpadding='0' cellspacing='0'>";
+    while ($lrow = sqlFetchArray($lres)) {
+      $option_id = $lrow['option_id'];
+      $restype = substr($avalue[$option_id], 0, 1);
+      $resnote = substr($avalue[$option_id], 2);
+      echo "<tr><td>" . $lrow['title'] . "&nbsp;</td>";
+      echo "<td><input type='checkbox' name='check_{$field_id}[$option_id]' value='1'";
+      if ($restype) echo " checked";
+      echo " />&nbsp;</td>";
+      echo "<td><input type='text'" .
+        " name='form_{$field_id}[$option_id]'" .
+        " size='$fldlength'" .
+        " maxlength='$maxlength'" .
+        " value='$resnote' /></td>";
+      echo "</tr>";
+    }
+    echo "</table>";
   }
 
 }
@@ -446,6 +478,32 @@ function generate_display_field($frow, $currvalue) {
       $s .= $lrow['title'];
       if ($lrow['comments']) $s .= ' (' . $lrow['comments'] . ')';
     }
+  }
+
+  // a set of labeled checkboxes, each with a text field:
+  else if ($data_type == 25) {
+    $tmp = explode('|', $currvalue);
+    $avalue = array();
+    foreach ($tmp as $value) {
+      if (preg_match('/^(\w+?):(.*)$/', $value, $matches)) {
+        $avalue[$matches[1]] = $matches[2];
+      }
+    }
+    $lres = sqlStatement("SELECT * FROM list_options " .
+      "WHERE list_id = '$list_id' ORDER BY seq");
+    $s .= "<table cellpadding='0' cellspacing='0'>";
+    while ($lrow = sqlFetchArray($lres)) {
+      $option_id = $lrow['option_id'];
+      $restype = substr($avalue[$option_id], 0, 1);
+      $resnote = substr($avalue[$option_id], 2);
+      if (empty($restype) && empty($resnote)) continue;
+      $s .= "<tr><td class='bold' valign='top'>" . $lrow['title'] . "&nbsp;</td>";
+      $restype = $restype ? 'Yes' : 'No';
+      $s .= "<td class='text' valign='top'>$restype</td></tr>";
+      $s .= "<td class='text' valign='top'>$resnote</td></tr>";
+      $s .= "</tr>";
+    }
+    $s .= "</table>";
   }
 
   return $s;
@@ -602,6 +660,16 @@ function get_layout_form_value($frow) {
       foreach ($_POST["form_$field_id"] as $key => $val) {
         $restype = $_POST["radio_{$field_id}"][$key];
         if (empty($restype)) $restype = '0';
+        $val = str_replace('|', ' ', $val);
+        if (strlen($value)) $value .= '|';
+        $value .= "$key:$restype:$val";
+      }
+    }
+    else if ($data_type == 25) {
+      // $_POST["form_$field_id"] is an array of text fields with companion
+      // checkboxes to be imploded into "key:n:notes|key:n:notes|...".
+      foreach ($_POST["form_$field_id"] as $key => $val) {
+        $restype = empty($_POST["check_{$field_id}"][$key]) ? '0' : '1';
         $val = str_replace('|', ' ', $val);
         if (strlen($value)) $value .= '|';
         $value .= "$key:$restype:$val";
