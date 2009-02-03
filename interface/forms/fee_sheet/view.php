@@ -39,6 +39,12 @@ if (empty($FEE_SHEET_COLUMNS)) $FEE_SHEET_COLUMNS = 2;
 
 $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_encounter.php';
 
+// Update price level in patient demographics.
+if (!empty($_POST['pricelevel'])) {
+  sqlStatement("UPDATE patient_data SET pricelevel = '" .
+    $_POST['pricelevel'] . "' WHERE pid = '$pid'");
+}
+
 // If Save was clicked, save the new and modified billing lines;
 // then if no error, redirect to $returnurl.
 //
@@ -567,7 +573,8 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
   $strike1 = ($id && $del) ? "<strike>" : "";
   $strike2 = ($id && $del) ? "</strike>" : "";
   echo " <tr>\n";
-  echo "  <td class='billcell'>$strike1$codetype$strike2";
+  echo "  <td class='billcell'>$strike1" .
+    ($codetype == 'COPAY' ? xl($codetype) : $codetype) . $strike2;
   if ($id) {
     echo "<input type='hidden' name='bill[$lino][id]' value='$id'>";
   }
@@ -952,8 +959,8 @@ $trow = sqlQuery("SELECT count(*) AS count FROM layout_options WHERE " .
   "form_id = 'DEM' AND field_id = 'contrastart' AND uor > 0");
 if ($trow['count']) {
   $trow = sqlQuery("SELECT contrastart " .
-    "FROM patient_data, prices WHERE " .
-    "patient_data.pid = '$pid' LIMIT 1");
+    "FROM patient_data WHERE " .
+    "pid = '$pid' LIMIT 1");
   if (empty($trow['contrastart']) || substr($trow['contrastart'], 0, 4) == '0000') {
     $trow = sqlQuery("SELECT date FROM form_encounter WHERE " .
       "pid = '$pid' AND encounter = '$encounter' LIMIT 1");
@@ -967,11 +974,26 @@ if ($trow['count']) {
     echo "&nbsp; &nbsp; &nbsp;\n";
   }
 }
-?>
 
-<span class="billcell"><b><?php xl('Provider:','e');?></b></span>
+// Allow the patient price level to be fixed here.
+$plres = sqlStatement("SELECT option_id, title FROM list_options " .
+  "WHERE list_id = 'pricelevel' ORDER BY seq");
+if (true) {
+  $trow = sqlQuery("SELECT pricelevel FROM patient_data WHERE " .
+    "pid = '$pid' LIMIT 1");
+  $pricelevel = $trow['pricelevel'];
+  echo "   <span class='billcell'><b>" . xl('Price Level:') . "</b></span>\n";
+  echo "   <select name='pricelevel'>\n";
+  while ($plrow = sqlFetchArray($plres)) {
+    $key = $plrow['option_id'];
+    $val = $plrow['title'];
+    echo "    <option value='$key'";
+    if ($key == $pricelevel) echo ' selected';
+    echo ">$val</option>\n";
+  }
+  echo "   </select>\n";
+}
 
-<?php
 // Build a drop-down list of providers.  This includes users who
 // have the word "provider" anywhere in their "additional info"
 // field, so that we can define providers (for billing purposes)
@@ -981,17 +1003,15 @@ $query = "SELECT id, lname, fname FROM users WHERE " .
   "( authorized = 1 OR info LIKE '%provider%' ) AND username != '' " .
   "ORDER BY lname, fname";
 $res = sqlStatement($query);
-
+echo "   <span class='billcell'><b>" . xl('Provider:') . "</b></span>\n";
 echo "   <select name='ProviderID'>\n";
 echo "    <option value=''>-- Please Select --\n";
-
 while ($row = sqlFetchArray($res)) {
   $provid = $row['id'];
   echo "    <option value='$provid'";
   if ($provid == $encounter_provid) echo " selected";
   echo ">" . $row['lname'] . ", " . $row['fname'] . "\n";
 }
-
 echo "   </select>\n";
 ?>
 
