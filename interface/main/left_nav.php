@@ -841,6 +841,7 @@ function genPopupsList($style='') {
           <?php if (!empty($GLOBALS['code_types']['IPPF'])) genPopLink('IPPF Stats','ippf_statistics.php?t=i'); ?>
           <?php if (!empty($GLOBALS['code_types']['IPPF'])) genPopLink('GCAC Stats','ippf_statistics.php?t=g'); ?>
           <?php if (!empty($GLOBALS['code_types']['IPPF'])) genPopLink('MA Stats','ippf_statistics.php?t=m'); ?>
+          <?php if (!empty($GLOBALS['code_types']['IPPF'])) genPopLink('CYP','ippf_cyp_report.php'); ?>
         </ul>
       </li>
       <li class="open"><span><?php xl('Visits','e') ?></span>
@@ -885,6 +886,7 @@ function genPopupsList($style='') {
       <?php genTreeLink('RBot','aun','Pt Notes/Auth'); ?>
       <?php genTreeLink('RTop','fax','Fax/Scan'); ?>
       <?php genTreeLink('RTop','adb','Addr Book'); ?>
+      <?php genTreeLink('RTop','cht','Chart Tracker'); ?>
       <?php genTreeLink('RTop','ono','Ofc Notes'); ?>
       <?php genMiscLink('RTop','adm','0','BatchCom','batchcom/batchcom.php'); ?>
       <?php genTreeLink('RTop','pwd','Password'); ?>
