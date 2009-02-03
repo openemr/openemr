@@ -782,31 +782,6 @@ CREATE TABLE IF NOT EXISTS lists_ippf_gcac (
   PRIMARY KEY (id)
 ) ENGINE=MyISAM;
 
-DELETE FROM layout_options WHERE form_id = 'GCA';
-INSERT INTO layout_options VALUES ('GCA','client_status','aAdmission'  ,'Client Status'               , 1, 1,1, 0, 0,'clientstatus',1,3,'','' ,'Client Status');
-INSERT INTO layout_options VALUES ('GCA','in_ab_proc'   ,'aAdmission'  ,'Induced Abortion Procedure'  , 2, 1,1, 0, 0,'in_ab_proc'  ,1,3,'','' ,'Abortion Procedure Accepted or Performed');
-INSERT INTO layout_options VALUES ('GCA','ab_types'     ,'aAdmission'  ,'Abortion Types'              , 3,21,1, 2, 0,'ab_types'    ,1,3,'','' ,'Abortion Types');
-INSERT INTO layout_options VALUES ('GCA','ab_location'  ,'aAdmission'  ,'Abortion Location'           , 4, 1,1, 0, 0,'ab_location' ,1,3,'','' ,'Where Services are Performed');
-INSERT INTO layout_options VALUES ('GCA','pr_status'    ,'bPreparatory','Pregnancy Status Confirmed'  , 1, 1,1, 0, 0,'pr_status'   ,1,3,'','' ,'Pregnancy Status Confirmed');
-INSERT INTO layout_options VALUES ('GCA','gest_age_by'  ,'bPreparatory','Gestational Age Confirmed By', 2, 1,1, 0, 0,'gest_age_by' ,1,3,'','' ,'Gestational Age Confirmed By');
-INSERT INTO layout_options VALUES ('GCA','blood_group'  ,'bPreparatory','Blood Group'                 , 3, 1,1, 0, 0,'bloodgroup'  ,1,3,'','' ,'Blood Group');
-INSERT INTO layout_options VALUES ('GCA','rh_factor'    ,'bPreparatory','RH Factor'                   , 4, 1,1, 0, 0,'rh_factor'   ,1,3,'','' ,'RH Factor');
-INSERT INTO layout_options VALUES ('GCA','sti'          ,'bPreparatory','Detection of STI'            , 5,21,1, 2, 0,'sti'         ,1,3,'','' ,'Detection of STI');
-INSERT INTO layout_options VALUES ('GCA','prep_procs'   ,'bPreparatory','Preparation Procedures'      , 6,21,1, 0, 0,'prep_procs'  ,1,3,'','' ,'Preparation Procedures');
-INSERT INTO layout_options VALUES ('GCA','reason'      ,'cCounseling'  ,'Reason for Termination'          , 1,21,1, 0, 0,'abreasons'   ,1,3,'','' ,'Reasons for Termination of Pregnancy');
-INSERT INTO layout_options VALUES ('GCA','exp_p_i'     ,'cCounseling'  ,'Explanation of Procedures/Issues', 2,21,1, 2, 0,'exp_p_i'     ,1,3,'','' ,'Explanation of Procedures and Issues');
-INSERT INTO layout_options VALUES ('GCA','exp_pop'     ,'cCounseling'  ,'Explanation of Pregnancy Options', 3,21,1, 2, 0,'exp_pop'     ,1,3,'','' ,'Explanation of Pregnancy Options');
-INSERT INTO layout_options VALUES ('GCA','ab_contraind','cCounseling'  ,'Contraindications'               , 4,21,1, 2, 0,'ab_contraind',1,3,'','' ,'Contraindications');
-INSERT INTO layout_options VALUES ('GCA','screening'   ,'cCounseling'  ,'Screening for SRHR Concerns'     , 5,21,1, 2, 0,'screening'   ,1,3,'','' ,'Screening for SRHR Concerns');
-INSERT INTO layout_options VALUES ('GCA','pre_op'      ,'dIntervention','Pre-Surgery Procedures'          , 1,21,1, 2, 0,'pre_op'      ,1,3,'','' ,'Pre-Surgery Procedures');
-INSERT INTO layout_options VALUES ('GCA','anesthesia'  ,'dIntervention','Anesthesia'                      , 2, 1,1, 0, 0,'anesthesia'  ,1,3,'','' ,'Type of Anesthesia Used');
-INSERT INTO layout_options VALUES ('GCA','side_eff'    ,'dIntervention','Immediate Side Effects'          , 3,21,1, 2, 0,'side_eff'    ,1,3,'','' ,'Immediate Side Effects (observed at intervention');
-INSERT INTO layout_options VALUES ('GCA','rec_compl'   ,'dIntervention','Post-Abortion Complications'     , 4,21,1, 2, 0,'complication',1,3,'','' ,'Post-Abortion Complications (observed in recovery');
-INSERT INTO layout_options VALUES ('GCA','post_op'     ,'dIntervention','Post-Surgery Procedures'         , 5,21,1, 2, 0,'post_op'     ,1,3,'','' ,'Post-Surgery Procedures');
-INSERT INTO layout_options VALUES ('GCA','qc_ind'      ,'eFollowup'    ,'Quality of Care Indicators'      , 1,21,1, 0, 0,'qc_ind'      ,1,3,'','' ,'Quality of Care Indicators');
-INSERT INTO layout_options VALUES ('GCA','contrameth'  ,'eFollowup'    ,'Contraceptive Method'            , 2,21,1, 2, 0,'contrameth'  ,1,3,'','' ,'Post Abortion Contraceptive Method');
-INSERT INTO layout_options VALUES ('GCA','fol_compl'   ,'eFollowup'    ,'Post-Abortion Complications'     , 3,21,1, 2, 0,'complication',1,3,'','' ,'Post-Abortion Complications (observed at followup');
-
 DELETE FROM list_options WHERE list_id = 'clientstatus';
 INSERT INTO list_options VALUES ('clientstatus','maaa'  ,'MA Client Accepting Abortion', 1,0,0);
 INSERT INTO list_options VALUES ('clientstatus','mara'  ,'MA Client Refusing Abortion' , 2,0,0);
@@ -849,15 +824,15 @@ INSERT INTO list_options VALUES ('bloodgroup','a' ,'A' , 1,0,0);
 INSERT INTO list_options VALUES ('bloodgroup','b' ,'B' , 2,0,0);
 INSERT INTO list_options VALUES ('bloodgroup','ab','AB', 3,0,0);
 INSERT INTO list_options VALUES ('bloodgroup','o' ,'O' , 4,0,0);
-DELETE FROM list_options WHERE list_id = 'sti';
-INSERT INTO list_options VALUES ('sti','hiv' ,'HIV'                  , 1,0,0);
-INSERT INTO list_options VALUES ('sti','chla','Chlamydia'            , 2,0,0);
-INSERT INTO list_options VALUES ('sti','gono','Gonorrhea'            , 3,0,0);
-INSERT INTO list_options VALUES ('sti','syph','Syphilis'             , 4,0,0);
-INSERT INTO list_options VALUES ('sti','hpv' ,'HPV'                  , 5,0,0);
-INSERT INTO list_options VALUES ('sti','herp','Herpes (Type 1 and 2)', 6,0,0);
-INSERT INTO list_options VALUES ('sti','tric','Trichomoniasis'       , 7,0,0);
-INSERT INTO list_options VALUES ('sti','oth' ,'Other'                , 8,0,0);
+-- DELETE FROM list_options WHERE list_id = 'sti';
+-- INSERT INTO list_options VALUES ('sti','hiv' ,'HIV'                  , 1,0,0);
+-- INSERT INTO list_options VALUES ('sti','chla','Chlamydia'            , 2,0,0);
+-- INSERT INTO list_options VALUES ('sti','gono','Gonorrhea'            , 3,0,0);
+-- INSERT INTO list_options VALUES ('sti','syph','Syphilis'             , 4,0,0);
+-- INSERT INTO list_options VALUES ('sti','hpv' ,'HPV'                  , 5,0,0);
+-- INSERT INTO list_options VALUES ('sti','herp','Herpes (Type 1 and 2)', 6,0,0);
+-- INSERT INTO list_options VALUES ('sti','tric','Trichomoniasis'       , 7,0,0);
+-- INSERT INTO list_options VALUES ('sti','oth' ,'Other'                , 8,0,0);
 DELETE FROM list_options WHERE list_id = 'rh_factor';
 INSERT INTO list_options VALUES ('rh_factor', 'pos' ,'Positive', 1,0,0);
 INSERT INTO list_options VALUES ('rh_factor', 'neg' ,'Negative', 2,0,0);
@@ -961,7 +936,7 @@ CREATE TABLE IF NOT EXISTS lists_ippf_con (
   new_method    varchar(255) NOT NULL DEFAULT '',
   reason_chg    varchar(255) NOT NULL DEFAULT '',
   reason_term   varchar(255) NOT NULL DEFAULT '',
-  risks         varchar(255) NOT NULL DEFAULT '',
+-- risks         varchar(255) NOT NULL DEFAULT '',
   hor_history   varchar(255) NOT NULL DEFAULT '',
   hor_lmp       varchar(255) NOT NULL DEFAULT '',
   hor_flow      varchar(255) NOT NULL DEFAULT '',
@@ -984,53 +959,27 @@ CREATE TABLE IF NOT EXISTS lists_ippf_con (
   PRIMARY KEY (id)
 ) ENGINE=MyISAM;
 
-DELETE FROM layout_options WHERE form_id = 'CON';
-INSERT INTO layout_options VALUES ('CON','prev_method'  ,'aStatistics' ,'Last Method Used'             , 1,21,1, 2, 0,'contrameth'  ,1,3,'','' ,'Last Contraceptive Method Used');
-INSERT INTO layout_options VALUES ('CON','new_method'   ,'aStatistics' ,'New Method Adopted'           , 2,21,1, 2, 0,'contrameth'  ,1,3,'','' ,'Contraceptive Method Adopted at This Visit');
-INSERT INTO layout_options VALUES ('CON','reason_chg'   ,'aStatistics' ,'Reason for Method Change'     , 3,21,1, 2, 0,'mcreason'    ,1,3,'','' ,'Reasons for Method Change');
-INSERT INTO layout_options VALUES ('CON','reason_term'  ,'aStatistics' ,'Reason for Method Termination', 4,21,1, 2, 0,'mcreason'    ,1,3,'','' ,'Reasons for Method Termination');
-INSERT INTO layout_options VALUES ('CON','risks'        ,'aStatistics' ,'General Risk Factors'         , 5,21,1, 2, 0,'conrisks'    ,1,3,'','' ,'General Contraceptive Risk Factors');
-INSERT INTO layout_options VALUES ('CON','hor_history'  ,'bHormonal'   ,'Menstrual History'            , 1,21,1, 2, 0,'menhist'     ,1,3,'','' ,'Menstrual History');
-INSERT INTO layout_options VALUES ('CON','hor_lmp'      ,'bHormonal'   ,'Last Menstrual Period'        , 2, 1,1, 0, 0,'lmp'         ,1,3,'','' ,'Last Menstrual Period');
-INSERT INTO layout_options VALUES ('CON','hor_flow'     ,'bHormonal'   ,'Nature of Menstrual Flow'     , 3,21,1, 4, 0,'flowtype'    ,1,3,'','' ,'Nature of Menstrual Flow');
-INSERT INTO layout_options VALUES ('CON','hor_bleeding' ,'bHormonal'   ,'Bleeding'                     , 4,21,1, 4, 0,'bleeding'    ,1,3,'','' ,'Menstrual Bleeding Characteristics');
-INSERT INTO layout_options VALUES ('CON','hor_contra'   ,'bHormonal'   ,'Contraindications'            , 5,21,1, 1, 0,'hor_contra'  ,1,3,'','' ,'Contraindications of Hormonal Contraception');
-INSERT INTO layout_options VALUES ('CON','iud_history'  ,'cBarrier/IUD','Menstrual History'            , 1,21,1, 2, 0,'menhist'     ,1,3,'','' ,'Menstrual History');
-INSERT INTO layout_options VALUES ('CON','iud_lmp'      ,'cBarrier/IUD','Last Menstrual Period'        , 2, 1,1, 0, 0,'lmp'         ,1,3,'','' ,'Last Menstrual Period');
-INSERT INTO layout_options VALUES ('CON','iud_pain'     ,'cBarrier/IUD','Pain during Menses'           , 3,21,1, 2, 0,'menpain'     ,1,3,'','' ,'Type of Pain during Menses');
-INSERT INTO layout_options VALUES ('CON','iud_upos'     ,'cBarrier/IUD','Uterus Position'              , 4, 1,1, 0, 0,'uteruspos'   ,1,3,'','' ,'Uterus Position');
-INSERT INTO layout_options VALUES ('CON','iud_contra'   ,'cBarrier/IUD','Contraindications'            , 5,21,1, 0, 0,'iud_contra'  ,1,3,'','' ,'Contraindications of Barrier/IUD Contraception');
-INSERT INTO layout_options VALUES ('CON','sur_screen'   ,'dSurgical'   ,'Pre-Operative Screening'      , 1,21,1, 1, 0,'sur_screen'  ,1,3,'','' ,'Pre-Operative Screening for Surgical Contraception');
-INSERT INTO layout_options VALUES ('CON','sur_anes'     ,'dSurgical'   ,'Type of Anesthesia'           , 2, 1,1, 0, 0,'anesthesia'  ,1,3,'','' ,'Type of Anesthesia for Surgical Contraception');
-INSERT INTO layout_options VALUES ('CON','sur_type'     ,'dSurgical'   ,'Type of Surgical Approach'    , 3, 1,1, 0, 0,'sur_type'    ,1,3,'','' ,'Type of Contraceptive Surgery');
-INSERT INTO layout_options VALUES ('CON','sur_post_ins' ,'dSurgical'   ,'Post-Operative Instructions'  , 4,21,1, 0, 0,'sur_post_ins',1,3,'','' ,'Post-Operative Instructions');
-INSERT INTO layout_options VALUES ('CON','sur_contra'   ,'dSurgical'   ,'Contraindications'            , 5,21,1, 0, 0,'sur_contra'  ,1,3,'','' ,'Contraindications of Surgical Contraception');
-INSERT INTO layout_options VALUES ('CON','nat_reason'   ,'eNatural'    ,'Reason for Adopting a FABM'   , 1,21,1, 2, 0,'nat_reason'  ,1,3,'','' ,'Reasons for Adopting Natural Contracepation');
-INSERT INTO layout_options VALUES ('CON','nat_method'   ,'eNatural'    ,'FABM Method Adopted'          , 2, 1,1, 0, 0,'nat_method'  ,1,3,'','' ,'Type of Natural Contraception');
-INSERT INTO layout_options VALUES ('CON','emg_reason'   ,'fEmergency'  ,'Reason for Using EC'          , 1,21,1, 1, 0,'emg_reason'  ,1,3,'','' ,'Reasons for Using Emergency Contracepation');
-INSERT INTO layout_options VALUES ('CON','emg_method'   ,'fEmergency'  ,'EC Method Adopted'            , 2, 1,1, 0, 0,'emg_method'  ,1,3,'','' ,'Type of Emergency Contraception');
-
-DELETE FROM list_options WHERE list_id = 'conrisks';
-INSERT INTO list_options VALUES ('conrisks','vv'    ,'Varicose Veins'             , 1,0,0);
-INSERT INTO list_options VALUES ('conrisks','ht'    ,'Hypertension'               , 2,0,0);
-INSERT INTO list_options VALUES ('conrisks','dia'   ,'Diabetes'                   , 3,0,0);
-INSERT INTO list_options VALUES ('conrisks','scell' ,'Sickle Cell'                , 4,0,0);
-INSERT INTO list_options VALUES ('conrisks','fib'   ,'Fibroids'                   , 5,0,0);
-INSERT INTO list_options VALUES ('conrisks','pid'   ,'Pelvic Inflammatory Disease', 6,0,0);
-INSERT INTO list_options VALUES ('conrisks','mig'   ,'Severe Migraine'            , 7,0,0);
-INSERT INTO list_options VALUES ('conrisks','heart' ,'Heart Disease'              , 8,0,0);
-INSERT INTO list_options VALUES ('conrisks','throm' ,'Thrombosis/Stroke'          , 9,0,0);
-INSERT INTO list_options VALUES ('conrisks','hep'   ,'Hepatitis'                  ,10,0,0);
-INSERT INTO list_options VALUES ('conrisks','gall'  ,'Gall Bladder Condition'     ,11,0,0);
-INSERT INTO list_options VALUES ('conrisks','breast','Breast Disease'             ,12,0,0);
-INSERT INTO list_options VALUES ('conrisks','dep'   ,'Depression'                 ,13,0,0);
-INSERT INTO list_options VALUES ('conrisks','all'   ,'Allergies'                  ,14,0,0);
-INSERT INTO list_options VALUES ('conrisks','inf'   ,'Infertility'                ,15,0,0);
-INSERT INTO list_options VALUES ('conrisks','asthma','Asthma'                     ,16,0,0);
-INSERT INTO list_options VALUES ('conrisks','epi'   ,'Epilepsy'                   ,17,0,0);
-INSERT INTO list_options VALUES ('conrisks','cl'    ,'Contact Lenses'             ,18,0,0);
-INSERT INTO list_options VALUES ('conrisks','ccomp' ,'Contraceptive Complication' ,19,0,0);
-INSERT INTO list_options VALUES ('conrisks','oth'   ,'Other'                      ,20,0,0);
+-- DELETE FROM list_options WHERE list_id = 'conrisks';
+-- INSERT INTO list_options VALUES ('conrisks','vv'    ,'Varicose Veins'             , 1,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','ht'    ,'Hypertension'               , 2,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','dia'   ,'Diabetes'                   , 3,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','scell' ,'Sickle Cell'                , 4,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','fib'   ,'Fibroids'                   , 5,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','pid'   ,'Pelvic Inflammatory Disease', 6,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','mig'   ,'Severe Migraine'            , 7,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','heart' ,'Heart Disease'              , 8,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','throm' ,'Thrombosis/Stroke'          , 9,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','hep'   ,'Hepatitis'                  ,10,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','gall'  ,'Gall Bladder Condition'     ,11,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','breast','Breast Disease'             ,12,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','dep'   ,'Depression'                 ,13,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','all'   ,'Allergies'                  ,14,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','inf'   ,'Infertility'                ,15,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','asthma','Asthma'                     ,16,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','epi'   ,'Epilepsy'                   ,17,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','cl'    ,'Contact Lenses'             ,18,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','ccomp' ,'Contraceptive Complication' ,19,0,0);
+-- INSERT INTO list_options VALUES ('conrisks','oth'   ,'Other'                      ,20,0,0);
 
 DELETE FROM list_options WHERE list_id = 'menhist';
 INSERT INTO list_options VALUES ('menhist','normen' ,'Normal Menarche'                 , 1,0,0);
@@ -1184,7 +1133,7 @@ INSERT INTO list_options VALUES ('emg_method','opoc','Oestrogen/progestogen oral
 INSERT INTO list_options VALUES ('emg_method','iud' ,'Copper-releasing IUDs'                                             , 3,0,0);
 INSERT INTO list_options VALUES ('emg_method','oth' ,'Other'                                                             , 4,0,0);
 
-INSERT INTO list_options VALUES ('lists','conrisks'    ,'Contraceptive Risk Factors'                        , 91,0,0);
+-- INSERT INTO list_options VALUES ('lists','conrisks'    ,'Contraceptive Risk Factors'                        , 91,0,0);
 INSERT INTO list_options VALUES ('lists','menhist'     ,'Contraceptive Menstrual History'                   , 92,0,0);
 INSERT INTO list_options VALUES ('lists','lmp'         ,'Contraceptive Last Menstrual Period'               , 93,0,0);
 INSERT INTO list_options VALUES ('lists','bleeding'    ,'Menstrual Bleeding Characteristics'                , 94,0,0);
@@ -1200,3 +1149,445 @@ INSERT INTO list_options VALUES ('lists','nat_reason'  ,'Reasons for Adopting Na
 INSERT INTO list_options VALUES ('lists','nat_method'  ,'Types of Natural (FABM) Contraception'             ,104,0,0);
 INSERT INTO list_options VALUES ('lists','emg_reason'  ,'Reasons for Using Emergency Contraception'         ,105,0,0);
 INSERT INTO list_options VALUES ('lists','emg_method'  ,'Types of Emergency Contraception'                  ,106,0,0);
+
+-- The following added on 2009-01-04.
+-- Note history_data includes usertext11-30, userdate11-15, userarea11-12.
+
+DELETE FROM layout_options WHERE form_id = 'HIS';
+
+INSERT INTO layout_options VALUES ('HIS','usertext12'          ,'1Personal','Blood Group'         , 1, 1,1, 0,  0,'bloodgroup' ,1,1,'','' ,'Blood Group');
+INSERT INTO layout_options VALUES ('HIS','usertext13'          ,'1Personal','RH Factor'           , 2, 1,1, 0,  0,'rh_factor'  ,1,1,'','' ,'RH Factor');
+INSERT INTO layout_options VALUES ('HIS','usertext11'          ,'1Personal','Risk Factors'        , 3,21,1, 0,  0,'riskfactors',1,1,'','' ,'Risk Factors');
+INSERT INTO layout_options VALUES ('HIS','exams'               ,'1Personal','Exams/Tests'         , 4,23,1, 0,  0,'exams'      ,1,1,'','' ,'Exam and test results');
+INSERT INTO layout_options VALUES ('HIS','usertext14'          ,'1Personal','Surgical History'    , 5,25,1, 0,  0,'surghist'   ,1,3,'','' ,'Surgeries with dates/notes');
+INSERT INTO layout_options VALUES ('HIS','coffee'              ,'1Personal','Coffee'              , 6, 2,1,20,255,''           ,1,1,'','' ,'Caffeine consumption');
+INSERT INTO layout_options VALUES ('HIS','tobacco'             ,'1Personal','Tobacco'             , 7, 2,1,20,255,''           ,1,1,'','' ,'Tobacco use');
+INSERT INTO layout_options VALUES ('HIS','alcohol'             ,'1Personal','Alcohol'             , 8, 2,1,20,255,''           ,1,1,'','' ,'Alcohol consumption');
+INSERT INTO layout_options VALUES ('HIS','sleep_patterns'      ,'1Personal','Sleep Patterns'      , 9, 2,1,20,255,''           ,1,1,'','' ,'Sleep patterns');
+INSERT INTO layout_options VALUES ('HIS','exercise_patterns'   ,'1Personal','Exercise Patterns'   ,10, 2,1,20,255,''           ,1,1,'','' ,'Exercise patterns');
+INSERT INTO layout_options VALUES ('HIS','seatbelt_use'        ,'1Personal','Seatbelt Use'        ,11, 2,1,20,255,''           ,1,1,'','' ,'Seatbelt use');
+INSERT INTO layout_options VALUES ('HIS','counseling'          ,'1Personal','Counseling'          ,12, 2,1,20,255,''           ,1,1,'','' ,'Counseling activities');
+INSERT INTO layout_options VALUES ('HIS','hazardous_activities','1Personal','Hazardous Activities',13, 2,1,20,255,''           ,1,1,'','' ,'Hazardous activities');
+
+INSERT INTO layout_options VALUES ('HIS','history_father'               ,'2Relatives','Father'             , 1, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','history_mother'               ,'2Relatives','Mother'             , 2, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','history_siblings'             ,'2Relatives','Siblings'           , 3, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','history_spouse'               ,'2Relatives','Spouse'             , 4, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','history_offspring'            ,'2Relatives','Offspring'          , 5, 2,1,20,255,'',1,3,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_cancer'             ,'2Relatives','Cancer'             , 6, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_tuberculosis'       ,'2Relatives','Tuberculosis'       , 7, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_diabetes'           ,'2Relatives','Diabetes'           , 8, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_high_blood_pressure','2Relatives','High Blood Pressure', 9, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_heart_problems'     ,'2Relatives','Heart Problems'     ,10, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_stroke'             ,'2Relatives','Stroke'             ,11, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_epilepsy'           ,'2Relatives','Epilepsy'           ,12, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_mental_illness'     ,'2Relatives','Mental Illness'     ,13, 2,1,20,255,'',1,1,'','' ,'');
+INSERT INTO layout_options VALUES ('HIS','relatives_suicide'            ,'2Relatives','Suicide'            ,14, 2,1,20,255,'',1,3,'','' ,'');
+
+INSERT INTO layout_options VALUES ('HIS','usertext15','3Reproductive Women','Menstrual', 1,22,1, 0,  0,'genmenhist',1,1,'','' ,'Menstrual History');
+INSERT INTO layout_options VALUES ('HIS','usertext16','3Reproductive Women','Obstetric', 2,22,1, 0,  0,'genobshist',1,1,'','' ,'Obstetric History');
+INSERT INTO layout_options VALUES ('HIS','usertext17','3Reproductive Women','Abortion' , 3,22,1, 0,  0,'genabohist',1,1,'','' ,'Abortion History');
+
+INSERT INTO layout_options VALUES ('HIS','usertext18','4Reproductive General','HIV/AIDS' , 1,21,1, 0,  0,'genhivhist',1,1,'','' ,'HIV/AIDS History');
+INSERT INTO layout_options VALUES ('HIS','usertext19','4Reproductive General','ITS/ITR'  , 2,21,1, 0,  0,'genitshist',1,1,'','' ,'ITS/ITR History');
+INSERT INTO layout_options VALUES ('HIS','usertext20','4Reproductive General','Fertility', 3,21,1, 0,  0,'genferhist',1,1,'','' ,'Infertility/Subfertility History');
+INSERT INTO layout_options VALUES ('HIS','usertext21','4Reproductive General','Urology'  , 4,21,1, 0,  0,'genurohist',1,1,'','' ,'Urology History');
+
+INSERT INTO layout_options VALUES ('HIS','name_1'            ,'5Other','Name/Value'        ,1, 2,1,10,255,'',1,1,'','' ,'Name 1' );
+INSERT INTO layout_options VALUES ('HIS','value_1'           ,'5Other',''                  ,2, 2,1,10,255,'',0,0,'','' ,'Value 1');
+INSERT INTO layout_options VALUES ('HIS','name_2'            ,'5Other','Name/Value'        ,3, 2,1,10,255,'',1,1,'','' ,'Name 2' );
+INSERT INTO layout_options VALUES ('HIS','value_2'           ,'5Other',''                  ,4, 2,1,10,255,'',0,0,'','' ,'Value 2');
+INSERT INTO layout_options VALUES ('HIS','additional_history','5Other','Additional History',5, 3,1,30,  3,'',1,3,'' ,'' ,'Additional history notes');
+INSERT INTO layout_options VALUES ('HIS','userarea11','5Other','User Defined Area 11',6,3,0,30,3,'',1,3,'','','User Defined');
+INSERT INTO layout_options VALUES ('HIS','userarea12','5Other','User Defined Area 12',7,3,0,30,3,'',1,3,'','','User Defined');
+
+INSERT INTO list_options VALUES ('surghist','gi'    ,'Gastrointestinal Tract',  1,0,0);
+INSERT INTO list_options VALUES ('surghist','bil'   ,'Biliary System'        ,  2,0,0);
+INSERT INTO list_options VALUES ('surghist','spleen','Spleen'                ,  3,0,0);
+INSERT INTO list_options VALUES ('surghist','liver' ,'Liver'                 ,  4,0,0);
+INSERT INTO list_options VALUES ('surghist','pan'   ,'Pancreas'              ,  5,0,0);
+INSERT INTO list_options VALUES ('surghist','hernia','Hernia'                ,  6,0,0);
+INSERT INTO list_options VALUES ('surghist','endo'  ,'Endocrine Glands'      ,  7,0,0);
+INSERT INTO list_options VALUES ('surghist','thorax','Thorax'                ,  8,0,0);
+INSERT INTO list_options VALUES ('surghist','oth'   ,'Others'                ,  9,0,0);
+INSERT INTO list_options VALUES ('lists','surghist','Surgical History',110,0,0);
+
+INSERT INTO list_options VALUES ('genmenhist','agemen'   ,'Age of Menarche'                     ,  1,0,0);
+INSERT INTO list_options VALUES ('genmenhist','durabs'   ,'Duration of Absence (days)'          ,  2,0,0);
+INSERT INTO list_options VALUES ('genmenhist','days'     ,'Average No. of Days'                 ,  3,0,0);
+INSERT INTO list_options VALUES ('genmenhist','lmp'      ,'Last Normal Period (date)'           ,  4,0,0);
+INSERT INTO list_options VALUES ('genmenhist','cyclen'   ,'Cycle Length (days)'                 ,  5,0,0);
+INSERT INTO list_options VALUES ('genmenhist','flowlen'  ,'Flow Length (days)'                  ,  6,0,0);
+INSERT INTO list_options VALUES ('genmenhist','bleedflow','Flow Bleeding (L/M/H)'               ,  7,0,0);
+INSERT INTO list_options VALUES ('genmenhist','bleedslp' ,'Bleeding/spotting since last period?',  8,0,0);
+INSERT INTO list_options VALUES ('lists','genmenhist','General Menstrual History',111,0,0);
+
+INSERT INTO list_options VALUES ('genobshist','npreg','Total No. of Pregnancies'        ,  1,0,0);
+INSERT INTO list_options VALUES ('genobshist','agefp','Age at First Pregnancy'          ,  2,0,0);
+INSERT INTO list_options VALUES ('genobshist','nlc'  ,'Number of Living Children'       ,  3,0,0);
+INSERT INTO list_options VALUES ('genobshist','nacw' ,'How Many More Children Wanted'   ,  4,0,0);
+INSERT INTO list_options VALUES ('genobshist','nclw' ,'No. Children Now Living with You',  5,0,0);
+INSERT INTO list_options VALUES ('genobshist','nlb'  ,'Number of Live Births'           ,  6,0,0);
+INSERT INTO list_options VALUES ('genobshist','nvd'  ,'Number of Vaginal Deliveries'    ,  7,0,0);
+INSERT INTO list_options VALUES ('genobshist','ncs'  ,'Number of C Sections'            ,  8,0,0);
+INSERT INTO list_options VALUES ('genobshist','dlpe' ,'Date Last Pregnancy Ended'       ,  9,0,0);
+INSERT INTO list_options VALUES ('lists','genobshist','General Obstetric History',112,0,0);
+
+INSERT INTO list_options VALUES ('genabohist','age1st','Age at First Abortion'                 ,  1,0,0);
+INSERT INTO list_options VALUES ('genabohist','nmis'  ,'No. Miscarriages/Spontaneous Abortions',  2,0,0);
+INSERT INTO list_options VALUES ('genabohist','nstill','Number of Stillbirths'                 ,  3,0,0);
+INSERT INTO list_options VALUES ('genabohist','ntubal','No. of Tubal Pregnancies (Ectopic)'    ,  4,0,0);
+INSERT INTO list_options VALUES ('genabohist','nia'   ,'Number of Induced Abortions'           ,  5,0,0);
+INSERT INTO list_options VALUES ('lists','genabohist','General Abortion History',113,0,0);
+
+INSERT INTO list_options VALUES ('genhivhist','info'  ,'Client is informed about HIV transmission'       ,  1,0,0);
+INSERT INTO list_options VALUES ('genhivhist','couns' ,'Client has received HIV Test Counselling'        ,  2,0,0);
+INSERT INTO list_options VALUES ('genhivhist','test'  ,'Client has been HIV tested'                      ,  3,0,0);
+INSERT INTO list_options VALUES ('genhivhist','hpos'  ,'Client has tested HIV positive'                  ,  4,0,0);
+INSERT INTO list_options VALUES ('genhivhist','apos'  ,'Client has developed AIDS'                       ,  5,0,0);
+INSERT INTO list_options VALUES ('genhivhist','infect','Client has developed an oportunistic infection'  ,  6,0,0);
+INSERT INTO list_options VALUES ('genhivhist','treat' ,'Client has received HIV/AIDS treatment'          ,  7,0,0);
+INSERT INTO list_options VALUES ('genhivhist','psych' ,'Client has received psycho-social support'       ,  8,0,0);
+INSERT INTO list_options VALUES ('genhivhist','discr' ,'Client has  been victim of stigma/discrimination',  9,0,0);
+INSERT INTO list_options VALUES ('lists','genhivhist','HIV/AIDS Basic History',114,0,0);
+
+INSERT INTO list_options VALUES ('genitshist','info' ,'Client is informed about ITS transmission',  1,0,0);
+INSERT INTO list_options VALUES ('genitshist','couns','Client has received ITS  Counselling'     ,  2,0,0);
+INSERT INTO list_options VALUES ('genitshist','test' ,'Client has been ITS tested'               ,  3,0,0);
+INSERT INTO list_options VALUES ('genitshist','pos'  ,'Client has tested ITS positive'           ,  4,0,0);
+INSERT INTO list_options VALUES ('genitshist','treat','Client has received ITS treatment'        ,  5,0,0);
+INSERT INTO list_options VALUES ('lists','genitshist','ITS/ITR Basic History',115,0,0);
+
+INSERT INTO list_options VALUES ('genferhist','nc12','No conception after 12 months w/o FP & female <34 years',  1,0,0);
+INSERT INTO list_options VALUES ('genferhist','nc6' ,'No conception after 6 months w/o FP & female >35 years' ,  2,0,0);
+INSERT INTO list_options VALUES ('genferhist','finc','Female is incapable of carrying a pregnancy to term'    ,  3,0,0);
+INSERT INTO list_options VALUES ('genferhist','year','Tried unsuccessfully to have a child for a year or more',  4,0,0);
+INSERT INTO list_options VALUES ('lists','genferhist','Infertility/Subfertility Basic History',116,0,0);
+
+INSERT INTO list_options VALUES ('genurohist','ucon'  ,'Client reports urinary concerns'       ,  1,0,0);
+INSERT INTO list_options VALUES ('genurohist','icon'  ,'Client reports incontinency concerns'  ,  2,0,0);
+INSERT INTO list_options VALUES ('genurohist','infect','Client reports genital infection'      ,  3,0,0);
+INSERT INTO list_options VALUES ('genurohist','pain'  ,'Client reports genital pain'           ,  4,0,0);
+INSERT INTO list_options VALUES ('genurohist','treat' ,'Client has undergone genital treatment',  5,0,0);
+INSERT INTO list_options VALUES ('genurohist','sur'   ,'Client has undergone genital surgery'  ,  6,0,0);
+INSERT INTO list_options VALUES ('lists','genurohist','Urology Basic History',117,0,0);
+
+DELETE FROM list_options WHERE list_id = 'conrisks';
+DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'conrisks';
+
+-- The following added/moved/revised on 2009-01-16.
+
+DELETE FROM list_options WHERE list_id = 'sti';
+DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'sti';
+
+DELETE FROM layout_options WHERE form_id = 'GCA';
+INSERT INTO layout_options VALUES ('GCA','reason'      ,'aCounseling'  ,'Reason for Termination'          , 1,21,1, 0, 0,'abreasons'   ,1,3,'','' ,'Reasons for Termination of Pregnancy');
+INSERT INTO layout_options VALUES ('GCA','exp_p_i'     ,'aCounseling'  ,'Explanation of Procedures/Issues', 2,21,1, 2, 0,'exp_p_i'     ,1,3,'','' ,'Explanation of Procedures and Issues');
+INSERT INTO layout_options VALUES ('GCA','exp_pop'     ,'aCounseling'  ,'Explanation of Pregnancy Options', 3,21,1, 2, 0,'exp_pop'     ,1,3,'','' ,'Explanation of Pregnancy Options');
+INSERT INTO layout_options VALUES ('GCA','ab_contraind','aCounseling'  ,'Contraindications'               , 4,21,1, 2, 0,'ab_contraind',1,3,'','' ,'Contraindications');
+INSERT INTO layout_options VALUES ('GCA','screening'   ,'aCounseling'  ,'Screening for SRHR Concerns'     , 5,21,1, 2, 0,'screening'   ,1,3,'','' ,'Screening for SRHR Concerns');
+INSERT INTO layout_options VALUES ('GCA','client_status','bAdmission'  ,'Client Status'               , 1, 1,1, 0, 0,'clientstatus',1,3,'','' ,'Client Status');
+INSERT INTO layout_options VALUES ('GCA','in_ab_proc'   ,'bAdmission'  ,'Induced Abortion Procedure'  , 2, 1,1, 0, 0,'in_ab_proc'  ,1,3,'','' ,'Abortion Procedure Accepted or Performed');
+INSERT INTO layout_options VALUES ('GCA','ab_types'     ,'bAdmission'  ,'Abortion Types'              , 3,21,1, 2, 0,'ab_types'    ,1,3,'','' ,'Abortion Types');
+INSERT INTO layout_options VALUES ('GCA','ab_location'  ,'bAdmission'  ,'Abortion Location'           , 4, 1,1, 0, 0,'ab_location' ,1,3,'','' ,'Where Services are Performed');
+INSERT INTO layout_options VALUES ('GCA','pr_status'    ,'cPreparatory','Pregnancy Status Confirmed'  , 1, 1,1, 0, 0,'pr_status'   ,1,3,'','' ,'Pregnancy Status Confirmed');
+INSERT INTO layout_options VALUES ('GCA','gest_age_by'  ,'cPreparatory','Gestational Age Confirmed By', 2, 1,1, 0, 0,'gest_age_by' ,1,3,'','' ,'Gestational Age Confirmed By');
+-- INSERT INTO layout_options VALUES ('GCA','blood_group'  ,'cPreparatory','Blood Group'                 , 3, 1,1, 0, 0,'bloodgroup'  ,1,3,'','' ,'Blood Group');
+-- INSERT INTO layout_options VALUES ('GCA','rh_factor'    ,'cPreparatory','RH Factor'                   , 4, 1,1, 0, 0,'rh_factor'   ,1,3,'','' ,'RH Factor');
+-- INSERT INTO layout_options VALUES ('GCA','sti'          ,'cPreparatory','Detection of STI'            , 5,21,1, 2, 0,'sti'         ,1,3,'','' ,'Detection of STI');
+INSERT INTO layout_options VALUES ('GCA','usertext12'   ,'cPreparatory','Blood Group'                 , 3, 1,1, 0, 0,'bloodgroup'  ,1,3,'','H','');
+INSERT INTO layout_options VALUES ('GCA','usertext13'   ,'cPreparatory','RH Factor'                   , 4, 1,1, 0, 0,'rh_factor'   ,1,3,'','H','');
+INSERT INTO layout_options VALUES ('GCA','prep_procs'   ,'cPreparatory','Preparation Procedures'      , 6,21,1, 0, 0,'prep_procs'  ,1,3,'','' ,'Preparation Procedures');
+INSERT INTO layout_options VALUES ('GCA','pre_op'      ,'dIntervention','Pre-Surgery Procedures'          , 1,21,1, 2, 0,'pre_op'      ,1,3,'','' ,'Pre-Surgery Procedures');
+INSERT INTO layout_options VALUES ('GCA','anesthesia'  ,'dIntervention','Anesthesia'                      , 2, 1,1, 0, 0,'anesthesia'  ,1,3,'','' ,'Type of Anesthesia Used');
+INSERT INTO layout_options VALUES ('GCA','side_eff'    ,'dIntervention','Immediate Side Effects'          , 3,21,1, 2, 0,'side_eff'    ,1,3,'','' ,'Immediate Side Effects (observed at intervention');
+INSERT INTO layout_options VALUES ('GCA','rec_compl'   ,'dIntervention','Post-Abortion Complications'     , 4,21,1, 2, 0,'complication',1,3,'','' ,'Post-Abortion Complications (observed in recovery');
+INSERT INTO layout_options VALUES ('GCA','post_op'     ,'dIntervention','Post-Surgery Procedures'         , 5,21,1, 2, 0,'post_op'     ,1,3,'','' ,'Post-Surgery Procedures');
+INSERT INTO layout_options VALUES ('GCA','qc_ind'      ,'eFollowup'    ,'Quality of Care Indicators'      , 1,21,1, 0, 0,'qc_ind'      ,1,3,'','' ,'Quality of Care Indicators');
+INSERT INTO layout_options VALUES ('GCA','contrameth'  ,'eFollowup'    ,'Contraceptive Method'            , 2,21,1, 2, 0,'contrameth'  ,1,3,'','' ,'Post Abortion Contraceptive Method');
+INSERT INTO layout_options VALUES ('GCA','fol_compl'   ,'eFollowup'    ,'Post-Abortion Complications'     , 3,21,1, 2, 0,'complication',1,3,'','' ,'Post-Abortion Complications (observed at followup');
+
+DELETE FROM layout_options WHERE form_id = 'CON';
+INSERT INTO layout_options VALUES ('CON','prev_method'  ,'aStatistics' ,'Last Method Used'             , 1,21,1, 2, 0,'contrameth'  ,1,3,'','' ,'Last Contraceptive Method Used');
+INSERT INTO layout_options VALUES ('CON','new_method'   ,'aStatistics' ,'New Method Adopted'           , 2,21,1, 2, 0,'contrameth'  ,1,3,'','' ,'Contraceptive Method Adopted at This Visit');
+INSERT INTO layout_options VALUES ('CON','reason_chg'   ,'aStatistics' ,'Reason for Method Change'     , 3,21,1, 2, 0,'mcreason'    ,1,3,'','' ,'Reasons for Method Change');
+INSERT INTO layout_options VALUES ('CON','reason_term'  ,'aStatistics' ,'Reason for Method Termination', 4,21,1, 2, 0,'mcreason'    ,1,3,'','' ,'Reasons for Method Termination');
+-- INSERT INTO layout_options VALUES ('CON','risks'        ,'aStatistics' ,'General Risk Factors'         , 5,21,1, 2, 0,'conrisks'    ,1,3,'','' ,'General Contraceptive Risk Factors');
+INSERT INTO layout_options VALUES ('CON','usertext11'   ,'aStatistics' ,'General Risk Factors'         , 5,21,1, 2, 0,'riskfactors' ,1,3,'','H','');
+INSERT INTO layout_options VALUES ('CON','hor_history'  ,'bHormonal'   ,'Menstrual History'            , 1,21,1, 2, 0,'menhist'     ,1,3,'','' ,'Menstrual History');
+INSERT INTO layout_options VALUES ('CON','hor_lmp'      ,'bHormonal'   ,'Last Menstrual Period'        , 2, 1,1, 0, 0,'lmp'         ,1,3,'','' ,'Last Menstrual Period');
+INSERT INTO layout_options VALUES ('CON','hor_flow'     ,'bHormonal'   ,'Nature of Menstrual Flow'     , 3,21,1, 4, 0,'flowtype'    ,1,3,'','' ,'Nature of Menstrual Flow');
+INSERT INTO layout_options VALUES ('CON','hor_bleeding' ,'bHormonal'   ,'Bleeding'                     , 4,21,1, 4, 0,'bleeding'    ,1,3,'','' ,'Menstrual Bleeding Characteristics');
+INSERT INTO layout_options VALUES ('CON','hor_contra'   ,'bHormonal'   ,'Contraindications'            , 5,21,1, 1, 0,'hor_contra'  ,1,3,'','' ,'Contraindications of Hormonal Contraception');
+INSERT INTO layout_options VALUES ('CON','iud_history'  ,'cBarrier/IUD','Menstrual History'            , 1,21,1, 2, 0,'menhist'     ,1,3,'','' ,'Menstrual History');
+INSERT INTO layout_options VALUES ('CON','iud_lmp'      ,'cBarrier/IUD','Last Menstrual Period'        , 2, 1,1, 0, 0,'lmp'         ,1,3,'','' ,'Last Menstrual Period');
+INSERT INTO layout_options VALUES ('CON','iud_pain'     ,'cBarrier/IUD','Pain during Menses'           , 3,21,1, 2, 0,'menpain'     ,1,3,'','' ,'Type of Pain during Menses');
+INSERT INTO layout_options VALUES ('CON','iud_upos'     ,'cBarrier/IUD','Uterus Position'              , 4, 1,1, 0, 0,'uteruspos'   ,1,3,'','' ,'Uterus Position');
+INSERT INTO layout_options VALUES ('CON','iud_contra'   ,'cBarrier/IUD','Contraindications'            , 5,21,1, 0, 0,'iud_contra'  ,1,3,'','' ,'Contraindications of Barrier/IUD Contraception');
+INSERT INTO layout_options VALUES ('CON','sur_screen'   ,'dSurgical'   ,'Pre-Operative Screening'      , 1,21,1, 1, 0,'sur_screen'  ,1,3,'','' ,'Pre-Operative Screening for Surgical Contraception');
+INSERT INTO layout_options VALUES ('CON','sur_anes'     ,'dSurgical'   ,'Type of Anesthesia'           , 2, 1,1, 0, 0,'anesthesia'  ,1,3,'','' ,'Type of Anesthesia for Surgical Contraception');
+INSERT INTO layout_options VALUES ('CON','sur_type'     ,'dSurgical'   ,'Type of Surgical Approach'    , 3, 1,1, 0, 0,'sur_type'    ,1,3,'','' ,'Type of Contraceptive Surgery');
+INSERT INTO layout_options VALUES ('CON','sur_post_ins' ,'dSurgical'   ,'Post-Operative Instructions'  , 4,21,1, 0, 0,'sur_post_ins',1,3,'','' ,'Post-Operative Instructions');
+INSERT INTO layout_options VALUES ('CON','sur_contra'   ,'dSurgical'   ,'Contraindications'            , 5,21,1, 0, 0,'sur_contra'  ,1,3,'','' ,'Contraindications of Surgical Contraception');
+INSERT INTO layout_options VALUES ('CON','nat_reason'   ,'eNatural'    ,'Reason for Adopting a FABM'   , 1,21,1, 2, 0,'nat_reason'  ,1,3,'','' ,'Reasons for Adopting Natural Contracepation');
+INSERT INTO layout_options VALUES ('CON','nat_method'   ,'eNatural'    ,'FABM Method Adopted'          , 2, 1,1, 0, 0,'nat_method'  ,1,3,'','' ,'Type of Natural Contraception');
+INSERT INTO layout_options VALUES ('CON','emg_reason'   ,'fEmergency'  ,'Reason for Using EC'          , 1,21,1, 1, 0,'emg_reason'  ,1,3,'','' ,'Reasons for Using Emergency Contracepation');
+INSERT INTO layout_options VALUES ('CON','emg_method'   ,'fEmergency'  ,'EC Method Adopted'            , 2, 1,1, 0, 0,'emg_method'  ,1,3,'','' ,'Type of Emergency Contraception');
+
+CREATE TABLE IF NOT EXISTS lists_ippf_srh (
+  id          bigint(20)   NOT NULL,
+  men_hist    varchar(255) NOT NULL DEFAULT '',
+  men_compl   varchar(255) NOT NULL DEFAULT '',
+  pap_hist    varchar(255) NOT NULL DEFAULT '',
+  gyn_exams   varchar(255) NOT NULL DEFAULT '',
+  pr_status   varchar(255) NOT NULL DEFAULT '',
+  gest_age_by varchar(255) NOT NULL DEFAULT '',
+  obs_exams   varchar(255) NOT NULL DEFAULT '',
+  pr_outcome  varchar(255) NOT NULL DEFAULT '',
+  pr_compl    varchar(255) NOT NULL DEFAULT '',
+  abo_exams   varchar(255) NOT NULL DEFAULT '',
+  hiv_exams   varchar(255) NOT NULL DEFAULT '',
+  its_exams   varchar(255) NOT NULL DEFAULT '',
+  fer_exams   varchar(255) NOT NULL DEFAULT '',
+  fer_causes  varchar(255) NOT NULL DEFAULT '',
+  fer_treat   varchar(255) NOT NULL DEFAULT '',
+  uro_exams   varchar(255) NOT NULL DEFAULT '',
+  uro_disease varchar(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (id)
+) ENGINE=MyISAM;
+
+DELETE FROM layout_options WHERE form_id = 'SRH';
+INSERT INTO layout_options VALUES ('SRH','usertext15' ,'aGynecology'                ,'Menstrual History'             , 1,22,1, 0, 0,'genmenhist'  ,1,3,'','H','');
+INSERT INTO layout_options VALUES ('SRH','men_hist'   ,'aGynecology'                ,'Recent Menstrual History'      , 2,21,1, 2, 0,'menhist'     ,1,3,'','','Recent Menstrual History');
+INSERT INTO layout_options VALUES ('SRH','men_compl'  ,'aGynecology'                ,'Menstrual Complications'       , 3,21,1, 2, 0,'men_compl'   ,1,3,'','','Menstrual Complications');
+INSERT INTO layout_options VALUES ('SRH','pap_hist'   ,'aGynecology'                ,'Pap Smear Recent History'      , 4,22,1, 0, 0,'pap_hist'    ,1,3,'','','Pap Smear Recent History');
+INSERT INTO layout_options VALUES ('SRH','gyn_exams'  ,'aGynecology'                ,'Gynecological Tests'           , 5,23,1, 0, 0,'gyn_exams'   ,1,1,'','','Gynecological test results');
+INSERT INTO layout_options VALUES ('SRH','pr_status'  ,'bObstetrics'                ,'Pregnancy Status Confirmed'    , 1, 1,1, 0, 0,'pr_status'   ,1,3,'','','Pregnancy Status Confirmed');
+INSERT INTO layout_options VALUES ('SRH','gest_age_by','bObstetrics'                ,'Gestational Age Confirmed By'  , 2, 1,1, 0, 0,'gest_age_by' ,1,3,'','','Gestational Age Confirmed By');
+INSERT INTO layout_options VALUES ('SRH','usertext12' ,'bObstetrics'                ,'Blood Group'                   , 3, 1,1, 0, 0,'bloodgroup'  ,1,3,'','H','');
+INSERT INTO layout_options VALUES ('SRH','usertext13' ,'bObstetrics'                ,'RH Factor'                     , 4, 1,1, 0, 0,'rh_factor'   ,1,3,'','H','');
+INSERT INTO layout_options VALUES ('SRH','obs_exams'  ,'bObstetrics'                ,'Obstetric Tests'               , 5,23,1, 0, 0,'obs_exams'   ,1,1,'','','Obstetric test results');
+INSERT INTO layout_options VALUES ('SRH','usertext16' ,'bObstetrics'                ,'Obstetric History'             , 6,22,1, 0, 0,'genobshist'  ,1,1,'','H','');
+INSERT INTO layout_options VALUES ('SRH','pr_outcome' ,'bObstetrics'                ,'Outcome of Last Pregnancy'     , 7,21,1, 2, 0,'pr_outcome'  ,1,3,'','','Outcome of Last Pregnancy');
+INSERT INTO layout_options VALUES ('SRH','pr_compl'   ,'bObstetrics'                ,'Pregnancy Complications'       , 8,21,1, 2, 0,'pr_compl'    ,1,3,'','','Pregnancy Complications');
+INSERT INTO layout_options VALUES ('SRH','usertext17' ,'cBasic RH (female only)'    ,'Abortion Basic History'        , 1,22,1, 0, 0,'genabohist'  ,1,1,'','H','');
+INSERT INTO layout_options VALUES ('SRH','abo_exams'  ,'cBasic RH (female only)'    ,'Abortion Tests'                , 2,23,1, 0, 0,'abo_exams'   ,1,1,'','','Abortion test results');
+INSERT INTO layout_options VALUES ('SRH','usertext18' ,'dBasic RH (female and male)','HIV/AIDS Basic History'        , 1,21,1, 0, 0,'genhivhist'  ,1,1,'','H','');
+INSERT INTO layout_options VALUES ('SRH','hiv_exams'  ,'dBasic RH (female and male)','HIV/AIDS Tests'                , 2,23,1, 0, 0,'hiv_exams'   ,1,1,'','','HIV/AIDS test results');
+INSERT INTO layout_options VALUES ('SRH','usertext19' ,'dBasic RH (female and male)','ITS/ITR Basic History'         , 3,21,1, 0, 0,'genitshist'  ,1,1,'','H','');
+INSERT INTO layout_options VALUES ('SRH','its_exams'  ,'dBasic RH (female and male)','ITS/ITR Tests'                 , 4,23,1, 0, 0,'its_exams'   ,1,1,'','','ITS/ITR test results');
+INSERT INTO layout_options VALUES ('SRH','usertext20' ,'dBasic RH (female and male)','Fertility Basic History'       , 5,21,1, 0, 0,'genferhist'  ,1,1,'','H','');
+INSERT INTO layout_options VALUES ('SRH','fer_exams'  ,'dBasic RH (female and male)','Fertility Tests'               , 6,23,1, 0, 0,'fer_exams'   ,1,1,'','','Infertility/subfertility test results');
+INSERT INTO layout_options VALUES ('SRH','fer_causes' ,'dBasic RH (female and male)','Causes of Infertility'         , 7,21,1, 2, 0,'fer_causes'  ,1,3,'','','Causes of Infertility');
+INSERT INTO layout_options VALUES ('SRH','fer_treat'  ,'dBasic RH (female and male)','Infertility Treatment'         , 8,21,1, 2, 0,'fer_treat'   ,1,3,'','','Infertility Treatment');
+INSERT INTO layout_options VALUES ('SRH','usertext20' ,'dBasic RH (female and male)','Urology Basic History'         , 9,21,1, 0, 0,'genurohist'  ,1,1,'','H','');
+INSERT INTO layout_options VALUES ('SRH','uro_exams'  ,'dBasic RH (female and male)','Urology Tests'                 ,10,23,1, 0, 0,'uro_exams'   ,1,1,'','','Urology test results');
+INSERT INTO layout_options VALUES ('SRH','uro_disease','dBasic RH (female and male)','Male Genitourinary diseases'   ,11,21,1, 2, 0,'uro_disease' ,1,3,'','','Male Genitourinary diseases');
+
+DELETE FROM list_options WHERE list_id = 'men_compl';
+INSERT INTO list_options VALUES ('men_compl','bleed'    ,'Heavy Menstrual Bleeding'  ,  1,0,0);
+INSERT INTO list_options VALUES ('men_compl','nomen'    ,'Absence of Menstruation'   ,  2,0,0);
+INSERT INTO list_options VALUES ('men_compl','abn'      ,'Abnormal Menstrual Periods',  3,0,0);
+INSERT INTO list_options VALUES ('men_compl','perpain'  ,'Painful Periods'           ,  4,0,0);
+INSERT INTO list_options VALUES ('men_compl','menpain'  ,'Painful Menstruation'      ,  5,0,0);
+INSERT INTO list_options VALUES ('men_compl','oth'      ,'Other'                     ,  6,0,0);
+INSERT INTO list_options VALUES ('lists'    ,'men_compl','Menstrual Complications'   ,118,0,0);
+
+DELETE FROM list_options WHERE list_id = 'pap_hist';
+INSERT INTO list_options VALUES ('pap_hist','dtlast'    ,'Date of Last Pap Smear'       ,  1,0,0);
+INSERT INTO list_options VALUES ('pap_hist','results'   ,'Results of Last Pap Smear'    ,  2,0,0);
+INSERT INTO list_options VALUES ('pap_hist','treat'     ,'Treatment for cervical cancer',  3,0,0);
+INSERT INTO list_options VALUES ('pap_hist','dtnext'    ,'Date of Next Pap Smear'       ,  4,0,0);
+INSERT INTO list_options VALUES ('lists'   ,'pap_hist'  ,'Pap Smear History'            ,119,0,0);
+
+DELETE FROM list_options WHERE list_id = 'gyn_exams';
+INSERT INTO list_options VALUES ('gyn_exams' ,'pap','Pap / Cytology'         , 1,0,0);
+INSERT INTO list_options VALUES ('gyn_exams' ,'img','Diagnostic Imaging'     , 2,0,0);
+INSERT INTO list_options VALUES ('gyn_exams' ,'hys','Hysterosalpingography'  , 3,0,0);
+INSERT INTO list_options VALUES ('gyn_exams' ,'mam','Mammography'            , 4,0,0);
+INSERT INTO list_options VALUES ('gyn_exams' ,'son','Ultrasonography'        , 5,0,0);
+INSERT INTO list_options VALUES ('gyn_exams' ,'tom','Tomography'             , 6,0,0);
+INSERT INTO list_options VALUES ('gyn_exams' ,'bds','Dexa, Bone Density Scan', 7,0,0);
+INSERT INTO list_options VALUES ('gyn_exams' ,'man','Manual exams'           , 8,0,0);
+INSERT INTO list_options VALUES ('gyn_exams' ,'mpe','Manual Pelvic Exam'     , 9,0,0);
+INSERT INTO list_options VALUES ('gyn_exams' ,'mbe','Manual Breast Exam'     ,10,0,0);
+INSERT INTO list_options VALUES ('gyn_exams' ,'oth','Other'                  ,11,0,0);
+INSERT INTO list_options VALUES ('lists'     ,'gyn_exams','Gynecological Tests',120,0,0);
+
+DELETE FROM list_options WHERE list_id = 'obs_exams';
+INSERT INTO list_options VALUES ('obs_exams' ,'fet','Fetoscopy'                     , 1,0,0);
+INSERT INTO list_options VALUES ('obs_exams' ,'son','Ultrasonography, Pre-natal'    , 1,0,0);
+INSERT INTO list_options VALUES ('obs_exams' ,'pel','Pelvimetry'                    , 1,0,0);
+INSERT INTO list_options VALUES ('obs_exams' ,'pla','Placental Function Tests'      , 1,0,0);
+INSERT INTO list_options VALUES ('obs_exams' ,'utm','Uterine Monitoring'            , 1,0,0);
+INSERT INTO list_options VALUES ('obs_exams' ,'fem','Fetal Monitoring'              , 1,0,0);
+INSERT INTO list_options VALUES ('obs_exams' ,'pnc','Pre natal Care - Immunisations', 1,0,0);
+INSERT INTO list_options VALUES ('lists'     ,'obs_exams','Obstetric Tests',121,0,0);
+
+DELETE FROM list_options WHERE list_id = 'pr_outcome';
+INSERT INTO list_options VALUES ('pr_outcome' ,'live','Live birth'  , 1,0,0);
+INSERT INTO list_options VALUES ('pr_outcome' ,'still','Still birth', 1,0,0);
+INSERT INTO list_options VALUES ('pr_outcome' ,'abo','Abortion'     , 1,0,0);
+INSERT INTO list_options VALUES ('pr_outcome' ,'ect','Ectopic'      , 1,0,0);
+INSERT INTO list_options VALUES ('pr_outcome' ,'oth','Other'        , 1,0,0);
+INSERT INTO list_options VALUES ('lists','pr_outcome','Pregnancy Outcomes',122,0,0);
+
+DELETE FROM list_options WHERE list_id = 'pr_compl';
+INSERT INTO list_options VALUES ('pr_compl' ,'vag'    ,'Bacterial Vaginosis'                       , 1,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'rest'   ,'Bed Rest'                                  , 2,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'bleed'  ,'Bleeding During Pregnancy'                 , 3,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'bofum'  ,'Blighted Ovum'                             , 4,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'cercl'  ,'Cervical Cerclage'                         , 5,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'cpox'   ,'Chicken Pox'                               , 6,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'chol'   ,'Cholestasis of Pregnancy'                  , 7,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'compl'  ,'Common Pregnancy Complications'            , 8,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'confet' ,'Concerns regarding Early Fetal Development', 9,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'cytomeg','Cytomegalovirus (CMV) Infection'           ,10,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'dnc'    ,'D&C procedure after a Miscarriage'         ,11,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'ect'    ,'Ectopic Pregnancy'                         ,12,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'fasd'   ,'Fetal Alcohol Spectrum Disorders'          ,13,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'fgr'    ,'Fetal Growth Restriction'                  ,14,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'dia'    ,'Gestational Diabetes'                      ,15,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'strep'  ,'Group B Strep Infection'                   ,16,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'hafl'   ,'High Amniotic Fluid Levels: Polyhydramnios',17,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'hiv'    ,'HIV/AIDS during Pregnancy'                 ,18,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'hyperm' ,'Hyperemesis Gravidarum'                    ,19,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'incerv' ,'Incompetent Cervix'                        ,20,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'iugr'   ,'Intrauterine Growth Restriction (IUGR)'    ,21,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'sga'    ,'Small for Gestational Age (SGA)'           ,22,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'list'   ,'Listeria'                                  ,23,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'lafl'   ,'Low Amniotic Fluid Levels: Oligohydramnios',24,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'mis'    ,'Miscarriage'                               ,25,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'molar'  ,'Molar Pregnancy'                           ,26,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'accr'   ,'Placenta Accreta'                          ,27,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'prev'   ,'Placenta Previa'                           ,28,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'abrup'  ,'Placental Abruption'                       ,29,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'preecl' ,'Preeclampsia'                              ,30,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'pih'    ,'Pregnancy Induced Hypertension (PIH)'      ,31,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'rhf'    ,'RH Factor'                                 ,32,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'sti'    ,'STDs/STIs During Pregnancy'                ,33,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'tip'    ,'Tipped Uterus'                             ,34,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'tox'    ,'Toxoplasmosis'                             ,35,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'uti'    ,'Urinary Tract Infection'                   ,36,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'vts'    ,'Vanishing Twin Syndrome'                   ,37,0,0);
+INSERT INTO list_options VALUES ('pr_compl' ,'yeast'  ,'Yeast Infection'                           ,38,0,0);
+INSERT INTO list_options VALUES ('lists','pr_compl','Pregnancy Complications',123,0,0);
+
+DELETE FROM list_options WHERE list_id = 'abo_exams';
+INSERT INTO list_options VALUES ('abo_exams' ,'ane','Exclusion of Anaemia'          , 1,0,0);
+INSERT INTO list_options VALUES ('abo_exams' ,'bgr','ABO and Rh blood groups'       , 2,0,0);
+INSERT INTO list_options VALUES ('abo_exams' ,'ect','Exclusion of ectopic pregnancy', 3,0,0);
+INSERT INTO list_options VALUES ('abo_exams' ,'cer','Cervical cytology'             , 4,0,0);
+INSERT INTO list_options VALUES ('abo_exams' ,'hiv','HIV testing'                   , 5,0,0);
+INSERT INTO list_options VALUES ('abo_exams' ,'oth','Other'                         , 6,0,0);
+INSERT INTO list_options VALUES ('lists'     ,'abo_exams','Abortion Tests',124,0,0);
+
+DELETE FROM list_options WHERE list_id = 'hiv_exams';
+INSERT INTO list_options VALUES ('hiv_exams' ,'eli','ELISA (Blood) Test', 1,0,0);
+INSERT INTO list_options VALUES ('hiv_exams' ,'wba','Western Blot Assay', 2,0,0);
+INSERT INTO list_options VALUES ('hiv_exams' ,'ifa','IFA'               , 3,0,0);
+INSERT INTO list_options VALUES ('hiv_exams' ,'rat','Rapid Test'        , 4,0,0);
+INSERT INTO list_options VALUES ('hiv_exams' ,'uri','Urine Test for HIV', 5,0,0);
+INSERT INTO list_options VALUES ('hiv_exams' ,'vil','Viral Load'        , 6,0,0);
+INSERT INTO list_options VALUES ('hiv_exams' ,'cd4','CD4 count'         , 7,0,0);
+INSERT INTO list_options VALUES ('hiv_exams' ,'oth','Other'             , 8,0,0);
+INSERT INTO list_options VALUES ('lists','hiv_exams','HIV/AIDS Tests',125,0,0);
+
+DELETE FROM list_options WHERE list_id = 'its_exams';
+INSERT INTO list_options VALUES ('its_exams' ,'vag','Bacterial Vaginosis'       , 1,0,0);
+INSERT INTO list_options VALUES ('its_exams' ,'can','Candidiasis'               , 2,0,0);
+INSERT INTO list_options VALUES ('its_exams' ,'cha','Chancroid'                 , 3,0,0);
+INSERT INTO list_options VALUES ('its_exams' ,'chl','Chlamydia'                 , 4,0,0);
+INSERT INTO list_options VALUES ('its_exams' ,'gon','Gonorrhea'                 , 5,0,0);
+INSERT INTO list_options VALUES ('its_exams' ,'hsv','Herpes Simplex (HSV)'      , 6,0,0);
+INSERT INTO list_options VALUES ('its_exams' ,'hpv','Human Papillomavirus (HPV)', 7,0,0);
+INSERT INTO list_options VALUES ('its_exams' ,'syp','Syphilis'                  , 8,0,0);
+INSERT INTO list_options VALUES ('its_exams' ,'tri','Trichomoniasis'            , 9,0,0);
+INSERT INTO list_options VALUES ('its_exams' ,'hep','Hepatitis B'               ,10,0,0);
+INSERT INTO list_options VALUES ('its_exams' ,'oth','Other'                     ,11,0,0);
+INSERT INTO list_options VALUES ('lists','its_exams','ITS/ITR Tests',126,0,0);
+
+DELETE FROM list_options WHERE list_id = 'fer_exams';
+INSERT INTO list_options VALUES ('fer_exams' ,'end','Endometrial biopsy'          , 1,0,0);
+INSERT INTO list_options VALUES ('fer_exams' ,'tes','Testicular biopsy'           , 2,0,0);
+INSERT INTO list_options VALUES ('fer_exams' ,'lap','Laparoscopy'                 , 3,0,0);
+INSERT INTO list_options VALUES ('fer_exams' ,'hsc','Histeroscopy'                , 4,0,0);
+INSERT INTO list_options VALUES ('fer_exams' ,'hsa','Histerosalpingography'       , 5,0,0);
+INSERT INTO list_options VALUES ('fer_exams' ,'ova','Ovarian ultrasound'          , 6,0,0);
+INSERT INTO list_options VALUES ('fer_exams' ,'tve','Transvaginal ecography'      , 7,0,0);
+INSERT INTO list_options VALUES ('fer_exams' ,'pct','Post-coital test'            , 8,0,0);
+INSERT INTO list_options VALUES ('fer_exams' ,'ftp','Fallopian Tube Patency Tests', 9,0,0);
+INSERT INTO list_options VALUES ('fer_exams' ,'ccc','CCCT'                        ,10,0,0);
+INSERT INTO list_options VALUES ('fer_exams' ,'sem','Semen analysis'              ,11,0,0);
+INSERT INTO list_options VALUES ('fer_exams' ,'bas','Basal Temperature'           ,12,0,0);
+INSERT INTO list_options VALUES ('fer_exams' ,'muc','Mucose Analysis'             ,13,0,0);
+INSERT INTO list_options VALUES ('fer_exams' ,'spc','Sperm Count'                 ,14,0,0);
+INSERT INTO list_options VALUES ('fer_exams' ,'spg','Spermiogram'                 ,15,0,0);
+INSERT INTO list_options VALUES ('fer_exams' ,'hor','Hormonal analysis'           ,16,0,0);
+INSERT INTO list_options VALUES ('fer_exams' ,'oth','Other'                       ,17,0,0);
+INSERT INTO list_options VALUES ('lists','fer_exams','Infertility/Subfertility Tests',127,0,0);
+
+DELETE FROM list_options WHERE list_id = 'fer_causes';
+INSERT INTO list_options VALUES ('fer_causes' ,'edy','Male erectile dysfunction'         , 1,0,0);
+INSERT INTO list_options VALUES ('fer_causes' ,'end','Female Endometriosis'              , 2,0,0);
+INSERT INTO list_options VALUES ('fer_causes' ,'pos','Female Polycystic ovarian syndrome', 3,0,0);
+INSERT INTO list_options VALUES ('fer_causes' ,'alc','Alcohol Abuse and Alcoholism'      , 4,0,0);
+INSERT INTO list_options VALUES ('fer_causes' ,'dep','Depression'                        , 5,0,0);
+INSERT INTO list_options VALUES ('fer_causes' ,'dia','Diabetes'                          , 6,0,0);
+INSERT INTO list_options VALUES ('fer_causes' ,'hyp','High Blood Pressure'               , 7,0,0);
+INSERT INTO list_options VALUES ('fer_causes' ,'kid','Kidney Failure'                    , 8,0,0);
+INSERT INTO list_options VALUES ('fer_causes' ,'msc','Multiple Sclerosis'                , 9,0,0);
+INSERT INTO list_options VALUES ('fer_causes' ,'prc','Prostate Cancer'                   ,10,0,0);
+INSERT INTO list_options VALUES ('fer_causes' ,'smo','Smoking (How to Quit Smoking)'     ,11,0,0);
+INSERT INTO list_options VALUES ('fer_causes' ,'str','Stress'                            ,12,0,0);
+INSERT INTO list_options VALUES ('fer_causes' ,'ath','Atherosclerosis'                   ,13,0,0);
+INSERT INTO list_options VALUES ('fer_causes' ,'ins','Injuries or Surgery'               ,14,0,0);
+INSERT INTO list_options VALUES ('fer_causes' ,'med','Medications'                       ,15,0,0);
+INSERT INTO list_options VALUES ('fer_causes' ,'oth','Other'                             ,16,0,0);
+INSERT INTO list_options VALUES ('lists','fer_causes','Causes of Infertility/Subfertility',128,0,0);
+
+DELETE FROM list_options WHERE list_id = 'fer_treat';
+INSERT INTO list_options VALUES ('fer_treat' ,'ovi','Ovulation Induction'           , 1,0,0);
+INSERT INTO list_options VALUES ('fer_treat' ,'emb','Embryo Transfer'               , 2,0,0);
+INSERT INTO list_options VALUES ('fer_treat' ,'fer','Fertilization in Vitro'        , 3,0,0);
+INSERT INTO list_options VALUES ('fer_treat' ,'git','Gamete Intrafallopian Transfer', 4,0,0);
+INSERT INTO list_options VALUES ('fer_treat' ,'sem','Artificial Insemination'       , 5,0,0);
+INSERT INTO list_options VALUES ('fer_treat' ,'ocd','Oocyte Donation'               , 6,0,0);
+INSERT INTO list_options VALUES ('fer_treat' ,'zit','Zygote Intrafallopian Transfer', 7,0,0);
+INSERT INTO list_options VALUES ('fer_treat' ,'oth','Other'                         , 8,0,0);
+INSERT INTO list_options VALUES ('lists','fer_treat','Infertility/Subfertility Treatments',129,0,0);
+
+DELETE FROM list_options WHERE list_id = 'uro_exams';
+INSERT INTO list_options VALUES ('uro_exams' ,'cys','Cystoscopy'               , 1,0,0);
+INSERT INTO list_options VALUES ('uro_exams' ,'ure','Ureteroscopy'             , 2,0,0);
+INSERT INTO list_options VALUES ('uro_exams' ,'uro','Urography'                , 3,0,0);
+INSERT INTO list_options VALUES ('uro_exams' ,'pro','Prostate Cancer Screening', 4,0,0);
+INSERT INTO list_options VALUES ('uro_exams' ,'pen','Peniscopy'                , 5,0,0);
+INSERT INTO list_options VALUES ('uro_exams' ,'oth','Other'                    , 6,0,0);
+INSERT INTO list_options VALUES ('lists','uro_exams','Urology Tests',130,0,0);
+
+DELETE FROM list_options WHERE list_id = 'uro_disease';
+INSERT INTO list_options VALUES ('uro_disease' ,'bal','Balanitis'            , 1,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'cry','Cryptorchidism'       , 2,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'ect','Ectopia Testis'       , 3,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'eps','Epispadias'           , 4,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'epd','Epididymitis'         , 5,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'edy','Erectile Dysfunction' , 6,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'fre','Frenulum Breve'       , 7,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'hyd','Hydrocele'            , 8,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'hyp','Hypospadias'          , 9,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'mic','Micropenis'           ,10,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'orc','Orchitis'             ,11,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'par','Paraphimosis'         ,12,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'pec','Penile Cancer'        ,13,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'pef','Penile Fracture'      ,14,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'pey','Peyronies Disease'    ,15,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'phi','Phimosis'             ,16,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'pre','Premature Ejaculation',17,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'prt','Prostatitis'          ,18,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'prc','Prostate Cancer'      ,19,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'spe','Spermatocele'         ,20,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'tec','Testicular Cancer'    ,21,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'tet','Testicular Torsion'   ,22,0,0);
+INSERT INTO list_options VALUES ('uro_disease' ,'var','Varicocele'           ,23,0,0);
+INSERT INTO list_options VALUES ('lists','uro_disease','Male Genitourinary diseases',131,0,0);
