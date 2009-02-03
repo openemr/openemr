@@ -135,6 +135,9 @@ if (isset($_GET["mode"])) {
     }
   }
 }
+
+$form_inactive = empty($_REQUEST['form_inactive']) ? false : true;
+
 ?>
 <html>
 <head>
@@ -198,9 +201,12 @@ if (isset($_GET["mode"])) {
 <tr>
 <td valign=top>
 
+<!-- Why is this here???  - Rod
 <form name='facility' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
 <input type=hidden name=mode value=<?php xl('facility','e'); ?>>
+-->
+
 <span class="bold"><?php xl('Edit Facilities','e'); ?>: </span>
 </td><td valign=top>
 <?php
@@ -428,10 +434,22 @@ foreach ($result2 as $iter) {
 
 <hr>
 
+<form name='userlist' method='post' action='usergroup_admin.php'
+ onsubmit='return top.restoreSession()'>
+<span class='bold'>
+<input type='checkbox' name='form_inactive' value='1' onclick='submit()'
+ <?php if ($form_inactive) echo 'checked '; ?>/>
+Include inactive users
+</span>
+</form>
+
 <table border=0 cellpadding=1 cellspacing=2>
 <tr><td><span class="bold"><?php xl('Username','e'); ?></span></td><td><span class="bold"><?php xl('Real Name','e'); ?></span></td><td><span class="bold"><?php xl('Info','e'); ?></span></td><td><span class="bold"><?php xl('Authorized','e'); ?>?</span></td></tr>
 <?php
-$res = sqlStatement("select * from users where username != '' order by username");
+$query = "SELECT * FROM users WHERE username != '' ";
+if (!$form_inactive) $query .= "AND active = '1' ";
+$query .= "ORDER BY username";
+$res = sqlStatement($query);
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
   $result4[$iter] = $row;
 foreach ($result4 as $iter) {
