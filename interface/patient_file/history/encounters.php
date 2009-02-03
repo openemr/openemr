@@ -388,7 +388,8 @@ if ($result = getEncounters($pid)) {
         if ($binfo[0]) $binfo[0] .= '<br>';
         $binfo[0] .= "<span " .
           "onmouseover='ttshow(this,\"$title\")' onmouseout='tthide()'>" .
-          $arlinkbeg . $codekey . $arlinkend . "</span>";
+          $arlinkbeg . ($codekey == 'CO-PAY' ? xl($codekey) : $codekey) .
+          $arlinkend . "</span>";
         if ($billing_view && $accounting_enabled) {
           if ($binfo[1]) {
             for ($i = 1; $i < 5; ++$i) $binfo[$i] .= '<br>';
