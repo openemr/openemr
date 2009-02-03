@@ -8,9 +8,9 @@ if (!empty($GLOBALS['ippf_specific'])) {
     'allergy'         => array('Allergies'       , 'Allergy'      , 'Y',  0),
     'medication'      => array('Medications'     , 'Medication'   , 'M',  0),
     'surgery'         => array('Surgeries'       , 'Surgery'      , 'S',  0),
-    'contraceptive'   => array('Contraception'   , 'Contraception', 'C',  4),
-//  'pregnancy'       => array('Pregnancies'     , 'Pregnancy'    , 'R',  0),
     'ippf_gcac'       => array('Abortions'       , 'Abortion'     , 'A',  3),
+    'contraceptive'   => array('Contraception'   , 'Contraception', 'C',  4),
+//  'ippf_srh'        => array('SRH'             , 'SRH'          , 'R',  5),
   );
 }
 else if (!empty($GLOBALS['athletic_team'])) {
