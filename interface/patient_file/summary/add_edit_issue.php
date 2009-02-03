@@ -1,15 +1,15 @@
 <?php
- // Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+// Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
 
- require_once("../../globals.php");
- require_once("$srcdir/lists.inc");
- require_once("$srcdir/patient.inc");
- require_once("$srcdir/acl.inc");
+require_once("../../globals.php");
+require_once("$srcdir/lists.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/acl.inc");
 
 if ($ISSUE_TYPES['football_injury']) {
   // Most of the logic for the "football injury" issue type comes from this
@@ -24,22 +24,22 @@ if ($ISSUE_TYPES['ippf_gcac']) {
 
 $diagnosis_type = $GLOBALS['athletic_team'] ? 'OSICS10' : 'ICD9';
 
- $issue = $_REQUEST['issue'];
- $thispid = $_REQUEST['thispid'] ? $_REQUEST['thispid'] : $pid;
- $info_msg = "";
+$issue = $_REQUEST['issue'];
+$thispid = $_REQUEST['thispid'] ? $_REQUEST['thispid'] : $pid;
+$info_msg = "";
 
- $thisauth = acl_check('patients', 'med');
- if ($issue && $thisauth != 'write') die("Edit is not authorized!");
- if ($thisauth != 'write' && $thisauth != 'addonly') die("Add is not authorized!");
+$thisauth = acl_check('patients', 'med');
+if ($issue && $thisauth != 'write') die("Edit is not authorized!");
+if ($thisauth != 'write' && $thisauth != 'addonly') die("Add is not authorized!");
 
- $tmp = getPatientData($thispid, "squad");
- if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
+$tmp = getPatientData($thispid, "squad");
+if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
   die("Not authorized for this squad!");
 
- function QuotedOrNull($fld) {
+function QuotedOrNull($fld) {
   if ($fld) return "'$fld'";
   return "NULL";
- }
+}
 
 function rbvalue($rbname) {
   $tmp = $_POST[$rbname];
@@ -71,6 +71,121 @@ function rbcell($name, $value, $desc, $colname) {
  return "<td width='25%' nowrap>" . rbinput($name, $value, $desc, $colname) . "</td>\n";
 }
 
+// If we are saving, then save and close the window.
+//
+if ($_POST['form_save']) {
+
+  $i = 0;
+  $text_type = "unknown";
+  foreach ($ISSUE_TYPES as $key => $value) {
+   if ($i++ == $_POST['form_type']) $text_type = $key;
+  }
+
+  $form_begin = fixDate($_POST['form_begin'], '');
+  $form_end   = fixDate($_POST['form_end'], '');
+
+  if ($issue) {
+
+   $query = "UPDATE lists SET " .
+    "type = '"        . $text_type                  . "', " .
+    "title = '"       . $_POST['form_title']        . "', " .
+    "comments = '"    . $_POST['form_comments']     . "', " .
+    "begdate = "      . QuotedOrNull($form_begin)   . ", "  .
+    "enddate = "      . QuotedOrNull($form_end)     . ", "  .
+    "returndate = "   . QuotedOrNull($form_return)  . ", "  .
+    "diagnosis = '"   . $_POST['form_diagnosis']    . "', " .
+    "occurrence = '"  . $_POST['form_occur']        . "', " .
+    "classification = '" . $_POST['form_classification'] . "', " .
+    "referredby = '"  . $_POST['form_referredby']   . "', " .
+    "extrainfo = '"   . $_POST['form_missed']       . "', " .
+    "outcome = "      . rbvalue('form_outcome')     . ", "  .
+//  "destination = "  . rbvalue('form_destination') . " "   . // radio button version
+    "destination = '" . $_POST['form_destination']   . "' "  .
+    "WHERE id = '$issue'";
+    sqlStatement($query);
+    if ($text_type == "medication" && enddate != '') {
+      sqlStatement('UPDATE prescriptions SET '
+        . 'medication = 0 where patient_id = ' . $thispid
+        . " and upper(trim(drug)) = '" . strtoupper($_POST['form_title']) . "' "
+        . ' and medication = 1' );
+    }
+
+  } else {
+
+   $issue = sqlInsert("INSERT INTO lists ( " .
+    "date, pid, type, title, activity, comments, begdate, enddate, returndate, " .
+    "diagnosis, occurrence, classification, referredby, extrainfo, user, groupname, " .
+    "outcome, destination " .
+    ") VALUES ( " .
+    "NOW(), " .
+    "'$thispid', " .
+    "'" . $text_type                 . "', " .
+    "'" . $_POST['form_title']       . "', " .
+    "1, "                            .
+    "'" . $_POST['form_comments']    . "', " .
+    QuotedOrNull($form_begin)        . ", "  .
+    QuotedOrNull($form_end)          . ", "  .
+    QuotedOrNull($form_return)       . ", "  .
+    "'" . $_POST['form_diagnosis']   . "', " .
+    "'" . $_POST['form_occur']       . "', " .
+    "'" . $_POST['form_classification'] . "', " .
+    "'" . $_POST['form_referredby']  . "', " .
+    "'" . $_POST['form_missed']      . "', " .
+    "'" . $$_SESSION['authUser']     . "', " .
+    "'" . $$_SESSION['authProvider'] . "', " .
+   rbvalue('form_outcome')           . ", "  .
+// rbvalue('form_destination')       . " "   . // radio button version
+    "'" . $_POST['form_destination'] . "' "  .
+   ")");
+
+  }
+
+  if ($text_type == 'football_injury') issue_football_injury_save($issue);
+  if ($text_type == 'ippf_gcac'      ) issue_ippf_gcac_save($issue);
+  if ($text_type == 'contraceptive'  ) issue_ippf_con_save($issue);
+  // if ($text_type == 'ippf_srh'       ) issue_ippf_srh_save($issue);
+
+  $tmp_title = $ISSUE_TYPES[$text_type][2] . ": $form_begin " .
+   substr($_POST['form_title'], 0, 40);
+
+  // Close this window and redisplay the updated list of issues.
+  //
+  echo "<html><body><script language='JavaScript'>\n";
+  if ($info_msg) echo " alert('$info_msg');\n";
+  echo " window.close();\n";
+  // echo " opener.location.reload();\n";
+  echo " if (opener.refreshIssue) opener.refreshIssue($issue,'$tmp_title');\n";
+  echo "</script></body></html>\n";
+  exit();
+}
+
+$irow = array();
+$type_index = 0;
+
+if ($issue) {
+  $irow = sqlQuery("SELECT * FROM lists WHERE id = $issue");
+  foreach ($ISSUE_TYPES as $key => $value) {
+    if ($key == $irow['type']) break;
+    ++$type_index;
+  }
+
+  /*******************************************************************
+  // Get all of the eligible diagnoses.
+  // We include the pid in this search for better performance,
+  // because it's part of the primary key:
+  $bres = sqlStatement(
+   "SELECT DISTINCT billing.code, billing.code_text " .
+   "FROM issue_encounter, billing WHERE " .
+   "issue_encounter.pid = '$thispid' AND " .
+   "issue_encounter.list_id = '$issue' AND " .
+   "billing.encounter = issue_encounter.encounter AND " .
+   "( billing.code_type LIKE 'ICD%' OR " .
+   "billing.code_type LIKE 'OSICS' OR " .
+   "billing.code_type LIKE 'UCSMC' )"
+  );
+  *******************************************************************/
+
+}
 ?>
 <html>
 <head>
@@ -169,10 +284,11 @@ div.section {
     // Generate more of these for football injury fields.
     issue_football_injury_newtype();
   }
-  if ($ISSUE_TYPES['ippf_gcac']) {
+  if ($ISSUE_TYPES['ippf_gcac'] && !$_POST['form_save']) {
     // Generate more of these for gcac and contraceptive fields.
-    issue_ippf_gcac_newtype();
-    issue_ippf_con_newtype();
+    if (empty($issue) || $irow['type'] == 'ippf_gcac'    ) issue_ippf_gcac_newtype();
+    if (empty($issue) || $irow['type'] == 'contraceptive') issue_ippf_con_newtype();
+    // if (empty($issue) || $irow['type'] == 'ippf_srh'     ) issue_ippf_srh_newtype();
   }
 ?>
  }
@@ -255,122 +371,7 @@ function divclick(cb, divid) {
 </head>
 
 <body class="body_top" style="padding-right:0.5em">
-<?php
- // If we are saving, then save and close the window.
- //
- if ($_POST['form_save']) {
 
-  $i = 0;
-  $text_type = "unknown";
-  foreach ($ISSUE_TYPES as $key => $value) {
-   if ($i++ == $_POST['form_type']) $text_type = $key;
-  }
-
-  $form_begin = fixDate($_POST['form_begin'], '');
-  $form_end   = fixDate($_POST['form_end'], '');
-
-  if ($issue) {
-
-   $query = "UPDATE lists SET " .
-    "type = '"        . $text_type                  . "', " .
-    "title = '"       . $_POST['form_title']        . "', " .
-    "comments = '"    . $_POST['form_comments']     . "', " .
-    "begdate = "      . QuotedOrNull($form_begin)   . ", "  .
-    "enddate = "      . QuotedOrNull($form_end)     . ", "  .
-    "returndate = "   . QuotedOrNull($form_return)  . ", "  .
-    "diagnosis = '"   . $_POST['form_diagnosis']    . "', " .
-    "occurrence = '"  . $_POST['form_occur']        . "', " .
-    "classification = '" . $_POST['form_classification'] . "', " .
-    "referredby = '"  . $_POST['form_referredby']   . "', " .
-    "extrainfo = '"   . $_POST['form_missed']       . "', " .
-    "outcome = "      . rbvalue('form_outcome')     . ", "  .
-//  "destination = "  . rbvalue('form_destination') . " "   . // radio button version
-    "destination = '" . $_POST['form_destination']   . "' "  .
-    "WHERE id = '$issue'";
-    sqlStatement($query);
-    if ($text_type == "medication" && enddate != '') {
-      sqlStatement('UPDATE prescriptions SET '
-        . 'medication = 0 where patient_id = ' . $thispid
-        . " and upper(trim(drug)) = '" . strtoupper($_POST['form_title']) . "' "
-        . ' and medication = 1' );
-    }
-
-  } else {
-
-   $issue = sqlInsert("INSERT INTO lists ( " .
-    "date, pid, type, title, activity, comments, begdate, enddate, returndate, " .
-    "diagnosis, occurrence, classification, referredby, extrainfo, user, groupname, " .
-    "outcome, destination " .
-    ") VALUES ( " .
-    "NOW(), " .
-    "'$thispid', " .
-    "'" . $text_type                 . "', " .
-    "'" . $_POST['form_title']       . "', " .
-    "1, "                            .
-    "'" . $_POST['form_comments']    . "', " .
-    QuotedOrNull($form_begin)        . ", "  .
-    QuotedOrNull($form_end)          . ", "  .
-    QuotedOrNull($form_return)       . ", "  .
-    "'" . $_POST['form_diagnosis']   . "', " .
-    "'" . $_POST['form_occur']       . "', " .
-    "'" . $_POST['form_classification'] . "', " .
-    "'" . $_POST['form_referredby']  . "', " .
-    "'" . $_POST['form_missed']      . "', " .
-    "'" . $$_SESSION['authUser']     . "', " .
-    "'" . $$_SESSION['authProvider'] . "', " .
-   rbvalue('form_outcome')           . ", "  .
-// rbvalue('form_destination')       . " "   . // radio button version
-    "'" . $_POST['form_destination'] . "' "  .
-   ")");
-
-  }
-
-  if ($text_type == 'football_injury') issue_football_injury_save($issue);
-  if ($text_type == 'ippf_gcac'      ) issue_ippf_gcac_save($issue);
-  if ($text_type == 'contraceptive'  ) issue_ippf_con_save($issue);
-
-  $tmp_title = $ISSUE_TYPES[$text_type][2] . ": $form_begin " .
-   substr($_POST['form_title'], 0, 40);
-
-  // Close this window and redisplay the updated list of issues.
-  //
-  echo "<script language='JavaScript'>\n";
-  if ($info_msg) echo " alert('$info_msg');\n";
-  echo " window.close();\n";
-  // echo " opener.location.reload();\n";
-  echo " if (opener.refreshIssue) opener.refreshIssue($issue,'$tmp_title');\n";
-  echo "</script></body></html>\n";
-  exit();
- }
-
- $irow = array();
- $type_index = 0;
-
- if ($issue) {
-  $irow = sqlQuery("SELECT * FROM lists WHERE id = $issue");
-  foreach ($ISSUE_TYPES as $key => $value) {
-   if ($key == $irow['type']) break;
-   ++$type_index;
-  }
-
-  /*******************************************************************
-  // Get all of the eligible diagnoses.
-  // We include the pid in this search for better performance,
-  // because it's part of the primary key:
-  $bres = sqlStatement(
-   "SELECT DISTINCT billing.code, billing.code_text " .
-   "FROM issue_encounter, billing WHERE " .
-   "issue_encounter.pid = '$thispid' AND " .
-   "issue_encounter.list_id = '$issue' AND " .
-   "billing.encounter = issue_encounter.encounter AND " .
-   "( billing.code_type LIKE 'ICD%' OR " .
-   "billing.code_type LIKE 'OSICS' OR " .
-   "billing.code_type LIKE 'UCSMC' )"
-  );
-  *******************************************************************/
-
- }
-?>
 <form method='post' name='theform' action='add_edit_issue.php?issue=<?php echo $issue ?>'
  onsubmit='return validate()'>
 
@@ -385,7 +386,7 @@ function divclick(cb, divid) {
   if ($issue) {
     if ($index == $type_index) {
       echo $value[1];
-      echo "<input type ='hidden' name='form_type' value='$index'>\n";
+      echo "<input type='hidden' name='form_type' value='$index'>\n";
     }
   } else {
     echo "   <input type='radio' name='form_type' value='$index' onclick='newtype($index)'";
@@ -576,8 +577,12 @@ function divclick(cb, divid) {
     issue_football_injury_form($issue);
   }
   if ($ISSUE_TYPES['ippf_gcac']) {
-    issue_ippf_gcac_form($issue);
-    issue_ippf_con_form($issue);
+    if (empty($issue) || $irow['type'] == 'ippf_gcac')
+      issue_ippf_gcac_form($issue, $thispid);
+    if (empty($issue) || $irow['type'] == 'contraceptive')
+      issue_ippf_con_form($issue, $thispid);
+    // if (empty($issue) || $irow['type'] == 'ippf_srh')
+    //   issue_ippf_srh_form($issue, $thispid);
   }
 ?>
 
