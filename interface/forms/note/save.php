@@ -19,21 +19,20 @@
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
-foreach ($_POST as $k => $var) {
-$_POST[$k] = mysql_escape_string($var);
-echo "$var\n";
-}
-if ($encounter == "")
-$encounter = date("Ymd");
-if ($_GET["mode"] == "new"){
-$newid = formSubmit("form_note", $_POST, $_GET["id"], $userauthorized);
-addForm($encounter, "Work/School Note", $newid, "note", $pid, $userauthorized);
-}elseif ($_GET["mode"] == "update") {
-sqlInsert("update form_note set pid = {$_SESSION["pid"]},groupname='".$_SESSION["authProvider"]."',user='".$_SESSION["authUser"]."',authorized=$userauthorized,activity=1, date = NOW(),
-note_type='".$_POST["note_type"]."',
-message='".$_POST["message"]."',
-doctor='".$_POST["doctor"]."',
-date_of_signature='".$_POST["date_of_signature"]."' where id=$id");
+
+/* 
+ * name of the database table associated with this form
+ */
+$table_name = "form_note";
+
+if ($encounter == "") $encounter = date("Ymd");
+
+if ($_GET["mode"] == "new") {
+    $newid = formSubmit($table_name, $_POST, $_GET["id"], $userauthorized);
+    addForm($encounter, "Work/School Note", $newid, "note", $pid, $userauthorized);
+} 
+elseif ($_GET["mode"] == "update") {
+    $success = formUpdate($table_name, $_POST, $_GET["id"], $userauthorized);
 }
 $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
