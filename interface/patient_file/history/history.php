@@ -35,19 +35,18 @@
 <?php if ($thisauth == 'write' || $thisauth == 'addonly') { ?>
 <a href="history_full.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>
  onclick="top.restoreSession()">
-<font class=title><?php xl('Patient History / Lifestyle','e'); ?></font>
-<font class=more><?php echo $tmore;?></font></a><br>
+<span class="title"><?php xl('Patient History / Lifestyle','e'); ?></span>
+<span class="more"><?php echo $tmore;?></span></a><br>
 <?php } ?>
 
 <!-- New stuff begins here. -->
-
+<div id="HIS">
 <table border='0' cellpadding='0' width='100%'>
-
 <?php
 display_layout_rows('HIS', $result);
 ?>
-
 </table>
+</div>
 
 </body>
 </html>
