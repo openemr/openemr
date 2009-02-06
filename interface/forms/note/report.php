@@ -19,36 +19,37 @@
 include_once("../../globals.php");
 include_once($GLOBALS["srcdir"]."/api.inc");
 function note_report( $pid, $encounter, $cols, $id) {
-$count = 0;
-$data = formFetch("form_note", $id);
-if ($data) {
-//printf("<h1><font color=\"2FB472\">Company Name</font></h1>");
-//printf("<h2><font color=\"2FB472\">Company Address</font></h2>");
-//printf("<h2><font color=\"2FB472\">Company Address</font></h2>");
-//printf("<h2><font color=\"2FB472\">Phone: (XXX) 999-9999</font></h2>");
-//printf("<h2><font color=\"2FB472\">Fax: (XXX) 999-9999</font></h2>");
-//printf("<h2><font color=\"2FB472\">www.company.com</font></h2>");
- 
-print "<table><tr>";
-foreach($data as $key => $value) {
-if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" || $key == "authorized" || $key == "activity" || $key == "date" || $value == "" || $value == "0000-00-00 00:00:00") {
-	continue;
-}
-if ($value == "on") {
-$value = "yes";
-}
-
-$key=ucwords(str_replace("_"," ",$key));
-print("<tr>\n");  
-print("<tr>\n");  
-print "<td><span class=bold>$key: </span><span class=text>$value</span></td>";
-$count++;
-if ($count == $cols) {
-$count = 0;
-print "</tr><tr>\n";
-}
-}
-}
-print "</tr></table>";
+    $count = 0;
+    $data = formFetch("form_note", $id);
+    if ($data) {
+        print "<table><tr>";
+        foreach($data as $key => $value) {
+            if ($key == "id" || 
+                $key == "pid" || 
+                $key == "user" || 
+                $key == "groupname" || 
+                $key == "authorized" || 
+                $key == "activity" || 
+                $key == "date" || 
+                $value == "" || 
+                $value == "0000-00-00 00:00:00")
+            {
+    	        continue;
+            }
+    
+            if ($value == "on") { $value = "yes"; }
+    
+            $key=ucwords(str_replace("_"," ",$key));
+            print("<tr>\n");  
+            print("<tr>\n");  
+            print "<td><span class=bold>$key: </span><span class=text>$value</span></td>";
+            $count++;
+            if ($count == $cols) {
+                $count = 0;
+                print "</tr><tr>\n";
+            }
+        }
+    }
+    print "</tr></table>";
 }
 ?> 
