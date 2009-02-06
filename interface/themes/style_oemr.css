@@ -569,10 +569,68 @@ a:hover { color: #A28268; text-decoration: underline; }
 
 
 /*=============================================================
+ * Patient Past Encounters and Documents
+ * seen in the patient encounter screen
+ *============================================================*/
+#patient_pastenc {
+    width:100%;
+}
+    
+#patient_pastenc .billing_note {
+    width: 25%;
+}
+#patient_pastenc .billing_note_text {
+    padding: 5px;
+    border: 2px outset black;
+    background-color: lightgrey;
+}
+#patient_pastenc .billing_note_text_highlight {
+    background-color:#f7f5d1;
+}
+#patient_pastenc table {
+    border-collapse: collapse;
+    width:100%;
+}
+#patient_pastenc tr {
+    cursor: pointer;
+}
+#patient_pastenc td {
+    border-top: 1px solid black;
+    vertical-align: top;
+}
+#patient_pastenc th {
+    text-align: left;
+}
+#patient_pastenc #tooltipdiv {
+    position:absolute;
+    width:500px;
+    border:1px solid black;
+    padding:2px;
+    background-color:#ffffaa;
+    visibility:hidden;
+    z-index:1000;
+    font-size:9pt;
+}
+#patient_pastenc .highlight {
+    background-color: #fff;
+}
+#patient_pastenc .tooltip {
+    position:absolute;
+    border:1px solid #333;
+    background:#f7f5d1;
+    padding:2px 5px;
+    color:#333;
+    display:none;
+}
+
+/*=============================================================
  * This section relates to the custom layouts that can be made
  * using the OEMR tool in the Admin section. For example, the
  * Patient Demographics are a custom layout.
  *============================================================*/
+
+/* Patient Demographics */
+
 #DEM .groupname {
     font-weight: bold;
     color: #080;
@@ -592,6 +650,30 @@ a:hover { color: #A28268; text-decoration: underline; }
     text-align: left;
     padding-right: 30px;
 }
+
+/* Patient History */
+
+#HIS .groupname {
+    font-weight: bold;
+    color: #080;
+    font-size: 0.8em;
+    padding-right: 5px;
+    vertical-align: bottom;
+    height: 2em;
+}
+#HIS .label {
+    font-weight: bold;
+    font-size: 0.8em;
+    vertical-align: bottom;
+}
+#HIS .data {
+    font-size: 0.8em;
+    vertical-align: bottom;
+    text-align: left;
+    padding-right: 30px;
+}
+
+
 /* the upcoming events section of the demographics page */
 #appts {
     border: 1px solid black;
