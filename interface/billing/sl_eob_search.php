@@ -29,7 +29,7 @@ $eracount = 0;
 // This is called back by parse_era() if we are processing X12 835's.
 //
 function era_callback(&$out) {
-  global $where, $eracount, $eraname;
+  global $where, $eracount, $eraname, $INTEGRATED_AR;
   // print_r($out); // debugging
   ++$eracount;
   // $eraname = $out['isa_control_number'];
@@ -39,7 +39,11 @@ function era_callback(&$out) {
 
   if ($pid && $encounter) {
     if ($where) $where .= ' OR ';
-    $where .= "invnumber = '$invnumber'";
+    if ($INTEGRATED_AR) {
+      $where .= "( f.pid = '$pid' AND f.encounter = '$encounter' )";
+    } else {
+      $where .= "invnumber = '$invnumber'";
+    }
   }
 }
 
