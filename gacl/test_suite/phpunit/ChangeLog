@@ -1,0 +1,69 @@
+2002-10-31  Fred Yankowski  <fred@ontosys.com>
+
+	* stylesheet.css: Add classes for "meta-results" types.
+
+	* runtests.php: Explain expected results.
+	Accomodate tabular format of results.
+
+	* phpunit_test.php: Use CSS formatting of results.
+	Use tabular layout similar to PrettyTestResult.
+
+2002-10-30  Fred Yankowski  <fred@ontosys.com>
+
+	* phpunit_test.php: (SelfTestResult): New class for reporting self-tests.
+
+	* phpunit.php (Exception): Record type, error or failure.
+	(Assert::assertEquals): Generate new error exception.
+	(Assert::_formatValue): Display serialized value of arrays and objects.
+	(TestCase::error): Record error as Exception.
+	(TestCase::failed): Check for failure exceptions.
+	(TestFailure): Record only single exception per instance.
+	(TestResult): Record errors separately from failures.
+	(TestResult::errorCount): New function.
+	(TestResult::failureCount): New function.
+	(TextTestResult::report): List failures and errors separately.
+	
+2002-10-22  Fred Yankowski  <fred@ontosys.com>
+
+	* phpunit.php (TextTestUnit::_startTest): Print class name too.	(per Ryan King).
+
+2002-05-08  Fred Yankowski  <fred@ontosys.com>
+
+	* phpunit_test.php: New tests for assertEqualsMultilineStrings method.
+
+	* phpunit.php: New assertEqualsMultilineStrings method.
+
+2002-04-12  Fred Yankowski  <fred@ontosys.com>
+
+	* phpunit_test.php: New TestClassNameStartingWithTest class.
+
+	* phpunit.php (runTest):  Add defensive check on test method name.
+	(TestSuite):  Smarter filtering of test method names.
+	
+2002-04-10  Fred Yankowski  <fred@ontosys.com>
+
+	* runtests.php: New file -- example driver script.
+
+	* runtests2.php: New file.
+
+2002-03-27  Fred Yankowski  <fred@ontosys.com>
+
+	* phpunit_test.php (AssertEqualsTests): test bug 535772
+
+	* phpunit.php (assertEquals): use equals() method if avail
+	(_formatValue): new method for bug 535772
+	(failNotEquals): use _formatValue()
+
+	* phpunit_test.php (AssertEqualsTests): tests for bug 498937
+
+	* phpunit.php (assertEquals): finer-grained tests per bug 498937
+
+	* stylesheet.css: new file, used along with PrettyTestResult
+
+	* phpunit_test.php: remove HTML page context
+
+	* phpunit.php: new PrettyTestResult class
+
+	* README: new file
+	
+

@@ -1,0 +1,101 @@
+body {
+	font-size: x-small;
+	font-family: Verdana,Arial,Helvetica,sans-serif;
+	
+	background-color: #ffffff;
+	color: #000000;
+}
+
+h1 {
+	margin: 4px 0px;
+	text-align: center;
+	font-weight: bold;
+}
+
+h2 {
+	margin: 4px 0px 0px;
+}
+
+p {
+	margin: 4px 0px;
+}
+
+ul {
+	margin: 2px 0px;
+	padding-left: 20px;
+}
+
+div.indent {
+	margin-left: 3%;
+	margin-right: 3%;
+}
+
+table.details {
+	margin-top: 4px;
+	width: 94%;
+	
+	border-width: 0px;
+	
+	margin-left: 3%;
+	margin-right: 3%;
+}
+
+table.details th {
+	font-weight: bold;
+	text-align: left;
+	background: #a6caf0;
+	
+	border-width: 0px;
+}
+
+table.details tr {
+	background: #eeeee0;
+}
+
+table.details td {
+	border-width: 0px;
+}
+
+table.details td.class_name {
+	font-weight: bold;
+	background-color: #eeeec0;
+	padding-left: 2px;
+}
+
+table.details td.function {
+	vertical-align: top;
+	padding-left: 10px;
+}
+
+table.details td.fail {
+	background-color: #ff0000;
+	font-weight: bold;
+	
+	vertical-align: middle;
+	text-align: center;
+}
+
+table.details td.pass {
+	background-color: #00ff00;
+	font-weight: bold;
+	
+	vertical-align: middle;
+	text-align: center;
+}
+
+.error {
+	color: #ff0000;
+	font-weight: bold;
+}
+
+code.expected {
+	color: #00ff00;
+}
+
+code.actual {
+	color: #ff0000;
+}
+
+span.typeinfo {
+	color: #999999;
+}

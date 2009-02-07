@@ -1,0 +1,1314 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE>phpGACL</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Linux)">
+	<META NAME="AUTHOR" CONTENT="jrussell">
+	<META NAME="CREATED" CONTENT="20030206;8320000">
+	<META NAME="CHANGED" CONTENT="20060903;16430300">
+	<META NAME="SDFOOTNOTE" CONTENT=";;;;P">
+	<META NAME="SDENDNOTE" CONTENT="ARABIC">
+	<STYLE TYPE="text/css">
+	<!--
+		@page { size: 8.27in 11.69in; margin: 1.18in }
+		P { margin-top: 0.08in; margin-bottom: 0.08in; color: #000000; line-height: 0.17in; widows: 2; orphans: 2 }
+		P.western { font-family: "Bitstream Vera Sans Mono", sans-serif; font-size: 10pt; so-language: en-US }
+		P.cjk { font-family: "Times New Roman", serif; font-size: 10pt; so-language: ja-JP }
+		H1 { margin-bottom: 0.04in; border-top: none; border-bottom: 1px solid #4700b8; border-left: 5.00pt solid #4700b8; border-right: none; padding-top: 0in; padding-bottom: 0.02in; padding-left: 0.02in; padding-right: 0in; color: #000000; widows: 2; orphans: 2; page-break-before: always }
+		H1.western { font-family: "Arial", sans-serif; font-size: 16pt; so-language: en-GB }
+		H1.cjk { font-family: "MS Mincho", "MS ??", monospace; font-size: 16pt; so-language: ja-JP }
+		H1.ctl { font-family: "Arial Unicode MS"; font-size: 12pt; font-weight: medium }
+		H2 { margin-bottom: 0.04in; color: #000000; widows: 2; orphans: 2 }
+		H2.western { font-family: "Georgia", serif; font-size: 13pt; so-language: en-GB; font-style: normal }
+		H2.cjk { font-family: "MS Mincho", "MS ??", monospace; font-size: 14pt; so-language: ja-JP; font-style: italic }
+		H2.ctl { font-family: "Arial Unicode MS"; font-size: 12pt; font-weight: medium }
+		H3 { margin-top: 0.08in; margin-bottom: 0.08in; color: #000000; line-height: 0.17in; widows: 2; orphans: 2 }
+		H3.western { font-family: "Helv", "Arial", sans-serif; font-size: 10pt; so-language: en-GB }
+		H3.cjk { font-family: "Times New Roman", serif; font-size: 10pt; so-language: ja-JP }
+		H3.ctl { font-family: "Arial Unicode MS"; font-size: 12pt; font-weight: medium }
+		H4 { margin-top: 0.08in; margin-bottom: 0.08in; color: #000000; line-height: 0.17in; widows: 2; orphans: 2 }
+		H4.western { font-family: "Helv", "Arial", sans-serif; font-size: 10pt; so-language: en-GB; font-style: italic; font-weight: medium }
+		H4.cjk { font-family: "Times New Roman", serif; font-size: 10pt; so-language: ja-JP; font-style: italic; font-weight: medium }
+		H4.ctl { font-family: "Arial Unicode MS"; font-size: 12pt; font-weight: medium }
+		A:link { color: #0000ff }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" TEXT="#000000" LINK="#0000ff" DIR="LTR">
+<P LANG="en-GB" ALIGN=CENTER STYLE="margin-top: 0.17in; line-height: 100%; page-break-after: avoid">
+<IMG SRC="manual_html_m54d0ced8.png" NAME="Graphic6" ALIGN=RIGHT WIDTH=165 HEIGHT=45 BORDER=0><BR CLEAR=RIGHT><BR><BR>
+</P>
+<P LANG="en-GB" ALIGN=CENTER STYLE="margin-top: 0.17in; line-height: 100%; page-break-after: avoid">
+<FONT FACE="Luxi Sans, sans-serif"><FONT SIZE=5><B>Generic Access
+Control Lists with PHP</B></FONT></FONT></P>
+<P CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">Mike
+Benoit &lt;</FONT><FONT COLOR="#0000ff"><U><A HREF="mailto:ipso@snappymail.ca"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">ipso@snappymail.ca</FONT></A></U></FONT><FONT FACE="Bitstream Vera Sans Mono, sans-serif">&gt;<BR>James
+Russell &lt;</FONT><A HREF="mailto:james-phpgacl@ps2-pro.com"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">james-phpgacl@ps2-pro.com</FONT></A><FONT FACE="Bitstream Vera Sans Mono, sans-serif">&gt;<BR>Karsten
+Dambekalns &lt;</FONT><A HREF="mailto:k.dambekalns@fishfarm.de"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">k.dambekalns@fishfarm.de</FONT></A><FONT FACE="Bitstream Vera Sans Mono, sans-serif">&gt;</FONT></P>
+<P CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">Copyright
+&copy; 2002-2006 Mike Benoit<BR>Copyright &copy; 2003, James
+Russell<BR>Copyright &copy; 2003, Karsten Dambekalns</FONT></P>
+<P CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">Document
+Version: 60</FONT></P>
+<P CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">Last
+Updated:<B> <SDFIELD TYPE=DATETIME SDNUM="1033;1033;MMMM D, YYYY">September 3, 2006</SDFIELD>
+- <SDFIELD TYPE=DATETIME SDVAL="37761.788287037" SDNUM="1033;1033;HH:MM AM/PM">06:55 PM</SDFIELD></B></FONT></P>
+<H1 LANG="en-GB" CLASS="western">Table of Contents</H1>
+<DIV ID="Table of Contents1" DIR="LTR" STYLE="background: transparent">
+	<P LANG="en-GB" STYLE="margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Table of Contents	2</FONT></P>
+	<P LANG="en-GB" STYLE="margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">About	4</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">What is it?	4</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Where can I get it?	4</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">What do I need to run it?	4</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Who is responsible for it?	4</FONT></P>
+	<P LANG="en-GB" STYLE="margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Introduction	5</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Understanding Access Control	5</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.33in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Who/Where	5</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.33in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Who/Where	6</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Defining access control with
+	phpGACL	6</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Fine-grain access control	8</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Multi-level Groups	8</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">How does phpGACL determine
+	permissions?	9</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Adding groups	10</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Adding people	11</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Resolving conflicts	11</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Naming Access Objects	12</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Adding Sections	14</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Multiple Purposes	15</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Access eXtension Objects	16</FONT></P>
+	<P LANG="en-GB" STYLE="margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Installation	18</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Basic setup	18</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Advanced setup	19</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.33in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Reusing an already existing ADOdb
+	installation	19</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.33in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Reusing an already existing Smarty
+	installation	20</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.33in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">How do I move  the phpGACL files out
+	of my website tree while leaving a link in the tree for
+	administration?	20</FONT></P>
+	<P LANG="en-GB" STYLE="margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Using phpGACL in your application	21</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Basic usage	21</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Advanced usage	21</FONT></P>
+	<P LANG="en-GB" STYLE="margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Using the ACL admin utility	22</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">ACL's	22</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.33in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Creating	22</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.33in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Sections	23</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.33in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Extended Return Value	24</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.33in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Notes	24</FONT></P>
+	<P LANG="en-GB" STYLE="margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Glossary	25</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">ACO	25</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">ARO	25</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">AXO	25</FONT></P>
+	<P LANG="en-GB" STYLE="margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">References	26</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">phpGACL API	26</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">phpGACL Examples and Tutorials	26</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Access Control Resources	26</FONT></P>
+	<P LANG="en-GB" STYLE="margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">FAQ	27</FONT></P>
+	<P LANG="en-GB" STYLE="margin-left: 0.17in; text-indent: 0in; margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+	<FONT FACE="Arial, sans-serif">Can phpGACL handle large sets of
+	data?	27</FONT></P>
+</DIV>
+<P LANG="en-GB" STYLE="margin-top: 0in; margin-bottom: 0.08in; line-height: 100%">
+<BR><BR>
+</P>
+<H1 LANG="en-GB" CLASS="western">About</H1>
+<H2 LANG="en-GB" CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">What
+is it?</FONT></H2>
+<P CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">phpGACL
+is an set of functions that allows you to apply access control to
+arbitrary objects (web pages, databases, etc) by other arbitrary
+objects (users, remote hosts, etc).</FONT></P>
+<P CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">It
+offers fine-grained access control with simple management, and is
+very fast.</FONT></P>
+<P CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">It
+is written in PHP (hence <B>php</B>GACL), a popular scripting
+language that is commonly used to dynamically create web pages. The
+GACL part of phpGACL stands for Generic Access Control List.</FONT></P>
+<H2 LANG="en-GB" CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">Where
+can I get it?</FONT></H2>
+<P CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">phpGACL
+is hosted by sourceforge.net at </FONT><A HREF="http://phpGACL.sourceforge.net/"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">http://phpGACL.sourceforge.net/</FONT></A></P>
+<H2 LANG="en-GB" CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">What
+do I need to run it?</FONT></H2>
+<P CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">phpGACL
+requires a relational database to store the access control
+information. It accesses this database via an abstract wrapper called
+</FONT><A HREF="http://php.weblogs.com/adodb"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">ADOdb</FONT></A><FONT FACE="Bitstream Vera Sans Mono, sans-serif">.
+This is compatible with databases such as PostgreSQL, MySQL and
+Oracle.</FONT></P>
+<P CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">phpGACL
+is written in the </FONT><A HREF="http://www.php.net/"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">PHP</FONT></A><FONT FACE="Bitstream Vera Sans Mono, sans-serif">
+scripting language. It requires PHP 4.2 and above.</FONT></P>
+<P CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">Access
+Control List administration is performed by a web interface, and
+therefore it is necessary to have a web server with PHP support, such
+as </FONT><A HREF="http://httpd.apache.org/"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">Apache</FONT></A><FONT FACE="Bitstream Vera Sans Mono, sans-serif">.</FONT></P>
+<H2 LANG="en-GB" CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">Who
+is responsible for it?</FONT></H2>
+<P CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">Mike
+Benoit &lt;</FONT><A HREF="mailto:ipso@snappymail.ca"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">ipso@snappymail.ca</FONT></A><FONT FACE="Bitstream Vera Sans Mono, sans-serif">&gt;
+is the author and project manager.</FONT></P>
+<P CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">James
+Russell &lt;j</FONT><A HREF="mailto:ames-phpgacl@ps2-pro.com"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">ames-phpgacl@ps2-pro.com</FONT></A><FONT FACE="Bitstream Vera Sans Mono, sans-serif">&gt;
+and Karsten Dambekalns &lt;</FONT><A HREF="mailto:k.dambekalns@fishfarm.de"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">k.dambekalns@fishfarm.de</FONT></A><FONT FACE="Bitstream Vera Sans Mono, sans-serif">&gt;
+did the documentation.</FONT></P>
+<H1 LANG="en-GB" CLASS="western">Introduction</H1>
+<H2 LANG="en-GB" CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">Understanding
+Access Control</FONT></H2>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>The
+best way to explain access control is to use examples with real
+things rather than trying to relate to concepts.</FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Han
+is captain of the Millennium Falcon and Chewie is his second officer.
+They've taken on board some passengers: Luke, Obi-wan, R2D2 and C3PO.
+Han needs to define access restrictions for various rooms of the
+ship: The Cockpit, Lounge, Engines and the external Guns.</FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Han
+says: &quot;Me and Chewie should have access to everywhere, but after
+a particularly messy hyperdrive repair, I forbid Chewie from going
+near the Engine Room ever again. Passengers are confined to the
+Passenger's Lounge.&quot;</FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Let's
+assume from now on that access is Boolean. That is, the result of
+looking up a person's access to a room is either ALLOW or DENY. There
+is no middle ground.</FONT></FONT></P>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=3><FONT SIZE=2><FONT COLOR="#000000"><SPAN LANG="en-US">If
+we mapped this statement into an </SPAN><B>access matrix</B><SPAN LANG="en-US">
+showing who has access to where, it would look something like this (O
+means ALLOW, X means DENY):</SPAN></FONT></FONT></FONT></FONT></P>
+<DL>
+	<DD>
+	<TABLE WIDTH=337 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=7 CELLSPACING=0>
+		<COL WIDTH=81>
+		<COL WIDTH=56>
+		<COL WIDTH=44>
+		<COL WIDTH=31>
+		<COL WIDTH=53>
+		<TR VALIGN=TOP>
+			<TD WIDTH=81>
+				<H3 LANG="en-GB" CLASS="western" ALIGN=RIGHT><FONT FACE="Bitstream Vera Sans Mono, sans-serif">Who/Where</FONT></H3>
+			</TD>
+			<TD WIDTH=56>
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Cockpit</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=44>
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Lounge</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=31>
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Guns</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=53>
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Engines</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=81>
+				<P CLASS="western" ALIGN=RIGHT><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Han</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=56 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=44 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=31 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=53 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=81>
+				<P CLASS="western" ALIGN=RIGHT><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Chewie</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=56 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=44 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=31 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=53 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=81>
+				<P CLASS="western" ALIGN=RIGHT><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Obi-wan</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=56 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=44 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=31 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=53 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=81>
+				<P CLASS="western" ALIGN=RIGHT><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Luke</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=56 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=44 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=31 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=53 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=81>
+				<P CLASS="western" ALIGN=RIGHT><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>R2-D2</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=56 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=44 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=31 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=53 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=81>
+				<P CLASS="western" ALIGN=RIGHT><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>C3PO</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=56 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=44 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=31 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=53 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+		</TR>
+	</TABLE>
+</DL>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=3><FONT SIZE=2><FONT COLOR="#000000"><SPAN LANG="en-US">The
+columns list the rooms that Han wants to restrict access to, and the
+rows list the people that might request access to those rooms. More
+generally, the &quot;rooms&quot; are &quot;things to control access
+on&quot;. We call these </SPAN><B>Access Control Objects</B><SPAN LANG="en-US">
+(ACOs). The &quot;people&quot; are &quot;things </SPAN><I>requesting</I><SPAN LANG="en-US">
+access&quot;. We call these </SPAN><B>Access Request Objects</B><SPAN LANG="en-US">
+(AROs). The </SPAN><I>people</I><SPAN LANG="en-US"> request access to
+the </SPAN><I>rooms</I><SPAN LANG="en-US">, or in our terminology,
+</SPAN><I>AROs</I><SPAN LANG="en-US"> request access to the </SPAN><I>ACOs</I><SPAN LANG="en-US">.</SPAN></FONT></FONT></FONT></FONT></P>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=3><FONT SIZE=2><FONT COLOR="#000000"><SPAN LANG="en-US">There
+is a third type of Object, the </SPAN><B>Access eXtention Object</B><SPAN LANG="en-US">
+(AXO) that we'll discuss later. These objects share many attributes
+and are collectively referred to as Access Objects.</SPAN></FONT></FONT></FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Managing
+access using an access matrix like the one above has advantages and
+disadvantages.</FONT></FONT></P>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2><I>Advantages:</I></FONT></FONT></P>
+<UL>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>It's
+	very fine-grained. It's possible to control access for an individual
+	person if necessary.</FONT></FONT></P>
+	<LI><P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=3><SPAN LANG="en-US"><FONT SIZE=2><FONT COLOR="#000000">It's
+	easy to see <U>who</U> has access to <U>what</U>. The answer is
+	stored in the intersection of the person and the room.</FONT></FONT></SPAN></FONT></FONT></P>
+</UL>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2><I>Disadvantages:</I></FONT></FONT></P>
+<UL>
+	<LI VALUE=1><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>It's
+	difficult to manage on a large scale. 6 passengers and 4 places is
+	fairly simple, but what if there were thousands of passengers and
+	hundreds of places, and you need to restrict access to large groups
+	of them at once, but still retain enough fine-grained control to
+	manage access for an individual? That would mean a lot of fiddly and
+	lengthy adjustment to the matrix, and it's a difficult task to
+	verify that the final matrix is correct.</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>It's
+	hard to summarize or visualize. The above example is fairly simple
+	to summarize in a few sentences (as Han did above), but what if the
+	matrix looked like this?</FONT></FONT></P>
+	<TABLE WIDTH=337 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=7 CELLSPACING=0>
+		<COL WIDTH=81>
+		<COL WIDTH=52>
+		<COL WIDTH=44>
+		<COL WIDTH=35>
+		<COL WIDTH=54>
+		<TR VALIGN=TOP>
+			<TD WIDTH=81>
+				<H3 LANG="en-GB" CLASS="western" ALIGN=RIGHT><FONT FACE="Bitstream Vera Sans Mono, sans-serif">Who/Where</FONT></H3>
+			</TD>
+			<TD WIDTH=52>
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Cockpit</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=44>
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Lounge</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=35>
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Guns</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=54>
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Engines</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=81>
+				<P CLASS="western" ALIGN=RIGHT><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Han</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=52 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=44 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=35 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=54 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=81>
+				<P CLASS="western" ALIGN=RIGHT><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Chewie</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=52 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=44 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=35 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=54 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=81>
+				<P CLASS="western" ALIGN=RIGHT><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Obi-wan</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=52 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=44 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=35 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=54 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=81>
+				<P CLASS="western" ALIGN=RIGHT><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Luke</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=52 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=44 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=35 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=54 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=81>
+				<P CLASS="western" ALIGN=RIGHT><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>R2-D2</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=52 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=44 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=35 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=54 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=81>
+				<P CLASS="western" ALIGN=RIGHT><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>C3PO</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=52 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=44 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=35 BGCOLOR="#ff0000">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>X</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=54 BGCOLOR="#00ff00">
+				<P CLASS="western" ALIGN=CENTER><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>O</FONT></FONT></P>
+			</TD>
+		</TR>
+	</TABLE>
+	<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>This
+	matrix is not so obvious to summarize, and it's not clear to the
+	reader why those access decisions might have been made in the first
+	place.</FONT></FONT></P>
+</UL>
+<H2 LANG="en-GB" CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">Defining
+access control with phpGACL</FONT></H2>
+<P CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">It
+seems that for large or complex situations, this 'access matrix'
+approach is clearly unsuitable. We need a better system that
+maintains the advantages (fine-grain control and a clear idea of <U>who</U>
+has access to <U>what</U>) but removes the disadvantages (difficult
+to summarize, and difficult to manage large groups of people at
+once). One solution is phpGACL.</FONT></P>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=3><SPAN LANG="en-US"><FONT SIZE=2><FONT COLOR="#000000">phpGACL
+doesn't describe access from the 'bottom-up' like the Access Matrix
+above. Instead, it describes it 'top-down', like the textual
+description of Han's access policy. This is a very flexible system
+that allows you to manage access in large groups, it neatly
+summarizes the access policy, and it's easy to see <U>who </U>has
+access to <U>what</U>.</FONT></FONT></SPAN></FONT></FONT></P>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=3><FONT SIZE=2><FONT COLOR="#000000"><SPAN LANG="en-US">An
+</SPAN><B>ARO tree</B><SPAN LANG="en-US"> defines a hierarchy of
+</SPAN><B>Groups</B><SPAN LANG="en-US"> and AROs (things that request
+access). This is very similar to a tree view of folders and files.
+The 'folders' are the Groups and the 'files' are AROs.</SPAN></FONT></FONT></FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Let's
+make an ACL tree for the people on Han's ship. First we define some
+categories for the people. It's clear that Han and Chewie run the
+ship, and the rest of them are just passengers:</FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Courier New, monospace"><FONT SIZE=2>Millennium
+Falcon Passengers		Group<BR>&#9500;&#9472;Crew					Group<BR>&#9474;
+&#9500;&#9472;Han					ARO<BR>&#9474;
+&#9492;&#9472;Chewie					ARO<BR>&#9492;&#9472;Passengers				Group<BR>
+ &#9500;&#9472;Obi-wan					ARO<BR>  &#9500;&#9472;Luke					ARO<BR> 
+&#9500;&#9472;R2D2					ARO<BR>  &#9492;&#9472;C3PO					ARO</FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>This
+tree by itself doesn't specify any access policy; it just shows how
+we're grouping the people who might request access (AROs).</FONT></FONT></P>
+<P CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">We
+apply access restrictions by assigning instructions about a
+particular room (ACO) to Groups or AROs in the tree. Han says: &quot;By
+default, no-one should be allowed access to any room on the
+Millennium Falcon. But the Crew should have access to every room. The
+Passengers should only have access to the Lounge.&quot;</FONT></P>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Times New Roman, serif"><FONT SIZE=3><FONT SIZE=2><FONT FACE="Courier New, monospace"><FONT COLOR="#000000"><SPAN LANG="en-US">Millennium
+Falcon Passengers<BR>&#9500;&#9472;Crew		</SPAN><B>[ALLOW: ALL]</B><SPAN LANG="en-US"><BR>&#9474;
+&#9500;&#9472;Han<BR>&#9474; &#9492;&#9472;Chewie<BR>&#9492;&#9472;Passengers	</SPAN><B>[ALLOW:
+Lounge]</B><SPAN LANG="en-US"><BR>  &#9500;&#9472;Obi-wan<BR> 
+&#9500;&#9472;Luke<BR>  &#9500;&#9472;R2D2<BR>  &#9492;&#9472;C3PO</SPAN></FONT></FONT></FONT></FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>To
+interpret this ARO tree, we start from the top and work our way down.</FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Firstly,
+the default policy is always to deny access. Permissions have been
+overridden for the &quot;Crew&quot;, so they have access to
+everywhere (&quot;ALL&quot; is a synonym for all rooms: &quot;Cockpit,
+Lounge, Guns, Engines&quot;). The &quot;Passengers&quot; have access
+only to the Lounge.</FONT></FONT></P>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=3><SPAN LANG="en-US"><FONT SIZE=2><FONT COLOR="#000000">This
+way of describing the access policy is much clearer than the access
+matrix. You can easily see who has access to what, and it's easier to
+determine <U>why</U> they've got access (it seems obvious that Han
+and Chewie would have access to everything, since they're grouped
+under &quot;Crew&quot;).</FONT></FONT></SPAN></FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>To
+summarize:</FONT></FONT></P>
+<UL>
+	<LI VALUE=1><P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in">
+	<FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=3><FONT SIZE=2><FONT COLOR="#000000"><B>Access
+	Control Objects </B><SPAN LANG="en-US">(ACOs) are the things we want
+	to control access to (e.g. web pages, databases, rooms, etc).</SPAN></FONT></FONT></FONT></FONT></P>
+	<LI><P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=3><FONT SIZE=2><FONT COLOR="#000000"><B>Access
+	Request Objects</B><SPAN LANG="en-US"> (AROs) are the things that
+	request access (e.g. people, remote computers, etc)</SPAN></FONT></FONT></FONT></FONT></P>
+	<LI><P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=3><FONT SIZE=2><FONT COLOR="#000000"><B>ARO
+	trees</B><SPAN LANG="en-US"> define a hierarchy of </SPAN><B>Groups</B><SPAN LANG="en-US">
+	and AROs. Groups can contain other Groups and AROs.</SPAN></FONT></FONT></FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>The
+	default 'catch-all' policy for the ARO tree is always &quot;DENY
+	ALL&quot;.</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>To
+	assign access policy, work your way down the tree, explicitly
+	assigning permissions to Groups and AROs for each ACO as the need
+	arises.</FONT></FONT></P>
+</UL>
+<H2 LANG="en-GB" CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">Fine-grain
+access control</FONT></H2>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Oops!
+What about Chewie? By grouping him in &quot;Crew&quot;, Han has
+indirectly given him access to the Engines! He doesn't want that
+after what Chewie recently did to the hyperdrive, so he adds a rule
+to disallow this:</FONT></FONT></P>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Times New Roman, serif"><FONT SIZE=3><FONT SIZE=2><FONT FACE="Courier New, monospace"><FONT COLOR="#000000"><SPAN LANG="en-US">Millennium
+Falcon Passengers<BR>&#9500;&#9472;Crew		[ALLOW: ALL]<BR>&#9474;
+&#9500;&#9472;Han<BR>&#9474; &#9492;&#9472;Chewie		</SPAN><B>[DENY:
+Engines]</B><SPAN LANG="en-US"><BR>&#9492;&#9472;Passengers	[ALLOW:
+Lounge]<BR>  &#9500;&#9472;Obi-wan<BR>  &#9500;&#9472;Luke<BR> 
+&#9500;&#9472;R2D2<BR>  &#9492;&#9472;C3PO</SPAN></FONT></FONT></FONT></FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>This
+is an example of the way you can control access policy in a
+fine-grained manner. It is not necessary to move Chewie to another
+Group; we simply over-ride the access policy at a lower level.</FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Another
+example of fine-grain control happens when the Empire attacks; Han
+needs to let Luke man the guns, and let R2D2 repair the hyperdrive in
+the Engine room. He can do this by over-riding the general
+permissions granted by their status as a &quot;Passenger&quot;:</FONT></FONT></P>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Times New Roman, serif"><FONT SIZE=3><FONT SIZE=2><FONT FACE="Courier New, monospace"><FONT COLOR="#000000"><SPAN LANG="en-US">Millennium
+Falcon Passengers<BR>&#9500;&#9472;Crew		[ALLOW: ALL]<BR>&#9474;
+&#9500;&#9472;Han<BR>&#9474; &#9492;&#9472;Chewie		[DENY:
+Engines]<BR>&#9492;&#9472;Passengers	[ALLOW: Lounge]<BR>  &#9500;&#9472;Obi-wan<BR>
+ &#9500;&#9472;Luke		</SPAN><B>[ALLOW: Guns]</B><SPAN LANG="en-US"><BR>
+ &#9500;&#9472;R2D2		</SPAN><B>[ALLOW: Engines]</B><SPAN LANG="en-US"><BR>
+ &#9492;&#9472;C3PO</SPAN></FONT></FONT></FONT></FONT></FONT></P>
+<H2 CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">Multi-level
+Groups</FONT></H2>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Groups
+can be extended to any level in the ARO tree. For example, you could
+add a Group &quot;Jedi&quot; to &quot;Passengers&quot;. Most
+passengers would be categorized under &quot;Passengers&quot;, but
+Luke and Obi-wan would be under &quot;Jedi&quot; and therefore might
+be extended extra privileges (like access to the Cockpit):</FONT></FONT></P>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Times New Roman, serif"><FONT SIZE=3><FONT SIZE=2><FONT FACE="Courier New, monospace"><FONT COLOR="#000000"><SPAN LANG="en-US">Millennium
+Falcon Passengers<BR>&#9500;&#9472;Crew		[ALLOW: ALL]<BR>&#9474;
+&#9500;&#9472;Han<BR>&#9474; &#9492;&#9472;Chewie		[DENY:
+Engines]<BR>&#9492;&#9472;Passengers	[ALLOW: Lounge]<BR> 
+&#9500;&#9472;</SPAN><B>Jedi		[ALLOW: Cockpit]</B><SPAN LANG="en-US"><BR>
+ &#9474; &#9500;&#9472;</SPAN><B>Obi-wan</B><SPAN LANG="en-US"><BR> 
+&#9474; &#9492;&#9472;</SPAN><B>Luke</B><SPAN LANG="en-US">		[ALLOW:
+Guns] <BR>  &#9500;&#9472;R2D2		[ALLOW: Engines]<BR>  &#9492;&#9472;C3PO</SPAN></FONT></FONT></FONT></FONT></FONT></P>
+<H2 CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">How
+does phpGACL determine permissions?</FONT></H2>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>When
+the ship's computer (running phpGACL of course) checks access, the
+only question it can ask itself is &quot;Does person X have access to
+room Y?&quot; In phpGACL terms, this is rephrased as &quot;Does ARO
+'X' have access to ACO 'Y'?&quot;</FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>phpGACL
+determines whether a specific person has access to a specific room by
+working from the top of the ARO tree towards the specified person,
+noting explicit access controls for that place along the way. When it
+reaches that person, it uses the last explicit access control it
+encountered as the result to return. In this way, you can define
+access controls for groups of people, but over-ride them further down
+the tree if you need to.</FONT></FONT></P>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=3><FONT SIZE=2><FONT COLOR="#000000"><B>Example
+1</B><SPAN LANG="en-US">: We ask: &quot;Does Luke have access to the
+Lounge?&quot;.</SPAN></FONT></FONT></FONT></FONT></P>
+<UL>
+	<LI VALUE=1><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Set
+	the default result, &quot;DENY&quot;.</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Work
+	out a path to Luke:</FONT></FONT></P>
+</UL>
+<H4 LANG="en-GB" CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">	Millennium
+Falcon Passengers &rarr; Passengers &rarr; Jedi &rarr; Luke</FONT></H4>
+<UL>
+	<LI VALUE=1><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Start
+	at the top of the tree and move towards Luke: The &quot;Millennium
+	Falcon Passengers&quot; node doesn't say anything about any room, so
+	do nothing here.</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Move
+	on to &quot;Passengers&quot;, which explicitly says that
+	&quot;Passengers&quot; have Lounge access, so change the internal
+	result to &quot;ALLOW&quot;.</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Move
+	to the &quot;Jedi&quot; node, which doesn't mention the Lounge at
+	all.</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Finally
+	move to Luke's node, and again there's nothing there about the
+	Lounge.</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>There's
+	nowhere left to go, so the result returned is the current value of
+	the internal result: &quot;ALLOW&quot;</FONT></FONT></P>
+</UL>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=3><FONT SIZE=2><FONT COLOR="#000000"><B>Example
+2</B><SPAN LANG="en-US">: We ask: &quot;Does Chewie have access to
+the Engines?&quot;</SPAN></FONT></FONT></FONT></FONT></P>
+<UL>
+	<LI VALUE=1><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Set
+	the default result, &quot;DENY&quot;.</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Work
+	out a path to Chewie:</FONT></FONT></P>
+</UL>
+<H4 LANG="en-GB" CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">	Millennium
+Falcon Passengers &rarr; Crew &rarr; Chewie</FONT></H4>
+<UL>
+	<LI><P CLASS="western">Start at the top of the tree and move towards
+	Chewie. The &quot;Millennium Falcon Passengers&quot; node doesn't
+	say anything about anywhere, so do nothing here.</P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Move
+	on to &quot;Crew&quot;, which explicitly says that &quot;Crew&quot;
+	have Engine access, so change the internal result to &quot;ALLOW&quot;.</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Move
+	to Chewie's node, and there's an explicit rule saying that he
+	doesn't have access to the Engines, so change the internal result to
+	&quot;DENY&quot;.</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>There's
+	nowhere left to go, so the result returned is the current value of
+	the internal result: &quot;DENY&quot;</FONT></FONT></P>
+</UL>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>As
+you can see from the examples, if a Group doesn't explicitly specify
+a permission for a room, then that Group inherits the access
+restrictions of its parent for that room. If the root node
+(&quot;Millennium Falcon Passengers&quot;) doesn't specify a
+permission, it inherits it from the default setting (&quot;DENY ALL&quot;
+in the above examples).</FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>This
+implies a couple of interesting points about the ARO tree:</FONT></FONT></P>
+<UL>
+	<LI VALUE=1><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>The
+	ARO tree always shows the full list of the AROs. It would not make
+	sense to ask &quot;Does Jabba have access to the Cockpit?&quot;
+	because Jabba has not been defined in this system. However, phpGACL
+	does not check to see if AROs or ACOs exist before performing the
+	check, so if this question was actually asked then the result would
+	be the default &quot;DENY&quot;.</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>The
+	ARO tree may not display some defined ACOs, and relies on the
+	default setting to define access policy. For example, say Han
+	defined a &quot;Bathroom&quot; ACO. Any question like &quot;Does
+	Luke have access to the Bathroom?&quot; would have the answer
+	&quot;DENY&quot;, because the default is &quot;DENY&quot; and
+	nowhere in the ARO tree does it ever explicitly mention the
+	Bathroom. Keep in mind when examining the ARO tree that some ACOs
+	may not be visible.</FONT></FONT></P>
+</UL>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=3><FONT SIZE=2><FONT COLOR="#000000"><B>Note:</B><SPAN LANG="en-US">
+When asking phpGACL questions about access to an ACO, it is not
+possible to use Groups as AROs (even though it might 'seem' right).
+For example, it is impossible to answer the question &quot;Do
+Passengers have access to Guns?&quot; The complete answer is not a
+Boolean &quot;ALLOW&quot; or &quot;DENY&quot;, but the more complex
+&quot;Luke and Obi-wan can but R2D2 and C3PO cannot.&quot; phpGACL is
+not designed to return that kind of answer.</SPAN></FONT></FONT></FONT></FONT></P>
+<H2 CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">Adding
+groups</FONT></H2>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Han
+feels this ACL is starting to look a little complicated. There are so
+many exceptions! Perhaps he should make another group, &quot;Engineers&quot;,
+containing the people who are allowed access to the Engines and Guns.
+That group should contain Han and R2D2 since they're both capable of
+repairing the engines and guns. This means Han can remove some of
+those messy exceptions-to-the-rules, and that has the benefit of
+making the description clearer:</FONT></FONT></P>
+<P CLASS="western"><FONT FACE="Courier New, monospace">Default: DENY
+ALL<BR>Millennium Falcon Passengers<BR>&#9500;&#9472;Crew		[ALLOW:
+ALL]<BR>&#9474; &#9500;&#9472;Han<BR>&#9474; &#9492;&#9472;Chewie		[DENY:
+Engines]<BR>&#9500;&#9472;Passengers	[ALLOW: Lounge]<BR>&#9474;
+&#9500;&#9472;Jedi		[ALLOW: Cockpit]<BR>&#9474; &#9474; &#9500;&#9472;Obi-wan<BR>&#9474;
+&#9474; &#9492;&#9472;Luke		[ALLOW: Guns] <BR>&#9474; &#9500;&#9472;R2D2<BR>&#9474;
+&#9492;&#9472;C3PO<BR>&#9492;&#9472;<B>Engineers		[ALLOW: Engines,
+Guns]</B><BR>  &#9500;&#9472;<B>Han</B><BR>  &#9492;&#9472;<B>R2D2</B></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>We
+can read this as &quot;By default, no-one has access to anywhere.
+Crew have access to everywhere (except Chewie, who has no access to
+the Engines). Passengers only have access to the Lounge, except Jedi
+who also have access to the Cockpit. Luke has access to the Guns too.
+Engineers are allowed access to the Engines and Guns.&quot;</FONT></FONT></P>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=3><FONT SIZE=2><FONT COLOR="#000000"><SPAN LANG="en-US">Most
+importantly, we can see that Han and R2D2 are now in </SPAN><I>two</I><SPAN LANG="en-US">
+places in the ACL. It is not necessary for them to be uniquely
+categorized at all. This defines the policy more clearly to the
+reader: &quot;Ahh, Han and R2D2 have access to the Engines and Guns
+because they're </SPAN><I>engineers</I><SPAN LANG="en-US">.&quot;</SPAN></FONT></FONT></FONT></FONT></P>
+<H2 CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">Adding
+people</FONT></H2>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>Han
+goes to Cloud City to pick up Lando and get some repairs. Lando's the
+Millennium Falcon's previous owner, so Han reckons he qualifies as
+Crew. Lando also offers the services of his top engineer, Hontook,
+for help with repairing the ship while they're in dock.</FONT></FONT></P>
+<P CLASS="western"><FONT FACE="Courier New, monospace">Default: DENY
+ALL<BR>Millennium Falcon Passengers<BR>&#9500;&#9472;Crew		[ALLOW:
+ALL]<BR>&#9474; &#9500;&#9472;Han<BR>&#9474; &#9500;&#9472;Chewie		[DENY:
+Engines]<BR>&#9474; &#9492;&#9472;<B>Lando</B><BR>&#9500;&#9472;Passengers	[ALLOW:
+Lounge]<BR>&#9474; &#9500;&#9472;Jedi		[ALLOW: Cockpit]<BR>&#9474; &#9474;
+&#9500;&#9472;Obi-wan<BR>&#9474; &#9474; &#9492;&#9472;Luke		[ALLOW:
+Guns] <BR>&#9474; &#9500;&#9472;R2D2<BR>&#9474;
+&#9492;&#9472;C3PO<BR>&#9492;&#9472;Engineers		[ALLOW: Engines,
+Guns]<BR>  &#9500;&#9472;Han<BR>  &#9500;&#9472;R2D2<BR>  &#9492;&#9472;<B>Hontook</B></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>This
+shows how easy it is to grant new people access. If we used the
+original matrix scheme, we'd have to set permissions for each room
+for both Lando and Hontook. Instead, we simply add them to their
+appropriate groups and their access is implicitly and easily defined.</FONT></FONT></P>
+<H2 CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">Resolving
+conflicts</FONT></H2>
+<P CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">What
+happens if we add Chewie to the list of Engineers?</FONT></P>
+<P CLASS="western"><FONT FACE="Courier New, monospace">Default: DENY
+ALL<BR>Millennium Falcon Passengers<BR>&#9500;&#9472;Crew		[ALLOW:
+ALL]<BR>&#9474; &#9500;&#9472;Han<BR>&#9474; &#9500;&#9472;Chewie		[DENY:
+Engines]<BR>&#9474; &#9492;&#9472;Lando<BR>&#9500;&#9472;Passengers	[ALLOW:
+Lounge]<BR>&#9474; &#9500;&#9472;Jedi		[ALLOW: Cockpit]<BR>&#9474; &#9474;
+&#9500;&#9472;Obi-wan<BR>&#9474; &#9474; &#9492;&#9472;Luke		[ALLOW:
+Guns] <BR>&#9474; &#9500;&#9472;R2D2<BR>&#9474;
+&#9492;&#9472;C3PO<BR>&#9492;&#9472;Engineers		[ALLOW: Engines,
+Guns]<BR>  &#9500;&#9472;Han<BR>  &#9500;&#9472;R2D2<BR>  &#9500;&#9472;Hontook<BR>
+ &#9492;&#9472;<B>Chewie</B></FONT></P>
+<P CLASS="western">This makes Chewie's access to the Engines
+ambiguous, because now there are two paths from the root of the tree
+to Chewie. If the ship's computer follows one path (along the &quot;Crew&quot;
+branch), the result is &quot;DENY access to Engines.&quot; If it
+follows the other path (along the &quot;Engineers&quot; branch) then
+the result is &quot;ALLOW access to Engines&quot;. So, is he allowed
+or denied?</P>
+<P CLASS="western">phpGACL will warn you if you add or edit an
+multiply-grouped ARO in such a way that the ARO's access to an
+arbitrary ACO would be ambiguous. But it is <U>up to you</U> to
+resolve the conflict.</P>
+<P CLASS="western">If we now asked phpGACL the question &quot;Does
+Chewie have access to Engines?&quot; the result returned is the
+result given by the <U>last ACL entry to be modified</U> (this is
+phpGACL's policy). In this case the result is ALLOW, because the
+&quot;ALLOW: Engines, Guns&quot; directive assigned to the Engineers
+Group is more recent than the &quot;DENY: Engines&quot; directive
+assigned to Chewie's Group.</P>
+<P CLASS="western">When ambiguous access entries exist in the ACL,
+the ACL is said to be <B>inconsistent</B>. Inconsistent ACLs can be
+very dangerous, and you may unwittingly provide access to
+inappropriate people if you allow your ACL to remain in this state.
+When phpGACL warns you that the ACL is inconsistent, it is best to
+resolve the conflicts as soon as possible to regain consistency.</P>
+<P CLASS="western">To resolve the conflict in this case, we could
+either:</P>
+<UL>
+	<LI VALUE=1><P CLASS="western">Remove the &quot;DENY: Engines&quot;
+	directive from Chewie's entry under the Crew Group.</P>
+	<LI><P CLASS="western">Add a &quot;DENY: Engines&quot; directive to
+	Chewie's entry under the Engineers Group.</P>
+	<LI><P CLASS="western">Remove Chewie from the Engineers Group, since
+	Han doesn't think him a worthy Engineer anyway.</P>
+</UL>
+<P CLASS="western">Han chooses option 3, and removes Chewie from the
+Engineers list.</P>
+<H2 CLASS="western">Naming Access Objects</H2>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>phpGACL
+uniquely identifies each Access Object (AROs, AXOs and ACOs) with a
+two-keyword combination and it's Access Object type.</FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>The
+tuple &quot;(Access Object type, Section, Value)&quot; uniquely
+identifies any Access Object.</FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>The
+first element of the tuple is the type of Access Object (ARO, AXO or
+ACO).</FONT></FONT></P>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Times New Roman, serif"><FONT SIZE=3><FONT SIZE=2><FONT FACE="Helv, Arial, sans-serif"><FONT COLOR="#000000"><SPAN LANG="en-US">The
+second element of the tuple, called the </SPAN><B>Section</B><SPAN LANG="en-US">,
+is a user-defined string which names the general category of the
+Access Object. Multiple Access Objects can share the same Section
+name. The Section name should be short but descriptive. It's used in
+the user interface in selection boxes, so try not to make it too
+long.</SPAN></FONT></FONT></FONT></FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>Sections
+are stored in a flat namespace; they are not nestable like Groups.
+Sections have nothing to do with Groups or the ARO/AXO trees - they
+are purely a mechanism for helping to maintain large numbers of
+Access Objects.</FONT></FONT></P>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Times New Roman, serif"><FONT SIZE=3><FONT SIZE=2><FONT FACE="Helv, Arial, sans-serif"><FONT COLOR="#000000"><SPAN LANG="en-US">The
+third element of the tuple is a user-defined name for the Access
+Object, and is called the </SPAN><B>Value</B><SPAN LANG="en-US">. <U>A
+Value cannot contain spaces</U> (however, a Section can).</SPAN></FONT></FONT></FONT></FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2><U>Both
+Section and Values are case sensitive.</U></FONT></FONT></P>
+<P LANG="en-GB" CLASS="western" STYLE="margin-left: 0.38in; margin-top: 0in; margin-bottom: 0in; line-height: 0.17in">
+<FONT FACE="Times New Roman, serif"><FONT SIZE=3><FONT SIZE=2><FONT COLOR="#000000"><FONT FACE="Helv, Arial, sans-serif"><B>Aside:</B><SPAN LANG="en-US">
+It is commonly asked why strings are used to identify Access Objects,
+rather than integers which ostensibly seem faster. The answer is for
+legibility. It is much easier to understand:<BR>	</SPAN></FONT><SPAN LANG="en-US"><FONT FACE="Courier, Courier New, monospace">acl_check('system',
+'login', 'users', 'john_doe');<BR></FONT><FONT FACE="Helv, Arial, sans-serif">than:</FONT><FONT FACE="Courier, Courier New, monospace"><BR>	acl_check(10,
+21004, 15, 20304);</FONT></SPAN></FONT></FONT></FONT></FONT></P>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Times New Roman, serif"><FONT SIZE=3><FONT SIZE=2><FONT FACE="Helv, Arial, sans-serif"><FONT COLOR="#000000"><SPAN LANG="en-US">Since
+it is often obvious from the context which type of Access Object we
+are referring to, the interface for phpGACL (and this documentation)
+drops the Access Object type and uses the format &quot;</SPAN><B>Section
+&gt; Value</B><SPAN LANG="en-US">&quot; when displaying the name of
+an Access Object. However, the API requires an Access Object's
+&quot;Section&quot; and &quot;Value&quot; to be specified in separate
+function arguments (the Access Object type is usually implicit in the
+argument description).</SPAN></FONT></FONT></FONT></FONT></FONT></P>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2><B>Example
+ACO &quot;Section &gt; Values&quot;:</B></FONT></FONT></P>
+<UL>
+	<LI VALUE=1><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>&quot;Floors
+	&gt; 1st&quot;</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>&quot;Floors
+	&gt; 2nd&quot;</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>&quot;Rooms
+	&gt; Engines&quot;</FONT></FONT></P>
+</UL>
+<P CLASS="western"><B>Example ARO &quot;Section &gt; Values&quot;:</B></P>
+<UL>
+	<LI VALUE=1><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>&quot;People
+	&gt; John_Smith&rdquo;</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in">&ldquo;<FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>People
+	&gt; Cathy_Jones&rdquo;</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in">&ldquo;<FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>Hosts
+	&gt; sandbox.something.com&rdquo;</FONT></FONT></P>
+</UL>
+<P CLASS="western"><B>Example API usage:</B></P>
+<UL>
+	<LI VALUE=1><P CLASS="western" STYLE="font-weight: medium; line-height: 0.17in">
+	<FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>acl_check (
+	aco_section, aco_value, aro_section, aro_value);</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="font-weight: medium; line-height: 0.17in">
+	<FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>acl_check (
+	'Floors', '2nd', 'People', 'John_Smith' );</FONT></FONT></P>
+</UL>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2><B>Valid
+Naming Restrictions Examples:</B></FONT></FONT></P>
+<UL>
+	<LI VALUE=1><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>&quot;ACO
+	-Frob &gt; Flerg&quot;, &quot;ARO - Frob &gt; Flerg&quot; (The
+	Section and Value are the same in both, but this is fine as
+	namespaces are separate across Access Object types)</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>&quot;ACO
+	-Frob &gt; Flerg&quot;, &quot;ACO - Frob &gt; Queegle&quot; (The
+	Access Object type and Section are the same, but this is fine as the
+	Values are different)</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>&quot;AXO
+	- Frob Hrung &gt; Flerg&quot; (Sections can contain spaces)</FONT></FONT></P>
+</UL>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2><B>Invalid
+Naming Restrictions Examples:</B></FONT></FONT></P>
+<UL>
+	<LI VALUE=1><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>&quot;ACO
+	- Frob &gt; Flerg&quot;, &quot;ACO - Frob &gt; Flerg&quot; (&quot;Access
+	Object type - Section &gt; Value&quot; must be unique)</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>&quot;ACO
+	- Frob &gt; Flerg Habit&quot; (Values cannot contain spaces)</FONT></FONT></P>
+</UL>
+<H2 LANG="en-GB" CLASS="western">Adding Sections</H2>
+<P LANG="en-GB" STYLE="line-height: 100%"><FONT FACE="Helv, Arial, sans-serif">Before
+you can add a new Access Object, its Section must be defined. To add
+a new section, use the add_object_section() function.</FONT></P>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 100%"><FONT FACE="Arial, sans-serif"><FONT SIZE=2>add_object_section
+(</FONT></FONT></P>
+<P LANG="en-GB" STYLE="margin-left: 2.5in; text-indent: -2in; line-height: 100%">
+<FONT FACE="Arial, sans-serif"><FONT FACE="Courier New, monospace">string
+NAME,</FONT>	A short description of what this Section is for. (e.g.
+&quot;Levels in building&quot;).</FONT></P>
+<P LANG="en-GB" STYLE="margin-left: 2.5in; text-indent: -2in; line-height: 100%">
+<FONT FACE="Arial, sans-serif"><FONT FACE="Courier New, monospace">string
+VALUE,</FONT>	The name of the Section (e.g. &quot;Floor&quot;).</FONT></P>
+<P LANG="en-GB" STYLE="margin-left: 2.5in; text-indent: -2in; line-height: 100%">
+<FONT FACE="Arial, sans-serif"><FONT FACE="Courier New, monospace">int
+ORDER,</FONT>	An arbitrary value which affects the order this Section
+appears in the UI.</FONT></P>
+<P LANG="en-GB" STYLE="margin-left: 2.5in; text-indent: -2in; line-height: 100%">
+<FONT FACE="Arial, sans-serif"><FONT FACE="Courier New, monospace">bool
+HIDDEN,	</FONT>Whether this should appear in the UI or not (TRUE
+means that is will be hidden).</FONT></P>
+<P LANG="en-GB" STYLE="margin-left: 2.5in; text-indent: -2in; line-height: 100%">
+<FONT FACE="Arial, sans-serif"><FONT FACE="Courier New, monospace">string
+GROUP_TYPE)	</FONT>The Access Object type (&quot;aco&quot;, &quot;aro&quot;
+or &quot;axo&quot;)</FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>Han
+creates 3 Sections for the AROs. &quot;Humans&quot;, &quot;Aliens&quot;
+and &quot;Androids&quot;. Let's list the AROs with their full names</FONT></FONT></P>
+<P CLASS="western"><FONT FACE="Courier New, monospace">Millennium
+Falcon Passengers<BR>&#9500;&#9472;Crew				[ALLOW: ALL]<BR>&#9474;
+&#9500;&#9472;<B>&quot;Humans &gt; Han&quot;</B><BR>&#9474; &#9500;&#9472;<B>&quot;Aliens
+&gt; Chewie&quot;</B>		[DENY: Engines]<BR>&#9474; &#9492;&#9472;<B>&quot;Humans
+&gt; Lando&quot;</B><BR>&#9500;&#9472;Passengers			[ALLOW: Lounge]<BR>&#9474;
+&#9500;&#9472;Jedi				[ALLOW: Cockpit]<BR>&#9474; &#9474; &#9500;&#9472;<B>&quot;Humans
+&gt; Obi-wan&quot;</B><BR>&#9474; &#9474; &#9492;&#9472;<B>&quot;Humans
+&gt; Luke&quot;</B>		[ALLOW: Guns] <BR>&#9474; &#9500;&#9472;<B>&quot;Androids
+&gt; R2D2&quot;</B><BR>&#9474; &#9492;&#9472;<B>&quot;Androids &gt;
+C3PO&quot;</B><BR>&#9492;&#9472;Engineers				[ALLOW: Engines, Guns]<BR>
+ &#9500;&#9472;<B>&quot;Humans &gt; Han&quot;</B><BR>  &#9500;&#9472;<B>&quot;Androids
+&gt; R2D2&quot;</B><BR>  &#9492;&#9472;<B>&quot;Aliens &gt; Hontook&quot;</B></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>Sections
+are just a way of categorizing Access Objects, to make the user
+interface more usable, and the code for acl_check() more readable.
+They do not affect the way phpGACL determines access to an object.
+They cannot be nested (so it would not be able to create a &quot;Males&quot;
+sub-Section under &quot;Humans&quot; for example; you'd have to
+create a Section called &quot;Humans-Male&quot; or similar)</FONT></FONT></P>
+<H2 CLASS="western">Multiple Purposes</H2>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>You
+may need to use phpGACL for multiple independent purposes. For
+example, you may need to restrict user access to web pages, and also
+remote host access to your server. The two tasks are not related.</FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>phpGACL
+can handle this in three different ways.</FONT></FONT></P>
+<UL>
+	<LI VALUE=1><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>It
+	can use an alternative database to store the access tables.</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>It
+	can use the same database but with differently named access tables.
+	(this feature is not implemented yet).</FONT></FONT></P>
+	<LI><P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>You
+	can store the Access Objects for both purposes in the same tables,
+	and carefully manage your list so that they don't conflict.</FONT></FONT></P>
+</UL>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>To
+implement Option 1 (and Option 2 when it becomes available), use the
+$gacl_options array when creating a new phpGACL class. This allows
+you to specify the database and table name prefixes to use:</FONT></FONT></P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in; line-height: 0.17in">
+<FONT FACE="Courier, Courier New, monospace"><FONT SIZE=2>$gacl_options
+= array(<BR>	'db_table_prefix' =&gt; 'gacl_',<BR>	'db_type' =&gt;
+'mysql',<BR>	'db_host' =&gt; 'host1',<BR>	'db_user' =&gt;
+'user',<BR>	'db_password' =&gt; 'passwd',<BR>	'db_name' =&gt;
+'gacl');</FONT></FONT></P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in; line-height: 0.17in">
+<BR>
+</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in; line-height: 0.17in">
+<FONT FACE="Courier, Courier New, monospace"><FONT SIZE=2>$gacl_host1
+= new gacl($gacl_options);</FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>To
+implement Option 3, you must be careful, since phpGACL doesn't know
+the relationship between your different tasks, and it will be
+possible to make meaningless Access Policy Directives.</FONT></FONT></P>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2>For
+example, say Han wanted to restrict access to other ships contacting
+his ship's computer, in addition to restricting access to the
+different rooms. To do this, he might add &quot;Luke's X-Wing
+Fighter&quot; as a remote ship ARO (in addition to other ships and an
+ACO for the ship's computer). Because all AROs are in the same ARO
+tree, it would be possible to create an APD like &quot;Ships &gt;
+Luke's X-Wing Fighter&quot; [ALLOW: &quot;Rooms &gt; Lounge&quot;],
+which would be totally meaningless! To help reduce mistakes like
+this, good Section naming can make it clearer what Access Objects are
+for which tasks. It should be obvious to any administrator that it's
+meaningless to assign a Ship permission to use a Room.</FONT></FONT></P>
+<H2 LANG="en-GB" CLASS="western">Access eXtension Objects</H2>
+<P CLASS="western"><B>Access eXtension Objects</B> (AXOs) can add a
+3rd dimension to the permissions that can be configured in phpGACL.
+We've seen how phpGACL allows you to combine an ARO and an ACO (2
+dimensions) to create an Access Policy Directive. This is great for
+simple permission requests like:</P>
+<P CLASS="western">	Luke (ARO) requests access to &quot;Guns&quot;
+(ACO)</P>
+<P CLASS="western">If that's all you need, that's fine - AXOs are
+totally optional.</P>
+<P CLASS="western">But because all ACOs are considered equal, it
+makes it difficult to manage if there are many ACOs. If this is the
+case, we can change the way we look at Access Objects to manage it
+more easily.</P>
+<P CLASS="western">AXOs are identical to AROs in many respects. There
+is an AXO tree (separate from the ARO tree), with it's own Groups and
+AXOs. When dealing with AXOs, consider an AXO to take the old role of
+the ACO (i.e. &quot;things to control access on&quot;), and change
+the view of ACOs from &quot;things to control access on&quot; to
+&quot;actions that are requested&quot;.</P>
+<P CLASS="western"><B>ARO and ACO-only View:</B></P>
+<UL>
+	<LI VALUE=1><P CLASS="western">AROs: Things requesting access</P>
+	<LI><P CLASS="western">ACOs: Things to control access on</P>
+</UL>
+<P CLASS="western"><B>ARO, ACO and AXO View:</B></P>
+<UL>
+	<LI VALUE=1><P CLASS="western">AROs: Things requesting access</P>
+	<LI><P CLASS="western">ACOs: Actions that are requested</P>
+	<LI><P CLASS="western">AXOs: Things to control access on</P>
+</UL>
+<P CLASS="western"><B>Example:</B></P>
+<P CLASS="western">A website manager is trying to manage access to
+projects on the website. The ARO tree consists of all the users:</P>
+<P CLASS="western"><FONT FACE="Courier New, monospace">Website<BR>&#9500;&#9472;Administrators<BR>&#9474;
+&#9500;&#9472;Alice<BR>&#9474; &#9492;&#9472;Carol<BR>&#9492;&#9472;Users<BR>
+ &#9500;&#9472;Bob<BR>  &#9492;&#9472;Alan</FONT></P>
+<P CLASS="western">The projects are organized by Operating System
+into categories in the AXO tree:</P>
+<P CLASS="western"><FONT FACE="Courier New, monospace">Projects<BR>&#9500;&#9472;Linux<BR>&#9474;
+&#9500;&#9472;SpamFilter2<BR>&#9474; &#9492;&#9472;AutoLinusWorshipper<BR>&#9492;&#9472;Windows<BR>
+ &#9500;&#9472;PaperclipKiller<BR>  &#9492;&#9472;PopupStopper</FONT></P>
+<P CLASS="western">The actions that can be taken with each project
+are &quot;View&quot; and &quot;Edit&quot;. These are the ACOs.</P>
+<P CLASS="western">Now we want Bob to have &quot;View&quot; access to
+all the Linux projects, so it's possible to add an ACL that links
+Bob's ARO to the View ACO and the Linux AXO, and thus we can ask the
+question:</P>
+<P CLASS="western">	Bob (ARO) requests access to &quot;View&quot;
+(ACO) the project(s) called &quot;Linux&quot; (AXO)</P>
+<P CLASS="western">Keep in mind AXO's are optional, if you don't
+specify an AXO when calling acl_check() and a matching ACL exists
+with no AXO, it will be allowed. However if <U>only</U> ACLs exist
+with AXO's, and you call acl_check() without an AXO, it will fail.</P>
+<P CLASS="western">So basically as soon as you specify an AXO when
+calling acl_check(), acl_check() will only search ACLs containing
+AXO's. If no AXO is specified, only ACLs without AXOs are searched.
+This in theory (I haven't benchmarked) gives us a slight performance
+increase as well.</P>
+<H1 LANG="en-GB" CLASS="western">Installation</H1>
+<H2 LANG="en-GB" CLASS="western">Basic setup</H2>
+<OL>
+	<LI><P CLASS="western">Untar the distribution .tar.gz file into the
+	root or a subdirectory of your web site. You might want to rename it
+	to something more suitable.<BR><BR><BR>
+	</P>
+	<P CLASS="western"><IMG SRC="manual_html_m48c2db5c.png" NAME="Graphic1" ALIGN=LEFT WIDTH=474 HEIGHT=146 BORDER=0><BR CLEAR=LEFT></P>
+	<LI><P CLASS="western">Edit phpgacl/gacl.ini.php using your
+	favourite editor and set the db_type, db_host, db_user, db_password,
+	and db_name you will be using.</P>
+	<LI><P CLASS="western">Create the database you specified in db_name
+	on the server.<BR><BR><BR>
+	</P>
+	<P CLASS="western"><IMG SRC="manual_html_m770a5a15.png" NAME="Graphic3" ALIGN=LEFT WIDTH=397 HEIGHT=123 BORDER=0><BR CLEAR=LEFT></P>
+	<P CLASS="western"></P>
+	<LI><P CLASS="western">Surf to
+	http://yoursite.net/phpgacl/setup.php. The required tables will be
+	installed based on your choice of database. Don't be afraid of the
+	truckload of output, if all goes well you will see only success
+	messages.<BR><BR><BR>
+	</P>
+</OL>
+<P CLASS="western"><IMG SRC="manual_html_7dced6ce.png" NAME="Graphic4" ALIGN=LEFT WIDTH=519 HEIGHT=504 BORDER=0><BR CLEAR=LEFT><BR><BR>
+</P>
+<OL START=5>
+	<LI><P CLASS="western">Now follow the last advice shown on that
+	screen and create the phpgacl/admin/smarty/templates_c directory. It
+	must be writable by the user the webserver runs as. If you don't do
+	this, you will not be able to use the CAL admin!</P>
+	<LI><P CLASS="western">Click the link at the bottom of the
+	successful setup page or surf
+	to:<BR>http://yoursite.net/phpgacl/admin/acl_admin.php</P>
+</OL>
+<H2 LANG="en-GB" CLASS="western">Advanced setup</H2>
+<H3 LANG="en-GB" CLASS="western">Reusing an already existing ADOdb
+installation</H3>
+<P CLASS="western">If you already have ADOdb installed you can get
+phpGACL to use this copy of ADOdb.</P>
+<OL>
+	<LI><P CLASS="western">Edit phpgacl/gacl.class.php so that ADODB_DIR
+	reflects the location of the ADOdb library in your path.</P>
+	<LI><P CLASS="western">Rename the phpgacl/adodb folder to something
+	else like adodb_x and reload the phpgacl/admin/acl_admin.php page to
+	ensure it still works.</P>
+	<LI><P CLASS="western">Erase the adodb directory installed with
+	phpGACL.</P>
+</OL>
+<H3 LANG="en-GB" CLASS="western">Reusing an already existing Smarty
+installation</H3>
+<P CLASS="western">If you already have ADOdb installed you can get
+phpGACL to use this copy of ADOdb.</P>
+<OL>
+	<LI><P CLASS="western">Edit phpgacl/admin/gacl_admin.inc.php so that
+	the variables $smarty_dir and $smarty_compile_dir reflect the
+	location of the Smarty library in your path and the template_c
+	directory you already use.</P>
+	<P CLASS="western">Move the templates directory that came with
+	phpGACL to another directory (e.g. one level up). Adjust the
+	$smarty_template_dir so it points to the new location. If you like
+	you can move those templates to your existing templates folder, of
+	course.</P>
+	<LI><P CLASS="western">Rename the phpgacl/smarty folder to something
+	else like smarty_x and reload the phpgacl/admin/acl_admin.php page
+	to ensure it still works.</P>
+	<LI><P CLASS="western">Erase the smarty directory installed with
+	phpGACL.</P>
+</OL>
+<H3 LANG="en-GB" CLASS="western">How do I move  the phpGACL files out
+of my website tree while leaving a link in the tree for
+administration?</H3>
+<OL>
+	<LI><P CLASS="western">Go to your website root.</P>
+	<LI><P CLASS="western">Move the phpGACL directory to your includes
+	directory and create a symlink to the admin directory where you want
+	the admin tool to go. For example:</P>
+	<P CLASS="western">mv phpgacl/ /www/includes_directory<BR>ln -s
+	/www/includes_directory/phpgacl/admin/ gacl</P>
+	<LI><P CLASS="western">Now surfing to
+	http://yoursite.net/gacl/acl_admin.php will take you to the admin
+	page. If it doesn't work, make sure your Webserver allows symbolic
+	links in the website tree.</P>
+</OL>
+<H1 LANG="en-GB" CLASS="western">Using phpGACL in your application</H1>
+<H2 LANG="en-GB" CLASS="western">Basic usage</H2>
+<P CLASS="western">This example shows a basic example of using
+phpGACL in your code. It uses the ADOdb abstraction layer as well,
+and shows a simple way to validate a login attempt against a
+database.</P>
+<P CLASS="western"><FONT FACE="Courier New"><FONT COLOR="#ff0000">//
+include basic ACL api</FONT><BR><FONT COLOR="#00cccc">include</FONT>('<FONT COLOR="#008000">phpgacl/gacl.class.php</FONT>');<BR>$<FONT COLOR="#ff6633">gacl</FONT>
+= <FONT COLOR="#00cccc">new</FONT> gacl();</FONT></P>
+<P CLASS="western"><FONT FACE="Courier New">$<FONT COLOR="#ff6633">username</FONT>
+= $<FONT COLOR="#ff6633">db</FONT>-&gt;<FONT COLOR="#00cccc">quote</FONT>($<FONT COLOR="#ff6633">_POST</FONT>['<FONT COLOR="#008000">username</FONT>']);<BR>$<FONT COLOR="#ff6633">password</FONT>
+= $<FONT COLOR="#ff6633">db</FONT>-&gt;<FONT COLOR="#00cccc">quote</FONT>(md5($<FONT COLOR="#ff6633">_POST</FONT>['<FONT COLOR="#008000">password</FONT>']));<BR>$<FONT COLOR="#ff6633">sql</FONT>
+= '<FONT COLOR="#008000">SELECT name FROM users WHERE name=</FONT>';<BR>$<FONT COLOR="#ff6633">sql</FONT>
+.= $<FONT COLOR="#ff6633">username</FONT>.' <FONT COLOR="#008000">AND
+password=</FONT>'.$<FONT COLOR="#ff6633">password</FONT>;<BR>$<FONT COLOR="#ff6633">row</FONT>
+= $<FONT COLOR="#ff6633">db</FONT>-&gt;<FONT COLOR="#00cccc">GetRow</FONT>($<FONT COLOR="#ff6633">sql</FONT>);</FONT></P>
+<P CLASS="western"><FONT FACE="Courier New"><FONT COLOR="#00cccc">if</FONT>($<FONT COLOR="#ff6633">gacl</FONT>-&gt;<FONT COLOR="#00cccc">acl_check</FONT>('<FONT COLOR="#008000">system</FONT>','<FONT COLOR="#008000">login</FONT>','<FONT COLOR="#008000">user</FONT>',$<FONT COLOR="#ff6633">row</FONT>['<FONT COLOR="#008000">name</FONT>'])){<BR>
+ $<FONT COLOR="#ff6633">_SESSION</FONT>['<FONT COLOR="#008000">username</FONT>']
+= $<FONT COLOR="#ff6633">row</FONT>['<FONT COLOR="#008000">name</FONT>'];<BR>
+ <FONT COLOR="#00cccc">return</FONT> <FONT COLOR="#6b4794">true</FONT>;<BR>}<BR><FONT COLOR="#00cccc">else</FONT><BR>
+ <FONT COLOR="#00cccc">return</FONT> <FONT COLOR="#6b4794">false</FONT>;</FONT></P>
+<P CLASS="western">As you can see there is only one call to
+acl_check() in this code. What does it do? Well, it</P>
+<UL>
+	<LI><P CLASS="western">checks the ARO object $row['name'] from the
+	ARO section 'user'</P>
+	<LI><P CLASS="western">against the ACO object 'login' from the ACO
+	section 'system'.</P>
+</UL>
+<H2 LANG="en-GB" CLASS="western">Advanced usage</H2>
+<P CLASS="western"><BR><BR>
+</P>
+<H1 LANG="en-GB" CLASS="western">Using the ACL admin utility</H1>
+<P CLASS="western">If you want to get a grip on the included ACL
+admin utitlity, it will help you a lot if you run the example.php
+file. It contains some ACO, ARO and AXO objects, as well as some ACL
+defined using those objects. After running it, you should see some
+sample data in the admin interface.<BR><BR><BR>
+</P>
+<P CLASS="western"><IMG SRC="manual_html_4b803670.png" NAME="Graphic5" ALIGN=LEFT WIDTH=531 HEIGHT=488 BORDER=0><BR CLEAR=LEFT><BR><BR>
+</P>
+<P CLASS="western">Play around with it, and if you get stuck, come
+back and read on...</P>
+<P CLASS="western">(yet to be written)</P>
+<H2 LANG="en-GB" CLASS="western">ACL's</H2>
+<H3 LANG="en-GB" CLASS="western">Creating</H3>
+<P CLASS="western">You must have a minimum of an ACO and an ARO
+defined to create an ACL.</P>
+<P CLASS="western">Select an ACO Section then select from the
+available items show in the Access Control Objects list.  Click the [
+&gt; &gt; ] button to add the Section-ACO to the Selected list.  You
+may add any number of Section-ACO pairs to this list.</P>
+<P CLASS="western"><IMG SRC="manual_html_m608b392a.png" NAME="Graphic9" ALIGN=LEFT WIDTH=531 HEIGHT=177 BORDER=0><BR CLEAR=LEFT><BR><BR>
+</P>
+<P CLASS="western">Next select an ARO Section.  At this point you may
+select from either the Access Request Objects list or from the ARO
+Groups list.</P>
+<P CLASS="western"><IMG SRC="manual_html_157037e7.png" NAME="Graphic10" ALIGN=LEFT WIDTH=531 HEIGHT=157 BORDER=0><BR CLEAR=LEFT><BR><BR>
+</P>
+<P CLASS="western">Select on of the ACL Sections (usually &ldquo;user&rdquo;
+for this case), provide a brief description in the Note area and then
+click Submit.  Click on the &ldquo;ACL Admin&rdquo; tab and you will
+see your new ACL in the list.</P>
+<H3 LANG="en-GB" CLASS="western">Sections</H3>
+<P CLASS="western"><IMG SRC="manual_html_676f8c98.png" NAME="Graphic7" ALIGN=LEFT WIDTH=518 HEIGHT=149 BORDER=0><BR CLEAR=LEFT>A
+default install provides you with two ACL sections &ndash; 'system'
+and 'user'.  You would typically put user created ACL's (for example,
+those you enter via the admin interface) in the 'user' section and
+put ACL's generated by code in the 'system' section.  However, you
+can use the ACL sections to provide any other logical grouping that
+suits your purposes.</P>
+<H3 LANG="en-GB" CLASS="western">Extended Return Value</H3>
+<P CLASS="western">Typically a call to the acl_check method will
+return a boolean value.  However, you may specify a different value
+or evan a string to be returned.  
+</P>
+<P CLASS="western">For example, you may negotiate for a user to login
+at a cost of $0.20 per time by default and another for $0.18 per time
+under a different scheme.  You could create a separate ACL for the
+default login and for the special use but varying the 'return value'.
+ If the call to acl_check is successful, you will know the cost of
+the login via the return value.</P>
+<H3 LANG="en-GB" CLASS="western">Notes</H3>
+<P CLASS="western">It's a good idea to add a note when creating an
+ACL to help remember it's purpose, for example &ldquo;Basic
+permissions for a user in the Administrator group&rdquo;.</P>
+<P CLASS="western"><IMG SRC="manual_html_m4f4324cb.png" NAME="Graphic8" ALIGN=LEFT WIDTH=526 HEIGHT=120 BORDER=0><BR CLEAR=LEFT><BR><BR>
+</P>
+<H1 LANG="en-GB" CLASS="western"><A NAME="Glossary"></A>Glossary</H1>
+<H2 LANG="en-GB" CLASS="western">ACO</H2>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2><DFN>Access
+Control Object &ndash; An action that are requested to be performed.</DFN></FONT></FONT></P>
+<H2 LANG="en-GB" CLASS="western">ARO</H2>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2><DFN><SPAN LANG="en-US"><FONT SIZE=2><FONT FACE="Helv, Arial, sans-serif"><FONT COLOR="#000000">Access
+Request Object &ndash; An entity (for example, a user) that is
+requesting an action to be performed.</FONT></FONT></FONT></SPAN></DFN></FONT></FONT></P>
+<H2 LANG="en-GB" CLASS="western">AXO</H2>
+<P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Helv, Arial, sans-serif"><FONT SIZE=2><DFN><SPAN LANG="en-US"><FONT SIZE=2><FONT FACE="Helv, Arial, sans-serif"><FONT COLOR="#000000">Access
+eXtension Object &ndash; An object to perform an action on for an
+entity.</FONT></FONT></FONT></SPAN></DFN></FONT></FONT></P>
+<H1 LANG="en-GB" CLASS="western">References</H1>
+<H2 LANG="en-GB" CLASS="western">phpGACL API</H2>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 100%"><FONT FACE="Helv, Arial"><FONT SIZE=2>The
+API documentation is included in the tarball under the /docs/phpdoc/
+directory.</FONT></FONT></P>
+<H2 LANG="en-GB" CLASS="western">phpGACL Examples and Tutorials</H2>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 100%"><FONT FACE="Helv, Arial"><FONT SIZE=2>See
+example.php included in the tarball.</FONT></FONT></P>
+<H2 LANG="en-GB" CLASS="western">Access Control Resources</H2>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 100%"><FONT FACE="Helv, Arial"><FONT SIZE=2>.
+. .</FONT></FONT></P>
+<P CLASS="western"><BR><BR>
+</P>
+<H1 LANG="en-GB" CLASS="western">FAQ</H1>
+<H2 LANG="en-GB" CLASS="western">Can phpGACL handle large sets of
+data?</H2>
+<P LANG="en-GB" CLASS="western" STYLE="line-height: 100%"><FONT FACE="Helv, Arial"><FONT SIZE=2>Not
+a problem at all. We've tested up to 100,000 AXO's and 100,000 ARO's
+on moderate hardware even. The performance issues come down to how
+well you can cache the ACL's, and how fast your database server is.</FONT></FONT></P>
+</BODY>
+</HTML>

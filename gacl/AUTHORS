@@ -1,0 +1,5 @@
+Mike Benoit <ipso@snappymail.ca>
+    - Initial idea of completely configurable ACLs. 
+      Though I haven't seen anything similar available, I'm sure its out there.
+    - Initial implementation
+    - Initial Documentation
