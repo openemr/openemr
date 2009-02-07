@@ -88,8 +88,19 @@ Invalid username or password
 <input type="submit" onClick="javascript:this.form.authPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';" value=<?php xl('Login','e');?>>
 <?php endif; ?>
 </td></tr>
+<tr><td colspan='2' class='text' style='color:red'>
+<?php
+$ip=$_SERVER['REMOTE_ADDR'];
+$query = "select user, date, comments from log where event like 'login' and comments like '%".$ip."' order by date desc limit 1";
+$statement = sqlStatement($query);
+if ($result = sqlFetchArray($statement)) {
+        if (strpos($result['comments'],"ailure")) {
+                echo $result['user']." attempted unauthorized login on this machine: ".$result['date'];
+        }
+}
+?>
+</td></tr>
 </table>
-
 </td>
 <td width=33%>
 
