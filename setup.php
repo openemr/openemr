@@ -61,6 +61,8 @@ include_once($conffile);
   (If either subdirectory doesn't exist, create it first then do the chown above).<br>
   The user name and group of apache may differ depending on your OS, i.e.
   for Debian they are www-data and www-data.</li>
+  <li>Please restore secure permissions on the configuration files: /openemr/library/sqlconf.php,<br>
+  /openemr/gacl/gacl.ini.php, and /openemr/gacl/gacl.class.php files.</li> 
 </ul>
 <p>
  In order to take full advantage of the documents capability you
@@ -72,6 +74,10 @@ include_once($conffile);
  "upload_max_filesize" is appropriate for your use and that
  "upload_tmp_dir" is set to a correct value if the default of
  "/tmp" won't work on your system.
+</p>
+<p>
+Access controls (php-GACL) are installed for fine-grained security,
+and can be administered in OpenEMR's admin->acl menu.
 </p>
 <p>
 There's much information and many extra tools bundled within the OpenEMR
@@ -88,7 +94,7 @@ using <a href='http://www.mozilla.org/products/firefox/'>Firefox</a>
 is recommended.
 </p>
 <p>
-<b>The initial OpenEMR user is "admin" and the password is "pass".</b>
+<b>The initial OpenEMR user is "<?php echo $iuser; ?>" and the password is "pass".</b>
 You should change this password!
 </p>
 <p>
@@ -318,8 +324,13 @@ if ($upgrade != 1) {
 	fclose($fd);*/
 	flush();
 }
-echo "\n<br>Please make sure 'library/sqlconf.php' is world-writeable for the next step.<br>\n";
-
+echo "\n<br>Next step will ensure the following files or directories are world-writeable:<br>\n";
+foreach ($writableFileList as $tempFile) {
+        echo "&nbsp;'openemr/$tempFile' file<br>";
+}	
+foreach ($writableDirList as $tempDir) {
+        echo "&nbsp;'openemr/$tempDir' directory<br>";
+}	
 
 echo "
 <FORM METHOD='POST'>\n
@@ -339,33 +350,54 @@ break;
 
 	case 4:
 echo "<b>Step $state</b><br><br>\n";
-echo "Writing SQL Configuration to disk and configuring access controls (php-GACL)...<br><br>";
+echo "Checking to ensure files are ready...<br>";
 
 //ensure required files and directories are writable before moving on
 $errorWritable = 0;
 foreach ($writableFileList as $tempFile) {
-	if (!(is_writable($tempFile))) {
-		echo "ERROR.  Could not open config file '$tempFile' for writing.<br>";
-		echo "(ensure '$tempFile' is world-writeable, then go back in browser and try again).<br><br>";
+	if (is_writable($tempFile)) {
+		echo "'openemr/$tempFile' file is ready.<br>";
+	}	
+	else {
+		echo "<br>UNABLE to open configuration file 'openemr/$tempFile' for writing.<br>";
+		echo "(ensure 'openemr/$tempFile' file is world-writeable)<br><br>";
 		flush();
 		$errorWritable = 1;
 	}
 }	
 
 foreach ($writableDirList as $tempDir) {
-	if (!(is_writable($tempDir))) {
-	        echo "ERROR.  Could not open directory '$tempDir' for writing.<br>";
-	        echo "(ensure '$tempDir' is world-writeable, then go back in browser and try again).<br><br>";
+	if (is_writable($tempDir)) {
+                echo "'openemr/$tempDir' directory is ready.<br>";
+	}	
+	else {
+	        echo "<br>UNABLE to open directory 'openemr/$tempDir' for writing.<br>";
+	        echo "(ensure 'openemr/$tempDir' directory is world-writeable)<br><br>";
 	        flush();
 	        $errorWritable = 1;
 	}	
 }
 if ($errorWritable) {
+	echo "You can't proceed until all files are ready.<br>";
+	echo "Fix above file permissions and then click the 'Check Again' button to re-check files.<br>";
+	flush();
+        echo "
+	<FORM METHOD='POST'>\n
+	<INPUT TYPE='HIDDEN' NAME='state' VALUE='4'>
+	<INPUT TYPE='HIDDEN' NAME='host' VALUE='$server'>
+	<INPUT TYPE='HIDDEN' NAME='dbname' VALUE='$dbname'>
+	<INPUT TYPE='HIDDEN' NAME='port' VALUE='$port'>
+	<INPUT TYPE='HIDDEN' NAME='login' VALUE='$login'>
+	<INPUT TYPE='HIDDEN' NAME='pass' VALUE='$pass'>
+	<INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$iuser'>
+	<INPUT TYPE='HIDDEN' NAME='iuname' VALUE='$iuname'>
+	<br>\n
+<INPUT TYPE='SUBMIT' VALUE='Check Again'><br></FORM><br>\n";	
 	break;
 }	
 	
 //passed all file tests, now can write sql configuration and configure php-GACL
-
+echo "<br>Files are all ready, now writing SQL Configuration to disk and configuring access controls (php-GACL)...<br><br>";
 echo "Writing SQL Configuration...<br>";	
 @touch($conffile); // php bug
 $fd = @fopen($conffile, 'w');
@@ -416,8 +448,7 @@ if ($it_died != 0) {
 }
 fclose($fd);
 
-echo "Successfully wrote SQL configuration.<BR>";
-echo "PLEASE restore secure permissions on the 'library/sqlconf.php' file.<br><br><br>";
+echo "Successfully wrote SQL configuration.<BR><br>";
 	
 echo "Installing and Configuring Access Controls (php-GACL)<br>";
 
@@ -508,6 +539,7 @@ echo "Gave the '$iuser' user (password is 'pass') administrator access.<br>";
 	
 echo "<br><FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='5'>\n
+<INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$iuser'>\n
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 

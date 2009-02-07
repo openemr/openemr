@@ -54,7 +54,7 @@ enabled on your system.  These include:
 
 - PHP Index support (ensure that index.php is in your Index path in httpd.conf)
 - Session variables
-- PHP libcurl support (optional for operation, mandatory for billing
+- PHP libcurl support (optional for operation, mandatory for billing)
 
 Copy the OpenEMR folder into the root folder of the webserver. On Mandrake
 Linux, for example, use the command:
@@ -64,7 +64,8 @@ Linux, for example, use the command:
 Make sure the webserver is running, and point a web-browser to setup.php located
 within the openemr web folder.  If you installed OpenEMR in the root web
 directory, the URL would read: http://localhost/openemr/setup.php.
-The setup script will step you through the configuration of the database.
+The setup script will step you through the configuration of the OpenEMR
+and embedded php-GACL databases.
 
 In step 1, you need to tell setup whether it needs to create the databases on
 its own, or if they you have already created them.  MySQL root priveleges will
@@ -107,21 +108,25 @@ The "Initial Group" is the first group that will be created.  A user may belong
 to multiple groups, which again, can be altered on the user administration page.
 It is suggested that no more than one group per office be used.
 
-Step 3 is where setup will install the database and connect to it to create the
-initial tables.  If no errors occur, you will see a "Continue" button at the
-bottom.  Before clicking this, you need to ensure that the webserver user
-(often "nobody", "apache", or "www-data") has write privileges on the
-library/sqlconf.php file.  The command "chmod a+w library/sqlconf.php" will
-grant global write permissions to the file.  Be sure to set them back to
-something more secure (such as chmod 644) before actively using OpenEMR.
+Step 3 is where setup will install the OpenEMR database and connect to it to
+create the initial tables.  Should anything fail during step 3, you may have
+to remove the existing database or tables before you can try again. If no errors
+occur, you will see a "Continue" button at the bottom.  Before clicking this,
+you need to ensure that the webserver user (often "nobody", "apache", or
+"www-data") has write privileges on the openemr/library/sqlconf.php,
+openemr/gacl/gacl.ini.php and openemr/gacl/gacl.class.php files and the
+openemr/gacl/admin/templates_c directory.  The command
+"chmod a+w library/sqlconf.php" will grant global write permissions
+to the file.  Be sure to set them back to something more secure (such as
+chmod 644) before actively using OpenEMR.
 
-Should anything fail during step 3, you may have to remove the existing database
-or tables before you can try again.
-
-Step 4 is the writing of SQL configuration to disk and the
-installation/configuration of the phpGACL access controls. Should it display
-errors related to file writing priviledges you may click the back button to
-try again (after fixing file permission).
+Step 4 will initially check to ensure the proper writing priviledges in the
+files and directory mentioned above in step 3.  Should it display
+errors related to file writing priviledges you may click the 'Check Again'
+button to try again (after fixing file permission).  After the file
+priviledges are confirmed, it will then write setting to the SQL
+configuration file, and then install and configure the embedded phpGACL
+access controls.
 
 Once setup is completed, one last thing must be done before OpenEMR can be used.
 The file openemr/interface/globals.php must be edited by hand to reflect the
@@ -161,8 +166,10 @@ and custom/faxcover.txt; it also requires the following utilities:
 
 IV. Setting Up Access Control
 
-Since OpenEMR version 2.9.0.3, phpGACL access control software is installed
-and configured automatically during OpenEMR setup.  This is very powerful
+Since OpenEMR version 2.9.0.3, phpGACL access control software has been
+embedded in OpenEMR, and these access controls are installed and
+configured automatically during OpenEMR setup.  It can be administered
+within OpenEMR in the admin->acl menu.  This is very powerful
 access control software.  To learn more about phpGACL
 (see http://phpgacl.sourceforge.net/), recommend reading the phpGACL manual,
 the /openemr/Documentation/README.phpgacl file, and the online wiki at
