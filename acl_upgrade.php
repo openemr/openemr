@@ -6,9 +6,7 @@
 //
 // This script will update the phpGACL database, which include
 // Access Control Objects(ACO), Groups(ARO), and Access Control
-// Lists(ACL) created by the the acl_setup.php(2.8.1 onward)
-// program, to the most recent version.
-// (this assumes phpGACL has been previously installed)
+// Lists(ACL) to the most recent version.
 // It will display whether each update already exist
 // or if it was updated succesfully.
 //

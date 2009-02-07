@@ -1,10 +1,27 @@
 <?php
-  // If you have installed phpGACL (http://phpgacl.sourceforge.net/)
-  // and have configured it for your site, then uncomment the following
-  // statement and change it to point to the location where
-  // gacl.class.php is intalled.
-  //
-  // $phpgacl_location = "/var/www/gacl";
+// php-GACL access controls are included in OpenEMR. The below
+// function will automatically create the path where gacl.class.php
+// can be found. Note that this path can be manually set below
+// for users who are using an external version of php-GACL.
+// Also note that php-GACL access controls can be turned off
+// below.
+ if (isset ($GLOBALS['fileroot'])) {
+  //normal use during OpenEMR
+  $phpgacl_location = $GLOBALS['fileroot'] . "/gacl";
+ }
+ else {  
+  //special case during OpenEMR and php-GACL install/upgrade scripts,
+  //which are run from main OpenEMR directory.
+  $phpgacl_location = "gacl";
+ }
+//
+// If using an external version of php-GACL, then uncomment following
+// line and manually place the path below.
+//$phpgacl_location = "/var/www/gacl";
+//
+// If you want to turn off php-GACL, then uncomment the following line.
+//unset($phpgacl_location);
+//
 
   // The following Access Control Objects (ACO) are currently supported.
   // These are the "things to be protected":
@@ -291,7 +308,12 @@
             $full_name = $first_name . " " . $middle_name . " " .  $last_name;
           }
           else {
-            $full_name = $first_name . " " . $last_name;
+	    if ($last_name) {
+              $full_name = $first_name . " " . $last_name;
+	    }
+	    else {
+	      $full_name = $first_name;
+	    }
           }
 
           //If this is not the first group to be added, then will skip below

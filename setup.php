@@ -12,6 +12,13 @@ $conffile = "library/sqlconf.php";
 $upgrade = 0;
 $defhost = 'localhost';
 $state = $_POST["state"];
+$gaclConfigFile1 = "gacl/gacl.ini.php";
+$gaclConfigFile2 = "gacl/gacl.class.php";
+$gaclWritableDirectory = "gacl/admin/templates_c";
+$gaclSetupScript1 = "./gacl/setup.php";
+$gaclSetupScript2 = "./acl_setup.php";
+$writableFileList = array($conffile, $gaclConfigFile1, $gaclConfigFile2);
+$writableDirList = array($gaclWritableDirectory);
 
 include_once($conffile);
 ?>
@@ -70,9 +77,6 @@ include_once($conffile);
 There's much information and many extra tools bundled within the OpenEMR
 installation directory. Please refer to openemr/Documentation.
 <br>Many forms and other useful scripts can be found at openemr/contrib.
-<br>OpenEMR now comes with optional GACL support, a fine grained access control
-system. Please refer to openemr/Documentation/README.phpgacl for -easy-
-installation.
 </p>
 <p>
 Reading openemr/includes/config.php and openemr/interface/globals.php is a good
@@ -325,6 +329,8 @@ echo "
 <INPUT TYPE='HIDDEN' NAME='port' VALUE='$port'>
 <INPUT TYPE='HIDDEN' NAME='login' VALUE='$login'>
 <INPUT TYPE='HIDDEN' NAME='pass' VALUE='$pass'>
+<INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$iuser'>
+<INPUT TYPE='HIDDEN' NAME='iuname' VALUE='$iuname'>
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 
@@ -333,14 +339,36 @@ break;
 
 	case 4:
 echo "<b>Step $state</b><br><br>\n";
-echo "Writing SQL Configuration to disk...\n";
+echo "Writing SQL Configuration to disk and configuring access controls (php-GACL)...<br><br>";
+
+//ensure required files and directories are writable before moving on
+$errorWritable = 0;
+foreach ($writableFileList as $tempFile) {
+	if (!(is_writable($tempFile))) {
+		echo "ERROR.  Could not open config file '$tempFile' for writing.<br>";
+		echo "(ensure '$tempFile' is world-writeable, then go back in browser and try again).<br><br>";
+		flush();
+		$errorWritable = 1;
+	}
+}	
+
+foreach ($writableDirList as $tempDir) {
+	if (!(is_writable($tempDir))) {
+	        echo "ERROR.  Could not open directory '$tempDir' for writing.<br>";
+	        echo "(ensure '$tempDir' is world-writeable, then go back in browser and try again).<br><br>";
+	        flush();
+	        $errorWritable = 1;
+	}	
+}
+if ($errorWritable) {
+	break;
+}	
+	
+//passed all file tests, now can write sql configuration and configure php-GACL
+
+echo "Writing SQL Configuration...<br>";	
 @touch($conffile); // php bug
 $fd = @fopen($conffile, 'w');
-if ($fd == FALSE) {
-	echo "ERROR.  Could not open config file '$conffile' for writing.\n";
-	flush();
-	break;
-}
 $string = "<?
 //  OpenEMR
 //  MySQL Config
@@ -388,7 +416,97 @@ if ($it_died != 0) {
 }
 fclose($fd);
 
-echo "OK<BR>\nPlease restore secure permissions on the 'library/sqlconf.php' file now.\n<br><FORM METHOD='POST'>\n
+echo "Successfully wrote SQL configuration.<BR>";
+echo "PLEASE restore secure permissions on the 'library/sqlconf.php' file.<br><br><br>";
+	
+echo "Installing and Configuring Access Controls (php-GACL)<br>";
+
+//first, edit two gacl config files
+// edit gacl.ini.php
+$data = file($gaclConfigFile1) or die("Could not read ".$gaclConfigFile1." file.");
+$finalData = "";
+foreach ($data as $line) {
+	$isHit = 0;
+	if ((strpos($line,"db_host")) === false) {
+      	}
+	else {
+	        $isHit = 1;
+		$finalData .= "db_host = \"${host}\"\n";
+	}
+        if ((strpos($line,"db_user")) === false) {
+	}
+	else {
+                $isHit = 1;
+	        $finalData .= "db_user = \"${login}\"\n";
+	}
+        if ((strpos($line,"db_password")) === false) {
+	}
+	else {
+                $isHit = 1;
+	        $finalData .= "db_password = \"${pass}\"\n";
+	}
+        if ((strpos($line,"db_name")) === false) {
+	}
+	else {
+                $isHit = 1;
+	        $finalData .= "db_name = \"${dbname}\"\n";
+	}
+	if (!$isHit) {
+		$finalData .= $line;
+     	}
+}
+$fd = @fopen($gaclConfigFile1, 'w') or die("Could not open ".$gaclConfigFile1." file.");
+fwrite($fd, $finalData);
+fclose($fd); 
+	
+// edit gacl.class.php
+$data = file($gaclConfigFile2) or die("Could not read ".$gaclConfigFile2." file.");
+$finalData = "";
+foreach ($data as $line) {
+        $isHit = 0;
+	if ((strpos($line,"var \$_db_host = ")) === false) {
+	}
+	else {
+	        $isHit = 1;
+	        $finalData .= "var \$_db_host = '$host';\n";
+	}
+	if ((strpos($line,"var \$_db_user = ")) === false) {
+	}
+	else {
+	        $isHit = 1;
+	        $finalData .= "var \$_db_user = '$login';\n";
+	}
+	if ((strpos($line,"var \$_db_password = ")) === false) {
+	}
+	else {
+	        $isHit = 1;
+	        $finalData .= "var \$_db_password = '$pass';\n";
+	}
+	if ((strpos($line,"var \$_db_name = ")) === false) {
+	}
+	else {
+	        $isHit = 1;
+	        $finalData .= "var \$_db_name = '$dbname';\n";
+	}
+	if (!$isHit) {
+	        $finalData .= $line;
+	}
+}
+$fd = @fopen($gaclConfigFile2, 'w') or die("Could not open ".$gaclConfigFile2." file.");
+fwrite($fd, $finalData);
+fclose($fd);
+
+//second, run gacl config scripts		
+require $gaclSetupScript1;
+require $gaclSetupScript2;
+echo "<br>";
+ 
+//third, give the administrator user admin priviledges
+$groupArray = array("Administrators");
+set_user_aro($groupArray,$iuser,$iuname,"","");	
+echo "Gave the '$iuser' user (password is 'pass') administrator access.<br>";
+	
+echo "<br><FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='5'>\n
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";

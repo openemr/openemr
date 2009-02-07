@@ -123,7 +123,7 @@ if ($form_step == 4) {
   $cmd = "cd $webserver_root; tar --same-owner --ignore-failed-read -zcphf $BACKUP_DIR/openemr.tar.gz .";
 }
 if ($form_step == 5) {
-  if (!empty($phpgacl_location)) {
+  if ((!empty($phpgacl_location)) && ($phpgacl_location != $GLOBALS['fileroot']."/gacl")) {
     $form_status .= "Dumping phpGACL web directory tree ...<br />";
     echo nl2br($form_status);
     $cmd = "cd $phpgacl_location; tar --same-owner --ignore-failed-read -zcphf $BACKUP_DIR/phpgacl.tar.gz .";

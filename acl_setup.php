@@ -6,9 +6,9 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
  //
- // This program may be run after phpGACL has been installed, and will
- // create the Access Control Objects and their sections as required
- // by OpenEMR.  See openemr/library/acl.inc file for the list of
+ // This program is run by the OpenEMR setup.php script to install phpGACL
+ // and creates the Access Control Objects and their sections.
+ // See openemr/library/acl.inc file for the list of
  // currently supported Access Control Objects(ACO), which this
  // script will install.  This script also creates several
  // ARO groups, an "admin" ARO, and some reasonable ACL entries for
@@ -21,10 +21,10 @@
  //      Accounting
  //
  // Upgrade Howto
- // If you have previously installed phpGACL, and have since upgraded
- // to a new version of OpenEMR, then should consider upgrading
- // the phpGACL database with the acl_upgrade.php script to ensure
- // the database includes all the required Access Control Objects(ACO).
+ // When upgrading to a new version of OpenEMR, run the acl_upgrade.php
+ // script to update the phpGACL access controls.  This is required to
+ // ensure the database includes all the required Access Control 
+ // Objects(ACO).
  //
 
  include_once('library/acl.inc');
@@ -38,11 +38,8 @@
  // Create the ACO sections.  Every ACO must have a section.
  //
  if ($gacl->add_object_section('Accounting', 'acct', 10, 0, 'ACO') === FALSE) {
-  die("<br>This is not working.  Make sure you have:<br>" .
-   "* Set the correct phpgacl database name, user and password in gacl.ini.php<br>" .
-   "* Done the same in gacl.class.php<br>" .
-   "* Run setup.php from the phpGACL distribution<br>" .
-   "* Not already run this script successfully<br>");
+  echo "Unable to create the access controls for OpenEMR.  You have likely already run this script (acl_setup.php) successfully.<br>Other possible problems include php-GACL configuration file errors (gacl.ini.php or gacl.class.php).<br>";
+  return;
  }
  $gacl->add_object_section('Administration', 'admin'        , 10, 0, 'ACO');
  $gacl->add_object_section('Encounters'    , 'encounters'   , 10, 0, 'ACO');
@@ -195,13 +192,8 @@
 <link rel=STYLESHEET href="interface/themes/style_blue.css">
 </head>
 <body>
-<span class="title">OpenEMR ACL Setup</span>
-<br><br>
-<span class="text">
-
-All done!
-
-</span>
-
+<b>OpenEMR ACL Setup</b>
+<br>
+All done configuring and installing access controls (php-GACL)!
 </body>
 </html>

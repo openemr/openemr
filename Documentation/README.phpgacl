@@ -1,12 +1,41 @@
              Hints for Using phpGACL with OpenEMR
           by Rod Roark <rod at sunsetsystems dot com>
 
+Installation Instructions
 
-OpenEMR by default does not use or require phpGACL, though it is
-highly recommended.  Setting it up takes some careful study, planning
-and a bit of time.  If you don't have the time then you should hire
-an experienced person to set things up for you.  Helpful installation
-and configuration instructions can be found on the wiki at the
+phpGACL access controls are embedded and installed by default in OpenEMR
+versions 2.9.0.3 or later.  The administration of the access controls is
+within OpenEMR in the admin->acl menu. The library/acl.inc file can be
+easily modified to turn off phpGACL or to use an external version.
+
+
+Upgrading Instructions
+
+After you have upgraded to a new version of OpenEMR, you should
+run the acl_upgrade.php program using your web browser
+(e.g. http://openemr.location/acl_upgrade.php). This will ensure your
+phpGACL database contains all the required OpenEMR Access Control
+Objects.
+
+
+For Developers
+
+If you add a new Access Control Object to the OpenEMR codebase, then
+also add it to the following three sites:
+1. Header notes of the library/acl.inc file
+2. acl_setup.php file
+3. acl_upgrade.php file
+
+
+Miscellaneous Information (the below information is only applicable
+to OpenEMR versions less than 2.9.0.3 or to users who choose to
+install an external version of phpGACL)
+
+If you are using an OpenEMR version previous to 2.9.0.3, then phpGACL
+has not been automatically installed.  Setting it up takes some careful
+study, planning and a bit of time.  If you don't have the time then you
+should hire an experienced person to set things up for you.  Helpful
+installation and configuration instructions can be found on the wiki at the
 www.oemr.org site.
 
 Alternatively, it's possible to set up your own access rules without
@@ -90,21 +119,3 @@ Then if "write" or "wsome" or "addonly" access applies, key in that
 as the return value, otherwise a return value is not required.  Then
 click the Submit button to save that particular access rule.  Repeat
 until all your ACL rules are defined.
-
-
-Upgrading Instructions
-
-After you have upgraded to a new version of OpenEMR, you should
-consider running the acl_upgrade.php program using your web browser
-(e.g. http://openemr.location/acl_upgrade.php). This will ensure your
-phpGACL database contains all the required OpenEMR Access Control
-Objects.
-
-
-For Developers
-
-If you add a new Access Control Object to the OpenEMR codebase, then
-also add it to the following three sites:
-1. Header notes of the library/acl.inc file
-2. acl_setup.php file
-3. acl_upgrade.php file
