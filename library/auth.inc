@@ -9,13 +9,14 @@ require_once("{$GLOBALS['srcdir']}/acl.inc");
 if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
     isset($_POST['authPass']) && isset($_POST['authProvider']))
 {
+    $ip=$_SERVER['REMOTE_ADDR'];
     if (!authNewSession($_POST['authUser'], $_POST['authPass'], $_POST['authProvider']))
     {
-        newEvent("login",$_POST['authUser'], $_POST['authProvider'], "failure");
+        newEvent("login",$_POST['authUser'], $_POST['authProvider'], "failure: $ip");
         $_SESSION['loginfailure'] = 1;
         authLoginScreen();
     }
-    newEvent("login", $_POST['authUser'], $_POST['authProvider'], "success");
+    newEvent("login", $_POST['authUser'], $_POST['authProvider'], "success: $ip");
     $_SESSION['loginfailure'] = null;
     unset($_SESSION['loginfailure']);
     //store the very first initial timestamp for timeout errors
