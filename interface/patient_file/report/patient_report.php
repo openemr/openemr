@@ -23,64 +23,44 @@ $auth_demo     = acl_check('patients'  , 'demo');
 <!-- include jQuery support -->
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
 
-<script language='JavaScript'>
-
-// When an issue is checked, auto-check all the related encounters.
-function issueClick(icb) {
-    if (! icb.checked) return;
-    var f = document.forms[0];
-    var nel = f.elements.length;
-    for (var i = 0; i < nel; ++i) {
-        var ecb = f.elements[i];
-        if (ecb.name == 'documents[]' ||
-            ecb.name.indexOf('include_') == 0 ||
-            ecb.name.indexOf('issue_'  ) == 0)
-            continue;
-        if (icb.value.indexOf('/' + ecb.value + '/') >= 0) {
-            ecb.checked = true;
-        }
-    }
-}
-
-</script>
-
 </head>
 
 <body class="body_top">
+<div id="patient_reports"> <!-- large outer DIV -->
 
-<font class='title'><?php xl('Patient Report','e'); ?></font><br>
+<span class='title'><?php xl('Patient Report','e'); ?></span><br>
 
 <a class="link_submit" href="full_report.php" onclick="top.restoreSession()">
 [<?php xl('View Comprehensive Patient Report','e'); ?>]</a>
 
 <form name='report_form' id="report_form" method='post' action='custom_report.php'>
 
-<table>
+<table class="includes">
  <tr>
-  <td class='text' valign='top'>
-   <input type='checkbox' name='include_demographics' value="demographics" checked><?php xl('Demographics','e'); ?><br>
+  <td class='text'>
+   <input type='checkbox' name='include_demographics' id='include_demographics' value="demographics" checked><?php xl('Demographics','e'); ?><br>
    <?php if (acl_check('patients', 'med')): ?>
-   <input type='checkbox' name='include_history' value="history"><?php xl(' History','e'); ?><br>
+   <input type='checkbox' name='include_history' id='include_history' value="history"><?php xl(' History','e'); ?><br>
    <?php endif; ?>
    <!--
-   <input type='checkbox' name='include_employer' value="employer"><?php xl('Employer','e'); ?><br>
+   <input type='checkbox' name='include_employer' id='include_employer' value="employer"><?php xl('Employer','e'); ?><br>
    -->
-   <input type='checkbox' name='include_insurance' value="insurance"><?php xl('Insurance','e'); ?><br>
-   <input type='checkbox' name='include_billing' value="billing"
+   <input type='checkbox' name='include_insurance' id='include_insurance' value="insurance"><?php xl('Insurance','e'); ?><br>
+   <input type='checkbox' name='include_billing' id='include_billing' value="billing"
     <?php if (!$GLOBALS['simplified_demographics']) echo 'checked'; ?>><?php xl('Billing','e'); ?><br>
   </td>
-  <td class='text' valign='top'>
+  <td class='text'>
    <!--
-   <input type='checkbox' name='include_allergies' value="allergies">Allergies<br>
-   <input type='checkbox' name='include_medications' value="medications">Medications<br>
+   <input type='checkbox' name='include_allergies' id='include_allergies' value="allergies">Allergies<br>
+   <input type='checkbox' name='include_medications' id='include_medications' value="medications">Medications<br>
    -->
-   <input type='checkbox' name='include_immunizations' value="immunizations"><?php xl('Immunizations','e'); ?><br>
+   <input type='checkbox' name='include_immunizations' id='include_immunizations' value="immunizations"><?php xl('Immunizations','e'); ?><br>
    <!--
-   <input type='checkbox' name='include_medical_problems' value="medical_problems">Medical Problems<br>
+   <input type='checkbox' name='include_medical_problems' id='include_medical_problems' value="medical_problems">Medical Problems<br>
    -->
-   <input type='checkbox' name='include_notes' value="notes"><?php xl('Patient Notes','e'); ?><br>
-   <input type='checkbox' name='include_transactions' value="transactions"><?php xl('Transactions','e'); ?><br>
-   <input type='checkbox' name='include_batchcom' value="batchcom"><?php xl('Communications','e'); ?><br>
+   <input type='checkbox' name='include_notes' id='include_notes' value="notes"><?php xl('Patient Notes','e'); ?><br>
+   <input type='checkbox' name='include_transactions' id='include_transactions' value="transactions"><?php xl('Transactions','e'); ?><br>
+   <input type='checkbox' name='include_batchcom' id='include_batchcom' value="batchcom"><?php xl('Communications','e'); ?><br>
   </td>
  </tr>
 </table>
@@ -89,35 +69,30 @@ function issueClick(icb) {
 <input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />
 <hr/>
 
-<table>
+<table class="issues_encounters_forms">
  <tr>
 
   <!-- Issues -->
-  <td valign='top' class='text'>
-  <span class='bold'><?php xl('Issues to Include in this Report','e'); ?>: &nbsp; &nbsp;</span>
-   <br>&nbsp;
+  <td class='text'>
+  <div class="issues">
+  <span class='bold'><?php xl('Issues','e'); ?>:</span>
+   <br>
+   <br>
 
 <?php if (! acl_check('patients', 'med')): ?>
 <br>(Issues not authorized)
 
 <?php else: ?>
-   <table cellpadding='1' cellspacing='2'>
-    <!--
-    <tr class='bold'>
-     <td>Type</td>
-     <td>Title</td>
-     <td>Begin</td>
-     <td>End &nbsp; &nbsp; &nbsp;</td>
-    </tr>
-    -->
+   <table>
+
 <?php
 // get issues
- $pres = sqlStatement("SELECT * FROM lists WHERE pid = $pid " .
-  "ORDER BY type, begdate");
- $lasttype = "";
- while ($prow = sqlFetchArray($pres)) {
-  if ($lasttype != $prow['type']) {
-   $lasttype = $prow['type'];
+$pres = sqlStatement("SELECT * FROM lists WHERE pid = $pid " .
+                    "ORDER BY type, begdate");
+$lasttype = "";
+while ($prow = sqlFetchArray($pres)) {
+    if ($lasttype != $prow['type']) {
+        $lasttype = $prow['type'];
 
    /****
    $disptype = $lasttype;
@@ -129,47 +104,47 @@ function issueClick(icb) {
     case "surgery"        : $disptype = "Surgeries"       ; break;
    }
    ****/
-   $disptype = $ISSUE_TYPES[$lasttype][0];
+        $disptype = $ISSUE_TYPES[$lasttype][0];
 
-   echo " <tr>\n";
-   echo "  <td valign='top' colspan='4' class='bold'><b>$disptype</b></td>\n";
-   echo " </tr>\n";
-  }
-  $rowid = $prow['id'];
-  $disptitle = trim($prow['title']) ? $prow['title'] : "[Missing Title]";
+        echo " <tr>\n";
+        echo "  <td colspan='4' class='bold'><b>$disptype</b></td>\n";
+        echo " </tr>\n";
+    }
+    $rowid = $prow['id'];
+    $disptitle = trim($prow['title']) ? $prow['title'] : "[Missing Title]";
 
-  $ieres = sqlStatement("SELECT encounter FROM issue_encounter WHERE " .
-   "pid = '$pid' AND list_id = '$rowid'");
+    $ieres = sqlStatement("SELECT encounter FROM issue_encounter WHERE " .
+                        "pid = '$pid' AND list_id = '$rowid'");
 
-  echo "    <tr class='text'>\n";
-  echo "     <td valign='top'>&nbsp;</td>\n";
-  echo "     <td valign='top'>";
-  echo "<input type='checkbox' name='issue_$rowid' class='issuecheckbox' value='/";
-  while ($ierow = sqlFetchArray($ieres)) {
-   echo $ierow['encounter'] . "/";
-  }
-  echo "' />$disptitle</td>\n";
-  echo "     <td valign='top'>" . $prow['begdate'];
-  if ($prow['enddate']) {
-   echo " - " . $prow['enddate'];
-  } else {
-   echo " Active";
-  }
-  echo " &nbsp; &nbsp; </td>\n";
-  echo "    </tr>\n";
- }
+    echo "    <tr class='text'>\n";
+    echo "     <td>&nbsp;</td>\n";
+    echo "     <td>";
+    echo "<input type='checkbox' name='issue_$rowid' id='issue_$rowid' class='issuecheckbox' value='/";
+    while ($ierow = sqlFetchArray($ieres)) {
+        echo $ierow['encounter'] . "/";
+    }
+    echo "' />$disptitle</td>\n";
+    echo "     <td>" . $prow['begdate'];
+
+    if ($prow['enddate']) { echo " - " . $prow['enddate']; }
+    else { echo " Active"; }
+
+    echo "</td>\n";
+    echo "</tr>\n";
+}
 ?>
    </table>
 
 <?php endif; // end of Issues output ?>
 
-   <br>
+   </div> <!-- end issues DIV -->
   </td>
 
 <!-- Encounters and Forms -->
 
-<td valign='top' class='text'>
-<span class='bold'><?php xl('Encounter Forms to Include in this Report','e'); ?>:</span>
+<td class='text'>
+<div class='encounters'>
+<span class='bold'><?php xl('Encounters &amp; Forms','e'); ?>:</span>
 <br><br>
 
 <?php if (!($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)): ?>
@@ -181,6 +156,7 @@ function issueClick(icb) {
 $isfirst = 1;
 $res = sqlStatement("SELECT forms.encounter, forms.form_id, forms.form_name, " .
                     "forms.formdir, forms.date AS fdate, form_encounter.date " .
+                    ",form_encounter.reason ".
                     "FROM forms, form_encounter WHERE " .
                     "forms.pid = '$pid' AND form_encounter.pid = '$pid' AND " .
                     "form_encounter.encounter = forms.encounter " .
@@ -201,14 +177,30 @@ while($result = sqlFetchArray($res)) {
                 }
             }
             $html_strings = array();
-            print "</blockquote>\n\n";
+            echo "</div>\n"; // end DIV encounter_forms
+            echo "</div>\n\n";  //end DIV encounter_data 
+            echo "<br>";
         }
         $isfirst = 0;
-        print "<input type=checkbox name='" . $result{"formdir"} . "_" .
-                $result{"form_id"} . "' value='" . $result{"encounter"} . "'";
-        print " >New Encounter" .
+        echo "<div class='encounter_data'>\n";
+        echo "<input type=checkbox ".
+                " name='" . $result{"formdir"} . "_" .  $result{"form_id"} . "'".
+                " id='" . $result{"formdir"} . "_" .  $result{"form_id"} . "'".
+                " value='" . $result{"encounter"} . "'" .
+                " class='encounter'".
+                " >";
+
+        // show encounter reason, not just 'New Encounter'
+        // trim to a reasonable length for display purposes --cfapress
+        $maxReasonLength = 20;
+        if (strlen($result["reason"]) > $maxReasonLength) {
+            $result['reason'] = substr($result['reason'], 0, $maxReasonLength) . " ... ";
+        }
+
+        echo $result{"reason"}. 
                 " (" . date("Y-m-d",strtotime($result{"date"})) .
-                ")<blockquote>\n";
+                ")\n";
+        echo "<div class='encounter_forms'>\n";
     } 
     else {
         $form_name = trim($result{"form_name"});
@@ -223,10 +215,12 @@ while($result = sqlFetchArray($res)) {
         if (!$form_name_found_flag) { foreach($registry_form_name as $var) {if (strpos($form_name,$var) == 0) {$form_name = $var;}}}
      
         if (!is_array($html_strings[$form_name])) {$html_strings[$form_name] = array();}
-        array_push($html_strings[$form_name], "<input type='checkbox' name='" 
-                                                . $result{"formdir"} . "_" 
-                                                . $result{"form_id"} . "' value='" . $result{"encounter"} . "'" 
-                                                . ">" . $result{"form_name"} . "<br>\n");
+        array_push($html_strings[$form_name], "<input type='checkbox' ".
+                                                " name='" . $result{"formdir"} . "_" . $result{"form_id"} . "'".
+                                                " id='" . $result{"formdir"} . "_" . $result{"form_id"} . "'".
+                                                " value='" . $result{"encounter"} . "'" .
+                                                " class='encounter_form' ".
+                                                ">" . $result{"form_name"} . "<br>\n");
     }
 }
 foreach($registry_form_name as $var) {
@@ -238,8 +232,7 @@ foreach($registry_form_name as $var) {
 
 <?php endif; ?>
 
-</blockquote>
-
+  </div> <!-- end encounters DIV -->
   </td>
  </tr>
 </table>
@@ -250,20 +243,21 @@ foreach($registry_form_name as $var) {
 <span class="bold"><?php xl('Documents','e'); ?></span>:<br>
 <ul>
 <?php
-//code lists available images
+// show available documents
 $db = $GLOBALS['adodb']['db'];
 $sql = "SELECT d.id, d.url, c.name FROM documents AS d " .
         "LEFT JOIN categories_to_documents AS ctd ON d.id=ctd.document_id " .
         "LEFT JOIN categories AS c ON c.id = ctd.category_id WHERE " .
         "d.foreign_id = " . $db->qstr($pid);
 $result = $db->Execute($sql);
-echo $db->ErrorMsg();
+if ($db->ErrorMsg()) echo $db->ErrorMsg();
 while ($result && !$result->EOF) {
-    echo '<span class="bold"><input type="checkbox" name="documents[]" value="' .
+    echo "<li class='bold'>";
+    echo '<input type="checkbox" name="documents[]" value="' .
         $result->fields['id'] . '">';
     echo '&nbsp;&nbsp;<i>' . $result->fields['name'] . "</i>";
     echo '&nbsp;&nbsp;Name: <i>' . basename($result->fields['url']) . "</i>";
-    echo '</span><br>';
+    echo '</li>';
     $result->MoveNext();	
 }
 ?>
@@ -272,6 +266,7 @@ while ($result && !$result->EOF) {
 
 <input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />
 
+</div>  <!-- close patient_reports DIV -->
 </body>
 
 <script language="javascript">
@@ -282,7 +277,43 @@ $(document).ready(function(){
     $("#genfullreport").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
     //$("#printform").click(function() { PrintForm(); });
     $(".issuecheckbox").click(function() { issueClick(this); });
+
+    // check/uncheck all Forms of an encounter
+    $(".encounter").click(function() { SelectForms($(this)); });
 });
+
+
+// select/deselect the Forms related to the selected Encounter
+// (it ain't pretty code folks)
+var SelectForms = function (selectedEncounter) {
+    if ($(selectedEncounter).attr("checked")) {
+        $(selectedEncounter).parent().children().each(function(i, obj) {
+            $(this).children().each(function(i, obj) {
+                $(this).attr("checked", "checked");
+            });
+        });
+    }
+    else {
+        $(selectedEncounter).parent().children().each(function(i, obj) {
+            $(this).children().each(function(i, obj) {
+                $(this).removeAttr("checked");
+            });
+        });
+    }
+}
+
+// When an issue is checked, auto-check all the related encounters and forms
+function issueClick(issue) {
+    // do nothing when unchecked
+    if (! $(issue).attr("checked")) return;
+
+    $("#report_form :checkbox").each(function(i, obj) {
+        if ($(issue).val().indexOf('/' + $(this).val() + '/') >= 0) {
+            $(this).attr("checked", "checked");
+        }
+            
+    });
+}
 
 </script>
 
