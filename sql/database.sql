@@ -1408,6 +1408,7 @@ CREATE TABLE `immunizations` (
   `manufacturer` varchar(100) character set utf8 collate utf8_unicode_ci default NULL,
   `lot_number` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
   `administered_by_id` bigint(20) default NULL,
+  `administered_by` VARCHAR( 255 ) default NULL COMMENT 'Alternative to administered_by_id',
   `education_date` date default NULL,
   `vis_date` date default NULL COMMENT 'Date of VIS Statement', 
   `note` text character set utf8 collate utf8_unicode_ci,

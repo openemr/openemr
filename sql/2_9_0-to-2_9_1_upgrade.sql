@@ -15,7 +15,8 @@ ALTER TABLE forms
 
 #IfMissingColumn immunizations vis_date
 ALTER TABLE immunizations
-  ADD `vis_date` date default NULL COMMENT 'Date of VIS Statement';
+  ADD `vis_date` date default NULL COMMENT 'Date of VIS Statement',
+  ADD `administered_by` VARCHAR( 255 ) default NULL COMMENT 'Alternative to administered_by_id';
 #EndIf
 
 #IfNotTable chart_tracker
