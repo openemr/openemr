@@ -5,7 +5,7 @@ require_once("$srcdir/billing.inc");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
-include_once("$srcdir/acl.inc");
+require_once("$srcdir/acl.inc");
 require_once("$srcdir/report.inc");
 require_once(dirname(__file__) . "/../../../library/classes/Document.class.php");
 require_once(dirname(__file__) . "/../../../library/classes/Note.class.php");
@@ -302,6 +302,18 @@ foreach ($ar as $key => $val) {
       if ($diagnosis) {
         echo "<span class='bold'>&nbsp;".xl('Diagnosis').": </span><span class='text'>" .
           "$diagnosis " . lookup_code_descriptions($diagnosis) . "</span><br>\n";
+      }
+
+      // Supplemental data for GCAC or Contraception issues.
+      if ($irow['type'] == 'ippf_gcac') {
+        echo "   <table>\n";
+        display_layout_rows('GCA', sqlQuery("SELECT * FROM lists_ippf_gcac WHERE id = '$rowid'"));
+        echo "   </table>\n";
+      }
+      else if ($irow['type'] == 'contraceptive') {
+        echo "   <table>\n";
+        display_layout_rows('CON', sqlQuery("SELECT * FROM lists_ippf_con WHERE id = '$rowid'"));
+        echo "   </table>\n";
       }
 
     // Otherwise we have an "encounter form" form field whose name is like
