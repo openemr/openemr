@@ -17,11 +17,8 @@ $auth_relaxed  = acl_check('encounters', 'relaxed');
 $auth_med      = acl_check('patients'  , 'med');
 $auth_demo     = acl_check('patients'  , 'demo');
 
-if (!isset($_GET["viewnum"])) {
-	$N = 6;
-} else {
-	$N = $_GET["viewnum"];
-}
+if (!isset($_GET["viewnum"])) { $N = 6; }
+else { $N = $_GET["viewnum"]; }
 
 ?>
 
@@ -29,111 +26,146 @@ if (!isset($_GET["viewnum"])) {
 <head>
 <?php html_header_show();?>
 
-
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
-
 </head>
-<body class="body_top">
 
-<a href="patient_report.php"><font class="title"><?php  xl('Patient Record Report','e'); ?></font><font class=back><?php echo $tback;?></font></a>
+<body class="body_top">
+<div id="report_custom">  <!-- large outer DIV -->
+<!--
+            echo "<hr />";
+            echo "<div class='text demographics' id='DEM'>\n";
+            print "<h1>".xl('Patient Data').":</h1>";
+-->
+<a href="patient_report.php"><h1 class='title'><?php  xl('Patient Record Report','e'); ?></h1><span class='back'><?php echo $tback;?></span></a>
 <br><br>
 <a href="full_report.php?viewnum=6" class=link_submit>[<?php  xl('Normal View','e'); ?>]</a><a href="full_report.php?viewnum=1" class=link_submit>[<?php xl('Expanded View','e'); ?>]</a><br>
 
 <br>
 
-
-
-
-<font class=bold><?php  xl('Patient Data','e'); ?>:</font><br>
+<div class='demographics'>
+<h1><?php  xl('Patient Data','e'); ?>:</h1>
 <?php 
 printRecData($patient_data_array, getRecPatientData ($pid), $N);
-?><hr>
+?>
+</div>
+
+<hr/>
 
 <?php if (acl_check('patients', 'med')): ?>
-<font class=bold><?php  xl('History Data','e'); ?>:</font><br>
+<div class='history'>
+<h1><?php  xl('History Data','e'); ?>:</h1>
 <?php printRecData($history_data_array, getRecHistoryData ($pid), $N); ?>
-<hr>
+</div>
+<hr/>
 <?php endif; ?>
 
 
-<font class=bold><?php  xl('Employer Data','e'); ?>:</font><br>
+<div class='demographics'>
+<h1><?php  xl('Employer Data','e'); ?>:</h1>
 <?php 
 printRecData($employer_data_array, getRecEmployerData ($pid), $N);
-?><hr>
+?>
+</div>
+<hr/>
 
 
-<font class=bold><?php  xl('Primary Insurance Data','e'); ?>:</font><br>
+<div class='insurance'>
+<h1><?php  xl('Insurance Data','e'); ?>:</h1>
+<span class='bold'><?php  xl('Primary Insurance Data','e'); ?>:</span> <br/>
 <?php 
 printRecData($insurance_data_array, getRecInsuranceData ($pid,"primary"), $N);
-?><hr>
-
-
-<font class=bold><?php  xl('Secondary Insurance Data','e'); ?>:</font><br>
+?>
+<br/>
+<br/>
+<span class='bold'><?php  xl('Secondary Insurance Data','e'); ?>:</span> <br/>
 <?php 
 printRecData($insurance_data_array, getRecInsuranceData ($pid,"secondary"), $N);
-?><hr>
-
-
-<font class=bold><?php  xl('Tertiary Insurance Data','e'); ?>:</font><br>
+?>
+<br/>
+<br/>
+<span class='bold'><?php  xl('Tertiary Insurance Data','e'); ?>:</span> <br/>
 <?php 
 printRecData($insurance_data_array, getRecInsuranceData ($pid,"tertiary"), $N);
-?><hr>
+?>
+</div>
+<hr/>
 
 <!-- Patient Issues -->
 <?php if (acl_check('patients', 'med')): ?>
-<font class=bold><?php  xl('Allergies','e'); ?>:</font><br>
-<table><tr><td><?php printListData($pid, "allergy", "1") ?> </td></tr></table>
+<div class='issues history'>
+<h1><?php  xl('Issues','e'); ?>:</h1>
+<br/>
+<h2><?php  xl('Allergies','e'); ?>:</h2>
+<?php printListData($pid, "allergy", "1") ?>
 
-<font class=bold><?php  xl('Medications','e'); ?>:</font><br>
-<table><tr><td><?php printListData($pid, "medication", "1") ?></td></tr></table>
+<br/>
+<h2><?php  xl('Medications','e'); ?>:</h2>
+<?php printListData($pid, "medication", "1") ?>
 
-<font class=bold><?php  xl('Medical Problems','e'); ?>:</font><br>
-<table><tr><td><?php printListData($pid, "medical_problem", "1") ?></td></tr></table>
+<br/>
+<h2><?php  xl('Medical Problems','e'); ?>:</h2>
+<?php printListData($pid, "medical_problem", "1") ?>
+</div>
+<hr/>
 
-<font class=bold><?php  xl('Immunizations','e'); ?>:</font><br>
-<table><tr><td><?php 
+<div class='issues history'>
+<h1><?php  xl('Immunizations','e'); ?>:</h1>
+<?php 
 $sql = "select if(i1.administered_date,concat(i1.administered_date,' - ',i2.name) ,substring(i1.note,1,20) ) as immunization_data from immunizations i1 left join immunization i2 on i1.immunization_id = i2.id where i1.patient_id = $pid order by administered_date desc";
 
 $result = sqlStatement($sql);
-
 while ($row=sqlFetchArray($result)){
-	echo "<span class=text> " . $row{'immunization_data'} . "</span><br>\n";
+    echo "<span class=text> " . $row{'immunization_data'} . "</span><br>\n";
 }
-?></td></tr></table>
+?>
+</div>
 <hr>
 
 <?php endif; // end patient-issues ?>
 
 <!-- Patient communications -->
-<font class=bold><?php  xl('Patient Comunication Sent','e'); ?>:</font><br>
-<table><tr><td><?php 
-	   $sql="SELECT concat( 'Messsage Type: ', batchcom.msg_type, ', Message Subject: ', batchcom.msg_subject, ', Sent on:', batchcom.msg_date_sent ) AS batchcom_data, batchcom.msg_text, concat( users.fname, users.lname ) AS user_name FROM `batchcom` JOIN `users` ON users.id = batchcom.sent_by WHERE batchcom.patient_id='$pid'";
-	   // echo $sql;
-	   $result = sqlStatement($sql);
-	   while ($row=sqlFetchArray($result)) {
-			 echo "<tr><td><span class=text>".$row{'batchcom_data'}.", By: ".$row{'user_name'}."</td></tr><tr><td>Text:<br> ".$row{'msg_txt'}."</span></td></tr>\n";
-	    }
-?></td></tr></table>
+<div class='communications'>
+<h1><?php  xl('Patient Comunication Sent','e'); ?>:</h1>
+<?php 
+$sql="SELECT concat( 'Messsage Type: ', batchcom.msg_type, ', Message Subject: ', batchcom.msg_subject, ', Sent on:', batchcom.msg_date_sent ) AS batchcom_data, batchcom.msg_text, concat( users.fname, users.lname ) AS user_name FROM `batchcom` JOIN `users` ON users.id = batchcom.sent_by WHERE batchcom.patient_id='$pid'";
+// echo $sql;
+$result = sqlStatement($sql);
+while ($row=sqlFetchArray($result)) {
+    echo "<tr><td><span class=text>".$row{'batchcom_data'}.", By: ".$row{'user_name'}."</td></tr><tr><td>Text:<br> ".$row{'msg_txt'}."</span></td></tr>\n";
+}
+?>
+</div>
+<hr/>
+
+<div class='notes'>
+<h1><?php  xl('Patient Notes','e'); ?>:</h1>
+<?php printPatientNotes($pid); ?>
+</div>
 <hr>
 
-<font class=bold><?php  xl('Patient Notes','e'); ?>:</font><br>
-<table><tr><td><?php printPatientNotes($pid); ?></td></tr></table>
+<?php if (acl_check('acct', 'rep') || acl_check('acct', 'eob') || acl_check('acct', 'bill')) : ?>
+<div class='billing'>
+<h1><?php  xl('Billing','e'); ?>:</h1>
+<?php printPatientBilling($pid); ?>
+</div>
 <hr>
+<?php endif; ?>
 
-<font class=bold><?php  xl('Billing','e'); ?>:</font><br>
-<table><tr><td><?php printPatientBilling($pid); ?></td></tr></table>
-<hr>
-
-<font class=bold><?php  xl('Transactions','e'); ?>:</font><br>
-<table><tr><td><?php printPatientTransactions($pid); ?></td></tr></table>
+<div class='transactions'>
+<h1><?php  xl('Transactions','e'); ?>:</h1>
+<?php printPatientTransactions($pid); ?>
+</div>
 <hr>
 
 <!-- Encounters and Forms -->
 <?php if (($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)): ?>
-<font class=bold><?php  xl('Forms','e'); ?>:</font><br>
-<table><tr><td><?php printPatientForms($pid, $N); ?></td></tr></table>
+<div class='encounters'>
+<h1><?php  xl('Encounters & Forms','e'); ?>:</h1>
+<?php printPatientForms($pid, $N); ?>
+</div>
 <?php endif; ?>
 
+</div> <!-- close large outer DIV -->
 </body>
 </html>
