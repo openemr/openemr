@@ -199,7 +199,7 @@
   if ($form_lot_number) $where .= " AND i.lot_number LIKE '$form_lot_number'";
 
   $query = "SELECT r.id, r.patient_id, " .
-   "r.date_modified, r.dosage, r.route, r.interval, r.refills, " .
+   "r.date_modified, r.dosage, r.route, r.interval, r.refills, r.drug, " .
    "d.name, d.ndc_number, d.form, d.size, d.unit, d.reactions, " .
    "s.sale_id, s.sale_date, s.quantity, " .
    "i.manufacturer, i.lot_number, i.expiration, " .
@@ -231,7 +231,7 @@
    $patient_name    = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
    $patient_id      = $row['patient_id'];
    $prescription_id = $row['id'];
-   $drug_name       = $row['name'];
+   $drug_name       = empty($row['name']) ? $row['drug'] : $row['name'];
    $ndc_number      = $row['ndc_number'];
    $drug_units      = $row['size'] . ' ' . $unit_array[$row['unit']];
    $refills         = $row['refills'];
