@@ -480,3 +480,116 @@ font-weight: bold;
     color:#333;
     display:none;
 }
+
+
+/*=============================================================
+ * Patient Reports
+ * seen in the patient reports screens
+ *============================================================*/
+#patient_reports {
+    width:100%;
+}
+#patient_reports .issues {
+    padding-right: 30px;
+}
+#patient_reports .issues table {
+    margin: 10px 0px 10px 0px;
+}
+#patient_reports .issues td {
+    padding: 2px;
+}
+#patient_reports .encounters td {
+    padding: 2px;
+}
+#patient_reports .encounter_forms {
+    margin:5px 15px 5px 15px;
+}
+#patient_reports td {
+    vertical-align: top;
+}
+#patient_reports ul {
+    list-style: none;
+}
+    
+
+/*=============================================================
+ * Report - Custom
+ * seen as the patient report (custom_report.php)
+ *============================================================*/
+#report_custom {
+    width:100%;
+}
+#report_custom hr {
+    border: 2px dotted black;
+}
+#report_custom .billing {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom h1 {
+    font-size: 120%;
+    margin:  0px 0px 5px 0px;
+    padding: 0px;
+}
+#report_custom .immunizations {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .notes {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .transactions {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .communications {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .documents {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .demographics {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .insurance {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .history {
+    margin: 5px;
+    padding: 5px;
+}
+#report_custom .issue {
+    margin-left: 20px;
+}
+#report_custom .issue_type {
+    font-weight: bold;
+    padding: 5px 0px 5px 0px;
+}
+#report_custom .issue_diag {
+    margin: 0px 20px 0px 20px;
+}
+#report_custom .issue_title {
+}
+#report_custom .issue_comments {
+}
+#report_custom .encounter {
+    width: 100%;
+    border-top:2px dotted black;
+    padding: 10px 5px 10px 5px;
+    margin-top: 10px;
+}
+#report_custom .encounter h1 {
+    font-size: 140%;
+    margin: 0px;
+    padding: 0px;
+}
+#report_custom .encounter_form {
+    margin: 10px;
+    padding: 10px;
+    border-top: 1px solid gray;
+}
