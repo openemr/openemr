@@ -20,9 +20,12 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
     {
             // rejected back to login screen
         newEvent("login",$_POST['authUser'], $_POST['authProvider'], "failure");
+        $_SESSION['loginfailure'] = 1;
         authLoginScreen();
     }
     newEvent("login", $_POST['authUser'], $_POST['authProvider'], "success");
+    $_SESSION['loginfailure'] = null;
+    unset($_SESSION['loginfailure']);
     //store the very first initial timestamp for timeout errors
     $_SESSION["last_update"] = time();
 }
