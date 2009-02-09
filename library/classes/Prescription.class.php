@@ -326,17 +326,19 @@ class Prescription extends ORDataObject {
     }
 
     function set_medication($med) {
+        global $ISSUE_TYPES;
+
         $this->medication = $med;
-        
+
         // Avoid making a mess if we are not using the "medication" issue type.
-        if (!$ISSUE_TYPES['medication']) return;
-        
+        if (isset($ISSUE_TYPES) && !$ISSUE_TYPES['medication']) return;
+
         //check if this drug is on the medication list
         $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 1 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . $this->drug . "')) and pid = " . $this->patient->id . ' limit 1');
-        
+
         if ($med && !isset($dataRow['id'])){
             $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 0 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . $this->drug . "')) and pid = " . $this->patient->id . ' limit 1');
-        
+
             if (!isset($dataRow['id'])){
                 //add the record to the medication list
                 sqlInsert("insert into lists(date,begdate,type,activity,pid,user,groupname,title) values (now(),cast(now() as date),'medication',1," . $this->patient->id . ",'" . $$_SESSION['authUser']. "','" . $$_SESSION['authProvider'] . "','" . $this->drug . "')");
