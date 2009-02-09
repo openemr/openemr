@@ -17,8 +17,10 @@ $gaclConfigFile2 = "gacl/gacl.class.php";
 $gaclWritableDirectory = "gacl/admin/templates_c";
 $gaclSetupScript1 = "./gacl/setup.php";
 $gaclSetupScript2 = "./acl_setup.php";
+$requiredDirectory1 = "interface/main/calendar/modules/PostCalendar/pntemplates/compiled";
+$requiredDirectory2 = "interface/main/calendar/modules/PostCalendar/pntemplates/cache";
 $writableFileList = array($conffile, $gaclConfigFile1, $gaclConfigFile2);
-$writableDirList = array($gaclWritableDirectory);
+$writableDirList = array($gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
 
 include_once($conffile);
 ?>
@@ -51,18 +53,7 @@ include_once($conffile);
 <ul>
  <li>Please Edit the 'interface/globals.php' file now to specify the correct
   URL paths, and to select a theme.</li>
- <li>Please make sure that the two folders underneath
-  'openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/'
-  exist and are writable by the web server. The two subdirectories are
-  'compiled' and 'cache'.<br>
-  Try "chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/compiled"
-  and
-  "chown apache:apache -R openemrwebroot/interface/main/calendar/modules/PostCalendar/pntemplates/cache".
-  (If either subdirectory doesn't exist, create it first then do the chown above).<br>
-  The user name and group of apache may differ depending on your OS, i.e.
-  for Debian they are www-data and www-data.</li>
-  <li>Please restore secure permissions on the configuration files: /openemr/library/sqlconf.php,<br>
-  /openemr/gacl/gacl.ini.php, and /openemr/gacl/gacl.class.php files.</li> 
+  <li>Please restore secure permissions on the configuration files: /openemr/library/sqlconf.php, /openemr/gacl/gacl.ini.php, and /openemr/gacl/gacl.class.php files.</li> 
 </ul>
 <p>
  In order to take full advantage of the documents capability you
@@ -324,13 +315,7 @@ if ($upgrade != 1) {
 	fclose($fd);*/
 	flush();
 }
-echo "\n<br>Next step will ensure the following files or directories are world-writeable:<br>\n";
-foreach ($writableFileList as $tempFile) {
-        echo "&nbsp;'openemr/$tempFile' file<br>";
-}	
-foreach ($writableDirList as $tempDir) {
-        echo "&nbsp;'openemr/$tempDir' directory<br>";
-}	
+echo "\n<br>Next step will finalize SQL setup and install/configure access controls (php-GACL).<br>\n";	
 
 echo "
 <FORM METHOD='POST'>\n
@@ -350,54 +335,8 @@ break;
 
 	case 4:
 echo "<b>Step $state</b><br><br>\n";
-echo "Checking to ensure files are ready...<br>";
+echo "Writing SQL configuration file and setting up access controls(php-GACL)...<br><br>";	
 
-//ensure required files and directories are writable before moving on
-$errorWritable = 0;
-foreach ($writableFileList as $tempFile) {
-	if (is_writable($tempFile)) {
-		echo "'openemr/$tempFile' file is ready.<br>";
-	}	
-	else {
-		echo "<br>UNABLE to open configuration file 'openemr/$tempFile' for writing.<br>";
-		echo "(ensure 'openemr/$tempFile' file is world-writeable)<br><br>";
-		flush();
-		$errorWritable = 1;
-	}
-}	
-
-foreach ($writableDirList as $tempDir) {
-	if (is_writable($tempDir)) {
-                echo "'openemr/$tempDir' directory is ready.<br>";
-	}	
-	else {
-	        echo "<br>UNABLE to open directory 'openemr/$tempDir' for writing.<br>";
-	        echo "(ensure 'openemr/$tempDir' directory is world-writeable)<br><br>";
-	        flush();
-	        $errorWritable = 1;
-	}	
-}
-if ($errorWritable) {
-	echo "You can't proceed until all files are ready.<br>";
-	echo "Fix above file permissions and then click the 'Check Again' button to re-check files.<br>";
-	flush();
-        echo "
-	<FORM METHOD='POST'>\n
-	<INPUT TYPE='HIDDEN' NAME='state' VALUE='4'>
-	<INPUT TYPE='HIDDEN' NAME='host' VALUE='$server'>
-	<INPUT TYPE='HIDDEN' NAME='dbname' VALUE='$dbname'>
-	<INPUT TYPE='HIDDEN' NAME='port' VALUE='$port'>
-	<INPUT TYPE='HIDDEN' NAME='login' VALUE='$login'>
-	<INPUT TYPE='HIDDEN' NAME='pass' VALUE='$pass'>
-	<INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$iuser'>
-	<INPUT TYPE='HIDDEN' NAME='iuname' VALUE='$iuname'>
-	<br>\n
-<INPUT TYPE='SUBMIT' VALUE='Check Again'><br></FORM><br>\n";	
-	break;
-}	
-	
-//passed all file tests, now can write sql configuration and configure php-GACL
-echo "<br>Files are all ready, now writing SQL Configuration to disk and configuring access controls (php-GACL)...<br><br>";
 echo "Writing SQL Configuration...<br>";	
 @touch($conffile); // php bug
 $fd = @fopen($conffile, 'w');
@@ -551,6 +490,68 @@ echo "Welcome to OpenEMR.  This utility will step you through the configuration 
 
 Echo "<p>If you are upgrading from a previous version, please read the README file.<br><br>";
 
+echo "We will now ensure correct file permissions and directories before starting installation:<br><br>\n";
+echo "<FONT COLOR='blue'>Ensuring following files are world-writable...</FONT><br>\n";
+$errorWritable = 0;
+foreach ($writableFileList as $tempFile) {
+	if (is_writable($tempFile)) {
+	        echo "'openemr/$tempFile' file is <FONT COLOR='blue'>ready</FONT>.<br>";
+	}
+	else {
+	        echo "<br><FONT COLOR='red'>UNABLE</FONT> to open file 'openemr/$tempFile' for writing.<br>";
+	        echo "(ensure 'openemr/$tempFile' file is world-writeable)<br>";
+	        $errorWritable = 1;
+	}
+}
+if ($errorWritable) {
+	echo "<br><FONT COLOR='red'>You can't proceed until all above files are ready.</FONT><br>";
+        echo "Fix above file permissions and then click the 'Check Again' button to re-check files.<br>";
+	echo "In linux, recommend changing file permissions temporarily with the 'chmod 666 filename' command.<br>";
+	echo "<FORM METHOD='POST'><INPUT TYPE='SUBMIT' VALUE='Check Again'><br></FORM><br>\n";
+	break;
+}
+
+echo "<br><FONT COLOR='blue'>Ensuring following directories exist...</FONT><br>\n";
+$errorWritable = 0;
+foreach ($writableDirList as $tempDir) {
+	if (file_exists($tempDir)) {
+	        echo "'openemr/$tempDir' directory <FONT COLOR='blue'>exists</FONT>.<br>";
+	}
+	else {
+	        echo "<br><FONT COLOR='red'>UNABLE</FONT> to find directory 'openemr/$tempDir'.<br>";
+	        echo "(please create 'openemr/$tempDir' directory)<br>";
+	        $errorWritable = 1;
+        }
+}
+if ($errorWritable) {
+	echo "<br><FONT COLOR='red'>You can't proceed until all above directories exist.</FONT><br>";
+	echo "Add above marked directories and then click the 'Check Again' button to re-check for directories.<br>";
+	echo "In linux, recommend using the 'mkdir directory_name' command<br><br>\n";
+	echo "<FORM METHOD='POST'><INPUT TYPE='SUBMIT' VALUE='Check Again'><br></FORM><br>\n";
+	break;
+}	
+
+echo "<br><FONT COLOR='blue'>Ensuring following directories have proper permissions...</FONT><br>\n";
+$errorWritable = 0;
+foreach ($writableDirList as $tempDir) {
+	if (is_writable($tempDir)) {
+	        echo "'openemr/$tempDir' directory is <FONT COLOR='blue'>ready</FONT>.<br>";
+	}
+	else {
+	        echo "<br><FONT COLOR='red'>UNABLE</FONT> to open directory 'openemr/$tempDir' for writing.<br>";
+	        echo "(ensure 'openemr/$tempDir' directory is world-writeable)<br>";
+	        $errorWritable = 1;
+	}
+}
+if ($errorWritable) {
+	echo "<br><FONT COLOR='red'>You can't proceed until all directories are ready.</FONT><br>";
+	echo "Fix above directory permissions and then click the 'Check Again' button to re-check directories.<br>";
+	echo "In linux, recommend changing owners of directories permanently to the web server. For example, in many linux OS's the web server user is 'apache', 'nobody', or 'www-data'. So if 'apache' were the web server user name, could use the command 'chown -R apache:apache directory_name' command.<br><br>\n";
+	echo "<FORM METHOD='POST'><INPUT TYPE='SUBMIT' VALUE='Check Again'><br></FORM><br>\n";
+	break;
+}
+
+echo "<br><br>All required files and directories have been verified. Click to continue installation.<br>\n";	
 echo "<FORM METHOD='POST'><INPUT TYPE='HIDDEN' NAME='state' VALUE='1'><INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>";
 
 
