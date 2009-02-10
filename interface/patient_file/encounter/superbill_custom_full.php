@@ -189,12 +189,23 @@ foreach ($code_types as $key => $value) {
  dlgopen('find_code_popup.php', '_blank', 500, 400);
 }
 
+// Some validation for saving a new code entry.
+function validEntry(f) {
+ if (!f.code.value) {
+  alert('<?php xl('No code was specified!','e') ?>');
+  return false;
+ }
+<?php if ($GLOBALS['ippf_specific']) { ?>
+ if (f.code_type.value == 12 && !f.related_code.value) {
+  if (!confirm('<?php echo xl('Are you sure you want to save this without a related code?'); ?>')) return false;
+ }
+<?php } ?>
+ return true;
+}
+
 function submitAdd() {
  var f = document.forms[0];
- if (!f.code.value) {
-  alert('No code was specified!');
-  return;
- }
+ if (!validEntry(f)) return;
  f.mode.value = 'add';
  f.code_id.value = '';
  f.submit();
@@ -206,10 +217,7 @@ function submitUpdate() {
   alert('<?php xl('Cannot update because you are not editing an existing entry!','e') ?>');
   return;
  }
- if (!f.code.value) {
-  alert('<?php xl('No code was specified!','e') ?>');
-  return;
- }
+ if (!validEntry(f)) return;
  f.mode.value = 'add';
  f.submit();
 }
@@ -429,6 +437,9 @@ foreach ($code_types as $key => $value) {
   <td><span class='bold'><?php xl('Mod','e'); ?></span></td>
   <td><span class='bold'><?php xl('Type','e'); ?></span></td>
   <td><span class='bold'><?php xl('Description','e'); ?></span></td>
+<?php if (related_codes_are_used()) { ?>
+  <td><span class='bold'><?php xl('Related','e'); ?></span></td>
+<?php } ?>
   <!--
   <td><span class='bold'><?php // xl('Modifier','e'); ?></span></td>
   <td><span class='bold'><?php // xl('Units','e'); ?></span></td>
@@ -469,6 +480,20 @@ if (!empty($all)) {
     echo "  <td class='text'" . $iter["modifier"] . "</td>\n";
     echo "  <td class='text'>$key</td>\n";
     echo "  <td class='text'>" . $iter['code_text'] . "</td>\n";
+
+    if (related_codes_are_used()) {
+      // Show related codes.
+      echo "  <td class='text'>";
+      $arel = explode(';', $iter['related_code']);
+      foreach ($arel as $tmp) {
+        list($reltype, $relcode) = explode(':', $tmp);
+        $reltype = $code_types[$reltype]['id'];
+        $relrow = sqlQuery("SELECT code_text FROM codes WHERE " .
+          "code_type = '$reltype' AND code = '$relcode' LIMIT 1");
+        echo $relcode . ' ' . trim($relrow['code_text']) . '<br />';
+      }
+      echo "</td>\n";
+    }
 
     // echo "<td>";
     // if ($has_fees) {
