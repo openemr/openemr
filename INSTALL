@@ -69,12 +69,12 @@ The setup script will step you through the configuration of the OpenEMR.
 The first screen will ensure that several files/directories exist and ensure
 that the webserver user (often "nobody", "apache", or "www-data") has write
 privileges on these files/directories.  The files include
-openemr/library/sqlconf.php, openemr/gacl/gacl.ini.php and 
-openemr/gacl/gacl.class.php.  In linux, these can be set by "chmod a+w
-filename" command to grant global write permissions to the file, but be
-sure to set them back to something more secure (such as chmod 644) before
-actively using OpenEMR.  The directories include
-openemr/gacl/admin/templates_c,
+openemr/interface/globals.php, openemr/library/sqlconf.php,
+openemr/gacl/gacl.ini.php and openemr/gacl/gacl.class.php.  In linux, these
+can be set by "chmod a+w filename" command to grant global write permissions
+to the file, but be sure to set them back to something more secure (such as
+chmod 644) before actively using OpenEMR.  The directories include
+openemr/gacl/admin/templates_c, openemr/edi, openemr/documents,
 openemr/interface/main/calendar/modules/PostCalendar/pntemplates/compiled and
 openemr/interface/main/calendar/modules/PostCalendar/pntemplates/cache.  The command
 "chown apache -R directory_name" will grant global write permissions
@@ -87,7 +87,7 @@ its own, or if they you have already created them.  MySQL root priveleges will
 be required to create a database.
 
 In step 2, you will be presented with a number of fields which specify the MySQL
-server details.
+server details and the openemr directory paths.
 
 The "Server Host" field is the hostname of the MySQL server.  If you use the
 mysql command line client, this is the string you would type after the -h flag.
@@ -123,20 +123,24 @@ The "Initial Group" is the first group that will be created.  A user may belong
 to multiple groups, which again, can be altered on the user administration page.
 It is suggested that no more than one group per office be used.
 
-Step 3 is where setup will install the OpenEMR database and connect to it to
-create the initial tables.  Should anything fail during step 3, you may have
-to remove the existing database or tables before you can try again. If no errors
-occur, you will see a "Continue" button at the bottom.
+The "Absolute Path" is the full absolute directory path to openemr.  The
+default value is automatically created, so this should not need to be
+modified.  Note that it needs to end without a trailing slash.
 
-Step 4 will then write setting to the SQL configuration file and
-install/configure the embedded phpGACL access controls. After completed, there
-will be a "Continue" button at the bottom.
+The "Relative HTML Path" is the relative html path to openemr, ie. what you
+would type into the web browser after the server address to get to OpenEMR.
+For example, if you type "http://127.0.0.1/clinic/openemr/"  to load OpenEMR,
+set this to "/clinic/openemr" without the trailing slash.
 
-Once setup is completed, one last thing must be done before OpenEMR can be used.
-The file openemr/interface/globals.php must be edited by hand to reflect the
-path and address of your webserver. The values for $webserver_root and $web_root
-must be set accordingly. Also, to change the appearance of OpenEMR, uncomment or
-comment theme-description lines at the bottom of config.php.
+Step 3 is where setup will configure OpenEMR.  It will first create the database
+and connect to it to create the initial tables.  It will then write the mysql
+database configuration to a file.  It will then write the webserver root
+directory to the /openemr/interface/globals.php file.  Should anything fail
+during step 3, you may have to remove the existing database or tables before
+you can try again. If no errors occur, you will see a "Continue" button at the bottom.
+
+Step 4 will install and configure the embedded phpGACL access controls.  After
+completed, there will be a "Continue" button at the bottom.
 
 Once the system has been configured properly, you may login.  Connect to the
 webserver where the files are stored with your web browser.  Login to the system
@@ -145,6 +149,34 @@ password 'pass', without the quotes.  From there, select the "Administration"
 option, and customize the system to your needs.  Add users and groups as is
 needed. For information on using OpenEMR, consult the User Documentation located
 in the Documentation folder.
+
+It would be a good idea to restore secure permissions on the four
+configuration files: interface/globals.php, library/sqlconf.php, 
+gacl/gacl.ini.php, and gacl/gacl.class.php files. In linux, recommend changing 
+these file permissions with the 'chmod 644 filename' command.
+
+In order to take full advantage of the documents capability you must give
+your web server permissions on the document storage directory. Try "chown
+apache:apache -R openemrwebroot/documents" and then "chmod g+w
+openemrwebroot/documents". You must also make sure your PHP installation
+(normally set in your php.ini file) has "file_uploads enabled", that
+"upload_max_filesize" is appropriate for your use and that "upload_tmp_dir"
+is set to a correct value if the default of "/tmp" won't work on your system.
+Also, The "openemrwebroot/documents" and "openemrwebroot/edi" contain
+patient information, and it is important to secure these directories. This
+can be done by placing pertinent .htaccess files in these directories or by
+pasting the below in your apache configuration file:
+<Directory "openemrwebroot/documents">
+order deny,allow
+Deny from all
+</Directory>
+<Directory "openemrwebroot/openemr/edi">
+order deny,allow
+Deny from all
+</Directory>
+
+Reading openemr/includes/config.php and openemr/interface/globals.php is a
+good idea. These files contain many options to choose from including themes.
 
 To create custom encounter forms, see the files
 
