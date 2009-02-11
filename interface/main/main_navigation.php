@@ -51,7 +51,7 @@ include_once("../../library/acl.inc");
 
 <?php if (acl_check('admin', 'calendar') || acl_check('admin', 'database') ||
        acl_check('admin', 'forms')    || acl_check('admin', 'practice') ||
-       acl_check('admin', 'users')) { ?>
+       acl_check('admin', 'users')    || acl_check('admin', 'acl')) { ?>
 <td align="center" nowrap>
 &nbsp;<a class="menu" target=_top href="../usergroup/usergroup.php" onclick="top.restoreSession()">
 <?php xl('Admin','e'); ?></a>&nbsp;

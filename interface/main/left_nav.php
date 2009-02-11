@@ -137,7 +137,8 @@
 
  $disallowed['adm'] = !(acl_check('admin', 'calendar') ||
   acl_check('admin', 'database') || acl_check('admin', 'forms') ||
-  acl_check('admin', 'practice') || acl_check('admin', 'users'));
+  acl_check('admin', 'practice') || acl_check('admin', 'users') ||
+  acl_check('admin', 'acl'));
 
  $disallowed['bil'] = !(acl_check('acct', 'rep') || acl_check('acct', 'eob') ||
   acl_check('acct', 'bill'));
