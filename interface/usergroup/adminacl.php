@@ -508,7 +508,10 @@ if (!isset($phpgacl_location)) {
 </head>
 
 <body class="body_top">
- <span class='title'><?php xl('Access Control List Administration','e'); ?></span>&nbsp;<a href='../../gacl/admin/acl_admin.php' onclick='top.restoreSession()'><span class='back'>(Advanced)</span></a>
+ <span class='title'><?php xl('Access Control List Administration','e'); ?></span>&nbsp;
+ <?php if ($phpgacl_location == ($GLOBALS['fileroot']."/gacl")) {
+  echo "<a href='../../gacl/admin/acl_admin.php' onclick='top.restoreSession()'><span class='back'>(Advanced)</span></a>";
+ } ?>
  <br><br>	
  <div id='membership_edit'>
   <span class=bold><input type='checkbox' id='membership_show'><?php xl('User Memberships','e'); ?></span>
