@@ -72,16 +72,18 @@ function authNewSession ($user, $pass, $provider)
         if (acl_get_group_titles($user) == 0) return false;
     }
 
-    //session_name("OpenEMR");
-    //session_id("81279258720".str_replace(".", "", $_SERVER['REMOTE_ADDR']));
+    // get details about the user
+    $authDB = sqlQuery("select id, password, authorized, see_auth".
+                        ", cal_ui, active ".
+                        " from users where username = '$user'");
+
+    // if the user is NOT active, get out
+    if ($authDB['active'] != 1) { return false; }
+
+    // start the HTTP SESSION
     if(!session_id()) { session_start(); }
 
-    //(CHEMED) added cal_ui to the list of fields, so we can change calendar UI for this user.
-    // Is this the right place to do it?
-    $authDB = sqlQuery("select id, password, authorized, see_auth, cal_ui from users " .
-        "where username = '$user'");
-    //echo "user is: $user pass is: $pass provider is: $provider<br />";
-    //echo "<br>auth pass: ".$authDB['password'];
+    // compare the submitted password with the stored password
     if ($authDB['password'] == $pass)
     {
         //here, we check to see if the user is in fact a member of the correct group:

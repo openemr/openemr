@@ -75,8 +75,6 @@ if (!isset($_SESSION["last_update"])) {
 
 function authNewSession ($user, $pass, $provider)
 {
-
-
     // check to see if the user belongs to *any* OpenEMR groups in phpGACL -- JRM
     global $phpgacl_location;
     if (isset ($phpgacl_location)) {
@@ -87,17 +85,22 @@ function authNewSession ($user, $pass, $provider)
     global $adldap_options;
     $adldap = new adLDAP($adldap_options);
 
-    //session_name("OpenEMR");
-    //session_id("81279258720".str_replace(".", "", $_SERVER['REMOTE_ADDR']));
+    // get details about the user
+    $authDB = sqlQuery("select id, password, authorized, see_auth".
+                        ", cal_ui, active ".
+                        " from users where username = '$user'");
+    
+    // if the user is NOT active, get out
+    if ($authDB['active'] != 1) { return false; }
+
+    // invalid adLDAP credentials
+    if (! $adldap->authenticate($user, $pass)) { return false; }
+    
+    // start the HTTP SESSION
     if(!session_id()) { session_start(); }
 
-    if (! $adldap->authenticate($user, $pass)) {
-        // invalid adLDAP credentials
-        return false;
-    }
-
-    if ($authDB = sqlQuery("select id, authorized, see_auth, cal_ui from users where username = '$user'")) {
-            //here, we check to see if the user is in fact a member of the correct group:
+    if ($authDB != null) {
+        //here, we check to see if the user is in fact a member of the correct group:
         if ($authGroup = sqlQuery("select * from groups where user='$user' and name='$provider'")) {
             $_SESSION['authUser'] = $user;
             $_SESSION['authGroup'] = $authGroup['name'];
