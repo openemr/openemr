@@ -157,8 +157,8 @@ echo "<TR><TD COLSPAN=2></TD></TR>
 ";
 echo "<TR><TD><font color='red'>PATHS:</font></TD></TR>";
 echo "<TR><TD COLSPAN=2></TD></TR>
-<TR><TD><span class='text'>Absolute Path:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='openemrBasePath' VALUE='".realpath('./')."'><span class='text'>(This is the full absolute directory path to openemr. The value here is automatically created, and should not need to be modified.)</span></TD></TR>
-<TR><TD><span class='text'>Relative HTML Path:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='openemrWebPath' VALUE='/openemr'><span class='text'>(Set this to the relative html path, ie. what you would type into the web browser after the server address to get to OpenEMR. For example, if you type 'http://127.0.0.1/clinic/openemr/ to load OpenEMR, set this to '/clinic/openemr' without the trailing slash.)</span></TD></TR>
+<TR><TD><span class='text'>Absolute Path:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='openemrBasePath' VALUE='".realpath('./')."'><span class='text'>(This is the full absolute directory path to openemr. The value here is automatically created, and should not need to be modified. Do not worry about direction of slashes; they will be automatically corrected.)</span></TD></TR>
+<TR><TD><span class='text'>Relative HTML Path:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='openemrWebPath' VALUE='/openemr'><span class='text'>(Set this to the relative html path, ie. what you would type into the web browser after the server address to get to OpenEMR. For example, if you type 'http://127.0.0.1/clinic/openemr/ to load OpenEMR, set this to '/clinic/openemr' without the trailing slash. Do not worry about direction of slashes; they will be automatically corrected.)</span></TD></TR>
 ";
 echo "</TABLE>
 <br>
@@ -379,6 +379,12 @@ echo "Successfully wrote SQL configuration.<BR><br>";
 
 echo "Writing OpenEMR webserver paths to config file...<br>";
 //edit interface/globals.php
+//first, ensure slashes are in correct direction (windows specific fix)
+$openemrBasePath = str_replace('\\\\', '/', $openemrBasePath);
+$openemrBasePath = str_replace('\\', '/', $openemrBasePath);
+$openemrWebPath = str_replace('\\\\', '/', $openemrWebPath);
+$openemrWebPath = str_replace('\\', '/', $openemrWebPath);
+//second, edit file
 $data = file($conffile2) or die("Could not read ".$conffile2." file.");
 $finalData = "";
 $isCount = 0;
@@ -563,7 +569,13 @@ foreach ($writableDirList as $tempDir) {
 	        echo "'".realpath($tempDir)."' directory <FONT COLOR='blue'>exists</FONT>.<br>";
 	}
 	else {
-	        echo "<br><FONT COLOR='red'>UNABLE</FONT> to find directory '".realpath($tempDir)."'.<br>";
+		$tempPath = realpath($tempDir);
+		if ($tempPath == "") {
+			//this is a fix specific to microsoft windows
+			$tempPath = realpath('./').DIRECTORY_SEPARATOR.$tempDir;
+			$tempPath = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $tempPath);
+		}
+	        echo "<br><FONT COLOR='red'>UNABLE</FONT> to find directory '".$tempPath."'.<br>";
 	        echo "(please create directory; see below for further instructions)<br>";
 	        $errorWritable = 1;
         }
