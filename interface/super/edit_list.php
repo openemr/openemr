@@ -16,6 +16,78 @@ $list_id = empty($_REQUEST['list_id']) ? 'language' : $_REQUEST['list_id'];
 $thisauth = acl_check('admin', 'super');
 if (!$thisauth) die("Not authorized.");
 
+// If we are saving, then save.
+//
+if ($_POST['formaction']=='save' && $list_id) {
+    $opt = $_POST['opt'];
+    if ($list_id == 'feesheet') {
+        // special case for the feesheet list
+        sqlStatement("DELETE FROM fee_sheet_options");
+        for ($lino = 1; isset($opt["$lino"]['category']); ++$lino) {
+            $iter = $opt["$lino"];
+            $category = trim($iter['category']);
+            $option   = trim($iter['option']);
+            $codes    = $iter['codes'];
+            if (strlen($category) > 0 && strlen($option) > 0) {
+                sqlInsert("INSERT INTO fee_sheet_options ( " .
+                            "fs_category, fs_option, fs_codes " .
+                            ") VALUES ( "   .
+                            "'$category', " .
+                            "'$option', "   .
+                            "'$codes' "     .
+                        ")");
+            }
+        }
+    }
+    else {
+        // all other lists
+        //
+        // erase lists options and recreate them from the submitted form data
+        sqlStatement("DELETE FROM list_options WHERE list_id = '$list_id'");
+        for ($lino = 1; isset($opt["$lino"]['id']); ++$lino) {
+            $iter = $opt["$lino"];
+            $value = empty($iter['value']) ? 0 : (trim($iter['value']) + 0);
+            if (strlen(trim($iter['id'])) > 0) {
+                sqlInsert("INSERT INTO list_options ( " .
+                            "list_id, option_id, title, seq, is_default, option_value " .
+                            ") VALUES ( " .
+                            "'$list_id', "                       .
+                            "'" . trim($iter['id'])      . "', " .
+                            "'" . trim($iter['title'])   . "', " .
+                            "'" . trim($iter['seq'])     . "', " .
+                            "'" . trim($iter['default']) . "', " .
+                            "'" . $value                 . "' "  .
+                            ")");
+            }
+        }
+    }
+}
+else if ($_POST['formaction']=='addlist') {
+    // make a new list ID from the new list name
+    $newlistID = $_POST['newlistname'];
+    $newlistID = preg_replace("/\W/", "_", $newlistID);
+
+    // determine the position of this new list
+    $row = sqlQuery("SELECT max(seq) as maxseq FROM list_options WHERE list_id= 'lists'");
+
+    // add the new list to the list-of-lists
+    sqlInsert("INSERT INTO list_options ( " .
+                "list_id, option_id, title, seq, is_default, option_value " .
+                ") VALUES ( " .
+                "'lists',". // the master list-of-lists
+                "'".$newlistID."',".
+                "'".$_POST['newlistname']."', ".
+                "'".($row['maxseq']+1)."',".
+                "'1', '0')"
+                );
+}
+else if ($_POST['formaction']=='deletelist') {
+    // delete the lists options
+    sqlStatement("DELETE FROM list_options WHERE list_id = '".$_POST['list_id']."'");
+    // delete the list from the master list-of-lists
+    sqlStatement("DELETE FROM list_options WHERE list_id = 'lists' and option_id='".$_POST['list_id']."'");
+}
+
 $opt_line_no = 0;
 
 // Given a string of multiple instances of code_type|code|selector,
@@ -135,6 +207,9 @@ function writeFSLine($category, $option, $codes) {
 <head>
 <?php html_header_show();?>
 
+<!-- supporting javascript code -->
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
+
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 <title><?php  xl('List Editor','e'); ?></title>
 
@@ -223,55 +298,12 @@ function set_related(codetype, code, selector, codedesc) {
 
 <body class="body_top">
 
-<?php
-// If we are saving, then save.
-//
-if ($_POST['form_save'] && $list_id) {
-  $opt = $_POST['opt'];
-  if ($list_id == 'feesheet') {
-    sqlStatement("DELETE FROM fee_sheet_options");
-    for ($lino = 1; isset($opt["$lino"]['category']); ++$lino) {
-      $iter = $opt["$lino"];
-      $category = trim($iter['category']);
-      $option   = trim($iter['option']);
-      $codes    = $iter['codes'];
-      if (strlen($category) > 0 && strlen($option) > 0) {
-        sqlInsert("INSERT INTO fee_sheet_options ( " .
-          "fs_category, fs_option, fs_codes " .
-          ") VALUES ( "   .
-          "'$category', " .
-          "'$option', "   .
-          "'$codes' "     .
-          ")");
-      }
-    }
-  }
-  else {
-    sqlStatement("DELETE FROM list_options WHERE list_id = '$list_id'");
-    for ($lino = 1; isset($opt["$lino"]['id']); ++$lino) {
-      $iter = $opt["$lino"];
-      $value = empty($iter['value']) ? 0 : (trim($iter['value']) + 0);
-      if (strlen(trim($iter['id'])) > 0) {
-        sqlInsert("INSERT INTO list_options ( " .
-        "list_id, option_id, title, seq, is_default, option_value " .
-        ") VALUES ( " .
-        "'$list_id', "                       .
-        "'" . trim($iter['id'])      . "', " .
-        "'" . trim($iter['title'])   . "', " .
-        "'" . trim($iter['seq'])     . "', " .
-        "'" . trim($iter['default']) . "', " .
-        "'" . $value                 . "' "  .
-        ")");
-      }
-    }
-  }
-}
-?>
 
-<form method='post' name='theform' action='edit_list.php'>
+<form method='post' name='theform' id='theform' action='edit_list.php'>
+<input type="hidden" name="formaction" id="formaction">
 
 <p><b>Edit list:</b>&nbsp;
-<select name ='list_id' onchange='form.submit()'>
+<select name='list_id' id="list_id">
 <?php
 // The list of lists is also kept incestuously in the lists table.
 // It could include itself, but to maintain sanity we avoid that.
@@ -284,7 +316,10 @@ while ($row = sqlFetchArray($res)) {
   echo ">" . $row['title'] . "</option>\n";
 }
 ?>
-</select></p>
+</select>
+<input type="button" id="<?php echo $list_id; ?>" class="deletelist" value="Delete this List">
+<input type="button" id="newlist" class="newlist" value="New List">
+</p>
 
 <center>
 
@@ -335,10 +370,87 @@ if ($list_id) {
 </table>
 
 <p>
- <input type='submit' name='form_save' value='<?php xl('Save','e'); ?>' />
+ <input type='button' name='form_save' id='form_save' value='<?php xl('Save','e'); ?>' />
 </p>
 </center>
 
 </form>
+
+<!-- template DIV that appears when user chooses to make a new list -->
+<div id="newlistdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
+List Name: <input type="textbox" size="20" maxlength="30" name="newlistname" id="newlistname">
+<br>
+<input type="button" class="savenewlist" value="Save new list">
+<input type="button" class="cancelnewlist" value="Cancel">
+</div>
 </body>
+<script language="javascript">
+// jQuery stuff to make the page a little easier to use
+
+$(document).ready(function(){
+    $("#form_save").click(function() { SaveChanges(); });
+    $("#list_id").change(function() { $('#theform').submit(); });
+
+    $(".newlist").click(function() { NewList(this); });
+    $(".savenewlist").click(function() { SaveNewList(this); });
+    $(".deletelist").click(function() { DeleteList(this); });
+    $(".cancelnewlist").click(function() { CancelNewList(this); });
+
+    var SaveChanges = function() {
+        $("#formaction").val("save");
+        $('#theform').submit();
+    }
+
+    // show the DIV to create a new list
+    var NewList = function(btnObj) {
+        // show the field details DIV
+        $('#newlistdetail').css('visibility', 'visible');
+        $('#newlistdetail').css('display', 'block');
+        $(btnObj).parent().append($("#newlistdetail"));
+        $('#newlistdetail > #newlistname').focus();
+    }
+    // save the new list
+    var SaveNewList = function() {
+        // the list name can only have letters, numbers, spaces and underscores
+        // AND it cannot start with a number
+        if ($("#newlistname").val().match(/^\d+/)) {
+            alert("List names cannot start with numbers.");
+            return false;
+        }
+        var validname = $("#newlistname").val().replace(/[^A-za-z0-9 -]/g, "_"); // match any non-word characters and replace them
+        if (validname != $("#newlistname").val()) {
+            if (! confirm("Your list name has been changed to meet naming requirements.\nPlease compare the new name, '"+validname+"' with the old name, '"+$("#newlistname").val()+"'. Do you wish to continue with the new name?"))
+            {
+                return false;
+            }
+        }
+        $("#newlistname").val(validname);
+    
+        // submit the form to add a new field to a specific group
+        $("#formaction").val("addlist");
+        $("#theform").submit();
+    }
+    // actually delete an entire list from the database
+    var DeleteList = function(btnObj) {
+        var listid = $(btnObj).attr("id");
+        if (confirm("WARNING - This action cannot be undone.\n Are you sure you wish to delete the entire list("+listid+")?")) {
+            // submit the form to add a new field to a specific group
+            $("#formaction").val("deletelist");
+            $("#deletelistname").val(listid);
+            $("#theform").submit();
+        }
+    };
+    
+    // just hide the new list DIV
+    var CancelNewList = function(btnObj) {
+        // hide the list details DIV
+        $('#newlistdetail').css('visibility', 'hidden');
+        $('#newlistdetail').css('display', 'none');
+        // reset the new group values to a default
+        $('#newlistdetail > #newlistname').val("");
+    };
+});
+
+</script>
+
 </html>
