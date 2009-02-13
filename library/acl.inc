@@ -299,9 +299,12 @@
       $counter = 0;
       foreach ($arr_all_group_ids as $value) {
         $arr_group_data = $gacl->get_group_data($value, 'ARO');
-        if (in_array($arr_group_data[3], $arr_group_titles)) {
+        if ((empty($arr_group_titles)) ||
+	 (in_array($arr_group_data[3], $arr_group_titles))) {
           //We have a hit, so need to add group and increment counter
-          //  because processing of first hit is unique
+          // because processing of first hit is unique
+	  //This will also deal with an empty $arr_group_titles array
+	  // removing user from all groups unless 'admin'
           $counter = $counter + 1;
           //create user full name field
           if ($middle_name) {
@@ -338,8 +341,10 @@
             }
           }
 
-          //place the user ARO object in the selected group
-          $gacl->add_group_object($value, $section_aro_value, $user_name, 'ARO');
+          //place the user ARO object in the selected group (if group(s) is selected)
+	  if (!empty($arr_group_titles)) {
+            $gacl->add_group_object($value, $section_aro_value, $user_name, 'ARO');
+	  }
 
           //
           //Below will not allow 'admin' user to be removed from 'admin' group
@@ -364,6 +369,8 @@
             }
           }
         }
+	//if array of groups was empty, then we are done, and can break from loop
+	if (empty($arr_group_titles)) break;
       }
     }
    return;

@@ -56,7 +56,7 @@ if (isset($_POST["mode"])) {
       sqlStatement("insert into groups set name = '" . $_POST["groupname"] .
         "', user = '" . $_POST["username"] . "'");
 
-      if (isset($phpgacl_location) && acl_check('admin', 'acl') && $_POST["access_group"]) {
+      if (isset($phpgacl_location) && acl_check('admin', 'acl') && $_POST["username"]) {
         // Set the access control group of user
         set_user_aro($_POST["access_group"], $_POST["username"], $_POST["fname"], $_POST["mname"], $_POST["lname"]);
       }

@@ -108,7 +108,7 @@ if ($_GET["mode"] == "update") {
     sqlStatement("update users set info = '$tqvar' where id = {$_GET["id"]}");
   }
 
-  if (isset($phpgacl_location) && acl_check('admin', 'acl') && $_GET["access_group"]) {
+  if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
     // Set the access control group of user
     $user_data = mysql_fetch_array(sqlStatement("select username from users where id={$_GET["id"]}"));
     set_user_aro($_GET["access_group"], $user_data["username"], $_GET["fname"], $_GET["mname"], $_GET["lname"]);
@@ -254,12 +254,8 @@ if ( !$GLOBALS['dutchpc']) { ?>
   <?php
    $list_acl_groups = acl_get_group_title_list();
    $username_acl_groups = acl_get_group_titles($iter["username"]);
-   if (!$username_acl_groups) {
-    //set default if not yet set
-    $username_acl_groups = array('Administrators');
-   }
    foreach ($list_acl_groups as $value) {
-    if (in_array($value,$username_acl_groups)) {
+    if (($username_acl_groups) && in_array($value,$username_acl_groups)) {
      echo " <option selected>$value</option>\n";
     }
     else {

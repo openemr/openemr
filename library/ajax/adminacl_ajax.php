@@ -70,12 +70,6 @@ if ($_POST["control"] == "membership") {
    echo user_group_listings_xml($_POST["name"], $error);
    exit;
   }
-  if (count(acl_get_group_titles($_POST["name"])) == count($_POST["selection"])) {
-   //trying to remove from all groups, send soft error, and return data
-   array_push($error, (xl('User has to be a member of at least one group') . "!"));
-   echo user_group_listings_xml($_POST["name"], $error);
-   exit;
-  }
   if (($_POST["name"] == "admin") && in_array("Administrators",$_POST["selection"])) {
    //unable to remove admin user from administrators group, process remove,
    // send soft error, then return data
@@ -266,19 +260,22 @@ function username_listings_xml($err) {
 function user_group_listings_xml($username, $err) {
  $list_acl_groups = acl_get_group_title_list();
  $username_acl_groups = acl_get_group_titles($username);
+  //note acl_get_group_titles() returns a 0 if user in no groups
     
  $message = "<?xml version=\"1.0\"?>\n" .
   "<response>\n" .
   "\t<inactive>\n";
  foreach ($list_acl_groups as $value) {
-  if (!in_array($value, $username_acl_groups)) {
+  if ((!$username_acl_groups) || (!(in_array($value, $username_acl_groups)))) {
    $message .= "\t\t<group>" . $value . "</group>\n";
   }
  }
  $message .= "\t</inactive>\n" .
   "\t<active>\n";
- foreach ($username_acl_groups as $value) {
-  $message .= "\t\t<group>" . $value . "</group>\n";
+ if ($username_acl_groups) {
+  foreach ($username_acl_groups as $value) {
+   $message .= "\t\t<group>" . $value . "</group>\n";
+  }
  }
  $message .= "\t</active>\n";
  if (isset($err)) {
