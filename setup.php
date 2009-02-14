@@ -5,25 +5,36 @@ extract($_POST);
 //turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn","off");
 
-$url = "";
-$dumpfile = "sql/database.sql";
-$icd9 = "sql/icd9.sql";
-$conffile = "library/sqlconf.php";
+$url = ""; 
 $upgrade = 0;
 $defhost = 'localhost';
 $state = $_POST["state"];
-$conffile2 = "interface/globals.php";
-$gaclConfigFile1 = "gacl/gacl.ini.php";
-$gaclConfigFile2 = "gacl/gacl.class.php";
-$docsDirectory = "documents";
-$billingDirectory = "edi";
-$gaclWritableDirectory = "gacl/admin/templates_c";
-$requiredDirectory1 = "interface/main/calendar/modules/PostCalendar/pntemplates/compiled";
-$requiredDirectory2 = "interface/main/calendar/modules/PostCalendar/pntemplates/cache";
-$gaclSetupScript1 = "./gacl/setup.php";
-$gaclSetupScript2 = "./acl_setup.php";
+
+//Below section is only for variables that require a path.
+// The $manualPath variable can be edited by 3rd party
+// installation scripts to manually set path. (this will
+// allow straightforward use of this script by 3rd party
+// installers)
+$manualPath = "";
+$dumpfile = $manualPath."sql/database.sql";
+$icd9 = $manualPath."sql/icd9.sql";
+$conffile = $manualPath."library/sqlconf.php";
+$conffile2 = $manualPath."interface/globals.php";
+$gaclConfigFile1 = $manualPath."gacl/gacl.ini.php";
+$gaclConfigFile2 = $manualPath."gacl/gacl.class.php";
+$docsDirectory = $manualPath."documents";
+$billingDirectory = $manualPath."edi";
+$gaclWritableDirectory = $manualPath."gacl/admin/templates_c";
+$requiredDirectory1 = $manualPath."interface/main/calendar/modules/PostCalendar/pntemplates/compiled";
+$requiredDirectory2 = $manualPath."interface/main/calendar/modules/PostCalendar/pntemplates/cache";
+$gaclSetupScript1 = $manualPath."gacl/setup.php";
+$gaclSetupScript2 = $manualPath."acl_setup.php";
+
+//These are files and dir checked before install for
+// existence and correct permissions.
 $writableFileList = array($conffile, $conffile2, $gaclConfigFile1, $gaclConfigFile2);
 $writableDirList = array($docsDirectory, $billingDirectory, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
+
 
 include_once($conffile);
 ?>
@@ -57,10 +68,7 @@ include_once($conffile);
  <li>Please restore secure permissions on the four configuration files: /openemr/interface/globals.php, 
      /openemr/library/sqlconf.php, /openemr/gacl/gacl.ini.php, and /openemr/gacl/gacl.class.php files.  
      In linux, recommend changing file permissions with the 'chmod 644 filename' command.</li>
- <li>In order to take full advantage of the documents capability you 
-     must give your web server permissions on the document storage 
-     directory. Try "chown apache:apache -R openemrwebroot/documents" 
-     and then "chmod g+w openemrwebroot/documents". You must also make sure 
+ <li>In order to take full advantage of the patient documents capability you must make sure 
      your PHP installation (normally set in your php.ini file) has 
      "file_uploads enabled", that "upload_max_filesize" is appropriate for your 
      use and that "upload_tmp_dir" is set to a correct value if the default of "/tmp" 
@@ -108,6 +116,12 @@ You should change this password!
 	$pass = $_POST["pass"];
 	$loginhost = $_POST["loginhost"];
 	$rootpass = $_POST["rootpass"];
+        $iuser = $_POST["iuser"];
+	$iuname = $_POST["iuname"];
+	$igroup = $_POST["igroup"];
+	$openemrBasePath = $_POST["openemrBasePath"];
+	$openemrWebPath = $_POST["openemrWebPath"];
+	//END POST VARIABLES
 
 
 if (($config == 1) && ($state != 4)) {
@@ -118,13 +132,13 @@ switch ($state) {
 
 	case 1:
 echo "<b>Step $state</b><br><br>\n";
-echo "Now I need to know whether you want me to create the databases on my own or if you have already created the database for me to use.  If you are upgrading, you will want to select the latter function.  For me to create the databases, you will need to supply the MySQL root password.\n
+echo "Now I need to know whether you want me to create the database on my own or if you have already created the database for me to use.  For me to create the database, you will need to supply the MySQL root password.\n
 <span class='title'> <br />NOTE: clicking on \"Continue\" may delete or cause damage to data on your system. Before you continue please backup your data.</span>
 <br><br>\n
 <FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='2'>\n
-<INPUT TYPE='RADIO' NAME='inst' VALUE='1' checked>Have setup create the databases<br>\n
-<INPUT TYPE='RADIO' NAME='inst' VALUE='2'>I have already created the databases<br>\n
+<INPUT TYPE='RADIO' NAME='inst' VALUE='1' checked>Have setup create the database<br>\n
+<INPUT TYPE='RADIO' NAME='inst' VALUE='2'>I have already created the database<br>\n
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 break;
@@ -137,28 +151,28 @@ echo "Now you need to supply the MySQL server information and path information.
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='3'>
 <INPUT TYPE='HIDDEN' NAME='inst' VALUE='$inst'>
 <TABLE>\n
-<TR><TD><font color='red'>SERVER:</font></TD></TR>
-<TR><TD><span class='text'>Server Host: </span></TD><TD><INPUT TYPE='TEXT' VALUE='$defhost' NAME='server' SIZE='30'><span class='text'>(This is the IP address of the machine running MySQL)</span><br></TD></TR>
-<TR><TD><span class='text'>Server Port: </span></TD><TD><INPUT TYPE='TEXT' VALUE='3306' NAME='port' SIZE='30'><span class='text'>(The default port for MySQL is 3306)</span><br></TD></TR>
-<TR><TD><span class='text'>Database Name: </span></TD><TD><INPUT TYPE='TEXT' VALUE='openemr' NAME='dbname' SIZE='30'><span class='text'>(This is the name of the OpenEMR database - 'openemr' is the recommended)</span><br></TD></TR>
-<TR><TD><span class='text'>Login Name: </span></TD><TD><INPUT TYPE='TEXT' VALUE='openemr' NAME='login' SIZE='30'><span class='text'>(This is the name of the OpenEMR login name - 'openemr' is the recommended)</span><br></TD></TR>
-<TR><TD><span class='text'>Password: </span></TD><TD><INPUT TYPE='PASSWORD' VALUE='' NAME='pass' SIZE='30'><span class='text'>(This is the Login Password for when PHP accesses MySQL - it should be at least 8 characters long and composed of both numbers and letters)</span><br></TD></TR>\n";
+<TR VALIGN='TOP'><TD COLSPAN=2><font color='red'>MYSQL SERVER:</font></TD></TR>
+<TR VALIGN='TOP'><TD><span class='text'>Server Host: </span></TD><TD><INPUT TYPE='TEXT' VALUE='$defhost' NAME='server' SIZE='30'></TD><TD><span class='text'>(This is the IP address of the machine running MySQL. If this is on the same machine as the webserver, leave this as 'localhost'.)</span><br></TD></TR>
+<TR VALIGN='TOP'><TD><span class='text'>Server Port: </span></TD><TD><INPUT TYPE='TEXT' VALUE='3306' NAME='port' SIZE='30'></TD><TD><span class='text'>(The default port for MySQL is 3306.)</span><br></TD></TR>
+<TR VALIGN='TOP'><TD><span class='text'>Database Name: </span></TD><TD><INPUT TYPE='TEXT' VALUE='openemr' NAME='dbname' SIZE='30'></TD><TD><span class='text'>(This is the name of the OpenEMR database in MySQL - 'openemr' is the recommended)</span><br></TD></TR>
+<TR VALIGN='TOP'><TD><span class='text'>Login Name: </span></TD><TD><INPUT TYPE='TEXT' VALUE='openemr' NAME='login' SIZE='30'></TD><TD><span class='text'>(This is the name of the OpenEMR login name in MySQL - 'openemr' is the recommended)</span><br></TD></TR>
+<TR VALIGN='TOP'><TD><span class='text'>Password: </span></TD><TD><INPUT TYPE='PASSWORD' VALUE='' NAME='pass' SIZE='30'></TD><TD><span class='text'>(This is the Login Password for when PHP accesses MySQL - it should be at least 8 characters long and composed of both numbers and letters)</span><br></TD></TR>\n";
 if ($inst != 2) {
-echo "<TR><TD><font color='red'>CLIENT:</font></TD></TR>";
-echo "<TR><TD><span class='text'>User Hostname: </span></TD><TD><INPUT TYPE='TEXT' VALUE='$defhost' NAME='loginhost' SIZE='30'><span class='text'>(This is the IP address of the server machine running Apache and PHP - if you are setting up one computer, this is the same as the Server Host above)</span><br></TD></TR>
-<TR><TD><span class='text'>Name for Root Account: </span></TD><TD><INPUT TYPE='TEXT' VALUE='root' NAME='root' SIZE='30'><span class='text'>(This is name for MySQL root account. For localhost, it is usually ok to leave it 'root'.)</span><br></TD></TR>
-<TR><TD><span class='text'>Root Pass: </span></TD><TD><INPUT TYPE='PASSWORD' VALUE='' NAME='rootpass' SIZE='30'><span class='text'>(This is your MySQL root password. For localhost, it is usually ok to leave it blank.)</span><br></TD></TR>\n";
+echo "<TR VALIGN='TOP'><TD><span class='text'>Name for Root Account: </span></TD><TD><INPUT TYPE='TEXT' VALUE='root' NAME='root' SIZE='30'></TD><TD><span class='text'>(This is name for MySQL root account. For localhost, it is usually ok to leave it 'root'.)</span><br></TD></TR>
+<TR VALIGN='TOP'><TD><span class='text'>Root Pass: </span></TD><TD><INPUT TYPE='PASSWORD' VALUE='' NAME='rootpass' SIZE='30'></TD><TD><span class='text'>(This is your MySQL root password. For localhost, it is usually ok to leave it blank.)</span><br></TD></TR>\n";
+echo "<TR VALIGN='TOP'><TD><span class='text'>User Hostname: </span></TD><TD><INPUT TYPE='TEXT' VALUE='$defhost' NAME='loginhost' SIZE='30'></TD><TD><span class='text'>(If you run Apache/PHP and MySQL on the same computer, then leave this as 'localhost'. If they are on separate computers, then enter the IP address of the computer running Apache/PHP.)</span><br></TD></TR>";
 }
-echo "<TR><TD><font color='red'>USER:</font></TD></TR>";
-echo "<TR><TD COLSPAN=2></TD></TR>
-<TR><TD><span class='text'>Initial User:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='iuser' VALUE='admin'><span class='text'>(This is the user that will be created for you.  It will be an authorized user, so it should be for a Doctor or other Practitioner)</span></TD></TR>
-<TR><TD><span class='text'>Initial User's Name:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='iuname' VALUE='Administrator'><span class='text'>(This is the real name of the initial user.)</span></TD></TR>
-<TR><TD><span class='text'>Initial Group:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='igroup' VALUE='Default'><span class='text'>(This is the group that will be created for your users.  This should be the name of your practice.)</span></TD></TR>
+echo "<TR VALIGN='TOP'><TD>&nbsp;</TD></TR>";
+echo "<TR VALIGN='TOP'><TD COLSPAN=2><font color='red'>OPENEMR USER:</font></TD></TR>";
+echo "<TR VALIGN='TOP'><TD><span class='text'>Initial User:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='iuser' VALUE='admin'></TD><TD><span class='text'>(This is the login name of user that will be created for you. Limit this to one word.)</span></TD></TR>
+<TR VALIGN='TOP'><TD><span class='text'>Initial User's Name:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='iuname' VALUE='Administrator'></TD><TD><span class='text'>(This is the real name of the 'initial user'.)</span></TD></TR>
+<TR VALIGN='TOP'><TD><span class='text'>Initial Group:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='igroup' VALUE='Default'></TD><TD><span class='text'>(This is the group that will be created for your users.  This should be the name of your practice.)</span></TD></TR>
 ";
-echo "<TR><TD><font color='red'>PATHS:</font></TD></TR>";
-echo "<TR><TD COLSPAN=2></TD></TR>
-<TR><TD><span class='text'>Absolute Path:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='openemrBasePath' VALUE='".realpath('./')."'><span class='text'>(This is the full absolute directory path to openemr. The value here is automatically created, and should not need to be modified. Do not worry about direction of slashes; they will be automatically corrected.)</span></TD></TR>
-<TR><TD><span class='text'>Relative HTML Path:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='openemrWebPath' VALUE='/openemr'><span class='text'>(Set this to the relative html path, ie. what you would type into the web browser after the server address to get to OpenEMR. For example, if you type 'http://127.0.0.1/clinic/openemr/ to load OpenEMR, set this to '/clinic/openemr' without the trailing slash. Do not worry about direction of slashes; they will be automatically corrected.)</span></TD></TR>
+echo "<TR VALIGN='TOP'><TD>&nbsp;</TD></TR>";
+echo "<TR VALIGN='TOP'><TD COLSPAN=2><font color='red'>OPENEMR PATHS:</font></TD></TR>";
+echo "<TR VALIGN='TOP'><TD COLSPAN=3></TD></TR>
+<TR VALIGN='TOP'><TD><span class='text'>Absolute Path:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='openemrBasePath' VALUE='".realpath('./')."'></TD><TD><span class='text'>(This is the full absolute directory path to openemr. The value here is automatically created, and should not need to be modified. Do not worry about direction of slashes; they will be automatically corrected.)</span></TD></TR>
+<TR VALIGN='TOP'><TD><span class='text'>Relative HTML Path:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='openemrWebPath' VALUE='/openemr'></TD><TD><span class='text'>(Set this to the relative html path, ie. what you would type into the web browser after the server address to get to OpenEMR. For example, if you type 'http://127.0.0.1/clinic/openemr/ to load OpenEMR, set this to '/clinic/openemr' without the trailing slash. Do not worry about direction of slashes; they will be automatically corrected.)</span></TD></TR>
 ";
 echo "</TABLE>
 <br>
@@ -169,13 +183,23 @@ break;
 
 	case 3:
 
-
-echo "<b>Step $state</b><br><br>\n";
-	if ($pass == "" || $login == "" || !isset($login) || !isset($pass)) {
-		echo "ERROR. Please pick a proper username and/or password.<br>\n";
+	if ($login == "" || !isset($login)) {
+		echo "ERROR. Please pick a proper 'Login Name'.<br>\n";
+	        echo "Click Back in browser to re-enter.<br>\n";
 		break;
 	}
+        if (strpbrk($iuser,' ')) {
+	        echo "ERROR. The 'Initial User' field can only contain one word and no spaces.<br>\n";
+	        echo "Click Back in browser to re-enter.<br>\n";
+	        break;
+	}	
+      	if ($pass == "" || !isset($pass)) {
+	        echo "ERROR. Please pick a proper 'Password'.<br>\n";
+	        echo "Click Back in browser to re-enter.<br>\n";
+	        break;
+	}	
 
+echo "<b>Step $state</b><br><br>\n";
 echo "Configuring OpenEMR...<br><br>\n";
 	
 	
@@ -274,9 +298,6 @@ if ($upgrade != 1) {
 	flush();
 	echo "Adding Initial User...\n";
 	flush();
-	$iuser = $_POST["iuser"];
-	$iuname = $_POST["iuname"];
-	$igroup = $_POST["igroup"];
 	//echo "INSERT INTO groups VALUES (1,'$igroup','$iuser')<br>\n";
 	if (mysql_query("INSERT INTO groups (id, name, user) VALUES (1,'$igroup','$iuser')") == FALSE) {
 		echo "ERROR.  Could not run queries.\n";
@@ -441,6 +462,7 @@ echo "<b>Step $state</b><br><br>\n";
 echo "Installing and Configuring Access Controls (php-GACL)...<br><br>";
 
 //first, edit two gacl config files
+echo "Writing php-GACL configuration settings to config files...<br>";
 // edit gacl.ini.php
 $data = file($gaclConfigFile1) or die("Could not read ".$gaclConfigFile1." file.");
 $finalData = "";
@@ -514,7 +536,8 @@ foreach ($data as $line) {
 $fd = @fopen($gaclConfigFile2, 'w') or die("Could not open ".$gaclConfigFile2." file.");
 fwrite($fd, $finalData);
 fclose($fd);
-
+echo "Finished writing php-GACL configuration settings to config files.<br><br>";
+	
 //second, run gacl config scripts		
 require $gaclSetupScript1;
 require $gaclSetupScript2;
@@ -539,14 +562,16 @@ break;
 	default:
 echo "Welcome to OpenEMR.  This utility will step you through the configuration of OpenEMR for your practice.  Before proceeding, be sure that you have a properly installed and configured MySQL server available, and a PHP configured webserver.<br><br>\n";
 
-Echo "<p>If you are upgrading from a previous version, please read the README file.<br><br>";
+echo "Detailed installation instructions can be found in the <a href='INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.<br><br>";	
+
+Echo "If you are upgrading from a previous version, do NOT use this script.  Please read the 'Upgrading' section found in the <a href='INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.<br><br>";
 
 echo "We will now ensure correct file permissions and directories before starting installation:<br><br>\n";
-echo "<FONT COLOR='blue'>Ensuring following files are world-writable...</FONT><br>\n";
+echo "<FONT COLOR='green'>Ensuring following files are world-writable...</FONT><br>\n";
 $errorWritable = 0;
 foreach ($writableFileList as $tempFile) {
 	if (is_writable($tempFile)) {
-	        echo "'".realpath($tempFile)."' file is <FONT COLOR='blue'>ready</FONT>.<br>";
+	        echo "'".realpath($tempFile)."' file is <FONT COLOR='green'><b>ready</b></FONT>.<br>";
 	}
 	else {
 	        echo "<br><FONT COLOR='red'>UNABLE</FONT> to open file '".realpath($tempFile)."' for writing.<br>";
@@ -562,11 +587,11 @@ if ($errorWritable) {
 	break;
 }
 
-echo "<br><FONT COLOR='blue'>Ensuring following directories exist...</FONT><br>\n";
+echo "<br><FONT COLOR='green'>Ensuring following directories exist...</FONT><br>\n";
 $errorWritable = 0;
 foreach ($writableDirList as $tempDir) {
 	if (file_exists($tempDir)) {
-	        echo "'".realpath($tempDir)."' directory <FONT COLOR='blue'>exists</FONT>.<br>";
+	        echo "'".realpath($tempDir)."' directory <FONT COLOR='green'><b>exists</b></FONT>.<br>";
 	}
 	else {
 		$tempPath = realpath($tempDir);
@@ -588,11 +613,11 @@ if ($errorWritable) {
 	break;
 }	
 
-echo "<br><FONT COLOR='blue'>Ensuring following directories have proper permissions...</FONT><br>\n";
+echo "<br><FONT COLOR='green'>Ensuring following directories have proper permissions...</FONT><br>\n";
 $errorWritable = 0;
 foreach ($writableDirList as $tempDir) {
 	if (is_writable($tempDir)) {
-	        echo "'".realpath($tempDir)."' directory is <FONT COLOR='blue'>ready</FONT>.<br>";
+	        echo "'".realpath($tempDir)."' directory is <FONT COLOR='green'><b>ready</b></FONT>.<br>";
 	}
 	else {
 	        echo "<br><FONT COLOR='red'>UNABLE</FONT> to open directory '".realpath($tempDir)."' for writing by web server.<br>";
@@ -608,7 +633,7 @@ if ($errorWritable) {
 	break;
 }
 
-echo "<br><br>All required files and directories have been verified. Click to continue installation.<br>\n";	
+echo "<br>All required files and directories have been verified. Click to continue installation.<br>\n";	
 echo "<FORM METHOD='POST'><INPUT TYPE='HIDDEN' NAME='state' VALUE='1'><INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>";
 
 
