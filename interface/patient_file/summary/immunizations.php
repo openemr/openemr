@@ -169,9 +169,9 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
           <td class='text'>
             <input type="text" name="administered_by" id="administered_by" size="25" value="<?php echo $administered_by; ?>">
             or choose
-<!-- NEEDS WORK
--->
+<!-- NEEDS WORK -->
             <select name="administered_by_id" id='administered_by_id'>
+            <option value=""></option>
               <?php
                 $sql = "select id, concat(lname,', ',fname) as full_name " .
                        "from users where username != '' " .
@@ -247,11 +247,11 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
     <!-- some columns are sortable -->
     <tr class='text bold'>
     <th>
-        <a href="javascript:top.restoreSession();location.href='immunizations.php?sortby=vacc';"><?php xl('Vaccine','e'); ?></a>
+        <a href="javascript:top.restoreSession();location.href='immunizations.php?sortby=vacc';" title="Sort by vaccine"><?php xl('Vaccine','e'); ?></a>
         <span class='small' style='font-family:arial'><?php if ($sortby == 'vacc') { echo 'v'; } ?></span>
     </th>
     <th>
-        <a href="javascript:top.restoreSession();location.href='immunizations.php?sortby=date';"><?php xl('Date','e'); ?></a>
+        <a href="javascript:top.restoreSession();location.href='immunizations.php?sortby=date';" title="Sort by date"><?php xl('Date','e'); ?></a>
         <span class='small' style='font-family:arial'><?php if ($sortby == 'date') { echo 'v'; } ?></span>
     </th>
     <th><?php xl('Manufacturer','e'); ?></th>
