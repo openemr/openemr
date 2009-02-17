@@ -323,7 +323,7 @@ $(document).ready(function(){
 
 var PrintForm = function() {
     top.restoreSession();
-    location.href='shot_record.php';
+    location.href='shot_record.php?sortby=<?php echo $sortby; ?>';
 }
 
 var SaveForm = function() {
