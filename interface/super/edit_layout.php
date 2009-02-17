@@ -124,8 +124,8 @@ else if ($_POST['formaction']=="addgroup" && $layout_id) {
                 "form_id, field_id, title, group_name". 
                 ") VALUES (".
                 "'".trim($_POST['layout_id'])."'".
-                ",'newfield'".
-                ",'newfield'".
+                ",'field1'".
+                ",'New Field'".
                 ",'".trim($maxnum . $_POST['newgroupname'])."'".
                 ")");
 }
@@ -216,7 +216,7 @@ function writeFieldLine($linedata) {
   
     echo "  <td align='left' class='optcell'>";
     echo "<input type='text' name='fld[$fld_line_no][id]' value='" .
-         htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' size='10' class='optin'/>";
+         htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' size='10' class='optin' disabled=disabled/>";
     echo "</td>\n";
   
     echo "  <td align='center' class='optcell'>";
@@ -313,7 +313,6 @@ function writeFieldLine($linedata) {
 
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 <title><?php  xl('Layout Editor','e'); ?></title>
@@ -551,8 +550,8 @@ $(document).ready(function(){
     $("#newtitle").blur(function() { if ($("#newid").val() == "") $("#newid").val($("#newtitle").val()); });
     
     $(".listid").click(function() { ShowLists(this); });
-   
 
+    
     // Save the changes made to the form
     var SaveChanges = function () {
         $("#formaction").val("save");
@@ -580,9 +579,9 @@ $(document).ready(function(){
             alert("Group names cannot start with numbers.");
             return false;
         }
-        var validname = $("#renamegroupname").val().replace(/[^A-za-z0-9 ]/g, "_"); // match any non-word characters and replace them
+        var validname = $("#newgroupname").val().replace(/[^A-za-z0-9 ]/g, "_"); // match any non-word characters and replace them
         $("#newgroupname").val(validname);
-    
+
         // submit the form to add a new field to a specific group
         $("#formaction").val("addgroup");
         $("#theform").submit();
@@ -739,9 +738,9 @@ $(document).ready(function(){
 
     // show the popup choice of lists
     var ShowLists = function(btnObj) {
-        dlgopen("./show_lists_popup.php", "lists", 300, 500);
+        window.open("./show_lists_popup.php", "lists", "width=300,height=500,scrollbars=yes");
         selectedfield = btnObj;
-    }
+    };
 
 });
 
