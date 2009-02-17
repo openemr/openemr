@@ -34,10 +34,15 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
-<script type="text/javascript" src="../../../library/dialog.js"></script>
-<script type="text/javascript" src="../../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../../library/calendar.js"></script>
-<script type="text/javascript" src="../../../library/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/overlib_mini.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
+
+<!-- pop up calendar -->
+<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
 
 <script language="JavaScript">
 
@@ -193,22 +198,24 @@ if ($fres) {
        value='<?php echo $viewmode ? substr($result['date'], 0, 10) : date('Y-m-d'); ?>'
        title='<?php xl('yyyy-mm-dd Date of service','e'); ?>'
        onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-      <a href="javascript:show_calendar('new_encounter.form_date')"
-       title="<?php xl('Click here to choose a date','e'); ?>"
-       ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
+        <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+        id='img_form_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
+        title='<?php xl('Click here to choose a date','e'); ?>'>
      </td>
     </tr>
 
     <tr>
      <td class='bold' nowrap><?php xl('Onset/hosp. date:','e'); ?></td>
      <td class='text' nowrap>
-      <input type='text' size='10' name='form_onset_date'
+      <input type='text' size='10' name='form_onset_date' id='form_onset_date'
        value='<?php echo $viewmode ? substr($result['onset_date'], 0, 10) : date('Y-m-d'); ?>'
        title='<?php xl('yyyy-mm-dd Date of onset or hospitalization','e'); ?>'
        onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-      <a href="javascript:show_calendar('new_encounter.form_onset_date')"
-       title="<?php xl('Click here to choose a date','e'); ?>"
-       ><img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' border='0' alt='[?]'></a>
+
+        <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+        id='img_form_onset_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
+        title='<?php xl('Click here to choose a date','e'); ?>'>
+
      </td>
     </tr>
 
@@ -295,4 +302,11 @@ while ($irow = sqlFetchArray($ires)) {
 </form>
 
 </body>
+
+<script language="javascript">
+/* required for popup calendar */
+Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_form_date"});
+Calendar.setup({inputField:"form_onset_date", ifFormat:"%Y-%m-%d", button:"img_form_onset_date"});
+</script>
+
 </html>
