@@ -19,6 +19,7 @@ $form_show     = $_POST['form_show'];   // this is an array
 $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 $form_sexes    = isset($_POST['form_sexes']) ? $_POST['form_sexes'] : '3';
 $form_cors     = isset($_POST['form_cors']) ? $_POST['form_cors'] : '1';
+$form_output   = isset($_POST['form_output']) ? 0 + $_POST['form_output'] : 1;
 
 if (empty($form_by))    $form_by = '1';
 if (empty($form_show))  $form_show = array('1');
@@ -32,6 +33,7 @@ if ($report_type == 'm') {
     102 => xl('Specific Service'),
     17  => xl('Patient'),
     9   => xl('Referrals'),
+    103 => xl('Referral Source'),
   );
 }
 else if ($report_type == 'g') {
@@ -70,7 +72,10 @@ $arr_show = array(
   5 => xl('Nationality'),
   6 => xl('Marital Status'),
   7 => xl('State/Parish'),
+ 10 => xl('City'),
   8 => xl('Occupation'),
+ 11 => xl('Education'),
+ 12 => xl('Income'),
 );
 
 // This will become the array of reportable values.
@@ -86,8 +91,9 @@ $arr_titles = array(
   'mar' => array(),
   'sta' => array(),
   'occ' => array(),
-  // 'met' => array(),
-  // 'toc' => array(),
+  'cit' => array(),
+  'edu' => array(),
+  'inc' => array(),
 );
 
 // This is so we know when the current patient changes.
@@ -108,13 +114,14 @@ function getAge($dob, $asof='') {
 $cellcount = 0;
 
 function genStartRow($att) {
-  global $cellcount;
-  if (! $_POST['form_csvexport']) echo " <tr $att>\n";
+  global $cellcount, $form_output;
+  if ($form_output != 3) echo " <tr $att>\n";
   $cellcount = 0;
 }
 
 function genEndRow() {
-  if ($_POST['form_csvexport']) {
+  global $form_output;
+  if ($form_output == 3) {
     echo "\n";
   }
   else {
@@ -139,15 +146,22 @@ function genAnyCell($data, $right=false, $class='') {
 }
 *********************************************************************/
 
+function getListTitle($list, $option) {
+  $row = sqlQuery("SELECT title FROM list_options WHERE " .
+    "list_id = '$list' AND option_id = '$option'");
+  if (empty($row['title'])) return $option;
+  return $row['title'];
+}
+
 // Usually this generates one cell, but allows for two or more.
 //
 function genAnyCell($data, $right=false, $class='') {
-  global $cellcount;
+  global $cellcount, $form_output;
   if (!is_array($data)) {
     $data = array(0 => $data);
   }
   foreach ($data as $datum) {
-    if ($_POST['form_csvexport']) {
+    if ($form_output == 3) {
       if ($cellcount) echo ',';
       echo '"' . $datum . '"';
     }
@@ -168,9 +182,9 @@ function genHeadCell($data, $right=false) {
 // Create an HTML table cell containing a numeric value, and track totals.
 //
 function genNumCell($num, $cnum) {
-  global $atotals;
+  global $atotals, $form_output;
   $atotals[$cnum] += $num;
-  if (empty($num) && !$_POST['form_csvexport']) $num = '&nbsp;';
+  if (empty($num) && $form_output != 3) $num = '&nbsp;';
   genAnyCell($num, true, 'detail');
 }
 
@@ -303,13 +317,15 @@ function loadColumnData($key, $row) {
     $areport[$key] = array();
     $areport[$key]['wom'] = 0;       // number of services for women
     $areport[$key]['men'] = 0;       // number of services for men
-    // $areport[$key]['cli'] = 0;       // number of clients
     $areport[$key]['age'] = array(0,0,0,0,0,0,0,0,0); // age array
     $areport[$key]['rel'] = array(); // religion array
     $areport[$key]['nat'] = array(); // nationality array
     $areport[$key]['mar'] = array(); // marital status array
     $areport[$key]['sta'] = array(); // state/parish array
     $areport[$key]['occ'] = array(); // occupation array
+    $areport[$key]['cit'] = array(); // city array
+    $areport[$key]['edu'] = array(); // education array
+    $areport[$key]['inc'] = array(); // income array
     $areport[$key]['prp'] = 0;       // previous pid
   }
 
@@ -324,6 +340,15 @@ function loadColumnData($key, $row) {
     // Check contraceptive start date.
     if (!$row['contrastart'] || $row['contrastart'] < $from_date ||
       $row['contrastart'] > $to_date) return;
+  }
+
+  // If we are counting new clients, then require a unique patient
+  // whose registration date is within the reporting period.
+  if ($form_cors == '4') {
+    if ($row['pid'] == $areport[$key]['prp']) return;
+    // Check registration date.
+    if (!$row['regdate'] || $row['regdate'] < $from_date ||
+      $row['regdate'] > $to_date) return;
   }
 
   // Flag this patient as having been encountered for this report row.
@@ -373,6 +398,21 @@ function loadColumnData($key, $row) {
   $status = empty($row['occupation']) ? 'Unspecified' : $row['occupation'];
   $areport[$key]['occ'][$status] += 1;
   $arr_titles['occ'][$status] += 1;
+
+  // Increment the correct city category.
+  $status = empty($row['city']) ? 'Unspecified' : $row['city'];
+  $areport[$key]['cit'][$status] += 1;
+  $arr_titles['cit'][$status] += 1;
+
+  // Increment the correct education category.
+  $status = empty($row['userlist2']) ? 'Unspecified' : $row['userlist2'];
+  $areport[$key]['edu'][$status] += 1;
+  $arr_titles['edu'][$status] += 1;
+
+  // Increment the correct income category.
+  $status = empty($row['userlist3']) ? 'Unspecified' : $row['userlist3'];
+  $areport[$key]['inc'][$status] += 1;
+  $arr_titles['inc'][$status] += 1;
 }
 
 // This is called for each IPPF service code that is selected.
@@ -535,6 +575,12 @@ function process_ma_code($row) {
     $key = $row['code'];
   }
 
+  // One row for each referral source.
+  //
+  else if ($form_by === '103') {
+    $key = $row['referral_source'];
+  }
+
   else {
     return;
   }
@@ -593,7 +639,7 @@ function process_referral($row) {
   // If we are doing the CSV export then generate the needed HTTP headers.
   // Otherwise generate HTML.
   //
-  if ($_POST['form_csvexport']) {
+  if ($form_output == 3) {
     header("Pragma: public");
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -628,15 +674,15 @@ function process_referral($row) {
 
 <h2><?php echo $report_title; ?></h2>
 
-<form name='theform' method='post' action='ippf_statistics.php?t=<?php echo $report_type ?>'>
+<form name='theform' method='post'
+ action='ippf_statistics.php?t=<?php echo $report_type ?>'>
 
-<table border='0' cellspacing='0' cellpadding='2'>
-
+<table border='0' cellspacing='5' cellpadding='1'>
  <tr>
-  <td valign='top' nowrap>
-   For each
+  <td valign='top' class='dehead' nowrap>
+   <?php xl('Rows','e'); ?>:
   </td>
-  <td valign='top'>
+  <td valign='top' class='detail'>
    <select name='form_by' title='Left column of report'>
 <?php
   foreach ($arr_by as $key => $value) {
@@ -647,12 +693,31 @@ function process_referral($row) {
 ?>
    </select>
   </td>
-  <td align='center' valign='top' rowspan='3' nowrap
-   ><input type='submit' name='form_refresh' value='<?php xl('Show','e'); ?>' title='<?php xl('Click to generate the report','e'); ?>'
-   /><br /><?php xl('or','e'); ?><br
-   /><input type='submit' name='form_csvexport' value='<?php xl('Export','e'); ?>' title='<?php xl('Click to downlaod in CSV format','e'); ?>'
-   /></td>
-  <td valign='top' rowspan='3'>
+  <td valign='top' class='dehead' nowrap>
+   <?php xl('Content','e'); ?>:
+  </td>
+  <td valign='top' class='detail'>
+   <select name='form_cors' title='<?php xl('What is to be counted?','e'); ?>'>
+<?php
+  foreach (array(1 => xl('Services'), 2 => xl('Unique Clients'), 3 => xl('New Acceptors'),
+    4 => xl('Unique New Clients')) as $key => $value)
+  {
+    echo "    <option value='$key'";
+    if ($key == $form_cors) echo " selected";
+    echo ">$value</option>\n";
+  }
+?>
+   </select>
+  </td>
+  <td valign='top' class='detail'>
+   &nbsp;
+  </td>
+ </tr>
+ <tr>
+  <td valign='top' class='dehead' nowrap>
+   <?php xl('Columns','e'); ?>:
+  </td>
+  <td valign='top' class='detail'>
    <select name='form_show[]' size='4' multiple
     title='<?php xl('Hold down Ctrl to select multiple items','e'); ?>'>
 <?php
@@ -664,93 +729,95 @@ function process_referral($row) {
 ?>
    </select>
   </td>
-  <td valign='top' rowspan='3' nowrap>
-   &nbsp;
-   <?php if ($report_type !== 'g') echo xl('for'); ?>
+  <td valign='top' class='dehead' nowrap>
+   <?php xl('Filters','e'); ?>:
   </td>
-  <td valign='top' rowspan='3'>
-
-<?php if ($report_type !== 'g') { // sex and facility only if not GCAC reporting ?>
-
-   <select name='form_sexes' title='<?php xl('To filter by sex','e'); ?>'>
+  <td colspan='2' class='detail' style='border-style:solid;border-width:1px;border-color:#cccccc'>
+   <table>
+    <tr>
+     <td valign='top' class='detail' nowrap>
+      <?php xl('Sex','e'); ?>:
+     </td>
+     <td class='detail' valign='top'>
+      <select name='form_sexes' title='<?php xl('To filter by sex','e'); ?>'>
 <?php
   foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Only')) as $key => $value) {
-    echo "    <option value='$key'";
+    echo "       <option value='$key'";
     if ($key == $form_sexes) echo " selected";
     echo ">$value</option>\n";
   }
 ?>
-   </select>
-   <br />
+      </select>
+     </td>
+    </tr>
+    <tr>
+     <td valign='top' class='detail' nowrap>
+      <?php xl('Facility','e'); ?>:
+     </td>
+     <td valign='top' class='detail'>
 <?php
  // Build a drop-down list of facilities.
  //
  $query = "SELECT id, name FROM facility ORDER BY name";
  $fres = sqlStatement($query);
- echo "   <select name='form_facility'>\n";
- echo "    <option value=''>-- All Facilities --\n";
+ echo "      <select name='form_facility'>\n";
+ echo "       <option value=''>-- All Facilities --\n";
  while ($frow = sqlFetchArray($fres)) {
   $facid = $frow['id'];
-  echo "    <option value='$facid'";
+  echo "       <option value='$facid'";
   if ($facid == $_POST['form_facility']) echo " selected";
   echo ">" . $frow['name'] . "\n";
  }
- echo "   </select>\n";
+ echo "      </select>\n";
 ?>
-   <br />
-
-<?php } // end not GCAC ?>
-
-   <select name='form_cors' title='<?php xl('Counting services provided, or unique clients?','e'); ?>'>
+     </td>
+    </tr>
+    <tr>
+     <td colspan='2' class='detail' nowrap>
+      <?php xl('From','e'); ?>
+      <input type='text' name='form_from_date' id='form_from_date' size='10' value='<?php echo $from_date ?>'
+       onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='Start date yyyy-mm-dd'>
+      <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+       id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
+       title='<?php xl('Click here to choose a date','e'); ?>'>
+      <?php xl('To','e'); ?>
+      <input type='text' name='form_to_date' id='form_to_date' size='10' value='<?php echo $to_date ?>'
+       onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='End date yyyy-mm-dd'>
+      <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+       id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
+       title='<?php xl('Click here to choose a date','e'); ?>'>
+     </td>
+    </tr>
+   </table>
+  </td>
+ </tr>
+ <tr>
+  <td valign='top' class='dehead' nowrap>
+   <?php xl('To','e'); ?>:
+  </td>
+  <td colspan='3' valign='top' class='detail' nowrap>
 <?php
-  foreach (array(1 => xl('Services'), 2 => xl('Unique Clients'), 3 => xl('New Acceptors')) as $key => $value) {
-    echo "    <option value='$key'";
-    if ($key == $form_cors) echo " selected";
-    echo ">$value</option>\n";
-  }
+foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $value) {
+  echo "   <input type='radio' name='form_output' value='$key'";
+  if ($key == $form_output) echo ' checked';
+  echo " />$value &nbsp;";
+}
 ?>
-   </select>
-   <br />
-
-   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
+  </td>
+  <td align='right' valign='top' class='detail' nowrap>
+   <input type='submit' name='form_submit' value='<?php xl('Submit','e'); ?>'
+    title='<?php xl('Click to generate the report','e'); ?>' />
   </td>
  </tr>
  <tr>
-  <td valign='top' nowrap>
-   from
-  </td>
-  <td valign='top' nowrap>
-   <input type='text' name='form_from_date' id='form_from_date' size='10' value='<?php echo $from_date ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='Start date yyyy-mm-dd'>
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
+  <td colspan='5' height="1">
   </td>
  </tr>
- <tr>
-  <td valign='top' nowrap>
-   to
-  </td>
-  <td valign='top' nowrap>
-   <input type='text' name='form_to_date' id='form_to_date' size='10' value='<?php echo $to_date ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='End date yyyy-mm-dd'>
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
-  </td>
- </tr>
-
- <tr>
-  <td height="1">
-  </td>
- </tr>
-
 </table>
-
 <?php
   } // end not export
 
-  if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
+  if ($_POST['form_submit']) {
     $sexcond = '';
     if ($form_sexes == '1') $sexcond = "AND pd.sex NOT LIKE 'Male' ";
     else if ($form_sexes == '2') $sexcond = "AND pd.sex LIKE 'Male' ";
@@ -758,9 +825,10 @@ function process_referral($row) {
     // Get referrals within a date range and related patient data.
     if ($form_by === '9') {
       $query = "SELECT " .
-        "t.refer_related_code, t.pid, " .
+        "t.refer_related_code, t.pid, pd.regdate, pd.referral_source, " .
         "pd.sex, pd.DOB, pd.lname, pd.fname, pd.mname, pd.userlist5, " .
-        "pd.country_code, pd.status, pd.state, pd.occupation, pd.contrastart " .
+        "pd.country_code, pd.status, pd.state, pd.occupation, pd.contrastart, " .
+        "pd.city, pd.userlist2, pd.userlist3 " .
         "FROM transactions AS t " .
         "JOIN patient_data AS pd ON pd.pid = t.pid $sexcond" .
         "WHERE t.title = 'Referral' AND t.refer_date >= '$from_date' AND " .
@@ -799,11 +867,11 @@ function process_referral($row) {
       // This gets us all MA codes, with encounter and patient
       // info attached and grouped by patient and encounter.
       $query = "SELECT " .
-        "fe.pid, fe.encounter, fe.date AS encdate, " .
+        "fe.pid, fe.encounter, fe.date AS encdate, pd.regdate, " .
         "pd.sex, pd.DOB, pd.lname, pd.fname, pd.mname, pd.userlist5, " .
         "pd.country_code, pd.status, pd.state, pd.occupation, pd.contrastart, " .
-        "b.code_type, b.code, " .
-        "c.related_code, lo.title " .
+        "pd.referral_source, pd.city, pd.userlist2, pd.userlist3, " .
+        "b.code_type, b.code, c.related_code, lo.title " .
         "FROM form_encounter AS fe " .
         "JOIN patient_data AS pd ON pd.pid = fe.pid $sexcond" .
         "LEFT OUTER JOIN billing AS b ON " .
@@ -844,8 +912,11 @@ function process_referral($row) {
     ksort($arr_titles['mar']);
     ksort($arr_titles['sta']);
     ksort($arr_titles['occ']);
+    ksort($arr_titles['cit']);
+    ksort($arr_titles['edu']);
+    ksort($arr_titles['inc']);
 
-    if (! $_POST['form_csvexport']) {
+    if ($form_output != 3) {
       echo "<table border='0' cellpadding='1' cellspacing='2' width='98%'>\n";
     } // end not csv export
 
@@ -885,17 +956,17 @@ function process_referral($row) {
       }
       else if ($value == '4') { // Religion
         foreach ($arr_titles['rel'] as $key => $value) {
-          genHeadCell($key, true);
+          genHeadCell(getListTitle('userlist5',$key), true);
         }
       }
       else if ($value == '5') { // Nationality
         foreach ($arr_titles['nat'] as $key => $value) {
-          genHeadCell($key, true);
+          genHeadCell(getListTitle('country',$key), true);
         }
       }
       else if ($value == '6') { // Marital Status
         foreach ($arr_titles['mar'] as $key => $value) {
-          genHeadCell($key, true);
+          genHeadCell(getListTitle('marital',$key), true);
         }
       }
       else if ($value == '7') { // State/Parish
@@ -905,12 +976,27 @@ function process_referral($row) {
       }
       else if ($value == '8') { // Occupation
         foreach ($arr_titles['occ'] as $key => $value) {
+          genHeadCell(getListTitle('occupations',$key), true);
+        }
+      }
+      else if ($value == '10') { // City
+        foreach ($arr_titles['cit'] as $key => $value) {
           genHeadCell($key, true);
+        }
+      }
+      else if ($value == '11') { // Education
+        foreach ($arr_titles['edu'] as $key => $value) {
+          genHeadCell(getListTitle('userlist2',$key), true);
+        }
+      }
+      else if ($value == '12') { // Income
+        foreach ($arr_titles['inc'] as $key => $value) {
+          genHeadCell(getListTitle('userlist3',$key), true);
         }
       }
     }
 
-    if (! $_POST['form_csvexport']) {
+    if ($form_output != 3) {
       genHeadCell(xl('Total'), true);
     }
 
@@ -999,10 +1085,25 @@ function process_referral($row) {
             genNumCell($areport[$key]['occ'][$title], $cnum++);
           }
         }
+        else if ($value == '10') { // City
+          foreach ($arr_titles['cit'] as $title => $nothing) {
+            genNumCell($areport[$key]['cit'][$title], $cnum++);
+          }
+        }
+        else if ($value == '11') { // Education
+          foreach ($arr_titles['edu'] as $title => $nothing) {
+            genNumCell($areport[$key]['edu'][$title], $cnum++);
+          }
+        }
+        else if ($value == '12') { // Income
+          foreach ($arr_titles['inc'] as $title => $nothing) {
+            genNumCell($areport[$key]['inc'][$title], $cnum++);
+          }
+        }
       }
 
       // Write the Total column data.
-      if (! $_POST['form_csvexport']) {
+      if ($form_output != 3) {
         $atotals[$cnum] += $totalsvcs;
         genAnyCell($totalsvcs, true, 'dehead');
       }
@@ -1010,7 +1111,7 @@ function process_referral($row) {
       genEndRow();
     } // end foreach
 
-    if (! $_POST['form_csvexport']) {
+    if ($form_output != 3) {
       // Generate the line of totals.
       genStartRow("bgcolor='#dddddd'");
 
@@ -1031,7 +1132,7 @@ function process_referral($row) {
 
   } // end of if refresh or export
 
-  if (! $_POST['form_csvexport']) {
+  if ($form_output != 3) {
 ?>
 </form>
 </center>
@@ -1039,6 +1140,9 @@ function process_referral($row) {
 <script language='JavaScript'>
  Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
  Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
+<?php if ($form_output == 2) { ?>
+ window.print();
+<?php } ?>
 </script>
 
 </body>
