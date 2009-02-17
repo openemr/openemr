@@ -179,6 +179,10 @@ option, and customize the system to your needs.  Add users and groups as is
 needed. For information on using OpenEMR, consult the User Documentation located
 in the Documentation folder.
 
+To ensure proper functioning of OpenEMR you must make sure your PHP
+installation (normally set in your php.ini file) has "display_errors = Off",
+"register_globals = Off", and "magic_quotes_gpc = Off".
+
 In order to take full advantage of the patient documents capability, you must
 make sure your PHP installation (normally set in your php.ini file) has 
 "file_uploads enabled", that "upload_max_filesize" is appropriate for your
