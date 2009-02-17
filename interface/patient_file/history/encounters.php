@@ -400,6 +400,19 @@ if ($result = getEncounters($pid)) {
                     }
                 }
 
+                // Throw in product sales.
+                $query = "SELECT s.drug_id, s.fee, d.name " .
+                  "FROM drug_sales AS s " .
+                  "LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
+                  "WHERE s.pid = '$pid' AND s.encounter = '{$iter['encounter']}' " .
+                  "ORDER BY s.sale_id";
+                $sres = sqlStatement($query);
+                while ($srow = sqlFetchArray($sres)) {
+                  $subresult2[] = array('code_type' => 'PROD',
+                    'code' => 'PROD:' . $srow['drug_id'], 'modifier' => '',
+                    'code_text' => $srow['name'], 'fee' => $srow['fee']);
+                }
+
                 // This creates 5 columns of billing information:
                 // billing code, charges, payments, adjustments, balance.
                 foreach ($subresult2 as $iter2) {
@@ -411,7 +424,8 @@ if ($result = getEncounters($pid)) {
                     if ($iter2['code_type'] == 'COPAY') $codekey = 'CO-PAY';
                     if ($iter2['modifier']) $codekey .= ':' . $iter2['modifier'];
                     if ($binfo[0]) $binfo[0] .= '<br>';
-                    $binfo[0] .= "<span class='form_tt' title='".$title."'>".
+                    // $binfo[0] .= "<span class='form_tt' title='".$title."'>".
+                    $binfo[0] .= "<span title='$title'>".
                                 //onmouseover='ttshow(this,\"$title\")' onmouseout='tthide()'>" .
                                 $arlinkbeg . ($codekey == 'CO-PAY' ? xl($codekey) : $codekey) .
                                 $arlinkend . "</span>";
