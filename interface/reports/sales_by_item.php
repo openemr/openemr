@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006-2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,33 +26,36 @@ function display_desc($desc) {
   return $desc;
 }
 
-function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty, $amount) {
-  global $product, $producttotal, $productqty, $grandtotal, $grandqty;
+function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transdate, $qty, $amount) {
+  global $product, $category, $producttotal, $productqty, $cattotal, $catqty, $grandtotal, $grandqty;
+  global $productleft, $catleft;
 
   $invnumber = "$patient_id.$encounter_id";
   $rowamount = sprintf('%01.2f', $amount);
 
-  // Extract only the first word as the payment method because any following
-  // text will be some petty detail like a check number.
+  if (empty($rowcat)) $rowcat = 'None';
   $rowproduct = $description;
   if (! $rowproduct) $rowproduct = 'Unknown';
 
-  if ($product != $rowproduct) {
+  if ($product != $rowproduct || $category != $rowcat) {
     if ($product) {
       // Print product total.
       if ($_POST['form_csvexport']) {
         if (! $_POST['form_details']) {
-          echo '"' . display_desc($product) . '",';
-          echo '"' . $productqty            . '",';
+          echo '"' . display_desc($category) . '",';
+          echo '"' . display_desc($product)  . '",';
+          echo '"' . $productqty             . '",';
           echo '"'; bucks($producttotal); echo '"' . "\n";
         }
       }
       else {
 ?>
-
  <tr bgcolor="#ddddff">
+  <td class="detail">
+   <?php echo display_desc($catleft); $catleft = "&nbsp;"; ?>
+  </td>
   <td class="detail" colspan="3">
-   <? echo xl('Total for ') . display_desc($product) ?>
+   <?php if ($_POST['form_details']) echo xl('Total for') . ' '; echo display_desc($product); ?>
   </td>
   <td class="dehead" align="right">
    <?php echo $productqty; ?>
@@ -70,9 +73,39 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
     $productleft = $product;
   }
 
+  if ($category != $rowcat) {
+    if ($category) {
+      // Print category total.
+      if (!$_POST['form_csvexport']) {
+?>
+
+ <tr bgcolor="#ffdddd">
+  <td class="detail">
+   &nbsp;
+  </td>
+  <td class="detail" colspan="3">
+   <?php echo xl('Total for category') . ' '; echo display_desc($category); ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php echo $catqty; ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php bucks($cattotal); ?>
+  </td>
+ </tr>
+<?php
+      } // End not csv export
+    }
+    $cattotal = 0;
+    $catqty = 0;
+    $category = $rowcat;
+    $catleft = $category;
+  }
+
   if ($_POST['form_details']) {
     if ($_POST['form_csvexport']) {
-      echo '"' . display_desc($product         ) . '",';
+      echo '"' . display_desc($category ) . '",';
+      echo '"' . display_desc($product  ) . '",';
       echo '"' . display_desc($transdate) . '",';
       echo '"' . display_desc($invnumber) . '",';
       echo '"' . display_desc($qty      ) . '",';
@@ -82,6 +115,9 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
 ?>
 
  <tr>
+  <td class="detail">
+   <?php echo display_desc($catleft); $catleft = "&nbsp;"; ?>
+  </td>
   <td class="detail">
    <?php echo display_desc($productleft); $productleft = "&nbsp;"; ?>
   </td>
@@ -102,8 +138,10 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
     } // End not csv export
   } // end details
   $producttotal += $rowamount;
+  $cattotal     += $rowamount;
   $grandtotal   += $rowamount;
   $productqty   += $qty;
+  $catqty       += $qty;
   $grandqty     += $qty;
 } // end function
 
@@ -126,6 +164,7 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
     header("Content-Description: File Transfer");
     // CSV headers:
     if ($_POST['form_details']) {
+      echo '"Category",';
       echo '"Item",';
       echo '"Date",';
       echo '"Invoice",';
@@ -133,11 +172,12 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
       echo '"Amount"' . "\n";
     }
     else {
+      echo '"Category",';
       echo '"Item",';
       echo '"Qty",';
       echo '"Total"' . "\n";
     }
-  }
+  } // end export
   else {
 ?>
 <html>
@@ -206,19 +246,22 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
 
  <tr bgcolor="#dddddd">
   <td class="dehead">
-   <?xl('Item','e')?>
+   <?php xl('Category','e'); ?>
   </td>
   <td class="dehead">
-   <?xl('Date','e')?>
+   <?php xl('Item','e'); ?>
   </td>
   <td class="dehead">
-   <?xl('Invoice','e')?>
+   <?php xl('Date','e'); ?>
+  </td>
+  <td class="dehead">
+   <?php xl('Invoice','e'); ?>
   </td>
   <td class="dehead" align="right">
-   <?xl('Qty','e')?>
+   <?php xl('Qty','e'); ?>
   </td>
   <td class="dehead" align="right">
-   <?xl('Amount','e')?>
+   <?php xl('Amount','e'); ?>
   </td>
  </tr>
 <?php
@@ -228,30 +271,36 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
     $from_date = $form_from_date;
     $to_date   = $form_to_date;
 
+    $category = "";
+    $catleft = "";
+    $cattotal = 0;
+    $catqty = 0;
     $product = "";
     $productleft = "";
     $producttotal = 0;
-    $grandtotal = 0;
     $productqty = 0;
+    $grandtotal = 0;
     $grandqty = 0;
 
     if ($INTEGRATED_AR) {
       $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, b.code, b.units, " .
-        "b.code_text, fe.date, fe.facility_id " .
+        "b.code_text, fe.date, fe.facility_id, lo.title " .
         "FROM billing AS b " .
         "JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter " .
+        "LEFT JOIN codes AS c ON c.code = b.code AND c.modifier = b.modifier " .
+        "LEFT JOIN list_options AS lo ON lo.list_id = 'superbill' AND lo.option_id = c.superbill " .
         "WHERE b.code_type != 'COPAY' AND b.activity = 1 AND b.fee != 0 AND " .
         "fe.date >= '$from_date 00:00:00' AND fe.date <= '$to_date 23:59:59'";
       // If a facility was specified.
       if ($form_facility) {
         $query .= " AND fe.facility_id = '$form_facility'";
       }
-      $query .= " ORDER BY b.code, fe.date, fe.id";
+      $query .= " ORDER BY lo.title, b.code, fe.date, fe.id";
       //
       $res = sqlStatement($query);
       while ($row = sqlFetchArray($res)) {
         thisLineItem($row['pid'], $row['encounter'],
-          $row['code'] . ' ' . $row['code_text'],
+          $row['title'], $row['code'] . ' ' . $row['code_text'],
           substr($row['date'], 0, 10), $row['units'], $row['fee']);
       }
       //
@@ -271,7 +320,7 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
       //
       $res = sqlStatement($query);
       while ($row = sqlFetchArray($res)) {
-        thisLineItem($row['pid'], $row['encounter'], $row['name'],
+        thisLineItem($row['pid'], $row['encounter'], xl('Products'), $row['name'],
           substr($row['date'], 0, 10), $row['quantity'], $row['fee']);
       }
     }
@@ -295,7 +344,7 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
             "facility_id = '$form_facility'");
           if (empty($tmp['count'])) continue;
         }
-        thisLineItem($patient_id, $encounter_id, $row['description'],
+        thisLineItem($patient_id, $encounter_id, '', $row['description'],
           $row['transdate'], $row['qty'], $row['sellprice'] * $row['qty']);
       } // end for
     } // end not $INTEGRATED_AR
@@ -311,8 +360,11 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
 ?>
 
  <tr bgcolor="#ddddff">
+  <td class="detail">
+   <?php echo display_desc($catleft); $catleft = "&nbsp;"; ?>
+  </td>
   <td class="detail" colspan="3">
-   <?php echo xl('Total for ') . display_desc($product) ?>
+   <?php if ($_POST['form_details']) echo xl('Total for') . ' '; echo display_desc($product); ?>
   </td>
   <td class="dehead" align="right">
    <?php echo $productqty; ?>
@@ -323,7 +375,22 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
  </tr>
 
  <tr bgcolor="#ffdddd">
+  <td class="detail">
+   &nbsp;
+  </td>
   <td class="detail" colspan="3">
+   <?php echo xl('Total for category') . ' '; echo display_desc($category); ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php echo $catqty; ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php bucks($cattotal); ?>
+  </td>
+ </tr>
+
+ <tr bgcolor="#dddddd">
+  <td class="detail" colspan="4">
    <?php xl('Grand Total','e'); ?>
   </td>
   <td class="dehead" align="right">
