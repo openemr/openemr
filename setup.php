@@ -62,12 +62,15 @@ include_once($conffile);
  if ($state == 5) {
 ?>
 
-<p>Congratulations! OpenEMR is now successfully installed.
+<p>Congratulations! OpenEMR is now successfully installed.</p>
 
 <ul>
  <li>Please restore secure permissions on the four configuration files: /openemr/interface/globals.php, 
      /openemr/library/sqlconf.php, /openemr/gacl/gacl.ini.php, and /openemr/gacl/gacl.class.php files.  
      In linux, recommend changing file permissions with the 'chmod 644 filename' command.</li>
+ <li>To ensure proper functioning of OpenEMR you must make sure your PHP installation (normally
+     set in your php.ini file) has "display_errors = Off", "register_globals = Off", and 
+     "magic_quotes_gpc = Off".</li>
  <li>In order to take full advantage of the patient documents capability you must make sure 
      your PHP installation (normally set in your php.ini file) has 
      "file_uploads enabled", that "upload_max_filesize" is appropriate for your 
@@ -93,6 +96,7 @@ Deny from all<br>
 order deny,allow<br>
 Deny from all<br>
 &lt;/Directory&gt;<br>
+</p>
 <p>
 <b>The initial OpenEMR user is "<?php echo $iuser; ?>" and the password is "pass".</b>
 You should change this password!
@@ -560,30 +564,31 @@ break;
 
 	case 0:
 	default:
-echo "Welcome to OpenEMR.  This utility will step you through the configuration of OpenEMR for your practice.  Before proceeding, be sure that you have a properly installed and configured MySQL server available, and a PHP configured webserver.<br><br>\n";
+echo "<p>Welcome to OpenEMR.  This utility will step you through the installation and configuration of OpenEMR for your practice.</p>\n";
+echo "<ul><li>Before proceeding, be sure that you have a properly installed and configured MySQL server available, and a PHP configured webserver.</li>\n";
 
-echo "Detailed installation instructions can be found in the <a href='INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.<br><br>";	
+echo "<li>Detailed installation instructions can be found in the <a href='INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.</li>\n";	
 
-Echo "If you are upgrading from a previous version, do NOT use this script.  Please read the 'Upgrading' section found in the <a href='INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.<br><br>";
+Echo "<li>If you are upgrading from a previous version, do NOT use this script.  Please read the 'Upgrading' section found in the <a href='INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.</li></ul>";
 
-echo "We will now ensure correct file permissions and directories before starting installation:<br><br>\n";
+echo "<p>We will now ensure correct file permissions and directories before starting installation:</p>\n";
 echo "<FONT COLOR='green'>Ensuring following files are world-writable...</FONT><br>\n";
 $errorWritable = 0;
 foreach ($writableFileList as $tempFile) {
 	if (is_writable($tempFile)) {
-	        echo "'".realpath($tempFile)."' file is <FONT COLOR='green'><b>ready</b></FONT>.<br>";
+	        echo "'".realpath($tempFile)."' file is <FONT COLOR='green'><b>ready</b></FONT>.<br>\n";
 	}
 	else {
-	        echo "<br><FONT COLOR='red'>UNABLE</FONT> to open file '".realpath($tempFile)."' for writing.<br>";
-	        echo "(configure file permissions; see below for further instructions)<br>";
+	        echo "<p><FONT COLOR='red'>UNABLE</FONT> to open file '".realpath($tempFile)."' for writing.<br>\n";
+	        echo "(configure file permissions; see below for further instructions)</p>\n";
 	        $errorWritable = 1;
 	}
 }
 if ($errorWritable) {
-	echo "<br><FONT COLOR='red'>You can't proceed until all above files are ready (world-writable).</FONT><br>";	
-	echo "In linux, recommend changing file permissions with the 'chmod 666 filename' command.<br>";
-	echo "Fix above file permissions and then click the 'Check Again' button to re-check files.<br>";
-	echo "<FORM METHOD='POST'><INPUT TYPE='SUBMIT' VALUE='Check Again'><br></FORM><br>\n";
+	echo "<p><FONT COLOR='red'>You can't proceed until all above files are ready (world-writable).</FONT><br>\n";	
+	echo "In linux, recommend changing file permissions with the 'chmod 666 filename' command.<br>\n";
+	echo "Fix above file permissions and then click the 'Check Again' button to re-check files.<br>\n";
+	echo "<FORM METHOD='POST'><INPUT TYPE='SUBMIT' VALUE='Check Again'></p></FORM><br>\n";
 	break;
 }
 
@@ -591,7 +596,7 @@ echo "<br><FONT COLOR='green'>Ensuring following directories exist...</FONT><br>
 $errorWritable = 0;
 foreach ($writableDirList as $tempDir) {
 	if (file_exists($tempDir)) {
-	        echo "'".realpath($tempDir)."' directory <FONT COLOR='green'><b>exists</b></FONT>.<br>";
+	        echo "'".realpath($tempDir)."' directory <FONT COLOR='green'><b>exists</b></FONT>.<br>\n";
 	}
 	else {
 		$tempPath = realpath($tempDir);
@@ -600,16 +605,16 @@ foreach ($writableDirList as $tempDir) {
 			$tempPath = realpath('./').DIRECTORY_SEPARATOR.$tempDir;
 			$tempPath = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $tempPath);
 		}
-	        echo "<br><FONT COLOR='red'>UNABLE</FONT> to find directory '".$tempPath."'.<br>";
-	        echo "(please create directory; see below for further instructions)<br>";
+	        echo "<p><FONT COLOR='red'>UNABLE</FONT> to find directory '".$tempPath."'.<br>\n";
+	        echo "(please create directory; see below for further instructions)</p>\n";
 	        $errorWritable = 1;
         }
 }
 if ($errorWritable) {
-	echo "<br><FONT COLOR='red'>You can't proceed until all above directories exist.</FONT><br>";
+	echo "<p><FONT COLOR='red'>You can't proceed until all above directories exist.</FONT><br>\n";
 	echo "In linux, recommend using the 'mkdir directory_name' command<br>\n";
-	echo "Add above marked directories and then click the 'Check Again' button to re-check for directories.<br>";
-	echo "<FORM METHOD='POST'><INPUT TYPE='SUBMIT' VALUE='Check Again'><br></FORM><br>\n";
+	echo "Add above marked directories and then click the 'Check Again' button to re-check for directories.<br>\n";
+	echo "<FORM METHOD='POST'><INPUT TYPE='SUBMIT' VALUE='Check Again'></p></FORM><br>\n";
 	break;
 }	
 
@@ -617,19 +622,19 @@ echo "<br><FONT COLOR='green'>Ensuring following directories have proper permiss
 $errorWritable = 0;
 foreach ($writableDirList as $tempDir) {
 	if (is_writable($tempDir)) {
-	        echo "'".realpath($tempDir)."' directory is <FONT COLOR='green'><b>ready</b></FONT>.<br>";
+	        echo "'".realpath($tempDir)."' directory is <FONT COLOR='green'><b>ready</b></FONT>.<br>\n";
 	}
 	else {
-	        echo "<br><FONT COLOR='red'>UNABLE</FONT> to open directory '".realpath($tempDir)."' for writing by web server.<br>";
-	        echo "(configure directory permissions; see below for further instructions)<br>";
+	        echo "<p><FONT COLOR='red'>UNABLE</FONT> to open directory '".realpath($tempDir)."' for writing by web server.<br>\n";
+	        echo "(configure directory permissions; see below for further instructions)</p>\n";
 	        $errorWritable = 1;
 	}
 }
 if ($errorWritable) {
-	echo "<br><FONT COLOR='red'>You can't proceed until all directories are ready.</FONT><br>";
+	echo "<p><FONT COLOR='red'>You can't proceed until all directories are ready.</FONT><br>\n";
 	echo "In linux, recommend changing owners of these directories to the web server. For example, in many linux OS's the web server user is 'apache', 'nobody', or 'www-data'. So if 'apache' were the web server user name, could use the command 'chown -R apache:apache directory_name' command.<br>\n";
-        echo "Fix above directory permissions and then click the 'Check Again' button to re-check directories.<br>";
-       	echo "<FORM METHOD='POST'><INPUT TYPE='SUBMIT' VALUE='Check Again'><br></FORM><br>\n";
+        echo "Fix above directory permissions and then click the 'Check Again' button to re-check directories.<br>\n";
+       	echo "<FORM METHOD='POST'><INPUT TYPE='SUBMIT' VALUE='Check Again'></p></FORM><br>\n";
 	break;
 }
 
