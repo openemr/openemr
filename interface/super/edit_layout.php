@@ -49,26 +49,26 @@ $layout_id = empty($_REQUEST['layout_id']) ? 'DEM' : $_REQUEST['layout_id'];
 
 if ($_POST['formaction']=="save" && $layout_id) {
     // If we are saving, then save.
-  $fld = $_POST['fld'];
-  for ($lino = 1; isset($fld["$lino"]['id']); ++$lino) {
-    $iter = $fld["$lino"];
-    $field_id = trim($iter['id']);
-    if ($field_id) {
-      sqlStatement("UPDATE layout_options SET " .
-        "title = '"         . trim($iter['title'])     . "', " .
-        "group_name = '"    . trim($iter['group'])     . "', " .
-        "seq = '"           . trim($iter['seq'])       . "', " .
-        "uor = '"           . trim($iter['uor'])       . "', " .
-        "fld_length = '"    . trim($iter['length'])    . "', " .
-        "titlecols = '"     . trim($iter['titlecols']) . "', " .
-        "datacols = '"      . trim($iter['datacols'])  . "', " .
-        "data_type= '"      . trim($iter['data_type'])  . "', " .
-        "list_id= '"        . trim($iter['list_id'])  . "', " .
-        "default_value = '" . trim($iter['default'])   . "', " .
-        "description = '"   . trim($iter['desc'])      . "' " .
-        "WHERE form_id = '$layout_id' AND field_id = '$field_id'");
+    $fld = $_POST['fld'];
+    for ($lino = 1; isset($fld[$lino]['id']); ++$lino) {
+        $iter = $fld[$lino];
+        $field_id = trim($iter['id']);
+        if ($field_id) {
+            sqlStatement("UPDATE layout_options SET " .
+                "title = '"         . trim($iter['title'])     . "', " .
+                "group_name = '"    . trim($iter['group'])     . "', " .
+                "seq = '"           . trim($iter['seq'])       . "', " .
+                "uor = '"           . trim($iter['uor'])       . "', " .
+                "fld_length = '"    . trim($iter['length'])    . "', " .
+                "titlecols = '"     . trim($iter['titlecols']) . "', " .
+                "datacols = '"      . trim($iter['datacols'])  . "', " .
+                "data_type= '"      . trim($iter['data_type'])  . "', " .
+                "list_id= '"        . trim($iter['list_id'])  . "', " .
+                "default_value = '" . trim($iter['default'])   . "', " .
+                "description = '"   . trim($iter['desc'])      . "' " .
+                "WHERE form_id = '$layout_id' AND field_id = '$field_id'");
+        }
     }
-  }
 }
 
 else if ($_POST['formaction']=="addfield" && $layout_id) {
@@ -216,11 +216,16 @@ function writeFieldLine($linedata) {
   
     echo "  <td align='left' class='optcell'>";
     echo "<input type='text' name='fld[$fld_line_no][id]' value='" .
-         htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' size='10' class='optin' disabled=disabled/>";
+         htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' size='20' maxlength='63' class='optin noselect' />";
+    /*
+    echo "<input type='hidden' name='fld[$fld_line_no][id]' value='" .
+         htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' />";
+    echo htmlspecialchars($linedata['field_id'], ENT_QUOTES);
+    */
     echo "</td>\n";
   
     echo "  <td align='center' class='optcell'>";
-    echo "<input type='text' name='fld[$fld_line_no][title]' value='" .
+    echo "<input type='text' id='fld[$fld_line_no][title]' name='fld[$fld_line_no][title]' value='" .
          htmlspecialchars($linedata['title'], ENT_QUOTES) . "' size='20' maxlength='63' class='optin' />";
     echo "</td>\n";
 
@@ -550,6 +555,9 @@ $(document).ready(function(){
     $("#newtitle").blur(function() { if ($("#newid").val() == "") $("#newid").val($("#newtitle").val()); });
     
     $(".listid").click(function() { ShowLists(this); });
+
+    // special class that skips the element
+    $(".noselect").focus(function() { $(this).blur(); });
 
     
     // Save the changes made to the form
