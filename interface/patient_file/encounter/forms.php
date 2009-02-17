@@ -9,7 +9,11 @@
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="../../../library/dialog.js"></script>
+
+<!-- supporting javascript code -->
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
+
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
 
 <script language="JavaScript">
 
@@ -35,6 +39,7 @@
 </head>
 
 <body class="body_top">
+<div class="encounter_forms">
 
 <span class="title"><?php xl('This Encounter','e'); ?></span>
 <?php
@@ -80,12 +85,13 @@ if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name
         else continue;
 
         // $form_info = getFormInfoById($iter['id']);
-        echo '<tr style="vertical-align:top; border-bottom:1px solid black;">';
+        echo '<tr style="vertical-align:top; border-bottom:1px solid black; cursor: pointer;" title="Edit form" '.
+             'id="'.$formdir.'~'.$iter['form_id'].'" class="text formrow">';
         $user = getNameFromUsername($iter['user']);
 
         $form_name = ($formdir == 'newpatient') ? "Patient Encounter" : $iter['form_name'];
 
-        echo '<td style="border-top:1px solid black;" class="text"><span style="font-weight:bold;">' .
+        echo '<td style="border-top:1px solid black;"><span style="font-weight:bold;">' .
                 $user['fname'] . " " . $user['lname'] .'</span></td>';
         echo "<td style='vertical-align:top; border-top:1px solid black; text-align:center;' >";
 
@@ -94,7 +100,7 @@ if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name
                 ($GLOBALS['concurrent_layout'] ? "_parent" : "Main") .
                 "' href='$rootdir/patient_file/encounter/view_form.php?" .
                 "formname=" . $formdir . "&id=" . $iter['form_id'] .
-                "' class='text' onclick='top.restoreSession()'>$form_name</a>";
+                "' onclick='top.restoreSession()'>$form_name</a>";
 
         if (acl_check('admin', 'super')) {
             // a link to delete the form from the encounter 
@@ -136,5 +142,31 @@ if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name
 </script>
 <?php } ?>
 
+</div> <!-- end large encounter_forms DIV -->
 </body>
+
+<script language="javascript">
+// jQuery stuff to make the page a little easier to use
+
+$(document).ready(function(){
+    $(".save").click(function() { top.restoreSession(); document.my_form.submit(); });
+    $(".dontsave").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
+
+    $(".formrow").mouseover(function() { $(this).toggleClass("highlight"); });
+    $(".formrow").mouseout(function() { $(this).toggleClass("highlight"); });
+    $(".formrow").click(function() { GotoForm(this); });
+
+    var GotoForm = function(obj) {
+        var parts = $(obj).attr("id").split("~");
+        top.restoreSession();
+        <?php if ($GLOBALS['concurrent_layout']): ?>
+        parent.location.href = "<?php echo $rootdir; ?>/patient_file/encounter/view_form.php?formname="+parts[0]+"&id="+parts[1];
+        <?php else: ?>
+        top.Main.location.href = "<?php echo $rootdir; ?>/patient_file/encounter/view_form.php?formname="+parts[0]+"&id="+parts[1];
+        <?php endif; ?>
+    }
+});
+
+</script>
+
 </html>
