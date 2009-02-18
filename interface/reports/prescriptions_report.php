@@ -155,7 +155,7 @@
     id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
     title='<?php xl('Click here to choose a date','e'); ?>'>
    &nbsp;<?php xl('Patient ID','e'); ?>:
-   <input type='text' name='form_patient_id' size='6' maxlength='6' value='<?php echo $form_patient_id ?>'
+   <input type='text' name='form_patient_id' size='6' maxlength='20' value='<?php echo $form_patient_id ?>'
     title='Optional numeric patient ID' />
    &nbsp;<?php xl('Drug','e'); ?>:
    <input type='text' name='form_drug_name' size='10' maxlength='250' value='<?php echo $form_drug_name ?>'
@@ -194,7 +194,8 @@
  if ($_POST['form_refresh']) {
   $where = "r.date_modified >= '$form_from_date' AND " .
    "r.date_modified <= '$form_to_date'";
-  if ($form_patient_id) $where .= " AND r.patient_id = '$form_patient_id'";
+  //if ($form_patient_id) $where .= " AND r.patient_id = '$form_patient_id'";
+  if ($form_patient_id) $where .= " AND p.pubpid = '$form_patient_id'";
   if ($form_drug_name ) $where .= " AND d.name LIKE '$form_drug_name'";
   if ($form_lot_number) $where .= " AND i.lot_number LIKE '$form_lot_number'";
 
@@ -203,6 +204,7 @@
    "d.name, d.ndc_number, d.form, d.size, d.unit, d.reactions, " .
    "s.sale_id, s.sale_date, s.quantity, " .
    "i.manufacturer, i.lot_number, i.expiration, " .
+   "p.pubpid, ".
    "p.fname, p.lname, p.mname, u.facility_id " .
    "FROM prescriptions AS r " .
    "LEFT OUTER JOIN drugs AS d ON d.drug_id = r.drug_id " .
@@ -211,7 +213,8 @@
    "LEFT OUTER JOIN patient_data AS p ON p.pid = r.patient_id " .
    "LEFT OUTER JOIN users AS u ON u.id = r.provider_id " .
    "WHERE $where " .
-   "ORDER BY p.lname, p.fname, r.patient_id, r.id, s.sale_id";
+   //"ORDER BY p.lname, p.fname, r.patient_id, r.id, s.sale_id";
+   "ORDER BY p.lname, p.fname, p.pubpid, r.id, s.sale_id";
 
   // echo "<!-- $query -->\n"; // debugging
   $res = sqlStatement($query);
@@ -229,7 +232,8 @@
      }
    }
    $patient_name    = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
-   $patient_id      = $row['patient_id'];
+   //$patient_id      = $row['patient_id'];
+   $patient_id      = $row['pubpid'];
    $prescription_id = $row['id'];
    $drug_name       = empty($row['name']) ? $row['drug'] : $row['name'];
    $ndc_number      = $row['ndc_number'];
@@ -238,7 +242,8 @@
    $reactions       = $row['reactions'];
    $instructed      = $row['dosage'] . ' ' . $form_array[$row['form']] . ' ' .
                       $interval_array[$row['interval']];
-   if ($row['patient_id'] == $last_patient_id) {
+   //if ($row['patient_id'] == $last_patient_id) {
+   if (strcmp($row['pubpid'], $last_patient_id) == 0) {
     $patient_name = '&nbsp;';
     $patient_id   = '&nbsp;';
     if ($row['id'] == $last_prescription_id) {
@@ -298,7 +303,8 @@
  </tr>
 <?php
    $last_prescription_id = $row['id'];
-   $last_patient_id = $row['patient_id'];
+   //$last_patient_id = $row['patient_id'];
+   $last_patient_id = $row['pubpid'];
   } // end while
  } // end if
 ?>
