@@ -39,7 +39,7 @@
 </head>
 
 <body class="body_top">
-<div class="encounter_forms">
+<div id="encounter_forms">
 
 <span class="title"><?php xl('This Encounter','e'); ?></span>
 <?php
@@ -70,8 +70,8 @@ if (acl_check('admin', 'super')) {
 echo "<br>\n";
 
 if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {
-    echo "<table style='border-collapse:collapse; width:100%;'>";
-    echo "<tr><th>User</th><th>Form</th><th></th></tr>";
+    echo "<table>";
+    echo "<tr><th>User</th><th>Form</th><th>&nbsp;</th></tr>";
     foreach ($result as $iter) {
         $formdir = $iter['formdir'];
 
@@ -85,15 +85,15 @@ if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name
         else continue;
 
         // $form_info = getFormInfoById($iter['id']);
-        echo '<tr style="vertical-align:top; border-bottom:1px solid black; cursor: pointer;" title="Edit form" '.
-             'id="'.$formdir.'~'.$iter['form_id'].'" class="text formrow">';
+        echo '<tr title="Edit form" '.
+             'id="'.$formdir.'~'.$iter['form_id'].'" class="text onerow">';
         $user = getNameFromUsername($iter['user']);
 
         $form_name = ($formdir == 'newpatient') ? "Patient Encounter" : $iter['form_name'];
 
-        echo '<td style="border-top:1px solid black;"><span style="font-weight:bold;">' .
-                $user['fname'] . " " . $user['lname'] .'</span></td>';
-        echo "<td style='vertical-align:top; border-top:1px solid black; text-align:center;' >";
+        echo '<td class="bold formrow">'.
+                $user['fname'] . " " . $user['lname'] .'</td>';
+        echo "<td class='center formrow'>";
 
         // a link to edit the form
         echo "<a target='".
@@ -115,8 +115,7 @@ if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name
         }
 
         echo "</td>\n" .
-                "<td style='border-top:1px solid black; width: 25px'>&nbsp;</td>\n" .
-                "<td style='border-top:1px solid black; vertical-align:top;'>";
+                "<td class='formrow' style='padding-left: 25px;'>";
 
         // Use the form's report.php for display.
         //
@@ -152,9 +151,9 @@ $(document).ready(function(){
     $(".save").click(function() { top.restoreSession(); document.my_form.submit(); });
     $(".dontsave").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
 
-    $(".formrow").mouseover(function() { $(this).toggleClass("highlight"); });
-    $(".formrow").mouseout(function() { $(this).toggleClass("highlight"); });
-    $(".formrow").click(function() { GotoForm(this); });
+    $(".onerow").mouseover(function() { $(this).toggleClass("highlight"); });
+    $(".onerow").mouseout(function() { $(this).toggleClass("highlight"); });
+    $(".onerow").click(function() { GotoForm(this); });
 
     var GotoForm = function(obj) {
         var parts = $(obj).attr("id").split("~");

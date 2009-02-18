@@ -177,6 +177,12 @@ a:hover { color: #A28268; text-decoration: underline; }
     color: #004E63;
 }
 
+/* a generic class for highlighting */
+.highlight * {
+    background-color: #336699;
+    color: white;
+}    
+
 
 /*=============================================================
  * Here we have taken variables from globals.php and turned them into CSS classes 
@@ -431,8 +437,6 @@ a:hover { color: #A28268; text-decoration: underline; }
 } 
 
 #immunization_list .highlight {
-    background-color: #336699;
-    color: white;
     cursor: pointer;
 }    
 
@@ -551,11 +555,6 @@ a:hover { color: #A28268; text-decoration: underline; }
 #pnotes .billing {
     background-color: #dfd;  
 }
-
-#pnotes .highlight {
-    background-color: #fff;
-}
-
 #pnotes table {
     border-collapse:collapse;
 }
@@ -590,10 +589,12 @@ a:hover { color: #A28268; text-decoration: underline; }
 }
 #patient_pastenc .billing_note_text_highlight {
     background-color:#f7f5d1;
+    color: #000;
 }
 #patient_pastenc table {
     border-collapse: collapse;
     width:100%;
+    background-color: #fff;
 }
 #patient_pastenc tr {
     cursor: pointer;
@@ -601,9 +602,12 @@ a:hover { color: #A28268; text-decoration: underline; }
 #patient_pastenc td {
     border-top: 1px solid black;
     vertical-align: top;
+    padding: 5px;
 }
 #patient_pastenc th {
     text-align: left;
+    background-color: #ccc;
+    padding: 5px;
 }
 #patient_pastenc #tooltipdiv {
     position:absolute;
@@ -614,9 +618,6 @@ a:hover { color: #A28268; text-decoration: underline; }
     visibility:hidden;
     z-index:1000;
     font-size:9pt;
-}
-#patient_pastenc .highlight {
-    background-color: #fff;
 }
 #patient_pastenc .tooltip {
     position:absolute;
@@ -818,3 +819,36 @@ a:hover { color: #A28268; text-decoration: underline; }
     padding: 10px;
     border-top: 1px solid gray;
 }
+
+
+/*=============================================================
+ * Patient - Encounter Forms
+ * seen when viewing an existing encounter (forms.php)
+ *============================================================*/
+#encounter_forms {
+    width:100%;
+    padding: 5px;
+}
+#encounter_forms table {
+    border-collapse:collapse; 
+    width:100%;
+}
+#encounter_forms th {
+    background-color: #ccc;
+}
+#encounter_forms tr {
+    vertical-align:top; 
+    cursor: pointer;
+    background-color: #fff;
+}
+#encounter_forms .formrow {
+    border-bottom:1px solid black; 
+    vertical-align: top;
+    padding: 5px;
+}
+
+
+/*=============================================================
+ * Patient - Code Search
+ * seen when searching for codes (search_code.php)
+ *============================================================*/
