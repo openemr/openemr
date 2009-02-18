@@ -1,5 +1,6 @@
 [-if is_numeric($event.pid) and $show_patient eq true-]
 [-assign var=temppatient_name value=$event.patient_name|truncate::"$day_td_width":""-]
+[-assign var=temppatient_name value=$event.patient_name-]
 	 <a href="../../patient_file/patient_file.php?set_pid=[-$event.pid-]&pid=[-$event.pid-]" target="_top">[-$temppatient_name"-]</a> 
 		<br/>([-$event.patient_dob-])
 [-/if-]
