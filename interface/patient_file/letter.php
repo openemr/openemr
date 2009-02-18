@@ -19,93 +19,109 @@ $patdata = sqlQuery("SELECT " .
 $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Generate button was clicked...
-if ($_POST['form_generate']) {
-  $form_pid      = $_POST['form_pid'];
-  $form_from     = $_POST['form_from'];
-  $form_to       = $_POST['form_to'];
-  $form_date     = $_POST['form_date'];
-  $form_template = $_POST['form_template'];
-  $form_format   = $_POST['form_format'];
-  $form_body     = $_POST['form_body'];
+if ($_POST['formaction']=="generate") {
+    // documentation for ezpdf is here --> http://www.ros.co.nz/pdf/
+    require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
+    $pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);
+    $pdf->ezSetMargins($GLOBALS['oer_config']['prescriptions']['top']
+                        ,$GLOBALS['oer_config']['prescriptions']['bottom']
+                        ,$GLOBALS['oer_config']['prescriptions']['left']
+                        ,$GLOBALS['oer_config']['prescriptions']['right']
+                        );
+    $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
+    if(!empty($this->pconfig['logo'])) {
+        $pdf->ezImage($this->pconfig['logo'],"","","none","left");
+    }
 
-  // Set variables that depend on the output format.
-  $lang = 'PostScript';
-  $mimetype = 'application/postscript';
-  $postprocess = '';
-  if ($form_format == 'pdf') {
-    $mimetype = 'application/pdf';
-    $postprocess = ' | ps2pdf - -';
-  }
-  /****
-  else if ($form_format == 'html') {
-    $lang = 'html';
-    $mimetype = 'text/html';
-  }
-  else if ($form_format == 'rtf') {
-    $lang = 'rtf';
-    $mimetype = 'application/rtf';
-  }
-  ****/
+    $form_pid      = $_POST['form_pid'];
+    $form_from     = $_POST['form_from'];
+    $form_to       = $_POST['form_to'];
+    $form_date     = $_POST['form_date'];
+    $form_template = $_POST['form_template'];
+    $form_format   = $_POST['form_format'];
+    $form_body     = $_POST['form_body'];
+  
+    $frow = sqlQuery("SELECT * FROM users WHERE id = '$form_from'");
+    $trow = sqlQuery("SELECT * FROM users WHERE id = '$form_to'");
+  
+    $datestr = date('j F Y', strtotime($form_date));
+    $from_title = $frow['title'] ? $frow['title'] . ' ' : '';
+    $to_title   = $trow['title'] ? $trow['title'] . ' ' : '';
+  
+    $cpstring = $_POST['form_body'];
 
-  $frow = sqlQuery("SELECT * FROM users WHERE id = '$form_from'");
-  $trow = sqlQuery("SELECT * FROM users WHERE id = '$form_to'");
+    //$fh = fopen("$template_dir/$form_template", 'r');
+    //while (!feof($fh)) $cpstring .= fread($fh, 8192);
+    //fclose($fh);
 
-  ob_start();
+    $cpstring = str_replace('{DATE}'            , $datestr, $cpstring);
+    $cpstring = str_replace('{FROM_TITLE}'      , $from_title, $cpstring);
+    $cpstring = str_replace('{FROM_FNAME}'      , $frow['fname'], $cpstring);
+    $cpstring = str_replace('{FROM_LNAME}'      , $frow['lname'], $cpstring);
+    $cpstring = str_replace('{FROM_MNAME}'      , $frow['mname'], $cpstring);
+    $cpstring = str_replace('{FROM_STREET}'     , $frow['street'], $cpstring);
+    $cpstring = str_replace('{FROM_CITY}'       , $frow['city'], $cpstring);
+    $cpstring = str_replace('{FROM_STATE}'      , $frow['state'], $cpstring);
+    $cpstring = str_replace('{FROM_POSTAL}'     , $frow['zip'], $cpstring);
+    $cpstring = str_replace('{FROM_VALEDICTORY}', $frow['valedictory'], $cpstring);
+    $cpstring = str_replace('{FROM_PHONECELL}'  , $frow['phonecell'], $cpstring);
+    $cpstring = str_replace('{TO_TITLE}'        , $to_title, $cpstring);
+    $cpstring = str_replace('{TO_FNAME}'        , $trow['fname'], $cpstring);
+    $cpstring = str_replace('{TO_LNAME}'        , $trow['lname'], $cpstring);
+    $cpstring = str_replace('{TO_MNAME}'        , $trow['mname'], $cpstring);
+    $cpstring = str_replace('{TO_STREET}'       , $trow['street'], $cpstring);
+    $cpstring = str_replace('{TO_CITY}'         , $trow['city'], $cpstring);
+    $cpstring = str_replace('{TO_STATE}'        , $trow['state'], $cpstring);
+    $cpstring = str_replace('{TO_POSTAL}'       , $trow['zip'], $cpstring);
+    $cpstring = str_replace('{TO_VALEDICTORY}'  , $trow['valedictory'], $cpstring);
+    $cpstring = str_replace('{TO_FAX}'          , $trow['fax'], $cpstring);
+    $cpstring = str_replace('{TO_ORGANIZATION}' , $trow['organization'], $cpstring);
+    $cpstring = str_replace('{PT_FNAME}'        , $patdata['fname'], $cpstring);
+    $cpstring = str_replace('{PT_LNAME}'        , $patdata['lname'], $cpstring);
+    $cpstring = str_replace('{PT_MNAME}'        , $patdata['mname'], $cpstring);
+    $cpstring = str_replace('{PT_DOB}'          , $patdata['DOB'], $cpstring);
+    //$cpstring = str_replace('{MESSAGE}'         , $form_body, $cpstring);
+    
+    $pdf->ezText($cpstring, 12);
+  
+    $pdf->ezStream();
+    exit;
 
-  $datestr = date('j F Y', strtotime($form_date));
-  $from_title = $frow['title'] ? $frow['title'] . ' ' : '';
-  $to_title   = $trow['title'] ? $trow['title'] . ' ' : '';
+}
+else if ($_POST['formaction'] == "loadtemplate" && $_POST['form_template'] != "") {
+    $bodytext = "";
+    $fh = fopen("$template_dir/".$_POST['form_template'], 'r');
+    while (!feof($fh)) $bodytext.= fread($fh, 8192);
+    fclose($fh);
+}
+else if ($_POST['formaction'] == "newtemplate" && $_POST['newtemplatename'] != "") {
+    // attempt to save the template
+    $fh = fopen("$template_dir/".$_POST['newtemplatename'], 'w');
+    if (! fwrite($fh, $_POST['form_body'])) {
+        echo "Error while writing to file ".$template_dir."/".$_POST['newtemplatename'];
+        die;
+    }
+    fclose($fh);
 
-  // Create the temporary data file and process it with enscript.
-  $tmpfn = tempnam("/tmp", "oemr_letter");
-  $tmpfh = fopen($tmpfn, "w");
-  $cpstring = '';
-  $fh = fopen("$template_dir/$form_template", 'r');
-  while (!feof($fh)) $cpstring .= fread($fh, 8192);
-  fclose($fh);
-  $cpstring = str_replace('{DATE}'            , $datestr, $cpstring);
-  $cpstring = str_replace('{FROM_TITLE}'      , $from_title, $cpstring);
-  $cpstring = str_replace('{FROM_FNAME}'      , $frow['fname'], $cpstring);
-  $cpstring = str_replace('{FROM_LNAME}'      , $frow['lname'], $cpstring);
-  $cpstring = str_replace('{FROM_MNAME}'      , $frow['mname'], $cpstring);
-  $cpstring = str_replace('{FROM_STREET}'     , $frow['street'], $cpstring);
-  $cpstring = str_replace('{FROM_CITY}'       , $frow['city'], $cpstring);
-  $cpstring = str_replace('{FROM_STATE}'      , $frow['state'], $cpstring);
-  $cpstring = str_replace('{FROM_POSTAL}'     , $frow['zip'], $cpstring);
-  $cpstring = str_replace('{FROM_VALEDICTORY}', $frow['valedictory'], $cpstring);
-  $cpstring = str_replace('{FROM_PHONECELL}'  , $frow['phonecell'], $cpstring);
-  $cpstring = str_replace('{TO_TITLE}'        , $to_title, $cpstring);
-  $cpstring = str_replace('{TO_FNAME}'        , $trow['fname'], $cpstring);
-  $cpstring = str_replace('{TO_LNAME}'        , $trow['lname'], $cpstring);
-  $cpstring = str_replace('{TO_MNAME}'        , $trow['mname'], $cpstring);
-  $cpstring = str_replace('{TO_STREET}'       , $trow['street'], $cpstring);
-  $cpstring = str_replace('{TO_CITY}'         , $trow['city'], $cpstring);
-  $cpstring = str_replace('{TO_STATE}'        , $trow['state'], $cpstring);
-  $cpstring = str_replace('{TO_POSTAL}'       , $trow['zip'], $cpstring);
-  $cpstring = str_replace('{TO_VALEDICTORY}'  , $trow['valedictory'], $cpstring);
-  $cpstring = str_replace('{TO_FAX}'          , $trow['fax'], $cpstring);
-  $cpstring = str_replace('{TO_ORGANIZATION}' , $trow['organization'], $cpstring);
-  $cpstring = str_replace('{PT_FNAME}'        , $patdata['fname'], $cpstring);
-  $cpstring = str_replace('{PT_LNAME}'        , $patdata['lname'], $cpstring);
-  $cpstring = str_replace('{PT_MNAME}'        , $patdata['mname'], $cpstring);
-  $cpstring = str_replace('{PT_DOB}'          , $patdata['DOB'], $cpstring);
-  $cpstring = str_replace('{MESSAGE}'         , $form_body, $cpstring);
-  fwrite($tmpfh, $cpstring);
-  fclose($tmpfh);
-  $tmp0 = passthru("cd $template_dir; enscript -M A4 -B -e^ " .
-   "--margins=54:54:54:18 --word-wrap -w $lang -o - '$tmpfn'$postprocess");
-  unlink($tmpfn);
+    // read the saved file back
+    $_POST['form_template'] = $_POST['newtemplatename'];
+    $fh = fopen("$template_dir/".$_POST['form_template'], 'r');
+    while (!feof($fh)) $bodytext.= fread($fh, 8192);
+    fclose($fh);
+}
+else if ($_POST['formaction'] == "savetemplate" && $_POST['form_template'] != "") {
+    // attempt to save the template
+    $fh = fopen("$template_dir/".$_POST['form_template'], 'w');
+    if (! fwrite($fh, $_POST['form_body'])) {
+        echo "Error while writing to file ".$template_dir."/".$_POST['form_template'];
+        die;
+    }
+    fclose($fh);
 
-  header("Pragma: public");
-  header("Expires: 0");
-  header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-  header("Content-Type: $mimetype");
-  header("Content-Length: " . ob_get_length());
-  header("Content-Disposition: inline; filename=letter.$form_format");
-
-  ob_end_flush();
-
-  exit;
+    // read the saved file back
+    $fh = fopen("$template_dir/".$_POST['form_template'], 'r');
+    while (!feof($fh)) $bodytext.= fread($fh, 8192);
+    fclose($fh);
 }
 
 // This is the case where we display the form for data entry.
@@ -141,41 +157,98 @@ while ($srow = sqlFetchArray($sres)) {
     $srow['specialty'] . "</option>\n";
 }
 ?>
+
 <html>
 <head>
 <?php html_header_show();?>
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <title><?php xl('Letter Generator','e'); ?></title>
 
-<style>
-</style>
-
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 
-<script type="text/javascript" src="../../library/topdialog.js"></script>
-<script type="text/javascript" src="../../library/dialog.js"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<!-- supporting javascript code -->
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
+
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/topdialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
 
 <script language="JavaScript">
 <?php echo $ulist; ?>
 
- // React to selection of a specialty.  This rebuilds the "to" users list
- // with users having that specialty, or all users if "All" is selected.
- function newspecialty() {
-  var f = document.forms[0];
-  var s = f.form_specialty.value;
-  var theopts = f.form_to.options;
-  theopts.length = 0;
-  var j = 0;
-  for (var i = 0; i < ulist.length; ++i) {
-   tmp = ulist[i].split("|");
-   if (s != 'All' && s != tmp[2]) continue;
-   theopts[j++] = new Option(tmp[0], tmp[1], false, false);
-  }
- }
+// React to selection of a specialty.  This rebuilds the "to" users list
+// with users having that specialty, or all users if "All" is selected.
+function newspecialty() {
+    var f = document.forms[0];
+    var s = f.form_specialty.value;
+    var theopts = f.form_to.options;
+    theopts.length = 0;
+    var j = 0;
+    for (var i = 0; i < ulist.length; ++i) {
+        tmp = ulist[i].split("|");
+        if (s != 'All' && s != tmp[2]) continue;
+        theopts[j++] = new Option(tmp[0], tmp[1], false, false);
+    }
+}
+
+
+// insert text into a textarea where the cursor is
+function insertAtCaret(areaId,text) {
+    var txtarea = document.getElementById(areaId);
+    var scrollPos = txtarea.scrollTop;
+    var strPos = 0;
+    var br = ((txtarea.selectionStart || txtarea.selectionStart == '0') ? 
+            "ff" : (document.selection ? "ie" : false ) );
+    if (br == "ie") { 
+        txtarea.focus();
+        var range = document.selection.createRange();
+        range.moveStart ('character', -txtarea.value.length);
+        strPos = range.text.length;
+    }
+    else if (br == "ff") strPos = txtarea.selectionStart;
+                                                                            
+    var front = (txtarea.value).substring(0,strPos);  
+    var back = (txtarea.value).substring(strPos,txtarea.value.length); 
+    txtarea.value=front+text+back;
+    strPos = strPos + text.length;
+    if (br == "ie") { 
+        txtarea.focus();
+        var range = document.selection.createRange();
+        range.moveStart ('character', -txtarea.value.length);
+        range.moveStart ('character', strPos);
+        range.moveEnd ('character', 0);
+        range.select();
+    }
+    else if (br == "ff") {
+        txtarea.selectionStart = strPos;
+        txtarea.selectionEnd = strPos;
+        txtarea.focus();
+    }
+    txtarea.scrollTop = scrollPos;
+}
+
+function insertAtCursor(myField, myValue) {
+    //IE support
+    if (document.selection) {
+        myField.focus();
+        sel = document.selection.createRange();
+        sel.text = myValue;
+    }
+    //MOZILLA/NETSCAPE support
+    else if (myField.selectionStart || myField.selectionStart == '0') {
+        var startPos = myField.selectionStart;
+        var endPos = myField.selectionEnd;
+        myField.value = myField.value.substring(0, startPos)
+                        + myValue
+                        + myField.value.substring(endPos, myField.value.length);
+    } else {
+        myField.value += myValue;
+    }
+}
+
 
 </script>
 
@@ -184,8 +257,8 @@ while ($srow = sqlFetchArray($sres)) {
 <body class="body_top" onunload='imclosing()'>
 
 <!-- <form method='post' action='letter.php' onsubmit='return top.restoreSession()'> -->
-<form method='post' action='letter.php'>
-
+<form method='post' action='letter.php' id="theform" name="theform">
+<input type="hidden" name="formaction" id="formaction" value="">
 <input type='hidden' name='form_pid' value='<?php echo $pid ?>' />
 
 <center>
@@ -246,15 +319,20 @@ while ($srow = sqlFetchArray($sres)) {
   </td>
 
   <td>
-   <select name='form_template'>
+   <select name="form_template" id="form_template">
+   <option value="">(none)</option>
 <?php
 $tpldir = "$webserver_root/custom/letter_templates";
 $dh = opendir($tpldir);
 if (! $dh) die("Cannot read $tpldir");
 while (false !== ($tfname = readdir($dh))) {
-  if (preg_match('/^(.*)\.t[a-z]*$/', $tfname, $matches)) {
-    echo " <option value='$tfname'>" . $matches[1] . "</option>\n";
-  }
+    // skip dot-files
+    if (preg_match("/^\./", $tfname)) { continue; }
+    echo "<option value=".$tfname;
+    if ($tfname == $_POST['form_template']) echo " SELECTED";
+    echo ">";
+    echo $tfname;
+    echo "</option>";
 }
 closedir($dh);
 ?>
@@ -292,21 +370,139 @@ closedir($dh);
 
  <tr>
   <td colspan='4'>
-   <textarea name='form_body' rows='20' cols='30' style='width:100%'
-    title='Enter body of letter here' /></textarea>
+    <div id="letter_toolbar" class='text' style="width: 100%; background-color: #ddd; padding: 5px; margin: 0px;">
+    Insert special field:
+    <select id="letter_field">
+    <option value="">- Choose -</option>
+    <option value="{DATE}">Today's Date</option>
+    <option value="{FROM_TITLE}">FROM - Title</option>
+    <option value="{FROM_FNAME}">FROM - First name</option>
+    <option value="{FROM_MNAME}">FROM - Middle name</option>
+    <option value="{FROM_LNAME}">FROM - Last name</option>
+    <option value="{FROM_STREET}">FROM - Street</option>
+    <option value="{FROM_CITY}">FROM - City</option>
+    <option value="{FROM_STATE}">FROM - State</option>
+    <option value="{FROM_POSTAL}">FROM - Postal Code</option>
+    <option value="{FROM_VALEDICTORY}">FROM - Valedictory</option>
+    <option value="{FROM_PHONECELL}">FROM - Cell Phone</option>
+    <option value="{TO_TITLE}">TO - Title</option>
+    <option value="{TO_FNAME}">TO - First name</option>
+    <option value="{TO_MNAME}">TO - Middle name</option>
+    <option value="{TO_LNAME}">TO - Last name</option>
+    <option value="{TO_STREET}">TO - Street</option>
+    <option value="{TO_CITY}">TO - City</option>
+    <option value="{TO_STATE}">TO - State</option>
+    <option value="{TO_POSTAL}">TO - Postal Code</option>
+    <option value="{TO_VALEDICTORY}">TO - Valedictory</option>
+    <option value="{TO_ORGANIZATION}">TO - Organization</option>
+    <option value="{TO_FAX}">TO - Fax number</option>
+    <option value="{PT_FNAME}">PATIENT - First name</option>
+    <option value="{PT_MNAME}">PATIENT - Middle name</option>
+    <option value="{PT_LNAME}">PATIENT - Last name</option>
+    <option value="{PT_DOB}">PATIENT - Date of birth</option>
+    </select>
+    </div>
+   <textarea name='form_body' id="form_body" rows='20' cols='30' style='width:100%'
+    title='Enter body of letter here' /><?php echo $bodytext; ?></textarea>
   </td>
  </tr>
 
 </table>
 
-<input type='submit' name='form_generate' value='Generate'>
+<input type='button' class="addtemplate" value='Save as New '>
+<input type='button' name='savetemplate' id="savetemplate" value='Save Changes'>
+<input type='button' name='form_generate' id="form_generate" value='Generate Letter'>
 
 </center>
+
+<!-- template DIV that appears when user chooses to add a new letter template -->
+<div id="newtemplatedetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
+Template Name: <input type="textbox" size="20" maxlength="30" name="newtemplatename" id="newtemplatename">
+<br>
+<input type="button" class="savenewtemplate" value="Save new template">
+<input type="button" class="cancelnewtemplate" value="Cancel">
+</div>
+
 </form>
+</body>
 
 <script language='JavaScript'>
  Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_date"});
+
+// jQuery stuff to make the page a little easier to use
+
+$(document).ready(function(){
+    $("#form_generate").click(function() { $("#formaction").val("generate"); $("#theform").submit(); });
+    $("#form_template").change(function() { $("#formaction").val("loadtemplate"); $("#theform").submit(); });
+
+    $("#savetemplate").click(function() { SaveTemplate(this); });
+    
+    $("#letter_field").change(function() { insertAtCursor($("#form_body"), $(this).val()); $(this).attr("selectedIndex", "0"); });
+    
+    $(".addtemplate").click(function() { AddTemplate(this); });
+    $(".savenewtemplate").click(function() { SaveNewTemplate(this); });
+    $(".deletetemplate").click(function() { DeleteTemplate(this); });
+    $(".cancelnewtemplate").click(function() { CancelNewTemplate(this); });
+    
+    // display the 'new group' DIV
+    var AddTemplate = function(btnObj) {
+        // show the field details DIV
+        $('#newtemplatedetail').css('visibility', 'visible');
+        $('#newtemplatedetail').css('display', 'block');
+        $(btnObj).parent().append($("#newtemplatedetail"));
+        $('#newtemplatedetail > #newtemplatename').focus();
+    };
+    
+    // save the new template 
+    var SaveNewTemplate = function(btnObj) {
+        // the template name can only have letters, numbers, spaces and underscores
+        // AND it cannot start with a number
+        if ($("#newtemplatename").val().match(/^\d+/)) {
+            alert("Template names cannot start with numbers.");
+            return false;
+        }
+        var validname = $("#newtemplatename").val().replace(/[^A-za-z0-9]/g, "_"); // match any non-word characters and replace them
+        $("#newtemplatename").val(validname);
+
+        // submit the form to add a new field to a specific group
+        $("#formaction").val("newtemplate");
+        $("#theform").submit();
+    }
+    
+    // actually delete a template file
+/*
+    var DeleteTemplate = function(btnObj) {
+        var parts = $(btnObj).attr("id");
+        var groupname = parts.replace(/^\d+/, "");
+        if (confirm("WARNING - This action cannot be undone.\n Are you sure you wish to delete the entire group named '"+groupname+"'?")) {
+            // submit the form to add a new field to a specific group
+            $("#formaction").val("deletegroup");
+            $("#deletegroupname").val(parts);
+            $("#theform").submit();
+        }
+    };
+*/
+
+    // just hide the new template DIV
+    var CancelNewTemplate = function(btnObj) {
+        // hide the field details DIV
+        $('#newtemplatedetail').css('visibility', 'hidden');
+        $('#newtemplatedetail').css('display', 'none');
+        // reset the new group values to a default
+        $('#newtemplatedetail > #newtemplatename').val("");
+    };
+    
+    
+    // save the template, overwriting the older version
+    var SaveTemplate = function(btnObj) {
+        if (! confirm("You are about to permanently replace the existing template. Are you sure you wish to continue?")) {
+            return false;
+        }
+        $("#formaction").val("savetemplate");
+        $("#theform").submit();
+    }
+});
+
 </script>
 
-</body>
 </html>
