@@ -17,6 +17,7 @@ require_once("Provider.class.php");
 
 class Patient extends ORDataObject{
 	var $id;
+	var $pubpid;
 	var $lname;
 	var $mname;
 	var $fname;
@@ -29,6 +30,7 @@ class Patient extends ORDataObject{
 	function Patient($id = "")	{
 		$this->id = $id;
 		$this->_table = "patient_data";
+		$this->pubpid = "";
 		$this->lname = "";
 		$this->mname = "";
 		$this->fname = "";
@@ -40,8 +42,12 @@ class Patient extends ORDataObject{
 	}
 	function populate() {
 		if (!empty($this->id)) {
-			$res = sqlQuery("SELECT providerID,fname,lname,mname, DATE_FORMAT(DOB,'%m/%d/%Y') as date_of_birth from " . $this->_table ." where pid =". mysql_real_escape_string($this->id));
+			$res = sqlQuery("SELECT providerID,fname,lname,mname ".
+                                        ", DATE_FORMAT(DOB,'%m/%d/%Y') as date_of_birth ".
+                                        ", pubpid ".
+                                        " from " . $this->_table ." where pid =". mysql_real_escape_string($this->id));
 			if (is_array($res)) {
+				$this->pubpid = $res['pubpid'];
 				$this->lname = $res['lname'];
 				$this->mname = $res['mname'];
 				$this->fname = $res['fname'];
@@ -50,24 +56,13 @@ class Patient extends ORDataObject{
 			}
 		}
 	}
-	function get_id() {
-		return $this->id;
-	}
-	function get_lname() {
-		return $this->lname;
-	}
-	function get_name_display() {
-		return $this->fname . " " . $this->lname;
-	}
-	function get_provider_id() {
-		return $this->provider->id;
-	}
-	function get_provider() {
-		return $this->provider;
-	}
-	function get_dob () {
-		return $this->date_of_birth;
-	}
+	function get_id() { return $this->id; }
+	function get_pubpid() { return $this->pubpid; }
+	function get_lname() { return $this->lname; }
+	function get_name_display() { return $this->fname . " " . $this->lname; }
+	function get_provider_id() { return $this->provider->id; }
+	function get_provider() { return $this->provider; }
+	function get_dob () { return $this->date_of_birth; }
 
 } // end of Patient
 ?>
