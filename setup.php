@@ -10,6 +10,10 @@ $upgrade = 0;
 $defhost = 'localhost';
 $state = $_POST["state"];
 
+//If having problems with file and directory permission
+// checking, then can be manually disabled here.
+$checkPermissions = "TRUE";
+
 //Below section is only for variables that require a path.
 // The $manualPath variable can be edited by 3rd party
 // installation scripts to manually set path. (this will
@@ -31,7 +35,7 @@ $gaclSetupScript1 = $manualPath."gacl/setup.php";
 $gaclSetupScript2 = $manualPath."acl_setup.php";
 
 //These are files and dir checked before install for
-// existence and correct permissions.
+// correct permissions.
 $writableFileList = array($conffile, $conffile2, $gaclConfigFile1, $gaclConfigFile2);
 $writableDirList = array($docsDirectory, $billingDirectory, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
 
@@ -571,74 +575,54 @@ echo "<li>Detailed installation instructions can be found in the <a href='INSTAL
 
 Echo "<li>If you are upgrading from a previous version, do NOT use this script.  Please read the 'Upgrading' section found in the <a href='INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual file.</li></ul>";
 
-echo "<p>We will now ensure correct file permissions and directories before starting installation:</p>\n";
-echo "<FONT COLOR='green'>Ensuring following files are world-writable...</FONT><br>\n";
-$errorWritable = 0;
-foreach ($writableFileList as $tempFile) {
-	if (is_writable($tempFile)) {
-	        echo "'".realpath($tempFile)."' file is <FONT COLOR='green'><b>ready</b></FONT>.<br>\n";
-	}
-	else {
-	        echo "<p><FONT COLOR='red'>UNABLE</FONT> to open file '".realpath($tempFile)."' for writing.<br>\n";
-	        echo "(configure file permissions; see below for further instructions)</p>\n";
-	        $errorWritable = 1;
-	}
-}
-if ($errorWritable) {
-	echo "<p><FONT COLOR='red'>You can't proceed until all above files are ready (world-writable).</FONT><br>\n";	
-	echo "In linux, recommend changing file permissions with the 'chmod 666 filename' command.<br>\n";
-	echo "Fix above file permissions and then click the 'Check Again' button to re-check files.<br>\n";
-	echo "<FORM METHOD='POST'><INPUT TYPE='SUBMIT' VALUE='Check Again'></p></FORM><br>\n";
-	break;
-}
-
-echo "<br><FONT COLOR='green'>Ensuring following directories exist...</FONT><br>\n";
-$errorWritable = 0;
-foreach ($writableDirList as $tempDir) {
-	if (file_exists($tempDir)) {
-	        echo "'".realpath($tempDir)."' directory <FONT COLOR='green'><b>exists</b></FONT>.<br>\n";
-	}
-	else {
-		$tempPath = realpath($tempDir);
-		if ($tempPath == "") {
-			//this is a fix specific to microsoft windows
-			$tempPath = realpath('./').DIRECTORY_SEPARATOR.$tempDir;
-			$tempPath = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $tempPath);
+if ($checkPermissions == "TRUE") {
+	echo "<p>We will now ensure correct file and directory permissions before starting installation:</p>\n";
+	echo "<FONT COLOR='green'>Ensuring following files are world-writable...</FONT><br>\n";
+	$errorWritable = 0;
+	foreach ($writableFileList as $tempFile) {
+		if (is_writable($tempFile)) {
+	        	echo "'".realpath($tempFile)."' file is <FONT COLOR='green'><b>ready</b></FONT>.<br>\n";
 		}
-	        echo "<p><FONT COLOR='red'>UNABLE</FONT> to find directory '".$tempPath."'.<br>\n";
-	        echo "(please create directory; see below for further instructions)</p>\n";
-	        $errorWritable = 1;
-        }
-}
-if ($errorWritable) {
-	echo "<p><FONT COLOR='red'>You can't proceed until all above directories exist.</FONT><br>\n";
-	echo "In linux, recommend using the 'mkdir directory_name' command<br>\n";
-	echo "Add above marked directories and then click the 'Check Again' button to re-check for directories.<br>\n";
-	echo "<FORM METHOD='POST'><INPUT TYPE='SUBMIT' VALUE='Check Again'></p></FORM><br>\n";
-	break;
-}	
-
-echo "<br><FONT COLOR='green'>Ensuring following directories have proper permissions...</FONT><br>\n";
-$errorWritable = 0;
-foreach ($writableDirList as $tempDir) {
-	if (is_writable($tempDir)) {
-	        echo "'".realpath($tempDir)."' directory is <FONT COLOR='green'><b>ready</b></FONT>.<br>\n";
+		else {
+	        	echo "<p><FONT COLOR='red'>UNABLE</FONT> to open file '".realpath($tempFile)."' for writing.<br>\n";
+	        	echo "(configure file permissions; see below for further instructions)</p>\n";
+	        	$errorWritable = 1;
+		}
 	}
-	else {
-	        echo "<p><FONT COLOR='red'>UNABLE</FONT> to open directory '".realpath($tempDir)."' for writing by web server.<br>\n";
-	        echo "(configure directory permissions; see below for further instructions)</p>\n";
-	        $errorWritable = 1;
+	if ($errorWritable) {
+		echo "<p><FONT COLOR='red'>You can't proceed until all above files are ready (world-writable).</FONT><br>\n";	
+		echo "In linux, recommend changing file permissions with the 'chmod 666 filename' command.<br>\n";
+		echo "Fix above file permissions and then click the 'Check Again' button to re-check files.<br>\n";
+		echo "<FORM METHOD='POST'><INPUT TYPE='SUBMIT' VALUE='Check Again'></p></FORM><br>\n";
+		break;
 	}
+
+	echo "<br><FONT COLOR='green'>Ensuring following directories have proper permissions...</FONT><br>\n";
+	$errorWritable = 0;
+	foreach ($writableDirList as $tempDir) {
+		if (is_writable($tempDir)) {
+	        	echo "'".realpath($tempDir)."' directory is <FONT COLOR='green'><b>ready</b></FONT>.<br>\n";
+		}
+		else {
+		        echo "<p><FONT COLOR='red'>UNABLE</FONT> to open directory '".realpath($tempDir)."' for writing by web server.<br>\n";
+		       	echo "(configure directory permissions; see below for further instructions)</p>\n";
+	 	   	$errorWritable = 1;
+		}
+	}
+	if ($errorWritable) {
+		echo "<p><FONT COLOR='red'>You can't proceed until all directories are ready.</FONT><br>\n";
+		echo "In linux, recommend changing owners of these directories to the web server. For example, in many linux OS's the web server user is 'apache', 'nobody', or 'www-data'. So if 'apache' were the web server user name, could use the command 'chown -R apache:apache directory_name' command.<br>\n";
+	        echo "Fix above directory permissions and then click the 'Check Again' button to re-check directories.<br>\n";
+	       	echo "<FORM METHOD='POST'><INPUT TYPE='SUBMIT' VALUE='Check Again'></p></FORM><br>\n";
+		break;
+	}
+
+	echo "<br>All required files and directories have been verified. Click to continue installation.<br>\n";	
 }
-if ($errorWritable) {
-	echo "<p><FONT COLOR='red'>You can't proceed until all directories are ready.</FONT><br>\n";
-	echo "In linux, recommend changing owners of these directories to the web server. For example, in many linux OS's the web server user is 'apache', 'nobody', or 'www-data'. So if 'apache' were the web server user name, could use the command 'chown -R apache:apache directory_name' command.<br>\n";
-        echo "Fix above directory permissions and then click the 'Check Again' button to re-check directories.<br>\n";
-       	echo "<FORM METHOD='POST'><INPUT TYPE='SUBMIT' VALUE='Check Again'></p></FORM><br>\n";
-	break;
+else {
+	echo "<br>Click to continue installation.<br>\n";
 }
 
-echo "<br>All required files and directories have been verified. Click to continue installation.<br>\n";	
 echo "<FORM METHOD='POST'><INPUT TYPE='HIDDEN' NAME='state' VALUE='1'><INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>";
 
 
