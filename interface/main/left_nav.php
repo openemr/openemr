@@ -787,6 +787,7 @@ function genPopupsList($style='') {
           <?php genTreeLink('RBot','enc','Current'); ?>
           <?php genTreeLink('RBot','ens','List'); ?>
           <?php genTreeLink('RBot','tra','Transact'); ?>
+          <?php genPopLink('Chart Tracker','../../custom/chart_tracker.php'); ?>
         </ul>
       </li>
       <li><span><?php xl('Medical Record','e') ?></span>
@@ -850,6 +851,9 @@ function genPopupsList($style='') {
           <?php genPopLink('Appointments','appointments_report.php'); ?>
           <?php genPopLink('Encounters','encounters_report.php'); ?>
           <?php genPopLink('Appt-Enc','appt_encounter_report.php'); ?>
+          <?php genPopLink('Superbill','custom_report_range.php'); ?>
+          <?php genPopLink('Chart Activity','chart_location_activity.php'); ?>
+          <?php genPopLink('Charts Out','charts_checked_out.php'); ?>
         </ul>
       </li>
 <?php if (acl_check('acct', 'rep_a')) { ?>
