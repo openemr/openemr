@@ -22,6 +22,7 @@ Documentation - Contains useful documentation
 interface     - Contains User Interface scripts and configuration
 library       - Contains scripts commonly included in other scripts
 sql           - Contains initial database images
+gacl          - Contains embedded php-GACL (access controls)
 
 II. Unpacking
 
@@ -66,20 +67,21 @@ within the openemr web folder.  If you installed OpenEMR in the root web
 directory, the URL would read: http://localhost/openemr/setup.php.
 The setup script will step you through the configuration of the OpenEMR.
 
-The first screen of the setup script will ensure that several files/directories
-exist and ensure that the webserver user (often "nobody", "apache", or
-"www-data") has write privileges on these files/directories.  The files
-include openemr/interface/globals.php, openemr/library/sqlconf.php,
-openemr/gacl/gacl.ini.php and openemr/gacl/gacl.class.php.  In linux, these
-can be set by "chmod a+w filename" command to grant global write permissions
-to the file, but be sure to set them back to something more secure (such as
-chmod 644) before actively using OpenEMR.  The directories include
-openemr/gacl/admin/templates_c, openemr/edi, openemr/documents,
+The first screen of the setup script will ensure that the webserver user
+(in linux, often is "apache", "www-data", or "nobody") has write privileges on
+certain files and directories.  The files include openemr/interface/globals.php,
+openemr/library/sqlconf.php, openemr/gacl/gacl.ini.php and
+openemr/gacl/gacl.class.php.  In linux, these can be set by "chmod a+w filename"
+command to grant global write permissions to the file, but be sure to set
+them back to something more secure (such as chmod 644) after completing
+installation of OpenEMR.  The directories include openemr/gacl/admin/templates_c,
+openemr/edi, openemr/documents, 
 openemr/interface/main/calendar/modules/PostCalendar/pntemplates/compiled and
-openemr/interface/main/calendar/modules/PostCalendar/pntemplates/cache.  The command
-"chown apache:apache -R directory_name" will grant global write permissions
+openemr/interface/main/calendar/modules/PostCalendar/pntemplates/cache.  In
+linux, if the webserver user name is "apache", then the command
+"chown -R apache:apache directory_name" will grant global write permissions
 to the directories, and we recommend making these changes permanent.
-Should it display errors related to file/directory writing priviledges you 
+Should it display errors related to file or directory writing priviledges you 
 may click the 'Check Again' button to try again (after fixing permissions).
 
 In step 1, you need to tell setup whether it needs to create the database on
