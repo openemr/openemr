@@ -81,3 +81,11 @@ CREATE TABLE ar_activity (
 ALTER TABLE users
   ADD ssi_relayhealth varchar(64) NULL;
 #EndIf
+
+update layout_options set group_name = concat('1', substring(group_name, 2)) where group_name like 'a%';
+update layout_options set group_name = concat('2', substring(group_name, 2)) where group_name like 'b%';
+update layout_options set group_name = concat('3', substring(group_name, 2)) where group_name like 'c%';
+update layout_options set group_name = concat('4', substring(group_name, 2)) where group_name like 'd%';
+update layout_options set group_name = concat('5', substring(group_name, 2)) where group_name like 'e%';
+update layout_options set group_name = concat('6', substring(group_name, 2)) where group_name like 'f%';
+update layout_options set group_name = concat('7', substring(group_name, 2)) where group_name like 'g%';
