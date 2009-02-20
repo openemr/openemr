@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2008 Rod Roark <rod@sunsetsystems.com>
+# Copyright (C) 2008-2009 Rod Roark <rod@sunsetsystems.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -183,10 +183,13 @@ if [ -f ../sql-ledger.sql ]; then
   SLDBUSER=`grep '^\$sl_dbuser' interface/globals.php | cut -d \' -f 2`
   SLDBPASS=`grep '^\$sl_dbpass' interface/globals.php | cut -d \' -f 2`
 fi
+#
 GADIR=''
+GACONFIGDIR=''
 GADBNAME=''
 if [ -f ../phpgacl.tar.gz ]; then
   GADIR=`grep '^\s*\$phpgacl_location' library/acl.inc | cut -d \" -f 2`
+  GACONFIGDIR="$GADIR"
   mkdir ../phpgacl
   cd    ../phpgacl
   dlg_info "Extracting $BAKDIR/phpgacl.tar.gz ..."
@@ -200,7 +203,20 @@ if [ -f ../phpgacl.tar.gz ]; then
     GADBUSER=`grep '^\s*var \$_db_user'     gacl.class.php | cut -d \' -f 2`
     GADBPASS=`grep '^\s*var \$_db_password' gacl.class.php | cut -d \' -f 2`
   fi
+elif [ -e gacl ]; then
+  grep '^\s*\$phpgacl_location' library/acl.inc > /dev/null
+  if [ $? -eq 0 ]; then
+    GACONFIGDIR="$OEDIR/gacl"
+    if [ -f ../phpgacl.sql.gz ]; then
+      cd gacl
+      GADBNAME=`grep '^\s*var \$_db_name'     gacl.class.php | cut -d \' -f 2`
+      GADBUSER=`grep '^\s*var \$_db_user'     gacl.class.php | cut -d \' -f 2`
+      GADBPASS=`grep '^\s*var \$_db_password' gacl.class.php | cut -d \' -f 2`
+      cd ..
+    fi
+  fi
 fi
+#
 SLDIR=''
 if [ -f ../sql-ledger.tar.gz ]; then
   SLDIR=`dirname $OEDIR`/sql-ledger
@@ -213,17 +229,13 @@ dlg_blank_line
 
 if [ $CHANGES -gt 0 ]; then
   dlg_msg "Current values are shown in [brackets]. Just hit Enter to leave them as-is."
-  OLDOEDBNAME="$OEDBNAME"
   dlg_input "OpenEMR database name [$OEDBNAME]? "
   if [ ! -z "$RESULT" ]; then OEDBNAME="$RESULT"; fi
-  OLDOEDBUSER="$OEDBUSER"
   dlg_input "OpenEMR database user [$OEDBUSER]? "
   if [ ! -z "$RESULT" ]; then OEDBUSER="$RESULT"; fi
-  OLDOEDBPASS="$OEDBPASS"
   dlg_input "OpenEMR database password [$OEDBPASS]? "
   if [ ! -z "$RESULT" ]; then OEDBPASS="$RESULT"; fi
   if [ ! -z "$GADBNAME" ]; then
-    OLDGADBNAME="$GADBNAME"
     dlg_input "phpGACL database name [$GADBNAME]? "
     if [ ! -z "$RESULT" ]; then GADBNAME="$RESULT"; fi
     OLDGADBUSER="$GADBUSER"
@@ -238,7 +250,6 @@ if [ $CHANGES -gt 0 ]; then
         LOOKING=0
       fi
     done
-    OLDGADBPASS="$GADBPASS"
     dlg_input "phpGACL database password [$GADBPASS]? "
     if [ ! -z "$RESULT" ]; then GADBPASS="$RESULT"; fi
   fi
@@ -246,10 +257,8 @@ if [ $CHANGES -gt 0 ]; then
     OLDSLDBNAME="$SLDBNAME"
     dlg_input "SQL-Ledger database name [$SLDBNAME]? "
     if [ ! -z "$RESULT" ]; then SLDBNAME="$RESULT"; fi
-    OLDSLDBUSER="$SLDBUSER"
     dlg_input "SQL-Ledger database user [$SLDBUSER]? "
     if [ ! -z "$RESULT" ]; then SLDBUSER="$RESULT"; fi
-    OLDSLDBPASS="$SLDBPASS"
     dlg_input "SQL-Ledger database password [$SLDBPASS]? "
     if [ ! -z "$RESULT" ]; then SLDBPASS="$RESULT"; fi
   fi
@@ -291,6 +300,15 @@ if [ $CHANGES -gt 0 ]; then
   #
 fi
 
+# Patch up $GACONFIGDIR in case it was changed.
+if [ -z "$GADIR" ]; then
+  if [ ! -z "$GACONFIGDIR" ]; then
+    GACONFIGDIR="$OEDIR/gacl"
+  fi
+else
+  GACONFIGDIR="$GADIR"
+fi
+
 # If phpgacl has its own database, make sure the database user is not the
 # same as for openemr.  This is to prevent screwups caused by persistent
 # database connections in PHP.
@@ -314,14 +332,16 @@ if [ -e "$OEDIR" -a ! -e "$OEDIR/interface/globals.php" ]; then
   exit 1
 fi
 
-TRASH=`expr "$GADIR" : "[/]"`
-if [ $TRASH -ne 1 ]; then
-  dlg_msg "Error: The phpGACL directory path '$GADIR' does not start with '/'."
-  exit 1
-fi
-if [ -e "$GADIR" -a ! -e "$GADIR/gacl.class.php" ]; then
-  dlg_msg "Error: $GADIR already exists but does not look like a phpGACL directory." "If you are really sure you want to replace it, please remove it first."
-  exit 1
+if [ ! -z "$GADIR" ]; then
+  TRASH=`expr "$GADIR" : "[/]"`
+  if [ $TRASH -ne 1 ]; then
+    dlg_msg "Error: The phpGACL directory path '$GADIR' does not start with '/'."
+    exit 1
+  fi
+  if [ -e "$GADIR" -a ! -e "$GADIR/gacl.class.php" ]; then
+    dlg_msg "Error: $GADIR already exists but does not look like a phpGACL directory." "If you are really sure you want to replace it, please remove it first."
+    exit 1
+  fi
 fi
 
 if [ ! -z "$SLDIR" ]; then
@@ -524,30 +544,29 @@ if [ ! -z "$GADIR" ]; then
     cd $OEDIR/library
     mv -f acl.inc acl.inc.old
     sed "s^$OLDGADIR^$GADIR^" acl.inc.old > acl.inc
-    #
-    if [ -z "$GADBNAME" ]; then
-      GADBNAME="$OEDBNAME"
-      GADBUSER="$OEDBUSER"
-      GADBPASS="$OEDBPASS"
-      OLDGADBNAME="$OLDOEDBNAME"
-      OLDGADBUSER="$OLDOEDBUSER"
-      OLDGADBPASS="$OLDOEDBPASS"
-    fi
-    #
-    dlg_info "Modifying $GADIR/gacl.class.php ..."
-    cd $GADIR
-    mv -f gacl.class.php gacl.class.php.old
-    sed "s^db_name *= *'.*'^db_name = '$GADBNAME'^" gacl.class.php.old | \
-    sed "s^db_user *= *'.*'^db_user = '$GADBUSER'^"                    | \
-    sed "s^db_password *= *'.*'^db_password = '$GADBPASS'^" > gacl.class.php
-    #
-    dlg_info "Modifying $GADIR/gacl.ini.php ..."
-    cd $GADIR
-    mv -f gacl.ini.php gacl.ini.php.old
-    sed "s^db_name[ \t]*= *\".*\"^db_name\t\t\t= \"$GADBNAME\"^" gacl.ini.php.old | \
-    sed "s^db_user[ \t]*= *\".*\"^db_user\t\t\t= \"$GADBUSER\"^"                  | \
-    sed "s^db_password[ \t]*= *\".*\"^db_password\t\t= \"$GADBPASS\"^" > gacl.ini.php
   fi
+fi
+
+if [ ! -z "$GACONFIGDIR" -a $CHANGES -gt 0 ]; then
+  if [ -z "$GADBNAME" ]; then
+    GADBNAME="$OEDBNAME"
+    GADBUSER="$OEDBUSER"
+    GADBPASS="$OEDBPASS"
+  fi
+  #
+  dlg_info "Modifying $GACONFIGDIR/gacl.class.php ..."
+  cd $GACONFIGDIR
+  mv -f gacl.class.php gacl.class.php.old
+  sed "s^db_name *= *'.*'^db_name = '$GADBNAME'^" gacl.class.php.old | \
+  sed "s^db_user *= *'.*'^db_user = '$GADBUSER'^"                    | \
+  sed "s^db_password *= *'.*'^db_password = '$GADBPASS'^" > gacl.class.php
+  #
+  dlg_info "Modifying $GACONFIGDIR/gacl.ini.php ..."
+  cd $GACONFIGDIR
+  mv -f gacl.ini.php gacl.ini.php.old
+  sed "s^db_name[ \t]*= *\".*\"^db_name\t\t\t= \"$GADBNAME\"^" gacl.ini.php.old | \
+  sed "s^db_user[ \t]*= *\".*\"^db_user\t\t\t= \"$GADBUSER\"^"                  | \
+  sed "s^db_password[ \t]*= *\".*\"^db_password\t\t= \"$GADBPASS\"^" > gacl.ini.php
 fi
 
 if [ ! -z "$SLDIR" ]; then

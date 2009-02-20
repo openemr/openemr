@@ -15,11 +15,17 @@
   $phpgacl_location = "gacl";
  }
 //
-// If using an external version of php-GACL, then uncomment following
-// line and manually place the path below.
+// If using an external version of phpGACL, then uncomment the following
+// line and manually place the path below.  IN THIS CASE YOU MUST ALSO
+// COMMENT OUT BOTH $phpgacl_location ASSIGNMENTS ABOVE, OR BACKUPS WILL
+// NOT RESTORE PROPERLY!
+//
 //$phpgacl_location = "/var/www/gacl";
 //
 // If you want to turn off php-GACL, then uncomment the following line.
+// IN THIS CASE YOU MUST ALSO COMMENT OUT ALL $phpgacl_location ASSIGNMENTS
+// ABOVE, OR BACKUPS WILL NOT RESTORE PROPERLY!
+//
 //unset($phpgacl_location);
 //
 
