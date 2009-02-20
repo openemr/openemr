@@ -5,11 +5,11 @@ OSI Certified Open Source Software
 
 -------------------------------------
 
-I...................Overview of files
+I...................Overview of Directories
 II..................Unpacking
 III.................Setup
-IV..................Upgrading
-V...................Version History
+IV..................Setting up Access Control
+V...................Upgrading
 
 -------------------------------------
 
@@ -81,7 +81,7 @@ openemr/interface/main/calendar/modules/PostCalendar/pntemplates/cache.  In
 linux, if the webserver user name is "apache", then the command
 "chown -R apache:apache directory_name" will grant global write permissions
 to the directories, and we recommend making these changes permanent.
-Should it display errors related to file or directory writing priviledges you 
+Should the page display errors related to file or directory writing priviledges you 
 may click the 'Check Again' button to try again (after fixing permissions).
 
 In step 1, you need to tell setup whether it needs to create the database on
@@ -162,12 +162,54 @@ during step 3, you may have to remove the existing database or tables before
 you can try again. If no errors occur, you will see a "Continue" button at the bottom.
 
 Step 4 will install and configure the embedded phpGACL access controls.  It
-will first write configutation settings to files.  It will then configure the
+will first write configuration settings to files.  It will then configure the
 database.  It will then give the "Initial User" administrator access.
 Should anything fail during step 4, you may have to remove the existing database
 or tables before you can try again. If no errors occur, you will see a
 "Continue" button at the bottom.
 
+Step 5 give instructions on configuring the PHP and Apache webserver.  We
+suggest you print these instructions for future reference.
+
+Regarding the PHP configuration in step 5, instructions are given to edit
+the php.ini configuration file.  If possible, the location of your php.ini file
+will be displayed in green.  If your php.ini file location is not displayed,
+then you will need to search for it.  The location of the php.ini file is dependent
+on the operating system.  In linux, php.ini is generally found in the /etc/
+directory.  In windows, the XAMPP 1.7.0 package places the php.ini file in
+the xampp\apache\bin\ directory.  To ensure proper functioning of OpenEMR
+you must make sure that settings in the php.ini file include "display_errors =
+Off", "register_globals = Off", "magic_quotes_gpc = Off", and "memory_limit"
+set to at least "128M".  In order to take full advantage of the patient
+documents capability you must make sure that settings in php.ini file
+include "file_uploads = On", that "upload_max_filesize" is appropriate for
+your use and that "upload_tmp_dir" is set to a correct value that will work
+on your system.
+
+Regarding the Apache configuration in step 5, instructions are given to secure
+the "openemrwebroot/documents" and "openemrwebroot/edi" directories, which
+contain patient information. This can be done be either placing pertinent
+.htaccess fiels in these directories or by editing the apache configuration
+file.  The location of the apache configuration file is dependent on the
+operating system.  In linux, you can type 'httpd -V' on the commandline;
+the location to the configuration file will be the HTTPD_ROOT variable plus
+the SERVER_CONFIG_FILE variable.  In windows, the XAMPP 1.7.0 package places
+the configuration file at xampp\apache\conf\httpd.conf.  To secure the
+/documents and /edi directories you can paste following to the end of the
+apache configuration file (ensure you put full path to directories):
+<Directory "openemrwebroot/documents">
+order deny,allow
+Deny from all
+</Directory>
+<Directory "openemrwebroot/edi">
+order deny,allow
+Deny from all
+</Directory>
+
+At bottom of step 5, you will see a "Continue" button at the bottom.
+
+The final screen includes some additional instructions and important
+information. We suggest you print these instructions for future reference.
 It would be a good idea to restore secure permissions on the four
 configuration files: interface/globals.php, library/sqlconf.php, 
 gacl/gacl.ini.php, and gacl/gacl.class.php files. In linux, recommend changing 
@@ -179,29 +221,8 @@ using the username that you picked (default 'admin' without quotes), and the
 password 'pass', without the quotes.  From there, select the "Administration"
 option, and customize the system to your needs.  Add users and groups as is
 needed. For information on using OpenEMR, consult the User Documentation located
-in the Documentation folder.
-
-To ensure proper functioning of OpenEMR you must make sure your PHP
-installation (normally set in your php.ini file) has "display_errors = Off",
-"register_globals = Off", and "magic_quotes_gpc = Off".
-
-In order to take full advantage of the patient documents capability, you must
-make sure your PHP installation (normally set in your php.ini file) has 
-"file_uploads enabled", that "upload_max_filesize" is appropriate for your
-use and that "upload_tmp_dir" is set to a correct value if the default of
-"/tmp" won't work on your system.  Also, The "openemrwebroot/documents" 
-and "openemrwebroot/edi" contain patient information, and it is important
-to secure these directories. This can be done by placing pertinent
-.htaccess files in these directories or by pasting the below in your
-apache configuration file:
-<Directory "openemrwebroot/documents">
-order deny,allow
-Deny from all
-</Directory>
-<Directory "openemrwebroot/openemr/edi">
-order deny,allow
-Deny from all
-</Directory>
+in the Documentation folder, the wiki at http://www.oemr.org, and the forums
+at http://sourceforge.net/projects/openemr.
 
 Reading openemr/includes/config.php and openemr/interface/globals.php is a
 good idea. These files contain many options to choose from including themes.

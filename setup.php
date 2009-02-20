@@ -60,26 +60,18 @@ include_once($conffile);
    "turn it off before continuing with installation.\n";
   exit();
  }
-?>
-
+?>	
+	
 <?php
- if ($state == 5) {
+ if ($state == 6) {
 ?>
 
-<p>Congratulations! OpenEMR is now successfully installed.</p>
+<p>Congratulations! OpenEMR is now installed.</p>
 
 <ul>
- <li>Please restore secure permissions on the four configuration files: /openemr/interface/globals.php, 
+ <li>If applicable, please restore secure permissions on the four configuration files: /openemr/interface/globals.php, 
      /openemr/library/sqlconf.php, /openemr/gacl/gacl.ini.php, and /openemr/gacl/gacl.class.php files.  
      In linux, recommend changing file permissions with the 'chmod 644 filename' command.</li>
- <li>To ensure proper functioning of OpenEMR you must make sure your PHP installation (normally
-     set in your php.ini file) has "display_errors = Off", "register_globals = Off", and 
-     "magic_quotes_gpc = Off".</li>
- <li>In order to take full advantage of the patient documents capability you must make sure 
-     your PHP installation (normally set in your php.ini file) has 
-     "file_uploads enabled", that "upload_max_filesize" is appropriate for your 
-     use and that "upload_tmp_dir" is set to a correct value if the default of "/tmp" 
-     won't work on your system.</li>
  <li>Access controls (php-GACL) are installed for fine-grained security, and can be administered in
      OpenEMR's admin->acl menu.</li>
  <li>Reading openemr/includes/config.php and openemr/interface/globals.php is a good idea. These files
@@ -87,20 +79,14 @@ include_once($conffile);
  <li>There's much information and many extra tools bundled within the OpenEMR installation directory. 
      Please refer to openemr/Documentation. Many forms and other useful scripts can be found at openemr/contrib.</li>
  <li>To ensure a consistent look and feel through out the application using 
-     <a href='http://www.mozilla.org/products/firefox/'>Firefox</a> is recommended.</li> 
+     <a href='http://www.mozilla.org/products/firefox/'>Firefox</a> is recommended.</li>
+ <li>The OpenEMR project home page and wiki can be found at <a href = "http://www.oemr.org" target="_blank">http://www.oemr.org</a></li>
+ <li>The OpenEMR forums can be found at <a href = "http://sourceforge.net/projects/openemr" target="_blank">http://sourceforge.net/projects/openemr</a></li>
+ <li>We pursue grants to help fund the future development of OpenEMR.  To apply for these grants, we need to estimate how many times this program is installed and how many practices are evaluating or using this software.  It would be awesome if you would email us at <a href="mailto:drbowen@charter.net">drbowen@charter.net</a> if you have installed this software. The more details about your plans with this software, the better, but even just sending us an email stating you just installed it is very helpful.</li>
 </ul>
-<p>The "openemrwebroot/documents" and "openemrwebroot/edi" contain patient information, and
-   it is important to secure these directories. This can be done by placing pertinent .htaccess 
-   files in these directories or by pasting the below in your apache configuration file:<br>
-&lt;Directory "<?php echo realpath($docsDirectory);?>"&gt;<br>
-order deny,allow<br>
-Deny from all<br>
-&lt;/Directory&gt;<br>
-&lt;Directory "<?php echo realpath($billingDirectory);?>"&gt;<br>
-order deny,allow<br>
-Deny from all<br>
-&lt;/Directory&gt;<br>
-</p>
+<p>
+We recommend you print these instructions for future reference.
+</p>	
 <p>
 <b>The initial OpenEMR user is "<?php echo $iuser; ?>" and the password is "pass".</b>
 You should change this password!
@@ -132,8 +118,8 @@ You should change this password!
 	//END POST VARIABLES
 
 
-if (($config == 1) && ($state != 4)) {
-	echo "OpenEMR is already configured.  If you wish to re-configure the SQL server, edit $conffile, or change the 'config' variable to 0, and re-run this script.<br>\n";
+if (($config == 1) && ($state < 4)) {
+	echo "OpenEMR has already been installed.  If you wish to force re-installation, then edit $conffile(change the 'config' variable to 0), and re-run this script.<br>\n";
 }
 else {
 switch ($state) {
@@ -556,7 +542,8 @@ $groupArray = array("Administrators");
 set_user_aro($groupArray,$iuser,$iuname,"","");	
 echo "Gave the '$iuser' user (password is 'pass') administrator access.<br><br>";
 
-echo "Done installing and configuring access controls (php-GACL).  Click 'continue' to see further instructions.";
+echo "Done installing and configuring access controls (php-GACL).<br>";
+echo "Next step will configure PHP and Apache webserver.";
 
 echo "<br><FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='5'>\n
@@ -566,6 +553,51 @@ echo "<br><FORM METHOD='POST'>\n
 
 break;
 
+	case 5:
+echo "<b>Step $state</b><br><br>\n";
+echo "Configuration of PHP and Apache web server...<br><br>\n";
+echo "<b>PHP configuration:</b><br>\n";							     
+echo "We recommend making the following changes to your PHP installation, which can normally be done by editing the php.ini configuration file:\n";
+echo "<ul>";
+$gotFileFlag = 0;
+if (version_compare(PHP_VERSION, '5.2.4', '>=')) {
+    $phpINIfile = php_ini_loaded_file();
+    if ($phpINIfile) {
+        echo "<li><font color='green'>Your php.ini file can be found at ".$phpINIfile."</font></li>\n";
+        $gotFileFlag = 1;
+    }
+}
+echo "<li>To ensure proper functioning of OpenEMR you must make sure that settings in php.ini file include \"display_errors = Off\", \"register_globals = Off\", \"magic_quotes_gpc = Off\", and \"memory_limit\" set to at least \"128M\".</li>\n";
+echo "<li>In order to take full advantage of the patient documents capability you must make sure that settings in php.ini file include \"file_uploads = On\", that \"upload_max_filesize\" is appropriate for your use and that \"upload_tmp_dir\" is set to a correct value that will work on your system.</li>\n";
+if (!$gotFileFlag) {
+    echo "<li>If you are having difficulty finding your php.ini file, then refer to the <a href='INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.</li>\n";
+}
+echo "</ul>";
+
+echo "<br><b>APACHE configuration:</b><br>
+The \"".realpath($docsDirectory)."\" and \"".realpath($billingDirectory)."\" directories contain patient information, and
+it is important to secure these directories. This can be done by placing pertinent .htaccess
+files in these directories or by pasting the below in your apache configuration file:<br>
+&nbsp;&nbsp;&lt;Directory ".realpath($docsDirectory)."&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;order deny,allow<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Deny from all<br>
+&nbsp;&nbsp;&lt;/Directory&gt;<br>
+&nbsp;&nbsp;&lt;Directory ".realpath($billingDirectory)."&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;order deny,allow<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Deny from all<br>
+&nbsp;&nbsp;&lt;/Directory&gt;<br><br>";
+echo "If you are having difficulty finding your apache configuration file, then refer to the <a href='INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.<br><br>\n";
+echo "<br>We recommend you print these instructions for future reference.<br><br>";
+echo "Click 'continue' for further instructions.";
+	
+echo "<br><FORM METHOD='POST'>\n
+<INPUT TYPE='HIDDEN' NAME='state' VALUE='6'>\n
+<INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$iuser'>\n
+<br>\n
+<INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
+
+break;	
+	
 	case 0:
 	default:
 echo "<p>Welcome to OpenEMR.  This utility will step you through the installation and configuration of OpenEMR for your practice.</p>\n";
