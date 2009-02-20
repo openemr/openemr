@@ -1,0 +1,105 @@
+#!/bin/sh
+#
+#This program is free software; you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation; either version 2 of the License, or
+#(at your option) any later version.
+#
+# author Brady Miller
+# email  brady@sparmy.com
+# date   02/20/09
+#
+#
+#This script is called by the the OpenEMR CVS demo and developer appliance.
+# It will install/configure an already downloaded CVS version of OpenEMR.
+# Logs errors
+#
+
+# PATH VARIABLES
+OPENEMR=/var/www/html/openemr
+CVS=/home/openemr/cvs
+LOG=/var/www/html/log/logSetup.txt
+
+# OTHER VARIABLES
+setHost="localhost"         #mysql server (if not different from php, then localhost)
+setLoginhost="localhost"    #php/apache server (if not different from mysql, then localhost)
+setPort="3306"              #MySQL port
+setDbname="openemr"         #MySQL openemr database name
+setLogin="openemr"          #username to MySQL openemr database
+setPass="openemr"           #password to MySQL openemr database
+setRoot="root"              #MySQL server root username
+setRootpass=""              #MySQL server root password
+setIuser="admin"            #initial user login name
+setIuname="Administrator"   #initial user full name
+setIgroup="Default"         #practice group name
+setOpenemrWebPath=/openemr  #path on browser to openemr
+setInst="1"                 #CONSTANT, don't set
+
+#INSTALL AND CONFIGURE OPENEMR
+# Set file and directory permissions
+chmod 666 $OPENEMR/library/sqlconf.php
+chmod 666 $OPENEMR/gacl/gacl.ini.php
+chmod 666 $OPENEMR/gacl/gacl.class.php
+chmod 666 $OPENEMR/interface/globals.php
+chown -R apache:apache $OPENEMR/documents
+chown -R apache:apache $OPENEMR/edi
+chown -R apache:apache $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache
+chown -R apache:apache $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled
+chown -R apache:apache $OPENEMR/gacl/admin/templates_c
+#
+# CONVERT setup.php file to script, then run it
+#
+cp $OPENEMR/setup.php $OPENEMR/TEMPsetup.php
+# Set the path variable in setup.php
+sed -e 's@\$manualPath = \"\"\;@\$manualPath = \"'$OPENEMR'\/\"\;@' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
+mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
+# Set the variables in setup.php
+sed -e 's@\/\/END POST VARIABLES@\
+    $host = '\'''$setHost''\'';\
+    $server = '\'''$setHost''\'';\
+    $port = '$setPort';\
+    $dbname = '\'''$setDbname''\'';\
+    $root = '\'''$setRoot''\'';\
+    $login = '\'''$setLogin''\'';\
+    $pass = '\'''$setPass''\'';\
+    $loginhost = '\'''$setLoginhost''\'';\
+    $rootpass = '\'''$setRootpass''\'';\
+    $iuser = '\'''$setIuser''\'';\
+    $iuname = '\'''$setIuname''\'';\
+    $igroup = '\'''$setIgroup''\'';\
+    $openemrBasePath = '\'''$OPENEMR''\'';\
+    $openemrWebPath = '\'''$setOpenemrWebPath''\'';\
+    $inst = 1;@' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
+mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
+# Remove form functionality
+sed -e 's@<INPUT TYPE='\''SUBMIT'\'' VALUE='\''Continue'\''>@ @' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
+mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
+#prepare gacl/setup.php script
+cp $OPENEMR/gacl/setup.php $OPENEMR/gacl/TEMP2setup.php
+sed -e 's@.\/gacl\/gacl.ini.php@'$OPENEMR'\/gacl\/gacl.ini.php@' <$OPENEMR/gacl/setup.php >$OPENEMR/gacl/TEMPsetup.php
+mv -f $OPENEMR/gacl/TEMPsetup.php $OPENEMR/gacl/setup.php
+sed -e 's@.\/gacl\/admin\/gacl_admin.inc.php@'$OPENEMR'\/gacl\/admin\/gacl_admin.inc.php@' <$OPENEMR/gacl/setup.php >$OPENEMR/gacl/TEMPsetup.php
+mv -f $OPENEMR/gacl/TEMPsetup.php $OPENEMR/gacl/setup.php
+sed -e 's@.\/gacl\/schema.xml@'$OPENEMR'\/gacl\/schema.xml@' <$OPENEMR/gacl/setup.php >$OPENEMR/gacl/TEMPsetup.php
+mv -f $OPENEMR/gacl/TEMPsetup.php $OPENEMR/gacl/setup.php
+#prepare library/acl.inc script
+cp $OPENEMR/library/acl.inc $OPENEMR/library/TEMP2acl.inc
+sed -e 's@\$phpgacl_location = \"gacl\";@\$phpgacl_location = \"'$OPENEMR'\/gacl\";@' <$OPENEMR/library/acl.inc >$OPENEMR/library/TEMPacl.inc
+mv -f $OPENEMR/library/TEMPacl.inc $OPENEMR/library/acl.inc
+# (step 3) Set up OpenEMR and MySQL
+sed -e 's@$state = $_POST\["state"\];@$state = 3;@' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
+mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
+php -f $OPENEMR/TEMPsetup.php >> $LOG
+# (step 4) Configure sqlconf.php file
+sed -e 's@$state = 3;@$state = 4;@' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
+mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
+php -f $OPENEMR/TEMPsetup.php >> $LOG
+rm -f $OPENEMR/TEMPsetup.php
+#reinstitute file permissions
+chmod 644 $OPENEMR/library/sqlconf.php
+chmod 644 $OPENEMR/gacl/gacl.ini.php
+chmod 644 $OPENEMR/gacl/gacl.class.php
+chmod 644 $OPENEMR/interface/globals.php
+#replace original acl.inc and gacl/setup.php script
+mv $OPENEMR/library/TEMP2acl.inc $OPENEMR/library/acl.inc
+mv $OPENEMR/gacl/TEMP2setup.php $OPENEMR/gacl/setup.php
