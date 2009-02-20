@@ -35,7 +35,6 @@
  function show_receipt(pid,timestamp) {
   dlgopen('../patient_file/front_payment.php?receipt=1&patient=' + pid +
    '&time=' + timestamp, '_blank', 550, 400);
-  return false;
  }
 
 </script>
@@ -186,7 +185,7 @@
 ?>
  <tr>
   <td nowrap>
-   <a href='' onclick="return show_receipt(<?php echo $row['pid'] . ",'$timestamp'"; ?>)">
+   <a href="javascript:show_receipt(<?php echo $row['pid'] . ",'$timestamp'"; ?>)">
    <?php echo substr($row['dtime'], 0, 16); ?>
    </a>
   </td>
