@@ -182,7 +182,7 @@ break;
 	        echo "Click Back in browser to re-enter.<br>\n";
 		break;
 	}
-        if (strpbrk($iuser,' ')) {
+        if (strpos($iuser, " ")) {
 	        echo "ERROR. The 'Initial User' field can only contain one word and no spaces.<br>\n";
 	        echo "Click Back in browser to re-enter.<br>\n";
 	        break;
