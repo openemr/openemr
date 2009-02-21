@@ -75,7 +75,7 @@ openemr/gacl/gacl.class.php.  In linux, these can be set by "chmod a+w filename"
 command to grant global write permissions to the file, but be sure to set
 them back to something more secure (such as chmod 644) after completing
 installation of OpenEMR.  The directories include openemr/gacl/admin/templates_c,
-openemr/edi, openemr/documents, 
+openemr/edi, openemr/era, openemr/documents, openemr/custom/letter_templates, 
 openemr/interface/main/calendar/modules/PostCalendar/pntemplates/compiled and
 openemr/interface/main/calendar/modules/PostCalendar/pntemplates/cache.  In
 linux, if the webserver user name is "apache", then the command
@@ -168,11 +168,9 @@ Should anything fail during step 4, you may have to remove the existing database
 or tables before you can try again. If no errors occur, you will see a
 "Continue" button at the bottom.
 
-Step 5 give instructions on configuring the PHP and Apache webserver.  We
-suggest you print these instructions for future reference.
-
-Regarding the PHP configuration in step 5, instructions are given to edit
-the php.ini configuration file.  If possible, the location of your php.ini file
+Step 5 gives instructions on configuring the PHP.  We suggest you print these
+instructions for future reference.  Instructions are given to edit the php.ini
+configuration file.  If possible, the location of your php.ini file
 will be displayed in green.  If your php.ini file location is not displayed,
 then you will need to search for it.  The location of the php.ini file is dependent
 on the operating system.  In linux, php.ini is generally found in the /etc/
@@ -186,17 +184,19 @@ include "file_uploads = On", that "upload_max_filesize" is appropriate for
 your use and that "upload_tmp_dir" is set to a correct value that will work
 on your system.
 
-Regarding the Apache configuration in step 5, instructions are given to secure
-the "openemrwebroot/documents" and "openemrwebroot/edi" directories, which
-contain patient information. This can be done be either placing pertinent
-.htaccess fiels in these directories or by editing the apache configuration
-file.  The location of the apache configuration file is dependent on the
-operating system.  In linux, you can type 'httpd -V' on the commandline;
-the location to the configuration file will be the HTTPD_ROOT variable plus
-the SERVER_CONFIG_FILE variable.  In windows, the XAMPP 1.7.0 package places
-the configuration file at xampp\apache\conf\httpd.conf.  To secure the
-/documents and /edi directories you can paste following to the end of the
-apache configuration file (ensure you put full path to directories):
+Step 6 gives instructions on configuring the Apache web server.  We suggest
+you print these instructions for future reference. Instructions are given to
+secure the "openemrwebroot/documents", "openemrwebroot/edi" and
+"openemrwebroot/era" directories, which contain patient information. This can
+be done be either placing pertinent .htaccess fiels in these directories
+or by editing the apache configuration file.  The location of the apache
+configuration file is dependent on the operating system.  In linux, you can
+type 'httpd -V' on the commandline; the location to the configuration file
+will be the HTTPD_ROOT variable plus the SERVER_CONFIG_FILE variable.
+In windows, the XAMPP 1.7.0 package places the configuration file at
+xampp\apache\conf\httpd.conf.  To secure the /documents, /edi and /era
+directories you can paste following to the end of the apache configuration
+file (ensure you put full path to directories):
 <Directory "openemrwebroot/documents">
 order deny,allow
 Deny from all
@@ -205,8 +205,10 @@ Deny from all
 order deny,allow
 Deny from all
 </Directory>
-
-At bottom of step 5, you will see a "Continue" button at the bottom.
+<Directory "openemrwebroot/era">
+order deny,allow
+Deny from all
+</Directory>
 
 The final screen includes some additional instructions and important
 information. We suggest you print these instructions for future reference.

@@ -28,6 +28,8 @@ $gaclConfigFile1 = $manualPath."gacl/gacl.ini.php";
 $gaclConfigFile2 = $manualPath."gacl/gacl.class.php";
 $docsDirectory = $manualPath."documents";
 $billingDirectory = $manualPath."edi";
+$billingDirectory2 = $manualPath."era";
+$lettersDirectory = $manualPath."custom/letter_templates";
 $gaclWritableDirectory = $manualPath."gacl/admin/templates_c";
 $requiredDirectory1 = $manualPath."interface/main/calendar/modules/PostCalendar/pntemplates/compiled";
 $requiredDirectory2 = $manualPath."interface/main/calendar/modules/PostCalendar/pntemplates/cache";
@@ -37,7 +39,7 @@ $gaclSetupScript2 = $manualPath."acl_setup.php";
 //These are files and dir checked before install for
 // correct permissions.
 $writableFileList = array($conffile, $conffile2, $gaclConfigFile1, $gaclConfigFile2);
-$writableDirList = array($docsDirectory, $billingDirectory, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
+$writableDirList = array($docsDirectory, $billingDirectory, $billingDirectory2, $lettersDirectory, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
 
 
 include_once($conffile);
@@ -63,7 +65,7 @@ include_once($conffile);
 ?>	
 	
 <?php
- if ($state == 6) {
+ if ($state == 7) {
 ?>
 
 <p>Congratulations! OpenEMR is now installed.</p>
@@ -543,7 +545,7 @@ set_user_aro($groupArray,$iuser,$iuname,"","");
 echo "Gave the '$iuser' user (password is 'pass') administrator access.<br><br>";
 
 echo "Done installing and configuring access controls (php-GACL).<br>";
-echo "Next step will configure PHP and Apache webserver.";
+echo "Next step will configure PHP.";
 
 echo "<br><FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='5'>\n
@@ -555,8 +557,7 @@ break;
 
 	case 5:
 echo "<b>Step $state</b><br><br>\n";
-echo "Configuration of PHP and Apache web server...<br><br>\n";
-echo "<b>PHP configuration:</b><br>\n";							     
+echo "Configuration of PHP...<br><br>\n";
 echo "We recommend making the following changes to your PHP installation, which can normally be done by editing the php.ini configuration file:\n";
 echo "<ul>";
 $gotFileFlag = 0;
@@ -573,11 +574,24 @@ if (!$gotFileFlag) {
     echo "<li>If you are having difficulty finding your php.ini file, then refer to the <a href='INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.</li>\n";
 }
 echo "</ul>";
+	   
+echo "<br>We recommend you print these instructions for future reference.<br><br>";
+echo "Next step will configure Apache web server.";
+						 
+echo "<br><FORM METHOD='POST'>\n
+<INPUT TYPE='HIDDEN' NAME='state' VALUE='6'>\n
+<INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$iuser'>\n
+<br>\n
+<INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
+							     
+break;
 
-echo "<br><b>APACHE configuration:</b><br>
-The \"".realpath($docsDirectory)."\" and \"".realpath($billingDirectory)."\" directories contain patient information, and
+       case 6:
+echo "<b>Step $state</b><br><br>\n";
+echo "Configuration of Apache web server...<br><br>\n";
+echo "The \"".realpath($docsDirectory)."\", \"".realpath($billingDirectory)."\" and \"".realpath($billingDirectory2)."\" directories contain patient information, and
 it is important to secure these directories. This can be done by placing pertinent .htaccess
-files in these directories or by pasting the below in your apache configuration file:<br>
+files in these directories or by pasting the below to end of your apache configuration file:<br>
 &nbsp;&nbsp;&lt;Directory ".realpath($docsDirectory)."&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;order deny,allow<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Deny from all<br>
@@ -585,13 +599,18 @@ files in these directories or by pasting the below in your apache configuration 
 &nbsp;&nbsp;&lt;Directory ".realpath($billingDirectory)."&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;order deny,allow<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Deny from all<br>
+&nbsp;&nbsp;&lt;/Directory&gt;<br>
+&nbsp;&nbsp;&lt;Directory ".realpath($billingDirectory2)."&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;order deny,allow<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Deny from all<br>
 &nbsp;&nbsp;&lt;/Directory&gt;<br><br>";
+				      
 echo "If you are having difficulty finding your apache configuration file, then refer to the <a href='INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.<br><br>\n";
 echo "<br>We recommend you print these instructions for future reference.<br><br>";
 echo "Click 'continue' for further instructions.";
 	
 echo "<br><FORM METHOD='POST'>\n
-<INPUT TYPE='HIDDEN' NAME='state' VALUE='6'>\n
+<INPUT TYPE='HIDDEN' NAME='state' VALUE='7'>\n
 <INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$iuser'>\n
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
