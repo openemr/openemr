@@ -203,7 +203,7 @@ function writeFieldLine($linedata) {
     //echo " <tr bgcolor='$bgcolor'>\n";
     echo " <tr id='fld[$fld_line_no]' class='".($fld_line_no % 2 ? 'even' : 'odd')."'>\n";
   
-    echo "  <td align='center' class='optcell'>";
+    echo "  <td align='center' class='optcell' nowrap>";
     // tuck the group_name INPUT in here
     echo "<input type='hidden' name='fld[$fld_line_no][group]' value='" .
          htmlspecialchars($linedata['group_name'], ENT_QUOTES) . "' class='optin' />";
@@ -265,14 +265,15 @@ function writeFieldLine($linedata) {
         echo "<input type='hidden' name='fld[$fld_line_no][length]' value=''>";
         echo "<span>(date)</span>";
     }
-    else if ($linedata['data_type'] == 1 || $linedata['data_type'] == 21 ||
-             $linedata['data_type'] == 22 || $linedata['data_type'] == 25)
+    else if ($linedata['data_type'] ==  1 || $linedata['data_type'] == 21 ||
+             $linedata['data_type'] == 22 || $linedata['data_type'] == 23 ||
+             $linedata['data_type'] == 25)
     {
         // select, checkbox, textbox list, or checkbox list w/ text
         echo "<input type='hidden' name='fld[$fld_line_no][length]' value=''>";
         echo "<input type='text' name='fld[$fld_line_no][list_id]' value='" .
             htmlspecialchars($linedata['list_id'], ENT_QUOTES) . "'".
-            "size='1' maxlength='10' class='optin listid' style='cursor: pointer'".
+            "size='6' maxlength='30' class='optin listid' style='cursor: pointer'".
             "title='Choose list' />";
     }
     else {
@@ -426,7 +427,7 @@ if ($row['group_name'] != $prevgroup) {
   <th><?php xl('Label','e'); ?> <span class="help" title="The label that appears to the user on the form">(?)</span></th>
   <th><?php xl('UOR','e'); ?></th>
   <th><?php xl('Data Type','e'); ?></th>
-  <th><?php xl('Size','e'); ?></th>
+  <th><?php xl('Size/List','e'); ?></th>
   <th><?php xl('Label Cols','e'); ?></th>
   <th><?php xl('Data Cols','e'); ?></th>
   <th><?php xl('Default Value','e'); ?></th>
@@ -479,7 +480,7 @@ Group Name: <input type="textbox" size="20" maxlength="30" name="newgroupname" i
   <th><?php xl('Label','e'); ?> <span class="help" title="The label that appears to the user on the form">(?)</span></th>
   <th><?php xl('UOR','e'); ?></th>
   <th><?php xl('Data Type','e'); ?></th>
-  <th><?php xl('Size','e'); ?></th>
+  <th><?php xl('Size/List','e'); ?></th>
   <th><?php xl('Label Cols','e'); ?></th>
   <th><?php xl('Data Cols','e'); ?></th>
   <th><?php xl('Default Value','e'); ?></th>
