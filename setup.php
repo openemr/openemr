@@ -7,7 +7,6 @@ ini_set("session.bug_compat_warn","off");
 
 $url = ""; 
 $upgrade = 0;
-$defhost = 'localhost';
 $state = $_POST["state"];
 
 //If having problems with file and directory permission
@@ -148,7 +147,7 @@ echo "Now you need to supply the MySQL server information and path information.
 <INPUT TYPE='HIDDEN' NAME='inst' VALUE='$inst'>
 <TABLE>\n
 <TR VALIGN='TOP'><TD COLSPAN=2><font color='red'>MYSQL SERVER:</font></TD></TR>
-<TR VALIGN='TOP'><TD><span class='text'>Server Host: </span></TD><TD><INPUT TYPE='TEXT' VALUE='$defhost' NAME='server' SIZE='30'></TD><TD><span class='text'>(This is the IP address of the machine running MySQL. If this is on the same machine as the webserver, leave this as 'localhost'.)</span><br></TD></TR>
+<TR VALIGN='TOP'><TD><span class='text'>Server Host: </span></TD><TD><INPUT TYPE='TEXT' VALUE='localhost' NAME='server' SIZE='30'></TD><TD><span class='text'>(This is the IP address of the machine running MySQL. If this is on the same machine as the webserver, leave this as 'localhost'.)</span><br></TD></TR>
 <TR VALIGN='TOP'><TD><span class='text'>Server Port: </span></TD><TD><INPUT TYPE='TEXT' VALUE='3306' NAME='port' SIZE='30'></TD><TD><span class='text'>(The default port for MySQL is 3306.)</span><br></TD></TR>
 <TR VALIGN='TOP'><TD><span class='text'>Database Name: </span></TD><TD><INPUT TYPE='TEXT' VALUE='openemr' NAME='dbname' SIZE='30'></TD><TD><span class='text'>(This is the name of the OpenEMR database in MySQL - 'openemr' is the recommended)</span><br></TD></TR>
 <TR VALIGN='TOP'><TD><span class='text'>Login Name: </span></TD><TD><INPUT TYPE='TEXT' VALUE='openemr' NAME='login' SIZE='30'></TD><TD><span class='text'>(This is the name of the OpenEMR login name in MySQL - 'openemr' is the recommended)</span><br></TD></TR>
@@ -156,7 +155,7 @@ echo "Now you need to supply the MySQL server information and path information.
 if ($inst != 2) {
 echo "<TR VALIGN='TOP'><TD><span class='text'>Name for Root Account: </span></TD><TD><INPUT TYPE='TEXT' VALUE='root' NAME='root' SIZE='30'></TD><TD><span class='text'>(This is name for MySQL root account. For localhost, it is usually ok to leave it 'root'.)</span><br></TD></TR>
 <TR VALIGN='TOP'><TD><span class='text'>Root Pass: </span></TD><TD><INPUT TYPE='PASSWORD' VALUE='' NAME='rootpass' SIZE='30'></TD><TD><span class='text'>(This is your MySQL root password. For localhost, it is usually ok to leave it blank.)</span><br></TD></TR>\n";
-echo "<TR VALIGN='TOP'><TD><span class='text'>User Hostname: </span></TD><TD><INPUT TYPE='TEXT' VALUE='$defhost' NAME='loginhost' SIZE='30'></TD><TD><span class='text'>(If you run Apache/PHP and MySQL on the same computer, then leave this as 'localhost'. If they are on separate computers, then enter the IP address of the computer running Apache/PHP.)</span><br></TD></TR>";
+echo "<TR VALIGN='TOP'><TD><span class='text'>User Hostname: </span></TD><TD><INPUT TYPE='TEXT' VALUE='localhost' NAME='loginhost' SIZE='30'></TD><TD><span class='text'>(If you run Apache/PHP and MySQL on the same computer, then leave this as 'localhost'. If they are on separate computers, then enter the IP address of the computer running Apache/PHP.)</span><br></TD></TR>";
 }
 echo "<TR VALIGN='TOP'><TD>&nbsp;</TD></TR>";
 echo "<TR VALIGN='TOP'><TD COLSPAN=2><font color='red'>OPENEMR USER:</font></TD></TR>";
@@ -440,7 +439,7 @@ echo "\n<br>Next step will install and configure access controls (php-GACL).<br>
 echo "
 <FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='4'>
-<INPUT TYPE='HIDDEN' NAME='host' VALUE='$server'>
+<INPUT TYPE='HIDDEN' NAME='server' VALUE='$server'>
 <INPUT TYPE='HIDDEN' NAME='dbname' VALUE='$dbname'>
 <INPUT TYPE='HIDDEN' NAME='port' VALUE='$port'>
 <INPUT TYPE='HIDDEN' NAME='login' VALUE='$login'>
@@ -468,7 +467,12 @@ foreach ($data as $line) {
       	}
 	else {
 	        $isHit = 1;
-		$finalData .= "db_host = \"${host}\"\n";
+                if ($server == "localhost") {
+		    $finalData .= "db_host = \"${server}\"\n";
+		}
+	        else {
+	            $finalData .= "db_host = \"${server}:${port}\"\n";
+	        }
 	}
         if ((strpos($line,"db_user")) === false) {
 	}
@@ -505,7 +509,12 @@ foreach ($data as $line) {
 	}
 	else {
 	        $isHit = 1;
-	        $finalData .= "var \$_db_host = '$host';\n";
+	        if ($server == "localhost") {
+		    $finalData .= "var \$_db_host = '$server';\n";
+		}
+		else {
+		    $finalData .= "var \$_db_host = '$server:$port';\n";
+	        }
 	}
 	if ((strpos($line,"var \$_db_user = ")) === false) {
 	}
