@@ -29,9 +29,9 @@ if ($_POST['formaction']=="generate") {
                         ,$GLOBALS['oer_config']['prescriptions']['right']
                         );
     $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
-    if(!empty($this->pconfig['logo'])) {
-        $pdf->ezImage($this->pconfig['logo'],"","","none","left");
-    }
+    //if(!empty($this->pconfig['logo'])) {
+    //    $pdf->ezImage($this->pconfig['logo'],"","","none","left");
+    //}
 
     $form_pid      = $_POST['form_pid'];
     $form_from     = $_POST['form_from'];
