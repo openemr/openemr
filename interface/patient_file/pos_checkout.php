@@ -818,7 +818,7 @@ while ($urow = sqlFetchArray($ures)) {
   // introduce a bit of round-off error.
   discount = 100 * discount / computeDiscountedTotals(0, false);
 <?php } ?>
-  if (isNaN(discount)) discount = 0;
+  if (isNaN(discount) || discount > 1000) discount = 0;
   if (discount > 100) discount = 100;
   if (discount < 0  ) discount = 0;
   var total = computeDiscountedTotals(discount, true);
