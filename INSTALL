@@ -91,9 +91,10 @@ be required to create a database.
 In step 2, you will be presented with a number of fields which specify the MySQL
 server details and the openemr directory paths.
 
-The "Server Host" field is the hostname of the MySQL server.  If you use the
-mysql command line client, this is the string you would type after the -h flag.
-If this is on the same machine as the webserver, leave this as "localhost".
+The "Server Host" field specifies the location of the MySQL server.  If you
+run MySQL and Apache/PHP on the same server, then leave this as 'localhost'. 
+If MySQL and Apache/PHP are on separate servers, then enter the IP address
+(or host name) of the server running MySQL.
 
 The "Server Port" field specifies the port to use when connecting to the MySQL
 server over TCP/IP.  This should be left as 3306 unless you changed it in your
