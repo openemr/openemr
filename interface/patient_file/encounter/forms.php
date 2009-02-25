@@ -64,7 +64,7 @@ if (is_numeric($pid)) {
 
 echo ":";
 if (acl_check('admin', 'super')) {
-    echo "&nbsp;&nbsp;<a href='' onclick='return deleteme()'>" .
+    echo "&nbsp;&nbsp;<a href='' onclick='return deleteme()' class='deleteme'>" .
         "<font class='more' style='color:red'>(Delete)</font></a>";
 }
 echo "<br>\n";
@@ -154,6 +154,8 @@ $(document).ready(function(){
     $(".onerow").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".onerow").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".onerow").click(function() { GotoForm(this); });
+    
+    $(".deleteme").click(function(evt) { deleteme(); evt.stopPropogation(); });
 
     var GotoForm = function(obj) {
         var parts = $(obj).attr("id").split("~");
