@@ -60,6 +60,22 @@ else {
   );
 }
 
+if ($report_type == 'm') {
+  $arr_content = array(
+    1 => xl('Services'),
+    2 => xl('Unique Clients'),
+    4 => xl('Unique New Clients')
+  );
+}
+else {
+  $arr_content = array(
+    1 => xl('Services'),
+    2 => xl('Unique Clients'),
+    3 => xl('New Acceptors'),
+    4 => xl('Unique New Clients')
+  );
+}
+
 // A reported value is either scalar, or an array listed horizontally.  If
 // multiple items are chosen then each starts in the next available column.
 //
@@ -699,9 +715,7 @@ function process_referral($row) {
   <td valign='top' class='detail'>
    <select name='form_cors' title='<?php xl('What is to be counted?','e'); ?>'>
 <?php
-  foreach (array(1 => xl('Services'), 2 => xl('Unique Clients'), 3 => xl('New Acceptors'),
-    4 => xl('Unique New Clients')) as $key => $value)
-  {
+  foreach ($arr_content as $key => $value) {
     echo "    <option value='$key'";
     if ($key == $form_cors) echo " selected";
     echo ">$value</option>\n";
