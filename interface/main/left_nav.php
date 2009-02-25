@@ -840,10 +840,6 @@ function genPopupsList($style='') {
           <?php genPopLink('List','patient_list.php'); ?>
           <?php genPopLink('Rx','prescriptions_report.php'); ?>
           <?php genPopLink('Referrals','referrals_report.php'); ?>
-          <?php if (!empty($GLOBALS['code_types']['IPPF'])) genPopLink('IPPF Stats','ippf_statistics.php?t=i'); ?>
-          <?php if (!empty($GLOBALS['code_types']['IPPF'])) genPopLink('GCAC Stats','ippf_statistics.php?t=g'); ?>
-          <?php if (!empty($GLOBALS['code_types']['IPPF'])) genPopLink('MA Stats','ippf_statistics.php?t=m'); ?>
-          <?php if (!empty($GLOBALS['code_types']['IPPF'])) genPopLink('CYP','ippf_cyp_report.php'); ?>
         </ul>
       </li>
       <li class="open"><span><?php xl('Visits','e') ?></span>
@@ -880,6 +876,17 @@ function genPopupsList($style='') {
           <?php genPopLink('Distribution','insurance_allocation_report.php'); ?>
           <?php genPopLink('Indigents','../billing/indigent_patients_report.php'); ?>
           <?php genPopLink('Unique SP','unique_seen_patients_report.php'); ?>
+        </ul>
+      </li>
+<?php } ?>
+<?php if (!empty($GLOBALS['code_types']['IPPF'])) { ?>
+      <li><span><?php xl('Statistics','e') ?></span>
+        <ul>
+          <?php genPopLink('IPPF Stats','ippf_statistics.php?t=i'); ?>
+          <?php genPopLink('GCAC Stats','ippf_statistics.php?t=g'); ?>
+          <?php genPopLink('MA Stats','ippf_statistics.php?t=m'); ?>
+          <?php genPopLink('CYP','ippf_cyp_report.php'); ?>
+          <?php genPopLink('Daily Record','ippf_daily.php'); ?>
         </ul>
       </li>
 <?php } ?>
