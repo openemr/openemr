@@ -126,9 +126,9 @@ if ($result != null) {
         ' (' . $iter['user'] . ') ' . nl2br($body);
     }
 
-    echo " <tr class='noterow' id='".$iter['id']."'>\n";
-    echo "  <td valign='top' class='text bold'>".$iter['title']."</td>\n";
-    echo "  <td valign='top' class='text'>$body</td>\n";
+    echo " <tr class='text noterow' id='".$iter['id']."'>\n";
+    echo "  <td valign='top' class='bold'>".$iter['title']."</td>\n";
+    echo "  <td valign='top'>$body</td>\n";
     echo " </tr>\n";
 
     $notes_count++;

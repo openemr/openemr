@@ -260,14 +260,14 @@ if ($result != "") {
     echo "  <td class='text bold'>\n";
     echo "   <input type='hidden' name='act" . $iter{"id"} . "' value='1'>\n";
     echo "   <input type='checkbox' name='chk" . $iter{"id"} . "' $checked>\n";
-    echo "  </td><td class='text bold notecell' id='".$iter['id']."'>\n";
+    echo "  </td><td class='bold notecell' id='".$iter['id']."'>\n";
 
 //    echo "   <a href='javascript:document.forms[1].noteid.value=" .
 //         $iter['id'] . ";top.restoreSession();document.update_activity.submit();' " .
 //         "class='link_submit'>" . $iter['title'] . "</a>\n";
     echo $iter['title'];
     echo "  </td>\n";
-    echo "  <td class='text notecell' id='".$iter['id']."'>\n";
+    echo "  <td class='notecell' id='".$iter['id']."'>\n";
     echo "   $body";
     echo "  </td>\n";
     echo " </tr>\n";
