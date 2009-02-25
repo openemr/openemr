@@ -67,7 +67,8 @@ $(document).ready(function(){
             opener.SetList(listid);
         window.close();
         return false;
-    }
+    };
+
 });
 
 </script>
