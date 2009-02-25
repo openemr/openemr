@@ -437,7 +437,7 @@ $(document).ready(function(){
 
     $("#savetemplate").click(function() { SaveTemplate(this); });
     
-    $("#letter_field").change(function() { insertAtCursor($("#form_body"), $(this).val()); $(this).attr("selectedIndex", "0"); });
+    $("#letter_field").change(function() { insertAtCursor(document.getElementById("form_body"), $(this).val()); $(this).attr("selectedIndex", "0"); });
     
     $(".addtemplate").click(function() { AddTemplate(this); });
     $(".savenewtemplate").click(function() { SaveNewTemplate(this); });
