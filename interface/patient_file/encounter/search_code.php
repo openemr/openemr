@@ -27,6 +27,7 @@ $code_type = $_GET['type'];
 
 </head>
 <body class="body_bottom">
+<div id="patient_search_code">
 
 <table border=0 cellspacing=0 cellpadding=0 height=100%>
 <tr>
@@ -78,7 +79,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
         if (count($result) > $M) {
             echo "Showing the first ".$M." results";
         }
-        else if (count($results) == 0) {
+        else if (count($result) == 0) {
             echo "No results found";
         }
         else {
@@ -87,7 +88,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
         echo "</div>";
 ?>
 <div id="results">
-<table><tr><td valign=top>
+<table><tr class='text'><td valign='top'>
 <?php
 $count = 0;
 $total = 0;
@@ -95,11 +96,12 @@ $total = 0;
 if ($result) {
     foreach ($result as $iter) {
         if ($count == $N) {
-            echo "</td><td valign=top class='oneresult'>\n";
+            echo "</td><td valign='top'>\n";
             $count = 0;
         }
-    
-        echo "<a target='".xl('Diagnosis')."' class='text' href='diagnosis.php?mode=add" .
+   
+        echo "<div class='oneresult' style='padding: 3px 0px 3px 0px;'>";
+        echo "<a target='".xl('Diagnosis')."' href='diagnosis.php?mode=add" .
             "&type="     . urlencode($code_type) .
             "&code="     . urlencode($iter{"code"}) .
             "&modifier=" . urlencode($iter{"modifier"}) .
@@ -111,12 +113,13 @@ if ($result) {
         echo ucwords("<b>" . strtoupper($iter{"code"}) . "&nbsp;" . $iter['modifier'] .
             "</b>" . " " . strtolower($iter{"code_text"}));
         echo "</a><br>\n";
+        echo "</div>";
     
         $count++;
         $total++;
         
         if ($total == $M) {
-            echo "</span><span class=alert>".xl('Some codes were not displayed.')."\n";
+            echo "</span><span class=alert>".xl('Some codes were not displayed.')."</span>\n";
             break;
         }
     }
@@ -133,6 +136,7 @@ if ($result) {
 </tr>
 </table>
 
+</div> <!-- end large outer patient_search_code DIV -->
 </body>
 
 <script language="javascript">
