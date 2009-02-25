@@ -64,7 +64,7 @@ function selpopup(selobj) {
    <a href="../main/main_screen.php" target="_top" class="logout" onclick="top.restoreSession()"><?php xl('Close','e'); ?></a>&nbsp;&nbsp;
   </td>
   <td align="right" valign="middle">
-    <select onchange='selpopup(this)' style='background-color:transparent'>
+    <select onchange='selpopup(this)'>
      <option value=''><?php xl('Popups','e'); ?></option>
 <?php if ($ie_auth) { ?>
      <option value='problem_encounter.php'><?php xl('Issues','e'); ?></option>
