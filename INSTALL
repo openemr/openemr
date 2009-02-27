@@ -178,7 +178,8 @@ on the operating system.  In linux, php.ini is generally found in the /etc/
 directory.  In windows, the XAMPP 1.7.0 package places the php.ini file in
 the xampp\apache\bin\ directory.  To ensure proper functioning of OpenEMR
 you must make sure that settings in the php.ini file include "display_errors =
-Off", "register_globals = Off", "magic_quotes_gpc = Off", and "memory_limit"
+Off", "register_globals = Off", "magic_quotes_gpc = Off", "max_execution_time" set
+to at least 60, "max_input_time" set to at least 90 , and "memory_limit"
 set to at least "128M".  In order to take full advantage of the patient
 documents capability you must make sure that settings in php.ini file
 include "file_uploads = On", that "upload_max_filesize" is appropriate for
