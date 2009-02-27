@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008, 2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -183,7 +183,8 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
     "last_level_billed = '$last_level_billed', " .
     "last_level_closed = '$last_level_closed', " .
     "last_stmt_date = $last_stmt_date, " .
-    "stmt_count = '$stmt_count'");
+    "stmt_count = '$stmt_count' " .
+    "WHERE pid = '$pid' AND encounter = '$encounter'");
 
   // Show a warning for any unmatched copays.
   foreach ($copays as $copay) {
