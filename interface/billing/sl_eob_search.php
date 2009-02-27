@@ -575,7 +575,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
     }
 
     $query = "SELECT f.id, f.pid, f.encounter, f.date, " .
-      "f.last_level_billed, f.last_level_closed, f.stmt_count, " .
+      "f.last_level_billed, f.last_level_closed, f.last_stmt_date, f.stmt_count, " .
       "p.fname, p.mname, p.lname, p.pubpid, p.genericname2, p.genericval2, " .
       "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
       "b.pid = f.pid AND b.encounter = f.encounter AND " .
@@ -726,7 +726,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
    &nbsp;<?php xl('Svc Date','e'); ?>
   </td>
   <td class="dehead">
-   &nbsp;<?php xl('Due Date','e'); ?>
+   &nbsp;<?php xl($INTEGRATED_AR ? 'Last Stmt' : 'Due Date','e'); ?>
   </td>
   <td class="dehead" align="right">
    <?php xl('Charge','e'); ?>&nbsp;
@@ -789,6 +789,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
       $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
 
       $svcdate = substr($row['date'], 0, 10);
+      $last_stmt_date = empty($row['last_stmt_date']) ? '' : $row['last_stmt_date'];
 
       // Determine if customer is in collections.
       //
@@ -808,7 +809,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
    &nbsp;<?php echo $svcdate ?>
   </td>
   <td class="detail">
-   &nbsp;
+   &nbsp;<?php echo $last_stmt_date ?>
   </td>
   <td class="detail" align="right">
    <?php bucks($row['charges']) ?>&nbsp;
