@@ -1367,19 +1367,23 @@ if  ($GLOBALS['select_multi_providers']) {
         $defaultProvider = $provider['pc_aid'];
     }
     else {
-        // this is a new event so smartly choose a default provider 
-
+      // this is a new event so smartly choose a default provider 
+      if ($userid) {
+        // Provider already given to us as a GET parameter.
+        $defaultProvider = $userid;
+      }
+        else {
         // default to the currently logged-in user
         $defaultProvider = $_SESSION['authUserID'];
-
         // or, if we have chosen a provider in the calendar, default to them
         // choose the first one if multiple have been selected
         if (count($_SESSION['pc_username']) >= 1) {
-            // get the numeric ID of the first provider in the array
-            $pc_username = $_SESSION['pc_username'];
-            $firstProvider = sqlFetchArray(sqlStatement("select id from users where username='".$pc_username[0]."'"));
-            $defaultProvider = $firstProvider['id'];
+          // get the numeric ID of the first provider in the array
+          $pc_username = $_SESSION['pc_username'];
+          $firstProvider = sqlFetchArray(sqlStatement("select id from users where username='".$pc_username[0]."'"));
+          $defaultProvider = $firstProvider['id'];
         }
+      }
     }
 
     echo "<select name='form_provider' style='width:100%' />";
