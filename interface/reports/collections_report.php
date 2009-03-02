@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006-2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -389,7 +389,7 @@ if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) 
   if ($INTEGRATED_AR) {
     if ($_POST['form_export'] || $_POST['form_csvexport']) {
       $where = "( 1 = 2";
-      foreach ($_POST['form_cb'] as $key => $value) $where .= " OR f.id = $key";
+      foreach ($_POST['form_cb'] as $key => $value) $where .= " OR f.pid = $key";
       $where .= ' )';
     }
     if ($form_date) {
