@@ -366,7 +366,7 @@
       "pid = '$patient_id' AND type = '$value' AND date <= '$date_of_service' " .
       "ORDER BY date DESC LIMIT 1";
     $nprow = sqlQuery($query);
-    echo "<!-- $query => '" . $nprow['provider'] . "' -->\n"; // debugging
+    // echo "<!-- $query => '" . $nprow['provider'] . "' -->\n"; // debugging
     if (empty($nprow)) return 0;
     return $nprow['provider'];
   }
