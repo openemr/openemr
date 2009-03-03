@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007-2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -269,6 +269,9 @@ $res = sqlStatement($query);
    <?php if ($form_orderby == "pubpid") echo " style=\"color:#00cc00\"" ?>><?php  xl('ID','e'); ?></a>
   </th>
   <th>
+   <?php  xl('Status','e'); ?>
+  </th>
+  <th>
    <?php  xl('Encounter','e'); ?>
   </th>
   <th>
@@ -292,26 +295,7 @@ if ($res) {
     $docname  = $row['ulname'] . ', ' . $row['ufname'] . ' ' . $row['umname'];
     $errmsg  = "";
     if ($form_details) {
-?>
- <tr bgcolor='<?php echo $bgcolor ?>'>
-  <td>
-   <?php echo ($docname == $lastdocname) ? "" : $docname ?>
-  </td>
-  <td>
-   <?php echo substr($row['date'], 0, 10) ?>
-  </td>
-  <td>
-   <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']; ?>
-  </td>
-  <td>
-   <?php echo $row['pubpid']; ?>
-  </td>
-  <td>
-   <?php echo $row['reason']; ?>
-  </td>
-  <td>
-<?php
-      // Fetch and show all other forms for this encounter
+      // Fetch all other forms for this encounter.
       $encnames = '';
       $encarr = getFormByEncounter($patient_id, $row['encounter'],
         "formdir, user, form_name, form_id");
@@ -320,22 +304,61 @@ if ($res) {
         if ($encnames) $encnames .= '<br />';
         $encnames .= $enc['form_name'];
       }
-      echo $encnames;
-?>
-  </td>
-  <td>
-<?php
-      // Fetch and show coding for this encounter
+
+      // Fetch coding and compute billing status.
       $coded = "";
-      if ($billres = getBillingByEncounter($row['pid'], $row['encounter'])) {
+      $billed_count = 0;
+      $unbilled_count = 0;
+      if ($billres = getBillingByEncounter($row['pid'], $row['encounter'],
+        "code_type, code, code_text, billed"))
+      {
         foreach ($billres as $billrow) {
           $title = addslashes($billrow['code_text']);
           $coded .= $billrow['code'] . ', ';
+          if ($billrow['code_type'] != 'COPAY' && $billrow['code_type'] != 'TAX') {
+            if ($billrow['billed']) ++$billed_count; else ++$unbilled_count;
+          }
         }
         $coded = substr($coded, 0, strlen($coded) - 2);
       }
-      echo $coded;
+
+      // Figure product sales into billing status.
+      $sres = sqlStatement("SELECT billed FROM drug_sales " .
+        "WHERE pid = '{$row['pid']}' AND encounter = '{$row['encounter']}'");
+      while ($srow = sqlFetchArray($sres)) {
+        if ($srow['billed']) ++$billed_count; else ++$unbilled_count;
+      }
+
+      // Compute billing status.
+      if ($billed_count && $unbilled_count) $status = xl('Mixed' );
+      else if ($billed_count              ) $status = xl('Closed');
+      else if ($unbilled_count            ) $status = xl('Open'  );
+      else                                  $status = xl('Empty' );
 ?>
+ <tr bgcolor='<?php echo $bgcolor ?>'>
+  <td>
+   <?php echo ($docname == $lastdocname) ? "" : $docname ?>&nbsp;
+  </td>
+  <td>
+   <?php echo substr($row['date'], 0, 10) ?>&nbsp;
+  </td>
+  <td>
+   <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']; ?>&nbsp;
+  </td>
+  <td>
+   <?php echo $row['pubpid']; ?>&nbsp;
+  </td>
+  <td>
+   <?php echo $status; ?>&nbsp;
+  </td>
+  <td>
+   <?php echo $row['reason']; ?>&nbsp;
+  </td>
+  <td>
+   <?php echo $encnames; ?>&nbsp;
+  </td>
+  <td>
+   <?php echo $coded; ?>
   </td>
  </tr>
 <?php
