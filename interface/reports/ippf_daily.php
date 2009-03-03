@@ -200,6 +200,7 @@ if ($_POST['form_submit']) {
   $res = sqlStatement($query);
 
   $last_pid = '0';
+  $last_contra_pid = '0';
   $last_encounter = '0';
   $method = '';
 
@@ -228,6 +229,9 @@ if ($_POST['form_submit']) {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         }
 
+        // Count total clients.
+        ++$areport[$method][3];
+
         // Count as new or old client.
         if ($row['regdate'] == $from_date) {
           ++$areport[$method][1];
@@ -251,11 +255,9 @@ if ($_POST['form_submit']) {
       if ($row['encounter'] != $last_encounter) { // new visit
         $last_encounter = $row['encounter'];
 
-        // Count visits.
-        ++$areport[$method][3];
-
-        // Count visits for supply or re-supply.
-        if ($row['pc_catid'] == '10') {
+        // Count unique clients coming for supply or re-supply.
+        if ($row['pc_catid'] == '10' && $last_pid != $last_contra_pid) {
+          $last_contra_pid = $last_pid;
           ++$areport[$method][4];
         }
       }
@@ -281,10 +283,10 @@ if ($_POST['form_submit']) {
   // Generate headings.
   genStartRow("bgcolor='#dddddd'");
   genHeadCell(xl('Method'         ));
-  genHeadCell(xl('New Client'     ), true);
-  genHeadCell(xl('Old Client'     ), true);
-  genHeadCell(xl('Total Visit'    ), true);
-  genHeadCell(xl('Contra Visit'   ), true);
+  genHeadCell(xl('New Clients'    ), true);
+  genHeadCell(xl('Old Clients'    ), true);
+  genHeadCell(xl('Total Clients'  ), true);
+  genHeadCell(xl('Contra Clients' ), true);
   genHeadCell(xl('O.A.F.V.'       ), true);
   genHeadCell(xl('Pap Smear'      ), true);
   genHeadCell(xl('Preg Test'      ), true);
