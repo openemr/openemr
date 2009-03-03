@@ -144,7 +144,7 @@ function getServiceFacilities($first = '') {
 function getProviderInfo($providerID = "%", $providers_only = true, $facility = '' ) {
     $param1 = "";
     if ($providers_only) {
-        $param1 = " AND authorized=1 ";
+        $param1 = " AND authorized=1 AND ( info IS NULL OR info NOT LIKE '%Nocalendar%' ) ";
     }
 
     //--------------------------------
@@ -163,7 +163,7 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
         "from users where username != '' and active = 1 and id $command '" .
         mysql_real_escape_string($providerID) . "' " . $param1 . $param2;
     // sort by last name -- JRM June 2008
-    $query .= " ORDER BY lname ";
+    $query .= " ORDER BY lname, fname ";
     $rez = sqlStatement($query);
     for($iter=0; $row=sqlFetchArray($rez); $iter++)
         $returnval[$iter]=$row;
