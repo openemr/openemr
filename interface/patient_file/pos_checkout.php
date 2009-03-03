@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006, 2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,13 +18,12 @@
 // (2) Drug sales without an encounter will have 20YYMMDD, possibly
 //     with a suffix, as the encounter-number portion of their invoice
 //     number.
-// (3) Payments are saved in SL only, don't mess with the billing table.
+// (3) Payments are saved as AR only, don't mess with the billing table.
 //     See library/classes/WSClaim.class.php for posting code.
 // (4) On checkout, the billing and drug_sales table entries are marked
 //     as billed and so become unavailable for further billing.
 // (5) Receipt printing must be a separate operation from payment,
-//     and repeatable, therefore driven from the SL database and
-//     mirroring the contents of the invoice.
+//     and repeatable.
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
@@ -181,7 +180,7 @@ function invoice_post(& $invoice_info)
     $value = $tv->getval();
   }
   else {
-    $value = null;	
+    $value = null;  
   }
 
   if ($r->faultCode()) {
@@ -191,8 +190,10 @@ function invoice_post(& $invoice_info)
   return '';
 }
 
-/////////////////// End of invoice posting functions /////////////////
+///////////// End of SQL-Ledger invoice posting functions ////////////
 
+// Output HTML for an invoice line item.
+//
 $prevsvcdate = '';
 function receiptDetailLine($svcdate, $description, $amount, $quantity) {
   global $prevsvcdate, $details;
@@ -212,6 +213,8 @@ function receiptDetailLine($svcdate, $description, $amount, $quantity) {
   $prevsvcdate = $svcdate;
 }
 
+// Output HTML for an invoice payment.
+//
 function receiptPaymentLine($paydate, $amount, $description='') {
   $amount = sprintf('%01.2f', 0 - $amount); // make it negative
   echo " <tr>\n";
@@ -222,12 +225,11 @@ function receiptPaymentLine($paydate, $amount, $description='') {
   echo " </tr>\n";
 }
 
-// Generate a receipt from the last-billed invoice for this patient.
+// Generate a receipt from the last-billed invoice for this patient,
+// or for the encounter specified as a GET parameter.
 //
-function generate_receipt($patient_id) {
+function generate_receipt($patient_id, $encounter=0) {
   global $sl_err, $sl_cash_acc, $css_header, $details, $INTEGRATED_AR;
-
-  $encounter = empty($_GET['enc']) ? 0 : 0 + $_GET['enc'];
 
   // Get details for what we guess is the primary facility.
   $frow = sqlQuery("SELECT * FROM facility " .
@@ -368,9 +370,10 @@ function generate_receipt($patient_id) {
     $inres = sqlStatement("SELECT " .
       "a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, " .
       "s.payer_id, s.reference, s.check_date, s.deposit_date " .
-      "FROM ar_activity AS a, ar_session AS s WHERE " .
+      "FROM ar_activity AS a " .
+      "LEFT JOIN ar_session AS s ON s.session_id = a.session_id WHERE " .
       "a.pid = '$patient_id' AND a.encounter = '$encounter' AND " .
-      "a.adj_amount != 0 AND s.session_id = a.session_id " .
+      "a.adj_amount != 0 " .
       "ORDER BY s.check_date, a.sequence_no");
     while ($inrow = sqlFetchArray($inres)) {
       $charges -= sprintf('%01.2f', $inrow['adj_amount']);
@@ -423,14 +426,16 @@ function generate_receipt($patient_id) {
     $inres = sqlStatement("SELECT " .
       "a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, " .
       "s.payer_id, s.reference, s.check_date, s.deposit_date " .
-      "FROM ar_activity AS a, ar_session AS s WHERE " .
+      "FROM ar_activity AS a " .
+      "LEFT JOIN ar_session AS s ON s.session_id = a.session_id WHERE " .
       "a.pid = '$patient_id' AND a.encounter = '$encounter' AND " .
-      "a.pay_amount != 0 AND s.session_id = a.session_id " .
+      "a.pay_amount != 0 " .
       "ORDER BY s.check_date, a.sequence_no");
     $payer = empty($inrow['payer_type']) ? 'Pt' : ('Ins' . $inrow['payer_type']);
     while ($inrow = sqlFetchArray($inres)) {
       $charges -= sprintf('%01.2f', $inrow['pay_amount']);
-      receiptPaymentLine($svcdate, $inrow['pay_amount'], $payer . ' ' . $inrow['reference']);
+      receiptPaymentLine($svcdate, $inrow['pay_amount'],
+        $payer . ' ' . $inrow['reference']);
     }
   } // end $INTEGRATED_AR
   else {
@@ -596,7 +601,7 @@ if ($_POST['form_save']) {
   }
 
   if ($INTEGRATED_AR) {
-    // Delete TAX rows from billing.
+    // Delete any TAX rows from billing because they will be recalculated.
     sqlStatement("UPDATE billing SET activity = 0 WHERE " .
       "pid = '$form_pid' AND encounter = '$form_encounter' AND " .
       "code_type = 'TAX'");
@@ -625,6 +630,7 @@ if ($_POST['form_save']) {
     }
 
     if ($code_type == 'PROD') {
+      // Product sales. The fee and encounter ID may have changed.
       $query = "update drug_sales SET fee = '$amount', " .
       "encounter = '$form_encounter', billed = 1 WHERE " .
       "sale_id = '$id'";
@@ -649,6 +655,37 @@ if ($_POST['form_save']) {
     }
   }
 
+  // Post discount.
+  if ($_POST['form_discount']) {
+    $amount  = sprintf('%01.2f', trim($_POST['form_discount']));
+    $memo = xl('Discount');
+    if ($INTEGRATED_AR) {
+      $time = date('Y-m-d H:i:s');
+      $query = "INSERT INTO ar_activity ( " .
+        "pid, encounter, code, modifier, payer_type, post_user, post_time, " .
+        "session_id, memo, adj_amount " .
+        ") VALUES ( " .
+        "'$form_pid', " .
+        "'$form_encounter', " .
+        "'', " .
+        "'', " .
+        "'0', " .
+        "'" . $_SESSION['authUserID'] . "', " .
+        "'$time', " .
+        "'0', " .
+        "'$memo', " .
+        "'$amount' " .
+        ")";
+      sqlStatement($query);
+    }
+    else {
+      $msg = invoice_add_line_item($invoice_info, 'DISCOUNT',
+        '', $memo, 0 - $amount);
+      if ($msg) die($msg);
+    }
+  }
+
+  // Post payment.
   if ($_POST['form_amount']) {
     $amount  = sprintf('%01.2f', trim($_POST['form_amount']));
     $form_source = trim($_POST['form_source']);
@@ -672,14 +709,14 @@ if ($_POST['form_save']) {
     if ($msg) die($msg);
   }
 
-  generate_receipt($_POST['form_pid']);
+  generate_receipt($form_pid, $form_encounter);
   exit();
 }
 
 // If an encounter ID was given, then we must generate a receipt.
 //
 if (!empty($_GET['enc'])) {
-  generate_receipt($pid);
+  generate_receipt($pid, $_GET['enc']);
   exit();
 }
 
@@ -689,7 +726,7 @@ if (!empty($_GET['enc'])) {
 $query = "SELECT id, date, code_type, code, modifier, code_text, " .
   "provider_id, payer_id, units, fee, encounter " .
   "FROM billing WHERE pid = '$pid' AND activity = 1 AND " .
-  "fee != 0 AND billed = 0 AND code_type != 'TAX' " .
+  "billed = 0 AND code_type != 'TAX' " .
   "ORDER BY encounter DESC, id ASC";
 $bres = sqlStatement($query);
 
@@ -698,7 +735,7 @@ $query = "SELECT s.sale_id, s.sale_date, s.prescription_id, s.fee, " .
   "FROM drug_sales AS s " .
   "LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
   "LEFT OUTER JOIN prescriptions AS r ON r.id = s.prescription_id " .
-  "WHERE s.pid = '$pid' AND s.billed = 0 AND s.fee != 0 " .
+  "WHERE s.pid = '$pid' AND s.billed = 0 " .
   "ORDER BY s.encounter DESC, s.sale_id ASC";
 $dres = sqlStatement($query);
 
@@ -750,7 +787,7 @@ while ($urow = sqlFetchArray($ures)) {
   }
  }
 
- // For a give tax ID and amount, compute the tax on that amount and add it
+ // For a given tax ID and amount, compute the tax on that amount and add it
  // to the "price" (same as "amount") of the corresponding tax line item.
  // Note the tax line items include their "taxrate" to make this easy.
  function addTax(rateid, amount, visible) {
@@ -772,8 +809,7 @@ while ($urow = sqlFetchArray($ures)) {
   return 0;
  }
 
- // This mess recomputes the invoice total, optionally applies a discount,
- // and optionally alters the displayed amounts.
+ // This mess recomputes the invoice total and optionally applies a discount.
  function computeDiscountedTotals(discount, visible) {
   clearTax(visible);
   var f = document.forms[0];
@@ -791,10 +827,12 @@ while ($urow = sqlFetchArray($ures)) {
    }
    var units = f['line[' + lino + '][units]'].value;
    var amount = price * units;
+   /******************************************************************
    if (discount > 0) {
     // Force a discounted amount based on a whole number of cents per unit.
     amount = ((amount * (100 - discount) / 100) / units).toFixed(2) * units;
    }
+   ******************************************************************/
    amount = parseFloat(amount.toFixed(2));
    if (visible) f['line[' + lino + '][amount]'].value = amount.toFixed(2);
    total += amount;
@@ -804,13 +842,15 @@ while ($urow = sqlFetchArray($ures)) {
     addTax(taxids[j], amount, visible);
    }
   }
-  return total;
+  return total - discount;
  }
 
  // Recompute displayed amounts with any discount applied.
  function computeTotals() {
   var f = document.forms[0];
   var discount = parseFloat(f.form_discount.value);
+  if (isNaN(discount)) discount = 0;
+  /*******************************************************************
 <?php if ($GLOBALS['discount_by_money']) { ?>
   // This site discounts by dollars instead of percentage.
   // We first compute an undiscounted total and then convert
@@ -821,6 +861,7 @@ while ($urow = sqlFetchArray($ures)) {
   if (isNaN(discount) || discount > 1000) discount = 0;
   if (discount > 100) discount = 100;
   if (discount < 0  ) discount = 0;
+  *******************************************************************/
   var total = computeDiscountedTotals(discount, true);
   f.form_amount.value = total.toFixed(2);
   return true;
@@ -856,6 +897,9 @@ $inv_date      = '';
 $inv_provider  = 0;
 $inv_payer     = 0;
 
+// Process billing table items.  Note this includes co-pays.
+// Items that are not allowed to have a fee are skipped.
+//
 while ($brow = sqlFetchArray($bres)) {
   // Skip all but the most recent encounter.
   if ($inv_encounter && $brow['encounter'] != $inv_encounter) continue;
@@ -863,9 +907,9 @@ while ($brow = sqlFetchArray($bres)) {
   $thisdate = substr($brow['date'], 0, 10);
   $code_type = $brow['code_type'];
 
+  // Collect tax rates and provider ID.
   $taxrates = '';
-  if ($code_type != 'COPAY' && $code_type != 'TAX') {
-    if (empty($code_types[$code_type]['fee'])) continue;
+  if (!empty($code_types[$code_type]['fee'])) {
     $query = "SELECT taxrates FROM codes WHERE code_type = '" .
       $code_types[$code_type]['id'] . "' AND " .
       "code = '" . $brow['code'] . "' AND ";
@@ -891,6 +935,8 @@ while ($brow = sqlFetchArray($bres)) {
   if (!$inv_date || $inv_date < $thisdate) $inv_date = $thisdate;
 }
 
+// Process drug sales / products.
+//
 while ($drow = sqlFetchArray($dres)) {
   if ($inv_encounter && $drow['encounter'] && $drow['encounter'] != $inv_encounter) continue;
 
@@ -919,6 +965,9 @@ foreach ($taxes as $key => $value) {
   }
 }
 
+// Note that we don't try to get anything from the ar_activity table.  Since
+// this is the checkout, nothing should be there yet for this invoice.
+
 // If there were only products without prescriptions then there is no
 // provider yet, so get it from the encounter.
 if ($inv_encounter && !$inv_provider) {
@@ -936,10 +985,10 @@ if ($inv_encounter && !$inv_provider) {
 
  <tr>
   <td>
-   <?php xl($GLOBALS['discount_by_money'] ? 'Discount Amount' : 'Discount Percentage','e'); ?>:
+   <?php xl('Discount Amount','e'); ?>:
   </td>
   <td>
-   <input type='text' name='form_discount' size='3' value=''
+   <input type='text' name='form_discount' size='6' maxlength='8' value=''
     style='text-align:right' onkeyup='computeTotals()'>
   </td>
  </tr>
