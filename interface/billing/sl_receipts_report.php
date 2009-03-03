@@ -193,6 +193,7 @@
 <?php
   if ($_POST['form_refresh']) {
     $form_doctor = $_POST['form_doctor'];
+    $arows = array();
 
     if ($INTEGRATED_AR) {
       $ids_to_skip = array();
@@ -360,7 +361,6 @@
       $grandtotal2 = 0;
       $last_trans_id = 0;
       $skipping      = false;
-      $arows         = array();
 
       for ($irow = 0; $irow < SLRowCount($t_res); ++$irow) {
         $row = SLGetRow($t_res, $irow);
