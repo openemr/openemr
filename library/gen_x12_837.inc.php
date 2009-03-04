@@ -654,17 +654,19 @@ function gen_x12_837($pid, $encounter, &$log) {
     // auto-generate secondary claims.  These do NOT appear in my copy of
     // the spec!  -- Rod 2008-06-12
 
-    ++$edicount;
-    $out .= "N3" .
-      "*" . $claim->payerStreet($ins) .
-      "~\n";
-
-    ++$edicount;
-    $out .= "N4" .
-      "*" . $claim->payerCity($ins) .
-      "*" . $claim->payerState($ins) .
-      "*" . $claim->payerZip($ins) .
-      "~\n";
+    if ($claim->x12gsreceiverid() == '431420764') { // if Gateway EDI
+      ++$edicount;
+      $out .= "N3" .
+        "*" . $claim->payerStreet($ins) .
+        "~\n";
+      //
+      ++$edicount;
+      $out .= "N4" .
+        "*" . $claim->payerCity($ins) .
+        "*" . $claim->payerState($ins) .
+        "*" . $claim->payerZip($ins) .
+        "~\n";
+    } // end Gateway EDI
 
   } // End loops 2320/2330*.
 
