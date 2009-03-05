@@ -798,7 +798,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
 ?>
  <tr bgcolor='<?php echo $bgcolor ?>'>
   <td class="detail">
-   &nbsp;<a href="" onclick="return npopup(<?php echo $pid ?>)"
+   &nbsp;<a href="" onclick="return npopup(<?php echo $row['pid'] ?>)"
    ><?php echo $row['lname'] . ', ' . $row['fname']; ?></a>
   </td>
   <td class="detail">
