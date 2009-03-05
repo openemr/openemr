@@ -142,12 +142,13 @@ a {
 		<td  align='right'>{$result.BMI}</td>
 	{/foreach}</tr>
 
-	<tr><td>BMI Status</td><td>Type</td>
-		<td align='right'>{$vitals->get_BMI_status()}</td>
-	{foreach item=result from=$results}
-		<td  align='right'>{$result.BMI_status}</td>
-	{/foreach}
-	</tr>
+  <tr><td>BMI Status - Blank is Normal</td><td>Type</td>
+    <td align='right'><input type="text" size='15'
+    name="BMI_status" value="{$vitals->get_BMI_status()}"/></td>
+  {foreach item=result from=$results}
+    <td  align='right'>{$result.BMI_status}</td>
+  {/foreach}
+  </tr>
 
   <tr><td>Other Notes</td>
     <td colspan='2' align='right'><input type="text" size='20'

@@ -75,8 +75,8 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 <input type=checkbox name='noninsulin_dependent_diabetes'  ><span class=text><?php xl('Non-Insulin Dependent Diabetes','e'); ?></span><br>
 <input type=checkbox name='hypothyroidism'  ><span class=text><?php xl('Hypothyroidism','e'); ?></span><br>
 <input type=checkbox name='hyperthyroidism'  ><span class=text><?php xl('Hyperthyroidism','e'); ?></span><br>
-<input type=checkbox name='cushing_syndrom'  ><span class=text><?php xl('Cushing Syndrom','e'); ?></span><br>
-<input type=checkbox name='addison_syndrom'  ><span class=text><?php xl('Addison Syndrom','e'); ?></span><br>
+<input type=checkbox name='cushing_syndrom'  ><span class=text><?php xl('Cushing Syndrome','e'); ?></span><br>
+<input type=checkbox name='addison_syndrom'  ><span class=text><?php xl('Addison Syndrome','e'); ?></span><br>
 
 </td><td valign=top>
 
@@ -110,14 +110,14 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 <input type=checkbox name='gastritis'  ><span class=text><?php xl('Gastritis','e'); ?></span><br>
 <input type=checkbox name='endoscopy'  ><span class=text><?php xl('Endoscopy','e'); ?></span><br>
 <input type=checkbox name='polyps'  ><span class=text><?php xl('Polyps','e'); ?></span><br>
-<input type=checkbox name='colonoscopy'  ><span class=text><?php xl('colonoscopy','e'); ?></span><br>
+<input type=checkbox name='colonoscopy'  ><span class=text><?php xl('Colonoscopy','e'); ?></span><br>
 <input type=checkbox name='colon_cancer'  ><span class=text><?php xl('Colon Cancer','e'); ?></span><br>
 <input type=checkbox name='colon_cancer_surgery'  ><span class=text><?php xl('Colon Cancer Surgery','e'); ?></span><br>
 <input type=checkbox name='ulcerative_colitis'  ><span class=text><?php xl('Ulcerative Colitis','e'); ?></span><br>
 <input type=checkbox name='crohns_disease'  ><span class=text><?php xl('Crohn\'s Disease','e'); ?></span><br>
 <input type=checkbox name='appendectomy'  ><span class=text><?php xl('Appendectomy','e'); ?></span><br>
-<input type=checkbox name='divirticulitis'  ><span class=text><?php xl('Divirticulitis','e'); ?></span><br>
-<input type=checkbox name='divirticulitis_surgery'  ><span class=text><?php xl('Divirticulitis Surgery','e'); ?></span><br>
+<input type=checkbox name='divirticulitis'  ><span class=text><?php xl('Diverticulitis','e'); ?></span><br>
+<input type=checkbox name='divirticulitis_surgery'  ><span class=text><?php xl('Diverticulitis Surgery','e'); ?></span><br>
 <input type=checkbox name='gall_stones'  ><span class=text><?php xl('Gall Stones','e'); ?></span><br>
 <input type=checkbox name='cholecystectomy'  ><span class=text><?php xl('Cholecystectomy','e'); ?></span><br>
 <input type=checkbox name='hepatitis'  ><span class=text><?php xl('Hepatitis','e'); ?></span><br>
@@ -130,7 +130,7 @@ $returnurl = $GLOBALS['concurrent_layout'] ? 'encounter_top.php' : 'patient_enco
 <input type=checkbox name='osetoarthritis'  ><span class=text><?php xl('Osetoarthritis','e'); ?></span><br>
 <input type=checkbox name='rheumotoid_arthritis'  ><span class=text><?php xl('Rheumotoid Arthritis','e'); ?></span><br>
 <input type=checkbox name='lupus'  ><span class=text><?php xl('Lupus','e'); ?></span><br>
-<input type=checkbox name='ankylosing_sondlilitis'  ><span class=text><?php xl('Ankylosing Sondlilitis','e'); ?></span><br>
+<input type=checkbox name='ankylosing_sondlilitis'  ><span class=text><?php xl('Ankylosing Spondlilitis','e'); ?></span><br>
 <input type=checkbox name='swollen_joints'  ><span class=text><?php xl('Swollen Joints','e'); ?></span><br>
 <input type=checkbox name='stiff_joints'  ><span class=text><?php xl('Stiff Joints','e'); ?></span><br>
 <input type=checkbox name='broken_bones'  ><span class=text><?php xl('Broken Bones','e'); ?></span><br>
