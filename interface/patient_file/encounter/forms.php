@@ -64,7 +64,8 @@ if (is_numeric($pid)) {
 
 echo ":";
 if (acl_check('admin', 'super')) {
-    echo "&nbsp;&nbsp;<a href='' onclick='return deleteme()' class='deleteme'>" .
+    // echo "&nbsp;&nbsp;<a href='' onclick='return deleteme()' class='deleteme'>" .
+    echo "&nbsp;&nbsp;<a href='' onclick='return deleteme()'>" .
         "<font class='more' style='color:red'>(Delete)</font></a>";
 }
 echo "<br>\n";
@@ -102,7 +103,7 @@ if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name
                 "formname=" . $formdir . "&id=" . $iter['form_id'] .
                 "' onclick='top.restoreSession()'>$form_name</a>";
 
-        if (acl_check('admin', 'super')) {
+        if (acl_check('admin', 'super') && $formdir != 'newpatient') {
             // a link to delete the form from the encounter 
             echo "<span class='small'> (<a target='".
                 ($GLOBALS['concurrent_layout'] ? "_parent" : "Main") .
@@ -154,8 +155,8 @@ $(document).ready(function(){
     $(".onerow").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".onerow").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".onerow").click(function() { GotoForm(this); });
-    
-    $(".deleteme").click(function(evt) { deleteme(); evt.stopPropogation(); });
+
+    // $(".deleteme").click(function(evt) { deleteme(); evt.stopPropogation(); });
 
     var GotoForm = function(obj) {
         var parts = $(obj).attr("id").split("~");
