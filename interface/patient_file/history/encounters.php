@@ -274,7 +274,7 @@ if ($result = getEncounters($pid)) {
         }
 
         $rawdata = $iter['encounter']."~".$raw_encounter_date;
-        echo "<tr class='encrow text' id='".$rawdata."' title='View encounter'>\n";
+        echo "<tr class='encrow text' id='".$rawdata."' title='View encounter $pid.{$iter['encounter']}'>\n";
 
         // show encounter date
         echo "<td valign='top'>$raw_encounter_date</td>\n";
