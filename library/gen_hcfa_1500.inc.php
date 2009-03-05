@@ -251,7 +251,7 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
     (empty($GLOBALS['MedicareReferrerIsRenderer']) || $claim->claimType() != 'MB'))
   {
     // Box 17a. Referring Provider Alternate Identifier
-    if ($claim->referrerUPIN()) {
+    if ($claim->referrerUPIN() && $claim->claimType() != 'MB') {
       put_hcfa(33, 30,  2, '1G');
       put_hcfa(33, 33, 15, $claim->referrerUPIN());
     }
@@ -497,7 +497,7 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
 
   // 33b. Billing Facility Other ID
   // Note that Medicare does NOT want this any more.
-  if ($claim->providerGroupNumber()) {
+  if ($claim->providerGroupNumber() && $claim->claimType() != 'MB') {
     put_hcfa(61, 63,  2, $claim->providerNumberType());
     put_hcfa(61, 65, 14, $claim->providerGroupNumber());
   }
