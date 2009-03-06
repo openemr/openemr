@@ -11,14 +11,16 @@
 #
 #
 #This script is called by the the OpenEMR CVS demo and developer appliance.
+# It configures the CVS Demo and the Developer Appliance
 # It will configure OpenEMR (bypassing setup.php).
 # Logs errors
 #
 
 # PATH VARIABLES
-OPENEMR=/var/www/html/openemr
+WEB=/var/www/html
+OPENEMR=$WEB/openemr
+LOG=$WEB/log/logSetup.txt
 CVS=/home/openemr/cvs
-LOG=/var/www/html/log/logSetup.txt
 
 # OTHER VARIABLES
 setHost="localhost"         #mysql server (if not different from php, then localhost)
@@ -35,7 +37,28 @@ setIgroup="Default"         #practice group name
 setOpenemrWebPath=/openemr  #path on browser to openemr
 setInst="1"                 #CONSTANT, don't set
 
+#FIRST DEAL WITH STUFF SPECIFIC TO THE CVS DEMO AND DEVELOPER APPLIANCE
+#Replace manual with newest version from cvs
+echo "Configuring appliance"
+cp -f $OPENEMR/contrib/util/installScripts/cvsDemoMisc/developerApplianceManual.txt /home/openemr/docs/manual.txt
+chown openemr:openemr /home/openemr/docs/manual.txt
+cp -f $OPENEMR/contrib/util/installScripts/cvsDemoMisc/developerApplianceManual.txt $WEB/manual.txt
+echo "Done configuring appliance"
+#Package the cvs version into a tarball and zip file to be available thru web browser
+# This is basically to allow download of most recent cvs version from the cvs Demo appliance
+# It will also ease transfer/testing openemr on windows systems when using the Developer appliance
+echo "Creating OpenEMR CVS packages"
+cd $CVS
+mkdir $WEB/files
+tar -czf $WEB/files/openemr-CVS.tar.gz openemr
+md5sum $WEB/files/openemr-CVS.tar.gz > $WEB/files/openemr-linux-MD5.txt
+zip -r $WEB/files/openemr-CVS.zip openemr
+md5sum $WEB/files/openemr-CVS.zip > $WEB/files/openemr-windows-MD5.txt
+date > $WEB/files/date-CVS.txt
+echo "Done creating OpenEMR CVS packages"
+
 #INSTALL AND CONFIGURE OPENEMR
+echo "Configuring OpenEMR"
 # Set file and directory permissions
 chmod 666 $OPENEMR/library/sqlconf.php
 chmod 666 $OPENEMR/gacl/gacl.ini.php
@@ -105,3 +128,4 @@ chmod 644 $OPENEMR/interface/globals.php
 #replace original acl.inc and gacl/setup.php script
 mv $OPENEMR/library/TEMP2acl.inc $OPENEMR/library/acl.inc
 mv $OPENEMR/gacl/TEMP2setup.php $OPENEMR/gacl/setup.php
+echo "Done configuring OpenEMR"
