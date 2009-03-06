@@ -91,10 +91,10 @@ User Manual    -> http://'IP Address'/manual.txt
 
 -Note that these are not listed ont he intro screen
 CVS packaged for linux     -> http://'IP Address'/files/openemr-cvs.tar.gz
-MD5 sum of linux package   -> http://'IPAddress'/files/openemr-linux-MD5.txt
+MD5 sum of linux package   -> http://'IP Address'/files/openemr-linux-md5.txt
 CVS packaged for windows   -> http://'IP Address'/files/openemr-cvs.zip
-MD5 sum of windows package -> http://'IPAddress'/files/openemr-windows-MD5.txt
-Date CVS was packaged      -> http://'IP Address'/date-cvs.txt
+MD5 sum of windows package -> http://'IP Address'/files/openemr-windows-md5.txt
+Date CVS was packaged      -> http://'IP Address'/files/date-cvs.txt
 
 
 V. Appliance directory structure
@@ -112,9 +112,9 @@ V. Appliance directory structure
  -logPhp.txt
 /var/www/html/files
  -openemr-cvs.tar.gz
- -openemr-linux-MD5.txt
+ -openemr-linux-md5.txt
  -openemr-cvs.zip
- -openemr-windows-MD5.txt
+ -openemr-windows-md5.txt
  -date-cvs.txt
 /var/www/html/openemr
 

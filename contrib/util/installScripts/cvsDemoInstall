@@ -40,28 +40,33 @@ setInst="1"                 #CONSTANT, don't set
 #FIRST DEAL WITH STUFF SPECIFIC TO THE CVS DEMO AND DEVELOPER APPLIANCE
 #Replace manual with newest version from cvs
 echo "Configuring appliance"
+echo "Configuring appliance" >> $LOG
 cp -f $OPENEMR/contrib/util/installScripts/cvsDemoMisc/developerApplianceManual.txt /home/openemr/docs/manual.txt
 chown openemr:openemr /home/openemr/docs/manual.txt
 cp -f $OPENEMR/contrib/util/installScripts/cvsDemoMisc/developerApplianceManual.txt $WEB/manual.txt
 echo "Done configuring appliance"
+echo "Done configuring appliance" >> $LOG
 #Package the cvs version into a tarball and zip file to be available thru web browser
 # This is basically to allow download of most recent cvs version from the cvs Demo appliance
 # It will also ease transfer/testing openemr on windows systems when using the Developer appliance
 echo "Creating OpenEMR CVS packages"
+echo "Creating OpenEMR CVS packages" >> $LOG
 mkdir $WEB/files
 cd $CVS
-tar -czf $WEB/files/openemr-CVS.tar.gz openemr
+tar -czf $WEB/files/openemr-cvs.tar.gz openemr
 cd $WEB/files
-md5sum openemr-CVS.tar.gz > openemr-linux-MD5.txt
+md5sum openemr-cvs.tar.gz > openemr-linux-md5.txt
 cd $CVS
-zip -rq $WEB/files/openemr-CVS.zip openemr
+zip -rq $WEB/files/openemr-cvs.zip openemr
 cd $WEB/files
-md5sum openemr-CVS.zip > openemr-windows-MD5.txt
-date > date-CVS.txt
+md5sum openemr-cvs.zip > openemr-windows-md5.txt
+date > date-cvs.txt
 echo "Done creating OpenEMR CVS packages"
+echo "Done creating OpenEMR CVS packages" >> &LOG
 
 #INSTALL AND CONFIGURE OPENEMR
 echo "Configuring OpenEMR"
+echo "Configuring OpenEMR" >> $LOG
 # Set file and directory permissions
 chmod 666 $OPENEMR/library/sqlconf.php
 chmod 666 $OPENEMR/gacl/gacl.ini.php
@@ -132,3 +137,4 @@ chmod 644 $OPENEMR/interface/globals.php
 mv $OPENEMR/library/TEMP2acl.inc $OPENEMR/library/acl.inc
 mv $OPENEMR/gacl/TEMP2setup.php $OPENEMR/gacl/setup.php
 echo "Done configuring OpenEMR"
+echo "Done configuring OpenEMR" >> $LOG
