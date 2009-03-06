@@ -48,13 +48,16 @@ echo "Done configuring appliance"
 # This is basically to allow download of most recent cvs version from the cvs Demo appliance
 # It will also ease transfer/testing openemr on windows systems when using the Developer appliance
 echo "Creating OpenEMR CVS packages"
-cd $CVS
 mkdir $WEB/files
+cd $CVS
 tar -czf $WEB/files/openemr-CVS.tar.gz openemr
-md5sum $WEB/files/openemr-CVS.tar.gz > $WEB/files/openemr-linux-MD5.txt
-zip -r $WEB/files/openemr-CVS.zip openemr
-md5sum $WEB/files/openemr-CVS.zip > $WEB/files/openemr-windows-MD5.txt
-date > $WEB/files/date-CVS.txt
+cd $WEB/files
+md5sum openemr-CVS.tar.gz > openemr-linux-MD5.txt
+cd $CVS
+zip -rq $WEB/files/openemr-CVS.zip openemr
+cd $WEB/files
+md5sum openemr-CVS.zip > openemr-windows-MD5.txt
+date > date-CVS.txt
 echo "Done creating OpenEMR CVS packages"
 
 #INSTALL AND CONFIGURE OPENEMR
