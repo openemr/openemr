@@ -62,7 +62,7 @@ cd $WEB/files
 md5sum openemr-cvs.zip > openemr-windows-md5.txt
 date > date-cvs.txt
 echo "Done creating OpenEMR CVS packages"
-echo "Done creating OpenEMR CVS packages" >> &LOG
+echo "Done creating OpenEMR CVS packages" >> $LOG
 
 #INSTALL AND CONFIGURE OPENEMR
 echo "Configuring OpenEMR"
