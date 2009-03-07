@@ -2,6 +2,29 @@
 include_once("../../globals.php");
 include_once("../../../library/sql.inc");	
 
+function addAppt($days,$time) {
+  $sql = "insert into openemr_postcalendar_events (pc_pid, pc_eventDate," . 
+    "pc_comments, pc_aid,pc_startTime) values (" . 
+    $_SESSION['pid'] . ", date_add(current_date(), interval " . $days . 
+    " day),'from CAMOS', " . $_SESSION['authId'] . ",'$time')";
+  return sqlInsert($sql);
+}
+function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp) {
+//This is based on code from /openemr/interface/forms/vitals/C_FormVitals.class.php
+//if it doesn't work, look there for changes.
+  $_POST['process'] = 'true';
+  $_POST['weight'] = $weight;
+  $_POST['height'] = $height;
+  $_POST['bps'] = $systolic;
+  $_POST['bpd'] = $diastolic;
+  $_POST['pulse'] = $pulse;
+  $_POST['temperature'] = $temp;
+  include_once("../../../library/api.inc");
+  require ("../vitals/C_FormVitals.class.php");
+  $c = new C_FormVitals();
+  echo $c->default_action_process($_POST);
+}
+
 //This function was copied from billing.inc and altered to support 'justify'
 function addBilling2($encounter, $code_type, $code, $code_text, $modifier="",$units="",$fee="0.00",$justify)
 {
@@ -61,6 +84,29 @@ function process_commands(&$string_to_process, &$camos_return_data) {
     }
     else {$replace_finished = TRUE;}
   }
+  //date_add is a function to add a given number of days to the date of the current encounter
+  //this will be useful for saving templates of prescriptions with 'do not fill until' dates
+  //I am going to implement with mysql date functions. 
+  //I am putting this before other functions just like replace function because it is replacing text
+  //needs to be here.
+  if (preg_match("/\/\*\s*date_add\s*::\s*(.*?)\s*\*\//",$string_to_process, $matches)) {
+    $to_replace = $matches[0];
+    $days = $matches[1];
+    $query = "select date_format(date_add(date, interval $days day),'%W, %m-%d-%Y') as date from form_encounter where " . "pid = " . $_SESSION['pid'] . " and encounter = " . $_SESSION['encounter']; 
+    $statement = sqlStatement($query);
+    if ($result = sqlFetchArray($statement)){ 
+        $string_to_process = str_replace($to_replace,$result['date'],$string_to_process);
+    }
+  }
+  if (preg_match("/\/\*\s*date_sub\s*::\s*(.*?)\s*\*\//",$string_to_process, $matches)) {
+    $to_replace = $matches[0];
+    $days = $matches[1];
+    $query = "select date_format(date_sub(date, interval $days day),'%W, %m-%d-%Y') as date from form_encounter where " . "pid = " . $_SESSION['pid'] . " and encounter = " . $_SESSION['encounter']; 
+    $statement = sqlStatement($query);
+    if ($result = sqlFetchArray($statement)){ 
+        $string_to_process = str_replace($to_replace,$result['date'],$string_to_process);
+    }
+  }
 
 
   //end of special case of replace function
@@ -87,6 +133,22 @@ function process_commands(&$string_to_process, &$camos_return_data) {
       //in function call 'addBilling' note last param is the remainder of the array.  we will look for justifications here...
       addBilling2($encounter, $type, $code, $text, $modifier,$units,$fee,$comm_array);
     }
+    if (trim($comm_array[0])== 'appt') {
+      array_shift($comm_array);
+      $days = trim(array_shift($comm_array));  
+      $time = trim(array_shift($comm_array));  
+      addAppt($days, $time);
+    } 
+    if (trim($comm_array[0])== 'vitals') {
+      array_shift($comm_array);
+      $weight = trim(array_shift($comm_array));  
+      $height = trim(array_shift($comm_array));  
+      $systolic = trim(array_shift($comm_array));  
+      $diastolic = trim(array_shift($comm_array));  
+      $pulse = trim(array_shift($comm_array));  
+      $temp = trim(array_shift($comm_array));  
+      addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp);
+    } 
     $command_count = 0;
     if (trim($comm_array[0]) == 'camos') {
       $command_count++;
@@ -106,3 +168,47 @@ function process_commands(&$string_to_process, &$camos_return_data) {
 } 
 // I was using this for debugging.  touch logging, chmod 777 logging, then can use.
   //file_put_contents('./logging',$string_to_process."\n\n*************\n\n",FILE_APPEND);//DEBUG
+
+function replace($pid, $enc, $content) { //replace placeholders with values
+	$name= '';
+	$fname = '';
+	$mname = '';
+	$lname = '';
+	$dob = '';
+	$date = '';
+	$age = '';
+	$gender = '';
+	$query1 = sqlStatement(
+		"select t1.fname, t1.mname, t1.lname, " .
+		"t1.sex as gender, " .
+		"t1.DOB, " .
+		"t2.date " .
+		"from patient_data as t1 join form_encounter as t2 on " .
+		"(t1.pid = t2.pid) " . 
+		"where t2.pid = ".$pid." and t2.encounter = ".$enc);
+	if ($results = mysql_fetch_array($query1, MYSQL_ASSOC)) {
+		$fname = $results['fname'];
+		$mname = $results['mname'];
+		$lname = $results['lname'];
+		if ($mname) {$name = $fname.' '.$mname.' '.$lname;}
+		else {$name = $fname.' '.$lname;}
+		$dob = $results['DOB'];
+		$date = $results['date'];
+		$age = patient_age($dob, $date); 
+		$gender = $results['gender'];
+	}
+	$ret = preg_replace(array("/patientname/i","/patientage/i","/patientgender/i"),
+	array($name,$age,strtolower($gender)), $content);
+	return $ret;
+}
+function patient_age($birthday, $date) { //calculate age from birthdate and a given later date
+    list($birth_year,$birth_month,$birth_day) = explode("-",$birthday);
+    list($date_year,$date_month,$date_day) = explode("-",$date);
+    $year_diff  = $date_year - $birth_year;
+    $month_diff = $date_month - $birth_month;
+    $day_diff   = $date_day - $birth_day;
+    if ($month_diff < 0) $year_diff--;
+    elseif (($month_diff==0) && ($day_diff < 0)) $year_diff--;
+    return $year_diff;
+}
+?>

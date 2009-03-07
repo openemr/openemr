@@ -34,4 +34,5 @@ foreach($camos_array as $val) {
     addForm($encounter, $CAMOS_form_name, $newid, "CAMOS", $pid, $userauthorized);
   }
 }
+echo "<font color=red><b>submitted: " . time() . "</b></font>";
 ?>

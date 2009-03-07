@@ -4,7 +4,6 @@
 
 <html>
 <head>
-<? html_header_show();?>
   <title>CAMOS Help</title>
   <link rel="stylesheet" type="text/css" 
         href="CAMOS.css" 
@@ -13,20 +12,18 @@
 <body>
 <a name='top'>
 <div id='myheader'>CAMOS Help Page</div>
-<div id='mypic'><img src='palm.gif'></div>
+<!-- <div id='mypic'><img src='palm.gif'></div> -->
+<br/><br/>
 <div id='mymenu'>
       <a href="#intro">Introduction</a> |
       <a href="#basic">Basic Use</a> |
-      <a href="#rx">Prescription Printing [New!]</a> |
+      <a href="#rx">Prescription and Progress note Printing [New!]</a> |
       <a href="#advanced">Advanced Use</a> 
 </div>
 <a name='intro'>
 <hr/>
 <h1>Introduction</h1>
 <p><a href='#top'>Top</a></p>
-<p>
-An introduction to CAMOS
-</p>
 <p>
 CAMOS (Computer Aided Medical Ordering System) is, on the surface, 
 just a fancy interface for organizing and choosing pieces of text 
@@ -53,10 +50,19 @@ and easy to use.
 <b>submit selected content</b> button - Submit only selected text in content box to patient's chart. <b><u><i>This does not work in Internet Explorer.</i></u></b>
 </p>
 <p>
+<b>add to</b> button - Like the add button for content but instead of replacing existing content with new, it appends the new text to the existing content.
+</p>
+<p>
 <b>lock</b> button - Inserts text: '/*lock::*/' which prevents accidental deletion.  Admittedly a dumb way to do it, but maybe helpful.
 </p>
 <p>
 <b>icd9</b> button - Inserts icd9 codes from billing table for this encounter.  You have to remember to enter them first before viewing this form.
+</p>
+<p>
+<b>search</b> button - Searches content from form_CAMOS table based on keywords entered in text box to the left of the button.  Starting the keywords with the word 'codes' or 'billing' will search the codes or billing table for matching icd9, cpt4 or other codes.  Data is displayed in the content box in camos function format (see advanced section below).
+</p>
+<p>
+<b>search selected</b> button -  Like the search button described above, but searches are limited by what is selected in the columns.
 </p>
 </h3>Top Row of Buttons:</h3>
 <b>clone</b> button - Searches for list of entries in this patient's history under the selected category and returns the most recent of each.  Data is displayed in the content box in camos function format (see advanced section below).
@@ -74,10 +80,10 @@ and easy to use.
 </a>
 <a name='rx'>
 <hr/>
-<h1>Prescription Printing</h1>
+<h1>Prescription and Progress note Printing</h1>
 <p><a href='#top'>Top</a></p>
 <p>
-After leaving the CAMOS form, Your entries will show with a link titled 'Rx'.  Click on this link, choose which items to print with checkboxes and submit.  Make sure to set all margins to zero and print in landscape mode.
+After leaving the CAMOS form, Your entries will show with a link titled 'rx'.  Click on this link, choose which items to print with checkboxes and submit.  Make sure to set all margins to zero and print in landscape mode.  There are a variety of other links as well.  'sig_rx' generates prescriptions with a signature image.  The user must create a signature image and name it sig.jpg in the CAMOS directory for this to work.  'Print This Encounter' and 'Print Any Encounter' allow for printing of progress notes.  The vitals table data and CAMOS data are integrated.  The format depends on having CAMOS categories 'exam' and 'prescriptions'.  For customization, programmers can edit the file notegen.php.  Forms other than vitals and CAMOS will not appear in these notes. 
 
 <a name='advanced'>
 <hr/>
@@ -87,7 +93,20 @@ After leaving the CAMOS form, Your entries will show with a link titled 'Rx'.  C
 For the advanced user
 </p>
 <p>
-Comments.  CAMOS supports C style comments.  Here is how they work.  A comment opens with /* and closes with */.  You cannot nest comments.  You cannot overlap comments.  Anything in a comment will be seen within CAMOS in the item window, but it will not show when you enter it into the patient's chart.  This is useful for making notes on items that are not appropriate to go in the chart.  You may want, for example, to document which insurance a particular facility accepts. 
+<b>Accessing CAMOS from outside of an encounter.</b><br>  
+</p>
+<p>
+The CAMOS form has uses that are not related to a patient encounter.  For example, you may maintain a list of referral sources to submit in a patient's chart if you wish to refer the patient, but you may want to look at referral data in CAMOS without going into the chart.  This would be like CAMOS doubling as a phone book.  Another use is to build up content data for future use without having to go into a patient's chart.  To access CAMOS externally, setup a bookmark or link with the following url:
+<br/><br/>
+http://webroot/interface/forms/CAMOS/new.php?mode=external
+<br/><br/>
+This will hide buttons which should not be used if you are not in an encounter.
+</p>
+<p>
+<b>Comments</b><br>  
+</p>
+<p>
+CAMOS supports C style comments.  Here is how they work.  A comment opens with /* and closes with */.  You cannot nest comments.  You cannot overlap comments.  Anything in a comment will be seen within CAMOS in the item window, but it will not show when you enter it into the patient's chart.  This is useful for making notes on items that are not appropriate to go in the chart.  You may want, for example, to document which insurance a particular facility accepts. 
 
 </p>
 
@@ -100,6 +119,12 @@ Comments.  CAMOS supports C style comments.  Here is how they work.  A comment o
 </pre>
 </div>
 </div>
+<p>
+<b>Special Double Clicking</b><br>  
+</p>
+<p>
+Double clicking between the comment delimiters /* and */ in the content box will select the delimiters and text between them.  Double clicking again, will remove surrounding text other than what was selected (crop to selection).  Double clicking a third time will return removed text to the content box.  This is useful for managing data formatted as embedded functions as described below and with the submit selected content button.
+</p>
 <p>
 <b>Embedded functions</b><br>  
 </p>
@@ -136,6 +161,7 @@ The <b>camos</b> function, CAMOS calling CAMOS:
 <p>
 This function is used by the cloning features.  You may take advantage of it yourself. Obvserve how it is used.  Keyword is 'camos' and arguments are category, subcatory, item, content.
 </p>
+<!-- start new function description -->
 <p>
 The <b>replace</b> function.  Used as follows:
 </p>
@@ -150,6 +176,87 @@ Atenolol 50mg
 <p>
 In this example, the replace function looks for an 'item' entry called '30 tablets qd' and replaces the function call with the text from the associated content box.  This replace function works recursively, meaning that if the text which is used in the replacement contains a call to 'replace' itself, this will be called as well.  Other function calls will be executed only after all replace calls are completed.
 </p>
+<!-- end new function description -->
 
+<!-- start new function description -->
+<p>
+The <b>vitals</b> function.  Used as follows:
+</p>
+<div class='box'>
+<div class='code'>
+<pre>
+/*vitals::wt::ht::bps::bpd::pulse::temp*/
+</pre>
+</div>
+</div>
+<p>
+This function submits vital sign data to the vitals table.
+</p>
+<!-- end new function description -->
+
+<!-- start new function description -->
+<p>
+The <b>date_add</b> function.  Used as follows:
+</p>
+<div class='box'>
+<div class='code'>
+<pre>
+/*date_add::x*/
+</pre>
+</div>
+</div>
+<p>
+This function call is replaced by the day of the week and date x days from the encounter date.
+</p>
+<!-- end new function description -->
+
+<!-- start new function description -->
+<p>
+The <b>date_sub</b> function.  Used as follows:
+</p>
+<div class='box'>
+<div class='code'>
+<pre>
+/*date_sub::x*/
+</pre>
+</div>
+</div>
+<p>
+Same as date_add but it subtracts x days from the encounter date.
+</p>
+<!-- end new function description -->
+
+<!-- start new function description -->
+<p>
+The <b>appt</b> function.  Used as follows:
+</p>
+<div class='box'>
+<div class='code'>
+<pre>
+/*appt::x::time*/
+</pre>
+</div>
+</div>
+<p>
+This function submits an appointment to the calendar x days from the current date at time.  Note: this needs work.  The function may not submit all of the data required for the appointment to actually appear in the regular calendar, so it's probably not too useful to anyone at this point.
+</p>
+<!-- end new function description -->
+
+<!-- start new function description -->
+<p>
+<b>patientname, patientage, patientgender</b>.  Used as follows:
+</p>
+<div class='box'>
+<div class='code'>
+<pre>
+patientname is a patientage year-old patientgender.
+</pre>
+</div>
+</div>
+<p>
+These keywords are substituted with the appropriate information from the patient's demographic data.
+</p>
+<!-- end new function description -->
 </body>
+
 </html>
