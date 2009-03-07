@@ -1,14 +1,7 @@
-<?  include_once ('../../globals.php'); ?> 
-<?  include_once ('../../../library/sql.inc'); ?> 
-<html>
-<head>
-<? html_header_show();?>
-<title>
-Four Pane Prescription Printer
-</title>
-</head>
-<body>
-<?
+<?php
+include_once ('../../globals.php'); 
+include_once ('../../../library/sql.inc'); 
+include_once ('../../../library/classes/Prescription.class.php');
 //practice data
 $physician_name = ''; 
 $practice_fname = '';
@@ -37,8 +30,9 @@ $sigline['plain'] =
   . "</div>\n";
 $sigline['embossed'] =  
     "<div class='signature'>" 
-  . " ______________________________________________<br/>"
-  . "Signature - Call to verify if not embossed."
+  . " _____________________________________________________<br/>"
+#  . "Signature - Valid for three days and in Broward County only."
+  . "Signature"
   . "</div>\n";
 $sigline['signed'] =  
     "<div class='sig'>"
@@ -55,7 +49,7 @@ if ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
   $patient_dob = $result['DOB'];
 }
 //update user information if selected from form
-if ($_POST['update']) {
+if ($_POST['update']) { // OPTION update practice inf
   $query = "update users set " .
     "fname = '" . $_POST['practice_fname'] . "', " .  
     "lname = '" . $_POST['practice_lname'] . "', " .  
@@ -85,23 +79,52 @@ if ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
   $practice_fax = $result['fax'];
   $practice_dea = $result['federaldrugid'];
 }
-if ($_POST['print']) {
+if ($_POST['print']) { 
   $camos_content = array();
   foreach ($_POST as $key => $val) {
     if (substr($key,0,3) == 'ch_') {
       $query = sqlStatement("select content from form_CAMOS where id =" . 
         substr($key,3));
       if ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
-        $content = preg_replace('|\n|','<br/>', $result['content']);
-        $content = preg_replace('|<br/><br/>|','<br/>', $content);
+  	if (!$_GET['letterhead']) { //do this change to formatting only for web output (rx output)
+        	$content = preg_replace('|\n|','<br/>', $result['content']);
+	        $content = preg_replace('|<br/><br/>|','<br/>', $content);
+	} else {
+		$content = $result['content'];
+	}
         array_push($camos_content,$content); 
       }
     }
+    if (substr($key,0,5) == 'chrx_') {
+      $rx = new Prescription(substr($key,5));
+      //$content = $rx->drug.' '.$rx->form.' '.$rx->dosage;
+      $content = '' 
+      . $rx->drug . ' '
+      . $rx->size . ''
+      . $rx->unit_array[$rx->unit] . '<br/>' 
+      . $rx->quantity. ' '
+      . $rx->form_array[$rx->form]. '<br/>'
+      . $rx->dosage . ' '
+      . $rx->form_array[$rx->form]. ' '
+      . $rx->route_array[$rx->route] . ' '
+      . $rx->interval_array[$rx->interval] . '<br/>'
+      . 'refills:' . $rx->refills . '';
+//      . $rx->substitute_array[$rx->substitute]. ''
+//      . $rx->per_refill . '';
+      array_push($camos_content,$content); 
+    }
   }
+  if (!$_GET['letterhead']) { //OPTION print a prescription with css formatting
 ?>
+<html>
+<head>
+<? html_header_show();?>
+<title>
+Four Pane Prescription Printer
+</title>
 <link rel="stylesheet" type="text/css" href="./rx.css" />
 </head>
-<body>
+<body onload='init()'>
 <img src='./hline.jpg' id='hline'>
 <img src='./vline.jpg' id='vline'>
 <?
@@ -115,7 +138,7 @@ if ($camos_content[0]) { //decide if we are printing this rx
     print $practice_city . ", ";
     print $practice_state . " ";
     print $practice_zip . "<br/>\n";
-    print $practice_phone . "<br/>\n";
+    print 'voice: ' . $practice_phone . ' / fax: ' . $practice_fax . "<br/>\n";
     print 'DEA: ' . $practice_dea;
   ?>
     </div>
@@ -160,7 +183,8 @@ if ($camos_content[1]) { //decide if we are printing this rx
     print $practice_city . ", ";
     print $practice_state . " ";
     print $practice_zip . "<br/>\n";
-    print $practice_phone . "<br/>\n";
+    //print $practice_phone . "<br/>\n";
+    print 'voice: ' . $practice_phone . ' / fax: ' . $practice_fax  . "<br/>\n";
     print 'DEA: ' . $practice_dea;
   ?>
   </div>
@@ -205,7 +229,8 @@ if ($camos_content[2]) { //decide if we are printing this rx
     print $practice_city . ", ";
     print $practice_state . " ";
     print $practice_zip . "<br/>\n";
-    print $practice_phone . "<br/>\n";
+    //print $practice_phone . "<br/>\n";
+    print 'voice: ' . $practice_phone . ' / fax: ' . $practice_fax . "<br/>\n";
     print 'DEA: ' . $practice_dea;
   ?>
   </div>
@@ -250,7 +275,8 @@ if ($camos_content[3]) { //decide if we are printing this rx
     print $practice_city . ", ";
     print $practice_state . " ";
     print $practice_zip . "<br/>\n";
-    print $practice_phone . "<br/>\n";
+    //print $practice_phone . "<br/>\n";
+    print 'voice: ' . $practice_phone . ' / fax: ' . $practice_fax . "<br/>\n";
     print 'DEA: ' . $practice_dea;
   ?>
   </div>
@@ -286,21 +312,141 @@ else {
 ?>
 </body>
 </html>
-<?
-}
-else {//pick
+<?php
+  }//end of printing to rx not letterhead
+  elseif ($_GET['letterhead']) { //OPTION print to pdf letterhead
+	$content = preg_replace('/PATIENTNAME/i',$patient_name,$camos_content[0]);
+	include_once('../../../library/classes/class.ezpdf.php');
+  	$pdf =& new Cezpdf();
+	$pdf->selectFont('../../../library/fonts/Times-Bold');
+	$pdf->ezSetCmMargins(3,1,1,1);
+	$pdf->ezText($physician_name,12);
+	$pdf->ezText($practice_address,12);
+	$pdf->ezText($practice_city.', '.$practice_state.' '.$practice_zip,12);
+	$pdf->ezText($practice_phone . ' (voice)',12);
+	$pdf->ezText($practice_phone . ' (fax)',12);
+	$pdf->ezText('',12);
+	$pdf->ezText(date("l, F jS, Y"),12);
+	$pdf->ezText('',12);
+	$pdf->selectFont('../../../library/fonts/Helvetica');
+	$pdf->ezText($content,10);
+	$pdf->selectFont('../../../library/fonts/Times-Bold');
+	$pdf->ezText('',12);
+	$pdf->ezText('',12);
+	if ($_GET['signer'] == 'patient') {
+		$pdf->ezText("__________________________________________________________________________________",12);
+		$pdf->ezText("Print name, sign and date.",12);
+	} 
+	elseif ($_GET['signer'] == 'doctor') {
+		$pdf->ezText('Sincerely,',12);
+		$pdf->ezText('',12);
+		$pdf->ezText('',12);
+		$pdf->ezText($physician_name,12);
+	}
+	$pdf->ezStream();
+  }
+} //end of if print
+  else { //OPTION selection of what to print
 ?>
+<html>
+<head>
+<? html_header_show();?>
+<title>
+Four Pane Prescription Printer
+</title>
+<script type="text/javascript">
+//below init function just to demonstrate how to do it.
+//now need to create 'cycle' function triggered by button to go by fours
+//through selected types of subcategories.
+//this is to be very very cool.
+function init() {}
+function checkall(){
+  var f = document.forms[0];
+  var x = f.elements.length;
+  var i;
+  for(i=0;i<x;i++) {
+    if (f.elements[i].type == 'checkbox') {
+      f.elements[i].checked = true;
+    }
+  }
+}
+function uncheckall(){
+  var f = document.forms[0];
+  var x = f.elements.length;
+  var i;
+  for(i=0;i<x;i++) {
+    if (f.elements[i].type == 'checkbox') {
+      f.elements[i].checked = false;
+    }
+  }
+}
+function cycle() {
+  var log = document.getElementById('log');
+  var cboxes = document.getElementById('checkboxes');
+  var cb = cboxes.getElementsByTagName('div');
+  if (cycle_engine(cb,0) == 0) {cycle_engine(cb,1);}
+}
+function cycle_engine(cb,seed) {
+  //seed determines if we should turn on up to first 4
+  var count_turnon = 0;
+  var count_turnoff = 0;
+  for (var i=0;i<cb.length;i++) {
+    cbc = cb[i].childNodes;
+    if (cbc[2].innerHTML == 'prescriptions') {
+      if (cbc[1].checked == true) {
+        cbc[1].checked = false;
+        count_turnoff++;   
+      } else {
+        if ((count_turnoff > 0 || seed == 1) && count_turnon < 4) {
+          cbc[1].checked = true;
+          count_turnon++;   
+        } 
+      }
+    }
+  }
+  return count_turnoff;
+}
+
+</script>
+<link rel="stylesheet" type="text/css" href="./rx.css" />
+</head>
 <h1>Select CAMOS Entries for printing</h1>
-<form method=POST name='pick_items'>
+<form method=POST name='pick_items' target=_new>
+<input type=button name=cyclerx value='cycle' onClick='cycle()'><br/>
+<input type='button' value='check all' onClick='checkall()'>
+<input type='button' value='uncheck all' onClick='uncheckall()'>
+<input type=submit name=print value=print>
 <?
 $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " . 
  "form_CAMOS  as x join forms as y on (x.id = y.form_id) " . 
  "where y.encounter = " .  $_SESSION['encounter'] . 
- " and x.pid = " . $_SESSION['pid'] .  " and x.activity = 1");
+ " and y.pid = " . $_SESSION['pid'] .  
+ " and y.form_name like 'CAMOS%'" .
+ " and x.activity = 1");
 $results = array();
+echo "<div id='checkboxes'>\n";
+$count = 0;
 while ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
-  echo "<input type=checkbox name='ch_" . $result['id'] . "'>" .
-    $result['category'] . ':' . $result['subcategory'] . ':' . $result['item'] . "<br/>\n";
+  $checked = '';
+  if ($result['category'] == 'prescriptions' && $count < 4) {
+    $count++;
+    $checked = 'checked';
+  }
+  echo "<div>\n";
+  echo "<input type=checkbox name='ch_" . $result['id'] . "' $checked><span>" .
+    $result['category'] . '</span>:' . $result['subcategory'] . ':' . $result['item'] . "<br/>\n";
+  echo "</div>\n";
+}
+echo "</div>\n";
+echo "<div id='log'>\n";//temp for debugging
+echo "</div>\n";
+//create Prescription object for the purpose of drawing data from the Prescription
+//table for those who wish to do so
+$rxarray = Prescription::prescriptions_factory($_SESSION['pid']);
+//now give a choice of drugs from the Prescription table
+foreach($rxarray as $val) {
+  echo "<input type=checkbox name='chrx_" . $val->id . "'>" .
+    $val->drug . ':' . $val->start_date . "<br/>\n";
 }
 ?>
 <input type=submit name=print value=print>
@@ -351,17 +497,8 @@ while ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
 </table>
 <input type=submit name=update value=update>
 </form>
-
-<?
-
+<?php
 } //end of else statement
-//$query = sqlStatement("");
-//while ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
-//}
-?> 
+?>
 </body>
 </html>
-
-<?
-//FUNCTIONS
-?>

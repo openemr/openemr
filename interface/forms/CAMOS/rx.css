@@ -50,6 +50,10 @@
 	font-weight: normal;	
 	font-size: 12px;	
 }
+.sig {
+	position: absolute;
+	top: 2.7in;
+}
 .mytagname {
 	font-weight: bold;	
 	font-size: 12px;	

@@ -6,8 +6,19 @@ include_once("../../../library/forms.inc");
 include_once("../../../library/sql.inc");
 
 if ($_GET["mode"] == "delete") {
-  sqlInsert("delete from form_CAMOS where id=$id and DATE_FORMAT(date,'%Y-%m-%d') like current_date()");
-  sqlInsert("delete from forms where form_name like 'CAMOS%' and form_id=$id and pid='".$_SESSION["pid"]."' and DATE_FORMAT(date,'%Y-%m-%d') like current_date()");
+  foreach($_POST as $key => $val) {
+    if (substr($key,0,3) == 'ch_' and $val='on') {
+      $id = substr($key,3); 
+      if ($_POST['delete']) {
+        sqlInsert("delete from form_CAMOS where id=$id");
+        sqlInsert("delete from forms where form_name like 'CAMOS%' and form_id=$id");
+      }
+      if ($_POST['update']) {
+        sqlInsert("update form_CAMOS set content='".$_POST['textarea_'.$id]."' where id=$id");
+      }
+    }
+  }
+
 }
 $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
