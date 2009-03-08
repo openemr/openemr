@@ -162,6 +162,18 @@ function sel_related() {
  dlgopen('../encounter/find_code_popup.php', '_blank', 500, 400);
 }
 
+// Process click on Delete link.
+function deleteme() {
+ dlgopen('../deleter.php?transaction=<?php echo $transid ?>', '_blank', 500, 450);
+ return false;
+}
+
+// Called by the deleteme.php window on a successful delete.
+function imdeleted() {
+ top.restoreSession();
+ location.href = 'transaction/transactions.php';
+}
+
 </script>
 
 </head>
@@ -180,6 +192,13 @@ foreach ($trans_types as $key => $value) {
 }
 ?>
 </select>
+
+<?php
+  if ($transid && acl_check('admin', 'super')) {
+   echo "&nbsp;&nbsp;<a href='' onclick='return deleteme()'>" .
+    "<span class='more' style='color:red'>(" . xl('Delete') . ")</span></a>";
+  }
+?>
 
 <p>
 <div id='otherdiv' style='display:none'>

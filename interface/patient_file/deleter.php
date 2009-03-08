@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2009 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -18,6 +18,7 @@
  $document    = $_REQUEST['document'];
  $payment     = $_REQUEST['payment'];
  $billing     = $_REQUEST['billing'];
+ $transaction = $_REQUEST['transaction'];
 
  $info_msg = "";
 
@@ -77,7 +78,7 @@ function decorateString($fmt, $str) {
 <html>
 <head>
 <?php html_header_show();?>
-<title><?php xl('Delete Patient, Encounter, Form, Issue, Document, Payment or Billing','e'); ?></title>
+<title><?php xl('Delete Patient, Encounter, Form, Issue, Document, Payment, Billing or Transaction','e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
@@ -97,11 +98,11 @@ td { font-size:10pt; }
    row_modify("billing"       , "activity = 0", "pid = '$patient'");
    row_modify("pnotes"        , "activity = 0", "pid = '$patient'");
    // row_modify("prescriptions" , "active = 0"  , "patient_id = '$patient'");
-
    row_delete("prescriptions"  , "patient_id = '$patient'");
    row_delete("claims"         , "patient_id = '$patient'");
    row_delete("drug_sales"     , "pid = '$patient'");
    row_delete("payments"       , "pid = '$patient'");
+   row_delete("ar_activity"    , "pid = '$patient'");
    row_delete("openemr_postcalendar_events", "pc_pid = '$patient'");
    row_delete("immunizations"  , "patient_id = '$patient'");
    row_delete("issue_encounter", "pid = '$patient'");
@@ -126,6 +127,7 @@ td { font-size:10pt; }
   else if ($encounterid) {
    if (!acl_check('admin', 'super')) die("Not authorized!");
    row_modify("billing", "activity = 0", "encounter = '$encounterid'");
+   row_delete("ar_activity", "pid = '$patient' AND encounter = '$encounterid'");
    row_delete("claims", "encounter_id = '$encounterid'");
    row_delete("issue_encounter", "encounter = '$encounterid'");
    $res = sqlStatement("SELECT * FROM forms WHERE encounter = '$encounterid'");
@@ -246,6 +248,10 @@ td { font-size:10pt; }
       "pid = '$patient_id' AND encounter = '$encounter_id'");
     updateClaim(true, $patient_id, $encounter_id, -1, -1, 1, 0, ''); // clears for rebilling
   }
+  else if ($transaction) {
+   if (!acl_check('admin', 'super')) die("Not authorized!");
+   row_delete("transactions", "id = '$transaction'");
+  }
   else {
    die("Nothing was recognized to delete!");
   }
@@ -263,7 +269,7 @@ td { font-size:10pt; }
  }
 ?>
 
-<form method='post' action='deleter.php?patient=<?php echo $patient ?>&encounterid=<?php echo $encounterid ?>&formid=<?php echo $formid ?>&issue=<?php echo $issue ?>&document=<?php echo $document ?>&payment=<?php echo $payment ?>&billing=<?php echo $billing ?>'>
+<form method='post' action='deleter.php?patient=<?php echo $patient ?>&encounterid=<?php echo $encounterid ?>&formid=<?php echo $formid ?>&issue=<?php echo $issue ?>&document=<?php echo $document ?>&payment=<?php echo $payment ?>&billing=<?php echo $billing ?>&transaction=<?php echo $transaction ?>'>
 
 <p>&nbsp;<br><?php xl('
 Do you really want to delete','e'); ?>
@@ -283,6 +289,8 @@ Do you really want to delete','e'); ?>
   echo "payment $payment";
  } else if ($billing) {
   echo "invoice $billing";
+ } else if ($transaction) {
+  echo "transaction $transaction";
  }
 ?> <?php xl('and all subordinate data? This action will be logged','e'); ?>!</p>
 
