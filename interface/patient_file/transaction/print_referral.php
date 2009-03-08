@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,11 +16,17 @@ $template_file = "$webserver_root/custom/referral_template.html";
 if (!is_file($template_file)) die("$template_file does not exist!");
 
 $transid = empty($_REQUEST['transid']) ? 0 : $_REQUEST['transid'] + 0;
-if (!$transid) die("Transaction ID is missing!");
 
-$trow = getTransById($transid);
+// if (!$transid) die("Transaction ID is missing!");
+
+if ($transid) {
+  $trow = getTransById($transid);
+}
+else {
+  $trow = array('id' => '', 'pid' => $pid, 'refer_date' => date('Y-m-d'));
+}
 $patient_id = $trow['pid'];
-$refer_date = $trow['refer_date'] ? $trow['refer_date'] : date('Y-m-d');
+$refer_date = empty($trow['refer_date']) ? date('Y-m-d') : $trow['refer_date'];
 
 $patdata = getPatientData($patient_id);
 

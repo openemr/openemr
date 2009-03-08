@@ -13,7 +13,10 @@ include_once("$srcdir/transactions.inc");
 
 <a href="add_transaction.php" onclick="top.restoreSession()">
 <font class="title"><?php xl('Patient Transactions','e'); ?></font>
-<font class='more'>(Add Transaction)</font></a>
+<font class='more'>&nbsp;(Add Transaction)</font></a>
+
+<a href="print_referral.php" target="_blank" onclick="top.restoreSession()">
+<font class='more'>&nbsp;(Print Blank Referral Form)</font></a>
 
 <br>
 <table>
