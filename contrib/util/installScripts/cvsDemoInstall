@@ -75,6 +75,7 @@ chmod 666 $OPENEMR/interface/globals.php
 chown -R apache:apache $OPENEMR/documents
 chown -R apache:apache $OPENEMR/edi
 chown -R apache:apache $OPENEMR/era
+chown -R apache:apache $OPENEMR/library/freeb
 chown -R apache:apache $OPENEMR/custom/letter_templates
 chown -R apache:apache $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache
 chown -R apache:apache $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled

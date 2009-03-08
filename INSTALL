@@ -75,8 +75,9 @@ openemr/gacl/gacl.class.php.  In linux, these can be set by "chmod a+w filename"
 command to grant global write permissions to the file, but be sure to set
 them back to something more secure (such as chmod 644) after completing
 installation of OpenEMR.  The directories include openemr/gacl/admin/templates_c,
-openemr/edi, openemr/era, openemr/documents, openemr/custom/letter_templates, 
-openemr/interface/main/calendar/modules/PostCalendar/pntemplates/compiled and
+openemr/edi, openemr/era, openemr/documents, openemr/library/freeb, 
+openemr/custom/letter_templates, 
+openemr/interface/main/calendar/modules/PostCalendar/pntemplates/compiled, and 
 openemr/interface/main/calendar/modules/PostCalendar/pntemplates/cache.  In
 linux, if the webserver user name is "apache", then the command
 "chown -R apache:apache directory_name" will grant global write permissions

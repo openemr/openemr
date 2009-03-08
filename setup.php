@@ -28,6 +28,7 @@ $gaclConfigFile2 = $manualPath."gacl/gacl.class.php";
 $docsDirectory = $manualPath."documents";
 $billingDirectory = $manualPath."edi";
 $billingDirectory2 = $manualPath."era";
+$billingLogDirectory = $manualPath."library/freeb";
 $lettersDirectory = $manualPath."custom/letter_templates";
 $gaclWritableDirectory = $manualPath."gacl/admin/templates_c";
 $requiredDirectory1 = $manualPath."interface/main/calendar/modules/PostCalendar/pntemplates/compiled";
@@ -38,7 +39,7 @@ $gaclSetupScript2 = $manualPath."acl_setup.php";
 //These are files and dir checked before install for
 // correct permissions.
 $writableFileList = array($conffile, $conffile2, $gaclConfigFile1, $gaclConfigFile2);
-$writableDirList = array($docsDirectory, $billingDirectory, $billingDirectory2, $lettersDirectory, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
+$writableDirList = array($docsDirectory, $billingDirectory, $billingDirectory2, $billingLogDirectory, $lettersDirectory, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
 
 
 include_once($conffile);
