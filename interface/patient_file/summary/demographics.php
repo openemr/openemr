@@ -93,7 +93,12 @@ if ($GLOBALS['athletic_team']) {
 </head>
 
 <body class="body_top">
-
+<?php
+$patient_pics = pic_array();
+foreach ($patient_pics as $var) {
+  print $var;
+}
+?>
 <?php
  $result = getPatientData($pid);
  $result2 = getEmployerData($pid);
@@ -384,12 +389,6 @@ if (isset($pid)) {
 <?php } ?>
 </script>
 <?php } ?>
-<?php
-$patient_pics = pic_array();
-foreach ($patient_pics as $var) {
-  print $var;
-}
-?>
 
 <?php if ($GLOBALS['athletic_team']) { ?>
 <script language='JavaScript'>
