@@ -1001,7 +1001,7 @@ if ($error != '') {
   </td>
   <td>
   <div id=id_subcategory_column_header style="display:inline">
-    <?php xl('Subsubcategory',e)?>
+    <?php xl('Subcategory',e)?>
   </div> <!-- end of id_subcategory_column_header -->
   </td>
   <td>
