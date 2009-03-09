@@ -94,12 +94,6 @@ if ($GLOBALS['athletic_team']) {
 
 <body class="body_top">
 <?php
-$patient_pics = pic_array();
-foreach ($patient_pics as $var) {
-  print $var;
-}
-?>
-<?php
  $result = getPatientData($pid);
  $result2 = getEmployerData($pid);
 
@@ -116,6 +110,7 @@ foreach ($patient_pics as $var) {
  }
 
  if ($thisauth == 'write') {
+  foreach (pic_array() as $var) {print $var;}
   echo "<p><a href='demographics_full.php'";
   if (! $GLOBALS['concurrent_layout']) echo " target='Main'";
   echo " onclick='top.restoreSession()'><span class='title'>" .
