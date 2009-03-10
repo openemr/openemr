@@ -514,13 +514,15 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
 	//This has been changed to clone last visit based on actual last encounter rather than as it was
 	//only looking at most recent BILLED encounters.  To go back to billed encounters, change the following
 	//two queries to the 'billing' table rather than form_encounter and make sure to add in 'and activity=1'
+	//OK, now I have tried tracking last encounter from billing, then form_encounter.  Now, we are going to
+	//try from forms where form_name like 'CAMOS%' so we will not bother with encounters that have no CAMOS entries...
         $stepback = $_POST['stepback'] ? $_POST['stepback'] : 1;
-        $tmp = sqlQuery("SELECT max(encounter) as max FROM form_encounter where encounter < " .
-          $_SESSION['encounter'] . " and pid= " . $_SESSION['pid']);
+        $tmp = sqlQuery("SELECT max(encounter) as max FROM forms where encounter < " .
+          $_SESSION['encounter'] . " and form_name like 'CAMOS%' and pid= " . $_SESSION['pid']);
         $last_encounter_id = $tmp['max'] ? $tmp['max'] : 0;
         for ($i=0;$i<$stepback-1;$i++) {
-          $tmp = sqlQuery("SELECT max(encounter) as max FROM form_encounter where encounter < " .
-            $last_encounter_id . " and pid= " . $_SESSION['pid']);
+          $tmp = sqlQuery("SELECT max(encounter) as max FROM forms where encounter < " .
+            $last_encounter_id . " and form_name like 'CAMOS%' and pid= " . $_SESSION['pid']);
           $last_encounter_id = $tmp['max'] ? $tmp['max'] : 0;
         }
         $query = "SELECT category, subcategory, item, content FROM form_CAMOS " .
