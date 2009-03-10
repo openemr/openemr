@@ -578,7 +578,7 @@ if (version_compare(PHP_VERSION, '5.2.4', '>=')) {
         $gotFileFlag = 1;
     }
 }
-echo "<li>To ensure proper functioning of OpenEMR you must make sure that settings in php.ini file include \"display_errors = Off\", \"register_globals = Off\", \"magic_quotes_gpc = Off\", \"max_execution_time\" set to at least 60, \"max_input_time\" set to at least 90, and \"memory_limit\" set to at least \"128M\".</li>\n";
+echo "<li>To ensure proper functioning of OpenEMR you must make sure that settings in php.ini file include \"display_errors = Off\", \"register_globals = Off\", \"magic_quotes_gpc = On\", \"max_execution_time\" set to at least 60, \"max_input_time\" set to at least 90, and \"memory_limit\" set to at least \"128M\".</li>\n";
 echo "<li>In order to take full advantage of the patient documents capability you must make sure that settings in php.ini file include \"file_uploads = On\", that \"upload_max_filesize\" is appropriate for your use and that \"upload_tmp_dir\" is set to a correct value that will work on your system.</li>\n";
 if (!$gotFileFlag) {
     echo "<li>If you are having difficulty finding your php.ini file, then refer to the <a href='INSTALL' target='_blank'><span STYLE='text-decoration: underline;'>'INSTALL'</span></a> manual for suggestions.</li>\n";
