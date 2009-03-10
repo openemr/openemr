@@ -304,51 +304,30 @@ my $view_php =<<'START';
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 formHeader("Form: FORM_NAME");
-$obj = formFetch("form_FORM_NAME", $_GET["id"]);  #Use the formFetch function from api.inc to get values for existing form.
+$obj = formFetch("form_FORM_NAME", $_GET["id"]);  //#Use the formFetch function from api.inc to get values for existing form.
 
-function chkdata_Txt(&$obj, $var)
-    {
-        $result = stripslashes($obj{"$var"});
-        return $result;
-    }
- function chkdata_CB(&$obj, $nam, $var)
-    {
-        $objarr = explode(',',$obj{$nam});
-        foreach ($objarr as $a)
-        	{
-        		if ($a == "$var")
-        			{
-        				$result = "\"checked\"";
-					}
-        	}
-        return $result;
-    }
- function chkdata_Radio(&$obj, $nam, $var)
-    {
-        if ($obj{$nam}== "$var")
-        	{
-        		$result = "\"checked\"";
-			}
-        return $result;
-    }
- function chkdata_PopOrScroll(&$obj, $nam, $var)
-    {
-        $objarr = explode(',',$obj{$nam});
-        foreach ($objarr as $a)
-        	{
-        		if ($a == "$var")
-        			{
-        				$result = "\"selected\"";
-					}
-        	}
-        return $result;
-    }
+function chkdata_Txt(&$obj, $var) {
+        return stripslashes($obj{"$var"});
+}
+function chkdata_Date(&$obj, $var) {
+        return stripslashes($obj{"$var"});
+}
+function chkdata_CB(&$obj, $nam, $var) {
+	if (preg_match("/Negative.*$var/",$obj{$nam})) {return;} else {return "checked";}
+}
+function chkdata_Radio(&$obj, $nam, $var) {
+	if (strpos($obj{$nam},$var) !== false) {return "checked";}
+}
+ function chkdata_PopOrScroll(&$obj, $nam, $var) {
+	if (preg_match("/Negative.*$var/",$obj{$nam})) {return;} else {return "selected";}
+}
 
 ?>
 <html><head>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 </head>
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+DATE_HEADER
 <form method=post action="<?echo $rootdir?>/forms/FORM_NAME/save.php?mode=update&id=<?echo $_GET["id"];?>" name="my_form" onsubmit="return top.restoreSession()">
 <h1> FORM_NAME </h1>
 <hr>
@@ -497,8 +476,9 @@ to_file("$form_name/info.txt",$out);
 $out = replace($new_php, 'FORM_NAME', $form_name);
 $out = replace($out, 'DATABASEFIELDS', $make_form_results);
 $out = xl_fix($out);
-$date_header = '' if not $date_field_exists;
-$out = replace($out,'DATE_HEADER',$date_header);
+if ($date_field_exists) {
+  $out = replace($out,'DATE_HEADER',$date_header);
+}
 to_file("$form_name/new.php",$out);
 
 #print.php
@@ -523,8 +503,13 @@ to_file("$form_name/save.php",$out);
 #view.php
 $out = replace($view_php, 'FORM_NAME', $form_name);
 $out = replace($out, 'DATABASEFIELDS', $make_form_results);
+#$out = replace($out, 'FIELDARRAY', "'".join("'=>1,'",map {shift @$_;shift @$_;shift @$_;join("'=>1,'",@$_)} grep{$_->[3]} @field_data)."'=>1");
+#$out = replace($out, 'FIELDARRAY', "'".join("','",map {shift @$_;shift @$_;shift @$_;join("','",@$_)} grep{$_->[3]} @field_data)."'");
 $out = replace_view_php($out);
 $out = xl_fix($out);
+if ($date_field_exists) {
+  $out = replace($out,'DATE_HEADER',$date_header);
+}
 to_file("$form_name/view.php",$out);
 
 #table.sql
@@ -541,7 +526,7 @@ to_file("$form_name/preview.html",$out);
 
 
 #******************************************************************
-#************************* SUB-ROUTINES ***************************
+#************************* SUBROUTINES ***************************
 #******************************************************************
 
 sub replace
@@ -623,7 +608,7 @@ sub replace_view_php           #a special case  (They're all special cases aren'
 	
 	  goto go if $_ =~ s/(<textarea\sname=")([\w\s]+)("[\w\s="]*>)/$1$2$3<?php \$result = chkdata_Txt(\$obj,"$2"); echo \$result;?>/;  #TEXTAREA
 		 
-	  goto go if $_ =~ s/(<input\stype="text"\s)(name=")([\w\s]+)(")([^>]*)/$1$2$3$4 value=<?php \$result = chkdata_Txt(\$obj,"$3"); echo \$result;?>/;               #TEXT
+	  goto go if $_ =~ s/(<input\stype="text"\s)(name=")([\w\s]+)(")([^>]*)/$1$2$3$4 value='<?php \$result = chkdata_Txt(\$obj,"$3"); echo \$result;?>'/;               #TEXT
 		 
 	  goto go if $_ =~ s/(<input\stype="checkbox"\sname=")([\w\s]+)(\[\])("\svalue=")([\w\s]+)(")([^>]*)/$1$2$3$4$5$6 <?php \$result = chkdata_CB(\$obj,"$2","$5"); echo \$result;?>/;   #CHECKBOX-GROUP
 		 
@@ -632,6 +617,7 @@ sub replace_view_php           #a special case  (They're all special cases aren'
 	  goto go if $_ =~ s/(<input\stype="radio"\sname=")([\w\s]+)("\svalue=")([\w\s]+)(")([^>]*)/$1$2$3$4$5 <?php \$result = chkdata_Radio(\$obj,"$2","$4"); echo \$result;?>/; #RADIO-GROUP
 
 	  goto go if $_ =~ s/(<option value=")([\w\s]+)(")/$1$2$3 <?php \$result = chkdata_PopOrScroll(\$obj,"$selname","$2"); echo \$result;?>/g; #SCROLLING-LISTS-BOTH & POPUP-MENU
+	  goto go if $_ =~ s/(.*?)name='(.*?)'(.*?)datekeyup(.*?)dateblur(.*?)\/>/$1name='$2'$3datekeyup$4dateblur$5 value='<?php \$result = chkdata_Date(\$obj,"$2"); echo \$result;?>'>/; #DATE
 
 		go:	push (@temp, $_, "\n");
 
@@ -702,9 +688,8 @@ $date_field_exists = 1;
 $return .= <<"START";
 <tr><td>
 <span class='text'><?php xl('$label (yyyy-mm-dd): ','e') ?></span>
-</td><td><input type='text' size='10' name='$field_name' id='$field_name'
-onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-title='yyyy-mm-dd last date of this event' />
+</td><td>
+<input type='text' size='10' name='$field_name' id='$field_name' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd last date of this event' />
 <img src='../../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
 id='img_$field_name' border='0' alt='[?]' style='cursor:pointer'
 title='Click here to choose a date'>
