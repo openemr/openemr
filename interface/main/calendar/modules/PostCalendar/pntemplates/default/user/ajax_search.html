@@ -15,6 +15,14 @@
 
 <!-- search parameters -->
 <h2>Searching for appointments</h2>
+&nbsp;
+[-php-]
+if ($GLOBALS['concurrent_layout'])
+    echo "<a href='".$GLOBALS['webroot']."/interface/main/main_info.php' class='menu' onclick='top.restoreSession()'>";
+else
+    echo "<a href='".$GLOBALS['webroot']."/interface/main/main.php' target='Main' class='menu' onclick='top.restoreSession()'>";
+[-/php-]
+Return to calendar</a>
 <div id="calsearch_params">
 <form name="theform" id="theform" action="[-$FORM_ACTION-]" method="POST"> <!-- onsubmit="return top.restoreSession()"> -->
 [-#_PC_SEARCH_KEYWORDS#-]: <input type="text" name="pc_keywords" id="pc_keywords" value="[-php-]echo $_POST['pc_keywords'];[-/php-]" />

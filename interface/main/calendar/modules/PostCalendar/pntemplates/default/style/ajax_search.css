@@ -68,3 +68,7 @@
     color: white;
 }
 submit { margin: 0px; padding: 0px; }
+h2 {
+    margin: 5px;
+    display: inline;
+}
