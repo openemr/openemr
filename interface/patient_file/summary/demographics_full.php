@@ -13,7 +13,7 @@
 
  include_once("$srcdir/patient.inc");
 
- $result = getPatientData($pid);
+ $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD"); 
  $result2 = getEmployerData($pid);
 
  // Check authorization.
@@ -603,7 +603,7 @@ end_group();
 <?php } ?>
 
 <?php if ($GLOBALS['concurrent_layout'] && $set_pid) { ?>
- parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "',''"; ?>);
+ parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' DOB: ".$result['DOB_YMD']." Age: ".getPatientAge($result['DOB_YMD'])."'"; ?>);
  parent.left_nav.setRadio(window.name, 'dem');
 <?php } ?>
 

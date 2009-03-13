@@ -95,7 +95,7 @@ function get_patient_balance($pid) {
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 
 <?php
- $result = getPatientData($pid);
+ $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD"); 
 // DBC Dutch System
     $result_NL = getPatientDataNL($pid);
     // clean the sessions var for the demographics_full
@@ -662,7 +662,7 @@ if (isset($pid)) {
 
 <?php if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) { ?>
 <script language='JavaScript'>
- parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "',''"; ?>);
+ parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' DOB: ".$result['DOB_YMD']." Age: ".getPatientAge($result['DOB_YMD'])."'"; ?>);
  parent.left_nav.setRadio(window.name, 'dem');
 <?php if (!$_GET['is_new']) { // if new pt, do not load other frame ?>
  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';

@@ -85,8 +85,9 @@
  // the corresponding session values.
 
  include_once("../globals.php");
- include_once("../../library/acl.inc");
- include_once("../../custom/code_types.inc.php");
+ include_once($GLOBALS['fileroot']."/library/acl.inc");
+ include_once($GLOBALS['fileroot']."/custom/code_types.inc.php");
+ include_once($GLOBALS['fileroot']."/library/patient.inc"); 
 
  // This array defines the list of primary documents that may be
  // chosen.  Each element value is an array of 3 values:
@@ -501,10 +502,10 @@ function genPopupsList($style='') {
  // patient-specific information from the previous patient.  frname is the name
  // of the frame that the call came from, so we know to only reload content
  // from the *other* frame if it is patient-specific.
- function setPatient(pname, pid, pubpid, frname) {
+ function setPatient(pname, pid, pubpid, frname, str_dob) {
   var str = '<b>' + pname + ' (' + pubpid + ')</b>';
   setDivContent('current_patient', str);
-  setTitleContent('current_patient', str);
+  setTitleContent('current_patient', str + str_dob);
   if (pid == active_pid) return;
   setDivContent('current_encounter', '<b>None</b>');
   active_pid = pid;
