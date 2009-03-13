@@ -1,8 +1,8 @@
 <?php
 
-$config_file = './gacl/gacl.ini.php';
+$config_file = dirname(__FILE__).'/gacl.ini.php';
 
-require_once('./gacl/admin/gacl_admin.inc.php');
+require_once(dirname(__FILE__).'/admin/gacl_admin.inc.php');
 require_once(ADODB_DIR .'/adodb-xmlschema.inc.php');
 
 $db_table_prefix = $gacl->_db_table_prefix;
@@ -169,7 +169,7 @@ $schema = new adoSchema($db);
 $schema->SetPrefix($db_table_prefix, FALSE); //set $underscore == FALSE
 
 // Build the SQL array
-$schema->ParseSchema('./gacl/schema.xml');
+$schema->ParseSchema(dirname(__FILE__).'/schema.xml');
 
 // maybe display this if $gacl->debug is true?
 if ($gacl->_debug) {
