@@ -82,9 +82,15 @@ if ($_POST['bn_save']) {
   exit;
 }
 
+$enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date FROM " .
+  "form_encounter AS fe, forms AS f, patient_data AS p WHERE " .
+  "p.pid = '$pid' AND f.pid = '$pid' AND f.encounter = '$encounter' AND " .
+  "f.formdir = 'newpatient' AND f.deleted = 0 AND " .
+  "fe.id = f.form_id LIMIT 1");
+
 if ($formid) {
-  $pprow = sqlQuery ("SELECT * FROM form_ippf_srh WHERE " .
-    "id = '$formid' AND activity = '1'") ;
+  $pprow = sqlQuery("SELECT * FROM form_ippf_srh WHERE " .
+    "id = '$formid' AND activity = '1'");
 }
 ?>
 <html>
@@ -130,7 +136,13 @@ function divclick(cb, divid) {
 <form method="post" action="<?php echo $rootdir ?>/forms/ippf_srh/new.php?id=<?php echo $formid ?>"
  onsubmit="return top.restoreSession()">
 
-<p class='title' style='margin-top:8px;margin-bottom:8px;text-align:center'>IPPF SRH Data</p>
+<p class='title' style='margin-top:8px;margin-bottom:8px;text-align:center'>
+<?php
+  echo xl('IPPF SRH Data for') . ' ';
+  echo $enrow['fname'] . ' ' . $enrow['mname'] . ' ' . $enrow['lname'];
+  echo ' ' . xl('on') . ' ' . substr($enrow['date'], 0, 10);
+?>
+</p>
 
 <?php
   $shrow = getHistoryData($pid);
