@@ -26,7 +26,7 @@ $indent = 0;
 function Add($tag, $text) {
   global $out, $indent;
   $text = trim(str_replace(array("\r", "\n", "\t"), " ", $text));
-  if ($text) {
+  if (/* $text */ true) {
     for ($i = 0; $i < $indent; ++$i) $out .= "\t";
     $out .= "<$tag>$text</$tag>\n";
   }
@@ -61,6 +61,16 @@ function Sex($field) {
 // Translate a date.
 function LWDate($field) {
   return fixDate($field);
+}
+
+function xmlTime($str) {
+  if (strlen($str) > 10)
+    $str = substr($str, 0, 10) . 'T' . substr($str, 11);
+  else if (strlen($str) == 10)
+    $str .= 'T00:00:00';
+  else
+    $str = '0000-00-00T00:00:00';
+  return $str;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -100,8 +110,8 @@ function endClient($pid) {
   while ($irow = sqlFetchArray($ires)) {
     OpenTag('IMS_eMRUpload_Issue');
     Add('IssueType'     , $irow['type']);
-    Add('IssueStartDate', $irow['begdate']);
-    Add('IssueEndDate'  , $irow['enddate']);
+    Add('IssueStartDate', xmlTime($irow['begdate']));
+    Add('IssueEndDate'  , xmlTime($irow['enddate']));
     Add('IssueTitle'    , $irow['title']);
     Add('IssueDiagnosis', $irow['diagnosis']);
     foreach ($irow AS $key => $value) {
@@ -214,17 +224,17 @@ if (!empty($form_submit)) {
       // Starting a new client (patient).
       OpenTag('IMS_eMRUpload_Client');
       Add('emrClientId'     , $row['pid']);
-      Add('RegisteredOn'    , $row['regdate']);
-      Add('LastUpdated'     , $row['last_update']);
-      Add('NewAcceptorDate' , $row['contrastart']);
+      Add('RegisteredOn'    , xmlTime($row['regdate']));
+      Add('LastUpdated'     , xmlTime($row['last_update']));
+      Add('NewAcceptorDate' , xmlTime($row['contrastart']));
       if (!empty($crow['new_method'])) {
         $methods = explode('|', $crow['new_method']);
         foreach ($methods as $method) {
           Add('CurrentMethod', $method);
         }
       }
-      Add('Dob'             , $row['DOB']);
-//    Add('DobType'         , "TBD"); // TBD
+      Add('Dob'        , xmlTime($row['DOB']));
+      Add('DobType'    , "rel"); // rel=real, est=estimated
       Add('Pregnancies', 0 + getTextListValue($hrow['genobshist'],'npreg')); // number of pregnancies
       Add('Children'   , 0 + getTextListValue($hrow['genobshist'],'nlc'));   // number of living children
       Add('Abortions'  , 0 + getTextListValue($hrow['genabohist'],'nia'));   // number of induced abortions
@@ -233,7 +243,7 @@ if (!empty($form_submit)) {
 
     // Starting a new visit (encounter).
     OpenTag('IMS_eMRUpload_Visit');
-    Add('VisitDate' , $row['date']);
+    Add('VisitDate' , xmlTime($row['date']));
     Add('emrVisitId', $row['encounter']);
 
     $query = "SELECT b.code_type, b.code, b.units, b.fee, c.related_code " .
