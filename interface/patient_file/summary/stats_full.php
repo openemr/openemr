@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2005-2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -125,6 +125,9 @@ while ($row = sqlFetchArray($pres)) {
 
     $disptitle = trim($row['title']) ? $row['title'] : "[Missing Title]";
 
+    $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
+      "list_id = $rowid");
+
     // encount is used to toggle the color of the table-row output below
     ++$encount;
     $bgclass = (($encount & 1) ? "bg1" : "bg2");
@@ -155,7 +158,7 @@ while ($row = sqlFetchArray($pres)) {
     }
     echo "  <td>" . $row['comments'] . "</td>\n";
     echo "  <td id='e_$rowid' class='noclick center' title='View related encounters'>";
-    echo "  <input type='button' value='".xl('Enc >>')."' class='editenc' id='".$rowid."'/>";
+    echo "  <input type='button' value='" . $ierow['count'] . "' class='editenc' id='".$rowid."' />";
     echo "  </td>";
     echo " </tr>\n";
 }
@@ -163,10 +166,12 @@ while ($row = sqlFetchArray($pres)) {
 </table>
 
 <div style="text-align:center" class="buttons">
+ <p>
  <input type='button' value='<?php xl('Add Issue','e'); ?>' id='addissue' class='btn' /> &nbsp;
  <input type='button' value='<?php xl('Add Encounter','e'); ?>' id='newencounter' class='btn' /> &nbsp;
  <input type='button' value='<?php xl('To History','e'); ?>' id='history' class='btn' /> &nbsp;
  <input type='button' value='<?php xl('Back','e'); ?>' id='back' class='btn' />
+ </p>
 </div>
 
 </form>
