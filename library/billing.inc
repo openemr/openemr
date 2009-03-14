@@ -199,4 +199,19 @@ function updateClaim($newversion, $patient_id, $encounter_id, $payer_id=-1, $pay
 
   return 1;
 }
+
+// Determine if anything in a visit has been billed.
+//
+function isEncounterBilled($pid, $encounter) {
+  $row = sqlQuery("SELECT count(*) AS count FROM billing WHERE " .
+    "pid = '$pid' AND encounter = '$encounter' AND activity = 1 AND " .
+    "billed = 1");
+  $count = $row['count'];
+  if (!$count) {
+    $row = sqlQuery("SELECT count(*) AS count FROM drug_sales WHERE " .
+      "pid = '$pid' AND encounter = '$encounter' AND billed = 1");
+    $count = $row['count'];
+  }
+  return $count ? true : false;
+}
 ?>
