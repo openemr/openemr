@@ -32,8 +32,10 @@ if ($report_type == 'm') {
     101 => xl('MA Category'),
     102 => xl('Specific Service'),
     17  => xl('Patient'),
-    9   => xl('Referrals'),
+    9   => xl('Internal Referrals'),
+    10  => xl('External Referrals'),
     103 => xl('Referral Source'),
+    2   => xl('Total'),
   );
 }
 else if ($report_type == 'g') {
@@ -51,12 +53,10 @@ else {
   $report_title = xl('IPPF Statistics Report');
   $arr_by = array(
     1  => xl('General Service Category'),
-    // 2  => xl('Gynecology/Obstretrics'),
-    // 3  => xl('Urology'),
     4  => xl('Specific Service'),
     6  => xl('Contraceptive Method'),
-    9  => xl('Referrals'),
-    // 10 => xl('Abortion Referral Followups'), // duplicates #8?
+    9   => xl('Internal Referrals'),
+    10  => xl('External Referrals'),
   );
 }
 
@@ -92,6 +92,7 @@ $arr_show = array(
   8 => xl('Occupation'),
  11 => xl('Education'),
  12 => xl('Income'),
+ 13 => xl('Provider'),
 );
 
 // This will become the array of reportable values.
@@ -110,6 +111,7 @@ $arr_titles = array(
   'cit' => array(),
   'edu' => array(),
   'inc' => array(),
+  'pro' => array(),
 );
 
 // This is so we know when the current patient changes.
@@ -342,6 +344,7 @@ function loadColumnData($key, $row) {
     $areport[$key]['cit'] = array(); // city array
     $areport[$key]['edu'] = array(); // education array
     $areport[$key]['inc'] = array(); // income array
+    $areport[$key]['pro'] = array(); // provider array
     $areport[$key]['prp'] = 0;       // previous pid
   }
 
@@ -429,6 +432,11 @@ function loadColumnData($key, $row) {
   $status = empty($row['userlist3']) ? 'Unspecified' : $row['userlist3'];
   $areport[$key]['inc'][$status] += 1;
   $arr_titles['inc'][$status] += 1;
+
+  // Increment the correct provider category.
+  $status = empty($row['provider']) ? 'Unknown' : $row['provider'];
+  $areport[$key]['pro'][$status] += 1;
+  $arr_titles['pro'][$status] += 1;
 }
 
 // This is called for each IPPF service code that is selected.
@@ -575,7 +583,7 @@ function process_ippf_code($row, $code) {
 // This is called for each MA service code that is selected.
 //
 function process_ma_code($row) {
-  global $form_by;
+  global $form_by, $arr_content, $form_cors;
 
   $key = 'Unspecified';
 
@@ -595,6 +603,12 @@ function process_ma_code($row) {
   //
   else if ($form_by === '103') {
     $key = $row['referral_source'];
+  }
+
+  // Just one row.
+  //
+  else if ($form_by === '2') {
+    $key = $arr_content[$form_cors];
   }
 
   else {
@@ -836,8 +850,9 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
     if ($form_sexes == '1') $sexcond = "AND pd.sex NOT LIKE 'Male' ";
     else if ($form_sexes == '2') $sexcond = "AND pd.sex LIKE 'Male' ";
 
-    // Get referrals within a date range and related patient data.
-    if ($form_by === '9') {
+    // Get referrals and related patient data.
+    if ($form_by === '9' || $form_by === '10') {
+      $exttest = $form_by === '9' ? '=' : '!=';
       $query = "SELECT " .
         "t.refer_related_code, t.pid, pd.regdate, pd.referral_source, " .
         "pd.sex, pd.DOB, pd.lname, pd.fname, pd.mname, pd.userlist5, " .
@@ -846,7 +861,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
         "FROM transactions AS t " .
         "JOIN patient_data AS pd ON pd.pid = t.pid $sexcond" .
         "WHERE t.title = 'Referral' AND t.refer_date >= '$from_date' AND " .
-        "t.refer_date <= '$to_date' " .
+        "t.refer_date <= '$to_date' AND refer_external $exttest '0' " .
         "ORDER BY t.pid, t.id";
       $res = sqlStatement($query);
       while ($row = sqlFetchArray($res)) {
@@ -882,11 +897,14 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
       // info attached and grouped by patient and encounter.
       $query = "SELECT " .
         "fe.pid, fe.encounter, fe.date AS encdate, pd.regdate, " .
+        "f.user AS provider, " .
         "pd.sex, pd.DOB, pd.lname, pd.fname, pd.mname, pd.userlist5, " .
         "pd.country_code, pd.status, pd.state, pd.occupation, pd.contrastart, " .
         "pd.referral_source, pd.city, pd.userlist2, pd.userlist3, " .
         "b.code_type, b.code, c.related_code, lo.title " .
         "FROM form_encounter AS fe " .
+        "JOIN forms AS f ON f.pid = fe.pid AND f.encounter = fe.encounter AND " .
+        "f.formdir = 'newpatient' AND f.form_id = fe.id AND f.deleted = 0 " .
         "JOIN patient_data AS pd ON pd.pid = fe.pid $sexcond" .
         "LEFT OUTER JOIN billing AS b ON " .
         "b.pid = fe.pid AND b.encounter = fe.encounter AND b.activity = 1 " .
@@ -929,6 +947,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
     ksort($arr_titles['cit']);
     ksort($arr_titles['edu']);
     ksort($arr_titles['inc']);
+    ksort($arr_titles['pro']);
 
     if ($form_output != 3) {
       echo "<table border='0' cellpadding='1' cellspacing='2' width='98%'>\n";
@@ -937,7 +956,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
     genStartRow("bgcolor='#dddddd'");
 
     // If the key is an MA or IPPF code, then add a column for its description.
-    if ($form_by === '4' || $form_by === '102' || $form_by === '9') {
+    if ($form_by === '4' || $form_by === '102' || $form_by === '9' || $form_by === '10') {
       genHeadCell(array($arr_by[$form_by], xl('Description')));
     } else {
       genHeadCell($arr_by[$form_by]);
@@ -1008,6 +1027,11 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
           genHeadCell(getListTitle('userlist3',$key), true);
         }
       }
+      else if ($value == '13') { // Provider
+        foreach ($arr_titles['pro'] as $key => $value) {
+          genHeadCell($key, true);
+        }
+      }
     }
 
     if ($form_output != 3) {
@@ -1023,23 +1047,8 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
 
       $dispkey = $key;
 
-      /***************************************************************
-      if ($form_by === '4') {
-        // Append IPPF service descriptions to their codes.
-        $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
-          "code_type = '11' AND code = '$key' ORDER BY id LIMIT 1");
-        if (!empty($crow['code_text'])) $dispkey .= ' ' . $crow['code_text'];
-      }
-      else if ($form_by === '102' || $form_by === '9') {
-        // Append MA service descriptions to their codes.
-        $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
-          "code_type = '12' AND code = '$key' ORDER BY id LIMIT 1");
-        if (!empty($crow['code_text'])) $dispkey .= ' ' . $crow['code_text'];
-      }
-      ***************************************************************/
-
       // If the key is an MA or IPPF code, then add a column for its description.
-      if ($form_by === '4' || $form_by === '102' || $form_by === '9') {
+      if ($form_by === '4' || $form_by === '102' || $form_by === '9' || $form_by === '10') {
         $dispkey = array($key, '');
         $type = $form_by === '4' ? 11 : 12; // IPPF or MA
         $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
@@ -1114,6 +1123,11 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
             genNumCell($areport[$key]['inc'][$title], $cnum++);
           }
         }
+        else if ($value == '13') { // Provider
+          foreach ($arr_titles['pro'] as $title => $nothing) {
+            genNumCell($areport[$key]['pro'][$title], $cnum++);
+          }
+        }
       }
 
       // Write the Total column data.
@@ -1130,7 +1144,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
       genStartRow("bgcolor='#dddddd'");
 
       // If the key is an MA or IPPF code, then add a column for its description.
-      if ($form_by === '4' || $form_by === '102' || $form_by === '9') {
+      if ($form_by === '4' || $form_by === '102' || $form_by === '9' || $form_by === '10') {
         genHeadCell(array(xl('Totals'), ''));
       } else {
         genHeadCell(xl('Totals'));
