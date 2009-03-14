@@ -19,7 +19,7 @@ GetOptions('noxl' => \$noxl, 'bigtable' => \$bigtable);
 my $documentation =<<'START';
 
 *************************************
-*      Form Generating Script 2.0   *
+*      Form Generating Script 3.0   *
 *************************************
 
 To run at the shell command line, type:
