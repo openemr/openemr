@@ -254,10 +254,14 @@ foreach($field_names as $key=>$val)
 }
 
 //end special processing
-
+if(get_magic_quotes_gpc()) {
+  foreach ($field_names as $k => $var) {
+    $field_names[$k] = stripslashes($var);
+  }
+}
 foreach ($field_names as $k => $var) {
-#if (strtolower($k) == strtolower($var)) {unset($field_names[$k]);}
-$field_names[$k] = mysql_escape_string($var);
+  #if (strtolower($k) == strtolower($var)) {unset($field_names[$k]);}
+  $field_names[$k] = mysql_real_escape_string($var);
 echo "$var\n";
 }
 if ($encounter == "")
@@ -307,10 +311,10 @@ formHeader("Form: FORM_NAME");
 $obj = formFetch("form_FORM_NAME", $_GET["id"]);  //#Use the formFetch function from api.inc to get values for existing form.
 
 function chkdata_Txt(&$obj, $var) {
-        return stripslashes($obj{"$var"});
+        return htmlentities($obj{"$var"});
 }
 function chkdata_Date(&$obj, $var) {
-        return stripslashes($obj{"$var"});
+        return htmlentities($obj{"$var"});
 }
 function chkdata_CB(&$obj, $nam, $var) {
 	if (preg_match("/Negative.*$var/",$obj{$nam})) {return;} else {return "checked";}
@@ -402,7 +406,7 @@ if (@ARGV == 0)
 	print $documentation."\n";
 	exit 0;
 }
-
+my $template_file_name = $ARGV[0];
 my $form_name = <>;
 chomp($form_name);
 my $compare = $form_name;
@@ -522,6 +526,7 @@ $out = replace($preview_html, 'FORM_NAME', $form_name);
 $out = replace($out, 'DATABASEFIELDS', $make_form_results);
 to_file("$form_name/preview.html",$out);
 
+#copy template file to form directory
 
 
 
@@ -608,7 +613,7 @@ sub replace_view_php           #a special case  (They're all special cases aren'
 	
 	  goto go if $_ =~ s/(<textarea\sname=")([\w\s]+)("[\w\s="]*>)/$1$2$3<?php \$result = chkdata_Txt(\$obj,"$2"); echo \$result;?>/;  #TEXTAREA
 		 
-	  goto go if $_ =~ s/(<input\stype="text"\s)(name=")([\w\s]+)(")([^>]*)/$1$2$3$4 value='<?php \$result = chkdata_Txt(\$obj,"$3"); echo \$result;?>'/;               #TEXT
+	  goto go if $_ =~ s/(<input\stype="text"\s)(name=")([\w\s]+)(")([^>]*)/$1$2$3$4 value="<?php \$result = chkdata_Txt(\$obj,"$3"); echo \$result;?>"/;               #TEXT
 		 
 	  goto go if $_ =~ s/(<input\stype="checkbox"\sname=")([\w\s]+)(\[\])("\svalue=")([\w\s]+)(")([^>]*)/$1$2$3$4$5$6 <?php \$result = chkdata_CB(\$obj,"$2","$5"); echo \$result;?>/;   #CHECKBOX-GROUP
 		 
@@ -617,7 +622,7 @@ sub replace_view_php           #a special case  (They're all special cases aren'
 	  goto go if $_ =~ s/(<input\stype="radio"\sname=")([\w\s]+)("\svalue=")([\w\s]+)(")([^>]*)/$1$2$3$4$5 <?php \$result = chkdata_Radio(\$obj,"$2","$4"); echo \$result;?>/; #RADIO-GROUP
 
 	  goto go if $_ =~ s/(<option value=")([\w\s]+)(")/$1$2$3 <?php \$result = chkdata_PopOrScroll(\$obj,"$selname","$2"); echo \$result;?>/g; #SCROLLING-LISTS-BOTH & POPUP-MENU
-	  goto go if $_ =~ s/(.*?)name='(.*?)'(.*?)datekeyup(.*?)dateblur(.*?)\/>/$1name='$2'$3datekeyup$4dateblur$5 value='<?php \$result = chkdata_Date(\$obj,"$2"); echo \$result;?>'>/; #DATE
+	  goto go if $_ =~ s/(.*?)name='(.*?)'(.*?)datekeyup(.*?)dateblur(.*?)\/>/$1name='$2'$3datekeyup$4dateblur$5 value="<?php \$result = chkdata_Date(\$obj,"$2"); echo \$result;?>">/; #DATE
 
 		go:	push (@temp, $_, "\n");
 
