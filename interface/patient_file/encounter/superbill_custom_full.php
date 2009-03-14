@@ -197,7 +197,8 @@ function validEntry(f) {
  }
 <?php if ($GLOBALS['ippf_specific']) { ?>
  if (f.code_type.value == 12 && !f.related_code.value) {
-  if (!confirm('<?php echo xl('Are you sure you want to save this without a related code?'); ?>')) return false;
+  alert('<?php echo xl('A related IPPF code is required!'); ?>');
+  return false;
  }
 <?php } ?>
  return true;
