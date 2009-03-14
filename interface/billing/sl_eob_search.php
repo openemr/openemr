@@ -322,7 +322,7 @@ else {
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show(); ?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 <title><?php xl('EOB Posting - Search','e'); ?></title>
 <script type="text/javascript" src="../../library/textformat.js"></script>
@@ -755,9 +755,9 @@ if ($_POST['form_search'] || $_POST['form_print']) {
 
   if ($INTEGRATED_AR) {
     while ($row = sqlFetchArray($t_res)) {
-      $balance = $row['charges'] + $row['copays'] - $row['payments'] - $row['adjustments'];
+      $balance = sprintf("%.2f", $row['charges'] + $row['copays'] - $row['payments'] - $row['adjustments']);
 
-      if ($_POST['form_category'] != 'All' && !$eracount && !$balance) continue;
+      if ($_POST['form_category'] != 'All' && $eracount == 0 && $balance == 0) continue;
 
       // $duncount was originally supposed to be the number of times that
       // the patient was sent a statement for this invoice.
@@ -821,7 +821,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
    <?php bucks($row['payments'] - $row['copays']); ?>&nbsp;
   </td>
   <td class="detail" align="right">
-   <?php bucks($row['charges'] - $row['adjustments'] - $row['payments'] + $row['copays']); ?>&nbsp;
+   <?php bucks($balance); ?>&nbsp;
   </td>
   <td class="detail" align="center">
    <?php echo $duncount ? $duncount : "&nbsp;" ?>
