@@ -352,7 +352,6 @@ font-weight: bold;
  * seen in the patient stats screens
  *============================================================*/
 #patient_stats {
-    width: 100%;
     padding: 10px;
 }
 
