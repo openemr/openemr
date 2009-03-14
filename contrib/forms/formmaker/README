@@ -1,19 +1,18 @@
 
 *************************************
-*      Form Generating Script 1.1   *
+*      Form Generating Script 3.0   *
 *************************************
 
-This is a complete rewrite of an earlier Perl script I wrote to generate
-forms for OpenEMR.  It is now all self contained within a single .pl file.
 To run at the shell command line, type:
 
 Perl formscript.pl [filename]
-or
-./formscript.pl [filename]
 
 where filename is a text file with data relating to your form.  If you run
 without a filename argument, a sample data file will be created in the same
 directory named 'sample.txt' that you can use to see how to create your own.
+
+The first line you enter in your textfile is the name of the form.
+In the example this is "physical_sample"
 
 Basically you enter one database field item per line like this:
 
@@ -24,7 +23,8 @@ or
 Social History::radio_group::smoker::non-smoker
 
 
-where the first item is the field name.  spaces within the name will convert to '_'
+where the first item is the field name, the second item is the widget type, and Nth items are values.
+spaces within the name will convert to '_'
 for the sql database field name.  If you use a SQL reserved word, the form generation
 will fail and this program will notify you of the word(s) you used.
 
@@ -39,6 +39,7 @@ radio_group
 popup_menu
 scrolling_list
 scrolling_list_multiples
+date
 
 Putting a '+' at the beginning of the field name will let the form know that you want to
 report negatives.  This means the following:
@@ -56,11 +57,19 @@ for a textfield or text area.  You can also start a line with a '#' as the first
 will be an ignored comment line.  If you put html tags on their own lines, they will be integrated
 into the form.  It will be most helpful to look at 'sample.txt' to see how this works.
 
-This is 1.1 and is tested to the extent of installing the form and entering data within an encounter.  
-Please send feedback to mail@doc99.com.  I will definitely
-be fixing and improving it.
+By default now, the xl function which is for performing language translation is used.  To disable this feature in creating a form, use the commandline option -noxl as in:
 
-Mark Leeds
+./formscript.pl --noxl sample.txt
+
+The bigtable option.  This commandline option ignores anything in the template file that is not a field and creates the form layout in one tidy table.  This may look nicer.  You can rebuild the form with and without this option without breaking anything even after the form is installed and in use.
+
+./formscript.pl --bigtable sample.txt
+
+Redirect option.  This option is set within the template file by defining a redirect field just like any other field.  The redirect keyword is followed by the redirect keyword again and then by the table name to submit data to.  That is followed by the database column name to save data to.  All form data will be combined into one string and submitted to this table.  Optionally, you may then list other columns and a string to submit for each as a constant.  Example:
+
+redirect::redirect::CAMOS::content::category::exam::subcategory::by_dx::item::bronchitis
+
+Please send feedback to drleeds@gmail.com.
 
 
 
