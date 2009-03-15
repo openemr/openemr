@@ -30,6 +30,16 @@ just a fancy interface for organizing and choosing pieces of text
 to insert into a patient's chart.  It is designed to be intuitive
 and easy to use.
 </p>
+<p>
+<b>
+WARNING: The CAMOS form has been tested, but there is the possibility that bugs exist which may corrupt your data.  
+It is also possible that the use of this form may lead to the incorrect entry of data.  
+The data provided in the three columns upon initial installation of CAMOS is for demonstration purposes only.
+It is recommended that you delete all of it and start over with your own, carefully planned, structure of categories, subcategories
+ and items.  The included data may be incorrect and should not be used and the author of this software assumes no liability for any 
+damage that occurs as a result of the data or as a result of the use of the CAMOS form in general.
+</b>
+</p>
 <a name='basic'>
 <hr/>
 <h1>Basic Use</h1>
@@ -64,7 +74,10 @@ and easy to use.
 <p>
 <b>search selected</b> button -  Like the search button described above, but searches are limited by what is selected in the columns.
 </p>
-</h3>Top Row of Buttons:</h3>
+<p>
+<b>Additional features of search box</b> - If you entere a colon (':') in the search box, patient data will be displayed with results.  If you enter a double colon ('::'), patient data and phone number data will be displayed with results.  If you put a first and/or last name in any order before the colon, results for matching names will be displayed.  If you put the word 'this' before the colon, the current selected patient's data will be displayed.  Words after the colon will be used as search terms.  These features work with the 'search' and 'search selected' buttons. 
+</p>
+<h3>Top Row of Buttons:</h3>
 <b>clone</b> button - Searches for list of entries in this patient's history under the selected category and returns the most recent of each.  Data is displayed in the content box in camos function format (see advanced section below).
 </p>
 <p>
@@ -244,12 +257,12 @@ This function submits an appointment to the calendar x days from the current dat
 
 <!-- start new function description -->
 <p>
-<b>patientname, patientage, patientgender</b>.  Used as follows:
+<b>patientname, patientage, patientgender, doctorname</b>.  Used as follows:
 </p>
 <div class='box'>
 <div class='code'>
 <pre>
-patientname is a patientage year-old patientgender.
+patientname is a patientage year-old patientgender patient of doctorname.
 </pre>
 </div>
 </div>
@@ -257,6 +270,11 @@ patientname is a patientage year-old patientgender.
 These keywords are substituted with the appropriate information from the patient's demographic data.
 </p>
 <!-- end new function description -->
+<h1>Known Bugs</h1>
+<p>
+After editing a prescription in view.php, extra spaces appear between lines when printing the prescription.<br/>
+Search results with 'search' and 'search selected' are in order of form_CAMOS id and not encounter.<br/>
+</p>
 </body>
 
 </html>
