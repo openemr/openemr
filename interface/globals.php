@@ -167,10 +167,10 @@ else {
 
 //Version tags
 
-$v_major = '2';
-$v_minor = '9';
+$v_major = '3';
+$v_minor = '0';
 $v_patch = '0';
-$tag = '.3'; // minor revision number, should be empty for production releases
+$tag = ''; // minor revision number, should be empty for production releases
 
 // This name appears on the login page and in the title bar of most windows.
 // It's nice to customize this to be the name of your clinic.
@@ -300,7 +300,9 @@ $GLOBALS['use_set_names_utf8'] = false;
 //
 // $GLOBALS['scanner_output_directory'] = '/mnt/scan_docs';
 
-// Customize these if you are using SQL-Ledger with OpenEMR.
+// Customize these if you are using SQL-Ledger with OpenEMR, or if you are
+// going to run sl_convert.php to convert from SQL-Ledger.
+//
 $sl_cash_acc    = '1060';       // sql-ledger account number for checking account
 $sl_ar_acc      = '1200';       // sql-ledger account number for accounts receivable
 $sl_income_acc  = '4320';       // sql-ledger account number for medical services income
