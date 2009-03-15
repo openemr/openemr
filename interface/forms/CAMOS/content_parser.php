@@ -79,6 +79,10 @@ function process_commands(&$string_to_process, &$camos_return_data) {
         $query = "SELECT content FROM form_CAMOS_item WHERE item like '".$replacement_item."'";
         $statement = sqlStatement($query);
         if ($result = sqlFetchArray($statement)) {$replacement_text = $result['content'];}
+        if(get_magic_quotes_gpc()) {
+          $replacement_text = stripslashes($replacement_text);
+        }
+        $replacement_text = mysql_real_escape_string($replacement_text);
         $string_to_process = str_replace($val,$replacement_text,$string_to_process);
       }
     }
@@ -178,6 +182,7 @@ function replace($pid, $enc, $content) { //replace placeholders with values
 	$date = '';
 	$age = '';
 	$gender = '';
+	$doctorname = '';
 	$query1 = sqlStatement(
 		"select t1.fname, t1.mname, t1.lname, " .
 		"t1.sex as gender, " .
@@ -197,8 +202,13 @@ function replace($pid, $enc, $content) { //replace placeholders with values
 		$age = patient_age($dob, $date); 
 		$gender = $results['gender'];
 	}
-	$ret = preg_replace(array("/patientname/i","/patientage/i","/patientgender/i"),
-	array($name,$age,strtolower($gender)), $content);
+	$query1 = sqlStatement("select t1.lname from users as t1 join forms as " .
+	"t2 on (t1.username like t2.user) where t2.encounter = ".$_SESSION['encounter']);
+	if ($results = mysql_fetch_array($query1, MYSQL_ASSOC)) {
+		$doctorname = "Dr. ".$results['lname'];
+	}
+	$ret = preg_replace(array("/patientname/i","/patientage/i","/patientgender/i","/doctorname/i"),
+	array($name,$age,strtolower($gender),$doctorname), $content);
 	return $ret;
 }
 function patient_age($birthday, $date) { //calculate age from birthdate and a given later date
