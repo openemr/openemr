@@ -7,11 +7,16 @@ include_once("../../../library/sql.inc");
 include_once("content_parser.php");
 
 $field_names = array('category' => $_POST['category'], 'subcategory' => $_POST['subcategory'], 'item' => $_POST['item'], 'content' => $_POST['content']);
+if(get_magic_quotes_gpc()) {
+  foreach ($field_names as $k => $var) {
+    $field_names[$k] = stripslashes($var);
+  }
+}
+foreach ($field_names as $k => $var) {
+  $field_names[$k] = mysql_real_escape_string($var);
+}
 $camos_array = array();
 process_commands($field_names['content'],$camos_array); 
-//foreach ($field_names as $k => $var) {
-//  $field_names[$k] = mysql_real_escape_string($var);
-//}
 
 $CAMOS_form_name = "CAMOS-".$field_names['category'].'-'.$field_names['subcategory'].'-'.$field_names['item'];
 
