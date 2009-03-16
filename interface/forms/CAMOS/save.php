@@ -15,7 +15,10 @@ if ($_GET["mode"] == "delete") {
         sqlInsert("delete from forms where form_name like 'CAMOS%' and form_id=$id");
       }
       if ($_POST['update']) {
-        sqlInsert("update form_CAMOS set content='".$_POST['textarea_'.$id]."' where id=$id");
+        $content = $_POST['textarea_'.$id];
+        if (get_magic_quotes_gpc()) {$content = stripslashes($content);}
+        $content = mysql_real_escape_string($content);
+        sqlInsert("update form_CAMOS set content='$content' where id=$id");
       }
     }
   }
