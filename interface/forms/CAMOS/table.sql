@@ -1,4 +1,4 @@
-CREATE TABLE `form_CAMOS` (
+CREATE TABLE IF NOT EXISTS `form_CAMOS` (
 id bigint(20) NOT NULL auto_increment,
 date datetime default NULL,
 pid bigint(20) default NULL,
@@ -10,20 +10,55 @@ category TEXT,
 subcategory TEXT,
 item TEXT,
 content TEXT,
-PRIMARY KEY (id)
-);
 
-CREATE TABLE `form_CAMOS_category` (
-  `id` bigint(20) NOT NULL,
-  `date` datetime default NULL,
-  `pid` bigint(20) default NULL,
-  `user` varchar(255) default NULL,
-  `groupname` varchar(255) default NULL,
-  `authorized` tinyint(4) default NULL,
-  `activity` tinyint(4) default NULL,
-  `category` text,
-  PRIMARY KEY  (`id`)
-);
+PRIMARY KEY (id)
+) TYPE=MyISAM;
+
+CREATE TABLE IF NOT EXISTS `form_CAMOS_category` (
+id bigint(20) NOT NULL auto_increment,
+date datetime default NULL,
+pid bigint(20) default NULL,
+user varchar(255) default NULL,
+groupname varchar(255) default NULL,
+authorized tinyint(4) default NULL,
+activity tinyint(4) default NULL,
+
+category TEXT,
+
+PRIMARY KEY (id)
+) TYPE=MyISAM;
+
+CREATE TABLE IF NOT EXISTS `form_CAMOS_subcategory` (
+id bigint(20) NOT NULL auto_increment,
+date datetime default NULL,
+pid bigint(20) default NULL,
+user varchar(255) default NULL,
+groupname varchar(255) default NULL,
+authorized tinyint(4) default NULL,
+activity tinyint(4) default NULL,
+
+subcategory TEXT,
+category_id bigint(20) NOT NULL,
+
+PRIMARY KEY (id)
+) TYPE=MyISAM;
+
+CREATE TABLE IF NOT EXISTS `form_CAMOS_item` (
+id bigint(20) NOT NULL auto_increment,
+date datetime default NULL,
+pid bigint(20) default NULL,
+user varchar(255) default NULL,
+groupname varchar(255) default NULL,
+authorized tinyint(4) default NULL,
+activity tinyint(4) default NULL,
+
+item TEXT,
+content TEXT,
+subcategory_id bigint(20) NOT NULL,
+
+PRIMARY KEY (id)
+) TYPE=MyISAM;
+
 
 INSERT INTO `form_CAMOS_category` VALUES (1,NULL,NULL,NULL,NULL,NULL,NULL,'prescriptions');
 INSERT INTO `form_CAMOS_category` VALUES (2,NULL,NULL,NULL,NULL,NULL,NULL,'radiology');
@@ -32,18 +67,6 @@ INSERT INTO `form_CAMOS_category` VALUES (22,NULL,NULL,'admin',NULL,NULL,NULL,'r
 INSERT INTO `form_CAMOS_category` VALUES (7,NULL,NULL,NULL,NULL,NULL,NULL,'DME');
 INSERT INTO `form_CAMOS_category` VALUES (12,NULL,NULL,NULL,NULL,NULL,NULL,'exam');
 
-CREATE TABLE `form_CAMOS_subcategory` (
-  `id` bigint(20) NOT NULL,
-  `date` datetime default NULL,
-  `pid` bigint(20) default NULL,
-  `user` varchar(255) default NULL,
-  `groupname` varchar(255) default NULL,
-  `authorized` tinyint(4) default NULL,
-  `activity` tinyint(4) default NULL,
-  `subcategory` text,
-  `category_id` bigint(20) NOT NULL default '0',
-  PRIMARY KEY  (`id`)
-);
 
 INSERT INTO `form_CAMOS_subcategory` VALUES (2,NULL,NULL,NULL,NULL,NULL,NULL,'x-ray',2);
 INSERT INTO `form_CAMOS_subcategory` VALUES (3,NULL,NULL,NULL,NULL,NULL,NULL,'ultrasound',2);
@@ -121,19 +144,6 @@ INSERT INTO `form_CAMOS_subcategory` VALUES (158,NULL,NULL,NULL,NULL,NULL,NULL,'
 INSERT INTO `form_CAMOS_subcategory` VALUES (160,NULL,NULL,NULL,NULL,NULL,NULL,'otc',1);
 INSERT INTO `form_CAMOS_subcategory` VALUES (175,NULL,NULL,'drleeds',NULL,NULL,NULL,'codes',3);
 
-CREATE TABLE `form_CAMOS_item` (
-  `id` bigint(20) NOT NULL,
-  `date` datetime default NULL,
-  `pid` bigint(20) default NULL,
-  `user` varchar(255) default NULL,
-  `groupname` varchar(255) default NULL,
-  `authorized` tinyint(4) default NULL,
-  `activity` tinyint(4) default NULL,
-  `item` text,
-  `content` text,
-  `subcategory_id` bigint(20) NOT NULL default '0',
-  PRIMARY KEY  (`id`)
-);
 
 INSERT INTO `form_CAMOS_item` VALUES (12,NULL,NULL,NULL,NULL,NULL,NULL,'azithromycin 500mg 3 day','Azithromycin 500mg Three Day Pack\r\n\r\n#3/three tablets.  \r\n\r\nTake one tablet once daily for three days.',6);
 INSERT INTO `form_CAMOS_item` VALUES (3,NULL,NULL,NULL,NULL,NULL,NULL,'chest pa and lat','chest x-ray\r\n\r\nPA and Lateral\r\n\r\nDx: bronchitis',2);
