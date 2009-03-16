@@ -39,16 +39,6 @@ $category = str_replace($quote_search,$quote_replace,$_POST['change_category']);
 $subcategory = str_replace($quote_search,$quote_replace,$_POST['change_subcategory']); 
 $item = str_replace($quote_search,$quote_replace,$_POST['change_item']); 
 $content = str_replace($quote_search_content,$quote_replace_content,$_POST['textarea_content']); 
-if(get_magic_quotes_gpc()) {
-  $category = stripslashes($category);
-  $subcategory = stripslashes($subcategory);
-  $item = stripslashes($item);
-  $content = stripslashes($content);
-}
-$category = mysql_real_escape_string($category);
-$subcategory = mysql_real_escape_string($subcategory);
-$item = mysql_real_escape_string($item);
-$content = mysql_real_escape_string($content);
 
 if ($_POST['hidden_category']) {$preselect_category = $_POST['hidden_category'];}
 if ($_POST['hidden_subcategory']) {$preselect_subcategory = $_POST['hidden_subcategory'];}
@@ -57,6 +47,10 @@ if ($_POST['hidden_item']) {$preselect_item = $_POST['hidden_item'];}
 if (substr($_POST['hidden_mode'],0,3) == 'add') {
   if ($_POST['hidden_selection'] == 'change_category') {
     $preselect_category_override = $_POST['change_category'];
+
+    if (get_magic_quotes_gpc()) {$category = stripslashes($category);}
+    $category = mysql_real_escape_string($category);
+
     $query = "INSERT INTO form_CAMOS_category (user, category) values ('".$_SESSION['authUser']."', '";
     $query .= $category."')"; 
     sqlInsert($query);
@@ -65,6 +59,10 @@ if (substr($_POST['hidden_mode'],0,3) == 'add') {
     $preselect_subcategory_override = $_POST['change_subcategory'];
     $category_id = $_POST['hidden_category']; 
     if ($category_id >= 0 ) {
+
+      if (get_magic_quotes_gpc()) {$subcategory = stripslashes($subcategory);}
+      $subcategory = mysql_real_escape_string($subcategory);
+
       $query = "INSERT INTO form_CAMOS_subcategory (user, subcategory, category_id) values ('".$_SESSION['authUser']."', '";
       $query .= $subcategory."', '".$category_id."')";
       sqlInsert($query);
@@ -75,6 +73,10 @@ if (substr($_POST['hidden_mode'],0,3) == 'add') {
     $category_id = $_POST['hidden_category']; 
     $subcategory_id = $_POST['hidden_subcategory']; 
     if (($category_id >= 0 ) && ($subcategory_id >=0)) {
+
+      if (get_magic_quotes_gpc()) {$item = stripslashes($item);}
+      $item = mysql_real_escape_string($item);
+
       $query = "INSERT INTO form_CAMOS_item (user, item, content, subcategory_id) values ('".$_SESSION['authUser']."', '";
       $query .= $item."', '".$content."', '".$subcategory_id."')";
       sqlInsert($query);
@@ -90,6 +92,10 @@ if (substr($_POST['hidden_mode'],0,3) == 'add') {
           $content .= "\n".$tmp['content']; 
         }
       }
+
+      if (get_magic_quotes_gpc()) {$content = stripslashes($content);}
+      $content = mysql_real_escape_string($content);
+
       $query = "UPDATE form_CAMOS_item set content = '".$content."' where id = ".$item_id;
       sqlInsert($query);
     }
