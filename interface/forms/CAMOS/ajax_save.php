@@ -25,6 +25,7 @@ if ($encounter == "") {
 }
 
 if (preg_match("/^[\s\\r\\n\\\\r\\\\n]*$/",$field_names['content']) == 0) { //make sure blanks do not get submitted
+  reset($field_names);
   $newid = formSubmit("form_CAMOS", $field_names, $_GET["id"], $userauthorized);
   addForm($encounter, $CAMOS_form_name, $newid, "CAMOS", $pid, $userauthorized);
 }
@@ -35,6 +36,7 @@ foreach($camos_array as $val) {
       $val[$k] = trim($v);  
     } 
     $CAMOS_form_name = "CAMOS-".$val['category'].'-'.$val['subcategory'].'-'.$val['item'];
+    reset($val);
     $newid = formSubmit("form_CAMOS", $val, $_GET["id"], $userauthorized);
     addForm($encounter, $CAMOS_form_name, $newid, "CAMOS", $pid, $userauthorized);
   }
