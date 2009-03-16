@@ -662,7 +662,7 @@ function init() {
     $preselect_category = $preselect_category_override;
   }
 ?>
-  if (select_word("<? echo $temp_preselect_mode."\", \"".$preselect_category; ?>" ,f2.select_category)) {
+  if (select_word("<? echo fixquotes($temp_preselect_mode)."\", \"".fixquotes($preselect_category); ?>" ,f2.select_category)) {
     click_category();
   }
 <?
@@ -702,7 +702,7 @@ function click_category() {
     $preselect_subcategory = $preselect_subcategory_override;
   }
 ?>
-  if (select_word("<? echo $temp_preselect_mode."\", \"".$preselect_subcategory; ?>" ,f2.select_subcategory)) {
+  if (select_word("<? echo fixquotes($temp_preselect_mode)."\", \"".fixquotes($preselect_subcategory); ?>" ,f2.select_subcategory)) {
     click_subcategory();
   }
 }
@@ -729,7 +729,7 @@ function click_subcategory() {
     $preselect_item = $preselect_item_override;
   }
 ?>
-  if (select_word("<? echo $temp_preselect_mode."\", \"".$preselect_item; ?>" ,f2.select_item)) {
+  if (select_word("<? echo fixquotes($temp_preselect_mode)."\", \"".fixquotes($preselect_item); ?>" ,f2.select_item)) {
     click_item();
     preselect_off = true;
   }
