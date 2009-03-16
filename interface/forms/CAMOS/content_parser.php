@@ -3,6 +3,13 @@ include_once("../../globals.php");
 include_once("../../../library/sql.inc");	
 
 function addAppt($days,$time) {
+  if(get_magic_quotes_gpc()) {$
+    $days = stripslashes($days);
+    $time = stripslashes($time);
+  }
+  $days = mysql_real_escape_string($days);
+  $time = mysql_real_escape_string($time);
+
   $sql = "insert into openemr_postcalendar_events (pc_pid, pc_eventDate," . 
     "pc_comments, pc_aid,pc_startTime) values (" . 
     $_SESSION['pid'] . ", date_add(current_date(), interval " . $days . 
@@ -33,6 +40,23 @@ function addBilling2($encounter, $code_type, $code, $code_text, $modifier="",$un
   {
     $justify_string = implode(":",$justify).":";
   }
+  if(get_magic_quotes_gpc()) {$
+    $code_type = stripslashes($code_type);
+    $code = stripslashes($code);
+    $code_text = stripslashes($code_text);
+    $modifier = stripslashes($modifier);
+    $units = stripslashes($units);
+    $fee = stripslashes($fee);
+    $justify_string = stripslashes($justify_string);
+  }
+  $code_type = mysql_real_escape_string($code_type);
+  $code = mysql_real_escape_string($code);
+  $code_text = mysql_real_escape_string($code_text);
+  $modifier = mysql_real_escape_string($modifier);
+  $units = mysql_real_escape_string($units);
+  $fee = mysql_real_escape_string($fee);
+  $justify_string = mysql_real_escape_string($justify_string);
+
   $sql = "insert into billing (date, encounter, code_type, code, code_text, pid, authorized, user, groupname,activity,billed,provider_id,modifier,units,fee,justify) values (NOW(), '".$_SESSION['encounter']."', '$code_type', '$code', '$code_text', '".$_SESSION['pid']."', '$authorized', '" . $_SESSION['authId'] . "', '" . $_SESSION['authProvider'] . "',1,0,".$_SESSION['authUserID'].",'$modifier','$units','$fee','$justify_string')";
 	
   return sqlInsert($sql);
@@ -79,9 +103,7 @@ function process_commands(&$string_to_process, &$camos_return_data) {
         $query = "SELECT content FROM form_CAMOS_item WHERE item like '".$replacement_item."'";
         $statement = sqlStatement($query);
         if ($result = sqlFetchArray($statement)) {$replacement_text = $result['content'];}
-        if(get_magic_quotes_gpc()) {
-          $replacement_text = stripslashes($replacement_text);
-        }
+        if(get_magic_quotes_gpc()) {$replacement_text = stripslashes($replacement_text);}
         $replacement_text = mysql_real_escape_string($replacement_text);
         $string_to_process = str_replace($val,$replacement_text,$string_to_process);
       }
