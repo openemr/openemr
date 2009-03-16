@@ -1,3 +1,18 @@
+CREATE TABLE `form_CAMOS` (
+id bigint(20) NOT NULL auto_increment,
+date datetime default NULL,
+pid bigint(20) default NULL,
+user varchar(255) default NULL,
+groupname varchar(255) default NULL,
+authorized tinyint(4) default NULL,
+activity tinyint(4) default NULL,
+category TEXT,
+subcategory TEXT,
+item TEXT,
+content TEXT,
+PRIMARY KEY (id)
+);
+
 CREATE TABLE `form_CAMOS_category` (
   `id` bigint(20) NOT NULL,
   `date` datetime default NULL,
