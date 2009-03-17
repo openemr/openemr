@@ -64,43 +64,18 @@ function divclick(cb, divid) {
  return true;
 }
 
-function validate(f) {
-<?php
-// Generate JavaScript validation logic for the required fields.
-// Should this go into a common include file?  It's also in demographics.
-while ($frow = sqlFetchArray($fres)) {
-  if ($frow['uor'] < 2) continue;
-  $data_type = $frow['data_type'];
-  $field_id  = $frow['field_id'];
-  $fldtitle  = $frow['title'];
-  if (!$fldtitle) $fldtitle  = $frow['description'];
-  $fldname   = "form_$field_id";
-  switch($data_type) {
-    case  1:
-    case 11:
-    case 12:
-    case 13:
-    case 14:
-      echo
-      " if (f.$fldname.selectedIndex <= 0) {\n" .
-      "  alert('Please choose a value for $fldtitle');\n" .
-      "  if (f.$fldname.focus) f.$fldname.focus();\n" .
-      "  return false;\n" .
-      " }\n";
-      break;
-    case 2:
-    case 3:
-    case 4:
-      echo
-      " if (trimlen(f.$fldname.value) == 0) {\n" .
-      "  alert('Please enter a value for $fldtitle');\n" .
-      "  if (f.$fldname.focus) f.$fldname.focus();\n" .
-      "  return false;\n" .
-      " }\n";
-      break;
-  }
+// Compute the length of a string without leading and trailing spaces.
+function trimlen(s) {
+ var i = 0;
+ var j = s.length - 1;
+ for (; i <= j && s.charAt(i) == ' '; ++i);
+ for (; i <= j && s.charAt(j) == ' '; --j);
+ if (i > j) return 0;
+ return j + 1 - i;
 }
-?>
+
+function validate(f) {
+<?php generate_layout_validation('HIS'); ?>
  return true;
 }
 
@@ -175,8 +150,6 @@ $last_group = '';
 $cell_count = 0;
 $item_count = 0;
 $display_style = 'block';
-
-mysql_data_seek($fres, 0); // TBD: Move this to sql.inc.
 
 while ($frow = sqlFetchArray($fres)) {
   $this_group = $frow['group_name'];

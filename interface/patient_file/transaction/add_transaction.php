@@ -7,7 +7,8 @@ require_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
 
 $transid = empty($_REQUEST['transid']) ? 0 : $_REQUEST['transid'] + 0;
-$mode    = empty($_POST['mode']) ? '' : $_POST['mode'];
+$mode    = empty($_POST['mode' ]) ? '' : $_POST['mode' ];
+$title   = empty($_POST['title']) ? '' : $_POST['title'];
 
 $body_onload_code="";
 
@@ -174,6 +175,27 @@ function imdeleted() {
  location.href = 'transaction/transactions.php';
 }
 
+// Compute the length of a string without leading and trailing spaces.
+function trimlen(s) {
+ var i = 0;
+ var j = s.length - 1;
+ for (; i <= j && s.charAt(i) == ' '; ++i);
+ for (; i <= j && s.charAt(j) == ' '; --j);
+ if (i > j) return 0;
+ return j + 1 - i;
+}
+
+// Validation logic for form submission.
+function validate() {
+ var f = document.forms[0];
+ var sel = f.title;
+ var si = (sel.selectedIndex < 0) ? 0 : sel.selectedIndex;
+ if (sel.options[si].value == 'Referral') {
+<?php generate_layout_validation('REF'); ?>
+ }
+ return true;
+}
+
 </script>
 
 </head>
@@ -298,7 +320,8 @@ end_group();
 </p>
 
 <p>
-<a href="javascript:document.new_transaction.submit();" class='link_submit'>
+<a href="javascript:document.new_transaction.submit();" class='link_submit'
+ onclick='return validate()'>
 [<?php xl('Save Transaction','e'); ?>]</a>
 </p>
 

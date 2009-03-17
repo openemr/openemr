@@ -149,10 +149,13 @@ function generate_form_field($frow, $currvalue) {
     echo "</select>";
   }
 
-  // address book, preferring organization name if it exists and is not in parentheses
+  // Address book, preferring organization name if it exists and is not in
+  // parentheses, and excluding local users who are not providers.
+  // Supports "referred to" practitioners and facilities.
   else if ($data_type == 14) {
     $ures = sqlStatement("SELECT id, fname, lname, organization FROM users " .
       "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
+      "AND ( username = '' OR authorized = 1 ) " .
       "ORDER BY organization, lname, fname");
     echo "<select name='form_$field_id' title='$description'>";
     echo "<option value=''>" . xl('Unassigned') . "</option>";
@@ -681,4 +684,47 @@ function get_layout_form_value($frow) {
   }
   return $value;
 }
+
+// Generate JavaScript validation logic for the required fields.
+//
+function generate_layout_validation($form_id) {
+  $fres = sqlStatement("SELECT * FROM layout_options " .
+    "WHERE form_id = '$form_id' AND uor > 0 AND field_id != '' " .
+    "ORDER BY group_name, seq");
+
+  while ($frow = sqlFetchArray($fres)) {
+    if ($frow['uor'] < 2) continue;
+    $data_type = $frow['data_type'];
+    $field_id  = $frow['field_id'];
+    $fldtitle  = $frow['title'];
+    if (!$fldtitle) $fldtitle  = $frow['description'];
+    $fldname   = "form_$field_id";
+    switch($data_type) {
+      case  1:
+      case 11:
+      case 12:
+      case 13:
+      case 14:
+        echo
+        " if (f.$fldname.selectedIndex <= 0) {\n" .
+        "  alert('Please choose a value for $fldtitle');\n" .
+        "  if (f.$fldname.focus) f.$fldname.focus();\n" .
+        "  return false;\n" .
+        " }\n";
+        break;
+      case  2:
+      case  3:
+      case  4:
+      case 15:
+        echo
+        " if (trimlen(f.$fldname.value) == 0) {\n" .
+        "  alert('Please enter a value for $fldtitle');\n" .
+        "  if (f.$fldname.focus) f.$fldname.focus();\n" .
+        "  return false;\n" .
+        " }\n";
+        break;
+    }
+  }
+}
+
 ?>
