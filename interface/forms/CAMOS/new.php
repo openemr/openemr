@@ -93,7 +93,7 @@ if (substr($_POST['hidden_mode'],0,3) == 'add') {
         }
       }
 
-      if (get_magic_quotes_gpc()) {$content = stripslashes($content);}
+//      if (get_magic_quotes_gpc()) {$content = stripslashes($content);}
       $content = mysql_real_escape_string($content);
 
       $query = "UPDATE form_CAMOS_item set content = '".$content."' where id = ".$item_id;
@@ -747,6 +747,7 @@ function click_item() {
   var sel = f2.select_item.options[item_index].value;
   for (var i1=0;i1<array3.length;i1++) {
     if (array3[i1][3] == sel) {
+      //diplay text in content box
       f2.textarea_content.value= array3[i1][1].replace(/\\/g,'');
     }
   }
