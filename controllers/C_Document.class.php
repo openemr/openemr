@@ -219,9 +219,7 @@ class C_Document extends Controller {
 			header("Pragma: public");
         	header("Expires: 0");
         	header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-        	if ($as_file) {
-				header("Content-Disposition: attachment; filename=\"" . basename($d->get_url()) . "\"");
-        	}
+		header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename($d->get_url()) . "\"");
 			header("Content-Type: " . $d->get_mimetype());
 			header("Content-Length: " . $d->get_size());
 			$f = fopen($url,"r");
