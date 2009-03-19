@@ -287,6 +287,10 @@ $GLOBALS['discount_by_money'] = false;
 // If "SET NAMES 'utf8'" is supported and desired.
 $GLOBALS['use_set_names_utf8'] = false;
 
+// Set this to false if you want the doctors to be prompted to authorize
+// patient notes created by others.
+$GLOBALS['ignore_pnotes_authorization'] = true;
+
 // If you want Hylafax support then uncomment and customize the following
 // statements, and also customize custom/faxcover.txt:
 //

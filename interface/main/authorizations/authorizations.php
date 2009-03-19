@@ -184,19 +184,21 @@ if ($res = sqlStatement("select * from transactions where " .
   }
 }
 
-//fetch pnotes information:
-if ($res = sqlStatement("select * from pnotes where authorized = 0 and " .
-  "groupname = '$groupname'"))
-{
-  for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-    $result3[$iter] = $row;
-  if ($result3) {
-    foreach ($result3 as $iter) {
-      $authorize{$iter{"pid"}}{"pnotes"} .= "<span class=text>" .
-        stripslashes(strterm($iter{"body"},25)) . " " .
-        date("n/j/Y",strtotime($iter{"date"})) . "</span><br>\n";
+if (empty($GLOBALS['ignore_pnotes_authorization'])) {
+  //fetch pnotes information:
+  if ($res = sqlStatement("select * from pnotes where authorized = 0 and " .
+    "groupname = '$groupname'"))
+  {
+    for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+      $result3[$iter] = $row;
+    if ($result3) {
+      foreach ($result3 as $iter) {
+        $authorize{$iter{"pid"}}{"pnotes"} .= "<span class=text>" .
+          stripslashes(strterm($iter{"body"},25)) . " " .
+          date("n/j/Y",strtotime($iter{"date"})) . "</span><br>\n";
+      }
+      //$authorize[$iter{"pid"}]{"pnotes"} = substr($authorize[$iter{"pid"}]{"pnotes"},0,strlen($authorize[$iter{"pid"}]{"pnotes"}));
     }
-    //$authorize[$iter{"pid"}]{"pnotes"} = substr($authorize[$iter{"pid"}]{"pnotes"},0,strlen($authorize[$iter{"pid"}]{"pnotes"}));
   }
 }
 
