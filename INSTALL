@@ -274,6 +274,8 @@ files out, and replace them into the new openemr folder afterwards:
 
   openemr/interface/globals.php
   openemr/library/sqlconf.php
+  openemr/gacl/gacl.ini.php
+  openemr/gacl/gacl.class.php
   openemr/includes/config.php (if you have modified it)
 
 But before replacing them, compare the old and new files in case there are
