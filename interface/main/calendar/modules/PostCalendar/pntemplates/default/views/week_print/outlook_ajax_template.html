@@ -14,7 +14,6 @@
   * which includes a stylesheet to screw up 
   * our styles below *-]
 [-*include file="$TPL_NAME/views/header.html"*-]
-
 <html>
 <head>
 
@@ -315,7 +314,7 @@ foreach ($providers as $provider) {
         echo "<td><div id='dowheader'>".date("D m/d", strtotime($eventdate))."</div>";
 
         // output the events for this date
-        PrintEvents($events, $providerid);
+        PrintEvents($events, $providerid, $TPL_IMAGE_PATH);
 
         // now output the events for this date+4, if they exist
         echo "</td><td>";
@@ -323,7 +322,7 @@ foreach ($providers as $provider) {
         if (isset($A_EVENTS[date("Y-m-d", $dateplusfour)])) {
             echo "<div id='dowheader'>".date("D m/d", $dateplusfour)."</div>";
             $tmpEvents = $A_EVENTS[date("Y-m-d", $dateplusfour)];
-            PrintEvents($tmpEvents, $providerid);
+            PrintEvents($tmpEvents, $providerid, $TPL_IMAGE_PATH);
         }
         echo "</tr>";
 
@@ -336,8 +335,9 @@ foreach ($providers as $provider) {
 } // end provider
 
 
+
 /* print out the array of events */
-function PrintEvents($events, $providerid) {
+function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
     global $times, $calStartMin, $calEndMin;
 
         // now loop over the events for the day and output their DIVs
@@ -475,6 +475,7 @@ function PrintEvents($events, $providerid) {
                 else if ($catid == 11) $catname = "RESERVED";
 
                 $content .= date("h:i", $eventdatetime);
+                if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
                 $content .= " ".$catname;
                 if ($comment) $content .= " $comment";
             }
@@ -482,18 +483,26 @@ function PrintEvents($events, $providerid) {
                 // some sort of patient appointment
                 $content .= "<span class='appointment".$apptToggle."'>";
                 $content .= date("h:i", $eventdatetime). " ";
-                if ($catid == 1) $content .= "<strike>";
-                $content .= $lname;
-                if ($GLOBALS['calendar_appt_style'] != 1) {
-                    $content .= "," . $fname;
-                    if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
-                        $content .= "(" . $event['title'];
-                        if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4)
-                        $content .= ": <font color='green'>" . htmlspecialchars(trim($event['hometext'])) . "</font>";
-                        $content .= ")";
+                if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
+                if ($patientid) {
+                    if ($catid == 1) $content .= "<strike>";
+                    $content .= $lname;
+                    if ($GLOBALS['calendar_appt_style'] != 1) {
+                        $content .= "," . $fname;
+                        if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
+                            $content .= "(" . $event['title'];
+                            if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4)
+                                $content .= ": <font color='green'>" . htmlspecialchars(trim($event['hometext'])) . "</font>";
+                            $content .= ")";
+                        }
                     }
+                    if ($catid == 1) $content .= "</strike>";
                 }
-                if ($catid == 1) $content .= "</strike>";
+                else {
+                    // no patient id, just output the category name
+                    $content .= $catname;
+                }
+
                 $content .= "</span>";
             }
 
@@ -590,6 +599,14 @@ function PrintDatePicker($caldate, $DOWlist, $daynames) {
 <script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/js/jquery-1.2.2.min.js"></script>
 <script>
 $(document).ready(function(){
+    // a poor-man's attempt to scale down the text to make sure
+    // the calendar fits onto a single piece of paper
+    if (($("#bigCal").height() > 900) && ($("#bigCal").height() < 1200)) {
+        $("#weekcal *").css("font-size", "90%");
+    }
+    else if ($("#bigCal").height() > 1200) {
+        $("#weekcal *").css("font-size", "80%");
+    }
     window.print();
     window.close();
 });
