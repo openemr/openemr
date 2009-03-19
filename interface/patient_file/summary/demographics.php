@@ -89,6 +89,11 @@ if ($GLOBALS['athletic_team']) {
   return true;
  }
 
+ function newEvt() {
+  dlgopen('../../main/calendar/add_edit_event.php?patientid=<?php echo $pid ?>', '_blank', 550, 270);
+  return false;
+ }
+
 </script>
 </head>
 
@@ -345,6 +350,10 @@ if (isset($pid)) {
 
  if (isset($res) && $res != null) {
     echo "<div id='appts'><span id='apptstitle'>Upcoming Appointments</span><br>";
+    // link to create a new appointment
+    echo "<span class='link' style='margin: 2px 0px 5px 0px; width:100%; text-align: center;'>";
+    echo "<a href='#' onclick='return newEvt()'>".xl('New Appointment')."</a>";
+    echo "</span>";
  }
  while($row = sqlFetchArray($res)) {
   $dayname = date("l", strtotime($row['pc_eventDate']));
