@@ -91,7 +91,7 @@ function sellDrug($drug_id, $quantity, $fee, $patient_id=0, $encounter_id=0,
   $rowsleft = mysql_num_rows($res);
   $bad_lot_list = '';
   while ($row = sqlFetchArray($res)) {
-    if ($row['expiration'] > $sale_date && $row['on_hand'] >= $quantity) {
+    if ((empty($row['expiration']) || $row['expiration'] > $sale_date) && $row['on_hand'] >= $quantity) {
       break;
     }
     if ($row['on_hand'] > 0) {
@@ -118,7 +118,8 @@ function sellDrug($drug_id, $quantity, $fee, $patient_id=0, $encounter_id=0,
     "WHERE inventory_id = $inventory_id");
 
   $rowsum = sqlQuery("SELECT sum(on_hand) AS sum FROM drug_inventory WHERE " .
-    "drug_id = '$drug_id' AND on_hand > '$quantity' AND expiration > CURRENT_DATE");
+    "drug_id = '$drug_id' AND on_hand > '$quantity' AND " .
+    "( expiration IS NULL OR expiration > CURRENT_DATE )");
   $rowdrug = sqlQuery("SELECT * FROM drugs WHERE " .
     "drug_id = '$drug_id'");
   if ($rowsum['sum'] <= $rowdrug['reorder_point']) {
