@@ -101,20 +101,37 @@ if ($_POST['import']) {
 
 				$mode = $matches[1];
 				$value = addslashes(trim($matches[2]));
+				$insert_value = '';
 				if ($mode == 'item') {
+					$postfix = 0;
 					$statement = sqlStatement("select id from form_CAMOS_item where item like \"$value\" " .
 						"and subcategory_id = $subcategory_id");
-					if ($result = sqlFetchArray($statement)) {
-						$item_id = $result['id'];
+					if ($result = sqlFetchArray($statement)) {//let's count until we find a number available
+						$postfix = 1;
+						$inserted_duplicate = false;
+						while ($inserted_duplicate === false) {
+							$insert_value = $value."_".$postfix;
+							$inner_statement = sqlStatement("select id from form_CAMOS_item " .
+								"where item like \"$insert_value\" " .
+								"and subcategory_id = $subcategory_id");
+							if (!($inner_result = sqlFetchArray($inner_statement))) {//doesn't exist
+								$inner_query = "INSERT INTO form_CAMOS_item (user, item, subcategory_id) ". 
+									"values ('".$_SESSION['authUser']."', \"$insert_value\", ".
+									"$subcategory_id)"; 
+								sqlInsert($inner_query);
+								$inserted_duplicate = true;
+							} else {$postfix++;}
+						}
 					} else {
 						$query = "INSERT INTO form_CAMOS_item (user, item, subcategory_id) ". 
 							"values ('".$_SESSION['authUser']."', \"$value\", $subcategory_id)"; 
 						sqlInsert($query);
-						$statement = sqlStatement("select id from form_CAMOS_item where item like \"$value\" " .
-							"and subcategory_id = $subcategory_id");
-						if ($result = sqlFetchArray($statement)) {
-							$item_id = $result['id'];
-						}
+					}
+					if ($postfix == 0) {$insert_value = $value;}
+					$statement = sqlStatement("select id from form_CAMOS_item where item like \"$insert_value\" " .
+						"and subcategory_id = $subcategory_id");
+					if ($result = sqlFetchArray($statement)) {
+						$item_id = $result['id'];
 					}
 				}
 				elseif ($mode == 'content') {
@@ -141,6 +158,12 @@ admin
 </title>
 </head>
 <body>
+<p>
+Click 'export' to export your Category, Subcategory, Item, Content data to a text file.  Any resemblance of this file to an XML file is 
+purely coincidental.  For now, opening and closing tags must be on the same line, they must be lowercase with no spaces.  To import, browse
+for a file and click 'import'.  If the data is completely different, it will merge with your existing data.  If there are similar item names,
+The old one will be kept and the new one saved with a number added to the end.  This feature is very experimental and not fully tested.  Use at your own risk!
+</p>
 <form enctype="multipart/form-data" method="POST">
 <input type="hidden" name="MAX_FILE_SIZE" value="12000000" />
 Send this file: <input type="file" name="userfile"/>
