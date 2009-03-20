@@ -26,7 +26,7 @@ $error = '';
 
 $preselect_category = '';
 $preselect_subcategory = '';
-$preselect_item= '';
+$preselect_item = '';
 $preselect_category_override = '';
 $preselect_subcategory_override = '';
 $preselect_item_override = '';
@@ -39,7 +39,6 @@ $category = str_replace($quote_search,$quote_replace,$_POST['change_category']);
 $subcategory = str_replace($quote_search,$quote_replace,$_POST['change_subcategory']); 
 $item = str_replace($quote_search,$quote_replace,$_POST['change_item']); 
 $content = str_replace($quote_search_content,$quote_replace_content,$_POST['textarea_content']); 
-
 if ($_POST['hidden_category']) {$preselect_category = $_POST['hidden_category'];}
 if ($_POST['hidden_subcategory']) {$preselect_subcategory = $_POST['hidden_subcategory'];}
 if ($_POST['hidden_item']) {$preselect_item = $_POST['hidden_item'];}
@@ -55,7 +54,7 @@ if (substr($_POST['hidden_mode'],0,3) == 'add') {
     $query .= $category."')"; 
     sqlInsert($query);
   }
-  else if ($_POST['hidden_selection'] == 'change_subcategory') {
+  elseif ($_POST['hidden_selection'] == 'change_subcategory') {
     $preselect_subcategory_override = $_POST['change_subcategory'];
     $category_id = $_POST['hidden_category']; 
     if ($category_id >= 0 ) {
@@ -68,7 +67,7 @@ if (substr($_POST['hidden_mode'],0,3) == 'add') {
       sqlInsert($query);
     }
   }
-  else if ($_POST['hidden_selection'] == 'change_item') {
+  elseif ($_POST['hidden_selection'] == 'change_item') {
     $preselect_item_override = $_POST['change_item'];
     $category_id = $_POST['hidden_category']; 
     $subcategory_id = $_POST['hidden_subcategory']; 
@@ -83,7 +82,7 @@ if (substr($_POST['hidden_mode'],0,3) == 'add') {
     }
     
   }
-  else if ($_POST['hidden_selection'] == 'change_content') {
+  elseif ($_POST['hidden_selection'] == 'change_content') {
     $item_id = $_POST['hidden_item'];
     if ($item_id >= 0) {
       if ($_POST['hidden_mode'] == 'add to') {
@@ -101,7 +100,7 @@ if (substr($_POST['hidden_mode'],0,3) == 'add') {
     }
   }
 }
-else if ($_POST['hidden_mode'] == 'delete') {
+elseif ($_POST['hidden_mode'] == 'delete') {
   if ($delete_subdata) { //if set, allow for the deletion of all subdata
     if ($_POST['hidden_selection'] == 'change_category') {
       $to_delete_id = $_POST['hidden_category'];
@@ -116,17 +115,25 @@ else if ($_POST['hidden_mode'] == 'delete') {
       $query = "DELETE FROM form_CAMOS_category WHERE id = $to_delete_id";
       sqlInsert($query);
     }
-    else if ($_POST['hidden_selection'] == 'change_subcategory') {
+    elseif ($_POST['hidden_selection'] == 'change_subcategory') {
       $to_delete_id = $_POST['hidden_subcategory'];
       $query = "DELETE FROM form_CAMOS_item WHERE subcategory_id = $to_delete_id";
       sqlInsert($query);
       $query = "DELETE FROM form_CAMOS_subcategory WHERE id = $to_delete_id";
       sqlInsert($query);
     }
-    else if ($_POST['hidden_selection'] == 'change_item') {
-      $to_delete_id = $_POST['hidden_item'];
-      $query = "DELETE FROM form_CAMOS_item WHERE id = " .$to_delete_id;
-      sqlInsert($query);
+    elseif ($_POST['hidden_selection'] == 'change_item') {
+      if ((isset($_POST['select_item'])) && (count($_POST['select_item'])>1)) {
+        foreach($_POST['select_item'] as $v) {
+          $to_delete_id = $v;
+          $query = "DELETE FROM form_CAMOS_item WHERE id = " .$to_delete_id;
+          sqlInsert($query);
+        }
+      } else {
+        $to_delete_id = $_POST['hidden_item'];
+        $query = "DELETE FROM form_CAMOS_item WHERE id = " .$to_delete_id;
+        sqlInsert($query);
+      }
     }
   } else { //delete only if subdata is empty, 'the old way'.
     if ($_POST['hidden_selection'] == 'change_category') {
@@ -138,14 +145,14 @@ else if ($_POST['hidden_mode'] == 'delete') {
       $subtablename = 'subcategory';
       $subsubtablename = 'item';
     }
-    else if ($_POST['hidden_selection'] == 'change_subcategory') {
+    elseif ($_POST['hidden_selection'] == 'change_subcategory') {
       $to_delete_id = $_POST['hidden_subcategory'];
       $to_delete_from_table = 'form_CAMOS_subcategory';
       $to_delete_from_subtable = 'form_CAMOS_item';
       $tablename = 'subcategory';
       $subtablename = 'item';
     }
-    else if ($_POST['hidden_selection'] == 'change_item') {
+    elseif ($_POST['hidden_selection'] == 'change_item') {
       $to_delete_id = $_POST['hidden_item'];
       $to_delete_from_table = 'form_CAMOS_item';
       $to_delete_from_subtable = '';
@@ -172,19 +179,19 @@ else if ($_POST['hidden_mode'] == 'delete') {
     }
   } //end of delete only if subdata is empty
 }
-else if ($_POST['hidden_mode'] == 'alter') {
+elseif ($_POST['hidden_mode'] == 'alter') {
   $newval = $_POST[$_POST['hidden_selection']];
   if ($_POST['hidden_selection'] == 'change_category') {
     $to_alter_id = $_POST['hidden_category'];
     $to_alter_table = 'form_CAMOS_category';
     $to_alter_column = 'category';
   }
-  else if ($_POST['hidden_selection'] == 'change_subcategory') {
+  elseif ($_POST['hidden_selection'] == 'change_subcategory') {
     $to_alter_id = $_POST['hidden_subcategory'];
     $to_alter_table = 'form_CAMOS_subcategory';
     $to_alter_column = 'subcategory';
   }
-  else if ($_POST['hidden_selection'] == 'change_item') {
+  elseif ($_POST['hidden_selection'] == 'change_item') {
     $to_alter_id = $_POST['hidden_item'];
     $to_alter_table = 'form_CAMOS_item';
     $to_alter_column = 'item';
@@ -373,7 +380,7 @@ function lock_content() {
 }
 function allSelected() {
   var f2 = document.CAMOS;
-  if ( (f2.select_category.selectedIndex < 0) || (f2.select_subcategory.selectedIndex < 0) || (f2.select_item.selectedIndex < 0) ) {
+  if ( (f2.select_category.selectedIndex < 0) || (f2.select_subcategory.selectedIndex < 0) || (f2["select_item[]"].selectedIndex < 0) ) {
     return false; //one of the columns is not selected
   }
   else {
@@ -517,7 +524,35 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
       $clone_search_term = " and content like '%$clone_search%'"; 
     }
     if (substr($_POST['hidden_mode'],0,12) == 'clone others') { //clone from search box
-		if ((preg_match('/^(billing)(.*)/',$clone_search,$matches)) || 
+		
+		if (preg_match('/^(export)(.*)/',$clone_search,$matches)) { 
+			$query1 = "select id, category from form_CAMOS_category";
+			$statement1 = sqlStatement($query1);
+		        while ($result1 = sqlFetchArray($statement1)) {
+				$tmp = $result1['category'];
+				$tmp = "/*import::category::$tmp*/"."\n";
+				$clone_data_array[$tmp] = $tmp;
+				$query2 = "select id,subcategory from form_CAMOS_subcategory where category_id=".$result1['id'];
+				$statement2 = sqlStatement($query2);
+				while ($result2 = sqlFetchArray($statement2)) {
+					$tmp = $result2['subcategory'];
+					$tmp = "/*import::subcategory::$tmp*/"."\n";
+					$clone_data_array[$tmp] = $tmp;
+					$query3 = "select item, content from form_CAMOS_item where subcategory_id=".$result2['id'];
+					$statement3 = sqlStatement($query3);
+					while ($result3 = sqlFetchArray($statement3)) {
+						$tmp = $result3['item'];
+						$tmp = "/*import::item::$tmp*/"."\n";
+						$clone_data_array[$tmp] = $tmp;
+						$tmp = $result3['content'];
+						$tmp = "/*import::content::$tmp*/"."\n";
+						$clone_data_array[$tmp] = $tmp;
+					}
+				}
+			}
+			$clone_data_array = array();
+		}
+		elseif ((preg_match('/^(billing)(.*)/',$clone_search,$matches)) || 
 			(preg_match('/^(codes)(.*)/',$clone_search,$matches))) { 
 			$table = $matches[1];
 			$line = $matches[2];
@@ -692,7 +727,7 @@ function click_category() {
   for (var i1=0;i1<array1.length;i1++) {
     if (array1[i1][1] == sel) {
     f2.select_subcategory.length = 0;
-    f2.select_item.length = 0;
+    f2["select_item[]"].length = 0;
     f2.textarea_content.value = '';
       for (var i2=0;i2<array2.length;i2++) {
         if (array1[i1][1] == array2[i2][1]) {
@@ -719,11 +754,11 @@ function click_subcategory() {
   var sel = f2.select_subcategory.options[f2.select_subcategory.selectedIndex].value;
   for (var i1=0;i1<array2.length;i1++) {
     if (array2[i1][2] == sel) {
-    f2.select_item.length = 0;
+    f2["select_item[]"].length = 0;
     f2.textarea_content.value = '';
       for (var i2=0;i2<array3.length;i2++) {
         if (array2[i1][2] == array3[i2][2]) {
-          f2.select_item.options[f2.select_item.length] = new Option(array3[i2][0], array3[i2][3]);
+          f2["select_item[]"].options[f2["select_item[]"].length] = new Option(array3[i2][0], array3[i2][3]);
         }
       }
     }
@@ -735,16 +770,16 @@ function click_subcategory() {
     $preselect_item = $preselect_item_override;
   }
 ?>
-  if (select_word("<? echo fixquotes($temp_preselect_mode)."\", \"".fixquotes($preselect_item); ?>" ,f2.select_item)) {
+  if (select_word("<? echo fixquotes($temp_preselect_mode)."\", \"".fixquotes($preselect_item); ?>" ,f2["select_item[]"])) {
     click_item();
     preselect_off = true;
   }
 }
 function click_item() {
   var f2 = document.CAMOS;
-  var item_index = f2.select_item.selectedIndex;
-  if ((item_index < 0) || (item_index > f2.select_item.length-1)) {return 0;}
-  var sel = f2.select_item.options[item_index].value;
+  var item_index = f2["select_item[]"].selectedIndex;
+  if ((item_index < 0) || (item_index > f2["select_item[]"].length-1)) {return 0;}
+  var sel = f2["select_item[]"].options[item_index].value;
   for (var i1=0;i1<array3.length;i1++) {
     if (array3[i1][3] == sel) {
       //diplay text in content box
@@ -885,7 +920,7 @@ if ( (mode == 'add') || (mode == 'alter') ) {
       alert("You cannot add a blank value for an item!"); 
       return;
     }
-    if (selectContains(f2.select_item, trimString(f2.change_item.value))) {
+    if (selectContains(f2["select_item[]"], trimString(f2.change_item.value))) {
       alert("There is already an item named "+f2.change_item.value+".");
       return;
     }
@@ -931,7 +966,7 @@ if ( (mode == 'add') || (mode == 'alter') ) {
     subcategory_value = f2.select_subcategory.options[subcategory_index].value;
     subcategory_text = f2.select_subcategory.options[subcategory_index].text;
   }
-  var item_index = f2.select_item.selectedIndex;
+  var item_index = f2["select_item[]"].selectedIndex;
   var item_value;
   var item_text;
   if (item_index < 0) {
@@ -943,8 +978,8 @@ if ( (mode == 'add') || (mode == 'alter') ) {
     item_text = '';
   }
   else {
-    item_value = f2.select_item.options[item_index].value;
-    item_text = f2.select_item.options[item_index].text;
+    item_value = f2["select_item[]"].options[item_index].value;
+    item_text = f2["select_item[]"].options[item_index].text;
   }
   f2.category.value = category_text;
   f2.subcategory.value = subcategory_text;
@@ -994,7 +1029,7 @@ if (!$out_of_encounter) {
 
 function selectItem () {
   f2 = document.CAMOS;
-  f2.item.value=f2.select_item.options[f2.select_item.selectedIndex].text;
+  f2.item.value=f2["select_item[]"].options[f2["select_item[]"].selectedIndex].text;
   f2.content.value = f2.textarea_content.value;
 }
 function getKey(e) { //process keypresses with getKeyPress
@@ -1116,8 +1151,7 @@ if (myAuth() == 1) {//root user only can see administration option
   </td>
   <td>
   <div id=id_item_column style="display:inline">
-    <select name=select_item size=<? echo $select_size ?> onchange="click_item()"
-      ></select><br>
+    <select name=select_item[] size=<? echo $select_size ?> onchange="click_item()" multiple="multiple"></select><br>
 <?
 if (myAuth() == 1) {//root user only can see administration option 
 ?>
