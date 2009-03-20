@@ -162,7 +162,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
 
  $disallowed['cht'] = !is_readable("$webserver_root/custom/chart_tracker.php");
  
- $disallowed['pre'] = !(acl_check('patient', 'meds'));
+ $disallowed['pre'] = !(acl_check('patients', 'med'));
 
  // Helper functions for treeview generation.
  function genTreeLink($frame, $name, $title) {
@@ -682,7 +682,7 @@ function genPopupsList($style='') {
           <?php genDualLink('iss','ens','Problems/Issues'); // with ens on bottom ?>
           <?php genDualLink('tra','ens','Transactions/Referrals'); // new transaction form on top and tra list on bottom (or ens if no tra) ?>
           <?php genDualLink('his','imm','Immunizations'); // imm on bottom, his on top ?>
-          <?php if (acl_check('patients', 'meds')) genDualLink('his','pre','Prescriptions'); // pre on bottom, his on top ?>
+          <?php if (acl_check('patients', 'med')) genDualLink('his','pre','Prescriptions'); // pre on bottom, his on top ?>
           <?php genTreeLink('RTop','doc','Document/Imaging Store'); ?>
           <?php genTreeLink('RTop','prp','Patient Printed Report'); ?>
           <?php genDualLink('dem','pno','Additional Notes'); // with dem on top ?>
@@ -712,7 +712,7 @@ function genPopupsList($style='') {
       <li><span><?php xl('Patient/Client','e') ?></span>
         <ul>
           <?php genPopLink('List','patient_list.php'); ?>
-          <?php if (acl_check('patients', 'meds')) genPopLink('Prescriptions','prescriptions_report.php'); ?>
+          <?php if (acl_check('patients', 'med')) genPopLink('Prescriptions','prescriptions_report.php'); ?>
           <?php genPopLink('Referrals','referrals_report.php'); ?>
         </ul>
       </li>
@@ -795,7 +795,7 @@ function genPopupsList($style='') {
       </li>
       <li><span><?php xl('Medical Record','e') ?></span>
         <ul> 
-          <?php if (acl_check('patients', 'meds')) genTreeLink('RBot','pre','Rx'); ?>
+          <?php if (acl_check('patients', 'med')) genTreeLink('RBot','pre','Rx'); ?>
           <?php genTreeLink('RTop','his','History'); ?>
           <?php genTreeLink('RTop','iss','Issues'); ?>
           <?php genTreeLink('RBot','imm','Immunize'); ?>
@@ -841,7 +841,7 @@ function genPopupsList($style='') {
       <li><span><?php xl('Clients','e') ?></span>
         <ul>
           <?php genPopLink('List','patient_list.php'); ?>
-          <?php if (acl_check('patients', 'meds')) genPopLink('Rx','prescriptions_report.php'); ?>
+          <?php if (acl_check('patients', 'med')) genPopLink('Rx','prescriptions_report.php'); ?>
           <?php genPopLink('Referrals','referrals_report.php'); ?>
         </ul>
       </li>
