@@ -12,6 +12,9 @@ $form_fname     = $_POST['fname'    ] ? trim($_POST['fname'    ]) : '';
 $form_mname     = $_POST['mname'    ] ? trim($_POST['mname'    ]) : '';
 $form_lname     = $_POST['lname'    ] ? trim($_POST['lname'    ]) : '';
 $form_refsource = $_POST['refsource'] ? trim($_POST['refsource']) : '';
+$form_sex       = $_POST['sex'      ] ? trim($_POST['sex'      ]) : '';
+$form_refsource = $_POST['refsource'] ? trim($_POST['refsource']) : '';
+$form_dob       = $_POST['DOB'      ] ? trim($_POST['DOB'      ]) : '';
 $form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d');
 ?>
 <html>
@@ -117,6 +120,26 @@ while ($orow = sqlFetchArray($ores)) {
   </td>
  </tr>
 
+ <tr>
+  <td>
+   <span class='bold'><?php xl('Sex','e'); ?>: </span>
+  </td>
+  <td>
+   <select name='sex'>
+    <option value=''>Unassigned</option>
+<?php
+$ores = sqlStatement("SELECT option_id, title FROM list_options " .
+  "WHERE list_id = 'sex' ORDER BY seq");
+while ($orow = sqlFetchArray($ores)) {
+  echo "    <option value='" . $orow['option_id'] . "'";
+  if ($orow['option_id'] == $form_sex) echo " selected";
+  echo ">" . $orow['title'] . "</option>\n";
+}
+?>
+   </select>
+  </td>
+ </tr>
+
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
  <tr>
   <td>
@@ -138,6 +161,24 @@ while ($orow = sqlFetchArray($ores)) {
   </td>
  </tr>
 <?php } ?>
+
+ <tr>
+  <td>
+   <span class='bold'><?php xl('Birth Date','e');?>: </span>
+  </td>
+  <td>
+   <input type='text' size='10' name='DOB' id='DOB'
+    value='<?php echo $form_dob; ?>'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+    title='yyyy-mm-dd' />
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_dob' border='0' alt='[?]' style='cursor:pointer'
+    title='Click here to choose a date'>
+   <script LANGUAGE="JavaScript">
+    Calendar.setup({inputField:"DOB", ifFormat:"%Y-%m-%d", button:"img_dob"});
+   </script>
+  </td>
+ </tr>
 
  <tr<?php echo $regstyle ?>>
   <td>
