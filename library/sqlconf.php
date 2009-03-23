@@ -1,4 +1,4 @@
-<?
+<?php
 //  OpenEMR
 //  MySQL Config
 //  Referenced from sql.inc
