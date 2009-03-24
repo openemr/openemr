@@ -57,12 +57,19 @@ tar -czf $WEB/files/openemr-cvs.tar.gz openemr
 cd $WEB/files
 md5sum openemr-cvs.tar.gz > openemr-linux-md5.txt
 cd $CVS
+# Temporarily change permissions to work better on windows
+chmod 644 $CVS/openemr/interface/globals.php
+chmod 644 $CVS/openemr/library/sqlconf.php
 zip -rq $WEB/files/openemr-cvs.zip openemr
+# Revert to original permissions
+chmod 444 $CVS/openemr/interface/globals.php
+chmod 444 $CVS/openemr/library/sqlconf.php
 cd $WEB/files
 md5sum openemr-cvs.zip > openemr-windows-md5.txt
 date > date-cvs.txt
 echo "Done creating OpenEMR CVS packages"
 echo "Done creating OpenEMR CVS packages" >> $LOG
+#Edit some php.ini settings and restart apache (pending)
 
 #INSTALL AND CONFIGURE OPENEMR
 echo "Configuring OpenEMR"
