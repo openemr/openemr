@@ -198,7 +198,22 @@ class C_Document extends Controller {
 		return $this->list_action($patient_id);
 	}
 	
-	function retrieve_action($patient_id="",$document_id,$as_file=true) {
+	function retrieve_action($patient_id="",$document_id,$as_file=true,$original_file=true) {
+	    
+	        //controller function ruins booleans, so need to manually re-convert to booleans
+	        if ($as_file == "true") {
+		        $as_file=true;
+		}
+	        else if ($as_file == "false") {
+		        $as_file=false;    
+		}
+                if ($original_file == "true") {
+		        $original_file=true;
+		}
+	        else if ($original_file == "false") {
+		        $original_file=false;   
+		}
+	    
 		$d = new Document($document_id);
 		$url =  $d->get_url();
 		
@@ -216,15 +231,32 @@ class C_Document extends Controller {
 			echo "The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it. $url";	
 		}
 		else {
-			header("Pragma: public");
-        	header("Expires: 0");
-        	header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-		header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename($d->get_url()) . "\"");
-			header("Content-Type: " . $d->get_mimetype());
-			header("Content-Length: " . $d->get_size());
-			$f = fopen($url,"r");
-			fpassthru($f);
-			exit;
+		        if ($original_file) {
+			    //normal case when serving the file referenced in database
+                            header("Pragma: public");
+			    header("Expires: 0");
+			    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+			    header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename($d->get_url()) . "\"");
+			    header("Content-Type: " . $d->get_mimetype());
+			    header("Content-Length: " . $d->get_size());
+			    $f = fopen($url,"r");
+			    fpassthru($f);
+			    exit;
+		        }
+		        else {
+			    //special case when retrieving a document that has been converted to a jpg and not directly referenced in database
+			    $convertedFile = substr(basename($url), 0, strrpos(basename($url), '.')) . '_converted.jpg';			    
+			    $url = $GLOBALS["fileroot"].'/documents/'.$_SESSION["pid"].'/'.$convertedFile;
+                            header("Pragma: public");
+			    header("Expires: 0");
+			    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+			    header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename($url) . "\"");
+			    header("Content-Type: image/jpeg");
+			    header("Content-Length: " . filesize($url));
+			    $f = fopen($url,"r");
+			    fpassthru($f);
+			    exit;
+			}
 		}
 	}
 	

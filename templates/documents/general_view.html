@@ -74,7 +74,7 @@
 			 $file->get_mimetype() eq "image/jpeg" or
 			 $file->get_mimetype() eq "image/gif" or
 			 $file->get_mimetype() eq "application/pdf" }
-			<iframe frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}{$file->get_url_web()}&as_file=false"></iframe>
+			<iframe frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}as_file=false"></iframe>
 			{else}
 			<iframe frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}as_file=true"></iframe>
 			{/if}

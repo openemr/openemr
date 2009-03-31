@@ -1,3 +1,4 @@
+
 <?php
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
@@ -293,7 +294,7 @@ foreach ($ar as $key => $val) {
                 }
                 echo "</table>";
                 if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
-                    echo '<img src="' . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . $document_id . '"><br><br>';
+                    echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . $document_id . "&as_file=false'><br><br>";
                 }
                 else {
                     // echo "<b>NOTE</b>: ".xl('Document')."'" . $fname ."' ".xl('cannot be displayed inline because its type is not supported by the browser.')."<br><br>";	
@@ -302,8 +303,7 @@ foreach ($ar as $key => $val) {
                     $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
                     if (! is_file($to_file)) exec("convert -density 200 '$from_file' -append -resize 850 '$to_file'");
                     if (is_file($to_file)) {
-                        $to_url = $GLOBALS['webroot'] . "/documents/$pid/" . basename($to_file);
-                        echo "<img src='$to_url'><br><br>\n";
+			echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . $document_id . "&as_file=false&original_file=false'><br><br>";
                     } else {
                         echo "<b>NOTE</b>: " . xl('Document') . "'" . $fname . "' " .
                             xl('cannot be converted to JPEG. Perhaps ImageMagick is not installed?') .
