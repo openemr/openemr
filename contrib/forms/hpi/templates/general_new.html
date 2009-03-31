@@ -1,0 +1,121 @@
+<html>
+<head>
+{php}html_header_show();{/php}
+{literal}
+
+ <style type="text/css" title="mystyles" media="all">
+<!--
+td {
+	font-size:12pt;
+	font-family:helvetica;
+}
+li{
+	font-size:11pt;
+	font-family:helvetica;
+	margin-left: 15px;
+}
+a {
+	font-size:11pt;
+	font-family:helvetica;
+}
+.title {
+	font-family: sans-serif;
+	font-size: 12pt;
+	font-weight: bold;
+	text-decoration: none;
+	color: #000000;
+}
+
+.form_text{
+	font-family: sans-serif;
+	font-size: 9pt;
+	text-decoration: none;
+	color: #000000;
+}
+
+-->
+</style>
+{/literal}
+</head>
+<body bgcolor="{$STYLE.BGCOLOR2}">
+<p><span class="title">History of Present Illness</span></p>
+<form name="soap" method="post" action="{$FORM_ACTION}/interface/forms/hpi/save.php"
+ onsubmit="return top.restoreSession()">
+<table>
+	<tr>
+		<td align="left">Location</td>
+		<td width="90%">
+			<textarea name="location" cols="60" rows="6">{$data->get_location()}</textarea>
+		</td>
+	</tr>
+
+	<tr>
+		<td align="left">Quality</td>
+		<td width="90%">
+			<textarea name="quality" cols="60" rows="6">{$data->get_quality()}</textarea>
+		</td>
+	</tr>
+
+	
+	<tr>
+		<td align="left">Severity</td>
+		<td width="90%">
+			<textarea name="severity" cols="60" rows="6">{$data->get_severity()}</textarea>
+		</td>
+	</tr>
+
+	
+	<tr>
+		<td align="left">Duration</td>
+		<td width="90%">
+			<textarea name="duration" cols="60" rows="6">{$data->get_duration()}</textarea>
+		</td>
+	</tr>
+
+	
+	<tr>
+		<td align="left">Timing</td>
+		<td width="90%">
+			<textarea name="timing" cols="60" rows="6">{$data->get_timing()}</textarea>
+		</td>
+	</tr>
+
+	
+	<tr>
+		<td align="left">Context</td>
+		<td width="90%">
+			<textarea name="context" cols="60" rows="6">{$data->get_context()}</textarea>
+		</td>
+	</tr>
+
+	
+	<tr>
+		<td align="left">Modifying Factors</td>
+		<td width="90%">
+			<textarea name="factors" cols="60" rows="6">{$data->get_factors()}</textarea>
+		</td>
+	</tr>
+
+	
+	<tr>
+		<td align="left">Associated Signs and Symptoms</td>
+		<td width="90%">
+			<textarea name="signs" cols="60" rows="6">{$data->get_signs()}</textarea>
+		</td>
+	</tr>
+	
+	<tr>
+		<td>
+			<input type="submit" name="Submit" value="Save Form">
+		</td>
+		<td>
+			<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a>
+		</td>
+	</tr>
+</table>
+<input type="hidden" name="id" value="{$data->get_id()}" />
+<input type="hidden" name="pid" value="{$data->get_pid()}">
+<input type="hidden" name="process" value="true">
+</form>
+</body>
+</html>

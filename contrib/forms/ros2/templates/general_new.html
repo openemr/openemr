@@ -1,0 +1,4307 @@
+<html>
+<head>
+{php}html_header_show();{/php}
+{literal}
+
+ <style type="text/css" title="mystyles" media="all">
+<!--
+td {
+	font-size:12pt;
+	font-family:helvetica;
+}
+li{
+	font-size:11pt;
+	font-family:helvetica;
+	margin-left: 15px;
+}
+a {
+	font-size:11pt;
+	font-family:helvetica;
+}
+.title {
+	font-family: sans-serif;
+	font-size: 12pt;
+	font-weight: bold;
+	text-decoration: none;
+	color: #000000;
+}
+
+.form_text{
+	font-family: sans-serif;
+	font-size: 9pt;
+	text-decoration: none;
+	color: #000000;
+}
+
+-->
+</style>
+{/literal}
+</head>
+<body bgcolor="{$STYLE.BGCOLOR2}">
+<p><span class="title">Review of Systems &#150; Details</span></p>
+<form name="ros2" method="post" action="{$FORM_ACTION}/interface/forms/ros2/save.php"
+ onsubmit="return top.restoreSession()">
+
+<TABLE WIDTH=591 BORDER=1 BORDERCOLOR='#000000' CELLPADDING=7 CELLSPACING=0 STYLE='page-break-before: always'>
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER>GENERAL:
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='general_headache' VALUE='Yes' '{$data->get_general_headache_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='general_headache' VALUE='No' '{$data->get_general_headache_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>headache</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='general_headache_text' cols='30' rows='2'>{$data->get_general_headache_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='general_fever' VALUE='Yes' '{$data->get_general_fever_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='general_fever' VALUE='No' '{$data->get_general_fever_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>fever</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='general_fever_text' cols='30' rows='2'>{$data->get_general_fever_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='general_chills' VALUE='Yes' '{$data->get_general_chills_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='general_chills' VALUE='No' '{$data->get_general_chills_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>chills</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='general_chills_text' cols='30' rows='2'>{$data->get_general_chills_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='general_body_aches' VALUE='Yes' '{$data->get_general_body_aches_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='general_body_aches' VALUE='No' '{$data->get_general_body_aches_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>body aches</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='general_body_aches_text' cols='30' rows='2'>{$data->get_general_body_aches_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='general_fatigue' VALUE='Yes' '{$data->get_general_fatigue_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='general_fatigue' VALUE='No' '{$data->get_general_fatigue_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>fatigue</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='general_fatigue_text' cols='30' rows='2'>{$data->get_general_fatigue_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='general_loss_of_appetite' VALUE='Yes' '{$data->get_general_loss_of_appetite_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='general_loss_of_appetite' VALUE='No' '{$data->get_general_loss_of_appetite_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>loss of appetite</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='general_loss_of_appetite_text' cols='30' rows='2'>{$data->get_general_loss_of_appetite_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='general_weight_loss' VALUE='Yes' '{$data->get_general_weight_loss_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='general_weight_loss' VALUE='No' '{$data->get_general_weight_loss_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>weight loss</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='general_weight_loss_text' cols='30' rows='2'>{$data->get_general_weight_loss_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='general_daytime_drowsiness' VALUE='Yes' '{$data->get_general_daytime_drowsiness_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='general_daytime_drowsiness' VALUE='No' '{$data->get_general_daytime_drowsiness_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>daytime drowsiness</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='general_daytime_drowsiness_text' cols='30' rows='2'>{$data->get_general_daytime_drowsiness_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='general_excessive_snoring' VALUE='Yes' '{$data->get_general_excessive_snoring_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='general_excessive_snoring' VALUE='No' '{$data->get_general_excessive_snoring_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>excessive snoring</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='general_excessive_snoring_text' cols='30' rows='2'>{$data->get_general_excessive_snoring_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER>NEURO:
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neuro_disorientation' VALUE='Yes' '{$data->get_neuro_disorientation_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neuro_disorientation' VALUE='No' '{$data->get_neuro_disorientation_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>disorientation</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neuro_disorientation_text' cols='30' rows='2'>{$data->get_neuro_disorientation_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neuro_loss_of_consciousness' VALUE='Yes' '{$data->get_neuro_loss_of_consciousness_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neuro_loss_of_consciousness' VALUE='No' '{$data->get_neuro_loss_of_consciousness_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>loss of consciousness</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neuro_loss_of_consciousness_text' cols='30' rows='2'>{$data->get_neuro_loss_of_consciousness_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neuro_numbness' VALUE='Yes' '{$data->get_neuro_numbness_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neuro_numbness' VALUE='No' '{$data->get_neuro_numbness_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>numbness</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neuro_numbness_text' cols='30' rows='2'>{$data->get_neuro_numbness_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neuro_tingling' VALUE='Yes' '{$data->get_neuro_tingling_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neuro_tingling' VALUE='No' '{$data->get_neuro_tingling_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>tingling</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neuro_tingling_text' cols='30' rows='2'>{$data->get_neuro_tingling_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neuro_restlessness' VALUE='Yes' '{$data->get_neuro_restlessness_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neuro_restlessness' VALUE='No' '{$data->get_neuro_restlessness_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>restlessness</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neuro_restlessness_text' cols='30' rows='2'>{$data->get_neuro_restlessness_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neuro_dizziness' VALUE='Yes' '{$data->get_neuro_dizziness_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neuro_dizziness' VALUE='No' '{$data->get_neuro_dizziness_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>dizziness</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neuro_dizziness_text' cols='30' rows='2'>{$data->get_neuro_dizziness_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neuro_vertigo' VALUE='Yes' '{$data->get_neuro_vertigo_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neuro_vertigo' VALUE='No' '{$data->get_neuro_vertigo_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>vertigo</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neuro_vertigo_text' cols='30' rows='2'>{$data->get_neuro_vertigo_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neuro_amaurosis_fugax' VALUE='Yes' '{$data->get_neuro_amaurosis_fugax_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neuro_amaurosis_fugax' VALUE='No' '{$data->get_neuro_amaurosis_fugax_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Amaurosis Fugax</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neuro_amaurosis_fugax_text' cols='30' rows='2'>{$data->get_neuro_amaurosis_fugax_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neuro_stroke' VALUE='Yes' '{$data->get_neuro_stroke_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neuro_stroke' VALUE='No' '{$data->get_neuro_stroke_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Stroke</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neuro_stroke_text' cols='30' rows='2'>{$data->get_neuro_stroke_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neuro_gait_abnormality' VALUE='Yes' '{$data->get_neuro_gait_abnormality_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neuro_gait_abnormality' VALUE='No' '{$data->get_neuro_gait_abnormality_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Gait Abnormality</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neuro_gait_abnormality_text' cols='30' rows='2'>{$data->get_neuro_gait_abnormality_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neuro_frequent_headaches' VALUE='Yes' '{$data->get_neuro_frequent_headaches_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neuro_frequent_headaches' VALUE='No' '{$data->get_neuro_frequent_headaches_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Frequent headaches</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neuro_frequent_headaches_text' cols='30' rows='2'>{$data->get_neuro_frequent_headaches_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neuro_parathesias' VALUE='Yes' '{$data->get_neuro_parathesias_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neuro_parathesias' VALUE='No' '{$data->get_neuro_parathesias_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Parathesias</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neuro_parathesias_text' cols='30' rows='2'>{$data->get_neuro_parathesias_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neuro_seizures' VALUE='Yes' '{$data->get_neuro_seizures_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neuro_seizures' VALUE='No' '{$data->get_neuro_seizures_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Seizures</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neuro_seizures_text' cols='30' rows='2'>{$data->get_neuro_seizures_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neuro_trans_ischemic_attacks' VALUE='Yes' '{$data->get_neuro_trans_ischemic_attacks_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neuro_trans_ischemic_attacks' VALUE='No' '{$data->get_neuro_trans_ischemic_attacks_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Trans Ischemic Attacks</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neuro_trans_ischemic_attacks_text' cols='30' rows='2'>{$data->get_neuro_trans_ischemic_attacks_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neuro_significant_tremors' VALUE='Yes' '{$data->get_neuro_significant_tremors_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neuro_significant_tremors' VALUE='No' '{$data->get_neuro_significant_tremors_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Significant Tremors</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neuro_significant_tremors_text' cols='30' rows='2'>{$data->get_neuro_significant_tremors_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER>NECK:
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neck_neck_stiffness' VALUE='Yes' '{$data->get_neck_neck_stiffness_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neck_neck_stiffness' VALUE='No' '{$data->get_neck_neck_stiffness_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>neck stiffness</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neck_neck_stiffness_text' cols='30' rows='2'>{$data->get_neck_neck_stiffness_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neck_neck_pain' VALUE='Yes' '{$data->get_neck_neck_pain_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neck_neck_pain' VALUE='No' '{$data->get_neck_neck_pain_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>neck pain</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neck_neck_pain_text' cols='30' rows='2'>{$data->get_neck_neck_pain_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neck_neck_masses' VALUE='Yes' '{$data->get_neck_neck_masses_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neck_neck_masses' VALUE='No' '{$data->get_neck_neck_masses_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Neck Masses</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neck_neck_masses_text' cols='30' rows='2'>{$data->get_neck_neck_masses_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='neck_neck_tenderness' VALUE='Yes' '{$data->get_neck_neck_tenderness_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='neck_neck_tenderness' VALUE='No' '{$data->get_neck_neck_tenderness_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Neck Tenderness</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='neck_neck_tenderness_text' cols='30' rows='2'>{$data->get_neck_neck_tenderness_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER>HEENT:
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_oral_ulcers' VALUE='Yes' '{$data->get_heent_oral_ulcers_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_oral_ulcers' VALUE='No' '{$data->get_heent_oral_ulcers_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>oral ulcers</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_oral_ulcers_text' cols='30' rows='2'>{$data->get_heent_oral_ulcers_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_excessive_cavities' VALUE='Yes' '{$data->get_heent_excessive_cavities_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_excessive_cavities' VALUE='No' '{$data->get_heent_excessive_cavities_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Excessive Cavities</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_excessive_cavities_text' cols='30' rows='2'>{$data->get_heent_excessive_cavities_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_gingival_disease' VALUE='Yes' '{$data->get_heent_gingival_disease_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_gingival_disease' VALUE='No' '{$data->get_heent_gingival_disease_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Gingival Disease</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_gingival_disease_text' cols='30' rows='2'>{$data->get_heent_gingival_disease_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_persistent_hoarseness' VALUE='Yes' '{$data->get_heent_persistent_hoarseness_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_persistent_hoarseness' VALUE='No' '{$data->get_heent_persistent_hoarseness_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Persistent hoarseness</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_persistent_hoarseness_text' cols='30' rows='2'>{$data->get_heent_persistent_hoarseness_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_mouth_lesions' VALUE='Yes' '{$data->get_heent_mouth_lesions_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_mouth_lesions' VALUE='No' '{$data->get_heent_mouth_lesions_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Mouth Lesions</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_mouth_lesions_text' cols='30' rows='2'>{$data->get_heent_mouth_lesions_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_dysphagia' VALUE='Yes' '{$data->get_heent_dysphagia_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_dysphagia' VALUE='No' '{$data->get_heent_dysphagia_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Dysphagia</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_dysphagia_text' cols='30' rows='2'>{$data->get_heent_dysphagia_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_odynophagia' VALUE='Yes' '{$data->get_heent_odynophagia_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_odynophagia' VALUE='No' '{$data->get_heent_odynophagia_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Odynophagia</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_odynophagia_text' cols='30' rows='2'>{$data->get_heent_odynophagia_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_dental_pain' VALUE='Yes' '{$data->get_heent_dental_pain_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_dental_pain' VALUE='No' '{$data->get_heent_dental_pain_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>dental pain</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_dental_pain_text' cols='30' rows='2'>{$data->get_heent_dental_pain_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_sore_throat' VALUE='Yes' '{$data->get_heent_sore_throat_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_sore_throat' VALUE='No' '{$data->get_heent_sore_throat_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>sore throat</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_sore_throat_text' cols='30' rows='2'>{$data->get_heent_sore_throat_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_ear_pain' VALUE='Yes' '{$data->get_heent_ear_pain_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_ear_pain' VALUE='No' '{$data->get_heent_ear_pain_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>ear pain</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_ear_pain_text' cols='30' rows='2'>{$data->get_heent_ear_pain_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_ear_discharge' VALUE='Yes' '{$data->get_heent_ear_discharge_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_ear_discharge' VALUE='No' '{$data->get_heent_ear_discharge_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>ear discharge</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_ear_discharge_text' cols='30' rows='2'>{$data->get_heent_ear_discharge_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_tinnitus' VALUE='Yes' '{$data->get_heent_tinnitus_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_tinnitus' VALUE='No' '{$data->get_heent_tinnitus_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>tinnitus</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_tinnitus_text' cols='30' rows='2'>{$data->get_heent_tinnitus_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_hearing_loss' VALUE='Yes' '{$data->get_heent_hearing_loss_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_hearing_loss' VALUE='No' '{$data->get_heent_hearing_loss_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>hearing loss</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_hearing_loss_text' cols='30' rows='2'>{$data->get_heent_hearing_loss_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_allergic_rhinitis' VALUE='Yes' '{$data->get_heent_allergic_rhinitis_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_allergic_rhinitis' VALUE='No' '{$data->get_heent_allergic_rhinitis_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Allergic Rhinitis</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_allergic_rhinitis_text' cols='30' rows='2'>{$data->get_heent_allergic_rhinitis_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_nasal_congestion' VALUE='Yes' '{$data->get_heent_nasal_congestion_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_nasal_congestion' VALUE='No' '{$data->get_heent_nasal_congestion_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Nasal Congestion</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_nasal_congestion_text' cols='30' rows='2'>{$data->get_heent_nasal_congestion_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_nasal_discharge' VALUE='Yes' '{$data->get_heent_nasal_discharge_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_nasal_discharge' VALUE='No' '{$data->get_heent_nasal_discharge_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Nasal Discharge</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_nasal_discharge_text' cols='30' rows='2'>{$data->get_heent_nasal_discharge_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_nasal_injury' VALUE='Yes' '{$data->get_heent_nasal_injury_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_nasal_injury' VALUE='No' '{$data->get_heent_nasal_injury_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Nasal Injury</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_nasal_injury_text' cols='30' rows='2'>{$data->get_heent_nasal_injury_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_nasal_surgery' VALUE='Yes' '{$data->get_heent_nasal_surgery_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_nasal_surgery' VALUE='No' '{$data->get_heent_nasal_surgery_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Nasal Surgery</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_nasal_surgery_text' cols='30' rows='2'>{$data->get_heent_nasal_surgery_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_nose_bleeds' VALUE='Yes' '{$data->get_heent_nose_bleeds_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_nose_bleeds' VALUE='No' '{$data->get_heent_nose_bleeds_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Nose Bleeds</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_nose_bleeds_text' cols='30' rows='2'>{$data->get_heent_nose_bleeds_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_post_nasal_drip' VALUE='Yes' '{$data->get_heent_post_nasal_drip_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_post_nasal_drip' VALUE='No' '{$data->get_heent_post_nasal_drip_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>post nasal drip</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_post_nasal_drip_text' cols='30' rows='2'>{$data->get_heent_post_nasal_drip_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_sinus_pressure' VALUE='Yes' '{$data->get_heent_sinus_pressure_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_sinus_pressure' VALUE='No' '{$data->get_heent_sinus_pressure_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>sinus pressure</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_sinus_pressure_text' cols='30' rows='2'>{$data->get_heent_sinus_pressure_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_sinus_pain' VALUE='Yes' '{$data->get_heent_sinus_pain_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_sinus_pain' VALUE='No' '{$data->get_heent_sinus_pain_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>sinus pain</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_sinus_pain_text' cols='30' rows='2'>{$data->get_heent_sinus_pain_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_headache' VALUE='Yes' '{$data->get_heent_headache_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_headache' VALUE='No' '{$data->get_heent_headache_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>headache</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_headache_text' cols='30' rows='2'>{$data->get_heent_headache_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_eye_pain' VALUE='Yes' '{$data->get_heent_eye_pain_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_eye_pain' VALUE='No' '{$data->get_heent_eye_pain_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>eye pain</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_eye_pain_text' cols='30' rows='2'>{$data->get_heent_eye_pain_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_eye_redness' VALUE='Yes' '{$data->get_heent_eye_redness_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_eye_redness' VALUE='No' '{$data->get_heent_eye_redness_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>eye redness</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_eye_redness_text' cols='30' rows='2'>{$data->get_heent_eye_redness_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_visual_changes' VALUE='Yes' '{$data->get_heent_visual_changes_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_visual_changes' VALUE='No' '{$data->get_heent_visual_changes_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>visual changes</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_visual_changes_text' cols='30' rows='2'>{$data->get_heent_visual_changes_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_blurry_vision' VALUE='Yes' '{$data->get_heent_blurry_vision_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_blurry_vision' VALUE='No' '{$data->get_heent_blurry_vision_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>blurry vision</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_blurry_vision_text' cols='30' rows='2'>{$data->get_heent_blurry_vision_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_eye_discharge' VALUE='Yes' '{$data->get_heent_eye_discharge_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_eye_discharge' VALUE='No' '{$data->get_heent_eye_discharge_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Eye Discharge</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_eye_discharge_text' cols='30' rows='2'>{$data->get_heent_eye_discharge_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_eye_glasses_contacts' VALUE='Yes' '{$data->get_heent_eye_glasses_contacts_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_eye_glasses_contacts' VALUE='No' '{$data->get_heent_eye_glasses_contacts_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Eye Glasses/ Contacts</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_eye_glasses_contacts_text' cols='30' rows='2'>{$data->get_heent_eye_glasses_contacts_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_excess_tearing' VALUE='Yes' '{$data->get_heent_excess_tearing_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_excess_tearing' VALUE='No' '{$data->get_heent_excess_tearing_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Excess Tearing</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_excess_tearing_text' cols='30' rows='2'>{$data->get_heent_excess_tearing_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_photophobia' VALUE='Yes' '{$data->get_heent_photophobia_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_photophobia' VALUE='No' '{$data->get_heent_photophobia_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Photophobia</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_photophobia_text' cols='30' rows='2'>{$data->get_heent_photophobia_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_scotomata' VALUE='Yes' '{$data->get_heent_scotomata_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_scotomata' VALUE='No' '{$data->get_heent_scotomata_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Scotomata</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_scotomata_text' cols='30' rows='2'>{$data->get_heent_scotomata_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_tunnel_vision' VALUE='Yes' '{$data->get_heent_tunnel_vision_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_tunnel_vision' VALUE='No' '{$data->get_heent_tunnel_vision_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Tunnel vision</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_tunnel_vision_text' cols='30' rows='2'>{$data->get_heent_tunnel_vision_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='heent_glaucoma' VALUE='Yes' '{$data->get_heent_glaucoma_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='heent_glaucoma' VALUE='No' '{$data->get_heent_glaucoma_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Glaucoma</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='heent_glaucoma_text' cols='30' rows='2'>{$data->get_heent_glaucoma_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER>CARDIOVASCULAR: 
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='cardiovascular_sub_sternal_or_left_chest_pain' VALUE='Yes' '{$data->get_cardiovascular_sub_sternal_or_left_chest_pain_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='cardiovascular_sub_sternal_or_left_chest_pain' VALUE='No' '{$data->get_cardiovascular_sub_sternal_or_left_chest_pain_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>sub sternal or left chest pain</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='cardiovascular_sub_sternal_or_left_chest_pain_text' cols='30' rows='2'>{$data->get_cardiovascular_sub_sternal_or_left_chest_pain_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='cardiovascular_other_chest_pain' VALUE='Yes' '{$data->get_cardiovascular_other_chest_pain_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='cardiovascular_other_chest_pain' VALUE='No' '{$data->get_cardiovascular_other_chest_pain_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>other chest pain</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='cardiovascular_other_chest_pain_text' cols='30' rows='2'>{$data->get_cardiovascular_other_chest_pain_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='cardiovascular_palpitations' VALUE='Yes' '{$data->get_cardiovascular_palpitations_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='cardiovascular_palpitations' VALUE='No' '{$data->get_cardiovascular_palpitations_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>palpitations</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='cardiovascular_palpitations_text' cols='30' rows='2'>{$data->get_cardiovascular_palpitations_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='cardiovascular_irregular_rhythm' VALUE='Yes' '{$data->get_cardiovascular_irregular_rhythm_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='cardiovascular_irregular_rhythm' VALUE='No' '{$data->get_cardiovascular_irregular_rhythm_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>irregular rhythm</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='cardiovascular_irregular_rhythm_text' cols='30' rows='2'>{$data->get_cardiovascular_irregular_rhythm_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='cardiovascular_jugular_vein_distention' VALUE='Yes' '{$data->get_cardiovascular_jugular_vein_distention_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='cardiovascular_jugular_vein_distention' VALUE='No' '{$data->get_cardiovascular_jugular_vein_distention_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>jugular vein distention</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='cardiovascular_jugular_vein_distention_text' cols='30' rows='2'>{$data->get_cardiovascular_jugular_vein_distention_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='cardiovascular_claudication' VALUE='Yes' '{$data->get_cardiovascular_claudication_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='cardiovascular_claudication' VALUE='No' '{$data->get_cardiovascular_claudication_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Claudication</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='cardiovascular_claudication_text' cols='30' rows='2'>{$data->get_cardiovascular_claudication_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='cardiovascular_dizziness' VALUE='Yes' '{$data->get_cardiovascular_dizziness_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='cardiovascular_dizziness' VALUE='No' '{$data->get_cardiovascular_dizziness_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Dizziness</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='cardiovascular_dizziness_text' cols='30' rows='2'>{$data->get_cardiovascular_dizziness_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='cardiovascular_dyspnea_on_exertion' VALUE='Yes' '{$data->get_cardiovascular_dyspnea_on_exertion_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='cardiovascular_dyspnea_on_exertion' VALUE='No' '{$data->get_cardiovascular_dyspnea_on_exertion_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Dyspnea on Exertion</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='cardiovascular_dyspnea_on_exertion_text' cols='30' rows='2'>{$data->get_cardiovascular_dyspnea_on_exertion_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='cardiovascular_orthopnea' VALUE='Yes' '{$data->get_cardiovascular_orthopnea_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='cardiovascular_orthopnea' VALUE='No' '{$data->get_cardiovascular_orthopnea_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Orthopnea</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='cardiovascular_orthopnea_text' cols='30' rows='2'>{$data->get_cardiovascular_orthopnea_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='cardiovascular_noctural_dyspnea' VALUE='Yes' '{$data->get_cardiovascular_noctural_dyspnea_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='cardiovascular_noctural_dyspnea' VALUE='No' '{$data->get_cardiovascular_noctural_dyspnea_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Noctural Dyspnea</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='cardiovascular_noctural_dyspnea_text' cols='30' rows='2'>{$data->get_cardiovascular_noctural_dyspnea_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='cardiovascular_edema' VALUE='Yes' '{$data->get_cardiovascular_edema_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='cardiovascular_edema' VALUE='No' '{$data->get_cardiovascular_edema_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Edema</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='cardiovascular_edema_text' cols='30' rows='2'>{$data->get_cardiovascular_edema_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='cardiovascular_presyncope' VALUE='Yes' '{$data->get_cardiovascular_presyncope_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='cardiovascular_presyncope' VALUE='No' '{$data->get_cardiovascular_presyncope_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Presyncope</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='cardiovascular_presyncope_text' cols='30' rows='2'>{$data->get_cardiovascular_presyncope_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='cardiovascular_syncope' VALUE='Yes' '{$data->get_cardiovascular_syncope_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='cardiovascular_syncope' VALUE='No' '{$data->get_cardiovascular_syncope_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Syncope</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='cardiovascular_syncope_text' cols='30' rows='2'>{$data->get_cardiovascular_syncope_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='cardiovascular_heart_murmur' VALUE='Yes' '{$data->get_cardiovascular_heart_murmur_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='cardiovascular_heart_murmur' VALUE='No' '{$data->get_cardiovascular_heart_murmur_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Heart Murmur</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='cardiovascular_heart_murmur_text' cols='30' rows='2'>{$data->get_cardiovascular_heart_murmur_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='cardiovascular_raynauds' VALUE='Yes' '{$data->get_cardiovascular_raynauds_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='cardiovascular_raynauds' VALUE='No' '{$data->get_cardiovascular_raynauds_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Raynauds</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='cardiovascular_raynauds_text' cols='30' rows='2'>{$data->get_cardiovascular_raynauds_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='cardiovascular_severe_varicose_veins' VALUE='Yes' '{$data->get_cardiovascular_severe_varicose_veins_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='cardiovascular_severe_varicose_veins' VALUE='No' '{$data->get_cardiovascular_severe_varicose_veins_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Severe Varicose Veins</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='cardiovascular_severe_varicose_veins_text' cols='30' rows='2'>{$data->get_cardiovascular_severe_varicose_veins_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='cardiovascular_deep_vein_thrombosis' VALUE='Yes' '{$data->get_cardiovascular_deep_vein_thrombosis_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='cardiovascular_deep_vein_thrombosis' VALUE='No' '{$data->get_cardiovascular_deep_vein_thrombosis_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Deep Vein Thrombosis</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='cardiovascular_deep_vein_thrombosis_text' cols='30' rows='2'>{$data->get_cardiovascular_deep_vein_thrombosis_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='cardiovascular_thrombophlebitis' VALUE='Yes' '{$data->get_cardiovascular_thrombophlebitis_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='cardiovascular_thrombophlebitis' VALUE='No' '{$data->get_cardiovascular_thrombophlebitis_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Thrombophlebitis</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='cardiovascular_thrombophlebitis_text' cols='30' rows='2'>{$data->get_cardiovascular_thrombophlebitis_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER>RESPIRATIONS:
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='respirations_cough' VALUE='Yes' '{$data->get_respirations_cough_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='respirations_cough' VALUE='No' '{$data->get_respirations_cough_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>cough</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='respirations_cough_text' cols='30' rows='2'>{$data->get_respirations_cough_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='respirations_sputum' VALUE='Yes' '{$data->get_respirations_sputum_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='respirations_sputum' VALUE='No' '{$data->get_respirations_sputum_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>sputum</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='respirations_sputum_text' cols='30' rows='2'>{$data->get_respirations_sputum_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='respirations_dyspnea' VALUE='Yes' '{$data->get_respirations_dyspnea_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='respirations_dyspnea' VALUE='No' '{$data->get_respirations_dyspnea_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>dyspnea</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='respirations_dyspnea_text' cols='30' rows='2'>{$data->get_respirations_dyspnea_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='respirations_wheezes' VALUE='Yes' '{$data->get_respirations_wheezes_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='respirations_wheezes' VALUE='No' '{$data->get_respirations_wheezes_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>wheezes</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='respirations_wheezes_text' cols='30' rows='2'>{$data->get_respirations_wheezes_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='respirations_rales' VALUE='Yes' '{$data->get_respirations_rales_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='respirations_rales' VALUE='No' '{$data->get_respirations_rales_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>rales</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='respirations_rales_text' cols='30' rows='2'>{$data->get_respirations_rales_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='respirations_labored_breathing' VALUE='Yes' '{$data->get_respirations_labored_breathing_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='respirations_labored_breathing' VALUE='No' '{$data->get_respirations_labored_breathing_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>labored breathing</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='respirations_labored_breathing_text' cols='30' rows='2'>{$data->get_respirations_labored_breathing_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='respirations_hemoptysis' VALUE='Yes' '{$data->get_respirations_hemoptysis_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='respirations_hemoptysis' VALUE='No' '{$data->get_respirations_hemoptysis_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Hemoptysis</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='respirations_hemoptysis_text' cols='30' rows='2'>{$data->get_respirations_hemoptysis_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER>GU
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gu_frequent_urination' VALUE='Yes' '{$data->get_gu_frequent_urination_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gu_frequent_urination' VALUE='No' '{$data->get_gu_frequent_urination_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>frequent urination</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gu_frequent_urination_text' cols='30' rows='2'>{$data->get_gu_frequent_urination_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gu_dysuria' VALUE='Yes' '{$data->get_gu_dysuria_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gu_dysuria' VALUE='No' '{$data->get_gu_dysuria_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>dysuria</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gu_dysuria_text' cols='30' rows='2'>{$data->get_gu_dysuria_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gu_dyspareunia' VALUE='Yes' '{$data->get_gu_dyspareunia_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gu_dyspareunia' VALUE='No' '{$data->get_gu_dyspareunia_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>dyspareunia</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gu_dyspareunia_text' cols='30' rows='2'>{$data->get_gu_dyspareunia_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gu_discharge' VALUE='Yes' '{$data->get_gu_discharge_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gu_discharge' VALUE='No' '{$data->get_gu_discharge_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>discharge</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gu_discharge_text' cols='30' rows='2'>{$data->get_gu_discharge_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gu_odor' VALUE='Yes' '{$data->get_gu_odor_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gu_odor' VALUE='No' '{$data->get_gu_odor_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>odor</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gu_odor_text' cols='30' rows='2'>{$data->get_gu_odor_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gu_fertility_problems' VALUE='Yes' '{$data->get_gu_fertility_problems_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gu_fertility_problems' VALUE='No' '{$data->get_gu_fertility_problems_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>fertility problems</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gu_fertility_problems_text' cols='30' rows='2'>{$data->get_gu_fertility_problems_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gu_flank_pain_kidney_stone' VALUE='Yes' '{$data->get_gu_flank_pain_kidney_stone_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gu_flank_pain_kidney_stone' VALUE='No' '{$data->get_gu_flank_pain_kidney_stone_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Flank Pain Kidney Stone</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gu_flank_pain_kidney_stone_text' cols='30' rows='2'>{$data->get_gu_flank_pain_kidney_stone_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gu_polyuria' VALUE='Yes' '{$data->get_gu_polyuria_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gu_polyuria' VALUE='No' '{$data->get_gu_polyuria_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Polyuria</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gu_polyuria_text' cols='30' rows='2'>{$data->get_gu_polyuria_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gu_hematuria' VALUE='Yes' '{$data->get_gu_hematuria_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gu_hematuria' VALUE='No' '{$data->get_gu_hematuria_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Hematuria</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gu_hematuria_text' cols='30' rows='2'>{$data->get_gu_hematuria_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gu_pyuria' VALUE='Yes' '{$data->get_gu_pyuria_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gu_pyuria' VALUE='No' '{$data->get_gu_pyuria_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Pyuria</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gu_pyuria_text' cols='30' rows='2'>{$data->get_gu_pyuria_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gu_umbilical_hernia' VALUE='Yes' '{$data->get_gu_umbilical_hernia_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gu_umbilical_hernia' VALUE='No' '{$data->get_gu_umbilical_hernia_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Umbilical Hernia</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gu_umbilical_hernia_text' cols='30' rows='2'>{$data->get_gu_umbilical_hernia_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gu_incontinence' VALUE='Yes' '{$data->get_gu_incontinence_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gu_incontinence' VALUE='No' '{$data->get_gu_incontinence_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Incontinence</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gu_incontinence_text' cols='30' rows='2'>{$data->get_gu_incontinence_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gu_nocturia' VALUE='Yes' '{$data->get_gu_nocturia_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gu_nocturia' VALUE='No' '{$data->get_gu_nocturia_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Nocturia</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gu_nocturia_text' cols='30' rows='2'>{$data->get_gu_nocturia_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gu_urinary_urgency' VALUE='Yes' '{$data->get_gu_urinary_urgency_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gu_urinary_urgency' VALUE='No' '{$data->get_gu_urinary_urgency_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Urinary Urgency</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gu_urinary_urgency_text' cols='30' rows='2'>{$data->get_gu_urinary_urgency_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gu_recurrent_utis' VALUE='Yes' '{$data->get_gu_recurrent_utis_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gu_recurrent_utis' VALUE='No' '{$data->get_gu_recurrent_utis_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Recurrent UTIs</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gu_recurrent_utis_text' cols='30' rows='2'>{$data->get_gu_recurrent_utis_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gu_venereal_disease' VALUE='Yes' '{$data->get_gu_venereal_disease_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gu_venereal_disease' VALUE='No' '{$data->get_gu_venereal_disease_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Venereal Disease</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gu_venereal_disease_text' cols='30' rows='2'>{$data->get_gu_venereal_disease_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER>MALE GU
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='male_gu_erectile_dysfunction' VALUE='Yes' '{$data->get_male_gu_erectile_dysfunction_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='male_gu_erectile_dysfunction' VALUE='No' '{$data->get_male_gu_erectile_dysfunction_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Erectile Dysfunction</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='male_gu_erectile_dysfunction_text' cols='30' rows='2'>{$data->get_male_gu_erectile_dysfunction_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='male_gu_inguinal_hernia' VALUE='Yes' '{$data->get_male_gu_inguinal_hernia_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='male_gu_inguinal_hernia' VALUE='No' '{$data->get_male_gu_inguinal_hernia_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Inguinal Hernia</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='male_gu_inguinal_hernia_text' cols='30' rows='2'>{$data->get_male_gu_inguinal_hernia_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='male_gu_penile_lesions' VALUE='Yes' '{$data->get_male_gu_penile_lesions_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='male_gu_penile_lesions' VALUE='No' '{$data->get_male_gu_penile_lesions_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Penile Lesions</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='male_gu_penile_lesions_text' cols='30' rows='2'>{$data->get_male_gu_penile_lesions_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='male_gu_scrotal_mass' VALUE='Yes' '{$data->get_male_gu_scrotal_mass_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='male_gu_scrotal_mass' VALUE='No' '{$data->get_male_gu_scrotal_mass_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Scrotal Mass</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='male_gu_scrotal_mass_text' cols='30' rows='2'>{$data->get_male_gu_scrotal_mass_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='male_gu_testicular_pain' VALUE='Yes' '{$data->get_male_gu_testicular_pain_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='male_gu_testicular_pain' VALUE='No' '{$data->get_male_gu_testicular_pain_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Testicular Pain</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='male_gu_testicular_pain_text' cols='30' rows='2'>{$data->get_male_gu_testicular_pain_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='male_gu_urethral_discharge' VALUE='Yes' '{$data->get_male_gu_urethral_discharge_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='male_gu_urethral_discharge' VALUE='No' '{$data->get_male_gu_urethral_discharge_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Urethral Discharge</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='male_gu_urethral_discharge_text' cols='30' rows='2'>{$data->get_male_gu_urethral_discharge_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='male_gu_weak_urinary_stream' VALUE='Yes' '{$data->get_male_gu_weak_urinary_stream_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='male_gu_weak_urinary_stream' VALUE='No' '{$data->get_male_gu_weak_urinary_stream_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Weak Urinary Stream</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='male_gu_weak_urinary_stream_text' cols='30' rows='2'>{$data->get_male_gu_weak_urinary_stream_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER>FEMALE GU
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='female_gu_abnormal_menses' VALUE='Yes' '{$data->get_female_gu_abnormal_menses_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='female_gu_abnormal_menses' VALUE='No' '{$data->get_female_gu_abnormal_menses_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Abnormal Menses</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='female_gu_abnormal_menses_text' cols='30' rows='2'>{$data->get_female_gu_abnormal_menses_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='female_gu_abnormal_vaginal_bleeding' VALUE='Yes' '{$data->get_female_gu_abnormal_vaginal_bleeding_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='female_gu_abnormal_vaginal_bleeding' VALUE='No' '{$data->get_female_gu_abnormal_vaginal_bleeding_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Abnormal Vaginal Bleeding</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='female_gu_abnormal_vaginal_bleeding_text' cols='30' rows='2'>{$data->get_female_gu_abnormal_vaginal_bleeding_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='female_gu_vaginal_discharge' VALUE='Yes' '{$data->get_female_gu_vaginal_discharge_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='female_gu_vaginal_discharge' VALUE='No' '{$data->get_female_gu_vaginal_discharge_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Vaginal Discharge </P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='female_gu_vaginal_discharge_text' cols='30' rows='2'>{$data->get_female_gu_vaginal_discharge_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER>GI
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_abdominal_pain' VALUE='Yes' '{$data->get_gi_abdominal_pain_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_abdominal_pain' VALUE='No' '{$data->get_gi_abdominal_pain_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>abdominal pain</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_abdominal_pain_text' cols='30' rows='2'>{$data->get_gi_abdominal_pain_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_cramps' VALUE='Yes' '{$data->get_gi_cramps_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_cramps' VALUE='No' '{$data->get_gi_cramps_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>cramps</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_cramps_text' cols='30' rows='2'>{$data->get_gi_cramps_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_tenderness' VALUE='Yes' '{$data->get_gi_tenderness_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_tenderness' VALUE='No' '{$data->get_gi_tenderness_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>tenderness</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_tenderness_text' cols='30' rows='2'>{$data->get_gi_tenderness_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_vomiting' VALUE='Yes' '{$data->get_gi_vomiting_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_vomiting' VALUE='No' '{$data->get_gi_vomiting_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>vomiting</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_vomiting_text' cols='30' rows='2'>{$data->get_gi_vomiting_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_frequent_diarrhea' VALUE='Yes' '{$data->get_gi_frequent_diarrhea_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_frequent_diarrhea' VALUE='No' '{$data->get_gi_frequent_diarrhea_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>frequent diarrhea</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_frequent_diarrhea_text' cols='30' rows='2'>{$data->get_gi_frequent_diarrhea_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_significant_constipation' VALUE='Yes' '{$data->get_gi_significant_constipation_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_significant_constipation' VALUE='No' '{$data->get_gi_significant_constipation_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>significant constipation</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_significant_constipation_text' cols='30' rows='2'>{$data->get_gi_significant_constipation_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_excessive_belching' VALUE='Yes' '{$data->get_gi_excessive_belching_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_excessive_belching' VALUE='No' '{$data->get_gi_excessive_belching_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Excessive Belching</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_excessive_belching_text' cols='30' rows='2'>{$data->get_gi_excessive_belching_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_changed_bowel_habits' VALUE='Yes' '{$data->get_gi_changed_bowel_habits_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_changed_bowel_habits' VALUE='No' '{$data->get_gi_changed_bowel_habits_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Changed Bowel Habits</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_changed_bowel_habits_text' cols='30' rows='2'>{$data->get_gi_changed_bowel_habits_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_excessive_flatulence' VALUE='Yes' '{$data->get_gi_excessive_flatulence_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_excessive_flatulence' VALUE='No' '{$data->get_gi_excessive_flatulence_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Excessive Flatulence</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_excessive_flatulence_text' cols='30' rows='2'>{$data->get_gi_excessive_flatulence_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_hematemesis' VALUE='Yes' '{$data->get_gi_hematemesis_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_hematemesis' VALUE='No' '{$data->get_gi_hematemesis_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Hematemesis</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_hematemesis_text' cols='30' rows='2'>{$data->get_gi_hematemesis_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_hemorrhoids' VALUE='Yes' '{$data->get_gi_hemorrhoids_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_hemorrhoids' VALUE='No' '{$data->get_gi_hemorrhoids_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Hemorrhoids</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_hemorrhoids_text' cols='30' rows='2'>{$data->get_gi_hemorrhoids_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_hepatitis' VALUE='Yes' '{$data->get_gi_hepatitis_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_hepatitis' VALUE='No' '{$data->get_gi_hepatitis_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Hepatitis</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_hepatitis_text' cols='30' rows='2'>{$data->get_gi_hepatitis_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_jaundice' VALUE='Yes' '{$data->get_gi_jaundice_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_jaundice' VALUE='No' '{$data->get_gi_jaundice_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Jaundice</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_jaundice_text' cols='30' rows='2'>{$data->get_gi_jaundice_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_lactose_intolerance' VALUE='Yes' '{$data->get_gi_lactose_intolerance_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_lactose_intolerance' VALUE='No' '{$data->get_gi_lactose_intolerance_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Lactose Intolerance</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_lactose_intolerance_text' cols='30' rows='2'>{$data->get_gi_lactose_intolerance_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_chronic_laxative_use' VALUE='Yes' '{$data->get_gi_chronic_laxative_use_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_chronic_laxative_use' VALUE='No' '{$data->get_gi_chronic_laxative_use_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Chronic Laxative Use</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_chronic_laxative_use_text' cols='30' rows='2'>{$data->get_gi_chronic_laxative_use_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_melena' VALUE='Yes' '{$data->get_gi_melena_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_melena' VALUE='No' '{$data->get_gi_melena_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Melena</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_melena_text' cols='30' rows='2'>{$data->get_gi_melena_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_frequent_nausea' VALUE='Yes' '{$data->get_gi_frequent_nausea_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_frequent_nausea' VALUE='No' '{$data->get_gi_frequent_nausea_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Frequent Nausea</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_frequent_nausea_text' cols='30' rows='2'>{$data->get_gi_frequent_nausea_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_rectal_bleeding' VALUE='Yes' '{$data->get_gi_rectal_bleeding_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_rectal_bleeding' VALUE='No' '{$data->get_gi_rectal_bleeding_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Rectal Bleeding</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_rectal_bleeding_text' cols='30' rows='2'>{$data->get_gi_rectal_bleeding_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_rectal_pain' VALUE='Yes' '{$data->get_gi_rectal_pain_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_rectal_pain' VALUE='No' '{$data->get_gi_rectal_pain_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Rectal Pain</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_rectal_pain_text' cols='30' rows='2'>{$data->get_gi_rectal_pain_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='gi_stool_caliber_change' VALUE='Yes' '{$data->get_gi_stool_caliber_change_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='gi_stool_caliber_change' VALUE='No' '{$data->get_gi_stool_caliber_change_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Stool Caliber Change</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='gi_stool_caliber_change_text' cols='30' rows='2'>{$data->get_gi_stool_caliber_change_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER>INTEGUMENT:
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='integument_pallor' VALUE='Yes' '{$data->get_integument_pallor_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='integument_pallor' VALUE='No' '{$data->get_integument_pallor_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>pallor</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='integument_pallor_text' cols='30' rows='2'>{$data->get_integument_pallor_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='integument_diaphoresis' VALUE='Yes' '{$data->get_integument_diaphoresis_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='integument_diaphoresis' VALUE='No' '{$data->get_integument_diaphoresis_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>diaphoresis</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='integument_diaphoresis_text' cols='30' rows='2'>{$data->get_integument_diaphoresis_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='integument_rash' VALUE='Yes' '{$data->get_integument_rash_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='integument_rash' VALUE='No' '{$data->get_integument_rash_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>rash</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='integument_rash_text' cols='30' rows='2'>{$data->get_integument_rash_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='integument_itching' VALUE='Yes' '{$data->get_integument_itching_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='integument_itching' VALUE='No' '{$data->get_integument_itching_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>itching</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='integument_itching_text' cols='30' rows='2'>{$data->get_integument_itching_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='integument_ulcers' VALUE='Yes' '{$data->get_integument_ulcers_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='integument_ulcers' VALUE='No' '{$data->get_integument_ulcers_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>ulcers</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='integument_ulcers_text' cols='30' rows='2'>{$data->get_integument_ulcers_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='integument_abscess' VALUE='Yes' '{$data->get_integument_abscess_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='integument_abscess' VALUE='No' '{$data->get_integument_abscess_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>abscess</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='integument_abscess_text' cols='30' rows='2'>{$data->get_integument_abscess_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='integument_nodules' VALUE='Yes' '{$data->get_integument_nodules_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='integument_nodules' VALUE='No' '{$data->get_integument_nodules_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>nodules</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='integument_nodules_text' cols='30' rows='2'>{$data->get_integument_nodules_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='integument_acne' VALUE='Yes' '{$data->get_integument_acne_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='integument_acne' VALUE='No' '{$data->get_integument_acne_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Acne</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='integument_acne_text' cols='30' rows='2'>{$data->get_integument_acne_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='integument_recurrent_boils' VALUE='Yes' '{$data->get_integument_recurrent_boils_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='integument_recurrent_boils' VALUE='No' '{$data->get_integument_recurrent_boils_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Recurrent Boils</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='integument_recurrent_boils_text' cols='30' rows='2'>{$data->get_integument_recurrent_boils_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='integument_chronic_eczema' VALUE='Yes' '{$data->get_integument_chronic_eczema_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='integument_chronic_eczema' VALUE='No' '{$data->get_integument_chronic_eczema_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Chronic Eczema</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='integument_chronic_eczema_text' cols='30' rows='2'>{$data->get_integument_chronic_eczema_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='integument_changing_moles' VALUE='Yes' '{$data->get_integument_changing_moles_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='integument_changing_moles' VALUE='No' '{$data->get_integument_changing_moles_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Changing Moles</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='integument_changing_moles_text' cols='30' rows='2'>{$data->get_integument_changing_moles_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='integument_nail_abnormalities' VALUE='Yes' '{$data->get_integument_nail_abnormalities_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='integument_nail_abnormalities' VALUE='No' '{$data->get_integument_nail_abnormalities_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Nail Abnormalities</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='integument_nail_abnormalities_text' cols='30' rows='2'>{$data->get_integument_nail_abnormalities_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='integument_psoriasis' VALUE='Yes' '{$data->get_integument_psoriasis_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='integument_psoriasis' VALUE='No' '{$data->get_integument_psoriasis_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Psoriasis</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='integument_psoriasis_text' cols='30' rows='2'>{$data->get_integument_psoriasis_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='integument_recurrent_hives' VALUE='Yes' '{$data->get_integument_recurrent_hives_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='integument_recurrent_hives' VALUE='No' '{$data->get_integument_recurrent_hives_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Recurrent Hives</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='integument_recurrent_hives_text' cols='30' rows='2'>{$data->get_integument_recurrent_hives_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER>MUSCULOSKELETAL:
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_deformity' VALUE='Yes' '{$data->get_musculoskeletal_deformity_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_deformity' VALUE='No' '{$data->get_musculoskeletal_deformity_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>deformity</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='musculoskeletal_deformity_text' cols='30' rows='2'>{$data->get_musculoskeletal_deformity_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_edema' VALUE='Yes' '{$data->get_musculoskeletal_edema_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_edema' VALUE='No' '{$data->get_musculoskeletal_edema_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>edema</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='musculoskeletal_edema_text' cols='30' rows='2'>{$data->get_musculoskeletal_edema_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_pain' VALUE='Yes' '{$data->get_musculoskeletal_pain_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_pain' VALUE='No' '{$data->get_musculoskeletal_pain_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>pain</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='musculoskeletal_pain_text' cols='30' rows='2'>{$data->get_musculoskeletal_pain_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_limited_rom' VALUE='Yes' '{$data->get_musculoskeletal_limited_rom_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_limited_rom' VALUE='No' '{$data->get_musculoskeletal_limited_rom_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>limited ROM</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='musculoskeletal_limited_rom_text' cols='30' rows='2'>{$data->get_musculoskeletal_limited_rom_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_gait' VALUE='Yes' '{$data->get_musculoskeletal_gait_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_gait' VALUE='No' '{$data->get_musculoskeletal_gait_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>gait</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='musculoskeletal_gait_text' cols='30' rows='2'>{$data->get_musculoskeletal_gait_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_arthritis' VALUE='Yes' '{$data->get_musculoskeletal_arthritis_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_arthritis' VALUE='No' '{$data->get_musculoskeletal_arthritis_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Arthritis</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='musculoskeletal_arthritis_text' cols='30' rows='2'>{$data->get_musculoskeletal_arthritis_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_neck_pain' VALUE='Yes' '{$data->get_musculoskeletal_neck_pain_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_neck_pain' VALUE='No' '{$data->get_musculoskeletal_neck_pain_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Neck Pain</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='musculoskeletal_neck_pain_text' cols='30' rows='2'>{$data->get_musculoskeletal_neck_pain_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_mid_back_pain' VALUE='Yes' '{$data->get_musculoskeletal_mid_back_pain_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_mid_back_pain' VALUE='No' '{$data->get_musculoskeletal_mid_back_pain_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Mid Back Pain</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='musculoskeletal_mid_back_pain_text' cols='30' rows='2'>{$data->get_musculoskeletal_mid_back_pain_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_low_back_pain' VALUE='Yes' '{$data->get_musculoskeletal_low_back_pain_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_low_back_pain' VALUE='No' '{$data->get_musculoskeletal_low_back_pain_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Low Back Pain</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='musculoskeletal_low_back_pain_text' cols='30' rows='2'>{$data->get_musculoskeletal_low_back_pain_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_bursitis' VALUE='Yes' '{$data->get_musculoskeletal_bursitis_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_bursitis' VALUE='No' '{$data->get_musculoskeletal_bursitis_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Bursitis</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='musculoskeletal_bursitis_text' cols='30' rows='2'>{$data->get_musculoskeletal_bursitis_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_gout' VALUE='Yes' '{$data->get_musculoskeletal_gout_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_gout' VALUE='No' '{$data->get_musculoskeletal_gout_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Gout</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='musculoskeletal_gout_text' cols='30' rows='2'>{$data->get_musculoskeletal_gout_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_joint_injury' VALUE='Yes' '{$data->get_musculoskeletal_joint_injury_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_joint_injury' VALUE='No' '{$data->get_musculoskeletal_joint_injury_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Joint Injury</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='musculoskeletal_joint_injury_text' cols='30' rows='2'>{$data->get_musculoskeletal_joint_injury_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_joint_pain' VALUE='Yes' '{$data->get_musculoskeletal_joint_pain_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_joint_pain' VALUE='No' '{$data->get_musculoskeletal_joint_pain_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Joint Pain</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='musculoskeletal_joint_pain_text' cols='30' rows='2'>{$data->get_musculoskeletal_joint_pain_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_joint_swelling' VALUE='Yes' '{$data->get_musculoskeletal_joint_swelling_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_joint_swelling' VALUE='No' '{$data->get_musculoskeletal_joint_swelling_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Joint Swelling</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='musculoskeletal_joint_swelling_text' cols='30' rows='2'>{$data->get_musculoskeletal_joint_swelling_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_myalgias' VALUE='Yes' '{$data->get_musculoskeletal_myalgias_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_myalgias' VALUE='No' '{$data->get_musculoskeletal_myalgias_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Myalgias</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='musculoskeletal_myalgias_text' cols='30' rows='2'>{$data->get_musculoskeletal_myalgias_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_sciatica' VALUE='Yes' '{$data->get_musculoskeletal_sciatica_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_sciatica' VALUE='No' '{$data->get_musculoskeletal_sciatica_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Sciatica</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='musculoskeletal_sciatica_text' cols='30' rows='2'>{$data->get_musculoskeletal_sciatica_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_scoliosis' VALUE='Yes' '{$data->get_musculoskeletal_scoliosis_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='musculoskeletal_scoliosis' VALUE='No' '{$data->get_musculoskeletal_scoliosis_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Scoliosis</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='musculoskeletal_scoliosis_text' cols='30' rows='2'>{$data->get_musculoskeletal_scoliosis_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER>HEMATOLOGICAL
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='hematological_anemia' VALUE='Yes' '{$data->get_hematological_anemia_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='hematological_anemia' VALUE='No' '{$data->get_hematological_anemia_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Anemia</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='hematological_anemia_text' cols='30' rows='2'>{$data->get_hematological_anemia_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='hematological_pallor' VALUE='Yes' '{$data->get_hematological_pallor_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='hematological_pallor' VALUE='No' '{$data->get_hematological_pallor_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Pallor</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='hematological_pallor_text' cols='30' rows='2'>{$data->get_hematological_pallor_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='hematological_bleeding_tendencies' VALUE='Yes' '{$data->get_hematological_bleeding_tendencies_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='hematological_bleeding_tendencies' VALUE='No' '{$data->get_hematological_bleeding_tendencies_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Bleeding Tendencies</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='hematological_bleeding_tendencies_text' cols='30' rows='2'>{$data->get_hematological_bleeding_tendencies_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='hematological_bruising' VALUE='Yes' '{$data->get_hematological_bruising_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='hematological_bruising' VALUE='No' '{$data->get_hematological_bruising_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Bruising</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='hematological_bruising_text' cols='30' rows='2'>{$data->get_hematological_bruising_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER>ENDOCRINE
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='endocrine_thyroid_problems' VALUE='Yes' '{$data->get_endocrine_thyroid_problems_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='endocrine_thyroid_problems' VALUE='No' '{$data->get_endocrine_thyroid_problems_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Thyroid Problems</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='endocrine_thyroid_problems_text' cols='30' rows='2'>{$data->get_endocrine_thyroid_problems_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='endocrine_enlarged_thyroid' VALUE='Yes' '{$data->get_endocrine_enlarged_thyroid_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='endocrine_enlarged_thyroid' VALUE='No' '{$data->get_endocrine_enlarged_thyroid_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Enlarged Thyroid</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='endocrine_enlarged_thyroid_text' cols='30' rows='2'>{$data->get_endocrine_enlarged_thyroid_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='endocrine_hyperglycemia' VALUE='Yes' '{$data->get_endocrine_hyperglycemia_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='endocrine_hyperglycemia' VALUE='No' '{$data->get_endocrine_hyperglycemia_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Hyperglycemia</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='endocrine_hyperglycemia_text' cols='30' rows='2'>{$data->get_endocrine_hyperglycemia_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='endocrine_hypoglycemia' VALUE='Yes' '{$data->get_endocrine_hypoglycemia_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='endocrine_hypoglycemia' VALUE='No' '{$data->get_endocrine_hypoglycemia_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Hypoglycemia</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='endocrine_hypoglycemia_text' cols='30' rows='2'>{$data->get_endocrine_hypoglycemia_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='endocrine_cold_intolerance' VALUE='Yes' '{$data->get_endocrine_cold_intolerance_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='endocrine_cold_intolerance' VALUE='No' '{$data->get_endocrine_cold_intolerance_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Cold Intolerance</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='endocrine_cold_intolerance_text' cols='30' rows='2'>{$data->get_endocrine_cold_intolerance_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='endocrine_heat_intolerance' VALUE='Yes' '{$data->get_endocrine_heat_intolerance_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='endocrine_heat_intolerance' VALUE='No' '{$data->get_endocrine_heat_intolerance_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Heat Intolerance</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='endocrine_heat_intolerance_text' cols='30' rows='2'>{$data->get_endocrine_heat_intolerance_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='endocrine_early_awakening' VALUE='Yes' '{$data->get_endocrine_early_awakening_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='endocrine_early_awakening' VALUE='No' '{$data->get_endocrine_early_awakening_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Early Awakening</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='endocrine_early_awakening_text' cols='30' rows='2'>{$data->get_endocrine_early_awakening_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='endocrine_fatigue_unexplained' VALUE='Yes' '{$data->get_endocrine_fatigue_unexplained_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='endocrine_fatigue_unexplained' VALUE='No' '{$data->get_endocrine_fatigue_unexplained_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Fatigue unexplained</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='endocrine_fatigue_unexplained_text' cols='30' rows='2'>{$data->get_endocrine_fatigue_unexplained_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='endocrine_weight_gain' VALUE='Yes' '{$data->get_endocrine_weight_gain_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='endocrine_weight_gain' VALUE='No' '{$data->get_endocrine_weight_gain_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Weight Gain</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='endocrine_weight_gain_text' cols='30' rows='2'>{$data->get_endocrine_weight_gain_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='endocrine_weight_loss' VALUE='Yes' '{$data->get_endocrine_weight_loss_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='endocrine_weight_loss' VALUE='No' '{$data->get_endocrine_weight_loss_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Weight Loss</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='endocrine_weight_loss_text' cols='30' rows='2'>{$data->get_endocrine_weight_loss_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='endocrine_premenstrual_symptoms' VALUE='Yes' '{$data->get_endocrine_premenstrual_symptoms_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='endocrine_premenstrual_symptoms' VALUE='No' '{$data->get_endocrine_premenstrual_symptoms_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Premenstrual symptoms</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='endocrine_premenstrual_symptoms_text' cols='30' rows='2'>{$data->get_endocrine_premenstrual_symptoms_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='endocrine_hair_no_change_or_no_loss' VALUE='Yes' '{$data->get_endocrine_hair_no_change_or_no_loss_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='endocrine_hair_no_change_or_no_loss' VALUE='No' '{$data->get_endocrine_hair_no_change_or_no_loss_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Hair (no change or no loss)</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='endocrine_hair_no_change_or_no_loss_text' cols='30' rows='2'>{$data->get_endocrine_hair_no_change_or_no_loss_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='endocrine_hot_flashes' VALUE='Yes' '{$data->get_endocrine_hot_flashes_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='endocrine_hot_flashes' VALUE='No' '{$data->get_endocrine_hot_flashes_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Hot flashes</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='endocrine_hot_flashes_text' cols='30' rows='2'>{$data->get_endocrine_hot_flashes_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER>LYMPHATIC
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='lymphatic_swollen_lymph_nodes' VALUE='Yes' '{$data->get_lymphatic_swollen_lymph_nodes_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='lymphatic_swollen_lymph_nodes' VALUE='No' '{$data->get_lymphatic_swollen_lymph_nodes_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Swollen lymph nodes</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='lymphatic_swollen_lymph_nodes_text' cols='30' rows='2'>{$data->get_lymphatic_swollen_lymph_nodes_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='lymphatic_swollen_extremities' VALUE='Yes' '{$data->get_lymphatic_swollen_extremities_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='lymphatic_swollen_extremities' VALUE='No' '{$data->get_lymphatic_swollen_extremities_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Swollen extremities</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='lymphatic_swollen_extremities_text' cols='30' rows='2'>{$data->get_lymphatic_swollen_extremities_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER>PSYCHIATRIC
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='psychiatric_compulsions' VALUE='Yes' '{$data->get_psychiatric_compulsions_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='psychiatric_compulsions' VALUE='No' '{$data->get_psychiatric_compulsions_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Compulsions</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='psychiatric_compulsions_text' cols='30' rows='2'>{$data->get_psychiatric_compulsions_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='psychiatric_depression' VALUE='Yes' '{$data->get_psychiatric_depression_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='psychiatric_depression' VALUE='No' '{$data->get_psychiatric_depression_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Depression</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='psychiatric_depression_text' cols='30' rows='2'>{$data->get_psychiatric_depression_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='psychiatric_fear' VALUE='Yes' '{$data->get_psychiatric_fear_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='psychiatric_fear' VALUE='No' '{$data->get_psychiatric_fear_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Fear</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='psychiatric_fear_text' cols='30' rows='2'>{$data->get_psychiatric_fear_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='psychiatric_anxiety' VALUE='Yes' '{$data->get_psychiatric_anxiety_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='psychiatric_anxiety' VALUE='No' '{$data->get_psychiatric_anxiety_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Anxiety</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='psychiatric_anxiety_text' cols='30' rows='2'>{$data->get_psychiatric_anxiety_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='psychiatric_hallucinations' VALUE='Yes' '{$data->get_psychiatric_hallucinations_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='psychiatric_hallucinations' VALUE='No' '{$data->get_psychiatric_hallucinations_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Hallucinations</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='psychiatric_hallucinations_text' cols='30' rows='2'>{$data->get_psychiatric_hallucinations_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='psychiatric_loss_of_interest' VALUE='Yes' '{$data->get_psychiatric_loss_of_interest_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='psychiatric_loss_of_interest' VALUE='No' '{$data->get_psychiatric_loss_of_interest_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Loss of Interest</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='psychiatric_loss_of_interest_text' cols='30' rows='2'>{$data->get_psychiatric_loss_of_interest_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='psychiatric_memory_loss' VALUE='Yes' '{$data->get_psychiatric_memory_loss_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='psychiatric_memory_loss' VALUE='No' '{$data->get_psychiatric_memory_loss_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Memory Loss</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='psychiatric_memory_loss_text' cols='30' rows='2'>{$data->get_psychiatric_memory_loss_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='psychiatric_mood_swings' VALUE='Yes' '{$data->get_psychiatric_mood_swings_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='psychiatric_mood_swings' VALUE='No' '{$data->get_psychiatric_mood_swings_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Mood Swings</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='psychiatric_mood_swings_text' cols='30' rows='2'>{$data->get_psychiatric_mood_swings_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='psychiatric_pananoia' VALUE='Yes' '{$data->get_psychiatric_pananoia_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='psychiatric_pananoia' VALUE='No' '{$data->get_psychiatric_pananoia_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Pananoia</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='psychiatric_pananoia_text' cols='30' rows='2'>{$data->get_psychiatric_pananoia_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+
+	<TR>
+		<TD WIDTH=162px>
+			<P ALIGN=CENTER><BR/>
+			</P>
+		</TD>
+		<TD WIDTH=100px>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+				<td><INPUT TYPE=radio NAME='psychiatric_insomnia' VALUE='Yes' '{$data->get_psychiatric_insomnia_yes()}'></td><td>Yes</td>
+				<td><INPUT TYPE=radio NAME='psychiatric_insomnia' VALUE='No' '{$data->get_psychiatric_insomnia_no()}'></td><td>No</td>
+				</tr>
+			</table>
+		</TD>
+		<TD WIDTH=161px>
+			<P>Insomnia</P>
+		</TD>
+		<TD WIDTH=162px VALIGN=TOP>
+			<P><textarea name='psychiatric_insomnia_text' cols='30' rows='2'>{$data->get_psychiatric_insomnia_text()}</textarea>
+			</P>
+		</TD>
+	</TR>
+	
+</table>
+
+<table border=0 cellpadding=0 cellspacing=20px>
+	<tr>
+		<td><input type="submit" name="Submit" value="Save Form"></td>
+		<td><a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
+	</tr>
+</table>
+
+<input type="hidden" name="id" value="{$data->get_id()}" />
+<input type="hidden" name="activity" value="{$data->get_activity()}">
+<input type="hidden" name="pid" value="{$data->get_pid()}">
+<input type="hidden" name="process" value="true">
+</form>
+</body>
+</html>
