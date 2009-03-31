@@ -37,6 +37,16 @@ if ($report_type == 'm') {
     103 => xl('Referral Source'),
     2   => xl('Total'),
   );
+  $arr_content = array(
+    1 => xl('Services'),
+    2 => xl('Unique Clients'),
+    4 => xl('Unique New Clients')
+  );
+  $arr_report = array(
+    // Items are content|row|column|column|...
+    '2|2|3|4|5|8|11' => xl('Client Profile - Unique Clients'),
+    '4|2|3|4|5|8|11' => xl('Client Profile - New Clients'),
+  );
 }
 else if ($report_type == 'g') {
   $report_title = xl('GCAC Statistics Report');
@@ -48,6 +58,14 @@ else if ($report_type == 'g') {
     7  => xl('Post-Abortion Contraception'),
     11 => xl('Complications of Abortion'),
   );
+  $arr_content = array(
+    1 => xl('Services'),
+    2 => xl('Unique Clients'),
+    4 => xl('Unique New Clients'),
+  );
+  $arr_report = array(
+    '1|11|13' => xl('Complications by Service Provider'),
+  );
 }
 else {
   $report_title = xl('IPPF Statistics Report');
@@ -58,22 +76,17 @@ else {
     9   => xl('Internal Referrals'),
     10  => xl('External Referrals'),
   );
+  $arr_content = array(
+    1 => xl('Services'),
+    3 => xl('New Acceptors'),
+  );
+  $arr_report = array(
+  );
 }
 
 if ($report_type == 'm') {
-  $arr_content = array(
-    1 => xl('Services'),
-    2 => xl('Unique Clients'),
-    4 => xl('Unique New Clients')
-  );
 }
 else {
-  $arr_content = array(
-    1 => xl('Services'),
-    2 => xl('Unique Clients'),
-    3 => xl('New Acceptors'),
-    4 => xl('Unique New Clients')
-  );
 }
 
 // A reported value is either scalar, or an array listed horizontally.  If
@@ -695,6 +708,39 @@ function process_referral($row) {
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 <script language="JavaScript">
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+
+ // Begin experimental code
+
+ function selectByValue(sel, val) {
+  for (var i = 0; i < sel.options.length; ++i) {
+   if (sel.options[i].value == val) sel.options[i].selected = true;
+  }
+ }
+
+ function selreport() {
+  var f = document.forms[0];
+  var isdis = 'visible';
+  var s = f.form_report;
+  var v = (s.selectedIndex < 0) ? '' : s.options[s.selectedIndex].value;
+  if (v.length > 0) {
+   isdis = 'hidden';
+   var a = v.split("|");
+   f.form_cors.selectedIndex = -1;
+   f.form_by.selectedIndex = -1;
+   f['form_show[]'].selectedIndex = -1;
+   selectByValue(f.form_cors, a[0]);
+   selectByValue(f.form_by, a[1]);
+   for (var i = 2; i < a.length; ++i) {
+    selectByValue(f['form_show[]'], a[i]);
+   }
+  }
+  f.form_by.style.visibility = isdis;
+  f.form_cors.style.visibility = isdis;
+  f['form_show[]'].style.visibility = isdis;
+ }
+
+ // End experimental code
+
 </script>
 </head>
 
@@ -708,6 +754,30 @@ function process_referral($row) {
  action='ippf_statistics.php?t=<?php echo $report_type ?>'>
 
 <table border='0' cellspacing='5' cellpadding='1'>
+
+ <!-- Begin experimental code -->
+ <tr<?php if (empty($arr_report)) echo " style='display:none'"; ?>>
+  <td valign='top' class='dehead' nowrap>
+   <?php xl('Report','e'); ?>:
+  </td>
+  <td valign='top' class='detail' colspan='3'>
+   <select name='form_report' title='Predefined reports' onchange='selreport()'>
+<?php
+  echo "    <option value=''>" . xl('Custom') . "</option>\n";
+  foreach ($arr_report as $key => $value) {
+    echo "    <option value='$key'";
+    if ($key == $form_report) echo " selected";
+    echo ">" . $value . "</option>\n";
+  }
+?>
+   </select>
+  </td>
+  <td valign='top' class='detail'>
+   &nbsp;
+  </td>
+ </tr>
+ <!-- End experimental code -->
+
  <tr>
   <td valign='top' class='dehead' nowrap>
    <?php xl('Rows','e'); ?>:
@@ -1166,6 +1236,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
 </center>
 
 <script language='JavaScript'>
+ selreport();
  Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
  Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
 <?php if ($form_output == 2) { ?>
