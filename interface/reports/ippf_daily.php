@@ -215,6 +215,7 @@ if ($_POST['form_submit']) {
         $crow = sqlQuery("SELECT lc.new_method " .
           "FROM lists AS l, lists_ippf_con AS lc WHERE " .
           "l.pid = '$last_pid' AND l.begdate <= '$from_date' AND " .
+          "( l.enddate IS NULL OR l.enddate > '$from_date' ) AND " .
           "l.activity = 1 AND l.type = 'contraceptive' AND lc.id = l.id " .
           "ORDER BY l.begdate DESC LIMIT 1");
         $amethods = explode('|', empty($crow) ? 'zzz' : $crow['new_method']);
@@ -267,9 +268,9 @@ if ($_POST['form_submit']) {
       $code = 0 + $row['code'];
       if ($code == 255004) ++$areport[$method][6];  // pap smear
       if ($code == 256101) ++$areport[$method][7];  // preg test
-      if ($code == 375013) ++$areport[$method][8];  // dr's check
-      if ($code == 375013) ++$areport[$method][9];  // dr's visit
-      if ($code == 009903) ++$areport[$method][10]; // advice
+      if ($code == 375008) ++$areport[$method][8];  // dr's check
+      if ($code == 375014) ++$areport[$method][9];  // dr's visit (was 375013)
+      if ($code == 375011) ++$areport[$method][10]; // advice     (was 009903)
       if ($code == 019916) ++$areport[$method][11]; // couns by method
       if ($code == 039916) ++$areport[$method][12]; // infert couns
       if ($code == 019911) ++$areport[$method][13]; // std/aids couns
