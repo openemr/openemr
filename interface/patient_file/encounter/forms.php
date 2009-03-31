@@ -86,8 +86,21 @@ if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name
         else continue;
 
         // $form_info = getFormInfoById($iter['id']);
-        echo '<tr title="Edit form" '.
-             'id="'.$formdir.'~'.$iter['form_id'].'" class="text onerow">';
+        if (strtolower(substr($iter['form_name'],0,5)) == 'camos') {
+	//CAMOS generates links from report.php and these links should
+	//be clickable without causing view.php to come up unexpectedly.
+	//I feel that the JQuery code in this file leading to a click
+	//on the report.php content to bring up view.php steps on a
+	//form's autonomy to generate it's own html content in it's report
+	//but until any other form has a problem with this, I will just
+	//make an exception here for CAMOS and allow it to carry out this
+	//functionality for all other forms.  --Mark
+	        echo '<tr title="Edit form" '.
+       		      'id="'.$formdir.'~'.$iter['form_id'].'">';
+	} else {
+	        echo '<tr title="Edit form" '.
+       		      'id="'.$formdir.'~'.$iter['form_id'].'" class="text onerow">';
+	}
         $user = getNameFromUsername($iter['user']);
 
         $form_name = ($formdir == 'newpatient') ? "Patient Encounter" : $iter['form_name'];
