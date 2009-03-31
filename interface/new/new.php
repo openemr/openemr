@@ -1,10 +1,15 @@
 <?php
 include_once("../globals.php");
 
+// For a layout field return 0=unused, 1=optional, 2=mandatory.
+function getLayoutUOR($form_id, $field_id) {
+  $crow = sqlQuery("SELECT uor FROM layout_options WHERE " .
+    "form_id = '$form_id' AND field_id = '$field_id' LIMIT 1");
+  return 0 + $crow['uor'];
+}
+
 // Determine if the registration date should be requested.
-$crow = sqlQuery("SELECT count(*) AS count FROM layout_options WHERE " .
-  "form_id = 'DEM' AND field_id = 'regdate' AND uor > 0");
-$regstyle = $crow['count'] ? "" : " style='display:none'";
+$regstyle = getLayoutUOR('DEM','regdate') ? "" : " style='display:none'";
 
 $form_pubpid    = $_POST['pubpid'   ] ? trim($_POST['pubpid'   ]) : '';
 $form_title     = $_POST['title'    ] ? trim($_POST['title'    ]) : '';
@@ -34,10 +39,22 @@ $form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d'
  var mypcc = '1';
 
  function validate() {
-<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
   var f = document.forms[0];
+<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
   if (f.refsource.selectedIndex <= 0) {
    alert('Please select a referral source!');
+   return false;
+  }
+<?php } ?>
+<?php if (getLayoutUOR('DEM','sex') == 2) { ?>
+  if (f.sex.selectedIndex <= 0) {
+   alert('Please select a value for sex!');
+   return false;
+  }
+<?php } ?>
+<?php if (getLayoutUOR('DEM','DOB') == 2) { ?>
+  if (f.DOB.value.length == 0) {
+   alert('Please select a birth date!');
    return false;
   }
 <?php } ?>
