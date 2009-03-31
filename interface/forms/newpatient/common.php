@@ -62,7 +62,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 
  function saveClicked() {
   var f = document.forms[0];
-<?php if ($GLOBALS['ippf_specific']) { ?>
+<?php if (false /* $GLOBALS['ippf_specific'] */) { // ippf decided not to do this ?>
   if (f['issues[]'].selectedIndex < 0) {
    if (!confirm('There is no issue selected. If this visit relates to ' +
     'contraception or abortion, click Cancel now and then select or ' +
