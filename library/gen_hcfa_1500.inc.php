@@ -64,6 +64,14 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   $hcfa_curr_line = 1;
   $hcfa_curr_col = 1;
 
+  // According to:
+  // http://www.ngsmedicare.com/NGSMedicare/PartB/EducationandSupport/ToolsandMaterials/CMS_ClaimFormInst.aspx
+  // Medicare interprets sections 9 and 11 of the claim form in its own
+  // special way.  This flag tells us to do that.  However I'm not 100%
+  // sure that it applies nationwide, and if you find that it is not right
+  // for you then set it to false.  -- Rod 2009-03-26
+  $new_medicare_logic = $claim->claimType() == 'MB';
+
   // Payer name, attn, street.
   put_hcfa(2, 41, 31, $claim->payerName());
   put_hcfa(3, 41, 31, $claim->payerAttn());
@@ -154,38 +162,75 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   put_hcfa(16, 69,  7, substr($tmp,3));
 
   // Box 9. Other Insured's Name
-  if ($claim->payerCount() > 1) {
-    $tmp = $claim->insuredLastName(1) . ', ' . $claim->insuredFirstName(1);
-    if ($claim->insuredMiddleName(1))
-      $tmp .= ', ' . substr($claim->insuredMiddleName(1),0,1);
-    put_hcfa(18, 1, 28, $tmp);
+  if ($new_medicare_logic) {
+    // TBD: Medigap stuff? How do we know if this is a Medigap transfer?
+  }
+  else {
+    if ($claim->payerCount() > 1) {
+      $tmp = $claim->insuredLastName(1) . ', ' . $claim->insuredFirstName(1);
+      if ($claim->insuredMiddleName(1))
+        $tmp .= ', ' . substr($claim->insuredMiddleName(1),0,1);
+      put_hcfa(18, 1, 28, $tmp);
+    }
   }
 
   // Box 11. Insured's Group Number
-  put_hcfa(18, 50, 30, $claim->groupNumber());
+  if ($new_medicare_logic) {
+    // If this is Medicare secondary then we need the primary's policy number
+    // here, otherwise the word "NONE".
+    $tmp = $claim->payerSequence() == 'P' ? 'NONE' : $claim->policyNumber(1);
+  }
+  else {
+    $tmp = $claim->groupNumber();
+  }
+  put_hcfa(18, 50, 30, $tmp);
 
   // Box 9a. Other Insured's Policy or Group Number
-  if ($claim->payerCount() > 1) {
-    put_hcfa(20, 1, 28, $claim->policyNumber(1));
+  if ($new_medicare_logic) {
+    // TBD: Medigap stuff?
+  }
+  else {
+    if ($claim->payerCount() > 1) {
+      put_hcfa(20, 1, 28, $claim->policyNumber(1));
+    }
   }
 
   // Box 10a. Employment Related
   put_hcfa(20, $claim->isRelatedEmployment() ? 35 : 41, 1, 'X');
 
   // Box 11a. Insured's Birth Date and Sex
-  $tmp = $claim->insuredDOB();
-  put_hcfa(20, 53, 2, substr($tmp,4,2));
-  put_hcfa(20, 56, 2, substr($tmp,6,2));
-  put_hcfa(20, 59, 4, substr($tmp,0,4));
-  put_hcfa(20, $claim->insuredSex() == 'M' ? 68 : 75, 1, 'X');
+  if ($new_medicare_logic) {
+    $tmpdob = $tmpsex = '';
+    if ($claim->payerSequence() != 'P') {
+      $tmpdob = $claim->insuredDOB(1);
+      $tmpsex = $claim->insuredSex(1);
+    }
+   }
+  else {
+    $tmpdob = $claim->insuredDOB();
+    $tmpsex = $claim->insuredSex();
+  }
+  if ($tmpdob) {
+    put_hcfa(20, 53, 2, substr($tmpdob,4,2));
+    put_hcfa(20, 56, 2, substr($tmpdob,6,2));
+    put_hcfa(20, 59, 4, substr($tmpdob,0,4));
+  }
+  if ($tmpsex) {
+    put_hcfa(20, $tmpsex == 'M' ? 68 : 75, 1, 'X');
+  }
 
   // Box 9b. Other Insured's Birth Date and Sex
-  if ($claim->payerCount() > 1) {
-    $tmp = $claim->insuredDOB(1);
-    put_hcfa(22, 2, 2, substr($tmp,4,2));
-    put_hcfa(22, 5, 2, substr($tmp,6,2));
-    put_hcfa(22, 8, 4, substr($tmp,0,4));
-    put_hcfa(22, $claim->insuredSex(1) == 'M' ? 18 : 24, 1, 'X');
+  if ($new_medicare_logic) {
+    // TBD: Medigap stuff?
+  }
+  else {
+    if ($claim->payerCount() > 1) {
+      $tmp = $claim->insuredDOB(1);
+      put_hcfa(22, 2, 2, substr($tmp,4,2));
+      put_hcfa(22, 5, 2, substr($tmp,6,2));
+      put_hcfa(22, 8, 4, substr($tmp,0,4));
+      put_hcfa(22, $claim->insuredSex(1) == 'M' ? 18 : 24, 1, 'X');
+    }
   }
 
   // Box 10b. Auto Accident
@@ -194,26 +239,54 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
     put_hcfa(22, 45, 2, $claim->autoAccidentState());
 
   // Box 11b. Insured's Employer/School Name
-  put_hcfa(22, 50, 30, $claim->groupName());
+  if ($new_medicare_logic) {
+    $tmp = $claim->payerSequence() == 'P' ? '' : $claim->groupName(1);
+  }
+  else {
+    $tmp = $claim->groupName();
+  }
+  put_hcfa(22, 50, 30, $tmp);
 
   // Box 9c. Other Insured's Employer/School Name
-  if ($claim->payerCount() > 1) {
-    put_hcfa(24, 1, 28, $claim->groupName(1));
+  if ($new_medicare_logic) {
+    // TBD: Medigap stuff?
+  }
+  else {
+    if ($claim->payerCount() > 1) {
+      put_hcfa(24, 1, 28, $claim->groupName(1));
+    }
   }
 
   // Box 10c. Other Accident
   put_hcfa(24, $claim->isRelatedOther() ? 35 : 41, 1, 'X');
 
   // Box 11c. Insurance Plan Name or Program Name
-  put_hcfa(24, 50, 30, $claim->planName());
+  if ($new_medicare_logic) {
+    $tmp = '';
+    if ($claim->payerSequence() != 'P') {
+      $tmp = $claim->planName(1);
+      if (!$tmp) $tmp = $claim->payerName(1);
+    }
+  }
+  else {
+    $tmp = $claim->planName();
+  }
+  put_hcfa(24, 50, 30, $tmp);
 
   // Box 9d. Other Insurance Plan Name or Program Name
-  if ($claim->payerCount() > 1) {
-    put_hcfa(26, 1, 28, $claim->planName(1));
+  if ($new_medicare_logic) {
+    // TBD: Medigap stuff?
+  }
+  else {
+    if ($claim->payerCount() > 1) {
+      put_hcfa(26, 1, 28, $claim->planName(1));
+    }
   }
 
   // Box 11d. Is There Another Health Benefit Plan
-  put_hcfa(26, $claim->payerCount() > 1 ? 52 : 57, 1, 'X');
+  if (!$new_medicare_logic) {
+    put_hcfa(26, $claim->payerCount() > 1 ? 52 : 57, 1, 'X');
+  }
 
   // Box 12. Patient's or Authorized Person's Signature
   put_hcfa(29, 7, 17, 'Signature on File');
