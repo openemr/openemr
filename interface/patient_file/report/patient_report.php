@@ -23,15 +23,33 @@ $auth_demo     = acl_check('patients'  , 'demo');
 <!-- include jQuery support -->
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
 
+<script language='JavaScript'>
+
+function checkAll(check) {
+ var f = document.forms[0];
+ for (var i = 0; i < f.elements.length; ++i) {
+  if (f.elements[i].type == 'checkbox') f.elements[i].checked = check;
+ }
+ return false;
+}
+
+</script>
+
 </head>
 
 <body class="body_top">
 <div id="patient_reports"> <!-- large outer DIV -->
 
-<span class='title'><?php xl('Patient Report','e'); ?></span><br>
+<span class='title'><?php xl('Patient Report','e'); ?></span>&nbsp;&nbsp;
 
+<!--
 <a class="link_submit" href="full_report.php" onclick="top.restoreSession()">
 [<?php xl('View Comprehensive Patient Report','e'); ?>]</a>
+-->
+<a class="link_submit" href="#" onclick="return checkAll(true)">[<?php xl('Check All','e'); ?>]</a>
+&nbsp;
+<a class="link_submit" href="#" onclick="return checkAll(false)">[<?php xl('Clear All','e'); ?>]</a>
+<p>
 
 <form name='report_form' id="report_form" method='post' action='custom_report.php'>
 
