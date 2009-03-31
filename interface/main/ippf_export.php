@@ -63,13 +63,14 @@ function LWDate($field) {
   return fixDate($field);
 }
 
-function xmlTime($str) {
-  if (strlen($str) > 10)
+function xmlTime($str, $default='9999-12-31T23:59:59') {
+  if (empty($default)) $default = '1000-01-01T00:00:00';
+  if (strlen($str) < 10 || substr($str, 0, 4) == '0000')
+    $str = $default;
+  else if (strlen($str) > 10)
     $str = substr($str, 0, 10) . 'T' . substr($str, 11);
-  else if (strlen($str) == 10)
-    $str .= 'T00:00:00';
   else
-    $str = '0000-00-00T00:00:00';
+    $str .= 'T00:00:00';
   return $str;
 }
 
@@ -86,6 +87,71 @@ function getTextListValue($string, $key) {
     }
   }
   return '';
+}
+
+function exportEncounter($pid, $encounter, $date) {
+  // Starting a new visit (encounter).
+  OpenTag('IMS_eMRUpload_Visit');
+  Add('VisitDate' , xmlTime($date));
+  Add('emrVisitId', $encounter);
+
+  // Dump IPPF services.
+  $query = "SELECT b.code_type, b.code, b.units, b.fee, c.related_code " .
+    "FROM billing AS b, codes AS c WHERE " .
+    "b.pid = '$pid' AND b.encounter = '$encounter' AND " .
+    "b.activity = 1 AND " .
+    "c.code_type = '12' AND c.code = b.code AND c.modifier = b.modifier ";
+  $bres = sqlStatement($query);
+  while ($brow = sqlFetchArray($bres)) {
+    if (!empty($brow['related_code'])) {
+      $relcodes = explode(';', $brow['related_code']);
+      foreach ($relcodes as $codestring) {
+        if ($codestring === '') continue;
+        list($codetype, $code) = explode(':', $codestring);
+        if ($codetype !== 'IPPF') continue;
+        // Starting a new service (IPPF code).
+        OpenTag('IMS_eMRUpload_Service');
+        Add('IppfServiceProductId', $code);
+        Add('Type'                , '0'); // 0=service, 1=product, 2=diagnosis
+        Add('IppfQuantity'        , $brow['units']);
+        Add('CurrID'              , "TBD"); // TBD: Currency e.g. USD
+        Add('Amount'              , $brow['fee']);
+        CloseTag('IMS_eMRUpload_Service');
+      } // end foreach
+    } // end if related code
+  } // end while billing row found
+
+  // Dump products.
+  $query = "SELECT drug_id, quantity, fee FROM drug_sales WHERE " .
+    "pid = '$pid' AND encounter = '$encounter' " .
+    "ORDER BY drug_id, sale_id";
+  $pres = sqlStatement($query);
+  while ($prow = sqlFetchArray($pres)) {
+    OpenTag('IMS_eMRUpload_Service');
+    Add('IppfServiceProductId', $prow['drug_id']);
+    Add('Type'                , '1'); // 0=service, 1=product, 2=diagnosis
+    Add('IppfQuantity'        , $prow['quantity']);
+    Add('CurrID'              , "TBD"); // TBD: Currency e.g. USD
+    Add('Amount'              , $prow['fee']);
+    CloseTag('IMS_eMRUpload_Service');
+  } // end while drug_sales row found
+
+  // Dump diagnoses.
+  $query = "SELECT code FROM billing WHERE " .
+    "pid = '$pid' AND encounter = '$encounter' AND " .
+    "code_type = 'ICD9' AND activity = 1 ORDER BY code, id";
+  $dres = sqlStatement($query);
+  while ($drow = sqlFetchArray($dres)) {
+    OpenTag('IMS_eMRUpload_Service');
+    Add('IppfServiceProductId', $drow['code']);
+    Add('Type'                , '2'); // 0=service, 1=product, 2=diagnosis
+    Add('IppfQuantity'        , '1');
+    Add('CurrID'              , "TBD"); // TBD: Currency e.g. USD
+    Add('Amount'              , '0');
+    CloseTag('IMS_eMRUpload_Service');
+  } // end while billing row found
+
+  CloseTag('IMS_eMRUpload_Visit');
 }
 
 function endClient($pid) {
@@ -109,8 +175,9 @@ function endClient($pid) {
 
   while ($irow = sqlFetchArray($ires)) {
     OpenTag('IMS_eMRUpload_Issue');
-    Add('IssueType'     , $irow['type']);
-    Add('IssueStartDate', xmlTime($irow['begdate']));
+    Add('IssueType'     , substr($irow['type'], 0, 15)); // per email 2009-03-20
+    Add('emrIssueId'    , $irow['id']);
+    Add('IssueStartDate', xmlTime($irow['begdate'], 0));
     Add('IssueEndDate'  , xmlTime($irow['enddate']));
     Add('IssueTitle'    , $irow['title']);
     Add('IssueDiagnosis', $irow['diagnosis']);
@@ -165,6 +232,7 @@ if (!empty($form_submit)) {
     ++$end_year;
   }
 
+  /*******************************************************************
   $query = "SELECT " .
     "fe.facility_id, fe.pid, fe.encounter, fe.date, " .
     "f.name, f.street, f.city, f.state, f.postal_code, f.country_code, " .
@@ -177,17 +245,30 @@ if (!empty($form_submit)) {
     sprintf("fe.date >= '%04u-%02u-01 00:00:00' AND ", $beg_year, $beg_month) .
     sprintf("fe.date < '%04u-%02u-01 00:00:00' ", $end_year, $end_month) .
     "ORDER BY fe.facility_id, fe.pid, fe.encounter";
+  *******************************************************************/
+
+  $query = "SELECT DISTINCT " .
+    "fe.facility_id, fe.pid, " .
+    "f.name, f.street, f.city, f.state, f.postal_code, f.country_code, " .
+    "f.federal_ein, " .
+    "p.regdate, p.date AS last_update, p.contrastart, p.DOB, " .
+    "p.userlist2 AS education " .
+    "FROM form_encounter AS fe " .
+    "LEFT OUTER JOIN facility AS f ON f.id = fe.facility_id " .
+    "LEFT OUTER JOIN patient_data AS p ON p.pid = fe.pid WHERE " .
+    sprintf("fe.date >= '%04u-%02u-01 00:00:00' AND ", $beg_year, $beg_month) .
+    sprintf("fe.date < '%04u-%02u-01 00:00:00' ", $end_year, $end_month) .
+    "ORDER BY fe.facility_id, fe.pid";
 
   $res = sqlStatement($query);
 
-  $last_pid = -1;
+  // $last_pid = -1;
   $last_facility = -1;
 
   while ($row = sqlFetchArray($res)) {
+
     if ($row['facility_id'] != $last_facility) {
       if ($last_facility >= 0) {
-        if ($last_pid >= 0) endClient($last_pid);
-        $last_pid = -1;
         endFacility();
       }
       $last_facility = $row['facility_id'];
@@ -200,81 +281,65 @@ if (!empty($form_submit)) {
       Add('Latitude'                 , '222222'); // TBD: Add this to facility attributes
       Add('Longitude'                , '433333'); // TBD: Add this to facility attributes
       Add('Address'                  , $row['street']);
+      Add('Address2'                 , '');
       Add('City'                     , $row['city']);
       Add('PostCode'                 , $row['postal_code']);
     }
 
-    if ($row['pid'] != $last_pid) {
-      if ($last_pid >= 0) endClient($last_pid);
-      $last_pid = $row['pid'];
+    $last_pid = $row['pid'];
 
-      // Get most recent contraceptive issue.
-      $crow = sqlQuery("SELECT l.begdate, c.new_method " .
-        "FROM lists AS l, lists_ippf_con AS c WHERE " .
-        "l.pid = '$last_pid' AND c.id = l.id " .
-        "ORDER BY l.begdate DESC LIMIT 1");
+    // Get most recent contraceptive issue.
+    $crow = sqlQuery("SELECT l.begdate, c.new_method " .
+      "FROM lists AS l, lists_ippf_con AS c WHERE " .
+      "l.pid = '$last_pid' AND c.id = l.id " .
+      "ORDER BY l.begdate DESC LIMIT 1");
 
-      // Get obstetric and abortion data from most recent static history.
-      $hrow = sqlQuery("SELECT date, " .
-        "usertext16 AS genobshist, " .
-        "usertext17 AS genabohist " .
-        "FROM history_data WHERE pid = '$last_pid' " .
-        "ORDER BY date DESC LIMIT 1");
+    // Get obstetric and abortion data from most recent static history.
+    $hrow = sqlQuery("SELECT date, " .
+      "usertext16 AS genobshist, " .
+      "usertext17 AS genabohist " .
+      "FROM history_data WHERE pid = '$last_pid' " .
+      "ORDER BY date DESC LIMIT 1");
 
-      // Starting a new client (patient).
-      OpenTag('IMS_eMRUpload_Client');
-      Add('emrClientId'     , $row['pid']);
-      Add('RegisteredOn'    , xmlTime($row['regdate']));
-      Add('LastUpdated'     , xmlTime($row['last_update']));
-      Add('NewAcceptorDate' , xmlTime($row['contrastart']));
-      if (!empty($crow['new_method'])) {
-        $methods = explode('|', $crow['new_method']);
-        foreach ($methods as $method) {
-          Add('CurrentMethod', $method);
-        }
+    // Starting a new client (patient).
+    OpenTag('IMS_eMRUpload_Client');
+    Add('emrClientId'     , $row['pid']);
+    Add('RegisteredOn'    , xmlTime($row['regdate']));
+    Add('LastUpdated'     , xmlTime($row['last_update']));
+    Add('NewAcceptorDate' , xmlTime($row['contrastart']));
+    if (empty($crow['new_method'])) {
+      Add('CurrentMethod', '');
+    }
+    else {
+      $methods = explode('|', $crow['new_method']);
+      foreach ($methods as $method) {
+        Add('CurrentMethod', $method);
       }
-      Add('Dob'        , xmlTime($row['DOB']));
-      Add('DobType'    , "rel"); // rel=real, est=estimated
-      Add('Pregnancies', 0 + getTextListValue($hrow['genobshist'],'npreg')); // number of pregnancies
-      Add('Children'   , 0 + getTextListValue($hrow['genobshist'],'nlc'));   // number of living children
-      Add('Abortions'  , 0 + getTextListValue($hrow['genabohist'],'nia'));   // number of induced abortions
-      Add('Education'  , $row['education']);
+    }
+    Add('Dob'        , xmlTime($row['DOB']));
+    Add('DobType'    , "rel"); // rel=real, est=estimated
+    Add('Pregnancies', 0 + getTextListValue($hrow['genobshist'],'npreg')); // number of pregnancies
+    Add('Children'   , 0 + getTextListValue($hrow['genobshist'],'nlc'));   // number of living children
+    Add('Abortions'  , 0 + getTextListValue($hrow['genabohist'],'nia'));   // number of induced abortions
+    Add('Education'  , empty($row['education']) ? 0 : $row['education']);
+
+    // Dump all visits for this patient at this facility.
+    $query = "SELECT " .
+      "encounter, date " .
+      "FROM form_encounter WHERE " .
+      "pid = '$last_pid' AND facility_id = '$last_facility' " .
+      "ORDER BY encounter";
+
+    // Add('Debug', $query); // debugging
+
+    $eres = sqlStatement($query);
+    while ($erow = sqlFetchArray($eres)) {
+      exportEncounter($last_pid, $erow['encounter'], $erow['date']);
     }
 
-    // Starting a new visit (encounter).
-    OpenTag('IMS_eMRUpload_Visit');
-    Add('VisitDate' , xmlTime($row['date']));
-    Add('emrVisitId', $row['encounter']);
-
-    $query = "SELECT b.code_type, b.code, b.units, b.fee, c.related_code " .
-      "FROM billing AS b, codes AS c WHERE " .
-      "b.pid = '$last_pid' AND b.encounter = '" . $row['encounter'] . "' AND " .
-      "c.code_type = '12' AND c.code = b.code AND c.modifier = b.modifier ";
-
-    $bres = sqlStatement($query);
-    while ($brow = sqlFetchArray($bres)) {
-      if (!empty($brow['related_code'])) {
-        $relcodes = explode(';', $brow['related_code']);
-        foreach ($relcodes as $codestring) {
-          if ($codestring === '') continue;
-          list($codetype, $code) = explode(':', $codestring);
-          if ($codetype !== 'IPPF') continue;
-          // Starting a new service (IPPF code).
-          OpenTag('IMS_eMRUpload_Service');
-          Add('Type'                , $codetype);
-          Add('IppfServiceProductId', $code);
-          Add('IppfQuantity'        , $brow['units']);
-          Add('CurrID'              , "TBD"); // TBD: Currency e.g. USD
-          Add('Amount'              , $brow['fee']);
-          CloseTag('IMS_eMRUpload_Service');
-        } // end foreach
-      } // end if related code
-    } // end while billing row found
-
-    CloseTag('IMS_eMRUpload_Visit');
+    endClient($last_pid);
   }
 
-  if ($last_pid >= 0) endClient($last_pid);
   if ($last_facility >= 0) endFacility();
 
   header("Pragma: public");
