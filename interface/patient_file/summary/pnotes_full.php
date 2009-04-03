@@ -3,6 +3,7 @@ include_once("../../globals.php");
 include_once("$srcdir/pnotes.inc");
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/acl.inc");
+include_once("$srcdir/log.inc");
 
 if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
     include_once("$srcdir/pid.inc");
@@ -55,6 +56,13 @@ if (isset($mode)) {
       addPnote($pid, $note, $userauthorized, '1', $_POST['title'],
         $_POST['assigned_to']);
     }
+  }
+  elseif ($mode == "delete") {
+    if ($noteid) { 
+        deletePnote($noteid);
+        newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], "pnotes: id ".$noteid);
+    }
+    $noteid = '';
   }
 }
 
@@ -168,22 +176,27 @@ if ($noteid) {
 </table>
 
 <?php if ($noteid) { ?>
-
+<!-- existing note -->
+<input type="button" id="newnote" value="<?php xl('Add new note','e'); ?>" title="Add as a new note">
+<input type="button" id="appendnote" value="<?php xl('Append to this note','e'); ?>" title="Append to the existing note">
+<input type="button" id="printnote" value="<?php xl('Print this note','e'); ?>">
+<!--
 <a href="javascript:top.restoreSession();document.new_note.submit();" class='link_submit'>
 [<?php xl('Append to This Note','e'); ?>]
 </a>
 &nbsp;&nbsp;&nbsp;&nbsp;
-<a href='pnotes_print.php?noteid=<?php echo $noteid; ?>' class='link_submit'
- target='_blank' onclick='top.restoreSession()'>
+<a href='pnotes_print.php?noteid=<?php echo $noteid; ?>' class='link_submit' target='_blank' onclick='top.restoreSession()'>
 [<?php xl('Print This Note','e'); ?>]
 </a>
-
+-->
 <?php } else { ?>
-
+<!-- new note -->
+<input type="button" id="newnote" value="<?php xl('Add new note','e'); ?>">
+<!--
 <a href="javascript:top.restoreSession();document.new_note.submit();" class='link_submit'>
 [<?php xl('Add New Note','e'); ?>]
 </a>
-
+-->
 <?php } ?>
 
 <br>
@@ -260,6 +273,7 @@ if ($result != "") {
     echo "  <td class='text bold'>\n";
     echo "   <input type='hidden' name='act" . $iter{"id"} . "' value='1'>\n";
     echo "   <input type='checkbox' name='chk" . $iter{"id"} . "' $checked>\n";
+    
     echo "  </td><td class='bold notecell' id='".$iter['id']."'>\n";
 
 //    echo "   <a href='javascript:document.forms[1].noteid.value=" .
@@ -270,6 +284,16 @@ if ($result != "") {
     echo "  <td class='notecell' id='".$iter['id']."'>\n";
     echo "   $body";
     echo "  </td>\n";
+
+    // display, or not, a button to delete the note
+    // if the user is an admin or if they are the author of the note, they can delete it
+    $thisauth = acl_check('admin', 'super');
+    echo "  <td>\n";
+    if (($iter['user'] == $_SESSION['authUser']) || ($thisauth == 'write')) {
+        echo " <input type='button' class='deletenote' id='del".$iter['id']."' value=' X ' title='Delete this note'>\n";
+    }
+    echo "  </td>\n";
+
     echo " </tr>\n";
 
     $notes_count++;
@@ -357,25 +381,55 @@ if ($noteid /* && $title == 'New Document' */ ) {
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
-    $(".append").click(function() { top.restoreSession(); document.my_form.submit(); });
-    $(".savenew").click(function() { $("noteid").value(""); });
-//    $(".printform").click(function() { PrintForm(); });
+    $("#appendnote").click(function() { AppendNote(); });
+    $("#newnote").click(function() { NewNote(); });
+    $("#printnote").click(function() { PrintNote(); });
+
     $(".change_activity").click(function() { top.restoreSession(); $("#update_activity").submit(); });
+    
+    $(".deletenote").click(function() { DeleteNote(this); });
     
     $(".noterow").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".noterow").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".notecell").click(function() { EditNote(this); });
 
     $("#note").focus();
-});
 
-var EditNote = function(note) {
-    top.restoreSession();
-    $("#noteid").val(note.id);
-    $("#mode").val("");
-    //alert($("#noteid").val());
-    $("#new_note").submit(); 
-}
+    var EditNote = function(note) {
+        top.restoreSession();
+        $("#noteid").val(note.id);
+        $("#mode").val("");
+        $("#new_note").submit(); 
+    }
+   
+    var NewNote = function () {
+        top.restoreSession();
+        $("#noteid").val('');
+        $("#new_note").submit(); 
+    }
+
+    var AppendNote = function () {
+        top.restoreSession();
+        $("#new_note").submit(); 
+    }
+
+    var PrintNote = function () {
+        top.restoreSession();
+        window.open('pnotes_print.php?noteid=<?php echo $noteid; ?>', '_blank', 'resizable=1,scrollbars=1,width=600,height=500');
+    }
+
+    var DeleteNote = function(note) {
+        if (confirm("Are you sure you want to delete this note?\n This action CANNOT be undone.")) {
+            top.restoreSession();
+            // strip the 'del' part of the object's ID
+            $("#noteid").val(note.id.replace(/del/, ""));
+            $("#mode").val("delete");
+            $("#new_note").submit(); 
+        }
+    }
+
+
+});
 
 </script>
 
