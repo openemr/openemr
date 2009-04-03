@@ -25,12 +25,16 @@ ul {
     list-style: none;
     padding: 3px;
     margin: 3px;
-    background-color: white;
 }
 li {
     cursor: pointer;
     border-bottom: 1px solid #ccc;
+    background-color: white;
 }
+.highlight {
+    background-color: #336699;
+    color: white;
+}    
 </style>
 
 </head>
