@@ -98,6 +98,7 @@ function formGetIds ($tableName, $cols = "*", $limit='all', $start=0, $activity 
         else
         {
                 $sql = "select $cols from pnotes where pid like '$pid' ";
+                $sql .= " AND deleted != 1 "; // exclude ALL deleted notes
                 if ($activity != "all")
                         $sql .= "and activity like '$activity' ";
                 $sql .= "order by date DESC LIMIT $start, $limit";

@@ -67,8 +67,8 @@ $authorize{$iter{"pid"}}{"transaction"} .= "<span class=small>" . $iter{"user"} 
 }
 
 if (empty($GLOBALS['ignore_pnotes_authorization'])) {
-  //fetch pnotes information:
-  if ($res = sqlStatement("select * from pnotes where authorized=0 and groupname='$groupname'")) {
+  //fetch pnotes information, exclude ALL deleted notes
+  if ($res = sqlStatement("select * from pnotes where authorized=0 and deleted!=1 and groupname='$groupname'")) {
     for ($iter = 0;$row = sqlFetchArray($res);$iter++) $result3[$iter] = $row;
     if ($result3) {
       foreach ($result3 as $iter) {

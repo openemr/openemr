@@ -207,7 +207,8 @@ function printListData($pid, $list_type, $list_activity = "%") {
 }
 
 function printPatientNotes($pid) {
-	$res = sqlStatement("select * from pnotes where pid='$pid' and activity=1 order by date");
+        // exclude ALL deleted notes
+	$res = sqlStatement("select * from pnotes where pid='$pid' and deleted!=1 and activity=1 order by date");
 	while($result = sqlFetchArray($res)) {
 		print "<span class=bold>" . date("Y-m-d",strtotime($result{"date"})) . ":</span><span class=text> " . stripslashes($result{"body"}) . "</span><br>\n";
 	}

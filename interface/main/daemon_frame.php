@@ -33,7 +33,9 @@
 
  // Check if this user has any active patient notes assigned to them.
  $row = sqlQuery("SELECT count(*) AS count FROM pnotes WHERE " .
-  "activity = 1 AND assigned_to = '" . $_SESSION['authUser'] . "'");
+  "activity = 1 ".
+  " AND deleted != 1 ". // exlude ALL deleted notes
+  " AND assigned_to = '" . $_SESSION['authUser'] . "'");
  $color_aun = $row['count'] ? $colorh : $colorn;
 ?>
 <html>
