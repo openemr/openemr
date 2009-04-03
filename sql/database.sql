@@ -2485,6 +2485,7 @@ CREATE TABLE `pnotes` (
   `authorized` tinyint(4) default NULL,
   `title` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   `assigned_to` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `deleted` tinyint(4) default 0 COMMENT 'flag indicates note is deleted',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
 
