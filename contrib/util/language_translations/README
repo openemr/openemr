@@ -1,0 +1,23 @@
+This directory holds the developer tools to maintain the language translations.
+These were created during development of OpenEMR version 3.0.2
+
+The collectConstants.pl script can be used to collect all of the constants
+from the openemr source code.  This script can also be used to find only the
+new constants.  Instructions are included in the file.
+
+The first list of constants produced by the collectConstants.pl script are
+in the initial_constants_3-0-1.txt file.
+
+The initial empty language translation spreadsheet,
+blank_spreadsheet_3-0-1.tsv,  that contains the constants was also created
+by the collectConstants.pl script.  This spreadsheet has been uploaded to
+Google Docs to allow collaborative data entry of languages translations.
+
+
+Tools that still need to be completed:
+- buildLanguageDatabase.pl will be created to build a dumpfile for the
+lang_languages, lang_constants, and lang_definitions tables from the above
+Google Docs collaborative language translation spreadsheet.
+- stableLanguage.sql will hold tested and stable translation tables
+- currentLanguage.sql will hold current and possible unstable translation
+tables
