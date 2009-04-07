@@ -19,7 +19,7 @@ if (!acl_check('admin', 'super')) die("Not authorized!");
 //                            XML Stuff                             //
 //////////////////////////////////////////////////////////////////////
 
-$out = "";
+$out = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n";
 $indent = 0;
 
 // Add a string to output with some basic sanitizing.
@@ -64,7 +64,7 @@ function LWDate($field) {
 }
 
 function xmlTime($str, $default='9999-12-31T23:59:59') {
-  if (empty($default)) $default = '1000-01-01T00:00:00';
+  if (empty($default)) $default = '1800-01-01T00:00:00';
   if (strlen($str) < 10 || substr($str, 0, 4) == '0000')
     $str = $default;
   else if (strlen($str) > 10)
@@ -158,7 +158,7 @@ function endClient($pid) {
   // Output issues.
   $ires = sqlStatement("SELECT " .
     "l.id, l.type, l.begdate, l.enddate, l.title, l.diagnosis, " .
-    "c.prev_method, c.new_method, c.reason_chg, c.reason_term, c.risks, " .
+    "c.prev_method, c.new_method, c.reason_chg, c.reason_term, " .
     "c.hor_history, c.hor_lmp, c.hor_flow, c.hor_bleeding, c.hor_contra, " .
     "c.iud_history, c.iud_lmp, c.iud_pain, c.iud_upos, c.iud_contra, " .
     "c.sur_screen, c.sur_anes, c.sur_type, c.sur_post_ins, c.sur_contra, " .
@@ -245,7 +245,6 @@ if (!empty($form_submit)) {
     sprintf("fe.date >= '%04u-%02u-01 00:00:00' AND ", $beg_year, $beg_month) .
     sprintf("fe.date < '%04u-%02u-01 00:00:00' ", $end_year, $end_month) .
     "ORDER BY fe.facility_id, fe.pid, fe.encounter";
-  *******************************************************************/
 
   $query = "SELECT DISTINCT " .
     "fe.facility_id, fe.pid, " .
@@ -259,14 +258,39 @@ if (!empty($form_submit)) {
     sprintf("fe.date >= '%04u-%02u-01 00:00:00' AND ", $beg_year, $beg_month) .
     sprintf("fe.date < '%04u-%02u-01 00:00:00' ", $end_year, $end_month) .
     "ORDER BY fe.facility_id, fe.pid";
-
-  $res = sqlStatement($query);
+  *******************************************************************/
 
   // $last_pid = -1;
-  $last_facility = -1;
+  // $last_facility = -1;
+
+  // Dump info for the main facility.
+  $facrow = sqlQuery("SELECT * FROM facility ORDER BY " .
+    "billing_location DESC, id ASC LIMIT 1");
+  OpenTag('IMS_eMRUpload_Point');
+  Add('ServiceDeliveryPointName' , $facrow['name']);
+  Add('EmrServiceDeliveryPointId', $facrow['id']);
+  Add('Channel'                  , '01');
+  Add('Latitude'                 , '222222'); // TBD: Add this to facility attributes
+  Add('Longitude'                , '433333'); // TBD: Add this to facility attributes
+  Add('Address'                  , $facrow['street']);
+  Add('Address2'                 , '');
+  Add('City'                     , $facrow['city']);
+  Add('PostCode'                 , $facrow['postal_code']);
+
+  $query = "SELECT DISTINCT " .
+    "fe.pid, " .
+    "p.regdate, p.date AS last_update, p.contrastart, p.DOB, " .
+    "p.userlist2 AS education " .
+    "FROM form_encounter AS fe " .
+    "LEFT OUTER JOIN patient_data AS p ON p.pid = fe.pid WHERE " .
+    sprintf("fe.date >= '%04u-%02u-01 00:00:00' AND ", $beg_year, $beg_month) .
+    sprintf("fe.date < '%04u-%02u-01 00:00:00' ", $end_year, $end_month) .
+    "ORDER BY fe.pid";
+  $res = sqlStatement($query);
 
   while ($row = sqlFetchArray($res)) {
 
+    /*****************************************************************
     if ($row['facility_id'] != $last_facility) {
       if ($last_facility >= 0) {
         endFacility();
@@ -285,6 +309,7 @@ if (!empty($form_submit)) {
       Add('City'                     , $row['city']);
       Add('PostCode'                 , $row['postal_code']);
     }
+    *****************************************************************/
 
     $last_pid = $row['pid'];
 
@@ -307,15 +332,24 @@ if (!empty($form_submit)) {
     Add('RegisteredOn'    , xmlTime($row['regdate']));
     Add('LastUpdated'     , xmlTime($row['last_update']));
     Add('NewAcceptorDate' , xmlTime($row['contrastart']));
-    if (empty($crow['new_method'])) {
-      Add('CurrentMethod', '');
-    }
-    else {
+
+    // Get the current contraceptive method with greatest effectiveness.
+    $methodid = '';
+    $methodvalue = -999;
+    if (!empty($crow['new_method'])) {
       $methods = explode('|', $crow['new_method']);
       foreach ($methods as $method) {
-        Add('CurrentMethod', $method);
+        $lorow = sqlQuery("SELECT option_value FROM list_options WHERE " .
+          "list_id = 'contrameth' AND option_id = '$method' LIMIT 1");
+        $value = empty($lorow) ? 0 : (0 + $lorow['option_value']);
+        if ($value > $methodvalue) {
+          $methodid = $method;
+          $methodvalue = $value;
+        }
       }
     }
+    Add('CurrentMethod', $methodid);
+
     Add('Dob'        , xmlTime($row['DOB']));
     Add('DobType'    , "rel"); // rel=real, est=estimated
     Add('Pregnancies', 0 + getTextListValue($hrow['genobshist'],'npreg')); // number of pregnancies
@@ -327,7 +361,8 @@ if (!empty($form_submit)) {
     $query = "SELECT " .
       "encounter, date " .
       "FROM form_encounter WHERE " .
-      "pid = '$last_pid' AND facility_id = '$last_facility' " .
+      // "pid = '$last_pid' AND facility_id = '$last_facility' " .
+      "pid = '$last_pid' " .
       "ORDER BY encounter";
 
     // Add('Debug', $query); // debugging
@@ -340,7 +375,8 @@ if (!empty($form_submit)) {
     endClient($last_pid);
   }
 
-  if ($last_facility >= 0) endFacility();
+  // if ($last_facility >= 0) endFacility();
+  endFacility();
 
   header("Pragma: public");
   header("Expires: 0");
