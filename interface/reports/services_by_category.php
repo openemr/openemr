@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -74,6 +74,9 @@ foreach ($code_types as $key => $value) {
    <th class='bold'><?php xl('Mod'        ,'e'); ?></th>
    <th class='bold'><?php xl('Units'      ,'e'); ?></th>
    <th class='bold'><?php xl('Description','e'); ?></th>
+<?php if (related_codes_are_used()) { ?>
+   <th class='bold'><?php xl('Related'    ,'e'); ?></th>
+<?php } ?>
 <?php
 $pres = sqlStatement("SELECT title FROM list_options " .
   "WHERE list_id = 'pricelevel' ORDER BY seq");
@@ -113,6 +116,21 @@ while ($row = sqlFetchArray($res)) {
   echo "   <td class='text'>" . $row['modifier'] . "</td>\n";
   echo "   <td class='text'>" . $row['units'] . "</td>\n";
   echo "   <td class='text'>" . $row['code_text'] . "</td>\n";
+
+  if (related_codes_are_used()) {
+    // Show related codes.
+    echo "   <td class='text'>";
+    $arel = explode(';', $row['related_code']);
+    foreach ($arel as $tmp) {
+      list($reltype, $relcode) = explode(':', $tmp);
+      $reltype = $code_types[$reltype]['id'];
+      $relrow = sqlQuery("SELECT code_text FROM codes WHERE " .
+        "code_type = '$reltype' AND code = '$relcode' LIMIT 1");
+      echo $relcode . ' ' . trim($relrow['code_text']) . '<br />';
+    }
+    echo "</td>\n";
+  }
+
   $pres = sqlStatement("SELECT p.pr_price " .
     "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
     "p.pr_id = '" . $row['id'] . "' AND p.pr_selector = '' " .
