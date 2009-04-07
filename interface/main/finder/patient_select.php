@@ -4,11 +4,8 @@ include_once("$srcdir/patient.inc");
 
 $patient = $_REQUEST['patient'];
 $findBy  = $_REQUEST['findBy'];
+$fstart  = $_REQUEST['fstart'] + 0;
 $MAXSHOW = 100; // maximum number of results to display at once
-
-// this is a quick fix so it doesn't go to thousands records.
-// the searching functions on patient.inc need improvement.
-if ($patient=='') $patient=xl('Please enter some information','e');
 ?>
 
 <html>
@@ -72,22 +69,6 @@ form {
 }
 .oneResult { }
 .billing { color: red; font-weight: bold; }
-#tooManyResults {
-    font-size: 0.8em;
-    font-weight: bold;
-    padding: 1px 1px 10px 1px;
-    font-style: italic;
-    color: black;
-    background-color: #fc0;
-}
-#howManyResults {
-    font-size: 0.8em;
-    font-weight: bold;
-    padding: 1px 1px 10px 1px;
-    font-style: italic;
-    color: black;
-    background-color: #9f6;
-}
 .highlight { 
     background-color: #336699;
     color: white;
@@ -96,34 +77,72 @@ form {
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
 
+<script language="JavaScript">
+
+// This is called when forward or backward paging is done.
+//
+function submitList(offset) {
+ var f = document.forms[0];
+ var i = parseInt(f.fstart.value) + offset;
+ if (i < 0) i = 0;
+ f.fstart.value = i;
+ f.submit();
+}
+
+</script>
+
 </head>
 <body class="body_top">
-<a href="./patient_select_help.php" target=_new>[Help]&nbsp</a>
 
+<form method='post' action='patient_select.php' name='theform'>
+<input type='hidden' name='patient' value='<?php echo $patient ?>'>
+<input type='hidden' name='findBy'  value='<?php echo $findBy  ?>'>
+<input type='hidden' name='fstart'  value='<?php echo $fstart  ?>'>
+</form>
+
+<table border='0' cellpadding='5' cellspacing='0' width='100%'>
+ <tr>
+  <td class='text'>
+   <a href="./patient_select_help.php" target=_new>[Help]&nbsp</a>
+  </td>
+  <td class='text' align='right'>
 <?php
 //the maximum number of patient records to display:
 $sqllimit = $MAXSHOW;
 
 if ($findBy == "Last")
-    $result = getPatientLnames("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
+    $result = getPatientLnames("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit, $fstart);
 else if ($findBy == "ID")
-    $result = getPatientId("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
+    $result = getPatientId("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit, $fstart);
 else if ($findBy == "DOB")
-    $result = getPatientDOB("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
+    $result = getPatientDOB("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit, $fstart);
 else if ($findBy == "SSN")
-    $result = getPatientSSN("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
+    $result = getPatientSSN("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit, $fstart);
 elseif ($findBy == "Phone")                  //(CHEMED) Search by phone number
-    $result = getPatientPhone("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
+    $result = getPatientPhone("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit, $fstart);
+
+// Show start and end row number, and number of rows, with paging links.
+//
+$count = $fstart + $GLOBALS['PATIENT_INC_COUNT'];
+$fend = $fstart + $MAXSHOW;
+if ($fend > $count) $fend = $count;
 ?>
-
-<?php if ($GLOBALS['PATIENT_INC_COUNT'] > $MAXSHOW): ?>
-<span id="tooManyResults">
-<?php else: ?>
-<span id="howManyResults">
-<?php endif; ?>
-<?php echo "Showing " . count($result) . " of " . $GLOBALS['PATIENT_INC_COUNT'] . " records found."; ?></span>
-
-<br>
+<?php if ($fstart) { ?>
+   <a href="javascript:submitList(-<?php echo $MAXSHOW ?>)">
+    &lt;&lt;
+   </a>
+   &nbsp;&nbsp;
+<?php } ?>
+   <?php echo ($fstart + 1) . " - $fend of $count" ?>
+<?php if ($count > $fend) { ?>
+   &nbsp;&nbsp;
+   <a href="javascript:submitList(<?php echo $MAXSHOW ?>)">
+    &gt;&gt;
+   </a>
+<?php } ?>
+  </td>
+ </tr>
+</table>
 
 <div id="searchResultsHeader">
 <table>
@@ -260,11 +279,11 @@ if ($result) {
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
-    $("#searchparm").focus();
-    $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
-    $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
+    // $("#searchparm").focus();
+    $(".oneresult").mouseover(function() { $(this).addClass("highlight"); });
+    $(".oneresult").mouseout(function() { $(this).removeClass("highlight"); });
     $(".oneresult").click(function() { SelectPatient(this); });
-    //$(".event").dblclick(function() { EditEvent(this); });
+    // $(".event").dblclick(function() { EditEvent(this); });
 });
 
 var SelectPatient = function (eObj) {
@@ -274,7 +293,6 @@ var SelectPatient = function (eObj) {
 // will set the pid and load all the other frames.
 if ($GLOBALS['concurrent_layout']) 
 {
-
     // larry :: dbc insert
     if( $GLOBALS['dutchpc'] )
         $newPage = "../../patient_file/summary/demographics_dutch.php?set_pid=";
