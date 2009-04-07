@@ -149,7 +149,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value) {
   echo "<input type='checkbox' name='opt[$opt_line_no][default]' value='1'$checked class='optin' />";
   echo "</td>\n";
 
-  if ($list_id == 'taxrate') {
+  if ($list_id == 'taxrate' || $list_id == 'contrameth') {
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' name='opt[$opt_line_no][value]' value='" .
         htmlspecialchars($value, ENT_QUOTES) . "' size='8' maxlength='15' class='optin' />";
@@ -336,8 +336,10 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Default','e'); ?></b></td>
 <?php if ($list_id == 'taxrate') { ?>
   <td><b><?php xl('Rate'   ,'e'); ?></b></td>
+<?php } else if ($list_id == 'contrameth') { ?>
+  <td><b><?php xl('Effectiveness','e'); ?></b></td>
 <?php } ?>
-<?php } ?>
+<?php } // end not fee sheet ?>
  </tr>
 
 <?php 
