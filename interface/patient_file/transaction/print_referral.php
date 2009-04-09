@@ -28,9 +28,13 @@ else {
 $patient_id = $trow['pid'];
 $refer_date = empty($trow['refer_date']) ? date('Y-m-d') : $trow['refer_date'];
 
-$patdata = getPatientData($patient_id);
-
-$patient_age = getPatientAge(str_replace('-', '', $patdata['DOB']));
+if ($patient_id) {
+  $patdata = getPatientData($patient_id);
+  $patient_age = getPatientAge(str_replace('-', '', $patdata['DOB']));
+} else {
+  $patdata = array('DOB' => '');
+  $patient_age = '';
+}
 
 $frrow = sqlQuery("SELECT * FROM users WHERE id = '" . $trow['refer_from'] . "'");
 if (empty($frrow)) $frrow = array();
@@ -95,6 +99,9 @@ foreach ($torow as $key => $value) {
 foreach ($vrow as $key => $value) {
   $s = str_replace("{v_$key}", $value, $s);
 }
+
+// A final pass to clear any unmatched variables:
+$s = preg_replace('/\{\S+\}/', '', $s);
 
 echo $s;
 ?>
