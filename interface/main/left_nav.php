@@ -892,6 +892,12 @@ function genPopupsList($style='') {
           <?php genPopLink('Daily Record','ippf_daily.php'); ?>
         </ul>
       </li>
+      <li><span><?php xl('Blank Forms','e') ?></span>
+        <ul>
+          <?php genPopLink('Fee Sheet','../patient_file/printed_fee_sheet.php'); ?>
+          <?php genPopLink('Referral','../patient_file/transaction/print_referral.php'); ?>
+        </ul>
+      </li>
 <?php } ?>
       <?php // genTreeLink('RTop','rep','Other'); ?>
     </ul>
