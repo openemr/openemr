@@ -39,7 +39,7 @@ body, td {
 <title>Referral Form</title>
 </head>
 
-<body bgcolor='#ffffff' onload='window.print()'>
+<body bgcolor='#ffffff'>
 
 <!-- The double div resolves a difference between Firefox and IE in treatment of padding. -->
 <div class='borderdiv'><div class='paddingdiv'>
@@ -328,6 +328,11 @@ body, td {
  </table>
 
 </div></div>
+
+<!-- This should really be in the onload handler but that seems to be unreliable and can crash Firefox 3. -->
+<script language='JavaScript'>
+window.print();
+</script>
 
 </body>
 </html>
