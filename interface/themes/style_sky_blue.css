@@ -592,3 +592,10 @@ font-weight: bold;
     padding: 10px;
     border-top: 1px solid gray;
 }
+#addressbook_list tr.evenrow {
+    background-color:#ddddff;
+}
+#addressbook_list tr.oddrow {
+    background-color:#ffffff;
+}
+
