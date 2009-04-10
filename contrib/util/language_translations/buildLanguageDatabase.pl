@@ -105,6 +105,18 @@ print OUTPUTFILE $outputString;
 #
 sub createLanguages() {
 
+ # create table input
+ my $tempReturn;
+ my $tempCounter;
+ my @numberRow = split($de,$inputFileProcessed[$languageNumRow]);
+ my @idRow = split($de,$inputFileProcessed[$languageIdRow]);
+ my @nameRow = split($de,$inputFileProcessed[$languageNameRow]);
+ for (my $i = $constantColumn; $i < @numberRow; $i++) {
+  $tempReturn .= "INSERT INTO `lang_languages` VALUES (".$numberRow[$i].", '".$idRow[$i]."', '".$nameRow[$i]."');\n";
+  $tempCounter = $numberRow[$i];
+ }
+ $tempCounter += 1;
+
  # create header
  my $return = "\
 --
@@ -117,19 +129,14 @@ CREATE TABLE `lang_languages` (
   `lang_code` char(2) character set latin1 NOT NULL default '',
   `lang_description` varchar(100) character set utf8 collate utf8_unicode_ci default NULL,
   UNIQUE KEY `lang_id` (`lang_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=7 ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=".$tempCounter." ;
 \n
 --
 -- Dumping data for table `lang_languages`
 --\n\n";
 
- # create table input
- my @numberRow = split($de,$inputFileProcessed[$languageNumRow]);
- my @idRow = split($de,$inputFileProcessed[$languageIdRow]);
- my @nameRow = split($de,$inputFileProcessed[$languageNameRow]);
- for (my $i = $constantColumn; $i < @numberRow; $i++) {
-  $return .= "INSERT INTO `lang_languages` VALUES (".$numberRow[$i].", '".$idRow[$i]."', '".$nameRow[$i]."');\n";  
- }
+ # insert table input
+ $return .= $tempReturn;
 
  # create footer
  $return .= "
@@ -144,7 +151,19 @@ CREATE TABLE `lang_languages` (
 # return - nothing
 #
 sub createConstants() {
- 
+
+ # create table input
+ my $tempReturn;
+ my $tempCounter; 
+ for (my $i = $constantRow; $i < @inputFileProcessed; $i++) {
+  my @tempRow = split($de,@inputFileProcessed[$i]);
+  my $tempId = $tempRow[$constantIdColumn];
+  my $tempConstant = $tempRow[$constantColumn];
+  $tempReturn .= "INSERT INTO `lang_constants` VALUES (".$tempId.", '".$tempConstant."');\n";
+  $tempCounter = $tempId;
+ }
+ $tempCounter += 1; 
+
  # create header
  my $return = "\
 -- 
@@ -157,19 +176,14 @@ CREATE TABLE `lang_constants` (
   `constant_name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
   UNIQUE KEY `cons_id` (`cons_id`),
   KEY `cons_name` (`constant_name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=2640 ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=".$tempCounter." ;
 \n
 -- 
 -- Dumping data for table `lang_constants`
 --\n\n";
 
- # create table input
- for (my $i = $constantRow; $i < @inputFileProcessed; $i++) {
-  my @tempRow = split($de,@inputFileProcessed[$i]);
-  my $tempId = $tempRow[$constantIdColumn];
-  my $tempConstant = $tempRow[$constantColumn];
-  $return .= "INSERT INTO `lang_constants` VALUES (".$tempId.", '".$tempConstant."');\n"; 
- }
+ # insert table input
+ $return .= $tempReturn;
      
  # create footer
  $return .= "
@@ -186,6 +200,25 @@ CREATE TABLE `lang_constants` (
 #
 sub createDefinitions() {
 
+ # create table input
+ my $tempReturn;
+ my $tempCounter; 
+ my @numberRow = split($de,$inputFileProcessed[$languageNumRow]);
+ my $counter = 1;
+ for (my $i = $constantColumn + 1; $i < @numberRow; $i++) {
+  for (my $j = $constantRow; $j < @inputFileProcessed; $j++) {
+   my @tempRow = split($de,@inputFileProcessed[$j]);
+   my $tempId = $tempRow[$constantIdColumn];
+   my $tempDefinition = $tempRow[$i];
+   if ($tempDefinition !~ /^\s*$/) {
+    $tempReturn .= "INSERT INTO `lang_definitions` VALUES (".$counter.", ".$tempId.", ".$numberRow[$i].", '".$tempDefinition."');\n";
+    $tempCounter = $counter;
+    $counter += 1;
+   }
+  }
+ }
+ $tempCounter += 1;
+
  # create header
  my $return = "\
 -- 
@@ -200,26 +233,14 @@ CREATE TABLE `lang_definitions` (
   `definition` mediumtext character set utf8 collate utf8_unicode_ci,
   UNIQUE KEY `def_id` (`def_id`),
   KEY `definition` (`definition`(100))
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=174 ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=".$tempCounter." ;
 \n
 -- 
 -- Dumping data for table `lang_definitions`
 --\n\n";
 
- # create table input
- my @numberRow = split($de,$inputFileProcessed[$languageNumRow]);
- my $counter = 1;
- for (my $i = $constantColumn + 1; $i < @numberRow; $i++) {
-  for (my $j = $constantRow; $j < @inputFileProcessed; $j++) {
-   my @tempRow = split($de,@inputFileProcessed[$j]);
-   my $tempId = $tempRow[$constantIdColumn];
-   my $tempDefinition = $tempRow[$i];
-   if ($tempDefinition !~ /^\s*$/) {
-    $return .= "INSERT INTO `lang_definitions` VALUES (".$counter.", ".$tempId.", ".$numberRow[$i].", '".$tempDefinition."');\n"; 
-    $counter += 1;
-   }
-  }
- }
+ # insert table input
+ $return .= $tempReturn;
 
  # create footer
  $return .= "
