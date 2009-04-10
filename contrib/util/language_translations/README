@@ -13,18 +13,19 @@ blank_spreadsheet_3-0-1.tsv,  that contains the constants was also created
 by the collectConstants.pl script.  This spreadsheet has been uploaded to
 Google Docs to allow collaborative data entry of languages translations.
 
+The Google Docs spreadsheet after conversion to tsv format is kept in the
+current_spreadsheet.tsv file.  Conversion is done by exporting spreadsheet
+from google docs into open office and then saving as a tab delimited file.
+
 The buildLanguageDatabase.pl builds the foreign language SQL tables dumpfile
 for the lang_languages, lang_constants, and lang_definitions tables from the above
-Google Docs collaborative language translation spreadsheet (spreadsheet is
-downloaded from google docs into open office and then saved as a tab delimited
-file before using as input in this script).
+current_spreadsheet.tsv file.
 
 The stableLanguage.sql holds the tested and stable translation tables dumpfile.
 (no production quality script yet)
 
 The currentLanguage.sql holds current and possibly unstable translation
-tables dumpfile (This was created from the 4/4/2009 collaborative
-Google docs spreadsheet)
+tables dumpfile.
 
 To insert these translation tables into your OpenEMR (please note, this
 is currently experimental and will delete your current translation tables),
