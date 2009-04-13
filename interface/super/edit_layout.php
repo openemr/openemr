@@ -8,6 +8,7 @@
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
+require_once("$srcdir/log.inc");
 
 $layouts = array(
   'DEM' => xl('Demographics'),
@@ -93,6 +94,13 @@ else if ($_POST['formaction']=="addfield" && $layout_id) {
                 ",'".trim($_POST['newlength'])."'". // maxlength = length
                 ")");
 
+    // Add the field to the patient_data table too (this is critical)
+    sqlStatement("ALTER TABLE `patient_data` ADD ".
+                    "`".trim($_POST['newid'])."`".
+                    " VARCHAR( 255 )"
+                );
+    newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], "patient_data ADD ".trim($_POST['newid']));
+
 }
 
 else if ($_POST['formaction']=="deletefield" && $layout_id) {
@@ -102,6 +110,10 @@ else if ($_POST['formaction']=="deletefield" && $layout_id) {
                 " AND field_id = '".$_POST['deletefieldid']."'".
                 " AND group_name = '".$_POST['deletefieldgroup']."'"
                 );
+    sqlStatement("ALTER TABLE `patient_data` DROP ".
+                    "`".$_POST['deletefieldid']."`"
+                );
+    newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], "patient_data DROP ".trim($_POST['deletefieldid']));
 }
 
 else if ($_POST['formaction']=="addgroup" && $layout_id) {
@@ -216,7 +228,7 @@ function writeFieldLine($linedata) {
   
     echo "  <td align='left' class='optcell'>";
     echo "<input type='text' name='fld[$fld_line_no][id]' value='" .
-         htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' size='20' maxlength='63' class='optin noselect' />";
+         htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' size='15' maxlength='63' class='optin noselect' />";
     /*
     echo "<input type='hidden' name='fld[$fld_line_no][id]' value='" .
          htmlspecialchars($linedata['field_id'], ENT_QUOTES) . "' />";
@@ -226,7 +238,7 @@ function writeFieldLine($linedata) {
   
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' id='fld[$fld_line_no][title]' name='fld[$fld_line_no][title]' value='" .
-         htmlspecialchars($linedata['title'], ENT_QUOTES) . "' size='20' maxlength='63' class='optin' />";
+         htmlspecialchars($linedata['title'], ENT_QUOTES) . "' size='15' maxlength='63' class='optin' />";
     echo "</td>\n";
 
     echo "  <td align='center' class='optcell'>";
