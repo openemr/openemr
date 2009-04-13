@@ -94,12 +94,18 @@ else if ($_POST['formaction']=="addfield" && $layout_id) {
                 ",'".trim($_POST['newlength'])."'". // maxlength = length
                 ")");
 
-    // Add the field to the patient_data table too (this is critical)
-    sqlStatement("ALTER TABLE `patient_data` ADD ".
+    // Add the field to the table too (this is critical)
+    if ($layout_id == "DEM") { $tablename = "patient_data"; }
+    else if ($layout_id == "HIS") { $tablename = "history_data"; }
+    else if ($layout_id == "REF") { $tablename = "transactions"; }
+    else if ($layout_id == "SRH") { $tablename = "lists_ippf_srh"; }
+    else if ($layout_id == "CON") { $tablename = "lists_ippf_con"; }
+    else if ($layout_id == "GCA") { $tablename = "lists_ippf_gcac"; }
+    sqlStatement("ALTER TABLE `".$tablename."` ADD ".
                     "`".trim($_POST['newid'])."`".
                     " VARCHAR( 255 )"
                 );
-    newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], "patient_data ADD ".trim($_POST['newid']));
+    newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], $tablename." ADD ".trim($_POST['newid']));
 
 }
 
@@ -110,10 +116,16 @@ else if ($_POST['formaction']=="deletefield" && $layout_id) {
                 " AND field_id = '".$_POST['deletefieldid']."'".
                 " AND group_name = '".$_POST['deletefieldgroup']."'"
                 );
-    sqlStatement("ALTER TABLE `patient_data` DROP ".
-                    "`".$_POST['deletefieldid']."`"
-                );
-    newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], "patient_data DROP ".trim($_POST['deletefieldid']));
+
+    // drop the field from the table too (this is critical) 
+    if ($layout_id == "DEM") { $tablename = "patient_data"; }
+    else if ($layout_id == "HIS") { $tablename = "history_data"; }
+    else if ($layout_id == "REF") { $tablename = "transactions"; }
+    else if ($layout_id == "SRH") { $tablename = "lists_ippf_srh"; }
+    else if ($layout_id == "CON") { $tablename = "lists_ippf_con"; }
+    else if ($layout_id == "GCA") { $tablename = "lists_ippf_gcac"; }
+    sqlStatement("ALTER TABLE `".$tablename."` DROP `".$_POST['deletefieldid']."`");
+    newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], $tablename." DROP ".trim($_POST['deletefieldid']));
 }
 
 else if ($_POST['formaction']=="addgroup" && $layout_id) {
