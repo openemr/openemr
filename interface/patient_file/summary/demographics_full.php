@@ -216,6 +216,40 @@ function trimlen(s) {
 
 function validate(f) {
 <?php generate_layout_validation('DEM'); ?>
+
+// Some insurance validation.
+ for (var i = 1; i <= 3; ++i) {
+  subprov = 'i' + i + 'provider';
+  if (!f[subprov] || f[subprov].selectedIndex <= 0) continue;
+  var subpfx = 'i' + i + 'subscriber_';
+  var subrelat = f[subpfx + 'relationship'];
+  var samename =
+   f[subpfx + 'fname'].value == f.form_fname.value &&
+   f[subpfx + 'mname'].value == f.form_mname.value &&
+   f[subpfx + 'lname'].value == f.form_lname.value;
+  var samess = f[subpfx + 'ss'].value == f.form_ss.value;
+  if (subrelat.options[subrelat.selectedIndex].value == "self") {
+   if (!samename) {
+    if (!confirm('Subscriber relationship is self but name is different! Is this really OK?'))
+     return false;
+   }
+   if (!samess) {
+    alert('Subscriber relationship is self but SS number is different!');
+    return false;
+   }
+  } // end self
+  else {
+   if (samename) {
+    if (!confirm('Subscriber relationship is not self but name is the same! Is this really OK?'))
+     return false;
+   }
+   if (samess) {
+    alert('Subscriber relationship is not self but SS number is the same!');
+    return false;
+   }
+  } // end not self
+ } // end for
+
  return true;
 }
 
