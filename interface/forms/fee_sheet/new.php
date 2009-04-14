@@ -40,6 +40,33 @@ function genDiagJS($code_type, $code) {
   }
 }
 
+// For IPPF only.  Returns 0 = none, 1 = nonsurgical, 2 = surgical.
+//
+function contraceptionClass($code_type, $code) {
+  global $code_types;
+  if (!$GLOBALS['ippf_specific']) return 0;
+  $contra = 0;
+  // Get the related service codes.
+  $codesrow = sqlQuery("SELECT related_code FROM codes WHERE " .
+    "code_type = '" . $code_types[$code_type]['id'] .
+    "' AND code = '$code' LIMIT 1");
+  if (!empty($codesrow['related_code']) && $code_type == 'MA') {
+    $relcodes = explode(';', $codesrow['related_code']);
+    foreach ($relcodes as $relstring) {
+      if ($relstring === '') continue;
+      list($reltype, $relcode) = explode(':', $relstring);
+      if ($reltype !== 'IPPF') continue;
+      if      (preg_match('/^11....110/'    , $relcode)) $contra |= 1;
+      else if (preg_match('/^11....999/'    , $relcode)) $contra |= 1;
+      else if (preg_match('/^112152010/'    , $relcode)) $contra |= 1;
+      else if (preg_match('/^11317[1-2]111/', $relcode)) $contra |= 1;
+      else if (preg_match('/^12118[1-2].13/', $relcode)) $contra |= 2;
+      else if (preg_match('/^12118[1-2]999/', $relcode)) $contra |= 2;
+    }
+  }
+  return $contra;
+}
+
 // This writes a billing line item to the output page.
 //
 function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
@@ -47,6 +74,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
   $billed = FALSE, $code_text = NULL, $justify = NULL)
 {
   global $code_types, $ndc_applies, $ndc_uom_choices, $justinit, $pid;
+  global $contraception;
 
   if ($codetype == 'COPAY') {
     if (!$code_text) $code_text = 'Cash';
@@ -202,6 +230,9 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
     echo "  <td class='billcell' colspan='6'>&nbsp;NDC Data: $ndc_info</td>\n";
     echo " </tr>\n";
   }
+
+  // For IPPF.  Track contraceptive services.
+  if (!$del) $contraception |= contraceptionClass($codetype, $code);
 }
 
 // This writes a product (drug_sales) line item to the output page.
@@ -211,33 +242,8 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
 {
   global $code_types, $ndc_applies, $pid;
 
-  /*******************************************************************
-  list ($drug_id, $selector) = explode(':', $drugsel);
-  if (! $units) { // if this is a new selection then apply defaults for it
-    $query = "SELECT dt.*, d.name FROM drug_templates, drugs WHERE " .
-      "dt.drug_id = '$drug_id' AND dt.selector = '$selector' AND " .
-      "d.drug_id = dt.drug_id";
-    $result = sqlQuery($query);
-    $code_text = $result['name'] . " ($selector)";
-    if (empty($units)) $units = max(1, intval($result['quantity']));
-    if (!isset($fee)) {
-      // Fees come from the prices table:
-      $query = "SELECT prices.pr_price " .
-        "FROM patient_data, prices WHERE " .
-        "patient_data.pid = '$pid' AND " .
-        "prices.pr_id = '$drug_id' AND " .
-        "prices.pr_selector = '$selector' AND " .
-        "prices.pr_level = patient_data.pricelevel " .
-        "LIMIT 1";
-      // echo "\n<!-- $query -->\n"; // debugging
-      $prrow = sqlQuery($query);
-      $fee = empty($prrow) ? 0 : $prrow['pr_price'];
-    }
-  }
-  *******************************************************************/
   $drow = sqlQuery("SELECT name FROM drugs WHERE drug_id = '$drug_id'");
   $code_text = $drow['name'];
-  /******************************************************************/
 
   $fee = sprintf('%01.2f', $fee);
   if (empty($units)) $units = 1;
@@ -290,6 +296,9 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
   echo " </tr>\n";
 }
 
+// This is just for IPPF, to indicate if the visit includes contraceptive services.
+$contraception = 0;
+
 // Possible units of measure for NDC drug quantities.
 //
 $ndc_uom_choices = array(
@@ -310,6 +319,12 @@ if (!empty($_POST['pricelevel'])) {
     $_POST['pricelevel'] . "' WHERE pid = '$pid'");
 }
 
+// Get some info about this visit.
+$visit_row = sqlQuery("SELECT fe.date, opc.pc_catname " .
+  "FROM form_encounter AS fe " .
+  "LEFT JOIN openemr_postcalendar_categories AS opc ON opc.pc_catid = fe.pc_catid " .
+  "WHERE fe.pid = '$pid' AND fe.encounter = '$encounter' LIMIT 1");
+
 // If Save was clicked, save the new and modified billing lines;
 // then if no error, redirect to $returnurl.
 //
@@ -320,13 +335,19 @@ if ($_POST['bn_save']) {
   $bill = $_POST['bill'];
   for ($lino = 1; $bill["$lino"]['code_type']; ++$lino) {
     $iter = $bill["$lino"];
+    $code_type = $iter['code_type'];
+    $code      = $iter['code'];
+    $del       = $iter['del'];
+
+    // Get some information about this service code.
+    $codesrow = sqlQuery("SELECT code_text FROM codes WHERE " .
+      "code_type = '" . $code_types[$code_type]['id'] .
+      "' AND code = '$code' LIMIT 1");
 
     // Skip disabled (billed) line items.
     if ($iter['billed']) continue;
 
     $id        = $iter['id'];
-    $code_type = $iter['code_type'];
-    $code      = $iter['code'];
     $modifier  = trim($iter['mod']);
     $units     = max(1, intval(trim($iter['units'])));
     $fee       = sprintf('%01.2f',(0 + trim($iter['price'])) * $units);
@@ -338,7 +359,6 @@ if ($_POST['bn_save']) {
     if ($justify) $justify = str_replace(',', ':', $justify) . ':';
     // $auth      = $iter['auth'] ? "1" : "0";
     $auth      = "1";
-    $del       = $iter['del'];
 
     $ndc_info = '';
     if ($iter['ndcnum']) {
@@ -363,22 +383,7 @@ if ($_POST['bn_save']) {
 
     // Otherwise it's a new item...
     else if (! $del) {
-      /***************************************************************
-      $query = "select code_text from codes where code_type = '" .
-        $code_types[$code_type]['id'] . "' and " .
-        "code = '$code' and ";
-      if ($modifier) {
-        $query .= "modifier = '$modifier'";
-      } else {
-        $query .= "(modifier is null or modifier = '')";
-      }
-      ***************************************************************/
-      // I think now we should not try to match on the modifier here.
-      $query = "SELECT code_text FROM codes WHERE code_type = '" .
-        $code_types[$code_type]['id'] . "' AND code = '$code' LIMIT 1";
-      /**************************************************************/
-      $result = sqlQuery($query);
-      $code_text = addslashes($result['code_text']);
+      $code_text = addslashes($codesrow['code_text']);
       addBilling($encounter, $code_type, $code, $code_text, $pid, $auth,
         $provid, $modifier, $units, $fee, $ndc_info, $justify);
     }
@@ -438,11 +443,11 @@ if ($_POST['bn_save']) {
     "forms.pid = '$pid' AND forms.encounter = '$encounter' AND " .
     "forms.formdir = 'newpatient' AND users.id = '$provid'");
 
-  // This part exists for IPPF clinics and will not be invoked unless
-  // contrastart is enabled in the demographics layout.
+  // More IPPF stuff.
   if (!empty($_POST['contrastart'])) {
+    $contrastart = $_POST['contrastart'];
     sqlStatement("UPDATE patient_data SET contrastart = '" .
-      $_POST['contrastart'] . "' WHERE pid = '$pid'");
+      $contrastart . "' WHERE pid = '$pid'");
   }
 
   // Note: Taxes are computed at checkout time (in pos_checkout.php which
@@ -958,21 +963,28 @@ if ($encounter_provid < 0) $encounter_provid = $_SESSION["authUserID"];
 // If applicable, ask for the contraceptive services start date.
 $trow = sqlQuery("SELECT count(*) AS count FROM layout_options WHERE " .
   "form_id = 'DEM' AND field_id = 'contrastart' AND uor > 0");
-if ($trow['count'] && !$isBilled) {
-  $trow = sqlQuery("SELECT contrastart " .
-    "FROM patient_data WHERE " .
-    "pid = '$pid' LIMIT 1");
-  if (empty($trow['contrastart']) || substr($trow['contrastart'], 0, 4) == '0000') {
-    $trow = sqlQuery("SELECT date FROM form_encounter WHERE " .
-      "pid = '$pid' AND encounter = '$encounter' LIMIT 1");
-    $date1 = substr($trow['date'], 0, 10);
-    $date0 = date('Y-m-d', strtotime($date1) - (60 * 60 * 24));
-    echo "   <select name='contrastart'>\n";
-    echo "    <option value='$date1'>" . xl('This visit begins new contraceptive use') . "</option>\n";
-    echo "    <option value='$date0'>" . xl('Contraceptive services previously started') . "</option>\n";
-    echo "    <option value=''>" . xl('None of the above') . "</option>\n";
-    echo "   </select>\n";
-    echo "&nbsp; &nbsp; &nbsp;\n";
+if ($trow['count'] && $contraception && !$isBilled) {
+  $date1 = substr($visit_row['date'], 0, 10);
+  // If admission or surgical, then force contrastart.
+  if ($contraception > 1 ||
+    strpos(strtolower($visit_row['pc_catname']), 'admission') !== false)
+  {
+    echo "   <input type='hidden' name='contrastart' value='$date1' />\n";
+  }
+  else {
+    echo "<!-- contraception = $contraception -->\n"; // debugging
+    $trow = sqlQuery("SELECT contrastart " .
+      "FROM patient_data WHERE " .
+      "pid = '$pid' LIMIT 1");
+    if (empty($trow['contrastart']) || substr($trow['contrastart'], 0, 4) == '0000') {
+      $date0 = date('Y-m-d', strtotime($date1) - (60 * 60 * 24));
+      echo "   <select name='contrastart'>\n";
+      echo "    <option value='$date1'>" . xl('This visit begins new contraceptive use') . "</option>\n";
+      echo "    <option value='$date0'>" . xl('Contraceptive services previously started') . "</option>\n";
+      echo "    <option value=''>" . xl('None of the above') . "</option>\n";
+      echo "   </select>\n";
+      echo "&nbsp; &nbsp; &nbsp;\n";
+    }
   }
 }
 
