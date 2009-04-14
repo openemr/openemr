@@ -311,7 +311,7 @@ Calendar.setup({inputField:"form_onset_date", ifFormat:"%Y-%m-%d", button:"img_f
 if (!$viewmode) {
   $erow = sqlQuery("SELECT count(*) AS count " .
     "FROM form_encounter AS fe, forms AS f WHERE " .
-    "fe.date = '" . date('Y-m-d 00:00:00') . "' AND " .
+    "fe.pid = '$pid' AND fe.date = '" . date('Y-m-d 00:00:00') . "' AND " .
     "f.formdir = 'newpatient' AND f.form_id = fe.id AND f.deleted = 0");
   if ($erow['count'] > 0) {
     echo "alert('" . xl('Warning: A visit was already created for this patient today!') . "');\n";
