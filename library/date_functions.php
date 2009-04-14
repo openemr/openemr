@@ -3,7 +3,7 @@
 // dateformat
 //
 // return a formated string for date
-// @args:	none (it use LANGUAGE constant from globals.php)
+// @args:	none (it uses $_SESSION['language_choice'] )
 // @return:	$date_string (string) - formated string
 // Cristian Navalici lemonsoftware at gmail dot com
 //
@@ -59,7 +59,7 @@ switch ($month) {
 $nom .= " "; 
 
 // Date string format
-switch (LANGUAGE) {
+switch ($_SESSION['language_choice']) {
 	// english
   case 1:
     $dt = date ("F j, Y", $strtime);

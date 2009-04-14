@@ -4,20 +4,55 @@ Multi Language Tool.
 
 This module has very few components to care about.
 
-The first one is the following lines you can find at globals.php
+The first one is the following settings you can find at globals.php. These
+settings allow you to toggle on/off the login language menu, control what
+is in this menu, and set the default language.
 
-//Language Control Section (will add toggling)
-//English:1, Swedish:2, Spanish:3, German:4,
-define (LANGUAGE,1);
-
-By changing the number, you change the default language.
-At a click language toggling capabilities will be added in the future.
+// Language Control Section
+//
+//  Current supported languages:
+//   English
+//   Swedish
+//   Spanish
+//   German
+//   Dutch
+//   Hebrew
+//   French
+//   Norwegian
+//
+//  'language_menu_login' toggle
+//    -If set to true then will allow language selection on login
+//    -If set to false then will not show menu in login and will use default
+(see below)
+$GLOBALS['language_menu_login'] = true;
+//
+//  'language_menu_all' toggle
+//    -If set to true then show all languages in login menu
+//    -If set to false then only show chosen (see below) languages in login
+menu
+$GLOBALS['language_menu_showall'] = true;
+//
+//  'language_menu_show' array
+//    -ONLY pertinent if above 'language_menu_all' toggle is set to false
+//    -Displays these chosen languages in the login menu
+$GLOBALS['language_menu_show'] = array('English','Swedish');
+//
+//  'language_default'
+//    -Sets the default language
+//    -If login menu is on, then it will highlight this choice in menu
+//    -If login menu is off, then it will choose this language
+$GLOBALS['language_default'] = "English";
 
 The second thing is the module itself.
-By default we have English, Swedish, and Spanish loaded as languages.
-But not all the translation is done yet.
+The translations are an ongoing project.  If you would like to add a
+language, help with a current language, or add a custom constant, please contact us.  We use a
+collaborative Google Docs spreadsheet to allow you to enter your
+translations which we then convert to the mysql tables.  This process has
+become very streamlined with a fast turnaround time, so we would suggest
+you enter data on this collaborative spreadsheet rather than entering into your local OpenEMR
+installation only.
 
-The options are.
+The options in the admin->language menu are.
 Add Language: You get a box to enter a new language.
 
 Add Constant: You get a box to add a new string to be used in the translation function, this one should be used only if you know what you are doing, mostly, if you added some custom programming with new text output. The "constant" string can be literally what you want to say or a shorter reference to it.
@@ -26,6 +61,7 @@ Edit Definitions: English is used as the reference language, if you click the En
 
 If you click other label than English, you get a set of all constants, the English definition at the side, and an input box to enter/modify the definition in the selected language.
 
+For Developers:
 The translation is done by the xl() custom function.
 Its semantics are very simple.
 

@@ -87,7 +87,7 @@ class Controller extends Smarty {
                $args = array_reverse($args);
 
                // load dutch version for C_Prescription.class
-               if ( (LANGUAGE == '5') && ($c_name == "Prescription") ) $c_name .= 'dutch';
+               if ( ($GLOBALS['dutchpc']) && ($c_name == "Prescription") ) $c_name .= 'dutch';
 
                if(!@call_user_func(array(Controller,"i_once"),$GLOBALS['fileroot'] ."/controllers/C_" . $c_name . ".class.php")) {
                        echo "Unable to load controller $name\n, please check the first argument supplied in the URL and try again";

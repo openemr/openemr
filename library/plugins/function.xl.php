@@ -32,7 +32,7 @@ function smarty_function_xl($params, &$smarty)
         	$translate = $params['t'];
 	}
 
-	$lang_id = LANGUAGE;
+	$lang_id = $_SESSION['language_choice'];
 	$sql = "SELECT * FROM lang_definitions JOIN lang_constants ON " .
     	"lang_definitions.cons_id = lang_constants.cons_id WHERE " .
     	"lang_id='$lang_id' AND constant_name = '" .

@@ -9,6 +9,14 @@ require_once("{$GLOBALS['srcdir']}/acl.inc");
 if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
     isset($_POST['authPass']) && isset($_POST['authProvider']))
 {
+    // set the language
+    if (isset($_POST['languageChoice'])) {
+        $_SESSION['language_choice'] = $_POST['languageChoice'];
+    }
+    else {
+        $_SESSION['language_choice'] = 1;
+    }
+
     $ip=$_SERVER['REMOTE_ADDR'];
     if (!authNewSession($_POST['authUser'], $_POST['authPass'], $_POST['authProvider']))
     {

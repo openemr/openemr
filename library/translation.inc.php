@@ -5,19 +5,33 @@ include_once(dirname(__FILE__) . '/sql.inc'); // fixes vulnerability with regist
 // this function is related to the interface/language module.
 
 function xl($constant,$mode='r',$prepend='',$append='') {
-	$lang_id=LANGUAGE;
-	
-	// utf8 compliant
-  if ($GLOBALS['use_set_names_utf8']) sqlQuery("SET NAMES utf8");
+        // set language id
+        if (isset($_SESSION['language_choice'])) {
+	        $lang_id=$_SESSION['language_choice'];
+	}
+        else {
+	        $lang_id=1;
+	} 
+    
+	if ($lang_id == 1) {
+	        // language id = 1, so no need to translate
+	        $string=$constant;
+	}
+	else {
+	        // attempt translation
+	        // utf8 compliant
+                if ($GLOBALS['use_set_names_utf8']) sqlQuery("SET NAMES utf8");
     
 	$sql="SELECT * FROM lang_definitions JOIN lang_constants ON " .
     "lang_definitions.cons_id = lang_constants.cons_id WHERE " .
     "lang_id='$lang_id' AND constant_name = '" .
     addslashes($constant) . "' LIMIT 1";
-	$res=SqlStatement($sql);
-	$row=SqlFetchArray($res);
-	$string=$row['definition'];
-	if ($string=='') { $string="$constant"; }
+	        $res=SqlStatement($sql);
+	        $row=SqlFetchArray($res);
+	        $string=$row['definition'];
+	        if ($string=='') { $string="$constant"; }
+        }
+    
 	$string="$prepend"."$string"."$append";
 	if ($mode=='e'){
 		echo $string;

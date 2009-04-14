@@ -20,6 +20,7 @@ $checkPermissions = "TRUE";
 // installers)
 $manualPath = "";
 $dumpfile = $manualPath."sql/database.sql";
+$translations_dumpfile = $manualPath."contrib/util/language_translations/currentLanguage.sql"; //will use stable during production releases
 $icd9 = $manualPath."sql/icd9.sql";
 $conffile = $manualPath."library/sqlconf.php";
 $conffile2 = $manualPath."interface/globals.php";
@@ -41,6 +42,8 @@ $gaclSetupScript2 = $manualPath."acl_setup.php";
 $writableFileList = array($conffile, $conffile2, $gaclConfigFile1, $gaclConfigFile2);
 $writableDirList = array($docsDirectory, $billingDirectory, $billingDirectory2, $billingLogDirectory, $lettersDirectory, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
 
+//These are the dumpfiles that are loaded into database
+$dumpfiles = array($dumpfile, $translations_dumpfile);
 
 include_once($conffile);
 ?>
@@ -264,10 +267,11 @@ else
 	echo "OK.<br>\n";
 	flush();
 if ($upgrade != 1) {
-	echo "Creating initial tables...\n";
+    foreach ($dumpfiles as $var) {
+        echo "Creating initial tables...\n";
 	mysql_query("USE $dbname",$dbh);
 	flush();
-	$fd = fopen($dumpfile, 'r');
+	$fd = fopen($var, 'r');
 	if ($fd == FALSE) {
 		echo "ERROR.  Could not open dumpfile '$dumpfile'.\n";
 		flush();
@@ -295,6 +299,7 @@ if ($upgrade != 1) {
 	echo "OK<br>\n";
 	fclose($fd);
 	flush();
+    }
 	echo "Adding Initial User...\n";
 	flush();
 	//echo "INSERT INTO groups VALUES (1,'$igroup','$iuser')<br>\n";

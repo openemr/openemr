@@ -52,7 +52,7 @@ function selfl() {
 
 
 <?php
-if ( LANGUAGE == 5 ) $pres = "prescriptiondutch";
+if ($GLOBALS['dutchpc']) $pres = "prescriptiondutch";
 else $pres = "prescription";
 ?>
 

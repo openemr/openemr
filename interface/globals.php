@@ -74,9 +74,39 @@ $GLOBALS['incdir'] = $include_root;
 // Location of the login screen file
 $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
 
-// Language Control Section (will add toggling)
-// English:1, Swedish:2, Spanish:3, German:4, Dutch:5, Hebrew:6
-define ('LANGUAGE',1);
+// Language Control Section
+//
+//  Current supported languages:
+//   English
+//   Swedish
+//   Spanish
+//   German
+//   Dutch
+//   Hebrew
+//   French
+//   Norwegian
+//
+//  'language_menu_login' toggle
+//    -If set to true then will allow language selection on login
+//    -If set to false then will not show menu in login and will use default (see below)
+$GLOBALS['language_menu_login'] = true;
+//
+//  'language_menu_all' toggle
+//    -If set to true then show all languages in login menu
+//    -If set to false then only show chosen (see below) languages in login menu
+$GLOBALS['language_menu_showall'] = true;
+//
+//  'language_menu_show' array
+//    -ONLY pertinent if above 'language_menu_all' toggle is set to false
+//    -Displays these chosen languages in the login menu
+$GLOBALS['language_menu_show'] = array('English','Swedish');
+//
+//  'language_default'
+//    -Sets the default language
+//    -If login menu is on, then it will be the 'Default' choice in menu
+//    -If login menu is off, then it will choose this language
+$GLOBALS['language_default'] = "English";
+  
 include_once (dirname(__FILE__) . "/../library/translation.inc.php");
 
 include_once (dirname(__FILE__) . "/../library/date_functions.php");
@@ -98,7 +128,7 @@ session_start();
 // 1 = Navigation menu consists of pairs of radio buttons
 // 2 = Navigation menu is a tree view
 //
-$GLOBALS['concurrent_layout'] = 1;
+$GLOBALS['concurrent_layout'] = 2;
 
 // If >0 this will enforce a separate PHP session for each top-level
 // browser window.  You must log in separately for each.  This is not

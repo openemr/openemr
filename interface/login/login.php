@@ -35,12 +35,37 @@ function imsubmitted() {
  name="login_form" onsubmit="return imsubmitted();">
 
 <?php
+// collect groups
 $res = sqlStatement("select distinct name from groups");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
 	$result[$iter] = $row;
 if (count($result) == 1) {
 	$resvalue = $result[0]{"name"};
 	echo "<input type='hidden' name='authProvider' value='$resvalue' />\n";
+}
+// collect default language id
+$res2 = sqlStatement("select lang_id from lang_languages where lang_description = '".$GLOBALS['language_default']."'");
+for ($iter = 0;$row = sqlFetchArray($res2);$iter++)
+          $result2[$iter] = $row;
+if (count($result2) == 1) {
+          $defaultLanguage = $result2[0]{"lang_id"};
+}
+else {
+          //default to english if any problems
+          $defaultLanguage = 1;
+}
+// collect languages if showing language menu
+if ($GLOBALS['language_menu_login']) {
+        $res3 = sqlStatement("select * from lang_languages");
+        for ($iter = 0;$row = sqlFetchArray($res3);$iter++)
+               $result3[$iter] = $row;
+        if (count($result3) == 1) {
+	       //default to english if only return one language
+               echo "<input type='hidden' name='languageChoice' value='1' />\n";
+        }
+}
+else {
+        echo "<input type='hidden' name='languageChoice' value='".$defaultLanguage."' />\n";   
 }
 ?>
 
@@ -80,6 +105,31 @@ Invalid username or password
 <td>
 <input type="password" size="10" name="clearPass">
 </td></tr>
+
+<?php
+if ($GLOBALS['language_menu_login']) {
+if (count($result3) != 1) { ?>
+<tr>
+<td><span class="text"><?php xl('Language:','e'); ?></span></td>
+<td>
+<select name=languageChoice size="1">
+<?php
+        echo "<option selected='selected' value='".$defaultLanguage."'>Default</option>\n";
+        foreach ($result3 as $iter) {
+	        if ($GLOBALS['language_menu_showall']) {
+                    echo "<option value='".$iter[lang_id]."'>".$iter[lang_description]."</option>\n";
+		}
+	        else {
+		    if (in_array($iter[lang_description], $GLOBALS['language_menu_show'])) {
+		        echo "<option value='".$iter[lang_id]."'>".$iter[lang_description]."</option>\n";
+		    }
+		}
+        }
+?>
+</select>
+</td></tr>
+<?php }} ?>
+
 <tr><td>&nbsp;</td><td>
 <input type="hidden" name="authPass">
 <?php if ($GLOBALS['use_adldap_auth'] == true): ?>
