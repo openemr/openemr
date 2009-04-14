@@ -850,7 +850,9 @@ function genPopupsList($style='') {
           <?php genPopLink('Appointments','appointments_report.php'); ?>
           <?php genPopLink('Encounters','encounters_report.php'); ?>
           <?php genPopLink('Appt-Enc','appt_encounter_report.php'); ?>
+<?php if (empty($GLOBALS['code_types']['IPPF'])) { ?>
           <?php genPopLink('Superbill','custom_report_range.php'); ?>
+<?php } ?>
           <?php genPopLink('Chart Activity','chart_location_activity.php'); ?>
           <?php genPopLink('Charts Out','charts_checked_out.php'); ?>
         </ul>
