@@ -223,13 +223,13 @@ foreach ($DOWlist as $dow) {
 $atmp = array_keys($A_EVENTS);
 $caldate = strtotime($atmp[0]);
 $caldateEnd = strtotime($atmp[6]);
+
 // to make a complete week row we need to compute the real
 // start and end dates for the view
 list ($year, $month, $day) = explode(" ", date('Y m d', $caldate));
 $startdate = strtotime($year.$month."01");
+$enddate = strtotime($year.$month.date("t", $startdate)." 23:59");
 while (date('w', $startdate) != $DOWlist[0]) { $startdate -= 60*60*24; }
-
-$enddate = strtotime($year.$month.date("t", $prevmonth)." 23:59");
 while (date('w', $enddate) != $DOWlist[6]) { $enddate += 60*60*24; }
 
 $currdate = $startdate;
