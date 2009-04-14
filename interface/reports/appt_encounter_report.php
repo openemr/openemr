@@ -313,7 +313,7 @@
      if ($brow['fee'] >= 0) $errmsg = "Copay not positive";
     } else if ($code_types[$brow['code_type']]['fee']) {
      $charges += $brow['fee'];
-     if ($brow['fee'] == 0 ) $errmsg = "Missing Fee";
+     if ($brow['fee'] == 0 && !$GLOBALS['ippf_specific']) $errmsg = "Missing Fee";
     } else {
      if ($brow['fee'] != 0) $errmsg = "Fee is not allowed";
     }
