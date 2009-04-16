@@ -44,19 +44,21 @@ if (count($result) == 1) {
 	echo "<input type='hidden' name='authProvider' value='$resvalue' />\n";
 }
 // collect default language id
-$res2 = sqlStatement("select lang_id from lang_languages where lang_description = '".$GLOBALS['language_default']."'");
+$res2 = sqlStatement("select * from lang_languages where lang_description = '".$GLOBALS['language_default']."'");
 for ($iter = 0;$row = sqlFetchArray($res2);$iter++)
           $result2[$iter] = $row;
 if (count($result2) == 1) {
-          $defaultLanguage = $result2[0]{"lang_id"};
+          $defaultLangID = $result2[0]{"lang_id"};
+          $defaultLangName = $result2[0]{"lang_description"};
 }
 else {
           //default to english if any problems
-          $defaultLanguage = 1;
+          $defaultLangID = 1;
+          $defaultLangName = "English";
 }
 // collect languages if showing language menu
 if ($GLOBALS['language_menu_login']) {
-        $res3 = sqlStatement("select * from lang_languages");
+        $res3 = sqlStatement("select * from lang_languages order by lang_description");
         for ($iter = 0;$row = sqlFetchArray($res3);$iter++)
                $result3[$iter] = $row;
         if (count($result3) == 1) {
@@ -114,7 +116,7 @@ if (count($result3) != 1) { ?>
 <td>
 <select name=languageChoice size="1">
 <?php
-        echo "<option selected='selected' value='".$defaultLanguage."'>Default</option>\n";
+        echo "<option selected='selected' value='".$defaultLangID."'>Default (".$defaultLangName.")</option>\n";
         foreach ($result3 as $iter) {
 	        if ($GLOBALS['language_menu_showall']) {
                     echo "<option value='".$iter[lang_id]."'>".$iter[lang_description]."</option>\n";

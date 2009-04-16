@@ -77,14 +77,15 @@ $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
 // Language Control Section
 //
 //  Current supported languages:
-//   English
-//   Swedish
-//   Spanish
-//   German
+//   Chinese (experimental)
 //   Dutch
-//   Hebrew
+//   English
 //   French
+//   German
+//   Hebrew
 //   Norwegian
+//   Spanish
+//   Swedish
 //
 //  'language_menu_login' toggle
 //    -If set to true then will allow language selection on login
