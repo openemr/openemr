@@ -31,16 +31,27 @@ function thisLineItem($patient_id, $encounter_id, $memo, $transdate,
   $rowmethod, $rowpayamount, $rowadjamount)
 {
   global $form_report_by, $insarray, $grandpaytotal, $grandadjtotal;
-  if ($form_report_by != '1' || $_POST['form_details']) {
+
+  if ($form_report_by != '1') { // reporting by method or check number
     showLineItem($patient_id, $encounter_id, $memo, $transdate,
       $rowmethod, $rowpayamount, $rowadjamount);
     return;
   }
-  if (empty($insarray[$rowmethod])) $insarray[$rowmethod] = array(0, 0);
-  $insarray[$rowmethod][0] += $rowpayamount;
-  $insarray[$rowmethod][1] += $rowadjamount;
-  $grandpaytotal  += $rowpayamount;
-  $grandadjtotal  += $rowadjamount;
+
+  // Reporting by payer.
+  //
+  if ($_POST['form_details']) { // details are wanted
+    // Save everything for later sorting.
+    $insarray[] = array($patient_id, $encounter_id, $memo, $transdate,
+      $rowmethod, $rowpayamount, $rowadjamount);
+  }
+  else { // details not wanted
+    if (empty($insarray[$rowmethod])) $insarray[$rowmethod] = array(0, 0);
+    $insarray[$rowmethod][0] += $rowpayamount;
+    $insarray[$rowmethod][1] += $rowadjamount;
+    $grandpaytotal  += $rowpayamount;
+    $grandadjtotal  += $rowadjamount;
+  }
 }
 
 function showLineItem($patient_id, $encounter_id, $memo, $transdate,
@@ -106,6 +117,16 @@ function showLineItem($patient_id, $encounter_id, $memo, $transdate,
   $grandpaytotal  += $rowpayamount;
   $methodadjtotal += $rowadjamount;
   $grandadjtotal  += $rowadjamount;
+}
+
+// This is called by usort() when reporting by payer with details.
+// Sorts by payer/date/patient/encounter.
+function payerCmp($a, $b) {
+  foreach (array(4,3,0,1) as $i) {
+    if ($a[$i] < $b[$i]) return -1;
+    if ($a[$i] > $b[$i]) return  1;
+  }
+  return 0;
 }
 
 if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
@@ -401,8 +422,19 @@ if ($_POST['form_refresh']) {
     } // end for
   } // end not $INTEGRATED_AR
 
-  // Not payer summary: print last method total.
+  // Not payer summary.
   if ($form_report_by != '1' || $_POST['form_details']) {
+
+    if ($form_report_by == '1') { // by payer with details
+      // Sort and dump saved info.
+      usort($insarray, 'payerCmp');
+      foreach ($insarray as $a) {
+        if (empty($a[4])) $a[4] = xl('Patient');
+        showLineItem($a[0], $a[1], $a[2], $a[3], $a[4], $a[5], $a[6]);
+      }
+    } // end by payer with details
+
+    // Print last method total.
 ?>
  <tr bgcolor="#ddddff">
   <td class="detail" colspan="4">
