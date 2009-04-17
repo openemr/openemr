@@ -314,6 +314,8 @@ $cell_count = 0;
 $item_count = 0;
 $display_style = 'block';
 
+$group_seq=0; // this gives the DIV blocks unique IDs
+
 while ($frow = sqlFetchArray($fres)) {
   $this_group = $frow['group_name'];
   $titlecols  = $frow['titlecols'];
@@ -322,6 +324,7 @@ while ($frow = sqlFetchArray($fres)) {
   $field_id   = $frow['field_id'];
   $list_id    = $frow['list_id'];
   $currvalue  = '';
+
   if (strpos($field_id, 'em_') === 0) {
     $tmp = substr($field_id, 3);
     if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
@@ -333,7 +336,8 @@ while ($frow = sqlFetchArray($fres)) {
   // Handle a data category (group) change.
   if (strcmp($this_group, $last_group) != 0) {
     end_group();
-    $group_seq  = substr($this_group, 0, 1);
+    //$group_seq  = substr($this_group, 0, 1);  -- replaced by a simple counter
+    $group_seq++;    // ID for DIV tags
     $group_name = substr($this_group, 1);
     $last_group = $this_group;
     echo "<br /><span class='bold'><input type='checkbox' name='form_cb_$group_seq' value='1' " .
