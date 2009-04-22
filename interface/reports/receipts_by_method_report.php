@@ -140,6 +140,7 @@ $form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
 $form_use_edate = $_POST['form_use_edate'];
 $form_facility  = $_POST['form_facility'];
 $form_report_by = $_POST['form_report_by'];
+$form_cptcode   = trim($_POST['form_cptcode']);
 ?>
 <html>
 <head>
@@ -182,8 +183,12 @@ while ($frow = sqlFetchArray($fres)) {
 }
 echo "   </select>\n";
 ?>
+   <?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('CPT') . ':'; ?>
+   <input type='text' name='form_cptcode' size='5' value='<? echo $form_cptcode; ?>'
+    title='<?php xl('Optional procedure code','e'); ?>'
+    <?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?> />
    &nbsp;
-   <input type='checkbox' name='form_details' value='1'<? if ($_POST['form_details']) echo " checked"; ?>><?xl('Details','e')?>
+   <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?> /><?xl('Details','e')?>
   </td>
  </tr>
 
@@ -264,24 +269,27 @@ if ($_POST['form_refresh']) {
   if ($INTEGRATED_AR) {
 
     // Get co-pays using the encounter date as the pay date.  These will
-    // always be considered patient payments.
+    // always be considered patient payments.  Ignored if selecting by
+    // billing code.
     //
-    $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, " .
-      "fe.date, fe.facility_id " .
-      "FROM billing AS b " .
-      "JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter " .
-      "WHERE b.code_type = 'COPAY' AND b.activity = 1 AND b.fee != 0 AND " .
-      "fe.date >= '$from_date 00:00:00' AND fe.date <= '$to_date 23:59:59'";
-    // If a facility was specified.
-    if ($form_facility) $query .= " AND fe.facility_id = '$form_facility'";
-    $query .= " ORDER BY fe.date, b.pid, b.encounter, fe.id";
-    //
-    $res = sqlStatement($query);
-    while ($row = sqlFetchArray($res)) {
-      $rowmethod = $form_report_by == 1 ? 'Patient' : 'Co-Pay';
-      thisLineItem($row['pid'], $row['encounter'], $row['code_text'],
-        substr($row['date'], 0, 10), $rowmethod, 0 - $row['fee'], 0);
-    }
+    if (!$form_cptcode) {
+      $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, " .
+        "fe.date, fe.facility_id " .
+        "FROM billing AS b " .
+        "JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter " .
+        "WHERE b.code_type = 'COPAY' AND b.activity = 1 AND b.fee != 0 AND " .
+        "fe.date >= '$from_date 00:00:00' AND fe.date <= '$to_date 23:59:59'";
+      // If a facility was specified.
+      if ($form_facility) $query .= " AND fe.facility_id = '$form_facility'";
+      $query .= " ORDER BY fe.date, b.pid, b.encounter, fe.id";
+      //
+      $res = sqlStatement($query);
+      while ($row = sqlFetchArray($res)) {
+        $rowmethod = $form_report_by == 1 ? 'Patient' : 'Co-Pay';
+        thisLineItem($row['pid'], $row['encounter'], $row['code_text'],
+          substr($row['date'], 0, 10), $rowmethod, 0 - $row['fee'], 0);
+      }
+    } // end if not form_cptcode
 
     // Get all other payments and adjustments and their dates, corresponding
     // payers and check reference data, and the encounter dates separately.
@@ -304,6 +312,8 @@ if ($_POST['form_refresh']) {
         "( s.deposit_date IS NULL AND a.post_time >= '$from_date 00:00:00' AND " .
         "a.post_time <= '$to_date 23:59:59' ) )";
     }
+    // If a procedure code was specified.
+    if ($form_cptcode) $query .= " AND a.code LIKE '$form_cptcode%'";
     // If a facility was specified.
     if ($form_facility) $query .= " AND fe.facility_id = '$form_facility'";
     //
@@ -357,6 +367,9 @@ if ($_POST['form_refresh']) {
       "( acc_trans.chart_id = $chart_id_income AND " .
       "acc_trans.source LIKE 'InvAdj %' ) ) AND " .
       "ar.id = acc_trans.trans_id AND ";
+    if ($form_cptcode) {
+      $query .= "acc_trans.memo ILIKE '$form_cptcode%' AND ";
+    }
     if ($form_use_edate) {
       $query .= "ar.transdate >= '$from_date' AND " .
       "ar.transdate <= '$to_date'";
