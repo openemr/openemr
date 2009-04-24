@@ -1,4 +1,4 @@
-<?
+<?php
 
 //pulled from www.djgeespot.com/php, reworked as a class
 

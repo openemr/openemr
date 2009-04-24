@@ -38,7 +38,7 @@ function print_as_money($money) {
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script language="JavaScript">
 
- var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
  function oldEvt(eventid) {
   dlgopen('../../main/calendar/add_edit_event.php?eid=' + eventid, '_blank', 550, 270);

@@ -11,19 +11,19 @@ include_once("../../library/acl.inc");
  border="1" framespacing="1" bordercolor="#000000">
   <frame src="usergroup_navigation.php" name="Navigation" scrolling="no" frameborder="1" noresize>
   <frame
-<? if (acl_check('admin', 'users')) { ?>
+<?php if (acl_check('admin', 'users')) { ?>
    src="usergroup_admin.php"
-<? } else if (acl_check('admin', 'forms')) { ?>
+<?php } else if (acl_check('admin', 'forms')) { ?>
    src="../forms_admin/forms_admin.php"
-<? } else if (acl_check('admin', 'practice')) { ?>
+<?php } else if (acl_check('admin', 'practice')) { ?>
    src="<?php echo $GLOBALS['webroot'] ?>/controller.php?practice_settings"
-<? } else if (acl_check('admin', 'calendar')) { ?>
+<?php } else if (acl_check('admin', 'calendar')) { ?>
    src="../main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig"
-<? } else if (acl_check('admin', 'database')) { ?>
+<?php } else if (acl_check('admin', 'database')) { ?>
    src="../main/myadmin/index.php"
-<? } else { ?>
+<?php } else { ?>
    src="<?php echo $rootdir ?>/logview/logview.php"
-<? } ?>
+<?php } ?>
    name="Main" scrolling="auto" frameborder="0" noresize>
 </frameset>
 </HTML>

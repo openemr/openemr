@@ -1,4 +1,4 @@
-<?
+<?php
 include_once("$srcdir/../interface/globals.php");
 include_once("$srcdir/log.inc");
 

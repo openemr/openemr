@@ -1,4 +1,4 @@
-<?
+<?php
 require_once("../../globals.php");
 require_once("$srcdir/sql.inc");
 function pic_array() {

@@ -1,4 +1,4 @@
-<?
+<?php
 //function returns the next most recent appointment given a pid
 function getNextAppointment ($pid) {
 $query = "select * from calendar where pid=$pid and time>now() order by time limit 1";

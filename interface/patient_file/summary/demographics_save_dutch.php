@@ -1,4 +1,4 @@
-<?
+<?php
  include_once("../../globals.php");
  include_once("$srcdir/patient.inc");
  include_once("$srcdir/acl.inc");
