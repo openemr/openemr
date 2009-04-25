@@ -14,8 +14,13 @@ by the collectConstants.pl script.  This spreadsheet has been uploaded to
 Google Docs to allow collaborative data entry of languages translations.
 
 The Google Docs spreadsheet after conversion to tsv format is kept in the
-current_spreadsheet.tsv file.  Conversion is done by exporting spreadsheet
-from google docs into open office and then saving as a tab delimited file.
+current_spreadsheet.tsv file. Conversion is done by exporting spreadsheet
+from google docs (ods format). Then, open this file in Open Office and 
+select File->Save as. For 'Save as type:' select 'TEXT CSV (.csv)', toggle
+on 'Edit Filter Setting', and change filename extension to .tsv. If asked
+for confirmation select 'Yes'. Then select 'Unicode (UTF-8)' for 'Character
+set', select {Tab} for 'Field delimiter', and select nothing (make blank by
+removing the " character) for 'Text delimiter', and then click 'OK'. 
 
 The buildLanguageDatabase.pl builds the foreign language SQL tables dumpfile
 for the lang_languages, lang_constants, and lang_definitions tables from the above
