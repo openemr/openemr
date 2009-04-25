@@ -42,8 +42,10 @@ $gaclSetupScript2 = $manualPath."acl_setup.php";
 $writableFileList = array($conffile, $conffile2, $gaclConfigFile1, $gaclConfigFile2);
 $writableDirList = array($docsDirectory, $billingDirectory, $billingDirectory2, $billingLogDirectory, $lettersDirectory, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
 
-//These are the dumpfiles that are loaded into database
+//These are the dumpfiles that are loaded into database 
+// The subsequent array holds the title of dumpfiles
 $dumpfiles = array($dumpfile, $translations_dumpfile);
+$dumpfilesTitles = array("Main", "Language Translation");
 
 include_once($conffile);
 ?>
@@ -267,8 +269,9 @@ else
 	echo "OK.<br>\n";
 	flush();
 if ($upgrade != 1) {
+    $dumpfileCounter = 0;
     foreach ($dumpfiles as $var) {
-        echo "Creating initial tables...\n";
+        echo "Creating ".$dumpfilesTitles[$dumpfileCounter]." tables...\n";
 	mysql_query("USE $dbname",$dbh);
 	flush();
 	$fd = fopen($var, 'r');
@@ -299,6 +302,7 @@ if ($upgrade != 1) {
 	echo "OK<br>\n";
 	fclose($fd);
 	flush();
+	$dumpfileCounter++;
     }
 	echo "Adding Initial User...\n";
 	flush();
