@@ -37,6 +37,12 @@ use strict;
 # the known number of mismatched constants is 57 .
 my $mismatchesKnown = 57;
 
+# Hold variables to calculate language database statistics
+my $totalConstants;
+my $totalDefinitions;
+my @languages;
+my @numberConstantsLanguages;
+
 my $de = "\t";
 my $filenameOut = "languageTranslations.sql";
 my $logFile = "log.txt";
@@ -95,7 +101,6 @@ if ($flagCheck) {
  checkConstants();
 }
 
-
 # FIRST, remove newlines, blank lines, escape characters, and windows returns
 # SECOND, place the escape characters in all required sql characters
 foreach my $tempLine (@inputFile) {
@@ -127,7 +132,23 @@ $outputString .= createDefinitions();
 
 print OUTPUTFILE $outputString;
 
-
+# calculate statistics
+print LOGFILE "\nLanguage Statistics:\n";
+print LOGFILE "Total number of english constants: ".$totalConstants."\n";
+print LOGFILE "Total number of definitions: ".$totalDefinitions."\n";
+my $count = 0;
+my @tempArray;
+foreach my $var (@languages) {
+  if ($var ne "English") {
+   push (@tempArray, $var.": ".fstr((($numberConstantsLanguages[$count]/$totalConstants)*100),0)."% (".$numberConstantsLanguages[$count]." definitions)\n");
+   # push (@tempArray, $var.": ".($numberConstantsLanguages[$count])." definitions\n");
+ }
+ $count += 1;
+}
+my @sorted_tempArray = sort { lc($a) cmp lc($b) } @tempArray;
+foreach my $var (@sorted_tempArray) {
+ print LOGFILE $var;
+}
     
 #
 # function to compare to original constants
@@ -170,7 +191,8 @@ sub checkConstants () {
 #
 # function to build lang_languages dumpfile
 # globals - @inputFileProcessed, $constantColumn, $constantRow,
-#           $languageNumRow, $languageIdRow, $languageNameRow 
+#           $languageNumRow, $languageIdRow, $languageNameRow,
+#           @numberConstantsLanguages, @languages
 # return - output string
 #
 sub createLanguages() {
@@ -184,6 +206,10 @@ sub createLanguages() {
  for (my $i = $constantColumn; $i < @numberRow; $i++) {
   $tempReturn .= "INSERT INTO `lang_languages` VALUES (".$numberRow[$i].", '".$idRow[$i]."', '".$nameRow[$i]."');\n";
   $tempCounter = $numberRow[$i];
+     
+  # set up for statistics later
+  push (@languages, $nameRow[$i]);
+  $numberConstantsLanguages[$numberRow[$i]-1] = 0;
  }
  $tempCounter += 1;
 
@@ -217,7 +243,7 @@ CREATE TABLE `lang_languages` (
 
 #
 # function to build lang_constants dumpfile
-# globals - @inputFileProcessed, $constantColumn, $constantRow, $constantIdColumn
+# globals - @inputFileProcessed, $constantColumn, $constantRow, $constantIdColumn, $totalConstants
 # return - nothing
 #
 sub createConstants() {
@@ -259,13 +285,17 @@ CREATE TABLE `lang_constants` (
  $return .= "
 --\n\n";
 
+ # fill total constants for statistics later
+ $totalConstants = $tempCounter - 1;
+  
  return $return;
 }
 
 #
 # function to build lang_definitions dumpfile
 # globals - @inputFileProcessed, $constantColumn, $constantRow,
-#           $languageNumRow, $constantIdColumn, 
+#           $languageNumRow, $constantIdColumn, @numberConstantsLanguages, 
+#           $totalDefinitions
 # return - nothing
 #
 sub createDefinitions() {
@@ -280,10 +310,14 @@ sub createDefinitions() {
    my @tempRow = split($de,@inputFileProcessed[$j]);
    my $tempId = $tempRow[$constantIdColumn];
    my $tempDefinition = $tempRow[$i];
+   my $tempLangNumber = $numberRow[$i];
    if ($tempDefinition !~ /^\s*$/) {
-    $tempReturn .= "INSERT INTO `lang_definitions` VALUES (".$counter.", ".$tempId.", ".$numberRow[$i].", '".$tempDefinition."');\n";
+    $tempReturn .= "INSERT INTO `lang_definitions` VALUES (".$counter.", ".$tempId.", ".$tempLangNumber.", '".$tempDefinition."');\n";
     $tempCounter = $counter;
     $counter += 1;
+       
+    # set up for statistics
+    $numberConstantsLanguages[($tempLangNumber - 1)] += 1;
    }
   }
  }
@@ -316,5 +350,20 @@ CREATE TABLE `lang_definitions` (
  $return .= "
 --\n\n";
 
+ # fill total definitions for statistics later
+ $totalDefinitions = $tempCounter - 1;
+
  return $return;
+}
+
+# Function to drop decimals
+# param: 1st is number, 2nd is nubmer of desired decimals
+sub fstr () {
+ my ($value,$precision) = @_;
+ if ($value == 0) {
+  return "0";
+ }
+ my $s = sprintf("%.${precision}f", $value);
+ $s =~ s/\.?0*$//;
+ return $s;
 }
