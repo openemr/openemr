@@ -184,7 +184,7 @@ while ($frow = sqlFetchArray($fres)) {
 echo "   </select>\n";
 ?>
    <?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('CPT') . ':'; ?>
-   <input type='text' name='form_cptcode' size='5' value='<? echo $form_cptcode; ?>'
+   <input type='text' name='form_cptcode' size='5' value='<?php echo $form_cptcode; ?>'
     title='<?php xl('Optional procedure code','e'); ?>'
     <?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?> />
    &nbsp;
