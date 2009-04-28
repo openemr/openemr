@@ -53,13 +53,17 @@ if (@ARGV > 2) {
 elsif (@ARGV == 0) {
  die "\nERROR: Need a parameter. Follow instructions found in collectConstants.pl file.\n\n";
 }
-else {    
- if (@ARGV == 2) {
-  $comparisonFile = $ARGV[1];
-  $compareFlag = 1;
- }
+elsif (@ARGV == 2) {
+ $comparisonFile = $ARGV[1];
+ $directoryIn = $ARGV[0];
+ $compareFlag = 1;
+}
+elsif (@ARGV == 1) {
  $directoryIn = $ARGV[0];
  $compareFlag = 0;
+}
+else {
+ die "\nERROR: Problem with  parameters. Follow instructions found in collectConstants.pl file.\n\n";
 }
 
 # open log file and output file
@@ -71,6 +75,11 @@ if ($compareFlag) {
  open(MYINPUTFILE, "<$comparisonFile") or die "unable to open file";
  @previousConstants = <MYINPUTFILE>;
  close(MYINPUTFILE);
+    
+ # chomp it
+ foreach my $var (@previousConstants) {
+     chomp($var);
+ }  
 }
 
 # create filenames array
