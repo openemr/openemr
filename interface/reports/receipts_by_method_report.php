@@ -20,6 +20,9 @@ require_once("../../library/patient.inc");
 require_once("../../library/sql-ledger.inc");
 require_once("../../library/acl.inc");
 
+// This controls whether we show pt name, policy number and DOS.
+$showing_ppd = true;
+
 $insarray = array();
 
 function bucks($amount) {
@@ -28,13 +31,13 @@ function bucks($amount) {
 }
 
 function thisLineItem($patient_id, $encounter_id, $memo, $transdate,
-  $rowmethod, $rowpayamount, $rowadjamount)
+  $rowmethod, $rowpayamount, $rowadjamount, $payer_type=0)
 {
   global $form_report_by, $insarray, $grandpaytotal, $grandadjtotal;
 
   if ($form_report_by != '1') { // reporting by method or check number
     showLineItem($patient_id, $encounter_id, $memo, $transdate,
-      $rowmethod, $rowpayamount, $rowadjamount);
+      $rowmethod, $rowpayamount, $rowadjamount, $payer_type);
     return;
   }
 
@@ -43,7 +46,7 @@ function thisLineItem($patient_id, $encounter_id, $memo, $transdate,
   if ($_POST['form_details']) { // details are wanted
     // Save everything for later sorting.
     $insarray[] = array($patient_id, $encounter_id, $memo, $transdate,
-      $rowmethod, $rowpayamount, $rowadjamount);
+      $rowmethod, $rowpayamount, $rowadjamount, $payer_type);
   }
   else { // details not wanted
     if (empty($insarray[$rowmethod])) $insarray[$rowmethod] = array(0, 0);
@@ -55,10 +58,10 @@ function thisLineItem($patient_id, $encounter_id, $memo, $transdate,
 }
 
 function showLineItem($patient_id, $encounter_id, $memo, $transdate,
-  $rowmethod, $rowpayamount, $rowadjamount)
+  $rowmethod, $rowpayamount, $rowadjamount, $payer_type=0)
 {
   global $paymethod, $paymethodleft, $methodpaytotal, $methodadjtotal,
-    $grandpaytotal, $grandadjtotal;
+    $grandpaytotal, $grandadjtotal, $showing_ppd;
 
   if (! $rowmethod) $rowmethod = 'Unknown';
 
@@ -70,7 +73,7 @@ function showLineItem($patient_id, $encounter_id, $memo, $transdate,
 ?>
 
  <tr bgcolor="#ddddff">
-  <td class="detail" colspan="4">
+  <td class="detail" colspan="<?php echo $showing_ppd ? 7 : 4; ?>">
    <?php echo xl('Total for ') . $paymethod ?>
   </td>
   <td class="dehead" align="right">
@@ -101,6 +104,34 @@ function showLineItem($patient_id, $encounter_id, $memo, $transdate,
   <td class="detail">
    <?php echo $invnumber ?>
   </td>
+
+<?php
+    if ($showing_ppd) {
+      $pferow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date " .
+        "FROM patient_data AS p, form_encounter AS fe WHERE " .
+        "p.pid = '$patient_id' AND fe.pid = p.pid AND " .
+        "fe.encounter = '$encounter_id' LIMIT 1");
+      $dos = substr($pferow['date'], 0, 10);
+
+      echo "  <td class='dehead'>\n";
+      echo "   " . $pferow['lname'] . ", " . $pferow['fname'] . " " . $pferow['mname'];      
+      echo "  </td>\n";
+
+      echo "  <td class='dehead'>\n";
+      if ($payer_type) {
+        $ptarr = array(1 => 'primary', 2 => 'secondary', 3 => 'tertiary');
+        $insrow = getInsuranceDataByDate($patient_id, $dos,
+          $ptarr[$payer_type], "policy_number");
+        echo "   " . $insrow['policy_number'];
+      }
+      echo "  </td>\n";
+
+      echo "  <td class='dehead'>\n";
+      echo "   $dos\n";
+      echo "  </td>\n";
+    }
+?>
+
   <td class="dehead">
    <?php echo $memo ?>
   </td>
@@ -236,6 +267,17 @@ echo "   </select>\n";
   <td class="dehead">
    <?xl('Invoice','e')?>
   </td>
+<?php if ($showing_ppd) { ?>
+  <td class="dehead">
+   <?xl('Patient','e')?>
+  </td>
+  <td class="dehead">
+   <?xl('Policy','e')?>
+  </td>
+  <td class="dehead">
+   <?xl('DOS','e')?>
+  </td>
+<?php } ?>
   <td class="dehead">
    <?xl('Procedure','e')?>
   </td>
@@ -295,7 +337,7 @@ if ($_POST['form_refresh']) {
     // payers and check reference data, and the encounter dates separately.
     //
     $query = "SELECT a.pid, a.encounter, a.post_time, a.pay_amount, " .
-      "a.adj_amount, a.memo, a.session_id, a.code, fe.id, fe.date, " .
+      "a.adj_amount, a.memo, a.session_id, a.code, a.payer_type, fe.id, fe.date, " .
       "s.deposit_date, s.payer_id, s.reference, i.name " .
       "FROM ar_activity AS a " .
       "JOIN form_encounter AS fe ON fe.pid = a.pid AND fe.encounter = a.encounter " .
@@ -354,8 +396,8 @@ if ($_POST['form_refresh']) {
         }
       }
       //
-      thisLineItem($row['pid'], $row['encounter'], $row['code'],
-        $thedate, $rowmethod, $row['pay_amount'], $row['adj_amount']);
+      thisLineItem($row['pid'], $row['encounter'], $row['code'], $thedate,
+        $rowmethod, $row['pay_amount'], $row['adj_amount'], $row['payer_type']);
     }
   } // end $INTEGRATED_AR
   else {
@@ -405,6 +447,7 @@ if ($_POST['form_refresh']) {
       }
 
       // Compute reporting key: insurance company name or payment method.
+      $payer_type = 0; // will be 0=pt, 1=ins1, 2=ins2 or 3=ins3
       if ($form_report_by == '1') {
         $rowmethod = '';
         $rowsrc = strtolower($row['source']);
@@ -415,6 +458,7 @@ if ($_POST['form_refresh']) {
             if ($i !== false) {
               $j = strpos($insgot, "\n", $i);
               if (!$j) $j = strlen($insgot);
+              $payer_type = 0 + substr($value, 3);
               $rowmethod = trim(substr($row['notes'], $i + 5, $j - $i - 5));
               break;
             }
@@ -430,8 +474,8 @@ if ($_POST['form_refresh']) {
         }
       } // end reporting by method
 
-      thisLineItem($patient_id, $encounter_id, $row['memo'],
-        $row['transdate'], $rowmethod, $rowpayamount, $rowadjamount);
+      thisLineItem($patient_id, $encounter_id, $row['memo'], $row['transdate'],
+        $rowmethod, $rowpayamount, $rowadjamount, $payer_type);
     } // end for
   } // end not $INTEGRATED_AR
 
@@ -443,14 +487,14 @@ if ($_POST['form_refresh']) {
       usort($insarray, 'payerCmp');
       foreach ($insarray as $a) {
         if (empty($a[4])) $a[4] = xl('Patient');
-        showLineItem($a[0], $a[1], $a[2], $a[3], $a[4], $a[5], $a[6]);
+        showLineItem($a[0], $a[1], $a[2], $a[3], $a[4], $a[5], $a[6], $a[7]);
       }
     } // end by payer with details
 
     // Print last method total.
 ?>
  <tr bgcolor="#ddddff">
-  <td class="detail" colspan="4">
+  <td class="detail" colspan="<?php echo $showing_ppd ? 7 : 4; ?>">
    <?echo xl('Total for ') . $paymethod ?>
   </td>
   <td class="dehead" align="right">
@@ -470,7 +514,7 @@ if ($_POST['form_refresh']) {
       if (empty($key)) $key = xl('Patient');
 ?>
  <tr bgcolor="#ddddff">
-  <td class="detail" colspan="4">
+  <td class="detail" colspan="<?php echo $showing_ppd ? 7 : 4; ?>">
    <?php echo $key; ?>
   </td>
   <td class="dehead" align="right">
@@ -485,7 +529,7 @@ if ($_POST['form_refresh']) {
   } // end payer summary
 ?>
  <tr bgcolor="#ffdddd">
-  <td class="detail" colspan="4">
+  <td class="detail" colspan="<?php echo $showing_ppd ? 7 : 4; ?>">
    <?php xl('Grand Total','e') ?>
   </td>
   <td class="dehead" align="right">
