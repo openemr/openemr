@@ -860,7 +860,7 @@ Dials
 Diaphragms/Caps
 Dictation: 
 Did not complete the statement "Homebound" on the claim to validate whether laboratory services were performed at home or in an institution.
-Did not enter the statement ‚ÄúAttending physician not hospice employee‚Äù on the claim form to certify that the rendering physician is not an employee of the hospice.
+Did not enter the statement ‚Attending physician not hospice employee‚
 Did not indicate whether we are the primary or secondary payer.
 Did provider authorize generic or brand name dispensing?
 Diffuse:
@@ -1994,8 +1994,8 @@ Missing/incomplete/invalid upgrade information.
 Missing/incomplete/invalid value code(s) or amount(s).
 Missing/incomplete/invalid weight.
 Missing/incomplete/invalid x-ray date.
-Missing/incomplete/invalid ‚Äúfrom‚Äù date(s) of service.
-Missing/incomplete/invalid ‚Äúto‚Äù date(s) of service.
+Missing/incomplete/invalid ‚from‚
+Missing/incomplete/invalid ‚to‚
 Missing/incomplete/invalid/ deactivated/withdrawn National Drug Code (NDC).
 Missing/incomplete/invalide last x-ray date.
 Missing/invalid data prevents payer from processing claim.

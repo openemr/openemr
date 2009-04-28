@@ -863,7 +863,7 @@
 860	Diaphragms/Caps
 861	Dictation: 
 862	Did not complete the statement "Homebound" on the claim to validate whether laboratory services were performed at home or in an institution.
-863	Did not enter the statement ‚ÄúAttending physician not hospice employee‚Äù on the claim form to certify that the rendering physician is not an employee of the hospice.
+863	Did not enter the statement ‚Attending physician not hospice employee‚
 864	Did not indicate whether we are the primary or secondary payer.
 865	Did provider authorize generic or brand name dispensing?
 866	Diffuse:
@@ -1997,8 +1997,8 @@
 1994	Missing/incomplete/invalid value code(s) or amount(s).
 1995	Missing/incomplete/invalid weight.
 1996	Missing/incomplete/invalid x-ray date.
-1997	Missing/incomplete/invalid ‚Äúfrom‚Äù date(s) of service.
-1998	Missing/incomplete/invalid ‚Äúto‚Äù date(s) of service.
+1997	Missing/incomplete/invalid ‚from‚
+1998	Missing/incomplete/invalid ‚to‚
 1999	Missing/incomplete/invalid/ deactivated/withdrawn National Drug Code (NDC).
 2000	Missing/incomplete/invalide last x-ray date.
 2001	Missing/invalid data prevents payer from processing claim.
