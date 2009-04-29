@@ -84,6 +84,7 @@ $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
 //   German
 //   Hebrew
 //   Norwegian
+//   Russian
 //   Spanish
 //   Swedish
 //
