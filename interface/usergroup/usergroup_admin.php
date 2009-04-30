@@ -187,7 +187,8 @@ $form_inactive = empty($_REQUEST['form_inactive']) ? false : true;
 <tr>
 <td>&nbsp;</td><td>&nbsp;</td>
 
-<td><span class="text"><?php xl('Facility NPI','e'); ?>: </span></td><td><input type=entry size=20 name=facility_npi value=""></td>
+<td><span class="text"><?php xl(($GLOBALS['simplified_demographics'] ? 'Facility Code' : 'Facility NPI'),'e'); ?>:
+</span></td><td><input type=entry size=20 name=facility_npi value=""></td>
 
 </tr>
 <tr>
