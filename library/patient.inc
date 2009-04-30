@@ -667,7 +667,9 @@ function fixDate($date, $default="0000-00-00") {
     return $fixed_date;
 }
 
-function updatePatientData($pid,$new)
+// Create or update patient data from an array.
+//
+function updatePatientData($pid, $new, $create=false)
 {
   /*******************************************************************
     $real = getPatientData($pid);
@@ -688,21 +690,31 @@ function updatePatientData($pid,$new)
   // the code below does not yet attempt it.
 
   $new['DOB'] = fixDate($new['DOB']);
-  $db_id = $new['id'];
 
-  $rez = sqlQuery("SELECT pid FROM patient_data WHERE id = '$db_id'");
-  // Check for brain damage:
-  if ($pid != $rez['pid']) {
-    $errmsg = "Internal error: Attempt to change patient data with pid = '" .
-      $rez['pid'] . "' when current pid is '$pid' for id '$db_id'";
-    die($errmsg);
+  if ($create) {
+    $sql = "INSERT INTO patient_data SET pid = '$pid', date = NOW()";
+    foreach ($new as $key => $value) {
+      if ($key == 'id') continue;
+      $sql .= ", $key = '$value'";
+    }
+    $db_id = sqlInsert($sql);
   }
-  $sql = "UPDATE patient_data SET date = NOW()";
-  foreach ($new as $key => $value) {
-    $sql .= ", $key = '$value'";
+  else {
+    $db_id = $new['id'];
+    $rez = sqlQuery("SELECT pid FROM patient_data WHERE id = '$db_id'");
+    // Check for brain damage:
+    if ($pid != $rez['pid']) {
+      $errmsg = "Internal error: Attempt to change patient data with pid = '" .
+        $rez['pid'] . "' when current pid is '$pid' for id '$db_id'";
+      die($errmsg);
+    }
+    $sql = "UPDATE patient_data SET date = NOW()";
+    foreach ($new as $key => $value) {
+      $sql .= ", $key = '$value'";
+    }
+    $sql .= " WHERE id = '$db_id'";
+    sqlStatement($sql);
   }
-  $sql .= " WHERE id = '$db_id'";
-  sqlStatement($sql);
 
   $rez = sqlQuery("SELECT * FROM patient_data WHERE id = '$db_id'");
   sync_patient($db_id,$rez['fname'],$rez['lname'],$rez['street'],$rez['city'],
@@ -733,24 +745,38 @@ function newEmployerData(    $pid,
         ");
 }
 
-function updateEmployerData($pid, $new)
+// Create or update employer data from an array.
+//
+function updateEmployerData($pid, $new, $create=false)
 {
-  $old = getEmployerData($pid);
-  $set = '';
-  $modified = false;
-  foreach (array('name','street','city','state','postal_code','country') as $key) {
-    $value = empty($old[$key]) ? '' : addslashes($old[$key]);
-    if (isset($new[$key]) && strcmp($new[$key], $value) != 0) {
-      $value = $new[$key];
-      $modified = true;
-    }
-    $set .= "$key = '$value', ";
-  }
-  if ($modified) {
+  $colnames = array('name','street','city','state','postal_code','country');
+
+  if ($create) {
     $set .= "pid = '$pid', date = NOW()";
+    foreach ($colnames as $key) {
+      $value = isset($new[$key]) ? $new[$key] : '';
+      $set .= ", $key = '$value'";
+    }
     return sqlInsert("INSERT INTO employer_data SET $set");
   }
-  return $old['id'];
+  else {
+    $set = '';
+    $old = getEmployerData($pid);
+    $modified = false;
+    foreach ($colnames as $key) {
+      $value = empty($old[$key]) ? '' : addslashes($old[$key]);
+      if (isset($new[$key]) && strcmp($new[$key], $value) != 0) {
+        $value = $new[$key];
+        $modified = true;
+      }
+      $set .= "$key = '$value', ";
+    }
+    if ($modified) {
+      $set .= "pid = '$pid', date = NOW()";
+      return sqlInsert("INSERT INTO employer_data SET $set");
+    }
+    return $old['id'];
+  }
 }
 
 // This updates or adds the given insurance data info, while retaining any
