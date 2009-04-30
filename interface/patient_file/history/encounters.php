@@ -144,10 +144,9 @@ function editNote(feid) {
 
  // Called when the billing note editor closes.
  function closeNote(feid, fenote) {
-  var c = "<div onclick='editNote(" + feid +
-   ")' title='Click to edit' class='text' style='cursor:pointer'>" +
-   fenote + "</div>";
-  setDivContent('note_' + feid, c);
+    var c = "<div id='"+ feid +"' title='Click to edit' class='text billing_note_text'>" +
+            fenote + "</div>";
+    setDivContent('note_' + feid, c);
  }
 
 </script>
@@ -555,7 +554,7 @@ $(document).ready(function(){
 
     $(".billing_note_text").mouseover(function() { $(this).toggleClass("billing_note_text_highlight"); });
     $(".billing_note_text").mouseout(function() { $(this).toggleClass("billing_note_text_highlight"); });
-    $(".billing_note_text").click(function() { editNote(this.id); });
+    $(".billing_note_text").click(function(evt) { evt.stopPropagation(); editNote(this.id); });
 
     // set up the tooltip function
     tooltip();
