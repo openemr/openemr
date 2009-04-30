@@ -2,10 +2,8 @@
 include_once("../../globals.php");
 include_once("$srcdir/patient.inc");
 
-$patient = $_REQUEST['patient'];
-$findBy  = $_REQUEST['findBy'];
-$fstart  = $_REQUEST['fstart'] + 0;
-$MAXSHOW = 100; // maximum number of results to display at once
+$fstart = $_REQUEST['fstart'] + 0;
+$popup  = empty($_REQUEST['popup']) ? 0 : 1;
 ?>
 
 <html>
@@ -95,9 +93,63 @@ function submitList(offset) {
 <body class="body_top">
 
 <form method='post' action='patient_select.php' name='theform'>
-<input type='hidden' name='patient' value='<?php echo $patient ?>'>
-<input type='hidden' name='findBy'  value='<?php echo $findBy  ?>'>
-<input type='hidden' name='fstart'  value='<?php echo $fstart  ?>'>
+<input type='hidden' name='fstart'  value='<?php echo $fstart  ?>' />
+
+<?php
+$MAXSHOW = 100; // maximum number of results to display at once
+
+//the maximum number of patient records to display:
+$sqllimit = $MAXSHOW;
+$given = "*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS";
+$orderby = "lname ASC, fname ASC";
+
+if ($popup) {
+  echo "<input type='hidden' name='popup' value='1' />\n";
+
+  // Construct WHERE clause and save search parameters as form fields.
+  $where = "1 = 1";
+  $fres = sqlStatement("SELECT * FROM layout_options " .
+    "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
+    "ORDER BY group_name, seq");
+  while ($frow = sqlFetchArray($fres)) {
+    $field_id  = $frow['field_id'];
+    if (strpos($field_id, 'em_') === 0) continue;
+    $data_type = $frow['data_type'];
+    if (!empty($_REQUEST[$field_id])) {
+      $value = trim($_REQUEST[$field_id]);
+      if (!get_magic_quotes_gpc()) $value = addslashes($value);
+      $where .= " AND $field_id LIKE '$value%'";
+      echo "<input type='hidden' name='$field_id' value='$value' />\n";
+    }
+  }
+
+  $sql = "SELECT $given FROM patient_data " .
+    "WHERE $where ORDER BY $orderby LIMIT $fstart, $sqllimit";
+  $rez = sqlStatement($sql);
+  $result = array();
+  while ($row = sqlFetchArray($rez)) $result[] = $row;
+  _set_patient_inc_count('all', count($result), $where);
+}
+else {
+  $patient = $_REQUEST['patient'];
+  $findBy  = $_REQUEST['findBy'];
+
+  echo "<input type='hidden' name='patient' value='$patient' />\n";
+  echo "<input type='hidden' name='findBy'  value='$findBy' />\n";
+
+  if ($findBy == "Last")
+      $result = getPatientLnames("$patient", $given, $orderby, $sqllimit, $fstart);
+  else if ($findBy == "ID")
+      $result = getPatientId("$patient", $given, $orderby, $sqllimit, $fstart);
+  else if ($findBy == "DOB")
+      $result = getPatientDOB("$patient", $given, $orderby, $sqllimit, $fstart);
+  else if ($findBy == "SSN")
+      $result = getPatientSSN("$patient", $given, $orderby, $sqllimit, $fstart);
+  elseif ($findBy == "Phone")                  //(CHEMED) Search by phone number
+      $result = getPatientPhone("$patient", $given, $orderby, $sqllimit, $fstart);
+}
+?>
+
 </form>
 
 <table border='0' cellpadding='5' cellspacing='0' width='100%'>
@@ -107,20 +159,6 @@ function submitList(offset) {
   </td>
   <td class='text' align='right'>
 <?php
-//the maximum number of patient records to display:
-$sqllimit = $MAXSHOW;
-
-if ($findBy == "Last")
-    $result = getPatientLnames("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit, $fstart);
-else if ($findBy == "ID")
-    $result = getPatientId("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit, $fstart);
-else if ($findBy == "DOB")
-    $result = getPatientDOB("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit, $fstart);
-else if ($findBy == "SSN")
-    $result = getPatientSSN("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit, $fstart);
-elseif ($findBy == "Phone")                  //(CHEMED) Search by phone number
-    $result = getPatientPhone("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit, $fstart);
-
 // Show start and end row number, and number of rows, with paging links.
 //
 $count = $fstart + $GLOBALS['PATIENT_INC_COUNT'];
@@ -159,7 +197,7 @@ if ($fend > $count) $fend = $count;
 <th class="srDateNext">
 <?php
 $add_days = 90;
-if (preg_match('/^(\d+)\s*(.*)/',$patient,$matches) > 0) {
+if (!$popup && preg_match('/^(\d+)\s*(.*)/',$patient,$matches) > 0) {
   $add_days = $matches[1];
   $patient = $matches[2];
 }
@@ -291,24 +329,19 @@ var SelectPatient = function (eObj) {
 // For the old layout we load a frameset that also sets up the new pid.
 // The new layout loads just the demographics frame here, which in turn
 // will set the pid and load all the other frames.
-if ($GLOBALS['concurrent_layout']) 
-{
-    // larry :: dbc insert
-    if( $GLOBALS['dutchpc'] )
-        $newPage = "../../patient_file/summary/demographics_dutch.php?set_pid=";
-    else
-        $newPage = "../../patient_file/summary/demographics.php?set_pid=";
-    // larry :: end of dbc insert
-
+if ($GLOBALS['concurrent_layout']) {
+    $newPage = "../../patient_file/summary/demographics.php?set_pid=";
     $target = "document";
-} else {
+}
+else {
     $newPage = "../../patient_file/patient_file.php?set_pid=";
     $target = "top";
 }
 ?>
     objID = eObj.id;
     var parts = objID.split("~");
-    <?php echo $target; ?>.location.href = '<?php echo $newPage; ?>' + parts[0];
+    <?php if ($popup) echo "opener."; echo $target; ?>.location.href = '<?php echo $newPage; ?>' + parts[0];
+    <?php if ($popup) echo "window.close();\n"; ?>
     return true;
 }
 
@@ -316,3 +349,4 @@ if ($GLOBALS['concurrent_layout'])
 
 </body>
 </html>
+
