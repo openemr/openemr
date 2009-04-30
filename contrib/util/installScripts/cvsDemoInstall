@@ -21,6 +21,7 @@ WEB=/var/www/html
 OPENEMR=$WEB/openemr
 LOG=$WEB/log/logSetup.txt
 CVS=/home/openemr/cvs
+TMPDIR=/tmp/openemr-tmp
 
 # OTHER VARIABLES
 setHost="localhost"         #mysql server (if not different from php, then localhost)
@@ -51,22 +52,38 @@ echo "Done configuring appliance" >> $LOG
 # It will also ease transfer/testing openemr on windows systems when using the Developer appliance
 echo "Creating OpenEMR CVS packages"
 echo "Creating OpenEMR CVS packages" >> $LOG
+# Prepare the cvs package
+mkdir -p $TMPDIR
+cp -rf $CVS/openemr $TMPDIR/
+rm -rf `find $TMPDIR -name CVS`
+chmod a+w $TMPDIR/openemr/library/sqlconf.php
+chmod a+w $TMPDIR/openemr/gacl/gacl.ini.php
+chmod a+w $TMPDIR/openemr/gacl/gacl.class.php
+chmod a+w $TMPDIR/openemr/interface/globals.php
+chmod -R a+w $TMPDIR/openemr/documents
+chmod -R a+w $TMPDIR/openemr/edi
+chmod -R a+w $TMPDIR/openemr/era
+chmod -R a+w $TMPDIR/openemr/library/freeb
+chmod -R a+w $TMPDIR/openemr/custom/letter_templates
+chmod -R a+w $TMPDIR/openemr/interface/main/calendar/modules/PostCalendar/pntemplates/cache
+chmod -R a+w $TMPDIR/openemr/interface/main/calendar/modules/PostCalendar/pntemplates/compiled
+chmod -R a+w $TMPDIR/openemr/gacl/admin/templates_c
+# Create the web file directory
 mkdir $WEB/files
-cd $CVS
+# Save the tar.gz cvs package
+cd $TMPDIR
 tar -czf $WEB/files/openemr-cvs.tar.gz openemr
 cd $WEB/files
 md5sum openemr-cvs.tar.gz > openemr-linux-md5.txt
-cd $CVS
-# Temporarily change permissions to work better on windows
-chmod 644 $CVS/openemr/interface/globals.php
-chmod 644 $CVS/openemr/library/sqlconf.php
+# Save the .zip cvs package
+cd $TMPDIR
 zip -rq $WEB/files/openemr-cvs.zip openemr
-# Revert to original permissions
-chmod 444 $CVS/openemr/interface/globals.php
-chmod 444 $CVS/openemr/library/sqlconf.php
 cd $WEB/files
 md5sum openemr-cvs.zip > openemr-windows-md5.txt
+# Create the time stamp
 date > date-cvs.txt
+# Clean up
+rm -fr $TMPDIR
 echo "Done creating OpenEMR CVS packages"
 echo "Done creating OpenEMR CVS packages" >> $LOG
 #Edit some php.ini settings and restart apache (pending)
