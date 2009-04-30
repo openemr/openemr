@@ -310,8 +310,10 @@ $GLOBALS['patient_id_category_name'] = '';
 // useful and creates confusion.  Make this false if you really want it.
 $GLOBALS['disable_non_default_groups'] = true;
 
-// True for IPPF installations, otherwise false.
+// These are flags for some installation-specific customizations for which
+// we have not yet figured out better parameters.
 $GLOBALS['ippf_specific'] = false;
+$GLOBALS['cene_specific'] = false;
 
 // True to support discounts in the Checkout form by dollars instead of percentage.
 $GLOBALS['discount_by_money'] = false;
@@ -322,6 +324,11 @@ $GLOBALS['use_set_names_utf8'] = false;
 // Set this to false if you want the doctors to be prompted to authorize
 // patient notes created by others.
 $GLOBALS['ignore_pnotes_authorization'] = true;
+
+// This turns on the option of creating a new patient using the complete
+// layout of the demographics form as well as a built-in search feature.
+// Everyone should want this, but for now it's optional.
+$GLOBALS['full_new_patient_form'] = true;
 
 // If you want Hylafax support then uncomment and customize the following
 // statements, and also customize custom/faxcover.txt:
