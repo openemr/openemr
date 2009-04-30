@@ -26,6 +26,7 @@ $indent = 0;
 function Add($tag, $text) {
   global $out, $indent;
   $text = trim(str_replace(array("\r", "\n", "\t"), " ", $text));
+  $text = htmlspecialchars($text, ENT_NOQUOTES);
   if (/* $text */ true) {
     for ($i = 0; $i < $indent; ++$i) $out .= "\t";
     $out .= "<$tag>$text</$tag>\n";
