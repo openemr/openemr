@@ -1,6 +1,11 @@
 <?php
 include_once("../globals.php");
 
+if ($GLOBALS['full_new_patient_form']) {
+  require("new_comprehensive.php");
+  exit;
+}
+
 // For a layout field return 0=unused, 1=optional, 2=mandatory.
 function getLayoutUOR($form_id, $field_id) {
   $crow = sqlQuery("SELECT uor FROM layout_options WHERE " .

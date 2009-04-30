@@ -94,6 +94,13 @@ if ($GLOBALS['athletic_team']) {
   return false;
  }
 
+function sendimage(pid, what) {
+ // alert('Not yet implemented.'); return false;
+ dlgopen('../upload_dialog.php?patientid=' + pid + '&file=' + what,
+  '_blank', 500, 400);
+ return false;
+}
+
 </script>
 </head>
 
@@ -266,6 +273,32 @@ foreach (array('primary','secondary','tertiary') as $instype) {
 
   <td valign="top" class="text">
 <?php
+
+// This is a feature for a specific client.  -- Rod
+if ($GLOBALS['cene_specific']) {
+  echo "   <br />\n";
+
+  $imagedir  = "$webserver_root/documents/$pid/demographics";
+  $imagepath = "$web_root/documents/$pid/demographics";
+
+  echo "   <a href='' onclick=\"return sendimage($pid, 'photo');\" " .
+    "title='Click to attach patient image'>\n";
+  if (is_file("$imagedir/photo.jpg")) {
+    echo "   <img src='$imagepath/photo.jpg' /></a>\n";
+  } else {
+    echo "   Attach Patient Image</a><br />\n";
+  }
+  echo "   <br />&nbsp;<br />\n";
+
+  echo "   <a href='' onclick=\"return sendimage($pid, 'fingerprint');\" " .
+    "title='Click to attach fingerprint'>\n";
+  if (is_file("$imagedir/fingerprint.jpg")) {
+    echo "   <img src='$imagepath/fingerprint.jpg' /></a>\n";
+  } else {
+    echo "   Attach Biometric Fingerprint</a><br />\n";
+  }
+  echo "   <br />&nbsp;<br />\n";
+}
 
 // This stuff only applies to athletic team use of OpenEMR.  The client
 // insisted on being able to quickly change fitness and return date here:

@@ -2,6 +2,7 @@
 include_once("../../globals.php");
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/acl.inc");
+include_once("$srcdir/options.inc.php");
 
 // Check authorization.
 $thisauth = acl_check('patients', 'demo');
@@ -22,20 +23,6 @@ foreach ($_POST as $key => $val) {
   }
 }
 
-if ($_POST["form_sex"] == "Unselected") {
-  $var_sex = "";
-} else {
-  $var_sex = $_POST["form_sex"];
-}
-
-if ($_POST['form_dob'] != "") {
-  $dob = $_POST["form_dob"];
-} else {
-  $dob = "";
-}
-
-$finrev = fixDate($_POST["form_financial_review"]);
-
 // Update patient_data and employer_data:
 //
 $newdata = array();
@@ -46,81 +33,21 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 while ($frow = sqlFetchArray($fres)) {
   $data_type = $frow['data_type'];
   $field_id  = $frow['field_id'];
-
-  $value  = '';
+  // $value  = '';
   $colname = $field_id;
   $table = 'patient_data';
   if (strpos($field_id, 'em_') === 0) {
     $colname = substr($field_id, 3);
     $table = 'employer_data';
   }
-  if (isset($_POST["form_$field_id"])) $value = $_POST["form_$field_id"];
+
+  // if (isset($_POST["form_$field_id"])) $value = $_POST["form_$field_id"];
+  $value = get_layout_form_value($frow);
+
   $newdata[$table][$colname] = $value;
 }
 updatePatientData($pid, $newdata['patient_data']);
 updateEmployerData($pid, $newdata['employer_data']);
-
-/*********************************************************************
-
-newPatientData(
-  $_POST["db_id"],
-  $_POST["title"],
-  $_POST["fname"],
-  $_POST["lname"],
-  $_POST["mname"],
-  $var_sex,
-  $dob,
-  $_POST["street"],
-  $_POST["postal_code"],
-  $_POST["city"],
-  $_POST["state"],
-  $_POST["country_code"],
-  $_POST["ss"],
-  $_POST["occupation"],
-  $_POST["phone_home"],
-  $_POST["phone_biz"],
-  $_POST["phone_contact"],
-  $_POST["status"],
-  $_POST["contact_relationship"],
-  $_POST["referrer"],
-  $_POST["referrerID"],
-  $_POST["email"],
-  strtolower($_POST["language"]),
-  $_POST["ethnoracial"],
-  $_POST["interpretter"],
-  $_POST["migrantseasonal"],
-  $_POST["family_size"],
-  $_POST["monthly_income"],
-  $_POST["homeless"],
-  $finrev,
-  $_POST["pubpid"],
-  $pid,
-  $_POST["providerID"],
-  $_POST["genericname1"],
-  $_POST["genericval1"],
-  $_POST["genericname2"],
-  $_POST["genericval2"],
-  $_POST["phone_cell"],
-  $_POST["hipaa_mail"],
-  $_POST["hipaa_voice"],
-  $_POST["squad"],
-  $_POST["pharmacy_id"],
-  $_POST["drivers_license"],
-  $_POST["hipaa_notice"],
-  $_POST["hipaa_message"]
-);
-
-newEmployerData(
-  $pid,
-  $_POST["ename"],
-  $_POST["estreet"],
-  $_POST["epostal_code"],
-  $_POST["ecity"],
-  $_POST["estate"],
-  $_POST["ecountry"]
-);
-
-*********************************************************************/
 
 $i1dob = fixDate($_POST["i1subscriber_DOB"]);
 $i1date = fixDate($_POST["i1effective_date"], date('Y-m-d'));
