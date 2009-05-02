@@ -449,7 +449,7 @@ $openemrBasePath = str_replace('\\\\', '/', $openemrBasePath);
 $openemrBasePath = str_replace('\\', '/', $openemrBasePath);
 $openemrWebPath = str_replace('\\\\', '/', $openemrWebPath);
 $openemrWebPath = str_replace('\\', '/', $openemrWebPath);
-//second, edit file
+//second, edit file (web paths and set UTF8 if pertinent)
 $data = file($conffile2) or die("Could not read ".$conffile2." file.");
 $finalData = "";
 $isCount = 0;
@@ -469,6 +469,14 @@ foreach ($data as $line) {
 	        $isCount += 1;
 	        $finalData .= "\$web_root = \"$openemrWebPath\";\n";
 	}
+
+        if (!($collate) || (strpos($line,"\$GLOBALS['use_set_names_utf8'] = ")) === false) {
+        }
+        else {
+                $isHit = 1;
+                $finalData .= "\$GLOBALS['use_set_names_utf8'] = true;\n";
+        }
+
         if (!$isHit) {
 	        $finalData .= $line;
 	}
