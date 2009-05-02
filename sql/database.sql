@@ -11,17 +11,17 @@
 DROP TABLE IF EXISTS `addresses`;
 CREATE TABLE `addresses` (
   `id` int(11) NOT NULL default '0',
-  `line1` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `line2` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `city` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `state` varchar(35) character set utf8 collate utf8_unicode_ci default NULL,
-  `zip` varchar(10) character set utf8 collate utf8_unicode_ci default NULL,
-  `plus_four` varchar(4) character set utf8 collate utf8_unicode_ci default NULL,
-  `country` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `line1` varchar(255) default NULL,
+  `line2` varchar(255) default NULL,
+  `city` varchar(255) default NULL,
+  `state` varchar(35) default NULL,
+  `zip` varchar(10) default NULL,
+  `plus_four` varchar(4) default NULL,
+  `country` varchar(255) default NULL,
   `foreign_id` int(11) default NULL,
   PRIMARY KEY  (`id`),
   KEY `foreign_id` (`foreign_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- --------------------------------------------------------
 
@@ -31,9 +31,9 @@ CREATE TABLE `addresses` (
 
 DROP TABLE IF EXISTS `array`;
 CREATE TABLE `array` (
-  `array_key` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `array_value` longtext character set utf8 collate utf8_unicode_ci
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  `array_key` varchar(255) default NULL,
+  `array_value` longtext
+) ENGINE=MyISAM;
 
 -- --------------------------------------------------------
 
@@ -46,12 +46,12 @@ CREATE TABLE `batchcom` (
   `id` bigint(20) NOT NULL auto_increment,
   `patient_id` int(11) NOT NULL default '0',
   `sent_by` bigint(20) NOT NULL default '0',
-  `msg_type` varchar(60) character set utf8 collate utf8_unicode_ci default NULL,
-  `msg_subject` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `msg_text` mediumtext character set utf8 collate utf8_unicode_ci,
+  `msg_type` varchar(60) default NULL,
+  `msg_subject` varchar(255) default NULL,
+  `msg_text` mediumtext,
   `msg_date_sent` datetime NOT NULL default '0000-00-00 00:00:00',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -63,32 +63,32 @@ DROP TABLE IF EXISTS `billing`;
 CREATE TABLE `billing` (
   `id` int(11) NOT NULL auto_increment,
   `date` datetime default NULL,
-  `code_type` varchar(7) character set utf8 collate utf8_unicode_ci default NULL,
-  `code` varchar(9) character set utf8 collate utf8_unicode_ci default NULL,
+  `code_type` varchar(7) default NULL,
+  `code` varchar(9) default NULL,
   `pid` int(11) default NULL,
   `provider_id` int(11) default NULL,
   `user` int(11) default NULL,
-  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `groupname` varchar(255) default NULL,
   `authorized` tinyint(1) default NULL,
   `encounter` int(11) default NULL,
-  `code_text` longtext character set utf8 collate utf8_unicode_ci,
+  `code_text` longtext,
   `billed` tinyint(1) default NULL,
   `activity` tinyint(1) default NULL,
   `payer_id` int(11) default NULL,
   `bill_process` tinyint(2) NOT NULL default '0',
   `bill_date` datetime default NULL,
   `process_date` datetime default NULL,
-  `process_file` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `modifier` varchar(5) character set utf8 collate utf8_unicode_ci default NULL,
+  `process_file` varchar(255) default NULL,
+  `modifier` varchar(5) default NULL,
   `units` tinyint(3) default NULL,
   `fee` decimal(12,2) default NULL,
-  `justify` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `target` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `justify` varchar(255) default NULL,
+  `target` varchar(30) default NULL,
   `x12_partner_id` int(11) default NULL,
-  `ndc_info` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `ndc_info` varchar(255) default NULL,
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -99,15 +99,15 @@ CREATE TABLE `billing` (
 DROP TABLE IF EXISTS `categories`;
 CREATE TABLE `categories` (
   `id` int(11) NOT NULL default '0',
-  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `value` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `name` varchar(255) default NULL,
+  `value` varchar(255) default NULL,
   `parent` int(11) NOT NULL default '0',
   `lft` int(11) NOT NULL default '0',
   `rght` int(11) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `parent` (`parent`),
   KEY `lft` (`lft`,`rght`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- 
 -- Dumping data for table `categories`
@@ -129,7 +129,7 @@ DROP TABLE IF EXISTS `categories_seq`;
 CREATE TABLE `categories_seq` (
   `id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- 
 -- Dumping data for table `categories_seq`
@@ -148,7 +148,7 @@ CREATE TABLE `categories_to_documents` (
   `category_id` int(11) NOT NULL default '0',
   `document_id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`category_id`,`document_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- --------------------------------------------------------
 
@@ -167,11 +167,11 @@ CREATE TABLE `claims` (
   `bill_process` tinyint(2) NOT NULL default '0',
   `bill_time` datetime default NULL,
   `process_time` datetime default NULL,
-  `process_file` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `target` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
+  `process_file` varchar(255) default NULL,
+  `target` varchar(30) default NULL,
   `x12_partner_id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`patient_id`,`encounter_id`,`version`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -182,20 +182,20 @@ CREATE TABLE `claims` (
 DROP TABLE IF EXISTS `codes`;
 CREATE TABLE `codes` (
   `id` int(11) NOT NULL auto_increment,
-  `code_text` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `code_text_short` varchar(24) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `code` varchar(10) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `code_text` varchar(255) NOT NULL default '',
+  `code_text_short` varchar(24) NOT NULL default '',
+  `code` varchar(10) NOT NULL default '',
   `code_type` tinyint(2) default NULL,
-  `modifier` varchar(5) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `modifier` varchar(5) NOT NULL default '',
   `units` tinyint(3) default NULL,
   `fee` decimal(12,2) default NULL,
-  `superbill` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `related_code` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `taxrates` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `superbill` varchar(31) NOT NULL default '',
+  `related_code` varchar(255) NOT NULL default '',
+  `taxrates` varchar(255) NOT NULL default '',
   `cyp_factor` float NOT NULL DEFAULT 0 COMMENT 'quantity representing a years supply',
   PRIMARY KEY  (`id`),
   KEY `code` (`code`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -206,15 +206,15 @@ CREATE TABLE `codes` (
 DROP TABLE IF EXISTS `config`;
 CREATE TABLE `config` (
   `id` int(11) NOT NULL default '0',
-  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `value` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `name` varchar(255) default NULL,
+  `value` varchar(255) default NULL,
   `parent` int(11) NOT NULL default '0',
   `lft` int(11) NOT NULL default '0',
   `rght` int(11) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `parent` (`parent`),
   KEY `lft` (`lft`,`rght`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- --------------------------------------------------------
 
@@ -226,7 +226,7 @@ DROP TABLE IF EXISTS `config_seq`;
 CREATE TABLE `config_seq` (
   `id` int(11) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- 
 -- Dumping data for table `config_seq`
@@ -243,11 +243,11 @@ INSERT INTO `config_seq` VALUES (0);
 DROP TABLE IF EXISTS `documents`;
 CREATE TABLE `documents` (
   `id` int(11) NOT NULL default '0',
-  `type` enum('file_url','blob','web_url') character set latin1 default NULL,
+  `type` enum('file_url','blob','web_url') default NULL,
   `size` int(11) default NULL,
   `date` datetime default NULL,
-  `url` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `mimetype` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `url` varchar(255) default NULL,
+  `mimetype` varchar(255) default NULL,
   `pages` int(11) default NULL,
   `owner` int(11) default NULL,
   `revision` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
@@ -258,7 +258,7 @@ CREATE TABLE `documents` (
   KEY `revision` (`revision`),
   KEY `foreign_id` (`foreign_id`),
   KEY `owner` (`owner`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- --------------------------------------------------------
 
@@ -270,17 +270,17 @@ DROP TABLE IF EXISTS `drug_inventory`;
 CREATE TABLE `drug_inventory` (
   `inventory_id` int(11) NOT NULL auto_increment,
   `drug_id` int(11) NOT NULL,
-  `lot_number` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
+  `lot_number` varchar(20) default NULL,
   `expiration` date default NULL,
-  `manufacturer` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `manufacturer` varchar(255) default NULL,
   `on_hand` int(11) NOT NULL default '0',
   `last_notify` date NOT NULL default '0000-00-00',
   `destroy_date` date default NULL,
-  `destroy_method` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `destroy_witness` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `destroy_notes` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `destroy_method` varchar(255) default NULL,
+  `destroy_witness` varchar(255) default NULL,
+  `destroy_notes` varchar(255) default NULL,
   PRIMARY KEY  (`inventory_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -296,13 +296,13 @@ CREATE TABLE `drug_sales` (
   `prescription_id` int(11) NOT NULL default '0',
   `pid` int(11) NOT NULL default '0',
   `encounter` int(11) NOT NULL default '0',
-  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `user` varchar(255) default NULL,
   `sale_date` date NOT NULL,
   `quantity` int(11) NOT NULL default '0',
   `fee` decimal(12,2) NOT NULL default '0.00',
   `billed` tinyint(1) NOT NULL default '0' COMMENT 'indicates if the sale is posted to accounting',
   PRIMARY KEY  (`sale_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -313,14 +313,14 @@ CREATE TABLE `drug_sales` (
 DROP TABLE IF EXISTS `drug_templates`;
 CREATE TABLE `drug_templates` (
   `drug_id` int(11) NOT NULL,
-  `selector` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `dosage` varchar(10) character set utf8 collate utf8_unicode_ci default NULL,
+  `selector` varchar(255) NOT NULL default '',
+  `dosage` varchar(10) default NULL,
   `period` int(11) NOT NULL default '0',
   `quantity` int(11) NOT NULL default '0',
   `refills` int(11) NOT NULL default '0',
-  `taxrates` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `taxrates` varchar(255) default NULL,
   PRIMARY KEY  (`drug_id`,`selector`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- --------------------------------------------------------
 
@@ -331,21 +331,21 @@ CREATE TABLE `drug_templates` (
 DROP TABLE IF EXISTS `drugs`;
 CREATE TABLE `drugs` (
   `drug_id` int(11) NOT NULL auto_increment,
-  `name` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `ndc_number` varchar(20) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `ndc_number` varchar(20) NOT NULL DEFAULT '',
   `on_order` int(11) NOT NULL default '0',
   `reorder_point` int(11) NOT NULL default '0',
   `last_notify` date NOT NULL default '0000-00-00',
-  `reactions` text character set utf8 collate utf8_unicode_ci,
+  `reactions` text,
   `form` int(3) NOT NULL default '0',
   `size` float unsigned NOT NULL default '0',
   `unit` int(11) NOT NULL default '0',
   `route` int(11) NOT NULL default '0',
   `substitute` int(11) NOT NULL default '0',
-  `related_code` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code',
+  `related_code` varchar(255) NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code',
   `cyp_factor` float NOT NULL DEFAULT 0 COMMENT 'quantity representing a years supply',
   PRIMARY KEY  (`drug_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -356,17 +356,17 @@ CREATE TABLE `drugs` (
 DROP TABLE IF EXISTS `employer_data`;
 CREATE TABLE `employer_data` (
   `id` bigint(20) NOT NULL auto_increment,
-  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `street` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `postal_code` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `city` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `state` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `country` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `name` varchar(255) default NULL,
+  `street` varchar(255) default NULL,
+  `postal_code` varchar(255) default NULL,
+  `city` varchar(255) default NULL,
+  `state` varchar(255) default NULL,
+  `country` varchar(255) default NULL,
   `date` datetime default NULL,
   `pid` bigint(20) NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -377,25 +377,25 @@ CREATE TABLE `employer_data` (
 DROP TABLE IF EXISTS `facility`;
 CREATE TABLE `facility` (
   `id` int(11) NOT NULL auto_increment,
-  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `phone` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
-  `fax` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
-  `street` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `city` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `state` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
-  `postal_code` varchar(11) character set utf8 collate utf8_unicode_ci default NULL,
-  `country_code` varchar(10) character set utf8 collate utf8_unicode_ci default NULL,
-  `federal_ein` varchar(15) character set utf8 collate utf8_unicode_ci default NULL,
+  `name` varchar(255) default NULL,
+  `phone` varchar(30) default NULL,
+  `fax` varchar(30) default NULL,
+  `street` varchar(255) default NULL,
+  `city` varchar(255) default NULL,
+  `state` varchar(50) default NULL,
+  `postal_code` varchar(11) default NULL,
+  `country_code` varchar(10) default NULL,
+  `federal_ein` varchar(15) default NULL,
   `service_location` tinyint(1) NOT NULL default '1',
   `billing_location` tinyint(1) NOT NULL default '0',
   `accepts_assignment` tinyint(1) NOT NULL default '0',
   `pos_code` tinyint(4) default NULL,
-  `x12_sender_id` varchar(25) character set utf8 collate utf8_unicode_ci default NULL,
-  `attn` varchar(65) character set utf8 collate utf8_unicode_ci default NULL,
-  `domain_identifier` varchar(60) character set utf8 collate utf8_unicode_ci default NULL,
-  `facility_npi` varchar(15) character set utf8 collate utf8_unicode_ci default NULL,
+  `x12_sender_id` varchar(25) default NULL,
+  `attn` varchar(65) default NULL,
+  `domain_identifier` varchar(60) default NULL,
+  `facility_npi` varchar(15) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=4 ;
+) ENGINE=MyISAM AUTO_INCREMENT=4 ;
 
 -- 
 -- Dumping data for table `facility`
@@ -411,10 +411,10 @@ INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-
 
 DROP TABLE IF EXISTS `fee_sheet_options`;
 CREATE TABLE `fee_sheet_options` (
-  `fs_category` varchar(63) character set utf8 collate utf8_unicode_ci default NULL,
-  `fs_option` varchar(63) character set utf8 collate utf8_unicode_ci default NULL,
-  `fs_codes` varchar(255) character set utf8 collate utf8_unicode_ci default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  `fs_category` varchar(63) default NULL,
+  `fs_option` varchar(63) default NULL,
+  `fs_codes` varchar(255) default NULL
+) ENGINE=MyISAM;
 
 -- 
 -- Dumping data for table `fee_sheet_options`
@@ -442,14 +442,14 @@ CREATE TABLE `form_dictation` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
   `pid` bigint(20) default NULL,
-  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `user` varchar(255) default NULL,
+  `groupname` varchar(255) default NULL,
   `authorized` tinyint(4) default NULL,
   `activity` tinyint(4) default NULL,
-  `dictation` longtext character set utf8 collate utf8_unicode_ci,
-  `additional_notes` longtext character set utf8 collate utf8_unicode_ci,
+  `dictation` longtext,
+  `additional_notes` longtext,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -461,14 +461,14 @@ DROP TABLE IF EXISTS `form_encounter`;
 CREATE TABLE `form_encounter` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
-  `reason` longtext character set utf8 collate utf8_unicode_ci,
-  `facility` longtext character set utf8 collate utf8_unicode_ci,
+  `reason` longtext,
+  `facility` longtext,
   `facility_id` int(11) NOT NULL default '0',
   `pid` bigint(20) default NULL,
   `encounter` bigint(20) default NULL,
   `onset_date` datetime default NULL,
-  `sensitivity` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
-  `billing_note` text character set utf8 collate utf8_unicode_ci,
+  `sensitivity` varchar(30) default NULL,
+  `billing_note` text,
   `pc_catid` int(11) NOT NULL default '5' COMMENT 'event category from openemr_postcalendar_categories',
   `last_level_billed` int  NOT NULL DEFAULT 0 COMMENT '0=none, 1=ins1, 2=ins2, etc',
   `last_level_closed` int  NOT NULL DEFAULT 0 COMMENT '0=none, 1=ins1, 2=ins2, etc',
@@ -476,7 +476,7 @@ CREATE TABLE `form_encounter` (
   `stmt_count`        int  NOT NULL DEFAULT 0,
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -489,13 +489,13 @@ CREATE TABLE `form_misc_billing_options` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
   `pid` bigint(20) default NULL,
-  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `user` varchar(255) default NULL,
+  `groupname` varchar(255) default NULL,
   `authorized` tinyint(4) default NULL,
   `activity` tinyint(4) default NULL,
   `employment_related` tinyint(1) default NULL,
   `auto_accident` tinyint(1) default NULL,
-  `accident_state` varchar(2) character set utf8 collate utf8_unicode_ci default NULL,
+  `accident_state` varchar(2) default NULL,
   `other_accident` tinyint(1) default NULL,
   `outside_lab` tinyint(1) default NULL,
   `lab_amount` decimal(5,2) default NULL,
@@ -505,13 +505,13 @@ CREATE TABLE `form_misc_billing_options` (
   `is_hospitalized` tinyint(1) default NULL,
   `hospitalization_date_from` date default NULL,
   `hospitalization_date_to` date default NULL,
-  `medicaid_resubmission_code` varchar(10) character set utf8 collate utf8_unicode_ci default NULL,
-  `medicaid_original_reference` varchar(15) character set utf8 collate utf8_unicode_ci default NULL,
-  `prior_auth_number` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
-  `comments` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `medicaid_resubmission_code` varchar(10) default NULL,
+  `medicaid_original_reference` varchar(15) default NULL,
+  `prior_auth_number` varchar(20) default NULL,
+  `comments` varchar(255) default NULL,
   `replacement_claim` tinyint(1) default 0,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -524,120 +524,120 @@ CREATE TABLE `form_reviewofs` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
   `pid` bigint(20) default NULL,
-  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `user` varchar(255) default NULL,
+  `groupname` varchar(255) default NULL,
   `authorized` tinyint(4) default NULL,
   `activity` tinyint(4) default NULL,
-  `fever` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `chills` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `night_sweats` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `weight_loss` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `poor_appetite` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `insomnia` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `fatigued` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `depressed` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `hyperactive` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `exposure_to_foreign_countries` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `cataracts` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `cataract_surgery` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `glaucoma` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `double_vision` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `blurred_vision` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `poor_hearing` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `headaches` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `ringing_in_ears` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `bloody_nose` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `sinusitis` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `sinus_surgery` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `dry_mouth` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `strep_throat` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `tonsillectomy` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `swollen_lymph_nodes` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `throat_cancer` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `throat_cancer_surgery` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `heart_attack` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `irregular_heart_beat` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `chest_pains` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `shortness_of_breath` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `high_blood_pressure` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `heart_failure` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `poor_circulation` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `vascular_surgery` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `cardiac_catheterization` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `coronary_artery_bypass` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `heart_transplant` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `stress_test` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `emphysema` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `chronic_bronchitis` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `interstitial_lung_disease` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `shortness_of_breath_2` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `lung_cancer` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `lung_cancer_surgery` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `pheumothorax` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `stomach_pains` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `peptic_ulcer_disease` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `gastritis` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `endoscopy` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `polyps` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `colonoscopy` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `colon_cancer` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `colon_cancer_surgery` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `ulcerative_colitis` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `crohns_disease` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `appendectomy` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `divirticulitis` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `divirticulitis_surgery` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `gall_stones` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `cholecystectomy` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `hepatitis` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `cirrhosis_of_the_liver` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `splenectomy` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `kidney_failure` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `kidney_stones` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `kidney_cancer` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `kidney_infections` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `bladder_infections` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `bladder_cancer` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `prostate_problems` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `prostate_cancer` varchar(255) character set latin1 default NULL,
-  `kidney_transplant` varchar(255) character set latin1 default NULL,
-  `sexually_transmitted_disease` varchar(255) character set latin1 default NULL,
-  `burning_with_urination` varchar(255) character set latin1 default NULL,
-  `discharge_from_urethra` varchar(255) character set latin1 default NULL,
-  `rashes` varchar(255) character set latin1 default NULL,
-  `infections` varchar(255) character set latin1 default NULL,
-  `ulcerations` varchar(255) character set latin1 default NULL,
-  `pemphigus` varchar(255) character set latin1 default NULL,
-  `herpes` varchar(255) character set latin1 default NULL,
-  `osetoarthritis` varchar(255) character set latin1 default NULL,
-  `rheumotoid_arthritis` varchar(255) character set latin1 default NULL,
-  `lupus` varchar(255) character set latin1 default NULL,
-  `ankylosing_sondlilitis` varchar(255) character set latin1 default NULL,
-  `swollen_joints` varchar(255) character set latin1 default NULL,
-  `stiff_joints` varchar(255) character set latin1 default NULL,
-  `broken_bones` varchar(255) character set latin1 default NULL,
-  `neck_problems` varchar(255) character set latin1 default NULL,
-  `back_problems` varchar(255) character set latin1 default NULL,
-  `back_surgery` varchar(255) character set latin1 default NULL,
-  `scoliosis` varchar(255) character set latin1 default NULL,
-  `herniated_disc` varchar(255) character set latin1 default NULL,
-  `shoulder_problems` varchar(255) character set latin1 default NULL,
-  `elbow_problems` varchar(255) character set latin1 default NULL,
-  `wrist_problems` varchar(255) character set latin1 default NULL,
-  `hand_problems` varchar(255) character set latin1 default NULL,
-  `hip_problems` varchar(255) character set latin1 default NULL,
-  `knee_problems` varchar(255) character set latin1 default NULL,
-  `ankle_problems` varchar(255) character set latin1 default NULL,
-  `foot_problems` varchar(255) character set latin1 default NULL,
-  `insulin_dependent_diabetes` varchar(255) character set latin1 default NULL,
-  `noninsulin_dependent_diabetes` varchar(255) character set latin1 default NULL,
-  `hypothyroidism` varchar(255) character set latin1 default NULL,
-  `hyperthyroidism` varchar(255) character set latin1 default NULL,
-  `cushing_syndrom` varchar(255) character set latin1 default NULL,
-  `addison_syndrom` varchar(255) character set latin1 default NULL,
-  `additional_notes` longtext character set utf8 collate utf8_unicode_ci,
+  `fever` varchar(255) default NULL,
+  `chills` varchar(255) default NULL,
+  `night_sweats` varchar(255) default NULL,
+  `weight_loss` varchar(255) default NULL,
+  `poor_appetite` varchar(255) default NULL,
+  `insomnia` varchar(255) default NULL,
+  `fatigued` varchar(255) default NULL,
+  `depressed` varchar(255) default NULL,
+  `hyperactive` varchar(255) default NULL,
+  `exposure_to_foreign_countries` varchar(255) default NULL,
+  `cataracts` varchar(255) default NULL,
+  `cataract_surgery` varchar(255) default NULL,
+  `glaucoma` varchar(255) default NULL,
+  `double_vision` varchar(255) default NULL,
+  `blurred_vision` varchar(255) default NULL,
+  `poor_hearing` varchar(255) default NULL,
+  `headaches` varchar(255) default NULL,
+  `ringing_in_ears` varchar(255) default NULL,
+  `bloody_nose` varchar(255) default NULL,
+  `sinusitis` varchar(255) default NULL,
+  `sinus_surgery` varchar(255) default NULL,
+  `dry_mouth` varchar(255) default NULL,
+  `strep_throat` varchar(255) default NULL,
+  `tonsillectomy` varchar(255) default NULL,
+  `swollen_lymph_nodes` varchar(255) default NULL,
+  `throat_cancer` varchar(255) default NULL,
+  `throat_cancer_surgery` varchar(255) default NULL,
+  `heart_attack` varchar(255) default NULL,
+  `irregular_heart_beat` varchar(255) default NULL,
+  `chest_pains` varchar(255) default NULL,
+  `shortness_of_breath` varchar(255) default NULL,
+  `high_blood_pressure` varchar(255) default NULL,
+  `heart_failure` varchar(255) default NULL,
+  `poor_circulation` varchar(255) default NULL,
+  `vascular_surgery` varchar(255) default NULL,
+  `cardiac_catheterization` varchar(255) default NULL,
+  `coronary_artery_bypass` varchar(255) default NULL,
+  `heart_transplant` varchar(255) default NULL,
+  `stress_test` varchar(255) default NULL,
+  `emphysema` varchar(255) default NULL,
+  `chronic_bronchitis` varchar(255) default NULL,
+  `interstitial_lung_disease` varchar(255) default NULL,
+  `shortness_of_breath_2` varchar(255) default NULL,
+  `lung_cancer` varchar(255) default NULL,
+  `lung_cancer_surgery` varchar(255) default NULL,
+  `pheumothorax` varchar(255) default NULL,
+  `stomach_pains` varchar(255) default NULL,
+  `peptic_ulcer_disease` varchar(255) default NULL,
+  `gastritis` varchar(255) default NULL,
+  `endoscopy` varchar(255) default NULL,
+  `polyps` varchar(255) default NULL,
+  `colonoscopy` varchar(255) default NULL,
+  `colon_cancer` varchar(255) default NULL,
+  `colon_cancer_surgery` varchar(255) default NULL,
+  `ulcerative_colitis` varchar(255) default NULL,
+  `crohns_disease` varchar(255) default NULL,
+  `appendectomy` varchar(255) default NULL,
+  `divirticulitis` varchar(255) default NULL,
+  `divirticulitis_surgery` varchar(255) default NULL,
+  `gall_stones` varchar(255) default NULL,
+  `cholecystectomy` varchar(255) default NULL,
+  `hepatitis` varchar(255) default NULL,
+  `cirrhosis_of_the_liver` varchar(255) default NULL,
+  `splenectomy` varchar(255) default NULL,
+  `kidney_failure` varchar(255) default NULL,
+  `kidney_stones` varchar(255) default NULL,
+  `kidney_cancer` varchar(255) default NULL,
+  `kidney_infections` varchar(255) default NULL,
+  `bladder_infections` varchar(255) default NULL,
+  `bladder_cancer` varchar(255) default NULL,
+  `prostate_problems` varchar(255) default NULL,
+  `prostate_cancer` varchar(255) default NULL,
+  `kidney_transplant` varchar(255) default NULL,
+  `sexually_transmitted_disease` varchar(255) default NULL,
+  `burning_with_urination` varchar(255) default NULL,
+  `discharge_from_urethra` varchar(255) default NULL,
+  `rashes` varchar(255) default NULL,
+  `infections` varchar(255) default NULL,
+  `ulcerations` varchar(255) default NULL,
+  `pemphigus` varchar(255) default NULL,
+  `herpes` varchar(255) default NULL,
+  `osetoarthritis` varchar(255) default NULL,
+  `rheumotoid_arthritis` varchar(255) default NULL,
+  `lupus` varchar(255) default NULL,
+  `ankylosing_sondlilitis` varchar(255) default NULL,
+  `swollen_joints` varchar(255) default NULL,
+  `stiff_joints` varchar(255) default NULL,
+  `broken_bones` varchar(255) default NULL,
+  `neck_problems` varchar(255) default NULL,
+  `back_problems` varchar(255) default NULL,
+  `back_surgery` varchar(255) default NULL,
+  `scoliosis` varchar(255) default NULL,
+  `herniated_disc` varchar(255) default NULL,
+  `shoulder_problems` varchar(255) default NULL,
+  `elbow_problems` varchar(255) default NULL,
+  `wrist_problems` varchar(255) default NULL,
+  `hand_problems` varchar(255) default NULL,
+  `hip_problems` varchar(255) default NULL,
+  `knee_problems` varchar(255) default NULL,
+  `ankle_problems` varchar(255) default NULL,
+  `foot_problems` varchar(255) default NULL,
+  `insulin_dependent_diabetes` varchar(255) default NULL,
+  `noninsulin_dependent_diabetes` varchar(255) default NULL,
+  `hypothyroidism` varchar(255) default NULL,
+  `hyperthyroidism` varchar(255) default NULL,
+  `cushing_syndrom` varchar(255) default NULL,
+  `addison_syndrom` varchar(255) default NULL,
+  `additional_notes` longtext,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -651,146 +651,146 @@ CREATE TABLE `form_ros` (
   `pid` int(11) NOT NULL,
   `activity` int(11) NOT NULL default '1',
   `date` datetime default NULL,
-  `weight_change` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `weakness` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `fatigue` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `anorexia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `fever` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `chills` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `night_sweats` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `insomnia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `irritability` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `heat_or_cold` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `intolerance` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `change_in_vision` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `glaucoma_history` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `eye_pain` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `irritation` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `redness` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `excessive_tearing` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `double_vision` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `blind_spots` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `photophobia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `hearing_loss` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `discharge` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `pain` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `vertigo` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `tinnitus` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `frequent_colds` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `sore_throat` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `sinus_problems` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `post_nasal_drip` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `nosebleed` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `snoring` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `apnea` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `breast_mass` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `breast_discharge` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `biopsy` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `abnormal_mammogram` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `cough` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `sputum` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `shortness_of_breath` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `wheezing` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `hemoptsyis` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `asthma` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `copd` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `chest_pain` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `palpitation` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `syncope` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `pnd` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `doe` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `orthopnea` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `peripheal` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `edema` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `legpain_cramping` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `history_murmur` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `arrythmia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `heart_problem` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `dysphagia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `heartburn` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `bloating` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `belching` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `flatulence` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `nausea` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `vomiting` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `hematemesis` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `gastro_pain` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `food_intolerance` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `hepatitis` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `jaundice` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `hematochezia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `changed_bowel` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `diarrhea` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `constipation` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `polyuria` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `polydypsia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `dysuria` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `hematuria` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `frequency` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `urgency` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `incontinence` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `renal_stones` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `utis` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `hesitancy` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `dribbling` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `stream` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `nocturia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `erections` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `ejaculations` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `g` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `p` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `ap` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `lc` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `mearche` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `menopause` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `lmp` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `f_frequency` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `f_flow` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `f_symptoms` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `abnormal_hair_growth` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `f_hirsutism` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `joint_pain` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `swelling` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `m_redness` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `m_warm` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `m_stiffness` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `muscle` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `m_aches` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `fms` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `arthritis` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `loc` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `seizures` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `stroke` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `tia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `n_numbness` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `n_weakness` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `paralysis` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `intellectual_decline` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `memory_problems` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `dementia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `n_headache` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `s_cancer` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `psoriasis` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `s_acne` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `s_other` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `s_disease` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `p_diagnosis` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `p_medication` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `depression` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `anxiety` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `social_difficulties` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `thyroid_problems` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `diabetes` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `abnormal_blood` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `anemia` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `fh_blood_problems` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `bleeding_problems` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `allergies` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `frequent_illness` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `hiv` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
-  `hai_status` varchar(3) character set utf8 collate utf8_unicode_ci default NULL,
+  `weight_change` varchar(3) default NULL,
+  `weakness` varchar(3) default NULL,
+  `fatigue` varchar(3) default NULL,
+  `anorexia` varchar(3) default NULL,
+  `fever` varchar(3) default NULL,
+  `chills` varchar(3) default NULL,
+  `night_sweats` varchar(3) default NULL,
+  `insomnia` varchar(3) default NULL,
+  `irritability` varchar(3) default NULL,
+  `heat_or_cold` varchar(3) default NULL,
+  `intolerance` varchar(3) default NULL,
+  `change_in_vision` varchar(3) default NULL,
+  `glaucoma_history` varchar(3) default NULL,
+  `eye_pain` varchar(3) default NULL,
+  `irritation` varchar(3) default NULL,
+  `redness` varchar(3) default NULL,
+  `excessive_tearing` varchar(3) default NULL,
+  `double_vision` varchar(3) default NULL,
+  `blind_spots` varchar(3) default NULL,
+  `photophobia` varchar(3) default NULL,
+  `hearing_loss` varchar(3) default NULL,
+  `discharge` varchar(3) default NULL,
+  `pain` varchar(3) default NULL,
+  `vertigo` varchar(3) default NULL,
+  `tinnitus` varchar(3) default NULL,
+  `frequent_colds` varchar(3) default NULL,
+  `sore_throat` varchar(3) default NULL,
+  `sinus_problems` varchar(3) default NULL,
+  `post_nasal_drip` varchar(3) default NULL,
+  `nosebleed` varchar(3) default NULL,
+  `snoring` varchar(3) default NULL,
+  `apnea` varchar(3) default NULL,
+  `breast_mass` varchar(3) default NULL,
+  `breast_discharge` varchar(3) default NULL,
+  `biopsy` varchar(3) default NULL,
+  `abnormal_mammogram` varchar(3) default NULL,
+  `cough` varchar(3) default NULL,
+  `sputum` varchar(3) default NULL,
+  `shortness_of_breath` varchar(3) default NULL,
+  `wheezing` varchar(3) default NULL,
+  `hemoptsyis` varchar(3) default NULL,
+  `asthma` varchar(3) default NULL,
+  `copd` varchar(3) default NULL,
+  `chest_pain` varchar(3) default NULL,
+  `palpitation` varchar(3) default NULL,
+  `syncope` varchar(3) default NULL,
+  `pnd` varchar(3) default NULL,
+  `doe` varchar(3) default NULL,
+  `orthopnea` varchar(3) default NULL,
+  `peripheal` varchar(3) default NULL,
+  `edema` varchar(3) default NULL,
+  `legpain_cramping` varchar(3) default NULL,
+  `history_murmur` varchar(3) default NULL,
+  `arrythmia` varchar(3) default NULL,
+  `heart_problem` varchar(3) default NULL,
+  `dysphagia` varchar(3) default NULL,
+  `heartburn` varchar(3) default NULL,
+  `bloating` varchar(3) default NULL,
+  `belching` varchar(3) default NULL,
+  `flatulence` varchar(3) default NULL,
+  `nausea` varchar(3) default NULL,
+  `vomiting` varchar(3) default NULL,
+  `hematemesis` varchar(3) default NULL,
+  `gastro_pain` varchar(3) default NULL,
+  `food_intolerance` varchar(3) default NULL,
+  `hepatitis` varchar(3) default NULL,
+  `jaundice` varchar(3) default NULL,
+  `hematochezia` varchar(3) default NULL,
+  `changed_bowel` varchar(3) default NULL,
+  `diarrhea` varchar(3) default NULL,
+  `constipation` varchar(3) default NULL,
+  `polyuria` varchar(3) default NULL,
+  `polydypsia` varchar(3) default NULL,
+  `dysuria` varchar(3) default NULL,
+  `hematuria` varchar(3) default NULL,
+  `frequency` varchar(3) default NULL,
+  `urgency` varchar(3) default NULL,
+  `incontinence` varchar(3) default NULL,
+  `renal_stones` varchar(3) default NULL,
+  `utis` varchar(3) default NULL,
+  `hesitancy` varchar(3) default NULL,
+  `dribbling` varchar(3) default NULL,
+  `stream` varchar(3) default NULL,
+  `nocturia` varchar(3) default NULL,
+  `erections` varchar(3) default NULL,
+  `ejaculations` varchar(3) default NULL,
+  `g` varchar(3) default NULL,
+  `p` varchar(3) default NULL,
+  `ap` varchar(3) default NULL,
+  `lc` varchar(3) default NULL,
+  `mearche` varchar(3) default NULL,
+  `menopause` varchar(3) default NULL,
+  `lmp` varchar(3) default NULL,
+  `f_frequency` varchar(3) default NULL,
+  `f_flow` varchar(3) default NULL,
+  `f_symptoms` varchar(3) default NULL,
+  `abnormal_hair_growth` varchar(3) default NULL,
+  `f_hirsutism` varchar(3) default NULL,
+  `joint_pain` varchar(3) default NULL,
+  `swelling` varchar(3) default NULL,
+  `m_redness` varchar(3) default NULL,
+  `m_warm` varchar(3) default NULL,
+  `m_stiffness` varchar(3) default NULL,
+  `muscle` varchar(3) default NULL,
+  `m_aches` varchar(3) default NULL,
+  `fms` varchar(3) default NULL,
+  `arthritis` varchar(3) default NULL,
+  `loc` varchar(3) default NULL,
+  `seizures` varchar(3) default NULL,
+  `stroke` varchar(3) default NULL,
+  `tia` varchar(3) default NULL,
+  `n_numbness` varchar(3) default NULL,
+  `n_weakness` varchar(3) default NULL,
+  `paralysis` varchar(3) default NULL,
+  `intellectual_decline` varchar(3) default NULL,
+  `memory_problems` varchar(3) default NULL,
+  `dementia` varchar(3) default NULL,
+  `n_headache` varchar(3) default NULL,
+  `s_cancer` varchar(3) default NULL,
+  `psoriasis` varchar(3) default NULL,
+  `s_acne` varchar(3) default NULL,
+  `s_other` varchar(3) default NULL,
+  `s_disease` varchar(3) default NULL,
+  `p_diagnosis` varchar(3) default NULL,
+  `p_medication` varchar(3) default NULL,
+  `depression` varchar(3) default NULL,
+  `anxiety` varchar(3) default NULL,
+  `social_difficulties` varchar(3) default NULL,
+  `thyroid_problems` varchar(3) default NULL,
+  `diabetes` varchar(3) default NULL,
+  `abnormal_blood` varchar(3) default NULL,
+  `anemia` varchar(3) default NULL,
+  `fh_blood_problems` varchar(3) default NULL,
+  `bleeding_problems` varchar(3) default NULL,
+  `allergies` varchar(3) default NULL,
+  `frequent_illness` varchar(3) default NULL,
+  `hiv` varchar(3) default NULL,
+  `hai_status` varchar(3) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -803,16 +803,16 @@ CREATE TABLE `form_soap` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
   `pid` bigint(20) default '0',
-  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `user` varchar(255) default NULL,
+  `groupname` varchar(255) default NULL,
   `authorized` tinyint(4) default '0',
   `activity` tinyint(4) default '0',
-  `subjective` text character set utf8 collate utf8_unicode_ci,
-  `objective` text character set utf8 collate utf8_unicode_ci,
-  `assessment` text character set utf8 collate utf8_unicode_ci,
-  `plan` text character set utf8 collate utf8_unicode_ci,
+  `subjective` text,
+  `objective` text,
+  `assessment` text,
+  `plan` text,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -825,26 +825,26 @@ CREATE TABLE `form_vitals` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
   `pid` bigint(20) default '0',
-  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `user` varchar(255) default NULL,
+  `groupname` varchar(255) default NULL,
   `authorized` tinyint(4) default '0',
   `activity` tinyint(4) default '0',
-  `bps` varchar(40) character set utf8 collate utf8_unicode_ci default NULL,
-  `bpd` varchar(40) character set utf8 collate utf8_unicode_ci default NULL,
+  `bps` varchar(40) default NULL,
+  `bpd` varchar(40) default NULL,
   `weight` float(5,2) default '0.00',
   `height` float(5,2) default '0.00',
   `temperature` float(5,2) default '0.00',
-  `temp_method` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `temp_method` varchar(255) default NULL,
   `pulse` float(5,2) default '0.00',
   `respiration` float(5,2) default '0.00',
-  `note` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `note` varchar(255) default NULL,
   `BMI` float(4,1) default '0.0',
-  `BMI_status` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `BMI_status` varchar(255) default NULL,
   `waist_circ` float(5,2) default '0.00',
   `head_circ` float(4,2) default '0.00',
   `oxygen_saturation` float(5,2) default '0.00',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -857,16 +857,16 @@ CREATE TABLE `forms` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
   `encounter` bigint(20) default NULL,
-  `form_name` longtext character set utf8 collate utf8_unicode_ci,
+  `form_name` longtext,
   `form_id` bigint(20) default NULL,
   `pid` bigint(20) default NULL,
-  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `user` varchar(255) default NULL,
+  `groupname` varchar(255) default NULL,
   `authorized` tinyint(4) default NULL,
   `deleted` tinyint(4) DEFAULT '0' NOT NULL COMMENT 'flag indicates form has been deleted',
-  `formdir` longtext character set utf8 collate utf8_unicode_ci,
+  `formdir` longtext,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -877,12 +877,12 @@ CREATE TABLE `forms` (
 DROP TABLE IF EXISTS `geo_country_reference`;
 CREATE TABLE `geo_country_reference` (
   `countries_id` int(5) NOT NULL auto_increment,
-  `countries_name` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
-  `countries_iso_code_2` char(2) character set latin1 NOT NULL default '',
-  `countries_iso_code_3` char(3) character set latin1 NOT NULL default '',
+  `countries_name` varchar(64) default NULL,
+  `countries_iso_code_2` char(2) NOT NULL default '',
+  `countries_iso_code_3` char(3) NOT NULL default '',
   PRIMARY KEY  (`countries_id`),
   KEY `IDX_COUNTRIES_NAME` (`countries_name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=240 ;
+) ENGINE=MyISAM AUTO_INCREMENT=240 ;
 
 -- 
 -- Dumping data for table `geo_country_reference`
@@ -1138,10 +1138,10 @@ DROP TABLE IF EXISTS `geo_zone_reference`;
 CREATE TABLE `geo_zone_reference` (
   `zone_id` int(5) NOT NULL auto_increment,
   `zone_country_id` int(5) NOT NULL default '0',
-  `zone_code` varchar(5) character set utf8 collate utf8_unicode_ci default NULL,
-  `zone_name` varchar(32) character set utf8 collate utf8_unicode_ci default NULL,
+  `zone_code` varchar(5) default NULL,
+  `zone_name` varchar(32) default NULL,
   PRIMARY KEY  (`zone_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=83 ;
+) ENGINE=MyISAM AUTO_INCREMENT=83 ;
 
 -- 
 -- Dumping data for table `geo_zone_reference`
@@ -1239,10 +1239,10 @@ INSERT INTO `geo_zone_reference` VALUES (82, 61, 'VIC', 'Victoria');
 DROP TABLE IF EXISTS `groups`;
 CREATE TABLE `groups` (
   `id` bigint(20) NOT NULL auto_increment,
-  `name` longtext character set utf8 collate utf8_unicode_ci,
-  `user` longtext character set utf8 collate utf8_unicode_ci,
+  `name` longtext,
+  `user` longtext,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -1253,44 +1253,44 @@ CREATE TABLE `groups` (
 DROP TABLE IF EXISTS `history_data`;
 CREATE TABLE `history_data` (
   `id` bigint(20) NOT NULL auto_increment,
-  `coffee` longtext character set utf8 collate utf8_unicode_ci,
-  `tobacco` longtext character set utf8 collate utf8_unicode_ci,
-  `alcohol` longtext character set utf8 collate utf8_unicode_ci,
-  `sleep_patterns` longtext character set utf8 collate utf8_unicode_ci,
-  `exercise_patterns` longtext character set utf8 collate utf8_unicode_ci,
-  `seatbelt_use` longtext character set utf8 collate utf8_unicode_ci,
-  `counseling` longtext character set utf8 collate utf8_unicode_ci,
-  `hazardous_activities` longtext character set utf8 collate utf8_unicode_ci,
-  `last_breast_exam` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `last_mammogram` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `last_gynocological_exam` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `last_rectal_exam` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `last_prostate_exam` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `last_physical_exam` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `last_sigmoidoscopy_colonoscopy` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `last_ecg` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `last_cardiac_echo` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `last_retinal` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `last_fluvax` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `last_pneuvax` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `last_ldl` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `last_hemoglobin` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `last_psa` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `last_exam_results` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `history_mother` longtext character set utf8 collate utf8_unicode_ci,
-  `history_father` longtext character set utf8 collate utf8_unicode_ci,
-  `history_siblings` longtext character set utf8 collate utf8_unicode_ci,
-  `history_offspring` longtext character set utf8 collate utf8_unicode_ci,
-  `history_spouse` longtext character set utf8 collate utf8_unicode_ci,
-  `relatives_cancer` longtext character set utf8 collate utf8_unicode_ci,
-  `relatives_tuberculosis` longtext character set utf8 collate utf8_unicode_ci,
-  `relatives_diabetes` longtext character set utf8 collate utf8_unicode_ci,
-  `relatives_high_blood_pressure` longtext character set utf8 collate utf8_unicode_ci,
-  `relatives_heart_problems` longtext character set utf8 collate utf8_unicode_ci,
-  `relatives_stroke` longtext character set utf8 collate utf8_unicode_ci,
-  `relatives_epilepsy` longtext character set utf8 collate utf8_unicode_ci,
-  `relatives_mental_illness` longtext character set utf8 collate utf8_unicode_ci,
-  `relatives_suicide` longtext character set utf8 collate utf8_unicode_ci,
+  `coffee` longtext,
+  `tobacco` longtext,
+  `alcohol` longtext,
+  `sleep_patterns` longtext,
+  `exercise_patterns` longtext,
+  `seatbelt_use` longtext,
+  `counseling` longtext,
+  `hazardous_activities` longtext,
+  `last_breast_exam` varchar(255) default NULL,
+  `last_mammogram` varchar(255) default NULL,
+  `last_gynocological_exam` varchar(255) default NULL,
+  `last_rectal_exam` varchar(255) default NULL,
+  `last_prostate_exam` varchar(255) default NULL,
+  `last_physical_exam` varchar(255) default NULL,
+  `last_sigmoidoscopy_colonoscopy` varchar(255) default NULL,
+  `last_ecg` varchar(255) default NULL,
+  `last_cardiac_echo` varchar(255) default NULL,
+  `last_retinal` varchar(255) default NULL,
+  `last_fluvax` varchar(255) default NULL,
+  `last_pneuvax` varchar(255) default NULL,
+  `last_ldl` varchar(255) default NULL,
+  `last_hemoglobin` varchar(255) default NULL,
+  `last_psa` varchar(255) default NULL,
+  `last_exam_results` varchar(255) default NULL,
+  `history_mother` longtext,
+  `history_father` longtext,
+  `history_siblings` longtext,
+  `history_offspring` longtext,
+  `history_spouse` longtext,
+  `relatives_cancer` longtext,
+  `relatives_tuberculosis` longtext,
+  `relatives_diabetes` longtext,
+  `relatives_high_blood_pressure` longtext,
+  `relatives_heart_problems` longtext,
+  `relatives_stroke` longtext,
+  `relatives_epilepsy` longtext,
+  `relatives_mental_illness` longtext,
+  `relatives_suicide` longtext,
   `cataract_surgery` datetime default NULL,
   `tonsillectomy` datetime default NULL,
   `cholecystestomy` datetime default NULL,
@@ -1302,42 +1302,42 @@ CREATE TABLE `history_data` (
   `appendectomy` datetime default NULL,
   `date` datetime default NULL,
   `pid` bigint(20) NOT NULL default '0',
-  `name_1` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `value_1` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `name_2` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `value_2` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `additional_history` text character set utf8 collate utf8_unicode_ci,
-  `exams`      text         character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext11` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext12` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext13` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext14` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext15` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext16` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext17` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext18` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext19` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext20` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext21` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext22` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext23` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext24` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext25` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext26` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext27` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext28` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext29` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext30` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `name_1` varchar(255) default NULL,
+  `value_1` varchar(255) default NULL,
+  `name_2` varchar(255) default NULL,
+  `value_2` varchar(255) default NULL,
+  `additional_history` text,
+  `exams`      text         NOT NULL DEFAULT '',
+  `usertext11` varchar(255) NOT NULL DEFAULT '',
+  `usertext12` varchar(255) NOT NULL DEFAULT '',
+  `usertext13` varchar(255) NOT NULL DEFAULT '',
+  `usertext14` varchar(255) NOT NULL DEFAULT '',
+  `usertext15` varchar(255) NOT NULL DEFAULT '',
+  `usertext16` varchar(255) NOT NULL DEFAULT '',
+  `usertext17` varchar(255) NOT NULL DEFAULT '',
+  `usertext18` varchar(255) NOT NULL DEFAULT '',
+  `usertext19` varchar(255) NOT NULL DEFAULT '',
+  `usertext20` varchar(255) NOT NULL DEFAULT '',
+  `usertext21` varchar(255) NOT NULL DEFAULT '',
+  `usertext22` varchar(255) NOT NULL DEFAULT '',
+  `usertext23` varchar(255) NOT NULL DEFAULT '',
+  `usertext24` varchar(255) NOT NULL DEFAULT '',
+  `usertext25` varchar(255) NOT NULL DEFAULT '',
+  `usertext26` varchar(255) NOT NULL DEFAULT '',
+  `usertext27` varchar(255) NOT NULL DEFAULT '',
+  `usertext28` varchar(255) NOT NULL DEFAULT '',
+  `usertext29` varchar(255) NOT NULL DEFAULT '',
+  `usertext30` varchar(255) NOT NULL DEFAULT '',
   `userdate11` date DEFAULT NULL,
   `userdate12` date DEFAULT NULL,
   `userdate13` date DEFAULT NULL,
   `userdate14` date DEFAULT NULL,
   `userdate15` date DEFAULT NULL,
-  `userarea11` text character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `userarea12` text character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `userarea11` text NOT NULL DEFAULT '',
+  `userarea12` text NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -1348,10 +1348,10 @@ CREATE TABLE `history_data` (
 DROP TABLE IF EXISTS `immunization`;
 CREATE TABLE `immunization` (
   `id` int(11) NOT NULL auto_increment,
-  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `name` varchar(255) default NULL,
   PRIMARY KEY  (`id`),
   KEY `immunization_name` (`name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=36 ;
+) ENGINE=MyISAM AUTO_INCREMENT=36 ;
 
 -- 
 -- Dumping data for table `immunization`
@@ -1405,19 +1405,19 @@ CREATE TABLE `immunizations` (
   `patient_id` int(11) default NULL,
   `administered_date` date default NULL,
   `immunization_id` int(11) default NULL,
-  `manufacturer` varchar(100) character set utf8 collate utf8_unicode_ci default NULL,
-  `lot_number` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
+  `manufacturer` varchar(100) default NULL,
+  `lot_number` varchar(50) default NULL,
   `administered_by_id` bigint(20) default NULL,
   `administered_by` VARCHAR( 255 ) default NULL COMMENT 'Alternative to administered_by_id',
   `education_date` date default NULL,
   `vis_date` date default NULL COMMENT 'Date of VIS Statement', 
-  `note` text character set utf8 collate utf8_unicode_ci,
+  `note` text,
   `create_date` datetime default NULL,
   `update_date` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   `created_by` bigint(20) default NULL,
   `updated_by` bigint(20) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -1428,14 +1428,14 @@ CREATE TABLE `immunizations` (
 DROP TABLE IF EXISTS `insurance_companies`;
 CREATE TABLE `insurance_companies` (
   `id` int(11) NOT NULL default '0',
-  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `attn` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `cms_id` varchar(15) character set utf8 collate utf8_unicode_ci default NULL,
+  `name` varchar(255) default NULL,
+  `attn` varchar(255) default NULL,
+  `cms_id` varchar(15) default NULL,
   `freeb_type` tinyint(2) default NULL,
-  `x12_receiver_id` varchar(25) character set utf8 collate utf8_unicode_ci default NULL,
+  `x12_receiver_id` varchar(25) default NULL,
   `x12_default_partner_id` int(11) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- --------------------------------------------------------
 
@@ -1446,37 +1446,37 @@ CREATE TABLE `insurance_companies` (
 DROP TABLE IF EXISTS `insurance_data`;
 CREATE TABLE `insurance_data` (
   `id` bigint(20) NOT NULL auto_increment,
-  `type` enum('primary','secondary','tertiary') character set latin1 default NULL,
-  `provider` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `plan_name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `policy_number` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `group_number` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `subscriber_lname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `subscriber_mname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `subscriber_fname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `subscriber_relationship` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `subscriber_ss` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `type` enum('primary','secondary','tertiary') default NULL,
+  `provider` varchar(255) default NULL,
+  `plan_name` varchar(255) default NULL,
+  `policy_number` varchar(255) default NULL,
+  `group_number` varchar(255) default NULL,
+  `subscriber_lname` varchar(255) default NULL,
+  `subscriber_mname` varchar(255) default NULL,
+  `subscriber_fname` varchar(255) default NULL,
+  `subscriber_relationship` varchar(255) default NULL,
+  `subscriber_ss` varchar(255) default NULL,
   `subscriber_DOB` date default NULL,
-  `subscriber_street` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `subscriber_postal_code` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `subscriber_city` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `subscriber_state` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `subscriber_country` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `subscriber_phone` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `subscriber_employer` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `subscriber_employer_street` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `subscriber_employer_postal_code` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `subscriber_employer_state` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `subscriber_employer_country` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `subscriber_employer_city` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `copay` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_street` varchar(255) default NULL,
+  `subscriber_postal_code` varchar(255) default NULL,
+  `subscriber_city` varchar(255) default NULL,
+  `subscriber_state` varchar(255) default NULL,
+  `subscriber_country` varchar(255) default NULL,
+  `subscriber_phone` varchar(255) default NULL,
+  `subscriber_employer` varchar(255) default NULL,
+  `subscriber_employer_street` varchar(255) default NULL,
+  `subscriber_employer_postal_code` varchar(255) default NULL,
+  `subscriber_employer_state` varchar(255) default NULL,
+  `subscriber_employer_country` varchar(255) default NULL,
+  `subscriber_employer_city` varchar(255) default NULL,
+  `copay` varchar(255) default NULL,
   `date` date NOT NULL default '0000-00-00',
   `pid` bigint(20) NOT NULL default '0',
-  `subscriber_sex` varchar(25) character set utf8 collate utf8_unicode_ci default NULL,
+  `subscriber_sex` varchar(25) default NULL,
   `accept_assignment` varchar(5) NOT NULL DEFAULT 'TRUE',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `pid_type_date` (`pid`,`type`,`date`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -1489,13 +1489,13 @@ CREATE TABLE `insurance_numbers` (
   `id` int(11) NOT NULL default '0',
   `provider_id` int(11) NOT NULL default '0',
   `insurance_company_id` int(11) default NULL,
-  `provider_number` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
-  `rendering_provider_number` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
-  `group_number` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
-  `provider_number_type` varchar(4) character set utf8 collate utf8_unicode_ci default NULL,
-  `rendering_provider_number_type` varchar(4) character set utf8 collate utf8_unicode_ci default NULL,
+  `provider_number` varchar(20) default NULL,
+  `rendering_provider_number` varchar(20) default NULL,
+  `group_number` varchar(20) default NULL,
+  `provider_number_type` varchar(4) default NULL,
+  `rendering_provider_number_type` varchar(4) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- --------------------------------------------------------
 
@@ -1507,12 +1507,12 @@ DROP TABLE IF EXISTS `integration_mapping`;
 CREATE TABLE `integration_mapping` (
   `id` int(11) NOT NULL default '0',
   `foreign_id` int(11) NOT NULL default '0',
-  `foreign_table` varchar(125) character set utf8 collate utf8_unicode_ci default NULL,
+  `foreign_table` varchar(125) default NULL,
   `local_id` int(11) NOT NULL default '0',
-  `local_table` varchar(125) character set utf8 collate utf8_unicode_ci default NULL,
+  `local_table` varchar(125) default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `foreign_id` (`foreign_id`,`foreign_table`,`local_id`,`local_table`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- --------------------------------------------------------
 
@@ -1527,7 +1527,7 @@ CREATE TABLE `issue_encounter` (
   `encounter` int(11) NOT NULL,
   `resolved` tinyint(1) NOT NULL,
   PRIMARY KEY  (`pid`,`list_id`,`encounter`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- --------------------------------------------------------
 
@@ -1538,10 +1538,10 @@ CREATE TABLE `issue_encounter` (
 DROP TABLE IF EXISTS `lang_constants`;
 CREATE TABLE `lang_constants` (
   `cons_id` int(11) NOT NULL auto_increment,
-  `constant_name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `constant_name` varchar(255) default NULL,
   UNIQUE KEY `cons_id` (`cons_id`),
   KEY `cons_name` (`constant_name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
+) ENGINE=MyISAM ;
 
 -- 
 -- Table structure for table `lang_definitions`
@@ -1552,10 +1552,10 @@ CREATE TABLE `lang_definitions` (
   `def_id` int(11) NOT NULL auto_increment,
   `cons_id` int(11) NOT NULL default '0',
   `lang_id` int(11) NOT NULL default '0',
-  `definition` mediumtext character set utf8 collate utf8_unicode_ci,
+  `definition` mediumtext,
   UNIQUE KEY `def_id` (`def_id`),
   KEY `definition` (`definition`(100))
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
+) ENGINE=MyISAM ;
 
 -- 
 -- Table structure for table `lang_languages`
@@ -1564,10 +1564,10 @@ CREATE TABLE `lang_definitions` (
 DROP TABLE IF EXISTS `lang_languages`;
 CREATE TABLE `lang_languages` (
   `lang_id` int(11) NOT NULL auto_increment,
-  `lang_code` char(2) character set latin1 NOT NULL default '',
-  `lang_description` varchar(100) character set utf8 collate utf8_unicode_ci default NULL,
+  `lang_code` char(2) NOT NULL default '',
+  `lang_description` varchar(100) default NULL,
   UNIQUE KEY `lang_id` (`lang_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=7 ;
+) ENGINE=MyISAM AUTO_INCREMENT=7 ;
 
 -- 
 -- Dumping data for table `lang_languages`
@@ -1588,23 +1588,23 @@ INSERT INTO `lang_languages` VALUES (6, 'he', 'Hebrew');
 
 DROP TABLE IF EXISTS `layout_options`;
 CREATE TABLE `layout_options` (
-  `form_id` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `field_id` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `group_name` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `title` varchar(63) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `form_id` varchar(31) NOT NULL default '',
+  `field_id` varchar(31) NOT NULL default '',
+  `group_name` varchar(31) NOT NULL default '',
+  `title` varchar(63) NOT NULL default '',
   `seq` int(11) NOT NULL default '0',
   `data_type` tinyint(3) NOT NULL default '0',
   `uor` tinyint(1) NOT NULL default '1',
   `fld_length` int(11) NOT NULL default '15',
   `max_length` int(11) NOT NULL default '0',
-  `list_id` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `list_id` varchar(31) NOT NULL default '',
   `titlecols` tinyint(3) NOT NULL default '1',
   `datacols` tinyint(3) NOT NULL default '1',
-  `default_value` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `edit_options` varchar(36) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `description` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `default_value` varchar(255) NOT NULL default '',
+  `edit_options` varchar(36) NOT NULL default '',
+  `description` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`form_id`,`field_id`,`seq`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- 
 -- Dumping data for table `layout_options`
@@ -1737,14 +1737,14 @@ INSERT INTO layout_options VALUES ('HIS','userarea12'        ,'5Other','User Def
 
 DROP TABLE IF EXISTS `list_options`;
 CREATE TABLE `list_options` (
-  `list_id` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `option_id` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `title` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `list_id` varchar(31) NOT NULL default '',
+  `option_id` varchar(31) NOT NULL default '',
+  `title` varchar(255) NOT NULL default '',
   `seq` int(11) NOT NULL default '0',
   `is_default` tinyint(1) NOT NULL default '0',
   `option_value` float NOT NULL default '0',
   PRIMARY KEY  (`list_id`,`option_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- 
 -- Dumping data for table `list_options`
@@ -1909,25 +1909,25 @@ DROP TABLE IF EXISTS `lists`;
 CREATE TABLE `lists` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
-  `type` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `title` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `type` varchar(255) default NULL,
+  `title` varchar(255) default NULL,
   `begdate` date default NULL,
   `enddate` date default NULL,
   `returndate` date default NULL,
   `occurrence` int(11) default '0',
   `classification` int(11) default '0',
-  `referredby` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `extrainfo` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `diagnosis` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `referredby` varchar(255) default NULL,
+  `extrainfo` varchar(255) default NULL,
+  `diagnosis` varchar(255) default NULL,
   `activity` tinyint(4) default NULL,
-  `comments` longtext character set utf8 collate utf8_unicode_ci,
+  `comments` longtext,
   `pid` bigint(20) default NULL,
-  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `user` varchar(255) default NULL,
+  `groupname` varchar(255) default NULL,
   `outcome` int(11) NOT NULL default '0',
-  `destination` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `destination` varchar(255) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -1939,13 +1939,13 @@ DROP TABLE IF EXISTS `log`;
 CREATE TABLE `log` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
-  `event` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `comments` longtext character set utf8 collate utf8_unicode_ci,
-  `user_notes` longtext character set utf8 collate utf8_unicode_ci,
+  `event` varchar(255) default NULL,
+  `user` varchar(255) default NULL,
+  `groupname` varchar(255) default NULL,
+  `comments` longtext,
+  `user_notes` longtext,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -1957,7 +1957,7 @@ DROP TABLE IF EXISTS `notes`;
 CREATE TABLE `notes` (
   `id` int(11) NOT NULL default '0',
   `foreign_id` int(11) NOT NULL default '0',
-  `note` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `note` varchar(255) default NULL,
   `owner` int(11) default NULL,
   `date` datetime default NULL,
   `revision` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
@@ -1965,7 +1965,7 @@ CREATE TABLE `notes` (
   KEY `foreign_id` (`owner`),
   KEY `foreign_id_2` (`foreign_id`),
   KEY `date` (`date`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- --------------------------------------------------------
 
@@ -1977,12 +1977,12 @@ DROP TABLE IF EXISTS `onotes`;
 CREATE TABLE `onotes` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
-  `body` longtext character set utf8 collate utf8_unicode_ci,
-  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `body` longtext,
+  `user` varchar(255) default NULL,
+  `groupname` varchar(255) default NULL,
   `activity` tinyint(4) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -1993,13 +1993,13 @@ CREATE TABLE `onotes` (
 DROP TABLE IF EXISTS `openemr_module_vars`;
 CREATE TABLE `openemr_module_vars` (
   `pn_id` int(11) unsigned NOT NULL auto_increment,
-  `pn_modname` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
-  `pn_name` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
-  `pn_value` longtext character set utf8 collate utf8_unicode_ci,
+  `pn_modname` varchar(64) default NULL,
+  `pn_name` varchar(64) default NULL,
+  `pn_value` longtext,
   PRIMARY KEY  (`pn_id`),
   KEY `pn_modname` (`pn_modname`),
   KEY `pn_name` (`pn_name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=235 ;
+) ENGINE=MyISAM AUTO_INCREMENT=235 ;
 
 -- 
 -- Dumping data for table `openemr_module_vars`
@@ -2034,18 +2034,18 @@ INSERT INTO `openemr_module_vars` VALUES (216, 'PostCalendar', 'pcTime24Hours', 
 DROP TABLE IF EXISTS `openemr_modules`;
 CREATE TABLE `openemr_modules` (
   `pn_id` int(11) unsigned NOT NULL auto_increment,
-  `pn_name` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `pn_name` varchar(64) default NULL,
   `pn_type` int(6) NOT NULL default '0',
-  `pn_displayname` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
-  `pn_description` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `pn_displayname` varchar(64) default NULL,
+  `pn_description` varchar(255) default NULL,
   `pn_regid` int(11) unsigned NOT NULL default '0',
-  `pn_directory` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
-  `pn_version` varchar(10) character set utf8 collate utf8_unicode_ci default NULL,
+  `pn_directory` varchar(64) default NULL,
+  `pn_version` varchar(10) default NULL,
   `pn_admin_capable` tinyint(1) NOT NULL default '0',
   `pn_user_capable` tinyint(1) NOT NULL default '0',
   `pn_state` tinyint(1) NOT NULL default '0',
   PRIMARY KEY  (`pn_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=47 ;
+) ENGINE=MyISAM AUTO_INCREMENT=47 ;
 
 -- 
 -- Dumping data for table `openemr_modules`
@@ -2062,12 +2062,12 @@ INSERT INTO `openemr_modules` VALUES (46, 'PostCalendar', 2, 'PostCalendar', 'Po
 DROP TABLE IF EXISTS `openemr_postcalendar_categories`;
 CREATE TABLE `openemr_postcalendar_categories` (
   `pc_catid` int(11) unsigned NOT NULL auto_increment,
-  `pc_catname` varchar(100) character set utf8 collate utf8_unicode_ci default NULL,
-  `pc_catcolor` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
-  `pc_catdesc` text character set utf8 collate utf8_unicode_ci,
+  `pc_catname` varchar(100) default NULL,
+  `pc_catcolor` varchar(50) default NULL,
+  `pc_catdesc` text,
   `pc_recurrtype` int(1) NOT NULL default '0',
   `pc_enddate` date default NULL,
-  `pc_recurrspec` text character set utf8 collate utf8_unicode_ci,
+  `pc_recurrspec` text,
   `pc_recurrfreq` int(3) NOT NULL default '0',
   `pc_duration` bigint(20) NOT NULL default '0',
   `pc_end_date_flag` tinyint(1) NOT NULL default '0',
@@ -2077,7 +2077,7 @@ CREATE TABLE `openemr_postcalendar_categories` (
   `pc_dailylimit` int(2) NOT NULL default '0',
   PRIMARY KEY  (`pc_catid`),
   KEY `basic_cat` (`pc_catname`,`pc_catcolor`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=11 ;
+) ENGINE=MyISAM AUTO_INCREMENT=11 ;
 
 -- 
 -- Dumping data for table `openemr_postcalendar_categories`
@@ -2104,41 +2104,41 @@ CREATE TABLE `openemr_postcalendar_events` (
   `pc_eid` int(11) unsigned NOT NULL auto_increment,
   `pc_catid` int(11) NOT NULL default '0',
   `pc_multiple` int(10) unsigned NOT NULL,
-  `pc_aid` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
-  `pc_pid` varchar(11) character set utf8 collate utf8_unicode_ci default NULL,
-  `pc_title` varchar(150) character set utf8 collate utf8_unicode_ci default NULL,
+  `pc_aid` varchar(30) default NULL,
+  `pc_pid` varchar(11) default NULL,
+  `pc_title` varchar(150) default NULL,
   `pc_time` datetime default NULL,
-  `pc_hometext` text character set utf8 collate utf8_unicode_ci,
+  `pc_hometext` text,
   `pc_comments` int(11) default '0',
   `pc_counter` mediumint(8) unsigned default '0',
   `pc_topic` int(3) NOT NULL default '1',
-  `pc_informant` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
+  `pc_informant` varchar(20) default NULL,
   `pc_eventDate` date NOT NULL default '0000-00-00',
   `pc_endDate` date NOT NULL default '0000-00-00',
   `pc_duration` bigint(20) NOT NULL default '0',
   `pc_recurrtype` int(1) NOT NULL default '0',
-  `pc_recurrspec` text character set utf8 collate utf8_unicode_ci,
+  `pc_recurrspec` text,
   `pc_recurrfreq` int(3) NOT NULL default '0',
   `pc_startTime` time default NULL,
   `pc_endTime` time default NULL,
   `pc_alldayevent` int(1) NOT NULL default '0',
-  `pc_location` text character set utf8 collate utf8_unicode_ci,
-  `pc_conttel` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
-  `pc_contname` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
-  `pc_contemail` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `pc_website` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `pc_fee` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
+  `pc_location` text,
+  `pc_conttel` varchar(50) default NULL,
+  `pc_contname` varchar(50) default NULL,
+  `pc_contemail` varchar(255) default NULL,
+  `pc_website` varchar(255) default NULL,
+  `pc_fee` varchar(50) default NULL,
   `pc_eventstatus` int(11) NOT NULL default '0',
   `pc_sharing` int(11) NOT NULL default '0',
-  `pc_language` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
-  `pc_apptstatus` char(1) character set latin1 NOT NULL default '-',
+  `pc_language` varchar(30) default NULL,
+  `pc_apptstatus` char(1) NOT NULL default '-',
   `pc_prefcatid` int(11) NOT NULL default '0',
   `pc_facility` smallint(6) NOT NULL default '0' COMMENT 'facility id for this event',
   `pc_sendalertsms` VARCHAR(3) NOT NULL DEFAULT 'NO',
   `pc_sendalertemail` VARCHAR( 3 ) NOT NULL DEFAULT 'NO',
   PRIMARY KEY  (`pc_eid`),
   KEY `basic_event` (`pc_catid`,`pc_aid`,`pc_eventDate`,`pc_endDate`,`pc_eventstatus`,`pc_sharing`,`pc_topic`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=7 ;
+) ENGINE=MyISAM AUTO_INCREMENT=7 ;
 
 -- 
 -- Dumping data for table `openemr_postcalendar_events`
@@ -2162,7 +2162,7 @@ CREATE TABLE `openemr_postcalendar_limits` (
   `pc_endtime` time NOT NULL default '00:00:00',
   `pc_limit` int(11) NOT NULL default '1',
   PRIMARY KEY  (`pc_limitid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -2173,12 +2173,12 @@ CREATE TABLE `openemr_postcalendar_limits` (
 DROP TABLE IF EXISTS `openemr_postcalendar_topics`;
 CREATE TABLE `openemr_postcalendar_topics` (
   `pc_catid` int(11) unsigned NOT NULL auto_increment,
-  `pc_catname` varchar(100) character set utf8 collate utf8_unicode_ci default NULL,
-  `pc_catcolor` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
-  `pc_catdesc` text character set utf8 collate utf8_unicode_ci,
+  `pc_catname` varchar(100) default NULL,
+  `pc_catcolor` varchar(50) default NULL,
+  `pc_catdesc` text,
   PRIMARY KEY  (`pc_catid`),
   KEY `basic_cat` (`pc_catname`,`pc_catcolor`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -2188,14 +2188,14 @@ CREATE TABLE `openemr_postcalendar_topics` (
 
 DROP TABLE IF EXISTS `openemr_session_info`;
 CREATE TABLE `openemr_session_info` (
-  `pn_sessid` varchar(32) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `pn_ipaddr` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
+  `pn_sessid` varchar(32) NOT NULL default '',
+  `pn_ipaddr` varchar(20) default NULL,
   `pn_firstused` int(11) NOT NULL default '0',
   `pn_lastused` int(11) NOT NULL default '0',
   `pn_uid` int(11) NOT NULL default '0',
   `pn_vars` blob,
   PRIMARY KEY  (`pn_sessid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- 
 -- Dumping data for table `openemr_session_info`
@@ -2212,77 +2212,77 @@ INSERT INTO `openemr_session_info` VALUES ('978d31441dccd350d406bfab98978f20', '
 DROP TABLE IF EXISTS `patient_data`;
 CREATE TABLE `patient_data` (
   `id` bigint(20) NOT NULL auto_increment,
-  `title` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `language` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `financial` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `fname` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `lname` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `mname` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `title` varchar(255) NOT NULL default '',
+  `language` varchar(255) NOT NULL default '',
+  `financial` varchar(255) NOT NULL default '',
+  `fname` varchar(255) NOT NULL default '',
+  `lname` varchar(255) NOT NULL default '',
+  `mname` varchar(255) NOT NULL default '',
   `DOB` date default NULL,
-  `street` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `postal_code` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `city` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `state` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `country_code` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `drivers_license` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `ss` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `occupation` longtext character set utf8 collate utf8_unicode_ci,
-  `phone_home` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `phone_biz` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `phone_contact` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `phone_cell` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `street` varchar(255) NOT NULL default '',
+  `postal_code` varchar(255) NOT NULL default '',
+  `city` varchar(255) NOT NULL default '',
+  `state` varchar(255) NOT NULL default '',
+  `country_code` varchar(255) NOT NULL default '',
+  `drivers_license` varchar(255) NOT NULL default '',
+  `ss` varchar(255) NOT NULL default '',
+  `occupation` longtext,
+  `phone_home` varchar(255) NOT NULL default '',
+  `phone_biz` varchar(255) NOT NULL default '',
+  `phone_contact` varchar(255) NOT NULL default '',
+  `phone_cell` varchar(255) NOT NULL default '',
   `pharmacy_id` int(11) NOT NULL default '0',
-  `status` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `contact_relationship` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `status` varchar(255) NOT NULL default '',
+  `contact_relationship` varchar(255) NOT NULL default '',
   `date` datetime default NULL,
-  `sex` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `referrer` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `referrerID` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `sex` varchar(255) NOT NULL default '',
+  `referrer` varchar(255) NOT NULL default '',
+  `referrerID` varchar(255) NOT NULL default '',
   `providerID` int(11) default NULL,
-  `email` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `ethnoracial` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `interpretter` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `migrantseasonal` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `family_size` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `monthly_income` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `homeless` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `email` varchar(255) NOT NULL default '',
+  `ethnoracial` varchar(255) NOT NULL default '',
+  `interpretter` varchar(255) NOT NULL default '',
+  `migrantseasonal` varchar(255) NOT NULL default '',
+  `family_size` varchar(255) NOT NULL default '',
+  `monthly_income` varchar(255) NOT NULL default '',
+  `homeless` varchar(255) NOT NULL default '',
   `financial_review` datetime default NULL,
-  `pubpid` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `pubpid` varchar(255) NOT NULL default '',
   `pid` bigint(20) NOT NULL default '0',
-  `genericname1` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `genericval1` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `genericname2` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `genericval2` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `hipaa_mail` varchar(3) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `hipaa_voice` varchar(3) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `hipaa_notice` varchar(3) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `hipaa_message` varchar(20) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `genericname1` varchar(255) NOT NULL default '',
+  `genericval1` varchar(255) NOT NULL default '',
+  `genericname2` varchar(255) NOT NULL default '',
+  `genericval2` varchar(255) NOT NULL default '',
+  `hipaa_mail` varchar(3) NOT NULL default '',
+  `hipaa_voice` varchar(3) NOT NULL default '',
+  `hipaa_notice` varchar(3) NOT NULL default '',
+  `hipaa_message` varchar(20) NOT NULL default '',
   `hipaa_allowsms` VARCHAR( 3 ) NOT NULL DEFAULT 'NO',
   `hipaa_allowemail` VARCHAR( 3 ) NOT NULL DEFAULT 'NO',
-  `squad` varchar(32) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `squad` varchar(32) NOT NULL default '',
   `fitness` int(11) NOT NULL default '0',
-  `referral_source` varchar(30) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `usertext1` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext2` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext3` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext4` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext5` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext6` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext7` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `usertext8` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `userlist1` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `userlist2` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `userlist3` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `userlist4` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `userlist5` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `userlist6` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `userlist7` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `pricelevel` varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL default 'standard',
+  `referral_source` varchar(30) NOT NULL default '',
+  `usertext1` varchar(255) NOT NULL DEFAULT '',
+  `usertext2` varchar(255) NOT NULL DEFAULT '',
+  `usertext3` varchar(255) NOT NULL DEFAULT '',
+  `usertext4` varchar(255) NOT NULL DEFAULT '',
+  `usertext5` varchar(255) NOT NULL DEFAULT '',
+  `usertext6` varchar(255) NOT NULL DEFAULT '',
+  `usertext7` varchar(255) NOT NULL DEFAULT '',
+  `usertext8` varchar(255) NOT NULL DEFAULT '',
+  `userlist1` varchar(255) NOT NULL DEFAULT '',
+  `userlist2` varchar(255) NOT NULL DEFAULT '',
+  `userlist3` varchar(255) NOT NULL DEFAULT '',
+  `userlist4` varchar(255) NOT NULL DEFAULT '',
+  `userlist5` varchar(255) NOT NULL DEFAULT '',
+  `userlist6` varchar(255) NOT NULL DEFAULT '',
+  `userlist7` varchar(255) NOT NULL DEFAULT '',
+  `pricelevel` varchar(255) NOT NULL default 'standard',
   `regdate`     date DEFAULT NULL COMMENT 'Registration Date',
   `contrastart` date DEFAULT NULL COMMENT 'Date contraceptives initially used',
   UNIQUE KEY `pid` (`pid`),
   KEY `id` (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -2296,16 +2296,16 @@ CREATE TABLE `payments` (
   `pid` bigint(20) NOT NULL default '0',
   `dtime` datetime NOT NULL,
   `encounter` bigint(20) NOT NULL default '0',
-  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `method` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `source` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `user` varchar(255) default NULL,
+  `method` varchar(255) default NULL,
+  `source` varchar(255) default NULL,
   `amount1` decimal(12,2) NOT NULL default '0.00',
   `amount2` decimal(12,2) NOT NULL default '0.00',
   `posted1` decimal(12,2) NOT NULL default '0.00',
   `posted2` decimal(12,2) NOT NULL default '0.00',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -2316,11 +2316,11 @@ CREATE TABLE `payments` (
 DROP TABLE IF EXISTS `pharmacies`;
 CREATE TABLE `pharmacies` (
   `id` int(11) NOT NULL default '0',
-  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `name` varchar(255) default NULL,
   `transmit_method` int(11) NOT NULL default '1',
-  `email` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `email` varchar(255) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- --------------------------------------------------------
 
@@ -2331,15 +2331,15 @@ CREATE TABLE `pharmacies` (
 DROP TABLE IF EXISTS `phone_numbers`;
 CREATE TABLE `phone_numbers` (
   `id` int(11) NOT NULL default '0',
-  `country_code` varchar(5) character set utf8 collate utf8_unicode_ci default NULL,
-  `area_code` char(3) character set latin1 default NULL,
-  `prefix` char(3) character set latin1 default NULL,
-  `number` varchar(4) character set utf8 collate utf8_unicode_ci default NULL,
+  `country_code` varchar(5) default NULL,
+  `area_code` char(3) default NULL,
+  `prefix` char(3) default NULL,
+  `number` varchar(4) default NULL,
   `type` int(11) default NULL,
   `foreign_id` int(11) default NULL,
   PRIMARY KEY  (`id`),
   KEY `foreign_id` (`foreign_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- --------------------------------------------------------
 
@@ -2350,12 +2350,12 @@ CREATE TABLE `phone_numbers` (
 DROP TABLE IF EXISTS `pma_bookmark`;
 CREATE TABLE `pma_bookmark` (
   `id` int(11) NOT NULL auto_increment,
-  `dbase` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `label` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `query` text character set utf8 collate utf8_unicode_ci,
+  `dbase` varchar(255) default NULL,
+  `user` varchar(255) default NULL,
+  `label` varchar(255) default NULL,
+  `query` text,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Bookmarks' AUTO_INCREMENT=10 ;
+) ENGINE=MyISAM COMMENT='Bookmarks' AUTO_INCREMENT=10 ;
 
 -- 
 -- Dumping data for table `pma_bookmark`
@@ -2375,16 +2375,16 @@ INSERT INTO `pma_bookmark` VALUES (6, 'openemr', 'openemr', 'Appointments By Rac
 DROP TABLE IF EXISTS `pma_column_info`;
 CREATE TABLE `pma_column_info` (
   `id` int(5) unsigned NOT NULL auto_increment,
-  `db_name` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
-  `table_name` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
-  `column_name` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
-  `comment` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `mimetype` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `transformation` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `transformation_options` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `db_name` varchar(64) default NULL,
+  `table_name` varchar(64) default NULL,
+  `column_name` varchar(64) default NULL,
+  `comment` varchar(255) default NULL,
+  `mimetype` varchar(255) default NULL,
+  `transformation` varchar(255) default NULL,
+  `transformation_options` varchar(255) default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `db_name` (`db_name`,`table_name`,`column_name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Column Information for phpMyAdmin' AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM COMMENT='Column Information for phpMyAdmin' AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -2395,14 +2395,14 @@ CREATE TABLE `pma_column_info` (
 DROP TABLE IF EXISTS `pma_history`;
 CREATE TABLE `pma_history` (
   `id` bigint(20) unsigned NOT NULL auto_increment,
-  `username` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
-  `db` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
-  `table` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `username` varchar(64) default NULL,
+  `db` varchar(64) default NULL,
+  `table` varchar(64) default NULL,
   `timevalue` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
-  `sqlquery` text character set utf8 collate utf8_unicode_ci,
+  `sqlquery` text,
   PRIMARY KEY  (`id`),
   KEY `username` (`username`,`db`,`table`,`timevalue`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='SQL history' AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM COMMENT='SQL history' AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -2412,12 +2412,12 @@ CREATE TABLE `pma_history` (
 
 DROP TABLE IF EXISTS `pma_pdf_pages`;
 CREATE TABLE `pma_pdf_pages` (
-  `db_name` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `db_name` varchar(64) default NULL,
   `page_nr` int(10) unsigned NOT NULL auto_increment,
-  `page_descr` varchar(50) character set utf8 collate utf8_unicode_ci default NULL,
+  `page_descr` varchar(50) default NULL,
   PRIMARY KEY  (`page_nr`),
   KEY `db_name` (`db_name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='PDF Relationpages for PMA' AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM COMMENT='PDF Relationpages for PMA' AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -2427,15 +2427,15 @@ CREATE TABLE `pma_pdf_pages` (
 
 DROP TABLE IF EXISTS `pma_relation`;
 CREATE TABLE `pma_relation` (
-  `master_db` varchar(64) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `master_table` varchar(64) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `master_field` varchar(64) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `foreign_db` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
-  `foreign_table` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
-  `foreign_field` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `master_db` varchar(64) NOT NULL default '',
+  `master_table` varchar(64) NOT NULL default '',
+  `master_field` varchar(64) NOT NULL default '',
+  `foreign_db` varchar(64) default NULL,
+  `foreign_table` varchar(64) default NULL,
+  `foreign_field` varchar(64) default NULL,
   PRIMARY KEY  (`master_db`,`master_table`,`master_field`),
   KEY `foreign_field` (`foreign_db`,`foreign_table`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Relation table';
+) ENGINE=MyISAM COMMENT='Relation table';
 
 -- --------------------------------------------------------
 
@@ -2445,13 +2445,13 @@ CREATE TABLE `pma_relation` (
 
 DROP TABLE IF EXISTS `pma_table_coords`;
 CREATE TABLE `pma_table_coords` (
-  `db_name` varchar(64) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `table_name` varchar(64) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `db_name` varchar(64) NOT NULL default '',
+  `table_name` varchar(64) NOT NULL default '',
   `pdf_page_number` int(11) NOT NULL default '0',
   `x` float unsigned NOT NULL default '0',
   `y` float unsigned NOT NULL default '0',
   PRIMARY KEY  (`db_name`,`table_name`,`pdf_page_number`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Table coordinates for phpMyAdmin PDF output';
+) ENGINE=MyISAM COMMENT='Table coordinates for phpMyAdmin PDF output';
 
 -- --------------------------------------------------------
 
@@ -2461,11 +2461,11 @@ CREATE TABLE `pma_table_coords` (
 
 DROP TABLE IF EXISTS `pma_table_info`;
 CREATE TABLE `pma_table_info` (
-  `db_name` varchar(64) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `table_name` varchar(64) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `display_field` varchar(64) character set utf8 collate utf8_unicode_ci default NULL,
+  `db_name` varchar(64) NOT NULL default '',
+  `table_name` varchar(64) NOT NULL default '',
+  `display_field` varchar(64) default NULL,
   PRIMARY KEY  (`db_name`,`table_name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Table information for phpMyAdmin';
+) ENGINE=MyISAM COMMENT='Table information for phpMyAdmin';
 
 -- --------------------------------------------------------
 
@@ -2477,17 +2477,17 @@ DROP TABLE IF EXISTS `pnotes`;
 CREATE TABLE `pnotes` (
   `id` bigint(20) NOT NULL auto_increment,
   `date` datetime default NULL,
-  `body` longtext character set utf8 collate utf8_unicode_ci,
+  `body` longtext,
   `pid` bigint(20) default NULL,
-  `user` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `groupname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `user` varchar(255) default NULL,
+  `groupname` varchar(255) default NULL,
   `activity` tinyint(4) default NULL,
   `authorized` tinyint(4) default NULL,
-  `title` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `assigned_to` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `title` varchar(255) default NULL,
+  `assigned_to` varchar(255) default NULL,
   `deleted` tinyint(4) default 0 COMMENT 'flag indicates note is deleted',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -2505,11 +2505,11 @@ CREATE TABLE `prescriptions` (
   `date_modified` date default NULL,
   `provider_id` int(11) default NULL,
   `start_date` date default NULL,
-  `drug` varchar(150) character set utf8 collate utf8_unicode_ci default NULL,
+  `drug` varchar(150) default NULL,
   `drug_id` int(11) NOT NULL default '0',
   `form` int(3) default NULL,
-  `dosage` varchar(100) character set utf8 collate utf8_unicode_ci default NULL,
-  `quantity` varchar(31) character set utf8 collate utf8_unicode_ci default NULL,
+  `dosage` varchar(100) default NULL,
+  `quantity` varchar(31) default NULL,
   `size` float unsigned default NULL,
   `unit` int(11) default NULL,
   `route` int(11) default NULL,
@@ -2519,10 +2519,10 @@ CREATE TABLE `prescriptions` (
   `per_refill` int(11) default NULL,
   `filled_date` date default NULL,
   `medication` int(11) default NULL,
-  `note` text character set utf8 collate utf8_unicode_ci,
+  `note` text,
   `active` int(11) NOT NULL default '1',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -2532,12 +2532,12 @@ CREATE TABLE `prescriptions` (
 
 DROP TABLE IF EXISTS `prices`;
 CREATE TABLE `prices` (
-  `pr_id` varchar(11) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `pr_selector` varchar(15) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `pr_level` varchar(31) character set utf8 collate utf8_unicode_ci NOT NULL default '',
+  `pr_id` varchar(11) NOT NULL default '',
+  `pr_selector` varchar(15) NOT NULL default '',
+  `pr_level` varchar(31) NOT NULL default '',
   `pr_price` decimal(12,2) NOT NULL default '0.00' COMMENT 'price in local currency',
   PRIMARY KEY  (`pr_id`,`pr_selector`,`pr_level`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- --------------------------------------------------------
 
@@ -2547,18 +2547,18 @@ CREATE TABLE `prices` (
 
 DROP TABLE IF EXISTS `registry`;
 CREATE TABLE `registry` (
-  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `name` varchar(255) default NULL,
   `state` tinyint(4) default NULL,
-  `directory` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `directory` varchar(255) default NULL,
   `id` bigint(20) NOT NULL auto_increment,
   `sql_run` tinyint(4) default NULL,
   `unpackaged` tinyint(4) default NULL,
   `date` datetime default NULL,
   `priority` int(11) default '0',
-  `category` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `nickname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `category` varchar(255) default NULL,
+  `nickname` varchar(255) default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=16 ;
+) ENGINE=MyISAM AUTO_INCREMENT=16 ;
 
 -- 
 -- Dumping data for table `registry`
@@ -2582,7 +2582,7 @@ INSERT INTO `registry` VALUES ('Misc Billing Options HCFA', 1, 'misc_billing_opt
 DROP TABLE IF EXISTS `sequences`;
 CREATE TABLE `sequences` (
   `id` int(11) unsigned NOT NULL default '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 -- 
 -- Dumping data for table `sequences`
@@ -2600,31 +2600,31 @@ DROP TABLE IF EXISTS `transactions`;
 CREATE TABLE `transactions` (
   `id`                      bigint(20)   NOT NULL auto_increment,
   `date`                    datetime     default NULL,
-  `title`                   varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `body`                    longtext     character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `title`                   varchar(255) NOT NULL DEFAULT '',
+  `body`                    longtext     NOT NULL DEFAULT '',
   `pid`                     bigint(20)   default NULL,
-  `user`                    varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `groupname`               varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `user`                    varchar(255) NOT NULL DEFAULT '',
+  `groupname`               varchar(255) NOT NULL DEFAULT '',
   `authorized`              tinyint(4)   default NULL,
   `refer_date`              date         DEFAULT NULL,
   `refer_from`              int(11)      NOT NULL DEFAULT 0,
   `refer_to`                int(11)      NOT NULL DEFAULT 0,
-  `refer_diag`              varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `refer_risk_level`        varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `refer_diag`              varchar(255) NOT NULL DEFAULT '',
+  `refer_risk_level`        varchar(255) NOT NULL DEFAULT '',
   `refer_vitals`            tinyint(1)   NOT NULL DEFAULT 0,
   `refer_external`          tinyint(1)   NOT NULL DEFAULT 0,
-  `refer_related_code`      varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `refer_related_code`      varchar(255) NOT NULL DEFAULT '',
   `reply_date`              date         DEFAULT NULL,
-  `reply_from`              varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `reply_init_diag`         varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `reply_final_diag`        varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `reply_documents`         varchar(255) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `reply_findings`          text         character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `reply_services`          text         character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `reply_recommend`         text         character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
-  `reply_rx_refer`          text         character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '',
+  `reply_from`              varchar(255) NOT NULL DEFAULT '',
+  `reply_init_diag`         varchar(255) NOT NULL DEFAULT '',
+  `reply_final_diag`        varchar(255) NOT NULL DEFAULT '',
+  `reply_documents`         varchar(255) NOT NULL DEFAULT '',
+  `reply_findings`          text         NOT NULL DEFAULT '',
+  `reply_services`          text         NOT NULL DEFAULT '',
+  `reply_recommend`         text         NOT NULL DEFAULT '',
+  `reply_rx_refer`          text         NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -2635,50 +2635,50 @@ CREATE TABLE `transactions` (
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `id` bigint(20) NOT NULL auto_increment,
-  `username` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `password` longtext character set utf8 collate utf8_unicode_ci,
+  `username` varchar(255) default NULL,
+  `password` longtext,
   `authorized` tinyint(4) default NULL,
-  `info` longtext character set utf8 collate utf8_unicode_ci,
+  `info` longtext,
   `source` tinyint(4) default NULL,
-  `fname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `mname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `lname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `federaltaxid` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `federaldrugid` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `upin` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `facility` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `fname` varchar(255) default NULL,
+  `mname` varchar(255) default NULL,
+  `lname` varchar(255) default NULL,
+  `federaltaxid` varchar(255) default NULL,
+  `federaldrugid` varchar(255) default NULL,
+  `upin` varchar(255) default NULL,
+  `facility` varchar(255) default NULL,
   `facility_id` int(11) NOT NULL default '0',
   `see_auth` int(11) NOT NULL default '1',
   `active` tinyint(1) NOT NULL default '1',
-  `npi` varchar(15) character set utf8 collate utf8_unicode_ci default NULL,
-  `title` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
-  `specialty` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `billname` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `email` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `url` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `assistant` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `organization` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `valedictory` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `street` varchar(60) character set utf8 collate utf8_unicode_ci default NULL,
-  `streetb` varchar(60) character set utf8 collate utf8_unicode_ci default NULL,
-  `city` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
-  `state` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
-  `zip` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
-  `street2` varchar(60) character set utf8 collate utf8_unicode_ci default NULL,
-  `streetb2` varchar(60) character set utf8 collate utf8_unicode_ci default NULL,
-  `city2` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
-  `state2` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
-  `zip2` varchar(20) character set utf8 collate utf8_unicode_ci default NULL,
-  `phone` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
-  `fax` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
-  `phonew1` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
-  `phonew2` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
-  `phonecell` varchar(30) character set utf8 collate utf8_unicode_ci default NULL,
-  `notes` text character set utf8 collate utf8_unicode_ci,
+  `npi` varchar(15) default NULL,
+  `title` varchar(30) default NULL,
+  `specialty` varchar(255) default NULL,
+  `billname` varchar(255) default NULL,
+  `email` varchar(255) default NULL,
+  `url` varchar(255) default NULL,
+  `assistant` varchar(255) default NULL,
+  `organization` varchar(255) default NULL,
+  `valedictory` varchar(255) default NULL,
+  `street` varchar(60) default NULL,
+  `streetb` varchar(60) default NULL,
+  `city` varchar(30) default NULL,
+  `state` varchar(30) default NULL,
+  `zip` varchar(20) default NULL,
+  `street2` varchar(60) default NULL,
+  `streetb2` varchar(60) default NULL,
+  `city2` varchar(30) default NULL,
+  `state2` varchar(30) default NULL,
+  `zip2` varchar(20) default NULL,
+  `phone` varchar(30) default NULL,
+  `fax` varchar(30) default NULL,
+  `phonew1` varchar(30) default NULL,
+  `phonew2` varchar(30) default NULL,
+  `phonecell` varchar(30) default NULL,
+  `notes` text,
   `cal_ui` tinyint(4) NOT NULL default '1',
-  `taxonomy` varchar(30) character set utf8 collate utf8_unicode_ci NOT NULL DEFAULT '207Q00000X',
+  `taxonomy` varchar(30) NOT NULL DEFAULT '207Q00000X',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -2689,14 +2689,14 @@ CREATE TABLE `users` (
 DROP TABLE IF EXISTS `x12_partners`;
 CREATE TABLE `x12_partners` (
   `id` int(11) NOT NULL default '0',
-  `name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `id_number` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `x12_sender_id` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `x12_receiver_id` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `x12_version` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
-  `processing_format` enum('standard','medi-cal','cms','proxymed') character set latin1 default NULL,
+  `name` varchar(255) default NULL,
+  `id_number` varchar(255) default NULL,
+  `x12_sender_id` varchar(255) default NULL,
+  `x12_receiver_id` varchar(255) default NULL,
+  `x12_version` varchar(255) default NULL,
+  `processing_format` enum('standard','medi-cal','cms','proxymed') default NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM;
 
 ------------------------------------------------------------------------------------- 
 -- Table structure for table `automatic_notification`
@@ -2715,7 +2715,7 @@ CREATE TABLE `automatic_notification` (
   `type` enum('SMS','Email') NOT NULL default 'SMS',
   `notification_sent_date` datetime NOT NULL,
   PRIMARY KEY  (`notification_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB AUTO_INCREMENT=3 ;
 
 -- 
 -- Dumping data for table `automatic_notification`
@@ -2748,7 +2748,7 @@ CREATE TABLE `notification_log` (
   `pc_endTime` time NOT NULL,
   `dSentDateTime` datetime NOT NULL,
   PRIMARY KEY  (`iLogId`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
+) ENGINE=InnoDB AUTO_INCREMENT=5 ;
 
 -- --------------------------------------------------------
 
@@ -2766,7 +2766,7 @@ CREATE TABLE `notification_settings` (
   `SMS_gateway_apikey` varchar(100) NOT NULL,
   `type` varchar(50) NOT NULL,
   PRIMARY KEY  (`SettingsId`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB AUTO_INCREMENT=2 ;
 
 -- 
 -- Dumping data for table `notification_settings`

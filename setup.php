@@ -119,8 +119,9 @@ If you edited the PHP or Apache configuration files during this installation pro
 	$login = $_POST["login"];
 	$pass = $_POST["pass"];
 	$loginhost = $_POST["loginhost"];
+	$collate = $_POST["collate"];
 	$rootpass = $_POST["rootpass"];
-        $iuser = $_POST["iuser"];
+  $iuser = $_POST["iuser"];
 	$iuname = $_POST["iuname"];
 	$igroup = $_POST["igroup"];
 	$openemrBasePath = $_POST["openemrBasePath"];
@@ -165,6 +166,32 @@ if ($inst != 2) {
 echo "<TR VALIGN='TOP'><TD><span class='text'>Name for Root Account: </span></TD><TD><INPUT TYPE='TEXT' VALUE='root' NAME='root' SIZE='30'></TD><TD><span class='text'>(This is name for MySQL root account. For localhost, it is usually ok to leave it 'root'.)</span><br></TD></TR>
 <TR VALIGN='TOP'><TD><span class='text'>Root Pass: </span></TD><TD><INPUT TYPE='PASSWORD' VALUE='' NAME='rootpass' SIZE='30'></TD><TD><span class='text'>(This is your MySQL root password. For localhost, it is usually ok to leave it blank.)</span><br></TD></TR>\n";
 echo "<TR VALIGN='TOP'><TD><span class='text'>User Hostname: </span></TD><TD><INPUT TYPE='TEXT' VALUE='localhost' NAME='loginhost' SIZE='30'></TD><TD><span class='text'>(If you run Apache/PHP and MySQL on the same computer, then leave this as 'localhost'. If they are on separate computers, then enter the IP address of the computer running Apache/PHP.)</span><br></TD></TR>";
+echo "<TR VALIGN='TOP'><TD><span class='text'>UTF-8 Collation: </span></TD><TD>" .
+  "<select name='collate'>" .
+  "<option value='utf8_bin'          >Bin</option>" .
+  "<option value='utf8_czech_ci'     >Czech</option>" .
+  "<option value='utf8_danish_ci'    >Danish</option>" .
+  "<option value='utf8_esperanto_ci' >Esperanto</option>" .
+  "<option value='utf8_estonian_ci'  >Estonian</option>" .
+  "<option value='utf8_general_ci' selected>General</option>" .
+  "<option value='utf8_hungarian_ci' >Hungarian</option>" .
+  "<option value='utf8_icelandic_ci' >Icelandic</option>" .
+  "<option value='utf8_latvian_ci'   >Latvian</option>" .
+  "<option value='utf8_lithuanian_ci'>Lithuanian</option>" .
+  "<option value='utf8_persian_ci'   >Persian</option>" .
+  "<option value='utf8_polish_ci'    >Polish</option>" .
+  "<option value='utf8_roman_ci'     >Roman</option>" .
+  "<option value='utf8_romanian_ci'  >Romanian</option>" .
+  "<option value='utf8_slovak_ci'    >Slovak</option>" .
+  "<option value='utf8_slovenian_ci' >Slovenian</option>" .
+  "<option value='utf8_spanish2_ci'  >Spanish2 (Traditional)</option>" .
+  "<option value='utf8_spanish_ci'   >Spanish (Modern)</option>" .
+  "<option value='utf8_swedish_ci'   >Swedish</option>" .
+  "<option value='utf8_turkish_ci'   >Turkish</option>" .
+  "<option value='utf8_unicode_ci'   >Unicode (German, French, Russian, Armenian, Greek)</option>" .
+  "<option value=''                  >None (Do not force UTF-8)</option>" .
+  "</select>" .
+  "</TD><TD><span class='text'>(Leave as General if you are not sure)</span><br></TD></TR>";
 }
 echo "<TR VALIGN='TOP'><TD>&nbsp;</TD></TR>";
 echo "<TR VALIGN='TOP'><TD COLSPAN=2><font color='red'>OPENEMR USER:</font></TD></TR>";
@@ -223,7 +250,12 @@ if ($inst != 2) {
 		echo "OK.<br>\n";
 	echo "Creating database...\n";
 	flush();
-	if (mysql_query("create database $dbname",$dbh) == FALSE) {
+  $sql = "create database $dbname";
+  if ($collate) {
+    $sql .= " character set utf8 collate $collate";
+    mysql_query("SET NAMES 'utf8'", $dbh);
+  }
+	if (mysql_query($sql, $dbh) == FALSE) {
 		echo "ERROR.  Check your login credentials.\n";
 		echo "<p>".mysql_error()." (#".mysql_errno().")\n";
 		break;
@@ -256,8 +288,12 @@ if ($dbh == FALSE) {
 	echo "<p>".mysql_error()." (#".mysql_errno().")\n";
 	break;
 }
-else
+else {
+  if ($collate) {
+    mysql_query("SET NAMES 'utf8'", $dbh);
+  }
 	echo "OK.<br>\n";
+}
 echo "Opening database...";
 flush();
 if (mysql_select_db("$dbname",$dbh) == FALSE) {
