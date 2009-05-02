@@ -7,7 +7,7 @@
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="value" type="C" size="230">
+		<field name="value" type="C" size="150">
 			<NOTNULL/>
 		</field>
 	</table>
@@ -34,7 +34,7 @@
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="section_value" type="C" size="230">
+		<field name="section_value" type="C" size="150">
 			<DEFAULT value="system"/>
 			<NOTNULL/>
 		</field>
@@ -73,7 +73,7 @@
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="value" type="C" size="230">
+		<field name="value" type="C" size="150">
 			<NOTNULL/>
 		</field>
 		<field name="order_value" type="I">
@@ -119,11 +119,11 @@
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="section_value" type="C" size="240">
+		<field name="section_value" type="C" size="150">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
 		</field>
-		<field name="value" type="C" size="240">
+		<field name="value" type="C" size="150">
 			<NOTNULL/>
 		</field>
 		<field name="order_value" type="I">
@@ -155,12 +155,12 @@
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="section_value" type="C" size="230">
+		<field name="section_value" type="C" size="150">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="value" type="C" size="230">
+		<field name="value" type="C" size="150">
 			<NOTNULL/>
 			<KEY/>
 		</field>
@@ -173,7 +173,7 @@
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="value" type="C" size="230">
+		<field name="value" type="C" size="150">
 			<NOTNULL/>
 		</field>
 		<field name="order_value" type="I">
@@ -204,11 +204,11 @@
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="section_value" type="C" size="240">
+		<field name="section_value" type="C" size="150">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
 		</field>
-		<field name="value" type="C" size="240">
+		<field name="value" type="C" size="150">
 			<NOTNULL/>
 		</field>
 		<field name="order_value" type="I">
@@ -240,12 +240,12 @@
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="section_value" type="C" size="230">
+		<field name="section_value" type="C" size="150">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="value" type="C" size="230">
+		<field name="value" type="C" size="150">
 			<NOTNULL/>
 			<KEY/>
 		</field>
@@ -258,7 +258,7 @@
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="value" type="C" size="230">
+		<field name="value" type="C" size="150">
 			<NOTNULL/>
 		</field>
 		<field name="order_value" type="I">
@@ -289,11 +289,11 @@
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="section_value" type="C" size="240">
+		<field name="section_value" type="C" size="150">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
 		</field>
-		<field name="value" type="C" size="240">
+		<field name="value" type="C" size="150">
 			<NOTNULL/>
 		</field>
 		<field name="order_value" type="I">
@@ -325,12 +325,12 @@
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="section_value" type="C" size="230">
+		<field name="section_value" type="C" size="150">
 			<DEFAULT value="0"/>
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="value" type="C" size="230">
+		<field name="value" type="C" size="150">
 			<NOTNULL/>
 			<KEY/>
 		</field>
@@ -343,7 +343,7 @@
 			<NOTNULL/>
 			<KEY/>
 		</field>
-		<field name="value" type="C" size="230">
+		<field name="value" type="C" size="150">
 			<NOTNULL/>
 		</field>
 		<field name="order_value" type="I">
@@ -389,7 +389,7 @@
 		<field name="name" type="C" size="255">
 			<NOTNULL/>
 		</field>
-		<field name="value" type="C" size="255">
+		<field name="value" type="C" size="150">
 			<NOTNULL/>
 			<KEY/>
 		</field>
@@ -461,7 +461,7 @@
 		<field name="name" type="C" size="255">
 			<NOTNULL/>
 		</field>
-		<field name="value" type="C" size="255">
+		<field name="value" type="C" size="150">
 			<NOTNULL/>
 			<KEY/>
 		</field>
