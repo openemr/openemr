@@ -32,6 +32,7 @@ setLogin="openemr"          #username to MySQL openemr database
 setPass="openemr"           #password to MySQL openemr database
 setRoot="root"              #MySQL server root username
 setRootpass=""              #MySQL server root password
+setColl="utf8_general_ci"   #collation for mysql
 setIuser="admin"            #initial user login name
 setIuname="Administrator"   #initial user full name
 setIgroup="Default"         #practice group name
@@ -127,6 +128,7 @@ sed -e 's@\/\/END POST VARIABLES@\
     $igroup = '\'''$setIgroup''\'';\
     $openemrBasePath = '\'''$OPENEMR''\'';\
     $openemrWebPath = '\'''$setOpenemrWebPath''\'';\
+    $collate = '\'''$setColl''\'';\
     $inst = 1;@' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
 mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
 # Remove form functionality
