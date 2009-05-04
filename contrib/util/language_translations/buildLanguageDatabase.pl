@@ -23,7 +23,10 @@
 #  -Below command will build the sql dumpfile from given tsv
 #   language spreadsheet and compare with a constants list to
 #   ensure constants didn't get edited (output will go to
-#   the log file), and will also fix limited issues:
+#   the log file), and will also fix limited issues. In this case
+#   a new spreadsheet file will also be created with the corrected
+#   constants to allow downstream modification and re-importing of 
+#   file into Google Docs:
 #  ./buildLanguageDatabase.pl openemr_language_table.tsv constants.txt
 #
 
@@ -53,9 +56,13 @@ my $languageNumRow = 0; # 0 is lowest
 my $languageIdRow = 1; # 0 is lowest
 my $languageNameRow = 2; # 0 is lowest
 my $inputFilename;
+
+# variables for checking/fixing constants application 
 my $checkFilename; # holds list of constants if checking
+my $filenameOut_revised = "revisedSpreadsheet.tsv";
 my $flagCheck = 0;
 my @previousConstants;
+my @revisedFile;
 my @inputFile;
 my @inputFileProcessed;
 
@@ -118,7 +125,10 @@ foreach my $tempLine (@inputFile) {
 
 # check and fix modified constants (and constant id's)
 if ($flagCheck) {
- @inputFileProcessed = checkConstants(@inputFileProcessed);
+ # first create data for replacement spreadsheet if needed
+ @revisedFile = checkConstants("special",@inputFileProcessed);
+ # then clean data to create mysql dumpfiles
+ @inputFileProcessed = checkConstants("normal",@inputFileProcessed);
 }
 
 # parse lang_languages
@@ -150,19 +160,31 @@ foreach my $var (@sorted_tempArray) {
  print LOGFILE $var;
 }
 
+# send the processed spreadsheet to file to allow downstream modifications
+# if checking and fixing modified constants
+if ($flagCheck) {
+ open(MYOUTPUTFILE2, ">$filenameOut_revised") or die "unable to open file";
+ foreach my $var (@revisedFile) {
+  print MYOUTPUTFILE2 $var."\n";
+ }
+ close(MYOUTPUTFILE2)
+}
+    
 # close files
 close(OUTPUTFILE);
 close(LOGFILE);
     
 #
 # function to compare to original constants
-# param - array of processed file
+# normal flag will fix constants escape characters to prepare for mysql dumpfile
+# special flag will not fix escape characters to prepare for spreadsheet revision file
+# param - flag (normal or special), array of processed file
 # globals - @previousConstants, $constantRow, $de, LOGFILE,
 #           $constantIdColumn, $constantColumn
 # return - none
 #
 sub checkConstants () {
- my (@page) = @_;
+ my ($flag, @page) = @_;
     
  print LOGFILE "Checking constants:\n\n";
  my $counter = $constantRow;
@@ -181,14 +203,15 @@ sub checkConstants () {
    print LOGFILE "\tspreadsheet- ID:$tempId val:$tempConstant\n";
    $badCount += 1;
 
-   # apply fix (replace with original after reset escape characters)
+   # apply fix
    my $fixedVar = $var;
-   $fixedVar =~ s/\\//g;
-   $fixedVar =~ s/\'/\\\'/g;
-   $fixedVar =~ s/\"/\\\"/g;
+   if ($flag eq "normal") {
+    $fixedVar =~ s/\\//g;
+    $fixedVar =~ s/\'/\\\'/g;
+    $fixedVar =~ s/\"/\\\"/g;
+   }
    $tempRow[$constantColumn] = $fixedVar;
-   $page[$counter] = join($de,@tempRow);
-      
+   $page[$counter] = join($de,@tempRow);   
   }
      
   # ensure constant id number has not been altered
