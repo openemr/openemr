@@ -3,17 +3,42 @@ These were created during development of OpenEMR version 3.0.2
 
 The collectConstants.pl script can be used to collect all of the constants
 from the openemr source code.  This script can also be used to find only the
-new constants.  Instructions are included in the file.
+new constants. Instructions are included in the file.
 
-The first list of constants produced by the collectConstants.pl script are
-in the initial_constants_3-0-1.txt file.
+The current list of constants are kept in the currentConstants.txt file.
+The most current spreadsheet is kept in the current_spreadsheet.tsv file.
+Not that the constants in both of these files need to line up.
 
-The initial empty language translation spreadsheet,
-blank_spreadsheet_3-0-1.tsv,  that contains the constants was also created
-by the collectConstants.pl script.  This spreadsheet has been uploaded to
-Google Docs to allow collaborative data entry of languages translations.
+The current_spreadsheet.tsv file is what is uploaded to Google Docs for
+collaboration.
 
-The Google Docs spreadsheet after conversion to tsv format is kept in the
+The commonConstants.pl is a simple script that will find the common constants
+from two separate list of constants. Instructions are included in the file.
+
+The commonConstantsSpreadsheet.pl is a script that will output a spreadsheet
+with only the constants that are found in both a list of constants and a 
+spreadsheet.
+
+The sortConstantsSpreadsheet.pl is a script that will sort both the current
+constants and spreadsheets files simultaneously.
+
+Note that the final constant and spreadsheet scripts require identical
+constants in identical order to ensure proper management.
+
+When adding constants via the "auto" way use the collectConstants.pl script
+to find the new constants.  Then place these at the end of the current
+constants and spreadsheet(after processed from google docs with
+buildLanguageDatabase.pl script) and run the sortConstantsSpreadsheet.pl
+script.
+
+When removing constants will use the collectConstants.pl to get the list of
+constants, and use the commonConstants.pl then commonConstantsSpreadsheet.pl
+then sortConstantsSpreadsheet.pl . (For initial spreadsheet data always
+use the spreadsheet from google docs after processing by the 
+buildLanguageDatabase.pl script.
+
+The Google Docs spreadsheet after conversion to tsv format (and processed by
+the buildLanguageDatabase.pl is kept in the
 current_spreadsheet.tsv file. Conversion is done by exporting spreadsheet
 from google docs (ods format). Then, open this file in Open Office and 
 select File->Save as. For 'Save as type:' select 'TEXT CSV (.csv)', toggle
@@ -24,7 +49,10 @@ removing the " character) for 'Text delimiter', and then click 'OK'.
 
 The buildLanguageDatabase.pl builds the foreign language SQL tables dumpfile
 for the lang_languages, lang_constants, and lang_definitions tables from the above
-current_spreadsheet.tsv file.
+current_spreadsheet.tsv file.  If input the list of constants it will also
+to data validation on the constants and constant ID numbers and it will
+create a spreadsheet that can be used for further downstrem modification
+if needed (ie modifying the list of constants or re-ordering them)
 
 The stableLanguage.sql holds the tested and stable translation tables dumpfile.
 (no production quality script yet)
