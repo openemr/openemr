@@ -6,10 +6,11 @@ from the openemr source code.  This script can also be used to find only the
 new constants. Instructions are included in the file.
 
 The current list of constants are kept in the currentConstants.txt file.
-The most current spreadsheet is kept in the current_spreadsheet.tsv file.
-Not that the constants in both of these files need to line up.
+The most current spreadsheet is kept in the current_spreadsheet.tsv file (this
+file is taken after being processed with buildLanguageDatabase.pl script.
+Note that the constants in both of these files need to line up.
 
-The current_spreadsheet.tsv file is what is uploaded to Google Docs for
+The current_spreadsheet.tsv file is what can be uploaded to Google Docs for
 collaboration.
 
 The commonConstants.pl is a simple script that will find the common constants
@@ -17,25 +18,28 @@ from two separate list of constants. Instructions are included in the file.
 
 The commonConstantsSpreadsheet.pl is a script that will output a spreadsheet
 with only the constants that are found in both a list of constants and a 
-spreadsheet.
+spreadsheet. Instructions are included in the file.
 
 The sortConstantsSpreadsheet.pl is a script that will sort both the current
-constants and spreadsheets files simultaneously.
+constants and spreadsheets files simultaneously. Instructions are included
+in the file.
 
 Note that the final constant and spreadsheet scripts require identical
 constants in identical order to ensure proper management.
 
-When adding constants via the "auto" way use the collectConstants.pl script
+When adding constants use the collectConstants.pl script
 to find the new constants.  Then place these at the end of the current
 constants and spreadsheet(after processed from google docs with
 buildLanguageDatabase.pl script) and run the sortConstantsSpreadsheet.pl
-script.
+script. Then can upload the created spreadsheet to Google Docs as a new
+revision.
 
 When removing constants will use the collectConstants.pl to get the list of
 constants, and use the commonConstants.pl then commonConstantsSpreadsheet.pl
 then sortConstantsSpreadsheet.pl . (For initial spreadsheet data always
 use the spreadsheet from google docs after processing by the 
-buildLanguageDatabase.pl script.
+buildLanguageDatabase.pl script). When done can upload the spreadsheet
+to google docs as a new revision.
 
 The Google Docs spreadsheet after conversion to tsv format (and processed by
 the buildLanguageDatabase.pl is kept in the
