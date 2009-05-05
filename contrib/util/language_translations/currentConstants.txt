@@ -1,96 +1,3 @@
- but was 
- could not be accessed.
- Do you really want to delete
- Drug
- emails not sent
- from
- has been created. 
- has been re-opened.
- History
- is not a number
- is ready for re-billing.
- LLL:
- Lot
- Medicaid Original Reference No. 
- min
- not found!
- Pecularities in many browsers may mean that the output below enters your screen in sudden jerks and that there are long pauses of several seconds where it  appears as though things may have crashed. That is not the case, you will eventually see output coming out line by line. There may be sequential numbers appearing  below, this is to indicate that even though nothing else may be displaying there is activity going on. These numbers will be interspersed with the content of the  billing and that is normal.
- prescription has reached its limit of
- until 
- update failed, not in database?
- was marked as billed only.
- was queued successfully.
-! Left w/o visit
-" for code 
-" is CHECKED in PostCalendar Settings!
-# Ins/fin issue
-# of tablets:
-$ Coding done
-$1
-$label (yyyy-mm-dd): 
-% Cancelled <  24h 
-' should exist but does not.
-(New Patient)
-(Notes and Authorizations)
-(Patient Notes)
-* Reminder done
-** Please move surgeries to Issues!
-*Required
-+ Chart pulled
-0-10
-1.Rest 2. Ice for two days 3. Compression, leave the dressing in place unless the foot develops numbness or pale color 4. Elevate the foot and leg
-11-14
-15-19
-20-24
-2111-13
-25-29
-3 months
-3 times daily
-30-34
-35-39
-4 months
-4 times daily
-40-44
-45+
-465.9, URI
-466.0, Bronchitis, Acute NOS
-486.0, Pneumonia, Acute
-491.21, COPD Exacerbation
-491.8, Bronchitis, Chronic
-493.92, Asthma, Acute Exac.
-496.0, COPD
-519.7, Bronchospasm
-6 months
-824.0 Fracture, medial malleolus, closed
-824.2 Fracture, lateral malleolus, closed
-824.6 Fracture, Trimalleolar, closed
-825.32 Fracture, of Navicular (ankle)
-825.35 Fracture, Base of fifth (5th) Metatarsal
-845.00 ankle sprain NOS
-845.01 Sprain Medial (Deltoid) Lig.
-845.02 Sprain, Calcaneal fibular
-99212 Established - Uncomplicated
-99213 Established - Low Complexity
-< In exam room
-> Checked out
-? No show
-@ Arrived
-[Change View]
-[Date of Last Encounter]
-[Days Since Last Encounter]
-[EOBs]
-[Export OFX]
-[not recommended]
-[Number Of Encounters]
-[Reports]
-[Select All]
-[SQL-Ledger]
-[Start Batch Processing]
-[View Log]
-[View Printable Report]
-_PC_DUR_HOURS
-_PC_DUR_MINUTES
-_PC_LOCALE
 A check number or claim number to identify the payment
 A lot number is required!
 A related IPPF code is required!
@@ -2193,4 +2100,97 @@ yyyy-mm-dd last date of this event
 Zip
 Zip Code
 Zip/Country:
+ but was 
+ could not be accessed.
+ Do you really want to delete
+ Drug
+ emails not sent
+ from
+ has been created. 
+ has been re-opened.
+ History
+ is not a number
+ is ready for re-billing.
+ LLL:
+ Lot
+ Medicaid Original Reference No. 
+ min
+ not found!
+ Pecularities in many browsers may mean that the output below enters your screen in sudden jerks and that there are long pauses of several seconds where it  appears as though things may have crashed. That is not the case, you will eventually see output coming out line by line. There may be sequential numbers appearing  below, this is to indicate that even though nothing else may be displaying there is activity going on. These numbers will be interspersed with the content of the  billing and that is normal.
+ prescription has reached its limit of
+ until 
+ update failed, not in database?
+ was marked as billed only.
+ was queued successfully.
+! Left w/o visit
+" for code 
+" is CHECKED in PostCalendar Settings!
+# Ins/fin issue
+# of tablets:
+$ Coding done
+$1
+$label (yyyy-mm-dd): 
+% Cancelled <  24h 
+' should exist but does not.
+(New Patient)
+(Notes and Authorizations)
+(Patient Notes)
+* Reminder done
+** Please move surgeries to Issues!
+*Required
++ Chart pulled
+0-10
+1.Rest 2. Ice for two days 3. Compression, leave the dressing in place unless the foot develops numbness or pale color 4. Elevate the foot and leg
+11-14
+15-19
+20-24
+2111-13
+25-29
+3 months
+3 times daily
+30-34
+35-39
+4 months
+4 times daily
+40-44
+45+
+465.9, URI
+466.0, Bronchitis, Acute NOS
+486.0, Pneumonia, Acute
+491.21, COPD Exacerbation
+491.8, Bronchitis, Chronic
+493.92, Asthma, Acute Exac.
+496.0, COPD
+519.7, Bronchospasm
+6 months
+824.0 Fracture, medial malleolus, closed
+824.2 Fracture, lateral malleolus, closed
+824.6 Fracture, Trimalleolar, closed
+825.32 Fracture, of Navicular (ankle)
+825.35 Fracture, Base of fifth (5th) Metatarsal
+845.00 ankle sprain NOS
+845.01 Sprain Medial (Deltoid) Lig.
+845.02 Sprain, Calcaneal fibular
+99212 Established - Uncomplicated
+99213 Established - Low Complexity
+< In exam room
+> Checked out
+? No show
+@ Arrived
+[Change View]
+[Date of Last Encounter]
+[Days Since Last Encounter]
+[EOBs]
+[Export OFX]
+[not recommended]
+[Number Of Encounters]
+[Reports]
+[Select All]
+[SQL-Ledger]
+[Start Batch Processing]
+[View Log]
+[View Printable Report]
+_PC_DUR_HOURS
+_PC_DUR_MINUTES
+_PC_LOCALE
 ~ Arrived late
