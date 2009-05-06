@@ -40,6 +40,20 @@ setOpenemrWebPath=/openemr  #path on browser to openemr
 setInst="1"                 #CONSTANT, don't set
 
 #FIRST DEAL WITH STUFF SPECIFIC TO THE CVS DEMO AND DEVELOPER APPLIANCE
+#Patch the suhosin bug
+SUHOSINCONF=/etc/php.d/Z98_suhosin.ini
+echo "Disabling suhosin patch which is not compatible with OpenEMR"
+echo "Disabling suhosin patch which is not compatible with OpenEMR" >> $LOG
+echo "\tIn /etc/php.d/Z98_suhosin.ini file commenting out:"
+echo "\tIn /etc/php.d/Z98_suhosin.ini file commenting out:" >> $LOG
+echo "\textension = suhosin.so"
+echo "\textension = suhosin.so" >> $LOG
+echo "\tThen will restart apache."
+echo "\tThen will restart apache." >> $LOG
+echo ""
+sed -i 's/^extension = suhosin.so/; extension = suhosin.so/' $SUHOSINCONF
+service httpd restart
+echo ""
 #Replace manual with newest version from cvs
 echo "Configuring appliance"
 echo "Configuring appliance" >> $LOG
