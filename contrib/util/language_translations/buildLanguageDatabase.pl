@@ -131,8 +131,15 @@ if ($flagCheck) {
  @inputFileProcessed = checkConstants("normal",@inputFileProcessed);
 }
 
+# make header
+my $outputString = "\
+--
+-- Ensure UTF8 connection
+--
+SET NAMES utf8;\n\n";  
+
 # parse lang_languages
-my $outputString = createLanguages(@inputFileProcessed);
+$outputString .= createLanguages(@inputFileProcessed);
 
 # parse lang_constants
 $outputString .= createConstants(@inputFileProcessed);
@@ -280,10 +287,10 @@ sub createLanguages() {
 DROP TABLE IF EXISTS `lang_languages`;
 CREATE TABLE `lang_languages` (
   `lang_id` int(11) NOT NULL auto_increment,
-  `lang_code` char(2) character set utf8 collate utf8_unicode_ci NOT NULL default '',
-  `lang_description` varchar(100) character set utf8 collate utf8_unicode_ci default NULL,
+  `lang_code` char(2) NOT NULL default '',
+  `lang_description` varchar(100) default NULL,
   UNIQUE KEY `lang_id` (`lang_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=".$tempCounter." ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=".$tempCounter." ;
 \n
 --
 -- Dumping data for table `lang_languages`
@@ -329,10 +336,10 @@ sub createConstants() {
 DROP TABLE IF EXISTS `lang_constants`;
 CREATE TABLE `lang_constants` (
   `cons_id` int(11) NOT NULL auto_increment,
-  `constant_name` varchar(255) character set utf8 collate utf8_unicode_ci default NULL,
+  `constant_name` varchar(255) default NULL,
   UNIQUE KEY `cons_id` (`cons_id`),
   KEY `cons_name` (`constant_name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=".$tempCounter." ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=".$tempCounter." ;
 \n
 -- 
 -- Dumping data for table `lang_constants`
@@ -396,10 +403,10 @@ CREATE TABLE `lang_definitions` (
   `def_id` int(11) NOT NULL auto_increment,
   `cons_id` int(11) NOT NULL default '0',
   `lang_id` int(11) NOT NULL default '0',
-  `definition` mediumtext character set utf8 collate utf8_unicode_ci,
+  `definition` mediumtext,
   UNIQUE KEY `def_id` (`def_id`),
   KEY `definition` (`definition`(100))
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=".$tempCounter." ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=".$tempCounter." ;
 \n
 -- 
 -- Dumping data for table `lang_definitions`
