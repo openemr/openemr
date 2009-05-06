@@ -1637,7 +1637,7 @@ INSERT INTO `layout_options` VALUES ('DEM', 'phone_home', '2Contact', 'Home Phon
 INSERT INTO `layout_options` VALUES ('DEM', 'phone_biz', '2Contact', 'Work Phone', 9, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Work Phone Number');
 INSERT INTO `layout_options` VALUES ('DEM', 'phone_cell', '2Contact', 'Mobile Phone', 10, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Cell Phone Number');
 INSERT INTO `layout_options` VALUES ('DEM', 'email', '2Contact', 'Contact Email', 11, 2, 1, 30, 95, '', 1, 1, '', '', 'Contact Email Address');
-INSERT INTO `layout_options` VALUES ('DEM', 'providerID', '3Choices', 'Provider', 1, 11, 2, 0, 0, '', 1, 3, '', '', 'Referring Provider');
+INSERT INTO `layout_options` VALUES ('DEM', 'providerID', '3Choices', 'Provider', 1, 11, 1, 0, 0, '', 1, 3, '', '', 'Referring Provider');
 INSERT INTO `layout_options` VALUES ('DEM', 'pharmacy_id', '3Choices', 'Pharmacy', 2, 12, 1, 0, 0, '', 1, 3, '', '', 'Preferred Pharmacy');
 INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_notice', '3Choices', 'HIPAA Notice Received', 3, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Did you receive a copy of the HIPAA Notice?');
 INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_voice', '3Choices', 'Allow Voice Message', 4, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow telephone messages?');
