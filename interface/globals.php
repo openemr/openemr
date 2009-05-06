@@ -77,7 +77,8 @@ $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
 // Language Control Section
 //
 //  Current supported languages:
-//   Chinese (experimental)
+//   Armenian
+//   Chinese
 //   Dutch
 //   English
 //   French
@@ -108,7 +109,11 @@ $GLOBALS['language_menu_show'] = array('English','Swedish');
 //    -If login menu is on, then it will be the 'Default' choice in menu
 //    -If login menu is off, then it will choose this language
 $GLOBALS['language_default'] = "English";
-  
+
+// Set to true to support UTF8 encoding in mysql database and browser.
+//  (for this to work, your openemr mysql database should be encoded in UTF8)
+$GLOBALS['use_set_names_utf8'] = false;
+
 include_once (dirname(__FILE__) . "/../library/translation.inc.php");
 
 include_once (dirname(__FILE__) . "/../library/date_functions.php");
@@ -202,7 +207,7 @@ else {
 $v_major = '3';
 $v_minor = '0';
 $v_patch = '1';
-$tag = '.1'; // minor revision number, should be empty for production releases
+$tag = '.2'; // minor revision number, should be empty for production releases
 
 // This name appears on the login page and in the title bar of most windows.
 // It's nice to customize this to be the name of your clinic.
@@ -318,9 +323,6 @@ $GLOBALS['cene_specific'] = false;
 // True to support discounts in the Checkout form by dollars instead of percentage.
 $GLOBALS['discount_by_money'] = false;
 
-// If "SET NAMES 'utf8'" is supported and desired.
-$GLOBALS['use_set_names_utf8'] = false;
-
 // Set this to false if you want the doctors to be prompted to authorize
 // patient notes created by others.
 $GLOBALS['ignore_pnotes_authorization'] = true;
@@ -380,7 +382,11 @@ function strterm($string,$length) {
 // turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn","off");
 
-if ($GLOBALS['use_set_names_utf8']) mysql_query("SET NAMES 'utf8'");
+// configure for UTF8 encoding if selected
+if ($GLOBALS['use_set_names_utf8']) {
+  mysql_query("SET NAMES 'utf8'");
+  ini_set('default_charset', 'utf-8');
+}
 
 //settings for cronjob
 // SEND SMS NOTIFICATION BEFORE HH HOUR
