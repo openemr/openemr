@@ -661,7 +661,7 @@ function genPopupsList($style='') {
     <ul>
       <li class="open"><span><?php xl('Demographics','e') ?></span>
         <ul>
-          <?php genTreeLink('RTop','new','New'); ?>
+          <?php genTreeLink('RTop','new',($GLOBALS['full_new_patient_form'] ? 'New/Search' : 'New')); ?>
           <?php genTreeLink('RTop','dem','Current'); ?>
           <?php genDualLink('dem','sum','Summary'); // with dem on top ?>
         </ul>
@@ -777,7 +777,7 @@ function genPopupsList($style='') {
     <ul>
       <li><span><?php xl('Management','e') ?></span>
         <ul>
-          <?php genTreeLink('RTop','new','New'); ?>
+          <?php genTreeLink('RTop','new',($GLOBALS['full_new_patient_form'] ? 'New/Search' : 'New')); ?>
           <?php genTreeLink('RTop','dem','Current'); ?>
           <?php genTreeLink('RBot','sum','Summary'); ?>
         </ul>
