@@ -280,7 +280,7 @@ if (!empty($form_submit)) {
 
   $query = "SELECT DISTINCT " .
     "fe.pid, " .
-    "p.regdate, p.date AS last_update, p.contrastart, p.DOB, " .
+    "p.regdate, p.date AS last_update, p.contrastart, p.DOB, p.sex, " .
     "p.userlist2 AS education " .
     "FROM form_encounter AS fe " .
     "LEFT OUTER JOIN patient_data AS p ON p.pid = fe.pid WHERE " .
@@ -357,6 +357,7 @@ if (!empty($form_submit)) {
     Add('Children'   , 0 + getTextListValue($hrow['genobshist'],'nlc'));   // number of living children
     Add('Abortions'  , 0 + getTextListValue($hrow['genabohist'],'nia'));   // number of induced abortions
     Add('Education'  , empty($row['education']) ? 0 : $row['education']);
+    Add('Demo5'      , Sex($row['sex']));
 
     // Dump all visits for this patient at this facility.
     $query = "SELECT " .
