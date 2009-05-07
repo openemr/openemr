@@ -160,7 +160,7 @@ function set_related(codetype, code, selector, codedesc) {
 
 // This invokes the find-code popup.
 function sel_related() {
- dlgopen('../encounter/find_code_popup.php', '_blank', 500, 400);
+ dlgopen('../encounter/find_code_popup.php<?php if ($GLOBALS['ippf_specific']) echo '?codetype=IPPF' ?>', '_blank', 500, 400);
 }
 
 // Process click on Delete link.
