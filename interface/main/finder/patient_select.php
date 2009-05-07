@@ -161,7 +161,8 @@ else {
 <?php
 // Show start and end row number, and number of rows, with paging links.
 //
-$count = $fstart + $GLOBALS['PATIENT_INC_COUNT'];
+// $count = $fstart + $GLOBALS['PATIENT_INC_COUNT']; // Why did I do that???
+$count = $GLOBALS['PATIENT_INC_COUNT'];
 $fend = $fstart + $MAXSHOW;
 if ($fend > $count) $fend = $count;
 ?>
