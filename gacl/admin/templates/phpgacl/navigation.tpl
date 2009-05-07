@@ -1,6 +1,7 @@
 		<div id="top-tr"><div id="top-tl"><div id="top-br"><div id="top-bl">
 			<h1><span>phpGACL</span></h1>
 			<h2>{$page_title}</h2>
+			<p><a href='../../interface/usergroup/adminacl.php' onclick='top.restoreSession()'><span style='font-size: 80%;'>(Back to OpenEMR's ACL menu)</span></a></p>
 {if $hidemenu neq TRUE}
 			<ul id="menu">
 				<li{if $current eq 'aro_group'} class="current"{/if}><a href="group_admin.php?group_type=aro">ARO Group Admin</a></li>
