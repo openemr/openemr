@@ -69,14 +69,11 @@ The setup script will step you through the configuration of the OpenEMR.
 
 The first screen of the setup script will ensure that the webserver user
 (in linux, often is "apache", "www-data", or "nobody") has write privileges on
-certain files and directories.  The files include openemr/interface/globals.php,
-openemr/library/sqlconf.php, openemr/gacl/gacl.ini.php and
-openemr/gacl/gacl.class.php.  In linux, these can be set by "chmod a+w filename"
-command to grant global write permissions to the file, but be sure to set
-them back to something more secure (such as chmod 644) after completing
-installation of OpenEMR.  The directories include openemr/gacl/admin/templates_c,
-openemr/edi, openemr/era, openemr/documents, openemr/library/freeb, 
-openemr/custom/letter_templates, 
+certain files and directories. The files include openemr/interface/globals.php and
+openemr/library/sqlconf.php. In linux, these can be set by "chmod a+w filename"
+command to grant global write permissions to the file, The directories include
+openemr/gacl/admin/templates_c, openemr/edi, openemr/era, openemr/documents,
+openemr/library/freeb, openemr/custom/letter_templates, 
 openemr/interface/main/calendar/modules/PostCalendar/pntemplates/compiled, and 
 openemr/interface/main/calendar/modules/PostCalendar/pntemplates/cache.  In
 linux, if the webserver user name is "apache", then the command
@@ -215,10 +212,6 @@ Deny from all
 
 The final screen includes some additional instructions and important
 information. We suggest you print these instructions for future reference.
-It would be a good idea to restore secure permissions on the four
-configuration files: interface/globals.php, library/sqlconf.php, 
-gacl/gacl.ini.php, and gacl/gacl.class.php files. In linux, recommend changing 
-these file permissions with the 'chmod 644 filename' command.
 
 Once the system has been configured properly, you may login.  Connect to the
 webserver where the files are stored with your web browser.  Login to the system
@@ -269,18 +262,15 @@ V. Upgrading
 Be sure to back up your OpenEMR installation and database before upgrading!
 
 Upgrading OpenEMR is currently done by replacing the old openemr directory with
-a newer version. Before replacing the old openemr directory, copy the following
-files out, and replace them into the new openemr folder afterwards:
+a newer version. Ensure you copy the settings from the following old openemr
+files:
 
   openemr/interface/globals.php
   openemr/library/sqlconf.php
-  openemr/gacl/gacl.ini.php
-  openemr/gacl/gacl.class.php
   openemr/includes/config.php (if you have modified it)
 
-But before replacing them, compare the old and new files in case there are
-new parameters that need to be included.  If there are other files that you
-have customized, then you will also need to treat those carefully.
+If there are other files that you have customized, then you will also need
+to treat those carefully.
 
 To upgrade the database, run the sql_upgrade.php script from your web
 browser (for example http://openemr.location/sql_upgrade.php).  It will
