@@ -31,6 +31,9 @@
 ini_set('memory_limit', '64M');
 ini_set('session.gc_maxlifetime', '14400');
 
+// Set utf8 encoding in browser to ensure homogenous encoding
+ini_set('default_charset', 'utf-8');
+
 // Emulates register_globals = On.  Moved to here from the bottom of this file
 // to address security issues.  Need to change everything requiring this!
 $ps = strpos($_SERVER['REQUEST_URI'],"myadmin");
@@ -381,12 +384,6 @@ function strterm($string,$length) {
 
 // turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn","off");
-
-// configure for UTF8 encoding if selected
-if ($GLOBALS['use_set_names_utf8']) {
-  mysql_query("SET NAMES 'utf8'");
-  ini_set('default_charset', 'utf-8');
-}
 
 //settings for cronjob
 // SEND SMS NOTIFICATION BEFORE HH HOUR
