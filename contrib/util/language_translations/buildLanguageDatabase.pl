@@ -131,12 +131,16 @@ if ($flagCheck) {
  @inputFileProcessed = checkConstants("normal",@inputFileProcessed);
 }
 
+
+my $outputString = "";
+
+# CAN NOT USE BELOW, since breaks in latin1 based database
 # make header
-my $outputString = "\
---
--- Ensure UTF8 connection
---
-SET NAMES utf8;\n\n";  
+# $outputString .= "\
+# --
+# -- Ensure UTF8 connection
+# --
+# SET NAMES utf8;\n\n";  
 
 # parse lang_languages
 $outputString .= createLanguages(@inputFileProcessed);
