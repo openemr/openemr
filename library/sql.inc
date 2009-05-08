@@ -11,8 +11,8 @@ $GLOBALS['dbh'] = $database->_connectionID;
 
 //set UTF8 encoding if selected in globals.php
 // log an error if flag is not set
-if (!isset($GLOBALS['use_set_names_utf8'])) error_log("OpenEMR ERROR: UTF-8 encoding flag from openemr globals.php file has been lost in transit!", 0);
-if ($GLOBALS['use_set_names_utf8']) mysql_query("SET NAMES 'utf8'", $GLOBALS['dbh']);
+if (!isset($utf8_flag)) error_log("OpenEMR ERROR: UTF-8 encoding flag from openemr globals.php file has been lost in transit!", 0);
+if ($utf8_flag) mysql_query("SET NAMES 'utf8'", $GLOBALS['dbh']);
 
 //fmg: This makes the login screen informative when no connection can be made
 if (!$GLOBALS['dbh']) {
