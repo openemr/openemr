@@ -24,8 +24,6 @@ $translations_dumpfile = $manualPath."contrib/util/language_translations/current
 $icd9 = $manualPath."sql/icd9.sql";
 $conffile = $manualPath."library/sqlconf.php";
 $conffile2 = $manualPath."interface/globals.php";
-$gaclConfigFile1 = $manualPath."gacl/gacl.ini.php";
-$gaclConfigFile2 = $manualPath."gacl/gacl.class.php";
 $docsDirectory = $manualPath."documents";
 $billingDirectory = $manualPath."edi";
 $billingDirectory2 = $manualPath."era";
@@ -39,7 +37,7 @@ $gaclSetupScript2 = $manualPath."acl_setup.php";
 
 //These are files and dir checked before install for
 // correct permissions.
-$writableFileList = array($conffile, $conffile2, $gaclConfigFile1, $gaclConfigFile2);
+$writableFileList = array($conffile, $conffile2);
 $writableDirList = array($docsDirectory, $billingDirectory, $billingDirectory2, $billingLogDirectory, $lettersDirectory, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
 
 //These are the dumpfiles that are loaded into database 
@@ -76,9 +74,6 @@ include_once($conffile);
 <p>Congratulations! OpenEMR is now installed.</p>
 
 <ul>
- <li>If applicable, please restore secure permissions on the four configuration files: /openemr/interface/globals.php, 
-     /openemr/library/sqlconf.php, /openemr/gacl/gacl.ini.php, and /openemr/gacl/gacl.class.php files.  
-     In linux, recommend changing file permissions with the 'chmod 644 filename' command.</li>
  <li>Access controls (php-GACL) are installed for fine-grained security, and can be administered in
      OpenEMR's admin->acl menu.</li>
  <li>Reading openemr/includes/config.php and openemr/interface/globals.php is a good idea. These files
@@ -407,11 +402,11 @@ fwrite($fd,"\$host\t= '$server';\n") or $it_died++;
 fwrite($fd,"\$port\t= '$port';\n") or $it_died++;
 fwrite($fd,"\$login\t= '$login';\n") or $it_died++;
 fwrite($fd,"\$pass\t= '$pass';\n") or $it_died++;
-fwrite($fd,"\$dbase\t= '$dbname';\n") or $it_died++;
-
+fwrite($fd,"\$dbase\t= '$dbname';\n\n") or $it_died++;
+fwrite($fd,"//added utf8 flag - bm 05-2009\n") or $it_died++;
+fwrite($fd,"\$utf8_flag = ".($collate ? "true" : "false").";\n") or $it_died++;
 
 $string = '
-
 $sqlconf = array();
 $sqlconf["host"]= $host;
 $sqlconf["port"] = $port;
@@ -469,14 +464,6 @@ foreach ($data as $line) {
 	        $isCount += 1;
 	        $finalData .= "\$web_root = \"$openemrWebPath\";\n";
 	}
-
-        if (!($collate) || (strpos($line,"\$GLOBALS['use_set_names_utf8'] = ")) === false) {
-        }
-        else {
-                $isHit = 1;
-                $finalData .= "\$GLOBALS['use_set_names_utf8'] = true;\n";
-        }
-
         if (!$isHit) {
 	        $finalData .= $line;
 	}
@@ -496,11 +483,6 @@ echo "\n<br>Next step will install and configure access controls (php-GACL).<br>
 echo "
 <FORM METHOD='POST'>\n
 <INPUT TYPE='HIDDEN' NAME='state' VALUE='4'>
-<INPUT TYPE='HIDDEN' NAME='server' VALUE='$server'>
-<INPUT TYPE='HIDDEN' NAME='dbname' VALUE='$dbname'>
-<INPUT TYPE='HIDDEN' NAME='port' VALUE='$port'>
-<INPUT TYPE='HIDDEN' NAME='login' VALUE='$login'>
-<INPUT TYPE='HIDDEN' NAME='pass' VALUE='$pass'>
 <INPUT TYPE='HIDDEN' NAME='iuser' VALUE='$iuser'>
 <INPUT TYPE='HIDDEN' NAME='iuname' VALUE='$iuname'>
 <br>\n
@@ -511,101 +493,14 @@ break;
 
         case 4:
 echo "<b>Step $state</b><br><br>\n";
-echo "Installing and Configuring Access Controls (php-GACL)...<br><br>";
-
-//first, edit two gacl config files
-echo "Writing php-GACL configuration settings to config files...<br>";
-// edit gacl.ini.php
-$data = file($gaclConfigFile1) or die("Could not read ".$gaclConfigFile1." file.");
-$finalData = "";
-foreach ($data as $line) {
-	$isHit = 0;
-	if ((strpos($line,"db_host")) === false) {
-      	}
-	else {
-	        $isHit = 1;
-                if ($server == "localhost") {
-		    $finalData .= "db_host = \"${server}\"\n";
-		}
-	        else {
-	            $finalData .= "db_host = \"${server}:${port}\"\n";
-	        }
-	}
-        if ((strpos($line,"db_user")) === false) {
-	}
-	else {
-                $isHit = 1;
-	        $finalData .= "db_user = \"${login}\"\n";
-	}
-        if ((strpos($line,"db_password")) === false) {
-	}
-	else {
-                $isHit = 1;
-	        $finalData .= "db_password = \"${pass}\"\n";
-	}
-        if ((strpos($line,"db_name")) === false) {
-	}
-	else {
-                $isHit = 1;
-	        $finalData .= "db_name = \"${dbname}\"\n";
-	}
-	if (!$isHit) {
-		$finalData .= $line;
-     	}
-}
-$fd = @fopen($gaclConfigFile1, 'w') or die("Could not open ".$gaclConfigFile1." file.");
-fwrite($fd, $finalData);
-fclose($fd); 
-	
-// edit gacl.class.php
-$data = file($gaclConfigFile2) or die("Could not read ".$gaclConfigFile2." file.");
-$finalData = "";
-foreach ($data as $line) {
-        $isHit = 0;
-	if ((strpos($line,"var \$_db_host = ")) === false) {
-	}
-	else {
-	        $isHit = 1;
-	        if ($server == "localhost") {
-		    $finalData .= "var \$_db_host = '$server';\n";
-		}
-		else {
-		    $finalData .= "var \$_db_host = '$server:$port';\n";
-	        }
-	}
-	if ((strpos($line,"var \$_db_user = ")) === false) {
-	}
-	else {
-	        $isHit = 1;
-	        $finalData .= "var \$_db_user = '$login';\n";
-	}
-	if ((strpos($line,"var \$_db_password = ")) === false) {
-	}
-	else {
-	        $isHit = 1;
-	        $finalData .= "var \$_db_password = '$pass';\n";
-	}
-	if ((strpos($line,"var \$_db_name = ")) === false) {
-	}
-	else {
-	        $isHit = 1;
-	        $finalData .= "var \$_db_name = '$dbname';\n";
-	}
-	if (!$isHit) {
-	        $finalData .= $line;
-	}
-}
-$fd = @fopen($gaclConfigFile2, 'w') or die("Could not open ".$gaclConfigFile2." file.");
-fwrite($fd, $finalData);
-fclose($fd);
-echo "Finished writing php-GACL configuration settings to config files.<br><br>";
-	
-//second, run gacl config scripts		
+echo "Installing and Configuring Access Controls (php-GACL)...<br><br>";								      
+									       
+//run gacl config scripts, all sql config data now in sqlconf.php file		
 require $gaclSetupScript1;
 require $gaclSetupScript2;
 echo "<br>";
  
-//third, give the administrator user admin priviledges
+//give the administrator user admin priviledges
 $groupArray = array("Administrators");
 set_user_aro($groupArray,$iuser,$iuname,"","");	
 echo "Gave the '$iuser' user (password is 'pass') administrator access.<br><br>";
