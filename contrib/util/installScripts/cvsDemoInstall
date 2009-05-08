@@ -72,8 +72,6 @@ mkdir -p $TMPDIR
 cp -rf $CVS/openemr $TMPDIR/
 rm -rf `find $TMPDIR -name CVS`
 chmod a+w $TMPDIR/openemr/library/sqlconf.php
-chmod a+w $TMPDIR/openemr/gacl/gacl.ini.php
-chmod a+w $TMPDIR/openemr/gacl/gacl.class.php
 chmod a+w $TMPDIR/openemr/interface/globals.php
 chmod -R a+w $TMPDIR/openemr/documents
 chmod -R a+w $TMPDIR/openemr/edi
@@ -171,8 +169,6 @@ php -f $OPENEMR/TEMPsetup.php >> $LOG
 rm -f $OPENEMR/TEMPsetup.php
 #reinstitute file permissions
 chmod 644 $OPENEMR/library/sqlconf.php
-chmod 644 $OPENEMR/gacl/gacl.ini.php
-chmod 644 $OPENEMR/gacl/gacl.class.php
 chmod 644 $OPENEMR/interface/globals.php
 #replace original acl.inc and gacl/setup.php script
 mv $OPENEMR/library/TEMP2acl.inc $OPENEMR/library/acl.inc
