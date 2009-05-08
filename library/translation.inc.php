@@ -19,9 +19,6 @@ function xl($constant,$mode='r',$prepend='',$append='') {
 	}
 	else {
 	        // attempt translation
-	        // utf8 compliant
-                if ($GLOBALS['use_set_names_utf8']) sqlQuery("SET NAMES utf8");
-    
 	$sql="SELECT * FROM lang_definitions JOIN lang_constants ON " .
     "lang_definitions.cons_id = lang_constants.cons_id WHERE " .
     "lang_id='$lang_id' AND constant_name = '" .
