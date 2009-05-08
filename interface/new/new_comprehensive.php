@@ -55,6 +55,7 @@ div.section {
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/jquery.js"></script>
 
 <SCRIPT LANGUAGE="JavaScript"><!--
 
@@ -139,14 +140,6 @@ function trimlen(s) {
 function validate(f) {
 <?php generate_layout_validation('DEM'); ?>
  return true;
-}
-
-function submitme() {
- var f = document.forms[0];
- if (validate(f)) {
-  top.restoreSession();
-  f.submit();
- }
 }
 
 // This invokes the patient search dialog.
@@ -264,7 +257,7 @@ while ($frow = sqlFetchArray($fres)) {
     $group_seq++;    // ID for DIV tags
     $group_name = substr($this_group, 1);
     if (strlen($last_group) > 0) echo "<br />";
-    echo "<span class='bold'><input type='checkbox' name='form_cb_$group_seq' value='1' " .
+    echo "<span class='bold'><input type='checkbox' name='form_cb_$group_seq' id='form_cb_$group_seq' value='1' " .
       "onclick='return divclick(this,\"div_$group_seq\");'";
     if ($display_style == 'block') echo " checked";
     echo " /><b>$group_name</b></span>\n";
@@ -314,9 +307,10 @@ end_group();
 ?>
 
 <center><br />
-<input type="button" onclick="searchme();" value="Search" />
+<input type="button" id="search" value="Search" />
 &nbsp;&nbsp;
-<input type="button" onclick="submitme();" value="Create New Patient" />
+<input type="button" id="create" value="Create New Patient" />
+
 </center>
 
   </td>
@@ -340,6 +334,56 @@ if (f.form_phone_biz    ) phonekeyup(f.form_phone_biz    ,mypcc);
 if (f.form_phone_cell   ) phonekeyup(f.form_phone_cell   ,mypcc);
 
 <?php echo $date_init; ?>
+
+// -=- jQuery makes life easier -=-
+
+var matches = 0; // number of patients that match the demographic information being entered
+var override = 0; // flag that overrides the duplication warning
+
+$(document).ready(function() {
+    // when these fields lose focus, do a look-up to check for duplicates
+    // already in the database
+    $('#form_fname').blur(function() { DupeCheck(); });
+    $('#form_mname').blur(function() { DupeCheck(); });
+    $('#form_lname').blur(function() { DupeCheck(); });
+    $('#form_pubpid').blur(function() { DupeCheck(); });
+    $('#form_DOB').blur(function() { DupeCheck(); });
+    $('#form_ss').blur(function() { DupeCheck(); });
+    $('#form_sex').blur(function() { DupeCheck(); });
+
+    $('#search').click(function() { searchme(); });
+    $('#create').click(function() { submitme(); });
+
+    // function updates the matchcount DIV
+    var DupeCheck = function() {
+        $.get("<?php echo $GLOBALS['webroot']; ?>/library/ajax/find_patients.php",
+                { returntype: "count",
+                  fname: $('#form_fname').val(),
+                  mname: $('#form_mname').val(),
+                  lname: $('#form_lname').val(),
+                  pubpid: $('#form_pubpid').val(),
+                  DOB: $('#form_DOB').val(),
+                  ss: $('#form_ss').val(),
+                  sex: $('#form_sex').val()
+                },
+                function(data, textStatus) {
+                    matches = data;
+                }
+             );
+    };
+
+    var submitme = function() {
+        var f = document.forms[0];
+        if (matches > 0 && override == false) {
+            if (! confirm("DUPLICATION WARNING\n===================\nThere are "+matches+" patient(s) in the database that match the demographic information you have entered.\n\nDo you wish to continue adding this new patient?"))
+                return false;
+        }
+        if (validate(f)) {
+            top.restoreSession();
+            f.submit();
+        }
+    }
+});
 
 </script>
 
