@@ -36,7 +36,8 @@ $datatypes = array("1"=>"list box",
                     "22"=>"textbox list",
                     "23"=>"Exam results",
                     "24"=>"Patient allergies",
-                    "25"=>"checkbox w/ text"
+                    "25"=>"checkbox w/ text",
+                    "26"=>"list box w/ add"
                     );
 
 // Check authorization.
@@ -291,7 +292,7 @@ function writeFieldLine($linedata) {
     }
     else if ($linedata['data_type'] ==  1 || $linedata['data_type'] == 21 ||
              $linedata['data_type'] == 22 || $linedata['data_type'] == 23 ||
-             $linedata['data_type'] == 25)
+             $linedata['data_type'] == 25 || $linedata['data_type'] == 26)
     {
         // select, checkbox, textbox list, or checkbox list w/ text
         echo "<input type='hidden' name='fld[$fld_line_no][length]' value=''>";
