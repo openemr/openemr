@@ -113,10 +113,6 @@ $GLOBALS['language_menu_show'] = array('English','Swedish');
 //    -If login menu is off, then it will choose this language
 $GLOBALS['language_default'] = "English";
 
-// Set to true to support UTF8 encoding in mysql database and browser.
-//  (for this to work, your openemr mysql database should be encoded in UTF8)
-$GLOBALS['use_set_names_utf8'] = false;
-
 include_once (dirname(__FILE__) . "/../library/translation.inc.php");
 
 include_once (dirname(__FILE__) . "/../library/date_functions.php");
