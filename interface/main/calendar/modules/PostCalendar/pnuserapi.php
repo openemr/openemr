@@ -29,6 +29,7 @@
 //=========================================================================
 //  Require utility classes
 //=========================================================================
+require_once($GLOBALS['fileroot']."/library/patient.inc");
 $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
 $pcDir = pnVarPrepForOS($pcModInfo['directory']);
 require_once("modules/$pcDir/common.api.php");
@@ -1142,7 +1143,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
     $events[$i]['provider_name'] = $tmp['provider_name'];
     $events[$i]['owner_name']  = $tmp['owner_name'];
     $events[$i]['patient_dob'] = $tmp['patient_dob'];
-    $events[$i]['patient_age'] = date("Y") - substr(($tmp['patient_dob']),0,4);
+    $events[$i]['patient_age'] = getPatientAge($tmp['patient_dob']);
     $events[$i]['sharing']     = $tmp['sharing'];
     $events[$i]['prefcatid']   = $tmp['prefcatid'];
     $events[$i]['aid']         = $tmp['aid'];
