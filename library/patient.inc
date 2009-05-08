@@ -1032,23 +1032,32 @@ function sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone
     }
 }
 
-// Returns Date of Birth given YYYYMMDD from MySQL DATE_FORMAT(DOB,'%Y%m%d')
+// Returns Age 
+//   in months if < 2 years old
+//   in years  if > 2 years old
+// given YYYYMMDD from MySQL DATE_FORMAT(DOB,'%Y%m%d')
 function getPatientAge($dobYMD)
 {
-    $tdyYMD=date("Ymd");
-    $yearDiff = substr($tdyYMD,0,4) - substr($dobYMD,0,4);
-    $ageInMonths = ((substr($tdyYMD,0,4)*12)+substr($tdyYMD,4,2)) -
-                   ((substr($dobYMD,0,4)*12)+substr($dobYMD,4,2));
-    $dayDiff = substr($tdyYMD,6,2) - substr($dobYMD,6,2);
-    if ( $dayDiff < 0 ) {
-        $ageInMonths -= 1;
-    }
+    // strip any dashes from the DOB
+    $dobYMD = preg_replace("/-/", "", $dobYMD);
+    $nowDay = date("d"); $nowMonth = date("m"); $nowYear = date("Y");
+    $dobDay = substr($dobYMD,6,2); $dobMonth = substr($dobYMD,4,2); $dobYear = substr($dobYMD,0,4);
+
+    $dayDiff = $nowDay - $dobDay;
+    $monthDiff = $nowMonth - $dobMonth;
+    $yearDiff = $nowYear - $dobYear;
+
+    $ageInMonths = (($nowYear * 12) + $nowMonth) - (($dobYear*12) + $dobMonth);
+
     if ( $ageInMonths > 24 ) {
-        $age = intval($ageInMonths/12);
+        $age = $yearDiff;
+        if (($monthDiff == 0) && ($dayDiff < 0)) { $age -= 1; }
+        else if ($monthDiff < 0) { $age -= 1; }
     }
     else  {
-        $age = "$ageInMonths month";
+        $age = "$ageInMonths month"; 
     }
+
     return $age;
 }
 
