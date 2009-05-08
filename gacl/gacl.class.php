@@ -38,6 +38,10 @@ if ( !defined('ADODB_DIR') ) {
 	define('ADODB_DIR', dirname(__FILE__).'/adodb');
 }
 
+//openemr configuration file - bm - 05/2009
+// to collect sql database login info and the utf8 flag
+include_once(dirname(__FILE__).'/../library/sqlconf.php');
+
 /**
 * phpGACL main class
 *
@@ -83,6 +87,9 @@ class gacl {
 	/** @var object An ADODB database connector object */
 	var $_db = '';
 
+        /** @var boolean The utf8 encoding flag - bm 05-2009 */
+        var $_db_utf8_flag = '';
+    
 	/*
 	 * NOTE: 	This cache must be manually cleaned each time ACL's are modified.
 	 * 		Alternatively you could wait for the cache to expire.
@@ -108,7 +115,7 @@ class gacl {
 	 * @param array An arry of options to oeverride the class defaults
 	 */
 	function gacl($options = NULL) {
-
+	    
 		$available_options = array('db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','db_type','db_host','db_user','db_password','db_name','caching','force_cache_expire','cache_dir','cache_expire_time');
 
 		//Values supplied in $options array overwrite those in the config file.
@@ -136,6 +143,14 @@ class gacl {
 			}
 		}
 
+                //collect openemr sql info from include at top of script - bm 04-2009
+                global $sqlconf, $utf8_flag;
+                $this->_db_host = $sqlconf["host"];
+                $this->_db_user = $sqlconf["login"];
+                $this->_db_password = $sqlconf["pass"];
+                $this->_db_name = $sqlconf["dbase"];
+                $this->_db_utf8_flag = $utf8_flag;	    
+	    
 		require_once( ADODB_DIR .'/adodb.inc.php');
 		require_once( ADODB_DIR .'/adodb-pager.inc.php');
 
@@ -146,6 +161,11 @@ class gacl {
 			//Use NUM for slight performance/memory reasons.
 			$this->db->SetFetchMode(ADODB_FETCH_NUM);
 			$this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
+
+		        //Set utf8 encoding if flag is set (added by openemr)
+			// first, check and send error if the flag is not set.
+			if (!isset($this->_db_utf8_flag)) error_log("OpenEMR ERROR: UTF-8 encoding flag from openemr globals.php file has been lost in transit!", 0);
+		        if ($this->_db_utf8_flag) $this->db->Execute("SET NAMES 'utf8'");		    
 		}
 		$this->db->debug = $this->_debug;
 
