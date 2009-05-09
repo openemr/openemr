@@ -10,15 +10,16 @@
 # date   04/03/09
 #
 # This is a perl script that will build the language translation sql
-# dumpfile from the tab delimited language translation spreadsheet.
-# Output will go to languageTranslations.sql and errors will be logged
-# to errorLog.txt.
+# dumpfiles from the tab delimited language translation spreadsheet.
+# It will create two output dumpfiles:
+#   languageTranslations_utf8.sql (utf8 encoding)
+#   languageTranslations_latin1.sql (latin1 encoding)
+# It will also validate the spreadsheet and create a new spreadsheet
+# that can be used for further downstream editing and re-importing
+# back into Google Docs. It also outputs a logfile log.txt with
+# errors in validation and database statistics.
 #  
-#  Example commands:
-#
-#  -Below command will build the sql dumpfile from given tsv 
-#   language spreadsheet:
-#  ./buildLanguageDatabase.pl openemr_language_table.tsv
+#  Example command:
 #
 #  -Below command will build the sql dumpfile from given tsv
 #   language spreadsheet and compare with a constants list to
@@ -27,10 +28,17 @@
 #   a new spreadsheet file will also be created with the corrected
 #   constants to allow downstream modification and re-importing of 
 #   file into Google Docs:
-#  ./buildLanguageDatabase.pl openemr_language_table.tsv constants.txt
+#  ./buildLanguageDatabase.pl openemr_language_table constants.txt
+#
+#  For above to work you would need to have two files in your current
+#  directory:
+#      openemr_language_table_utf8.tsv
+#      openemr_language_table_latin1.tsv
+#
 #
 
 use strict;
+
 
 # Put current known constant mismatches here, which are basically
 # constants that get modified during the pipeline and don't look
@@ -47,7 +55,8 @@ my @languages;
 my @numberConstantsLanguages;
 
 my $de = "\t";
-my $filenameOut = "languageTranslations.sql";
+my $filenameOut;
+my $inputFilename;
 my $logFile = "log.txt";
 my $constantIdColumn = 0; # 0 is lowest
 my $constantColumn = 1; # 0 is lowest 
@@ -55,16 +64,15 @@ my $constantRow = 5; # 0 is lowest
 my $languageNumRow = 0; # 0 is lowest
 my $languageIdRow = 1; # 0 is lowest
 my $languageNameRow = 2; # 0 is lowest
-my $inputFilename;
 
 # variables for checking/fixing constants application 
 my $checkFilename; # holds list of constants if checking
 my $filenameOut_revised = "revisedSpreadsheet.tsv";
 my $flagCheck = 0;
 my @previousConstants;
-my @revisedFile;
-my @inputFile;
-my @inputFileProcessed;
+
+# to hold utf8 flag
+my $utf8;
 
 # open output file
 open(LOGFILE, ">$logFile") or die "unable to open log file";
@@ -73,118 +81,144 @@ open(LOGFILE, ">$logFile") or die "unable to open log file";
 if (@ARGV > 2) {
  die "\nERROR: Too many parameters. Follow instructions found in buildLanguageDatabase.pl file.\n\n";
  }
-elsif (@ARGV < 1) {
- die "\nERROR: Need a parameter(s). Follow instructions found in buildLanguageDatabase.pl file.\n\n";
+elsif (@ARGV < 2) {
+ die "\nERROR: Need more parameter(s). Follow instructions found in buildLanguageDatabase.pl file.\n\n";
 }
 elsif (@ARGV == 2) {
  $flagCheck = 1;
- $inputFilename = $ARGV[0];
  $checkFilename = $ARGV[1];
 }
 elsif (@ARGV == 1) {
- $inputFilename = $ARGV[0];
 }
 else {
  print LOGFILE "ERROR: with parameters\n\n";
 }
 
-# open output file
-open(OUTPUTFILE, ">$filenameOut") or die "unable to open output file";
-
-# if checking, then open check file and store in array (after set this up
+# if checking, then open check file and store in array
 if ($flagCheck) {
  open(MYINPUTFILE, "<$checkFilename") or die "unable to open file";
  @previousConstants = <MYINPUTFILE>;
  close(MYINPUTFILE);
 }
 
-# place spreadsheet into array 
-open(MYINPUTFILE2, "<$inputFilename") or die "unable to open file";
-@inputFile = <MYINPUTFILE2>;
-close(MYINPUTFILE2);
-
-# FIRST, remove newlines, blank lines, escape characters, and windows returns
-# SECOND, place the escape characters in all required sql characters
-foreach my $tempLine (@inputFile) {
- chomp($tempLine);
- if ($tempLine !~ /^\s*$/) {
-  # remove ^M characters (windows line feeds)
-  $tempLine =~ s/\r//g;
-     
-  # remove all escape characters
-  $tempLine =~ s/\\//g;
-
-  # place all required escape characters
-  $tempLine =~ s/\'/\\\'/g;
-  $tempLine =~ s/\"/\\\"/g;
-     
-  # push into new array   
-  push (@inputFileProcessed,$tempLine);
- }
-}
-
-# check and fix modified constants (and constant id's)
-if ($flagCheck) {
- # first create data for replacement spreadsheet if needed
- @revisedFile = checkConstants("special",@inputFileProcessed);
- # then clean data to create mysql dumpfiles
- @inputFileProcessed = checkConstants("normal",@inputFileProcessed);
-}
-
-
-my $outputString = "";
-
-# CAN NOT USE BELOW, since breaks in latin1 based database
-# make header
-# $outputString .= "\
-# --
-# -- Ensure UTF8 connection
-# --
-# SET NAMES utf8;\n\n";  
-
-# parse lang_languages
-$outputString .= createLanguages(@inputFileProcessed);
-
-# parse lang_constants
-$outputString .= createConstants(@inputFileProcessed);
-
-# parse lang_definitions
-$outputString .= createDefinitions(@inputFileProcessed);
-
-print OUTPUTFILE $outputString;
-
-# calculate statistics
-print LOGFILE "\nLanguage Statistics:\n";
-print LOGFILE "Total number of english constants: ".$totalConstants."\n";
-print LOGFILE "Total number of definitions: ".$totalDefinitions."\n";
-my $count = 0;
-my @tempArray;
-foreach my $var (@languages) {
-  if ($var ne "English") {
-   push (@tempArray, $var.": ".fstr((($numberConstantsLanguages[$count]/$totalConstants)*100),0)."% (".$numberConstantsLanguages[$count]." definitions)\n");
-   # push (@tempArray, $var.": ".($numberConstantsLanguages[$count])." definitions\n");
- }
- $count += 1;
-}
-my @sorted_tempArray = sort { lc($a) cmp lc($b) } @tempArray;
-foreach my $var (@sorted_tempArray) {
- print LOGFILE $var;
-}
-
-# send the processed spreadsheet to file to allow downstream modifications
-# if checking and fixing modified constants
-if ($flagCheck) {
- open(MYOUTPUTFILE2, ">$filenameOut_revised") or die "unable to open file";
- foreach my $var (@revisedFile) {
-  print MYOUTPUTFILE2 $var."\n";
- }
- close(MYOUTPUTFILE2)
-}
+# run through twice to make a utf8 table and a latin1 table
+#  revised spreadsheet, log file and stats only from the utf8 processing
+for (my $i=0;$i<2;$i++) {
+ # set arrays
+ my @revisedFile;
+ my @inputFile;
+ my @inputFileProcessed;
     
-# close files
-close(OUTPUTFILE);
+ # set utf flag
+ if ($i == 0) {
+  # build utf8 table
+  $filenameOut = "languageTranslations_utf8.sql";
+  $inputFilename = $ARGV[0]."_utf8.tsv";
+  $utf8 = 1;
+ }
+ else {
+  # build latin1 table
+  $filenameOut = "languageTranslations_latin1.sql";
+  $inputFilename = $ARGV[0]."_latin1.tsv";
+  $utf8 = 0
+ }
+
+ # open output file
+ open(OUTPUTFILE, ">$filenameOut") or die "unable to open output file";
+    
+ # place spreadsheet into array 
+ open(MYINPUTFILE2, "<$inputFilename") or die "unable to open file";
+ @inputFile = <MYINPUTFILE2>;
+ close(MYINPUTFILE2);
+
+ # FIRST, remove newlines, blank lines, escape characters, and windows returns
+ # SECOND, place the escape characters in all required sql characters
+ foreach my $tempLine (@inputFile) {
+  chomp($tempLine);
+  if ($tempLine !~ /^\s*$/) {
+   # remove ^M characters (windows line feeds)
+   $tempLine =~ s/\r//g;
+     
+   # remove all escape characters
+   $tempLine =~ s/\\//g;
+
+   # place all required escape characters
+   $tempLine =~ s/\'/\\\'/g;
+   $tempLine =~ s/\"/\\\"/g;
+     
+   # push into new array   
+   push (@inputFileProcessed,$tempLine);
+  }
+ }
+
+ # check and fix modified constants (and constant id's)
+ if ($flagCheck) {
+  # first create data for replacement spreadsheet if needed
+  @revisedFile = checkConstants("special",@inputFileProcessed);
+  # then clean data to create mysql dumpfiles
+  @inputFileProcessed = checkConstants("normal",@inputFileProcessed);
+ }
+
+
+ my $outputString = "";
+ 
+ # add header if utf8 encoding
+ if ($utf8) {
+  $outputString .= "\
+--
+-- Ensure UTF8 connection
+--
+SET NAMES utf8;\n\n";
+ }
+
+ # parse lang_languages
+ $outputString .= createLanguages($utf8, @inputFileProcessed);
+
+ # parse lang_constants
+ $outputString .= createConstants($utf8, @inputFileProcessed);
+
+ # parse lang_definitions
+ $outputString .= createDefinitions($utf8, @inputFileProcessed);
+
+ print OUTPUTFILE $outputString;
+
+ # calculate statistics
+ if ($utf8) {
+  print LOGFILE "\nLanguage Statistics:\n";
+  print LOGFILE "Total number of english constants: ".$totalConstants."\n";
+  print LOGFILE "Total number of definitions: ".$totalDefinitions."\n";
+  my $count = 0;
+  my @tempArray;
+  foreach my $var (@languages) {
+    if ($var ne "English") {
+     push (@tempArray, $var.": ".fstr((($numberConstantsLanguages[$count]/$totalConstants)*100),0)."% (".$numberConstantsLanguages[$count]." definitions)\n");
+     # push (@tempArray, $var.": ".($numberConstantsLanguages[$count])." definitions\n");
+   }
+   $count += 1;
+  }
+  my @sorted_tempArray = sort { lc($a) cmp lc($b) } @tempArray;
+  foreach my $var (@sorted_tempArray) {
+   print LOGFILE $var;
+  }
+ }
+
+ # send the processed spreadsheet to file to allow downstream modifications
+ # if checking and fixing modified constants
+ if ($flagCheck && $utf8) {
+  open(MYOUTPUTFILE2, ">$filenameOut_revised") or die "unable to open file";
+  foreach my $var (@revisedFile) {
+   print MYOUTPUTFILE2 $var."\n";
+  }
+  close(MYOUTPUTFILE2)
+ }
+    
+ # close files
+ close(OUTPUTFILE);
+}
+
 close(LOGFILE);
-    
+
+
 #
 # function to compare to original constants
 # normal flag will fix constants escape characters to prepare for mysql dumpfile
@@ -257,14 +291,21 @@ sub checkConstants () {
 
 #
 # function to build lang_languages dumpfile
-# param - array of processed file
+# param - integer flag for utf8, array of processed file
 # globals - $constantColumn, $constantRow,
 #           $languageNumRow, $languageIdRow, $languageNameRow,
 #           @numberConstantsLanguages, @languages
 # return - output string
 #
 sub createLanguages() {
- my (@page) = @_;
+ my ($flag, @page) = @_;
+ my $charset;   
+ if ($flag) {
+  $charset = "utf8";
+ }
+ else {
+  $charset = "latin1";
+ }
     
  # create table input
  my $tempReturn;
@@ -294,7 +335,7 @@ CREATE TABLE `lang_languages` (
   `lang_code` char(2) NOT NULL default '',
   `lang_description` varchar(100) default NULL,
   UNIQUE KEY `lang_id` (`lang_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=".$tempCounter." ;
+) ENGINE=MyISAM DEFAULT CHARSET=".$charset." AUTO_INCREMENT=".$tempCounter." ;
 \n
 --
 -- Dumping data for table `lang_languages`
@@ -312,12 +353,20 @@ CREATE TABLE `lang_languages` (
 
 #
 # function to build lang_constants dumpfile
-# param - array of processed file
+# param - integer flag for utf, array of processed file
 # globals - $constantColumn, $constantRow, $constantIdColumn, $totalConstants
 # return - nothing
 #
 sub createConstants() {
  my (@page) = @_;
+ my ($flag, @page) = @_;
+ my $charset;
+ if ($flag) {
+  $charset = "utf8";
+ }
+ else {
+  $charset = "latin1";
+ }
     
  # create table input
  my $tempReturn;
@@ -343,7 +392,7 @@ CREATE TABLE `lang_constants` (
   `constant_name` varchar(255) default NULL,
   UNIQUE KEY `cons_id` (`cons_id`),
   KEY `cons_name` (`constant_name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=".$tempCounter." ;
+) ENGINE=MyISAM DEFAULT CHARSET=".$charset." AUTO_INCREMENT=".$tempCounter." ;
 \n
 -- 
 -- Dumping data for table `lang_constants`
@@ -364,7 +413,7 @@ CREATE TABLE `lang_constants` (
 
 #
 # function to build lang_definitions dumpfile
-# param - array of processed file
+# param - integer flag for utf8, array of processed file
 # globals - $constantColumn, $constantRow,
 #           $languageNumRow, $constantIdColumn, @numberConstantsLanguages, 
 #           $totalDefinitions
@@ -372,7 +421,15 @@ CREATE TABLE `lang_constants` (
 #
 sub createDefinitions() {
  my (@page) = @_;
-    
+ my ($flag, @page) = @_;
+ my $charset;
+ if ($flag) {
+  $charset = "utf8";
+ }
+ else {
+  $charset = "latin1";
+ }
+
  # create table input
  my $tempReturn;
  my $tempCounter; 
@@ -410,7 +467,7 @@ CREATE TABLE `lang_definitions` (
   `definition` mediumtext,
   UNIQUE KEY `def_id` (`def_id`),
   KEY `definition` (`definition`(100))
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=".$tempCounter." ;
+) ENGINE=MyISAM DEFAULT CHARSET=".$charset." AUTO_INCREMENT=".$tempCounter." ;
 \n
 -- 
 -- Dumping data for table `lang_definitions`
