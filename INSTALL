@@ -262,12 +262,25 @@ V. Upgrading
 Be sure to back up your OpenEMR installation and database before upgrading!
 
 Upgrading OpenEMR is currently done by replacing the old openemr directory with
-a newer version. Ensure you copy the settings from the following old openemr
-files:
+a newer version. Copy the following file from the old version to the new
+version:
 
-  openemr/interface/globals.php
   openemr/library/sqlconf.php
+
+Ensure you copy your settings from the following old openemr
+files to the new configuration files (we do not recommend simply
+copying the entire files):
+
+  openemr/interface/globals.php 
   openemr/includes/config.php (if you have modified it)
+
+The following directories should be copied from the old version to the
+new version:
+
+  openemr\documents 
+  openemr\era 
+  openemr\edi 
+  openemr\custom\letter_templates
 
 If there are other files that you have customized, then you will also need
 to treat those carefully.
