@@ -38,7 +38,7 @@ if ( !defined('ADODB_DIR') ) {
 	define('ADODB_DIR', dirname(__FILE__).'/adodb');
 }
 
-//openemr configuration file - bm - 05/2009
+//openemr configuration file - bm - 05-2009
 // to collect sql database login info and the utf8 flag
 include_once(dirname(__FILE__).'/../library/sqlconf.php');
 
@@ -143,7 +143,7 @@ class gacl {
 			}
 		}
 
-                //collect openemr sql info from include at top of script - bm 04-2009
+                //collect openemr sql info from include at top of script - bm 05-2009
                 global $sqlconf, $utf8_flag;
                 $this->_db_host = $sqlconf["host"];
                 $this->_db_user = $sqlconf["login"];
@@ -162,9 +162,7 @@ class gacl {
 			$this->db->SetFetchMode(ADODB_FETCH_NUM);
 			$this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
 
-		        //Set utf8 encoding if flag is set (added by openemr)
-			// first, check and send error if the flag is not set.
-			if (!isset($this->_db_utf8_flag)) error_log("OpenEMR ERROR: UTF-8 encoding flag from openemr globals.php file has been lost in transit!", 0);
+		        //Set utf8 encoding if flag is set (added by openemr) - bm 05-2009
 		        if ($this->_db_utf8_flag) $this->db->Execute("SET NAMES 'utf8'");		    
 		}
 		$this->db->debug = $this->_debug;

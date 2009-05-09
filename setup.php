@@ -20,7 +20,8 @@ $checkPermissions = "TRUE";
 // installers)
 $manualPath = "";
 $dumpfile = $manualPath."sql/database.sql";
-$translations_dumpfile = $manualPath."contrib/util/language_translations/currentLanguage.sql"; //will use stable during production releases
+$translations_dumpfile_utf8 = $manualPath."contrib/util/language_translations/currentLanguage_utf8.sql";
+$translations_dumpfile_latin1 = $manualPath."contrib/util/language_translations/currentLanguage_latin1.sql";
 $icd9 = $manualPath."sql/icd9.sql";
 $conffile = $manualPath."library/sqlconf.php";
 $conffile2 = $manualPath."interface/globals.php";
@@ -42,8 +43,8 @@ $writableDirList = array($docsDirectory, $billingDirectory, $billingDirectory2, 
 
 //These are the dumpfiles that are loaded into database 
 // The subsequent array holds the title of dumpfiles
-$dumpfiles = array($dumpfile, $translations_dumpfile);
-$dumpfilesTitles = array("Main", "Language Translation");
+$dumpfiles = array($dumpfile);
+$dumpfilesTitles = array("Main");
 
 include_once($conffile);
 ?>
@@ -300,6 +301,17 @@ else
 	echo "OK.<br>\n";
 	flush();
 if ($upgrade != 1) {
+
+    //select the correct translation dumpfile
+    if ($collate) {
+        array_push($dumpfiles,$translations_dumpfile_utf8);
+	array_push($dumpfilesTitles,"Language Translation (utf8)");
+    }
+    else {
+        array_push($dumpfiles,$translations_dumpfile_latin1);
+        array_push($dumpfilesTitles,"Language Translation (latin1)");
+    }
+    
     $dumpfileCounter = 0;
     foreach ($dumpfiles as $var) {
         echo "Creating ".$dumpfilesTitles[$dumpfileCounter]." tables...\n";
