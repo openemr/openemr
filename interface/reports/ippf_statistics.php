@@ -51,8 +51,9 @@ if ($report_type == 'm') {
 else if ($report_type == 'g') {
   $report_title = xl('GCAC Statistics Report');
   $arr_by = array(
+    13 => xl('Abortion-Related Categories'),
     1  => xl('Total SRH & Family Planning'),
-    12 => xl('Pre-Abortion Counseling'), // not yet implemented
+    12 => xl('Pre-Abortion Counseling'),
     5  => xl('Abortion Method'), // includes surgical and drug-induced
     8  => xl('Post-Abortion Followup'),
     7  => xl('Post-Abortion Contraception'),
@@ -70,7 +71,7 @@ else if ($report_type == 'g') {
 else {
   $report_title = xl('IPPF Statistics Report');
   $arr_by = array(
-    1  => xl('General Service Category'),
+    3  => xl('General Service Category'),
     4  => xl('Specific Service'),
     6  => xl('Contraceptive Method'),
     9   => xl('Internal Referrals'),
@@ -459,9 +460,23 @@ function process_ippf_code($row, $code) {
 
   $key = 'Unspecified';
 
-  // General Service Category.
+  // SRH including Family Planning
   //
   if ($form_by === '1') {
+    if (preg_match('/^1/', $code)) {
+      $key = xl('SRH - Family Planning');
+    }
+    else if (preg_match('/^2/', $code)) {
+      $key = xl('SRH Non Family Planning');
+    }
+    else {
+      return;
+    }
+  }
+
+  // General Service Category
+  //
+  else if ($form_by === '3') {
     if (preg_match('/^1/', $code)) {
       $key = xl('SRH - Family Planning');
     }
@@ -476,6 +491,38 @@ function process_ippf_code($row, $code) {
     }
     else {
       $key = xl('Invalid Service Codes');
+    }
+  }
+
+  // Abortion-Related Category
+  //
+  else if ($form_by === '13') {
+    if (preg_match('/^252221/', $code)) {
+      $key = xl('Pre-Abortion Counseling');
+    }
+    else if (preg_match('/^252222/', $code)) {
+      $key = xl('Pre-Abortion Consultation');
+    }
+    else if (preg_match('/^252223/', $code)) {
+      $key = xl('Induced Abortion');
+    }
+    else if (preg_match('/^252224/', $code)) {
+      $key = xl('Medical Abortion');
+    }
+    else if (preg_match('/^252225/', $code)) {
+      $key = xl('Incomplete Abortion Treatment');
+    }
+    else if (preg_match('/^252226/', $code)) {
+      $key = xl('Post-Abortion Care');
+    }
+    else if (preg_match('/^252227/', $code)) {
+      $key = xl('Post-Abortion Counseling');
+    }
+    else if (preg_match('/^25222/', $code)) {
+      $key = xl('Other/Generic Abortion-Related');
+    }
+    else {
+      return;
     }
   }
 
@@ -665,18 +712,31 @@ function process_issue($row) {
 // Row keys are the first specified MA code, if any.
 //
 function process_referral($row) {
+  global $form_by;
   $key = 'Unspecified';
+
   if (!empty($row['refer_related_code'])) {
     $relcodes = explode(';', $row['refer_related_code']);
     foreach ($relcodes as $codestring) {
       if ($codestring === '') continue;
       list($codetype, $code) = explode(':', $codestring);
-      if ($codetype !== 'MA') continue;
-      $key = $code;
-      break;
-    }
+
+      if ($codetype !== 'IPPF') continue;
+
+      if ($form_by === '1') {
+        if (preg_match('/^[12]/', $code)) {
+          $key = xl('SRH Referrals');
+          loadColumnData($key, $row);
+        }
+      }
+      else { // $form_by is 9 (internal) or 10 (external) referrals
+        $key = $code;
+        loadColumnData($key, $row);
+        break;
+      }
+    } // end foreach
   }
-  loadColumnData($key, $row);
+
 }
 
   // If we are doing the CSV export then generate the needed HTTP headers.
@@ -921,7 +981,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
     else if ($form_sexes == '2') $sexcond = "AND pd.sex LIKE 'Male' ";
 
     // Get referrals and related patient data.
-    if ($form_by === '9' || $form_by === '10') {
+    if ($form_by === '9' || $form_by === '10' || $form_by === '1') {
       $exttest = $form_by === '9' ? '=' : '!=';
       $query = "SELECT " .
         "t.refer_related_code, t.pid, pd.regdate, pd.referral_source, " .
@@ -962,7 +1022,9 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
       }
     }
     *****************************************************************/
-    else {
+
+    // else {
+    if ($form_by !== '9' && $form_by !== '10') {
       // This gets us all MA codes, with encounter and patient
       // info attached and grouped by patient and encounter.
       $query = "SELECT " .
@@ -1120,7 +1182,8 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
       // If the key is an MA or IPPF code, then add a column for its description.
       if ($form_by === '4' || $form_by === '102' || $form_by === '9' || $form_by === '10') {
         $dispkey = array($key, '');
-        $type = $form_by === '4' ? 11 : 12; // IPPF or MA
+        // $type = $form_by === '4' ? 11 : 12; // IPPF or MA
+        $type = $form_by === '102' ? 12 : 11; // MA or IPPF
         $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
           "code_type = '$type' AND code = '$key' ORDER BY id LIMIT 1");
         if (!empty($crow['code_text'])) $dispkey[1] = $crow['code_text'];
