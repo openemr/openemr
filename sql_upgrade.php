@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -42,6 +42,87 @@ function tableHasRow($tblname, $colname, $value) {
   return $row['count'] ? true : false;
 }
 
+function upgradeFromSqlFile($filename) {
+  global $webserver_root;
+
+  flush();
+  echo "<font color='green'>Processing $filename ...</font><br />\n";
+
+  $fullname = "$webserver_root/sql/$filename";
+
+  $fd = fopen($fullname, 'r');
+  if ($fd == FALSE) {
+    echo "ERROR.  Could not open '$fullname'.\n";
+    flush();
+    break;
+  }
+
+  $query = "";
+  $line = "";
+  $skipping = false;
+
+  while (!feof ($fd)){
+    $line = fgets($fd, 2048);
+    $line = rtrim($line);
+
+    if (preg_match('/^\s*--/', $line)) continue;
+    if ($line == "") continue;
+
+    if (preg_match('/^#IfNotTable\s+(\S+)/', $line, $matches)) {
+      $skipping = tableExists($matches[1]);
+      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
+    else if (preg_match('/^#IfMissingColumn\s+(\S+)\s+(\S+)/', $line, $matches)) {
+      if (tableExists($matches[1])) {
+        $skipping = columnExists($matches[1], $matches[2]);
+      }
+      else {
+        // If no such table then the column is deemed not "missing".
+        $skipping = true;
+      }
+      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
+    else if (preg_match('/^#IfNotColumnType\s+(\S+)\s+(\S+)\s+(\S+)/', $line, $matches)) {
+      if (tableExists($matches[1])) {
+        $skipping = columnHasType($matches[1], $matches[2], $matches[3]);
+      }
+      else {
+        // If no such table then the column type is deemed not "missing".
+        $skipping = true;
+      }
+      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
+    else if (preg_match('/^#IfNotRow\s+(\S+)\s+(\S+)\s+(\S+)/', $line, $matches)) {
+      if (tableExists($matches[1])) {
+        $skipping = tableHasRow($matches[1], $matches[2], $matches[3]);
+      }
+      else {
+        // If no such table then the row is deemed not "missing".
+        $skipping = true;
+      }
+      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
+    else if (preg_match('/^#EndIf/', $line)) {
+      $skipping = false;
+    }
+
+    if (preg_match('/^\s*#/', $line)) continue;
+    if ($skipping) continue;
+
+    $query = $query . $line;
+    if (substr($query, -1) == ';') {
+      $query = rtrim($query, ';');
+      echo "$query<br />\n";
+      if (!sqlStatement($query)) {
+        echo "<font color='red'>The above statement failed: " .
+          mysql_error() . "<br />Upgrading will continue.<br /></font>\n";
+      }
+      $query = '';
+    }
+  }
+  flush();
+} // end function
+
 $versions = array();
 $sqldir = "$webserver_root/sql";
 $dh = opendir($sqldir);
@@ -72,82 +153,12 @@ if (!empty($_POST['form_submit'])) {
 
   foreach ($versions as $version => $filename) {
     if (strcmp($version, $form_old_version) < 0) continue;
+    upgradeFromSqlFile($filename);
+  }
 
-    echo "<font color='green'>Processing $filename ...</font><br />\n";
-
-    flush();
-    $fullname = "$webserver_root/sql/$filename";
-    $fd = fopen($fullname, 'r');
-    if ($fd == FALSE) {
-      echo "ERROR.  Could not open '$fullname'.\n";
-      flush();
-      break;
-    }
-
-    $query = "";
-    $line = "";
-    $skipping = false;
-
-    while (!feof ($fd)){
-      $line = fgets($fd, 2048);
-      $line = rtrim($line);
-
-      if (preg_match('/^\s*--/', $line)) continue;
-      if ($line == "") continue;
-
-      if (preg_match('/^#IfNotTable\s+(\S+)/', $line, $matches)) {
-        $skipping = tableExists($matches[1]);
-        if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
-      }
-      else if (preg_match('/^#IfMissingColumn\s+(\S+)\s+(\S+)/', $line, $matches)) {
-        if (tableExists($matches[1])) {
-          $skipping = columnExists($matches[1], $matches[2]);
-        }
-        else {
-          // If no such table then the column is deemed not "missing".
-          $skipping = true;
-        }
-        if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
-      }
-      else if (preg_match('/^#IfNotColumnType\s+(\S+)\s+(\S+)\s+(\S+)/', $line, $matches)) {
-        if (tableExists($matches[1])) {
-          $skipping = columnHasType($matches[1], $matches[2], $matches[3]);
-        }
-        else {
-          // If no such table then the column type is deemed not "missing".
-          $skipping = true;
-        }
-        if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
-      }
-      else if (preg_match('/^#IfNotRow\s+(\S+)\s+(\S+)\s+(\S+)/', $line, $matches)) {
-        if (tableExists($matches[1])) {
-          $skipping = tableHasRow($matches[1], $matches[2], $matches[3]);
-        }
-        else {
-          // If no such table then the row is deemed not "missing".
-          $skipping = true;
-        }
-        if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
-      }
-      else if (preg_match('/^#EndIf/', $line)) {
-        $skipping = false;
-      }
-
-      if (preg_match('/^\s*#/', $line)) continue;
-      if ($skipping) continue;
-
-      $query = $query . $line;
-      if (substr($query, -1) == ';') {
-        $query = rtrim($query, ';');
-        echo "$query<br />\n";
-        if (!sqlStatement($query)) {
-          echo "<font color='red'>The above statement failed: " .
-            mysql_error() . "<br />Upgrading will continue.<br /></font>\n";
-        }
-        $query = '';
-      }
-    }
-    flush();
+  if (!empty($GLOBALS['ippf_specific'])) {
+    // Reload custom lists, layouts and codes for IPPF.
+    upgradeFromSqlFile('ippf_layout.sql');
   }
 
   echo "<p><font color='green'>Database upgrade finished.</font></p>\n";
@@ -162,13 +173,17 @@ if (!empty($_POST['form_submit'])) {
 <select name='form_old_version'>
 <?php
 foreach ($versions as $version => $filename) {
-  echo " <option value='$version'>$version</option>\n";
+  echo " <option value='$version'";
+  // Defaulting to 2.8.3 only because it was out there for a long time,
+  // and nothing should go wrong if that's too old.
+  if ($version === '2.8.3') echo " selected";
+  echo ">$version</option>\n";
 }
 ?>
 </select>
 </p>
-<p>If you were using a development version between two releases,
-then choose the older of those releases.</p>
+<p>If you are unsure or were using a development version between two
+releases, then choose the older of possible releases.</p>
 <p><input type='submit' name='form_submit' value='Upgrade Database' /></p>
 </form>
 </center>
