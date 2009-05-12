@@ -266,7 +266,7 @@ if (empty($__redirect) && !defined('PMA_NO_VARIABLES_IMPORT')) {
 /**
  * include session handling after the globals, to prevent overwriting
  */
-require_once './libraries/session.inc.php';
+//require_once './libraries/session.inc.php';
 
 /**
  * init some variables LABEL_variables_init
