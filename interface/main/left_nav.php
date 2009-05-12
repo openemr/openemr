@@ -753,7 +753,7 @@ function genPopupsList($style='') {
           <?php if (acl_check('admin', 'forms'   )) genMiscLink('RTop','adm','0','Forms','forms_admin/forms_admin.php'); ?>
           <?php if (acl_check('admin', 'calendar')) genMiscLink('RTop','adm','0','Calendar','main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig'); ?>
           <?php if (acl_check('admin', 'users'   )) genMiscLink('RTop','adm','0','Logs','logview/logview.php'); ?>
-          <?php if (acl_check('admin', 'database')) genMiscLink('RTop','adm','0','Database','main/myadmin/index.php'); ?>
+          <?php if (acl_check('admin', 'database')) genMiscLink('RTop','adm','0','Database','../phpmyadmin/index.php'); ?>
           <?php if (acl_check('admin', 'super'   )) genMiscLink('RTop','adm','0','Backup','main/backup.php'); ?>
         </ul>
       </li>
@@ -831,7 +831,7 @@ function genPopupsList($style='') {
           <?php if (acl_check('admin', 'forms'   )) genMiscLink('RTop','adm','0','Forms','forms_admin/forms_admin.php'); ?>
           <?php if (acl_check('admin', 'calendar')) genMiscLink('RTop','adm','0','Calendar','main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig'); ?>
           <?php if (acl_check('admin', 'users'   )) genMiscLink('RTop','adm','0','Logs','logview/logview.php'); ?>
-          <?php if (acl_check('admin', 'database')) genMiscLink('RTop','adm','0','Database','main/myadmin/index.php'); ?>
+          <?php if (acl_check('admin', 'database')) genMiscLink('RTop','adm','0','Database','../phpmyadmin/index.php'); ?>
         </ul>
       </li>
     </ul>
