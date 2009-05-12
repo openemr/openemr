@@ -1,5 +1,11 @@
 
 --
+-- Ensure correct encoding
+--
+SET NAMES latin1;
+
+
+--
 -- Table structure for table `lang_languages`
 --
 
