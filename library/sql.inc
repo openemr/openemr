@@ -9,8 +9,8 @@ $database->PConnect($host, $login, $pass, $dbase);
 $GLOBALS['adodb']['db'] = $database;
 $GLOBALS['dbh'] = $database->_connectionID;
 
-//set UTF8 encoding if selected in globals.php
-if ($utf8_flag) mysql_query("SET NAMES 'utf8'", $GLOBALS['dbh']);
+//set UTF8 encoding if not disabled in globals.php
+if (!$disable_utf8_flag) mysql_query("SET NAMES 'utf8'", $GLOBALS['dbh']);
 
 //fmg: This makes the login screen informative when no connection can be made
 if (!$GLOBALS['dbh']) {
@@ -27,8 +27,8 @@ if (!$GLOBALS['dbh']) {
 function sqlConnect($login,$pass,$dbase,$host,$port = '3306')
 {
   $GLOBALS['dbh'] = $database->_connectionID;
-  //set UTF8 encoding if selected in globals.php
-  if ($utf8_flag) mysql_query("SET NAMES 'utf8'", $GLOBALS['dbh']);
+  //set UTF8 encoding if not disabled in globals.php
+  if (!$disable_utf8_flag) mysql_query("SET NAMES 'utf8'", $GLOBALS['dbh']);
   return $GLOBALS['dbh'];
 }
 

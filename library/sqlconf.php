@@ -9,8 +9,9 @@ $login	= 'openemr';
 $pass	= 'openemr';
 $dbase	= 'openemr';
 
-//added utf8 flag - bm 052009
-$utf8_flag = false;
+//added ability to disable
+//utf8 encoding - bm 052009
+$disable_utf8_flag = false;
 
 $sqlconf = array();
 $sqlconf["host"]= $host;

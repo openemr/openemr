@@ -144,11 +144,17 @@ class gacl {
 		}
 
                 //collect openemr sql info from include at top of script - bm 05-2009
-                global $sqlconf, $utf8_flag;
+                global $sqlconf, $disable_utf8_flag;
                 $this->_db_host = $sqlconf["host"];
                 $this->_db_user = $sqlconf["login"];
                 $this->_db_password = $sqlconf["pass"];
                 $this->_db_name = $sqlconf["dbase"];
+	        if (!$disable_utf8_flag) {
+		$utf8_flag = true;
+		}
+	        else {
+		$utf8_flag = false;
+		}   
                 $this->_db_utf8_flag = $utf8_flag;	    
 	    
 		require_once( ADODB_DIR .'/adodb.inc.php');

@@ -415,8 +415,9 @@ fwrite($fd,"\$port\t= '$port';\n") or $it_died++;
 fwrite($fd,"\$login\t= '$login';\n") or $it_died++;
 fwrite($fd,"\$pass\t= '$pass';\n") or $it_died++;
 fwrite($fd,"\$dbase\t= '$dbname';\n\n") or $it_died++;
-fwrite($fd,"//added utf8 flag - bm 05-2009\n") or $it_died++;
-fwrite($fd,"\$utf8_flag = ".($collate ? "true" : "false").";\n") or $it_died++;
+fwrite($fd,"//Added ability to disable\n") or $it_died++;
+fwrite($fd,"//utf8 encoding - bm 05-2009\n") or $it_died++;
+fwrite($fd,"\$disable_utf8_flag = false;\n") or $it_died++;
 
 $string = '
 $sqlconf = array();

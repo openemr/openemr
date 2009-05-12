@@ -55,11 +55,11 @@ $web_root = "/openemr";
 
 ///////////////////////////////////////////////////////////////////
 
-// Collecting the utf8 encoding flag from the sqlconf.php file in order
-// to set the correct html encoding. utf8 vs iso-8859-1. If flag doesn't
-// exist then defaults to iso-8859-1.
+// Collecting the utf8 disable flag from the sqlconf.php file in order
+// to set the correct html encoding. utf8 vs iso-8859-1. If flag is set
+// then set to iso-8859-1.
 require_once(dirname(__FILE__) . "/../library/sqlconf.php");
-if ($utf8_flag) {    
+if (!$disable_utf8_flag) {    
  ini_set('default_charset', 'utf-8');
 }
 else {
