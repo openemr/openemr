@@ -30,7 +30,7 @@ if (/*$userauthorized*/ true) {
 <?php } else if (acl_check('admin', 'calendar')) { ?>
    src="../main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig"
 <?php } else if (acl_check('admin', 'database')) { ?>
-   src="../main/myadmin/index.php"
+   src="../../phpmyadmin/index.php"
 <?php } else { ?>
    src="<?echo $rootdir?>/logview/logview.php"
 <?php } ?>

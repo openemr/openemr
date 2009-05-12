@@ -58,7 +58,7 @@ include_once("../../library/acl.inc");
 
 <?php if (acl_check('admin', 'database')) { ?>
 <td valign="middle" nowrap>
-&nbsp;<a class=menu target=Main href="../main/myadmin/index.php"
+&nbsp;<a class=menu target=Main href="../../phpmyadmin/index.php"
  onclick="top.restoreSession()"
  title="Database Reporting"><?php xl('Database','e'); ?></a>&nbsp;
 </td>
