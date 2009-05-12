@@ -162,14 +162,19 @@ for (my $i=0;$i<2;$i++) {
 
  my $outputString = "";
  
- # add header if utf8 encoding
+ # add header for utf8/latin1 encoding
+ $outputString .= "\
+--
+-- Ensure correct encoding
+--
+SET NAMES ";
  if ($utf8) {
-  $outputString .= "\
---
--- Ensure UTF8 connection
---
-SET NAMES utf8;\n\n";
+  $outputString .= "utf8";
  }
+ else {
+  $outputString .= "latin1";
+ }
+ $outputString .= ";\n\n";
 
  # parse lang_languages
  $outputString .= createLanguages($utf8, @inputFileProcessed);
