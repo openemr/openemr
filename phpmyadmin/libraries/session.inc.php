@@ -68,7 +68,7 @@ session_cache_limiter('private');
 // See bug #1538132. This would block normal behavior on a cluster
 //ini_set('session.save_handler', 'files');
 
-$session_name = 'phpMyAdmin';
+$session_name = 'OpenEMR';
 @session_name($session_name);
 // strictly, PHP 4 since 4.4.2 would not need a verification
 if (version_compare(PHP_VERSION, '5.1.2', 'lt')

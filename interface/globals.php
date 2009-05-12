@@ -133,6 +133,11 @@ $GLOBALS['default_event_title'] = 'Office Visit';
 // The session name appears in cookies stored in the browser.  If you have
 // multiple OpenEMR installations running on the same server, you should
 // customize this name so they cannot interfere with each other.
+//
+// Also, if modify session_name, then need to place the identical name in
+// the phpmyadmin file here: openemr/phpmyadmin/libraries/session.inc.php
+// at line 71. This was required after embedded new phpmyadmin version on
+// 05-12-2009 by Brady. Hopefully will figure out a more appropriate fix.
 session_name("OpenEMR");
 
 session_start();
