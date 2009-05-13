@@ -244,6 +244,7 @@ if (function_exists('get_magic_quotes_gpc') && -1 == version_compare(PHP_VERSION
  * clean cookies on new install or upgrade
  * when changing something with increment the cookie version
  */
+/*
 $pma_cookie_version = 4;
 if (isset($_COOKIE)
  && (! isset($_COOKIE['pmaCookieVer'])
@@ -255,7 +256,7 @@ if (isset($_COOKIE)
     $_COOKIE = array();
     PMA_setCookie('pmaCookieVer', $pma_cookie_version);
 }
-
+*/
 /**
  * include deprecated grab_globals only if required
  */
