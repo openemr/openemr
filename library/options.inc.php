@@ -23,7 +23,7 @@ function generate_form_field($frow, $currvalue) {
 
   // generic single-selection list
   if ($data_type == 1) {
-    echo "<select name='form_$field_id' title='$description'>";
+    echo "<select name='form_$field_id' id='form_$field_id' title='$description'>";
     echo "<option value=''>" . xl('Unassigned') . "</option>";
     $lres = sqlStatement("SELECT * FROM list_options " .
       "WHERE list_id = '$list_id' ORDER BY seq");
@@ -53,6 +53,7 @@ function generate_form_field($frow, $currvalue) {
   else if ($data_type == 2) {
     echo "<input type='text'" .
       " name='form_$field_id'" .
+      " id='form_$field_id'" .
       " size='" . $frow['fld_length'] . "'" .
       " maxlength='" . $frow['max_length'] . "'" .
       " title='$description'" .
@@ -66,6 +67,7 @@ function generate_form_field($frow, $currvalue) {
   else if ($data_type == 3) {
     echo "<textarea" .
       " name='form_$field_id'" .
+      " id='form_$field_id'" .
       " title='$description'" .
       " cols='" . $frow['fld_length'] . "'" .
       " rows='" . $frow['max_length'] . "'>" .
@@ -90,7 +92,7 @@ function generate_form_field($frow, $currvalue) {
       "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
       "AND authorized = 1 " .
       "ORDER BY lname, fname");
-    echo "<select name='form_$field_id' title='$description'>";
+    echo "<select name='form_$field_id' id='form_$field_id' title='$description'>";
     echo "<option value=''>" . xl('Unassigned') . "</option>";
     while ($urow = sqlFetchArray($ures)) {
       $uname = $urow['fname'] . ' ' . $urow['lname'];
@@ -107,7 +109,7 @@ function generate_form_field($frow, $currvalue) {
       "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
       "AND ( authorized = 1 OR ( username = '' AND npi != '' ) ) " .
       "ORDER BY lname, fname");
-    echo "<select name='form_$field_id' title='$description'>";
+    echo "<select name='form_$field_id' id='form_$field_id' title='$description'>";
     echo "<option value=''>" . xl('Unassigned') . "</option>";
     while ($urow = sqlFetchArray($ures)) {
       $uname = $urow['fname'] . ' ' . $urow['lname'];
@@ -120,7 +122,7 @@ function generate_form_field($frow, $currvalue) {
 
   // pharmacy list
   else if ($data_type == 12) {
-    echo "<select name='form_$field_id' title='$description'>";
+    echo "<select name='form_$field_id' id='form_$field_id' title='$description'>";
     echo "<option value='0'></option>";
     $pres = get_pharmacies();
     while ($prow = sqlFetchArray($pres)) {
@@ -136,7 +138,7 @@ function generate_form_field($frow, $currvalue) {
 
   // squads
   else if ($data_type == 13) {
-    echo "<select name='form_$field_id' title='$description'>";
+    echo "<select name='form_$field_id' id='form_$field_id' title='$description'>";
     echo "<option value=''>&nbsp;</option>";
     $squads = acl_get_squads();
     if ($squads) {
@@ -157,7 +159,7 @@ function generate_form_field($frow, $currvalue) {
       "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
       "AND ( username = '' OR authorized = 1 ) " .
       "ORDER BY organization, lname, fname");
-    echo "<select name='form_$field_id' title='$description'>";
+    echo "<select name='form_$field_id' id='form_$field_id' title='$description'>";
     echo "<option value=''>" . xl('Unassigned') . "</option>";
     while ($urow = sqlFetchArray($ures)) {
       $uname = $urow['organization'];
@@ -202,7 +204,7 @@ function generate_form_field($frow, $currvalue) {
         echo "<tr>";
       }
       echo "<td width='$tdpct%'>";
-      echo "<input type='checkbox' name='form_{$field_id}[$option_id]' value='1'";
+      echo "<input type='checkbox' name='form_{$field_id}[$option_id]' id='form_{$field_id}[$option_id]' value='1'";
       if (in_array($option_id, $avalue)) echo " checked";
       echo ">" . $lrow['title'];
       echo "</td>";
@@ -236,6 +238,7 @@ function generate_form_field($frow, $currvalue) {
       echo "<tr><td>" . $lrow['title'] . "&nbsp;</td>";
       echo "<td><input type='text'" .
         " name='form_{$field_id}[$option_id]'" .
+        " id='form_{$field_id}[$option_id]'" .
         " size='$fldlength'" .
         " maxlength='$maxlength'" .
         " value='" . $avalue[$option_id] . "'";
@@ -268,12 +271,14 @@ function generate_form_field($frow, $currvalue) {
       for ($i = 0; $i < 3; ++$i) {
         echo "<td><input type='radio'" .
           " name='radio_{$field_id}[$option_id]'" .
+          " id='radio_{$field_id}[$option_id]'" .
           " value='$i'";
         if ($restype === "$i") echo " checked";
         echo " /></td>";
       }
       echo "<td><input type='text'" .
         " name='form_{$field_id}[$option_id]'" .
+        " id='form_{$field_id}[$option_id]'" .
         " size='$fldlength'" .
         " maxlength='$maxlength'" .
         " value='$resnote' /></td>";
@@ -317,17 +322,47 @@ function generate_form_field($frow, $currvalue) {
       $restype = substr($avalue[$option_id], 0, 1);
       $resnote = substr($avalue[$option_id], 2);
       echo "<tr><td>" . $lrow['title'] . "&nbsp;</td>";
-      echo "<td><input type='checkbox' name='check_{$field_id}[$option_id]' value='1'";
+      echo "<td><input type='checkbox' name='check_{$field_id}[$option_id]' id='check_{$field_id}[$option_id]' value='1'";
       if ($restype) echo " checked";
       echo " />&nbsp;</td>";
       echo "<td><input type='text'" .
         " name='form_{$field_id}[$option_id]'" .
+        " id='form_{$field_id}[$option_id]'" .
         " size='$fldlength'" .
         " maxlength='$maxlength'" .
         " value='$resnote' /></td>";
       echo "</tr>";
     }
     echo "</table>";
+  }
+  
+  // single-selection list with ability to add to it
+  else if ($data_type == 26) {
+    echo "<select name='form_$field_id' id='form_$field_id' title='$description'>";
+    echo "<option value=''>" . xl('Unassigned') . "</option>";
+    $lres = sqlStatement("SELECT * FROM list_options " .
+      "WHERE list_id = '$list_id' ORDER BY seq");
+    $got_selected = FALSE;
+    while ($lrow = sqlFetchArray($lres)) {
+      echo "<option value='" . $lrow['option_id'] . "'";
+      if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
+          (strlen($currvalue)  > 0 && $lrow['option_id'] == $currvalue))
+      {
+        echo " selected";
+        $got_selected = TRUE;
+      }
+      echo ">" . $lrow['title'] . "</option>\n";
+    }
+    if (!$got_selected && strlen($currvalue) > 0) {
+      echo "<option value='$currescaped' selected>* $currescaped *</option>";
+      echo "</select>";
+      echo " <font color='red' title='Please choose a valid selection " .
+        "from the list'>Fix this!</font>";
+    }
+    else {
+      echo "</select>";
+    }
+    echo "<input type='button' id='addtolistid_".$list_id."' fieldid='form_".$field_id."' class='addtolist' value='Add'>";
   }
 
 }
