@@ -12,8 +12,8 @@
 # This is a perl script that will build the language translation sql
 # dumpfiles from the tab delimited language translation spreadsheet.
 # It will create two output dumpfiles:
-#   languageTranslations_utf8.sql (utf8 encoding)
-#   languageTranslations_latin1.sql (latin1 encoding)
+#   languageTranslations_utf8.sql
+#   languageTranslations_latin1.sql (minus utf languages)
 # It will also validate the spreadsheet and create a new spreadsheet
 # that can be used for further downstream editing and re-importing
 # back into Google Docs. It also outputs a logfile log.txt with
@@ -28,17 +28,14 @@
 #   a new spreadsheet file will also be created with the corrected
 #   constants to allow downstream modification and re-importing of 
 #   file into Google Docs:
-#  ./buildLanguageDatabase.pl openemr_language_table constants.txt
-#
-#  For above to work you would need to have two files in your current
-#  directory:
-#      openemr_language_table_utf8.tsv
-#      openemr_language_table_latin1.tsv
+#  ./buildLanguageDatabase.pl openemr_language_table.tsv constants.txt
 #
 #
 
 use strict;
 
+# Array to hold languages to skip for the latin1 translation file
+# (pending)
 
 # Put current known constant mismatches here, which are basically
 # constants that get modified during the pipeline and don't look
@@ -70,6 +67,7 @@ my $checkFilename; # holds list of constants if checking
 my $filenameOut_revised = "revisedSpreadsheet.tsv";
 my $flagCheck = 0;
 my @previousConstants;
+my @inputFile;
 
 # to hold utf8 flag
 my $utf8;
@@ -87,8 +85,7 @@ elsif (@ARGV < 2) {
 elsif (@ARGV == 2) {
  $flagCheck = 1;
  $checkFilename = $ARGV[1];
-}
-elsif (@ARGV == 1) {
+ $inputFilename = $ARGV[0];
 }
 else {
  print LOGFILE "ERROR: with parameters\n\n";
@@ -101,35 +98,32 @@ if ($flagCheck) {
  close(MYINPUTFILE);
 }
 
+# place spreadsheet into array
+open(MYINPUTFILE2, "<$inputFilename") or die "unable to open file";
+@inputFile = <MYINPUTFILE2>;
+close(MYINPUTFILE2);
+
 # run through twice to make a utf8 table and a latin1 table
 #  revised spreadsheet, log file and stats only from the utf8 processing
 for (my $i=0;$i<2;$i++) {
  # set arrays
  my @revisedFile;
- my @inputFile;
  my @inputFileProcessed;
     
  # set utf flag
  if ($i == 0) {
   # build utf8 table
   $filenameOut = "languageTranslations_utf8.sql";
-  $inputFilename = $ARGV[0]."_utf8.tsv";
   $utf8 = 1;
  }
  else {
   # build latin1 table
   $filenameOut = "languageTranslations_latin1.sql";
-  $inputFilename = $ARGV[0]."_latin1.tsv";
   $utf8 = 0
  }
 
  # open output file
  open(OUTPUTFILE, ">$filenameOut") or die "unable to open output file";
-    
- # place spreadsheet into array 
- open(MYINPUTFILE2, "<$inputFilename") or die "unable to open file";
- @inputFile = <MYINPUTFILE2>;
- close(MYINPUTFILE2);
 
  # FIRST, remove newlines, blank lines, escape characters, and windows returns
  # SECOND, place the escape characters in all required sql characters
@@ -167,14 +161,14 @@ for (my $i=0;$i<2;$i++) {
 --
 -- Ensure correct encoding
 --
-SET NAMES ";
+";
  if ($utf8) {
-  $outputString .= "utf8";
+  $outputString .= "SET NAMES utf8;\n\n";
  }
  else {
-  $outputString .= "latin1";
+  $outputString .= "SET NAMES utf8;\n\n";   
+  # $outputString .= "SET NAMES latin1;\n\n";
  }
- $outputString .= ";\n\n";
 
  # parse lang_languages
  $outputString .= createLanguages($utf8, @inputFileProcessed);
@@ -340,7 +334,7 @@ CREATE TABLE `lang_languages` (
   `lang_code` char(2) NOT NULL default '',
   `lang_description` varchar(100) default NULL,
   UNIQUE KEY `lang_id` (`lang_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=".$charset." AUTO_INCREMENT=".$tempCounter." ;
+) ENGINE=MyISAM AUTO_INCREMENT=".$tempCounter." ;
 \n
 --
 -- Dumping data for table `lang_languages`
@@ -397,7 +391,7 @@ CREATE TABLE `lang_constants` (
   `constant_name` varchar(255) default NULL,
   UNIQUE KEY `cons_id` (`cons_id`),
   KEY `cons_name` (`constant_name`)
-) ENGINE=MyISAM DEFAULT CHARSET=".$charset." AUTO_INCREMENT=".$tempCounter." ;
+) ENGINE=MyISAM AUTO_INCREMENT=".$tempCounter." ;
 \n
 -- 
 -- Dumping data for table `lang_constants`
@@ -472,7 +466,7 @@ CREATE TABLE `lang_definitions` (
   `definition` mediumtext,
   UNIQUE KEY `def_id` (`def_id`),
   KEY `definition` (`definition`(100))
-) ENGINE=MyISAM DEFAULT CHARSET=".$charset." AUTO_INCREMENT=".$tempCounter." ;
+) ENGINE=MyISAM AUTO_INCREMENT=".$tempCounter." ;
 \n
 -- 
 -- Dumping data for table `lang_definitions`

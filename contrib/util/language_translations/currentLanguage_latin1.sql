@@ -16,7 +16,7 @@ CREATE TABLE `lang_languages` (
   `lang_code` char(2) NOT NULL default '',
   `lang_description` varchar(100) default NULL,
   UNIQUE KEY `lang_id` (`lang_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=13 ;
+) ENGINE=MyISAM AUTO_INCREMENT=13 ;
 
 
 --
@@ -50,7 +50,7 @@ CREATE TABLE `lang_constants` (
   `constant_name` varchar(255) default NULL,
   UNIQUE KEY `cons_id` (`cons_id`),
   KEY `cons_name` (`constant_name`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=2197 ;
+) ENGINE=MyISAM AUTO_INCREMENT=2197 ;
 
 
 -- 
@@ -2270,7 +2270,7 @@ CREATE TABLE `lang_definitions` (
   `definition` mediumtext,
   UNIQUE KEY `def_id` (`def_id`),
   KEY `definition` (`definition`(100))
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=6656 ;
+) ENGINE=MyISAM AUTO_INCREMENT=6656 ;
 
 
 -- 
