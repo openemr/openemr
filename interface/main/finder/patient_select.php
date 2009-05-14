@@ -128,7 +128,7 @@ if ($popup) {
   $rez = sqlStatement($sql);
   $result = array();
   while ($row = sqlFetchArray($rez)) $result[] = $row;
-  _set_patient_inc_count('all', count($result), $where);
+  _set_patient_inc_count($sqllimit, count($result), $where);
 }
 else {
   $patient = $_REQUEST['patient'];
