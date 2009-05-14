@@ -130,7 +130,7 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
           if (strpos($tmp, "ins$i") !== false) $payer_type = $i;
         }
         arPostPayment($pid, $encounter, $session_id, $dtlinfo['pmt'], $code,
-          $payer_type, $source, 0, "$dtldate 00:00:00");
+          $payer_type, addslashes($source), 0, "$dtldate 00:00:00");
         if ($session_id) {
           sqlStatement("UPDATE ar_session SET pay_total = pay_total + '" .
             $dtlinfo['pmt'] . "' WHERE session_id = '$session_id'");
