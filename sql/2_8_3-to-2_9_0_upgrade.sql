@@ -53,7 +53,7 @@ INSERT INTO list_options VALUES ('marital','divorced'        ,'Divorced'        
 INSERT INTO list_options VALUES ('marital','widowed'         ,'Widowed'         ,4,0,0);
 INSERT INTO list_options VALUES ('marital','separated'       ,'Separated'       ,5,0,0);
 INSERT INTO list_options VALUES ('marital','domestic partner','Domestic Partner',6,0,0);
-INSERT INTO list_options VALUES ('language','English','English',1,1,0);
+INSERT INTO list_options VALUES ('language','English','English',1,0,0);
 INSERT INTO list_options VALUES ('language','Spanish','Spanish',2,0,0);
 INSERT INTO list_options VALUES ('ethrace','Caucasian','Caucasian',1,0,0);
 INSERT INTO list_options VALUES ('ethrace','Asian'    ,'Asian'    ,2,0,0);
