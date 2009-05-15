@@ -221,7 +221,8 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
       if ($row['pay_amount'] != 0) $tmp['pmt'] = $row['pay_amount'];
       if ($row['adj_amount'] != 0 || $row['pay_amount'] == 0) {
         $tmp['chg'] = 0 - $row['adj_amount'];
-        $tmp['rsn'] = (empty($row['memo']) || empty($row['session_id'])) ? 'Unknown adjustment' : $row['memo'];
+        // $tmp['rsn'] = (empty($row['memo']) || empty($row['session_id'])) ? 'Unknown adjustment' : $row['memo'];
+        $tmp['rsn'] = empty($row['memo']) ? 'Unknown adjustment' : $row['memo'];
         $tmpkey = $paydate . $keysuff1++;
       }
       else {
