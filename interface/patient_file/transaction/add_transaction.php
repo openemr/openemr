@@ -117,6 +117,8 @@ div.section {
 <script type="text/javascript" src="../../../library/textformat.js"></script>
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
+
 <script language="JavaScript">
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -327,10 +329,14 @@ end_group();
 
 </form>
 
+<!-- include support for the list-add selectbox feature -->
+<?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
+
+</body>
+
 <script language="JavaScript">
 <?php echo $date_init; ?>
 titleChanged();
 </script>
 
-</body>
 </html>
