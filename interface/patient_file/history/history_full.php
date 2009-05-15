@@ -50,6 +50,8 @@ div.section {
 <script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
+
 <script LANGUAGE="JavaScript">
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -330,9 +332,6 @@ end_group();
  </tr>
 </table>
 
--->
-
-
 
 <center><br />
    <input type='submit' value='<?php xl('Save','e'); ?>' />&nbsp;
@@ -350,13 +349,15 @@ end_group();
 <?php } ?>
 </center>
 
-
-
 </form>
+
+<!-- include support for the list-add selectbox feature -->
+<?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
+
+</body>
 
 <script language="JavaScript">
 <?php echo $date_init; // setup for popup calendars ?>
 </script>
 
-</body>
 </html>
