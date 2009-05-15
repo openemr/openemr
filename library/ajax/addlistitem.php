@@ -23,8 +23,8 @@ if ($_GET['listid'] == "" || $_GET['newitem'] == "") exit;
 // set the values for the new list item
 $is_default = 0;
 $list_id = $_GET['listid'];
-$option_id = $_GET['newitem'];
-$title = $option_id;
+$title = trim($_GET['newitem']);
+$option_id = preg_replace("/\W/", "_", $title);
 $option_value = 0;
 
 // make sure we're not adding a duplicate entry
