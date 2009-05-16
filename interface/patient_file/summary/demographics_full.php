@@ -539,7 +539,7 @@ end_group();
     id='img_i<?php echo $i; ?>dob_date' border='0' alt='[?]' style='cursor:pointer'
     title='<?php xl('Click here to choose a date','e'); ?>'>
 
-   <span class=bold><?php xl('S.S.','e'); ?>: </span><input type=entry size=11 name=i<?php echo $i?>subscriber_ss value="<?php echo $result3{"subscriber_ss"}?> ">&nbsp;
+   <span class=bold><?php xl('S.S.','e'); ?>: </span><input type=entry size=11 name=i<?php echo $i?>subscriber_ss value="<?php echo $result3{"subscriber_ss"}?>">&nbsp;
    <span class=bold><?php xl('Sex','e'); ?>: </span>
    <select name=i<?php echo $i?>subscriber_sex>
     <option value="Female" <?php if (strtolower($result3{"subscriber_sex"}) == "female") echo "selected"?>><?php xl('Female','e'); ?></option>
