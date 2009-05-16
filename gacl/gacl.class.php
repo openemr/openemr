@@ -168,8 +168,15 @@ class gacl {
 			$this->db->SetFetchMode(ADODB_FETCH_NUM);
 			$this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
 
-		        //Set utf8 encoding if flag is set (added by openemr) - bm 05-2009
-		        if ($this->_db_utf8_flag) $this->db->Execute("SET NAMES 'utf8'");		    
+		        // Modified 5/2009 by BM for UTF-8 project
+		        if ($this->_db_utf8_flag) {
+			        $success_flag = $this->db->Execute("SET NAMES 'utf8'");
+			        if (!$success_flag) {
+			                error_log("PHP custom error: from gacl gacl/gacl.class.php  - Unable to set up UTF8 encoding with mysql database", 0);
+				}
+			}
+		        // ---------------------------------------
+			
 		}
 		$this->db->debug = $this->_debug;
 

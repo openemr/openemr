@@ -13,7 +13,16 @@
 // ----------------------------------------------------------------------
 //
 include_once("../../../library/sqlconf.php");
-global $host,$port,$login,$pass,$dbase;
+// Modified 5/2009 by BM for UTF-8 project 
+global $host,$port,$login,$pass,$dbase,$disable_utf8_flag;
+if (!$disable_utf8_flag) {
+ $pnconfig['utf8Flag'] = true;
+}
+else {
+ $pnconfig['utf8Flag'] = false;
+}
+// ---------------------------------------
+
 $pnconfig['modname'] = "PostCalendar";
 $pnconfig['startpage'] = "PostCalendar";
 $pnconfig['language'] = "eng";

@@ -9,9 +9,6 @@ $database->PConnect($host, $login, $pass, $dbase);
 $GLOBALS['adodb']['db'] = $database;
 $GLOBALS['dbh'] = $database->_connectionID;
 
-//set UTF8 encoding if not disabled in globals.php
-if (!$disable_utf8_flag) mysql_query("SET NAMES 'utf8'", $GLOBALS['dbh']);
-
 //fmg: This makes the login screen informative when no connection can be made
 if (!$GLOBALS['dbh']) {
   //try to be more helpful
@@ -24,12 +21,29 @@ if (!$GLOBALS['dbh']) {
   exit;
 }//if no connection
 
+// Modified 5/2009 by BM for UTF-8 project
+if (!$disable_utf8_flag) { 
+  $success_flag = mysql_query("SET NAMES 'utf8'", $GLOBALS['dbh']);
+  if (!$success_flag) {
+    error_log("PHP custom error: from openemr library/sql.inc  - Unable to set up UTF8 encoding with mysql database", 0);
+  }
+}
+// ---------------------------------------
+
 function sqlConnect($login,$pass,$dbase,$host,$port = '3306')
 {
   $GLOBALS['dbh'] = $database->_connectionID;
-  //set UTF8 encoding if not disabled in globals.php
-  if (!$disable_utf8_flag) mysql_query("SET NAMES 'utf8'", $GLOBALS['dbh']);
-  return $GLOBALS['dbh'];
+
+  // Modified 5/2009 by BM for UTF-8 project
+  if (!$disable_utf8_flag) {
+    $success_flag = mysql_query("SET NAMES 'utf8'", $GLOBALS['dbh']);
+    if (!$success_flag) {
+        error_log("PHP custom error: from openemr library/sql.inc  - Unable to set up UTF8 encoding with mysql database", 0);
+    }
+  }
+  // ---------------------------------------
+
+ return $GLOBALS['dbh'];
 }
 
 function sqlStatement($statement)
