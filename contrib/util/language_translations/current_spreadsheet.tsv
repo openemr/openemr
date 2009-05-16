@@ -15,7 +15,7 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 10	Able to Bear Weight four (4) steps:	kan bära Vikt fyra (4) steg: 	Capaz de cargar peso cuatro pasos(?)	gewicht an geben in 4  raten	Toegestaan om gewicht te dragen in 4 stappen							dummy
 11	Abn											dummy
 12	ABN1											dummy
-13	Abortion Issues	Abort Frågor 	Problemas de Aborto	abtreibung	Abortus problematiek			Avsluttelses vansker				dummy
+13	Abortion Issues	Abort Problematik	Problemas de Aborto	abtreibung	Abortus problematiek			Avsluttelses vansker				dummy
 14	Abortion Method	Abort Metod 	Método de Aborto	weg zur abtreibung	Abortus methode			Avsluttelses metoder				dummy
 15	Absences by Diagnosis	Frånvaro av Diagnos 	Carencias por Diagnósticos		Afwezigheid via Diagnose							dummy
 16	Accept Assignment	Acceptera uppdrag 	Aceptar Encargo	acept befund	Deze accepteren			Akseptere Job				dummy
@@ -95,7 +95,7 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 90	All Categories	Alla Kategorier	Todas las categorías		Alle categorien			Alle kategorier				dummy
 91	All Day	All Day	Todo el día		Gele dag			Alle dager				dummy
 92	All day event	Heldagshändelse	Evento de día completo		gebeurtenis voor hele dag			Heldags hendelse				dummy
-93	All Facilities	Alla faciliteter	Todas las instalaciones		Alle filialen			Alle Lokaler				dummy
+93	All Facilities	Alla faciliteter	Todas las instalaciones		Alle Vestigingen			Alle Lokaler				dummy
 94	All or part of the first name	Hela eller del av förnamn	Todo o parte del nombre		Alles of gedeelte van voornaam			Alt eller deler av det fornavnet				dummy
 95	All or part of the last name	Hela eller del av efternamnet	Todo o parte del apellido		Alles of gedeelte van achternaam			Alt eller deler av etternavnet				dummy
 96	All Reviewed and Negative:	Alla granskade och Negativa:	Todos respasod y negativos:		Alles nagekeken en Negatief 			Alt Gjennomsett og Negative:				dummy
@@ -103,12 +103,12 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 98	All Users	All Users	Todos los usuarios		Alle gebruikers			Alle Brukere				dummy
 99	Allergies		Alergias		Allergieen			Allergier:				dummy
 100	Allergies:	Allergier: 	Alergias:		Allergieen:			Allergier:				dummy
-101	Allow submitted events to be made active instantly?	Tillåt sända händelser att bli aktiva omedelbart? 	Permitir la activación instantánea de los eventos entrados?		Gebeurtenissen meteen activeren toegestaan			Tillatt sendte hendelser til å bli gjort aktive nå?				dummy
-102	Allow users to publish Global Events	Tillåt användare att publicera Globala Händelser	Permitir a los usuarios publicar eventos globales		Toestaan aan gebruikers om Algemele gebrurtenissen aan te kodnigen			Tillatt bruker å publisere Globale Hendelser				dummy
-103	Allow users to publish Personal Calendars	Tillåt användare att publicera personliga kalendrar 	Permitir a los usuarios publicar calendarios personales		Prive kalenders gebruikers toestaan			Tillat brukere til å publisere Personlige kallendere				dummy
+101	Allow submitted events to be made active instantly?	Tillåt sända händelser att bli aktiva omedelbart? 	Permitir la activación instantánea de los eventos entrados?		Sta toe om gebeurtenissen meteen actief te maken			Tillatt sendte hendelser til å bli gjort aktive nå?				dummy
+102	Allow users to publish Global Events	Tillåt användare att publicera Globala Händelser	Permitir a los usuarios publicar eventos globales		Gebruikers toestaan om Algemele Gebeurtenissen te publiveren			Tillatt bruker å publisere Globale Hendelser				dummy
+103	Allow users to publish Personal Calendars	Tillåt användare att publicera personliga kalendrar 	Permitir a los usuarios publicar calendarios personales		Gebruikers toestaan om Prive kalenders te publiceren			Tillat brukere til å publisere Personlige kallendere				dummy
 104	Allowed	Tillåten 	Permitido		Toegestaan			Tillatt				dummy
 105	Already used, choose another identifier	Används redan, välj en annan identitetsbeteckning 	Indentificador usado ya, elige otro		Reeds in gebruik, kies een andere identiefier			Allerede i bruk, velg en annen 				dummy
-106	Already used, choose another title	Används redan, välj en annan titel 	Título usado ya, elige otro		Reeds in gebruik kies eenandere titel			Allerede i bruk, velg en annen titel				dummy
+106	Already used, choose another title	Används redan, välj en annan titel 	Título usado ya, elige otro		Reeds in gebruik kies een andere titel			Allerede i bruk, velg en annen titel				dummy
 107	Alt Address	Alt Adress 	Dirección alternativa		Ander adres			Alternativ adresse				dummy
 108	Alternatively, you may use the search page to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse.  You can do this by clicking the Browse button and selecting the file to upload, and then clicking Search to perform the upload and display the corresponding invoices.  In this case the other parameters mentioned above do not apply and will be ignored.  Uploading saves the file but does not yet process its contents -- that is done separately as described below.	Alternativt kan du använda sökfunktionen sida att lägga upp en elektronisk remittance (X12 835) fil som du fått från din betalare eller clearingorganisationer. Du kan göra detta genom att klicka på knappen Bläddra och välj den fil som ska laddas upp och sedan klicka på Sök för att utföra de ladda upp och visa motsvarande fakturor. I detta fall är det andra parametrar som nämns ovan gäller inte och kommer att ignoreras. Överföring sparar filen menprocessar ännu inte innehållet - detta är gjort separat enligt nedan. 	De forma alternativa, puede usar la página de búsqueda para cargar un archivo electrónico (X12835) que haya recibido de su pagador. Puede hacerlo oprimiendo el botón \"Explorar\" y seleccionar el archivo a cargar, y luego oprimir \"Explorar\" para ejecutar la carga y desplegar las facturas correspondientes. En este caso, los parámetros mencionados arriba no aplican y pueden ser ignorados. La carga guarda el archivo pero no procesa su contenido - esto se realiza de forma separada tal y como se describe abajo.		Je zou ook de SEARCH pagina kunnen gebruiken om een electronisch overschrijvings (X12 835) file te uploaden van de betalende instantie. Je kunt dit doen door op de BROWSE knop te drukken en de juiste file te selecteren om te uploaden. Dan op SEARCH klikken om dit te effectueren en de daarbij behorende invoices te laten zien op het scherm. In dit geval zijn bovenstaande parameters niet nodig en worden genegeerd. Uploaden SAVE-s de file maar verwerkt de inhoud niet- dit wordt apart uitgevoerd zoals hier beneden beschreven							dummy
 109	AM	AM 										dummy
@@ -128,7 +128,7 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 123	Ankle Problems	AnkelProblem 	Problemas de tobillo		Enkel problemen			Ankel Problemer				dummy
 124	Ankylosing Sondlilitis	Ankyloserande Sondlilitis 			Ankylosis Spondilitica							dummy
 125	Ankylosing Spondlilitis	Ankyloserande Spondlilitis 	Espondilitis anquilosante		Ankylosis Spondilitica							dummy
-126	Another thing you can do in the posting window is request secondary billing. If you select this checkbox before saving, then the original claim will be re-opened and queued on the Billing page, and will be processed during the next billing run.	En annan sak du kan göra i utstationering fönstret är att begära en sekundära fakturering. Om du markerar rutan innan du sparar, så kommer den ursprungliga fordran att öppnas igen och köas på faktureringssidan och sedan behandlas under nästa faktureringskörning. 	Otra cosa que puede hacer en la ventana de publicación es solicitar facturación secundaria. Si selecciona la casilla de verificación antes de guardar, la reclamación original será reabierta y asignada en la página de Facturación, y será procesada en la siguiente corrida de facturación.		Iets anders wat je kan doen in de PostingWindow is verzoeken om op tweede niveau in rekening te brengen. ALs je dit SELECTEERD voordat je Seve-d, dan wordt de originele claim opnieuw geopend en als lijst op de Billing Pagina getoond en wordt deze tijdens de volgende ronde in rekening gebracht.							dummy
+126	Another thing you can do in the posting window is request secondary billing. If you select this checkbox before saving, then the original claim will be re-opened and queued on the Billing page, and will be processed during the next billing run.	En annan sak du kan göra i utstationering fönstret är att begära en sekundära fakturering. Om du markerar rutan innan du sparar, så kommer den ursprungliga fordran att öppnas igen och köas på faktureringssidan och sedan behandlas under nästa faktureringskörning. 	Otra cosa que puede hacer en la ventana de publicación es solicitar facturación secundaria. Si selecciona la casilla de verificación antes de guardar, la reclamación original será reabierta y asignada en la página de Facturación, y será procesada en la siguiente corrida de facturación.		Iets anders wat je kan doen in de PostingWindow is verzoeken om op tweede niveau in rekening te brengen. Als je dit SELECTEERD voordat je Seve-d, dan wordt de originele claim opnieuw geopend en als lijst op de Billing Pagina getoond en wordt deze tijdens de volgende ronde in rekening gebracht.							dummy
 127	ante				voor							dummy
 128	Anus nl, no rectal tenderness/mass	Anus, ingen rektal ömhet			Anus normaal, geen rectale gevoeligheid/massa							dummy
 129	Any	Valfri 	Cualquier		Ieder			Hvilken som helst				dummy
@@ -143,7 +143,7 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 138	apply to skin	appliceras på huden 	aplicar a la piel		op de huis smeren			Bruk på hud				dummy
 139	Appointment Date	besöksdatum 	Fecha de cita		Datum afspraak			Avtale dato				dummy
 140	Appointment status	besökssstatus 	situación de cita		Stand van zaken voor afspraak			Avtale status				dummy
-141	Appointment within	möte innom	Cita dentro		Afsrpaak binnen			Avtale innenfor				dummy
+141	Appointment within	möte innom	Cita dentro		Afsrpaak tussen			Avtale innenfor				dummy
 142	Appointments	möten/besök	Citas		Afspraken			Avtaler				dummy
 143	Appointments and Encounters	Möten och besök	Citas y encuentros		Afspraken en Episoden			Avtaler og hendelser				dummy
 144	Appointments Report	Besöksrapport 	Informe citas		Rapportage afspraken-episoden			Avtale rapport				dummy
@@ -152,7 +152,7 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 147	Approved	Godkänd	Aprobado		Toegestaan			Godkjent				dummy
 148	Approved Events Administration	Godkända administrativa händelser	Eventos administrativos aprobados		Administratie van toegstande gebeurtenis(sen)							dummy
 149	Appts		Citas		Afspr.							dummy
-150	April		Abril					April				dummy
+150	April		Abril		April			April				dummy
 151	Are you sure you want to approve these events?	Är du säker på att du vill godkänna dessa händelser?	¿Estás seguro quer quieres aprobar estos eventos?		Zeker deze gebeurtenis toestaan?			Er du sikker på at du vil godkjenne disse hendelsene?				dummy
 152	Are you sure you want to delete this event?	Är du säker på att du vill ta bort denna händelse?	¿Estás seguro que quieres eliminar estos eventos?		Zeker deze gebeurtenis verwijderen?			Er du sikker på at du vil slette disse hendelsene?				dummy
 153	Are you sure you want to edit these events?	Är du säker på att du vill ändra dessa händelser?	¿Estás seguro que quieres editar estos eventos?		Zeker deze gebeurtenis aanpassen?			Er du sikker på at du vil redigere disse hendelsene?				dummy
@@ -170,25 +170,25 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 165	At the Navicular:	Vid Båtbenet:			Bij de naviculare							dummy
 166	Athletic/Injury	Atletisk / Skada	Atlético / Lesión		Athletic/Injury			Atletisk/skade				dummy
 167	Attention	Uppmärksamhet	Atención		Attentie			Oppmerksomhet				dummy
-168	Attn	OBS	Atención									dummy
+168	Attn	OBS	Atención		Attn							dummy
 169	August	Augusti	Agosto		Augustus			August				dummy
-170	Auth	Auth	Autorización									dummy
+170	Auth	Auth	Autorización		Auth							dummy
 171	Authorizations	Tillstånd	Autorizaciones		Autorisatie			Tilganger				dummy
 172	Authorize	Bemyndiga	Autorizar		Autoriseer			Gi tilgang				dummy
 173	Authorized	Auktoriserad	Autorizado		Geautoriseerd			Har tilgang				dummy
 174	Auto Send	Skicka automatiskt	Mandar automáticamente		Sturen via			Auto send				dummy
-175	Automobile Medical	Automobilemedicin										dummy
+175	Automobile Medical	Automobilemedicin	Automovil Medico		Automobiel Medisch							dummy
 176	Available Times	Tillgängliga tider	Horas disponbiles		beschikbare tijden			Tilgjengelige tider				dummy
 177	Avulsion / avulsion fracture	Avulsion / avulsion fraktur	Avulsión / fractura por avulsión		Avulsie / avulsie fractuur							dummy
 178	Avulsion lateral malleolus	Avulsion laterala malleolus	Avulsión maleolo peroneal		Avulsie laterale malleolus							dummy
 179	Avulsion medial malleolus 	Avulsion mediala malleolus	Avulsión maleolo tibial		Avulsie mediale malleolus							dummy
-180	Awareness-Based	Medvetandebaserad			Op basis van waarneming							dummy
+180	Awareness-Based	Medvetandebaserad	Conocimiento-Basado		Op basis van waarneming							dummy
 181	b.i.d.	b.i.d.			2 x daags							dummy
 182	back	tillbaka	espalda		Terug			rygg				dummy
 183	Back	Tillbaka	Espalda		Terug			Rygg				dummy
 184	Back Problems	Ryggproblem	Problemas de espalda		Rug problemen			Rygg Problemer				dummy
 185	Back Surgery	Ryggkirurgi	Cirujia de la espalda		Rug Chirurgie			Rygg operasjon				dummy
-186	Backup	Backup	Resguardo					Sikkerhets kopi				dummy
+186	Backup	Backup	Resguardo		Back-up			Sikkerhets kopi				dummy
 187	Bad check	Dålig kontroll	Talón sin fondos		Ongedekte check							dummy
 188	Bad debt	Kundförluster	Cheque devuelto		Ongedekte schuld							dummy
 189	Balance	Saldo	Balance		Balans			Balanse				dummy
@@ -196,7 +196,7 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 191	Balance Due	Restskuld	Balance a pagar		Te betalen							dummy
 192	Base of fifth (5th) Metarsal		Base del quinto (5to) Metatarsiano		Basis van metatarsale 5							dummy
 193	Base of fifth (5th) Metarsal:		Base del quinto (5to) Metatarsiano:		Basis van metatarsale 5:							dummy
-194	Batch Communication Tool		Herramienta de Comunicación del Batch									dummy
+194	Batch Communication Tool		Herramienta de Comunicación del Batch		Gereedschap voor Batch communicatie							dummy
 195	Batch processing initiated; this may take a while.	Batchprocess påbörjad, detta kan ta ett tag.	Proceso de Batch iniciado; puede  tomar unos minutos		Batch verwerking begonnen, soms tijdrovend..							dummy
 196	BatchCom											dummy
 197	Begin	Starta	Empezar		Start			Start				dummy
@@ -212,7 +212,7 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 207	Billing Note	Faktureringspreferenser Anmärkning	Nota de factura		Rekening notitie							dummy
 208	Billing Note for 	Faktureringspreferenser anmärkning för	Nota de factura para 		Rekening notitie voor							dummy
 209	Billing Note:	Faktureringspreferenser Obs!	Nota de factura:		Rekening notitie							dummy
-210	Billing queue results:	Faktureringspreferenser kö resultat:			Resultaat van de rekening queue:							dummy
+210	Billing queue results:	Faktureringspreferenser kö resultat:	Resultados de la coleta de la facturación:		Resultaat van de rekening queue:							dummy
 211	Billing Report	Faktureringsrapport	Informe de Facturación		Rekeningen scherm			Rapport for regninger				dummy
 212	billing to 	fakturera till	factura para		Rekening voor			Regning til				dummy
 213	Birth Date	Födelsedatum	Fecha de nacimiento		Geboortedatum			Fødelses Dato				dummy
@@ -220,7 +220,7 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 215	Bladder Infections	Infektioner i urinblåsan	Infecciones de vejiga		Blaas infectie			Blære infeksjon				dummy
 216	Blocked	Blockerade	Atascado		geblokkerd			Blokkert				dummy
 217	Bloody Nose	Näsblod	Sangra de la nariz		Bloed neus			Blodig nese				dummy
-218	Blue Cross Blue Shield											dummy
+218	Blue Cross Blue Shield		Protector azul cruzado azul									dummy
 219	Blue lines in this report are informational. Black lines show previously existing information.  Green lines show changes that were successfully applied.  Red lines indicate errors, or changes that were not applied; these must be processed manually.  Currently denied claims and payment reversals are not handled automatically and so will appear in red.		Las líneas azules en este reporte son informativas. Líneasa negras muestran información existente. Líneas verdes muestran cambios aplicados exitosamente. Líneas rojas indican errores o cambios que no fueron aplicados, y deben ser procesados manualmente. Reclamaciones denegadas y pagos revertidos no se manejan automáticamente y aparecerán en rojo.		Blauwe lijnen in dit verdslag zijn informeel. Groene tonen veranderingen die met succes werden ingevoerd en moeten handmatig verwerkt worden. De afgewezen of veranderde calims worden niet automatisch verwerkt en worden in rood getoond.							dummy
 220	Blurred Vision	Dimsyn	Visión borrosa		Wazig zich,			Tåkete syn				dummy
 221	Body Region	kroppsregion	Región corporal		Gebied van het lichaam			Kropps region				dummy
@@ -238,7 +238,7 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 233	BOX 18. Hospitalization date to (yyyy-mm-dd): 	FÄLT 18. Sjukhusvistelse till, datum (åååå-mm-dd):	Enca. 18 Hospitalización hasta (yyyy-mm-dd)		Box 18 Laatste dag Hospitalisatie (jjjj-mm-dd)							dummy
 234	BOX 20. Is Outside Lab used?	FÄLT 20. Ligger utanför Lab användas?	Enca. 20 Laboratorio Externo?		Box 20 \"Buiten laboratorium\" gebruikt?							dummy
 235	BOX 22. Medicaid Resubmission Code (ICD-9) 		Enca.22 Código de resometimiento de ayuda médica		Box 22 Medicaide Code om opnieuw te sturen (ICD-9)							dummy
-236	BOX 23. Prior Authorization No. 				Box 23 Vorige Authorisatie Nummer							dummy
+236	BOX 23. Prior Authorization No. 		CAJA 23. Autorización previa No.		Box 23 Vorige Authorisatie Nummer							dummy
 237	Breast Exam	Bröstundersökning	Revisión mama		Mamma onderzoek							dummy
 238	Breath Sounds:	Andningsljud:	Sonidos respiratorios: 		Ademhalingsgeruisen			Puste Lyder:				dummy
 239	Broken Bones	Brutna ben	Huesos fracturados		Gebroken botten			Brukne Bein				dummy
@@ -255,7 +255,7 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 250	By/Source	Genom / Källa	Por / Fuente		Door/Oorsprong			Av/Skilde				dummy
 251	By:	Av:	Por:		door			Av:				dummy
 252	Cache Lifetime (in seconds)		Tiempo de Vida del Cache (en segundos)		Cache duur (in seconden)							dummy
-253	Cache template output?											dummy
+253	Cache template output?		¿Salida de la plantilla del escondrijo?									dummy
 254	Calendar	Kalender	Calendario		Agenda			Kalender				dummy
 255	Calendar UI	Kalender UI	Calendario UI		Kalender UI			Kalender UI				dummy
 256	Call to addForm() goes here.<br>				Telefoontje naar addForm() komt hier terecht							dummy
@@ -264,18 +264,18 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 259	Cancer	Cancer	Cáncer		Kanker			Kreft				dummy
 260	cannot be converted to JPEG. Perhaps ImageMagick is not installed?	kan inte konverteras till JPEG. Kanske ImageMagick inte är installerad?	no puede convertirse a JPEG. ¿probablemente ImageMagick no está instalado?		kan niet naar JPEG omgezet worden. Is ImageMagick wel geinstalleerd?							dummy
 261	cannot be displayed inline because its type is not supported by the browser.		no puede ser exhibido en línea porque su tipo no es apoyado por el hojeador.		kan niet inline getoond worden, dit type is niet ondersteund door BROWSER							dummy
-262	cannot be displayed inline becuase its type is not supported by the browser				kan niet inline getoond worden, dit type is niet ondersteund door BROWSER							dummy
-263	cannot be displayed inline becuase its type is not supported by the browser.				kan niet inline getoond worden, dit type is niet ondersteund door BROWSER							dummy
+262	cannot be displayed inline becuase its type is not supported by the browser		no puede ser exhibido en línea porque su tipo no es apoyado por el hojeador		kan niet inline getoond worden, dit type is niet ondersteund door BROWSER							dummy
+263	cannot be displayed inline becuase its type is not supported by the browser.		no puede ser exhibido en línea porque su tipo no es apoyado por el hojeador.		kan niet inline getoond worden, dit type is niet ondersteund door BROWSER							dummy
 264	Cannot create	Det går inte att skapa	No se puede crear		Aanmaken mislukt			Kan ikke lage				dummy
 265	Cannot find 	Kan ej hitta	No se encuentra		Zoeken mislukt			Kan ikke finne				dummy
-266	Cannot find patient from SQL-Ledger customer id				Client kan niet gevonden worden in SQL-boekhouding via Klant ID							dummy
-267	Cannot find postscript document reference in 				Postscript referentie van document niet gevonden							dummy
-268	Cannot find provider from SQL-Ledger employee = 				Behandelaar kan niet gevonden worden in werknemers SQL boekhouding							dummy
+266	Cannot find patient from SQL-Ledger customer id		No puede encontrar al paciente de la identificación del cliente del SQL-Libro mayor		Client kan niet gevonden worden in SQL-boekhouding via Klant ID							dummy
+267	Cannot find postscript document reference in 	Cannot find postscript document reference in 			Postscript referentie van document niet gevonden							dummy
+268	Cannot find provider from SQL-Ledger employee = 		No puede encontrar el abastecedor del empleado del SQL-Libro mayor =		Behandelaar kan niet gevonden worden in werknemers SQL boekhouding							dummy
 269	Cannot open 	Går inte att öppna	No se puede abrir		Openen mislukt			Kan ikke åpne				dummy
 270	Cannot update because you are not editing an existing entry!	Kan inte uppdatera eftersom du inte redigera en befintlig post!	No se puede actualizar porque no estás editando una entrada que ya exista.		Updat mislukt omdat er geen bestaande entiteit wordt bewerkt							dummy
 271	capsule	kapsel	pastilla		capsule			Kapsul				dummy
-272	Cardiac Catheterization	Cardiac Katetrisering			Hart catheterisatie							dummy
-273	Cardiac Echo	Cardiac Echo			Echo van het hart							dummy
+272	Cardiac Catheterization	Cardiac Katetrisering	Cateterismo Cardiaco		Hart catheterisatie							dummy
+273	Cardiac Echo	Cardiac Echo	Eco cardiaco		Echo van het hart							dummy
 274	Cardiovascular	Kardiovaskulära			Cardiovasculair							dummy
 275	Cartilage / chondral / disc damage	Cartilage / chondral / skiva skador	Daño de cartílago, condral o del disco articular.		Kraakbeen/chondraal/beschadiging tussenwervelschijf							dummy
 276	Cartilage injury		Lesión de cartílago		Kraakbeen beschadiging							dummy
@@ -310,20 +310,20 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 305	check		comprobar					sjekk				dummy
 306	Check		Comprobar					Sjekk				dummy
 307	Check Input Data	Kontrollera indata	Comprobar data insertado		Check ingevoerde data							dummy
-308	Check/EOB Date:	Kontrollera / EOB Datum:										dummy
-309	Check/EOB No.:	Kontrollera / EOB Antal:										dummy
-310	Check/Ref Number	Kontrollera / Ref Antal	Comprobar/número de referencia									dummy
+308	Check/EOB Date:	Kontrollera / EOB Datum:	Comprobar  Fecha /EOB:		Check/EOB Datum:							dummy
+309	Check/EOB No.:	Kontrollera / EOB Antal:	Comprobar No EOB.:		Check/EOB No.:							dummy
+310	Check/Ref Number	Kontrollera / Ref Antal	Comprobar/número de referencia		Check/Ref nummer							dummy
 311	Check/Reference Number	Kontrollera / Referensnummer	Comprobar/Número de referencia		Check/Referentie nummer							dummy
 312	Checked box = yes ,  empty = no	Markerade fält = ja, tom = nej	Casilla con tic = sí, vacio = no		Ge-Check-te BOX = ja, leeg = nee							dummy
-313	Checkout	Kassa			Vertrek			Sjekk ut				dummy
+313	Checkout	Kassa	Comprobación		Vertrek			Sjekk ut				dummy
 314	Chest	Bröst	Pecho		Thorax			Bryst				dummy
-315	Chest CTAB	Chest CTAB			Thoracx CTAB							dummy
+315	Chest CTAB	Chest CTAB	Pecho CTAB		Thoracx CTAB							dummy
 316	Chest Pain:	Bröstsmärta:	Dolor en el pecho:		Pijn in thorax			Bryst Smerte:				dummy
 317	Chest Pains	Bröstsmärtor	Dolores en el pecho		Pijn in thorax			Bryst Smerter				dummy
 318	Chills	Frossbrytningar	Escalofríos		Rillingen			Grøssninger				dummy
-319	Cholecystectomy				Cholecystectomie							dummy
-320	Cholecystestomy				Cholecystectomie							dummy
-321	Choose a section and click an item within it; then in the other section you will see the related items highlighted, and you can click in that section to add and delete relationships.		Elige una sección y pincha un elemento dentro de ella; luego, en la otra sección, verás remarcados los elementos relacionados y puedes pinchar en esa sección para añadir y borrar relaciones.									dummy
+319	Cholecystectomy		Colecistectomía		Cholecystectomie							dummy
+320	Cholecystestomy		Colecistectomía		Cholecystectomie							dummy
+321	Choose a section and click an item within it; then in the other section you will see the related items highlighted, and you can click in that section to add and delete relationships.		Elige una sección y pincha un elemento dentro de ella; luego, en la otra sección, verás remarcados los elementos relacionados y puedes pinchar en esa sección para añadir y borrar relaciones.		Maak een keuze en CLICK op het onderdeel, dan zie je in het andere vak de gerelateerde zaken in highlight. Je kan in dat deel CLICKEN om relaties toe te voegen of te verwijderen							dummy
 322	Chronic Bronchitis	Kronisk bronkit	Bronquitis crónica		Chronische bronchitis			Kronisk bronkit				dummy
 323	Chronic synovitis / effusion / joint pain / gout	Kronisk synovit / effusion / ledvärk / gikt	Sinovitis crónica/derrame/dolor articular/gota		Chronische synovitis / opzwellen / gewrichts pijn/ jicht							dummy
 324	Chronic/Recurrent	Kronisk / Återkommande	Crónico/recurrente		Chronisch/terugkerend							dummy
@@ -333,8 +333,8 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 328	City, State Zip	Stad, stat Zip	Ciudad, Estado código postal		Stad, Zip code							dummy
 329	City/State	Stad / stat	Ciudad/Estado		Stad/Staat			By/landsdel				dummy
 330	Claim 	Påstå	Reclamar									dummy
-331	Claim test has completed running											dummy
-332	Claim was generated to file 											dummy
+331	Claim test has completed running		La prueva demandada ha terminado		Claim test is aangemaakt							dummy
+332	Claim was generated to file 				Claim is als file aangemaakt							dummy
 333	Classification	Klassificering	Clasificación		Classificatie			Klassifisert				dummy
 334	Clear	Rensa	Borrar		Schonen			Tøm				dummy
 335	Clear All	Rensa allt	Borrar todos		Alles verwijderen			Tøm alle				dummy
@@ -347,14 +347,14 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 342	Click to download	Klicka för att ladda ner	Pinchar para bajar		Klik om te downloaden			Klikk for å laste ned				dummy
 343	Click to generate the report	Klicka för att generera rapporten	Pinchar para generar un informe		Klik om raport te maken			Klikk for å generere rapport				dummy
 344	Click to select	Klicka för att välja	Pinchar para seleccionar		Klik om te selecteren			Klikk for å velge				dummy
-345	Click to select or change diagnoses	Klicka för att välja eller ändra diagnoser	Pinchar para selccionar o cambiar diagnóstico		Klik im te slecteren of de diagnose te veranderen			Klikk for å velge eller forandre diagnose				dummy
+345	Click to select or change diagnoses	Klicka för att välja eller ändra diagnoser	Pinchar para selccionar o cambiar diagnóstico		Klik om te slecteren of de diagnose te veranderen			Klikk for å velge eller forandre diagnose				dummy
 346	Click to select patient	Klicka för att välja patient	Pinchar para seleccionar paciente		Klik om patient te slecteren			Klikk for å velge en pasient				dummy
 347	Click to select related code	Klicka för att välja tillhörande kod	Pinchar para seleccionar código relacionado		Klik om de gerelateerde Code teselecteren			Klikk for å velge relatert kode				dummy
 348	Click:	Klicka på:	Pinchar:		Klik:			Klikk:				dummy
 349	Clients	Kunder	Clientes		Clienten			Klienter				dummy
 350	Clinic	Klinik	Clínica		Kliniek			Klinikk				dummy
 351	Clinic Daily Record	Kliniken Daily Record	Informe diario de la clínica		Dag overzicht Kliniek							dummy
-352	Close	Nära	Cerrar		Sluit			Steng				dummy
+352	Close	Stäng	Cerrar		Sluit			Steng				dummy
 353	close window	Stäng fönstret	cerrar ventana		Sluit venster			Steng vindu				dummy
 354	Closed	Stängt	Cerrado		Gesloten			Stengt				dummy
 355	CMS ID	CMS-id										dummy
@@ -364,7 +364,7 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 359	Code Finder	Kodsökare	Buscador de código		Zoek code			Kode finner				dummy
 360	Code must be two letter lowercase	Kod måste vara två bokstäver (gemener)	Código debe ser 2 letras en minúscula		Code moet twee kleine letters zijn			Koden må inneholde 2 små bokstaver				dummy
 361	code type	Kodtyp	tipo de código		Type Code							dummy
-362	Codes	Koder	Códigos					Koder				dummy
+362	Codes	Koder	Códigos		Codering			Koder				dummy
 363	Coding	Kodning	Codificando		Coderen niet toegestaan			Koding				dummy
 364	Coding not authorized	Kodning ej godkänd			Niet geautoriseerde Codering			Koding ikke tillatt				dummy
 365	Coffee	Kaffe	Café		Koffie			Kaffe				dummy
@@ -385,9 +385,9 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 380	Complications of Abortion	Komplikationer av Abort	Complicaciones de aborto		Complicaties van abortus			Komplikasjoner ved abort				dummy
 381	Computer Aided Medical Ordering System	Datorstödd Medical Ordering System	Sistema de órdenes médicas asistido informáticamente		Door computer gestuurd order systeem							dummy
 382	Congenital	Kongenital	Congénito		Congenitaal							dummy
-383	Conjuntiva, pupils	Conjuntiva, elever			Aangeboren							dummy
-384	constant name	konstantnamn	Nombre constante									dummy
-385	Consultation Brief Description	Konsultation Snabbeskrivning	 Breve descripción de consulta		Korte omschrijving Consult							dummy
+383	Conjuntiva, pupils	Conjuntiva, elever	Conjuntiva, pupilas		Aangeboren							dummy
+384	constant name	konstantnamn	Nombre constante		naam van constante							dummy
+385	Consultation Brief Description	Konsultation, kortfattad beskrivning	 Breve descripción de consulta		Korte omschrijving Consult							dummy
 386	Contact	Kontakt	Contacto					Kontakt				dummy
 387	Contact Email	E-postadress	Dirección correo electrónico del contacto					Kontakt Epost				dummy
 388	Contact name	Kontaktnamn	Nombre del contacto		Naam contact			Kontakt navn				dummy
@@ -396,7 +396,7 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 391	Content	Innehåll	Contenido		Inhoud			Innhold				dummy
 392	content	innehåll	contenido		inhoud			innhold				dummy
 393	Contra Clients	kontraindikationer			Anticonceptie zaken							dummy
-394	Contraception Issues	Preventivmedel Frågor	Temas anticonceptivos		Anticonceptie problematiek							dummy
+394	Contraception Issues	Preventivmedelsproblematik	Temas anticonceptivos		Anticonceptie problematiek							dummy
 395	Contraceptive Method	Preventivmedel Metod	Método anticonceptivo		Eerder gestartte anticonceptie diensten							dummy
 396	Contraceptive services previously started	Preventivmedel, tjänster som tidigare startats	Servicios anticonceptivos ya empezados		Bedrag van contract							dummy
 397	Copay		Copago		Bijbetaling							dummy
@@ -413,8 +413,8 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 408	Country	Land	País		Land			Land				dummy
 409	CPT	CPT										dummy
 410	CPT Codes	CPT Koder										dummy
-411	Crackles:		Crujidos, crepitaciones									dummy
-412	cream	grädde	nata					krem				dummy
+411	Crackles:		Crujidos, crepitaciones		Knisperend:							dummy
+412	cream	grädde	nata		creme			krem				dummy
 413	Create an Event	Skapa en händelse	Crear un evento		Maak gebeurtenis aan			Lag en ny Hendelse				dummy
 414	Create New Patient	Skapa ny patient	Crear paciente nuevo		Maak nieuwe patient aan			Lag en Ny Pasient				dummy
 415	Create Patient Note	Skapa Patientanteckning	Crear nota de paciente		Maak patient notitie			Lag et Pasient Notis				dummy
@@ -436,26 +436,26 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 431	daily	dagligen	diariamente		dagelijks			Daglig				dummy
 432	Data Alike is already in database, please change code and/or description	Liknande data finns redan i databasen, ändra koden och / eller beskrivning	Información parecida está ya en la base de datos, por favor cambie el código o la descripción		Soortgelijke data is al in de Database, verandere code en/of omschrijving							dummy
 433	Data Cols	Data Cols										dummy
-434	Data Type	Datattyp						Data Type				dummy
+434	Data Type	Datattyp	Tipo de datos					Data Type				dummy
 435	Database	Databas	base de datos					Database				dummy
 436	Date	Datum	Fecha		Datum			Dato				dummy
 437	Date Administered	Administreringsdatum	Fecha adminstrada		Geadministreerde datum							dummy
 438	Date Destroyed	Förstörd datum	Fecha destruída		Datum vernietigd			Dato Ødelagt				dummy
 439	Date Display Format	Date Display Format	Formato de muestra de fecha		Format van de datum ionvoer			Dato Vis Format				dummy
-440	Date format for "appointment end" is not valid	Datumformat för \"mötet slutar\" är inte giltigt	Formato fecha para última cita no es válido									dummy
+440	Date format for "appointment end" is not valid	Datumformat för \"mötet slutar\" är inte giltigt	Formato fecha para última cita no es válido		Datum voor \"einde afspraak\" is niet geldig							dummy
 441	Date format for "appointment start" is not valid	Datumformat för \"mötet startat \"är inte giltig	Formato fecha para primera cita no es válido		Datum van begin afspraak is niet geldig							dummy
-442	Date format for "Next Appointment" is not valid	Datumformat för \"Nästa Möte\" är inte giltig	Formato fecha para \'Próxima Cita\' no es válida									dummy
-443	Date format for "not seen since" is not valid	Datumformat för \"sista besök\" är inte giltig	Formato fecha para \'no visto desde\' no es válido									dummy
-444	Date format for "seen since" is not valid	Datumformat för \"sista besök\" är inte giltig	Formato fecha para \'visto desde\' no es válido									dummy
-445	Date Immunization Information Statements Given				Datum van start thuisdialyse							dummy
+442	Date format for "Next Appointment" is not valid	Datumformat för \"Nästa Möte\" är inte giltig	Formato fecha para \'Próxima Cita\' no es válida		Datum format voor \"volgende afspraak is niet geldig							dummy
+443	Date format for "not seen since" is not valid	Datumformat för \"sista besök\" är inte giltig	Formato fecha para \'no visto desde\' no es válido		Datum voor \"niet gezien sinds\" is ongeldig							dummy
+444	Date format for "seen since" is not valid	Datumformat för \"sista besök\" är inte giltig	Formato fecha para \'visto desde\' no es válido		Datum voor \"geziens sinds\" is niet geldig							dummy
+445	Date Immunization Information Statements Given		Comunicados de información de la inmunidad de fecha entregados		Datum van start thuisdialyse							dummy
 446	Date is missing for code 	Datum saknas för kod	Falta fecha para código		Dag voor deze code in niet ingevuld							dummy
-447	Date of bank deposit yyyy-mm-dd	Datum för bankinsättning åååå-mm-dd	Fecha ingreso en banco yyyy-mm-dd					Dato for bank innskudd åååå-mm-dd				dummy
+447	Date of bank deposit yyyy-mm-dd	Datum för bankinsättning åååå-mm-dd	Fecha ingreso en banco yyyy-mm-dd		Datum bankdeposito jjj-mm-dd			Dato for bank innskudd åååå-mm-dd				dummy
 448	Date of Injury	Datum för skada	Fecha de la lesión		Datum van ongeluk			Dato Når Skaden Intraff				dummy
 449	Date of payment yyyy-mm-dd	Datum för betalning åååå-mm-dd	Fecha de factura yyyy-mm-dd		Datum betaling jjjj-mm-dd			Betalings dato åååå-mm-dd				dummy
 450	Date Of Service	Datum för tjänst	Fecha De Servicio		Datrum dienst verlening			Service Dato				dummy
 451	Date of service mm/dd/yyyy	Datum för tjänst MM / DD / ÅÅÅÅ	Fecha de servicio mm/dd/yyyy		Datum veleende Service mm/dd/jjjj			Service dato mm/dd/åååå				dummy
 452	Date of Service:	Datum för tjänst:	Fecha de Servicio		Datum dienstverlening			Service Dato:				dummy
-453	Date of VIS Statement											dummy
+453	Date of VIS Statement				Datum VIS verklaring							dummy
 454	Date/Notes of Last	Datum / Noteringar förra	Fecha/Notas de Último		Datum/Notitie van Laatste							dummy
 455	Date:	Datum:	Fecha:		Datum:			Dato:				dummy
 456	Day	Dag	Día		Dag			Dag				dummy
@@ -464,12 +464,12 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 459	Day(s) M-F	Dag (ar) M-F	Día(s) L-V		Dag(en) Ma - Vr			Dag(er) M-F				dummy
 460	days	dagar	días		dagen			dager				dummy
 461	Days	Dagar	Días		Dagen			Dager				dummy
-462	Days and Games Missed	Dagar och spel Missade			Dagen en spelen gemist							dummy
+462	Days and Games Missed	Dagar och spel Missade	Dïas y juegos perdidos		Dagen en spelen gemist							dummy
 463	Days per Column:	Dagar per Kolumn:	Días por columna		Dagenper kolom			Dager per Kolonne:				dummy
-464	DB installed	DB installerad			DB geinstalleerd							dummy
-465	Debug Information				Informatie om fout te zoeken			Informasjon om feilen				dummy
+464	DB installed	DB installerad	DB instalado		DB geinstalleerd							dummy
+465	Debug Information		Elimine errores de la información		Informatie om fout te zoeken			Informasjon om feilen				dummy
 466	December	December	Diciembre		december			Desember				dummy
-467	Default	Standard			Standaard			Vanlig				dummy
+467	Default	Standard	Defecto		Standaard			Vanlig				dummy
 468	Default Calendar View	Standard Kalender vy			Standaard kalender tonen			Vanlig kallender perspektiv				dummy
 469	Default Facility	Standard Klinik			Standaard kliniek			Vanlige lokale				dummy
 470	Default Method	Standardmetod			Standaard mehtode			Vanlig metode				dummy
@@ -481,11 +481,11 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 476	Delete	Ta bort	Eliminar		Verwijderen			Slett				dummy
 477	Delete Categories with ID(s) : 	Radera Kategorier med ID (s):	Eliminar Categrorías con identificador(es) :		Verwijder categorien met ID(s):			Slett Kategorier med ID(s):				dummy
 478	Delete Pages	Radera Sidor	Eliminar Páginas		Verwijder pagina			Slett Sider				dummy
-479	Delete Patient, Encounter, Form, Issue, Document, Payment, Billing or Transaction	Ta bort patient, Möte, Formulär, Ämne, Dokument, Betalning, Fakturering eller transaktionstryck			Verwijder Patient gerelateerde ontmoeting, formulier, probleem, document, betaling, rekening of handeling							dummy
-480	Demographics	Demografi			Demografische gegevens							dummy
-481	Demographics not authorized	Demografi ej auktoriserad			Demgrafische gegeven niet geautoriseerd							dummy
-482	Depending on the type of bill you are testing you will see HCFA like output on a blank page for HCFA bills, you will see many lines of somewhat garbled text  and information if you are testing an X12 claim. That garbled text is the X12 EDI 4010A format. Occasionally you will see odd characters that look like dominoes or  squiglies, these are control characters such as page feeds and are normal.											dummy
-483	Deposit Date:	Insättning Datum:			Datum deposito			Innskudds Dato:				dummy
+479	Delete Patient, Encounter, Form, Issue, Document, Payment, Billing or Transaction	Ta bort patient, Möte, Formulär, Ämne, Dokument, Betalning, Fakturering eller transaktionstryck	Paciente, encuentro, forma, edición, documento, pago, facturación o transacción de la cancelación		Verwijder Patient gerelateerde ontmoeting, formulier, probleem, document, betaling, rekening of handeling							dummy
+480	Demographics	Demografi	Datos demográficos		Demografische gegevens							dummy
+481	Demographics not authorized	Demografi ej auktoriserad	Datos demográficos no autorizados		Demgrafische gegeven niet geautoriseerd							dummy
+482	Depending on the type of bill you are testing you will see HCFA like output on a blank page for HCFA bills, you will see many lines of somewhat garbled text  and information if you are testing an X12 claim. That garbled text is the X12 EDI 4010A format. Occasionally you will see odd characters that look like dominoes or  squiglies, these are control characters such as page feeds and are normal.		Dependiendo del tipo de cuenta usted es prueba que usted verá HCFA como salida en una página en blanco para las cuentas de HCFA, usted verán muchas líneas de texto algo mutilado y la información si usted está probando una demanda X12. Ese texto mutilado es el formato del X12 IED 4010A. Usted verá de vez en cuando los caracteres impares que parecen dominós o squiglies, éstos es caracteres de control tales como alimentaciones de página y es normal.		Afhankelijk van het type rekening dat u test, ziet u HCFA gelijkende output op een lege pagina voor HCFA rekeningen, u ziet vele regels van enigszins verdraaide tekst en informatie als u een X12 claim test. Dezet verdraaide is tekst in het X12 EDI 4010A formaat. SOms zult u eigenaardige tekens zien die op domino stenen of squiglies lijken, deze zijn controletekens nieuwe pagina beginnen en zijn normaal. 							dummy
+483	Deposit Date:	Insättning Datum:	Fecha del depósito		Datum deposito			Innskudds Dato:				dummy
 484	Depressed	Deprimerad	Depresivo		Gedreprimeerd			Deprimert				dummy
 485	Description	Beskrivning	Descripción		Omschrijving			Forklaring				dummy
 486	description	beskrivning	descripción		omschrijving			forklaring				dummy
@@ -495,41 +495,41 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 490	Destroyed Drugs	Förstörda läkemedel	Drogas destruidas		Vernietig medicijnen			Ødelegg Medisiner				dummy
 491	Destroyed Drugs Report	Förstöras narkotika Rapport	Informe drogas destruido		Vernietigd medicijn raport			Ødelegg Medisin Rapport				dummy
 492	Details	Detaljer	Detalles		Detaillering			Detaljer				dummy
-493	Developmental abnormality	Utvecklingstoxicitet abnormalitet			Ontwikkelings abnormaliteit							dummy
+493	Developmental abnormality	Utvecklingstoxicitet abnormalitet	Anormalidad del desarrollo		Ontwikkelings abnormaliteit							dummy
 494	Diabetes	Diabetes	Diabetes					Diabetes				dummy
 495	Diag	Diag	Diagnóstico		Diag							dummy
 496	Diagnosis	Diagnos	Diagnóstico		Diagnose			Diagnose				dummy
 497	Diagnosis must be coded into a linked encounter	Diagnos måste kodas in i ett länkat patientmöte			Diagnose moet aan code verbonden zijn							dummy
 498	Diagnosis:	Diagnos:	Diagnóstico:		Diagnose:			Diagnose:				dummy
 499	Diagnosis: 	Diagnos:	Diagnóstico:		Diagnose:			Diagnose:				dummy
-500	Diagnostic Tests:	Diagnostiska tester:	Pruebas diagnósticos:		Diagniostische testen							dummy
+500	Diagnostic Tests:	Diagnostiska tester:	Pruebas diagnósticas:		Diagniostische testen							dummy
 501	Dials	Dials										dummy
 502	Diaphragms/Caps				Diafragma/Caps							dummy
 503	Dictation: 	Diktat	Dictado		Gesproken tekst			Diktering:				dummy
-504	Diffuse:	Diffusa:			Diffuus:							dummy
-505	Disability	Funktionshinder			Handicap							dummy
-506	disabled	funktionshindrade			inactief			avslått				dummy
-507	Disabled	Funktionshindrade			Invalide			Avslått				dummy
-508	DISC	DISC										dummy
-509	Discharge From Urethra	Flytningar från urinröret			Afscheiding uit Urethra							dummy
+504	Diffuse:	Diffusa:	Difuso:		Diffuus:							dummy
+505	Disability	Funktionshinder	inhabilitación		Handicap							dummy
+506	disabled	funktionshindrade	inhabilitado		inactief			avslått				dummy
+507	Disabled	Funktionshindrade	inhabilitado		Invalide			Avslått				dummy
+508	DISC	DISC	DISCO									dummy
+509	Discharge From Urethra	Flytningar från urinröret	Pérdidas/secreciones de la uretra		Afscheiding uit Urethra							dummy
 510	Discharge Right				Afscheiding rechts							dummy
 511	Discharge Right:				Afscheiding rechts:							dummy
 512	Discount	Rabatt	Descuento		Korting			Rabatt				dummy
-513	Discount Amount	Rabatt Belopp			Bedrag van korting			Rabatt Mengde				dummy
-514	Dislocation				Dislocatie							dummy
-515	Dispatch	Skicka i väg										dummy
-516	Dispatch Received Document	Skicka mottagna dokument										dummy
-517	Dispensed	Dispenseras			Afgegeven							dummy
-518	Display event dates in block?	Visa händelsedatum i blocket?			Gebeurtenissen in block laten zien							dummy
-519	Display how many events?	Visa hur många händelser?			Hoeveel gebeurtenissen tonen							dummy
-520	Display location in block?	Visa plats i blocket?			Toon locatie in block							dummy
-521	Display the calendar?	Visa kalender?			Toon de kalender?			Viss kalenderen?				dummy
-522	Display today\'s events in the block?	Display dagens händelser i blocket?			Toon gebeurtenissen van vandaag							dummy
-523	Display topic in block?	Visa ämne i blocket?			Toon onderwerp in block							dummy
-524	Display upcoming events in block?	Visa kommande händelser i blocket?			Toon gebeurtenissen die komen							dummy
-525	Diverticulitis	Divertikulit										dummy
+513	Discount Amount	Rabatt Belopp	Suma de descuentos		Bedrag van korting			Rabatt Mengde				dummy
+514	Dislocation		Dislocación		Dislocatie							dummy
+515	Dispatch	Skicka i väg	Informe		Lever af							dummy
+516	Dispatch Received Document	Skicka mottagna dokument	Remitir documento recibido		Document voor afgelevering							dummy
+517	Dispensed	Dispenseras	Prescrito		Afgegeven							dummy
+518	Display event dates in block?	Visa händelsedatum i blocket?	¿Mostrar fechas de eventos en bloque?		Gebeurtenissen in block laten zien							dummy
+519	Display how many events?	Visa hur många händelser?	¿Mostrar cuántos eventos?		Hoeveel gebeurtenissen tonen							dummy
+520	Display location in block?	Visa plats i blocket?	¿Mostrar lugar/sitio en bloque?		Toon locatie in block							dummy
+521	Display the calendar?	Visa kalender?	¿Mostrar el calendario?		Toon de kalender?			Viss kalenderen?				dummy
+522	Display today\'s events in the block?	Display dagens händelser i blocket?	¿Mostrar los eventos de hoy en la tabla?		Toon gebeurtenissen van vandaag							dummy
+523	Display topic in block?	Visa ämne i blocket?	¿Mostrar tema en tabla?		Toon onderwerp in block							dummy
+524	Display upcoming events in block?	Visa kommande händelser i blocket?	¿Mostrar los eventos próximos en tabla?		Toon gebeurtenissen die komen							dummy
+525	Diverticulitis	Divertikulit			Diverticulitis							dummy
 526	Diverticulitis Surgery	Diverticulitis Kirurgi			Diverticulitis chirurgie							dummy
-527	Divirticulitis	Divertikulit										dummy
+527	Divirticulitis	Divertikulit			Diverticulitis							dummy
 528	Divirticulitis Surgery	Divertikulit Kirurgi			Diverticulitis chirurgie							dummy
 529	Dizziness:	Yrsel:	Mareo:		Duiszeligheid			Svimmelhet:				dummy
 530	do not save	spara inte	no guardar		niet bewaren			ikke lagre				dummy
@@ -547,15 +547,15 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 542	Don\'t Save Changes	Spara inte	No Guardar Cambios		Veranderingen niet bewaren			Ikke lagre Endringer				dummy
 543	Done with:	Klar med:	Hecho con:		Gedaan met:			Ferdig Med:				dummy
 544	DOS	DOS										dummy
-545	Dosage	Dosering			Dosering			Dosering				dummy
+545	Dosage	Dosering	Dosis		Dosering			Dosering				dummy
 546	Double Vision	Doublesenende	Visión doble		Dubbel zien			Dobbelt syn				dummy
-547	Download billing file, post to accounting and mark as billed											dummy
+547	Download billing file, post to accounting and mark as billed		Descargar expediente de factura, mandar a contabilidad y marcar como facturado.		Download facturering bestand, verstuur naar boekhouding en markeer als gefactureerd							dummy
 548	Dr Check	Läkarkontroll	Revisar médico					Dr Sjekk				dummy
 549	Dr Visit	Läkarbesök	Visitar médico					Dr Besøk				dummy
-550	Drug	Läkemedel	Droga		Medicatie			Medisin				dummy
-551	Drug Inventory	Inventarielista, läkemedel	Inventorio droga		Medicijnen voorraad beheer			Medisin Inventar				dummy
-552	Drug Name	Läkemedelsnamn	Nombre droga		Naam medicatie			Medisin navn				dummy
-553	Drugs	Läkemedel	Drogas		Medicijnen			Medisiner				dummy
+550	Drug	Läkemedel	Medicamento		Medicatie			Medisin				dummy
+551	Drug Inventory	Inventarielista, läkemedel	Inventorio de medicamentos		Medicijnen voorraad beheer			Medisin Inventar				dummy
+552	Drug Name	Läkemedelsnamn	Nombre del medicamento		Naam medicatie			Medisin navn				dummy
+553	Drugs	Läkemedel	Medicamentos		Medicijnen			Medisiner				dummy
 554	Dry Mouth	Muntorrhet	Boca seca		Droge mond			Tørr munn				dummy
 555	Due Date	Förfallodatum	Fecha del parto		Datum Bevalling							dummy
 556	Due date mm/dd/yyyy or yyyy-mm-dd	Återl.datum mm / dd / yyyy eller åååå-mm-dd	Fecha del parto mm/dd/aaaa o aaaa-mm-dd		Datum Bev. mm/dd/jjjj of jjjj-mm-dd							dummy
@@ -564,9 +564,9 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 559	Due Pt											dummy
 560	duration	varaktighet	duración		duur			varighet				dummy
 561	Duration	Varaktighet	Duración		Duur			Varighet				dummy
-562	Dyspnea:	Dyspné:			Dyspnoe							dummy
+562	Dyspnea:	Dyspné:	Disnea		Dyspnoe							dummy
 563	Early Recurrence (<2 Mo)	Tidig Återkommande (<2 Mo)			Vroeg recidief (<2mnd)							dummy
-564	ECG	EKG										dummy
+564	ECG	EKG	Electrocardiograma									dummy
 565	Edit	Redigera	Editar		aanpassen			Rediger				dummy
 566	Edit Categories	Edit Kategorier	Editar categorías		Categorien aanpassen			Rediger Kategorier				dummy
 567	Edit definitions	Redigera definitioner	Editar definiciones		definities aanpasse			Rediger Definisjoner				dummy
@@ -576,24 +576,24 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 571	Edit Structure	Redigera Struktur	Editar estructura		Structuur aanpassen			Rediger Struktur				dummy
 572	Education	Utbildning	Educación		Opleiding			Utdannelse				dummy
 573	Education Date	Utbildning Datum	Fecha educación		Opleidings datum			Utdannelses Dato				dummy
-574	ee the  * GNU General Public License for more details.  *   * You should have received a copy of the GNU General Public License  * along with this program; if not, write to the Free 				ee * Licentie voor algemeen gebruik onder GNU voorwaarden, voor meer details. * * U zou een exemplaar van de LicentieVergunning voor algemeen gebruik van GNU voorwaarden* samen met dit programma ontvangen moeten hebben; indien niet onvangen, schrijf naar gratis							dummy
+574	ee the  * GNU General Public License for more details.  *   * You should have received a copy of the GNU General Public License  * along with this program; if not, write to the Free 		Debería haber recibido una copia del GNU con este programa, si no, escriba al Free		ee * Licentie voor algemeen gebruik onder GNU voorwaarden, voor meer details. * * U zou een exemplaar van de LicentieVergunning voor algemeen gebruik van GNU voorwaarden* samen met dit programma ontvangen moeten hebben; indien niet onvangen, schrijf naar gratis							dummy
 575	Effective Date	Ikraftträdandedatum	Fecha efectiva									dummy
 576	Elbow	Armbåge	Codo		Elleboog			Albue				dummy
 577	Elbow Problems	Problem med armbågen	Problemas del codo		Problemen met elleboog			Albue problemer				dummy
-578	Electronic Remits	Elektronisk remiss										dummy
+578	Electronic Remits	Elektronisk remiss			Electronisch terug gestuurd							dummy
 579	Email	Email	Correo electrónico		e-mail			Epost				dummy
 580	Email from Batchcom	E-post från Batchcom			Berichtgeving per e-mail			Epost fra Batchcom				dummy
 581	Email Notification	E-postmeddelande	Notificación correo electrónico		E-mail aanmelding			Epost Påmindelse				dummy
 582	Email send before	E-post skicka innan			E-mal eerder verzonden			Epost send før				dummy
-583	Email Sender	Email, skicka			E-mail afzender			Epost Sender				dummy
-584	Email Subject	Epost Ämnesord			E-mail onderwerp			Epost Emne				dummy
-585	Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***	Email Text, användbara Tag: *** NAMN ***, dvs Bäste *** NAMN ***										dummy
+583	Email Sender	Email, skicka	Remitente de correo		E-mail afzender			Epost Sender				dummy
+584	Email Subject	Epost Ämnesord	Asunto del correo		E-mail onderwerp			Epost Emne				dummy
+585	Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***	Email Text, användbara Tag: *** NAMN ***, dvs Bäste *** NAMN ***	Texto del email, etiqueta usable: *** CONOCIDO del ***, es decir estimado *** del NOMBRE del ***									dummy
 586	Emergency Contact	Akut Kontakt	Contacto en caso de emergencia		Spoed consult			Nød kontakt				dummy
-587	Emergency Contraception	Akut Preventivmedel			Nood contraceptie							dummy
-588	Emphysema	Emfysem			Emphyseem							dummy
-589	Employer	Arbetsgivare			Werkgever			Arbeidsgiver				dummy
-590	Employer Address	Arbetsgivarens adress			Adrs werkgever			Arbeidsgivers adresse				dummy
-591	Employer Data	Arbetsgivare Data			Gegevens werkgever			Arbeidsgiver Data				dummy
+587	Emergency Contraception	Akut Preventivmedel	Emergencia anticonceptiva		Nood contraceptie							dummy
+588	Emphysema	Emfysem	Enfisema		Emphyseem							dummy
+589	Employer	Arbetsgivare	Empresa		Werkgever			Arbeidsgiver				dummy
+590	Employer Address	Arbetsgivarens adress	Dirección del empresario		Adrs werkgever			Arbeidsgivers adresse				dummy
+591	Employer Data	Arbetsgivare Data	Datos de la empresa		Gegevens werkgever			Arbeidsgiver Data				dummy
 592	Empty	Ta bort	Vacio		Leeg			Tom				dummy
 593	Empty value in "Email Hours"	Ta bort värdet i \"E-tider\"			Lege waarde in \"e-mail uren\"			Tom verdi i \"Epost Timer\"				dummy
 594	Empty value in "Email Sender"	Ta bort värde \"Email, skicka\"			Lege waarde in \"e-mail afzender\"			Tom verdi i \"Epost Sender\"				dummy
@@ -606,13 +606,13 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 601	Empty value in "Username"	Ta bort värdet i \"Användarnamn\"			Lege waarde \"Gebruikers naam\"			Tom verdi i \"Brukernavn\"				dummy
 602	enabled	aktiverat			geactiveerd			på				dummy
 603	Enc				Epis							dummy
-604	Encounter	Patientmöte			Episode			Møte				dummy
-605	Encounter 	Patientmöter			Episode			Møte				dummy
+604	Encounter	Patientmöte	Encuentro		Episode			Møte				dummy
+605	Encounter 	Patientmöter	Encuentro		Episode			Møte				dummy
 606	Encounter Forms	Patientmöte formulär			Episode Formulier			Møte skjerma				dummy
 607	Encounter number	Patientmöte antal/nummer			Episode nummer			Møte nummer				dummy
 608	Encounter was coded	Patientmöte har kodats			Episode werd gecodeerd							dummy
-609	Encounter:	Patientmöte:			Episode:			Møte:				dummy
-610	Encounters	Patientmöten			Episoden			Møter				dummy
+609	Encounter:	Patientmöte:	Encuentro:		Episode:			Møte:				dummy
+610	Encounters	Patientmöten	Encuentro		Episoden			Møter				dummy
 611	Encounters & Forms	Patientmöte & Formulär			Episoden en Formulieren			Møter & skjemaer				dummy
 612	Encounters &amp; Forms	Patientmöte & Formulär			Episoden & Formulieren							dummy
 613	Encounters not authorized	Encounters inte godkända			Episoden niet geuatoriseerd			Møter ikke tilatt				dummy
@@ -625,10 +625,10 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 620	End Date:	Slutdatum:	Fecha Final:		Eind datum:			Slutt Dato:				dummy
 621	End Time	Sluttid	Hora finalización		Eind tijd			Slutt Tid				dummy
 622	Ending date of service yyyy-mm-dd	Tjänsten slutar åååå-mm-dd	Fecha final de servicio yyyy-mm-dd		Datum einde van Service jjjj-mm-dd							dummy
-623	Ending DOS mm/dd/yyyy if you wish to enter a range											dummy
+623	Ending DOS mm/dd/yyyy if you wish to enter a range				Eind datum DOS mm/dd/jjjj als U een periode wilt invullen							dummy
 624	Endocrine	Endokrina			Endocrien							dummy
 625	Endoscopy	Endoskopi	Endoscopía		Endoscopie							dummy
-626	Enter a diagnosis code to exclude all invoices not containing it	Skriv en diagnos kod för att utesluta alla fakturor som inte innehåller det										dummy
+626	Enter a diagnosis code to exclude all invoices not containing it	Skriv en diagnos kod för att utesluta alla fakturor som inte innehåller det	Introduzca un código de la diagnosis para excluir todas las facturas que no lo contienen		Voer diagnosecode in om alle facturen uit te sluiten die het NIET bevatten							dummy
 627	Environmental	Miljöpåverkan			Omgeving gebonden							dummy
 628	EOB Data Entry											dummy
 629	EOB Posting - Electronic Remittances											dummy
@@ -638,15 +638,15 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 633	EOB Posting - Search											dummy
 634	Epilepsy	Epilepsi			Epilepsie			Epilepsi				dummy
 635	Erase	Radera			Doorhalen			Slett				dummy
-636	Error	Fel			Fout			Feil				dummy
+636	Error	Fel	Error		Fout			Feil				dummy
 637	Error in "Gender" selection	Fel i \"kön\" val			Foute keuze geslacht			Feil i \"Kjønn\" valg				dummy
 638	Error in "HIPAA" selection	Fel i \"HIPAA\" val			Foute HIPAA selectie							dummy
 639	Error in "Process" selection	Fel i \"Process\" val			Foute Process keuze							dummy
 640	Error in "SMS Gateway" selection	Fel i \"SMS Gateway\" val										dummy
 641	Error in "Sort By" selection	Fel i \"Sortera efter\" val										dummy
-642	Error in YES or NO option	Fel i JA eller NEJ alternativ			Fout in JA of NEE keuze			Error i JA eller NEI valg				dummy
+642	Error in YES or NO option	Fel i JA eller NEJ alternativ	Error en la opción SI o NO		Fout in JA of NEE keuze			Error i JA eller NEI valg				dummy
 643	Errors	Fel	Errores		Fouten			Flere Feil				dummy
-644	Erythema:	Erythema:			Erytema							dummy
+644	Erythema:	Erythema:	Eritema		Erytema							dummy
 645	ETIN	ETIN										dummy
 646	Event	Händelse	Evento		Gebeurtenis			Hendelse				dummy
 647	Event Begins	Händelse Begins	Fecha comienzo de evento		Start gebeurtenis			Hendelse begynner				dummy
@@ -657,14 +657,14 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 652	Event does not repeat	Händelsen upprepas ej	Evento no se repite		Gebeurtenis zonder herhaling			Hendelse gjentaes ikke				dummy
 653	Event Duration	Händelse, Varaktighet	Duración de Evento		Duur van gebeurtenis			Hendelses varighet				dummy
 654	Event duration in minutes	Händelsens tid i minuter	Duración de evento en minutos		Duur gebeurtenis in minuten			Hendelses varighet i minutter				dummy
-655	Event Fee	Händelse, Avgift			Bedrag van gebeurtenis							dummy
+655	Event Fee	Händelse, Avgift	Honorarios del evento		Bedrag van gebeurtenis							dummy
 656	Event Location	Event Location	Lugar de evento		Lookatie gebeurtenis			Hendelses sted				dummy
 657	Event repeats every	Händelsen upprepas varje	Evento repite cada		Gebeurtenis herhaalt zich iedere			Hendelse gjentar seg hver				dummy
 658	Event repeats on	Händelsen upprepas den	Evento repite en		Gebeurtenius herhaalt zich op			Hendelse gjentar seg på				dummy
 659	Event start time	Händelse börjar timme	Hora comienzo evento		Gebeurtenis start datum			Start tid for hendelsen				dummy
 660	Event title	Händelserubrik	Título de evento		Gebeurtenis titel			Hendelses titel				dummy
 661	Event Title	Händelserubrik	Título de Evento		Gebeurtenis titel			Hendelses titel				dummy
-662	Event Website	Händelse Website	Página web de evento									dummy
+662	Event Website	Händelse Website	Página web de evento		Website gebeurtenis							dummy
 663	Events	Händelse	Eventos		Gebeurtenissen in block laten zien			Hendelser				dummy
 664	Events for	Händelser för	Eventos para		Gebeurtenissen voor			Hendelser for				dummy
 665	Events open in new window	Händelsen öppnas i nytt fönster	Eventos abre en nueva ventana		Gebeurtenis opend nieuw Window			Hendelser åpnes i et nytt vindu				dummy
@@ -677,30 +677,30 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 672	Every Fourth	Var fjärde	cada cuarto		Iedere vierde			Hver Fjerde				dummy
 673	Every Other	Varannan	uno sí, otro no		Ieder ander			Annen hver				dummy
 674	Every Third	Var tredje	cada tercero		Ieder derde			Hver Tredje				dummy
-675	Exclusive Provider Organization (EPO)											dummy
-676	Exercise Patterns	Övningsmönster			Soort oefeningen			Øvnings Mønstre				dummy
+675	Exclusive Provider Organization (EPO)		Organización de provedor exclusivo (OPE)		Exclusieve Organisatie van behandelaar (EPO)							dummy
+676	Exercise Patterns	Övningsmönster	Patrones del ejercicio / rutinas deportivas		Soort oefeningen			Øvnings Mønstre				dummy
 677	Exit from Administration	lämna från Administration	Salir de Administración		Uit Admin weggaan			Avslutt fra administrasjon				dummy
 678	Expanded View	Utökad vy	Vista ampliada		Uitgevouwen scherm			Utvidet oversikt				dummy
-679	Expected form_encounter.pid to be 	Förväntad form_mötes.pid att										dummy
+679	Expected form_encounter.pid to be 	Förväntad form_mötes.pid att			Verwacht formulier_ontmoeting. pid om te zijn							dummy
 680	Expiration	Utgångsdatum	Caducidad		Verloopdatum			Utløps				dummy
 681	Expiration Date	Utgångsdatum	Fecha de caducidad		Verval datum			Utløps Dato				dummy
 682	Expires	Förfaller	Caducidad		Verloopt			Utløper				dummy
 683	Export	Exportera	Exportar		Uitvoeren			Eksporter				dummy
-684	Export as CSV	Exportera som CSV			Uitvoeren als CSV							dummy
-685	Export to CSV	Exportera till CSV			Uitvoeren naar CSV							dummy
-686	Export to external billing system	Exportera till externa faktureringssystem										dummy
-687	Exposure to Foreign Countries	Exponering för andra länder										dummy
-688	External Referrals	Externa remisser						Eksterne Refferanser				dummy
-689	Exudate:											dummy
-690	F	F										dummy
-691	Facility	Facilitet			Werkplek			Lokale				dummy
+684	Export as CSV	Exportera som CSV	Exportar con CSV		Uitvoeren als CSV							dummy
+685	Export to CSV	Exportera till CSV	Exportar a CSV		Uitvoeren naar CSV							dummy
+686	Export to external billing system	Exportera till externa faktureringssystem	Exportación al sistema de facturación externo		Uitvoeren naar extern factureringssysteem							dummy
+687	Exposure to Foreign Countries	Exponering för andra länder	Exposición a los países extranjeros		Is in buitenland geweest							dummy
+688	External Referrals	Externa remisser	Remisiones externas		Externe verwijzingen			Eksterne Refferanser				dummy
+689	Exudate:		Exudado:		Exudaat:							dummy
+690	F	F	F									dummy
+691	Facility	Facilitet	facilidad		Werkplek			Lokale				dummy
 692	facility	Facilitet	Instalaciones		werkplek			lokale				dummy
 693	Facility:	Facilitet:	Instalaciones:		Werkplek:			Lokale:				dummy
-694	Failed	Misslyckades			Mislukt			Mislykket				dummy
+694	Failed	Misslyckades	Fallado		Mislukt			Mislykket				dummy
 695	Family History	Familjehistoria	Historial familiar		Familie geschiedenis			Familie Historie				dummy
 696	Family History:	Familjehistoria:	Historial familiar:		Familie geschiedenis:			Familie Historie:				dummy
 697	Family Size	Familj Storlek	Tamaño familia		Familie grootte			Familie størrelse				dummy
-698	Fancy											dummy
+698	Fancy		Suposición									dummy
 699	Father	Far	Padre		Vader			Far				dummy
 700	Fatigued	Fatigue	Fatigado		Vermoeid			utmattet				dummy
 701	Fax	Fax	Fax					Faks				dummy
@@ -708,20 +708,20 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 703	Faxes Out	Fax ut	Faxes salida		Fax uitgegaan			Utgående Fakser				dummy
 704	February	Februari	Febrero		Ferbuari			Februar				dummy
 705	FECA											dummy
-706	Federal Drug ID											dummy
+706	Federal Drug ID				Door staat aanagewezen medicnI							dummy
 707	Federal EIN											dummy
-708	Federal Tax ID	Federal Tax ID										dummy
+708	Federal Tax ID	Federal Tax ID			Belasting ID							dummy
 709	Fee	Avgift	Tarifa		Tarief			Avgift				dummy
 710	fee	avgift	tarifa		tarief			avgift				dummy
 711	Fee Sheet	Avgift blankett	Hoja de tarifa		Tarieven werkblad			Avgifts skjema				dummy
 712	Fees	Avgifter	Tarifas		Tarieven			Avgifter				dummy
 713	Female	Kvinna	Mujer		Vrouw			Kvinnelig				dummy
-714	Female Condoms	Kvinna Kondomer	Condones femininas		Vrouwen condoom			Kvinnelige Kondommer				dummy
+714	Female Condoms	Kvinna Kondomer	Condones femininos		Vrouwen condoom			Kvinnelige Kondommer				dummy
 715	Female VSC	Kvinna VSC			Vrouw VSC							dummy
 716	Fever	Feber	Fiebre		Koorts			Feber				dummy
 717	Fever:	Feber:	Febre:		Koorts:			Feber:				dummy
-718	Filename	Filnamn			Naam vd File			Filnavn				dummy
-719	Fill here only if sending email notification to patients	Fyll här endast om du skickar e-postmeddelande till patienter	Rellenar sólo si manda notificación a paciente por correo electrónico					Fyll inn her hvis du skal sende email påmindelser til pasient				dummy
+718	Filename	Filnamn	Nombre de fichero		Naam vd File			Filnavn				dummy
+719	Fill here only if sending email notification to patients	Fyll här endast om du skickar e-postmeddelande till patienter	Rellenar sólo si manda notificación a paciente por correo electrónico		Dit alleen invullen als de patient een e-mail bericht krijgt			Fyll inn her hvis du skal sende email påmindelser til pasient				dummy
 720	Filters	Filter	Filtros					Filter				dummy
 721	Financial	Finansiella	Financiero		Financieel			finans				dummy
 722	Financial Review Date	Financial Review Datum	Fecha de revisión financiero		Datum financiele aanpassingen							dummy
@@ -734,8 +734,8 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 729	First day of the week	Första dagen i veckan	Primer día de la semana		Eeerste week dag			Første dag i uken				dummy
 730	First Name	Förnamn	Nombre de pila		Voornaam			Fornavn				dummy
 731	First Name:	Förnamn:	Nombre de pila:		Voornaam:			Fornavn:				dummy
-732	Fitness	Fitness			Recreatie Sporten			Form				dummy
-733	Fitness to Play	Fitness att spela			Gezond om te spelen							dummy
+732	Fitness	Fitness	Aptitud		Recreatie Sporten			Form				dummy
+733	Fitness to Play	Fitness att spela	Aptitud a jugar		Gezond om te spelen							dummy
 734	Flu Vaccination	Influensavaccination			Griep Vaccinatie			Influensa vaksinasjon				dummy
 735	Fluid and electrolyte problem	Vätske-och elektrolyt problem			Vloeistoffen en electrpolyten probleen							dummy
 736	Follow manually	Följa manuellt			Aan de hand gevolgd			Følg manuelt				dummy
@@ -767,30 +767,30 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 762	Front Office Receipts	Front office			Front office kwitantie							dummy
 763	Front Office Receipts Report	Front office Rapport			Front office kwitantie rapport							dummy
 764	Frontal Right:	Frontal Höger:			Frontaal rechts							dummy
-765	Full Play				Volledige training							dummy
-766	Full Training	All utbildning						Full Trenning				dummy
+765	Full Play				Volledige spelen							dummy
+766	Full Training	All utbildning			Volledige training			Full Trenning				dummy
 767	Gall Stones	Gallsten			Gal stenen			Galle Steiner				dummy
 768	Game Period	Game Period	Periodo de Juego		Duur wedstrijd			Spill periode				dummy
 769	Games	Spel	Juegos		Spellen			Spill				dummy
 770	games/events	spel / evenemang	juegos/eventos		Spelen/Gebeurtenissen							dummy
 771	Gastritis	Gastrit										dummy
-772	Gastrointestinal	Gastrointestinala										dummy
-773	GCAC Statistics Report	GCAC Statistik Rapport										dummy
+772	Gastrointestinal	Gastrointestinala			Gastro-Intestinaal							dummy
+773	GCAC Statistics Report	GCAC Statistik Rapport			Statistische GCAC verslag							dummy
 774	Gender 	Kön			Geslacht			Kjønn				dummy
 775	General	Allmänt	General		Algemeen			Generelt				dummy
 776	General Service Category	Allmänna Tjänstekategori			Categorie voor Algemene Service			Generel Service Kategori				dummy
-777	Generate and download HCFA 1500 paper claims	Skapa och hämta HCFA 1500 papper fordringar										dummy
-778	Generate and download X12 batch	Skapa och hämta X12 parti										dummy
+777	Generate and download HCFA 1500 paper claims	Skapa och hämta HCFA 1500 papper fordringar			Aanmaken en dowloaden HCFA 1500 geprintte claim							dummy
+778	Generate and download X12 batch	Skapa och hämta X12 parti			Aanmaken en dowmloaden X12 batch							dummy
 779	Generate Letter regarding 	Generera Skrivelse angående	Generar carta relacionada		Maak brief aangaande			Generer brev som omhandler				dummy
 780	Generate Report	Generera rapport	Generar reporte		Rapport aanmaken			Generer rapport				dummy
 781	Generated on	Skapad på	Generado en		Aangemaakt op			Generert på				dummy
 782	Generates	Genererar			Genereerd			Genererer				dummy
-783	Genitourinary											dummy
+783	Genitourinary				Genito-Urinair							dummy
 784	Glaucoma	Glaukom										dummy
 785	Global	Global	Global		Globaal			Global				dummy
 786	go	gå	ir		Ga							dummy
 787	Go	Gå	Ir		Ga							dummy
-788	Grade:	Grad:	Grado:									dummy
+788	Grade:	Grad:	Grado:		Graad:							dummy
 789	Grand Total	Totalsumma			Totaal van alles							dummy
 790	Grand Totals	Totalsummor			Totalen van alles							dummy
 791	Group	Grupp	Grupo		Groep			Gruppe				dummy
@@ -824,9 +824,9 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 819	Hemoglobin	Hemoglobin	hemoglobina		Hemoglobine							dummy
 820	Hepatitis	Hepatit	hepatitis									dummy
 821	Hernia Repair	Bråck Reparation			Hernia herstel							dummy
-822	Herniated Disc	Diskbråck	disco herniado									dummy
+822	Herniated Disc	Diskbråck	disco herniado		Disc Hernia							dummy
 823	Herpes	Herpes						Herpes				dummy
-824	heyyo. you have been here for 	heyyo. du har varit här i										dummy
+824	heyyo. you have been here for 	heyyo. du har varit här i			hallo daar, je bent hier geweest voor							dummy
 825	Hidden	Dolda	Oculto		Verborgen			Skjult				dummy
 826	Hidden Events Administration	Dolda Händelser Administration	Administración de eventos ocultos		Verborgen gebeurtenis administratie							dummy
 827	Hide	Gömma	Ocultar		Verbergen			Skjul				dummy
@@ -838,22 +838,22 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 833	Hip Replacement	Höftledsplastik	Reemplazo de Cadera		Heup vervanging			Hofte Erstatning				dummy
 834	History	Historia	Historial		Historie			Historie				dummy
 835	History Data	Historikdata	Información de Historial		Voorgeschiedenis							dummy
-836	HL7 Viewer	HL7 Viewer										dummy
-837	Hold down [Ctrl] for multiple selections or to unselect	Håll ner [Ctrl] för flera val eller avmarkera						Hold nede [Ctrl] for å velge flere eller til å ta bort individuelle				dummy
-838	Hold down Ctrl to select multiple items	Håll ned Ctrl för att välja flera objekt										dummy
-839	Hold down Ctrl to select multiple squads	Håll ned Ctrl för att välja flera patruller										dummy
+836	HL7 Viewer	HL7 Viewer			HL7 bekijken							dummy
+837	Hold down [Ctrl] for multiple selections or to unselect	Håll ner [Ctrl] för flera val eller avmarkera			Druk op [Ctrl] voor meerdere keuze of om selectie ongedaan te maken			Hold nede [Ctrl] for å velge flere eller til å ta bort individuelle				dummy
+838	Hold down Ctrl to select multiple items	Håll ned Ctrl för att välja flera objekt			Druk op Ctrl om diversen te selecteren							dummy
+839	Hold down Ctrl to select multiple squads	Håll ned Ctrl för att välja flera patruller			Druk op Ctrl om meerdere groepen te selecteren							dummy
 840	Home	Hem	Casa		Thuis			Hjem				dummy
 841	Home Phone	Hemtelefon	Teléfono de casa		Tel. prive			Hjemme Telefon				dummy
 842	Homeless, etc	Hemlösa, osv	Sin hogar, etc.		Zwervend, enz.			Hjemløs, osv				dummy
 843	Hours	Timmar	Horas		Uren			Timer				dummy
 844	How did Injury Occur?	Hur uppstod skadan?	¿Cómo ocurrió la lesión?		Hoe ontstond letsel?			Hvordan inntraff skaden?				dummy
 845	How did Injury Occur?:	Hur uppstod skadan?:	¿Cómo ocurrió la lesión?: 		Hoe ontstond letsel?			Hvordan inntraff skaden?:				dummy
-846	How many months ahead to query for upcoming events?	Hur många månader att fråga efter kommande evenemang?										dummy
+846	How many months ahead to query for upcoming events?	Hur många månader att fråga efter kommande evenemang?			Hoeveel maanden nog tot de quers voor komende evenementen?							dummy
 847	HPI:											dummy
 848	HTML							HTML				dummy
 849	Hyperactive	Hyperaktiv	Hiperactivo		Hyperactief			Hyperaktiv				dummy
 850	Hyperthyroidism	Hyperthyroidism	Hipertiroidismo		Hyperthyreoidie							dummy
-851	Hypothyroidism	Hypotyreoidism	Hipotiroidismo		Hypothereoidie							dummy
+851	Hypothyroidism	Hypotyreoidism	Hipotiroidismo		Hypothyreoidie							dummy
 852	Hysterectomy	Hysterektomi	Histerectomía		hysterectomie							dummy
 853	I am busy during this time.	Jag är upptagen under denna tid.	Estoy ocupado durante este periodo.		In deze tijd ben ik bezig			Jeg er opptatt under denne perioden.				dummy
 854	I do not have permission to read 	Jag har inte behörighet att läsa	No tengo permiso para leer		Ik mag dit niet lezen			Jeg har ikke tilgang til å lese				dummy
@@ -887,7 +887,7 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 882	increased:	ökat:			Verhoogd:			øket:				dummy
 883	Indemnity Insurance	Ansvarsförsäkring	Seguro de Indemnización									dummy
 884	Indeterminate	Obestämd	indeterminado									dummy
-885	Indicates if this issue is currently active	Indikerar om denna fråga är aktiv	Indica si este asunto está activo		Geef aan of dit probleem nu actief is							dummy
+885	Indicates if this issue is currently active	Indikerar om detta problem/frågeställning är aktiv	Indica si este asunto está activo		Geef aan of dit probleem nu actief is							dummy
 886	Indigent Patients Report	Hjälpbehövande Patienter Rapport	Informe de Pacientes Indigentes		Rapport armlastige ptn							dummy
 887	Infection / Abscess	Infektion / Abscess			Infectie/Abces							dummy
 888	Infections	Infektioner			Infecties			Infeksjoner				dummy
@@ -931,14 +931,14 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 926	Insurance Company	Försäkringsbolag			Verzekerings bedrijf			Forsikrings Selskap				dummy
 927	Insurance Company Search/Add	Försäkringsbolag Sök / Köp			Zoek/voegbij Verzekerings bedrijf			Forsikrings Selskap Søk/Legg til				dummy
 928	Insurance Data	Försäkring Data			Verzekerings gegevens			Forsikrings Data				dummy
-929	Insurance Numbers	Försäkring Number			Verzekerings getallen			Forsikrings Nummer				dummy
-930	Insurance Provider	Försäkringsbolag	Proveedor de Seguro		Verstrekker van verzekering			Forsikrings Giver				dummy
-931	Internal error - no pages were selected!	Internt fel - inga sidor valdes!						Intern feil - ingen sider var valgt!				dummy
-932	Internal error - patient ID was not provided!	Internt fel - patient-ID fanns inte!						Intern feil - Pasient ID var ikke oppgitt!				dummy
-933	Internal error: claim 	Internt fel: påstående	Error Interno: Reclamación									dummy
-934	Internal error: encounter '	Internt fel: möter\"	Error Interno: Encuentro									dummy
-935	Internal Referrals	Inre Övergångar	Referidos Internos									dummy
-936	International Duty											dummy
+929	Insurance Numbers	Försäkring Number			Verzekering toelever gegevens			Forsikrings Nummer				dummy
+930	Insurance Provider	Försäkringsbolag	Proveedor de Seguro		Betalende Instantie			Forsikrings Giver				dummy
+931	Internal error - no pages were selected!	Internt fel - inga sidor valdes!			Foutje - er werden geen paginas geselecteerd!			Intern feil - ingen sider var valgt!				dummy
+932	Internal error - patient ID was not provided!	Internt fel - patient-ID fanns inte!			Foutje - geen patient ID ingevoerd!			Intern feil - Pasient ID var ikke oppgitt!				dummy
+933	Internal error: claim 	Internt fel: påstående	Error Interno: Reclamación		Foutje - schuld							dummy
+934	Internal error: encounter '	Internt fel: möter\"	Error Interno: Encuentro		Foutje - contact \'							dummy
+935	Internal Referrals	Inre Övergångar	Referidos Internos		In kliniek verwijzing							dummy
+936	International Duty				Internationale Dienst							dummy
 937	Interpreter	Tolk	Intérprete		Vertaler			Tolker				dummy
 938	Interstitial Lung Disease	Interstitiell lungsjukdom			Interstitiele long ZIekte							dummy
 939	Interval	Interval	Intervalo		Interval			Interval				dummy
@@ -961,11 +961,11 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 956	Is PHP using Safe Mode?	Är PHP använder felsäkert läge?	¿El PHP utiliza el modo a prueba de fallos?					Bruker PHP sikker modus?				dummy
 957	Issue	Frågeställning	Asunto		Probleem			Problem				dummy
 958	Issues	Frågeställningar	Asuntos		Problemen			Problemer				dummy
-959	Issues (Injuries/Medical/Allergy):	Frågeställningar (Skador / Medical / allergi):	Asuntos (Daños, Médicos, Alergias):		Probleem (ongeval/Medisch/Allergie):			Problemer (Skader/medisinske/allergi):				dummy
-960	Issues and Encounters	Frågeställningar och Patientmöten			Problemen en Episoden			Problemer og Møter				dummy
-961	Issues and Encounters for	Frågeställningar och möten för			Problemen en Episoden voor			Problemer og Møter for				dummy
-962	Issues not authorized	Frågeställningar som inte är godkända			Niet geautoriseerde problemen			Problemer ikke tilgjengelig				dummy
-963	Issues Section	Frågeställningar, sektion			Probleem sectie			Problem seksjon				dummy
+959	Issues (Injuries/Medical/Allergy):	Problem (Skador / Medicinska / Allergiska):	Asuntos (Daños, Médicos, Alergias):		Probleem (ongeval/Medisch/Allergie):			Problemer (Skader/medisinske/allergi):				dummy
+960	Issues and Encounters	Problematik och Patientmöten			Problemen en Episoden			Problemer og Møter				dummy
+961	Issues and Encounters for	Problematik och möten för			Problemen en Episoden voor			Problemer og Møter for				dummy
+962	Issues not authorized	Problematik, ej behörig			Niet geautoriseerde problemen			Problemer ikke tilgjengelig				dummy
+963	Issues Section	Problematiksektion			Probleem sectie			Problem seksjon				dummy
 964	Item	Artikel										dummy
 965	item	artikel										dummy
 966	Items load failed	Poster laddades inte										dummy
@@ -1045,158 +1045,158 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 1040	Location:	Lokalisation			Plaats:							dummy
 1041	Logged in	Inloggad			U bent ingelogged als			Inlogget				dummy
 1042	Logged in as	Inloggad som						Logget in som				dummy
-1043	Logged in as: 							Logget in som:				dummy
-1044	Logged out.							Logget ut.				dummy
-1045	Login							Log in				dummy
-1046	Logout							Log ut				dummy
-1047	Logs							Logger				dummy
+1043	Logged in as: 	Inloggad som:						Logget in som:				dummy
+1044	Logged out.	Utloggad.						Logget ut.				dummy
+1045	Login	Logga in						Log in				dummy
+1046	Logout	Logout						Log ut				dummy
+1047	Logs	Loggar						Logger				dummy
 1048	Logs Viewer											dummy
-1049	Look Up				Opzoeken							dummy
+1049	Look Up	Slå upp			Opzoeken							dummy
 1050	Lot											dummy
 1051	Lot Number											dummy
-1052	Lower leg				Onderbeen							dummy
-1053	Lumbar spine				Lumbale wervel kolom							dummy
-1054	Lung Cancer				Long kanker			Lunge Kreft				dummy
-1055	Lung Cancer Surgery				Long kanker Chirurgie							dummy
-1056	LUNGS:				LONGEN:			LUNGER:				dummy
-1057	Lungs:				Longen			Lunger:				dummy
+1052	Lower leg	Benet			Onderbeen							dummy
+1053	Lumbar spine	Lumbal delen av ryggraden			Lumbale wervel kolom							dummy
+1054	Lung Cancer	Lung Cancer			Long kanker			Lunge Kreft				dummy
+1055	Lung Cancer Surgery	Lung Cancer kirurgi			Long kanker Chirurgie							dummy
+1056	LUNGS:	Lungor:			LONGEN:			LUNGER:				dummy
+1057	Lungs:	Lungor:			Longen			Lunger:				dummy
 1058	Lupus											dummy
-1059	M											dummy
-1060	MA Category											dummy
-1061	Main Address				Hoofdadres			Hoved Adresse				dummy
-1062	Make modifications to current categories.											dummy
-1063	Make sure "											dummy
-1064	Malaise:											dummy
-1065	Male				Man			Manlig				dummy
-1066	Male Condoms				Condoom voor man			Kondommer				dummy
+1059	M	M										dummy
+1060	MA Category	MA Kategori										dummy
+1061	Main Address	Huvudadress			Hoofdadres			Hoved Adresse				dummy
+1062	Make modifications to current categories.	Gör ändringar i nuvarande kategorier.										dummy
+1063	Make sure "	Försäkra \"										dummy
+1064	Malaise:	Sjukdomskänsla:										dummy
+1065	Male	Manlig			Man			Manlig				dummy
+1066	Male Condoms	Manlig Kondomer			Condoom voor man			Kondommer				dummy
 1067	Male VSC											dummy
-1068	Mammogram											dummy
-1069	Management				Client gegevens							dummy
-1070	Manual Posting											dummy
-1071	Manufacturer				Fabrikant							dummy
-1072	March				Maart							dummy
-1073	Marital Status				Huwlijkse status							dummy
-1074	Mark as billed but skip billing				Aanvinken als in rekening gebracht, maar niet versturen							dummy
-1075	Mark as not billed				Aanvinken als geen rekening gestuurd							dummy
-1076	Marked as cleared				Aanvinken als geaccepteerd							dummy
-1077	Maxillary Right:											dummy
-1078	May		Mayo		Mei							dummy
-1079	MC											dummy
-1080	mcg											dummy
+1068	Mammogram	Mammogram										dummy
+1069	Management	Management			Client gegevens							dummy
+1070	Manual Posting	Manuell post										dummy
+1071	Manufacturer	Tillverkare			Fabrikant							dummy
+1072	March	Mars			Maart							dummy
+1073	Marital Status	Civilstånd			Huwlijkse status							dummy
+1074	Mark as billed but skip billing	Markera som faktureras men hoppa fakturering			Aanvinken als in rekening gebracht, maar niet versturen							dummy
+1075	Mark as not billed	Markera som ej fakturerad			Aanvinken als geen rekening gestuurd							dummy
+1076	Marked as cleared	Markerad som avslutad			Aanvinken als geaccepteerd							dummy
+1077	Maxillary Right:	Maxillary Höger:										dummy
+1078	May	Maj	Mayo		Mei							dummy
+1079	MC	MC										dummy
+1080	mcg	mcg										dummy
 1081	Medial malleolus:				Mediale malleolus							dummy
 1082	Medicaid				Medisch							dummy
-1083	Medical							Medisinsk				dummy
-1084	Medical problem				Medisch probleem			Medisinsk problem				dummy
-1085	Medical Problems				Medische Problemen			Medisinske Problemer				dummy
-1086	Medical Record				Medische Status			Medisinsk Historie				dummy
-1087	Medical Records											dummy
+1083	Medical	Medicinsk						Medisinsk				dummy
+1084	Medical problem	Medicinska problem			Medisch probleem			Medisinsk problem				dummy
+1085	Medical Problems	Medicinska problem			Medische Problemen			Medisinske Problemer				dummy
+1086	Medical Record	Journal			Medische Status			Medisinsk Historie				dummy
+1087	Medical Records	Journaler										dummy
 1088	Medicare Part B											dummy
-1089	Medications				Medicijnen			Medisiner				dummy
-1090	Medications:				Medicijnen:			Medisiner:				dummy
-1091	Medicine Units											dummy
-1092	Member Association Statistics Report											dummy
-1093	Men				Mannen			Menn				dummy
-1094	Men and Women				Mannen en vrouwen			Menn og Kvinner				dummy
-1095	Men Only				Allen voor mannen			Bare Menn				dummy
-1096	Mental Illness				Geestes ziekte			Psykisk Sykdom				dummy
-1097	Message				Boodschap			Melding				dummy
-1098	MESSAGE:				BOODSCHAP:			MELDING:				dummy
-1099	Method				Methode			Metode				dummy
-1100	Method of Destruction				Methode van vernietiging			Ødeleggelses Metode				dummy
+1089	Medications	Läkemedel			Medicijnen			Medisiner				dummy
+1090	Medications:	Läkemedel:			Medicijnen:			Medisiner:				dummy
+1091	Medicine Units	Medicinska enheter										dummy
+1092	Member Association Statistics Report	Ledamot Association Statistik Rapport										dummy
+1093	Men	Mån			Mannen			Menn				dummy
+1094	Men and Women	Män och kvinnor			Mannen en vrouwen			Menn og Kvinner				dummy
+1095	Men Only	Män Endast			Allen voor mannen			Bare Menn				dummy
+1096	Mental Illness	Psykisk sjukdom			Geestes ziekte			Psykisk Sykdom				dummy
+1097	Message	Meddelande			Boodschap			Melding				dummy
+1098	MESSAGE:	MEDELANDE:			BOODSCHAP:			MELDING:				dummy
+1099	Method	Metod			Methode			Metode				dummy
+1100	Method of Destruction	Metod för förstöring			Methode van vernietiging			Ødeleggelses Metode				dummy
 1101	mg											dummy
 1102	mg/1cc				mg/1ml							dummy
 1103	mg/5cc				mg/5ml							dummy
-1104	Middle Name				Intialen/tussenvoegsel			Mellom Navn				dummy
-1105	Migrant/Seasonal											dummy
+1104	Middle Name	Mellannamn			Intialen/tussenvoegsel			Mellom Navn				dummy
+1105	Migrant/Seasonal	Migrerande / Säsong										dummy
 1106	MimeType											dummy
 1107	Minor joint strain +/- synovitis											dummy
-1108	minutes				minuten			minutter				dummy
-1109	Minutes				Minuten			Minutter				dummy
-1110	Miscellaneous				Diversen							dummy
-1111	Missed				Gemist			Bommet				dummy
-1112	Missing slash after payer in source for code 											dummy
-1113	Mixed		Mixto		Gemengd			Mikset				dummy
-1114	ml											dummy
-1115	Mobile				Mobiel			Mobil				dummy
+1108	minutes	minuter			minuten			minutter				dummy
+1109	Minutes	Protokoll			Minuten			Minutter				dummy
+1110	Miscellaneous	Diverse			Diversen							dummy
+1111	Missed	Missade			Gemist			Bommet				dummy
+1112	Missing slash after payer in source for code 	Saknade snedstreck efter betalaren i källkod										dummy
+1113	Mixed	Blandat	Mixto		Gemengd			Mikset				dummy
+1114	ml	ml										dummy
+1115	Mobile	Mobil			Mobiel			Mobil				dummy
 1116	Mod											dummy
-1117	Modifier		Modificador									dummy
-1118	Mon		Lun		ma			Man				dummy
-1119	Mon thru Fri		Lun a Vier		ma tm vrij			Man til Fre				dummy
-1120	Mon, Wed &amp; Fri				Ma, woe, vrij							dummy
-1121	Monday		Lunes		Maandag			Mandag				dummy
-1122	Month		Mes		Maand			Måned				dummy
-1123	month		mes		maand			måned				dummy
-1124	Month View				Maandoverzicht			Månedlig Perspektiv				dummy
-1125	Month(s)		Mes(es)		Maand(en)			Måned(er)				dummy
-1126	Monthly Income		Ingreso Mensual		Maandelijks inkomen							dummy
-1127	More than 50 results, please make your search more specific.				Meer dan 50 gevonden, maak searsch specifieker							dummy
-1128	Mother		Madre		Moeder			Mor				dummy
-1129	Move							Flytt				dummy
-1130	Move to Patient							Flytt til Pasient				dummy
-1131	Multi Language Tool				Meerdere talen hulp programma							dummy
-1132	Multiple areas				Diverse plekken			Flere steder				dummy
-1133	Murmur:											dummy
-1134	Muscle injury				Spier kwetsuur			Muskel skade				dummy
-1135	Musculoskeletal											dummy
-1136	Mutually Defined							Gjensidig Definert				dummy
+1117	Modifier		Modificador		Factor voor wijziging							dummy
+1118	Mon	Mån	Lun		ma			Man				dummy
+1119	Mon thru Fri	Mån tills fredag	Lun a Vier		ma tm vrij			Man til Fre				dummy
+1120	Mon, Wed &amp; Fri	Måndag, onsdag och fredag			Ma, woe, vrij							dummy
+1121	Monday	Måndag	Lunes		Maandag			Mandag				dummy
+1122	Month	Månad	Mes		Maand			Måned				dummy
+1123	month	månad	mes		maand			måned				dummy
+1124	Month View	Månadsvy			Maandoverzicht			Månedlig Perspektiv				dummy
+1125	Month(s)	Månad (er)	Mes(es)		Maand(en)			Måned(er)				dummy
+1126	Monthly Income	Månadsinkomst	Ingreso Mensual		Maandelijks inkomen							dummy
+1127	More than 50 results, please make your search more specific.	Mer än 50 resultat, gör din sökning mer specifik.			Meer dan 50 gevonden, maak searsch specifieker							dummy
+1128	Mother	Moder	Madre		Moeder			Mor				dummy
+1129	Move	Flytta			Move			Flytt				dummy
+1130	Move to Patient	Flytta till patient			Move naar Patient			Flytt til Pasient				dummy
+1131	Multi Language Tool	Multi Language Tool			Meerdere talen hulp programma							dummy
+1132	Multiple areas	Flera områden			Diverse plekken			Flere steder				dummy
+1133	Murmur:	Sorla:			Geruis:							dummy
+1134	Muscle injury	Muskel skada			Spier kwetsuur			Muskel skade				dummy
+1135	Musculoskeletal	Muskuloskeletala			Musculoskelatair							dummy
+1136	Mutually Defined	Ömsesidigt Definierad			Afgesproken in samenspraak			Gjensidig Definert				dummy
 1137	MVA											dummy
-1138	Name		Nombre		Naam			Navn				dummy
-1139	Name and Title of Immunization Administrator				Vaccinatie gegeven door							dummy
-1140	Name of insurance company				Naam verzekerings maatschappij			Forsikrings Selskapets Navn				dummy
-1141	Name of Provider				Naam behandelaar							dummy
-1142	Name:		Nombre:		Naam:			Navn:				dummy
-1143	NARES:											dummy
-1144	NARES: Normal Right											dummy
-1145	Nasal mucosa pink, septum midline				Neusslijmvliezen rose ,septum mediaal							dummy
-1146	Nationality		Nacionalidad		Nationaliteit			Nasjonalitet				dummy
-1147	Navigation		Navegación									dummy
+1138	Name	Namn	Nombre		Naam			Navn				dummy
+1139	Name and Title of Immunization Administrator	Namn och titel Immunization Administrator			Vaccinatie gegeven door							dummy
+1140	Name of insurance company	Namn på försäkringsbolag			Naam verzekerings maatschappij			Forsikrings Selskapets Navn				dummy
+1141	Name of Provider	Namn på Provider			Naam behandelaar							dummy
+1142	Name:	Namn:	Nombre:		Naam:			Navn:				dummy
+1143	NARES:	Narės:										dummy
+1144	NARES: Normal Right	Narės: Normal Rätt										dummy
+1145	Nasal mucosa pink, septum midline	Nasal mucosa rosa, septumets mittlinje			Neusslijmvliezen rose ,septum mediaal							dummy
+1146	Nationality	Nationalitet	Nacionalidad		Nationaliteit			Nasjonalitet				dummy
+1147	Navigation	Navigering	Navegación		Navigatie							dummy
 1148	NDC				Nat.Med.Code							dummy
-1149	NDC Number											dummy
-1150	Neck		Cuello		Nek			Nakke				dummy
-1151	Neck Problems				Nek problemen			Nakke Problemer				dummy
+1149	NDC Number				NDC nummer							dummy
+1150	Neck	Nacke	Cuello		Nek			Nakke				dummy
+1151	Neck Problems	Nackproblem			Nek problemen			Nakke Problemer				dummy
 1152	Neck supple				Nek soepel							dummy
-1153	Need to enter a description											dummy
-1154	Need to enter a Return Value											dummy
-1155	Need to enter identifier											dummy
-1156	Need to enter title											dummy
-1157	Needs secondary billing											dummy
-1158	Nerve injury				Zenuw trauma			Nerve skade				dummy
-1159	Neural condition / nerve damage											dummy
-1160	New				Nieuw			Ny				dummy
-1161	New =>		Nuevo=>		Nieuw =>			Ny=>				dummy
-1162	New Acceptors											dummy
-1163	New Appointment		Cita Nueva		Nieuwe afspraak			Ny Avtale				dummy
-1164	New Categories		Categoria Nueva		Nieuwe categorie			Nye Kategorier				dummy
-1165	New Clients		Cliente Nuevo		Nieuwe client			Nye Klienter				dummy
-1166	New Definition set added				Nieuwe definitie set toegevoegd							dummy
-1167	New Encounter Form				Formulier voor nieuwe Episode							dummy
-1168	New encounters not authorized				Nieuwe Episode niet geautoriseerd							dummy
-1169	New Facility Information				Inofmatie van nieuw Kliniek							dummy
-1170	New Group		Grupo Nuevo		Nieuwe groep			Ny Gruppe				dummy
-1171	New Limit of Events				Nieuwe limiet voor gebeurtenissen							dummy
-1172	New Patient		Paciente Nuevo		Nieuwe patient			Ny Pasient				dummy
-1173	New Patient Encounter		Nuevo Encuentro de Paciente		Nieuwe Episode van patient 							dummy
-1174	New Patient ID				ID nieuwe patient							dummy
-1175	New Submissions				Nieuw toevoeging							dummy
-1176	New User		Usuario Nuevo		Nieuwe gebruiker			Ny Bruker				dummy
-1177	Next		Siguiente		Volgende 			Neste				dummy
-1178	Next Day				Volgende dag			Neste Dag				dummy
-1179	Next Month				Volgende maand			Neste Måned				dummy
-1180	Next Week				Volgende week			Neste Uke				dummy
-1181	Nickname		Apodo		alias			Kallenavn				dummy
-1182	Night Sweats				Nacht zeten							dummy
-1183	Nl ext genitalia, vag mucosa, cervix											dummy
+1153	Need to enter a description	Måste ange en beskrivning			Omschrijving moet ingevoerd worden							dummy
+1154	Need to enter a Return Value	Ange ett returvärde			Waarde voor terug sturen moet nog ingevuld worden							dummy
+1155	Need to enter identifier	Ange identifieraren			Identifier moet nog ingevuld worden							dummy
+1156	Need to enter title	Ange titel			Titel moet nog ingevoerd worden							dummy
+1157	Needs secondary billing	Ange sekundära fakturering			Moet nog extra in rekening gebracht worden							dummy
+1158	Nerve injury	Nervskada			Zenuw trauma			Nerve skade				dummy
+1159	Neural condition / nerve damage	Neurala tillstånd / nervskada			Schade aan zenuw of conditie van							dummy
+1160	New	Ny			Nieuw			Ny				dummy
+1161	New =>	Ny =>	Nuevo=>		Nieuw =>			Ny=>				dummy
+1162	New Acceptors	Nya mottagare			Nieuw geaccepteerden							dummy
+1163	New Appointment	Nytt möte	Cita Nueva		Nieuwe afspraak			Ny Avtale				dummy
+1164	New Categories	Nya kategorier	Categoria Nueva		Nieuwe categorie			Nye Kategorier				dummy
+1165	New Clients	Nya kunder	Cliente Nuevo		Nieuwe client			Nye Klienter				dummy
+1166	New Definition set added	Nytt definitionset tillagt			Nieuwe definitie set toegevoegd							dummy
+1167	New Encounter Form	Nya Patientbesöksformulär			Formulier voor nieuwe Episode							dummy
+1168	New encounters not authorized	Nya möten som inte godkänts			Nieuwe Episode niet geautoriseerd							dummy
+1169	New Facility Information	Nya Facilitetinformation			Inofmatie van nieuw Kliniek							dummy
+1170	New Group	Ny grupp	Grupo Nuevo		Nieuwe groep			Ny Gruppe				dummy
+1171	New Limit of Events	Ny begränsning av händelser			Nieuwe limiet voor gebeurtenissen							dummy
+1172	New Patient	Ny Patient	Paciente Nuevo		Nieuwe patient			Ny Pasient				dummy
+1173	New Patient Encounter	Nytt Patientbesök	Nuevo Encuentro de Paciente		Nieuwe Episode van patient 							dummy
+1174	New Patient ID	Nytt patient-ID			ID nieuwe patient							dummy
+1175	New Submissions	Nya förslag			Nieuw toevoeging							dummy
+1176	New User	Ny användare	Usuario Nuevo		Nieuwe gebruiker			Ny Bruker				dummy
+1177	Next	Nästa	Siguiente		Volgende 			Neste				dummy
+1178	Next Day	Nästa dag			Volgende dag			Neste Dag				dummy
+1179	Next Month	Nästa Månad			Volgende maand			Neste Måned				dummy
+1180	Next Week	Nästa vecka			Volgende week			Neste Uke				dummy
+1181	Nickname	Alias	Apodo		Alias			Kallenavn				dummy
+1182	Night Sweats	Nattliga svettningar			Nacht zeten							dummy
+1183	Nl ext genitalia, vag mucosa, cervix				Normale ext genitalien, vag mucose, cervix							dummy
 1184	NO				NEE			NEI				dummy
 1185	No				Nee			Nei				dummy
 1186	No access				Geen toegang			Ingen tilgang				dummy
-1187	No adenopathy (2 areas required)											dummy
-1188	No adnexal tenderness/masses											dummy
-1189	No billing system is currently active											dummy
-1190	No Bills Found to Include in OFX Export<br>											dummy
-1191	No code was specified!											dummy
-1192	No Diagnosis							Ingen Diagnose				dummy
-1193	No end date							Ingen slutt dato				dummy
-1194	No entries found, use the form below to add an entry.											dummy
+1187	No adenopathy (2 areas required)				Geen adenopathie (2 gebieden nodig)							dummy
+1188	No adnexal tenderness/masses				Adnexa zonder gevoeligheid of massa							dummy
+1189	No billing system is currently active				Er is momenteel geen factureringssysteem actief							dummy
+1190	No Bills Found to Include in OFX Export<br>				Geen rekeningen gevonden om in OFX Export bij te voegen<br>							dummy
+1191	No code was specified!				Geen code gespecificeerd							dummy
+1192	No Diagnosis				Geen Diagnoses			Ingen Diagnose				dummy
+1193	No end date				Geen eind datum			Ingen slutt dato				dummy
+1194	No entries found, use the form below to add an entry.				Geen invoer vonden, gebruik het volgende formulier om invoer toe te voegen. 							dummy
 1195	No Events				Geen gebeurtenissen							dummy
 1196	No group was selected				Er is geen groep geselecteerd			Ingen gruppe var valgt				dummy
 1197	No hernia				Geen hernia							dummy
@@ -1216,7 +1216,7 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 1211	No Sinus Tenderness:				Geen sinus gevoeligheid							dummy
 1212	No skin dimpling or breast nodules				Geen huis intrekkingen of borst knobbels							dummy
 1213	No testicular tenderness, masses				Gee testiculaire gevoeligheid of knobbeltjes							dummy
-1214	No thrills or heaves											dummy
+1214	No thrills or heaves				Geen thrills of heaves							dummy
 1215	No:				Nee:							dummy
 1216	Non specific injury				Geen specifiek letsel							dummy
 1217	Non-Insulin Dependent Diabetes				NIDDM							dummy
@@ -1225,7 +1225,7 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 1220	None				Geen			Ingen				dummy
 1221	none				geen			ingen				dummy
 1222	None of the above				geen van bovenstaande			Ingen av de ovenfor				dummy
-1223	Nor											dummy
+1223	Nor				Noch							dummy
 1224	Normal				Normaal			Normal				dummy
 1225	Normal Cardiac Exam:				Normaal cardiologische examen							dummy
 1226	Normal Cardiac Exam: 				Normaal cardiologisch onderzoek							dummy
@@ -1236,43 +1236,43 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 1231	Normal Right:				Normaal rechts:			Normal Høyre:				dummy
 1232	Normal View				normaal/niet afwijkend:							dummy
 1233	normal:				normaal:			normal:				dummy
-1234	Not all fields are required for all codes or code types.											dummy
+1234	Not all fields are required for all codes or code types.				Niet alle velden zijn noodzakelijk voor code of code type							dummy
 1235	Not Allowed				Niet Toegestaan			Ikke Tilatt				dummy
-1236	Not allowed to delete the Administrators group							Ikke tilatt å slette administrators gruppe				dummy
-1237	Not allowed to inactivate all security objects											dummy
-1238	Not allowed to inactivate anything from the Administrators ACL											dummy
-1239	Not allowed to remove the admin user from the Administrators group											dummy
-1240	Not authorised to access PostCalendar module											dummy
+1236	Not allowed to delete the Administrators group				Niet toegestaan om Admisnistratie groepen te verwijderen			Ikke tilatt å slette administrators gruppe				dummy
+1237	Not allowed to inactivate all security objects				Niet toegestaan om alle veiligheids maatregels te inactiveren							dummy
+1238	Not allowed to inactivate anything from the Administrators ACL				Niet togestaan om ook maar iets van ACL administators te inactiveren							dummy
+1239	Not allowed to remove the admin user from the Administrators group				Niet toegestaan om Gebruiker admin te verwijderen van de Administrateurs groep							dummy
+1240	Not authorised to access PostCalendar module				Niet machtigd voor toegang tot PostCalendar module							dummy
 1241	Not Examined		No examinado		Niet onderzocht			Ikke Eksaminert				dummy
 1242	Not Examined:		No Examinado:		Niet onderzocht:			Ikke Eksaminert:				dummy
 1243	Not Examined: 		No Examinado:		Niet onderzocht:			Ikke Eksaminert:				dummy
 1244	Not seen since				Niet gezien sinds			Ikke sett siden				dummy
 1245	Note		Nota		Notitie			Notat				dummy
 1246	Note Type				Soort aantekening							dummy
-1247	Note: This code was not entered by an authorized user. Only authorized codes may be uploaded to the Open Medical Billing Network for processing. If you wish to upload these codes, please select an authorized user here.											dummy
-1248	NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category. 											dummy
+1247	Note: This code was not entered by an authorized user. Only authorized codes may be uploaded to the Open Medical Billing Network for processing. If you wish to upload these codes, please select an authorized user here.				N.B: Deze code werd niet door een gemachtigde Gebruiker ingevoerd. Alleen geaccepteerde codes mogen naar het Open Medische Facturering Netwerk worden gestuurd voor verwerking. Indien deze codes wilt laden, selecteer dan hier een gemachtigde Gebruiker. 							dummy
+1248	NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category. 				N.B: Uploaden van bestanden met dezelfde naam wordt opgevangen doordat bestanden automatisch een andere naam krijgen. Bijvoorbeeld \'<i>file.jpg</i>\'zal worden\'<i>file.jpg.1</i>\'. Filenames zijn per patiënt uniek, niet per categorie. 							dummy
 1249	Notes		Notas		Notities							dummy
 1250	Nothing was selected				Niets aangekruisd			Ingenting var valgt				dummy
 1251	NOTICE:: PostCalendar Submission/Modification											dummy
-1252	Notification				Aanmelding							dummy
-1253	Notify Admin About Event Submission/Modification?											dummy
+1252	Notification				Bericht							dummy
+1253	Notify Admin About Event Submission/Modification?				Informeer Admin over Gebeurtenis Toewijzing/Wijziging? 							dummy
 1254	November		Noviembre					November				dummy
-1255	Now posting for:											dummy
+1255	Now posting for:				Nu aanmelden voor: 							dummy
 1256	Now printing $stmt_count statements and updating encounters.											dummy
 1257	Now printing $stmt_count statements and updating invoices.											dummy
 1258	Now printing $stmt_count statements; encounters will not be updated.											dummy
 1259	Now printing $stmt_count statements; invoices will not be updated.											dummy
 1260	NPI											dummy
 1261	Number		Número		Nr.			Nummer				dummy
-1262	Number of columns in year view.											dummy
-1263	Number of games or events missed, if any											dummy
+1262	Number of columns in year view.				Aantal kolommen injaar overzicht							dummy
+1263	Number of games or events missed, if any				Aantal gemiste spelen of gebeurtenissen, indien er sprake van is							dummy
 1264	O.A.F.V.											dummy
 1265	Occupation				Beroep			Okkupering				dummy
 1266	Occurrence				Voorkomen							dummy
 1267	October		Octubre		Oktober			Oktober				dummy
 1268	OD											dummy
 1269	of tablets				tabletten			av tabletter				dummy
-1270	of the month every											dummy
+1270	of the month every				van de maand ieder							dummy
 1271	Office Notes				Kantoor notities			Kontor Notater				dummy
 1272	Offspring				Nakomelingen			Avkom				dummy
 1273	ointment		Ungüento		zalf							dummy
@@ -1284,28 +1284,28 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 1279	On Hand		En mano		In voorraad			På Hånden				dummy
 1280	On Order				In bestelling							dummy
 1281	Once you change your password, you will have to re-login.				Bij verandering van wachtwoord opnieuw inloggen							dummy
-1282	Only Active				Alleen actief			Bare Aktiv				dummy
-1283	only if billing location				alleen indien rekening afdeling							dummy
+1282	Only Active				Alleen actieven			Bare Aktiv				dummy
+1283	only if billing location				alleen indien rekening locatie							dummy
 1284	Only Inactive				Alleen inactieven							dummy
-1285	Only Mine				Alleen de mijnen							dummy
+1285	Only Mine				Alleen die van mij							dummy
 1286	Onset of Illness:				Begin ziekte:							dummy
 1287	Onset of Ilness: 				Begin ziekte:							dummy
 1288	Onset of Swelling:				Begin zwelling:							dummy
 1289	Onset/hosp. date:				Begin hospitalisatie datum:							dummy
 1290	Open				Open			Åpen				dummy
-1291	OpenEMR requires Javascript to perform user authentication.											dummy
+1291	OpenEMR requires Javascript to perform user authentication.				OpenEMR vereist Javascript om Gebruiker controle te doen. 							dummy
 1292	Option		Opcion		Mogelijkheid			Valg				dummy
 1293	Optional		Opcional		Keuze mogelijkheid			Valgfritt				dummy
-1294	Optional information about this event				Mopgelijkheid om informatie te geven over gebeurtenis							dummy
-1295	Optional procedure code											dummy
-1296	Or		ó		Of			Eller				dummy
+1294	Optional information about this event				Mogelijkheid om informatie te geven over gebeurtenis							dummy
+1295	Optional procedure code				Facultatieve procedure code							dummy
+1296	Or		ó		of			Eller				dummy
 1297	Or upload ERA file:											dummy
 1298	Oral mucosa pink, throat clear				Orale mucosa is rose, keel schoon							dummy
 1299	Order		Orden		Volgorde			Bestilling				dummy
 1300	Organ injury				Orgaan letsel			Organ skade				dummy
 1301	Organization				Organisatie			Organisasjon				dummy
 1302	Orientated x 3											dummy
-1303	OROPHARYNX: 											dummy
+1303	OROPHARYNX: 				Orofarynx							dummy
 1304	OS											dummy
 1305	Osetoarthritis				Osteoartritis							dummy
 1306	Other		Otro		Ander			Annet				dummy
@@ -1321,13 +1321,13 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 1316	Other Surgical				Ander chirurgisch							dummy
 1317	Ottawa Ankle Rules				Ottawa enkel reglement							dummy
 1318	OU											dummy
-1319	Outcome		Resultado		Resultaat							dummy
-1320	Outlook				Uitzicht op							dummy
+1319	Outcome		Resultado		Resultaat			Utfall				dummy
+1320	Outlook				Outlook							dummy
 1321	Overuse		Sobre uso		Overbelast							dummy
 1322	Overwrite HIPAA choice				Overschrijf HIPAA keuze							dummy
 1323	p.c.											dummy
 1324	p.m.											dummy
-1325	p.r.n.											dummy
+1325	p.r.n.				Zo nodig							dummy
 1326	Paedeatric				Pediatrisch							dummy
 1327	Pages		Páginas		Paginas			Sider				dummy
 1328	Paid		Pago		Betaald			Betalt				dummy
@@ -1335,13 +1335,13 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 1330	Paid Via				Betaald per			Betalt Via				dummy
 1331	Pap Smear				PAP smear							dummy
 1332	Parse HL7											dummy
-1333	Partner											dummy
+1333	Partner				Partner			Partner				dummy
 1334	Password				Wachtwoord			Passord				dummy
 1335	Password Change				Wachtwoord veranderen			Endre Passord				dummy
 1336	Password for SMS Gateway				Wachtwoord voor SMS Toegang							dummy
 1337	Password:				Wachtwoord:			Passord:				dummy
-1338	Past Encounters				Episode geschiedenis							dummy
-1339	Past Encounters and Documents				Episode geschiedenis en Documenten							dummy
+1338	Past Encounters				Episode geschiedenis			Tidligere Møter				dummy
+1339	Past Encounters and Documents				Episode geschiedenis en Documenten			Tidligere Møter og Dokumenter				dummy
 1340	Paste HL7 Data				HL7 data invoegen							dummy
 1341	Patch											dummy
 1342	Patient		Paciente					Pasient				dummy
@@ -1359,12 +1359,12 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 1354	Patient Encounters											dummy
 1355	Patient Finder											dummy
 1356	Patient History				Historie van patient			Pasient Historie				dummy
-1357	Patient History / Lifestyle				Historie en leefstijl gegevens pt							dummy
+1357	Patient History / Lifestyle				Historie en leefstijl gegevens pt			Pasient Historie / Livsstill				dummy
 1358	Patient ID											dummy
 1359	Patient Immunization				Vaccinatie van patient							dummy
 1360	Patient Insurance Distribution											dummy
 1361	Patient Insurance Distribution Report											dummy
-1362	Patient Issues				Problemen van patient							dummy
+1362	Patient Issues				Problemen van patient			Pasient Problemer				dummy
 1363	Patient List				Lijsten van patient							dummy
 1364	Patient Medical Problems				Patienten Medische pRoblemen			Pasientens Medisinske Problemer				dummy
 1365	Patient Medications				Medicatie patient							dummy
@@ -1969,7 +1969,7 @@ cons_id	constant_name	definition	definition	definition	definition	definition	def
 1964	Untimely filing				Onverwachtte vulling							dummy
 1965	Unused				Ongebruikt							dummy
 1966	UOR											dummy
-1967	Up to											dummy
+1967	Up to				Lft tot							dummy
 1968	Upcoming Events				Gebeurtenissen die komen							dummy
 1969	update				Updaten							dummy
 1970	Update				Updaten							dummy
