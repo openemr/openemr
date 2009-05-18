@@ -218,7 +218,7 @@ function genPopupsList($style='') {
  <option value='../../custom/refer.php'><?php xl('Refer','e'); ?></option>
 <?php } ?>
 <?php // if (file_exists("$webserver_root/custom/fee_sheet_codes.php")) { ?>
- <option value='../patient_file/printed_fee_sheet.php'><?php xl('Superbill','e'); ?></option>
+ <option value='../patient_file/printed_fee_sheet.php?fill=1'><?php xl('Superbill','e'); ?></option>
 <?php // } ?>
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
  <option value='../patient_file/front_payment.php'><?php xl('Prepay','e'); ?></option>

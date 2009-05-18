@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007-2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -14,6 +14,10 @@ require_once("$srcdir/classes/InsuranceCompany.class.php");
 
 $lines_per_page = 55;
 $lines_in_stats = 16;
+
+// This tells us if patient/encounter data is to be filled in.
+//
+$form_fill = empty($_GET['fill']) ? 0 : 1;
 
 // This file is optional.  You can create it to customize how the printed
 // fee sheet looks, otherwise you'll get a mirror of your actual fee sheet.
@@ -229,8 +233,10 @@ $alertmsg = ''; // anything here pops up in an alert box
 $frow = sqlQuery("SELECT * FROM facility " .
   "ORDER BY billing_location DESC, accepts_assignment DESC, id LIMIT 1");
 
-// Get the patient's name and chart number.
-$patdata = getPatientData($pid);
+if ($form_fill) {
+  // Get the patient's name and chart number.
+  $patdata = getPatientData($pid);
+}
 
 // This tracks our position in the $SBCODES array.
 $cindex = 0;
@@ -252,7 +258,7 @@ $cindex = 0;
 </script>
 </head>
 <body bgcolor='#ffffff'>
-<form name='theform' method='post' action='printed_fee_sheet.php'
+<form name='theform' method='post' action='printed_fee_sheet.php?fill=<?php echo $form_fill; ?>'
  onsubmit='return top.restoreSession()'>
 <center>
 
@@ -276,26 +282,46 @@ $cindex = 0;
 
     <tr>
      <td colspan='3' valign='top' class='fshead' style='height:50pt'>
-      Patient:<br>
+      Patient:<br />
 <?php
-echo $patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname'] . "<br>\n";
-echo $patdata['street'] . "<br>\n";
-echo $patdata['city'] . ', ' . $patdata['state'] . ' ' . $patdata['postal_code'] . "\n";
+if ($form_fill) {
+  echo $patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname'] . "<br />\n";
+  echo $patdata['street'] . "<br />\n";
+  echo $patdata['city'] . ', ' . $patdata['state'] . ' ' . $patdata['postal_code'] . "\n";
+}
 ?>
      </td>
      <td valign='top' class='fshead'>
-      DOB:<br><?php echo $patdata['DOB']; ?><br>
-      ID:<br><?php echo $patdata['pubpid']; ?>
+      DOB:<br /><?php if ($form_fill) echo $patdata['DOB']; ?><br />
+      ID:<br /><?php if ($form_fill) echo $patdata['pubpid']; ?>
      </td>
     </tr>
     <tr>
      <td colspan='3' valign='top' class='fshead' style='height:25pt'>
-      Doctor:&nbsp;
-      <?php // Doctor name here ?>
+      Doctor:<br />
+<?php
+$encdata = false;
+if ($form_fill && $encounter) {
+  $query = "SELECT fe.reason, fe.date, u.fname, u.mname, u.lname, u.username " .
+    "FROM forms AS f " .
+    "JOIN form_encounter AS fe ON fe.id = f.form_id " .
+    "LEFT JOIN users AS u ON u.username = f.user " .
+    "WHERE f.pid = '$pid' AND f.encounter = '$encounter' AND f.formdir = 'newpatient' AND f.deleted = 0 " .
+    "ORDER BY f.id LIMIT 1";
+  $encdata = sqlQuery($query);
+  if (!empty($encdata['username'])) {
+    echo $encdata['fname'] . ' ' . $encdata['mname'] . ' ' . $encdata['lname'];
+  }
+}
+?>
      </td>
      <td valign='top' class='fshead'>
-      Reason:&nbsp;
-      <?php // Encounter reason here ?>
+      Reason:<br />
+<?php
+if (!empty($encdata)) {
+  echo $encdata['reason'];
+}
+?>
      </td>
     </tr>
     <tr>
@@ -303,50 +329,57 @@ echo $patdata['city'] . ', ' . $patdata['state'] . ' ' . $patdata['postal_code']
 <?php
 if (empty($GLOBALS['ippf_specific'])) {
   echo "Insurance:\n";
-  foreach (array('primary','secondary','tertiary') as $instype) {
-    $query = "SELECT * FROM insurance_data WHERE " .
-      "pid = '$pid' AND type = '$instype' " .
-      "ORDER BY date DESC LIMIT 1";
-    $row = sqlQuery($query);
-    if ($row['provider']) {
-      $icobj = new InsuranceCompany($row['provider']);
-      $adobj = $icobj->get_address();
-      $insco_name = trim($icobj->get_name());
-      if ($instype != 'primary') echo ",";
-      if ($insco_name) {
-        echo "&nbsp;$insco_name";
-      } else {
-        echo "&nbsp;<font color='red'><b>Missing Name</b></font>";
+  if ($form_fill) {
+    foreach (array('primary','secondary','tertiary') as $instype) {
+      $query = "SELECT * FROM insurance_data WHERE " .
+        "pid = '$pid' AND type = '$instype' " .
+        "ORDER BY date DESC LIMIT 1";
+      $row = sqlQuery($query);
+      if ($row['provider']) {
+        $icobj = new InsuranceCompany($row['provider']);
+        $adobj = $icobj->get_address();
+        $insco_name = trim($icobj->get_name());
+        if ($instype != 'primary') echo ",";
+        if ($insco_name) {
+          echo "&nbsp;$insco_name";
+        } else {
+          echo "&nbsp;<font color='red'><b>Missing Name</b></font>";
+        }
       }
     }
   }
 }
 else {
   // IPPF wants a visit date box with the current date in it.
-  echo "Visit date:<br>\n";
-  echo date('Y-m-d') . "\n";
+  echo "Visit date:<br />\n";
+  if (!empty($encdata)) {
+    echo substr($encdata['date'], 0, 10);
+  }
+  else {
+    echo date('Y-m-d') . "\n";
+  }
 }
 ?>
      </td>
     </tr>
     <tr>
      <td colspan='4' valign='top' class='fshead' style='height:25pt'>
-      Prior balance:<br>
+      Prior balance:<br />
      </td>
     </tr>
     <tr>
      <td colspan='4' valign='top' class='fshead' style='height:25pt'>
-      Today's charges:<br>
+      Today's charges:<br />
      </td>
     </tr>
     <tr>
      <td colspan='4' valign='top' class='fshead' style='height:25pt'>
-      Today's payment:<br>
+      Today's payment:<br />
      </td>
     </tr>
     <tr>
      <td colspan='4' valign='top' class='fshead' style='height:25pt'>
-      Notes:<br>
+      Notes:<br />
      </td>
     </tr>
 
@@ -370,12 +403,12 @@ else {
 
     <tr>
      <td colspan='4' valign='top' class='fshead' style='height:100pt'>
-      Additional procedures:<br>
+      Additional procedures:<br />
      </td>
     </tr>
     <tr>
      <td colspan='4' valign='top' class='fshead' style='height:100pt'>
-      Diagnosis:<br>
+      Diagnosis:<br />
      </td>
     </tr>
 
@@ -404,7 +437,7 @@ else {
     </tr>
     <tr>
      <td valign='top' colspan='4' class='fshead' style='height:50pt'>
-      M.D. Signature:<br>
+      M.D. Signature:<br />
      </td>
     </tr>
 
