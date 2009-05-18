@@ -21,28 +21,6 @@
 
   $INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
 
-  $reasons = array(
-    "", // not choosing this allows a reason with no adjustment amount
-    xl("Ins adjust"),
-    xl("Coll w/o"),
-    xl("Pt released"),
-    xl("Sm debt w/o"),
-    xl("To ded'ble"),
-    xl("To copay"),
-    xl("Bad check"),
-    xl("Bad debt"),
-    xl("Discount"),
-    xl("Hardship w/o"),
-    xl("Ins refund"),
-    xl("Pt refund"),
-    xl("Ins overpaid"),
-    xl("Pt overpaid"),
-    xl("Adm adjust"),
-    xl("Untimely filing"),
-    xl("Ins bundling"),
-    xl("After hrs calls")
-  );
-
   $info_msg = "";
 
   // Format money for display.
@@ -699,9 +677,14 @@ function validate(f) {
    <select name="form_line[<?php echo $code ?>][reason]"
     style="background-color:<?php echo $bgcolor ?>">
 <?php
- foreach ($reasons as $value) {
-  echo "    <option value=\"$value\">$value</option>\n";
- }
+// Adjustment reasons are now taken from the list_options table.
+echo "    <option value=''></option>\n";
+$ores = sqlStatement("SELECT option_id, title FROM list_options " .
+  "WHERE list_id = 'adjreason' ORDER BY seq, title");
+while ($orow = sqlFetchArray($ores)) {
+  echo "    <option value='" . addslashes($orow['option_id']) . "'";
+  echo ">" . $orow['title'] . "</option>\n";
+}
 ?>
    </select>
 <?php
