@@ -56,6 +56,8 @@ else {
           $defaultLangID = 1;
           $defaultLangName = "English";
 }
+// set session variable to default so login information appears in default language
+$_SESSION['language_choice'] = $defaultLangID;
 // collect languages if showing language menu
 if ($GLOBALS['language_menu_login']) {
         $res3 = sqlStatement("select * from lang_languages order by lang_description");
