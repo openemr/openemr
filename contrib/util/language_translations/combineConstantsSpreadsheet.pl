@@ -9,13 +9,14 @@
 # email  brady@sparmy.com
 # date   04/03/09
 #
-# This is a perl script that will filter out items from the spreadsheet that are
-# not contained in the constant file.  Output will go to newSpreadsheet.tsv
-# and errors will be logged to log.txt.
+# This is a perl script that will create a new ranslation spreadsheet
+# file from a constant file and an old spreadsheet file.  Output will
+# go to newSpreadsheet.tsv and errors and message swill be logged to
+# log.txt.
 #
 #  Example commands:
 #
-#  -Below will output list of constants found only in both input files:
+#  -Below will output the new spreadsheet:
 #  ./commonConstantsSpreadsheet.pl spreadsheet.tsv constants.txt
 #
 
@@ -69,34 +70,75 @@ for my $var (@constants) {
  chomp($var);
 }
 
+# first create header on new spreadsheet while removing it from spreadsheet array
+for (my $i =0; $i < $constantRow; $i++) {
+ push (@newSpreadsheet, shift(@spreadsheet));
+}
+    
 # place common constants into the spreadsheet array
-my $counter = 0; # to deal with header
 my $idCounter = 1; # to assign constant id numbers
-foreach my $var (@spreadsheet) {
+my $hitFlag; # flag to ensure ad new constants to spreadsheet
+my @origSpreadConstants; # to keep track of removed constants later
+my @finalSpreadConstants; # to keep track of removed constants later
+my $first = 1; # to keep track of removed constants later
+foreach my $var2 (@constants) {
 
- $counter += 1;
- 
- # deal with the header rows
- if ($counter <= $constantRow) {
-  push (@newSpreadsheet,$var);
-  next;
- }
+ $hitFlag = 0; # reset the hit flag   
+    
+ foreach my $var (@spreadsheet) {
 
- # filter out rows that contain constants not in the
- # constant file
- my @tempArr = split($de,$var);
- my $tempCons = @tempArr[$constantColumn];
- if (withinArray($tempCons,@constants)) {
-
-  # create new id number
-  @tempArr[$constantIdColumn] = $idCounter;
-  my $newLine = join($de,@tempArr);
-  $idCounter +=1;
+  my @tempArr = split($de,$var);
+  my $tempCons = @tempArr[$constantColumn];
+  
+  # collect the original listing of constants during first loop
+  if ($first) {
+   push(@origSpreadConstants,$tempCons)
+  }
      
-  # place into array
-  push (@newSpreadsheet,$newLine);   
+  if ($tempCons eq $var2) {
+   # add to array to keep track of removed constants
+   push(@finalSpreadConstants,$tempCons);
+
+   # create new id number
+   @tempArr[$constantIdColumn] = $idCounter;
+   my $newLine = join($de,@tempArr);
+   $idCounter +=1;
+     
+   # place into array
+   push (@newSpreadsheet,$newLine);
+      
+   # set the hit flag
+   $hitFlag = 1;
+  }
+     
+ }
+ 
+ $first = 0;
+ 
+ if (!($hitFlag)) {
+  # constant is new, so add to spreadsheet
+  push (@newSpreadsheet,$idCounter.$de.$var2);
+  push (@finalSpreadConstants,$var2); # for later error checking
+  print LOGFILE "ADDED: ".$var2."\n";
+  $idCounter +=1;
  }
 }
+
+# send the removed constants to a log file
+foreach my $var (@origSpreadConstants) {
+ if (!(withinArray($var,@finalSpreadConstants))) {
+  print LOGFILE "REMOVED: ".$var."\n";    
+ }
+}
+
+# send the added constants to a log file
+# this is redundant to hit method above
+# no need for this method, so comment out
+# foreach my $var (@finalSpreadConstants) {
+#  if (!(withinArray($var,@origSpreadConstants))) {
+#   print LOGFILE "ADDED: ".$var."\n";
+#  }
+# }
 
 # output the common constants
 foreach my $var (@newSpreadsheet) {

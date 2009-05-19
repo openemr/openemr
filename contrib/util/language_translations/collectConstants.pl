@@ -12,16 +12,20 @@
 # This is a perl script that will collect unique constants within
 # OpenEMR source code.
 #  It effectively finds all xl("constants","") within OpenEMR.
+#  It will filter out constants found in manuallyRemovedConstants.txt
+#  It will add constants found in (ensure not repeated) manuallyAddedConstants.txt 
 #  It can also compare to a previous list to find new constants.
 #  
 #  Example commands:
 #
-#  -Below command will find all unique constants, alphabetize,
-#   and dump into file constants.txt:
+#  -Below command will find all unique constants, filter through the
+#   add/remove files, sort, and dump into file constants.txt. Note this
+#   will remove old constants so the below remove flag must be set:
 #  ./collectConstants /var/www/openemr
 #
-#  -Below command will find all only the new unique constants,
-#   alphabetize these, and dump to file constants.txt:
+#  -Below command will find all unique constants, ensure none are deleted from the
+#   previous listings of constants,
+#   filter through the add/remove files, sort, and dump to file constants.txt:
 #  ./collectConstants /var/www/openemr previousConstants.txt 
 #
 #
@@ -32,8 +36,16 @@ use strict;
 # used. If set (1), then just makes simple list. If not set (0)
 # then output is formatted into a tab delimited spreadsheet.
 my $simpleList = 1;
+# By turning this on, this will allow removal of old constants.
+# If off it will not allow script to be run without an old constants file
+# given. Constants in the removal file filter, however, will still
+# be removed. Note that if you give the constants file also, then
+# this flag will be over rided to be not set.
+my $removeFlag = 0;
 my $directoryIn; #name is set below
 my $comparisonFile; #name is set below
+my $addConstantsFile = "manuallyAddedConstants.txt";
+my $removeConstantsFile = "manuallyRemovedConstants.txt";
 my $filenameOut = "constants.txt";
 my $logFile = "log.txt";
 my $compareFlag; #this is set below
@@ -41,6 +53,8 @@ my @previousConstants; #will hold previous constants
 my @uniqueConstants; #will hold the unique constants
 my @filenames; #will hold all file name
 my @inputFile;
+my @addConstants; #holds constants from the add file
+my @removeConstants; #hold constants from the remove file
 
 my $headerLineOne   = "\t1\t2\t3\t4\t5\t6";
 my $headerLineTwo   = "\ten\tse\tes\tde\tdu\the";
@@ -57,6 +71,10 @@ elsif (@ARGV == 2) {
  $comparisonFile = $ARGV[1];
  $directoryIn = $ARGV[0];
  $compareFlag = 1;
+ $removeFlag = 0;
+}
+elsif (@ARGV == 1 && !($removeFlag)) {
+ die "\nERROR: Need to include a previous listing of constants to avoid deleting old constants. To override this see instructions found in collectConstants.pl file.\n\n";
 }
 elsif (@ARGV == 1) {
  $directoryIn = $ARGV[0];
@@ -80,6 +98,20 @@ if ($compareFlag) {
  foreach my $var (@previousConstants) {
      chomp($var);
  }  
+}
+
+# place filter files into array and process them
+open(ADDFILE, "<$addConstantsFile") or die "unable to open file";
+@addConstants = <ADDFILE>;
+close(ADDFILE);
+for my $var (@addConstants) {
+ chomp($var);
+}
+open(REMOVEFILE, "<$removeConstantsFile") or die "unable to open file";
+@removeConstants = <REMOVEFILE>;
+close(REMOVEFILE);
+for my $var (@removeConstants) {
+ chomp($var);
 }
 
 # create filenames array
@@ -192,20 +224,8 @@ foreach my $var (@filenames) {
     
    # check to see if unique etc.
    if (!(withinArray($tempString,@uniqueConstants))) {
-    # hit is unique
-      
-    if ($compareFlag) {
-     # ensure not in comparison file
-     if (!(withinArray($tempString,@previousConstants))) {
-      # Have a real hit
-      push(@uniqueConstants,$tempString);
-     }
-    }
-       
-    else {
-     # Have a real hit
-     push(@uniqueConstants,$tempString);
-    }
+    # Have a unique hit
+    push(@uniqueConstants,$tempString);
    }
   }
  }
@@ -213,10 +233,57 @@ foreach my $var (@filenames) {
  print LOGFILE $var." checked.\n";
 }
 
-#alphabetize the constants
-my @sorted = sort { lc($a) cmp lc($b) } @uniqueConstants;
+# add previous constants if the remove flag is not set
+if (!($removeFlag)) {
+ foreach my $var (@previousConstants) {
+  if (withinArray($var,@uniqueConstants)) {
+   next;
+  }
+  else {
+   print LOGFILE "KEEPING: ".$var."\n";
+   push(@uniqueConstants, $var);
+  }
+ }
+}
+else {
+ print LOGFILE "WARNING: NOT INCLUDING PREVIOUS CONSTANTS.\n";
+}
 
-if ($compareFlag || $simpleList) {
+# send to log constants that were auto added
+foreach my $var (@uniqueConstants) {
+ if (!(withinArray($var, @previousConstants))) {
+  print LOGFILE "AUTO ADDED: ".$var."\n";
+ }  
+}
+
+# run thru add filter
+foreach my $var (@addConstants) {
+ if (withinArray($var, @uniqueConstants)) {
+  next;   
+ }
+ else {
+  print LOGFILE "MANUALLY ADDED: ".$var."\n";
+  push (@uniqueConstants,$var);
+ }
+}
+
+# run thru removal filter
+my @constants;
+foreach my $var (@uniqueConstants) {
+ if (withinArray($var, @removeConstants)) {
+  print LOGFILE "REMOVED: ".$var."\n";
+  next;
+ }
+ else {
+  push(@constants,$var);
+ }
+}
+
+# sort the constants
+my @sorted = sortConstants(@constants);
+
+# send output
+if ($simpleList) {
  # output simple list
  foreach my $var (@sorted) {
   print OUTPUTFILE $var."\n"; 
@@ -264,6 +331,35 @@ sub recurse($) {
   }
  }
 }
+
+
+# function to sort constant list
+# param - @arr
+# return - @arr
+#
+sub sortConstants {
+ my(@arr) = @_;
+ my @first;
+ my @last;
+
+ foreach my $var (@arr) {
+  if ($var =~ /^[a-z]/i) {
+   push (@first,$var);
+  }
+  else {
+   push (@last,$var);
+  }
+ }
+
+ my @sortFirst = sort { lc($a) cmp lc($b) } @first;
+ my @sortLast = sort { lc($a) cmp lc($b) } @last;
+
+ push (@sortFirst, @sortLast);
+ my @sorted_arr = @sortFirst;
+
+ return @sorted_arr;
+}
+
 
 #
 # function to return whether a variable is in an array

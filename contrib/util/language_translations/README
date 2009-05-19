@@ -2,44 +2,38 @@ This directory holds the developer tools to maintain the language translations.
 These were created during development of OpenEMR version 3.0.2
 
 The collectConstants.pl script can be used to collect all of the constants
-from the openemr source code.  This script can also be used to find only the
-new constants. Instructions are included in the file.
+from the openemr source code.  This script uses the manuallyAddedConstants.txt and 
+manuallyRemovedConstants.txt list to manually add or remove constants from
+the final output. Note that it also requires a list of old constants
+(this can be over-rided) to ensure no old constants are lost (ie ensure
+previous versions of openemr are still supported) Instructions are included in
+the file.
 
-The current list of constants are kept in the currentConstants.txt file.
+The buildLanguageDatabase.pl builds the foreign language SQL tables dumpfile
+for the lang_languages, lang_constants, and lang_definitions tables from the
+above current_spreadsheet.tsv file.  If input the list of constants it will also
+to data validation on the constants and constant ID numbers and it will
+create a spreadsheet that can be used to create a updated spreadsheet via
+the combineConstantsSpreadsheet.pl script.
+
+The combineConstantsSpreadsheet.pl script will combine a the list of constants
+with the language spreadsheet to create a new spreadsheet that can be uploaded
+to Google Docs.
+
+The current official list of constants are kept in the currentConstants.txt file,
+which are produced by the collectConstants.pl script.
+
 The most current spreadsheet is kept in the current_spreadsheet.tsv file (this
-file is taken after being processed with buildLanguageDatabase.pl script.
-Note that the constants in both of these files need to line up.
+file is taken after being processed with buildLanguageDatabase.pl script).
 
-The current_spreadsheet.tsv file is what can be uploaded to Google Docs for
-collaboration.
+The combineConstantsSpreadsheet.pl script will combine a list of official constants
+with the language spreadsheet to create a new spreadsheet that can be uploaded
+to Google Docs.
 
-The commonConstants.pl is a simple script that will find the common constants
-from two separate list of constants. Instructions are included in the file.
-
-The commonConstantsSpreadsheet.pl is a script that will output a spreadsheet
-with only the constants that are found in both a list of constants and a 
-spreadsheet. Instructions are included in the file.
-
-The sortConstantsSpreadsheet.pl is a script that will sort both the current
-constants and spreadsheets files simultaneously. Instructions are included
-in the file.
-
-Note that the final constant and spreadsheet scripts require identical
-constants in identical order to ensure proper management.
-
-When adding constants use the collectConstants.pl script
-to find the new constants.  Then place these at the end of the current
-constants and spreadsheet(after processed from google docs with
-buildLanguageDatabase.pl script) and run the sortConstantsSpreadsheet.pl
-script. Then can upload the created spreadsheet to Google Docs as a new
-revision.
-
-When removing constants will use the collectConstants.pl to get the list of
-constants, and use the commonConstants.pl then commonConstantsSpreadsheet.pl
-then sortConstantsSpreadsheet.pl . (For initial spreadsheet data always
-use the spreadsheet from google docs after processing by the 
-buildLanguageDatabase.pl script). When done can upload the spreadsheet
-to google docs as a new revision.
+When adding constants or removing constants then run the collectConstants.pl
+script to create the list of constants. Then run the
+combineConstantsSpreadsheet.pl script to re-build an official language spreadsheet
+to export to Google Docs.
 
 The Google Docs spreadsheet after conversion to tsv format (and processed by
 the buildLanguageDatabase.pl is kept in the
@@ -49,23 +43,17 @@ select File->Save as. For 'Save as type:' select 'TEXT CSV (.csv)', toggle
 on 'Edit Filter Setting', and change filename extension to .tsv. If asked
 for confirmation select 'Yes'. Then select 'Unicode (UTF-8)' for 'Character
 set', select {Tab} for 'Field delimiter', and select nothing (make blank by
-removing the " character) for 'Text delimiter', and then click 'OK'. 
+removing the " character) for 'Text delimiter', and then click 'OK'.
 
-The buildLanguageDatabase.pl builds the foreign language SQL tables dumpfile
-for the lang_languages, lang_constants, and lang_definitions tables from the above
-current_spreadsheet.tsv file.  If input the list of constants it will also
-to data validation on the constants and constant ID numbers and it will
-create a spreadsheet that can be used for further downstrem modification
-if needed (ie modifying the list of constants or re-ordering them)
+The current_spreadsheet.tsv file is what can be uploaded to Google Docs for
+collaboration.
 
-The stableLanguage.sql holds the tested and stable translation tables dumpfile.
-(no production quality script yet)
-
-The currentLanguage.sql holds current and possibly unstable translation
-tables dumpfile.
+The currentLanguage_utf8.sql and currentLanguage_latin1.sql holds current
+sql tables dumpfile.
 
 To insert these translation tables into your OpenEMR (please note, this
-is currently experimental and will delete your current translation tables),
+is currently experimental and will delete your current translation tables;
+only perform this in your testing environements),
 download the sql dumpfile to your computer. Then in OpenEMR go to 
 admin -> Database -> Databases -> openemr -> SQL and click 'Browse'
 button at the 'Or location of the textfile:' field. Select the sql dumpfile
