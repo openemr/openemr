@@ -626,7 +626,7 @@ function display_layout_rows($formtype, $result1, $result2='') {
         echo "<td class='groupname'>";
         //echo "<td class='groupname' style='padding-right:5pt' valign='top'>";
         //echo "<font color='#008800'>$group_name</font>";
-        echo $group_name;
+        echo xl($group_name);
         $group_name = '';
       } else {
         //echo "<td class='' style='padding-right:5pt' valign='top'>";
@@ -648,7 +648,7 @@ function display_layout_rows($formtype, $result1, $result2='') {
     }
     ++$item_count;
 
-    if ($frow['title']) echo $frow['title'] . ":"; else echo "&nbsp;";
+    if ($frow['title']) echo xl($frow['title']) . ":"; else echo "&nbsp;";
 
     // Handle starting of a new data cell.
     if ($datacols > 0) {

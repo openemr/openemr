@@ -345,7 +345,7 @@ while ($frow = sqlFetchArray($fres)) {
     echo "<br /><span class='bold'><input type='checkbox' name='form_cb_$group_seq' value='1' " .
       "onclick='return divclick(this,\"div_$group_seq\");'";
     if ($display_style == 'block') echo " checked";
-    echo " /><b>$group_name</b></span>\n";
+    echo " /><b>" . xl($group_name) . "</b></span>\n";
     echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
     echo " <table border='0' cellpadding='0'>\n";
     $display_style = 'none';
@@ -371,7 +371,7 @@ while ($frow = sqlFetchArray($fres)) {
   ++$item_count;
 
   echo "<b>";
-  if ($frow['title']) echo $frow['title'] . ":"; else echo "&nbsp;";
+  if ($frow['title']) echo xl($frow['title']) . ":"; else echo "&nbsp;";
   echo "</b>";
 
   // Handle starting of a new data cell.
@@ -390,7 +390,7 @@ while ($frow = sqlFetchArray($fres)) {
 end_group();
 
  if (! $GLOBALS['simplified_demographics']) {
-  $insurance_headings = array("Primary Insurance Provider:", "Secondary Insurance Provider", "Tertiary Insurance provider");
+  $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
   $insurance_info = array();
   $insurance_info[1] = getInsuranceData($pid,"primary");
   $insurance_info[2] = getInsuranceData($pid,"secondary");
@@ -408,7 +408,7 @@ end_group();
 <table border="0">
  <tr>
   <td valign='top' colspan='2'>
-   <span class='required'><?php echo $insurance_headings[$i -1]?></span>
+   <span class='required'><?php echo $insurance_headings[$i -1].":"?></span>
    <select name="i<?php echo $i?>provider">
     <option value=""><?php xl('Unassigned','e'); ?></option>
 <?php
