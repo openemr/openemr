@@ -22,22 +22,22 @@ if ($GLOBALS['ippf_specific']) {
 }
 
 // array of the data_types of the fields
-$datatypes = array("1"=>"list box", 
-                    "2"=>"textbox",
-                    "3"=>"textarea",
-                    "4"=>"text-date",
-                    "10"=>"Providers",
-                    "11"=>"Providers NPI",
-                    "12"=>"Pharmacies",
-                    "13"=>"Squads",
-                    "14"=>"Organizations",
-                    "15"=>"Billing codes",
-                    "21"=>"checkbox list",
-                    "22"=>"textbox list",
-                    "23"=>"Exam results",
-                    "24"=>"Patient allergies",
-                    "25"=>"checkbox w/ text",
-                    "26"=>"list box w/ add"
+$datatypes = array("1"=>xl("list box"), 
+                    "2"=>xl("textbox"),
+                    "3"=>xl("textarea"),
+                    "4"=>xl("text-date"),
+                    "10"=>xl("Providers"),
+                    "11"=>xl("Providers NPI"),
+                    "12"=>xl("Pharmacies"),
+                    "13"=>xl("Squads"),
+                    "14"=>xl("Organizations"),
+                    "15"=>xl("Billing codes"),
+                    "21"=>xl("checkbox list"),
+                    "22"=>xl("textbox list"),
+                    "23"=>xl("Exam results"),
+                    "24"=>xl("Patient allergies"),
+                    "25"=>xl("checkbox w/ text"),
+                    "26"=>xl("list box w/ add")
                     );
 
 // Check authorization.
@@ -254,6 +254,11 @@ function writeFieldLine($linedata) {
          htmlspecialchars($linedata['title'], ENT_QUOTES) . "' size='15' maxlength='63' class='optin' />";
     echo "</td>\n";
 
+    // if not english, then show the translation of Label
+    if ($_SESSION['language_choice'] > 1) {
+        echo "<td align='center' class='translation'>" . htmlspecialchars(xl($linedata['title']), ENT_QUOTES) . "</td>\n";
+    }
+	
     echo "  <td align='center' class='optcell'>";
     echo "<select name='fld[$fld_line_no][uor]' class='optin'>";
     foreach (array(0 =>xl('Unused'), 1 =>xl('Optional'), 2 =>xl('Required')) as $key => $value) {
@@ -333,7 +338,12 @@ function writeFieldLine($linedata) {
     echo "<input type='text' name='fld[$fld_line_no][desc]' value='" .
          htmlspecialchars($linedata['description'], ENT_QUOTES) . "' size='20' maxlength='63' class='optin' />";
     echo "</td>\n";
-  
+
+    // if not english, then show the translation of Description
+    if ($_SESSION['language_choice'] > 1) {
+     echo "<td align='center' class='translation'>" . htmlspecialchars(xl($linedata['description']), ENT_QUOTES) . "</td>\n";
+    }
+    
     echo " </tr>\n";
 }
 ?>
@@ -448,8 +458,12 @@ if ($row['group_name'] != $prevgroup) {
 <thead>
  <tr class='head'>
   <th><?php xl('Order','e'); ?></th>
-  <th><?php xl('ID','e'); ?> <span class="help" title="A unique value to identify this field, not visible to the user">(?)</span></th>
-  <th><?php xl('Label','e'); ?> <span class="help" title="The label that appears to the user on the form">(?)</span></th>
+  <th><?php xl('ID','e'); ?> <span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
+  <th><?php xl('Label','e'); ?> <span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
+  <?php // if not english, then list the translation of Label
+  if ($_SESSION['language_choice'] > 1) {
+   echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translated label that will appear on the form in current language') . "'>(?)</span></th>";	
+  } ?>		  
   <th><?php xl('UOR','e'); ?></th>
   <th><?php xl('Data Type','e'); ?></th>
   <th><?php xl('Size/List','e'); ?></th>
@@ -457,6 +471,10 @@ if ($row['group_name'] != $prevgroup) {
   <th><?php xl('Data Cols','e'); ?></th>
   <th><?php xl('Default Value','e'); ?></th>
   <th><?php xl('Description','e'); ?></th>
+  <?php // if not english, then list the translation of description
+  if ($_SESSION['language_choice'] > 1) {
+   echo "<th>".xl('Translation')."<span class='help' title='".xl('The translation of description in current language')."'>(?)</span></th>";
+  } ?>
  </tr>
 </thead>
 <tbody>
@@ -501,8 +519,8 @@ Group Name: <input type="textbox" size="20" maxlength="30" name="newgroupname" i
 <thead>
  <tr class='head'>
   <th><?php xl('Order','e'); ?></th>
-  <th><?php xl('ID','e'); ?> <span class="help" title="A unique value to identify this field, not visible to the user">(?)</span></th>
-  <th><?php xl('Label','e'); ?> <span class="help" title="The label that appears to the user on the form">(?)</span></th>
+  <th><?php xl('ID','e'); ?> <span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
+  <th><?php xl('Label','e'); ?> <span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
   <th><?php xl('UOR','e'); ?></th>
   <th><?php xl('Data Type','e'); ?></th>
   <th><?php xl('Size/List','e'); ?></th>
