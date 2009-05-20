@@ -121,6 +121,13 @@ $GLOBALS['language_menu_show'] = array('English','Swedish');
 //    -If login menu is on, then it will be the 'Default' choice in menu
 //    -If login menu is off, then it will choose this language
 $GLOBALS['language_default'] = "English";
+//
+//  'translate_layout'
+//    -If true, then will translate the layout information.
+//    -If false, will not translate the layout information.
+//      If false, then most of the demographics and patient data
+//       entry forms will not be translated.
+$GLOBALS['translate_layout'] = true;
 
 include_once (dirname(__FILE__) . "/../library/translation.inc.php");
 

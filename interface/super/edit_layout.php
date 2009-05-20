@@ -254,8 +254,8 @@ function writeFieldLine($linedata) {
          htmlspecialchars($linedata['title'], ENT_QUOTES) . "' size='15' maxlength='63' class='optin' />";
     echo "</td>\n";
 
-    // if not english, then show the translation of Label
-    if ($_SESSION['language_choice'] > 1) {
+    // if not english and set to translate layout labels, then show the translation
+    if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
         echo "<td align='center' class='translation'>" . htmlspecialchars(xl($linedata['title']), ENT_QUOTES) . "</td>\n";
     }
 	
@@ -339,8 +339,8 @@ function writeFieldLine($linedata) {
          htmlspecialchars($linedata['description'], ENT_QUOTES) . "' size='20' maxlength='63' class='optin' />";
     echo "</td>\n";
 
-    // if not english, then show the translation of Description
-    if ($_SESSION['language_choice'] > 1) {
+    // if not english and showing layout labels, then show the translation of Description
+    if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
      echo "<td align='center' class='translation'>" . htmlspecialchars(xl($linedata['description']), ENT_QUOTES) . "</td>\n";
     }
     
@@ -460,8 +460,8 @@ if ($row['group_name'] != $prevgroup) {
   <th><?php xl('Order','e'); ?></th>
   <th><?php xl('ID','e'); ?> <span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
   <th><?php xl('Label','e'); ?> <span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
-  <?php // if not english, then list the translation of Label
-  if ($_SESSION['language_choice'] > 1) {
+  <?php // if not english and showing layout label translations, then show translation header for title
+  if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
    echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translated label that will appear on the form in current language') . "'>(?)</span></th>";	
   } ?>		  
   <th><?php xl('UOR','e'); ?></th>
@@ -471,8 +471,8 @@ if ($row['group_name'] != $prevgroup) {
   <th><?php xl('Data Cols','e'); ?></th>
   <th><?php xl('Default Value','e'); ?></th>
   <th><?php xl('Description','e'); ?></th>
-  <?php // if not english, then list the translation of description
-  if ($_SESSION['language_choice'] > 1) {
+  <?php // if not english and showing layout label translations, then show translation header for description
+  if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
    echo "<th>".xl('Translation')."<span class='help' title='".xl('The translation of description in current language')."'>(?)</span></th>";
   } ?>
  </tr>
