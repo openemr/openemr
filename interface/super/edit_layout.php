@@ -394,6 +394,10 @@ a, a:visited, a:hover { color:#0000cc; }
 .layouts_title {
     font-size: 110%;
 }
+.translation {
+    color: green;
+    font-size:10pt;
+ }
 </style>
 
 
@@ -440,7 +444,13 @@ if ($row['group_name'] != $prevgroup) {
     echo "<div id='".$row['group_name']."' class='group'>";
     echo "<div class='text bold layouts_title' style='position:relative; background-color: #eef'>";
     echo preg_replace("/^\d+/", "", $row['group_name']);
-    echo "&nbsp; &nbsp; ";
+    echo "&nbsp; ";
+    // if not english and set to translate layout labels, then show the translation of group name
+    if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
+	echo "<span class='translation'>>>&nbsp; " . xl(preg_replace("/^\d+/", "", $row['group_name'])) . "</span>";
+        echo "&nbsp; ";	
+    }
+    echo "&nbsp; ";
     echo " <input type='button' class='addfield' id='addto~".$row['group_name']."' value='Add Field'/>";
     echo "&nbsp; &nbsp; ";
     echo " <input type='button' class='renamegroup' id='".$row['group_name']."' value='Rename Group'/>";
@@ -462,7 +472,7 @@ if ($row['group_name'] != $prevgroup) {
   <th><?php xl('Label','e'); ?> <span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
   <?php // if not english and showing layout label translations, then show translation header for title
   if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-   echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translated label that will appear on the form in current language') . "'>(?)</span></th>";	
+   echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translated label that will appear on the form in current language') . "'> (?)</span></th>";	
   } ?>		  
   <th><?php xl('UOR','e'); ?></th>
   <th><?php xl('Data Type','e'); ?></th>
@@ -473,7 +483,7 @@ if ($row['group_name'] != $prevgroup) {
   <th><?php xl('Description','e'); ?></th>
   <?php // if not english and showing layout label translations, then show translation header for description
   if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-   echo "<th>".xl('Translation')."<span class='help' title='".xl('The translation of description in current language')."'>(?)</span></th>";
+   echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translation of description in current language')."'> (?)</span></th>";
   } ?>
  </tr>
 </thead>
