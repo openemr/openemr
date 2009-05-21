@@ -249,16 +249,23 @@ else {
  print LOGFILE "WARNING: NOT INCLUDING PREVIOUS CONSTANTS.\n";
 }
 
+# sort the constants
+my @sorted = sortConstants(@uniqueConstants);
+my @uniqueConstants = @sorted;
+
 # send to log constants that were auto added
+print LOGFILE "\nAUTO ADDED CONSTANTS BELOW: ----\n";
 foreach my $var (@uniqueConstants) {
  if (!(withinArray($var, @previousConstants))) {
-  print LOGFILE "AUTO ADDED: ".$var."\n";
+  print LOGFILE $var."\n";
  }  
 }
+print LOGFILE "--------------------------------\n\n";
 
 # run thru add filter
 foreach my $var (@addConstants) {
  if (withinArray($var, @uniqueConstants)) {
+  print LOGFILE "NOT MANUALLY ADDED, ALREADY EXITS: ".$var."\n";
   next;   
  }
  else {
@@ -279,7 +286,7 @@ foreach my $var (@uniqueConstants) {
  }
 }
 
-# sort the constants
+# re-sort the constants
 my @sorted = sortConstants(@constants);
 
 # send output
