@@ -307,9 +307,9 @@ end_group();
 ?>
 
 <center><br />
-<input type="button" id="search" value="Search" />
+<input type="button" id="search" value=<?php xl('Search','e','\'','\''); ?> />
 &nbsp;&nbsp;
-<input type="button" id="create" value="Create New Patient" />
+<input type="button" id="create" value=<?php xl('Create New Patient','e','\'','\''); ?> />
 
 </center>
 

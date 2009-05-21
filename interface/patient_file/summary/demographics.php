@@ -354,7 +354,7 @@ if ($GLOBALS['athletic_team']) {
 
 if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
   // Show current balance and billing note, if any.
-  echo "<span class='bold'><font color='#ee6600'>Balance Due: $" .
+  echo "<span class='bold'><font color='#ee6600'>" . xl('Balance Due') . ": " . xl('$') .
     get_patient_balance($pid) . "</font><br />";
   if ($result['genericname2'] == 'Billing') {
     xl('Billing Note') . ":";
@@ -382,7 +382,7 @@ if (isset($pid)) {
  $res = sqlStatement($query);
 
  if (isset($res) && $res != null) {
-    echo "<div id='appts'><span id='apptstitle'>Upcoming Appointments</span><br>";
+    echo "<div id='appts'><span id='apptstitle'>" . xl('Upcoming Appointments') . "</span><br>";
     // link to create a new appointment
     echo "<span class='link' style='margin: 2px 0px 5px 0px; width:100%; text-align: center;'>";
     echo "<a href='#' onclick='return newEvt()'>".xl('New Appointment')."</a>";
