@@ -128,6 +128,13 @@ $GLOBALS['language_default'] = "English";
 //      If false, then most of the demographics and patient data
 //       entry forms will not be translated.
 $GLOBALS['translate_layout'] = true;
+//
+//  'translate_lists'
+//    -If true, then will translate the lists information.
+//    -If false, will not translate the lists information.
+//      If false, then many lists of information in forms
+//       and templates will be untranslated.
+$GLOBALS['translate_lists'] = true;
 
 include_once (dirname(__FILE__) . "/../library/translation.inc.php");
 

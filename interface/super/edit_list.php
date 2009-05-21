@@ -140,6 +140,11 @@ function writeOptionLine($option_id, $title, $seq, $default, $value) {
        htmlspecialchars($title, ENT_QUOTES) . "' size='20' maxlength='63' class='optin' />";
   echo "</td>\n";
 
+  // if not english and translating lists then show the translation
+  if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+       echo "  <td align='center' class='translation'>" . (htmlspecialchars( xl($title), ENT_QUOTES)) . "</td>\n";
+  }
+    
   echo "  <td align='center' class='optcell'>";
   echo "<input type='text' name='opt[$opt_line_no][seq]' value='" .
        htmlspecialchars($seq, ENT_QUOTES) . "' size='4' maxlength='10' class='optin' />";
@@ -221,6 +226,8 @@ input     { font-size:10pt; }
 a, a:visited, a:hover { color:#0000cc; }
 .optcell  { }
 .optin    { background-color:transparent; }
+.help     { cursor:help; }
+.translation { color:green; }
 </style>
 
 <script type="text/javascript" src="../../library/dialog.js"></script>
@@ -313,7 +320,7 @@ while ($row = sqlFetchArray($res)) {
   $key = $row['option_id'];
   echo "<option value='$key'";
   if ($key == $list_id) echo " selected";
-  echo ">" . $row['title'] . "</option>\n";
+  echo ">" . xl($row['title']) . "</option>\n";
 }
 ?>
 </select>
@@ -331,7 +338,11 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Generates','e'); ?></b></td>
 <?php } else { ?>
   <td title='Click to edit'><b><?php  xl('ID','e'); ?></b></td>
-  <td><b><?php xl('Title'  ,'e'); ?></b></td>
+  <td><b><?php xl('Title'  ,'e'); ?></b></td>	
+  <?php //show translation column if not english and the translation lists flag is set 
+  if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+    echo "<td><b>".xl('Translation')."</b><span class='help' title='".xl('The translated Title that will appear in current language')."'> (?)</span></td>";    
+  } ?>  
   <td><b><?php xl('Order'  ,'e'); ?></b></td>
   <td><b><?php xl('Default','e'); ?></b></td>
 <?php if ($list_id == 'taxrate') { ?>

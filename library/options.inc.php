@@ -36,7 +36,13 @@ function generate_form_field($frow, $currvalue) {
         echo " selected";
         $got_selected = TRUE;
       }
-      echo ">" . $lrow['title'] . "</option>\n";
+      // translate if translate-lists flag set and not english
+      if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+       echo ">" . xl($lrow['title']) . "</option>\n";
+      }
+      else {
+       echo ">" . $lrow['title'] . "</option>\n";
+      }
     }
     if (!$got_selected && strlen($currvalue) > 0) {
       echo "<option value='$currescaped' selected>* $currescaped *</option>";
@@ -206,7 +212,13 @@ function generate_form_field($frow, $currvalue) {
       echo "<td width='$tdpct%'>";
       echo "<input type='checkbox' name='form_{$field_id}[$option_id]' id='form_{$field_id}[$option_id]' value='1'";
       if (in_array($option_id, $avalue)) echo " checked";
-      echo ">" . $lrow['title'];
+      // translate if translate-lists flag set and not english
+      if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+       echo ">" . xl($lrow['title']);
+      }
+      else {
+       echo ">" . $lrow['title'];
+      }	
       echo "</td>";
     }
     if ($count) {
@@ -235,7 +247,13 @@ function generate_form_field($frow, $currvalue) {
       $option_id = $lrow['option_id'];
       $maxlength = empty($frow['max_length']) ? 255 : $frow['max_length'];
       $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
-      echo "<tr><td>" . $lrow['title'] . "&nbsp;</td>";
+      // translate if translate-lists flag set and not english
+      if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {	
+        echo "<tr><td>" . xl($lrow['title']) . "&nbsp;</td>";
+      }
+      else {
+        echo "<tr><td>" . $lrow['title'] . "&nbsp;</td>";
+      }	
       echo "<td><input type='text'" .
         " name='form_{$field_id}[$option_id]'" .
         " id='form_{$field_id}[$option_id]'" .
@@ -267,7 +285,13 @@ function generate_form_field($frow, $currvalue) {
       $option_id = $lrow['option_id'];
       $restype = substr($avalue[$option_id], 0, 1);
       $resnote = substr($avalue[$option_id], 2);
-      echo "<tr><td>" . $lrow['title'] . "&nbsp;</td>";
+      // translate if translate-lists flag set and not english
+      if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {		
+        echo "<tr><td>" . xl($lrow['title']) . "&nbsp;</td>";
+      }
+      else {
+	echo "<tr><td>" . $lrow['title'] . "&nbsp;</td>";
+      }
       for ($i = 0; $i < 3; ++$i) {
         echo "<td><input type='radio'" .
           " name='radio_{$field_id}[$option_id]'" .
@@ -321,7 +345,13 @@ function generate_form_field($frow, $currvalue) {
       $option_id = $lrow['option_id'];
       $restype = substr($avalue[$option_id], 0, 1);
       $resnote = substr($avalue[$option_id], 2);
-      echo "<tr><td>" . $lrow['title'] . "&nbsp;</td>";
+      // translate if translate-lists flag set and not english
+      if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+        echo "<tr><td>" . xl($lrow['title']) . "&nbsp;</td>";
+      }
+      else {
+        echo "<tr><td>" . $lrow['title'] . "&nbsp;</td>";
+      }
       echo "<td><input type='checkbox' name='check_{$field_id}[$option_id]' id='check_{$field_id}[$option_id]' value='1'";
       if ($restype) echo " checked";
       echo " />&nbsp;</td>";
@@ -351,7 +381,13 @@ function generate_form_field($frow, $currvalue) {
         echo " selected";
         $got_selected = TRUE;
       }
-      echo ">" . $lrow['title'] . "</option>\n";
+      // translate if translate-lists flag set and not english
+      if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+        echo ">" . xl($lrow['title']) . "</option>\n";
+      }
+      else {
+        echo ">" . $lrow['title'] . "</option>\n";	  
+      }
     }
     if (!$got_selected && strlen($currvalue) > 0) {
       echo "<option value='$currescaped' selected>* $currescaped *</option>";
@@ -373,11 +409,17 @@ function generate_display_field($frow, $currvalue) {
   $list_id    = $frow['list_id'];
   $s = '';
 
-  // generic selection list
-  if ($data_type == 1) {
+  // generic selection list or the generic selection list with add on the fly feature
+  if ($data_type == 1 || $data_type == 26) {
     $lrow = sqlQuery("SELECT title FROM list_options " .
       "WHERE list_id = '$list_id' AND option_id = '$currvalue'");
-    $s = $lrow['title'];
+    // translate if translate-lists flag set and not english
+    if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+      $s = xl($lrow['title']);
+    }
+    else {
+      $s = $lrow['title'];
+    }
   }
 
   // simple text field
@@ -451,7 +493,13 @@ function generate_display_field($frow, $currvalue) {
       $option_id = $lrow['option_id'];
       if (in_array($option_id, $avalue)) {
         if ($count++) $s .= "<br />";
-        $s .= $lrow['title'];
+        // translate if translate-lists flag set and not english
+        if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+          $s .= xl($lrow['title']);
+	}
+	else {
+	  $s .= $lrow['title'];
+	} 
       }
     }
   }
@@ -471,7 +519,13 @@ function generate_display_field($frow, $currvalue) {
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
       if (empty($avalue[$option_id])) continue;
-      $s .= "<tr><td class='bold' valign='top'>" . $lrow['title'] . ":&nbsp;</td>";
+      // translate if translate-lists flag set and not english
+      if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+        $s .= "<tr><td class='bold' valign='top'>" . xl($lrow['title']) . ":&nbsp;</td>";
+      }
+      else {
+        $s .= "<tr><td class='bold' valign='top'>" . $lrow['title'] . ":&nbsp;</td>";	  
+      }	
       $s .= "<td class='text' valign='top'>" . $avalue[$option_id] . "</td></tr>";
     }
     $s .= "</table>";
@@ -494,7 +548,13 @@ function generate_display_field($frow, $currvalue) {
       $restype = substr($avalue[$option_id], 0, 1);
       $resnote = substr($avalue[$option_id], 2);
       if (empty($restype) && empty($resnote)) continue;
-      $s .= "<tr><td class='bold' valign='top'>" . $lrow['title'] . "&nbsp;</td>";
+      // translate if translate-lists flag set and not english
+      if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+        $s .= "<tr><td class='bold' valign='top'>" . xl($lrow['title']) . "&nbsp;</td>";
+      }
+      else {
+        $s .= "<tr><td class='bold' valign='top'>" . $lrow['title'] . "&nbsp;</td>";	  
+      }	
       $restype = ($restype == '1') ? 'Normal' : (($restype == '2') ? 'Abnormal' : 'N/A');
       $s .= "<td class='text' valign='top'>$restype</td></tr>";
       $s .= "<td class='text' valign='top'>$resnote</td></tr>";
@@ -535,8 +595,15 @@ function generate_display_field($frow, $currvalue) {
       $restype = substr($avalue[$option_id], 0, 1);
       $resnote = substr($avalue[$option_id], 2);
       if (empty($restype) && empty($resnote)) continue;
-      $s .= "<tr><td class='bold' valign='top'>" . $lrow['title'] . "&nbsp;</td>";
-      $restype = $restype ? 'Yes' : 'No';
+      // translate if translate-lists flag set and not english
+      if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+        $s .= "<tr><td class='bold' valign='top'>" . xl($lrow['title']) . "&nbsp;</td>";
+	$restype = $restype ? xl('Yes') : xl('No');  
+      }
+      else {
+        $s .= "<tr><td class='bold' valign='top'>" . $lrow['title'] . "&nbsp;</td>";
+	$restype = $restype ? 'Yes' : 'No';
+      }
       $s .= "<td class='text' valign='top'>$restype</td></tr>";
       $s .= "<td class='text' valign='top'>$resnote</td></tr>";
       $s .= "</tr>";
