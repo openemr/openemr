@@ -233,22 +233,6 @@ foreach my $var (@filenames) {
  print LOGFILE $var." checked.\n";
 }
 
-# add previous constants if the remove flag is not set
-if (!($removeFlag)) {
- foreach my $var (@previousConstants) {
-  if (withinArray($var,@uniqueConstants)) {
-   next;
-  }
-  else {
-   print LOGFILE "KEEPING: ".$var."\n";
-   push(@uniqueConstants, $var);
-  }
- }
-}
-else {
- print LOGFILE "WARNING: NOT INCLUDING PREVIOUS CONSTANTS.\n";
-}
-
 # sort the constants
 my @sorted = sortConstants(@uniqueConstants);
 my @uniqueConstants = @sorted;
@@ -265,13 +249,29 @@ print LOGFILE "--------------------------------\n\n";
 # run thru add filter
 foreach my $var (@addConstants) {
  if (withinArray($var, @uniqueConstants)) {
-  print LOGFILE "NOT MANUALLY ADDED, ALREADY EXITS: ".$var."\n";
+  print LOGFILE "NOT MANUALLY ADDED, ALREADY EXIST: ".$var."\n";
   next;   
  }
  else {
   print LOGFILE "MANUALLY ADDED: ".$var."\n";
   push (@uniqueConstants,$var);
  }
+}
+
+# add previous constants if the remove flag is not set
+if (!($removeFlag)) {
+ foreach my $var (@previousConstants) {
+  if (withinArray($var,@uniqueConstants)) {
+   next;
+  }
+  else {
+   print LOGFILE "KEEPING: ".$var."\n";
+   push(@uniqueConstants, $var);
+  }
+ }
+}
+else {
+ print LOGFILE "WARNING: NOT INCLUDING PREVIOUS CONSTANTS.\n";
 }
 
 # run thru removal filter

@@ -1,0 +1,125 @@
+Additional history notes
+Alcohol consumption
+Allow Email
+Allow Mail Message
+Allow SMS
+Allow Voice Message
+Armenian
+Asian
+Asthma
+Billing Code for Requested Service
+Black
+Breast Disease
+Caffeine consumption
+Caucasian
+Chinese
+Choices
+City Name
+Contact Lenses
+Contraceptive Complication (specify)
+Contraceptives Start
+Counseling activities
+Coupon
+Date contraceptive services initially provided
+Date of referral
+Date of reply
+Depression
+Direct Mail
+Divorced
+Domestic Partner
+Dutch
+Emergency Phone
+Employee
+Employer Name
+English
+Ethnicity or Race
+Exam and test results
+Exams/Tests
+External ID
+External Referral
+External referral?
+Fibroids
+File Room
+Final Diagnosis
+Final diagnosis by specialist
+Findings
+Findings by specialist
+French
+Gall Bladder Condition
+German
+grams
+Heart Disease
+Hebrew
+High
+HIPAA Notice Received
+Hispanic
+Homeless or similar?
+Homeless, etc.
+Hypertension
+Include Vitals
+Include vitals data?
+Infertility
+Interpreter needed?
+Leave Message With
+Level of urgency
+License/ID
+Low
+Married
+Medium
+mg/2cc
+mg/3cc
+mg/4cc
+Migrant or seasonal worker?
+Mobile Phone
+Name/Value
+Newspaper
+Norwegian
+Other (specify)
+Pharmacy
+PID (Pelvic Inflammatory Disease)
+Postal Code
+Preferred Language
+Prescriptions and/or referrals by specialist
+Prescriptions/Referrals
+Presumed Diagnosis
+Presumed diagnosis by specialist
+Price Level
+Radio
+Reason for referral
+Recommendations
+Recommendations by specialist
+Refer By
+Referral Card
+Referral Date
+Referral To
+Referrer Diagnosis
+Reply From
+Requested Service
+Risk Factors
+Risk Level
+Russian
+Separated
+Service provided by specialist
+Services Provided
+Severe Migraine
+Sickle Cell
+Single
+Slovak
+Spanish
+Standard
+Start Date at This Clinic
+State/Locality
+Stats
+Street and Number
+Swedish
+T.V.
+Thrombosis/Stroke
+Tobacco use
+User Defined
+Varicose Veins
+Walk-In
+Where may related scanned or paper documents be found?
+Who
+Who replied?
+Widowed
+(More)
