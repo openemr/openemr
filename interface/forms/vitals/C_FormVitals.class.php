@@ -38,6 +38,7 @@ class C_FormVitals extends Controller {
 
     	$dbconn = $GLOBALS['adodb']['db'];
     	$sql = "SELECT * from form_vitals where id != $form_id and pid = ".$GLOBALS['pid'];
+        $sql .= " ORDER BY date DESC";
     	$result = $dbconn->Execute($sql);
 
     	$i = 1;
