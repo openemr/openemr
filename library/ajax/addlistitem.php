@@ -61,7 +61,15 @@ $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = '$list_id' ORDE
 while ($lrow = sqlFetchArray($lres)) {
     echo $comma;
     echo '{"id":"'.$lrow['option_id'].'",';
-    echo '"title":"'.$lrow['title'].'"}';
+    
+    // translate title if translate-lists flag set and not english
+    if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+     echo '"title":"' . xl($lrow['title']) .'"}';
+    }
+    else {
+     echo '"title":"'.$lrow['title'].'"}';	
+    }
+    
     $comma = ",";
 }
 echo "]}";
