@@ -355,6 +355,7 @@ function getPatientPID($args)
     return $returnval;
 }
 
+/* return a patient's name in the format LAST, FIRST */
 function getPatientName($pid) {
     if (empty($pid)) return "";
     $patientData = getPatientPID(array("pid"=>$pid));
@@ -363,6 +364,7 @@ function getPatientName($pid) {
     return $patientName;
 }
 
+/* find patient data by DOB */
 function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
     $DOB = fixDate($DOB, $DOB);
@@ -378,6 +380,7 @@ function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $ord
     return $returnval;
 }
 
+/* find patient data by SSN */
 function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
     $where = "ss LIKE '$ss%'";
@@ -1036,12 +1039,24 @@ function sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone
 //   in months if < 2 years old
 //   in years  if > 2 years old
 // given YYYYMMDD from MySQL DATE_FORMAT(DOB,'%Y%m%d')
-function getPatientAge($dobYMD)
+// (optional) nowYMD is a date in YYYYMMDD format
+function getPatientAge($dobYMD, $nowYMD=null)
 {
     // strip any dashes from the DOB
     $dobYMD = preg_replace("/-/", "", $dobYMD);
-    $nowDay = date("d"); $nowMonth = date("m"); $nowYear = date("Y");
     $dobDay = substr($dobYMD,6,2); $dobMonth = substr($dobYMD,4,2); $dobYear = substr($dobYMD,0,4);
+    
+    // set the 'now' date values
+    if ($nowYMD == null) {
+        $nowDay = date("d");
+        $nowMonth = date("m");
+        $nowYear = date("Y");
+    }
+    else {
+        $nowDay = substr($nowYMD,6,2);
+        $nowMonth = substr($nowYMD,4,2);
+        $nowYear = substr($nowYMD,0,4);
+    }
 
     $dayDiff = $nowDay - $dobDay;
     $monthDiff = $nowMonth - $dobMonth;
