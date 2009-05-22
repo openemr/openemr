@@ -72,6 +72,8 @@ function xmlTime($str, $default='9999-12-31T23:59:59') {
     $str = substr($str, 0, 10) . 'T' . substr($str, 11);
   else
     $str .= 'T00:00:00';
+  // Per discussion with Daniel 2009-05-12, replace zero day or month with 01.
+  $str = preg_replace('/-00/', '-01', $str);
   return $str;
 }
 
