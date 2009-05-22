@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- InstanceBegin template="/Templates/oemr.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>OpenEMR v3.0.1 Users Guide</title>
+<!-- InstanceEndEditable -->
+<!-- InstanceBeginEditable name="head" -->
+<!-- InstanceEndEditable -->
+</head>
+
+<body>
+<h1>OpenEMR Users Guide (version 3.0.1)</h1>
+<h3>Table of Contents</h3>
+<ul>
+<li><a href="01.html">Getting Started</a></li>
+<ul><!-- InstanceBeginEditable name="TOC1" --><!-- InstanceEndEditable --></ul>
+<li><a href="02.html">Main Screen & Navigation</a></li>
+<ul><!-- InstanceBeginEditable name="TOC2" --><!-- InstanceEndEditable --></ul>
+<li><a href="03.html">Setting Up Your Clinic</a></li>
+<ul><!-- InstanceBeginEditable name="TOC3" --><!-- InstanceEndEditable --></ul>
+<li><a href="04.html">Adding a New Patient</a></li>
+<ul><!-- InstanceBeginEditable name="TOC4" --><!-- InstanceEndEditable --></ul>
+<li><a href="05.html">Using the Calendar</a></li>
+<ul><!-- InstanceBeginEditable name="TOC5" --><!-- InstanceEndEditable --></ul>
+<li><a href="06.html">New Encounters & Coding</a></li>
+<ul><!-- InstanceBeginEditable name="TOC6" --><!-- InstanceEndEditable --></ul>
+<li><a href="07.html">Issues & Immunizations</a></li>
+<ul><!-- InstanceBeginEditable name="TOC7" --><!-- InstanceEndEditable --></ul>
+<li><a href="08.html">Patient Notes & Transactions</a></li>
+<ul><!-- InstanceBeginEditable name="TOC8" --><!-- InstanceEndEditable --></ul>
+<li><a href="09.html">Basic Billing</a></li>
+<ul><!-- InstanceBeginEditable name="TOC9" --><!-- InstanceEndEditable --></ul>
+<li><a href="10.html">Accounting & Receivables</a></li>
+<ul><!-- InstanceBeginEditable name="TOC10" -->
+<li>Explanation of Benefits</li>
+<li>Entering Payments</li>
+<li>Patient Invoices and Payments</li>
+<!-- InstanceEndEditable --></ul>
+<li><a href="11.html">Reporting</a></li>
+<ul><!-- InstanceBeginEditable name="TOC11" --><!-- InstanceEndEditable --></ul>
+<li><a href="index.html">Index</a></li>
+</ul>
+<br />
+<center>
+<!-- InstanceBeginEditable name="nav1" -->
+<a href="09.html"><< Prev</a> < Accounting & Receivables > <a href="11.html">Next >></a>
+<!-- InstanceEndEditable -->
+</center>
+<!-- InstanceBeginEditable name="body" -->
+<h2>Accounting & Receivables</h2>
+<p>Users classified as Accounting or Administrator are also authorized to enter receivables for the clinic.  Checks received from insurance companies can be entered here and distributed to cover the appropriate encounters.  Patients can also be billed, and their payments recorded.</p>
+<h3>Explanation of Benefits</h3>
+<img src="Acounting & Recievables/01-acct_recievable.png" />
+<p>To begin, select 'Billing' from the navigation menu and click 'EOBs' to bring up the Explanation of Benefits  Search window.  This is where you can upload an ERA file (click 'Help' in the upper right-hand corner for more information) or begin inputting payments manually.</p>
+<p>At the top you may enter a source (Eg. check number), pay date and check amount. The amount field will be automatically decremented as payments are entered into the associated invoices.  When all invoices have been completed this value should be zero.</p>
+<img src="Acounting & Recievables/02-acct_recievable-search.png" />
+<p>The search fields, with the blue background, are for locating a specific invoice (or invoices).  Enter the appropriate parameters, such as the date of service, and click 'Search' to bring up a list of all invoices (claims) matching the requested parameters.</p>
+<img src="Acounting & Recievables/03-acct_recievable-select_invoice.png" />
+<p>The list shows the patient and invoice number, as well as the current balance to be paid.  The number with a '-' in the 'Prv' column indicates the number of insurance companies for which this invoice is awaiting payment.</p>
+<h3>Entering Payments</h3>
+<p>Clicking the invoice number you wish to work with opens the EOB Invoice window.  Notice that the source and pay date from the previous window have been copied over; this saves time in the common case where a single check from the insurance company pays for multiple claims. </p>
+<img src="Acounting & Recievables/04-acct_recievable-invoice.png" />
+<p>The EOB Invoice page contains a detailed list of payments made on this invoice so far.  Enter the payment amount next to the remaining balance, and check 'Needs secondary billing'.  This will allow the claim to be re-billed to the secondary insurance. Select 'Done with Ins1' above to indicate that the primary insurance EOB has been posted.  When you are finished, click 'Save'.</p>
+<img src="Acounting & Recievables/05-acct_recievable-select_invoice2.png" />
+<p>Once payment has been billed and received from secondary insurance, it can be entered in the same way.  Enter the source and pay date, etc. and locate the appropriate invoice(s) using the search function. </p>
+<p>Payment amounts are now shown along with the remaining balance.  The number in the 'Prv' column has also decreased.  Select the invoice number to bring up the EOB Invoice window again.</p>
+<img src="Acounting & Recievables/06-acct_recievable-invoice2.png" />
+<p>Enter the payment amount and select 'Ins2' to indicate that the secondary insurance EOB has been posted.</p>
+<p>Invoice adjustments may also be made here.  Enter the adjustment amount (or click 'W' to waive the entire remaining balance), and select a reason for the adjustment from the drop-down list provided.  Click 'Save' when finished.</p>
+<h3>Patient Invoices and Payments</h3>
+<p>Once payments from the insurance companies have been received and entered, you can use OpenEMR's EOB page to generate invoices for billing patients the remaining amounts.</p>
+<img src="Acounting & Recievables/07-acct_recievable-select_invoice-patient.png" />
+<p>Select 'Due Pt' from the drop-down list and click 'Search' to display a list of all invoices that are awaiting payment from patients.  Invoices still awaiting payments from insurance companies will not be shown.</p>
+<img src="Acounting & Recievables/08-acct_recievable-invoice_print.png" />
+<p>Check the box next to the desired invoice and click 'Print Selected Statements' to generate an invoice for that patient using a customizable template.  Depending on your clinic's OpenEMR configuration, the invoice may be printed automatically.</p>
+<img src="Acounting & Recievables/09-acct_recievable-invoice_print2.png" />
+<p>A '1' in the  'Prv' column now indicates that the patient has been billed once for this claim.  This number will increment every time a new invoice is printed for this encounter.  This is useful when printing so that second and later notices may be worded differently from the initial statement. </p>
+<p>You can also click on the patient's name in the invoice list to create a billing note for that patient.  Enter your note into the text field and click 'Save'.</p>
+<img src="Acounting & Recievables/10-acct_recievable-patient_note.png" />
+<p>Once payment has been received, it can be entered into the invoice in the same manner as the insurance payments.  In the 'Now posting for' list be sure to select 'Patient'.  Enter the payment amount as before and click 'Save'. </p>
+<img src="Acounting & Recievables/11-acct_recievable-invoice3.png" /><br><br>
+<!-- InstanceEndEditable -->
+<center>
+<!-- InstanceBeginEditable name="nav2" -->
+<a href="09.html"><< Prev</a> < Accounting & Receivables > <a href="11.html">Next >></a>
+<!-- InstanceEndEditable -->
+</center>
+</body>
+<!-- InstanceEnd --></html>
