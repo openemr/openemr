@@ -90,46 +90,31 @@ if ($report_type == 'm') {
 else {
 }
 
-// A reported value is either scalar, or an array listed horizontally.  If
-// multiple items are chosen then each starts in the next available column.
-//
-$arr_show = array(
-  1 => xl('Total'),
-  // 9 => xl('Total Clients'),
-  2 => xl('Age Category'),
-  3 => xl('Sex'),
-  4 => xl('Religion'),
-  5 => xl('Nationality'),
-  6 => xl('Marital Status'),
-  7 => xl('State/Parish'),
- 10 => xl('City'),
-  8 => xl('Occupation'),
- 11 => xl('Education'),
- 12 => xl('Income'),
- 13 => xl('Provider'),
-);
-
 // This will become the array of reportable values.
 $areport = array();
 
 // This accumulates the bottom line totals.
 $atotals = array();
 
-// Arrays of titles for some column headings.
-$arr_titles = array(
-  'rel' => array(),
-  'nat' => array(),
-  'mar' => array(),
-  'sta' => array(),
-  'occ' => array(),
-  'cit' => array(),
-  'edu' => array(),
-  'inc' => array(),
-  'pro' => array(),
-);
+$arr_show   = array(
+  '.total' => array('title' => 'Total'),
+  '.age'   => array('title' => 'Age Category'),
+); // info about selectable columns
 
-// This is so we know when the current patient changes.
-// $previous_pid = 0;
+$arr_titles = array(); // will contain column headers
+
+// Query layout_options table to generate the $arr_show table.
+// Table key is the field ID.
+$lres = sqlStatement("SELECT field_id, title, data_type, list_id, description " .
+  "FROM layout_options WHERE " .
+  "form_id = 'DEM' AND uor > 0 AND field_id NOT LIKE 'em%' " .
+  "ORDER BY group_name, seq, title");
+while ($lrow = sqlFetchArray($lres)) {
+  $fid = $lrow['field_id'];
+  if ($fid == 'fname' || $fid == 'mname' || $fid == 'lname') continue;
+  $arr_show[$fid] = $lrow;
+  $arr_titles[$fid] = array();
+}
 
 // Compute age in years given a DOB and "as of" date.
 //
@@ -338,38 +323,30 @@ function getGcacClientStatus($row) {
 // Helper function called after the reporting key is determined for a row.
 //
 function loadColumnData($key, $row) {
-  global $areport, $arr_titles, $form_cors, $from_date, $to_date;
-
-  // global $previous_pid;
-  // if ($form_cors == '2' && $row['pid'] == $previous_pid) return;
-  // $previous_pid = $row['pid'];
+  global $areport, $arr_titles, $form_cors, $from_date, $to_date, $arr_show;
 
   // If first instance of this key, initialize its arrays.
   if (empty($areport[$key])) {
     $areport[$key] = array();
-    $areport[$key]['wom'] = 0;       // number of services for women
-    $areport[$key]['men'] = 0;       // number of services for men
-    $areport[$key]['age'] = array(0,0,0,0,0,0,0,0,0); // age array
-    $areport[$key]['rel'] = array(); // religion array
-    $areport[$key]['nat'] = array(); // nationality array
-    $areport[$key]['mar'] = array(); // marital status array
-    $areport[$key]['sta'] = array(); // state/parish array
-    $areport[$key]['occ'] = array(); // occupation array
-    $areport[$key]['cit'] = array(); // city array
-    $areport[$key]['edu'] = array(); // education array
-    $areport[$key]['inc'] = array(); // income array
-    $areport[$key]['pro'] = array(); // provider array
-    $areport[$key]['prp'] = 0;       // previous pid
+    $areport[$key]['.prp'] = 0;       // previous pid
+    $areport[$key]['.wom'] = 0;       // number of services for women
+    $areport[$key]['.men'] = 0;       // number of services for men
+    $areport[$key]['.age'] = array(0,0,0,0,0,0,0,0,0); // age array
+    foreach ($arr_show as $askey => $dummy) {
+      if (substr($askey, 0, 1) == '.') continue;
+      $areport[$key][$askey] = array();
+    }
   }
 
   // Skip this key if we are counting unique patients and the key
   // has already seen this patient.
-  if ($form_cors == '2' && $row['pid'] == $areport[$key]['prp']) return;
+  if ($form_cors == '2' && $row['pid'] == $areport[$key]['.prp']) return;
 
   // If we are counting new acceptors, then require a unique patient
   // whose contraceptive start date is within the reporting period.
   if ($form_cors == '3') {
-    if ($row['pid'] == $areport[$key]['prp']) return;
+    // if ($row['pid'] == $areport[$key]['prp']) return;
+    if ($row['pid'] == $areport[$key]['.prp']) return;
     // Check contraceptive start date.
     if (!$row['contrastart'] || $row['contrastart'] < $from_date ||
       $row['contrastart'] > $to_date) return;
@@ -378,79 +355,34 @@ function loadColumnData($key, $row) {
   // If we are counting new clients, then require a unique patient
   // whose registration date is within the reporting period.
   if ($form_cors == '4') {
-    if ($row['pid'] == $areport[$key]['prp']) return;
+    if ($row['pid'] == $areport[$key]['.prp']) return;
     // Check registration date.
     if (!$row['regdate'] || $row['regdate'] < $from_date ||
       $row['regdate'] > $to_date) return;
   }
 
   // Flag this patient as having been encountered for this report row.
-  $areport[$key]['prp'] = $row['pid'];
-
-  /*******************************************************************
-  // Increment the number of unique clients.
-  if ($row['pid'] != $previous_pid) {
-    ++$areport[$key]['cli'];
-    $previous_pid = $row['pid'];
-  }
-  *******************************************************************/
+  // $areport[$key]['prp'] = $row['pid'];
+  $areport[$key]['.prp'] = $row['pid'];
 
   // Increment the correct sex category.
   if (strcasecmp($row['sex'], 'Male') == 0)
-    ++$areport[$key]['men'];
+    ++$areport[$key]['.men'];
   else
-    ++$areport[$key]['wom'];
+    ++$areport[$key]['.wom'];
 
   // Increment the correct age category.
   $age = getAge(fixDate($row['DOB']), $row['encdate']);
   $i = min(intval(($age - 5) / 5), 8);
   if ($age < 11) $i = 0;
-  ++$areport[$key]['age'][$i];
+  ++$areport[$key]['.age'][$i];
 
-  // Increment the correct religion category.
-  $religion = empty($row['userlist5']) ? 'Unspecified' : $row['userlist5'];
-  $areport[$key]['rel'][$religion] += 1;
-  $arr_titles['rel'][$religion] += 1;
-
-  // Increment the correct nationality category.
-  $nationality = empty($row['country_code']) ? 'Unspecified' : $row['country_code'];
-  $areport[$key]['nat'][$nationality] += 1;
-  $arr_titles['nat'][$nationality] += 1;
-
-  // Increment the correct marital status category.
-  $status = empty($row['status']) ? 'Unspecified' : $row['status'];
-  $areport[$key]['mar'][$status] += 1;
-  $arr_titles['mar'][$status] += 1;
-
-  // Increment the correct state/parish category.
-  $status = empty($row['state']) ? 'Unspecified' : $row['state'];
-  $areport[$key]['sta'][$status] += 1;
-  $arr_titles['sta'][$status] += 1;
-
-  // Increment the correct occupation category.
-  $status = empty($row['occupation']) ? 'Unspecified' : $row['occupation'];
-  $areport[$key]['occ'][$status] += 1;
-  $arr_titles['occ'][$status] += 1;
-
-  // Increment the correct city category.
-  $status = empty($row['city']) ? 'Unspecified' : $row['city'];
-  $areport[$key]['cit'][$status] += 1;
-  $arr_titles['cit'][$status] += 1;
-
-  // Increment the correct education category.
-  $status = empty($row['userlist2']) ? 'Unspecified' : $row['userlist2'];
-  $areport[$key]['edu'][$status] += 1;
-  $arr_titles['edu'][$status] += 1;
-
-  // Increment the correct income category.
-  $status = empty($row['userlist3']) ? 'Unspecified' : $row['userlist3'];
-  $areport[$key]['inc'][$status] += 1;
-  $arr_titles['inc'][$status] += 1;
-
-  // Increment the correct provider category.
-  $status = empty($row['provider']) ? 'Unknown' : $row['provider'];
-  $areport[$key]['pro'][$status] += 1;
-  $arr_titles['pro'][$status] += 1;
+  foreach ($arr_show as $askey => $dummy) {
+    if (substr($askey, 0, 1) == '.') continue;
+    $status = empty($row[$askey]) ? 'Unspecified' : $row[$askey];
+    $areport[$key][$askey][$status] += 1;
+    $arr_titles[$askey][$status] += 1;
+  }
 }
 
 // This is called for each IPPF service code that is selected.
@@ -650,7 +582,7 @@ function process_ma_code($row) {
   // One row for each service category.
   //
   if ($form_by === '101') {
-    if (!empty($row['title'])) $key = xl($row['title']);
+    if (!empty($row['lo_title'])) $key = xl($row['lo_title']);
   }
 
   // Specific Services. One row for each MA code.
@@ -880,9 +812,11 @@ function process_referral($row) {
     title='<?php xl('Hold down Ctrl to select multiple items','e'); ?>'>
 <?php
   foreach ($arr_show as $key => $value) {
+    $title = $value['title'];
+    if (empty($title) || $key == 'title') $title = $value['description'];
     echo "    <option value='$key'";
     if (is_array($form_show) && in_array($key, $form_show)) echo " selected";
-    echo ">" . $value . "</option>\n";
+    echo ">$title</option>\n";
   }
 ?>
    </select>
@@ -976,6 +910,15 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
   } // end not export
 
   if ($_POST['form_submit']) {
+    $pd_fields = '';
+    foreach ($arr_show as $askey => $asval) {
+      if (substr($askey, 0, 1) == '.') continue;
+      if ($askey == 'regdate' || $askey == 'sex' || $askey == 'DOB' ||
+        $askey == 'lname' || $askey == 'fname' || $askey == 'mname' ||
+        $askey == 'contrastart' || $askey == 'referral_source') continue;
+      $pd_fields .= ', pd.' . $askey;
+    }
+
     $sexcond = '';
     if ($form_sexes == '1') $sexcond = "AND pd.sex NOT LIKE 'Male' ";
     else if ($form_sexes == '2') $sexcond = "AND pd.sex LIKE 'Male' ";
@@ -985,9 +928,8 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
       $exttest = $form_by === '9' ? '=' : '!=';
       $query = "SELECT " .
         "t.refer_related_code, t.pid, pd.regdate, pd.referral_source, " .
-        "pd.sex, pd.DOB, pd.lname, pd.fname, pd.mname, pd.userlist5, " .
-        "pd.country_code, pd.status, pd.state, pd.occupation, pd.contrastart, " .
-        "pd.city, pd.userlist2, pd.userlist3 " .
+        "pd.sex, pd.DOB, pd.lname, pd.fname, pd.mname, " .
+        "pd.contrastart$pd_fields " .
         "FROM transactions AS t " .
         "JOIN patient_data AS pd ON pd.pid = t.pid $sexcond" .
         "WHERE t.title = 'Referral' AND t.refer_date >= '$from_date' AND " .
@@ -1030,10 +972,9 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
       $query = "SELECT " .
         "fe.pid, fe.encounter, fe.date AS encdate, pd.regdate, " .
         "f.user AS provider, " .
-        "pd.sex, pd.DOB, pd.lname, pd.fname, pd.mname, pd.userlist5, " .
-        "pd.country_code, pd.status, pd.state, pd.occupation, pd.contrastart, " .
-        "pd.referral_source, pd.city, pd.userlist2, pd.userlist3, " .
-        "b.code_type, b.code, c.related_code, lo.title " .
+        "pd.sex, pd.DOB, pd.lname, pd.fname, pd.mname, " .
+        "pd.contrastart, pd.referral_source$pd_fields, " .
+        "b.code_type, b.code, c.related_code, lo.title AS lo_title " .
         "FROM form_encounter AS fe " .
         "JOIN forms AS f ON f.pid = fe.pid AND f.encounter = fe.encounter AND " .
         "f.formdir = 'newpatient' AND f.form_id = fe.id AND f.deleted = 0 " .
@@ -1071,15 +1012,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
 
     // Sort everything by key for reporting.
     ksort($areport);
-    ksort($arr_titles['rel']);
-    ksort($arr_titles['nat']);
-    ksort($arr_titles['mar']);
-    ksort($arr_titles['sta']);
-    ksort($arr_titles['occ']);
-    ksort($arr_titles['cit']);
-    ksort($arr_titles['edu']);
-    ksort($arr_titles['inc']);
-    ksort($arr_titles['pro']);
+    foreach ($arr_titles as $atkey => $dummy) ksort($arr_titles[$atkey]);
 
     if ($form_output != 3) {
       echo "<table border='0' cellpadding='1' cellspacing='2' width='98%'>\n";
@@ -1096,15 +1029,12 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
 
     // Generate headings for values to be shown.
     foreach ($form_show as $value) {
-      if ($value == '1') { // Total Services
+      // if ($value == '1') { // Total Services
+      if ($value == '.total') { // Total Services
         genHeadCell(xl('Total'));
       }
-      /***************************************************************
-      else if ($value == '9') { // Total Unique Clients
-        genHeadCell(xl('Clients'));
-      }
-      ***************************************************************/
-      else if ($value == '2') { // Age
+      // else if ($value == '2') { // Age
+      else if ($value == '.age') { // Age
         genHeadCell(xl('0-10' ), true);
         genHeadCell(xl('11-14'), true);
         genHeadCell(xl('15-19'), true);
@@ -1115,52 +1045,14 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
         genHeadCell(xl('40-44'), true);
         genHeadCell(xl('45+'  ), true);
       }
-      else if ($value == '3') { // Sex
-        genHeadCell(xl('Women'), true);
-        genHeadCell(xl('Men'  ), true);
-      }
-      else if ($value == '4') { // Religion
-        foreach ($arr_titles['rel'] as $key => $value) {
-          genHeadCell(getListTitle('userlist5',$key), true);
+
+      else if ($arr_show[$value]['list_id']) {
+        foreach ($arr_titles[$value] as $key => $dummy) {
+          genHeadCell(getListTitle($arr_show[$value]['list_id'],$key), true);
         }
       }
-      else if ($value == '5') { // Nationality
-        foreach ($arr_titles['nat'] as $key => $value) {
-          genHeadCell(getListTitle('country',$key), true);
-        }
-      }
-      else if ($value == '6') { // Marital Status
-        foreach ($arr_titles['mar'] as $key => $value) {
-          genHeadCell(getListTitle('marital',$key), true);
-        }
-      }
-      else if ($value == '7') { // State/Parish
-        foreach ($arr_titles['sta'] as $key => $value) {
-          genHeadCell($key, true);
-        }
-      }
-      else if ($value == '8') { // Occupation
-        foreach ($arr_titles['occ'] as $key => $value) {
-          genHeadCell(getListTitle('occupations',$key), true);
-        }
-      }
-      else if ($value == '10') { // City
-        foreach ($arr_titles['cit'] as $key => $value) {
-          genHeadCell($key, true);
-        }
-      }
-      else if ($value == '11') { // Education
-        foreach ($arr_titles['edu'] as $key => $value) {
-          genHeadCell(getListTitle('userlist2',$key), true);
-        }
-      }
-      else if ($value == '12') { // Income
-        foreach ($arr_titles['inc'] as $key => $value) {
-          genHeadCell(getListTitle('userlist3',$key), true);
-        }
-      }
-      else if ($value == '13') { // Provider
-        foreach ($arr_titles['pro'] as $key => $value) {
+      else {
+        foreach ($arr_titles[$value] as $key => $dummy) {
           genHeadCell($key, true);
         }
       }
@@ -1182,7 +1074,6 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
       // If the key is an MA or IPPF code, then add a column for its description.
       if ($form_by === '4' || $form_by === '102' || $form_by === '9' || $form_by === '10') {
         $dispkey = array($key, '');
-        // $type = $form_by === '4' ? 11 : 12; // IPPF or MA
         $type = $form_by === '102' ? 12 : 11; // MA or IPPF
         $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
           "code_type = '$type' AND code = '$key' ORDER BY id LIMIT 1");
@@ -1195,70 +1086,22 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
 
       // This is the column index for accumulating column totals.
       $cnum = 0;
-      $totalsvcs = $areport[$key]['wom'] + $areport[$key]['men'];
+      $totalsvcs = $areport[$key]['.wom'] + $areport[$key]['.men'];
 
       // Generate data for this row.
       foreach ($form_show as $value) {
-        if ($value == '1') { // Total Services
+        // if ($value == '1') { // Total Services
+        if ($value == '.total') { // Total Services
           genNumCell($totalsvcs, $cnum++);
         }
-        /*************************************************************
-        else if ($value == '9') { // Total Unique Clients
-          genNumCell($areport[$key]['cli'], $cnum++);
-        }
-        *************************************************************/
-        else if ($value == '2') { // Age
+        else if ($value == '.age') { // Age
           for ($i = 0; $i < 9; ++$i) {
-            genNumCell($areport[$key]['age'][$i], $cnum++);
+            genNumCell($areport[$key]['.age'][$i], $cnum++);
           }
         }
-        else if ($value == '3') { // Sex
-          genNumCell($areport[$key]['wom'], $cnum++);
-          genNumCell($areport[$key]['men'], $cnum++);
-        }
-        else if ($value == '4') { // Religion
-          foreach ($arr_titles['rel'] as $title => $nothing) {
-            genNumCell($areport[$key]['rel'][$title], $cnum++);
-          }
-        }
-        else if ($value == '5') { // Nationality
-          foreach ($arr_titles['nat'] as $title => $nothing) {
-            genNumCell($areport[$key]['nat'][$title], $cnum++);
-          }
-        }
-        else if ($value == '6') { // Marital Status
-          foreach ($arr_titles['mar'] as $title => $nothing) {
-            genNumCell($areport[$key]['mar'][$title], $cnum++);
-          }
-        }
-        else if ($value == '7') { // State/Parish
-          foreach ($arr_titles['sta'] as $title => $nothing) {
-            genNumCell($areport[$key]['sta'][$title], $cnum++);
-          }
-        }
-        else if ($value == '8') { // Occupation
-          foreach ($arr_titles['occ'] as $title => $nothing) {
-            genNumCell($areport[$key]['occ'][$title], $cnum++);
-          }
-        }
-        else if ($value == '10') { // City
-          foreach ($arr_titles['cit'] as $title => $nothing) {
-            genNumCell($areport[$key]['cit'][$title], $cnum++);
-          }
-        }
-        else if ($value == '11') { // Education
-          foreach ($arr_titles['edu'] as $title => $nothing) {
-            genNumCell($areport[$key]['edu'][$title], $cnum++);
-          }
-        }
-        else if ($value == '12') { // Income
-          foreach ($arr_titles['inc'] as $title => $nothing) {
-            genNumCell($areport[$key]['inc'][$title], $cnum++);
-          }
-        }
-        else if ($value == '13') { // Provider
-          foreach ($arr_titles['pro'] as $title => $nothing) {
-            genNumCell($areport[$key]['pro'][$title], $cnum++);
+        else {
+          foreach ($arr_titles[$value] as $title => $dummy) {
+            genNumCell($areport[$key][$value][$title], $cnum++);
           }
         }
       }
