@@ -2,6 +2,7 @@
 
 require_once ($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
 require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once ($GLOBALS['fileroot'] . "/library/patient.inc");
 require_once("FormVitals.class.php");
 
 class C_FormVitals extends Controller {
@@ -27,9 +28,9 @@ class C_FormVitals extends Controller {
     	return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
 	}
 
-	function default_action($form_id) {
+    function default_action($form_id) {
 
-		if (is_numeric($form_id)) {
+        if (is_numeric($form_id)) {
     		$vitals = new FormVitals($form_id);
     	}
     	else {
@@ -40,6 +41,11 @@ class C_FormVitals extends Controller {
     	$sql = "SELECT * from form_vitals where id != $form_id and pid = ".$GLOBALS['pid'];
         $sql .= " ORDER BY date DESC";
     	$result = $dbconn->Execute($sql);
+
+        // get the patient's current age
+    	$patient_data = getPatientData($GLOBALS['pid']);
+        $patient_age = getPatientAge($patient_data['DOB']);
+    	$this->assign("patient_age", $patient_age);
 
     	$i = 1;
     	while($result && !$result->EOF)
@@ -57,7 +63,7 @@ class C_FormVitals extends Controller {
     		$results[$i]['respiration'] = $result->fields['respiration'];
     		$results[$i]['BMI'] = $result->fields['BMI'];
     		$results[$i]['BMI_status'] = $result->fields['BMI_status'];
-        $results[$i]['note'] = $result->fields['note'];
+                $results[$i]['note'] = $result->fields['note'];
     		$results[$i]['waist_circ'] = $result->fields['waist_circ'];
     		$results[$i]['head_circ'] = $result->fields['head_circ'];
     		$results[$i++]['oxygen_saturation'] = $result->fields['oxygen_saturation'];
@@ -68,11 +74,11 @@ class C_FormVitals extends Controller {
     	$this->assign("results", $results);
 
     	$this->assign("VIEW",true);
-		return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
+	return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
 
-	}
+    }
 	
-	function default_action_process() {
+    function default_action_process() {
 		if ($_POST['process'] != "true")
 			return;
 
@@ -107,7 +113,7 @@ class C_FormVitals extends Controller {
 			$_POST['process'] = "";
 		}
 		return;
-	}
+    }
 
 }
 
