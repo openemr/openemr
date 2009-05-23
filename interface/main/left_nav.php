@@ -1019,6 +1019,11 @@ function genPopupsList($style='') {
  onclick="top.restoreSession()">
 <?php xl('Logout','e'); ?></a>
 
+&nbsp;&nbsp;&nbsp 
+<a href="../../Documentation/User_Guide/" target="_blank" class="navitem" id="help_link" 
+onclick="top.restoreSession()">
+<?php xl('Help','e'); ?></a> 
+
 <input type='hidden' name='findBy' value='Last' />
 
 </form>
