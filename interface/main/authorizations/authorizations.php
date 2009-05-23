@@ -79,7 +79,7 @@ $_GET['show_all']=='yes' ? $lnkvar="'authorizations.php?show_all=no' name='Just 
 <?php } else { ?>
 <a href='authorizations_full.php' target='Main'>
 <?php } ?>
-<?php xl('Authorizations','e')?> <span class='more'><?php echo (xl($tmore));?></span></a>
+<?php xl('Authorizations','e')?> <span class='more'><?php echo $tmore;?></span></a>
 <?php 
 	}
 ?>

@@ -49,7 +49,7 @@ else { $backurl="../main_info.php"; }
 <?php } ?>
 
 <span class="title"><?php xl('Office Notes','e'); ?></span>
-<span class="back"><?php echo xl ($tback,'e') ; ?></span></a>
+<span class="back"><?php echo $tback; ?></span></a>
 
 <br>
 <input type="hidden" name="mode" value="new">

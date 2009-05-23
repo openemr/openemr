@@ -192,11 +192,11 @@
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<title>Import Patient Demographics</title>
+<title><?php xl('Import Patient Demographics','e'); ?></title>
 </head>
 <body class="body_top" onload="javascript:document.forms[0].form_import_data.focus()">
 
-<p>Paste the data to import into the text area below:</p>
+<p><?php xl('Paste the data to import into the text area below:','e'); ?></p>
 
 <center>
 <form method='post' action="import_xml.php">
@@ -204,8 +204,8 @@
 <textarea name='form_import_data' rows='10' cols='50' style='width:95%'></textarea>
 
 <p>
-<input type='submit' name='form_import' value='Import Patient' /> &nbsp;
-<input type='button' value='Cancel' onclick='window.close()' /></p>
+<input type='submit' name='form_import' value=<?php xl('Import Patient','e','\'','\''); ?> /> &nbsp;
+<input type='button' value=<?php xl('Cancel','e','\'','\''); ?> onclick='window.close()' /></p>
 </form>
 </center>
 

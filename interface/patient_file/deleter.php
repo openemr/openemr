@@ -256,7 +256,7 @@ td { font-size:10pt; }
    die("Nothing was recognized to delete!");
   }
 
-  if (! $info_msg) $info_msg = "Delete successful.";
+  if (! $info_msg) $info_msg = xl('Delete successful.');
 
   // Close this window and tell our opener that it's done.
   //
@@ -276,30 +276,30 @@ Do you really want to delete','e'); ?>
 
 <?php
  if ($patient) {
-  echo "patient $patient";
+  echo xl('patient') . " $patient";
  } else if ($encounterid) {
-  echo "encounter $encounterid";
+  echo xl('encounter') . " $encounterid";
  } else if ($formid) {
-  echo "form $formid";
+  echo xl('form') . " $formid";
  } else if ($issue) {
-  echo "issue $issue";
+  echo xl('issue') . " $issue";
  } else if ($document) {
-  echo "document $document";
+  echo xl('document') . " $document";
  } else if ($payment) {
-  echo "payment $payment";
+  echo xl('payment') . " $payment";
  } else if ($billing) {
-  echo "invoice $billing";
+  echo xl('invoice') . " $billing";
  } else if ($transaction) {
-  echo "transaction $transaction";
+  echo xl('transaction') . " $transaction";
  }
 ?> <?php xl('and all subordinate data? This action will be logged','e'); ?>!</p>
 
 <center>
 
 <p>&nbsp;<br>
-<input type='submit' name='form_submit' value='Yes, Delete and Log' />
+<input type='submit' name='form_submit' value=<?php xl('Yes, Delete and Log','e','\'','\''); ?> />
 &nbsp;
-<input type='button' value='No, Cancel' onclick='window.close()' />
+<input type='button' value=<?php xl('No, Cancel','e','\'','\''); ?> onclick='window.close()' />
 </p>
 
 </center>

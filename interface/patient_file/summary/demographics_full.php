@@ -399,7 +399,7 @@ end_group();
   echo "<br /><span class='bold'><input type='checkbox' name='form_cb_ins' value='1' " .
     "onclick='return divclick(this,\"div_ins\");'";
   if ($display_style == 'block') echo " checked";
-  echo " /><b>Insurance</b></span>\n";
+  echo " /><b>" . xl('Insurance') . "</b></span>\n";
   echo "<div id='div_ins' class='section' style='display:$display_style;'>\n";
 
   for($i=1;$i<=3;$i++) {
@@ -607,7 +607,7 @@ end_group();
 <?php } ?>
 
 <?php if ($GLOBALS['concurrent_layout'] && $set_pid) { ?>
- parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' DOB: ".$result['DOB_YMD']." Age: ".getPatientAge($result['DOB_YMD'])."'"; ?>);
+ parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' ".xl('DOB').": ".$result['DOB_YMD']." ".xl('Age').": ".getPatientAge($result['DOB_YMD'])."'"; ?>);
  parent.left_nav.setRadio(window.name, 'dem');
 <?php } ?>
 

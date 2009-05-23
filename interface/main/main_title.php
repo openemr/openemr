@@ -22,7 +22,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 </td>
 
 <td align="center" valign="middle" class="title_bar_top" nowrap>
-<?php xl('Active Patient','e'); ?>: <span id="current_patient"><b>None</b></span>
+<?php xl('Active Patient','e'); ?>: <span id="current_patient"><b><?php xl('None','e'); ?></b></span>
 </td>
 
 <td align="right" valign="middle" nowrap>

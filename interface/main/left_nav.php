@@ -509,7 +509,7 @@ function genPopupsList($style='') {
   setDivContent('current_patient', str);
   setTitleContent('current_patient', str + str_dob);
   if (pid == active_pid) return;
-  setDivContent('current_encounter', '<b>None</b>');
+  setDivContent('current_encounter', '<b><?php xl('None','e'); ?></b>');
   active_pid = pid;
   active_encounter = 0;
   if (frname) reloadPatient(frname);
@@ -524,7 +524,7 @@ function genPopupsList($style='') {
  // reload encounter-specific content from the *other* frame.
  function setEncounter(edate, eid, frname) {
   if (eid == active_encounter) return;
-  if (!eid) edate = 'None';
+  if (!eid) edate = '<?php xl('None','e'); ?>';
   var str = '<b>' + edate + '</b>';
   setDivContent('current_encounter', str);
   active_encounter = eid;
@@ -541,9 +541,9 @@ function genPopupsList($style='') {
   var f = document.forms[0];
   active_pid = 0;
   active_encounter = 0;
-  setDivContent('current_encounter', '<b>None</b>');
-  setDivContent('current_patient', '<b>None</b>');
-  setTitleContent('current_patient', '<b>None</b>');
+  setDivContent('current_encounter', '<b><?php xl('None','e'); ?></b>');
+  setDivContent('current_patient', '<b><?php xl('None','e'); ?></b>');
+  setTitleContent('current_patient', '<b><?php xl('None','e'); ?></b>');
   reloadPatient('');
   syncRadios();
  }
@@ -554,7 +554,7 @@ function genPopupsList($style='') {
  // stale content will be reloaded.
  function clearEncounter() {
   if (active_encounter == 0) return;
-  setDivContent('current_encounter', '<b>None</b>');
+  setDivContent('current_encounter', '<b><?php xl('None','e'); ?></b>');
   active_encounter = 0;
   reloadEncounter('');
   syncRadios();
@@ -795,7 +795,7 @@ function genPopupsList($style='') {
       </li>
       <li><span><?php xl('Medical Record','e') ?></span>
         <ul> 
-          <?php if (acl_check('patients', 'med')) genTreeLink('RBot','pre','Rx'); ?>
+          <?php if (acl_check('patients', 'med')) genTreeLink('RBot','pre',xl('Rx')); ?>
           <?php genTreeLink('RTop','his',xl('History')); ?>
           <?php genTreeLink('RTop','iss',xl('Issues')); ?>
           <?php genTreeLink('RBot','imm',xl('Immunize')); ?>
@@ -975,12 +975,12 @@ function genPopupsList($style='') {
 
 <?php xl('Active Patient','e') ?>:<br />
 <div id='current_patient'>
-<b>None</b>
+<b><?php xl('None','e'); ?></b>
 </div>
 
 <?php xl('Active Encounter','e') ?>:<br />
 <div id='current_encounter'>
-<b>None</b>
+<b><?php xl('None','e'); ?></b>
 </div>
 
 <?php if (!$GLOBALS['athletic_team']) genPopupsList(); ?>

@@ -258,12 +258,12 @@
 <head>
 <? html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<title>Export Patient Demographics</title>
+<title><?php xl('Export Patient Demographics','e'); ?></title>
 </head>
 <body>
 
-<p>The exported data appears in the text area below.  You can copy and
-paste this into an email or to any other desired destination.</p>
+<p><?php xl('The exported data appears in the text area below.  You can copy and
+paste this into an email or to any other desired destination.','e'); ?></p>
 
 <center>
 <form>
@@ -272,7 +272,7 @@ paste this into an email or to any other desired destination.</p>
 <? echo $out ?>
 </textarea>
 
-<p><input type='button' value='OK' onclick='window.close()' /></p>
+<p><input type='button' value=<?php xl('OK','e','\'','\''); ?> onclick='window.close()' /></p>
 </form>
 </center>
 

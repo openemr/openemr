@@ -398,7 +398,7 @@ function calctotal() {
  <tr>
   <td colspan='2' align='center'>
    &nbsp;<br>
-   <b><?php xl('Accept Payment for ','e'); ?><?php echo $patdata['fname'] . " " .
+   <b><?php xl('Accept Payment for ','e','',' '); ?><?php echo $patdata['fname'] . " " .
     $patdata['lname'] . " (" . $patdata['pubpid'] . ")" ?></b>
     <br>&nbsp;
   </td>
@@ -531,7 +531,7 @@ function calctotal() {
     $enc = $value['encounter'];
     $dispdate = $value['date'];
     if (strcmp($dispdate, $today) == 0 && !$gottoday) {
-      $dispdate = 'Today';
+      $dispdate = xl('Today');
       $gottoday = true;
     }
     $inscopay = getCopay($pid, $value['date']);
@@ -547,7 +547,7 @@ function calctotal() {
   if (! $gottoday) {
     $inscopay = getCopay($pid, $today);
     $duept = ($inscopay >= 0) ? $inscopay : 0;
-    echoLine("form_upay[0]", "Today", 0, 0, 0, $duept);
+    echoLine("form_upay[0]", xl('Today'), 0, 0, 0, $duept);
   }
 
   // Now list previously billed visits.
