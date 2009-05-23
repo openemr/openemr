@@ -214,9 +214,13 @@ $GLOBALS['navBarHeight'] = 22;
 $GLOBALS['titleBarHeight'] = 20;
 
 // The assistant word, MORE printed next to titles that can be clicked:
-$tmore = "(More)";
+//   Note this label gets translated here via the xl function
+//    -if you don't want it translated, then strip the xl function away
+$tmore = xl('(More)');
 // The assistant word, BACK printed next to titles that return to previous screens:
-$tback = "(Back)";
+//   Note this label gets translated here via the xl function
+//    -if you don't want it translated, then strip the xl function away
+$tback = xl('(Back)');
 
 // This is the idle logout function:
 // if a page has not been refreshed within this many seconds, the interface
