@@ -46,6 +46,7 @@ my $directoryIn; #name is set below
 my $comparisonFile; #name is set below
 my $addConstantsFile = "manuallyAddedConstants.txt";
 my $removeConstantsFile = "manuallyRemovedConstants.txt";
+my $pathFilterFile = "filterDirectories.txt";
 my $filenameOut = "constants.txt";
 my $logFile = "log.txt";
 my $compareFlag; #this is set below
@@ -55,6 +56,7 @@ my @filenames; #will hold all file name
 my @inputFile;
 my @addConstants; #holds constants from the add file
 my @removeConstants; #hold constants from the remove file
+my @pathFilters; #holds path to filter out
 
 my $headerLineOne   = "\t1\t2\t3\t4\t5\t6";
 my $headerLineTwo   = "\ten\tse\tes\tde\tdu\the";
@@ -114,14 +116,28 @@ for my $var (@removeConstants) {
  chomp($var);
 }
 
+# place path filter file into array and process them
+open(PATHFILTERFILE, "<$pathFilterFile") or die "unable to open file";
+@pathFilters = <PATHFILTERFILE>;
+close(PATHFILTERFILE);
+for my $var (@pathFilters) {
+ chomp($var);
+}
+
 # create filenames array
 recurse($directoryIn);
 
 # step thru each file to find constants
 foreach my $var (@filenames) {
+
+ # skip graphical files
+ if (($var =~ /.png$/) || ($var =~ /.jpg$/) || ($var =~ /.jpeg$/) || ($var =~ /.pdf$/)) {
+  print LOGFILE "SKIPPING FILE: ".$var."\n";
+  next;
+ }
  
  print LOGFILE $var." prepping.\n";
- 
+    
  open(MYINPUTFILE2, "<$var") or die "unable to open file";
  @inputFile = <MYINPUTFILE2>;
  close(MYINPUTFILE2);
@@ -313,7 +329,7 @@ else {
 #
 # function to collect list of filename
 # param - directory
-# globals - @filenames
+# globals - @filenames @pathFilters LOGFILE
 # return - nothing
 #
 sub recurse($) {
@@ -322,14 +338,24 @@ sub recurse($) {
  ## append a trailing / if it's not there
  $path .= '/' if($path !~ /\/$/);
     
- ## print the directory being searched
- # print $path,"\n";
-    
  ## loop through the files contained in the directory
  for my $eachFile (glob($path.'*')) {
 	  
   ## if the file is a directory
   if( -d $eachFile) {
+
+    # skip if in path filter array
+    my $skipFileFlag = 0;
+    foreach my $var (@pathFilters) {
+     if ( $eachFile =~ /$var/ ) {
+      $skipFileFlag = 1;
+     }
+    }
+    if ($skipFileFlag) {
+     print LOGFILE "SKIPPING DIRECTORY: ".$eachFile."\n";
+     next;
+    }      
+      
    ## pass the directory to the routine ( recursion )
    recurse($eachFile);
   } else {
