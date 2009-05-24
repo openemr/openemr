@@ -167,7 +167,7 @@ if ($_POST['form_action']=='Process') {
     <div class="main_box">
         <?php
         if ($form_err) {
-            echo ("The following errors occurred<br>$form_err<br><br>");
+            echo (xl('The following errors occurred')."<br>$form_err<br><br>");
         }
         
         xl('Process','e')?>:<SELECT NAME="process_type">
@@ -228,7 +228,7 @@ if ($_POST['form_action']=='Process') {
     <br><?php xl('Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***','e')?>
     <br><TEXTAREA NAME="email_body" ROWS="8" COLS="35"></TEXTAREA>
 
-    <br><INPUT TYPE="submit" name="form_action" value="Process"><?php xl('Takes long','e')?>
+    <br><INPUT TYPE="submit" name="form_action" value=<?php xl('Process','e','\'','\''); ?>><?php xl('Takes long','e')?>
 
     </div>
 </div>
