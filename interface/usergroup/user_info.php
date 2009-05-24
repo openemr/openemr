@@ -22,10 +22,10 @@ if ($_GET["mode"] == "update") {
 		$tqvar2 = addslashes($_GET["authPass2"]);
 		if ($tqvar == $tqvar2) {
 			sqlStatement("update users set password='$tqvar' where id={$_SESSION['authId']}");
-			echo "<span class='alert'>Password change successful.  Click <a href='$rootdir/logout.php?auth=logout' class=link_submit> here </a>to login again.<br><br></span>";
+			echo "<span class='alert'>".xl("Password change successful.",'','',' ').xl("Click")."<a href='$rootdir/logout.php?auth=logout' class=link_submit>".xl("here",'',' ',' ')."</a>".xl("to login again").".<br><br></span>";
 		}
 		else
-			echo "<span class=alert>Error: passwords don't match.  Please check your typing.</span><br><br>\n";
+			echo "<span class=alert>" . xl("Error: passwords don't match. Please check your typing.") . "</span><br><br>\n";
 	}
 }
 
@@ -64,7 +64,7 @@ $iter = $result[0];
 <INPUT TYPE="HIDDEN" NAME="mode" VALUE="update">
 <INPUT TYPE="HIDDEN" NAME="authPass" VALUE="">
 <INPUT TYPE="HIDDEN" NAME="authPass2" VALUE="">
-<INPUT TYPE="Submit" VALUE="Save Changes" onClick="javascript:this.form.authPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';this.form.authPass2.value=MD5(this.form.clearPass2.value);this.form.clearPass2.value='';">
+<INPUT TYPE="Submit" VALUE=<?php xl('Save Changes','e','\'','\''); ?> onClick="javascript:this.form.authPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';this.form.authPass2.value=MD5(this.form.clearPass2.value);this.form.clearPass2.value='';">
 
 <?php if (! $GLOBALS['concurrent_layout']) { ?>
 &nbsp;&nbsp;&nbsp;
