@@ -8,6 +8,7 @@
 
  include_once("../globals.php");
  include_once("$srcdir/acl.inc");
+ require_once("$srcdir/options.inc.php");
 
  $userid = $_REQUEST['userid'];
 
@@ -43,7 +44,7 @@
 ?>
 <html>
 <head>
-<title><?php echo $userid ? "Edit" : "Add New" ?> Person</title>
+<title><?php echo $userid ? xl('Edit') : xl('Add New') ?> Person</title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
@@ -204,21 +205,15 @@ td { font-size:10pt; }
  <tr>
   <td width='1%' nowrap><b><?php xl('Name','e'); ?>:</b></td>
   <td>
-   <select name='form_title'>
-    <option value=''></option>
 <?php
- foreach (array('Mr.', 'Mrs.', 'Ms.', 'Dr.', 'Prof.') as $value) {
-  echo "    <option value='$value'";
-  if ($value == $row['title']) echo " selected";
-  echo ">$value</option>\n";
- }
+ generate_form_field(array('data_type'=>1,'field_id'=>'title','list_id'=>'titles','empty_title'=>''), $row['title']);
 ?>
    </select>
-   <b>Last:</b><input type='text' size='10' name='form_lname' class='inputtext'
+   <b><?php xl('Last','e'); ?>:</b><input type='text' size='10' name='form_lname' class='inputtext'
      maxlength='50' value='<?php echo $row['lname'] ?>'/>&nbsp;
-   <b>First:</b> <input type='text' size='10' name='form_fname' class='inputtext'
+   <b><?php xl('First','e'); ?>:</b> <input type='text' size='10' name='form_fname' class='inputtext'
      maxlength='50' value='<?php echo $row['fname'] ?>' />&nbsp;
-   <b>Middle:</b> <input type='text' size='4' name='form_mname' class='inputtext'
+   <b><?php xl('Middle','e'); ?>:</b> <input type='text' size='4' name='form_mname' class='inputtext'
      maxlength='50' value='<?php echo $row['mname'] ?>' />
   </td>
  </tr>
@@ -255,7 +250,7 @@ td { font-size:10pt; }
   <td>
    <input type='text' size='11' name='form_phone' value='<?php echo $row['phone'] ?>'
     maxlength='30' class='inputtext' />&nbsp;
-   <b>Mobile:</b><input type='text' size='11' name='form_phonecell'
+   <b><?php xl('Mobile','e'); ?>:</b><input type='text' size='11' name='form_phonecell'
     maxlength='30' value='<?php echo $row['phonecell'] ?>' class='inputtext' />
   </td>
  </tr>
@@ -265,9 +260,9 @@ td { font-size:10pt; }
   <td>
    <input type='text' size='11' name='form_phonew1' value='<?php echo $row['phonew1'] ?>'
     maxlength='30' class='inputtext' />&nbsp;
-   <b>2nd:</b><input type='text' size='11' name='form_phonew2' value='<?php echo $row['phonew2'] ?>'
+   <b><?php xl('2nd','e'); ?>:</b><input type='text' size='11' name='form_phonew2' value='<?php echo $row['phonew2'] ?>'
     maxlength='30' class='inputtext' />&nbsp;
-   <b>Fax:</b> <input type='text' size='11' name='form_fax' value='<?php echo $row['fax'] ?>'
+   <b><?php xl('Fax','e'); ?>:</b> <input type='text' size='11' name='form_fax' value='<?php echo $row['fax'] ?>'
     maxlength='30' class='inputtext' />
   </td>
  </tr>
@@ -322,9 +317,9 @@ td { font-size:10pt; }
   <td>
    <input type='text' size='10' name='form_city' maxlength='30'
     value='<?php echo $row['city'] ?>' class='inputtext' />&nbsp;
-   <b>State/county:</b> <input type='text' size='10' name='form_state' maxlength='30'
+   <b><?php echo xl('State')."/".xl('county'); ?>:</b> <input type='text' size='10' name='form_state' maxlength='30'
     value='<?php echo $row['state'] ?>' class='inputtext' />&nbsp;
-   <b>Postal code:</b> <input type='text' size='10' name='form_zip' maxlength='20'
+   <b><?php xl('Postal code','e'); ?>:</b> <input type='text' size='10' name='form_zip' maxlength='20'
     value='<?php echo $row['zip'] ?>' class='inputtext' />
   </td>
  </tr>
@@ -352,9 +347,9 @@ td { font-size:10pt; }
   <td>
    <input type='text' size='10' name='form_city2' maxlength='30'
     value='<?php echo $row['city2'] ?>' class='inputtext' />&nbsp;
-   <b>State/county:</b> <input type='text' size='10' name='form_state2' maxlength='30'
+   <b><?php echo xl('State')."/".xl('county'); ?>:</b> <input type='text' size='10' name='form_state2' maxlength='30'
     value='<?php echo $row['state2'] ?>' class='inputtext' />&nbsp;
-   <b>Postal code:</b> <input type='text' size='10' name='form_zip2' maxlength='20'
+   <b><?php xl('Postal code','e'); ?>:</b> <input type='text' size='10' name='form_zip2' maxlength='20'
     value='<?php echo $row['zip2'] ?>' class='inputtext' />
   </td>
  </tr>
@@ -364,11 +359,11 @@ td { font-size:10pt; }
   <td>
    <input type='text' size='6' name='form_upin' maxlength='6'
     value='<?php echo $row['upin'] ?>' class='inputtext' />&nbsp;
-   <b>NPI:</b> <input type='text' size='10' name='form_npi' maxlength='10'
+   <b><?php xl('NPI','e'); ?>:</b> <input type='text' size='10' name='form_npi' maxlength='10'
     value='<?php echo $row['npi'] ?>' class='inputtext' />&nbsp;
-   <b>TIN:</b> <input type='text' size='10' name='form_federaltaxid' maxlength='10'
+   <b><?php xl('TIN','e'); ?>:</b> <input type='text' size='10' name='form_federaltaxid' maxlength='10'
     value='<?php echo $row['federaltaxid'] ?>' class='inputtext' />&nbsp;
-   <b>Taxonomy:</b> <input type='text' size='10' name='form_taxonomy' maxlength='10'
+   <b><?php xl('Taxonomy','e'); ?>:</b> <input type='text' size='10' name='form_taxonomy' maxlength='10'
     value='<?php echo $row['taxonomy'] ?>' class='inputtext' />
   </td>
  </tr>
@@ -385,15 +380,15 @@ td { font-size:10pt; }
 
 <br />
 
-<input type='submit' name='form_save' value='Save' />
+<input type='submit' name='form_save' value=<?php xl('Save','e','\'','\''); ?> />
 
 <?php if ($userid && !$row['username']) { ?>
 &nbsp;
-<input type='submit' name='form_delete' value='Delete' style='color:red' />
+<input type='submit' name='form_delete' value=<?php xl('Delete','e','\'','\''); ?> style='color:red' />
 <?php } ?>
 
 &nbsp;
-<input type='button' value='Cancel' onclick='window.close()' />
+<input type='button' value=<?php xl('Cancel','e','\'','\''); ?> onclick='window.close()' />
 </p>
 
 </center>
