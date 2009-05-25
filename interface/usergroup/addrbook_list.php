@@ -75,14 +75,14 @@ function doedclick(userid) {
    <input type='submit' class='button' name='form_search' value='<?php xl("Search","e")?>' />
   </td>
   <td align='right'>
-   <input type='button' class='button' value='Add New' onclick='doedclick(0)' />
+   <input type='button' class='button' value='<?php xl("Add New","e"); ?>' onclick='doedclick(0)' />
   </td>
  </tr>
 </table>
 
 <table>
  <tr class='head'>
-  <td title='Click to view or edit'><?php xl('Name','e'); ?></td>
+  <td title=<?php xl('Click to view or edit','e','\'','\''); ?>><?php xl('Name','e'); ?></td>
   <td><?php xl('Local','e'); ?></td><!-- empty for external -->
   <td><?php xl('Specialty','e'); ?></td>
   <td><?php xl('Phone','e'); ?></td>
@@ -103,7 +103,7 @@ function doedclick(userid) {
   $bgclass = (($encount & 1) ? "evenrow" : "oddrow");
   $username = $row['username'];
   if (! $row['active']) $username = '--';
-  $trTitle = "Edit ". $row['fname'] . ' ' . $row['mname'] . $row['lname'];
+  $trTitle = xl('Edit','','',' ') . $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname'];
   echo " <tr class='detail $bgclass' style='cursor:pointer' " .
        "onclick='doedclick(" . $row['id'] . ")' title='$trTitle'>\n";
   echo "  <td>" . $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] . "</td>\n";
