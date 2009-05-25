@@ -6,6 +6,16 @@ require_once(dirname(__FILE__) . "/adodb/adodb.inc.php");
 if (!defined('ADODB_FETCH_ASSOC')) define('ADODB_FETCH_ASSOC', 2);
 $database = NewADOConnection("mysql");
 $database->PConnect($host, $login, $pass, $dbase);
+
+// Modified 5/2009 by BM for UTF-8 project ---------
+if (!$disable_utf8_flag) {
+ $success_flag = $database->Execute("SET NAMES 'utf8'");
+  if (!$success_flag) {
+   error_log("PHP custom error: from openemr library/sql.inc  - Unable to set up UTF8 encoding with mysql database: ".$database->ErrorMsg(), 0);
+  }
+}
+// -------------------------------------------------
+
 $GLOBALS['adodb']['db'] = $database;
 $GLOBALS['dbh'] = $database->_connectionID;
 
@@ -21,29 +31,10 @@ if (!$GLOBALS['dbh']) {
   exit;
 }//if no connection
 
-// Modified 5/2009 by BM for UTF-8 project
-if (!$disable_utf8_flag) { 
-  $success_flag = mysql_query("SET NAMES 'utf8'", $GLOBALS['dbh']);
-  if (!$success_flag) {
-    error_log("PHP custom error: from openemr library/sql.inc  - Unable to set up UTF8 encoding with mysql database", 0);
-  }
-}
-// ---------------------------------------
-
 function sqlConnect($login,$pass,$dbase,$host,$port = '3306')
 {
   $GLOBALS['dbh'] = $database->_connectionID;
-
-  // Modified 5/2009 by BM for UTF-8 project
-  if (!$disable_utf8_flag) {
-    $success_flag = mysql_query("SET NAMES 'utf8'", $GLOBALS['dbh']);
-    if (!$success_flag) {
-        error_log("PHP custom error: from openemr library/sql.inc  - Unable to set up UTF8 encoding with mysql database", 0);
-    }
-  }
-  // ---------------------------------------
-
- return $GLOBALS['dbh'];
+  return $GLOBALS['dbh'];
 }
 
 function sqlStatement($statement)
