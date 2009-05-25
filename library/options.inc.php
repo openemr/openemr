@@ -20,11 +20,21 @@ function generate_form_field($frow, $currvalue) {
   $field_id    = $frow['field_id'];
   $list_id     = $frow['list_id'];
   $description = htmlspecialchars($frow['description'], ENT_QUOTES);
-
+    
+  //added 5/2009 by BM to allow modification of the 'empty' text title field.
+  //  Can pass $frow['empty_title'] with this variable, otherwise
+  //  will default to 'Unassigned'.
+  if (isset($frow['empty_title'])) {
+   $empty_title = $frow['empty_title'];
+  }
+  else {
+   $empty_title = "Unassigned";   
+  }
+    
   // generic single-selection list
   if ($data_type == 1) {
     echo "<select name='form_$field_id' id='form_$field_id' title='$description'>";
-    echo "<option value=''>" . xl('Unassigned') . "</option>";
+    echo "<option value=''>" . xl($empty_title) . "</option>";
     $lres = sqlStatement("SELECT * FROM list_options " .
       "WHERE list_id = '$list_id' ORDER BY seq");
     $got_selected = FALSE;
@@ -369,7 +379,7 @@ function generate_form_field($frow, $currvalue) {
   // single-selection list with ability to add to it
   else if ($data_type == 26) {
     echo "<select name='form_$field_id' id='form_$field_id' title='$description'>";
-    echo "<option value=''>" . xl('Unassigned') . "</option>";
+    echo "<option value=''>" . xl($empty_title) . "</option>";
     $lres = sqlStatement("SELECT * FROM list_options " .
       "WHERE list_id = '$list_id' ORDER BY seq");
     $got_selected = FALSE;
