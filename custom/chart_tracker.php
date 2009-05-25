@@ -12,6 +12,7 @@
 
 require_once("../interface/globals.php");
 require_once("$srcdir/acl.inc");
+require_once("$srcdir/options.inc.php");
 
 $form_newid   = isset($_POST['form_newid'  ]) ? trim($_POST['form_newid'  ]) : '';
 $form_curpid  = isset($_POST['form_curpid' ]) ? trim($_POST['form_curpid' ]) : '';
@@ -67,7 +68,7 @@ if ($form_newloc || $form_newuser) {
     "'$form_newloc' " .
     ")";
   sqlInsert($query);
-  echo "<font color='green'>Save Successful for chart ID '$form_curid'.</font><br />";
+  echo "<font color='green'>" . xl('Save Successful for chart ID','','',' ') . "'$form_curid'.</font><br />";
 }
 
 $row = array();
@@ -82,7 +83,7 @@ if ($form_newid) {
     "ORDER BY pd.pid ASC, ct.ct_when DESC LIMIT 1";
   $row = sqlQuery($query);
   if (empty($row)) {
-    echo "<font color='red'>Chart ID '$form_newid' not found!</font><br />";
+    echo "<font color='red'>" . xl('Chart ID','','',' ') . "'$form_newid'" . xl('not found','',' ','') . "!</font><br />";
   }
 }
 ?>
@@ -100,9 +101,7 @@ if (!empty($row)) {
       " " . $row['ct_when'];
   }
   else if ($ct_location) {
-    $lrow = sqlQuery("SELECT title FROM list_options WHERE " .
-      "list_id = 'chartloc' AND option_id = '$ct_location'");
-    $current_location = $lrow['title'];
+    $current_location = generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'),$ct_location);  
   }
 
   echo " <tr>\n";
@@ -113,40 +112,34 @@ if (!empty($row)) {
   echo " </tr>\n";
 
   echo " <tr>\n";
-  echo "  <td class='bold'>Name:</td>\n";
+  echo "  <td class='bold'>" . xl('Name') . ":</td>\n";
   echo "  <td class='text'>" . $row['lname'] . ", " . $row['fname'] . " " . $row['mname'] . "</td>\n";
   echo " </tr>\n";
 
   echo " <tr>\n";
-  echo "  <td class='bold'>DOB:</td>\n";
+  echo "  <td class='bold'>" . xl('DOB') . ":</td>\n";
   echo "  <td class='text'>" . $row['DOB'] . "</td>\n";
   echo " </tr>\n";
 
   echo " <tr>\n";
-  echo "  <td class='bold'>SSN:</td>\n";
+  echo "  <td class='bold'>" . xl('SSN') . ":</td>\n";
   echo "  <td class='text'>" . $row['ss'] . "</td>\n";
   echo " </tr>\n";
 
   echo " <tr>\n";
-  echo "  <td class='bold'>Current Location:</td>\n";
+  echo "  <td class='bold'>" . xl('Current Location') . ":</td>\n";
   echo "  <td class='text'>$current_location</td>\n";
   echo " </tr>\n";
 
   echo " <tr>\n";
-  echo "  <td class='bold'>Check In To:</td>\n";
-  echo "  <td class='text'><select name='form_newloc' onchange='locationSelect()'>\n";
-  echo "   <option value=''></option>";
-  $ores = sqlStatement("SELECT option_id, title FROM list_options " .
-    "WHERE list_id = 'chartloc' ORDER BY seq, title");
-  while ($orow = sqlFetchArray($ores)) {
-    echo "    <option value='" . $orow['option_id'] . "'";
-    echo ">" . $orow['title'] . "</option>\n";
-  }
-  echo "  </select></td>\n";
+  echo "  <td class='bold'>" . xl('Check In To') . ":</td>\n";
+  echo " <td class='text'>";
+  generate_form_field(array('data_type'=>1,'field_id'=>'newloc','list_id'=>'chartloc','empty_title'=>''), '');
+  echo " </td>\n";
   echo " </tr>\n";
 
   echo " <tr>\n";
-  echo "  <td class='bold'>Or Out To:</td>\n";
+  echo "  <td class='bold'>" . xl('Or Out To') . ":</td>\n";
   echo "  <td class='text'><select name='form_newuser' onchange='userSelect()'>\n";
   echo "   <option value=''></option>";
   $ures = sqlStatement("SELECT id, fname, mname, lname FROM users " .
@@ -161,7 +154,7 @@ if (!empty($row)) {
 
   echo " <tr>\n";
   echo "  <td>&nbsp;</td>\n";
-  echo "  <td class='text'><input type='submit' name='form_save' value='Save' /></td>\n";
+  echo "  <td class='text'><input type='submit' name='form_save' value=" . xl('Save','','\'','\'') . " /></td>\n";
   echo " </tr>\n";
 
   echo " <tr>\n";
