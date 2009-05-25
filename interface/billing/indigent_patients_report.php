@@ -43,7 +43,7 @@ if (!$INTEGRATED_AR) SLConnect();
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <center>
 
-<h3>Indigent Patients Report</h3>
+<h3><?php xl('Indigent Patients Report','e'); ?></h3>
 
 <form method='post' action='indigent_patients_report.php'>
 
@@ -202,7 +202,7 @@ if (!$INTEGRATED_AR) SLConnect();
 ?>
  <tr bgcolor='#dddddd'>
   <td class="detail">
-   &nbsp;Totals
+   &nbsp;<?php xl('Totals','e'); ?>
   </td>
   <td class="detail">
    &nbsp;
