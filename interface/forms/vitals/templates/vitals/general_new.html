@@ -137,7 +137,7 @@ td,th {
 	<td colspan='3' style='text-align:center'>
         <input type="submit" name="Submit" value="Save Form">
         <input type="button" id="cancel" value="Don't Save">
-        {if $patient_age <= 20}
+        {if $patient_age <= 20 || (preg_match('/month/', $patient_age))}
         <!-- only show growth-chart button for patients < 20 years old -->
         <input type="button" id="growthchart" value="Growth-Chart" style='margin-left: 20px;'>
         {/if}
