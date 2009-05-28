@@ -57,8 +57,7 @@ function generate_form_field($frow, $currvalue) {
     if (!$got_selected && strlen($currvalue) > 0) {
       echo "<option value='$currescaped' selected>* $currescaped *</option>";
       echo "</select>";
-      echo " <font color='red' title='Please choose a valid selection " .
-        "from the list'>Fix this!</font>";
+      echo " <font color='red' title='" . xl('Please choose a valid selection from the list.') . "'>" . xl('Fix this') . "!</font>";
     }
     else {
       echo "</select>";
@@ -402,13 +401,22 @@ function generate_form_field($frow, $currvalue) {
     if (!$got_selected && strlen($currvalue) > 0) {
       echo "<option value='$currescaped' selected>* $currescaped *</option>";
       echo "</select>";
-      echo " <font color='red' title='Please choose a valid selection " .
-        "from the list'>Fix this!</font>";
+      echo " <font color='red' title='" . xl('Please choose a valid selection from the list.') . "'>" . xl('Fix this') . "!</font>";
     }
     else {
       echo "</select>";
     }
-    echo "<input type='button' id='addtolistid_".$list_id."' fieldid='form_".$field_id."' class='addtolist' value='Add'>";
+      
+    // show the add button if user has access to correct list
+    $outputAddButton = "<input type='button' id='addtolistid_".$list_id."' fieldid='form_".$field_id."' class='addtolist' value='" . xl('Add') . "'>";
+    if (aco_exist('lists', $list_id)) {
+     // a specific aco exist for this list, so ensure access
+     if (acl_check('lists', $list_id)) echo $outputAddButton;
+    }
+    else {
+     // no specific aco exist for this list, so check for access to 'default' list
+     if (acl_check('lists', 'default')) echo $outputAddButton;	
+    }
   }
 
 }

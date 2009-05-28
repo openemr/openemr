@@ -25,7 +25,15 @@
 //       EDIT high     High               (ensure the order variable is '20')
 //     Section "acct"          (Accounting):
 //       ADD  disc     Price Discounting (Administrators, Physicians, Accounting(write))
-
+//   3.0.2
+//     ADD Section "lists" (Lists):
+//       ADD  default   Default List (write,addonly optional)  (Administrators)
+//       ADD  state     State List (write,addonly optional)  (Administrators)
+//       ADD  country   Country List (write,addonly optional)  (Administrators)
+//       ADD  language  Language List (write,addonly optional)  (Administrators)
+//       ADD  ethrace   Ethnicity-Race List (write,addonly optional)  (Administrators)
+//     ADD Section "placeholder" (Placeholder):
+//       ADD  filler    Placeholder (Maintains empty ACLs)
 
 //Ensure that phpGACL has been installed
 include_once('library/acl.inc');
@@ -53,12 +61,14 @@ $front_write = getAclIdNumber('Front Office', 'write');
 //Get Accountant ACL ID number
 $back_write = getAclIdNumber('Accounting', 'write');
 
-
 //Add new object Sections
 echo "<BR/><B>Adding new object sections</B><BR/>";
 //Add 'Sensitivities' object section (added in 2.8.2)
 addObjectSectionAcl('sensitivities', 'Sensitivities');
-
+//Add 'Lists' object section (added in 3.0.2)
+addObjectSectionAcl('lists', 'Lists');
+//Add 'Placeholder' object section (added in 3.0.2)
+addObjectSectionAcl('placeholder', 'Placeholder');
 
 //Add new Objects
 echo "<BR/><B>Adding new objects</B><BR/>";
@@ -72,17 +82,33 @@ addObjectAcl('admin', 'Administration', 'drugs', 'Pharmacy Dispensary');
 addObjectAcl('admin', 'Administration', 'acl', 'ACL Administration');
 //Add 'Price Discounting' object (added in 2.8.4)
 addObjectAcl('acct', 'Accounting', 'disc', 'Price Discounting');
-
+//Add 'Default List (write,addonly optional)' object (added in 3.0.2)
+addObjectAcl('lists', 'Lists', 'default', 'Default List (write,addonly optional)');
+//Add 'State List (write,addonly optional)' object (added in 3.0.2)
+addObjectAcl('lists', 'Lists', 'state', 'State List (write,addonly optional)');
+//Add 'Country List (write,addonly optional)' object (added in 3.0.2)
+addObjectAcl('lists', 'Lists', 'country', 'Country List (write,addonly optional)');
+//Add 'Language List (write,addonly optional)' object (added in 3.0.2)
+addObjectAcl('lists', 'Lists', 'language', 'Language List (write,addonly optional)');
+//Add 'Ethnicity-Race List (write,addonly optional)' object (added in 3.0.2)
+addObjectAcl('lists', 'Lists', 'ethrace', 'Ethnicity-Race List (write,addonly optional)');
+//Add 'Placeholder (Maintains empty ACLs)' object (added in 3.0.2)
+addObjectAcl('placeholder', 'Placeholder', 'filler', 'Placeholder (Maintains empty ACLs)');
 
 //Update already existing Objects
 echo "<BR/><B>Upgrading objects</B><BR/>";
 //Ensure that 'High' sensitivity object order variable is set to 20
 editObjectAcl('sensitivities', 'Sensitivities', 'high', 'High', 20);
 
-
-//Add new User Defined Groups (ARO) here
-//(placemarker, since no new user defined groups since 2.8.1 have been added)
-
+//Add new ACLs here (will return the ACL ID of newly created or already existant ACL)
+// (will also place in the appropriate group and CREATE a new group if needed)
+echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
+//Add 'Physicians' ACL with 'addonly' and collect the ID number (added in 3.0.2)
+$doc_addonly = addNewACL('Physicians', 'doc', 'addonly', 'Things that physicians can read and enter but not modify');
+//Add 'Front Office' ACL with 'addonly' and collect the ID number (added in 3.0.2)
+$front_addonly = addNewACL('Front Office', 'front', 'addonly', 'Things that front office can read and enter but not modify');
+//Add 'Accounting' ACL with 'addonly' and collect the ID number (added in 3.0.2)
+$back_addonly = addNewACL('Accounting', 'back', 'addonly', 'Things that back office can read and enter but not modify');
 
 //Update the ACLs
 echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
@@ -112,6 +138,16 @@ updateAcl($admin_write, 'Administrators', 'acct', 'Accounting', 'disc', 'Price D
 updateAcl($back_write, 'Accounting', 'acct', 'Accounting', 'disc', 'Price Discounting', 'write');
 //Insert the 'disc' object from the 'acct' section into the Physicians group write ACL (added in 2.8.4)
 updateAcl($doc_write, 'Physicians', 'acct', 'Accounting', 'disc', 'Price Discounting', 'write');
+//Insert the 'default' object from the 'lists' section into the Administrators group write ACL (added in 3.0.2)
+updateAcl($admin_write, 'Administrators', 'lists', 'Lists', 'default', 'Default List (write,addonly optional)', 'write');
+//Insert the 'state' object from the 'lists' section into the Administrators group write ACL (added in 3.0.2)
+updateAcl($admin_write, 'Administrators', 'lists', 'Lists', 'state', 'State List (write,addonly optional)', 'write');
+//Insert the 'country' object from the 'lists' section into the Administrators group write ACL (added in 3.0.2)
+updateAcl($admin_write, 'Administrators', 'lists', 'Lists', 'country', 'Country List (write,addonly optional)', 'write');
+//Insert the 'language' object from the 'lists' section into the Administrators group write ACL (added in 3.0.2)
+updateAcl($admin_write, 'Administrators', 'lists', 'Lists', 'language', 'Language List (write,addonly optional)', 'write');
+//Insert the 'race' object from the 'lists' section into the Administrators group write ACL (added in 3.0.2)
+updateAcl($admin_write, 'Administrators', 'lists', 'Lists', 'ethrace', 'Ethnicity-Race List (write,addonly optional)', 'write');
 
 
 //Function will return an array that contains the ACL ID number.
@@ -136,14 +172,61 @@ function getAclIdNumber($title, $return_value) {
 }
 
 
-//Function to add a group. 
-//This is just a placeholder function at this point, since have not added another group yet.
-//  $name = Identifier(string) of group
-//  $title = Title(string) of group
-function addGroupAcl($name, $title) {
-	global $gacl;
-//if add a group, then will need to add logic here
-	return;
+//Function will add an ACL (if doesn't already exist).
+//It will also place the acl in the group, or will CREATE a new group.
+//It will return the ID number of the acl (created or old)
+//  $title = Title(string) of group.
+//  $name = name of acl (string)
+//  $return_value = What the acl returns (string), usually 'write' or 'addonly'
+//  $note = description of acl (array)
+function addNewACL($title, $name, $return_value, $note) {
+        global $gacl;
+        $temp_acl_id_array  = $gacl->search_acl(FALSE, FALSE, FALSE, FALSE, $title, FALSE, FALSE, FALSE, $return_value);
+        switch (count($temp_acl_id_array)) {
+	        case 0:
+                        $group_id = $gacl->get_group_id($name, $title, 'ARO');
+                        if ($group_id) {
+                            //group already exist, so just create acl
+                            $temp_acl_id = $gacl->add_acl(array("placeholder"=>array("filler")), NULL, array($group_id), NULL, NULL, 1, 1, $return_value, $note);
+			    if ($temp_acl_id) {
+				 echo "The '$title' group already exist.</BR>";
+			         echo "The '$title' group '$return_value' ACL has been successfully added.</BR>";
+				 $temp_acl_id_array = array($temp_acl_id);
+			    }
+			    else {
+				 echo "The '$title' group already exist.</BR>";
+				 echo "<B>ERROR</B>, Unable to create the '$title' group '$return_value' ACL.</BR>";
+			    }
+                        }
+                        else {
+                            //create group, then create acl
+                            $parent_id = $gacl->get_root_group_id();
+                            $aro_id = $gacl->add_group($name, $title, $parent_id, 'ARO');
+                            $temp_acl_id = $gacl->add_acl(array("placeholder"=>array("filler")), NULL, array($aro_id), NULL, NULL, 1, 1, $return_value, $note);
+			    if ($aro_id ) {
+				echo "The '$title' group has been successfully added.</BR>";
+			    }
+			    else {
+				echo "<B>ERROR</B>, Unable to create the '$title' group.</BR>";
+			    }
+			    if ($temp_acl_id) {
+				echo "The '$title' group '$return_value' ACL has been successfully added.</BR>";
+				$temp_acl_id_array = array($temp_acl_id);
+			    }
+			    else {
+				echo "<B>ERROR</B>, Unable to create the '$title' group '$return_value' ACL.</BR>";
+			    }
+                        }	                
+	                break;
+	        case 1:
+	                echo "'$title' group '$return_value' ACL already exist.</BR>";
+	                break;
+	    
+	        default:
+                        echo "<B>ERROR</B>, Multiple '$title' group '$return_value' ACLs are present.</BR>";
+	                break;
+        }
+        return $temp_acl_id_array;    
 }
 
 

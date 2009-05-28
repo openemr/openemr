@@ -207,12 +207,6 @@ if ($_POST["control"] == "aco") {
    echo aco_listings_xml($_POST["name"], $_POST["return_value"], $error);
    exit;
   }
-  if (count($_POST["selection"]) == acl_count_acos($_POST["name"], $_POST["return_value"])) {
-   //will not allow removal of all aco objects
-   array_push($error, (xl('Not allowed to inactivate all security objects') . "!"));
-   echo aco_listings_xml($_POST["name"], $_POST["return_value"], $error);
-   exit;
-  }
   //remove the acos, then return updated data
   acl_remove_acos($_POST["name"], $_POST["return_value"], $_POST["selection"]);
   echo aco_listings_xml($_POST["name"], $_POST["return_value"], $error);

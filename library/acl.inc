@@ -77,6 +77,17 @@
   // Section "sensitivities" (Sensitivities):
   //   normal     Normal
   //   high       High
+  //
+  // Section "lists" (Lists):
+  //   default    Default List (write,addonly optional)
+  //   state      State List (write,addonly optional)
+  //   country    Country List (write,addonly optional)
+  //   language   Language List (write,addonly optional)
+  //   ethrace    Ethnicity-Race List (write,addonly optional)
+  //
+  // Section "placeholder" (Placeholder):
+  //   filler     Placeholder (Maintains empty ACLs)
+  
 
   if (isset ($phpgacl_location)) {
     include_once("$phpgacl_location/gacl.class.php");
@@ -170,6 +181,25 @@
   //
   function acl_get_sensitivities() {
     return acl_get_section_acos('sensitivities');
+  }
+
+  //
+  // Returns true if aco exist
+  // Returns false if aco doesn't exist
+  //    $section_name = name of section (string)
+  //    $aco_name = name of aco (string)
+  //
+  function aco_exist($section_name, $aco_name) {
+   global $phpgacl_location;
+   if (isset ($phpgacl_location)) {
+    include_once("$phpgacl_location/gacl_api.class.php");
+    $gacl = new gacl_api();
+    $aco_id = $gacl->get_object_id($section_name,  $aco_name, 'ACO');
+    if ($aco_id) {
+     return true;
+    }
+   }
+   return false;
   }
 
   //
@@ -439,14 +469,14 @@
     $group_id = $gacl->get_group_id($acl_name, $acl_title, 'ARO');
     if ($group_id) {
      //group already exist, so just create acl
-     $gacl->add_acl(array("patients"=>array("appt")),
+     $gacl->add_acl(array("placeholder"=>array("filler")),
       NULL, array($group_id), NULL, NULL, 1, 1, $return_value, $note);
     }
     else {
      //create group, then create acl
      $parent_id = $gacl->get_root_group_id();
      $aro_id = $gacl->add_group($acl_name, $acl_title, $parent_id, 'ARO');
-     $gacl->add_acl(array("patients"=>array("appt")),
+     $gacl->add_acl(array("placeholder"=>array("filler")),
       NULL, array($aro_id), NULL, NULL, 1, 1, $return_value, $note);
     }
     return;
@@ -506,6 +536,8 @@
 
   //
   // This will remove the aco(s) from the selected acl
+  //  Note if all aco's are removed, then will place the filler-placeholder
+  //  into the acl to avoid complete removal of the acl.
   //   $acl_title = title of acl (string)
   //   $return_value = return value of acl (string)
   //   $aco_id = id of aco (array)
@@ -516,6 +548,21 @@
     include_once("$phpgacl_location/gacl_api.class.php");
     $gacl = new gacl_api();
     $acl_id = $gacl->search_acl(FALSE, FALSE, FALSE, FALSE, $acl_title, FALSE, FALSE, FALSE, $return_value);
+
+    // Check to see if removing all acos. If removing all acos then will
+    //  ensure the filler-placeholder aco in acl to avoid complete
+    //  removal of the acl.
+    if (count($aco_id) == acl_count_acos($acl_title, $return_value)) {
+     //1-get the filler-placeholder aco id
+     $filler_aco_id = $gacl->get_object_id('placeholder','filler','ACO');     
+     //2-add filler-placeholder aco
+     acl_add_acos($acl_title, $return_value, array($filler_aco_id));
+     //3-ensure filler-placeholder aco is not to be deleted
+     $safeListaco = remove_element($_POST["selection"],$filler_aco_id);
+     //4-prepare to safely delete the acos
+     $aco_id = $safeListaco;
+    }
+
     foreach ($aco_id as $value) {
      $aco_data = $gacl->get_object_data($value, 'ACO');
      $aco_section = $aco_data[0][0];
@@ -547,5 +594,18 @@
     return $aco_count;
    }
    return 0;
+  }
+
+  //
+  // Function to remove an element from an array
+  //
+  function remove_element($arr, $val){
+   $arr2 = array();
+   foreach ($arr as $value){
+    if ($value != $val) {
+     array_push($arr2,$value);
+    }
+   }
+   return $arr2;
   }
 ?>

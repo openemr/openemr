@@ -43,9 +43,11 @@
  }
  $gacl->add_object_section('Administration', 'admin'        , 10, 0, 'ACO');
  $gacl->add_object_section('Encounters'    , 'encounters'   , 10, 0, 'ACO');
+ $gacl->add_object_section('Lists'         , 'lists'        , 10, 0, 'ACO');
  $gacl->add_object_section('Patients'      , 'patients'     , 10, 0, 'ACO');
  $gacl->add_object_section('Squads'        , 'squads'       , 10, 0, 'ACO');
  $gacl->add_object_section('Sensitivities' , 'sensitivities', 10, 0, 'ACO');
+ $gacl->add_object_section('Placeholder'   , 'placeholder'  , 10, 0, 'ACO');
 
  // Create Accounting ACOs.
  //
@@ -80,6 +82,14 @@
  $gacl->add_object('encounters', 'Fix encounter dates - any encounters'             , 'date_a'  , 10, 0, 'ACO');
  $gacl->add_object('encounters', 'Less-private information (write,addonly optional)', 'relaxed' , 10, 0, 'ACO');
 
+ // Create ACOs for lists.
+ //
+ $gacl->add_object('lists', 'Default List (write,addonly optional)'        , 'default'  , 10, 0, 'ACO');
+ $gacl->add_object('lists', 'State List (write,addonly optional)'          , 'state'    , 10, 0, 'ACO');
+ $gacl->add_object('lists', 'Country List (write,addonly optional)'        , 'country'  , 10, 0, 'ACO');
+ $gacl->add_object('lists', 'Language List (write,addonly optional)'       , 'language' , 10, 0, 'ACO');
+ $gacl->add_object('lists', 'Ethnicity-Race List (write,addonly optional)' , 'ethrace'  , 10, 0, 'ACO');
+
  // Create ACOs for patients.
  //
  $gacl->add_object('patients', 'Appointments (write optional)'           , 'appt' , 10, 0, 'ACO');
@@ -93,6 +103,10 @@
  //
  $gacl->add_object('sensitivities', 'Normal', 'normal', 10, 0, 'ACO');
  $gacl->add_object('sensitivities', 'High'  , 'high'  , 20, 0, 'ACO');
+
+ // Create ACO for placeholder.
+ //
+ $gacl->add_object('placeholder', 'Placeholder (Maintains empty ACLs)', 'filler', 10, 0, 'ACO');
 
  // Create ARO groups.
  //
@@ -120,6 +134,7 @@
    'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
    'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl'),
    'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
+   'lists'=>array('default','state','country','language','ethrace'),
    'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes'),
    'sensitivities'=>array('normal', 'high')
   ),
@@ -129,6 +144,13 @@
 
  // Set permissions for physicians.
  //
+ $gacl->add_acl(
+  array(
+   'placeholder'=>array('filler')
+  ),
+  NULL, array($doc), NULL, NULL,
+  1, 1, 'addonly', 'Things that physicians can read and enter but not modify'
+ );
  $gacl->add_acl(
   array(
    'acct'=>array('disc', 'rep'),
@@ -166,6 +188,13 @@
  //
  $gacl->add_acl(
   array(
+   'placeholder'=>array('filler')
+  ),
+  NULL, array($front), NULL, NULL,
+  1, 1, 'addonly', 'Things that front office can read and enter but not modify'
+ );
+ $gacl->add_acl(
+  array(
    'patients'=>array('appt', 'demo', 'trans', 'notes')
   ),
   NULL, array($front), NULL, NULL,
@@ -174,6 +203,13 @@
 
  // Set permissions for back office staff.
  //
+ $gacl->add_acl(
+  array(
+   'placeholder'=>array('filler')
+  ),
+  NULL, array($back), NULL, NULL,
+  1, 1, 'addonly', 'Things that back office can read and enter but not modify'
+ );
  $gacl->add_acl(
   array(
    'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
