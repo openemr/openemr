@@ -13,17 +13,36 @@
  */
 ?>
 
+
 <!-- hidden DIV used for creating new list items -->
 <div id="newlistitem" class="body_top" style="border: 2px outset #666; display:none; position:absolute; padding:5px; ">
-<form id="newlistitem_form" action="" style="margin:0px; padding:5px; display:inline;">
-<input type="hidden" name="newlistitem_listid" id="newlistitem_listid" value="">
-<input type="textbox" name="newlistitem_value" id="newlistitem_value" size="25" maxlength="50">
-<input type="button" name="newlistitem_submit" id="newlistitem_submit" value="Add">
-<input type="button" name="newlistitem_cancel" id="newlistitem_cancel" value="Cancel">
-</form>
+ <input type="hidden" name="newlistitem_listid" id="newlistitem_listid" value="">
+ <div id="specificForm">
+ </div>
+ <div style = 'text-align:center;'>
+  <div style='margin:0.5em 0 0 0;'>
+   <input type='button' name='newlistitem_submit' id='newlistitem_submit' value='<?php xl('Add','e'); ?>'>
+   <input type='button' name='newlistitem_cancel' id='newlistitem_cancel' value='<?php xl('Cancel','e'); ?>'>
+  </div>
+ </div>
 </div>
 
+
 <script language="javascript">
+
+    // generic form for input box
+    var generic = "<input type='textbox' name='newlistitem_value' id='newlistitem_value' size='20' maxlength='50'>"
+
+    // state form for input box
+    var state   = "\
+<ul style='list-style-type:none; margin:0; padding:0;'>\
+ <li style='font-weight:bold; font-size:120%; text-align:center;'><?php xl('Enter new State','e'); ?></li>\
+ <li style='margin:0.5em 0 0 0; padding:0;'><?php xl('Full Name', 'e', '', ': '); ?>\
+  <input type='textbox' name='newlistitem_value' id='newlistitem_value' size='20' maxlength='50'><li>\
+ <li style='margin:0.5em 0 0 0; padding:0;'><?php xl('Abbreviation', 'e', '', ': '); ?>\
+  <input type='textbox' name='newlistitem_abbr' id='newlistitem_abbr' size='10' maxlength='50'><li>\
+</ul>\
+"
 
 // jQuery makes life easier (sometimes)
 
@@ -33,16 +52,34 @@ $(document).ready(function(){
     /************ List-box modification functions ***********/
     /********************************************************/
    
-    $("#newlistitem_form").keypress(function(evt) { if (evt.keyCode == 13) { SaveNewListItem(this, evt); return false; }});
+    $("#newlistitem").keypress(function(evt) { if (evt.keyCode == 13) { SaveNewListItem(this, evt); return false; }});
     $(".addtolist").click(function(evt) { AddToList(this, evt); });
     $("#newlistitem_submit").click(function(evt) { SaveNewListItem(this, evt); });
     $("#newlistitem_cancel").click(function(evt) { CancelAddToList(this, evt); });
 
     // display the 'new list item' DIV at the mouse position
     var AddToList = function(btnObj, e) {
+        // capture the ID of the list being modified from the object's ID
+        $('#newlistitem_listid').val($(btnObj).attr("id").replace(/^addtolistid_/g, ""));
+
+        // REMOVE previous form
+	$("#specificForm").empty();
+	
+	// INSERT the selected form
+	if ($("#newlistitem_listid").val() == "state") {
+	 // insert state form and clear values
+         $("#specificForm").append(state);
+	 $('#newlistitem_value').val("");
+	 $('#newlistitem_abbr').val("");
+	}
+	else {
+	 // insert generic form and clear values
+	 $("#specificForm").append(generic);
+	 $('#newlistitem_value').val("");
+        }
+	
         // make the item visible before setting its x,y location
         $('#newlistitem').css('display', 'inline');
-        $('#newlistitem_value').val("");
         //getting height and width of the message box
         var height = $('#newlistitem').height();
         var width = $('#newlistitem').width();
@@ -52,8 +89,6 @@ $(document).ready(function(){
         //show the DIV and set cursor focus
         $('#newlistitem').css({left:leftVal,top:topVal}).show();
         $('#newlistitem_value').focus();
-        // capture the ID of the list being modified from the object's ID
-        $('#newlistitem_listid').val($(btnObj).attr("id").replace(/^addtolistid_/g, ""));
     };
    
     // hide the add-to-list DIV and clear its textbox
@@ -63,19 +98,60 @@ $(document).ready(function(){
     
     // save the new list item to the given list
     var SaveNewListItem = function(btnObj, e) {
-        // the group name field can only have letters, numbers, spaces and underscores
-        // AND it cannot start with a number
-        if ($("#newlistitem_value").val().match(/\W/)) {
-            alert("List items can only contain letters, numbers, and spaces.");
+	// VALIDATE the selected form
+        //  Don't allow a number as first character
+        //  Don't allow illegal characters (' and " for now) - still developing
+	//   First, validate fields common to all forms
+        if ($("#newlistitem_value").val().match(/^\d/)) {
+            alert("List items can not start with a number.");
             $("#newlistitem_value").focus();
             return false;
         }
+        if ($("#newlistitem_value").val().match(/[\'\"]/)) {
+            alert("List items contains illegal character(s).");
+            $("#newlistitem_value").focus();
+            return false;
+        }
+	//  Second, validate form specific fields
+        if ($("#newlistitem_listid").val() == "state") {
+            // state forms specific validation
+            if ($("#newlistitem_abbr").val().match(/^\d/)) {
+                alert("List items can not start with a number.");
+                $("#newlistitem_abbr").focus();
+                return false;
+            }
+            if ($("#newlistitem_abbr").val().match(/[\'\"]/)) {
+                alert("List items contains illegal character(s).");
+                $("#newlistitem_abbr").focus();
+                return false;
+            }
+        }
+
+        // PROCESS the selected form
+        if ($("#newlistitem_listid").val() == "state") {
+	    // process state form
+	    //  (note we have collected a title and abbreviation)
+	    $listid = $("#newlistitem_listid").val();
+	    $newitem = $('#newlistitem_value').val();
+	    $newitem_abbr = $('#newlistitem_abbr').val();
+	    
+	}
+	else {
+	    // process generic form
+	    //  (note we have only collected the title, so will make
+	    //   abbreviation same as title)
+	    $listid = $("#newlistitem_listid").val();
+	    $newitem = $('#newlistitem_value').val();
+	    $newitem_abbr = $('#newlistitem_value').val();
+	}
 
         // make the AJAX call to save the new value to the specified list
         // upon returning successfully, refresh the list box and select 
         // the new list item
         $.getJSON("<?php echo $GLOBALS['webroot']; ?>/library/ajax/addlistitem.php",
-                    {listid: $("#newlistitem_listid").val(), newitem: $('#newlistitem_value').val()},
+                    {listid: $listid,
+		     newitem: $newitem,
+		     newitem_abbr: $newitem_abbr},
                     function(jsondata, txtresponse) { 
                         var listboxname = ($('#addtolistid_'+$("#newlistitem_listid").val()).attr("fieldid"));
                         var listbox = document.getElementById(listboxname);

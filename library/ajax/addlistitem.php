@@ -18,26 +18,30 @@ include_once("../../interface/globals.php");
 include_once("{$GLOBALS['srcdir']}/sql.inc");
 
 // check for required values
-if ($_GET['listid'] == "" || $_GET['newitem'] == "") exit;
+if ($_GET['listid'] == "" || trim($_GET['newitem']) == "" || trim($_GET['newitem_abbr']) == "") exit;
 
 // set the values for the new list item
 $is_default = 0;
 $list_id = $_GET['listid'];
 $title = trim($_GET['newitem']);
-$option_id = preg_replace("/\W/", "_", $title);
+$option_id = trim($_GET['newitem_abbr']);
 $option_value = 0;
 
-// make sure we're not adding a duplicate entry
-$exists = sqlQuery("SELECT * FROM list_options WHERE ".
+// make sure we're not adding a duplicate title or id
+$exists_title = sqlQuery("SELECT * FROM list_options WHERE ".
                     " list_id='".$list_id."'".
-                    " and option_id='".trim($option_id)."'" .
                     " and title='".trim($title). "'" 
                     );
-if ($exists) { exit; }
+if ($exists_title) { exit; }
+$exists_id = sqlQuery("SELECT * FROM list_options WHERE ".
+                    " list_id='".$list_id."'".
+                    " and option_id='".trim($option_id)."'"
+                    );
+if ($exists_id) { exit; }
 
 // determine the sequential order of the new item,
 // it should be the maximum number for the specified list plus one
-$seq = 0;  
+$seq = 0;
 $row = sqlQuery("SELECT max(seq) as maxseq FROM list_options WHERE list_id= '".$list_id."'");
 $seq = $row['maxseq']+1;
 
@@ -56,7 +60,9 @@ $rc = sqlInsert("INSERT INTO list_options ( " .
 
 // return JSON data of list items on success
 echo '{ "options": [';
-$comma = "";
+// send the 'Unassigned' empty variable
+echo '{"id":"","title":"' . xl('Unassigned') . '"}';
+$comma = ",";
 $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = '$list_id' ORDER BY seq");
 while ($lrow = sqlFetchArray($lres)) {
     echo $comma;
@@ -69,8 +75,6 @@ while ($lrow = sqlFetchArray($lres)) {
     else {
      echo '"title":"'.$lrow['title'].'"}';	
     }
-    
-    $comma = ",";
 }
 echo "]}";
 exit;
