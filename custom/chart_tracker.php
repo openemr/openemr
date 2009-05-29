@@ -51,6 +51,11 @@ function userSelect() {
 </head>
 
 <body class="body_top">
+
+<?php
+echo "<span class='title'>" . xl('Chart Tracker') . "</span>\n";
+?>
+
 <center>
 &nbsp;<br />
 <form method='post' action='chart_tracker.php'>
