@@ -1628,9 +1628,9 @@ INSERT INTO `layout_options` VALUES ('DEM', 'squad', '1Who', 'Squad', 15, 13, 0,
 INSERT INTO `layout_options` VALUES ('DEM', 'pricelevel', '1Who', 'Price Level', 16, 1, 0, 0, 0, 'pricelevel', 1, 1, '', '', 'Discount Level');
 INSERT INTO `layout_options` VALUES ('DEM', 'street', '2Contact', 'Address', 1, 2, 1, 25, 63, '', 1, 1, '', 'C', 'Street and Number');
 INSERT INTO `layout_options` VALUES ('DEM', 'city', '2Contact', 'City', 2, 2, 1, 15, 63, '', 1, 1, '', 'C', 'City Name');
-INSERT INTO `layout_options` VALUES ('DEM', 'state', '2Contact', 'State', 3, 1, 1, 0, 0, 'state', 1, 1, '', '', 'State/Locality');
+INSERT INTO `layout_options` VALUES ('DEM', 'state', '2Contact', 'State', 3, 26, 1, 0, 0, 'state', 1, 1, '', '', 'State/Locality');
 INSERT INTO `layout_options` VALUES ('DEM', 'postal_code', '2Contact', 'Postal Code', 4, 2, 1, 6, 63, '', 1, 1, '', '', 'Postal Code');
-INSERT INTO `layout_options` VALUES ('DEM', 'country_code', '2Contact', 'Country', 5, 1, 1, 0, 0, 'country', 1, 1, '', '', 'Country');
+INSERT INTO `layout_options` VALUES ('DEM', 'country_code', '2Contact', 'Country', 5, 26, 1, 0, 0, 'country', 1, 1, '', '', 'Country');
 INSERT INTO `layout_options` VALUES ('DEM', 'contact_relationship', '2Contact', 'Emergency Contact', 6, 2, 1, 10, 63, '', 1, 1, '', 'C', 'Emergency Contact Person');
 INSERT INTO `layout_options` VALUES ('DEM', 'phone_contact', '2Contact', 'Emergency Phone', 7, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Emergency Contact Phone Number');
 INSERT INTO `layout_options` VALUES ('DEM', 'phone_home', '2Contact', 'Home Phone', 8, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Home Phone Number');
@@ -1650,8 +1650,8 @@ INSERT INTO `layout_options` VALUES ('DEM', 'em_city', '4Employer', 'City', 4, 2
 INSERT INTO `layout_options` VALUES ('DEM', 'em_state', '4Employer', 'State', 5, 2, 1, 15, 63, '', 1, 1, '', 'C', 'State/Locality');
 INSERT INTO `layout_options` VALUES ('DEM', 'em_postal_code', '4Employer', 'Postal Code', 6, 2, 1, 6, 63, '', 1, 1, '', '', 'Postal Code');
 INSERT INTO `layout_options` VALUES ('DEM', 'em_country', '4Employer', 'Country', 7, 2, 1, 10, 63, '', 1, 1, '', 'C', 'Country');
-INSERT INTO `layout_options` VALUES ('DEM', 'language', '5Stats', 'Language', 1, 1, 1, 0, 0, 'language', 1, 1, '', '', 'Preferred Language');
-INSERT INTO `layout_options` VALUES ('DEM', 'ethnoracial', '5Stats', 'Race/Ethnicity', 2, 1, 1, 0, 0, 'ethrace', 1, 1, '', '', 'Ethnicity or Race');
+INSERT INTO `layout_options` VALUES ('DEM', 'language', '5Stats', 'Language', 1, 26, 1, 0, 0, 'language', 1, 1, '', '', 'Preferred Language');
+INSERT INTO `layout_options` VALUES ('DEM', 'ethnoracial', '5Stats', 'Race/Ethnicity', 2, 26, 1, 0, 0, 'ethrace', 1, 1, '', '', 'Ethnicity or Race');
 INSERT INTO `layout_options` VALUES ('DEM', 'financial_review', '5Stats', 'Financial Review Date', 3, 2, 1, 10, 10, '', 1, 1, '', 'D', 'Financial Review Date');
 INSERT INTO `layout_options` VALUES ('DEM', 'family_size', '5Stats', 'Family Size', 4, 2, 1, 20, 63, '', 1, 1, '', '', 'Family Size');
 INSERT INTO `layout_options` VALUES ('DEM', 'monthly_income', '5Stats', 'Monthly Income', 5, 2, 1, 20, 63, '', 1, 1, '', '', 'Monthly Income');
