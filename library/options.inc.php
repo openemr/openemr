@@ -19,8 +19,15 @@ function generate_form_field($frow, $currvalue) {
   $data_type   = $frow['data_type'];
   $field_id    = $frow['field_id'];
   $list_id     = $frow['list_id'];
-  $description = htmlspecialchars($frow['description'], ENT_QUOTES);
     
+  // translate description if translate-layouts flag set
+  if ($GLOBALS['translate_layout']) {
+   $description = htmlspecialchars(xl($frow['description']), ENT_QUOTES);
+  }
+  else {
+   $description = htmlspecialchars($frow['description'], ENT_QUOTES);
+  }
+      
   //added 5/2009 by BM to allow modification of the 'empty' text title field.
   //  Can pass $frow['empty_title'] with this variable, otherwise
   //  will default to 'Unassigned'.
