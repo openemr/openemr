@@ -388,9 +388,9 @@ sub createConstants() {
 DROP TABLE IF EXISTS `lang_constants`;
 CREATE TABLE `lang_constants` (
   `cons_id` int(11) NOT NULL auto_increment,
-  `constant_name` varchar(255) default NULL,
+  `constant_name` varchar(255) BINARY default NULL,
   UNIQUE KEY `cons_id` (`cons_id`),
-  KEY `cons_name` (`constant_name`)
+  KEY `constant_name` (`constant_name`)
 ) ENGINE=MyISAM AUTO_INCREMENT=".$tempCounter." ;
 \n
 -- 
@@ -465,7 +465,7 @@ CREATE TABLE `lang_definitions` (
   `lang_id` int(11) NOT NULL default '0',
   `definition` mediumtext,
   UNIQUE KEY `def_id` (`def_id`),
-  KEY `definition` (`definition`(100))
+  KEY `cons_id` (`cons_id`) 
 ) ENGINE=MyISAM AUTO_INCREMENT=".$tempCounter." ;
 \n
 -- 
