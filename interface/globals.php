@@ -89,11 +89,14 @@ $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
 //
 //  Current supported languages:
 //   Armenian
+//   Bahasa Indonesia
+//   Brazilian Portuguese
 //   Chinese
 //   Dutch
 //   English
 //   French
 //   German
+//   Greek
 //   Hebrew
 //   Norwegian
 //   Russian
@@ -238,7 +241,7 @@ else {
 $v_major = '3';
 $v_minor = '0';
 $v_patch = '1';
-$tag = '.2'; // minor revision number, should be empty for production releases
+$tag = '.3'; // minor revision number, should be empty for production releases
 
 // This name appears on the login page and in the title bar of most windows.
 // It's nice to customize this to be the name of your clinic.
