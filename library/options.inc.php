@@ -854,4 +854,23 @@ function generate_layout_validation($form_id) {
   }
 }
 
+// Simply return an ordered array of Titles from a selected list
+//
+//   Will translate the titles if $GLOBALS['translate_lists'] flag is set in globals.php
+//
+function return_list_titles($list_id){
+  $arr=array();
+  $pres = sqlStatement("SELECT title FROM list_options WHERE list_id = '$list_id' ORDER BY seq");
+    while ($prow = sqlFetchArray($pres)) {
+      // translate if translate-lists flag set and not english
+      if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+        array_push($arr, xl($prow['title']));
+      }
+      else {
+        array_push($arr, $prow['title']);	  
+      }
+    }
+  return $arr;
+}
+
 ?>
