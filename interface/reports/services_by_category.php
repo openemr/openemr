@@ -9,6 +9,7 @@
 include_once("../globals.php");
 include_once("../../custom/code_types.inc.php");
 include_once("$srcdir/sql.inc");
+include_once("$srcdir/options.inc.php");
 
 // Format dollars for display.
 //
@@ -29,6 +30,7 @@ if (empty($_REQUEST['include_uncat']))
 <html>
 <head>
 <?php html_header_show(); ?>
+<title><?php xl('Services by Category','e'); ?></title>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 <body>
@@ -42,7 +44,7 @@ if (empty($_REQUEST['include_uncat']))
   </td>
   <td class='text' align='right'>
    <select name='filter'>
-    <option value='0'>All</option>
+    <option value='0'><?php xl('All','e'); ?></option>
 <?php
 foreach ($code_types as $key => $value) {
   echo "<option value='" . $value['id'] . "'";
@@ -53,11 +55,11 @@ foreach ($code_types as $key => $value) {
    </select>
    &nbsp;
    <input type='checkbox' name='include_uncat' value='1'<?php if (!empty($_REQUEST['include_uncat'])) echo " checked"; ?> />
-   Include Uncategorized
+   <?php xl('Include Uncategorized','e'); ?>
    &nbsp;
-   <input type="submit" name="form_submit" value="Refresh">
+   <input type="submit" name="form_submit" value=<?php xl('Refresh','e','\'','\''); ?>>
    &nbsp;
-   <input type="button" value="Print" onclick="window.print()">
+   <input type="button" value=<?php xl('Print','e','\'','\''); ?> onclick="window.print()">
   </td>
  </tr>
 </table>
@@ -78,10 +80,9 @@ foreach ($code_types as $key => $value) {
    <th class='bold'><?php xl('Related'    ,'e'); ?></th>
 <?php } ?>
 <?php
-$pres = sqlStatement("SELECT title FROM list_options " .
-  "WHERE list_id = 'pricelevel' ORDER BY seq");
-while ($prow = sqlFetchArray($pres)) {
-  echo "   <th class='bold' align='right' nowrap>" . $prow['title'] . "</th>\n";
+$titles = return_list_titles('pricelevel');
+foreach ($titles as $title) {
+  echo "   <th class='bold' align='right' nowrap>" . $title . "</th>\n";   
 }
 ?>
   </tr>
