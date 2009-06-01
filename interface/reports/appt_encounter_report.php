@@ -43,7 +43,7 @@
 
   echo " <tr class='apptencreport_totals'>\n";
   echo "  <td colspan='4'>\n";
-  echo "   &nbsp;Totals for " . $docrow['docname'] . "\n";
+  echo "   &nbsp;" . xl('Totals for','','',' ') . $docrow['docname'] . "\n";
   echo "  </td>\n";
   echo "  <td align='right'>\n";
   echo "   &nbsp;" . $docrow['encounters'] . "&nbsp;\n";
@@ -222,7 +222,7 @@
  $query = "SELECT id, name FROM facility ORDER BY name";
  $fres = sqlStatement($query);
  echo "   <select name='form_facility'>\n";
- echo "    <option value=''>-- All --\n";
+ echo "    <option value=''>-- " . xl('All') . " --\n";
  while ($frow = sqlFetchArray($fres)) {
   $facid = $frow['id'];
   echo "    <option value='$facid'";
@@ -231,7 +231,7 @@
  }
  echo "    <option value='0'";
  if ($form_facility === '0') echo " selected";
- echo ">-- Unspecified --\n";
+ echo ">-- " . xl('Unspecified') . " --\n";
  echo "   </select>\n";
 ?>
    <?php  xl('DOS','e'); ?>:
@@ -251,7 +251,7 @@
    <input type='checkbox' name='form_details'
     value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details','e') ?>
    &nbsp;
-   <input type='submit' name='form_search' value='Search'>
+   <input type='submit' name='form_search' value='<?php xl('Search','e'); ?>'>
    &nbsp;
    <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
   </td>
