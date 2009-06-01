@@ -1,5 +1,5 @@
 <?php
-  // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
+  // Copyright (C) 2005-2009 Rod Roark <rod@sunsetsystems.com>
   //
   // This program is free software; you can redistribute it and/or
   // modify it under the terms of the GNU General Public License
@@ -375,12 +375,13 @@ function validate(f) {
   <td>
    <?php
   if ($INTEGRATED_AR) {
-    $tmp = sqlQuery("SELECT u.fname, u.mname, u.lname " .
+    $tmp = sqlQuery("SELECT u.fname, u.mname, u.lname, b.bill_date " .
       "FROM billing AS b, users AS u WHERE " .
       "b.pid = '$patient_id' AND b.encounter = '$encounter_id' AND " .
       "b.activity = 1 AND u.id = b.provider_id " .
       "ORDER BY u.authorized DESC, b.fee DESC, b.id ASC LIMIT 1");
     echo $tmp['fname'] . ' ' . $tmp['mname'] . ' ' . $tmp['lname'];
+    $billdate = substr(($tmp['bill_date'] . "Not Billed"), 0, 10);
   }
   else {
     echo $arrow['doctor'];
@@ -454,12 +455,12 @@ function validate(f) {
 
  <tr>
   <td>
-   <?php xl('Bill Date:','e') ?>
+   <?php xl('Last Bill Date:','e') ?>
   </td>
   <td>
    <?php
   if ($INTEGRATED_AR) {
-    echo $svcdate;
+    echo $billdate;
   }
   else {
     echo $arrow['transdate'];
