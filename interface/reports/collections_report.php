@@ -308,7 +308,7 @@ function checkAll(checked) {
   $query = "SELECT id, name FROM facility ORDER BY name";
   $fres = sqlStatement($query);
   echo "   <select name='form_facility'>\n";
-  echo "    <option value=''>-- All Facilities --\n";
+  echo "    <option value=''>-- " . xl('All Facilities') . " --\n";
   while ($frow = sqlFetchArray($fres)) {
     $facid = $frow['id'];
     echo "    <option value='$facid'";
@@ -1085,12 +1085,12 @@ if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) 
   else {
     echo " <tr bgcolor='#ffffff'>\n";
     if ($is_ins_summary) {
-      echo "  <td class='dehead'>&nbsp;Report Totals:</td>\n";
+      echo "  <td class='dehead'>&nbsp;" . xl('Report Totals') . ":</td>\n";
     } else {
       echo "  <td class='detail' colspan='$initial_colspan'>\n";
       echo "   &nbsp;</td>\n";
       echo "  <td class='dehead' colspan='" . ($final_colspan - 3) .
-        "'>&nbsp;Report Totals:</td>\n";
+        "'>&nbsp;" . xl('Report Totals') . ":</td>\n";
     }
     echo "  <td class='dehead' align='right'>&nbsp;" .
       sprintf("%.2f", $grand_total_charges) . "&nbsp;</td>\n";
@@ -1123,10 +1123,10 @@ if (!$_POST['form_csvexport']) {
   if (!$_POST['form_export']) {
 ?>
 <p>
-<input type='button' value='Select All' onclick='checkAll(true)' /> &nbsp;
-<input type='button' value='Clear All' onclick='checkAll(false)' /> &nbsp;
-<input type='submit' name='form_csvexport' value='Export Selected as CSV' /> &nbsp; &nbsp;
-<input type='submit' name='form_export' value='Export Selected to Collections' /> &nbsp;
+<input type='button' value=<?php xl('Select All','e','\'','\''); ?> onclick='checkAll(true)' /> &nbsp;
+<input type='button' value=<?php xl('Clear All','e','\'','\''); ?> onclick='checkAll(false)' /> &nbsp;
+<input type='submit' name='form_csvexport' value=<?php xl('Export Selected as CSV','e','\'','\''); ?> /> &nbsp; &nbsp;
+<input type='submit' name='form_export' value=<?php xl('Export Selected to Collections','e','\'','\''); ?> /> &nbsp;
 <input type='checkbox' name='form_without' value='1' /> <?php xl('Without Update','e') ?>
 </p>
 <?php
