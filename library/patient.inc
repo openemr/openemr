@@ -1076,6 +1076,40 @@ function getPatientAge($dobYMD, $nowYMD=null)
     return $age;
 }
 
+
+// Returns Age in days
+//   in months if < 2 years old
+//   in years  if > 2 years old
+// given YYYYMMDD from MySQL DATE_FORMAT(DOB,'%Y%m%d')
+// (optional) nowYMD is a date in YYYYMMDD format
+function getPatientAgeInDays($dobYMD, $nowYMD=null) {
+    $age = -1;
+
+    // strip any dashes from the DOB
+    $dobYMD = preg_replace("/-/", "", $dobYMD);
+    $dobDay = substr($dobYMD,6,2); $dobMonth = substr($dobYMD,4,2); $dobYear = substr($dobYMD,0,4);
+    
+    // set the 'now' date values
+    if ($nowYMD == null) {
+        $nowDay = date("d");
+        $nowMonth = date("m");
+        $nowYear = date("Y");
+    }
+    else {
+        $nowDay = substr($nowYMD,6,2);
+        $nowMonth = substr($nowYMD,4,2);
+        $nowYear = substr($nowYMD,0,4);
+    }
+
+    // do the date math
+    $dobtime = strtotime($dobYear."-".$dobMonth."-".$dobDay);
+    $nowtime = strtotime($nowYear."-".$nowMonth."-".$nowDay);
+    $timediff = $nowtime - $dobtime;
+    $age = $timediff / 86400;
+
+    return $age;
+}
+
 function dateToDB ($date)
 {
     $date=substr ($date,6,4)."-".substr ($date,3,2)."-".substr($date, 0,2);
