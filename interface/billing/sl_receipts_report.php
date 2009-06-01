@@ -111,7 +111,7 @@
     <option value='0'><?php xl('Payment Date','e'); ?></option>
     <option value='1'<?php if ($form_use_edate) echo ' selected' ?>><?php xl('Invoice Date','e'); ?></option>
    </select>
-   &nbsp;<?xl('From:','e')?>
+   &nbsp;<?php xl('From:','e'); ?>
 
    <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
