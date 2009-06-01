@@ -104,19 +104,19 @@ if(empty($_POST['start']) || empty($_POST['end'])) {
 <?php if(empty($_POST['start']) || empty($_POST['end'])) { ?>
 <form method="post" action="custom_report_range.php">
 <div id="superbill_description">
-Superbills, sometimes referred to as Encounter Forms or Routing Slips, are an essential part of most medical practices.
+<?php xl('Superbills, sometimes referred to as Encounter Forms or Routing Slips, are an essential part of most medical practices.','e'); ?>
 </div>
 <div id="superbill_startingdate">
 <?php xl('Start Date','e'); ?>: <input type="text" name="start" id="start" value="<?php echo $startdate; ?>" size="10"/>
 <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_from_date' border='0' alt='[?]' style='cursor:pointer' title='<?php xl('Click here to choose a date','e'); ?>'>
-(format=YYYYMMDD)
+(<?php xl('format','e'); ?>=YYYYMMDD)
 </div>
 <div id="superbill_endingdate">
 <?php xl('End Date','e'); ?>: <input type="text" name="end" id="end" value="<?php echo $enddate; ?>" size="10"/>
 <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_to_date' border='0' alt='[?]' style='cursor:pointer' title='<?php xl('Click here to choose a date','e'); ?>'>
-(format=YYYYMMDD)
+(<?php xl('format','e'); ?>=YYYYMMDD)
 </div>
-<input type="submit" value="Submit"/>
+<input type="submit" value=<?php xl('Submit','e','\'','\''); ?> />
 </form>
 
 <?php
