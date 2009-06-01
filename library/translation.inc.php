@@ -2,8 +2,8 @@
 // include_once($GLOBALS['srcdir'] . '/sql.inc');
 include_once(dirname(__FILE__) . '/sql.inc'); // fixes vulnerability with register_globals
 
-// this function is related to the interface/language module.
-
+// Translation function
+//  This is the translation engine
 function xl($constant,$mode='r',$prepend='',$append='') {
         // set language id
         if (isset($_SESSION['language_choice'])) {
@@ -43,6 +43,59 @@ function xl($constant,$mode='r',$prepend='',$append='') {
 	} else {
 		return $string;
 	}
+}
+
+
+// Added 5-09 by BM for translation of list labels (when applicable)
+// Wrapper for the above translation function xl()
+//
+// Only translates if the $GLOBALS['translate_lists'] is set to true.
+//
+function xl_list_label($constant,$mode='r',$prepend='',$append='') {
+  if ($GLOBALS['translate_lists']) {
+    // TRANSLATE
+    if ($mode == "e") {
+      xl($constant,$mode,$prepend,$append);
+    }
+    else {
+      return xl($constant,$mode,$prepend,$append);
+    }
+  }
+  else {
+    // DO NOT TRANSLATE
+    if ($mode == "e") {
+      echo $prepend.$constant.$append;
+    }
+    else {
+      return $prepend.$constant.$append;
+    }
+  }
+}
+
+// Added 5-09 by BM for translation of layout labels (when applicable)
+// Wrapper for the translation function xl()
+//
+// Only translates if the $GLOBALS['translate_layout'] is set to true.
+//
+function xl_layout_label($constant,$mode='r',$prepend='',$append='') {
+  if ($GLOBALS['translate_layout']) {
+    // TRANSLATE
+    if ($mode == "e") {
+      xl($constant,$mode,$prepend,$append);
+    }
+    else {
+      return xl($constant,$mode,$prepend,$append);
+    }
+  }
+  else {
+    // DO NOT TRANSLATE
+    if ($mode == "e") {
+      echo $prepend.$constant.$append;
+    }
+    else {
+      return $prepend.$constant.$append;
+    }
+  }
 }
 
 
