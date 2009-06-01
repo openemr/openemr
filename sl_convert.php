@@ -43,7 +43,7 @@ $invoice_count = 0;
 $activity_count = 0;
 
 $res = SLQuery("SELECT id, invnumber, transdate, shipvia, intnotes " .
-  "FROM ar ORDER BY id");
+  "FROM ar WHERE invnumber LIKE '%.%' ORDER BY id");
 
 for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
   $row = SLGetRow($res, $irow);
