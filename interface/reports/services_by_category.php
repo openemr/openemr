@@ -9,7 +9,6 @@
 include_once("../globals.php");
 include_once("../../custom/code_types.inc.php");
 include_once("$srcdir/sql.inc");
-include_once("$srcdir/options.inc.php");
 
 // Format dollars for display.
 //
@@ -79,10 +78,12 @@ foreach ($code_types as $key => $value) {
 <?php if (related_codes_are_used()) { ?>
    <th class='bold'><?php xl('Related'    ,'e'); ?></th>
 <?php } ?>
-<?php
-$titles = return_list_titles('pricelevel');
-foreach ($titles as $title) {
-  echo "   <th class='bold' align='right' nowrap>" . $title . "</th>\n";   
+<?php   
+$pres = sqlStatement("SELECT title FROM list_options " . 
+		     "WHERE list_id = 'pricelevel' ORDER BY seq");
+while ($prow = sqlFetchArray($pres)) {
+  // Added 5-09 by BM - Translate label if applicable
+  echo "   <th class='bold' align='right' nowrap>" . xl_list_label($prow['title']) . "</th>\n";
 }
 ?>
   </tr>
@@ -111,7 +112,8 @@ while ($row = sqlFetchArray($res)) {
   }
   $bgcolor = (($irow & 1) ? "#ffdddd" : "#ddddff");
   echo "  <tr bgcolor='$bgcolor'>\n";
-  echo "   <td class='text'>$disp_category</td>\n";
+  // Added 5-09 by BM - Translate label if applicable
+  echo "   <td class='text'>" . xl_list_label($disp_category) . "</td>\n";
   echo "   <td class='text'>$key</td>\n";
   echo "   <td class='text'>" . $row['code'] . "</td>\n";
   echo "   <td class='text'>" . $row['modifier'] . "</td>\n";
