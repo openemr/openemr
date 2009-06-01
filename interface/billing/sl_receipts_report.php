@@ -78,7 +78,7 @@
  $query = "SELECT id, name FROM facility ORDER BY name";
  $fres = sqlStatement($query);
  echo "   <select name='form_facility'>\n";
- echo "    <option value=''>-- All Facilities --\n";
+ echo "    <option value=''>-- " . xl('All Facilities') . " --\n";
  while ($frow = sqlFetchArray($fres)) {
   $facid = $frow['id'];
   echo "    <option value='$facid'";
@@ -95,7 +95,7 @@
 			"authorized = 1 order by lname, fname";
 		$res = sqlStatement($query);
 		echo "   &nbsp;<select name='form_doctor'>\n";
-		echo "    <option value=''>-- All Providers --\n";
+		echo "    <option value=''>-- " . xl('All Providers') . " --\n";
 		while ($row = sqlFetchArray($res)) {
 			$provid = $row['id'];
 			echo "    <option value='$provid'";
@@ -118,7 +118,7 @@
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
     title='<?php xl('Click here to choose a date','e'); ?>'>
-   &nbsp;To:
+   &nbsp;<?php xl('To','e'); ?>:	
    <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
