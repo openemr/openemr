@@ -206,7 +206,7 @@
  $ures = sqlStatement($query);
 
  echo "   <select name='form_facility' onChange='document.all.theform.submit()'>\n";
- echo "    <option value=''>-- All --\n";
+ echo "    <option value=''>-- " . xl('All') . " --\n";
 
  while ($urow = sqlFetchArray($ures)) {
   $fid = $urow['id'];
@@ -232,7 +232,7 @@
  $ures = sqlStatement($query);
 
  echo "   <select name='form_provider'>\n";
- echo "    <option value=''>-- All --\n";
+ echo "    <option value=''>-- " . xl('All') . " --\n";
 
  while ($urow = sqlFetchArray($ures)) {
   $provid = $urow['id'];
