@@ -130,7 +130,7 @@
  $query = "SELECT id, name FROM facility ORDER BY name";
  $fres = sqlStatement($query);
  echo "   <select name='form_facility'>\n";
- echo "    <option value=''>-- All Facilities --\n";
+ echo "    <option value=''>-- " . xl('All Facilities') . " --\n";
  while ($frow = sqlFetchArray($fres)) {
   $facid = $frow['id'];
   echo "    <option value='$facid'";
@@ -139,7 +139,7 @@
  }
  echo "    <option value='0'";
  if ($form_facility === '0') echo " selected";
- echo ">-- Unspecified --\n";
+ echo ">-- " . xl('Unspecified') . " --\n";
  echo "   </select>\n";
 ?>
    &nbsp;<?php xl('From','e'); ?>:
@@ -156,13 +156,13 @@
     title='<?php xl('Click here to choose a date','e'); ?>'>
    &nbsp;<?php xl('Patient ID','e'); ?>:
    <input type='text' name='form_patient_id' size='6' maxlength='20' value='<?php echo $form_patient_id ?>'
-    title='Optional numeric patient ID' />
+    title=<?php xl('Optional numeric patient ID','e','\'','\''); ?> />
    &nbsp;<?php xl('Drug','e'); ?>:
    <input type='text' name='form_drug_name' size='10' maxlength='250' value='<?php echo $form_drug_name ?>'
-    title='Optional drug name, use % as a wildcard' />
+    title=<?php xl('Optional drug name, use % as a wildcard','e','\'','\''); ?> />
    &nbsp;<?php xl('Lot','e'); ?>:
    <input type='text' name='form_lot_number' size='10' maxlength='20' value='<?php echo $form_lot_number ?>'
-    title='Optional lot number, use % as a wildcard' />
+    title=<?php xl('Optional lot number, use % as a wildcard','e','\'','\''); ?> />
    &nbsp;
    <input type='submit' name='form_refresh' value=<?php xl('Refresh','e'); ?>>
    &nbsp;
