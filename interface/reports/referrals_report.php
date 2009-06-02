@@ -128,7 +128,7 @@
  $query = "SELECT id, name FROM facility ORDER BY name";
  $fres = sqlStatement($query);
  echo "   <select name='form_facility'>\n";
- echo "    <option value=''>-- All Facilities --\n";
+ echo "    <option value=''>-- " . xl('All Facilities') . " --\n";
  while ($frow = sqlFetchArray($fres)) {
   $facid = $frow['id'];
   echo "    <option value='$facid'";
@@ -137,7 +137,7 @@
  }
  echo "    <option value='0'";
  if ($form_facility === '0') echo " selected";
- echo ">-- Unspecified --\n";
+ echo ">-- " . xl('Unspecified') . " --\n";
  echo "   </select>\n";
 ?>
    &nbsp;<?php xl('From','e'); ?>:
