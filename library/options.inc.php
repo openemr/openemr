@@ -664,6 +664,8 @@ function display_layout_rows($formtype, $result1, $result2='') {
         if ($field_id === 'fitness' || $field_id === 'userdate1') continue;
       }
       if (strpos($field_id, 'em_') === 0) {
+	// Skip employer related fields, if it's disabled.
+        if ($GLOBALS['omit_employers']) continue;
         $tmp = substr($field_id, 3);
         if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
       }
@@ -677,8 +679,10 @@ function display_layout_rows($formtype, $result1, $result2='') {
 
     // Handle a data category (group) change.
     if (strcmp($this_group, $last_group) != 0) {
-      disp_end_group();
       $group_name = substr($this_group, 1);
+      // totally skip generating the employer category, if it's disabled.
+      if ($group_name === 'Employer' && $GLOBALS['omit_employers']) continue;
+      disp_end_group();
       $last_group = $this_group;
     }
 
