@@ -3838,9 +3838,9 @@ class gacl_api extends gacl {
 			return false;
 		}
 
-		$query = "SELECT id, value, order_value, name, hidden FROM '. $table .' WHERE value='$section_value'";
+		$query = "SELECT id, value, order_value, name, hidden FROM $table WHERE value='$section_value'";
 		$row = $this->db->GetRow($query);
-
+														    
 		if ($row) {
 			return $row;
 		}
