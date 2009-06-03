@@ -7,7 +7,7 @@
 define("N2T_BIG", serialize(array('thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion', 'septillion', 'octillion', 'nonillion', 'decillion', 'undecillion', 'duodecillion', 'tredecillion', 'quattuordecillion', 'quindecillion', 'sexdecillion', 'septendecillion', 'octodecillion', 'novemdecillion', 'vigintillion')));
 /** Serialized Array of medium names, twenty, thirty, etc
 * @package NumberToText */
-define("N2T_MEDIUM", serialize(array(2=>'twenty', 3=>'thirty', 4=>'fourty', 5=>'fifty', 6=>'sixty', 7=>'seventy', 8=>'eighty', 9=>'ninety')));
+define("N2T_MEDIUM", serialize(array(2=>'twenty', 3=>'thirty', 4=>'forty', 5=>'fifty', 6=>'sixty', 7=>'seventy', 8=>'eighty', 9=>'ninety')));
 /** Serialized Array of small names, zero, one, etc.. up to eighteen, nineteen
 * @package NumberToText */
 define("N2T_SMALL", serialize(array('zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen')));
@@ -38,7 +38,7 @@ class NumberToText {
 	var $capatalize;
 	var $and;
 	
-	function NumberToText($number, $currency = false, $capatalize = false, $and = true) {
+	function NumberToText($number, $currency = false, $capatalize = false, $and = false) {
 		$this->number = $number;
 		$this->currency = $currency;
 		$this->capatalize = $capatalize;
@@ -105,6 +105,7 @@ class NumberToText {
 	    // conversion for integer part:
     
 	    $section = 0; // $section controls "thousand" "million" etc
+	    $text = '';
 		    do {
 	        // keep breaking down into 3 digits ($convert) and the rest
 	        //$convert = $int % 1000;
@@ -117,8 +118,13 @@ class NumberToText {
 	        } else {
 	            // we can handle it
 	            
-	            $convert = substr($int, -3); // grab the last 3 digits
-	            $int = substr($int, 0, -1 * strlen($convert));
+		    if (strlen($int)<3) {
+			  $convert = $int;
+			  $int = 0;
+	 	    } else {
+	                  $convert = substr($int, -3); // grab the last 3 digits
+	                  $int = substr($int, 0, -1 * strlen($convert));
+		    }
 	            
 	            if ($convert > 0) {
 	                // we have something here, put it in
@@ -128,7 +134,6 @@ class NumberToText {
 	        
 	        $section++;
 	    } while ($int > 0);
-	    
 	    
 	    // conversion for decimal part:
 	    
