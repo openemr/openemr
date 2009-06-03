@@ -78,7 +78,7 @@ if (isset($_POST["fid"])) {
 </tr>
 <tr>
 	 <td>&nbsp;</td><td>&nbsp;</td>
-	<td width="21"><span class=text><?php xl(($GLOBALS['simplified_demographics'] ? 'Facility Code' : 'Facility NPI'),'e'); ?>:
+	<td width="21"><span class=text><?php ($GLOBALS['simplified_demographics'] ? xl('Facility Code','e') : xl('Facility NPI','e')); ?>:
   </span></td><td><input type=entry size=20 name=facility_npi value="<?php echo $facility{"facility_npi"} ?>"></td>
 </tr>
  <tr>
