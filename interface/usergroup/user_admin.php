@@ -256,10 +256,12 @@ if ( !$GLOBALS['dutchpc']) { ?>
    $username_acl_groups = acl_get_group_titles($iter["username"]);
    foreach ($list_acl_groups as $value) {
     if (($username_acl_groups) && in_array($value,$username_acl_groups)) {
-     echo " <option selected>$value</option>\n";
+     // Modified 6-2009 by BM - Translate group name if applicable
+     echo " <option value='$value' selected>" . xl_gacl_group($value) . "</option>\n";
     }
     else {
-     echo " <option>$value</option>\n";
+     // Modified 6-2009 by BM - Translate group name if applicable
+     echo " <option value='$value'>" . xl_gacl_group($value) . "</option>\n";
     }
    }
   ?>

@@ -138,6 +138,11 @@ $GLOBALS['translate_layout'] = true;
 //      If false, then many lists of information in forms
 //       and templates will be untranslated.
 $GLOBALS['translate_lists'] = true;
+//
+//  'translate_gacl_groups'
+//    -If true, then will translate the access control group names.
+//    -If false, will not translate the access control group names.
+$GLOBALS['translate_gacl_groups'] = true;
 
 include_once (dirname(__FILE__) . "/../library/translation.inc.php");
 

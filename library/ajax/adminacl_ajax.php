@@ -261,14 +261,26 @@ function user_group_listings_xml($username, $err) {
   "\t<inactive>\n";
  foreach ($list_acl_groups as $value) {
   if ((!$username_acl_groups) || (!(in_array($value, $username_acl_groups)))) {
-   $message .= "\t\t<group>" . $value . "</group>\n";
+   $message .= "\t\t<group>\n";
+   $message .= "\t\t\t<value>" . $value . "</value>\n";
+      
+   // Modified 6-2009 by BM - Translate gacl group name if applicable   
+   $message .= "\t\t\t<label>" . xl_gacl_group($value) . "</label>\n";
+      
+   $message .= "\t\t</group>\n";
   }
  }
  $message .= "\t</inactive>\n" .
   "\t<active>\n";
  if ($username_acl_groups) {
   foreach ($username_acl_groups as $value) {
-   $message .= "\t\t<group>" . $value . "</group>\n";
+   $message .= "\t\t<group>\n";
+   $message .= "\t\t\t<value>" . $value . "</value>\n";
+
+   // Modified 6-2009 by BM - Translate gacl group name if applicable
+   $message .= "\t\t\t<label>" . xl_gacl_group($value) . "</label>\n";
+      
+   $message .= "\t\t</group>\n";
   }
  }
  $message .= "\t</active>\n";
@@ -298,10 +310,16 @@ function acl_listings_xml($err) {
    $acl = $gacl->get_acl($value2);
    $ret = $acl["return_value"];
    $note = $acl["note"];
+      
+   // Modified 6-2009 by BM - Translate gacl group name if applicable
+   //                         Translate return value
+   //                         Translate description
    $message .= "\t<acl>\n" .
-    "\t\t<title>" . $value . "</title>\n" .
-    "\t\t<return>" . $ret  . "</return>\n" .
-    "\t\t<note>" . $note  . "</note>\n" .
+    "\t\t<value>" . $value . "</value>\n" .
+    "\t\t<title>" . xl_gacl_group($value) . "</title>\n" .
+    "\t\t<returnid>" . $ret  . "</returnid>\n" .
+    "\t\t<returntitle>" . xl($ret)  . "</returntitle>\n" .
+    "\t\t<note>" . xl($note)  . "</note>\n" .
     "\t</acl>\n";
   }
  }
@@ -344,16 +362,25 @@ function aco_listings_xml($group, $return_value, $err) {
   $counter = 0;   
   foreach($list_aco_objects[$key] as $value2) {
    if (!array_key_exists($key,$active_aco_objects) || !in_array($value2, $active_aco_objects[$key])) {
+       
     if ($counter == 0) {
      $counter = $counter + 1;
+     $aco_section_data = $gacl->get_section_data($key, 'ACO');
+     $aco_section_title = $aco_section_data[3];
+	
+     // Modified 6-2009 by BM - Translate gacl aco section name
      $message .= "\t\t<section>\n" .
-     "\t\t\t<name>" . $key . "</name>\n";
+     "\t\t\t<name>" . xl($aco_section_title) . "</name>\n";
+	
     }
     $aco_id = $gacl->get_object_id($key, $value2,'ACO');
     $aco_data = $gacl->get_object_data($aco_id, 'ACO');
     $aco_title = $aco_data[0][3];
     $message .= "\t\t\t<aco>\n";
-    $message .= "\t\t\t\t<title>" . $aco_title . "</title>\n";
+       
+    // Modified 6-2009 by BM - Translate gacl aco name       
+    $message .= "\t\t\t\t<title>" . xl($aco_title) . "</title>\n";
+       
     $message .= "\t\t\t\t<id>" . $aco_id . "</id>\n";
     $message .= "\t\t\t</aco>\n";   
    }
@@ -365,14 +392,22 @@ function aco_listings_xml($group, $return_value, $err) {
  $message .= "\t</inactive>\n" .
   "\t<active>\n";  
  foreach ($active_aco_objects as $key => $value) {
+  $aco_section_data = $gacl->get_section_data($key, 'ACO');
+  $aco_section_title = $aco_section_data[3];
+     
+  // Modified 6-2009 by BM - Translate gacl aco section name
   $message .= "\t\t<section>\n" .
-   "\t\t\t<name>" . $key . "</name>\n";
+   "\t\t\t<name>" . xl($aco_section_title) . "</name>\n";
+     
   foreach($active_aco_objects[$key] as $value2) {
    $aco_id = $gacl->get_object_id($key, $value2,'ACO');
    $aco_data = $gacl->get_object_data($aco_id, 'ACO');
    $aco_title = $aco_data[0][3];
    $message .= "\t\t\t<aco>\n";
-   $message .= "\t\t\t\t<title>" . $aco_title . "</title>\n";
+      
+   // Modified 6-2009 by BM - Translate gacl aco name
+   $message .= "\t\t\t\t<title>" . xl($aco_title) . "</title>\n";
+      
    $message .= "\t\t\t\t<id>" . $aco_id . "</id>\n";
    $message .= "\t\t\t</aco>\n";
   }
@@ -406,7 +441,13 @@ function return_values_xml($err) {
     $acl = $gacl->get_acl($value2);
     $ret = $acl["return_value"];
     if (!in_array($ret, $returns)) {
-     $message .= "\t<return>" . $ret . "</return>\n";
+	
+     // Modified 6-2009 by BM - Translate return value	
+     $message .= "\t<return>\n";
+     $message .= "\t\t<returnid>" . $ret  . "</returnid>\n";
+     $message .= "\t\t<returntitle>" . xl($ret)  . "</returntitle>\n"; 
+     $message .= "\t</return>\n";
+	
      array_push($returns, $ret);
     }
    }

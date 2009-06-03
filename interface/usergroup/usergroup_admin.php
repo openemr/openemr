@@ -187,7 +187,7 @@ $form_inactive = empty($_REQUEST['form_inactive']) ? false : true;
 <tr>
 <td>&nbsp;</td><td>&nbsp;</td>
 
-<td><span class="text"><?php xl(($GLOBALS['simplified_demographics'] ? 'Facility Code' : 'Facility NPI'),'e'); ?>:
+<td><span class="text"><?php ($GLOBALS['simplified_demographics'] ? xl('Facility Code','e') : xl('Facility NPI','e')); ?>:
 </span></td><td><input type=entry size=20 name=facility_npi value=""></td>
 
 </tr>
@@ -221,7 +221,7 @@ if ($fres) {
 ?>
 <span class="text"><?php echo $iter3{name};?></span>
 <a href="facility_admin.php?fid=<?php echo $iter3{id};?>" class="link_submit"
- onclick="top.restoreSession()">(Edit)</a><br>
+ onclick="top.restoreSession()">(<?php xl('Edit','e'); ?>)</a><br>
 <?php
   }
 }
@@ -339,10 +339,12 @@ if ( !$GLOBALS['dutchpc']) { ?>
    $default_acl_group = 'Administrators';
    foreach ($list_acl_groups as $value) {
     if ($default_acl_group == $value) {
-     echo " <option selected>$value</option>\n";
+     // Modified 6-2009 by BM - Translate group name if applicable
+     echo " <option value='$value' selected>" . xl_gacl_group($value) . "</option>\n";
     }
     else {
-     echo " <option>$value</option>\n";
+     // Modified 6-2009 by BM - Translate group name if applicable
+     echo " <option value='$value'>" . xl_gacl_group($value) . "</option>\n";
     }
    }
   ?>
@@ -440,7 +442,7 @@ foreach ($result2 as $iter) {
 <span class='bold'>
 <input type='checkbox' name='form_inactive' value='1' onclick='submit()'
  <?php if ($form_inactive) echo 'checked '; ?>/>
-Include inactive users
+<?php xl('Include inactive users','e'); ?>
 </span>
 </form>
 
@@ -470,7 +472,7 @@ if ( $GLOBALS['dutchpc'] ) $iter{"info"} = what_beroep($iter{"id"});
 
   print "<tr><td><span class='text'>" . $iter{"username"} .
     "</span><a href='user_admin.php?id=" . $iter{"id"} .
-    "' class='link_submit' onclick='top.restoreSession()'>(Edit)</a>" .
+    "' class='link_submit' onclick='top.restoreSession()'>(" . xl('Edit') . ")</a>" .
     "</td><td><span class='text'>" .
     $iter{"fname"} . ' ' . $iter{"lname"}."</span></td><td><span class='text'>" .
     $iter{"info"} . "</span></td><td align='center'><span class='text'>" .

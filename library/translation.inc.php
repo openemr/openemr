@@ -98,6 +98,32 @@ function xl_layout_label($constant,$mode='r',$prepend='',$append='') {
   }
 }
 
+// Added 6-2009 by BM for translation of access control group labels 
+//  (when applicable)
+// Wrapper for the translation function xl()
+//
+// Only translates if the $GLOBALS['translate_gacl_groups'] is set to true.
+//
+function xl_gacl_group($constant,$mode='r',$prepend='',$append='') {
+  if ($GLOBALS['translate_gacl_groups']) {
+    // TRANSLATE
+    if ($mode == "e") {
+      xl($constant,$mode,$prepend,$append);
+    }
+    else {
+      return xl($constant,$mode,$prepend,$append);
+    }
+  }
+  else {
+    // DO NOT TRANSLATE
+    if ($mode == "e") {
+      echo $prepend.$constant.$append;
+    }
+    else {
+      return $prepend.$constant.$append;
+    }
+  }
+}
 
 // ----------------------------------------------------------------------------
 /**
