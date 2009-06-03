@@ -523,20 +523,23 @@ if ($ret = getBillsBetween($from_date,
 
       $ptname = $name['fname'] . " " . $name['lname'];
       $raw_encounter_date = date("Y-m-d", strtotime($iter['enc_date']));
-
+			
+            //  Add Encounter Date to display with "To Encounter" button 2/17/09  JCH
       $lhtml .= "&nbsp;<span class=bold><font color='$namecolor'>$ptname" .
         "</font></span><span class=small>&nbsp;(" . $iter['enc_pid'] . "-" .
         $iter['enc_encounter'] . ")</span>";
-
+				
+            //  Not sure why the next section seems to do nothing except post "To Encounter" button 2/17/09  JCH
       $lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" " .
         "href=\"javascript:window.toencounter(" . $iter['enc_pid'] .
         ",'" . addslashes($name['pubpid']) .
         "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] .
-        ",'$raw_encounter_date')\">[To&nbsp;Encounter]</a>";
-
+        ",'$raw_encounter_date')\">[To&nbsp;Enctr $raw_encounter_date]</a>";
+				
+            //  Changed "To xxx" buttons to allow room for encounter date display 2/17/09  JCH
       $lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" " .
         "href=\"javascript:window.topatient(" . $iter['enc_pid'] .
-        ")\">[To&nbsp;Demographics]</a>";
+        ")\">[To&nbsp;Dems]</a>";
 
       if ($iter['id']) {
 
