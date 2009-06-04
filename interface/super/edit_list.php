@@ -14,7 +14,7 @@ $list_id = empty($_REQUEST['list_id']) ? 'language' : $_REQUEST['list_id'];
 
 // Check authorization.
 $thisauth = acl_check('admin', 'super');
-if (!$thisauth) die(xl('Not authorized','','','.'));
+if (!$thisauth) die(xl('Not authorized'));
 
 // If we are saving, then save.
 //
@@ -309,7 +309,7 @@ function set_related(codetype, code, selector, codedesc) {
 <form method='post' name='theform' id='theform' action='edit_list.php'>
 <input type="hidden" name="formaction" id="formaction">
 
-<p><b><?php xl('Edit list','e','',':'); ?></b>&nbsp;
+<p><b><?php xl('Edit list','e'); ?>:</b>&nbsp;
 <select name='list_id' id="list_id">
 <?php
 // The list of lists is also kept incestuously in the lists table.
@@ -391,7 +391,7 @@ if ($list_id) {
 
 <!-- template DIV that appears when user chooses to make a new list -->
 <div id="newlistdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
-<?php xl('List Name','e','',':'); ?> <input type="textbox" size="20" maxlength="30" name="newlistname" id="newlistname">
+<?php xl('List Name','e'); ?>: <input type="textbox" size="20" maxlength="30" name="newlistname" id="newlistname">
 <br>
 <input type="button" class="savenewlist" value=<?php xl('Save new list','e','\'','\''); ?>>
 <input type="button" class="cancelnewlist" value=<?php xl('Cancel','e','\'','\''); ?>>
@@ -427,12 +427,12 @@ $(document).ready(function(){
         // the list name can only have letters, numbers, spaces and underscores
         // AND it cannot start with a number
         if ($("#newlistname").val().match(/^\d+/)) {
-            alert("<?php xl('List names cannot start with numbers','e','','.'); ?>");
+            alert("<?php xl('List names cannot start with numbers.','e'); ?>");
             return false;
         }
         var validname = $("#newlistname").val().replace(/[^A-za-z0-9 -]/g, "_"); // match any non-word characters and replace them
         if (validname != $("#newlistname").val()) {
-            if (! confirm("<?php xl('Your list name has been changed to meet naming requirements','e','','.\n') . xl('Please compare the new name','e','',', \''); ?>"+validname+"<?php xl('with the old name','e','\' ',', \''); ?>"+$("#newlistname").val()+"<?php xl('Do you wish to continue with the new name','e','\'.\n','?'); ?>"))
+            if (! confirm("<?php xl('Your list name has been changed to meet naming requirements.','e','','\n') . xl('Please compare the new name','e','',', \''); ?>"+validname+"<?php xl('with the old name','e','\' ',', \''); ?>"+$("#newlistname").val()+"<?php xl('Do you wish to continue with the new name?','e','\'.\n',''); ?>"))
             {
                 return false;
             }
@@ -446,7 +446,7 @@ $(document).ready(function(){
     // actually delete an entire list from the database
     var DeleteList = function(btnObj) {
         var listid = $(btnObj).attr("id");
-        if (confirm("<?php xl('WARNING','e','',' - ') . xl('This action cannot be undone','e','','.\n') . xl('Are you sure you wish to delete the entire list','e',' ','('); ?>"+listid+")?")) {
+        if (confirm("<?php xl('WARNING','e','',' - ') . xl('This action cannot be undone.','e','','\n') . xl('Are you sure you wish to delete the entire list','e',' ','('); ?>"+listid+")?")) {
             // submit the form to add a new field to a specific group
             $("#formaction").val("deletelist");
             $("#deletelistname").val(listid);
