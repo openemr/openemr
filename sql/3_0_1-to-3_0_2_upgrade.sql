@@ -25,3 +25,7 @@ INSERT INTO list_options VALUES ('adjreason','To ded\'ble'    ,'To ded\'ble'    
 INSERT INTO list_options VALUES ('adjreason','Untimely filing','Untimely filing',90,0,0);
 #EndIf
 
+
+ALTER TABLE `prices` 
+    CHANGE `pr_selector` `pr_selector` VARCHAR( 255 ) NOT NULL default '' COMMENT 'template selector for drugs, empty for codes';
+
