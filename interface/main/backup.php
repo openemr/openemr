@@ -34,7 +34,7 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 
-if (!acl_check('admin', 'super')) die("Not authorized!");
+if (!acl_check('admin', 'super')) die(xl('Not authorized','','','!'));
 
 $form_step   = isset($_POST['form_step']) ? trim($_POST['form_step']) : '0';
 $form_status = isset($_POST['form_status' ]) ? trim($_POST['form_status' ]) : '';
@@ -75,12 +75,13 @@ if ($form_step > 7) {
 $cmd = '';
 
 if ($form_step == 0) {
-  echo "This will create a backup in tar format and then send it to your " .
-    "web browser so you can save it.  Press Continue to proceed.<br />\n";
-  echo "&nbsp;<br /><center><input type='submit' value='Continue' /></center>\n";
+  echo xl('This will create a backup in tar format and then send it to your web browser so you can save it','','','.') .
+       xl('Press Continue to proceed','',' ','.') . "<br />\n";
+  echo "&nbsp;<br /><center><input type='submit' value='" . xl('Continue') .
+    "' /></center>\n";
 }
 if ($form_step == 1) {
-  $form_status .= "Dumping OpenEMR database ...<br />";
+  $form_status .= xl('Dumping OpenEMR database') . "...<br />";
   echo nl2br($form_status);
   $cmd = "rm -rf $TMP_BASE; mkdir -p $BACKUP_DIR; " .
     "mysqldump -u " . escapeshellarg($sqlconf["login"]) .
@@ -91,7 +92,7 @@ if ($form_step == 1) {
 }
 if ($form_step == 2) {
   if (!empty($phpgacl_location) && $gacl_object->_db_name != $sqlconf["dbase"]) {
-    $form_status .= "Dumping phpGACL database ...<br />";
+    $form_status .= xl('Dumping phpGACL database') . "...<br />";
     echo nl2br($form_status);
     $cmd = "mysqldump -u " . escapeshellarg($gacl_object->_db_user) .
       " -p" . escapeshellarg($gacl_object->_db_password) .
@@ -107,7 +108,7 @@ if ($form_step == 3) {
   if ($GLOBALS['oer_config']['ws_accounting']['enabled'] &&
       $GLOBALS['oer_config']['ws_accounting']['enabled'] !== 2)
   {
-    $form_status .= "Dumping SQL-Ledger database ...<br />";
+    $form_status .= xl('Dumping SQL-Ledger database') . "...<br />";
     echo nl2br($form_status);
     $cmd = "PGPASSWORD=" . escapeshellarg($sl_dbpass) . " pg_dump -U " .
       escapeshellarg($sl_dbuser) . " -h localhost --format=c -f " .
@@ -118,13 +119,13 @@ if ($form_step == 3) {
   }
 }
 if ($form_step == 4) {
-  $form_status .= "Dumping OpenEMR web directory tree ...<br />";
+  $form_status .= xl('Dumping OpenEMR web directory tree') . "...<br />";
   echo nl2br($form_status);
   $cmd = "cd $webserver_root; tar --same-owner --ignore-failed-read -zcphf $BACKUP_DIR/openemr.tar.gz .";
 }
 if ($form_step == 5) {
   if ((!empty($phpgacl_location)) && ($phpgacl_location != $GLOBALS['fileroot']."/gacl")) {
-    $form_status .= "Dumping phpGACL web directory tree ...<br />";
+    $form_status .= xl('Dumping phpGACL web directory tree') . "...<br />";
     echo nl2br($form_status);
     $cmd = "cd $phpgacl_location; tar --same-owner --ignore-failed-read -zcphf $BACKUP_DIR/phpgacl.tar.gz .";
   }
@@ -137,7 +138,7 @@ if ($form_step == 6) {
     $GLOBALS['oer_config']['ws_accounting']['enabled'] !== 2 &&
     is_dir("$webserver_root/../sql-ledger"))
   {
-    $form_status .= "Dumping SQL-Ledger web directory tree ...<br />";
+    $form_status .= xl('Dumping SQL-Ledger web directory tree') . "...<br />";
     echo nl2br($form_status);
     $cmd = "cd $webserver_root/../sql-ledger; tar --same-owner --ignore-failed-read -zcphf $BACKUP_DIR/sql-ledger.tar.gz .";
   }
@@ -146,7 +147,7 @@ if ($form_step == 6) {
   }
 }
 if ($form_step == 7) {
-  $form_status .= "Backup file has been created. Will now send download.<br />";
+  $form_status .= xl('Backup file has been created. Will now send download.') . "<br />";
   echo nl2br($form_status);
   $cmd = "cd $BACKUP_DIR; tar -cpf $TAR_FILE_PATH .";
 }
