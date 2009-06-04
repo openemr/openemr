@@ -1,41 +1,61 @@
 Additional history notes
+Adjustment Reasons
 Alcohol consumption
 Allow Email
+Allow email messages?
+Allow Email?
 Allow Mail Message
 Allow SMS
+Allow SMS (text messages)?
+Allow telephone messages?
 Allow Voice Message
-Armenian
 Asian
 Asthma
 Billing Code for Requested Service
 Black
+Boolean
 Breast Disease
 Caffeine consumption
 Caucasian
-Chinese
+Cell Phone Number
+Chart Storage Locations
+Check Number
 Choices
 City Name
+Contact Email Address
 Contact Lenses
 Contraceptive Complication (specify)
 Contraceptives Start
 Counseling activities
+Counter-Referral
 Coupon
 Date contraceptive services initially provided
+Date of Birth
 Date of referral
 Date of reply
 Depression
+Did you receive a copy of the HIPAA Notice?
 Direct Mail
+Discount Level
 Divorced
 Domestic Partner
-Dutch
+Dr.
+Drivers License or State ID
+Drug Forms
+Drug Intervals
+Drug Routes
+Drug Units
+Emergency Contact Person
+Emergency Contact Phone Number
 Emergency Phone
 Employee
 Employer Name
-English
 Ethnicity or Race
 Exam and test results
 Exams/Tests
+Exercise patterns
 External ID
+External identifier
 External Referral
 External referral?
 Fibroids
@@ -44,15 +64,13 @@ Final Diagnosis
 Final diagnosis by specialist
 Findings
 Findings by specialist
-French
 Gall Bladder Condition
-German
 grams
+Hazardous activities
 Heart Disease
-Hebrew
-High
 HIPAA Notice Received
 Hispanic
+Home Phone Number
 Homeless or similar?
 Homeless, etc.
 Hypertension
@@ -60,6 +78,7 @@ Include Vitals
 Include vitals data?
 Infertility
 Interpreter needed?
+Last Activity Date
 Leave Message With
 Level of urgency
 License/ID
@@ -70,15 +89,21 @@ mg/2cc
 mg/3cc
 mg/4cc
 Migrant or seasonal worker?
+Misc
 Mobile Phone
+Mr.
+Mrs.
+Ms.
+Name 1
+Name 2
 Name/Value
 Newspaper
-Norwegian
 Other (specify)
 Pharmacy
 PID (Pelvic Inflammatory Disease)
 Postal Code
 Preferred Language
+Preferred Pharmacy
 Prescriptions and/or referrals by specialist
 Prescriptions/Referrals
 Presumed Diagnosis
@@ -89,37 +114,67 @@ Reason for referral
 Recommendations
 Recommendations by specialist
 Refer By
+Referral By
 Referral Card
 Referral Date
 Referral To
 Referrer Diagnosis
+Referrer diagnosis
+Referring Provider
 Reply From
 Requested Service
 Risk Factors
 Risk Level
-Russian
+Sample
+Seatbelt use
 Separated
+Service Category
+Service Date
 Service provided by specialist
 Services Provided
 Severe Migraine
 Sickle Cell
 Single
-Slovak
-Spanish
+Sleep patterns
+Social Security Number
+Squad Membership
 Standard
 Start Date at This Clinic
 State/Locality
 Stats
 Street and Number
-Swedish
 T.V.
+Tax Rate
 Thrombosis/Stroke
+Titles
 Tobacco use
 User Defined
+User Defined Area 11
+User Defined Area 12
+User Defined Field
+User Defined List 1
+User Defined List 2
+User Defined List 3
+User Defined List 4
+User Defined List 5
+User Defined List 6
+User Defined List 7
+User Defined Text 1
+User Defined Text 2
+User Defined Text 3
+User Defined Text 4
+User Defined Text 5
+User Defined Text 6
+User Defined Text 7
+User Defined Text 8
+Value 1
+Value 2
 Varicose Veins
 Walk-In
 Where may related scanned or paper documents be found?
 Who
 Who replied?
 Widowed
-(More)
+With whom may we leave a message?
+Work Phone Number
+Yes/No
