@@ -42,7 +42,7 @@ $datatypes = array("1"=>xl("list box"),
 
 // Check authorization.
 $thisauth = acl_check('admin', 'super');
-if (!$thisauth) die("Not authorized.");
+if (!$thisauth) die(xl('Not authorized'));
 
 // the layout ID defaults to DEM (demographics)
 $layout_id = empty($_REQUEST['layout_id']) ? 'DEM' : $_REQUEST['layout_id'];
@@ -417,7 +417,7 @@ a, a:visited, a:hover { color:#0000cc; }
 <input type="hidden" name="movegroupname" id="movegroupname" value="">
 <input type="hidden" name="movedirection" id="movedirection" value="">
 
-<p><b>Edit layout:</b>&nbsp;
+<p><b><?php xl('Edit layout','e'); ?>:</b>&nbsp;
 <select name='layout_id' id='layout_id'>
 <?php
 foreach ($layouts as $key => $value) {
@@ -429,7 +429,7 @@ foreach ($layouts as $key => $value) {
 </select></p>
 
 <div>
-<input type='button' class='addgroup' id='addgroup' value='Add Group'/>
+<input type='button' class='addgroup' id='addgroup' value=<?php xl('Add Group','e','\'','\''); ?>/>
 </div>
 
 <?php 
@@ -451,15 +451,15 @@ if ($row['group_name'] != $prevgroup) {
         echo "&nbsp; ";	
     }
     echo "&nbsp; ";
-    echo " <input type='button' class='addfield' id='addto~".$row['group_name']."' value='Add Field'/>";
+    echo " <input type='button' class='addfield' id='addto~".$row['group_name']."' value='" . xl('Add Field') . "'/>";
     echo "&nbsp; &nbsp; ";
-    echo " <input type='button' class='renamegroup' id='".$row['group_name']."' value='Rename Group'/>";
+    echo " <input type='button' class='renamegroup' id='".$row['group_name']."' value='" . xl('Rename Group') . "'/>";
     echo "&nbsp; &nbsp; ";
-    echo " <input type='button' class='deletegroup' id='".$row['group_name']."' value='Delete Group'/>";
+    echo " <input type='button' class='deletegroup' id='".$row['group_name']."' value='" . xl('Delete Group') . "'/>";
     echo "&nbsp; &nbsp; ";
-    echo " <input type='button' class='movegroup' id='".$row['group_name']."~up' value='Move Up'/>";
+    echo " <input type='button' class='movegroup' id='".$row['group_name']."~up' value='" . xl('Move Up') . "'/>";
     echo "&nbsp; &nbsp; ";
-    echo " <input type='button' class='movegroup' id='".$row['group_name']."~down' value='Move Down'/>";
+    echo " <input type='button' class='movegroup' id='".$row['group_name']."~down' value='" . xl('Move Down') . "'/>";
     echo "</div>";
     $firstgroup = false;
 ?>
@@ -508,18 +508,18 @@ if ($row['group_name'] != $prevgroup) {
 <!-- template DIV that appears when user chooses to rename an existing group -->
 <div id="renamegroupdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
 <input type="hidden" name="renameoldgroupname" id="renameoldgroupname" value="">
-Group Name: <input type="textbox" size="20" maxlength="30" name="renamegroupname" id="renamegroupname">
+<?php xl('Group Name','e'); ?>:	<input type="textbox" size="20" maxlength="30" name="renamegroupname" id="renamegroupname">
 <br>
-<input type="button" class="saverenamegroup" value="Rename group">
-<input type="button" class="cancelrenamegroup" value="Cancel">
+<input type="button" class="saverenamegroup" value=<?php xl('Rename group','e','\'','\''); ?>>
+<input type="button" class="cancelrenamegroup" value=<?php xl('Cancel','e','\'','\''); ?>>
 </div>
 
 <!-- template DIV that appears when user chooses to add a new group -->
 <div id="groupdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
-Group Name: <input type="textbox" size="20" maxlength="30" name="newgroupname" id="newgroupname">
+<?php xl('Group Name','e'); ?>:	<input type="textbox" size="20" maxlength="30" name="newgroupname" id="newgroupname">
 <br>
-<input type="button" class="savenewgroup" value="Save new group">
-<input type="button" class="cancelnewgroup" value="Cancel">
+<input type="button" class="savenewgroup" value=<?php xl('Save new group','e','\'','\''); ?>>
+<input type="button" class="cancelnewgroup" value=<?php xl('Cancel','e','\'','\''); ?>>
 </div>
 
 <!-- template DIV that appears when user chooses to add a new field to a group -->
@@ -547,9 +547,9 @@ Group Name: <input type="textbox" size="20" maxlength="30" name="newgroupname" i
 <td><input type="textbox" name="newtitle" id="newtitle" value="" size="20" maxlength="63"> </td>
 <td>
 <select name="newuor" id="newuor">
-<option value="0">Unused</option>
-<option value="1" selected>Optional</option>
-<option value="2">Required</option>
+<option value="0"><?php xl('Unused','e'); ?></option>
+<option value="1" selected><?php xl('Optional','e'); ?></option>
+<option value="2"><?php xl('Required','e'); ?></option>
 </select>
 </td>
 <td align='center'>
@@ -571,8 +571,8 @@ foreach ($datatypes as $key=>$value) {
 </tr>
 <tr>
 <td colspan="9">
-<input type="button" class="savenewfield" value="Save new field">
-<input type="button" class="cancelnewfield" value="Cancel">
+<input type="button" class="savenewfield" value=<?php xl('Save new field','e','\'','\''); ?>>
+<input type="button" class="cancelnewfield" value=<?php xl('Cancel','e','\'','\''); ?>>
 </td>
 </tr>
 </tbody>
@@ -638,7 +638,7 @@ $(document).ready(function(){
         // the group name field can only have letters, numbers, spaces and underscores
         // AND it cannot start with a number
         if ($("#newgroupname").val().match(/^\d+/)) {
-            alert("Group names cannot start with numbers.");
+            alert("<?php xl('Group names cannot start with numbers.','e'); ?>");
             return false;
         }
         var validname = $("#newgroupname").val().replace(/[^A-za-z0-9 ]/g, "_"); // match any non-word characters and replace them
@@ -653,7 +653,7 @@ $(document).ready(function(){
     var DeleteGroup = function(btnObj) {
         var parts = $(btnObj).attr("id");
         var groupname = parts.replace(/^\d+/, "");
-        if (confirm("WARNING - This action cannot be undone.\n Are you sure you wish to delete the entire group named '"+groupname+"'?")) {
+        if (confirm("<?php xl('WARNING','e','',' - ') . xl('This action cannot be undone.','e','','\n') . xl('Are you sure you wish to delete the entire group named','e','',' '); ?>'"+groupname+"'?")) {
             // submit the form to add a new field to a specific group
             $("#formaction").val("deletegroup");
             $("#deletegroupname").val(parts);
@@ -699,7 +699,7 @@ $(document).ready(function(){
         // the group name field can only have letters, numbers, spaces and underscores
         // AND it cannot start with a number
         if ($("#renamegroupname").val().match(/^\d+/)) {
-            alert("Group names cannot start with numbers.");
+            alert("<?php xl('Group names cannot start with numbers.','e'); ?>");
             return false;
         }
         var validname = $("#renamegroupname").val().replace(/[^A-za-z0-9 ]/g, "_"); // match any non-word characters and replace them
@@ -742,7 +742,7 @@ $(document).ready(function(){
     var DeleteField = function(btnObj) {
         var parts = $(btnObj).attr("id").split("~");
         var groupname = parts[0].replace(/^\d+/, "");
-        if (confirm("WARNING - This action cannot be undone.\n Are you sure you wish to delete the field in '"+groupname+"' identified as '"+parts[1]+"'?")) {
+        if (confirm("<?php xl('WARNING','e','',' - ') . xl('This action cannot be undone.','e','','\n') . xl('Are you sure you wish to delete the field in','e'); ?> '"+groupname+"' <?php xl('identified as','e'); ?> '"+parts[1]+"'?")) {
             // submit the form to add a new field to a specific group
             $("#formaction").val("deletefield");
             $("#deletefieldgroup").val(parts[0]);
@@ -757,27 +757,27 @@ $(document).ready(function(){
     
         // seq must be numeric and less than 999
         if (! IsNumeric($("#newseq").val(), 0, 999)) {
-            alert("Order must be a number between 1 and 999");
+            alert("<?php xl('Order must be a number between 1 and 999','e'); ?>");
             return false;
         }
         // length must be numeric and less than 999
         if (! IsNumeric($("#newlength").val(), 0, 999)) {
-            alert("Size must be a number between 1 and 999");
+            alert("<?php xl('Size must be a number between 1 and 999','e'); ?>");
             return false;
         }
         // titlecols must be numeric and less than 100
         if (! IsNumeric($("#newtitlecols").val(), 0, 999)) {
-            alert("TitleCols must be a number between 1 and 999");
+            alert("<?php xl('TitleCols must be a number between 1 and 999','e'); ?>");
             return false;
         }
         // datacols must be numeric and less than 100
         if (! IsNumeric($("#newdatacols").val(), 0, 999)) {
-            alert("DataCols must be a number between 1 and 999");
+            alert("<?php xl('DataCols must be a number between 1 and 999','e'); ?>");
             return false;
         }
         // some fields cannot be blank
         if ($("#newtitle").val() == "") {
-            alert("Label cannot be blank");
+            alert("<?php xl('Label cannot be blank','e'); ?>");
             return false;
         }
         // the id field can only have letters, numbers and underscores
