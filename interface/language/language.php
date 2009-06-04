@@ -27,9 +27,9 @@ function editLang(lang_id) {
 <body class="body_top">
 <form>
 <span class="title"><?php  xl('Multi Language Tool','e') ?></span>
-<span class='text'>&nbsp;&nbsp;&nbsp;Filter for Constants:
+<span class='text'>&nbsp;&nbsp;&nbsp;<?php xl('Filter for Constants','e','',':'); ?>
 <input type='text' name='form_filter' size='8' value='' />
-(% matches any string, _ matches any character)
+<?php xl('(% matches any string, _ matches any character)','e'); ?>
 </form>
 </span>
 
@@ -42,7 +42,7 @@ $sql="SELECT * FROM lang_languages ORDER BY lang_id";
 $res=SqlStatement($sql);
 $string='|';
 while ($row=SqlFetchArray($res)){
-  $string .= "| <a href='' onclick='return editLang(" . $row['lang_id'] . ")'>" . $row['lang_description'] . "</a> |";
+  $string .= "| <a href='' onclick='return editLang(" . $row['lang_id'] . ")'>" . xl($row['lang_description']) . "</a> |";
 }
 $string.='|';
 

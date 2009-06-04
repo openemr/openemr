@@ -5,7 +5,7 @@ $thisauth = acl_check('admin', 'language');
 
 if (!$thisauth) {
   echo "<html>\n<body>\n";
-  echo "<p>You are not authorized for this.</p>\n";
+  echo "<p>" . xl('You are not authorized for this.','e') . "</p>\n";
   echo "</body>\n</html>\n";
   exit();
  }
