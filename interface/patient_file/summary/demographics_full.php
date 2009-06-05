@@ -345,7 +345,10 @@ while ($frow = sqlFetchArray($fres)) {
     echo "<br /><span class='bold'><input type='checkbox' name='form_cb_$group_seq' value='1' " .
       "onclick='return divclick(this,\"div_$group_seq\");'";
     if ($display_style == 'block') echo " checked";
-    echo " /><b>" . (($GLOBALS['translate_layout'])? xl($group_name) : $group_name) . "</b></span>\n";
+      
+    // Modified 6-09 by BM - Translate if applicable
+    echo " /><b>" . xl_layout_label($group_name) . "</b></span>\n";
+      
     echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
     echo " <table border='0' cellpadding='0'>\n";
     $display_style = 'none';
@@ -371,7 +374,10 @@ while ($frow = sqlFetchArray($fres)) {
   ++$item_count;
 
   echo "<b>";
-  if ($frow['title']) echo (($GLOBALS['translate_layout'])? xl($frow['title']) : $frow['title']).":"; else echo "&nbsp;";
+    
+  // Modified 6-09 by BM - Translate if applicable
+  if ($frow['title']) echo (xl_layout_label($frow['title']).":"); else echo "&nbsp;";
+    
   echo "</b>";
 
   // Handle starting of a new data cell.
