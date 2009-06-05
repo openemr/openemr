@@ -7,6 +7,7 @@
 include_once("../../globals.php");
 include_once("../../../custom/code_types.inc.php");
 include_once("$srcdir/sql.inc");
+include_once("$srcdir/options.inc.php");
 
 // Translation for form fields.
 function ffescape($field) {
@@ -37,7 +38,7 @@ if (isset($mode)) {
   $code_text  = $_POST['code_text'];
   $modifier   = $_POST['modifier'];
   // $units      = $_POST['units'];
-  $superbill  = $_POST['superbill'];
+  $superbill  = $_POST['form_superbill'];
   $related_code = $_POST['related_code'];
   $cyp_factor = $_POST['cyp_factor'] + 0;
 
@@ -59,7 +60,7 @@ if (isset($mode)) {
       "modifier = '"     . ffescape($modifier)     . "' AND " .
       "id != '$code_id'");
     if ($crow['count']) {
-      $alertmsg = "Cannot add/update this entry because a duplicate already exists!";
+      $alertmsg = xl('Cannot add/update this entry because a duplicate already exists!');
     }
     else {
       $sql =
@@ -306,18 +307,9 @@ function submitDelete(id) {
   <td><?php xl('Category','e'); ?>:</td>
   <td></td>
   <td>
-   <select name="superbill">
-    <option value=''>Unassigned</option>
 <?php
-$pres = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'superbill' ORDER BY seq");
-while ($prow = sqlFetchArray($pres)) {
-  echo '    <option value="' . $prow['option_id'] . '"';
-  if ($superbill == $prow['option_id']) echo " selected";
-  echo ">" . $prow['title'] . "</option>\n";
-}
+generate_form_field(array('data_type'=>1,'field_id'=>'superbill','list_id'=>'superbill'), $superbill);
 ?>
-   </select>
   </td>
  </tr>
 
@@ -351,7 +343,7 @@ $pres = sqlStatement("SELECT lo.option_id, lo.title, p.pr_price " .
   "WHERE list_id = 'pricelevel' ORDER BY lo.seq");
 for ($i = 0; $prow = sqlFetchArray($pres); ++$i) {
   if ($i) echo "&nbsp;&nbsp;";
-  echo $prow['title'] . " ";
+  echo xl_list_label($prow['title']) . " ";
   echo "<input type='text' size='6' name='fee[" . $prow['option_id'] . "]' " .
     "value='" . $prow['pr_price'] . "' >\n";
 }
@@ -409,7 +401,7 @@ foreach ($code_types as $key => $value) {
    &nbsp;&nbsp;&nbsp;&nbsp;
 
    <input type="text" name="search" size="5" value="<?php echo $search ?>">&nbsp;
-   <input type="submit" name="go" value="Search">
+   <input type="submit" name="go" value=<?php xl('Search','e','\'','\''); ?>>
    <input type='hidden' name='fstart' value='<?php echo $fstart ?>'>
   </td>
 
@@ -450,7 +442,7 @@ foreach ($code_types as $key => $value) {
 $pres = sqlStatement("SELECT title FROM list_options " .
   "WHERE list_id = 'pricelevel' ORDER BY seq");
 while ($prow = sqlFetchArray($pres)) {
-  echo "  <td class='bold' align='right' nowrap>" . $prow['title'] . "</td>\n";
+  echo "  <td class='bold' align='right' nowrap>" . xl_list_label($prow['title']) . "</td>\n";
 }
 ?>
   <td></td>
@@ -520,8 +512,8 @@ if (!empty($all)) {
       echo "<td class='text' align='right'>" . bucks($prow['pr_price']) . "</td>\n";
     }
 
-    echo "  <td align='right'><a class='link' href='javascript:submitDelete(" . $iter['id'] . ")'>[Del]</a></td>\n";
-    echo "  <td align='right'><a class='link' href='javascript:submitEdit("   . $iter['id'] . ")'>[Edit]</a></td>\n";
+    echo "  <td align='right'><a class='link' href='javascript:submitDelete(" . $iter['id'] . ")'>[" . xl('Delete') . "]</a></td>\n";
+    echo "  <td align='right'><a class='link' href='javascript:submitEdit("   . $iter['id'] . ")'>[" . xl('Edit') . "]</a></td>\n";
     echo " </tr>\n";
 
   }
