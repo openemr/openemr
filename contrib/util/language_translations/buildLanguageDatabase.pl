@@ -51,6 +51,7 @@ my $totalDefinitions;
 my @languages;
 my @numberConstantsLanguages;
 
+# Main variables
 my $de = "\t";
 my $filenameOut;
 my $inputFilename;
@@ -68,6 +69,8 @@ my $filenameOut_revised = "revisedSpreadsheet.tsv";
 my $flagCheck = 0;
 my @previousConstants;
 my @inputFile;
+my @revisedFile;
+my @inputFileProcessed;
 
 # to hold utf8 flag
 my $utf8;
@@ -103,12 +106,44 @@ open(MYINPUTFILE2, "<$inputFilename") or die "unable to open file";
 @inputFile = <MYINPUTFILE2>;
 close(MYINPUTFILE2);
 
+# Clean up spreadsheet
+# FIRST, remove newlines, blank lines, escape characters, and windows returns
+# SECOND, place the escape characters in all required sql characters
+foreach my $tempLine (@inputFile) {
+ chomp($tempLine);
+ if ($tempLine !~ /^\s*$/) {
+  # remove ^M characters (windows line feeds)
+  $tempLine =~ s/\r//g;
+
+  # remove all escape characters
+  $tempLine =~ s/\\//g;
+
+  # place all required escape characters
+  $tempLine =~ s/\'/\\\'/g;
+  $tempLine =~ s/\"/\\\"/g;
+
+  # push into new array
+  push (@inputFileProcessed,$tempLine);
+ }
+}
+
+# check spreadsheet for rogue tabs and newlines
+#  (the last column needs to be full for this to work
+#   correctly, such as the dummy language)
+quickCheckStructure(@inputFileProcessed);
+
+# check and fix modified constants (and constant id's)
+if ($flagCheck) {
+ # first create data for replacement spreadsheet if needed
+ @revisedFile = checkConstants("special",@inputFileProcessed);
+ # then clean data to create mysql dumpfiles
+ @inputFileProcessed = checkConstants("normal",@inputFileProcessed);
+}
+
 # run through twice to make a utf8 table and a latin1 table
-#  revised spreadsheet, log file and stats only from the utf8 processing
+#  revised spreadsheet. Build statistics and revised
+#  spreadsheet during utf8 run.
 for (my $i=0;$i<2;$i++) {
- # set arrays
- my @revisedFile;
- my @inputFileProcessed;
     
  # set utf flag
  if ($i == 0) {
@@ -125,50 +160,16 @@ for (my $i=0;$i<2;$i++) {
  # open output file
  open(OUTPUTFILE, ">$filenameOut") or die "unable to open output file";
 
- # FIRST, remove newlines, blank lines, escape characters, and windows returns
- # SECOND, place the escape characters in all required sql characters
- foreach my $tempLine (@inputFile) {
-  chomp($tempLine);
-  if ($tempLine !~ /^\s*$/) {
-   # remove ^M characters (windows line feeds)
-   $tempLine =~ s/\r//g;
-     
-   # remove all escape characters
-   $tempLine =~ s/\\//g;
-
-   # place all required escape characters
-   $tempLine =~ s/\'/\\\'/g;
-   $tempLine =~ s/\"/\\\"/g;
-     
-   # push into new array   
-   push (@inputFileProcessed,$tempLine);
-  }
- }
-
- # check and fix modified constants (and constant id's)
- if ($flagCheck) {
-  # first create data for replacement spreadsheet if needed
-  @revisedFile = checkConstants("special",@inputFileProcessed);
-  # then clean data to create mysql dumpfiles
-  @inputFileProcessed = checkConstants("normal",@inputFileProcessed);
- }
-
-
  my $outputString = "";
  
- # add header for utf8/latin1 encoding
+ # add UTF8 set names for both utf8 and latin1 encoding, since
+ #  the dumpfile is encoded in UTF8
  $outputString .= "\
 --
 -- Ensure correct encoding
 --
 ";
- if ($utf8) {
-  $outputString .= "SET NAMES utf8;\n\n";
- }
- else {
-  $outputString .= "SET NAMES utf8;\n\n";   
-  # $outputString .= "SET NAMES latin1;\n\n";
- }
+ $outputString .= "SET NAMES utf8;\n\n";
 
  # parse lang_languages
  $outputString .= createLanguages($utf8, @inputFileProcessed);
@@ -217,6 +218,49 @@ for (my $i=0;$i<2;$i++) {
 
 close(LOGFILE);
 
+
+#
+#
+# FUNCTIONS
+#
+#
+
+#
+# function to check spreadsheet for rogue tabs
+#  to work, the last column needs to be filled (such as a dummy language)
+# will output errors to LOGFILE
+# param - @arr array of spreadsheet
+# globals - @inputFile, LOGFILE, $de, $languageNumRow
+#
+sub quickCheckStructure() {
+ my (@arr) = @_;
+ 
+ # use the languagNumRow as the standard for number of tabs
+ #  on each row
+ my $numberColumns = split($de,$arr[$languageNumRow]);
+ my $numberTabs = $numberColumns - 1;
+    
+ # ensure every row on spreadsheet has equal number of tabs
+ my $counter = 1;
+ foreach my $var (@arr) {
+  my $tempNumber = split($de,$var);
+  my $tempTabs = $tempNumber - 1;
+  if ($numberTabs != $tempTabs) {
+   print LOGFILE "\nERROR: $counter row with incorrect number of tabs. There are $tempTabs in this row and should be $numberTabs.\n";
+   if ($tempTabs > $numberTabs) {
+    # too many tabs
+    print LOGFILE "\t(This is likely secondary to a rogue tab character(s) on row $counter.)\n";
+   }
+   else {
+    # not enough tabs
+    print LOGFILE "\t(This is likely secondary to a rogue newline character(s) on row $counter or one row above.)\n";
+   }
+  }
+  $counter += 1;
+ }
+    
+ return;
+}
 
 #
 # function to compare to original constants
