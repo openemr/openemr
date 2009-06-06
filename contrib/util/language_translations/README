@@ -17,12 +17,19 @@ the file.
    code where they are called.
   -The filterDirectories.txt file includes paths to ignore in the searching.
 
-The buildLanguageDatabase.pl builds the foreign language SQL tables dumpfile
-for the lang_languages, lang_constants, and lang_definitions tables from the
-above current_spreadsheet.tsv file.  If input the list of constants it will also
-to data validation on the constants and constant ID numbers and it will
-create a spreadsheet that can be used to create a updated spreadsheet via
-the combineConstantsSpreadsheet.pl script.
+The buildLanguageDatabase.pl performs several functions.
+  -Builds the foreign language SQL tables dumpfile for the lang_languages,
+   lang_constants, and lang_definitions tables from the above
+   current_spreadsheet.tsv file.
+     -Outputs to logfile the database statistics.
+  -Performs data validation on the spreadsheet structure, constants, and
+   constant ID numbers.
+     -Outputs to logfile errors.
+       -The most recent logfile is kept in the log_buildLanguageDatabase.txt file
+         which allows easy debugging (ie. which english constant was modified)
+         via the diff command.
+  -Builds a new spreadsheet that can be used for building an updated spreadsheet
+   via the combineConstantsSpreadsheet.pl script.
 
 The combineConstantsSpreadsheet.pl script will combine a the list of constants
 with the language spreadsheet to create a new spreadsheet that can be uploaded
