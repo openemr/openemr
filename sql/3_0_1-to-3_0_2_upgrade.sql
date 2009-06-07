@@ -25,6 +25,13 @@ INSERT INTO list_options VALUES ('adjreason','To ded\'ble'    ,'To ded\'ble'    
 INSERT INTO list_options VALUES ('adjreason','Untimely filing','Untimely filing',90,0,0);
 #EndIf
 
+#IfNotRow list_options list_id sub_relation
+INSERT INTO list_options VALUES ('lists'       ,'sub_relation','Subscriber Relationship',18,0,0);
+INSERT INTO list_options VALUES ('sub_relation','self'        ,'Self'                   , 1,0,0);
+INSERT INTO list_options VALUES ('sub_relation','spouse'      ,'Spouse'                 , 2,0,0);
+INSERT INTO list_options VALUES ('sub_relation','child'       ,'Child'                  , 3,0,0);
+INSERT INTO list_options VALUES ('sub_relation','other'       ,'Other'                  , 4,0,0);
+#EndIf
 
 ALTER TABLE `prices` 
     CHANGE `pr_selector` `pr_selector` VARCHAR( 255 ) NOT NULL default '' COMMENT 'template selector for drugs, empty for codes';
