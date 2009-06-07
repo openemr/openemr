@@ -59,7 +59,7 @@ function auto_populate_employer_address(){
  df.i<?php echo $browsenum?>subscriber_phone.value='<?php echo $result3{subscriber_phone};?>';
  df.i<?php echo $browsenum?>subscriber_DOB.value='<?php echo $result3{subscriber_DOB};?>';
  df.i<?php echo $browsenum?>subscriber_ss.value='<?php echo $result3{subscriber_ss};?>';
- df.i<?php echo $browsenum?>subscriber_sex.value='<?php echo $result3{subscriber_sex};?>';
+ df.form_i<?php echo $browsenum?>subscriber_sex.value='<?php echo $result3{subscriber_sex};?>';
 
  df.i<?php echo $browsenum?>plan_name.value='<?php echo $result3{plan_name};?>';
  df.i<?php echo $browsenum?>policy_number.value='<?php echo $result3{policy_number};?>';
