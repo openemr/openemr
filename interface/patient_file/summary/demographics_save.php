@@ -8,13 +8,13 @@ include_once("$srcdir/options.inc.php");
 $thisauth = acl_check('patients', 'demo');
 if ($pid) {
   if ($thisauth != 'write')
-    die("Updating demographics is not authorized.");
+    die(xl('Updating demographics is not authorized.'));
   $tmp = getPatientData($pid, "squad");
   if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-    die("You are not authorized to access this squad.");
+    die(xl('You are not authorized to access this squad.'));
 } else {
   if ($thisauth != 'write' && $thisauth != 'addonly')
-    die("Adding demographics is not authorized.");
+    die(xl('Adding demographics is not authorized.'));
 }
 
 foreach ($_POST as $key => $val) {
@@ -62,7 +62,7 @@ newInsuranceData(
   $_POST["i1subscriber_lname"],
   $_POST["i1subscriber_mname"],
   $_POST["i1subscriber_fname"],
-  $_POST["i1subscriber_relationship"],
+  $_POST["form_i1subscriber_relationship"],
   $_POST["i1subscriber_ss"],
   $i1dob,
   $_POST["i1subscriber_street"],
@@ -78,7 +78,7 @@ newInsuranceData(
   $_POST["i1subscriber_employer_state"],
   $_POST["i1subscriber_employer_country"],
   $_POST['i1copay'],
-  $_POST['i1subscriber_sex'],
+  $_POST['form_i1subscriber_sex'],
   $i1date,
   $_POST['i1accept_assignment']
 );
@@ -96,7 +96,7 @@ newInsuranceData(
   $_POST["i2subscriber_lname"],
   $_POST["i2subscriber_mname"],
   $_POST["i2subscriber_fname"],
-  $_POST["i2subscriber_relationship"],
+  $_POST["form_i2subscriber_relationship"],
   $_POST["i2subscriber_ss"],
   $i2dob,
   $_POST["i2subscriber_street"],
@@ -112,7 +112,7 @@ newInsuranceData(
   $_POST["i2subscriber_employer_state"],
   $_POST["i2subscriber_employer_country"],
   $_POST['i2copay'],
-  $_POST['i2subscriber_sex'],
+  $_POST['form_i2subscriber_sex'],
   $i2date,
   $_POST['i2accept_assignment']
 );
@@ -130,7 +130,7 @@ newInsuranceData(
   $_POST["i3subscriber_lname"],
   $_POST["i3subscriber_mname"],
   $_POST["i3subscriber_fname"],
-  $_POST["i3subscriber_relationship"],
+  $_POST["form_i3subscriber_relationship"],
   $_POST["i3subscriber_ss"],
   $i3dob,
   $_POST["i3subscriber_street"],
@@ -146,7 +146,7 @@ newInsuranceData(
   $_POST["i3subscriber_employer_state"],
   $_POST["i3subscriber_employer_country"],
   $_POST['i3copay'],
-  $_POST['i3subscriber_sex'],
+  $_POST['form_i3subscriber_sex'],
   $i3date,
   $_POST['i3accept_assignment']
 );

@@ -20,18 +20,15 @@
  $thisauth = acl_check('patients', 'demo');
  if ($pid) {
   if ($thisauth != 'write')
-   die("Updating demographics is not authorized.");
+   die(xl('Updating demographics is not authorized.'));
   if ($result['squad'] && ! acl_check('squads', $result['squad']))
-   die("You are not authorized to access this squad.");
+   die(xl('You are not authorized to access this squad.'));
  } else {
   if ($thisauth != 'write' && $thisauth != 'addonly')
-   die("Adding demographics is not authorized.");
+   die(xl('Adding demographics is not authorized.'));
  }
 
 $CPR = 4; // cells per row
-
-// Might want to use the list_options table and then trash this.
-$relats = array('','self','spouse','child','other');
 
 // $statii = array('married','single','divorced','widowed','separated','domestic partner');
 // $langi = getLanguages();
@@ -105,11 +102,11 @@ function replace(string,text,by) {
 function upperFirst(string,text) {
  return replace(string,text,text.charAt(0).toUpperCase() + text.substring(1,text.length));
 }
-
+		
 <?php for ($i=1;$i<=3;$i++) { ?>
 function auto_populate_employer_address<?php echo $i ?>(){
  var f = document.demographics_form;
- if (f.i<?php echo $i?>subscriber_relationship.options[f.i<?php echo $i?>subscriber_relationship.selectedIndex].value == "self") {
+ if (f.form_i<?php echo $i?>subscriber_relationship.options[f.form_i<?php echo $i?>subscriber_relationship.selectedIndex].value == "self") {
   f.i<?php echo $i?>subscriber_fname.value=f.form_fname.value;
   f.i<?php echo $i?>subscriber_mname.value=f.form_mname.value;
   f.i<?php echo $i?>subscriber_lname.value=f.form_lname.value;
@@ -122,10 +119,7 @@ function auto_populate_employer_address<?php echo $i ?>(){
   f.i<?php echo $i?>subscriber_phone.value=f.form_phone_home.value;
   f.i<?php echo $i?>subscriber_DOB.value=f.form_DOB.value;
   f.i<?php echo $i?>subscriber_ss.value=f.form_ss.value;
-  //
-  // TBD: This is a kludge. subscriber_sex should come from the same list as form_sex!
-  f.i<?php echo $i?>subscriber_sex.selectedIndex = f.form_sex.selectedIndex - 1;
-  //
+  f.form_i<?php echo $i?>subscriber_sex.value = f.form_sex.value;
   f.i<?php echo $i?>subscriber_employer.value=f.form_em_name.value;
   f.i<?php echo $i?>subscriber_employer_street.value=f.form_em_street.value;
   f.i<?php echo $i?>subscriber_employer_city.value=f.form_em_city.value;
@@ -152,7 +146,7 @@ function checkNum () {
  if(re.exec(str))
  {
  }else{
-  alert("Please enter a dollar amount using only numbers and a decimal point.");
+  alert("<?php xl('Please enter a monetary amount using only numbers and a decimal point.','e'); ?>");
  }
 }
 
@@ -224,7 +218,7 @@ function validate(f) {
   subprov = 'i' + i + 'provider';
   if (!f[subprov] || f[subprov].selectedIndex <= 0) continue;
   var subpfx = 'i' + i + 'subscriber_';
-  var subrelat = f[subpfx + 'relationship'];
+  var subrelat = f['form_' + subpfx + 'relationship'];
   var samename =
    f[subpfx + 'fname'].value == f.form_fname.value &&
    f[subpfx + 'mname'].value == f.form_mname.value &&
@@ -232,21 +226,21 @@ function validate(f) {
   var samess = f[subpfx + 'ss'].value == f.form_ss.value;
   if (subrelat.options[subrelat.selectedIndex].value == "self") {
    if (!samename) {
-    if (!confirm('Subscriber relationship is self but name is different! Is this really OK?'))
+    if (!confirm("<?php xl('Subscriber relationship is self but name is different! Is this really OK?','e'); ?>"))
      return false;
    }
    if (!samess) {
-    alert('Subscriber relationship is self but SS number is different!');
+    alert("<?php xl('Subscriber relationship is self but SS number is different!','e'); ?>");
     return false;
    }
   } // end self
   else {
    if (samename) {
-    if (!confirm('Subscriber relationship is not self but name is the same! Is this really OK?'))
+    if (!confirm("<?php xl('Subscriber relationship is not self but name is the same! Is this really OK?','e'); ?>"))
      return false;
    }
    if (samess) {
-    alert('Subscriber relationship is not self but SS number is the same!');
+    alert("<?php xl('Subscriber relationship is not self but SS number is the same!','e'); ?>");
     return false;
    }
   } // end not self
@@ -262,9 +256,18 @@ function submitme() {
   f.submit();
  }
 }
+	
+// Added 06/2009 by BM to make compatible with list_options table and functions - using jquery
+$(document).ready(function() {
+	
+ <?php for ($i=1;$i<=3;$i++) { ?>
+  $("#form_i<?php echo $i?>subscriber_relationship").change(function() { auto_populate_employer_address<?php echo $i?>(); });
+ <?php } ?>
+
+});	
 
 //-->
-
+	
 </script>
 </head>
 
@@ -488,12 +491,12 @@ end_group();
         <td><input type=entry size=15 name=i<?php echo $i?>subscriber_employer_city
          value="<?php echo $result3{"subscriber_employer_city"}?>"
           onchange="capitalizeMe(this);" /></td>
-        <td><span class=required><?php xl('SE','e'); ?> <?php echo ($GLOBALS['phone_country_code'] == '1') ? 'State' : 'Locality' ?>: </span></td>
+        <td><span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('SE State','e') : xl('SE Locality','e') ?>: </span></td>
         <td><input type=entry size=15 name=i<?php echo $i?>subscriber_employer_state
          value="<?php echo $result3{"subscriber_employer_state"}?>"></td>
        </tr>
        <tr>
-        <td><span class=required><?php xl('SE','e'); ?> <?php echo ($GLOBALS['phone_country_code'] == '1') ? 'Zip' : 'Postal' ?> <?php xl('Code','e'); ?>: </span></td>
+        <td><span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('SE Zip Code','e') : xl('SE Postal Code','e') ?>: </span></td>
         <td><input type=entry size=10 name=i<?php echo $i?>subscriber_employer_postal_code value="<?php echo $result3{"subscriber_employer_postal_code"}?>"></td>
         <td><span class=required><?php xl('SE Country','e'); ?>: </span></td>
         <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer_country
@@ -520,20 +523,10 @@ end_group();
     onchange="capitalizeMe(this);" />
    <br>
    <span class=required><?php xl('Relationship','e'); ?>: </span>
-   <select name=i<?php echo $i?>subscriber_relationship onchange="javascript:auto_populate_employer_address<?php echo $i?>();">
-<?php
- foreach ($relats as $s) {
-  if ($s == "unassigned") {
-   echo "<option value=''";
-  } else {
-   echo "<option value='".$s."'";
-  }
-  if ($s == strtolower($result3['subscriber_relationship']))
-   echo " selected";
-  echo ">".ucfirst($s)."</option>\n";
-}
-?>
-   </select>
+   <?php
+    // Modified 6/2009 by BM to use list_options and function
+    generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_relationship'),'list_id'=>'sub_relation','empty_title'=>''), $result3['subscriber_relationship']);
+   ?>
    <a href="javascript:popUp('browse.php?browsenum=<?php echo $i?>')" class=text>(<?php xl('Browse','e'); ?>)</a><br />
    <span class=bold><?php xl('D.O.B.','e'); ?>: </span>
    <input type='entry' size='11' name='i<?php echo $i?>subscriber_DOB'
@@ -547,10 +540,10 @@ end_group();
 
    <span class=bold><?php xl('S.S.','e'); ?>: </span><input type=entry size=11 name=i<?php echo $i?>subscriber_ss value="<?php echo $result3{"subscriber_ss"}?>">&nbsp;
    <span class=bold><?php xl('Sex','e'); ?>: </span>
-   <select name=i<?php echo $i?>subscriber_sex>
-    <option value="Female" <?php if (strtolower($result3{"subscriber_sex"}) == "female") echo "selected"?>><?php xl('Female','e'); ?></option>
-    <option value="Male" <?php if (strtolower($result3{"subscriber_sex"}) == "male") echo "selected"?>><?php xl('Male','e'); ?></option>
-   </select>
+   <?php
+    // Modified 6/2009 by BM to use list_options and function
+    generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_sex'),'list_id'=>'sex'), $result3['subscriber_sex']);
+   ?>	
    <br>
    <span class=required><?php xl('Subscriber Address','e'); ?>: </span>
    <input type=entry size=25 name=i<?php echo $i?>subscriber_street
@@ -560,8 +553,8 @@ end_group();
    <input type=entry size=15 name=i<?php echo $i?>subscriber_city
     value="<?php echo $result3{"subscriber_city"}?>"
     onchange="capitalizeMe(this);" />
-   <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? 'State' : 'Locality' ?>: </span><input type=entry size=15 name=i<?php echo $i?>subscriber_state value="<?php echo $result3{"subscriber_state"}?>"><br>
-   <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? 'Zip' : 'Postal' ?> <?php xl('Code','e'); ?>: </span><input type=entry size=10 name=i<?php echo $i?>subscriber_postal_code value="<?php echo $result3{"subscriber_postal_code"}?>">
+   <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('State','e') : xl('Locality','e') ?>: </span><input type=entry size=15 name=i<?php echo $i?>subscriber_state value="<?php echo $result3{"subscriber_state"}?>"><br>
+   <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('Zip Code','e') : xl('Postal Code','e') ?>: </span><input type=entry size=10 name=i<?php echo $i?>subscriber_postal_code value="<?php echo $result3{"subscriber_postal_code"}?>">
    <span class='required'<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
    <?php xl('Country','e'); ?>:
    <input type=entry size=10 name=i<?php echo $i?>subscriber_country
