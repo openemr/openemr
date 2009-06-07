@@ -814,7 +814,8 @@ function generate_layout_validation($form_id) {
       case 14:
         echo
         " if (f.$fldname.selectedIndex <= 0) {\n" .
-        "  alert('Please choose a value for $fldtitle');\n" .
+        "  alert('" . xl('Please choose a value for','','',' ') .
+	xl_layout_label($fldtitle) . "');\n" .
         "  if (f.$fldname.focus) f.$fldname.focus();\n" .
         "  return false;\n" .
         " }\n";
@@ -825,7 +826,8 @@ function generate_layout_validation($form_id) {
       case 15:
         echo
         " if (trimlen(f.$fldname.value) == 0) {\n" .
-        "  alert('Please enter a value for $fldtitle');\n" .
+        "  alert('" . xl('Please choose a value for','','',' ') .
+	xl_layout_label($fldtitle) . "');\n" .
         "  if (f.$fldname.focus) f.$fldname.focus();\n" .
         "  return false;\n" .
         " }\n";
