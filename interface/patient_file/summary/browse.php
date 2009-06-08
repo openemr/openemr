@@ -1,6 +1,7 @@
 <?php 
 include_once("../../globals.php");
 include_once("$srcdir/patient.inc");
+include_once("$srcdir/options.inc.php");
 
 //the maximum number of patient records to display:
 $M = 100;
@@ -161,7 +162,7 @@ function auto_populate_employer_address(){
 <?php } ?>
 
 <tr>
-<td><span class=text><?php  xl('Subscriber Sex','e'); ?>:</span></td><td><span class=text><?php echo $result3{subscriber_sex};?></span></td>
+<td><span class=text><?php  xl('Subscriber Sex','e'); ?>:</span></td><td><span class=text><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'sex'),$result3{subscriber_sex}); ?></span></td>
 </tr>
 </table>
 
