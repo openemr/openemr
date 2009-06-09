@@ -33,6 +33,20 @@ INSERT INTO list_options VALUES ('sub_relation','child'       ,'Child'          
 INSERT INTO list_options VALUES ('sub_relation','other'       ,'Other'                  , 4,0,0);
 #EndIf
 
+#IfNotRow list_options list_id note_type
+INSERT INTO list_options VALUES ('lists'    ,'note_type'      ,'Patient Note Types',10,0,0);
+INSERT INTO list_options VALUES ('note_type','Unassigned'     ,'Unassigned'        , 1,0,0);
+INSERT INTO list_options VALUES ('note_type','Chart Note'     ,'Chart Note'        , 2,0,0);
+INSERT INTO list_options VALUES ('note_type','Insurance'      ,'Insurance'         , 3,0,0);
+INSERT INTO list_options VALUES ('note_type','New Document'   ,'New Document'      , 4,0,0);
+INSERT INTO list_options VALUES ('note_type','Pharmacy'       ,'Pharmacy'          , 5,0,0);
+INSERT INTO list_options VALUES ('note_type','Prior Auth'     ,'Prior Auth'        , 6,0,0);
+INSERT INTO list_options VALUES ('note_type','Referral'       ,'Referral'          , 7,0,0);
+INSERT INTO list_options VALUES ('note_type','Test Scheduling','Test Scheduling'   , 8,0,0);
+INSERT INTO list_options VALUES ('note_type','Bill/Collect'   ,'Bill/Collect'      , 9,0,0);
+INSERT INTO list_options VALUES ('note_type','Other'          ,'Other'             ,10,0,0);
+#EndIf
+
 ALTER TABLE `prices` 
     CHANGE `pr_selector` `pr_selector` VARCHAR( 255 ) NOT NULL default '' COMMENT 'template selector for drugs, empty for codes';
 
