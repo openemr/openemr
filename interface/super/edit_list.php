@@ -324,7 +324,7 @@ while ($row = sqlFetchArray($res)) {
 }
 ?>
 </select>
-<input type="button" id="<?php echo $list_id; ?>" class="deletelist" value=<?php xl('Delete this List','e','\'','\''); ?>>
+<input type="button" id="<?php echo $list_id; ?>" class="deletelist" value=<?php xl('Delete List','e','\'','\''); ?>>
 <input type="button" id="newlist" class="newlist" value=<?php xl('New List','e','\'','\''); ?>>
 </p>
 
@@ -393,7 +393,7 @@ if ($list_id) {
 <div id="newlistdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
 <?php xl('List Name','e'); ?>: <input type="textbox" size="20" maxlength="30" name="newlistname" id="newlistname">
 <br>
-<input type="button" class="savenewlist" value=<?php xl('Save new list','e','\'','\''); ?>>
+<input type="button" class="savenewlist" value=<?php xl('Save New List','e','\'','\''); ?>>
 <input type="button" class="cancelnewlist" value=<?php xl('Cancel','e','\'','\''); ?>>
 </div>
 </body>

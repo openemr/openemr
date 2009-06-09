@@ -510,7 +510,7 @@ if ($row['group_name'] != $prevgroup) {
 <input type="hidden" name="renameoldgroupname" id="renameoldgroupname" value="">
 <?php xl('Group Name','e'); ?>:	<input type="textbox" size="20" maxlength="30" name="renamegroupname" id="renamegroupname">
 <br>
-<input type="button" class="saverenamegroup" value=<?php xl('Rename group','e','\'','\''); ?>>
+<input type="button" class="saverenamegroup" value=<?php xl('Rename Group','e','\'','\''); ?>>
 <input type="button" class="cancelrenamegroup" value=<?php xl('Cancel','e','\'','\''); ?>>
 </div>
 
@@ -518,7 +518,7 @@ if ($row['group_name'] != $prevgroup) {
 <div id="groupdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
 <?php xl('Group Name','e'); ?>:	<input type="textbox" size="20" maxlength="30" name="newgroupname" id="newgroupname">
 <br>
-<input type="button" class="savenewgroup" value=<?php xl('Save new group','e','\'','\''); ?>>
+<input type="button" class="savenewgroup" value=<?php xl('Save New Group','e','\'','\''); ?>>
 <input type="button" class="cancelnewgroup" value=<?php xl('Cancel','e','\'','\''); ?>>
 </div>
 
@@ -571,7 +571,7 @@ foreach ($datatypes as $key=>$value) {
 </tr>
 <tr>
 <td colspan="9">
-<input type="button" class="savenewfield" value=<?php xl('Save new field','e','\'','\''); ?>>
+<input type="button" class="savenewfield" value=<?php xl('Save New Field','e','\'','\''); ?>>
 <input type="button" class="cancelnewfield" value=<?php xl('Cancel','e','\'','\''); ?>>
 </td>
 </tr>
