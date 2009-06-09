@@ -87,22 +87,22 @@ $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
 
 // Language Control Section
 //
-//  Current supported languages:
-//   Armenian
-//   Bahasa Indonesia
-//   Brazilian Portuguese
-//   Chinese
-//   Dutch
-//   English
-//   French
-//   German
-//   Greek
-//   Hebrew
-//   Norwegian
-//   Russian
-//   Slovak
-//   Spanish
-//   Swedish
+//  Current supported languages:    // Allow capture of term for translation:
+//   Armenian                       // xl('Armenian')
+//   Bahasa Indonesia               // xl('Bahasa Indonesia')
+//   Brazilian Portuguese           // xl('Brazilian Portuguese')
+//   Chinese                        // xl('Chinese')
+//   Dutch                          // xl('Dutch')
+//   English                        // xl('English ')
+//   French                         // xl('French')
+//   German                         // xl('German')
+//   Greek                          // xl('Greek')
+//   Hebrew                         // xl('Hebrew')
+//   Norwegian                      // xl('Norwegian')
+//   Russian                        // xl('Russian')
+//   Slovak                         // xl('Slovak')
+//   Spanish                        // xl('Spanish')
+//   Swedish                        // xl('Swedish')
 //
 //  'language_menu_login' toggle
 //    -If set to true then will allow language selection on login
@@ -182,12 +182,10 @@ $GLOBALS['restore_sessions'] = 1; // 0=no, 1=yes, 2=yes+debug
 // used in Add new event for multiple providers
 $GLOBALS['select_multi_providers'] = false;
 
-// used for Dutch Mental Health Facility
+// NOT functional. Always keep this value FALSE.
+//  Plan to remove when this functionally has been completely
+//   removed from code.
 $GLOBALS['dutchpc'] = FALSE;
-
-if ( $GLOBALS['dutchpc'] ) {
-  include_once (dirname(__FILE__) . "/../library/DBC_include.php");
-}
 
 // Theme definition:
 if ($GLOBALS['concurrent_layout']) {
