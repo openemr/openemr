@@ -10,6 +10,7 @@ include_once("../globals.php");
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/pnotes.inc");
 include_once("$srcdir/forms.inc");
+include_once("$srcdir/options.inc.php");
 
 if ($_GET['file']) {
   $mode = 'fax';
@@ -613,14 +614,10 @@ foreach ($categories as $catkey => $catname) {
       <tr>
        <td class='itemtitle' width='1%' nowrap><?php xl('Type','e'); ?></td>
        <td>
-        <select name='form_note_type' style='width:100%'>
-<?php
-foreach ($patient_note_types as $value) {
-  echo "    <option value='$value'";
-  echo ">$value</option>\n";
-}
-?>
-        </select>
+        <?php
+         // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
+         generate_form_field(array('data_type'=>1,'field_id'=>'note_type','list_id'=>'note_type','empty_title'=>'SKIP'));
+        ?>
        </td>
       </tr>
       <tr>

@@ -4,6 +4,7 @@ include_once("$srcdir/pnotes.inc");
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/acl.inc");
 include_once("$srcdir/log.inc");
+include_once("$srcdir/options.inc.php");
 
 if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
     include_once("$srcdir/pid.inc");
@@ -13,10 +14,10 @@ if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
 // Check authorization.
 $thisauth = acl_check('patients', 'notes');
 if ($thisauth != 'write' && $thisauth != 'addonly')
-    die("Not authorized.");
+    die(xl('Not authorized'));
 $tmp = getPatientData($pid, "squad");
 if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-    die("Not authorized for this squad.");
+    die(xl('Not authorized for this squad.'));
 
 //the number of records to display per screen
 $N = 25;
@@ -49,11 +50,11 @@ if (isset($mode)) {
     // The subroutine will do its own addslashes().
     if (get_magic_quotes_gpc()) $note = stripslashes($note);
     if ($noteid) {
-      updatePnote($noteid, $note, $_POST['title'], $_POST['assigned_to']);
+      updatePnote($noteid, $note, $_POST['form_note_type'], $_POST['assigned_to']);
       $noteid = '';
     }
     else {
-      addPnote($pid, $note, $userauthorized, '1', $_POST['title'],
+      addPnote($pid, $note, $userauthorized, '1', $_POST['form_note_type'],
         $_POST['assigned_to']);
     }
   }
@@ -126,7 +127,8 @@ $result = getPnotesByDate("", $active, 'id,date,body,user,activity,title,assigne
   <td class='text' align='center'>
 <?php
  if ($noteid) {
-   echo "<b>".xl('Amend Existing Note')." &quot;$title&quot;</b>\n";
+   // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
+   echo "<b>".xl('Amend Existing Note')." &quot;" . generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $title) . "&quot;</b>\n";
  } else {
    echo "<b>".xl('Add New Note')."</b>\n";
  }
@@ -136,15 +138,10 @@ $result = getPnotesByDate("", $active, 'id,date,body,user,activity,title,assigne
  <tr>
   <td class='text' align='center'>
    <b><?php xl('Type','e'); ?>:</b>
-   <select name='title'>
-<?php
- foreach ($patient_note_types as $value) {
-  echo "    <option value='$value'";
-  if ($value == $title) echo " selected";
-  echo ">$value</option>\n";
- }
-?>
-   </select>
+   <?php	
+   // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
+    generate_form_field(array('data_type'=>1,'field_id'=>'note_type','list_id'=>'note_type','empty_title'=>'SKIP'), $title);
+   ?>
    &nbsp; &nbsp;
    <b><?php xl('To','e'); ?>:</b>
    <select name='assigned_to'>
@@ -177,8 +174,8 @@ if ($noteid) {
 
 <?php if ($noteid) { ?>
 <!-- existing note -->
-<input type="button" id="newnote" value="<?php xl('Add new note','e'); ?>" title="Add as a new note">
-<input type="button" id="appendnote" value="<?php xl('Append to this note','e'); ?>" title="Append to the existing note">
+<input type="button" id="newnote" value="<?php xl('Add new note','e'); ?>" title="<?php xl('Add as a new note','e'); ?>">
+<input type="button" id="appendnote" value="<?php xl('Append to this note','e'); ?>" title="<?php xl('Append to the existing note','e'); ?>">
 <input type="button" id="printnote" value="<?php xl('Print this note','e'); ?>">
 <!--
 <a href="javascript:top.restoreSession();document.new_note.submit();" class='link_submit'>
@@ -279,7 +276,9 @@ if ($result != "") {
 //    echo "   <a href='javascript:document.forms[1].noteid.value=" .
 //         $iter['id'] . ";top.restoreSession();document.update_activity.submit();' " .
 //         "class='link_submit'>" . $iter['title'] . "</a>\n";
-    echo $iter['title'];
+
+    // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings  
+    echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
     echo "  </td>\n";
     echo "  <td class='notecell' id='".$iter['id']."'>\n";
     echo "   $body";
@@ -290,7 +289,7 @@ if ($result != "") {
     $thisauth = acl_check('admin', 'super');
     echo "  <td>\n";
     if (($iter['user'] == $_SESSION['authUser']) || ($thisauth == 'write')) {
-        echo " <input type='button' class='deletenote' id='del".$iter['id']."' value=' X ' title='Delete this note'>\n";
+        echo " <input type='button' class='deletenote' id='del".$iter['id']."' value=' X ' title='" . xl('Delete this note') . "'>\n";
     }
     echo "  </td>\n";
 
@@ -300,7 +299,7 @@ if ($result != "") {
   }
 } else {
   //no results
-  print "<tr><td colspan='3' class='text'><br>No notes</td></tr>\n";
+  print "<tr><td colspan='3' class='text'><br>" . xl('No notes') . "</td></tr>\n";
 }
 
 ?>
@@ -419,7 +418,7 @@ $(document).ready(function(){
     }
 
     var DeleteNote = function(note) {
-        if (confirm("Are you sure you want to delete this note?\n This action CANNOT be undone.")) {
+        if (confirm("<?php xl('Are you sure you want to delete this note?','e','','\n ') . xl('This action CANNOT be undone.','e'); ?>")) {
             top.restoreSession();
             // strip the 'del' part of the object's ID
             $("#noteid").val(note.id.replace(/del/, ""));

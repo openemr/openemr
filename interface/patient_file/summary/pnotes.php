@@ -3,6 +3,7 @@
  require_once("$srcdir/pnotes.inc");
  require_once("$srcdir/acl.inc");
  require_once("$srcdir/patient.inc");
+ require_once("$srcdir/options.inc.php");
 ?>
 <html>
 <head>
@@ -22,7 +23,7 @@
    $thisauth = 0;
  }
  if (!$thisauth) {
-  echo "<p>(Notes not authorized)</p>\n";
+  echo "<p>(" . xl('Notes not authorized') . ")</p>\n";
   echo "</body>\n</html>\n";
   exit();
  }
@@ -86,15 +87,15 @@ if(is_numeric($ws->value)) {
 *********************************************************************/
 $balance = get_patient_balance($pid);
 if ($balance != "0") {
-  $formatted = sprintf('$%01.2f', $balance);
+  $formatted = sprintf((xl('$').'%01.2f'), $balance);
   echo " <tr class='text billing'>\n";
-  echo "  <td>".$colorbeg."Balance Due".$colorend."</td><td>".$colorbeg.$formatted.$colorend."</td>\n";
+  echo "  <td>".$colorbeg.xl('Balance Due').$colorend."</td><td>".$colorbeg.$formatted.$colorend."</td>\n";
   echo " </tr>\n";
 }
 
 if ($billing_note) {
   echo " <tr class='text billing'>\n";
-  echo "  <td>".$colorbeg."Billing Note".$colorend."</td><td>".$colorbeg.$billing_note.$colorend."</td>\n";
+  echo "  <td>".$colorbeg.xl('Billing Note').$colorend."</td><td>".$colorbeg.$billing_note.$colorend."</td>\n";
   echo " </tr>\n";
 }
 
@@ -112,7 +113,7 @@ if ($result != null) {
       echo "   <a ";
       if (!$GLOBALS['concurrent_layout']) echo "target='Main' ";
       echo "href='pnotes_full.php?active=1' class='alert' onclick='top.restoreSession()'>";
-      echo "Some notes were not displayed. Click here to view all.</a>\n";
+      echo xl('Some notes were not displayed.','','',' ') . xl('Click here to view all.') . "</a>\n";
       echo "  </td>\n";
       echo " </tr>\n";
       break;
@@ -127,7 +128,12 @@ if ($result != null) {
     }
 
     echo " <tr class='text noterow' id='".$iter['id']."'>\n";
-    echo "  <td valign='top' class='bold'>".$iter['title']."</td>\n";
+      
+    // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings  
+    echo "  <td valign='top' class='bold'>";
+    echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
+    echo "</td>\n";
+      
     echo "  <td valign='top'>$body</td>\n";
     echo " </tr>\n";
 
@@ -161,7 +167,7 @@ var EditNote = function(note) {
     <?php endif; ?>
 <?php else: ?>
     // no-op
-    alert('You do not have access to view/edit this note');
+    alert("<?php xl('You do not have access to view/edit this note','e'); ?>");
 <?php endif; ?>
 }
 

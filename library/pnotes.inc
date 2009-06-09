@@ -1,17 +1,7 @@
 <?php
 require_once("{$GLOBALS['srcdir']}/sql.inc");
 
-$patient_note_types = array(
-  'Unassigned',
-  'Chart Note',
-  'Insurance',
-  'New Document',
-  'Pharmacy',
-  'Prior Auth',
-  'Referral',
-  'Test Scheduling',
-  'Bill/Collect',
-  'Other');
+// 06-2009, BM migrated the patient_note_types array to the list_options table
 
 function getPnoteById($id, $cols = "*")
 {

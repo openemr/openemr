@@ -7,6 +7,7 @@ include_once("$srcdir/pnotes.inc");
 include_once("$srcdir/transactions.inc");
 include_once("$srcdir/lists.inc");
 include_once("$srcdir/patient.inc");
+include_once("$srcdir/options.inc.php");
 
 //the number of authorizations to display in the quick view:
 // MAR 20041008 the full authorizations screen sucks... no links to the patient charts
@@ -120,13 +121,19 @@ if ($result=getPnotesByDate("", 1, "id,date,body,pid,user,title,assigned_to", '%
     echo "  <td valign='top'>\n";
 
     if ($GLOBALS['concurrent_layout']) {
+      // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings	
       echo "   <a href='../../patient_file/summary/pnotes_full.php" .
            "?set_pid=" . $iter['pid'] . "&noteid=" . $iter['id'] .
-           "&active=1' class='link_submit'>" . $iter['title'] . "</a>\n";
+           "&active=1' class='link_submit'>" .
+	   generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']) .
+	   "</a>\n";
     } else {
+      // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
       echo "   <a href='../../patient_file/patient_file.php" .
            "?set_pid=" . $iter['pid'] . "&noteid=" . $iter['id'] .
-           "' target='_top' class='link_submit'>" . $iter['title'] . "</a>\n";
+           "' target='_top' class='link_submit'>" .
+	   generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']) .
+	   "</a>\n";
     }
 
     echo "  </td>\n";
@@ -352,7 +359,7 @@ var EditNote = function(note) {
     <?php endif; ?>
 <?php else: ?>
     // no-op
-    alert('You do not have access to view/edit this note');
+    alert("<?php xl('You do not have access to view/edit this note','e'); ?>");
 <?php endif; ?>
 }
 
