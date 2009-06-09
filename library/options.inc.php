@@ -385,7 +385,7 @@ function generate_form_field($frow, $currvalue) {
   
   // single-selection list with ability to add to it
   else if ($data_type == 26) {
-    echo "<select name='form_$field_id' id='form_$field_id' title='$description'>";
+    echo "<select class='addtolistclass_$list_id' name='form_$field_id' id='form_$field_id' title='$description'>";
     if ($showEmpty) echo "<option value=''>" . xl($empty_title) . "</option>";
     $lres = sqlStatement("SELECT * FROM list_options " .
       "WHERE list_id = '$list_id' ORDER BY seq");

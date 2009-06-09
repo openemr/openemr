@@ -17,6 +17,7 @@
 <!-- hidden DIV used for creating new list items -->
 <div id="newlistitem" class="body_top" style="border: 2px outset #666; display:none; position:absolute; padding:5px; ">
  <input type="hidden" name="newlistitem_listid" id="newlistitem_listid" value="">
+ <input type="hidden" name="newlistitem_fieldid" id="newlistitem_fieldid" value="">
  <div id="specificForm">
  </div>
  <div style = 'text-align:center;'>
@@ -59,8 +60,9 @@ $(document).ready(function(){
 
     // display the 'new list item' DIV at the mouse position
     var AddToList = function(btnObj, e) {
-        // capture the ID of the list being modified from the object's ID
+        // capture the ID of the list and specific field being modified from the object's ID
         $('#newlistitem_listid').val($(btnObj).attr("id").replace(/^addtolistid_/g, ""));
+        $('#newlistitem_fieldid').val($(btnObj).attr("fieldid"));
 
         // REMOVE previous form
 	$("#specificForm").empty();
@@ -131,38 +133,52 @@ $(document).ready(function(){
         if ($("#newlistitem_listid").val() == "state") {
 	    // process state form
 	    //  (note we have collected a title and abbreviation)
-	    $listid = $("#newlistitem_listid").val();
-	    $newitem = $('#newlistitem_value').val();
-	    $newitem_abbr = $('#newlistitem_abbr').val();
+	    var listid = $("#newlistitem_listid").val();
+	    var newitem = $('#newlistitem_value').val();
+	    var newitem_abbr = $('#newlistitem_abbr').val();
 	    
 	}
 	else {
 	    // process generic form
 	    //  (note we have only collected the title, so will make
 	    //   abbreviation same as title)
-	    $listid = $("#newlistitem_listid").val();
-	    $newitem = $('#newlistitem_value').val();
-	    $newitem_abbr = $('#newlistitem_value').val();
+	    var listid = $("#newlistitem_listid").val();
+	    var newitem = $('#newlistitem_value').val();
+	    var newitem_abbr = $('#newlistitem_value').val();
 	}
 
         // make the AJAX call to save the new value to the specified list
         // upon returning successfully, refresh the list box and select 
         // the new list item
         $.getJSON("<?php echo $GLOBALS['webroot']; ?>/library/ajax/addlistitem.php",
-                    {listid: $listid,
-		     newitem: $newitem,
-		     newitem_abbr: $newitem_abbr},
-                    function(jsondata, txtresponse) { 
-                        var listboxname = ($('#addtolistid_'+$("#newlistitem_listid").val()).attr("fieldid"));
-                        var listbox = document.getElementById(listboxname);
-                        while (listbox.options.length > 0) { listbox.options[0] = null; }
-
-                        $.each(jsondata.options, function () { 
-                            listbox.options[listbox.options.length] = new Option(this.title, this.id);
-                            if (this.title == $("#newlistitem_value").val()) {
-                                listbox.selectedIndex = (listbox.options.length-1);
-                            }
-                        });
+                    {listid: listid,
+		     newitem: newitem,
+		     newitem_abbr: newitem_abbr},
+                    function(jsondata, txtresponse) {
+		        //process each widget with the same list
+			$("select.addtolistclass_"+listid).each(function(){
+			    var pointer = $(this);
+			    var currentselected = pointer.val();
+			    var listboxfield = pointer.attr("id");
+			    var listbox = document.getElementById(listboxfield);
+                            while (listbox.options.length > 0) { listbox.options[0] = null; }
+                            $.each(jsondata.options, function () {
+			        if (listboxfield == $('#newlistitem_fieldid').val()) {
+				    // build select for the chosen widget field
+                                    listbox.options[listbox.options.length] = new Option(this.title, this.id);
+                                    if (this.id == newitem_abbr) {
+				        pointer.val(this.id);
+                                    }
+				}
+				else {
+				    // build select for the other widgets using the same list
+				    listbox.options[listbox.options.length] = new Option(this.title, this.id);
+				    if (this.id == currentselected) {
+                                        pointer.val(currentselected);
+				    }
+				}
+                            }); 
+			});
         
                         // now hide the DIV
                         $('#newlistitem').hide();
