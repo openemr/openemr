@@ -32,11 +32,21 @@ function generate_form_field($frow, $currvalue) {
   // Added 5-09 by BM - Translate description if applicable  
   $description = htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES);
       
-  //added 5/2009 by BM to allow modification of the 'empty' text title field.
+  // added 5-2009 by BM to allow modification of the 'empty' text title field.
   //  Can pass $frow['empty_title'] with this variable, otherwise
   //  will default to 'Unassigned'.
-  if (isset($frow['empty_title'])) {      
-   $empty_title = $frow['empty_title'];
+  // modified 6-2009 by BM to allow complete skipping of the 'empty' text title
+  //  if make $frow['empty_title'] equal to 'SKIP'
+  $showEmpty = true;
+  if (isset($frow['empty_title'])) {
+   if ($frow['empty_title'] == "SKIP") {
+    //do not display an 'empty' choice
+    $showEmpty = false;
+    $empty_title = "Unassigned";
+   }
+   else {     
+    $empty_title = $frow['empty_title'];
+   }
   }
   else {
    $empty_title = "Unassigned";   
@@ -45,7 +55,7 @@ function generate_form_field($frow, $currvalue) {
   // generic single-selection list
   if ($data_type == 1) {
     echo "<select name='form_$field_id' id='form_$field_id' title='$description'>";
-    echo "<option value=''>" . xl($empty_title) . "</option>";
+    if ($showEmpty) echo "<option value=''>" . xl($empty_title) . "</option>";
     $lres = sqlStatement("SELECT * FROM list_options " .
       "WHERE list_id = '$list_id' ORDER BY seq");
     $got_selected = FALSE;
@@ -376,7 +386,7 @@ function generate_form_field($frow, $currvalue) {
   // single-selection list with ability to add to it
   else if ($data_type == 26) {
     echo "<select name='form_$field_id' id='form_$field_id' title='$description'>";
-    echo "<option value=''>" . xl($empty_title) . "</option>";
+    if ($showEmpty) echo "<option value=''>" . xl($empty_title) . "</option>";
     $lres = sqlStatement("SELECT * FROM list_options " .
       "WHERE list_id = '$list_id' ORDER BY seq");
     $got_selected = FALSE;
