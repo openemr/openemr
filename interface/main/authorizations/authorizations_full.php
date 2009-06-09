@@ -23,7 +23,7 @@ sqlStatement("update transactions set authorized=1 where pid='".$_GET["pid"]."'"
 <?php } else { ?>
 <a href="../main.php" target=Main>
 <?php } ?>
-<font class=title>Authorizations</font>
+<font class=title><?php xl('Authorizations','e'); ?></font>
 <font class=more><?php echo $tback;?></font></a>
 
 <?php
