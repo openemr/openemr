@@ -47,6 +47,15 @@ INSERT INTO list_options VALUES ('note_type','Bill/Collect'   ,'Bill/Collect'   
 INSERT INTO list_options VALUES ('note_type','Other'          ,'Other'             ,10,0,0);
 #EndIf
 
+UPDATE `layout_options` 
+    SET data_type = 26 WHERE form_id = 'DEM' and field_id = 'state';
+UPDATE `layout_options`
+    SET data_type = 26 WHERE form_id = 'DEM' and field_id = 'country_code';
+UPDATE `layout_options`
+    SET data_type = 26, list_id = 'state', fld_length = 0, max_length = 0, edit_options = '' WHERE form_id = 'DEM' and field_id = 'em_state';
+UPDATE `layout_options`
+    SET data_type = 26, list_id = 'country', fld_length = 0, max_length = 0, edit_options = '' WHERE form_id = 'DEM' and field_id = 'em_country';
+
 ALTER TABLE `prices` 
     CHANGE `pr_selector` `pr_selector` VARCHAR( 255 ) NOT NULL default '' COMMENT 'template selector for drugs, empty for codes';
 
