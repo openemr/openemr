@@ -772,8 +772,12 @@ while ($urow = sqlFetchArray($ures)) {
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/jquery-1.2.2.min.js"></script>
 <script language="JavaScript">
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+
+<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
  // This clears the tax line items in preparation for recomputing taxes.
  function clearTax(visible) {
@@ -896,6 +900,7 @@ $inv_encounter = '';
 $inv_date      = '';
 $inv_provider  = 0;
 $inv_payer     = 0;
+$gcac_related_visit = false;
 
 // Process billing table items.  Note this includes co-pays.
 // Items that are not allowed to have a fee are skipped.
@@ -907,10 +912,11 @@ while ($brow = sqlFetchArray($bres)) {
   $thisdate = substr($brow['date'], 0, 10);
   $code_type = $brow['code_type'];
 
-  // Collect tax rates and provider ID.
+  // Collect tax rates, related code and provider ID.
   $taxrates = '';
+  $related_code = '';
   if (!empty($code_types[$code_type]['fee'])) {
-    $query = "SELECT taxrates FROM codes WHERE code_type = '" .
+    $query = "SELECT taxrates, related_code FROM codes WHERE code_type = '" .
       $code_types[$code_type]['id'] . "' AND " .
       "code = '" . $brow['code'] . "' AND ";
     if ($brow['modifier']) {
@@ -921,6 +927,7 @@ while ($brow = sqlFetchArray($bres)) {
     $query .= " LIMIT 1";
     $tmp = sqlQuery($query);
     $taxrates = $tmp['taxrates'];
+    $related_code = $tmp['related_code'];
     markTaxes($taxrates);
     // catch provider id from non-copay items if we do not have it yet.
     if (!$inv_provider && !empty($arr_users[$brow['provider_id']]))
@@ -933,6 +940,17 @@ while ($brow = sqlFetchArray($bres)) {
   if (!$inv_encounter) $inv_encounter = $brow['encounter'];
   $inv_payer = $brow['payer_id'];
   if (!$inv_date || $inv_date < $thisdate) $inv_date = $thisdate;
+
+  // Custom logic for IPPF to determine if a GCAC issue applies.
+  if ($GLOBALS['ippf_specific'] && $related_code) {
+    $relcodes = explode(';', $related_code);
+    foreach ($relcodes as $codestring) {
+      if ($codestring === '') continue;
+      list($codetype, $code) = explode(':', $codestring);
+      if ($codetype !== 'IPPF') continue;
+      if (preg_match('/^25222/', $code)) $gcac_related_visit = true;
+    }
+  }
 }
 
 // Process drug sales / products.
@@ -1063,7 +1081,38 @@ if ($inv_encounter && !$inv_provider) {
 <script language='JavaScript'>
  Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_date"});
  computeTotals();
+<?php
+// Custom code for IPPF. Try to make sure that a GCAC issue is linked to this
+// visit if it contains GCAC-related services.
+if ($gcac_related_visit) {
+  $grow = sqlQuery("SELECT l.id, l.title, l.begdate, ie.pid " .
+    "FROM lists AS l " .
+    "LEFT JOIN issue_encounter AS ie ON ie.pid = l.pid AND " .
+    "ie.encounter = '$inv_encounter' AND ie.list_id = l.id " .
+    "WHERE l.pid = '$pid' AND " .
+    "l.activity = 1 AND l.type = 'ippf_gcac' " .
+    "ORDER BY ie.pid DESC, l.begdate DESC LIMIT 1");
+  // Note that reverse-ordering by ie.pid is a trick for sorting
+  // issues linked to the encounter (non-null values) first.
+  if (empty($grow['pid'])) { // if there is no linked GCAC issue
+    if (!empty($grow)) { // there is one that is not linked
+      echo " if (confirm('" . xl('OK to link the GCAC issue dated') . " " .
+        $grow['begdate'] . " " . xl('to this visit?') . "')) {\n";
+      echo "  $.getScript('link_issue_to_encounter.php?issue=" . $grow['id'] .
+        "&thisenc=$inv_encounter');\n";
+      echo " } else";
+    }
+    echo " if (confirm('" . xl('Are you prepared to complete a new GCAC issue for this visit?') . "')) {\n";
+    echo "  dlgopen('summary/add_edit_issue.php?thisenc=$inv_encounter" .
+      "&thistype=ippf_gcac', '_blank', 700, 600);\n";
+    echo " } else {\n";
+    echo "  $.getScript('link_issue_to_encounter.php?thisenc=$inv_encounter');\n";
+    echo " }\n";
+  }
+} // end if ($gcac_related_visit)
+?>
 </script>
 
 </body>
 </html>
+
