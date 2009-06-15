@@ -256,7 +256,21 @@ function submitme() {
   f.submit();
  }
 }
-	
+
+// Onkeyup handler for policy number.  Allows only A-Z and 0-9.
+function policykeyup(e) {
+ var v = e.value.toUpperCase();
+ for (var i = 0; i < v.length; ++i) {
+  var c = v.charAt(i);
+  if (c >= '0' && c <= '9') continue;
+  if (c >= 'A' && c <= 'Z') continue;
+  v = v.substring(0, i) + v.substring(i + i);
+  --i;
+ }
+ e.value = v;
+ return;
+}
+
 // Added 06/2009 by BM to make compatible with list_options table and functions - using jquery
 $(document).ready(function() {
 	
@@ -461,7 +475,8 @@ end_group();
 
     <tr>
      <td><span class=required><?php xl('Policy Number','e'); ?>: </span></td>
-     <td><input type=entry size=16 name=i<?php echo $i?>policy_number value="<?php echo $result3{"policy_number"}?>"></td>
+     <td><input type='entry' size='16' name='i<?php echo $i?>policy_number' value="<?php echo $result3{"policy_number"}?>"
+      onkeyup='policykeyup(this)'></td>
     </tr>
 
     <tr>
