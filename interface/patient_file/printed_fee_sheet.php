@@ -192,19 +192,17 @@ function genColumn($ix) {
       echo "<tr><td colspan='5' class='fscode' style='border-width:0 1px 0 0;padding-top:1px;' nowrap>&nbsp;</td></tr>\n";
     }
     else if ($cmd == '*G') {
-      // $title = htmlentities(strtoupper($a[1]));
-      $title = htmlentities($a[1]);
+      $title = htmlspecialchars($a[1]);
       if (!$title) $title='&nbsp;';
       echo "<tr><td colspan='5' align='center' class='fsgroup' style='vertical-align:middle' nowrap>$title</td></tr>\n";
     }
     else if ($cmd == '*H') {
-      // $title = htmlentities(strtoupper($a[1]));
-      $title = htmlentities($a[1]);
+      $title = htmlspecialchars($a[1]);
       if (!$title) $title='&nbsp;';
       echo "<tr><td colspan='5' class='fshead' style='vertical-align:middle' nowrap>$title</td></tr>\n";
     }
     else {
-      $title = htmlentities($a[1]);
+      $title = htmlspecialchars($a[1]);
       if (!$title) $title='&nbsp;';
       $b = explode(':', $cmd);
       echo "<tr>";
@@ -242,7 +240,7 @@ if ($form_fill) {
 $cindex = 0;
 ?>
 
-<title><?php echo htmlentities($frow['name']); ?></title>
+<title><?php echo htmlspecialchars($frow['name']); ?></title>
 <script type="text/javascript" src="../../library/dialog.js"></script>
 <script language="JavaScript">
 
