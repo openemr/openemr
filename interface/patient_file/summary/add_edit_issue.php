@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2005-2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,8 +25,14 @@ if ($ISSUE_TYPES['ippf_gcac']) {
 $diagnosis_type = $GLOBALS['athletic_team'] ? 'OSICS10' : 'ICD9';
 
 $issue = $_REQUEST['issue'];
-$thispid = $_REQUEST['thispid'] ? $_REQUEST['thispid'] : $pid;
+$thispid = 0 + (empty($_REQUEST['thispid']) ? $pid : $_REQUEST['thispid']);
 $info_msg = "";
+
+// A nonempty thisenc means we are to link the issue to the encounter.
+$thisenc = 0 + (empty($_REQUEST['thisenc']) ? 0 : $_REQUEST['thisenc']);
+
+// A nonempty thistype is an issue type to be forced for a new issue.
+$thistype = empty($_REQUEST['thistype']) ? '' : $_REQUEST['thistype'];
 
 $thisauth = acl_check('patients', 'med');
 if ($issue && $thisauth != 'write') die("Edit is not authorized!");
@@ -145,6 +151,16 @@ if ($_POST['form_save']) {
   if ($text_type == 'contraceptive'  ) issue_ippf_con_save($issue);
   // if ($text_type == 'ippf_srh'       ) issue_ippf_srh_save($issue);
 
+  // If requested, link the issue to a specified encounter.
+  if ($thisenc) {
+    $query = "INSERT INTO issue_encounter ( " .
+      "pid, list_id, encounter " .
+      ") VALUES ( " .
+      "'$thispid', '$issue', '$thisenc'" .
+    ")";
+    sqlStatement($query);
+  }
+
   $tmp_title = $ISSUE_TYPES[$text_type][2] . ": $form_begin " .
    substr($_POST['form_title'], 0, 40);
 
@@ -160,10 +176,14 @@ if ($_POST['form_save']) {
 }
 
 $irow = array();
+if ($issue)
+  $irow = sqlQuery("SELECT * FROM lists WHERE id = $issue");
+else if ($thistype)
+  $irow['type'] = $thistype;
+
 $type_index = 0;
 
-if ($issue) {
-  $irow = sqlQuery("SELECT * FROM lists WHERE id = $issue");
+if (!empty($irow['type'])) {
   foreach ($ISSUE_TYPES as $key => $value) {
     if ($key == $irow['type']) break;
     ++$type_index;
@@ -372,7 +392,7 @@ function divclick(cb, divid) {
 
 <body class="body_top" style="padding-right:0.5em">
 
-<form method='post' name='theform' action='add_edit_issue.php?issue=<?php echo $issue ?>'
+<form method='post' name='theform' action='add_edit_issue.php?issue=<?php echo $issue ?>&thisenc=<?php echo $thisenc ?>'
  onsubmit='return validate()'>
 
 <table border='0' width='100%'>
@@ -383,7 +403,7 @@ function divclick(cb, divid) {
 <?php
  $index = 0;
  foreach ($ISSUE_TYPES as $value) {
-  if ($issue) {
+  if ($issue || $thistype) {
     if ($index == $type_index) {
       echo $value[1];
       echo "<input type='hidden' name='form_type' value='$index'>\n";
