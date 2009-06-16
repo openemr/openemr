@@ -151,9 +151,9 @@ function showLineItem($patient_id, $encounter_id, $memo, $transdate,
 }
 
 // This is called by usort() when reporting by payer with details.
-// Sorts by payer/date/patient/encounter.
+// Sorts by payer/date/patient/encounter/memo.
 function payerCmp($a, $b) {
-  foreach (array(4,3,0,1) as $i) {
+  foreach (array(4,3,0,1,2,7) as $i) {
     if ($a[$i] < $b[$i]) return -1;
     if ($a[$i] > $b[$i]) return  1;
   }
@@ -483,11 +483,29 @@ if ($_POST['form_refresh']) {
   if ($form_report_by != '1' || $_POST['form_details']) {
 
     if ($form_report_by == '1') { // by payer with details
-      // Sort and dump saved info.
+      // Sort and dump saved info, and consolidate items with all key
+      // fields being the same.
       usort($insarray, 'payerCmp');
+      $b = array();
       foreach ($insarray as $a) {
         if (empty($a[4])) $a[4] = xl('Patient');
-        showLineItem($a[0], $a[1], $a[2], $a[3], $a[4], $a[5], $a[6], $a[7]);
+        if (empty($b)) {
+          $b = $a;
+        }
+        else {
+          $match = true;
+          foreach (array(4,3,0,1,2,7) as $i) if ($a[$i] != $b[$i]) $match = false;
+          if ($match) {
+            $b[5] += $a[5];
+            $b[6] += $a[6];
+          } else {
+            showLineItem($b[0], $b[1], $b[2], $b[3], $b[4], $b[5], $b[6], $b[7]);
+            $b = $a;
+          }
+        }
+      }
+      if (!empty($b)) {
+        showLineItem($b[0], $b[1], $b[2], $b[3], $b[4], $b[5], $b[6], $b[7]);
       }
     } // end by payer with details
 
