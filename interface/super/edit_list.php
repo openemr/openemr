@@ -315,7 +315,7 @@ function set_related(codetype, code, selector, codedesc) {
 // The list of lists is also kept incestuously in the lists table.
 // It could include itself, but to maintain sanity we avoid that.
 $res = sqlStatement("SELECT * FROM list_options WHERE " .
-  "list_id = 'lists' ORDER BY seq");
+  "list_id = 'lists' ORDER BY seq,title");
 while ($row = sqlFetchArray($res)) {
   $key = $row['option_id'];
   echo "<option value='$key'";
