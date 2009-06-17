@@ -1925,6 +1925,23 @@ INSERT INTO list_options VALUES ('sub_relation','spouse'      ,'Spouse'         
 INSERT INTO list_options VALUES ('sub_relation','child'       ,'Child'                  , 3,0,0);
 INSERT INTO list_options VALUES ('sub_relation','other'       ,'Other'                  , 4,0,0);
 
+INSERT INTO list_options VALUES ('lists'     ,'occurrence','Occurrence'                  ,10,0,0);
+INSERT INTO list_options VALUES ('occurrence','0'         ,'Unknown or N/A'              , 5,0,0);
+INSERT INTO list_options VALUES ('occurrence','1'         ,'First'                       ,10,0,0);
+INSERT INTO list_options VALUES ('occurrence','6'         ,'Early Recurrence (<2 Mo)'    ,15,0,0);
+INSERT INTO list_options VALUES ('occurrence','7'         ,'Late Recurrence (2-12 Mo)'   ,20,0,0);
+INSERT INTO list_options VALUES ('occurrence','8'         ,'Delayed Recurrence (> 12 Mo)',25,0,0);
+INSERT INTO list_options VALUES ('occurrence','4'         ,'Chronic/Recurrent'           ,30,0,0);
+INSERT INTO list_options VALUES ('occurrence','5'         ,'Acute on Chronic'            ,35,0,0);
+
+INSERT INTO list_options VALUES ('lists'  ,'outcome','Outcome'         ,10,0,0);
+INSERT INTO list_options VALUES ('outcome','0'      ,'Unassigned'      , 2,0,0);
+INSERT INTO list_options VALUES ('outcome','1'      ,'Resolved'        , 5,0,0);
+INSERT INTO list_options VALUES ('outcome','2'      ,'Improved'        ,10,0,0);
+INSERT INTO list_options VALUES ('outcome','3'      ,'Status quo'      ,15,0,0);
+INSERT INTO list_options VALUES ('outcome','4'      ,'Worse'           ,20,0,0);
+INSERT INTO list_options VALUES ('outcome','5'      ,'Pending followup',25,0,0);
+
 INSERT INTO list_options VALUES ('lists'    ,'note_type'      ,'Patient Note Types',10,0,0);
 INSERT INTO list_options VALUES ('note_type','Unassigned'     ,'Unassigned'        , 1,0,0);
 INSERT INTO list_options VALUES ('note_type','Chart Note'     ,'Chart Note'        , 2,0,0);
