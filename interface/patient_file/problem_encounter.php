@@ -9,6 +9,7 @@
  include_once("../globals.php");
  include_once("$srcdir/patient.inc");
  include_once("$srcdir/acl.inc");
+ include_once("$srcdir/lists.inc");
 
  $patdata = getPatientData($pid, "fname,lname,squad");
 
@@ -296,7 +297,7 @@ function doclick(pfx, id) {
  while ($row = sqlFetchArray($pres)) {
   $rowid = $row['id'];
   echo "    <tr class='detail' id='p_$rowid' onclick='doclick(\"p\", $rowid)'>\n";
-  echo "     <td valign='top'>" . $row['type'] . "</td>\n";
+  echo "     <td valign='top'>" . $ISSUE_TYPES[($row['type'])][1] . "</td>\n";
   echo "     <td valign='top'>" . $row['title'] . "</td>\n";
   echo "     <td valign='top'>" . $row['comments'] . "</td>\n";
   echo "    </tr>\n";
