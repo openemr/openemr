@@ -67,7 +67,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         echo "   <a href='stats_full.php?active=all' target='";
         echo $GLOBALS['concurrent_layout'] ? "_parent" : "Main";
         echo "' onclick='top.restoreSession()'><span class='title'>" .
-                xl($arr[0]) . "</span> <span class='more'>$tmore</span></a>\n";
+                $arr[0] . "</span> <span class='more'>$tmore</span></a>\n";
         echo "  </td>\n";
         echo " </tr>\n";
 
