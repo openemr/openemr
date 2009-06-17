@@ -3,32 +3,32 @@ require_once("{$GLOBALS['srcdir']}/sql.inc");
 
 if (!empty($GLOBALS['ippf_specific'])) {
   $ISSUE_TYPES = array(
-    // table type               plural              singular      abbrev style
-    'medical_problem' => array('Medical Problems', 'Problem'      , 'P',  0),
-    'allergy'         => array('Allergies'       , 'Allergy'      , 'Y',  0),
-    'medication'      => array('Medications'     , 'Medication'   , 'M',  0),
-    'surgery'         => array('Surgeries'       , 'Surgery'      , 'S',  0),
-    'ippf_gcac'       => array('Abortions'       , 'Abortion'     , 'A',  3),
-    'contraceptive'   => array('Contraception'   , 'Contraception', 'C',  4),
-//  'ippf_srh'        => array('SRH'             , 'SRH'          , 'R',  5),
+    // table type               plural                 singular          abbrev style
+    'medical_problem' => array(xl('Medical Problems'),xl('Problem')      ,xl('P'),0),
+    'allergy'         => array(xl('Allergies')       ,xl('Allergy')      ,xl('Y'),0),
+    'medication'      => array(xl('Medications')     ,xl('Medication')   ,xl('M'),0),
+    'surgery'         => array(xl('Surgeries')       ,xl('Surgery')      ,xl('S'),0),
+    'ippf_gcac'       => array(xl('Abortions')       ,xl('Abortion')     ,xl('A'),3),
+    'contraceptive'   => array(xl('Contraception')   ,xl('Contraception'),xl('C'),4),
+//  'ippf_srh'        => array(xl('SRH')             ,xl('SRH')          ,xl('R'),5),
   );
 }
 else if (!empty($GLOBALS['athletic_team'])) {
   $ISSUE_TYPES = array(
-    'football_injury' => array('Football Injuries', 'Injury'    , 'I',  2),
-    'medical_problem' => array('Medical Problems' , 'Problem'   , 'P',  0),
-    'allergy'         => array('Allergies'        , 'Allergy'   , 'A',  1),
-    'general'         => array('General'          , 'General'   , 'G',  1),
+    'football_injury' => array(xl('Football Injuries'),xl('Injury') ,xl('I'),2),
+    'medical_problem' => array(xl('Medical Problems') ,xl('Problem'),xl('P'),0),
+    'allergy'         => array(xl('Allergies')        ,xl('Allergy'),xl('A'),1),
+    'general'         => array(xl('General')          ,xl('General'),xl('G'),1),
   );
 }
 else { // default version
   $ISSUE_TYPES = array(
-    // table type               plural              singular    abbrev style
-    'medical_problem' => array('Medical Problems', 'Problem'   , 'P',  0),
-    'allergy'         => array('Allergies'       , 'Allergy'   , 'A',  0),
-    'medication'      => array('Medications'     , 'Medication', 'M',  0),
-    'surgery'         => array('Surgeries'       , 'Surgery'   , 'S',  0),
-    'dental'          => array('Dental Issues'   , 'Dental'    , 'D',  0),
+    // table type                plural                 singular    abbrev style
+    'medical_problem' => array(xl('Medical Problems'),xl('Problem')   ,xl('P'),0),
+    'allergy'         => array(xl('Allergies')       ,xl('Allergy')   ,xl('A'),0),
+    'medication'      => array(xl('Medications')     ,xl('Medication'),xl('M'),0),
+    'surgery'         => array(xl('Surgeries')       ,xl('Surgery')   ,xl('S'),0),
+    'dental'          => array(xl('Dental Issues')   ,xl('Dental')    ,xl('D'),0),
     //
     // Styles are:
     // 0 - Normal, as in 2.8.1.
@@ -40,17 +40,9 @@ else { // default version
   );
 }
 
-$ISSUE_OCCURRENCES = array(
-  0   => xl('Unknown or N/A'),
-  1   => xl('First'),
-  6   => xl('Early Recurrence (<2 Mo)'),
-  7   => xl('Late Recurrence (2-12 Mo)'),
-  8   => xl('Delayed Recurrence (> 12 Mo)'),
-//2   => xl('Second'),
-//3   => xl('Third'),
-  4   => xl('Chronic/Recurrent'),
-  5   => xl('Acute on Chronic')
-);
+//
+// 06/2009 - BM Migrated the ISSUE_OCCURRENCES to list_options
+//
 
 $ISSUE_CLASSIFICATIONS = array(
   0   => xl('Unknown or N/A'),

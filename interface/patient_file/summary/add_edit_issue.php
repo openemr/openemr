@@ -10,6 +10,7 @@ require_once("../../globals.php");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
+require_once("$srcdir/options.inc.php");
 
 if ($ISSUE_TYPES['football_injury']) {
   // Most of the logic for the "football injury" issue type comes from this
@@ -104,7 +105,7 @@ if ($_POST['form_save']) {
     "classification = '" . $_POST['form_classification'] . "', " .
     "referredby = '"  . $_POST['form_referredby']   . "', " .
     "extrainfo = '"   . $_POST['form_missed']       . "', " .
-    "outcome = "      . rbvalue('form_outcome')     . ", "  .
+    "outcome = '"     . $_POST['form_outcome']      . "', " .
 //  "destination = "  . rbvalue('form_destination') . " "   . // radio button version
     "destination = '" . $_POST['form_destination']   . "' "  .
     "WHERE id = '$issue'";
@@ -139,7 +140,7 @@ if ($_POST['form_save']) {
     "'" . $_POST['form_missed']      . "', " .
     "'" . $$_SESSION['authUser']     . "', " .
     "'" . $$_SESSION['authProvider'] . "', " .
-   rbvalue('form_outcome')           . ", "  .
+    "'" . $_POST['form_outcome']     . "', "  .
 // rbvalue('form_destination')       . " "   . // radio button version
     "'" . $_POST['form_destination'] . "' "  .
    ")");
@@ -210,7 +211,7 @@ if (!empty($irow['type'])) {
 <html>
 <head>
 <?php html_header_show();?>
-<title><?php echo $issue ? "Edit" : "Add New" ?><?php xl('Issue','e'); ?></title>
+<title><?php echo $issue ? xl('Edit') : xl('Add New'); ?><?php xl('Issue','e',' '); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
@@ -368,7 +369,7 @@ function sel_diagnosis() {
 function validate() {
  var f = document.forms[0];
  if (! f.form_title.value) {
-  alert('Please enter a title!');
+  alert("<?php xl('Please enter a title!','e'); ?>");
   return false;
  }
  top.restoreSession();
@@ -423,7 +424,7 @@ function divclick(cb, divid) {
   <td valign='top' nowrap>&nbsp;</td>
   <td valign='top'>
    <select name='form_titles' size='4' onchange='set_text()'>
-   </select> (Select one of these, or type your own title)
+   </select> <?php xl('(Select one of these, or type your own title)','e'); ?>
   </td>
  </tr>
 
@@ -513,15 +514,10 @@ function divclick(cb, divid) {
  <tr id='row_occurrence'>
   <td valign='top' nowrap><b><?php xl('Occurrence','e'); ?>:</b></td>
   <td>
-   <select name='form_occur'>
-<?php
- foreach ($ISSUE_OCCURRENCES as $key => $value) {
-  echo "   <option value='$key'";
-  if ($key == $irow['occurrence']) echo " selected";
-  echo ">$value\n";
- }
-?>
-   </select>
+   <?php
+    // Modified 6/2009 by BM to incorporate the occurrence items into the list_options listings
+    generate_form_field(array('data_type'=>1,'field_id'=>'occur','list_id'=>'occurrence','empty_title'=>'SKIP'), $irow['occurrence']);
+   ?>	
   </td>
  </tr>
 
@@ -566,12 +562,11 @@ function divclick(cb, divid) {
 
  <tr<?php if ($GLOBALS['athletic_team'] || $GLOBALS['ippf_specific']) echo " style='display:none;'"; ?>>
   <td valign='top' nowrap><b><?php xl('Outcome','e'); ?>:</b></td>
-  <td>
-   <?php echo rbinput('form_outcome', '1', 'Resolved'        , 'outcome') ?>&nbsp;
-   <?php echo rbinput('form_outcome', '2', 'Improved'        , 'outcome') ?>&nbsp;
-   <?php echo rbinput('form_outcome', '3', 'Status quo'      , 'outcome') ?>&nbsp;
-   <?php echo rbinput('form_outcome', '4', 'Worse'           , 'outcome') ?>&nbsp;
-   <?php echo rbinput('form_outcome', '5', 'Pending followup', 'outcome') ?>
+  <td>	
+   <?php
+    // Modified 6/2009 by BM to incorporate the outcome items into the list_options listings
+    generate_form_field(array('data_type'=>1,'field_id'=>'outcome','list_id'=>'outcome','empty_title'=>'SKIP'), $irow['outcome']);
+   ?>
   </td>
  </tr>
 

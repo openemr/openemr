@@ -10,6 +10,7 @@ require_once("../../globals.php");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/acl.inc");
 require_once("../../../custom/code_types.inc.php");
+require_once("$srcdir/options.inc.php");
 
  // Check authorization.
  $thisauth = acl_check('patients', 'med');
@@ -18,7 +19,7 @@ require_once("../../../custom/code_types.inc.php");
   if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
    $thisauth = 0;
  }
- if (!$thisauth) die("Not authorized.");
+ if (!$thisauth) die(xl('Not authorized'));
 
  // get issues
  $pres = sqlStatement("SELECT * FROM lists WHERE pid = $pid " .
@@ -48,7 +49,7 @@ function dopclick(id) {
     <?php if ($thisauth == 'write'): ?>
     dlgopen('add_edit_issue.php?issue=' + id, '_blank', 550, 400);
     <?php else: ?>
-    alert("You are not authorized to add/edit issues");
+    alert("<?php xl('You are not authorized to add/edit issues','e'); ?>");
     <?php endif; ?>
 }
 
@@ -149,7 +150,9 @@ while ($row = sqlFetchArray($pres)) {
     echo "  <td>" . $row['begdate'] . "&nbsp;</td>\n";
     echo "  <td>" . $row['enddate'] . "&nbsp;</td>\n";
     echo "  <td>" . $codetext . "</td>\n";
-    echo "  <td class='nowrap'>" . $ISSUE_OCCURRENCES[$row['occurrence']] . "</td>\n";
+    echo "  <td class='nowrap'>";
+    echo generate_display_field(array('data_type'=>'1','list_id'=>'occurrence'), $row['occurrence']);
+    echo "</td>\n";
     if ($GLOBALS['athletic_team']) {
         echo "  <td class='center'>" . $row['extrainfo'] . "</td>\n"; // games missed
     }
@@ -157,7 +160,7 @@ while ($row = sqlFetchArray($pres)) {
         echo "  <td>" . $row['referredby'] . "</td>\n";
     }
     echo "  <td>" . $row['comments'] . "</td>\n";
-    echo "  <td id='e_$rowid' class='noclick center' title='View related encounters'>";
+    echo "  <td id='e_$rowid' class='noclick center' title='" . xl('View related encounters') . "'>";
     echo "  <input type='button' value='" . $ierow['count'] . "' class='editenc' id='".$rowid."' />";
     echo "  </td>";
     echo " </tr>\n";
