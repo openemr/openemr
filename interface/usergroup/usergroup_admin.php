@@ -37,7 +37,7 @@ if (isset($_POST["mode"])) {
 
     if ($doit == true) {
       $prov_id = idSqlStatement("insert into users set " .
-        "username = '"         . $_POST["username"] .
+        "username = '"         . trim($_POST["username"]) .
         "', password = '"      . $_POST["newauthPass"] .
         "', fname = '"         . $_POST["fname"] .
         "', mname = '"         . $_POST["mname"] .
@@ -54,7 +54,7 @@ if (isset($_POST["mode"])) {
         "', see_auth = '"      . $_POST["see_auth"] .
         "'");
       sqlStatement("insert into groups set name = '" . $_POST["groupname"] .
-        "', user = '" . $_POST["username"] . "'");
+        "', user = '" . trim($_POST["username"]) . "'");
 
       if (isset($phpgacl_location) && acl_check('admin', 'acl') && $_POST["username"]) {
         // Set the access control group of user

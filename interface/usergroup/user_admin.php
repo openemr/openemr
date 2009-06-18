@@ -28,7 +28,7 @@ if (!$_GET["id"] || !acl_check('admin', 'users'))
 
 if ($_GET["mode"] == "update") {
   if ($_GET["username"]) {
-    $tqvar = addslashes($_GET["username"]);
+    $tqvar = addslashes(trim($_GET["username"]));
     $user_data = mysql_fetch_array(sqlStatement("select * from users where id={$_GET["id"]}"));
     sqlStatement("update users set username='$tqvar' where id={$_GET["id"]}");
     sqlStatement("update groups set user='$tqvar' where user='". $user_data["username"]  ."'");
