@@ -240,7 +240,7 @@ imagestring($im, 12, $name_x1, $name_y1, $name, $color);
 $count = 0;
 		
 // sort and plot the data points 
-sort($datapoints);
+rsort($datapoints);
 foreach ($datapoints as $data) {
     list($date, $height, $weight, $head_circ) = explode('-', $data);
     if ($date == "") { continue; }
