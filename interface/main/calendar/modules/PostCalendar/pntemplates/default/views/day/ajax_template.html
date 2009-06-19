@@ -587,27 +587,23 @@ foreach ($providers as $provider) {
 
                 $atitle = $catname;
                 if ($comment) $atitle .= " $comment";
-                //$divTitle .= "\n[".$atitle ."] ".$divTitle;
                 $divTitle .= "\n[".$atitle ."]";
-                //$content .= "<a href='javascript:oldEvt($eventdate,$eventid)' title='$atitle'>";
                 $content .= $catname;
                 if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
                 if ($comment) $content .= " $comment";
-                //$content .= "</a>";
             }
             else {
                 // some sort of patient appointment
                 $divTitle .= "\r\n[".$catname ."] ".$fname." ".$lname;
                 $content .= "<span class='appointment'>";
-                //$content .= "<a href='javascript:oldEvt($eventdate,$eventid)' title='$catname'>";
                 $content .= $dispstarth . ':' . $startm;
                 if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
                 $content .= htmlspecialchars($event['apptstatus']);
-                //$content .= "<img src='$TPL_IMAGE_PATH/clock02.gif' border='0' title='' alt='' />";
-                //$content .= "</a>";
                 if ($patientid) {
-                    $content .= "<a href='javascript:goPid($patientid)' title='View Patient'>";
-                    $content .= "<img src='$TPL_IMAGE_PATH/user-green.gif' border='0' title='View Patient' alt='View Patient' />";
+                    $link_title = "Age: ".$patient_age."\nDOB: ".$patient_dob."\n";
+                    $link_title .= "(Click to view)";
+                    $content .= "<a href='javascript:goPid($patientid)' title='$link_title'>";
+                    $content .= "<img src='$TPL_IMAGE_PATH/user-green.gif' border='0' title='$link_title' alt='View Patient' />";
                     if ($catid == 1) $content .= "<strike>";
                     $content .= $lname;
                     if ($GLOBALS['calendar_appt_style'] != 1) {
