@@ -25,7 +25,9 @@ function editLang(lang_id) {
 </head>
 
 <body class="body_top">
-<form>
+<form name='filterform' id='filterform' method='get' action='language.php'>
+<input type='hidden' name='m' value='<?php echo $_GET['m']; ?>' />
+<input type='hidden' name='edit' value='<?php echo $_GET['edit']; ?>' />
 <span class="title"><?php  xl('Multi Language Tool','e') ?></span>
 <span class='text'>&nbsp;&nbsp;&nbsp;<?php xl('Filter for Constants','e','',':'); ?>
 <input type='text' name='form_filter' size='8' value='' />
