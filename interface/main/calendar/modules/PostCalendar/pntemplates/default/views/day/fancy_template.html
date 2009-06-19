@@ -376,7 +376,7 @@ function compareEvents($a,$b) {
                                              left:   [-$event.left-]px;
                                              width:  [-$event.width-]px;
                                              height: [-$event.height-]px;'>
-            <a href='javascript:oldEvt([-$event.data.eventDate|date_format:"%Y%m%d"-], [-$event.data.eid-])'>
+            <a href='javascript:oldEvt([-$date|date_format:"%Y%m%d"-], [-$event.data.eid-])'>
             [-if $event.data.catid eq 2-]
             IN
             [-elseif $event.data.catid eq 3-]
@@ -400,7 +400,7 @@ function compareEvents($a,$b) {
                                           background-color: [-$event.category.color-];'>
            <p>
               <span class='cal_event_status'>[-$event.data.apptstatus-]</span>
-              <a href='javascript:oldEvt([-$event.data.eventDate|date_format:"%Y%m%d"-], [-$event.data.eid-])'>
+              <a href='javascript:oldEvt([-$date|date_format:"%Y%m%d"-], [-$event.data.eid-])'>
                [-$event.data.startTime|date_format:"%I:%M %p"-]
               </a>
            </p>
