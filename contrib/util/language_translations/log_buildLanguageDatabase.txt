@@ -489,20 +489,20 @@ Good, constants weren't modified by translators
 
 Language Statistics:
 Total number of english constants: 2421
-Total number of definitions: 16388
+Total number of definitions: 17428
 Armenian: 0% (0 definitions)
 Bahasa Indonesia: 1% (2416 definitions)
-Brazilian Portuguese: % (1 definitions)
+Brazilian Portuguese: 0% (0 definitions)
 Chinese: 62% (1502 definitions)
 dummy: 1% (2421 definitions)
 dummyUTF8: 1% (2421 definitions)
 Dutch: 1% (2419 definitions)
-French: 0% (0 definitions)
+French: 2% (41 definitions)
 German: 2% (48 definitions)
-Greek: 8% (193 definitions)
+Greek: 4% (980 definitions)
 Hebrew: 0% (0 definitions)
 Norwegian: 37% (902 definitions)
 Russian: 4% (89 definitions)
 Slovak: 0% (0 definitions)
-Spanish: 9% (2187 definitions)
+Spanish: 99% (2400 definitions)
 Swedish: 74% (1789 definitions)
