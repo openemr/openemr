@@ -85,8 +85,10 @@ $GLOBALS['incdir'] = $include_root;
 // Location of the login screen file
 $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
 
-// Language Control Section
 //
+// Language Translations Control Section
+//
+
 //  Current supported languages:    // Allow capture of term for translation:
 //   Armenian                       // xl('Armenian')
 //   Bahasa Indonesia               // xl('Bahasa Indonesia')
@@ -103,6 +105,8 @@ $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
 //   Slovak                         // xl('Slovak')
 //   Spanish                        // xl('Spanish')
 //   Swedish                        // xl('Swedish')
+
+// Login Menu Language Translation Configuration
 //
 //  'language_menu_login' toggle
 //    -If set to true then will allow language selection on login
@@ -124,6 +128,10 @@ $GLOBALS['language_menu_show'] = array('English','Swedish');
 //    -If login menu is on, then it will be the 'Default' choice in menu
 //    -If login menu is off, then it will choose this language
 $GLOBALS['language_default'] = "English";
+
+// Language translation options
+//  -The globals below allow granular control to turn off translation of
+//   several specific parts of OpenEMR.
 //
 //  'translate_layout'
 //    -If true, then will translate the layout information.
@@ -143,7 +151,14 @@ $GLOBALS['translate_lists'] = true;
 //    -If true, then will translate the access control group names.
 //    -If false, will not translate the access control group names.
 $GLOBALS['translate_gacl_groups'] = true;
+//
+//  'translate_note_titles'
+//    -If true, then will translate the patient Form (note) titles.
+//    -If false, will not translate the patient Form (note) titles.
+$GLOBALS['translate_form_titles'] = true;
 
+// Include the translation engine. This will also call sql.inc to
+//  open the openemr mysql connection.
 include_once (dirname(__FILE__) . "/../library/translation.inc.php");
 
 include_once (dirname(__FILE__) . "/../library/date_functions.php");
