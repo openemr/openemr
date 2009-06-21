@@ -56,7 +56,7 @@ function showDocument(&$drow) {
 
   $docdate = $drow['docdate'];
 
-  echo "<tr class='text docrow' id='".$drow['id']."' title='View document'>\n";
+  echo "<tr class='text docrow' id='".$drow['id']."' title='". xl('View document') . "'>\n";
 
   // show date
   echo "<td>".$docdate."</td>\n";
@@ -144,7 +144,7 @@ function editNote(feid) {
 
  // Called when the billing note editor closes.
  function closeNote(feid, fenote) {
-    var c = "<div id='"+ feid +"' title='Click to edit' class='text billing_note_text'>" +
+    var c = "<div id='"+ feid +"' title='<?php xl('Click to edit','e'); ?>' class='text billing_note_text'>" +
             fenote + "</div>";
     setDivContent('note_' + feid, c);
  }
@@ -165,9 +165,9 @@ function editNote(feid) {
 &nbsp;&nbsp;
 
 <?php if ($billing_view) { ?>
-<a href='encounters.php?billing=0' onclick='top.restoreSession()' style='font-size:8pt'>(To Clinical View)</a>
+<a href='encounters.php?billing=0' onclick='top.restoreSession()' style='font-size:8pt'>(<?php xl('To Clinical View','e'); ?>)</a>
 <?php } else { ?>
-<a href='encounters.php?billing=1' onclick='top.restoreSession()' style='font-size:8pt'>(To Billing View)</a>
+<a href='encounters.php?billing=1' onclick='top.restoreSession()' style='font-size:8pt'>(<?php xl('To Billing View','e'); ?>)</a>
 <?php } ?>
 
 <br>
@@ -191,11 +191,11 @@ function editNote(feid) {
   <th class='right'>Adj</th>
   <th class='right'>Bal</th>
 <?php } else { ?>
-  <th colspan='5'><?php echo ($GLOBALS['phone_country_code'] == '1') ? 'Billing' : 'Coding' ?></th>
+  <th colspan='5'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('Billing') : xl('Coding') ?></th>
 <?php } ?>
 
 <?php if (!$GLOBALS['athletic_team']) { ?>
-  <th>&nbsp;<?php xl(($GLOBALS['weight_loss_clinic'] ? 'Payment' : 'Insurance'),'e'); ?></th>
+  <th>&nbsp;<?php echo ($GLOBALS['weight_loss_clinic']) ? xl('Payment') : xl('Insurance'); ?></th>
 <?php } ?>
 
  </tr>
@@ -273,7 +273,7 @@ if ($result = getEncounters($pid)) {
         }
 
         $rawdata = $iter['encounter']."~".$raw_encounter_date;
-        echo "<tr class='encrow text' id='".$rawdata."' title='View encounter $pid.{$iter['encounter']}'>\n";
+        echo "<tr class='encrow text' id='".$rawdata."' title='" . xl('View encounter','','',' ') . "$pid.{$iter['encounter']}'>\n";
 
         // show encounter date
         echo "<td valign='top'>$raw_encounter_date</td>\n";
@@ -285,8 +285,8 @@ if ($result = getEncounters($pid)) {
             echo "<td valign='top'>";
             echo "<div id='note_$feid'>";
             //echo "<div onclick='editNote($feid)' title='Click to edit' class='text billing_note_text'>";
-            echo "<div id='$feid' title='Click to edit' class='text billing_note_text'>";
-            echo $result4['billing_note'] ? nl2br($result4['billing_note']) : '[Add]';
+            echo "<div id='$feid' title='". xl('Click to edit') . "' class='text billing_note_text'>";
+            echo $result4['billing_note'] ? nl2br($result4['billing_note']) : xl(Add,'','[',']');
             echo "</div>";
             echo "</div>";
             echo "</td>\n";
@@ -351,7 +351,7 @@ if ($result = getEncounters($pid)) {
                 }
 
                 echo "<span class='form_tt' title=\"$title\">";
-                echo $enc['form_name'];
+                echo xl_form_title($enc['form_name']);
                 echo "</span><br>";
 
             } // end encounter Forms loop

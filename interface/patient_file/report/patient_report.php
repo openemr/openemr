@@ -238,7 +238,7 @@ while($result = sqlFetchArray($res)) {
                                                 " id='" . $result{"formdir"} . "_" . $result{"form_id"} . "'".
                                                 " value='" . $result{"encounter"} . "'" .
                                                 " class='encounter_form' ".
-                                                ">" . $result{"form_name"} . "<br>\n");
+                                                ">" . xl_form_title($result{"form_name"}) . "<br>\n");
     }
 }
 foreach($registry_form_name as $var) {

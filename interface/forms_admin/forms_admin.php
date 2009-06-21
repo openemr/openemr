@@ -14,10 +14,10 @@ elseif ($_GET['method'] == "install_db"){
 	if (installSQL ("$srcdir/../interface/forms/{$dir['directory']}"))
 		updateRegistered ( $_GET['id'], "sql_run=1" );
 	else
-		$err = "ERR: could not open table.sql, broken form?";
+		$err = xl('ERROR: could not open table.sql, broken form?');
 }
 elseif ($_GET['method'] == "register"){
-	registerForm ( $_GET['name'] ) or $err="err while registering form!";
+	registerForm ( $_GET['name'] ) or $err=xl('error while registering form!');
 }
 $bigdata = getRegistered("%") or $bigdata = false;
 
@@ -85,7 +85,7 @@ foreach($bigdata as $registry)
 			<span class=text><?php echo $registry['id'];?></span> 
 		</td>
 		<td bgcolor="<?php echo $color?>" width="30%">
-			<span class=bold><?php echo $registry['name'];?></span> 
+			<span class=bold><?php echo xl_form_title($registry['name']); ?></span> 
 		</td>
 		<?php
 			if ($registry['sql_run'] == 0)
@@ -163,19 +163,26 @@ foreach ( $inDir as $fname )
 			<span class=text> </span> 
 		</td>
 		<td bgcolor="<?php echo $color?>" width="20%">
-			<span class=bold><?php echo $fname?></span> 
+	        <?php
+                $form_title_file = @file($GLOBALS['srcdir']."/../interface/forms/$fname/info.txt");
+                        if ($form_title_file)
+                                $form_title = $form_title_file[0];
+                        else
+                                $form_title = $fname;
+                ?>
+			<span class=bold><?php echo xl_form_title($form_title); ?></span> 
 		</td>
 		<td bgcolor="<?php echo $color?>" width="10%"><?php
 			if ($phpState == "PHP extracted")
-				echo '<a class=link_submit href="./forms_admin.php?name=' . urlencode($fname) . '&method=register"' . $formtarget . '>register</a>';
+				echo '<a class=link_submit href="./forms_admin.php?name=' . urlencode($fname) . '&method=register"' . $formtarget . '>' . xl('register') . '</a>';
 			else
-				echo '<span class=text>n/a</span>';
+				echo '<span class=text>' . xl('n/a') . '</span>';
 		?></td>
 		<td bgcolor="<?php echo $color?>" width="20%">
-			<span class=text><?php echo $phpState?></span> 
+			<span class=text><?php echo xl($phpState); ?></span> 
 		</td>
 		<td bgcolor="<?php echo $color?>" width="10%">
-			<span class=text>n/a</span> 
+			<span class=text><?php xl('n/a','e'); ?></span> 
 		</td>
 	</tr>
 	<?php

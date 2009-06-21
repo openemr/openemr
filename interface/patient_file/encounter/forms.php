@@ -50,7 +50,7 @@ $auth_relaxed  = acl_check('encounters', 'relaxed');
 if (is_numeric($pid)) {
     // Check for no access to the patient's squad.
     $result = getPatientData($pid, "fname,lname,squad");
-    echo " for " . $result['fname'] . " " . $result['lname'];
+    echo xl('for','',' ',' ') . $result['fname'] . " " . $result['lname'];
     if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
         $auth_notes_a = $auth_notes = $auth_relaxed = 0;
     }
@@ -66,13 +66,13 @@ echo ":";
 if (acl_check('admin', 'super')) {
     // echo "&nbsp;&nbsp;<a href='' onclick='return deleteme()' class='deleteme'>" .
     echo "&nbsp;&nbsp;<a href='' onclick='return deleteme()'>" .
-        "<font class='more' style='color:red'>(Delete)</font></a>";
+        "<font class='more' style='color:red'>(" . xl('Delete') . ")</font></a>";
 }
 echo "<br>\n";
 
 if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {
     echo "<table>";
-    echo "<tr><th>User</th><th>Form</th><th>&nbsp;</th></tr>";
+    echo "<tr><th>" . xl('User') . "</th><th>" . xl('Form') . "</th><th>&nbsp;</th></tr>";
     foreach ($result as $iter) {
         $formdir = $iter['formdir'];
 
@@ -95,16 +95,16 @@ if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name
 	//but until any other form has a problem with this, I will just
 	//make an exception here for CAMOS and allow it to carry out this
 	//functionality for all other forms.  --Mark
-	        echo '<tr title="Edit form" '.
+	        echo '<tr title="' . xl('Edit form') . '" '.
        		      'id="'.$formdir.'~'.$iter['form_id'].'">';
 	} else {
-	        echo '<tr title="Edit form" '.
+	        echo '<tr title="' . xl('Edit form') . '" '.
        		      'id="'.$formdir.'~'.$iter['form_id'].'" class="text onerow">';
 	}
         $user = getNameFromUsername($iter['user']);
 
-        $form_name = ($formdir == 'newpatient') ? "Patient Encounter" : $iter['form_name'];
-
+        $form_name = ($formdir == 'newpatient') ? xl('Patient Encounter') : xl_form_title($iter['form_name']);
+    
         echo '<td class="bold formrow">'.
                 $user['fname'] . " " . $user['lname'] .'</td>';
         echo "<td class='center formrow'>";
@@ -125,7 +125,7 @@ if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name
                 "&id=" . $iter['id'] .
                 "&encounter=". $encounter.
                 "&pid=".$pid.
-                "' class='small' title='Delete this form' onclick='top.restoreSession()'>Delete</a>)</span>";
+                "' class='small' title='" . xl('Delete this form') . "' onclick='top.restoreSession()'>" . xl('Delete') . "</a>)</span>";
         }
 
         echo "</td>\n" .

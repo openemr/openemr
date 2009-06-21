@@ -46,13 +46,13 @@ foreach ($reg as $entry) {
 		echo "<option value=" . $new_category_ . ">" . $new_category . "</option>\n";
 		echo "<option value='" . $rootdir .
 			'/patient_file/encounter/load_form.php?formname=' .
-			urlencode($entry['directory']) . "'>" . $nickname . "</option>\n";
+			urlencode($entry['directory']) . "'>" . xl_form_title($nickname) . "</option>\n";
 		$old_category = $new_category;
 	}
 	else {
 		echo "<option value='" . $rootdir .
 			'/patient_file/encounter/load_form.php?formname=' .
-			urlencode($entry['directory']) . "'>" . xl($nickname) . "</option>\n";
+			urlencode($entry['directory']) . "'>" . xl_form_title($nickname) . "</option>\n";
 	}
 }
 echo "</select>\n";

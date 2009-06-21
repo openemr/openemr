@@ -378,11 +378,11 @@ foreach ($ar as $key => $val) {
 
                 if ($res[1] == 'newpatient') {
                     echo "<div class='text encounter'>\n";
-                    echo "<h1>" . $formres["form_name"] . "</h1>";
+                    echo "<h1>" . xl($formres["form_name"]) . "</h1>";
                 }
                 else {
                     echo "<div class='text encounter_form'>";
-                    echo "<h1>" . $formres["form_name"] . "</h1>";
+                    echo "<h1>" . xl_form_title($formres["form_name"]) . "</h1>";
                 }
 
                 // show the encounter's date

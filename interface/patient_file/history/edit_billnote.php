@@ -15,7 +15,7 @@
  $info_msg = "";
 
  $thisauth = (acl_check('acct', 'bill') == 'write');
- if (! $thisauth) die("Not authorized!");
+ if (! $thisauth) die(xl('Not authorized'));
 ?>
 <html>
 <head>
@@ -42,7 +42,7 @@ if ($_POST['form_submit'] || $_POST['form_cancel']) {
   }
   $fenote = str_replace("\r\n", "<br />", $fenote);
   $fenote = str_replace("\n"  , "<br />", $fenote);
-  if (! $fenote) $fenote = '[Add]';
+  if (! $fenote) $fenote = '['. xl('Add') . ']';
   echo "<script language='JavaScript'>\n";
   echo " parent.closeNote($feid, '$fenote')\n";
   echo "</script></body></html>\n";
@@ -59,9 +59,9 @@ $fenote = $tmp['billing_note'];
 <center>
 <textarea name='form_note' style='width:100%'><?php echo $fenote ?></textarea>
 <p>
-<input type='submit' name='form_submit' value='Save' />
+<input type='submit' name='form_submit' value=<?php xl('Save','e','\'','\''); ?> />
 &nbsp;&nbsp;
-<input type='submit' name='form_cancel' value='Cancel' />
+<input type='submit' name='form_cancel' value=<?php xl('Cancel','e','\'','\''); ?> />
 </center>
 </form>
 </body>
