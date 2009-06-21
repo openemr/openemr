@@ -38,37 +38,37 @@ a {
 {/literal}
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
-<p><span class="title">SOAP</span></p>
+<p><span class="title">{php} xl('SOAP','e'); {/php}</span></p>
 <form name="soap" method="post" action="{$FORM_ACTION}/interface/forms/soap/save.php"
  onsubmit="return top.restoreSession()">
 <table>
 	<tr>
-		<td align="left">Subjective</td>
+		<td align="left">{php} xl('Subjective','e'); {/php}</td>
 		<td width="90%">
 			<textarea name="subjective" cols="60" rows="6">{$data->get_subjective()}</textarea>
 		</td>
 	</tr>
 	<tr>
-		<td align="left">Objective</td>
+		<td align="left">{php} xl('Objective','e'); {/php}</td>
 		<td width="90%">
 			<textarea name="objective" cols="60" rows="6">{$data->get_objective()}</textarea>
 		</td>
 	</tr>
 	<tr>
-		<td align="left">Assessment</td>
+		<td align="left">{php} xl('Assessment','e'); {/php}</td>
 		<td width="90%">
 			<textarea name="assessment" cols="60" rows="6">{$data->get_assessment()}</textarea>
 		</td>
 	</tr>
 	<tr>
-		<td align="left">Plan</td>
+		<td align="left">{php} xl('Plan','e'); {/php}</td>
 		<td width="90%">
 			<textarea name="plan" cols="60" rows="6">{$data->get_plan()}</textarea>
 		</td>
 	</tr>
 	<tr>
-		<td><input type="submit" name="Submit" value="Save Form"></td>
-    <td><a href="{$DONT_SAVE_LINK}" class="link" onclick="top.restoreSession()">[Don't Save]</a></td>
+		<td><input type="submit" name="Submit" value={php} xl('Save Form','e','"','"'); {/php}</td>
+    <td><a href="{$DONT_SAVE_LINK}" class="link" onclick="top.restoreSession()">[{php} xl("Don't Save","e"); {/php}]</a></td>
 	</tr>
 </table>
 <input type="hidden" name="id" value="{$data->get_id()}" />
