@@ -125,6 +125,33 @@ function xl_gacl_group($constant,$mode='r',$prepend='',$append='') {
   }
 }
 
+// Added 6-2009 by BM for translation of patient form (notes) titles
+//  (when applicable)
+// Wrapper for the translation function xl()
+//
+// Only translates if the $GLOBALS['translate_form_titles'] is set to true.
+//
+function xl_form_title($constant,$mode='r',$prepend='',$append='') {
+  if ($GLOBALS['translate_form_titles']) {
+    // TRANSLATE
+    if ($mode == "e") {
+      xl($constant,$mode,$prepend,$append);
+    }
+    else {
+      return xl($constant,$mode,$prepend,$append);
+    }
+  }
+  else {
+    // DO NOT TRANSLATE
+    if ($mode == "e") {
+      echo $prepend.$constant.$append;
+    }
+    else {
+      return $prepend.$constant.$append;
+    }
+  }
+}
+
 // ----------------------------------------------------------------------------
 /**
 HEADER HTML
