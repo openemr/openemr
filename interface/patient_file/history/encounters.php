@@ -286,7 +286,7 @@ if ($result = getEncounters($pid)) {
             echo "<div id='note_$feid'>";
             //echo "<div onclick='editNote($feid)' title='Click to edit' class='text billing_note_text'>";
             echo "<div id='$feid' title='". xl('Click to edit') . "' class='text billing_note_text'>";
-            echo $result4['billing_note'] ? nl2br($result4['billing_note']) : xl(Add,'','[',']');
+            echo $result4['billing_note'] ? nl2br($result4['billing_note']) : xl('Add','','[',']');
             echo "</div>";
             echo "</div>";
             echo "</td>\n";
