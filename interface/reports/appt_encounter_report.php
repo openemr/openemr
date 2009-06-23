@@ -292,30 +292,78 @@
    $errmsg  = "";
    $charges = 0;
    $copays  = 0;
+   $gcac_related_visit = false;
 
    // Scan the billing items for status and fee total.
    //
-   $query = "SELECT code_type, authorized, billed, fee, justify " .
+   $query = "SELECT code_type, code, modifier, authorized, billed, fee, justify " .
     "FROM billing WHERE " .
     "pid = '$patient_id' AND encounter = '$encounter' AND activity = 1";
    $bres = sqlStatement($query);
    //
    while ($brow = sqlFetchArray($bres)) {
-    if ($code_types[$brow['code_type']]['fee'] && !$brow['billed'])
+    $code_type = $brow['code_type'];
+    if ($code_types[$code_type]['fee'] && !$brow['billed'])
       $billed = "";
     if (!$GLOBALS['simplified_demographics'] && !$brow['authorized'])
       $errmsg = "Needs Auth";
-    if ($code_types[$brow['code_type']]['just']) {
+    if ($code_types[$code_type]['just']) {
      if (! $brow['justify']) $errmsg = "Needs Justify";
     }
-    if ($brow['code_type'] == 'COPAY') {
+    if ($code_type == 'COPAY') {
      $copays -= $brow['fee'];
      if ($brow['fee'] >= 0) $errmsg = "Copay not positive";
-    } else if ($code_types[$brow['code_type']]['fee']) {
+    } else if ($code_types[$code_type]['fee']) {
      $charges += $brow['fee'];
      if ($brow['fee'] == 0 && !$GLOBALS['ippf_specific']) $errmsg = "Missing Fee";
     } else {
      if ($brow['fee'] != 0) $errmsg = "Fee is not allowed";
+    }
+
+    // Custom logic for IPPF to determine if a GCAC issue applies.
+    if ($GLOBALS['ippf_specific']) {
+      if (!empty($code_types[$code_type]['fee'])) {
+        $query = "SELECT related_code FROM codes WHERE code_type = '" .
+          $code_types[$code_type]['id'] . "' AND " .
+          "code = '" . $brow['code'] . "' AND ";
+        if ($brow['modifier']) {
+          $query .= "modifier = '" . $brow['modifier'] . "'";
+        } else {
+          $query .= "(modifier IS NULL OR modifier = '')";
+        }
+        $query .= " LIMIT 1";
+        $tmp = sqlQuery($query);
+        $relcodes = explode(';', $tmp['related_code']);
+        foreach ($relcodes as $codestring) {
+          if ($codestring === '') continue;
+          list($codetype, $code) = explode(':', $codestring);
+          if ($codetype !== 'IPPF') continue;
+          if (preg_match('/^25222/', $code)) $gcac_related_visit = true;
+        }
+      }
+    } // End IPPF stuff
+
+   } // end while
+
+   // More custom code for IPPF.  Generates an error message if a
+   // GCAC issue is required but is not linked to this visit.
+   if (!$errmsg && $gcac_related_visit) {
+    $grow = sqlQuery("SELECT l.id, l.title, l.begdate, ie.pid " .
+      "FROM lists AS l " .
+      "LEFT JOIN issue_encounter AS ie ON ie.pid = l.pid AND " .
+      "ie.encounter = '$encounter' AND ie.list_id = l.id " .
+      "WHERE l.pid = '$patient_id' AND " .
+      "l.activity = 1 AND l.type = 'ippf_gcac' " .
+      "ORDER BY ie.pid DESC, l.begdate DESC LIMIT 1");
+    // Note that reverse-ordering by ie.pid is a trick for sorting
+    // issues linked to the encounter (non-null values) first.
+    if (empty($grow['pid'])) { // if there is no linked GCAC issue
+      if (empty($grow)) { // no GCAC issue exists
+        $errmsg = "GCAC issue does not exist";
+      }
+      else { // there is one but none is linked
+        $errmsg = "GCAC issue is not linked";
+      }
     }
    }
 
