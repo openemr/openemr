@@ -33,7 +33,7 @@ if ($_POST['Submit'] == "Load Definitions") {
 if ($_GET['edit'] != ''){
 	$lang_id = (int)$_GET['edit'];
 
-  $lang_filter = isset($_GET['form_filter']) ? $_GET['form_filter'] : '';
+  $lang_filter = isset($_GET['filter']) ? $_GET['filter'] : '';
   $lang_filter .= '%';
 
 	$sql = "SELECT lc.cons_id, lc.constant_name, ld.def_id, ld.definition " .
