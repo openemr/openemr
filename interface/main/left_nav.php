@@ -139,7 +139,8 @@
  $disallowed['adm'] = !(acl_check('admin', 'calendar') ||
   acl_check('admin', 'database') || acl_check('admin', 'forms') ||
   acl_check('admin', 'practice') || acl_check('admin', 'users') ||
-  acl_check('admin', 'acl'));
+  acl_check('admin', 'acl')      || acl_check('admin', 'super') ||
+  acl_check('admin', 'superbill'));
 
  $disallowed['bil'] = !(acl_check('acct', 'rep') || acl_check('acct', 'eob') ||
   acl_check('acct', 'bill'));
@@ -815,6 +816,7 @@ function genPopupsList($style='') {
     </ul>
   </li>
   <?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) genMiscLink('RTop','adm','0',xl('Inventory'),'drugs/drug_inventory.php'); ?>
+  <?php if (!$disallowed['adm']) { ?>
   <li><span><?php xl('Administration','e') ?></span>
     <ul>
       <?php if (acl_check('admin', 'users'    )) genMiscLink('RTop','adm','0',xl('Users'),'usergroup/usergroup_admin.php'); ?>
@@ -836,6 +838,7 @@ function genPopupsList($style='') {
       </li>
     </ul>
   </li>
+  <?php } ?>
   <li><span><?php xl('Reports','e') ?></span>
     <ul>
       <li><span><?php xl('Clients','e') ?></span>
