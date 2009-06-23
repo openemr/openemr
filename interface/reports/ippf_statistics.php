@@ -499,12 +499,12 @@ function process_ippf_code($row, $code) {
     if (empty($irow['count'])) return;
   }
 
-  // Post-Abortion Care by Source.
+  // Post-Abortion Care and Followup by Source.
   // Requirements just call for counting sessions, but this way the columns
   // can be anything - age category, religion, whatever.
   //
   else if ($form_by === '8') {
-    if (preg_match('/^252226/', $code)) { // all post-abortion care
+    if (preg_match('/^25222[67]/', $code)) { // all post-abortion care and followup
       $key = getGcacClientStatus($row);
     } else {
       return;
@@ -521,7 +521,7 @@ function process_ippf_code($row, $code) {
     if (preg_match('/^25222[345]/', $code)) { // all abortions including incomplete
       $compl_type = 'rec_compl';
     }
-    else if (preg_match('/^252226/', $code)) { // all post-abortion care
+    else if (preg_match('/^25222[67]/', $code)) { // all post-abortion care and followup
       $compl_type = 'fol_compl';
     }
     else {
@@ -1051,7 +1051,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
           genHeadCell(getListTitle($arr_show[$value]['list_id'],$key), true);
         }
       }
-      else {
+      else if (!empty($arr_titles[$value])) {
         foreach ($arr_titles[$value] as $key => $dummy) {
           genHeadCell($key, true);
         }
@@ -1099,7 +1099,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
             genNumCell($areport[$key]['.age'][$i], $cnum++);
           }
         }
-        else {
+        else if (!empty($arr_titles[$value])) {
           foreach ($arr_titles[$value] as $title => $dummy) {
             genNumCell($areport[$key][$value][$title], $cnum++);
           }
