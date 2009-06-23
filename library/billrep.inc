@@ -20,7 +20,7 @@
 		// which is the date in the form_encounter table.
 		//
 		$sql = "SELECT fe.date AS enc_date, fe.pid AS enc_pid, " .
-			"fe.encounter AS enc_encounter, billing.* " .
+			"fe.encounter AS enc_encounter, fe.provider_id AS enc_provider_id, billing.* " .
 			"FROM form_encounter AS fe " .
 			"LEFT OUTER JOIN billing ON " .
 			"billing.encounter = fe.encounter AND " .

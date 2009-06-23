@@ -231,8 +231,29 @@ function printPatientBilling($pid) {
 	}
 }
 
-function getPatientBillingEncounter($pid,$encounter) {
-	$sql = "select billing.*, u.id, u.fname, u.mname, u.lname,CONCAT(u.fname,' ', u.lname) as provider_name, u.federaltaxid  from billing LEFT JOIN users as u on u.id = billing.provider_id where pid='" . mysql_real_escape_string($pid) . "' and encounter = '" . mysql_real_escape_string($encounter) . "' and activity='1' order by date";
+function getPatientBillingEncounter($pid, $encounter) {
+  /*******************************************************************
+	$sql = "SELECT billing.*, u.id, u.fname, u.mname, u.lname, " .
+    "CONCAT(u.fname,' ', u.lname) AS provider_name, u.federaltaxid " .
+    "FROM billing LEFT JOIN users AS u ON u.id = billing.provider_id " .
+    "WHERE pid='" . mysql_real_escape_string($pid) . "' AND " .
+    "encounter = '" . mysql_real_escape_string($encounter) .
+    "' AND activity='1' ORDER BY date";
+  *******************************************************************/
+  $erow = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .
+    "pid = '$pid' AND encounter = '$encounter' " .
+    "ORDER BY id DESC LIMIT 1");
+  $inv_provider = $erow['provider_id'] + 0;
+	$sql = "SELECT billing.*, u.id, u.fname, u.mname, u.lname, " .
+    "CONCAT(u.fname,' ', u.lname) AS provider_name, u.federaltaxid " .
+    "FROM billing AS b " .
+    "LEFT JOIN users AS u ON " .
+    "( b.provider_id != 0 AND u.id = b.provider_id ) OR " .
+    "( b.provider_id  = 0 AND u.id = $inv_provider ) " .
+    "WHERE pid='" . mysql_real_escape_string($pid) . "' AND " .
+    "encounter = '" . mysql_real_escape_string($encounter) .
+    "' AND activity = '1' ORDER BY date";
+  /******************************************************************/
 	$res = sqlStatement($sql);
 	$billings = array();
 	while($result = sqlFetchArray($res)) {
@@ -240,7 +261,6 @@ function getPatientBillingEncounter($pid,$encounter) {
 	}
 	return $billings;
 }
-
 
 function printPatientForms($pid, $cols) {
     //this function takes a $pid

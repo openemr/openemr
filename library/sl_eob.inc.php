@@ -1,5 +1,5 @@
 <?php
-  // Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
+  // Copyright (C) 2005-2009 Rod Roark <rod@sunsetsystems.com>
   //
   // This program is free software; you can redistribute it and/or
   // modify it under the terms of the GNU General Public License
@@ -500,14 +500,15 @@
     // Create the "new encounter".
     $encounter_id = 0;
     $query = "INSERT INTO form_encounter ( " .
-      "date, reason, facility_id, pid, encounter, onset_date " .
+      "date, reason, facility_id, pid, encounter, onset_date, provider_id " .
       ") VALUES ( " .
       "'$date_of_service', " .
       "'" . xl('Imported from Accounting') . "', " .
       "'" . addslashes($drrow['facility_id']) . "', " .
       "$pid, " .
       "$new_encounter, " .
-      "'$date_of_service' " .
+      "'$date_of_service', " .
+      "'$provider_id' " .
       ")";
     if ($debug) {
       echo $query . "<br>\n";
@@ -590,7 +591,7 @@
         "'$code_type', " .
         "'$code', " .
         "$pid, " .
-        "$provider_id, " .
+        "0, " . // was $provider_id but that is now in form_encounter
         "'" . $_SESSION['authId'] . "', " .
         "'" . $_SESSION['authProvider'] . "', " .
         "1, " .

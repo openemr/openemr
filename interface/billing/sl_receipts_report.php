@@ -1,5 +1,5 @@
 <?php
-  // Copyright (C) 2006-2008 Rod Roark <rod@sunsetsystems.com>
+  // Copyright (C) 2006-2009 Rod Roark <rod@sunsetsystems.com>
   //
   // This program is free software; you can redistribute it and/or
   // modify it under the terms of the GNU General Public License
@@ -199,9 +199,10 @@
       $ids_to_skip = array();
       $irow = 0;
 
-      // Get copays.  These are ignored if a CPT code was specified.
+      // Get copays.  These will be ignored if a CPT code was specified.
       //
       if (!$form_cptcode) {
+        /*************************************************************
         $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, b.code, b.modifier, " .
           "fe.date, fe.id AS trans_id, u.id AS docid " .
           "FROM billing AS b " .
@@ -218,6 +219,22 @@
         if ($form_doctor) {
           $query .= " AND u.id = '$form_doctor'";
         }
+        *************************************************************/
+        $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, b.code, b.modifier, " .
+          "fe.date, fe.id AS trans_id, fe.provider_id AS docid " .
+          "FROM billing AS b " .
+          "JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter " .
+          "WHERE b.code_type = 'COPAY' AND b.activity = 1 AND " .
+          "fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_to_date 23:59:59'";
+        // If a facility was specified.
+        if ($form_facility) {
+          $query .= " AND fe.facility_id = '$form_facility'";
+        }
+        // If a doctor was specified.
+        if ($form_doctor) {
+          $query .= " AND fe.provider_id = '$form_doctor'";
+        }
+        /************************************************************/
         //
         $res = sqlStatement($query);
         while ($row = sqlFetchArray($res)) {
@@ -254,6 +271,7 @@
       } // end copays (not $form_cptcode)
 
       // Get ar_activity (having payments), form_encounter, forms, users, optional ar_session
+      /***************************************************************
       $query = "SELECT a.pid, a.encounter, a.post_time, a.code, a.modifier, a.pay_amount, " .
         "fe.date, fe.id AS trans_id, u.id AS docid, s.deposit_date, s.payer_id " .
         "FROM ar_activity AS a " .
@@ -271,6 +289,31 @@
       if ($form_facility) $query .= " AND fe.facility_id = '$form_facility'";
       // If a doctor was specified.
       if ($form_doctor) $query .= " AND u.id = '$form_doctor'";
+      ***************************************************************/
+      $query = "SELECT a.pid, a.encounter, a.post_time, a.code, a.modifier, a.pay_amount, " .
+        "fe.date, fe.id AS trans_id, fe.provider_id AS docid, s.deposit_date, s.payer_id, " .
+        "b.provider_id " .
+        "FROM ar_activity AS a " .
+        "JOIN form_encounter AS fe ON fe.pid = a.pid AND fe.encounter = a.encounter " .
+        "LEFT OUTER JOIN ar_session AS s ON s.session_id = a.session_id " .
+        "LEFT OUTER JOIN billing AS b ON b.pid = a.pid AND b.encounter = a.encounter AND " .
+        "b.code = a.code AND b.modifier = a.modifier AND b.activity = 1 AND " .
+        "b.code_type != 'COPAY' AND b.code_type != 'TAX' " .
+        "WHERE a.pay_amount != 0 AND ( " .
+        "a.post_time >= '$form_from_date 00:00:00' AND a.post_time <= '$form_to_date 23:59:59' " .
+        "OR fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_to_date 23:59:59' " .
+        "OR s.deposit_date >= '$form_from_date' AND s.deposit_date <= '$form_to_date' )";
+      // If a procedure code was specified.
+      if ($form_cptcode) $query .= " AND a.code = '$form_cptcode'";
+      // If a facility was specified.
+      if ($form_facility) $query .= " AND fe.facility_id = '$form_facility'";
+      // If a doctor was specified.
+      if ($form_doctor) {
+        $query .= " AND ( b.provider_id = '$form_doctor' OR " .
+          "( ( b.provider_id IS NULL OR b.provider_id = 0 ) AND " .
+          "fe.provider_id = '$form_doctor' ) )";
+      }
+      /**************************************************************/
       //
       $res = sqlStatement($query);
       while ($row = sqlFetchArray($res)) {
@@ -303,12 +346,13 @@
           }
         }
         //
-        $key = sprintf("%08u%s%08u%08u%06u", $row['docid'], $thedate,
+        $docid = empty($row['encounter_id']) ? $row['docid'] : $row['encounter_id'];
+        $key = sprintf("%08u%s%08u%08u%06u", $docid, $thedate,
           $patient_id, $encounter_id, ++$irow);
         $arows[$key] = array();
         $arows[$key]['transdate'] = $thedate;
         $arows[$key]['amount'] = 0 - $row['pay_amount'];
-        $arows[$key]['docid'] = $row['docid'];
+        $arows[$key]['docid'] = $docid;
         $arows[$key]['project_id'] = empty($row['payer_id']) ? 0 : $row['payer_id'];
         $arows[$key]['memo'] = $row['code'];
         $arows[$key]['invnumber'] = "$patient_id.$encounter_id";
@@ -354,7 +398,7 @@
 
       $docname     = "";
       $docnameleft = "";
-      $docid       = 0;
+      $main_docid  = 0;
       $doctotal1   = 0;
       $grandtotal1 = 0;
       $doctotal2   = 0;
@@ -398,29 +442,36 @@
             }
           }
           // Find out who the practitioner is.
+          /***********************************************************
           $tmp = sqlQuery("SELECT users.id, users.authorized FROM forms, users WHERE " .
             "forms.pid = '$patient_id' AND forms.encounter = '$encounter_id' AND " .
             "forms.formdir = 'newpatient' AND users.username = forms.user");
-          $docid = empty($tmp['id']) ? 0 : $tmp['id'];
+          $main_docid = empty($tmp['id']) ? 0 : $tmp['id'];
           if (empty($tmp['authorized'])) {
             $tmp = sqlQuery("SELECT users.id FROM billing, users WHERE " .
               "billing.pid = '$patient_id' AND billing.encounter = '$encounter_id' AND " .
               "billing.activity = 1 AND billing.fee > 0 AND " .
               "users.id = billing.provider_id AND users.authorized = 1 " .
               "ORDER BY billing.fee DESC, billing.id ASC LIMIT 1");
-            if (!empty($tmp['id'])) $docid = $tmp['id'];
+            if (!empty($tmp['id'])) $main_docid = $tmp['id'];
           }
+          ***********************************************************/
+          $tmp = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .
+            "pid = '$patient_id' AND encounter = '$encounter_id' " .
+            "ORDER BY id DESC LIMIT 1");
+          $main_docid = $tmp['provider_id'] + 0;
+
           // If a practitioner was specified then skip other practitioners.
           if ($form_doctor) {
-            if ($form_doctor != $docid) {
+            if ($form_doctor != $main_docid) {
               $skipping = true;
               continue;
             }
           }
         } // end new invoice
 
-        $row['docid'] = $docid;
-        $key = sprintf("%08u%s%08u%08u%06u", $docid, $row['transdate'],
+        $row['docid'] = $main_docid;
+        $key = sprintf("%08u%s%08u%08u%06u", $main_docid, $row['transdate'],
           $patient_id, $encounter_id, $irow);
         $arows[$key] = $row;
       }
@@ -466,7 +517,7 @@
   </td>
 <?php } ?>
  </tr>
-<?
+<?php
         }
         $doctotal1 = 0;
         $doctotal2 = 0;
@@ -528,7 +579,7 @@
   </td>
 <?php } ?>
  </tr>
-<?
+<?php
       } // end details
       $doctotal1   += $amount1;
       $doctotal2   += $amount2;
@@ -565,7 +616,7 @@
 <?php } ?>
  </tr>
 
-<?
+<?php
   }
   if (!$INTEGRATED_AR) SLClose();
 ?>

@@ -693,7 +693,7 @@ if ($ret = getBillsBetween($from_date,
     }
     $rhtml .= "</span></td>\n";
     $rhtml .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
-    if ($iter['id']) $rhtml .= getProviderName($iter['provider_id']);
+    if ($iter['id']) $rhtml .= getProviderName(empty($iter['provider_id']) ? $iter['enc_provider_id'] : $iter['provider_id']);
     $rhtml .= "</span></td>\n";
     $rhtml .= '<td width=100>&nbsp;&nbsp;&nbsp;<span style="font-size:8pt;">';
     if ($iter['id']) $rhtml .= date("Y-m-d",strtotime($iter{"date"}));

@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007-2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -125,8 +125,7 @@ class Claim {
       "encounter = '{$this->encounter_id}'";
     $this->encounter = sqlQuery($sql);
 
-    // Sort by procedure timestamp in order to get some consistency.  In particular
-    // we determine the provider from the first procedure in this array.
+    // Sort by procedure timestamp in order to get some consistency.
     $sql = "SELECT * FROM billing WHERE " .
       "encounter = '{$this->encounter_id}' AND pid = '{$this->pid}' AND " .
       "(code_type = 'CPT4' OR code_type = 'HCPCS' OR code_type = 'COPAY') AND " .
@@ -152,6 +151,21 @@ class Claim {
           continue 2; // skip to next table row
         }
       }
+
+      // If there is a row-specific provider then get its details.
+      if (!empty($row['provider_id'])) {
+        // Get service provider data for this row.
+        $sql = "SELECT * FROM users WHERE id = '" . $row['provider_id'] . "'";
+        $row['provider'] = sqlQuery($sql);
+        // Get insurance numbers for this row's provider.
+        $sql = "SELECT * FROM insurance_numbers WHERE " .
+          "(insurance_company_id = '" . $row['payer_id'] .
+          "' OR insurance_company_id is NULL) AND " .
+          "provider_id = '" . $row['provider_id'] . "' " .
+          "ORDER BY insurance_company_id DESC LIMIT 1";
+        $row['insurance_numbers'] = sqlQuery($sql);
+      }
+
       $this->procs[] = $row;
     }
 
@@ -164,7 +178,10 @@ class Claim {
       "LIMIT 1";
     $this->facility = sqlQuery($sql);
 
+    /*****************************************************************
     $provider_id = $this->procs[0]['provider_id'];
+    *****************************************************************/
+    $provider_id = $this->encounter['provider_id'];
     $sql = "SELECT * FROM users WHERE id = '$provider_id'";
     $this->provider = sqlQuery($sql);
 
@@ -175,8 +192,8 @@ class Claim {
     $sql = "SELECT * FROM insurance_numbers WHERE " .
       "(insurance_company_id = '" . $this->procs[0]['payer_id'] .
       "' OR insurance_company_id is NULL) AND " .
-      "provider_id = '" . $this->provider['id'] .
-      "' order by insurance_company_id DESC LIMIT 1";
+      "provider_id = '$provider_id' " .
+      "ORDER BY insurance_company_id DESC LIMIT 1";
     $this->insurance_numbers = sqlQuery($sql);
 
     $sql = "SELECT * FROM patient_data WHERE " .
@@ -538,16 +555,22 @@ class Claim {
     return x12clean(trim(str_replace('-', '', $this->x12_partner['id_number'])));
   }
 
-  function providerNumberType() {
-    return $this->insurance_numbers['provider_number_type'];
+  function providerNumberType($prockey=-1) {
+    $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
+      $this->insurance_numbers : $this->procs[$prockey]['insurance_numbers'];
+    return $tmp['provider_number_type'];
   }
 
-  function providerNumber() {
-    return x12clean(trim(str_replace('-', '', $this->insurance_numbers['provider_number'])));
+  function providerNumber($prockey=-1) {
+    $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
+      $this->insurance_numbers : $this->procs[$prockey]['insurance_numbers'];
+    return x12clean(trim(str_replace('-', '', $tmp['provider_number'])));
   }
 
-  function providerGroupNumber() {
-    return x12clean(trim(str_replace('-', '', $this->insurance_numbers['group_number'])));
+  function providerGroupNumber($prockey=-1) {
+    $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
+      $this->insurance_numbers : $this->procs[$prockey]['insurance_numbers'];
+    return x12clean(trim(str_replace('-', '', $tmp['group_number'])));
   }
 
   // Returns 'P', 'S' or 'T'.
@@ -946,33 +969,47 @@ class Claim {
     return $dia;
   }
 
-  function providerLastName() {
-    return x12clean(trim($this->provider['lname']));
+  function providerLastName($prockey=-1) {
+    $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
+      $this->provider : $this->procs[$prockey]['provider'];
+    return x12clean(trim($tmp['lname']));
   }
 
-  function providerFirstName() {
-    return x12clean(trim($this->provider['fname']));
+  function providerFirstName($prockey=-1) {
+    $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
+      $this->provider : $this->procs[$prockey]['provider'];
+    return x12clean(trim($tmp['fname']));
   }
 
-  function providerMiddleName() {
-    return x12clean(trim($this->provider['mname']));
+  function providerMiddleName($prockey=-1) {
+    $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
+      $this->provider : $this->procs[$prockey]['provider'];
+    return x12clean(trim($tmp['mname']));
   }
 
-  function providerNPI() {
-    return x12clean(trim($this->provider['npi']));
+  function providerNPI($prockey=-1) {
+    $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
+      $this->provider : $this->procs[$prockey]['provider'];
+    return x12clean(trim($tmp['npi']));
   }
 
-  function providerUPIN() {
-    return x12clean(trim($this->provider['upin']));
+  function providerUPIN($prockey=-1) {
+    $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
+      $this->provider : $this->procs[$prockey]['provider'];
+    return x12clean(trim($tmp['upin']));
   }
 
-  function providerSSN() {
-    return x12clean(trim(str_replace('-', '', $this->provider['federaltaxid'])));
+  function providerSSN($prockey=-1) {
+    $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
+      $this->provider : $this->procs[$prockey]['provider'];
+    return x12clean(trim(str_replace('-', '', $tmp['federaltaxid'])));
   }
 
-  function providerTaxonomy() {
-    if (empty($this->provider['taxonomy'])) return '207Q00000X';
-    return x12clean(trim($this->provider['taxonomy']));
+  function providerTaxonomy($prockey=-1) {
+    $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
+      $this->provider : $this->procs[$prockey]['provider'];
+    if (empty($tmp['taxonomy'])) return '207Q00000X';
+    return x12clean(trim($tmp['taxonomy']));
   }
 
   function referrerLastName() {

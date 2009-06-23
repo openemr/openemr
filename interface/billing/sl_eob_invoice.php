@@ -375,12 +375,12 @@ function validate(f) {
   <td>
    <?php
   if ($INTEGRATED_AR) {
-    $tmp = sqlQuery("SELECT u.fname, u.mname, u.lname, b.bill_date " .
-      "FROM billing AS b, users AS u WHERE " .
-      "b.pid = '$patient_id' AND b.encounter = '$encounter_id' AND " .
-      "b.activity = 1 AND u.id = b.provider_id " .
-      "ORDER BY u.authorized DESC, b.fee DESC, b.id ASC LIMIT 1");
+    $tmp = sqlQuery("SELECT fname, mname, lname " .
+      "FROM users WHERE id = " . $ferow['provider_id']);
     echo $tmp['fname'] . ' ' . $tmp['mname'] . ' ' . $tmp['lname'];
+    $tmp = sqlQuery("SELECT bill_date FROM billing WHERE " .
+      "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
+      "activity = 1 ORDER BY fee DESC, id ASC LIMIT 1");
     $billdate = substr(($tmp['bill_date'] . "Not Billed"), 0, 10);
   }
   else {

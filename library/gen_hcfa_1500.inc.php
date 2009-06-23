@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -446,9 +446,9 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
     }
 
     // 24i and 24j Top. ID Qualifier and Rendering Provider ID
-    if ($claim->providerNumber()) {
-      put_hcfa($lino, 65,  2, $claim->providerNumberType());
-      put_hcfa($lino, 68, 10, $claim->providerNumber());
+    if ($claim->providerNumber($hcfa_proc_index)) {
+      put_hcfa($lino, 65,  2, $claim->providerNumberType($hcfa_proc_index));
+      put_hcfa($lino, 68, 10, $claim->providerNumber($hcfa_proc_index));
     }
 
     ++$lino;
@@ -488,7 +488,7 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
     // Not currently supported.
 
     // 24j. Rendering Provider NPI
-    put_hcfa($lino, 68, 10, $claim->providerNPI());
+    put_hcfa($lino, 68, 10, $claim->providerNPI($hcfa_proc_index));
   }
 
   // 25. Federal Tax ID Number

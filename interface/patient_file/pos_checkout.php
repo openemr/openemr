@@ -929,9 +929,11 @@ while ($brow = sqlFetchArray($bres)) {
     $taxrates = $tmp['taxrates'];
     $related_code = $tmp['related_code'];
     markTaxes($taxrates);
+    /*****************************************************************
     // catch provider id from non-copay items if we do not have it yet.
     if (!$inv_provider && !empty($arr_users[$brow['provider_id']]))
       $inv_provider = $brow['provider_id'] + 0;
+    *****************************************************************/
   }
 
   write_form_line($code_type, $brow['code'], $brow['id'], $thisdate,
@@ -960,10 +962,11 @@ while ($drow = sqlFetchArray($dres)) {
 
   $thisdate = $drow['sale_date'];
   if (!$inv_encounter) $inv_encounter = $drow['encounter'];
+
   if (!$inv_provider && !empty($arr_users[$drow['provider_id']]))
     $inv_provider = $drow['provider_id'] + 0;
+
   if (!$inv_date || $inv_date < $thisdate) $inv_date = $thisdate;
-  // $total += $drow['fee'];
 
   // Accumulate taxes for this product.
   $tmp = sqlQuery("SELECT taxrates FROM drug_templates WHERE drug_id = '" .
@@ -986,6 +989,7 @@ foreach ($taxes as $key => $value) {
 // Note that we don't try to get anything from the ar_activity table.  Since
 // this is the checkout, nothing should be there yet for this invoice.
 
+/*********************************************************************
 // If there were only products without prescriptions then there is no
 // provider yet, so get it from the encounter.
 if ($inv_encounter && !$inv_provider) {
@@ -994,6 +998,13 @@ if ($inv_encounter && !$inv_provider) {
     "forms.formdir = 'newpatient' AND " .
     "users.username = forms.user LIMIT 1");
   $inv_provider = $erow['id'] + 0;
+}
+*********************************************************************/
+if ($inv_encounter) {
+  $erow = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .
+    "pid = '$pid' AND encounter = '$inv_encounter' " .
+    "ORDER BY id DESC LIMIT 1");
+  $inv_provider = $erow['provider_id'] + 0;
 }
 ?>
 </table>

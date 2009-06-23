@@ -88,7 +88,7 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
             "modifier, units, fee, ndc_info, justify ) values ( " .
             "'$svcdate 00:00:00', '$encounter', 'TAX', 'TAX', '" .
             addslashes($dtlinfo['dsc']) . "', " .
-            "'$pid', '1', '$provider_id', 'Default', 1, 1, $provider_id, '', '1', " .
+            "'$pid', '1', '$provider_id', 'Default', 1, 1, 0, '', '1', " .
             "'" . $dtlinfo['chg'] . "', '', '' )");
         }
         continue; // otherwise skip charges

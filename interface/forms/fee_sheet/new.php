@@ -71,7 +71,7 @@ function contraceptionClass($code_type, $code) {
 //
 function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
   $auth = TRUE, $del = FALSE, $units = NULL, $fee = NULL, $id = NULL,
-  $billed = FALSE, $code_text = NULL, $justify = NULL)
+  $billed = FALSE, $code_text = NULL, $justify = NULL, $provider_id = 0)
 {
   global $code_types, $ndc_applies, $ndc_uom_choices, $justinit, $pid;
   global $contraception;
@@ -81,7 +81,6 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
     if ($fee > 0) $fee = 0 - $fee;
   }
   if (! $code_text) {
-    // $query = "select units, fee, code_text from codes where code_type = '" .
     $query = "select id, units, code_text from codes where code_type = '" .
       $code_types[$codetype]['id'] . "' and " .
       "code = '$code' and ";
@@ -94,8 +93,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
     $code_text = $result['code_text'];
     if (empty($units)) $units = max(1, intval($result['units']));
     if (!isset($fee)) {
-      // $fee = $result['fee'];
-      // The above is obsolete now, fees come from the prices table:
+      // Fees come from the prices table now.
       $query = "SELECT prices.pr_price " .
         "FROM patient_data, prices WHERE " .
         "patient_data.pid = '$pid' AND " .
@@ -144,11 +142,18 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
       }
       echo "  <td class='billcell' align='center'>$justify</td>\n";
     }
+
+    // Show provider for this line.
+    echo "  <td class='billcell' align='center'>";
+    genProviderSelect('', '-- Default --', $provider_id, true);
+    echo "</td>\n";
+
     echo "  <td class='billcell' align='center'><input type='checkbox'" .
       ($auth ? " checked" : "") . " disabled /></td>\n";
     echo "  <td class='billcell' align='center'><input type='checkbox'" .
       " disabled /></td>\n";
-  } else {
+  }
+  else { // not billed
     if (modifiers_are_used(true)) {
       if ($codetype != 'COPAY' && ($code_types[$codetype]['mod'] || $modifier)) {
         echo "  <td class='billcell'><input type='text' name='bill[$lino][mod]' " .
@@ -190,6 +195,12 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
         echo "  <td class='billcell'>&nbsp;</td>\n";
       }
     }
+
+    // Provider drop-list for this line.
+    echo "  <td class='billcell' align='center'>";
+    genProviderSelect("bill[$lino][provid]", '-- Default --', $provider_id);
+    echo "</td>\n";
+
     echo "  <td class='billcell' align='center'><input type='checkbox' name='bill[$lino][auth]' " .
       "value='1'" . ($auth ? " checked" : "") . " /></td>\n";
     echo "  <td class='billcell' align='center'><input type='checkbox' name='bill[$lino][del]' " .
@@ -268,6 +279,7 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
       echo "  <td class='billcell' align='center'>$units</td>\n";
       echo "  <td class='billcell' align='center'>&nbsp;</td>\n";         // justify
     }
+    echo "  <td class='billcell' align='center'>&nbsp;</td>\n";           // provider
     echo "  <td class='billcell' align='center'>&nbsp;</td>\n";           // auth
     echo "  <td class='billcell' align='center'><input type='checkbox'" . // del
       " disabled /></td>\n";
@@ -287,6 +299,7 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
       echo "</td>\n";
       echo "  <td class='billcell'>&nbsp;</td>\n";
     }
+    echo "  <td class='billcell' align='center'>&nbsp;</td>\n"; // provider
     echo "  <td class='billcell' align='center'>&nbsp;</td>\n"; // auth
     echo "  <td class='billcell' align='center'><input type='checkbox' name='prod[$lino][del]' " .
       "value='1'" . ($del ? " checked" : "") . " /></td>\n";
@@ -294,6 +307,29 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
 
   echo "  <td class='billcell'>$strike1" . ucfirst(strtolower($code_text)) . "$strike2</td>\n";
   echo " </tr>\n";
+}
+
+// Build a drop-down list of providers.  This includes users who
+// have the word "provider" anywhere in their "additional info"
+// field, so that we can define providers (for billing purposes)
+// who do not appear in the calendar.
+//
+function genProviderSelect($selname, $toptext, $default=0, $disabled=false) {
+  $query = "SELECT id, lname, fname FROM users WHERE " .
+    "( authorized = 1 OR info LIKE '%provider%' ) AND username != '' " .
+    "ORDER BY lname, fname";
+  $res = sqlStatement($query);
+  echo "   <select name='$selname'";
+  if ($disabled) echo " disabled";
+  echo ">\n";
+  echo "    <option value=''>$toptext\n";
+  while ($row = sqlFetchArray($res)) {
+    $provid = $row['id'];
+    echo "    <option value='$provid'";
+    if ($provid == $default) echo " selected";
+    echo ">" . $row['lname'] . ", " . $row['fname'] . "\n";
+  }
+  echo "   </select>\n";
 }
 
 // This is just for IPPF, to indicate if the visit includes contraceptive services.
@@ -329,8 +365,8 @@ $visit_row = sqlQuery("SELECT fe.date, opc.pc_catname " .
 // then if no error, redirect to $returnurl.
 //
 if ($_POST['bn_save']) {
-  $provid = $_POST['ProviderID'];
-  if (! $provid) $provid = $_SESSION["authUserID"];
+  $main_provid = $_POST['ProviderID'];
+  if (! $main_provid) $main_provid = $_SESSION["authUserID"];
 
   $bill = $_POST['bill'];
   for ($lino = 1; $bill["$lino"]['code_type']; ++$lino) {
@@ -359,6 +395,7 @@ if ($_POST['bn_save']) {
     if ($justify) $justify = str_replace(',', ':', $justify) . ':';
     // $auth      = $iter['auth'] ? "1" : "0";
     $auth      = "1";
+    $provid    = $iter['provid'];
 
     $ndc_info = '';
     if ($iter['ndcnum']) {
@@ -436,12 +473,14 @@ if ($_POST['bn_save']) {
     }
   } // end for
 
-  // Set the service provider also in the new-encounter form.  This matters
-  // when only products are sold and so there are no billing table items
-  // to hold the provider ID.
+  // Set the main/default service provider in the new-encounter form.
+  /*******************************************************************
   sqlStatement("UPDATE forms, users SET forms.user = users.username WHERE " .
     "forms.pid = '$pid' AND forms.encounter = '$encounter' AND " .
     "forms.formdir = 'newpatient' AND users.id = '$provid'");
+  *******************************************************************/
+  sqlStatement("UPDATE form_encounter SET provider_id = '$main_provid' WHERE " .
+    "pid = '$pid' AND encounter = '$encounter'");
 
   // More IPPF stuff.
   if (!empty($_POST['contrastart'])) {
@@ -773,6 +812,7 @@ echo " </tr>\n";
   <td class='billcell' align='center'><b><?php xl('Units','e');?></b></td>
   <td class='billcell' align='center'><b><?php xl('Justify','e');?></b></td>
 <?php } ?>
+  <td class='billcell' align='center'><b><?php xl('Provider','e');?></b></td>
   <td class='billcell' align='center'><b><?php xl('Auth','e');?></b></td>
   <td class='billcell' align='center'><b><?php xl('Delete','e');?></b></td>
   <td class='billcell'><b><?php xl('Description','e');?></b></td>
@@ -781,7 +821,7 @@ echo " </tr>\n";
 <?php
 $justinit = "var f = document.forms[0];\n";
 
-$encounter_provid = -1;
+// $encounter_provid = -1;
 
 // Generate lines for items already in the billing table for this encounter,
 // and also set the rendering provider if we come across one.
@@ -800,12 +840,11 @@ if ($billresult) {
     $ndc_info   = $iter["ndc_info"];
     $justify    = trim($iter['justify']);
     if ($justify) $justify = substr(str_replace(':', ',', $justify), 0, strlen($justify) - 1);
+    $provider_id = $iter['provider_id'];
 
     // Also preserve other items from the form, if present.
     if ($bline['id'] && !$iter["billed"]) {
       $modifier   = trim($bline['mod']);
-      // $units      = trim($bline['units']);
-      // $fee        = trim($bline['fee']);
       $units      = max(1, intval(trim($bline['units'])));
       $fee        = sprintf('%01.2f',(0 + trim($bline['price'])) * $units);
       $authorized = $bline['auth'];
@@ -815,17 +854,20 @@ if ($billresult) {
         trim($bline['ndcqty']);
       }
       $justify    = $bline['justify'];
+      $provider_id = $bline['provid'];
     }
 
     // list($code, $modifier) = explode("-", $iter["code"]);
     echoLine($bill_lino, $iter["code_type"], trim($iter["code"]),
       $modifier, $ndc_info,  $authorized,
       $del, $units, $fee, $iter["id"], $iter["billed"],
-      $iter["code_text"], $justify);
+      $iter["code_text"], $justify, $provider_id);
 
+    /*****************************************************************
     // If no default provider yet then try this one (excluding copays).
     if ($encounter_provid < 0 && !$del && $iter["code_type"] != 'COPAY')
       $encounter_provid = $iter["provider_id"];
+    *****************************************************************/
   }
 }
 
@@ -847,7 +889,7 @@ if ($_POST['bill']) {
     if ($iter['code_type'] == 'COPAY' && $fee > 0) $fee = 0 - $fee;
     echoLine(++$bill_lino, $iter["code_type"], $iter["code"], trim($iter["mod"]),
       $ndc_info, $iter["auth"], $iter["del"], $units,
-      $fee, NULL, FALSE, NULL, $iter["justify"]);
+      $fee, NULL, FALSE, NULL, $iter["justify"], $iter['provid']);
   }
 }
 
@@ -937,6 +979,7 @@ if ($_POST['newcodes']) {
   }
 }
 
+/*********************************************************************
 // If no valid provider yet, try setting it to that of the new encounter form.
 //
 $tmp = sqlQuery("SELECT authorized FROM users WHERE id = '$encounter_provid'");
@@ -952,6 +995,12 @@ if (empty($tmp['authorized'])) {
 // If still no default provider then make it the logged-in user.
 //
 if ($encounter_provid < 0) $encounter_provid = $_SESSION["authUserID"];
+*********************************************************************/
+
+$tmp = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .
+  "pid = '$pid' AND encounter = '$encounter' " .
+  "ORDER BY id DESC LIMIT 1");
+$encounter_provid = 0 + $tmp['provider_id'];
 ?>
 </table>
 </p>
@@ -1009,27 +1058,8 @@ if (true) {
   echo "   </select>\n";
 }
 
-// Build a drop-down list of providers.  This includes users who
-// have the word "provider" anywhere in their "additional info"
-// field, so that we can define providers (for billing purposes)
-// who do not appear in the calendar.
-//
-$query = "SELECT id, lname, fname FROM users WHERE " .
-  "( authorized = 1 OR info LIKE '%provider%' ) AND username != '' " .
-  "ORDER BY lname, fname";
-$res = sqlStatement($query);
-echo "   <span class='billcell'><b>" . xl('Provider:') . "</b></span>\n";
-echo "   <select name='ProviderID'";
-if ($isBilled) echo " disabled";
-echo ">\n";
-echo "    <option value=''>-- Please Select --\n";
-while ($row = sqlFetchArray($res)) {
-  $provid = $row['id'];
-  echo "    <option value='$provid'";
-  if ($provid == $encounter_provid) echo " selected";
-  echo ">" . $row['lname'] . ", " . $row['fname'] . "\n";
-}
-echo "   </select>\n";
+// Build a drop-down list of providers.
+genProviderSelect('ProviderID', '-- Please Select --', $encounter_provid, $isBilled);
 ?>
 
 &nbsp; &nbsp; &nbsp;

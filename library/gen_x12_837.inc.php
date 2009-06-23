@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007-2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -740,6 +740,50 @@ function gen_x12_837($pid, $encounter, &$log) {
         "*" . $claim->cptNDCQuantity($prockey) .
         "*" . $claim->cptNDCUOM($prockey) .
         "~\n";
+    }
+
+    // Loop 2420A, Rendering Provider (service-specific).
+    // Used if the rendering provider for this service line is different
+    // from that in loop 2310B.
+    //
+    if ($claim->providerNPI() != $claim->providerNPI($prockey)) {
+      ++$edicount;
+      $out .= "NM1" .       // Loop 2310B Rendering Provider
+        "*82" .
+        "*1" .
+        "*" . $claim->providerLastName($prockey) .
+        "*" . $claim->providerFirstName($prockey) .
+        "*" . $claim->providerMiddleName($prockey) .
+        "*" .
+        "*";
+      if ($claim->providerNPI($prockey)) { $out .=
+        "*XX" .
+        "*" . $claim->providerNPI($prockey);
+      } else { $out .=
+        "*34" .
+        "*" . $claim->providerSSN($prockey);
+        $log .= "*** Rendering provider has no NPI.\n";
+      }
+      $out .= "~\n";
+
+      if ($claim->providerTaxonomy($prockey)) {
+        ++$edicount;
+        $out .= "PRV" .
+          "*PE" . // PErforming provider
+          "*ZZ" .
+          "*" . $claim->providerTaxonomy($prockey) .
+          "~\n";
+      }
+
+      // REF*1C is required here for the Medicare provider number if NPI was
+      // specified in NM109.  Not sure if other payers require anything here.
+      if ($claim->providerNumber($prockey)) {
+        ++$edicount;
+        $out .= "REF" .
+          "*" . $claim->providerNumberType($prockey) .
+          "*" . $claim->providerNumber($prockey) .
+          "~\n";
+      }
     }
 
     // Loop 2430, adjudication by previous payers.

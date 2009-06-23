@@ -80,3 +80,38 @@ UPDATE `layout_options`
 ALTER TABLE `prices` 
     CHANGE `pr_selector` `pr_selector` VARCHAR( 255 ) NOT NULL default '' COMMENT 'template selector for drugs, empty for codes';
 
+#IfMissingColumn form_encounter provider_id
+ALTER TABLE `form_encounter` 
+  ADD `provider_id` INT(11) DEFAULT '0' COMMENT 'default and main provider for this visit';
+UPDATE form_encounter AS fe, forms AS f, billing AS b, users AS u
+  SET fe.provider_id = u.id WHERE
+  fe.provider_id = 0 AND
+  f.form_id = fe.id AND
+  f.formdir = 'newpatient' AND
+  f.deleted = 0 AND
+  b.pid = fe.pid AND
+  b.encounter = fe.encounter AND
+  b.fee > 0 AND
+  b.provider_id > 0 AND
+  b.activity = 1 AND
+  u.id = b.provider_id AND
+  u.authorized = 1;
+UPDATE form_encounter AS fe, forms AS f, users AS u
+  SET fe.provider_id = u.id WHERE
+  fe.provider_id = 0 AND
+  f.form_id = fe.id AND
+  f.formdir = 'newpatient' AND
+  f.deleted = 0 AND
+  u.username = f.user AND
+  u.authorized = 1;
+UPDATE form_encounter AS fe, forms AS f, billing AS b
+  SET b.provider_id = 0 WHERE
+  fe.provider_id > 0 AND
+  f.form_id = fe.id AND
+  f.formdir = 'newpatient' AND
+  f.deleted = 0 AND
+  b.pid = fe.pid AND
+  b.encounter = fe.encounter AND
+  b.activity = 1;
+#EndIf
+

@@ -474,6 +474,7 @@ CREATE TABLE `form_encounter` (
   `last_level_closed` int  NOT NULL DEFAULT 0 COMMENT '0=none, 1=ins1, 2=ins2, etc',
   `last_stmt_date`    date DEFAULT NULL,
   `stmt_count`        int  NOT NULL DEFAULT 0,
+  `provider_id` INT(11) DEFAULT '0' COMMENT 'default and main provider for this visit',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
