@@ -1044,7 +1044,7 @@ if (true) {
   $trow = sqlQuery("SELECT pricelevel FROM patient_data WHERE " .
     "pid = '$pid' LIMIT 1");
   $pricelevel = $trow['pricelevel'];
-  echo "   <span class='billcell'><b>" . xl('Price Level:') . "</b></span>\n";
+  echo "   <span class='billcell'><b>" . xl('Price Level') . ":</b></span>\n";
   echo "   <select name='pricelevel'";
   if ($isBilled) echo " disabled";
   echo ">\n";
@@ -1059,6 +1059,7 @@ if (true) {
 }
 
 // Build a drop-down list of providers.
+echo "   <span class='billcell'><b>&nbsp;" . xl('Default Provider') . ":</b></span>\n";
 genProviderSelect('ProviderID', '-- Please Select --', $encounter_provid, $isBilled);
 ?>
 
