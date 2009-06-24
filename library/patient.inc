@@ -267,7 +267,8 @@ function getEmployerData($pid, $given = "*")
 function _set_patient_inc_count($limit, $count, $where) {
   // When the limit is exceeded, find out what the unlimited count would be.
   $GLOBALS['PATIENT_INC_COUNT'] = $count;
-  if ($limit != "all" && $GLOBALS['PATIENT_INC_COUNT'] >= $limit) {
+  // if ($limit != "all" && $GLOBALS['PATIENT_INC_COUNT'] >= $limit) {
+  if ($limit != "all") {
     $tmp = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE $where");
     $GLOBALS['PATIENT_INC_COUNT'] = $tmp['count'];
   }
