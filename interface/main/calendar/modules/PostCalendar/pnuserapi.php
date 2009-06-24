@@ -1134,7 +1134,8 @@ function &postcalendar_userapi_pcQueryEvents($args)
     $events[$i]['topic']       = $tmp['topic'];
     $events[$i]['alldayevent'] = $tmp['alldayevent'];
     $events[$i]['catcolor']    = $tmp['catcolor'];
-    $events[$i]['catname']     = $tmp['catname'];
+    // Modified 06-2009 by BM to translate the category if applicable
+    $events[$i]['catname']     = xl_appt_category($tmp['catname']);
     $events[$i]['catdesc']     = $tmp['catdesc'];
     $events[$i]['pid']         = $tmp['pid'];
     $events[$i]['apptstatus']  = $tmp['apptstatus'];

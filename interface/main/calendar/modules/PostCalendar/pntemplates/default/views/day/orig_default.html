@@ -133,7 +133,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
  // echo "<!-- A_EVENTS = "; print_r($this->_tpl_vars['A_EVENTS']); echo " -->\n"; // debugging
 
  $A_CATEGORY  =& $this->_tpl_vars['A_CATEGORY'];
-
+ 
  // [-if $PRINT_VIEW != 1-]
  // [-*Main Navigation*-]
  // [-include file="$TPL_NAME/views/global/navigation.html"-]
@@ -475,15 +475,15 @@ if ($MULTIDAY) {
      $catid = $event['catid'];
      $comment = addslashes($event['hometext']);
      $catname = $event['catname'];
-     $title = "Age $patient_age ($patient_dob)";
+     $title = xl('Age') . " $patient_age ($patient_dob)";
      if ($comment && $GLOBALS['calendar_appt_style'] < 4)
       $title .= " " . $comment;
      if ($catid == 2 || $catid == 3 || $catid == 4 || $catid == 8 || $catid == 11) {
-      if      ($catid ==  2) $catname = "IN";
-      else if ($catid ==  3) $catname = "OUT";
-      else if ($catid ==  4) $catname = "VACATION";
-      else if ($catid ==  8) $catname = "LUNCH";
-      else if ($catid == 11) $catname = "RESERVED";
+      if      ($catid ==  2) $catname = xl('IN');
+      else if ($catid ==  3) $catname = xl('OUT');
+      else if ($catid ==  4) $catname = xl('VACATION');
+      else if ($catid ==  8) $catname = xl('LUNCH');
+      else if ($catid == 11) $catname = xl('RESERVED');
       // Omit lunch, vacation, etc. if the doc is not in-office.
       if ($provstat[$providerid]['in'] || $catid < 4) {
        $content .= "<a href='javascript:oldEvt($eventdate,$eventid)'>";

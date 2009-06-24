@@ -1260,7 +1260,17 @@ function postcalendar_admin_categories($msg='',$e='',$args)
     //  PARSE MAIN
     //=================================================================
 
-
+    // create translations if applicable
+    if (($GLOBALS['translate_appt_categories']) && ($_SESSION['language_choice'] > 1)) {
+	$sizeAllCat = count($all_categories);
+	for ($m = 0; $m < $sizeAllCat; $m++) {
+	    $tempCategory = $all_categories[$m]["name"];
+	    $tempDescription = $all_categories[$m]["desc"];
+	    $all_categories[$m]["nameTranslate"] = xl($tempCategory);
+	    $all_categories[$m]["descTranslate"] = xl($tempDescription);
+	}
+    }
+    
 	$tpl->assign_by_ref('TPL_NAME',$template_name);
     $tpl->assign('FUNCTION',pnVarCleanFromInput('func'));
     $tpl->assign_by_ref('ModuleName', $modname);
@@ -1271,12 +1281,17 @@ function postcalendar_admin_categories($msg='',$e='',$args)
     $tpl->assign('action', pnModURL(__POSTCALENDAR__,'admin','categoriesConfirm'));
     $tpl->assign('adminmenu', postcalendar_adminmenu());
     $tpl->assign('BGCOLOR2', $GLOBALS['style']['BGCOLOR2']);
+    $tpl->assign('_PC_REP_CAT_TITLE_S',_PC_REP_CAT_TITLE_S);
+    $tpl->assign('_PC_NEW_CAT_TITLE_S',_PC_NEW_CAT_TITLE_S);
     $tpl->assign('_PC_CAT_NAME',_PC_CAT_NAME);
+    $tpl->assign('_PC_CAT_NAME_XL',_PC_CAT_NAME_XL);
     $tpl->assign('_PC_CAT_DESC',_PC_CAT_DESC);
+    $tpl->assign('_PC_CAT_DESC_XL',_PC_CAT_DESC_XL);
     $tpl->assign('_PC_CAT_COLOR',_PC_CAT_COLOR);
     $tpl->assign('_PC_CAT_DELETE',_PC_CAT_DELETE);
     $tpl->assign('_PC_CAT_DUR',_PC_CAT_DUR);
-	
+    $tpl->assign('_PC_COLOR_PICK_TITLE',_PC_COLOR_PICK_TITLE);
+    
     //=================================================================
     //  Repeating Information
     //=================================================================
@@ -1942,6 +1957,12 @@ function postcalendar_admin_categoryLimits($msg='',$e='',$args)
     $tpl->assign_by_ref('min_array',	$min_array);
     
     $categories =  & pnModAPIFunc(__POSTCALENDAR__,'user','getCategories');
+    // create translations of category names if applicable
+    $sizeAllCat = count($categories);
+    for ($m = 0; $m < $sizeAllCat; $m++) {
+     $tempCategory = $categories[$m]["name"];
+     $categories[$m]["name"] = xl_appt_category($tempCategory);
+    }
     $tpl->assign_by_ref('categories', $categories);
     $limits =& pnModAPIFunc(__POSTCALENDAR__,'user','getCategoryLimits');
     $tpl->assign_by_ref('limits', $limits);

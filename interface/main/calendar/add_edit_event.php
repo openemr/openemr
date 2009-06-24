@@ -918,7 +918,7 @@ if ( $GLOBALS['dutchpc'] ) { ?>
     $thisduration = $duration;
    }
   }
-  $catoptions .= ">" . $crow['pc_catname'] . "</option>\n";
+  $catoptions .= ">" . xl_appt_category($crow['pc_catname']) . "</option>\n";
 
   // This section is to build the list of preferred categories:
   if ($duration) {
@@ -926,7 +926,7 @@ if ( $GLOBALS['dutchpc'] ) { ?>
    if ($eid) {
     if ($crow['pc_catid'] == $row['pc_prefcatid']) $prefcat_options .= " selected";
    }
-   $prefcat_options .= ">" . $crow['pc_catname'] . "</option>\n";
+   $prefcat_options .= ">" . xl_appt_category($crow['pc_catname']) . "</option>\n";
   }
 
  }
@@ -1409,9 +1409,9 @@ if  ($GLOBALS['select_multi_providers']) {
   </td>
   <td nowrap>
 
-   <select name='form_repeat_freq' title='Every, every other, every 3rd, etc.'>
+   <select name='form_repeat_freq' title=<?php xl('Every, every other, every 3rd, etc.','e','\'','\''); ?>>
 <?php
- foreach (array(1 => 'every', 2 => '2nd', 3 => '3rd', 4 => '4th', 5 => '5th', 6 => '6th')
+ foreach (array(1 => xl('every'), 2 => xl('2nd'), 3 => xl('3rd'), 4 => xl('4th'), 5 => xl('5th'), 6 => xl('6th'))
   as $key => $value)
  {
   echo "    <option value='$key'";
@@ -1424,7 +1424,7 @@ if  ($GLOBALS['select_multi_providers']) {
    <select name='form_repeat_type'>
 <?php
  // See common.api.php for these:
- foreach (array(0 => 'day' , 4 => 'workday', 1 => 'week', 2 => 'month', 3 => 'year')
+ foreach (array(0 => xl('day') , 4 => xl('workday'), 1 => xl('week'), 2 => xl('month'), 3 => xl('year'))
   as $key => $value)
  {
   echo "    <option value='$key'";
@@ -1527,7 +1527,7 @@ if ($repeatexdate != "") {
 &nbsp;
 <input type='button' id='cancel' value='<?php xl('Cancel','e');?>' />
 </p>
-<?php if ($informant) echo "<p class='text'>Last update by $informant</p>\n"; ?>
+<?php if ($informant) echo "<p class='text'>" . xl('Last update by') . " $informant</p>\n"; ?>
 </center>
 </form>
 

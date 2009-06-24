@@ -342,7 +342,7 @@
   </td>
 
   <td class="detail">
-   &nbsp;<?php echo $row['pc_catname'] ?>
+   &nbsp;<?php echo xl_appt_category($row['pc_catname']) ?>
   </td>
 
  </tr>

@@ -374,10 +374,12 @@ if ($document_id) {
 // Show current and upcoming appointments.
 if (isset($pid)) {
  $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
-  "e.pc_startTime, e.pc_hometext, u.fname, u.lname, u.mname " .
-  "FROM openemr_postcalendar_events AS e, users AS u WHERE " .
+  "e.pc_startTime, e.pc_hometext, u.fname, u.lname, u.mname, " .
+  "c.pc_catname " .
+  "FROM openemr_postcalendar_events AS e, users AS u, " .
+  "openemr_postcalendar_categories AS c WHERE " .
   "e.pc_pid = '$pid' AND e.pc_eventDate >= CURRENT_DATE AND " .
-  "u.id = e.pc_aid " .
+  "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " .
   "ORDER BY e.pc_eventDate, e.pc_startTime";
  $res = sqlStatement($query);
 
@@ -386,7 +388,7 @@ if (isset($pid)) {
     // link to create a new appointment
     echo "<span class='link' style='margin: 2px 0px 5px 0px; width:100%; text-align: center;'>";
     echo "<a href='#' onclick='return newEvt()'>".xl('New Appointment')."</a>";
-    echo "</span>";
+    echo "</span><br>";
  }
  while($row = sqlFetchArray($res)) {
   $dayname = date("l", strtotime($row['pc_eventDate']));
@@ -397,13 +399,13 @@ if (isset($pid)) {
    $dispampm = "pm";
    if ($disphour > 12) $disphour -= 12;
   }
-  $etitle = "(Click to edit)";
+  $etitle = xl('(Click to edit)');
   if ($row['pc_hometext'] != "") {
-    $etitle = "Comments: ".addslashes($row['pc_hometext'])."\r\n".$etitle;
+    $etitle = xl('Comments').": ".addslashes($row['pc_hometext'])."\r\n".$etitle;
   }
   echo "<a href='javascript:oldEvt(" . $row['pc_eid'] .  ")' title='$etitle'>";
-  echo "<b>$dayname, " . $row['pc_eventDate'] . "</b><br>";
-  echo "$disphour:$dispmin $dispampm " . $row['pc_title'] . "<br>\n";
+  echo "<b>" . xl($dayname) . ", " . $row['pc_eventDate'] . "</b><br>";
+  echo "$disphour:$dispmin " . xl($dispampm) . " " . xl_appt_category($row['pc_catname']) . "<br>\n";
   echo $row['fname'] . " " . $row['lname'] . "</a><br>&nbsp;<br>\n";
  }
  if (isset($res) && $res != null) { echo "</div>"; }

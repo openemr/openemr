@@ -156,6 +156,11 @@ $GLOBALS['translate_gacl_groups'] = true;
 //    -If true, then will translate the patient Form (note) titles.
 //    -If false, will not translate the patient Form (note) titles.
 $GLOBALS['translate_form_titles'] = true;
+//
+//  'translate_appt_categories'
+//    -If true, then will translate the appt categories.
+//    -If false, will not translate the appt categories.
+$GLOBALS['translate_appt_categories'] = true;
 
 // Include the translation engine. This will also call sql.inc to
 //  open the openemr mysql connection.

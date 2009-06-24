@@ -35,7 +35,7 @@
 						<tr>
 							<td colspan ='5'>
 								<table width ='%100'>
-									<th align="center"> New Category</th>
+									<th align="center">[-$_PC_NEW_CAT_TITLE_S-]</th>
 									</tr>
 								</table>
 							</td>
@@ -52,7 +52,7 @@
             							<td valign="top" align="left">
                 							[-$_PC_CAT_COLOR-]:<br />
                 							&nbsp;<input type="text" name="newcolor" id='newcolor' value="#FFFFFF" size="10"/>
-											[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick">pick</a>]
+                                                                        [<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick">[-$_PC_COLOR_PICK_TITLE-]</a>]
             							</td>
             							<td valign="top" align="left">
                 							[-$_PC_CAT_DESC-]:<br />
@@ -173,7 +173,7 @@
 										<input type="checkbox" name="del[]" value="[-$cat.id-]"/>
 										[-$_PC_CAT_DELETE-]
 									</td> -->
-									<th align="center" bgcolor="[-$cat.color-]">Category</th>
+									<th align="center" bgcolor="[-$cat.color-]">[-$_PC_REP_CAT_TITLE_S-]</th>
 									</tr>
 								</table>
 							</td>
@@ -187,17 +187,25 @@
             								[-$_PC_CAT_NAME-]:<br />
             								&nbsp;<input type="text" name="name[]" value="[-$cat.name-]" size="20"/>
             							</td>
+                                                                [-if (($GLOBALS['translate_appt_categories']) && ($_SESSION['language_choice'] > 1))-]
+                                                                 <td valign="top" align="left">[-$_PC_CAT_NAME_XL-]:<br />
+                                                                  <span style="color:green">[-$cat.nameTranslate-]</span>
+                                                                 </td>
+                                                                [-/if-]
             							<td valign="top" align="left">
                 							[-$_PC_CAT_COLOR-]:<br />
                 							&nbsp;<input type="text" name="color[]" id='color[-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]' value="[-$cat.color-]" size="10"/>
-											[<a href="javascript:void(0);" onClick="pick('pick','color[-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]');return false;" NAME="pick" ID="pick">pick</a>]
-
-											
+                                                                        [<a href="javascript:void(0);" onClick="pick('pick','color[-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]');return false;" NAME="pick" ID="pick">[-$_PC_COLOR_PICK_TITLE-]</a>]
             							</td>
             							<td valign="top" align="left">
                 							[-$_PC_CAT_DESC-]:<br />
                 							&nbsp;<textarea name="desc[]" rows="3" cols="20">[-$cat.desc-]</textarea>
             							</td>
+                                                                [-if (($GLOBALS['translate_appt_categories']) && ($_SESSION['language_choice'] > 1))-]
+                                                                 <td valign="top" align="left">[-$_PC_CAT_DESC_XL-]:<br />
+                                                                  <span style="color:green">[-$cat.descTranslate-]</span>
+                                                                 </td>
+                                                                [-/if-]
             							<td  valign="top" align="left">
             								[-$ALL_DAY_CAT_TITLE-]<br />
             								[-$ALL_DAY_CAT_YES-]

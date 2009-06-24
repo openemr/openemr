@@ -11,7 +11,7 @@ if ($viewmode) {
   $encounter = $result['encounter'];
   if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
     echo "<body>\n<html>\n";
-    echo "<p>You are not authorized to see this encounter.</p>\n";
+    echo "<p>" . xl('You are not authorized to see this encounter.') . "</p>\n";
     echo "</body>\n</html>\n";
     exit();
   }
@@ -122,7 +122,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
   if ($catid < 9 && $catid != 5) continue;
   echo "       <option value='$catid'";
   if ($viewmode && $crow['pc_catid'] == $result['pc_catid']) echo " selected";
-  echo ">" . $crow['pc_catname'] . "</option>\n";
+  echo ">" . xl_appt_category($crow['pc_catname']) . "</option>\n";
  }
 ?>
       </select>
@@ -173,7 +173,7 @@ if ($fres) {
    if (acl_check('sensitivities', $value[1])) {
     echo "       <option value='" . $value[1] . "'";
     if ($viewmode && $result['sensitivity'] == $value[1]) echo " selected";
-    echo ">" . $value[3] . "</option>\n";
+    echo ">" . xl($value[3]) . "</option>\n";
    }
   }
   echo "       <option value=''";
@@ -288,9 +288,7 @@ while ($irow = sqlFetchArray($ires)) {
 ?>
    </select>
 
-   <p><i>To link this encounter/consult to an existing issue, click the desired issue
-   above to highlight it and then click [Save].  Hold down &lt;Ctrl&gt; to select
-   multiple issues.</i></p>
+   <p><i><?php xl('To link this encounter/consult to an existing issue, click the desired issue above to highlight it and then click [Save]. Hold down [Ctrl] button to select multiple issues.','e'); ?></i></p>
 
   </td>
  </tr>
