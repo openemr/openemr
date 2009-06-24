@@ -62,7 +62,7 @@ body {
 </style>
 </head>
 <body>
-<form name="search_form" id="search_form" method="post" action="dupecheck.php">
+<form name="search_form" id="search_form" method="post" action="index.php">
 <input type="hidden" name="go" value="Go">
 Matching criteria:
 <input type="checkbox" name="match_name" id="match_name" <?php if ($parameters['match_name']) echo "CHECKED"; ?>> 
@@ -99,7 +99,7 @@ if ($parameters['go'] == "Go") {
     $dupecount = 0;
 
     // for EACH patient in OpenEMR find potential matches
-    $sqlstmt = "select id, pid, fname, lname, dob, sex, ss, change_date from patient_data";
+    $sqlstmt = "select id, pid, fname, lname, dob, sex, ss from patient_data";
     switch ($parameters['sortby']) {
         case 'dob':
             $orderby = " ORDER BY dob";
@@ -125,7 +125,7 @@ if ($parameters['go'] == "Go") {
 
         if ($dupelist[$row['id']] == 1) continue;
 
-        $sqlstmt = "select id, pid, fname, lname, dob, sex, ss, change_date ".
+        $sqlstmt = "select id, pid, fname, lname, dob, sex, ss ".
                     " from patient_data where ";
         $sqland = "";
         if ($parameters['match_name']) {
@@ -151,33 +151,31 @@ if ($parameters['go'] == "Go") {
         if (mysql_num_rows($mResults) <= 1) continue;
 
 
-        echo "<div class='match_block' style='padding: 5px 0px 5px 0px;'>";
+        echo "<div class='match_block' style='padding: 5px 0px 5px 0px;' id='dupediv".$dupecount."'>";
         echo "<table>";
 
-        echo "<tr class='onerow' id='".$row['id']."' oemrid='".$row['id']."' dupecount='".$dupecount."'>";
+        echo "<tr class='onerow' id='".$row['id']."' oemrid='".$row['id']."' dupecount='".$dupecount."' title='Merge duplicates into this record'>";
         echo "<td>".$row['lname'].", ".$row['fname']."</td>";
         echo "<td>".$row['dob']."</td>";
         echo "<td>".$row['sex']."</td>";
         echo "<td>".$row['ss']."</td>";
-        echo "<td>".$row['change_date']."</td>";
         echo "<td><input type='button' value=' ? ' class='moreinfo' oemrid='".$row['pid']."' title='More info'></td>";
         echo "</tr>";
 
         while ($mrow = mysql_fetch_assoc($mResults)) {
             if ($row['id'] == $mrow['id']) continue;
-            echo "<tr class='onerow' id='".$mrow['id']."' oemrid='".$mrow['id']."' dupecount='".$dupecount."'>";
+            echo "<tr class='onerow' id='".$mrow['id']."' oemrid='".$mrow['id']."' dupecount='".$dupecount."' title='Merge duplicates into this record'>";
             echo "<td>".$mrow['lname'].", ".$mrow['fname']."</td>";
             echo "<td>".$mrow['dob']."</td>";
             echo "<td>".$mrow['sex']."</td>";
             echo "<td>".$mrow['ss']."</td>";
-            echo "<td>".$mrow['change_date']."</td>";
             echo "<td><input type='button' value=' ? ' class='moreinfo' oemrid='".$mrow['pid']."' title='More info'></td>";
             echo "</tr>";
             // to keep the output clean let's not repeat IDs already tagged as dupes
             $dupelist[$row['id']] = 1;
             $dupelist[$mrow['id']] = 1;
-            $dupecount++;
         }
+        $dupecount++;
 
         echo "</table>";
         echo "</div>\n";
@@ -186,13 +184,16 @@ if ($parameters['go'] == "Go") {
 
 ?>
 </div> <!-- end the big list -->
-<?php if ($dupecount > 0) { echo $dupecount." duplicates found."; } ?><br>
-<input type="button" id="do_resolve" value="Merge">
+<?php if ($dupecount > 0) : ?>
+<div id="dupecounter" style='display:inline;'><?php echo $dupecount; ?></div>
+&nbsp;duplicates found
+<?php endif; ?>
 </form>
 
 </body>
 
 <script language="javascript">
+
 $(document).ready(function(){
 
     // capture RETURN keypress
@@ -216,19 +217,30 @@ $(document).ready(function(){
     // highlight the block of matching records
     $(".match_block").mouseover(function() { $(this).toggleClass("highlight_block"); });
     $(".match_block").mouseout(function() { $(this).toggleClass("highlight_block"); });
+    $(".onerow").mouseover(function() { $(this).toggleClass("highlight"); });
+    $(".onerow").mouseout(function() { $(this).toggleClass("highlight"); });
 
     // begin the merge of a block into a single record
     $(".onerow").click(function() {
         var dupecount = $(this).attr("dupecount");
         var masterid = $(this).attr("oemrid");
-        var newurl = "mergerecords.php?masterid="+masterid;
+        var newurl = "mergerecords.php?dupecount="+dupecount+"&masterid="+masterid;
         $("[dupecount="+dupecount+"]").each(function (i) {
             if (this.id != masterid) { newurl += "&otherid[]="+this.id; }
         });
-        //alert(newurl);
-        document.location.href = newurl;
+        // open a new window and show the merge results
+        moreinfoWin = window.open(newurl, "mergewin");
     });
 });
+
+function removedupe(dupeid) {
+    // remove the merged records from the list of duplicates
+    $("#dupediv"+dupeid).remove();
+    // reduce the duplicate counter
+    var dcounter = parseInt($("#dupecounter").html());
+    $("#dupecounter").html(dcounter-1);
+}
+    
 </script>
 
 </html>
