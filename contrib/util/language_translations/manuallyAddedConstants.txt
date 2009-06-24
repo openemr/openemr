@@ -11,6 +11,7 @@ Allow telephone messages?
 Allow Voice Message
 Asian
 Asthma
+Bill/Collect
 Billing Code for Requested Service
 Black
 Boolean
@@ -18,8 +19,10 @@ Breast Disease
 Caffeine consumption
 Caucasian
 Cell Phone Number
+Chart Note
 Chart Storage Locations
 Check Number
+Child
 Choices
 City Name
 Contact Email Address
@@ -34,6 +37,7 @@ Date of Birth
 Date of referral
 Date of reply
 Depression
+Dictation
 Did you receive a copy of the HIPAA Notice?
 Direct Mail
 Discount Level
@@ -50,6 +54,7 @@ Emergency Contact Phone Number
 Emergency Phone
 Employee
 Employer Name
+Established Patient
 Ethnicity or Race
 Exam and test results
 Exams/Tests
@@ -74,15 +79,19 @@ Home Phone Number
 Homeless or similar?
 Homeless, etc.
 Hypertension
+Improved
+In Office
 Include Vitals
 Include vitals data?
 Infertility
 Interpreter needed?
+Lab Report
 Last Activity Date
 Leave Message With
 Level of urgency
 License/ID
 Low
+Lunch
 Married
 Medium
 mg/2cc
@@ -90,6 +99,7 @@ mg/3cc
 mg/4cc
 Migrant or seasonal worker?
 Misc
+Misc Billing Options HCFA
 Mobile Phone
 Mr.
 Mrs.
@@ -97,18 +107,26 @@ Ms.
 Name 1
 Name 2
 Name/Value
+New Document
 Newspaper
+No Show
+Normal Office Visit
+Office Visit
 Other (specify)
+Out Of Office
+Patient Information
+Patient Note Types
+Pending followup
 Pharmacy
 PID (Pelvic Inflammatory Disease)
-Postal Code
 Preferred Language
 Preferred Pharmacy
 Prescriptions and/or referrals by specialist
 Prescriptions/Referrals
 Presumed Diagnosis
 Presumed diagnosis by specialist
-Price Level
+Prior Auth
+Prior Authorization Form
 Radio
 Reason for referral
 Recommendations
@@ -123,10 +141,18 @@ Referrer diagnosis
 Referring Provider
 Reply From
 Requested Service
+Reserved
+Reserved for use to define Scheduled Vacation Time
+Reserved to define when a provider may not have available appointments after.
+Reserved to define when an event did not occur as specified.
+Reserved todefine when a provider may haveavailable appointments after.
+Resolved
+Review Of Systems
 Risk Factors
 Risk Level
 Sample
 Seatbelt use
+Self
 Separated
 Service Category
 Service Date
@@ -142,9 +168,12 @@ Standard
 Start Date at This Clinic
 State/Locality
 Stats
+Status quo
 Street and Number
+Subscriber Relationship
 T.V.
 Tax Rate
+Test Scheduling
 Thrombosis/Stroke
 Titles
 Tobacco use
@@ -167,9 +196,12 @@ User Defined Text 5
 User Defined Text 6
 User Defined Text 7
 User Defined Text 8
+Vacation
 Value 1
 Value 2
 Varicose Veins
+Vitals
+Vitals (Metric)
 Walk-In
 Where may related scanned or paper documents be found?
 Who
@@ -177,4 +209,5 @@ Who replied?
 Widowed
 With whom may we leave a message?
 Work Phone Number
+Worse
 Yes/No
