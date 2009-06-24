@@ -1,50 +1,47 @@
 <?php
-// include_once($GLOBALS['srcdir'] . '/sql.inc');
 include_once(dirname(__FILE__) . '/sql.inc'); // fixes vulnerability with register_globals
 
 // Translation function
-//  This is the translation engine
+// This is the translation engine
 function xl($constant,$mode='r',$prepend='',$append='') {
-        // set language id
-        if (isset($_SESSION['language_choice'])) {
-	        $lang_id=$_SESSION['language_choice'];
-	}
-        else {
-	        $lang_id=1;
-	} 
-    
-	if ($lang_id == 1) {
-	        // language id = 1, so no need to translate
-	        $string=$constant;
-	}
-	else {
-	        //TRANSLATE
-		
-	        // first, clean lines
-		//  convert new lines to spaces and remove windows end of lines
-		$patterns = array ('/\n/','/\r/');
-	        $replace = array (' ','');
-		$constant = preg_replace($patterns, $replace, $constant);
-	    
-	        // second, attempt translation
-	$sql="SELECT * FROM lang_definitions JOIN lang_constants ON " .
-    "lang_definitions.cons_id = lang_constants.cons_id WHERE " .
-    "lang_id='$lang_id' AND constant_name = '" .
-    addslashes($constant) . "' LIMIT 1";
-	        $res=SqlStatement($sql);
-	        $row=SqlFetchArray($res);
-	        $string=$row['definition'];
-	        if ($string=='') { $string="$constant"; }
-        }
-    
-	$string="$prepend"."$string"."$append";
-	if ($mode=='e'){
-		echo $string;
-	} else {
-		return $string;
-	}
-}
+  // set language id
+  if (!empty($_SESSION['language_choice'])) {
+    $lang_id = $_SESSION['language_choice'];
+  }
+  else {
+    $lang_id = 1;
+  } 
 
+  if ($lang_id == 1 && !empty($GLOBALS['skip_english_translation'])) {
+    // language id = 1, so no need to translate
+    $string = $constant;
+  }
+  else {
+    // TRANSLATE
+    // first, clean lines
+    // convert new lines to spaces and remove windows end of lines
+    $patterns = array ('/\n/','/\r/');
+    $replace = array (' ','');
+    $constant = preg_replace($patterns, $replace, $constant);
+
+    // second, attempt translation
+    $sql="SELECT * FROM lang_definitions JOIN lang_constants ON " .
+      "lang_definitions.cons_id = lang_constants.cons_id WHERE " .
+      "lang_id='$lang_id' AND constant_name = '" .
+      addslashes($constant) . "' LIMIT 1";
+    $res = SqlStatement($sql);
+    $row = SqlFetchArray($res);
+    $string = $row['definition'];
+    if ($string == '') { $string = "$constant"; }
+  }
+    
+  $string = "$prepend" . "$string" . "$append";
+  if ($mode=='e') {
+    echo $string;
+  } else {
+    return $string;
+  }
+}
 
 // Added 5-09 by BM for translation of list labels (when applicable)
 // Wrapper for the above translation function xl()

@@ -10,7 +10,7 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
     isset($_POST['authPass']) && isset($_POST['authProvider']))
 {
     // set the language
-    if (isset($_POST['languageChoice'])) {
+    if (!empty($_POST['languageChoice'])) {
         $_SESSION['language_choice'] = $_POST['languageChoice'];
     }
     else {
