@@ -190,7 +190,7 @@ $form_cptcode   = trim($_POST['form_cptcode']);
 
  <tr>
   <td>
-   Report by
+   <?php xl('Report by','e'); ?>
 <?php
 echo "   <select name='form_report_by'>\n";
 foreach (array(1 => 'Payer', 2 => 'Payment Method', 3 => 'Check Number') as $key => $value) {
