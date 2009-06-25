@@ -2,507 +2,525 @@ Checking constants:
 
 Following constant not same:
 	original- val:Age format for "age from" is not valid
-	spreadsheet- ID:91 val:Age format for \"age from\" is not valid
+	spreadsheet- ID:107 val:Age format for \"age from\" is not valid
 Following constant not same:
 	original- val:Age format for "age up to" is not valid
-	spreadsheet- ID:92 val:Age format for \"age up to\" is not valid
+	spreadsheet- ID:108 val:Age format for \"age up to\" is not valid
 Following constant not same:
 	original- val:Alternatively, you may use the search page to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse.  You can do this by clicking the Browse button and selecting the file to upload, and then clicking Search to perform the upload and display the corresponding invoices.  In this case the other parameters mentioned above do not apply and will be ignored.  Uploading saves the file but does not yet process its contents -- that is done separately as described below.
-	spreadsheet- ID:120 val:Alternatively, you may use the search page to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse. You can do this by clicking the Browse button and selecting the file to upload, and then clicking Search to perform the upload and display the corresponding invoices. In this case the other parameters mentioned above do not apply and will be ignored. Uploading saves the file but does not yet process its contents -- that is done separately as described below.
+	spreadsheet- ID:142 val:Alternatively, you may use the search page to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse. You can do this by clicking the Browse button and selecting the file to upload, and then clicking Search to perform the upload and display the corresponding invoices. In this case the other parameters mentioned above do not apply and will be ignored. Uploading saves the file but does not yet process its contents -- that is done separately as described below.
 Following constant not same:
 	original- val:Blue lines in this report are informational. Black lines show previously existing information.  Green lines show changes that were successfully applied.  Red lines indicate errors, or changes that were not applied; these must be processed manually.  Currently denied claims and payment reversals are not handled automatically and so will appear in red.
-	spreadsheet- ID:241 val:Blue lines in this report are informational. Black lines show previously existing information. Green lines show changes that were successfully applied. Red lines indicate errors, or changes that were not applied; these must be processed manually. Currently denied claims and payment reversals are not handled automatically and so will appear in red.
+	spreadsheet- ID:280 val:Blue lines in this report are informational. Black lines show previously existing information. Green lines show changes that were successfully applied. Red lines indicate errors, or changes that were not applied; these must be processed manually. Currently denied claims and payment reversals are not handled automatically and so will appear in red.
 Following constant not same:
 	original- val:cfirst($instype) . ' Ins
-	spreadsheet- ID:318 val:cfirst($instype) . \' Ins
+	spreadsheet- ID:363 val:cfirst($instype) . \' Ins
 Following constant not same:
 	original- val:Checked box = yes ,  empty = no
-	spreadsheet- ID:345 val:Checked box = yes , empty = no
+	spreadsheet- ID:395 val:Checked box = yes , empty = no
 Following constant not same:
 	original- val:Date format for "appointment end" is not valid
-	spreadsheet- ID:491 val:Date format for \"appointment end\" is not valid
+	spreadsheet- ID:560 val:Date format for \"appointment end\" is not valid
 Following constant not same:
 	original- val:Date format for "appointment start" is not valid
-	spreadsheet- ID:492 val:Date format for \"appointment start\" is not valid
+	spreadsheet- ID:561 val:Date format for \"appointment start\" is not valid
 Following constant not same:
 	original- val:Date format for "Next Appointment" is not valid
-	spreadsheet- ID:493 val:Date format for \"Next Appointment\" is not valid
+	spreadsheet- ID:562 val:Date format for \"Next Appointment\" is not valid
 Following constant not same:
 	original- val:Date format for "not seen since" is not valid
-	spreadsheet- ID:494 val:Date format for \"not seen since\" is not valid
+	spreadsheet- ID:563 val:Date format for \"not seen since\" is not valid
 Following constant not same:
 	original- val:Date format for "seen since" is not valid
-	spreadsheet- ID:495 val:Date format for \"seen since\" is not valid
+	spreadsheet- ID:564 val:Date format for \"seen since\" is not valid
 Following constant not same:
 	original- val:Depending on the type of bill you are testing you will see HCFA like output on a blank page for HCFA bills, you will see many lines of somewhat garbled text  and information if you are testing an X12 claim. That garbled text is the X12 EDI 4010A format. Occasionally you will see odd characters that look like dominoes or  squiglies, these are control characters such as page feeds and are normal.
-	spreadsheet- ID:535 val:Depending on the type of bill you are testing you will see HCFA like output on a blank page for HCFA bills, you will see many lines of somewhat garbled text and information if you are testing an X12 claim. That garbled text is the X12 EDI 4010A format. Occasionally you will see odd characters that look like dominoes or squiglies, these are control characters such as page feeds and are normal.
+	spreadsheet- ID:617 val:Depending on the type of bill you are testing you will see HCFA like output on a blank page for HCFA bills, you will see many lines of somewhat garbled text and information if you are testing an X12 claim. That garbled text is the X12 EDI 4010A format. Occasionally you will see odd characters that look like dominoes or squiglies, these are control characters such as page feeds and are normal.
+Following constant not same:
+	original- val:Don't Save
+	spreadsheet- ID:690 val:Don\'t Save
 Following constant not same:
 	original- val:ee the  * GNU General Public License for more details.  *   * You should have received a copy of the GNU General Public License  * along with this program; if not, write to the Free 
-	spreadsheet- ID:636 val:ee the * GNU General Public License for more details. * * You should have received a copy of the GNU General Public License * along with this program; if not, write to the Free 
+	spreadsheet- ID:741 val:ee the * GNU General Public License for more details. * * You should have received a copy of the GNU General Public License * along with this program; if not, write to the Free 
 Following constant not same:
 	original- val:Empty value in "Email Hours"
-	spreadsheet- ID:659 val:Empty value in \"Email Hours\"
+	spreadsheet- ID:766 val:Empty value in \"Email Hours\"
 Following constant not same:
 	original- val:Empty value in "Email Sender"
-	spreadsheet- ID:660 val:Empty value in \"Email Sender\"
+	spreadsheet- ID:767 val:Empty value in \"Email Sender\"
 Following constant not same:
 	original- val:Empty value in "Email Subject"
-	spreadsheet- ID:661 val:Empty value in \"Email Subject\"
+	spreadsheet- ID:768 val:Empty value in \"Email Subject\"
 Following constant not same:
 	original- val:Empty value in "Email Text"
-	spreadsheet- ID:662 val:Empty value in \"Email Text\"
+	spreadsheet- ID:769 val:Empty value in \"Email Text\"
 Following constant not same:
 	original- val:Empty value in "Name of Provider"
-	spreadsheet- ID:663 val:Empty value in \"Name of Provider\"
+	spreadsheet- ID:770 val:Empty value in \"Name of Provider\"
 Following constant not same:
 	original- val:Empty value in "Password"
-	spreadsheet- ID:664 val:Empty value in \"Password\"
+	spreadsheet- ID:771 val:Empty value in \"Password\"
 Following constant not same:
 	original- val:Empty value in "SMS Hours"
-	spreadsheet- ID:665 val:Empty value in \"SMS Hours\"
+	spreadsheet- ID:772 val:Empty value in \"SMS Hours\"
 Following constant not same:
 	original- val:Empty value in "SMS Text"
-	spreadsheet- ID:666 val:Empty value in \"SMS Text\"
+	spreadsheet- ID:773 val:Empty value in \"SMS Text\"
 Following constant not same:
 	original- val:Empty value in "Username"
-	spreadsheet- ID:667 val:Empty value in \"Username\"
+	spreadsheet- ID:774 val:Empty value in \"Username\"
 Following constant not same:
 	original- val:Error in "Gender" selection
-	spreadsheet- ID:704 val:Error in \"Gender\" selection
+	spreadsheet- ID:814 val:Error in \"Gender\" selection
 Following constant not same:
 	original- val:Error in "HIPAA" selection
-	spreadsheet- ID:705 val:Error in \"HIPAA\" selection
+	spreadsheet- ID:815 val:Error in \"HIPAA\" selection
 Following constant not same:
 	original- val:Error in "Process" selection
-	spreadsheet- ID:706 val:Error in \"Process\" selection
+	spreadsheet- ID:816 val:Error in \"Process\" selection
 Following constant not same:
 	original- val:Error in "SMS Gateway" selection
-	spreadsheet- ID:707 val:Error in \"SMS Gateway\" selection
+	spreadsheet- ID:817 val:Error in \"SMS Gateway\" selection
 Following constant not same:
 	original- val:Error in "Sort By" selection
-	spreadsheet- ID:708 val:Error in \"Sort By\" selection
+	spreadsheet- ID:818 val:Error in \"Sort By\" selection
+Following constant not same:
+	original- val:Error: passwords don't match. Please check your typing.
+	spreadsheet- ID:823 val:Error: passwords don\'t match. Please check your typing.
 Following constant not same:
 	original- val:If you have chosen to upload electronic remittances, then the search window redisplays itself with the matching invoices from the X12 file.  You may click on any of these invoice numbers (as described below) if you wish to make any corrections before the remittance information is applied. To apply the changes, click the Process ERA File button at the bottom of the page.  This will produce a new window with a detailed report.
-	spreadsheet- ID:957 val:If you have chosen to upload electronic remittances, then the search window redisplays itself with the matching invoices from the X12 file. You may click on any of these invoice numbers (as described below) if you wish to make any corrections before the remittance information is applied. To apply the changes, click the Process ERA File button at the bottom of the page. This will produce a new window with a detailed report.
+	spreadsheet- ID:1102 val:If you have chosen to upload electronic remittances, then the search window redisplays itself with the matching invoices from the X12 file. You may click on any of these invoice numbers (as described below) if you wish to make any corrections before the remittance information is applied. To apply the changes, click the Process ERA File button at the bottom of the page. This will produce a new window with a detailed report.
 Following constant not same:
 	original- val:If you have entered a Pay Date in the search page, this will override the posting date of payments and adjustments that are otherwise taken from the X12 file.  This may be useful for reporting purposes, if you want your receipts reporting to use your posting date rather than the insurance company\'s processing date.  Note that this will also affect dates of prior payments and adjustments that are put into secondary claims.
-	spreadsheet- ID:958 val:If you have entered a Pay Date in the search page, this will override the posting date of payments and adjustments that are otherwise taken from the X12 file. This may be useful for reporting purposes, if you want your receipts reporting to use your posting date rather than the insurance company\'s processing date. Note that this will also affect dates of prior payments and adjustments that are put into secondary claims.
+	spreadsheet- ID:1103 val:If you have entered a Pay Date in the search page, this will override the posting date of payments and adjustments that are otherwise taken from the X12 file. This may be useful for reporting purposes, if you want your receipts reporting to use your posting date rather than the insurance company\'s processing date. Note that this will also affect dates of prior payments and adjustments that are put into secondary claims.
 Following constant not same:
 	original- val:Internal error: encounter '
-	spreadsheet- ID:1037 val:Internal error: encounter \'
+	spreadsheet- ID:1192 val:Internal error: encounter \'
 Following constant not same:
 	original- val:Invalid source designation "
-	spreadsheet- ID:1048 val:Invalid source designation \"
+	spreadsheet- ID:1204 val:Invalid source designation \"
 Following constant not same:
 	original- val:Just below the check information is a blue area where you put in your search parameters.  You can search by patient name, chart number, encounter number or date of service, or any combination of these.  You may also select whether you want to see all invoices, open invoices, or only invoices that are due (by the patient).  Click the Search button to perform the search.
-	spreadsheet- ID:1081 val:Just below the check information is a blue area where you put in your search parameters. You can search by patient name, chart number, encounter number or date of service, or any combination of these. You may also select whether you want to see all invoices, open invoices, or only invoices that are due (by the patient). Click the Search button to perform the search.
+	spreadsheet- ID:1239 val:Just below the check information is a blue area where you put in your search parameters. You can search by patient name, chart number, encounter number or date of service, or any combination of these. You may also select whether you want to see all invoices, open invoices, or only invoices that are due (by the patient). Click the Search button to perform the search.
 Following constant not same:
 	original- val:k, here's the rest 
-	spreadsheet- ID:1085 val:k, here\'s the rest 
+	spreadsheet- ID:1243 val:k, here\'s the rest 
 Following constant not same:
 	original- val:Make sure "
-	spreadsheet- ID:1176 val:Make sure \"
+	spreadsheet- ID:1347 val:Make sure \"
 Following constant not same:
 	original- val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category. 
-	spreadsheet- ID:1378 val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example \'<i>file.jpg</i>\' will become \'<i>file.jpg.1</i>\'. Filenames are considered unique per patient, not per category. 
+	spreadsheet- ID:1575 val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example \'<i>file.jpg</i>\' will become \'<i>file.jpg.1</i>\'. Filenames are considered unique per patient, not per category. 
 Following constant not same:
 	original- val:Pay attention to the "Done with" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
-	spreadsheet- ID:1513 val:Pay attention to the \"Done with\" checkboxes. After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected! Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
+	spreadsheet- ID:1731 val:Pay attention to the \"Done with\" checkboxes. After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected! Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
 Following constant not same:
 	original- val:Pennington Firm OpenEMR  v
-	spreadsheet- ID:1526 val:Pennington Firm OpenEMR v
+	spreadsheet- ID:1746 val:Pennington Firm OpenEMR v
 Following constant not same:
 	original- val:Please do NOT use your browsers stop or reload button while this page is running unless more than 10 minutes have elapsed, this will not cause the process to  stop on the server and will consume uneccesary resources.
-	spreadsheet- ID:1559 val:Please do NOT use your browsers stop or reload button while this page is running unless more than 10 minutes have elapsed, this will not cause the process to stop on the server and will consume uneccesary resources.
+	spreadsheet- ID:1788 val:Please do NOT use your browsers stop or reload button while this page is running unless more than 10 minutes have elapsed, this will not cause the process to stop on the server and will consume uneccesary resources.
 Following constant not same:
 	original- val:Please note that this can take a very long time, up to several minutes, your web browser may not appear very active during this time but generating a bill is a  complicated process and your web browser is merely waiting for more information.
-	spreadsheet- ID:1560 val:Please note that this can take a very long time, up to several minutes, your web browser may not appear very active during this time but generating a bill is a complicated process and your web browser is merely waiting for more information.
+	spreadsheet- ID:1791 val:Please note that this can take a very long time, up to several minutes, your web browser may not appear very active during this time but generating a bill is a complicated process and your web browser is merely waiting for more information.
 Following constant not same:
 	original- val:SA  *  * To read the license please read the docs/license.txt or visit  * http://www.gnu.org/copyleft/gpl.html  *  */  //========================================================================= // 
-	spreadsheet- ID:1804 val:SA * * To read the license please read the docs/license.txt or visit * http://www.gnu.org/copyleft/gpl.html * */ //========================================================================= // 
+	spreadsheet- ID:2061 val:SA * * To read the license please read the docs/license.txt or visit * http://www.gnu.org/copyleft/gpl.html * */ //========================================================================= // 
+Following constant not same:
+	original- val:The exported data appears in the text area below.  You can copy and paste this into an email or to any other desired destination.
+	spreadsheet- ID:2338 val:The exported data appears in the text area below. You can copy and paste this into an email or to any other desired destination.
 Following constant not same:
 	original- val:The initial window is the invoice search page.  At the top you may enter a source (e.g. check number), pay date and check amount.  The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim.  The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.
-	spreadsheet- ID:2045 val:The initial window is the invoice search page. At the top you may enter a source (e.g. check number), pay date and check amount. The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim. The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.
+	spreadsheet- ID:2342 val:The initial window is the invoice search page. At the top you may enter a source (e.g. check number), pay date and check amount. The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim. The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.
 Following constant not same:
 	original- val:The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the "W" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
-	spreadsheet- ID:2049 val:The Source and Date columns are copied from the first page, so normally you will not need to touch those. You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both. You can also click the \"W\" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
+	spreadsheet- ID:2346 val:The Source and Date columns are copied from the first page, so normally you will not need to touch those. You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both. You can also click the \"W\" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
 Following constant not same:
 	original- val:The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
-	spreadsheet- ID:2053 val:The X12 files as well as the resulting HTML output reports are archived in the \"era\" subdirectory of the main OpenEMR installation directory. You will want to refer to these archives from time to time. The URL is 
+	spreadsheet- ID:2350 val:The X12 files as well as the resulting HTML output reports are archived in the \"era\" subdirectory of the main OpenEMR installation directory. You will want to refer to these archives from time to time. The URL is 
 Following constant not same:
 	original- val:There are errors with your submission.  These are outlined below.
-	spreadsheet- ID:2055 val:There are errors with your submission. These are outlined below.
+	spreadsheet- ID:2352 val:There are errors with your submission. These are outlined below.
 Following constant not same:
 	original- val:To ded'ble
-	spreadsheet- ID:2100 val:To ded\'ble
+	spreadsheet- ID:2414 val:To ded\'ble
 Following constant not same:
 	original- val:trftime($month_format, mktime(0, 0, 0, $i, 1, 2000)) );             $month_value
-	spreadsheet- ID:2138 val:trftime($month_format, mktime(0, 0, 0, $i, 1, 2000)) ); $month_value
+	spreadsheet- ID:2458 val:trftime($month_format, mktime(0, 0, 0, $i, 1, 2000)) ); $month_value
 Following constant not same:
 	original- val:tring[,'r'[,
-	spreadsheet- ID:2141 val:tring[,\'r\'[,
+	spreadsheet- ID:2461 val:tring[,\'r\'[,
 Following constant not same:
 	original- val:Upon clicking an invoice number the "manual posting window" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
-	spreadsheet- ID:2192 val:Upon clicking an invoice number the \"manual posting window\" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received. Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
+	spreadsheet- ID:2514 val:Upon clicking an invoice number the \"manual posting window\" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received. Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
 Following constant not same:
 	original- val:Upon searching you are presented with a list of invoices.  You may click on one of the invoice numbers to open a second window, which is the data entry page for manual posting.  You may also click on a patient name if you want to enter a note that the front office staff will see when the patient checks in, and you may select invoices to appear on patient statements and print those statements.
-	spreadsheet- ID:2193 val:Upon searching you are presented with a list of invoices. You may click on one of the invoice numbers to open a second window, which is the data entry page for manual posting. You may also click on a patient name if you want to enter a note that the front office staff will see when the patient checks in, and you may select invoices to appear on patient statements and print those statements.
+	spreadsheet- ID:2515 val:Upon searching you are presented with a list of invoices. You may click on one of the invoice numbers to open a second window, which is the data entry page for manual posting. You may also click on a patient name if you want to enter a note that the front office staff will see when the patient checks in, and you may select invoices to appear on patient statements and print those statements.
 Following constant not same:
 	original- val:uses php <a href="http://php.net/strftime">strftime</a> format
-	spreadsheet- ID:2209 val:uses php <a href=\"http://php.net/strftime\">strftime</a> format
+	spreadsheet- ID:2550 val:uses php <a href=\"http://php.net/strftime\">strftime</a> format
 Following constant not same:
 	original- val: but was 
-	spreadsheet- ID:2326 val:but was 
+	spreadsheet- ID:2692 val:but was 
 Following constant not same:
 	original- val: could not be accessed.
-	spreadsheet- ID:2327 val:could not be accessed.
+	spreadsheet- ID:2693 val:could not be accessed.
 Following constant not same:
 	original- val: Do you really want to delete
-	spreadsheet- ID:2328 val:Do you really want to delete
+	spreadsheet- ID:2694 val:Do you really want to delete
 Following constant not same:
 	original- val: Drug
-	spreadsheet- ID:2329 val:Drug
+	spreadsheet- ID:2695 val:Drug
 Following constant not same:
 	original- val: emails not sent
-	spreadsheet- ID:2330 val:emails not sent
+	spreadsheet- ID:2696 val:emails not sent
 Following constant not same:
 	original- val: from
-	spreadsheet- ID:2331 val:from
+	spreadsheet- ID:2697 val:from
 Following constant not same:
 	original- val: has been created. 
-	spreadsheet- ID:2332 val:has been created. 
+	spreadsheet- ID:2698 val:has been created. 
 Following constant not same:
 	original- val: has been re-opened.
-	spreadsheet- ID:2333 val:has been re-opened.
+	spreadsheet- ID:2699 val:has been re-opened.
 Following constant not same:
 	original- val: History
-	spreadsheet- ID:2334 val:History
+	spreadsheet- ID:2700 val:History
 Following constant not same:
 	original- val: is not a number
-	spreadsheet- ID:2335 val:is not a number
+	spreadsheet- ID:2701 val:is not a number
 Following constant not same:
 	original- val: is ready for re-billing.
-	spreadsheet- ID:2336 val:is ready for re-billing.
+	spreadsheet- ID:2702 val:is ready for re-billing.
 Following constant not same:
 	original- val: LLL:
-	spreadsheet- ID:2337 val:LLL:
+	spreadsheet- ID:2703 val:LLL:
 Following constant not same:
 	original- val: Lot
-	spreadsheet- ID:2338 val:Lot
+	spreadsheet- ID:2704 val:Lot
 Following constant not same:
 	original- val: Medicaid Original Reference No. 
-	spreadsheet- ID:2339 val:Medicaid Original Reference No. 
+	spreadsheet- ID:2705 val:Medicaid Original Reference No. 
 Following constant not same:
 	original- val: min
-	spreadsheet- ID:2340 val:min
+	spreadsheet- ID:2706 val:min
 Following constant not same:
 	original- val: not found!
-	spreadsheet- ID:2341 val:not found!
+	spreadsheet- ID:2707 val:not found!
 Following constant not same:
 	original- val: Pecularities in many browsers may mean that the output below enters your screen in sudden jerks and that there are long pauses of several seconds where it  appears as though things may have crashed. That is not the case, you will eventually see output coming out line by line. There may be sequential numbers appearing  below, this is to indicate that even though nothing else may be displaying there is activity going on. These numbers will be interspersed with the content of the  billing and that is normal.
-	spreadsheet- ID:2342 val:Pecularities in many browsers may mean that the output below enters your screen in sudden jerks and that there are long pauses of several seconds where it appears as though things may have crashed. That is not the case, you will eventually see output coming out line by line. There may be sequential numbers appearing below, this is to indicate that even though nothing else may be displaying there is activity going on. These numbers will be interspersed with the content of the billing and that is normal.
+	spreadsheet- ID:2708 val:Pecularities in many browsers may mean that the output below enters your screen in sudden jerks and that there are long pauses of several seconds where it appears as though things may have crashed. That is not the case, you will eventually see output coming out line by line. There may be sequential numbers appearing below, this is to indicate that even though nothing else may be displaying there is activity going on. These numbers will be interspersed with the content of the billing and that is normal.
 Following constant not same:
 	original- val: prescription has reached its limit of
-	spreadsheet- ID:2343 val:prescription has reached its limit of
+	spreadsheet- ID:2709 val:prescription has reached its limit of
 Following constant not same:
 	original- val: until 
-	spreadsheet- ID:2344 val:until 
+	spreadsheet- ID:2710 val:until 
 Following constant not same:
 	original- val: update failed, not in database?
-	spreadsheet- ID:2345 val:update failed, not in database?
+	spreadsheet- ID:2711 val:update failed, not in database?
 Following constant not same:
 	original- val: was marked as billed only.
-	spreadsheet- ID:2346 val:was marked as billed only.
+	spreadsheet- ID:2712 val:was marked as billed only.
 Following constant not same:
 	original- val: was queued successfully.
-	spreadsheet- ID:2347 val:was queued successfully.
+	spreadsheet- ID:2713 val:was queued successfully.
 Following constant not same:
 	original- val:" for code 
-	spreadsheet- ID:2349 val:\" for code 
+	spreadsheet- ID:2715 val:\" for code 
 Following constant not same:
 	original- val:" is CHECKED in PostCalendar Settings!
-	spreadsheet- ID:2350 val:\" is CHECKED in PostCalendar Settings!
+	spreadsheet- ID:2716 val:\" is CHECKED in PostCalendar Settings!
 Following constant not same:
 	original- val:$1
-	spreadsheet- ID:2355 val:$1.00
+	spreadsheet- ID:2721 val:$1.00
 Following constant not same:
 	original- val:% Cancelled <  24h 
-	spreadsheet- ID:2357 val:% Cancelled < 24h 
+	spreadsheet- ID:2723 val:% Cancelled < 24h 
 Following constant not same:
 	original- val:' should exist but does not.
-	spreadsheet- ID:2358 val:should exist but does not.
+	spreadsheet- ID:2724 val:should exist but does not.
 Following constant not same:
 	original- val:11-14
-	spreadsheet- ID:2369 val:11/14/09
+	spreadsheet- ID:2739 val:11/14/09
 Following constant not same:
 	original- val:45+
-	spreadsheet- ID:2381 val:45
+	spreadsheet- ID:2753 val:45
 
 Done checking constants:
-	79 mismatches found (known is 79)
+	82 mismatches found (known is 82)
 Good, constants weren't modified by translators
 
 Checking constants:
 
 Following constant not same:
 	original- val:Age format for "age from" is not valid
-	spreadsheet- ID:91 val:Age format for \"age from\" is not valid
+	spreadsheet- ID:107 val:Age format for \"age from\" is not valid
 Following constant not same:
 	original- val:Age format for "age up to" is not valid
-	spreadsheet- ID:92 val:Age format for \"age up to\" is not valid
+	spreadsheet- ID:108 val:Age format for \"age up to\" is not valid
 Following constant not same:
 	original- val:Alternatively, you may use the search page to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse.  You can do this by clicking the Browse button and selecting the file to upload, and then clicking Search to perform the upload and display the corresponding invoices.  In this case the other parameters mentioned above do not apply and will be ignored.  Uploading saves the file but does not yet process its contents -- that is done separately as described below.
-	spreadsheet- ID:120 val:Alternatively, you may use the search page to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse. You can do this by clicking the Browse button and selecting the file to upload, and then clicking Search to perform the upload and display the corresponding invoices. In this case the other parameters mentioned above do not apply and will be ignored. Uploading saves the file but does not yet process its contents -- that is done separately as described below.
+	spreadsheet- ID:142 val:Alternatively, you may use the search page to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse. You can do this by clicking the Browse button and selecting the file to upload, and then clicking Search to perform the upload and display the corresponding invoices. In this case the other parameters mentioned above do not apply and will be ignored. Uploading saves the file but does not yet process its contents -- that is done separately as described below.
 Following constant not same:
 	original- val:Blue lines in this report are informational. Black lines show previously existing information.  Green lines show changes that were successfully applied.  Red lines indicate errors, or changes that were not applied; these must be processed manually.  Currently denied claims and payment reversals are not handled automatically and so will appear in red.
-	spreadsheet- ID:241 val:Blue lines in this report are informational. Black lines show previously existing information. Green lines show changes that were successfully applied. Red lines indicate errors, or changes that were not applied; these must be processed manually. Currently denied claims and payment reversals are not handled automatically and so will appear in red.
+	spreadsheet- ID:280 val:Blue lines in this report are informational. Black lines show previously existing information. Green lines show changes that were successfully applied. Red lines indicate errors, or changes that were not applied; these must be processed manually. Currently denied claims and payment reversals are not handled automatically and so will appear in red.
 Following constant not same:
 	original- val:cfirst($instype) . ' Ins
-	spreadsheet- ID:318 val:cfirst($instype) . \' Ins
+	spreadsheet- ID:363 val:cfirst($instype) . \' Ins
 Following constant not same:
 	original- val:Checked box = yes ,  empty = no
-	spreadsheet- ID:345 val:Checked box = yes , empty = no
+	spreadsheet- ID:395 val:Checked box = yes , empty = no
 Following constant not same:
 	original- val:Date format for "appointment end" is not valid
-	spreadsheet- ID:491 val:Date format for \"appointment end\" is not valid
+	spreadsheet- ID:560 val:Date format for \"appointment end\" is not valid
 Following constant not same:
 	original- val:Date format for "appointment start" is not valid
-	spreadsheet- ID:492 val:Date format for \"appointment start\" is not valid
+	spreadsheet- ID:561 val:Date format for \"appointment start\" is not valid
 Following constant not same:
 	original- val:Date format for "Next Appointment" is not valid
-	spreadsheet- ID:493 val:Date format for \"Next Appointment\" is not valid
+	spreadsheet- ID:562 val:Date format for \"Next Appointment\" is not valid
 Following constant not same:
 	original- val:Date format for "not seen since" is not valid
-	spreadsheet- ID:494 val:Date format for \"not seen since\" is not valid
+	spreadsheet- ID:563 val:Date format for \"not seen since\" is not valid
 Following constant not same:
 	original- val:Date format for "seen since" is not valid
-	spreadsheet- ID:495 val:Date format for \"seen since\" is not valid
+	spreadsheet- ID:564 val:Date format for \"seen since\" is not valid
 Following constant not same:
 	original- val:Depending on the type of bill you are testing you will see HCFA like output on a blank page for HCFA bills, you will see many lines of somewhat garbled text  and information if you are testing an X12 claim. That garbled text is the X12 EDI 4010A format. Occasionally you will see odd characters that look like dominoes or  squiglies, these are control characters such as page feeds and are normal.
-	spreadsheet- ID:535 val:Depending on the type of bill you are testing you will see HCFA like output on a blank page for HCFA bills, you will see many lines of somewhat garbled text and information if you are testing an X12 claim. That garbled text is the X12 EDI 4010A format. Occasionally you will see odd characters that look like dominoes or squiglies, these are control characters such as page feeds and are normal.
+	spreadsheet- ID:617 val:Depending on the type of bill you are testing you will see HCFA like output on a blank page for HCFA bills, you will see many lines of somewhat garbled text and information if you are testing an X12 claim. That garbled text is the X12 EDI 4010A format. Occasionally you will see odd characters that look like dominoes or squiglies, these are control characters such as page feeds and are normal.
+Following constant not same:
+	original- val:Don't Save
+	spreadsheet- ID:690 val:Don\'t Save
 Following constant not same:
 	original- val:ee the  * GNU General Public License for more details.  *   * You should have received a copy of the GNU General Public License  * along with this program; if not, write to the Free 
-	spreadsheet- ID:636 val:ee the * GNU General Public License for more details. * * You should have received a copy of the GNU General Public License * along with this program; if not, write to the Free 
+	spreadsheet- ID:741 val:ee the * GNU General Public License for more details. * * You should have received a copy of the GNU General Public License * along with this program; if not, write to the Free 
 Following constant not same:
 	original- val:Empty value in "Email Hours"
-	spreadsheet- ID:659 val:Empty value in \"Email Hours\"
+	spreadsheet- ID:766 val:Empty value in \"Email Hours\"
 Following constant not same:
 	original- val:Empty value in "Email Sender"
-	spreadsheet- ID:660 val:Empty value in \"Email Sender\"
+	spreadsheet- ID:767 val:Empty value in \"Email Sender\"
 Following constant not same:
 	original- val:Empty value in "Email Subject"
-	spreadsheet- ID:661 val:Empty value in \"Email Subject\"
+	spreadsheet- ID:768 val:Empty value in \"Email Subject\"
 Following constant not same:
 	original- val:Empty value in "Email Text"
-	spreadsheet- ID:662 val:Empty value in \"Email Text\"
+	spreadsheet- ID:769 val:Empty value in \"Email Text\"
 Following constant not same:
 	original- val:Empty value in "Name of Provider"
-	spreadsheet- ID:663 val:Empty value in \"Name of Provider\"
+	spreadsheet- ID:770 val:Empty value in \"Name of Provider\"
 Following constant not same:
 	original- val:Empty value in "Password"
-	spreadsheet- ID:664 val:Empty value in \"Password\"
+	spreadsheet- ID:771 val:Empty value in \"Password\"
 Following constant not same:
 	original- val:Empty value in "SMS Hours"
-	spreadsheet- ID:665 val:Empty value in \"SMS Hours\"
+	spreadsheet- ID:772 val:Empty value in \"SMS Hours\"
 Following constant not same:
 	original- val:Empty value in "SMS Text"
-	spreadsheet- ID:666 val:Empty value in \"SMS Text\"
+	spreadsheet- ID:773 val:Empty value in \"SMS Text\"
 Following constant not same:
 	original- val:Empty value in "Username"
-	spreadsheet- ID:667 val:Empty value in \"Username\"
+	spreadsheet- ID:774 val:Empty value in \"Username\"
 Following constant not same:
 	original- val:Error in "Gender" selection
-	spreadsheet- ID:704 val:Error in \"Gender\" selection
+	spreadsheet- ID:814 val:Error in \"Gender\" selection
 Following constant not same:
 	original- val:Error in "HIPAA" selection
-	spreadsheet- ID:705 val:Error in \"HIPAA\" selection
+	spreadsheet- ID:815 val:Error in \"HIPAA\" selection
 Following constant not same:
 	original- val:Error in "Process" selection
-	spreadsheet- ID:706 val:Error in \"Process\" selection
+	spreadsheet- ID:816 val:Error in \"Process\" selection
 Following constant not same:
 	original- val:Error in "SMS Gateway" selection
-	spreadsheet- ID:707 val:Error in \"SMS Gateway\" selection
+	spreadsheet- ID:817 val:Error in \"SMS Gateway\" selection
 Following constant not same:
 	original- val:Error in "Sort By" selection
-	spreadsheet- ID:708 val:Error in \"Sort By\" selection
+	spreadsheet- ID:818 val:Error in \"Sort By\" selection
+Following constant not same:
+	original- val:Error: passwords don't match. Please check your typing.
+	spreadsheet- ID:823 val:Error: passwords don\'t match. Please check your typing.
 Following constant not same:
 	original- val:If you have chosen to upload electronic remittances, then the search window redisplays itself with the matching invoices from the X12 file.  You may click on any of these invoice numbers (as described below) if you wish to make any corrections before the remittance information is applied. To apply the changes, click the Process ERA File button at the bottom of the page.  This will produce a new window with a detailed report.
-	spreadsheet- ID:957 val:If you have chosen to upload electronic remittances, then the search window redisplays itself with the matching invoices from the X12 file. You may click on any of these invoice numbers (as described below) if you wish to make any corrections before the remittance information is applied. To apply the changes, click the Process ERA File button at the bottom of the page. This will produce a new window with a detailed report.
+	spreadsheet- ID:1102 val:If you have chosen to upload electronic remittances, then the search window redisplays itself with the matching invoices from the X12 file. You may click on any of these invoice numbers (as described below) if you wish to make any corrections before the remittance information is applied. To apply the changes, click the Process ERA File button at the bottom of the page. This will produce a new window with a detailed report.
 Following constant not same:
 	original- val:If you have entered a Pay Date in the search page, this will override the posting date of payments and adjustments that are otherwise taken from the X12 file.  This may be useful for reporting purposes, if you want your receipts reporting to use your posting date rather than the insurance company\'s processing date.  Note that this will also affect dates of prior payments and adjustments that are put into secondary claims.
-	spreadsheet- ID:958 val:If you have entered a Pay Date in the search page, this will override the posting date of payments and adjustments that are otherwise taken from the X12 file. This may be useful for reporting purposes, if you want your receipts reporting to use your posting date rather than the insurance company\'s processing date. Note that this will also affect dates of prior payments and adjustments that are put into secondary claims.
+	spreadsheet- ID:1103 val:If you have entered a Pay Date in the search page, this will override the posting date of payments and adjustments that are otherwise taken from the X12 file. This may be useful for reporting purposes, if you want your receipts reporting to use your posting date rather than the insurance company\'s processing date. Note that this will also affect dates of prior payments and adjustments that are put into secondary claims.
 Following constant not same:
 	original- val:Internal error: encounter '
-	spreadsheet- ID:1037 val:Internal error: encounter \'
+	spreadsheet- ID:1192 val:Internal error: encounter \'
 Following constant not same:
 	original- val:Invalid source designation "
-	spreadsheet- ID:1048 val:Invalid source designation \"
+	spreadsheet- ID:1204 val:Invalid source designation \"
 Following constant not same:
 	original- val:Just below the check information is a blue area where you put in your search parameters.  You can search by patient name, chart number, encounter number or date of service, or any combination of these.  You may also select whether you want to see all invoices, open invoices, or only invoices that are due (by the patient).  Click the Search button to perform the search.
-	spreadsheet- ID:1081 val:Just below the check information is a blue area where you put in your search parameters. You can search by patient name, chart number, encounter number or date of service, or any combination of these. You may also select whether you want to see all invoices, open invoices, or only invoices that are due (by the patient). Click the Search button to perform the search.
+	spreadsheet- ID:1239 val:Just below the check information is a blue area where you put in your search parameters. You can search by patient name, chart number, encounter number or date of service, or any combination of these. You may also select whether you want to see all invoices, open invoices, or only invoices that are due (by the patient). Click the Search button to perform the search.
 Following constant not same:
 	original- val:k, here's the rest 
-	spreadsheet- ID:1085 val:k, here\'s the rest 
+	spreadsheet- ID:1243 val:k, here\'s the rest 
 Following constant not same:
 	original- val:Make sure "
-	spreadsheet- ID:1176 val:Make sure \"
+	spreadsheet- ID:1347 val:Make sure \"
 Following constant not same:
 	original- val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category. 
-	spreadsheet- ID:1378 val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example \'<i>file.jpg</i>\' will become \'<i>file.jpg.1</i>\'. Filenames are considered unique per patient, not per category. 
+	spreadsheet- ID:1575 val:NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example \'<i>file.jpg</i>\' will become \'<i>file.jpg.1</i>\'. Filenames are considered unique per patient, not per category. 
 Following constant not same:
 	original- val:Pay attention to the "Done with" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
-	spreadsheet- ID:1513 val:Pay attention to the \"Done with\" checkboxes. After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected! Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
+	spreadsheet- ID:1731 val:Pay attention to the \"Done with\" checkboxes. After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected! Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
 Following constant not same:
 	original- val:Pennington Firm OpenEMR  v
-	spreadsheet- ID:1526 val:Pennington Firm OpenEMR v
+	spreadsheet- ID:1746 val:Pennington Firm OpenEMR v
 Following constant not same:
 	original- val:Please do NOT use your browsers stop or reload button while this page is running unless more than 10 minutes have elapsed, this will not cause the process to  stop on the server and will consume uneccesary resources.
-	spreadsheet- ID:1559 val:Please do NOT use your browsers stop or reload button while this page is running unless more than 10 minutes have elapsed, this will not cause the process to stop on the server and will consume uneccesary resources.
+	spreadsheet- ID:1788 val:Please do NOT use your browsers stop or reload button while this page is running unless more than 10 minutes have elapsed, this will not cause the process to stop on the server and will consume uneccesary resources.
 Following constant not same:
 	original- val:Please note that this can take a very long time, up to several minutes, your web browser may not appear very active during this time but generating a bill is a  complicated process and your web browser is merely waiting for more information.
-	spreadsheet- ID:1560 val:Please note that this can take a very long time, up to several minutes, your web browser may not appear very active during this time but generating a bill is a complicated process and your web browser is merely waiting for more information.
+	spreadsheet- ID:1791 val:Please note that this can take a very long time, up to several minutes, your web browser may not appear very active during this time but generating a bill is a complicated process and your web browser is merely waiting for more information.
 Following constant not same:
 	original- val:SA  *  * To read the license please read the docs/license.txt or visit  * http://www.gnu.org/copyleft/gpl.html  *  */  //========================================================================= // 
-	spreadsheet- ID:1804 val:SA * * To read the license please read the docs/license.txt or visit * http://www.gnu.org/copyleft/gpl.html * */ //========================================================================= // 
+	spreadsheet- ID:2061 val:SA * * To read the license please read the docs/license.txt or visit * http://www.gnu.org/copyleft/gpl.html * */ //========================================================================= // 
+Following constant not same:
+	original- val:The exported data appears in the text area below.  You can copy and paste this into an email or to any other desired destination.
+	spreadsheet- ID:2338 val:The exported data appears in the text area below. You can copy and paste this into an email or to any other desired destination.
 Following constant not same:
 	original- val:The initial window is the invoice search page.  At the top you may enter a source (e.g. check number), pay date and check amount.  The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim.  The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.
-	spreadsheet- ID:2045 val:The initial window is the invoice search page. At the top you may enter a source (e.g. check number), pay date and check amount. The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim. The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.
+	spreadsheet- ID:2342 val:The initial window is the invoice search page. At the top you may enter a source (e.g. check number), pay date and check amount. The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim. The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.
 Following constant not same:
 	original- val:The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the "W" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
-	spreadsheet- ID:2049 val:The Source and Date columns are copied from the first page, so normally you will not need to touch those. You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both. You can also click the \"W\" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
+	spreadsheet- ID:2346 val:The Source and Date columns are copied from the first page, so normally you will not need to touch those. You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both. You can also click the \"W\" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
 Following constant not same:
 	original- val:The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
-	spreadsheet- ID:2053 val:The X12 files as well as the resulting HTML output reports are archived in the \"era\" subdirectory of the main OpenEMR installation directory. You will want to refer to these archives from time to time. The URL is 
+	spreadsheet- ID:2350 val:The X12 files as well as the resulting HTML output reports are archived in the \"era\" subdirectory of the main OpenEMR installation directory. You will want to refer to these archives from time to time. The URL is 
 Following constant not same:
 	original- val:There are errors with your submission.  These are outlined below.
-	spreadsheet- ID:2055 val:There are errors with your submission. These are outlined below.
+	spreadsheet- ID:2352 val:There are errors with your submission. These are outlined below.
 Following constant not same:
 	original- val:To ded'ble
-	spreadsheet- ID:2100 val:To ded\'ble
+	spreadsheet- ID:2414 val:To ded\'ble
 Following constant not same:
 	original- val:trftime($month_format, mktime(0, 0, 0, $i, 1, 2000)) );             $month_value
-	spreadsheet- ID:2138 val:trftime($month_format, mktime(0, 0, 0, $i, 1, 2000)) ); $month_value
+	spreadsheet- ID:2458 val:trftime($month_format, mktime(0, 0, 0, $i, 1, 2000)) ); $month_value
 Following constant not same:
 	original- val:tring[,'r'[,
-	spreadsheet- ID:2141 val:tring[,\'r\'[,
+	spreadsheet- ID:2461 val:tring[,\'r\'[,
 Following constant not same:
 	original- val:Upon clicking an invoice number the "manual posting window" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
-	spreadsheet- ID:2192 val:Upon clicking an invoice number the \"manual posting window\" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received. Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
+	spreadsheet- ID:2514 val:Upon clicking an invoice number the \"manual posting window\" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received. Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
 Following constant not same:
 	original- val:Upon searching you are presented with a list of invoices.  You may click on one of the invoice numbers to open a second window, which is the data entry page for manual posting.  You may also click on a patient name if you want to enter a note that the front office staff will see when the patient checks in, and you may select invoices to appear on patient statements and print those statements.
-	spreadsheet- ID:2193 val:Upon searching you are presented with a list of invoices. You may click on one of the invoice numbers to open a second window, which is the data entry page for manual posting. You may also click on a patient name if you want to enter a note that the front office staff will see when the patient checks in, and you may select invoices to appear on patient statements and print those statements.
+	spreadsheet- ID:2515 val:Upon searching you are presented with a list of invoices. You may click on one of the invoice numbers to open a second window, which is the data entry page for manual posting. You may also click on a patient name if you want to enter a note that the front office staff will see when the patient checks in, and you may select invoices to appear on patient statements and print those statements.
 Following constant not same:
 	original- val:uses php <a href="http://php.net/strftime">strftime</a> format
-	spreadsheet- ID:2209 val:uses php <a href=\"http://php.net/strftime\">strftime</a> format
+	spreadsheet- ID:2550 val:uses php <a href=\"http://php.net/strftime\">strftime</a> format
 Following constant not same:
 	original- val: but was 
-	spreadsheet- ID:2326 val:but was 
+	spreadsheet- ID:2692 val:but was 
 Following constant not same:
 	original- val: could not be accessed.
-	spreadsheet- ID:2327 val:could not be accessed.
+	spreadsheet- ID:2693 val:could not be accessed.
 Following constant not same:
 	original- val: Do you really want to delete
-	spreadsheet- ID:2328 val:Do you really want to delete
+	spreadsheet- ID:2694 val:Do you really want to delete
 Following constant not same:
 	original- val: Drug
-	spreadsheet- ID:2329 val:Drug
+	spreadsheet- ID:2695 val:Drug
 Following constant not same:
 	original- val: emails not sent
-	spreadsheet- ID:2330 val:emails not sent
+	spreadsheet- ID:2696 val:emails not sent
 Following constant not same:
 	original- val: from
-	spreadsheet- ID:2331 val:from
+	spreadsheet- ID:2697 val:from
 Following constant not same:
 	original- val: has been created. 
-	spreadsheet- ID:2332 val:has been created. 
+	spreadsheet- ID:2698 val:has been created. 
 Following constant not same:
 	original- val: has been re-opened.
-	spreadsheet- ID:2333 val:has been re-opened.
+	spreadsheet- ID:2699 val:has been re-opened.
 Following constant not same:
 	original- val: History
-	spreadsheet- ID:2334 val:History
+	spreadsheet- ID:2700 val:History
 Following constant not same:
 	original- val: is not a number
-	spreadsheet- ID:2335 val:is not a number
+	spreadsheet- ID:2701 val:is not a number
 Following constant not same:
 	original- val: is ready for re-billing.
-	spreadsheet- ID:2336 val:is ready for re-billing.
+	spreadsheet- ID:2702 val:is ready for re-billing.
 Following constant not same:
 	original- val: LLL:
-	spreadsheet- ID:2337 val:LLL:
+	spreadsheet- ID:2703 val:LLL:
 Following constant not same:
 	original- val: Lot
-	spreadsheet- ID:2338 val:Lot
+	spreadsheet- ID:2704 val:Lot
 Following constant not same:
 	original- val: Medicaid Original Reference No. 
-	spreadsheet- ID:2339 val:Medicaid Original Reference No. 
+	spreadsheet- ID:2705 val:Medicaid Original Reference No. 
 Following constant not same:
 	original- val: min
-	spreadsheet- ID:2340 val:min
+	spreadsheet- ID:2706 val:min
 Following constant not same:
 	original- val: not found!
-	spreadsheet- ID:2341 val:not found!
+	spreadsheet- ID:2707 val:not found!
 Following constant not same:
 	original- val: Pecularities in many browsers may mean that the output below enters your screen in sudden jerks and that there are long pauses of several seconds where it  appears as though things may have crashed. That is not the case, you will eventually see output coming out line by line. There may be sequential numbers appearing  below, this is to indicate that even though nothing else may be displaying there is activity going on. These numbers will be interspersed with the content of the  billing and that is normal.
-	spreadsheet- ID:2342 val:Pecularities in many browsers may mean that the output below enters your screen in sudden jerks and that there are long pauses of several seconds where it appears as though things may have crashed. That is not the case, you will eventually see output coming out line by line. There may be sequential numbers appearing below, this is to indicate that even though nothing else may be displaying there is activity going on. These numbers will be interspersed with the content of the billing and that is normal.
+	spreadsheet- ID:2708 val:Pecularities in many browsers may mean that the output below enters your screen in sudden jerks and that there are long pauses of several seconds where it appears as though things may have crashed. That is not the case, you will eventually see output coming out line by line. There may be sequential numbers appearing below, this is to indicate that even though nothing else may be displaying there is activity going on. These numbers will be interspersed with the content of the billing and that is normal.
 Following constant not same:
 	original- val: prescription has reached its limit of
-	spreadsheet- ID:2343 val:prescription has reached its limit of
+	spreadsheet- ID:2709 val:prescription has reached its limit of
 Following constant not same:
 	original- val: until 
-	spreadsheet- ID:2344 val:until 
+	spreadsheet- ID:2710 val:until 
 Following constant not same:
 	original- val: update failed, not in database?
-	spreadsheet- ID:2345 val:update failed, not in database?
+	spreadsheet- ID:2711 val:update failed, not in database?
 Following constant not same:
 	original- val: was marked as billed only.
-	spreadsheet- ID:2346 val:was marked as billed only.
+	spreadsheet- ID:2712 val:was marked as billed only.
 Following constant not same:
 	original- val: was queued successfully.
-	spreadsheet- ID:2347 val:was queued successfully.
+	spreadsheet- ID:2713 val:was queued successfully.
 Following constant not same:
 	original- val:" for code 
-	spreadsheet- ID:2349 val:\" for code 
+	spreadsheet- ID:2715 val:\" for code 
 Following constant not same:
 	original- val:" is CHECKED in PostCalendar Settings!
-	spreadsheet- ID:2350 val:\" is CHECKED in PostCalendar Settings!
+	spreadsheet- ID:2716 val:\" is CHECKED in PostCalendar Settings!
 Following constant not same:
 	original- val:$1
-	spreadsheet- ID:2355 val:$1.00
+	spreadsheet- ID:2721 val:$1.00
 Following constant not same:
 	original- val:% Cancelled <  24h 
-	spreadsheet- ID:2357 val:% Cancelled < 24h 
+	spreadsheet- ID:2723 val:% Cancelled < 24h 
 Following constant not same:
 	original- val:' should exist but does not.
-	spreadsheet- ID:2358 val:should exist but does not.
+	spreadsheet- ID:2724 val:should exist but does not.
 Following constant not same:
 	original- val:11-14
-	spreadsheet- ID:2369 val:11/14/09
+	spreadsheet- ID:2739 val:11/14/09
 Following constant not same:
 	original- val:45+
-	spreadsheet- ID:2381 val:45
+	spreadsheet- ID:2753 val:45
 
 Done checking constants:
-	79 mismatches found (known is 79)
+	82 mismatches found (known is 82)
 Good, constants weren't modified by translators
 
 
 Language Statistics:
-Total number of english constants: 2421
-Total number of definitions: 17428
+Total number of english constants: 2796
+Total number of definitions: 18275
 Armenian: 0% (0 definitions)
-Bahasa Indonesia: 1% (2416 definitions)
+Bahasa Indonesia: 86% (2416 definitions)
 Brazilian Portuguese: 0% (0 definitions)
-Chinese: 62% (1502 definitions)
-dummy: 1% (2421 definitions)
-dummyUTF8: 1% (2421 definitions)
-Dutch: 1% (2419 definitions)
-French: 2% (41 definitions)
+Chinese: 54% (1502 definitions)
+dummy: 1% (2796 definitions)
+dummyUTF8: 1% (2796 definitions)
+Dutch: 87% (2421 definitions)
+French: 1% (41 definitions)
 German: 2% (48 definitions)
-Greek: 4% (980 definitions)
+Greek: 38% (1074 definitions)
 Hebrew: 0% (0 definitions)
-Norwegian: 37% (902 definitions)
-Russian: 4% (89 definitions)
+Norwegian: 32% (902 definitions)
+Russian: 3% (89 definitions)
 Slovak: 0% (0 definitions)
-Spanish: 99% (2400 definitions)
-Swedish: 74% (1789 definitions)
+Spanish: 86% (2400 definitions)
+Swedish: 64% (1790 definitions)
