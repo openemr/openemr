@@ -155,7 +155,7 @@ else {
 <table border='0' cellpadding='5' cellspacing='0' width='100%'>
  <tr>
   <td class='text'>
-   <a href="./patient_select_help.php" target=_new>[Help]&nbsp</a>
+   <a href="./patient_select_help.php" target=_new>[<?php xl('Help','e'); ?>]&nbsp</a>
   </td>
   <td class='text' align='right'>
 <?php
@@ -203,7 +203,7 @@ if (!$popup && preg_match('/^(\d+)\s*(.*)/',$patient,$matches) > 0) {
   $patient = $matches[2];
 }
 ?>
-[<?php echo $add_days?> Days From Last Encounter]
+[<?php echo $add_days?> <?php xl('Days From Last Encounter','e'); ?>]
 </th>
 </tr>
 </table>

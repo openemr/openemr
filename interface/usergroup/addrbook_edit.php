@@ -44,7 +44,7 @@
 ?>
 <html>
 <head>
-<title><?php echo $userid ? xl('Edit') : xl('Add New') ?> Person</title>
+<title><?php echo $userid ? xl('Edit') : xl('Add New') ?> <?php xl('Person','e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>

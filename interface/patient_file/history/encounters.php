@@ -185,11 +185,11 @@ function editNote(feid) {
 <?php } ?>
 
 <?php if ($billing_view && $accounting_enabled) { ?>
-  <th>Code</th>
-  <th class='right'>Chg</th>
-  <th class='right'>Paid</th>
-  <th class='right'>Adj</th>
-  <th class='right'>Bal</th>
+  <th><?php xl('Code','e'); ?></th>
+  <th class='right'><?php xl('Chg','e'); ?></th>
+  <th class='right'><?php xl('Paid','e'); ?></th>
+  <th class='right'><?php xl('Adj','e'); ?></th>
+  <th class='right'><?php xl('Bal','e'); ?></th>
 <?php } else { ?>
   <th colspan='5'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('Billing') : xl('Coding') ?></th>
 <?php } ?>

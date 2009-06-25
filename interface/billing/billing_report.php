@@ -228,10 +228,10 @@ function topatient(pid) {
    <input type='text' size='10' name='from_date' id='from_date'
     value='<?php echo $from_date; ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='yyyy-mm-dd last date of this event' />
+    title=<?php xl('yyyy-mm-dd last date of this event','e','\'','\''); ?> />
    <img src='../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_fromdate' border='0' alt='[?]' style='cursor:pointer'
-    title='Click here to choose a date'>
+    title=<?php xl('Click here to choose a date','e','\'','\''); ?> />
    <script>
     Calendar.setup({inputField:"from_date", ifFormat:"%Y-%m-%d", button:"img_fromdate"});
    </script>
@@ -242,10 +242,10 @@ function topatient(pid) {
    <input type='text' size='10' name='to_date' id='to_date'
     value='<?php echo $to_date; ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='yyyy-mm-dd last date of this event' />
+    title=<?php xl('yyyy-mm-dd last date of this event','e','\'','\''); ?> />
    <img src='../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_todate' border='0' alt='[?]' style='cursor:pointer'
-    title='Click here to choose a date' />
+    title=<?php xl('Click here to choose a date','e','\'','\''); ?> />
    <script>
     Calendar.setup({inputField:"to_date", ifFormat:"%Y-%m-%d", button:"img_todate"});
    </script>
@@ -304,7 +304,7 @@ function topatient(pid) {
    &nbsp;
    -->
    <a href='../../library/freeb/process_bills.log' target='_blank' class='link_submit'
-    title='See messages from the last set of generated claims'><?php xl('[View Log]','e') ?></a>
+    title=<?php xl('See messages from the last set of generated claims','e','\'','\''); ?>><?php xl('[View Log]','e') ?></a>
 <?php } ?>
   </td>
 
@@ -332,27 +332,27 @@ function topatient(pid) {
 <input type="submit" class="subbtn" name="bn_ub92_print" value="Queue UB92 &amp; Print" title="<?php xl('Queue for UB-92 batch processing and printing','e')?>">
 <input type="submit" class="subbtn" name="bn_ub92" value="Queue UB92" title="<?php xl('Queue for UB-92 batch processing','e')?>">
 -->
-<input type="submit" class="subbtn" name="bn_x12" value="Generate X12"
+<input type="submit" class="subbtn" name="bn_x12" value="<?php xl('Generate X12','e')?>"
  title="<?php xl('Generate and download X12 batch','e')?>"
- onclick="alert('After saving your batch, click [View Log] to check for errors.')">
-<input type="submit" class="subbtn" name="bn_process_hcfa" value="Generate HCFA"
+ onclick="alert('<?php xl('After saving your batch, click [View Log] to check for errors.','e'); ?>')">
+<input type="submit" class="subbtn" name="bn_process_hcfa" value="<?php xl('Generate HCFA','e')?>"
  title="<?php xl('Generate and download HCFA 1500 paper claims','e')?>"
- onclick="alert('After saving the PDF, click [View Log] to check for errors.')">
-<input type="submit" class="subbtn" name="bn_mark" value="Mark as Cleared" title="<?php xl('Post to accounting and mark as billed','e')?>">
-<input type="submit" class="subbtn" name="bn_reopen" value="Re-Open" title="<?php xl('Mark as not billed','e')?>">
+ onclick="alert('<?php xl('After saving the PDF, click [View Log] to check for errors.','e'); ?>')">
+<input type="submit" class="subbtn" name="bn_mark" value="<?php xl('Mark as Cleared','e')?>" title="<?php xl('Post to accounting and mark as billed','e')?>">
+<input type="submit" class="subbtn" name="bn_reopen" value="<?php xl('Re-Open','e')?>" title="<?php xl('Mark as not billed','e')?>">
 <!--
 <input type="submit" class="subbtn" name="bn_electronic_file" value="Make Electronic Batch &amp; Clear" title="<?php xl('Download billing file, post to accounting and mark as billed','e')?>">
 -->
 &nbsp;&nbsp;&nbsp;
-HCFA Margins:
-&nbsp;Left:
+<?php xl('HCFA Margins','e'); ?>:
+&nbsp;<?php xl('Left','e'); ?>:
 <input type='text' size='2' name='left_margin'
  value='<?php echo $left_margin; ?>'
- title='HCFA left margin in points' />
-&nbsp;Top:
+ title=<?php xl('HCFA left margin in points','e','\'','\''); ?> />
+&nbsp;<?php xl('Top','e'); ?>:
 <input type='text' size='2' name='top_margin'
  value='<?php echo $top_margin; ?>'
- title='HCFA top margin in points' />
+ title=<?php xl('HCFA top margin in points','e','\'','\''); ?> />
 </span>
 <?php } ?>
 
@@ -534,12 +534,12 @@ if ($ret = getBillsBetween($from_date,
         "href=\"javascript:window.toencounter(" . $iter['enc_pid'] .
         ",'" . addslashes($name['pubpid']) .
         "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] .
-        ",'$raw_encounter_date')\">[To&nbsp;Enctr $raw_encounter_date]</a>";
+        ",'$raw_encounter_date')\">[" . xl('To Enctr') . " $raw_encounter_date]</a>";
 				
             //  Changed "To xxx" buttons to allow room for encounter date display 2/17/09  JCH
       $lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" " .
         "href=\"javascript:window.topatient(" . $iter['enc_pid'] .
-        ")\">[To&nbsp;Dems]</a>";
+        ")\">[" . xl('To Dems') . "]</a>";
 
       if ($iter['id']) {
 

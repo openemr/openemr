@@ -863,7 +863,7 @@ if ($_POST['form_action'] == "save") {
 <html>
 <head>
 <?php html_header_show(); ?>
-<title><?php echo $eid ? "Edit" : "Add New" ?> <?php xl('Event','e');?></title>
+<title><?php echo $eid ? xl('Edit','e') : xl('Add New','e') ?> <?php xl('Event','e');?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>

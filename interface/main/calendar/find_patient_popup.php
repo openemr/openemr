@@ -126,7 +126,7 @@ form {
 
  function selpid(pid, lname, fname, dob) {
   if (opener.closed || ! opener.setpatient)
-   alert('The destination form was closed; I cannot act on your selection.');
+   alert("<?php xl('The destination form was closed; I cannot act on your selection.','e'); ?>");
   else
    opener.setpatient(pid, lname, fname, dob);
   window.close();
@@ -162,13 +162,13 @@ form {
 
 
 <?php if (! isset($_REQUEST['searchparm'])): ?>
-<div id="searchstatus">Enter your search criteria above</div>
+<div id="searchstatus"><?php xl('Enter your search criteria above','e'); ?></div>
 <?php elseif (count($result) == 0): ?>
-<div id="searchstatus" class="noResults">No records found. Please expand your search criteria.</div>
+<div id="searchstatus" class="noResults"><?php xl('No records found. Please expand your search criteria.','e'); ?></div>
 <?php elseif (count($result)>=100): ?>
-<div id="searchstatus" class="tooManyResults">More than 100 records found. Please narrow your search criteria.</div>
+<div id="searchstatus" class="tooManyResults"><?php xl('More than 100 records found. Please narrow your search criteria.','e'); ?></div>
 <?php elseif (count($result)<100): ?>
-<div id="searchstatus" class="howManyResults"><?php echo count($result); ?> records found.</div>
+<div id="searchstatus" class="howManyResults"><?php echo count($result); ?> <?php xl('records found.','e'); ?></div>
 <?php endif; ?>
 
 <?php if (isset($result)): ?>
