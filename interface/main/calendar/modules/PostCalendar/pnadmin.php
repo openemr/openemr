@@ -1426,7 +1426,7 @@ function postcalendar_admin_categories($msg='',$e='',$args)
 		$tpl->assign('FormHidden',$form_hidden);
 	}
 	$form_submit = '<input type=hidden name="form_action" value="commit"/>
-				   '.$authkey.'<input type="submit" name="submit" value="go">' ;
+				   '.$authkey.'<input type="submit" name="submit" value="' . xl('go') . '">';
     $tpl->assign('FormSubmit',$form_submit);
 
     $output->Text($tpl->fetch($template_name.'/admin/submit_category.html'));
@@ -1967,10 +1967,10 @@ function postcalendar_admin_categoryLimits($msg='',$e='',$args)
     $limits =& pnModAPIFunc(__POSTCALENDAR__,'user','getCategoryLimits');
     $tpl->assign_by_ref('limits', $limits);
     $tpl->assign('BGCOLOR2',$GLOBALS['style']['BGCOLOR2']);
-    $tpl->assign("catTitle", "Category");
+    $tpl->assign("catTitle",_PC_REP_CAT_TITLE_S);
     $tpl->assign("catid", "catid");
     $form_submit = '<input type=hidden name="form_action" value="commit"/>
-				   '.$authkey.'<input type="submit" name="submit" value="go">' ;
+				   '.$authkey.'<input type="submit" name="submit" value="' . xl('go') . '">';
 	$tpl->assign('FormSubmit',$form_submit);
    
     
