@@ -116,7 +116,7 @@ for($iter=0;$row=sqlFetchArray($res);$iter++) {
     $found++;
   }
 ?>
-><?php echo $row["event"]?>&nbsp;&nbsp;
+><?php echo xl($row["event"])?>&nbsp;&nbsp;
 <?php
   $ret[$iter] = $row;
 }
@@ -131,11 +131,11 @@ for($iter=0;$row=sqlFetchArray($res);$iter++) {
 <TABLE>
  <tr>
   <!-- <TH><?php  xl('Date', 'e'); ?><TD> -->
-  <th id="sortby_date" class="text" title="Sort by date/time">Date</th>
-  <TH id="sortby_event" class="text" title="Sort by Event"><?php  xl('Event','e'); ?></TD>
-  <TH id="sortby_user" class="text" title="Sort by User"><?php  xl('User','e'); ?></TD>
-  <TH id="sortby_group" class="text" title="Sort by Group"><?php  xl('Group','e'); ?></TD>
-  <TH id="sortby_comments" class="text" title="Sort by Comments"><?php  xl('Comments','e'); ?></TD>
+  <th id="sortby_date" class="text" title="<?php xl('Sort by date/time','e'); ?>"><?php xl('Date','e'); ?></th>
+  <TH id="sortby_event" class="text" title="<?php xl('Sort by Event','e'); ?>"><?php  xl('Event','e'); ?></TD>
+  <TH id="sortby_user" class="text" title="<?php xl('Sort by User','e'); ?>"><?php  xl('User','e'); ?></TD>
+  <TH id="sortby_group" class="text" title="<?php xl('Sort by Group','e'); ?>"><?php  xl('Group','e'); ?></TD>
+  <TH id="sortby_comments" class="text" title="<?php xl('Sort by Comments','e'); ?>"><?php  xl('Comments','e'); ?></TD>
  </tr>
 </table>
 </div>
@@ -148,13 +148,17 @@ for($iter=0;$row=sqlFetchArray($res);$iter++) {
     else $gev = $_GET["event"];
     foreach ($ret as $iter) {
       if (($gev == "*") || ($gev == $iter["event"])) {
+        //translate comments
+        $patterns = array ('/^success/','/^failure/','/ encounter/');
+	$replace = array ( xl('success'), xl('failure'), xl('encounter','',' '));
+	$trans_comments = preg_replace($patterns, $replace, $iter["comments"]);
 ?>
  <TR class="oneresult">
   <TD class="text"><?php echo $iter["date"]?></TD>
-  <TD class="text"><?php echo $iter["event"]?></TD>
+  <TD class="text"><?php echo xl($iter["event"])?></TD>
   <TD class="text"><?php echo $iter["user"]?></TD>
   <TD class="text"><?php echo $iter["groupname"]?></TD>
-  <TD class="text"><?php echo $iter["comments"]?></TD>
+  <TD class="text"><?php echo $trans_comments?></TD>
  </TR>
 
 <?php
