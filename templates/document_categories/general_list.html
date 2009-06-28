@@ -13,6 +13,9 @@
 -->
 </style>
 {/literal}
+<script type="text/javascript">
+var deleteLabel="{xl t="Delete"}";
+</script>
 <script src="CategoryTreeMenu.js" language="JavaScript" type="text/javascript"></script>
 <table>
 	<tr>
@@ -27,7 +30,7 @@
 		{if $add_node eq true}
 		<td width="25"></td>
 		<td valign="top">
-		{xl t="The new category will be a sub-category of "}{$parent_name}<br>
+		{xl t="The new category will be a sub-category of "} {$parent_name}<br>
 		<form method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
 		{xl t="Category Name"}:&nbsp;<input type="text" name="name">&nbsp;&nbsp;
 		<input type="submit" name="Add Category" value="{xl t='Add Category'}">

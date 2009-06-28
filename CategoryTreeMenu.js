@@ -224,7 +224,7 @@ function arrayCopy(input)
 			var linkStart = nodes[i].link ? this.stringFormat('<a href="{0}" target="{1}">', nodes[i].link, linkTarget) : '';
 			
 			var delLink	  = nodes[i].link.replace('add_node','delete_node');
-			var linkEnd   = nodes[i].link ? '</a> <a href="' + delLink  + 'process=1">D</a>' : '';
+			var linkEnd   = nodes[i].link ? '</a>&nbsp;&nbsp;&nbsp;<a href="' + delLink  + 'process=1" style="text-decoration:none;"><span style="color:red; font-size:70%; font-family: sans-serif;">(' + deleteLabel + ')</span></a>' : '';
 
 			this.output += this.stringFormat('{0}<nobr>{1}{2}{3}{4}<span {5}>{6}</span>{7}</nobr><br></div>',
 			                  layerTag,
