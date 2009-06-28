@@ -62,7 +62,8 @@ class C_DocumentCategory extends Controller {
 		$parent_is = $_POST['parent_is'];
 		$parent_name = $this->tree->get_node_name($parent_is);
 		$this->tree->add_node($parent_is,$name);
-		$this->assign("message", "Sub-category $name successfully added to category $parent_name");
+	        $trans_message = xl('Sub-category','','',' ') . "'" . xl_document_category($name) . "'" . xl('successfully added to category,','',' ',' ') . "'" . $parent_name . "'";
+		$this->assign("message",$trans_message);
 		$this->_state = false;
 		return $this->list_action();	
 	}
@@ -76,8 +77,9 @@ class C_DocumentCategory extends Controller {
 		
 		if($parent_name != false && $parent_name != '')
 		{
-			$this->tree->delete_node($id);	
-			$this->assign("message", "Category '$category_name' had been successfully deleted. Any sub-categories if present were moved below '$parent_name'.<br>");
+			$this->tree->delete_node($id);
+		        $trans_message = xl('Category','','',' ') . "'" . $category_name . "'" . xl('had been successfully deleted. Any sub-categories if present were moved below','',' ',' ') . "'" . $parent_name . "'" . xl('.') . "<br>";
+			$this->assign("message",$trans_message);
 			
 			if (is_numeric($id)) {
 				$sql = "UPDATE categories_to_documents set category_id = '" . $category_info['parent'] . "' where category_id = '" . $id ."'";
@@ -86,7 +88,8 @@ class C_DocumentCategory extends Controller {
 		}
 		else
 		{
-			$this->assign("message", "Category '$category_name' is a root node and can not be deleted.<br>");
+		        $trans_message = xl('Category','','',' ') . "'" . $category_name . "'" . xl('is a root node and can not be deleted.','',' ') . "<br>";
+			$this->assign("message",$trans_message);
 		}
 		$this->_state = false;
 		

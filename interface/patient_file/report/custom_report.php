@@ -277,15 +277,15 @@ foreach ($ar as $key => $val) {
                 $d = new Document($document_id);
                 $fname = basename($d->get_url());
                 $extension = substr($fname, strrpos($fname,"."));
-                echo "<h1>Document '" . $fname ."'</h1>";
+                echo "<h1>" . xl('Document') . " '" . $fname ."'</h1>";
                 $notes = Note::notes_factory($d->get_id());
                 echo "<table>";
                 foreach ($notes as $note) {
                     echo '<tr>';
-                    echo '<td>Note #' . $note->get_id() . '</td>';
+                    echo '<td>' . xl('Note') . ' #' . $note->get_id() . '</td>';
                     echo '</tr>';
                     echo '<tr>';
-                    echo '<td>Date: '.$note->get_date().'</td>';
+                    echo '<td>' . xl('Date') . ': '.$note->get_date().'</td>';
                     echo '</tr>';
                     echo '<tr>';
                     echo '<td>'.$note->get_note().'<br><br></td>';

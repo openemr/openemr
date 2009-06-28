@@ -82,13 +82,13 @@ class C_Document extends Controller {
 		  	
 		  	$fname = preg_replace("/[^a-zA-Z0-9_.]/","_",$fname);
 		  	if (file_exists($this->file_path.$file['name'])) {
-		  		$error .= "File with same name already exists at location: " . $this->file_path . "\n";
+                                $error .= xl('File with same name already exists at location:','','',' ') . $this->file_path . "\n";
 		  		$fname = basename($this->_rename_file($this->file_path.$file['name']));
 		  		$file['name'] = $fname;
-		  		$error .= "Current file name was changed to " . $fname ."\n";	
+                                $error .= xl('Current file name was changed to','','',' ') . $fname ."\n";
 		  	}
 		  	if (move_uploaded_file($file['tmp_name'],$this->file_path.$file['name'])) {
-		  		$error .= "File " . $file['name'] . " successfully stored.\n";
+                                $error .= xl('File','','',' ') . $file['name'] . xl('successfully stored.','',' ') . "\n";
 		  		$d = new Document();
 		  		$d->url = "file://" .$this->file_path.$file['name'];
 		  		$d->mimetype = $file['type'];
@@ -155,7 +155,7 @@ class C_Document extends Controller {
 		$delete_string = '';
 		if (acl_check('admin', 'super')) {
 			$delete_string = "<a href='' onclick='return deleteme(" . $d->get_id() .
-				")'><font color='red'>(Delete this document)</font></a>";
+				")'><font color='red'>(" . xl('Delete this document') . ")</font></a>";
 		}
 		$this->assign("delete_string", $delete_string);
 		$this->assign("REFRESH_ACTION",$this->_link("list"));
@@ -166,7 +166,7 @@ class C_Document extends Controller {
 			"document_id=" . $d->get_id() . "&process=true");
 
 		// Added by Rod to support document issue update:
-		$issues_options = "<option value='0'>-- Select Issue --</option>";
+		$issues_options = "<option value='0'>-- " . xl('Select Issue') . " --</option>";
 		$ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 			"pid = $patient_id " . // AND enddate IS NULL " .
 			"ORDER BY type, begdate");
@@ -188,7 +188,7 @@ class C_Document extends Controller {
 		//pass an empty array because we don't want the documents for each category showing up in this list box
  		$rnode = $this->_array_recurse($this->tree->tree,array());
 		$menu->addItem($rnode);
-		$treeMenu_listbox  = &new HTML_TreeMenu_Listbox($menu, array("promoText" => "Move Document to Category:"));
+		$treeMenu_listbox  = &new HTML_TreeMenu_Listbox($menu, array("promoText" => xl('Move Document to Category:')));
 		
 		$this->assign("tree_html_listbox",$treeMenu_listbox->toHTML());
 		
@@ -228,7 +228,7 @@ class C_Document extends Controller {
 			$url = $temp_url;
 		}
 		if (!file_exists($url)) {
-			echo "The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it. $url";	
+			echo xl('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.','','',' ') . $url;	
 		}
 		else {
 		        if ($original_file) {
@@ -413,7 +413,7 @@ class C_Document extends Controller {
 		//move to new category
 		if (is_numeric($new_category_id) && is_numeric($document_id)) {
 			$sql = "UPDATE categories_to_documents set category_id = '" . $new_category_id . "' where document_id = '" . $document_id ."'";
-			$messages .= "Document moved to new category '" . $this->tree->_id_name[$new_category_id]['name']  . "' successfully.\n";
+			$messages .= xl('Document moved to new category','','',' \'') . $this->tree->_id_name[$new_category_id]['name']  . xl('successfully.','','\' ') . "\n";
 			//echo $sql;
 			$this->tree->_db->Execute($sql);
 		}
@@ -427,14 +427,14 @@ class C_Document extends Controller {
 			
 			if (!$result || $result->EOF) {
 				//patient id does not exist
-				$messages .= "Document could not be moved to patient id '" . $new_patient_id  . "' because that id does not exist.\n";
+				$messages .= xl('Document could not be moved to patient id','','',' \'') . $new_patient_id  . xl('because that id does not exist.','','\' ') . "\n";
 			}
 			else {
 				//set the new patient
 				$d->set_foreign_id($new_patient_id);
 				$d->persist();
 				$this->_state = false;
-				$messages .= "Document moved to patient id '" . $new_patient_id  . "' successfully.\n";
+				$messages .= xl('Document moved to patient id','','',' \'') . $new_patient_id  . xl('successfully.','','\' ') . "\n";
 				$this->assign("messages",$messages);
 				return $this->list_action($patient_id);
 			}
@@ -503,7 +503,7 @@ class C_Document extends Controller {
 				"list_id = '$issue_id' " .
 				"WHERE id = '$document_id'";
 			$this->tree->_db->Execute($sql);
-			$messages .= "Document date and issue updated successfully\n";
+			$messages .= xl('Document date and issue updated successfully') . "\n";
 		}
 
 		$this->_state = false;
