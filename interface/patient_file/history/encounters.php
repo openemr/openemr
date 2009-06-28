@@ -81,7 +81,7 @@ function showDocument(&$drow) {
   // show document name and category
   echo "<td colspan='3'>".
     xl('Document') . ": " .
-    basename($drow['url']) . ' (' . $drow['name'] . ')' .
+    basename($drow['url']) . ' (' . xl_document_category($drow['name']) . ')' .
     "</td>\n";
 
   // skip billing and insurance columns

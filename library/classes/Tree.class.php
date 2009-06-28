@@ -79,8 +79,15 @@ class Tree {
 	    
 	    //create a lookup table of id to name for every node that will end up in this tree, this is used
 	    //by the array building code below to find the chain of parents for each node
-	    $this->_id_name[$row['id']] = array("id" => $row['id'], "name" => $row['name'], "parent" => $row['parent']);
-   	
+	    
+	    // ADDED below by BM on 06-2009 to translate categories, if applicable
+	    if ($this->_table == "categories") {
+	      $this->_id_name[$row['id']] = array("id" => $row['id'], "name" => xl_document_category($row['name']), "parent" => $row['parent']);
+	    }
+	    else {
+	      $this->_id_name[$row['id']] = array("id" => $row['id'], "name" => $row['name'], "parent" => $row['parent']);	
+	    }
+		
 	    // only check stack if there is one
 	    if (count($right)>0) {
 	      // check if we should remove a node from the stack

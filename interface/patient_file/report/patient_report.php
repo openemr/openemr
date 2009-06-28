@@ -273,8 +273,8 @@ while ($result && !$result->EOF) {
     echo "<li class='bold'>";
     echo '<input type="checkbox" name="documents[]" value="' .
         $result->fields['id'] . '">';
-    echo '&nbsp;&nbsp;<i>' . $result->fields['name'] . "</i>";
-    echo '&nbsp;&nbsp;Name: <i>' . basename($result->fields['url']) . "</i>";
+    echo '&nbsp;&nbsp;<i>' .  xl_document_category($result->fields['name']) . "</i>";
+    echo '&nbsp;&nbsp;' . xl('Name') . ': <i>' . basename($result->fields['url']) . "</i>";
     echo '</li>';
     $result->MoveNext();	
 }

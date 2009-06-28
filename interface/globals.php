@@ -157,6 +157,11 @@ $GLOBALS['translate_gacl_groups'] = true;
 //    -If false, will not translate the patient Form (note) titles.
 $GLOBALS['translate_form_titles'] = true;
 //
+//  'translate_document_categories'
+//    -If true, then will translate the document categories.
+//    -If false, will not translate the document categories.
+$GLOBALS['translate_document_categories'] = true;
+//
 //  'translate_appt_categories'
 //    -If true, then will translate the appt categories.
 //    -If false, will not translate the appt categories.
