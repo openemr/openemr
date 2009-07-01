@@ -51,12 +51,12 @@ a {
 </head>
 
 <body bgcolor="{$STYLE.BGCOLOR2}">
-<p><span class="title">Vitals (Metric)</span></p>
+<p><span class="title">{xl t="Vitals (Metric)"}</span></p>
 <form name="vitals" method="post" action="{$FORM_ACTION}/interface/forms/vitalsM/save.php"
  onsubmit="return top.restoreSession()">
 <table>
   <tr>
-    <th align="left">Name</th><th align="left">Unit</th>
+    <th align="left">{xl t="Name"}</th><th align="left">{xl t="Unit"}</th>
     <th align="right">{$vitals->get_date()|date_format:"%m/%d/%y"}</th>
   {foreach item=result from=$results}
     <th align='right'>{$result.date|date_format:"%m/%d/%y"}</th>
@@ -64,7 +64,7 @@ a {
   </tr>
 
   <tr>
-    <td>Weight</td><td>kg</td>
+    <td>{xl t="Weight"}</td><td>{xl t="kg"}</td>
     <td align='right'><input type="text"  size='5'
     name="weight" value="{$vitals->get_weight()}"/></td>
   {foreach item=result from=$results}
@@ -73,7 +73,7 @@ a {
   </tr>
 
   <tr>
-    <td>Height</td><td>cm</td>
+    <td>{xl t="Height"}</td><td>{xl t="cm"}</td>
     <td align='right'><input type="text" size='5'
       name="height" value="{$vitals->get_height()}" onchange="calculateBMI();"/></td>
   {foreach item=result from=$results}
@@ -82,7 +82,7 @@ a {
   </tr>
 
   <tr>
-    <td>BP Systolic</td><td>mm/hg</td>
+    <td>{xl t="BP Systolic"}</td><td>{xl t="mm/hg"}</td>
     <td align='right'><input type="text" size='5'
       name="bps" value="{$vitals->get_bps()}"/></td>
   {foreach item=result from=$results}
@@ -91,7 +91,7 @@ a {
   </tr>
 
   <tr>
-    <td>BP Diastolic</td><td>mm/hg</td>
+    <td>{xl t="BP Diastolic"}</td><td>{xl t="mm/hg"}</td>
     <td align='right'><input type="text" size='5'
       name="bpd" value="{$vitals->get_bpd()}"/></td>
   {foreach item=result from=$results}
@@ -100,7 +100,7 @@ a {
   </tr>
 
   <tr>
-    <td>Pulse</td><td>per min</td>
+    <td>{xl t="Pulse"}</td><td>{xl t="per min"}</td>
     <td align='right'><input type="text" size='5'
       name="pulse" value="{$vitals->get_pulse()}"/></td>
   {foreach item=result from=$results}
@@ -108,7 +108,7 @@ a {
   {/foreach}
   </tr>
 
-  <tr><td>Respiration</td><td>per min</td>
+  <tr><td>{xl t="Respiration"}</td><td>{xl t="per min"}</td>
     <td align='right'><input type="text" size='5'
       name="respiration" value="{$vitals->get_respiration()}"/></td>
   {foreach item=result from=$results}
@@ -117,7 +117,7 @@ a {
   </tr>
 
   <tr>
-    <td>Temperature</td><td>C</td>
+    <td>{xl t="Temperature"}</td><td>{xl t="C"}</td>
     <td align='right'><input type="text" size='5'
       name="temperature" value="{$vitals->get_temperature()}"/></td>
   {foreach item=result from=$results}
@@ -126,20 +126,22 @@ a {
   </tr>
 
   <tr>
-    <td>Temp Location</td>
+    <td>{xl t="Temp Location"}</td>
     <td colspan='2' >
       <select name="temp_method"/><option value=""> </option>
-      <option value="Oral"              {if $vitals->get_temp_method() == "Oral"              || $vitals->get_temp_method() == 2 } selected{/if}>Oral
-      <option value="Tympanic Membrane" {if $vitals->get_temp_method() == "Tympanic Membrane" || $vitals->get_temp_method() == 1 } selected{/if}>Tympanic Membrane
-      <option value="Rectal"            {if $vitals->get_temp_method() == "Rectal"            || $vitals->get_temp_method() == 3 } selected{/if}>Rectal
-      <option value="Axillary"          {if $vitals->get_temp_method() == "Axillary"          || $vitals->get_temp_method() == 4 } selected{/if}>Axillary
-      <option value="Temporal Artery"   {if $vitals->get_temp_method() == "Temporal Artery" } selected{/if}>Temporal Artery
+      <option value="Oral"              {if $vitals->get_temp_method() == "Oral"              || $vitals->get_temp_method() == 2 } selected{/if}>{xl t="Oral"}
+      <option value="Tympanic Membrane" {if $vitals->get_temp_method() == "Tympanic Membrane" || $vitals->get_temp_method() == 1 } selected{/if}>{xl t="Tympanic Membrane"}
+      <option value="Rectal"            {if $vitals->get_temp_method() == "Rectal"            || $vitals->get_temp_method() == 3 } selected{/if}>{xl t="Rectal"}
+      <option value="Axillary"          {if $vitals->get_temp_method() == "Axillary"          || $vitals->get_temp_method() == 4 } selected{/if}>{xl t="Axillary"}
+      <option value="Temporal Artery"   {if $vitals->get_temp_method() == "Temporal Artery" } selected{/if}>{xl t="Temporal Artery"}
       </select>
     </td>
-    <td align='right'>{$result.temp_method}</td>
+  {foreach item=result from=$results}
+    <td align='right'>{xl t=$result.temp_method}</td>
+  {/foreach}
   </tr>
 
-  <tr><td>Oxygen Saturation</td><td>%</td>
+  <tr><td>{xl t="Oxygen Saturation"}</td><td>{xl t="%"}</td>
     <td align='right'><input type="text" size='5'
       name="oxygen_saturation" value="{$vitals->get_oxygen_saturation()}"/></td>
   {foreach item=result from=$results}
@@ -147,7 +149,7 @@ a {
   {/foreach}
   </tr>
 
-  <tr><td>Head Circumference</td><td>cm</td>
+  <tr><td>{xl t="Head Circumference"}</td><td>{xl t="cm"}</td>
     <td align='right'><input type="text" size='5'
       name="head_circ" value="{$vitals->get_head_circ()}"/></td>
   {foreach item=result from=$results}
@@ -155,7 +157,7 @@ a {
   {/foreach}
   </tr>
 
-  <tr><td>Waist Circumference</td><td>cm</td>
+  <tr><td>{xl t="Waist Circumference"}</td><td>{xl t="cm"}</td>
     <td align='right'><input type="text" size='5'
       name="waist_circ" value="{$vitals->get_waist_circ()}"/></td>
   {foreach item=result from=$results}
@@ -163,21 +165,21 @@ a {
   {/foreach}
   </tr>
 
-  <tr><td>BMI</td><td>%</td>
+  <tr><td>{xl t="BMI"}</td><td>{xl t="%"}</td>
     <td align='right'><input type="text" size='5'
       name="BMI" value="{$vitals->get_BMI()}"/></td>
   {foreach item=result from=$results}
     <td  align='right'>{$result.BMI}</td>
   {/foreach}</tr>
 
-  <tr><td>BMI Status</td><td>Type</td>
+  <tr><td>{xl t="BMI Status"}</td><td>{xl t="Type"}</td>
     <td align='right'>{$vitals->get_BMI_status()}</td>
   {foreach item=result from=$results}
-    <td  align='right'>{$result.BMI_status}</td>
+    <td  align='right'>{xl t=$result.BMI_status}</td>
   {/foreach}
   </tr>
 
-  <tr><td>Other Notes</td>
+  <tr><td>{xl t="Other Notes"}</td>
     <td colspan='2' align='right'><input type="text" size='20'
       name="note" value="{$vitals->get_note()}" /></td>
   {foreach item=result from=$results}
@@ -185,7 +187,7 @@ a {
   {/foreach}</tr>
 
   <tr>
-    <td><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
+    <td><input type="submit" name="Submit" value="{xl t="Save Form"}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{$DONT_SAVE_LINK}" class="link">[{xl t="Don't Save"}]</a></td>
   </tr>
 </table>
 <input type="hidden" name="id" value="{$vitals->get_id()}" />
