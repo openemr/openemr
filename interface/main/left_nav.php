@@ -774,7 +774,7 @@ function genPopupsList($style='') {
 <?php } else { // not athletic team ?>
 
 <ul id="navigation">
-  <li><?php genTreeLink('RTop','cal',xl('Calendar')); ?></li>
+  <?php if (!$GLOBALS['ippf_specific']) genTreeLink('RTop','cal',xl('Calendar')); ?>
   <li class="open"><span><?php xl('Patient/Client','e') ?></span>
     <ul>
       <li><span><?php xl('Management','e') ?></span>
@@ -786,7 +786,7 @@ function genPopupsList($style='') {
       </li>
       <li class="open"><span><?php xl('Visits','e') ?></span>
         <ul>
-          <?php if ($GLOBALS['athletic_team']) genTreeLink('RTop','ros',xl('Roster')); ?>
+          <?php if ($GLOBALS['ippf_specific']) genTreeLink('RTop','cal',xl('Calendar')); ?>
           <?php genTreeLink('RBot','nen',xl('New Visit')); ?>
           <?php genTreeLink('RBot','enc',xl('Current')); ?>
           <?php genTreeLink('RBot','ens',xl('List')); ?>
