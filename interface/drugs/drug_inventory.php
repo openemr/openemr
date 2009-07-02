@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006, 2009 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -65,6 +65,7 @@ function doiclick(id, lot) {
 <table width='100%' cellpadding='1' cellspacing='2'>
  <tr class='head'>
   <td title='Click to edit'><?php  xl('Name','e'); ?></td>
+  <td><?php  xl('Act','e'); ?></td>
   <td><?php  xl('NDC','e'); ?></td>
   <td><?php  xl('Form','e'); ?></td>
   <td><?php  xl('Size','e'); ?></td>
@@ -86,6 +87,7 @@ function doiclick(id, lot) {
    echo "  <td onclick='dodclick($lastid)'>" .
     "<a href='' onclick='return false'>" .
     htmlentities($row['name']) . "</a></td>\n";
+   echo "  <td>" . ($row['active'] ? xl('Yes') : xl('No')) . "</td>\n";
    echo "  <td>" . htmlentities($row['ndc_number']) . "</td>\n";
    echo "  <td>" . $form_array[$row['form']] . "</td>\n";
    echo "  <td>" . $row['size'] . "</td>\n";
@@ -94,7 +96,7 @@ function doiclick(id, lot) {
     "<a href='' onclick='return false'>Add</a></td>\n";
   } else {
    echo " <tr class='detail' bgcolor='$bgcolor'>\n";
-   echo "  <td colspan='6'>&nbsp;</td>\n";
+   echo "  <td colspan='7'>&nbsp;</td>\n";
   }
   if (!empty($row['inventory_id'])) {
    $lot_number = htmlentities($row['lot_number']);

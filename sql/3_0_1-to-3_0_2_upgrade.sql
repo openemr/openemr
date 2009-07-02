@@ -115,3 +115,13 @@ UPDATE form_encounter AS fe, forms AS f, billing AS b
   b.activity = 1;
 #EndIf
 
+#IfMissingColumn codes active
+ALTER TABLE `codes` 
+  ADD `active` TINYINT(1) DEFAULT 1 COMMENT '0 = inactive, 1 = active';
+#EndIf
+
+#IfMissingColumn drugs active
+ALTER TABLE `drugs` 
+  ADD `active` TINYINT(1) DEFAULT 1 COMMENT '0 = inactive, 1 = active';
+#EndIf
+

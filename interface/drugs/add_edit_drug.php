@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006, 2008 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2009 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -83,7 +83,7 @@ function numericff($name) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+<?php html_header_show(); ?>
 <title><?php echo $drug_id ? xl("Edit") : xl("Add New"); xl (' Drug','e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
@@ -166,7 +166,8 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
      "unit = '"          . escapedff('form_unit')          . "', " .
      "route = '"         . escapedff('form_route')         . "', " .
      "cyp_factor = '"    . numericff('form_cyp_factor')    . "', " .
-     "related_code = '"  . escapedff('form_related_code')  . "' "  .
+     "related_code = '"  . escapedff('form_related_code')  . "', " .
+     "active = "         . (empty($_POST['form_active']) ? 0 : 1) . " " .
      "WHERE drug_id = '$drug_id'");
     sqlStatement("DELETE FROM drug_templates WHERE drug_id = '$drug_id'");
    }
@@ -183,7 +184,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
    $new_drug = true;
    $drug_id = sqlInsert("INSERT INTO drugs ( " .
     "name, ndc_number, on_order, reorder_point, form, " .
-    "size, unit, route, cyp_factor, related_code " .
+    "size, unit, route, cyp_factor, related_code, active " .
     ") VALUES ( " .
     "'" . escapedff('form_name')          . "', " .
     "'" . escapedff('form_ndc_number')    . "', " .
@@ -194,7 +195,8 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
     "'" . escapedff('form_unit')          . "', " .
     "'" . escapedff('form_route')         . "', " .
     "'" . numericff('form_cyp_factor')    . "', " .
-    "'" . escapedff('form_related_code')  . "' "  .
+    "'" . escapedff('form_related_code')  . "', " .
+    (empty($_POST['form_active']) ? 0 : 1)        .
     ")");
   }
 
@@ -271,6 +273,13 @@ if ($drug_id) {
   <td valign='top' nowrap><b><?php xl('Name','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_name' maxlength='80' value='<?php echo $row['name'] ?>' style='width:100%' />
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' nowrap><b><?php xl('Active','e'); ?>:</b></td>
+  <td>
+   <input type='checkbox' name='form_active' value='1'<?php if ($row['active']) echo ' checked'; ?> />
   </td>
  </tr>
 

@@ -30,6 +30,7 @@ $pagesize = 100;
 $mode = $_POST['mode'];
 $code_id = 0;
 $related_code = '';
+$active = 1;
 
 if (isset($mode)) {
   $code_id    = $_POST['code_id'] + 0;
@@ -37,10 +38,10 @@ if (isset($mode)) {
   $code_type  = $_POST['code_type'];
   $code_text  = $_POST['code_text'];
   $modifier   = $_POST['modifier'];
-  // $units      = $_POST['units'];
   $superbill  = $_POST['form_superbill'];
   $related_code = $_POST['related_code'];
   $cyp_factor = $_POST['cyp_factor'] + 0;
+  $active     = empty($_POST['active']) ? 0 : 1;
 
   $taxrates = "";
   if (!empty($_POST['taxrate'])) {
@@ -68,11 +69,11 @@ if (isset($mode)) {
         "code_type = '"    . ffescape($code_type)    . "', " .
         "code_text = '"    . ffescape($code_text)    . "', " .
         "modifier = '"     . ffescape($modifier)     . "', " .
-        // "units = '"        . ffescape($units)        . "', " .
         "superbill = '"    . ffescape($superbill)    . "', " .
         "related_code = '" . ffescape($related_code) . "', " .
         "cyp_factor = '"   . ffescape($cyp_factor)   . "', " .
-        "taxrates = '"     . ffescape($taxrates)     . "'";
+        "taxrates = '"     . ffescape($taxrates)     . "', " .
+        "active = $active";
       if ($code_id) {
         $query = "UPDATE codes SET $sql WHERE id = '$code_id'";
         sqlStatement($query);
@@ -96,6 +97,7 @@ if (isset($mode)) {
         $related_code = '';
         $cyp_factor = 0;
         $taxrates = '';
+        $active = 1;
       }
     }
   }
@@ -112,14 +114,13 @@ if (isset($mode)) {
       $related_code = $row['related_code'];
       $cyp_factor   = $row['cyp_factor'];
       $taxrates     = $row['taxrates'];
+      $active       = 0 + $row['active'];
     }
   }
 }
 
 $related_desc = '';
 if (!empty($related_code)) {
-  // $relrow = sqlQuery("SELECT code_text FROM codes WHERE code = '$related_code'");
-  // $related_desc = $related_code . ': ' . trim($relrow['code_text']);
   $related_desc = $related_code;
 }
 
@@ -186,7 +187,6 @@ foreach ($code_types as $key => $value) {
   alert('<?php xl('This code type does not accept relations.','e') ?>');
   return;
  }
- // dlgopen('find_code_popup.php?codetype=' + codetype, '_blank', 500, 400);
  dlgopen('find_code_popup.php', '_blank', 500, 400);
 }
 
@@ -252,9 +252,6 @@ function submitDelete(id) {
 <body class="body_top">
 
 <?php if ($GLOBALS['concurrent_layout']) {
-// <a href="superbill_codes.php">
-// <span class=title>??php xl('Superbill Codes','e'); ??</span>
-// <font class=more>??php echo $tback;??</font></a>
 } else { ?>
 <a href='patient_encounter.php?codefrom=superbill' target='Main'>
 <span class='title'><?php xl('Superbill Codes','e'); ?></span>
@@ -290,8 +287,12 @@ function submitDelete(id) {
    &nbsp;&nbsp;<?php xl('Modifier','e'); ?>:
    <input type='text' size='3' name='modifier' value='<?php echo $modifier ?>'>
 <?php } else { ?>
-   <input type='hidden' name='modifier' value='<?php echo $modifier ?>'>
+   <input type='hidden' name='modifier' value='<?php // echo $modifier; ?>'>
 <?php } ?>
+
+   &nbsp;&nbsp;
+   <input type='checkbox' name='active' value='1'<?php if (!empty($active)) echo ' checked'; ?> />
+   <?php xl('Active','e'); ?>
   </td>
  </tr>
 
@@ -428,16 +429,12 @@ foreach ($code_types as $key => $value) {
  <tr>
   <td><span class='bold'><?php xl('Code','e'); ?></span></td>
   <td><span class='bold'><?php xl('Mod','e'); ?></span></td>
+  <td><span class='bold'><?php xl('Act','e'); ?></span></td>
   <td><span class='bold'><?php xl('Type','e'); ?></span></td>
   <td><span class='bold'><?php xl('Description','e'); ?></span></td>
 <?php if (related_codes_are_used()) { ?>
   <td><span class='bold'><?php xl('Related','e'); ?></span></td>
 <?php } ?>
-  <!--
-  <td><span class='bold'><?php // xl('Modifier','e'); ?></span></td>
-  <td><span class='bold'><?php // xl('Units','e'); ?></span></td>
-  <td><span class='bold'><?php // xl('Fee','e'); ?></span></td>
-  -->
 <?php
 $pres = sqlStatement("SELECT title FROM list_options " .
   "WHERE list_id = 'pricelevel' ORDER BY seq");
@@ -470,7 +467,8 @@ if (!empty($all)) {
 
     echo " <tr>\n";
     echo "  <td class='text'>" . $iter["code"] . "</td>\n";
-    echo "  <td class='text'" . $iter["modifier"] . "</td>\n";
+    echo "  <td class='text'>" . $iter["modifier"] . "</td>\n";
+    echo "  <td class='text'>" . ($iter["active"] ? xl('Yes') : xl('No')) . "</td>\n";
     echo "  <td class='text'>$key</td>\n";
     echo "  <td class='text'>" . $iter['code_text'] . "</td>\n";
 
@@ -487,22 +485,6 @@ if (!empty($all)) {
       }
       echo "</td>\n";
     }
-
-    // echo "<td>";
-    // if ($has_fees) {
-    //   echo "<span class='text'>" . $iter['modifier'] . "</span>";
-    // }
-    // echo "</td>";
-    // echo "<td>";
-    // if ($has_fees) {
-    //   echo "<span class='text'>" . $iter['units'] . "</span>";
-    // }
-    // echo "</td>";
-    // echo "<td>";
-    // if ($has_fees) {
-    //   echo "<span class='text'>$" . sprintf("%01.2f", $iter['fee']) . "</span>";
-    // }
-    // echo "</td>";
 
     $pres = sqlStatement("SELECT p.pr_price " .
       "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .

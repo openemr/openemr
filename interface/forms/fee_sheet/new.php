@@ -365,8 +365,8 @@ $visit_row = sqlQuery("SELECT fe.date, opc.pc_catname " .
 // then if no error, redirect to $returnurl.
 //
 if ($_POST['bn_save']) {
-  $main_provid = $_POST['ProviderID'];
-  if (! $main_provid) $main_provid = $_SESSION["authUserID"];
+  $main_provid = 0 + $_POST['ProviderID'];
+  // if (! $main_provid) $main_provid = $_SESSION["authUserID"];
 
   $bill = $_POST['bill'];
   for ($lino = 1; $bill["$lino"]['code_type']; ++$lino) {
@@ -395,7 +395,7 @@ if ($_POST['bn_save']) {
     if ($justify) $justify = str_replace(',', ':', $justify) . ':';
     // $auth      = $iter['auth'] ? "1" : "0";
     $auth      = "1";
-    $provid    = $iter['provid'];
+    $provid    = 0 + $iter['provid'];
 
     $ndc_info = '';
     if ($iter['ndcnum']) {
@@ -684,7 +684,7 @@ while ($prow = sqlFetchArray($pres)) {
   echo "   <select style='width:96%' onchange='codeselect(this)'>\n";
   echo "    <option value=''> " . $prow['title'] . "\n";
   $res = sqlStatement("SELECT code_type, code, code_text FROM codes " .
-    "WHERE superbill = '" . $prow['option_id'] . "' " .
+    "WHERE superbill = '" . $prow['option_id'] . "' AND active = 1 " .
     "ORDER BY code_text");
   while ($row = sqlFetchArray($res)) {
     echo "    <option value='" . alphaCodeType($row['code_type']) . '|' .
@@ -707,7 +707,7 @@ if ($GLOBALS['sell_non_drug_products']) {
   echo "    <option value=''> " . xl('Products') . "\n";
   $tres = sqlStatement("SELECT dt.drug_id, dt.selector, d.name " .
     "FROM drug_templates AS dt, drugs AS d WHERE " .
-    "d.drug_id = dt.drug_id " .
+    "d.drug_id = dt.drug_id AND d.active = 1 " .
     "ORDER BY d.name, dt.selector, dt.drug_id");
   while ($trow = sqlFetchArray($tres)) {
     echo "    <option value='PROD|" . $trow['drug_id'] . '|' . $trow['selector'] . "'>" .
@@ -737,11 +737,11 @@ echo "  <td colspan='$FEE_SHEET_COLUMNS' align='center' nowrap>\n";
 //
 $numrows = 0;
 if ($_POST['bn_search'] && $_POST['search_term']) {
-  $query = "select code, modifier, code_text from codes where " .
-    "(code_text like '%" . $_POST['search_term'] . "%' or " .
-    "code like '%" . $_POST['search_term'] . "%') and " .
+  $query = "SELECT code, modifier, code_text FROM codes WHERE " .
+    "(code_text LIKE '%" . $_POST['search_term'] . "%' OR " .
+    "code LIKE '%" . $_POST['search_term'] . "%') AND " .
     "code_type = '" . $code_types[$search_type]['id'] . "' " .
-    "order by code";
+    "AND active = 1 ORDER BY code";
   $res = sqlStatement($query);
   $numrows = mysql_num_rows($res); // FIXME - not portable!
 }
@@ -854,7 +854,7 @@ if ($billresult) {
         trim($bline['ndcqty']);
       }
       $justify    = $bline['justify'];
-      $provider_id = $bline['provid'];
+      $provider_id = 0 + $bline['provid'];
     }
 
     // list($code, $modifier) = explode("-", $iter["code"]);
@@ -889,7 +889,7 @@ if ($_POST['bill']) {
     if ($iter['code_type'] == 'COPAY' && $fee > 0) $fee = 0 - $fee;
     echoLine(++$bill_lino, $iter["code_type"], $iter["code"], trim($iter["mod"]),
       $ndc_info, $iter["auth"], $iter["del"], $units,
-      $fee, NULL, FALSE, NULL, $iter["justify"], $iter['provid']);
+      $fee, NULL, FALSE, NULL, $iter["justify"], 0 + $iter['provid']);
   }
 }
 
