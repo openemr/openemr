@@ -118,7 +118,7 @@ if (count($result3) != 1) { ?>
 <td>
 <select name=languageChoice size="1">
 <?php
-        echo "<option selected='selected' value='".$defaultLangID."'>" . xl('Default','','',' (') . xl($defaultLangName,'','',')') . "</option>\n";
+        echo "<option selected='selected' value='".$defaultLangID."'>" . xl('Default','','',' -') . xl($defaultLangName,'',' ') . "</option>\n";
         foreach ($result3 as $iter) {
 	        if ($GLOBALS['language_menu_showall']) {
                     echo "<option value='".$iter[lang_id]."'>".xl($iter[lang_description])."</option>\n";
