@@ -95,7 +95,8 @@ $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
 //   Brazilian Portuguese           // xl('Brazilian Portuguese')
 //   Chinese                        // xl('Chinese')
 //   Dutch                          // xl('Dutch')
-//   English                        // xl('English ')
+//   English (Indian)               // xl('English (Indian)')
+//   English (Standard)             // xl('English (Standard)')
 //   French                         // xl('French')
 //   German                         // xl('German')
 //   Greek                          // xl('Greek')
@@ -121,13 +122,13 @@ $GLOBALS['language_menu_showall'] = true;
 //  'language_menu_show' array
 //    -ONLY pertinent if above 'language_menu_all' toggle is set to false
 //    -Displays these chosen languages in the login menu
-$GLOBALS['language_menu_show'] = array('English','Swedish');
+$GLOBALS['language_menu_show'] = array('English (Standard)','Swedish');
 //
 //  'language_default'
 //    -Sets the default language
 //    -If login menu is on, then it will be the 'Default' choice in menu
 //    -If login menu is off, then it will choose this language
-$GLOBALS['language_default'] = "English";
+$GLOBALS['language_default'] = "English (Standard)";
 
 // Language translation options
 //  -The globals below allow granular control to turn off translation of
