@@ -55,6 +55,7 @@ function ros_report( $pid, $encounter, $cols, $id) {
 	    if ($key == "F Flow") { $key = "Menstrual Flow"; }
 	    if ($key == "F Symptoms") { $key = "Female Symptoms"; }
 	    if ($key == "F Hirsutism") { $key = "Hirsutism/Striae"; }
+	    if ($key == "Swelling") { $key = "Musc Swelling"; }
 	    if ($key == "M Redness") { $key = "Musc Redness"; }
 	    if ($key == "M Warm") { $key = "Musc Warm"; }
 	    if ($key == "M Stiffness") { $key = "Musc Stiffness"; }
