@@ -1219,7 +1219,7 @@ class FormROS extends ORDataObject {
 	}
 	
 	function get_options(){
-		$ret = array("N/A" => "N/A","YES" => "YES","NO" => "NO");
+		$ret = array("N/A" => xl('N/A'),"YES" => xl('YES'),"NO" => xl('NO'));
 		return $ret;
 	}
 		
