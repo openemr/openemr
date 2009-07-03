@@ -903,7 +903,7 @@ class FormROS extends ORDataObject {
 	function get_swelling(){
 		return $this->swelling;
 	}
-	function set_swellingp($data){
+	function set_swelling($data){
 		if(!empty($data)){
 			$this->swelling = $data;
 		}
