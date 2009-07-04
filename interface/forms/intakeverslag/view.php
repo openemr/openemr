@@ -64,7 +64,6 @@ if( $tmpDate && $tmpDate != '0000-00-00 00:00:00' ) $m_strEventDate = $tmpDate;
 <html>
     <head>
         <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     </head>
 
 <body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
@@ -107,7 +106,7 @@ $(document).ready(function(){
 
 function delete_autosave( )
 {
-  if( confirm('Are you sure you want to completely remove this form?') )
+  if( confirm("<?php xl('Are you sure you want to completely remove this form?','e'); ?>") )
   {
     $.ajax(
             {
@@ -192,13 +191,13 @@ function autosave( )
 
 
 <form method=post action="<?echo $rootdir?>/forms/intakeverslag/save.php?mode=update&id=<?echo $_GET["id"];?>" name="my_form">
-<span class="title">Intakeverslag</span><Br><br>
+<span class="title"><?php xl('Psychiatric Intake','e'); ?></span><Br><br>
 
 <table>
 <tr>
-<td>Intakedatum:</td><td>
+<td><?php xl('Intake Date','e'); ?>:</td><td>
 <input type='text' name='intakedatum' id='intakedatum' size='10' value='<?php echo $m_strEventDate ?>'
-          onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='Intakedatum: yyyy-mm-dd'></input>
+          onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php xl('Intake Date','e'); ?>: yyyy-mm-dd'></input>
 <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
           id='img_last_encounter' border='0' alt='[?]' style='cursor:pointer'
           title='<?php xl('Click here to choose a date','e'); ?>'>
@@ -210,49 +209,49 @@ function autosave( )
 </tr>
 </table>
 
-<br><span class=text>Reden van aanmelding</span><br>
+<br><span class=text><?php xl('Reason for Visit','e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo stripslashes($obj{"reden_van_aanmelding"});?></textarea><br>
-<br><span class=text>Klachten/Probleemgebieden</span><br>
+<br><span class=text><?php xl('Problem List','e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="klachten_probleemgebieden" id="klachten_probleemgebieden"><?php echo stripslashes($obj{"klachten_probleemgebieden"});?></textarea><br>
 
-<br><span class=text>Hulpverlening en/of onderzoek tot nu toe</span><br>
+<br><span class=text><?php xl('Psychiatric History','e'); ?></span><br>
 <textarea cols=80 rows=10 wrap=virtual name="hulpverlening_onderzoek" id="hulpverlening_onderzoek"><?php echo stripslashes($obj{"hulpverlening_onderzoek"});?></textarea><br>
 
-<br><span class=text>Hulpvraag en doelen</span><br>
+<br><span class=text><?php xl('Treatment Goals','e'); ?></span><br>
 <textarea cols=80 rows=10 wrap=virtual name="hulpvraag_en_doelen" id="hulpvraag_en_doelen"><?php echo stripslashes($obj{"hulpvraag_en_doelen"});?></textarea><br>
 
-<br><span class=text>Bijzonderheden systeem</span><br>
+<br><span class=text><?php xl('Specialty Systems','e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="bijzonderheden_systeem" id="bijzonderheden_systeem"><?php echo stripslashes($obj{"bijzonderheden_systeem"});?></textarea><br>
-<br><span class=text>Werk/ opleiding/ vrije tijdsbesteding</span><br>
+<br><span class=text><?php xl('Work/ Education/ Hobbies','e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="werk_opleiding_vrije_tijdsbesteding" id="werk_opleiding_vrije_tijdsbesteding"><?php echo stripslashes($obj{"werk_opleiding_vrije_tijdsbesteding"});?></textarea><br>
-<br><span class=text>Relatie(s)/ kinderen</span><br>
+<br><span class=text><?php xl('Relation(s) / Children','e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="relatie_kinderen" id="relatie_kinderen"><?php echo stripslashes($obj{"relatie_kinderen"});?></textarea><br>
-<br><span class=text>Somatische context</span><br>
+<br><span class=text><?php xl('Somatic Context','e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="somatische_context" id="somatische_context"><?php echo stripslashes($obj{"somatische_context"});?></textarea><br>
 
 <br>
 <table>
 <tr>
-<td align="right"  class=text>Alcohol</td>
+<td align="right"  class=text><?php xl('Alcohol','e'); ?></td>
 <td><input type="text" name="alcohol" size="60" value="<?php echo stripslashes($obj{"alcohol"});?>" id="alcohol"></input></td>
 </tr><tr>
-<td align="right" class=text>Drugs</td>
+<td align="right" class=text><?php xl('Drugs','e'); ?></td>
 <td><input type="text" name="drugs" size="60" value="<?php echo stripslashes($obj{"drugs"});?>" id="drugs"></input></td>
 </tr><tr>
-<td align="right" class=text>Roken</td>
+<td align="right" class=text><?php xl('Tobacco','e'); ?></td>
 <td><input type="text" name="roken" size="60" value="<?php echo stripslashes($obj{"roken"});?>" id="roken"></input></td>
 </tr>
 </table>
 
-<br><span class=text>Medicatie</span><br>
+<br><span class=text><?php xl('Medications','e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="medicatie" id="medicatie"><?php echo stripslashes($obj{"medicatie"});?></textarea><br>
-<br><span class=text>Familieanamnese</span><br>
+<br><span class=text><?php xl('Family History','e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="familieanamnese" id="familieanamnese"><?php echo stripslashes($obj{"familieanamnese"});?></textarea><br>
-<br><span class=text>Indruk/observaties </span><br>
+<br><span class=text><?php xl('Assessment','e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="indruk_observaties" id="indruk_observaties"><?php echo stripslashes($obj{"indruk_observaties"});?></textarea><br>
-<br><span class=text>Beschrijvende conclusie</span><br>
+<br><span class=text><?php xl('Conclusions','e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="beschrijvende_conclusie" id="beschrijvende_conclusie"><?php echo stripslashes($obj{"beschrijvende_conclusie"});?></textarea><br>
-<br><span class=text>Behandelvoorstel</span><br>
+<br><span class=text><?php xl('Treatment Plan','e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="behandelvoorstel" id="behandelvoorstel"><?php echo stripslashes($obj{"behandelvoorstel"});?></textarea><br>
 
 <table><tr>
@@ -260,8 +259,6 @@ function autosave( )
 // this to be used/moved above for form header with patient name/etc
 ?>
 </tr></table>
-
-<br><br><span style="margin: 5px; border: 1px solid green; font-size: 0.8em; padding: 3px;">add note here view..?????</span>
 
 <br><br>
 <a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>

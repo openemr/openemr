@@ -41,50 +41,50 @@ function psychiatrisch_onderzoek_report( $pid, $encounter, $cols, $id )
       // Datum onderzoek
       if( $key == "datum_onderzoek" )
       {
-        print "<tr><td><span class=bold>Datum onderzoek: </span><span class=text>" .
+        print "<tr><td><span class=bold>" . xl('Examination Date') . ": </span><span class=text>" .
               nl2br(stripslashes($value)) . "</span></td></tr>";
       }
 
       // Reden van aanmelding 
       if( $key == "reden_van_aanmelding" )
       {
-        print "<tr><td><span class=bold>Reden van aanmelding: </span><span class=text>" .
+        print "<tr><td><span class=bold>" . xl('Reason for Visit') . ": </span><span class=text>" .
               nl2br(stripslashes($value)) . "</span></td></tr>";
       }
       // Conclusie van intake
       if( $key == "conclusie_van_intake" )
       {
-        print "<tr><td><span class=bold>Conclusie van intake: </span><span class=text>" .
+        print "<tr><td><span class=bold>" . xl('Intake Conclusion') . ": </span><span class=text>" .
               nl2br(stripslashes($value)) . "</span></td></tr>";
       }
       // Medicatie 
       if( $key == "medicatie" )
       {
-        print "<tr><td><span class=bold>Medicatie: </span><span class=text>" .
+        print "<tr><td><span class=bold>" . xl('Medications') . ": </span><span class=text>" .
               nl2br(stripslashes($value)) . "</span></td></tr>";
       }
       // Anamnese
       if( $key == "anamnese" )
       {
-        print "<tr><td><span class=bold>Anamnese: </span><span class=text>" .
+        print "<tr><td><span class=bold>" . xl('History') . ": </span><span class=text>" .
               nl2br(stripslashes($value)) . "</span></td></tr>";
       }
       // Psychiatrisch onderzoek i.e.z.
       if( $key == "psychiatrisch_onderzoek" )
       {
-        print "<tr><td><span class=bold>Psychiatrisch onderzoek i.e.z.: </span><span class=text>" .
+        print "<tr><td><span class=bold>" . xl('Psychiatric Examination') . ": </span><span class=text>" .
               nl2br(stripslashes($value)) . "</span></td></tr>";
       }
       // Beschrijvende conclusie
       if( $key == "beschrijvende_conclusie" )
       {
-        print "<tr><td><span class=bold>Beschrijvende conclusie: </span><span class=text>" .
+        print "<tr><td><span class=bold>" . xl('Conclusions') . ": </span><span class=text>" .
               nl2br(stripslashes($value)) . "</span></td></tr>";
       }
       // Behandelvoorstel
       if( $key == "behandelvoorstel" )
       {
-        print "<tr><td><span class=bold>Behandelvoorstel: </span><span class=text>" .
+        print "<tr><td><span class=bold>" . xl('Treatment Plan') . ": </span><span class=text>" .
               nl2br(stripslashes($value)) . "</span></td></tr>";
       }
       

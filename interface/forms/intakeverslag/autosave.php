@@ -70,7 +70,7 @@ if( $vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update" )
 } else
 {
     $newid = formSubmit( "form_intakeverslag", $_POST, $_GET["id"], $userauthorized );
-    addForm( $encounter, "Intakeverslag", $newid, "intakeverslag", $pid, $userauthorized );
+    addForm( $encounter, "Psychiatric Intake", $newid, "intakeverslag", $pid, $userauthorized );
     
     //echo "debug :: insert<br>";
 }
@@ -87,6 +87,6 @@ $result = sqlQuery("SELECT autosave_datetime FROM form_intakeverslag
 //$timestamp = mysql_result($result, 0);
 
 //output timestamp
-echo 'Last Saved: '.$result['autosave_datetime'];
+echo xl('Last Saved') . ': '.$result['autosave_datetime'];
 
 ?>

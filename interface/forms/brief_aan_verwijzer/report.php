@@ -41,42 +41,42 @@ function brief_aan_verwijzer_report( $pid, $encounter, $cols, $id )
       // Introductie
       if( $key == "introductie" )
       {
-        print "<tr><td><span class=bold>Introductie: </span><span class=text>" .
+        print "<tr><td><span class=bold>" . xl('Introduction') . ": </span><span class=text>" .
               nl2br(stripslashes($value)) . "</span></td></tr>";
       }
 
       // Reden van aanmelding 
       if( $key == "reden_van_aanmelding" )
       {
-        print "<tr><td><span class=bold>Reden van aanmelding: </span><span class=text>" .
+        print "<tr><td><span class=bold>" . xl('Reason for Visit') . ": </span><span class=text>" .
               nl2br(stripslashes($value)) . "</span></td></tr>";
       }
       
       // Anamnese
       if( $key == "anamnese" )
       {
-        print "<tr><td><span class=bold>Anamnese: </span><span class=text>" .
+        print "<tr><td><span class=bold>" . xl('History') . ": </span><span class=text>" .
               nl2br(stripslashes($value)) . "</span></td></tr>";
       }
       
       // Psychiatrisch onderzoek 
       if( $key == "psychiatrisch_onderzoek" )
       {
-        print "<tr><td><span class=bold>Psychiatrisch onderzoek: </span><span class=text>" .
+        print "<tr><td><span class=bold>" . xl('Psychiatric Examination') . ": </span><span class=text>" .
               nl2br(stripslashes($value)) . "</span></td></tr>";
       }
       
       // Beschrijvend conclusie
       if( $key == "beschrijvend_conclusie" )
       {
-        print "<tr><td><span class=bold>Beschrijvend conclusie: </span><span class=text>" .
+        print "<tr><td><span class=bold>" . xl('Conclusions') . ": </span><span class=text>" .
               nl2br(stripslashes($value)) . "</span></td></tr>";
       }
       
       // Advies/beleid
       if( $key == "advies_beleid" )
       {
-        print "<tr><td><span class=bold>Advies/beleid: </span><span class=text>" .
+        print "<tr><td><span class=bold>" . xl('Treatment Plan') . ": </span><span class=text>" .
               nl2br(stripslashes($value)) . "</span></td></tr>";
       }
       

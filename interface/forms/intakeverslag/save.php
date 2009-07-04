@@ -25,7 +25,7 @@ if( $_GET["mode"] == "new" )
       $_GET["id"] = '0';
       $newid = formSubmit( "form_intakeverslag", $_POST, $_GET["id"], $userauthorized );
       // moved here ?
-    addForm( $encounter, "Intakeverslag", $newid, "intakeverslag", $pid, $userauthorized );
+    addForm( $encounter, "Psychiatric Intake", $newid, "intakeverslag", $pid, $userauthorized );
       
     } else
     {

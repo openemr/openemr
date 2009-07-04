@@ -74,16 +74,11 @@ $obj_bav = formFetch( "form_brief_aan_verwijzer", $vectAutosaveBAV['id'] );
 // here we mix the data
 
 // Introductie - local
-if( $result['sex'] == 'Male' )
-  $strGender = 'patient';
-else
-  $strGender = 'patiente';
 // create the inroductie form
 if( $obj_bav['introductie'] != '' ) 
   $obj['introductie'] = $obj_bav['introductie'];
 else
-  $obj['introductie'] = "Sinds $m_strEventDate  zien wij uw bovengenoemde $strGender voor diagnostiek en behandeladvies op onze polikliniek psychiatrie. Onze dank voor uw verwijzing.";
-
+  $obj['introductie'] = xl("Since","",""," ") . $m_strEventDate . xl("we have seen your above patient for evaluation and treatment at our outpatient psychiatry clinic. Thank you for this referral.",""," ");
 
 // Reden van aanmelding 
 if( $obj_bav['reden_van_aanmelding'] != '' ) 
@@ -131,7 +126,6 @@ else
 <html>
 <head>
     <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
 
                                
@@ -172,7 +166,7 @@ $(document).ready(function(){
 
 function delete_autosave( )
 {
-  if( confirm('Are you sure you want to completely remove this form?') )
+  if( confirm("<?php xl('Are you sure you want to completely remove this form?','e'); ?>") )
   {
     $.ajax(
             {
@@ -234,20 +228,20 @@ function autosave( )
         
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 <form method=post action="<?echo $rootdir;?>/forms/brief_aan_verwijzer/save.php?mode=new&saveid=<?php echo $brief_aan_verwijzer_id; ?>" name="my_form">
-<span class="title">BRIEF AAN VERWIJZER</span><br><br>
+<span class="title"><?php xl('Psychiatric Brief Letter','e'); ?></span><br><br>
 
-<br><span class=text>Introductie</span><br>
+<br><span class=text><?php xl('Introduction','e'); ?></span><br>
 <textarea cols=80 rows=3 wrap=virtual name="introductie" id="introductie"><?php echo stripslashes($obj{"introductie"});?></textarea><br>
 
-<br><span class=text>Reden van aanmelding</span><br>
+<br><span class=text><?php xl('Reason for Visit','e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo stripslashes($obj{"reden_van_aanmelding"});?></textarea><br>
-<br><span class=text>Anamnese:</span><br>
+<br><span class=text><?php xl('History','e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="anamnese" id="anamnese"><?php echo stripslashes($obj{"anamnese"});?></textarea><br>
-<br><span class=text>Psychiatrisch onderzoek:</span><br>
+<br><span class=text><?php xl('Psychiatric Examination','e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="psychiatrisch_onderzoek" id="psychiatrisch_onderzoek"><?php echo stripslashes($obj{"psychiatrisch_onderzoek"});?></textarea><br>
-<br><span class=text>Beschrijvend conclusie:</span><br>
+<br><span class=text><?php xl('Conclusions','e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="beschrijvend_conclusie" id="beschrijvend_conclusie"><?php echo stripslashes($obj{"beschrijvend_conclusie"});?></textarea><br>
-<br><span class=text>Advies/beleid</span><br>
+<br><span class=text><?php xl('Treatment Plan','e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="advies_beleid" id="advies_beleid"><?php echo stripslashes($obj{"advies_beleid"});?></textarea><br>
 
 <table><tr>
@@ -257,8 +251,6 @@ function autosave( )
 
 ?>
 </tr></table>
-
-<br><br><span style="margin: 5px; border: 1px solid green; font-size: 0.8em; padding: 3px;">add note here ???</span>
 
 <br><br>
 <a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>

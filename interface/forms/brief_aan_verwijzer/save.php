@@ -25,7 +25,7 @@ if( $_GET["mode"] == "new" )
       $_GET["id"] = '0';
       $newid = formSubmit( "form_brief_aan_verwijzer", $_POST, $_GET["id"], $userauthorized );
       // add shoul be here or downoutside if block ?
-    addForm( $encounter, "Brief Aan Verwijzer", $newid, "brief_aan_verwijzer", $pid, $userauthorized );
+    addForm( $encounter, "Psychiatric Brief Letter", $newid, "brief_aan_verwijzer", $pid, $userauthorized );
       
     } else
     {
