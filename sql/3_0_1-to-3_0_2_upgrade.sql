@@ -68,6 +68,12 @@ INSERT INTO list_options VALUES ('note_type','Bill/Collect'   ,'Bill/Collect'   
 INSERT INTO list_options VALUES ('note_type','Other'          ,'Other'             ,10,0,0);
 #EndIf
 
+#IfNotRow list_options list_id immunizations
+INSERT INTO list_options VALUES ('lists','immunizations','Immunizations',8,0,0);
+INSERT INTO list_options (list_id,option_id,title) SELECT 'immunizations',id,name FROM immunization ORDER BY name;
+DROP TABLE immunization;
+#EndIf
+
 UPDATE `layout_options` 
     SET data_type = 26 WHERE form_id = 'DEM' and field_id = 'state';
 UPDATE `layout_options`

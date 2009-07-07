@@ -1,6 +1,7 @@
 <?php
 include_once("../../globals.php");
 include_once("$srcdir/sql.inc");
+include_once("$srcdir/options.inc.php");
 require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
 
 $pdf =& new Cezpdf("LETTER");
@@ -22,37 +23,42 @@ $res = sqlQuery("select concat(p.lname,', ',p.fname,' ',p.mname) patient_name ".
                 " from patient_data p where p.pid = $pid"
                 );
 
-$pdf->ezText("\n" . $res['patient_name'] . "\nDate of Birth: " . $res['patient_DOB'] . "\n" . $res['patient_address']);
+$pdf->ezText("\n" . $res['patient_name'] . "\n" . xl('Date of Birth') . ": " . $res['patient_DOB'] . "\n" . $res['patient_address']);
 $pdf->ezText("\n");
 
-$title = 'Shot Record as of: ' . date('m/d/Y h:i:s a');
+$title = xl('Shot Record as of:','','',' ') . date('m/d/Y h:i:s a');
 
-$sqlstmt = "select date_format(i1.administered_date,'%Y-%m-%d') as 'Date\nAdministered' ".
-            ",i2.name as 'Vaccine' ".
-            ",i1.manufacturer as 'Manufacturer' ".
-            ",i1.lot_number as 'Lot\nNumber' ".
-            ",concat(u.lname,', ',u.fname) as 'Administered By' ".
-            ",date_format(i1.education_date,'%Y-%m-%d') as 'Patient\nEducation\nDate' ".
-            ",i1.note as 'Comments'".
+$sqlstmt = "select date_format(i1.administered_date,'%Y-%m-%d') as '" . xl('Date') . "\n" . xl('Administered') . "' ".
+            ",i1.immunization_id as '" . xl('Vaccine') . "' ".
+            ",i1.manufacturer as '" . xl('Manufacturer') . "' ".
+            ",i1.lot_number as '" . xl('Lot') . "\n" . xl('Number') . "' ".
+            ",concat(u.lname,', ',u.fname) as '" . xl('Administered By') . "' ".
+            ",date_format(i1.education_date,'%Y-%m-%d') as '" . xl('Patient') . "\n" . xl('Education') . "\n " . xl('Date') . "' ".
+            ",i1.note as '" . xl('Comments') . "'".
             " from immunizations i1 ".
-            " left join immunization i2 on i1.immunization_id = i2.id ".
             " left join users u on i1.administered_by_id = u.id ".
             " left join patient_data p on i1.patient_id = p.pid ".
             " where p.pid = " . $pid;
 
 // sort the results, as they are on the user's screen
 $sqlstmt .= " order by ";
-if ($_GET['sortby'] == "vacc") { $sqlstmt .= " i2.name, i1.administered_date DESC"; }
+if ($_GET['sortby'] == "vacc") { $sqlstmt .= " i1.immunization_id, i1.administered_date DESC"; }
 else { $sqlstmt .= " i1.administered_date desc"; }
 
 $res = sqlStatement($sqlstmt);
+
 while ($data[] = sqlFetchArray($res)) {}
+
+// added 7-2009 by BM to support immunization list in list_options
+for ($i=0;$i<count($data);$i++) {
+  $data[$i][xl('Vaccine')] = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $data[$i][xl('Vaccine')]);
+}
 
 $opts = array('maxWidth' => 504, 'fontSize' => 8);
 
 $pdf->ezTable($data, "", $title, $opts);
 
-$pdf->ezText("\n\n\n\nSignature:________________________________","",array('justification' => 'right'));
+$pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________","",array('justification' => 'right'));
 
 $pdf->ezStream();
 

@@ -2,6 +2,7 @@
 include_once("../../globals.php");
 include_once("$srcdir/lists.inc");
 include_once("$srcdir/acl.inc");
+include_once("$srcdir/options.inc.php");
 
 // We used to present a more complex list for "medical problem" issues
 // for athletic teams.  However we decided in May 2008 to stop that.
@@ -172,13 +173,11 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
 <tr><td>
 
 <?php
-  $sql = "select i1.id as id, ".
-         " if (i1.administered_date, concat(i1.administered_date,' - ',i2.name), substring(i1.note,1,20)) as immunization_data ".
+  $sql = "select i1.id as id, i1.immunization_id as immunization_id,".
+         " if (i1.administered_date, concat(i1.administered_date,' - '), substring(i1.note,1,20)) as immunization_data ".
          " from immunizations i1 ".
-         " left join immunization i2 ".
-         " on i1.immunization_id = i2.id ".
          " where i1.patient_id = $pid ".
-         " order by i2.name, i1.administered_date desc";
+         " order by i1.immunization_id, i1.administered_date desc";
 
   $result = sqlStatement($sql);
 
@@ -187,7 +186,9 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
     echo "<a class='link' target='";
     echo $GLOBALS['concurrent_layout'] ? "_parent" : "Main";
     echo "' href='immunizations.php?mode=edit&id=".$row['id']."' onclick='top.restoreSession()'>" .
-    $row{'immunization_data'} . "</a><br>\n";
+    $row{'immunization_data'} .
+    generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']) .
+    "</a><br>\n";
   }
 ?>
 </td>

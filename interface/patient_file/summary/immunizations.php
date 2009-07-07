@@ -1,13 +1,14 @@
 <?php
 include_once("../../globals.php");
 include_once("$srcdir/sql.inc");
+include_once("$srcdir/options.inc.php");
 
 if (isset($mode)) {
     if ($mode == "add" ) {
         $sql = "REPLACE INTO immunizations set 
                       id = '" . mysql_real_escape_string($id) . "',
                       administered_date = if('" . mysql_real_escape_string($administered_date) . "','" . mysql_real_escape_string($administered_date) . "',NULL),  
-                      immunization_id = '" . mysql_real_escape_string($immunization_id) . "',
+                      immunization_id = '" . mysql_real_escape_string($form_immunization_id) . "',
                       manufacturer = '" . mysql_real_escape_string($manufacturer) . "',
                       lot_number = '" . mysql_real_escape_string($lot_number) . "',
                       administered_by_id = if(" . mysql_real_escape_string($administered_by_id) . "," . mysql_real_escape_string($administered_by_id) . ",NULL),
@@ -108,17 +109,10 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
             </span>
           </td>
           <td>
-            <select name="immunization_id">
               <?php
-                $sql = "select id,name from immunization order by name";
-                $result = sqlStatement($sql);
-                while($row = sqlFetchArray($result)){
-                  echo '<OPTION VALUE=' . $row{'id'};
-                  echo $immunization_id == $row{'id'} ? ' selected>' : '>';
-                  echo $row{'name'} . '</OPTION>';
-                }
+               	// Modified 7/2009 by BM to incorporate the immunization items into the list_options listings
+		generate_form_field(array('data_type'=>1,'field_id'=>'immunization_id','list_id'=>'immunizations','empty_title'=>'SKIP'), $immunization_id);
               ?>
-            </select>
           </td>
         </tr>
         <tr>
@@ -168,7 +162,7 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
           </td>
           <td class='text'>
             <input type="text" name="administered_by" id="administered_by" size="25" value="<?php echo $administered_by; ?>">
-            or choose
+            <?php xl('or choose','e'); ?>
 <!-- NEEDS WORK -->
             <select name="administered_by_id" id='administered_by_id'>
             <option value=""></option>
@@ -247,11 +241,11 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
     <!-- some columns are sortable -->
     <tr class='text bold'>
     <th>
-        <a href="javascript:top.restoreSession();location.href='immunizations.php?sortby=vacc';" title="Sort by vaccine"><?php xl('Vaccine','e'); ?></a>
+        <a href="javascript:top.restoreSession();location.href='immunizations.php?sortby=vacc';" title=<?php xl('Sort by vaccine','e','\'','\''); ?>><?php xl('Vaccine','e'); ?></a>
         <span class='small' style='font-family:arial'><?php if ($sortby == 'vacc') { echo 'v'; } ?></span>
     </th>
     <th>
-        <a href="javascript:top.restoreSession();location.href='immunizations.php?sortby=date';" title="Sort by date"><?php xl('Date','e'); ?></a>
+        <a href="javascript:top.restoreSession();location.href='immunizations.php?sortby=date';" title=<?php xl('Sort by date','e','\'','\''); ?>><?php xl('Date','e'); ?></a>
         <span class='small' style='font-family:arial'><?php if ($sortby == 'date') { echo 'v'; } ?></span>
     </th>
     <th><?php xl('Manufacturer','e'); ?></th>
@@ -263,16 +257,15 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
     </tr>
     
 <?php
-        $sql = "select i1.id ,i1.administered_date ,i2.name as immunization ".
+        $sql = "select i1.id ,i1.immunization_id ,i1.administered_date ".
                 ",i1.manufacturer ,i1.lot_number ".
                 ",ifnull(concat(u.lname,', ',u.fname),'Other') as administered_by ".
                 ",i1.education_date ,i1.note ".
                 " from immunizations i1 ".
-                " left join immunization i2 on i1.immunization_id = i2.id ".
                 " left join users u on i1.administered_by_id = u.id ".
                 " where patient_id = $pid ".
                 " order by ";
-        if ($sortby == "vacc") { $sql .= " immunization, i1.administered_date DESC"; }
+        if ($sortby == "vacc") { $sql .= " i1.immunization_id, i1.administered_date DESC"; }
         else { $sql .= " administered_date desc"; }
 
         $result = sqlStatement($sql);
@@ -283,14 +276,15 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
             else {
                 echo "<tr class='immrow text' id='".$row["id"]."'>";
             }
-            echo "<td>" . $row["immunization"] . "</td>";
+	    // Modified 7/2009 by BM to utilize immunization items from the pertinent list in list_options
+            echo "<td>" . generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']) . "</td>";
             echo "<td>" . $row["administered_date"] . "</td>";
             echo "<td>" . $row["manufacturer"] . "</td>";
             echo "<td>" . $row["lot_number"] . "</td>";
             echo "<td>" . $row["administered_by"] . "</td>";
             echo "<td>" . $row["education_date"] . "</td>";
             echo "<td>" . $row["note"] . "</td>";
-            echo "<td><input type='button' class='delete' id='".$row["id"]."' value='Delete'></td>";
+            echo "<td><input type='button' class='delete' id='".$row["id"]."' value='" . xl('Delete') . "'></td>";
             echo "</tr>";
         }
 
@@ -337,7 +331,7 @@ var EditImm = function(imm) {
 }
 
 var DeleteImm = function(imm) {
-    if (confirm("This action cannot be undone.\nDo you wish to PERMANENTLY delete this immunization record?")) {
+    if (confirm("<?php xl('This action cannot be undone.','e'); ?>" + "\n" +"<?php xl('Do you wish to PERMANENTLY delete this immunization record?','e'); ?>")) {
         top.restoreSession();
         location.href='immunizations.php?mode=delete&id='+imm.id;
     }

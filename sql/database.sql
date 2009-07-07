@@ -1343,60 +1343,6 @@ CREATE TABLE `history_data` (
 -- --------------------------------------------------------
 
 -- 
--- Table structure for table `immunization`
--- 
-
-DROP TABLE IF EXISTS `immunization`;
-CREATE TABLE `immunization` (
-  `id` int(11) NOT NULL auto_increment,
-  `name` varchar(255) default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `immunization_name` (`name`)
-) ENGINE=MyISAM AUTO_INCREMENT=36 ;
-
--- 
--- Dumping data for table `immunization`
--- 
-
-INSERT INTO `immunization` VALUES (1, 'DTaP 1');
-INSERT INTO `immunization` VALUES (2, 'DTaP 2');
-INSERT INTO `immunization` VALUES (3, 'DTaP 3');
-INSERT INTO `immunization` VALUES (4, 'DTaP 4');
-INSERT INTO `immunization` VALUES (5, 'DTaP 5');
-INSERT INTO `immunization` VALUES (6, 'DT 1');
-INSERT INTO `immunization` VALUES (7, 'DT 2');
-INSERT INTO `immunization` VALUES (8, 'DT 3');
-INSERT INTO `immunization` VALUES (9, 'DT 4');
-INSERT INTO `immunization` VALUES (10, 'DT 5');
-INSERT INTO `immunization` VALUES (11, 'IPV 1');
-INSERT INTO `immunization` VALUES (12, 'IPV 2');
-INSERT INTO `immunization` VALUES (13, 'IPV 3');
-INSERT INTO `immunization` VALUES (14, 'IPV 4');
-INSERT INTO `immunization` VALUES (15, 'Hib 1');
-INSERT INTO `immunization` VALUES (16, 'Hib 2');
-INSERT INTO `immunization` VALUES (17, 'Hib 3');
-INSERT INTO `immunization` VALUES (18, 'Hib 4');
-INSERT INTO `immunization` VALUES (19, 'Pneumococcal Conjugate 1');
-INSERT INTO `immunization` VALUES (20, 'Pneumococcal Conjugate 2');
-INSERT INTO `immunization` VALUES (21, 'Pneumococcal Conjugate 3');
-INSERT INTO `immunization` VALUES (22, 'Pneumococcal Conjugate 4');
-INSERT INTO `immunization` VALUES (23, 'MMR 1');
-INSERT INTO `immunization` VALUES (24, 'MMR 2');
-INSERT INTO `immunization` VALUES (25, 'Varicella 1');
-INSERT INTO `immunization` VALUES (26, 'Varicella 2');
-INSERT INTO `immunization` VALUES (27, 'Hepatitis B 1');
-INSERT INTO `immunization` VALUES (28, 'Hepatitis B 2');
-INSERT INTO `immunization` VALUES (29, 'Hepatitis B 3');
-INSERT INTO `immunization` VALUES (30, 'Influenza 1');
-INSERT INTO `immunization` VALUES (31, 'Influenza 2');
-INSERT INTO `immunization` VALUES (32, 'Td');
-INSERT INTO `immunization` VALUES (33, 'Hepatitis A 1');
-INSERT INTO `immunization` VALUES (34, 'Hepatitis A 2');
-INSERT INTO `immunization` VALUES (35, 'Other');
-
--- --------------------------------------------------------
-
--- 
 -- Table structure for table `immunizations`
 -- 
 
@@ -1954,6 +1900,43 @@ INSERT INTO list_options VALUES ('note_type','Referral'       ,'Referral'       
 INSERT INTO list_options VALUES ('note_type','Test Scheduling','Test Scheduling'   , 8,0,0);
 INSERT INTO list_options VALUES ('note_type','Bill/Collect'   ,'Bill/Collect'      , 9,0,0);
 INSERT INTO list_options VALUES ('note_type','Other'          ,'Other'             ,10,0,0);
+
+INSERT INTO list_options VALUES ('lists'        ,'immunizations','Immunizations'           ,  8,0,0);
+INSERT INTO list_options VALUES ('immunizations','1'            ,'DTaP 1'                  , 30,0,0);
+INSERT INTO list_options VALUES ('immunizations','2'            ,'DTaP 2'                  , 35,0,0);
+INSERT INTO list_options VALUES ('immunizations','3'            ,'DTaP 3'                  , 40,0,0);
+INSERT INTO list_options VALUES ('immunizations','4'            ,'DTaP 4'                  , 45,0,0);
+INSERT INTO list_options VALUES ('immunizations','5'            ,'DTaP 5'                  , 50,0,0);
+INSERT INTO list_options VALUES ('immunizations','6'            ,'DT 1'                    ,  5,0,0);
+INSERT INTO list_options VALUES ('immunizations','7'            ,'DT 2'                    , 10,0,0);
+INSERT INTO list_options VALUES ('immunizations','8'            ,'DT 3'                    , 15,0,0);
+INSERT INTO list_options VALUES ('immunizations','9'            ,'DT 4'                    , 20,0,0);
+INSERT INTO list_options VALUES ('immunizations','10'           ,'DT 5'                    , 25,0,0);
+INSERT INTO list_options VALUES ('immunizations','11'           ,'IPV 1'                   ,110,0,0);
+INSERT INTO list_options VALUES ('immunizations','12'           ,'IPV 2'                   ,115,0,0);
+INSERT INTO list_options VALUES ('immunizations','13'           ,'IPV 3'                   ,120,0,0);
+INSERT INTO list_options VALUES ('immunizations','14'           ,'IPV 4'                   ,125,0,0);
+INSERT INTO list_options VALUES ('immunizations','15'           ,'Hib 1'                   , 80,0,0);
+INSERT INTO list_options VALUES ('immunizations','16'           ,'Hib 2'                   , 85,0,0);
+INSERT INTO list_options VALUES ('immunizations','17'           ,'Hib 3'                   , 90,0,0);
+INSERT INTO list_options VALUES ('immunizations','18'           ,'Hib 4'                   , 95,0,0);
+INSERT INTO list_options VALUES ('immunizations','19'           ,'Pneumococcal Conjugate 1',140,0,0);
+INSERT INTO list_options VALUES ('immunizations','20'           ,'Pneumococcal Conjugate 2',145,0,0);
+INSERT INTO list_options VALUES ('immunizations','21'           ,'Pneumococcal Conjugate 3',150,0,0);
+INSERT INTO list_options VALUES ('immunizations','22'           ,'Pneumococcal Conjugate 4',155,0,0);
+INSERT INTO list_options VALUES ('immunizations','23'           ,'MMR 1'                   ,130,0,0);
+INSERT INTO list_options VALUES ('immunizations','24'           ,'MMR 2'                   ,135,0,0);
+INSERT INTO list_options VALUES ('immunizations','25'           ,'Varicella 1'             ,165,0,0);
+INSERT INTO list_options VALUES ('immunizations','26'           ,'Varicella 2'             ,170,0,0);
+INSERT INTO list_options VALUES ('immunizations','27'           ,'Hepatitis B 1'           , 65,0,0);
+INSERT INTO list_options VALUES ('immunizations','28'           ,'Hepatitis B 2'           , 70,0,0);
+INSERT INTO list_options VALUES ('immunizations','29'           ,'Hepatitis B 3'           , 75,0,0);
+INSERT INTO list_options VALUES ('immunizations','30'           ,'Influenza 1'             ,100,0,0);
+INSERT INTO list_options VALUES ('immunizations','31'           ,'Influenza 2'             ,105,0,0);
+INSERT INTO list_options VALUES ('immunizations','32'           ,'Td'                      ,160,0,0);
+INSERT INTO list_options VALUES ('immunizations','33'           ,'Hepatitis A 1'           , 55,0,0);
+INSERT INTO list_options VALUES ('immunizations','34'           ,'Hepatitis A 2'           , 60,0,0);
+INSERT INTO list_options VALUES ('immunizations','35'           ,'Other'                   ,175,0,0);
 
 -- --------------------------------------------------------
 

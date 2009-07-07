@@ -7,6 +7,7 @@ include_once("$srcdir/pnotes.inc");
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/report.inc");
 include_once("$srcdir/acl.inc");
+include_once("$srcdir/options.inc.php");
 
 // get various authorization levels
 $auth_notes_a  = acl_check('encounters', 'notes_a');
@@ -112,11 +113,13 @@ printRecData($insurance_data_array, getRecInsuranceData ($pid,"tertiary"), $N);
 <div class='issues history'>
 <h1><?php  xl('Immunizations','e'); ?>:</h1>
 <?php 
-$sql = "select if(i1.administered_date,concat(i1.administered_date,' - ',i2.name) ,substring(i1.note,1,20) ) as immunization_data from immunizations i1 left join immunization i2 on i1.immunization_id = i2.id where i1.patient_id = $pid order by administered_date desc";
+$sql = "select i1.immunization_id as immunization_id, if(i1.administered_date,concat(i1.administered_date,' - ') ,substring(i1.note,1,20) ) as immunization_data from immunizations i1 where i1.patient_id = $pid order by administered_date desc";
 
 $result = sqlStatement($sql);
 while ($row=sqlFetchArray($result)){
-    echo "<span class=text> " . $row{'immunization_data'} . "</span><br>\n";
+    echo "<span class=text> " . $row{'immunization_data'} .
+         generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']) .
+         "</span><br>\n";
 }
 ?>
 </div>
