@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006, 2008 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2009 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -899,6 +899,7 @@ function genPopupsList($style='') {
       </li>
       <li><span><?php xl('Blank Forms','e') ?></span>
         <ul>
+          <?php genPopLink(xl('Demographics'),'../patient_file/summary/demographics_print.php'); ?>
           <?php genPopLink(xl('Fee Sheet'),'../patient_file/printed_fee_sheet.php'); ?>
           <?php genPopLink(xl('Referral'),'../patient_file/transaction/print_referral.php'); ?>
         </ul>
