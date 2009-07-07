@@ -368,7 +368,7 @@ if ($list_id) {
   }
   else {
     $res = sqlStatement("SELECT * FROM list_options WHERE " .
-      "list_id = '$list_id' ORDER BY seq");
+      "list_id = '$list_id' ORDER BY seq,title");
     while ($row = sqlFetchArray($res)) {
       writeOptionLine($row['option_id'], $row['title'], $row['seq'],
         $row['is_default'], $row['option_value']);
