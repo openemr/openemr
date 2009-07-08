@@ -193,6 +193,7 @@ CREATE TABLE `codes` (
   `related_code` varchar(255) NOT NULL default '',
   `taxrates` varchar(255) NOT NULL default '',
   `cyp_factor` float NOT NULL DEFAULT 0 COMMENT 'quantity representing a years supply',
+  `active` TINYINT(1) DEFAULT 1 COMMENT '0 = inactive, 1 = active',
   PRIMARY KEY  (`id`),
   KEY `code` (`code`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
@@ -344,6 +345,7 @@ CREATE TABLE `drugs` (
   `substitute` int(11) NOT NULL default '0',
   `related_code` varchar(255) NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code',
   `cyp_factor` float NOT NULL DEFAULT 0 COMMENT 'quantity representing a years supply',
+  `active` TINYINT(1) DEFAULT 1 COMMENT '0 = inactive, 1 = active',
   PRIMARY KEY  (`drug_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
