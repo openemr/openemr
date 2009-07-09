@@ -42,6 +42,12 @@ function tableHasRow($tblname, $colname, $value) {
   return $row['count'] ? true : false;
 }
 
+function tableHasRow2D($tblname, $colname, $value, $colname2, $value2) {
+  $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
+    "$colname LIKE '$value' AND $colname2 LIKE '$value2'");
+  return $row['count'] ? true : false;
+}
+
 function upgradeFromSqlFile($filename) {
   global $webserver_root;
 
@@ -102,6 +108,17 @@ function upgradeFromSqlFile($filename) {
       }
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }
+    else if (preg_match('/^#IfNotRow2D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/', $line, $matches)) {
+      if (tableExists($matches[1])) {
+        $skipping = tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5]);
+      }
+      else {
+        // If no such table then the row is deemed not "missing".
+        $skipping = true;
+      }
+      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
+
     else if (preg_match('/^#EndIf/', $line)) {
       $skipping = false;
     }
