@@ -19,13 +19,13 @@
  $lot_id  = $_REQUEST['lot'];
  $info_msg = "";
 
- if (!acl_check('admin', 'drugs')) die("Not authorized!");
- if (!$drug_id) die("Drug ID missing!");
+ if (!acl_check('admin', 'drugs')) die(xl('Not authorized'));
+ if (!$drug_id) die(xl('Drug ID missing!'));
 ?>
 <html>
 <head>
 <?php html_header_show();?>
-<title><?php echo $lot_id ? xl("Edit") : xl("Add New"); xl(' Lot', 'e'); ?></title>
+<title><?php echo $lot_id ? xl("Edit") : xl("Add New"); xl('Lot','e',' '); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
@@ -125,10 +125,10 @@ td { font-size:10pt; }
    <input type='text' size='10' name='form_expiration' id='form_expiration'
     value='<?php echo $row['expiration'] ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='yyyy-mm-dd date of expiration' />
+    title=<?php xl('yyyy-mm-dd date of expiration','e','\'','\''); ?> />
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_expiration' border='0' alt='[?]' style='cursor:pointer'
-    title='Click here to choose a date'>
+    title=<?php xl('Click here to choose a date','e','\'','\''); ?>>
   </td>
  </tr>
 

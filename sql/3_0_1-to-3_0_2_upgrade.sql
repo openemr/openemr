@@ -74,6 +74,68 @@ INSERT INTO list_options (list_id,option_id,title) SELECT 'immunizations',id,nam
 DROP TABLE immunization;
 #EndIf
 
+#IfNotRow2D list_options list_id drug_form option_id 0
+INSERT INTO list_options VALUES ('drug_form'    ,'0' ,''         , 0,0,0);
+#EndIf
+#IfNotRow2D list_options list_id drug_form option_id 10
+INSERT INTO list_options VALUES ('drug_form'    ,'10','cream'    ,10,0,0);
+#EndIf
+#IfNotRow2D list_options list_id drug_form option_id 11
+INSERT INTO list_options VALUES ('drug_form'    ,'11','ointment' ,11,0,0);
+#EndIf
+#IfNotRow2D list_options list_id drug_units option_id 0
+INSERT INTO list_options VALUES ('drug_units'   ,'0' ,''         , 0,0,0);
+#EndIf
+#IfNotRow2D list_options list_id drug_route option_id 0
+INSERT INTO list_options VALUES ('drug_route'   ,'0' ,''         , 0,0,0);
+#EndIf
+#IfNotRow2D list_options list_id drug_route option_id 13
+INSERT INTO list_options VALUES ('drug_route'   ,'13','Both Ears',13,0,0);
+#EndIf
+#IfNotRow2D list_options list_id drug_route option_id 14
+INSERT INTO list_options VALUES ('drug_route'   ,'14','Left Ear' ,14,0,0);
+#EndIf
+#IfNotRow2D list_options list_id drug_route option_id 15
+INSERT INTO list_options VALUES ('drug_route'   ,'15','Right Ear',15,0,0);
+#EndIf
+#IfNotRow2D list_options list_id drug_interval option_id 0
+INSERT INTO list_options VALUES ('drug_interval','0' ,''         , 0,0,0);
+#EndIf
+#IfNotRow2D list_options list_id drug_interval option_id 10
+INSERT INTO list_options VALUES ('drug_interval','10','a.c.'     ,10,0,0);
+#EndIf
+#IfNotRow2D list_options list_id drug_interval option_id 11
+INSERT INTO list_options VALUES ('drug_interval','11','p.c.'     ,11,0,0);
+#EndIf
+#IfNotRow2D list_options list_id drug_interval option_id 12
+INSERT INTO list_options VALUES ('drug_interval','12','a.m.'     ,12,0,0);
+#EndIf
+#IfNotRow2D list_options list_id drug_interval option_id 13
+INSERT INTO list_options VALUES ('drug_interval','13','p.m.'     ,13,0,0);
+#EndIf
+#IfNotRow2D list_options list_id drug_interval option_id 14
+INSERT INTO list_options VALUES ('drug_interval','14','ante'     ,14,0,0);
+#EndIf
+#IfNotRow2D list_options list_id drug_interval option_id 15
+INSERT INTO list_options VALUES ('drug_interval','15','h'        ,15,0,0);
+#EndIf
+#IfNotRow2D list_options list_id drug_interval option_id 16
+INSERT INTO list_options VALUES ('drug_interval','16','h.s.'     ,16,0,0);
+#EndIf
+#IfNotRow2D list_options list_id drug_interval option_id 17
+INSERT INTO list_options VALUES ('drug_interval','17','p.r.n.'   ,17,0,0);
+#EndIf
+#IfNotRow2D list_options list_id drug_interval option_id 18
+INSERT INTO list_options VALUES ('drug_interval','18','stat'     ,18,0,0);
+#EndIf
+
+UPDATE list_options 
+    SET option_id = '6' WHERE option_id = ' 6' and list_id = 'drug_route';    
+UPDATE list_options
+    SET title = 'mcg' WHERE option_id = '7' and list_id = 'drug_units';
+UPDATE list_options
+    SET title = 'grams' WHERE option_id = '8' and list_id = 'drug_units';
+
 UPDATE `layout_options` 
     SET data_type = 26 WHERE form_id = 'DEM' and field_id = 'state';
 UPDATE `layout_options`

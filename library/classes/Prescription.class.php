@@ -8,60 +8,98 @@ require_once("Provider.class.php");
 require_once("Pharmacy.class.php");
 require_once("NumberToText.class.php");
 
-define('UNIT_MG',1);
-define('UNIT_MG_1CC',2);
-define('UNIT_MG_2CC',3);
-define('UNIT_MG_3CC',4);
-define('UNIT_MG_4CC',5);
-define('UNIT_MG_5CC',6);
-define('UNIT_MCG',7);
-define('UNIT_GRAMS',8);
-define('INTERVAL_BID',1);
-define('INTERVAL_TID',2);
-define('INTERVAL_QID',3);
-define('INTERVAL_Q_3H',4);
-define('INTERVAL_Q_4H',5);
-define('INTERVAL_Q_5H',6);
-define('INTERVAL_Q_6H',7);
-define('INTERVAL_Q_8H',8);
-define('INTERVAL_QD',9);
-define('SUBSTITUTE_YES',1);
-define('SUBSTITUTE_NO',2);
+// Below list of terms are deprecated, but we keep this list
+//   to keep track of the official openemr drugs terms and
+//   corresponding ID's for reference. Official is referring
+//   to the default settings after installing OpenEMR.
+//
+// define('UNIT_BLANK',0);
+// define('UNIT_MG',1);
+// define('UNIT_MG_1CC',2);
+// define('UNIT_MG_2CC',3);
+// define('UNIT_MG_3CC',4);
+// define('UNIT_MG_4CC',5);
+// define('UNIT_MG_5CC',6);
+// define('UNIT_MCG',7);
+// define('UNIT_GRAMS',8);
+//
+// define('INTERVAL_BLANK',0);
+// define('INTERVAL_BID',1);
+// define('INTERVAL_TID',2);
+// define('INTERVAL_QID',3);
+// define('INTERVAL_Q_3H',4);
+// define('INTERVAL_Q_4H',5);
+// define('INTERVAL_Q_5H',6);
+// define('INTERVAL_Q_6H',7);
+// define('INTERVAL_Q_8H',8);
+// define('INTERVAL_QD',9);
+// define('INTERVAL_AC',10); // added May 2008
+// define('INTERVAL_PC',11); // added May 2008
+// define('INTERVAL_AM',12); // added May 2008
+// define('INTERVAL_PM',13); // added May 2008
+// define('INTERVAL_ANTE',14); // added May 2008
+// define('INTERVAL_H',15); // added May 2008
+// define('INTERVAL_HS',16); // added May 2008
+// define('INTERVAL_PRN',17); // added May 2008
+// define('INTERVAL_STAT',18); // added May 2008
+//
+// define('FORM_BLANK',0);
+// define('FORM_SUSPENSION',1);
+// define('FORM_TABLET',2);
+// define('FORM_CAPSULE',3);
+// define('FORM_SOLUTION',4);
+// define('FORM_TSP',5);
+// define('FORM_ML',6);
+// define('FORM_UNITS',7);
+// define('FORM_INHILATIONS',8);
+// define('FORM_GTTS_DROPS',9);
+// define('FORM_CR',10);
+// define('FORM_OINT',11);
+//
+// define('ROUTE_BLANK',0);
+// define("ROUTE_PER_ORIS", 1);
+// define("ROUTE_PER_RECTUM", 2);
+// define("ROUTE_TO_SKIN", 3);
+// define("ROUTE_TO_AFFECTED_AREA", 4);
+// define("ROUTE_SUBLINGUAL", 5);
+// define("ROUTE_OS", 6);
+// define("ROUTE_OD", 7);
+// define("ROUTE_OU", 8);
+// define("ROUTE_SQ", 9);
+// define("ROUTE_IM", 10);
+// define("ROUTE_IV", 11);
+// define("ROUTE_PER_NOSTRIL", 12);
+// define("ROUTE_B_EAR", 13);
+// define("ROUTE_L_EAR", 14);
+// define("ROUTE_R_EAR", 15);
+//
+// define('SUBSTITUTE_YES',1);
+// define('SUBSTITUTE_NO',2);
+//
 
-define('FORM_SUSPENSION',1);
-define('FORM_TABLET',2);
-define('FORM_CAPSULE',3);
-define('FORM_SOLUTION',4);
-define('FORM_TSP',5);
-define('FORM_ML',6);
-define('FORM_UNITS',7);
-define('FORM_INHILATIONS',8);
-define('FORM_GTTS_DROPS',9);
-define('FORM_CR',10);
-define('FORM_OINT',11);
-
-define("ROUTE_PER_ORIS", 1);
-define("ROUTE_PER_RECTUM", 2);
-define("ROUTE_TO_SKIN", 3);
-define("ROUTE_TO_AFFECTED_AREA", 4);
-define("ROUTE_SUBLINGUAL", 5);
-define("ROUTE_OS", 6);
-define("ROUTE_OD", 7);
-define("ROUTE_OU", 8);
-define("ROUTE_SQ", 9);
-define("ROUTE_IM", 10);
-define("ROUTE_IV", 11);
-define("ROUTE_PER_NOSTRIL", 12);
-define("ROUTE_B_EAR", 13);
-define("ROUTE_L_EAR", 14);
-define("ROUTE_R_EAR", 15);
+// Added 7-2009 by BM to incorporate the units, forms, interval, route lists from list_options
+//  This mechanism may only be temporary; will likely migrate changes more downstream to allow
+//   users the options of using the addlist widgets and validation frunctions from options.inc.php
+//   in the forms and output.
+function load_drug_attributes($id) {
+    $res = sqlStatement("SELECT * FROM list_options WHERE list_id = '$id' ORDER BY seq");
+    while ($row = sqlFetchArray($res)) {
+	if ($row['title'] == '') {
+	 $arr[$row['option_id']] = ' ';
+	}
+	else {
+         $arr[$row['option_id']] = xl_list_label($row['title']);
+	}
+    }
+    return $arr;
+}
 
 /**
  * class Prescription
  *
  */
 class Prescription extends ORDataObject {
-
+    
     /**
      *
      * @access public
@@ -116,46 +154,18 @@ class Prescription extends ORDataObject {
     
     function Prescription($id= "", $_prefix = "") {
     
-        $this->route_array = array(" ", xl("per oris"), xl("per rectum"),
-            xl("apply to skin"), xl("apply to affected area"), xl("sublingual"),
-            xl("OS"), xl("OD"), xl("OU"), xl("SQ"), xl("IM"), xl("IV"),
-            xl("per nostril"),xl("both ears"), xl("left ear"), xl("right ear"));
-        
-        $this->form_array = array(" ", FORM_TABLET => xl("tablet"),
-            FORM_CAPSULE => xl("capsule"), FORM_TSP => xl("tsp"),
-            FORM_ML => xl("ml"), FORM_UNITS => xl("units"),
-            FORM_INHILATIONS => xl("inhilations"),
-            FORM_GTTS_DROPS => xl("gtts(drops)"), FORM_CR => xl("cream"),
-            FORM_OINT => xl("ointment"));
-    
-        $this->interval_array = array(" ", 
-                                xl("b.i.d."), 
-                                xl("t.i.d."),
-                                xl("q.i.d."), 
-                                xl("q.3h"), 
-                                xl("q.4h"), 
-                                xl("q.5h"), 
-                                xl("q.6h"),
-                                xl("q.8h"), 
-                                xl("q.d."),
-                                xl("a.c."), // added May 2008
-                                xl("p.c."), // added May 2008
-                                xl("a.m."), // added May 2008
-                                xl("p.m."), // added May 2008
-                                xl("ante"), // added May 2008
-                                xl("h"), // added May 2008
-                                xl("h.s."), // added May 2008
-                                xl("p.r.n."), // added May 2008
-                                xl("stat") // added May 2008
-                                );
+	// Modified 7-2009 by BM to load the arrays from the lists in lists_options.
+	// Plan for this to only be temporary, hopefully have the lists used directly
+	//  from forms in future to allow use of widgets etc.
+        $this->route_array = load_drug_attributes('drug_route');        
+        $this->form_array = load_drug_attributes('drug_form');
+        $this->interval_array = load_drug_attributes('drug_interval');
+	$this->unit_array = load_drug_attributes('drug_units');
 
         $this->substitute_array = array("",xl("substitution allowed"),
             xl ("do not substitute"));
     
         $this->medication_array = array(0 => xl('No'), 1 => xl('Yes'));
-    
-        $this->unit_array = array(" ",xl("mg"), xl("mg/1cc"), "", "", "",
-            xl("mg/5cc"), xl ("mcg"));
     
         if (is_numeric($id)) { $this->id = $id; }
         else { $id = "";}
@@ -188,7 +198,7 @@ class Prescription extends ORDataObject {
 
         if ($id != "") { $this->populate(); }
     }
-
+    
     function persist() {
         $this->date_modified = date("Y-m-d");
         if ($this->id == "") { $this->date_added = date("Y-m-d"); }

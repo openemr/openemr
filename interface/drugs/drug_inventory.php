@@ -9,10 +9,11 @@
  require_once("../globals.php");
  require_once("$srcdir/acl.inc");
  require_once("drugs.inc.php");
+ require_once("$srcdir/options.inc.php");
 
  // Check authorization.
  $thisauth = acl_check('admin', 'drugs');
- if (!$thisauth) die("Not authorized.");
+ if (!$thisauth) die(xl('Not authorized'));
 
  // get drugs
  $res = sqlStatement("SELECT d.*, " .
@@ -64,14 +65,14 @@ function doiclick(id, lot) {
 
 <table width='100%' cellpadding='1' cellspacing='2'>
  <tr class='head'>
-  <td title='Click to edit'><?php  xl('Name','e'); ?></td>
+  <td title=<?php xl('Click to edit','e','\'','\''); ?>><?php  xl('Name','e'); ?></td>
   <td><?php  xl('Act','e'); ?></td>
   <td><?php  xl('NDC','e'); ?></td>
   <td><?php  xl('Form','e'); ?></td>
   <td><?php  xl('Size','e'); ?></td>
   <td><?php  xl('Unit','e'); ?></td>
-  <td title='Click to receive (add) new lot'><?php  xl('Add','e'); ?></td>
-  <td title='Click to edit'><?php  xl('Lot','e'); ?></td>
+  <td title=<?php xl('Click to receive (add) new lot','e','\'','\''); ?>><?php  xl('Add','e'); ?></td>
+  <td title=<?php xl('Click to edit','e','\'','\''); ?>><?php  xl('Lot','e'); ?></td>
   <td><?php  xl('QOH','e'); ?></td>
   <td><?php  xl('Expires','e'); ?></td>
  </tr>
@@ -89,11 +90,15 @@ function doiclick(id, lot) {
     htmlentities($row['name']) . "</a></td>\n";
    echo "  <td>" . ($row['active'] ? xl('Yes') : xl('No')) . "</td>\n";
    echo "  <td>" . htmlentities($row['ndc_number']) . "</td>\n";
-   echo "  <td>" . $form_array[$row['form']] . "</td>\n";
+   echo "  <td>" . 
+	generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
+	"</td>\n";
    echo "  <td>" . $row['size'] . "</td>\n";
-   echo "  <td>" . $unit_array[$row['unit']] . "</td>\n";
+   echo "  <td>" .
+	generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']) .
+	"</td>\n";
    echo "  <td onclick='doiclick($lastid,0)'>" .
-    "<a href='' onclick='return false'>Add</a></td>\n";
+    "<a href='' onclick='return false'>" . xl('Add') . "</a></td>\n";
   } else {
    echo " <tr class='detail' bgcolor='$bgcolor'>\n";
    echo "  <td colspan='7'>&nbsp;</td>\n";

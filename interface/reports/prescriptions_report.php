@@ -11,6 +11,7 @@
 
  require_once("../globals.php");
  require_once("$srcdir/patient.inc");
+ require_once("$srcdir/options.inc.php");
  require_once("../drugs/drugs.inc.php");
 
  $form_from_date  = fixDate($_POST['form_from_date'], date('Y-01-01'));
@@ -237,11 +238,14 @@
    $prescription_id = $row['id'];
    $drug_name       = empty($row['name']) ? $row['drug'] : $row['name'];
    $ndc_number      = $row['ndc_number'];
-   $drug_units      = $row['size'] . ' ' . $unit_array[$row['unit']];
+   $drug_units      = $row['size'] . ' ' .
+	               generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']);
    $refills         = $row['refills'];
    $reactions       = $row['reactions'];
-   $instructed      = $row['dosage'] . ' ' . $form_array[$row['form']] . ' ' .
-                      $interval_array[$row['interval']];
+   $instructed      = $row['dosage'] . ' ' .
+	               generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
+	               ' ' .
+                       generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row['interval']);
    //if ($row['patient_id'] == $last_patient_id) {
    if (strcmp($row['pubpid'], $last_patient_id) == 0) {
     $patient_name = '&nbsp;';

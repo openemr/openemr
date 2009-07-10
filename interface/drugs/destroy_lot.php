@@ -19,9 +19,9 @@
  $lot_id  = $_REQUEST['lot'];
  $info_msg = "";
 
- if (!acl_check('admin', 'drugs')) die("Not authorized!");
- if (!$drug_id) die("Drug ID missing!");
- if (!$lot_id ) die("Lot ID missing!");
+ if (!acl_check('admin', 'drugs')) die(xl('Not authorized'));
+ if (!$drug_id) die(xl('Drug ID missing!'));
+ if (!$lot_id ) die(xl('Lot ID missing!'));
 ?>
 <html>
 <head>
@@ -110,10 +110,10 @@ td { font-size:10pt; }
    <input type='text' size='10' name='form_date' id='form_date'
     value='<?php  echo $row['destroy_date'] ? $row['destroy_date'] : date("Y-m-d"); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='yyyy-mm-dd date destroyed' />
+    title=<?php xl('yyyy-mm-dd date destroyed','e','\'','\''); ?> />
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_date' border='0' alt='[?]' style='cursor:pointer'
-    title='Click here to choose a date'>
+    title=<?php xl('Click here to choose a date','e','\'','\''); ?>>
   </td>
  </tr>
 

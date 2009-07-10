@@ -9,13 +9,14 @@
  require_once("../globals.php");
  require_once("$srcdir/acl.inc");
  require_once("drugs.inc.php");
+ require_once("$srcdir/options.inc.php");
 
  $alertmsg = '';
  $drug_id = $_REQUEST['drug'];
  $info_msg = "";
  $tmpl_line_no = 0;
 
- if (!acl_check('admin', 'drugs')) die("Not authorized!");
+ if (!acl_check('admin', 'drugs')) die(xl('Not authorized'));
 
 // Format dollars for display.
 //
@@ -30,40 +31,35 @@ function bucks($amount) {
 // Write a line of data for one template to the form.
 //
 function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $prices, $taxrates) {
-  global $tmpl_line_no, $interval_array;
+  global $tmpl_line_no;
   ++$tmpl_line_no;
 
   echo " <tr>\n";
   echo "  <td class='tmplcell drugsonly'>";
-  echo "<input type='text' name='tmpl[$tmpl_line_no][selector]' value='$selector' size='8' maxlength='100'>";
+  echo "<input type='text' name='form_tmpl[$tmpl_line_no][selector]' value='$selector' size='8' maxlength='100'>";
   echo "</td>\n";
   echo "  <td class='tmplcell drugsonly'>";
-  echo "<input type='text' name='tmpl[$tmpl_line_no][dosage]' value='$dosage' size='6' maxlength='10'>";
+  echo "<input type='text' name='form_tmpl[$tmpl_line_no][dosage]' value='$dosage' size='6' maxlength='10'>";
   echo "</td>\n";
   echo "  <td class='tmplcell drugsonly'>";
-  echo "<select name='tmpl[$tmpl_line_no][period]'>";
-  foreach ($interval_array as $key => $value) {
-    echo "<option value='$key'";
-    if ($key == $period) echo " selected";
-    echo ">$value</option>";
-  }
+  generate_form_field(array('data_type'=>1,'field_id'=>'tmpl['.$tmpl_line_no.'][period]','list_id'=>'drug_interval','empty_title'=>'SKIP'), $period);
   echo "</td>\n";
   echo "  <td class='tmplcell drugsonly'>";
-  echo "<input type='text' name='tmpl[$tmpl_line_no][quantity]' value='$quantity' size='3' maxlength='7'>";
+  echo "<input type='text' name='form_tmpl[$tmpl_line_no][quantity]' value='$quantity' size='3' maxlength='7'>";
   echo "</td>\n";
   echo "  <td class='tmplcell drugsonly'>";
-  echo "<input type='text' name='tmpl[$tmpl_line_no][refills]' value='$refills' size='3' maxlength='5'>";
+  echo "<input type='text' name='form_tmpl[$tmpl_line_no][refills]' value='$refills' size='3' maxlength='5'>";
   echo "</td>\n";
   foreach ($prices as $pricelevel => $price) {
     echo "  <td class='tmplcell'>";
-    echo "<input type='text' name='tmpl[$tmpl_line_no][price][$pricelevel]' value='$price' size='6' maxlength='12'>";
+    echo "<input type='text' name='form_tmpl[$tmpl_line_no][price][$pricelevel]' value='$price' size='6' maxlength='12'>";
     echo "</td>\n";
   }
   $pres = sqlStatement("SELECT option_id FROM list_options " .
     "WHERE list_id = 'taxrate' ORDER BY seq");
   while ($prow = sqlFetchArray($pres)) {
     echo "  <td class='tmplcell'>";
-    echo "<input type='checkbox' name='tmpl[$tmpl_line_no][taxrate][" . $prow['option_id'] . "]' value='1'";
+    echo "<input type='checkbox' name='form_tmpl[$tmpl_line_no][taxrate][" . $prow['option_id'] . "]' value='1'";
     if (strpos(":$taxrates", $prow['option_id']) !== false) echo " checked";
     echo " /></td>\n";
   }
@@ -84,7 +80,7 @@ function numericff($name) {
 <html>
 <head>
 <?php html_header_show(); ?>
-<title><?php echo $drug_id ? xl("Edit") : xl("Add New"); xl (' Drug','e'); ?></title>
+<title><?php echo $drug_id ? xl("Edit") : xl("Add New"); xl('Drug','e',' '); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
@@ -148,7 +144,7 @@ if ($_POST['form_save']) {
     "route = '" . escapedff('form_route') . "' AND " .
     "drug_id != '$drug_id'");
   if ($crow['count']) {
-    $alertmsg = "Cannot add this entry because it already exists!";
+    $alertmsg = xl('Cannot add this entry because it already exists!');
   }
 }
 
@@ -201,7 +197,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
   }
 
   if ($_POST['form_save'] && $drug_id) {
-   $tmpl = $_POST['tmpl'];
+   $tmpl = $_POST['form_tmpl'];
    // If using the simplified drug form, then force the one and only
    // selector name to be the same as the product name.
    if ($GLOBALS['sell_non_drug_products'] == 2) {
@@ -307,15 +303,9 @@ if ($drug_id) {
  <tr class='drugsonly'>
   <td valign='top' nowrap><b><?php xl('Form','e'); ?>:</b></td>
   <td>
-   <select name='form_form'>
 <?php
- foreach ($form_array as $key => $value) {
-  echo "   <option value='$key'";
-  if ($key == $row['form']) echo " selected";
-  echo ">$value\n";
- }
+ generate_form_field(array('data_type'=>1,'field_id'=>'form','list_id'=>'drug_form','empty_title'=>'SKIP'), $row['form']);
 ?>
-   </select>
   </td>
  </tr>
 
@@ -329,30 +319,18 @@ if ($drug_id) {
  <tr class='drugsonly'>
   <td valign='top' nowrap><b><?php xl('Units','e'); ?>:</b></td>
   <td>
-   <select name='form_unit'>
 <?php
- foreach ($unit_array as $key => $value) {
-  echo "   <option value='$key'";
-  if ($key == $row['unit']) echo " selected";
-  echo ">$value\n";
- }
+ generate_form_field(array('data_type'=>1,'field_id'=>'unit','list_id'=>'drug_units','empty_title'=>'SKIP'), $row['unit']);
 ?>
-   </select>
   </td>
  </tr>
 
  <tr class='drugsonly'>
   <td valign='top' nowrap><b><?php xl('Route','e'); ?>:</b></td>
   <td>
-   <select name='form_route'>
 <?php
- foreach ($route_array as $key => $value) {
-  echo "   <option value='$key'";
-  if ($key == $row['route']) echo " selected";
-  echo ">$value\n";
- }
+ generate_form_field(array('data_type'=>1,'field_id'=>'route','list_id'=>'drug_route','empty_title'=>'SKIP'), $row['route']);
 ?>
-   </select>
   </td>
  </tr>
 
@@ -375,7 +353,7 @@ if ($drug_id) {
 
  <tr>
   <td valign='top' nowrap>
-   <b><?php xl($GLOBALS['sell_non_drug_products'] == 2 ? 'Fees' : 'Templates','e'); ?>:</b>
+   <b><?php $GLOBALS['sell_non_drug_products'] == 2 ? xl('Fees','e') : xl('Templates','e'); ?>:</b>
   </td>
   <td>
    <table border='0' width='100%'>
@@ -393,13 +371,17 @@ if ($drug_id) {
     "WHERE list_id = 'pricelevel' ORDER BY seq");
   while ($prow = sqlFetchArray($pres)) {
     $emptyPrices[$prow['option_id']] = '';
-    echo "     <td><b>" . $prow['title'] . "</b></td>\n";
+    echo "     <td><b>" .
+	 generate_display_field(array('data_type'=>'1','list_id'=>'pricelevel'), $prow['option_id']) .
+	 "</b></td>\n";
   }
   // Show a heading for each tax rate.
   $pres = sqlStatement("SELECT option_id, title FROM list_options " .
     "WHERE list_id = 'taxrate' ORDER BY seq");
   while ($prow = sqlFetchArray($pres)) {
-    echo "     <td><b>" . $prow['title'] . "</b></td>\n";
+    echo "     <td><b>" .
+	 generate_display_field(array('data_type'=>'1','list_id'=>'taxrate'), $prow['option_id']) .
+	 "</b></td>\n";
   }
 ?>
     </tr>

@@ -8,11 +8,12 @@
 
  require_once("../globals.php");
  require_once("$srcdir/acl.inc");
+ require_once("$srcdir/options.inc.php");
  require_once("$include_root/drugs/drugs.inc.php");
 
  // Check authorization.
  $thisauth = acl_check('admin', 'drugs');
- if (!$thisauth) die("Not authorized.");
+ if (!$thisauth) die(xl('Not authorized'));
 
  // get drugs
  $res = sqlStatement("SELECT d.*, SUM(di.on_hand) AS on_hand " .
@@ -76,7 +77,9 @@ while ($row = sqlFetchArray($res)) {
   echo " <tr class='detail' bgcolor='$bgcolor'>\n";
   echo "  <td>" . htmlentities($row['ndc_number']) . "</td>\n";
   echo "  <td>" . htmlentities($row['name']) . "</td>\n";
-  echo "  <td>" . $form_array[$row['form']] . "</td>\n";
+  echo "  <td>" .
+       generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
+       "</td>\n";
   echo "  <td align='right'>" . $row['on_hand'] . "</td>\n";
   echo " </tr>\n";
  }

@@ -48,18 +48,18 @@
    <? xl('From','e'); ?>:
    <input type='text' name='form_from_date' id='form_from_date'
     size='10' value='<? echo $form_from_date ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title=<?php xl('yyyy-mm-dd','e','\'','\''); ?>>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='Click here to choose a date'>
+    title=<?php xl('Click here to choose a date','e','\'','\''); ?>>
 
    &nbsp;<? xl('To','e'); ?>:
    <input type='text' name='form_to_date' id='form_to_date'
     size='10' value='<? echo $form_to_date ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title=<?php xl('yyyy-mm-dd','e','\'','\''); ?>>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title='Click here to choose a date'>
+    title=<?php xl('Click here to choose a date','e','\'','\''); ?>>
 
    &nbsp;
    <input type='submit' name='form_refresh' value=<? xl('Refresh','e'); ?>>

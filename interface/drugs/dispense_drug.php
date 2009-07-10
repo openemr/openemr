@@ -9,6 +9,7 @@
  require_once("../globals.php");
  require_once("$srcdir/acl.inc");
  require_once("drugs.inc.php");
+ require_once("$srcdir/options.inc.php");
  require_once($GLOBALS['fileroot'] . "/library/classes/class.phpmailer.php");
  require_once($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
 
@@ -26,7 +27,7 @@
   $mail->Subject = $subject;
   $mail->AddAddress($recipient);
   if(!$mail->Send()) {
-   error_log("There has been a mail error sending to " . $recipient .
+   error_log(xl('There has been a mail error sending to','','',' ') . $recipient .
     " " . $mail->ErrorInfo);
   }
  }
@@ -38,7 +39,7 @@
  $fee             = $_REQUEST['fee'];
  $user            = $_SESSION['authUser'];
 
- if (!acl_check('admin', 'drugs')) die("Not authorized!");
+ if (!acl_check('admin', 'drugs')) die(xl('Not authorized'));
 
  if (!$drug_id        ) $drug_id = 0;
  if (!$prescription_id) $prescription_id = 0;
@@ -56,7 +57,7 @@
   //
   if ($drug_id) {
    $sale_id = sellDrug($drug_id, $quantity, $fee, $pid, 0, $prescription_id, $today, $user);
-   if (!$sale_id) die("Inventory is not available for this order.");
+   if (!$sale_id) die(xl('Inventory is not available for this order.'));
 
    /******************************************************************
    $res = sqlStatement("SELECT * FROM drug_inventory WHERE " .
@@ -112,7 +113,7 @@
    ")");
   *******************************************************************/
 
-  if (!$sale_id) die("Internal error, no drug ID specified!");
+  if (!$sale_id) die(xl('Internal error, no drug ID specified!'));
 
  } // end if not $sale_id
 
@@ -150,16 +151,16 @@
  $label_text = $row['fname'] . ' ' . $row['lname'] . ' ' . $row['date_modified'] .
   ' RX#' . sprintf('%06u', $row['prescription_id']) . "\n" .
   $row['name'] . ' ' . $row['size'] . ' ' .
-  $unit_array[$row['unit']] . ' QTY ' .
-  $row['quantity'] . "\n" .
-  'Take ' . $row['dosage'] . ' ' . $form_array[$row['form']] .
+  generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']) .
+  xl('QTY','',' ',' ') . $row['quantity'] . "\n" .
+  xl('Take','','',' ') . $row['dosage'] . ' ' .
+  generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
   ($row['dosage'] > 1 ? 's ' : ' ') .
-  // $interval_array_verbose[$row['interval']] . ' ' .
-  $interval_array[$row['interval']] . ' ' .
-  // $route_array_verbose[$row['route']] . "\n" .
-  $route_array[$row['route']] . "\n" .
-  'Lot ' . $row['lot_number'] . ' Exp ' . $row['expiration'] . "\n" .
-  'NDC ' . $row['ndc_number'] . ' ' . $row['manufacturer'];
+  generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row['interval']) .
+  ' ' .
+  generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row['route']) .
+  "\n" . xl('Lot','','',' ') . $row['lot_number'] . xl('Exp','',' ',' ') . $row['expiration'] . "\n" .
+  xl('NDC','','',' ') . $row['ndc_number'] . ' ' . $row['manufacturer'];
 
  // if ($row['refills']) {
  //  // Find out how many times this prescription has been filled/refilled.
