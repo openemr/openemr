@@ -535,7 +535,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
         if ($where) $where .= " AND ";
         // Allow the last name to be followed by a comma and some part of a first name.
         if (preg_match('/^(.*\S)\s*,\s*(.*)/', $form_name, $matches)) {
-          $where .= "p.lname LIKE '" . $matches[1] . "%' AND p.fname LIKE '" . $matches[1] . "%'";
+          $where .= "p.lname LIKE '" . $matches[1] . "%' AND p.fname LIKE '" . $matches[2] . "%'";
         // Allow a filter like "A-C" on the first character of the last name.
         } else if (preg_match('/^(\S)\s*-\s*(\S)$/', $form_name, $matches)) {
           $tmp = '1 = 2';
