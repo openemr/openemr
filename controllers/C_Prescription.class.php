@@ -11,6 +11,7 @@ class C_Prescription extends Controller {
 	var $pconfig;
 	var $providerid = 0;
 	var $is_faxing = false;
+	var $is_print_to_fax = false;
 
 	function C_Prescription($template_mod = "general") {
 		parent::Controller();
@@ -183,6 +184,10 @@ class C_Prescription extends Controller {
 			$this->template_mod . "_send.html");
 	}
 
+	function multiprintfax_header(& $pdf, $p) {
+		return $this->multiprint_header( $pdf, $p );
+	}
+
 	function multiprint_header(& $pdf, $p) {
 		$this->providerid = $p->provider->id;
 		//print header
@@ -235,14 +240,31 @@ class C_Prescription extends Controller {
 		$pdf->ezText('',10);
 	}
 
+	function multiprintfax_footer( & $pdf ) { 
+		return $this->multiprint_footer( $pdf );
+	}
+
 	function multiprint_footer(& $pdf) {
-		if($this->pconfig['use_signature'] && $this->is_faxing) {
-			$sigfile = str_replace('{userid}', $this->providerid, $this->pconfig['signature']);
+		if($this->pconfig['use_signature'] && ( $this->is_faxing || $this->is_print_to_fax ) ) {
+			$sigfile = str_replace('{userid}', $_SESSION{"authUser"}, $this->pconfig['signature']);
 			if (file_exists($sigfile)) {
 				$pdf->ezText("Signature: ",12);
 				// $pdf->ezImage($sigfile, "", "", "none", "left");
 				$pdf->ezImage($sigfile, "", "", "none", "center");
 				$pdf->ezText("Date: " . date('Y-m-d'), 12);
+				if ( $this->is_print_to_fax ) {
+					$pdf->ezText("Please do not accept this prescription unless it was received via facimile.");
+				}
+
+				$addenumFile = $this->pconfig['addendum_file'];
+				if ( file_exists( $addenumFile ) ) {
+					$pdf->ezText('');
+					$f = fopen($addenumFile, "r");
+					while ( $line = fgets($f, 1000) ) {
+						$pdf->ezText(rtrim($line));
+					}
+				}
+
 				return;
 			}
 		}
@@ -274,6 +296,10 @@ class C_Prescription extends Controller {
 		return $body;
 	}
 
+	function multiprintfax_body(& $pdf, $p){
+		return $this->multiprint_body( $pdf, $p );
+	}
+
 	function multiprint_body(& $pdf, $p){
 		$pdf->ez['leftMargin'] += $pdf->ez['leftMargin'];
 		$pdf->ez['rightMargin'] += $pdf->ez['rightMargin'];
@@ -301,6 +327,11 @@ class C_Prescription extends Controller {
 		$pdf->ezText('');
 		$pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
 		$pdf->ezText('');
+	}
+
+	function multiprintfax_action($id = "") {
+		$this->is_print_to_fax=true;
+		return $this->multiprint_action( $id ); 
 	}
 
 	function multiprint_action($id = "") {
@@ -360,6 +391,11 @@ class C_Prescription extends Controller {
 				// Looking at Controller.class.php, it appears that _state is set to false
 				// to indicate that no further HTML is to be generated.
 				$this->_state = false; // Added by Rod - see Controller.class.php
+				return $this->_print_prescription($p, $dummy);
+				break;
+		case "Print To Fax":
+				$this->_state = false;
+				$this->is_print_to_fax = true; 
 				return $this->_print_prescription($p, $dummy);
 				break;
 		case "Email":

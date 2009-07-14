@@ -36,6 +36,8 @@ function changeLinkHref(id,addValue,value) {
 <div id="print_links">
 <a id="multiprint" target="_new" href="{$CONTROLLER}prescription&multiprint&id={$printm}" onclick="top.restoreSession()">Print Multiple</a>
 <br>
+<a id="multiprintToFax" target="_new" href="{$CONTROLLER}prescription&multiprintfax&id={$printm}" onclick="top.restoreSession()">Print Multiple To Fax</a>
+<br>
 <a id="four_panel_rx" target="_new" href="{$WEBROOT}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()">Print Four Panel</a>
 </div>
 
@@ -72,7 +74,7 @@ function changeLinkHref(id,addValue,value) {
       {$prescription->provider->get_name_display()}
     </td>
     <td>
-      <input type="checkbox" value="{$prescription->id}" onclick="changeLinkHref('multiprint',this.checked, this.value)" title="Select for printing">
+      <input type="checkbox" value="{$prescription->id}" onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="Select for printing">
     </td>
   </tr>
 	{foreachelse}

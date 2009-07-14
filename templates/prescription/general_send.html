@@ -29,6 +29,10 @@ a {
 <input type="submit" name="submit" value="{xl t='Print'}" style="width:85;"/>
 <input type="hidden" name="process" value="{$PROCESS}" />
 </form>
+<form name="send_prescription" method="post" action="{$TOP_ACTION}send&id={$prescription->id}&print_to_fax=true" target="_new" onsubmit="return top.restoreSession()">
+<input type="submit" name="submit" value="{xl t='Print To Fax'}" style="width:85;"/>
+<input type="hidden" name="process" value="{$PROCESS}" />
+</form>
 
 </td><td></td></tr>
 <form name="send_prescription" method="post" action="{$TOP_ACTION}send&id={$prescription->id}" onsubmit="return top.restoreSession()">
