@@ -267,8 +267,7 @@ function getEmployerData($pid, $given = "*")
 function _set_patient_inc_count($limit, $count, $where) {
   // When the limit is exceeded, find out what the unlimited count would be.
   $GLOBALS['PATIENT_INC_COUNT'] = $count;
-  // if ($limit != "all" && $GLOBALS['PATIENT_INC_COUNT'] >= $limit) {
-  if ($limit != "all") {
+  if ($limit != "all" && $GLOBALS['PATIENT_INC_COUNT'] >= $limit) {
     $tmp = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE $where");
     $GLOBALS['PATIENT_INC_COUNT'] = $tmp['count'];
   }
@@ -296,7 +295,13 @@ function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, 
     if ($fname{0} != strtoupper($fname{0})) {$search_for_pieces2 = '%';}
 
     $where = "lname LIKE '" . $search_for_pieces1 . "$lname%' " .
-        "AND fname LIKE '" . $search_for_pieces2 . "$fname%'";
+        "AND fname LIKE '" . $search_for_pieces2 . "$fname%' ";
+        if (!empty($GLOBALS['pt_restrict_field'])) {
+                if ( $_SESSION{"authUser"} != 'admin' || $GLOBALS['pt_restrict_admin'] ) {
+                        $where .= "AND ( patient_data.".$GLOBALS['pt_restrict_field']." = ( SELECT facility_id FROM users WHERE username = '".$_SESSION{"authUser"}."') OR patient_data.".$GLOBALS['pt_restrict_field']." = '' ) ";
+                }
+        }
+
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") $sql .= " LIMIT $start, $limit";
 
@@ -311,7 +316,14 @@ function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, 
 
 function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
-    $where = "pubpid LIKE '$pid%'";
+    
+    $where = "pubpid LIKE '$pid%' ";
+        if (!empty($GLOBALS['pt_restrict_field']) && $GLOBALS['pt_restrict_by_id'] ) {
+                if ( $_SESSION{"authUser"} != 'admin' || $GLOBALS['pt_restrict_admin'] ) {
+                        $where .= "AND ( patient_data.".$GLOBALS['pt_restrict_field']." = ( SELECT facility_id FROM users WHERE username = '".$_SESSION{"authUser"}."') OR patient_data.".$GLOBALS['pt_restrict_field']." = '' ) ";
+                }
+        }
+
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") $sql .= " limit $start, $limit";
     $rez = sqlStatement($sql);
@@ -321,6 +333,53 @@ function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, provid
     _set_patient_inc_count($limit, count($returnval), $where);
     return $returnval;
 }
+
+function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
+{
+	$layoutCols = sqlStatement( "SELECT field_id FROM layout_options WHERE form_id='DEM' AND group_name not like ('%Employer%' ) AND uor !=0" );
+
+    $where = "";
+    for($iter=0; $row=sqlFetchArray($layoutCols); $iter++) {
+	if ( $iter > 0 ) {
+	   $where .= " or ";
+	}
+	$where .= " ".$row["field_id"]." like '%".$searchTerm."%' ";
+    }
+
+    $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+    if ($limit != "all") $sql .= " limit $start, $limit";
+    $rez = sqlStatement($sql);
+    for($iter=0; $row=sqlFetchArray($rez); $iter++)
+        $returnval[$iter]=$row;
+
+    _set_patient_inc_count($limit, count($returnval), $where);
+    return $returnval;
+}
+
+function getByPatientDemographicsFilter($searchFields, $searchTerm = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0" )
+{
+	$layoutCols = split( '~', $searchFields );
+
+    $where = "";
+    $i = 0;
+    foreach ($layoutCols as $val ) {
+		if ( $i > 0 ) {
+		   $where .= " or ";
+		}
+		$where .= " ".$val." like '%".$searchTerm."%' ";
+		$i++;
+	}
+
+    $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+    if ($limit != "all") $sql .= " limit $start, $limit";
+    $rez = sqlStatement($sql);
+    for($iter=0; $row=sqlFetchArray($rez); $iter++)
+        $returnval[$iter]=$row;
+
+    _set_patient_inc_count($limit, count($returnval), $where);
+    return $returnval;
+}
+
 
 // return a collection of Patient PIDs
 // new arg style by JRM March 2008
@@ -356,7 +415,6 @@ function getPatientPID($args)
     return $returnval;
 }
 
-/* return a patient's name in the format LAST, FIRST */
 function getPatientName($pid) {
     if (empty($pid)) return "";
     $patientData = getPatientPID(array("pid"=>$pid));
@@ -365,12 +423,18 @@ function getPatientName($pid) {
     return $patientName;
 }
 
-/* find patient data by DOB */
 function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
     $DOB = fixDate($DOB, $DOB);
-    $where = "DOB like '$DOB%'";
+    $where = "DOB like '$DOB%' ";
+        if (!empty($GLOBALS['pt_restrict_field'])) {
+                if ( $_SESSION{"authUser"} != 'admin' || $GLOBALS['pt_restrict_admin'] ) {
+                        $where .= "AND ( patient_data.".$GLOBALS['pt_restrict_field']." = ( SELECT facility_id FROM users WHERE username = '".$_SESSION{"authUser"}."') OR patient_data.".$GLOBALS['pt_restrict_field']." = '' ) ";
+                }
+        }
+
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+
     if ($limit != "all") $sql .= " LIMIT $start, $limit";
 
     $rez = sqlStatement($sql);
@@ -381,7 +445,6 @@ function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $ord
     return $returnval;
 }
 
-/* find patient data by SSN */
 function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
     $where = "ss LIKE '$ss%'";
@@ -671,9 +734,7 @@ function fixDate($date, $default="0000-00-00") {
     return $fixed_date;
 }
 
-// Create or update patient data from an array.
-//
-function updatePatientData($pid, $new, $create=false)
+function updatePatientData($pid,$new)
 {
   /*******************************************************************
     $real = getPatientData($pid);
@@ -694,31 +755,21 @@ function updatePatientData($pid, $new, $create=false)
   // the code below does not yet attempt it.
 
   $new['DOB'] = fixDate($new['DOB']);
+  $db_id = $new['id'];
 
-  if ($create) {
-    $sql = "INSERT INTO patient_data SET pid = '$pid', date = NOW()";
-    foreach ($new as $key => $value) {
-      if ($key == 'id') continue;
-      $sql .= ", $key = '$value'";
-    }
-    $db_id = sqlInsert($sql);
+  $rez = sqlQuery("SELECT pid FROM patient_data WHERE id = '$db_id'");
+  // Check for brain damage:
+  if ($pid != $rez['pid']) {
+    $errmsg = "Internal error: Attempt to change patient data with pid = '" .
+      $rez['pid'] . "' when current pid is '$pid' for id '$db_id'";
+    die($errmsg);
   }
-  else {
-    $db_id = $new['id'];
-    $rez = sqlQuery("SELECT pid FROM patient_data WHERE id = '$db_id'");
-    // Check for brain damage:
-    if ($pid != $rez['pid']) {
-      $errmsg = "Internal error: Attempt to change patient data with pid = '" .
-        $rez['pid'] . "' when current pid is '$pid' for id '$db_id'";
-      die($errmsg);
-    }
-    $sql = "UPDATE patient_data SET date = NOW()";
-    foreach ($new as $key => $value) {
-      $sql .= ", $key = '$value'";
-    }
-    $sql .= " WHERE id = '$db_id'";
-    sqlStatement($sql);
+  $sql = "UPDATE patient_data SET date = NOW()";
+  foreach ($new as $key => $value) {
+    $sql .= ", $key = '$value'";
   }
+  $sql .= " WHERE id = '$db_id'";
+  sqlStatement($sql);
 
   $rez = sqlQuery("SELECT * FROM patient_data WHERE id = '$db_id'");
   sync_patient($db_id,$rez['fname'],$rez['lname'],$rez['street'],$rez['city'],
@@ -749,38 +800,24 @@ function newEmployerData(    $pid,
         ");
 }
 
-// Create or update employer data from an array.
-//
-function updateEmployerData($pid, $new, $create=false)
+function updateEmployerData($pid, $new)
 {
-  $colnames = array('name','street','city','state','postal_code','country');
-
-  if ($create) {
-    $set .= "pid = '$pid', date = NOW()";
-    foreach ($colnames as $key) {
-      $value = isset($new[$key]) ? $new[$key] : '';
-      $set .= ", $key = '$value'";
+  $old = getEmployerData($pid);
+  $set = '';
+  $modified = false;
+  foreach (array('name','street','city','state','postal_code','country') as $key) {
+    $value = empty($old[$key]) ? '' : addslashes($old[$key]);
+    if (isset($new[$key]) && strcmp($new[$key], $value) != 0) {
+      $value = $new[$key];
+      $modified = true;
     }
+    $set .= "$key = '$value', ";
+  }
+  if ($modified) {
+    $set .= "pid = '$pid', date = NOW()";
     return sqlInsert("INSERT INTO employer_data SET $set");
   }
-  else {
-    $set = '';
-    $old = getEmployerData($pid);
-    $modified = false;
-    foreach ($colnames as $key) {
-      $value = empty($old[$key]) ? '' : addslashes($old[$key]);
-      if (isset($new[$key]) && strcmp($new[$key], $value) != 0) {
-        $value = $new[$key];
-        $modified = true;
-      }
-      $set .= "$key = '$value', ";
-    }
-    if ($modified) {
-      $set .= "pid = '$pid', date = NOW()";
-      return sqlInsert("INSERT INTO employer_data SET $set");
-    }
-    return $old['id'];
-  }
+  return $old['id'];
 }
 
 // This updates or adds the given insurance data info, while retaining any
@@ -1036,78 +1073,23 @@ function sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone
     }
 }
 
-// Returns Age 
-//   in months if < 2 years old
-//   in years  if > 2 years old
-// given YYYYMMDD from MySQL DATE_FORMAT(DOB,'%Y%m%d')
-// (optional) nowYMD is a date in YYYYMMDD format
-function getPatientAge($dobYMD, $nowYMD=null)
+// Returns Date of Birth given YYYYMMDD from MySQL DATE_FORMAT(DOB,'%Y%m%d')
+function getPatientAge($dobYMD)
 {
-    // strip any dashes from the DOB
-    $dobYMD = preg_replace("/-/", "", $dobYMD);
-    $dobDay = substr($dobYMD,6,2); $dobMonth = substr($dobYMD,4,2); $dobYear = substr($dobYMD,0,4);
-    
-    // set the 'now' date values
-    if ($nowYMD == null) {
-        $nowDay = date("d");
-        $nowMonth = date("m");
-        $nowYear = date("Y");
+    $tdyYMD=date("Ymd");
+    $yearDiff = substr($tdyYMD,0,4) - substr($dobYMD,0,4);
+    $ageInMonths = ((substr($tdyYMD,0,4)*12)+substr($tdyYMD,4,2)) -
+                   ((substr($dobYMD,0,4)*12)+substr($dobYMD,4,2));
+    $dayDiff = substr($tdyYMD,6,2) - substr($dobYMD,6,2);
+    if ( $dayDiff < 0 ) {
+        $ageInMonths -= 1;
     }
-    else {
-        $nowDay = substr($nowYMD,6,2);
-        $nowMonth = substr($nowYMD,4,2);
-        $nowYear = substr($nowYMD,0,4);
-    }
-
-    $dayDiff = $nowDay - $dobDay;
-    $monthDiff = $nowMonth - $dobMonth;
-    $yearDiff = $nowYear - $dobYear;
-
-    $ageInMonths = (($nowYear * 12) + $nowMonth) - (($dobYear*12) + $dobMonth);
-
     if ( $ageInMonths > 24 ) {
-        $age = $yearDiff;
-        if (($monthDiff == 0) && ($dayDiff < 0)) { $age -= 1; }
-        else if ($monthDiff < 0) { $age -= 1; }
+        $age = intval($ageInMonths/12);
     }
     else  {
-        $age = "$ageInMonths month"; 
+        $age = "$ageInMonths month";
     }
-
-    return $age;
-}
-
-
-// Returns Age in days
-//   in months if < 2 years old
-//   in years  if > 2 years old
-// given YYYYMMDD from MySQL DATE_FORMAT(DOB,'%Y%m%d')
-// (optional) nowYMD is a date in YYYYMMDD format
-function getPatientAgeInDays($dobYMD, $nowYMD=null) {
-    $age = -1;
-
-    // strip any dashes from the DOB
-    $dobYMD = preg_replace("/-/", "", $dobYMD);
-    $dobDay = substr($dobYMD,6,2); $dobMonth = substr($dobYMD,4,2); $dobYear = substr($dobYMD,0,4);
-    
-    // set the 'now' date values
-    if ($nowYMD == null) {
-        $nowDay = date("d");
-        $nowMonth = date("m");
-        $nowYear = date("Y");
-    }
-    else {
-        $nowDay = substr($nowYMD,6,2);
-        $nowMonth = substr($nowYMD,4,2);
-        $nowYear = substr($nowYMD,0,4);
-    }
-
-    // do the date math
-    $dobtime = strtotime($dobYear."-".$dobMonth."-".$dobDay);
-    $nowtime = strtotime($nowYear."-".$nowMonth."-".$nowDay);
-    $timediff = $nowtime - $dobtime;
-    $age = $timediff / 86400;
-
     return $age;
 }
 

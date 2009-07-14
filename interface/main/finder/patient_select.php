@@ -2,8 +2,15 @@
 include_once("../../globals.php");
 include_once("$srcdir/patient.inc");
 
-$fstart = $_REQUEST['fstart'] + 0;
-$popup  = empty($_REQUEST['popup']) ? 0 : 1;
+$patient = $_REQUEST['patient'];
+$findBy  = $_REQUEST['findBy'];
+$searchFields = $_REQUEST['searchFields'];
+
+$MAXSHOW = 100; // maximum number of results to display at once
+
+// this is a quick fix so it doesn't go to thousands records.
+// the searching functions on patient.inc need improvement.
+if ($patient=='') $patient=xl('Please enter some information','e');
 ?>
 
 <html>
@@ -67,6 +74,22 @@ form {
 }
 .oneResult { }
 .billing { color: red; font-weight: bold; }
+#tooManyResults {
+    font-size: 0.8em;
+    font-weight: bold;
+    padding: 1px 1px 10px 1px;
+    font-style: italic;
+    color: black;
+    background-color: #fc0;
+}
+#howManyResults {
+    font-size: 0.8em;
+    font-weight: bold;
+    padding: 1px 1px 10px 1px;
+    font-style: italic;
+    color: black;
+    background-color: #9f6;
+}
 .highlight { 
     background-color: #336699;
     color: white;
@@ -75,113 +98,41 @@ form {
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
 
-<script language="JavaScript">
-
-// This is called when forward or backward paging is done.
-//
-function submitList(offset) {
- var f = document.forms[0];
- var i = parseInt(f.fstart.value) + offset;
- if (i < 0) i = 0;
- f.fstart.value = i;
- f.submit();
-}
-
-</script>
-
 </head>
 <body class="body_top">
-
-<form method='post' action='patient_select.php' name='theform'>
-<input type='hidden' name='fstart'  value='<?php echo $fstart  ?>' />
+<a href="./patient_select_help.php" target=_new>[Help]&nbsp</a>
 
 <?php
-$MAXSHOW = 100; // maximum number of results to display at once
-
 //the maximum number of patient records to display:
 $sqllimit = $MAXSHOW;
-$given = "*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS";
-$orderby = "lname ASC, fname ASC";
 
-if ($popup) {
-  echo "<input type='hidden' name='popup' value='1' />\n";
-
-  // Construct WHERE clause and save search parameters as form fields.
-  $where = "1 = 1";
-  $fres = sqlStatement("SELECT * FROM layout_options " .
-    "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
-    "ORDER BY group_name, seq");
-  while ($frow = sqlFetchArray($fres)) {
-    $field_id  = $frow['field_id'];
-    if (strpos($field_id, 'em_') === 0) continue;
-    $data_type = $frow['data_type'];
-    if (!empty($_REQUEST[$field_id])) {
-      $value = trim($_REQUEST[$field_id]);
-      if (!get_magic_quotes_gpc()) $value = addslashes($value);
-      $where .= " AND $field_id LIKE '$value%'";
-      echo "<input type='hidden' name='$field_id' value='$value' />\n";
-    }
-  }
-
-  $sql = "SELECT $given FROM patient_data " .
-    "WHERE $where ORDER BY $orderby LIMIT $fstart, $sqllimit";
-  $rez = sqlStatement($sql);
-  $result = array();
-  while ($row = sqlFetchArray($rez)) $result[] = $row;
-  _set_patient_inc_count($sqllimit, count($result), $where);
+if ($findBy == "Last")
+    $result = getPatientLnames("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
+else if ($findBy == "ID")
+    $result = getPatientId("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
+else if ($findBy == "DOB")
+    $result = getPatientDOB("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
+else if ($findBy == "SSN")
+    $result = getPatientSSN("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
+elseif ($findBy == "Phone")                  //(CHEMED) Search by phone number
+    $result = getPatientPhone("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
+else if ($findBy == "Any")
+    $result = getByPatientDemographics("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit);
+else if ($findBy == "Filter") {
+    $result = getByPatientDemographicsFilter($searchFields, "$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", "lname ASC, fname ASC", $sqllimit );
 }
-else {
-  $patient = $_REQUEST['patient'];
-  $findBy  = $_REQUEST['findBy'];
 
-  echo "<input type='hidden' name='patient' value='$patient' />\n";
-  echo "<input type='hidden' name='findBy'  value='$findBy' />\n";
 
-  if ($findBy == "Last")
-      $result = getPatientLnames("$patient", $given, $orderby, $sqllimit, $fstart);
-  else if ($findBy == "ID")
-      $result = getPatientId("$patient", $given, $orderby, $sqllimit, $fstart);
-  else if ($findBy == "DOB")
-      $result = getPatientDOB("$patient", $given, $orderby, $sqllimit, $fstart);
-  else if ($findBy == "SSN")
-      $result = getPatientSSN("$patient", $given, $orderby, $sqllimit, $fstart);
-  elseif ($findBy == "Phone")                  //(CHEMED) Search by phone number
-      $result = getPatientPhone("$patient", $given, $orderby, $sqllimit, $fstart);
-}
 ?>
 
-</form>
+<?php if ($GLOBALS['PATIENT_INC_COUNT'] > $MAXSHOW): ?>
+<span id="tooManyResults">
+<?php else: ?>
+<span id="howManyResults">
+<?php endif; ?>
+<?php echo "Showing " . count($result) . " of " . $GLOBALS['PATIENT_INC_COUNT'] . " records found."; ?></span>
 
-<table border='0' cellpadding='5' cellspacing='0' width='100%'>
- <tr>
-  <td class='text'>
-   <a href="./patient_select_help.php" target=_new>[<?php xl('Help','e'); ?>]&nbsp</a>
-  </td>
-  <td class='text' align='right'>
-<?php
-// Show start and end row number, and number of rows, with paging links.
-//
-// $count = $fstart + $GLOBALS['PATIENT_INC_COUNT']; // Why did I do that???
-$count = $GLOBALS['PATIENT_INC_COUNT'];
-$fend = $fstart + $MAXSHOW;
-if ($fend > $count) $fend = $count;
-?>
-<?php if ($fstart) { ?>
-   <a href="javascript:submitList(-<?php echo $MAXSHOW ?>)">
-    &lt;&lt;
-   </a>
-   &nbsp;&nbsp;
-<?php } ?>
-   <?php echo ($fstart + 1) . " - $fend of $count" ?>
-<?php if ($count > $fend) { ?>
-   &nbsp;&nbsp;
-   <a href="javascript:submitList(<?php echo $MAXSHOW ?>)">
-    &gt;&gt;
-   </a>
-<?php } ?>
-  </td>
- </tr>
-</table>
+<br>
 
 <div id="searchResultsHeader">
 <table>
@@ -198,12 +149,12 @@ if ($fend > $count) $fend = $count;
 <th class="srDateNext">
 <?php
 $add_days = 90;
-if (!$popup && preg_match('/^(\d+)\s*(.*)/',$patient,$matches) > 0) {
+if (preg_match('/^(\d+)\s*(.*)/',$patient,$matches) > 0) {
   $add_days = $matches[1];
   $patient = $matches[2];
 }
 ?>
-[<?php echo $add_days?> <?php xl('Days From Last Encounter','e'); ?>]
+[<?php echo $add_days?> Days From Last Encounter]
 </th>
 </tr>
 </table>
@@ -318,11 +269,11 @@ if ($result) {
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
-    // $("#searchparm").focus();
-    $(".oneresult").mouseover(function() { $(this).addClass("highlight"); });
-    $(".oneresult").mouseout(function() { $(this).removeClass("highlight"); });
+    $("#searchparm").focus();
+    $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
+    $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").click(function() { SelectPatient(this); });
-    // $(".event").dblclick(function() { EditEvent(this); });
+    //$(".event").dblclick(function() { EditEvent(this); });
 });
 
 var SelectPatient = function (eObj) {
@@ -330,19 +281,25 @@ var SelectPatient = function (eObj) {
 // For the old layout we load a frameset that also sets up the new pid.
 // The new layout loads just the demographics frame here, which in turn
 // will set the pid and load all the other frames.
-if ($GLOBALS['concurrent_layout']) {
-    $newPage = "../../patient_file/summary/demographics.php?set_pid=";
+if ($GLOBALS['concurrent_layout']) 
+{
+
+    // larry :: dbc insert
+    if( $GLOBALS['dutchpc'] )
+        $newPage = "../../patient_file/summary/demographics_dutch.php?set_pid=";
+    else
+        $newPage = "../../patient_file/summary/demographics.php?set_pid=";
+    // larry :: end of dbc insert
+
     $target = "document";
-}
-else {
+} else {
     $newPage = "../../patient_file/patient_file.php?set_pid=";
     $target = "top";
 }
 ?>
     objID = eObj.id;
     var parts = objID.split("~");
-    <?php if ($popup) echo "opener."; echo $target; ?>.location.href = '<?php echo $newPage; ?>' + parts[0];
-    <?php if ($popup) echo "window.close();\n"; ?>
+    <?php echo $target; ?>.location.href = '<?php echo $newPage; ?>' + parts[0];
     return true;
 }
 
@@ -350,4 +307,3 @@ else {
 
 </body>
 </html>
-
