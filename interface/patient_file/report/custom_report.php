@@ -56,8 +56,17 @@ if (sizeof($_GET) > 0) { $ar = $_GET; }
 else { $ar = $_POST; }
 
 if ($printable) {
+  /*******************************************************************
   $titleres = getPatientData($pid, "fname,lname,providerID");
   $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
+  *******************************************************************/
+  $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
+  if ($_SESSION['pc_facility']) {
+    $sql = "select * from facility where id=" . $_SESSION['pc_facility'];
+  } else {
+    $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
+  }
+  /******************************************************************/
   $db = $GLOBALS['adodb']['db'];
   $results = $db->Execute($sql);
   $facility = array();

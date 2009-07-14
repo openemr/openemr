@@ -36,7 +36,10 @@
  }
 
  $titleres = getPatientData($pid, "fname,lname,providerID");
- $sql = "select * from facility where billing_location = 1";
+ // $sql = "select * from facility where billing_location = 1";
+ $sql = "select f.* from facility f ".
+  "LEFT JOIN form_encounter fe on fe.facility_id = f.id ".
+  "where fe.encounter = " . $encounter;
  $db = $GLOBALS['adodb']['db'];
  $results = $db->Execute($sql);
  $facility = array();

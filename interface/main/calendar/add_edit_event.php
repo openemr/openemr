@@ -145,7 +145,8 @@ if ( $eid ) {
                             FROM openemr_postcalendar_events
                               LEFT JOIN facility ON (openemr_postcalendar_events.pc_facility = facility.id)
                               WHERE pc_eid = $eid");
-    if ( !$facility['pc_facility'] ) {
+    // if ( !$facility['pc_facility'] ) {
+    if ( is_array($facility) && !$facility['pc_facility'] ) {
         $qmin = sqlQuery("SELECT facility_id as minId, facility FROM users WHERE id = ".$facility['pc_aid']);
         $min  = $qmin['minId'];
         $min_name = $qmin['facility'];
@@ -161,8 +162,13 @@ if ( $eid ) {
         $e2f = $min;
         $e2f_name = $min_name;
     } else {
+      // not edit event
+      if (!$facility['pc_facility'] && ($_SESSION['pc_facility'] || $_COOKIE['pc_facility'])) {
+        $e2f = $_SESSION['pc_facility'] ? $_SESSION['pc_facility'] : $_COOKIE['pc_facility'];
+      } else {
         $e2f = $facility['pc_facility'];
         $e2f_name = $facility['name'];
+      }
     }
 }
 // EOS E2F
@@ -640,7 +646,9 @@ if ($_POST['form_action'] == "save") {
                         $_POST['form_provider'] . "'");
                         $username = $tmprow['username'];
                         $facility = $tmprow['facility'];
-                        $facility_id = $tmprow['facility_id'];
+                        // $facility_id = $tmprow['facility_id'];
+                        // use the session facility if it is set, otherwise the one from the provider.
+                        $facility_id = $_SESSION['pc_facility'] ? $_SESSION['pc_facility'] : $tmprow['facility_id'];
                         $conn = $GLOBALS['adodb']['db'];
                         $encounter = $conn->GenID("sequences");
             addForm($encounter, "New Patient Encounter",
@@ -649,7 +657,8 @@ if ($_POST['form_action'] == "save") {
                         "onset_date = '$event_date', " .
                         "reason = '" . $_POST['form_comments'] . "', " .
                         "facility = '$facility', " .
-                        "facility_id = '$facility_id', " .
+                        // "facility_id = '$facility_id', " .
+                        "facility_id = '" . (int)$_POST['facility'] . "', " .
                         "pid = '" . $_POST['form_pid'] . "', " .
                         "encounter = '$encounter'"
                     ),
@@ -828,7 +837,28 @@ if ($_POST['form_action'] == "save") {
     //(CHEMED)
     //Set default facility for a new event based on the given 'userid'
     if ($userid) {
+        /*************************************************************
         $pref_facility = sqlFetchArray(sqlStatement("SELECT facility_id, facility FROM users WHERE id = $userid"));
+        *************************************************************/
+        if ($_SESSION['pc_facility']) {
+	        $pref_facility = sqlFetchArray(sqlStatement(sprintf("
+		        SELECT f.id as facility_id,
+		        f.name as facility
+		        FROM facility f
+		        WHERE f.id = %d
+	          ",
+		        $_SESSION['pc_facility']
+	          )));	
+        } else {
+          $pref_facility = sqlFetchArray(sqlStatement("
+            SELECT u.facility_id, 
+	          f.name as facility 
+            FROM users u
+            LEFT JOIN facility f on (u.facility_id = f.id)
+            WHERE u.id = $userid
+            "));
+        }
+        /************************************************************/
         $e2f = $pref_facility['facility_id'];
         $e2f_name = $pref_facility['facility'];
     }
@@ -1053,6 +1083,7 @@ if ( $GLOBALS['dutchpc'] ) { ?>
         var c = document.forms[0].form_category;
         var formDate = document.forms[0].form_date;
         dlgopen('find_appt_popup.php?providerid=' + s +
+                '&facility=' + f.options[f.selectedIndex].value +
                 '&catid=' + c.options[c.selectedIndex].value +
                 '&startdate=' + formDate.value, '_blank', 500, 400);
         //END (CHEMED) modifications
@@ -1279,10 +1310,22 @@ if ( $GLOBALS['dutchpc'] ) {
       // EVENTS TO FACILITIES
       //(CHEMED) added service_location WHERE clause
       // get the facilities
+      /***************************************************************
       $qsql = sqlStatement("SELECT * FROM facility WHERE service_location != 0");
+      ***************************************************************/
+      $facils = getUserFacilities($_SESSION['authId']);
+      $qsql = sqlStatement("SELECT id, name FROM facility WHERE service_location != 0");
+      /**************************************************************/
       while ($facrow = sqlFetchArray($qsql)) {
+        /*************************************************************
         $selected = ( $facrow['id'] == $e2f ) ? 'selected="selected"' : '' ;
         echo "<option value={$facrow['id']} $selected>{$facrow['name']}</option>";
+        *************************************************************/
+        if ($_SESSION['authorizedUser'] || in_array($facrow, $facils)) {
+          $selected = ( $facrow['id'] == $e2f ) ? 'selected="selected"' : '' ;
+          echo "<option value={$facrow['id']} $selected>{$facrow['name']}</option>";
+        }
+        /************************************************************/
       }
       // EOS E2F
       // ===========================
@@ -1368,6 +1411,7 @@ if  ($GLOBALS['select_multi_providers']) {
     }
     else {
       // this is a new event so smartly choose a default provider 
+    /*****************************************************************
       if ($userid) {
         // Provider already given to us as a GET parameter.
         $defaultProvider = $userid;
@@ -1395,6 +1439,30 @@ if  ($GLOBALS['select_multi_providers']) {
         echo "</option>\n";
     }
     echo "</select>";
+    *****************************************************************/
+      // default to the currently logged-in user
+      $defaultProvider = $_SESSION['authUserID'];
+      // or, if we have chosen a provider in the calendar, default to them
+      // choose the first one if multiple have been selected
+      if (count($_SESSION['pc_username']) >= 1) {
+        // get the numeric ID of the first provider in the array
+        $pc_username = $_SESSION['pc_username'];
+        $firstProvider = sqlFetchArray(sqlStatement("select id from users where username='".$pc_username[0]."'"));
+        $defaultProvider = $firstProvider['id'];
+      }
+      // if we clicked on a provider's schedule to add the event, use THAT.
+      if ($userid) $defaultProvider = $userid;
+    }
+    echo "<select name='form_provider' style='width:100%' />";
+    while ($urow = sqlFetchArray($ures)) {
+      echo "    <option value='" . $urow['id'] . "'";
+      if ($urow['id'] == $defaultProvider) echo " selected";
+      echo ">" . $urow['lname'];
+      if ($urow['fname']) echo ", " . $urow['fname'];
+      echo "</option>\n";
+    }
+    echo "</select>";
+    /****************************************************************/
 }
 
 ?>

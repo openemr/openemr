@@ -18,9 +18,17 @@ include_once("../../library/acl.inc");
 
 <?php if (acl_check('admin', 'users')) { ?>
 <td valign="middle" nowrap>
-&nbsp;&nbsp;<a class=menu target=Main href="usergroup_admin.php"
+&nbsp;&nbsp;<a class=menu target=Main href="facilities.php"
  onclick="top.restoreSession()"
- title="Add or Edit Users, Groups and Facilities"><?php xl('Users','e'); ?></a>&nbsp;
+ title="Add or Edit Facilities"><?php xl('Facilities','e'); ?></a>&nbsp;
+</td>
+<?php } ?>
+
+<?php if (acl_check('admin', 'users')) { ?>
+<td valign="middle" nowrap>
+&nbsp;<a class=menu target=Main href="usergroup_admin.php"
+ onclick="top.restoreSession()"
+ title="Add or Edit Users and Groups"><?php xl('Users','e'); ?></a>&nbsp;
 </td>
 <?php } ?>
 

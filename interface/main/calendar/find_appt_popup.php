@@ -101,6 +101,12 @@
    "WHERE pc_aid = '$providerid' AND " .
    "((pc_endDate >= '$sdate' AND pc_eventDate < '$edate') OR " .
    "(pc_endDate = '0000-00-00' AND pc_eventDate >= '$sdate' AND pc_eventDate < '$edate'))";
+  // phyaura whimmel facility filtering
+  if ($_REQUEST['facility'] > 0 ) {
+    $facility = $_REQUEST['facility'];
+    $query .= " AND pc_facility = $facility";
+  }
+  // end facility filtering whimmel 29apr08
   $res = sqlStatement($query);
 
   while ($row = sqlFetchArray($res)) {

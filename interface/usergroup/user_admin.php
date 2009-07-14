@@ -8,91 +8,93 @@ require_once("../globals.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/md5.js");
 require_once("$srcdir/sql.inc");
+require_once("$srcdir/calendar.inc");
+require_once("$srcdir/formdata.inc.php");
 require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
-?>
 
-<html>
-<head>
-
-<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-
-</head>
-<body class="body_top">
-
-<a href="usergroup_admin.php"><span class="title"><?php xl('User Administration','e'); ?></span></a>
-<br><br>
-
-<?php
 if (!$_GET["id"] || !acl_check('admin', 'users'))
   exit();
 
 if ($_GET["mode"] == "update") {
   if ($_GET["username"]) {
-    $tqvar = addslashes(trim($_GET["username"]));
+    // $tqvar = addslashes(trim($_GET["username"]));
+    $tqvar = trim(formData('username','G'));
     $user_data = mysql_fetch_array(sqlStatement("select * from users where id={$_GET["id"]}"));
     sqlStatement("update users set username='$tqvar' where id={$_GET["id"]}");
     sqlStatement("update groups set user='$tqvar' where user='". $user_data["username"]  ."'");
     //echo "query was: " ."update groups set user='$tqvar' where user='". $user_data["username"]  ."'" ;
   }
   if ($_GET["taxid"]) {
-    $tqvar = addslashes($_GET["taxid"]);
+    $tqvar = formData('taxid','G');
     sqlStatement("update users set federaltaxid='$tqvar' where id={$_GET["id"]}");
   }
   if ($_GET["drugid"]) {
-    $tqvar = addslashes($_GET["drugid"]);
+    $tqvar = formData('drugid','G');
     sqlStatement("update users set federaldrugid='$tqvar' where id={$_GET["id"]}");
   }
   if ($_GET["upin"]) {
-    $tqvar = addslashes($_GET["upin"]);
+    $tqvar = formData('upin','G');
     sqlStatement("update users set upin='$tqvar' where id={$_GET["id"]}");
   }
   if ($_GET["npi"]) {
-    $tqvar = addslashes($_GET["npi"]);
+    $tqvar = formData('npi','G');
     sqlStatement("update users set npi='$tqvar' where id={$_GET["id"]}");
   }
   if ($_GET["taxonomy"]) {
-    $tqvar = addslashes($_GET["taxonomy"]);
+    $tqvar = formData('taxonomy','G');
     sqlStatement("update users set taxonomy = '$tqvar' where id= {$_GET["id"]}");
   }
   if ($_GET["lname"]) {
-    $tqvar = addslashes($_GET["lname"]);
+    $tqvar = formData('lname','G');
     sqlStatement("update users set lname='$tqvar' where id={$_GET["id"]}");
   }
   if ($_GET["job"]) {
-    $tqvar = addslashes($_GET["job"]);
+    $tqvar = formData('job','G');
     sqlStatement("update users set specialty='$tqvar' where id={$_GET["id"]}");
   }
   if ($_GET["mname"]) {
-          $tqvar = addslashes($_GET["mname"]);
+          $tqvar = formData('mname','G');
           sqlStatement("update users set mname='$tqvar' where id={$_GET["id"]}");
   }
   if ($_GET["facility_id"]) {
-          $tqvar = addslashes($_GET["facility_id"]);
+          $tqvar = formData('facility_id','G');
           sqlStatement("update users set facility_id = '$tqvar' where id = {$_GET["id"]}");
           //(CHEMED) Update facility name when changing the id
           sqlStatement("UPDATE users, facility SET users.facility = facility.name WHERE facility.id = '$tqvar' AND users.id = {$_GET["id"]}");
           //END (CHEMED)
   }
+  if ($_GET["schedule_facility"]) {
+	  sqlStatement("delete from users_facility
+	    where tablename='users'
+	    and table_id={$_GET["id"]}
+	    and facility_id not in (" . implode(",", $_GET['schedule_facility']) . ")");
+	  foreach($_GET["schedule_facility"] as $tqvar) {
+      sqlStatement("replace into users_facility set 
+		    facility_id = '$tqvar',
+		    tablename='users',
+		    table_id = {$_GET["id"]}");
+    }
+  }
   if ($_GET["fname"]) {
-          $tqvar = addslashes($_GET["fname"]);
+          $tqvar = formData('fname','G');
           sqlStatement("update users set fname='$tqvar' where id={$_GET["id"]}");
   }
 
   //(CHEMED) Calendar UI preference
   if ($_GET["cal_ui"]) {
-          $tqvar = addslashes($_GET["cal_ui"]);
+          $tqvar = formData('cal_ui','G');
           sqlStatement("update users set cal_ui = '$tqvar' where id = {$_GET["id"]}");
   }
   //END (CHEMED) Calendar UI preference
 
   if ($_GET["newauthPass"] && $_GET["newauthPass"] != "d41d8cd98f00b204e9800998ecf8427e") { // account for empty
-    $tqvar = addslashes($_GET["newauthPass"]);
+    $tqvar = formData('newauthPass','G');
     sqlStatement("update users set password='$tqvar' where id={$_GET["id"]}");
   }
 
   // for relay health single sign-on
   if ($_GET["ssi_relayhealth"]) {
-    $tqvar = addslashes($_GET["ssi_relayhealth"]);
+    $tqvar = formData('ssi_relayhealth','G');
     sqlStatement("update users set ssi_relayhealth = '$tqvar' where id = {$_GET["id"]}");
   }
 
@@ -104,49 +106,45 @@ if ($_GET["mode"] == "update") {
     "id = {$_GET["id"]}");
 
   if ($_GET["comments"]) {
-    $tqvar = addslashes($_GET["comments"]);
+    $tqvar = formData('comments','G');
     sqlStatement("update users set info = '$tqvar' where id = {$_GET["id"]}");
   }
 
   if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
     // Set the access control group of user
     $user_data = mysql_fetch_array(sqlStatement("select username from users where id={$_GET["id"]}"));
-    set_user_aro($_GET["access_group"], $user_data["username"], $_GET["fname"], $_GET["mname"], $_GET["lname"]);
+    set_user_aro($_GET['access_group'], $user_data["username"],
+      formData('fname','G'), formData('mname','G'), formData('lname','G'));
   }
-
-  // ===========================
-  // DBC DUTCH SYSTEM  
-  if ( $_GET["beroep"] ) {
-         $tqvar = (int)($_GET["beroep"]);
-         sqlStatement("INSERT INTO cl_user_beroep SET cl_beroep_sysid='$tqvar', cl_beroep_userid={$_GET['id']}
-         ON DUPLICATE KEY UPDATE cl_beroep_sysid='$tqvar'");
-  }
-  // EOS
-  // ===========================
 
   $ws = new WSProvider($_GET['id']);
+
+  // On a successful update, return to the users list.
+  include("usergroup_admin.php");
+  exit(0);
 }
 
 $res = sqlStatement("select * from users where id={$_GET["id"]}");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
                 $result[$iter] = $row;
 $iter = $result[0];
-
-// ===========================
-// DBC DUTCH SYSTEM
-if ($GLOBALS['dutchpc']) {
-  $beroep = sqlStatement("SELECT * FROM cl_user_beroep WHERE cl_beroep_userid={$_GET["id"]}");
-  $rowberoep = sqlFetchArray($beroep);
-}
-// EOS DBC
-// ===========================
-
 ?>
+<html>
+<head>
+
+<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+
+</head>
+<body class="body_top">
+
+<a href="usergroup_admin.php"><span class="title"><?php xl('User Administration','e'); ?></span></a>
+<br><br>
+
 <FORM NAME="user_form" METHOD="GET" ACTION="user_admin.php">
 <TABLE border=0 cellpadding=0 cellspacing=0>
 <TR>
 <TD><span class=text><?php xl('Username','e'); ?>: </span></TD><TD><input type=entry name=username size=20 value="<?php echo $iter["username"]; ?>" disabled> &nbsp;</td>
-<TD><span class=text><?php xl('Password','e'); ?>: </span></TD><TD class='text'><input type=password name=clearPass size=20 value=""> * <?php xl('Leave blank to keep password unchanged.','e'); ?></td>
+<TD><span class=text><?php xl('Password','e'); ?>: </span></TD><TD class='text'><input type=entry name=clearPass size=20 value=""> * <?php xl('Leave blank to keep password unchanged.','e'); ?></td>
 </TR>
 
 <TR>
@@ -183,6 +181,30 @@ foreach($result as $iter2) {
 </select></td>
 </tr>
 
+<tr>
+ <td colspan=2>&nbsp;</td>
+ <td><span class=text><?php xl('Schedule Facilities:', 'e');?></td>
+ <td>
+  <select name="schedule_facility[]" multiple>
+<?php
+  $userFacilities = getUserFacilities($_GET['id']);
+  $ufid = array();
+  foreach($userFacilities as $uf)
+    $ufid[] = $uf['id'];
+  $fres = sqlStatement("select * from facility where service_location != 0 order by name");
+  if ($fres) {
+    while($frow = sqlFetchArray($fres)): 
+?>
+   <option <?php echo in_array($frow['id'], $ufid) || $frow['id'] == $iter['facility_id'] ? "selected" : null ?>
+    value="<?php echo $frow['id'] ?>"><?php echo $frow['name'] ?></option>
+<?php
+  endwhile;
+}
+?>
+  </select>
+ </td>
+</tr>
+
 <TR>
 <TD><span class=text><?php xl('Federal Tax ID','e'); ?>: </span></TD><TD><input type=text name=taxid size=20 value="<?php echo $iter["federaltaxid"]?>"></td>
 <TD><span class=text><?php xl('Federal Drug ID','e'); ?>: </span></TD><TD><input type=text name=drugid size=20 value="<?php echo $iter["federaldrugid"]?>"></td>
@@ -202,22 +224,10 @@ foreach($result as $iter2) {
 ?>
 </select></td>
 </tr>
+
 <tr>
 <td><span class="text"><?php xl('NPI','e'); ?>: </span></td><td><input type="text" name="npi" size="20" value="<?php echo $iter["npi"]?>"></td>
-
-<?php
-// ===========================
-// DBC DUTCH SYSTEM
-// if DBC don't show Job Description; show instead Beroep Box
-if ( !$GLOBALS['dutchpc']) { ?>
-    <td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="text" name="job" size="20" value="<?php echo $iter["specialty"]?>"></td>
-<?php } else { ?>
-  <td><span class="text">Beroep</span></td>
-  <td><?php beroep_dropdown($rowberoep['cl_beroep_sysid']) ?></td>
-<?php } 
-// ===========================
-?>
-
+<td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="text" name="job" size="20" value="<?php echo $iter["specialty"]?>"></td>
 </tr>
 
 <?php if (!empty($GLOBALS['ssi']['rh'])) { ?>

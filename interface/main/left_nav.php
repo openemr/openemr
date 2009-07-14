@@ -754,6 +754,7 @@ function genPopupsList($style='') {
   <?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) genMiscLink('RTop','adm','0','Inventory','drugs/drug_inventory.php'); ?>
   <li><span><?php xl('Administration','e') ?></span>
     <ul>
+      <?php if (acl_check('admin', 'users'    )) genMiscLink('RTop','adm','0','Facilities','usergroup/facilities.php'); ?>
       <?php if (acl_check('admin', 'users'    )) genMiscLink('RTop','adm','0','Users','usergroup/usergroup_admin.php'); ?>
       <?php genTreeLink('RTop','pwd','Users Password Change'); ?>
       <?php if (acl_check('admin', 'practice' )) genMiscLink('RTop','adm','0','Practice','../controller.php?practice_settings'); ?>
@@ -830,6 +831,7 @@ function genPopupsList($style='') {
   <?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) genMiscLink('RTop','adm','0','Inventory','drugs/drug_inventory.php'); ?>
   <li><span><?php xl('Administration','e') ?></span>
     <ul>
+      <?php if (acl_check('admin', 'users'    )) genMiscLink('RTop','adm','0','Facilities','usergroup/facilities.php'); ?>
       <?php if (acl_check('admin', 'users'    )) genMiscLink('RTop','adm','0','Users','usergroup/usergroup_admin.php'); ?>
       <?php if (acl_check('admin', 'practice' )) genMiscLink('RTop','adm','0','Practice','../controller.php?practice_settings'); ?>
       <?php if (acl_check('admin', 'superbill')) genTreeLink('RTop','sup','Services'); ?>

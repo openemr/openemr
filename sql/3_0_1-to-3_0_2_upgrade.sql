@@ -193,3 +193,12 @@ ALTER TABLE `drugs`
   ADD `active` TINYINT(1) DEFAULT 1 COMMENT '0 = inactive, 1 = active';
 #EndIf
 
+#IfNotTable users_facility
+CREATE TABLE `users_facility` (
+  `tablename` varchar(64) NOT NULL,
+  `table_id` int(11) NOT NULL,
+  `facility_id` int(11) NOT NULL,
+  PRIMARY KEY (`tablename`,`table_id`,`facility_id`)
+) ENGINE=InnoDB COMMENT='joins users or patient_data to facility table';
+#EndIf
+

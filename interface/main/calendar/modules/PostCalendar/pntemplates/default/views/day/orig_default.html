@@ -159,9 +159,17 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 
  $MULTIDAY = count($A_EVENTS) > 1;
 
- $provinfo = getProviderInfo();
-
- echo "<form name='theform' action='index.php?module=PostCalendar&func=view" .
+ $facilities = getUserFacilities($_SESSION['authId']); // from users_facility
+ if (count($facilities) == 1 || !$_SESSION['pc_facility']) {
+  $_SESSION['pc_facility'] = $facilities[0]['id'];
+ }
+ if ( $_SESSION['pc_facility'] ) {
+  $provinfo = getProviderInfo('%', true, $_SESSION['pc_facility']);
+ } else {
+  $provinfo = getProviderInfo();
+ }
+ // echo "<form name='theform' action='index.php?module=PostCalendar&func=view" .
+ echo "<form id='theform' name='theform' action='index.php?module=PostCalendar&func=view" .
       "&tplview=default&pc_category=&pc_topic=' " .
       "method='post' onsubmit='return top.restoreSession()'>\n";
  echo "<center>\n";
@@ -182,6 +190,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
  }
  echo "   </select>\n";
 
+/*********************************************************************
  // ==============================
  // FACILITY FILTERING (lemonsoftware)
  $facilities = getFacilities();
@@ -193,6 +202,28 @@ div.tiny { width:1px; height:1px; font-size:1px; }
      echo "    <option value='" .$fa['id']. "' $selected>"  .$fa['name']. "</option>\n";
  }
  echo "   </select>\n";
+*********************************************************************/
+// ==============================
+// FACILITY FILTERING (lemonsoftware)
+if ($_SESSION['authorizeduser'] == 1) {
+  $facilities = getFacilities();
+} else {
+  $facilities = getUserFacilities($_SESSION['authId']); // from users_facility
+  if (count($facilities) == 1)
+    $_SESSION['pc_facility'] = ($facilities[0]['id']);
+}
+if (count($facilities) > 1) {
+  echo "   <select name='pc_facility' id='pc_facility' onChange='document.getElementById(\"theform\").submit();'>\n";
+  if ( !$_SESSION['pc_facility'] ) $selected = "selected='selected'";
+  if ( !$GLOBALS['restrict_user_facility']) echo "    <option value='0' $selected>" . xl('All Facilities') . "</option>\n";
+  foreach ($facilities as $fa) {
+    $selected = ( $_SESSION['pc_facility'] == $fa['id']) ? "selected='selected'" : "" ;
+    echo "    <option value='" . $fa['id'] . "' $selected>" . $fa['name'] . "</option>\n";
+  }
+  echo "   </select>\n";
+}
+/********************************************************************/
+
  // EOS FF
  // ==============================
 
@@ -494,7 +525,8 @@ if ($MULTIDAY) {
      }
      else { // some sort of patient appointment
       $content .= "<a href='javascript:oldEvt($eventdate,$eventid)' title='$catname'>";
-      $content .= $starth . ':' . $startm . htmlspecialchars($event['apptstatus']) . "</a>";
+      // $content .= $starth . ':' . $startm . htmlspecialchars($event['apptstatus']) . "</a>";
+      $content .= $starth . ':' . $startm . '&nbsp;' . htmlspecialchars($event['apptstatus']) . "&nbsp;</a>";
       $content .= "<a href='javascript:goPid($patientid)' title='$title'>";
       if ($catid == 1) $content .= "<strike>";
       $content .= $lname;

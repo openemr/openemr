@@ -1,77 +1,59 @@
 <?php
-include_once("../globals.php");
-include_once("../../library/acl.inc");
-include_once("$srcdir/md5.js");
-include_once("$srcdir/sql.inc");
+require_once("../globals.php");
+require_once("../../library/acl.inc");
+require_once("$srcdir/md5.js");
+require_once("$srcdir/sql.inc");
+require_once("$srcdir/formdata.inc.php");
 require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
 
 $alertmsg = '';
 
 if (isset($_POST["mode"])) {
-  if ($_POST["mode"] == "facility") {
-    sqlStatement("insert into facility set
-    name='{$_POST['facility']}',
-    phone='{$_POST['phone']}',
-    fax='{$_POST['fax']}',
-    street='{$_POST['street']}',
-    city='{$_POST['city']}',
-    state='{$_POST['state']}',
-    postal_code='{$_POST['postal_code']}',
-    country_code='{$_POST['country_code']}',
-    federal_ein='{$_POST['federal_ein']}',
-    facility_npi='{$_POST['facility_npi']}'");
-  }
-  else if ($_POST["mode"] == "new_user") {
+  if ($_POST["mode"] == "new_user") {
     if ($_POST["authorized"] != "1") {
       $_POST["authorized"] = 0;
     }
-    $_POST["info"] = addslashes($_POST["info"]);
+    // $_POST["info"] = addslashes($_POST["info"]);
 
     $res = sqlStatement("select distinct username from users where username != ''");
     $doit = true;
     while ($row = mysql_fetch_array($res)) {
-      if ($doit == true && $row['username'] == $_POST["username"]) {
+      if ($doit == true && $row['username'] == trim(formData('rumple'))) {
         $doit = false;
       }
     }
 
     if ($doit == true) {
       $prov_id = idSqlStatement("insert into users set " .
-        "username = '"         . trim($_POST["username"]) .
-        "', password = '"      . $_POST["newauthPass"] .
-        "', fname = '"         . $_POST["fname"] .
-        "', mname = '"         . $_POST["mname"] .
-        "', lname = '"         . $_POST["lname"] .
-        "', federaltaxid = '"  . $_POST["federaltaxid"] .
-        "', authorized = '"    . $_POST["authorized"] .
-        "', info = '"          . $_POST["info"] .
-        "', federaldrugid = '" . $_POST["federaldrugid"] .
-        "', upin = '"          . $_POST["upin"] .
-        "', npi  = '"          . $_POST["npi"].
-        "', taxonomy = '"      . $_POST["taxonomy"] .
-        "', facility = '"      . $_POST["facility"] .
-        "', specialty = '"     . $_POST["specialty"] .
-        "', see_auth = '"      . $_POST["see_auth"] .
+        "username = '"         . trim(formData('rumple'       )) .
+        "', password = '"      . trim(formData('newauthPass'  )) .
+        "', fname = '"         . trim(formData('fname'        )) .
+        "', mname = '"         . trim(formData('mname'        )) .
+        "', lname = '"         . trim(formData('lname'        )) .
+        "', federaltaxid = '"  . trim(formData('federaltaxid' )) .
+        "', authorized = '"    . trim(formData('authorized'   )) .
+        "', info = '"          . trim(formData('info'         )) .
+        "', federaldrugid = '" . trim(formData('federaldrugid')) .
+        "', upin = '"          . trim(formData('upin'         )) .
+        "', npi  = '"          . trim(formData('npi'          )).
+        "', taxonomy = '"      . trim(formData('taxonomy'     )) .
+        "', facility = '"      . trim(formData('facility'     )) .
+        "', specialty = '"     . trim(formData('specialty'    )) .
+        "', see_auth = '"      . trim(formData('see_auth'     )) .
         "'");
-      sqlStatement("insert into groups set name = '" . $_POST["groupname"] .
-        "', user = '" . trim($_POST["username"]) . "'");
+      sqlStatement("insert into groups set name = '" . trim(formData('groupname')) .
+        "', user = '" . trim(formData('rumple')) . "'");
 
-      if (isset($phpgacl_location) && acl_check('admin', 'acl') && $_POST["username"]) {
+      if (isset($phpgacl_location) && acl_check('admin', 'acl') && trim(formData('rumple'))) {
         // Set the access control group of user
-        set_user_aro($_POST["access_group"], $_POST["username"], $_POST["fname"], $_POST["mname"], $_POST["lname"]);
+        set_user_aro($_POST['access_group'], trim(formData('rumple')),
+          trim(formData('fname')), trim(formData('mname')), trim(formData('lname')));
       }
 
       $ws = new WSProvider($prov_id);
 
-      // DBC DUTCH SYSTEM
-      if ( $GLOBALS['dutchpc'] ) {
-        sqlStatement("INSERT INTO cl_user_beroep SET cl_beroep_userid = ' ".$prov_id." ',
-        cl_beroep_sysid = ' ".$_POST['beroep']." '");
-      }
-      // EOS DBC
-
     } else {
-      $alertmsg .= "User " . $_POST["username"] . " already exists. ";
+      $alertmsg .= "User " . trim(formData('rumple')) . " already exists. ";
     }
   }
   else if ($_POST["mode"] == "new_group") {
@@ -80,21 +62,22 @@ if (isset($_POST["mode"])) {
       $result[$iter] = $row;
     $doit = 1;
     foreach ($result as $iter) {
-      if ($doit == 1 && $iter{"name"} == $_POST["groupname"] && $iter{"user"} == $_POST["username"])
+      if ($doit == 1 && $iter{"name"} == trim(formData('groupname')) && $iter{"user"} == trim(formData('rumple')))
         $doit--;
     }
     if ($doit == 1) {
-      sqlStatement("insert into groups set name = '" . $_POST["groupname"] .
-        "', user = '" . $_POST["username"] . "'");
+      sqlStatement("insert into groups set name = '" . trim(formData('groupname')) .
+        "', user = '" . trim(formData('rumple')) . "'");
     } else {
-      $alertmsg .= "User " . $_POST["username"] .
-        " is already a member of group " . $_POST["groupname"] . ". ";
+      $alertmsg .= "User " . trim(formData('rumple')) .
+        " is already a member of group " . trim(formData('groupname')) . ". ";
     }
   }
 }
 
 if (isset($_GET["mode"])) {
 
+  /*******************************************************************
   // This is the code to delete a user.  Note that the link which invokes
   // this is commented out.  Somebody must have figured it was too dangerous.
   //
@@ -112,16 +95,15 @@ if (isset($_GET["mode"])) {
     }
     sqlStatement("delete from users where id = '" . $_GET["id"] . "'");
   }
+  *******************************************************************/
 
-  elseif ($_GET["mode"] == "delete_group") {
+  if ($_GET["mode"] == "delete_group") {
     $res = sqlStatement("select distinct user from groups where id = '" .
       $_GET["id"] . "'");
     for ($iter = 0; $row = sqlFetchArray($res); $iter++)
       $result[$iter] = $row;
     foreach($result as $iter)
       $un = $iter{"user"};
-//  $res = sqlStatement("select name,user from groups where user = '" .
-//    $iter{"user"} . "' and id != {$_GET["id"]}\n");
     $res = sqlStatement("select name, user from groups where user = '$un' " .
       "and id != '" . $_GET["id"] . "'");
 
@@ -147,88 +129,12 @@ $form_inactive = empty($_REQUEST['form_inactive']) ? false : true;
 </head>
 <body class="body_top">
 
-<span class="title"><?php xl('User and Facility Administration','e'); ?></span>
+<span class="title"><?php xl('User and Group Administration','e'); ?></span>
 
 <br><br>
 
 <table width=100%>
-<tr>
 
-<td valign=top>
-
-<form name='facility' method='post' action="usergroup_admin.php"
- onsubmit='return top.restoreSession()'>
-<input type=hidden name=mode value="facility">
-<span class="bold"><?php xl('New Facility Information','e'); ?>: </span>
-</td><td>
-
-<table border=0 cellpadding=0 cellspacing=0>
-<tr>
-<td><span class="text"><?php xl('Name','e'); ?>: </span></td><td><input type=entry name=facility size=20 value=""></td>
-<td><span class="text"><?php xl('Phone','e'); ?>: </span></td><td><input type=entry name=phone size=20 value=""></td>
-</tr>
-<tr>
-<td>&nbsp;</td><td>&nbsp;</td>
-<td><span class="text"><?php xl('Fax','e'); ?>: </span></td><td><input type=entry name=fax size=20 value=""></td>
-</tr>
-<tr>
-<td><span class="text"><?php xl('Address','e'); ?>: </span></td><td><input type=entry size=20 name=street value=""></td>
-<td><span class="text"><?php xl('City','e'); ?>: </span></td><td><input type=entry size=20 name=city value=""></td>
-</tr>
-<tr>
-<td><span class="text"><?php xl('State','e'); ?>: </span></td><td><input type=entry size=20 name=state value=""></td>
-<td><span class="text"><?php xl('Zip Code','e'); ?>: </span></td><td><input type=entry size=20 name=postal_code value=""></td>
-</tr>
-<tr>
-<td height="22"><span class="text"><?php xl('Country','e'); ?>: </span></td>
-<td><input type=entry size=20 name=country_code value=""></td>
-<td><span class="text"><?php xl('Federal EIN','e'); ?>: </span></td><td><input type=entry size=20 name=federal_ein value=""></td>
-</tr>
-<tr>
-<td>&nbsp;</td><td>&nbsp;</td>
-
-<td><span class="text"><?php ($GLOBALS['simplified_demographics'] ? xl('Facility Code','e') : xl('Facility NPI','e')); ?>:
-</span></td><td><input type=entry size=20 name=facility_npi value=""></td>
-
-</tr>
-<tr>
-<td>&nbsp;</td><td>&nbsp;</td>
-<td>&nbsp;</td><td><input type="submit" value=<?php xl('Add Facility','e'); ?>></td>
-</tr>
-</table>
-</form>
-<br>
-</tr>
-<tr>
-<td valign=top>
-
-<!-- Why is this here???  - Rod
-<form name='facility' method='post' action="usergroup_admin.php"
- onsubmit='return top.restoreSession()'>
-<input type=hidden name=mode value=<?php xl('facility','e'); ?>>
--->
-
-<span class="bold"><?php xl('Edit Facilities','e'); ?>: </span>
-</td><td valign=top>
-<?php
-$fres = 0;
-$fres = sqlStatement("select * from facility order by name");
-if ($fres) {
-  $result2 = array();
-  for ($iter3 = 0;$frow = sqlFetchArray($fres);$iter3++)
-    $result2[$iter3] = $frow;
-  foreach($result2 as $iter3) {
-?>
-<span class="text"><?php echo $iter3{name};?></span>
-<a href="facility_admin.php?fid=<?php echo $iter3{id};?>" class="link_submit"
- onclick="top.restoreSession()">(<?php xl('Edit','e'); ?>)</a><br>
-<?php
-  }
-}
-?>
-
-</td>
-</tr>
 <tr><td valign=top>
 <form name='new_user' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
@@ -237,8 +143,8 @@ if ($fres) {
 </td><td>
 <table border=0 cellpadding=0 cellspacing=0>
 <tr>
-<td><span class="text"><?php xl('Username','e'); ?>: </span></td><td><input type=entry name=username size=20> &nbsp;</td>
-<td><span class="text"><?php xl('Password','e'); ?>: </span></td><td><input type="password" size=20 name=clearPass></td>
+<td><span class="text"><?php xl('Username','e'); ?>: </span></td><td><input type=entry name=rumple size=20> &nbsp;</td>
+<td><span class="text"><?php xl('Password','e'); ?>: </span></td><td><input type="entry" size=20 name=stiltskin></td>
 </tr>
 <tr>
 <td><span class="text"><?php xl('Groupname','e'); ?>: </span></td><td>
@@ -295,20 +201,7 @@ if ($fres) {
 
 <tr>
 <td><span class="text"><?php xl('NPI','e'); ?>: </span></td><td><input type="entry" name="npi" size="20"></td>
-
-<?php
-// ===========================
-// DBC DUTCH SYSTEM
-// if DBC don't show Job Description; show instead Beroep Box
-if ( !$GLOBALS['dutchpc']) { ?>
-    <td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="entry" name="specialty" size="20"></td>
-<?php } else { ?>
-  <td><span class="text">Beroep</span></td>
-  <td><?php beroep_dropdown() ?></td>
-<?php }
-// ===========================
-?>
-
+<td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="entry" name="specialty" size="20"></td>
 </tr>
 <td><span class="text"><?php xl('Taxonomy','e'); ?>: </span></td>
 <td><input type="entry" name="taxonomy" size="20" value="207Q00000X"></td>
@@ -357,7 +250,7 @@ if ( !$GLOBALS['dutchpc']) { ?>
 <span class="text"><?php xl('Additional Info','e'); ?>: </span><br>
 <textarea name=info cols=40 rows=4 wrap=auto></textarea>
 <br><input type="hidden" name="newauthPass">
-<input type="submit" onClick="javascript:this.form.newauthPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';" value=<?php xl('Add User','e'); ?>>
+<input type="submit" onClick="javascript:this.form.newauthPass.value=MD5(this.form.stiltskin.value);this.form.stiltskin.value='';" value=<?php xl('Add User','e'); ?>>
 </form>
 </td>
 
@@ -375,7 +268,7 @@ if ( !$GLOBALS['dutchpc']) { ?>
 <span class="text"><?php xl('Groupname','e'); ?>: </span><input type=entry name=groupname size=10>
 &nbsp;&nbsp;&nbsp;
 <span class="text"><?php xl('Initial User','e'); ?>: </span>
-<select name=username>
+<select name=rumple>
 <?php
 $res = sqlStatement("select distinct username from users where username != ''");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
@@ -403,7 +296,7 @@ foreach ($result as $iter) {
 <span class="text">
 <?php xl('User','e'); ?>
 : </span>
-<select name=username>
+<select name=rumple>
 <?php
 $res = sqlStatement("select distinct username from users where username != ''");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
@@ -461,14 +354,6 @@ foreach ($result4 as $iter) {
   } else {
       $iter{"authorized"} = "";
   }
-
-// ===========================
-// DBC DUTCH SYSTEM
-// overwrite 'info' field with dutch job description
-
-if ( $GLOBALS['dutchpc'] ) $iter{"info"} = what_beroep($iter{"id"});
-
-// ===========================
 
   print "<tr><td><span class='text'>" . $iter{"username"} .
     "</span><a href='user_admin.php?id=" . $iter{"id"} .

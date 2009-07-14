@@ -127,6 +127,10 @@ $timeslotHeightUnit="px";
 
  //==================================
  //FACILITY FILTERING (CHEMED)
+ $facilities = getUserFacilities($_SESSION['authId']); // from users_facility
+ if (count($facilities) == 1 || !$_SESSION['pc_facility']) {
+  $_SESSION['pc_facility'] = $facilities[0]['id'];
+ }
  if ( $_SESSION['pc_facility'] ) {
     $provinfo = getProviderInfo('%', true, $_SESSION['pc_facility']);
  } else {
@@ -270,11 +274,20 @@ Providers
 [-php-]
 // ==============================
 // FACILITY FILTERING (lemonsoftware)
-$facilities = getFacilities();
+// $facilities = getFacilities();
+if ($_SESSION['authorizeduser'] == 1) {
+  $facilities = getFacilities();
+} else {
+  $facilities = getUserFacilities($_SESSION['authId']); // from users_facility
+  if (count($facilities) == 1)
+    $_SESSION['pc_facility'] = key($facilities);
+}
 if (count($facilities) > 1) {
     echo "   <select name='pc_facility' id='pc_facility'>\n";
     if ( !$_SESSION['pc_facility'] ) $selected = "selected='selected'";
-    echo "    <option value='0' $selected>"  .xl('All Facilities'). "</option>\n";
+    // echo "    <option value='0' $selected>"  .xl('All Facilities'). "</option>\n";
+    if (!$GLOBALS['restrict_user_facility']) echo "    <option value='0' $selected>" . xl('All Facilities') . "</option>\n";
+
     foreach ($facilities as $fa) {
         $selected = ( $_SESSION['pc_facility'] == $fa['id']) ? "selected='selected'" : "" ;
         echo "    <option value='" .$fa['id']. "' $selected>"  .$fa['name']. "</option>\n";

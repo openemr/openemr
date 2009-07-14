@@ -252,12 +252,24 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
     "MAX(method) AS method, " .
     "MAX(source) AS source, " .
     "MAX(dtime) AS dtime, " .
-    "MAX(user) AS user " .
+    // "MAX(user) AS user " .
+    "MAX(user) AS user, " .
+    "MAX(encounter) as encounter ".
     "FROM payments WHERE " .
     "pid = '$form_pid' AND dtime = '$timestamp'");
 
   // Create key for deleting, just in case.
   $payment_key = $form_pid . '.' . preg_replace('/[^0-9]/', '', $timestamp);
+
+  // get facility from encounter
+  $tmprow = sqlQuery(sprintf("
+    SELECT facility_id
+    FROM form_encounter
+    WHERE encounter = '%s'",
+    $payrow['encounter']
+    ));
+  $frow = sqlQuery(sprintf("SELECT * FROM facility " .
+    " WHERE id = '%s'",$tmprow['facility_id']));
 
   // Now proceed with printing the receipt.
 ?>

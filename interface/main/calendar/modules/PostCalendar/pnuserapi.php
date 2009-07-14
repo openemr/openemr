@@ -999,15 +999,15 @@ function &postcalendar_userapi_pcQueryEvents($args)
   //FACILITY FILTERING (lemonsoftware)(CHEMED)
     if ( $_SESSION['pc_facility'] ) {
             $pc_facility = $_SESSION['pc_facility'];
-            $sql .= " AND a.pc_facility = $pc_facility
+            $sql .= " AND a.pc_facility = $pc_facility "; /*
                       AND u.facility_id = $pc_facility
-                      AND u2.facility_id = $pc_facility ";
+                      AND u2.facility_id = $pc_facility "; */
     }
     else if ($pc_facility) {
         // pc_facility could be provided in the search arguments -- JRM March 2008
-        $sql .= " AND a.pc_facility = $pc_facility".
+        $sql .= " AND a.pc_facility = $pc_facility "; /*.
                 " AND u.facility_id = $pc_facility".
-                " AND u2.facility_id = $pc_facility ";
+                " AND u2.facility_id = $pc_facility "; */
     }
   //EOS FACILITY FILTERING (lemonsoftware)
   //==================================

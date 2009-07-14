@@ -122,7 +122,7 @@ if (isset($_POST["fid"])) {
 </tr>
 <tr>
 	<td>&nbsp;</td><td>&nbsp;</td>
-	<td>&nbsp;</td><td><br><br><input type="submit" value=<?php xl('Update Info','e'); ?>>&nbsp;&nbsp;&nbsp;<a href="usergroup_admin.php" class=link_submit>[<?php xl('Back','e'); ?>]</font></a></td>
+	<td>&nbsp;</td><td><br><br><input type="submit" value=<?php xl('Update Info','e'); ?>>&nbsp;&nbsp;&nbsp;<a href="facilities.php" class=link_submit>[<?php xl('Back','e'); ?>]</font></a></td>
 </tr>
 </table>
 </form>

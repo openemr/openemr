@@ -130,15 +130,19 @@ $timeslotHeightUnit="px";
 
  $MULTIDAY = count($A_EVENTS) > 1;
 
- //==================================
- //FACILITY FILTERING (CHEMED)
- if ( $_SESSION['pc_facility'] ) {
-    $provinfo = getProviderInfo('%', true, $_SESSION['pc_facility']);
- } else {
-    $provinfo = getProviderInfo();
- }
- //EOS FACILITY FILTERING (CHEMED)
- //==================================
+//==================================
+//FACILITY FILTERING (CHEMED)
+$facilities = getUserFacilities($_SESSION['authId']); // from users_facility
+if (count($facilities) == 1 || !$_SESSION['pc_facility']) {
+  $_SESSION['pc_facility'] = $facilities[0]['id'];
+}
+if ( $_SESSION['pc_facility'] ) {
+  $provinfo = getProviderInfo('%', true, $_SESSION['pc_facility']);
+} else {
+  $provinfo = getProviderInfo();
+}
+//EOS FACILITY FILTERING (CHEMED)
+//==================================
 
 [-/php-]
 
@@ -290,11 +294,22 @@ Providers
 [-php-]
 // ==============================
 // FACILITY FILTERING (lemonsoftware)
+/*********************************************************************
 $facilities = getFacilities();
+*********************************************************************/
+if ($_SESSION['authorizeduser'] == 1) {
+  $facilities = getFacilities();
+} else {
+  $facilities = getUserFacilities($_SESSION['authId']); // from users_facility
+  if (count($facilities) == 1)
+    $_SESSION['pc_facility'] = key($facilities);
+}
+/********************************************************************/
 if (count($facilities) > 1) {
     echo "   <select name='pc_facility' id='pc_facility'>\n";
     if ( !$_SESSION['pc_facility'] ) $selected = "selected='selected'";
-    echo "    <option value='0' $selected>"  .xl('All Facilities'). "</option>\n";
+    // echo "    <option value='0' $selected>"  .xl('All Facilities'). "</option>\n";
+    if (!$GLOBALS['restrict_user_facility']) echo "    <option value='0' $selected>" . xl('All Facilities') . "</option>\n";
     foreach ($facilities as $fa) {
         $selected = ( $_SESSION['pc_facility'] == $fa['id']) ? "selected='selected'" : "" ;
         echo "    <option value='" .$fa['id']. "' $selected>"  .$fa['name']. "</option>\n";
@@ -345,13 +360,19 @@ foreach ($times as $slottime) {
 
     echo "<tr><td class='timeslot'>";
 
+    /*****************************************************************
     $providerid = 0;
     if (count($providers) == 1) {
         $providerid = $providers[0]['id'];
     }
     echo "<a href='javascript:newEvt($startampm,$starttimeh,$starttimem,$Date,$providerid,0)' title='New Appointment' alt='New Appointment'>";
+    *****************************************************************/
+    // can't have a link to new appts since we may have multiple providers displayed
+    //echo "<a href='javascript:newEvt($startampm,$starttimeh,$starttimem,$defaultDate,$providerid,$in_cat_id)' title='New Appointment' alt='New Appointment'>";
+    /****************************************************************/
+
     echo "$disptimeh:$starttimem";
-    echo "</a>";
+    // echo "</a>";
 
     echo "</td></tr>\n";
 }
@@ -598,7 +619,8 @@ foreach ($providers as $provider) {
                 $content .= "<span class='appointment'>";
                 $content .= $dispstarth . ':' . $startm;
                 if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
-                $content .= htmlspecialchars($event['apptstatus']);
+                // $content .= htmlspecialchars($event['apptstatus']);
+                $content .= '&nbsp;'.htmlspecialchars($event['apptstatus']);
                 if ($patientid) {
                     $link_title = "Age: ".$patient_age."\nDOB: ".$patient_dob."\n";
                     $link_title .= "(Click to view)";

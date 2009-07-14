@@ -76,6 +76,21 @@ function getUsername($uID) {
 	return "";
 }
 
+//	returns an array of facility id and names
+function getUserFacilities($uID) {
+  $rez = sqlStatement("
+	  select uf.facility_id as id, f.name
+	  from users_facility uf
+	  left join facility f on (uf.facility_id = f.id)
+	  where uf.tablename='users' 
+	  and uf.table_id = '$uID' 
+    ");
+  $returnVal = array();
+  while ($row = sqlFetchArray($rez)) 
+	  $returnVal[] = $row;
+  return $returnVal;
+}
+
 //retrieve the name based on the username
 function getNamefromUsername($username) {
 	$query = "select * from users where username like '$username' and username != ''";
@@ -83,14 +98,12 @@ function getNamefromUsername($username) {
 	return $res;
 }
 
-
 //retrieve calendar information from calendar id
 function getCalendarfromID ($calid) {
 	
 	//this table is deprecated and has been removed from new versions
 	//return sqlQuery("select * from calendar where id='$calid'");
 }
-
 
 //get calendar dates in a range of dates
 function getCalendarRanges ($fromdate, $todate, $username) {

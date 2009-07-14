@@ -1,4 +1,4 @@
-<?
+<?php
  include_once("../../globals.php");
  include_once("$srcdir/forms.inc");
  include_once("$srcdir/billing.inc");
@@ -22,13 +22,13 @@
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show();?>
 <link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
 </head>
 
 <body bgcolor="#ffffff" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <p>
-<?
+<?php
  if (sizeof($_GET) > 0) {
   $ar = $_GET;
  } else {
@@ -36,7 +36,15 @@
  }
 
  $titleres = getPatientData($pid, "fname,lname,providerID");
+ /********************************************************************
  $sql = "select * from facility where billing_location = 1";
+ ********************************************************************/
+ if ($_SESSION['pc_facility']) {
+ 	$sql = "select * from facility where id=" . $_SESSION['pc_facility'];
+ } else {
+ 	$sql = "select * from facility where billing_location = 1";
+ }
+ /*******************************************************************/
  $db = $GLOBALS['adodb']['db'];
  $results = $db->Execute($sql);
  $facility = array();

@@ -271,7 +271,8 @@ if (!empty($form_submit)) {
     "billing_location DESC, id ASC LIMIT 1");
   OpenTag('IMS_eMRUpload_Point');
   Add('ServiceDeliveryPointName' , $facrow['name']);
-  Add('EmrServiceDeliveryPointId', $facrow['id']);
+  // Add('EmrServiceDeliveryPointId', $facrow['id']);
+  Add('EmrServiceDeliveryPointId', $facrow['facility_npi']);
   Add('Channel'                  , '01');
   Add('Latitude'                 , '222222'); // TBD: Add this to facility attributes
   Add('Longitude'                , '433333'); // TBD: Add this to facility attributes
@@ -316,6 +317,17 @@ if (!empty($form_submit)) {
 
     $last_pid = $row['pid'];
 
+    // Compute education: 0 = none, 1 = some, 9 = unassigned.
+    // The MAs should be told to use "none" for no education.
+    $education = 9;
+    if (!empty($row['education'])) {
+      if (preg_match('/^il/i', $row['education']) ||
+          preg_match('/^no/i', $row['education']))
+        $education = 0;
+      else
+        $education = 1;
+    }
+
     // Get most recent contraceptive issue.
     $crow = sqlQuery("SELECT l.begdate, c.new_method " .
       "FROM lists AS l, lists_ippf_con AS c WHERE " .
@@ -358,7 +370,7 @@ if (!empty($form_submit)) {
     Add('Pregnancies', 0 + getTextListValue($hrow['genobshist'],'npreg')); // number of pregnancies
     Add('Children'   , 0 + getTextListValue($hrow['genobshist'],'nlc'));   // number of living children
     Add('Abortions'  , 0 + getTextListValue($hrow['genabohist'],'nia'));   // number of induced abortions
-    Add('Education'  , empty($row['education']) ? 0 : $row['education']);
+    Add('Education'  , $education);
     Add('Demo5'      , Sex($row['sex']));
 
     // Dump all visits for this patient at this facility.
