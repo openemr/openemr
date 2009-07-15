@@ -435,6 +435,19 @@ function genPopupsList($style='') {
   f.popups.disabled = (active_pid == 0);
  }
 
+ //
+ var my_window;
+ function initFilter() {
+    my_window = window.open("../../custom/search.php", "mywindow","status=1");
+ }
+
+ function processFilter( fieldString ) {
+    document.getElementById('searchFields').value=fieldString;
+    findPatient( "Filter" );
+        my_window.close();
+ }
+
+
  // Process the click to find a patient by name, id, ssn or dob.
  function findPatient(findby) {
   var f = document.forms[0];
@@ -1018,6 +1031,17 @@ function genPopupsList($style='') {
    <a href="javascript:findPatient('DOB');"  class="navitem"><?php xl('DOB','e'); ?></a>
   </td>
  </tr>
+
+ <tr>
+  <td class='smalltext'>&nbsp;</td>
+  <td class='smalltext'>
+   <a href="javascript:findPatient('Any');"  class="navitem"><?php xl('Any', 'e'); ?></a>
+  </td>
+  <td class='smalltext' align='right'>
+   <a href="javascript:initFilter();"  class="navitem"><?php xl('Filter', 'e'); ?></a>
+  </td>
+ </tr>
+
 </table>
 
 <hr />
@@ -1031,6 +1055,7 @@ onclick="top.restoreSession()">
 <?php xl('Help','e'); ?></a> 
 
 <input type='hidden' name='findBy' value='Last' />
+<input type="hidden" name="searchFields" id="searchFields"/>
 
 </form>
 

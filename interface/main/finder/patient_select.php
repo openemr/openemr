@@ -133,6 +133,7 @@ if ($popup) {
 else {
   $patient = $_REQUEST['patient'];
   $findBy  = $_REQUEST['findBy'];
+  $searchFields = $_REQUEST['searchFields'];
 
   echo "<input type='hidden' name='patient' value='$patient' />\n";
   echo "<input type='hidden' name='findBy'  value='$findBy' />\n";
@@ -147,6 +148,11 @@ else {
       $result = getPatientSSN("$patient", $given, $orderby, $sqllimit, $fstart);
   elseif ($findBy == "Phone")                  //(CHEMED) Search by phone number
       $result = getPatientPhone("$patient", $given, $orderby, $sqllimit, $fstart);
+  else if ($findBy == "Any")
+      $result = getByPatientDemographics("$patient", $given, $orderby, $sqllimit, $fstart);
+  else if ($findBy == "Filter") {
+      $result = getByPatientDemographicsFilter($searchFields, "$patient", $given, $orderby, $sqllimit, $fstart);
+  }
 }
 ?>
 

@@ -304,7 +304,13 @@ function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, 
     if ($fname{0} != strtoupper($fname{0})) {$search_for_pieces2 = '%';}
 
     $where = "lname LIKE '" . $search_for_pieces1 . "$lname%' " .
-        "AND fname LIKE '" . $search_for_pieces2 . "$fname%'";
+        "AND fname LIKE '" . $search_for_pieces2 . "$fname%' ";
+        if (!empty($GLOBALS['pt_restrict_field'])) {
+                if ( $_SESSION{"authUser"} != 'admin' || $GLOBALS['pt_restrict_admin'] ) {
+                        $where .= "AND ( patient_data.".$GLOBALS['pt_restrict_field']." = ( SELECT facility_id FROM users WHERE username = '".$_SESSION{"authUser"}."') OR patient_data.".$GLOBALS['pt_restrict_field']." = '' ) ";
+                }
+        }
+
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") $sql .= " LIMIT $start, $limit";
 
@@ -319,7 +325,14 @@ function getPatientLnames($lname = "%", $given = "pid, id, lname, fname, mname, 
 
 function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
-    $where = "pubpid LIKE '$pid%'";
+    
+    $where = "pubpid LIKE '$pid%' ";
+        if (!empty($GLOBALS['pt_restrict_field']) && $GLOBALS['pt_restrict_by_id'] ) {
+                if ( $_SESSION{"authUser"} != 'admin' || $GLOBALS['pt_restrict_admin'] ) {
+                        $where .= "AND ( patient_data.".$GLOBALS['pt_restrict_field']." = ( SELECT facility_id FROM users WHERE username = '".$_SESSION{"authUser"}."') OR patient_data.".$GLOBALS['pt_restrict_field']." = '' ) ";
+                }
+        }
+
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
     if ($limit != "all") $sql .= " limit $start, $limit";
     $rez = sqlStatement($sql);
@@ -329,6 +342,53 @@ function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, provid
     _set_patient_inc_count($limit, count($returnval), $where);
     return $returnval;
 }
+
+function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
+{
+	$layoutCols = sqlStatement( "SELECT field_id FROM layout_options WHERE form_id='DEM' AND group_name not like ('%Employer%' ) AND uor !=0" );
+
+    $where = "";
+    for($iter=0; $row=sqlFetchArray($layoutCols); $iter++) {
+	if ( $iter > 0 ) {
+	   $where .= " or ";
+	}
+	$where .= " ".$row["field_id"]." like '%".$searchTerm."%' ";
+    }
+
+    $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+    if ($limit != "all") $sql .= " limit $start, $limit";
+    $rez = sqlStatement($sql);
+    for($iter=0; $row=sqlFetchArray($rez); $iter++)
+        $returnval[$iter]=$row;
+
+    _set_patient_inc_count($limit, count($returnval), $where);
+    return $returnval;
+}
+
+function getByPatientDemographicsFilter($searchFields, $searchTerm = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0" )
+{
+	$layoutCols = split( '~', $searchFields );
+
+    $where = "";
+    $i = 0;
+    foreach ($layoutCols as $val ) {
+		if ( $i > 0 ) {
+		   $where .= " or ";
+		}
+		$where .= " ".$val." like '%".$searchTerm."%' ";
+		$i++;
+	}
+
+    $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+    if ($limit != "all") $sql .= " limit $start, $limit";
+    $rez = sqlStatement($sql);
+    for($iter=0; $row=sqlFetchArray($rez); $iter++)
+        $returnval[$iter]=$row;
+
+    _set_patient_inc_count($limit, count($returnval), $where);
+    return $returnval;
+}
+
 
 // return a collection of Patient PIDs
 // new arg style by JRM March 2008
@@ -377,8 +437,15 @@ function getPatientName($pid) {
 function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
     $DOB = fixDate($DOB, $DOB);
-    $where = "DOB like '$DOB%'";
+    $where = "DOB like '$DOB%' ";
+        if (!empty($GLOBALS['pt_restrict_field'])) {
+                if ( $_SESSION{"authUser"} != 'admin' || $GLOBALS['pt_restrict_admin'] ) {
+                        $where .= "AND ( patient_data.".$GLOBALS['pt_restrict_field']." = ( SELECT facility_id FROM users WHERE username = '".$_SESSION{"authUser"}."') OR patient_data.".$GLOBALS['pt_restrict_field']." = '' ) ";
+                }
+        }
+
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+
     if ($limit != "all") $sql .= " LIMIT $start, $limit";
 
     $rez = sqlStatement($sql);
