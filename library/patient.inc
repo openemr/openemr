@@ -151,7 +151,15 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     //(CHEMED) facility filter
     $param2 = "";
     if ($facility) {
-        $param2 = " AND facility_id = $facility ";
+        // $param2 = " AND facility_id = $facility ";
+        $param2 = " AND (facility_id = $facility 
+          OR  $facility IN
+	        (select facility_id 
+	        from users_facility
+	        where tablename = 'users'
+	        and table_id = id)
+	        )
+          ";
     }
     //--------------------------------
 
