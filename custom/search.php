@@ -24,11 +24,11 @@ require_once("../library/sql.inc");
 	function doSelectorButton() {
 		var selector = document.getElementById('selectorButton');
 		var value;
-		if ( selector.value == "Select All" ) {
-			selector.value = "Unselect All";
+		if ( selector.value == "<?php xl('Select All','e'); ?>" ) {
+			selector.value = "<?php xl('Unselect All','e'); ?>";
 			value = true;
 		} else {
-			selector.value = "Select All";
+			selector.value = "<?php xl('Select All','e'); ?>";
 			value = false;
 		}
 		var checkBoxes = document.getElementsByName( "searchFields" );
@@ -55,7 +55,7 @@ require_once("../library/sql.inc");
 		}
 	    if ( opener != null ) {
 			if ( fieldString == '' || fieldString == undefined ) {
-				alert('You must select some fields to continue.');
+				alert("<?php xl('You must select some fields to continue.','e'); ?>");
 				return false;
 			}
 			opener.processFilter( fieldString );
@@ -72,10 +72,10 @@ require_once("../library/sql.inc");
 		  <b><?php xl('Select Fields', 'e'); ?>:</b>
 		</td>
 	    <td>
-		<input type="button" value="Submit" id="submit" onclick="javascript:doSubmit();"></input>
+		<input type="button" value="<?php xl('Submit','e'); ?>" id="submit" onclick="javascript:doSubmit();"></input>
 	    </td>
 		<td>
-		<input type="button" value="Select All" id="selectorButton" onclick="javascript:doSelectorButton();"></input>
+		<input type="button" value="<?php xl('Select All','e'); ?>" id="selectorButton" onclick="javascript:doSelectorButton();"></input>
 		</td>
 	  </tr>
 	</table>
@@ -102,7 +102,7 @@ require_once("../library/sql.inc");
 			echo "<td>";
 			$fieldId = $row['field_id'];
 			$fieldTitle = $row['description'] ? $row['description'] : $fieldId;
-			echo "<input type='checkbox' value='${fieldId}' name='searchFields'/> <b>${fieldTitle}</b>";
+			echo "<input type='checkbox' value='${fieldId}' name='searchFields'/> <b>" . xl_layout_label($fieldTitle) . "</b>";
 			echo "</td>";
 		}
 
