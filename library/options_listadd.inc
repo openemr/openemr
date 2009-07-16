@@ -31,6 +31,9 @@
 
 <script language="javascript">
 
+    // collect the custom state widget flag
+    var stateCustomFlag = "<?php echo $GLOBALS['state_custom_addlist_widget']; ?>"
+    
     // generic form for input box
     var generic = "<input type='textbox' name='newlistitem_value' id='newlistitem_value' size='20' maxlength='50'>"
 
@@ -68,7 +71,7 @@ $(document).ready(function(){
 	$("#specificForm").empty();
 	
 	// INSERT the selected form
-	if ($("#newlistitem_listid").val() == "state") {
+	if (($("#newlistitem_listid").val() == "state") && (stateCustomFlag)) {
 	 // insert state form and clear values
          $("#specificForm").append(state);
 	 $('#newlistitem_value').val("");
@@ -115,7 +118,7 @@ $(document).ready(function(){
             return false;
         }
 	//  Second, validate form specific fields
-        if ($("#newlistitem_listid").val() == "state") {
+        if (($("#newlistitem_listid").val() == "state") && (stateCustomFlag)) {
             // state forms specific validation
             if ($("#newlistitem_abbr").val().match(/^\d/)) {
                 alert("List items can not start with a number.");
@@ -130,7 +133,7 @@ $(document).ready(function(){
         }
 
         // PROCESS the selected form
-        if ($("#newlistitem_listid").val() == "state") {
+        if (($("#newlistitem_listid").val() == "state") && (stateCustomFlag)) {
 	    // process state form
 	    //  (note we have collected a title and abbreviation)
 	    var listid = $("#newlistitem_listid").val();
