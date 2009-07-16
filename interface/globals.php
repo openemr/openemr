@@ -172,6 +172,32 @@ $GLOBALS['translate_appt_categories'] = true;
 //  open the openemr mysql connection.
 include_once (dirname(__FILE__) . "/../library/translation.inc.php");
 
+
+//
+// Lists and Layouts Control Section
+//
+
+// 'state_custom_addlist_widget'
+//  - If true, then will display a customized addlist widget for
+//    state list entries (will ask for title and abbreviation)
+$GLOBALS['state_custom_addlist_widget'] = true;
+
+// Data type options. This will set data types in forms that are not
+//  covered by a layout.
+//   1  = single-selection list 
+//   2  = text field
+//   26 = single-selection list with ability to add to the list (addlist widget)
+//   (the list entries below are only pertinent for data types 1 or 26)
+//
+// 'state_data_type'
+$GLOBALS['state_data_type'] = 26;
+$GLOBALS['state_list'] = "state";
+//
+// 'country_data_type'
+$GLOBALS['country_data_type'] = 26;
+$GLOBALS['country_list'] = "country";
+
+
 include_once (dirname(__FILE__) . "/../library/date_functions.php");
 include_once (dirname(__FILE__) . "/../library/classes/Filtreatment_class.php");
 
@@ -270,7 +296,7 @@ else {
 $v_major = '3';
 $v_minor = '0';
 $v_patch = '1';
-$tag = '.3'; // minor revision number, should be empty for production releases
+$tag = '.4'; // minor revision number, should be empty for production releases
 
 // This name appears on the login page and in the title bar of most windows.
 // It's nice to customize this to be the name of your clinic.
