@@ -53,10 +53,10 @@ function auto_populate_employer_address(){
  df.i<?php echo $browsenum?>subscriber_lname.value='<?php echo $result3{subscriber_lname};?>';
  df.i<?php echo $browsenum?>subscriber_street.value='<?php echo $result3{subscriber_street};?>';
  df.i<?php echo $browsenum?>subscriber_city.value='<?php echo $result3{subscriber_city};?>';
- df.i<?php echo $browsenum?>subscriber_state.value='<?php echo $result3{subscriber_state};?>';
+ df.form_i<?php echo $browsenum?>subscriber_state.value='<?php echo $result3{subscriber_state};?>';
  df.i<?php echo $browsenum?>subscriber_postal_code.value='<?php echo $result3{subscriber_postal_code};?>';
- if (df.i<?php echo $browsenum?>subscriber_country) // in case this is commented out
-  df.i<?php echo $browsenum?>subscriber_country.value='<?php echo $result3{subscriber_country};?>';
+ if (df.form_i<?php echo $browsenum?>subscriber_country) // in case this is commented out
+  df.form_i<?php echo $browsenum?>subscriber_country.value='<?php echo $result3{subscriber_country};?>';
  df.i<?php echo $browsenum?>subscriber_phone.value='<?php echo $result3{subscriber_phone};?>';
  df.i<?php echo $browsenum?>subscriber_DOB.value='<?php echo $result3{subscriber_DOB};?>';
  df.i<?php echo $browsenum?>subscriber_ss.value='<?php echo $result3{subscriber_ss};?>';
@@ -72,9 +72,9 @@ function auto_populate_employer_address(){
   df.i<?php echo $browsenum?>subscriber_employer.value='<?php echo $result3{subscriber_employer};?>';
   df.i<?php echo $browsenum?>subscriber_employer_street.value='<?php echo $result3{subscriber_employer_street};?>';
   df.i<?php echo $browsenum?>subscriber_employer_city.value='<?php echo $result3{subscriber_employer_city};?>';
-  df.i<?php echo $browsenum?>subscriber_employer_state.value='<?php echo $result3{subscriber_employer_state};?>';
+  df.form_i<?php echo $browsenum?>subscriber_employer_state.value='<?php echo $result3{subscriber_employer_state};?>';
   df.i<?php echo $browsenum?>subscriber_employer_postal_code.value='<?php echo $result3{subscriber_employer_postal_code};?>';
-  df.i<?php echo $browsenum?>subscriber_employer_country.value='<?php echo $result3{subscriber_employer_country};?>';
+  df.form_i<?php echo $browsenum?>subscriber_employer_country.value='<?php echo $result3{subscriber_employer_country};?>';
  }
 }
 //-->
@@ -107,13 +107,25 @@ function auto_populate_employer_address(){
 <td><span class=text><?php  xl('City','e'); ?>:</span></td><td><span class=text><?php echo $result3{subscriber_city};?></span></td>
 </tr>
 <tr>
-<td><span class=text><?php  xl('State','e'); ?>:</span></td><td><span class=text><?php echo $result3{subscriber_state};?></span></td>
+<td><span class=text><?php  xl('State','e'); ?>:</span></td>
+<td><span class=text>
+ <?php
+  //Modified 7/2009 by BM to incorporate data types
+  echo generate_display_field(array('data_type'=>$GLOBALS['state_data_type'],'list_id'=>$GLOBALS['state_list']),$result3{subscriber_state});
+ ?>
+</span></td>
 </tr>
 <tr>
 <td><span class=text><?php  xl('Zip Code','e'); ?>:</span></td><td><span class=text><?php echo $result3{subscriber_postal_code};?></span></td>
 </tr>
 <tr>
-<td><span class=text><?php  xl('Country','e'); ?>:</span></td><td><span class=text><?php echo $result3{subscriber_country};?></span></td>
+<td><span class=text><?php  xl('Country','e'); ?>:</span></td>
+<td><span class=text>
+ <?php
+  //Modified 7/2009 by BM to incorporate data types
+  echo generate_display_field(array('data_type'=>$GLOBALS['country_data_type'],'list_id'=>$GLOBALS['country_list']),$result3{subscriber_country});
+ ?>
+</span></td>
 </tr>
 <tr>
 <td><span class=text><?php  xl('Phone','e'); ?>:</span></td><td><span class=text><?php echo $result3{subscriber_phone};?></span></td>
@@ -153,16 +165,29 @@ function auto_populate_employer_address(){
 <td><span class=text><?php  xl('Subscriber Employer City','e'); ?>:</span></td><td><span class=text><?php echo $result3{subscriber_employer_city};?></span></td>
 </tr>
 <tr>
-<td><span class=text><?php  xl('Subscriber Employer State','e'); ?>:</span></td><td><span class=text><?php echo $result3{subscriber_employer_state};?></span></td>
+<td><span class=text><?php  xl('Subscriber Employer State','e'); ?>:</span></td>
+<td><span class=text>
+ <?php
+  //Modified 7/2009 by BM to incorporate data types
+  echo generate_display_field(array('data_type'=>$GLOBALS['state_data_type'],'list_id'=>$GLOBALS['state_list']),$result3{subscriber_employer_state});
+ ?>
+</span></td>
 </tr>
 <tr>
-<td><span class=text><?php  xl('Subscriber Employer Country','e'); ?>:</span></td><td><span class=text><?php echo $result3{subscriber_employer_country};?></span></td>
+<td><span class=text><?php  xl('Subscriber Employer Country','e'); ?>:</span></td>
+<td><span class=text>
+  <?php
+   //Modified 7/2009 by BM to incorporate data types 
+   echo generate_display_field(array('data_type'=>$GLOBALS['country_data_type'],'list_id'=>$GLOBALS['country_list']),$result3{subscriber_employer_country});
+  ?>
+</span></td>
 </tr>
 
 <?php } ?>
 
 <tr>
-<td><span class=text><?php  xl('Subscriber Sex','e'); ?>:</span></td><td><span class=text><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'sex'),$result3{subscriber_sex}); ?></span></td>
+<td><span class=text><?php  xl('Subscriber Sex','e'); ?>:</span></td>
+<td><span class=text><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'sex'),$result3{subscriber_sex}); ?></span></td>
 </tr>
 </table>
 

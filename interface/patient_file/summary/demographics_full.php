@@ -112,10 +112,10 @@ function auto_populate_employer_address<?php echo $i ?>(){
   f.i<?php echo $i?>subscriber_lname.value=f.form_lname.value;
   f.i<?php echo $i?>subscriber_street.value=f.form_street.value;
   f.i<?php echo $i?>subscriber_city.value=f.form_city.value;
-  f.i<?php echo $i?>subscriber_state.value=f.form_state.value;
+  f.form_i<?php echo $i?>subscriber_state.value=f.form_state.value;
   f.i<?php echo $i?>subscriber_postal_code.value=f.form_postal_code.value;
   if (f.form_country_code)
-    f.i<?php echo $i?>subscriber_country.value=f.form_country_code.value;
+    f.form_i<?php echo $i?>subscriber_country.value=f.form_country_code.value;
   f.i<?php echo $i?>subscriber_phone.value=f.form_phone_home.value;
   f.i<?php echo $i?>subscriber_DOB.value=f.form_DOB.value;
   f.i<?php echo $i?>subscriber_ss.value=f.form_ss.value;
@@ -123,10 +123,10 @@ function auto_populate_employer_address<?php echo $i ?>(){
   f.i<?php echo $i?>subscriber_employer.value=f.form_em_name.value;
   f.i<?php echo $i?>subscriber_employer_street.value=f.form_em_street.value;
   f.i<?php echo $i?>subscriber_employer_city.value=f.form_em_city.value;
-  f.i<?php echo $i?>subscriber_employer_state.value=f.form_em_state.value;
+  f.form_i<?php echo $i?>subscriber_employer_state.value=f.form_em_state.value;
   f.i<?php echo $i?>subscriber_employer_postal_code.value=f.form_em_postal_code.value;
   if (f.form_em_country)
-    f.i<?php echo $i?>subscriber_employer_country.value=f.form_em_country.value;
+    f.form_i<?php echo $i?>subscriber_employer_country.value=f.form_em_country.value;
  }
 }
 
@@ -507,16 +507,23 @@ end_group();
          value="<?php echo $result3{"subscriber_employer_city"}?>"
           onchange="capitalizeMe(this);" /></td>
         <td><span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('SE State','e') : xl('SE Locality','e') ?>: </span></td>
-        <td><input type=entry size=15 name=i<?php echo $i?>subscriber_employer_state
-         value="<?php echo $result3{"subscriber_employer_state"}?>"></td>
+	<td>
+         <?php
+          // Modified 7/2009 by BM to incorporate data types
+	  generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'field_id'=>('i'.$i.'subscriber_employer_state'),'list_id'=>$GLOBALS['state_list'],'fld_length'=>'15','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_employer_state']);
+         ?>
+        </td>
        </tr>
        <tr>
         <td><span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('SE Zip Code','e') : xl('SE Postal Code','e') ?>: </span></td>
         <td><input type=entry size=10 name=i<?php echo $i?>subscriber_employer_postal_code value="<?php echo $result3{"subscriber_employer_postal_code"}?>"></td>
         <td><span class=required><?php xl('SE Country','e'); ?>: </span></td>
-        <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer_country
-         value="<?php echo $result3{"subscriber_employer_country"}?>"
-         onchange="capitalizeMe(this);" /></td>
+	<td>
+         <?php
+          // Modified 7/2009 by BM to incorporate data types
+	  generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_employer_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_employer_country']);
+         ?>
+	</td>
        </tr>
       </table>
      </td>
@@ -568,13 +575,20 @@ end_group();
    <input type=entry size=15 name=i<?php echo $i?>subscriber_city
     value="<?php echo $result3{"subscriber_city"}?>"
     onchange="capitalizeMe(this);" />
-   <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('State','e') : xl('Locality','e') ?>: </span><input type=entry size=15 name=i<?php echo $i?>subscriber_state value="<?php echo $result3{"subscriber_state"}?>"><br>
+   <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('State','e') : xl('Locality','e') ?>: </span>
+   <?php
+    // Modified 7/2009 by BM to incorporate data types
+    generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'field_id'=>('i'.$i.'subscriber_state'),'list_id'=>$GLOBALS['state_list'],'fld_length'=>'15','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_state']);
+   ?>
+   <br />	
    <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('Zip Code','e') : xl('Postal Code','e') ?>: </span><input type=entry size=10 name=i<?php echo $i?>subscriber_postal_code value="<?php echo $result3{"subscriber_postal_code"}?>">
    <span class='required'<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
-   <?php xl('Country','e'); ?>:
-   <input type=entry size=10 name=i<?php echo $i?>subscriber_country
-    value="<?php echo $result3{"subscriber_country"}?>"
-    onchange="capitalizeMe(this);" /><br></span>
+   <?php xl('Country','e'); ?>: </span>
+   <?php
+    // Modified 7/2009 by BM to incorporate data types
+    generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_country']);
+   ?>
+   <br />
    <span class=bold><?php xl('Subscriber Phone','e'); ?>: 
    <input type='text' size='20' name='i<?php echo $i?>subscriber_phone' value='<?php echo $result3["subscriber_phone"] ?>' onkeyup='phonekeyup(this,mypcc)' />
    </span><br />
