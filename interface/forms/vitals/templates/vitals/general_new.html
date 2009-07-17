@@ -89,7 +89,7 @@ td,th {
 			<option value="Temporal Artery"   {if $vitals->get_temp_method() == "Temporal Artery" } selected{/if}>{xl t="Temporal Artery"}
 		</select></td>
 	{foreach item=result from=$results}
-		<td align='right' class='historicalvalues'>{xl t=$result.temp_method}</td>
+		<td align='right' class='historicalvalues'>{$result.temp_method}</td>
 	{/foreach}</tr>
 
 	<tr><td>{xl t="Oxygen Saturation"}</td><td>{xl t="%"}</td>
@@ -139,7 +139,8 @@ td,th {
         <input type="button" id="cancel" value="{xl t="Don't Save"}">
         {if $patient_age <= 20 || (preg_match('/month/', $patient_age))}
         <!-- only show growth-chart button for patients < 20 years old -->
-        <input type="button" id="growthchart" value="{xl t="Growth-Chart"}" style='margin-left: 20px;'>
+        <!-- <input type="button" id="growthchart" value="{xl t="Growth-Chart"}" style='margin-left: 20px;'> -->
+        <input type="button" id="pdfchart" value="{xl t="Growth-Chart"}" style='margin-left: 20px;'>
         {/if}
         </td>
 </tr>
@@ -168,10 +169,11 @@ var pid = '{$vitals->get_pid()}';
 
 $(document).ready(function(){
     $("#growthchart").click(function() { ShowGrowthchart(); });
+    $("#pdfchart").click(function() { ShowGrowthchart("1"); });
     $("#cancel").click(function() { {/literal}location.href('{$DONT_SAVE_LINK}');{literal} });
 });
 
-function ShowGrowthchart() {
+function ShowGrowthchart(doPDF) {
     // get values from the current form elements
     {/literal}
     vitals[0] = formdate+'-'+$("#height").val()+'-'+$("#weight").val()+'-'+$("#head_circ").val();
@@ -181,9 +183,11 @@ function ShowGrowthchart() {
     for(var i=0; i<vitals.length; i++) {
         datastring += vitals[i]+"~";
     }
+    newURL = webroot+'/interface/forms/vitals/growthchart/chart.php?pid='+pid+'&data='+datastring;
+    if (doPDF == 1) newURL += "&pdf=1";
     // do the new window stuff
     top.restoreSession();
-    window.open(webroot+'/interface/forms/vitals/growthchart/chart.php?pid='+pid+'&data='+datastring, '_blank', "menubar=1,toolbar=1,scrollbars=1,resizable=1,width=600,height=450");
+    window.open(newURL, '_blank', "menubar=1,toolbar=1,scrollbars=1,resizable=1,width=600,height=450");
 }
 
 function calculateBMI() {
