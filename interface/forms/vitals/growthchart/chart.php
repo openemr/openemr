@@ -333,8 +333,39 @@ foreach ($datapoints as $data) {
 
     $count++;	
 }
-   
-header("Content-type: image/png"); 
-imagepng($im);
-imagedestroy($im);
+
+if ($_GET['pdf'] == 1) {
+    require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
+    $pdf =& new Cezpdf("LETTER");
+    $pdf->ezSetMargins(0,0,0,0);
+
+    // we start with one large image, break it into two pages
+    $page1 = imagecreate((imagesx($im)/2),imagesy($im));
+    $page2 = imagecreate((imagesx($im)/2),imagesy($im));
+    imagecopy($page1, $im, 0,0, 0,0,(imagesx($im)/2),imagesy($im));
+    imagecopy($page2, $im, 0,0, (imagesx($im)/2),0,imagesx($im),imagesy($im));
+    imagedestroy($im);
+
+    // each page is built
+    $tmpfilename = tempnam("/tmp", "oemr");
+    imagepng($page1,$tmpfilename);
+    imagedestroy($page1);
+    $pdf->ezImage($tmpfilename);
+    $pdf->ezNewPage();
+    imagepng($page2,$tmpfilename);
+    imagedestroy($page2);
+    $pdf->ezImage($tmpfilename);
+    
+    // temporary file is removed
+    unlink($tmpfilename);
+
+    // output the PDF
+    $pdf->ezStream();
+}
+else {
+    // older style chart that is simply a PNG image
+    header("Content-type: image/png"); 
+    imagepng($im);
+    imagedestroy($im);
+}
 ?>
