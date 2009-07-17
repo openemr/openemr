@@ -75,7 +75,7 @@ div.section {
 <body bgcolor='#ffffff'>
 <form>
 
-<p class='mainhead'><?php xl('Demographics Form','e'); ?></p>
+<p class='mainhead'><?php xl('Registration Form','e'); ?></p>
 
 <?php
 
@@ -142,7 +142,7 @@ while ($frow = sqlFetchArray($fres)) {
   // Handle starting of a new row.
   if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
     end_row();
-    echo "  <tr>";
+    echo "  <tr style='height:30pt'>";
   }
 
   if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
@@ -150,7 +150,7 @@ while ($frow = sqlFetchArray($fres)) {
   // Handle starting of a new label cell.
   if ($titlecols > 0) {
     end_cell();
-    echo "<td colspan='$titlecols'";
+    echo "<td colspan='$titlecols' width='10%'";
     echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
     if ($cell_count == 2) echo " style='padding-left:10pt'";
     echo ">";
@@ -167,8 +167,8 @@ while ($frow = sqlFetchArray($fres)) {
   // Handle starting of a new data cell.
   if ($datacols > 0) {
     end_cell();
-    echo "<td colspan='$datacols'";
-    if ($cell_count > 0) echo " style='padding-left:5pt'";
+    echo "<td colspan='$datacols' width='40%' class='under'";
+    if ($cell_count > 0) echo " style='padding-left:5pt;'";
     echo ">";
     $cell_count += $datacols;
   }

@@ -12,8 +12,11 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/classes/Address.class.php");
 require_once("$srcdir/classes/InsuranceCompany.class.php");
 
+// This value is initially a maximum, and will be recomputed to
+// distribute lines evenly among the pages.
 $lines_per_page = 55;
-$lines_in_stats = 16;
+
+$lines_in_stats = 8;
 
 // This tells us if patient/encounter data is to be filled in.
 //
@@ -94,7 +97,7 @@ if (empty($SBCODES)) {
 
   // Adjust lines per page to distribute lines evenly among the pages.
   $pages = intval(($percol + $lines_in_stats + $lines_per_page - 1) / $lines_per_page);
-  $lines_per_page = intval($percol + $lines_in_stats + $pages - 1) / $pages;
+  $lines_per_page = intval(($percol + $lines_in_stats + $pages - 1) / $pages);
 
   // Figure out page and column breaks.
   $pages = 1;
@@ -112,6 +115,8 @@ if (empty($SBCODES)) {
   array_splice($SBCODES, $lines*2 + $page_start_index, 0, '*C|');
   array_splice($SBCODES, $lines*1 + $page_start_index, 0, '*C|');
 }
+
+$lheight = sprintf('%d', $page_height / $lines_per_page);
 ?>
 <html>
 <head>
@@ -138,6 +143,7 @@ td.toprow {
  border-color: #999999;
 }
 td.fsgroup {
+ height: <?php echo $lheight; ?>pt;
  font-family: sans-serif;
  font-weight: bold;
  font-size: <?php echo $fontsize ?>pt;
@@ -148,6 +154,7 @@ td.fsgroup {
  border-color: #999999;
 }
 td.fshead {
+ height: <?php echo $lheight; ?>pt;
  font-family: sans-serif;
  font-weight: bold;
  font-size: <?php echo $fontsize ?>pt;
@@ -157,6 +164,7 @@ td.fshead {
  border-color: #999999;
 }
 td.fscode {
+ height: <?php echo $lheight; ?>pt;
  font-family: sans-serif;
  font-weight: normal;
  font-size: <?php echo $fontsize ?>pt;
@@ -189,35 +197,35 @@ function genColumn($ix) {
       return ++$ix;
     }
     if ($cmd == '*B') { // Borderless and empty
-      echo "<tr><td colspan='5' class='fscode' style='border-width:0 1px 0 0;padding-top:1px;' nowrap>&nbsp;</td></tr>\n";
+      echo "    <tr><td colspan='5' class='fscode' style='border-width:0 1px 0 0;padding-top:1px;' nowrap>&nbsp;</td></tr>\n";
     }
     else if ($cmd == '*G') {
       $title = htmlspecialchars($a[1]);
       if (!$title) $title='&nbsp;';
-      echo "<tr><td colspan='5' align='center' class='fsgroup' style='vertical-align:middle' nowrap>$title</td></tr>\n";
+      echo "    <tr><td colspan='5' align='center' class='fsgroup' style='vertical-align:middle' nowrap>$title</td></tr>\n";
     }
     else if ($cmd == '*H') {
       $title = htmlspecialchars($a[1]);
       if (!$title) $title='&nbsp;';
-      echo "<tr><td colspan='5' class='fshead' style='vertical-align:middle' nowrap>$title</td></tr>\n";
+      echo "    <tr><td colspan='5' class='fshead' style='vertical-align:middle' nowrap>$title</td></tr>\n";
     }
     else {
       $title = htmlspecialchars($a[1]);
       if (!$title) $title='&nbsp;';
       $b = explode(':', $cmd);
-      echo "<tr>";
-      echo "<td class='fscode' style='vertical-align:middle;width:14pt' nowrap>&nbsp;</td>\n";
+      echo "    <tr>\n";
+      echo "     <td class='fscode' style='vertical-align:middle;width:14pt' nowrap>&nbsp;</td>\n";
       if (count($b) <= 1) {
         $code = $b[0];
         if (!$code) $code='&nbsp;';
-        echo "<td class='fscode' style='vertical-align:middle' nowrap>$code</td>\n";
-        echo "<td colspan='3' class='fscode' style='vertical-align:middle' nowrap>$title</td>\n";
+        echo "     <td class='fscode' style='vertical-align:middle' nowrap>$code</td>\n";
+        echo "     <td colspan='3' class='fscode' style='vertical-align:middle' nowrap>$title</td>\n";
       }
       else {
-        echo "<td colspan='2' class='fscode' style='vertical-align:middle' nowrap>" . $b[0] . '/' . $b[1] . "</td>\n";
-        echo "<td colspan='2' class='fscode' style='vertical-align:middle' nowrap>$title</td>\n";
+        echo "     <td colspan='2' class='fscode' style='vertical-align:middle' nowrap>" . $b[0] . '/' . $b[1] . "</td>\n";
+        echo "     <td colspan='2' class='fscode' style='vertical-align:middle' nowrap>$title</td>\n";
       }
-      echo "</tr>\n";
+      echo "    </tr>\n";
     }
   }
   return $ix;
@@ -265,7 +273,7 @@ $cindex = 0;
 <table class='bordertbl' cellspacing='0' cellpadding='0' width='100%'>
  <tr>
   <td valign='top'>
-   <table border='0' cellspacing='0' cellpadding='0' width='100%' style='height:<?php echo $page_height ?>pt'>
+   <table border='0' cellspacing='0' cellpadding='0' width='100%'>
     <tr>
      <td class='toprow' style='width:10%'></td>
      <td class='toprow' style='width:10%'></td>
@@ -279,7 +287,7 @@ $cindex = 0;
 <?php if ($pages == 0) { // if this is the last page ?>
 
     <tr>
-     <td colspan='3' valign='top' class='fshead' style='height:50pt'>
+     <td colspan='3' valign='top' class='fshead' style='height:<?php echo $lheight * 2; ?>pt'>
       Patient:<br />
 <?php
 if ($form_fill) {
@@ -295,7 +303,7 @@ if ($form_fill) {
      </td>
     </tr>
     <tr>
-     <td colspan='3' valign='top' class='fshead' style='height:25pt'>
+     <td colspan='3' valign='top' class='fshead' style='height:<?php echo $lheight; ?>pt'>
       Doctor:<br />
 <?php
 $encdata = false;
@@ -323,7 +331,7 @@ if (!empty($encdata)) {
      </td>
     </tr>
     <tr>
-     <td colspan='4' valign='top' class='fshead' style='height:25pt'>
+     <td colspan='4' valign='top' class='fshead' style='height:<?php echo $lheight; ?>pt'>
 <?php
 if (empty($GLOBALS['ippf_specific'])) {
   echo "Insurance:\n";
@@ -361,22 +369,22 @@ else {
      </td>
     </tr>
     <tr>
-     <td colspan='4' valign='top' class='fshead' style='height:25pt'>
+     <td colspan='4' valign='top' class='fshead' style='height:<?php echo $lheight; ?>pt'>
       Prior balance:<br />
      </td>
     </tr>
     <tr>
-     <td colspan='4' valign='top' class='fshead' style='height:25pt'>
+     <td colspan='4' valign='top' class='fshead' style='height:<?php echo $lheight; ?>pt'>
       Today's charges:<br />
      </td>
     </tr>
     <tr>
-     <td colspan='4' valign='top' class='fshead' style='height:25pt'>
+     <td colspan='4' valign='top' class='fshead' style='height:<?php echo $lheight; ?>pt'>
       Today's payment:<br />
      </td>
     </tr>
     <tr>
-     <td colspan='4' valign='top' class='fshead' style='height:25pt'>
+     <td colspan='4' valign='top' class='fshead' style='height:<?php echo $lheight; ?>pt'>
       Notes:<br />
      </td>
     </tr>
@@ -386,7 +394,7 @@ else {
    </table>
   </td>
   <td valign='top'>
-   <table border='0' cellspacing='0' cellpadding='0' width='100%' style='height:<?php echo $page_height ?>pt'>
+   <table border='0' cellspacing='0' cellpadding='0' width='100%'>
     <tr>
      <td class='toprow' style='width:10%'></td>
      <td class='toprow' style='width:10%'></td>
@@ -400,12 +408,12 @@ else {
 <?php if ($pages == 0) { // if this is the last page ?>
 
     <tr>
-     <td colspan='4' valign='top' class='fshead' style='height:100pt'>
+     <td colspan='4' valign='top' class='fshead' style='height:<?php echo $lheight * 4; ?>pt'>
       Additional procedures:<br />
      </td>
     </tr>
     <tr>
-     <td colspan='4' valign='top' class='fshead' style='height:100pt'>
+     <td colspan='4' valign='top' class='fshead' style='height:<?php echo $lheight * 4; ?>pt'>
       Diagnosis:<br />
      </td>
     </tr>
@@ -415,7 +423,7 @@ else {
    </table>
   </td>
   <td valign='top'>
-   <table border='0' cellspacing='0' cellpadding='0' width='100%' style='height:<?php echo $page_height ?>pt'>
+   <table border='0' cellspacing='0' cellpadding='0' width='100%'>
     <tr>
      <td class='toprow' style='width:10%'></td>
      <td class='toprow' style='width:10%'></td>
@@ -429,13 +437,13 @@ else {
 <?php if ($pages == 0) { // if this is the last page ?>
 
     <tr>
-     <td valign='top' colspan='4' class='fshead' style='height:150pt;border-width:0 1px 0 0'>
+     <td valign='top' colspan='4' class='fshead' style='height:<?php echo $lheight * 6; ?>pt;border-width:0 1px 0 0'>
       &nbsp;
      </td>
     </tr>
     <tr>
-     <td valign='top' colspan='4' class='fshead' style='height:50pt'>
-      M.D. Signature:<br />
+     <td valign='top' colspan='4' class='fshead' style='height:<?php echo $lheight * 2; ?>pt'>
+      Signature:<br />
      </td>
     </tr>
 
@@ -447,8 +455,10 @@ else {
 
 </table>
 
-<?php } // end while ?>
-
+<?php
+  if ($pages > 0) echo "<p style='page-break-after: always' />\n";
+} // end while
+?>
 <div id='hideonprint'>
 <p>
 <input type='button' value='<?php xl('Print','e'); ?>' onclick='printme()' />
@@ -459,7 +469,6 @@ else {
 &nbsp;&nbsp;
 <input type='submit' name='form_submit' value='Refresh' />
 </div>
-
 </form>
 </center>
 </body>

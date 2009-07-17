@@ -461,7 +461,6 @@ function generate_print_field($frow, $currvalue) {
     $empty_title = "Unassigned";   
   }
 
-
   // generic single-selection list
   if ($data_type == 1 || $data_type == 26) {
     if (empty($fld_length)) {
@@ -478,20 +477,28 @@ function generate_print_field($frow, $currvalue) {
       $tmp = xl_list_label($lrow['title']);
       if (empty($tmp)) $tmp = "($currvalue)";
     }
+    /*****************************************************************
     echo "<input type='text'" .
       " size='$fld_length'" .
       " value='$tmp'" .
       " class='under'" .
       " />";
+    *****************************************************************/
+    if ($tmp === '') $tmp = '&nbsp;';
+    echo $tmp;
   }
 
   // simple text field
   else if ($data_type == 2 || $data_type == 15) {
+    /*****************************************************************
     echo "<input type='text'" .
       " size='$fld_length'" .
       " value='$currescaped'" .
       " class='under'" .
       " />";
+    *****************************************************************/
+    if ($currescaped === '') $currescaped = '&nbsp;';
+    echo $currescaped;
   }
 
   // long or multi-line text field
@@ -504,11 +511,15 @@ function generate_print_field($frow, $currvalue) {
 
   // date
   else if ($data_type == 4) {
+    /*****************************************************************
     echo "<input type='text' size='10'" .
       " value='$currescaped'" .
       " title='$description'" .
       " class='under'" .
       " />";
+    *****************************************************************/
+    if ($currescaped === '') $currescaped = '&nbsp;';
+    echo $currescaped;
   }
 
   // provider list
@@ -520,11 +531,15 @@ function generate_print_field($frow, $currvalue) {
       $tmp = ucwords($urow['fname'] . " " . $urow['lname']);
       if (empty($tmp)) $tmp = "($currvalue)";
     }
+    /*****************************************************************
     echo "<input type='text'" .
       " size='$fld_length'" .
       " value='$tmp'" .
       " class='under'" .
       " />";
+    *****************************************************************/
+    if ($tmp === '') $tmp = '&nbsp;';
+    echo $tmp;
   }
 
   // pharmacy list
@@ -542,11 +557,15 @@ function generate_print_field($frow, $currvalue) {
       }
       if (empty($tmp)) $tmp = "($currvalue)";
     }
+    /*****************************************************************
     echo "<input type='text'" .
       " size='$fld_length'" .
       " value='$tmp'" .
       " class='under'" .
       " />";
+    *****************************************************************/
+    if ($tmp === '') $tmp = '&nbsp;';
+    echo $tmp;
   }
 
   // squads
@@ -563,11 +582,15 @@ function generate_print_field($frow, $currvalue) {
       }
       if (empty($tmp)) $tmp = "($currvalue)";
     }
+    /*****************************************************************
     echo "<input type='text'" .
       " size='$fld_length'" .
       " value='$tmp'" .
       " class='under'" .
       " />";
+    *****************************************************************/
+    if ($tmp === '') $tmp = '&nbsp;';
+    echo $tmp;
   }
 
   // Address book.
@@ -581,11 +604,15 @@ function generate_print_field($frow, $currvalue) {
       $tmp = $uname;
       if (empty($tmp)) $tmp = "($currvalue)";
     }
+    /*****************************************************************
     echo "<input type='text'" .
       " size='$fld_length'" .
       " value='$tmp'" .
       " class='under'" .
       " />";
+    *****************************************************************/
+    if ($tmp === '') $tmp = '&nbsp;';
+    echo $tmp;
   }
 
   // a set of labeled checkboxes
