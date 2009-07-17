@@ -83,7 +83,8 @@ sub scrape {
       $tag = $parser->get_tag;
       next unless ($tag->[0] eq "a");
       my $nexturl = $browser->base();
-      $nexturl =~ s'/[^/]+$'/';
+      # $nexturl =~ s'/[^/]+$'/';
+      $nexturl =~ s'/20.+$'';
       scrape($nexturl . $tag->[1]{href});
     }
 
