@@ -1,163 +1,207 @@
 <html>
 <head>
+{php}html_header_show();{/php}
+<script type="text/javascript" src="{php}echo $GLOBALS['webroot'];{/php}/library/js/jquery.js"></script>
 {literal}
-<script language="javascript">
-function calculateBMI()
-{
-	var bmi = 0;
-	var kilos = 0;
-	var meters = 0;
-	var height = document.vitals.height.value;
-	var weight = document.vitals.weight.value;
-	if(height > 0 && weight > 0)
-	{
-		kilos = weight/2.2;
-		meters = height/39.4;
-		bmi = kilos/(meters * meters);
-	}
-	document.vitals.BMI.value = bmi;
-	return bmi;
-}
-</script>
- <style type="text/css" title="mystyles" media="all">
-<!--
-td {
-	font-size:12pt;
-	font-family:helvetica;
-}
-li{
-	font-size:11pt;
-	font-family:helvetica;
-	margin-left: 15px;
-}
-a {
-	font-size:11pt;
-	font-family:helvetica;
-}
+<style type="text/css" title="mystyles" media="all">
 .title {
-	font-family: sans-serif;
-	font-size: 12pt;
+	font-size: 120%;
 	font-weight: bold;
-	text-decoration: none;
-	color: #000000;
 }
-
-.form_text{
-	font-family: sans-serif;
-	font-size: 9pt;
-	text-decoration: none;
-	color: #000000;
+.currentvalues {
+    border-right: 1px solid black;
+    padding-right:5px;
 }
-
-
--->
+.historicalvalues {
+    background-color: #ccc;
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+table {
+    border-collapse: collapse;
+}
+td,th {
+    padding-right: 10px;
+    padding-left: 10px;
+}
 </style>
 {/literal}
+
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
-<p><span class="title">Vitals</span></p>
-<form name="vitals" method="post" action="{$FORM_ACTION}/interface/forms/vitals/save.php">
+<p><span class="title">{xl t="Vitals"}</span></p>
+<form name="vitals" method="post" action="{$FORM_ACTION}/interface/forms/vitals/save.php" onSubmit="return top.restoreSession()">
 <table>
-	<tr><th align="left">Name</th><th align="left">Unit</th>
-	<th align="left">{$vitals->get_date()|date_format:"%m/%d/%y"}</th>
+	<tr><th align="left">{xl t="Name"}</th><th align="left">{xl t="Unit"}</th>
+	<th align="right" class='currentvalues'>{$vitals->get_date()|date_format:"%m/%d/%Y"}</th>
 	{foreach item=result from=$results}
-		<th align="left"  align='right'>{$result.date|date_format:"%m/%d/%y"}</th>
+		<th align='right' class='historicalvalues'>{$result.date|date_format:"%m/%d/%Y"}</th>
 	{/foreach}</tr>
-		<tr><td>Height</td><td>in</td>
-		<td align='right'><input type="text"  size='5'
-		name="height" value="{$vitals->get_height()}"/></td>
+		<tr><td>{xl t="Weight"}</td><td>{xl t="lbs"}</td>
+		<td align='right' class='currentvalues'>
+                <input type="text"i size='5' name="weight" id='weight' value="{$vitals->get_weight()}"/>
+                </td>
 	{foreach item=result from=$results}
-		<td  align='right'>{$result.height}</td>
+		<td  align='right' class='historicalvalues'>{$result.weight}</td>
 	{/foreach}</tr>
-	<tr><td>Weight</td><td>lbs</td>
-		<td align='right'><input type="text" size='5'
-			name="weight" value="{$vitals->get_weight()}" onchange="calculateBMI();"/></td>
+	<tr><td>{xl t="Height"}</td><td>{xl t="in"}</td>
+		<td align='right' class='currentvalues'><input type="text" size='5'
+			name="height" id='height' value="{$vitals->get_height()}" onChange="calculateBMI();"/></td>
 	{foreach item=result from=$results}
-		<td  align='right'>{$result.weight}</td>
+		<td  align='right' class='historicalvalues'>{$result.height}</td>
 	{/foreach}</tr>
-	<tr><td>BP Systolic</td><td>mm/hg</td>
-		<td align='right'><input type="text" size='5'
-			name="bps" value="{$vitals->get_bps()}"/></td>
+	<tr><td>{xl t="BP Systolic"}</td><td>{xl t="mm/hg"}</td>
+		<td align='right' class='currentvalues'><input type="text" size='5'
+			name="bps" id='bps' value="{$vitals->get_bps()}"/></td>
 	{foreach item=result from=$results}
-		<td  align='right'>{$result.bps}</td>
+		<td  align='right'class='historicalvalues'>{$result.bps}</td>
 	{/foreach}</tr>
-	<tr><td>BP Diastolic</td><td>mm/hg</td>
-		<td align='right'><input type="text" size='5'
-			name="bpd" value="{$vitals->get_bpd()}"/></td>
+	<tr><td>{xl t="BP Diastolic"}</td><td>{xl t="mm/hg"}</td>
+		<td align='right' class='currentvalues'><input type="text" size='5'
+			name="bpd" id='bpd' value="{$vitals->get_bpd()}"/></td>
 	{foreach item=result from=$results}
-		<td  align='right'>{$result.bpd}</td>
+		<td  align='right' class='historicalvalues'>{$result.bpd}</td>
 	{/foreach}</tr>
-	<tr><td>Pulse</td><td>per min</td>
-			<td align='right'><input type="text" size='5'
-			name="pulse" value="{$vitals->get_pulse()}"/></td>
+	<tr><td>{xl t="Pulse"}</td><td>{xl t="per min"}</td>
+			<td align='right' class='currentvalues'><input type="text" size='5'
+			name="pulse" id='pulse' value="{$vitals->get_pulse()}"/></td>
 	{foreach item=result from=$results}
-		<td  align='right'>{$result.pulse}</td>
+		<td  align='right' class='historicalvalues'>{$result.pulse}</td>
 	{/foreach}</tr>
-	<tr><td>Respiration</td><td>per min</td>
-		<td align='right'><input type="text" size='5'
-			name="respiration" value="{$vitals->get_respiration()}"/></td>
+	<tr><td>{xl t="Respiration"}</td><td>{xl t="per min"}</td>
+		<td align='right' class='currentvalues'><input type="text" size='5'
+			name="respiration" id='respiration' value="{$vitals->get_respiration()}"/></td>
 	{foreach item=result from=$results}
-		<td  align='right'>{$result.respiration}</td>
+		<td  align='right' class='historicalvalues'>{$result.respiration}</td>
 	{/foreach}</tr>
-	<tr><td>Temperature</td><td>F</td>
-		<td align='right'><input type="text" size='5'
-			name="temperature" value="{$vitals->get_temperature()}"/></td>
+	<tr><td>{xl t="Temperature"}</td><td>{xl t="F"}</td>
+		<td align='right' class='currentvalues'><input type="text" size='5'
+			name="temperature" id='temperature' value="{$vitals->get_temperature()}"/></td>
 	{foreach item=result from=$results}
-		<td  align='right'>{$result.temperature}</td>
+		<td  align='right' class='historicalvalues'>{$result.temperature}</td>
 	{/foreach}</tr>
-	<tr><td>Temp Location</td>
-		<td colspan='2' ><select name="temp_method">
-			<option value="1" {if $vitals->get_temp_method() == 1 } selected{/if}>Tympanic Membrane
-			<option value="2" {if $vitals->get_temp_method() == 2 } selected{/if}>Oral
-			<option value="3" {if $vitals->get_temp_method() == 3 } selected{/if}>Rectal
-			<option value="4" {if $vitals->get_temp_method() == 4 } selected{/if}>Axillary
+	<tr><td>{xl t="Temp Location"}</td>
+			<td colspan='2' style='text-align:right' class='currentvalues'><select name="temp_method" id='temp_method'/><option value=""> </option>  
+			<option value="Oral"              {if $vitals->get_temp_method() == "Oral"              || $vitals->get_temp_method() == 2 } selected{/if}>{xl t="Oral"}
+			<option value="Tympanic Membrane" {if $vitals->get_temp_method() == "Tympanic Membrane" || $vitals->get_temp_method() == 1 } selected{/if}>{xl t="Tympanic Membrane"}
+			<option value="Rectal"            {if $vitals->get_temp_method() == "Rectal"            || $vitals->get_temp_method() == 3 } selected{/if}>{xl t="Rectal"}
+			<option value="Axillary"          {if $vitals->get_temp_method() == "Axillary"          || $vitals->get_temp_method() == 4 } selected{/if}>{xl t="Axillary"}
+			<option value="Temporal Artery"   {if $vitals->get_temp_method() == "Temporal Artery" } selected{/if}>{xl t="Temporal Artery"}
 		</select></td>
-		{foreach item=result from=$results}
-			<td  align='right'>{if $result.temp_method == 1 }
-					Tympanic Membrane
-				{elseif $result.temp_method == 2 }
-					Oral
-				{elseif $result.temp_method == 3 }
-					Rectal
-				{else}
-					Axillary
-				{/if}
-			</td>
-		{/foreach}
-		</tr>
-	<tr><td>Head Circumference</td><td>cm</td>
-		<td align='right'><input type="text" size='5'
-			name="head_circ" value="{$vitals->get_head_circ()}"/></td>
 	{foreach item=result from=$results}
-		<td  align='right'>{$result.head_circ}</td>
+		<td align='right' class='historicalvalues'>{xl t=$result.temp_method}</td>
 	{/foreach}</tr>
-	<tr><td>BMI</td><td>%</td>
-		<td align='right'><input type="text" size='5'
-			name="BMI" value="{$vitals->get_BMI()}"/></td>
+
+	<tr><td>{xl t="Oxygen Saturation"}</td><td>{xl t="%"}</td>
+		<td align='right' class='currentvalues'><input type="text" size='5'
+			name="oxygen_saturation" id='oxygen_saturation' value="{$vitals->get_oxygen_saturation()}"/></td>
 	{foreach item=result from=$results}
-		<td  align='right'>{$result.BMI}</td>
+		<td  align='right' class='historicalvalues'>{$result.oxygen_saturation}</td>
 	{/foreach}</tr>
-	<tr><td>Oxygen Saturation</td><td>%</td>
-		<td align='right'><input type="text" size='5'
-			name="oxygen_saturation" value="{$vitals->get_oxygen_saturation()}"/></td>
+	<tr><td>{xl t="Head Circumference"}</td><td>{xl t="inch"}</td>
+		<td align='right' class='currentvalues'><input type="text" size='5'
+			name="head_circ" id='head_circ' value="{$vitals->get_head_circ()}"/></td>
 	{foreach item=result from=$results}
-		<td  align='right'>{$result.oxygen_saturation}</td>
+		<td  align='right' class='historicalvalues'>{$result.head_circ}</td>
 	{/foreach}</tr>
-	<tr><td>Waist Circumference</td><td>in</td>
-		<td align='right'><input type="text" size='5'
-			name="waist_circ" value="{$vitals->get_waist_circ()}"/></td>
+	<tr><td>{xl t="Waist Circumference"}</td><td>{xl t="in"}</td>
+		<td align='right' class='currentvalues'><input type="text" size='5'
+			name="waist_circ" id='waist_circ' value="{$vitals->get_waist_circ()}"/></td>
 	{foreach item=result from=$results}
-		<td align='right'>{$result.waist_circ}</td>
-	{/foreach}
-	</tr>
+		<td align='right' class='historicalvalues'>{$result.waist_circ}</td>
+	{/foreach}</tr>
+
+	<tr><td>{xl t="BMI"}</td><td>{xl t="%"}</td>
+		<td align='right' class='currentvalues'><input type="text" size='5'
+			name="BMI" id='BMI' value="{$vitals->get_BMI()|substr:0:5}"/></td>
+	{foreach item=result from=$results}
+		<td  align='right' class='historicalvalues'>{$result.BMI|substr:0:5}</td>
+	{/foreach}</tr>
+
+  <tr><td>{xl t="BMI Status - Blank is Normal"}</td><td>{xl t="Type"}</td>
+    <td align='right' class='currentvalues'><input type="text" size='15'
+    name="BMI_status" id="BMI_status' value="{$vitals->get_BMI_status()}"/></td>
+  {foreach item=result from=$results}
+    <td  align='right' class='historicalvalues'>{xl t=$result.BMI_status}</td>
+  {/foreach}
+  </tr>
+
+  <tr><td>{xl t="Other Notes"}</td>
+    <td colspan='2' align='right' class='currentvalues'><input type="text" size='20'
+      name="note" id='note' value="{$vitals->get_note()}" /></td>
+  {foreach item=result from=$results}
+    <td align='right' class='historicalvalues'>{$result.note}</td>
+  {/foreach}</tr>
+
 	<tr>
-	<td><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
+	<td colspan='3' style='text-align:center'>
+        <input type="submit" name="Submit" value="{xl t="Save Form"}">
+        <input type="button" id="cancel" value="{xl t="Don't Save"}">
+        {if $patient_age <= 20 || (preg_match('/month/', $patient_age))}
+        <!-- only show growth-chart button for patients < 20 years old -->
+        <!-- <input type="button" id="growthchart" value="{xl t="Growth-Chart"}" style='margin-left: 20px;'> -->
+        <input type="button" id="pdfchart" value="{xl t="Growth-Chart"}" style='margin-left: 20px;'>
+        {/if}
+        </td>
 </tr>
 </table>
-<input type="hidden" name="id" value="{$vitals->get_id()}" />
-<input type="hidden" name="activity" value="{$vitals->get_activity()}">
-<input type="hidden" name="pid" value="{$vitals->get_pid()}">
-<input type="hidden" name="process" value="true">
+<input type="hidden" name="id" id='id' value="{$vitals->get_id()}" />
+<input type="hidden" name="activity" id='activity' value="{$vitals->get_activity()}">
+<input type="hidden" name="pid" id='pid' value="{$vitals->get_pid()}">
+<input type="hidden" name="process" id='process' value="true">
 </form>
 </body>
+
+<script language="javascript">
+var formdate = '{$vitals->get_date()|date_format:"%Y%m%d"}';
+// vitals array elements are in the format:
+//   date-height-weight-head_circumference
+var vitals = new Array();
+// get values from the current form elements
+vitals[0] = formdate+'-{$vitals->get_height()}-{$vitals->get_weight()}-{$vitals->get_head_circ()}';
+// historic values
+{foreach item=result from=$results}
+vitals[vitals.length] = '{$result.date|date_format:"%Y%m%d"}-{$result.height}-{$result.weight}-{$result.head_circ}';
+{/foreach}
+var webroot = '{$FORM_ACTION}';
+var pid = '{$vitals->get_pid()}';
+{literal}
+
+$(document).ready(function(){
+    $("#growthchart").click(function() { ShowGrowthchart(); });
+    $("#pdfchart").click(function() { ShowGrowthchart("1"); });
+    $("#cancel").click(function() { {/literal}location.href('{$DONT_SAVE_LINK}');{literal} });
+});
+
+function ShowGrowthchart(doPDF) {
+    // get values from the current form elements
+    {/literal}
+    vitals[0] = formdate+'-'+$("#height").val()+'-'+$("#weight").val()+'-'+$("#head_circ").val();
+    {literal}
+    // build the data string
+    var datastring = "";
+    for(var i=0; i<vitals.length; i++) {
+        datastring += vitals[i]+"~";
+    }
+    newURL = webroot+'/interface/forms/vitals/growthchart/chart.php?pid='+pid+'&data='+datastring;
+    if (doPDF == 1) newURL += "&pdf=1";
+    // do the new window stuff
+    top.restoreSession();
+    window.open(newURL, '_blank', "menubar=1,toolbar=1,scrollbars=1,resizable=1,width=600,height=450");
+}
+
+function calculateBMI() {
+    var bmi = 0;
+    var height = $("#height").val();
+    var weight = $("#weight").val();
+    if(height > 0 && weight > 0) {
+        bmi = weight/height/height*703;
+    }
+    $("#BMI").val(bmi);
+    return bmi;
+}
+
+</script>
+{/literal}
+
 </html>
