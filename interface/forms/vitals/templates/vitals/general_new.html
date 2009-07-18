@@ -89,7 +89,7 @@ td,th {
 			<option value="Temporal Artery"   {if $vitals->get_temp_method() == "Temporal Artery" } selected{/if}>{xl t="Temporal Artery"}
 		</select></td>
 	{foreach item=result from=$results}
-		<td align='right' class='historicalvalues'>{$result.temp_method}</td>
+		<td align='right' class='historicalvalues'>{xl t=$result.temp_method}</td>
 	{/foreach}</tr>
 
 	<tr><td>{xl t="Oxygen Saturation"}</td><td>{xl t="%"}</td>
