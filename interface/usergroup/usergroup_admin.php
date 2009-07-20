@@ -203,10 +203,11 @@ if ($fres) {
 <td><span class="text"><?php xl('NPI','e'); ?>: </span></td><td><input type="entry" name="npi" size="20"></td>
 <td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="entry" name="specialty" size="20"></td>
 </tr>
-<td><span class="text"><?php xl('Taxonomy','e'); ?>: </span></td>
-<td><input type="entry" name="taxonomy" size="20" value="207Q00000X"></td>
+
 <!-- (CHEMED) Calendar UI preference -->
 <tr>
+<td><span class="text"><?php xl('Taxonomy','e'); ?>: </span></td>
+<td><input type="entry" name="taxonomy" size="20" value="207Q00000X"></td>
 <td><span class="text"><?php xl('Calendar UI','e'); ?>: </span></td><td><select name="cal_ui">
 <?php
  foreach (array(1 => xl('Default'), 2 => xl('Fancy'), 3 => xl('Outlook')) as $key => $value)
