@@ -21,12 +21,20 @@ $transid = empty($_REQUEST['transid']) ? 0 : $_REQUEST['transid'] + 0;
 
 if ($transid) {
   $trow = getTransById($transid);
+  $patient_id = $trow['pid'];
+  $refer_date = empty($trow['refer_date']) ? date('Y-m-d') : $trow['refer_date'];
 }
 else {
-  $trow = array('id' => '', 'pid' => $pid, 'refer_date' => date('Y-m-d'));
+  if (empty($_REQUEST['patient_id'])) {
+    // If no transaction ID or patient ID, this will be a totally blank form.
+    $patient_id = 0;
+    $refer_date = '';
+  } else {
+    $patient_id = $_REQUEST['patient_id'] + 0;
+    $refer_date = date('Y-m-d');
+  }
+  $trow = array('id' => '', 'pid' => $patient_id, 'refer_date' => $refer_date);
 }
-$patient_id = $trow['pid'];
-$refer_date = empty($trow['refer_date']) ? date('Y-m-d') : $trow['refer_date'];
 
 if ($patient_id) {
   $patdata = getPatientData($patient_id);
@@ -61,6 +69,11 @@ if (empty($vrow)) $vrow = array(
 
 $facrow = sqlQuery("SELECT name, facility_npi FROM facility ORDER BY " .
   "service_location DESC, billing_location DESC, id ASC LIMIT 1");
+
+// Make some items HTML-friendly if they are empty.
+if (empty($trow['refer_date'])) $trow['refer_date'] = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+if (empty($trow['id'])) $trow['id'] = '&nbsp;';
+if (empty($patient_id)) $patient_id = '&nbsp;';
 
 $s = '';
 $fh = fopen($template_file, 'r');
