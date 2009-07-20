@@ -63,7 +63,7 @@ if ($_GET["mode"] == "update") {
           sqlStatement("UPDATE users, facility SET users.facility = facility.name WHERE facility.id = '$tqvar' AND users.id = {$_GET["id"]}");
           //END (CHEMED)
   }
-  if ($_GET["schedule_facility"]) {
+  if ($GLOBALS['restrict_user_facility'] && $_GET["schedule_facility"]) {
 	  sqlStatement("delete from users_facility
 	    where tablename='users'
 	    and table_id={$_GET["id"]}
@@ -181,6 +181,7 @@ foreach($result as $iter2) {
 </select></td>
 </tr>
 
+<?php if ($GLOBALS['restrict_user_facility']) { ?>
 <tr>
  <td colspan=2>&nbsp;</td>
  <td><span class=text><?php xl('Schedule Facilities:', 'e');?></td>
@@ -204,6 +205,7 @@ foreach($result as $iter2) {
   </select>
  </td>
 </tr>
+<?php } ?>
 
 <TR>
 <TD><span class=text><?php xl('Federal Tax ID','e'); ?>: </span></TD><TD><input type=text name=taxid size=20 value="<?php echo $iter["federaltaxid"]?>"></td>
