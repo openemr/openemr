@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006-2008 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2009 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -14,11 +14,13 @@
  $form_fname = trim($_POST['form_fname']);
  $form_lname = trim($_POST['form_lname']);
  $form_specialty = trim($_POST['form_specialty']);
+ $form_external = $_POST['form_external'] ? 1 : 0;
 
  $query = "SELECT * FROM users WHERE active = 1 AND ( authorized = 1 OR username = '' ) ";
  if ($form_lname) $query .= "AND lname LIKE '$form_lname%' ";
  if ($form_fname) $query .= "AND fname LIKE '$form_fname%' ";
  if ($form_specialty) $query .= "AND specialty LIKE '%$form_specialty%' ";
+ if ($form_external) $query .= "AND username = '' ";
  $query .= "ORDER BY lname, fname, mname LIMIT 500";
  $res = sqlStatement($query);
 ?>
@@ -63,15 +65,18 @@ function doedclick(userid) {
 <table>
  <tr class='search'> <!-- bgcolor='#ddddff' -->
   <td>
-   <?php xl('First Name:','e')?>
+   <?php xl('First Name','e')?>:
    <input type='text' name='form_fname' size='10' value='<?php echo $form_fname; ?>'
     class='inputtext' title='<?php xl("All or part of the first name","e") ?>' />&nbsp;
-   <?php xl('Last Name:','e')?>
+   <?php xl('Last Name','e')?>:
    <input type='text' name='form_lname' size='10' value='<?php echo $form_lname; ?>'
     class='inputtext' title='<?php xl("All or part of the last name","e") ?>' />&nbsp;
-   <?php xl('Specialty:','e')?>
+   <?php xl('Specialty','e')?>:
    <input type='text' name='form_specialty' size='10' value='<?php echo $form_specialty; ?>'
-    class='inputtext' title='<?php xl("Any part of the desired specialty","e") ?>' />&nbsp;&nbsp;
+    class='inputtext' title='<?php xl("Any part of the desired specialty","e") ?>' />&nbsp;
+   <input type='checkbox' name='form_external' value='1'<?php if ($form_external) echo ' checked'; ?>
+    title='<?php xl("Omit internal users?","e") ?>' />
+   <?php xl('External Only','e')?>&nbsp;&nbsp;
    <input type='submit' class='button' name='form_search' value='<?php xl("Search","e")?>' />
   </td>
   <td align='right'>
