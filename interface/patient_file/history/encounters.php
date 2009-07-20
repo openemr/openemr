@@ -194,7 +194,7 @@ function editNote(feid) {
   <th colspan='5'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('Billing') : xl('Coding') ?></th>
 <?php } ?>
 
-<?php if (!$GLOBALS['athletic_team']) { ?>
+<?php if (!$GLOBALS['athletic_team'] && !$GLOBALS['ippf_specific']) { ?>
   <th>&nbsp;<?php echo ($GLOBALS['weight_loss_clinic']) ? xl('Payment') : xl('Insurance'); ?></th>
 <?php } ?>
 
@@ -478,7 +478,7 @@ if ($result = getEncounters($pid)) {
         }
 
         // show insurance
-        if (! $GLOBALS['athletic_team']) {
+        if (!$GLOBALS['athletic_team'] && !$GLOBALS['ippf_specific']) {
             $insured = "$raw_encounter_date";
             if ($auth_demo) {
                 $responsible = -1;
