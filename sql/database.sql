@@ -2738,6 +2738,7 @@ CREATE TABLE `users` (
   `cal_ui` tinyint(4) NOT NULL default '1',
   `taxonomy` varchar(30) NOT NULL DEFAULT '207Q00000X',
   `ssi_relayhealth` varchar(64) NULL,
+  `calendar` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 = appears in calendar',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 

@@ -202,3 +202,9 @@ CREATE TABLE `users_facility` (
 ) ENGINE=InnoDB COMMENT='joins users or patient_data to facility table';
 #EndIf
 
+#IfMissingColumn users calendar
+ALTER TABLE `users` 
+  ADD `calendar` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 = appears in calendar';
+UPDATE users SET calendar = 1 WHERE authorized = 1 AND info NOT LIKE '%Nocalendar%';
+#EndIf
+

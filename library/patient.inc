@@ -144,7 +144,8 @@ function getServiceFacilities($first = '') {
 function getProviderInfo($providerID = "%", $providers_only = true, $facility = '' ) {
     $param1 = "";
     if ($providers_only) {
-        $param1 = " AND authorized=1 AND ( info IS NULL OR info NOT LIKE '%Nocalendar%' ) ";
+      // $param1 = " AND authorized=1 AND ( info IS NULL OR info NOT LIKE '%Nocalendar%' ) ";
+      $param1 = " AND authorized = 1 AND calendar = 1 ";
     }
 
     //--------------------------------
