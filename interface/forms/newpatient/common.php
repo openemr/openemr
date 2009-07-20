@@ -204,7 +204,7 @@ if ($fres) {
      </td>
     </tr>
 
-    <tr>
+    <tr<?php if ($GLOBALS['ippf_specific']) echo " style='visibility:hidden;'"; ?>>
      <td class='bold' nowrap><?php xl('Onset/hosp. date:','e'); ?></td>
      <td class='text' nowrap>
       <input type='text' size='10' name='form_onset_date' id='form_onset_date'
