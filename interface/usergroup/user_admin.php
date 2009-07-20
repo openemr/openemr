@@ -100,9 +100,10 @@ if ($_GET["mode"] == "update") {
 
   $tqvar  = $_GET["authorized"] ? 1 : 0;
   $actvar = $_GET["active"]     ? 1 : 0;
+  $calvar = $_GET["calendar"]   ? 1 : 0;
 
   sqlStatement("UPDATE users SET authorized = $tqvar, active = $actvar, " .
-    "see_auth = '" . $_GET['see_auth'] . "' WHERE " .
+    "calendar = $calvar, see_auth = '" . $_GET['see_auth'] . "' WHERE " .
     "id = {$_GET["id"]}");
 
   if ($_GET["comments"]) {
@@ -134,6 +135,16 @@ $iter = $result[0];
 
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 
+<script language="JavaScript">
+
+function authorized_clicked() {
+ var f = document.forms[0];
+ f.calendar.disabled = !f.authorized.checked;
+ f.calendar.checked  =  f.authorized.checked;
+}
+
+</script>
+
 </head>
 <body class="body_top">
 
@@ -149,9 +160,16 @@ $iter = $result[0];
 
 <TR>
 <td><span class="text">&nbsp;</span></td><td>&nbsp;</td>
-<TD><span class=text><?php xl('Authorized','e'); ?>: </TD>
+<TD><span class=text><?php xl('Provider','e'); ?>: </TD>
 <TD>
- <input type="checkbox" name="authorized"<?php if ($iter["authorized"]) echo " checked"; ?> />
+ <input type="checkbox" name="authorized" onclick="authorized_clicked()"<?php
+  if ($iter["authorized"]) echo " checked"; ?> />
+
+ &nbsp;&nbsp;<span class='text'><?php xl('Calendar','e'); ?>:
+ <input type="checkbox" name="calendar"<?php
+  if ($iter["calendar"]) echo " checked";
+  if (!$iter["authorized"]) echo " disabled"; ?> />
+
  &nbsp;&nbsp;<span class='text'><?php xl('Active','e'); ?>:
  <input type="checkbox" name="active"<?php if ($iter["active"]) echo " checked"; ?> />
 </TD>

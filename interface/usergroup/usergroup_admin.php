@@ -15,6 +15,8 @@ if (isset($_POST["mode"])) {
     }
     // $_POST["info"] = addslashes($_POST["info"]);
 
+    $calvar = $_POST["calendar"] ? 1 : 0;
+
     $res = sqlStatement("select distinct username from users where username != ''");
     $doit = true;
     while ($row = mysql_fetch_array($res)) {
@@ -40,6 +42,7 @@ if (isset($_POST["mode"])) {
         "', facility = '"      . trim(formData('facility'     )) .
         "', specialty = '"     . trim(formData('specialty'    )) .
         "', see_auth = '"      . trim(formData('see_auth'     )) .
+        "', calendar = '"      . $calvar                         .
         "'");
       sqlStatement("insert into groups set name = '" . trim(formData('groupname')) .
         "', user = '" . trim(formData('rumple')) . "'");
@@ -126,6 +129,16 @@ $form_inactive = empty($_REQUEST['form_inactive']) ? false : true;
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
+<script language="JavaScript">
+
+function authorized_clicked() {
+ var f = document.forms[0];
+ f.calendar.disabled = !f.authorized.checked;
+ f.calendar.checked  =  f.authorized.checked;
+}
+
+</script>
+
 </head>
 <body class="body_top">
 
@@ -159,7 +172,11 @@ foreach ($result2 as $iter) {
 }
 ?>
 </select></td>
-<td><span class="text"><?php xl('Authorized','e'); ?>: </span></td><td><input type=checkbox name='authorized' value="1"></td>
+<td><span class="text"><?php xl('Provider','e'); ?>: </span></td><td>
+ <input type='checkbox' name='authorized' value='1' onclick='authorized_clicked()' />
+ &nbsp;&nbsp;<span class='text'><?php xl('Calendar','e'); ?>:
+ <input type='checkbox' name='calendar' disabled />
+</td>
 </tr>
 <tr>
 <td><span class="text"><?php xl('First Name','e'); ?>: </span></td><td><input type=entry name='fname' size=20></td>
