@@ -2737,6 +2737,7 @@ CREATE TABLE `users` (
   `notes` text,
   `cal_ui` tinyint(4) NOT NULL default '1',
   `taxonomy` varchar(30) NOT NULL DEFAULT '207Q00000X',
+  `ssi_relayhealth` varchar(64) NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
