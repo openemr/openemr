@@ -13,6 +13,38 @@ include_once("$srcdir/patient.inc");
 
 $template_file = "$webserver_root/custom/referral_template.html";
 
+$TEMPLATE_LABELS = array(
+  'label_clinic_id'             => xl('Clinic ID'),
+  'label_control_no'            => xl('Control No.'),
+  'label_date'                  => xl('Date'),
+  'label_webpage_title'         => xl('Referral Form'),
+  'label_form1_title'           => xl('REFERRAL FORM'),
+  'label_name'                  => xl('Name'),
+  'label_age'                   => xl('Age'),
+  'label_gender'                => xl('Gender'),
+  'label_address'               => xl('Address'),
+  'label_postal'                => xl('Postal'),
+  'label_phone'                 => xl('Phone'),
+  'label_ref_reason'            => xl('Reference Reason'),
+  'label_diagnosis'             => xl('Diagnosis'),
+  'label_ref_class'             => xl('Reference classification (risk level)'),
+  'label_dr_name_sig'           => xl('Doctor\'s name and signature'),
+  'label_refer_to'              => xl('Referred to'),
+  'label_clinic'                => xl('Health centre/clinic'),
+  'label_history_summary'       => xl('Client medical history summary'),
+  'label_bp'                    => xl('Blood pressure'),
+  'label_ht'                    => xl('Height'),
+  'label_wt'                    => xl('Weight'),
+  'label_ref_name_sig'          => xl('Referer name and signature'),
+  'label_special_name_sig'      => xl('Specialist name and signature'),
+  'label_form2_title'           => xl('COUNTER REFERRAL FORM'),
+  'label_findings'              => xl('Findings'),
+  'label_final_diagnosis'       => xl('Final Diagnosis'),
+  'label_services_provided'     => xl('Services provided'),
+  'label_recommendations'       => xl('Recommendations and treatment'),
+  'label_scripts_and_referrals' => xl('Prescriptions and other referrals')
+);
+
 if (!is_file($template_file)) die("$template_file does not exist!");
 
 $transid = empty($_REQUEST['transid']) ? 0 : $_REQUEST['transid'] + 0;
@@ -98,7 +130,12 @@ while ($frow = sqlFetchArray($fres)) {
 }
 
 foreach ($patdata as $key => $value) {
-  $s = str_replace("{pt_$key}", $value, $s);
+  if ($key == "sex") {
+   $s = str_replace("{pt_$key}", generate_display_field(array('data_type'=>'1','list_id'=>'sex'), $value), $s);
+  }
+  else {
+   $s = str_replace("{pt_$key}", $value, $s);   
+  }
 }
 
 foreach ($frrow as $key => $value) {
@@ -111,6 +148,10 @@ foreach ($torow as $key => $value) {
 
 foreach ($vrow as $key => $value) {
   $s = str_replace("{v_$key}", $value, $s);
+}
+
+foreach ($TEMPLATE_LABELS as $key => $value) {
+  $s = str_replace("{".$key."}", $value, $s);
 }
 
 // A final pass to clear any unmatched variables:
