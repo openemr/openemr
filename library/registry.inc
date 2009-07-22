@@ -76,4 +76,40 @@ function installSQL ( $dir )
 	}else
 		return false;
 }
+
+
+/* 
+ * is a form registered
+ *  (optional - and active)
+ * in the database?
+ * 
+ *  INPUT =   id => form ID
+ *            state => 0=inactive / 1=active
+ *  OUTPUT = true or false
+ */
+function isRegistered ( $id, $state = 1)
+{
+    $sql = "select id from registry where ".
+            "id=".$id.
+            " and state=".$state;
+    $result = sqlQuery($sql);
+    if ($result['id'] != '') return true;
+    return false;
+}
+
+
+/*
+ * given a form directory return the unique ID
+ * for the associated form
+ * NOTE - sometimes the Name of a form has a line-break at the end, thus this function might be better
+ */
+function getIdByDirectory ( $directory )
+{
+    $sql = "select id from registry where ".
+            " directory = '".$directory."'";
+    $result = sqlQuery($sql);
+    if ($result['id'] != '') return $result['id'];
+    return null;
+}
+
 ?>

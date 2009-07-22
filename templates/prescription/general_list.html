@@ -37,8 +37,10 @@ function changeLinkHref(id,addValue,value) {
 <a id="multiprint" target="_new" href="{$CONTROLLER}prescription&multiprint&id={$printm}" onclick="top.restoreSession()">Print Multiple</a>
 <br>
 <a id="multiprintToFax" target="_new" href="{$CONTROLLER}prescription&multiprintfax&id={$printm}" onclick="top.restoreSession()">Print Multiple To Fax</a>
+{if $CAMOS_FORM == true}
 <br>
 <a id="four_panel_rx" target="_new" href="{$WEBROOT}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()">Print Four Panel</a>
+{/if}
 </div>
 
 <table>

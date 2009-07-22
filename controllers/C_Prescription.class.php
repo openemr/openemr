@@ -4,6 +4,7 @@ require_once($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
 require_once($GLOBALS['fileroot'] . "/library/classes/Prescription.class.php");
 require_once($GLOBALS['fileroot'] . "/library/classes/Provider.class.php");
 require_once($GLOBALS['fileroot'] . "/library/classes/RXList.class.php");
+require_once($GLOBALS['fileroot'] . "/library/registry.inc");
 
 class C_Prescription extends Controller {
 
@@ -103,8 +104,11 @@ class C_Prescription extends Controller {
 		else {
 			$this->assign("prescriptions", Prescription::prescriptions_factory($id));
 		}
-		//print_r(Prescription::prescriptions_factory($id));
-		$this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_list.html");
+                
+                // flag to indicate the CAMOS form is regsitered and active
+                $this->assign("CAMOS_FORM", isRegistered(getIdByDirectory("CAMOS")));
+		
+                $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_list.html");
 	}
 
 	function block_action($id,$sort = "") {
