@@ -36,7 +36,7 @@ body, td {
 }
 </style>
 
-<title>Referral Form</title>
+<title>{label_webpage_title}</title>
 </head>
 
 <body bgcolor='#ffffff'>
@@ -50,82 +50,82 @@ body, td {
    <td rowspan='2' align='right' width='10%' nowrap>
     <table border='1' cellpadding='2' cellspacing='0'>
      <tr>
-      <td nowrap>Clinic ID</td>
+      <td nowrap>{label_clinic_id}</td>
       <td style='width:60pt' nowrap>{fac_facility_npi}</td>
      </tr>
      <tr>
-      <td nowrap>Client ID</td>
+      <td nowrap>{label_clinic_id}</td>
       <td nowrap>{ref_pid}</td>
      </tr>
      <tr>
-      <td nowrap>Control No.</td>
+      <td nowrap>{label_control_no}</td>
       <td nowrap>{ref_id}</td>
      </tr>
      <tr>
-      <td nowrap>Date</td>
+      <td nowrap>{label_date}</td>
       <td nowrap>{ref_refer_date}</td>
      </tr>
     </table>
    </td>
   </tr>
   <tr>
-   <td align='center' valign='top'><b>REFERRAL FORM</b></td>
+   <td align='center' valign='top'><b>{label_form1_title}</b></td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Name &nbsp;</td>
+   <td width='1%' nowrap>{label_name} &nbsp;</td>
    <td class='under'>{pt_title} {pt_fname} {pt_mname} {pt_lname}&nbsp;</td>
-   <td width='1%' nowrap>&nbsp; Age &nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_age} &nbsp;</td>
    <td class='under'>{pt_age}&nbsp;</td>
-   <td width='1%' nowrap>&nbsp; Gender &nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_gender} &nbsp;</td>
    <td class='under'>{pt_sex}&nbsp;</td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Address &nbsp;</td>
+   <td width='1%' nowrap>{label_address} &nbsp;</td>
    <td class='under'>{pt_street}, {pt_city} {pt_state}&nbsp;</td>
-   <td width='1%' nowrap>&nbsp; Postal &nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_postal} &nbsp;</td>
    <td class='under'>{pt_postal_code}&nbsp;</td>
-   <td width='1%' nowrap>&nbsp; Phone &nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_phone} &nbsp;</td>
    <td class='under'>{pt_phone_home}&nbsp;</td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Reference Reason &nbsp;</td>
+   <td width='1%' nowrap>{label_ref_reason} &nbsp;</td>
    <td class='under'>{ref_body}&nbsp;</td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Diagnosis &nbsp;</td>
+   <td width='1%' nowrap>{label_diagnosis} &nbsp;</td>
    <td class='under'>{ref_refer_diag}&nbsp;</td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Reference classification (risk level) &nbsp;</td>
+   <td width='1%' nowrap>{label_ref_class} &nbsp;</td>
    <td class='under'>{ref_refer_risk_level}&nbsp;</td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Doctor's name and signature &nbsp;</td>
+   <td width='1%' nowrap>{label_dr_name_sig} &nbsp;</td>
    <td class='under'>{ref_refer_from}&nbsp;</td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Referred to &nbsp;</td>
+   <td width='1%' nowrap>{label_refer_to} &nbsp;</td>
    <td class='under'>{ref_refer_to} / {to_organization}&nbsp;</td>
   </tr>
  </table>
@@ -138,19 +138,19 @@ body, td {
    <td rowspan='2' align='right' width='10%' nowrap>
     <table border='1' cellpadding='2' cellspacing='0'>
      <tr>
-      <td nowrap>Clinic ID</td>
+      <td nowrap>{label_clinic_id}</td>
       <td style='width:60pt' nowrap>{fac_facility_npi}</td>
      </tr>
      <tr>
-      <td nowrap>Client ID</td>
+      <td nowrap>{label_clinic_id}</td>
       <td nowrap>{ref_pid}</td>
      </tr>
      <tr>
-      <td nowrap>Control No.</td>
+      <td nowrap>{label_control_no}</td>
       <td nowrap>{ref_id}</td>
      </tr>
      <tr>
-      <td nowrap>Date</td>
+      <td nowrap>{label_date}</td>
       <td nowrap>{ref_refer_date}</td>
      </tr>
     </table>
@@ -163,49 +163,49 @@ body, td {
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Name &nbsp;</td>
+   <td width='1%' nowrap>{label_name} &nbsp;</td>
    <td class='under'>{pt_title} {pt_fname} {pt_mname} {pt_lname}&nbsp;</td>
    <td width='1%' nowrap>&nbsp; Age &nbsp;</td>
    <td class='under'>{pt_age}&nbsp;</td>
-   <td width='1%' nowrap>&nbsp; Gender &nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_gender} &nbsp;</td>
    <td class='under'>{pt_sex}&nbsp;</td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Health centre/clinic &nbsp;</td>
+   <td width='1%' nowrap>{label_clinic} &nbsp;</td>
    <td class='under'>{to_organization}&nbsp;</td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Address &nbsp;</td>
+   <td width='1%' nowrap>{label_address} &nbsp;</td>
    <td class='under'>{to_street}, {to_city} {to_state}&nbsp;</td>
-   <td width='1%' nowrap>&nbsp; Postal &nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_postal} &nbsp;</td>
    <td class='under'>{to_zip}&nbsp;</td>
-   <td width='1%' nowrap>&nbsp; Phone &nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_phone} &nbsp;</td>
    <td class='under'>{to_phone}&nbsp;</td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Reference Reason &nbsp;</td>
+   <td width='1%' nowrap>{label_ref_reason} &nbsp;</td>
    <td class='under'>{ref_body}&nbsp;</td>
   </tr>
  </table>
 
- <br />&nbsp;<br />Client medical history summary:
+ <br />&nbsp;<br />{label_history_summary}:
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Blood pressure &nbsp;</td>
+   <td width='1%' nowrap>{label_bp} &nbsp;</td>
    <td class='under'>{v_bps}/{v_bpd}&nbsp;</td>
-   <td width='1%' nowrap>&nbsp; Height &nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_ht} &nbsp;</td>
    <td class='under'>{v_height}&nbsp;</td>
-   <td width='1%' nowrap>&nbsp; Weight &nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_wt} &nbsp;</td>
    <td class='under'>{v_weight}&nbsp;</td>
   </tr>
  </table>
@@ -214,14 +214,14 @@ body, td {
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Referer name and signature &nbsp;</td>
+   <td width='1%' nowrap>{label_ref_name_sig} &nbsp;</td>
    <td class='under'>{ref_refer_from}&nbsp;</td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Specialist name and signature &nbsp;</td>
+   <td width='1%' nowrap>{label_special_name_sig} &nbsp;</td>
    <td class='under'>{ref_refer_to}&nbsp;</td>
   </tr>
  </table>
@@ -237,92 +237,92 @@ body, td {
    <td rowspan='2' align='right' width='10%' nowrap>
     <table border='1' cellpadding='2' cellspacing='0'>
      <tr>
-      <td nowrap>Clinic ID</td>
+      <td nowrap>{label_clinic_id}</td>
       <td style='width:60pt' nowrap>{fac_facility_npi}</td>
      </tr>
      <tr>
-      <td nowrap>Client ID</td>
+      <td nowrap>{label_clinic_id}</td>
       <td nowrap>{ref_pid}</td>
      </tr>
      <tr>
-      <td nowrap>Control No.</td>
+      <td nowrap>{label_control_no}</td>
       <td nowrap>{ref_id}</td>
      </tr>
      <tr>
-      <td nowrap>Date</td>
+      <td nowrap>{label_date}</td>
       <td nowrap>{ref_reply_date}&nbsp;</td>
      </tr>
     </table>
    </td>
   </tr>
   <tr>
-   <td align='center' valign='top'><b>COUNTER REFERRAL FORM</b></td>
+   <td align='center' valign='top'><b>{label_form2_title}</b></td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Name &nbsp;</td>
+   <td width='1%' nowrap>{label_name} &nbsp;</td>
    <td class='under'>{pt_title} {pt_fname} {pt_mname} {pt_lname}&nbsp;</td>
-   <td width='1%' nowrap>&nbsp; Age &nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_age} &nbsp;</td>
    <td class='under'>{pt_age}&nbsp;</td>
-   <td width='1%' nowrap>&nbsp; Gender &nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_gender} &nbsp;</td>
    <td class='under'>{pt_sex}&nbsp;</td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Health centre/clinic &nbsp;</td>
+   <td width='1%' nowrap>{label_clinic} &nbsp;</td>
    <td class='under'>{to_organization}&nbsp;</td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Diagnosis &nbsp;</td>
+   <td width='1%' nowrap>{label_diagnosis} &nbsp;</td>
    <td class='under'>{ref_reply_init_diag}&nbsp;</td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Findings &nbsp;</td>
+   <td width='1%' nowrap>{label_findings} &nbsp;</td>
    <td class='under'>{ref_reply_findings}&nbsp;</td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Final Diagnosis &nbsp;</td>
+   <td width='1%' nowrap>{label_final_diagnosis} &nbsp;</td>
    <td class='under'>{ref_reply_final_diag}&nbsp;</td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Services provided &nbsp;</td>
+   <td width='1%' nowrap>{label_services_provided} &nbsp;</td>
    <td class='under'>{ref_reply_services}&nbsp;</td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Recommendations and treatment &nbsp;</td>
+   <td width='1%' nowrap>{label_recommendations} &nbsp;</td>
    <td class='under'>{ref_reply_recommend}&nbsp;</td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Prescriptions and other referrals &nbsp;</td>
+   <td width='1%' nowrap>{label_scripts_and_referrals} &nbsp;</td>
    <td class='under'>{ref_reply_rx_refer}&nbsp;</td>
   </tr>
  </table>
 
  <table cellspacing='0' cellpadding='0' class='linetable'>
   <tr>
-   <td width='1%' nowrap>Specialist name and signature &nbsp;</td>
+   <td width='1%' nowrap>{label_special_name_sig} &nbsp;</td>
    <td class='under'>{ref_refer_to}&nbsp;</td>
   </tr>
  </table>
