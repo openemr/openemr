@@ -205,6 +205,6 @@ CREATE TABLE `users_facility` (
 #IfMissingColumn users calendar
 ALTER TABLE `users` 
   ADD `calendar` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 = appears in calendar';
-UPDATE users SET calendar = 1 WHERE authorized = 1 AND info NOT LIKE '%Nocalendar%';
+UPDATE users SET calendar = 1 WHERE authorized = 1 AND ( info IS NULL OR info NOT LIKE '%Nocalendar%' );
 #EndIf
 
