@@ -1,0 +1,338 @@
+<html>
+<head>
+
+<style>
+body, td {
+ font-family: sans-serif;
+ font-weight: normal;
+ font-size: 9pt;
+}
+.borderdiv {
+ width: 524pt;
+ height: 668pt;
+ padding: 0;
+ border-style: solid;
+ border-width: 1px;
+ border-color: #000000;
+}
+.paddingdiv {
+ padding: 10pt;
+}
+.bigtable, .linetable {
+ width: 504pt;
+}
+.linetable {
+ margin: 11pt 0 0 0;
+}
+.mainhead {
+ font-weight: bold;
+ font-size: 14pt;
+ text-align: center;
+}
+.under {
+ border-style: solid;
+ border-width: 0 0 1px 0;
+ border-color: #999999;
+}
+</style>
+
+<title>{label_webpage_title}</title>
+</head>
+
+<body bgcolor='#ffffff'>
+
+<!-- The double div resolves a difference between Firefox and IE in treatment of padding. -->
+<div class='borderdiv'><div class='paddingdiv'>
+
+ <table cellspacing='0' cellpadding='0' class='bigtable'>
+  <tr>
+   <td class='mainhead'>{fac_name}<br />&nbsp;</td>
+   <td rowspan='2' align='right' width='10%' nowrap>
+    <table border='1' cellpadding='2' cellspacing='0'>
+     <tr>
+      <td nowrap>{label_clinic_id}</td>
+      <td style='width:60pt' nowrap>{fac_facility_npi}</td>
+     </tr>
+     <tr>
+      <td nowrap>{label_clinic_id}</td>
+      <td nowrap>{ref_pid}</td>
+     </tr>
+     <tr>
+      <td nowrap>{label_control_no}</td>
+      <td nowrap>{ref_id}</td>
+     </tr>
+     <tr>
+      <td nowrap>{label_date}</td>
+      <td nowrap>{ref_refer_date}</td>
+     </tr>
+    </table>
+   </td>
+  </tr>
+  <tr>
+   <td align='center' valign='top'><b>{label_form1_title}</b></td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_name} &nbsp;</td>
+   <td class='under'>{pt_title} {pt_fname} {pt_mname} {pt_lname}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_age} &nbsp;</td>
+   <td class='under'>{pt_age}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_gender} &nbsp;</td>
+   <td class='under'>{pt_sex}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_address} &nbsp;</td>
+   <td class='under'>{pt_street}, {pt_city} {pt_state}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_postal} &nbsp;</td>
+   <td class='under'>{pt_postal_code}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_phone} &nbsp;</td>
+   <td class='under'>{pt_phone_home}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_ref_reason} &nbsp;</td>
+   <td class='under'>{ref_body}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_diagnosis} &nbsp;</td>
+   <td class='under'>{ref_refer_diag}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_ref_class} &nbsp;</td>
+   <td class='under'>{ref_refer_risk_level}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_dr_name_sig} &nbsp;</td>
+   <td class='under'>{ref_refer_from}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_refer_to} &nbsp;</td>
+   <td class='under'>{ref_refer_to} / {to_organization}&nbsp;</td>
+  </tr>
+ </table>
+
+ <hr style='border:0;height:6pt;color:#999999;background-color:#999999;margin:12pt 0 12pt 0;' />
+
+ <table cellspacing='0' cellpadding='0' class='bigtable'>
+  <tr>
+   <td class='mainhead'>{fac_name}<br />&nbsp;</td>
+   <td rowspan='2' align='right' width='10%' nowrap>
+    <table border='1' cellpadding='2' cellspacing='0'>
+     <tr>
+      <td nowrap>{label_clinic_id}</td>
+      <td style='width:60pt' nowrap>{fac_facility_npi}</td>
+     </tr>
+     <tr>
+      <td nowrap>{label_clinic_id}</td>
+      <td nowrap>{ref_pid}</td>
+     </tr>
+     <tr>
+      <td nowrap>{label_control_no}</td>
+      <td nowrap>{ref_id}</td>
+     </tr>
+     <tr>
+      <td nowrap>{label_date}</td>
+      <td nowrap>{ref_refer_date}</td>
+     </tr>
+    </table>
+   </td>
+  </tr>
+  <tr>
+   <td align='center' valign='top'>&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_name} &nbsp;</td>
+   <td class='under'>{pt_title} {pt_fname} {pt_mname} {pt_lname}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; Age &nbsp;</td>
+   <td class='under'>{pt_age}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_gender} &nbsp;</td>
+   <td class='under'>{pt_sex}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_clinic} &nbsp;</td>
+   <td class='under'>{to_organization}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_address} &nbsp;</td>
+   <td class='under'>{to_street}, {to_city} {to_state}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_postal} &nbsp;</td>
+   <td class='under'>{to_zip}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_phone} &nbsp;</td>
+   <td class='under'>{to_phone}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_ref_reason} &nbsp;</td>
+   <td class='under'>{ref_body}&nbsp;</td>
+  </tr>
+ </table>
+
+ <br />&nbsp;<br />{label_history_summary}:
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_bp} &nbsp;</td>
+   <td class='under'>{v_bps}/{v_bpd}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_ht} &nbsp;</td>
+   <td class='under'>{v_height}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_wt} &nbsp;</td>
+   <td class='under'>{v_weight}&nbsp;</td>
+  </tr>
+ </table>
+
+ <p>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_ref_name_sig} &nbsp;</td>
+   <td class='under'>{ref_refer_from}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_special_name_sig} &nbsp;</td>
+   <td class='under'>{ref_refer_to}&nbsp;</td>
+  </tr>
+ </table>
+
+</div></div>
+<br clear='all' /><!-- kludge to fix bizarre Firefox problem with page breaks -->
+<p style='page-break-after: always' />
+<div class='borderdiv'><div class='paddingdiv'>
+
+ <table cellspacing='0' cellpadding='0' class='bigtable'>
+  <tr>
+   <td class='mainhead'>{fac_name}<br />&nbsp;</td>
+   <td rowspan='2' align='right' width='10%' nowrap>
+    <table border='1' cellpadding='2' cellspacing='0'>
+     <tr>
+      <td nowrap>{label_clinic_id}</td>
+      <td style='width:60pt' nowrap>{fac_facility_npi}</td>
+     </tr>
+     <tr>
+      <td nowrap>{label_clinic_id}</td>
+      <td nowrap>{ref_pid}</td>
+     </tr>
+     <tr>
+      <td nowrap>{label_control_no}</td>
+      <td nowrap>{ref_id}</td>
+     </tr>
+     <tr>
+      <td nowrap>{label_date}</td>
+      <td nowrap>{ref_reply_date}&nbsp;</td>
+     </tr>
+    </table>
+   </td>
+  </tr>
+  <tr>
+   <td align='center' valign='top'><b>{label_form2_title}</b></td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_name} &nbsp;</td>
+   <td class='under'>{pt_title} {pt_fname} {pt_mname} {pt_lname}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_age} &nbsp;</td>
+   <td class='under'>{pt_age}&nbsp;</td>
+   <td width='1%' nowrap>&nbsp; {label_gender} &nbsp;</td>
+   <td class='under'>{pt_sex}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_clinic} &nbsp;</td>
+   <td class='under'>{to_organization}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_diagnosis} &nbsp;</td>
+   <td class='under'>{ref_reply_init_diag}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_findings} &nbsp;</td>
+   <td class='under'>{ref_reply_findings}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_final_diagnosis} &nbsp;</td>
+   <td class='under'>{ref_reply_final_diag}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_services_provided} &nbsp;</td>
+   <td class='under'>{ref_reply_services}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_recommendations} &nbsp;</td>
+   <td class='under'>{ref_reply_recommend}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_scripts_and_referrals} &nbsp;</td>
+   <td class='under'>{ref_reply_rx_refer}&nbsp;</td>
+  </tr>
+ </table>
+
+ <table cellspacing='0' cellpadding='0' class='linetable'>
+  <tr>
+   <td width='1%' nowrap>{label_special_name_sig} &nbsp;</td>
+   <td class='under'>{ref_refer_to}&nbsp;</td>
+  </tr>
+ </table>
+
+</div></div>
+
+<!-- This should really be in the onload handler but that seems to be unreliable and can crash Firefox 3. -->
+<script language='JavaScript'>
+window.print();
+</script>
+
+</body>
+</html>
