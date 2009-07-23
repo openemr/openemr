@@ -210,9 +210,9 @@ class C_Prescription extends Controller {
     // Now it is configureable. Change value in
     //     <openemr root>/includes/config.php - Tekknogenius
     if ($this->is_faxing || $GLOBALS['oer_config']['prescriptions']['show_DEA'])
-      $pdf->ezText('<b>DEA:</b>' . $p->provider->federal_drug_id, 12);
+      $pdf->ezText('<b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id, 12);
     else
-      $pdf->ezText('<b>DEA:</b> ________________________', 12);
+      $pdf->ezText('<b>' . xl('DEA') . ':</b> ________________________', 12);
 		$pdf->ezColumnsStop();
 		if ($my_y < $pdf->y){
 			$pdf->ezSetY($my_y);
@@ -221,18 +221,18 @@ class C_Prescription extends Controller {
 		$pdf->setLineStyle(1);
 		$pdf->ezColumnsStart(array('num'=>2));
 		$pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
-		$pdf->ezText('<b>Patient Name & Address</b>',6);
+		$pdf->ezText('<b>' . xl('Patient Name & Address') . '</b>',6);
 		$pdf->ezText($p->patient->get_name_display(),10);
 		$res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =". mysql_real_escape_string ($p->patient->id));
 		$pdf->ezText($res['addr']);
 		$my_y = $pdf->y;
 		$pdf->ezNewPage();
 		$pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
-		$pdf->ezText('<b>Date of Birth</b>',6);
+		$pdf->ezText('<b>' . xl('Date of Birth') . '</b>',6);
 		$pdf->ezText($p->patient->date_of_birth,10);
 		$pdf->ezText('');
 		$pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
-		$pdf->ezText('<b>Medical Record #</b>',6);
+		$pdf->ezText('<b>' . xl('Medical Record #') . '</b>',6);
 		$pdf->ezText(str_pad($p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT),10);
 		$pdf->ezColumnsStop();
 		if ($my_y < $pdf->y){
@@ -240,9 +240,115 @@ class C_Prescription extends Controller {
 		}
 		$pdf->ezText('');
 		$pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
-		$pdf->ezText('<b>Prescriptions</b>',6);
+		$pdf->ezText('<b>' . xl('Prescriptions') . '</b>',6);
 		$pdf->ezText('',10);
 	}
+
+        function multiprintcss_header($p) {
+                echo("<div class='paddingdiv'>\n");
+                $this->providerid = $p->provider->id;
+	        echo ("<table cellspacing='0' cellpadding='0' width='100%'>\n");
+	        echo ("<tr>\n");
+	        echo ("<td></td>\n");
+	        echo ("<td>\n");	    
+                echo ("<img WIDTH='68pt' src='./interface/pic/Rx.png' />");
+                echo ("</td>\n");
+	        echo ("</tr>\n");
+	        echo ("<tr>\n");
+	        echo ("<td>\n");
+	        $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . mysql_real_escape_string($p->provider->id) . "'");
+	        $patterns = array ('/\n/','/Tel:/','/Fax:/');
+	        $replace = array ('<br>', xl('Tel').':', xl('Fax').':');
+	        $res = preg_replace($patterns, $replace, $res);
+                echo ('<span class="large">' . $res['addr'] . '</span>');
+	        echo ("</td>\n");
+	        echo ("<td>\n");
+                echo ('<b><span class="large">' .  $p->provider->get_name_display() . '</span></b>'. '<br>');
+                if ($GLOBALS['oer_config']['prescriptions']['show_DEA']) echo ('<span class="large"><b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id . '</span>');
+                else echo ('<b><span class="large">' . xl('DEA') . ':</span></b> ________________________');
+	        echo ("</td>\n");
+	        echo ("</tr>\n");
+	        echo ("<tr>\n");
+	        echo ("<td rowspan='2' class='bordered'>\n");	        
+                echo ('<b><span class="small">' . xl('Patient Name & Address') . '</span></b>'. '<br>');
+                echo ($p->patient->get_name_display() . '<br>');
+                $res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =". mysql_real_escape_string ($p->patient->id));
+                $patterns = array ('/\n/');
+	        $replace = array ('<br>');
+	        $res = preg_replace($patterns, $replace, $res);
+                echo ($res['addr']);
+	        echo ("</td>\n");
+	        echo ("<td class='bordered'>\n");
+                echo ('<b><span class="small">' . xl('Date of Birth') . '</span></b>' . '<br>');
+                echo ($p->patient->date_of_birth );
+	        echo ("</td>\n");
+	        echo ("</tr>\n");
+	        echo ("<tr>\n");
+	        echo ("<td class='bordered'>\n");
+                echo ('<b><span class="small">' . xl('Medical Record #') . '</span></b>' . '<br>');
+                echo (str_pad($p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT));
+	        echo ("</td>\n");
+	        echo ("</tr>\n");
+	        echo ("<tr>\n");
+	        echo ("<td colspan='2' class='bordered'>\n");
+                echo ('<b><span class="small">' . xl('Prescriptions') . '</span></b>');
+	        echo ("</td>\n");
+	        echo ("</tr>\n");
+	        echo ("</table>\n");
+        }
+
+        function multiprintcss_preheader() {
+	        // this sets styling and other header information of the multiprint css sheet
+                echo ("<html>\n");
+                echo ("<head>\n");
+                echo ("<style>\n");
+	        echo ("div {\n");
+	        echo (" padding: 0;\n");
+	        echo (" margin: 0;\n");
+	        echo ("}\n");
+                echo ("body {\n");
+                echo (" font-family: sans-serif;\n");
+                echo (" font-weight: normal;\n");
+                echo (" font-size: 10pt;\n");
+                echo (" background: white;\n");
+                echo (" color: black;\n");
+                echo ("}\n");
+	        echo ("span.large {\n");
+	        echo (" font-size: 12pt;\n");
+	        echo ("}\n");
+	        echo ("span.small {\n");
+	        echo (" font-size: 6pt;\n");
+	        echo ("}\n");
+	        echo ("td {\n");   
+	        echo (" vertical-align: top;\n");
+	        echo (" width: 50%;\n");
+	        echo (" font-size: 10pt;\n");
+	        echo (" padding-bottom: 8pt;\n");
+	        echo ("}\n");
+	        echo ("td.bordered {\n");
+	        echo (" border-top:1pt solid black;\n");
+	        echo ("}\n");
+                echo ("div.paddingdiv {\n");
+                echo (" width: 524pt;\n");
+	        echo (" height: 668pt;\n");
+	        echo (" page-break-after: always;\n");
+                echo ("}\n");
+                echo ("div.scriptdiv {\n");
+	        echo (" padding-top: 12pt;\n");
+	        echo (" padding-bottom: 22pt;\n");
+	        echo (" padding-left: 35pt;\n");
+	        echo (" border-bottom:1pt solid black;\n");
+	        echo ("}\n");
+	        echo ("div.signdiv {\n");
+	        echo (" margin-top: 40pt;\n");
+                echo (" font-size: 12pt;\n");
+	        echo ("}\n");
+                echo ("</style>\n");
+	    
+                echo ("<title>" . xl('Prescription') . "</title>\n");
+                echo ("</head>\n");
+                echo ("<body>\n");
+        }
 
 	function multiprintfax_footer( & $pdf ) { 
 		return $this->multiprint_footer( $pdf );
@@ -252,12 +358,12 @@ class C_Prescription extends Controller {
 		if($this->pconfig['use_signature'] && ( $this->is_faxing || $this->is_print_to_fax ) ) {
 			$sigfile = str_replace('{userid}', $_SESSION{"authUser"}, $this->pconfig['signature']);
 			if (file_exists($sigfile)) {
-				$pdf->ezText("Signature: ",12);
+				$pdf->ezText( xl('Signature') . ": ",12);
 				// $pdf->ezImage($sigfile, "", "", "none", "left");
 				$pdf->ezImage($sigfile, "", "", "none", "center");
-				$pdf->ezText("Date: " . date('Y-m-d'), 12);
+				$pdf->ezText( xl('Date') . ": " . date('Y-m-d'), 12);
 				if ( $this->is_print_to_fax ) {
-					$pdf->ezText("Please do not accept this prescription unless it was received via facimile.");
+					$pdf->ezText(xl('Please do not accept this prescription unless it was received via facimile.'));
 				}
 
 				$addenumFile = $this->pconfig['addendum_file'];
@@ -272,26 +378,42 @@ class C_Prescription extends Controller {
 				return;
 			}
 		}
-		$pdf->ezText("\n\n\n\nSignature:________________________________\nDate: " . date('Y-m-d'),12);
+		$pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________\n" . xl('Date') . ": " . date('Y-m-d'),12);
 	}
 
+        function multiprintcss_footer() {
+	        echo ("<div class='signdiv'>\n");
+                echo (xl('Signature') . ":________________________________<br>");
+                echo (xl('Date') . ": " . date('Y-m-d'));
+	        echo ("</div>\n");
+                echo ("</div>\n");
+        }
+
+        function multiprintcss_postfooter() {
+                echo("<script language='JavaScript'>\n");
+                echo("window.print();\n");
+                echo("</script>\n");
+                echo("</body>\n");
+                echo("</html>\n");
+        }
+
 	function get_prescription_body_text($p) {
-		$body = '<b>Rx: ' . $p->get_drug() . ' ' . $p->get_size() . ' ' . $p->get_unit_display();
+		$body = '<b>' . xl('Rx') . ': ' . $p->get_drug() . ' ' . $p->get_size() . ' ' . $p->get_unit_display();
 		if ($p->get_form()) $body .= ' [' . $p->form_array[$p->get_form()] . "]";
 		$body .= "</b>     <i>" .
 			$p->substitute_array[$p->get_substitute()] . "</i>\n" .
-			'<b>Disp #:</b> <u>' . $p->get_quantity() . "</u>\n" .
-			'<b>Sig:</b> ' . $p->get_dosage() . ' ' . $p->form_array[$p->get_form()] . ' ' .
+			'<b>' . xl('Disp #') . ':</b> <u>' . $p->get_quantity() . "</u>\n" .
+			'<b>' . xl('Sig') . ':</b> ' . $p->get_dosage() . ' ' . $p->form_array[$p->get_form()] . ' ' .
 			$p->route_array[$p->get_route()] . ' ' . $p->interval_array[$p->get_interval()] . "\n";
 		if ($p->get_refills() > 0) {
-			$body .= "\n<b>Refills:</b> <u>" .  $p->get_refills();
+			$body .= "\n<b>" . xl('Refills') . ":</b> <u>" .  $p->get_refills();
 			if ($p->get_per_refill()) {
-				$body .= " of quantity " . $p->get_per_refill();
+				$body .= " " . xl('of quantity') . " " . $p->get_per_refill();
 			}
 			$body .= "</u>\n";
 		}
 		else {
-			$body .= "\n<b>Refills:</b> <u>0 (Zero)</u>\n";
+			$body .= "\n<b>" . xl('Refills') . ":</b> <u>0 (" . xl('Zero') . ")</u>\n";
 		}
 		$note = $p->get_note();
 		if ($note != '') {
@@ -332,6 +454,14 @@ class C_Prescription extends Controller {
 		$pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
 		$pdf->ezText('');
 	}
+
+        function multiprintcss_body($p){
+                $d = $this->get_prescription_body_text($p);
+                $patterns = array ('/\n/','/     /');
+	        $replace = array ('<br>','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+	        $d = preg_replace($patterns, $replace, $d);
+                echo ("<div class='scriptdiv'>\n" . $d . "</div>\n");
+        }
 
 	function multiprintfax_action($id = "") {
 		$this->is_print_to_fax=true;
@@ -380,6 +510,35 @@ class C_Prescription extends Controller {
 		return;
 	}
 
+        function multiprintcss_action($id = "") {
+                $_POST['process'] = "true";
+                if(empty($id)) {
+                        $this->function_argument_error();
+                }
+	    
+	        $this->multiprintcss_preheader();
+
+                $this->_state = false; // Added by Rod - see Controller.class.php
+                $ids = preg_split('/::/', substr($id,1,strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
+
+                $on_this_page = 0;
+                foreach ($ids as $id) {
+                        $p = new Prescription($id);
+                        if ($on_this_page == 0) {
+                                $this->multiprintcss_header($p);
+                        }
+                        if (++$on_this_page > 3 || $p->provider->id != $this->providerid) {
+                                $this->multiprintcss_footer();
+                                $this->multiprintcss_header($p);
+                                $on_this_page = 1;
+                        }
+                        $this->multiprintcss_body($p);
+                }
+                $this->multiprintcss_footer();
+                $this->multiprintcss_postfooter();	        
+                return;
+        }
+
 	function send_action_process($id) {
 		$dummy = ""; // Added by Rod to avoid run-time warnings
 		if ($_POST['process'] != "true")
@@ -390,27 +549,31 @@ class C_Prescription extends Controller {
 		$p = new Prescription($id);
 		switch ($_POST['submit']) {
 
-		case "Print":
+		case (xl("Print")." (".xl("PDF").")"):
 				// The following statement added by Rod.
 				// Looking at Controller.class.php, it appears that _state is set to false
 				// to indicate that no further HTML is to be generated.
 				$this->_state = false; // Added by Rod - see Controller.class.php
 				return $this->_print_prescription($p, $dummy);
 				break;
-		case "Print To Fax":
+		case (xl("Print")." (".xl("HTML").")"):
+                                $this->_state = false;
+		                return $this->_print_prescription_css($p, $dummy);
+		                break;
+		case xl("Print To Fax"):
 				$this->_state = false;
 				$this->is_print_to_fax = true; 
 				return $this->_print_prescription($p, $dummy);
 				break;
-		case "Email":
+		case xl("Email"):
 				return $this->_email_prescription($p,$_POST['email_to']);
 				break;
-		case "Fax":
+		case xl("Fax"):
 				//this is intended to be the hook for the hylafax code we already have that hasn't worked its way into the tree yet.
 				//$this->assign("process_result","No fax server is currently setup.");
 				return $this->_fax_prescription($p,$_POST['fax_to']);
 				break;
-		case "Auto Send":
+		case xl("Auto Send"):
 				$pharmacy_id = $_POST['pharmacy_id'];
 				//echo "auto sending to : " . $_POST['pharmacy_id'];
 				$phar = new Pharmacy($_POST['pharmacy_id']);
@@ -472,6 +635,16 @@ class C_Prescription extends Controller {
 		return;
 	}
 
+        function _print_prescription_css($p, & $toFile) {
+                
+                $this->multiprintcss_preheader();
+                $this->multiprintcss_header($p);
+                $this->multiprintcss_body($p);
+                $this->multiprintcss_footer(); 
+	        $this->multiprintcss_postfooter();	
+	    
+        }
+    
 	function _print_prescription_old($p, & $toFile) {
 		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
 		$pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);

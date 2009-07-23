@@ -1,5 +1,7 @@
 <html>
 <head>
+{php}html_header_show();{/php}
+
 {literal}
  <style type="text/css" title="mystyles" media="all">
 <!--
@@ -23,19 +25,29 @@ a {
 	<tr><td colspan="2">{$process_result}<br /><br /></td></tr>
 {/if}
 <tr><td>
-<form name="send_prescription" method="post" action="{$TOP_ACTION}send&id={$prescription->id}" target="_new">
-<input type="submit" name="submit" value="Print" style="width:85;"/>
+<form name="send_prescription" method="post" action="{$TOP_ACTION}send&id={$prescription->id}" target="_new" onsubmit="return top.restoreSession()">
+<input type="submit" name="submit" value="{xl t='Print'} ({xl t='PDF'})" style="width:85;"/>
+<input type="hidden" name="process" value="{$PROCESS}" />
+</form>
+
+<form name="send_prescription" method="post" action="{$TOP_ACTION}send&id={$prescription->id}" target="_new" onsubmit="return top.restoreSession()">
+<input type="submit" name="submit" value="{xl t='Print'} ({xl t='HTML'})" style="width:85;"/>
+<input type="hidden" name="process" value="{$PROCESS}" />
+</form>
+
+<form name="send_prescription" method="post" action="{$TOP_ACTION}send&id={$prescription->id}&print_to_fax=true" target="_new" onsubmit="return top.restoreSession()">
+<input type="submit" name="submit" value="{xl t='Print To Fax'}" style="width:85;"/>
 <input type="hidden" name="process" value="{$PROCESS}" />
 </form>
 
 </td><td></td></tr>
-<form name="send_prescription" method="post" action="{$TOP_ACTION}send&id={$prescription->id}">
-<tr><td><input type="submit" name="submit" value="Email" style="width:85;" /></td><td><input type="text" name="email_to"  size="25" value="{$prescription->email_to}"></td></tr>
-<tr><td><input type="submit" name="submit" value="Fax" style="width:85;"/></td><td><input type="text" name="fax_to"  size="25" value="{$prescription->fax_to}" ></td></tr>
+<form name="send_prescription" method="post" action="{$TOP_ACTION}send&id={$prescription->id}" onsubmit="return top.restoreSession()">
+<tr><td><input type="submit" name="submit" value="{xl t='Email'}" style="width:85;" /></td><td><input type="text" name="email_to"  size="25" value="{$prescription->pharmacy->get_email()}"></td></tr>
+<tr><td><input type="submit" name="submit" value="{xl t='Fax'}" style="width:85;"/></td><td><input type="text" name="fax_to"  size="25" value="{$prescription->pharmacy->get_fax()}" ></td></tr>
 <input type="hidden" name="process" value="{$PROCESS}" />
 </form>
-<form name="send_prescription" method="post" action="{$TOP_ACTION}send&id={$prescription->id}" target="_new">
-<tr><td><input type="submit" name="submit" value="Auto Send" style="width:85;" /></td><td>{html_options name="pharmacy_id" options=$prescription->pharmacy->utility_pharmacy_array() selected=$prescription->provider->id}</td></tr>
+<form name="send_prescription" method="post" action="{$TOP_ACTION}send&id={$prescription->id}" target="_new" onsubmit="return top.restoreSession()">
+<tr><td><input type="submit" name="submit" value="{xl t='Auto Send'}" style="width:85;" /></td><td>{html_options name="pharmacy_id" options=$prescription->pharmacy->utility_pharmacy_array() selected=$prescription->pharmacy->id}</td></tr>
 <input type="hidden" name="process" value="{$PROCESS}" />
 <tr><td colspan="2" align="center"></td></tr>
 </table>
