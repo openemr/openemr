@@ -106,7 +106,7 @@ class C_Prescription extends Controller {
 		}
                 
                 // flag to indicate the CAMOS form is regsitered and active
-                $this->assign("CAMOS_FORM", isRegistered(getIdByDirectory("CAMOS")));
+                $this->assign("CAMOS_FORM", isRegistered("CAMOS"));
 		
                 $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_list.html");
 	}
