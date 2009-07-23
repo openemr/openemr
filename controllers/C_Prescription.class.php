@@ -1,22 +1,69 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/Prescription.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/Provider.class.php");
-require_once($GLOBALS['fileroot'] ."/library/classes/RXList.class.php");
+require_once($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
+require_once($GLOBALS['fileroot'] . "/library/classes/Prescription.class.php");
+require_once($GLOBALS['fileroot'] . "/library/classes/Provider.class.php");
+require_once($GLOBALS['fileroot'] . "/library/classes/RXList.class.php");
+require_once($GLOBALS['fileroot'] . "/library/registry.inc");
 
 class C_Prescription extends Controller {
 
 	var $template_mod;
 	var $pconfig;
+	var $providerid = 0;
+	var $is_faxing = false;
+	var $is_print_to_fax = false;
 
 	function C_Prescription($template_mod = "general") {
 		parent::Controller();
+
 		$this->template_mod = $template_mod;
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
 		$this->assign("TOP_ACTION", $GLOBALS['webroot']."/controller.php?" . "prescription" . "&");
 		$this->assign("STYLE", $GLOBALS['style']);
+		$this->assign("WEIGHT_LOSS_CLINIC", $GLOBALS['weight_loss_clinic']);
+		$this->assign("SIMPLIFIED_PRESCRIPTIONS", $GLOBALS['simplified_prescriptions']);
 		$this->pconfig = $GLOBALS['oer_config']['prescriptions'];
+
+		if ($GLOBALS['inhouse_pharmacy']) {
+			// Make an array of drug IDs and selectors for the template.
+			$drug_array_values = array(0);
+			$drug_array_output = array("-- or select from inventory --");
+			$drug_attributes = '';
+
+			// $res = sqlStatement("SELECT * FROM drugs ORDER BY selector");
+
+			$res = sqlStatement("SELECT d.name, d.ndc_number, d.form, d.size, " .
+				"d.unit, d.route, d.substitute, t.drug_id, t.selector, t.dosage, " .
+				"t.period, t.quantity, t.refills " .
+				"FROM drug_templates AS t, drugs AS d WHERE " .
+				"d.drug_id = t.drug_id ORDER BY t.selector");
+
+			while ($row = sqlFetchArray($res)) {
+				$tmp_output = $row['selector'];
+				if ($row['ndc_number']) {
+					$tmp_output .= ' [' . $row['ndc_number'] . ']';
+				}
+				$drug_array_values[] = $row['drug_id'];
+				$drug_array_output[] = $tmp_output;
+				if ($drug_attributes) $drug_attributes .= ',';
+				$drug_attributes .=    "['"  .
+					$row['name']       . "',"  . //  0
+					$row['form']       . ",'"  . //  1
+					$row['dosage']     . "',"  . //  2
+					$row['size']       . ","   . //  3
+					$row['unit']       . ","   . //  4
+					$row['route']      . ","   . //  5
+					$row['period']     . ","   . //  6
+					$row['substitute'] . ","   . //  7
+					$row['quantity']   . ","   . //  8
+					$row['refills']    . ","   . //  9
+					$row['quantity']   . "]";    // 10 quantity per_refill
+			}
+			$this->assign("DRUG_ARRAY_VALUES", $drug_array_values);
+			$this->assign("DRUG_ARRAY_OUTPUT", $drug_array_output);
+			$this->assign("DRUG_ATTRIBUTES", $drug_attributes);
+		}
 	}
 
 	function default_action() {
@@ -36,6 +83,13 @@ class C_Prescription extends Controller {
 		if (!empty($patient_id)) {
 			$this->prescriptions[0]->set_patient_id($patient_id);
 		}
+
+		// If quantity to dispense is not already set from a POST, set its
+		// default value.
+		if (! $this->get_template_vars('DISP_QUANTITY')) {
+			$this->assign('DISP_QUANTITY', $this->prescriptions[0]->quantity);
+		}
+
 		$this->default_action();
 	}
 
@@ -50,8 +104,11 @@ class C_Prescription extends Controller {
 		else {
 			$this->assign("prescriptions", Prescription::prescriptions_factory($id));
 		}
-		//print_r(Prescription::prescriptions_factory($id));
-		$this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_list.html");
+                
+                // flag to indicate the CAMOS form is regsitered and active
+                $this->assign("CAMOS_FORM", isRegistered(getIdByDirectory("CAMOS")));
+		
+                $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_list.html");
 	}
 
 	function block_action($id,$sort = "") {
@@ -79,12 +136,33 @@ class C_Prescription extends Controller {
 			return;
 		//print_r($_POST);
 
+    // Stupid Smarty code treats empty values as not specified values.
+    // Since active is a checkbox, represent the unchecked state as -1.
+    if (empty($_POST['active'])) $_POST['active'] = '-1';
+
 		$this->prescriptions[0] = new Prescription($_POST['id']);
 		parent::populate_object($this->prescriptions[0]);
 		//echo $this->prescriptions[0]->toString(true);
 		$this->prescriptions[0]->persist();
 		$_POST['process'] = "";
-		return $this->send_action($this->prescriptions[0]->id);
+
+		// If the "Prescribe and Dispense" button was clicked, then
+		// redisplay as in edit_action() but also replicate the fee and
+		// include a piece of javascript to call dispense().
+		//
+		if ($_POST['disp_button']) {
+			$this->assign("DISP_QUANTITY", $_POST['disp_quantity']);
+			$this->assign("DISP_FEE", $_POST['disp_fee']);
+			$this->assign("ENDING_JAVASCRIPT", "dispense();");
+			$this->_state = false;
+			return $this->edit_action($this->prescriptions[0]->id);
+		}
+
+    if ($this->prescriptions[0]->get_active() > 0) {
+      return $this->send_action($this->prescriptions[0]->id);
+    }
+    $this->list_action($this->prescriptions[0]->get_patient_id());
+    exit;
 	}
 
 	function send_action($id) {
@@ -93,9 +171,213 @@ class C_Prescription extends Controller {
 			$this->function_argument_error();
 		}
 
-		$this->assign("prescription",new Prescription($id));
+		$rx = new Prescription($id);
+		// Populate pharmacy info if the patient has a default pharmacy.
+		// Probably the Prescription object should handle this instead, but
+		// doing it there will require more careful research and testing.
+		$prow = sqlQuery("SELECT pt.pharmacy_id FROM prescriptions AS rx, " .
+			"patient_data AS pt WHERE rx.id = '$id' AND pt.pid = rx.patient_id");
+		if ($prow['pharmacy_id']) {
+			$rx->pharmacy->set_id($prow['pharmacy_id']);
+			$rx->pharmacy->populate();
+		}
+		$this->assign("prescription", $rx);
+
 		$this->_state = false;
-		return $this->fetch($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_send.html");
+		return $this->fetch($GLOBALS['template_dir'] . "prescription/" .
+			$this->template_mod . "_send.html");
+	}
+
+	function multiprintfax_header(& $pdf, $p) {
+		return $this->multiprint_header( $pdf, $p );
+	}
+
+	function multiprint_header(& $pdf, $p) {
+		$this->providerid = $p->provider->id;
+		//print header
+		$pdf->ezImage($GLOBALS['fileroot'] . '/interface/pic/Rx.png','','50','','center','');
+		$pdf->ezColumnsStart(array('num'=>2, 'gap'=>10));
+		$res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" .
+			mysql_real_escape_string($p->provider->id) . "'");
+		$pdf->ezText($res['addr'],12);
+		$my_y = $pdf->y;
+		$pdf->ezNewPage();
+		$pdf->ezText('<b>' . $p->provider->get_name_display() . '</b>',12);
+    // A client had a bad experience with a patient misusing a DEA number, so
+    // now the doctors write those in on printed prescriptions and only when
+    // necessary.  If you need to change this back, then please make it a
+    // configurable option.  Faxed prescriptions were not changed.  -- Rod
+    // Now it is configureable. Change value in
+    //     <openemr root>/includes/config.php - Tekknogenius
+    if ($this->is_faxing || $GLOBALS['oer_config']['prescriptions']['show_DEA'])
+      $pdf->ezText('<b>DEA:</b>' . $p->provider->federal_drug_id, 12);
+    else
+      $pdf->ezText('<b>DEA:</b> ________________________', 12);
+		$pdf->ezColumnsStop();
+		if ($my_y < $pdf->y){
+			$pdf->ezSetY($my_y);
+		}
+		$pdf->ezText('',10);
+		$pdf->setLineStyle(1);
+		$pdf->ezColumnsStart(array('num'=>2));
+		$pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
+		$pdf->ezText('<b>Patient Name & Address</b>',6);
+		$pdf->ezText($p->patient->get_name_display(),10);
+		$res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =". mysql_real_escape_string ($p->patient->id));
+		$pdf->ezText($res['addr']);
+		$my_y = $pdf->y;
+		$pdf->ezNewPage();
+		$pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
+		$pdf->ezText('<b>Date of Birth</b>',6);
+		$pdf->ezText($p->patient->date_of_birth,10);
+		$pdf->ezText('');
+		$pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
+		$pdf->ezText('<b>Medical Record #</b>',6);
+		$pdf->ezText(str_pad($p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT),10);
+		$pdf->ezColumnsStop();
+		if ($my_y < $pdf->y){
+			$pdf->ezSetY($my_y);
+		}
+		$pdf->ezText('');
+		$pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
+		$pdf->ezText('<b>Prescriptions</b>',6);
+		$pdf->ezText('',10);
+	}
+
+	function multiprintfax_footer( & $pdf ) { 
+		return $this->multiprint_footer( $pdf );
+	}
+
+	function multiprint_footer(& $pdf) {
+		if($this->pconfig['use_signature'] && ( $this->is_faxing || $this->is_print_to_fax ) ) {
+			$sigfile = str_replace('{userid}', $_SESSION{"authUser"}, $this->pconfig['signature']);
+			if (file_exists($sigfile)) {
+				$pdf->ezText("Signature: ",12);
+				// $pdf->ezImage($sigfile, "", "", "none", "left");
+				$pdf->ezImage($sigfile, "", "", "none", "center");
+				$pdf->ezText("Date: " . date('Y-m-d'), 12);
+				if ( $this->is_print_to_fax ) {
+					$pdf->ezText("Please do not accept this prescription unless it was received via facimile.");
+				}
+
+				$addenumFile = $this->pconfig['addendum_file'];
+				if ( file_exists( $addenumFile ) ) {
+					$pdf->ezText('');
+					$f = fopen($addenumFile, "r");
+					while ( $line = fgets($f, 1000) ) {
+						$pdf->ezText(rtrim($line));
+					}
+				}
+
+				return;
+			}
+		}
+		$pdf->ezText("\n\n\n\nSignature:________________________________\nDate: " . date('Y-m-d'),12);
+	}
+
+	function get_prescription_body_text($p) {
+		$body = '<b>Rx: ' . $p->get_drug() . ' ' . $p->get_size() . ' ' . $p->get_unit_display();
+		if ($p->get_form()) $body .= ' [' . $p->form_array[$p->get_form()] . "]";
+		$body .= "</b>     <i>" .
+			$p->substitute_array[$p->get_substitute()] . "</i>\n" .
+			'<b>Disp #:</b> <u>' . $p->get_quantity() . "</u>\n" .
+			'<b>Sig:</b> ' . $p->get_dosage() . ' ' . $p->form_array[$p->get_form()] . ' ' .
+			$p->route_array[$p->get_route()] . ' ' . $p->interval_array[$p->get_interval()] . "\n";
+		if ($p->get_refills() > 0) {
+			$body .= "\n<b>Refills:</b> <u>" .  $p->get_refills();
+			if ($p->get_per_refill()) {
+				$body .= " of quantity " . $p->get_per_refill();
+			}
+			$body .= "</u>\n";
+		}
+		else {
+			$body .= "\n<b>Refills:</b> <u>0 (Zero)</u>\n";
+		}
+		$note = $p->get_note();
+		if ($note != '') {
+			$body .= "\n$note\n";
+		}
+		return $body;
+	}
+
+	function multiprintfax_body(& $pdf, $p){
+		return $this->multiprint_body( $pdf, $p );
+	}
+
+	function multiprint_body(& $pdf, $p){
+		$pdf->ez['leftMargin'] += $pdf->ez['leftMargin'];
+		$pdf->ez['rightMargin'] += $pdf->ez['rightMargin'];
+		$d = $this->get_prescription_body_text($p);
+		if ( $pdf->ezText($d,10,array(),1) ) {
+			$pdf->ez['leftMargin'] -= $pdf->ez['leftMargin'];
+			$pdf->ez['rightMargin'] -= $pdf->ez['rightMargin'];
+			$this->multiprint_footer($pdf);
+			$pdf->ezNewPage();
+			$this->multiprint_header($pdf, $p);
+			$pdf->ez['leftMargin'] += $pdf->ez['leftMargin'];
+			$pdf->ez['rightMargin'] += $pdf->ez['rightMargin'];
+		}
+		$my_y = $pdf->y;
+		$pdf->ezText($d,10);
+		if($this->pconfig['shading']) {
+			$pdf->setColor(.9,.9,.9);
+			$pdf->filledRectangle($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin']-$pdf->ez['leftMargin'],$my_y - $pdf->y);
+			$pdf->setColor(0,0,0);
+		}
+		$pdf->ezSetY($my_y);
+		$pdf->ezText($d,10);
+		$pdf->ez['leftMargin'] = $GLOBALS['oer_config']['prescriptions']['left'];
+		$pdf->ez['rightMargin'] = $GLOBALS['oer_config']['prescriptions']['right'];
+		$pdf->ezText('');
+		$pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
+		$pdf->ezText('');
+	}
+
+	function multiprintfax_action($id = "") {
+		$this->is_print_to_fax=true;
+		return $this->multiprint_action( $id ); 
+	}
+
+	function multiprint_action($id = "") {
+		$_POST['process'] = "true";
+		if(empty($id)) {
+			$this->function_argument_error();
+		}
+		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
+		$pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);
+		$pdf->ezSetMargins($GLOBALS['oer_config']['prescriptions']['top']
+			,$GLOBALS['oer_config']['prescriptions']['bottom']
+			,$GLOBALS['oer_config']['prescriptions']['left']
+			,$GLOBALS['oer_config']['prescriptions']['right']
+		);
+		$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
+
+		// $print_header = true;
+		$on_this_page = 0;
+
+		//print prescriptions body
+		$this->_state = false; // Added by Rod - see Controller.class.php
+		$ids = preg_split('/::/', substr($id,1,strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
+		foreach ($ids as $id) {
+			$p = new Prescription($id);
+			// if ($print_header == true) {
+			if ($on_this_page == 0) {
+				$this->multiprint_header($pdf, $p);
+			}
+			if (++$on_this_page > 3 || $p->provider->id != $this->providerid) {
+				$this->multiprint_footer($pdf);
+				$pdf->ezNewPage();
+				$this->multiprint_header($pdf, $p);
+				// $print_header = false;
+				$on_this_page = 1;
+			}
+			$this->multiprint_body($pdf, $p);
+		}
+
+		$this->multiprint_footer($pdf);
+
+		$pdf->ezStream();
+		return;
 	}
 
 	function send_action_process($id) {
@@ -113,6 +395,11 @@ class C_Prescription extends Controller {
 				// Looking at Controller.class.php, it appears that _state is set to false
 				// to indicate that no further HTML is to be generated.
 				$this->_state = false; // Added by Rod - see Controller.class.php
+				return $this->_print_prescription($p, $dummy);
+				break;
+		case "Print To Fax":
+				$this->_state = false;
+				$this->is_print_to_fax = true; 
 				return $this->_print_prescription($p, $dummy);
 				break;
 		case "Email":
@@ -146,7 +433,7 @@ class C_Prescription extends Controller {
 					// return $this->assign("process_result","No fax server is currently setup.");
 					// else default is printing,
 				}
-				elseif {
+				else {
 			 		//the pharmacy has no default or default is print
 					return $this->_print_prescription($p, $dummy);
 				}
@@ -159,21 +446,51 @@ class C_Prescription extends Controller {
 
 	function _print_prescription($p, & $toFile) {
 		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
-		$pdf =& new Cezpdf("LETTER");
-		$pdf->ezSetMargins(72,30,50,30);
+		$pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);
+		$pdf->ezSetMargins($GLOBALS['oer_config']['prescriptions']['top']
+			,$GLOBALS['oer_config']['prescriptions']['bottom']
+			,$GLOBALS['oer_config']['prescriptions']['left']
+			,$GLOBALS['oer_config']['prescriptions']['right']
+		);
+
 		$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
 
+		// Signature images are to be used only when faxing.
+		if(!empty($toFile)) $this->is_faxing = true;
+
+		$this->multiprint_header($pdf, $p);
+		$this->multiprint_body($pdf, $p);
+		$this->multiprint_footer($pdf);
+
+		if(!empty($toFile)) {
+			$toFile = $pdf->ezOutput();
+		}
+		else {
+			$pdf->ezStream();
+			// $pdf->ezStream(array('compress' => 0)); // for testing with uncompressed output
+		}
+		return;
+	}
+
+	function _print_prescription_old($p, & $toFile) {
+		require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
+		$pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);
+		$pdf->ezSetMargins($GLOBALS['oer_config']['prescriptions']['top']
+                      ,$GLOBALS['oer_config']['prescriptions']['bottom']
+		                  ,$GLOBALS['oer_config']['prescriptions']['left']
+                      ,$GLOBALS['oer_config']['prescriptions']['right']
+                      );
+		$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
 		if(!empty($this->pconfig['logo'])) {
 			$pdf->ezImage($this->pconfig['logo'],"","","none","left");
 		}
 		$pdf->ezText($p->get_prescription_display(),10);
-		if(!empty($this->pconfig['signature'])) {
+		if($this->pconfig['use_signature']) {
 			$pdf->ezImage($this->pconfig['signature'],"","","none","left");
 		}
 		else{
 		  $pdf->ezText("\n\n\n\nSignature:________________________________",10);
 		}
-
 		if(!empty($toFile))
 		{
 			$toFile = $pdf->ezOutput();
@@ -215,12 +532,19 @@ class C_Prescription extends Controller {
 	}
 
 	function do_lookup() {
-		if ($_POST['process'] != "true")
-			return;
+		if ($_POST['process'] != "true") {
+                    // don't do a lookup
+		    $this->assign("drug", $_GET['drug']);
+                    return;
+                }
+
+                // process the lookup
+		$this->assign("drug", $_POST['drug']);
 		$list = array();
 		if (!empty($_POST['drug'])) {
 			$list = @RxList::get_list($_POST['drug']);
 		}
+
 		if (is_array($list)) {
 			$list = array_flip($list);
 			$this->assign("drug_options",$list);
