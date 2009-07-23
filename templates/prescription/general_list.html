@@ -34,12 +34,14 @@ function changeLinkHref(id,addValue,value) {
 <body class="body_bottom">
 <div id="prescription_list">
 <div id="print_links">
-<a id="multiprint" target="_new" href="{$CONTROLLER}prescription&multiprint&id={$printm}" onclick="top.restoreSession()">Print Multiple</a>
+<a id="multiprint" target="_new" href="{$CONTROLLER}prescription&multiprint&id={$printm}" onclick="top.restoreSession()">{xl t='Print Multiple'} ({xl t='PDF'})</a>
 <br>
-<a id="multiprintToFax" target="_new" href="{$CONTROLLER}prescription&multiprintfax&id={$printm}" onclick="top.restoreSession()">Print Multiple To Fax</a>
+<a id="multiprintcss" target="_new" href="{$CONTROLLER}prescription&multiprintcss&id={$printm}" onclick="top.restoreSession()">{xl t='Print Multiple'} ({xl t='HTML'})</a>
+<br>
+<a id="multiprintToFax" target="_new" href="{$CONTROLLER}prescription&multiprintfax&id={$printm}" onclick="top.restoreSession()">{xl t='Print Multiple To Fax'}</a>
 {if $CAMOS_FORM == true}
 <br>
-<a id="four_panel_rx" target="_new" href="{$WEBROOT}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()">Print Four Panel</a>
+<a id="four_panel_rx" target="_new" href="{$WEBROOT}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()">{xl t='Print Four Panel'}</a>
 {/if}
 </div>
 
@@ -55,7 +57,7 @@ function changeLinkHref(id,addValue,value) {
     </tr>
 
 	{foreach from=$prescriptions item=prescription}
-  <tr id="{$prescription->id}" class="onescript {if $prescription->active <= 0} inactive{/if}" title="Click to view/edit">
+  <tr id="{$prescription->id}" class="onescript {if $prescription->active <= 0} inactive{/if}" title="{xl t='Click to view/edit'}">
     <td class="editscript" id="{$prescription->id}">
       {if $prescription->active > 0}<b>{/if}{$prescription->drug}{if $prescription->active > 0}</b>{/if}
     </td>
@@ -76,7 +78,7 @@ function changeLinkHref(id,addValue,value) {
       {$prescription->provider->get_name_display()}
     </td>
     <td>
-      <input type="checkbox" value="{$prescription->id}" onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="Select for printing">
+      <input type="checkbox" value="{$prescription->id}" onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xl t='Select for printing'}">
     </td>
   </tr>
 	{foreachelse}
