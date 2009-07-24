@@ -198,6 +198,14 @@ $GLOBALS['country_data_type'] = 26;
 $GLOBALS['country_list'] = "country";
 
 
+// Vitals form and growth chart units (US and-or metrics)
+//   1 = Show both US and metric (main unit is US)
+//   2 = Show both US and metric (main unit is metric)
+//   3 = Show US only
+//   4 = Show metric only
+$GLOBALS['units_of_measurement'] = 1;
+
+
 include_once (dirname(__FILE__) . "/../library/date_functions.php");
 include_once (dirname(__FILE__) . "/../library/classes/Filtreatment_class.php");
 
