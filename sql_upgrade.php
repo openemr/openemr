@@ -78,6 +78,10 @@ function upgradeFromSqlFile($filename) {
       $skipping = tableExists($matches[1]);
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }
+    else if (preg_match('/^#IfTable\s+(\S+)/', $line, $matches)) {
+      $skipping = ! tableExists($matches[1]);
+      if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
+    }
     else if (preg_match('/^#IfMissingColumn\s+(\S+)\s+(\S+)/', $line, $matches)) {
       if (tableExists($matches[1])) {
         $skipping = columnExists($matches[1], $matches[2]);
