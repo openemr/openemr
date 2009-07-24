@@ -17,6 +17,9 @@ class C_FormVitals extends Controller {
     	$this->assign("FORM_ACTION", $GLOBALS['web_root']);
     	$this->assign("DONT_SAVE_LINK",$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
     	$this->assign("STYLE", $GLOBALS['style']);
+
+        // send the unit selection
+        $this->assign("units_of_measurement",$GLOBALS['units_of_measurement']);
     }
 
     function default_action_old() {
