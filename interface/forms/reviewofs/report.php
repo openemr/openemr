@@ -15,7 +15,15 @@ if ($value == "on") {
 $value = "yes";
 }
 $key=ucwords(str_replace("_"," ",$key));
-print "<td><span class=bold>$key: </span><span class=text>$value</span></td>";
+    
+//modified by BM 07-2009 for internationalization
+if ($key == "Additional Notes") {
+        print "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . $value . "</span></td>";
+}
+else {
+        print "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . xl($value) . "</span></td>";   
+}
+    
 $count++;
 if ($count == $cols) {
 $count = 0;
