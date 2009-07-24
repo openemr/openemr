@@ -105,9 +105,9 @@ if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name
 
         $form_name = ($formdir == 'newpatient') ? xl('Patient Encounter') : xl_form_title($iter['form_name']);
     
-        echo '<td class="bold formrow">'.
-                $user['fname'] . " " . $user['lname'] .'</td>';
-        echo "<td class='center formrow'>";
+        echo "<td valign='top' class='bold formrow'>" .
+                $user['fname'] . " " . $user['lname'] . "</td>";
+        echo "<td valign='top' class='center formrow'>";
 
         // a link to edit the form
         echo "<a target='".
@@ -129,12 +129,19 @@ if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name
         }
 
         echo "</td>\n" .
-                "<td class='formrow' style='padding-left: 25px;'>";
+                "<td valign='top' class='formrow' style='padding-left: 25px;'>";
 
-        // Use the form's report.php for display.
+        // Use the form's report.php for display.  Forms with names starting with LBF
+        // are list-based forms sharing a single collection of code.
         //
-        include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
-        call_user_func($formdir . "_report", $pid, $iter['encounter'], 2, $iter['form_id']);
+        if (substr($formdir,0,3) == 'LBF') {
+          include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
+          call_user_func("lbf_report", $pid, $iter['encounter'], 2, $iter['form_id'], $formdir);
+        }
+        else  {
+          include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
+          call_user_func($formdir . "_report", $pid, $iter['encounter'], 2, $iter['form_id']);
+        }
 
         echo "</td></tr>";
     }

@@ -1,4 +1,9 @@
 <?php
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/billing.inc");
@@ -109,7 +114,12 @@ else { // not printable
 // include ALL form's report.php files
 $inclookupres = sqlStatement("select distinct formdir from forms where pid = '$pid' AND deleted=0");
 while($result = sqlFetchArray($inclookupres)) {
-  include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
+  // include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
+  $formdir = $result['formdir'];
+  if (substr($formdir,0,3) == 'LBF')
+    include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
+  else
+    include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
 }
 
 // For each form field from patient_report.php...
@@ -412,7 +422,10 @@ foreach ($ar as $key => $val) {
                 echo "<br>\n";
    
                 // call the report function for the form
-                call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
+                if (substr($res[1],0,3) == 'LBF')
+                  call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $res[1]);
+                else
+                  call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
 
                 if ($res[1] == 'newpatient') {
                     // display billing info

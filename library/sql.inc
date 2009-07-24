@@ -71,6 +71,12 @@ function sqlInsertClean($statement)
   return sqlInsert($statement);
 }
 
+function sqlNumRows($resource)
+{
+  if (empty($resource)) return 0;
+  return mysql_num_rows($resource);
+}
+
 function sqlFetchArray($resource)
 {
   if ($resource == FALSE)

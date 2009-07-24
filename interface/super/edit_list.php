@@ -8,6 +8,7 @@
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
+require_once("$srcdir/formdata.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 $list_id = empty($_REQUEST['list_id']) ? 'language' : $_REQUEST['list_id'];
@@ -25,9 +26,9 @@ if ($_POST['formaction']=='save' && $list_id) {
         sqlStatement("DELETE FROM fee_sheet_options");
         for ($lino = 1; isset($opt["$lino"]['category']); ++$lino) {
             $iter = $opt["$lino"];
-            $category = trim($iter['category']);
-            $option   = trim($iter['option']);
-            $codes    = $iter['codes'];
+            $category = formTrim($iter['category']);
+            $option   = formTrim($iter['option']);
+            $codes    = formTrim($iter['codes']);
             if (strlen($category) > 0 && strlen($option) > 0) {
                 sqlInsert("INSERT INTO fee_sheet_options ( " .
                             "fs_category, fs_option, fs_codes " .
@@ -46,18 +47,22 @@ if ($_POST['formaction']=='save' && $list_id) {
         sqlStatement("DELETE FROM list_options WHERE list_id = '$list_id'");
         for ($lino = 1; isset($opt["$lino"]['id']); ++$lino) {
             $iter = $opt["$lino"];
-            $value = empty($iter['value']) ? 0 : (trim($iter['value']) + 0);
-            if (strlen(trim($iter['id'])) > 0) {
-                sqlInsert("INSERT INTO list_options ( " .
-                            "list_id, option_id, title, seq, is_default, option_value " .
-                            ") VALUES ( " .
-                            "'$list_id', "                       .
-                            "'" . trim($iter['id'])      . "', " .
-                            "'" . trim($iter['title'])   . "', " .
-                            "'" . trim($iter['seq'])     . "', " .
-                            "'" . trim($iter['default']) . "', " .
-                            "'" . $value                 . "' "  .
-                            ")");
+            $value = empty($iter['value']) ? 0 : (formTrim($iter['value']) + 0);
+            $id = formTrim($iter['id']);
+            if (strlen($id) > 0) {
+              // Force List Based Form names to start with LBF.
+              if ($list_id == 'lbfnames' && substr($id,0,3) != 'LBF')
+                $id = "LBF$id";
+              sqlInsert("INSERT INTO list_options ( " .
+                "list_id, option_id, title, seq, is_default, option_value " .
+                ") VALUES ( " .
+                "'$list_id', "                       .
+                "'" . $id      . "', " .
+                "'" . formTrim($iter['title'])   . "', " .
+                "'" . formTrim($iter['seq'])     . "', " .
+                "'" . formTrim($iter['default']) . "', " .
+                "'" . $value                 . "' "  .
+                ")");
             }
         }
     }

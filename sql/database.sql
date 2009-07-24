@@ -1847,6 +1847,7 @@ INSERT INTO list_options VALUES ('lists' ,'drug_interval','Drug Intervals'     ,
 INSERT INTO list_options VALUES ('lists' ,'exams'        ,'Exams/Tests'        , 7,0,0);
 INSERT INTO list_options VALUES ('lists' ,'feesheet'     ,'Fee Sheet'          , 8,0,0);
 INSERT INTO list_options VALUES ('lists' ,'language'     ,'Language'           , 9,0,0);
+INSERT INTO list_options VALUES ('lists' ,'lbfnames'     ,'Layout-Based Visit Forms',9,0,0);
 INSERT INTO list_options VALUES ('lists' ,'marital'      ,'Marital Status'     ,10,0,0);
 INSERT INTO list_options VALUES ('lists' ,'pricelevel'   ,'Price Level'        ,11,0,0);
 INSERT INTO list_options VALUES ('lists' ,'ethrace'      ,'Race/Ethnicity'     ,12,0,0);
@@ -2883,4 +2884,11 @@ CREATE TABLE `users_facility` (
   `facility_id` int(11) NOT NULL,
   PRIMARY KEY (`tablename`,`table_id`,`facility_id`)
 ) ENGINE=InnoDB COMMENT='joins users or patient_data to facility table';
+
+CREATE TABLE `lbf_data` (
+  `form_id`     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'references forms.form_id',
+  `field_id`    varchar(31)  NOT NULL COMMENT 'references layout_options.field_id',
+  `field_value` varchar(255) NOT NULL,
+  PRIMARY KEY (`form_id`,`field_id`)
+) ENGINE=MyISAM COMMENT='contains all data from layout-based forms';
 

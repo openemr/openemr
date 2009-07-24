@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -9,6 +9,7 @@
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/log.inc");
+require_once("$srcdir/formdata.inc.php");
 
 $layouts = array(
   'DEM' => xl('Demographics'),
@@ -18,7 +19,14 @@ $layouts = array(
 if ($GLOBALS['ippf_specific']) {
   $layouts['GCA'] = xl('Abortion Issues');
   $layouts['CON'] = xl('Contraception Issues');
-  $layouts['SRH'] = xl('SRH Visit Form');
+  // $layouts['SRH'] = xl('SRH Visit Form');
+}
+
+// Include Layout Based Encounter Forms.
+$lres = sqlStatement("SELECT * FROM list_options " .
+  "WHERE list_id = 'lbfnames' ORDER BY seq, title");
+while ($lrow = sqlFetchArray($lres)) {
+  $layouts[$lrow['option_id']] = $lrow['title'];
 }
 
 // array of the data_types of the fields
@@ -49,68 +57,69 @@ $layout_id = empty($_REQUEST['layout_id']) ? 'DEM' : $_REQUEST['layout_id'];
 
 // Handle the Form actions
 
-if ($_POST['formaction']=="save" && $layout_id) {
+if ($_POST['formaction'] == "save" && $layout_id) {
     // If we are saving, then save.
     $fld = $_POST['fld'];
     for ($lino = 1; isset($fld[$lino]['id']); ++$lino) {
         $iter = $fld[$lino];
-        $field_id = trim($iter['id']);
+        $field_id = formTrim($iter['id']);
         if ($field_id) {
             sqlStatement("UPDATE layout_options SET " .
-                "title = '"         . trim($iter['title'])     . "', " .
-                "group_name = '"    . trim($iter['group'])     . "', " .
-                "seq = '"           . trim($iter['seq'])       . "', " .
-                "uor = '"           . trim($iter['uor'])       . "', " .
-                "fld_length = '"    . trim($iter['length'])    . "', " .
-                "titlecols = '"     . trim($iter['titlecols']) . "', " .
-                "datacols = '"      . trim($iter['datacols'])  . "', " .
-                "data_type= '"      . trim($iter['data_type'])  . "', " .
-                "list_id= '"        . trim($iter['list_id'])  . "', " .
-                "default_value = '" . trim($iter['default'])   . "', " .
-                "description = '"   . trim($iter['desc'])      . "' " .
+                "title = '"         . formTrim($iter['title'])     . "', " .
+                "group_name = '"    . formTrim($iter['group'])     . "', " .
+                "seq = '"           . formTrim($iter['seq'])       . "', " .
+                "uor = '"           . formTrim($iter['uor'])       . "', " .
+                "fld_length = '"    . formTrim($iter['length'])    . "', " .
+                "titlecols = '"     . formTrim($iter['titlecols']) . "', " .
+                "datacols = '"      . formTrim($iter['datacols'])  . "', " .
+                "data_type= '"      . formTrim($iter['data_type']) . "', " .
+                "list_id= '"        . formTrim($iter['list_id'])   . "', " .
+                "default_value = '" . formTrim($iter['default'])   . "', " .
+                "description = '"   . formTrim($iter['desc'])      . "' " .
                 "WHERE form_id = '$layout_id' AND field_id = '$field_id'");
         }
     }
 }
 
-else if ($_POST['formaction']=="addfield" && $layout_id) {
+else if ($_POST['formaction'] == "addfield" && $layout_id) {
     // Add a new field to a specific group
-    sqlStatement("INSERT INTO layout_options (".
-                "form_id, field_id, title, group_name, seq, uor, fld_length ".
-                ",titlecols, datacols, data_type, default_value, description ".
-                ", max_length".
-                ") VALUES (".
-                "'".trim($_POST['layout_id'])."'".
-                ",'".trim($_POST['newid'])."'".
-                ",'".trim($_POST['newtitle'])."'".
-                ",'".trim($_POST['newfieldgroupid'])."'".
-                ",'".trim($_POST['newseq'])."'".
-                ",'".trim($_POST['newuor'])."'".
-                ",'".trim($_POST['newlength'])."'".
-                ",'".trim($_POST['newtitlecols'])."'".
-                ",'".trim($_POST['newdatacols'])."'".
-                ",'".trim($_POST['newdatatype'])."'".
-                ",'".trim($_POST['newdefault'])."'".
-                ",'".trim($_POST['newdesc'])."'".
-                ",'".trim($_POST['newlength'])."'". // maxlength = length
-                ")");
+    sqlStatement("INSERT INTO layout_options (" .
+      " form_id, field_id, title, group_name, seq, uor, fld_length" .
+      ", titlecols, datacols, data_type, default_value, description" .
+      ", max_length " .
+      ") VALUES ( " .
+      "'"  . formTrim($_POST['layout_id']      ) . "'" .
+      ",'" . formTrim($_POST['newid']          ) . "'" .
+      ",'" . formTrim($_POST['newtitle']       ) . "'" .
+      ",'" . formTrim($_POST['newfieldgroupid']) . "'" .
+      ",'" . formTrim($_POST['newseq']         ) . "'" .
+      ",'" . formTrim($_POST['newuor']         ) . "'" .
+      ",'" . formTrim($_POST['newlength']      ) . "'" .
+      ",'" . formTrim($_POST['newtitlecols']   ) . "'" .
+      ",'" . formTrim($_POST['newdatacols']    ) . "'" .
+      ",'" . formTrim($_POST['newdatatype']    ) . "'" .
+      ",'" . formTrim($_POST['newdefault']     ) . "'" .
+      ",'" . formTrim($_POST['newdesc']        ) . "'" .
+      ",'" . formTrim($_POST['newlength']      ) . "'" . // maxlength = length
+      " )");
 
-    // Add the field to the table too (this is critical)
-    if ($layout_id == "DEM") { $tablename = "patient_data"; }
-    else if ($layout_id == "HIS") { $tablename = "history_data"; }
-    else if ($layout_id == "REF") { $tablename = "transactions"; }
-    else if ($layout_id == "SRH") { $tablename = "lists_ippf_srh"; }
-    else if ($layout_id == "CON") { $tablename = "lists_ippf_con"; }
-    else if ($layout_id == "GCA") { $tablename = "lists_ippf_gcac"; }
-    sqlStatement("ALTER TABLE `".$tablename."` ADD ".
-                    "`".trim($_POST['newid'])."`".
-                    " VARCHAR( 255 )"
-                );
-    newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], $tablename." ADD ".trim($_POST['newid']));
-
+    if (substr($layout_id,0,3) != 'LBF') {
+      // Add the field to the table too (this is critical)
+      if ($layout_id == "DEM") { $tablename = "patient_data"; }
+      else if ($layout_id == "HIS") { $tablename = "history_data"; }
+      else if ($layout_id == "REF") { $tablename = "transactions"; }
+      else if ($layout_id == "SRH") { $tablename = "lists_ippf_srh"; }
+      else if ($layout_id == "CON") { $tablename = "lists_ippf_con"; }
+      else if ($layout_id == "GCA") { $tablename = "lists_ippf_gcac"; }
+      sqlStatement("ALTER TABLE `" . $tablename . "` ADD ".
+                      "`" . formTrim($_POST['newid']) . "`" .
+                      " VARCHAR( 255 )");
+      newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'],
+        $tablename . " ADD " . formTrim($_POST['newid']));
+    }
 }
 
-else if ($_POST['formaction']=="deletefield" && $layout_id) {
+else if ($_POST['formaction'] == "deletefield" && $layout_id) {
     // Delete a field from a specific group
     sqlStatement("DELETE FROM layout_options WHERE ".
                 " form_id = '".$_POST['layout_id']."' ".
@@ -118,18 +127,20 @@ else if ($_POST['formaction']=="deletefield" && $layout_id) {
                 " AND group_name = '".$_POST['deletefieldgroup']."'"
                 );
 
-    // drop the field from the table too (this is critical) 
-    if ($layout_id == "DEM") { $tablename = "patient_data"; }
-    else if ($layout_id == "HIS") { $tablename = "history_data"; }
-    else if ($layout_id == "REF") { $tablename = "transactions"; }
-    else if ($layout_id == "SRH") { $tablename = "lists_ippf_srh"; }
-    else if ($layout_id == "CON") { $tablename = "lists_ippf_con"; }
-    else if ($layout_id == "GCA") { $tablename = "lists_ippf_gcac"; }
-    sqlStatement("ALTER TABLE `".$tablename."` DROP `".$_POST['deletefieldid']."`");
-    newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], $tablename." DROP ".trim($_POST['deletefieldid']));
+    if (substr($layout_id,0,3) != 'LBF') {
+      // drop the field from the table too (this is critical) 
+      if ($layout_id == "DEM") { $tablename = "patient_data"; }
+      else if ($layout_id == "HIS") { $tablename = "history_data"; }
+      else if ($layout_id == "REF") { $tablename = "transactions"; }
+      else if ($layout_id == "SRH") { $tablename = "lists_ippf_srh"; }
+      else if ($layout_id == "CON") { $tablename = "lists_ippf_con"; }
+      else if ($layout_id == "GCA") { $tablename = "lists_ippf_gcac"; }
+      sqlStatement("ALTER TABLE `".$tablename."` DROP `".$_POST['deletefieldid']."`");
+      newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], $tablename." DROP ".trim($_POST['deletefieldid']));
+    }
 }
 
-else if ($_POST['formaction']=="addgroup" && $layout_id) {
+else if ($_POST['formaction'] == "addgroup" && $layout_id) {
     // all group names are prefixed with a number indicating their display order
     // this new group is prefixed with the net highest number given the
     // layout_id
@@ -155,7 +166,7 @@ else if ($_POST['formaction']=="addgroup" && $layout_id) {
                 ")");
 }
 
-else if ($_POST['formaction']=="deletegroup" && $layout_id) {
+else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
     // Delete an entire group from the form
     sqlStatement("DELETE FROM layout_options WHERE ".
                 " form_id = '".$_POST['layout_id']."' ".
@@ -163,7 +174,7 @@ else if ($_POST['formaction']=="deletegroup" && $layout_id) {
                 );
 }
 
-else if ($_POST['formaction']=="movegroup" && $layout_id) {
+else if ($_POST['formaction'] == "movegroup" && $layout_id) {
     
     // split the numeric order out of the group name
     $parts = preg_split("/(^\d)/", $_POST['movegroupname'], -1, PREG_SPLIT_DELIM_CAPTURE);

@@ -74,6 +74,16 @@ function decorateString($fmt, $str) {
   return $res;
 }
 
+// Delete a form's data from its form-specific table.
+//
+function form_delete($formdir, $formid) {
+  $formdir = ($formdir == 'newpatient') ? 'encounter' : $formdir;
+  if (substr($formdir,0,3) == 'LBF')
+    row_delete("lbf_data", "form_id = '$formid'");
+  else 
+    row_delete("form_$formdir", "id = '$formid'");
+}
+
 ?>
 <html>
 <head>
@@ -115,8 +125,7 @@ td { font-size:10pt; }
 
    $res = sqlStatement("SELECT * FROM forms WHERE pid = '$patient'");
    while ($row = sqlFetchArray($res)) {
-    $formdir = ($row['formdir'] == 'newpatient') ? 'encounter' : $row['formdir'];
-    row_delete("form_$formdir", "id = '" . $row['form_id'] . "'");
+    form_delete($row['formdir'], $row['form_id'])
    }
    row_delete("forms", "pid = '$patient'");
 
@@ -132,8 +141,7 @@ td { font-size:10pt; }
    row_delete("issue_encounter", "encounter = '$encounterid'");
    $res = sqlStatement("SELECT * FROM forms WHERE encounter = '$encounterid'");
    while ($row = sqlFetchArray($res)) {
-    $formdir = ($row['formdir'] == 'newpatient') ? 'encounter' : $row['formdir'];
-    row_delete("form_$formdir", "id = '" . $row['form_id'] . "'");
+    form_delete($row['formdir'], $row['form_id'])
    }
    row_delete("forms", "encounter = '$encounterid'");
   }
@@ -142,8 +150,7 @@ td { font-size:10pt; }
    $row = sqlQuery("SELECT * FROM forms WHERE id = '$formid'");
    $formdir = $row['formdir'];
    if (! $formdir) die("There is no form with id '$formid'");
-   $formname = ($formdir == 'newpatient') ? 'encounter' : $formdir;
-   row_delete("form_$formname", "id = '" . $row['form_id'] . "'");
+   form_delete($formdir, $row['form_id'])
    row_delete("forms", "id = '$formid'");
   }
   else if ($issue) {

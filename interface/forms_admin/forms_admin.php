@@ -1,4 +1,9 @@
 <?php 
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 include_once("../globals.php");
 include_once("$srcdir/registry.inc");
@@ -129,7 +134,6 @@ foreach($bigdata as $registry)
 </table>
 <hr>
 
-
 <?php  //UNREGISTERED SECTION ?>
 <span class=bold><?php xl('Unregistered','e');?></span><br>
 <table border=0 cellpadding=1 cellspacing=2 width="500">
@@ -138,7 +142,10 @@ $dpath = "$srcdir/../interface/forms/";
 $dp = opendir($dpath);
 $color="#CCCCCC";
 for ($i=0; false != ($fname = readdir($dp)); $i++)
-	if ($fname != "." && $fname != ".." && $fname != "CVS" && (is_dir($dpath.$fname) || stristr($fname, ".tar.gz") || stristr($fname, ".tar") || stristr($fname, ".zip") || stristr($fname, ".gz")))
+	if ($fname != "." && $fname != ".." && $fname != "CVS" && $fname != "LBF" &&
+    (is_dir($dpath.$fname) || stristr($fname, ".tar.gz") ||
+    stristr($fname, ".tar") || stristr($fname, ".zip") ||
+    stristr($fname, ".gz")))
 		$inDir[$i] = $fname;
 
 // ballards 11/05/2005 fixed bug in removing registered form from the list
