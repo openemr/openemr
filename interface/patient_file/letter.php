@@ -142,6 +142,7 @@ if ($_POST['formaction']=="generate") {
 	 color: black;
 	}	
 	.paddingdiv {
+	 width: 524pt;
 	 padding: 0pt;
 	 margin-top: 50pt;
 	}
