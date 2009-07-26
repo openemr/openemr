@@ -217,16 +217,23 @@ td,th {
 
 	<tr>
 	<td colspan='3' style='text-align:center'>
+	{if $patient_age <= 20 || (preg_match('/month/', $patient_age))}
+	<!-- only show growth-chart button for patients < 20 years old -->
+	<!-- <input type="button" id="growthchart" value="{xl t="Growth-Chart"}" style='margin-left: 20px;'> -->
+	<input type="button" id="pdfchart" value="{xl t="Growth-Chart"} ({xl t="PDF"})" style='margin-left: 20px;'>
+        <input type="button" id="htmlchart" value="{xl t="Growth-Chart"} ({xl t="HTML"})" style='margin-left: 20px;'>
+	{/if}
+	</td>
+	</tr>
+	<tr><td colspan='3' style='text-align:center'>&nbsp;</td></tr>
+	<tr>
+	<td colspan='3' style='text-align:center'>
         <input type="submit" name="Submit" value="{xl t="Save Form"}">
         <input type="button" id="cancel" value="{xl t="Don't Save"}">
-        {if $patient_age <= 20 || (preg_match('/month/', $patient_age))}
-        <!-- only show growth-chart button for patients < 20 years old -->
-        <!-- <input type="button" id="growthchart" value="{xl t="Growth-Chart"}" style='margin-left: 20px;'> -->
-        <input type="button" id="pdfchart" value="{xl t="Growth-Chart"}" style='margin-left: 20px;'>
-        {/if}
         </td>
 </tr>
 </table>
+<br><br>
 <input type="hidden" name="id" id='id' value="{$vitals->get_id()}" />
 <input type="hidden" name="activity" id='activity' value="{$vitals->get_activity()}">
 <input type="hidden" name="pid" id='pid' value="{$vitals->get_pid()}">
@@ -252,7 +259,8 @@ var cancellink = '{$DONT_SAVE_LINK}';
 
 $(document).ready(function(){
     $("#growthchart").click(function() { ShowGrowthchart(); });
-    $("#pdfchart").click(function() { ShowGrowthchart("1"); });
+    $("#pdfchart").click(function() { ShowGrowthchart(1); });
+    $("#htmlchart").click(function() { ShowGrowthchart(2); });
     $("#cancel").click(function() { location.href=cancellink; });
 });
 
@@ -268,6 +276,7 @@ function ShowGrowthchart(doPDF) {
     }
     newURL = webroot+'/interface/forms/vitals/growthchart/chart.php?pid='+pid+'&data='+datastring;
     if (doPDF == 1) newURL += "&pdf=1";
+    if (doPDF == 2) newURL += "&html=1";
     // do the new window stuff
     top.restoreSession();
     window.open(newURL, '_blank', "menubar=1,toolbar=1,scrollbars=1,resizable=1,width=600,height=450");
