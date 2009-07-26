@@ -319,7 +319,7 @@ ALTER TABLE form_reviewofs CHANGE addison_syndrom addison_syndrom varchar(5)
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id lbfnames
-INSERT INTO list_options VALUES ('lists','lbfnames','Layout-Based Visit Forms',4,0,0);
+INSERT INTO list_options VALUES ('lists','lbfnames','Layout-Based Visit Forms',9,0,0);
 #EndIf
 
 #IfNotTable lbf_data
