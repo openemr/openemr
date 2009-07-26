@@ -119,6 +119,30 @@ function get_age($dob, $date=null) {
     return compact('age','ageinYMD');
 }
 
+// convert to applicable weight units from the globals.php setting
+function unitsWt($wt) {
+    if (($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) {
+        //convert to metric
+        return (number_format(($wt*0.45359237),2,'.',''));
+    }
+    else {
+        //keep US units
+        return $wt;
+    }
+}
+
+// convert to applicable weight units from the globals.php setting
+function unitsDist($dist) {
+    if (($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) {
+        //convert to metric
+        return (number_format(($dist*2.54),2,'.',''));
+    }
+    else {
+        //keep US units
+        return $dist;
+    }
+}
+
 /******************************/
 /******************************/
 /******************************/
@@ -295,9 +319,9 @@ foreach ($datapoints as $data) {
     if ($count < 9 && $charttype == "birth") {
         imagestring($im, 2, $datatable_x, $datatable_y, $datestr, $color);
         imagestring($im, 2, ($datatable_x+$datatable_age_offset), $datatable_y, $ageinYMD, $color);
-        imagestring($im, 2, ($datatable_x+$datatable_weight_offset), $datatable_y, $weight, $color);
-        imagestring($im, 2, ($datatable_x+$datatable_height_offset), $datatable_y, $height, $color);
-        imagestring($im, 2, ($datatable_x+$datatable_hc_offset), $datatable_y, $head_circ, $color);
+        imagestring($im, 2, ($datatable_x+$datatable_weight_offset), $datatable_y, unitsWt($weight), $color);
+        imagestring($im, 2, ($datatable_x+$datatable_height_offset), $datatable_y, unitsDist($height), $color);
+        imagestring($im, 2, ($datatable_x+$datatable_hc_offset), $datatable_y, unitsDist($head_circ), $color);
         $datatable_y = $datatable_y + $datatable_y_increment; // increment the datatable "row pointer"
     }
 
@@ -305,8 +329,8 @@ foreach ($datapoints as $data) {
     if ($count < 7  && $charttype == "2-20") {
         imagestring($im, 2, $datatable_x, $datatable_y, $datestr, $color);
         imagestring($im, 2, ($datatable_x+$datatable_age_offset), $datatable_y, $ageinYMD, $color);
-        imagestring($im, 2, ($datatable_x+$datatable_weight_offset), $datatable_y, $weight, $color);
-        imagestring($im, 2, ($datatable_x+$datatable_height_offset), $datatable_y, $height, $color);
+        imagestring($im, 2, ($datatable_x+$datatable_weight_offset), $datatable_y, unitsWt($weight), $color);
+        imagestring($im, 2, ($datatable_x+$datatable_height_offset), $datatable_y, unitsDist($height), $color);
         imagestring($im, 2, ($datatable_x+$datatable_bmi_offset), $datatable_y, substr($bmi,0,5), $color);
         $datatable_y = $datatable_y + $datatable_y_increment; // increment the datatable "row pointer"
     }
@@ -315,9 +339,9 @@ foreach ($datapoints as $data) {
     if ($count < 5 && $charttype == "birth") {
         imagestring($im, 2, $datatable2_x, $datatable2_y, $datestr, $color);
         imagestring($im, 2, ($datatable2_x+$datatable2_age_offset), $datatable2_y, $ageinYMD, $color);
-        imagestring($im, 2, ($datatable2_x+$datatable2_weight_offset), $datatable2_y, $weight, $color);
-        imagestring($im, 2, ($datatable2_x+$datatable2_height_offset), $datatable2_y, $height, $color);
-        imagestring($im, 2, ($datatable2_x+$datatable2_hc_offset), $datatable2_y, $head_circ, $color);
+        imagestring($im, 2, ($datatable2_x+$datatable2_weight_offset), $datatable2_y, unitsWt($weight), $color);
+        imagestring($im, 2, ($datatable2_x+$datatable2_height_offset), $datatable2_y, unitsDist($height), $color);
+        imagestring($im, 2, ($datatable2_x+$datatable2_hc_offset), $datatable2_y, unitsDist($head_circ), $color);
         $datatable2_y = $datatable2_y + $datatable2_y_increment; // increment the datatable2 "row pointer"			
     }
 
@@ -325,8 +349,8 @@ foreach ($datapoints as $data) {
     if ($count < 14 && $charttype == "2-20") {
         imagestring($im, 2, $datatable2_x, $datatable2_y, $datestr, $color);
         imagestring($im, 2, ($datatable2_x+$datatable2_age_offset), $datatable2_y, $ageinYMD, $color);
-        imagestring($im, 2, ($datatable2_x+$datatable2_weight_offset), $datatable2_y, $weight, $color);
-        imagestring($im, 2, ($datatable2_x+$datatable2_height_offset), $datatable2_y, $height, $color);
+        imagestring($im, 2, ($datatable2_x+$datatable2_weight_offset), $datatable2_y, unitsWt($weight), $color);
+        imagestring($im, 2, ($datatable2_x+$datatable2_height_offset), $datatable2_y, unitsDist($height), $color);
         imagestring($im, 2, ($datatable2_x+$datatable2_bmi_offset), $datatable2_y, substr($bmi,0,5), $color);
         $datatable2_y = $datatable2_y + $datatable2_y_increment; // increment the datatable2 "row pointer"
     }
