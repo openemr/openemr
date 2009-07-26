@@ -138,6 +138,7 @@ div.section {
 </style>
 
 <script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
 
 <script language="JavaScript">
 
@@ -269,9 +270,11 @@ function divclick(cb, divid) {
 
 </form>
 <?php
-
 // TBD: If $alertmsg, display it with a JavaScript alert().
-
 ?>
+
+<!-- include support for the list-add selectbox feature -->
+<?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
+
 </body>
 </html>

@@ -339,7 +339,7 @@ if ($result = getEncounters($pid)) {
     
                 /* build the potentially HUGE tooltip used by ttshow */
                 $title = "";
-                if ($enc['formdir'] != 'physical_exam') {
+                if ($enc['formdir'] != 'physical_exam' && substr($enc['formdir'],0,3) != 'LBF') {
                     $frow = sqlQuery("select * from form_" . $enc['formdir'] .
                                     " where id = " . $enc['form_id']);
                     foreach ($frow as $fkey => $fvalue) {
