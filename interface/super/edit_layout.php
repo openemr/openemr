@@ -155,23 +155,69 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
         if ($parts[0] >= $maxnum) { $maxnum = $parts[0] + 1; }
     }
 
-    // add a new group to the layout, with a default field
-    sqlStatement("INSERT INTO layout_options (".
-                "form_id, field_id, title, group_name". 
-                ") VALUES (".
-                "'".trim($_POST['layout_id'])."'".
-                ",'field1'".
-                ",'New Field'".
-                ",'".trim($maxnum . $_POST['newgroupname'])."'".
-                ")");
+    // add a new group to the layout, with the defined field
+    sqlStatement("INSERT INTO layout_options (" .
+      " form_id, field_id, title, group_name, seq, uor, fld_length" .
+      ", titlecols, datacols, data_type, default_value, description" .
+      ", max_length " .
+      ") VALUES ( " .
+      "'"  . formTrim($_POST['layout_id']      ) . "'" .
+      ",'" . formTrim($_POST['gnewid']          ) . "'" .
+      ",'" . formTrim($_POST['gnewtitle']       ) . "'" .
+      ",'" . formTrim($maxnum . $_POST['newgroupname']) . "'" .
+      ",'" . formTrim($_POST['gnewseq']         ) . "'" .
+      ",'" . formTrim($_POST['gnewuor']         ) . "'" .
+      ",'" . formTrim($_POST['gnewlength']      ) . "'" .
+      ",'" . formTrim($_POST['gnewtitlecols']   ) . "'" .
+      ",'" . formTrim($_POST['gnewdatacols']    ) . "'" .
+      ",'" . formTrim($_POST['gnewdatatype']    ) . "'" .
+      ",'" . formTrim($_POST['gnewdefault']     ) . "'" .
+      ",'" . formTrim($_POST['gnewdesc']        ) . "'" .
+      ",'" . formTrim($_POST['gnewlength']      ) . "'" . // maxlength = length
+      " )");
+
+    if (substr($layout_id,0,3) != 'LBF') {
+      // Add the field to the table too (this is critical)
+      if ($layout_id == "DEM") { $tablename = "patient_data"; }
+      else if ($layout_id == "HIS") { $tablename = "history_data"; }
+      else if ($layout_id == "REF") { $tablename = "transactions"; }
+      else if ($layout_id == "SRH") { $tablename = "lists_ippf_srh"; }
+      else if ($layout_id == "CON") { $tablename = "lists_ippf_con"; }
+      else if ($layout_id == "GCA") { $tablename = "lists_ippf_gcac"; }
+      sqlStatement("ALTER TABLE `" . $tablename . "` ADD ".
+                      "`" . formTrim($_POST['gnewid']) . "`" .
+                      " VARCHAR( 255 )");
+      newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'],
+        $tablename . " ADD " . formTrim($_POST['gnewid']));
+    }
 }
 
 else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
+    // drop the fields from the related table (this is critical)
+    if (substr($layout_id,0,3) != 'LBF') {
+        $res = sqlStatement("SELECT field_id FROM layout_options WHERE " .
+                            " form_id = '".$_POST['layout_id']."' ".
+                            " AND group_name = '".$_POST['deletegroupname']."'"
+                            );
+        while ($row = sqlFetchArray($res)) {
+            // drop the field from the table too (this is critical) 
+            if ($layout_id == "DEM") { $tablename = "patient_data"; }
+            else if ($layout_id == "HIS") { $tablename = "history_data"; }
+            else if ($layout_id == "REF") { $tablename = "transactions"; }
+            else if ($layout_id == "SRH") { $tablename = "lists_ippf_srh"; }
+            else if ($layout_id == "CON") { $tablename = "lists_ippf_con"; }
+            else if ($layout_id == "GCA") { $tablename = "lists_ippf_gcac"; }
+            sqlStatement("ALTER TABLE `".$tablename."` DROP `".$row['field_id']."`");
+            newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], $tablename." DROP ".trim($row['field_id']));
+        }
+    }
+
     // Delete an entire group from the form
     sqlStatement("DELETE FROM layout_options WHERE ".
                 " form_id = '".$_POST['layout_id']."' ".
                 " AND group_name = '".$_POST['deletegroupname']."'"
                 );
+    //newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], $tablename." DROP ".trim($row['field_id']));
 }
 
 else if ($_POST['formaction'] == "movegroup" && $layout_id) {
@@ -525,13 +571,64 @@ if ($row['group_name'] != $prevgroup) {
 <input type="button" class="cancelrenamegroup" value=<?php xl('Cancel','e','\'','\''); ?>>
 </div>
 
+
+
 <!-- template DIV that appears when user chooses to add a new group -->
 <div id="groupdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
 <?php xl('Group Name','e'); ?>:	<input type="textbox" size="20" maxlength="30" name="newgroupname" id="newgroupname">
 <br>
+<table style="border-collapse: collapse; margin-top: 5px;">
+<thead>
+ <tr class='head'>
+  <th><?php xl('Order','e'); ?></th>
+  <th><?php xl('ID','e'); ?> <span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
+  <th><?php xl('Label','e'); ?> <span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
+  <th><?php xl('UOR','e'); ?></th>
+  <th><?php xl('Data Type','e'); ?></th>
+  <th><?php xl('Size/List','e'); ?></th>
+  <th><?php xl('Label Cols','e'); ?></th>
+  <th><?php xl('Data Cols','e'); ?></th>
+  <th><?php xl('Default Value','e'); ?></th>
+  <th><?php xl('Description','e'); ?></th>
+ </tr>
+</thead>
+<tbody>
+<tr class='center'>
+<td ><input type="textbox" name="gnewseq" id="gnewseq" value="" size="2" maxlength="3"> </td>
+<td ><input type="textbox" name="gnewid" id="gnewid" value="" size="10" maxlength="20"> </td>
+<td><input type="textbox" name="gnewtitle" id="gnewtitle" value="" size="20" maxlength="63"> </td>
+<td>
+<select name="gnewuor" id="gnewuor">
+<option value="0"><?php xl('Unused','e'); ?></option>
+<option value="1" selected><?php xl('Optional','e'); ?></option>
+<option value="2"><?php xl('Required','e'); ?></option>
+</select>
+</td>
+<td align='center'>
+<select name='gnewdatatype' id='gnewdatatype'>
+<option value=''></option>
+<?php
+global $datatypes;
+foreach ($datatypes as $key=>$value) {
+    echo "<option value='$key'>$value</option>";
+}
+?>
+</select>
+</td>
+<td><input type="textbox" name="gnewlength" id="gnewlength" value="" size="1" maxlength="3"> </td>
+<td><input type="textbox" name="gnewtitlecols" id="gnewtitlecols" value="" size="3" maxlength="3"> </td>
+<td><input type="textbox" name="gnewdatacols" id="gnewdatacols" value="" size="3" maxlength="3"> </td>
+<td><input type="textbox" name="gnewdefault" id="gnewdefault" value="" size="20" maxlength="63"> </td>
+<td><input type="textbox" name="gnewdesc" id="gnewdesc" value="" size="20" maxlength="63"> </td>
+</tr>
+</tbody>
+</table>
+<br>
 <input type="button" class="savenewgroup" value=<?php xl('Save New Group','e','\'','\''); ?>>
 <input type="button" class="cancelnewgroup" value=<?php xl('Cancel','e','\'','\''); ?>>
 </div>
+
+
 
 <!-- template DIV that appears when user chooses to add a new field to a group -->
 <div id="fielddetail" class="fielddetail" style="display: none; visibility: hidden">
@@ -648,12 +745,51 @@ $(document).ready(function(){
     var SaveNewGroup = function(btnObj) {
         // the group name field can only have letters, numbers, spaces and underscores
         // AND it cannot start with a number
-        if ($("#newgroupname").val().match(/^\d+/)) {
-            alert("<?php xl('Group names cannot start with numbers.','e'); ?>");
+        if ($("#newgroupname").val() == "") {
+            alert("<?php xl('Group names cannot be blank', 'e'); ?>");
+            return false;
+        }
+        if ($("#newgroupname").val().match(/^(\d+|\s+)/)) {
+            alert("<?php xl('Group names cannot start with numbers or spaces.','e'); ?>");
             return false;
         }
         var validname = $("#newgroupname").val().replace(/[^A-za-z0-9 ]/g, "_"); // match any non-word characters and replace them
         $("#newgroupname").val(validname);
+
+        // now, check the first group field values
+        
+        // seq must be numeric and less than 999
+        if (! IsNumeric($("#gnewseq").val(), 0, 999)) {
+            alert("<?php xl('Order must be a number between 1 and 999','e'); ?>");
+            return false;
+        }
+        // length must be numeric and less than 999
+        if (! IsNumeric($("#gnewlength").val(), 0, 999)) {
+            alert("<?php xl('Size must be a number between 1 and 999','e'); ?>");
+            return false;
+        }
+        // titlecols must be numeric and less than 100
+        if (! IsNumeric($("#gnewtitlecols").val(), 0, 999)) {
+            alert("<?php xl('LabelCols must be a number between 1 and 999','e'); ?>");
+            return false;
+        }
+        // datacols must be numeric and less than 100
+        if (! IsNumeric($("#gnewdatacols").val(), 0, 999)) {
+            alert("<?php xl('DataCols must be a number between 1 and 999','e'); ?>");
+            return false;
+        }
+        // some fields cannot be blank
+        if ($("#gnewtitle").val() == "") {
+            alert("<?php xl('Label cannot be blank','e'); ?>");
+            return false;
+        }
+        // the id field can only have letters, numbers and underscores
+        if ($("#gnewid").val() == "") {
+            alert("<?php xl('ID cannot be blank', 'e'); ?>");
+            return false;
+        }
+        var validid = $("#gnewid").val().replace(/(\s|\W)/g, "_"); // match any non-word characters and replace them
+        $("#gnewid").val(validid);
 
         // submit the form to add a new field to a specific group
         $("#formaction").val("addgroup");
@@ -778,7 +914,7 @@ $(document).ready(function(){
         }
         // titlecols must be numeric and less than 100
         if (! IsNumeric($("#newtitlecols").val(), 0, 999)) {
-            alert("<?php xl('TitleCols must be a number between 1 and 999','e'); ?>");
+            alert("<?php xl('LabelCols must be a number between 1 and 999','e'); ?>");
             return false;
         }
         // datacols must be numeric and less than 100
@@ -838,6 +974,7 @@ function ResetNewFieldValues () {
 
 // is value an integer and between min and max
 function IsNumeric(value, min, max) {
+    if (value == "" || value == null) return false;
     if (! IsN(value) ||
         parseInt(value) < min || 
         parseInt(value) > max)
