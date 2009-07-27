@@ -155,11 +155,11 @@ function get_age($dob, $date=null) {
 function unitsWt($wt) {
     if (($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) {
         //convert to metric
-	return (number_format(($wt*0.45359237),2,'.','').xl(' kg'));
+	return (number_format(($wt*0.45359237),2,'.','').xl('kg','',' '));
     }
     else {
 	//keep US units
-        return $wt.xl(' lb');
+        return $wt.xl('lb','',' ');
     }
 }
 
@@ -167,11 +167,11 @@ function unitsWt($wt) {
 function unitsDist($dist) {
     if (($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) {
         //convert to metric
-        return (number_format(($dist*2.54),2,'.','').xl(' cm'));
+        return (number_format(($dist*2.54),2,'.','').xl('cm','',' '));
     }
     else {
         //keep US units
-        return $dist.xl(' in');
+        return $dist.xl('in','',' ');
     }
 }
 
