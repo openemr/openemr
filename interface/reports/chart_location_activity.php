@@ -10,6 +10,7 @@
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
+require_once("$srcdir/options.inc.php");
 
 $form_patient_id = trim($_POST['form_patient_id']);
 ?>
@@ -100,7 +101,7 @@ if (!empty($form_patient_id)) {
   $ptrow = sqlQuery($query);
   if (empty($ptrow)) {
     $curr_pid = 0;
-    echo "<font color='red'>Chart ID '$form_patient_id' not found!</font><br />&nbsp;<br />";
+    echo "<font color='red'>" . xl('Chart ID') . " '" . $form_patient_id . "' " . xl('not found!') . "</font><br />&nbsp;<br />";
   }
   else {
     $curr_pid = $ptrow['pid'];
@@ -113,7 +114,7 @@ else if (!empty($curr_pid)) {
   $form_patient_id = $ptrow['pubpid'];
 }
 if (!empty($ptrow)) {
-  echo '<h3>for ';
+  echo '<h3>' . xl('for','','',' ');
   echo $ptrow['lname'] . ', ' . $ptrow['fname'] . ' ' . $ptrow['mname'] . ' ';
   echo "(" . $ptrow['pubpid'] . ")";
   echo "</h3>\n";
@@ -132,7 +133,7 @@ if (!empty($ptrow)) {
   <td>
    <?php xl('Patient ID','e'); ?>:
    <input type='text' name='form_patient_id' size='10' maxlength='31' value='<?php echo $form_patient_id ?>'
-    title='Patient ID' />
+    title='<?php xl('Patient ID','e'); ?>' />
    &nbsp;
    <input type='submit' name='form_refresh' value=<?php xl('Refresh','e'); ?>>
    &nbsp;
@@ -153,10 +154,9 @@ if (!empty($ptrow)) {
 $row = array();
 if (!empty($ptrow)) {
   $query = "SELECT ct.ct_when, ct.ct_userid, ct.ct_location, " .
-    "lo.title, u.username, u.fname, u.mname, u.lname " .
+    "u.username, u.fname, u.mname, u.lname " .
     "FROM chart_tracker AS ct " .
     "LEFT OUTER JOIN users AS u ON u.id = ct.ct_userid " .
-    "LEFT OUTER JOIN list_options AS lo ON lo.list_id = 'chartloc' AND lo.option_id = ct.ct_location " .
     "WHERE ct.ct_pid = '$curr_pid' " .
     "ORDER BY ct.ct_when DESC";
   $res = sqlStatement($query);
@@ -170,7 +170,7 @@ if (!empty($ptrow)) {
   <td>
 <?php
     if (!empty($row['ct_location'])) {
-      echo $row['title'];
+      echo generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'),$row['ct_location']);
     }
     else if (!empty($row['ct_userid'])) {
       echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
