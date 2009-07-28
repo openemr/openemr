@@ -121,24 +121,48 @@ else if ($_POST['formaction'] == "addfield" && $layout_id) {
     }
 }
 
-else if ($_POST['formaction'] == "deletefield" && $layout_id) {
-    // Delete a field from a specific group
-    sqlStatement("DELETE FROM layout_options WHERE ".
+else if ($_POST['formaction'] == "movefields" && $layout_id) {
+    // Move field(s) to a new group in the layout
+    $sqlstmt = "UPDATE layout_options SET ".
+                " group_name='". $_POST['targetgroup']."' ".
+                " WHERE ".
                 " form_id = '".$_POST['layout_id']."' ".
-                " AND field_id = '".$_POST['deletefieldid']."'".
-                " AND group_name = '".$_POST['deletefieldgroup']."'"
-                );
+                " AND field_id IN (";
+    $comma = "";
+    foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
+        $sqlstmt .= $comma."'".$onefield."'";
+        $comma = ", ";
+    }
+    $sqlstmt .= ")";
+    //echo $sqlstmt;
+    sqlStatement($sqlstmt);
+}
+
+else if ($_POST['formaction'] == "deletefields" && $layout_id) {
+    // Delete a field from a specific group
+    $sqlstmt = "DELETE FROM layout_options WHERE ".
+                " form_id = '".$_POST['layout_id']."' ".
+                " AND field_id IN (";
+    $comma = "";
+    foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
+        $sqlstmt .= $comma."'".$onefield."'";
+        $comma = ", ";
+    }
+    $sqlstmt .= ")";
+    sqlStatement($sqlstmt);
 
     if (substr($layout_id,0,3) != 'LBF') {
-      // drop the field from the table too (this is critical) 
-      if ($layout_id == "DEM") { $tablename = "patient_data"; }
-      else if ($layout_id == "HIS") { $tablename = "history_data"; }
-      else if ($layout_id == "REF") { $tablename = "transactions"; }
-      else if ($layout_id == "SRH") { $tablename = "lists_ippf_srh"; }
-      else if ($layout_id == "CON") { $tablename = "lists_ippf_con"; }
-      else if ($layout_id == "GCA") { $tablename = "lists_ippf_gcac"; }
-      sqlStatement("ALTER TABLE `".$tablename."` DROP `".$_POST['deletefieldid']."`");
-      newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], $tablename." DROP ".trim($_POST['deletefieldid']));
+        // drop the field from the table too (this is critical) 
+        if ($layout_id == "DEM") { $tablename = "patient_data"; }
+        else if ($layout_id == "HIS") { $tablename = "history_data"; }
+        else if ($layout_id == "REF") { $tablename = "transactions"; }
+        else if ($layout_id == "SRH") { $tablename = "lists_ippf_srh"; }
+        else if ($layout_id == "CON") { $tablename = "lists_ippf_con"; }
+        else if ($layout_id == "GCA") { $tablename = "lists_ippf_gcac"; }
+        foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
+            sqlStatement("ALTER TABLE `".$tablename."` DROP `".$onefield."`");
+            newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], $tablename." DROP ".$onefield);
+        }
     }
 }
 
@@ -285,13 +309,16 @@ function writeFieldLine($linedata) {
     //echo " <tr bgcolor='$bgcolor'>\n";
     echo " <tr id='fld[$fld_line_no]' class='".($fld_line_no % 2 ? 'even' : 'odd')."'>\n";
   
-    echo "  <td align='center' class='optcell' nowrap>";
+    echo "  <td class='optcell' nowrap>";
     // tuck the group_name INPUT in here
     echo "<input type='hidden' name='fld[$fld_line_no][group]' value='" .
          htmlspecialchars($linedata['group_name'], ENT_QUOTES) . "' class='optin' />";
-    echo "<input type='button' class='deletefield' ".
+
+    echo "<input type='checkbox' class='selectfield' ".
             "name='".$linedata['group_name']."~".$linedata['field_id']."' ".
-            "id='".$linedata['group_name']."~".$linedata['field_id']."' value='X' title='Delete field'>";
+            "id='".$linedata['group_name']."~".$linedata['field_id']."' ".
+            "title='".htmlspecialchars(xl('Select field', ENT_QUOTES))."'>";
+
     echo "<input type='text' name='fld[$fld_line_no][seq]' id='fld[$fld_line_no][seq]' value='" .
          htmlspecialchars($linedata['seq'], ENT_QUOTES) . "' size='2' maxlength='3' class='optin' />";
     echo "</td>\n";
@@ -411,6 +438,7 @@ function writeFieldLine($linedata) {
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
+
 <title><?php  xl('Layout Editor','e'); ?></title>
 
 <style>
@@ -438,22 +466,17 @@ a, a:visited, a:hover { color:#0000cc; }
     background-color: #ffdddd;
     padding: 3px 0px 3px 0px;
 }
-.moveup {
-    cursor: pointer;
-}
-.movedown {
-    cursor: pointer;
-}
-.help {
-    cursor: help;
-}
-.layouts_title {
-    font-size: 110%;
-}
+.help { cursor: help; }
+.layouts_title { font-size: 110%; }
 .translation {
     color: green;
     font-size:10pt;
- }
+}
+.highlight * {
+    border: 2px solid blue;
+    background-color: yellow;
+    color: black;
+}
 </style>
 
 </head>
@@ -470,6 +493,9 @@ a, a:visited, a:hover { color:#0000cc; }
 <!-- elements used to change the group order -->
 <input type="hidden" name="movegroupname" id="movegroupname" value="">
 <input type="hidden" name="movedirection" id="movedirection" value="">
+<!-- elements used to select more than one field -->
+<input type="hidden" name="selectedfields" id="selectedfields" value="">
+<input type="hidden" id="targetgroup" name="targetgroup" value="">
 
 <p><b><?php xl('Edit layout','e'); ?>:</b>&nbsp;
 <select name='layout_id' id='layout_id'>
@@ -557,7 +583,14 @@ while ($row = sqlFetchArray($res)) {
 </table></div>
 
 <?php if ($layout_id) { ?>
+<span style="font-size:90%">
+<?php xl('With selected:', 'e');?>
+<input type='button' name='deletefields' id='deletefields' value='<?php xl('Delete','e'); ?>' style="font-size:90%" disabled="disabled" />
+<input type='button' name='movefields' id='movefields' value='<?php xl('Move to...','e'); ?>' style="font-size:90%" disabled="disabled" />
+</span>
+<p>
 <input type='button' name='save' id='save' value='<?php xl('Save Changes','e'); ?>' />
+</p>
 <?php } ?>
 
 </form>
@@ -693,6 +726,7 @@ foreach ($datatypes as $key=>$value) {
 
 <script language="javascript">
 
+// used when selecting a list-name for a field
 var selectedfield;
 
 // jQuery stuff to make the page a little easier to use
@@ -713,7 +747,22 @@ $(document).ready(function(){
     $(".cancelrenamegroup").click(function() { CancelRenameGroup(this); });
 
     $(".addfield").click(function() { AddField(this); });
-    $(".deletefield").click(function() { DeleteField(this); });
+    $("#deletefields").click(function() { DeleteFields(this); });
+    $(".selectfield").click(function() { 
+        var TRparent = $(this).parent().parent();
+        $(TRparent).children("td").toggleClass("highlight");
+        // disable the delete-move buttons
+        $("#deletefields").attr("disabled", "disabled");
+        $("#movefields").attr("disabled", "disabled");
+        $(".selectfield").each(function(i) {
+            // if any field is selected, enable the delete-move buttons
+            if ($(this).attr("checked") == true) {
+                $("#deletefields").removeAttr("disabled");
+                $("#movefields").removeAttr("disabled");
+            }
+        });
+    });
+    $("#movefields").click(function() { ShowGroups(this); });
     $(".savenewfield").click(function() { SaveNewField(this); });
     $(".cancelnewfield").click(function() { CancelNewField(this); });
     $("#newtitle").blur(function() { if ($("#newid").val() == "") $("#newid").val($("#newtitle").val()); });
@@ -888,14 +937,20 @@ $(document).ready(function(){
         $(btnObj).parent().append($("#fielddetail"));
     };
 
-    var DeleteField = function(btnObj) {
-        var parts = $(btnObj).attr("id").split("~");
-        var groupname = parts[0].replace(/^\d+/, "");
-        if (confirm("<?php xl('WARNING','e','',' - ') . xl('This action cannot be undone.','e','','\n') . xl('Are you sure you wish to delete the field in','e'); ?> '"+groupname+"' <?php xl('identified as','e'); ?> '"+parts[1]+"'?")) {
-            // submit the form to add a new field to a specific group
-            $("#formaction").val("deletefield");
-            $("#deletefieldgroup").val(parts[0]);
-            $("#deletefieldid").val(parts[1]);
+    var DeleteFields = function(btnObj) {
+        if (confirm("<?php xl('WARNING','e','',' - ') . xl('This action cannot be undone.','e','','\n') . xl('Are you sure you wish to delete the selected fields?','e'); ?>")) {
+            var delim = "";
+            $(".selectfield").each(function(i) {
+                // build a list of selected field names to be moved
+                if ($(this).attr("checked") == true) {
+                    var parts = this.id.split("~");
+                    var currval = $("#selectedfields").val();
+                    $("#selectedfields").val(currval+delim+parts[1]);
+                    delim = " ";
+                }
+            });
+            // submit the form to delete the field(s)
+            $("#formaction").val("deletefields");
             $("#theform").submit();
         }
     };
@@ -955,12 +1010,37 @@ $(document).ready(function(){
         window.open("./show_lists_popup.php", "lists", "width=300,height=500,scrollbars=yes");
         selectedfield = btnObj;
     };
+    
+    // show the popup choice of groups
+    var ShowGroups = function(btnObj) {
+        window.open("./show_groups_popup.php?layout_id=<?php echo $layout_id;?>", "groups", "width=300,height=300,scrollbars=yes");
+    };
 
 });
 
-function SetList(listid) {
-    $(selectedfield).val(listid);
-}
+function SetList(listid) { $(selectedfield).val(listid); }
+
+
+/* this is called after the user chooses a new group from the popup window
+ * it will submit the page so the selected fields can be moved into
+ * the target group
+ */
+function MoveFields(targetgroup) {
+    $("#targetgroup").val(targetgroup);
+    var delim = "";
+    $(".selectfield").each(function(i) {
+        // build a list of selected field names to be moved
+        if ($(this).attr("checked") == true) {
+            var parts = this.id.split("~");
+            var currval = $("#selectedfields").val();
+            $("#selectedfields").val(currval+delim+parts[1]);
+            delim = " ";
+        }
+    });
+    $("#formaction").val("movefields");
+    $("#theform").submit();
+};
+
 
 // set the new-field values to a default state
 function ResetNewFieldValues () {
