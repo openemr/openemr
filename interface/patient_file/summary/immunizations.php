@@ -224,9 +224,12 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
         </tr>
         <tr>
           <td colspan="3" align="center">
-            <input type="button" name="print" id="print" value="<?php xl('Print Shot Record','e'); ?>">
-            
-            <input type="button" name="save" id="save" value="<?php xl('Save Immunization','e'); ?>">
+	
+	    <input type="button" name="save" id="save" value="<?php xl('Save Immunization','e'); ?>">
+	
+            <input type="button" name="print" id="print" value="<?php echo xl('Print Record') . xl('PDF','',' (',')'); ?>">
+	
+	    <input type="button" name="printHtml" id="printHtml" value="<?php echo xl('Print Record') . xl('HTML','',' (',')'); ?>">
             
             <input type="reset" name="clear" id="clear" value="<?php xl('Clear','e'); ?>">
           </td>
@@ -305,7 +308,8 @@ Calendar.setup({inputField:"vis_date", ifFormat:"%Y-%m-%d", button:"img_vis_date
 
 $(document).ready(function(){
     $("#save").click(function() { SaveForm(); });
-    $("#print").click(function() { PrintForm(); });
+    $("#print").click(function() { PrintForm("pdf"); });
+    $("#printHtml").click(function() { PrintForm("html"); });
     $(".immrow").click(function() { EditImm(this); });
     $(".delete").click(function(event) { DeleteImm(this); event.stopPropagation(); });
 
@@ -315,9 +319,15 @@ $(document).ready(function(){
     $("#administered_by_id").change(function() { $("#administered_by").val($("#administered_by_id :selected").text()); });
 });
 
-var PrintForm = function() {
+var PrintForm = function(typ) {
     top.restoreSession();
-    location.href='shot_record.php?sortby=<?php echo $sortby; ?>';
+    newURL='shot_record.php?output='+typ+'&sortby=<?php echo $sortby; ?>';
+    if (typ=="pdf") {
+        location.href=newURL;
+    }
+    else { // typ=html
+        window.open(newURL, '_blank', "menubar=1,toolbar=1,scrollbars=1,resizable=1,width=600,height=450");
+    }	
 }
 
 var SaveForm = function() {

@@ -2,38 +2,28 @@
 include_once("../../globals.php");
 include_once("$srcdir/sql.inc");
 include_once("$srcdir/options.inc.php");
-require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
 
-$pdf =& new Cezpdf("LETTER");
-$pdf->ezSetMargins(72,30,50,30);
-$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
-
+//collect facility data
 $res = sqlQuery("select concat(f.name,'\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code) as facility_address ".
                 " from facility f, users u ".
                 " where u.facility = f.name ".
                 " and u.id = " . $_SESSION['authId']
                 );
 
-$opts = array('justification' => "center");
-$pdf->ezText($res['facility_address'] ,"",$opts);
-
-$res = sqlQuery("select concat(p.lname,', ',p.fname,' ',p.mname) patient_name ".
+//collect patient data
+$res2 = sqlQuery("select concat(p.lname,', ',p.fname,' ',p.mname) patient_name ".
                 ",date_format(p.DOB,'%c/%e/%Y') as patient_DOB ".
                 ",concat(p.street,'\n',p.city,', ',p.state,' ',p.postal_code) as patient_address".
                 " from patient_data p where p.pid = $pid"
                 );
 
-$pdf->ezText("\n" . $res['patient_name'] . "\n" . xl('Date of Birth') . ": " . $res['patient_DOB'] . "\n" . $res['patient_address']);
-$pdf->ezText("\n");
-
-$title = xl('Shot Record as of:','','',' ') . date('m/d/Y h:i:s a');
-
+//collect immunizations
 $sqlstmt = "select date_format(i1.administered_date,'%Y-%m-%d') as '" . xl('Date') . "\n" . xl('Administered') . "' ".
             ",i1.immunization_id as '" . xl('Vaccine') . "' ".
             ",i1.manufacturer as '" . xl('Manufacturer') . "' ".
             ",i1.lot_number as '" . xl('Lot') . "\n" . xl('Number') . "' ".
             ",concat(u.lname,', ',u.fname) as '" . xl('Administered By') . "' ".
-            ",date_format(i1.education_date,'%Y-%m-%d') as '" . xl('Patient') . "\n" . xl('Education') . "\n " . xl('Date') . "' ".
+            ",date_format(i1.education_date,'%Y-%m-%d') as '" . xl('Patient') . "\n" . xl('Education') . "\n" . xl('Date') . "' ".
             ",i1.note as '" . xl('Comments') . "'".
             " from immunizations i1 ".
             " left join users u on i1.administered_by_id = u.id ".
@@ -45,14 +35,192 @@ $sqlstmt .= " order by ";
 if ($_GET['sortby'] == "vacc") { $sqlstmt .= " i1.immunization_id, i1.administered_date DESC"; }
 else { $sqlstmt .= " i1.administered_date desc"; }
 
-$res = sqlStatement($sqlstmt);
+$res3 = sqlStatement($sqlstmt);
 
-while ($data[] = sqlFetchArray($res)) {}
+while ($data[] = sqlFetchArray($res3)) {}
 
 // added 7-2009 by BM to support immunization list in list_options
 for ($i=0;$i<count($data);$i++) {
   $data[$i][xl('Vaccine')] = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $data[$i][xl('Vaccine')]);
 }
+
+$title = xl('Shot Record as of:','','',' ') . date('m/d/Y h:i:s a');
+
+
+if ($_GET['output'] == "html") { //print html css
+    
+  //convert end of line characters to html
+  $patterns = array ('/\n/');
+  $replace = array ('<br>');
+  $res['facility_address'] = preg_replace($patterns, $replace, $res['facility_address']);
+  $res2['patient_address'] = preg_replace($patterns, $replace, $res2['patient_address']);
+  
+  //deal with bug (last array index is empty)
+  array_pop($data);
+    
+  ?>  
+	
+  <html>
+  <head>
+  <style>
+    body {
+      font-family: sans-serif;
+      font-weight: normal;
+      font-size: 10pt;
+      background: white;
+      color: black;
+    }
+    div {
+      padding: 0;
+      margin: 0;
+    }	
+    div.paddingdiv {
+      width: 524pt;
+      height: 668pt;
+      page-break-after: always;
+    }
+    div.patientAddress {
+      margin: 20pt 0 10pt 0;
+      font-size:  10pt;
+    }
+    div.clinicAddress {
+      text-align: center;
+      width: 100%;
+      font-size: 10pt;
+    }	
+    div.sign {
+      margin: 30pt 0 0 20pt;
+    }
+    div.tabletitle {
+      font-size: 12pt;
+      text-align: center;
+      width: 100%;
+    }	
+    table {
+      margin: 0 20pt 0 20pt;
+      border-collapse: collapse;
+      border: 1pt solid black;
+    }	
+    td {
+      font-size: 10pt;
+      padding: 2pt 3pt 2pt 3pt;
+      border-right: 1pt solid black;
+      border-left: 1pt solid black;
+    }
+    td.odd {
+      background-color: #D8D8D8; 	
+    }	
+    th {
+      font-size: 10pt;
+      border: 1pt solid black;
+      padding: 2pt 3pt 2pt 3pt;
+    }	
+    div.pageNumber {
+      margin-top: 15pt;
+      font-size: 8pt;
+      text-align: center;
+      width: 100%;
+    }
+  </style>
+  <title><?php xl ('Shot Record','e'); ?></title>
+  </head>
+  <body>
+	
+  <?php
+  //plan 15 lines per page
+  $linesPerPage=15;
+  $countTotalPages = (ceil((count($data))/$linesPerPage));
+  for ($i=0;$i<$countTotalPages;$i++) {
+    echo "<div class='paddingdiv'>\n";
+      
+    //display facility information
+    echo "<div class='clinicAddress'>" . $res['facility_address'] . "</div>\n";
+    
+    //display patient information
+    echo "<div class='patientAddress'>" . $res2['patient_name'] . "<br>" . xl('Date of Birth') . ": " . $res2['patient_DOB'] . "<br>" . $res2['patient_address'] . "</div>\n";
+
+    //display table title
+    echo "<div class='tabletitle'>" . $title . "</div>\n";
+      
+    echo "<table cellspacing='0' cellpadding='0'>\n";
+      
+    //display header
+    echo "<tr>\n";
+    foreach ($data[0] as $key => $value) {
+	//convert end of line characters to space
+	$patterns = array ('/\n/');
+	$replace = array (' ');
+	$key = preg_replace($patterns, $replace, $key);
+      	echo "<th>$key</th>\n";
+    }
+    echo "</tr>\n";
+    
+    //display shot data
+    for ($j=0;$j<$linesPerPage;$j++) {
+      if ($rowData = array_shift($data)) {
+	echo "<tr>";
+	foreach ($rowData as $key => $value) {
+	  //fill empty cells
+	  if ($value == "") $value = "&nbsp;";
+	    
+	  //shading of cells
+	  if ($j==0) {
+	    echo "<td>";
+	  }
+	  elseif ($j%2) {
+	    echo "<td class ='odd'>";
+	  }
+	  else {
+	    echo "<td>";   
+	  }
+	    
+	  // output data of cell
+	  echo $value  . "</td>";
+	}
+	echo "<tr>\n";
+      }
+      else {
+	//done displaying shot data, so leave loop
+        break;	    
+      }
+    }
+  
+    echo "</table>\n";
+    
+    //display signature line
+    echo "<div class='sign'>" . xl('Signature') . ":________________________________" . "</div>\n";
+  
+    if ($countTotalPages > 1) {
+      //display page number if greater than one page
+      echo "<div class='pageNumber'>" . xl('Page') . " " . ($i+1) . "/" . $countTotalPages . "</div>\n";
+    }
+      
+    echo "</div>\n";    
+  }
+  
+  ?>
+    
+  <script language='JavaScript'>
+    window.print();
+  </script>
+  </body>
+  </html>
+	
+  <?php
+}
+
+else { //print pdf
+require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
+
+$pdf =& new Cezpdf("LETTER");
+$pdf->ezSetMargins(72,30,50,30);
+$pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
+
+$opts = array('justification' => "center");
+$pdf->ezText($res['facility_address'] ,"",$opts);
+
+$pdf->ezText("\n" . $res2['patient_name'] . "\n" . xl('Date of Birth') . ": " . $res2['patient_DOB'] . "\n" . $res2['patient_address']);
+$pdf->ezText("\n");
 
 $opts = array('maxWidth' => 504, 'fontSize' => 8);
 
@@ -61,5 +229,7 @@ $pdf->ezTable($data, "", $title, $opts);
 $pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________","",array('justification' => 'right'));
 
 $pdf->ezStream();
+
+} # end pdf print
 
 ?>
