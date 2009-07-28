@@ -51,7 +51,8 @@ function end_group() {
 $formname = formData('formname', 'G');
 $formid   = 0 + formData('id', 'G');
 
-$tmp = sqlQuery("SELECT title FROM list_options WHERE list_id = 'lbfnames'");
+$tmp = sqlQuery("SELECT title FROM list_options WHERE " .
+  "list_id = 'lbfnames' AND option_id = '$formname'");
 $formtitle = $tmp['title'];
 
 $newid = 0;
@@ -110,11 +111,6 @@ $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date FROM " .
   "p.pid = '$pid' AND f.pid = '$pid' AND f.encounter = '$encounter' AND " .
   "f.formdir = 'newpatient' AND f.deleted = 0 AND " .
   "fe.id = f.form_id LIMIT 1");
-
-// if ($formid) {
-//   $pprow = sqlQuery("SELECT * FROM lbf_data WHERE " .
-//     "form_id = '$formid'");
-// }
 ?>
 <html>
 <head>
@@ -142,7 +138,7 @@ div.section {
 
 <script language="JavaScript">
 
-// Supports customizable forms (currently just for IPPF).
+// Supports customizable forms.
 function divclick(cb, divid) {
  var divstyle = document.getElementById(divid).style;
  if (cb.checked) {
@@ -170,8 +166,6 @@ function divclick(cb, divid) {
 
 <?php
   $shrow = getHistoryData($pid);
-
-  // echo "<div id='ippf_srh' style='display:none'>\n";
 
   $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = '$formname' AND uor > 0 " .
@@ -258,7 +252,6 @@ function divclick(cb, divid) {
   }
 
   end_group();
-  // echo "</div>\n";
 ?>
 
 <p style='text-align:center'>
