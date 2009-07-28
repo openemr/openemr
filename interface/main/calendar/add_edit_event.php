@@ -23,6 +23,7 @@
  include_once("../../globals.php");
  include_once("$srcdir/patient.inc");
  include_once("$srcdir/forms.inc");
+ include_once("$srcdir/calendar.inc");
 
  // Things that might be passed by our opener.
  //
