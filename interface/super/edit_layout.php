@@ -70,6 +70,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
                 "seq = '"           . formTrim($iter['seq'])       . "', " .
                 "uor = '"           . formTrim($iter['uor'])       . "', " .
                 "fld_length = '"    . formTrim($iter['length'])    . "', " .
+                "max_length = '255', "                                     .
                 "titlecols = '"     . formTrim($iter['titlecols']) . "', " .
                 "datacols = '"      . formTrim($iter['datacols'])  . "', " .
                 "data_type= '"      . formTrim($iter['data_type']) . "', " .
@@ -100,7 +101,7 @@ else if ($_POST['formaction'] == "addfield" && $layout_id) {
       ",'" . formTrim($_POST['newdatatype']    ) . "'" .
       ",'" . formTrim($_POST['newdefault']     ) . "'" .
       ",'" . formTrim($_POST['newdesc']        ) . "'" .
-      ",'" . formTrim($_POST['newlength']      ) . "'" . // maxlength = length
+      ",'255'"                                         .
       ",'" . formTrim($_POST['newlistid']      ) . "'" .
       " )");
 
@@ -174,7 +175,7 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
       ",'" . formTrim($_POST['gnewdatatype']    ) . "'" .
       ",'" . formTrim($_POST['gnewdefault']     ) . "'" .
       ",'" . formTrim($_POST['gnewdesc']        ) . "'" .
-      ",'" . formTrim($_POST['gnewlength']      ) . "'" . // maxlength = length
+      ",'255'"                                    .
       ",'" . formTrim($_POST['gnewlistid']      ) . "'" .
       " )");
 
