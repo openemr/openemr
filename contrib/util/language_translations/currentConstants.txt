@@ -1,0 +1,3248 @@
+A
+A check number or claim number to identify the payment
+A lot number is required!
+A related IPPF code is required!
+A unique value to identify this field, not visible to the user
+a.c.
+a.m.
+A/F Level Right:
+AB
+Abbreviation
+Abcess:
+Abdominal
+Able to Bear Weight four (4) steps:
+Abn
+ABN1
+Abnormal
+Abnormal Blood Test
+Abnormal Hair Growth
+Abnormal Mammogram
+Abortion
+Abortion Issues
+Abortion Method
+Abortion-Related Categories
+Abortions
+Absences by Diagnosis
+Accept Assignment
+Accept Payment for 
+Accepts Assignment
+Access Control
+Access Control List Administration
+Accounting
+Aches
+ACL
+ACL Administration
+ACL Administration Not Authorized
+Acne
+Act
+Act Date
+Active
+Active Encounter
+Active Patient
+Activity Type
+Acute on Chronic
+Add
+Add a Company
+Add a Pharmacy
+add an event for 
+Add as a new note
+Add as New
+Add Category
+Add Constant
+Add Copay
+Add Drug
+Add Encounter
+Add Facility
+Add Field
+Add Group
+Add ICD Code
+Add Issue
+Add Language
+Add New
+Add new category : 
+Add New Group
+Add New Note
+Add new note
+Add New Partner
+Add Note
+Add Patient Record
+Add Prescription
+Add to Medication List
+Add Transaction
+Add User
+Add User To Group
+Adding demographics is not authorized.
+Addison Syndrom
+Addison Syndrome
+Additional Diagnosis:
+Additional History
+Additional history notes
+Additional Info
+Additional Labs
+Additional Notes
+Additional Notes:
+Additional Notes: 
+Additional X-RAY Notes:
+addonly
+Addr Bk
+Addr Book
+Address
+Address Book
+Address1
+Address2
+Adj
+Adjust
+Adjustment Reasons
+Adjustment value for code 
+Adjustments
+Adm adjust
+Admin
+Admin Email Address
+Administered
+Administered By
+Administration
+Administrators
+Administrators can do anything
+Advanced
+Advice
+Affect normal
+After hrs calls
+After saving the PDF, click [View Log] to check for errors.
+After saving your batch, click [View Log] to check for errors.
+After the information is correctly entered, click the Save button.
+Again
+Age
+Age By
+Age Category
+Age data is out of range.
+Age format for "age from" is not valid
+Age format for "age up to" is not valid
+Age From
+Aging Columns:
+Alcohol
+Alcohol consumption
+All
+All Categories
+All Day
+All day event
+All Facilities
+All or part of the first name
+All or part of the last name
+All Providers
+All Reviewed and Negative:
+All Topics
+All Users
+Allergic
+Allergies
+Allergies:
+Allergy
+Allow Email
+Allow email messages?
+Allow Email?
+Allow Mail Message
+Allow SMS
+Allow SMS (text messages)?
+Allow submitted events to be made active instantly?
+Allow telephone messages?
+Allow users to publish Global Events
+Allow users to publish Personal Calendars
+Allow Voice Message
+Allowed
+Already used, choose another identifier
+Already used, choose another title
+Alt Address
+Alternatively, you may use the search page to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse.  You can do this by clicking the Browse button and selecting the file to upload, and then clicking Search to perform the upload and display the corresponding invoices.  In this case the other parameters mentioned above do not apply and will be ignored.  Uploading saves the file but does not yet process its contents -- that is done separately as described below.
+AM
+Amend Existing Note
+AMEX
+Amount
+Amount for Past Balance
+Amount for This Visit
+Amount Paid
+Amount:
+An incomplete GCAC issue has been created and linked. Someone will need to complete it later.
+And
+and 
+and all subordinate data? This action will be logged
+Anemia
+Ankle
+Ankle + heel
+Ankle Evaluation Form
+Ankle Problems
+Ankylosing Sondlilitis
+Ankylosing Spondlilitis
+Anorexia
+Another thing you can do in the posting window is request secondary billing. If you select this checkbox before saving, then the original claim will be re-opened and queued on the Billing page, and will be processed during the next billing run.
+ante
+Anus nl, no rectal tenderness/mass
+Anxiety
+Any
+Any part of the desired code or its description
+Any part of the desired specialty
+Any part of the patient name, or \"last,first\", or \"X-Y\"
+Apnea
+Appearance
+Appearance:
+Append to the existing note
+Append to this note
+Append to This Note
+Appendectomy
+apply to affected area
+apply to skin
+Appointment Date
+Appointment status
+Appointment within
+Appointments
+Appointments (write optional)
+Appointments and Encounters
+Appointments Report
+Appointments-Encounters Report
+Approve
+Approved
+Approved Events Administration
+Appt-Enc
+Appts
+April
+Are you prepared to complete a new GCAC issue for this visit?
+Are you sure you want to approve these events?
+Are you sure you want to completely remove this form?
+Are you sure you want to delete this event?
+Are you sure you want to delete this note?
+Are you sure you want to edit these events?
+Are you sure you want to hide these events?
+Are you sure you want to view these events?
+Are you sure you wish to delete the entire group named
+Are you sure you wish to delete the entire list
+Are you sure you wish to delete the field in
+Are you sure you\'d like to continue with these actions?
+Area not specified
+Armenian
+Arrythmia
+Arthritis
+Arthritis / degen joint diseas
+Arthritis / degen joint disease
+as
+As Of
+Asian
+Assessment
+Assigned To
+Assistant
+Asthma
+At the Navicular
+At the Navicular:
+Athletic/Injury
+Attention
+Attn
+August
+Auth
+Auth/notes
+Authorizations
+Authorize
+Authorize - any encounters
+Authorize - my encounters
+Authorized
+Auto Send
+Auto-generated
+Automobile Medical
+autosaved
+Available Times
+Avulsion / avulsion fracture
+Avulsion lateral malleolus
+Avulsion medial malleolus 
+Awareness-Based
+Axillary
+b.i.d.
+back
+Back
+Back Problems
+Back Surgery
+Backup
+Backup file has been created. Will now send download.
+Bad check
+Bad debt
+Bahasa Indonesia
+Bal
+Balance
+balance
+Balance Due
+Base of fifth (5th) Metarsal
+Base of fifth (5th) Metarsal:
+Batch Communication Tool
+Batch processing initiated; this may take a while.
+BatchCom
+because that id does not exist.
+Begin
+Begin Date
+Beginning date of service yyyy-mm-dd
+Belching
+Bilateral:
+Bill Date:
+Bill/Collect
+Billed
+Billing
+Billing (write optional)
+Billing Attn
+Billing Code for Requested Service
+Billing codes
+Billing Information
+Billing Location
+Billing Note
+Billing Note for 
+Billing Note:
+Billing queue results:
+Billing Report
+billing to 
+Biopsy
+Birth Date
+Black
+Bladder Cancer
+Bladder Infections
+Blank Forms
+Bleeding Problems
+Blind Spots
+Bloating
+Blocked
+Blood Pressure
+Blood pressure
+Bloody Nose
+Blue Cross Blue Shield
+Blue lines in this report are informational. Black lines show previously existing information.  Green lines show changes that were successfully applied.  Red lines indicate errors, or changes that were not applied; these must be processed manually.  Currently denied claims and payment reversals are not handled automatically and so will appear in red.
+Blurred Vision
+BMI
+BMI Status
+Body Region
+Bone Tenderness:
+Bone Tenderness: Medial Malleolus
+Boolean
+Bot
+Both Ears
+both ears
+Bottom
+BOX 10 A. Employment related 
+BOX 10 B. Auto Accident 
+BOX 10 C. Other Accident 
+BOX 16. Date unable to work from (yyyy-mm-dd):
+BOX 16. Date unable to work to (yyyy-mm-dd):
+BOX 18. Hospitalization date from (yyyy-mm-dd): 
+BOX 18. Hospitalization date to (yyyy-mm-dd): 
+BOX 20. Is Outside Lab used?
+BOX 22. Medicaid Resubmission Code (ICD-9) 
+BOX 23. Prior Authorization No. 
+BP Diastolic
+BP Systolic
+Bpd
+Bps
+Brazilian Portuguese
+Breast
+Breast Biopsy
+Breast Discharge
+Breast Disease
+Breast Exam
+Breast Mass
+Breath Sounds:
+Broken Bones
+Bronchitis Form
+Browse
+Browse for Record
+Bruising/haematoma
+Bulging Right:
+Burning with Urination
+Burning With Urination
+Busy
+Buttock + S.I.
+by
+by mouth
+By/Source
+By:
+C
+Cache Lifetime (in seconds)
+Cache template output?
+Caffeine consumption
+Calendar
+Calendar Settings
+Calendar UI
+Calendar View
+Call to addForm() goes here.<br>
+CAMOS
+Cancel
+Cancer
+Cannot add this entry because it already exists!
+Cannot add/update this entry because a duplicate already exists!
+cannot be converted to JPEG. Perhaps ImageMagick is not installed?
+cannot be displayed inline because its type is not supported by the browser.
+cannot be displayed inline becuase its type is not supported by the browser
+cannot be displayed inline becuase its type is not supported by the browser.
+Cannot create
+Cannot find 
+Cannot find patient from SQL-Ledger customer id
+Cannot find postscript document reference in 
+Cannot find provider from SQL-Ledger employee = 
+Cannot open 
+Cannot read
+Cannot update because you are not editing an existing entry!
+capsule
+Cardiac Catheterization
+Cardiac Echo
+Cardiovascular
+Cartilage / chondral / disc damage
+Cartilage injury
+Cartoid pulsations nl, pedal pulses nl
+cash
+Cash
+Cash Rec
+Cash Receipts by Provider
+Cataract Surgery
+Cataracts
+Categories
+Category
+category
+Category 
+Category Details
+Category Limits
+Category Name
+Caucasian
+Cell Phone
+Cell Phone Number
+Central Certification
+cfirst($instype) . ' Ins
+ChampUS
+ChampUSVA
+change
+Change Activity
+Change in Vision
+Changed
+Changed Bowel
+Charge
+Charges
+Chart
+Chart Activity
+Chart Check-in/out Activity Report
+Chart ID
+Chart ID:
+Chart Location Activity
+Chart Note
+Chart Storage Locations
+Chart Tracker
+Chart Trk
+Charts Checked Out
+Charts Out
+check
+Check
+Check All
+Check In To
+Check Input Data
+Check Number
+Check/EOB Date:
+Check/EOB No.:
+Check/Ref Number
+Check/Reference Number
+checkbox list
+checkbox w/ text
+Checked box = yes ,  empty = no
+Checkout
+Chest
+Chest CTAB
+Chest Pain
+Chest Pain:
+Chest Pains
+Chg
+Child
+Chills
+Chinese
+Choices
+Cholecystectomy
+Cholecystestomy
+Choose
+Choose a section and click an item within it; then in the other section you will see the related items highlighted, and you can click in that section to add and delete relationships.
+Chronic Bronchitis
+Chronic Joint Pain
+Chronic synovitis / effusion / joint pain / gout
+Chronic/Recurrent
+Cirrhosis of the Liver
+Cirrhosis Of The Liver
+City
+City Name
+City, State
+City, State Zip
+City/State
+Claim 
+Claim test has completed running
+Claim was generated to file 
+Classification
+Clear
+Clear All
+Clear Justification
+Clear Smarty Cache
+CLIA Number
+Click
+click for more
+Click here to choose a date
+click here to update priority, category and nickname settings
+Click here to view all.
+Click to download
+Click to edit
+Click to generate the report
+Click to print
+Click to receive (add) new lot
+Click to select
+Click to select or change diagnoses
+Click to select patient
+Click to select related code
+Click to view or edit
+Click to view/edit
+Click:
+Client medical history summary
+Client Profile - New Clients
+Client Profile - Unique Clients
+Clients
+Clinic
+Clinic Daily Record
+Clinic ID
+Clinicians
+Close
+close window
+Closed
+cm
+CMS ID
+CN2-12 intact
+Code
+code
+Code Finder
+Code must be two letter lowercase
+code type
+Codes
+Coding
+Coding - any encounters (write,wsome optional)
+Coding - my encounters (write,wsome optional)
+Coding not authorized
+Coffee
+Coll w/o
+collapse all
+Collections
+Collections Report
+Colon Cancer
+Colon Cancer Surgery
+Colonoscopy
+colonoscopy
+Color
+Columns
+Comments
+Commercial Insurance Co.
+Commit Changes
+Communications
+Completed
+Complications by Service Provider
+Complications of Abortion
+Computer Aided Medical Ordering System
+Conclusions
+Congenital
+Conjuntiva, pupils
+constant name
+constants
+Constipation
+Constitutional
+Consultation Brief Description
+Contact
+Contact Email
+Contact Email Address
+Contact Lenses
+Contact name
+Contact Person
+Contact Phone Number
+Content
+content
+Continue
+Contra Clients
+Contraception
+Contraception Issues
+Contraceptive Complication (specify)
+Contraceptive Method
+Contraceptive services previously started
+Contraceptives Start
+Control No.
+Copay
+CoPay
+Copays
+COPD
+Copy Pages to Patient Chart
+Copy Values
+Copyright Notice
+Coronary Artery Bypass
+Cough
+Cough:
+Could not send email due to a server problem, 
+Couns by Method
+Counseling
+Counseling activities
+COUNTER REFERRAL FORM
+Counter-Referral
+Country
+Country List (write,addonly optional)
+county
+Coupon
+CPT
+CPT Codes
+Crackles:
+cream
+Create an Event
+Create New Patient
+Create Patient Note
+Created
+credit
+Credits
+Crohn\'s Disease
+Crohns Disease
+CSV File
+Current
+Current Consultation
+Current day highlight color
+Current file name was changed to
+Current Location
+Current Patient
+Currently Active
+Cushing Syndrom
+Cushing Syndrome
+Custom
+CYP
+CYP Factor
+CYP Report
+D
+D&C
+D&E
+D.O.B.
+daily
+Data Alike is already in database, please change code and/or description
+Data Cols
+Data Type
+Database
+Database Reporting
+DataCols must be a number between 1 and 999
+Date
+DATE
+Date Administered
+Date contraceptive services initially provided
+Date Destroyed
+Date Display Format
+Date format for "appointment end" is not valid
+Date format for "appointment start" is not valid
+Date format for "Next Appointment" is not valid
+Date format for "not seen since" is not valid
+Date format for "seen since" is not valid
+Date Immunization Information Statements Given
+Date is missing for code 
+Date of bank deposit yyyy-mm-dd
+Date of Birth
+Date of birth
+Date of Injury
+Date of payment yyyy-mm-dd
+Date of referral
+Date of reply
+Date Of Service
+Date of service mm/dd/yyyy
+Date of Service:
+Date of VIS Statement
+Date/Notes
+Date/Notes of Last
+Date:
+day
+Day
+Day View
+Day(s)
+Day(s) M-F
+days
+Days
+Days and Games Missed
+Days From Last Encounter
+Days per Column:
+DB installed
+DEA
+Debug Information
+December
+Default
+Default Calendar View
+Default Facility
+Default List (write,addonly optional)
+Default Method
+Default Provider
+Default Template
+Default Value
+Default X12 Partner
+Default/Global
+Delayed Recurrence (> 12 Mo)
+Delete
+delete
+Delete Categories with ID(s) : 
+Delete Group
+Delete List
+Delete Pages
+Delete Patient, Encounter, Form, Issue, Document, Payment, Billing or Transaction
+Delete successful.
+Delete this document
+Delete this form
+Delete this note
+Dementia
+Demographics
+Demographics (write,addonly optional)
+Demographics not authorized
+Demographics not authorized.
+Dental
+Dental Issues
+Depending on the type of bill you are testing you will see HCFA like output on a blank page for HCFA bills, you will see many lines of somewhat garbled text  and information if you are testing an X12 claim. That garbled text is the X12 EDI 4010A format. Occasionally you will see odd characters that look like dominoes or  squiglies, these are control characters such as page feeds and are normal.
+Deposit Date:
+Depressed
+Depression
+Description
+description
+Description Translation
+Destination
+Destroy Lot
+Destroy...
+Destroyed
+Destroyed Drugs
+Destroyed Drugs Report
+Details
+Developmental abnormality
+Diabetes
+Diag
+Diagnosis
+Diagnosis must be coded into a linked encounter
+Diagnosis:
+Diagnosis: 
+Diagnostic Tests:
+Dials
+Diaphragms/Caps
+Diarrhea
+Dictation
+Dictation: 
+Did you receive a copy of the HIPAA Notice?
+Diffuse:
+Direct Mail
+Disability
+disabled
+Disabled
+DISC
+Discharge
+Discharge From Urethra
+Discharge Right
+Discharge Right:
+Discount
+Discount Amount
+Discount Level
+Disease
+Dislocation
+Disp #
+Dispatch
+Dispatch Received Document
+Dispensed
+Display event dates in block?
+Display how many events?
+Display location in block?
+Display the calendar?
+Display today\'s events in the block?
+Display topic in block?
+Display upcoming events in block?
+Distribution
+Diverticulitis
+Diverticulitis Surgery
+Divirticulitis
+Divirticulitis Surgery
+Divorced
+Dizziness:
+do not save
+do not substitute
+Do you really want to delete this group
+Do you wish to continue with the new name?
+Do you wish to PERMANENTLY delete this immunization record?
+DOB
+DOB is missing, please enter if possible
+Docs
+Doctor:
+Doctor\'s name and signature
+Document
+document
+Document Categories
+Document could not be moved to patient id
+Document Date
+Document date and issue updated successfully
+Document moved to new category
+Document moved to patient id
+Document/Imaging Store
+Documents
+Documents (write,addonly optional)
+DOE
+Domestic Partner
+Don't Save
+Don\'t Save
+Don\'t Save Changes
+Done with:
+DOS
+Dosage
+Double Vision
+Download billing file, post to accounting and mark as billed
+Dr Check
+Dr Visit
+Dr.
+Dribbling
+Drivers License or State ID
+Drug
+Drug Forms
+Drug ID missing!
+Drug Intervals
+Drug Inventory
+Drug Name
+Drug Routes
+Drug Units
+Drugs
+Dry Mouth
+DT 1
+DT 2
+DT 3
+DT 4
+DT 5
+DTaP 1
+DTaP 2
+DTaP 3
+DTaP 4
+DTaP 5
+Due Date
+Due date mm/dd/yyyy or yyyy-mm-dd
+Due Date:
+Due Ins
+Due Pt
+Dumping OpenEMR database
+Dumping OpenEMR web directory tree
+Dumping phpGACL database
+Dumping phpGACL web directory tree
+Dumping SQL-Ledger database
+Dumping SQL-Ledger web directory tree
+duration
+Duration
+Dutch
+Dysphagia
+Dyspnea:
+Dysuria
+Early Recurrence (<2 Mo)
+Ears
+ECG
+Edema
+Edit
+Edit Allergies
+Edit Categories
+Edit definitions
+Edit Diagnoses for
+Edit Facilities
+Edit Facility Information
+Edit form
+Edit layout
+Edit list
+Edit Structure
+Education
+Education Date
+ee the  * GNU General Public License for more details.  *   * You should have received a copy of the GNU General Public License  * along with this program; if not, write to the Free 
+Effective Date
+Effectiveness
+Ejaculations
+Elbow
+Elbow Problems
+Electronic Remits
+Email
+Email from Batchcom
+Email Notification
+Email send before
+Email Sender
+Email Subject
+Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***
+Emergency Contact
+Emergency Contact Person
+Emergency Contact Phone Number
+Emergency Contraception
+Emergency Phone
+Emphysema
+Employee
+Employer
+Employer Address
+Employer Data
+Employer Name
+Empty
+Empty value in "Email Hours"
+Empty value in "Email Sender"
+Empty value in "Email Subject"
+Empty value in "Email Text"
+Empty value in "Name of Provider"
+Empty value in "Password"
+Empty value in "SMS Hours"
+Empty value in "SMS Text"
+Empty value in "Username"
+enabled
+Enc
+encounter
+Encounter
+Encounter 
+Encounter Forms
+Encounter number
+Encounter was coded
+Encounter:
+Encounters
+Encounters & Forms
+Encounters &amp; Forms
+Encounters not authorized
+Encounters Report
+Encounters Section
+End
+End (yyyy-mm-dd): 
+End date
+End Date
+End Date:
+End Time
+Ending date of service yyyy-mm-dd
+Ending DOS mm/dd/yyyy if you wish to enter a range
+Endo Abnormal Blood
+Endocrine
+Endoscopy
+English
+English 
+English (Indian)
+English (Standard)
+Ensure OpenEMR has write privileges to directory
+ENT Discharge
+ENT Pain
+Enter a diagnosis code to exclude all invoices not containing it
+Enter body of letter here
+Enter new State
+Enter your search criteria above
+Environmental
+EOB Data Entry
+EOB Posting - Electronic Remittances
+EOB Posting - Instructions
+EOB Posting - Invoice
+EOB Posting - Patient Note
+EOB Posting - Search
+Epilepsy
+Erase
+Erections
+Error
+Error in "Gender" selection
+Error in "HIPAA" selection
+Error in "Process" selection
+Error in "SMS Gateway" selection
+Error in "Sort By" selection
+Error in YES or NO option
+error while registering form!
+Error while saving to the file
+Error while writing to file
+ERROR, unable to collect data from server
+ERROR: could not open table.sql, broken form?
+Error: passwords don't match. Please check your typing.
+Errors
+Erythema:
+Established Patient
+Ethnicity or Race
+Ethnicity-Race List (write,addonly optional)
+ETIN
+Event
+Event Begins
+Event Category
+Event Date
+Event Description
+Event Details
+Event does not repeat
+Event Duration
+Event duration in minutes
+Event Fee
+Event Location
+Event repeats every
+Event repeats on
+Event start time
+Event title
+Event Title
+Event Website
+Events
+Events for
+Events open in new window
+every
+Every
+every 3 hours
+every 4 hours
+every 5 hours
+every 6 hours
+every 8 hours
+Every Fourth
+Every Other
+Every Third
+Every, every other, every 3rd, etc.
+Exam and test results
+Exam results
+Examination Date
+Exams/Tests
+Excessive Tearing
+Exclusive Provider Organization (EPO)
+Exercise patterns
+Exercise Patterns
+Exit from Administration
+Exp
+Expanded View
+Expected form_encounter.pid to be 
+Expiration
+Expiration Date
+Expires
+Export
+Export as CSV
+Export Patient Demographics
+Export Selected as CSV
+Export Selected to Collections
+Export to CSV
+Export to external billing system
+Exposure to Foreign Countries
+Exposure To Foreign Countries
+External ID
+External identifier
+External Referral
+External referral?
+External Referrals
+Exudate:
+Eye Irritation
+Eye Pain
+Eye Redness
+Eyes
+F
+F/H Blood Problems
+F/H Female Hirsutism/Striae
+Facilities
+Facility
+facility
+Facility Administration
+Facility Code
+Facility NPI
+Facility:
+Failed
+failure
+Family History
+Family History of Glaucoma
+Family History:
+Family Size
+Fancy
+Father
+Fatigue
+Fatigued
+Fax
+Fax number
+Fax/Scan
+Faxes In
+Faxes Out
+February
+FECA
+Federal Drug ID
+Federal EIN
+Federal Tax ID
+Fee
+fee
+Fee Sheet
+Fees
+Female
+Female AP
+Female Condoms
+Female G
+Female LC
+Female P
+Female Symptoms
+Female VSC
+Fever
+Fever:
+FH Blood Problems
+Fibroids
+File
+File Room
+File with same name already exists at location:
+Filename
+Fill here only if sending email notification to patients
+Filter
+Filter for Constants
+Filters
+Final Diagnosis
+Final diagnosis by specialist
+Financial
+Financial Reporting - anything
+Financial Reporting - my encounters
+Financial Review Date
+Find
+Find Available
+Find Available Appointments
+Find Patient
+Findings
+Findings by specialist
+Fine
+First
+First day of the week
+First Name
+First name
+First Name:
+Fitness
+Fitness to Play
+Fix encounter dates - any encounters
+Fix this
+Flatulence
+Flow
+Flu Vaccination
+Fluid and electrolyte problem
+FMS
+Follow manually
+Food Intolerance
+Foot
+Foot Problems
+Foot:
+Football Injuries
+Football Injury Report
+Footwear Type
+for
+for:
+Forearm
+Form
+form
+format
+Format
+Format incorrect for NDC
+Forms
+Forms Administration
+Forward Pages via Fax
+Fourth
+Fracture
+Fracture at the Navicula
+Fracture lateral malleolus
+Fracture medial malleolus
+Fracture, Base of fifth (5th) Metatarsal
+French
+Frequency
+Frequent Colds
+Frequent Illness
+Fri
+Friday
+From
+FROM
+From:
+From: 
+FROM_CITY
+FROM_FNAME
+FROM_LNAME
+FROM_MNAME
+FROM_PHONECELL
+FROM_POSTAL
+FROM_STATE
+FROM_STREET
+FROM_TITLE
+FROM_VALEDICTORY
+Front Office
+Front Office Receipts
+Front Office Receipts Report
+Front Rec
+Frontal Right:
+Full Name
+Full Play
+Full Training
+G
+Gall Bladder Condition
+Gall Stones
+Game Period
+Games
+games/events
+Games/Events Missed
+Gastritis
+Gastro Pain
+Gastrointestinal
+GCAC Statistics Report
+Gender
+Gender 
+General
+General Service Category
+Generate and download HCFA 1500 paper claims
+Generate and download X12 batch
+Generate HCFA
+Generate Letter
+Generate Letter regarding 
+Generate Report
+Generate X12
+Generated on
+Generates
+Genitourinary
+German
+Glaucoma
+Glaucoma Family History
+Global
+go
+Go
+Grade:
+grams
+Grand Total
+Grand Totals
+Greek
+Group
+Group Name
+Group names cannot start with numbers.
+Group Number
+Group:
+Groupname
+Groups and Access Controls
+Growth Chart
+Growth-Chart
+gtts(drops)
+Gynecological Exam
+h
+h.s.
+H/O Hepatitis
+had been successfully deleted. Any sub-categories if present were moved below
+Haematoma / bruising
+HAI Status
+Hand + fingers
+Hand Problems
+Hardship w/o
+has been linked to visit
+Hazardous activities
+Hazardous Activities
+HCFA left margin in points
+HCFA Margins
+HCFA top margin in points
+he PostCalendar 
+Head
+Head Circ
+Head Circumference
+Headache
+Headaches
+Health centre/clinic
+Health Maintenance Organization
+Health Maintenance Organization (HMO) Medicare Risk
+Hearing Loss
+Heart Attack
+Heart Disease
+Heart Failure
+Heart Problem
+Heart Problems
+Heart Surgery
+Heart Transplant
+HEART:
+Heartburn
+Heat or Cold
+Hebrew
+HEENT
+Height
+Help
+help
+Hematemesis
+Hematochezia
+Hematologic
+Hematuria
+Hemoglobin
+Hemoptysis
+Hepatitis
+Hepatitis A 1
+Hepatitis A 2
+Hepatitis B 1
+Hepatitis B 2
+Hepatitis B 3
+here
+Hernia Repair
+Herniated Disc
+Herpes
+Hesitancy
+heyyo. you have been here for 
+Hib 1
+Hib 2
+Hib 3
+Hib 4
+Hidden
+Hidden Events Administration
+Hide
+Hide Details
+High
+High Blood Pressure
+Hip + groin
+Hip and groin
+Hip Problems
+Hip Replacement
+HIPAA Notice Received
+Hirsutism/Striae
+Hispanic
+History
+History Data
+History Murmur
+History of Heart Murmur
+HIV
+HL7 Viewer
+Hold down [Ctrl] for multiple selections or to unselect
+Hold down Ctrl to select multiple items
+Hold down Ctrl to select multiple squads
+Home
+Home Phone
+Home Phone Number
+Homeless or similar?
+Homeless, etc
+Homeless, etc.
+Hours
+How did Injury Occur?
+How did Injury Occur?:
+How many months ahead to query for upcoming events?
+HPI:
+HTML
+Hyperactive
+Hypertension
+Hyperthyroidism
+Hypothyroidism
+Hysterectomy
+I
+I am busy during this time.
+I do not have permission to read 
+ICD
+ID
+IDays
+identified as
+Identifier(one word)
+If all data for all columns are complete for this form
+If name, any part of lastname or lastname,firstname
+if unemployed enter Student
+If you have chosen to upload electronic remittances, then the search window redisplays itself with the matching invoices from the X12 file.  You may click on any of these invoice numbers (as described below) if you wish to make any corrections before the remittance information is applied. To apply the changes, click the Process ERA File button at the bottom of the page.  This will produce a new window with a detailed report.
+If you have entered a Pay Date in the search page, this will override the posting date of payments and adjustments that are otherwise taken from the X12 file.  This may be useful for reporting purposes, if you want your receipts reporting to use your posting date rather than the insurance company\'s processing date.  Note that this will also affect dates of prior payments and adjustments that are put into secondary claims.
+If you want to change data types, or add rows or columns
+Illness
+IM
+Immunization
+Immunization Lot Number
+Immunization Manufacturer
+Immunizations
+Immunize
+Immunologic
+Implants
+Import
+Import Patient
+Import Patient Demographics
+Imported from Accounting
+Improved
+in
+IN
+in each eye
+in left eye
+in nostril
+In Office
+in right eye
+in-house
+Inactive
+Inactive Days
+Include inactive users
+Include Uncategorized
+Include Vitals
+Include vitals data?
+Income
+Incomplete Abortion Treatment
+Incontinence
+increased:
+Indemnity Insurance
+Indeterminate
+Indicates if this issue is currently active
+Indigent Patients Report
+Indigents
+Induced Abortion
+Infection / Abscess
+Infections
+Infert Couns
+Infertility
+Influenza 1
+Influenza 2
+Info
+Info test 1
+Info test 2
+Info test 3
+Info test 4
+Info test 5
+Info test 6
+inhalations
+inhilations
+Initial User
+Injectables
+Injured Out
+Injury
+Injury Mechanism
+Injury Overview Report
+Injury Surveillance
+Injury Type
+Input Fields
+Ins adjust
+Ins bundling
+Ins overpaid
+Ins refund
+Ins Summary
+Ins1
+Ins2
+Ins3
+Insert failed: 
+Insert old events into tables
+Insomnia
+Inspection
+Instability / subluxation
+install DB
+Instructed
+Instructions:
+Insulin Dependent Diabetes
+Insurance
+insurance
+Insurance Companies
+Insurance Company
+Insurance Company Search/Add
+Insurance Data
+Insurance Numbers
+Insurance Provider
+Intake Conclusion
+Intake Date
+Intellectual Decline
+Internal error - no pages were selected!
+Internal error - patient ID was not provided!
+Internal error!
+Internal error, no drug ID specified!
+Internal error: claim 
+Internal error: encounter '
+Internal error: pid or encounter is missing.
+Internal Referrals
+International Duty
+Interpreter
+Interpreter needed?
+Interstitial Lung Disease
+Interval
+Intolerance
+intramuscularly
+intravenously
+Introduction
+Invalid or missing payer in source for code 
+Invalid Service Codes
+Invalid source designation "
+InvAmt
+Inventory
+Inventory is not available for this order.
+Inventory List
+Invoice
+invoice
+Invoice Date
+Invoice has no date!
+Invoice:
+IPPF SRH Data for
+IPPF Statistics Report
+IPV 1
+IPV 2
+IPV 3
+IPV 4
+Irregular Heart Beat
+Irritability
+Irritation
+is a required field.
+is a root node and can not be deleted.
+is not valid (decimal fractions are OK).
+Is PHP using Safe Mode?
+issue
+Issue
+Issues
+Issues (Injuries/Medical/Allergy):
+Issues and Encounters
+Issues and Encounters for
+Issues not authorized
+Issues Section
+Item
+item
+Items load failed
+IUD
+IV
+January
+Jaundice
+Job Description
+Job ID
+Joint dislocations
+Joint Pain
+Joint sprains
+July
+June
+Just below the check information is a blue area where you put in your search parameters.  You can search by patient name, chart number, encounter number or date of service, or any combination of these.  You may also select whether you want to see all invoices, open invoices, or only invoices that are due (by the patient).  Click the Search button to perform the search.
+Just Mine
+Justify
+Justify/Save
+k, here's the rest 
+Keywords
+kg
+kg/m^2
+Kidney Cancer
+Kidney Failure
+Kidney Infections
+Kidney Stones
+Kidney Transplant
+Knee
+Knee Problems
+Knee Replacement
+Lab
+Lab Report
+Label
+Label cannot be blank
+Label Cols
+Labels
+Labs
+Laceration / skin condition
+Laceration/abrasion
+Language
+Language Code
+Language definition added
+Language Interface Tool
+Language List (write,addonly optional)
+Language Name
+Language:
+Last
+Last Activity Date
+Last Bill Date:
+Last Encounter
+Last Name
+Last name
+Last Name:
+Last Saved
+Last update by
+Last Visit
+Late Recurrence (2-12 Mo)
+Lateral Malleolus
+Lateral malleolus:
+laterally displaced PMI:
+Layout Based
+Layout Editor
+Layout-Based Visit Forms
+Layouts
+lb
+lbs
+LDL
+leave blank if still active
+Leave blank to keep password unchanged.
+Leave Message With
+Leave The Form
+Left
+Left Ear
+left ear
+Left:
+Left: 
+Leg Pain/Cramping
+Legal
+Legend:
+Length
+Less-private information (write,addonly optional)
+Letter
+Letter Generator
+Level of urgency
+Liability
+Liability Medical
+License/ID
+Lifestyle
+Ligament tear or sprain
+Limit Of Events
+List
+list box
+list box w/ add
+List Editor
+List Insurance Companies
+List lists
+List Name
+List names cannot start with numbers.
+List Prescriptions
+Lists
+LLL:
+LMP
+LOADING
+LOC
+Local
+Locality
+Location
+Location unspecified
+Location:
+Logged in
+Logged in as
+Logged in as: 
+Logged out.
+Login
+login
+Logout
+logout
+Logs
+Logs Viewer
+Look Up
+Lot
+Lot ID missing!
+Lot Number
+Low
+Lower leg
+Lumbar spine
+LUNCH
+Lunch
+Lung Cancer
+Lung Cancer Surgery
+LUNGS:
+Lungs:
+Lupus
+M
+MA Category
+Main Address
+Make modifications to current categories.
+Make sure "
+Malaise:
+Male
+Male Condoms
+Male VSC
+Mammogram
+Management
+Manual Posting
+Manufacturer
+March
+Marital Status
+Mark as billed but skip billing
+Mark as Cleared
+Mark as not billed
+Marked as cleared
+Married
+Maxillary Right:
+May
+MC
+mcg
+Medial malleolus:
+Medicaid
+Medical
+Medical Abortion
+Medical problem
+Medical Problems
+Medical Record
+Medical Record #
+Medical Records
+Medical/History (write,addonly optional)
+Medicare Part B
+Medication
+Medications
+Medications:
+Medicine Units
+Medium
+Member Association Statistics Report
+Memory Problems
+Men
+Men and Women
+Men Only
+Menarche
+Menopause
+Menstrual Flow
+Menstrual Frequency
+Mental Illness
+Message
+MESSAGE:
+Method
+Method of Destruction
+mg
+mg/1cc
+mg/2cc
+mg/3cc
+mg/4cc
+mg/5cc
+Middle
+Middle Name
+Middle name
+Migrant or seasonal worker?
+Migrant/Seasonal
+MimeType
+Minor joint strain +/- synovitis
+minutes
+Minutes
+Misc
+Misc Billing Options HCFA
+Miscellaneous
+Missed
+Missing PID.
+Missing slash after payer in source for code 
+Mixed
+ml
+mm/hg
+MMR 1
+MMR 2
+Mobile
+Mobile Phone
+Mod
+Modifier
+Mon
+Mon thru Fri
+Mon, Wed &amp; Fri
+Monday
+month
+Month
+Month View
+Month(s)
+Monthly Income
+More than 100 records found. Please narrow your search criteria.
+More than 50 results, please make your search more specific.
+Mother
+Mouth
+Move
+Move Document to Category:
+Move Down
+Move to Patient
+Move Up
+Mr.
+Mrs.
+Ms.
+Multi Language Tool
+Multiple areas
+Murmur:
+Musc Ache
+Musc Redness
+Musc Stiffness
+Musc Warm
+Muscle
+Muscle injury
+Musculoskeletal
+Mutually Defined
+MVA
+N/A
+n/a
+Name
+Name 1
+Name 2
+Name and Title of Immunization Administrator
+Name of insurance company
+Name of Provider
+Name Translation
+Name/Value
+Name:
+NARES:
+NARES: Normal Right
+Nasal mucosa pink, septum midline
+Nationality
+Nausea
+Navigation
+NDC
+NDC Number
+Neck
+Neck Problems
+Neck supple
+Need to enter a description
+Need to enter a Return Value
+Need to enter identifier
+Need to enter title
+Needs secondary billing
+Nerve injury
+Neural condition / nerve damage
+Neuro Numbness
+Neuro Weakness
+Neurologic
+New
+New =>
+New Acceptors
+New Allergy
+New Appointment
+New Categories
+New Category
+New Clients
+New Consultation
+New Definition set added
+New Document
+New Encounter Form
+New encounters not authorized
+New Enctr
+New Facility Information
+New Group
+New Group Information
+New Limit of Events
+New List
+New Patient
+New Patient Encounter
+New Patient ID
+New Pt
+New Submissions
+New User
+New Visit
+New/Search
+Newspaper
+Next
+Next Day
+Next Month
+Next Week
+Nickname
+Night Sweats
+Nl ext genitalia, vag mucosa, cervix
+NO
+No
+No access
+No adenopathy (2 areas required)
+No adnexal tenderness/masses
+No billing system is currently active
+No Bills Found to Include in OFX Export<br>
+No code was specified!
+No Diagnosis
+No end date
+No entries found, use the form below to add an entry.
+No Events
+No group was selected
+No hernia
+No Insurance Companies Found
+No masses, tenderness
+No notes
+No ogrganomegoly
+No openings were found for this period.
+No Partners Found
+No peripheral edema
+No Pharmacies Found
+No Prescriptions Found
+No presenting illness/injury
+No Providers Found
+No rash or abnormal lesions
+No records found. Please expand your search criteria.
+No Results Found For Search
+No results, please tray again.
+No Show
+No Sinus Tenderness:
+No skin dimpling or breast nodules
+No testicular tenderness, masses
+No thrills or heaves
+No, Cancel
+No:
+Nocturia
+Non specific injury
+Non-Insulin Dependent Diabetes
+Non-SRH Medical
+Non-SRH Non-Medical
+None
+none
+None of the above
+Noninsulin Dependent Diabetes
+Nor
+Normal
+Normal BL
+Normal Cardiac Exam:
+Normal Cardiac Exam: 
+Normal Lung Exam:
+Normal Lung Exam: 
+Normal Office Visit
+Normal Oropharynx:
+Normal Right
+Normal Right:
+Normal View
+normal:
+Norwegian
+Nose
+Nosebleed
+Not all fields are required for all codes or code types.
+Not Allowed
+Not allowed to delete the Administrators group
+Not allowed to inactivate all security objects
+Not allowed to inactivate anything from the Administrators ACL
+Not allowed to remove the admin user from the Administrators group
+Not authorised to access PostCalendar module
+Not authorized
+Not authorized for this squad.
+Not Examined
+Not Examined:
+Not Examined: 
+not found
+not found!
+Not seen since
+Note
+Note Type
+Note: This code was not entered by an authorized user. Only authorized codes may be uploaded to the Open Medical Billing Network for processing. If you wish to upload these codes, please select an authorized user here.
+NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category. 
+Notes
+Notes - any encounters (write,addonly optional)
+Notes - my encounters (write,addonly optional)
+Notes not authorized
+Nothing was selected
+NOTICE:: PostCalendar Submission/Modification
+Notification
+Notify Admin About Event Submission/Modification?
+November
+Now posting for:
+Now printing $stmt_count statements and updating encounters.
+Now printing $stmt_count statements and updating invoices.
+Now printing $stmt_count statements; encounters will not be updated.
+Now printing $stmt_count statements; invoices will not be updated.
+NPI
+Number
+Number of columns in year view.
+Number of games or events missed, if any
+Numbness
+O.A.F.V.
+Obesity I
+Obesity II
+Obesity III
+Objective
+Occupation
+Occurrence
+October
+OD
+of quantity
+of tablets
+of the month every
+Ofc Notes
+Office Notes
+Office Visit
+Offspring
+ointment
+OK
+OK to link the GCAC issue dated
+Old Clients
+Old fracture non / malunion
+omit to autoassign
+on
+On Hand
+On Order
+Once you change your password, you will have to re-login.
+Only Active
+only if billing location
+Only Inactive
+Only Mine
+Onset of Illness:
+Onset of Ilness: 
+Onset of Swelling:
+Onset/hosp. date:
+Open
+OpenEMR requires Javascript to perform user authentication.
+OpenEMR Users
+Option
+Optional
+Optional drug name, use % as a wildcard
+Optional information about this event
+Optional lot number, use % as a wildcard
+Optional numeric patient ID
+Optional procedure code
+Or
+or choose
+Or Out To
+Or upload ERA file:
+Oral
+Oral mucosa pink, throat clear
+Order
+Order must be a number between 1 and 999
+Organ injury
+Organization
+Organizations
+Orientated x 3
+OROPHARYNX: 
+Orthopnea
+OS
+Osetoarthritis
+Other
+other
+Other (specify)
+Other Federal Program
+Other HCFA
+Other injury not elsewhere specified
+other month
+Other Non-Federal Programs
+Other Notes
+Other Pertinent Symptoms
+Other Pertinent Symptoms:
+Other stress/Over use injury
+Other Surgical
+Other/Generic Abortion-Related
+Ottawa Ankle Rules
+OU
+OUT
+Out Of Office
+Outcome
+Outlook
+Overuse
+Overweight
+Overwrite HIPAA choice
+Oxygen Saturation
+P
+p.c.
+p.m.
+p.r.n.
+Paedeatric
+Page
+Pages
+Paid
+Paid amount that you will allocate
+Paid Via
+Pain
+Palpitation
+Pap Smear
+Paralysis
+Parse HL7
+Partner
+Password
+Password Change
+Password change successful.
+Password for SMS Gateway
+Password:
+Past Encounters
+Past Encounters and Documents
+Paste HL7 Data
+Paste the data to import into the text area below:
+Patch
+Patient
+patient
+PATIENT
+Patient Allergies
+Patient allergies
+Patient Appointment
+Patient chart ID
+Patient Checkout
+Patient Checkout for 
+Patient Communication sent
+Patient Comunication Sent
+Patient Data
+Patient Document
+Patient Encounter
+Patient Encounter Form
+Patient Encounters
+Patient Finder
+Patient History
+Patient History / Lifestyle
+Patient ID
+Patient ID card
+Patient Immunization
+Patient Information
+Patient Insurance Distribution
+Patient Insurance Distribution Report
+Patient Issues
+Patient List
+Patient Medical Problems
+Patient Medications
+Patient Name & Address
+Patient Note Types
+Patient Notes
+Patient Notes (write,addonly optional)
+Patient Number
+Patient Printed Report
+Patient Record Report
+Patient Report
+Patient Request
+Patient Summary
+Patient Transactions
+Patient/Client
+Patient:
+Patients
+Pay
+Pay attention to the "Done with" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
+Pay Date:
+Payer
+Payer Type
+Paying
+Payment
+payment
+Payment Date
+Payment Method
+Payment value for code 
+Payments
+PDF
+Pelvis and buttock
+Pemphigus
+Pending
+Pending followup
+Pennington Firm OpenEMR  v
+Peptic Ulcer Disease
+per min
+Per Nostril
+per nostril
+Per Oris
+per oris
+Per Rectum
+per rectum
+Perforated Right:
+Perform Search
+Perform this action
+Peripheral
+Person
+Pharmacies
+Pharmacy
+Pharmacy Dispensary
+Pheumothorax
+Phone
+Phone call list
+Phone Number
+Photophobia
+PHP compressed
+PHP extracted
+php-GACL access controls are turned off
+PHP-gacl is not installed
+Physical Exam
+Physician Request
+Physician Signature
+Physicians
+pick
+PID
+PID (Pelvic Inflammatory Disease)
+Pill Size
+Pills
+Placeholder
+Placeholder (Maintains empty ACLs)
+Plain Text
+Plan
+Plan Name
+Plan:
+Player
+Playing Position
+Please choose a valid selection from the list.
+Please choose a value for
+Please close this window.
+Please compare the new name
+Please do not accept this prescription unless it was received via facimile.
+Please do NOT use your browsers stop or reload button while this page is running unless more than 10 minutes have elapsed, this will not cause the process to  stop on the server and will consume uneccesary resources.
+Please enter a monetary amount using only numbers and a decimal point.
+Please enter a title!
+Please note that this can take a very long time, up to several minutes, your web browser may not appear very active during this time but generating a bill is a  complicated process and your web browser is merely waiting for more information.
+Please Note: constants are case sensitive and any string is allowed.
+Please only use alphabetic characters
+Please only use alphabetic characters with no spaces
+Please pay this amount
+Please select an adjustment reason for code 
+Please select an event
+Please select the desired pages to copy or forward:
+PM
+Pmt Method
+PND
+Pneumococcal Conjugate 1
+Pneumococcal Conjugate 2
+Pneumococcal Conjugate 3
+Pneumococcal Conjugate 4
+Pneumonia Vaccination
+Point of Service (POS)
+Policy
+Policy Number
+Polydypsia
+Polyps
+Polyuria
+Poor Appetite
+Poor Circulation
+Poor Hearing
+Populate the year view with events?
+Popups
+POS Code
+Post Nasal Drip
+Post surgical
+Post to accounting and mark as billed
+Post-Abortion Care
+Post-Abortion Contraception
+Post-Abortion Counseling
+Post-Abortion Followup
+Postal
+Postal Code
+Postal code
+PostCalendar
+PostCalendar Administration
+PostCalendar Category Settings
+PostCalendar Global Settings
+Posted on
+Posting Date
+Practice
+Practice Settings
+Practitioner
+Pre-Abortion Consultation
+Pre-Abortion Counseling
+Pref Cat
+Preferred Event Category
+Preferred Language
+Preferred Pharmacy
+Preferred Provider Organization (PPO)
+Preg Test
+Prepay
+Prescription
+Prescription Label
+Prescriptions
+Prescriptions and Dispensations
+Prescriptions and other referrals
+Prescriptions and/or referrals by specialist
+Prescriptions Report
+Prescriptions/Referrals
+Presenting Complaint
+Press Continue to proceed
+Presumed Diagnosis
+Presumed diagnosis by specialist
+Prev
+Preview Event
+Previous
+Previous Consultations
+Previous Day
+Previous History/Screening
+Previous Month
+Previous Week
+Price
+Price Discounting
+Price Level
+Price Level:
+Primary
+Primary Ins
+Primary Insurance
+Primary Insurance Data
+Primary Insurance Provider
+Primary Provider
+Print
+Print Blank Referral Form
+Print Format
+Print Four Panel
+Print Multiple
+Print Multiple To Fax
+Print Page 1
+Print Page 2
+Print Record
+Print Shot Record
+Print this note
+Print This Note
+Print To Fax
+Print View
+printable
+Printable Version
+Printing results:
+Printing skipped; see test output in 
+Prior Auth
+Prior Authorization Form
+Priority 
+Private
+Problem
+Problem List
+Problems/Issues
+Procedure
+Procedures
+Process
+Processing
+Products
+Prof.
+Prostate Cancer
+Prostate Exam
+Prostate Problems
+Prostate w/o enlrgmt, nodules, tender
+Provider
+Provider Number
+Provider:
+Providers
+Providers NPI
+Prv
+PSA
+Psoriasis
+Psych Diagnosis
+Psych Medication
+Psychiatric
+Psychiatric Brief Letter
+Psychiatric Diagnosis
+Psychiatric Examination
+Psychiatric History
+Psychiatric Intake
+Psychiatric Medication
+Pt %
+Pt Notes
+Pt Notes/Auth
+Pt overpaid
+Pt Paid
+Pt refund
+Pt released
+Pt Report
+PT Student, or leave blank
+PT_DOB
+PT_FNAME
+PT_LNAME
+PT_MNAME
+Public
+Pulmonary
+Pulse
+q.3h
+q.4h
+q.5h
+q.6h
+q.8h
+q.d.
+q.i.d.
+QOH
+Qty
+QTY
+Quality
+Quantity
+Quantity for NDC
+Quantity On Hand
+Queue for HCFA batch processing
+Queue for HCFA batch processing and printing
+Queue for UB-92 batch processing
+Queue for UB-92 batch processing and printing
+Queued
+Queued Events Administration
+Queued for
+Queued Submissions Administration
+R
+Race
+Race/Ethnicity
+Radio
+Rashes
+Rate
+Re-Open
+Re-opened
+Reactions
+Real Name
+Reason
+Reason for referral
+Reason for Visit
+Reason/Form
+Receipt
+Receipt for Payment
+Receipt Generated
+Receipts by Payment Method Report
+Receipts Summary
+Received
+Received By
+Received Faxes
+Receiver
+Receiver ID
+Recommendations
+Recommendations and treatment
+Recommendations by specialist
+Record Payment
+records found.
+Rectal
+Rectal Exam
+rectally
+Redness
+reduced:
+Refer
+Refer By
+Refer Date
+Refer To
+Reference classification (risk level)
+Reference Reason
+Referer name and signature
+Referral
+Referral By
+Referral Card
+Referral Date
+Referral Form
+REFERRAL FORM
+Referral Source
+Referral To
+Referrals
+Referrals Report
+Referred by
+Referred By
+Referred to
+Referrer
+Referrer Diagnosis
+Referrer diagnosis
+Referring physician and practice
+Referring Provider
+Refills
+refills
+Reflexes normal
+Refresh
+reg_re
+register
+Registered
+registered
+Registration Date
+Registration Form
+Rehabilitation
+Relate To
+Related
+Relation(s) / Children
+Relationship
+Relatives
+Relay Health credentials are missing from this user account.
+Relay Health ID
+Religion
+Relogin
+Remove
+Remove Group
+Remove Group Form
+Renal Stones
+Rename Group
+Rendering
+Rendering Provider
+Rendering Provider Number
+Reorder At
+Repeating Info:
+Repeats
+Reply Date
+Reply From
+Report
+Report by
+Report Totals
+Reports
+Request ignored - claims processing is already running!
+Requested Service
+Required
+RESERVED
+Reserved
+Reserved for use to define Scheduled Vacation Time
+Reserved to define when a provider may not have available appointments after.
+Reserved to define when an event did not occur as specified.
+Reserved todefine when a provider may haveavailable appointments after.
+Resolved
+Respiration
+Respirator effort unlabored
+Respiratory
+Restricted Training
+Result
+Results Found For Search
+Retinal Exam
+Retracted Right:
+Return
+Return Value
+Return Visit
+Returned to Play
+Review of PMH:
+Review Of Systems
+Review of Systems Checks
+Revision
+Rheumotoid Arthritis
+Right
+Right Ear
+right ear
+Right:
+Ringing in Ears
+Ringing In Ears
+Risk Factors
+Risk Level
+RLL:
+ROM
+Roster
+Route
+Rows
+RRR without MOR
+Rub:
+Rubs:
+Running Command: 
+Rupture
+Russian
+Rx
+RX
+S
+S.S.
+S3:
+S4:
+SA  *  * To read the license please read the docs/license.txt or visit  * http://www.gnu.org/copyleft/gpl.html  *  */  //========================================================================= // 
+Sales
+Sales by Item
+Sales by Product Report
+Same Day
+Sample
+Sanction Type
+Sat
+Sat &amp; Sun
+Saturday
+Save
+Save and Dispense
+Save as New
+Save Changes
+Save Form
+Save Immunization
+Save New Field
+Save New Group
+Save New List
+Save new template
+Save Patient Demographics
+Save Successful for chart ID
+Save Transaction
+Scanned
+Scanned Encounter Note
+Scanner In
+Schedule
+Schedule Facilities:
+SCHOOL NOTE
+Scoliosis
+SE
+SE Address
+SE City
+SE Country
+SE Locality
+SE Postal Code
+SE State
+SE Zip Code
+Search
+search
+search again
+Search by:
+Search for:
+Search or Add Patient
+Search Results:
+Search the Events
+Search/Add Insurer
+Seatbelt use
+Seatbelt Use
+Second
+Secondary
+Secondary Insurance
+Secondary Insurance Data
+Secondary Insurance Provider
+See All
+See Authorizations
+See Growth-Chart
+See messages from the last set of generated claims
+Seen since
+Seizures
+Sel
+Select
+Select All
+Select Fields
+Select for printing
+Select Issue
+Select Yes to confirm group deletion
+Self
+Self Pay
+Send in progress
+Sender
+Sender ID
+Sensitivities
+Sensitivity:
+Sensory exam normal
+Sent successfully
+sent to printer.
+Separated
+September
+Service Category
+Service Date
+Service Date:
+Service Location
+Service provided by specialist
+Services
+Services by Category
+Services provided
+Services Provided
+Settings
+Severe Migraine
+Severity of Pain
+Severity of Pain:
+Sex
+Sexually Transmitted Disease
+Sharing
+Shortness of Breath
+Shortness Of Breath
+Shortness Of Breath 2
+Shot Record
+Shot Record as of:
+should be like nnnnn-nnnn-nn
+Shoulder
+Shoulder + clavicle
+Shoulder Problems
+Show
+Show as Busy
+Show Authorized Only
+Show Details
+Show hovering event text on mouseover?
+Show how many events on admin pages?
+Show Report
+Show search/submit links in block?
+Show Unbilled Only
+Siblings
+Sickle Cell
+Sig
+Sigmoid/Colonoscopy
+Signature
+Signature:
+Significant Swelling:
+Since
+Single
+Sinus Problems
+Sinus Surgery
+SINUS TENDERNESS:
+Sinusitis
+Size
+Size must be a number between 1 and 999
+Size/List
+Skin
+Skin Cancer
+Skin Disease
+Skin Other
+Sleep patterns
+Sleep Patterns
+Sleeping
+Slovak
+Sm debt w/o
+Smarty Cache has been cleared
+SMS Gateway
+SMS Gateway API key
+SMS Notification
+SMS send before
+SMS Text, Usable Tag: ***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***<br> i.e. Dear ***NAME***
+SMS/Email Alert Settings
+Snoring
+SOAP
+Social Difficulties
+Social History:
+Social Security Number
+solution
+Somatic Context
+Some authorizations were not displayed. Click here to view all
+Some codes were not displayed.
+Some encounters were not displayed. Click here to view all.
+Some notes were not displayed.
+some words
+Sore Throat
+Sort by
+Sort by Comments
+Sort by date
+Sort by date/time
+Sort by Event
+Sort by Group
+Sort by User
+Sort by vaccine
+Source
+Source is missing for code 
+Source:
+Spanish
+Specialist name and signature
+Specialty
+Specialty Systems
+Specialty:
+Specific
+Specific Service
+Speech Dictation
+Spermicides
+Splenectomy
+Spouse
+Sputum
+Sputum:
+SQ
+Squad
+Squad Membership
+Squads
+SRH
+SRH - Family Planning
+SRH Non Family Planning
+SRH Referrals
+SRH Visit Form
+SS
+SSN
+Stability
+Standard
+Start
+Start (yyyy-mm-dd): 
+Start Date
+Start Date at This Clinic
+Start Date:
+Start date:
+Start Time
+Starting Date
+stat
+State
+State List (write,addonly optional)
+State/Locality
+State/Parish
+Statistics
+Stats
+Status
+Status quo
+STD/AIDS Couns
+Stength and Conditioning
+Stiff Joints
+Stiffness
+Stomach Pains
+Strain of muscle
+Stream
+Street
+Street and Number
+Strength
+Strep Throat
+Stress fracture
+Stress Test
+Stroke
+Sub-category
+Sub-Total
+Subcategory
+subcategory
+subcutaneously
+Subjective
+Sublingual
+sublingual
+Submit
+Submit Event
+submit form
+Submitted by
+Subscriber
+Subscriber Address
+Subscriber Employer
+Subscriber Employer (SE)
+Subscriber Employer Address
+Subscriber Employer City
+Subscriber Employer Country
+Subscriber Employer State
+Subscriber Employer Zip Code
+Subscriber Phone
+Subscriber Relationship
+Subscriber relationship is not self but name is the same! Is this really OK?
+Subscriber relationship is not self but SS number is the same!
+Subscriber relationship is self but name is different! Is this really OK?
+Subscriber relationship is self but SS number is different!
+Subscriber Sex
+Substitution
+substitution allowed
+success
+successfully added to category,
+successfully stored.
+successfully.
+Suicide
+Summary
+Sun
+Sunday
+Superbill
+Superbill Codes
+Superbill Codes Administration
+Superbill Report
+Superbills, sometimes referred to as Encounter Forms or Routing Slips, are an essential part of most medical practices.
+Superuser
+Surface Type
+Surgeries
+Surgery
+Suspended
+suspension
+Svc Date
+Svc Date:
+Sweating:
+Swedish
+Swelling
+Swelling Right
+Swollen Joints
+Swollen Lymph Nodes
+Symptoms
+Syncope
+Synovitis, impingement, bursitis
+System
+T
+t.i.d.
+T.V.
+Table creation failed
+Table update failed
+tablet
+Take
+Takes long
+Tax Rate
+Taxes
+Taxonomy
+Td
+Team Injury Overview
+Team Roster
+Team Roster View
+Tel
+Temp Location
+Temp Method
+Temperature
+Template
+Template Name
+Template names cannot start with numbers.
+Template:
+Templates
+Temporal Artery
+Tendon injury
+Tendonitis / osis / bursitis
+Tertiary
+Tertiary Insurance
+Tertiary Insurance Data
+Tertiary Insurance provider
+Test Scheduling
+Test System
+text-date
+textarea
+textbox
+textbox list
+Thank You
+The claim file: 
+The destination form was closed; I cannot act on your selection.
+The event(s) have been approved.
+The event(s) have been hidden.
+The exported data appears in the text area below.  You can copy and paste this into an email or to any other desired destination.
+The following calendar event has been added:
+The following calendar event has been modifed:
+The following errors occurred
+The initial window is the invoice search page.  At the top you may enter a source (e.g. check number), pay date and check amount.  The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim.  The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.
+The label that appears to the user on the form
+The new category will be a sub-category of 
+The remaining information below applies only if you are posting manually, or if you are doing manual corrections.
+The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.
+The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the "W" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
+The translated label that will appear on the form in current language
+The translated Title that will appear in current language
+The translation of description in current language
+The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
+Therapeutic Injections
+There are errors with your submission.  These are outlined below.
+There are no New Submissions
+There has been a mail error sending to
+There is no COA entry for AR account 
+There is no COA entry for cash account 
+There is no COA entry for income account 
+There is no match for invoice id
+There is no match for invoice id = 
+There is no parts entry for services ID 
+There was an error while processing your request.
+Thickened Right:
+Thigh
+Thigh + hamstring
+Things that back office can read and enter but not modify
+Things that back office can read and modify
+Things that clinicians can read and enter but not modify
+Things that clinicians can read and modify
+Things that front office can read and enter but not modify
+Things that front office can read and modify
+Things that physicians can read and enter but not modify
+Things that physicians can read and modify
+Third
+This action cannot be undone.
+This action CANNOT be undone.
+This code type does not accept relations.
+This Encounter
+This invoice number has been changed to 
+This module is in test mode. The database will not be changed.
+This module promotes efficient entry of EOB data.
+This page will inline include the login page, so that we do not have to click relogin every time.
+This patient has no activity.
+This patient ID is already in use!
+This user is not a member of any group
+This visit begins new contraceptive use
+This will create a backup in tar format and then send it to your web browser so you can save it
+Thoracic spine
+Throat
+Throat Cancer
+Throat Cancer Surgery
+Thrombosis/Stroke
+Thu
+Thurdsay
+Thursday
+Thyroid normal
+Thyroid Problems
+TIA
+Time
+Time Increment for Add (minutes 1-60)
+Timed event
+Times array (N/A)
+Timestamp and Text
+TIN
+Tinnitus
+Title
+Title V
+TitleCols must be a number between 1 and 999
+Titles
+TM\'S:
+TMs/EAMs/EE, ext nose
+To
+TO
+to
+To Affected Area
+to affected area
+To Billing View
+to category
+To Clinical View
+To copay
+To ded'ble
+To Dems
+To Enctr
+To filter by sex
+To History
+To Issues
+To link this encounter/consult to an existing issue, click the desired issue above to highlight it and then click [Save]. Hold down [Ctrl] button to select multiple issues.
+to login again
+To Skin
+to skin
+to this visit?
+To:
+To: 
+TO_CITY
+TO_FAX
+TO_FNAME
+TO_LNAME
+TO_MNAME
+TO_ORGANIZATION
+TO_POSTAL
+TO_STATE
+TO_STREET
+TO_TITLE
+TO_VALEDICTORY
+Tobacco
+Tobacco use
+Today
+Today\'s Date
+Today\'s Events
+Tonsillectomy
+Top
+Topic
+total
+Total
+Total Amount Paid
+Total Charges
+Total Clients
+Total for
+Total for 
+Total for category
+Total Number of Patients
+Total SRH & Family Planning
+Totals
+Totals for
+Totals for 
+Training Type
+Transact
+transaction
+Transaction
+Transaction Type
+Transactions
+Transactions (write optional)
+Transactions/Referrals
+translate this
+Translation
+Trauma
+Treatment Goals
+Treatment Plan
+Treatment:
+Treatment: 
+trftime($month_format, mktime(0, 0, 0, $i, 1, 2000)) );             $month_value
+Trigger point / compartment syndrome / DOMS / cramp
+Trimalleolar
+tring[,'r'[,
+Trunk and abdomen
+tsp
+TTS
+Tuberculosis
+Tue
+Tues &amp; Thur
+Tuesday
+Tumour
+twice daily
+Tympanic Membrane
+Type
+Type or scan the patient identifier here
+UCSMC codes provided by the University of Calgary Sports Medicine Centre
+Ulcerations
+Ulcerative Colitis
+Ulcers:
+Unassigned
+Unauthorized access.
+under tongue
+Underweight
+Undiagnosed
+Undo Checkout
+Unique Clients
+Unique New Clients
+Unique Seen Patients
+Unique Seen Patients Report
+Unique SP
+Unit
+Units
+units
+Unknown
+Unknown or N/A
+Unnamed insurance company
+Unregistered
+Unselect All
+Unselected
+Unspecified
+until
+Untimely filing
+Unused
+UOR
+Up to
+Upcoming Appointments
+Upcoming Events
+update
+Update
+Update files
+Update Info
+Updating demographics is not authorized.
+UPIN
+Upload
+Upload Document
+Upload import file:
+Upload Report
+Upload this file:
+Upon clicking an invoice number the "manual posting window" appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected paymants have been received.  Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.
+Upon searching you are presented with a list of invoices.  You may click on one of the invoice numbers to open a second window, which is the data entry page for manual posting.  You may also click on a patient name if you want to enter a note that the front office staff will see when the patient checks in, and you may select invoices to appear on patient statements and print those statements.
+Upper arm
+Urgency
+Urine Dribbling
+Urine Frequency
+Urine Hesitancy
+Urine Stream
+Urine Urgency
+URL
+Use 24 hour time format?
+Use Defaults
+Use international date style?
+Use topics?
+User
+User Administration
+User and Facility Administration
+User and Group Administration
+User Defined
+User Defined Area 11
+User Defined Area 12
+User Defined Field
+User Defined List 1
+User Defined List 2
+User Defined List 3
+User Defined List 4
+User Defined List 5
+User Defined List 6
+User Defined List 7
+User Defined Text 1
+User Defined Text 2
+User Defined Text 3
+User Defined Text 4
+User Defined Text 5
+User Defined Text 6
+User Defined Text 7
+User Defined Text 8
+User Memberships
+Username
+Username for SMS Gateway
+Username:
+Users
+Users/Groups/Logs Administration
+uses php <a href="http://php.net/strftime">strftime</a> format
+UTIs
+VACATION
+Vacation
+Vaccine
+Vaginal Ring
+Valedictory
+Value 1
+Value 2
+Var1
+Var2
+Varicella 1
+Varicella 2
+Varicose Veins
+Vascular condition
+Vascular injury
+Vascular Surgery
+Version
+Vertigo
+Veterans Administration Plan
+View
+view
+View Allergies
+View Comprehensive Patient Report
+View document
+View encounter
+View events in a popup window?
+View Page 1
+View Page 2
+View related encounters
+View:
+VISA
+Visceral damage/trauma/surgery
+Visit Category:
+Visit Date
+Visits
+Visits From
+Vitals
+Vitals (Metric)
+Vomiting
+W
+Waist Circ
+Waist Circumference
+Waiting
+Walk-In
+Walt Pennington
+Warm
+WARNING
+Warning: A visit was already created for this patient today!
+Warning: Patient ID is not unique!
+we have seen your above patient for evaluation and treatment at our outpatient psychiatry clinic. Thank you for this referral.
+Weakness
+Website
+Wed
+Wednesday
+week
+Week
+Week View
+Week(s)
+Weight
+Weight Change
+Weight Loss
+What is to be counted?
+Wheezes:
+Wheezing
+Wheezing:
+Where may related scanned or paper documents be found?
+Whiplash
+Who
+Who replied?
+Widowed
+with the old name
+With whom may we leave a message?
+within hours
+within hours:
+within minutes
+within minutes:
+Without Update
+Witness
+WNL
+Women
+Women Only
+Work
+WORK NOTE
+Work Phone
+Work Phone Number
+Work related?
+Work/ Education/ Hobbies
+Work/School Note
+workday
+Workers Compensation Health Plan
+Worse
+Wrist
+Wrist and hand
+Wrist Problems
+write
+write off
+wsome
+x Cancelled
+X-ray
+X-RAY Interpretation:
+X-Ray Interpretation:
+X12 only: Replacement Claim 
+X12 Partner
+X12 Partners
+Y
+year
+Year
+Year View
+Year(s)
+YES
+Yes
+yes
+YES!
+Yes, Delete and Log
+Yes/No
+Yes:
+You are about to permanently replace the existing template. Are you sure you wish to continue?
+You are not allowed to delete this event
+You are not allowed to edit this event
+You are not authorized for this.
+You are not authorized to access this squad.
+You are not authorized to add/edit issues
+You are not authorized to see this encounter.
+You can not access this function directly.
+You cannot access this page directly.
+You did not choose any actions.
+You do not have access to view/edit this note
+You must first select or add a patient.
+You must first select or create an encounter.
+You must select some fields to continue.
+You should be running this test if this claim appeared to generate successfully but the actual claim file does not contain any data or only an unfinished portion of the amount of data it is supposed to contain. It is obvious with HCFA claims because they are human readable, with X12 claims it is a more difficult process to determine if the claim is properly complete.
+Your end date is invalid
+Your event has been deleted.
+Your event has been modified.
+Your event has been submitted.
+Your list name has been changed to meet naming requirements.
+Your PostCalendar configuration has been reset to use defaults.
+Your PostCalendar configuration has been updated.
+Your repeating frequency must be an integer.
+Your repeating frequency must be at least 1.
+Your start date is greater than your end date
+Your start date is invalid
+Your submission failed.
+yyyy-mm-dd
+yyyy-mm-dd date associated with this document
+yyyy-mm-dd date destroyed
+yyyy-mm-dd Date of Birth
+yyyy-mm-dd date of birth
+yyyy-mm-dd date of expiration
+yyyy-mm-dd Date of onset or hospitalization
+yyyy-mm-dd date of onset, surgery or start of medication
+yyyy-mm-dd date of recovery or end of medication
+yyyy-mm-dd Date of return to play
+yyyy-mm-dd Date of service
+yyyy-mm-dd date of this letter
+yyyy-mm-dd date returned to play
+yyyy-mm-dd document date
+yyyy-mm-dd event date or starting date
+yyyy-mm-dd last date of this event
+Zero
+Zip
+Zip Code
+Zip/Country:
+ but was 
+ could not be accessed.
+ Do you really want to delete
+ Drug
+ emails not sent
+ from
+ has been created. 
+ has been re-opened.
+ History
+ is not a number
+ is ready for re-billing.
+ LLL:
+ Lot
+ Medicaid Original Reference No. 
+ min
+ not found!
+ Pecularities in many browsers may mean that the output below enters your screen in sudden jerks and that there are long pauses of several seconds where it  appears as though things may have crashed. That is not the case, you will eventually see output coming out line by line. There may be sequential numbers appearing  below, this is to indicate that even though nothing else may be displaying there is activity going on. These numbers will be interspersed with the content of the  billing and that is normal.
+ prescription has reached its limit of
+ until 
+ update failed, not in database?
+ was marked as billed only.
+ was queued successfully.
+! Left w/o visit
+" for code 
+" is CHECKED in PostCalendar Settings!
+# Ins/fin issue
+# of tablets:
+$
+$ Coding done
+$1
+$label (yyyy-mm-dd): 
+%
+% Cancelled <  24h 
+' should exist but does not.
+(% matches any string, _ matches any character)
+(Back)
+(Click to edit)
+(More)
+(New Patient)
+(Notes and Authorizations)
+(Patient Notes)
+(Select one of these, or type your own title)
+* Reminder done
+** Please move surgeries to Issues!
+*Required
++ Chart pulled
+.
+0-10
+1.Rest 2. Ice for two days 3. Compression, leave the dressing in place unless the foot develops numbness or pale color 4. Elevate the foot and leg
+11-14
+15-19
+20-24
+2111-13
+25-29
+2nd
+3 months
+3 times daily
+30-34
+35-39
+3rd
+4 months
+4 times daily
+40-44
+45+
+465.9, URI
+466.0, Bronchitis, Acute NOS
+486.0, Pneumonia, Acute
+491.21, COPD Exacerbation
+491.8, Bronchitis, Chronic
+493.92, Asthma, Acute Exac.
+496.0, COPD
+4th
+519.7, Bronchospasm
+5th
+6 months
+6th
+824.0 Fracture, medial malleolus, closed
+824.2 Fracture, lateral malleolus, closed
+824.6 Fracture, Trimalleolar, closed
+825.32 Fracture, of Navicular (ankle)
+825.35 Fracture, Base of fifth (5th) Metatarsal
+845.00 ankle sprain NOS
+845.01 Sprain Medial (Deltoid) Lig.
+845.02 Sprain, Calcaneal fibular
+99212 Established - Uncomplicated
+99213 Established - Low Complexity
+< In exam room
+> Checked out
+? No show
+@ Arrived
+[Change View]
+[Date of Last Encounter]
+[Days Since Last Encounter]
+[EOBs]
+[Export OFX]
+[not recommended]
+[Number Of Encounters]
+[Reports]
+[Select All]
+[SQL-Ledger]
+[Start Batch Processing]
+[View Log]
+[View Printable Report]
+_PC_DUR_HOURS
+_PC_DUR_MINUTES
+_PC_LOCALE
+~ Arrived late
