@@ -78,7 +78,7 @@ function getUsername($uID) {
 
 //	returns an array of facility id and names
 function getUserFacilities($uID) {
-  if ($GLOBALS['restrict_user_facility']) {
+  if (!$GLOBALS['restrict_user_facility']) {
   	$rez = sqlStatement("
 		select id, name
 		from facility
