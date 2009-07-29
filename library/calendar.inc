@@ -1,4 +1,4 @@
-<?
+<?php
 //function returns the next most recent appointment given a pid
 function getNextAppointment ($pid) {
 $query = "select * from calendar where pid=$pid and time>now() order by time limit 1";
@@ -32,7 +32,8 @@ function toggleNoShow( $cid) {
 
 //return array of provider usernames
 function getProviderUsernames() {
-	$rez = sqlStatement("select distinct username,lname,fname from users where authorized=1");
+	$rez = sqlStatement("select distinct username, lname, fname from users " .
+		"where authorized = 1 and username != ''");
 	for($iter=0; $row=sqlFetchArray($rez); $iter++)
 		$returnval[$iter]=$row;
 
@@ -50,7 +51,7 @@ function getIDfromUser($name) {
 		return $row['id'];
 }
 function getAuthorizedIDs() {
-	$query = "select id, username from users where authorized=1 ";
+	$query = "select id, username from users where authorized=1 and username != ''";
 	$rez = sqlStatement($query);
 	for($iter=0; $row=sqlFetchArray($rez); $iter++)
 		$returnval[$iter]=$row;
@@ -59,7 +60,8 @@ function getAuthorizedIDs() {
 
 
 function getUserInfo() {
-	$rez = sqlStatement("select distinct id,username,lname,fname, authorized, info, facility from users");
+	$rez = sqlStatement("select distinct id, username, lname, fname, authorized, " .
+		"info, facility from users where username != ''");
 	for($iter=0; $row=sqlFetchArray($rez); $iter++)
 		$returnval[$iter]=$row;
 
@@ -74,13 +76,35 @@ function getUsername($uID) {
 	return "";
 }
 
+//	returns an array of facility id and names
+function getUserFacilities($uID) {
+  if (!$GLOBALS['restrict_user_facility']) {
+  	$rez = sqlStatement("
+		select id, name
+		from facility
+		where service_location != 0
+	");
+  } else {
+	  $rez = sqlStatement("
+		  select uf.facility_id as id, f.name
+		  from users_facility uf
+		  left join facility f on (uf.facility_id = f.id)
+		  where uf.tablename='users' 
+		  and uf.table_id = '$uID' 
+	    ");
+  }
+  $returnVal = array();
+  while ($row = sqlFetchArray($rez)) 
+	  $returnVal[] = $row;
+  return $returnVal;
+}
+
 //retrieve the name based on the username
 function getNamefromUsername($username) {
-	$query = "select * from users where username like '$username'";
+	$query = "select * from users where username like '$username' and username != ''";
 	$res = sqlQuery($query);
 	return $res;
 }
-
 
 //retrieve calendar information from calendar id
 function getCalendarfromID ($calid) {
@@ -88,7 +112,6 @@ function getCalendarfromID ($calid) {
 	//this table is deprecated and has been removed from new versions
 	//return sqlQuery("select * from calendar where id='$calid'");
 }
-
 
 //get calendar dates in a range of dates
 function getCalendarRanges ($fromdate, $todate, $username) {
