@@ -10,12 +10,18 @@ Allow SMS (text messages)?
 Allow telephone messages?
 Allow Voice Message
 Asian
-Asthma
+autosaved
 Bill/Collect
 Billing Code for Requested Service
 Black
 Boolean
+Both Ears
+Bpd
+Bps
+Breast Biopsy
+Breast Discharge
 Breast Disease
+Burning With Urination
 Caffeine consumption
 Caucasian
 Cell Phone Number
@@ -24,6 +30,7 @@ Chart Storage Locations
 Check Number
 Child
 Choices
+Cirrhosis Of The Liver
 City Name
 Contact Email Address
 Contact Lenses
@@ -32,11 +39,11 @@ Contraceptives Start
 Counseling activities
 Counter-Referral
 Coupon
+Crohns Disease
 Date contraceptive services initially provided
-Date of Birth
 Date of referral
 Date of reply
-Depression
+delete
 Dictation
 Did you receive a copy of the HIPAA Notice?
 Direct Mail
@@ -49,32 +56,62 @@ Drug Forms
 Drug Intervals
 Drug Routes
 Drug Units
+DT 1
+DT 2
+DT 3
+DT 4
+DT 5
+DTaP 1
+DTaP 2
+DTaP 3
+DTaP 4
+DTaP 5
 Emergency Contact Person
 Emergency Contact Phone Number
 Emergency Phone
 Employee
 Employer Name
+Endo Abnormal Blood
+ENT Discharge
+ENT Pain
 Established Patient
 Ethnicity or Race
 Exam and test results
 Exams/Tests
 Exercise patterns
+Exposure To Foreign Countries
 External ID
 External identifier
 External Referral
 External referral?
+Eye Irritation
+Eye Redness
+Female Symptoms
+FH Blood Problems
 Fibroids
 File Room
-Final Diagnosis
 Final diagnosis by specialist
-Findings
 Findings by specialist
 Gall Bladder Condition
+Gastro Pain
+Glaucoma Family History
 grams
 Hazardous activities
+Head Circ
 Heart Disease
+Hepatitis A 1
+Hepatitis A 2
+Hepatitis B 1
+Hepatitis B 2
+Hepatitis B 3
+Hib 1
+Hib 2
+Hib 3
+Hib 4
 HIPAA Notice Received
+Hirsutism/Striae
 Hispanic
+History Murmur
 Home Phone Number
 Homeless or similar?
 Homeless, etc.
@@ -84,41 +121,74 @@ In Office
 Include Vitals
 Include vitals data?
 Infertility
+Influenza 1
+Influenza 2
 Interpreter needed?
+IPV 1
+IPV 2
+IPV 3
+IPV 4
+Joint Pain
 Lab Report
 Last Activity Date
+Layout Based
+Layout-Based Visit Forms
 Leave Message With
+Left Ear
 Level of urgency
 License/ID
+login
+logout
 Low
 Lunch
 Married
 Medium
+Menstrual Flow
+Menstrual Frequency
 mg/2cc
 mg/3cc
 mg/4cc
 Migrant or seasonal worker?
 Misc
 Misc Billing Options HCFA
+MMR 1
+MMR 2
 Mobile Phone
 Mr.
 Mrs.
 Ms.
+Musc Ache
+Musc Redness
+Musc Stiffness
+Musc Warm
 Name 1
 Name 2
 Name/Value
+Neuro Numbness
+Neuro Weakness
 New Document
 Newspaper
 No Show
+Noninsulin Dependent Diabetes
+Normal BL
 Normal Office Visit
+Obesity I
+Obesity II
+Obesity III
 Office Visit
 Other (specify)
 Out Of Office
+Overweight
+Patient ID card
 Patient Information
 Patient Note Types
 Pending followup
 Pharmacy
 PID (Pelvic Inflammatory Disease)
+Pneumococcal Conjugate 1
+Pneumococcal Conjugate 2
+Pneumococcal Conjugate 3
+Pneumococcal Conjugate 4
 Preferred Language
 Preferred Pharmacy
 Prescriptions and/or referrals by specialist
@@ -127,6 +197,8 @@ Presumed Diagnosis
 Presumed diagnosis by specialist
 Prior Auth
 Prior Authorization Form
+Psych Diagnosis
+Psych Medication
 Radio
 Reason for referral
 Recommendations
@@ -147,11 +219,13 @@ Reserved to define when a provider may not have available appointments after.
 Reserved to define when an event did not occur as specified.
 Reserved todefine when a provider may haveavailable appointments after.
 Resolved
-Review Of Systems
+Right Ear
+Ringing In Ears
 Risk Factors
 Risk Level
 Sample
 Seatbelt use
+See Growth-Chart
 Self
 Separated
 Service Category
@@ -159,8 +233,13 @@ Service Date
 Service provided by specialist
 Services Provided
 Severe Migraine
+Shortness Of Breath
+Shortness Of Breath 2
 Sickle Cell
 Single
+Skin Cancer
+Skin Disease
+Skin Other
 Sleep patterns
 Social Security Number
 Squad Membership
@@ -173,10 +252,18 @@ Street and Number
 Subscriber Relationship
 T.V.
 Tax Rate
+Td
+Temp Method
 Test Scheduling
 Thrombosis/Stroke
 Titles
 Tobacco use
+Underweight
+Urine Dribbling
+Urine Frequency
+Urine Hesitancy
+Urine Stream
+Urine Urgency
 User Defined
 User Defined Area 11
 User Defined Area 12
@@ -199,9 +286,11 @@ User Defined Text 8
 Vacation
 Value 1
 Value 2
+Varicella 1
+Varicella 2
 Varicose Veins
-Vitals
-Vitals (Metric)
+view
+Waist Circ
 Walk-In
 Where may related scanned or paper documents be found?
 Who
