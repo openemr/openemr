@@ -309,5 +309,5 @@ ALTER TABLE form_reviewofs CHANGE noninsulin_dependent_diabetes noninsulin_depen
 ALTER TABLE form_reviewofs CHANGE hypothyroidism hypothyroidism varchar(5);
 ALTER TABLE form_reviewofs CHANGE hyperthyroidism hyperthyroidism varchar(5);
 ALTER TABLE form_reviewofs CHANGE cushing_syndrom cushing_syndrom varchar(5);
-ALTER TABLE form_reviewofs CHANGE addison_syndrom addison_syndrom varchar(5)
+ALTER TABLE form_reviewofs CHANGE addison_syndrom addison_syndrom varchar(5);
 #EndIf
