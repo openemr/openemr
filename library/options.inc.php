@@ -14,6 +14,8 @@
 //   $GLOBALS['translate_lists'] and $GLOBALS['translate_layout']
 //   flags in globals.php
 
+require_once("formdata.inc.php");
+
 $date_init = "";
 
 function get_pharmacies() {
@@ -1131,7 +1133,9 @@ function get_layout_form_value($frow) {
       $value = $_POST["form_$field_id"];
     }
   }
-  return $value;
+
+  // Make sure the return value is quote-safe.
+  return formTrim($value);
 }
 
 // Generate JavaScript validation logic for the required fields.
@@ -1157,7 +1161,7 @@ function generate_layout_validation($form_id) {
         echo
         " if (f.$fldname.selectedIndex <= 0) {\n" .
         "  alert('" . xl('Please choose a value for','','',' ') .
-	xl_layout_label($fldtitle) . "');\n" .
+        xl_layout_label($fldtitle) . "');\n" .
         "  if (f.$fldname.focus) f.$fldname.focus();\n" .
         "  return false;\n" .
         " }\n";
@@ -1169,7 +1173,7 @@ function generate_layout_validation($form_id) {
         echo
         " if (trimlen(f.$fldname.value) == 0) {\n" .
         "  alert('" . xl('Please choose a value for','','',' ') .
-	xl_layout_label($fldtitle) . "');\n" .
+        xl_layout_label($fldtitle) . "');\n" .
         "  if (f.$fldname.focus) f.$fldname.focus();\n" .
         "  return false;\n" .
         " }\n";
