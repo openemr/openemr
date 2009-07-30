@@ -338,7 +338,7 @@ if ($result = getEncounters($pid)) {
                 else continue;
     
                 /* build the potentially HUGE tooltip used by ttshow */
-                $title = "View Encounter";
+                $title = xl('View encounter');
                 /* 
                  * COMMENTED out the tooltip because of poor database performance -- JRM 
                  *
