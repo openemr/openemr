@@ -338,7 +338,10 @@ if ($result = getEncounters($pid)) {
                 else continue;
     
                 /* build the potentially HUGE tooltip used by ttshow */
-                $title = "";
+                $title = "View Encounter";
+                /* 
+                 * COMMENTED out the tooltip because of poor database performance -- JRM 
+                 *
                 if ($enc['formdir'] != 'physical_exam' && substr($enc['formdir'],0,3) != 'LBF') {
                     $frow = sqlQuery("select * from form_" . $enc['formdir'] .
                                     " where id = " . $enc['form_id']);
@@ -349,6 +352,7 @@ if ($result = getEncounters($pid)) {
                     }
                     $title = htmlspecialchars(strtr($title, "\t\n\r", "   "), ENT_QUOTES);
                 }
+                */
 
                 echo "<span class='form_tt' title=\"$title\">";
                 echo xl_form_title($enc['form_name']);
@@ -557,16 +561,17 @@ $(document).ready(function(){
     $(".billing_note_text").click(function(evt) { evt.stopPropagation(); editNote(this.id); });
 
     // set up the tooltip function
-    tooltip();
+    //tooltip();
 });
 
+/* COMMENTED out July 2009 -- JRM
 this.tooltip = function(){  
-    /* CONFIG */        
+    // CONFIG
     xOffset = 10;
     yOffset = 20;       
     // these 2 variable determine popup's distance from the cursor
     // you might want to adjust to get the right result     
-    /* END CONFIG */        
+    // END CONFIG
 
     // display the floating tooltip paragraph
     $(".form_tt").hover(function(e){                                             
@@ -590,8 +595,9 @@ this.tooltip = function(){
         $(".tooltip")
             .css("top",(e.pageY - xOffset) + "px")
             .css("left",(e.pageX + yOffset) + "px");
-    });         
+    }); 
 };
+*/
 
 </script>
 
