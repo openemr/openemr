@@ -342,7 +342,7 @@ if ($result = getEncounters($pid)) {
                 /* 
                  * COMMENTED out the tooltip because of poor database performance -- JRM 
                  *
-                if ($enc['formdir'] != 'physical_exam' && substr($enc['formdir'],0,3) != 'LBF') {
+                if ($enc['formdir'] != 'physical_exam') {
                     $frow = sqlQuery("select * from form_" . $enc['formdir'] .
                                     " where id = " . $enc['form_id']);
                     foreach ($frow as $fkey => $fvalue) {
