@@ -331,3 +331,64 @@ CREATE TABLE `lbf_data` (
 ) ENGINE=MyISAM COMMENT='contains all data from layout-based forms';
 #EndIf
 
+#IfTable gacl_phpgacl
+ALTER TABLE gacl_phpgacl MODIFY value varchar(150) NOT NULL;
+#EndIf
+
+#IfTable gacl_acl
+ALTER TABLE gacl_acl MODIFY section_value varchar(150) NOT NULL default 'system';
+#EndIf
+
+#IfTable gacl_acl_sections
+ALTER TABLE gacl_acl_sections MODIFY value varchar(150) NOT NULL;
+#EndIf
+
+#IfTable gacl_aco
+ALTER TABLE gacl_aco MODIFY section_value varchar(150) NOT NULL default '0';
+ALTER TABLE gacl_aco MODIFY value varchar(150) NOT NULL;
+#EndIf
+
+#IfTable gacl_aco_map
+ALTER TABLE gacl_aco_map MODIFY section_value varchar(150) NOT NULL default '0';
+ALTER TABLE gacl_aco_map MODIFY value varchar(150) NOT NULL;
+#EndIf
+
+#IfTable gacl_aco_sections
+ALTER TABLE gacl_aco_sections MODIFY value varchar(150) NOT NULL;
+#EndIf
+
+#IfTable gacl_aro
+ALTER TABLE gacl_aro MODIFY section_value varchar(150) NOT NULL default '0';
+ALTER TABLE gacl_aro MODIFY value varchar(150) NOT NULL;
+#EndIf
+
+#IfTable gacl_aro_map
+ALTER TABLE gacl_aro_map MODIFY section_value varchar(150) NOT NULL default '0';
+ALTER TABLE gacl_aro_map MODIFY value varchar(150) NOT NULL;
+#EndIf
+
+#IfTable gacl_aro_sections 
+ALTER TABLE gacl_aro_sections MODIFY value varchar(150) NOT NULL;
+#EndIf
+
+#IfTable gacl_axo
+ALTER TABLE gacl_axo MODIFY section_value varchar(150) NOT NULL default '0';
+ALTER TABLE gacl_axo MODIFY value varchar(150) NOT NULL;
+#EndIf
+
+#IfTable gacl_axo_map
+ALTER TABLE gacl_axo_map MODIFY section_value varchar(150) NOT NULL default '0';
+ALTER TABLE gacl_axo_map MODIFY value varchar(150) NOT NULL;
+#EndIf
+
+#IfTable gacl_axo_sections
+ALTER TABLE gacl_axo_sections MODIFY value varchar(150) NOT NULL;
+#EndIf
+
+#IfTable gacl_aro_groups
+ALTER TABLE gacl_aro_groups MODIFY value varchar(150) NOT NULL;
+#EndIf
+
+#IfTable gacl_axo_groups
+ALTER TABLE gacl_axo_groups MODIFY value varchar(150) NOT NULL;
+#EndIf
