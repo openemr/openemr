@@ -106,6 +106,9 @@ if ($_POST['bn_save']) {
   exit;
 }
 
+$fname = "../../../custom/LBF/$formname.plugin.php";
+if (file_exists($fname)) include_once($fname);
+
 $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date FROM " .
   "form_encounter AS fe, forms AS f, patient_data AS p WHERE " .
   "p.pid = '$pid' AND f.pid = '$pid' AND f.encounter = '$encounter' AND " .
@@ -133,10 +136,18 @@ div.section {
 
 </style>
 
+<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+
 <script type="text/javascript" src="../../../library/dialog.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
+<script type="text/javascript" src="../../../library/textformat.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../../library/js/jquery.js"></script>
 
 <script language="JavaScript">
+
+var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
 // Supports customizable forms.
 function divclick(cb, divid) {
@@ -148,6 +159,8 @@ function divclick(cb, divid) {
  }
  return true;
 }
+
+<?php if (function_exists($formname . '_javascript')) call_user_func($formname . '_javascript'); ?>
 
 </script>
 </head>
@@ -193,6 +206,13 @@ function divclick(cb, divid) {
         $pprow = sqlQuery("SELECT field_value FROM lbf_data WHERE " .
           "form_id = '$formid' AND field_id = '$field_id'");
         if (!empty($pprow)) $currvalue = $pprow['field_value'];
+      }
+      else {
+        // New form, see if there is a custom default from a plugin.
+        $fname = $formname . '_default_' . $field_id;
+        if (function_exists($fname)) {
+          $currvalue = call_user_func($fname);
+        }
       }
     }
 
@@ -262,12 +282,19 @@ function divclick(cb, divid) {
 </p>
 
 </form>
-<?php
-// TBD: If $alertmsg, display it with a JavaScript alert().
-?>
 
 <!-- include support for the list-add selectbox feature -->
 <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
+
+<script language="JavaScript">
+<?php echo $date_init; ?>
+<?php
+if (function_exists($formname . '_javascript_onload')) {
+  call_user_func($formname . '_javascript_onload');
+}
+// TBD: If $alertmsg, display it with a JavaScript alert().
+?>
+</script>
 
 </body>
 </html>
