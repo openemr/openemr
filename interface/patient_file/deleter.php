@@ -125,7 +125,7 @@ td { font-size:10pt; }
 
    $res = sqlStatement("SELECT * FROM forms WHERE pid = '$patient'");
    while ($row = sqlFetchArray($res)) {
-    form_delete($row['formdir'], $row['form_id'])
+    form_delete($row['formdir'], $row['form_id']);
    }
    row_delete("forms", "pid = '$patient'");
 
@@ -141,7 +141,7 @@ td { font-size:10pt; }
    row_delete("issue_encounter", "encounter = '$encounterid'");
    $res = sqlStatement("SELECT * FROM forms WHERE encounter = '$encounterid'");
    while ($row = sqlFetchArray($res)) {
-    form_delete($row['formdir'], $row['form_id'])
+    form_delete($row['formdir'], $row['form_id']);
    }
    row_delete("forms", "encounter = '$encounterid'");
   }
@@ -150,7 +150,7 @@ td { font-size:10pt; }
    $row = sqlQuery("SELECT * FROM forms WHERE id = '$formid'");
    $formdir = $row['formdir'];
    if (! $formdir) die("There is no form with id '$formid'");
-   form_delete($formdir, $row['form_id'])
+   form_delete($formdir, $row['form_id']);
    row_delete("forms", "id = '$formid'");
   }
   else if ($issue) {
