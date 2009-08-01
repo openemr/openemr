@@ -130,6 +130,11 @@ database.  It is the hostname of the Apache/PHP server from which the user
 ("Login Name") is permitted to connect to the MySQL database.  If you are setting
 up MySQL and Apache/PHP on the same computer, then you can use 'localhost'.  
 
+The "UTF-8 Collation" field is the collation setting for mysql. If the language
+you are planning to use in OpenEMR is in the menu, then you can select it.
+Otherwise, just select 'General'. Choosing 'None' is not recommended and 
+will force latin1 encoding.
+
 The "Initial User" is the username of the first user, which is what they will
 use to login.  Limit this to one word only.  Their default password will
 always be "pass", without the quotes.

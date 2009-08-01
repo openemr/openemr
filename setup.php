@@ -162,7 +162,7 @@ if ($inst != 2) {
 echo "<TR VALIGN='TOP'><TD><span class='text'>Name for Root Account: </span></TD><TD><INPUT TYPE='TEXT' VALUE='root' NAME='root' SIZE='30'></TD><TD><span class='text'>(This is name for MySQL root account. For localhost, it is usually ok to leave it 'root'.)</span><br></TD></TR>
 <TR VALIGN='TOP'><TD><span class='text'>Root Pass: </span></TD><TD><INPUT TYPE='PASSWORD' VALUE='' NAME='rootpass' SIZE='30'></TD><TD><span class='text'>(This is your MySQL root password. For localhost, it is usually ok to leave it blank.)</span><br></TD></TR>\n";
 echo "<TR VALIGN='TOP'><TD><span class='text'>User Hostname: </span></TD><TD><INPUT TYPE='TEXT' VALUE='localhost' NAME='loginhost' SIZE='30'></TD><TD><span class='text'>(If you run Apache/PHP and MySQL on the same computer, then leave this as 'localhost'. If they are on separate computers, then enter the IP address of the computer running Apache/PHP.)</span><br></TD></TR>";
-echo "<TR VALIGN='TOP'><TD><span class='text'>UTF-8 Collation: </span></TD><TD>" .
+echo "<TR VALIGN='TOP'><TD><span class='text'>UTF-8 Collation: </span></TD><TD colspan='2'>" .
   "<select name='collate'>" .
   "<option value='utf8_bin'          >Bin</option>" .
   "<option value='utf8_czech_ci'     >Czech</option>" .
@@ -187,7 +187,7 @@ echo "<TR VALIGN='TOP'><TD><span class='text'>UTF-8 Collation: </span></TD><TD>"
   "<option value='utf8_unicode_ci'   >Unicode (German, French, Russian, Armenian, Greek)</option>" .
   "<option value=''                  >None (Do not force UTF-8)</option>" .
   "</select>" .
-  "</TD><TD><span class='text'>(Leave as General if you are not sure)</span><br></TD></TR>";
+  "</TD></TR><TR VALIGN='TOP'><TD>&nbsp;</TD><TD colspan='2'><span class='text'>(This is the collation setting for mysql. Leave as 'General' if you are not sure. If the language you are planning to use in OpenEMR is in the menu, then you can select it. Otherwise, just select 'General'.)</span><br></TD></TR>";
 }
 echo "<TR VALIGN='TOP'><TD>&nbsp;</TD></TR>";
 echo "<TR VALIGN='TOP'><TD COLSPAN=2><font color='red'>OPENEMR USER:</font></TD></TR>";
