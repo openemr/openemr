@@ -92,7 +92,6 @@ $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
 //  Current supported languages:    // Allow capture of term for translation:
 //   Armenian                       // xl('Armenian')
 //   Bahasa Indonesia               // xl('Bahasa Indonesia')
-//   Brazilian Portuguese           // xl('Brazilian Portuguese')
 //   Chinese                        // xl('Chinese')
 //   Dutch                          // xl('Dutch')
 //   English (Indian)               // xl('English (Indian)')
@@ -102,6 +101,7 @@ $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
 //   Greek                          // xl('Greek')
 //   Hebrew                         // xl('Hebrew')
 //   Norwegian                      // xl('Norwegian')
+//   Portuguese (Brazilian)         // xl('Portuguese (Brazilian)')
 //   Russian                        // xl('Russian')
 //   Slovak                         // xl('Slovak')
 //   Spanish                        // xl('Spanish')
