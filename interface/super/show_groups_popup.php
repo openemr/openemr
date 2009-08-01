@@ -45,7 +45,7 @@ li {
 
 <body class="body_top text">
 <div id="groups">
-<h1>Layout groups</h1>
+<h1><?php xl('Layout groups'); ?></h1>
 <ul>
 <?php
 $res = sqlStatement("SELECT distinct(group_name) FROM layout_options WHERE " .
@@ -54,7 +54,7 @@ while ($row = sqlFetchArray($res)) {
     $gname = preg_replace("/^\d+/", "", $row['group_name']);
     $xlgname = "";
     if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-      $xlname = "<span class='translation'>>>&nbsp; " . xl($row['group_name']) . "</span>";
+      $xlgname = "<span class='translation'>>>&nbsp; " . xl($gname) . "</span>";
     }
     echo "<li id='".$row['group_name']."' class='oneresult'> $gname $xlgname </li>";
 }
