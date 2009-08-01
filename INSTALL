@@ -5,20 +5,24 @@ OSI Certified Open Source Software
 
 -------------------------------------
 
-I...................Overview of files
+I...................Overview of Directories
 II..................Unpacking
 III.................Setup
-IV..................Upgrading
-V...................Version History
+IV..................Setting up Access Control
+V...................Upgrading
 
 -------------------------------------
 
-I. Overview of Files
+I. Overview of Directories
 
-interface	- Contains User Interface scripts and configuration
-library   - Contains backend library scripts
-old       - Contains deprecated code and documentation
-sql       - Contains initial database images
+accounting    - Contains information and scripts to support SQL-Ledger
+contrib       - Contains many user-contributed encounter forms and utilities
+custom        - Contains scripts and other text files commonly customized
+Documentation - Contains useful documentation
+interface     - Contains User Interface scripts and configuration
+library       - Contains scripts commonly included in other scripts
+sql           - Contains initial database images
+gacl          - Contains embedded php-GACL (access controls)
 
 II. Unpacking
 
@@ -35,6 +39,10 @@ Be sure to use the -p flag when using tar, as certain permissions must be preser
 
 OpenEMR will be extracted into a directory named openemr.
 
+Alternatively a Debian package may be available as a file named
+openemr-<version>.deb.  This may work with some other Debian-like
+Linux distributions such as Ubuntu.
+
 III. Setup
 
 To run OpenEMR, MySQL and Apache or another PHP-capable webserver must be configured.
@@ -47,7 +55,7 @@ enabled on your system.  These include:
 
 - PHP Index support (ensure that index.php is in your Index path in httpd.conf)
 - Session variables
-- PHP libcurl support (optional for operation, mandatory for billing
+- PHP libcurl support (optional for operation, mandatory for billing)
 
 Copy the OpenEMR folder into the root folder of the webserver. On Mandrake
 Linux, for example, use the command:
@@ -57,18 +65,34 @@ Linux, for example, use the command:
 Make sure the webserver is running, and point a web-browser to setup.php located
 within the openemr web folder.  If you installed OpenEMR in the root web
 directory, the URL would read: http://localhost/openemr/setup.php.
-The setup script will step you through the configuration of the database.
+The setup script will step you through the configuration of the OpenEMR.
 
-In step 1, you need to tell setup whether it needs to create the databases on
-its own, or if they you have already created them.  MySQL root priveleges will
+The first screen of the setup script will ensure that the webserver user
+(in linux, often is "apache", "www-data", or "nobody") has write privileges on
+certain files and directories. The files include openemr/interface/globals.php and
+openemr/library/sqlconf.php. In linux, these can be set by "chmod a+w filename"
+command to grant global write permissions to the file, The directories include
+openemr/gacl/admin/templates_c, openemr/edi, openemr/era, openemr/documents,
+openemr/library/freeb, openemr/custom/letter_templates, 
+openemr/interface/main/calendar/modules/PostCalendar/pntemplates/compiled, and 
+openemr/interface/main/calendar/modules/PostCalendar/pntemplates/cache.  In
+linux, if the webserver user name is "apache", then the command
+"chown -R apache:apache directory_name" will grant global write permissions
+to the directories, and we recommend making these changes permanent.
+Should the page display errors related to file or directory writing priviledges you 
+may click the 'Check Again' button to try again (after fixing permissions).
+
+In step 1, you need to tell setup whether it needs to create the database on
+its own, or if you have already created the database.  MySQL root priveleges will
 be required to create a database.
 
 In step 2, you will be presented with a number of fields which specify the MySQL
-server details.
+server details and the openemr directory paths.
 
-The "Server Host" field is the hostname of the MySQL server.  If you use the
-mysql command line client, this is the string you would type after the -h flag.
-If this is on the same machine as the webserver, leave this as "localhost".
+The "Server Host" field specifies the location of the MySQL server.  If you
+run MySQL and Apache/PHP on the same server, then leave this as 'localhost'. 
+If MySQL and Apache/PHP are on separate servers, then enter the IP address
+(or host name) of the server running MySQL.
 
 The "Server Port" field specifies the port to use when connecting to the MySQL
 server over TCP/IP.  This should be left as 3306 unless you changed it in your
@@ -82,44 +106,117 @@ you have already created the database, then setup will use the information you
 provide to connect to the MySQL server.  Note that setup will not accept a
 password that is not at least one (1) character in length.
 
-The "User Hostname" field accompanies the Login Name field.  It is the hostname
-from which the user is permitted to connect to the database.  This will only
-appear if setup is creating the database.
+The "Login Name" field is the MySQL user that will access the OpenEMR database.
+If you selected to have the database created for you, this user will be
+created.  If you selected that you have already created the database, 
+then setup will use the information you provide to connect to the MySQL server.
 
-The "Root Pass" field will likewise only appear when setup is creating the
+The "Password" field is the password of the user entered into the above
+"Login Name" field.  If you selected to have the database created for you,
+this user and password  will be created.  If you selected that you have already
+created the database, then setup will use the information you provide to connect
+to the MySQL server.
+
+The "Name for Root Account" field will only appear if setup is creating the
+database.  It is the name of the MySQL root account. For localhost, it is
+usually ok to leave it 'root'.
+
+The "Root Pass" field will likewise only appear if setup is creating the
 database.  It is the password of your existing root user, and is used to acquire
-the privileges to create the new database and user.  The rest of the fields are
-specific to your practice.
+the privileges to create the new database and user.
+
+The "User Hostname" field will also only appear if setup is creating the 
+database.  It is the hostname of the Apache/PHP server from which the user
+("Login Name") is permitted to connect to the MySQL database.  If you are setting
+up MySQL and Apache/PHP on the same computer, then you can use 'localhost'.  
+
+The "UTF-8 Collation" field is the collation setting for mysql. If the language
+you are planning to use in OpenEMR is in the menu, then you can select it.
+Otherwise, just select 'General'. Choosing 'None' is not recommended and 
+will force latin1 encoding.
 
 The "Initial User" is the username of the first user, which is what they will
-use to login.  Their default password will always be "pass", without the quotes.
+use to login.  Limit this to one word only.  Their default password will
+always be "pass", without the quotes.
+
 The "Initial User's Name" is the value to be used as their last name.  This
 information may be changed in the user administration page.
 
-The "Initial Group" is the first group that will be created.  A user may belong
-to multiple groups, which again, can be altered on the user administration page.
-It is suggested that no more than one group per office be used.
+The "Initial Group" is the first group, basically name of the practice, that
+will be created.  A user may belong to multiple groups, which again, can be
+altered on the user administration page. It is suggested that no more than
+one group per office be used.
 
-Step 3 is where setup will install the database and connect to it to create the
-initial tables.  If no errors occur, you will see a "Continue" button at the
-bottom.  Before clicking this, you need to ensure that the webserver user
-(often "nobody", "apache", or "www-data") has write privileges on the
-library/sqlconf.php file.  The command "chmod a+w library/sqlconf.php" will
-grant global write permissions to the file.  Be sure to set them back to
-something more secure (such as chmod 644) before actively using OpenEMR.
+The "Absolute Path" is the full absolute directory path to openemr.  The
+default value is automatically created, so this should not need to be
+modified.  Note that it needs to end without a trailing slash.  To avoid
+confusion, either forward or backward slashes can be used.
 
-Should anything fail during step 3, you may have to remove the existing database
-or tables before you can try again.
+The "Relative HTML Path" is the relative html path to openemr, ie. what you
+would type into the web browser after the server address to get to OpenEMR.
+For example, if you type "http://127.0.0.1/clinic/openemr/"  to load OpenEMR,
+set this to "/clinic/openemr" without the trailing slash.  To avoid
+confusion, either forward or backward slashes can be used.
 
-Step 4 is very much like step 3, except the only thing taking place is the
-writing of SQL configuration to disk.  Should it fail due to permissions or any
-other reason, you may click the reload button to try again.
+Step 3 is where setup will configure OpenEMR.  It will first create the database
+and connect to it to create the initial tables.  It will then write the mysql
+database configuration to a file.  It will then write the webserver root
+directory to the /openemr/interface/globals.php file.  Should anything fail
+during step 3, you may have to remove the existing database or tables before
+you can try again. If no errors occur, you will see a "Continue" button at the bottom.
 
-Once setup is completed, one last thing must be done before OpenEMR can be used.
-The file openemr/interface/globals.php must be edited by hand to reflect the
-path and address of your webserver. The values for $webserver_root and $web_root
-must be set accordingly. Also, to change the appearance of OpenEMR, uncomment or
-comment theme-description lines at the bottom of config.php.
+Step 4 will install and configure the embedded phpGACL access controls.  It
+will first write configuration settings to files.  It will then configure the
+database.  It will then give the "Initial User" administrator access.
+Should anything fail during step 4, you may have to remove the existing database
+or tables before you can try again. If no errors occur, you will see a
+"Continue" button at the bottom.
+
+Step 5 gives instructions on configuring the PHP.  We suggest you print these
+instructions for future reference.  Instructions are given to edit the php.ini
+configuration file.  If possible, the location of your php.ini file
+will be displayed in green.  If your php.ini file location is not displayed,
+then you will need to search for it.  The location of the php.ini file is dependent
+on the operating system.  In linux, php.ini is generally found in the /etc/
+directory.  In windows, the XAMPP 1.7.0 package places the php.ini file in
+the xampp\apache\bin\ directory.  To ensure proper functioning of OpenEMR
+you must make sure that settings in the php.ini file include 
+"short_open_tag = On", "display_errors = Off", "register_globals = Off",
+"magic_quotes_gpc = On", "max_execution_time" set to at least 60, 
+"max_input_time" set to at least 90 , and "memory_limit" set to at least
+"128M".  In order to take full advantage of the patient documents capability
+you must make sure that settings in php.ini file include "file_uploads = On",
+that "upload_max_filesize" is appropriate for your use and that
+"upload_tmp_dir" is set to a correct value that will work on your system.
+
+Step 6 gives instructions on configuring the Apache web server.  We suggest
+you print these instructions for future reference. Instructions are given to
+secure the "openemrwebroot/documents", "openemrwebroot/edi" and
+"openemrwebroot/era" directories, which contain patient information. This can
+be done be either placing pertinent .htaccess fiels in these directories
+or by editing the apache configuration file.  The location of the apache
+configuration file is dependent on the operating system.  In linux, you can
+type 'httpd -V' on the commandline; the location to the configuration file
+will be the HTTPD_ROOT variable plus the SERVER_CONFIG_FILE variable.
+In windows, the XAMPP 1.7.0 package places the configuration file at
+xampp\apache\conf\httpd.conf.  To secure the /documents, /edi and /era
+directories you can paste following to the end of the apache configuration
+file (ensure you put full path to directories):
+<Directory "openemrwebroot/documents">
+order deny,allow
+Deny from all
+</Directory>
+<Directory "openemrwebroot/edi">
+order deny,allow
+Deny from all
+</Directory>
+<Directory "openemrwebroot/era">
+order deny,allow
+Deny from all
+</Directory>
+
+The final screen includes some additional instructions and important
+information. We suggest you print these instructions for future reference.
 
 Once the system has been configured properly, you may login.  Connect to the
 webserver where the files are stored with your web browser.  Login to the system
@@ -127,50 +224,82 @@ using the username that you picked (default 'admin' without quotes), and the
 password 'pass', without the quotes.  From there, select the "Administration"
 option, and customize the system to your needs.  Add users and groups as is
 needed. For information on using OpenEMR, consult the User Documentation located
-in the Documentation folder.
+in the Documentation folder, the wiki at http://www.oemr.org, and the forums
+at http://sourceforge.net/projects/openemr.
+
+Reading openemr/includes/config.php and openemr/interface/globals.php is a
+good idea. These files contain many options to choose from including themes.
 
 To create custom encounter forms, see the files
 
   openemr/Documentation/3rd Party Form API.txt
   openemr/interface/forms/OpenEMR_form_example-rev2.tar.gz
 
-and read the included documentation. A few forms are provided initially as
-examples.
+and read the included documentation. Many forms exist in contrib/forms as well
+as in interface/forms and may be used as examples.
 
 Other configuration settings are stored under includes/config.php.
 Everything should work out of the installation without touching those, but if 
 you want fax, sql-ledger, and/or Freeb integration you will need to adjust some
 parameters in that file.
 
+General-purpose fax support requires customization of interface/globals.php
+and custom/faxcover.txt; it also requires the following utilities:
+
+* faxstat and sendfax from the HylaFAX client package
+* mogrify from the ImageMagick package
+* tiff2pdf, tiffcp and tiffsplit from the libtiff-tools package
+* enscript
+
+
 IV. Setting Up Access Control
 
-As of this writing the option of adding phpGACL to your OpenEMR installation is
-a work in progress.  You can choose to do nothing about this, in which case
-OpenEMR's traditional and very limited access controls will be used, or you can
-choose to install phpGACL (see http://phpgacl.sourceforge.net/), in which case
-you should read the phpGACL manual and the comments in library/acl.inc and also
-modify that file to point to your phpGACL installation directory.  Note that
-"AXOs" are not used here.
-
-It is reasonable to first get a basic OpenEMR installation working and then add
-these extended access controls later.
+Since OpenEMR version 2.9.0.3, phpGACL access controls are installed and
+configured automatically during OpenEMR setup.  It can be administered
+within OpenEMR in the admin->acl menu.  This is very powerful
+access control software.  To learn more about phpGACL
+(see http://phpgacl.sourceforge.net/), recommend reading the phpGACL manual,
+the /openemr/Documentation/README.phpgacl file, and the online wiki at
+www.oemr.org. Also recommend reading the comments in /openemr/library/acl.inc.
 
 V. Upgrading
 
-Upgrading OpenEMR is currently done by replacing the old openemr directory with
-a newer version. Before replacing the old openemr directory, copy the following
-two files out, and replace them into the new openemr folder afterwards:
+Be sure to back up your OpenEMR installation and database before upgrading!
 
-  openemr/interface/globals.php
+Upgrading OpenEMR is currently done by replacing the old openemr directory with
+a newer version. Copy the following file from the old version to the new
+version:
+
   openemr/library/sqlconf.php
-  openemr/library/sql-ledger.inc
+
+Ensure you copy your settings from the following old openemr
+files to the new configuration files (we do not recommend simply
+copying the entire files):
+
+  openemr/interface/globals.php 
   openemr/includes/config.php (if you have modified it)
 
-But before replacing them, compare the old and new files in case there are
-new parameters that need to be included.  If there are other files that you
-have customized, then you will also need to treat those carefully.
+The following directories should be copied from the old version to the
+new version:
 
-When upgrading, check the directory openemr/sql/ for files named *upgrade.sql
-Those files have sql statements to modify tables in your database so they will 
-match the layout of the current version.
-Be sure to backup the content of your database before doing so.
+  openemr\documents 
+  openemr\era 
+  openemr\edi 
+  openemr\custom\letter_templates
+
+If there are other files that you have customized, then you will also need
+to treat those carefully.
+
+To upgrade the database, run the sql_upgrade.php script from your web
+browser (for example http://openemr.location/sql_upgrade.php).  It will
+prompt you to select the old release number, and will display the SQL
+commands issued as the upgrade occurs.
+
+Next, if you are converting from SQL-Ledger to OpenEMR's internal A/R
+management (normally you should), run the sl_convert.php script
+(e.g. http://openemr.location/sl_convert.php).  Note this script may
+run for several minutes or longer.
+
+If phpGACL is installed (automatically installed since OpenEMR version 2.9.0.3),
+then you should upgrade your Access Controls by running the acl_upgrade.php
+program using your web browser (e.g. http://openemr.location/acl_upgrade.php).
