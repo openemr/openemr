@@ -2,13 +2,13 @@
 require_once("language.inc.php");
 
 
-if ($_POST['Submit']=='Add'){
+if ($_POST['Submit']==xl('Add')){
 	//validate	
 	$myconst=$_POST['constant_name'];
 	$sql="SELECT * FROM lang_constants WHERE constant_name='".$_POST['constant_name']."' limit 1" ;
 	$res=SqlQuery($sql);
 	if ( $res ) {
-		echo ("Data Alike is already in database, please change constant name<br>");
+		echo xl('Data Alike is already in database, please change constant name','','','<br>');
 		$err='y';
 	}
 	if ($err=='y'){
@@ -16,7 +16,7 @@ if ($_POST['Submit']=='Add'){
 	} else {
 		$sql="INSERT INTO lang_constants SET constant_name='".$myconst."'"; 
 		SqlStatement ($sql);
-		echo ("Constant $myconst added<br>");
+		echo xl('Constant','','',' ') . $myconst  . xl('added','',' ','<br>');
 	}
 	
 
@@ -34,7 +34,7 @@ if ($_POST['Submit']=='Add'){
 </TR>
 <TR>
 	<TD></TD>
-	<TD><INPUT TYPE="submit" name="Submit" value="Add"></TD>
+	<TD><INPUT TYPE="submit" name="Submit" value="<?php xl('Add','e'); ?>"></TD>
 </TR>
 </FORM>
 </TABLE>

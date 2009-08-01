@@ -2,7 +2,7 @@
 require_once("language.inc.php");
 
 
-if ($_POST['Submit']=='Add'){
+if ($_POST['Submit']==xl('Add')){
 	//validate	
 	$pat="^[a-z]{2}\$";
 	if (!check_pattern ($_POST['lang_code'],$pat)) {

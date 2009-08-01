@@ -1,7 +1,7 @@
 <?php
 require_once("language.inc.php");
 
-if ($_POST['Submit'] == "Load Definitions") {
+if ($_POST['Submit'] == xl("Load Definitions")) {
 	// query for entering new definitions it picks the cons_id because is existant.
 	$sql = "INSERT INTO lang_definitions (`cons_id`,`lang_id`,`definition`) VALUES  ";
   if (!empty($_POST['cons_id'])) {
@@ -90,7 +90,7 @@ if ($_GET['edit'] != ''){
 		}
 		echo ('<INPUT TYPE="hidden" name="lang_id" value="'.$lang_id.'">');
 	}
-	echo ('<tr><td colspan=3><INPUT TYPE="submit" name="Submit" Value="Load Definitions"></td></tr>');
+	echo ('<tr><td colspan=3><INPUT TYPE="submit" name="Submit" Value="' . xl('Load Definitions') . '"></td></tr>');
 	echo ('</FORM></table>');
 }
 
