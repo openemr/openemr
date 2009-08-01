@@ -108,12 +108,12 @@ $(document).ready(function(){
         //  Don't allow illegal characters (' and " for now) - still developing
 	//   First, validate fields common to all forms
         if ($("#newlistitem_value").val().match(/^\d/)) {
-            alert("List items can not start with a number.");
+            alert("<?php xl('List items can not start with a number.','e'); ?>");
             $("#newlistitem_value").focus();
             return false;
         }
         if ($("#newlistitem_value").val().match(/[\'\"]/)) {
-            alert("List items contains illegal character(s).");
+            alert("<?php xl('List items contains illegal character(s).','e'); ?>");
             $("#newlistitem_value").focus();
             return false;
         }
@@ -121,12 +121,12 @@ $(document).ready(function(){
         if (($("#newlistitem_listid").val() == "state") && (stateCustomFlag)) {
             // state forms specific validation
             if ($("#newlistitem_abbr").val().match(/^\d/)) {
-                alert("List items can not start with a number.");
+                alert("<?php xl('List items can not start with a number.','e'); ?>");
                 $("#newlistitem_abbr").focus();
                 return false;
             }
             if ($("#newlistitem_abbr").val().match(/[\'\"]/)) {
-                alert("List items contains illegal character(s).");
+                alert("<?php xl('List items contains illegal character(s).','e'); ?>");
                 $("#newlistitem_abbr").focus();
                 return false;
             }
