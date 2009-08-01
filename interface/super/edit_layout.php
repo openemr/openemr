@@ -389,7 +389,7 @@ function writeFieldLine($linedata) {
       echo "<input type='text' name='fld[$fld_line_no][list_id]' value='" .
         htmlspecialchars($linedata['list_id'], ENT_QUOTES) . "'".
         "size='6' maxlength='30' class='optin listid' style='cursor: pointer'".
-        "title='Choose list' />";
+        "title='". xl('Choose list') . "' />";
     }
     else {
       // all other data_types
