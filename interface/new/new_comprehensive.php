@@ -384,7 +384,7 @@ $(document).ready(function() {
     var submitme = function() {
         var f = document.forms[0];
         if (matches > 0 && override == false) {
-            if (! confirm("DUPLICATION WARNING\n===================\nThere are "+matches+" patient(s) in the database that match the demographic information you have entered.\n\nDo you wish to continue adding this new patient?"))
+            if (! confirm("<?php xl('DUPLICATION WARNING','e'); ?>\n===================\n<?php xl('There are','e'); ?> "+matches+" <?php xl('patient(s) in the database that match the demographic information you have entered.','e'); ?>\n\n<?php xl('Do you wish to continue adding this new patient?','e'); ?>"))
                 return false;
         }
         if (validate(f)) {
