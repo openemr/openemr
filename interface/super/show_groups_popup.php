@@ -45,7 +45,7 @@ li {
 
 <body class="body_top text">
 <div id="groups">
-<h1><?php xl('Layout groups'); ?></h1>
+<h1><?php xl('Layout groups','e'); ?></h1>
 <ul>
 <?php
 $res = sqlStatement("SELECT distinct(group_name) FROM layout_options WHERE " .
