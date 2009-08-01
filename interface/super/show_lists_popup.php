@@ -41,7 +41,7 @@ li {
 
 <body class="body_top text">
 <div id="lists">
-<h1>Active lists</h1>
+<h1><?php xl('Active lists','e'); ?></h1>
 <ul>
 <?php
 $res = sqlStatement("SELECT * FROM list_options WHERE " .
