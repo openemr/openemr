@@ -1,73 +1,65 @@
 <pre>
 
-Multi Language Tool.
+OpenEMR Internationalization Documentation
 
-This module has very few components to care about.
+I.    Multi-Language Tool
+II.   Official OpenEMR Language Translations
+III.  Language Translations Setting
+IV.   Developer Instructions
 
-The first one is the following settings you can find at
-openemr/interface/globals.php. These settings allow you to
-toggle on/off the login language menu, control what is in
-this menu, and set the default language.
+I. Multi Language Tool.
 
-// Language Control Section
-//
-//  Current supported languages:
-//   Chinese (experimental)
-//   Dutch
-//   English
-//   French
-//   German
-//   Hebrew
-//   Norwegian
-//   Spanish
-//   Swedish
-//
-//  'language_menu_login' toggle
-//    -If set to true then will allow language selection on login
-//    -If set to false then will not show menu in login and will use default
-(see below)
-$GLOBALS['language_menu_login'] = true;
-//
-//  'language_menu_all' toggle
-//    -If set to true then show all languages in login menu
-//    -If set to false then only show chosen (see below) languages in login
-menu
-$GLOBALS['language_menu_showall'] = true;
-//
-//  'language_menu_show' array
-//    -ONLY pertinent if above 'language_menu_all' toggle is set to false
-//    -Displays these chosen languages in the login menu
-$GLOBALS['language_menu_show'] = array('English','Swedish');
-//
-//  'language_default'
-//    -Sets the default language
-//    -If login menu is on, then it will highlight this choice in menu
-//    -If login menu is off, then it will choose this language
-$GLOBALS['language_default'] = "English";
+  This is the Language Administration page in OpenEMR. This is where you can
+customize languages and language defintions. You can add new languages,
+,add new English Constants, and modify/add language definitions.
 
-The second thing is the module itself.
-The translations are an ongoing project.  If you would like to add a
-language, help with a current language, or add a custom constant, please contact us.  We use a
-collaborative Google Docs spreadsheet to allow you to enter your
-translations which we then convert to the mysql tables.  This process has
-become very streamlined with a fast turnaround time, so we would suggest
-you enter data on this collaborative spreadsheet rather than entering into your local OpenEMR
-installation only.
+  The following is an explanation of the options in this tool:
+    Add Language: You get a box to enter a new language.
+    Add Constant: You get a box to add a new string to be used in the translation
+                  function, this one should be used only if you know what you are
+                  doing, mostly, if you added some custom programming with new
+                  text output. The "constant" string can be literally what you
+                  want to say or a shorter reference to it.
+    Edit Definitions: English is used as the reference language, if you click
+                      the English label you'll get a set of all constants and
+                      the English definitions at the side. If no definition is
+                      loaded yet for a given constant then a blank box is shown,
+                      by entering a definition and clicking "Load Definition" 
+                      you save whatever changes you made. If you click other
+                      label than English, you get a set of all constants,
+                      the English definition at the side, and an input box
+                      to enter/modify the definition in the selected language.
 
-The options in the admin->language menu are.
-Add Language: You get a box to enter a new language.
 
-Add Constant: You get a box to add a new string to be used in the translation function, this one should be used only if you know what you are doing, mostly, if you added some custom programming with new text output. The "constant" string can be literally what you want to say or a shorter reference to it.
+II. Official OpenEMR Language Translations
 
-Edit Definitions: English is used as the reference language, if you click the English label you'll get a set of all constants and the English definitions at the side. If no definition is loaded yet for a given constant then a blank box is shown, by entering a definition and clicking "Load Definition" you save whatever changes you made.
+  The OpenEMR language translations are built from a collaborative Google
+Doc. If you would like to add a language or help with a current langauge,
+please contact us.  You could then enter your translations into this
+spreadsheet, which will then become a permanent part of OpenEMR. This
+process has become very streamlined with a fast turnaround time, so
+we would suggest you enter data on this collaborative spreadsheet rather
+than entering into your local OpenEMR installation only.
 
-If you click other label than English, you get a set of all constants, the English definition at the side, and an input box to enter/modify the definition in the selected language.
 
-For Developers:
-The translation is done by the xl() custom function.
+III. Language Translations Setting
+
+  These are configured in the openemr/interface/globals.php
+file. Mainly, you can configure the default language and
+what is displayed in the login language selection menu (you
+can also disable this menu). There are also more advanced
+setting to turn off certain parts of the translation
+engine. Please see the Language section of
+openemr/interface/globals.php for more details.
+
+
+IV. Developer Instructions
+
+The translation is done by the xl() custom function, whcih can be found
+at openemr/library/translation.inc.php.
 Its semantics are very simple.
 
-xl (string[,'r'[,string prepend[,string append]])
+xl (string,'r',string-prepend,string-append)
 
 Which with examples means:
 
@@ -87,12 +79,12 @@ xl ('translate this','e')
 But if you are already within another function, then you want the function to return something.
 
 i.e.
-echo ("this and".xl ('translate this')."that too");
+echo ("this and" . xl('translate this') . "that too");
 
 The third and fourth optional arguments are strings to be prepend and appended respectively.
 
 i.e.
-xl ('translate this','e','&#60b>',&#60/b>);
+xl ('translate this','e','&#60b>','&#60/b>');
 
 will echo
 &#60b>this translated&#60/b>
@@ -100,8 +92,12 @@ will echo
 If you want only something to be appended in the a return, then you must supply empty second and third arguments.
 
 i.e.
-xl ('translate this','','',&#60br>);
+xl ('translate this','','','&#60br>');
 will echo
 this translated&#60br>
 
+There are also wrappers to the xl() function that are used infrequently in specific situations. Please
+refer to openemr/library/translation.inc.php for more details.
+
 </pre>
+
