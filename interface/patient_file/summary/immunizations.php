@@ -200,7 +200,7 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
         <tr>
           <td align="right" class="text">
               <?php xl('Date of VIS Statement','e'); ?>
-              (<a href="http://www.cdc.gov/vaccines/pubs/vis/default.htm" title="Help" target="_blank">?</a>)
+              (<a href="http://www.cdc.gov/vaccines/pubs/vis/default.htm" title="<?php xl('Help','e'); ?>" target="_blank">?</a>)
           </td>
           <td>
             <input type='text' size='10' name="vis_date" id="vis_date"
