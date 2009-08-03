@@ -267,7 +267,7 @@ function generate_form_field($frow, $currvalue) {
     $tmp = explode('|', $currvalue);
     $avalue = array();
     foreach ($tmp as $value) {
-      if (preg_match('/^(\w+?):(.*)$/', $value, $matches)) {
+      if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
         $avalue[$matches[1]] = $matches[2];
       }
     }
@@ -298,7 +298,7 @@ function generate_form_field($frow, $currvalue) {
     $tmp = explode('|', $currvalue);
     $avalue = array();
     foreach ($tmp as $value) {
-      if (preg_match('/^(\w+?):(.*)$/', $value, $matches)) {
+      if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
         $avalue[$matches[1]] = $matches[2];
       }
     }
@@ -359,7 +359,7 @@ function generate_form_field($frow, $currvalue) {
     $tmp = explode('|', $currvalue);
     $avalue = array();
     foreach ($tmp as $value) {
-      if (preg_match('/^(\w+?):(.*)$/', $value, $matches)) {
+      if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
         $avalue[$matches[1]] = $matches[2];
       }
     }
@@ -653,7 +653,7 @@ function generate_print_field($frow, $currvalue) {
     $tmp = explode('|', $currvalue);
     $avalue = array();
     foreach ($tmp as $value) {
-      if (preg_match('/^(\w+?):(.*)$/', $value, $matches)) {
+      if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
         $avalue[$matches[1]] = $matches[2];
       }
     }
@@ -679,7 +679,7 @@ function generate_print_field($frow, $currvalue) {
     $tmp = explode('|', $currvalue);
     $avalue = array();
     foreach ($tmp as $value) {
-      if (preg_match('/^(\w+?):(.*)$/', $value, $matches)) {
+      if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
         $avalue[$matches[1]] = $matches[2];
       }
     }
@@ -731,7 +731,7 @@ function generate_print_field($frow, $currvalue) {
     $tmp = explode('|', $currvalue);
     $avalue = array();
     foreach ($tmp as $value) {
-      if (preg_match('/^(\w+?):(.*)$/', $value, $matches)) {
+      if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
         $avalue[$matches[1]] = $matches[2];
       }
     }
@@ -860,7 +860,7 @@ function generate_display_field($frow, $currvalue) {
     $tmp = explode('|', $currvalue);
     $avalue = array();
     foreach ($tmp as $value) {
-      if (preg_match('/^(\w+?):(.*)$/', $value, $matches)) {
+      if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
         $avalue[$matches[1]] = $matches[2];
       }
     }
@@ -884,7 +884,7 @@ function generate_display_field($frow, $currvalue) {
     $tmp = explode('|', $currvalue);
     $avalue = array();
     foreach ($tmp as $value) {
-      if (preg_match('/^(\w+?):(.*)$/', $value, $matches)) {
+      if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
         $avalue[$matches[1]] = $matches[2];
       }
     }
@@ -928,7 +928,7 @@ function generate_display_field($frow, $currvalue) {
     $tmp = explode('|', $currvalue);
     $avalue = array();
     foreach ($tmp as $value) {
-      if (preg_match('/^(\w+?):(.*)$/', $value, $matches)) {
+      if (preg_match('/^([^:]+):(.*)$/', $value, $matches)) {
         $avalue[$matches[1]] = $matches[2];
       }
     }
