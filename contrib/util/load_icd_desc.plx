@@ -2,7 +2,7 @@
 use strict;
 
 #######################################################################
-# Copyright (C) 2007 Rod Roark <rod@sunsetsystems.com>
+# Copyright (C) 2007-2009 Rod Roark <rod@sunsetsystems.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -25,9 +25,9 @@ use HTML::TokeParser; # libhtml-parser-perl
 #                 Parameters that you may customize                   #
 #######################################################################
 
-# Change this as needed for years other than 2008.
+# Change this as needed for years other than 2009.
 #
-my $START_URL = "http://www.icd9data.com/2008/Volume1/default.htm";
+my $START_URL = "http://www.icd9data.com/2009/Volume1/default.htm";
 
 # An empty database name will cause SQL INSERT statements to be dumped
 # to stdout, with no database access.  To update your OpenEMR database
@@ -75,7 +75,7 @@ sub scrape {
   $browser->get($url);
   my $parser = HTML::TokeParser->new(\$browser->content());
 
-  while(my $tag = $parser->get_tag("li", "h1")) {
+  while(my $tag = $parser->get_tag("li", "div")) {
 
     # The <li><a> sequence is recognized as a link to another list
     # that must be followed.  We handle those recursively.
@@ -88,23 +88,21 @@ sub scrape {
       scrape($nexturl . $tag->[1]{href});
     }
 
-    # The <h1><img> sequence starts an ICD9 code and description.
+    # The <div><img> sequence starts an ICD9 code and description.
     # If the "specific green" image is used then we know this code is
     # valid as a specific diagnosis, and we will grab it.
     else {
       $tag = $parser->get_tag;
       next unless ($tag->[0] eq "img");
       next unless ($tag->[1]{src} =~ /SpecificGreen/);
-      $tag = $parser->get_tag;
-      next unless ($tag->[0] eq "a");
+      $tag = $parser->get_tag("a");
       my $tmp = $parser->get_trimmed_text;
       unless ($tmp =~ /Diagnosis (\S+)/) {
         print STDERR "Parse error in '$tmp' at $url\n";
         next;
       }
       my $code = $1;
-      $tag = $parser->get_tag("h2", "h1");
-      die "Parse error: <h2> missing at $url\n" unless ($tag->[0] eq "h2");
+      $tag = $parser->get_tag("div");
       my $desc = $parser->get_trimmed_text;
       $desc =~ s/'/''/g;  # some descriptions will have quotes
 
@@ -146,3 +144,4 @@ if ($DBNAME) {
   print "\nInserted $countnew rows, updated $countup codes.\n";
   $dbh->disconnect;
 }
+
