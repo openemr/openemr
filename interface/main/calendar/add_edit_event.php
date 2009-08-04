@@ -1076,16 +1076,19 @@ if ( $GLOBALS['dutchpc'] ) { ?>
         // (CHEMED) Conditional value selection, because there is no <select> element
         // when making an appointment for a specific provider
         var s = document.forms[0].form_provider;
+        var f = document.forms[0].facility;
         <?php if ($userid != 0) { ?>
             s = document.forms[0].form_provider.value;
+            f = document.forms[0].facility.value;
         <?php } else {?>
             s = document.forms[0].form_provider.options[s.selectedIndex].value;
+            f = document.forms[0].facility.options[f.selectedIndex].value;
         <?php }?>
         var c = document.forms[0].form_category;
-        var formDate = document.forms[0].form_date;
+	var formDate = document.forms[0].form_date;
         dlgopen('find_appt_popup.php?providerid=' + s +
-                '&facility=' + f.options[f.selectedIndex].value +
                 '&catid=' + c.options[c.selectedIndex].value +
+                '&facility=' + f +
                 '&startdate=' + formDate.value, '_blank', 500, 400);
         //END (CHEMED) modifications
     }
