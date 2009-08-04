@@ -271,9 +271,9 @@ foreach ($providers as $provider) {
     // output the date range
     echo "<span id='daterange'>";
     $atmp = array_keys($A_EVENTS);
-    echo date('F d', strtotime($atmp[0]));
+    echo xl(date('F', strtotime($atmp[0]))) . " "  . date('d', strtotime($atmp[0]));
     echo " - <br>";
-    echo date('F d', strtotime($atmp[count($atmp)-1]));
+    echo xl(date('F', strtotime($atmp[count($atmp)-1]))) . " "  . date('d', strtotime($atmp[count($atmp)-1]));
     echo "</span>";
     echo "</div>";
 
@@ -311,7 +311,7 @@ foreach ($providers as $provider) {
         $eventdate = substr($date, 0, 4) . substr($date, 5, 2) . substr($date, 8, 2);
 
         // each date gets it's own header
-        echo "<td><div id='dowheader'>".date("D m/d", strtotime($eventdate))."</div>";
+        echo "<td><div id='dowheader'>". xl(date("D",strtotime($eventdate))) . " " . date("m/d", strtotime($eventdate))."</div>";
 
         // output the events for this date
         PrintEvents($events, $providerid, $TPL_IMAGE_PATH);
@@ -320,7 +320,7 @@ foreach ($providers as $provider) {
         echo "</td><td>";
         $dateplusfour = strtotime($eventdate) + (4 * 24 * 60 * 60);
         if (isset($A_EVENTS[date("Y-m-d", $dateplusfour)])) {
-            echo "<div id='dowheader'>".date("D m/d", $dateplusfour)."</div>";
+            echo "<div id='dowheader'>". xl(date("D",$dateplusfour)) . " " . date("m/d", $dateplusfour)."</div>";
             $tmpEvents = $A_EVENTS[date("Y-m-d", $dateplusfour)];
             PrintEvents($tmpEvents, $providerid, $TPL_IMAGE_PATH);
         }
@@ -468,11 +468,11 @@ function PrintEvents($events, $providerid, $TPL_IMAGE_PATH) {
             $eventdatetime = strtotime($date." ".$starth.":".$startm);
 
             if ($catid == 2 || $catid == 3 || $catid == 4 || $catid == 8 || $catid == 11) {
-                if      ($catid ==  2) $catname = "IN";
-                else if ($catid ==  3) $catname = "OUT";
-                else if ($catid ==  4) $catname = "VACATION";
-                else if ($catid ==  8) $catname = "LUNCH";
-                else if ($catid == 11) $catname = "RESERVED";
+                if      ($catid ==  2) $catname = xl("IN");
+                else if ($catid ==  3) $catname = xl("OUT");
+                else if ($catid ==  4) $catname = xl("VACATION");
+                else if ($catid ==  8) $catname = xl("LUNCH");
+                else if ($catid == 11) $catname = xl("RESERVED");
 
                 $content .= date("h:i", $eventdatetime);
                 if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";

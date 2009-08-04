@@ -23,7 +23,6 @@ INPUT.nav 		{ color: [-$TEXTCOLOR1-]; background-color:[-$BGCOLOR1-]; }
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
 	<tr>
 		<td nowrap valign="bottom" align="left">
-
 		 	[-pc_filter label=#_PC_FILTER_LABEL#
 						 class="" type="user,category,topic"
 						 order="user,category,topic,jump"-]
@@ -38,27 +37,27 @@ INPUT.nav 		{ color: [-$TEXTCOLOR1-]; background-color:[-$BGCOLOR1-]; }
             <table id="bnav" class="bnav" border="0" cellpadding="3" cellspacing="0" bgcolor="[-#TABLE_BGCOLOR#-]">
                 <tr>
                     <td nowrap align="center" valign="bottom" [-if $VIEW_TYPE eq "day"-]class="snav"[-else-]class="nav"[-/if-]>
-                        <a class="nav" href="[-pc_url action="day"-]" onclick="top.restoreSession()">[-#_PC_THEME_DAY#-]</a>
+                        <a class="nav" href="[-pc_url action="day"-]" onclick="top.restoreSession()">[-php-] xl('Day','e'); [-/php-]</a>
                     </td>
                     <td nowrap align="center" valign="bottom" [-if $VIEW_TYPE eq "week"-]class="snav"[-else-]class="nav"[-/if-]>
-                        <a class="nav" href="[-pc_url action="week"-]" onclick="top.restoreSession()">[-#_PC_THEME_WEEK#-]</a>
+                        <a class="nav" href="[-pc_url action="week"-]" onclick="top.restoreSession()">[-php-] xl('week','e'); [-/php-]</a>
                     </td>
                     <td nowrap align="center" valign="bottom" [-if $VIEW_TYPE eq "month"-]class="snav"[-else-]class="nav"[-/if-]>
-                        <a class="nav" href="[-pc_url action="month"-]" onclick="top.restoreSession()">[-#_PC_THEME_MONTH#-]</a>
+                        <a class="nav" href="[-pc_url action="month"-]" onclick="top.restoreSession()">[-php-] xl('Month','e'); [-/php-]</a>
                     </td>
                     <td nowrap align="center" valign="bottom" [-if $VIEW_TYPE eq "year"-]class="snav"[-else-]class="nav"[-/if-]>
-                        <a class="nav" href="[-pc_url action="year"-]" onclick="top.restoreSession()">[-#_PC_THEME_YEAR#-]</a>
+                        <a class="nav" href="[-pc_url action="year"-]" onclick="top.restoreSession()">[-php-] xl('Year','e'); [-/php-]</a>
                     </td>
 					[-if $ACCESS_ADD eq true-]
                  	<td nowrap align="center" valign="bottom" [-if $FUNCTION eq "submit"-]class="snav"[-else-]class="nav"[-/if-]>
 					[-php-]
 						$todayh = date("H");
 					[-/php-]
-                        <a class="nav" href="[-pc_url action=submit setdeftime=1-]" onclick="top.restoreSession()">[-#_PC_THEME_SUBMIT#-]</a>
+                        <a class="nav" href="[-pc_url action=submit setdeftime=1-]" onclick="top.restoreSession()">[-php-] xl('Add','e'); [-/php-]</a>
                     </td>
 					[-/if-]
                     <td nowrap align="center" valign="bottom" [-if $FUNCTION eq "search"-]class="rsnav"[-else-]class="rnav"[-/if-]>
-                        <a class="nav" href="[-pc_url action="search"-]" onclick="top.restoreSession()">[-#_PC_THEME_SEARCH#-]</a>
+                        <a class="nav" href="[-pc_url action="search"-]" onclick="top.restoreSession()">[-php-] xl('Search','e'); [-/php-]</a>
                     </td>
 				</tr>
            </table>

@@ -203,13 +203,13 @@ if ($nMonth > 12) { $nMonth = 1; $nYear = $cYear + 1; }
 while (! checkdate($nMonth, $nDay, $nYear)) { $nDay = $nDay - 1; }
 $nextMonth = sprintf("%d%02d%02d",$nYear,$nMonth,$nDay);
 [-/php-]
-<td class="tdDOW-small tdDatePicker tdNav" id="[-php-]echo $prevMonth[-/php-]" title="[-php-]echo date("F", strtotime($prevMonth));[-/php-]">&lt;</td>
+<td class="tdDOW-small tdDatePicker tdNav" id="[-php-]echo $prevMonth[-/php-]" title="[-php-]echo xl(date("F", strtotime($prevMonth)));[-/php-]">&lt;</td>
 <td colspan="5" class="tdMonthName-small">
 [-php-]
-echo date('F', $caldate);
+echo xl(date('F', $caldate));
 [-/php-]
 </td>
-<td class="tdDOW-small tdDatePicker tdNav" id="[-php-]echo $nextMonth[-/php-]" title="[-php-]echo date("F", strtotime($nextMonth));[-/php-]">&gt;</td>
+<td class="tdDOW-small tdDatePicker tdNav" id="[-php-]echo $nextMonth[-/php-]" title="[-php-]echo xl(date("F", strtotime($nextMonth)));[-/php-]">&gt;</td>
 <tr>
 [-php-]
 foreach ($DOWlist as $dow) {
@@ -251,7 +251,7 @@ foreach ($atmp as $currdate) {
     $td .= "class=\"".$tdClass."\" ";
     //$td .= "id=\"".date("Ymd", $currdate)."\" ";
     $td .= "id=\"".date("Ymd", $currdate)."\" ";
-    $td .= "title=\"Go to ".date('F', $currdate)."\" ";
+    $td .= "title=\"" . xl('Go to') . " ".date('F', $currdate)."\" ";
     $td .= "> ".date('d', $currdate)."</td>\n";
     echo $td;
    
@@ -264,12 +264,12 @@ foreach ($atmp as $currdate) {
 
 <div id="bigCalHeader">
 [-php-]
-echo date('F Y', strtotime($Date));
+echo xl(date('F', strtotime($Date))) . " " . date('Y', strtotime($Date));
 [-/php-]
 </div>
 
 <div id="providerPicker">
-Providers
+[-php-] xl('Providers','e'); [-/php-]
 <div>
 [-php-]
 // ==============================
@@ -352,7 +352,7 @@ foreach ($providers as $provider) {
     foreach ($A_EVENTS as $date => $events) {
         if ($defaultDate == "") $defaultDate = date("Ymd", strtotime($date));
         echo "<td align='center' class='month_dateheader'>";
-        echo date("D", strtotime($date));
+        echo xl(date("D", strtotime($date)));
         echo "</td>";
         if ($dowCount++ == 6) { break; }
     }
@@ -378,7 +378,7 @@ foreach ($providers as $provider) {
         echo "<div class='calendar_day'>\n";
 
         echo "<div class='month_daylink'>";
-        echo "<a href='".$gotoURL."' alt='Go to ".date("d M Y", strtotime($date))."' title='Go to ".date("d M Y", strtotime($date))."'>";
+        echo "<a href='".$gotoURL."' alt='Go to ".date("d M Y",strtotime($date))."' title='" . xl('Go to') . " " .date("d M Y", strtotime($date))."'>";
         echo date("d", strtotime($date))."</a></div>";
 
         if (count($events) == 0) { echo "&nbsp;"; }
@@ -458,9 +458,9 @@ foreach ($providers as $provider) {
 
             $content = "";
             if ($catid == 4 || $catid == 8 || $catid == 11) {
-                if ($catid ==  4) $catname = "VACATION";
-                else if ($catid ==  8) $catname = "LUNCH";
-                else if ($catid == 11) $catname = "RESERVED";
+                if ($catid ==  4) $catname = xl("VACATION");
+                else if ($catid ==  8) $catname = xl("LUNCH");
+                else if ($catid == 11) $catname = xl("RESERVED");
 
                 $atitle = $catname;
                 if ($comment) $atitle .= " $comment";
@@ -476,8 +476,8 @@ foreach ($providers as $provider) {
                 if ($patientid) {
                     // include patient name and link to their details
                     $link_title = "$fname $lname\n";
-                    $link_title .= "Age: ".$patient_age."\nDOB: ".$patient_dob."\n";
-                    $link_title .= "(Click to view)";
+                    $link_title .= xl('Age') . ": ".$patient_age."\n" . xl('DOB') . ": ".$patient_dob."\n";
+                    $link_title .= "(" . xl('Click to view') . ")";
                     $content .= "<a href='javascript:goPid($patientid)' title='$link_title'>";
                     $content .= "<img src='$TPL_IMAGE_PATH/user-green.gif' border='0' title='$link_title' alt='View Patient' />";
                     $content .= "</a>";
@@ -487,7 +487,7 @@ foreach ($providers as $provider) {
                     $content .= " ".$catname;
                 }
             }
-            $divTitle .= "\n(double click to edit)";
+            $divTitle .= "\n(" . xl('double click to edit') . ")";
 
             echo "<div class='".$evtClass." month_event' style='background-color:".$event["catcolor"].
                     "' title='".$divTitle."'".

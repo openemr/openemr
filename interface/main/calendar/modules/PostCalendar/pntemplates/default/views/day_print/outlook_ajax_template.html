@@ -257,7 +257,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     echo "<span id='daterange'>";
     $atmp = array_keys($A_EVENTS);
     echo date('d F Y', strtotime($atmp[0]));
-    echo "<br><span style='font-size:0.8em;font-weight:normal'>".date('l', strtotime($atmp[0]))."</span>";
+    echo "<br><span style='font-size:0.8em;font-weight:normal'>".xl(date('l', strtotime($atmp[0])))."</span>";
     echo "</span>";
     echo "</div>";
     
@@ -524,11 +524,11 @@ foreach ($providers as $provider) {
             if ($comment && $GLOBALS['calendar_appt_style'] < 4) $title .= " " . $comment;
 
             if ($catid == 2 || $catid == 3 || $catid == 4 || $catid == 8 || $catid == 11) {
-                if      ($catid ==  2) $catname = "IN";
-                else if ($catid ==  3) $catname = "OUT";
-                else if ($catid ==  4) $catname = "VACATION";
-                else if ($catid ==  8) $catname = "LUNCH";
-                else if ($catid == 11) $catname = "RESERVED";
+                if      ($catid ==  2) $catname = xl("IN");
+                else if ($catid ==  3) $catname = xl("OUT");
+                else if ($catid ==  4) $catname = xl("VACATION");
+                else if ($catid ==  8) $catname = xl("LUNCH");
+                else if ($catid == 11) $catname = xl("RESERVED");
 
                 $atitle = $catname;
                 if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";

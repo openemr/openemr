@@ -209,13 +209,13 @@ if ($nMonth > 12) { $nMonth = 1; $nYear = $cYear + 1; }
 while (! checkdate($nMonth, $nDay, $nYear)) { $nDay = $nDay - 1; }
 $nextMonth = sprintf("%d%02d%02d",$nYear,$nMonth,$nDay);
 [-/php-]
-<td class="tdDOW-small tdDatePicker" id="[-php-]echo $prevMonth[-/php-]" title="[-php-]echo date("F", strtotime($prevMonth));[-/php-]">&lt;</td>
+<td class="tdDOW-small tdDatePicker" id="[-php-]echo $prevMonth[-/php-]" title="[-php-]echo xl(date("F", strtotime($prevMonth)));[-/php-]">&lt;</td>
 <td colspan="5" class="tdMonthName-small">
 [-php-]
-echo date('F', $caldate);
+echo xl(date('F', $caldate));
 [-/php-]
 </td>
-<td class="tdDOW-small tdDatePicker" id="[-php-]echo $nextMonth[-/php-]" title="[-php-]echo date("F", strtotime($nextMonth));[-/php-]">&gt;</td>
+<td class="tdDOW-small tdDatePicker" id="[-php-]echo $nextMonth[-/php-]" title="[-php-]echo xl(date("F", strtotime($nextMonth)));[-/php-]">&gt;</td>
 <tr>
 [-php-]
 foreach ($DOWlist as $dow) {
@@ -267,7 +267,7 @@ while ($currdate <= $enddate) {
     $td .= "class=\"".$tdClass."\" ";
     //$td .= "id=\"".date("Ymd", $currdate)."\" ";
     $td .= "id=\"".date("Ymd", $currdate)."\" ";
-    $td .= "title=\"Go to ".date('M d, Y', $currdate)."\" ";
+    $td .= "title=\"" . xl('Go to') . " ".date('M d, Y', $currdate)."\" ";
     $td .= "> ".date('d', $currdate)."</td>\n";
     echo $td;
    
@@ -289,7 +289,7 @@ echo date('d M Y', strtotime($atmp[0]));
 </div>
 
 <div id="providerPicker">
-Providers
+[-php-] xl('Providers','e'); [-/php-]
 <div>
 [-php-]
 // ==============================
@@ -600,11 +600,11 @@ foreach ($providers as $provider) {
             $divTitle = $provider['fname']." ".$provider['lname'];
 
             if ($catid == 2 || $catid == 3 || $catid == 4 || $catid == 8 || $catid == 11) {
-                if      ($catid ==  2) $catname = "IN";
-                else if ($catid ==  3) $catname = "OUT";
-                else if ($catid ==  4) $catname = "VACATION";
-                else if ($catid ==  8) $catname = "LUNCH";
-                else if ($catid == 11) $catname = "RESERVED";
+                if      ($catid ==  2) $catname = xl("IN");
+                else if ($catid ==  3) $catname = xl("OUT");
+                else if ($catid ==  4) $catname = xl("VACATION");
+                else if ($catid ==  8) $catname = xl("LUNCH");
+                else if ($catid == 11) $catname = xl("RESERVED");
 
                 $atitle = $catname;
                 if ($comment) $atitle .= " $comment";
@@ -622,8 +622,8 @@ foreach ($providers as $provider) {
                 // $content .= htmlspecialchars($event['apptstatus']);
                 $content .= '&nbsp;'.htmlspecialchars($event['apptstatus']);
                 if ($patientid) {
-                    $link_title = "Age: ".$patient_age."\nDOB: ".$patient_dob."\n";
-                    $link_title .= "(Click to view)";
+                    $link_title = xl('Age') . ": " . $patient_age . "\n" . xl('DOB') . ": " . $patient_dob . "\n";
+                    $link_title .= "(" . xl('Click to view') . ")";
                     $content .= "<a href='javascript:goPid($patientid)' title='$link_title'>";
                     $content .= "<img src='$TPL_IMAGE_PATH/user-green.gif' border='0' title='$link_title' alt='View Patient' />";
                     if ($catid == 1) $content .= "<strike>";
@@ -647,7 +647,7 @@ foreach ($providers as $provider) {
                 $content .= "</span>";
             }
 
-            $divTitle .= "\n(double click to edit)";
+            $divTitle .= "\n(" . xl('double click to edit') . ")";
 
             // a special case for the 'IN' event this puts the time ABOVE
             // the normal DIV so it doesn't overlap another event DIV and include the time

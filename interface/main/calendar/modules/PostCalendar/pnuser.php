@@ -860,7 +860,8 @@ function postcalendar_user_search()
     foreach($categories as $category) {
         $selected = "";
         if ($pc_category == $category[id]) { $selected = " SELECTED "; }
-        $cat_options .= "<option value=\"$category[id]\" $selected>$category[name]</option>";
+	//modified 8/09 by BM to allow translation if applicable
+        $cat_options .= "<option value=\"$category[id]\" $selected>" . xl_appt_category($category[name]) . "</option>";
     }
     $tpl->assign_by_ref('CATEGORY_OPTIONS',$cat_options);
 
@@ -884,7 +885,7 @@ function postcalendar_user_search()
     // build a list of provider-options for the select box on the input form -- JRM
     $provider_options = "<option value='_ALL_' ";
     if ($ProviderID == "_ALL_") { $provider_options .= " SELECTED "; }
-    $provider_options .= ">All Providers</option>";
+    $provider_options .= ">" . xl('All Providers') . "</option>";
     foreach ($provinfo as $provider) {
         $selected = "";
         // if we don't have a ProviderID chosen, pick the first one from the 
@@ -903,7 +904,7 @@ function postcalendar_user_search()
 
     // build a list of facility options for the select box on the input form -- JRM
     $facilities = getFacilities();
-    $fac_options = "<option value=''>All Facilities</option>";
+    $fac_options = "<option value=''>" . xl('All Facilities') . "</option>";
     foreach ($facilities as $facility) {
         $selected = "";
         if ($facility['id'] == $pc_facility) $selected = " SELECTED ";

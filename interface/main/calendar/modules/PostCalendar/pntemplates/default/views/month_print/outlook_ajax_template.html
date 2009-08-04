@@ -268,7 +268,7 @@ foreach ($providers as $provider) {
     // output the date range
     $atmp = array_keys($A_EVENTS);
     echo "<span id='daterange'>";
-    echo date('F Y', strtotime($Date));
+    echo  xl(date('F', strtotime($Date))). " " . date('Y', strtotime($Date));
     echo "</span>";
     echo "</div>";
 
@@ -301,7 +301,7 @@ foreach ($providers as $provider) {
     foreach ($A_EVENTS as $date => $events) {
         if ($defaultDate == "") $defaultDate = date("Ymd", strtotime($date));
         echo "<th>";
-        echo date("l", strtotime($date));
+        echo xl(date("l", strtotime($date)));
         echo "</th>";
         if ($dowCount++ == 6) { break; }
     }
@@ -401,9 +401,9 @@ foreach ($providers as $provider) {
             if ($comment && $GLOBALS['calendar_appt_style'] < 4) $title .= " " . $comment;
 
             if ($catid == 4 || $catid == 8 || $catid == 11) {
-                if ($catid ==  4) $catname = "VACATION";
-                else if ($catid ==  8) $catname = "LUNCH";
-                else if ($catid == 11) $catname = "RESERVED";
+                if ($catid ==  4) $catname = xl("VACATION");
+                else if ($catid ==  8) $catname = xl("LUNCH");
+                else if ($catid == 11) $catname = xl("RESERVED");
 
                 $content .= $displayTime." ";
                 $content .= $catname;

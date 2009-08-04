@@ -14,7 +14,7 @@
 [-config_load file="lang.$USER_LANG"-]
 
 <!-- search parameters -->
-<h2>Searching for appointments</h2>
+<h2>[-php-] xl('Searching for appointments','e'); [-/php-]</h2>
 &nbsp;
 [-php-]
 if ($GLOBALS['concurrent_layout'])
@@ -22,17 +22,17 @@ if ($GLOBALS['concurrent_layout'])
 else
     echo "<a href='".$GLOBALS['webroot']."/interface/main/main.php' target='Main' class='menu' onclick='top.restoreSession()'>";
 [-/php-]
-Return to calendar</a>
+[-php-] xl('Return to calendar','e'); [-/php-]</a>
 <div id="calsearch_params">
 <form name="theform" id="theform" action="[-$FORM_ACTION-]" method="POST"> <!-- onsubmit="return top.restoreSession()"> -->
-[-#_PC_SEARCH_KEYWORDS#-]: <input type="text" name="pc_keywords" id="pc_keywords" value="[-php-]echo $_POST['pc_keywords'];[-/php-]" />
+[-php-] xl('Keywords','e'); [-/php-]: <input type="text" name="pc_keywords" id="pc_keywords" value="[-php-]echo $_POST['pc_keywords'];[-/php-]" />
 <select name="pc_keywords_andor">
-    <option value="AND">[-#_PC_SEARCH_AND#-]</option>
-    <option value="OR">[-#_PC_SEARCH_OR#-]</option>
+    <option value="AND">[-php-] xl('AND','e'); [-/php-]</option>
+    <option value="OR">[-php-] xl('OR','e'); [-/php-]</option>
 </select>
-[-#_PC_SEARCH_IN#-]:
+[-php-] xl('IN','e'); [-/php-]:
 <select name="pc_category">
-    <option value="">[-#_PC_SEARCH_ANY_CATEGORY#-]</option>
+    <option value="">[-php-] xl('Any Category','e'); [-/php-]</option>
     [-$CATEGORY_OPTIONS-]
 </select>
 [-if $USE_TOPICS-]
@@ -42,23 +42,23 @@ Return to calendar</a>
 </select>
 [-/if-]
 <br>
-between 
+[-php-] xl('between','e'); [-/php-] 
 <input type="text" name="start" id="start" value="[-$DATE_START-]" size="10"/>
 <img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_from_date' border='0' alt='[?]' style='cursor:pointer' title='[-php-] xl('Click here to choose a date','e'); [-/php-]'>
-and 
+[-php-] xl('and','e'); [-/php-] 
 <input type="text" name="end" id="end" value="[-$DATE_END-]" size="10"/>
 <img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_to_date' border='0' alt='[?]' style='cursor:pointer' title='[-php-] xl('Click here to choose a date','e'); [-/php-]'>
 <br>
-for
+[-php-] xl('for','e'); [-/php-]
 <select name="provider_id" id="provider_id">
 [-$PROVIDER_OPTIONS-]
 </select>
-at
+[-php-] xl('at','e'); [-/php-]
 <select name="pc_facility" id="pc_facility">
 [-$FACILITY_OPTIONS-]
 </select>
-<input type="submit" name="submit" id="submit" value="[-#_PC_SUBMIT#-]" />
-<div id="calsearch_status"><img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/ajax-loader.gif'> Searching...</div>
+<input type="submit" name="submit" id="submit" value="[-php-] xl('Submit','e'); [-/php-]" />
+<div id="calsearch_status"><img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/ajax-loader.gif'> [-php-] xl('Searching...','e'); [-/php-]</div>
 </form>
 </div>
 <!-- end of search parameters -->
@@ -69,10 +69,10 @@ at
 <div id="calsearch_results_header">
 <table>
 <tr>
-<th class="calsearch_datetime">Date-Time</th>
-<th class="calsearch_provider">Provider</th>
-<th class="calsearch_category">Category</th>
-<th class="calsearch_patient">Patient</th>
+<th class="calsearch_datetime">[-php-] echo xl('Date') . "-" . xl('Time'); [-/php-]</th>
+<th class="calsearch_provider">[-php-] xl('Provider','e'); [-/php-]</th>
+<th class="calsearch_category">[-php-] xl('Category','e'); [-/php-]</th>
+<th class="calsearch_patient">[-php-] xl('Patient','e'); [-/php-]</th>
 </tr>
 </table>
 </div>
@@ -96,7 +96,7 @@ foreach ($A_EVENTS as $eDate => $date_events) {
         $provinfo = sqlFetchArray($res);
 
         $eData = $event['eid']."~".$eventdate;
-        $trTitle = "Click to edit this event";
+        $trTitle = xl('Click to edit this event');
         echo "<tr class='calsearch_event' id='".$eData."' title='".$trTitle."'>";
 
         // date and time
@@ -107,7 +107,7 @@ foreach ($A_EVENTS as $eDate => $date_events) {
 
         // provider
         echo "<td class='calsearch_provider'>".$event['provider_name'];
-        $imgtitle = $provinfo['fname']."'s contact info:\n";
+        $imgtitle = $provinfo['fname'] . " " . xl('contact info') . ":\n";
         $imgtitle .= $provinfo['phonew1']."\n".$provinfo['street']."\n".$provinfo['city']." ".$provinfo['state'];
         echo " <img class'provinfo' src='".$GLOBALS['webroot']."/images/info.png' title=\"".$imgtitle."\" />";
         echo "</td>";
@@ -138,7 +138,7 @@ foreach ($A_EVENTS as $eDate => $date_events) {
  * displayed and if the count is zero, then we have no search results
  */
 if ($eventCount == 0) {
-    echo "<tr><td colspan='4' style='text-align: center'>No Results</td></tr>";
+    echo "<tr><td colspan='4' style='text-align: center'>" . xl('No Results') . "</td></tr>";
 }
 
 [-/php-]
