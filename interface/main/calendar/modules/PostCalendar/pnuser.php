@@ -1091,7 +1091,7 @@ function postcalendar_user_search()
         else $searchargs['end'] = "//";
 
         // we can limit our search by provider -- JRM March 2008
-        if (isset($ProviderID) && $ProviderID != "" && $ProviderID != "_ALL_") {
+        if (isset($ProviderID) && $ProviderID != "") { // && $ProviderID != "_ALL_") {
             $searchargs['provider_id'] = array();
             array_push($searchargs['provider_id'], $ProviderID);
         }
