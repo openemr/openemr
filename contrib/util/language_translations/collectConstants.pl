@@ -216,7 +216,17 @@ foreach my $var (@filenames) {
     print LOGFILE $editvar2."\n";
     next;
    }  
-       
+
+   # skip if starts with d of date(), since
+   #  this is used in calendar frequently
+   #  for translation of variables returned
+   #  by the date function.
+   if ($de eq "d") {
+    print LOGFILE "MESSAGE:  Special case character 'd' skipped\n";
+    print LOGFILE $editvar2."\n";
+    next;
+   }
+    
    print LOGFILE "$de"."\n";
     
    # remove delimiter from string
