@@ -952,7 +952,6 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
   $topic = pnVarCleanFromInput('pc_topic');
   $category = pnVarCleanFromInput('pc_category');
-
   if(!empty($pc_username) && (strtolower($pc_username) != 'anonymous')) {
     if($pc_username=='__PC_ALL__' || $pc_username == -1) {
       $ruserid = -1;
@@ -1035,7 +1034,9 @@ function &postcalendar_userapi_pcQueryEvents($args)
     $sql .= "AND a.pc_sharing = '" . SHARING_GLOBAL . "' ";
   } elseif(!empty($provider_id)) {
     // get all events for a variety of provider IDs -- JRM
-    $sql .= "AND a.pc_aid in (" . implode(",", $provider_id). ") ";
+    if ($provider_id[0] != "_ALL_") {
+        $sql .= "AND a.pc_aid in (" . implode(",", $provider_id). ") ";
+    }
   } else {
     // get all events for logged in user plus global events
     $sql .= "AND (a.pc_aid = " . $_SESSION['authUserID'] . " OR a.pc_sharing = '" . SHARING_GLOBAL . "') ";
