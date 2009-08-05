@@ -13,6 +13,9 @@ require_once("codes.php");
 require_once("../../../custom/code_types.inc.php");
 require_once("../../drugs/drugs.inc.php");
 
+// Some table cells will not be displayed unless insurance billing is used.
+$usbillstyle = $GLOBALS['ippf_specific'] ? " style='display:none'" : "";
+
 function alphaCodeType($id) {
   global $code_types;
   foreach ($code_types as $key => $value) {
@@ -74,7 +77,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
   $billed = FALSE, $code_text = NULL, $justify = NULL, $provider_id = 0)
 {
   global $code_types, $ndc_applies, $ndc_uom_choices, $justinit, $pid;
-  global $contraception;
+  global $contraception, $usbillstyle;
 
   if ($codetype == 'COPAY') {
     if (!$code_text) $code_text = 'Cash';
@@ -140,15 +143,14 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
       } else {
         echo "  <td class='billcell'>&nbsp;</td>\n";
       }
-      echo "  <td class='billcell' align='center'>$justify</td>\n";
+      echo "  <td class='billcell' align='center'$usbillstyle>$justify</td>\n";
     }
 
     // Show provider for this line.
     echo "  <td class='billcell' align='center'>";
     genProviderSelect('', '-- Default --', $provider_id, true);
     echo "</td>\n";
-
-    echo "  <td class='billcell' align='center'><input type='checkbox'" .
+    echo "  <td class='billcell' align='center'$usbillstyle><input type='checkbox'" .
       ($auth ? " checked" : "") . " disabled /></td>\n";
     echo "  <td class='billcell' align='center'><input type='checkbox'" .
       " disabled /></td>\n";
@@ -181,18 +183,18 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
         }
         echo "</td>\n";
         if ($code_types[$codetype]['just'] || $justify) {
-          echo "  <td class='billcell' align='center'>";
+          echo "  <td class='billcell' align='center'$usbillstyle>";
           echo "<select name='bill[$lino][justify]' onchange='setJustify(this)'>";
           echo "<option value='$justify'>$justify</option></select>";
           echo "</td>\n";
           $justinit .= "setJustify(f['bill[$lino][justify]']);\n";
         } else {
-          echo "  <td class='billcell'>&nbsp;</td>\n";
+          echo "  <td class='billcell'$usbillstyle>&nbsp;</td>\n";
         }
       } else {
         echo "  <td class='billcell'>&nbsp;</td>\n";
         echo "  <td class='billcell'>&nbsp;</td>\n";
-        echo "  <td class='billcell'>&nbsp;</td>\n";
+        echo "  <td class='billcell'$usbillstyle>&nbsp;</td>\n"; // justify
       }
     }
 
@@ -200,8 +202,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
     echo "  <td class='billcell' align='center'>";
     genProviderSelect("bill[$lino][provid]", '-- Default --', $provider_id);
     echo "</td>\n";
-
-    echo "  <td class='billcell' align='center'><input type='checkbox' name='bill[$lino][auth]' " .
+    echo "  <td class='billcell' align='center'$usbillstyle><input type='checkbox' name='bill[$lino][auth]' " .
       "value='1'" . ($auth ? " checked" : "") . " /></td>\n";
     echo "  <td class='billcell' align='center'><input type='checkbox' name='bill[$lino][del]' " .
       "value='1'" . ($del ? " checked" : "") . " /></td>\n";
@@ -277,11 +278,11 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
     if (fees_are_used()) {
       echo "  <td class='billcell' align='right'>$price</td>\n";
       echo "  <td class='billcell' align='center'>$units</td>\n";
-      echo "  <td class='billcell' align='center'>&nbsp;</td>\n";         // justify
+      echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // justify
     }
-    echo "  <td class='billcell' align='center'>&nbsp;</td>\n";           // provider
-    echo "  <td class='billcell' align='center'>&nbsp;</td>\n";           // auth
-    echo "  <td class='billcell' align='center'><input type='checkbox'" . // del
+    echo "  <td class='billcell' align='center'>&nbsp;</td>\n";             // provider
+    echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // auth
+    echo "  <td class='billcell' align='center'><input type='checkbox'" .   // del
       " disabled /></td>\n";
   } else {
     if (fees_are_used()) {
@@ -297,10 +298,10 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
       echo "<input type='text' name='prod[$lino][units]' " .
         "value='$units' size='2' style='text-align:right'>";
       echo "</td>\n";
-      echo "  <td class='billcell'>&nbsp;</td>\n";
+      echo "  <td class='billcell'$usbillstyle>&nbsp;</td>\n"; // justify
     }
     echo "  <td class='billcell' align='center'>&nbsp;</td>\n"; // provider
-    echo "  <td class='billcell' align='center'>&nbsp;</td>\n"; // auth
+    echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // auth
     echo "  <td class='billcell' align='center'><input type='checkbox' name='prod[$lino][del]' " .
       "value='1'" . ($del ? " checked" : "") . " /></td>\n";
   }
@@ -810,10 +811,10 @@ echo " </tr>\n";
 <?php if (fees_are_used()) { ?>
   <td class='billcell' align='right'><b><?php xl('Price','e');?></b>&nbsp;</td>
   <td class='billcell' align='center'><b><?php xl('Units','e');?></b></td>
-  <td class='billcell' align='center'><b><?php xl('Justify','e');?></b></td>
+  <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php xl('Justify','e');?></b></td>
 <?php } ?>
   <td class='billcell' align='center'><b><?php xl('Provider','e');?></b></td>
-  <td class='billcell' align='center'><b><?php xl('Auth','e');?></b></td>
+  <td class='billcell' align='center'<?php echo $usbillstyle; ?>><b><?php xl('Auth','e');?></b></td>
   <td class='billcell' align='center'><b><?php xl('Delete','e');?></b></td>
   <td class='billcell'><b><?php xl('Description','e');?></b></td>
  </tr>
@@ -862,12 +863,6 @@ if ($billresult) {
       $modifier, $ndc_info,  $authorized,
       $del, $units, $fee, $iter["id"], $iter["billed"],
       $iter["code_text"], $justify, $provider_id);
-
-    /*****************************************************************
-    // If no default provider yet then try this one (excluding copays).
-    if ($encounter_provid < 0 && !$del && $iter["code_type"] != 'COPAY')
-      $encounter_provid = $iter["provider_id"];
-    *****************************************************************/
   }
 }
 
@@ -978,24 +973,6 @@ if ($_POST['newcodes']) {
     }
   }
 }
-
-/*********************************************************************
-// If no valid provider yet, try setting it to that of the new encounter form.
-//
-$tmp = sqlQuery("SELECT authorized FROM users WHERE id = '$encounter_provid'");
-if (empty($tmp['authorized'])) {
-  $encounter_provid = -1;
-  $tmp = sqlQuery("SELECT users.id FROM forms, users WHERE " .
-    "forms.pid = '$pid' AND forms.encounter = '$encounter' AND " .
-    "forms.formdir='newpatient' AND users.username = forms.user AND " .
-    "users.authorized = 1");
-  if ($tmp['id']) $encounter_provid = $tmp['id'];
-}
-
-// If still no default provider then make it the logged-in user.
-//
-if ($encounter_provid < 0) $encounter_provid = $_SESSION["authUserID"];
-*********************************************************************/
 
 $tmp = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .
   "pid = '$pid' AND encounter = '$encounter' " .
