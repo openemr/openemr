@@ -160,8 +160,9 @@ function authorized_clicked() {
 <td><span class="text"><?php xl('Password','e'); ?>: </span></td><td><input type="entry" size=20 name=stiltskin></td>
 </tr>
 <tr>
-<td><span class="text"><?php xl('Groupname','e'); ?>: </span></td><td>
-<select name=groupname>
+<td><span class="text"<?php if ($GLOBALS['disable_non_default_groups']) echo " style='display:none'"; ?>><?php xl('Groupname','e'); ?>: </span></td>
+<td>
+<select name=groupname<?php if ($GLOBALS['disable_non_default_groups']) echo " style='display:none'"; ?>>
 <?php
 $res = sqlStatement("select distinct name from groups");
 $result2 = array();
