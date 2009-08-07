@@ -25,7 +25,7 @@ if (isset($_POST["mode"])) {
       }
     }
 
-    if ($doit == true) {
+    if ($doit == true) {	
       $prov_id = idSqlStatement("insert into users set " .
         "username = '"         . trim(formData('rumple'       )) .
         "', password = '"      . trim(formData('newauthPass'  )) .
@@ -39,11 +39,14 @@ if (isset($_POST["mode"])) {
         "', upin = '"          . trim(formData('upin'         )) .
         "', npi  = '"          . trim(formData('npi'          )).
         "', taxonomy = '"      . trim(formData('taxonomy'     )) .
-        "', facility = '"      . trim(formData('facility'     )) .
+        "', facility_id = '"   . trim(formData('facility_id'  )) .
         "', specialty = '"     . trim(formData('specialty'    )) .
         "', see_auth = '"      . trim(formData('see_auth'     )) .
         "', calendar = '"      . $calvar                         .
         "'");
+      //set the facility name from the selected facility_id
+      sqlStatement("UPDATE users, facility SET users.facility = facility.name WHERE facility.id = '" . trim(formData('facility_id')) . "' AND users.username = '" . trim(formData('rumple')) . "'");
+	
       sqlStatement("insert into groups set name = '" . trim(formData('groupname')) .
         "', user = '" . trim(formData('rumple')) . "'");
 
@@ -56,7 +59,7 @@ if (isset($_POST["mode"])) {
       $ws = new WSProvider($prov_id);
 
     } else {
-      $alertmsg .= "User " . trim(formData('rumple')) . " already exists. ";
+      $alertmsg .= xl('User','','',' ') . trim(formData('rumple')) . xl('already exists.','',' ');
     }
   }
   else if ($_POST["mode"] == "new_group") {
@@ -185,15 +188,15 @@ foreach ($result2 as $iter) {
 </tr>
 <tr>
 <td><span class="text"><?php xl('Last Name','e'); ?>: </span></td><td><input type=entry name='lname' size=20></td>
-<td><span class="text"><?php xl('Default Facility','e'); ?>: </span></td><td><select name=facility>
+<td><span class="text"><?php xl('Default Facility','e'); ?>: </span></td><td><select name=facility_id>
 <?php
-$fres = sqlStatement("select * from facility order by name");
+$fres = sqlStatement("select * from facility where service_location != 0 order by name");
 if ($fres) {
   for ($iter = 0;$frow = sqlFetchArray($fres);$iter++)
     $result[$iter] = $frow;
   foreach($result as $iter) {
 ?>
-<option value="<?php echo $iter{name};?>"><?php echo $iter{name};?></option>
+<option value="<?php echo $iter{id};?>"><?php echo $iter{name};?></option>
 <?php
   }
 }
