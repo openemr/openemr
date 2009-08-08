@@ -346,7 +346,7 @@ function compareEvents($a,$b) {
 
 
     <div class='cal_underlay'>
-        <div class='cal_date_label' style='top: [-$date_label_y-]'>[-$date|date_format:"%A, %B %d, %Y"-]</div>
+        <div class='cal_date_label' style='top: [-$date_label_y-]'>[-php-]echo dateformat(strtotime($date),true); [-/php-]</div>
         [-foreach from=$lines item=line-]                       [-* START Lines *-]
         <div class='cal_line' style='top: [-$line.y-]px;'>
             [-foreach from=$providers item=provider-]              [-* START Columns (Providers) *-]
@@ -378,17 +378,17 @@ function compareEvents($a,$b) {
                                              height: [-$event.height-]px;'>
             <a href='javascript:oldEvt([-$date|date_format:"%Y%m%d"-], [-$event.data.eid-])'>
             [-if $event.data.catid eq 2-]
-            IN
+            [-php-] xl('IN','e'); [-/php-]
             [-elseif $event.data.catid eq 3-]
-            OUT
+            [-php-] xl('OUT','e'); [-/php-]
             [-elseif $event.data.catid eq 4-]
-            VACATION
+            [-php-] xl('VACATION','e'); [-/php-]
             [-elseif $event.data.catid eq 8-]
-            LUNCH
+            [-php-] xl('LUNCH','e'); [-/php-]
             [-elseif $event.data.catid eq 11-]
-            RESERVED
+            [-php-] xl('RESERVED','e'); [-/php-]
             [-else-]
-            Not Available
+            [-php-] xl('Not Available','e'); [-/php-]
             [-/if-]
             </a>
             </div>
@@ -404,9 +404,9 @@ function compareEvents($a,$b) {
                [-$event.data.startTime|date_format:"%I:%M %p"-]
               </a>
            </p>
-           <p>[-$event.data.duration-]min</p>
+           <p>[-$event.data.duration-][-php-] xl('min','e'); [-/php-]</p>
            <p><a href='javascript:goPid([-$event.data.pid-])'>[-$event.data.patient_name|default:'No name'-]</a></p>
-           <p>[-if $event.data.patient_dob ne ''-]Age: [-$event.data.patient_age-][-/if-]</p>
+           <p>[-if $event.data.patient_dob ne ''-][-php-] xl('Age','e'); [-/php-]: [-$event.data.patient_age-][-/if-]</p>
            [-if $event.data.hometext ne ''-]<p>[-$event.data.hometext|escape-]</p>[-/if-]
 
             </div>
