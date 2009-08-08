@@ -196,6 +196,30 @@ function xl_appt_category($constant,$mode='r',$prepend='',$append='') {
 }
 // ---------------------------------------------------------------------------
 
+// ---------------------------------
+// Miscellaneous language translation functions
+
+// Function to return the title of a language from the id
+// @param integer (language id)
+// return string (language title)
+function getLanguageTitle($val) {
+
+ // validate language id
+ if (!empty($val)) {
+   $lang_id = $val;
+ }
+ else {
+   $lang_id = 1;
+ }
+ 
+ // get language title
+ $res = sqlStatement("select lang_description from lang_languages where lang_id = '".$lang_id."'");
+ for ($iter = 0;$row = sqlFetchArray($res);$iter++) $result[$iter] = $row;
+ $languageTitle = $result[0]{"lang_description"};   
+ return $languageTitle;    
+}
+
+//----------------------------------
 
 // ----------------------------------------------------------------------------
 /**
