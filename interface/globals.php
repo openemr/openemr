@@ -429,9 +429,15 @@ $GLOBALS['ignore_pnotes_authorization'] = true;
 // Everyone should want this, but for now it's optional.
 $GLOBALS['full_new_patient_form'] = true;
 
+
+// Multi-facility Configuration
+//
 // Restrict non-authorized users to the "Schedule Facilities" (aka user_facilities table)
 // set in User admin.
 $GLOBALS['restrict_user_facility'] = false;
+//
+// Set a facility cookie, so browser keeps a default selected facility between logins.
+$GLOBALS['set_facility_cookie'] = false;
 
 // If you want Hylafax support then uncomment and customize the following
 // statements, and also customize custom/faxcover.txt:
