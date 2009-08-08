@@ -38,6 +38,7 @@ Act
 Act Date
 Active
 Active Encounter
+Active lists
 Active Patient
 Activity Type
 Acute on Chronic
@@ -71,6 +72,7 @@ Add to Medication List
 Add Transaction
 Add User
 Add User To Group
+added
 Adding demographics is not authorized.
 Addison Syndrom
 Addison Syndrome
@@ -148,6 +150,7 @@ Allow users to publish Global Events
 Allow users to publish Personal Calendars
 Allow Voice Message
 Allowed
+already exists.
 Already used, choose another identifier
 Already used, choose another title
 Alt Address
@@ -162,6 +165,8 @@ Amount Paid
 Amount:
 An incomplete GCAC issue has been created and linked. Someone will need to complete it later.
 And
+AND
+and
 and 
 and all subordinate data? This action will be logged
 Anemia
@@ -177,6 +182,7 @@ ante
 Anus nl, no rectal tenderness/mass
 Anxiety
 Any
+Any Category
 Any part of the desired code or its description
 Any part of the desired specialty
 Any part of the patient name, or \"last,first\", or \"X-Y\"
@@ -214,6 +220,7 @@ Are you sure you want to view these events?
 Are you sure you wish to delete the entire group named
 Are you sure you wish to delete the entire list
 Are you sure you wish to delete the field in
+Are you sure you wish to delete the selected fields?
 Are you sure you\'d like to continue with these actions?
 Area not specified
 Armenian
@@ -228,6 +235,7 @@ Assessment
 Assigned To
 Assistant
 Asthma
+at
 At the Navicular
 At the Navicular:
 Athletic/Injury
@@ -275,6 +283,7 @@ Begin
 Begin Date
 Beginning date of service yyyy-mm-dd
 Belching
+between
 Bilateral:
 Bill Date:
 Bill/Collect
@@ -454,6 +463,7 @@ Cholecystectomy
 Cholecystestomy
 Choose
 Choose a section and click an item within it; then in the other section you will see the related items highlighted, and you can click in that section to add and delete relationships.
+Choose list
 Chronic Bronchitis
 Chronic Joint Pain
 Chronic synovitis / effusion / joint pain / gout
@@ -481,6 +491,7 @@ click here to update priority, category and nickname settings
 Click here to view all.
 Click to download
 Click to edit
+Click to edit this event
 Click to generate the report
 Click to print
 Click to receive (add) new lot
@@ -488,6 +499,7 @@ Click to select
 Click to select or change diagnoses
 Click to select patient
 Click to select related code
+Click to view
 Click to view or edit
 Click to view/edit
 Click:
@@ -537,6 +549,7 @@ Computer Aided Medical Ordering System
 Conclusions
 Congenital
 Conjuntiva, pupils
+Constant
 constant name
 constants
 Constipation
@@ -545,6 +558,7 @@ Consultation Brief Description
 Contact
 Contact Email
 Contact Email Address
+contact info
 Contact Lenses
 Contact name
 Contact Person
@@ -612,6 +626,7 @@ D&E
 D.O.B.
 daily
 Data Alike is already in database, please change code and/or description
+Data Alike is already in database, please change constant name
 Data Cols
 Data Type
 Database
@@ -751,6 +766,7 @@ Dizziness:
 do not save
 do not substitute
 Do you really want to delete this group
+Do you wish to continue adding this new patient?
 Do you wish to continue with the new name?
 Do you wish to PERMANENTLY delete this immunization record?
 DOB
@@ -777,6 +793,7 @@ Don\'t Save Changes
 Done with:
 DOS
 Dosage
+double click to edit
 Double Vision
 Download billing file, post to accounting and mark as billed
 Dr Check
@@ -815,6 +832,7 @@ Dumping phpGACL database
 Dumping phpGACL web directory tree
 Dumping SQL-Ledger database
 Dumping SQL-Ledger web directory tree
+DUPLICATION WARNING
 duration
 Duration
 Dutch
@@ -1169,6 +1187,8 @@ Glaucoma Family History
 Global
 go
 Go
+Go to
+Go to week of
 Grade:
 grams
 Grand Total
@@ -1176,6 +1196,8 @@ Grand Totals
 Greek
 Group
 Group Name
+Group names cannot be blank
+Group names cannot start with numbers or spaces.
 Group names cannot start with numbers.
 Group Number
 Group:
@@ -1291,6 +1313,7 @@ I am busy during this time.
 I do not have permission to read 
 ICD
 ID
+ID cannot be blank
 IDays
 identified as
 Identifier(one word)
@@ -1475,6 +1498,7 @@ Lab Report
 Label
 Label cannot be blank
 Label Cols
+LabelCols must be a number between 1 and 999
 Labels
 Labs
 Laceration / skin condition
@@ -1502,6 +1526,7 @@ Lateral malleolus:
 laterally displaced PMI:
 Layout Based
 Layout Editor
+Layout groups
 Layout-Based Visit Forms
 Layouts
 lb
@@ -1534,7 +1559,10 @@ List
 list box
 list box w/ add
 List Editor
+List groups
 List Insurance Companies
+List items can not start with a number.
+List items contains illegal character(s).
 List lists
 List Name
 List names cannot start with numbers.
@@ -1542,6 +1570,7 @@ List Prescriptions
 Lists
 LLL:
 LMP
+Load Definitions
 LOADING
 LOC
 Local
@@ -1639,6 +1668,7 @@ Middle name
 Migrant or seasonal worker?
 Migrant/Seasonal
 MimeType
+min
 Minor joint strain +/- synovitis
 minutes
 Minutes
@@ -1674,6 +1704,7 @@ Move
 Move Document to Category:
 Move Down
 Move to Patient
+Move to...
 Move Up
 Mr.
 Mrs.
@@ -1784,6 +1815,7 @@ No presenting illness/injury
 No Providers Found
 No rash or abnormal lesions
 No records found. Please expand your search criteria.
+No Results
 No Results Found For Search
 No results, please tray again.
 No Show
@@ -1827,6 +1859,7 @@ Not allowed to remove the admin user from the Administrators group
 Not authorised to access PostCalendar module
 Not authorized
 Not authorized for this squad.
+Not Available
 Not Examined
 Not Examined:
 Not Examined: 
@@ -1901,6 +1934,7 @@ Optional lot number, use % as a wildcard
 Optional numeric patient ID
 Optional procedure code
 Or
+OR
 or choose
 Or Out To
 Or upload ERA file:
@@ -2006,6 +2040,7 @@ Patient Report
 Patient Request
 Patient Summary
 Patient Transactions
+patient(s) in the database that match the demographic information you have entered.
 Patient/Client
 Patient:
 Patients
@@ -2104,6 +2139,7 @@ Poor Circulation
 Poor Hearing
 Populate the year view with events?
 Popups
+Portuguese (Brazilian)
 POS Code
 Post Nasal Drip
 Post surgical
@@ -2368,6 +2404,7 @@ Results Found For Search
 Retinal Exam
 Retracted Right:
 Return
+Return to calendar
 Return Value
 Return Visit
 Returned to Play
@@ -2448,6 +2485,8 @@ Search or Add Patient
 Search Results:
 Search the Events
 Search/Add Insurer
+Searching for appointments
+Searching...
 Seatbelt use
 Seatbelt Use
 Second
@@ -2464,6 +2503,7 @@ Seizures
 Sel
 Select
 Select All
+Select field
 Select Fields
 Select for printing
 Select Issue
@@ -2745,6 +2785,7 @@ The translated Title that will appear in current language
 The translation of description in current language
 The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
 Therapeutic Injections
+There are
 There are errors with your submission.  These are outlined below.
 There are no New Submissions
 There has been a mail error sending to
@@ -3046,6 +3087,7 @@ Whiplash
 Who
 Who replied?
 Widowed
+With selected:
 with the old name
 With whom may we leave a message?
 within hours
