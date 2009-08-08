@@ -164,8 +164,10 @@ if ( $eid ) {
         $e2f_name = $min_name;
     } else {
       // not edit event
-      if (!$facility['pc_facility'] && ($_SESSION['pc_facility'] || $_COOKIE['pc_facility'])) {
-        $e2f = $_SESSION['pc_facility'] ? $_SESSION['pc_facility'] : $_COOKIE['pc_facility'];
+      if (!$facility['pc_facility'] && $_SESSION['pc_facility']) {
+        $e2f = $_SESSION['pc_facility'];
+      } elseif (!$facility['pc_facility'] && $_COOKIE['pc_facility'] && $GLOBALS['set_facility_cookie']) {
+	$e2f = $_COOKIE['pc_facility'];
       } else {
         $e2f = $facility['pc_facility'];
         $e2f_name = $facility['name'];

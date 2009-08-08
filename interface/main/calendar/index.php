@@ -29,7 +29,6 @@
 
 // include base api
 
-
 //$ignoreAuth = true;
 include_once("../../globals.php");
 include_once("$srcdir/calendar.inc");
@@ -37,10 +36,58 @@ include_once("$srcdir/patient.inc");
 include "includes/pnre.inc.php";
 include 'includes/pnAPI.php';
 
+// From Michael Brinson 2006-09-19:
+if ($_POST['pc_username']) $_SESSION['pc_username'] = $_POST['pc_username'];
+
+//(CHEMED) Facility filter
+if ($_POST['all_users']) $_SESSION['pc_username'] = $_POST['all_users'];
+
+// bug fix to allow default selection of a provider
+// added 'if..POST' check -- JRM
+if ($_GET['pc_username']) $_SESSION['pc_username'] = $_GET['pc_username'];
+if ($_POST['pc_username']) $_SESSION['pc_username'] = $_POST['pc_username'];
+
+// (CHEMED) Get the width of vieport
+if ($_GET['framewidth']) $_SESSION['pc_framewidth'] = $_GET['framewidth'];
+
+// FACILITY FILTERING (lemonsoftware) (CHEMED)
+$_SESSION['pc_facility'] = 0;
+
+/*********************************************************************
+if ($_POST['pc_facility'])  $_SESSION['pc_facility'] = $_POST['pc_facility'];
+*********************************************************************/
+if (isset($_COOKIE['pc_facility']) && $GLOBALS['set_facility_cookie']) $_SESSION['pc_facility'] = $_COOKIE['pc_facility'];
+// override the cookie if the user doesn't have access to that facility any more
+if ($_SESSION['userauthorized'] != 1 && $GLOBALS['restrict_user_facility']) { 
+  $facilities = getUserFacilities($_SESSION['authId']);
+  // use the first facility the user has access to, unless...
+  $_SESSION['pc_facility'] = $facilities[0]['id']; 
+  // if the cookie is in the users' facilities, use that.
+  foreach ($facilities as $facrow) {
+    if (($facrow['id'] == $_COOKIE['pc_facility']) && $GLOBALS['set_facility_cookie'])
+      $_SESSION['pc_facility'] = $_COOKIE['pc_facility'];
+  }
+}
+if (isset($_POST['pc_facility']))  $_SESSION['pc_facility'] = $_POST['pc_facility'];
+/********************************************************************/
+
+if ($_GET['pc_facility'])  $_SESSION['pc_facility'] = $_GET['pc_facility'];
+if ($GLOBALS['set_facility_cookie'] && ($_SESSION['pc_facility'] > 0)) setcookie("pc_facility", $_SESSION['pc_facility'], time() + (3600 * 365));
+
+// allow tracking of current viewtype -- JRM
+if ($_GET['viewtype']) $_SESSION['viewtype'] = $_GET['viewtype'];
+if ($_POST['viewtype']) $_SESSION['viewtype'] = $_POST['viewtype'];
+
+
 //if (empty($_GET['no_nav'])) {
 //        $_SESSION['last_calendar_page'] = $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING'];
 //}
-
+/*
+print_r($_POST);
+print_r($_GET);
+print_r($_SESSION);
+die;
+*/
 //print_r($_SESSION);
 // start PN
 pnInit();
@@ -59,17 +106,13 @@ list($module,
                                   'type');
 
 // Defaults for variables
-if (isset($catid)) {
-    pnVarCleanFromInput('catid');
-}
+if (isset($catid)) { pnVarCleanFromInput('catid'); }
 
 // check requested module and set to start module if not present
 if (empty($name)) {
     $name = pnConfigGetVar('startpage');
     // fixed for the new style of loading modules and set start page for them [class007]
-    if (empty($module)) {
-        $module = $name;
-    }
+    if (empty($module)) { $module = $name; }
 }
 
 // get module information
@@ -78,12 +121,8 @@ $modinfo = pnModGetInfo(pnModGetIDFromName($module));
 if ($modinfo['type'] == 2)
 {
     // New-new style of loading modules
-    if (empty($type)) {
-        $type = 'user';
-    }
-    if (empty($func)) {
-        $func="main";
-    }
+    if (empty($type)) { $type = 'user'; }
+    if (empty($func)) { $func="main"; }
 
     // it should be $module not $name [class007]
     if (pnModAvailable($module)) {
@@ -96,9 +135,6 @@ if ($modinfo['type'] == 2)
     } else {
         $return = false;
     }
-
-
-
 
     // Sort out return of function.  Can be
     // true - finished
@@ -121,9 +157,8 @@ if ($modinfo['type'] == 2)
         $output->SetInputMode(_PNH_PARSEINPUT);
         //$output->EndPage();
         $output->PrintPage();
-
     } else {
-
+        // duh?
     }
 
 	exit;
@@ -164,8 +199,6 @@ if ($modinfo['type'] == 2)
             break;
     }
 
-
 }
-
 
 ?>
