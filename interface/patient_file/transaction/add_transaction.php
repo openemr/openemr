@@ -6,6 +6,10 @@ require_once("../../globals.php");
 require_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
 
+// Referral plugin support.
+$fname = "../../../custom/LBF/REF.plugin.php";
+if (file_exists($fname)) include_once($fname);
+
 $transid = empty($_REQUEST['transid']) ? 0 : $_REQUEST['transid'] + 0;
 $mode    = empty($_POST['mode' ]) ? '' : $_POST['mode' ];
 $title   = empty($_POST['title']) ? '' : $_POST['title'];
@@ -198,6 +202,8 @@ function validate() {
  return true;
 }
 
+<?php if (function_exists('REF_javascript')) call_user_func('REF_javascript'); ?>
+
 </script>
 
 </head>
@@ -343,6 +349,12 @@ end_group();
 <script language="JavaScript">
 <?php echo $date_init; ?>
 titleChanged();
+<?php
+if (function_exists('REF_javascript_onload')) {
+  call_user_func('REF_javascript_onload');
+}
+?>
+
 </script>
 
 </html>
