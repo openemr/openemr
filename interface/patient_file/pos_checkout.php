@@ -1093,6 +1093,9 @@ if ($inv_encounter) {
  Calendar.setup({inputField:"form_date", ifFormat:"%Y-%m-%d", button:"img_date"});
  computeTotals();
 <?php
+// The following is removed, perhaps temporarily, because gcac reporting
+// no longer depends on gcac issues.  -- Rod 2009-08-11
+/*********************************************************************
 // Custom code for IPPF. Try to make sure that a GCAC issue is linked to this
 // visit if it contains GCAC-related services.
 if ($gcac_related_visit) {
@@ -1119,6 +1122,15 @@ if ($gcac_related_visit) {
     echo " } else {\n";
     echo "  $.getScript('link_issue_to_encounter.php?thisenc=$inv_encounter');\n";
     echo " }\n";
+  }
+} // end if ($gcac_related_visit)
+*********************************************************************/
+if ($gcac_related_visit) {
+  $grow = sqlQuery("SELECT COUNT(*) AS count FROM forms " .
+    "WHERE pid = '$pid' AND encounter = '$inv_encounter' AND " .
+    "deleted = 0 AND formdir = 'LBFgcac'");
+  if (empty($grow['count'])) { // if there is no gcac form
+    echo " alert('" . xl('A GCAC visit form should be added to this visit.') . "');\n";
   }
 } // end if ($gcac_related_visit)
 ?>
