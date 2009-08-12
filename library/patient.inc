@@ -93,6 +93,58 @@ function getPatientDataNL($pid) {
     return sqlQuery($sql);
 }
 
+// Get one facility row.  If the ID is not specified, then get either the
+// "main" (billing) facility, or the default facility of the currently
+// logged-in user.  This was created to support genFacilityTitle() but
+// may find additional uses.
+//
+function getFacility($facid=0) {
+  if ($facid > 0) {
+    $query = "SELECT * FROM facility WHERE id = '$facid'";
+  }
+  else if ($facid == 0) {
+    $query = "SELECT * FROM facility ORDER BY " .
+      "billing_location DESC, service_location, id LIMIT 1";
+  }
+  else {
+    $query = "SELECT facility.* FROM users, facility WHERE " .
+      "users.id = '" . $_SESSION['authUserID'] . "' AND " .
+      "facility.id = users.facility_id";
+  }
+  return sqlQuery($query);
+}
+
+// Generate a report title including report name and facility name, address
+// and phone.
+//
+function genFacilityTitle($repname='', $facid=0) {
+  $s = '';
+  $s .= "<table class='ftitletable'>\n";
+  $s .= " <tr>\n";
+  $s .= "  <td class='ftitlecell1'>$repname</td>\n";
+  $s .= "  <td class='ftitlecell2'>\n";
+  $r = getFacility($facid);
+  if (!empty($r)) {
+    $s .= "<b>" . $r['name'] . "</b>\n";
+    if ($r['street']) $s .= "<br />" . $r['street'] . "\n";
+    if ($r['city'] || $r['state'] || $r['postal_code']) {
+      $s .= "<br />";
+      if ($r['city']) $s .= $r['city'];
+      if ($r['state']) {
+        if ($r['city']) $s .= ", \n";
+        $s .= $r['state'];
+      }
+      if ($r['postal_code']) $s .= " " . $r['postal_code'];
+      $s .= "\n";
+    }
+    if ($r['country_code']) $s .= "<br />" . $r['country_code'] . "\n";
+    if (preg_match('/[1-9]/', $r['phone'])) $s .= "<br />" . $r['phone'] . "\n";
+  }
+  $s .= "  </td>\n";
+  $s .= " </tr>\n";
+  $s .= "</table>\n";
+  return $s;
+}
 
 /**
 GET FACILITIES

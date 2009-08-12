@@ -18,6 +18,8 @@ $lines_per_page = 55;
 
 $lines_in_stats = 8;
 
+$header_height = 44; // height of page headers in points
+
 // This tells us if patient/encounter data is to be filled in.
 //
 $form_fill = empty($_GET['fill']) ? 0 : 1;
@@ -116,7 +118,7 @@ if (empty($SBCODES)) {
   array_splice($SBCODES, $lines*1 + $page_start_index, 0, '*C|');
 }
 
-$lheight = sprintf('%d', $page_height / $lines_per_page);
+$lheight = sprintf('%d', ($page_height - $header_height) / $lines_per_page);
 ?>
 <html>
 <head>
@@ -172,6 +174,23 @@ td.fscode {
  border-style: solid;
  border-width: 1px 1px 0 0;
  border-color: #999999;
+}
+
+.ftitletable {
+ width: 100%;
+ height: <?php echo $header_height; ?>pt;
+ margin: 0 0 8pt 0;
+}
+.ftitlecell1 {
+ vertical-align: top;
+ text-align: left;
+ font-size: 14pt;
+ font-weight: bold;
+}
+.ftitlecell2 {
+ vertical-align: top;
+ text-align: right;
+ font-size: 9pt;
 }
 </style>
 
@@ -269,6 +288,8 @@ $cindex = 0;
 <center>
 
 <?php while (--$pages >= 0) { ?>
+
+<?php echo genFacilityTitle(xl('Fee Sheet'), -1); ?>
 
 <table class='bordertbl' cellspacing='0' cellpadding='0' width='100%'>
  <tr>

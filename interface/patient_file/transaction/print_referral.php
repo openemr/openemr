@@ -99,18 +99,23 @@ if (empty($vrow)) $vrow = array(
   'height' => '',
 );
 
-$facrow = sqlQuery("SELECT name, facility_npi FROM facility ORDER BY " .
-  "service_location DESC, billing_location DESC, id ASC LIMIT 1");
+// $facrow = sqlQuery("SELECT name, facility_npi FROM facility ORDER BY " .
+//   "service_location DESC, billing_location DESC, id ASC LIMIT 1");
+$facrow = getFacility(-1);
 
 // Make some items HTML-friendly if they are empty.
 if (empty($trow['refer_date'])) $trow['refer_date'] = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 if (empty($trow['id'])) $trow['id'] = '&nbsp;';
 if (empty($patient_id)) $patient_id = '&nbsp;';
+if (empty($facrow['facility_npi'])) $facrow['facility_npi'] = '&nbsp;';
 
 $s = '';
 $fh = fopen($template_file, 'r');
 while (!feof($fh)) $s .= fread($fh, 8192);
 fclose($fh);
+
+$s = str_replace("{header1}", genFacilityTitle($TEMPLATE_LABELS['label_form1_title'], -1), $s);
+$s = str_replace("{header2}", genFacilityTitle($TEMPLATE_LABELS['label_form2_title'], -1), $s);
 
 $s = str_replace("{fac_name}"        , $facrow['name']        , $s);
 $s = str_replace("{fac_facility_npi}", $facrow['facility_npi'], $s);

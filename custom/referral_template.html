@@ -34,6 +34,23 @@ body, td {
  border-width: 0 0 1px 0;
  border-color: #999999;
 }
+
+.ftitletable {
+ width: 100%;
+ margin: 0 0 0 0;
+}
+.ftitlecell1 {
+ vertical-align: top;
+ text-align: left;
+ font-size: 14pt;
+ font-weight: bold;
+}
+.ftitlecell2 {
+ vertical-align: top;
+ text-align: right;
+ font-size: 9pt;
+ padding-right: 10pt;
+}
 </style>
 
 <title>{label_webpage_title}</title>
@@ -46,8 +63,8 @@ body, td {
 
  <table cellspacing='0' cellpadding='0' class='bigtable'>
   <tr>
-   <td class='mainhead'>{fac_name}<br />&nbsp;</td>
-   <td rowspan='2' align='right' width='10%' nowrap>
+   <td class='mainhead' valign='top'>{header1}</td>
+   <td align='right' width='10%' valign='top' nowrap>
     <table border='1' cellpadding='2' cellspacing='0'>
      <tr>
       <td nowrap>{label_clinic_id}</td>
@@ -67,9 +84,6 @@ body, td {
      </tr>
     </table>
    </td>
-  </tr>
-  <tr>
-   <td align='center' valign='top'><b>{label_form1_title}</b></td>
   </tr>
  </table>
 
@@ -134,8 +148,8 @@ body, td {
 
  <table cellspacing='0' cellpadding='0' class='bigtable'>
   <tr>
-   <td class='mainhead'>{fac_name}<br />&nbsp;</td>
-   <td rowspan='2' align='right' width='10%' nowrap>
+   <td class='mainhead' valign='top'>{header1}</td>
+   <td align='right' width='10%' nowrap>
     <table border='1' cellpadding='2' cellspacing='0'>
      <tr>
       <td nowrap>{label_clinic_id}</td>
@@ -155,9 +169,6 @@ body, td {
      </tr>
     </table>
    </td>
-  </tr>
-  <tr>
-   <td align='center' valign='top'>&nbsp;</td>
   </tr>
  </table>
 
@@ -233,8 +244,8 @@ body, td {
 
  <table cellspacing='0' cellpadding='0' class='bigtable'>
   <tr>
-   <td class='mainhead'>{fac_name}<br />&nbsp;</td>
-   <td rowspan='2' align='right' width='10%' nowrap>
+   <td class='mainhead' valign='top'>{header2}</td>
+   <td align='right' width='10%' nowrap>
     <table border='1' cellpadding='2' cellspacing='0'>
      <tr>
       <td nowrap>{label_clinic_id}</td>
@@ -254,9 +265,6 @@ body, td {
      </tr>
     </table>
    </td>
-  </tr>
-  <tr>
-   <td align='center' valign='top'><b>{label_form2_title}</b></td>
   </tr>
  </table>
 

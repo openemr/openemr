@@ -69,13 +69,29 @@ div.section {
  border-width: 0 0 1px 0;
  border-color: #999999;
 }
+
+.ftitletable {
+ width: 100%;
+ margin: 0 0 8pt 0;
+}
+.ftitlecell1 {
+ vertical-align: top;
+ text-align: left;
+ font-size: 14pt;
+ font-weight: bold;
+}
+.ftitlecell2 {
+ vertical-align: top;
+ text-align: right;
+ font-size: 9pt;
+}
 </style>
 </head>
 
 <body bgcolor='#ffffff'>
 <form>
 
-<p class='mainhead'><?php xl('Registration Form','e'); ?></p>
+<?php echo genFacilityTitle(xl('Registration Form'), -1); ?>
 
 <?php
 
