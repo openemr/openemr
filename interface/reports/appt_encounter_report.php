@@ -28,10 +28,17 @@
  include_once("../../library/patient.inc");
  include_once("../../custom/code_types.inc.php");
 
+ $errmsg  = "";
  $alertmsg = ''; // not used yet but maybe later
  $grand_total_charges    = 0;
  $grand_total_copays     = 0;
  $grand_total_encounters = 0;
+
+function postError($msg) {
+  global $errmsg;
+  if ($errmsg) $errmsg .= '<br />';
+  $errmsg .= $msg;
+}
 
  function bucks($amount) {
   if ($amount) printf("%.2f", $amount);
@@ -42,7 +49,7 @@
   if (!$docrow['docname']) return;
 
   echo " <tr class='apptencreport_totals'>\n";
-  echo "  <td colspan='4'>\n";
+  echo "  <td colspan='5'>\n";
   echo "   &nbsp;" . xl('Totals for','','',' ') . $docrow['docname'] . "\n";
   echo "  </td>\n";
   echo "  <td align='right'>\n";
@@ -80,7 +87,7 @@
   $query = "( " .
    "SELECT " .
    "e.pc_eventDate, e.pc_startTime, " .
-   "fe.encounter, " .
+   "fe.encounter, fe.date AS encdate, " .
    "f.authorized, " .
    "p.fname, p.lname, p.pid, p.pubpid, " .
    "CONCAT( u.lname, ', ', u.fname ) AS docname " .
@@ -89,8 +96,8 @@
    "ON LEFT(fe.date, 10) = e.pc_eventDate AND fe.pid = e.pc_pid " .
    "LEFT OUTER JOIN forms AS f ON f.encounter = fe.encounter AND f.formdir = 'newpatient' " .
    "LEFT OUTER JOIN patient_data AS p ON p.pid = e.pc_pid " .
-   // "LEFT OUTER JOIN users AS u ON u.id = e.pc_aid WHERE ";
-   "LEFT OUTER JOIN users AS u ON BINARY u.username = BINARY f.user WHERE ";
+   // "LEFT OUTER JOIN users AS u ON BINARY u.username = BINARY f.user WHERE ";
+   "LEFT OUTER JOIN users AS u ON u.id = fe.provider_id WHERE ";
   if ($form_to_date) {
    $query .= "e.pc_eventDate >= '$form_from_date' AND e.pc_eventDate <= '$form_to_date' ";
   } else {
@@ -104,7 +111,7 @@
    ") UNION ( " .
    "SELECT " .
    "e.pc_eventDate, e.pc_startTime, " .
-   "fe.encounter, " .
+   "fe.encounter, fe.date AS encdate, " .
    "f.authorized, " .
    "p.fname, p.lname, p.pid, p.pubpid, " .
    "CONCAT( u.lname, ', ', u.fname ) AS docname " .
@@ -115,7 +122,8 @@
    "e.pc_pid != '' AND e.pc_apptstatus != '?' " .
    "LEFT OUTER JOIN forms AS f ON f.encounter = fe.encounter AND f.formdir = 'newpatient' " .
    "LEFT OUTER JOIN patient_data AS p ON p.pid = fe.pid " .
-   "LEFT OUTER JOIN users AS u ON BINARY u.username = BINARY f.user WHERE ";
+   // "LEFT OUTER JOIN users AS u ON BINARY u.username = BINARY f.user WHERE ";
+   "LEFT OUTER JOIN users AS u ON u.id = fe.provider_id WHERE ";
   if ($form_to_date) {
    // $query .= "LEFT(fe.date, 10) >= '$form_from_date' AND LEFT(fe.date, 10) <= '$form_to_date' ";
    $query .= "fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_to_date 23:59:59' ";
@@ -264,7 +272,7 @@
 
  <thead>
   <th> &nbsp;<?php  xl('Practitioner','e'); ?> </th>
-  <th> &nbsp;<?php  xl('Time','e'); ?> </th>
+  <th> &nbsp;<?php  xl('Date/Appt','e'); ?> </th>
   <th> &nbsp;<?php  xl('Patient','e'); ?> </th>
   <th> &nbsp;<?php  xl('ID','e'); ?> </th>
   <th> <?php  xl('Chart','e'); ?>&nbsp; </th>
@@ -288,8 +296,8 @@
     endDoctor($docrow);
    }
 
-   $billed  = "Y";
    $errmsg  = "";
+   $billed  = "Y";
    $charges = 0;
    $copays  = 0;
    $gcac_related_visit = false;
@@ -306,18 +314,18 @@
     if ($code_types[$code_type]['fee'] && !$brow['billed'])
       $billed = "";
     if (!$GLOBALS['simplified_demographics'] && !$brow['authorized'])
-      $errmsg = "Needs Auth";
+      postError(xl('Needs Auth'));
     if ($code_types[$code_type]['just']) {
-     if (! $brow['justify']) $errmsg = "Needs Justify";
+     if (! $brow['justify']) postError(xl('Needs Justify'));
     }
     if ($code_type == 'COPAY') {
      $copays -= $brow['fee'];
-     if ($brow['fee'] >= 0) $errmsg = "Copay not positive";
+     if ($brow['fee'] >= 0) postError(xl('Copay not positive'));
     } else if ($code_types[$code_type]['fee']) {
      $charges += $brow['fee'];
-     if ($brow['fee'] == 0 && !$GLOBALS['ippf_specific']) $errmsg = "Missing Fee";
+     if ($brow['fee'] == 0 && !$GLOBALS['ippf_specific']) postError(xl('Missing Fee'));
     } else {
-     if ($brow['fee'] != 0) $errmsg = "Fee is not allowed";
+     if ($brow['fee'] != 0) postError(xl('Fee is not allowed'));
     }
 
     // Custom logic for IPPF to determine if a GCAC issue applies.
@@ -345,6 +353,9 @@
 
    } // end while
 
+   // The following is removed, perhaps temporarily, because gcac reporting
+   // no longer depends on gcac issues.  -- Rod 2009-08-11
+   /******************************************************************
    // More custom code for IPPF.  Generates an error message if a
    // GCAC issue is required but is not linked to this visit.
    if (!$errmsg && $gcac_related_visit) {
@@ -366,12 +377,20 @@
       }
     }
    }
+   ******************************************************************/
+   if ($gcac_related_visit) {
+      $grow = sqlQuery("SELECT COUNT(*) AS count FROM forms " .
+        "WHERE pid = '$patient_id' AND encounter = '$encounter' AND " .
+        "deleted = 0 AND formdir = 'LBFgcac'");
+      if (empty($grow['count'])) { // if there is no gcac form
+        postError(xl('GCAC visit form is missing'));
+      }
+   } // end if
+   /*****************************************************************/
 
-   if (!$errmsg) {
-     if (!$billed) $errmsg = $GLOBALS['simplified_demographics'] ?
-       "Not checked out" : "Not billed";
-     if (!$encounter) $errmsg = "No visit";
-   }
+   if (!$billed) postError($GLOBALS['simplified_demographics'] ?
+     xl('Not checked out') : xl('Not billed'));
+   if (!$encounter) postError(xl('No visit'));
 
    if (! $charges) $billed = "";
 
@@ -386,10 +405,18 @@
    &nbsp;<?php  echo ($docname == $docrow['docname']) ? "" : $docname ?>
   </td>
   <td>
-   &nbsp;<?php 
+   &nbsp;<?php
+    /*****************************************************************
     if ($form_to_date) {
         echo $row['pc_eventDate'] . '<br>';
         echo substr($row['pc_startTime'], 0, 5);
+    }
+    *****************************************************************/
+    if (empty($row['pc_eventDate'])) {
+      echo substr($row['encdate'], 0, 10);
+    }
+    else {
+      echo $row['pc_eventDate'] . ' ' . substr($row['pc_startTime'], 0, 5);
     }
     ?>
   </td>
@@ -415,7 +442,7 @@
    <?php  echo $billed ?>
   </td>
   <td style='color:#cc0000'>
-   &nbsp;<?php  echo xl($errmsg); ?>
+   <?php echo $errmsg; ?>&nbsp;
   </td>
  </tr>
 <?php
