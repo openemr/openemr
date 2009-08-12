@@ -195,7 +195,7 @@ function generate_form_field($frow, $currvalue) {
   // parentheses, and excluding local users who are not providers.
   // Supports "referred to" practitioners and facilities.
   else if ($data_type == 14) {
-    $ures = sqlStatement("SELECT id, fname, lname, organization FROM users " .
+    $ures = sqlStatement("SELECT id, fname, lname, organization, username FROM users " .
       "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
       "AND ( username = '' OR authorized = 1 ) " .
       "ORDER BY organization, lname, fname");
@@ -208,6 +208,8 @@ function generate_form_field($frow, $currvalue) {
         if ($urow['fname']) $uname .= ", " . $urow['fname'];
       }
       echo "<option value='" . $urow['id'] . "'";
+      $title = $urow['username'] ? xl('Local') : xl('External');
+      echo " title='$title'";
       if ($urow['id'] == $currvalue) echo " selected";
       echo ">$uname</option>";
     }
