@@ -358,22 +358,13 @@ foreach ($times as $slottime) {
     $starttimem = $slottime['minute'];
     $slotendmins = $starttimeh * 60 + $starttimem + $interval;
 
+    // default to the first displayed provider
+    $providerid = $providers[0]['id'];
+
     echo "<tr><td class='timeslot'>";
-
-    /*****************************************************************
-    $providerid = 0;
-    if (count($providers) == 1) {
-        $providerid = $providers[0]['id'];
-    }
     echo "<a href='javascript:newEvt($startampm,$starttimeh,$starttimem,$Date,$providerid,0)' title='New Appointment' alt='New Appointment'>";
-    *****************************************************************/
-    // can't have a link to new appts since we may have multiple providers displayed
-    //echo "<a href='javascript:newEvt($startampm,$starttimeh,$starttimem,$defaultDate,$providerid,$in_cat_id)' title='New Appointment' alt='New Appointment'>";
-    /****************************************************************/
-
     echo "$disptimeh:$starttimem";
-    // echo "</a>";
-
+    echo "</a>";
     echo "</td></tr>\n";
 }
 echo "</table></div></td>";
