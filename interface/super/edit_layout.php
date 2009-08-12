@@ -63,6 +63,11 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     for ($lino = 1; isset($fld[$lino]['id']); ++$lino) {
         $iter = $fld[$lino];
         $field_id = formTrim($iter['id']);
+        $data_type = formTrim($iter['data_type']);
+        // For a textarea (data type 3) max_length has a special meaning, to
+        // specify its height (in rows).  This kludge assigns a fixed height,
+        // but this GUI really needs to support max_length directly.
+        $max_length = $data_type == 3 ? 3 : 255;
         if ($field_id) {
             sqlStatement("UPDATE layout_options SET " .
                 "title = '"         . formTrim($iter['title'])     . "', " .
@@ -70,10 +75,10 @@ if ($_POST['formaction'] == "save" && $layout_id) {
                 "seq = '"           . formTrim($iter['seq'])       . "', " .
                 "uor = '"           . formTrim($iter['uor'])       . "', " .
                 "fld_length = '"    . formTrim($iter['length'])    . "', " .
-                "max_length = '255', "                                     .
+                "max_length = '$max_length', "                             .
                 "titlecols = '"     . formTrim($iter['titlecols']) . "', " .
                 "datacols = '"      . formTrim($iter['datacols'])  . "', " .
-                "data_type= '"      . formTrim($iter['data_type']) . "', " .
+                "data_type= '$data_type', "                                .
                 "list_id= '"        . formTrim($iter['list_id'])   . "', " .
                 "default_value = '" . formTrim($iter['default'])   . "', " .
                 "description = '"   . formTrim($iter['desc'])      . "' " .
@@ -84,6 +89,8 @@ if ($_POST['formaction'] == "save" && $layout_id) {
 
 else if ($_POST['formaction'] == "addfield" && $layout_id) {
     // Add a new field to a specific group
+    $data_type = formTrim($_POST['newdatatype']);
+    $max_length = $data_type == 3 ? 3 : 255;
     sqlStatement("INSERT INTO layout_options (" .
       " form_id, field_id, title, group_name, seq, uor, fld_length" .
       ", titlecols, datacols, data_type, default_value, description" .
@@ -98,10 +105,10 @@ else if ($_POST['formaction'] == "addfield" && $layout_id) {
       ",'" . formTrim($_POST['newlength']      ) . "'" .
       ",'" . formTrim($_POST['newtitlecols']   ) . "'" .
       ",'" . formTrim($_POST['newdatacols']    ) . "'" .
-      ",'" . formTrim($_POST['newdatatype']    ) . "'" .
+      ",'$data_type'"                                  .
       ",'" . formTrim($_POST['newdefault']     ) . "'" .
       ",'" . formTrim($_POST['newdesc']        ) . "'" .
-      ",'255'"                                         .
+      ",'$max_length'"                                 .
       ",'" . formTrim($_POST['newlistid']      ) . "'" .
       " )");
 
@@ -181,6 +188,9 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
         if ($parts[0] >= $maxnum) { $maxnum = $parts[0] + 1; }
     }
 
+    $data_type = formTrim($_POST['gnewdatatype']);
+    $max_length = $data_type == 3 ? 3 : 255;
+
     // add a new group to the layout, with the defined field
     sqlStatement("INSERT INTO layout_options (" .
       " form_id, field_id, title, group_name, seq, uor, fld_length" .
@@ -196,10 +206,10 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
       ",'" . formTrim($_POST['gnewlength']      ) . "'" .
       ",'" . formTrim($_POST['gnewtitlecols']   ) . "'" .
       ",'" . formTrim($_POST['gnewdatacols']    ) . "'" .
-      ",'" . formTrim($_POST['gnewdatatype']    ) . "'" .
+      ",'$data_type'"                                   .
       ",'" . formTrim($_POST['gnewdefault']     ) . "'" .
       ",'" . formTrim($_POST['gnewdesc']        ) . "'" .
-      ",'255'"                                    .
+      ",'$max_length'"                                  .
       ",'" . formTrim($_POST['gnewlistid']      ) . "'" .
       " )");
 
