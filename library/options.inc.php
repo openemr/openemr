@@ -706,8 +706,8 @@ function generate_print_field($frow, $currvalue) {
       }
       echo "<td><input type='text'" .
         " size='$fldlength'" .
-        " value='$resnote' /></td>" .
-        " class='under'" .
+        " value='$resnote'" .
+        " class='under' /></td>" .
         "</tr>";
     }
     echo "</table>";
