@@ -209,8 +209,10 @@ function genPopupsList($style='') {
 <?php if (!$disallowed['iss']) { ?>
  <option value='../patient_file/problem_encounter.php'><?php xl('Issues','e'); ?></option>
 <?php } ?>
+<?php if (!$GLOBALS['ippf_specific']) { ?>
  <option value='../../custom/export_xml.php'><?php xl('Export','e'); ?></option>
  <option value='../../custom/import_xml.php'><?php xl('Import','e'); ?></option>
+<?php } ?>
 <?php if ($GLOBALS['athletic_team']) { ?>
  <option value='../reports/players_report.php'><?php xl('Roster','e'); ?></option>
 <?php } ?>
@@ -912,14 +914,23 @@ function genPopupsList($style='') {
           <?php genPopLink('Daily Record','ippf_daily.php'); ?>
         </ul>
       </li>
+<?php } // end ippf-specific ?>
       <li><span><?php xl('Blank Forms','e') ?></span>
         <ul>
           <?php genPopLink(xl('Demographics'),'../patient_file/summary/demographics_print.php'); ?>
           <?php genPopLink(xl('Fee Sheet'),'../patient_file/printed_fee_sheet.php'); ?>
           <?php genPopLink(xl('Referral'),'../patient_file/transaction/print_referral.php'); ?>
+<?php
+  $lres = sqlStatement("SELECT * FROM list_options " .
+  "WHERE list_id = 'lbfnames' ORDER BY seq, title");
+  while ($lrow = sqlFetchArray($lres)) {
+    $option_id = $lrow['option_id']; // should start with LBF
+    $title = $lrow['title'];
+    genPopLink($title, "../forms/LBF/printable.php?formname=$option_id");
+  }
+?>
         </ul>
       </li>
-<?php } ?>
       <?php // genTreeLink('RTop','rep','Other'); ?>
     </ul>
   </li>
