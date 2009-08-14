@@ -1,5 +1,5 @@
-<?
- // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+<?php
+ // Copyright (C) 2005-2009 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -18,201 +18,455 @@
  // * Procedure codes without a fee
  // * Fees assigned to diagnoses (instead of procedures)
  // * Encounters not billed
+ //
+ // For decent performance the following indexes are highly recommended:
+ //   openemr_postcalendar_events.pc_eventDate
+ //   forms.encounter
+ //   billing.pid_encounter
 
  include_once("../globals.php");
  include_once("../../library/patient.inc");
  include_once("../../custom/code_types.inc.php");
 
  $alertmsg = ''; // not used yet but maybe later
+ $grand_total_charges    = 0;
+ $grand_total_copays     = 0;
+ $grand_total_encounters = 0;
 
  function bucks($amount) {
-  if ($amount)
-   printf("%.2f", $amount);
+  if ($amount) printf("%.2f", $amount);
  }
 
+ function endDoctor(&$docrow) {
+  global $grand_total_charges, $grand_total_copays, $grand_total_encounters;
+  if (!$docrow['docname']) return;
+
+  echo " <tr class='apptencreport_totals'>\n";
+  echo "  <td colspan='5'>\n";
+  echo "   &nbsp;" . xl('Totals for','','',' ') . $docrow['docname'] . "\n";
+  echo "  </td>\n";
+  echo "  <td align='right'>\n";
+  echo "   &nbsp;" . $docrow['encounters'] . "&nbsp;\n";
+  echo "  </td>\n";
+  echo "  <td align='right'>\n";
+  echo "   &nbsp;"; bucks($docrow['charges']); echo "&nbsp;\n";
+  echo "  </td>\n";
+  echo "  <td align='right'>\n";
+  echo "   &nbsp;"; bucks($docrow['copays']); echo "&nbsp;\n";
+  echo "  </td>\n";
+  echo "  <td colspan='2'>\n";
+  echo "   &nbsp;\n";
+  echo "  </td>\n";
+  echo " </tr>\n";
+
+  $grand_total_charges     += $docrow['charges'];
+  $grand_total_copays      += $docrow['copays'];
+  $grand_total_encounters  += $docrow['encounters'];
+
+  $docrow['charges']     = 0;
+  $docrow['copays']      = 0;
+  $docrow['encounters']  = 0;
+ }
+
+ $form_facility  = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
+ $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
+ $form_to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
  if ($_POST['form_search']) {
-  $form_date = fixDate($_POST['form_date'], "");
+  $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
+  $form_to_date = fixDate($_POST['form_to_date'], "");
 
   // MySQL doesn't grok full outer joins so we do it the hard way.
   //
   $query = "( " .
    "SELECT " .
-   "e.pc_startTime, " .
-   "fe.encounter, " .
+   "e.pc_eventDate, e.pc_startTime, " .
+   "fe.encounter, fe.date AS encdate, " .
    "f.authorized, " .
-   "p.fname, p.lname, p.pid, " .
-   "u.lname AS docname " .
+   "p.fname, p.lname, p.pid, p.pubpid, " .
+   "CONCAT( u.lname, ', ', u.fname ) AS docname " .
    "FROM openemr_postcalendar_events AS e " .
    "LEFT OUTER JOIN form_encounter AS fe " .
    "ON LEFT(fe.date, 10) = e.pc_eventDate AND fe.pid = e.pc_pid " .
    "LEFT OUTER JOIN forms AS f ON f.encounter = fe.encounter AND f.formdir = 'newpatient' " .
    "LEFT OUTER JOIN patient_data AS p ON p.pid = e.pc_pid " .
-   "LEFT OUTER JOIN users AS u ON u.id = e.pc_aid " .
-   "WHERE e.pc_eventDate = '$form_date' AND " .
-   "( e.pc_catid = 5 OR e.pc_catid = 9 OR e.pc_catid = 10 ) " .
+   // "LEFT OUTER JOIN users AS u ON BINARY u.username = BINARY f.user WHERE ";
+   "LEFT OUTER JOIN users AS u ON u.id = fe.provider_id WHERE ";
+  if ($form_to_date) {
+   $query .= "e.pc_eventDate >= '$form_from_date' AND e.pc_eventDate <= '$form_to_date' ";
+  } else {
+   $query .= "e.pc_eventDate = '$form_from_date' ";
+  }
+  if ($form_facility !== '') {
+   $query .= "AND e.pc_facility = '$form_facility' ";
+  }
+  // $query .= "AND ( e.pc_catid = 5 OR e.pc_catid = 9 OR e.pc_catid = 10 ) " .
+  $query .= "AND e.pc_pid != '' AND e.pc_apptstatus != '?' " .
    ") UNION ( " .
    "SELECT " .
-   "e.pc_startTime, " .
-   "fe.encounter, " .
+   "e.pc_eventDate, e.pc_startTime, " .
+   "fe.encounter, fe.date AS encdate, " .
    "f.authorized, " .
-   "p.fname, p.lname, p.pid, " .
-   "u.lname AS docname " .
+   "p.fname, p.lname, p.pid, p.pubpid, " .
+   "CONCAT( u.lname, ', ', u.fname ) AS docname " .
    "FROM form_encounter AS fe " .
    "LEFT OUTER JOIN openemr_postcalendar_events AS e " .
    "ON LEFT(fe.date, 10) = e.pc_eventDate AND fe.pid = e.pc_pid AND " .
-   "( e.pc_catid = 5 OR e.pc_catid = 9 OR e.pc_catid = 10 ) " .
+   // "( e.pc_catid = 5 OR e.pc_catid = 9 OR e.pc_catid = 10 ) " .
+   "e.pc_pid != '' AND e.pc_apptstatus != '?' " .
    "LEFT OUTER JOIN forms AS f ON f.encounter = fe.encounter AND f.formdir = 'newpatient' " .
    "LEFT OUTER JOIN patient_data AS p ON p.pid = fe.pid " .
-   "LEFT OUTER JOIN users AS u ON u.username = f.user " .
-   "WHERE LEFT(fe.date, 10) = '$form_date' " .
-   ") " .
-   "ORDER BY docname, pc_startTime";
+   "LEFT OUTER JOIN users AS u ON u.id = fe.provider_id WHERE ";
+  if ($form_to_date) {
+   // $query .= "LEFT(fe.date, 10) >= '$form_from_date' AND LEFT(fe.date, 10) <= '$form_to_date' ";
+   $query .= "fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_to_date 23:59:59' ";
+  } else {
+   // $query .= "LEFT(fe.date, 10) = '$form_from_date' ";
+   $query .= "fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_from_date 23:59:59' ";
+  }
+  if ($form_facility !== '') {
+   $query .= "AND fe.facility_id = '$form_facility' ";
+  }
+  $query .= ") ORDER BY docname, pc_eventDate, pc_startTime";
 
   $res = sqlStatement($query);
  }
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
-<title>Appointments and Encounters</title>
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<style type="text/css">
+
+/* specifically include & exclude from printing */
+@media print {
+    #apptencreport_parameters {
+        visibility: hidden;
+        display: none;
+    }
+    #apptencreport_parameters_daterange {
+        visibility: visible;
+        display: inline;
+    }
+}
+
+/* specifically exclude some from the screen */
+@media screen {
+    #apptencreport_parameters_daterange {
+        visibility: hidden;
+        display: none;
+    }
+}
+
+#apptencreport_parameters {
+    width: 100%;
+    margin: 10px;
+    text-align: center;
+    background-color: #ddf;
+}
+#apptencreport_parameters table {
+    text-align: center;
+    border: none;
+    width: 100%;
+    border-collapse: collapse;
+}
+#apptencreport_parameters table td {
+    padding: 3px;
+}
+
+#apptencreport_results {
+    width: 100%;
+    margin-top: 10px;
+}
+#apptencreport_results table {
+   border: 1px solid black;
+   width: 98%;
+   border-collapse: collapse;
+}
+#apptencreport_results table thead {
+    display: table-header-group;
+    background-color: #ddd;
+}
+#apptencreport_results table th {
+    border-bottom: 1px solid black;
+}
+#apptencreport_results table td {
+    padding: 1px;
+    margin: 2px;
+    border-bottom: 1px solid #eee;
+}
+.apptencreport_totals td {
+    background-color: #77ff77;
+    font-weight: bold;
+}
+</style>
+<title><?php  xl('Appointments and Encounters','e'); ?></title>
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
+<body class="body_top">
 <center>
 
+<h2><?php  xl('Appointments and Encounters','e'); ?></h2>
+<div id="apptencreport_parameters_daterange">
+<?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
+</div>
+
+<div id="apptencreport_parameters">
 <form method='post' action='appt_encounter_report.php'>
-
-<table border='0' cellpadding='5' cellspacing='0' width='98%'>
-
+<table>
  <tr>
-  <td height="1" colspan="2">
-  </td>
- </tr>
-
- <tr bgcolor='#ddddff'>
-  <td align='left'>
-   <h2>Appointments and Encounters</h2>
-  </td>
-  <td align='right'>
-   Booking Date:
-   <input type='text' name='form_date' size='10' value='<? echo $_POST['form_date']; ?>'
-    title='Date of appointments mm/dd/yyyy'>
+  <td>
+   <?php xl('Facility','e'); ?>:
+<?php
+ // Build a drop-down list of facilities.
+ //
+ $query = "SELECT id, name FROM facility ORDER BY name";
+ $fres = sqlStatement($query);
+ echo "   <select name='form_facility'>\n";
+ echo "    <option value=''>-- " . xl('All') . " --\n";
+ while ($frow = sqlFetchArray($fres)) {
+  $facid = $frow['id'];
+  echo "    <option value='$facid'";
+  if ($facid == $form_facility) echo " selected";
+  echo ">" . $frow['name'] . "\n";
+ }
+ echo "    <option value='0'";
+ if ($form_facility === '0') echo " selected";
+ echo ">-- " . xl('Unspecified') . " --\n";
+ echo "   </select>\n";
+?>
+   <?php  xl('DOS','e'); ?>:
+   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php  echo $form_from_date; ?>'
+    title='Date of appointments mm/dd/yyyy' >
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
    &nbsp;
-   <input type='submit' name='form_search' value='Search'>
+   <?php  xl('to','e'); ?>:
+   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php  echo $form_to_date; ?>'
+    title='Optional end date mm/dd/yyyy' >
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
+   &nbsp;
+   <input type='checkbox' name='form_details'
+    value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details','e') ?>
+   &nbsp;
+   <input type='submit' name='form_search' value='<?php xl('Search','e'); ?>'>
+   &nbsp;
+   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
   </td>
  </tr>
-
- <tr>
-  <td height="1" colspan="2">
-  </td>
- </tr>
-
 </table>
+</div> <!-- end apptenc_report_parameters -->
 
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
+<div id="apptencreport_results">
+<table>
 
- <tr bgcolor="#dddddd">
-  <td class="dehead">
-   &nbsp;Practitioner
-  </td>
-  <td class="dehead">
-   &nbsp;Time
-  </td>
-  <td class="dehead">
-   &nbsp;Patient
-  </td>
-  <td class="dehead" align="right">
-   Chart&nbsp;
-  </td>
-  <td class="dehead" align="right">
-   Encounter&nbsp;
-  </td>
-  <td class="dehead" align="right">
-   Charge&nbsp;
-  </td>
-  <td class="dehead" align="center">
-   Billed
-  </td>
-  <td class="dehead">
-   &nbsp;Error
-  </td>
- </tr>
-<?
+ <thead>
+  <th> &nbsp;<?php  xl('Practitioner','e'); ?> </th>
+  <th> &nbsp;<?php  xl('Time','e'); ?> </th>
+  <th> &nbsp;<?php  xl('Patient','e'); ?> </th>
+  <th> &nbsp;<?php  xl('ID','e'); ?> </th>
+  <th> <?php  xl('Chart','e'); ?>&nbsp; </th>
+  <th> <?php  xl('Encounter','e'); ?>&nbsp; </th>
+  <th> <?php  xl('Charges','e'); ?>&nbsp; </th>
+  <th> <?php  xl('Copays','e'); ?>&nbsp; </th>
+  <th> <?php  xl('Billed','e'); ?> </th>
+  <th> &nbsp;<?php  xl('Error','e'); ?> </th>
+ </thead>
+ <tbody>
+<?php 
  if ($res) {
-  $lastdocname = "";
+  $docrow = array('docname' => '', 'charges' => 0, 'copays' => 0, 'encounters' => 0);
+
   while ($row = sqlFetchArray($res)) {
    $patient_id = $row['pid'];
    $encounter  = $row['encounter'];
-   $docname    = $row['docname'];
+   $docname    = $row['docname'] ? $row['docname'] : 'Unknown';
+
+   if ($docname != $docrow['docname']) {
+    endDoctor($docrow);
+   }
 
    $billed  = "Y";
    $errmsg  = "";
    $charges = 0;
+   $copays  = 0;
+   $gcac_related_visit = false;
 
    // Scan the billing items for status and fee total.
    //
-   $query = "SELECT code_type, authorized, billed, fee, justify " .
+   $query = "SELECT code_type, code, modifier, authorized, billed, fee, justify " .
     "FROM billing WHERE " .
     "pid = '$patient_id' AND encounter = '$encounter' AND activity = 1";
    $bres = sqlStatement($query);
    //
    while ($brow = sqlFetchArray($bres)) {
-    if (! $brow['billed']) $billed = "";
-    if (! $brow['authorized']) $errmsg = "Needs Auth";
-    if ($code_types[$brow['code_type']]['just']) {
+    $code_type = $brow['code_type'];
+    if ($code_types[$code_type]['fee'] && !$brow['billed'])
+      $billed = "";
+    if (!$GLOBALS['simplified_demographics'] && !$brow['authorized'])
+      $errmsg = "Needs Auth";
+    if ($code_types[$code_type]['just']) {
      if (! $brow['justify']) $errmsg = "Needs Justify";
     }
-    if ($code_types[$brow['code_type']]['fee']) {
+    if ($code_type == 'COPAY') {
+     $copays -= $brow['fee'];
+     if ($brow['fee'] >= 0) $errmsg = "Copay not positive";
+    } else if ($code_types[$code_type]['fee']) {
      $charges += $brow['fee'];
-     if ($brow['fee'] == 0 ) $errmsg = "Missing Fee";
+     if ($brow['fee'] == 0 && !$GLOBALS['ippf_specific']) $errmsg = "Missing Fee";
     } else {
-     if ($brow['fee'] != 0) $errmsg = "Misplaced Fee";
+     if ($brow['fee'] != 0) $errmsg = "Fee is not allowed";
+    }
+
+    // Custom logic for IPPF to determine if a GCAC issue applies.
+    if ($GLOBALS['ippf_specific']) {
+      if (!empty($code_types[$code_type]['fee'])) {
+        $query = "SELECT related_code FROM codes WHERE code_type = '" .
+          $code_types[$code_type]['id'] . "' AND " .
+          "code = '" . $brow['code'] . "' AND ";
+        if ($brow['modifier']) {
+          $query .= "modifier = '" . $brow['modifier'] . "'";
+        } else {
+          $query .= "(modifier IS NULL OR modifier = '')";
+        }
+        $query .= " LIMIT 1";
+        $tmp = sqlQuery($query);
+        $relcodes = explode(';', $tmp['related_code']);
+        foreach ($relcodes as $codestring) {
+          if ($codestring === '') continue;
+          list($codetype, $code) = explode(':', $codestring);
+          if ($codetype !== 'IPPF') continue;
+          if (preg_match('/^25222/', $code)) $gcac_related_visit = true;
+        }
+      }
+    } // End IPPF stuff
+
+   } // end while
+
+   // More custom code for IPPF.  Generates an error message if a
+   // GCAC issue is required but is not linked to this visit.
+   if (!$errmsg && $gcac_related_visit) {
+    $grow = sqlQuery("SELECT l.id, l.title, l.begdate, ie.pid " .
+      "FROM lists AS l " .
+      "LEFT JOIN issue_encounter AS ie ON ie.pid = l.pid AND " .
+      "ie.encounter = '$encounter' AND ie.list_id = l.id " .
+      "WHERE l.pid = '$patient_id' AND " .
+      "l.activity = 1 AND l.type = 'ippf_gcac' " .
+      "ORDER BY ie.pid DESC, l.begdate DESC LIMIT 1");
+    // Note that reverse-ordering by ie.pid is a trick for sorting
+    // issues linked to the encounter (non-null values) first.
+    if (empty($grow['pid'])) { // if there is no linked GCAC issue
+      if (empty($grow)) { // no GCAC issue exists
+        $errmsg = "GCAC issue does not exist";
+      }
+      else { // there is one but none is linked
+        $errmsg = "GCAC issue is not linked";
+      }
     }
    }
+
+   if (!$errmsg) {
+     if (!$billed) $errmsg = $GLOBALS['simplified_demographics'] ?
+       "Not checked out" : "Not billed";
+     if (!$encounter) $errmsg = "No visit";
+   }
+
    if (! $charges) $billed = "";
+
+   $docrow['charges'] += $charges;
+   $docrow['copays']  += $copays;
+   if ($encounter) ++$docrow['encounters'];
+
+   if ($_POST['form_details']) {
 ?>
- <tr bgcolor='<? echo $bgcolor ?>'>
-  <td class="detail">
-   &nbsp;<? echo ($docname == $lastdocname) ? "" : $docname ?>
+ <tr>
+  <td>
+   &nbsp;<?php  echo ($docname == $docrow['docname']) ? "" : $docname ?>
   </td>
-  <td class="detail">
-   &nbsp;<? echo substr($row['pc_startTime'], 0, 5) ?>
+  <td>
+   &nbsp;<?php 
+    if (empty($row['pc_eventDate'])) {
+      echo substr($row['encdate'], 0, 10);
+    }
+    else {
+      echo $row['pc_eventDate'] . ' ' . substr($row['pc_startTime'], 0, 5);
+    }
+    ?>
   </td>
-  <td class="detail">
-   &nbsp;<? echo $row['fname'] . " " . $row['lname'] ?>
+  <td>
+   &nbsp;<?php  echo $row['fname'] . " " . $row['lname'] ?>
   </td>
-  <td class="detail" align="right">
-   <? echo $row['pid'] ?>&nbsp;
+  <td>
+   &nbsp;<?php  echo $row['pubpid'] ?>
   </td>
-  <td class="detail" align="right">
-   <? echo $row['encounter'] ?>&nbsp;
+  <td align='right'>
+   <?php  echo $row['pid'] ?>&nbsp;
   </td>
-  <td class="detail" align="right">
-   <? bucks($charges) ?>&nbsp;
+  <td align='right'>
+   <?php  echo $encounter ?>&nbsp;
   </td>
-  <td class="detail" align="center">
-   <? echo $billed ?>
+  <td align='right'>
+   <?php  bucks($charges) ?>&nbsp;
   </td>
-  <td class="detail" align="left">
-   &nbsp;<? echo $errmsg ?>
+  <td align='right'>
+   <?php  bucks($copays) ?>&nbsp;
+  </td>
+  <td>
+   <?php  echo $billed ?>
+  </td>
+  <td style='color:#cc0000'>
+   &nbsp;<?php  echo xl($errmsg); ?>
   </td>
  </tr>
-<?
-   $lastdocname = $docname;
-  }
+<?php
+   } // end of details line
+
+   $docrow['docname'] = $docname;
+  } // end of row
+
+  endDoctor($docrow);
+
+  echo " <tr class='apptencreport_totals'>\n";
+  echo "  <td colspan='5'>\n";
+  echo "   &nbsp;" . xl('Grand Totals') . "\n";
+  echo "  </td>\n";
+  echo "  <td align='right'>\n";
+  echo "   &nbsp;" . $grand_total_encounters . "&nbsp;\n";
+  echo "  </td>\n";
+  echo "  <td align='right'>\n";
+  echo "   &nbsp;"; bucks($grand_total_charges); echo "&nbsp;\n";
+  echo "  </td>\n";
+  echo "  <td align='right'>\n";
+  echo "   &nbsp;"; bucks($grand_total_copays); echo "&nbsp;\n";
+  echo "  </td>\n";
+  echo "  <td colspan='2'>\n";
+  echo "   &nbsp;\n";
+  echo "  </td>\n";
+  echo " </tr>\n";
+
  }
 ?>
-
+</tbody>
 </table>
+</div> <!-- end the apptenc_report_results -->
 
 </form>
 </center>
 <script>
-<?
-	if ($alertmsg) {
-		echo " alert('$alertmsg');\n";
-	}
-?>
+<?php if ($alertmsg) { echo " alert('$alertmsg');\n"; } ?>
 </script>
 </body>
+
+<!-- stuff for the popup calendar -->
+<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script language="Javascript">
+ Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
+ Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});
+</script>
+
 </html>
