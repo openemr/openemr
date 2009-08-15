@@ -32,6 +32,7 @@ $nexturl = $normalurl;
 
 if ($mode == 'new')
 {
+  $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
   $encounter = $conn->GenID("sequences");
   addForm($encounter, "New Patient Encounter",
     sqlInsert("INSERT INTO form_encounter SET " .
@@ -42,7 +43,8 @@ if ($mode == 'new')
       "facility_id = '$facility_id', " .
       "sensitivity = '$sensitivity', " .
       "pid = '$pid', " .
-      "encounter = '$encounter'"),
+      "encounter = '$encounter', " .
+      "provider_id = '$provider_id'"),
     "newpatient", $pid, $userauthorized, $date);
 }
 else if ($mode == 'update')
