@@ -290,7 +290,7 @@ function postError($msg) {
   while ($row = sqlFetchArray($res)) {
    $patient_id = $row['pid'];
    $encounter  = $row['encounter'];
-   $docname    = $row['docname'] ? $row['docname'] : 'Unknown';
+   $docname    = $row['docname'] ? $row['docname'] : xl('Unknown');
 
    if ($docname != $docrow['docname']) {
     endDoctor($docrow);
