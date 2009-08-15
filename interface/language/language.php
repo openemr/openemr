@@ -65,5 +65,5 @@ switch ($_GET['m']):
 endswitch;
 ?>
 
-<A HREF="lang.info.html"><?php xl('Info','e'); ?></A>
+<BR><A HREF="lang.info.html" TARGET="_blank"><?php xl('Info','e'); ?></A>
 </div>
