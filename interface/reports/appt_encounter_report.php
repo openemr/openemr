@@ -28,10 +28,17 @@
  include_once("../../library/patient.inc");
  include_once("../../custom/code_types.inc.php");
 
+ $errmsg  = "";
  $alertmsg = ''; // not used yet but maybe later
  $grand_total_charges    = 0;
  $grand_total_copays     = 0;
  $grand_total_encounters = 0;
+
+function postError($msg) {
+  global $errmsg;
+  if ($errmsg) $errmsg .= '<br />';
+  $errmsg .= $msg;
+}
 
  function bucks($amount) {
   if ($amount) printf("%.2f", $amount);
@@ -115,6 +122,7 @@
    "e.pc_pid != '' AND e.pc_apptstatus != '?' " .
    "LEFT OUTER JOIN forms AS f ON f.encounter = fe.encounter AND f.formdir = 'newpatient' " .
    "LEFT OUTER JOIN patient_data AS p ON p.pid = fe.pid " .
+
    "LEFT OUTER JOIN users AS u ON u.id = fe.provider_id WHERE ";
   if ($form_to_date) {
    // $query .= "LEFT(fe.date, 10) >= '$form_from_date' AND LEFT(fe.date, 10) <= '$form_to_date' ";
@@ -288,8 +296,8 @@
     endDoctor($docrow);
    }
 
-   $billed  = "Y";
    $errmsg  = "";
+   $billed  = "Y";
    $charges = 0;
    $copays  = 0;
    $gcac_related_visit = false;
@@ -306,18 +314,18 @@
     if ($code_types[$code_type]['fee'] && !$brow['billed'])
       $billed = "";
     if (!$GLOBALS['simplified_demographics'] && !$brow['authorized'])
-      $errmsg = "Needs Auth";
+      postError(xl('Needs Auth'));
     if ($code_types[$code_type]['just']) {
-     if (! $brow['justify']) $errmsg = "Needs Justify";
+     if (! $brow['justify']) postError(xl('Needs Justify'));
     }
     if ($code_type == 'COPAY') {
      $copays -= $brow['fee'];
-     if ($brow['fee'] >= 0) $errmsg = "Copay not positive";
+     if ($brow['fee'] >= 0) postError(xl('Copay not positive'));
     } else if ($code_types[$code_type]['fee']) {
      $charges += $brow['fee'];
-     if ($brow['fee'] == 0 && !$GLOBALS['ippf_specific']) $errmsg = "Missing Fee";
+     if ($brow['fee'] == 0 && !$GLOBALS['ippf_specific']) postError(xl('Missing Fee'));
     } else {
-     if ($brow['fee'] != 0) $errmsg = "Fee is not allowed";
+     if ($brow['fee'] != 0) postError(xl('Fee is not allowed'));
     }
 
     // Custom logic for IPPF to determine if a GCAC issue applies.
@@ -367,11 +375,9 @@
     }
    }
 
-   if (!$errmsg) {
-     if (!$billed) $errmsg = $GLOBALS['simplified_demographics'] ?
-       "Not checked out" : "Not billed";
-     if (!$encounter) $errmsg = "No visit";
-   }
+   if (!$billed) postError($GLOBALS['simplified_demographics'] ?
+     xl('Not checked out') : xl('Not billed'));
+   if (!$encounter) postError(xl('No visit'));
 
    if (! $charges) $billed = "";
 
@@ -386,7 +392,8 @@
    &nbsp;<?php  echo ($docname == $docrow['docname']) ? "" : $docname ?>
   </td>
   <td>
-   &nbsp;<?php 
+   &nbsp;<?php
+
     if (empty($row['pc_eventDate'])) {
       echo substr($row['encdate'], 0, 10);
     }
@@ -417,7 +424,7 @@
    <?php  echo $billed ?>
   </td>
   <td style='color:#cc0000'>
-   &nbsp;<?php  echo xl($errmsg); ?>
+   <?php echo $errmsg; ?>&nbsp;
   </td>
  </tr>
 <?php
