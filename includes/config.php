@@ -65,7 +65,7 @@ $GLOBALS['oer_config']['documents']['repopath'] = "documents/";
 $GLOBALS['oer_config']['documents']['file_command_path'] = "/usr/bin/file";
 
 //Name of prescription graphic in interface/pic/ directory without preceding slash. Can be JPEG or PNG, normally 3 inches wide.
-$GLOBALS['oer_config']['prescriptions']['logo_pic'] = "prescription_logo.png";
+$GLOBALS['oer_config']['prescriptions']['logo_pic'] = "Rx.png";
 
 // Name of signature graphic in interface/pic/ directory without preceding
 // slash. Normally 3 inches wide.  This filename may include the string

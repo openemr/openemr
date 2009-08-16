@@ -195,7 +195,7 @@ class C_Prescription extends Controller {
 	function multiprint_header(& $pdf, $p) {
 		$this->providerid = $p->provider->id;
 		//print header
-		$pdf->ezImage($GLOBALS['fileroot'] . '/interface/pic/Rx.png','','50','','center','');
+		$pdf->ezImage($GLOBALS['oer_config']['prescriptions']['logo'],'','50','','center','');
 		$pdf->ezColumnsStart(array('num'=>2, 'gap'=>10));
 		$res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" .
 			mysql_real_escape_string($p->provider->id) . "'");
@@ -251,7 +251,7 @@ class C_Prescription extends Controller {
 	        echo ("<tr>\n");
 	        echo ("<td></td>\n");
 	        echo ("<td>\n");	    
-                echo ("<img WIDTH='68pt' src='./interface/pic/Rx.png' />");
+                echo ("<img WIDTH='68pt' src='./interface/pic/" . $GLOBALS['oer_config']['prescriptions']['logo_pic'] . "' />");
                 echo ("</td>\n");
 	        echo ("</tr>\n");
 	        echo ("<tr>\n");
