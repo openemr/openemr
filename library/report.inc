@@ -1,5 +1,6 @@
 <?php
 require_once("{$GLOBALS['srcdir']}/sql.inc");
+require_once("{$GLOBALS['srcdir']}/acl.inc");
 
 $patient_data_array = array(title => "Title: ",
 fname => "First Name: ",
@@ -19,7 +20,9 @@ phone_biz => "Business Phone: ",
 phone_contact => "Contact Phone: ",
 contact_relationship => "Contact Person",
 hipaa_mail => "Allows Mail: ",
-hipaa_voice => "Allows Voice msgs: "
+hipaa_voice => "Allows Voice msgs: ",
+hipaa_notice => "Notice Received: ",
+hipaa_message => "Leave Message With: "
 );
 
 
@@ -204,7 +207,8 @@ function printListData($pid, $list_type, $list_activity = "%") {
 }
 
 function printPatientNotes($pid) {
-	$res = sqlStatement("select * from pnotes where pid='$pid' and activity=1 order by date");
+        // exclude ALL deleted notes
+	$res = sqlStatement("select * from pnotes where pid='$pid' and deleted!=1 and activity=1 order by date");
 	while($result = sqlFetchArray($res)) {
 		print "<span class=bold>" . date("Y-m-d",strtotime($result{"date"})) . ":</span><span class=text> " . stripslashes($result{"body"}) . "</span><br>\n";
 	}
@@ -221,12 +225,35 @@ function printPatientTransactions($pid) {
 function printPatientBilling($pid) {
 	$res = sqlStatement("select * from billing where pid='$pid' order by date");
 	while($result = sqlFetchArray($res)) {
-		print "<span class=bold>" . date("Y-m-d",strtotime($result{"date"})) . ":</span><span class=text>(".$result{"code_type"}.") " . $result{"code"} . "</span><br>\n";
+		echo "<span class=bold>" . date("Y-m-d",strtotime($result{"date"})) . " : </span>";
+                echo "<span class=text>(".$result{"code_type"}.") " . $result{"code"} . " - ". $result['code_text']."</span>";
+                echo "<br>\n";
 	}
 }
 
-function getPatientBillingEncounter($pid,$encounter) {
-	$sql = "select billing.*, u.id, u.fname, u.mname, u.lname,CONCAT(u.fname,' ', u.lname) as provider_name, u.federaltaxid  from billing LEFT JOIN users as u on u.id = billing.provider_id where pid='" . mysql_real_escape_string($pid) . "' and encounter = '" . mysql_real_escape_string($encounter) . "' and activity='1' order by date";
+function getPatientBillingEncounter($pid, $encounter) {
+  /*******************************************************************
+	$sql = "SELECT billing.*, u.id, u.fname, u.mname, u.lname, " .
+    "CONCAT(u.fname,' ', u.lname) AS provider_name, u.federaltaxid " .
+    "FROM billing LEFT JOIN users AS u ON u.id = billing.provider_id " .
+    "WHERE pid='" . mysql_real_escape_string($pid) . "' AND " .
+    "encounter = '" . mysql_real_escape_string($encounter) .
+    "' AND activity='1' ORDER BY date";
+  *******************************************************************/
+  $erow = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .
+    "pid = '$pid' AND encounter = '$encounter' " .
+    "ORDER BY id DESC LIMIT 1");
+  $inv_provider = $erow['provider_id'] + 0;
+	$sql = "SELECT b.*, u.id, u.fname, u.mname, u.lname, " .
+    "CONCAT(u.fname,' ', u.lname) AS provider_name, u.federaltaxid " .
+    "FROM billing AS b " .
+    "LEFT JOIN users AS u ON " .
+    "( b.provider_id != 0 AND u.id = b.provider_id ) OR " .
+    "( b.provider_id  = 0 AND u.id = $inv_provider ) " .
+    "WHERE pid='" . mysql_real_escape_string($pid) . "' AND " .
+    "encounter = '" . mysql_real_escape_string($encounter) .
+    "' AND activity = '1' ORDER BY date";
+  /******************************************************************/
 	$res = sqlStatement($sql);
 	$billings = array();
 	while($result = sqlFetchArray($res)) {
@@ -235,29 +262,55 @@ function getPatientBillingEncounter($pid,$encounter) {
 	return $billings;
 }
 
-
 function printPatientForms($pid, $cols) {
-	//this function takes a $pid
-	$inclookupres = sqlStatement("select distinct formdir from forms where pid='$pid'");
-	while($result = sqlFetchArray($inclookupres)) {
-		include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
-	}
+    //this function takes a $pid
+    $inclookupres = sqlStatement("select distinct formdir from forms where pid='$pid' AND deleted=0");
+    while($result = sqlFetchArray($inclookupres)) {
+        include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
+    }
 	
-	$isfirst=1;
-	$res = sqlStatement("select * from forms where pid='$pid' order by date");
-	while($result = sqlFetchArray($res)) {
-		if ($result{"form_name"} == "New Patient Encounter") {
-			if ($isfirst==0) {
-			print "</blockquote>\n\n";
-			}
-			$isfirst=0;
-			print "<span class=bold>".$result{"form_name"}." </span><span class=text>(".date("Y-m-d",strtotime($result{"date"})).")</span><br><blockquote>\n";
-		} else {
-			print "<span class=bold>".$result{"form_name"}." </span><span class=text>(".date("Y-m-d",strtotime($result{"date"})).")</span><br>\n";
-		}
-		call_user_func($result{"formdir"} . "_report", $pid, $result{"encounter"}, $cols, $result{"form_id"});
-		
-	}
+    $res = sqlStatement("select * from forms where pid='$pid' AND deleted=0 order by date");
+    while($result = sqlFetchArray($res)) {
+        if ($result{"form_name"} == "New Patient Encounter") {
+            echo "<div class='text encounter'>\n";
+            echo "<h1>" . $result["form_name"] . "</h1>";
+
+            // display the provider info
+            $tmp = sqlQuery("SELECT u.title, u.fname, u.mname, u.lname " .
+                                    "FROM forms AS f, users AS u WHERE " .
+                                    "f.pid = '$pid' AND f.encounter = ".$result['encounter']." AND " .
+                                    "f.formdir = 'newpatient' AND u.username = f.user " .
+                                    " AND f.deleted=0 ". //--JRM--
+                                    "ORDER BY f.id LIMIT 1");
+            echo " ".xl('Provider').": ".$tmp['title']." ".
+                $tmp['fname']." ".$tmp['mname']." ".$tmp['lname'];
+            echo "<br/>";
+        }
+        else {
+            echo "<div class='text encounter_form'>";
+            echo "<h1>" . $result["form_name"] . "</h1>";
+        }
+        echo "(" . date("Y-m-d",strtotime($result["date"])) . ") ";
+
+        if (acl_check('acct', 'rep') || acl_check('acct', 'eob') || acl_check('acct', 'bill')) {
+            if ($result{"form_name"} == "New Patient Encounter") {
+                // display billing info
+                echo "<br/>";
+                $bres = sqlStatement("SELECT date, code, code_text FROM billing WHERE " .
+                                        "pid = '$pid' AND encounter = '".$result['encounter']."' AND activity = 1 AND " .
+                                        "( code_type = 'CPT4' OR code_type = 'OPCS' OR code_type = 'OSICS10' ) " .
+                                        "ORDER BY date");
+                while ($brow=sqlFetchArray($bres)) {
+                    echo "<span class='bold'>&nbsp;".xl('Procedure').": </span><span class='text'>" .
+                        $brow['code'] . " " . $brow['code_text'] . "</span><br>\n";
+                }
+            }
+        }
+
+        call_user_func($result{"formdir"} . "_report", $pid, $result{"encounter"}, $cols, $result{"form_id"});
+
+        echo "</div>";
+    }
 }
 
 
