@@ -129,8 +129,10 @@
   'tra' => array(xl('Transact')  , 1, 'patient_file/transaction/transactions.php'),
   'sum' => array(xl('Summary')   , 1, 'patient_file/summary/summary_bottom.php'),
   'enc' => array(xl('Encounter') , 2, 'patient_file/encounter/encounter_top.php'),
-  'cod' => array(xl('Charges')   , 2, 'patient_file/encounter/encounter_bottom.php'),
  );
+ if ($GLOBALS['use_charges_panel'] || $GLOBALS['concurrent_layout'] == 2) {
+  $primary_docs['cod'] = array(xl('Charges'), 2, 'patient_file/encounter/encounter_bottom.php');
+ }
 
  // This section decides which navigation items will not appear.
 
@@ -826,7 +828,7 @@ function genPopupsList($style='') {
   <li><span><?php xl('Fees','e') ?></span>
     <ul>
       <?php genMiscLink('RBot','cod','2',xl('Fee Sheet'),'patient_file/encounter/load_form.php?formname=fee_sheet'); ?>
-      <?php if (false) genTreeLink('RBot','cod',xl('Charges')); ?>
+      <?php if ($GLOBALS['use_charges_panel']) genTreeLink('RBot','cod',xl('Charges')); ?>
       <?php genMiscLink('RBot','bil','1',xl('Checkout'),'patient_file/pos_checkout.php?framed=1'); ?>
       <?php if (! $GLOBALS['simplified_demographics']) genTreeLink('RTop','bil',xl('Billing')); ?>
     </ul>

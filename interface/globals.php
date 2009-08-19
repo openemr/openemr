@@ -172,7 +172,6 @@ $GLOBALS['translate_appt_categories'] = true;
 //  open the openemr mysql connection.
 include_once (dirname(__FILE__) . "/../library/translation.inc.php");
 
-
 //
 // Lists and Layouts Control Section
 //
@@ -197,14 +196,12 @@ $GLOBALS['state_list'] = "state";
 $GLOBALS['country_data_type'] = 26;
 $GLOBALS['country_list'] = "country";
 
-
 // Vitals form and growth chart units (US and-or metrics)
 //   1 = Show both US and metric (main unit is US)
 //   2 = Show both US and metric (main unit is metric)
 //   3 = Show US only
 //   4 = Show metric only
 $GLOBALS['units_of_measurement'] = 1;
-
 
 include_once (dirname(__FILE__) . "/../library/date_functions.php");
 include_once (dirname(__FILE__) . "/../library/classes/Filtreatment_class.php");
@@ -429,6 +426,10 @@ $GLOBALS['ignore_pnotes_authorization'] = true;
 // Everyone should want this, but for now it's optional.
 $GLOBALS['full_new_patient_form'] = true;
 
+// This can be used to enable the old Charges panel for entering billing
+// codes and payments.  It is not recommended, as it was obsoleted by the
+// Fee Sheet which is more complete and comprehensive.
+$GLOBALS['use_charges_panel'] = false;
 
 // Multi-facility Configuration
 //
