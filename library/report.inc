@@ -244,7 +244,7 @@ function getPatientBillingEncounter($pid, $encounter) {
     "pid = '$pid' AND encounter = '$encounter' " .
     "ORDER BY id DESC LIMIT 1");
   $inv_provider = $erow['provider_id'] + 0;
-	$sql = "SELECT billing.*, u.id, u.fname, u.mname, u.lname, " .
+	$sql = "SELECT b.*, u.id, u.fname, u.mname, u.lname, " .
     "CONCAT(u.fname,' ', u.lname) AS provider_name, u.federaltaxid " .
     "FROM billing AS b " .
     "LEFT JOIN users AS u ON " .
