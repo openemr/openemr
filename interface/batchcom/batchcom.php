@@ -49,7 +49,7 @@ if ($_POST['form_action']=='Process') {
 
         $sql=" 
                 SELECT DISTINCT patient_data.* , MAX( cal_events.pc_endDate ) AS last_ap, MAX( forms.date) AS last_visit, (DATEDIFF(CURDATE(),patient_data.DOB)/365.25) AS pat_age 
-                FROM patient_data, forms  
+                FROM (patient_data, forms)  
                 LEFT JOIN  openemr_postcalendar_events AS cal_events ON patient_data.pid=cal_events.pc_pid
                 LEFT JOIN  forms AS forms2 ON patient_data.pid=forms2.pid
             ";
