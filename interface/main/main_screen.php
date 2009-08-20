@@ -9,9 +9,14 @@
    $frame1url = "calendar/index.php?pid=" . $_GET['pid'];
    if (isset($_GET['date'])) $frame1url .= "&date=" . $_GET['date'];
   } else {
-   if ($GLOBALS['concurrent_layout'])
+   if ($GLOBALS['concurrent_layout']) {
     // new layout
-    $frame1url = "main_info.php";
+    if ($GLOBALS['default_top_pane']) {
+      $frame1url=$GLOBALS['default_top_pane'];
+     } else {
+     $frame1url = "main_info.php";
+     }
+    }
    else
     // old layout
     $frame1url = "main.php?mode=" . $_GET['mode'];

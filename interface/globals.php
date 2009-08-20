@@ -210,6 +210,13 @@ $GLOBALS['disable_chart_tracker'] = false;
 $GLOBALS['disable_immunizations'] = false; 
 $GLOBALS['disable_prescriptions'] = false;
 
+// Option to set the top default window. By default, it is set
+// to the calendar screen. The starting directory is
+// interface/main/ , hence:
+//    The calendar screen is 'main_info.php' .
+//    The patient search/add screen is '../new/new.php' .
+$GLOBALS['default_top_pane'] = 'main_info.php';
+
 include_once (dirname(__FILE__) . "/../library/date_functions.php");
 include_once (dirname(__FILE__) . "/../library/classes/Filtreatment_class.php");
 
