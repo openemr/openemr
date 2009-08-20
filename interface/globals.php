@@ -102,6 +102,7 @@ $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
 //   Hebrew                         // xl('Hebrew')
 //   Norwegian                      // xl('Norwegian')
 //   Portuguese (Brazilian)         // xl('Portuguese (Brazilian)')
+//   Portuguese (European)          // xl('Portuguese (European)')
 //   Russian                        // xl('Russian')
 //   Slovak                         // xl('Slovak')
 //   Spanish                        // xl('Spanish')
