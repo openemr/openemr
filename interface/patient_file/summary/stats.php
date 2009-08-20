@@ -160,7 +160,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
 ?>
 </table> <!-- end patient_stats_spreadsheets -->
 
-<?php if (!$GLOBALS['weight_loss_clinic']) { ?>
+<?php if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) { ?>
 <table id="patient_stats_imm">
 <tr class='issuetitle'>
 <td colspan='<?php echo $numcols ?>' valign='top'>
@@ -197,6 +197,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
 <?php } ?>
 
 
+<?php if (!$GLOBALS['disable_prescriptions']) { ?>
 <table id="patient_stats_prescriptions">
 <tr><td colspan='<?php echo $numcols ?>' class='issuetitle'>
 <span class='title'><?php echo xl('Prescriptions'); ?></span>
@@ -211,6 +212,7 @@ echo $c->act(array("prescription" => "", "block" => "", "patient_id" => $pid));
 ?>
 </td></tr>
 </table> <!-- end patient_stats_prescriptions -->
+<?php } ?>
 
 </div> <!-- end patient_stats_summary -->
 

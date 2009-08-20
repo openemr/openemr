@@ -372,7 +372,7 @@ if ($document_id) {
 }
 
 // Show current and upcoming appointments.
-if (isset($pid)) {
+if (isset($pid) && !$GLOBALS['disable_calendar']) {
  $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
   "e.pc_startTime, e.pc_hometext, u.fname, u.lname, u.mname, " .
   "c.pc_catname " .

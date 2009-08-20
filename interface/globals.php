@@ -176,12 +176,12 @@ include_once (dirname(__FILE__) . "/../library/translation.inc.php");
 //
 // Lists and Layouts Control Section
 //
-
+//
 // 'state_custom_addlist_widget'
 //  - If true, then will display a customized addlist widget for
 //    state list entries (will ask for title and abbreviation)
 $GLOBALS['state_custom_addlist_widget'] = true;
-
+//
 // Data type options. This will set data types in forms that are not
 //  covered by a layout.
 //   1  = single-selection list 
@@ -203,6 +203,12 @@ $GLOBALS['country_list'] = "country";
 //   3 = Show US only
 //   4 = Show metric only
 $GLOBALS['units_of_measurement'] = 1;
+
+// Flags to turn off/on specific OpenEMR modules
+$GLOBALS['disable_calendar'] = false;
+$GLOBALS['disable_chart_tracker'] = false; 
+$GLOBALS['disable_immunizations'] = false; 
+$GLOBALS['disable_prescriptions'] = false;
 
 include_once (dirname(__FILE__) . "/../library/date_functions.php");
 include_once (dirname(__FILE__) . "/../library/classes/Filtreatment_class.php");

@@ -217,9 +217,11 @@ function genPopupsList($style='') {
 <?php } ?>
 <?php if ($GLOBALS['athletic_team']) { ?>
  <option value='../reports/players_report.php'><?php xl('Roster','e'); ?></option>
-<?php } ?>
+<?php } ;
+ if (!$GLOBALS['disable_calendar']) { ?>
  <option value='../reports/appointments_report.php?patient=<?php echo $pid ?>'><?php xl('Appts','e'); ?></option>
-<?php if (file_exists("$webserver_root/custom/refer.php")) { ?>
+<?php } ;
+ if (file_exists("$webserver_root/custom/refer.php")) { ?>
  <option value='../../custom/refer.php'><?php xl('Refer','e'); ?></option>
 <?php } ?>
 <?php // if (file_exists("$webserver_root/custom/fee_sheet_codes.php")) { ?>
@@ -699,8 +701,8 @@ function genPopupsList($style='') {
           <?php genTreeLink('RTop','his',xl('View Allergies')); // his page with Allergies section open ?>
           <?php genDualLink('iss','ens',xl('Problems/Issues')); // with ens on bottom ?>
           <?php genDualLink('tra','ens',xl('Transactions/Referrals')); // new transaction form on top and tra list on bottom (or ens if no tra) ?>
-          <?php genDualLink('his','imm',xl('Immunizations')); // imm on bottom, his on top ?>
-          <?php if (acl_check('patients', 'med')) genDualLink('his','pre',xl('Prescriptions')); // pre on bottom, his on top ?>
+          <?php if (!$GLOBALS['disable_immunizations']) genDualLink('his','imm',xl('Immunizations')); // imm on bottom, his on top ?>
+          <?php if (acl_check('patients', 'med') && !$GLOBALS['disable_prescriptions']) genDualLink('his','pre',xl('Prescriptions')); // pre on bottom, his on top ?>
           <?php genTreeLink('RTop','doc',xl('Document/Imaging Store')); ?>
           <?php genTreeLink('RTop','prp',xl('Patient Printed Report')); ?>
           <?php genDualLink('dem','pno',xl('Additional Notes')); // with dem on top ?>
@@ -710,7 +712,7 @@ function genPopupsList($style='') {
       </li>
       <li><span><?php xl('View','e') ?></span>
         <ul>
-          <?php genTreeLink('RTop','cal',xl('Calendar View')); ?>
+	  <?php if (!$GLOBALS['disable_calendar']) genTreeLink('RTop','cal',xl('Calendar View')); ?>
           <?php genTreeLink('RTop','ros',xl('Team Roster View')); // default; and minimize lower frame ?>
           <?php genTreeLink('RTop','dem',xl('Current Patient')); // this also appears under Demographics ?>
         </ul>
@@ -730,15 +732,15 @@ function genPopupsList($style='') {
       <li><span><?php xl('Patient/Client','e') ?></span>
         <ul>
           <?php genPopLink('List','patient_list.php'); ?>
-          <?php if (acl_check('patients', 'med')) genPopLink(xl('Prescriptions'),'prescriptions_report.php'); ?>
+          <?php if (acl_check('patients', 'med') && !$GLOBALS['disable_prescriptions']) genPopLink(xl('Prescriptions'),'prescriptions_report.php'); ?>
           <?php genPopLink(xl('Referrals'),'referrals_report.php'); ?>
         </ul>
       </li>
       <li><span><?php xl('Visits','e') ?></span>
         <ul>
-          <?php genPopLink(xl('Appointments'),'appointments_report.php'); ?>
+          <?php if (!$GLOBALS['disable_calendar']) genPopLink(xl('Appointments'),'appointments_report.php'); ?>
           <?php genPopLink(xl('Encounters'),'encounters_report.php'); ?>
-          <?php genPopLink(xl('Appt-Enc'),'appt_encounter_report.php'); ?>
+          <?php if (!$GLOBALS['disable_calendar']) genPopLink(xl('Appt-Enc'),'appt_encounter_report.php'); ?>
         </ul>
       </li>
       <li><span><?php xl('General','e') ?></span>
@@ -770,7 +772,7 @@ function genPopupsList($style='') {
       <li><span><?php xl('Other','e') ?></span>
         <ul>
           <?php if (acl_check('admin', 'forms'   )) genMiscLink('RTop','adm','0',xl('Forms'),'forms_admin/forms_admin.php'); ?>
-          <?php if (acl_check('admin', 'calendar')) genMiscLink('RTop','adm','0',xl('Calendar'),'main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig'); ?>
+          <?php if (acl_check('admin', 'calendar') && !$GLOBALS['disable_calendar']) genMiscLink('RTop','adm','0',xl('Calendar'),'main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig'); ?>
           <?php if (acl_check('admin', 'users'   )) genMiscLink('RTop','adm','0',xl('Logs'),'logview/logview.php'); ?>
           <?php if (acl_check('admin', 'database')) genMiscLink('RTop','adm','0',xl('Database'),'../phpmyadmin/index.php'); ?>
           <?php if (acl_check('admin', 'super'   )) genMiscLink('RTop','adm','0',xl('Backup'),'main/backup.php'); ?>
@@ -792,7 +794,7 @@ function genPopupsList($style='') {
 <?php } else { // not athletic team ?>
 
 <ul id="navigation">
-  <?php if (!$GLOBALS['ippf_specific']) genTreeLink('RTop','cal',xl('Calendar')); ?>
+  <?php if (!$GLOBALS['disable_calendar'] && !$GLOBALS['ippf_specific']) genTreeLink('RTop','cal',xl('Calendar')); ?>
   <li class="open"><span><?php xl('Patient/Client','e') ?></span>
     <ul>
       <li><span><?php xl('Management','e') ?></span>
@@ -804,20 +806,20 @@ function genPopupsList($style='') {
       </li>
       <li class="open"><span><?php xl('Visits','e') ?></span>
         <ul>
-          <?php if ($GLOBALS['ippf_specific']) genTreeLink('RTop','cal',xl('Calendar')); ?>
+          <?php if ($GLOBALS['ippf_specific'] && !$GLOBALS['disable_calendar']) genTreeLink('RTop','cal',xl('Calendar')); ?>
           <?php genTreeLink('RBot','nen',xl('New Visit')); ?>
           <?php genTreeLink('RBot','enc',xl('Current')); ?>
           <?php genTreeLink('RBot','ens',xl('List')); ?>
           <?php genTreeLink('RBot','tra',xl('Transact')); ?>
-          <?php genPopLink(xl('Chart Tracker'),'../../custom/chart_tracker.php'); ?>
+          <?php if (!$GLOBALS['disable_chart_tracker']) genPopLink(xl('Chart Tracker'),'../../custom/chart_tracker.php'); ?>
         </ul>
       </li>
       <li><span><?php xl('Medical Record','e') ?></span>
         <ul> 
-          <?php if (acl_check('patients', 'med')) genTreeLink('RBot','pre',xl('Rx')); ?>
+          <?php if (acl_check('patients', 'med') && !$GLOBALS['disable_prescriptions']) genTreeLink('RBot','pre',xl('Rx')); ?>
           <?php genTreeLink('RTop','his',xl('History')); ?>
           <?php genTreeLink('RTop','iss',xl('Issues')); ?>
-          <?php genTreeLink('RBot','imm',xl('Immunize')); ?>
+          <?php if (!$GLOBALS['disable_immunizations']) genTreeLink('RBot','imm',xl('Immunize')); ?>
           <?php genTreeLink('RTop','doc',xl('Documents')); ?>
           <?php genTreeLink('RBot','pno',xl('Notes')); ?>
           <?php genTreeLink('RTop','prp',xl('Report')); ?>
@@ -850,7 +852,7 @@ function genPopupsList($style='') {
         <ul>
           <?php if (acl_check('admin', 'language')) genMiscLink('RTop','adm','0',xl('Language'),'language/language.php'); ?>
           <?php if (acl_check('admin', 'forms'   )) genMiscLink('RTop','adm','0',xl('Forms'),'forms_admin/forms_admin.php'); ?>
-          <?php if (acl_check('admin', 'calendar')) genMiscLink('RTop','adm','0',xl('Calendar'),'main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig'); ?>
+          <?php if (acl_check('admin', 'calendar') && !$GLOBALS['disable_calendar']) genMiscLink('RTop','adm','0',xl('Calendar'),'main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig'); ?>
           <?php if (acl_check('admin', 'users'   )) genMiscLink('RTop','adm','0',xl('Logs'),'logview/logview.php'); ?>
           <?php if (acl_check('admin', 'database')) genMiscLink('RTop','adm','0',xl('Database'),'../phpmyadmin/index.php'); ?>
         </ul>
@@ -863,20 +865,20 @@ function genPopupsList($style='') {
       <li><span><?php xl('Clients','e') ?></span>
         <ul>
           <?php genPopLink(xl('List'),'patient_list.php'); ?>
-          <?php if (acl_check('patients', 'med')) genPopLink(xl('Rx'),'prescriptions_report.php'); ?>
+          <?php if (acl_check('patients', 'med') && !$GLOBALS['disable_prescriptions']) genPopLink(xl('Rx'),'prescriptions_report.php'); ?>
           <?php genPopLink(xl('Referrals'),'referrals_report.php'); ?>
         </ul>
       </li>
       <li class="open"><span><?php xl('Visits','e') ?></span>
         <ul>
-          <?php genPopLink(xl('Appointments'),'appointments_report.php'); ?>
+          <?php if (!$GLOBALS['disable_calendar']) genPopLink(xl('Appointments'),'appointments_report.php'); ?>
           <?php genPopLink(xl('Encounters'),'encounters_report.php'); ?>
-          <?php genPopLink(xl('Appt-Enc'),'appt_encounter_report.php'); ?>
+          <?php if (!$GLOBALS['disable_calendar']) genPopLink(xl('Appt-Enc'),'appt_encounter_report.php'); ?>
 <?php if (empty($GLOBALS['code_types']['IPPF'])) { ?>
           <?php genPopLink(xl('Superbill'),'custom_report_range.php'); ?>
 <?php } ?>
-          <?php genPopLink(xl('Chart Activity'),'chart_location_activity.php'); ?>
-          <?php genPopLink(xl('Charts Out'),'charts_checked_out.php'); ?>
+          <?php if (!$GLOBALS['disable_chart_tracker']) genPopLink(xl('Chart Activity'),'chart_location_activity.php'); ?>
+          <?php if (!$GLOBALS['disable_chart_tracker']) genPopLink(xl('Charts Out'),'charts_checked_out.php'); ?>
         </ul>
       </li>
 <?php if (acl_check('acct', 'rep_a')) { ?>
@@ -941,7 +943,7 @@ function genPopupsList($style='') {
       <?php genTreeLink('RBot','aun',xl('Pt Notes/Auth')); ?>
       <?php genTreeLink('RTop','fax',xl('Fax/Scan')); ?>
       <?php genTreeLink('RTop','adb',xl('Addr Book')); ?>
-      <?php genTreeLink('RTop','cht',xl('Chart Tracker')); ?>
+      <?php if (!$GLOBALS['disable_chart_tracker']) genTreeLink('RTop','cht',xl('Chart Tracker')); ?>
       <?php genTreeLink('RTop','ono',xl('Ofc Notes')); ?>
       <?php genMiscLink('RTop','adm','0',xl('BatchCom'),'batchcom/batchcom.php'); ?>
       <?php genTreeLink('RTop','pwd',xl('Password')); ?>

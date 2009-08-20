@@ -104,12 +104,13 @@ else $pres = "prescription";
 
 } // EOS DBC
 ?>
-
+<?php if (!$GLOBALS['disable_prescriptions']) { ?>
 <dt><span href="coding.php" class="title"><?php xl('Prescriptions','e'); ?></span></dt>
 <dd><a class="text" href="<?php echo $GLOBALS['webroot']?>/controller.php?<?php echo $pres?>&list&id=<?php echo $pid?>"
  target="Codes" onclick="top.restoreSession()"><?php xl('List Prescriptions','e'); ?></a></dd>
 <dd><a class="text" href="<?php echo $GLOBALS['webroot']?>/controller.php?<?php echo $pres?>&edit&id=&pid=<?php echo $pid?>"
  target="Codes" onclick="top.restoreSession()"><?php xl('Add Prescription','e'); ?></a></dd>
+<? }; // if (!$GLOBALS['disable_prescriptions']) ?>
 </dl>
 
 </body>
