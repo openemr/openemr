@@ -187,7 +187,7 @@ function validate(f) {
 <dl>
 <dt>
 <a href="diagnosis_full.php" target="<?php echo $target; ?>" onclick="top.restoreSession()">
-<span class=title><?php echo ($GLOBALS['phone_country_code'] == '1') ? 'Billing' : 'Coding'; ?></span>
+<span class=title><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('Billing') : xl('Coding'); ?></span>
 <font class=more><?php echo $tmore;?></font></a>
 
 <?php
@@ -231,7 +231,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
         "href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
 				$iter['code'] . "</b> " .
 				ucwords(strtolower($iter['code_text'])) .
-				' payment entered on ' .
+				' ' . xl('payment entered on') . ' ' .
 				$iter['date']."</a></td></tr>\n";
 		}
 		else {
@@ -286,7 +286,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 		}
 	}
 
-	$billing_html["CPT4"] .= "<tr><td>total:</td><td>" . sprintf("%01.2f",$total) . "</td></tr>\n";
+	$billing_html["CPT4"] .= "<tr><td>" . xl('total') . ":</td><td>" . sprintf("%01.2f",$total) . "</td></tr>\n";
 	foreach ($billing_html as $key => $val) {
 		print "<tr><td>$key</td><td><table>$val</table><td></tr><tr><td height=\"5\"></td></tr>\n";
 	}
