@@ -438,7 +438,7 @@ $GLOBALS['set_facility_cookie'] = false;
 // This can be used to enable the old Charges panel for entering billing
 // codes and payments.  It is not recommended, as it was obsoleted by the
 // Fee Sheet which is more complete and comprehensive.
-$GLOBALS['use_charges_panel'] = false;
+$GLOBALS['use_charges_panel'] = true;
 
 // If you want Hylafax support then uncomment and customize the following
 // statements, and also customize custom/faxcover.txt:
