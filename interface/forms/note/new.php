@@ -67,9 +67,16 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 <br>
 <textarea name="message" id="message" rows="7" cols="47"></textarea>
 <br>
-<input type="checkbox" name="private" id="private"><label for="private">This note is private</label>
-<br> <br>
 
+<?php
+// commented out below private field, because no field in database, and causes error.
+?>
+<!--
+<input type="checkbox" name="private" id="private"><label for="private">This note is private</label>
+<br>
+-->
+	
+<br>
 <b><?php xl('Signature:','e'); ?></b>
 <br>
 
