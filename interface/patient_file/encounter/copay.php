@@ -40,7 +40,7 @@ $N=10
 <dt><span class=title><?php xl('Copay','e'); ?></span></dt>
 
 <br>
-<span class='text'>$ </span><input type='entry' name='code' value='' size='5' />
+<span class='text'><?php xl('$','e'); ?> </span><input type='entry' name='code' value='' size='5' />
 
 <input type="SUBMIT" value="<?php xl('Save','e'); ?>"><br><br>
 

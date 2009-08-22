@@ -38,7 +38,7 @@ $N=10
 <tr>
   <td class="text"><input type=entry name=code size=4>&nbsp;&nbsp;</td>
   <td class="text"><input type=entry name=text size=15>&nbsp;&nbsp;</td>
-  <td class="text">$ </span><input type=entry name=fee size=5></td>
+  <td class="text"><?php xl('$','e'); ?> </span><input type=entry name=fee size=5></td>
   <td>&nbsp;<a class='text' href="javascript:top.restoreSession();document.other_form.submit();">
    <?php xl('Save','e'); ?></a>
   </td>
