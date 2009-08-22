@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- InstanceBegin template="/Templates/oemr.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>OpenEMR v3.0.1 Users Guide</title>
+<!-- InstanceEndEditable -->
+<!-- InstanceBeginEditable name="head" -->
+<!-- InstanceEndEditable -->
+</head>
+
+<body>
+<h1>OpenEMR Users Guide (version 3.1.0)</h1>
+<h3>Table of Contents</h3>
+<ul>
+<li><a href="01.html">Getting Started</a></li>
+<ul><!-- InstanceBeginEditable name="TOC1" --><!-- InstanceEndEditable --></ul>
+<li><a href="02.html">Main Screen & Navigation</a></li>
+<ul><!-- InstanceBeginEditable name="TOC2" --><!-- InstanceEndEditable --></ul>
+<li><a href="03.html">Setting Up Your Clinic</a></li>
+<ul><!-- InstanceBeginEditable name="TOC3" --><!-- InstanceEndEditable --></ul>
+<li><a href="04.html">Adding a New Patient</a></li>
+<ul><!-- InstanceBeginEditable name="TOC4" --><!-- InstanceEndEditable --></ul>
+<li><a href="05.html">Using the Calendar</a></li>
+<ul><!-- InstanceBeginEditable name="TOC5" -->
+<li>Setting Up Schedules</li>
+<li>Making Appointments</li>
+<li>Appointment Status</li>
+<!-- InstanceEndEditable --></ul>
+<li><a href="06.html">New Encounters & Coding</a></li>
+<ul><!-- InstanceBeginEditable name="TOC6" --><!-- InstanceEndEditable --></ul>
+<li><a href="07.html">Issues & Immunizations</a></li>
+<ul><!-- InstanceBeginEditable name="TOC7" --><!-- InstanceEndEditable --></ul>
+<li><a href="08.html">Patient Notes & Transactions</a></li>
+<ul><!-- InstanceBeginEditable name="TOC8" --><!-- InstanceEndEditable --></ul>
+<li><a href="09.html">Basic Billing</a></li>
+<ul><!-- InstanceBeginEditable name="TOC9" --><!-- InstanceEndEditable --></ul>
+<li><a href="10.html">Accounting & Receivables</a></li>
+<ul><!-- InstanceBeginEditable name="TOC10" --><!-- InstanceEndEditable --></ul>
+<li><a href="11.html">Reporting</a></li>
+<ul><!-- InstanceBeginEditable name="TOC11" --><!-- InstanceEndEditable --></ul>
+<li><a href="index.html">Index</a></li>
+</ul>
+<br />
+<center>
+<!-- InstanceBeginEditable name="nav1" -->
+<a href="04.html"><< Prev</a> < Using The Calendar > <a href="06.html">Next >></a>
+<!-- InstanceEndEditable -->
+</center>
+<!-- InstanceBeginEditable name="body" -->
+<h2>Using The Calendar</h2>
+<p>In this section we'll discuss setting up a doctor's schedule in the calendar and adding patient appointments.</p>
+<img src="Using the Calendar/01-login-cyan.png" />
+<h3>Setting Up Schedules</h3>
+<p>Login to OpenEMR using your assigned username and password. </p>
+<p>For users who are not practitioners, such as someone who works at the front desk, the Calendar will show the schedules of all the practitioners at the clinic by default.  When you first start using OpenEMR you will need to set up schedules for all of your practitioners.</p>
+<p>To do this, click on “8:00” under the Name of the doctor who's schedule you wish to set up. </p>
+<img src="Using the Calendar/02-calendar.png" />
+<p>This will present you with the 'Add New Event' dialog box. </p>
+<img src="Using the Calendar/03-calendar-in_office.png" />
+<p>The clinic and provider name should be automatically filled in for you.  Set the time at which the doctor arrives by filling in the appropriate time on the right, and choosing “In Office” from the 'Category' drop-down list. </p>
+<p>You can also choose to make this a repeating event, which allows you to only have to set up an event once for a given period of time. Do this by selecting the 'Repeats' checkbox, and setting the appropriate frequency & duration.</p>
+<p>When you are finished click 'Save' to update the calendar.  Now you will see a list of available time slots for that doctor's schedule.  Scroll down and click on the time that doctor is scheduled to leave the office for the day.</p>
+<img src="Using the Calendar/04-calendar-out_of_office.png" />
+<p>Now the time is automatically selected, as well as the provider and facility information.  The same process is used to create a repeating “Out Of Office” event.</p>
+<img src="Using the Calendar/05-calendar-lunch.png" />
+<p>You can also add a lunch break in your practitioners' schedules.  This is done the same way, with the exception of the duration, which in this case is non-zero.</p>
+<img src="Using the Calendar/06-calendar-schedule.png" />
+<p>Now you can see your practitioner's full schedule laid out on the Calendar page.  Continue setting up the Calendar in this fashion until all your practitioners' schedules have been entered.</p>
+<img src="Using the Calendar/07-calendar-schedule2.png" />
+<h3>Making Appointments</h3>
+<p>Now that the clinic and all it's practitioners are set up, you can begin scheduling appointments for your patients.</p>
+<p>To locate a patient in the system, enter all or part of their name into the search field in the bottom left corner of the screen (below the navigation list) and click 'Name'.  This will bring up a list of all the patients in your system matching that name.  If you need to narrow the list, you can enter a longer search term, such as their full name (Eg. “rourk, rod”).</p>
+<img src="Using the Calendar/08-patient_search.png" />
+<p>Click on the desired name to bring up the Demographics summary for that patient.  If you have the patient on the phone, now would be a good time to confirm that their contact and insurance information is up to date.  If the patient is not already in the system, you can select 'New Pt.' from the menu to begin entering their information.</p>
+<img src="Using the Calendar/09-patient_info.png" />
+<p>The right-hand side of the Demographics summary shows a list of all current and future appointments for that patient.  Click 'New Appointment' to schedule an office visit.</p>
+<img src="Using the Calendar/10-calendar-new_appt.png" />
+<p>This will present you with the same 'Add New Event' dialog used earlier.  This time select “Office Visit” as the Category.  If a primary provider has been entered for that patient, they will be selected automatically.</p>
+<p>Click 'Find Available' to see a list of appointment times available for that provider for the next 7 days.  You can change the start date or the number of days shown and click 'Search' to display a new list using those  parameters. </p>
+<img src="Using the Calendar/11-calendar-appt_search.png" />
+<p>Once a date and time have been agreed upon, selecting that time from the list will close the window, and the selected time will appear in the 'Add Event' dialog. </p>
+<img src="Using the Calendar/12-calendar-new_appt2.png" />
+<p>Make sure to enter the correct duration for the appointment and click 'Save'.</p>
+<p>Return to the calendar using the navigation menu on the left.  Advancing to the appropriate date, using the  arrows to the right of the current date ('>>'), shows the new appointment listed in the provider's schedule.  Mousing over the appointment displays a toot-tip with information about that patient, such as date of birth.</p>
+<img src="Using the Calendar/13-calendar-appt_view.png" />
+<h3>Appointment Status</h3>
+<p>OpenEMR's calendar system includes a status indicator, allowing doctors and staff to see at a glance what is going on with all appointments and the corresponding encounters for the day. </p>
+<p>To change the status of a given appointment, click on the time portion of the appointment line (to the immediate left of the patient's name).  This brings up the 'Edit Event' window.  Choose the correct appointment status from the drop-down list.  Notice each status has a unique symbol associated with it.</p>
+<img src="Using the Calendar/14-calendar-appt_status.png" />
+<p>You can also type a note into the 'Comments' line if more information is needed.  Click 'Save' to update the status of the appointment.</p>
+<img src="Using the Calendar/15-calendar-appt_view-reminded.png" />
+<p>Mousing over the appointment in the calendar now shows the note that was added to it, and the symbol next to the appointment time has changed to indicate it's new status.</p>
+<!-- InstanceEndEditable -->
+<center>
+<!-- InstanceBeginEditable name="nav2" -->
+<a href="04.html"><< Prev</a> < Using The Calendar > <a href="06.html">Next >></a>
+<!-- InstanceEndEditable -->
+</center>
+</body>
+<!-- InstanceEnd --></html>

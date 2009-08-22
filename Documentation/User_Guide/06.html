@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- InstanceBegin template="/Templates/oemr.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>OpenEMR v3.0.1 Users Guide</title>
+<!-- InstanceEndEditable -->
+<!-- InstanceBeginEditable name="head" -->
+<!-- InstanceEndEditable -->
+</head>
+
+<body>
+<h1>OpenEMR Users Guide (version 3.1.0)</h1>
+<h3>Table of Contents</h3>
+<ul>
+<li><a href="01.html">Getting Started</a></li>
+<ul><!-- InstanceBeginEditable name="TOC1" --><!-- InstanceEndEditable --></ul>
+<li><a href="02.html">Main Screen & Navigation</a></li>
+<ul><!-- InstanceBeginEditable name="TOC2" --><!-- InstanceEndEditable --></ul>
+<li><a href="03.html">Setting Up Your Clinic</a></li>
+<ul><!-- InstanceBeginEditable name="TOC3" --><!-- InstanceEndEditable --></ul>
+<li><a href="04.html">Adding a New Patient</a></li>
+<ul><!-- InstanceBeginEditable name="TOC4" --><!-- InstanceEndEditable --></ul>
+<li><a href="05.html">Using the Calendar</a></li>
+<ul><!-- InstanceBeginEditable name="TOC5" --><!-- InstanceEndEditable --></ul>
+<li><a href="06.html">New Encounters & Coding</a></li>
+<ul><!-- InstanceBeginEditable name="TOC6" -->
+<li>Opening a New Encounter</li>
+<li>Encounter Forms</li>
+<li>Using the Fee Sheet</li>
+<li>Adding Prescriptions</li>
+<!-- InstanceEndEditable --></ul>
+<li><a href="07.html">Issues & Immunizations</a></li>
+<ul><!-- InstanceBeginEditable name="TOC7" --><!-- InstanceEndEditable --></ul>
+<li><a href="08.html">Patient Notes & Transactions</a></li>
+<ul><!-- InstanceBeginEditable name="TOC8" --><!-- InstanceEndEditable --></ul>
+<li><a href="09.html">Basic Billing</a></li>
+<ul><!-- InstanceBeginEditable name="TOC9" --><!-- InstanceEndEditable --></ul>
+<li><a href="10.html">Accounting & Receivables</a></li>
+<ul><!-- InstanceBeginEditable name="TOC10" --><!-- InstanceEndEditable --></ul>
+<li><a href="11.html">Reporting</a></li>
+<ul><!-- InstanceBeginEditable name="TOC11" --><!-- InstanceEndEditable --></ul>
+<li><a href="index.html">Index</a></li>
+</ul>
+<br />
+<center>
+<!-- InstanceBeginEditable name="nav1" -->
+<a href="05.html"><< Prev</a> < New Encounters & Coding > <a href="07.html">Next >></a>
+<!-- InstanceEndEditable -->
+</center>
+<!-- InstanceBeginEditable name="body" -->
+<h2>New Encounters & Coding</h2>
+<p>Patient encounters are handled primarily by a clinics providers. </p>
+<img src="New Encounter/01-login-black.png" />
+<p>Logging in as a provider presents you with the Calendar page showing only that provider's schedule by default.  To view another provider's schedule, select the desired user from the list at the top left of the page and click 'Go'. </p>
+<p>The bottom window also shows any notes left for that provider about their patients. </p>
+<p>The Calendar shows the appointments scheduled for that day.  Providers can see the status of any given appointment, indicated by the symbol show between the appointment time and the patient's name.  The “@” symbol, for example, indicates that the patient has arrived at the clinic and is ready to being their appointment.</p>
+<img src="New Encounter/02-calendar-drblack.png" />
+<h3>Opening a New Encounter</h3>
+<p>To begin the encounter, click on the patients name in the Appointment Calendar.  This brings you to the patient's Demographics page, as well as the Patient Summary page which list any notes specific to that patient, and any medical issues, medications, etc. for that patient.</p>
+<img src="New Encounter/03-active_patient.png" />
+<p>Select 'History' from navigation menu to view a summary of the patients Medical History and Lifestyle information.  Click 'Patient History / Lifestyle (more)' to enter any information that may be incomplete. </p>
+<img src="New Encounter/04-active_patient2.png" />
+<p>When you're done, select 'Encounters' from the navigation menu on the left.  (In Tree View go to 'Patient/Client – Visits – List')  This displays a list of all encounters that have been entered for this patient.  For new patients, there may be no encounters listed.</p>
+<p>By default, OpenEMR is set to generate an empty Encounter when a patient's status has been set to “Arrived (@)”.  To open this encounter and begin entering data, click on the new entry in the Encounters list, then click on 'Patient Encounter' next to the provider's name.</p>
+<p>If your clinic's version of OpenEMR is configured differently, you can begin a New Encounter manually by selecting 'New Enctr' (or 'New Visit') from the navigation list on the left.</p>
+<img src="New Encounter/05-past_encounters.png" />
+<p>Both methods will bring you to the New Encounter Form.</p>
+<p>Here you can enter a brief description of the encounter and the date of service.  Encounters for new patients will not have any Issues or Diagnoses associated with them at this time, so click 'Save' to continue with the encounter.</p>
+<img src="New Encounter/07-new_encounter_form.png" />
+<h3>Encounter Forms</h3>
+<p>This will bring you back to the summary page for This Encounter.  Displayed is a list of all the forms associated with this encounter.  You may click on the name of any of these forms to edit its contents. </p>
+<p>To the right is a drop-down list of forms that can be added to the encounter.  OpenEMR comes configured with several common encounter forms by default, but your clinic may have their own customized encounter forms as well.</p>
+<img src="New Encounter/08-new_encounter-open.png" />
+<p>Select 'SOAP' from the drop-down list to add it to the encounter. </p>
+<p>The SOAP form will contain a subjective & objective record of the patient’s vital information, as well as any notes on the assessment of the patient's health and suggested treatment plans.</p>
+<img src="New Encounter/09-new_encounter-SOAP.png" />
+<p>Enter the appropriate information and click 'Save Form' to return to the Encounter summary page. </p>
+<p>You'll see that the SOAP form has been added to the list of forms for this encounter. Also shown is a summary of its contents. </p>
+<img src="New Encounter/10-new_encounter-SOAP2.png" />
+<h3>Using the Fee Sheet</h3>
+<p>Next select the 'Fee Sheet' from the drop-down list.  The Fee Sheet is different from most other forms in that it enters and modifies billing information that is stored elsewhere in the system; it is not really an encounter form, and when used it will not appear in the encounter's list of forms. </p>
+<p>You can select 'Charges' (under 'Fees' in tree view) from the navigation menu on the left to see where information from the Fee Sheet will be displayed.</p>
+<img src="New Encounter/11-new_encounter-fee_sheet.png" />
+<p>The Fee Sheet includes several drop-down lists of the most commonly used billing codes. It can and should be customized so that it's most suitably adapted to your practice; </p>
+<p>Included is a search feature, where you can search for and select from the thousands of billing codes in the database. And below that is a list of all the billing codes, along with their charges and other related information, that have been selected for this encounter. </p>
+<img src="New Encounter/12-new_encounter-fee_sheet-CPT.png" />
+<p>For example, select 'Detailed' from the “New Patient” drop-down list.  The associated CPT code now appears on the list. </p>
+<img src="New Encounter/13-new_encounter-fee_sheet-CPT2.png" />
+<p>Look for an appropriate billing code by entering a search term in the box to the left of the 'Search' button.  Make sure the correct code type is selected and click 'Search'.</p>
+<img src="New Encounter/14-new_encounter-fee_sheet-search.png" />
+<p>A drop-down list will then be populated with any billing codes that match your search parameters.  Selecting the desired code from the list will add it to the list of codes for this encounter.</p>
+<img src="New Encounter/15-new_encounter-fee_sheet-search2.png" />
+<p>The Fee Sheet also allows you to justify the selected codes for billing purposes.  Justification is the association of ICD9 codes with procedure codes. Insurance companies require this for billing, in order to "justify" paying for procedures.</p>
+<p>To do this, click the drop-down menu under 'Justify' for the desired CPT code.  Select the appropriate ICD9 code from the list and click 'Save'.</p>
+<img src="New Encounter/16-new_encounter-fee_sheet-ICD9.png" />
+<p>To see the Feet Sheet has been associated with this encounter, click 'Encounters' in the navigation menu to go to the list of encounters for this patient.  You can see that the CPT & ICD9 codes are listed next to the new encounter, as well as the SOAP form that was added earlier.</p>
+<img src="New Encounter/17-new_encounter-encounter_list.png" />
+<p>Return to the Charges page to see a more detailed view of billing codes for this encounter.  If you did not justify these codes in the previous step, you can do so now by selecting the checkboxes next to the codes you wish to associate and click 'Justify/Save'.  This will also refresh the display in the Billing window. </p>
+<img src="New Encounter/18-new_encounter-justify.png" />
+<p>You can see that the ICD9 code has now been associated with the appropriate CPT procedure, as indicated by the code in parentheses to the right.</p>
+<h3>Adding Prescriptions</h3>
+<p>To prescribe medication for this patient select 'Rx' from the navigation menu on the left (under 'Patient/Client – Medical Record' in Tree View) and click 'Add Prescription'.</p>
+<img src="New Encounter/19-new_encounter-prescriptions.png" />
+<p>This presents you with a form for entering prescription data, including dosage, refills, and whether or not generic over-the-counter substitutions are allowed for this patient. </p>
+<p>The Prescription form includes a search function for looking up a particular type of medication.  To use this function click 'Drug Lookup'.  A box will pop up into which a search term may be entered. </p>
+<img src="New Encounter/20-new_encounter-prescription-search.png" />
+<p>Clicking 'Search' displays a drop-down list of possible medications generated by connecting to the web site www.rxlist.com.</p>
+<img src="New Encounter/21-new_encounter-prescription-search2.png" />
+<p>Select the desired medication to return to the Prescription form.  The selected medication has now been filled in for you.  Also, clicking 'Yes' next to “Add to Medication List” will allow the prescription to be included in the Issues list as a Medication. </p>
+<p>Enter the correct data to complete the form and click 'Save'.</p>
+<img src="New Encounter/22-new_encounter-prescriptions2.png" />
+<p>You are then presented with a form for generating a PDF of the prescription information.  It may be printed or sent by email or fax. "Auto Send" will use whichever default method was selected when you set up the pharmacy. </p>
+<img src="New Encounter/23-new_encounter-prescriptions-print.png" />
+<p>Clicking 'Print (PDF)' will generate the following PDF document to be saved or printed as necessary.  The default template for this form may also be customized to your clinic's own specifications.</p>
+<img src="New Encounter/24-new_encounter-prescriptions-print2.png" /><br><br>
+<!-- InstanceEndEditable -->
+<center>
+<!-- InstanceBeginEditable name="nav2" -->
+<a href="05.html"><< Prev</a> < New Encounters & Coding > <a href="07.html">Next >></a>
+<!-- InstanceEndEditable -->
+</center>
+</body>
+<!-- InstanceEnd --></html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><!-- InstanceBegin template="/Templates/oemr.dwt" codeOutsideHTMLIsLocked="false" -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!-- InstanceBeginEditable name="doctitle" -->
+<title>OpenEMR v3.0.1 Users Guide</title>
+<!-- InstanceEndEditable -->
+<!-- InstanceBeginEditable name="head" -->
+<!-- InstanceEndEditable -->
+</head>
+
+<body>
+<h1>OpenEMR Users Guide (version 3.1.0)</h1>
+<h3>Table of Contents</h3>
+<ul>
+<li><a href="01.html">Getting Started</a></li>
+<ul><!-- InstanceBeginEditable name="TOC1" --><!-- InstanceEndEditable --></ul>
+<li><a href="02.html">Main Screen & Navigation</a></li>
+<ul><!-- InstanceBeginEditable name="TOC2" --><!-- InstanceEndEditable --></ul>
+<li><a href="03.html">Setting Up Your Clinic</a></li>
+<ul><!-- InstanceBeginEditable name="TOC3" --><!-- InstanceEndEditable --></ul>
+<li><a href="04.html">Adding a New Patient</a></li>
+<ul><!-- InstanceBeginEditable name="TOC4" --><!-- InstanceEndEditable --></ul>
+<li><a href="05.html">Using the Calendar</a></li>
+<ul><!-- InstanceBeginEditable name="TOC5" --><!-- InstanceEndEditable --></ul>
+<li><a href="06.html">New Encounters & Coding</a></li>
+<ul><!-- InstanceBeginEditable name="TOC6" --><!-- InstanceEndEditable --></ul>
+<li><a href="07.html">Issues & Immunizations</a></li>
+<ul><!-- InstanceBeginEditable name="TOC7" --><!-- InstanceEndEditable --></ul>
+<li><a href="08.html">Patient Notes & Transactions</a></li>
+<ul><!-- InstanceBeginEditable name="TOC8" --><!-- InstanceEndEditable --></ul>
+<li><a href="09.html">Basic Billing</a></li>
+<ul><!-- InstanceBeginEditable name="TOC9" -->
+<li>Billing Reports</li>
+<li>Generating Claims</li>
+<li>Generating HCFA Forms</li>
+<!-- InstanceEndEditable --></ul>
+<li><a href="10.html">Accounting & Receivables</a></li>
+<ul><!-- InstanceBeginEditable name="TOC10" --><!-- InstanceEndEditable --></ul>
+<li><a href="11.html">Reporting</a></li>
+<ul><!-- InstanceBeginEditable name="TOC11" --><!-- InstanceEndEditable --></ul>
+<li><a href="index.html">Index</a></li>
+</ul>
+<br />
+<center>
+<!-- InstanceBeginEditable name="nav1" -->
+<a href="08.html"><< Prev</a> < Basic Billing > <a href="10.html">Next >></a>
+<!-- InstanceEndEditable -->
+</center>
+<!-- InstanceBeginEditable name="body" -->
+<h2>Basic Billing</h2>
+<p>Only the Administrator, authorized users, and those with Access Control designated as 'Accounting' in their user profile can access OpenEMR's Billing system.</p>
+<img src="Basic Billing/01-billing-login.png" />
+<p>To begin, log in with your designated username and password.</p>
+<img src="Basic Billing/02-billing-login2.png" />
+<p>Select 'Billing' from the navigation menu on the left (under 'Fees' in Tree View).  This brings you to the main Billing screen.  This will present you with options to generate a variety of printable and electronic claims and reports.</p>
+<h3>Billing Reports</h3>
+<img src="Basic Billing/03-billing-report.png" />
+<p>The Billing Report page will automatically display any billable encounters that were generated today.  To view billables from a different time period enter the 'From' and 'To' dates using the date selection tool, and click 'Change View' in the top right corner of the screen.</p>
+<img src="Basic Billing/04-billing-change_view.png" />
+<p>The list should now display all billables from the selected date range.</p>
+<img src="Basic Billing/05-billing-report2.png" />
+<h3>Generating Claims</h3>
+<p>Clicking the checkbox to the right of the desired encounter will enable a set of buttons for generating claims.  Your system should be configured with the appropriate set of forms for the insurance companies and clearinghouses used by your clinic.</p>
+<p>Click 'Generate X12' to create a claim file that is suitable for sending to the clearinghouse.</p>
+<img src="Basic Billing/06-billing-generate_X12.png" />
+<p>OpenEMR will present you with a confirmation popup, reminding you to check the log file after you have finished generating your claims.</p>
+<p>Click 'OK' to proceed.</p>
+<img src="Basic Billing/07-billing-generate_X12-log.png" />
+<p>The standard Save File dialog should appear, allowing you to save the generated batch file to your computer. </p>
+<img src="Basic Billing/08-billing-generate_X12-save.png" />
+<p>Once the file has been saved, click 'View Log' to check whether the claims were generated successfully.</p>
+<img src="Basic Billing/09-billing-generate_X12-view_log.png" />
+<p>If there were any errors in the claim generation process, they will be displayed here.  Otherwise you will see a note indicating that the file was generated successfully.</p>
+<img src="Basic Billing/10-billing-generate_X12-log2.png" />
+<p>The downloaded claim file should contain the necessary encounter information, formatted for billing.  This is what will be sent to the clearinghouse, by whatever method has been specified. </p>
+<img src="Basic Billing/11-billing-generate_X12-batch.png" />
+<p>Uncheck 'Show Unbilled Only' and click 'Change View' to refresh the billing list and see the updated status of the encounter.</p>
+<p>Click 'Mark as Cleared' to indicate that billing has been completed for this encounter.</p>
+<img src="Basic Billing/12-billing-clear.png" />
+<p>You will then be presented with a screen indicating that the claim has been “marked as billed only.”</p>
+<p>Click 'Back' to return to the Billing Report page.</p>
+<img src="Basic Billing/13-billing-cleared.png" />
+<h3>Generating HCFA Forms</h3>
+<p>In OpenEMR multiple forms may be generated for each claim. </p>
+<p>For example, re-enter the desired date range, uncheck 'Show Unbilled Only' and click 'Change View' again to show the current status of the claim.  You can see that the claim has been “Marked as cleared.”</p>
+<p>Check the box to the right of the encounter and click 'Generate HCFA'.</p>
+<img src="Basic Billing/14-billing-generate_HCFA.png" />
+<p>OpenEMR will now generate a PDF of the HCFA claim, based on the standard HCFA form template.  The new form can be viewed using a built-in PDF viewer, or printed automatically on a preprinted HCFA 1500 form, depending on your system's configuration. </p>
+<img src="Basic Billing/15-billing-generate_HCFA-PDF.png" />
+<p>Returning to the Billing Report, you can see that the status of the billable encounter has been updated.</p>
+<img src="Basic Billing/16-billing-report3.png" /><br><br>
+<!-- InstanceEndEditable -->
+<center>
+<!-- InstanceBeginEditable name="nav2" -->
+<a href="08.html"><< Prev</a> < Basic Billing > <a href="10.html">Next >></a>
+<!-- InstanceEndEditable -->
+</center>
+</body>
+<!-- InstanceEnd --></html>
