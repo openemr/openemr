@@ -28,7 +28,7 @@ if ($obj['date_of_signature'] != "") {
 
 <form method=post action="">
 <span class="title"><?php xl('Work/School Note','e'); ?></span><br></br>
-Printed <?php echo date("F d Y", time()); ?>
+<?php xl('Printed','e'); ?> <?php echo dateformat(); ?>
 <br><br>
 <select name="note_type">
 <option value="WORK NOTE" <?php if ($obj['note_type']=="WORK NOTE") echo " SELECTED"; ?>><?php xl('WORK NOTE','e'); ?></option>

@@ -41,8 +41,13 @@ function note_report( $pid, $encounter, $cols, $id) {
     
             $key=ucwords(str_replace("_"," ",$key));
             print("<tr>\n");  
-            print("<tr>\n");  
-            print "<td><span class=bold>$key: </span><span class=text>$value</span></td>";
+            print("<tr>\n");
+	    if ($key == "Note Type") {
+                print "<td><span class=bold>" . xl($key) . ": </span><span class=text>" . xl($value) . "</span></td>";
+	    }
+	    else {
+	        print "<td><span class=bold>" . xl($key) . ": </span><span class=text>$value</span></td>";	
+	    }
             $count++;
             if ($count == $cols) {
                 $count = 0;
