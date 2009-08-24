@@ -204,6 +204,12 @@ $GLOBALS['country_list'] = "country";
 //   4 = Show metric only
 $GLOBALS['units_of_measurement'] = 1;
 
+// Flag to not show the old deprecated metric form in
+// the unregistered section of the admin->forms module.
+//  (since 3.1.0, metric units are now used along with US units
+//   in the main vitals form; controlled by above setting)
+$GLOBALS['disable_deprecated_metrics_form'] = true;
+
 // Flags to turn off/on specific OpenEMR modules
 $GLOBALS['disable_calendar'] = false;
 $GLOBALS['disable_chart_tracker'] = false; 
