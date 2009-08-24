@@ -1,4 +1,4 @@
-<?
+<?php 
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 include_once("../globals.php");
 include_once("$srcdir/registry.inc");
@@ -14,23 +14,41 @@ elseif ($_GET['method'] == "install_db"){
 	if (installSQL ("$srcdir/../interface/forms/{$dir['directory']}"))
 		updateRegistered ( $_GET['id'], "sql_run=1" );
 	else
-		$err = "ERR: could not open table.sql, broken form?";
+		$err = xl('ERROR: could not open table.sql, broken form?');
 }
 elseif ($_GET['method'] == "register"){
-	registerForm ( $_GET['name'] ) or $err="err while registering form!";
+	registerForm ( $_GET['name'] ) or $err=xl('error while registering form!');
 }
 $bigdata = getRegistered("%") or $bigdata = false;
 
+$formtarget = $GLOBALS['concurrent_layout'] ? "" : " target='Main'";
 
 //START OUT OUR PAGE....
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?echo $css_header;?>" type="text/css">
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body <?echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-<span class="title">Forms Administration</span>
+<body class="body_top">
+<span class="title"><?php xl('Forms Administration','e');?></span>
 <br><br>
+<?php
+	foreach($_POST as $key=>$val) {
+	       if (preg_match('/nickname_(\d+)/', $key, $matches)) {
+               		$nickname_id = $matches[1];
+			sqlQuery("update registry set nickname='".$val."' where id=".$nickname_id);
+		}
+	       if (preg_match('/category_(\d+)/', $key, $matches)) {
+               		$category_id = $matches[1];
+			sqlQuery("update registry set category='".$val."' where id=".$category_id);
+		}
+	       if (preg_match('/priority_(\d+)/', $key, $matches)) {
+               		$priority_id = $matches[1];
+			sqlQuery("update registry set priority='".$val."' where id=".$priority_id);
+		}
+        }   
+?>
 
 
 <?php //ERROR REPORTING
@@ -40,47 +58,66 @@ if ($err)
 
 
 <?php //REGISTERED SECTION ?>
-<span class=bold>Registered</span><br>
+<span class=bold><?php xl('Registered','e');?></span><br>
+<form method=POST action ='./forms_admin.php'<?php echo $formtarget; ?>>
+<i><?php xl('click here to update priority, category and nickname settings','e'); ?></i>
+<input type=submit name=update value='<?php xl('update','e'); ?>'><br> 
 <table border=0 cellpadding=1 cellspacing=2 width="500">
+	<tr>
+		<td> </td>
+		<td> </td>
+		<td> </td>
+		<td> </td>
+		<td> </td>
+		<td><?php xl('Priority ','e'); ?></td>
+		<td><?php xl('Category ','e'); ?></td>
+		<td><?php xl('Nickname','e'); ?></td>
+	</tr>
 <?php
 $color="#CCCCCC";
 if ($bigdata != false)
 foreach($bigdata as $registry)
 {
+	$priority_category = sqlQuery("select priority, category, nickname from registry where id=".$registry['id']); 
 	?>
 	<tr>
-		<td bgcolor="<?=$color?>" width="2%">
-			<span class=text><?=$registry['id'];?></span> 
+		<td bgcolor="<?php echo $color?>" width="2%">
+			<span class=text><?php echo $registry['id'];?></span> 
 		</td>
-		<td bgcolor="<?=$color?>" width="30%">
-			<span class=bold><?=$registry['name'];?></span> 
+		<td bgcolor="<?php echo $color?>" width="30%">
+			<span class=bold><?php echo xl_form_title($registry['name']); ?></span> 
 		</td>
 		<?php
 			if ($registry['sql_run'] == 0)
-				echo "<td bgcolor='$color' width='10%'><span class='text'>registered</span>";
+				echo "<td bgcolor='$color' width='10%'><span class='text'>".xl('registered')."</span>";
 			elseif ($registry['state'] == "0")
-				echo "<td bgcolor='#FFCCCC' width='10%'><a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=enable' target='Main'>disabled</a>";
+				echo "<td bgcolor='#FFCCCC' width='10%'><a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=enable'$formtarget>".xl('disabled')."</a>";
 			else
-				echo "<td bgcolor='#CCFFCC' width='10%'><a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=disable' target='Main'>enabled</a>";
+				echo "<td bgcolor='#CCFFCC' width='10%'><a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=disable'$formtarget>".xl('enabled')."</a>";
 		?></td>
-		<td bgcolor="<?=$color?>" width="10%">
+		<td bgcolor="<?php $color?>" width="10%">
 			<span class=text><?php
 			
 			if ($registry['unpackaged'])
-				echo "PHP extracted";
+				echo xl('PHP extracted','e');
 			else
-				echo "PHP compressed";
+				echo xl('PHP compressed','e');
 			
 			?></span> 
 		</td>
-		<td bgcolor="<?=$color?>" width="10%">
+		<td bgcolor="<?php echo $color?>" width="10%">
 			<?php
 			if ($registry['sql_run'])
-				echo "<span class=text>DB installed</span>";
+				echo "<span class=text>".xl('DB installed')."</span>";
 			else
-				echo "<a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=install_db' target='Main'>install DB</a>";
+				echo "<a class=link_submit href='./forms_admin.php?id={$registry['id']}&method=install_db'$formtarget>".xl('install DB')."</a>";
 			?> 
 		</td>
+		<?php
+			echo "<td><input type=text size=4 name=priority_".$registry['id']." value='".$priority_category['priority']."'></td>";
+			echo "<td><input type=text size=8 name=category_".$registry['id']." value='".$priority_category['category']."'></td>";
+			echo "<td><input type=text size=8 name=nickname_".$registry['id']." value='".$priority_category['nickname']."'></td>";
+		?>
 	</tr>
 	<?php
 	if ($color=="#CCCCCC")
@@ -94,7 +131,7 @@ foreach($bigdata as $registry)
 
 
 <?php  //UNREGISTERED SECTION ?>
-<span class=bold>Unregistered</span><br>
+<span class=bold><?php xl('Unregistered','e');?></span><br>
 <table border=0 cellpadding=1 cellspacing=2 width="500">
 <?php
 $dpath = "$srcdir/../interface/forms/";
@@ -104,36 +141,52 @@ for ($i=0; false != ($fname = readdir($dp)); $i++)
 	if ($fname != "." && $fname != ".." && $fname != "CVS" && (is_dir($dpath.$fname) || stristr($fname, ".tar.gz") || stristr($fname, ".tar") || stristr($fname, ".zip") || stristr($fname, ".gz")))
 		$inDir[$i] = $fname;
 
+// ballards 11/05/2005 fixed bug in removing registered form from the list
 if ($bigdata != false)
-foreach ( $bigdata as $registry )
-	if ( $key = array_search($registry['directory'], $inDir) )
+{
+	foreach ( $bigdata as $registry )
+	{
+		$key = array_search($registry['directory'], $inDir) ;  /* returns integer or FALSE */
 		unset($inDir[$key]);
+	}
+}
 
 foreach ( $inDir as $fname )
 {
+        // added 8-2009 by BM - do not show the metric vitals form as option since deprecated
+	//  also added a toggle in globals.php in case user wants the option to add this deprecated form
+        if (($fname == "vitalsM") && ($GLOBALS['disable_deprecated_metrics_form'])) continue;   
+    
 	if (stristr($fname, ".tar.gz") || stristr($fname, ".tar") || stristr($fname, ".zip") || stristr($fname, ".gz"))
 		$phpState = "PHP compressed";
 	else
 		$phpState =  "PHP extracted";
 	?>
 	<tr>
-		<td bgcolor="<?=$color?>" width="1%">
+		<td bgcolor="<?php echo $color?>" width="1%">
 			<span class=text> </span> 
 		</td>
-		<td bgcolor="<?=$color?>" width="20%">
-			<span class=bold><?=$fname?></span> 
+		<td bgcolor="<?php echo $color?>" width="20%">
+	        <?php
+                $form_title_file = @file($GLOBALS['srcdir']."/../interface/forms/$fname/info.txt");
+                        if ($form_title_file)
+                                $form_title = $form_title_file[0];
+                        else
+                                $form_title = $fname;
+                ?>
+			<span class=bold><?php echo xl_form_title($form_title); ?></span> 
 		</td>
-		<td bgcolor="<?=$color?>" width="10%"><?php
+		<td bgcolor="<?php echo $color?>" width="10%"><?php
 			if ($phpState == "PHP extracted")
-				echo '<a class=link_submit href="./forms_admin.php?name='.urlencode($fname).'&method=register" target=Main>register</a>';
+				echo '<a class=link_submit href="./forms_admin.php?name=' . urlencode($fname) . '&method=register"' . $formtarget . '>' . xl('register') . '</a>';
 			else
-				echo '<span class=text>n/a</span>';
+				echo '<span class=text>' . xl('n/a') . '</span>';
 		?></td>
-		<td bgcolor="<?=$color?>" width="20%">
-			<span class=text><?=$phpState?></span> 
+		<td bgcolor="<?php echo $color?>" width="20%">
+			<span class=text><?php echo xl($phpState); ?></span> 
 		</td>
-		<td bgcolor="<?=$color?>" width="10%">
-			<span class=text>n/a</span> 
+		<td bgcolor="<?php echo $color?>" width="10%">
+			<span class=text><?php xl('n/a','e'); ?></span> 
 		</td>
 	</tr>
 	<?php
