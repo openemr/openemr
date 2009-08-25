@@ -1,0 +1,4 @@
+This directory holds the scripts used in the ubuntu-debian packages.
+
+production directory - holds the production version package scripts
+development directory - hold the development version package scripts
