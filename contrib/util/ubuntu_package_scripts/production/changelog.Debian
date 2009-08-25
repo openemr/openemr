@@ -1,0 +1,11 @@
+openemr (3.1.0-1) stable; urgency=low
+
+  * New upstream version
+
+ -- Amalu Obinna <amaluobinna@aol.com>  Fri, 21 Aug 2009 01:28:14 -0700
+ 
+openemr (3.0.1-1) stable; urgency=low
+
+  * Initial Release.
+
+ -- Amalu Obinna <amaluobinna@aol.com>  Sat, 18 Apr 2009 14:59:24 -0700

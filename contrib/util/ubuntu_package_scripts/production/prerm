@@ -1,0 +1,189 @@
+#!/bin/bash
+#
+#This program is free software; you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation; either version 2 of the License, or
+#(at your option) any later version.
+#
+# authors: Amalu Obinna <amaluobinna@aol.com>
+#          Brady Miller <brady@sparmy.com>
+#
+# date   08/21/09
+#
+# Un-install script steps:
+#  1) Collect configuration information
+#  2) Obtain the MySQL root user password
+#  3) Remove OpenEMR etc directory
+#  4) Remove rest of OpenEMR web directory
+#  5) Remove tmp directory
+#  6) Remove openemr MySQL database
+#  7) Remove openemr MySQL user
+#  8) Remove OpenEMR apache configuration
+#
+#
+# summary of how this script can be called:
+#        * <prerm> `remove'
+#        * <old-prerm> `upgrade' <new-version>
+#        * <new-prerm> `failed-upgrade' <old-version>
+#        * <conflictor's-prerm> `remove' `in-favour' <package> <new-version>
+#        * <deconfigured's-prerm> `deconfigure' `in-favour'
+#          <package-being-installed> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+
+case "$1" in
+   remove)
+
+      #constants and paths
+      LOGDIR=/var/log/openemr
+      LOG=$LOGDIR/install
+      CONFIGDIR=/etc/openemr
+      CONFIG=$CONFIGDIR/openemr.conf
+      TMPDIR=/tmp/openemr-tmp
+      WEB=/var/www
+      OPENEMR=$WEB/openemr
+
+      #Standardized echo function to send to both echo and to log file
+      #  requires one parameter (string)
+      output_both () {
+         echo $1
+         echo "`date`: $1" >> $LOG
+      }
+
+      #Standardized exit function to be used when unable to uninstall the
+      #openemr package
+      #  requires one parameter (string with reason for exiting)
+      unable_exit () {
+         echo $1
+         echo "`date`: $1" >> $LOG
+         echo "EXITING.........."
+         echo "`date`: EXITING.........." >> $LOG
+         sleep 5
+         exit 1
+      }
+
+      #function to check mysql for selected databases
+      # 1st param is password, 2nd param database, 3rd param is host (optional), 4th param is user (optional)
+      check_mysql () {
+         if [ -n "$3" ]; then
+            HOST=$3
+         else
+            HOST=localhost
+         fi
+         if [ -n "$4" ]; then
+            USE=$4
+         else
+            USE=root
+         fi      
+         echo `mysql -u "$USE" -h "$HOST" --password="$1" -e 'show databases' 2>/dev/null | awk '{ print $1}' | grep "^$2$"`
+      }
+
+      #function to collect variables from config files
+      # 1st param is variable name, 2nd param is filename 
+      collect_var () {
+         echo `grep -i "^[[:space:]]*$1[[:space:]=]" $2 | cut -d \= -f 2 | cut -d \; -f 1 | sed "s/[ 	'\"]//gi"`
+      }
+
+      #Confirm that user really wants to uninstall
+      echo ""
+      output_both "All of your OpenEMR data will be DELETED!!"
+      echo ""
+      echo -n "Are you sure you really want to remove the OpenEMR package? [y/N]"
+      read CONFIRM
+      if ! [[ $CONFIRM =~ [Yy]  ]]; then
+         unable_exit "You have chosen to not uninstall the OpenEMR package."
+      fi
+
+      #collect scripting information from config file
+      PROCESS=$(collect_var process $CONFIG)
+      PLAN=$(collect_var plan $CONFIG)
+      MPASS=$(collect_var pass $CONFIG)
+
+      # Collect database information from sqlconf.php file
+      SQLLOCATION=$(collect_var \$host $OPENEMR/library/sqlconf.php)
+      SQLUSER=$(collect_var \$login $OPENEMR/library/sqlconf.php)
+      SQLPASSWORD=$(collect_var \$pass $OPENEMR/library/sqlconf.php)
+      SQLDATABASE=$(collect_var \$dbase $OPENEMR/library/sqlconf.php)
+
+## BEGIN MYSQL ROOT PASSWORD GRAB
+## note differences in removal wording and location option of database
+## compared to install function
+         if [ "`check_mysql "$MPASS" "mysql" "$SQLLOCATION"`" != "mysql" ]; then
+            #the initial mysql password didn't work, so ask for password
+            COUNTDOWN=1
+            while true; do
+               echo ""
+               echo -n "Please enter your MySQL root password:"
+               read MPASS 
+               echo ""   
+               if [ "`check_mysql "$MPASS" "mysql" "$SQLLOCATION"`" == "mysql" ]; then
+                  #the mysql root password works, so can exit loop
+                  break
+               else
+                  #the mysql root password did not work
+                  if [ "$COUNTDOWN" -ge "5" ]; then
+                     output_both "5 attempts to enter your mysql root password have failed"
+                     output_both "Recommend repeating OpenEMR package removal when you know your mysql root password"
+                     unable_exit "Giving up on OpenEMR package removal."
+                  fi
+                  echo "The entered MySQL root password did not work."
+                  echo "$COUNTDOWN of 5 total attempts."
+                  echo "PLEASE TRY AGAIN..."
+               fi
+               let "COUNTDOWN += 1"
+            done
+         fi
+## END MYSQL ROOT PASSWORD GRAB
+
+      #remove etc directory
+      rm -rf $CONFIGDIR
+      output_both "Removed OpenEMR etc directory"
+
+      #remove rest of web directory
+      rm -rf $OPENEMR
+      output_both "Finished removing OpenEMR web directory"
+
+      #remove tmp directory
+      sudo rm -fr $TMPDIR
+      output_both "Removed OpenEMR tmp directory"
+
+      #remove openemr mysql database
+      mysqladmin -f -u root -h "$SQLLOCATION" --password="$MPASS" drop "$SQLDATABASE" > /dev/null
+      output_both "Removed OpenEMR MySQL database"
+
+      #remove openemr mysql user
+      mysql -f -u root -h "$SQLLOCATION" --password="$MPASS" -e "DELETE FROM mysql.user WHERE User = '$SQLUSER';FLUSH PRIVILEGES;"
+      output_both "Removed OpenEMR MySQL user"
+
+      #removes the configuration section for OpenEMR in Apache config file
+      sed -i '/#This is the start of the Apache configuration for OpenEMR./,/#This is the end of the Apache configuration for OpenEMR./d' /etc/apache2/httpd.conf
+      output_both "Removed OpenEMR Apache configuration"
+
+      exit 0
+   ;;
+
+   upgrade)
+
+      #echo "No need for upgrade instructions in prerm script to version $2"
+      exit 0
+   ;;
+
+   deconfigure)
+
+      echo "prerm asked to do deconfigure"
+      exit 0
+   ;;
+
+   failed-upgrade)
+
+      echo "prerm asked to do failed-upgrade from version $2"
+      exit 0
+   ;;
+
+   *)
+      echo "prerm called with unknown argument \`$1'" >&2
+      exit 1
+   ;;
+esac

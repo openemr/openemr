@@ -1,0 +1,16 @@
+This package was debianized by Amalu Obinna <amaluobinna@aol.com> on
+Fri, 21 Aug 2009 01:28:14 -0700.
+
+It was downloaded from http://downloads.sourceforge.net/openemr/openemr-3.1.0.tar.gz
+
+Upstream Author: 
+    http://www.oemr.org
+
+Copyright: 
+    Copyright (C) 2009 http://www.oemr.org
+
+License:
+    GPL
+
+The Debian packaging is (C) 2009, Amalu Obinna <amaluobinna@aol.com> and
+is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
