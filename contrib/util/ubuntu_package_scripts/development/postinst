@@ -1,0 +1,326 @@
+#!/bin/bash
+#
+#This program is free software; you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation; either version 2 of the License, or
+#(at your option) any later version.
+#
+# authors: Brady Miller <brady@sparmy.com>
+#          Amalu Obinna <amaluobinna@aol.com>
+#
+# date:    04/28/09
+#
+# Debian package post installation script steps:
+#  1) Collect mysql root password
+#  2) Download OpenEMR from cvs
+#  3) Install OpenEMR
+#  4) Configure OpenEMR
+#  5) Echo instructions on starting openemr
+#
+# summary of how this script can be called:
+#        * <postinst> `configure' <most-recently-configured-version>
+#        * <old-postinst> `abort-upgrade' <new version>
+#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+#          <new-version>
+#        * <postinst> `abort-remove'
+#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+#          <failed-install-package> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+case "$1" in
+   configure)
+
+      #constants and paths
+      LOGDIR=/var/log/cvs-openemr
+      LOG=$LOGDIR/install
+      CONFIGDIR=/etc/cvs-openemr
+      CONFIG=$CONFIGDIR/cvs-openemr.conf
+      TMPDIR=/tmp/cvs-openemr-tmp
+      WEB=/var/www
+      OPENEMR=$WEB/cvs-openemr
+      INSTALL_USER=cvsopenemr
+      INSTALL_DATABASE=cvsopenemr
+      INSTALL_SITE=localhost
+      INSTALL_WEBPATH=/cvs-openemr
+      #web user and group
+      WEB_GROUP=www-data
+      WEB_USER=www-data
+
+      #Standardized echo function to send to both echo and to log file
+      #  requires one parameter (string)
+      output_both () {
+         echo $1
+         echo "`date`: $1" >> $LOG
+      }
+
+      #Standardized echo function to send to only log file
+      #  requires one parameter (string)
+      log_only () {
+         echo "`date`: $1" >> $LOG
+      }
+
+      #Standardized exit functions to be used
+      #  requires one parameter (string with reason for exiting)
+      unable_exit () {
+         echo $1
+         echo "`date`: $1" >> $LOG
+         echo "EXITING.........."
+         echo "`date`: EXITING.........." >> $LOG
+         sleep 5
+         exit 1
+      }
+
+      #function to check mysql for selected databases
+      # 1st param is password, 2nd param database, 3rd param is host (optional), 4th param is user (optional)
+      check_mysql () {
+         if [ -n "$3" ]; then
+            HOST=$3
+         else
+            HOST=localhost
+         fi
+         if [ -n "$4" ]; then
+            USE=$4
+         else
+            USE=root
+         fi      
+         echo `mysql -u "$USE" -h "$HOST" --password="$1" -e 'show databases' 2>/dev/null | awk '{ print $1}' | grep "^$2$"`
+      }
+
+      #function to collect variables from config files
+      # 1st param is variable name, 2nd param is filename 
+      collect_var () {
+         echo `grep -i "^[[:space:]]*$1[[:space:]=]" $2 | cut -d \= -f 2 | cut -d \; -f 1 | sed "s/[ 	'\"]//gi"`
+      }      
+
+      #function to insert variables into config files
+      # 1st param is variable name, 2nd param is variable, 3rd param is filename
+      insert_var () {
+         sed -i 's@^[ 	]*'"$1"'[ 	=].*$@'"$1"' = '"$2"'@' "$3"
+      }
+
+      #collect scripting information from config file
+      PROCESS=$(collect_var process $CONFIG)
+      PLAN=$(collect_var plan $CONFIG)
+      MPASS=$(collect_var pass $CONFIG)
+
+      #Don't allow re-configuration
+      if [ "$PROCESS" == "complete" ] ; then
+         unable_exit "OpenEMR has already been configured."
+      elif [ "$PROCESS" == "pending" ] ; then
+         #continue with configuration
+         log_only "Configuring cvs-openemr package..."
+      else
+         unable_exit "Error reading process variable in configuration file."
+      fi
+
+      if [ "$PLAN" == "upgrade" ] ; then       
+         #upgrade is not available with the cvs-openemr package
+         echo ""
+         output_both "Upgrading is not available with the cvs-openemr package"
+         output_both "This package is for testing most recent development (unstable) OpenEMR version"
+         unable_exit "To upgrade to most recent cvs version, recommend removing/reinstalling package"
+
+      elif [ "$PLAN" == "install" ] ; then
+         #continue with installation
+         log_only "Installing cvs-openemr package..."
+      else
+         unable_exit "Error reading plan variable in configuration file."
+      fi      
+
+## BEGIN MYSQL ROOT PASSWORD GRAB
+         if [ "`check_mysql "$MPASS" "mysql"`" != "mysql" ]; then
+            #the initial mysql password didn't work, so ask for password
+            COUNTDOWN=1
+            while true; do
+               echo ""
+               echo -n "Please enter your MySQL root password:"
+               read MPASS 
+               echo ""   
+               if [ "`check_mysql "$MPASS" "mysql"`" == "mysql" ]; then
+                  #the mysql root password works, so can exit loop
+                  break
+               else
+                  #the mysql root password did not work
+                  if [ "$COUNTDOWN" -ge "5" ]; then
+                     output_both "5 attempts to enter your mysql root password have failed"
+                     output_both "Recommend repeating OpenEMR installation when you know your mysql root password"
+                     unable_exit "Giving up on OpenEMR package installation."
+                  fi
+                  echo "The entered MySQL root password did not work."
+                  echo "$COUNTDOWN of 5 total attempts."
+                  echo "PLEASE TRY AGAIN..."
+               fi
+               let "COUNTDOWN += 1"
+            done
+         fi
+## END MYSQL ROOT PASSWORD GRAB
+
+      #now ensure the openemr user and database do not exist, if so then exit
+      # Check for openemr database in mysql, if exist then exit
+      if [ "`check_mysql "$MPASS" "$INSTALL_DATABASE"`" == "$INSTALL_DATABASE" ]; then
+         unable_exit "MySQL '$INSTALL_DATABASE' database already exists"
+      fi
+      # Check for OpenEMR user in mysql.user, if exist then exit
+      USER=$(mysql -s -u root -h localhost --password="$MPASS" -e "SELECT User from mysql.user where User='$INSTALL_USER'")
+      if [ "$USER" == "$INSTALL_USER" ]; then
+         unable_exit "MySQl user '$INSTALL_USER' already exists"
+      fi
+
+      output_both "Connecting with Sourceforge..."
+      #Go into tmp directory
+      mkdir -p $TMPDIR
+      cd $TMPDIR
+
+      # Download cvs version of openemr
+      if !(yes "" | cvs -d:pserver:anonymous:@openemr.cvs.sourceforge.net:/cvsroot/openemr login >> $LOG); then
+         # unable to connect to CVS to download OpenEMR
+         unable_exit "Unable to download OpenEMR cvs version from sourceforge"
+         exit 1
+      fi
+      output_both "Downloading OpenEMR cvs version from sourceforge (please be patient)"
+      if !(cvs -q -z3 -d:pserver:anonymous@openemr.cvs.sourceforge.net:/cvsroot/openemr co -P openemr >> $LOG); then
+         # unable to download OpenEMR
+         exit 1
+      fi
+
+      # Clean up the cvs code
+      rm -rf `find $TMPDIR -name CVS`
+
+      # Install openemr
+      output_both "Installing/Configuring OpenEMR cvs version..."
+      mv $TMPDIR/openemr $OPENEMR
+
+      # CONFIGURE OPENEMR BELOW
+
+      # Create a random password for the openemr mysql user
+      password=$(makepasswd --char=12)
+
+      # openemr installation VARIABLES 
+      setHost="$INSTALL_SITE" #mysql server (if not different from php, then localhost) 
+      setLoginhost="$INSTALL_SITE" #php/apache server (if not different from mysql, then localhost) 
+      setPort="3306" #MySQL port 
+      setDbname="$INSTALL_DATABASE" #MySQL openemr database name 
+      setLogin="$INSTALL_USER" #username to MySQL openemr database 
+      setPass="$password" #password to MySQL openemr database 
+      setRoot="root" #MySQL server root username 
+      setRootpass="$MPASS" #MySQL server root password
+      setColl="utf8_general_ci"   #collation for mysql
+      setIuser="admin" #initial user login name 
+      setIuname="Administrator" #initial user full name 
+      setIgroup="Default" #practice group name 
+      setOpenemrWebPath="$INSTALL_WEBPATH" #path on browser to openemr 
+      setInst="1" #CONSTANT, don't set 
+
+      #go to openemr directory
+      cd $OPENEMR
+
+      #secure openemr 
+      chown -Rf root:root $OPENEMR 
+ 
+      #INSTALL AND CONFIGURE OPENEMR 
+      # Set file and directory permissions 
+      chmod 666 $OPENEMR/library/sqlconf.php 
+      chmod 666 $OPENEMR/interface/globals.php 
+      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/documents 
+      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/edi 
+      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/era 
+      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/library/freeb 
+      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/custom/letter_templates 
+      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/cache 
+      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/interface/main/calendar/modules/PostCalendar/pntemplates/compiled 
+      chown -R $WEB_GROUP.$WEB_USER $OPENEMR/gacl/admin/templates_c 
+      # 
+      # CONVERT setup.php file to script, then run it 
+      # 
+      cp -f $OPENEMR/setup.php $OPENEMR/TEMPsetup.php
+      # Set the path variable in setup.php
+      sed -e 's@\$manualPath = \"\"\;@\$manualPath = \"'$OPENEMR'\/\"\;@' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
+      mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
+      # Set the variables in setup.php
+      sed -e 's@\/\/END POST VARIABLES@\
+    $host = '\'''$setHost''\'';\
+    $server = '\'''$setHost''\'';\
+    $port = '$setPort';\
+    $dbname = '\'''$setDbname''\'';\
+    $root = '\'''$setRoot''\'';\
+    $login = '\'''$setLogin''\'';\
+    $pass = '\'''$setPass''\'';\
+    $loginhost = '\'''$setLoginhost''\'';\
+    $rootpass = '\'''$setRootpass''\'';\
+    $iuser = '\'''$setIuser''\'';\
+    $iuname = '\'''$setIuname''\'';\
+    $igroup = '\'''$setIgroup''\'';\
+    $openemrBasePath = '\'''$OPENEMR''\'';\
+    $openemrWebPath = '\'''$setOpenemrWebPath''\'';\
+    $collate = '\'''$setColl''\'';\
+    $inst = 1;@' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
+      mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
+      # Remove form functionality
+      sed -e 's@<INPUT TYPE='\''SUBMIT'\'' VALUE='\''Continue'\''>@ @' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
+      mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
+      #prepare gacl/setup.php script
+      cp $OPENEMR/gacl/setup.php $OPENEMR/gacl/TEMP2setup.php
+      sed -e 's@.\/gacl\/gacl.ini.php@'$OPENEMR'\/gacl\/gacl.ini.php@' <$OPENEMR/gacl/setup.php >$OPENEMR/gacl/TEMPsetup.php
+      mv -f $OPENEMR/gacl/TEMPsetup.php $OPENEMR/gacl/setup.php
+      sed -e 's@.\/gacl\/admin\/gacl_admin.inc.php@'$OPENEMR'\/gacl\/admin\/gacl_admin.inc.php@' <$OPENEMR/gacl/setup.php >$OPENEMR/gacl/TEMPsetup.php
+      mv -f $OPENEMR/gacl/TEMPsetup.php $OPENEMR/gacl/setup.php
+      sed -e 's@.\/gacl\/schema.xml@'$OPENEMR'\/gacl\/schema.xml@' <$OPENEMR/gacl/setup.php >$OPENEMR/gacl/TEMPsetup.php
+      mv -f $OPENEMR/gacl/TEMPsetup.php $OPENEMR/gacl/setup.php
+      #prepare library/acl.inc script
+      cp $OPENEMR/library/acl.inc $OPENEMR/library/TEMP2acl.inc
+      sed -e 's@\$phpgacl_location = \"gacl\";@\$phpgacl_location = \"'$OPENEMR'\/gacl\";@' <$OPENEMR/library/acl.inc >$OPENEMR/library/TEMPacl.inc
+      mv -f $OPENEMR/library/TEMPacl.inc $OPENEMR/library/acl.inc
+      # (step 3) Set up OpenEMR and MySQL
+      sed -e 's@$state = $_POST\["state"\];@$state = 3;@' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
+      mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
+      php -f $OPENEMR/TEMPsetup.php >> $LOG
+      # (step 4) Configure sqlconf.php file
+      sed -e 's@$state = 3;@$state = 4;@' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
+      mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
+      php -f $OPENEMR/TEMPsetup.php >> $LOG
+      rm -f $OPENEMR/TEMPsetup.php
+      #replace original acl.inc and gacl/setup.php script
+      mv $OPENEMR/library/TEMP2acl.inc $OPENEMR/library/acl.inc
+      mv $OPENEMR/gacl/TEMP2setup.php $OPENEMR/gacl/setup.php
+
+      # NO NEED to secure files since this is a development/testing version
+
+      log_only "Done configuring OpenEMR"
+
+      output_both "Restarting Apache service..."
+      invoke-rc.d apache2 restart >> $LOG
+
+      #update config file, change process to complete and remove plan and pass
+      sed -i "s/^[ 	]*process[ 	=].*$/process=complete/" $CONFIG
+      sed -i "/^[ 	]*plan[ 	=].*$/d" $CONFIG
+      sed -i "/^[ 	]*pass[ 	=].*$/d" $CONFIG
+
+      echo "--------------------------------------------------"
+      echo ""
+      output_both "You can now use OpenEMR development version by browsing to:"
+      output_both "http://localhost/cvs-openemr"
+      output_both "user is 'admin' and password is 'pass'"
+      echo ""
+      output_both "See the openemr man page for further instructions:"
+      output_both "type 'man cvs-openemr' at command line"
+      echo ""
+      echo "--------------------------------------------------"
+
+      sleep 5
+      exit 0
+   ;;
+   abort-upgrade|abort-remove|abort-deconfigure)
+   
+      echo "postinst asked to do $1"
+      exit 0
+   ;;
+   *)
+      echo "postinst called with unknown argument \`$1'" >&2
+      exit 1
+   ;;
+esac
+
+sleep 5
+exit 0

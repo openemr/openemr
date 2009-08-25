@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Name=Electronic Medical Records - OpenEMR (Developer Version - unstable)
+Terminal=false
+Exec=firefox -url http://localhost/cvs-openemr
+Type=Application
+Categories=Application;Office;
+StartupNotify=true
+Comment=Medical Practice Management Application
+GenericName[en_US]=

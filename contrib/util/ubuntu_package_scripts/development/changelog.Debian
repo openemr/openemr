@@ -1,0 +1,18 @@
+cvs-openemr (1.0.0-3) stable; urgency=low
+
+  * minor bug fixes
+  * Support for the gd php package
+
+ -- Brady Miller <brady@sparmy.com>  Fri, 08 May 2009 11:26:53 -0700
+
+cvs-openemr (1.0.0-2) stable; urgency=low
+
+  * Support for UTF-8 encoding
+
+ -- Brady Miller <brady@sparmy.com>  Sat, 02 May 2009 16:29:07 -0700
+
+cvs-openemr (1.0.0-1) stable; urgency=low
+
+  * Initial Release.
+
+ -- Brady Miller <brady@sparmy.com>  Tue, 28 Apr 2009 02:32:54 -0700
