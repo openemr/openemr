@@ -319,9 +319,9 @@ else {
 //Version tags
 
 $v_major = '3';
-$v_minor = '0';
-$v_patch = '1';
-$tag = '.4'; // minor revision number, should be empty for production releases
+$v_minor = '2';
+$v_patch = '0';
+$tag = '-dev'; // minor revision number, should be empty for production releases
 
 // This name appears on the login page and in the title bar of most windows.
 // It's nice to customize this to be the name of your clinic.
