@@ -95,7 +95,7 @@ $_GET['show_all']=='yes' ? $lnkvar="'authorizations.php?show_all=no' name='Just 
 <div id="pnotes">
 <?php
 // Retrieve all active notes addressed to me (or to anybody)
-$_GET['show_all']=='yes' ? $usrvar='' : $usrvar=$_SESSION['authUser'] ; 
+$_GET['show_all']=='yes' ? $usrvar='_%' : $usrvar=$_SESSION['authUser'] ; 
 if ($result=getPnotesByDate("", 1, "id,date,body,pid,user,title,assigned_to", '%', "all", 0, $usrvar))
 {
   echo "<table border='0'>\n";

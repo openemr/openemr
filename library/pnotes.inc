@@ -19,7 +19,7 @@ function getPnotesByDate($date, $activity = "1", $cols = "*", $pid = "%",
   if ($activity != "all")
     $sql .= "AND activity = '$activity' ";
   if ($username)
-    $sql .= "AND assigned_to = '$username' ";
+    $sql .= "AND assigned_to LIKE '$username' ";
   $sql .= "ORDER BY date DESC";
   if($limit != "all")
     $sql .= " LIMIT $start, $limit";
