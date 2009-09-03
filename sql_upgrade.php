@@ -178,8 +178,8 @@ if (!empty($_POST['form_submit'])) {
   }
 
   if (!empty($GLOBALS['ippf_specific'])) {
-    // Reload custom lists, layouts and codes for IPPF.
-    upgradeFromSqlFile('ippf_layout.sql');
+    // Upgrade custom stuff for IPPF.
+    upgradeFromSqlFile('ippf_upgrade.sql');
   }
 
   echo "<p><font color='green'>Database upgrade finished.</font></p>\n";

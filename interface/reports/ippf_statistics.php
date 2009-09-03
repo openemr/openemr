@@ -1,4 +1,11 @@
 <?php
+// Copyright (C) 2008-2009 Rod Roark <rod@sunsetsystems.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
 // This module creates statistical reports related to family planning
 // and sexual and reproductive health.
 
@@ -58,6 +65,8 @@ else if ($report_type == 'g') {
     8  => xl('Post-Abortion Followup'),
     7  => xl('Post-Abortion Contraception'),
     11 => xl('Complications of Abortion'),
+    10  => xl('External Referrals'),
+    20  => xl('External Referral Followups'),
   );
   $arr_content = array(
     1 => xl('Services'),
@@ -280,6 +289,7 @@ function getAbortionMethod($code) {
   return $key;
 }
 
+/*********************************************************************
 // Helper function to look up the GCAC issue associated with a visit.
 // Ideally this is the one and only GCAC issue linked to the encounter.
 // However if there are multiple such issues, or if only unlinked issues
@@ -318,6 +328,33 @@ function getGcacClientStatus($row) {
     $key = $irow['title'];
   }
   return $key;
+}
+*********************************************************************/
+
+// Get the "client status" as descriptive text.
+// This comes from the most recent GCAC visit form for visits within
+// the past 2 weeks, although there really should be such a form
+// attached to the visit associated with $row.
+//
+function getGcacClientStatus($row) {
+  $pid = $row['pid'];
+  $encdate = $row['encdate'];
+  $query = "SELECT lo.title " .
+    "FROM forms AS f, form_encounter AS fe, lbf_data AS d, list_options AS lo " .
+    "WHERE f.pid = '$pid' AND " .
+    "f.formdir = 'LBFgcac' AND " .
+    "f.deleted = 0 AND " .
+    "fe.pid = f.pid AND fe.encounter = f.encounter AND " .
+    "fe.date <= '$encdate' AND " .
+    "DATE_ADD(fe.date, INTERVAL 14 DAY) > '$encdate' AND " .
+    "d.form_id = f.form_id AND " .
+    "d.field_id = 'client_status' AND " .
+    "lo.list_id = 'clientstatus' AND " .
+    "lo.option_id = d.field_value " .
+    "ORDER BY d.form_id DESC LIMIT 1";
+  $irow = sqlQuery($query);
+  // echo "<!-- $query -->\n"; // debugging
+  return empty($irow['title']) ? xl('Indeterminate') : $irow['title'];
 }
 
 // Helper function called after the reporting key is determined for a row.
@@ -478,6 +515,7 @@ function process_ippf_code($row, $code) {
     if (empty($key)) return;
   }
 
+  /*******************************************************************
   // Contraceptive method for new contraceptive adoption following abortion.
   // Get it from the IPPF code if an abortion issue is linked to the visit.
   // Note we are handling this during processing of services rather than
@@ -498,6 +536,7 @@ function process_ippf_code($row, $code) {
     $irow = sqlQuery($query);
     if (empty($irow['count'])) return;
   }
+  *******************************************************************/
 
   // Post-Abortion Care and Followup by Source.
   // Requirements just call for counting sessions, but this way the columns
@@ -511,7 +550,8 @@ function process_ippf_code($row, $code) {
     }
   }
 
-  // Complications from abortion by abortion method and complication type.
+  /*******************************************************************
+  // Complications of abortion by abortion method and complication type.
   // These may be noted either during recovery or during a followup visit.
   // Again, driven by services in order to report by service date.
   // Note: If there are multiple complications, they will all be reported.
@@ -543,6 +583,7 @@ function process_ippf_code($row, $code) {
     }
     return; // because loadColumnData() is already done.
   }
+  *******************************************************************/
 
   // Pre-Abortion Counseling.  Three possible situations:
   //   Provided abortion in the MA clinics
@@ -564,13 +605,13 @@ function process_ippf_code($row, $code) {
   }
 
   else {
-    return;
+    return; // no match, so do nothing
   }
 
   // OK we now have the reporting key for this issue.
-
   loadColumnData($key, $row);
-}
+
+} // end function process_ippf_code()
 
 // This is called for each MA service code that is selected.
 //
@@ -608,6 +649,78 @@ function process_ma_code($row) {
   }
 
   loadColumnData($key, $row);
+}
+
+function LBFgcac_query($pid, $encounter, $name) {
+  $query = "SELECT d.form_id, d.field_value " .
+    "FROM forms AS f, form_encounter AS fe, lbf_data AS d " .
+    "WHERE f.pid = '$pid' AND " .
+    "f.encounter = '$encounter' AND " .
+    "f.formdir = 'LBFgcac' AND " .
+    "f.deleted = 0 AND " .
+    "fe.pid = f.pid AND fe.encounter = f.encounter AND " .
+    "d.form_id = f.form_id AND " .
+    "d.field_id = '$name'";
+  return sqlStatement($query);
+}
+
+function LBFgcac_title($form_id, $field_id, $list_id) {
+  $query = "SELECT lo.title " .
+    "FROM lbf_data AS d, list_options AS lo WHERE " .
+    "d.form_id = '$form_id' AND " .
+    "d.field_id = '$field_id' AND " .
+    "lo.list_id = '$list_id' AND " .
+    "lo.option_id = d.field_value " .
+    "LIMIT 1";
+  $row = sqlQuery($query);
+  return empty($row['title']) ? '' : $row['title'];
+}
+
+// This is called for each encounter that is selected.
+//
+function process_visit($row) {
+  global $form_by;
+
+  if ($form_by !== '7' && $form_by !== '11') return;
+
+  // New contraceptive method following abortion.
+  //
+  if ($form_by === '7') {
+    $dres = LBFgcac_query($row['pid'], $row['encounter'], 'contrameth');
+    while ($drow = sqlFetchArray($dres)) {
+      $a = explode('|', $drow['field_value']);
+      foreach ($a as $methid) {
+        if (empty($methid)) continue;
+        $crow = sqlQuery("SELECT title FROM list_options WHERE " .
+          "list_id = 'contrameth' AND option_id = '$methid'");
+        $key = $crow['title'];
+        if (empty($key)) $key = xl('Indeterminate');
+        loadColumnData($key, $row);
+      }
+    }
+  }
+
+  // Complications of abortion by abortion method and complication type.
+  // These may be noted either during recovery or during a followup visit.
+  // Note: If there are multiple complications, they will all be reported.
+  //
+  else if ($form_by === '11') {
+    $dres = LBFgcac_query($row['pid'], $row['encounter'], 'complications');
+    while ($drow = sqlFetchArray($dres)) {
+      $a = explode('|', $drow['field_value']);
+      foreach ($a as $complid) {
+        if (empty($complid)) continue;
+        $crow = sqlQuery("SELECT title FROM list_options WHERE " .
+          "list_id = 'complication' AND option_id = '$complid'");
+        $abtype = LBFgcac_title($drow['form_id'], 'in_ab_proc', 'in_ab_proc');
+        if (empty($abtype)) $abtype = xl('Indeterminate');
+        $key = "$abtype / " . $crow['title'];
+        loadColumnData($key, $row);
+      }
+    }
+  }
+
+  // loadColumnData() already done as needed.
 }
 
 /*********************************************************************
@@ -659,16 +772,17 @@ function process_referral($row) {
         if (preg_match('/^[12]/', $code)) {
           $key = xl('SRH Referrals');
           loadColumnData($key, $row);
+          break;
         }
       }
-      else { // $form_by is 9 (internal) or 10 (external) referrals
+      else { // $form_by is 9 (internal) or 10 or 20 (external) referrals
         $key = $code;
-        loadColumnData($key, $row);
         break;
       }
     } // end foreach
   }
 
+  if ($form_by !== '1') loadColumnData($key, $row);
 }
 
   // If we are doing the CSV export then generate the needed HTTP headers.
@@ -924,16 +1038,26 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
     else if ($form_sexes == '2') $sexcond = "AND pd.sex LIKE 'Male' ";
 
     // Get referrals and related patient data.
-    if ($form_by === '9' || $form_by === '10' || $form_by === '1') {
-      $exttest = $form_by === '9' ? '=' : '!=';
+    if ($form_by === '9' || $form_by === '10' || $form_by === '20' || $form_by === '1') {
+
+      $exttest = "t.refer_external = '1'";
+      $datefld = "t.refer_date";
+
+      if ($form_by === '9') {
+        $exttest = "t.refer_external = '0'";
+      }
+      else if ($form_by === '20') {
+        $datefld = "t.reply_date";
+      }
+
       $query = "SELECT " .
         "t.refer_related_code, t.pid, pd.regdate, pd.referral_source, " .
         "pd.sex, pd.DOB, pd.lname, pd.fname, pd.mname, " .
         "pd.contrastart$pd_fields " .
         "FROM transactions AS t " .
         "JOIN patient_data AS pd ON pd.pid = t.pid $sexcond" .
-        "WHERE t.title = 'Referral' AND t.refer_date >= '$from_date' AND " .
-        "t.refer_date <= '$to_date' AND refer_external $exttest '0' " .
+        "WHERE t.title = 'Referral' AND $datefld IS NOT NULL AND " .
+        "$datefld >= '$from_date' AND $datefld <= '$to_date' AND $exttest " .
         "ORDER BY t.pid, t.id";
       $res = sqlStatement($query);
       while ($row = sqlFetchArray($res)) {
@@ -966,7 +1090,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
     *****************************************************************/
 
     // else {
-    if ($form_by !== '9' && $form_by !== '10') {
+    if ($form_by !== '9' && $form_by !== '10' && $form_by !== '20') {
       // This gets us all MA codes, with encounter and patient
       // info attached and grouped by patient and encounter.
       $query = "SELECT " .
@@ -994,7 +1118,14 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
       }
       $query .= "ORDER BY fe.pid, fe.encounter, b.code";
       $res = sqlStatement($query);
+
+      $prev_encounter = 0;
+
       while ($row = sqlFetchArray($res)) {
+        if ($row['encounter'] != $prev_encounter) {
+          $prev_encounter = $row['encounter'];
+          process_visit($row);
+        }
         if ($row['code_type'] === 'MA') {
           process_ma_code($row);
           if (!empty($row['related_code'])) {
@@ -1008,7 +1139,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
           }
         }
       } // end while
-    } // end else
+    } // end if
 
     // Sort everything by key for reporting.
     ksort($areport);
@@ -1021,7 +1152,9 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
     genStartRow("bgcolor='#dddddd'");
 
     // If the key is an MA or IPPF code, then add a column for its description.
-    if ($form_by === '4' || $form_by === '102' || $form_by === '9' || $form_by === '10') {
+    if ($form_by === '4'  || $form_by === '102' || $form_by === '9' ||
+        $form_by === '10' || $form_by === '20')
+    {
       genHeadCell(array($arr_by[$form_by], xl('Description')));
     } else {
       genHeadCell($arr_by[$form_by]);
@@ -1072,7 +1205,9 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
       $dispkey = $key;
 
       // If the key is an MA or IPPF code, then add a column for its description.
-      if ($form_by === '4' || $form_by === '102' || $form_by === '9' || $form_by === '10') {
+      if ($form_by === '4' || $form_by === '102' || $form_by === '9' ||
+          $form_by === '10' || $form_by === '20')
+      {
         $dispkey = array($key, '');
         $type = $form_by === '102' ? 12 : 11; // MA or IPPF
         $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
@@ -1120,7 +1255,9 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
       genStartRow("bgcolor='#dddddd'");
 
       // If the key is an MA or IPPF code, then add a column for its description.
-      if ($form_by === '4' || $form_by === '102' || $form_by === '9' || $form_by === '10') {
+      if ($form_by === '4' || $form_by === '102' || $form_by === '9' ||
+          $form_by === '10' || $form_by === '20')
+      {
         genHeadCell(array(xl('Totals'), ''));
       } else {
         genHeadCell(xl('Totals'));

@@ -252,7 +252,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
 function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
   $fee = NULL, $sale_id = 0, $billed = FALSE)
 {
-  global $code_types, $ndc_applies, $pid;
+  global $code_types, $ndc_applies, $pid, $usbillstyle;
 
   $drow = sqlQuery("SELECT name FROM drugs WHERE drug_id = '$drug_id'");
   $code_text = $drow['name'];

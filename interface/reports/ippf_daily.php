@@ -14,6 +14,7 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 $form_output   = isset($_POST['form_output']) ? 0 + $_POST['form_output'] : 1;
 
 $report_title = xl('Clinic Daily Record');
+$report_col_count = 12;
 
 // This will become the array of reportable values.
 $areport = array();
@@ -176,9 +177,9 @@ if ($_POST['form_submit']) {
     "list_id = 'contrameth' ORDER BY title");
   while ($lorow = sqlFetchArray($lores)) {
     $areport[$lorow['option_id']] = array($lorow['title'],
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
-  $areport['zzz'] = array('Unknown', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+  $areport['zzz'] = array('Unknown', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
   // This gets us all MA codes, with encounter and patient
   // info attached and grouped by patient and encounter.
@@ -227,7 +228,7 @@ if ($_POST['form_submit']) {
         if (empty($areport[$method])) {
           // This should not happen.
           $areport[$method] = array("Unlisted method '$method'",
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         }
 
         // Count total clients.
@@ -240,6 +241,7 @@ if ($_POST['form_submit']) {
           ++$areport[$method][2];
         }
 
+        /*************************************************************
         // Maybe count as old Client First Visit this year.
         $regyear = substr($row['regdate'], 0, 4);
         $thisyear = substr($from_date, 0, 4);
@@ -249,6 +251,8 @@ if ($_POST['form_submit']) {
             "date < '" . $row['encdate'] . " 00:00:00'");
           if (empty($trow['count'])) ++$areport[$method][5];
         }
+        *************************************************************/
+
       } // end new patient
 
       // Logic for visits.
@@ -266,14 +270,14 @@ if ($_POST['form_submit']) {
       // Logic for specific services.
       //
       $code = 0 + $row['code'];
-      if ($code == 255004) ++$areport[$method][6];  // pap smear
-      if ($code == 256101) ++$areport[$method][7];  // preg test
-      if ($code == 375008) ++$areport[$method][8];  // dr's check
-      if ($code == 375014) ++$areport[$method][9];  // dr's visit (was 375013)
-      if ($code == 375011) ++$areport[$method][10]; // advice     (was 009903)
-      if ($code == 019916) ++$areport[$method][11]; // couns by method
-      if ($code == 039916) ++$areport[$method][12]; // infert couns
-      if ($code == 019911) ++$areport[$method][13]; // std/aids couns
+      if ($code == 255004) ++$areport[$method][5];  // pap smear
+      if ($code == 256101) ++$areport[$method][6];  // preg test
+      if ($code == 375008) ++$areport[$method][7];  // dr's check
+      if ($code == 375015) ++$areport[$method][8];  // dr's visit (was 375014)
+      if ($code == 375011) ++$areport[$method][9];  // advice
+      if ($code == 019916) ++$areport[$method][10]; // couns by method
+      if ($code == 039916) ++$areport[$method][11]; // infert couns
+      if ($code == 019911) ++$areport[$method][12]; // std/aids couns
     }
   } // end while
 
@@ -288,7 +292,7 @@ if ($_POST['form_submit']) {
   genHeadCell(xl('Old Clients'    ), true);
   genHeadCell(xl('Total Clients'  ), true);
   genHeadCell(xl('Contra Clients' ), true);
-  genHeadCell(xl('O.A.F.V.'       ), true);
+  // genHeadCell(xl('O.A.F.V.'       ), true);
   genHeadCell(xl('Pap Smear'      ), true);
   genHeadCell(xl('Preg Test'      ), true);
   genHeadCell(xl('Dr Check'       ), true);
@@ -306,7 +310,7 @@ if ($_POST['form_submit']) {
     genStartRow("bgcolor='$bgcolor'");
     genAnyCell($varr[0], false, 'detail');
     // Generate data and accumulate totals for this row.
-    for ($cnum = 0; $cnum < 13; ++$cnum) {
+    for ($cnum = 0; $cnum < $report_col_count; ++$cnum) {
       genNumCell($varr[$cnum + 1], $cnum);
     }
     genEndRow();
@@ -316,7 +320,7 @@ if ($_POST['form_submit']) {
     // Generate the line of totals.
     genStartRow("bgcolor='#dddddd'");
     genHeadCell(xl('Totals'));
-    for ($cnum = 0; $cnum < 13; ++$cnum) {
+    for ($cnum = 0; $cnum < $report_col_count; ++$cnum) {
       genHeadCell($atotals[$cnum], true);
     }
     genEndRow();

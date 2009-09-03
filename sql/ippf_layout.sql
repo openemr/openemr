@@ -53,14 +53,6 @@ INSERT INTO list_options VALUES ('lists' ,'mcreason'  ,'Reason for Method Change
 INSERT INTO list_options VALUES ('lists' ,'abreasons' ,'Reasons for Abortion'                ,58,0,0);
 INSERT INTO list_options VALUES ('lists' ,'flowtype'  ,'Flow Types'                          ,59,0,0);
 
-UPDATE layout_options SET data_type = 1, list_id = 'occupations' WHERE form_id = 'DEM' AND field_id = 'occupation';
-DELETE FROM list_options WHERE list_id = 'occupations' AND option_id = 'oth';
-INSERT INTO list_options VALUES ('occupations','oth','Other', 1,0,0);
-INSERT INTO list_options VALUES ('lists','occupations','Occupations',61,0,0);
-
-UPDATE layout_options SET title = 'Religion'       WHERE form_id = 'DEM' AND field_id = 'userlist5';
-UPDATE layout_options SET title = 'Monthly Income' WHERE form_id = 'DEM' AND field_id = 'userlist3';
-
 DELETE FROM codes WHERE code_type = '11';
 INSERT INTO codes ( code_text, code, code_type, modifier ) VALUES ( 'Contraceptives - Oral Contraceptives - OC - Method Specific Counselling', '111100119', 11, '' );
 INSERT INTO codes ( code_text, code, code_type, modifier ) VALUES ( 'Contraceptives - Oral Contraceptives - OC - OTHER', '111100999', 11, '' );
@@ -659,9 +651,10 @@ INSERT INTO list_options VALUES ('ab_types','legun'  ,'Legally Unspecified Type 
 INSERT INTO list_options VALUES ('ab_types','threat' ,'Threatened Abortion'                 , 7,0,0);
 INSERT INTO list_options VALUES ('ab_types','fail'   ,'Failed Attempted Abortion'           , 8,0,0);
 DELETE FROM list_options WHERE list_id = 'ab_location';
-INSERT INTO list_options VALUES ('ab_location','ma'   ,'MA Clinic'   , 1,0,0);
-INSERT INTO list_options VALUES ('ab_location','part' ,'Partner Site', 2,0,0);
-INSERT INTO list_options VALUES ('ab_location','oth'  ,'Other Site'  , 3,0,0);
+INSERT INTO list_options VALUES ('ab_location','proc' ,'Procedure at this site'              , 1,0,0);
+INSERT INTO list_options VALUES ('ab_location','ma'   ,'Followup procedure from this site'   , 2,0,0);
+INSERT INTO list_options VALUES ('ab_location','part' ,'Followup procedure from partner site', 3,0,0);
+INSERT INTO list_options VALUES ('ab_location','oth'  ,'Followup procedure from other site'  , 4,0,0);
 DELETE FROM list_options WHERE list_id = 'pr_status';
 INSERT INTO list_options VALUES ('pr_status','n_u'   ,'Normal - Urine Test'           , 1,0,0);
 INSERT INTO list_options VALUES ('pr_status','n_bpe' ,'Normal - Bimanual Pelvic Exam' , 2,0,0);
@@ -765,7 +758,7 @@ DELETE FROM list_options WHERE list_id = 'lists' AND seq > 69;
 INSERT INTO list_options VALUES ('lists','clientstatus','GCAC Client Statuses'                      ,70,0,0);
 INSERT INTO list_options VALUES ('lists','in_ab_proc'  ,'GCAC Induced Abortion Procedures'          ,71,0,0);
 INSERT INTO list_options VALUES ('lists','ab_types'    ,'GCAC Abortion Types'                       ,72,0,0);
-INSERT INTO list_options VALUES ('lists','ab_location' ,'GCAC Abortion Locations'                   ,73,0,0);
+INSERT INTO list_options VALUES ('lists','ab_location' ,'GCAC Visit Types'                          ,73,0,0);
 INSERT INTO list_options VALUES ('lists','pr_status'   ,'GCAC Pregnancy Statuses'                   ,74,0,0);
 INSERT INTO list_options VALUES ('lists','gest_age_by' ,'GCAC Gestational Age Confirmed By'         ,75,0,0);
 INSERT INTO list_options VALUES ('lists','bloodgroup'  ,'GCAC Blood Groups'                         ,76,0,0);
@@ -1118,30 +1111,6 @@ DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'conrisks';
 DELETE FROM list_options WHERE list_id = 'sti';
 DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'sti';
 
-DELETE FROM layout_options WHERE form_id = 'GCA';
-INSERT INTO layout_options VALUES ('GCA','client_status','1GCAC Requirements','Client Status'              , 1, 1,2, 0, 0,'clientstatus',1,1,'','' ,'Client Status');
-INSERT INTO layout_options VALUES ('GCA','ab_location'  ,'1GCAC Requirements','Abortion Location'          , 2, 1,2, 0, 0,'ab_location' ,1,1,'','' ,'Where Services are Performed');
-INSERT INTO layout_options VALUES ('GCA','rec_compl'    ,'1GCAC Requirements','Recovery Complications'     , 3,21,1, 2, 0,'complication',1,3,'','' ,'Post-Abortion Complications (observed in recovery');
-INSERT INTO layout_options VALUES ('GCA','fol_compl'    ,'1GCAC Requirements','Followup Complications'     , 4,21,1, 2, 0,'complication',1,3,'','' ,'Post-Abortion Complications (observed at followup');
-INSERT INTO layout_options VALUES ('GCA','reason'       ,'aCounseling'  ,'Reason for Termination'          , 1,21,1, 0, 0,'abreasons'   ,1,3,'','' ,'Reasons for Termination of Pregnancy');
-INSERT INTO layout_options VALUES ('GCA','exp_p_i'      ,'aCounseling'  ,'Explanation of Procedures/Issues', 2,21,1, 2, 0,'exp_p_i'     ,1,3,'','' ,'Explanation of Procedures and Issues');
-INSERT INTO layout_options VALUES ('GCA','exp_pop'      ,'aCounseling'  ,'Explanation of Pregnancy Options', 3,21,1, 2, 0,'exp_pop'     ,1,3,'','' ,'Explanation of Pregnancy Options');
-INSERT INTO layout_options VALUES ('GCA','ab_contraind' ,'aCounseling'  ,'Contraindications'               , 4,21,1, 2, 0,'ab_contraind',1,3,'','' ,'Contraindications');
-INSERT INTO layout_options VALUES ('GCA','screening'    ,'aCounseling'  ,'Screening for SRHR Concerns'     , 5,21,1, 2, 0,'screening'   ,1,3,'','' ,'Screening for SRHR Concerns');
-INSERT INTO layout_options VALUES ('GCA','in_ab_proc'   ,'bAdmission'   ,'Induced Abortion Procedure'      , 2, 1,1, 0, 0,'in_ab_proc'  ,1,3,'','' ,'Abortion Procedure Accepted or Performed');
-INSERT INTO layout_options VALUES ('GCA','ab_types'     ,'bAdmission'   ,'Abortion Types'                  , 3,21,1, 2, 0,'ab_types'    ,1,3,'','' ,'Abortion Types');
-INSERT INTO layout_options VALUES ('GCA','pr_status'    ,'cPreparatory' ,'Pregnancy Status Confirmed'      , 1, 1,1, 0, 0,'pr_status'   ,1,3,'','' ,'Pregnancy Status Confirmed');
-INSERT INTO layout_options VALUES ('GCA','gest_age_by'  ,'cPreparatory' ,'Gestational Age Confirmed By'    , 2, 1,1, 0, 0,'gest_age_by' ,1,3,'','' ,'Gestational Age Confirmed By');
-INSERT INTO layout_options VALUES ('GCA','usertext12'   ,'cPreparatory' ,'Blood Group'                     , 3, 1,1, 0, 0,'bloodgroup'  ,1,3,'','H','');
-INSERT INTO layout_options VALUES ('GCA','usertext13'   ,'cPreparatory' ,'RH Factor'                       , 4, 1,1, 0, 0,'rh_factor'   ,1,3,'','H','');
-INSERT INTO layout_options VALUES ('GCA','prep_procs'   ,'cPreparatory' ,'Preparation Procedures'          , 6,21,1, 0, 0,'prep_procs'  ,1,3,'','' ,'Preparation Procedures');
-INSERT INTO layout_options VALUES ('GCA','pre_op'       ,'dIntervention','Pre-Surgery Procedures'          , 1,21,1, 2, 0,'pre_op'      ,1,3,'','' ,'Pre-Surgery Procedures');
-INSERT INTO layout_options VALUES ('GCA','anesthesia'   ,'dIntervention','Anesthesia'                      , 2, 1,1, 0, 0,'anesthesia'  ,1,3,'','' ,'Type of Anesthesia Used');
-INSERT INTO layout_options VALUES ('GCA','side_eff'     ,'dIntervention','Immediate Side Effects'          , 3,21,1, 2, 0,'side_eff'    ,1,3,'','' ,'Immediate Side Effects (observed at intervention');
-INSERT INTO layout_options VALUES ('GCA','post_op'      ,'dIntervention','Post-Surgery Procedures'         , 5,21,1, 2, 0,'post_op'     ,1,3,'','' ,'Post-Surgery Procedures');
-INSERT INTO layout_options VALUES ('GCA','qc_ind'       ,'eFollowup'    ,'Quality of Care Indicators'      , 1,21,1, 0, 0,'qc_ind'      ,1,3,'','' ,'Quality of Care Indicators');
-INSERT INTO layout_options VALUES ('GCA','contrameth'   ,'eFollowup'    ,'Contraceptive Method'            , 2,21,1, 2, 0,'contrameth'  ,1,3,'','' ,'Post Abortion Contraceptive Method');
-
 DELETE FROM layout_options WHERE form_id = 'CON';
 INSERT INTO layout_options VALUES ('CON','prev_method'  ,'aStatistics' ,'Last Method Used'             , 1,21,1, 2, 0,'contrameth'  ,1,3,'','' ,'Last Contraceptive Method Used');
 INSERT INTO layout_options VALUES ('CON','new_method'   ,'aStatistics' ,'New Method Adopted'           , 2,21,1, 2, 0,'contrameth'  ,1,3,'','' ,'Contraceptive Method Adopted at This Visit');
@@ -1429,7 +1398,8 @@ INSERT INTO list_options VALUES ('lists','uro_disease','Male Genitourinary disea
 -- The following added 2009-07-24
 
 DELETE FROM list_options WHERE list_id = 'lbfnames';
-INSERT INTO list_options VALUES ('lbfnames','LBFsrh','IPPF SRH',1,0,0);
+INSERT INTO list_options VALUES ('lbfnames','LBFgcac','IPPF GCAC',1,0,0);
+INSERT INTO list_options VALUES ('lbfnames','LBFsrh' ,'IPPF SRH' ,2,0,0);
 
 DELETE FROM layout_options WHERE form_id = 'LBFsrh';
 INSERT INTO layout_options VALUES ('LBFsrh','usertext15' ,'1Gynecology'                ,'Menstrual History'             , 1,22,1, 0, 0,'genmenhist'  ,1,3,'','H','');
@@ -1458,4 +1428,47 @@ INSERT INTO layout_options VALUES ('LBFsrh','fer_treat'  ,'4Basic RH (female and
 INSERT INTO layout_options VALUES ('LBFsrh','usertext20' ,'4Basic RH (female and male)','Urology Basic History'         , 9,21,1, 0, 0,'genurohist'  ,1,1,'','H','');
 INSERT INTO layout_options VALUES ('LBFsrh','uro_exams'  ,'4Basic RH (female and male)','Urology Tests'                 ,10,23,1, 0, 0,'uro_exams'   ,1,1,'','','Urology test results');
 INSERT INTO layout_options VALUES ('LBFsrh','uro_disease','4Basic RH (female and male)','Male Genitourinary diseases'   ,11,21,1, 2, 0,'uro_disease' ,1,3,'','','Male Genitourinary diseases');
+
+-- The following revised or added 2009-07-28
+
+DELETE FROM layout_options WHERE form_id = 'GCA';
+INSERT INTO layout_options VALUES ('GCA','reason'       ,'2Counseling'  ,'Reason for Termination'          , 1,21,1, 0, 0,'abreasons'   ,1,3,'','' ,'Reasons for Termination of Pregnancy');
+INSERT INTO layout_options VALUES ('GCA','exp_p_i'      ,'2Counseling'  ,'Explanation of Procedures/Issues', 2,21,1, 2, 0,'exp_p_i'     ,1,3,'','' ,'Explanation of Procedures and Issues');
+INSERT INTO layout_options VALUES ('GCA','exp_pop'      ,'2Counseling'  ,'Explanation of Pregnancy Options', 3,21,1, 2, 0,'exp_pop'     ,1,3,'','' ,'Explanation of Pregnancy Options');
+INSERT INTO layout_options VALUES ('GCA','ab_contraind' ,'2Counseling'  ,'Contraindications'               , 4,21,1, 2, 0,'ab_contraind',1,3,'','' ,'Contraindications');
+INSERT INTO layout_options VALUES ('GCA','screening'    ,'2Counseling'  ,'Screening for SRHR Concerns'     , 5,21,1, 2, 0,'screening'   ,1,3,'','' ,'Screening for SRHR Concerns');
+INSERT INTO layout_options VALUES ('GCA','in_ab_proc'   ,'3Admission'   ,'Induced Abortion Procedure'      , 2, 1,1, 0, 0,'in_ab_proc'  ,1,3,'','' ,'Abortion Procedure Accepted or Performed');
+INSERT INTO layout_options VALUES ('GCA','ab_types'     ,'3Admission'   ,'Abortion Types'                  , 3,21,1, 2, 0,'ab_types'    ,1,3,'','' ,'Abortion Types');
+INSERT INTO layout_options VALUES ('GCA','pr_status'    ,'4Preparatory' ,'Pregnancy Status Confirmed'      , 1, 1,1, 0, 0,'pr_status'   ,1,3,'','' ,'Pregnancy Status Confirmed');
+INSERT INTO layout_options VALUES ('GCA','gest_age_by'  ,'4Preparatory' ,'Gestational Age Confirmed By'    , 2, 1,1, 0, 0,'gest_age_by' ,1,3,'','' ,'Gestational Age Confirmed By');
+INSERT INTO layout_options VALUES ('GCA','usertext12'   ,'4Preparatory' ,'Blood Group'                     , 3, 1,1, 0, 0,'bloodgroup'  ,1,3,'','H','');
+INSERT INTO layout_options VALUES ('GCA','usertext13'   ,'4Preparatory' ,'RH Factor'                       , 4, 1,1, 0, 0,'rh_factor'   ,1,3,'','H','');
+INSERT INTO layout_options VALUES ('GCA','prep_procs'   ,'4Preparatory' ,'Preparation Procedures'          , 6,21,1, 0, 0,'prep_procs'  ,1,3,'','' ,'Preparation Procedures');
+INSERT INTO layout_options VALUES ('GCA','pre_op'       ,'5Intervention','Pre-Surgery Procedures'          , 1,21,1, 2, 0,'pre_op'      ,1,3,'','' ,'Pre-Surgery Procedures');
+INSERT INTO layout_options VALUES ('GCA','anesthesia'   ,'5Intervention','Anesthesia'                      , 2, 1,1, 0, 0,'anesthesia'  ,1,3,'','' ,'Type of Anesthesia Used');
+INSERT INTO layout_options VALUES ('GCA','side_eff'     ,'5Intervention','Immediate Side Effects'          , 3,21,1, 2, 0,'side_eff'    ,1,3,'','' ,'Immediate Side Effects (observed at intervention');
+INSERT INTO layout_options VALUES ('GCA','post_op'      ,'5Intervention','Post-Surgery Procedures'         , 5,21,1, 2, 0,'post_op'     ,1,3,'','' ,'Post-Surgery Procedures');
+INSERT INTO layout_options VALUES ('GCA','qc_ind'       ,'6Followup'    ,'Quality of Care Indicators'      , 1,21,1, 0, 0,'qc_ind'      ,1,3,'','' ,'Quality of Care Indicators');
+
+DELETE FROM layout_options WHERE form_id = 'LBFgcac';
+INSERT INTO layout_options VALUES ('LBFgcac','client_status','1Basic Information','Client Status'               , 1, 1,2, 0, 0,'clientstatus',1,1,'','' ,'Client Status');
+INSERT INTO layout_options VALUES ('LBFgcac','ab_location'  ,'1Basic Information','Type of Visit'               , 2, 1,2, 0, 0,'ab_location' ,1,1,'','' ,'Nature of this visit');
+INSERT INTO layout_options VALUES ('LBFgcac','in_ab_proc'   ,'1Basic Information','Associated Induced Procedure', 3, 1,1, 0, 0,'in_ab_proc'  ,1,3,'','' ,'Applies regardless of when or where done');
+INSERT INTO layout_options VALUES ('LBFgcac','complications','2Complications','Complications'                   , 1,21,1, 2, 0,'complication',1,3,'','' ,'Post-Abortion Complications');
+INSERT INTO layout_options VALUES ('LBFgcac','main_compl'   ,'2Complications','Main Complication'               , 2, 1,1, 2, 0,'complication',1,3,'','' ,'Primary Complication');
+INSERT INTO layout_options VALUES ('LBFgcac','contrameth'   ,'3Contraception','New Method'                      , 1,21,1, 2, 0,'contrameth'  ,1,3,'','' ,'New method adopted');
+
+-- The following revised or added 2009-08-19
+
+DELETE FROM list_options WHERE list_id = 'occupations' AND option_id = 'oth';
+INSERT INTO list_options VALUES ('occupations','oth','Other', 1,0,0);
+DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'occupations';
+INSERT INTO list_options VALUES ('lists','occupations','Occupations',61,0,0);
+UPDATE layout_options SET data_type = 26, list_id = 'occupations'  WHERE form_id = 'DEM' AND field_id = 'occupation';
+UPDATE layout_options SET data_type = 26, title = 'Religion'       WHERE form_id = 'DEM' AND field_id = 'userlist5';
+UPDATE layout_options SET data_type = 26, title = 'Monthly Income' WHERE form_id = 'DEM' AND field_id = 'userlist3';
+UPDATE layout_options SET data_type = 26 WHERE form_id = 'DEM' AND field_id = 'ethnoracial';
+UPDATE layout_options SET data_type = 26 WHERE form_id = 'DEM' AND field_id = 'language';
+UPDATE layout_options SET data_type = 26 WHERE form_id = 'DEM' AND field_id = 'status';
+UPDATE layout_options SET uor = 0 WHERE form_id = 'DEM' AND field_id = 'providerID';
 
