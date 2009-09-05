@@ -610,8 +610,8 @@ foreach ($providers as $provider) {
             $eventid = $event['eid'];
             $patientid = $event['pid'];
             $commapos = strpos($event['patient_name'], ",");
-            $lname = addslashes(ucfirst(strtolower(substr($event['patient_name'], 0, $commapos))));
-            $fname = addslashes(ucfirst(strtolower(substr($event['patient_name'], $commapos + 2))));
+            $lname = substr($event['patient_name'], 0, $commapos);
+	    $fname = substr($event['patient_name'], $commapos + 2);
             $patient_dob = $event['patient_dob'];
             $patient_age = $event['patient_age'];
             $catid = $event['catid'];
@@ -645,14 +645,14 @@ foreach ($providers as $provider) {
             }
             else {
                 // some sort of patient appointment
-                $divTitle .= "\r\n[".$catname ."] ".$fname." ".$lname;
+                $divTitle .= "\r\n[".$catname ."] ".htmlspecialchars($fname,ENT_QUOTES)." ".htmlspecialchars($lname,ENT_QUOTES);
                 $content .= "<span class='appointment".$apptToggle."'>";
                 $content .= $dispstarth . ':' . $startm;
                 if ($event['recurrtype'] == 1) $content .= "<img src='$TPL_IMAGE_PATH/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
                 $content .= htmlspecialchars($event['apptstatus']);
                 if ($patientid) {
                     // include patient name and link to their details
-                    $link_title = "$fname $lname\n";
+                    $link_title = htmlspecialchars($fname,ENT_QUOTES) . " " . htmlspecialchars($lname,ENT_QUOTES) . " \n";
                     $link_title .= xl('Age') . ": ".$patient_age."\n" . xl('DOB') . ": ".$patient_dob."\n";
                     $link_title .= "(" . xl('Click to view') . ")";
                     $content .= "<a href='javascript:goPid($patientid)' title='$link_title'>";

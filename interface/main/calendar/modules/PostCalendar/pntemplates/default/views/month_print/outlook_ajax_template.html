@@ -379,8 +379,8 @@ foreach ($providers as $provider) {
             $eventid = $event['eid'];
             $patientid = $event['pid'];
             $commapos = strpos($event['patient_name'], ",");
-            $lname = addslashes(ucfirst(strtolower(substr($event['patient_name'], 0, $commapos))));
-            $fname = addslashes(ucfirst(strtolower(substr($event['patient_name'], $commapos + 2))));
+            $lname = substr($event['patient_name'], 0, $commapos);
+	    $fname = substr($event['patient_name'], $commapos + 2);
             $patient_dob = $event['patient_dob'];
             $patient_age = $event['patient_age'];
             $catid = $event['catid'];
@@ -414,7 +414,7 @@ foreach ($providers as $provider) {
 
                 $content .= $displayTime. " ";
                 if ($catid == 1) $content .= "<strike>";
-                $content .= $lname;
+                $content .= htmlspecialchars($lname);
                 if ($catid == 1) $content .= "</strike>";
             }
 

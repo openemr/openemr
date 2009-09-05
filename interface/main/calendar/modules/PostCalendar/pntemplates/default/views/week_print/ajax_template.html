@@ -620,8 +620,8 @@ foreach ($providers as $provider) {
             $eventid = $event['eid'];
             $patientid = $event['pid'];
             $commapos = strpos($event['patient_name'], ",");
-            $lname = addslashes(ucfirst(strtolower(substr($event['patient_name'], 0, $commapos))));
-            $fname = addslashes(ucfirst(strtolower(substr($event['patient_name'], $commapos + 2))));
+            $lname = substr($event['patient_name'], 0, $commapos);
+	    $fname = substr($event['patient_name'], $commapos + 2);
             $patient_dob = $event['patient_dob'];
             $patient_age = $event['patient_age'];
             $catid = $event['catid'];
@@ -653,9 +653,9 @@ foreach ($providers as $provider) {
                 $content .= "<span class='appointment".$apptToggle."'>";
                 $content .= $starth . ':' . $startm . htmlspecialchars($event['apptstatus']);
                 if ($catid == 1) $content .= "<strike>";
-                $content .= $lname;
+                $content .= htmlspecialchars($lname);
                 if ($GLOBALS['calendar_appt_style'] != 1) {
-                    $content .= "," . $fname;
+                    $content .= "," . htmlspecialchars($fname);
                     if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
                         $content .= "(" . $event['title'];
                         if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4)
