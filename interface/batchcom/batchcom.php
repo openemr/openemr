@@ -117,7 +117,7 @@ if ($_POST['form_action']=='Process') {
         // if no results.
         if (mysql_num_rows($res)==0){
             
-            echo (xl('No results, please tray again.','','<br>'));
+            echo (xl('No results, please try again.','','<br>'));
         
         //if results
         } else { 
