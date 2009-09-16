@@ -40,8 +40,8 @@ $obj = formFetch("form_misc_billing_options", $_GET["id"]);
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
 <br>
-<a href="<?php echo "$rootdir/patient_file/encounter/patient_encounter.php";?>"
- class="link" target="Main" onclick="top.restoreSession()">[<?php xl('Don\'t Save Changes','e'); ?>]</a>
+<a href="<?php echo "$rootdir/patient_file/encounter/encounter_top.php";?>"
+ class="link" onclick="top.restoreSession()">[<?php xl('Don\'t Save Changes','e'); ?>]</a>
 </form>
 <?php
 formFooter();
