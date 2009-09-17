@@ -110,7 +110,7 @@ while(list($ppid,$patient) = each($authorize)){
 	
 	$name = getPatientData($ppid);
 	
-	echo "<tr><td valign=top><span class=bold>". $name{"fname"} . " " . $name{"lname"} ."</span><br><a class=link_submit href='authorizations.php?mode=authorize&pid=$ppid'>".xl('Authorize')."</a></td>\n";
+	echo "<tr><td valign=top><span class=bold>". $name{"fname"} . " " . $name{"lname"} ."</span><br><a class=link_submit href='authorizations_full.php?mode=authorize&pid=$ppid'>".xl('Authorize')."</a></td>\n";
 	echo "<td valign=top><span class=bold>".xl('Billing').":</span><span class=text><br>" . $patient{"billing"} . "</td>\n";
 	
 	echo "<td valign=top><span class=bold>".xl('Transactions').":</span><span class=text><br>" . $patient{"transaction"} . "</td>\n";
