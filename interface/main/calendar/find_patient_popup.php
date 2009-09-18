@@ -190,9 +190,9 @@ form {
 <?php
 foreach ($result as $iter) {
     $iterpid   = $iter['pid'];
-    $iterlname = addslashes($iter['lname']);
-    $iterfname = addslashes($iter['fname']);
-    $itermname = addslashes($iter['mname']);
+    $iterlname = $iter['lname'];
+    $iterfname = $iter['fname'];
+    $itermname = $iter['mname'];
     $iterdob   = $iter['DOB'];
 
     // the special genericname2 of 'Billing' means something, but I'm not sure
@@ -201,7 +201,7 @@ foreach ($result as $iter) {
     $trClass = "oneresult";
     if ($iter['genericname2'] == 'Billing') { $trClass .= " billing"; }
 
-    echo " <tr class='".$trClass."' id='".$iterpid."~".$iterlname."~".$iterfname."~".$iterdob."'>";
+    echo " <tr class='".$trClass."' id='".$iterpid."~".htmlspecialchars($iterlname, ENT_QUOTES)."~".htmlspecialchars($iterfname, ENT_QUOTES)."~".$iterdob."'>";
     echo "  <td class='srName'>$iterlname, $iterfname $itermname";
     if ($iter['genericname2'] == 'Billing') { echo "<br>".$iter['genericval2']; }
     echo "</td>\n";

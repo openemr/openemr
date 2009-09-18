@@ -1347,7 +1347,7 @@ if ( $GLOBALS['dutchpc'] ) {
    <b><?php xl('Patient','e'); ?>:</b>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo $patientname ?>' onclick='sel_patient()' title='<?php xl('Click to select patient','e'); ?>' readonly />
+   <input type='text' size='10' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo htmlspecialchars($patientname, ENT_QUOTES); ?>' onclick='sel_patient()' title='<?php xl('Click to select patient','e'); ?>' readonly />
    <input type='hidden' name='form_pid' value='<?php echo $patientid ?>' />
   </td>
   <td colspan='3' nowrap style='font-size:8pt'>
