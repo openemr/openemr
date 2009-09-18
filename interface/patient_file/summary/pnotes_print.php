@@ -47,7 +47,7 @@ if ($noteid) {
 
 <p><?php xl('Active','e'); ?>: <?php echo $activity ? xl('Yes') : xl('No'); ?></p>
 
-<p><?php echo $body; ?></p>
+<p><?php echo nl2br($body); ?></p>
 
 <script language='JavaScript'>
 window.print();
