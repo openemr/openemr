@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -109,7 +109,7 @@ function issue_ippf_gcac_form($issue, $thispid) {
       echo "<br /><span class='bold'><input type='checkbox' name='form_cb_$group_seq' value='1' " .
         "onclick='return divclick(this,\"div_$group_seq\");'";
       if ($display_style == 'block') echo " checked";
-      echo " /><b>$group_name</b></span>\n";
+      echo " /><b>" . xl_layout_label($group_name) . "</b></span>\n";
       echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
       echo " <table border='0' cellpadding='0' width='100%'>\n";
       $display_style = 'none';
@@ -135,7 +135,7 @@ function issue_ippf_gcac_form($issue, $thispid) {
     ++$item_count;
 
     echo "<b>";
-    if ($frow['title']) echo $frow['title'] . ":"; else echo "&nbsp;";
+    if ($frow['title']) echo (xl_layout_label($frow['title']) . ":"); else echo "&nbsp;";
     echo "</b>";
 
     // Handle starting of a new data cell.

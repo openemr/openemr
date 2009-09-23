@@ -78,7 +78,7 @@ $lres = sqlStatement("SELECT * FROM list_options " .
   "WHERE list_id = 'lbfnames' ORDER BY seq, title");
 if (sqlNumRows($lres)) {
   echo "<select name='lbfnames' onchange='openNewForm(this)'>\n";
-  echo "<option value='lbfnames'>Layout Based</option>\n";
+  echo "<option value='lbfnames'>" . xl('Layout Based') . "</option>\n";
   while ($lrow = sqlFetchArray($lres)) {
     $option_id = $lrow['option_id']; // should start with LBF
     $title = $lrow['title'];
