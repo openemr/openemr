@@ -269,7 +269,7 @@ foreach($result as $iter2) {
 <td><input type="text" name="taxonomy" size="20" value="<?php echo $iter["taxonomy"]?>"></td>
 <td><span class="text"><?php xl('Calendar UI','e'); ?>: </span></td><td><select name="cal_ui">
 <?php
- foreach (array(1 => xl('Default'), 2 => xl('Fancy'), 3 => xl('Outlook')) as $key => $value)
+ foreach (array(3 => xl('Outlook'), 1 => xl('Original'), 2 => xl('Fancy')) as $key => $value)
  {
   echo " <option value='$key'";
   if ($key == $iter['cal_ui']) echo " selected";

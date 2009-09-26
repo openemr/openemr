@@ -42,6 +42,7 @@ if (isset($_POST["mode"])) {
         "', facility_id = '"   . trim(formData('facility_id'  )) .
         "', specialty = '"     . trim(formData('specialty'    )) .
         "', see_auth = '"      . trim(formData('see_auth'     )) .
+	"', cal_ui = '"        . trim(formData('cal_ui'       )) .			
         "', calendar = '"      . $calvar                         .
         "'");
       //set the facility name from the selected facility_id
@@ -231,7 +232,7 @@ if ($fres) {
 <td><input type="entry" name="taxonomy" size="20" value="207Q00000X"></td>
 <td><span class="text"><?php xl('Calendar UI','e'); ?>: </span></td><td><select name="cal_ui">
 <?php
- foreach (array(1 => xl('Default'), 2 => xl('Fancy'), 3 => xl('Outlook')) as $key => $value)
+ foreach (array(3 => xl('Outlook'), 1 => xl('Original'), 2 => xl('Fancy')) as $key => $value)
  {
   echo " <option value='$key'";
   if ($key == $iter['cal_ui']) echo " selected";
