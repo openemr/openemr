@@ -141,11 +141,11 @@ else {
   if ($findBy == "Last")
       $result = getPatientLnames("$patient", $given, $orderby, $sqllimit, $fstart);
   else if ($findBy == "ID")
-      $result = getPatientId("$patient", $given, $orderby, $sqllimit, $fstart);
+      $result = getPatientId("$patient", $given, "id ASC, ".$orderby, $sqllimit, $fstart);
   else if ($findBy == "DOB")
-      $result = getPatientDOB("$patient", $given, $orderby, $sqllimit, $fstart);
+      $result = getPatientDOB("$patient", $given, "DOB ASC, ".$orderby, $sqllimit, $fstart);
   else if ($findBy == "SSN")
-      $result = getPatientSSN("$patient", $given, $orderby, $sqllimit, $fstart);
+      $result = getPatientSSN("$patient", $given, "ss ASC, ".$orderby, $sqllimit, $fstart);
   elseif ($findBy == "Phone")                  //(CHEMED) Search by phone number
       $result = getPatientPhone("$patient", $given, $orderby, $sqllimit, $fstart);
   else if ($findBy == "Any")
