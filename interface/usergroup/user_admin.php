@@ -84,6 +84,12 @@ if ($_GET["mode"] == "update") {
   if ($_GET["cal_ui"]) {
           $tqvar = formData('cal_ui','G');
           sqlStatement("update users set cal_ui = '$tqvar' where id = {$_GET["id"]}");
+      
+          // added by bgm to set this session variable if the current user has edited
+	  //   their own settings
+	  if ($_SESSION['authId'] == $_GET["id"]) {
+	    $_SESSION['cal_ui'] = $tqvar;   
+	  }
   }
   //END (CHEMED) Calendar UI preference
 
