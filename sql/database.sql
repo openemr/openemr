@@ -1487,9 +1487,9 @@ CREATE TABLE `issue_encounter` (
 DROP TABLE IF EXISTS `lang_constants`;
 CREATE TABLE `lang_constants` (
   `cons_id` int(11) NOT NULL auto_increment,
-  `constant_name` varchar(255) default NULL,
+  `constant_name` varchar(255) BINARY default NULL,
   UNIQUE KEY `cons_id` (`cons_id`),
-  KEY `cons_name` (`constant_name`)
+  KEY `constant_name` (`constant_name`)
 ) ENGINE=MyISAM ;
 
 -- 
@@ -1503,7 +1503,7 @@ CREATE TABLE `lang_definitions` (
   `lang_id` int(11) NOT NULL default '0',
   `definition` mediumtext,
   UNIQUE KEY `def_id` (`def_id`),
-  KEY `definition` (`definition`(100))
+  KEY `cons_id` (`cons_id`)
 ) ENGINE=MyISAM ;
 
 -- 
@@ -1516,18 +1516,13 @@ CREATE TABLE `lang_languages` (
   `lang_code` char(2) NOT NULL default '',
   `lang_description` varchar(100) default NULL,
   UNIQUE KEY `lang_id` (`lang_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 ;
+) ENGINE=MyISAM AUTO_INCREMENT=2 ;
 
 -- 
 -- Dumping data for table `lang_languages`
 -- 
 
 INSERT INTO `lang_languages` VALUES (1, 'en', 'English');
-INSERT INTO `lang_languages` VALUES (2, 'se', 'Swedish');
-INSERT INTO `lang_languages` VALUES (3, 'es', 'Spanish');
-INSERT INTO `lang_languages` VALUES (4, 'de', 'German');
-INSERT INTO `lang_languages` VALUES (5, 'du', 'Dutch');
-INSERT INTO `lang_languages` VALUES (6, 'he', 'Hebrew');
 
 -- --------------------------------------------------------
 
