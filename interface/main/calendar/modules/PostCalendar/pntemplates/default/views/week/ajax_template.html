@@ -412,7 +412,7 @@ foreach ($providers as $provider) {
 
         echo "<tr><td class='timeslot'>";
 //         echo "<a href='javascript:newEvt($startampm,$starttimeh,$starttimem,$Date,$providerid,$in_cat_id)' title='New Appointment' alt='New Appointment'>";
-        echo "<a href='javascript:newEvt($startampm,$starttimeh,$starttimem,$defaultDate,$providerid,$in_cat_id)' title='New Appointment' alt='New Appointment'>";
+        echo "<a href='javascript:newEvt($startampm,$starttimeh,$starttimem,$defaultDate,$providerid,$in_cat_id)' title='" . xl('New Appointment') . "' alt='New Appointment'>";
 
         //echo $slottime['hour'] * 60 + $slottime['minute'];
         echo "$disptimeh:$starttimem</a>";
