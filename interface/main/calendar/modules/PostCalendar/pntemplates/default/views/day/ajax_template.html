@@ -362,7 +362,7 @@ foreach ($times as $slottime) {
     $providerid = $providers[0]['id'];
 
     echo "<tr><td class='timeslot'>";
-    echo "<a href='javascript:newEvt($startampm,$starttimeh,$starttimem,$Date,$providerid,0)' title='New Appointment' alt='New Appointment'>";
+    echo "<a href='javascript:newEvt($startampm,$starttimeh,$starttimem,$Date,$providerid,0)' title='" . xl('New Appointment') . "' alt='New Appointment'>";
     echo "$disptimeh:$starttimem";
     echo "</a>";
     echo "</td></tr>\n";
