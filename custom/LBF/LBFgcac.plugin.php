@@ -93,8 +93,19 @@ function set_main_compl_list() {
 // Disable most form fields if refusing abortion.
 function client_status_changed() {
  var f = document.forms[0];
- var sel = f.form_client_status;
- var dis = sel.selectedIndex >= 0 && sel.options[sel.selectedIndex].value == 'mara';
+ var dis = false;
+ var cs = f.form_client_status;
+ if (cs.type) { // cs = select list
+  dis = cs.selectedIndex >= 0 && cs.options[cs.selectedIndex].value == 'mara';
+ }
+ else { // cs = array of radio buttons
+  for (var i = 0; i < cs.length; ++i) {
+   if (cs[i].checked) {
+    dis = cs[i].value == 'mara';
+    break;
+   }
+  }
+ }
  for (var i = 0; i < f.elements.length; ++i) {
   var e = f.elements[i];
   if (
@@ -125,7 +136,15 @@ for (var i = 0; i < f.elements.length; ++i) {
  if (e.name.substring(0,18) == 'form_complications')
   e.onclick = function () { set_main_compl_list(); };
 }
-f.form_client_status.onchange = function () { client_status_changed(); };
+var cs = f.form_client_status;
+if (cs.type) { // cs = select list
+ cs.onchange = function () { client_status_changed(); };
+}
+else { // cs = array of radio buttons
+ for (var i = 0; i < cs.length; ++i) {
+  cs[i].onclick = function () { client_status_changed(); };
+ }
+}
 ";
 }
 

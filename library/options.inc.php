@@ -407,10 +407,8 @@ function generate_form_field($frow, $currvalue) {
         echo " selected";
         $got_selected = TRUE;
       }
-	
       // Added 5-09 by BM - Translate label if applicable
       echo ">" . xl_list_label($lrow['title']) . "</option>\n";
-	
     }
     if (!$got_selected && strlen($currvalue) > 0) {
       echo "<option value='$currescaped' selected>* $currescaped *</option>";
@@ -420,7 +418,6 @@ function generate_form_field($frow, $currvalue) {
     else {
       echo "</select>";
     }
-      
     // show the add button if user has access to correct list
     $outputAddButton = "<input type='button' id='addtolistid_".$list_id."' fieldid='form_".$field_id."' class='addtolist' value='" . xl('Add') . "'>";
     if (aco_exist('lists', $list_id)) {
@@ -430,6 +427,45 @@ function generate_form_field($frow, $currvalue) {
     else {
      // no specific aco exist for this list, so check for access to 'default' list
      if (acl_check('lists', 'default')) echo $outputAddButton;	
+    }
+  }
+
+  // a set of labeled radio buttons
+  else if ($data_type == 27) {
+    // In this special case, fld_length is the number of columns generated.
+    $cols = max(1, $frow['fld_length']);
+    $lres = sqlStatement("SELECT * FROM list_options " .
+      "WHERE list_id = '$list_id' ORDER BY seq, title");
+    echo "<table cellpadding='0' cellspacing='0' width='100%'>";
+    $tdpct = (int) (100 / $cols);
+    $got_selected = FALSE;
+    for ($count = 0; $lrow = sqlFetchArray($lres); ++$count) {
+      $option_id = $lrow['option_id'];
+      if ($count % $cols == 0) {
+        if ($count) echo "</tr>";
+        echo "<tr>";
+      }
+      echo "<td width='$tdpct%'>";
+      echo "<input type='radio' name='form_{$field_id}' id='form_{$field_id}[$option_id]' value='$option_id'";
+      if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
+          (strlen($currvalue)  > 0 && $option_id == $currvalue))
+      {
+        echo " checked";
+        $got_selected = TRUE;
+      }
+      echo ">" . xl_list_label($lrow['title']);
+      echo "</td>";
+    }
+    if ($count) {
+      echo "</tr>";
+      if ($count > $cols) {
+        // Add some space after multiple rows of radio buttons.
+        echo "<tr><td colspan='$cols' style='height:0.7em'></td></tr>";
+      }
+    }
+    echo "</table>";
+    if (!$got_selected && strlen($currvalue) > 0) {
+      echo "$currvalue <font color='red' title='" . xl('Please choose a valid selection.') . "'>" . xl('Fix this') . "!</font>";
     }
   }
 
@@ -760,6 +796,40 @@ function generate_print_field($frow, $currvalue) {
     echo "</table>";
   }
 
+  // a set of labeled radio buttons
+  else if ($data_type == 27) {
+    // In this special case, fld_length is the number of columns generated.
+    $cols = max(1, $frow['fld_length']);
+    $lres = sqlStatement("SELECT * FROM list_options " .
+      "WHERE list_id = '$list_id' ORDER BY seq, title");
+    echo "<table cellpadding='0' cellspacing='0' width='100%'>";
+    $tdpct = (int) (100 / $cols);
+    for ($count = 0; $lrow = sqlFetchArray($lres); ++$count) {
+      $option_id = $lrow['option_id'];
+      if ($count % $cols == 0) {
+        if ($count) echo "</tr>";
+        echo "<tr>";
+      }
+      echo "<td width='$tdpct%'>";
+      echo "<input type='radio'";
+      if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
+          (strlen($currvalue)  > 0 && $option_id == $currvalue))
+      {
+        echo " checked";
+      }
+      echo ">" . xl_list_label($lrow['title']);
+      echo "</td>";
+    }
+    if ($count) {
+      echo "</tr>";
+      if ($count > $cols) {
+        // Add some space after multiple rows of radio buttons.
+        echo "<tr><td colspan='$cols' style='height:0.7em'></td></tr>";
+      }
+    }
+    echo "</table>";
+  }
+
 }
 
 function generate_display_field($frow, $currvalue) {
@@ -768,14 +838,12 @@ function generate_display_field($frow, $currvalue) {
   $list_id    = $frow['list_id'];
   $s = '';
 
-  // generic selection list or the generic selection list with add on the fly feature
-  if ($data_type == 1 || $data_type == 26) {
+  // generic selection list or the generic selection list with add on the fly
+  // feature, or radio buttons
+  if ($data_type == 1 || $data_type == 26 || $data_type == 27) {
     $lrow = sqlQuery("SELECT title FROM list_options " .
       "WHERE list_id = '$list_id' AND option_id = '$currvalue'");
-
-      // Added 5-09 by BM - Translate label if applicable
       $s = xl_list_label($lrow['title']);
-      
   }
 
   // simple text field
@@ -1160,11 +1228,22 @@ function generate_layout_validation($form_id) {
       case 12:
       case 13:
       case 14:
+      case 26:
         echo
         " if (f.$fldname.selectedIndex <= 0) {\n" .
         "  alert('" . xl('Please choose a value for','','',' ') .
         xl_layout_label($fldtitle) . "');\n" .
         "  if (f.$fldname.focus) f.$fldname.focus();\n" .
+        "  return false;\n" .
+        " }\n";
+        break;
+      case 27: // radio buttons
+        echo
+        " var i = 0;\n" .
+        " for (; i < f.$fldname.length; ++i) if (f.$fldname[i].checked) break;\n" .
+        " if (i >= f.$fldname.length) {\n" .
+        "  alert('" . xl('Please choose a value for','','',' ') .
+        xl_layout_label($fldtitle) . "');\n" .
         "  return false;\n" .
         " }\n";
         break;

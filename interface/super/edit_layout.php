@@ -30,23 +30,25 @@ while ($lrow = sqlFetchArray($lres)) {
 }
 
 // array of the data_types of the fields
-$datatypes = array("1"=>xl("list box"), 
-                    "2"=>xl("textbox"),
-                    "3"=>xl("textarea"),
-                    "4"=>xl("text-date"),
-                    "10"=>xl("Providers"),
-                    "11"=>xl("Providers NPI"),
-                    "12"=>xl("Pharmacies"),
-                    "13"=>xl("Squads"),
-                    "14"=>xl("Organizations"),
-                    "15"=>xl("Billing codes"),
-                    "21"=>xl("checkbox list"),
-                    "22"=>xl("textbox list"),
-                    "23"=>xl("Exam results"),
-                    "24"=>xl("Patient allergies"),
-                    "25"=>xl("checkbox w/text"),
-                    "26"=>xl("list box w/add")
-                    );
+$datatypes = array(
+  "1"  => xl("List box"), 
+  "2"  => xl("Textbox"),
+  "3"  => xl("Textarea"),
+  "4"  => xl("Text-date"),
+  "10" => xl("Providers"),
+  "11" => xl("Providers NPI"),
+  "12" => xl("Pharmacies"),
+  "13" => xl("Squads"),
+  "14" => xl("Organizations"),
+  "15" => xl("Billing codes"),
+  "21" => xl("Checkbox list"),
+  "22" => xl("Textbox list"),
+  "23" => xl("Exam results"),
+  "24" => xl("Patient allergies"),
+  "25" => xl("Checkbox w/text"),
+  "26" => xl("List box w/add"),
+  "27" => xl("Radio buttons"),
+);
 
 // Check authorization.
 $thisauth = acl_check('admin', 'super');
