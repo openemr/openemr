@@ -54,9 +54,12 @@ function Digits($field) {
 
 // Translate sex.
 function Sex($field) {
+  /*******************************************************************
   $sex = strtoupper(substr(trim($field), 0, 1));
   if ($sex != "M" && $sex != "F") $sex = "U";
   return $sex;
+  *******************************************************************/
+  return mappedOption('sex', $field);
 }
 
 // Translate a date.
@@ -90,6 +93,30 @@ function getTextListValue($string, $key) {
     }
   }
   return '';
+}
+
+// Return the mapped list item ID if there is one, else the option_id.
+//
+function mappedOption($list_id, $option_id) {
+  $row = sqlQuery("SELECT mapping FROM list_options WHERE " .
+    "list_id = '$list_id' AND option_id = '$option_id' LIMIT 1");
+  if (empty($row)) return $option_id;
+  return ($row['mapping'] === '') ? $option_id : $row['mapping'];
+}
+
+// Like the above but given a layout item form and field name.
+//
+function mappedFieldOption($form_id, $field_id, $option_id) {
+  $row = sqlQuery("SELECT b.mapping FROM " .
+    "layout_options AS a, list_options AS b WHERE " .
+    "a.form_id = '$form_id' AND " .
+    "a.field_id = '$field_id' AND " .
+    "a.list_id != '' AND " .
+    "b.list_id = a.list_id AND " .
+    "b.option_id = '$option_id' " .
+    "LIMIT 1");
+  if (empty($row)) return $option_id;
+  return ($row['mapping'] === '') ? $option_id : $row['mapping'];
 }
 
 function exportEncounter($pid, $encounter, $date) {
@@ -157,7 +184,7 @@ function exportEncounter($pid, $encounter, $date) {
   CloseTag('IMS_eMRUpload_Visit');
 }
 
-function endClient($pid) {
+function endClient($pid, &$encarray) {
   // Output issues.
   $ires = sqlStatement("SELECT " .
     "l.id, l.type, l.begdate, l.enddate, l.title, l.diagnosis, " .
@@ -184,6 +211,7 @@ function endClient($pid) {
     Add('IssueEndDate'  , xmlTime($irow['enddate']));
     Add('IssueTitle'    , $irow['title']);
     Add('IssueDiagnosis', $irow['diagnosis']);
+    $form_id = ($irow['type'] == 'ippf_gcac') ? 'GCA' : 'CON';
     foreach ($irow AS $key => $value) {
       if (empty($value)) continue;
       if ($key == 'id' || $key == 'type' || $key == 'begdate' ||
@@ -195,7 +223,7 @@ function endClient($pid) {
         // TBD: Add IssueCodeGroup to identify the list, if any???
         Add('IssueCodeGroup', '?');
         Add('IssueCode', $key);
-        Add('IssueCodeValue', $tmp);
+        Add('IssueCodeValue', mappedFieldOption($form_id, $key, $tmp));
         CloseTag('IMS_eMRUpload_IssueData');
       }
     }
@@ -206,10 +234,54 @@ function endClient($pid) {
       "ORDER BY encounter");
     while ($ierow = sqlFetchArray($ieres)) {
       OpenTag('IMS_eMRUpload_VisitIssue');
+      Add('emrIssueId', $irow['id']);
       Add('emrVisitId', $ierow['encounter']);
       CloseTag('IMS_eMRUpload_VisitIssue');
     }
     CloseTag('IMS_eMRUpload_Issue');
+  }
+
+  // Loop on $encarray and generate an "issue" for each GCAC visit form,
+  // similarly to the above.
+  foreach ($encarray as $erow) {
+    $fres = sqlStatement("SELECT form_id FROM forms WHERE " .
+      "pid = '$pid' AND " .
+      "encounter = '" . $erow['encounter'] . "' AND " .
+      "formdir = 'LBFgcac' AND " .
+      "deleted = 0 " .
+      "ORDER BY id");
+    // For each GCAC form in this encounter...
+    while ($frow = sqlFetchArray($fres)) {
+      $form_id = $frow['form_id'];
+      OpenTag('IMS_eMRUpload_Issue');
+      Add('IssueType'     , 'ippf_gcac');
+      Add('emrIssueId'    , 10000000 + $form_id);
+      Add('IssueStartDate', xmlTime($erow['date'], 0));
+      Add('IssueEndDate'  , xmlTime(''));
+      Add('IssueTitle'    , 'GCAC Visit Form');
+      Add('IssueDiagnosis', '');
+      $gres = sqlStatement("SELECT field_id, field_value FROM lbf_data WHERE " .
+        "form_id = '$form_id' ORDER BY field_id");
+      // For each data item in the form...
+      while ($grow = sqlFetchArray($gres)) {
+        $key = $grow['field_id'];
+        $value = $grow['field_value'];
+        if (empty($value)) continue;
+        $avalues = explode('|', $value);
+        foreach ($avalues as $tmp) {
+          OpenTag('IMS_eMRUpload_IssueData');
+          Add('IssueCodeGroup', '?');
+          Add('IssueCode', $key);
+          Add('IssueCodeValue', mappedFieldOption('LBFgcac', $key, $tmp));
+          CloseTag('IMS_eMRUpload_IssueData');
+        }
+      }
+      OpenTag('IMS_eMRUpload_VisitIssue');
+      Add('emrIssueId', 10000000 + $form_id);
+      Add('emrVisitId', $erow['encounter']);
+      CloseTag('IMS_eMRUpload_VisitIssue');
+      CloseTag('IMS_eMRUpload_Issue');
+    }
   }
 
   CloseTag('IMS_eMRUpload_Client');
@@ -317,6 +389,7 @@ if (!empty($form_submit)) {
 
     $last_pid = $row['pid'];
 
+    /*****************************************************************
     // Compute education: 0 = none, 1 = some, 9 = unassigned.
     // The MAs should be told to use "none" for no education.
     $education = 9;
@@ -327,6 +400,8 @@ if (!empty($form_submit)) {
       else
         $education = 1;
     }
+    *****************************************************************/
+    $education = mappedOption('userlist2', $row['education']);
 
     // Get most recent contraceptive issue.
     $crow = sqlQuery("SELECT l.begdate, c.new_method " .
@@ -353,6 +428,7 @@ if (!empty($form_submit)) {
     $methodvalue = -999;
     if (!empty($crow['new_method'])) {
       $methods = explode('|', $crow['new_method']);
+      /***************************************************************
       foreach ($methods as $method) {
         $lorow = sqlQuery("SELECT option_value FROM list_options WHERE " .
           "list_id = 'contrameth' AND option_id = '$method' LIMIT 1");
@@ -362,6 +438,8 @@ if (!empty($form_submit)) {
           $methodvalue = $value;
         }
       }
+      ***************************************************************/
+      $methodid = mappedOption('contrameth', $methods[0]);
     }
     Add('CurrentMethod', $methodid);
 
@@ -384,11 +462,13 @@ if (!empty($form_submit)) {
     // Add('Debug', $query); // debugging
 
     $eres = sqlStatement($query);
+    $encarray = array();
     while ($erow = sqlFetchArray($eres)) {
       exportEncounter($last_pid, $erow['encounter'], $erow['date']);
+      $encarray[] = $erow;
     }
 
-    endClient($last_pid);
+    endClient($last_pid, $encarray);
   }
 
   // if ($last_facility >= 0) endFacility();
