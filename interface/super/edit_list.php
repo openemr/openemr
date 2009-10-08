@@ -54,14 +54,15 @@ if ($_POST['formaction']=='save' && $list_id) {
               if ($list_id == 'lbfnames' && substr($id,0,3) != 'LBF')
                 $id = "LBF$id";
               sqlInsert("INSERT INTO list_options ( " .
-                "list_id, option_id, title, seq, is_default, option_value " .
+                "list_id, option_id, title, seq, is_default, option_value, mapping " .
                 ") VALUES ( " .
                 "'$list_id', "                       .
-                "'" . $id      . "', " .
+                "'" . $id                        . "', " .
                 "'" . formTrim($iter['title'])   . "', " .
                 "'" . formTrim($iter['seq'])     . "', " .
                 "'" . formTrim($iter['default']) . "', " .
-                "'" . $value                 . "' "  .
+                "'" . $value                     . "', " .
+                "'" . formTrim($iter['mapping']) . "' "  .
                 ")");
             }
         }
@@ -127,7 +128,7 @@ function getCodeDescriptions($codes) {
 
 // Write one option line to the form.
 //
-function writeOptionLine($option_id, $title, $seq, $default, $value) {
+function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping='') {
   global $opt_line_no, $list_id;
   ++$opt_line_no;
   $bgcolor = "#" . (($opt_line_no & 1) ? "ddddff" : "ffdddd");
@@ -159,10 +160,23 @@ function writeOptionLine($option_id, $title, $seq, $default, $value) {
   echo "<input type='checkbox' name='opt[$opt_line_no][default]' value='1'$checked class='optin' />";
   echo "</td>\n";
 
+  // Tax rates and contraceptive methods have an additional attribute.
+  // IPPF used the additional attribute for all other lists to indicate a
+  // global master identifier for the list item.
+  //
   if ($list_id == 'taxrate' || $list_id == 'contrameth') {
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' name='opt[$opt_line_no][value]' value='" .
         htmlspecialchars($value, ENT_QUOTES) . "' size='8' maxlength='15' class='optin' />";
+    echo "</td>\n";
+  }
+
+  // IPPF includes the ability to map each list item to a "master" identifier.
+  //
+  if ($GLOBALS['ippf_specific']) {
+    echo "  <td align='center' class='optcell'>";
+    echo "<input type='text' name='opt[$opt_line_no][mapping]' value='" .
+        htmlspecialchars($mapping, ENT_QUOTES) . "' size='5' maxlength='15' class='optin' />";
     echo "</td>\n";
   }
 
@@ -354,6 +368,8 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Rate'   ,'e'); ?></b></td>
 <?php } else if ($list_id == 'contrameth') { ?>
   <td><b><?php xl('Effectiveness','e'); ?></b></td>
+<?php } if ($GLOBALS['ippf_specific']) { ?>
+  <td><b><?php xl('Global ID','e'); ?></b></td>
 <?php } ?>
 <?php } // end not fee sheet ?>
  </tr>
@@ -376,7 +392,7 @@ if ($list_id) {
       "list_id = '$list_id' ORDER BY seq,title");
     while ($row = sqlFetchArray($res)) {
       writeOptionLine($row['option_id'], $row['title'], $row['seq'],
-        $row['is_default'], $row['option_value']);
+        $row['is_default'], $row['option_value'], $row['mapping']);
     }
     for ($i = 0; $i < 3; ++$i) {
       writeOptionLine('', '', '', '', 0);
