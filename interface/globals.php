@@ -223,6 +223,11 @@ $GLOBALS['disable_prescriptions'] = false;
 //    The patient search/add screen is '../new/new.php' .
 $GLOBALS['default_top_pane'] = 'main_info.php';
 
+// Option to set the 'Online Support' link. By default, it is
+// set to the Sourceforge support forums. Note you can also remove
+// the link entirely by simple commenting out below line.
+$GLOBALS['online_support_link'] = 'http://sourceforge.net/projects/openemr/support';
+
 include_once (dirname(__FILE__) . "/../library/date_functions.php");
 include_once (dirname(__FILE__) . "/../library/classes/Filtreatment_class.php");
 

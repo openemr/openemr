@@ -1060,14 +1060,23 @@ function genPopupsList($style='') {
 </table>
 
 <hr />
+<a href="../../Documentation/User_Guide/" target="_blank" class="navitem" id="help_link"
+onclick="top.restoreSession()">
+<?php xl('User Manual','e'); ?></a>
+	
+<?php if (!empty($GLOBALS['online_support_link'])) { ?>	
+<br>
+<a href='<?php echo $GLOBALS["online_support_link"]; ?>' target="_blank" class="navitem" id="support_link"
+onclick="top.restoreSession()">
+<?php xl('Online Support','e'); ?></a>
+<?php
+}
+?>
+	
+<hr />
 <a href="../logout.php?auth=logout" target="_top" class="navitem" id="logout_link"
  onclick="top.restoreSession()">
 <?php xl('Logout','e'); ?></a>
-
-&nbsp;&nbsp;&nbsp 
-<a href="../../Documentation/User_Guide/" target="_blank" class="navitem" id="help_link" 
-onclick="top.restoreSession()">
-<?php xl('Help','e'); ?></a> 
 
 <input type='hidden' name='findBy' value='Last' />
 <input type="hidden" name="searchFields" id="searchFields"/>
