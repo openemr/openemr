@@ -3,15 +3,15 @@ INSERT INTO layout_options VALUES ('DEM','userdate1','5Stats'  ,'Return to Play'
 
 INSERT INTO layout_options VALUES ('HIS',''         ,'1General','Allergies'      , 3,24,1, 0, 0,''       ,1,1,'','' ,'List of allergies');
 
-INSERT INTO list_options VALUES ('fitness','1','Full Play'          , 1,1,0);
-INSERT INTO list_options VALUES ('fitness','2','Full Training'      , 2,0,0);
-INSERT INTO list_options VALUES ('fitness','3','Restricted Training', 3,0,0);
-INSERT INTO list_options VALUES ('fitness','4','Injured Out'        , 4,0,0);
-INSERT INTO list_options VALUES ('fitness','5','Rehabilitation'     , 5,0,0);
-INSERT INTO list_options VALUES ('fitness','6','Illness'            , 6,0,0);
-INSERT INTO list_options VALUES ('fitness','7','International Duty' , 7,0,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('fitness','1','Full Play'          , 1,1,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('fitness','2','Full Training'      , 2,0,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('fitness','3','Restricted Training', 3,0,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('fitness','4','Injured Out'        , 4,0,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('fitness','5','Rehabilitation'     , 5,0,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('fitness','6','Illness'            , 6,0,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('fitness','7','International Duty' , 7,0,0);
 
-INSERT INTO list_options VALUES ('lists','fitness','Sports Fitness Levels',51,0,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('lists','fitness','Sports Fitness Levels',51,0,0);
 
 ALTER TABLE patient_data
   ADD `userdate1` date DEFAULT NULL;
@@ -53,3 +53,4 @@ CREATE TABLE IF NOT EXISTS lists_football_injury (
   firemoved   int(11)      NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
 ) TYPE=MyISAM;
+
