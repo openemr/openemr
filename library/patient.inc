@@ -204,7 +204,7 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     //(CHEMED) facility filter
     $param2 = "";
     if ($facility) {
-        // $param2 = " AND facility_id = $facility ";
+      if ($GLOBALS['restrict_user_facility']) {
         $param2 = " AND (facility_id = $facility 
           OR  $facility IN
 	        (select facility_id 
@@ -213,6 +213,10 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
 	        and table_id = id)
 	        )
           ";
+      }
+      else {
+        $param2 = " AND facility_id = $facility ";
+      }
     }
     //--------------------------------
 
