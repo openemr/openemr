@@ -97,7 +97,7 @@ sub scrape {
       next unless ($tag->[1]{src} =~ /SpecificGreen/);
       $tag = $parser->get_tag("a");
       my $tmp = $parser->get_trimmed_text;
-      unless ($tmp =~ /Diagnosis (\S+)/) {
+      unless ($tmp =~ /Diagnosis Code (\S+)/) {
         print STDERR "Parse error in '$tmp' at $url\n";
         next;
       }
