@@ -28,7 +28,9 @@ class Claim {
   var $billing_facility;  // row from facility table
   var $provider;          // row from users table (rendering provider)
   var $referrer;          // row from users table (referring provider)
+  var $supervisor;        // row from users table (supervising provider)
   var $insurance_numbers; // row from insurance_numbers table for current payer
+  var $supervisor_numbers; // row from insurance_numbers table for current payer
   var $patient_data;      // row from patient_data table
   var $billing_options;   // row from form_misc_billing_options table
   var $invoice;           // result from get_invoice_summary()
@@ -215,6 +217,19 @@ class Claim {
     $sql = "SELECT * FROM users WHERE id = '$referrer_id'";
     $this->referrer = sqlQuery($sql);
     if (!$this->referrer) $this->referrer = array();
+
+    $supervisor_id = $this->encounter['supervisor_id'];
+    $sql = "SELECT * FROM users WHERE id = '$supervisor_id'";
+    $this->supervisor = sqlQuery($sql);
+    if (!$this->supervisor) $this->supervisor = array();
+
+    $sql = "SELECT * FROM insurance_numbers WHERE " .
+      "(insurance_company_id = '" . $this->procs[0]['payer_id'] .
+      "' OR insurance_company_id is NULL) AND " .
+      "provider_id = '$supervisor_id' " .
+      "ORDER BY insurance_company_id DESC LIMIT 1";
+    $this->supervisor_numbers = sqlQuery($sql);
+    if (!$this->supervisor_numbers) $this->supervisor_numbers = array();
 
   } // end constructor
 
@@ -1040,5 +1055,43 @@ class Claim {
     if (empty($this->referrer['taxonomy'])) return '207Q00000X';
     return x12clean(trim($this->referrer['taxonomy']));
   }
+
+  function supervisorLastName() {
+    return x12clean(trim($this->supervisor['lname']));
+  }
+
+  function supervisorFirstName() {
+    return x12clean(trim($this->supervisor['fname']));
+  }
+
+  function supervisorMiddleName() {
+    return x12clean(trim($this->supervisor['mname']));
+  }
+
+  function supervisorNPI() {
+    return x12clean(trim($this->supervisor['npi']));
+  }
+
+  function supervisorUPIN() {
+    return x12clean(trim($this->supervisor['upin']));
+  }
+
+  function supervisorSSN() {
+    return x12clean(trim(str_replace('-', '', $this->supervisor['federaltaxid'])));
+  }
+
+  function supervisorTaxonomy() {
+    if (empty($this->supervisor['taxonomy'])) return '207Q00000X';
+    return x12clean(trim($this->supervisor['taxonomy']));
+  }
+
+  function supervisorNumberType() {
+    return $this->supervisor_numbers['provider_number_type'];
+  }
+
+  function supervisorNumber() {
+    return x12clean(trim(str_replace('-', '', $this->supervisor_numbers['provider_number'])));
+  }
+
 }
 ?>

@@ -446,7 +446,16 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
     }
 
     // 24i and 24j Top. ID Qualifier and Rendering Provider ID
-    if ($claim->providerNumber($hcfa_proc_index)) {
+    if ($claim->supervisorNumber()) {
+      // If there is a supervising provider and that person has a
+      // payer-specific provider number, then we assume that the SP
+      // must be identified on the claim and this is how we do it
+      // (but the NPI of the actual rendering provider appears below).
+      // BCBS of TN indicated they want it this way.  YMMV.  -- Rod
+      put_hcfa($lino, 65,  2, $claim->supervisorNumberType());
+      put_hcfa($lino, 68, 10, $claim->supervisorNumber());
+    }
+    else if ($claim->providerNumber($hcfa_proc_index)) {
       put_hcfa($lino, 65,  2, $claim->providerNumberType($hcfa_proc_index));
       put_hcfa($lino, 68, 10, $claim->providerNumber($hcfa_proc_index));
     }

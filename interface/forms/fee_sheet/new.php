@@ -367,7 +367,8 @@ $visit_row = sqlQuery("SELECT fe.date, opc.pc_catname " .
 //
 if ($_POST['bn_save']) {
   $main_provid = 0 + $_POST['ProviderID'];
-  // if (! $main_provid) $main_provid = $_SESSION["authUserID"];
+  $main_supid  = 0 + $_POST['SupervisorID'];
+  if ($main_supid == $main_provid) $main_supid = 0;
 
   $bill = $_POST['bill'];
   for ($lino = 1; $bill["$lino"]['code_type']; ++$lino) {
@@ -480,7 +481,8 @@ if ($_POST['bn_save']) {
     "forms.pid = '$pid' AND forms.encounter = '$encounter' AND " .
     "forms.formdir = 'newpatient' AND users.id = '$provid'");
   *******************************************************************/
-  sqlStatement("UPDATE form_encounter SET provider_id = '$main_provid' WHERE " .
+  sqlStatement("UPDATE form_encounter SET provider_id = '$main_provid', " .
+    "supervisor_id = '$main_supid'  WHERE " .
     "pid = '$pid' AND encounter = '$encounter'");
 
   // More IPPF stuff.
@@ -974,15 +976,35 @@ if ($_POST['newcodes']) {
   }
 }
 
-$tmp = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .
-  "pid = '$pid' AND encounter = '$encounter' " .
+$tmp = sqlQuery("SELECT provider_id, supervisor_id FROM form_encounter " .
+  "WHERE pid = '$pid' AND encounter = '$encounter' " .
   "ORDER BY id DESC LIMIT 1");
 $encounter_provid = 0 + $tmp['provider_id'];
+$encounter_supid  = 0 + $tmp['supervisor_id'];
 ?>
 </table>
 </p>
 
-<br>
+<br />
+&nbsp;
+
+<?php
+// Choose rendering and supervising providers.
+echo "<span class='billcell'><b>\n";
+echo xl('Providers') . ": &nbsp;";
+
+echo "&nbsp;&nbsp;" . xl('Rendering') . "\n";
+genProviderSelect('ProviderID', '-- Please Select --', $encounter_provid, $isBilled);
+
+if (!$GLOBALS['ippf_specific']) {
+  echo "&nbsp;&nbsp;" . xl('Supervising') . "\n";
+  genProviderSelect('SupervisorID', '-- N/A --', $encounter_supid, $isBilled);
+}
+
+echo "</b></span>\n";
+?>
+
+<p>
 &nbsp;
 
 <?php
@@ -998,7 +1020,7 @@ if ($trow['count'] && $contraception && !$isBilled) {
     echo "   <input type='hidden' name='contrastart' value='$date1' />\n";
   }
   else {
-    echo "<!-- contraception = $contraception -->\n"; // debugging
+    // echo "<!-- contraception = $contraception -->\n"; // debugging
     $trow = sqlQuery("SELECT contrastart " .
       "FROM patient_data WHERE " .
       "pid = '$pid' LIMIT 1");
@@ -1034,10 +1056,6 @@ if (true) {
   }
   echo "   </select>\n";
 }
-
-// Build a drop-down list of providers.
-echo "   <span class='billcell'><b>&nbsp;" . xl('Default Provider') . ":</b></span>\n";
-genProviderSelect('ProviderID', '-- Please Select --', $encounter_provid, $isBilled);
 ?>
 
 &nbsp; &nbsp; &nbsp;

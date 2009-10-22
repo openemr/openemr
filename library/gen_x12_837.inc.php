@@ -530,6 +530,36 @@ function gen_x12_837($pid, $encounter, &$log) {
     }
   }
 
+  // Loop 2310E, Supervising Provider
+  //
+  if ($claim->supervisorLastName()) {
+    ++$edicount;
+    $out .= "NM1" .
+      "*DQ" . // Supervising Physician
+      "*1" .  // Person
+      "*" . $claim->supervisorLastName() .
+      "*" . $claim->supervisorFirstName() .
+      "*" . $claim->supervisorMiddleName() .
+      "*" .   // NM106 not used
+      "*";    // Name Suffix
+    if ($claim->supervisorNPI()) { $out .=
+      "*XX" .
+      "*" . $claim->supervisorNPI();
+    } else { $out .=
+      "*34" .
+      "*" . $claim->supervisorSSN();
+    }
+    $out .= "~\n";
+
+    if ($claim->supervisorNumber()) {
+      ++$edicount;
+      $out .= "REF" .
+        "*" . $claim->supervisorNumberType() .
+        "*" . $claim->supervisorNumber() .
+        "~\n";
+    }
+  }
+
   $prev_pt_resp = $clm_total_charges; // for computation below
 
   // Loops 2320 and 2330*, other subscriber/payer information.
