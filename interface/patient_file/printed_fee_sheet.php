@@ -30,10 +30,10 @@ $form_fill = empty($_GET['fill']) ? 0 : 1;
 if (file_exists("../../custom/fee_sheet_codes.php"))
   include_once ("../../custom/fee_sheet_codes.php");
 
-$fontsize = trim($_REQUEST['fontsize']) + 0;
-if (!$fontsize) $fontsize = 7;
-$page_height = trim($_REQUEST['page_height']) + 0;
-if (!$page_height) $page_height = 700;
+// TBD: Move these to globals.php, or make them user-specific.
+$fontsize = 7;
+$page_height = 700;
+
 $padding = 0;
 
 // The $SBCODES table is a simple indexed array whose values are
@@ -93,7 +93,7 @@ if (empty($SBCODES)) {
   }
 
   // Extra stuff for the labs section.
-  $SBCODES[] = '*G|' . xl('Additional Labs');
+  $SBCODES[] = '*G|' . xl('Notes');
   $percol = intval((count($SBCODES) + 2) / 3);
   while (count($SBCODES) < $percol * 3) $SBCODES[] = '*B|';
 
@@ -429,13 +429,8 @@ else {
 <?php if ($pages == 0) { // if this is the last page ?>
 
     <tr>
-     <td colspan='4' valign='top' class='fshead' style='height:<?php echo $lheight * 4; ?>pt'>
-      Additional procedures:<br />
-     </td>
-    </tr>
-    <tr>
-     <td colspan='4' valign='top' class='fshead' style='height:<?php echo $lheight * 4; ?>pt'>
-      Diagnosis:<br />
+     <td colspan='4' valign='top' class='fshead' style='height:<?php echo $lheight * 8; ?>pt'>
+      Notes:<br />
      </td>
     </tr>
 
@@ -483,12 +478,7 @@ else {
 <div id='hideonprint'>
 <p>
 <input type='button' value='<?php xl('Print','e'); ?>' onclick='printme()' />
-&nbsp;&nbsp;Font Size in Points:
-<input type='text' name='fontsize' size='2' maxlength='5' value='<?php echo $fontsize ?>' />
-&nbsp;&nbsp;Page Height in Points:
-<input type='text' name='page_height' size='3' maxlength='4' value='<?php echo $page_height ?>' />
-&nbsp;&nbsp;
-<input type='submit' name='form_submit' value='Refresh' />
+
 </div>
 </form>
 </center>
