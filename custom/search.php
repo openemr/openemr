@@ -4,6 +4,7 @@
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
 
 include_once("../interface/globals.php");
 require_once("../library/sql.inc");
@@ -81,18 +82,7 @@ require_once("../library/sql.inc");
 	</table>
 
 	<?php
-		$layoutCols = sqlStatement( "SELECT field_id, description, group_name "
-						. "FROM layout_options "
-						. "WHERE form_id='DEM' "
-		                                . "AND group_name not like ('%Employer%' ) AND uor !=0 "
-						. "ORDER BY group_name,seq"
-		);
-
-
-		echo "<table>";
-
-		$groupNameLabel = "";
-		for($iter=0; $row=sqlFetchArray($layoutCols); $iter++) {
+    function echoFilterItem($iter, $fieldId, $fieldTitle) {
 			if ( $iter == 0 || ($iter % 3 == 0) ) {
 				if ( $iter > 0 ) {
 					echo "</tr>";
@@ -100,11 +90,24 @@ require_once("../library/sql.inc");
 				echo "<tr>";
 			}
 			echo "<td>";
-			$fieldId = $row['field_id'];
-			$fieldTitle = $row['description'] ? $row['description'] : $fieldId;
-			echo "<input type='checkbox' value='${fieldId}' name='searchFields'/> <b>" . xl_layout_label($fieldTitle) . "</b>";
+			echo "<input type='checkbox' value='${fieldId}' name='searchFields'/> <b>$fieldTitle</b>";
 			echo "</td>";
+    }
+
+		$layoutCols = sqlStatement( "SELECT field_id, description, group_name "
+      . "FROM layout_options "
+      . "WHERE form_id='DEM' "
+      . "AND group_name not like ('%Employer%' ) AND uor !=0 "
+      . "ORDER BY group_name,seq"
+		);
+
+		echo "<table>";
+
+		for($iter=0; $row=sqlFetchArray($layoutCols); $iter++) {
+      echoFilterItem($iter, $row['field_id'],
+        xl_layout_label($row['description'] ? $row['description'] : $fieldId));
 		}
+    echoFilterItem($iter, 'pid', xl('Internal Identifier (pid)'));
 
 		echo "</table>";
 	?>

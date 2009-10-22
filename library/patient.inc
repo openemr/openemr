@@ -425,27 +425,28 @@ function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, f
 function getByPatientDemographicsFilter($searchFields, $searchTerm = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0" )
 {
 	$layoutCols = split( '~', $searchFields );
-
-    $where = "";
-    $i = 0;
-    foreach ($layoutCols as $val ) {
+  $where = "";
+  $i = 0;
+  foreach ($layoutCols as $val ) {
 		if ( $i > 0 ) {
 		   $where .= " or ";
 		}
-		$where .= " ".$val." like '%".$searchTerm."%' ";
+    if ($val == 'pid') {
+  		$where .= " $val = '$searchTerm' ";
+    }
+    else {
+  		$where .= " $val like '$searchTerm%' ";
+    }
 		$i++;
 	}
-
-    $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
-    if ($limit != "all") $sql .= " limit $start, $limit";
-    $rez = sqlStatement($sql);
-    for($iter=0; $row=sqlFetchArray($rez); $iter++)
-        $returnval[$iter]=$row;
-
-    _set_patient_inc_count($limit, count($returnval), $where);
-    return $returnval;
+  $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+  if ($limit != "all") $sql .= " limit $start, $limit";
+  $rez = sqlStatement($sql);
+  for($iter=0; $row=sqlFetchArray($rez); $iter++)
+      $returnval[$iter]=$row;
+  _set_patient_inc_count($limit, count($returnval), $where);
+  return $returnval;
 }
-
 
 // return a collection of Patient PIDs
 // new arg style by JRM March 2008

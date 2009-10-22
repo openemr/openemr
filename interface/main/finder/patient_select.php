@@ -118,7 +118,12 @@ if ($popup) {
     if (!empty($_REQUEST[$field_id])) {
       $value = trim($_REQUEST[$field_id]);
       if (!get_magic_quotes_gpc()) $value = addslashes($value);
-      $where .= " AND $field_id LIKE '$value%'";
+      if ($field_id == 'pid') {
+        $where .= " AND $field_id = '$value'";
+      }
+      else {
+        $where .= " AND $field_id LIKE '$value%'";
+      }
       echo "<input type='hidden' name='$field_id' value='$value' />\n";
     }
   }
