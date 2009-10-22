@@ -337,12 +337,14 @@ if ($result = getEncounters($pid)) {
                     ($auth_relaxed && ($formdir == 'sports_fitness' || $formdir == 'podiatry'))) ;
                 else continue;
     
-                /* build the potentially HUGE tooltip used by ttshow */
+                // build the potentially HUGE tooltip used by ttshow
                 $title = xl('View encounter');
-                /* 
-                 * COMMENTED out the tooltip because of poor database performance -- JRM 
-                 *
-                if ($enc['formdir'] != 'physical_exam' && substr($enc['formdir'],0,3) != 'LBF') {
+                //
+                // Normally skip the tooltip because of poor database performance.
+                // However athletic teams want it.
+                //
+                if ($GLOBALS['athletic_team']) {
+                  if ($enc['formdir'] != 'physical_exam' && substr($enc['formdir'],0,3) != 'LBF') {
                     $frow = sqlQuery("select * from form_" . $enc['formdir'] .
                                     " where id = " . $enc['form_id']);
                     foreach ($frow as $fkey => $fvalue) {
@@ -351,8 +353,8 @@ if ($result = getEncounters($pid)) {
                         $title .= strtoupper($fkey) . ': ' . $fvalue;
                     }
                     $title = htmlspecialchars(strtr($title, "\t\n\r", "   "), ENT_QUOTES);
-                }
-                */
+                  }
+                } // end athletic team
 
                 echo "<span class='form_tt' title=\"$title\">";
                 echo xl_form_title($enc['form_name']);
