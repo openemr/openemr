@@ -814,6 +814,38 @@ function genPopupsList($style='') {
           <?php if (!$GLOBALS['disable_chart_tracker']) genPopLink(xl('Chart Tracker'),'../../custom/chart_tracker.php'); ?>
         </ul>
       </li>
+      <li><span><?php xl('Visit Forms','e') ?></span>
+        <ul>
+<?php
+// Generate the items for visit forms, both traditional and LBF.
+//
+$lres = sqlStatement("SELECT * FROM list_options " .
+  "WHERE list_id = 'lbfnames' ORDER BY seq, title");
+if (sqlNumRows($lres)) {
+  while ($lrow = sqlFetchArray($lres)) {
+    $option_id = $lrow['option_id']; // should start with LBF
+    $title = $lrow['title'];
+    genMiscLink('RBot','cod','2',xl_form_title($title),
+      "patient_file/encounter/load_form.php?formname=$option_id");
+  }
+}
+include_once("$srcdir/registry.inc");
+$reg = getRegistered();
+if (!empty($reg)) {
+  foreach ($reg as $entry) {
+    $option_id = $entry['directory'];
+	  $title = trim($entry['nickname']);
+    if ($option_id == 'fee_sheet' ) continue;
+    if ($option_id == 'newpatient') continue;
+	  if (empty($title)) $title = $entry['name'];
+    genMiscLink('RBot','cod','2',xl_form_title($title),
+      "patient_file/encounter/load_form.php?formname=" .
+      urlencode($option_id));
+  }
+}
+?>
+        </ul>
+      </li>
       <li><span><?php xl('Medical Record','e') ?></span>
         <ul> 
           <?php if (acl_check('patients', 'med') && !$GLOBALS['disable_prescriptions']) genTreeLink('RBot','pre',xl('Rx')); ?>
