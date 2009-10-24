@@ -25,6 +25,7 @@ Burning With Urination
 Caffeine consumption
 Caucasian
 Cell Phone Number
+Change In Vision
 Chart Note
 Chart Storage Locations
 Check Number
@@ -43,12 +44,14 @@ Crohns Disease
 Date contraceptive services initially provided
 Date of referral
 Date of reply
+Date Of Signature
 delete
 Dictation
 Did you receive a copy of the HIPAA Notice?
 Direct Mail
 Discount Level
 Divorced
+Doctor
 Domestic Partner
 Dr.
 Drivers License or State ID
@@ -99,6 +102,7 @@ grams
 Hazardous activities
 Head Circ
 Heart Disease
+Heat Or Cold
 Hepatitis A 1
 Hepatitis A 2
 Hepatitis B 1
@@ -131,7 +135,6 @@ IPV 4
 Joint Pain
 Lab Report
 Last Activity Date
-Layout Based
 Layout-Based Visit Forms
 Leave Message With
 Left Ear
@@ -150,6 +153,7 @@ mg/3cc
 mg/4cc
 Migrant or seasonal worker?
 Misc
+Misc Billing Options
 Misc Billing Options HCFA
 MMR 1
 MMR 2
@@ -158,8 +162,10 @@ Mr.
 Mrs.
 Ms.
 Musc Ache
+Musc Aches
 Musc Redness
 Musc Stiffness
+Musc Swelling
 Musc Warm
 Name 1
 Name 2

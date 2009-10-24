@@ -66,10 +66,6 @@ collaboration.
 The currentLanguage_utf8.sql and currentLanguage_latin1.sql holds current
 sql tables dumpfile.
 
-To insert these translation tables into your OpenEMR (please note, this
-is currently experimental and will delete your current translation tables;
-only perform this in your testing environements),
-download the sql dumpfile to your computer. Then in OpenEMR go to 
-admin -> Database -> Databases -> openemr -> SQL and click 'Browse'
-button at the 'Or location of the textfile:' field. Select the sql dumpfile
-you downloaded, then click 'Go' button.
+To insert these translation tables into your OpenEMR refer to
+instructions at this page in the wiki:
+http://www.oemr.org/modules/wiwimod/index.php?page=InstallTranslations

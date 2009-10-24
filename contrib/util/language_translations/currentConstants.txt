@@ -1,5 +1,6 @@
 A
 A check number or claim number to identify the payment
+A GCAC visit form should be added to this visit.
 A lot number is required!
 A related IPPF code is required!
 A unique value to identify this field, not visible to the user
@@ -159,6 +160,7 @@ AM
 Amend Existing Note
 AMEX
 Amount
+Amount Charges
 Amount for Past Balance
 Amount for This Visit
 Amount Paid
@@ -195,6 +197,7 @@ Append to This Note
 Appendectomy
 apply to affected area
 apply to skin
+Applying
 Appointment Date
 Appointment status
 Appointment within
@@ -419,6 +422,7 @@ ChampUSVA
 change
 Change Activity
 Change in Vision
+Change In Vision
 Changed
 Changed Bowel
 Charge
@@ -445,8 +449,10 @@ Check/EOB Date:
 Check/EOB No.:
 Check/Ref Number
 Check/Reference Number
+Checkbox list
 checkbox list
 checkbox w/ text
+Checkbox w/text
 Checked box = yes ,  empty = no
 Checkout
 Chest
@@ -576,6 +582,7 @@ Contraceptives Start
 Control No.
 Copay
 CoPay
+Copay not positive
 Copays
 COPD
 Copy Pages to Patient Chart
@@ -599,9 +606,12 @@ CPT Codes
 Crackles:
 cream
 Create an Event
+Create and download a full backup
+Create Backup
 Create New Patient
 Create Patient Note
 Created
+Creating export file
 credit
 Credits
 Crohn\'s Disease
@@ -655,7 +665,9 @@ Date of reply
 Date Of Service
 Date of service mm/dd/yyyy
 Date of Service:
+Date Of Signature
 Date of VIS Statement
+Date/Appt
 Date/Notes
 Date/Notes of Last
 Date:
@@ -772,6 +784,7 @@ Do you wish to PERMANENTLY delete this immunization record?
 DOB
 DOB is missing, please enter if possible
 Docs
+Doctor
 Doctor:
 Doctor\'s name and signature
 Document
@@ -790,12 +803,15 @@ Domestic Partner
 Don't Save
 Don\'t Save
 Don\'t Save Changes
+Done
 Done with:
+Done.  Will now send download.
 DOS
 Dosage
 double click to edit
 Double Vision
 Download billing file, post to accounting and mark as billed
+Download configuration data
 Dr Check
 Dr Visit
 Dr.
@@ -1005,6 +1021,7 @@ Expiration Date
 Expires
 Export
 Export as CSV
+Export Configuration
 Export Patient Demographics
 Export Selected as CSV
 Export Selected to Collections
@@ -1012,9 +1029,12 @@ Export to CSV
 Export to external billing system
 Exposure to Foreign Countries
 Exposure To Foreign Countries
+External
 External ID
 External identifier
+External Only
 External Referral
+External Referral Followups
 External referral?
 External Referrals
 Exudate:
@@ -1054,7 +1074,9 @@ Federal EIN
 Federal Tax ID
 Fee
 fee
+Fee is not allowed
 Fee Sheet
+Fee Sheet Options
 Fees
 Female
 Female AP
@@ -1070,6 +1092,7 @@ FH Blood Problems
 Fibroids
 File
 File Room
+File to upload
 File with same name already exists at location:
 Filename
 Fill here only if sending email notification to patients
@@ -1167,6 +1190,7 @@ Gastritis
 Gastro Pain
 Gastrointestinal
 GCAC Statistics Report
+GCAC visit form is missing
 Gender
 Gender 
 General
@@ -1185,6 +1209,7 @@ German
 Glaucoma
 Glaucoma Family History
 Global
+Global ID
 go
 Go
 Go to
@@ -1242,6 +1267,7 @@ Heart Transplant
 HEART:
 Heartburn
 Heat or Cold
+Heat Or Cold
 Hebrew
 HEENT
 Height
@@ -1333,6 +1359,7 @@ Immunize
 Immunologic
 Implants
 Import
+Import Configuration
 Import Patient
 Import Patient Demographics
 Imported from Accounting
@@ -1415,11 +1442,13 @@ Intake Date
 Intellectual Decline
 Internal error - no pages were selected!
 Internal error - patient ID was not provided!
+Internal error accessing uploaded file!
 Internal error!
 Internal error, no drug ID specified!
 Internal error: claim 
 Internal error: encounter '
 Internal error: pid or encounter is missing.
+Internal Identifier (pid)
 Internal Referrals
 International Duty
 Interpreter
@@ -1556,8 +1585,10 @@ Lifestyle
 Ligament tear or sprain
 Limit Of Events
 List
+List box
 list box
 list box w/ add
+List box w/add
 List Editor
 List groups
 List Insurance Companies
@@ -1673,9 +1704,12 @@ Minor joint strain +/- synovitis
 minutes
 Minutes
 Misc
+Misc Billing Options
+Misc Billing Options for HCFA-1500
 Misc Billing Options HCFA
 Miscellaneous
 Missed
+Missing Fee
 Missing PID.
 Missing slash after payer in source for code 
 Mixed
@@ -1713,8 +1747,10 @@ Multi Language Tool
 Multiple areas
 Murmur:
 Musc Ache
+Musc Aches
 Musc Redness
 Musc Stiffness
+Musc Swelling
 Musc Warm
 Muscle
 Muscle injury
@@ -1747,6 +1783,8 @@ Need to enter a description
 Need to enter a Return Value
 Need to enter identifier
 Need to enter title
+Needs Auth
+Needs Justify
 Needs secondary billing
 Nerve injury
 Neural condition / nerve damage
@@ -1803,6 +1841,7 @@ No Events
 No group was selected
 No hernia
 No Insurance Companies Found
+No items were selected!
 No masses, tenderness
 No notes
 No ogrganomegoly
@@ -1818,11 +1857,13 @@ No records found. Please expand your search criteria.
 No Results
 No Results Found For Search
 No results, please tray again.
+No results, please try again.
 No Show
 No Sinus Tenderness:
 No skin dimpling or breast nodules
 No testicular tenderness, masses
 No thrills or heaves
+No visit
 No, Cancel
 No:
 Nocturia
@@ -1860,6 +1901,8 @@ Not authorised to access PostCalendar module
 Not authorized
 Not authorized for this squad.
 Not Available
+Not billed
+Not checked out
 Not Examined
 Not Examined:
 Not Examined: 
@@ -1910,11 +1953,13 @@ OK
 OK to link the GCAC issue dated
 Old Clients
 Old fracture non / malunion
+Omit internal users?
 omit to autoassign
 on
 On Hand
 On Order
 Once you change your password, you will have to re-login.
+Online Support
 Only Active
 only if billing location
 Only Inactive
@@ -1946,6 +1991,7 @@ Organ injury
 Organization
 Organizations
 Orientated x 3
+Original
 OROPHARYNX: 
 Orthopnea
 OS
@@ -1964,6 +2010,7 @@ Other Pertinent Symptoms:
 Other stress/Over use injury
 Other Surgical
 Other/Generic Abortion-Related
+otherwise you will destroy references to/from existing data.
 Ottawa Ankle Rules
 OU
 OUT
@@ -2053,6 +2100,7 @@ Paying
 Payment
 payment
 Payment Date
+payment entered on
 Payment Method
 Payment value for code 
 Payments
@@ -2105,6 +2153,7 @@ Plan:
 Player
 Playing Position
 Please choose a valid selection from the list.
+Please choose a valid selection.
 Please choose a value for
 Please close this window.
 Please compare the new name
@@ -2140,6 +2189,7 @@ Poor Hearing
 Populate the year view with events?
 Popups
 Portuguese (Brazilian)
+Portuguese (European)
 POS Code
 Post Nasal Drip
 Post surgical
@@ -2193,6 +2243,7 @@ Price
 Price Discounting
 Price Level
 Price Level:
+Prices
 Primary
 Primary Ins
 Primary Insurance
@@ -2215,6 +2266,7 @@ Print To Fax
 Print View
 printable
 Printable Version
+Printed
 Printing results:
 Printing skipped; see test output in 
 Prior Auth
@@ -2293,6 +2345,7 @@ R
 Race
 Race/Ethnicity
 Radio
+Radio buttons
 Rashes
 Rate
 Re-Open
@@ -2507,6 +2560,7 @@ Select field
 Select Fields
 Select for printing
 Select Issue
+Select the configuration items to export
 Select Yes to confirm group deletion
 Self
 Self Pay
@@ -2711,6 +2765,7 @@ Superbill Codes Administration
 Superbill Report
 Superbills, sometimes referred to as Encounter Forms or Routing Slips, are an essential part of most medical practices.
 Superuser
+Supervising
 Surface Type
 Surgeries
 Surgery
@@ -2761,9 +2816,13 @@ Tertiary Insurance Data
 Tertiary Insurance provider
 Test Scheduling
 Test System
+Text-date
 text-date
+Textarea
 textarea
+Textbox
 textbox
+Textbox list
 textbox list
 Thank You
 The claim file: 
@@ -2909,6 +2968,7 @@ Transactions (write optional)
 Transactions/Referrals
 translate this
 Translation
+Translations
 Trauma
 Treatment Goals
 Treatment Plan
@@ -2948,6 +3008,7 @@ Unique SP
 Unit
 Units
 units
+Units must be a number
 Unknown
 Unknown or N/A
 Unnamed insurance company
@@ -2969,7 +3030,9 @@ Update Info
 Updating demographics is not authorized.
 UPIN
 Upload
+Upload configuration data
 Upload Document
+Upload failed!
 Upload import file:
 Upload Report
 Upload this file:
@@ -2986,6 +3049,7 @@ URL
 Use 24 hour time format?
 Use Defaults
 Use international date style?
+Use this feature only with newly installed sites, 
 Use topics?
 User
 User Administration
@@ -3010,6 +3074,7 @@ User Defined Text 5
 User Defined Text 6
 User Defined Text 7
 User Defined Text 8
+User Manual
 User Memberships
 Username
 Username for SMS Gateway
@@ -3051,6 +3116,7 @@ VISA
 Visceral damage/trauma/surgery
 Visit Category:
 Visit Date
+Visit Forms
 Visits
 Visits From
 Vitals
@@ -3066,6 +3132,7 @@ Warm
 WARNING
 Warning: A visit was already created for this patient today!
 Warning: Patient ID is not unique!
+WARNING: This will overwrite configuration information with data from the uploaded file!
 we have seen your above patient for evaluation and treatment at our outpatient psychiatry clinic. Thank you for this referral.
 Weakness
 Website
