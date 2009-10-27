@@ -50,6 +50,13 @@ $datatypes = array(
   "27" => xl("Radio buttons"),
 );
 
+function nextGroupOrder($order) {
+  if ($order == '9') $order = 'A';
+  else if ($order == 'Z') $order = 'a';
+  else $order = chr(ord($order) + 1);
+  return $order;
+}
+
 // Check authorization.
 $thisauth = acl_check('admin', 'super');
 if (!$thisauth) die(xl('Not authorized'));
@@ -183,11 +190,10 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
                         " from layout_options where ".
                         " form_id = '".$_POST['layout_id']."'"
                         );
-    $maxnum = 0;
+    $maxnum = '1';
     while ($result = sqlFetchArray($results)) {
-        // split the number from the group name
-        $parts = preg_split("/([A-Z]|[a-z])/", $result['gname']);
-        if ($parts[0] >= $maxnum) { $maxnum = $parts[0] + 1; }
+      $tmp = substr($result['gname'], 0, 1);
+      if ($tmp >= $maxnum) $maxnum = nextGroupOrder($tmp);
     }
 
     $data_type = formTrim($_POST['gnewdatatype']);
@@ -259,53 +265,60 @@ else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
 }
 
 else if ($_POST['formaction'] == "movegroup" && $layout_id) {
-    
-    // split the numeric order out of the group name
-    $parts = preg_split("/(^\d)/", $_POST['movegroupname'], -1, PREG_SPLIT_DELIM_CAPTURE);
-    $currpos = $newpos = $parts[1];
-    $groupname = $parts[2];
-
-    // inc/dec the order number
-    if ($_POST['movedirection'] == 'up') {
-        $newpos--;
-        if ($newpos < 0) { $newpos = 0; }
+  $results = sqlStatement("SELECT DISTINCT(group_name) AS gname " .
+    "FROM layout_options WHERE form_id = '$layout_id' " .
+    "ORDER BY gname");
+  $garray = array();
+  $i = 0;
+  while ($result = sqlFetchArray($results)) {
+    if ($result['gname'] == $_POST['movegroupname']) {
+      if ($_POST['movedirection'] == 'up') { // moving up
+        if ($i > 0) {
+          $garray[$i] = $garray[$i - 1];
+          $garray[$i - 1] = $result['gname'];
+          $i++;
+        }
+        else {
+          $garray[$i++] = $result['gname'];
+        }
+      }
+      else { // moving down
+        $garray[$i++] = '';
+        $garray[$i++] = $result['gname'];
+      }
     }
-    else if ($_POST['movedirection'] == 'down') {
-        $newpos++;
+    else if ($i > 1 && $garray[$i - 2] == '') {
+      $garray[$i - 2] = $result['gname'];
     }
-    
-    // if we can't determine a position, then assign it a zero
-    if ($newpos == "") $newpos = "0";
-
-    // update the database rows 
-    sqlStatement("UPDATE layout_options SET ".
-                "group_name='".$newpos.$groupname."'".
-                " WHERE ".
-                "group_name='".$currpos.$groupname."'"
-                );
+    else {
+      $garray[$i++] = $result['gname'];
+    }
+  }
+  $nextord = '1';
+  foreach ($garray as $value) {
+    if ($value === '') continue;
+    $newname = $nextord . substr($value, 1);
+    sqlStatement("UPDATE layout_options SET " .
+      "group_name = '$newname' WHERE " .
+      "form_id = '$layout_id' AND " .
+      "group_name = '$value'");
+    $nextord = nextGroupOrder($nextord);
+  }
 }
 
-else if ($_POST['formaction']=="renamegroup" && $layout_id) {
-    
-    // split the numeric order out of the group name
-    $parts = preg_split("/(^\d)/", $_POST['renameoldgroupname'], -1, PREG_SPLIT_DELIM_CAPTURE);
-    $currpos = $parts[1];
-
-    // if we can't determine a position, then assign it a zero
-    if ($currpos == "") $currpos = "0";
-
-    // update the database rows 
-    sqlStatement("UPDATE layout_options SET ".
-                "group_name='".$currpos.$_POST['renamegroupname']."'".
-                " WHERE ".
-                "group_name='".$_POST['renameoldgroupname']."'"
-                );
+else if ($_POST['formaction'] == "renamegroup" && $layout_id) {
+  $currpos = substr($_POST['renameoldgroupname'], 0, 1);
+  // update the database rows 
+  sqlStatement("UPDATE layout_options SET " .
+    "group_name = '" . $currpos . $_POST['renamegroupname'] . "' ".
+    "WHERE form_id = '$layout_id' AND ".
+    "group_name = '" . $_POST['renameoldgroupname'] . "'");
 }
 
 // Get the selected form's elements.
 if ($layout_id) {
   $res = sqlStatement("SELECT * FROM layout_options WHERE " .
-                        "form_id = '$layout_id' ORDER BY group_name, seq");
+    "form_id = '$layout_id' ORDER BY group_name, seq");
 }
 
 // global counter for field numbers
@@ -537,11 +550,13 @@ while ($row = sqlFetchArray($res)) {
     if ($firstgroup == false) { echo "</tbody></table></div>\n"; }
     echo "<div id='".$row['group_name']."' class='group'>";
     echo "<div class='text bold layouts_title' style='position:relative; background-color: #eef'>";
-    echo preg_replace("/^\d+/", "", $row['group_name']);
+    // echo preg_replace("/^\d+/", "", $row['group_name']);
+    echo substr($row['group_name'], 1);
     echo "&nbsp; ";
     // if not english and set to translate layout labels, then show the translation of group name
     if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-      echo "<span class='translation'>>>&nbsp; " . xl(preg_replace("/^\d+/", "", $row['group_name'])) . "</span>";
+      // echo "<span class='translation'>>>&nbsp; " . xl(preg_replace("/^\d+/", "", $row['group_name'])) . "</span>";
+      echo "<span class='translation'>>>&nbsp; " . xl(substr($row['group_name'], 1)) . "</span>";
       echo "&nbsp; ";	
     }
     echo "&nbsp; ";
