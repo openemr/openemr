@@ -231,6 +231,11 @@ td { font-size:10pt; }
       sqlStatement("DELETE ar_session FROM ar_session LEFT JOIN " .
         "ar_activity ON ar_session.session_id = ar_activity.session_id " .
         "WHERE ar_activity.session_id IS NULL");
+      row_modify("billing", "activity = 0",
+        "pid = '$patient_id' AND " .
+        "encounter = '$encounter_id' AND " .
+        "code_type = 'COPAY' AND " .
+        "activity = 1");
       sqlStatement("UPDATE form_encounter SET last_level_billed = 0, " .
         "last_level_closed = 0, stmt_count = 0, last_stmt_date = NULL " .
         "WHERE pid = '$patient_id' AND encounter = '$encounter_id'");
