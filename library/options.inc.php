@@ -1156,7 +1156,7 @@ function display_layout_rows($formtype, $result1, $result2='') {
 // From the currently posted HTML form, this gets the value of the
 // field corresponding to the provided layout_options table row.
 //
-function get_layout_form_value($frow) {
+function get_layout_form_value($frow, $maxlength=255) {
   $data_type = $frow['data_type'];
   $field_id  = $frow['field_id'];
   $value  = '';
@@ -1203,6 +1203,11 @@ function get_layout_form_value($frow) {
       $value = $_POST["form_$field_id"];
     }
   }
+
+  // Better to die than to silently truncate data!
+  if ($maxlength && $data_type != 3 && strlen($value) > $maxlength)
+    die(xl('ERROR: Field') . " '$field_id' " . xl('is too long') .
+    ":<br />&nbsp;<br />$value");
 
   // Make sure the return value is quote-safe.
   return formTrim($value);
