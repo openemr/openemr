@@ -239,7 +239,6 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     if($iter==1) {
         $akeys = array_keys($returnval[0]);
         foreach($akeys as $key) {
-
             $returnval[0][$key] = $returnval[0][$key];
         }
     }
@@ -402,24 +401,23 @@ function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, provid
 
 function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
 {
-	$layoutCols = sqlStatement( "SELECT field_id FROM layout_options WHERE form_id='DEM' AND group_name not like ('%Employer%' ) AND uor !=0" );
+  $layoutCols = sqlStatement( "SELECT field_id FROM layout_options WHERE form_id='DEM' AND group_name not like ('%Employer%' ) AND uor !=0" );
 
-    $where = "";
-    for($iter=0; $row=sqlFetchArray($layoutCols); $iter++) {
-	if ( $iter > 0 ) {
-	   $where .= " or ";
-	}
-	$where .= " ".$row["field_id"]." like '%".$searchTerm."%' ";
+  $where = "";
+  for($iter=0; $row=sqlFetchArray($layoutCols); $iter++) {
+    if ( $iter > 0 ) {
+      $where .= " or ";
     }
+    $where .= " ".$row["field_id"]." like '%".$searchTerm."%' ";
+  }
 
-    $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
-    if ($limit != "all") $sql .= " limit $start, $limit";
-    $rez = sqlStatement($sql);
-    for($iter=0; $row=sqlFetchArray($rez); $iter++)
-        $returnval[$iter]=$row;
-
-    _set_patient_inc_count($limit, count($returnval), $where);
-    return $returnval;
+  $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
+  if ($limit != "all") $sql .= " limit $start, $limit";
+  $rez = sqlStatement($sql);
+  for($iter=0; $row=sqlFetchArray($rez); $iter++)
+    $returnval[$iter]=$row;
+  _set_patient_inc_count($limit, count($returnval), $where);
+  return $returnval;
 }
 
 function getByPatientDemographicsFilter($searchFields, $searchTerm = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0" )
@@ -832,7 +830,7 @@ function updatePatientData($pid, $new, $create=false)
     $sql = "INSERT INTO patient_data SET pid = '$pid', date = NOW()";
     foreach ($new as $key => $value) {
       if ($key == 'id') continue;
-      $sql .= ", $key = '$value'";
+      $sql .= ", `$key` = '$value'";
     }
     $db_id = sqlInsert($sql);
   }
@@ -847,7 +845,7 @@ function updatePatientData($pid, $new, $create=false)
     }
     $sql = "UPDATE patient_data SET date = NOW()";
     foreach ($new as $key => $value) {
-      $sql .= ", $key = '$value'";
+      $sql .= ", `$key` = '$value'";
     }
     $sql .= " WHERE id = '$db_id'";
     sqlStatement($sql);
@@ -892,7 +890,7 @@ function updateEmployerData($pid, $new, $create=false)
     $set .= "pid = '$pid', date = NOW()";
     foreach ($colnames as $key) {
       $value = isset($new[$key]) ? $new[$key] : '';
-      $set .= ", $key = '$value'";
+      $set .= ", `$key` = '$value'";
     }
     return sqlInsert("INSERT INTO employer_data SET $set");
   }
@@ -906,7 +904,7 @@ function updateEmployerData($pid, $new, $create=false)
         $value = $new[$key];
         $modified = true;
       }
-      $set .= "$key = '$value', ";
+      $set .= "`$key` = '$value', ";
     }
     if ($modified) {
       $set .= "pid = '$pid', date = NOW()";
@@ -1073,7 +1071,7 @@ function updateInsuranceData($id, $new)
 
   $sql = "UPDATE insurance_data SET ";
   while(list($key, $value) = each($use))
-    $sql .= $key . " = '$value', ";
+    $sql .= "`$key` = '$value', ";
   $sql = substr($sql, 0, -2) . " WHERE id = '$id'";
 
   sqlStatement($sql);
@@ -1084,7 +1082,7 @@ function newHistoryData($pid, $new=false) {
   if ($new) {
     while(list($key, $value) = each($new)) {
       if (!get_magic_quotes_gpc()) $value = addslashes($value);
-      $sql .= ", $key = '$value'";
+      $sql .= ", `$key` = '$value'";
     }
   }
   return sqlInsert($sql);
@@ -1100,9 +1098,8 @@ function updateHistoryData($pid,$new)
 
         $sql = "insert into history_data set ";
         while(list($key, $value) = each($real))
-                $sql .= $key." = '$value', ";
+                $sql .= "`$key` = '$value', ";
         $sql = substr($sql, 0, -2);
-
 
         return sqlInsert($sql);
 }
@@ -1449,7 +1446,6 @@ function get_insurers_nl($pid = 0, $current = 1) {
     } // while
 
     return ( $current ? $rez[0] : $rez );
-
 }
 
 // ----------------------------------------------------------------------------
