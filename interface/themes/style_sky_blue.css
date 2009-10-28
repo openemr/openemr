@@ -281,17 +281,17 @@ font-weight: bold;
     color: #080;
     font-size: 0.8em;
     padding-right: 5px;
-    vertical-align: bottom;
+    vertical-align: top;
 }
 #DEM .label {
     font-weight: bold;
     font-size: 0.8em;
-    vertical-align: bottom;
+    vertical-align: top;
     text-align: right;
 }
 #DEM .data {
     font-size: 0.8em;
-    vertical-align: bottom;
+    vertical-align: top;
     text-align: left;
     padding-right: 30px;
 }
@@ -303,17 +303,17 @@ font-weight: bold;
     color: #080;
     font-size: 0.8em;
     padding-right: 5px;
-    vertical-align: bottom;
+    vertical-align: top;
     height: 2em;
 }
 #HIS .label {
     font-weight: bold;
     font-size: 0.8em;
-    vertical-align: bottom;
+    vertical-align: top;
 }
 #HIS .data {
     font-size: 0.8em;
-    vertical-align: bottom;
+    vertical-align: top;
     text-align: left;
     padding-right: 30px;
 }
