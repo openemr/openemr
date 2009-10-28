@@ -971,8 +971,10 @@ function generate_display_field($frow, $currvalue) {
       $s .= "<tr><td class='bold' valign='top'>" . xl_list_label($lrow['title']) . "&nbsp;</td>";
 	
       $restype = ($restype == '1') ? xl('Normal') : (($restype == '2') ? xl('Abnormal') : xl('N/A'));
-      $s .= "<td class='text' valign='top'>$restype</td></tr>";
-      $s .= "<td class='text' valign='top'>$resnote</td></tr>";
+      // $s .= "<td class='text' valign='top'>$restype</td></tr>";
+      // $s .= "<td class='text' valign='top'>$resnote</td></tr>";
+      $s .= "<td class='text' valign='top'>$restype&nbsp;</td>";
+      $s .= "<td class='text' valign='top'>$resnote</td>";
       $s .= "</tr>";
     }
     $s .= "</table>";
@@ -1078,7 +1080,7 @@ function display_layout_rows($formtype, $result1, $result2='') {
         if ($field_id === 'fitness' || $field_id === 'userdate1') continue;
       }
       if (strpos($field_id, 'em_') === 0) {
-	// Skip employer related fields, if it's disabled.
+        // Skip employer related fields, if it's disabled.
         if ($GLOBALS['omit_employers']) continue;
         $tmp = substr($field_id, 3);
         if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
@@ -1109,13 +1111,13 @@ function display_layout_rows($formtype, $result1, $result2='') {
         //echo "<td class='groupname' style='padding-right:5pt' valign='top'>";
         //echo "<font color='#008800'>$group_name</font>";
 	
-	// Added 5-09 by BM - Translate label if applicable
-	echo (xl_layout_label($group_name));
+        // Added 5-09 by BM - Translate label if applicable
+        echo (xl_layout_label($group_name));
 	  
         $group_name = '';
       } else {
         //echo "<td class='' style='padding-right:5pt' valign='top'>";
-        echo '<td>&nbsp;';
+        echo "<td valign='top'>&nbsp;";
       }
       echo "</td>";
     }
