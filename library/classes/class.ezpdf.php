@@ -1338,7 +1338,7 @@ function ezImage($image,$pad = 5,$width = 0,$resize = 'full',$just = 'center',$b
 	}
 	else
 	{
-		$bigwidth = $this->ez['pageWidth'] - ($pad * 2);
+		$bigwidth = $this->ez['pageWidth'] - $this->ez['leftMargin'] - $this->ez['rightMargin'] - ($pad * 2);
 	}
 	//fix width if larger than maximum or if $resize=full
 	if ($resize == 'full' || $resize == 'width' || $width > $bigwidth)
