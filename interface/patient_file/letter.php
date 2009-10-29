@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007, 2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -39,11 +39,16 @@ $FIELD_TAG = array(
     'PT_FNAME'         => xl('PT_FNAME'),
     'PT_LNAME'         => xl('PT_LNAME'),
     'PT_MNAME'         => xl('PT_MNAME'),
+    'PT_STREET'        => xl('PT_STREET'),
+    'PT_CITY'          => xl('PT_CITY'),
+    'PT_STATE'         => xl('PT_STATE'),
+    'PT_POSTAL'        => xl('PT_POSTAL'),
     'PT_DOB'           => xl('PT_DOB')    
 );
 
 $patdata = sqlQuery("SELECT " .
-  "p.fname, p.mname, p.lname, p.pubpid, p.DOB " .
+  "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
+  "p.street, p.city, p.state, p.postal_code " .
   "FROM patient_data AS p " .
   "WHERE p.pid = '$pid' LIMIT 1");
 
@@ -108,24 +113,30 @@ if ($_POST['formaction']=="generate") {
     $cpstring = str_replace('{'.$FIELD_TAG['PT_FNAME'].'}'        , $patdata['fname'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['PT_LNAME'].'}'        , $patdata['lname'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['PT_MNAME'].'}'        , $patdata['mname'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_STREET'].'}'       , $patdata['street'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_CITY'].'}'         , $patdata['city'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_STATE'].'}'        , $patdata['state'], $cpstring);
+    $cpstring = str_replace('{'.$FIELD_TAG['PT_POSTAL'].'}'       , $patdata['postal_code'], $cpstring);
     $cpstring = str_replace('{'.$FIELD_TAG['PT_DOB'].'}'          , $patdata['DOB'], $cpstring);
     
     if ($form_format == "pdf") {
-        // documentation for ezpdf is here --> http://www.ros.co.nz/pdf/
-        require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
-        $pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);
-        $pdf->ezSetMargins($GLOBALS['oer_config']['prescriptions']['top']
-                        ,$GLOBALS['oer_config']['prescriptions']['bottom']
-                        ,$GLOBALS['oer_config']['prescriptions']['left']
-                        ,$GLOBALS['oer_config']['prescriptions']['right']
-                        );
+      // documentation for ezpdf is here --> http://www.ros.co.nz/pdf/
+      require_once ($GLOBALS['fileroot'] . "/library/classes/class.ezpdf.php");
+      $pdf =& new Cezpdf($GLOBALS['oer_config']['prescriptions']['paper_size']);
+      $pdf->ezSetMargins($GLOBALS['oer_config']['prescriptions']['top']
+                      ,$GLOBALS['oer_config']['prescriptions']['bottom']
+                      ,$GLOBALS['oer_config']['prescriptions']['left']
+                      ,$GLOBALS['oer_config']['prescriptions']['right']
+                      );
+      if (file_exists("$template_dir/custom_pdf.php")) {
+        include("$template_dir/custom_pdf.php");
+      }
+      else {
         $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Helvetica.afm");
-        //if(!empty($this->pconfig['logo'])) {
-        //    $pdf->ezImage($this->pconfig['logo'],"","","none","left");
-        //}
         $pdf->ezText($cpstring, 12); 
-        $pdf->ezStream();
-	exit;
+      }
+      $pdf->ezStream();
+      exit;
     }
     else { // $form_format = html
 	$cpstring = str_replace("\n", "<br>", $cpstring);
@@ -443,18 +454,21 @@ $tpldir = "$webserver_root/custom/letter_templates";
 $dh = opendir($tpldir);
 if (! $dh) die(xl('Cannot read','','',' ') . $tpldir);
 while (false !== ($tfname = readdir($dh))) {
-    // skip dot-files
-    if (preg_match("/^\./", $tfname)) { continue; }
-    echo "<option value=".$tfname;
-    if (($tfname == $_POST['form_template']) || ($tfname == $_GET['template'])) echo " SELECTED";
-    echo ">";
-    if ($tfname == 'autosaved') {
-	echo xl($tfname);
-    }
-    else {
-        echo $tfname;
-    }
-    echo "</option>";
+  // skip dot-files, scripts and images
+  if (preg_match("/^\./"   , $tfname)) { continue; }
+  if (preg_match("/\.php$/", $tfname)) { continue; }
+  if (preg_match("/\.jpg$/", $tfname)) { continue; }
+  if (preg_match("/\.png$/", $tfname)) { continue; }
+  echo "<option value=".$tfname;
+  if (($tfname == $_POST['form_template']) || ($tfname == $_GET['template'])) echo " SELECTED";
+  echo ">";
+  if ($tfname == 'autosaved') {
+    echo xl($tfname);
+  }
+  else {
+    echo $tfname;
+  }
+  echo "</option>";
 }
 closedir($dh);
 ?>
@@ -521,6 +535,10 @@ closedir($dh);
     <option value="<?php echo '{'.$FIELD_TAG['PT_FNAME'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('First name','e'); ?></option>
     <option value="<?php echo '{'.$FIELD_TAG['PT_MNAME'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Middle name','e'); ?></option>
     <option value="<?php echo '{'.$FIELD_TAG['PT_LNAME'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Last name','e'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['PT_STREET'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Street','e'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['PT_CITY'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('City','e'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['PT_STATE'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('State','e'); ?></option>
+    <option value="<?php echo '{'.$FIELD_TAG['PT_POSTAL'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Postal Code','e'); ?></option>
     <option value="<?php echo '{'.$FIELD_TAG['PT_DOB'].'}'; ?>"><?php xl('PATIENT','e'); ?> - <?php xl('Date of birth','e'); ?></option>
     </select>
     </div>
