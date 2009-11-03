@@ -13,12 +13,14 @@ function formData($name, $type='P') {
     $s = isset($_GET[$name]) ? $_GET[$name] : '';
   else
     $s = isset($_REQUEST[$name]) ? $_REQUEST[$name] : '';
-  if (!get_magic_quotes_gpc()) $s = addslashes($s);
+  if (get_magic_quotes_gpc()) {$s = stripslashes($s);}
+  $s = mysql_real_escape_string($s);
   return $s;
 }
 
 function formTrim($s) {
-  if (!get_magic_quotes_gpc()) $s = addslashes($s);
+  if (get_magic_quotes_gpc()) {$s = stripslashes($s);}
+  $s = mysql_real_escape_string($s);
   return trim($s);
 }
 ?>
