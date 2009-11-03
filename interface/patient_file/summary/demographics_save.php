@@ -3,6 +3,7 @@ include_once("../../globals.php");
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/acl.inc");
 include_once("$srcdir/options.inc.php");
+include_once("$srcdir/formdata.inc.php");
 
 // Check authorization.
 $thisauth = acl_check('patients', 'demo');
@@ -49,106 +50,106 @@ while ($frow = sqlFetchArray($fres)) {
 updatePatientData($pid, $newdata['patient_data']);
 updateEmployerData($pid, $newdata['employer_data']);
 
-$i1dob = fixDate($_POST["i1subscriber_DOB"]);
-$i1date = fixDate($_POST["i1effective_date"], date('Y-m-d'));
+$i1dob = fixDate(formData("i1subscriber_DOB"));
+$i1date = fixDate(formData("i1effective_date"), date('Y-m-d'));
 
 newInsuranceData(
   $pid,
   "primary",
-  $_POST["i1provider"],
-  $_POST["i1policy_number"],
-  $_POST["i1group_number"],
-  $_POST["i1plan_name"],
-  $_POST["i1subscriber_lname"],
-  $_POST["i1subscriber_mname"],
-  $_POST["i1subscriber_fname"],
-  $_POST["form_i1subscriber_relationship"],
-  $_POST["i1subscriber_ss"],
+  formData("i1provider"),
+  formData("i1policy_number"),
+  formData("i1group_number"),
+  formData("i1plan_name"),
+  formData("i1subscriber_lname"),
+  formData("i1subscriber_mname"),
+  formData("i1subscriber_fname"),
+  formData("form_i1subscriber_relationship"),
+  formData("i1subscriber_ss"),
   $i1dob,
-  $_POST["i1subscriber_street"],
-  $_POST["i1subscriber_postal_code"],
-  $_POST["i1subscriber_city"],
-  $_POST["form_i1subscriber_state"],
-  $_POST["form_i1subscriber_country"],
-  $_POST["i1subscriber_phone"],
-  $_POST["i1subscriber_employer"],
-  $_POST["i1subscriber_employer_street"],
-  $_POST["i1subscriber_employer_city"],
-  $_POST["i1subscriber_employer_postal_code"],
-  $_POST["form_i1subscriber_employer_state"],
-  $_POST["form_i1subscriber_employer_country"],
-  $_POST['i1copay'],
-  $_POST['form_i1subscriber_sex'],
+  formData("i1subscriber_street"),
+  formData("i1subscriber_postal_code"),
+  formData("i1subscriber_city"),
+  formData("form_i1subscriber_state"),
+  formData("form_i1subscriber_country"),
+  formData("i1subscriber_phone"),
+  formData("i1subscriber_employer"),
+  formData("i1subscriber_employer_street"),
+  formData("i1subscriber_employer_city"),
+  formData("i1subscriber_employer_postal_code"),
+  formData("form_i1subscriber_employer_state"),
+  formData("form_i1subscriber_employer_country"),
+  formData('i1copay'),
+  formData('form_i1subscriber_sex'),
   $i1date,
-  $_POST['i1accept_assignment']
+  formData('i1accept_assignment')
 );
 
-$i2dob = fixDate($_POST["i2subscriber_DOB"]);
-$i2date = fixDate($_POST["i2effective_date"], date('Y-m-d'));
+$i2dob = fixDate(formData("i2subscriber_DOB"));
+$i2date = fixDate(formData("i2effective_date"), date('Y-m-d'));
 
 newInsuranceData(
   $pid,
   "secondary",
-  $_POST["i2provider"],
-  $_POST["i2policy_number"],
-  $_POST["i2group_number"],
-  $_POST["i2plan_name"],
-  $_POST["i2subscriber_lname"],
-  $_POST["i2subscriber_mname"],
-  $_POST["i2subscriber_fname"],
-  $_POST["form_i2subscriber_relationship"],
-  $_POST["i2subscriber_ss"],
+  formData("i2provider"),
+  formData("i2policy_number"),
+  formData("i2group_number"),
+  formData("i2plan_name"),
+  formData("i2subscriber_lname"),
+  formData("i2subscriber_mname"),
+  formData("i2subscriber_fname"),
+  formData("form_i2subscriber_relationship"),
+  formData("i2subscriber_ss"),
   $i2dob,
-  $_POST["i2subscriber_street"],
-  $_POST["i2subscriber_postal_code"],
-  $_POST["i2subscriber_city"],
-  $_POST["form_i2subscriber_state"],
-  $_POST["form_i2subscriber_country"],
-  $_POST["i2subscriber_phone"],
-  $_POST["i2subscriber_employer"],
-  $_POST["i2subscriber_employer_street"],
-  $_POST["i2subscriber_employer_city"],
-  $_POST["i2subscriber_employer_postal_code"],
-  $_POST["form_i2subscriber_employer_state"],
-  $_POST["form_i2subscriber_employer_country"],
-  $_POST['i2copay'],
-  $_POST['form_i2subscriber_sex'],
+  formData("i2subscriber_street"),
+  formData("i2subscriber_postal_code"),
+  formData("i2subscriber_city"),
+  formData("form_i2subscriber_state"),
+  formData("form_i2subscriber_country"),
+  formData("i2subscriber_phone"),
+  formData("i2subscriber_employer"),
+  formData("i2subscriber_employer_street"),
+  formData("i2subscriber_employer_city"),
+  formData("i2subscriber_employer_postal_code"),
+  formData("form_i2subscriber_employer_state"),
+  formData("form_i2subscriber_employer_country"),
+  formData('i2copay'),
+  formData('form_i2subscriber_sex'),
   $i2date,
-  $_POST['i2accept_assignment']
+  formData('i2accept_assignment')
 );
 
-$i3dob  = fixDate($_POST["i3subscriber_DOB"]);
-$i3date = fixDate($_POST["i3effective_date"], date('Y-m-d'));
+$i3dob  = fixDate(formData("i3subscriber_DOB"));
+$i3date = fixDate(formData("i3effective_date"), date('Y-m-d'));
 
 newInsuranceData(
   $pid,
   "tertiary",
-  $_POST["i3provider"],
-  $_POST["i3policy_number"],
-  $_POST["i3group_number"],
-  $_POST["i3plan_name"],
-  $_POST["i3subscriber_lname"],
-  $_POST["i3subscriber_mname"],
-  $_POST["i3subscriber_fname"],
-  $_POST["form_i3subscriber_relationship"],
-  $_POST["i3subscriber_ss"],
+  formData("i3provider"),
+  formData("i3policy_number"),
+  formData("i3group_number"),
+  formData("i3plan_name"),
+  formData("i3subscriber_lname"),
+  formData("i3subscriber_mname"),
+  formData("i3subscriber_fname"),
+  formData("form_i3subscriber_relationship"),
+  formData("i3subscriber_ss"),
   $i3dob,
-  $_POST["i3subscriber_street"],
-  $_POST["i3subscriber_postal_code"],
-  $_POST["i3subscriber_city"],
-  $_POST["form_i3subscriber_state"],
-  $_POST["form_i3subscriber_country"],
-  $_POST["i3subscriber_phone"],
-  $_POST["i3subscriber_employer"],
-  $_POST["i3subscriber_employer_street"],
-  $_POST["i3subscriber_employer_city"],
-  $_POST["i3subscriber_employer_postal_code"],
-  $_POST["form_i3subscriber_employer_state"],
-  $_POST["form_i3subscriber_employer_country"],
-  $_POST['i3copay'],
-  $_POST['form_i3subscriber_sex'],
+  formData("i3subscriber_street"),
+  formData("i3subscriber_postal_code"),
+  formData("i3subscriber_city"),
+  formData("form_i3subscriber_state"),
+  formData("form_i3subscriber_country"),
+  formData("i3subscriber_phone"),
+  formData("i3subscriber_employer"),
+  formData("i3subscriber_employer_street"),
+  formData("i3subscriber_employer_city"),
+  formData("i3subscriber_employer_postal_code"),
+  formData("form_i3subscriber_employer_state"),
+  formData("form_i3subscriber_employer_country"),
+  formData('i3copay'),
+  formData('form_i3subscriber_sex'),
   $i3date,
-  $_POST['i3accept_assignment']
+  formData('i3accept_assignment')
 );
 
 if ($GLOBALS['concurrent_layout']) {
