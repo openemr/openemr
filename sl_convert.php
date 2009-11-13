@@ -11,6 +11,12 @@
 // convert it to the OpenEMR tables that maintain A/R internally,
 // thus eliminating SQL-Ledger.
 
+// Significant changes were made around November 2009: SQL-Ledger
+// data is now considered authoritative, and the billing table is
+// modified to reflect that.  This is so that financial reports in
+// the new system will (hopefully) match up with the old system.
+// Discrepancies are logged to the display during conversion.
+
 // Disable PHP timeout.  This will not work in safe mode.
 ini_set('max_execution_time', '0');
 
@@ -21,8 +27,13 @@ require_once('library/sql-ledger.inc');
 require_once('library/invoice_summary.inc.php');
 require_once('library/sl_eob.inc.php');
 
-$tmp = sqlQuery("SELECT count(*) AS count FROM ar_activity");
-if ($tmp['count']) die("ar_activity and ar_session must be empty to run this script!");
+// Set this to true to skip all database changes.
+$dry_run = false;
+
+if (!$dry_run) {
+  $tmp = sqlQuery("SELECT count(*) AS count FROM ar_activity");
+  if ($tmp['count']) die("ar_activity and ar_session must be empty to run this script!");
+}
 ?>
 <html>
 <head>
@@ -48,51 +59,124 @@ $res = SLQuery("SELECT id, invnumber, transdate, shipvia, intnotes " .
 for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
   $row = SLGetRow($res, $irow);
   list($pid, $encounter) = explode(".", $row['invnumber']);
-  $copays = array();
+  $billing = array();
   $provider_id = 0;
   $last_biller = 0;
   $svcdate = $row['transdate'];
 
-  // Scan billing table items to get the provider ID and copays.
-  $bres = sqlStatement("SELECT * FROM billing WHERE " .
-    "pid = '$pid' AND encounter = '$encounter' AND activity = 1 " .
-    "AND billed = 1 AND fee != 0 ORDER BY fee DESC");
-  while ($brow = sqlFetchArray($bres)) {
-    if (!$provider_id) $provider_id = $brow['provider_id'];
-    if (!$last_biller && !empty($brow['payer_id'])) $last_biller = $brow['payer_id'];
-    if ($brow['code_type'] == 'COPAY') $copays[] = 0 - $brow['fee'];
+  if (!$dry_run) {
+    // Delete any TAX rows from billing for encounters in SQL-Ledger.
+    sqlStatement("UPDATE billing SET activity = 0 WHERE " .
+      "pid = '$pid' AND encounter = '$encounter' AND " .
+      "code_type = 'TAX'");
   }
 
-  // Delete any TAX rows from billing for encounters in SQL-Ledger.
-  sqlStatement("UPDATE billing SET activity = 0 WHERE " .
-    "pid = '$pid' AND encounter = '$encounter' AND " .
-    "code_type = 'TAX'");
+  // Get all billing table items with money for this encounter, and
+  // compute provider ID and billing status.
+  $bres = sqlStatement("SELECT * FROM billing WHERE " .
+    "pid = '$pid' AND encounter = '$encounter' AND activity = 1 " .
+    "AND code_type != 'TAX' AND fee != 0 ORDER BY fee DESC");
+  while ($brow = sqlFetchArray($bres)) {
+    if (!$provider_id) $provider_id = $brow['provider_id'];
+    if (!$last_biller && $brow['billed'] && !empty($brow['payer_id']))
+      $last_biller = $brow['payer_id'];
+    $billing[$brow['id']] = $brow;
+  }
 
+  // Get invoice details.
   $invlines = get_invoice_summary($row['id'], true);
-
   // print_r($invlines); // debugging
-
   ksort($invlines);
+
+  // For each line item or payment from the invoice...
   foreach ($invlines as $codekey => $codeinfo) {
     ksort($codeinfo['dtl']);
     $code = strtoupper($codekey);
     if ($code == 'CO-PAY' || $code == 'UNKNOWN') $code = '';
 
+    $is_product = substr($code, 0, 5) == 'PROD:';
+
+    $codeonly = $code;
+    $modifier = '';
+    $tmp = explode(":", $code);
+    if (!empty($tmp[1])) {
+      $codeonly = $tmp[0];
+      $modifier = $tmp[1];
+    }
+
     foreach ($codeinfo['dtl'] as $dtlkey => $dtlinfo) {
       $dtldate = trim(substr($dtlkey, 0, 10));
-      if (empty($dtldate)) {
+
+      if (empty($dtldate)) { // if this is a charge
+        $charge = $dtlinfo['chg'];
+
+        // Zero charges don't matter.
+        if ($charge == 0) continue;
+
         // Insert taxes but ignore other charges.
         if ($code == 'TAX') {
-          sqlInsert("INSERT INTO billing ( date, encounter, code_type, code, code_text, " .
-            "pid, authorized, user, groupname, activity, billed, provider_id, " .
-            "modifier, units, fee, ndc_info, justify ) values ( " .
-            "'$svcdate 00:00:00', '$encounter', 'TAX', 'TAX', '" .
-            addslashes($dtlinfo['dsc']) . "', " .
-            "'$pid', '1', '$provider_id', 'Default', 1, 1, 0, '', '1', " .
-            "'" . $dtlinfo['chg'] . "', '', '' )");
+          if (!$dry_run) {
+            sqlInsert("INSERT INTO billing ( date, encounter, code_type, code, code_text, " .
+              "pid, authorized, user, groupname, activity, billed, provider_id, " .
+              "modifier, units, fee, ndc_info, justify ) values ( " .
+              "'$svcdate 00:00:00', '$encounter', 'TAX', 'TAX', '" .
+              addslashes($dtlinfo['dsc']) . "', " .
+              "'$pid', '1', '$provider_id', 'Default', 1, 1, 0, '', '1', " .
+              "'$charge', '', '' )");
+          }
         }
-        continue; // otherwise skip charges
-      }
+        else {
+          // Non-tax charges for products are in the drug_sales table.
+          // We won't bother trying to make sure they match the invoice.
+          if ($is_product) continue;
+
+          // Look up this charge in the $billing array.
+          // If found, remove it from the array and skip to the next detail item.
+          // Otherwise add it to the billing table and log the discrepancy.
+          $posskey = 0;
+          foreach ($billing as $key => $brow) {
+            $bcode = strtoupper($brow['code']);
+            $bcodeonly = $bcode;
+            if ($brow['modifier']) $bcode .= ':' . strtoupper($brow['modifier']);
+            if ($bcode === $code && $brow['fee'] == $charge) {
+              unset($billing[$key]);
+              continue 2; // done with this detail item
+            }
+            else if (($bcodeonly === $codeonly || (empty($codeonly) && $charge != 0)) && $brow['fee'] == $charge) {
+              $posskey = $key;
+            }
+          }
+          if ($posskey) {
+            // There was no exact match, but there was a match if the modifiers
+            // are ignored or if the SL code is empty.  Good enough.
+            unset($billing[$posskey]);
+            continue;
+          }
+          // This charge is not in the billing table!
+          $codetype = preg_match('/^[A-V]/', $code) ? 'HCPCS' : 'CPT4';
+          // Note that get_invoice_summary() loses the code type.  The above
+          // statement works for normal U.S. clinics, but sites that have
+          // charges other than CPT4 and HCPCS will need to have their code
+          // types for these generated entries, if any, fixed.
+          if (!$dry_run) {
+            sqlInsert("INSERT INTO billing ( date, encounter, code_type, code, code_text, " .
+              "pid, authorized, user, groupname, activity, billed, provider_id, " .
+              "modifier, units, fee, ndc_info, justify ) values ( " .
+              "'$svcdate 00:00:00', '$encounter', '$codetype', '$codeonly',
+              'Copied from SQL-Ledger by sl_convert.php', " .
+              "'$pid', '1', '$provider_id', 'Default', 1, 1, 0, '$modifier', '1', " .
+              "'$charge', '', '' )");
+          }
+          echo "Billing code '$code' with charge \$$charge was copied from " .
+            "SQL-Ledger invoice $pid.$encounter.<br />\n";
+          flush();
+        } // end non-tax charge
+
+        // End charge item logic.  Continue to the next invoice detail item.
+        continue;
+
+      } // end if charge
+
       $payer_id = empty($dtlinfo['ins']) ? 0 : $dtlinfo['ins'];
       $session_id = 0;
 
@@ -107,18 +191,20 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
 
       // For insurance payers look up or create the session table entry.
       if ($payer_id) {
-        $session_id = arGetSession($payer_id, addslashes($source), $dtldate);
+        if (!$dry_run) {
+          $session_id = arGetSession($payer_id, addslashes($source), $dtldate);
+        }
       }
       // For non-insurance payers deal with copay duplication.
       else if ($code == '') {
         if (!empty($dtlinfo['pmt'])) {
           // Skip payments that are already present in the billing table as copays.
-          foreach ($copays as $key => $value) {
-            if ($value == $dtlinfo['pmt']) {
-              unset($copays[$key]);
-              continue 2; // skip this detail item
+          foreach ($billing as $key => $brow) {
+            if ($brow['code_type'] == 'COPAY' && (0 - $brow['fee']) == $dtlinfo['pmt']) {
+              unset($billing[$key]);
+              continue 2; // done with this detail item
             }
-          } // end foreach
+          }
         } // end if payment
       } // end not insurance
 
@@ -129,11 +215,13 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
         for ($i = 1; $i <= 3; ++$i) {
           if (strpos($tmp, "ins$i") !== false) $payer_type = $i;
         }
-        arPostPayment($pid, $encounter, $session_id, $dtlinfo['pmt'], $code,
-          $payer_type, addslashes($source), 0, "$dtldate 00:00:00");
-        if ($session_id) {
-          sqlStatement("UPDATE ar_session SET pay_total = pay_total + '" .
-            $dtlinfo['pmt'] . "' WHERE session_id = '$session_id'");
+        if (!$dry_run) {
+          arPostPayment($pid, $encounter, $session_id, $dtlinfo['pmt'], $code,
+            $payer_type, addslashes($source), 0, "$dtldate 00:00:00");
+          if ($session_id) {
+            sqlStatement("UPDATE ar_session SET pay_total = pay_total + '" .
+              $dtlinfo['pmt'] . "' WHERE session_id = '$session_id'");
+          }
         }
       }
       else { // it's an adjustment
@@ -141,14 +229,15 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
         for ($i = 1; $i <= 3; ++$i) {
           if (strpos($tmp, "ins$i") !== false) $payer_type = $i;
         }
-        arPostAdjustment($pid, $encounter, $session_id, 0 - $dtlinfo['chg'],
-          $code, $payer_type, addslashes($dtlinfo['rsn']), 0, "$dtldate 00:00:00");
+        if (!$dry_run) {
+          arPostAdjustment($pid, $encounter, $session_id, 0 - $dtlinfo['chg'],
+            $code, $payer_type, addslashes($dtlinfo['rsn']), 0, "$dtldate 00:00:00");
+        }
       }
 
       ++$activity_count;
     } // end detail item
   } // end code
-
 
   // Compute last insurance level billed.
   $last_level_billed = 0;
@@ -179,17 +268,29 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
     ++$stmt_count;
   }
 
-  sqlStatement("UPDATE form_encounter SET " .
-    "last_level_billed = '$last_level_billed', " .
-    "last_level_closed = '$last_level_closed', " .
-    "last_stmt_date = $last_stmt_date, " .
-    "stmt_count = '$stmt_count' " .
-    "WHERE pid = '$pid' AND encounter = '$encounter'");
+  if (!$dry_run) {
+    sqlStatement("UPDATE form_encounter SET " .
+      "last_level_billed = '$last_level_billed', " .
+      "last_level_closed = '$last_level_closed', " .
+      "last_stmt_date = $last_stmt_date, " .
+      "stmt_count = '$stmt_count' " .
+      "WHERE pid = '$pid' AND encounter = '$encounter'");
+  }
 
-  // Show a warning for any unmatched copays.
-  foreach ($copays as $copay) {
-    echo "Co-pay of \$$copay in the encounter was not found in " .
-      "SQL-Ledger invoice $pid.$encounter.<br />\n";
+  // Delete and show a warning for any unmatched copays or charges.
+  foreach ($billing as $key => $brow) {
+    if (!$dry_run) {
+      sqlStatement("UPDATE billing SET activity = 0 WHERE id = '$key'");
+    }
+    if ($brow['code_type'] == 'COPAY') {
+      echo "Patient payment of \$" . sprintf('%01.2f', 0 - $brow['fee']);
+    }
+    else {
+      echo "Charge item '" . $brow['code'] . "' with amount \$" .
+        sprintf('%01.2f', $brow['fee']);
+    }
+    echo " was not found in SQL-Ledger invoice $pid.$encounter " .
+      "and has been removed from the encounter.<br />\n";
     flush();
   }
 
