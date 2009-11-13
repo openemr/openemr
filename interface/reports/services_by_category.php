@@ -21,7 +21,7 @@ function bucks($amount) {
 }
 
 $filter = $_REQUEST['filter'] + 0;
-$where = "1 = 1";
+$where = "c.active = 1";
 if ($filter) $where .= " AND c.code_type = '$filter'";
 if (empty($_REQUEST['include_uncat']))
   $where .= " AND c.superbill != '' AND c.superbill != '0'";
