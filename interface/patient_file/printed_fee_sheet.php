@@ -71,7 +71,7 @@ if (empty($SBCODES)) {
   while ($prow = sqlFetchArray($pres)) {
     $SBCODES[] = '*G|' . $prow['title'];
     $res = sqlStatement("SELECT code_type, code, code_text FROM codes " .
-      "WHERE superbill = '" . $prow['option_id'] . "' " .
+      "WHERE superbill = '" . $prow['option_id'] . "' AND active = 1 " .
       "ORDER BY code_text");
     while ($row = sqlFetchArray($res)) {
       $SBCODES[] = $row['code'] . '|' . $row['code_text'];
@@ -83,7 +83,7 @@ if (empty($SBCODES)) {
     $SBCODES[] = '*G|' . xl('Products');
     $tres = sqlStatement("SELECT dt.drug_id, dt.selector, d.name " .
       "FROM drug_templates AS dt, drugs AS d WHERE " .
-      "d.drug_id = dt.drug_id " .
+      "d.drug_id = dt.drug_id AND d.active = 1 " .
       "ORDER BY d.name, dt.selector, dt.drug_id");
     while ($trow = sqlFetchArray($tres)) {
       $tmp = $trow['selector'];
