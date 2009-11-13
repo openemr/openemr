@@ -73,7 +73,7 @@ if (is_dir($reportsdir)) {
       while (false !== ($file = readdir($handle))) {
         if ($file != '.' && $file != '..' && substr($file,-4,4) == '.php') {
           $filename = substr($file,0,strlen($file)-4);
-          array_push($dir_array,"<a href='$reportsdir$file' target='_new' onclick='top.restoreSession()'>".xl($filename)."</a><br>\n");
+          array_push($dir_array,"<a href='$reportsdir$file' target='_blank' onclick='top.restoreSession()'>".xl($filename)."</a><br>\n");
         }
       }
       closedir($handle);
@@ -87,60 +87,60 @@ if (is_dir($reportsdir)) {
 
 <ul>
 <li>
-<a href="custom_report_range.php" target="_new" onclick="top.restoreSession()">{xl t='Superbill Report'}</a>
+<a href="custom_report_range.php" target="_blank" onclick="top.restoreSession()">{xl t='Superbill Report'}</a>
 </li><li>
-<a href="appointments_report.php" target="_new" onclick="top.restoreSession()">{xl t='Appointments Report'}</a>
+<a href="appointments_report.php" target="_blank" onclick="top.restoreSession()">{xl t='Appointments Report'}</a>
 </li><li>
-<a href="encounters_report.php" target="_new" onclick="top.restoreSession()">{xl t='Encounters Report'}</a>
+<a href="encounters_report.php" target="_blank" onclick="top.restoreSession()">{xl t='Encounters Report'}</a>
 <br/>
 </li><li>
-<a href="appt_encounter_report.php" target="_new" onclick="top.restoreSession()">{xl t='Appointments-Encounters Report'}</a>
+<a href="appt_encounter_report.php" target="_blank" onclick="top.restoreSession()">{xl t='Appointments-Encounters Report'}</a>
 </li>
 {php} if (! $GLOBALS['simplified_demographics']) { {/php}
 <li>
-<a href="insurance_allocation_report.php" target="_new" onclick="top.restoreSession()">{xl t='Patient Insurance Distribution Report'}</a>
+<a href="insurance_allocation_report.php" target="_blank" onclick="top.restoreSession()">{xl t='Patient Insurance Distribution Report'}</a>
 </li><li>
-<a href="../billing/indigent_patients_report.php" target="_new" onclick="top.restoreSession()">{xl t='Indigent Patients Report'}</a>
+<a href="../billing/indigent_patients_report.php" target="_blank" onclick="top.restoreSession()">{xl t='Indigent Patients Report'}</a>
 </li><li>
-<a href="unique_seen_patients_report.php" target="_new" onclick="top.restoreSession()">{xl t='Unique Seen Patients Report'}</a>
+<a href="unique_seen_patients_report.php" target="_blank" onclick="top.restoreSession()">{xl t='Unique Seen Patients Report'}</a>
 </li><li>
-<a href="patient_list.php" target="_new" onclick="top.restoreSession()">{xl t='Patient List'}</a>
+<a href="patient_list.php" target="_blank" onclick="top.restoreSession()">{xl t='Patient List'}</a>
 </li>
 {php} } {/php}
 
 {php} if (! $GLOBALS['weight_loss_clinic']) { {/php}
 <li>
-<a href="front_receipts_report.php" target="_new" onclick="top.restoreSession()">{xl t='Front Office Receipts Report'}</a>
+<a href="front_receipts_report.php" target="_blank" onclick="top.restoreSession()">{xl t='Front Office Receipts Report'}</a>
 </li>
 {php} } {/php}
 
 <li>
-<a href="prescriptions_report.php" target="_new" onclick="top.restoreSession()">{xl t='Prescriptions Report'}</a>
+<a href="prescriptions_report.php" target="_blank" onclick="top.restoreSession()">{xl t='Prescriptions Report'}</a>
 </li><li>
-<a href="sales_by_item.php" target="_new" onclick="top.restoreSession()">{xl t='Sales by Product Report'}</a>
+<a href="sales_by_item.php" target="_blank" onclick="top.restoreSession()">{xl t='Sales by Product Report'}</a>
 </li><li>
-<a href="collections_report.php" target="_new" onclick="top.restoreSession()">{xl t='Collections Report'}</a>
+<a href="collections_report.php" target="_blank" onclick="top.restoreSession()">{xl t='Collections Report'}</a>
 </li><li>
-<a href="referrals_report.php" target="_new" onclick="top.restoreSession()">{xl t='Referrals Report'}</a>
+<a href="referrals_report.php" target="_blank" onclick="top.restoreSession()">{xl t='Referrals Report'}</a>
 </li>
 
 {php} if ($GLOBALS['inhouse_pharmacy']) { {/php}
 <li>
-<a href="destroyed_drugs_report.php" target="_new" onclick="top.restoreSession()">{xl t='Destroyed Drugs Report'}</a>
+<a href="destroyed_drugs_report.php" target="_blank" onclick="top.restoreSession()">{xl t='Destroyed Drugs Report'}</a>
 </li>
 {php} } {/php}
 <li>
-<a href="receipts_by_method_report.php" target="_new" onclick="top.restoreSession()">{xl t='Receipts by Payment Method Report'}</a>
+<a href="receipts_by_method_report.php" target="_blank" onclick="top.restoreSession()">{xl t='Receipts by Payment Method Report'}</a>
 </li>
 <!-- </ul> -->
 <li>
-<a href="chart_location_activity.php" target="_new" onclick="top.restoreSession()">{xl t='Chart Check-in/out Activity Report'}</a>
+<a href="chart_location_activity.php" target="_blank" onclick="top.restoreSession()">{xl t='Chart Check-in/out Activity Report'}</a>
 </li>
 <li>
-<a href="charts_checked_out.php" target="_new" onclick="top.restoreSession()">{xl t='Charts Checked Out'}</a>
+<a href="charts_checked_out.php" target="_blank" onclick="top.restoreSession()">{xl t='Charts Checked Out'}</a>
 </li>
 <li>
-<a href="services_by_category.php" target="_new" onclick="top.restoreSession()">{xl t='Services by Category'}</a>
+<a href="services_by_category.php" target="_blank" onclick="top.restoreSession()">{xl t='Services by Category'}</a>
 </li>
 {php}
  if ($GLOBALS['athletic_team']) {
@@ -165,7 +165,7 @@ if (is_dir($reportsdir)) {
 
 </ul>
 
-<a href="{$printable_link}" target="_new" onclick="top.restoreSession()">[{xl t='printable'}]</a>
+<a href="{$printable_link}" target="_blank" onclick="top.restoreSession()">[{xl t='printable'}]</a>
 &nbsp;
 <br/>
 <form name="report" action="index.php" method="get" onsubmit="return top.restoreSession()">
