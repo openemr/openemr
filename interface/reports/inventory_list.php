@@ -20,6 +20,7 @@
   "FROM drugs AS d " .
   "LEFT OUTER JOIN drug_inventory AS di ON di.drug_id = d.drug_id " .
   "AND di.on_hand != 0 AND di.destroy_date IS NULL " .
+  "WHERE d.active = 1 " .
   "GROUP BY d.name, d.drug_id ORDER BY d.name, d.drug_id");
 ?>
 <html>
