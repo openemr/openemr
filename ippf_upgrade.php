@@ -74,7 +74,7 @@ function do_visit_form($irow, $encounter, $first) {
   }
 
   if ($newid && !$debug) {
-    addForm($encounter, $irow['title'], $newid, 'LBFgcac', $pid, 1);
+    addForm($encounter, 'IPPF GCAC', $newid, 'LBFgcac', $pid, 1);
     ++$insert_count;
   }
 
