@@ -145,6 +145,10 @@ if (count($result3) != 1) { ?>
 <tr><td colspan='2' class='text' style='color:red'>
 <?php
 $ip=$_SERVER['REMOTE_ADDR'];
+
+// The following commented out because it is too slow when the log
+// table is large.  -- Rod 2009-11-11
+/*********************************************************************
 $query = "select user, date, comments from log where event like 'login' and comments like '%".$ip."' order by date desc limit 1";
 $statement = sqlStatement($query);
 if ($result = sqlFetchArray($statement)) {
@@ -152,6 +156,8 @@ if ($result = sqlFetchArray($statement)) {
                 echo $result['user']." attempted unauthorized login on this machine: ".$result['date'];
         }
 }
+*********************************************************************/
+
 ?>
 </td></tr>
 </table>
