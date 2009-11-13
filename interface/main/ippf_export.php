@@ -142,7 +142,7 @@ function exportEncounter($pid, $encounter, $date) {
         // Starting a new service (IPPF code).
         OpenTag('IMS_eMRUpload_Service');
         Add('IppfServiceProductId', $code);
-        Add('Type'                , '0'); // 0=service, 1=product, 2=diagnosis
+        Add('Type'                , '0'); // 0=service, 1=product, 2=diagnosis, 3=referral
         Add('IppfQuantity'        , $brow['units']);
         Add('CurrID'              , "TBD"); // TBD: Currency e.g. USD
         Add('Amount'              , $brow['fee']);
@@ -159,7 +159,7 @@ function exportEncounter($pid, $encounter, $date) {
   while ($prow = sqlFetchArray($pres)) {
     OpenTag('IMS_eMRUpload_Service');
     Add('IppfServiceProductId', $prow['drug_id']);
-    Add('Type'                , '1'); // 0=service, 1=product, 2=diagnosis
+    Add('Type'                , '1'); // 0=service, 1=product, 2=diagnosis, 3=referral
     Add('IppfQuantity'        , $prow['quantity']);
     Add('CurrID'              , "TBD"); // TBD: Currency e.g. USD
     Add('Amount'              , $prow['fee']);
@@ -174,12 +174,35 @@ function exportEncounter($pid, $encounter, $date) {
   while ($drow = sqlFetchArray($dres)) {
     OpenTag('IMS_eMRUpload_Service');
     Add('IppfServiceProductId', $drow['code']);
-    Add('Type'                , '2'); // 0=service, 1=product, 2=diagnosis
+    Add('Type'                , '2'); // 0=service, 1=product, 2=diagnosis, 3=referral
     Add('IppfQuantity'        , '1');
     Add('CurrID'              , "TBD"); // TBD: Currency e.g. USD
     Add('Amount'              , '0');
     CloseTag('IMS_eMRUpload_Service');
   } // end while billing row found
+
+  // Export referrals.  Match by date.  Export code type 3 and
+  // the Requested Service which should be an IPPF code.
+  $query = "SELECT refer_related_code FROM transactions WHERE " .
+    "pid = '$pid' AND refer_date = '$date' AND " .
+    "refer_related_code != '' " .
+    "ORDER BY id";
+  $tres = sqlStatement($query);
+  while ($trow = sqlFetchArray($tres)) {
+    $relcodes = explode(';', $trow['refer_related_code']);
+    foreach ($relcodes as $codestring) {
+      if ($codestring === '') continue;
+      list($codetype, $code) = explode(':', $codestring);
+      if ($codetype !== 'IPPF') continue;
+      OpenTag('IMS_eMRUpload_Service');
+      Add('IppfServiceProductId', $code);
+      Add('Type'                , '3'); // 0=service, 1=product, 2=diagnosis, 3=referral
+      Add('IppfQuantity'        , '1');
+      Add('CurrID'              , "TBD"); // TBD: Currency e.g. USD
+      Add('Amount'              , '0');
+      CloseTag('IMS_eMRUpload_Service');
+    } // end foreach
+  } // end referral
 
   CloseTag('IMS_eMRUpload_Visit');
 }
