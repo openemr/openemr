@@ -1,12 +1,12 @@
 DELETE FROM list_options WHERE list_id = 'ab_location';
-INSERT INTO list_options VALUES ('ab_location','proc' ,'Procedure at this site'              , 1,0,0);
-INSERT INTO list_options VALUES ('ab_location','ma'   ,'Followup procedure from this site'   , 2,0,0);
-INSERT INTO list_options VALUES ('ab_location','part' ,'Followup procedure from partner site', 3,0,0);
-INSERT INTO list_options VALUES ('ab_location','oth'  ,'Followup procedure from other site'  , 4,0,0);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('ab_location','proc' ,'Procedure at this site'              , 1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('ab_location','ma'   ,'Followup procedure from this site'   , 2);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('ab_location','part' ,'Followup procedure from partner site', 3);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('ab_location','oth'  ,'Followup procedure from other site'  , 4);
 
 DELETE FROM list_options WHERE list_id = 'lbfnames';
-INSERT INTO list_options VALUES ('lbfnames','LBFgcac','IPPF GCAC',1,0,0);
-INSERT INTO list_options VALUES ('lbfnames','LBFsrh' ,'IPPF SRH' ,2,0,0);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lbfnames','LBFgcac','IPPF GCAC',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lbfnames','LBFsrh' ,'IPPF SRH' ,2);
 
 DELETE FROM layout_options WHERE form_id = 'LBFsrh';
 INSERT INTO layout_options VALUES ('LBFsrh','usertext15' ,'1Gynecology'                ,'Menstrual History'             , 1,22,1, 0, 0,'genmenhist'  ,1,3,'','H','');
@@ -32,7 +32,7 @@ INSERT INTO layout_options VALUES ('LBFsrh','usertext20' ,'4Basic RH (female and
 INSERT INTO layout_options VALUES ('LBFsrh','fer_exams'  ,'4Basic RH (female and male)','Fertility Tests'               , 6,23,1, 0, 0,'fer_exams'   ,1,1,'','','Infertility/subfertility test results');
 INSERT INTO layout_options VALUES ('LBFsrh','fer_causes' ,'4Basic RH (female and male)','Causes of Infertility'         , 7,21,1, 2, 0,'fer_causes'  ,1,3,'','','Causes of Infertility');
 INSERT INTO layout_options VALUES ('LBFsrh','fer_treat'  ,'4Basic RH (female and male)','Infertility Treatment'         , 8,21,1, 2, 0,'fer_treat'   ,1,3,'','','Infertility Treatment');
-INSERT INTO layout_options VALUES ('LBFsrh','usertext20' ,'4Basic RH (female and male)','Urology Basic History'         , 9,21,1, 0, 0,'genurohist'  ,1,1,'','H','');
+INSERT INTO layout_options VALUES ('LBFsrh','usertext21' ,'4Basic RH (female and male)','Urology Basic History'         , 9,21,1, 0, 0,'genurohist'  ,1,1,'','H','');
 INSERT INTO layout_options VALUES ('LBFsrh','uro_exams'  ,'4Basic RH (female and male)','Urology Tests'                 ,10,23,1, 0, 0,'uro_exams'   ,1,1,'','','Urology test results');
 INSERT INTO layout_options VALUES ('LBFsrh','uro_disease','4Basic RH (female and male)','Male Genitourinary diseases'   ,11,21,1, 2, 0,'uro_disease' ,1,3,'','','Male Genitourinary diseases');
 
@@ -56,17 +56,17 @@ INSERT INTO layout_options VALUES ('GCA','post_op'      ,'5Intervention','Post-S
 INSERT INTO layout_options VALUES ('GCA','qc_ind'       ,'6Followup'    ,'Quality of Care Indicators'      , 1,21,1, 0, 0,'qc_ind'      ,1,3,'','' ,'Quality of Care Indicators');
 
 DELETE FROM layout_options WHERE form_id = 'LBFgcac';
-INSERT INTO layout_options VALUES ('LBFgcac','client_status','1Basic Information','Client Status'               , 1, 1,2, 0, 0,'clientstatus',1,1,'','' ,'Client Status');
-INSERT INTO layout_options VALUES ('LBFgcac','ab_location'  ,'1Basic Information','Type of Visit'               , 2, 1,2, 0, 0,'ab_location' ,1,1,'','' ,'Nature of this visit');
-INSERT INTO layout_options VALUES ('LBFgcac','in_ab_proc'   ,'1Basic Information','Associated Induced Procedure', 3, 1,1, 0, 0,'in_ab_proc'  ,1,3,'','' ,'Applies regardless of when or where done');
+INSERT INTO layout_options VALUES ('LBFgcac','client_status','1Basic Information','Client Status'               , 1,27,2, 0, 0,'clientstatus',1,1,'','' ,'Client Status');
+INSERT INTO layout_options VALUES ('LBFgcac','ab_location'  ,'1Basic Information','Type of Visit'               , 2,27,2, 0, 0,'ab_location' ,1,1,'','' ,'Nature of this visit');
+INSERT INTO layout_options VALUES ('LBFgcac','in_ab_proc'   ,'1Basic Information','Associated Induced Procedure', 3,27,1, 0, 0,'in_ab_proc'  ,1,3,'','' ,'Applies regardless of when or where done');
 INSERT INTO layout_options VALUES ('LBFgcac','complications','2Complications','Complications'                   , 1,21,1, 2, 0,'complication',1,3,'','' ,'Post-Abortion Complications');
 INSERT INTO layout_options VALUES ('LBFgcac','main_compl'   ,'2Complications','Main Complication'               , 2, 1,1, 2, 0,'complication',1,3,'','' ,'Primary Complication');
 INSERT INTO layout_options VALUES ('LBFgcac','contrameth'   ,'3Contraception','New Method'                      , 1,21,1, 2, 0,'contrameth'  ,1,3,'','' ,'New method adopted');
 
 #IfNotRow list_options list_id occupations
-INSERT INTO list_options VALUES ('occupations','oth','Other', 1,0,0);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('occupations','oth','Other', 1);
 DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'occupations';
-INSERT INTO list_options VALUES ('lists','occupations','Occupations',61,0,0);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists','occupations','Occupations',61);
 #endIf
 
 UPDATE layout_options SET data_type = 26, list_id = 'occupations'  WHERE form_id = 'DEM' AND field_id = 'occupation';
@@ -79,4 +79,6 @@ UPDATE layout_options SET uor = 0 WHERE form_id = 'DEM' AND field_id = 'provider
 UPDATE layout_options SET seq = 3 WHERE form_id = 'REF' AND field_id = 'refer_external' AND seq = 5;
 UPDATE layout_options SET seq = 4 WHERE form_id = 'REF' AND field_id = 'refer_to'       AND seq = 3;
 UPDATE layout_options SET seq = 5 WHERE form_id = 'REF' AND field_id = 'body'           AND seq = 4;
+
+UPDATE layout_options AS a, list_options AS i SET a.group_name = '1Basic Data', a.title = 'Transgender', a.seq = 13, a.data_type = 26, a.uor = 1, a.description = 'Transgender', i.title = 'Transgender' WHERE a.form_id = 'DEM' AND a.field_id = 'userlist6' AND a.uor = 0 AND i.list_id = 'lists' AND i.option_id = 'userlist6';
 
