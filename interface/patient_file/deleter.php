@@ -164,6 +164,7 @@ td { font-size:10pt; }
    $url = $trow['url'];
    row_delete("categories_to_documents", "document_id = '$document'");
    row_delete("documents", "id = '$document'");
+   row_delete("gprelations", "type1 = 1 AND id1 = '$document'");
    if (substr($url, 0, 7) == 'file://') {
     @unlink(substr($url, 7));
    }

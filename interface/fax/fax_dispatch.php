@@ -1,16 +1,17 @@
 <?php
-// Copyright (C) 2006-2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-include_once("../globals.php");
-include_once("$srcdir/patient.inc");
-include_once("$srcdir/pnotes.inc");
-include_once("$srcdir/forms.inc");
-include_once("$srcdir/options.inc.php");
+require_once("../globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/pnotes.inc");
+require_once("$srcdir/forms.inc");
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/gprelations.inc.php");
 
 if ($_GET['file']) {
   $mode = 'fax';
@@ -147,8 +148,10 @@ if ($_POST['form_save']) {
         if (get_magic_quotes_gpc()) $form_note_message = stripslashes($form_note_message);
         if ($form_note_message) $note .= "\n" . $form_note_message;
         // addPnote() will do its own addslashes().
-        addPnote($_POST['form_pid'], $note, $userauthorized, '1',
+        $noteid = addPnote($_POST['form_pid'], $note, $userauthorized, '1',
           $_POST['form_note_type'], $_POST['form_note_to']);
+        // Link the new patient note to the document.
+        setGpRelation(1, $newid, 6, $noteid);
       } // end post patient note
     } // end copy to documents
 

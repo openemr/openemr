@@ -1,4 +1,9 @@
 <?php
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
 require_once("{$GLOBALS['srcdir']}/sql.inc");
 
 // 06-2009, BM migrated the patient_note_types array to the list_options table
@@ -11,16 +16,23 @@ function getPnoteById($id, $cols = "*")
 }
 
 function getPnotesByDate($date, $activity = "1", $cols = "*", $pid = "%",
-  $limit = "all", $start = 0, $username = '')
+  $limit = "all", $start = 0, $username = '', $docid = 0)
 {
-  $sql = "SELECT $cols FROM pnotes WHERE date LIKE '%$date%' " .
-    "AND pid LIKE '$pid' ";
-  $sql .= " AND deleted != 1 "; // exclude ALL deleted notes
+  if ($docid) {
+    $sql = "SELECT $cols FROM pnotes AS p, gprelations AS r " .
+    "WHERE p.date LIKE '%$date%' AND r.type1 = 1 AND " .
+    "r.id1 = '$docid' AND r.type2 = 6 AND p.id = r.id2";
+  }
+  else {
+    $sql = "SELECT $cols FROM pnotes AS p " .
+      "WHERE date LIKE '%$date%' AND pid LIKE '$pid'";
+  }
+  $sql .= " AND deleted != 1"; // exclude ALL deleted notes
   if ($activity != "all")
-    $sql .= "AND activity = '$activity' ";
+    $sql .= " AND activity = '$activity'";
   if ($username)
-    $sql .= "AND assigned_to LIKE '$username' ";
-  $sql .= "ORDER BY date DESC";
+    $sql .= " AND assigned_to LIKE '$username'";
+  $sql .= " ORDER BY date DESC";
   if($limit != "all")
     $sql .= " LIMIT $start, $limit";
 

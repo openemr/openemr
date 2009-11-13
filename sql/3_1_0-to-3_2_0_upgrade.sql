@@ -27,3 +27,24 @@ ALTER TABLE `list_options`
   ADD `mapping` varchar(15) NOT NULL DEFAULT '';
 #EndIf
 
+#IfNotTable gprelations
+CREATE TABLE gprelations (
+  -- Relation types are:
+  --  1 documents
+  --  2 form_encounter (visits)
+  --  3 immunizations
+  --  4 lists (issues)
+  --  5 openemr_postcalendar_events (appointments)
+  --  6 pnotes
+  --  7 prescriptions
+  --  8 transactions (e.g. referrals)
+  -- By convention we require that type1 must be less than or equal to type2.
+  type1 int(2)     NOT NULL,
+  id1   bigint(20) NOT NULL,
+  type2 int(2)     NOT NULL,
+  id2   bigint(20) NOT NULL,
+  PRIMARY KEY (type1,id1,type2,id2),
+  KEY key2  (type2,id2)
+) ENGINE=MyISAM COMMENT='general purpose relations';
+#EndIf
+

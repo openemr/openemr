@@ -1,13 +1,20 @@
 <?php
-include_once("../../globals.php");
-include_once("$srcdir/pnotes.inc");
-include_once("$srcdir/patient.inc");
-include_once("$srcdir/acl.inc");
-include_once("$srcdir/log.inc");
-include_once("$srcdir/options.inc.php");
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+require_once("../../globals.php");
+require_once("$srcdir/pnotes.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/log.inc");
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/classes/Document.class.php");
+require_once("$srcdir/gprelations.inc.php");
 
 if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
-    include_once("$srcdir/pid.inc");
+    require_once("$srcdir/pid.inc");
     setpid($_GET['set_pid']);
 }
 
@@ -24,11 +31,28 @@ $N = 25;
 
 $mode   = $_REQUEST['mode'];
 $offset = $_REQUEST['offset'];
-$active = $_REQUEST['active'];
+$form_active = $_REQUEST['form_active'];
+$form_inactive = $_REQUEST['form_inactive'];
 $noteid = $_REQUEST['noteid'];
+$form_doc_only = isset($_POST['mode']) ? (empty($_POST['form_doc_only']) ? 0 : 1) : 1;
 
 if (!isset($offset)) $offset = 0;
-if (!isset($active)) $active = "all";
+
+// if (!isset($active)) $active = "all";
+
+$active = 'all';
+if ($form_active) {
+  if (!$form_inactive) $active = '1';
+}
+else {
+  if ($form_inactive)
+    $active = '0';
+  else
+    $form_active = $form_inactive = '1';
+}
+
+// form parameter docid can be passed to restrict the display to a document.
+$docid = empty($_REQUEST['docid']) ? 0 : 0 + $_REQUEST['docid'];
 
 // this code handles changing the state of activity tags when the user updates
 // them through the interface
@@ -41,6 +65,9 @@ if (isset($mode)) {
           reappearPnote($id);
         } else {
           disappearPnote($id);
+        }
+        if ($docid) {
+          setGpRelation(1, $docid, 6, $id, !empty($_POST["lnk$id"]));
         }
       }
     }
@@ -83,8 +110,8 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
  "ORDER BY lname, fname");
 
 //retrieve all notes
-$result = getPnotesByDate("", $active, 'id,date,body,user,activity,title,assigned_to', $pid, $N, $offset);
-
+$result = getPnotesByDate("", $active, 'id,date,body,user,activity,title,assigned_to',
+  $pid, $N, $offset);
 ?>
 
 <html>
@@ -101,15 +128,25 @@ $result = getPnotesByDate("", $active, 'id,date,body,user,activity,title,assigne
 
 <div id="pnotes"> <!-- large outer DIV -->
 
-<form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php'>
+<form border='0' method='post' name='new_note' id="new_note"
+ action='pnotes_full.php?docid=<?php echo $docid; ?>'>
+
+<?php
+$title_docname = "";
+if ($docid) {
+  $title_docname = " " . xl("linked to document") . " ";
+  $d = new Document($docid);	
+  $title_docname .= $d->get_url_file();
+}
+?>
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-<a href="pnotes.php" onclick="top.restoreSession()">
-<font class='title'><?php xl('Patient Notes','e'); ?></font>
+<a href="pnotes.php?docid=<?php echo $docid; ?>" onclick="top.restoreSession()">
+<font class='title'><?php echo xl('Patient Notes') . $title_docname; ?></font>
 <font class='back'>(<?php xl('Back','e'); ?>)</font></a>
 <?php } else { ?>
 <a href="../summary/patient_summary.php" target="Main" onclick="top.restoreSession()">
-<font class='title'><?php xl('Patient Notes','e'); ?></font>
+<font class='title'><?php xl('Patient Notes') . $title_docname; ?></font>
 <font class='back'>(<?php xl('Back','e'); ?>)</font></a>
 <?php } ?>
 
@@ -117,8 +154,10 @@ $result = getPnotesByDate("", $active, 'id,date,body,user,activity,title,assigne
 
 <input type='hidden' name='mode' id="mode" value="new">
 <input type='hidden' name='offset' id="offset" value="<?php echo $offset ?>">
-<input type='hidden' name='active' id="active" value="<?php echo $active ?>">
+<input type='hidden' name='form_active' id="form_active" value="<?php echo $form_active ?>">
+<input type='hidden' name='form_inactive' id="form_inactive" value="<?php echo $form_inactive ?>">
 <input type='hidden' name='noteid' id="noteid" value="<?php echo $noteid ?>">
+<input type='hidden' name='form_doc_only' id="form_doc_only" value="<?php echo $form_doc_only ?>">
 
 <center>
 
@@ -177,74 +216,72 @@ if ($noteid) {
 <input type="button" id="newnote" value="<?php xl('Add new note','e'); ?>" title="<?php xl('Add as a new note','e'); ?>">
 <input type="button" id="appendnote" value="<?php xl('Append to this note','e'); ?>" title="<?php xl('Append to the existing note','e'); ?>">
 <input type="button" id="printnote" value="<?php xl('Print this note','e'); ?>">
-<!--
-<a href="javascript:top.restoreSession();document.new_note.submit();" class='link_submit'>
-[<?php xl('Append to This Note','e'); ?>]
-</a>
-&nbsp;&nbsp;&nbsp;&nbsp;
-<a href='pnotes_print.php?noteid=<?php echo $noteid; ?>' class='link_submit' target='_blank' onclick='top.restoreSession()'>
-[<?php xl('Print This Note','e'); ?>]
-</a>
--->
 <?php } else { ?>
 <!-- new note -->
 <input type="button" id="newnote" value="<?php xl('Add new note','e'); ?>">
-<!--
-<a href="javascript:top.restoreSession();document.new_note.submit();" class='link_submit'>
-[<?php xl('Add New Note','e'); ?>]
-</a>
--->
 <?php } ?>
 
 <br>
 </form>
 
-<form border='0' method='post' name='update_activity' id='update_activity' action="pnotes_full.php">
-
-<?php //change the view on the current mode, whether all, active, or inactive
-$all_class = "link"; $active_class = "link"; $inactive_class = "link";
-if ($active=="all") {
-  $all_class="link_selected";
-} elseif ($active==1) {
-  $active_class="link_selected";
-} elseif ($active==0) {
-  $inactive_class="link_selected";
-}
-
-?>
+<form border='0' method='post' name='update_activity' id='update_activity'
+ action="pnotes_full.php?docid=<?php echo $docid; ?>">
 
 <!-- start of previous notes DIV -->
 <div style="border-top: 1px dashed black; padding-top: 10px;">
 
-<font class='text'><?php xl('View','e'); ?>: </font> 
-<a href="pnotes_full.php?offset=0&active=all" class='<?php echo $all_class;?>'
- onclick='top.restoreSession()'>[<?php xl('All','e'); ?>]</a>
-<a href="pnotes_full.php?offset=0&active=1" class='<?php echo $active_class;?>'
- onclick='top.restoreSession()'>[<?php xl('Only Active','e'); ?>]</a>
-<a href="pnotes_full.php?offset=0&active=0" class='<?php echo $inactive_class;?>'
- onclick='top.restoreSession()'>[<?php xl('Only Inactive','e'); ?>]</a>
+<font class='text'><?php xl('View','e'); ?>: &nbsp;
+<input type='checkbox' name='form_active' <?php if ($form_active) echo "checked"; ?> />
+Active &nbsp;
+<input type='checkbox' name='form_inactive' <?php if ($form_inactive) echo "checked"; ?> />
+Inactive &nbsp;
+<?php if ($docid) { ?>
+<input type='checkbox' name='form_doc_only' <?php if ($form_doc_only) echo "checked"; ?> />
+Linked Only &nbsp;
+<?php } ?>
+<input type='submit' value='Refresh' />
+</font> 
 
 <input type='hidden' name='mode' value="update">
 <input type='hidden' name='offset' id='noteid' value="<?php echo $offset;?>">
-<input type='hidden' name='active' id='noteid' value="<?php echo $active;?>">
 <input type='hidden' name='noteid' id='noteid' value="0">
 
 <table border='0' style="border-collapse:collapse;">
 <?php if ($result != ""): ?>
  <tr>
-  <td colspan='3' style="border-bottom: 1px solid black; padding: 5px;">
-   <input type="button" class="change_activity" value="<?php xl('Change Activity','e'); ?>" />
+  <td colspan='5' style="border-bottom: 1px solid black; padding: 5px;">
+   <input type="button" class="change_activity" value="<?php xl('Change','e'); ?>" />
   </td>
  </tr>
 <?php endif; ?>
-<?
-//display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
-
+<?php
+// display all of the notes for the day, as well as others that are active
+// from previous dates, up to a certain number, $N
 
 if ($result != "") {
+  echo " <tr>\n";
+  echo "  <th>" . xl('Active') . "&nbsp;</th>\n";
+  echo "  <th>" . ($docid ? xl('Linked') : '') . "</th>\n";
+  echo "  <th>" . xl('Type') . "</th>\n";
+  echo "  <th>" . xl('Content') . "</th>\n";
+  echo "  <th>" . xl('Delete') . "</th>\n";
+  echo " </tr>\n";
+  
   $result_count = 0;
   foreach ($result as $iter) {
     $result_count++;
+    $row_note_id = $iter['id'];
+
+    $linked = "";
+    if ($docid) {
+      if (isGpRelation(1, $docid, 6, $row_note_id)) {
+        $linked = "checked";
+      }
+      else {
+        // Skip unlinked notes if that is requested.
+        if ($form_doc_only) continue;
+      }
+    }
 
     $body = $iter['body'];
     if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
@@ -261,26 +298,29 @@ if ($result != "") {
     }
 
     // highlight the row if it's been selected for updating
-    if ($_REQUEST['noteid'] == $iter['id']) {
-        echo " <tr class='noterow highlightcolor' id='".$iter['id']."'>\n";
+    if ($_REQUEST['noteid'] == $row_note_id) {
+        echo " <tr class='noterow highlightcolor' id='$row_note_id'>\n";
     }
     else {
-        echo " <tr class='noterow' id='".$iter['id']."'>\n";
+        echo " <tr class='noterow' id='$row_note_id'>\n";
     }
     echo "  <td class='text bold'>\n";
-    echo "   <input type='hidden' name='act" . $iter{"id"} . "' value='1'>\n";
-    echo "   <input type='checkbox' name='chk" . $iter{"id"} . "' $checked>\n";
-    
-    echo "  </td><td class='bold notecell' id='".$iter['id']."'>\n";
+    echo "   <input type='hidden' name='act$row_note_id' value='1' />\n";
+    echo "   <input type='checkbox' name='chk$row_note_id' $checked />\n";
+    echo "  </td>\n";
 
-//    echo "   <a href='javascript:document.forms[1].noteid.value=" .
-//         $iter['id'] . ";top.restoreSession();document.update_activity.submit();' " .
-//         "class='link_submit'>" . $iter['title'] . "</a>\n";
+    echo "  <td class='text bold'>\n";
+    if ($docid) {
+      echo "   <input type='checkbox' name='lnk$row_note_id' $linked />\n";
+    }
+    echo "  </td>\n";
 
+    echo "  <td class='bold notecell' id='$row_note_id'>\n";
     // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings  
     echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
     echo "  </td>\n";
-    echo "  <td class='notecell' id='".$iter['id']."'>\n";
+
+    echo "  <td class='notecell' id='$row_note_id'>\n";
     echo "   $body";
     echo "  </td>\n";
 
@@ -289,7 +329,7 @@ if ($result != "") {
     $thisauth = acl_check('admin', 'super');
     echo "  <td>\n";
     if (($iter['user'] == $_SESSION['authUser']) || ($thisauth == 'write')) {
-        echo " <input type='button' class='deletenote' id='del".$iter['id']."' value=' X ' title='" . xl('Delete this note') . "'>\n";
+      echo " <input type='button' class='deletenote' id='del$row_note_id' value=' X ' title='" . xl('Delete this note') . "'>\n";
     }
     echo "  </td>\n";
 
@@ -307,7 +347,7 @@ if ($result != "") {
 <?php if ($result != ""): ?>
  <tr>
   <td colspan='3' align='left' style="padding: 5px;">
-   <input type="button" class="change_activity" value="<?php xl('Change Activity','e'); ?>" />
+   <input type="button" class="change_activity" value="<?php xl('Change','e'); ?>" />
   </td>
  </tr>
 <?php endif; ?>
@@ -320,7 +360,11 @@ if ($result != "") {
   <td>
 <?php
 if ($offset > ($N-1)) {
-  echo "   <a class='link' href='pnotes_full.php?active=" . $active .
+  echo "   <a class='link' href='pnotes_full.php" .
+    "?docid=$docid" .
+    "&form_active=$form_active" .
+    "&form_inactive=$form_inactive" .
+    "&form_doc_only=$form_doc_only" .
     "&offset=" . ($offset-$N) . "' onclick='top.restoreSession()'>[" .
     xl('Previous') . "]</a>\n";
 }
@@ -329,7 +373,11 @@ if ($offset > ($N-1)) {
   <td align='right'>
 <?php
 if ($result_count == $N) {
-  echo "   <a class='link' href='pnotes_full.php?active=" . $active .
+  echo "   <a class='link' href='pnotes_full.php" .
+    "?docid=$docid" .
+    "&form_active=$form_active" .
+    "&form_inactive=$form_inactive" .
+    "&form_doc_only=$form_doc_only" .
     "&offset=" . ($offset+$N) . "' onclick='top.restoreSession()'>[" .
     xl('Next') . "]</a>\n";
 }
@@ -426,7 +474,6 @@ $(document).ready(function(){
             $("#new_note").submit(); 
         }
     }
-
 
 });
 

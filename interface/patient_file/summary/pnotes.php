@@ -4,6 +4,10 @@
  require_once("$srcdir/acl.inc");
  require_once("$srcdir/patient.inc");
  require_once("$srcdir/options.inc.php");
+ require_once("$srcdir/classes/Document.class.php");
+
+ // form parameter docid can be passed to restrict the display to a document.
+ $docid = empty($_REQUEST['docid']) ? 0 : 0 + $_REQUEST['docid'];
 ?>
 <html>
 <head>
@@ -34,12 +38,21 @@
 <?php if ($thisauth == 'write' || $thisauth == 'addonly'): ?>
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-<a href="pnotes_full.php" onclick="top.restoreSession()">
+<a href="pnotes_full.php?docid=<?php echo $docid; ?>" onclick="top.restoreSession()">
 <?php } else { ?>
-<a href="pnotes_full.php" target="Main" onclick="top.restoreSession()">
+<a href="pnotes_full.php?docid=<?php echo $docid; ?>" target="Main" onclick="top.restoreSession()">
 <?php } ?>
 
-<span class="title"><?php xl('Notes','e'); ?></span><span class=more><?php echo $tmore;?></span>
+<span class="title"><?php xl('Notes','e'); ?>
+<?php
+  if ($docid) {
+    echo " " . xl("linked to document") . " ";
+    $d = new Document($docid);	
+    echo $d->get_url_file();
+  }
+?>
+</span>
+<span class=more><?php echo $tmore;?></span>
 </a>
 <?php endif; ?>
 
@@ -67,24 +80,6 @@ if($resnote && !$resnote->EOF && $resnote->fields['genericname2'] == 'Billing') 
 }
 
 //Display what the patient owes
-/*********************************************************************
-require_once($GLOBALS['fileroot'] ."/library/classes/WSWrapper.class.php");
-$customer_info['id'] = 0;
-$sql = "SELECT foreign_id from integration_mapping as im LEFT JOIN patient_data as pd on im.local_id=pd.id where pd.pid = '" . $pid . "' and im.local_table='patient_data' and im.foreign_table='customer'";
-$result = $conn->Execute($sql);
-if($result && !$result->EOF) 
-{
-  $customer_info['id'] = $result->fields['foreign_id'];
-}
-$function['ezybiz.customer_balance'] = array(new xmlrpcval($customer_info,"struct"));
-$ws = new WSWrapper($function);
-if(is_numeric($ws->value)) {
-  $formatted = sprintf('$%01.2f', $ws->value);
-  echo " <tr>\n";
-  echo "  <td>$colorbeg" . "Balance Due$colorend</td><td>$colorbeg$formatted$colorend</td>\n";
-  echo " </tr>\n";
-}
-*********************************************************************/
 $balance = get_patient_balance($pid);
 if ($balance != "0") {
   $formatted = sprintf((xl('$').'%01.2f'), $balance);
@@ -100,7 +95,8 @@ if ($billing_note) {
 }
 
 //retrieve all active notes
-$result = getPnotesByDate("", 1, "id,date,body,user,title,assigned_to", $pid, "all", 0);
+$result = getPnotesByDate("", 1, "id,date,body,user,title,assigned_to",
+  $pid, "all", 0, '', $docid);
 
 if ($result != null) {
   $notes_count = 0;//number of notes so far displayed
@@ -112,8 +108,10 @@ if ($result != null) {
       echo "  <td colspan='3' align='center'>\n";
       echo "   <a ";
       if (!$GLOBALS['concurrent_layout']) echo "target='Main' ";
-      echo "href='pnotes_full.php?active=1' class='alert' onclick='top.restoreSession()'>";
-      echo xl('Some notes were not displayed.','','',' ') . xl('Click here to view all.') . "</a>\n";
+      echo "href='pnotes_full.php?active=1&docid=$docid' class='alert' " .
+        "onclick='top.restoreSession()'>";
+      echo xl('Some notes were not displayed.','','',' ') .
+        xl('Click here to view all.') . "</a>\n";
       echo "  </td>\n";
       echo " </tr>\n";
       break;
@@ -161,9 +159,9 @@ var EditNote = function(note) {
 <?php if ($thisauth == 'write' || $thisauth == 'addonly'): ?>
     top.restoreSession();
     <?php if (!$GLOBALS['concurrent_layout']): ?>
-    top.Main.location.href = "pnotes_full.php?noteid=" + note.id + "&active=1";
+    top.Main.location.href = "pnotes_full.php?docid=<?php echo $docid; ?>&noteid=" + note.id + "&active=1";
     <?php else: ?>
-    location.href = "pnotes_full.php?noteid=" + note.id + "&active=1";
+    location.href = "pnotes_full.php?docid=<?php echo $docid; ?>noteid=" + note.id + "&active=1";
     <?php endif; ?>
 <?php else: ?>
     // no-op

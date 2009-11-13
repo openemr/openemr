@@ -6,21 +6,39 @@
 <script type="text/javascript" src="library/dynarch_calendar_setup.js"></script>
 <script language="JavaScript">
  var mypcc = '{php} echo $GLOBALS['phone_country_code'] {/php}';
+
  // Process click on Delete link.
  function deleteme(docid) {literal}{{/literal}
   dlgopen('interface/patient_file/deleter.php?document=' + docid, '_blank', 500, 450);
   return false;
  {literal}}{/literal}
+
  // Called by the deleter.php window on a successful delete.
  function imdeleted() {literal}{{/literal}
   top.restoreSession();
   window.location.href='{$REFRESH_ACTION}';
  {literal}}{/literal}
+
+ // Called to show patient notes related to this document in the "other" frame.
+ function showpnotes(docid) {literal}{{/literal}
+{php} if ($GLOBALS['concurrent_layout']) { {/php}
+  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
+  parent.left_nav.forceDual();
+  parent.left_nav.setRadio(othername, 'pno');
+  parent.left_nav.loadFrame('pno1', othername, 'patient_file/summary/pnotes.php?docid=' + docid);
+{php} } {/php}
+  return false;
+ {literal}}{/literal}
+
 </script>
 <table valign="top">
 	<tr>
 		<td valign="top">
 			<a href="{$web_path}" onclick="top.restoreSession()">{xl t='Click to download'}</a>
+
+      &nbsp;&nbsp;&nbsp;
+      <a href='' onclick='return showpnotes({$file->get_id()})'>{xl t='Show Patient Notes'}</a>
+
 			&nbsp;&nbsp;&nbsp;{$delete_string}
 
 			<p><form method="post" name="document_update" action="{$UPDATE_ACTION}" onsubmit="return top.restoreSession()">
