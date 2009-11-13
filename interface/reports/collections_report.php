@@ -437,9 +437,8 @@ if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) 
       $patient_id = $erow['pid'];
       $encounter_id = $erow['encounter'];
       $pt_balance = $erow['charges'] + $erow['sales'] + $erow['copays'] - $erow['payments'] - $erow['adjustments'];
+      $pt_balance = 0 + sprintf("%.2f", $pt_balance); // yes this seems to be necessary
       $svcdate = substr($erow['date'], 0, 10);
-
-      // echo "<!-- " . $erow['charges'] . ' + ' . $erow['copays'] . ' - ' . $erow['payments'] . ' - ' . $erow['adjustments'] . "  -->\n"; // debugging
 
       if ($_POST['form_search'] && ! $is_all) {
         if ($pt_balance == 0) continue;
@@ -477,6 +476,8 @@ if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) 
       //
       if ($is_due_ins && $duncount >= 0) continue;
       if ($is_due_pt  && $duncount <  0) continue;
+
+      // echo "<!-- " . $erow['encounter'] . ': ' . $erow['charges'] . ' + ' . $erow['sales'] . ' + ' . $erow['copays'] . ' - ' . $erow['payments'] . ' - ' . $erow['adjustments'] . "  -->\n"; // debugging
 
       // An invoice is due from the patient if money is owed and we are
       // not waiting for insurance to pay.
@@ -572,6 +573,7 @@ if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) 
       $ptname = $erow['lname'] . ", " . $erow['fname'];
       if ($erow['mname']) $ptname .= " " . substr($erow['mname'], 0, 1);
 
+      if (!$is_due_ins ) $insname = '';
       $rows[$insname . '|' . $ptname . '|' . $encounter_id] = $row;
     } // end while
   } // end $INTEGRATED_AR
