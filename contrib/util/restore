@@ -356,6 +356,17 @@ if [ ! -z "$SLDIR" ]; then
   fi
 fi
 
+COLLATE="utf8_general_ci"
+dlg_msg "If you have a particular requirement for the UTF-8 collation to use, " \
+  "then please specify it here.  Hit Enter to accept the default '$COLLATE'." \
+  "Enter 'none' if you do not want UTF-8."
+dlg_input "UTF-8 collation [$COLLATE]? "
+if [ ! -z "$RESULT" ]; then COLLATE="$RESULT"; fi
+TRASH=`expr "$COLLATE" : "[uU]"`
+if [ $TRASH -ne 1 ]; then
+  COLLATE=""
+fi
+
 # Ask the user to do final sanity checking.
 #
 MARGS="\"I will restore the OpenEMR database backup to the MySQL database '$OEDBNAME'.\""
@@ -364,6 +375,13 @@ if [ ! -z "$GADBNAME" ]; then
   MARGS="$MARGS \"I will restore the phpGACL database backup to the MySQL database '$GADBNAME'.\""
   MARGS="$MARGS \"The phpGACL database user will be '$GADBUSER' with password '$GADBPASS'.\""
 fi
+
+if [ -z "$COLLATE" ]; then
+  MARGS="$MARGS \"MySQL will use its default character set and collation.\""
+else
+  MARGS="$MARGS \"MySQL will use character set 'utf8' with collation '$COLLATE'.\""
+fi
+
 if [ ! -z "$SLDBNAME" ]; then
   MARGS="$MARGS \"I will restore the SQL-Ledger database backup to the PostgreSQL database '$SLDBNAME'.\""
   MARGS="$MARGS \"The SQL-Ledger database user will be '$SLDBUSER' with password '$SLDBPASS'.\""
@@ -406,11 +424,18 @@ if [ $? -ne 0 ]; then
   dlg_msg "Error: Could not decompress '$BAKDIR/openemr.sql.gz'."
   exit 1
 fi
-mysqladmin --password="$MYROOTPASS" create $OEDBNAME
+
+if [ -z $COLLATE ]; then
+  TRASH="CREATE DATABASE $OEDBNAME"
+else
+  TRASH="CREATE DATABASE $OEDBNAME CHARACTER SET utf8 COLLATE $COLLATE"
+fi
+mysql --password="$MYROOTPASS" --execute "$TRASH"
 if [ $? -ne 0 ]; then
-  dlg_msg "Error: Could not create MySQL database '$OEDBNAME'."
+  dlg_msg "Error creating MySQL database with '$TRASH'."
   exit 1
 fi
+
 mysql --password="$MYROOTPASS" --execute "GRANT ALL PRIVILEGES ON $OEDBNAME.* TO '$OEDBUSER'@'localhost' IDENTIFIED BY '$OEDBPASS'" $OEDBNAME
 mysql --user=$OEDBUSER --password="$OEDBPASS" $OEDBNAME < openemr.sql
 if [ $? -ne 0 ]; then
@@ -428,11 +453,18 @@ if [ ! -z "$GADBNAME" ]; then
     dlg_msg "Error: Could not decompress '$BAKDIR/phpgacl.sql.gz'."
     exit 1
   fi
-  mysqladmin --password="$MYROOTPASS" create $GADBNAME
+
+  if [ -z $COLLATE ]; then
+    TRASH="CREATE DATABASE $GADBNAME"
+  else
+    TRASH="CREATE DATABASE $GADBNAME CHARACTER SET utf8 COLLATE $COLLATE"
+  fi
+  mysql --password="$MYROOTPASS" --execute "$TRASH"
   if [ $? -ne 0 ]; then
-    dlg_msg "Error: Could not create MySQL database '$GADBNAME'."
+    dlg_msg "Error creating MySQL database with '$TRASH'."
     exit 1
   fi
+
   mysql --password="$MYROOTPASS" --execute "GRANT ALL PRIVILEGES ON $GADBNAME.* TO '$GADBUSER'@'localhost' IDENTIFIED BY '$GADBPASS'" $GADBNAME
   mysql --user=$GADBUSER --password="$GADBPASS" $GADBNAME < phpgacl.sql
   if [ $? -ne 0 ]; then
