@@ -1079,7 +1079,7 @@ function pnGetBaseURL()
         $server = $HTTP_SERVER_VARS['HTTP_HOST'];
     }
     // IIS sets HTTPS=off
-    if (isset($HTTP_SERVER_VARS['HTTPS']) && $HTTP_SERVER_VARS['HTTPS'] != 'off') {
+    if ( (isset($HTTP_SERVER_VARS['HTTPS']) && $HTTP_SERVER_VARS['HTTPS'] != 'off') || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ) {
         $proto = 'https://';
     } else {
         $proto = 'http://';
