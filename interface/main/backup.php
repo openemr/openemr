@@ -1,5 +1,7 @@
 <?php
+/* $Id$ */
 // Copyright (C) 2008, 2009 Rod Roark <rod@sunsetsystems.com>
+// Adapted for cross-platform operation by Bill Cernansky (www.mi-squared.com)
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -9,15 +11,16 @@
 // This script creates a backup tarball and sends it to the users's
 // browser for download.  The tarball includes:
 //
-// * an OpenEMR database dump
-// * a phpGACL database dump, if phpGACL is used and has its own
-//   database
-// * a SQL-Ledger database dump, if SQL-Ledger is used
-// * the OpenEMR web directory
-// * the phpGACL web directory, if phpGACL is used
-// * the SQL-Ledger web directory, if SQL-Ledger is used and its
-//   web directory exists as a sister of the openemr directory and
-//   has the name "sql-ledger" (otherwise we do not have enough
+// * an OpenEMR database dump (gzipped)
+// * a phpGACL database dump (gzipped), if phpGACL is used and has
+//   its own database
+// * a SQL-Ledger database dump (gzipped), if SQL-Ledger is used
+//   (currently skipped on Windows servers)
+// * the OpenEMR web directory (.tar.gz)
+// * the phpGACL web directory (.tar.gz), if phpGACL is used
+// * the SQL-Ledger web directory (.tar.gz), if SQL-Ledger is used
+//   and its web directory exists as a sister of the openemr directory
+//   and has the name "sql-ledger" (otherwise we do not have enough
 //   information to find it)
 //
 // The OpenEMR web directory is important because it includes config-
@@ -26,8 +29,8 @@
 // OpenEMR version.
 //
 // This script depends on execution of some external programs:
-// rm, mkdir, mysqldump, pg_dump, tar, gzip.  It has been tested with
-// Debian and Ubuntu Linux.  Currently it will not work with Windows.
+// mysqldump & pg_dump.  It has been tested with Debian and Ubuntu
+// Linux and with Windows XP.
 // Do not assume that it works for you until you have successfully
 // tested a restore!
 
@@ -35,6 +38,22 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 
 if (!acl_check('admin', 'super')) die(xl('Not authorized','','','!'));
+
+include_once("Archive/Tar.php");
+
+// Set up method, which will depend on OS and if pear tar.php is installed
+if (class_exists('Archive_Tar')) {
+ # pear tar.php is installed so can use os independent method
+ $newBackupMethod = true;
+}
+elseif (IS_WINDOWS) {
+ # without the tar.php module, can't run backup in windows
+ die(xl("Error. You need to install the Archive/Tar.php php module."));
+}
+else {
+ # without the tar.php module, can run via system commands in non-windows
+ $newBackupMethod = false;   
+}
 
 $BTN_TEXT_CREATE = xl('Create Backup');
 $BTN_TEXT_EXPORT = xl('Export Configuration');
@@ -45,14 +64,18 @@ $form_status = isset($_POST['form_status' ]) ? trim($_POST['form_status' ]) : ''
 
 if (!empty($_POST['form_export'])) $form_step = 101;
 if (!empty($_POST['form_import'])) $form_step = 201;
-
 // When true the current form will submit itself after a brief pause.
 $auto_continue = false;
 
-$TMP_BASE = "/tmp/openemr_web_backup";
-$BACKUP_DIR = "$TMP_BASE/emr_backup";
-$TAR_FILE_PATH = "$TMP_BASE/emr_backup.tar";
-$EXPORT_FILE = "/tmp/openemr_config.sql";
+# set up main paths
+$backup_file_prefix = "emr_backup";
+$backup_file_suffix = ".tar";
+$TMP_BASE = $GLOBALS['temporary_files_dir'] . "/openemr_web_backup";
+$BACKUP_DIR = $TMP_BASE . "/emr_backup";
+$TAR_FILE_PATH = $TMP_BASE . DIRECTORY_SEPARATOR . $backup_file_prefix . $backup_file_suffix;
+$EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
+$MYSQL_PATH = $GLOBALS['mysql_bin_dir'];
+$PERL_PATH = $GLOBALS['perl_bin_dir'];
 
 if ($form_step == 8) {
   header("Pragma: public");
@@ -63,6 +86,8 @@ if ($form_step == 8) {
   header("Content-Disposition: attachment; filename=" . basename($TAR_FILE_PATH));
   header("Content-Description: File Transfer");
   readfile($TAR_FILE_PATH);
+  unlink($TAR_FILE_PATH);
+  obliterate_dir($BACKUP_DIR);
   exit(0);
 }
 
@@ -75,6 +100,7 @@ if ($form_step == 104) {
   header("Content-Disposition: attachment; filename=" . basename($EXPORT_FILE));
   header("Content-Description: File Transfer");
   readfile($EXPORT_FILE);
+  unlink($EXPORT_FILE);
   exit(0);
 }
 ?>
@@ -96,6 +122,9 @@ if ($form_step == 104) {
 
 <?php
 $cmd = '';
+$mysql_cmd = $MYSQL_PATH . DIRECTORY_SEPARATOR . 'mysql';
+$mysql_dump_cmd = $mysql_cmd . 'dump';
+$file_to_compress = '';  // if named, this iteration's file will be gzipped after it is created 
 
 if ($form_step == 0) {
   echo "<table>\n";
@@ -117,12 +146,15 @@ if ($form_step == 0) {
 if ($form_step == 1) {
   $form_status .= xl('Dumping OpenEMR database') . "...<br />";
   echo nl2br($form_status);
-  $cmd = "rm -rf $TMP_BASE; mkdir -p $BACKUP_DIR; " .
-    "mysqldump -u " . escapeshellarg($sqlconf["login"]) .
+  if (file_exists($TAR_FILE_PATH))
+    if (! unlink($TAR_FILE_PATH)) die(xl("Couldn't remove old backup file:") . " " . $TAR_FILE_PATH);
+  if (! obliterate_dir($TMP_BASE)) die(xl("Couldn't remove dir:"). " " . $TMP_BASE);
+  if (! mkdir($BACKUP_DIR, 0777, true)) die(xl("Couldn't create backup dir:") . " " . $BACKUP_DIR);
+  $file_to_compress = "$BACKUP_DIR/openemr.sql";   // gzip this file after creation
+  $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
     " -p" . escapeshellarg($sqlconf["pass"]) .
-    " --opt --quote-names -r $BACKUP_DIR/openemr.sql " .
-    escapeshellarg($sqlconf["dbase"]) .
-    "; gzip $BACKUP_DIR/openemr.sql";
+    " --opt --quote-names -r $file_to_compress " .
+    escapeshellarg($sqlconf["dbase"]);
   $auto_continue = true;
 }
 
@@ -130,11 +162,11 @@ if ($form_step == 2) {
   if (!empty($phpgacl_location) && $gacl_object->_db_name != $sqlconf["dbase"]) {
     $form_status .= xl('Dumping phpGACL database') . "...<br />";
     echo nl2br($form_status);
-    $cmd = "mysqldump -u " . escapeshellarg($gacl_object->_db_user) .
+    $file_to_compress = "$BACKUP_DIR/phpgacl.sql";   // gzip this file after creation
+    $cmd = "$mysql_dump_cmd -u " . escapeshellarg($gacl_object->_db_user) .
       " -p" . escapeshellarg($gacl_object->_db_password) .
-      " --opt --quote-names -r $BACKUP_DIR/phpgacl.sql " .
-      escapeshellarg($gacl_object->_db_name) .
-      "; gzip $BACKUP_DIR/phpgacl.sql";
+      " --opt --quote-names -r $file_to_compress " .
+      escapeshellarg($gacl_object->_db_name);
     $auto_continue = true;
   }
   else {
@@ -144,14 +176,22 @@ if ($form_step == 2) {
 
 if ($form_step == 3) {
   if ($GLOBALS['oer_config']['ws_accounting']['enabled'] &&
-      $GLOBALS['oer_config']['ws_accounting']['enabled'] !== 2)
-  {
-    $form_status .= xl('Dumping SQL-Ledger database') . "...<br />";
-    echo nl2br($form_status);
-    $cmd = "PGPASSWORD=" . escapeshellarg($sl_dbpass) . " pg_dump -U " .
-      escapeshellarg($sl_dbuser) . " -h localhost --format=c -f " .
-      "$BACKUP_DIR/sql-ledger.sql " . escapeshellarg($sl_dbname);
-    $auto_continue = true;
+      $GLOBALS['oer_config']['ws_accounting']['enabled'] !== 2) {
+    if (IS_WINDOWS) {
+      // Somebody may want to make this work in Windows, if they have SQL-Ledger set up.
+      $form_status .= xl('Skipping SQL-Ledger dump - not implemented for Windows server') . "...<br />";
+      echo nl2br($form_status);
+      ++$form_step;
+    }
+    else {
+      $form_status .= xl('Dumping SQL-Ledger database') . "...<br />";
+      echo nl2br($form_status);
+      $file_to_compress = "$BACKUP_DIR/sql-ledger.sql";   // gzip this file after creation
+      $cmd = "PGPASSWORD=" . escapeshellarg($sl_dbpass) . " pg_dump -U " .
+        escapeshellarg($sl_dbuser) . " -h localhost --format=c -f " .
+        "$file_to_compress " . escapeshellarg($sl_dbname);
+      $auto_continue = true;
+    }
   }
   else {
     ++$form_step;
@@ -161,7 +201,13 @@ if ($form_step == 3) {
 if ($form_step == 4) {
   $form_status .= xl('Dumping OpenEMR web directory tree') . "...<br />";
   echo nl2br($form_status);
-  $cmd = "cd $webserver_root; tar --same-owner --ignore-failed-read -zcphf $BACKUP_DIR/openemr.tar.gz .";
+  $cur_dir = getcwd();
+  chdir($webserver_root);
+  $file_list = array('.');    // archive entire directory
+  $arch_file = $BACKUP_DIR . DIRECTORY_SEPARATOR . "openemr.tar.gz";
+  if (!create_tar_archive($arch_file, "gz", $file_list))
+    die(xl("An error occurred while dumping OpenEMR web directory tree"));
+  chdir($cur_dir);
   $auto_continue = true;
 }
 
@@ -169,7 +215,13 @@ if ($form_step == 5) {
   if ((!empty($phpgacl_location)) && ($phpgacl_location != $GLOBALS['fileroot']."/gacl")) {
     $form_status .= xl('Dumping phpGACL web directory tree') . "...<br />";
     echo nl2br($form_status);
-    $cmd = "cd $phpgacl_location; tar --same-owner --ignore-failed-read -zcphf $BACKUP_DIR/phpgacl.tar.gz .";
+    $cur_dir = getcwd();
+    chdir($phpgacl_location);
+    $file_list = array('.');    // archive entire directory
+    $arch_file = $BACKUP_DIR . DIRECTORY_SEPARATOR . "phpgacl.tar.gz";
+    if (!create_tar_archive($arch_file, "gz", $file_list))
+      die (xl("An error occurred while dumping phpGACL web directory tree"));
+    chdir($cur_dir);
     $auto_continue = true;
   }
   else {
@@ -184,18 +236,29 @@ if ($form_step == 6) {
   {
     $form_status .= xl('Dumping SQL-Ledger web directory tree') . "...<br />";
     echo nl2br($form_status);
-    $cmd = "cd $webserver_root/../sql-ledger; tar --same-owner --ignore-failed-read -zcphf $BACKUP_DIR/sql-ledger.tar.gz .";
+    $cur_dir = getcwd();
+    $arch_dir = $webserver_root . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "sql-ledger";
+    chdir($arch_dir);
+    $file_list = array('.');    // archive entire directory
+    $arch_file = $BACKUP_DIR . DIRECTORY_SEPARATOR . "sql-ledger.tar.gz";
+    if (!create_tar_archive($arch_file, "gz", $file_list))
+      die(xl("An error occurred while dumping SQL-Ledger web directory tree"));
+    chdir($cur_dir);
     $auto_continue = true;
   }
   else {
     ++$form_step;
   }
 }
-
-if ($form_step == 7) {
+if ($form_step == 7) {   // create the final compressed tar containing all files
   $form_status .= xl('Backup file has been created. Will now send download.') . "<br />";
   echo nl2br($form_status);
-  $cmd = "cd $BACKUP_DIR; tar -cpf $TAR_FILE_PATH .";
+  $cur_dir = getcwd();
+  chdir($BACKUP_DIR);
+  $file_list = array('.');
+  if (!create_tar_archive($TAR_FILE_PATH, '', $file_list))
+    die(xl("Error: Unable to create downloadable archive"));
+  chdir($cur_dir);
   $auto_continue = true;
 }
 
@@ -235,13 +298,16 @@ if ($form_step == 102) {
   if ($tables) {
     $form_status .= xl('Creating export file') . "...<br />";
     echo nl2br($form_status);
-    $cmd = "rm -f $EXPORT_FILE; " .
-      "mysqldump -u " . escapeshellarg($sqlconf["login"]) .
+    if (file_exists($EXPORT_FILE))
+      if (! unlink($EXPORT_FILE)) die(xl("Couldn't remove old export file: ") . $EXPORT_FILE);
+
+    // The substitutions below use perl because sed's not usually on windows systems.
+    $perl = $PERL_PATH . DIRECTORY_SEPARATOR . 'perl';
+    $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
       " -p" . escapeshellarg($sqlconf["pass"]) .
       " --opt --quote-names " .
       escapeshellarg($sqlconf["dbase"]) . " $tables" .
-      " | sed 's/ DEFAULT CHARSET=utf8//i'" .
-      " | sed 's/ collate[ =][^ ;,]*//i'" .
+      " | $perl -pe 's/ DEFAULT CHARSET=utf8//i; s/ collate[ =][^ ;,]*//i;'" .
       " > $EXPORT_FILE;";
   }
   else {
@@ -274,7 +340,7 @@ if ($form_step == 202) {
     if (move_uploaded_file($_FILES['userfile']['tmp_name'], $EXPORT_FILE)) {
       $form_status .= xl('Applying') . "...<br />";
       echo nl2br($form_status);
-      $cmd = "mysql -u " . escapeshellarg($sqlconf["login"]) .
+      $cmd = "$mysql_cmd -u " . escapeshellarg($sqlconf["login"]) .
         " -p" . escapeshellarg($sqlconf["pass"]) . " " .
         escapeshellarg($sqlconf["dbase"]) .
         " < $EXPORT_FILE;";
@@ -315,6 +381,11 @@ if ($cmd) {
   $tmp0 = exec($cmd, $tmp1, $tmp2);
   if ($tmp2) die("\"$cmd\" returned $tmp2: $tmp0");
 }
+// If a file was flagged to be gzip-compressed after this cmd, do it.
+if ($file_to_compress) {
+  if (!gz_compress_file($file_to_compress))
+    die (xl("Error in gzip compression of file: ") . $file_to_compress);  
+}
 ?>
 
 </center>
@@ -323,7 +394,71 @@ if ($cmd) {
 <script language="JavaScript">
  setTimeout("document.forms[0].submit();", 500);
 </script>
-<?php } ?>
+<?php }
+
+// Recursive directory remove (like an O/S insensitive "rm -rf dirname")
+function obliterate_dir($dir) {
+  if (!file_exists($dir)) return true;
+  if (!is_dir($dir) || is_link($dir)) return unlink($dir);
+  foreach (scandir($dir) as $item) {
+    if ($item == '.' || $item == '..') continue;
+    if (!obliterate_dir($dir . DIRECTORY_SEPARATOR . $item)) {
+      chmod($dir . DIRECTORY_SEPARATOR . $item, 0777);
+      if (!obliterate_dir($dir . DIRECTORY_SEPARATOR . $item)) return false;
+    };
+  }
+  return rmdir($dir);
+}
+
+// Create a tar archive given the archive file name, compression method if any, and the
+// array of file/directory names to archive
+function create_tar_archive($archiveName, $compressMethod, $itemArray) {  
+  global $newBackupMethod;
+    
+  if ($newBackupMethod) {
+   // Create a tar object using the pear library
+   //  (this is the preferred method)
+   $tar = new Archive_Tar($archiveName, $compressMethod);
+   if ($tar->create($itemArray)) return true;
+  }
+  else {
+   // Create the tar files via command line tools
+   //  (this method used when the tar pear library is not available)  
+   if ($compressMethod == "gz") {
+    $command = "tar --same-owner --ignore-failed-read -zcphf $archiveName .";
+   }
+   else {
+    $command = "tar -cpf $archiveName .";   
+   }
+   $temp0 = exec($command, $temp1, $temp2);
+   if ($temp2) die("\"$command\" returned $temp2: $temp0");
+   return true;
+  }
+  return false;
+}
+
+// Compress a file using gzip. Source file removed, leaving only the compressed
+// *.gz file, just like gzip command line would behave.
+function gz_compress_file($source) {
+  $dest=$source.'.gz';
+  $error=false;
+  if ($fp_in=fopen($source,'rb')) {
+    if ($fp_out=gzopen($dest,'wb')) {
+      while(!feof($fp_in))
+        gzwrite($fp_out,fread($fp_in,1024*512));
+      gzclose($fp_out);
+      fclose($fp_in);
+      unlink($source);
+    }
+    else $error=true;
+  }
+  else $error=true;
+  if($error)
+    return false;
+  else
+    return $dest;
+}
+?>
 
 </body>
 </html>

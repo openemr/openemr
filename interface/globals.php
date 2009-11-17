@@ -25,6 +25,10 @@
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA //
 //  ------------------------------------------------------------------------ //
 
+// Is this windows or non-windows? Create a boolean definition.
+if (!defined('IS_WINDOWS'))
+ define('IS_WINDOWS', (stripos(PHP_OS,'WIN') === 0));
+
 // Some important php.ini overrides. Defaults for these values are often
 // too small.  You might choose to adjust them further.
 //
@@ -84,6 +88,25 @@ $GLOBALS['template_dir'] = $GLOBALS['fileroot'] . "/templates/";
 $GLOBALS['incdir'] = $include_root;
 // Location of the login screen file
 $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
+
+//
+// Operating system specific settings
+//  Currently used in the Adminstration->Backup page within OpenEMR
+//  -Note the temporary file directory parameter is only used when
+//    php version is < 5.2.1 (otherwise the temporary directory that
+//    is set within php is used)
+//
+// WINDOWS Specific Settings
+$GLOBALS['mysql_bin_dir_win'] = "C:/xampp/mysql/bin";
+$GLOBALS['perl_bin_dir_win'] = "C:/xampp/perl/bin";
+$GLOBALS['temporary_files_dir_win'] = "C:/windows/temp";
+//
+// LINUX (non-Windows) Specific Settings
+$GLOBALS['mysql_bin_dir_linux'] = "/usr/bin";
+$GLOBALS['perl_bin_dir_linux'] = "/usr/bin";
+$GLOBALS['temporary_files_dir_linux'] = "/tmp";
+//
+//
 
 //
 // Language Translations Control Section
@@ -510,6 +533,16 @@ function strterm($string,$length) {
   } else {
     return $string;
   }
+}
+
+// OS specific configuration (do not modify this)
+$GLOBALS['mysql_bin_dir'] = IS_WINDOWS ? $GLOBALS['mysql_bin_dir_win'] : $GLOBALS['mysql_bin_dir_linux'];
+$GLOBALS['perl_bin_dir'] = IS_WINDOWS ? $GLOBALS['perl_bin_dir_win'] : $GLOBALS['perl_bin_dir_linux'];
+if (version_compare(phpversion(), "5.2.1", ">=")) {
+ $GLOBALS['temporary_files_dir'] = rtrim(sys_get_temp_dir(),'/'); // only works in PHP >= 5.2.1
+}
+else {
+ $GLOBALS['temporary_files_dir'] = IS_WINDOWS ?  $GLOBALS['temporary_files_dir_win'] : $GLOBALS['temporary_files_dir_linux'];
 }
 
 // turn off PHP compatibility warnings
