@@ -876,7 +876,7 @@ function setformvalues(form_array){
   //Run through a list of all objects
   var str = '';
   for(key in form_array) {
-    str += key + "=" + escape(form_array[key]) + "&";
+    str += key + "=" + encodeURIComponent(form_array[key]) + "&";
   }
   //Then return the string values.
   return str;
