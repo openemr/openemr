@@ -29,8 +29,29 @@ function formData($name, $type='P', $isTrim=false) {
 function formDataCore($s, $isTrim=false) {
       //trim if selected
       if ($isTrim) {$s = trim($s);}
+      //strip escapes
+      $s = strip_escape_custom($s);
+      //add escapes for safe database insertion
+      $s = add_escape_custom($s);
+      return $s;
+}
+
+// Will remove escapes if needed (ie magic quotes turned on) from string
+// Called by above formDataCore() function to prepare for database insertion.
+// Can also be called directly if simply need to remove escaped characters
+//  from a string before processing.
+function strip_escape_custom($s) {
       //strip slashes if magic quotes turned on
       if (get_magic_quotes_gpc()) {$s = stripslashes($s);}
+      return $s;
+}
+
+// Will add escapes as needed onto a string
+// Called by above formDataCore() function to prepare for database insertion.
+// Can also be called directly if need to escape an already process string (ie.
+//  escapes were already removed, then processed, and now want to insert into
+//  database)
+function add_escape_custom($s) {
       //prepare for safe mysql insertion
       $s = mysql_real_escape_string($s);
       return $s;
