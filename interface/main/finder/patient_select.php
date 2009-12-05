@@ -1,6 +1,7 @@
 <?php
 include_once("../../globals.php");
 include_once("$srcdir/patient.inc");
+include_once("$srcdir/formdata.inc.php");
 
 $fstart = $_REQUEST['fstart'] + 0;
 $popup  = empty($_REQUEST['popup']) ? 0 : 1;
@@ -116,8 +117,7 @@ if ($popup) {
     if (strpos($field_id, 'em_') === 0) continue;
     $data_type = $frow['data_type'];
     if (!empty($_REQUEST[$field_id])) {
-      $value = trim($_REQUEST[$field_id]);
-      if (!get_magic_quotes_gpc()) $value = addslashes($value);
+      $value = formData($field_id,"R",true);
       if ($field_id == 'pid') {
         $where .= " AND $field_id = '$value'";
       }
@@ -136,7 +136,7 @@ if ($popup) {
   _set_patient_inc_count($sqllimit, count($result), $where);
 }
 else {
-  $patient = $_REQUEST['patient'];
+  $patient = formData("patient","R");
   $findBy  = $_REQUEST['findBy'];
   $searchFields = $_REQUEST['searchFields'];
 
