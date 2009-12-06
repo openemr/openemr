@@ -24,6 +24,7 @@
  include_once("$srcdir/patient.inc");
  include_once("$srcdir/forms.inc");
  include_once("$srcdir/calendar.inc");
+ include_once("$srcdir/formdata.inc.php");
 
  // Things that might be passed by our opener.
  //
@@ -77,9 +78,9 @@ function InsertEvent($args) {
                     "'" . $args['new_multiple_value']             . "', " .
                     "'" . $args['form_provider']                           . "', " .
                     "'" . $args['form_pid']                  . "', " .
-                    "'" . $args['form_title']                . "', " .
+                    "'" . formDataCore($args['form_title'])  . "', " .
                     "NOW(), "                                         .
-                    "'" . $args['form_comments']             . "', " .
+                    "'" . formDataCore($args['form_comments']) . "', " .
                     "'" . $_SESSION['authUserID']             . "', " .
                     "'" . $args['event_date']                         . "', " .
                     "'" . fixDate($args['form_enddate'])     . "', " .
@@ -401,9 +402,9 @@ if ($_POST['form_action'] == "save") {
                     sqlStatement("UPDATE openemr_postcalendar_events SET " .
                         "pc_catid = '" . $_POST['form_category'] . "', " .
                         "pc_pid = '" . $_POST['form_pid'] . "', " .
-                        "pc_title = '" . $_POST['form_title'] . "', " .
+                        "pc_title = '" . formData("form_title") . "', " .
                         "pc_time = NOW(), " .
-                        "pc_hometext = '" . $_POST['form_comments'] . "', " .
+                        "pc_hometext = '" . formData("form_comments") . "', " .
                         "pc_informant = '" . $_SESSION['authUserID'] . "', " .
                         "pc_eventDate = '" . $event_date . "', " .
                         "pc_endDate = '" . fixDate($_POST['form_enddate']) . "', " .
@@ -492,9 +493,9 @@ if ($_POST['form_action'] == "save") {
                     "pc_catid = '" . $_POST['form_category'] . "', " .
                     "pc_aid = '" . $prov . "', " .
                     "pc_pid = '" . $_POST['form_pid'] . "', " .
-                    "pc_title = '" . $_POST['form_title'] . "', " .
+                    "pc_title = '" . formData("form_title") . "', " .
                     "pc_time = NOW(), " .
-                    "pc_hometext = '" . $_POST['form_comments'] . "', " .
+                    "pc_hometext = '" . formData("form_comments") . "', " .
                     "pc_informant = '" . $_SESSION['authUserID'] . "', " .
                     "pc_eventDate = '" . $event_date . "', " .
                     "pc_endDate = '" . fixDate($_POST['form_enddate']) . "', " .
@@ -658,7 +659,7 @@ if ($_POST['form_action'] == "save") {
                     sqlInsert("INSERT INTO form_encounter SET " .
                         "date = '$event_date', " .
                         "onset_date = '$event_date', " .
-                        "reason = '" . $_POST['form_comments'] . "', " .
+                        "reason = '" . formData("form_comments") . "', " .
                         "facility = '$facility', " .
                         // "facility_id = '$facility_id', " .
                         "facility_id = '" . (int)$_POST['facility'] . "', " .
@@ -1212,7 +1213,7 @@ if ( $eid ) { // editing case
    <b><?php xl('Title','e'); ?>:</b>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_title' value='<?php echo addslashes($row['pc_title']) ?>'
+   <input type='text' size='10' name='form_title' value='<?php echo htmlspecialchars($row['pc_title'], ENT_QUOTES); ?>'
     style='width:100%'
     title='<?php xl('Event title','e'); ?>' />
   </td>
@@ -1566,7 +1567,7 @@ if ($repeatexdate != "") {
    <b><?php xl('Comments','e'); ?>:</b>
   </td>
   <td colspan='4' nowrap>
-   <input type='text' size='40' name='form_comments' style='width:100%' value='<?php echo $hometext ?>' title='<?php xl('Optional information about this event','e');?>' />
+   <input type='text' size='40' name='form_comments' style='width:100%' value='<?php echo htmlspecialchars($hometext, ENT_QUOTES); ?>' title='<?php xl('Optional information about this event','e');?>' />
   </td>
  </tr>
 

@@ -31,6 +31,10 @@
 //=========================================================================
 pnModAPILoad(__POSTCALENDAR__,'user');
 
+// Added to improve security and standardization of input data to be used in
+//  database insertion.
+require_once($GLOBALS['srcdir']."/formdata.inc.php");
+
 //=========================================================================
 //  start the main postcalendar application
 //=========================================================================
@@ -843,7 +847,7 @@ function postcalendar_user_search()
     if (!(bool)PC_ACCESS_OVERVIEW) { return _POSTCALENDARNOAUTH; }
 
     $tpl =& new pcSmarty();
-    $k = pnVarCleanFromInput('pc_keywords');
+    $k = formData("pc_keywords","R"); //from library/formdata.inc.php
     $k_andor = pnVarCleanFromInput('pc_keywords_andor');
     $pc_category = pnVarCleanFromInput('pc_category');
     $pc_facility = pnVarCleanFromInput('pc_facility');

@@ -9,21 +9,20 @@
  include_once("../globals.php");
  include_once("$srcdir/acl.inc");
  require_once("$srcdir/options.inc.php");
+ require_once("$srcdir/formdata.inc.php");
 
  $userid = $_REQUEST['userid'];
 
  $info_msg = "";
 
  function QuotedOrNull($fld) {
-  $fld = trim($fld);
-  if (!get_magic_quotes_gpc()) $fld = addslashes($fld);
+  $fld = formDataCore($fld,true);
   if ($fld) return "'$fld'";
   return "NULL";
  }
 
  function invalue($name) {
-  $fld = trim($_POST[$name]);
-  if (!get_magic_quotes_gpc()) $fld = addslashes($fld);
+  $fld = formData($name,"P",true);
   return "'$fld'";
  }
 
@@ -210,11 +209,11 @@ td { font-size:10pt; }
 ?>
    </select>
    <b><?php xl('Last','e'); ?>:</b><input type='text' size='10' name='form_lname' class='inputtext'
-     maxlength='50' value='<?php echo $row['lname'] ?>'/>&nbsp;
+     maxlength='50' value='<?php echo htmlspecialchars($row['lname'], ENT_QUOTES); ?>'/>&nbsp;
    <b><?php xl('First','e'); ?>:</b> <input type='text' size='10' name='form_fname' class='inputtext'
-     maxlength='50' value='<?php echo $row['fname'] ?>' />&nbsp;
+     maxlength='50' value='<?php echo htmlspecialchars($row['fname'], ENT_QUOTES); ?>' />&nbsp;
    <b><?php xl('Middle','e'); ?>:</b> <input type='text' size='4' name='form_mname' class='inputtext'
-     maxlength='50' value='<?php echo $row['mname'] ?>' />
+     maxlength='50' value='<?php echo htmlspecialchars($row['mname'], ENT_QUOTES); ?>' />
   </td>
  </tr>
 
@@ -222,7 +221,7 @@ td { font-size:10pt; }
   <td nowrap><b><?php xl('Specialty','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_specialty' maxlength='250'
-    value='<?php echo $row['specialty'] ?>'
+    value='<?php echo htmlspecialchars($row['specialty'], ENT_QUOTES); ?>'
     style='width:100%' class='inputtext' />
   </td>
  </tr>
@@ -231,7 +230,7 @@ td { font-size:10pt; }
   <td nowrap><b><?php xl('Organization','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_organization' maxlength='250'
-    value='<?php echo $row['organization'] ?>'
+    value='<?php echo htmlspecialchars($row['organization'], ENT_QUOTES); ?>'
     style='width:100%' class='inputtext' />
   </td>
  </tr>
@@ -240,7 +239,7 @@ td { font-size:10pt; }
   <td nowrap><b><?php xl('Valedictory','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_valedictory' maxlength='250'
-    value='<?php echo $row['valedictory'] ?>'
+    value='<?php echo htmlspecialchars($row['valedictory'], ENT_QUOTES); ?>'
     style='width:100%' class='inputtext' />
   </td>
  </tr>
@@ -248,21 +247,21 @@ td { font-size:10pt; }
  <tr>
   <td nowrap><b><?php xl('Home Phone','e'); ?>:</b></td>
   <td>
-   <input type='text' size='11' name='form_phone' value='<?php echo $row['phone'] ?>'
+   <input type='text' size='11' name='form_phone' value='<?php echo htmlspecialchars($row['phone'], ENT_QUOTES); ?>'
     maxlength='30' class='inputtext' />&nbsp;
    <b><?php xl('Mobile','e'); ?>:</b><input type='text' size='11' name='form_phonecell'
-    maxlength='30' value='<?php echo $row['phonecell'] ?>' class='inputtext' />
+    maxlength='30' value='<?php echo htmlspecialchars($row['phonecell'], ENT_QUOTES); ?>' class='inputtext' />
   </td>
  </tr>
 
  <tr>
   <td nowrap><b><?php xl('Work Phone','e'); ?>:</b></td>
   <td>
-   <input type='text' size='11' name='form_phonew1' value='<?php echo $row['phonew1'] ?>'
+   <input type='text' size='11' name='form_phonew1' value='<?php echo htmlspecialchars($row['phonew1'], ENT_QUOTES); ?>'
     maxlength='30' class='inputtext' />&nbsp;
-   <b><?php xl('2nd','e'); ?>:</b><input type='text' size='11' name='form_phonew2' value='<?php echo $row['phonew2'] ?>'
+   <b><?php xl('2nd','e'); ?>:</b><input type='text' size='11' name='form_phonew2' value='<?php echo htmlspecialchars($row['phonew2'], ENT_QUOTES); ?>'
     maxlength='30' class='inputtext' />&nbsp;
-   <b><?php xl('Fax','e'); ?>:</b> <input type='text' size='11' name='form_fax' value='<?php echo $row['fax'] ?>'
+   <b><?php xl('Fax','e'); ?>:</b> <input type='text' size='11' name='form_fax' value='<?php echo htmlspecialchars($row['fax'], ENT_QUOTES); ?>'
     maxlength='30' class='inputtext' />
   </td>
  </tr>
@@ -271,7 +270,7 @@ td { font-size:10pt; }
   <td nowrap><b><?php xl('Assistant','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_assistant' maxlength='250'
-    value='<?php echo $row['assistant'] ?>'
+    value='<?php echo htmlspecialchars($row['assistant'], ENT_QUOTES); ?>'
     style='width:100%' class='inputtext' />
   </td>
  </tr>
@@ -280,7 +279,7 @@ td { font-size:10pt; }
   <td nowrap><b><?php xl('Email','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_email' maxlength='250'
-    value='<?php echo $row['email'] ?>'
+    value='<?php echo htmlspecialchars($row['email'], ENT_QUOTES); ?>'
     style='width:100%' class='inputtext' />
   </td>
  </tr>
@@ -289,7 +288,7 @@ td { font-size:10pt; }
   <td nowrap><b><?php xl('Website','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_url' maxlength='250'
-    value='<?php echo $row['url'] ?>'
+    value='<?php echo htmlspecialchars($row['url'], ENT_QUOTES); ?>'
     style='width:100%' class='inputtext' />
   </td>
  </tr>
@@ -298,7 +297,7 @@ td { font-size:10pt; }
   <td nowrap><b><?php xl('Main Address','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_street' maxlength='60'
-    value='<?php echo $row['street'] ?>'
+    value='<?php echo htmlspecialchars($row['street'], ENT_QUOTES); ?>'
     style='width:100%' class='inputtext' />
   </td>
  </tr>
@@ -307,7 +306,7 @@ td { font-size:10pt; }
   <td nowrap>&nbsp;</td>
   <td>
    <input type='text' size='40' name='form_streetb' maxlength='60'
-    value='<?php echo $row['streetb'] ?>'
+    value='<?php echo htmlspecialchars($row['streetb'], ENT_QUOTES); ?>'
     style='width:100%' class='inputtext' />
   </td>
  </tr>
@@ -316,11 +315,11 @@ td { font-size:10pt; }
   <td nowrap><b><?php xl('City','e'); ?>:</b></td>
   <td>
    <input type='text' size='10' name='form_city' maxlength='30'
-    value='<?php echo $row['city'] ?>' class='inputtext' />&nbsp;
+    value='<?php echo htmlspecialchars($row['city'], ENT_QUOTES); ?>' class='inputtext' />&nbsp;
    <b><?php echo xl('State')."/".xl('county'); ?>:</b> <input type='text' size='10' name='form_state' maxlength='30'
-    value='<?php echo $row['state'] ?>' class='inputtext' />&nbsp;
+    value='<?php echo htmlspecialchars($row['state'], ENT_QUOTES); ?>' class='inputtext' />&nbsp;
    <b><?php xl('Postal code','e'); ?>:</b> <input type='text' size='10' name='form_zip' maxlength='20'
-    value='<?php echo $row['zip'] ?>' class='inputtext' />
+    value='<?php echo htmlspecialchars($row['zip'], ENT_QUOTES); ?>' class='inputtext' />
   </td>
  </tr>
 
@@ -328,7 +327,7 @@ td { font-size:10pt; }
   <td nowrap><b><?php xl('Alt Address','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_street2' maxlength='60'
-    value='<?php echo $row['street2'] ?>'
+    value='<?php echo htmlspecialchars($row['street2'], ENT_QUOTES); ?>'
     style='width:100%' class='inputtext' />
   </td>
  </tr>
@@ -337,7 +336,7 @@ td { font-size:10pt; }
   <td nowrap>&nbsp;</td>
   <td>
    <input type='text' size='40' name='form_streetb2' maxlength='60'
-    value='<?php echo $row['streetb2'] ?>'
+    value='<?php echo htmlspecialchars($row['streetb2'], ENT_QUOTES); ?>'
     style='width:100%' class='inputtext' />
   </td>
  </tr>
@@ -346,11 +345,11 @@ td { font-size:10pt; }
   <td nowrap><b><?php xl('City','e'); ?>:</b></td>
   <td>
    <input type='text' size='10' name='form_city2' maxlength='30'
-    value='<?php echo $row['city2'] ?>' class='inputtext' />&nbsp;
+    value='<?php echo htmlspecialchars($row['city2'], ENT_QUOTES); ?>' class='inputtext' />&nbsp;
    <b><?php echo xl('State')."/".xl('county'); ?>:</b> <input type='text' size='10' name='form_state2' maxlength='30'
-    value='<?php echo $row['state2'] ?>' class='inputtext' />&nbsp;
+    value='<?php echo htmlspecialchars($row['state2'], ENT_QUOTES); ?>' class='inputtext' />&nbsp;
    <b><?php xl('Postal code','e'); ?>:</b> <input type='text' size='10' name='form_zip2' maxlength='20'
-    value='<?php echo $row['zip2'] ?>' class='inputtext' />
+    value='<?php echo htmlspecialchars($row['zip2'], ENT_QUOTES); ?>' class='inputtext' />
   </td>
  </tr>
 
@@ -358,13 +357,13 @@ td { font-size:10pt; }
   <td nowrap><b><?php xl('UPIN','e'); ?>:</b></td>
   <td>
    <input type='text' size='6' name='form_upin' maxlength='6'
-    value='<?php echo $row['upin'] ?>' class='inputtext' />&nbsp;
+    value='<?php echo htmlspecialchars($row['upin'], ENT_QUOTES); ?>' class='inputtext' />&nbsp;
    <b><?php xl('NPI','e'); ?>:</b> <input type='text' size='10' name='form_npi' maxlength='10'
-    value='<?php echo $row['npi'] ?>' class='inputtext' />&nbsp;
+    value='<?php echo htmlspecialchars($row['npi'], ENT_QUOTES); ?>' class='inputtext' />&nbsp;
    <b><?php xl('TIN','e'); ?>:</b> <input type='text' size='10' name='form_federaltaxid' maxlength='10'
-    value='<?php echo $row['federaltaxid'] ?>' class='inputtext' />&nbsp;
+    value='<?php echo htmlspecialchars($row['federaltaxid'], ENT_QUOTES); ?>' class='inputtext' />&nbsp;
    <b><?php xl('Taxonomy','e'); ?>:</b> <input type='text' size='10' name='form_taxonomy' maxlength='10'
-    value='<?php echo $row['taxonomy'] ?>' class='inputtext' />
+    value='<?php echo htmlspecialchars($row['taxonomy'], ENT_QUOTES); ?>' class='inputtext' />
   </td>
  </tr>
 

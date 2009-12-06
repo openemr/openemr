@@ -8,12 +8,13 @@
 
  require_once("../globals.php");
  require_once("$srcdir/acl.inc");
+ require_once("$srcdir/formdata.inc.php");
 
  $popup = empty($_GET['popup']) ? 0 : 1;
 
- $form_fname = trim($_POST['form_fname']);
- $form_lname = trim($_POST['form_lname']);
- $form_specialty = trim($_POST['form_specialty']);
+ $form_fname = formData("form_fname","P",true);
+ $form_lname = formData("form_lname","P",true);
+ $form_specialty = formData("form_specialty","P",true);
  $form_external = $_POST['form_external'] ? 1 : 0;
 
  $query = "SELECT * FROM users WHERE active = 1 AND ( authorized = 1 OR username = '' ) ";
@@ -66,13 +67,13 @@ function doedclick(userid) {
  <tr class='search'> <!-- bgcolor='#ddddff' -->
   <td>
    <?php xl('First Name','e')?>:
-   <input type='text' name='form_fname' size='10' value='<?php echo $form_fname; ?>'
+   <input type='text' name='form_fname' size='10' value='<?php echo htmlspecialchars(strip_escape_custom($_POST['form_fname']),ENT_QUOTES); ?>'
     class='inputtext' title='<?php xl("All or part of the first name","e") ?>' />&nbsp;
    <?php xl('Last Name','e')?>:
-   <input type='text' name='form_lname' size='10' value='<?php echo $form_lname; ?>'
+   <input type='text' name='form_lname' size='10' value='<?php echo htmlspecialchars(strip_escape_custom($_POST['form_lname']),ENT_QUOTES); ?>'
     class='inputtext' title='<?php xl("All or part of the last name","e") ?>' />&nbsp;
    <?php xl('Specialty','e')?>:
-   <input type='text' name='form_specialty' size='10' value='<?php echo $form_specialty; ?>'
+   <input type='text' name='form_specialty' size='10' value='<?php echo htmlspecialchars(strip_escape_custom($_POST['form_specialty']),ENT_QUOTES); ?>'
     class='inputtext' title='<?php xl("Any part of the desired specialty","e") ?>' />&nbsp;
    <input type='checkbox' name='form_external' value='1'<?php if ($form_external) echo ' checked'; ?>
     title='<?php xl("Omit internal users?","e") ?>' />

@@ -14,6 +14,7 @@
 
  include_once("../../globals.php");
  include_once("$srcdir/patient.inc");
+ include_once("$srcdir/formdata.inc.php");
 
  $info_msg = "";
 
@@ -21,7 +22,7 @@
  //
  if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
   $searchby = $_REQUEST['searchby'];
-  $searchparm = $_REQUEST['searchparm'];
+  $searchparm = formData("searchparm","R",true);
 
   if ($searchby == "Last") {
    $result = getPatientLnames("$searchparm","*");
@@ -151,7 +152,7 @@ form {
     <option value="DOB"<?php if ($searchby == 'DOB') echo ' selected' ?>><?php xl ('DOB','e'); ?></option>
    </select>
  <?php xl('for:','e'); ?>
-   <input type='text' id='searchparm' name='searchparm' size='12' value='<?php echo $_REQUEST['searchparm']; ?>'
+   <input type='text' id='searchparm' name='searchparm' size='12' value='<?php echo htmlspecialchars(strip_escape_custom($_REQUEST['searchparm']),ENT_QUOTES); ?>'
     title='<?php xl('If name, any part of lastname or lastname,firstname','e'); ?>'>
    &nbsp;
    <input type='submit' id="submitbtn" value='<?php xl('Search','e'); ?>'>
