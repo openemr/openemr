@@ -113,6 +113,7 @@ $GLOBALS['temporary_files_dir_linux'] = "/tmp";
 //
 
 //  Current supported languages:    // Allow capture of term for translation:
+//   Arabic                         // xl('Arabic')
 //   Armenian                       // xl('Armenian')
 //   Bahasa Indonesia               // xl('Bahasa Indonesia')
 //   Chinese                        // xl('Chinese')
