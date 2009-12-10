@@ -27,7 +27,11 @@ body, td {
 .mainhead {
  font-weight: bold;
  font-size: 14pt;
- text-align: center;
+ text-align: left;
+}
+.subhead {
+ font-weight: bold;
+ font-size: 8pt;
 }
 .under {
  border-style: solid;
@@ -63,7 +67,10 @@ body, td {
 
  <table cellspacing='0' cellpadding='0' class='bigtable'>
   <tr>
-   <td class='mainhead' valign='top'>{header1}</td>
+   <td class='mainhead' valign='top'>
+    {header1}
+    <span class='subhead'>{label_subhead_clinic}</span>
+   </td>
    <td align='right' width='10%' valign='top' nowrap>
     <table border='1' cellpadding='2' cellspacing='0'>
      <tr>
@@ -148,7 +155,10 @@ body, td {
 
  <table cellspacing='0' cellpadding='0' class='bigtable'>
   <tr>
-   <td class='mainhead' valign='top'>{header1}</td>
+   <td class='mainhead' valign='top'>
+    {header1}
+    <span class='subhead'>{label_subhead_patient}</span>
+   </td>
    <td align='right' width='10%' nowrap>
     <table border='1' cellpadding='2' cellspacing='0'>
      <tr>
@@ -244,7 +254,10 @@ body, td {
 
  <table cellspacing='0' cellpadding='0' class='bigtable'>
   <tr>
-   <td class='mainhead' valign='top'>{header2}</td>
+   <td class='mainhead' valign='top'>
+    {header2}
+    <span class='subhead'>{label_subhead_referred}</span>
+   </td>
    <td align='right' width='10%' nowrap>
     <table border='1' cellpadding='2' cellspacing='0'>
      <tr>

@@ -42,7 +42,10 @@ $TEMPLATE_LABELS = array(
   'label_final_diagnosis'       => xl('Final Diagnosis'),
   'label_services_provided'     => xl('Services provided'),
   'label_recommendations'       => xl('Recommendations and treatment'),
-  'label_scripts_and_referrals' => xl('Prescriptions and other referrals')
+  'label_scripts_and_referrals' => xl('Prescriptions and other referrals'),
+  'label_subhead_clinic'        => xl('Clinic Copy'),
+  'label_subhead_patient'       => xl('Client Copy'),
+  'label_subhead_referred'      => xl('For Referred Organization/Practitioner'),
 );
 
 if (!is_file($template_file)) die("$template_file does not exist!");
