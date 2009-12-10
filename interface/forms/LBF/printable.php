@@ -53,6 +53,11 @@ div.section {
  text-align: center;
 }
 
+.subhead {
+ font-weight: bold;
+ font-size: 8pt;
+}
+
 .under {
  border-style: solid;
  border-width: 0 0 1px 0;
@@ -81,6 +86,12 @@ div.section {
 <form>
 
 <?php echo genFacilityTitle($formtitle, -1); ?>
+
+<span class='subhead'>
+ <?php xl('Patient','e') ?>: ________________________________________ &nbsp;
+ <?php xl('Clinic','e') ?>: ____________________ &nbsp;
+ <?php xl('Date','e') ?>: ____________________<br />&nbsp;<br />
+</span>
 
 <?php
 
