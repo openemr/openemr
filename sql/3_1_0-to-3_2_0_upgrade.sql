@@ -48,3 +48,18 @@ CREATE TABLE gprelations (
 ) ENGINE=MyISAM COMMENT='general purpose relations';
 #EndIf
 
+#IfMissingColumn insurance_companies alt_cms_id
+ALTER TABLE `insurance_companies` 
+  ADD `alt_cms_id` varchar(15) NOT NULL DEFAULT '';
+#EndIf
+
+#IfMissingColumn x12_partners x12_isa05
+ALTER TABLE `x12_partners` 
+  ADD `x12_isa05` char(2)     NOT NULL DEFAULT 'ZZ',
+  ADD `x12_isa07` char(2)     NOT NULL DEFAULT 'ZZ',
+  ADD `x12_isa14` char(1)     NOT NULL DEFAULT '0',
+  ADD `x12_isa15` char(1)     NOT NULL DEFAULT 'P',
+  ADD `x12_gs02`  varchar(15) NOT NULL DEFAULT '',
+  ADD `x12_per06` varchar(80) NOT NULL DEFAULT '';
+#EndIf
+

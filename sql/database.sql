@@ -1384,6 +1384,7 @@ CREATE TABLE `insurance_companies` (
   `freeb_type` tinyint(2) default NULL,
   `x12_receiver_id` varchar(25) default NULL,
   `x12_default_partner_id` int(11) default NULL,
+  `alt_cms_id` varchar(15) NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM;
 
@@ -2755,6 +2756,12 @@ CREATE TABLE `x12_partners` (
   `x12_receiver_id` varchar(255) default NULL,
   `x12_version` varchar(255) default NULL,
   `processing_format` enum('standard','medi-cal','cms','proxymed') default NULL,
+  `x12_isa05` char(2)     NOT NULL DEFAULT 'ZZ',
+  `x12_isa07` char(2)     NOT NULL DEFAULT 'ZZ',
+  `x12_isa14` char(1)     NOT NULL DEFAULT '0',
+  `x12_isa15` char(1)     NOT NULL DEFAULT 'P',
+  `x12_gs02`  varchar(15) NOT NULL DEFAULT '',
+  `x12_per06` varchar(80) NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM;
 
