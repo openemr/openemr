@@ -168,17 +168,23 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
  $disallowed['pre'] = !(acl_check('patients', 'med'));
 
  // Helper functions for treeview generation.
- function genTreeLink($frame, $name, $title) {
+ function genTreeLink($frame, $name, $title, $mono=false) {
   global $primary_docs, $disallowed;
   if (empty($disallowed[$name])) {
    $id = $name . $primary_docs[$name][1];
-   echo "<li><a href='' id='$id' " .
-        "onclick=\"return loadFrame2('$id','$frame','" .
+   echo "<li><a href='' id='$id' onclick=\"";
+   if ($mono) {
+    if ($frame == 'RTop')
+     echo "forceSpec(true,false);";
+    else
+     echo "forceSpec(false,true);";
+   }
+   echo "return loadFrame2('$id','$frame','" .
         $primary_docs[$name][2] . "')\">" . $title . "</a></li>";
   }
  }
  function genMiscLink($frame, $name, $level, $title, $url) {
-  global $primary_docs, $disallowed;
+  global $disallowed;
   if (empty($disallowed[$name])) {
    $id = $name . $level;
    echo "<li><a href='' id='$id' " .
@@ -186,9 +192,10 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
         $url . "')\">" . $title . "</a></li>";
   }
  }
- function genPopLink($title, $url) {
-  echo "<li><a href='' " .
-       "onclick=\"return repPopup('$url')\"" .
+ function genPopLink($title, $url, $linkid='') {
+  echo "<li><a href='' ";
+  if ($linkid) echo "id='$linkid' ";
+  echo "onclick=\"return repPopup('$url')\"" .
        ">" . $title . "</a></li>";
  }
  function genDualLink($topname, $botname, $title) {
@@ -344,17 +351,22 @@ function genPopupsList($style='') {
   return false;
  }
 
- // Make sure both frames are open.
- function forceDual() {
+ // Make sure the the top and bottom frames are open or closed, as specified.
+ function forceSpec(istop, isbot) {
   var f = document.forms[0];
-  if (!f.cb_top.checked) {
-   f.cb_top.checked = true;
+  if (f.cb_top.checked != istop) {
+   f.cb_top.checked = istop;
    toggleFrame(1);
   }
-  if (!f.cb_bot.checked) {
-   f.cb_bot.checked = true;
+  if (f.cb_bot.checked != isbot) {
+   f.cb_bot.checked = isbot;
    toggleFrame(2);
   }
+ }
+
+ // Make sure both frames are open.
+ function forceDual() {
+  forceSpec(true, true);
  }
 
  // Load the specified url into a frame to be determined, with the specified
@@ -694,16 +706,19 @@ function genPopupsList($style='') {
           <?php // genDualLink('enc','ens','Current Consultation'); // with ens on bottom ?>
           <?php genTreeLink('RTop','enc',xl('Current Consultation')); // encounter_top will itself load ens on bottom ?>
 
-          <?php genDualLink('dem','ens',xl('Previous Consultations')); // with dem on top ?>
-          <?php genDualLink('his','ens',xl('Previous History/Screening')); // with ens on bottom ?>
-          <?php genTreeLink('RBot','nen',xl('New Allergy')); // nen with Allergy in chief complaint ?>
-          <?php genTreeLink('RTop','iss',xl('Edit Allergies')); // somehow emphasizing allergies...? ?>
-          <?php genTreeLink('RTop','his',xl('View Allergies')); // his page with Allergies section open ?>
+          <?php // genDualLink('dem','ens',xl('Previous Consultations')); // with dem on top ?>
+          <?php genTreeLink('RBot','ens',xl('Previous Consultations'),true); ?>
+          <?php genDualLink('his','ens',xl('PPE + Prev Med/Surg Hx')); // with ens on bottom ?>
+
+          <?php // genTreeLink('RBot','nen',xl('New Allergy')); // nen with Allergy in chief complaint ?>
+          <?php genPopLink('New Allergy','../patient_file/summary/add_edit_issue.php?thistype=allergy','xxx1'); ?>
+
+          <?php genTreeLink('RTop','iss',xl('View/Edit Allergies')); // somehow emphasizing allergies...? ?>
           <?php genDualLink('iss','ens',xl('Problems/Issues')); // with ens on bottom ?>
           <?php genDualLink('tra','ens',xl('Transactions/Referrals')); // new transaction form on top and tra list on bottom (or ens if no tra) ?>
           <?php if (!$GLOBALS['disable_immunizations']) genDualLink('his','imm',xl('Immunizations')); // imm on bottom, his on top ?>
           <?php if (acl_check('patients', 'med') && !$GLOBALS['disable_prescriptions']) genDualLink('his','pre',xl('Prescriptions')); // pre on bottom, his on top ?>
-          <?php genTreeLink('RTop','doc',xl('Document/Imaging Store')); ?>
+          <?php genTreeLink('RTop','doc',xl('Document/Imaging Store'),true); ?>
           <?php genTreeLink('RTop','prp',xl('Patient Printed Report')); ?>
           <?php genDualLink('dem','pno',xl('Additional Notes')); // with dem on top ?>
           <li><a href='' onclick="return repPopup('../patient_file/letter.php')" id='prp1'>Letter</a></li>
