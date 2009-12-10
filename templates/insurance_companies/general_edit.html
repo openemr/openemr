@@ -44,6 +44,10 @@
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='CMS ID'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<input type="text" size="15" name="cms_id" value="{$insurancecompany->get_cms_id()}"/>
+{php} if ($GLOBALS['support_encounter_claims']) { {/php}
+    &nbsp;&nbsp;{xl t='For Encounter Claims'}:
+		<input type="text" size="15" name="alt_cms_id" value="{$insurancecompany->get_alt_cms_id()}"/>
+{php} } {/php}
 	</td>
 </tr>
 <tr>

@@ -50,6 +50,7 @@ class InsuranceCompany extends ORDataObject{
 	var $phone;
 	var $attn;
 	var $cms_id;
+	var $alt_cms_id;
 	//this is now deprecated use new x12 partners instead
 	var $x12_receiver_id;
 	var $x12_default_partner_id;
@@ -199,6 +200,12 @@ class InsuranceCompany extends ORDataObject{
 	function get_cms_id() {
 		return $this->cms_id;
 	}
+	function set_alt_cms_id($id) {
+		$this->alt_cms_id = $id;
+	}
+	function get_alt_cms_id() {
+		return $this->alt_cms_id;
+	}
 	function set_freeb_type($type) {
 		$this->freeb_type = $type;
 	}
@@ -320,6 +327,7 @@ class InsuranceCompany extends ORDataObject{
 		. "Name: " . $this->name ."\n"
 		. "Attn:" . $this->attn . "\n"
 		. "CMS ID:" . $this->cms_id . "\n"
+		. "ALT CMS ID:" . $this->alt_cms_id . "\n"
 		//. "Phone: " . $this->phone_numbers[0]->toString($html) . "\n"
 		. "Address: " . $this->address->toString($html) . "\n";
 

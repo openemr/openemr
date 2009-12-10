@@ -12,12 +12,36 @@
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="id_number" value="{$partner->get_id_number()}"/></td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Receiver'}&nbsp;{xl t='ID'}</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Receiver ID Qualifier (ISA07)'}</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >{html_options name="x12_isa07" options=$partner->get_idqual_array() selected=$partner->get_x12_isa07()}</td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Receiver ID (ISA08)'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_receiver_id" value="{$partner->get_x12_receiver_id()}"/></td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Sender'}&nbsp;{xl t='ID'}</td>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Sender ID Qualifier (ISA05)'}</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >{html_options name="x12_isa05" options=$partner->get_idqual_array() selected=$partner->get_x12_isa05()}</td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Sender ID (ISA06)'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_sender_id" value="{$partner->get_x12_sender_id()}"/></td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Acknowledgment Requested (ISA14)'}</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >{html_options name="x12_isa14" options=$partner->get_x12_isa14_array() selected=$partner->get_x12_isa14()}</td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Usage Indicator (ISA15)'}</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >{html_options name="x12_isa15" options=$partner->get_x12_isa15_array() selected=$partner->get_x12_isa15()}</td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Application Sender Code (GS02)'}</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_gs02" value="{$partner->get_x12_gs02()}"/></td>
+</tr>
+<tr>
+	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Submitter EDI Access Number (PER06)'}</td>
+	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_per06" value="{$partner->get_x12_per06()}"/></td>
 </tr>
 <tr>
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Version'}</td>
@@ -27,8 +51,6 @@
 	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Processing'}&nbsp;{xl t='Format'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >{html_options name="processing_format" options=$partner->get_processing_format_array() selected=$partner->get_processing_format()}</td>
 </tr>
-
-
 <tr>
 	<td>
 		{if $partner->get_id() eq ""}

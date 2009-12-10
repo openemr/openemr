@@ -8,7 +8,7 @@
 
 require_once("Claim.class.php");
 
-function gen_x12_837($pid, $encounter, &$log) {
+function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
 
   $today = time();
   $out = '';
@@ -26,24 +26,24 @@ function gen_x12_837($pid, $encounter, &$log) {
     "*          " .
     "*00" .
     "*          " .
-    "*ZZ" .
+    "*" . $claim->x12gsisa05() .
     "*" . $claim->x12gssenderid() .
-    "*ZZ" .
+    "*" . $claim->x12gsisa07() .
     "*" . $claim->x12gsreceiverid() .
     "*030911" .
     "*1630" .
     "*U" .
     "*00401" .
     "*000000001" .
-    "*0" .
-    "*P" .
+    "*" . $claim->x12gsisa14() .
+    "*" . $claim->x12gsisa15() .
     "*:" .
     "~\n";
 
   $out .= "GS" .
     "*HC" .
-    "*" . $claim->x12gssenderid() .
-    "*" . $claim->x12gsreceiverid() .
+    "*" . $claim->x12gsgs02() .
+    "*" . trim($claim->x12gsreceiverid()) .
     "*" . date('Ymd', $today) .
     "*" . date('Hi', $today) .
     "*1" .
@@ -91,8 +91,11 @@ function gen_x12_837($pid, $encounter, &$log) {
     "*IC" .
     "*" . $claim->billingContactName() .
     "*TE" .
-    "*" . $claim->billingContactPhone() .
-    "~\n";
+    "*" . $claim->billingContactPhone();
+  if ($claim->x12gsper06()) {
+    $out .= "*ED*" . $claim->x12gsper06();
+  }
+  $out .= "~\n";
 
   ++$edicount;
   $out .= "NM1" .       // Loop 1000B Receiver
@@ -273,7 +276,8 @@ function gen_x12_837($pid, $encounter, &$log) {
     "*" .
     "*" .
     "*PI" .
-    "*" . $claim->payerID() . // Zirmed ignores this if using Payer Name Matching.
+    // Zirmed ignores this if using payer name matching:
+    "*" . ($encounter_claim ? $claim->payerAltID() : $claim->payerID()) .
     "~\n";
 
   // if (!$claim->payerID()) {
@@ -406,15 +410,21 @@ function gen_x12_837($pid, $encounter, &$log) {
 
   // Note: This would be the place to implement the NTE segment for loop 2300.
 
+  // Diagnoses, up to 8 per HI segment.
   $da = $claim->diagArray();
-  ++$edicount;
-  $out .= "HI";         // Health Diagnosis Codes
   $diag_type_code = 'BK';
+  $tmp = 0;
   foreach ($da as $diag) {
+    if ($tmp % 8 == 0) {
+      if ($tmp) $out .= "~\n";
+      ++$edicount;
+      $out .= "HI";         // Health Diagnosis Codes
+    }
     $out .= "*$diag_type_code:" . $diag;
     $diag_type_code = 'BF';
+    ++$tmp;
   }
-  $out .= "~\n";
+  if ($tmp) $out .= "~\n";
 
   if ($claim->referrerLastName()) {
     // Medicare requires referring provider's name and UPIN.
@@ -614,6 +624,12 @@ function gen_x12_837($pid, $encounter, &$log) {
       $prev_pt_resp -= $payerpaid[2]; // reduce by adjustments
 
       ++$edicount;
+      $out .= "AMT" . // Allowed amount per previous payer. Page 334.
+        "*B6" .
+        "*" . sprintf('%.2f', $payerpaid[1] + $prev_pt_resp) .
+        "~\n";
+
+      ++$edicount;
       $out .= "AMT" . // Patient responsibility amount per previous payer. Page 335.
         "*F2" .
         "*" . sprintf('%.2f', $prev_pt_resp) .
@@ -684,7 +700,7 @@ function gen_x12_837($pid, $encounter, &$log) {
     // auto-generate secondary claims.  These do NOT appear in my copy of
     // the spec!  -- Rod 2008-06-12
 
-    if ($claim->x12gsreceiverid() == '431420764') { // if Gateway EDI
+    if (trim($claim->x12gsreceiverid()) == '431420764') { // if Gateway EDI
       ++$edicount;
       $out .= "N3" .
         "*" . $claim->payerStreet($ins) .
@@ -722,10 +738,11 @@ function gen_x12_837($pid, $encounter, &$log) {
       "*" .
       "*";
     $dia = $claim->diagIndexArray($prockey);
-    $separator = '';
+    $i = 0;
     foreach ($dia as $dindex) {
-      $out .= $separator . $dindex;
-      $separator = ':';
+      if ($i) $out .= ':';
+      $out .= $dindex;
+      if (++$i >= 4) break;
     }
     $out .= "~\n";
 

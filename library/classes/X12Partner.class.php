@@ -11,12 +11,18 @@ class X12Partner extends ORDataObject{
 	var $id;
 	var $name;
 	var	$id_number;
-	var $x12_sender_id;
-	var $x12_receiver_id;
+	var $x12_sender_id;   // ISA06
+	var $x12_receiver_id; // ISA08
+  var $x12_isa05; // Sender Interchange ID Qualifier. ZZ = mutually defined, 01 = Duns, etc.
+  var $x12_isa07; // Receiver Interchange ID Qualifier.
+  var $x12_isa14; // Acknowledgment Requested. 0 = No, 1 = Yes.
+  var $x12_isa15; // Usage Indicator. T = testing, P = production.
+  var $x12_gs02;  // Application Sender's Code. Default to ISA06.
+  var $x12_per06; // The submitter's EDI Access Number, if any.
 	var $x12_version;
 	var $processing_format;
 	var $processing_format_array;
-			
+
 	/**
 	 * Constructor sets all Insurance attributes to their default value
 	 */
@@ -29,6 +35,9 @@ class X12Partner extends ORDataObject{
 		$this->processing_format = $this->processing_format_array[0];		
 		//most recent x12 version mandated by HIPAA and CMS
 		$this->x12_version = "004010X098A1";
+		$this->x12_isa05 = "ZZ";
+		$this->x12_isa07 = "ZZ";
+		$this->x12_isa14 = "0";
 		if ($id != "") {
 			$this->populate();
 		}
@@ -95,7 +104,55 @@ class X12Partner extends ORDataObject{
 	function set_x12_version($string) {
 			$this->x12_version = $string;
 	}
+
+	function get_x12_isa05() {
+		return $this->x12_isa05;
+	}
 	
+	function set_x12_isa05($string) {
+			$this->x12_isa05 = $string;
+	}
+	
+	function get_x12_isa07() {
+		return $this->x12_isa07;
+	}
+	
+	function set_x12_isa07($string) {
+			$this->x12_isa07 = $string;
+	}
+	
+	function get_x12_isa14() {
+		return $this->x12_isa14;
+	}
+	
+	function set_x12_isa14($string) {
+			$this->x12_isa14 = $string;
+	}
+	
+	function get_x12_isa15() {
+		return $this->x12_isa15;
+	}
+	
+	function set_x12_isa15($string) {
+			$this->x12_isa15 = $string;
+	}
+	
+	function get_x12_gs02() {
+		return $this->x12_gs02;
+	}
+	
+	function set_x12_gs02($string) {
+			$this->x12_gs02 = $string;
+	}
+	
+	function get_x12_per06() {
+		return $this->x12_per06;
+	}
+	
+	function set_x12_per06($string) {
+			$this->x12_per06 = $string;
+	}
+
 	function get_processing_format() {
 		//this is enum so it can be string or int
 		if (!is_numeric($this->processing_format)) {
@@ -113,6 +170,33 @@ class X12Partner extends ORDataObject{
 	function set_processing_format($string) {
 			$this->processing_format = $string;
 	}
-	
-} 
+
+  function get_x12_isa14_array() {
+    return array(
+      '0' => 'No',
+      '1' => 'Yes',
+    );
+  }
+
+  function get_x12_isa15_array() {
+    return array(
+      'T' => 'Testing',
+      'P' => 'Production',
+    );
+  }
+
+  function get_idqual_array() {
+    return array(
+      '01' => 'Duns (Dun & Bradstreet)',
+      '14' => 'Duns Plus Suffix',
+      '20' => 'Health Industry Number (HIN)',
+      '27' => 'Carrier ID from HCFA',
+      '28' => 'Fiscal Intermediary ID from HCFA',
+      '29' => 'Medicare ID from HCFA',
+      '30' => 'U.S. Federal Tax ID Number',
+      '33' => 'NAIC Company Code',
+      'ZZ' => 'Mutually Defined',
+    );
+  }
+}
 ?>

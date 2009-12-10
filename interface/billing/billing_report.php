@@ -135,6 +135,9 @@ function set_button_states() {
   // f.bn_ub92_print.disabled      = !can_generate;
   // f.bn_ub92.disabled            = !can_generate;
   f.bn_x12.disabled             = !can_generate;
+<?php if ($GLOBALS['support_encounter_claims']) { ?>
+  f.bn_x12_encounter.disabled   = !can_generate;
+<?php } ?>
   f.bn_process_hcfa.disabled    = !can_generate;
   // f.bn_electronic_file.disabled = !can_bill;
   f.bn_reopen.disabled          = !can_bill;
@@ -335,6 +338,11 @@ function topatient(pid) {
 <input type="submit" class="subbtn" name="bn_x12" value="<?php xl('Generate X12','e')?>"
  title="<?php xl('Generate and download X12 batch','e')?>"
  onclick="alert('<?php xl('After saving your batch, click [View Log] to check for errors.','e'); ?>')">
+<?php if ($GLOBALS['support_encounter_claims']) { ?>
+<input type="submit" class="subbtn" name="bn_x12_encounter" value="<?php xl('Generate X12 Encounter','e')?>"
+ title="<?php xl('Generate and download X12 encounter claim batch','e')?>"
+ onclick="alert('<?php xl('After saving your batch, click [View Log] to check for errors.','e'); ?>')">
+<?php } ?>
 <input type="submit" class="subbtn" name="bn_process_hcfa" value="<?php xl('Generate HCFA','e')?>"
  title="<?php xl('Generate and download HCFA 1500 paper claims','e')?>"
  onclick="alert('<?php xl('After saving the PDF, click [View Log] to check for errors.','e'); ?>')">

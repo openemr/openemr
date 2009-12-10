@@ -22,6 +22,7 @@ class Claim {
   var $pid;               // patient id
   var $encounter_id;      // encounter id
   var $procs;             // array of procedure rows from billing table
+  var $diags;             // array of icd9 codes from billing table
   var $x12_partner;       // row from x12_partners table
   var $encounter;         // row from form_encounter table
   var $facility;          // row from facility table
@@ -119,6 +120,7 @@ class Claim {
     $this->pid = $pid;
     $this->encounter_id = $encounter_id;
     $this->procs = array();
+    $this->diags = array();
     $this->copay = 0;
 
     // We need the encounter date before we can identify the payers.
@@ -130,12 +132,17 @@ class Claim {
     // Sort by procedure timestamp in order to get some consistency.
     $sql = "SELECT * FROM billing WHERE " .
       "encounter = '{$this->encounter_id}' AND pid = '{$this->pid}' AND " .
-      "(code_type = 'CPT4' OR code_type = 'HCPCS' OR code_type = 'COPAY') AND " .
+      "(code_type = 'CPT4' OR code_type = 'HCPCS' OR code_type = 'COPAY' OR code_type = 'ICD9') AND " .
       "activity = '1' ORDER BY date, id";
     $res = sqlStatement($sql);
     while ($row = sqlFetchArray($res)) {
       if ($row['code_type'] == 'COPAY') {
         $this->copay -= $row['fee'];
+        continue;
+      }
+      // Save all diagnosis codes.
+      if ($row['code_type'] == 'ICD9') {
+        $this->diags[$row['code']] = $row['code'];
         continue;
       }
       if (!$row['units']) $row['units'] = 1;
@@ -478,6 +485,32 @@ class Claim {
     return $tmp;
   }
 
+  function x12gsisa05() {
+    return $this->x12_partner['x12_isa05'];
+  }
+
+  function x12gsisa07() {
+    return $this->x12_partner['x12_isa07'];
+  }
+
+  function x12gsisa14() {
+    return $this->x12_partner['x12_isa14'];
+  }
+
+  function x12gsisa15() {
+    return $this->x12_partner['x12_isa15'];
+  }
+
+  function x12gsgs02() {
+    $tmp = $this->x12_partner['x12_gs02'];
+    if ($tmp === '') $tmp = $this->x12_partner['x12_sender_id'];
+    return $tmp;
+  }
+
+  function x12gsper06() {
+    return $this->x12_partner['x12_per06'];
+  }
+
   function cliaCode() {
     return x12clean(trim($this->facility['domain_identifier']));
   }
@@ -751,6 +784,10 @@ class Claim {
     return x12clean(trim($this->payers[$ins]['company']['cms_id']));
   }
 
+  function payerAltID($ins=0) {
+    return x12clean(trim($this->payers[$ins]['company']['alt_cms_id']));
+  }
+
   function patientLastName() {
     return x12clean(trim($this->patient_data['lname']));
   }
@@ -947,6 +984,14 @@ class Claim {
           $da[$diag] = $diag;
         }
       }
+    }
+    // The above got all the diagnoses used for justification, in the order
+    // used for justification.  Next we go through all diagnoses, justified
+    // or not, to make sure they all get into the claim.  We do it this way
+    // so that the more important diagnoses appear first.
+    foreach ($this->diags as $diag) {
+      $diag = str_replace('.', '', $diag);
+      $da[$diag] = $diag;
     }
     return $da;
   }

@@ -14,23 +14,6 @@ if (file_exists($EXPORT_INC)) {
   $BILLING_EXPORT = true;
 }
 
-// This is a kludge to enter some parameters that are not in the X12
-// Partners table, but should be.
-//
-// The following works for Zirmed:
-$ISA07 = 'ZZ'; // ZZ = mutually defined, 01 = Duns, etc.
-$ISA14 = '0';  // 1 = Acknowledgment requested, else 0
-$ISA15 = 'P';  // T = testing, P = production
-$GS02  = '';   // Empty to use the sender ID from the ISA segment
-$PER06 = '';   // The submitter's EDI Access Number, if any
-/**** For Availity:
-$ISA07 = '01'; // ZZ = mutually defined, 01 = Duns, etc.
-$ISA14 = '1';  // 1 = Acknowledgment requested, else 0
-$ISA15 = 'T';  // T = testing, P = production
-$GS02  = 'AV01101957';
-$PER06 = 'xxxxxx'; // The submitter's EDI Access Number
-****/
-
 $fconfig = $GLOBALS['oer_config']['freeb'];
 $bill_info = array();
 
@@ -57,7 +40,6 @@ if (isset($_POST['bn_process_hcfa'])) {
 function append_claim(&$segs) {
   global $bat_content, $bat_sendid, $bat_recvid, $bat_sender, $bat_stcount;
   global $bat_yymmdd, $bat_yyyymmdd, $bat_hhmm, $bat_icn;
-  global $GS02, $ISA07, $ISA14, $ISA15, $PER06;
 
   foreach ($segs as $seg) {
     if (!$seg) continue;
@@ -67,15 +49,19 @@ function append_claim(&$segs) {
         $bat_sendid = trim($elems[6]);
         $bat_recvid = trim($elems[8]);
         $bat_sender = $GS02 ? $GS02 : $bat_sendid;
-        $bat_content = substr($seg, 0, 51) .
-          $ISA07 . substr($seg, 53, 17) .
-          "$bat_yymmdd*$bat_hhmm*U*00401*$bat_icn*$ISA14*$ISA15*:~" .
-          "GS*HC*$bat_sender*$bat_recvid*$bat_yyyymmdd*$bat_hhmm*1*X*004010X098A1~";
+        $bat_content = substr($seg, 0, 70) .
+          "$bat_yymmdd*$bat_hhmm*U*00401*$bat_icn*" .
+          $elems[14] . "*" . $elems[15] . "*:~";
       }
       continue;
     } else if (!$bat_content) {
       die("Error:<br>\nInput must begin with 'ISA'; " .
         "found '" . htmlentities($elems[0]) . "' instead");
+    }
+    if ($elems[0] == 'GS') {
+      $bat_content .= "GS*HC*" . $elems[2] . "*" . $elems[3] .
+        "*$bat_yyyymmdd*$bat_hhmm*1*X*004010X098A1~";
+      continue;
     }
     if ($elems[0] == 'ST') {
       ++$bat_stcount;
@@ -86,10 +72,7 @@ function append_claim(&$segs) {
       $bat_content .= sprintf("SE*%d*%04d~", $elems[1], $bat_stcount);
       continue;
     }
-    if ($elems[0] == 'GS' || $elems[0] == 'GE' || $elems[0] == 'IEA') continue;
-    if ($elems[0] == 'PER' && $PER06 && !$elems[5]) {
-      $seg .= "*ED*$PER06";
-    }
+    if ($elems[0] == 'GE' || $elems[0] == 'IEA') continue;
     $bat_content .= $seg . '~';
   }
 }
@@ -123,7 +106,7 @@ process_form($_POST);
 function process_form($ar) {
   global $bill_info, $webserver_root, $bat_filename, $pdf;
 
-  if (isset($ar['bn_x12']) || isset($ar['bn_process_hcfa'])) {
+  if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter']) || isset($ar['bn_process_hcfa'])) {
     $hlog = fopen("$webserver_root/library/freeb/process_bills.log", 'w');
   }
 
@@ -165,7 +148,7 @@ function process_form($ar) {
 
       $tmp = 1;
 
-      if (isset($ar['bn_x12'])) {
+      if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter'])) {
         $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', $target, $claim_array['partner']);
       } else if (isset($ar['bn_process_hcfa'])) {
         $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', 'hcfa');
@@ -191,9 +174,10 @@ function process_form($ar) {
           $bill_info[] = xl("Claim ") . $claimid . xl(" has been re-opened.") . "\n";
         }
 
-        else if (isset($ar['bn_x12'])) {
+        else if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter'])) {
           $log = '';
-          $segs = explode("~\n", gen_x12_837($patient_id, $encounter, $log));
+          $segs = explode("~\n", gen_x12_837($patient_id, $encounter, $log,
+            isset($ar['bn_x12_encounter'])));
           fwrite($hlog, $log);
           append_claim($segs);
           if (!updateClaim(false, $patient_id, $encounter, -1, -1, 2, 2, $bat_filename)) {
@@ -227,7 +211,7 @@ function process_form($ar) {
 
   } // end foreach
 
-  if (isset($ar['bn_x12'])) {
+  if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter'])) {
     append_claim_close();
     fclose($hlog);
     send_batch();
