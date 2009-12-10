@@ -480,6 +480,11 @@ $GLOBALS['full_new_patient_form'] = true;
 // Fee Sheet which is more complete and comprehensive.
 $GLOBALS['use_charges_panel'] = false;
 
+// This was added for Wellcare EDI which can accept a special kind of claim
+// containing diagnoses but not requiring procedures or charges.  If you
+// don't know what this is about then you don't want it!
+$GLOBALS['support_encounter_claims'] = false;
+
 // Multi-facility Configuration
 //
 // Restrict non-authorized users to the "Schedule Facilities" (aka user_facilities table)
