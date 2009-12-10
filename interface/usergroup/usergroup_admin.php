@@ -146,7 +146,14 @@ function authorized_clicked() {
 </head>
 <body class="body_top">
 
-<span class="title"><?php xl('User and Group Administration','e'); ?></span>
+<span class="title">
+<?php
+if ($GLOBALS['disable_non_default_groups'])
+  xl('User Administration','e');
+else
+  xl('User and Group Administration','e');
+?>
+</span>
 
 <br><br>
 
