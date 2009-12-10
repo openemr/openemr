@@ -96,26 +96,35 @@ function getTextListValue($string, $key) {
 }
 
 // Return the mapped list item ID if there is one, else the option_id.
+// Or return 9 if the option_id is empty (unspecified).
 //
 function mappedOption($list_id, $option_id) {
+  if ($option_id === '') return '9';
   $row = sqlQuery("SELECT mapping FROM list_options WHERE " .
     "list_id = '$list_id' AND option_id = '$option_id' LIMIT 1");
-  if (empty($row)) return $option_id;
+  if (empty($row)) return $option_id; // should not happen
   return ($row['mapping'] === '') ? $option_id : $row['mapping'];
 }
 
 // Like the above but given a layout item form and field name.
+// Or return 9 for a list whose id is empty (unspecified).
 //
 function mappedFieldOption($form_id, $field_id, $option_id) {
-  $row = sqlQuery("SELECT b.mapping FROM " .
-    "layout_options AS a, list_options AS b WHERE " .
-    "a.form_id = '$form_id' AND " .
-    "a.field_id = '$field_id' AND " .
-    "a.list_id != '' AND " .
-    "b.list_id = a.list_id AND " .
-    "b.option_id = '$option_id' " .
+  $row = sqlQuery("SELECT list_id FROM " .
+    "layout_options WHERE " .
+    "form_id = '$form_id' AND " .
+    "field_id = '$field_id' " .
     "LIMIT 1");
-  if (empty($row)) return $option_id;
+  if (empty($row)) return $option_id; // should not happen
+  $list_id = $row['list_id'];
+  if ($list_id === '') return $option_id;
+  if ($option_id === '') return '9';
+  $row = sqlQuery("SELECT mapping FROM " .
+    "list_options WHERE " .
+    "list_id = '$list_id' AND " .
+    "option_id = '$option_id' " .
+    "LIMIT 1");
+  if (empty($row)) return $option_id; // should not happen
   return ($row['mapping'] === '') ? $option_id : $row['mapping'];
 }
 
