@@ -5,16 +5,9 @@ include_once("../../../library/api.inc");
 include_once("../../../library/forms.inc");
 include_once("../../../library/sql.inc");
 include_once("content_parser.php");
+include_once("../../../library/formdata.inc.php");
 
-$field_names = array('category' => $_POST['category'], 'subcategory' => $_POST['subcategory'], 'item' => $_POST['item'], 'content' => $_POST['content']);
-if(get_magic_quotes_gpc()) {
-  foreach ($field_names as $k => $var) {
-    $field_names[$k] = stripslashes($var);
-  }
-}
-foreach ($field_names as $k => $var) {
-  $field_names[$k] = mysql_real_escape_string($var);
-}
+$field_names = array('category' => formData("category"), 'subcategory' => formData("subcategory"), 'item' => formData("item"), 'content' => formData("content"));
 $camos_array = array();
 process_commands($field_names['content'],$camos_array); 
 
@@ -41,5 +34,5 @@ foreach($camos_array as $val) {
     addForm($encounter, $CAMOS_form_name, $newid, "CAMOS", $pid, $userauthorized);
   }
 }
-echo "<font color=red><b>submitted: " . time() . "</b></font>";
+echo "<font color=red><b>" . xl('submitted') . ": " . time() . "</b></font>";
 ?>

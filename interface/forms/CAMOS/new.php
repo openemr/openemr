@@ -2,6 +2,7 @@
 include_once("../../globals.php");
 include_once("../../../library/api.inc");
 include_once("../../../library/sql.inc");
+include_once("../../../library/formdata.inc.php");
 $out_of_encounter = false;
 if ( (($_SESSION['encounter'] == '') || ($_SESSION['pid'] == '')) || ($_GET['mode'] == 'external')) {
   $out_of_encounter = true;
@@ -47,8 +48,7 @@ if (substr($_POST['hidden_mode'],0,3) == 'add') {
   if ($_POST['hidden_selection'] == 'change_category') {
     $preselect_category_override = $_POST['change_category'];
 
-    if (get_magic_quotes_gpc()) {$category = stripslashes($category);}
-    $category = mysql_real_escape_string($category);
+    $category = formDataCore($category);
 
     $query = "INSERT INTO form_CAMOS_category (user, category) values ('".$_SESSION['authUser']."', '";
     $query .= $category."')"; 
@@ -59,8 +59,7 @@ if (substr($_POST['hidden_mode'],0,3) == 'add') {
     $category_id = $_POST['hidden_category']; 
     if ($category_id >= 0 ) {
 
-      if (get_magic_quotes_gpc()) {$subcategory = stripslashes($subcategory);}
-      $subcategory = mysql_real_escape_string($subcategory);
+      $subcategory = formDataCore($subcategory);
 
       $query = "INSERT INTO form_CAMOS_subcategory (user, subcategory, category_id) values ('".$_SESSION['authUser']."', '";
       $query .= $subcategory."', '".$category_id."')";
@@ -73,8 +72,7 @@ if (substr($_POST['hidden_mode'],0,3) == 'add') {
     $subcategory_id = $_POST['hidden_subcategory']; 
     if (($category_id >= 0 ) && ($subcategory_id >=0)) {
 
-      if (get_magic_quotes_gpc()) {$item = stripslashes($item);}
-      $item = mysql_real_escape_string($item);
+      $item = formDataCore($item);
 
       $query = "INSERT INTO form_CAMOS_item (user, item, content, subcategory_id) values ('".$_SESSION['authUser']."', '";
       $query .= $item."', '".$content."', '".$subcategory_id."')";
@@ -92,8 +90,9 @@ if (substr($_POST['hidden_mode'],0,3) == 'add') {
         }
       }
 
-//      if (get_magic_quotes_gpc()) {$content = stripslashes($content);}
-      $content = mysql_real_escape_string($content);
+//    Not stripping slashes, unclear why, but will keep same functionality
+//     below just adds the escapes.
+      $content = add_escape_custom($content);
 
       $query = "UPDATE form_CAMOS_item set content = '".$content."' where id = ".$item_id;
       sqlInsert($query);
@@ -1063,27 +1062,27 @@ function processEnter(e,message) {
 if (!$out_of_encounter) {
 //	echo "<h1>$out_of_encounter</h1>\n";
 ?>
-<input type=button name=clone value=clone onClick="js_button('clone', 'clone')">
-<input type=button name=clone_visit value='clone past visit' onClick="js_button('clone last visit', 'clone last visit')">
+<input type=button name=clone value='<?php xl('Clone','e'); ?>' onClick="js_button('clone', 'clone')">
+<input type=button name=clone_visit value='<?php xl('Clone Past Visit','e'); ?>' onClick="js_button('clone last visit', 'clone last visit')">
 <select name=stepback>
-  <option value=1>back one visit</option>
-  <option value=2>back two visits</option>
-  <option value=3>back three visits</option>
-  <option value=4>back four visits</option>
-  <option value=5>back five visits</option>
-  <option value=6>back six visits</option>
-  <option value=7>back seven visits</option>
-  <option value=8>back eight visits</option>
-  <option value=9>back nine visits</option>
-  <option value=10>back ten visits</option>
-  <option value=11>back eleven visits</option>
-  <option value=12>back twelve visits</option>
+  <option value=1><?php xl('Back one visit','e'); ?></option>
+  <option value=2><?php xl('Back two visits','e'); ?></option>
+  <option value=3><?php xl('Back three visits','e'); ?></option>
+  <option value=4><?php xl('Back four visits','e'); ?></option>
+  <option value=5><?php xl('Back five visits','e'); ?></option>
+  <option value=6><?php xl('Back six visits','e'); ?></option>
+  <option value=7><?php xl('Back seven visits','e'); ?></option>
+  <option value=8><?php xl('Back eight visits','e'); ?></option>
+  <option value=9><?php xl('Back nine visits','e'); ?></option>
+  <option value=10><?php xl('Back ten visits','e'); ?></option>
+  <option value=11><?php xl('Back eleven visits','e'); ?></option>
+  <option value=12><?php xl('Back twelve visits','e'); ?></option>
 </select>
 <?  
 echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[".xl('Leave The Form')."]</a>";
 ?>
-<input type=button name='hide columns' value='hide/show columns' onClick="hide_columns()">
-<input type=button name='submit form' value='submit selected content' onClick="js_button('submit','submit_selection')">
+<input type=button name='hide columns' value='<?php xl('Hide/Show Columns','e'); ?>' onClick="hide_columns()">
+<input type=button name='submit form' value='<?php xl('Submit Selected Content','e'); ?>' onClick="js_button('submit','submit_selection')">
 <?php
 } //end of if !$out_of_encounter
 ?>
@@ -1126,9 +1125,9 @@ if ($error != '') {
 if (myAuth() == 1) {//root user only can see administration option 
 ?>
     <input type=text name=change_category><br>
-    <input type=button name=add1 value=add onClick="js_button('add','change_category')">
-    <input type=button name=alter1 value=alter onClick="js_button('alter','change_category')">
-    <input type=button name=del1 value=del onClick="js_button('delete','change_category')"><br>
+    <input type=button name=add1 value='<?php xl('add','e'); ?>' onClick="js_button('add','change_category')">
+    <input type=button name=alter1 value='<?php xl('alter','e'); ?>' onClick="js_button('alter','change_category')">
+    <input type=button name=del1 value='<?php xl('del','e'); ?>' onClick="js_button('delete','change_category')"><br>
 <?
 }
 ?>
@@ -1141,9 +1140,9 @@ if (myAuth() == 1) {//root user only can see administration option
 if (myAuth() == 1) {//root user only can see administration option 
 ?>
     <input type=text name=change_subcategory><br>
-    <input type=button name=add2 value=add onClick="js_button('add','change_subcategory')">
-    <input type=button name=alter1 value=alter onClick="js_button('alter','change_subcategory')">
-    <input type=button name=del2 value=del onClick="js_button('delete','change_subcategory')"><br>
+    <input type=button name=add2 value='<?php xl('add','e'); ?>' onClick="js_button('add','change_subcategory')">
+    <input type=button name=alter1 value='<?php xl('alter','e'); ?>' onClick="js_button('alter','change_subcategory')">
+    <input type=button name=del2 value='<?php xl('del','e'); ?>' onClick="js_button('delete','change_subcategory')"><br>
 <?
 }
 ?>
@@ -1156,9 +1155,9 @@ if (myAuth() == 1) {//root user only can see administration option
 if (myAuth() == 1) {//root user only can see administration option 
 ?>
     <input type=text name=change_item><br>
-    <input type=button name=add3 value=add onClick="js_button('add','change_item')">
-    <input type=button name=alter1 value=alter onClick="js_button('alter','change_item')">
-    <input type=button name=del3 value=del onClick="js_button('delete','change_item')"><br>
+    <input type=button name=add3 value='<?php xl('add','e'); ?>' onClick="js_button('add','change_item')">
+    <input type=button name=alter1 value='<?php xl('alter','e'); ?>' onClick="js_button('alter','change_item')">
+    <input type=button name=del3 value='<?php xl('del','e'); ?>' onClick="js_button('delete','change_item')"><br>
 <?
 }
 ?>
@@ -1169,19 +1168,19 @@ if (myAuth() == 1) {//root user only can see administration option
     <textarea name=textarea_content cols=<? echo $textarea_cols ?> rows=<? echo $textarea_rows ?> onFocus="content_focus()" onBlur="content_blur()" onDblClick="specialSelect(this,'/*','*/')" tabindex=2></textarea>
     <br/>
 <input type=text size=35 name=clone_others_search value='<? echo $_POST['clone_others_search'] ?>' tabindex=1 onKeyPress="processEnter(event,'clone_others_search')"/>
-<input type=button name=clone_others_search_button value=search onClick="js_button('clone others', 'clone others')"/>
-<input type=button name=clone_others_selected_search_button value='search selected' onClick="js_button('clone others selected', 'clone others selected')"/>
+<input type=button name=clone_others_search_button value='<?php xl('Search','e'); ?>' onClick="js_button('clone others', 'clone others')"/>
+<input type=button name=clone_others_selected_search_button value='<?php xl('Search Selected','e'); ?>' onClick="js_button('clone others selected', 'clone others selected')"/>
 <?
 if (myAuth() == 1) {//root user only can see administration option 
 ?>
 <div id=id_main_content_buttons style="display:block">
-    <input type=button name=add4 value=add onClick="js_button('add','change_content')">
-    <input type=button name=add4 value='add to' onClick="js_button('add to','change_content')">
-    <input type=button name=lock value=lock onClick="lock_content()">
+    <input type=button name=add4 value='<?php xl('Add','e'); ?>' onClick="js_button('add','change_content')">
+    <input type=button name=add4 value='<?php xl('Add to','e'); ?>' onClick="js_button('add to','change_content')">
+    <input type=button name=lock value='<?php xl('Lock','e'); ?>' onClick="lock_content()">
 <?
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
 ?>
-    <input type=button name=icd9 value=icd9 onClick="append_icd9()"> 
+    <input type=button name=icd9 value='<?php xl('ICD9','e'); ?>' onClick="append_icd9()"> 
 </div> <!-- end of id_main_content_buttons-->
 <?
 }
@@ -1207,8 +1206,8 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 <?
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
 ?>
-<input type=button name='submit form' value='submit all content' onClick="js_button('submit','submit')">
-<input type=button name='submit form' value='submit selected content' onClick="js_button('submit','submit_selection')">
+<input type=button name='submit form' value='<?php xl('Submit All Content','e'); ?>' onClick="js_button('submit','submit')">
+<input type=button name='submit form' value='<?php xl('Submit Selected Content','e'); ?>' onClick="js_button('submit','submit_selection')">
 <?
 }
 ?>

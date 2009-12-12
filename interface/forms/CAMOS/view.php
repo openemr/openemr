@@ -50,16 +50,16 @@ function show_edit(t) {
 </head>
 <body class="body_top">
 <form method=post action="<?php echo $rootdir?>/forms/CAMOS/save.php?mode=delete&id=<?php echo $_GET["id"];?>" name="my_form">
-<h1> CAMOS </h1>
-<input type="submit" name="delete" value="Delete Checked Items" />
-<input type="submit" name="update" value="Update Checked Items" />
+<h1> <?php xl('CAMOS','e'); ?> </h1>
+<input type="submit" name="delete" value="<?php xl('Delete Selected Items','e'); ?>" />
+<input type="submit" name="update" value="<?php xl('Update Selected Items','e'); ?>" />
 <?php
-echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl'>[do nothing]</a>";
+echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl'>[" . xl('do nothing') . "]</a>";
 ?>
 <br/><br/>
-<input type='button' value='check all'
+<input type='button' value='<?php xl('Select All','e'); ?>'
   onClick='checkall()'>
-<input type='button' value='uncheck all'
+<input type='button' value='<?php xl('Unselect All','e'); ?>'
   onClick='uncheckall()'>
 <br/><br/>
 <?php
@@ -74,7 +74,7 @@ $query = "select t1.id, t1.content from form_CAMOS as t1 join forms as t2 " .
 
 $statement = sqlStatement($query);
 while ($result = sqlFetchArray($statement)) { 
-    print "<input type=button value=edit onClick='show_edit(\"id_textarea_".$result['id']."\")'>";
+    print "<input type=button value='" . xl('Edit') . "' onClick='show_edit(\"id_textarea_".$result['id']."\")'>";
     print "<input type=checkbox name='ch_".$result['id']."'> ".$result['content']."<br/>\n";
     print "<div id=id_textarea_".$result['id']." style='display:none'>\n";
     print "<textarea name=textarea_".$result['id']." cols=$textarea_cols rows= $textarea_rows onFocus='content_focus()' onBlur='content_blur()' >".$result['content']."</textarea><br/>\n";

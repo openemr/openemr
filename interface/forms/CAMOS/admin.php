@@ -1,5 +1,6 @@
 <?php
 include_once ('../../globals.php'); 
+include_once("../../../library/formdata.inc.php");
 ?>
 <?php
 if ($_POST['export']) {
@@ -64,7 +65,7 @@ if ($_POST['import']) {
 			$buffer = fgets($handle);
 			if (preg_match('/<category>(.*?)<\/category>/',$buffer,$matches)) {
 
-				$category = addslashes(trim($matches[1])); //trim in case someone edited by hand and added spaces
+				$category = add_escape_custom(trim($matches[1])); //trim in case someone edited by hand and added spaces
 				$statement = sqlStatement("select id from form_CAMOS_category where category like \"$category\"");
 				if ($result = sqlFetchArray($statement)) {
 					$category_id = $result['id'];
@@ -80,7 +81,7 @@ if ($_POST['import']) {
 			}
 			if (preg_match('/<subcategory>(.*?)<\/subcategory>/',$buffer,$matches)) {
 
-				$subcategory = addslashes(trim($matches[1]));
+				$subcategory = add_escape_custom(trim($matches[1]));
 				$statement = sqlStatement("select id from form_CAMOS_subcategory where subcategory " .
 					"like \"$subcategory\" and category_id = $category_id");
 				if ($result = sqlFetchArray($statement)) {
@@ -100,7 +101,7 @@ if ($_POST['import']) {
 			(preg_match('/<(content)>(.*?)<\/content>/s',$buffer,$matches))) {
 
 				$mode = $matches[1];
-				$value = addslashes(trim($matches[2]));
+				$value = add_escape_custom(trim($matches[2]));
 				$insert_value = '';
 				if ($mode == 'item') {
 					$postfix = 0;

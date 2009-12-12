@@ -9,7 +9,7 @@ if (!$_POST['submit'] && !($_GET['pid'] && $_GET['encounter'])) {
 <html>
 <head>
 <title>
-Print Notes
+<?php xl('Print Notes','e'); ?>
 </title>
 <style type="text/css">@import url('<?php echo $depth ?>library/dynarch_calendar.css');</style>
 <script type="text/javascript" src="<?php echo $depth ?>library/dialog.js"></script>
@@ -30,10 +30,10 @@ Print Notes
 </td><td>
 <input type='text' size='10' name='start' id='start' value='<? echo $_POST['end'] ? $_POST['end'] : date('Y-m-d') ?>' 
 onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-title='yyyy-mm-dd last date of this event' />
+title='<?php xl('yyyy-mm-dd last date of this event','e'); ?>' />
 <img src='<?php echo $depth ?>interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
 id='img_start' border='0' alt='[?]' style='cursor:pointer'
-title='Click here to choose a date'>
+title='<?php xl('Click here to choose a date','e'); ?>'>
 <script>
 Calendar.setup({inputField:'start', ifFormat:'%Y-%m-%d', button:'img_start'});
 </script>
@@ -44,23 +44,23 @@ Calendar.setup({inputField:'start', ifFormat:'%Y-%m-%d', button:'img_start'});
 </td><td>
 <input type='text' size='10' name='end' id='end' value ='<? echo $_POST['end'] ? $_POST['end'] : date('Y-m-d') ?>' 
 onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-title='yyyy-mm-dd last date of this event' />
+title='<?php xl('yyyy-mm-dd last date of this event','e'); ?>' />
 <img src='<?php echo $depth ?>interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
 id='img_end' border='0' alt='[?]' style='cursor:pointer'
-title='Click here to choose a date'>
+title='<?php xl('Click here to choose a date','e'); ?>'>
 <script>
 Calendar.setup({inputField:'end', ifFormat:'%Y-%m-%d', button:'img_end'});
 </script>
 </td></tr>
 <tr><td></td><td></td></tr>
-<tr><td>Last Name: </td><td>
+<tr><td><?php xl('Last Name','e'); ?>: </td><td>
 <input type='text' name='lname'/> 
 </td></tr>
-<tr><td>First Name: </td><td>
+<tr><td><?php xl('First Name','e'); ?>: </td><td>
 <input type='text' name='fname'/> 
 </td></tr>
 <tr><td>
-<input type='submit' name='submit' value='submit'>
+<input type='submit' name='submit' value='<?php xl('Submit','e'); ?>'>
 </td><td>
 </td></tr>
 </table>
@@ -87,25 +87,25 @@ if ($_POST['submit'] || ($_GET['pid'] && $_GET['encounter'])) {
 			else {
 				$first = 0;
 			}
-			$pdf->ezText("Date: ".$notecontents['date'],8);
-			$pdf->ezText("Name: ".$notecontents['name'],8);
+			$pdf->ezText(xl("Date").": ".$notecontents['date'],8);
+			$pdf->ezText(xl("Name").": ".$notecontents['name'],8);
 //			$pdf->ezText("ID: ".$note_id,8);
 
 			$query = sqlStatement("select pubpid from patient_data where id=".$_GET['pid']);
 			if ($results = mysql_fetch_array($query, MYSQL_ASSOC)) {
 				$pubpid = $results['pubpid'];
 			}
-			$pdf->ezText("Claim# ".$pubpid,8);
+			$pdf->ezText(xl("Claim")."# ".$pubpid,8);
 
 			$pdf->ezText("",8);
-			$pdf->ezText("Chief Complaint: ".$notecontents['reason'],8);
+			$pdf->ezText(xl("Chief Complaint").": ".$notecontents['reason'],8);
 			if ($notecontents['vitals']) {
 				$pdf->ezText("",8);
 				$pdf->ezText($notecontents['vitals'],8);
 			}
 			if (count($notecontents['exam']) > 0) {
 				$pdf->ezText("",8);
-				$pdf->ezText("Progress Notes",12);
+				$pdf->ezText(xl("Progress Notes"),12);
 				$pdf->ezText("",8);
 				foreach($notecontents['exam'] as $examnote) {
 					$pdf->ezText("$examnote");
@@ -113,7 +113,7 @@ if ($_POST['submit'] || ($_GET['pid'] && $_GET['encounter'])) {
 			}
 			if (count($notecontents['prescriptions']) > 0) {
 				$pdf->ezText("",8);
-				$pdf->ezText("Prescriptions",12);
+				$pdf->ezText(xl("Prescriptions"),12);
 				$pdf->ezText("",8);
 				foreach($notecontents['prescriptions'] as $rx) {
 					$pdf->ezText($rx);
@@ -137,7 +137,7 @@ if ($_POST['submit'] || ($_GET['pid'] && $_GET['encounter'])) {
 				}
 				if (count($tmp) > 0) {
 					$pdf->ezText("",8);
-					$pdf->ezText("Coding",12);
+					$pdf->ezText(xl("Coding"),12);
 					$pdf->ezText("",8);
 					foreach($tmp as $code => $val) {
 						$pdf->ezText($code,8);
@@ -147,7 +147,7 @@ if ($_POST['submit'] || ($_GET['pid'] && $_GET['encounter'])) {
 			if (count($notecontents['calories']) > 0) {
 				$sum = 0;
 				$pdf->ezText("",8);
-				$pdf->ezText("Calories",12);
+				$pdf->ezText(xl("Calories"),12);
 				$pdf->ezText("",8);
 				foreach($notecontents['calories'] as $calories => $value) {
 					$pdf->ezText($value['content'].' - '.$value['item'].' - '.$value['date'],8);
@@ -158,7 +158,7 @@ if ($_POST['submit'] || ($_GET['pid'] && $_GET['encounter'])) {
 			}
 			$pdf->ezText("",12);
 			$pdf->ezText("",12);
-			$pdf->ezText("Digitally Signed",12);
+			$pdf->ezText(xl("Digitally Signed"),12);
 
 			$query = sqlStatement("select t2.id, t2.fname, t2.lname, t2.title from forms as t1 join users as t2 on " .
 				"(t1.user like t2.username) where t1.pid=$pid and t1.encounter=$encounter");
@@ -276,33 +276,33 @@ function formatVitals($raw) { //pass raw vitals array, format and return as stri
 	$respiration = '';
 	$oxygen_saturation = '';
 	if ($raw['height'] && $raw['height'] > 0) {
-		$height = "HT: ".$raw['height']." ";
+		$height = xl("HT").": ".$raw['height']." ";
 	}
 	if ($raw['weight'] && $raw['weight'] > 0) {
-		$weight = "WT: ".$raw['weight']." ";
+		$weight = xl("WT").": ".$raw['weight']." ";
 	}
 	if ($raw['BMI'] && $raw['BMI'] > 0) {
-		$bmi = "BMI: ".$raw['BMI']." ";
+		$bmi = xl("BMI").": ".$raw['BMI']." ";
 	}
 	if ($raw['temperature'] && $raw['temperature'] > 0) {
-		$temp = "Temp: ".$raw['temperature']." ";
+		$temp = xl("Temp").": ".$raw['temperature']." ";
 	}
 	if ($raw['bps'] && $raw['bpd'] && $raw['bps'] > 0 && $raw['bpd'] > 0) {
-		$bp = "BP: ".$raw['bps']."/".$raw['bpd']." ";
+		$bp = xl("BP").": ".$raw['bps']."/".$raw['bpd']." ";
 	}
 	if ($raw['pulse'] && $raw['pulse'] > 0) {
-		$pulse = "Pulse: ".$raw['pulse']." ";
+		$pulse = xl("Pulse").": ".$raw['pulse']." ";
 	}
 	if ($raw['respiration'] && $raw['respiration'] > 0) {
-		$respiration = "Respiration: ".$raw['respiration']." ";
+		$respiration = xl("Respiration").": ".$raw['respiration']." ";
 	}
 	if ($raw['oxygen_saturation'] && $raw['oxygen_saturation'] > 0) {
-		$oxygen_saturation = "O2 Sat: ".$raw['oxygen_saturation']."% ";
+		$oxygen_saturation = xl("O2 Sat").": ".$raw['oxygen_saturation']."% ";
 	}
 	$ret = $height.$weight.$bmi.$temp.$bp.
 		$pulse.$respiration.$oxygen_saturation;
 	if ($ret != '') {
-		$ret = "Vital Signs: ".$ret;
+		$ret = xl("Vital Signs").": ".$ret;
 	}
 	return $ret;
 }
