@@ -1,10 +1,29 @@
-<?
+<?php
 $depth = '../../../';
 include_once ($depth.'interface/globals.php');
 include_once ($depth.'library/classes/class.ezpdf.php');
 ?>
-<?
-if (!$_POST['submit'] && !($_GET['pid'] && $_GET['encounter'])) {
+<?php
+if (!($_POST['submit_pdf'] || $_POST['submit_html']) && ($_GET['pid'] && $_GET['encounter'])) {
+?>
+<html>
+<head>
+<title>
+<?php xl('Print Notes','e'); ?>
+</title>
+</head>
+<body>
+<?php xl('Choose print format for this encounter report.','e'); ?><br><br>
+<form method=post name=choose_patients>
+<input type='submit' name='submit_pdf' value='<?php xl('Print (PDF)','e'); ?>'>
+<input type='submit' name='submit_html' value='<?php xl('Print (HTML)','e'); ?>'>
+</form>
+</body>
+</html>
+<?php
+exit;
+}
+if (!$_POST['submit_pdf'] && !$_POST['submit_html'] && !($_GET['pid'] && $_GET['encounter'])) {
 ?>
 <html>
 <head>
@@ -60,22 +79,167 @@ Calendar.setup({inputField:'end', ifFormat:'%Y-%m-%d', button:'img_end'});
 <input type='text' name='fname'/> 
 </td></tr>
 <tr><td>
-<input type='submit' name='submit' value='<?php xl('Submit','e'); ?>'>
+<input type='submit' name='submit_pdf' value='<?php xl('Print (PDF)','e'); ?>'>
+<input type='submit' name='submit_html' value='<?php xl('Print (HTML)','e'); ?>'>
 </td><td>
 </td></tr>
 </table>
 </form>
 </body>
 </html>
-<?
+<?php
 }
-if ($_POST['submit'] || ($_GET['pid'] && $_GET['encounter'])) {
+if ($_POST['submit_pdf'] || $_POST['submit_html'] && ($_GET['pid'] && $_GET['encounter'])) {
+    $output = getFormData($_POST['start'],$_POST['end'],$_POST['lname'],$_POST['fname']);
+    ksort($output);
+    $first = 1;
+    if ($_POST['submit_html']) { //print as html
+?>
+        <html>
+        <head>
+        <style>
+        body {
+	 font-family: sans-serif;
+	 font-weight: normal;
+	 font-size: 8pt;
+	 background: white;
+	 color: black;
+	}	
+	.paddingdiv {
+	 width: 524pt;
+	 padding: 0pt;
+	 margin-top: 50pt;
+	}
+	.navigate {
+	 margin-top: 2.5em;
+	}	
+	@media print {
+	 .navigate {
+	  display: none;
+	 }	
+	}
+	span.heading {
+	 font-weight: bold;
+	 font-size: 130%;
+	}	
+	</style>	
+	<title><?php xl('Patient Notes','e'); ?></title>
+	</head>
+        <body>
+	<div class='paddingdiv'>
+<?php
+	foreach ($output as $datekey => $dailynote) {
+		foreach ($dailynote as $note_id => $notecontents) {
+			preg_match('/(\d+)_(\d+)/', $note_id, $matches); //the unique note id contains the pid and encounter
+			$pid = $matches[1];
+			$enc = $matches[2];
+			if (!$first) { //generate a new page each time except first iteration when nothing has been printed yet
+			    
+				//new page code here
+				
+			}
+			else {
+				$first = 0;
+			}
+			print xl("Date").": ".$notecontents['date'] . "<br/>";
+			print xl("Name").": ".$notecontents['name'] . "<br/>";
+
+			$query = sqlStatement("select pubpid from patient_data where id=".$_GET['pid']);
+			if ($results = mysql_fetch_array($query, MYSQL_ASSOC)) {
+				$pubpid = $results['pubpid'];
+			}
+			print xl("Claim")."# ".$pubpid . "<br/>";
+
+			print "<br/>";
+			print xl("Chief Complaint").": ".$notecontents['reason'] . "<br/>";
+			if ($notecontents['vitals']) {
+				print "<br/>";
+				print $notecontents['vitals'] . "<br/>";
+			}
+			if (count($notecontents['exam']) > 0) {
+				print "<br/>";
+				print "<span class='heading'>" . xl("Progress Notes") . "</span><br/>";
+				print "<br/>";
+				foreach($notecontents['exam'] as $examnote) {
+					print nl2br($examnote) . "<br/>";
+				}
+			}
+			if (count($notecontents['prescriptions']) > 0) {
+				print "<br/>";
+				print "<span class='heading'>" . xl("Prescriptions") . "</span><br/>";
+				print "<br/>";
+				foreach($notecontents['prescriptions'] as $rx) {
+					print nl2br($rx) . "<br/>";
+				}
+			}
+			if (count($notecontents['other']) > 0) {
+				print "<br/>";
+				print "<span class='heading'>" . xl("Other") . "</span><br/>";
+				print "<br/>";
+				foreach($notecontents['other'] as $other => $othercat) {
+					print nl2br($other) . "<br/>";
+					foreach($othercat as $items) {
+						print nl2br($items) . "<br/>";
+					}
+				}
+			}
+			if (count($notecontents['billing']) > 0) {
+				$tmp = array();
+				foreach($notecontents['billing'] as $code) {
+					$tmp[$code]++;
+				}
+				if (count($tmp) > 0) {
+					print "<br/>";
+					print "<span class='heading'>" . xl("Coding") . "</span><br/>";
+					print "<br/>";
+					foreach($tmp as $code => $val) {
+						print nl2br($code) . "<br/>";
+					}
+				}
+			}
+			if (count($notecontents['calories']) > 0) {
+				$sum = 0;
+				print "<br/>";
+				print "<span class='heading'>" . xl("Calories") . "</span><br/>";
+				print "<br/>";
+				foreach($notecontents['calories'] as $calories => $value) {
+					print $value['content'].' - '.$value['item'].' - '.$value['date'] . "<br/>";
+					$sum += $value['content'];
+				}
+				print "--------" . "<br/>";
+				print $sum . "<br/>";
+			}
+			print "<br/>";
+			print "<br/>";
+			print "<span class='heading'>" . xl("Digitally Signed") . "</span><br/>";
+
+			$query = sqlStatement("select t2.id, t2.fname, t2.lname, t2.title from forms as t1 join users as t2 on " .
+				"(t1.user like t2.username) where t1.pid=$pid and t1.encounter=$encounter");
+			if ($results = mysql_fetch_array($query, MYSQL_ASSOC)) {
+				$name = $results['fname']." ".$results['lname'].", ".$results['title'];
+				$user_id = $results['id'];
+			}
+			$path = $GLOBALS['fileroot']."/interface/forms/CAMOS";
+			if (file_exists($path."/sig".$user_id.".jpg")) {
+				//show the image here
+			}
+			print "<span class='heading'>" . $name . "<br/>";
+		}	
+	}
+?>
+        <script language='JavaScript'>
+        window.print();
+        </script>
+        </div>
+        </body>
+        </html>
+<?php
+    exit;
+    }
+    else { // print as pdf
   	$pdf =& new Cezpdf();
 	$pdf->selectFont($depth.'library/fonts/Helvetica');
 	$pdf->ezSetCmMargins(3,1,1,1);
-	$output = getFormData($_POST['start'],$_POST['end'],$_POST['lname'],$_POST['fname']);
-	ksort($output);
-	$first = 1;
 	foreach ($output as $datekey => $dailynote) {
 		foreach ($dailynote as $note_id => $notecontents) {
 			preg_match('/(\d+)_(\d+)/', $note_id, $matches); //the unique note id contains the pid and encounter
@@ -89,7 +253,6 @@ if ($_POST['submit'] || ($_GET['pid'] && $_GET['encounter'])) {
 			}
 			$pdf->ezText(xl("Date").": ".$notecontents['date'],8);
 			$pdf->ezText(xl("Name").": ".$notecontents['name'],8);
-//			$pdf->ezText("ID: ".$note_id,8);
 
 			$query = sqlStatement("select pubpid from patient_data where id=".$_GET['pid']);
 			if ($results = mysql_fetch_array($query, MYSQL_ASSOC)) {
@@ -121,7 +284,7 @@ if ($_POST['submit'] || ($_GET['pid'] && $_GET['encounter'])) {
 			}
 			if (count($notecontents['other']) > 0) {
 				$pdf->ezText("",8);
-				$pdf->ezText("Other",12);
+				$pdf->ezText(xl("Other"),12);
 				$pdf->ezText("",8);
 				foreach($notecontents['other'] as $other => $othercat) {
 					$pdf->ezText($other,8);
@@ -174,6 +337,7 @@ if ($_POST['submit'] || ($_GET['pid'] && $_GET['encounter'])) {
 		}
 	}
 	$pdf->ezStream();
+    }
 }
 function getFormData($start_date,$end_date,$lname,$fname) { //dates in sql format
 	$lname = trim($lname);

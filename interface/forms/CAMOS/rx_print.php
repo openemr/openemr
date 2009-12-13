@@ -2,6 +2,7 @@
 include_once ('../../globals.php'); 
 include_once ('../../../library/sql.inc'); 
 include_once ('../../../library/classes/Prescription.class.php');
+include_once("../../../library/formdata.inc.php");
 //practice data
 $physician_name = ''; 
 $practice_fname = '';
@@ -51,16 +52,16 @@ if ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
 //update user information if selected from form
 if ($_POST['update']) { // OPTION update practice inf
   $query = "update users set " .
-    "fname = '" . $_POST['practice_fname'] . "', " .  
-    "lname = '" . $_POST['practice_lname'] . "', " .  
-    "title = '" . $_POST['practice_title'] . "', " .  
-    "street = '" . $_POST['practice_address'] . "', " .  
-    "city = '" . $_POST['practice_city'] . "', " .  
-    "state = '" . $_POST['practice_state'] . "', " .  
-    "zip = '" . $_POST['practice_zip'] . "', " .  
-    "phone = '" . $_POST['practice_phone'] . "', " .  
-    "fax = '" . $_POST['practice_fax'] . "', " .  
-    "federaldrugid = '" . $_POST['practice_dea'] . "' " .  
+    "fname = '" . formData('practice_fname') . "', " .  
+    "lname = '" . formData('practice_lname') . "', " .  
+    "title = '" . formData('practice_title') . "', " .  
+    "street = '" . formData('practice_address') . "', " .  
+    "city = '" . formData('practice_city') . "', " .  
+    "state = '" . formData('practice_state') . "', " .  
+    "zip = '" . formData('practice_zip') . "', " .  
+    "phone = '" . formData('practice_phone') . "', " .  
+    "fax = '" . formData('practice_fax') . "', " .  
+    "federaldrugid = '" . formData('practice_dea') . "' " .  
     "where id =" . $_SESSION['authUserID'];
   sqlInsert($query);
 }
@@ -79,14 +80,14 @@ if ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
   $practice_fax = $result['fax'];
   $practice_dea = $result['federaldrugid'];
 }
-if ($_POST['print']) { 
+if ($_POST['print_pdf'] || $_POST['print_html']) { 
   $camos_content = array();
   foreach ($_POST as $key => $val) {
     if (substr($key,0,3) == 'ch_') {
       $query = sqlStatement("select content from form_CAMOS where id =" . 
         substr($key,3));
       if ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
-  	if (!$_GET['letterhead']) { //do this change to formatting only for web output (rx output)
+  	if ($_POST['print_html']) { //do this change to formatting only for html output
         	$content = preg_replace('|\n|','<br/>', $result['content']);
 	        $content = preg_replace('|<br/><br/>|','<br/>', $content);
 	} else {
@@ -270,8 +271,80 @@ else {
 </html>
 <?php
   }//end of printing to rx not letterhead
-  elseif ($_GET['letterhead']) { //OPTION print to pdf letterhead
-	$content = preg_replace('/PATIENTNAME/i',$patient_name,$camos_content[0]);
+  elseif ($_GET['letterhead']) { //OPTION print to letterhead
+    $content = preg_replace('/PATIENTNAME/i',$patient_name,$camos_content[0]);
+    if($_POST['print_html']) { //print letterhead to html
+?>
+        <html>
+        <head>
+        <style>
+        body {
+	 font-family: sans-serif;
+	 font-weight: normal;
+	 font-size: 12pt;
+	 background: white;
+	 color: black;
+	}	
+	.paddingdiv {
+	 width: 524pt;
+	 padding: 0pt;
+	 margin-top: 50pt;
+	}
+	.navigate {
+	 margin-top: 2.5em;
+	}	
+	@media print {
+	 .navigate {
+	  display: none;
+	 }	
+	}	
+	</style>	
+	<title><?php xl('Letter','e'); ?></title>
+	</head>
+        <body>
+	<div class='paddingdiv'>
+<?php
+	//bold
+        print "<div style='font-weight:bold;'>";
+        print $physician_name . "<br/>\n";
+        print $practice_address . "<br/>\n";
+        print $practice_city.', '.$practice_state.' '.$practice_zip . "<br/>\n";
+        print $practice_phone . ' (' . xl('Voice') . ')' . "<br/>\n";
+        print $practice_phone . ' ('. xl('Fax') . ')' . "<br/>\n";
+        print "<br/>\n";
+        print date("l, F jS, Y") . "<br/>\n";
+        print "<br/>\n";
+	print "</div>";
+        //not bold
+	print "<div style='font-size:90%;'>";
+        print $content;
+	print "</div>";
+        //bold
+	print "<div style='font-weight:bold;'>";
+        print "<br/>\n";
+        print "<br/>\n";
+        if ($_GET['signer'] == 'patient') {
+                print "__________________________________________________________________________________" . "<br/>\n";
+                print xl("Print name, sign and date.") . "<br/>\n";
+        }
+        elseif ($_GET['signer'] == 'doctor') {
+                print xl('Sincerely,') . "<br/>\n";
+                print "<br/>\n";
+                print "<br/>\n";
+                print $physician_name . "<br/>\n";
+        }
+	print "</div>";
+?>
+        <script language='JavaScript'>
+        window.print();
+        </script>
+	</div>
+        </body>
+        </html>
+<?php
+        exit;
+    }
+    else { //print letterhead to pdf
 	include_once('../../../library/classes/class.ezpdf.php');
   	$pdf =& new Cezpdf();
 	$pdf->selectFont('../../../library/fonts/Times-Bold');
@@ -300,6 +373,7 @@ else {
 		$pdf->ezText($physician_name,12);
 	}
 	$pdf->ezStream();
+    } //end of html vs pdf print
   }
 } //end of if print
   else { //OPTION selection of what to print
@@ -371,7 +445,12 @@ function cycle_engine(cb,seed) {
 <input type=button name=cyclerx value='<?php xl('Cycle','e'); ?>' onClick='cycle()'><br/>
 <input type='button' value='<?php xl('Select All','e'); ?>' onClick='checkall()'>
 <input type='button' value='<?php xl('Unselect All','e'); ?>' onClick='uncheckall()'>
-<input type=submit name=print value='<?php xl('Print','e'); ?>'>
+
+<?php if ($_GET['letterhead']) { ?>
+<input type=submit name='print_pdf' value='<?php xl('Print (PDF)','e'); ?>'>
+<?php } ?>
+	
+<input type=submit name='print_html' value='<?php xl('Print (HTML)','e'); ?>'>
 <?
 $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " . 
  "form_CAMOS  as x join forms as y on (x.id = y.form_id) " . 
@@ -405,7 +484,12 @@ foreach($rxarray as $val) {
     $val->drug . ':' . $val->start_date . "<br/>\n";
 }
 ?>
-<input type=submit name=print value='<?php xl('Print','e'); ?>'>
+	
+<?php if ($_GET['letterhead']) { ?>
+<input type=submit name='print_pdf' value='<?php xl('Print (PDF)','e'); ?>'>
+<?php } ?>
+	
+<input type=submit name='print_html' value='<?php xl('Print (HTML)','e'); ?>'>
 </form>
 <h1><?php xl('Update User Information','e'); ?></h1>
 <form method=POST name='pick_items'>
