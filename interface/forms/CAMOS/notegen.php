@@ -1,6 +1,7 @@
 <?php
 $depth = '../../../';
 include_once ($depth.'interface/globals.php');
+include_once($depth.'library/formdata.inc.php');
 include_once ($depth.'library/classes/class.ezpdf.php');
 ?>
 <?php
@@ -89,10 +90,11 @@ Calendar.setup({inputField:'end', ifFormat:'%Y-%m-%d', button:'img_end'});
 </html>
 <?php
 }
-if ($_POST['submit_pdf'] || $_POST['submit_html'] && ($_GET['pid'] && $_GET['encounter'])) {
-    $output = getFormData($_POST['start'],$_POST['end'],$_POST['lname'],$_POST['fname']);
+if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['encounter'])) {
+    // note we are cleaning input, trimming, and preparing the variables for database insert
+    //  before sending through this function
+    $output = getFormData(formData("start","P",true),formData("end","P",true),formData("lname","P",true),formData("fname","P",true));
     ksort($output);
-    $first = 1;
     if ($_POST['submit_html']) { //print as html
 ?>
         <html>
@@ -108,7 +110,6 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] && ($_GET['pid'] && $_GET['enc
 	.paddingdiv {
 	 width: 524pt;
 	 padding: 0pt;
-	 margin-top: 50pt;
 	}
 	.navigate {
 	 margin-top: 2.5em;
@@ -118,6 +119,11 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] && ($_GET['pid'] && $_GET['enc
 	  display: none;
 	 }	
 	}
+	div.page {
+	 page-break-after: always;
+	 padding: 0pt;
+	 margin-top: 50pt;	 
+	}	
 	span.heading {
 	 font-weight: bold;
 	 font-size: 130%;
@@ -133,23 +139,15 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] && ($_GET['pid'] && $_GET['enc
 			preg_match('/(\d+)_(\d+)/', $note_id, $matches); //the unique note id contains the pid and encounter
 			$pid = $matches[1];
 			$enc = $matches[2];
-			if (!$first) { //generate a new page each time except first iteration when nothing has been printed yet
-			    
-				//new page code here
-				
-			}
-			else {
-				$first = 0;
-			}
+		    
+			//new page code here
+			print "<DIV class='page'>";
+		    
 			print xl("Date").": ".$notecontents['date'] . "<br/>";
 			print xl("Name").": ".$notecontents['name'] . "<br/>";
-
-			$query = sqlStatement("select pubpid from patient_data where id=".$_GET['pid']);
-			if ($results = mysql_fetch_array($query, MYSQL_ASSOC)) {
-				$pubpid = $results['pubpid'];
-			}
-			print xl("Claim")."# ".$pubpid . "<br/>";
-
+		        print xl("DOB").": ".$notecontents['dob'] . "<br/>";
+                        print xl("Claim")."# ".$notecontents['pubpid'] . "<br/>";
+		    
 			print "<br/>";
 			print xl("Chief Complaint").": ".$notecontents['reason'] . "<br/>";
 			if ($notecontents['vitals']) {
@@ -223,8 +221,9 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] && ($_GET['pid'] && $_GET['enc
 			if (file_exists($path."/sig".$user_id.".jpg")) {
 				//show the image here
 			}
-			print "<span class='heading'>" . $name . "<br/>";
-		}	
+			print "<span class='heading'>" . $name . "</span><br/>";
+		        print "</DIV>"; //end of last page
+		}
 	}
 ?>
         <script language='JavaScript'>
@@ -240,6 +239,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] && ($_GET['pid'] && $_GET['enc
   	$pdf =& new Cezpdf();
 	$pdf->selectFont($depth.'library/fonts/Helvetica');
 	$pdf->ezSetCmMargins(3,1,1,1);
+	$first = 1;
 	foreach ($output as $datekey => $dailynote) {
 		foreach ($dailynote as $note_id => $notecontents) {
 			preg_match('/(\d+)_(\d+)/', $note_id, $matches); //the unique note id contains the pid and encounter
@@ -253,12 +253,8 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] && ($_GET['pid'] && $_GET['enc
 			}
 			$pdf->ezText(xl("Date").": ".$notecontents['date'],8);
 			$pdf->ezText(xl("Name").": ".$notecontents['name'],8);
-
-			$query = sqlStatement("select pubpid from patient_data where id=".$_GET['pid']);
-			if ($results = mysql_fetch_array($query, MYSQL_ASSOC)) {
-				$pubpid = $results['pubpid'];
-			}
-			$pdf->ezText(xl("Claim")."# ".$pubpid,8);
+                        $pdf->ezText(xl("DOB").": ".$notecontents['dob'],8);
+		        $pdf->ezText(xl("Claim")."# ".$notecontents['pubpid'],8);
 
 			$pdf->ezText("",8);
 			$pdf->ezText(xl("Chief Complaint").": ".$notecontents['reason'],8);
@@ -340,8 +336,10 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] && ($_GET['pid'] && $_GET['enc
     }
 }
 function getFormData($start_date,$end_date,$lname,$fname) { //dates in sql format
-	$lname = trim($lname);
-	$fname = trim($fname);
+        
+        // All 4 parameters have previously been trimmed, globally validated,
+	//  and prepared for database insert
+    
 	$name_clause = '';
 	$date_clause = "date(t2.date) >= '".$start_date."' and date(t2.date) <= '".$end_date."' ";
 	if ($lname || $fname) {
@@ -355,7 +353,7 @@ function getFormData($start_date,$end_date,$lname,$fname) { //dates in sql forma
 	$query1 = sqlStatement(
 		"select t1.form_id, t1.form_name, t1.pid, date_format(t2.date,'%m-%d-%Y') as date, " .
 		"date_format(t2.date,'%Y%m%d') as datekey, " .
-		"t3.lname, t3.fname, date_format(t3.DOB,'%m-%d-%Y') as dob, " .
+		"t3.lname, t3.fname, t3.pubpid, date_format(t3.DOB,'%m-%d-%Y') as dob, " .
 		"t2.encounter as enc, " .
 	      	"t2.reason from " .
 		"forms as t1 join " .
@@ -374,6 +372,7 @@ function getFormData($start_date,$end_date,$lname,$fname) { //dates in sql forma
 			$dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']] = array();
 			$dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['name'] = $results1['fname'].' '.$results1['lname'];
 			$dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['date'] = $results1['date'];
+		        $dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['pubpid'] = $results1['pubpid'];
 			$dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['dob'] = $results1['dob'];
 			$dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['vitals'] = '';
 			$dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['reason'] = $results1['reason'];
