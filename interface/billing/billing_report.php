@@ -81,7 +81,7 @@ $my_authorized = $_POST["authorized"];
 */
 
 $left_margin = isset($_POST["left_margin"]) ? $_POST["left_margin"] : 24;
-$top_margin  = isset($_POST["top_margin"] ) ? $_POST["top_margin" ] : 27;
+$top_margin  = isset($_POST["top_margin"] ) ? $_POST["top_margin" ] : 20;
 
 $ofrom_date  = $from_date;
 $oto_date    = $to_date;
@@ -266,7 +266,7 @@ function topatient(pid) {
   </td>
 
   <td align='right' width='10%' nowrap>
-   &nbsp;<span class='text'><a href="javascript:top.restoreSession();document.the_form.mode.value='change';document.the_form.submit()" class=link_submit><?php xl('[Change View]','e') ?></a>
+   &nbsp;<span class='text'><a href="javascript:top.restoreSession();document.the_form.mode.value='change';document.the_form.submit()" class=link_submit>[<?php xl('Update List','e') ?>]</a>
    or
    <a href="javascript:top.restoreSession();document.the_form.mode.value='export';document.the_form.submit()" class='link_submit'><?php xl('[Export OFX]','e') ?></a></span>&nbsp;
   </td>
@@ -343,7 +343,7 @@ function topatient(pid) {
  title="<?php xl('Generate and download X12 encounter claim batch','e')?>"
  onclick="alert('<?php xl('After saving your batch, click [View Log] to check for errors.','e'); ?>')">
 <?php } ?>
-<input type="submit" class="subbtn" name="bn_process_hcfa" value="<?php xl('Generate HCFA','e')?>"
+<input type="submit" class="subbtn" name="bn_process_hcfa" value="<?php xl('Generate CMS 1500','e')?>"
  title="<?php xl('Generate and download HCFA 1500 paper claims','e')?>"
  onclick="alert('<?php xl('After saving the PDF, click [View Log] to check for errors.','e'); ?>')">
 <input type="submit" class="subbtn" name="bn_mark" value="<?php xl('Mark as Cleared','e')?>" title="<?php xl('Post to accounting and mark as billed','e')?>">
@@ -352,7 +352,7 @@ function topatient(pid) {
 <input type="submit" class="subbtn" name="bn_electronic_file" value="Make Electronic Batch &amp; Clear" title="<?php xl('Download billing file, post to accounting and mark as billed','e')?>">
 -->
 &nbsp;&nbsp;&nbsp;
-<?php xl('HCFA Margins','e'); ?>:
+<?php xl('CMS 1500 Margins','e'); ?>:
 &nbsp;<?php xl('Left','e'); ?>:
 <input type='text' size='2' name='left_margin'
  value='<?php echo $left_margin; ?>'
