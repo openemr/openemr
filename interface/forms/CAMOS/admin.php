@@ -5,7 +5,7 @@ include_once("../../../library/formdata.inc.php");
 <?php
 if ($_POST['export']) {
 	$temp = tmpfile();
-	if ($temp === false) {echo "<h1>failed!</h1>";}
+	if ($temp === false) {echo "<h1>" . xl("failed") . "</h1>";}
 	else {
 		$query1 = "select id, category from form_CAMOS_category";
 		$statement1 = sqlStatement($query1);
@@ -52,7 +52,7 @@ if ($_POST['import']) {
 	}
 	$handle = @fopen($fname,"r");
 	if ($handle === false) {
-		echo "<h1>Error opening uploaded file for reading.</h1>";
+		echo "<h1>" . xl('Error opening uploaded file for reading') . "</h1>";
 	} else {
 		$category = '';
 		$category_id = 0;
@@ -160,16 +160,14 @@ admin
 </head>
 <body>
 <p>
-Click 'export' to export your Category, Subcategory, Item, Content data to a text file.  Any resemblance of this file to an XML file is 
-purely coincidental.  For now, opening and closing tags must be on the same line, they must be lowercase with no spaces.  To import, browse
-for a file and click 'import'.  If the data is completely different, it will merge with your existing data.  If there are similar item names,
-The old one will be kept and the new one saved with a number added to the end.  This feature is very experimental and not fully tested.  Use at your own risk!
+<?php xl("Click 'export' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click 'import'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.","e"); ?>
+<?php xl("This feature is very experimental and not fully tested. Use at your own risk!","e"); ?>
 </p>
 <form enctype="multipart/form-data" method="POST">
 <input type="hidden" name="MAX_FILE_SIZE" value="12000000" />
-Send this file: <input type="file" name="userfile"/>
-<input type="submit" value="import" name="import"/>
-<input type="submit" value="export" name="export"/>
+<?php xl('Send this file','e'); ?>: <input type="file" name="userfile"/>
+<input type="submit" name="import" value='<?php xl("Import","e"); ?>'/>
+<input type="submit" name="export" value='<?php xl("Export","e"); ?>'/>
 </form>
 </body>
 </html>

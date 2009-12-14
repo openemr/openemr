@@ -887,7 +887,7 @@ function js_button(mode,selection) {
   var f2 = document.CAMOS;
 //check lock next 
 if ( (mode == 'add') && (selection == 'change_content') && (isLocked()) ) {
-  alert("You have attempted to alter content which is locked.\nRemove the lock if you want to do this.\nTo unlock, remove the line, '/*lock::*/'");
+  alert("<?php xl("You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, '/*lock::*/'","e"); ?>");
   return;
 }
 //end check lock
@@ -896,31 +896,31 @@ if ( (mode == 'add') && (selection == 'change_content') && (isLocked()) ) {
 if ( (mode == 'add') || (mode == 'alter') ) {
   if (selection == 'change_category') {
     if (trimString(f2.change_category.value) == "") {
-      alert("You cannot add a blank value for a category!"); 
+      alert("<?php xl("You cannot add a blank value for a category!","e"); ?>"); 
       return;
     }
     if (selectContains(f2.select_category, trimString(f2.change_category.value))) {
-      alert("There is already a category named "+f2.change_category.value+".");
+      alert("<?php xl("There is already a category named","e"); ?>"+" "+f2.change_category.value+".");
       return;
     }
   }
   if (selection == 'change_subcategory') {
     if (trimString(f2.change_subcategory.value) == "") {
-      alert("You cannot add a blank value for a subcategory!"); 
+      alert("<?php xl("You cannot add a blank value for a subcategory!","e"); ?>"); 
       return;
     }
     if (selectContains(f2.select_subcategory, trimString(f2.change_subcategory.value))) {
-      alert("There is already a subcategory named "+f2.change_subcategory.value+".");
+      alert("<?php xl("There is already a subcategory named","e"); ?>"+" "+f2.change_subcategory.value+".");
       return;
     }
   }
   if (selection == 'change_item') {
     if (trimString(f2.change_item.value) == "") {
-      alert("You cannot add a blank value for an item!"); 
+      alert("<?php xl("You cannot add a blank value for an item!","e"); ?>"); 
       return;
     }
     if (selectContains(f2["select_item[]"], trimString(f2.change_item.value))) {
-      alert("There is already an item named "+f2.change_item.value+".");
+      alert("<?php xl("There is already an item named","e"); ?>"+" "+f2.change_item.value+".");
       return;
     }
   }
@@ -928,7 +928,7 @@ if ( (mode == 'add') || (mode == 'alter') ) {
 //end of check for blank or duplicate submissions
 
   if (mode == 'delete') {
-    if (!confirm("Are you sure you want to delete this item from the database?")) {
+    if (!confirm("<?php xl("Are you sure you want to delete this item from the database?","e"); ?>")) {
       return;
     }
   }
@@ -1214,7 +1214,7 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 <?
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
   echo "<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[".xl('Leave The Form')."]</a>";
-  echo "<a href='".$GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [".xl('help')."]</a>";
+  echo "<a href='".$GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [".xl('Help')."]</a>";
 //  echo $previous_encounter_data; //probably don't need anymore now that we have clone last visit
 }
 ?>
