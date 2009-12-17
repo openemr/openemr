@@ -496,43 +496,43 @@ foreach($rxarray as $val) {
 <table>
 <tr>
   <td> <?php xl('First Name','e'); ?>: </td> 
-  <td> <input type=text name=practice_fname value ='<? echo $practice_fname; ?>'> </td>
+  <td> <input type=text name=practice_fname value ='<? echo htmlspecialchars($practice_fname,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
   <td> <?php xl('Last Name','e'); ?>: </td> 
-  <td> <input type=text name=practice_lname value ='<? echo $practice_lname; ?>'> </td>
+  <td> <input type=text name=practice_lname value ='<? echo htmlspecialchars($practice_lname,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
   <td> <?php xl('Title','e'); ?>: </td> 
-  <td> <input type=text name=practice_title value ='<? echo $practice_title; ?>'> </td>
+  <td> <input type=text name=practice_title value ='<? echo htmlspecialchars($practice_title,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
   <td> <?php xl('Street Address','e'); ?>: </td> 
-  <td> <input type=text name=practice_address value ='<? echo $practice_address; ?>'> </td>
+  <td> <input type=text name=practice_address value ='<? echo htmlspecialchars($practice_address,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
   <td> <?php xl('City','e'); ?>: </td> 
-  <td> <input type=text name=practice_city value ='<? echo $practice_city; ?>'> </td>
+  <td> <input type=text name=practice_city value ='<? echo htmlspecialchars($practice_city,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
   <td> <?php xl('State','e'); ?>: </td> 
-  <td> <input type=text name=practice_state value ='<? echo $practice_state; ?>'> </td>
+  <td> <input type=text name=practice_state value ='<? echo htmlspecialchars($practice_state,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
   <td> <?php xl('Zip','e'); ?>: </td> 
-  <td> <input type=text name=practice_zip value ='<? echo $practice_zip; ?>'> </td>
+  <td> <input type=text name=practice_zip value ='<? echo htmlspecialchars($practice_zip,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
   <td> <?php xl('Phone','e'); ?>: </td> 
-  <td> <input type=text name=practice_phone value ='<? echo $practice_phone; ?>'> </td>
+  <td> <input type=text name=practice_phone value ='<? echo htmlspecialchars($practice_phone,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
   <td> <?php xl('Fax','e'); ?>: </td> 
-  <td> <input type=text name=practice_fax value ='<? echo $practice_fax; ?>'> </td>
+  <td> <input type=text name=practice_fax value ='<? echo htmlspecialchars($practice_fax,ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
   <td> <?php xl('DEA','e'); ?>: </td> 
-  <td> <input type=text name=practice_dea value ='<? echo $practice_dea; ?>'> </td>
+  <td> <input type=text name=practice_dea value ='<? echo htmlspecialchars($practice_dea,ENT_QUOTES); ?>'> </td>
 </tr>
 </table>
 <input type=submit name=update value='<?php xl('Update','e'); ?>'>
