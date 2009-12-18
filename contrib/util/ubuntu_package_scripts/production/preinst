@@ -123,6 +123,8 @@ upgrade_function () {
             OLD_VERSION="3.0.1-1"
          elif [ "$OLD_VERSION" == "3.0.0.1" ]; then
             OLD_VERSION="3.0.1-1"
+         elif [ "$OLD_VERSION" == "3.0.1" ]; then
+            OLD_VERSION="3.0.1-1"
          elif [ "$OLD_VERSION" == "3.1.0" ]; then
             OLD_VERSION="3.1.0-1" 
          else
