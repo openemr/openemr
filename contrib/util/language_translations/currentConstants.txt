@@ -31,6 +31,7 @@ Access Control
 Access Control List Administration
 Accounting
 Aches
+Acknowledgment Requested (ISA14)
 ACL
 ACL Administration
 ACL Administration Not Authorized
@@ -44,6 +45,7 @@ Active Patient
 Activity Type
 Acute on Chronic
 Add
+add
 Add a Company
 Add a Pharmacy
 add an event for 
@@ -69,6 +71,7 @@ Add New Partner
 Add Note
 Add Patient Record
 Add Prescription
+Add to
 Add to Medication List
 Add Transaction
 Add User
@@ -155,6 +158,7 @@ already exists.
 Already used, choose another identifier
 Already used, choose another title
 Alt Address
+alter
 Alternatively, you may use the search page to upload an electronic remittance (X12 835) file that you have obtained from your payer or clearinghouse.  You can do this by clicking the Browse button and selecting the file to upload, and then clicking Search to perform the upload and display the corresponding invoices.  In this case the other parameters mentioned above do not apply and will be ignored.  Uploading saves the file but does not yet process its contents -- that is done separately as described below.
 AM
 Amend Existing Note
@@ -165,6 +169,9 @@ Amount for Past Balance
 Amount for This Visit
 Amount Paid
 Amount:
+An error occurred while dumping OpenEMR web directory tree
+An error occurred while dumping phpGACL web directory tree
+An error occurred while dumping SQL-Ledger web directory tree
 An incomplete GCAC issue has been created and linked. Someone will need to complete it later.
 And
 AND
@@ -195,6 +202,7 @@ Append to the existing note
 Append to this note
 Append to This Note
 Appendectomy
+Application Sender Code (GS02)
 apply to affected area
 apply to skin
 Applying
@@ -212,10 +220,12 @@ Approved Events Administration
 Appt-Enc
 Appts
 April
+Arabic
 Are you prepared to complete a new GCAC issue for this visit?
 Are you sure you want to approve these events?
 Are you sure you want to completely remove this form?
 Are you sure you want to delete this event?
+Are you sure you want to delete this item from the database?
 Are you sure you want to delete this note?
 Are you sure you want to edit these events?
 Are you sure you want to hide these events?
@@ -265,8 +275,20 @@ Axillary
 b.i.d.
 back
 Back
+Back eight visits
+Back eleven visits
+Back five visits
+Back four visits
+Back nine visits
+Back one visit
 Back Problems
+Back seven visits
+Back six visits
 Back Surgery
+Back ten visits
+Back three visits
+Back twelve visits
+Back two visits
 Backup
 Backup file has been created. Will now send download.
 Bad check
@@ -340,6 +362,7 @@ BOX 18. Hospitalization date to (yyyy-mm-dd):
 BOX 20. Is Outside Lab used?
 BOX 22. Medicaid Resubmission Code (ICD-9) 
 BOX 23. Prior Authorization No. 
+BP
 BP Diastolic
 BP Systolic
 Bpd
@@ -375,6 +398,7 @@ Calendar Settings
 Calendar UI
 Calendar View
 Call to addForm() goes here.<br>
+Calories
 CAMOS
 Cancel
 Cancer
@@ -420,6 +444,7 @@ cfirst($instype) . ' Ins
 ChampUS
 ChampUSVA
 change
+Change
 Change Activity
 Change in Vision
 Change In Vision
@@ -461,6 +486,7 @@ Chest Pain
 Chest Pain:
 Chest Pains
 Chg
+Chief Complaint
 Child
 Chills
 Chinese
@@ -470,6 +496,7 @@ Cholecystestomy
 Choose
 Choose a section and click an item within it; then in the other section you will see the related items highlighted, and you can click in that section to add and delete relationships.
 Choose list
+Choose print format for this encounter report.
 Chronic Bronchitis
 Chronic Joint Pain
 Chronic synovitis / effusion / joint pain / gout
@@ -481,6 +508,7 @@ City Name
 City, State
 City, State Zip
 City/State
+Claim
 Claim 
 Claim test has completed running
 Claim was generated to file 
@@ -491,6 +519,7 @@ Clear Justification
 Clear Smarty Cache
 CLIA Number
 Click
+Click 'export' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click 'import'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.
 click for more
 Click here to choose a date
 click here to update priority, category and nickname settings
@@ -509,18 +538,23 @@ Click to view
 Click to view or edit
 Click to view/edit
 Click:
+Client Copy
 Client medical history summary
 Client Profile - New Clients
 Client Profile - Unique Clients
 Clients
 Clinic
+Clinic Copy
 Clinic Daily Record
 Clinic ID
 Clinicians
+Clone
+Clone Past Visit
 Close
 close window
 Closed
 cm
+CMS 1500 Margins
 CMS ID
 CN2-12 intact
 Code
@@ -592,6 +626,10 @@ Coronary Artery Bypass
 Cough
 Cough:
 Could not send email due to a server problem, 
+Couldn't create backup dir:
+Couldn't remove dir:
+Couldn't remove old backup file:
+Couldn't remove old export file: 
 Couns by Method
 Counseling
 Counseling activities
@@ -627,6 +665,7 @@ Currently Active
 Cushing Syndrom
 Cushing Syndrome
 Custom
+Cycle
 CYP
 CYP Factor
 CYP Report
@@ -695,6 +734,7 @@ Default Template
 Default Value
 Default X12 Partner
 Default/Global
+del
 Delayed Recurrence (> 12 Mo)
 Delete
 delete
@@ -703,6 +743,7 @@ Delete Group
 Delete List
 Delete Pages
 Delete Patient, Encounter, Form, Issue, Document, Payment, Billing or Transaction
+Delete Selected Items
 Delete successful.
 Delete this document
 Delete this form
@@ -743,6 +784,7 @@ Dictation
 Dictation: 
 Did you receive a copy of the HIPAA Notice?
 Diffuse:
+Digitally Signed
 Direct Mail
 Disability
 disabled
@@ -777,6 +819,7 @@ Divorced
 Dizziness:
 do not save
 do not substitute
+do nothing
 Do you really want to delete this group
 Do you wish to continue adding this new patient?
 Do you wish to continue with the new name?
@@ -960,13 +1003,18 @@ Error in "HIPAA" selection
 Error in "Process" selection
 Error in "SMS Gateway" selection
 Error in "Sort By" selection
+Error in gzip compression of file: 
 Error in YES or NO option
+Error opening uploaded file for reading
 error while registering form!
 Error while saving to the file
 Error while writing to file
 ERROR, unable to collect data from server
+Error. You need to install the Archive/Tar.php php module.
 ERROR: could not open table.sql, broken form?
+ERROR: Field
 Error: passwords don't match. Please check your typing.
+Error: Unable to create downloadable archive
 Errors
 Erythema:
 Established Patient
@@ -1053,6 +1101,7 @@ Facility Code
 Facility NPI
 Facility:
 Failed
+failed
 failure
 Family History
 Family History of Glaucoma
@@ -1135,6 +1184,8 @@ Football Injuries
 Football Injury Report
 Footwear Type
 for
+For Encounter Claims
+For Referred Organization/Practitioner
 for:
 Forearm
 Form
@@ -1197,11 +1248,14 @@ General
 General Service Category
 Generate and download HCFA 1500 paper claims
 Generate and download X12 batch
+Generate and download X12 encounter claim batch
+Generate CMS 1500
 Generate HCFA
 Generate Letter
 Generate Letter regarding 
 Generate Report
 Generate X12
+Generate X12 Encounter
 Generated on
 Generates
 Genitourinary
@@ -1299,6 +1353,7 @@ Hidden
 Hidden Events Administration
 Hide
 Hide Details
+Hide/Show Columns
 High
 High Blood Pressure
 Hip + groin
@@ -1328,6 +1383,7 @@ How did Injury Occur?
 How did Injury Occur?:
 How many months ahead to query for upcoming events?
 HPI:
+HT
 HTML
 Hyperactive
 Hypertension
@@ -1338,6 +1394,7 @@ I
 I am busy during this time.
 I do not have permission to read 
 ICD
+ICD9
 ID
 ID cannot be blank
 IDays
@@ -1484,6 +1541,7 @@ is a required field.
 is a root node and can not be deleted.
 is not valid (decimal fractions are OK).
 Is PHP using Safe Mode?
+is too long
 issue
 Issue
 Issues
@@ -1577,6 +1635,8 @@ Length
 Less-private information (write,addonly optional)
 Letter
 Letter Generator
+Letterhead that doctor signs
+Letterhead that patient signs
 Level of urgency
 Liability
 Liability Medical
@@ -1584,6 +1644,8 @@ License/ID
 Lifestyle
 Ligament tear or sprain
 Limit Of Events
+Linked
+linked to document
 List
 List box
 list box
@@ -1609,6 +1671,7 @@ Locality
 Location
 Location unspecified
 Location:
+Lock
 Logged in
 Logged in as
 Logged in as: 
@@ -1933,6 +1996,7 @@ Number of columns in year view.
 Number of games or events missed, if any
 Numbness
 O.A.F.V.
+O2 Sat
 Obesity I
 Obesity II
 Obesity III
@@ -2207,6 +2271,7 @@ PostCalendar Category Settings
 PostCalendar Global Settings
 Posted on
 Posting Date
+PPE + Prev Med/Surg Hx
 Practice
 Practice Settings
 Practitioner
@@ -2251,15 +2316,21 @@ Primary Insurance Data
 Primary Insurance Provider
 Primary Provider
 Print
+Print (HTML)
+Print (PDF)
+Print Any Encounter
 Print Blank Referral Form
 Print Format
 Print Four Panel
 Print Multiple
 Print Multiple To Fax
+Print name, sign and date.
+Print Notes
 Print Page 1
 Print Page 2
 Print Record
 Print Shot Record
+Print This Encounter
 Print this note
 Print This Note
 Print To Fax
@@ -2282,6 +2353,7 @@ Process
 Processing
 Products
 Prof.
+Progress Notes
 Prostate Cancer
 Prostate Exam
 Prostate Problems
@@ -2312,10 +2384,14 @@ Pt refund
 Pt released
 Pt Report
 PT Student, or leave blank
+PT_CITY
 PT_DOB
 PT_FNAME
 PT_LNAME
 PT_MNAME
+PT_POSTAL
+PT_STATE
+PT_STREET
 Public
 Pulmonary
 Pulse
@@ -2366,6 +2442,8 @@ Received By
 Received Faxes
 Receiver
 Receiver ID
+Receiver ID (ISA08)
+Receiver ID Qualifier (ISA07)
 Recommendations
 Recommendations and treatment
 Recommendations by specialist
@@ -2536,6 +2614,7 @@ Search by:
 Search for:
 Search or Add Patient
 Search Results:
+Search Selected
 Search the Events
 Search/Add Insurer
 Searching for appointments
@@ -2556,6 +2635,7 @@ Seizures
 Sel
 Select
 Select All
+Select CAMOS Entries for Printing
 Select field
 Select Fields
 Select for printing
@@ -2565,8 +2645,11 @@ Select Yes to confirm group deletion
 Self
 Self Pay
 Send in progress
+Send this file
 Sender
 Sender ID
+Sender ID (ISA06)
+Sender ID Qualifier (ISA05)
 Sensitivities
 Sensitivity:
 Sensory exam normal
@@ -2605,6 +2688,7 @@ Show Authorized Only
 Show Details
 Show hovering event text on mouseover?
 Show how many events on admin pages?
+Show Patient Notes
 Show Report
 Show search/submit links in block?
 Show Unbilled Only
@@ -2614,8 +2698,10 @@ Sig
 Sigmoid/Colonoscopy
 Signature
 Signature:
+Signed Rx
 Significant Swelling:
 Since
+Sincerely,
 Single
 Sinus Problems
 Sinus Surgery
@@ -2628,6 +2714,7 @@ Skin
 Skin Cancer
 Skin Disease
 Skin Other
+Skipping SQL-Ledger dump - not implemented for Windows server
 Sleep patterns
 Sleep Patterns
 Sleeping
@@ -2715,6 +2802,7 @@ Stomach Pains
 Strain of muscle
 Stream
 Street
+Street Address
 Street and Number
 Strength
 Strep Throat
@@ -2730,9 +2818,13 @@ Subjective
 Sublingual
 sublingual
 Submit
+Submit All Content
 Submit Event
 submit form
+Submit Selected Content
+submitted
 Submitted by
+Submitter EDI Access Number (PER06)
 Subscriber
 Subscriber Address
 Subscriber Employer
@@ -2799,6 +2891,7 @@ Team Injury Overview
 Team Roster
 Team Roster View
 Tel
+Temp
 Temp Location
 Temp Method
 Temperature
@@ -2848,6 +2941,9 @@ There are
 There are errors with your submission.  These are outlined below.
 There are no New Submissions
 There has been a mail error sending to
+There is already a category named
+There is already a subcategory named
+There is already an item named
 There is no COA entry for AR account 
 There is no COA entry for cash account 
 There is no COA entry for income account 
@@ -2871,6 +2967,7 @@ This action cannot be undone.
 This action CANNOT be undone.
 This code type does not accept relations.
 This Encounter
+This feature is very experimental and not fully tested. Use at your own risk!
 This invoice number has been changed to 
 This module is in test mode. The database will not be changed.
 This module promotes efficient entry of EOB data.
@@ -3023,10 +3120,13 @@ UOR
 Up to
 Upcoming Appointments
 Upcoming Events
-update
 Update
+update
 Update files
 Update Info
+Update List
+Update Selected Items
+Update User Information
 Updating demographics is not authorized.
 UPIN
 Upload
@@ -3046,6 +3146,7 @@ Urine Hesitancy
 Urine Stream
 Urine Urgency
 URL
+Usage Indicator (ISA15)
 Use 24 hour time format?
 Use Defaults
 Use international date style?
@@ -3111,6 +3212,7 @@ View events in a popup window?
 View Page 1
 View Page 2
 View related encounters
+View/Edit Allergies
 View:
 VISA
 Visceral damage/trauma/surgery
@@ -3119,8 +3221,10 @@ Visit Date
 Visit Forms
 Visits
 Visits From
+Vital Signs
 Vitals
 Vitals (Metric)
+Voice
 Vomiting
 W
 Waist Circ
@@ -3182,6 +3286,7 @@ Wrist Problems
 write
 write off
 wsome
+WT
 x Cancelled
 X-ray
 X-RAY Interpretation:
@@ -3210,8 +3315,12 @@ You are not authorized to add/edit issues
 You are not authorized to see this encounter.
 You can not access this function directly.
 You cannot access this page directly.
+You cannot add a blank value for a category!
+You cannot add a blank value for a subcategory!
+You cannot add a blank value for an item!
 You did not choose any actions.
 You do not have access to view/edit this note
+You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, '/*lock::*/'
 You must first select or add a patient.
 You must first select or create an encounter.
 You must select some fields to continue.
