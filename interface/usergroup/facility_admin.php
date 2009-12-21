@@ -3,27 +3,28 @@ include_once("../globals.php");
 include_once("$srcdir/md5.js");
 include_once("$srcdir/sql.inc");
 require_once("$srcdir/classes/POSRef.class.php");
+require_once("$srcdir/formdata.inc.php");
 
 if ($_POST["mode"] == "facility")
 {
 	sqlStatement("update facility set
-		name='{$_POST['facility']}',
-		phone='{$_POST['phone']}',
-		fax='{$_POST['fax']}',
-		street='{$_POST['street']}',
-		city='{$_POST['city']}',
-		state='{$_POST['state']}',
-		postal_code='{$_POST['postal_code']}',
-		country_code='{$_POST['country_code']}',
-		federal_ein='{$_POST['federal_ein']}',
-		service_location='{$_POST['service_location']}',
-		billing_location='{$_POST['billing_location']}',
-		accepts_assignment='{$_POST['accepts_assignment']}',
-		pos_code='{$_POST['pos_code']}',
-		domain_identifier='{$_POST['domain_identifier']}',
-		facility_npi='{$_POST['facility_npi']}',
-		attn='{$_POST['attn']}'
-	where id='{$_POST['fid']}'");
+		name='"              . formData('facility','P',true) . "',
+		phone='"             . formData('phone','P',true) . "',
+		fax='"               . formData('fax','P',true) . "',
+		street='"            . formData('street','P',true) . "',
+		city='"              . formData('city','P',true) . "',
+		state='"             . formData('state','P',true) . "',
+		postal_code='"       . formData('postal_code','P',true) . "',
+		country_code='"      . formData('country_code','P',true) . "',
+		federal_ein='"       . formData('federal_ein','P',true) . "',
+		service_location='"  . formData('service_location','P',true) . "',
+		billing_location='"  . formData('billing_location','P',true) . "',
+		accepts_assignment='". formData('accepts_assignment','P',true) . "',
+		pos_code='"          . formData('pos_code','P',true) . "',
+		domain_identifier='" . formData('domain_identifier','P',true) . "',
+		facility_npi='"      . formData('facility_npi','P',true) . "',
+		attn='"              . formData('attn','P',true) . "'
+		where id='"          . formData('fid','P',true) . "'");
 }
 
 if (isset($_GET["fid"])) {
@@ -53,33 +54,33 @@ if (isset($_POST["fid"])) {
 <table border=0 cellpadding=0 cellspacing=0>
  <tr>
   <td width='24'><span class='text'><?php xl('Name','e'); ?>: </span></td>
-  <td width='120'><input type='entry' name='facility' size='20' value='<?php echo $facility['name'] ?>'></td>
+  <td width='120'><input type='entry' name='facility' size='20' value='<?php echo htmlspecialchars($facility['name'], ENT_QUOTES) ?>'></td>
   <td rowspan='10' width='15'></td>
   <td><span class='text'><?php xl('Phone','e'); ?> <?php xl('as','e'); ?> (000) 000-0000:</span></td>
-  <td width='210'><input type='entry' name='phone' size='20' value='<?php echo $facility['phone'] ?>'></td>
+  <td width='210'><input type='entry' name='phone' size='20' value='<?php echo htmlspecialchars($facility['phone'], ENT_QUOTES) ?>'></td>
  </tr>
  <tr>
   <td>&nbsp;</td>
   <td>&nbsp;</td>
   <td><span class='text'><?php xl('Fax','e'); ?> <?php xl('as','e'); ?> (000) 000-0000:</span></td>
-  <td width='210'><input type='entry' name='fax' size='20' value='<?php echo $facility['fax'] ?>'></td>
+  <td width='210'><input type='entry' name='fax' size='20' value='<?php echo htmlspecialchars($facility['fax'], ENT_QUOTES) ?>'></td>
  </tr>
 <tr>
-	<td><span class=text><?php xl('Address','e'); ?>: </span></td><td><input type=entry size=20 name=street value="<?php echo $facility["street"] ?>"></td>
-	<td><span class=text><?php xl('City','e'); ?>: </span></td><td><input type=entry size=20 name=city value="<?php echo $facility{"city"} ?>"></td>
+	<td><span class=text><?php xl('Address','e'); ?>: </span></td><td><input type=entry size=20 name=street value="<?php echo htmlspecialchars($facility["street"], ENT_QUOTES) ?>"></td>
+	<td><span class=text><?php xl('City','e'); ?>: </span></td><td><input type=entry size=20 name=city value="<?php echo htmlspecialchars($facility{"city"}, ENT_QUOTES) ?>"></td>
 </tr>
 <tr>
-	<td><span class=text><?php xl('State','e'); ?>: </span></td><td><input type=entry size=20 name=state value="<?php echo $facility{"state"} ?>"></td>
-	<td><span class=text><?php xl('Zip Code','e'); ?>: </span></td><td><input type=entry size=20 name=postal_code value="<?php echo $facility{"postal_code"} ?>"></td>
+	<td><span class=text><?php xl('State','e'); ?>: </span></td><td><input type=entry size=20 name=state value="<?php echo htmlspecialchars($facility{"state"}, ENT_QUOTES) ?>"></td>
+	<td><span class=text><?php xl('Zip Code','e'); ?>: </span></td><td><input type=entry size=20 name=postal_code value="<?php echo htmlspecialchars($facility{"postal_code"}, ENT_QUOTES) ?>"></td>
 </tr>
 <tr>
-	<td><span class=text><?php xl('Country','e'); ?>: </span></td><td><input type=entry size=20 name=country_code value="<?php echo $facility{"country_code"} ?>"></td>
-	<td><span class=text><?php xl('Federal EIN','e'); ?>: </span></td><td><input type=entry size=20 name=federal_ein value="<?php echo $facility{"federal_ein"} ?>"></td>
+	<td><span class=text><?php xl('Country','e'); ?>: </span></td><td><input type=entry size=20 name=country_code value="<?php echo htmlspecialchars($facility{"country_code"}, ENT_QUOTES) ?>"></td>
+	<td><span class=text><?php xl('Federal EIN','e'); ?>: </span></td><td><input type=entry size=20 name=federal_ein value="<?php echo htmlspecialchars($facility{"federal_ein"}, ENT_QUOTES) ?>"></td>
 </tr>
 <tr>
 	 <td>&nbsp;</td><td>&nbsp;</td>
 	<td width="21"><span class=text><?php ($GLOBALS['simplified_demographics'] ? xl('Facility Code','e') : xl('Facility NPI','e')); ?>:
-  </span></td><td><input type=entry size=20 name=facility_npi value="<?php echo $facility{"facility_npi"} ?>"></td>
+  </span></td><td><input type=entry size=20 name=facility_npi value="<?php echo htmlspecialchars($facility{"facility_npi"}, ENT_QUOTES) ?>"></td>
 </tr>
  <tr>
   <td><span class='text'><?php xl('Billing Location','e'); ?>: </span></td>
@@ -114,11 +115,11 @@ if (isset($_POST["fid"])) {
 </tr>
 <tr>
 	<td><span class="text"><?php xl('Billing Attn','e'); ?>:</span></td>
-	<td colspan="4"><input type="text" name="attn" size="45" value="<?php echo $facility['attn'] ?>"></td>
+	<td colspan="4"><input type="text" name="attn" size="45" value="<?php echo htmlspecialchars($facility['attn'], ENT_QUOTES) ?>"></td>
 </tr>
 <tr>
 	<td><span class="text"><?php xl('CLIA Number','e'); ?>:</span></td>
-	<td colspan="4"><input type="text" name="domain_identifier" size="45" value="<?php echo $facility['domain_identifier'] ?>"></td>
+	<td colspan="4"><input type="text" name="domain_identifier" size="45" value="<?php echo htmlspecialchars($facility['domain_identifier'], ENT_QUOTES) ?>"></td>
 </tr>
 <tr>
 	<td>&nbsp;</td><td>&nbsp;</td>
