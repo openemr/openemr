@@ -528,33 +528,44 @@ class C_Document extends Controller {
 	}
 	
 	/*
-	*	This is a recursive function to rename a file to something that doesn't already exist. It appends a numeric to the end of the file, if
-	*	the file already has a numeric it increments that.
-	*	It supports numeric endings upto 1000, after which it uses an md5sum on now() instead. This is because some files end in
-	*	dates and we don't want to increment those.
+	*	This is a recursive function to rename a file to something that doesn't already exist.
+	*       Modified in version 3.2.0 to place a counter within the filename (previously was placed at end)
+	*        to ensure documents opened correctly by external browser viewers. If the counter is at the
+        *        end of the file, then will use it (to continue to work with older files), however all new
+	*        counters will be placed within filenames. 
 	*/
 	function _rename_file($fname) {
 		$file = basename($fname);
 		$fparts = split("\.",$fname);
 		$path = dirname($fname);
-		if (is_numeric($fparts[count($fparts) -1]) && $fparts[count($fparts) -1] < 1000) {
-			$new_name = "";
-			for($i=0;$i<count($fparts);$i++) {
-				if ($i == (count($fparts) -1)) {
-				  $new_name .= ($fparts[$i] +1);
-				}
-				else {
-				  $new_name .= $fparts[$i] . ".";
-				}
-			}	
-			$fname = $new_name;
+	        if (count($fparts) > 1) {
+		  if (is_numeric($fparts[count($fparts) -2]) && (count($fparts) > 2)) {
+                        //increment the counter in filename
+			$fparts[count($fparts) -2] = $fparts[count($fparts) -2] + 1;
+		        $fname = join(".",$fparts);
+		  }
+		  elseif (is_numeric($fparts[count($fparts) -1]) && $fparts[count($fparts) -1] < 1000) {
+		        //increment counter at end of filename (so compatible with previous openemr version files
+			$fparts[count($fparts) -1] = $fparts[count($fparts) -1] + 1;
+		        $fname = join(".",$fparts);
+		  }
+	          elseif (is_numeric($fparts[count($fparts) -1])) {
+		        //leave date at end and place counter in filename
+			array_splice($fparts, -1, 0, "1");
+		        $fname = join(".",$fparts);
+		  } 		    
+		  else {
+		        //add the counter to filename
+		        array_splice($fparts, -1, 0, "1");
+		        $fname = join(".",$fparts);
+		  }
+	        }
+	        else { // (count($fparts) == 1)
+		  //place counter at end of filename
+		  array_push($fparts,"1");
+		  $fname = join(".",$fparts);
 		}
-		elseif (is_numeric($fparts[count($fparts)])) {
-			$fname = $fname . "." . md5sum(now());
-		}
-		else {
-			$fname = $fname . ".1";
-		}
+	    
 		if (file_exists($fname)) {
 			return $this->_rename_file($fname);
 		}
