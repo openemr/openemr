@@ -44,6 +44,10 @@ function print_as_money($money) {
   dlgopen('../../main/calendar/add_edit_event.php?eid=' + eventid, '_blank', 550, 270);
  }
 
+ function advdirconfigure() {
+   dlgopen('advancedirectives.php', '_blank', 500, 450);
+  }	
+	
  function refreshme() {
   top.restoreSession();
   location.reload();
@@ -100,7 +104,6 @@ function sendimage(pid, what) {
   '_blank', 500, 400);
  return false;
 }
-
 </script>
 </head>
 
@@ -123,7 +126,7 @@ function sendimage(pid, what) {
 
  if ($thisauth == 'write') {
   foreach (pic_array() as $var) {print $var;}
-  echo "<p><a href='demographics_full.php'";
+  echo "<table cellspacing=0 cellpadding=0 width=100%><tr><td><p><a href='demographics_full.php'";
   if (! $GLOBALS['concurrent_layout']) echo " target='Main'";
   echo " onclick='top.restoreSession()'><span class='title'>" .
    xl('Demographics') . "</span>" .
@@ -132,7 +135,53 @@ function sendimage(pid, what) {
    echo "&nbsp;&nbsp;<a href='' onclick='return deleteme()'>" .
     "<span class='more' style='color:red'>(".xl('Delete').")</span></a>";
   }
-  echo "</p>\n";
+  echo "</p></td><td align=right><div id=DEM><table cellspacing=0 cellpadding=0 width=100%><tr><td class='label'>";
+  if ($GLOBALS['advance_directives_warning'])
+  {
+      echo "<a title='" . xl('Click here to manage Advance Directives') . "' href='#' onclick='return advdirconfigure()'>";
+      echo xl('Advance Directives').":";
+      echo "</a>";
+      $counterFlag = false; //flag to record whether any categories contain ad records
+      $query = "SELECT id FROM categories WHERE name='Advance Directive'";
+      $myrow2 = sqlQuery($query);
+      if ($myrow2) {
+	  $parentId = $myrow2['id'];
+	  $query = "SELECT id, name FROM categories WHERE parent='$parentId'";
+	  $resNew1 = sqlStatement($query);
+	  while ($myrows3 = sqlFetchArray($resNew1)) {
+	      $categoryId = $myrows3['id'];
+	      $nameDoc = $myrows3['name'];
+	      $query = "SELECT documents.date, documents.id " .
+		       "FROM documents " .
+		       "INNER JOIN categories_to_documents " .
+		       "ON categories_to_documents.document_id=documents.id " .
+		       "WHERE categories_to_documents.category_id='$categoryId' " .
+		       "AND documents.foreign_id='$pid' " .
+		       "ORDER BY documents.date DESC";
+	      $resNew2 = sqlStatement($query);
+	      $limitCounter = 0; // limit to one entry per category
+	      while (($myrows4 = sqlFetchArray($resNew2)) && ($limitCounter == 0)) {
+	          $dateTimeDoc = $myrows4['date'];
+		  // remove time from datetime stamp
+		  $tempParse = explode(" ",$dateTimeDoc);
+		  $dateDoc = $tempParse[0];
+		  $idDoc = $myrows4['id'];
+		  echo "<br>";
+		  echo "<a href='$web_root/controller.php?document&retrieve&patient_id=$pid&document_id=" .
+		        $idDoc . "&as_file=true'>" . xl_document_category($nameDoc) . "</a> " . $dateDoc;
+		  $limitCounter = $limitCounter + 1;
+		  $counterFlag = true;
+	      }
+	  }
+      }
+      if (!$counterFlag) {
+          echo "<br>";
+	  echo '<a title="' . xl("Click here to manage Advance Directives") .
+	       '" href="#" onclick="return advdirconfigure()"><span style="color:red;">' .
+	       xl("No Advance Directive Document Was Found"). '</span></a>';
+      }
+  }
+  echo "</td><td width=10></td></tr></table></div></td></tr></table><br>";
  }
 
 // Get the document ID of the patient ID card if access to it is wanted here.

@@ -494,6 +494,9 @@ $GLOBALS['restrict_user_facility'] = false;
 // Set a facility cookie, so browser keeps a default selected facility between logins.
 $GLOBALS['set_facility_cookie'] = false;
 
+// Control the display of Advance Directives in demographics page
+$GLOBALS['advance_directives_warning'] = true;
+
 // If you want Hylafax support then uncomment and customize the following
 // statements, and also customize custom/faxcover.txt:
 //

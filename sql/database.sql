@@ -1,4 +1,4 @@
--- 
+--
 -- Database: `openemr`
 -- 
 
@@ -113,11 +113,15 @@ CREATE TABLE `categories` (
 -- Dumping data for table `categories`
 -- 
 
-INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 9);
+INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 17);
 INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2);
 INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4);
 INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 8);
 INSERT INTO `categories` VALUES (5, 'Patient ID card', '', 4, 6, 7);
+INSERT INTO `categories` VALUES (6, 'Advance Directive', '', 1, 9, 16);
+INSERT INTO `categories` VALUES (7, 'Do Not Resuscitate Order', '', 6, 10, 11);
+INSERT INTO `categories` VALUES (8, 'Durable Power of Attorney', '', 6, 12, 13);
+INSERT INTO `categories` VALUES (9, 'Living Will', '', 6, 14, 15);
 
 -- --------------------------------------------------------
 
@@ -135,7 +139,7 @@ CREATE TABLE `categories_seq` (
 -- Dumping data for table `categories_seq`
 -- 
 
-INSERT INTO `categories_seq` VALUES (5);
+INSERT INTO `categories_seq` VALUES (9);
 
 -- --------------------------------------------------------
 
@@ -2316,8 +2320,8 @@ CREATE TABLE `patient_data` (
   `hipaa_voice` varchar(3) NOT NULL default '',
   `hipaa_notice` varchar(3) NOT NULL default '',
   `hipaa_message` varchar(20) NOT NULL default '',
-  `hipaa_allowsms` VARCHAR( 3 ) NOT NULL DEFAULT 'NO',
-  `hipaa_allowemail` VARCHAR( 3 ) NOT NULL DEFAULT 'NO',
+  `hipaa_allowsms` VARCHAR(3) NOT NULL DEFAULT 'NO',
+  `hipaa_allowemail` VARCHAR(3) NOT NULL DEFAULT 'NO',
   `squad` varchar(32) NOT NULL default '',
   `fitness` int(11) NOT NULL default '0',
   `referral_source` varchar(30) NOT NULL default '',
@@ -2339,6 +2343,8 @@ CREATE TABLE `patient_data` (
   `pricelevel` varchar(255) NOT NULL default 'standard',
   `regdate`     date DEFAULT NULL COMMENT 'Registration Date',
   `contrastart` date DEFAULT NULL COMMENT 'Date contraceptives initially used',
+  `completed_ad` VARCHAR(3) NOT NULL DEFAULT 'NO',
+  `ad_reviewed` date DEFAULT NULL,
   UNIQUE KEY `pid` (`pid`),
   KEY `id` (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
