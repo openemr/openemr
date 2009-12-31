@@ -405,9 +405,13 @@ function compareEvents($a,$b) {
               </a>
            </p>
            <p>[-$event.data.duration-][-php-] xl('min','e'); [-/php-]</p>
-           <p><a href='javascript:goPid([-$event.data.pid-])'>[-$event.data.patient_name|default:'No name'-]</a></p>
-           <p>[-if $event.data.patient_dob ne ''-][-php-] xl('Age','e'); [-/php-]: [-$event.data.patient_age-][-/if-]</p>
-           [-if $event.data.hometext ne ''-]<p>[-$event.data.hometext|escape-]</p>[-/if-]
+
+            [-if $event.data.pid gt 0-]
+              <p><a href='javascript:goPid([-$event.data.pid-])'>[-$event.data.patient_name|default:'No name'-]</a></p>
+              <p>[-if $event.data.patient_dob ne ''-][-php-] xl('Age','e'); [-/php-]: [-$event.data.patient_age-][-/if-]</p>
+            [-/if-]
+            [-if $event.data.title ne ''-]<p>[-$event.data.title|escape-]</p>[-/if-]
+            [-if $event.data.hometext ne ''-]<p>([-$event.data.hometext|escape-])</p>[-/if-]
 
             </div>
         [-/if-]

@@ -503,10 +503,10 @@ if ($MULTIDAY) {
      $fname = substr($event['patient_name'], $commapos + 2);
      $patient_dob = $event['patient_dob'];
      $patient_age = $event['patient_age'];
+     $title = xl('Age') . " $patient_age ($patient_dob)";
      $catid = $event['catid'];
      $comment = addslashes($event['hometext']);
      $catname = $event['catname'];
-     $title = xl('Age') . " $patient_age ($patient_dob)";
      if ($comment && $GLOBALS['calendar_appt_style'] < 4)
       $title .= " " . $comment;
      if ($catid == 2 || $catid == 3 || $catid == 4 || $catid == 8 || $catid == 11) {
@@ -523,7 +523,7 @@ if ($MULTIDAY) {
        $content .= "</a>";
       }
      }
-     else { // some sort of patient appointment
+     else if ($patientid) { // some sort of patient appointment
       $content .= "<a href='javascript:oldEvt($eventdate,$eventid)' title='$catname'>";
       // $content .= $starth . ':' . $startm . htmlspecialchars($event['apptstatus']) . "</a>";
       $content .= $starth . ':' . $startm . '&nbsp;' . htmlspecialchars($event['apptstatus']) . "&nbsp;</a>";
@@ -540,6 +540,19 @@ if ($MULTIDAY) {
        }
       }
       if ($catid == 1) $content .= "</strike>";
+      $content .= "</a>";
+     }
+     else { // some other non-patient event
+      $content .= "<a href='javascript:oldEvt($eventdate,$eventid)' title='$catname' " .
+       "style='background-color:" . $event['catcolor'] . "'>";
+      $content .= $starth . ':' . $startm . '&nbsp;' . htmlspecialchars($event['apptstatus']) . "&nbsp;";
+      if ($GLOBALS['calendar_appt_style'] != 1) {
+       if ($event['title'] && $GLOBALS['calendar_appt_style'] >= 3) {
+        $content .= $event['title'];
+        if ($event['hometext'] && $GLOBALS['calendar_appt_style'] >= 4)
+         $content .= ": " . htmlspecialchars(trim($event['hometext']));
+       }
+      }
       $content .= "</a>";
      }
     } // end while
