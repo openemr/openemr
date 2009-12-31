@@ -102,7 +102,7 @@ function upgradeFromSqlFile($filename) {
       }
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }
-    else if (preg_match('/^#IfNotRow\s+(\S+)\s+(\S+)\s+(\S+)/', $line, $matches)) {
+    else if (preg_match('/^#IfNotRow\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
       if (tableExists($matches[1])) {
         $skipping = tableHasRow($matches[1], $matches[2], $matches[3]);
       }
@@ -112,7 +112,7 @@ function upgradeFromSqlFile($filename) {
       }
       if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
     }
-    else if (preg_match('/^#IfNotRow2D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/', $line, $matches)) {
+    else if (preg_match('/^#IfNotRow2D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
       if (tableExists($matches[1])) {
         $skipping = tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5]);
       }
