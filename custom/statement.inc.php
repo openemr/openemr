@@ -2,10 +2,15 @@
 
 // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
 //
+// Windows compatibility mods 2009 Bill Cernansky [mi-squared.com]
+//
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
+//
+// Updated by Medical Information Integration, LLC to support download
+//  and multi OS use - tony@mi-squared..com 12-2009
 
 //////////////////////////////////////////////////////////////////////
 // This is a template for printing patient statements and collection
@@ -17,14 +22,10 @@
 
 // The location/name of a temporary file to hold printable statements.
 //
-$STMT_TEMP_FILE = "/tmp/openemr_statements.txt";
 
-// This is the command to be used for printing (without the filename).
-// The word following "-P" should be the name of your printer.  This
-// example is designed for 8.5x11-inch paper with 1-inch margins,
-// 10 CPI, 6 LPI, 65 columns, 54 lines per page.
-//
-$STMT_PRINT_CMD = "lpr -P HPLaserjet6P -o cpi=10 -o lpi=6 -o page-left=72 -o page-top=72";
+$STMT_TEMP_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_statements.txt";
+
+$STMT_PRINT_CMD = $GLOBALS['print_command']; 
 
 // This function builds a printable statement or collection letter from
 // an associative array having the following keys:
@@ -58,8 +59,84 @@ $STMT_PRINT_CMD = "lpr -P HPLaserjet6P -o cpi=10 -o lpi=6 -o page-left=72 -o pag
 // banana.  These strings are sent in succession, so append a form
 // feed if that is appropriate.
 //
+
+// A sample of the text based format follows:
+
+//[Your Clinic Name]             Patient Name          2009-12-29
+//[Your Clinic Address]          Chart Number: 1848
+//[City, State Zip]              Insurance information on file
+//
+//
+//ADDRESSEE                      REMIT TO
+//Patient Name                     [Your Clinic Name]
+//patient address                  [Your Clinic Address]
+//city, state zipcode              [City, State Zip]
+//                                 If paying by VISA/MC/AMEX/Dis
+//
+//Card_____________________  Exp______ Signature___________________
+//                     Return above part with your payment
+//-----------------------------------------------------------------
+//
+//_______________________ STATEMENT SUMMARY _______________________
+//
+//Visit Date  Description                                    Amount
+//
+//2009-08-20  Procedure 99345                                198.90
+//            Paid 2009-12-15:                               -51.50
+//... more details ...
+//...
+//...
+// skipping blanks in example
+//
+//
+//Name: Patient Name              Date: 2009-12-29     Due:   147.40
+//_________________________________________________________________
+//
+//Please call if any of the above information is incorrect
+//We appreciate prompt payment of balances due
+//
+//[Your billing contact name]
+//  Billing Department
+//  [Your billing dept phone]
+
 function create_statement($stmt) {
  if (! $stmt['pid']) return ""; // get out if no data
+
+ // These are your clinics return address, contact etc.  Edit them.
+ // TBD: read this from the facility table
+ 
+ // Facility (service location)
+ 
+ $clinic_name = '[Your Clinic Name]';
+ $clinic_addr = '[Your Clinic Address]';
+ $clinic_csz = '[City, State Zip]';
+ 
+ // Billing location
+ $remit_name = $clinic_name;
+ $remit_addr = $clinic_addr;
+ $remit_csz = $clinic_csz;
+ 
+ // Contacts
+ $billing_contact = '[Your billing contact name]';
+ $billing_phone = '[Your billing dept phone]';
+
+ // Text only labels
+ 
+ $label_addressee = xl('ADDRESSEE');
+ $label_remitto = xl('REMIT TO');
+ $label_chartnum = xl('Chart Number');
+ $label_insinfo = xl('Insurance information on file');
+ $label_totaldue = xl('Total amount due');
+ $label_payby = xl('If paying by');
+ $label_cards = xl('VISA/MC/AMEX/Dis');  
+ $label_cardnum = xl('Card');
+ $label_expiry = xl('Exp');
+ $label_sign = xl('Signature');
+ $label_retpay = xl('Return above part with your payment');
+ $label_pgbrk = xl('STATEMENT SUMMARY');
+ $label_visit = xl('Visit Date');
+ $label_desc = xl('Description');
+ $label_amt = xl('Amount');
 
  // This is the text for the top part of the page, up to but not
  // including the detail lines.  Some examples of variable fields are:
@@ -67,42 +144,29 @@ function create_statement($stmt) {
  //  %9s   = right-justified string of 9 characters padded with spaces
  //  %-25s = left-justified string of 25 characters padded with spaces
  // Note that "\n" is a line feed (new line) character.
- //
- $out = sprintf(
-  "[Your Clinic Name]             %-23s %s\n" .
-  "[Your Clinic Address]          Chart Number %s\n" .
-  "[City, State Zip]              Insurance information on file\n" .
-  "                               Total amount due: %s\n" .
-  "\n" .
-  "\n" .
-  "ADDRESSEE:                       REMIT TO:\n" .
-  "\n" .
-  "%-32s [Remit-To Name]\n" .
-  "%-32s [Remit-To Address]\n" .
-  "%-32s [City, State Zip]\n" .
-  "%-32s If paying by VISA/MC/AMEX/Disc:\n" .
-  "\n" .
-  "Card#_____________________  Exp______ Signature__________________\n" .
-  "              (Return above part with your payment)\n" .
-  "-----------------------------------------------------------------\n" .
-  "\n" .
-  "_______________________ STATEMENT SUMMARY _______________________\n" .
-  "\n" .
-  "Visit Date  Description                                    Amount\n" .
-  "\n",
+ // reformatted to handle i8n by tony
 
-  // These are the values for the variable fields.  They must appear
-  // here in the same order as in the above text!
-  //
-  $stmt['patient'],
-  $stmt['today'],
-  $stmt['pid'],
-  $stmt['amount'],
-  $stmt['to'][0],
-  $stmt['to'][1],
-  $stmt['to'][2],
-  $stmt['to'][3]);
-
+$out  = sprintf("%-30s %-23s %-s\n",$clinic_name,$stmt['patient'],$stmt['today']);
+$out .= sprintf("%-30s %s: %-s\n",$clinic_addr,$label_chartnum,$stmt['pid']);
+$out .= sprintf("%-30s %-s\n",$clinic_csz,$label_insinfo);
+$out .= sprintf("%-30s %s: %-s\n",null,$label_totaldue);
+$out .= "\n\n";
+$out .= sprintf("%-30s %-s\n",$label_addressee,$label_remitto);
+$out .= sprintf("%-32s %s\n",$stmt['to'][0],$remit_name);
+$out .= sprintf("%-32s %s\n",$stmt['to'][1],$remit_addr);
+$out .= sprintf("%-32s %s\n",$stmt['to'][2],$remit_csz);
+$out .= sprintf("%-32s %-s %-s\n",$stmt['to'][3],$label_payby,$label_cards);
+$out .= "\n";
+$out .= sprintf("%s_____________________  %s______ %s___________________\n",
+                $label_cardnum,$label_expiry,$label_sign);
+$out .= sprintf("%-20s %s\n",null,$label_retpay);
+$out .= sprintf("-----------------------------------------------------------------\n");
+$out .= "\n";
+$out .= sprintf("_______________________ %s _______________________\n",$label_pgbrk);
+$out .= "\n";
+$out .= sprintf("%-11s %-46s %s\n",$label_visit,$label_desc,$label_amt);
+$out .= "\n";
+ 
  // This must be set to the number of lines generated above.
  //
  $count = 21;
@@ -114,7 +178,7 @@ function create_statement($stmt) {
   $description = $line['desc'];
   $tmp = substr($description, 0, 14);
   if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921')
-   $description = 'Office Visit';
+   $description = xl('Office Visit');
 
   $dos = $line['dos'];
   ksort($line['detail']);
@@ -128,17 +192,17 @@ function create_statement($stmt) {
 
    if ($ddata['pmt']) {
     $amount = sprintf("%.2f", 0 - $ddata['pmt']);
-    $desc = "Paid $ddate: " . $ddata['src'];
+    $desc = xl('Paid') .' '. $ddate .': '. $ddata['src'];
    } else if ($ddata['rsn']) {
     if ($ddata['chg']) {
      $amount = sprintf("%.2f", $ddata['chg']);
-     $desc = "Adj  $ddate: " . $ddata['rsn'];
+     $desc = xl('Adj') .' '.  $ddate .': ' . $ddata['rsn'];
     } else {
-     $desc = "Note $ddate: " . $ddata['rsn'];
+     $desc = xl('Note') .' '. $ddate .': '. $ddata['rsn'];
     }
    } else if ($ddata['chg'] < 0) {
     $amount = sprintf("%.2f", $ddata['chg']);
-    $desc = "Patient Payment";
+    $desc = xl('Patient Payment');
    } else {
     $amount = sprintf("%.2f", $ddata['chg']);
     $desc = $description;
@@ -154,26 +218,29 @@ function create_statement($stmt) {
  //
  while ($count++ < 42) $out .= "\n";
 
- // This is the bottom portion of the page.  You know the drill.
- //
- $out .= sprintf(
-  "Name: %-25s Date: %-10s     Due:%8s\n" .
-  "_________________________________________________________________\n" .
-  "\n" .
-  "Thank you for choosing [Your Clinic Name].\n" .
-  "\n" .
-  "Please call if any of the above information is incorrect.\n" .
-  "We appreciate prompt payment of balances due.\n" .
-  "\n" .
-  "[Your billing contact name]\n" .
-  "Billing Department\n" .
-  "[Your billing contact phone number]" .
-  "\014", // this is a form feed
-
-  $stmt['patient'], // values start here
-  $stmt['today'],
-  $stmt['amount']);
-
+ // Fixed text labels
+ $label_ptname = xl('Name');
+ $label_today = xl('Date');
+ $label_due = xl('Due');
+ $label_thanks = xl('Thank you for choosing');
+ $label_call = xl('Please call if any of the above information is incorrect');
+ $label_prompt = xl('We appreciate prompt payment of balances due');
+ $label_dept = xl('Billing Department');
+ 
+ // This is the bottom portion of the page.
+ 
+ $out .= sprintf("%-s: %-25s %-s: %-14s %-s: %8s\n",$label_ptname,$stmt['patient'],
+                 $label_today,$stmt['today'],$label_due,$stmt['amount']);
+ $out .= sprintf("__________________________________________________________________\n");
+ $out .= "\n";
+ $out .= sprintf("%-s\n",$label_call);
+ $out .= sprintf("%-s\n",$label_prompt);
+ $out .= "\n";
+ $out .= sprintf("%-s\n",$billing_contact);
+ $out .= sprintf("  %-s\n",$label_dept);
+ $out .= sprintf("  %-s\n",$billing_phone);
+ $out .= "\014"; // this is a form feed
+ 
  return $out;
 }
 ?>
