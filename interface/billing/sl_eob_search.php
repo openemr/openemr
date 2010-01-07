@@ -1,6 +1,9 @@
 <?php
 // Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
 //
+// Windows compatibility and statement downloading:
+//     2009 Bill Cernansky and Tony McCormick [mi-squared.com]
+//
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
@@ -52,13 +55,32 @@ function bucks($amount) {
     printf("%.2f", $amount);
 }
 
+// Upload a file to the client's browser
+//
+function upload_file_to_client($file_to_send) {
+  header("Pragma: public");
+  header("Expires: 0");
+  header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+  header("Content-Type: application/force-download");
+  header("Content-Length: " . filesize($file_to_send));
+  header("Content-Disposition: attachment; filename=" . basename($file_to_send));
+  header("Content-Description: File Transfer");
+  readfile($file_to_send);
+  // flush the content to the browser. If you don't do this, the text from the subsequent
+  // output from this script will be in the file instead of sent to the browser.
+  flush();
+  // sleep one second to ensure there's no follow-on.
+  sleep(1);
+}
+
+
 $today = date("Y-m-d");
 
 if ($INTEGRATED_AR) {
 
-  // Print statements if requested.
+  // Print or download statements if requested.
   //
-  if ($_POST['form_print'] && $_POST['form_cb']) {
+  if (($_POST['form_print'] || $_POST['form_download']) && $_POST['form_cb']) {
 
     $fhprint = fopen($STMT_TEMP_FILE, 'w');
 
@@ -151,17 +173,24 @@ if ($INTEGRATED_AR) {
 
     if (!empty($stmt)) ++$stmt_count;
     fwrite($fhprint, create_statement($stmt));
+    fclose($fhprint);
+    sleep(1);
 
-    if ($DEBUG) {
-      $alertmsg = xl("Printing skipped; see test output in ") . $STMT_TEMP_FILE;
-    } else {
-      exec("$STMT_PRINT_CMD $STMT_TEMP_FILE");
-      if ($_POST['form_without']) {
-        $alertmsg = xl("Now printing $stmt_count statements; encounters will not be updated.");
+    // Download or print the file, as selected
+    if ($_POST['form_download']) {
+      upload_file_to_client($STMT_TEMP_FILE);
+    } else { // Must be print!
+      if ($DEBUG) {
+        $alertmsg = xl("Printing skipped; see test output in") .' '. $STMT_TEMP_FILE;
       } else {
-        $alertmsg = xl("Now printing $stmt_count statements and updating encounters.");
-      }
-    } // end not debug
+        exec("$STMT_PRINT_CMD $STMT_TEMP_FILE");
+        if ($_POST['form_without']) {
+          $alertmsg = xl('Now printing') .' '. $stmt_count .' '. xl('statements; invoices will not be updated.');
+        } else {
+          $alertmsg = xl('Now printing') .' '. $stmt_count .' '. xl('statements and updating invoices.');
+        }
+      } // end not debug
+    } // end not form_download
   } // end statements requested
 } // end $INTEGRATED_AR
 else {
@@ -171,9 +200,9 @@ else {
   $got_address_table = SLQueryValue("SELECT count(*) FROM pg_tables WHERE " .
     "schemaname = 'public' AND tablename = 'address'");
 
-  // Print statements if requested.
+  // Print or download statements if requested.
   //
-  if ($_POST['form_print'] && $_POST['form_cb']) {
+  if (($_POST['form_print'] || $_POST['form_download']) && $_POST['form_cb']) {
 
     $fhprint = fopen($STMT_TEMP_FILE, 'w');
 
@@ -306,17 +335,24 @@ else {
 
     if (!empty($stmt)) ++$stmt_count;
     fwrite($fhprint, create_statement($stmt));
+    fclose($fhprint);
+    sleep(1);
 
-    if ($DEBUG) {
-      $alertmsg = xl("Printing skipped; see test output in ").$STMT_TEMP_FILE;
-    } else {
-      exec("$STMT_PRINT_CMD $STMT_TEMP_FILE");
-      if ($_POST['form_without']) {
-        $alertmsg = xl("Now printing $stmt_count statements; invoices will not be updated.");
+    // Download or print the file, as selected
+    if ($_POST['form_download']) {
+      upload_file_to_client($STMT_TEMP_FILE);
+    } else { // Must be print!
+      if ($DEBUG) {
+        $alertmsg = xl("Printing skipped; see test output in") .' '. $STMT_TEMP_FILE;
       } else {
-        $alertmsg = xl("Now printing $stmt_count statements and updating invoices.");
-      }
-    } // end not debug
+        exec("$STMT_PRINT_CMD $STMT_TEMP_FILE");
+        if ($_POST['form_without']) {
+          $alertmsg = xl('Now printing') .' '. $stmt_count .' '. xl('statements; invoices will not be updated.');
+        } else {
+          $alertmsg = xl('Now printing') .' '. $stmt_count .' '. xl('statements and updating invoices.');
+        }
+      } // end not debug
+    } // end if form_download
   } // end statements requested
 } // end not $INTEGRATED_AR
 ?>
@@ -567,7 +603,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
       }
       if (! $where) {
         if ($_POST['form_category'] == 'All') {
-          die("At least one search parameter is required if you select All.");
+          die(xl("At least one search parameter is required if you select All."));
         } else {
           $where = "1 = 1";
         }
@@ -670,7 +706,7 @@ if ($_POST['form_search'] || $_POST['form_print']) {
 
       if (! $where) {
         if ($_POST['form_category'] == 'All') {
-          die("At least one search parameter is required if you select All.");
+          die(xl("At least one search parameter is required if you select All."));
         } else {
           $where = "1 = 1";
         }
@@ -957,11 +993,12 @@ if (!$INTEGRATED_AR) SLClose();
 
 <p>
 <?php if ($eracount) { ?>
-<input type='button' value='Process ERA File' onclick='processERA()' /> &nbsp;
+<input type='button' value='<?php xl('Process ERA File','e')?>' onclick='processERA()' /> &nbsp;
 <?php } else { ?>
-<input type='button' value='Select All' onclick='checkAll(true)' /> &nbsp;
-<input type='button' value='Clear All' onclick='checkAll(false)' /> &nbsp;
-<input type='submit' name='form_print' value='Print Selected Statements' /> &nbsp;
+<input type='button' value='<?php xl('Select All','e')?>' onclick='checkAll(true)' /> &nbsp;
+<input type='button' value='<?php xl('Clear All','e')?>' onclick='checkAll(false)' /> &nbsp;
+<input type='submit' name='form_print' value='<?php xl('Print Selected Statements','e'); ?>' /> &nbsp;
+<input type='submit' name='form_download' value='<?php xl('Download Selected Statements','e'); ?>' /> &nbsp;
 <?php } ?>
 <input type='checkbox' name='form_without' value='1' /> <?php xl('Without Update','e'); ?>
 </p>
@@ -980,6 +1017,7 @@ if (!$INTEGRATED_AR) SLClose();
 if ($alertmsg) {
   echo "alert('" . htmlentities($alertmsg) . "');\n";
 }
+
 ?>
 </script>
 </body>
