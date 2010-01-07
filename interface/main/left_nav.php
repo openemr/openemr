@@ -453,6 +453,11 @@ function genPopupsList($style='') {
   f.popups.disabled = (active_pid == 0);
  }
 
+function goHome() {
+    top.frames['RTop'].location='<?php echo $GLOBALS['default_top_pane']?>';
+    top.frames['RBot'].location='authorizations/authorizations.php';
+}
+
  //
  var my_window;
  function initFilter() {
@@ -537,7 +542,7 @@ function genPopupsList($style='') {
  // of the frame that the call came from, so we know to only reload content
  // from the *other* frame if it is patient-specific.
  function setPatient(pname, pid, pubpid, frname, str_dob) {
-  var str = '<b>' + pname + ' (' + pubpid + ')</b>';
+  var str = '<a href=\'javascript:;\' onclick="parent.left_nav.loadCurrentPatientFromTitle()"><b>' + pname + ' (' + pubpid + ')</b></a>';
   setDivContent('current_patient', str);
   setTitleContent('current_patient', str + str_dob);
   if (pid == active_pid) return;
@@ -546,7 +551,34 @@ function genPopupsList($style='') {
   active_encounter = 0;
   if (frname) reloadPatient(frname);
   syncRadios();
+  $(parent.Title.document.getElementById('current_patient_block')).show();
+  var encounter_block = $(parent.Title.document.getElementById('current_encounter_block'));
+  $(encounter_block).hide();
  }
+
+function loadCurrentPatientFromTitle() {
+    top.frames['RTop'].location='../patient_file/summary/demographics.php';
+}
+
+function getEncounterTargetFrame( name ) {
+    var bias = <?php echo $primary_docs[ 'enc'  ][ 1 ]?>;
+    var f = document.forms[0];
+    var r = 'RTop';
+    if (f.cb_top.checked && f.cb_bot.checked) {
+        if ( bias == 2 ) {
+            r = 'RBot';
+        } else {
+            r = 'RTop';
+        }
+    } else {
+        if ( f.cb_top.checked ) {
+            r = 'RTop';
+        } else if ( f.cb_bot.checked )  {
+            r = 'RBot';
+        }
+    }
+    return r;
+}
 
  // Call this to announce that the encounter has changed.  You must call this
  // if you change the session encounter, so that the navigation frame will
@@ -562,6 +594,15 @@ function genPopupsList($style='') {
   active_encounter = eid;
   reloadEncounter(frname);
   syncRadios();
+  var encounter_block = $(parent.Title.document.getElementById('current_encounter_block'));
+  var encounter = $(parent.Title.document.getElementById('current_encounter'));
+  var estr = '<a href=\'javascript:;\' onclick="parent.left_nav.loadCurrentEncounterFromTitle()"><b>' + edate + ' (' + eid + ')</b></a>';
+  encounter.html( estr );
+  encounter_block.show();
+ }
+
+ function loadCurrentEncounterFromTitle() {
+      top.frames[ parent.left_nav.getEncounterTargetFrame('enc') ].location='../patient_file/encounter/forms.php';
  }
 
  // You must call this if you delete the active patient (or if for any other
@@ -695,7 +736,6 @@ function genPopupsList($style='') {
         <ul>
           <?php genTreeLink('RTop','new',($GLOBALS['full_new_patient_form'] ? xl('New/Search') : xl('New'))); ?>
           <?php genTreeLink('RTop','dem',xl('Current')); ?>
-          <?php genDualLink('dem','sum',xl('Summary')); // with dem on top ?>
         </ul>
       </li>
       <li class="open"><span><?php xl('Medical Records','e') ?></span>
@@ -816,7 +856,6 @@ function genPopupsList($style='') {
         <ul>
           <?php genTreeLink('RTop','new',($GLOBALS['full_new_patient_form'] ? xl('New/Search') : xl('New'))); ?>
           <?php genTreeLink('RTop','dem',xl('Current')); ?>
-          <?php genTreeLink('RBot','sum',xl('Summary')); ?>
         </ul>
       </li>
       <li class="open"><span><?php xl('Visits','e') ?></span>
@@ -825,7 +864,6 @@ function genPopupsList($style='') {
           <?php genTreeLink('RBot','nen',xl('New Visit')); ?>
           <?php genTreeLink('RBot','enc',xl('Current')); ?>
           <?php genTreeLink('RBot','ens',xl('List')); ?>
-          <?php genTreeLink('RBot','tra',xl('Transact')); ?>
           <?php if (!$GLOBALS['disable_chart_tracker']) genPopLink(xl('Chart Tracker'),'../../custom/chart_tracker.php'); ?>
         </ul>
       </li>
@@ -861,19 +899,8 @@ if (!empty($reg)) {
 ?>
         </ul>
       </li>
-      <li><span><?php xl('Medical Record','e') ?></span>
-        <ul> 
-          <?php if (acl_check('patients', 'med') && !$GLOBALS['disable_prescriptions']) genTreeLink('RBot','pre',xl('Rx')); ?>
-          <?php genTreeLink('RTop','his',xl('History')); ?>
-          <?php genTreeLink('RTop','iss',xl('Issues')); ?>
-          <?php if (!$GLOBALS['disable_immunizations']) genTreeLink('RBot','imm',xl('Immunize')); ?>
-          <?php genTreeLink('RTop','doc',xl('Documents')); ?>
-          <?php genTreeLink('RBot','pno',xl('Notes')); ?>
-          <?php genTreeLink('RTop','prp',xl('Report')); ?>
         </ul>
       </li>
-    </ul>
-  </li>
   <li><span><?php xl('Fees','e') ?></span>
     <ul>
       <?php genMiscLink('RBot','cod','2',xl('Fee Sheet'),'patient_file/encounter/load_form.php?formname=fee_sheet'); ?>
@@ -1054,13 +1081,11 @@ if (!empty($reg)) {
  }
 ?>
 
-<?php xl('Active Patient','e') ?>:<br />
-<div id='current_patient'>
+<div id='current_patient' style = 'display:none'>
 <b><?php xl('None','e'); ?></b>
 </div>
 
-<?php xl('Active Encounter','e') ?>:<br />
-<div id='current_encounter'>
+<div id='current_encounter' style = 'display:none'>
 <b><?php xl('None','e'); ?></b>
 </div>
 
@@ -1107,23 +1132,9 @@ if (!empty($reg)) {
 </table>
 
 <hr />
-<a href="../../Documentation/User_Guide/" target="_blank" class="navitem" id="help_link"
-onclick="top.restoreSession()">
-<?php xl('User Manual','e'); ?></a>
-	
-<?php if (!empty($GLOBALS['online_support_link'])) { ?>	
-<br>
-<a href='<?php echo $GLOBALS["online_support_link"]; ?>' target="_blank" class="navitem" id="support_link"
-onclick="top.restoreSession()">
-<?php xl('Online Support','e'); ?></a>
-<?php
-}
-?>
-	
-<hr />
-<a href="../logout.php?auth=logout" target="_top" class="navitem" id="logout_link"
- onclick="top.restoreSession()">
-<?php xl('Logout','e'); ?></a>
+<?php if (!empty($GLOBALS['online_support_link'])) { ?>
+<a href='<?php echo $GLOBALS["online_support_link"]; ?>' target="_blank" id="support_link" class='css_button' onclick="top.restoreSession()"><span><?php xl('Online Support','e'); ?></span></a>
+<?php } ?>
 
 <input type='hidden' name='findBy' value='Last' />
 <input type="hidden" name="searchFields" id="searchFields"/>

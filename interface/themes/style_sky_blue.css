@@ -163,9 +163,9 @@ a:hover {
  * Here we have taken variables from globals.php and turned them into CSS classes 
  * these should be used in place of the GLOBAL variables -- JRM March 2008
  *=============================================================*/
-.body_top { background-color: #94d6e7; }    /* $top_bg_line */
+.body_top { background-color: #94d6e7; margin: 8px }    /* $top_bg_line */
 .bgcolor2 { background-color: #94d6e7; }    /* $GLOBALS['style']['BGCOLOR2'] */
-.body_bottom { background: url('../pic/aquabg.gif') repeat; }  /* $bottom_bg_line */
+.body_bottom { background: url('../pic/aquabg.gif') repeat; margin: 8px }  /* $bottom_bg_line */
 .body_title { background-color: #aaffff; }  /* $title_bg_line */
 .body_nav { background-color: #94d6e7; }    /* $nav_bg_line */
 .body_filler { background-color: #f7f0d5; } /* $login_filler_line */
@@ -243,8 +243,8 @@ font-style: italic;
 font-weight: bold;
 }
 #documents_list {
-    width: 25%;
-    height: 90%; 
+    width: 28%;
+    height: 100%;
     overflow: auto; 
     border: 2px inset;
     float: left;
@@ -252,7 +252,7 @@ font-weight: bold;
 #documents_actions {
     padding-top: 10px;
     width: 70%;
-    height: 90%; 
+    height: 100%;
     float: right;
     overflow: auto;
 }
@@ -293,7 +293,7 @@ font-weight: bold;
     font-size: 0.8em;
     vertical-align: top;
     text-align: left;
-    padding-right: 30px;
+    padding-right: 6px;/*30px - ie 6 fix*/
 }
 
 /* Patient History */
@@ -301,21 +301,21 @@ font-weight: bold;
 #HIS .groupname {
     font-weight: bold;
     color: #080;
-    font-size: 0.8em;
-    padding-right: 5px;
+    font-size: 9pt;
+    padding-right: 1px;
     vertical-align: top;
     height: 2em;
 }
 #HIS .label {
     font-weight: bold;
-    font-size: 0.8em;
+    font-size: 9pt;
     vertical-align: top;
 }
 #HIS .data {
-    font-size: 0.8em;
+    font-size: 9pt;
     vertical-align: top;
     text-align: left;
-    padding-right: 30px;
+    padding-right: 10px;
 }
 
 
@@ -340,7 +340,7 @@ font-weight: bold;
 }
 
 #pnotes .noterow td {
-    border-top:1px solid black;
+    border-bottom:1px dashed black;
     vertical-align: top;
     padding: 5px;
     margin: 5px;
@@ -599,3 +599,99 @@ font-weight: bold;
     background-color:#ffffff;
 }
 
+
+/*
+ * CSS BUTTONS
+*/
+.css_button_small {
+    background: transparent url( '../../images/bg_button_a_small.gif' ) no-repeat scroll top right;
+    color: #444;
+    display: block;
+    float: left;
+    font: bold 9px arial, sans-serif;
+    height: 19px;
+    margin-right: 3px;
+    padding-right: 10px; /* sliding doors padding */
+    text-decoration: none;
+}
+
+.css_button_small span {
+    background: transparent url( '../../images/bg_button_span_small.gif' ) no-repeat;
+    display: block;
+    line-height: 20px;
+    padding: 0px 0px 0px 10px;
+}
+
+.css_button {
+    background: transparent url( '../../images/bg_button_a.gif' ) no-repeat scroll top right;
+    color: #444;
+    display: block;
+    float: left;
+    font: bold 10px arial, sans-serif;
+    height: 24px;
+    margin-right: 3px;
+    padding-right: 10px; /* sliding doors padding */
+    text-decoration: none;
+}
+
+.css_button span {
+    background: transparent url( '../../images/bg_button_span.gif' ) no-repeat;
+    display: block;
+    line-height: 14px;
+    padding: 5px 0 5px 10px;
+}
+.sellistclass {
+float:left;
+}
+
+.disabled_button {
+	color: grey;
+
+}
+
+a.disabled_button:hover {
+  color: grey;
+}
+
+/*
+ * TABS
+*/
+
+ul.tabNav { margin: 0; padding: 0; }
+ul.tabNav { float: left; list-style: none; width: 100%; }
+ul.tabNav li { float: left; margin: 0 1px 0 0; padding: 6px 0 0;
+	font-size: 0.8em;
+    vertical-align: bottom;
+    text-align: left;
+}
+ul.tabNav li.current { padding-top: 0;
+	font-weight: bold;
+	font-size: 0.8em;
+    vertical-align: bottom;
+    text-align: left;
+}
+ul.tabNav a { background:#A7A7A7; border: 1px solid #dedede; border-width: 1px 1px 0; color: #333; display: block; padding: 4px 4px 5px 4px; text-decoration: none; }
+ul.tabNav li.current a { background:#D7DFE7 ;padding: 8px; }
+
+div.tabContainer { clear: both; float: left; width: 100%; }
+div.tabContainer div.tab { border: 1px solid #dedede; color: #000; display: none; padding: 10px; }
+div.tabContainer div.current { display: block; }
+div.tab { 	min-height: 180px; background: #DEDEDE none repeat scroll 0 0; margin-bottom: 10px;width:665px;}
+div.tab_long { 	min-height: 180px; background: #DEDEDE none repeat scroll 0 0; margin-bottom: 10px;width:100%;}
+div.tab p:last-child { margin-bottom: 0; }
+
+div.tab table td {
+	padding-right: 1px; padding-bottom: 0px
+}
+
+div.tab table td.label {
+	min-width:80px;
+}
+
+div.tab table td.data {
+	min-width:120px; /*170px*/
+}
+
+.section-header {
+	margin-bottom:5px; width:685px; border-bottom: 1px solid;
+}

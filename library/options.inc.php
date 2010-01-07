@@ -1155,6 +1155,244 @@ function display_layout_rows($formtype, $result1, $result2='') {
   disp_end_group();
 }
 
+function display_layout_tabs($formtype, $result1, $result2='') {
+  global $item_count, $cell_count, $last_group, $CPR;
+
+  $fres = sqlStatement("SELECT distinct group_name FROM layout_options " .
+    "WHERE form_id = '$formtype' AND uor > 0 " .
+    "ORDER BY group_name, seq");
+
+  $first = true;
+  while ($frow = sqlFetchArray($fres)) {
+	  $this_group = $frow['group_name'];
+      $group_name = substr($this_group, 1);
+      ?>
+		<li <?php echo $first ? 'class="current"' : '' ?>>
+			<a href="/play/javascript-tabbed-navigation/" id="header_tab_<?php echo $group_name?>"><?php echo xl_layout_label($group_name); ?></a>
+		</li>
+	  <?php
+	  $first = false;
+  }
+}
+
+function display_layout_tabs_data($formtype, $result1, $result2='') {
+  global $item_count, $cell_count, $last_group, $CPR;
+
+  $fres = sqlStatement("SELECT distinct group_name FROM layout_options " .
+    "WHERE form_id = '$formtype' AND uor > 0 " .
+    "ORDER BY group_name, seq");
+
+	$first = true;
+	while ($frow = sqlFetchArray($fres)) {
+		$this_group = $frow['group_name'];
+		$titlecols  = $frow['titlecols'];
+		$datacols   = $frow['datacols'];
+		$data_type  = $frow['data_type'];
+		$field_id   = $frow['field_id'];
+		$list_id    = $frow['list_id'];
+		$currvalue  = '';
+
+		$group_fields_query = sqlStatement("SELECT * FROM layout_options " .
+		"WHERE form_id = '$formtype' AND uor > 0 AND group_name = '$this_group' " .
+		"ORDER BY seq");
+	?>
+
+		<div class="tab <?php echo $first ? 'current' : '' ?>">
+			<table border='0' cellpadding='0'>
+
+			<?php
+				while ($group_fields = sqlFetchArray($group_fields_query)) {
+
+					$titlecols  = $group_fields['titlecols'];
+					$datacols   = $group_fields['datacols'];
+					$data_type  = $group_fields['data_type'];
+					$field_id   = $group_fields['field_id'];
+					$list_id    = $group_fields['list_id'];
+					$currvalue  = '';
+
+					if ($formtype == 'DEM') {
+					  if ($GLOBALS['athletic_team']) {
+						// Skip fitness level and return-to-play date because those appear
+						// in a special display/update form on this page.
+						if ($field_id === 'fitness' || $field_id === 'userdate1') continue;
+					  }
+					  if (strpos($field_id, 'em_') === 0) {
+					// Skip employer related fields, if it's disabled.
+						if ($GLOBALS['omit_employers']) continue;
+						$tmp = substr($field_id, 3);
+						if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
+					  }
+					  else {
+						if (isset($result1[$field_id])) $currvalue = $result1[$field_id];
+					  }
+					}
+					else {
+					  if (isset($result1[$field_id])) $currvalue = $result1[$field_id];
+					}
+
+					// Handle a data category (group) change.
+					if (strcmp($this_group, $last_group) != 0) {
+					  $group_name = substr($this_group, 1);
+					  // totally skip generating the employer category, if it's disabled.
+					  if ($group_name === 'Employer' && $GLOBALS['omit_employers']) continue;
+					  $last_group = $this_group;
+					}
+
+					// Handle starting of a new row.
+					if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
+					  disp_end_row();
+					  echo "<tr>";
+					}
+
+					if ($item_count == 0 && $titlecols == 0) {
+						$titlecols = 1;
+					}
+
+					// Handle starting of a new label cell.
+					if ($titlecols > 0) {
+					  disp_end_cell();
+					  echo "<td class='label' colspan='$titlecols' ";
+					  echo ">";
+					  $cell_count += $titlecols;
+					}
+					++$item_count;
+
+					// Added 5-09 by BM - Translate label if applicable
+					if ($group_fields['title']) echo (xl_layout_label($group_fields['title']).":"); else echo "&nbsp;";
+
+					// Handle starting of a new data cell.
+					if ($datacols > 0) {
+					  disp_end_cell();
+					  echo "<td class='text data' colspan='$datacols'";
+					  echo ">";
+					  $cell_count += $datacols;
+					}
+
+					++$item_count;
+					echo generate_display_field($group_fields, $currvalue);
+				  }
+			?>
+
+			</table>
+		</div>
+
+ 	 <?php
+
+	$first = false;
+
+	}
+
+}
+
+function display_layout_tabs_data_editable($formtype, $result1, $result2='') {
+  global $item_count, $cell_count, $last_group, $CPR;
+
+  $fres = sqlStatement("SELECT distinct group_name FROM layout_options " .
+    "WHERE form_id = '$formtype' AND uor > 0 " .
+    "ORDER BY group_name, seq");
+
+	$first = true;
+	while ($frow = sqlFetchArray($fres)) {
+		$this_group = $frow['group_name'];
+		$group_name = substr($this_group, 1);
+		$titlecols  = $frow['titlecols'];
+		$datacols   = $frow['datacols'];
+		$data_type  = $frow['data_type'];
+		$field_id   = $frow['field_id'];
+		$list_id    = $frow['list_id'];
+		$currvalue  = '';
+
+		$group_fields_query = sqlStatement("SELECT * FROM layout_options " .
+		"WHERE form_id = '$formtype' AND uor > 0 AND group_name = '$this_group' " .
+		"ORDER BY seq");
+	?>
+
+		<div class="tab <?php echo $first ? 'current' : '' ?>" id="tab_<?php echo $group_name?>" >
+			<table border='0' cellpadding='0'>
+
+			<?php
+				while ($group_fields = sqlFetchArray($group_fields_query)) {
+
+					$titlecols  = $group_fields['titlecols'];
+					$datacols   = $group_fields['datacols'];
+					$data_type  = $group_fields['data_type'];
+					$field_id   = $group_fields['field_id'];
+					$list_id    = $group_fields['list_id'];
+					$currvalue  = '';
+
+					if ($formtype == 'DEM') {
+					  if ($GLOBALS['athletic_team']) {
+						// Skip fitness level and return-to-play date because those appear
+						// in a special display/update form on this page.
+						if ($field_id === 'fitness' || $field_id === 'userdate1') continue;
+					  }
+					  if (strpos($field_id, 'em_') === 0) {
+					// Skip employer related fields, if it's disabled.
+						if ($GLOBALS['omit_employers']) continue;
+						$tmp = substr($field_id, 3);
+						if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
+					  }
+					  else {
+						if (isset($result1[$field_id])) $currvalue = $result1[$field_id];
+					  }
+					}
+					else {
+					  if (isset($result1[$field_id])) $currvalue = $result1[$field_id];
+					}
+
+					// Handle a data category (group) change.
+					if (strcmp($this_group, $last_group) != 0) {
+					  $group_name = substr($this_group, 1);
+					  // totally skip generating the employer category, if it's disabled.
+					  if ($group_name === 'Employer' && $GLOBALS['omit_employers']) continue;
+					  $last_group = $this_group;
+					}
+
+					// Handle starting of a new row.
+					if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
+					  disp_end_row();
+					  echo "<tr>";
+					}
+
+					if ($item_count == 0 && $titlecols == 0) {
+						$titlecols = 1;
+					}
+
+					// Handle starting of a new label cell.
+					if ($titlecols > 0) {
+					  disp_end_cell();
+					  echo "<td class='label' colspan='$titlecols' ";
+					  echo ">";
+					  $cell_count += $titlecols;
+					}
+					++$item_count;
+
+					// Added 5-09 by BM - Translate label if applicable
+					if ($group_fields['title']) echo (xl_layout_label($group_fields['title']).":"); else echo "&nbsp;";
+
+					// Handle starting of a new data cell.
+					if ($datacols > 0) {
+					  disp_end_cell();
+					  echo "<td class='text data' colspan='$datacols'";
+					  echo ">";
+					  $cell_count += $datacols;
+					}
+
+					++$item_count;
+					echo generate_form_field($group_fields, $currvalue);
+				  }
+			?>
+
+			</table>
+		</div>
+
+ 	 <?php
+
+	$first = false;
+
+	}
+}
+
 // From the currently posted HTML form, this gets the value of the
 // field corresponding to the provided layout_options table row.
 //
@@ -1238,10 +1476,8 @@ function generate_layout_validation($form_id) {
       case 26:
         echo
         " if (f.$fldname.selectedIndex <= 0) {\n" .
-        "  alert('" . xl('Please choose a value for','','',' ') .
-        xl_layout_label($fldtitle) . "');\n" .
         "  if (f.$fldname.focus) f.$fldname.focus();\n" .
-        "  return false;\n" .
+        "  		errMsgs[errMsgs.length] = '". xl_layout_label($fldtitle) . "'; \n" .
         " }\n";
         break;
       case 27: // radio buttons
@@ -1249,9 +1485,7 @@ function generate_layout_validation($form_id) {
         " var i = 0;\n" .
         " for (; i < f.$fldname.length; ++i) if (f.$fldname[i].checked) break;\n" .
         " if (i >= f.$fldname.length) {\n" .
-        "  alert('" . xl('Please choose a value for','','',' ') .
-        xl_layout_label($fldtitle) . "');\n" .
-        "  return false;\n" .
+        "  		errMsgs[errMsgs.length] = '". xl_layout_label($fldtitle) . "'; \n" .
         " }\n";
         break;
       case  2:
@@ -1260,11 +1494,14 @@ function generate_layout_validation($form_id) {
       case 15:
         echo
         " if (trimlen(f.$fldname.value) == 0) {\n" .
-        "  alert('" . xl('Please choose a value for','','',' ') .
-        xl_layout_label($fldtitle) . "');\n" .
-        "  if (f.$fldname.focus) f.$fldname.focus();\n" .
-        "  return false;\n" .
-        " }\n";
+        "  		if (f.$fldname.focus) f.$fldname.focus();\n" .
+		"  		$('#form_" . $field_id . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','red'); } ); " .
+		"  		$('#form_" . $field_id . "').attr('style','background:red'); \n" .
+        "  		errMsgs[errMsgs.length] = '". xl_layout_label($fldtitle) . "'; \n" .
+        " } else { " .
+		" 		$('#form_" . $field_id . "').attr('style',''); " .
+		"  		$('#form_" . $field_id . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','');  } ); " .
+		" } \n";
         break;
     }
   }

@@ -80,7 +80,7 @@ function form_delete($formdir, $formid) {
   $formdir = ($formdir == 'newpatient') ? 'encounter' : $formdir;
   if (substr($formdir,0,3) == 'LBF')
     row_delete("lbf_data", "form_id = '$formid'");
-  else 
+  else
     row_delete("form_$formdir", "id = '$formid'");
 }
 
@@ -95,6 +95,12 @@ function form_delete($formdir, $formid) {
 td { font-size:10pt; }
 </style>
 
+<script language="javascript">
+function submit_form()
+{
+document.deletefrm.submit();
+}
+</script>
 </head>
 
 <body class="body_top">
@@ -275,17 +281,15 @@ td { font-size:10pt; }
   //
   echo "<script language='JavaScript'>\n";
   if ($info_msg) echo " alert('$info_msg');\n";
-  echo " window.close();\n";
-  echo " if (opener.imdeleted) opener.imdeleted();\n";
+  echo "parent.imdeleted();\n";
   echo "</script></body></html>\n";
   exit();
  }
 ?>
 
-<form method='post' action='deleter.php?patient=<?php echo $patient ?>&encounterid=<?php echo $encounterid ?>&formid=<?php echo $formid ?>&issue=<?php echo $issue ?>&document=<?php echo $document ?>&payment=<?php echo $payment ?>&billing=<?php echo $billing ?>&transaction=<?php echo $transaction ?>'>
+<form method='post' name="deletefrm" action='deleter.php?patient=<?php echo $patient ?>&encounterid=<?php echo $encounterid ?>&formid=<?php echo $formid ?>&issue=<?php echo $issue ?>&document=<?php echo $document ?>&payment=<?php echo $payment ?>&billing=<?php echo $billing ?>&transaction=<?php echo $transaction ?>' onsubmit="javascript:alert('1');document.deleform.submit();">
 
-<p>&nbsp;<br><?php xl('
-Do you really want to delete','e'); ?>
+<p class="text">&nbsp;<br><?php xl('Do you really want to delete','e'); ?>
 
 <?php
  if ($patient) {
@@ -309,10 +313,10 @@ Do you really want to delete','e'); ?>
 
 <center>
 
-<p>&nbsp;<br>
-<input type='submit' name='form_submit' value=<?php xl('Yes, Delete and Log','e','\'','\''); ?> />
-&nbsp;
-<input type='button' value=<?php xl('No, Cancel','e','\'','\''); ?> onclick='window.close()' />
+<p class="text">&nbsp;<br>
+<a href="#" onclick="submit_form()" class="css_button"><span><?php xl('Yes, Delete and Log','e'); ?></span></a>
+<input type='hidden' name='form_submit' value=<?php xl('Yes, Delete and Log','e','\'','\''); ?>/>
+<a href='#' class="css_button" onclick='parent.$.fn.fancybox.close();' /><span><?php echo xl('No, Cancel');?></span></a>
 </p>
 
 </center>
