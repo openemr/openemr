@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2009 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -776,6 +776,7 @@ if ($_POST['form_action'] == "save") {
  // If we get this far then we are displaying the form.
  //*********************************
 
+/*********************************************************************
  $statuses = array(
   '-' => '',
   '*' => xl('* Reminder done'),
@@ -791,6 +792,7 @@ if ($_POST['form_action'] == "save") {
   '$' => xl('$ Coding done'),
    '%' => xl('% Cancelled <  24h ')
  );
+*********************************************************************/
 
  $repeats = 0; // if the event repeats
  $repeattype = '0';
@@ -1521,11 +1523,20 @@ if  ($GLOBALS['select_multi_providers']) {
 
    <select name='form_apptstatus' style='width:100%' title='<?php xl('Appointment status','e'); ?>'>
 <?php
+/*********************************************************************
  foreach ($statuses as $key => $value) {
   echo "    <option value='$key'";
   if ($key == $row['pc_apptstatus']) echo " selected";
   echo ">" . htmlspecialchars($value) . "</option>\n";
  }
+*********************************************************************/
+$sres = sqlStatement("SELECT option_id, title FROM list_options " .
+  "WHERE list_id = 'apptstat' ORDER BY seq");
+while ($srow = sqlFetchArray($sres)) {
+  echo "    <option value='" . $srow['option_id'] . "'";
+  if ($srow['option_id'] == $row['pc_apptstatus']) echo " selected";
+  echo ">" . htmlspecialchars($srow['title']) . "</option>\n";
+}
 ?>
    </select>
    <!--
