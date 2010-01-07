@@ -478,10 +478,12 @@ $GLOBALS['discount_by_money'] = false;
 // patient notes created by others.
 $GLOBALS['ignore_pnotes_authorization'] = true;
 
-// This turns on the option of creating a new patient using the complete
-// layout of the demographics form as well as a built-in search feature.
-// Everyone should want this, but for now it's optional.
-$GLOBALS['full_new_patient_form'] = true;
+// This controls the style of the "new patient" form and its search and
+// duplication check features.  Options are:
+// 0 = Old-style static form without search or duplication check
+// 1 = All demographics fields, with search and duplication check
+// 2 = Mandatory fields only, with search and duplication check
+$GLOBALS['full_new_patient_form'] = 1;
 
 // This can be used to enable the old Charges panel for entering billing
 // codes and payments.  It is not recommended, as it was obsoleted by the

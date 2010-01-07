@@ -17,10 +17,19 @@ if ($thisauth != 'write' && $thisauth != 'addonly')
   die("Adding demographics is not authorized.");
 
 $CPR = 4; // cells per row
+$searchcolor = '#ffff55';
 
-$fres = sqlStatement("SELECT * FROM layout_options " .
-  "WHERE form_id = 'DEM' AND uor > 0 " .
-  "ORDER BY group_name, seq");
+$SHORT_FORM = ($GLOBALS['full_new_patient_form'] === 2);
+
+function getLayoutRes() {
+  global $SHORT_FORM;
+  return sqlStatement("SELECT * FROM layout_options " .
+    "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
+    ($SHORT_FORM ? "AND ( UOR > 1 OR field_id = 'pubpid' ) " : "") .
+    "ORDER BY group_name, seq");
+}
+
+$fres = getLayoutRes();
 ?>
 <html>
 <head>
@@ -83,15 +92,6 @@ function upperFirst(string,text) {
  return replace(string,text,text.charAt(0).toUpperCase() + text.substring(1,text.length));
 }
 
-/*********************************************************************
-function popUp(URL) {
- day = new Date();
- id = day.getTime();
- top.restoreSession();
- eval("page" + id + " = window.open(URL, '" + id + "', 'toolbar=0,scrollbars=1,location=0,statusbar=0,menubar=0,resizable=1,width=400,height=300,left = 440,top = 362');");
-}
-*********************************************************************/
-
 function checkNum () {
  var re= new RegExp();
  re = /^\d*\.?\d*$/;
@@ -142,15 +142,23 @@ function validate(f) {
  return true;
 }
 
+function toggleSearch(elem) {
+ // Toggle background color.
+ if (elem.style.backgroundColor == '')
+  elem.style.backgroundColor = '<?php echo $searchcolor; ?>';
+ else
+  elem.style.backgroundColor = '';
+ return true;
+}
+
 // This invokes the patient search dialog.
 function searchme() {
  var f = document.forms[0];
  var url = '../main/finder/patient_select.php?popup=1';
 
 <?php
-$lres = sqlStatement("SELECT * FROM layout_options " .
-  "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
-  "ORDER BY group_name, seq");
+$lres = getLayoutRes();
+
 while ($lrow = sqlFetchArray($lres)) {
   $field_id  = $lrow['field_id'];
   if (strpos($field_id, 'em_') === 0) continue;
@@ -163,7 +171,7 @@ while ($lrow = sqlFetchArray($lres)) {
     case 13:
     case 14:
       echo
-      " if (f.$fldname.selectedIndex > 0) {\n" .
+      " if (f.$fldname.style.backgroundColor != '' && f.$fldname.selectedIndex > 0) {\n" .
       "  url += '&$field_id=' + escape(f.$fldname.options[f.$fldname.selectedIndex].value);\n" .
       " }\n";
       break;
@@ -172,7 +180,7 @@ while ($lrow = sqlFetchArray($lres)) {
     case  4:
     case 15:
       echo
-      " if (trimlen(f.$fldname.value) > 0) {\n" .
+      " if (f.$fldname.style.backgroundColor != '' && trimlen(f.$fldname.value) > 0) {\n" .
       "  url += '&$field_id=' + escape(f.$fldname.value);\n" .
       " }\n";
       break;
@@ -197,7 +205,7 @@ while ($lrow = sqlFetchArray($lres)) {
 <table width='100%' cellpadding='0' cellspacing='8'>
  <tr>
   <td align='left' valign='top'>
-
+  <center>
 <?php
 
 function end_cell() {
@@ -219,11 +227,11 @@ function end_row() {
 }
 
 function end_group() {
-  global $last_group;
+  global $last_group, $SHORT_FORM;
   if (strlen($last_group) > 0) {
     end_row();
     echo " </table>\n";
-    echo "</div>\n";
+    if (!$SHORT_FORM) echo "</div>\n";
   }
 }
 
@@ -252,21 +260,25 @@ while ($frow = sqlFetchArray($fres)) {
 
   // Handle a data category (group) change.
   if (strcmp($this_group, $last_group) != 0) {
-    end_group();
-    //$group_seq  = substr($this_group, 0, 1);  -- replaced by a simple counter
-    $group_seq++;    // ID for DIV tags
-    $group_name = substr($this_group, 1);
-    if (strlen($last_group) > 0) echo "<br />";
-    echo "<span class='bold'><input type='checkbox' name='form_cb_$group_seq' id='form_cb_$group_seq' value='1' " .
-      "onclick='return divclick(this,\"div_$group_seq\");'";
-    if ($display_style == 'block') echo " checked";
-      
-    // Modified 6-09 by BM - Translate if applicable  
-    echo " /><b>" . xl_layout_label($group_name) . "</b></span>\n";
-      
-    echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
-    echo " <table border='0' cellpadding='0'>\n";
-    $display_style = 'none';
+    if (!$SHORT_FORM) {
+      end_group();
+      $group_seq++;    // ID for DIV tags
+      $group_name = substr($this_group, 1);
+      if (strlen($last_group) > 0) echo "<br />";
+      echo "<span class='bold'><input type='checkbox' name='form_cb_$group_seq' id='form_cb_$group_seq' value='1' " .
+        "onclick='return divclick(this,\"div_$group_seq\");'";
+      if ($display_style == 'block') echo " checked";
+        
+      // Modified 6-09 by BM - Translate if applicable  
+      echo " /><b>" . xl_layout_label($group_name) . "</b></span>\n";
+        
+      echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
+      echo " <table border='0' cellpadding='0'>\n";
+      $display_style = 'none';
+    }
+    else if (strlen($last_group) == 0) {
+      echo " <table border='0' cellpadding='0'>\n";
+    }
     $last_group = $this_group;
   }
 
@@ -312,8 +324,9 @@ while ($frow = sqlFetchArray($fres)) {
 end_group();
 ?>
 
-<center><br />
-<input type="button" id="search" value=<?php xl('Search','e','\'','\''); ?> />
+<br />
+<input type="button" id="search" value=<?php xl('Search','e','\'','\''); ?>
+ style='background-color:<?php echo $searchcolor; ?>' />
 &nbsp;&nbsp;
 <input type="button" id="create" value=<?php xl('Create New Patient','e','\'','\''); ?> />
 
@@ -346,52 +359,58 @@ if (f.form_phone_cell   ) phonekeyup(f.form_phone_cell   ,mypcc);
 
 // -=- jQuery makes life easier -=-
 
-var matches = 0; // number of patients that match the demographic information being entered
-var override = 0; // flag that overrides the duplication warning
+// var matches = 0; // number of patients that match the demographic information being entered
+// var override = false; // flag that overrides the duplication warning
 
 $(document).ready(function() {
-    // when these fields lose focus, do a look-up to check for duplicates
-    // already in the database
-    $('#form_fname').blur(function() { DupeCheck(); });
-    $('#form_mname').blur(function() { DupeCheck(); });
-    $('#form_lname').blur(function() { DupeCheck(); });
-    $('#form_pubpid').blur(function() { DupeCheck(); });
-    $('#form_DOB').blur(function() { DupeCheck(); });
-    $('#form_ss').blur(function() { DupeCheck(); });
-    $('#form_sex').blur(function() { DupeCheck(); });
 
     $('#search').click(function() { searchme(); });
     $('#create').click(function() { submitme(); });
 
-    // function updates the matchcount DIV
-    var DupeCheck = function() {
-        $.get("<?php echo $GLOBALS['webroot']; ?>/library/ajax/find_patients.php",
-                { returntype: "count",
-                  fname: $('#form_fname').val(),
-                  mname: $('#form_mname').val(),
-                  lname: $('#form_lname').val(),
-                  pubpid: $('#form_pubpid').val(),
-                  DOB: $('#form_DOB').val(),
-                  ss: $('#form_ss').val(),
-                  sex: $('#form_sex').val()
-                },
-                function(data, textStatus) {
-                    matches = data;
-                }
-             );
-    };
-
     var submitme = function() {
-        var f = document.forms[0];
-        if (matches > 0 && override == false) {
-            if (! confirm("<?php xl('DUPLICATION WARNING','e'); ?>\n===================\n<?php xl('There are','e'); ?> "+matches+" <?php xl('patient(s) in the database that match the demographic information you have entered.','e'); ?>\n\n<?php xl('Do you wish to continue adding this new patient?','e'); ?>"))
-                return false;
-        }
-        if (validate(f)) {
-            top.restoreSession();
-            f.submit();
-        }
+      var f = document.forms[0];
+
+      if (validate(f)) {
+        top.restoreSession();
+        // Check for duplication.
+        $.get("<?php echo $GLOBALS['webroot']; ?>/library/ajax/find_patients.php",
+          { returntype: "count",
+            fname: $('#form_fname').val(),
+            mname: $('#form_mname').val(),
+            lname: $('#form_lname').val(),
+            pubpid: $('#form_pubpid').val(),
+            DOB: $('#form_DOB').val(),
+            ss: $('#form_ss').val(),
+            sex: $('#form_sex').val()
+          },
+          function(data, textStatus) {
+            var f = document.forms[0];
+            if (data.length > 0) {
+              if (confirm(data + "\n<?php xl('Do you wish to continue?','e'); ?>")) {
+                top.restoreSession();
+                f.submit();
+              }
+            }
+            else {
+              top.restoreSession();
+              f.submit();
+            }
+          },
+          "text"
+        );
+      }
     }
+
+// Set onclick handlers for toggling background color.
+<?php
+$lres = getLayoutRes();
+while ($lrow = sqlFetchArray($lres)) {
+  $field_id  = $lrow['field_id'];
+  if (strpos($field_id, 'em_') === 0) continue;
+  echo "    \$('#form_$field_id').focus(function() { toggleSearch(this); });\n";
+}
+?>
+
 }); // end document.ready
 
 </script>
