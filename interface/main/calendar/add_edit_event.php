@@ -25,6 +25,7 @@
  include_once("$srcdir/forms.inc");
  include_once("$srcdir/calendar.inc");
  include_once("$srcdir/formdata.inc.php");
+ include_once("$srcdir/options.inc.php");
 
  // Things that might be passed by our opener.
  //
@@ -777,6 +778,7 @@ if ($_POST['form_action'] == "save") {
  //*********************************
 
 /*********************************************************************
+        This has been migrate to the administration->lists
  $statuses = array(
   '-' => '',
   '*' => xl('* Reminder done'),
@@ -1521,24 +1523,9 @@ if  ($GLOBALS['select_multi_providers']) {
   </td>
   <td nowrap>
 
-   <select name='form_apptstatus' style='width:100%' title='<?php xl('Appointment status','e'); ?>'>
 <?php
-/*********************************************************************
- foreach ($statuses as $key => $value) {
-  echo "    <option value='$key'";
-  if ($key == $row['pc_apptstatus']) echo " selected";
-  echo ">" . htmlspecialchars($value) . "</option>\n";
- }
-*********************************************************************/
-$sres = sqlStatement("SELECT option_id, title FROM list_options " .
-  "WHERE list_id = 'apptstat' ORDER BY seq");
-while ($srow = sqlFetchArray($sres)) {
-  echo "    <option value='" . $srow['option_id'] . "'";
-  if ($srow['option_id'] == $row['pc_apptstatus']) echo " selected";
-  echo ">" . htmlspecialchars($srow['title']) . "</option>\n";
-}
+generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'SKIP'), $row['pc_apptstatus']);
 ?>
-   </select>
    <!--
     The following list will be invisible unless this is an In Office
     event, in which case form_apptstatus (above) is to be invisible.

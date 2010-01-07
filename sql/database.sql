@@ -1962,20 +1962,20 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('immunizations','34'           ,'Hepatitis A 2'           , 60,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('immunizations','35'           ,'Other'                   ,175,0);
 
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists','apptstat','Appointment Statuses',1);
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('apptstat','-','- None',1);
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('apptstat','*','* Reminder done' , 1);
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('apptstat','+','+ Chart pulled'  , 2);
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('apptstat','x','x Canceled'      , 3);
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('apptstat','?','? No show'       , 4);
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('apptstat','@','@ Arrived'       , 5);
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('apptstat','~','~ Arrived late'  , 6);
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('apptstat','!','! Left w/o visit', 7);
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('apptstat','#','# Ins/fin issue' , 8);
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('apptstat','<','< In exam room'  , 9);
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('apptstat','>','> Checked out'   ,10);
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('apptstat','$','$ Coding done'   ,11);
-INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('apptstat','%','% Canceled < 24h',12);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'apptstat','Appointment Statuses', 1,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('apptstat','-'       ,'- None'              , 5,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('apptstat','*'       ,'* Reminder done'     ,10,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('apptstat','+'       ,'+ Chart pulled'      ,15,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('apptstat','x'       ,'x Canceled'          ,20,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('apptstat','?'       ,'? No show'           ,25,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('apptstat','@'       ,'@ Arrived'           ,30,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('apptstat','~'       ,'~ Arrived late'      ,35,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('apptstat','!'       ,'! Left w/o visit'    ,40,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('apptstat','#'       ,'# Ins/fin issue'     ,45,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('apptstat','<'       ,'< In exam room'      ,50,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('apptstat','>'       ,'> Checked out'       ,55,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('apptstat','$'       ,'$ Coding done'       ,60,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('apptstat','%'       ,'% Canceled < 24h'    ,65,0);
 
 -- --------------------------------------------------------
 
