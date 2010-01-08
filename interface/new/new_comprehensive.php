@@ -17,7 +17,9 @@ if ($thisauth != 'write' && $thisauth != 'addonly')
   die("Adding demographics is not authorized.");
 
 $CPR = 4; // cells per row
-$searchcolor = '#ffff55';
+
+$searchcolor = empty($GLOBALS['layout_search_color']) ?
+  '#ffff55' : $GLOBALS['layout_search_color'];
 
 $SHORT_FORM = ($GLOBALS['full_new_patient_form'] === 2);
 

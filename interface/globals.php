@@ -485,6 +485,10 @@ $GLOBALS['ignore_pnotes_authorization'] = true;
 // 2 = Mandatory fields only, with search and duplication check
 $GLOBALS['full_new_patient_form'] = 1;
 
+// This is the background color to apply to form fields that are searchable.
+// Currently it is applicable only to the "Search or Add Patient" form.
+$GLOBALS['layout_search_color'] = '#ffff55';
+
 // This can be used to enable the old Charges panel for entering billing
 // codes and payments.  It is not recommended, as it was obsoleted by the
 // Fee Sheet which is more complete and comprehensive.
