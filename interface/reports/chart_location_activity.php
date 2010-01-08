@@ -24,73 +24,36 @@ $form_patient_id = trim($_POST['form_patient_id']);
 
 /* specifically include & exclude from printing */
 @media print {
-    #thisreport_parameters {
+    #report_parameters {
         visibility: hidden;
         display: none;
     }
-    #thisreport_parameters_daterange {
+    #report_parameters_daterange {
         visibility: visible;
         display: inline;
+    }
+    #report_results table {
+       margin-top: 0px;
     }
 }
 
 /* specifically exclude some from the screen */
 @media screen {
-    #thisreport_parameters_daterange {
+    #report_parameters_daterange {
         visibility: hidden;
         display: none;
     }
 }
 
-#thisreport_parameters {
-    width: 100%;
-    background-color: #ddf;
-}
-#thisreport_parameters table {
-    border: none;
-    border-collapse: collapse;
-}
-#thisreport_parameters table td {
-    padding: 3px;
-}
-
-#thisreport_results {
-    width: 100%;
-    margin-top: 10px;
-}
-#thisreport_results table {
-   border: 1px solid black;
-   border-collapse: collapse;
-}
-#thisreport_results table thead {
-    display: table-header-group;
-    background-color: #ddd;
-}
-#thisreport_results table th {
-    border-bottom: 1px solid black;
-    font-size: 0.7em;
-    text-align: left;
-    padding: 1px 4px 1px 4px;
-}
-#thisreport_results table td {
-    padding: 1px;
-    margin: 2px;
-    border-bottom: 1px solid black;
-    font-size: 0.7em;
-    padding: 1px 4px 1px 4px;
-}
-.thisreport_totals td {
-    background-color: #77ff77;
-    font-weight: bold;
-}
 </style>
+
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+
 </head>
 
 <body class="body_top">
 
-<center>
-
-<h2><?php xl('Chart Location Activity','e'); ?></h2>
+<span class='title'><?php xl('Report','e'); ?> - <?php xl('Chart Location Activity','e'); ?></span>
 
 <?php
 $curr_pid = $pid;
@@ -114,36 +77,73 @@ else if (!empty($curr_pid)) {
   $form_patient_id = $ptrow['pubpid'];
 }
 if (!empty($ptrow)) {
-  echo '<h3>' . xl('for','','',' ');
+  echo '<span class="title">' . xl('for','','',' ');
   echo $ptrow['lname'] . ', ' . $ptrow['fname'] . ' ' . $ptrow['mname'] . ' ';
   echo "(" . $ptrow['pubpid'] . ")";
-  echo "</h3>\n";
+  echo "</span>\n";
 }
 ?>
 
-<div id="thisreport_parameters_daterange">
+<div id="report_parameters_daterange">
 </div>
 
-<div id="thisreport_parameters">
+<form name='theform' id='theform' method='post' action='chart_location_activity.php'>
 
-<form name='theform' method='post' action='chart_location_activity.php'>
+<div id="report_parameters">
 
+<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 <table>
  <tr>
-  <td>
-   <?php xl('Patient ID','e'); ?>:
-   <input type='text' name='form_patient_id' size='10' maxlength='31' value='<?php echo $form_patient_id ?>'
-    title='<?php xl('Patient ID','e'); ?>' />
-   &nbsp;
-   <input type='submit' name='form_refresh' value=<?php xl('Refresh','e'); ?>>
-   &nbsp;
-   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
+  <td width='200px'>
+	<div style='float:left'>
+
+	<table class='text'>
+		<tr>
+			<td class='label'>
+			   <?php xl('Patient ID','e'); ?>:
+			</td>
+			<td>
+			   <input type='text' name='form_patient_id' size='10' maxlength='31' value='<?php echo $form_patient_id ?>'
+				title='<?php xl('Patient ID','e'); ?>' />
+			</td>
+		</tr>
+	</table>
+
+	</div>
+
+  </td>
+  <td align='left' valign='middle' height="100%">
+	<table style='border-left:1px solid; width:100%; height:100%' >
+		<tr>
+			<td>
+				<div style='margin-left:15px'>
+					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+					<span>
+						<?php xl('Submit','e'); ?>
+					</span>
+					</a>
+
+					<?php if ($_POST['form_refresh'] || !empty($ptrow) ) { ?>
+					<a href='#' class='css_button' onclick='window.print()'>
+						<span>
+							<?php xl('Print','e'); ?>
+						</span>
+					</a>
+					<?php } ?>
+				</div>
+			</td>
+		</tr>
+	</table>
   </td>
  </tr>
 </table>
+
 </div> <!-- end of parameters -->
 
-<div id="thisreport_results">
+<?php
+ if ($_POST['form_refresh'] || !empty($ptrow) ) {
+?>
+<div id="report_results">
 <table>
  <thead>
   <th> <?php xl('Time','e'); ?> </th>
@@ -185,7 +185,12 @@ if (!empty($ptrow)) {
 </tbody>
 </table>
 </div> <!-- end of results -->
+<?php } else { ?>
+<div class='text'>
+ 	<?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
+</div>
+<?php } ?>
+
 </form>
-</center>
 </body>
 </html>

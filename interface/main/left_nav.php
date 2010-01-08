@@ -915,7 +915,9 @@ if (!empty($reg)) {
     <ul>
       <?php if (acl_check('admin', 'users'    )) genMiscLink('RTop','adm','0',xl('Facilities'),'usergroup/facilities.php'); ?>
       <?php if (acl_check('admin', 'users'    )) genMiscLink('RTop','adm','0',xl('Users'),'usergroup/usergroup_admin.php'); ?>
-      <?php if (acl_check('admin', 'practice' )) genMiscLink('RTop','adm','0',xl('Practice'),'../controller.php?practice_settings'); ?>
+      <?php
+	  // Changed the target URL from practice settings -> Practice Settings - Pharmacy... Dec 09,09 .. Visolve ... This replaces empty frame with Pharmacy window
+	  if (acl_check('admin', 'practice' )) genMiscLink('RTop','adm','0',xl('Practice'),'../controller.php?practice_settings&pharmacy&action=list'); ?>
       <?php if (acl_check('admin', 'superbill')) genTreeLink('RTop','sup',xl('Services')); ?>
       <?php if (acl_check('admin', 'super'    )) genMiscLink('RTop','adm','0',xl('Layouts'),'super/edit_layout.php'); ?>
       <?php if (acl_check('admin', 'super'    )) genMiscLink('RTop','adm','0',xl('Lists'),'super/edit_list.php'); ?>
@@ -938,37 +940,37 @@ if (!empty($reg)) {
     <ul>
       <li><span><?php xl('Clients','e') ?></span>
         <ul>
-          <?php genPopLink(xl('List'),'patient_list.php'); ?>
-          <?php if (acl_check('patients', 'med') && !$GLOBALS['disable_prescriptions']) genPopLink(xl('Rx'),'prescriptions_report.php'); ?>
-          <?php genPopLink(xl('Referrals'),'referrals_report.php'); ?>
+	  <?php genMiscLink('RTop','rep','0',xl('List'),'reports/patient_list.php'); ?>
+          <?php if (acl_check('patients', 'med') && !$GLOBALS['disable_prescriptions']) genMiscLink('RTop','rep','0',xl('Rx'),'reports/prescriptions_report.php'); ?>
+	  <?php genMiscLink('RTop','rep','0',xl('Referrals'),'reports/referrals_report.php'); ?>
         </ul>
       </li>
       <li class="open"><span><?php xl('Visits','e') ?></span>
         <ul>
-          <?php if (!$GLOBALS['disable_calendar']) genPopLink(xl('Appointments'),'appointments_report.php'); ?>
-          <?php genPopLink(xl('Encounters'),'encounters_report.php'); ?>
-          <?php if (!$GLOBALS['disable_calendar']) genPopLink(xl('Appt-Enc'),'appt_encounter_report.php'); ?>
+          <?php if (!$GLOBALS['disable_calendar']) genMiscLink('RTop','rep','0',xl('Appointments'),'reports/appointments_report.php'); ?>
+          <?php  genMiscLink('RTop','rep','0',xl('Encounters'),'reports/encounters_report.php'); ?>
+          <?php if (!$GLOBALS['disable_calendar']) genMiscLink('RTop','rep','0',xl('Appt-Enc'),'reports/appt_encounter_report.php'); ?>
 <?php if (empty($GLOBALS['code_types']['IPPF'])) { ?>
-          <?php genPopLink(xl('Superbill'),'custom_report_range.php'); ?>
+          <?php genMiscLink('RTop','rep','0',xl('Superbill'),'reports/custom_report_range.php'); ?>
 <?php } ?>
-          <?php if (!$GLOBALS['disable_chart_tracker']) genPopLink(xl('Chart Activity'),'chart_location_activity.php'); ?>
-          <?php if (!$GLOBALS['disable_chart_tracker']) genPopLink(xl('Charts Out'),'charts_checked_out.php'); ?>
+          <?php if (!$GLOBALS['disable_chart_tracker']) genMiscLink('RTop','rep','0',xl('Chart Activity'),'reports/chart_location_activity.php'); ?>
+          <?php if (!$GLOBALS['disable_chart_tracker']) genMiscLink('RTop','rep','0',xl('Charts Out'),'reports/charts_checked_out.php'); ?>
         </ul>
       </li>
 <?php if (acl_check('acct', 'rep_a')) { ?>
       <li><span><?php xl('Financial','e') ?></span>
         <ul>
-          <?php genPopLink(xl('Sales'),'sales_by_item.php'); ?>
-          <?php genPopLink(xl('Cash Rec'),'../billing/sl_receipts_report.php'); ?>
-          <?php genPopLink(xl('Front Rec'),'front_receipts_report.php'); ?>
-          <?php genPopLink(xl('Pmt Method'),'receipts_by_method_report.php'); ?>
-          <?php genPopLink(xl('Collections'),'collections_report.php'); ?>
+          <?php genMiscLink('RTop','rep','0',xl('Sales'),'reports/sales_by_item.php'); ?>
+          <?php genMiscLink('RTop','rep','0',xl('Cash Rec'), 'billing/sl_receipts_report.php'); ?>
+          <?php genMiscLink('RTop','rep','0',xl('Front Rec'), 'reports/front_receipts_report.php'); ?>
+          <?php genMiscLink('RTop','rep','0',xl('Pmt Method'), 'reports/receipts_by_method_report.php'); ?>
+          <?php genMiscLink('RTop','rep','0',xl('Collections'), 'reports/collections_report.php'); ?>
         </ul>
       </li>
 <?php } ?>
       <li><span><?php xl('General','e') ?></span>
         <ul>
-          <?php genPopLink(xl('Services'),'services_by_category.php'); ?>
+          <?php genMiscLink('RTop','rep','0',xl('Services'), 'reports/services_by_category.php'); ?>
           <?php if ($GLOBALS['inhouse_pharmacy']) genPopLink(xl('Inventory'),'inventory_list.php'); ?>
           <?php if ($GLOBALS['inhouse_pharmacy']) genPopLink(xl('Destroyed'),'destroyed_drugs_report.php'); ?>
         </ul>
@@ -976,9 +978,9 @@ if (!empty($reg)) {
 <?php if (! $GLOBALS['simplified_demographics']) { ?>
       <li><span><?php xl('Insurance','e') ?></span>
         <ul>
-          <?php genPopLink(xl('Distribution'),'insurance_allocation_report.php'); ?>
-          <?php genPopLink(xl('Indigents'),'../billing/indigent_patients_report.php'); ?>
-          <?php genPopLink(xl('Unique SP'),'unique_seen_patients_report.php'); ?>
+          <?php genMiscLink('RTop','rep','0',xl('Distribution'),'reports/insurance_allocation_report.php'); ?>
+          <?php genMiscLink('RTop','rep','0',xl('Indigents'),'billing/indigent_patients_report.php'); ?>
+          <?php genMiscLink('RTop','rep','0',xl('Unique SP'),'reports/unique_seen_patients_report.php'); ?>
         </ul>
       </li>
 <?php } ?>

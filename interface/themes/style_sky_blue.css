@@ -695,3 +695,62 @@ div.tab table td.data {
 .section-header {
 	margin-bottom:5px; width:685px; border-bottom: 1px solid;
 }
+
+/*
+* REPORTS
+*/
+
+#report_parameters {
+    background-color: #ececec;
+	margin-top:10px;
+}
+
+#report_parameters table {
+    border: solid 1px;
+	width: 100%;
+    border-collapse: collapse;
+}
+#report_parameters table td {
+    padding: 5px;
+}
+
+#report_parameters table table {
+    border: 0px;
+    border-collapse: collapse;
+	font-size: 0.8em;
+}
+
+#report_parameters table table td.label {
+	text-align: right;
+}
+
+#report_results table {
+   border-top: 1px solid black;
+   border-bottom: 1px solid black;
+   border-left: 1px solid black;
+   border-right: 1px solid black;
+   width: 100%;
+   border-collapse: collapse;
+   margin-top: 1px;
+}
+#report_results table thead {
+    padding: 5px;
+    display: table-header-group;
+    background-color: #ddd;
+	text-align:left;
+	font-weight: bold;
+	font-size: 0.7em;
+}
+#report_results table th {
+    border-bottom: 1px solid black;
+	padding: 5px;
+}
+#report_results table td {
+	padding: 5px;
+    border-bottom: 1px dashed;
+	font-size: 0.8em;
+}
+.report_totals td {
+    background-color: #77ff77;
+    font-weight: bold;
+}

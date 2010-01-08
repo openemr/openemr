@@ -29,41 +29,105 @@ if (empty($_REQUEST['include_uncat']))
 <html>
 <head>
 <?php html_header_show(); ?>
+<style type="text/css">
+
+/* specifically include & exclude from printing */
+@media print {
+    #report_parameters {
+        visibility: hidden;
+        display: none;
+    }
+    #report_parameters_daterange {
+        visibility: visible;
+        display: inline;
+    }
+    #report_results table {
+       margin-top: 0px;
+    }
+}
+
+/* specifically exclude some from the screen */
+@media screen {
+    #report_parameters_daterange {
+        visibility: hidden;
+        display: none;
+    }
+}
+</style>
 <title><?php xl('Services by Category','e'); ?></title>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-</head>
-<body>
-<center>
 
-<form method='post' action='services_by_category.php' name='theform'>
-<table border='0' cellpadding='5' cellspacing='0' width='98%'>
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+
+</head>
+
+<body class="body_top">
+
+<span class='title'><?php xl('Report','e'); ?> - <?php xl('Services by Category','e'); ?></span>
+
+<form method='post' action='services_by_category.php' name='theform' id='theform'>
+
+<div id="report_parameters">
+
+<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
+
+<table>
  <tr>
-  <td class='title'>
-   <?php xl('Services by Category','e'); ?>
+  <td width='280px'>
+	<div style='float:left'>
+
+	<table class='text'>
+		<tr>
+			<td>
+			   <select name='filter'>
+				<option value='0'><?php xl('All','e'); ?></option>
+			<?php
+			foreach ($code_types as $key => $value) {
+			  echo "<option value='" . $value['id'] . "'";
+			  if ($value['id'] == $filter) echo " selected";
+			  echo ">$key</option>\n";
+			}
+			?>
+			   </select>
+			</td>
+			<td>
+			   <input type='checkbox' name='include_uncat' value='1'<?php if (!empty($_REQUEST['include_uncat'])) echo " checked"; ?> />
+			   <?php xl('Include Uncategorized','e'); ?>
+			</td>
+		</tr>
+	</table>
+
+	</div>
+
   </td>
-  <td class='text' align='right'>
-   <select name='filter'>
-    <option value='0'><?php xl('All','e'); ?></option>
-<?php
-foreach ($code_types as $key => $value) {
-  echo "<option value='" . $value['id'] . "'";
-  if ($value['id'] == $filter) echo " selected";
-  echo ">$key</option>\n";
-}
-?>
-   </select>
-   &nbsp;
-   <input type='checkbox' name='include_uncat' value='1'<?php if (!empty($_REQUEST['include_uncat'])) echo " checked"; ?> />
-   <?php xl('Include Uncategorized','e'); ?>
-   &nbsp;
-   <input type="submit" name="form_submit" value=<?php xl('Refresh','e','\'','\''); ?>>
-   &nbsp;
-   <input type="button" value=<?php xl('Print','e','\'','\''); ?> onclick="window.print()">
+  <td align='left' valign='middle' height="100%">
+	<table style='border-left:1px solid; width:100%; height:100%' >
+		<tr>
+			<td>
+				<div style='margin-left:15px'>
+					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+					<span>
+						<?php xl('Submit','e'); ?>
+					</span>
+					</a>
+
+					<?php if ($_POST['form_refresh']) { ?>
+					<a href='#' class='css_button' onclick='window.print()'>
+						<span>
+							<?php xl('Print','e'); ?>
+						</span>
+					</a>
+					<?php } ?>
+				</div>
+			</td>
+		</tr>
+	</table>
   </td>
  </tr>
 </table>
-</form>
+</div> <!-- end of parameters -->
 
+<div id="report_results">
 <?php if ($_POST['form_submit']) { ?>
 
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
@@ -78,8 +142,8 @@ foreach ($code_types as $key => $value) {
 <?php if (related_codes_are_used()) { ?>
    <th class='bold'><?php xl('Related'    ,'e'); ?></th>
 <?php } ?>
-<?php   
-$pres = sqlStatement("SELECT title FROM list_options " . 
+<?php
+$pres = sqlStatement("SELECT title FROM list_options " .
 		     "WHERE list_id = 'pricelevel' ORDER BY seq");
 while ($prow = sqlFetchArray($pres)) {
   // Added 5-09 by BM - Translate label if applicable
@@ -149,8 +213,7 @@ while ($row = sqlFetchArray($res)) {
 </table>
 
 <?php } // end of submit logic ?>
-
-</center>
+</div>
 
 </body>
 </html>

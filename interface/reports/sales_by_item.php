@@ -57,10 +57,10 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
   <td class="detail" colspan="3">
    <?php if ($_POST['form_details']) echo xl('Total for') . ' '; echo display_desc($product); ?>
   </td>
-  <td class="dehead" align="right">
+  <td align="right">
    <?php echo $productqty; ?>
   </td>
-  <td class="dehead" align="right">
+  <td align="right">
    <?php bucks($producttotal); ?>
   </td>
  </tr>
@@ -86,10 +86,10 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
   <td class="detail" colspan="3">
    <?php echo xl('Total for category') . ' '; echo display_desc($category); ?>
   </td>
-  <td class="dehead" align="right">
+  <td align="right">
    <?php echo $catqty; ?>
   </td>
-  <td class="dehead" align="right">
+  <td align="right">
    <?php bucks($cattotal); ?>
   </td>
  </tr>
@@ -121,16 +121,16 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
   <td class="detail">
    <?php echo display_desc($productleft); $productleft = "&nbsp;"; ?>
   </td>
-  <td class="dehead">
+  <td>
    <?php echo $transdate; ?>
   </td>
   <td class="detail">
    <?php echo $invnumber; ?>
   </td>
-  <td class="dehead" align="right">
+  <td align="right">
    <?php echo $qty; ?>
   </td>
-  <td class="dehead" align="right">
+  <td align="right">
    <?php bucks($rowamount); ?>
   </td>
  </tr>
@@ -183,87 +183,164 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 <html>
 <head>
 <?php html_header_show();?>
+<style type="text/css">
+/* specifically include & exclude from printing */
+@media print {
+    #report_parameters {
+        visibility: hidden;
+        display: none;
+    }
+    #report_parameters_daterange {
+        visibility: visible;
+        display: inline;
+    }
+    #report_results {
+       margin-top: 30px;
+    }
+}
+
+/* specifically exclude some from the screen */
+@media screen {
+    #report_parameters_daterange {
+        visibility: hidden;
+        display: none;
+    }
+}
+</style>
+
 <title><?php xl('Sales by Item','e') ?></title>
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
-<center>
+<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' class="body_top">
 
-<h2><?php xl('Sales by Item','e')?></h2>
+<span class='title'><?php xl('Report','e'); ?> - <?php xl('Sales by Item','e'); ?></span>
 
-<form method='post' action='sales_by_item.php'>
+<form method='post' action='sales_by_item.php' id='theform'>
 
-<table border='0' cellpadding='3'>
-
+<div id="report_parameters">
+<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
+<input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
+<table>
  <tr>
-  <td>
-<?php
-  // Build a drop-down list of facilities.
-  //
-  $query = "SELECT id, name FROM facility ORDER BY name";
-  $fres = sqlStatement($query);
-  echo "   <select name='form_facility'>\n";
-  echo "    <option value=''>-- " . xl('All Facilities') . " --\n";
-  while ($frow = sqlFetchArray($fres)) {
-    $facid = $frow['id'];
-    echo "    <option value='$facid'";
-    if ($facid == $form_facility) echo " selected";
-    echo ">" . $frow['name'] . "\n";
-  }
-  echo "   </select>\n";
-?>
-   &nbsp;<?php xl('From:','e'); ?>
-   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
-   &nbsp;<?php xl('To:','e'); ?>:
-   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
-   &nbsp;
-   <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details','e') ?>
-   &nbsp;
-   <input type='submit' name='form_refresh' value="<?php xl('Refresh','e') ?>">
-   &nbsp;
-   <input type='submit' name='form_csvexport' value="<?php xl('Export to CSV','e') ?>">
-   &nbsp;
-   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
+  <td width='630px'>
+	<div style='float:left'>
+
+	<table class='text'>
+		<tr>
+			<td class='label'>
+				<?php xl('Facility','e'); ?>:
+			</td>
+			<td>
+				<?php
+				 // Build a drop-down list of facilities.
+				 //
+				 $query = "SELECT id, name FROM facility ORDER BY name";
+				 $fres = sqlStatement($query);
+				 echo "   <select name='form_facility'>\n";
+				 echo "    <option value=''>-- " . xl('All Facilities') . " --\n";
+				 while ($frow = sqlFetchArray($fres)) {
+				  $facid = $frow['id'];
+				  echo "    <option value='$facid'";
+				  if ($facid == $form_facility) echo " selected";
+				  echo ">" . $frow['name'] . "\n";
+				 }
+				 echo "    <option value='0'";
+				 if ($form_facility === '0') echo " selected";
+				 echo ">-- " . xl('Unspecified') . " --\n";
+				 echo "   </select>\n";
+				?>
+			</td>
+			<td class='label'>
+			   <?php xl('From','e'); ?>:
+			</td>
+			<td>
+			   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
+				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
+			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+				id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
+				title='<?php xl('Click here to choose a date','e'); ?>'>
+			</td>
+			<td class='label'>
+			   <?php xl('To','e'); ?>:
+			</td>
+			<td>
+			   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
+				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
+			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+				id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
+				title='<?php xl('Click here to choose a date','e'); ?>'>
+			</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>
+			   <input type='checkbox' name='form_details'<?php  if ($form_details) echo ' checked'; ?>>
+			   <?php  xl('Details','e'); ?>
+			</td>
+		</tr>
+	</table>
+
+	</div>
+
+  </td>
+  <td align='left' valign='middle' height="100%">
+	<table style='border-left:1px solid; width:100%; height:100%' >
+		<tr>
+			<td>
+				<div style='margin-left:15px'>
+					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#form_csvexport").attr("value",""); $("#theform").submit();'>
+					<span>
+						<?php xl('Submit','e'); ?>
+					</span>
+					</a>
+
+					<?php if ($_POST['form_refresh'] || $_POST['form_csvexport']) { ?>
+					<a href='#' class='css_button' onclick='window.print()'>
+						<span>
+							<?php xl('Print','e'); ?>
+						</span>
+					</a>
+					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value",""); $("#form_csvexport").attr("value","true"); $("#theform").submit();'>
+						<span>
+							<?php xl('CSV Export','e'); ?>
+						</span>
+					</a>
+					<?php } ?>
+				</div>
+			</td>
+		</tr>
+	</table>
   </td>
  </tr>
-
- <tr>
-  <td height="1">
-  </td>
- </tr>
-
 </table>
 
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
+</div> <!-- end of parameters -->
 
- <tr bgcolor="#dddddd">
-  <td class="dehead">
+<?php
+ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
+?>
+<div id="report_results">
+<table >
+ <thead>
+  <th>
    <?php xl('Category','e'); ?>
-  </td>
-  <td class="dehead">
+  </th>
+  <th>
    <?php xl('Item','e'); ?>
-  </td>
-  <td class="dehead">
+  </th>
+  <th>
    <?php xl('Date','e'); ?>
-  </td>
-  <td class="dehead">
+  </th>
+  <th>
    <?php xl('Invoice','e'); ?>
-  </td>
-  <td class="dehead" align="right">
+  </th>
+  <th align="right">
    <?php xl('Qty','e'); ?>
-  </td>
-  <td class="dehead" align="right">
+  </th>
+  <th align="right">
    <?php xl('Amount','e'); ?>
-  </td>
- </tr>
+  </th>
+ </thead>
 <?php
   } // end not export
 
@@ -366,10 +443,10 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
   <td class="detail" colspan="3">
    <?php if ($_POST['form_details']) echo xl('Total for') . ' '; echo display_desc($product); ?>
   </td>
-  <td class="dehead" align="right">
+  <td align="right">
    <?php echo $productqty; ?>
   </td>
-  <td class="dehead" align="right">
+  <td align="right">
    <?php bucks($producttotal); ?>
   </td>
  </tr>
@@ -381,22 +458,22 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
   <td class="detail" colspan="3">
    <?php echo xl('Total for category') . ' '; echo display_desc($category); ?>
   </td>
-  <td class="dehead" align="right">
+  <td align="right">
    <?php echo $catqty; ?>
   </td>
-  <td class="dehead" align="right">
+  <td align="right">
    <?php bucks($cattotal); ?>
   </td>
  </tr>
 
- <tr bgcolor="#dddddd">
+ <tr>
   <td class="detail" colspan="4">
    <?php xl('Grand Total','e'); ?>
   </td>
-  <td class="dehead" align="right">
+  <td align="right">
    <?php echo $grandqty; ?>
   </td>
-  <td class="dehead" align="right">
+  <td align="right">
    <?php bucks($grandtotal); ?>
   </td>
  </tr>
@@ -410,15 +487,25 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 ?>
 
 </table>
+</div> <!-- report results -->
+<?php } else { ?>
+<div class='text'>
+ 	<?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
+</div>
+<?php } ?>
+
 </form>
-</center>
+
 </body>
 
 <!-- stuff for the popup calendar -->
+<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+
 <script language="Javascript">
  Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
  Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});

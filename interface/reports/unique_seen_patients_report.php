@@ -28,11 +28,37 @@
 <html>
 <head>
 <?php html_header_show();?>
+<style type="text/css">
+/* specifically include & exclude from printing */
+@media print {
+    #report_parameters {
+        visibility: hidden;
+        display: none;
+    }
+    #report_parameters_daterange {
+        visibility: visible;
+        display: inline;
+    }
+    #report_results {
+       margin-top: 30px;
+    }
+}
+
+/* specifically exclude some from the screen */
+@media screen {
+    #report_parameters_daterange {
+        visibility: hidden;
+        display: none;
+    }
+}
+</style>
 <title><?php xl('Front Office Receipts','e'); ?></title>
 
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/textformat.js"></script>
 <script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+
 <script language="JavaScript">
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 </script>
@@ -42,11 +68,11 @@
 
 /* specifically include & exclude from printing */
 @media print {
-    #unipatreport_parameters {
+    #report_parameters {
         visibility: hidden;
         display: none;
     }
-    #unipatreport_parameters_daterange {
+    #report_parameters_daterange {
         visibility: visible;
         display: inline;
     }
@@ -54,49 +80,12 @@
 
 /* specifically exclude some from the screen */
 @media screen {
-    #unipatreport_parameters_daterange {
+    #report_parameters_daterange {
         visibility: hidden;
         display: none;
     }
 }
 
-#unipatreport_parameters {
-    width: 100%;
-    background-color: #ddf;
-}
-#unipatreport_parameters table {
-    border: none;
-    border-collapse: collapse;
-}
-#unipatreport_parameters table td {
-    padding: 3px;
-}
-
-#unipatreport_results {
-    width: 100%;
-    margin-top: 10px;
-}
-#unipatreport_results table {
-   border: 1px solid black;
-   width: 98%;
-   border-collapse: collapse;
-}
-#unipatreport_results table thead {
-    display: table-header-group;
-    background-color: #ddd;
-}
-#unipatreport_results table th {
-    border-bottom: 1px solid black;
-}
-#unipatreport_results table td {
-    padding: 1px;
-    margin: 2px;
-    border-bottom: 1px solid #eee;
-}
-.unipatreport_totals td {
-    background-color: #77ff77;
-    font-weight: bold;
-}
 </style>
 </head>
 
@@ -105,40 +94,84 @@
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<center>
+<span class='title'><?php xl('Report','e'); ?> - <?php xl('Unique Seen Patients','e'); ?></span>
 
-<h2><?php xl('Unique Seen Patients','e'); ?></h2>
-
-<div id="unipatreport_parameters_daterange">
+<div id="report_parameters_daterange">
 <?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
 </div>
 
-<div id="unipatreport_parameters">
-<form name='theform' method='post' action='unique_seen_patients_report.php'>
+<form name='theform' method='post' action='unique_seen_patients_report.php' id='theform'>
+
+<div id="report_parameters">
+<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
+<input type='hidden' name='form_labels' id='form_labels' value=''/>
+
 <table>
  <tr>
-  <td>
-   <?php xl('Visits From','e'); ?>:
-   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $from_date ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
-   &nbsp;<?php xl('To','e'); ?>:
-   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $to_date ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
-   &nbsp;
-   <input type='submit' name='form_refresh' value=<?php xl('Refresh','e'); ?>> &nbsp;
-   <input type='submit' name='form_labels' value=<?php xl('Labels','e'); ?>>
+  <td width='410px'>
+	<div style='float:left'>
+
+	<table class='text'>
+		<tr>
+			<td class='label'>
+			   <?php xl('Visits From','e'); ?>:
+			</td>
+			<td>
+			   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
+				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
+			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+				id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
+				title='<?php xl('Click here to choose a date','e'); ?>'>
+			</td>
+			<td class='label'>
+			   <?php xl('To','e'); ?>:
+			</td>
+			<td>
+			   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
+				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
+			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+				id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
+				title='<?php xl('Click here to choose a date','e'); ?>'>
+			</td>
+		</tr>
+	</table>
+
+	</div>
+
+  </td>
+  <td align='left' valign='middle' height="100%">
+	<table style='border-left:1px solid; width:100%; height:100%' >
+		<tr>
+			<td>
+				<div style='margin-left:15px'>
+					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+					<span>
+						<?php xl('Submit','e'); ?>
+					</span>
+					</a>
+
+					<?php if ($_POST['form_refresh']) { ?>
+					<a href='#' class='css_button' onclick='window.print()'>
+						<span>
+							<?php xl('Print','e'); ?>
+						</span>
+					</a>
+					<a href='#' class='css_button' onclick='$("#form_labels").attr("value","true"); $("#theform").submit();'>
+					<span>
+						<?php xl('Labels','e'); ?>
+					</span>
+					</a>
+					<?php } ?>
+				</div>
+			</td>
+		</tr>
+	</table>
   </td>
  </tr>
 </table>
 </div> <!-- end of parameters -->
 
-<div id="unipatreport_results">
+<div id="report_results">
 <table>
 
  <thead>
@@ -237,7 +270,7 @@
 
   if (!$_POST['form_labels']) {
 ?>
- <tr class='unipatreport_totals'>
+ <tr class='report_totals'>
   <td colspan='2'>
    <?php xl('Total Number of Patients','e'); ?>
   </td>
@@ -257,7 +290,6 @@
 </table>
 </div>
 </form>
-</center>
 </body>
 
 <!-- stuff for the popup calendar -->

@@ -31,8 +31,34 @@ if (!$INTEGRATED_AR) SLConnect();
 <html>
 <head>
 <? html_header_show();?>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<style type="text/css">
+
+/* specifically include & exclude from printing */
+@media print {
+    #report_parameters {
+        visibility: hidden;
+        display: none;
+    }
+    #report_parameters_daterange {
+        visibility: visible;
+        display: inline;
+    }
+    #report_results table {
+       margin-top: 0px;
+    }
+}
+
+/* specifically exclude some from the screen */
+@media screen {
+    #report_parameters_daterange {
+        visibility: hidden;
+        display: none;
+    }
+}
+</style><link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <title><?php xl('Indigent Patients Report','e')?></title>
+
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
 
 <script language="JavaScript">
 
@@ -40,76 +66,107 @@ if (!$INTEGRATED_AR) SLConnect();
 
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
-<center>
+<body class="body_top">
 
-<h3><?php xl('Indigent Patients Report','e'); ?></h3>
+<span class='title'><?php xl('Report','e'); ?> - <?php xl('Indigent Patients','e'); ?></span>
 
-<form method='post' action='indigent_patients_report.php'>
+<form method='post' action='indigent_patients_report.php' id='theform'>
 
-<table border='0' cellpadding='5' cellspacing='0'>
+<div id="report_parameters">
 
+<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
+
+<table>
  <tr>
-  <td height="1" colspan="10">
+  <td width='410px'>
+	<div style='float:left'>
+
+	<table class='text'>
+		<tr>
+			<td class='label'>
+			   <?php xl('Visits From','e'); ?>:
+			</td>
+			<td>
+			   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
+				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
+			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+				id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
+				title='<?php xl('Click here to choose a date','e'); ?>'>
+			</td>
+			<td class='label'>
+			   <?php xl('To','e'); ?>:
+			</td>
+			<td>
+			   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
+				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
+			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+				id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
+				title='<?php xl('Click here to choose a date','e'); ?>'>
+			</td>
+		</tr>
+	</table>
+
+	</div>
+
+  </td>
+  <td align='left' valign='middle' height="100%">
+	<table style='border-left:1px solid; width:100%; height:100%' >
+		<tr>
+			<td>
+				<div style='margin-left:15px'>
+					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+					<span>
+						<?php xl('Submit','e'); ?>
+					</span>
+					</a>
+
+					<?php if ($_POST['form_refresh']) { ?>
+					<a href='#' class='css_button' onclick='window.print()'>
+						<span>
+							<?php xl('Print','e'); ?>
+						</span>
+					</a>
+					<?php } ?>
+				</div>
+			</td>
+		</tr>
+	</table>
   </td>
  </tr>
-
- <tr bgcolor='#ddddff'>
-  <td>
-   <?php xl('Start Date:','e')?>
-  </td>
-  <td>
-   <input type='text' name='form_start_date' size='10' value='<?php  echo $form_start_date ?>'
-    title='<?php xl("Beginning date of service yyyy-mm-dd","e")?>'>
-  </td>
-  <td>
-   <?php xl('End Date:','e')?>
-  </td>
-  <td>
-   <input type='text' name='form_end_date' size='10' value='<?php  echo $form_end_date ?>'
-    title='<?php xl("Ending date of service yyyy-mm-dd","e")?>'>
-  </td>
-  <td>
-   <input type='submit' name='form_search' value='<?php xl("Search","e")?>'>
-  </td>
- </tr>
-
- <tr>
-  <td height="1" colspan="10">
-  </td>
- </tr>
-
 </table>
+</div> <!-- end of parameters -->
 
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
+<div id="report_results">
+<table>
 
- <tr bgcolor="#dddddd">
-  <td class="dehead">
+ <thead bgcolor="#dddddd">
+  <th>
    &nbsp;<?php xl('Patient','e')?>
-  </td>
-  <td class="dehead">
+  </th>
+  <th>
    &nbsp;<?php xl('SSN','e')?>
-  </td>
-  <td class="dehead">
+  </th>
+  <th>
    &nbsp;<?php xl('Invoice','e')?>
-  </td>
-  <td class="dehead">
+  </th>
+  <th>
    &nbsp;<?php xl('Svc Date','e')?>
-  </td>
-  <td class="dehead">
+  </th>
+  <th>
    &nbsp;<?php xl('Due Date','e')?>
-  </td>
-  <td class="dehead" align="right">
+  </th>
+  <th align="right">
    <?php xl('Amount','e')?>&nbsp;
-  </td>
-  <td class="dehead" align="right">
+  </th>
+  <th align="right">
    <?php xl('Paid','e')?>&nbsp;
-  </td>
-  <td class="dehead" align="right">
+  </th>
+  <th align="right">
    <?php xl('Balance','e')?>&nbsp;
-  </td>
- </tr>
-<?php 
+  </th>
+ </thead>
+
+<?php
   if ($_POST['form_search']) {
 
     $where = "";
@@ -197,7 +254,7 @@ if (!$INTEGRATED_AR) SLConnect();
    <?php  echo bucks($inv_amount - $inv_paid) ?>&nbsp;
   </td>
  </tr>
-<?php 
+<?php
     }
 ?>
  <tr bgcolor='#dddddd'>
@@ -226,17 +283,17 @@ if (!$INTEGRATED_AR) SLConnect();
    <?php  echo bucks($total_amount - $total_paid) ?>&nbsp;
   </td>
  </tr>
-<?php 
+<?php
   }
   if (!$INTEGRATED_AR) SLClose();
 ?>
 
 </table>
+</div>
 
 </form>
-</center>
 <script>
-<?php 
+<?php
 	if ($alertmsg) {
 		echo "alert('$alertmsg');\n";
 	}

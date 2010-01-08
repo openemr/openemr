@@ -58,138 +58,227 @@
 <html>
 <head>
 <?php if (function_exists('html_header_show')) html_header_show(); ?>
+<style type="text/css">
+/* specifically include & exclude from printing */
+@media print {
+    #report_parameters {
+        visibility: hidden;
+        display: none;
+    }
+    #report_parameters_daterange {
+        visibility: visible;
+        display: inline;
+    }
+    #report_results {
+       margin-top: 30px;
+    }
+}
+
+/* specifically exclude some from the screen */
+@media screen {      N
+    #report_parameters_daterange {
+        visibility: hidden;
+        display: none;
+    }
+}
+</style>
 <title><?xl('Cash Receipts by Provider','e')?></title>
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
-<center>
+<body class="body_top">
 
-<h2><?xl('Cash Receipts by Provider','e')?></h2>
+<span class='title'><?php xl('Report','e'); ?> - <?php xl('Cash Receipts by Provider','e'); ?></span>
 
-<form method='post' action='sl_receipts_report.php'>
+<form method='post' action='sl_receipts_report.php' id='theform'>
 
-<table border='0' cellpadding='3'>
+<div id="report_parameters">
 
+<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
+
+<table>
  <tr>
-  <td>
-<?php
- // Build a drop-down list of facilities.
- //
- $query = "SELECT id, name FROM facility ORDER BY name";
- $fres = sqlStatement($query);
- echo "   <select name='form_facility'>\n";
- echo "    <option value=''>-- " . xl('All Facilities') . " --\n";
- while ($frow = sqlFetchArray($fres)) {
-  $facid = $frow['id'];
-  echo "    <option value='$facid'";
-  if ($facid == $form_facility) echo " selected";
-  echo ">" . $frow['name'] . "\n";
- }
- echo "   </select>\n";
-?>
-<?php
-	if (acl_check('acct', 'rep_a')) {
-		// Build a drop-down list of providers.
-		//
-		$query = "select id, lname, fname from users where " .
-			"authorized = 1 order by lname, fname";
-		$res = sqlStatement($query);
-		echo "   &nbsp;<select name='form_doctor'>\n";
-		echo "    <option value=''>-- " . xl('All Providers') . " --\n";
-		while ($row = sqlFetchArray($res)) {
-			$provid = $row['id'];
-			echo "    <option value='$provid'";
-			if ($provid == $_POST['form_doctor']) echo " selected";
-			echo ">" . $row['lname'] . ", " . $row['fname'] . "\n";
-		}
-		echo "   </select>\n";
-	} else {
-		echo "<input type='hidden' name='form_doctor' value='" . $_SESSION['authUserID'] . "'>";
-	}
-?>
-   &nbsp;<select name='form_use_edate'>
-    <option value='0'><?php xl('Payment Date','e'); ?></option>
-    <option value='1'<?php if ($form_use_edate) echo ' selected' ?>><?php xl('Invoice Date','e'); ?></option>
-   </select>
-   &nbsp;<?php xl('From:','e'); ?>
+  <td width='660px'>
+	<div style='float:left'>
 
-   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
-   &nbsp;<?php xl('To','e'); ?>:	
-   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
-   <?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('CPT') . ':'; ?>
-   <input type='text' name='form_cptcode' size='5' value='<? echo $form_cptcode; ?>'
-    title='<?php xl('Optional procedure code','e'); ?>'
-    <?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?>>
-   <?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('ICD') . ':'; ?>
-   <input type='text' name='form_icdcode' size='5' value='<? echo $form_icdcode; ?>'
-    title='<?php xl('Enter a diagnosis code to exclude all invoices not containing it','e'); ?>'
-    <?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?>>
-   &nbsp;
-   <input type='checkbox' name='form_details' value='1'<? if ($_POST['form_details']) echo " checked"; ?>><?xl('Details','e')?>
-   &nbsp;
-   <input type='checkbox' name='form_procedures' value='1'<? if ($form_procedures) echo " checked"; ?>><?xl('Procedures','e')?>
-   &nbsp;
-   <input type='submit' name='form_refresh' value="<?xl('Refresh','e')?>">
-   &nbsp;
-   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
+	<table class='text'>
+		<tr>
+			<td class='label'>
+				<?php xl('Facility','e'); ?>:
+			</td>
+			<td>
+				<?php
+				 // Build a drop-down list of facilities.
+				 //
+				 $query = "SELECT id, name FROM facility ORDER BY name";
+				 $fres = sqlStatement($query);
+				 echo "   <select name='form_facility'>\n";
+				 echo "    <option value=''>-- " . xl('All Facilities') . " --\n";
+				 while ($frow = sqlFetchArray($fres)) {
+				  $facid = $frow['id'];
+				  echo "    <option value='$facid'";
+				  if ($facid == $form_facility) echo " selected";
+				  echo ">" . $frow['name'] . "\n";
+				 }
+				 echo "    <option value='0'";
+				 if ($form_facility === '0') echo " selected";
+				 echo ">-- " . xl('Unspecified', 'e') . " --\n";
+				 echo "   </select>\n";
+				?>
+			</td>
+			<td class='label'>
+			   <?php xl('Provider','e'); ?>:
+			</td>
+			<td>
+				<?php
+				if (acl_check('acct', 'rep_a')) {
+					// Build a drop-down list of providers.
+					//
+					$query = "select id, lname, fname from users where " .
+						"authorized = 1 order by lname, fname";
+					$res = sqlStatement($query);
+					echo "   &nbsp;<select name='form_doctor'>\n";
+					echo "    <option value=''>-- " . xl('All Providers', 'e') . " --\n";
+					while ($row = sqlFetchArray($res)) {
+						$provid = $row['id'];
+						echo "    <option value='$provid'";
+						if ($provid == $_POST['form_doctor']) echo " selected";
+						echo ">" . $row['lname'] . ", " . $row['fname'] . "\n";
+					}
+					echo "   </select>\n";
+				} else {
+					echo "<input type='hidden' name='form_doctor' value='" . $_SESSION['authUserID'] . "'>";
+				}
+			?>
+			</td>
+			<td>
+			   <select name='form_use_edate'>
+				<option value='0'><?php xl('Payment Date','e'); ?></option>
+				<option value='1'<?php if ($form_use_edate) echo ' selected' ?>><?php xl('Invoice Date','e'); ?></option>
+			   </select>
+			</td>
+		</tr>
+		<tr>
+			<td class='label'>
+			   <?php xl('From','e'); ?>:
+			</td>
+			<td>
+			   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php  echo $form_from_date; ?>'
+				title='Date of appointments mm/dd/yyyy' >
+			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+				id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
+				title='<?php xl('Click here to choose a date','e'); ?>'>
+			</td>
+			<td class='label'>
+			   <?php xl('To','e'); ?>:
+			</td>
+			<td>
+			   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php  echo $form_to_date; ?>'
+				title='Optional end date mm/dd/yyyy' >
+			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+				id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
+				title='<?php xl('Click here to choose a date','e'); ?>'>
+			</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>
+				<?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('CPT', 'e') . ':'; ?>
+			</td>
+			<td>
+			   <input type='text' name='form_cptcode' size='5' value='<? echo $form_cptcode; ?>'
+				title='<?php xl('Optional procedure code','e'); ?>'
+				<?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?>>
+			</td>
+
+			<td>
+			   <?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('ICD', 'e') . ':'; ?>
+			</td>
+			<td>
+			   <input type='text' name='form_icdcode' size='5' value='<? echo $form_icdcode; ?>'
+				title='<?php xl('Enter a diagnosis code to exclude all invoices not containing it','e'); ?>'
+				<?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?>>
+			</td>
+
+			<td>
+			   <input type='checkbox' name='form_details' value='1'<? if ($_POST['form_details']) echo " checked"; ?>><?xl('Details','e')?>
+			   <input type='checkbox' name='form_procedures' value='1'<? if ($form_procedures) echo " checked"; ?>><?xl('Procedures','e')?>
+			</td>
+		</tr>
+	</table>
+
+	</div>
+
+  </td>
+  <td align='left' valign='middle' height="100%">
+	<table style='border-left:1px solid; width:100%; height:100%' >
+		<tr>
+			<td>
+				<div style='margin-left:15px'>
+					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+					<span>
+						<?php xl('Submit','e'); ?>
+					</span>
+					</a>
+
+					<?php if ($_POST['form_refresh']) { ?>
+					<a href='#' class='css_button' onclick='window.print()'>
+						<span>
+							<?php xl('Print','e'); ?>
+						</span>
+					</a>
+					<?php } ?>
+				</div>
+			</td>
+		</tr>
+	</table>
   </td>
  </tr>
-
- <tr>
-  <td height="1">
-  </td>
- </tr>
-
 </table>
+</div>
 
+<?php
+ if ($_POST['form_refresh']) {
+?>
+<div id="report_results">
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
-
- <tr bgcolor="#dddddd">
-  <td class="dehead">
+ <thead>
+  <th>
    <?php xl('Practitioner','e') ?>
-  </td>
-  <td class="dehead">
+  </th>
+  <th>
    <?php xl('Date','e') ?>
-  </td>
+  </th>
 <?php if ($form_procedures) { ?>
-  <td class="dehead">
+  <th>
    <?php xl('Invoice','e') ?>
-  </td>
+  </th>
 <?php } ?>
 <?php if ($form_cptcode) { ?>
-  <td class="dehead" align='right'>
+  <th align='right'>
    <?php xl('InvAmt','e') ?>
-  </td>
+  </th>
 <?php } ?>
 <?php if ($form_cptcode) { ?>
-  <td class="dehead">
+  <th>
    <?php xl('Insurance','e') ?>
-  </td>
+  </th>
 <?php } ?>
 <?php if ($form_procedures) { ?>
-  <td class="dehead">
+  <th>
    <?php xl('Procedure','e') ?>
-  </td>
-  <td class="dehead" align="right">
+  </th>
+  <th align="right">
    <?php xl('Prof.','e') ?>
-  </td>
-  <td class="dehead" align="right">
+  </th>
+  <th align="right">
    <?php xl('Clinic','e') ?>
-  </td>
+  </th>
 <?php } else { ?>
-  <td class="dehead" align="right">
+  <th align="right">
    <?php xl('Received','e') ?>
-  </td>
+  </th>
 <?php } ?>
- </tr>
+ </thead>
 <?php
   if ($_POST['form_refresh']) {
     $form_doctor = $_POST['form_doctor'];
@@ -508,11 +597,11 @@
   <td class="detail" colspan="<?php echo ($form_cptcode ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
    <? echo xl('Totals for ') . $docname ?>
   </td>
-  <td class="dehead" align="right">
+  <td align="right">
    <?php bucks($doctotal1) ?>
   </td>
 <?php if ($form_procedures) { ?>
-  <td class="dehead" align="right">
+  <td align="right">
    <?php bucks($doctotal2) ?>
   </td>
 <?php } ?>
@@ -592,11 +681,11 @@
   <td class="detail" colspan="<?php echo ($form_cptcode ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
    <?echo xl('Totals for ') . $docname ?>
   </td>
-  <td class="dehead" align="right">
+  <td align="right">
    <?php bucks($doctotal1) ?>
   </td>
 <?php if ($form_procedures) { ?>
-  <td class="dehead" align="right">
+  <td align="right">
    <?php bucks($doctotal2) ?>
   </td>
 <?php } ?>
@@ -606,11 +695,11 @@
   <td class="detail" colspan="<?php echo ($form_cptcode ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
    <?php xl('Grand Totals','e') ?>
   </td>
-  <td class="dehead" align="right">
+  <td align="right">
    <?php bucks($grandtotal1) ?>
   </td>
 <?php if ($form_procedures) { ?>
-  <td class="dehead" align="right">
+  <td align="right">
    <?php bucks($grandtotal2) ?>
   </td>
 <?php } ?>
@@ -622,15 +711,24 @@
 ?>
 
 </table>
+</div>
+<?php } else { ?>
+<div class='text'>
+ 	<?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
+</div>
+<?php } ?>
+
 </form>
-</center>
 </body>
 
 <!-- stuff for the popup calendar -->
+<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
 <style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+
 <script language="Javascript">
  Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
  Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});

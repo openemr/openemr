@@ -93,6 +93,7 @@
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/textformat.js"></script>
 <script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
 
 <script LANGUAGE="JavaScript">
 
@@ -116,59 +117,29 @@
 
 </script>
 
-<style>
+<style type="text/css">
+
 /* specifically include & exclude from printing */
 @media print {
-    #apptreport_parameters {
+    #report_parameters {
         visibility: hidden;
         display: none;
     }
-    #apptreport_parameters_daterange {
+    #report_parameters_daterange {
         visibility: visible;
         display: inline;
+    }
+    #report_results table {
+       margin-top: 0px;
     }
 }
 
 /* specifically exclude some from the screen */
 @media screen {
-    #apptreport_parameters_daterange {
+    #report_parameters_daterange {
         visibility: hidden;
         display: none;
     }
-}
-
-#apptreport_parameters {
-    width: 100%;
-    text-align: center;
-    background-color: #ddf;
-}
-#apptreport_parameters table {
-    border: none;
-    border-collapse: collapse;
-}
-#apptreport_parameters table td {
-    padding: 3px;
-}
-
-#apptreport_results {
-    width: 100%;
-    margin-top: 10px;
-}
-#apptreport_results table {
-   border: 1px solid black;
-   width: 98%;
-   border-collapse: collapse;
-}
-#apptreport_results table thead {
-    display: table-header-group;
-    background-color: #ddd;
-}
-#apptreport_results table th {
-    border-bottom: 1px solid black;
-}
-#apptreport_results table td {
-    padding: 1px;
-    margin: 2px;
 }
 
 </style>
@@ -179,105 +150,135 @@
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<center>
+<span class='title'><?php xl('Report','e'); ?> - <?php xl('Appointments','e'); ?></span>
 
-<h2><?php xl('Appointments Report','e'); ?></h2>
-<div id="apptreport_parameters_daterange">
-<?php echo date("d F Y", strtotime($from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($to_date)); ?>
+<div id="report_parameters_daterange">
+<?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
 </div>
 
-<form method='post' name='theform' action='appointments_report.php'>
+<form method='post' name='theform' id='theform' action='appointments_report.php'>
+<form name='theform' id='theform' method='post' action='referrals_report.php'>
 
-<div id="apptreport_parameters">
+<div id="report_parameters">
+
 <table>
  <tr>
-  <td>
+  <td width='470px'>
+	<div style='float:left'>
 
-<?php //(CHEMED) Facility filter
- 
- xl('Facility','e');
+	<table class='text'>
+		<tr>
+			<td class='label'>
+				<?php xl('Facility','e'); ?>:
+			</td>
+			<td>
+				<?php
+				 // Build a drop-down list of facilities.
+				 //
+				 $query = "SELECT id, name FROM facility ORDER BY name";
+				 $fres = sqlStatement($query);
+				 echo "   <select name='form_facility'>\n";
+				 echo "    <option value=''>-- " . xl('All Facilities') . " --\n";
+				 while ($frow = sqlFetchArray($fres)) {
+				  $facid = $frow['id'];
+				  echo "    <option value='$facid'";
+				  if ($facid == $form_facility) echo " selected";
+				  echo ">" . $frow['name'] . "\n";
+				 }
+				 echo "    <option value='0'";
+				 if ($form_facility === '0') echo " selected";
+				 echo ">-- " . xl('Unspecified') . " --\n";
+				 echo "   </select>\n";
+				?>
+			</td>
+			<td class='label'>
+			   <?php xl('Provider','e'); ?>:
+			</td>
+			<td>
+				<?php
 
- // Build a drop-down list of facilities.
- //
+				 // Build a drop-down list of providers.
+				 //
 
- $query = "SELECT id, name FROM facility WHERE " .
-  "service_location = 1 ORDER BY name ";
+				 $query = "SELECT id, lname, fname FROM users WHERE ".
+				  "authorized = 1 $provider_facility_filter ORDER BY lname, fname"; //(CHEMED) facility filter
 
- $ures = sqlStatement($query);
+				 $ures = sqlStatement($query);
 
- echo "   <select name='form_facility' onChange='document.all.theform.submit()'>\n";
- echo "    <option value=''>-- " . xl('All') . " --\n";
+				 echo "   <select name='form_provider'>\n";
+				 echo "    <option value=''>-- " . xl('All') . " --\n";
 
- while ($urow = sqlFetchArray($ures)) {
-  $fid = $urow['id'];
-  echo "    <option value='$fid'";
-  if ($fid == $_POST['form_facility']) echo " selected";
-  echo ">" . $urow['name'] . "\n";
- }
+				 while ($urow = sqlFetchArray($ures)) {
+				  $provid = $urow['id'];
+				  echo "    <option value='$provid'";
+				  if ($provid == $_POST['form_provider']) echo " selected";
+				  echo ">" . $urow['lname'] . ", " . $urow['fname'] . "\n";
+				 }
 
- echo "   </select>\n";
-//END (CHEMED) Facility filter
-?>
+				 echo "   </select>\n";
 
-<?php xl('Provider','e'); ?>:
+				?>
+			</td>
+		</tr>
+		<tr>
+			<td class='label'>
+			   <?php xl('From','e'); ?>:
+			</td>
+			<td>
+			   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
+				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
+			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+				id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
+				title='<?php xl('Click here to choose a date','e'); ?>'>
+			</td>
+			<td class='label'>
+			   <?php xl('To','e'); ?>:
+			</td>
+			<td>
+			   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
+				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
+			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+				id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
+				title='<?php xl('Click here to choose a date','e'); ?>'>
+			</td>
+		</tr>
+	</table>
 
-<?php
-
- // Build a drop-down list of providers.
- //
-
- $query = "SELECT id, lname, fname FROM users WHERE ".
-  "authorized = 1 $provider_facility_filter ORDER BY lname, fname"; //(CHEMED) facility filter
-
- $ures = sqlStatement($query);
-
- echo "   <select name='form_provider'>\n";
- echo "    <option value=''>-- " . xl('All') . " --\n";
-
- while ($urow = sqlFetchArray($ures)) {
-  $provid = $urow['id'];
-  echo "    <option value='$provid'";
-  if ($provid == $_POST['form_provider']) echo " selected";
-  echo ">" . $urow['lname'] . ", " . $urow['fname'] . "\n";
- }
-
- echo "   </select>\n";
-
-?>
-
-   &nbsp;<?php  xl('From','e'); ?>:
-
-   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $from_date ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
-
-   &nbsp;<?php  xl('To','e'); ?>:
-
-   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $to_date ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
-
-   &nbsp;
-   <input type='submit' name='form_refresh' value='<?php  xl('Refresh','e'); ?>'>
-   &nbsp;
-   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
+	</div>
 
   </td>
- </tr>
+  <td align='left' valign='middle' height="100%">
+	<table style='border-left:1px solid; width:100%; height:100%' >
+		<tr>
+			<td>
+				<div style='margin-left:15px'>
+					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+					<span>
+						<?php xl('Submit','e'); ?>
+					</span>
+					</a>
 
- <tr>
-  <td height="1">
+					<?php if ($_POST['form_refresh'] || $_POST['form_orderby'] ) { ?>
+					<a href='#' class='css_button' onclick='window.print()'>
+						<span>
+							<?php xl('Print','e'); ?>
+						</span>
+					</a>
+					<?php } ?>
+				</div>
+			</td>
+		</tr>
+	</table>
   </td>
  </tr>
-
 </table>
+
 </div>  <!-- end of search parameters -->
 
-<div id="apptreport_results">
+<?php
+ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
+?>
+<div id="report_results">
 <table>
 
  <thead>
@@ -355,13 +356,17 @@
 </tbody>
 </table>
 </div>  <!-- end of search results -->
+<?php } else { ?>
+<div class='text'>
+ 	<?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
+</div>
+<?php } ?>
 
 <input type="hidden" name="form_orderby" value="<?php echo $form_orderby ?>" />
 <input type="hidden" name="patient" value="<?php echo $patient ?>" />
+<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 
 </form>
-
-</center>
 
 <script>
 

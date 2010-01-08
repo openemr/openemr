@@ -48,7 +48,7 @@ function postError($msg) {
   global $grand_total_charges, $grand_total_copays, $grand_total_encounters;
   if (!$docrow['docname']) return;
 
-  echo " <tr class='apptencreport_totals'>\n";
+  echo " <tr class='report_totals'>\n";
   echo "  <td colspan='5'>\n";
   echo "   &nbsp;" . xl('Totals for','','',' ') . $docrow['docname'] . "\n";
   echo "  </td>\n";
@@ -78,7 +78,7 @@ function postError($msg) {
  $form_facility  = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
  $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
  $form_to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
- if ($_POST['form_search']) {
+ if ($_POST['form_refresh']) {
   $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
   $form_to_date = fixDate($_POST['form_to_date'], "");
 
@@ -147,127 +147,138 @@ function postError($msg) {
 
 /* specifically include & exclude from printing */
 @media print {
-    #apptencreport_parameters {
+    #report_parameters {
         visibility: hidden;
         display: none;
     }
-    #apptencreport_parameters_daterange {
+    #report_parameters_daterange {
         visibility: visible;
         display: inline;
+    }
+    #report_results table {
+       margin-top: 0px;
     }
 }
 
 /* specifically exclude some from the screen */
 @media screen {
-    #apptencreport_parameters_daterange {
+    #report_parameters_daterange {
         visibility: hidden;
         display: none;
     }
 }
 
-#apptencreport_parameters {
-    width: 100%;
-    margin: 10px;
-    text-align: center;
-    background-color: #ddf;
-}
-#apptencreport_parameters table {
-    text-align: center;
-    border: none;
-    width: 100%;
-    border-collapse: collapse;
-}
-#apptencreport_parameters table td {
-    padding: 3px;
-}
-
-#apptencreport_results {
-    width: 100%;
-    margin-top: 10px;
-}
-#apptencreport_results table {
-   border: 1px solid black;
-   width: 98%;
-   border-collapse: collapse;
-}
-#apptencreport_results table thead {
-    display: table-header-group;
-    background-color: #ddd;
-}
-#apptencreport_results table th {
-    border-bottom: 1px solid black;
-}
-#apptencreport_results table td {
-    padding: 1px;
-    margin: 2px;
-    border-bottom: 1px solid #eee;
-}
-.apptencreport_totals td {
-    background-color: #77ff77;
-    font-weight: bold;
-}
 </style>
 <title><?php  xl('Appointments and Encounters','e'); ?></title>
 </head>
 
 <body class="body_top">
-<center>
 
-<h2><?php  xl('Appointments and Encounters','e'); ?></h2>
-<div id="apptencreport_parameters_daterange">
+<span class='title'><?php xl('Report','e'); ?> - <?php xl('Appointments and Encounters','e'); ?></span>
+
+<div id="report_parameters_daterange">
 <?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
 </div>
 
-<div id="apptencreport_parameters">
-<form method='post' action='appt_encounter_report.php'>
+<form method='post' id='theform' action='appt_encounter_report.php'>
+
+<div id="report_parameters">
+
 <table>
  <tr>
-  <td>
-   <?php xl('Facility','e'); ?>:
-<?php
- // Build a drop-down list of facilities.
- //
- $query = "SELECT id, name FROM facility ORDER BY name";
- $fres = sqlStatement($query);
- echo "   <select name='form_facility'>\n";
- echo "    <option value=''>-- " . xl('All') . " --\n";
- while ($frow = sqlFetchArray($fres)) {
-  $facid = $frow['id'];
-  echo "    <option value='$facid'";
-  if ($facid == $form_facility) echo " selected";
-  echo ">" . $frow['name'] . "\n";
- }
- echo "    <option value='0'";
- if ($form_facility === '0') echo " selected";
- echo ">-- " . xl('Unspecified') . " --\n";
- echo "   </select>\n";
-?>
-   <?php  xl('DOS','e'); ?>:
-   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php  echo $form_from_date; ?>'
-    title='Date of appointments mm/dd/yyyy' >
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
-   &nbsp;
-   <?php  xl('to','e'); ?>:
-   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php  echo $form_to_date; ?>'
-    title='Optional end date mm/dd/yyyy' >
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
-   &nbsp;
-   <input type='checkbox' name='form_details'
-    value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details','e') ?>
-   &nbsp;
-   <input type='submit' name='form_search' value='<?php xl('Search','e'); ?>'>
-   &nbsp;
-   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
+  <td width='630px'>
+	<div style='float:left'>
+
+	<table class='text'>
+		<tr>
+			<td class='label'>
+				<?php xl('Facility','e'); ?>:
+			</td>
+			<td>
+				<?php
+				 // Build a drop-down list of facilities.
+				 //
+				 $query = "SELECT id, name FROM facility ORDER BY name";
+				 $fres = sqlStatement($query);
+				 echo "   <select name='form_facility'>\n";
+				 echo "    <option value=''>-- " . xl('All Facilities', 'e') . " --\n";
+				 while ($frow = sqlFetchArray($fres)) {
+				  $facid = $frow['id'];
+				  echo "    <option value='$facid'";
+				  if ($facid == $form_facility) echo " selected";
+				  echo ">" . $frow['name'] . "\n";
+				 }
+				 echo "    <option value='0'";
+				 if ($form_facility === '0') echo " selected";
+				 echo ">-- " . xl('Unspecified') . " --\n";
+				 echo "   </select>\n";
+				?>
+			</td>
+			<td class='label'>
+			   <?php xl('DOS','e'); ?>:
+			</td>
+			<td>
+			   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php  echo $form_from_date; ?>'
+				title='Date of appointments mm/dd/yyyy' >
+			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+				id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
+				title='<?php xl('Click here to choose a date','e'); ?>'>
+			</td>
+			<td class='label'>
+			   <?php xl('To','e'); ?>:
+			</td>
+			<td>
+			   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php  echo $form_to_date; ?>'
+				title='Optional end date mm/dd/yyyy' >
+			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+				id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
+				title='<?php xl('Click here to choose a date','e'); ?>'>
+			</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>
+			   <input type='checkbox' name='form_details'
+				value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details','e') ?>
+			</td>
+		</tr>
+	</table>
+
+	</div>
+
+  </td>
+  <td align='left' valign='middle' height="100%">
+	<table style='border-left:1px solid; width:100%; height:100%' >
+		<tr>
+			<td>
+				<div style='margin-left:15px'>
+					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+					<span>
+						<?php xl('Submit','e'); ?>
+					</span>
+					</a>
+
+					<?php if ($_POST['form_refresh']) { ?>
+					<a href='#' class='css_button' onclick='window.print()'>
+						<span>
+							<?php xl('Print','e'); ?>
+						</span>
+					</a>
+					<?php } ?>
+				</div>
+			</td>
+		</tr>
+	</table>
   </td>
  </tr>
 </table>
+
 </div> <!-- end apptenc_report_parameters -->
 
-<div id="apptencreport_results">
+<?php
+ if ($_POST['form_refresh'] ) {
+?>
+<div id="report_results">
 <table>
 
  <thead>
@@ -283,7 +294,7 @@ function postError($msg) {
   <th> &nbsp;<?php  xl('Error','e'); ?> </th>
  </thead>
  <tbody>
-<?php 
+<?php
  if ($res) {
   $docrow = array('docname' => '', 'charges' => 0, 'copays' => 0, 'encounters' => 0);
 
@@ -453,7 +464,7 @@ function postError($msg) {
 
   endDoctor($docrow);
 
-  echo " <tr class='apptencreport_totals'>\n";
+  echo " <tr class='report_totals'>\n";
   echo "  <td colspan='5'>\n";
   echo "   &nbsp;" . xl('Grand Totals') . "\n";
   echo "  </td>\n";
@@ -476,9 +487,15 @@ function postError($msg) {
 </tbody>
 </table>
 </div> <!-- end the apptenc_report_results -->
+<?php } else { ?>
+<div class='text'>
+ 	<?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
+</div>
+<?php } ?>
+
+<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 
 </form>
-</center>
 <script>
 <?php if ($alertmsg) { echo " alert('$alertmsg');\n"; } ?>
 </script>
@@ -489,6 +506,8 @@ function postError($msg) {
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+
 <script language="Javascript">
  Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});
  Calendar.setup({inputField:"form_to_date", ifFormat:"%Y-%m-%d", button:"img_to_date"});

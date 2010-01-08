@@ -21,83 +21,36 @@ require_once("$srcdir/patient.inc");
 
 /* specifically include & exclude from printing */
 @media print {
-    #thisreport_parameters {
+    #report_parameters {
         visibility: hidden;
         display: none;
     }
-    #thisreport_parameters_daterange {
+    #report_parameters_daterange {
         visibility: visible;
         display: inline;
+    }
+    #report_results table {
+       margin-top: 0px;
     }
 }
 
 /* specifically exclude some from the screen */
 @media screen {
-    #thisreport_parameters_daterange {
+    #report_parameters_daterange {
         visibility: hidden;
         display: none;
     }
 }
 
-#thisreport_parameters {
-    width: 100%;
-    background-color: #ddf;
-}
-#thisreport_parameters table {
-    border: none;
-    border-collapse: collapse;
-}
-#thisreport_parameters table td {
-    padding: 3px;
-}
-
-#thisreport_results {
-    width: 100%;
-    margin-top: 10px;
-}
-#thisreport_results table {
-   border: 1px solid black;
-   border-collapse: collapse;
-}
-#thisreport_results table thead {
-    display: table-header-group;
-    background-color: #ddd;
-}
-#thisreport_results table th {
-    border-bottom: 1px solid black;
-    font-size: 0.7em;
-    text-align: left;
-    padding: 1px 4px 1px 4px;
-}
-#thisreport_results table td {
-    padding: 1px;
-    margin: 2px;
-    border-bottom: 1px solid black;
-    font-size: 0.7em;
-    padding: 1px 4px 1px 4px;
-}
-.thisreport_totals td {
-    background-color: #77ff77;
-    font-weight: bold;
-}
 </style>
 </head>
 
 <body class="body_top">
 
-<center>
+<span class='title'><?php xl('Report','e'); ?> - <?php xl('Charts Checked Out','e'); ?></span>
 
-<h2><?php xl('Charts Checked Out','e'); ?></h2>
-
-<div id="thisreport_results">
-<table>
- <thead>
-  <th> <?php xl('Chart','e'); ?> </th>
-  <th> <?php xl('Patient','e'); ?> </th>
-  <th> <?php xl('Location','e'); ?> </th>
-  <th> <?php xl('As Of','e'); ?> </th>
- </thead>
- <tbody>
+<div id="report_results">
+<br/>
 <?php
 /*********************************************************************
 $query = "SELECT ct.ct_when, " .
@@ -130,8 +83,20 @@ $query = "SELECT ct.ct_when, " .
 
 $res = sqlStatement($query);
 
+$data_ctr = 0;
 while ($row = sqlFetchArray($res)) {
-?>
+
+if ( $data_ctr == 0 ) { ?>
+<table>
+ <thead>
+  <th> <?php xl('Chart','e'); ?> </th>
+  <th> <?php xl('Patient','e'); ?> </th>
+  <th> <?php xl('Location','e'); ?> </th>
+  <th> <?php xl('As Of','e'); ?> </th>
+ </thead>
+ <tbody>
+<?php  } ?>
+
  <tr>
   <td>
    <?php echo $row['pubpid']; ?>
@@ -147,11 +112,18 @@ while ($row = sqlFetchArray($res)) {
   </td>
  </tr>
 <?php
+
+$data_ctr++;
 } // end while
+
+if ( $data_ctr < 1 ) { ?>
+<span class='text'><?php xl('There are no charts checked out.','e'); ?></span>
+<?php
+}
 ?>
+
 </tbody>
 </table>
 </div> <!-- end of results -->
-</center>
 </body>
 </html>

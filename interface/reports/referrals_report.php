@@ -27,6 +27,8 @@
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+
 <script language="JavaScript">
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
@@ -47,126 +49,130 @@
 
 /* specifically include & exclude from printing */
 @media print {
-    #referreport_parameters {
+    #report_parameters {
         visibility: hidden;
         display: none;
     }
-    #referreport_parameters_daterange {
+    #report_parameters_daterange {
         visibility: visible;
         display: inline;
+    }
+    #report_results table {
+       margin-top: 0px;
     }
 }
 
 /* specifically exclude some from the screen */
 @media screen {
-    #referreport_parameters_daterange {
+    #report_parameters_daterange {
         visibility: hidden;
         display: none;
     }
 }
 
-#referreport_parameters {
-    width: 100%;
-    background-color: #ddf;
-}
-#referreport_parameters table {
-    border: none;
-    border-collapse: collapse;
-}
-#referreport_parameters table td {
-    padding: 3px;
-}
-
-#referreport_results {
-    width: 100%;
-    margin-top: 10px;
-}
-#referreport_results table {
-   border: 1px solid black;
-   width: 98%;
-   border-collapse: collapse;
-}
-#referreport_results table thead {
-    display: table-header-group;
-    background-color: #ddd;
-}
-#referreport_results table th {
-    border-bottom: 1px solid black;
-    font-size: 0.7em;
-}
-#referreport_results table td {
-    padding: 1px;
-    margin: 2px;
-    border-bottom: 1px solid #eee;
-    font-size: 0.7em;
-}
-.referreport_totals td {
-    background-color: #77ff77;
-    font-weight: bold;
-}
 </style>
 </head>
 
 <body class="body_top">
 
-<center>
+<span class='title'><?php xl('Report','e'); ?> - <?php xl('Referrals','e'); ?></span>
 
-<h2><?php xl('Referrals','e'); ?></h2>
-
-<div id="referreport_parameters_daterange">
+<div id="report_parameters_daterange">
 <?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
 </div>
 
-<div id="referreport_parameters">
-<form name='theform' method='post' action='referrals_report.php'>
+<form name='theform' id='theform' method='post' action='referrals_report.php'>
+
+<div id="report_parameters">
+<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 <table>
  <tr>
-  <td>
-<?php
- // Build a drop-down list of facilities.
- //
- $query = "SELECT id, name FROM facility ORDER BY name";
- $fres = sqlStatement($query);
- echo "   <select name='form_facility'>\n";
- echo "    <option value=''>-- " . xl('All Facilities') . " --\n";
- while ($frow = sqlFetchArray($fres)) {
-  $facid = $frow['id'];
-  echo "    <option value='$facid'";
-  if ($facid == $form_facility) echo " selected";
-  echo ">" . $frow['name'] . "\n";
- }
- echo "    <option value='0'";
- if ($form_facility === '0') echo " selected";
- echo ">-- " . xl('Unspecified') . " --\n";
- echo "   </select>\n";
-?>
-   &nbsp;<?php xl('From','e'); ?>:
-   <input type='text' size='10' name='form_from_date' id='form_from_date'
-    value='<?php echo $from_date ?>'
-    title='<?php xl('yyyy-mm-dd','e'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>' />
-   &nbsp;<?php xl('To','e'); ?>:
-   <input type='text' size='10' name='form_to_date' id='form_to_date'
-    value='<?php echo $to_date ?>'
-    title='<?php xl('yyyy-mm-dd','e'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>' />
-   &nbsp;
-   <input type='submit' name='form_refresh' value=<?php xl('Refresh','e'); ?>>
-   &nbsp;
-   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
+  <td width='640px'>
+	<div style='float:left'>
+
+	<table class='text'>
+		<tr>
+			<td class='label'>
+				<?php xl('Facility','e'); ?>:
+			</td>
+			<td>
+				<?php
+				 // Build a drop-down list of facilities.
+				 //
+				 $query = "SELECT id, name FROM facility ORDER BY name";
+				 $fres = sqlStatement($query);
+				 echo "   <select name='form_facility'>\n";
+				 echo "    <option value=''>-- " . xl('All Facilities') . " --\n";
+				 while ($frow = sqlFetchArray($fres)) {
+				  $facid = $frow['id'];
+				  echo "    <option value='$facid'";
+				  if ($facid == $form_facility) echo " selected";
+				  echo ">" . $frow['name'] . "\n";
+				 }
+				 echo "    <option value='0'";
+				 if ($form_facility === '0') echo " selected";
+				 echo ">-- " . xl('Unspecified') . " --\n";
+				 echo "   </select>\n";
+				?>
+			</td>
+			<td class='label'>
+			   <?php xl('From','e'); ?>:
+			</td>
+			<td>
+			   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
+				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
+			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+				id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
+				title='<?php xl('Click here to choose a date','e'); ?>'>
+			</td>
+			<td class='label'>
+			   <?php xl('To','e'); ?>:
+			</td>
+			<td>
+			   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
+				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
+			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+				id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
+				title='<?php xl('Click here to choose a date','e'); ?>'>
+			</td>
+		</tr>
+	</table>
+
+	</div>
+
+  </td>
+  <td align='left' valign='middle' height="100%">
+	<table style='border-left:1px solid; width:100%; height:100%' >
+		<tr>
+			<td>
+				<div style='margin-left:15px'>
+					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+					<span>
+						<?php xl('Submit','e'); ?>
+					</span>
+					</a>
+
+					<?php if ($_POST['form_refresh']) { ?>
+					<a href='#' class='css_button' onclick='window.print()'>
+						<span>
+							<?php xl('Print','e'); ?>
+						</span>
+					</a>
+					<?php } ?>
+				</div>
+			</td>
+		</tr>
+	</table>
   </td>
  </tr>
 </table>
 </div> <!-- end of parameters -->
 
 
-<div id="referreport_results">
+<?php
+ if ($_POST['form_refresh']) {
+?>
+<div id="report_results">
 <table>
  <thead>
   <th> <?php xl('Refer To','e'); ?> </th>
@@ -234,8 +240,12 @@
 </tbody>
 </table>
 </div> <!-- end of results -->
+<?php } else { ?>
+<div class='text'>
+ 	<?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
+</div>
+<?php } ?>
 </form>
-</center>
 
 <script language='JavaScript'>
  Calendar.setup({inputField:"form_from_date", ifFormat:"%Y-%m-%d", button:"img_from_date"});

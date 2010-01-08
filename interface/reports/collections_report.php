@@ -240,10 +240,29 @@ else {
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <title><?php xl('Collections Report','e')?></title>
 <style type="text/css">
- body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
- .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
- .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
- .detotal   { color:#996600; font-family:sans-serif; font-size:10pt; font-weight:normal }
+
+@media print {
+    #report_parameters {
+        visibility: hidden;
+        display: none;
+    }
+    #report_parameters_daterange {
+        visibility: visible;
+        display: inline;
+    }
+    #report_results {
+       margin-top: 30px;
+    }
+}
+
+/* specifically exclude some from the screen */
+@media screen {
+    #report_parameters_daterange {
+        visibility: hidden;
+        display: none;
+    }
+}
+
 </style>
 
 <script language="JavaScript">
@@ -261,128 +280,217 @@ function checkAll(checked) {
 
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
-<center>
+<body class="body_top">
 
-<form method='post' action='collections_report.php' enctype='multipart/form-data'>
+<span class='title'><?php xl('Report','e'); ?> - <?php xl('Collections','e'); ?></span>
 
-<table border='0' cellpadding='5' cellspacing='0' width='98%'>
+<form method='post' action='collections_report.php' enctype='multipart/form-data' id='theform'>
 
+<div id="report_parameters">
+
+<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
+<input type='hidden' name='form_export' id='form_export' value=''/>
+<input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
+
+<table>
  <tr>
-  <td height="1">
+  <td width='610px'>
+	<div style='float:left'>
+
+	<table class='text'>
+		<tr>
+			<td class='label'>
+				<table>
+					<tr>
+						<td><?php xl('Displayed Columns','e') ?>:</td>
+					</tr>
+					<tr>
+						<td>
+						   <input type='checkbox' name='form_cb_ssn'<?php if ($form_cb_ssn) echo ' checked'; ?>>
+						   <?php xl('SSN','e') ?>&nbsp;
+						</td>
+						<td>
+						   <input type='checkbox' name='form_cb_dob'<?php if ($form_cb_dob) echo ' checked'; ?>>
+						   <?php xl('DOB','e') ?>&nbsp;
+						</td>
+						<td>
+						   <input type='checkbox' name='form_cb_pubpid'<?php if ($form_cb_pubpid) echo ' checked'; ?>>
+						   <?php xl('ID','e') ?>&nbsp;
+						</td>
+						<td>
+						   <input type='checkbox' name='form_cb_policy'<?php if ($form_cb_policy) echo ' checked'; ?>>
+						   <?php xl('Policy','e') ?>&nbsp;
+						</td>
+						<td>
+						   <input type='checkbox' name='form_cb_phone'<?php if ($form_cb_phone) echo ' checked'; ?>>
+						   <?php xl('Phone','e') ?>&nbsp;
+						</td>
+						<td>
+						   <input type='checkbox' name='form_cb_city'<?php if ($form_cb_city) echo ' checked'; ?>>
+						   <?php xl('City','e') ?>&nbsp;
+						</td>
+					</tr>
+					<tr>
+						<td>
+						   <input type='checkbox' name='form_cb_ins1'<?php if ($form_cb_ins1) echo ' checked'; ?>>
+						   <?php xl('Primary Ins','e') ?>&nbsp;
+						</td>
+						<td>
+						   <input type='checkbox' name='form_cb_referrer'<?php if ($form_cb_referrer) echo ' checked'; ?>>
+						   <?php xl('Referrer','e') ?>&nbsp;
+						</td>
+						<td>
+						   <input type='checkbox' name='form_cb_adate'<?php if ($form_cb_adate) echo ' checked'; ?>>
+						   <?php xl('Act Date','e') ?>&nbsp;
+						</td>
+						<td>
+						   <input type='checkbox' name='form_cb_idays'<?php if ($form_cb_idays) echo ' checked'; ?>>
+						   <?php xl('Inactive Days','e') ?>&nbsp;
+						</td>
+						<td>
+						   <input type='checkbox' name='form_cb_err'<?php if ($form_cb_err) echo ' checked'; ?>>
+						   <?php xl('Errors','e') ?>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		</tr>
+			<td>
+				<table>
+
+					<tr>
+						<td class='label'>
+						   <?php xl('Service Date','e'); ?>:
+						</td>
+						<td>
+						   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
+							onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
+						   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+							id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
+							title='<?php xl('Click here to choose a date','e'); ?>'>
+						</td>
+						<td class='label'>
+						   <?php xl('To','e'); ?>:
+						</td>
+						<td>
+						   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
+							onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
+						   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+							id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
+							title='<?php xl('Click here to choose a date','e'); ?>'>
+						</td>
+						<td>
+						   <select name='form_category'>
+						<?php
+						 foreach (array(xl('Open'),xl('Due Pt'),xl('Due Ins'),xl('Ins Summary'),xl('Credits'),xl('All')) as $value) {
+						  echo "    <option value='$value'";
+						  if ($_POST['form_category'] == $value) echo " selected";
+						  echo ">$value</option>\n";
+						 }
+						?>
+						   </select>
+						</td>
+
+					</tr>
+
+
+					<tr>
+						<td class='label'>
+						   <?php xl('Facility','e'); ?>:
+						</td>
+						<td>
+							<?php
+							  // Build a drop-down list of facilities.
+							  //
+							  $query = "SELECT id, name FROM facility ORDER BY name";
+							  $fres = sqlStatement($query);
+							  echo "   <select name='form_facility'>\n";
+							  echo "    <option value=''>-- " . xl('All Facilities') . " --\n";
+							  while ($frow = sqlFetchArray($fres)) {
+								$facid = $frow['id'];
+								echo "    <option value='$facid'";
+								if ($facid == $form_facility) echo " selected";
+								echo ">" . $frow['name'] . "\n";
+							  }
+							  echo "   </select>\n";
+							?>
+						</td>
+					</tr>
+
+					<tr>
+						<td class='label'>
+						   <?php xl('Age By','e') ?>:
+						</td>
+						<td>
+						   <select name='form_ageby'>
+						<?php
+						 foreach (array('Service Date', 'Last Activity Date') as $value) {
+						  echo "    <option value='$value'";
+						  if ($_POST['form_ageby'] == $value) echo " selected";
+						  echo ">" . xl($value) . "</option>\n";
+						 }
+						?>
+						   </select>
+						</td>
+					</tr>
+					</tr>
+						<td class='label'>
+						   <?php xl('Aging Columns:','e') ?>
+						</td>
+						<td>
+						   <input type='text' name='form_age_cols' size='2' value='<?php echo $form_age_cols; ?>' />
+						</td>
+						<td class='label'>
+						   <?php xl('Days/Col:','e') ?>
+						</td>
+						<td>
+						   <input type='text' name='form_age_inc' size='3' value='<?php echo $form_age_inc; ?>' />
+						</td>
+					</tr>
+
+
+				</table>
+			</td>
+		</tr>
+	</table>
+
+	</div>
+
+  </td>
+  <td align='left' valign='middle' height="100%">
+	<table style='border-left:1px solid; width:100%; height:100%' >
+		<tr>
+			<td>
+				<div style='margin-left:15px'>
+					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+					<span>
+						<?php xl('Submit','e'); ?>
+					</span>
+					</a>
+
+					<?php if ($_POST['form_refresh']) { ?>
+					<a href='#' class='css_button' onclick='window.print()'>
+						<span>
+							<?php xl('Print','e'); ?>
+						</span>
+					</a>
+					<?php } ?>
+				</div>
+			</td>
+		</tr>
+	</table>
   </td>
  </tr>
-
- <tr bgcolor='#ddddff'>
-  <td align='center'>
-   <input type='checkbox' name='form_cb_ssn'<?php if ($form_cb_ssn) echo ' checked'; ?>>
-   <?php xl('SSN','e') ?>&nbsp;
-   <input type='checkbox' name='form_cb_dob'<?php if ($form_cb_dob) echo ' checked'; ?>>
-   <?php xl('DOB','e') ?>&nbsp;
-   <input type='checkbox' name='form_cb_pubpid'<?php if ($form_cb_pubpid) echo ' checked'; ?>>
-   <?php xl('ID','e') ?>&nbsp;
-   <input type='checkbox' name='form_cb_policy'<?php if ($form_cb_policy) echo ' checked'; ?>>
-   <?php xl('Policy','e') ?>&nbsp;
-   <input type='checkbox' name='form_cb_phone'<?php if ($form_cb_phone) echo ' checked'; ?>>
-   <?php xl('Phone','e') ?>&nbsp;
-   <input type='checkbox' name='form_cb_city'<?php if ($form_cb_city) echo ' checked'; ?>>
-   <?php xl('City','e') ?>&nbsp;
-   <input type='checkbox' name='form_cb_ins1'<?php if ($form_cb_ins1) echo ' checked'; ?>>
-   <?php xl('Primary Ins','e') ?>&nbsp;
-   <input type='checkbox' name='form_cb_referrer'<?php if ($form_cb_referrer) echo ' checked'; ?>>
-   <?php xl('Referrer','e') ?>&nbsp;
-   <input type='checkbox' name='form_cb_adate'<?php if ($form_cb_adate) echo ' checked'; ?>>
-   <?php xl('Act Date','e') ?>&nbsp;
-   <input type='checkbox' name='form_cb_idays'<?php if ($form_cb_idays) echo ' checked'; ?>>
-   <?php xl('Inactive Days','e') ?>&nbsp;
-   <input type='checkbox' name='form_cb_err'<?php if ($form_cb_err) echo ' checked'; ?>>
-   <?php xl('Errors','e') ?>
-  </td>
- </tr>
-
- <tr bgcolor='#ddddff'>
-  <td align='center'>
-<?php
-  // Build a drop-down list of facilities.
-  //
-  $query = "SELECT id, name FROM facility ORDER BY name";
-  $fres = sqlStatement($query);
-  echo "   <select name='form_facility'>\n";
-  echo "    <option value=''>-- " . xl('All Facilities') . " --\n";
-  while ($frow = sqlFetchArray($fres)) {
-    $facid = $frow['id'];
-    echo "    <option value='$facid'";
-    if ($facid == $form_facility) echo " selected";
-    echo ">" . $frow['name'] . "\n";
-  }
-  echo "   </select>\n";
-?>
-   &nbsp;
-   <?php xl('Age By','e') ?>:
-   <select name='form_ageby'>
-<?php
- foreach (array('Service Date', 'Last Activity Date') as $value) {
-  echo "    <option value='$value'";
-  if ($_POST['form_ageby'] == $value) echo " selected";
-  echo ">" . xl($value) . "</option>\n";
- }
-?>
-   </select>
-   &nbsp;
-   <?php xl('Aging Columns:','e') ?>
-   <input type='text' name='form_age_cols' size='2' value='<?php echo $form_age_cols; ?>' />
-   &nbsp;
-   <?php xl('Days per Column:','e') ?>
-   <input type='text' name='form_age_inc' size='3' value='<?php echo $form_age_inc; ?>' />
-  </td>
- </tr>
-
- <tr bgcolor='#ddddff'>
-  <td align='center'>
-   <?php xl('Service Date:','e')?>
-   <input type='text' name='form_date' id="form_date" size='10' value='<?php echo $_POST['form_date']; ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='<?php xl("Date of service mm/dd/yyyy","e")?>' />
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>' />
-   &nbsp;
-   <?php xl('To:','e')?>
-   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $_POST['form_to_date']; ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-    title='<?php xl("Ending DOS mm/dd/yyyy if you wish to enter a range","e")?>' />
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>' />
-   &nbsp;
-   <select name='form_category'>
-<?php
- foreach (array(xl('Open'),xl('Due Pt'),xl('Due Ins'),xl('Ins Summary'),xl('Credits'),xl('All')) as $value) {
-  echo "    <option value='$value'";
-  if ($_POST['form_category'] == $value) echo " selected";
-  echo ">$value</option>\n";
- }
-?>
-   </select>
-   &nbsp;
-   <input type='submit' name='form_search' value='<?php xl("Search","e")?>'>
-   &nbsp;
-   <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
-  </td>
- </tr>
-
- <tr>
-  <td height="1">
-  </td>
- </tr>
-
 </table>
+</div>
+
 
 <?php
 
 } // end not form_csvexport
 
-if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) {
+if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport']) {
   $rows = array();
   $where = "";
 
@@ -818,80 +926,81 @@ if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) 
   else {
 ?>
 
-<table border='0' cellpadding='1' cellspacing='2' width='98%'>
+<div id="report_results">
+<table>
 
- <tr bgcolor="#dddddd">
+ <thead>
 <?php if ($is_due_ins) { ?>
-  <td class="dehead">&nbsp;<?php xl('Insurance','e')?></td>
+  <th>&nbsp;<?php xl('Insurance','e')?></th>
 <?php } ?>
 <?php if (!$is_ins_summary) { ?>
-  <td class="dehead">&nbsp;<?php xl('Name','e')?></td>
+  <th>&nbsp;<?php xl('Name','e')?></th>
 <?php } ?>
 <?php if ($form_cb_ssn) { ?>
-  <td class="dehead">&nbsp;<?php xl('SSN','e')?></td>
+  <th>&nbsp;<?php xl('SSN','e')?></th>
 <?php } ?>
 <?php if ($form_cb_dob) { ?>
-  <td class="dehead">&nbsp;<?php xl('DOB','e')?></td>
+  <th>&nbsp;<?php xl('DOB','e')?></th>
 <?php } ?>
 <?php if ($form_cb_pubpid) { ?>
-  <td class="dehead">&nbsp;<?php xl('ID','e')?></td>
+  <th>&nbsp;<?php xl('ID','e')?></th>
 <?php } ?>
 <?php if ($form_cb_policy) { ?>
-  <td class="dehead">&nbsp;<?php xl('Policy','e')?></td>
+  <th>&nbsp;<?php xl('Policy','e')?></th>
 <?php } ?>
 <?php if ($form_cb_phone) { ?>
-  <td class="dehead">&nbsp;<?php xl('Phone','e')?></td>
+  <th>&nbsp;<?php xl('Phone','e')?></th>
 <?php } ?>
 <?php if ($form_cb_city) { ?>
-  <td class="dehead">&nbsp;<?php xl('City','e')?></td>
+  <th>&nbsp;<?php xl('City','e')?></th>
 <?php } ?>
 <?php if ($form_cb_ins1) { ?>
-  <td class="dehead">&nbsp;<?php xl('Primary Ins','e')?></td>
+  <th>&nbsp;<?php xl('Primary Ins','e')?></th>
 <?php } ?>
 <?php if ($form_cb_referrer) { ?>
-  <td class="dehead">&nbsp;<?php xl('Referrer','e')?></td>
+  <th>&nbsp;<?php xl('Referrer','e')?></th>
 <?php } ?>
 <?php if (!$is_ins_summary) { ?>
-  <td class="dehead">&nbsp;<?php xl('Invoice','e') ?></td>
-  <td class="dehead">&nbsp;<?php xl('Svc Date','e') ?></td>
+  <th>&nbsp;<?php xl('Invoice','e') ?></th>
+  <th>&nbsp;<?php xl('Svc Date','e') ?></th>
 <?php if ($form_cb_adate) { ?>
-  <td class="dehead">&nbsp;<?php xl('Act Date','e')?></td>
+  <th>&nbsp;<?php xl('Act Date','e')?></th>
 <?php } ?>
 <?php } ?>
-  <td class="dehead" align="right"><?php xl('Charge','e') ?>&nbsp;</td>
-  <td class="dehead" align="right"><?php xl('Adjust','e') ?>&nbsp;</td>
-  <td class="dehead" align="right"><?php xl('Paid','e') ?>&nbsp;</td>
+  <th align="right"><?php xl('Charge','e') ?>&nbsp;</th>
+  <th align="right"><?php xl('Adjust','e') ?>&nbsp;</th>
+  <th align="right"><?php xl('Paid','e') ?>&nbsp;</th>
 <?php
     // Generate aging headers if appropriate, else balance header.
     if ($form_age_cols) {
       for ($c = 0; $c < $form_age_cols;) {
-        echo "  <td class='dehead' align='right'>";
+        echo "  <th class='dehead' align='right'>";
         echo $form_age_inc * $c;
         if (++$c < $form_age_cols) {
           echo "-" . ($form_age_inc * $c - 1);
         } else {
           echo "+";
         }
-        echo "</td>\n";
+        echo "</th>\n";
       }
     }
     else {
 ?>
-  <td class="dehead" align="right"><?php xl('Balance','e') ?>&nbsp;</td>
+  <th align="right"><?php xl('Balance','e') ?>&nbsp;</th>
 <?php
       }
 ?>
 <?php if ($form_cb_idays) { ?>
-  <td class="dehead" align="right"><?php xl('IDays','e')?>&nbsp;</td>
+  <th align="right"><?php xl('IDays','e')?>&nbsp;</th>
 <?php } ?>
 <?php if (!$is_ins_summary) { ?>
-  <td class="dehead" align="center"><?php xl('Prv','e') ?></td>
-  <td class="dehead" align="center"><?php xl('Sel','e') ?></td>
+  <th align="center"><?php xl('Prv','e') ?></th>
+  <th align="center"><?php xl('Sel','e') ?></th>
 <?php } ?>
 <?php if ($form_cb_err) { ?>
-  <td class="dehead">&nbsp;<?php xl('Error','e')?></td>
+  <th>&nbsp;<?php xl('Error','e')?></th>
 <?php } ?>
- </tr>
+ </thead>
 
 <?php
   } // end not export
@@ -1116,6 +1225,7 @@ if ($_POST['form_search'] || $_POST['form_export'] || $_POST['form_csvexport']) 
     if ($form_cb_err) echo "  <td class='detail'>&nbsp;</td>\n";
     echo " </tr>\n";
     echo "</table>\n";
+	echo "</div>\n";
   }
 } // end if form_search
 
@@ -1124,13 +1234,23 @@ if (!$INTEGRATED_AR) SLClose();
 if (!$_POST['form_csvexport']) {
   if (!$_POST['form_export']) {
 ?>
-<p>
-<input type='button' value=<?php xl('Select All','e','\'','\''); ?> onclick='checkAll(true)' /> &nbsp;
-<input type='button' value=<?php xl('Clear All','e','\'','\''); ?> onclick='checkAll(false)' /> &nbsp;
-<input type='submit' name='form_csvexport' value=<?php xl('Export Selected as CSV','e','\'','\''); ?> /> &nbsp; &nbsp;
-<input type='submit' name='form_export' value=<?php xl('Export Selected to Collections','e','\'','\''); ?> /> &nbsp;
+
+<div style='float;margin-top:5px'>
+
+<a href='javascript:;' class='css_button'  onclick='checkAll(true)'><span><?php xl('Select All','e'); ?></span></a>
+<a href='javascript:;' class='css_button'  onclick='checkAll(false)'><span><?php xl('Clear All','e'); ?></span></a>
+<a href='javascript:;' class='css_button' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
+	<span><?php xl('Export Selected as CSV','e'); ?></span>
+</a>
+<a href='javascript:;' class='css_button' onclick='$("#form_export").attr("value","true"); $("#theform").submit();'>
+	<span><?php xl('Export Selected to Collections','e'); ?></span>
+</a>
+</div>
+
+<div style='float:left'>
 <input type='checkbox' name='form_without' value='1' /> <?php xl('Without Update','e') ?>
-</p>
+</div>
+
 <?php
   } // end not export
 ?>
@@ -1149,6 +1269,7 @@ if (!$_POST['form_csvexport']) {
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
 <script language="Javascript">
  Calendar.setup({inputField:"form_date", ifFormat:"%m/%d/%Y", button:"img_from_date"});
  Calendar.setup({inputField:"form_to_date", ifFormat:"%m/%d/%Y", button:"img_to_date"});
