@@ -29,6 +29,29 @@ function getLayoutRes() {
     "ORDER BY group_name, seq");
 }
 
+// Determine layout field search treatment from its data type:
+// 1 = text field
+// 2 = select list
+// 0 = not searchable
+//
+function getSearchClass($data_type) {
+  switch($data_type) {
+    case  1: // single-selection list
+    case 10: // local provider list
+    case 11: // provider list
+    case 12: // pharmacy list
+    case 13: // squads
+    case 14: // address book list
+    case 26: // single-selection list with add
+      return 2;
+    case  2: // text field
+    case  3: // textarea
+    case  4: // date
+      return 1;
+  }
+  return 0;
+}
+
 $fres = getLayoutRes();
 ?>
 <html>
@@ -164,24 +187,17 @@ while ($lrow = sqlFetchArray($lres)) {
   if (strpos($field_id, 'em_') === 0) continue;
   $data_type = $lrow['data_type'];
   $fldname = "form_$field_id";
-  switch($data_type) {
+  switch(getSearchClass($data_type)) {
     case  1:
-    case 11:
-    case 12:
-    case 13:
-    case 14:
-      echo
-      " if (f.$fldname.style.backgroundColor != '' && f.$fldname.selectedIndex > 0) {\n" .
-      "  url += '&$field_id=' + escape(f.$fldname.options[f.$fldname.selectedIndex].value);\n" .
-      " }\n";
-      break;
-    case  2:
-    case  3:
-    case  4:
-    case 15:
       echo
       " if (f.$fldname.style.backgroundColor != '' && trimlen(f.$fldname.value) > 0) {\n" .
       "  url += '&$field_id=' + escape(f.$fldname.value);\n" .
+      " }\n";
+      break;
+    case 2:
+      echo
+      " if (f.$fldname.style.backgroundColor != '' && f.$fldname.selectedIndex > 0) {\n" .
+      "  url += '&$field_id=' + escape(f.$fldname.options[f.$fldname.selectedIndex].value);\n" .
       " }\n";
       break;
   }
@@ -205,7 +221,7 @@ while ($lrow = sqlFetchArray($lres)) {
 <table width='100%' cellpadding='0' cellspacing='8'>
  <tr>
   <td align='left' valign='top'>
-  <center>
+<?php if ($SHORT_FORM) echo "  <center>\n"; ?>
 <?php
 
 function end_cell() {
@@ -324,6 +340,7 @@ while ($frow = sqlFetchArray($fres)) {
 end_group();
 ?>
 
+<?php if (!$SHORT_FORM) echo "  <center>\n"; ?>
 <br />
 <input type="button" id="search" value=<?php xl('Search','e','\'','\''); ?>
  style='background-color:<?php echo $searchcolor; ?>' />
@@ -401,13 +418,20 @@ $(document).ready(function() {
       }
     }
 
-// Set onclick handlers for toggling background color.
+// Set onclick/onfocus handlers for toggling background color.
 <?php
 $lres = getLayoutRes();
 while ($lrow = sqlFetchArray($lres)) {
   $field_id  = $lrow['field_id'];
   if (strpos($field_id, 'em_') === 0) continue;
-  echo "    \$('#form_$field_id').focus(function() { toggleSearch(this); });\n";
+  switch(getSearchClass($lrow['data_type'])) {
+    case 1:
+      echo "    \$('#form_$field_id').click(function() { toggleSearch(this); });\n";
+      break;
+    case 2:
+      echo "    \$('#form_$field_id').focus(function() { toggleSearch(this); });\n";
+      break;
+  }
 }
 ?>
 
