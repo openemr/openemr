@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2009-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -171,6 +171,27 @@ function toggleSearch(elem) {
   elem.style.backgroundColor = '<?php echo $searchcolor; ?>';
  else
   elem.style.backgroundColor = '';
+ return true;
+}
+
+// If a <select> list is dropped down, this is its name.
+var open_sel_name = '';
+
+function selClick(elem) {
+ if (open_sel_name == elem.name) {
+  open_sel_name = '';
+ }
+ else {
+  open_sel_name = elem.name;
+  toggleSearch(elem);
+ }
+ return true;
+}
+
+function selBlur(elem) {
+ if (open_sel_name == elem.name) {
+  open_sel_name = '';
+ }
  return true;
 }
 
@@ -429,7 +450,8 @@ while ($lrow = sqlFetchArray($lres)) {
       echo "    \$('#form_$field_id').click(function() { toggleSearch(this); });\n";
       break;
     case 2:
-      echo "    \$('#form_$field_id').focus(function() { toggleSearch(this); });\n";
+      echo "    \$('#form_$field_id').click(function() { selClick(this); });\n";
+      echo "    \$('#form_$field_id').blur(function() { selBlur(this); });\n";
       break;
   }
 }
