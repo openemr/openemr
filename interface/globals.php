@@ -511,6 +511,10 @@ $GLOBALS['set_facility_cookie'] = false;
 // Control the display of Advance Directives in demographics page
 $GLOBALS['advance_directives_warning'] = true;
 
+// Make this true to add options for configuration export and import to the
+// Backup page.
+$GLOBALS['configuration_import_export'] = false;
+
 // If you want Hylafax support then uncomment and customize the following
 // statements, and also customize custom/faxcover.txt:
 //
