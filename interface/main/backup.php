@@ -132,14 +132,17 @@ if ($form_step == 0) {
   echo "  <td><input type='submit' name='form_create' value='$BTN_TEXT_CREATE' /></td>\n";
   echo "  <td>" . xl('Create and download a full backup') . "</td>\n";
   echo " </tr>\n";
-  echo " <tr>\n";
-  echo "  <td><input type='submit' name='form_export' value='$BTN_TEXT_EXPORT' /></td>\n";
-  echo "  <td>" . xl('Download configuration data') . "</td>\n";
-  echo " </tr>\n";
-  echo " <tr>\n";
-  echo "  <td><input type='submit' name='form_import' value='$BTN_TEXT_IMPORT' /></td>\n";
-  echo "  <td>" . xl('Upload configuration data') . "</td>\n";
-  echo " </tr>\n";
+  // The config import/export feature is optional.
+  if (!empty($GLOBALS['configuration_import_export'])) {
+    echo " <tr>\n";
+    echo "  <td><input type='submit' name='form_export' value='$BTN_TEXT_EXPORT' /></td>\n";
+    echo "  <td>" . xl('Download configuration data') . "</td>\n";
+    echo " </tr>\n";
+    echo " <tr>\n";
+    echo "  <td><input type='submit' name='form_import' value='$BTN_TEXT_IMPORT' /></td>\n";
+    echo "  <td>" . xl('Upload configuration data') . "</td>\n";
+    echo " </tr>\n";
+  }
   echo "</table>\n";
 }
 
