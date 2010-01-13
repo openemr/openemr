@@ -11,7 +11,7 @@
 // This nonsense will go away if we ever move to subversion.
 //////////////////////////////////////////////////////////////////////
 
-// Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -68,7 +68,17 @@ if ($_POST['bn_save']) {
    if ($tmp2) die("mkdir returned $tmp2: $tmp0");
    exec("touch '$imagedir/index.html'");
   }
-  if (is_file($imagepath)) unlink($imagepath);
+  // Remove any previous image files for this encounter and form ID.
+  for ($i = -1; true; ++$i) {
+    $suffix = ($i < 0) ? "" : "-$i";
+    $path = "$imagedir/${encounter}_$formid$suffix.jpg";
+    if (is_file($path)) {
+      unlink($path);
+    }
+    else {
+      if ($i >= 0) break;
+    }
+  }
   $tmp_name = $_FILES['form_image']['tmp_name'];
   // default density is 72 dpi, we change to 96.  And -append was removed
   // to create a separate image file for each page.
