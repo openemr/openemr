@@ -64,7 +64,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     "*0123" .
     "*" . date('Ymd', $today) .
     "*1023" .
-    "*CH" .
+    ($encounter_claim ? "*RP" : "*CH") .
     "~\n";
 
   ++$edicount;
@@ -760,6 +760,21 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
       "*D8" .
       "*" . $claim->serviceDate() .
       "~\n";
+
+    // AMT*AAE segment for Approved Amount from previous payer.
+    // Medicare secondaries seem to require this.
+    //
+    for ($ins = $claim->payerCount() - 1; $ins > 0; --$ins) {
+      if ($claim->payerSequence($ins) > $claim->payerSequence())
+        continue; // payer is future, not previous
+      $payerpaid = $claim->payerTotals($ins, $claim->cptKey($prockey));
+      ++$edicount;
+      $out .= "AMT" . // Approved amount per previous payer. Page 485.
+        "*AAE" .
+        "*" . sprintf('%.2f', $claim->cptCharges($prockey) - $payerpaid[2]) .
+        "~\n";
+      break;
+    }
 
     // Loop 2410, Drug Information. Medicaid insurers seem to want this
     // with HCPCS codes.
