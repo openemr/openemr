@@ -70,8 +70,9 @@ if ($_POST['bn_save']) {
   }
   if (is_file($imagepath)) unlink($imagepath);
   $tmp_name = $_FILES['form_image']['tmp_name'];
-  // $cmd = "convert '$tmp_name' '$imagepath'"; // default density is 72 dpi
-  $cmd = "convert -density 96 '$tmp_name' -append '$imagepath'";
+  // default density is 72 dpi, we change to 96.  And -append was removed
+  // to create a separate image file for each page.
+  $cmd = "convert -density 96 '$tmp_name' '$imagepath'";
   $tmp0 = exec($cmd, $tmp1, $tmp2);
   if ($tmp2) die("\"$cmd\" returned $tmp2: $tmp0");
  }
