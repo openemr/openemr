@@ -116,10 +116,10 @@ function Cezpdf($paper='a4',$orientation='portrait'){
 	$this->ez['pageHeight']=$size[3];
 
 	// also set the margins to some reasonable defaults
-	$this->ez['topMargin']=30;
-	$this->ez['bottomMargin']=30;
-	$this->ez['leftMargin']=30;
-	$this->ez['rightMargin']=30;
+	$this->ez['topMargin']=5;
+	$this->ez['bottomMargin']=5;
+	$this->ez['leftMargin']=5;
+	$this->ez['rightMargin']=5;
 
 	// set the current writing position to the top of the first page
 	$this->y = $this->ez['pageHeight']-$this->ez['topMargin'];
