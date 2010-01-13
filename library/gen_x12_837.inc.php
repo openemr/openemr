@@ -64,7 +64,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
     "*0123" .
     "*" . date('Ymd', $today) .
     "*1023" .
-    "*CH" .
+    ($encounter_claim ? "*RP" : "*CH") .
     "~\n";
 
   ++$edicount;
