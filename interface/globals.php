@@ -1,6 +1,5 @@
 <?php
 /* $Id$ */
-//
 //  ------------------------------------------------------------------------ //
 //                OpenEMR Electronic Medical Records System                  //
 //                   Copyright (c) 2005-2008 oemr.org                        //
@@ -125,7 +124,8 @@ $GLOBALS['print_command'] = "lpr -P HPLaserjet6P -o cpi=10 -o lpi=6 -o page-left
 //   Arabic                         // xl('Arabic')
 //   Armenian                       // xl('Armenian')
 //   Bahasa Indonesia               // xl('Bahasa Indonesia')
-//   Chinese                        // xl('Chinese')
+//   Chinese (Simplified)           // xl('Chinese (Simplified)')
+//   Chinese (Traditional)          // xl('Chinese (Traditional)')
 //   Dutch                          // xl('Dutch')
 //   English (Indian)               // xl('English (Indian)')
 //   English (Standard)             // xl('English (Standard)')
