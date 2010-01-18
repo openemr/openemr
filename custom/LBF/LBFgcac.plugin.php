@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2009-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -52,6 +52,44 @@ function _LBFgcac_recent_default($name) {
   return $row['field_value'];
 }
 
+// Private function.  Query services within 2 weeks of this encounter.
+//
+function _LBFgcac_query_recent_services() {
+  global $pid, $encounter;
+
+  // Get the date of this visit.
+  $encrow = sqlQuery("SELECT date FROM form_encounter WHERE " .
+    "pid = '$pid' AND encounter = '$encounter'");
+  $encdate = $encrow['date'];
+
+  // Query services from the two weeks prior to this visit.
+  $query = "SELECT c.related_code " .
+    "FROM form_encounter AS fe, billing AS b, codes AS c " .
+    "WHERE fe.pid = '$pid' AND fe.date <= '$encdate' AND " .
+    "DATE_ADD(fe.date, INTERVAL 14 DAY) > '$encdate' AND " .
+    "b.pid = fe.pid AND b.encounter = fe.encounter AND b.activity = 1 AND " .
+    "b.code_type = 'MA' AND c.code_type = '12' AND " .
+    "c.code = b.code AND c.modifier = b.modifier " .
+    "ORDER BY fe.date DESC, b.id DESC";
+
+  return $query;
+}
+
+// Private function.  Query services from this encounter.
+//
+function _LBFgcac_query_current_services() {
+  global $pid, $encounter;
+
+  $query = "SELECT c.related_code " .
+    "FROM billing AS b, codes AS c WHERE " .
+    "b.pid = '$pid' AND b.encounter = '$encounter' AND b.activity = 1 AND " .
+    "b.code_type = 'MA' AND c.code_type = '12' AND " .
+    "c.code = b.code AND c.modifier = b.modifier " .
+    "ORDER BY b.id DESC";
+
+  return $query;
+}
+
 // The purpose of this function is to create JavaScript for the <head>
 // section of the page.  This in turn defines desired javaScript
 // functions.
@@ -89,35 +127,75 @@ function set_main_compl_list() {
  }
 }
 ";
+
   echo "
 // Disable most form fields if refusing abortion.
 function client_status_changed() {
  var f = document.forms[0];
- var dis = false;
+ var dis1 = false; // things to show unless refusing abortion
+ var dis2 = false; // things to show if abortion is elsewhere
  var cs = f.form_client_status;
+ var csval = '';
  if (cs.type) { // cs = select list
-  dis = cs.selectedIndex >= 0 && cs.options[cs.selectedIndex].value == 'mara';
+  if (cs.selectedIndex >= 0) {
+   csval = cs.options[cs.selectedIndex].value;
+  }
  }
  else { // cs = array of radio buttons
   for (var i = 0; i < cs.length; ++i) {
    if (cs[i].checked) {
-    dis = cs[i].value == 'mara';
+    csval = cs[i].value;
     break;
    }
   }
  }
+ if (csval == 'mara') {
+  dis1 = true;
+  dis2 = true;
+ }
+ else if (csval == 'maaa') {
+  dis2 = true;
+ }
  for (var i = 0; i < f.elements.length; ++i) {
   var e = f.elements[i];
-  if (
-   e.name.substring(0,18) == 'form_complications' ||
-   e.name.substring(0,15) == 'form_contrameth' ||
-   e.name == 'form_ab_location' ||
-   e.name == 'form_in_ab_proc' ||
-   e.name == 'form_main_compl'
-  ) {
-   e.disabled = dis;
+  if (e.name.substring(0,18) == 'form_complications' || e.name == 'form_main_compl') {
+   e.disabled = dis1;
+  }
+  else if (e.name == 'form_in_ab_proc') {
+   e.disabled = dis2;
+  }
+  else if (e.name.substring(0,15) == 'form_contrameth') {
+   e.disabled = (csval != 'refin');
+  }
+  else if (e.name == 'form_ab_location') {
+   if (csval == 'maaa') {
+    e.disabled = (e.value == 'part' || e.value == 'oth');
+   }
+   else if (csval == 'mara') {
+    e.disabled = true;
+   }
+   else {
+    e.disabled = (e.value == 'proc' || e.value == 'ma');
+   }
   }
  }
+}
+";
+
+  echo "
+// Enable some form fields before submitting.
+// This is because disabled fields do not submit their data, however
+// we do want to save the default values that were set for them.
+function mysubmit() {
+ var f = document.forms[0];
+ for (var i = 0; i < f.elements.length; ++i) {
+  var e = f.elements[i];
+  if (e.name == 'form_in_ab_proc') {
+   e.disabled = false;
+  }
+ }
+ top.restoreSession();
+ return true;
 }
 ";
 
@@ -145,7 +223,31 @@ else { // cs = array of radio buttons
   cs[i].onclick = function () { client_status_changed(); };
  }
 }
+f.onsubmit = function () { return mysubmit(); };
 ";
+
+  // Query services from this visit to set default contraception choices.
+  $res = sqlStatement(_LBFgcac_query_current_services());
+  while ($row = sqlFetchArray($res)) {
+    if (empty($row['related_code'])) continue;
+    $relcodes = explode(';', $row['related_code']);
+    foreach ($relcodes as $codestring) {
+      if ($codestring === '') continue;
+      list($codetype, $code) = explode(':', $codestring);
+      if ($codetype !== 'IPPF') continue;
+      $lres = sqlStatement("SELECT option_id, mapping FROM list_options " .
+        "WHERE list_id = 'contrameth'");
+      while ($lrow = sqlFetchArray($lres)) {
+        $maparr = explode(':', $lrow['mapping']);
+        if (empty($maparr[1])) continue;
+        $option_id = $lrow['option_id'];
+        if (preg_match('/^' . $maparr[1] . '/', $code)) {
+          echo "f['form_contrameth[$option_id]'].checked = true;\n";
+        }
+      }
+    }
+  }
+
 }
 
 // Generate default for client status.
@@ -168,7 +270,34 @@ function LBFgcac_default_ab_location() {
 // Generate default for the induced procedure type.
 //
 function LBFgcac_default_in_ab_proc() {
-  return _LBFgcac_recent_default('in_ab_proc');
+
+  // Check previous GCAC visit forms for this setting.
+  $default = _LBFgcac_recent_default('in_ab_proc');
+  if ($default !== '') return $default;
+
+  // If none, query services from recent visits to see if an IPPF code
+  // matches that of a procedure type in the list.
+  $res = sqlStatement(_LBFgcac_query_recent_services());
+  while ($row = sqlFetchArray($res)) {
+    if (empty($row['related_code'])) continue;
+    $relcodes = explode(';', $row['related_code']);
+    foreach ($relcodes as $codestring) {
+      if ($codestring === '') continue;
+      list($codetype, $code) = explode(':', $codestring);
+      if ($codetype !== 'IPPF') continue;
+      $lres = sqlStatement("SELECT option_id, mapping FROM list_options " .
+        "WHERE list_id = 'in_ab_proc'");
+      while ($lrow = sqlFetchArray($lres)) {
+        $maparr = explode(':', $lrow['mapping']);
+        if (empty($maparr[1])) continue;
+        if (preg_match('/^' . $maparr[1] . '/', $code)) {
+          return $lrow['option_id'];
+        }
+      }
+    } // end foreach
+  }
+
+  return '';
 }
 
 // Generate default for the main complication.
@@ -176,5 +305,4 @@ function LBFgcac_default_in_ab_proc() {
 function LBFgcac_default_main_compl() {
   return _LBFgcac_recent_default('main_compl');
 }
-
 ?>
