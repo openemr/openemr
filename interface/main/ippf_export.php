@@ -103,7 +103,9 @@ function mappedOption($list_id, $option_id) {
   $row = sqlQuery("SELECT mapping FROM list_options WHERE " .
     "list_id = '$list_id' AND option_id = '$option_id' LIMIT 1");
   if (empty($row)) return $option_id; // should not happen
-  return ($row['mapping'] === '') ? $option_id : $row['mapping'];
+  // return ($row['mapping'] === '') ? $option_id : $row['mapping'];
+  $maparr = explode(':', $row['mapping']);
+  return ($maparr[0] === '') ? $option_id : $maparr[0];
 }
 
 // Like the above but given a layout item form and field name.
@@ -125,7 +127,9 @@ function mappedFieldOption($form_id, $field_id, $option_id) {
     "option_id = '$option_id' " .
     "LIMIT 1");
   if (empty($row)) return $option_id; // should not happen
-  return ($row['mapping'] === '') ? $option_id : $row['mapping'];
+  // return ($row['mapping'] === '') ? $option_id : $row['mapping'];
+  $maparr = explode(':', $row['mapping']);
+  return ($maparr[0] === '') ? $option_id : $maparr[0];
 }
 
 function exportEncounter($pid, $encounter, $date) {

@@ -1,5 +1,4 @@
 DELETE FROM list_options WHERE list_id = 'contrameth';
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('contrameth','abs','Abstinence'                      , 1,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('contrameth','con','Condom (Male or Female)'         , 2,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('contrameth','dia','Diaphragm'                       , 3,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('contrameth','ec' ,'Emergency Contraception'         , 4,0,0);
@@ -13,9 +12,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_va
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('contrameth','cap','Pessary/Cervicap Cap'            ,12,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('contrameth','sp' ,'Spermicides'                     ,13,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('contrameth','vsc','Voluntary Surgical Contraception',14,0,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('contrameth','wd' ,'Withdrawl'                       ,15,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('contrameth','no' ,'None'                            ,16,0,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('contrameth','oth','Other (specify)'                 ,17,0,0);
 
 DELETE FROM list_options WHERE list_id = 'mcreason';
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('mcreason'  ,'sef','Side Effects of Current Method'   , 1,0,0);
@@ -635,8 +632,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_va
 DELETE FROM list_options WHERE list_id = 'in_ab_proc';
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('in_ab_proc','s_dnc','Surgical - D&C'                      , 1,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('in_ab_proc','s_dne','Surgical - D&E'                      , 2,0,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('in_ab_proc','s_mva','Surgical - MVA'                      , 3,0,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('in_ab_proc','s_eva','Surgical - EVA'                      , 4,0,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('in_ab_proc','s_mva','Surgical - MVA/EVA'                  , 3,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('in_ab_proc','s_oth','Surgical - Other'                    , 5,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('in_ab_proc','m_mis','Medical - Misoprostol'               , 6,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('in_ab_proc','m_mm' ,'Medical - Mifepristone + Misoprostol', 7,0,0);
@@ -736,7 +732,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_va
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('side_eff','anes'  ,'Anesthesia Complications'       , 7,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('side_eff','oth'   ,'Other, Specify'                 , 8,0,0);
 DELETE FROM list_options WHERE list_id = 'complication';
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('complication','incomp' ,'Incomplete Abortion or Retention of Prod', 1,0,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('complication','incomp' ,'Retention of Product', 1,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('complication','bleed'  ,'Excessive Bleeding/Hemorrhage'           , 2,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('complication','trauma' ,'Trauma to Vagina, Cervix, or Uterus'     , 3,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('complication','shock'  ,'Shock'                                   , 4,0,0);
@@ -1475,4 +1471,28 @@ UPDATE layout_options SET uor = 0 WHERE form_id = 'DEM' AND field_id = 'provider
 -- The following added 2009-10-12
 
 UPDATE layout_options AS a, list_options AS i SET a.group_name = '1Basic Data', a.title = 'Transgender', a.seq = 13, a.data_type = 26, a.uor = 1, a.description = 'Transgender', i.title = 'Transgender' WHERE a.form_id = 'DEM' AND a.field_id = 'userlist6' AND a.uor = 0 AND i.list_id = 'lists' AND i.option_id = 'userlist6';
+
+-- The following added 2010-01-17 (duplicated in ippf_upgrade.sql)
+
+UPDATE list_options SET mapping = ':2522231'   WHERE list_id = 'in_ab_proc' AND option_id = 's_dnc';
+UPDATE list_options SET mapping = ':2522232'   WHERE list_id = 'in_ab_proc' AND option_id = 's_dne';
+UPDATE list_options SET mapping = ':2522233'   WHERE list_id = 'in_ab_proc' AND option_id = 's_mva';
+UPDATE list_options SET mapping = ':2522239'   WHERE list_id = 'in_ab_proc' AND option_id = 's_oth';
+UPDATE list_options SET mapping = ':2522242'   WHERE list_id = 'in_ab_proc' AND option_id = 'm_mis';
+UPDATE list_options SET mapping = ':2522241'   WHERE list_id = 'in_ab_proc' AND option_id = 'm_mm';
+UPDATE list_options SET mapping = ':2522249'   WHERE list_id = 'in_ab_proc' AND option_id = 'm_oth';
+UPDATE list_options SET mapping = ':11214'     WHERE list_id = 'contrameth' AND option_id = 'con';
+UPDATE list_options SET mapping = ':11215'     WHERE list_id = 'contrameth' AND option_id = 'dia';
+UPDATE list_options SET mapping = ':14521'     WHERE list_id = 'contrameth' AND option_id = 'ec';
+UPDATE list_options SET mapping = ':13119'     WHERE list_id = 'contrameth' AND option_id = 'fab';
+UPDATE list_options SET mapping = ':11216'     WHERE list_id = 'contrameth' AND option_id = 'fc';
+UPDATE list_options SET mapping = ':11113'     WHERE list_id = 'contrameth' AND option_id = 'pat';
+UPDATE list_options SET mapping = ':11112'     WHERE list_id = 'contrameth' AND option_id = 'imp';
+UPDATE list_options SET mapping = ':11111'     WHERE list_id = 'contrameth' AND option_id = 'inj';
+UPDATE list_options SET mapping = ':11317'     WHERE list_id = 'contrameth' AND option_id = 'iud';
+UPDATE list_options SET mapping = ':11110'     WHERE list_id = 'contrameth' AND option_id = 'or';
+UPDATE list_options SET mapping = ':11215'     WHERE list_id = 'contrameth' AND option_id = 'cap';
+UPDATE list_options SET mapping = ':11216'     WHERE list_id = 'contrameth' AND option_id = 'sp';
+UPDATE list_options SET mapping = ':12.18'     WHERE list_id = 'contrameth' AND option_id = 'vsc';
+UPDATE list_options SET mapping = ':00000'     WHERE list_id = 'contrameth' AND option_id = 'no';
 
