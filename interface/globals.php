@@ -516,6 +516,9 @@ $GLOBALS['advance_directives_warning'] = true;
 // Backup page.
 $GLOBALS['configuration_import_export'] = false;
 
+// Style for patient search results.  0 = with encounter statistics, 1 = alternate.
+$GLOBALS['patient_search_results_style'] = 0;
+
 // If you want Hylafax support then uncomment and customize the following
 // statements, and also customize custom/faxcover.txt:
 //

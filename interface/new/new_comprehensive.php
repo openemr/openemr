@@ -95,6 +95,9 @@ div.section {
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
+// This may be changed to true by the AJAX search script.
+var force_submit = false;
+
 //code used from http://tech.irt.org/articles/js037/
 function replace(string,text,by) {
  // Replaces text with by in string
@@ -168,11 +171,16 @@ function validate(f) {
 }
 
 function toggleSearch(elem) {
+ var f = document.forms[0];
  // Toggle background color.
  if (elem.style.backgroundColor == '')
   elem.style.backgroundColor = '<?php echo $searchcolor; ?>';
  else
   elem.style.backgroundColor = '';
+ if (force_submit) {
+  force_submit = false;
+  f.create.value = '<?php xl('Create New Patient','e'); ?>';
+ }
  return true;
 }
 
@@ -227,6 +235,18 @@ while ($lrow = sqlFetchArray($lres)) {
 }
 ?>
 
+ dlgopen(url, '_blank', 700, 500);
+}
+
+// This is called from an AJAX script.
+function show_matches(fname, mname, lname, pubpid, ss, errmsg) {
+ var f = document.forms[0];
+ var url = '../main/finder/patient_select.php?popup=1&message=' + escape(errmsg);
+ if (fname  != '') url += '&fname='  + escape(fname);
+ if (mname  != '') url += '&mname='  + escape(mname);
+ if (lname  != '') url += '&lname='  + escape(lname);
+ if (pubpid != '') url += '&pubpid=' + escape(pubpid);
+ if (ss     != '') url += '&ss='     + escape(ss);
  dlgopen(url, '_blank', 700, 500);
 }
 
@@ -368,7 +388,7 @@ end_group();
 <input type="button" id="search" value=<?php xl('Search','e','\'','\''); ?>
  style='background-color:<?php echo $searchcolor; ?>' />
 &nbsp;&nbsp;
-<input type="button" id="create" value=<?php xl('Create New Patient','e','\'','\''); ?> />
+<input type="button" name='create' id="create" value=<?php xl('Create New Patient','e','\'','\''); ?> />
 
 </center>
 
@@ -408,38 +428,29 @@ $(document).ready(function() {
     $('#create').click(function() { submitme(); });
 
     var submitme = function() {
+      top.restoreSession();
       var f = document.forms[0];
 
       if (validate(f)) {
-        top.restoreSession();
-        // Check for duplication.
-        $.get("<?php echo $GLOBALS['webroot']; ?>/library/ajax/find_patients.php",
-          { returntype: "count",
-            fname: $('#form_fname').val(),
-            mname: $('#form_mname').val(),
-            lname: $('#form_lname').val(),
-            pubpid: $('#form_pubpid').val(),
-            DOB: $('#form_DOB').val(),
-            ss: $('#form_ss').val(),
-            sex: $('#form_sex').val()
-          },
-          function(data, textStatus) {
-            var f = document.forms[0];
-            if (data.length > 0) {
-              if (confirm(data + "\n<?php xl('Do you wish to continue?','e'); ?>")) {
-                top.restoreSession();
-                f.submit();
-              }
-            }
-            else {
-              top.restoreSession();
-              f.submit();
-            }
-          },
-          "text"
-        );
-      }
-    }
+        if (force_submit) {
+          // In this case dups were shown already and Save should just save.
+          f.submit();
+          return;
+        }
+        // Check for duplication via an AJAX query.
+        var url = '<?php echo $GLOBALS['webroot']; ?>/library/ajax/find_patients.php';
+        var flds = new Array('fname', 'mname', 'lname', 'pubpid', 'ss');
+        for (var i = 0; i < flds.length; ++i) {
+          var fval = $('#form_' + flds[i]).val();
+          if (fval && fval != '') {
+            url += (i == 0) ? '?' : '&';
+            url += flds[i] + '=' + escape(fval);
+          }
+        }
+        // The following will result in execution of some javascript.
+        $.getScript(url);
+      } // end if validate
+    } // end function
 
 // Set onclick/onfocus handlers for toggling background color.
 <?php
