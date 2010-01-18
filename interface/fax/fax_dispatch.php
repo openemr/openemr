@@ -619,7 +619,7 @@ foreach ($categories as $catkey => $catname) {
        <td>
         <?php
          // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
-         generate_form_field(array('data_type'=>1,'field_id'=>'note_type','list_id'=>'note_type','empty_title'=>'SKIP'));
+         generate_form_field(array('data_type'=>1,'field_id'=>'note_type','list_id'=>'note_type','empty_title'=>'SKIP'), '');
         ?>
        </td>
       </tr>
