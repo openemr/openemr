@@ -55,14 +55,16 @@ function getPnotesByPid ($pid, $activity = "1", $cols = "*", $limit=10, $start=0
 }
 
 function addPnote($pid, $newtext, $authorized = '0', $activity = '1',
-  $title='Unassigned', $assigned_to = '')
+  $title='Unassigned', $assigned_to = '', $datetime = '')
 {
+  if (empty($datetime)) $datetime = date('Y-m-d H:i:s');
+
   $body = date('Y-m-d H:i') . ' (' . $_SESSION['authUser'];
   if ($assigned_to) $body .= " to $assigned_to";
   $body = addslashes($body . ') ' . $newtext);
 
   return sqlInsert("INSERT INTO pnotes (date, body, pid, user, groupname, " .
-    "authorized, activity, title, assigned_to) VALUES (NOW(), '$body', '$pid', '" .
+    "authorized, activity, title, assigned_to) VALUES ('$datetime', '$body', '$pid', '" .
     $_SESSION['authUser'] . "', '". $_SESSION['authProvider'] .
     "', '$authorized', '$activity', '$title', '$assigned_to')");
 }
