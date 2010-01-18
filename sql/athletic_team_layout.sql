@@ -54,3 +54,30 @@ CREATE TABLE IF NOT EXISTS lists_football_injury (
   PRIMARY KEY (id)
 ) TYPE=MyISAM;
 
+DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'apptstat';
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists','apptstat','Event Statuses',1);
+DELETE FROM list_options WHERE list_id = 'apptstat';
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('apptstat','FS','Fitness Session',1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('apptstat','WT','Weight Session' ,2);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('apptstat','SS','Skills Session' ,3);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('apptstat','G' ,'Game'           ,4);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('apptstat','O' ,'Off'            ,5);
+ALTER TABLE openemr_postcalendar_events CHANGE pc_apptstatus pc_apptstatus varchar(15) NOT NULL;
+
+CREATE TABLE daily_fitness (
+  `pid`      int(11)     NOT NULL COMMENT 'references patient_data.pid',
+  `date`     date        NOT NULL,
+  `fitness`  varchar(31) NOT NULL DEFAULT '' COMMENT 'list fitness',
+  `issue_id` bigint(20)  NOT NULL DEFAULT 0  COMMENT 'references lists.id',
+  PRIMARY KEY (`pid`,`date`)
+) ENGINE=MyISAM;
+
+CREATE TABLE player_event (
+  `pid`             int(11) NOT NULL COMMENT 'references patient_data.pid',
+  `date`            date        NOT NULL,
+  `pc_eid`          int(11) NOT NULL COMMENT 'references openemr_postcalendar_events.pc_eid',
+  `minutes`         int(11) NOT NULL COMMENT 'minutes of participation',
+  `fitness_related` int(1)  NOT NULL DEFAULT 1 COMMENT 'if non-participation is due to fitness',
+  PRIMARY KEY (`pid`,`date`,`pc_eid`)
+) ENGINE=MyISAM;
+

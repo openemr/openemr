@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007-2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -162,8 +162,6 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
   echo "</td>\n";
 
   // Tax rates and contraceptive methods have an additional attribute.
-  // IPPF used the additional attribute for all other lists to indicate a
-  // global master identifier for the list item.
   //
   if ($list_id == 'taxrate' || $list_id == 'contrameth') {
     echo "  <td align='center' class='optcell'>";
@@ -173,11 +171,12 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
   }
 
   // IPPF includes the ability to map each list item to a "master" identifier.
+  // Sports teams use this for some extra info for fitness levels.
   //
-  if ($GLOBALS['ippf_specific']) {
+  if ($GLOBALS['ippf_specific'] || $list_id == 'fitness') {
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' name='opt[$opt_line_no][mapping]' value='" .
-        htmlspecialchars($mapping, ENT_QUOTES) . "' size='5' maxlength='15' class='optin' />";
+        htmlspecialchars($mapping, ENT_QUOTES) . "' size='12' maxlength='15' class='optin' />";
     echo "</td>\n";
   }
 
@@ -377,6 +376,8 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Rate'   ,'e'); ?></b></td>
 <?php } else if ($list_id == 'contrameth') { ?>
   <td><b><?php xl('Effectiveness','e'); ?></b></td>
+<?php } else if ($list_id == 'fitness') { ?>
+  <td><b><?php xl('Color:Abbr','e'); ?></b></td>
 <?php } if ($GLOBALS['ippf_specific']) { ?>
   <td><b><?php xl('Global ID','e'); ?></b></td>
 <?php } ?>

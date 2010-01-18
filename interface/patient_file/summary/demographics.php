@@ -585,7 +585,7 @@ if ($GLOBALS['patient_id_category_name']) {
 	// This stuff only applies to athletic team use of OpenEMR.  The client
 	// insisted on being able to quickly change fitness and return date here:
 	//
-	if ($GLOBALS['athletic_team']) {
+	if (false && $GLOBALS['athletic_team']) {
 	  //                  blue      green     yellow    red       orange
 	  $fitcolors = array('#6677ff','#00cc00','#ffff00','#ff3333','#ff8800','#ffeecc','#ffccaa');
 	  if (!empty($GLOBALS['fitness_colors'])) $fitcolors = $GLOBALS['fitness_colors'];
@@ -716,7 +716,7 @@ if ($GLOBALS['patient_id_category_name']) {
 </script>
 <?php } ?>
 
-<?php if ($GLOBALS['athletic_team']) { ?>
+<?php if (false && $GLOBALS['athletic_team']) { ?>
 <script language='JavaScript'>
  Calendar.setup({inputField:"form_userdate1", ifFormat:"%Y-%m-%d", button:"img_userdate1"});
 </script>
