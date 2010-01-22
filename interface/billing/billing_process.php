@@ -60,9 +60,11 @@ function append_claim(&$segs) {
         "found '" . htmlentities($elems[0]) . "' instead");
     }
     if ($elems[0] == 'GS') {
-      ++$bat_gscount;
-      $bat_content .= "GS*HC*" . $elems[2] . "*" . $elems[3] .
-        "*$bat_yyyymmdd*$bat_hhmm*1*X*004010X098A1~";
+      if ($bat_gscount == 0) {
+        ++$bat_gscount;
+        $bat_content .= "GS*HC*" . $elems[2] . "*" . $elems[3] .
+          "*$bat_yyyymmdd*$bat_hhmm*1*X*004010X098A1~";
+      }
       continue;
     }
     if ($elems[0] == 'ST') {
@@ -81,7 +83,8 @@ function append_claim(&$segs) {
 
 function append_claim_close() {
   global $bat_content, $bat_stcount, $bat_gscount, $bat_icn;
-  $bat_content .= "GE*$bat_stcount*1~IEA*$bat_gscount*$bat_icn~";
+  if ($bat_gscount) $bat_content .= "GE*$bat_stcount*1~";
+  $bat_content .= "IEA*$bat_gscount*$bat_icn~";
 }
 
 function send_batch() {
