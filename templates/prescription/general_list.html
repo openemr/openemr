@@ -72,7 +72,7 @@ function changeLinkHref(id,addValue,value) {
       {$prescription->quantity}
     </td>
     <td class="editscript" id="{$prescription->id}">
-      {$prescription->get_unit_display()}
+      {$prescription->get_size()} {$prescription->get_unit_display()}
     </td>
     <td class="editscript" id="{$prescription->id}">
       {$prescription->provider->get_name_display()}
