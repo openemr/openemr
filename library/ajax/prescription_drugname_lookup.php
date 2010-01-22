@@ -15,8 +15,9 @@
 //
 include_once("../../interface/globals.php");
 include_once("{$GLOBALS['srcdir']}/sql.inc");
+include_once("{$GLOBALS['srcdir']}/formdata.inc.php");
 
-$q = strtolower($_GET["q"]);
+$q = formData("q","G",true);
 if (!$q) return;
 $limit = $_GET['limit'];
 

@@ -7,6 +7,8 @@ require_once("Person.class.php");
 require_once("Provider.class.php");
 require_once("Pharmacy.class.php");
 require_once("NumberToText.class.php");
+//below is required for the set_medication() function
+require_once (dirname(__FILE__) . "/../formdata.inc.php");
 
 // Below list of terms are deprecated, but we keep this list
 //   to keep track of the official openemr drugs terms and
@@ -342,16 +344,19 @@ class Prescription extends ORDataObject {
 
         // Avoid making a mess if we are not using the "medication" issue type.
         if (isset($ISSUE_TYPES) && !$ISSUE_TYPES['medication']) return;
-
+	
+        //below statements are bypassing the persist() function and being used directly in database statements, hence need to use the functions in library/formdata.inc.php
+	// they have already been run through populate() hence stripped of escapes, so now need to be escaped for database (add_escape_custom() function).
+	
         //check if this drug is on the medication list
-        $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 1 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . $this->drug . "')) and pid = " . $this->patient->id . ' limit 1');
+        $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 1 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . add_escape_custom($this->drug) . "')) and pid = " . add_escape_custom($this->patient->id) . ' limit 1');
 
         if ($med && !isset($dataRow['id'])){
-            $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 0 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . $this->drug . "')) and pid = " . $this->patient->id . ' limit 1');
+            $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 0 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . add_escape_custom($this->drug) . "')) and pid = " . add_escape_custom($this->patient->id) . ' limit 1');
 
             if (!isset($dataRow['id'])){
                 //add the record to the medication list
-                sqlInsert("insert into lists(date,begdate,type,activity,pid,user,groupname,title) values (now(),cast(now() as date),'medication',1," . $this->patient->id . ",'" . $$_SESSION['authUser']. "','" . $$_SESSION['authProvider'] . "','" . $this->drug . "')");
+                sqlInsert("insert into lists(date,begdate,type,activity,pid,user,groupname,title) values (now(),cast(now() as date),'medication',1," . add_escape_custom($this->patient->id) . ",'" . $$_SESSION['authUser']. "','" . $$_SESSION['authProvider'] . "','" . add_escape_custom($this->drug) . "')");
             }
             else {
                 $dataRow = sqlQuery('update lists set activity = 1'
