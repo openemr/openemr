@@ -186,7 +186,6 @@ Normal Office Visit
 Obesity I
 Obesity II
 Obesity III
-Office Visit
 Other (specify)
 Out Of Office
 Overweight
