@@ -1,5 +1,6 @@
 Additional history notes
 Adjustment Reasons
+Advance Directive
 Alcohol consumption
 Allow Email
 Allow email messages?
@@ -9,6 +10,7 @@ Allow SMS
 Allow SMS (text messages)?
 Allow telephone messages?
 Allow Voice Message
+Appointment Statuses
 Asian
 autosaved
 Bill/Collect
@@ -51,6 +53,7 @@ Did you receive a copy of the HIPAA Notice?
 Direct Mail
 Discount Level
 Divorced
+Do Not Resuscitate Order
 Doctor
 Domestic Partner
 Dr.
@@ -69,6 +72,7 @@ DTaP 2
 DTaP 3
 DTaP 4
 DTaP 5
+Durable Power of Attorney
 Emergency Contact Person
 Emergency Contact Phone Number
 Emergency Phone
@@ -140,6 +144,7 @@ Leave Message With
 Left Ear
 Level of urgency
 License/ID
+Living Will
 login
 logout
 Low
@@ -305,4 +310,7 @@ Widowed
 With whom may we leave a message?
 Work Phone Number
 Worse
+x Canceled
 Yes/No
+% Canceled < 24h
+- None
