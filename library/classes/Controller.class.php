@@ -1,6 +1,7 @@
 <?php
 
 require_once(dirname(__FILE__) . "/../Smarty.class.php");
+require_once(dirname(__FILE__) . "/../formdata.inc.php");
 define("SMARTY_DIR", dirname(__FILE__) . "/../");
 
 class Controller extends Smarty {
@@ -47,9 +48,15 @@ class Controller extends Smarty {
                        $func = "set_" . $varname;
                        if (    (!(strpos("_",$varname) === 0)) && is_callable(array($obj,$func))       ) {
                                //echo "c: $func on w: "  . $var . "<br />";
-                               if ((get_magic_quotes_gpc() || get_magic_quotes_runtime()) && !is_array($var) ) {
-                                       $var = stripslashes($var);
+			       
+			       //modified 01-2010 by BGM to centralize to formdata.inc.php
+			       // have place several debug statements to allow standardized testing over next several months
+                               if (!is_array($var)) {
+				       //DEBUG LINE - error_log("Controller populate before strip: ".$var, 0); 
+                                       $var = strip_escape_custom($var);
+				       //DEBUG LINE - error_log("Controller populate after strip: ".$var, 0);
                                }
+			   
                                call_user_func_array(array(&$obj,$func),array($var, $_POST));
                        }
                }

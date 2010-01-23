@@ -1,5 +1,6 @@
 <?php
 	require_once (dirname(__FILE__) ."/../sql.inc");
+        require_once (dirname(__FILE__) ."/../formdata.inc.php");
 	require_once("Patient.class.php");
 	require_once("Person.class.php");
 	require_once("Provider.class.php");
@@ -31,9 +32,15 @@ class ORDataObject {
 			//echo "f: $field m: $func status: " .  (is_callable(array($this,$func))? "yes" : "no") . "<br>";
 			if (is_callable(array($this,$func))) {
 				$val = call_user_func(array($this,$func));
-				if ((get_magic_quotes_gpc() || get_magic_quotes_runtime()) && !is_array($val)) {
-					$val = stripslashes($val);	
+
+                                //modified 01-2010 by BGM to centralize to formdata.inc.php
+			        // have place several debug statements to allow standardized testing over next several months
+				if (!is_array($val)) {
+				        //DEBUG LINE - error_log("ORDataObject persist before strip: ".$val, 0);
+					$val = strip_escape_custom($val);
+				        //DEBUG LINE - error_log("ORDataObject persist after strip: ".$val, 0);
 				}
+			    
 				if (in_array($field,$pkeys)  && empty($val)) {
 					$last_id = generate_id();
 					call_user_func(array(&$this,"set_".$field),$last_id);
@@ -42,7 +49,13 @@ class ORDataObject {
 
 				if (!empty($val)) {
 					//echo "s: $field to: $val <br>";
-					$sql .= " `" . $field . "` = '" . mysql_real_escape_string(strval($val)) ."',";
+					
+                                        //modified 01-2010 by BGM to centralize to formdata.inc.php
+			                // have place several debug statements to allow standardized testing over next several months
+					$sql .= " `" . $field . "` = '" . add_escape_custom(strval($val)) ."',";
+				        //DEBUG LINE - error_log("ORDataObject persist after escape: ".add_escape_custom(strval($val)), 0);
+				        //DEBUG LINE - error_log("ORDataObject persist after escape and then stripslashes test: ".stripslashes(add_escape_custom(strval($val))), 0);
+				        //DEBUG LINE - error_log("ORDataObject original before the escape and then stripslashes test: ".strval($val), 0);
 				}
 			}
 		}
@@ -57,7 +70,7 @@ class ORDataObject {
 	}
 
 	function populate() {
-		$sql = "SELECT * from " . $this->_prefix  . $this->_table . " WHERE id = '" . mysql_real_escape_string(strval($this->id))  . "'";
+		$sql = "SELECT * from " . $this->_prefix  . $this->_table . " WHERE id = '" . add_escape_custom(strval($this->id))  . "'";
 		$results = sqlQuery($sql);
 		  if (is_array($results)) {
 			foreach ($results as $field_name => $field) {
