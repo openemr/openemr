@@ -96,6 +96,7 @@ Address
 Address Book
 Address1
 Address2
+ADDRESSEE
 Adj
 Adjust
 Adjustment Reasons
@@ -109,6 +110,7 @@ Administered By
 Administration
 Administrators
 Administrators can do anything
+Advance Directive
 Advanced
 Advice
 Affect normal
@@ -208,6 +210,7 @@ apply to skin
 Applying
 Appointment Date
 Appointment status
+Appointment Statuses
 Appointment within
 Appointments
 Appointments (write optional)
@@ -249,6 +252,7 @@ Assigned To
 Assistant
 Asthma
 at
+At least one search parameter is required if you select All.
 At the Navicular
 At the Navicular:
 Athletic/Injury
@@ -318,6 +322,7 @@ Billing (write optional)
 Billing Attn
 Billing Code for Requested Service
 Billing codes
+Billing Department
 Billing Information
 Billing Location
 Billing Note
@@ -417,6 +422,7 @@ Cannot open
 Cannot read
 Cannot update because you are not editing an existing entry!
 capsule
+Card
 Cardiac Catheterization
 Cardiac Echo
 Cardiovascular
@@ -459,6 +465,7 @@ Chart ID
 Chart ID:
 Chart Location Activity
 Chart Note
+Chart Number
 Chart Storage Locations
 Chart Tracker
 Chart Trk
@@ -490,6 +497,8 @@ Chief Complaint
 Child
 Chills
 Chinese
+Chinese (Simplified)
+Chinese (Traditional)
 Choices
 Cholecystectomy
 Cholecystestomy
@@ -817,6 +826,7 @@ Divirticulitis
 Divirticulitis Surgery
 Divorced
 Dizziness:
+Do Not Resuscitate Order
 do not save
 do not substitute
 do nothing
@@ -855,6 +865,7 @@ double click to edit
 Double Vision
 Download billing file, post to accounting and mark as billed
 Download configuration data
+Download Selected Statements
 Dr Check
 Dr Visit
 Dr.
@@ -880,6 +891,7 @@ DTaP 2
 DTaP 3
 DTaP 4
 DTaP 5
+Due
 Due Date
 Due date mm/dd/yyyy or yyyy-mm-dd
 Due Date:
@@ -892,6 +904,7 @@ Dumping phpGACL web directory tree
 Dumping SQL-Ledger database
 Dumping SQL-Ledger web directory tree
 DUPLICATION WARNING
+Durable Power of Attorney
 duration
 Duration
 Dutch
@@ -1402,6 +1415,7 @@ identified as
 Identifier(one word)
 If all data for all columns are complete for this form
 If name, any part of lastname or lastname,firstname
+If paying by
 if unemployed enter Student
 If you have chosen to upload electronic remittances, then the search window redisplays itself with the matching invoices from the X12 file.  You may click on any of these invoice numbers (as described below) if you wish to make any corrections before the remittance information is applied. To apply the changes, click the Process ERA File button at the bottom of the page.  This will produce a new window with a detailed report.
 If you have entered a Pay Date in the search page, this will override the posting date of payments and adjustments that are otherwise taken from the X12 file.  This may be useful for reporting purposes, if you want your receipts reporting to use your posting date rather than the insurance company\'s processing date.  Note that this will also affect dates of prior payments and adjustments that are put into secondary claims.
@@ -1492,6 +1506,7 @@ Insurance Companies
 Insurance Company
 Insurance Company Search/Add
 Insurance Data
+Insurance information on file
 Insurance Numbers
 Insurance Provider
 Intake Conclusion
@@ -1661,6 +1676,7 @@ List Name
 List names cannot start with numbers.
 List Prescriptions
 Lists
+Living Will
 LLL:
 LMP
 Load Definitions
@@ -1975,6 +1991,7 @@ Not seen since
 Note
 Note Type
 Note: This code was not entered by an authorized user. Only authorized codes may be uploaded to the Open Medical Billing Network for processing. If you wish to upload these codes, please select an authorized user here.
+NOTE: Uploading files with duplicate names will cause the files to be automatically renamed (for example, file.jpg will become file.1.jpg). Filenames are considered unique per patient, not per category.
 NOTE: Uploading files with duplicate names will cause the files to be automatically renamed. For example '<i>file.jpg</i>' will become '<i>file.jpg.1</i>'. Filenames are considered unique per patient, not per category. 
 Notes
 Notes - any encounters (write,addonly optional)
@@ -1986,6 +2003,7 @@ Notification
 Notify Admin About Event Submission/Modification?
 November
 Now posting for:
+Now printing
 Now printing $stmt_count statements and updating encounters.
 Now printing $stmt_count statements and updating invoices.
 Now printing $stmt_count statements; encounters will not be updated.
@@ -2145,6 +2163,7 @@ Patient Note Types
 Patient Notes
 Patient Notes (write,addonly optional)
 Patient Number
+Patient Payment
 Patient Printed Report
 Patient Record Report
 Patient Report
@@ -2216,6 +2235,7 @@ Plan Name
 Plan:
 Player
 Playing Position
+Please call if any of the above information is incorrect
 Please choose a valid selection from the list.
 Please choose a valid selection.
 Please choose a value for
@@ -2329,6 +2349,7 @@ Print Notes
 Print Page 1
 Print Page 2
 Print Record
+Print Selected Statements
 Print Shot Record
 Print This Encounter
 Print this note
@@ -2339,6 +2360,7 @@ printable
 Printable Version
 Printed
 Printing results:
+Printing skipped; see test output in
 Printing skipped; see test output in 
 Prior Auth
 Prior Authorization Form
@@ -2350,6 +2372,7 @@ Problems/Issues
 Procedure
 Procedures
 Process
+Process ERA File
 Processing
 Products
 Prof.
@@ -2499,6 +2522,7 @@ Relay Health credentials are missing from this user account.
 Relay Health ID
 Religion
 Relogin
+REMIT TO
 Remove
 Remove Group
 Remove Group Form
@@ -2535,6 +2559,7 @@ Results Found For Search
 Retinal Exam
 Retracted Right:
 Return
+Return above part with your payment
 Return to calendar
 Return Value
 Return Visit
@@ -2790,6 +2815,9 @@ State
 State List (write,addonly optional)
 State/Locality
 State/Parish
+STATEMENT SUMMARY
+statements and updating invoices.
+statements; invoices will not be updated.
 Statistics
 Stats
 Status
@@ -2918,6 +2946,7 @@ textbox
 Textbox list
 textbox list
 Thank You
+Thank you for choosing
 The claim file: 
 The destination form was closed; I cannot act on your selection.
 The event(s) have been approved.
@@ -3044,6 +3073,7 @@ Top
 Topic
 total
 Total
+Total amount due
 Total Amount Paid
 Total Charges
 Total Clients
@@ -3215,6 +3245,7 @@ View related encounters
 View/Edit Allergies
 View:
 VISA
+VISA/MC/AMEX/Dis
 Visceral damage/trauma/surgery
 Visit Category:
 Visit Date
@@ -3237,6 +3268,7 @@ WARNING
 Warning: A visit was already created for this patient today!
 Warning: Patient ID is not unique!
 WARNING: This will overwrite configuration information with data from the uploaded file!
+We appreciate prompt payment of balances due
 we have seen your above patient for evaluation and treatment at our outpatient psychiatry clinic. Thank you for this referral.
 Weakness
 Website
@@ -3287,6 +3319,7 @@ write
 write off
 wsome
 WT
+x Canceled
 x Cancelled
 X-ray
 X-RAY Interpretation:
@@ -3389,6 +3422,7 @@ $ Coding done
 $1
 $label (yyyy-mm-dd): 
 %
+% Canceled < 24h
 % Cancelled <  24h 
 ' should exist but does not.
 (% matches any string, _ matches any character)
@@ -3403,6 +3437,7 @@ $label (yyyy-mm-dd):
 ** Please move surgeries to Issues!
 *Required
 + Chart pulled
+- None
 .
 0-10
 1.Rest 2. Ice for two days 3. Compression, leave the dressing in place unless the foot develops numbness or pale color 4. Elevate the foot and leg
