@@ -8,7 +8,9 @@
 
  // This report lists prescriptions and their dispensations according
  // to various input selection criteria.
-
+ // 
+ // Fix drug name search to work in a broader sense - tony@mi-squared.com 2010
+ 
  require_once("../globals.php");
  require_once("$srcdir/patient.inc");
  require_once("$srcdir/options.inc.php");
@@ -197,7 +199,7 @@
    "r.date_modified <= '$form_to_date'";
   //if ($form_patient_id) $where .= " AND r.patient_id = '$form_patient_id'";
   if ($form_patient_id) $where .= " AND p.pubpid = '$form_patient_id'";
-  if ($form_drug_name ) $where .= " AND d.name LIKE '$form_drug_name'";
+  if ($form_drug_name ) $where .= " AND (d.name LIKE '$form_drug_name' OR r.drug LIKE '$form_drug_name')";
   if ($form_lot_number) $where .= " AND i.lot_number LIKE '$form_lot_number'";
 
   $query = "SELECT r.id, r.patient_id, " .
