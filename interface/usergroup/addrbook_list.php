@@ -19,7 +19,7 @@
  $form_abook_type = formData("form_abook_type","R",true);
  $form_external = $_POST['form_external'] ? 1 : 0;
 
-$query = "SELECT u.*, lo.title AS ab_name FROM users AS u " .
+$query = "SELECT u.*, lo.option_id AS ab_name FROM users AS u " .
   "LEFT JOIN list_options AS lo ON " .
   "list_id = 'abook_type' AND option_id = u.abook_type " .
   "WHERE u.active = 1 AND ( u.authorized = 1 OR u.username = '' ) ";
@@ -128,7 +128,7 @@ function doedclick(userid) {
        "onclick='doedclick(" . $row['id'] . ")' title='$trTitle'>\n";
   echo "  <td>" . $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] . "</td>\n";
   echo "  <td>" . ($username ? '*' : '') . "</td>\n";
-  echo "  <td>" . $row['ab_name'] . "</td>\n";
+  echo "  <td>" . generate_display_field(array('data_type'=>'1','list_id'=>'abook_type'),$row['ab_name']) . "</td>\n";
   echo "  <td>" . $row['specialty'] . "</td>\n";
   echo "  <td>" . $row['phonew1']   . "</td>\n";
   echo "  <td>" . $row['phonecell'] . "</td>\n";
