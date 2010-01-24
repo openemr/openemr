@@ -54,7 +54,7 @@ if ($_POST['formaction']=='save' && $list_id) {
               if ($list_id == 'lbfnames' && substr($id,0,3) != 'LBF')
                 $id = "LBF$id";
               sqlInsert("INSERT INTO list_options ( " .
-                "list_id, option_id, title, seq, is_default, option_value, mapping " .
+                "list_id, option_id, title, seq, is_default, option_value, mapping, notes " .
                 ") VALUES ( " .
                 "'$list_id', "                       .
                 "'" . $id                        . "', " .
@@ -62,7 +62,8 @@ if ($_POST['formaction']=='save' && $list_id) {
                 "'" . formTrim($iter['seq'])     . "', " .
                 "'" . formTrim($iter['default']) . "', " .
                 "'" . $value                     . "', " .
-                "'" . formTrim($iter['mapping']) . "' "  .
+                "'" . formTrim($iter['mapping']) . "', " .
+                "'" . formTrim($iter['notes'])   . "' "  .
                 ")");
             }
         }
@@ -128,7 +129,7 @@ function getCodeDescriptions($codes) {
 
 // Write one option line to the form.
 //
-function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping='') {
+function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping='', $notes='') {
   global $opt_line_no, $list_id;
   ++$opt_line_no;
   $bgcolor = "#" . (($opt_line_no & 1) ? "ddddff" : "ffdddd");
@@ -138,7 +139,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
 
   echo "  <td align='center' class='optcell'>";
   echo "<input type='text' name='opt[$opt_line_no][id]' value='" .
-       htmlspecialchars($option_id, ENT_QUOTES) . "' size='20' maxlength='63' class='optin' />";
+       htmlspecialchars($option_id, ENT_QUOTES) . "' size='12' maxlength='63' class='optin' />";
   echo "</td>\n";
 
   echo "  <td align='center' class='optcell'>";
@@ -179,6 +180,11 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping=''
         htmlspecialchars($mapping, ENT_QUOTES) . "' size='12' maxlength='15' class='optin' />";
     echo "</td>\n";
   }
+
+  echo "  <td align='center' class='optcell'>";
+  echo "<input type='text' name='opt[$opt_line_no][notes]' value='" .
+      htmlspecialchars($notes, ENT_QUOTES) . "' size='25' maxlength='255' class='optin' />";
+  echo "</td>\n";
 
   echo " </tr>\n";
 }
@@ -339,16 +345,35 @@ function defClicked(lino) {
 <p><b><?php xl('Edit list','e'); ?>:</b>&nbsp;
 <select name='list_id' id="list_id">
 <?php
-// The list of lists is also kept incestuously in the lists table.
-// It could include itself, but to maintain sanity we avoid that.
-$res = sqlStatement("SELECT * FROM list_options WHERE " .
-  "list_id = 'lists' ORDER BY seq,title");
+
+// List order depends on language translation options.
+$lang_id = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+
+if (($lang_id == '1' && !empty($GLOBALS['skip_english_translation'])) ||
+  !$GLOBALS['translate_lists'])
+{
+  $res = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
+    "list_id = 'lists' ORDER BY title, seq");
+}
+else {
+  // Use and sort by the translated list name.
+  $res = sqlStatement("SELECT lo.option_id, " .
+    "IF(LENGTH(ld.definition),ld.definition,lo.title) AS title " .
+    "FROM list_options AS lo " .
+    "LEFT JOIN lang_constants AS lc ON lc.constant_name = lo.title " .
+    "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
+    "ld.lang_id = '$lang_id' " .
+    "WHERE lo.list_id = 'lists' " .
+    "ORDER BY IF(LENGTH(ld.definition),ld.definition,lo.title), lo.seq");
+}
+
 while ($row = sqlFetchArray($res)) {
   $key = $row['option_id'];
   echo "<option value='$key'";
   if ($key == $list_id) echo " selected";
-  echo ">" . xl($row['title']) . "</option>\n";
+  echo ">" . $row['title'] . "</option>\n";
 }
+
 ?>
 </select>
 <input type="button" id="<?php echo $list_id; ?>" class="deletelist" value=<?php xl('Delete List','e','\'','\''); ?>>
@@ -381,6 +406,7 @@ while ($row = sqlFetchArray($res)) {
 <?php } if ($GLOBALS['ippf_specific']) { ?>
   <td><b><?php xl('Global ID','e'); ?></b></td>
 <?php } ?>
+  <td><b><?php xl('Notes','e'); ?></b></td>	
 <?php } // end not fee sheet ?>
  </tr>
 
@@ -402,7 +428,8 @@ if ($list_id) {
       "list_id = '$list_id' ORDER BY seq,title");
     while ($row = sqlFetchArray($res)) {
       writeOptionLine($row['option_id'], $row['title'], $row['seq'],
-        $row['is_default'], $row['option_value'], $row['mapping']);
+        $row['is_default'], $row['option_value'], $row['mapping'],
+        $row['notes']);
     }
     for ($i = 0; $i < 3; ++$i) {
       writeOptionLine('', '', '', '', 0);
