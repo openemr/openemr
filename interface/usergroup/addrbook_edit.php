@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006-2007 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -84,6 +84,7 @@ td { font-size:10pt; }
   if ($userid) {
 
    $query = "UPDATE users SET " .
+    "abook_type = "   . invalue('form_abook_type')   . ", " .
     "title = "        . invalue('form_title')        . ", " .
     "fname = "        . invalue('form_fname')        . ", " .
     "lname = "        . invalue('form_lname')        . ", " .
@@ -126,7 +127,7 @@ td { font-size:10pt; }
     "specialty, organization, valedictory, assistant, billname, email, url, " .
     "street, streetb, city, state, zip, " .
     "street2, streetb2, city2, state2, zip2, " .
-    "phone, phonew1, phonew2, phonecell, fax, notes "            .
+    "phone, phonew1, phonew2, phonecell, fax, notes, abook_type "            .
     ") VALUES ( "                        .
     "'', "                               . // username
     "'', "                               . // password
@@ -167,7 +168,8 @@ td { font-size:10pt; }
     invalue('form_phonew2')       . ", " .
     invalue('form_phonecell')     . ", " .
     invalue('form_fax')           . ", " .
-    invalue('form_notes')         . " "  .
+    invalue('form_notes')         . ", " .
+    invalue('form_abook_type')    . " "  .
    ")");
 
   }
@@ -202,12 +204,20 @@ td { font-size:10pt; }
 <table border='0' width='100%'>
 
  <tr>
+  <td width='1%' nowrap><b><?php xl('Type','e'); ?>:</b></td>
+  <td>
+<?php
+ generate_form_field(array('data_type'=>1,'field_id'=>'abook_type','list_id'=>'abook_type'), $row['abook_type']);
+?>
+  </td>
+ </tr>
+
+ <tr>
   <td width='1%' nowrap><b><?php xl('Name','e'); ?>:</b></td>
   <td>
 <?php
  generate_form_field(array('data_type'=>1,'field_id'=>'title','list_id'=>'titles','empty_title'=>''), $row['title']);
 ?>
-   </select>
    <b><?php xl('Last','e'); ?>:</b><input type='text' size='10' name='form_lname' class='inputtext'
      maxlength='50' value='<?php echo htmlspecialchars($row['lname'], ENT_QUOTES); ?>'/>&nbsp;
    <b><?php xl('First','e'); ?>:</b> <input type='text' size='10' name='form_fname' class='inputtext'
