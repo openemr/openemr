@@ -194,10 +194,16 @@ function generate_form_field($frow, $currvalue) {
   // Address book, preferring organization name if it exists and is not in
   // parentheses, and excluding local users who are not providers.
   // Supports "referred to" practitioners and facilities.
+  // Alternatively the letter O in edit_options means that abook_type
+  // must begin with "ord_", indicating types used with the procedure
+  // ordering system.
   else if ($data_type == 14) {
+    $tmp = (strpos($frow['edit_options'], 'O') === FALSE) ?
+      "( username = '' OR authorized = 1 )" :
+      "abook_type LIKE 'ord\\_%'";
     $ures = sqlStatement("SELECT id, fname, lname, organization, username FROM users " .
       "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
-      "AND ( username = '' OR authorized = 1 ) " .
+      "AND $tmp " .
       "ORDER BY organization, lname, fname");
     echo "<select name='form_$field_id' id='form_$field_id' title='$description'>";
     echo "<option value=''>" . xl('Unassigned') . "</option>";
