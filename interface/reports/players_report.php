@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2005, 2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2005, 2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -109,7 +109,7 @@ if (empty($_GET['embed'])) echo "  window.close();\n";
 
 </script>
 
-<title><?php  xl('Team Roster','e'); ?></title>
+<title><?php  xl('Weekly Exposures','e'); ?></title>
 </head>
 
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
@@ -126,7 +126,7 @@ if (empty($_GET['embed'])) echo "  window.close();\n";
 
  <tr bgcolor='#ddddff'>
   <td align='left'>
-   <h2><?php  xl('Team Roster','e'); ?></h2>
+   <h2><?php  xl('Weekly Exposures','e'); ?></h2>
   </td>
   <td align='right'>
    <b><?php  echo date('l, F j, Y', $now) ?></b>&nbsp;

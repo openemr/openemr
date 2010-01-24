@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006-2009 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -183,12 +183,18 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
         $primary_docs[$name][2] . "')\">" . $title . "</a></li>";
   }
  }
- function genMiscLink($frame, $name, $level, $title, $url) {
+ function genMiscLink($frame, $name, $level, $title, $url, $mono=false) {
   global $disallowed;
   if (empty($disallowed[$name])) {
    $id = $name . $level;
-   echo "<li><a href='' id='$id' " .
-        "onclick=\"return loadFrame2('$id','$frame','" .
+   echo "<li><a href='' id='$id' onclick=\"";
+   if ($mono) {
+    if ($frame == 'RTop')
+     echo "forceSpec(true,false);";
+    else
+     echo "forceSpec(false,true);";
+   }
+   echo "return loadFrame2('$id','$frame','" .
         $url . "')\">" . $title . "</a></li>";
   }
  }
@@ -740,7 +746,12 @@ function getEncounterTargetFrame( name ) {
       </li>
       <li class="open"><span><?php xl('Medical Records','e') ?></span>
         <ul>
-          <?php genPopLink (xl('Team Roster'),'players_report.php'); ?>
+          <?php // genPopLink (xl('Team Roster'),'players_report.php'); ?>
+
+          <?php genTreeLink('RTop','ros',xl('Weekly Exposures'),true); ?>
+          <?php genMiscLink('RTop','ros','0',xl('Team Roster'),'reports/old_players_report.php?embed=1',true); ?>
+          <?php if (!$GLOBALS['disable_calendar']) genTreeLink('RTop','cal',xl('Calendar'),true); ?>
+
           <?php genDualLink('nen','ens',xl('New Consultation')); // with ens on bottom ?>
 
           <?php // genDualLink('enc','ens','Current Consultation'); // with ens on bottom ?>
@@ -764,13 +775,6 @@ function getEncounterTargetFrame( name ) {
           <li><a href='' onclick="return repPopup('../patient_file/letter.php')" id='prp1'>Letter</a></li>
           <?php genPopLink('Address Book','../usergroup/addrbook_list.php?popup=1'); ?>
          </ul>
-      </li>
-      <li><span><?php xl('View','e') ?></span>
-        <ul>
-	  <?php if (!$GLOBALS['disable_calendar']) genTreeLink('RTop','cal',xl('Calendar View')); ?>
-          <?php genTreeLink('RTop','ros',xl('Team Roster View')); // default; and minimize lower frame ?>
-          <?php genTreeLink('RTop','dem',xl('Current Patient')); // this also appears under Demographics ?>
-        </ul>
       </li>
     </ul>
   </li>
