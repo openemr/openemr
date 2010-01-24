@@ -35,3 +35,26 @@ ALTER TABLE openemr_postcalendar_events CHANGE pc_apptstatus pc_apptstatus varch
 INSERT INTO `layout_options` VALUES ('DEM', 'referral_source', '5Stats', 'Referral Source',10, 26, 1, 0, 0, 'refsource', 1, 1, '', '', 'How did they hear about us');
 #EndIf
 
+#IfMissingColumn list_options notes
+ALTER TABLE list_options
+  CHANGE mapping mapping varchar(31) NOT NULL DEFAULT '',
+  ADD notes varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id warehouse
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','warehouse','Warehouses',21,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('warehouse','onsite','On Site', 5,0);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id abook_type
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','abook_type','Address Book Types', 1,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('abook_type','spe','Specialist'    , 5,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('abook_type','lab','Lab Service'   ,10,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('abook_type','oth','Other'         ,95,0);
+#EndIf
+
+#IfMissingColumn users abook_type
+ALTER TABLE users
+  ADD abook_type varchar(31) NOT NULL DEFAULT '';
+#EndIf
+
