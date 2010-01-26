@@ -174,9 +174,9 @@ fi
 
 # Get various parameters from the extracted files.
 OEDIR=`grep '^\$webserver_root' interface/globals.php | cut -d \" -f 2`
-OEDBNAME=`grep '^\$dbase' library/sqlconf.php | cut -d \' -f 2`
-OEDBUSER=`grep '^\$login' library/sqlconf.php | cut -d \' -f 2`
-OEDBPASS=`grep '^\$pass'  library/sqlconf.php | cut -d \' -f 2`
+OEDBNAME=`grep '^\$dbase' library/sqlconf.php | cut -d \' -f 2 | cut -d \" -f 2`
+OEDBUSER=`grep '^\$login' library/sqlconf.php | cut -d \' -f 2 | cut -d \" -f 2`
+OEDBPASS=`grep '^\$pass'  library/sqlconf.php | cut -d \' -f 2 | cut -d \" -f 2`
 SLDBNAME=''
 if [ -f ../sql-ledger.sql ]; then
   SLDBNAME=`grep '^\$sl_dbname' interface/globals.php | cut -d \' -f 2`
@@ -545,9 +545,9 @@ if [ $CHANGES -gt 0 ]; then
   dlg_info "Modifying $OEDIR/library/sqlconf.php ..."
   cd $OEDIR/library
   mv sqlconf.php sqlconf.php.old
-  sed "s^dbase\t= '.*'^dbase\t= '$OEDBNAME'^" sqlconf.php.old | \
-  sed "s^login\t= '.*'^login\t= '$OEDBUSER'^"                 | \
-  sed "s^pass\t= '.*'^pass\t= '$OEDBPASS'^" > sqlconf.php
+  sed "s^dbase\t= ['\"].*['\"]^dbase\t= '$OEDBNAME'^" sqlconf.php.old | \
+  sed "s^login\t= ['\"].*['\"]^login\t= '$OEDBUSER'^"                 | \
+  sed "s^pass\t= ['\"].*['\"]^pass\t= '$OEDBPASS'^" > sqlconf.php
   #
   dlg_info "Modifying $OEDIR/includes/config.php ..."
   SLFILE=`dirname /$OEFILE`
