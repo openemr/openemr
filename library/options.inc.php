@@ -1238,8 +1238,8 @@ function generate_layout_validation($form_id) {
       case 26:
         echo
         " if (f.$fldname.selectedIndex <= 0) {\n" .
-        "  alert('" . xl('Please choose a value for','','',' ') .
-        xl_layout_label($fldtitle) . "');\n" .
+        "  alert('" . addslashes(xl('Please choose a value for','','',' ') .
+        xl_layout_label($fldtitle)) . "');\n" .
         "  if (f.$fldname.focus) f.$fldname.focus();\n" .
         "  return false;\n" .
         " }\n";
@@ -1249,8 +1249,8 @@ function generate_layout_validation($form_id) {
         " var i = 0;\n" .
         " for (; i < f.$fldname.length; ++i) if (f.$fldname[i].checked) break;\n" .
         " if (i >= f.$fldname.length) {\n" .
-        "  alert('" . xl('Please choose a value for','','',' ') .
-        xl_layout_label($fldtitle) . "');\n" .
+        "  alert('" . addslashes(xl('Please choose a value for','','',' ') .
+        xl_layout_label($fldtitle)) . "');\n" .
         "  return false;\n" .
         " }\n";
         break;
@@ -1260,8 +1260,8 @@ function generate_layout_validation($form_id) {
       case 15:
         echo
         " if (trimlen(f.$fldname.value) == 0) {\n" .
-        "  alert('" . xl('Please choose a value for','','',' ') .
-        xl_layout_label($fldtitle) . "');\n" .
+        "  alert('" . addslashes(xl('Please choose a value for','','',' ') .
+        xl_layout_label($fldtitle)) . "');\n" .
         "  if (f.$fldname.focus) f.$fldname.focus();\n" .
         "  return false;\n" .
         " }\n";
