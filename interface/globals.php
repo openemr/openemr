@@ -519,6 +519,27 @@ $GLOBALS['configuration_import_export'] = false;
 // Style for patient search results.  0 = with encounter statistics, 1 = alternate.
 $GLOBALS['patient_search_results_style'] = 0;
 
+//EMAIL SETTINGS
+// EMAIL METHOD (PHPMAIL, SMTP, SENDMAIL)
+$EMAIL_METHOD = "SMTP";
+// HTML CHARSET
+$HTML_CHARSET = "UTF-8";
+// SMTP SETTINGS
+$SMTP_Auth = true;
+$SMTP_HOST = "";
+$SMTP_PORT = 25;
+$SMTP_USER = "";
+$SMTP_PASS = "";
+
+//settings for cronjob of the sms/email module
+// SEND SMS NOTIFICATION BEFORE HH HOUR
+$SMS_NOTIFICATION_HOUR = 50;
+// SEND EMAIL NOTIFICATION BEFORE HH HOUR
+$EMAIL_NOTIFICATION_HOUR = 50;
+$SMS_GATEWAY_USENAME     = 'SMS_GATEWAY_USENAME';
+$SMS_GATEWAY_PASSWORD    = 'SMS_GATEWAY_PASSWORD';
+$SMS_GATEWAY_APIKEY      = 'SMS_GATEWAY_APIKEY';
+
 // If you want Hylafax support then uncomment and customize the following
 // statements, and also customize custom/faxcover.txt:
 //
@@ -579,12 +600,4 @@ else {
 // turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn","off");
 
-//settings for cronjob
-// SEND SMS NOTIFICATION BEFORE HH HOUR
-$SMS_NOTIFICATION_HOUR = 50;
-// SEND EMAIL NOTIFICATION BEFORE HH HOUR
-$EMAIL_NOTIFICATION_HOUR = 50;
-$SMS_GATEWAY_USENAME     = 'SMS_GATEWAY_USENAME';
-$SMS_GATEWAY_PASSWORD    = 'SMS_GATEWAY_PASSWORD';
-$SMS_GATEWAY_APIKEY      = 'SMS_GATEWAY_APIKEY';
 ?>
