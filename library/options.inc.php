@@ -1483,7 +1483,7 @@ function generate_layout_validation($form_id) {
         echo
         " if (f.$fldname.selectedIndex <= 0) {\n" .
         "  if (f.$fldname.focus) f.$fldname.focus();\n" .
-        "  		errMsgs[errMsgs.length] = '". xl_layout_label($fldtitle) . "'; \n" .
+        "  		errMsgs[errMsgs.length] = '" . addslashes(xl_layout_label($fldtitle)) . "'; \n" .
         " }\n";
         break;
       case 27: // radio buttons
@@ -1491,7 +1491,7 @@ function generate_layout_validation($form_id) {
         " var i = 0;\n" .
         " for (; i < f.$fldname.length; ++i) if (f.$fldname[i].checked) break;\n" .
         " if (i >= f.$fldname.length) {\n" .
-        "  		errMsgs[errMsgs.length] = '". xl_layout_label($fldtitle) . "'; \n" .
+        "  		errMsgs[errMsgs.length] = '" . addslashes(xl_layout_label($fldtitle)) . "'; \n" .
         " }\n";
         break;
       case  2:
@@ -1503,7 +1503,7 @@ function generate_layout_validation($form_id) {
         "  		if (f.$fldname.focus) f.$fldname.focus();\n" .
 		"  		$('#form_" . $field_id . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','red'); } ); " .
 		"  		$('#form_" . $field_id . "').attr('style','background:red'); \n" .
-        "  		errMsgs[errMsgs.length] = '". xl_layout_label($fldtitle) . "'; \n" .
+        "  		errMsgs[errMsgs.length] = '" . addslashes(xl_layout_label($fldtitle)) . "'; \n" .
         " } else { " .
 		" 		$('#form_" . $field_id . "').attr('style',''); " .
 		"  		$('#form_" . $field_id . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','');  } ); " .
