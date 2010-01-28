@@ -51,8 +51,8 @@ while ($row = sqlFetchArray($res)) {
   echo "<td class=\"col3\">" . $row['procedure_code'] . "</td>";
   echo "<td class=\"col4\">" . $row['description'] . "</td>";
   echo "<td class=\"col5\">";
-  echo "<span onclick=\"enode($chid)\" class=\"haskids\">[Edit]</span>";
-  echo "<span onclick=\"anode($chid)\" class=\"haskids\"> [Add]</span>";
+  echo "<span onclick=\"enode($chid)\" class=\"haskids\">[" . xl('Edit') . "]</span>";
+  echo "<span onclick=\"anode($chid)\" class=\"haskids\"> [" . xl('Add') . "]</span>";
   echo "</td>";
   echo "</tr>";
 }

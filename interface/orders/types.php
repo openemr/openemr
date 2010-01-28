@@ -171,7 +171,7 @@ function recolor() {
 <div id="con0">
 </div>
 
-<p><span onclick='anode(0)' class='haskids'>[Add Top Level]</span></p>
+<p><span onclick='anode(0)' class='haskids'>[<?php xl('Add Top Level','e') ?>]</span></p>
 
 </center>
 </body>
