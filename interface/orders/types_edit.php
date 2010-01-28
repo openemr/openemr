@@ -76,7 +76,32 @@ td { font-size:10pt; }
 }
 </style>
 
+<script type="text/javascript" src="../../library/topdialog.js"></script>
+<script type="text/javascript" src="../../library/dialog.js"></script>
+
 <script language="JavaScript">
+
+<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+
+// This is for callback by the find-code popup.
+// Appends to or erases the current list of related codes.
+function set_related(codetype, code, selector, codedesc) {
+ var f = document.forms[0];
+ var s = f.form_related_code.value;
+ if (code) {
+  if (s.length > 0) s += ';';
+  s += codetype + ':' + code;
+ } else {
+  s = '';
+ }
+ f.form_related_code.value = s;
+}
+
+// This invokes the find-code popup.
+function sel_related() {
+ dlgopen('../patient_file/encounter/find_code_popup.php', '_blank', 500, 400);
+}
+
 </script>
 
 </head>
@@ -99,6 +124,7 @@ if ($_POST['form_save']) {
     "description = "    . invalue('form_description')    . ", " .
     "units = "          . invalue('form_units')          . ", " .
     "range = "          . invalue('form_range')          . ", " .
+    "related_code = "   . invalue('form_related_code')   . ", " .
     "is_discrete = "    . cbvalue('form_is_discrete')    . ", " .
     "is_orderable = "   . cbvalue('form_is_orderable');
 
@@ -156,6 +182,7 @@ if ($typeid) {
   <td>
    <input type='text' size='40' name='form_name' maxlength='63'
     value='<?php echo htmlspecialchars($row['name'], ENT_QUOTES); ?>'
+    title='<?php xl('Your name for this category, procedure or result','e'); ?>'
     style='width:100%' class='inputtext' />
   </td>
  </tr>
@@ -166,7 +193,8 @@ if ($typeid) {
 <?php
 // Address book entries for procedure ordering.
 generate_form_field(array('data_type' => 14, 'field_id' => 'lab_id',
-  'list_id' => '', 'edit_options' => 'O'),
+  'list_id' => '', 'edit_options' => 'O',
+  'description' => xl('Address book entry for the company performing this procedure')),
   $row['lab_id']);
 ?>
   </td>
@@ -177,6 +205,7 @@ generate_form_field(array('data_type' => 14, 'field_id' => 'lab_id',
   <td>
    <input type='text' size='40' name='form_procedure_code' maxlength='31'
     value='<?php echo htmlspecialchars($row['procedure_code'], ENT_QUOTES); ?>'
+    title='<?php xl('The code identifying this procedure or result','e'); ?>'
     style='width:100%' class='inputtext' />
   </td>
  </tr>
@@ -186,7 +215,9 @@ generate_form_field(array('data_type' => 14, 'field_id' => 'lab_id',
   <td>
 <?php
 generate_form_field(array('data_type' => 1, 'field_id' => 'procedure_type',
-  'list_id' => 'proc_type'), $row['procedure_type']);
+  'list_id' => 'proc_type',
+  'description' => xl('The general classification of this procedure or result')),
+  $row['procedure_type']);
 ?>
   </td>
  </tr>
@@ -196,7 +227,8 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'procedure_type',
   <td>
 <?php
 generate_form_field(array('data_type' => 1, 'field_id' => 'body_site',
-  'list_id' => 'proc_body_site'), $row['body_site']);
+  'list_id' => 'proc_body_site',
+  'description' => xl('Body site, if applicable')), $row['body_site']);
 ?>
   </td>
  </tr>
@@ -206,7 +238,9 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'body_site',
   <td>
 <?php
 generate_form_field(array('data_type' => 1, 'field_id' => 'specimen',
-  'list_id' => 'proc_specimen'), $row['specimen']);
+  'list_id' => 'proc_specimen',
+  'description' => xl('Specimen type')),
+  $row['specimen']);
 ?>
   </td>
  </tr>
@@ -216,7 +250,9 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'specimen',
   <td>
 <?php
 generate_form_field(array('data_type' => 1, 'field_id' => 'route_admin',
-  'list_id' => 'proc_route'), $row['route_admin']);
+  'list_id' => 'proc_route',
+  'description' => xl('Route of administration, if applicable')),
+  $row['route_admin']);
 ?>
   </td>
  </tr>
@@ -226,7 +262,9 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'route_admin',
   <td>
 <?php
 generate_form_field(array('data_type' => 1, 'field_id' => 'laterality',
-  'list_id' => 'proc_lat'), $row['laterality']);
+  'list_id' => 'proc_lat',
+  'description' => xl('Laterality of this procedure, if applicable')),
+  $row['laterality']);
 ?>
   </td>
  </tr>
@@ -236,6 +274,7 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'laterality',
   <td>
    <input type='text' size='40' name='form_description' maxlength='255'
     value='<?php echo htmlspecialchars($row['description'], ENT_QUOTES); ?>'
+    title='<?php xl('Description of this procedure or result code','e'); ?>'
     style='width:100%' class='inputtext' />
   </td>
  </tr>
@@ -258,7 +297,9 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'laterality',
   <td>
 <?php
 generate_form_field(array('data_type' => 1, 'field_id' => 'units',
-  'list_id' => 'proc_unit'), $row['units']);
+  'list_id' => 'proc_unit',
+  'description' => xl('Optional default units for manual entry of results')),
+  $row['units']);
 ?>
   </td>
  </tr>
@@ -268,7 +309,18 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'units',
   <td>
    <input type='text' size='40' name='form_range' maxlength='255'
     value='<?php echo htmlspecialchars($row['range'], ENT_QUOTES); ?>'
+    title='<?php xl('Optional default range for manual entry of results','e'); ?>'
     style='width:100%' class='inputtext' />
+  </td>
+ </tr>
+
+ <tr>
+  <td nowrap><b><?php xl('Followup Services','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='50' name='form_related_code'
+    value='<?php echo $row['related_code'] ?>' onclick='sel_related()'
+    title='<?php xl('Click to select services to perform if this result is abnormal','e'); ?>'
+    style='width:100%' readonly />
   </td>
  </tr>
 
@@ -278,7 +330,7 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'units',
 
 <input type='submit' name='form_save' value=<?php xl('Save','e','\'','\''); ?> />
 
-<?php if ($typeid && !$row['username']) { ?>
+<?php if ($typeid) { ?>
 &nbsp;
 <input type='submit' name='form_delete' value=<?php xl('Delete','e','\'','\''); ?> style='color:red' />
 <?php } ?>
