@@ -46,9 +46,9 @@ function checkAll(check) {
 <a class="link_submit" href="full_report.php" onclick="top.restoreSession()">
 [<?php xl('View Comprehensive Patient Report','e'); ?>]</a>
 -->
-<a class="link_submit" href="#" onclick="return checkAll(true)">[<?php xl('Check All','e'); ?>]</a>
-&nbsp;
-<a class="link_submit" href="#" onclick="return checkAll(false)">[<?php xl('Clear All','e'); ?>]</a>
+<a class="link_submit" href="#" onclick="return checkAll(true)"><?php xl('Check All','e'); ?></a>
+|
+<a class="link_submit" href="#" onclick="return checkAll(false)"><?php xl('Clear All','e'); ?></a>
 <p>
 
 <form name='report_form' id="report_form" method='post' action='custom_report.php'>
