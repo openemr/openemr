@@ -2,35 +2,34 @@
 <head>
 {php}html_header_show();{/php}
 
-<link rel="stylesheet" href="{php}echo $GLOBALS['css_header']; {/php}" type="text/css">
+<link rel="stylesheet" href="{$CSS_HEADER}" type="text/css">
 <link rel="stylesheet" href="{$WEBROOT}/interface/themes/jquery.autocomplete.css" type="text/css">
-
+{literal}
+<style type="text/css">
+    .text {
+        font-size: 9pt;
+    }
+</style>
+{/literal}
+<script language="Javascript">
+{literal}
+		function my_process () {
+			// Pass the variable
+			opener.document.prescribe.drug.value = document.lookup.drug.value;
+			// Close the window
+			window.self.close();
+		}
+{/literal}
+</script>
+{literal}
+{/literal}
+<!---Gen Look up-->
 <script type="text/javascript" src="{$WEBROOT}/library/dialog.js"></script>
 <script type="text/javascript" src="{$WEBROOT}/library/js/jquery-1.2.2.min.js"></script>
 <script type="text/javascript" src="{$WEBROOT}/library/js/jquery.bgiframe.min.js"></script>
 <script type="text/javascript" src="{$WEBROOT}/library/js/jquery.dimensions.pack.js"></script>
 <script type="text/javascript" src="{$WEBROOT}/library/js/jquery.autocomplete.pack.js"></script>
 {literal}
-<style type="text/css" title="mystyles" media="all">
-<!--
-td {
-	font-size:8pt;
-	font-family:helvetica;
-}
-input {
-	font-size:8pt;
-	font-family:helvetica;
-}
-select {
-	font-size:8pt;
-	font-family:helvetica;
-}
-textarea {
-	font-size:8pt;
-	font-family:helvetica;
-}
--->
-</style>
 <script language='JavaScript'>
 
  // This holds all the default drug attributes.
@@ -89,45 +88,59 @@ textarea {
 </script>
 {/literal}
 </head>
-<body {$STYLE.BOTTOM_BG_LINE}>
+<body class="body_top">
+
 <form name="prescribe" id="prescribe" method="post" action="{$FORM_ACTION}">
-<table CELLSPACING="0" CELLPADDING="3">
+<table>
+    <tr><td class="title"><font><b>{xl t='Add'}/{xl t='Edit'}</b></font>&nbsp;</td>
+		<td><a href=# onclick="submitfun();" class="css_button_small"><span>{xl t='Save'}</span></a>
+		{if $DRUG_ARRAY_VALUES}
+		&nbsp; &nbsp; &nbsp; &nbsp;
+		{if $prescription->get_refills() >= $prescription->get_dispensation_count()}
+		<input type="submit" name="disp_button" value="{xl t='Save and Dispense'}" />
+		<input type="text" name="disp_quantity" size="2" maxlength="10" value="{$DISP_QUANTITY}" />
+		units, $
+		<input type="text" name="disp_fee" size="5" maxlength="10" value="{$DISP_FEE}" />
+		{else}&nbsp;
+		{xl t='prescription has reached its limit of'} {$prescription->get_refills()} {xl t='refills'}.
+		{/if}
+		{/if}
+         <a class='css_button_small' href="controller.php?prescription&list&id=1"><span>{xl t='Back'}</span></a>
+</td></tr>
+</table>
+
+<table CELLSPACING="0" CELLPADDING="3" BORDER="0">
 <tr>
-  <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Currently Active'}</td>
+  <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Currently Active'}</td>
   <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
     <input type="checkbox" name="active" value="1"{if $prescription->get_active() > 0} checked{/if} />
   </td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Starting Date'}</td>
+	<td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Starting Date'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		{html_select_date start_year="-10" end_year="+5" time=$prescription->start_date prefix="start_date_"}
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Provider'}</td>
+	<td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Provider'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		{html_options name="provider_id" options=$prescription->provider->utility_provider_array() selected=$prescription->provider->get_id()}
 		<input type="hidden" name="patient_id" value="{$prescription->patient->id}" />
 	</td>
 </tr>
-<!--
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >Patient Name</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >{$prescription->patient->get_name_display()}</td>
-</tr>
--->
-<tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Drug'}</td>
+	<td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Drug'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
             <input type="input" size="20" name="drug" id="drug" value="{$prescription->drug}"/>
-            <input id="druglookup" class="button" type="BUTTON" value="Drug Lookup"/>
+            <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;52&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
+            ({xl t='click here to search'})</a>
+            <div id=hiddendiv style="display:none">&nbsp;</div>
 	</td>
 </tr>
-
 {if $DRUG_ARRAY_VALUES}
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >&nbsp; {xl t='in-house'}</td>
+	<td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >&nbsp; {xl t='in-house'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<select name="drug_id" onchange="drugselected(this)">
 		{html_options values=$DRUG_ARRAY_VALUES output=$DRUG_ARRAY_OUTPUT}
@@ -135,9 +148,8 @@ textarea {
 	</td>
 </tr>
 {/if}
-
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Quantity'}</td>
+	<td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Quantity'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<input TYPE="TEXT" NAME="quantity" id="quantity" SIZE="10" MAXLENGTH="31"
 		 VALUE="{$prescription->quantity}"
@@ -149,15 +161,15 @@ textarea {
 {else}
 <tr>
 {/if}
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Medicine Units'}</td>
+	<td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Medicine Units'}</td>
 	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
 		<input TYPE="TEXT" NAME="size" id="size" SIZE="11" MAXLENGTH="10" VALUE="{$prescription->size}"/>
 		<select name="unit" id="unit">{html_options options=$prescription->unit_array selected=$prescription->unit}</select>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Take'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	<td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Take'}</td>
+	<td COLSPAN="2" class="text" ALIGN="LEFT" VALIGN="MIDDLE" >
 {if $SIMPLIFIED_PRESCRIPTIONS && !$prescription->form && !$prescription->route && !$prescription->interval}
 		<input TYPE="text" NAME="dosage" id="dosage" SIZE="30" MAXLENGTH="100" VALUE="{$prescription->dosage}" />
 		<input type="hidden" name="form" id="form" value="0" />
@@ -172,8 +184,8 @@ textarea {
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Refills'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	<td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Refills'}</td>
+	<td COLSPAN="2" class="text" ALIGN="LEFT" VALIGN="MIDDLE" >
 		{html_options name="refills" options=$prescription->refills_array selected=$prescription->refills}
 {if $SIMPLIFIED_PRESCRIPTIONS}
 		<input TYPE="hidden" ID="per_refill" NAME="per_refill" VALUE="{$prescription->per_refill}" />
@@ -183,50 +195,26 @@ textarea {
 {/if}
 	</td>
 </tr>
-<!--
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Substitution'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-    {html_options name="substitute" options=$prescription->substitute_array selected=$prescription->substitute}
-	</td>
-</tr>
--->
-<tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Notes'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	<td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Notes'}</td>
+	<td COLSPAN="2" class="text" ALIGN="LEFT" VALIGN="MIDDLE" >
 	<textarea name="note" cols="30" rows="2" wrap="virtual">{$prescription->note}</textarea>
 	</td>
 </tr>
 <tr>
 {if $WEIGHT_LOSS_CLINIC}
-  <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Substitution'}</td>
+  <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Substitution'}</td>
   <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
     {html_options name="substitute" options=$prescription->substitute_array selected=$prescription->substitute}
   </td>
 {else}
-  <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Add to Medication List'}</td>
-  <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+  <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Add to Medication List'}</td>
+  <td COLSPAN="2" class="text" ALIGN="LEFT" VALIGN="MIDDLE" >
     {html_radios name="medication" options=$prescription->medication_array selected=$prescription->medication}
     &nbsp; &nbsp;
     {html_options name="substitute" options=$prescription->substitute_array selected=$prescription->substitute}
   </td>
 {/if}
-</tr>
-<tr>
-	<td colspan="3">
-		<input type="submit" value="{xl t='Save'}" />
-		{if $DRUG_ARRAY_VALUES}
-		&nbsp; &nbsp; &nbsp; &nbsp;
-		{if $prescription->get_refills() >= $prescription->get_dispensation_count()}
-		<input type="submit" name="disp_button" value="{xl t='Save and Dispense'}" />
-		<input type="text" name="disp_quantity" size="2" maxlength="10" value="{$DISP_QUANTITY}" />
-		units, $
-		<input type="text" name="disp_fee" size="5" maxlength="10" value="{$DISP_FEE}" />
-		{else}
-		{xl t=' prescription has reached its limit of'} {$prescription->get_refills()} {xl t='refills'}.
-		{/if}
-		{/if}
-	</td>
 </tr>
 </table>
 <input type="hidden" name="id" value="{$prescription->id}" />
@@ -235,13 +223,28 @@ textarea {
 {$ENDING_JAVASCRIPT}
 </script>
 </form>
-</body>
-
 {literal}
 <!-- for the fancy jQuery stuff -->
 <script type="text/javascript">
+
+    function submitfun() {
+     document.forms["prescribe"].submit();
+}
+
+function iframetopardiv(string){
+    var name=string
+    document.getElementById('drug').value=name;
+    $("#hiddendiv").html( "&nbsp;" );
+    $('#hiddendiv').hide();
+}
+
+function cancelParlookup () {
+    $('#hiddendiv').hide();
+    $("#hiddendiv").html( "&nbsp;" );
+}
+
 $().ready(function() {
-    $("#drug").autocomplete('library/ajax/prescription_drugname_lookup.php', 
+    $("#drug").autocomplete('library/ajax/prescription_drugname_lookup.php',
                             {
                             width: 200,
                             scrollHeight: 100,
@@ -257,7 +260,9 @@ $().ready(function() {
 function DoDrugLookup(eObj) {
     drugname = "";
     if ($('#drug').val() != "") { drugname = $('#drug').val(); }
-    drugPopup = window.open('controller.php?prescription&lookup&drug='+drugname, 'drugPopup', 'width=400,height=50,menubar=no,titlebar=no,left = 825,top = 400'); 
+    $("#druglist").css('display','block');
+    document.lookup.action='controller.php?prescription&edit&id=&pid=1&drug=sss'+drugname;
+    drugPopup = window.open('controller.php?prescription&lookup&drug='+drugname, 'drugPopup', 'width=400,height=50,menubar=no,titlebar=no,left = 825,top = 400');
     drugPopup.opener = self;
     return true;
 }

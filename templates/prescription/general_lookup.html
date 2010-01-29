@@ -7,7 +7,8 @@
 		function my_process () {
 			// Pass the variable
 {/literal}
-			opener.document.prescribe.drug.value = document.lookup.drug.value;
+			parent.iframetopardiv(document.lookup.drug.value);
+			parent.opener.document.prescribe.drug.value = document.lookup.drug.value;
 			// Close the window
 			window.self.close();
 {literal}
@@ -41,12 +42,19 @@ textarea {
 </style>
 {/literal}
 </head>
-<body onload="javascript:document.lookup.drug.focus();"
-<div ALIGN="CENTER">
-	<form NAME="lookup" ACTION="{$FORM_ACTION}" METHOD="POST" onsubmit="return top.restoreSession()">
+<body onload="javascript:document.lookup.drug.focus();">
+<div style="" class="drug_lookup" id="newlistitem">
+	<form NAME="lookup" ACTION="{$FORM_ACTION}" METHOD="POST" onsubmit="return top.restoreSession()" style="margin:0px">
+
 	{if $drug_options}
-		{html_options name="drug" values=$drug_values options=$drug_options}<input class="button" TYPE="BUTTON" NAME="select" VALUE="{xl t='Select'}" onClick="my_process(); return true;">
-		<br><a href="{$CONTROLLER_THIS}" onclick="top.restoreSession()">{xl t='search again'}</a>
+        <div>
+        {html_options name="drug" values=$drug_values options=$drug_options}<br/>
+        </div>
+        <div>
+            <a href="javascript:;" onClick="my_process(); return true;">Select</a> |
+            <a href="javascript:;" class="button" onClick="parent.cancelParlookup();">Cancel</a> |
+            <a href="{$CONTROLLER_THIS}" onclick="top.restoreSession()">{xl t='New Search'}</a>
+        </div>
 	{else}
 		{$NO_RESULTS}
 
@@ -55,14 +63,13 @@ textarea {
 		<input TYPE="HIDDEN" NAME="submitname" VALUE=""/>
 		<input TYPE="HIDDEN" NAME="action" VALUE="{xl t='Search'}">
 		<div ALIGN="CENTER" CLASS="infobox">
-			Drug:
 			<input TYPE="TEXT" NAME="drug" VALUE="{$drug}"/>
 			<input TYPE="SUBMIT" NAME="action" VALUE="{xl t='Search'}" class="button"/>
+			<input TYPE="BUTTON" VALUE="{xl t='Cancel'}" class="button" onClick="parent.cancelParlookup();"/>
 		</div>
 		<input type="hidden" name="process" value="{$PROCESS}" />
 
-	{/if}
-	</form>
-</div>
+	{/if}</form>
+	</div>
 </body>
 </html>

@@ -6,17 +6,19 @@ include_once("../../globals.php");
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
-<body class="body_bottom">
+<body class="body_top">
 
-<dl>
-<dt><span class="title"><?php xl('Prescriptions','e'); ?></span></dt>
-<dd><a class="text" href="<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo $pid?>"
- target="RxRight" onclick="top.restoreSession()">
-<?php xl('List Prescriptions','e'); ?></a></dd>
-<dd><a class="text" href="<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=&pid=<?php echo $pid?>"
- target="RxRight" onclick="top.restoreSession()">
-<?php xl('Add Prescription','e'); ?></a></dd>
-</dl>
+<span class="title"><?php xl('Prescriptions','e'); ?></span>
+<table>
+<tr height="20px">
+<td>
+<a href="<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo $pid?>"  target='RxRight' class="css_button" onclick="top.restoreSession()">
+<span><?php xl('List', 'e');?></span></a>
+<a href="<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=&pid=<?php echo $pid?>"  target='RxRight' class="css_button" onclick="top.restoreSession()">
+<span><?php xl('Add','e');?></span></a>
+</td>
+</tr>
+</table>
 
 </body>
 </html>

@@ -9,10 +9,6 @@
 .inactive {
   color:#777777;
 }
-td, th {
-  font-size:0.7em;
-  border-bottom: 1px solid #999;
-}
 </style>
 
 <script language="javascript">
@@ -23,71 +19,144 @@ function changeLinkHref(id,addValue,value) {
         document.getElementById(id).href += ':' + value + ':';
     }
     else { //remove value from href
-        document.getElementById(id).href = document.getElementById(id).href.replace(myRegExp,'');
+       document.getElementById(id).href = document.getElementById(id).href.replace(myRegExp,'');
     }
 }
 
+function changeLinkHref_All(id,addValue,value) {
+    var myRegExp = new RegExp(":" + value + ":");
+    if (addValue){ //add value to href
+        document.getElementById(id).href += ':' + value + ':';
+    }
+    else { //remove value from href
+        document.getElementById(id).href = document.getElementById(id).href.replace(myRegExp,'');
+		document.getElementById(id).target = '';
+    }
+}
+
+function Check(chk) {
+    var len=chk.length;
+    if (len==undefined) {chk.checked=true;}
+    else {
+        for (pr = 0; pr < chk.length; pr++){
+            chk[pr].checked=true;
+            changeLinkHref_All('multiprint',true,chk[pr].value);
+            changeLinkHref_All('multiprintcss',true, chk[pr].value);
+            changeLinkHref_All('multiprintToFax',true, chk[pr].value);
+        }
+    }
+}
+
+function Uncheck(chk) {
+    var len=chk.length;
+    if (len==undefined) {chk.checked=false;}
+    else {
+        for (pr = 0; pr < chk.length; pr++){
+            chk[pr].checked=false;
+            changeLinkHref_All('multiprint',false,chk[pr].value);
+            changeLinkHref_All('multiprintcss',false, chk[pr].value);
+            changeLinkHref_All('multiprintToFax',false, chk[pr].value);
+        }
+    }
+}
 </script>
 
 {/literal}
 </head>
-<body class="body_bottom">
+<body class="body_top">
+
+{if $prescriptions}
+<span class="title"><b>{xl t='List'}</b></span>
+
 <div id="prescription_list">
+
+<form name="presc">
+
 <div id="print_links">
-<a id="multiprint" target="_new" href="{$CONTROLLER}prescription&multiprint&id={$printm}" onclick="top.restoreSession()">{xl t='Print Multiple'} ({xl t='PDF'})</a>
-<br>
-<a id="multiprintcss" target="_new" href="{$CONTROLLER}prescription&multiprintcss&id={$printm}" onclick="top.restoreSession()">{xl t='Print Multiple'} ({xl t='HTML'})</a>
-<br>
-<a id="multiprintToFax" target="_new" href="{$CONTROLLER}prescription&multiprintfax&id={$printm}" onclick="top.restoreSession()">{xl t='Print Multiple To Fax'}</a>
-{if $CAMOS_FORM == true}
-<br>
-<a id="four_panel_rx" target="_new" href="{$WEBROOT}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()">{xl t='Print Four Panel'}</a>
-{/if}
+    <table width="100%">
+        <tr>
+            <td align="left">
+                <table>
+                    <tr>
+                        <td>
+                            <a id="multiprint" href="{$CONTROLLER}prescription&multiprint&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Print'} ({xl t='PDF'})</span></a>
+                        </td>
+                        <td>
+                            <a id="multiprintcss" href="{$CONTROLLER}prescription&multiprintcss&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Print'} ({xl t='HTML'})</span></a>
+                        </td>
+                        <td style="border-style:none;">
+                            <a id="multiprintToFax" href="{$CONTROLLER}prescription&multiprintfax&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Print'} ({xl t='Fax'})</span></a>
+                        </td>
+                        {if $CAMOS_FORM == true}
+                        <td>
+                            <a id="four_panel_rx" href="{$WEBROOT}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()" class="css_button"><span>{xl t='Print Four Panel'}</span></a>
+                        </td>
+                        {/if}
+                    </tr>
+                </table>
+            </td>
+            <td align="right">
+                <table>
+                <tr>
+                    <td>
+                        <a href="#" class="small" onClick="Check(document.presc.check_list);"><span>{xl t='Check All'}</span></a> |
+                        <a href="#" class="small" onClick="Uncheck(document.presc.check_list);"><span>{xl t='Clear All'}</span></a>
+                    </td>
+                </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 </div>
 
-<table>
+
+<table width="100%" class="showborder_head" cellspacing="0px" cellpadding="2px">
     <tr>
-        <th>{xl t='Drug'}</th>
+		<th width="8px">&nbsp;</th>
+        <th width="180px">{xl t='Drug'}</th>
         <th>{xl t='Created'}<br />{xl t='Changed'}</th>
         <th>{xl t='Dosage'}</th>
         <th>{xl t='Qty'}.</th>
         <th>{xl t='Unit'}</th>
         <th>{xl t='Provider'}</th>
-        <th>{xl t='Select'}</th>
     </tr>
 
 	{foreach from=$prescriptions item=prescription}
-  <tr id="{$prescription->id}" class="onescript {if $prescription->active <= 0} inactive{/if}" title="{xl t='Click to view/edit'}">
-    <td class="editscript" id="{$prescription->id}">
-      {if $prescription->active > 0}<b>{/if}{$prescription->drug}{if $prescription->active > 0}</b>{/if}
+  <tr id="{$prescription->id}" class="showborder onescript {if $prescription->active <= 0} inactive{/if}" title="{xl t='Click to view/edit'}">
+	 <td align="center">
+      <input id="check_list" type="checkbox" value="{$prescription->id}" onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xl t='Select for printing'}">
     </td>
-    <td class="editscript" id="{$prescription->id}">
+    <td class="editscript"  id="{$prescription->id}">
+        <a class='editscript css_button_small' id='{$prescription->id}' href="controller.php?prescription&edit&id={$prescription->id}" style="margin-top:-2px"><span>{xl t='Edit'}</span></a>
+        {if $prescription->active > 0}<b>{/if}{$prescription->drug}{if $prescription->active > 0}</b>{/if}&nbsp;
+    </td>
+    <td id="{$prescription->id}">
       {$prescription->date_added}<br />
-      {$prescription->date_modified}
+      {$prescription->date_modified}&nbsp;
+    </td>
+    <td id="{$prescription->id}">
+      {$prescription->get_dosage_display()} &nbsp;
     </td>
     <td class="editscript" id="{$prescription->id}">
-      {$prescription->get_dosage_display()}
+      {$prescription->get_size()} {$prescription->get_unit_display()} &nbsp;
     </td>
-    <td class="editscript" id="{$prescription->id}">
-      {$prescription->quantity}
+    <td id="{$prescription->id}">
+      {$prescription->get_unit_display()}&nbsp;
     </td>
-    <td class="editscript" id="{$prescription->id}">
-      {$prescription->get_size()} {$prescription->get_unit_display()}
-    </td>
-    <td class="editscript" id="{$prescription->id}">
-      {$prescription->provider->get_name_display()}
-    </td>
-    <td>
-      <input type="checkbox" value="{$prescription->id}" onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xl t='Select for printing'}">
+    <td id="{$prescription->id}">
+      {$prescription->provider->get_name_display()}&nbsp;
     </td>
   </tr>
-	{foreachelse}
-	<tr>
-		<td colspan="6">{xl t='No Prescriptions Found'}</td>
-	</tr>
 	{/foreach}
 </table>
+
+</form>
 </div>
+
+{else}
+<div class="text" style="margin-top:10px">{xl t='There are currently no prescriptions'}.</div>
+{/if}
+
 </body>
 {literal}
 <script language='JavaScript'>

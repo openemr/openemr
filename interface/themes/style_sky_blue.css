@@ -754,3 +754,44 @@ div.tab table td.data {
     background-color: #77ff77;
     font-weight: bold;
 }
+
+/**
+* List-table formatting
+**/
+.showborder {
+width:650px;
+}
+.showborder td {
+border-bottom:1px dashed #000000;
+text-align:left;
+font-size:9pt;
+}
+.showborder_head  th {
+border-bottom:1px solid #000000;
+text-align:left;
+font-size:9pt;
+}
+.shownoborder td {
+text-align:left;
+font-size:9pt;
+}
+.showborder_long {
+width:100%;
+}
+.showborder_long tr td{
+border-bottom:1px dashed #000000;
+text-align:left;
+font-size:9pt;
+}
+
+/**
+* Drug lookup
+**/
+.drug_lookup{
+	font-family: helvetica;
+	font-size: 8pt;
+	border: 2px outset rgb(102, 102, 102);
+	background-color: #94D6E7;
+	padding: 5px;
+	position: absolute;
+	display: block;	
