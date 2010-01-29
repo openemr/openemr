@@ -1,61 +1,92 @@
-<form name="pharmacy" method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
+<form name="pharmacy" method="post" action="{$FORM_ACTION}">
 <!-- it is important that the hidden form_id field be listed first, when it is called is populates any old information attached with the id, this allows for partial edits
 		if it were called last, the settings from the form would be overwritten with the old information-->
 <input type="hidden" name="form_id" value="{$pharmacy->id}" />
-<table CELLSPACING="0" CELLPADDING="3">
+<table style="font-size:9pt;" width="500px" CELLSPACING="0" CELLPADDING="3">
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Name'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-		<input type="text" size="40" name="name" value="{$pharmacy->name}"/>
+	<td width="150px" VALIGN="MIDDLE" >{xl t='Name'}</td>
+	<td VALIGN="MIDDLE" >
+		<input type="text" size="40" name="name" value="{$pharmacy->name}"/>({xl t='Required'})
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Address'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	<td VALIGN="MIDDLE" >{xl t='Address'}</td>
+	<td VALIGN="MIDDLE" >
 		<input type="text" size="40" name="address_line1" value="{$pharmacy->address->line1}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Address'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	<td VALIGN="MIDDLE" >{xl t='Address'}</td>
+	<td VALIGN="MIDDLE" >
 		<input type="text" size="40" name="address_line2" value="{$pharmacy->address->line2}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='City, State Zip'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	<td VALIGN="MIDDLE" >{xl t='City, State Zip'}</td>
+	<td VALIGN="MIDDLE" >
 		<input type="text" size="25" name="city" value="{$pharmacy->address->city}"/> , <input type="text" size="2" maxlength="2" name="state" value="{$pharmacy->address->state}"/> <input type="text" size="5" name="zip" value="{$pharmacy->address->zip}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Email'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	<td VALIGN="MIDDLE" >{xl t='Email'}</td>
+	<td VALIGN="MIDDLE" >
 		<input TYPE="TEXT" NAME="email" SIZE="35" VALUE="{$pharmacy->email}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Phone'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	<td VALIGN="MIDDLE" >{xl t='Phone'}</td>
+	<td VALIGN="MIDDLE" >
 		<input TYPE="TEXT" NAME="phone" SIZE="12" VALUE="{$pharmacy->get_phone()}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Fax'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	<td VALIGN="MIDDLE" >{xl t='Fax'}</td>
+	<td VALIGN="MIDDLE" >
 		<input TYPE="TEXT" NAME="fax" SIZE="12" VALUE="{$pharmacy->get_fax()}"/>
 	</td>
 </tr>
 
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Default Method'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	<td VALIGN="MIDDLE" >{xl t='Default Method'}</td>
+	<td VALIGN="MIDDLE" >
 		<select name="transmit_method">{html_options options=$pharmacy->transmit_method_array selected=$pharmacy->transmit_method}</select>
 	</td>
 </tr>
+<tr><td colspan="2">&nbsp;</td></tr>
 <tr>
-	<td><br /><input type="submit" value="{xl t='Update'}" /></td>
+	<td colspan="2"><a href="javascript:submit_pharmacy();" class="css_button"><span>{xl t='Save'}</span></a><a href="controller.php?practice_settings&pharmacy&action=list"  {php} if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; {/php} class="css_button" onclick="top.restoreSession()">
+<span>{xl t='Cancel'}</span></a>
+	</td>
 </tr>
 </table>
 <input type="hidden" name="id" value="{$pharmacy->id}" />
 <input type="hidden" name="process" value="{$PROCESS}" />
 </form>
+
+{literal}
+<script language="javascript">
+function submit_pharmacy()
+{
+	if(document.pharmacy.name.value.length>0)
+	{
+        top.restoreSession();
+        document.pharmacy.submit();
+        Waittoredirect(500);
+        this.location.href="/controller.php?practice_settings&pharmacy&action=list";
+	}
+	else
+	{
+        document.pharmacy.name.style.backgroundColor="red";
+        document.pharmacy.name.focus();
+	}
+}
+
+ function Waittoredirect(delaymsec) {
+	 var st = new Date();
+	 var et = null;
+	 do {
+	 et = new Date();
+	 } while ((et - st) < delaymsec);
+ }
+</script>
+{/literal}

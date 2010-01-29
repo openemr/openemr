@@ -1,63 +1,52 @@
 {if $ERROR}
  {$ERROR}
 {else}
-<form name="provider" method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
+<form name="provider" method="post" action="{$FORM_ACTION}">
 <!-- it is important that the hidden form_id field be listed first, when it is called it populates any old information attached with the id, this allows for partial edits
                 if it were called last, the settings from the form would be overwritten with the old information-->
 <input type="hidden" name="form_id" value="{$ins->id}" />
-<table CELLSPACING="0" CELLPADDING="3" border="0">
-<tr>
-        <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE">{xl t='Provider'}</td>
-        <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE">
-                {$provider->get_name_display()}
-        </td>
-        <td></td>
+
+<table class="showborder" CELLSPACING="0" CELLPADDING="3">
+
+<tr><td colspan="5" style="border-style:none;" class="bold">
+   {$provider->get_name_display()}
+</td></tr>
+
+<tr  class="showborder_head">
+    <th class="small">{xl t='Provider'} Number</th>
+    <th class="small">{xl t='Rendering Provider'} #</th>
+    <th class="small">{xl t='Group'} #</th>
 </tr>
 {foreach name=inums item=num_set from=$provider->get_insurance_numbers()}
 <tr>
-        <td ALIGN="LEFT" VALIGN="MIDDLE"></td>
-        <td ALIGN="LEFT" VALIGN="MIDDLE">
-                        <a href="{$CURRENT_ACTION}action=edit&id={$num_set->get_id()}" class="small" onclick="top.restoreSession()">{$num_set->get_insurance_company_name()}</a>
-        </td>
-        <td class="small">{xl t='Provider'} #</td>
-        <td class="small">{$num_set->get_provider_number()}</td>
+    <td valign="middle">
+        <a href="{$CURRENT_ACTION}action=edit&id={$num_set->get_id()}&showform=true" onclick="top.restoreSession()">{$num_set->get_insurance_company_name()}&nbsp;</a>
+    </td>
+    <td>{$num_set->get_provider_number()}&nbsp;</td>
+    <td>{$num_set->get_rendering_provider_number()}&nbsp;</td>
+    <td>{$num_set->get_group_number()}&nbsp;</td>
 </tr>
-<tr>
-        <td></td>
-        <td></td>
-        <td class="small">{xl t='Rendering Provider'} #</td>
-        <td class="small">{$num_set->get_rendering_provider_number()}</td>
-</tr>
-<tr>
-        <td></td>
-        <td></td>
-        <td class="small">{xl t='Group'} #</td>
-        <td class="small">{$num_set->get_group_number()}</td>
-</tr>
-        {if $smarty.foreach.inums.last}
-        <tr>
-                <td></td>
-                <td><a class="small" href="{$CURRENT_ACTION}action=edit&id=&provider_id={$provider->get_id()}" onclick="top.restoreSession()">{xl t='Add New'}...</a></td>
-                <td></td>
-                <td></td>
-        </tr>
-        {/if}
 {foreachelse}
-        <tr>
-                <td></td>
-                <td class="small">{xl t='No entries found, use the form below to add an entry.'}</td>
-                <td></td>
-                <td></td>
-        </tr>
+<tr>
+   <td colspan="5">{xl t='No entries found, use the form below to add an entry.'}</td>
+</tr>
 {/foreach}
 
+<tr> <td style="border-style:none;" colspan="5">
+    <a href="{$CURRENT_ACTION}action=edit&id=&provider_id={$provider->get_id()}&showform=true"
+       class="css_button_small" style='margin-top:2px'
+       onclick="top.restoreSession()">
+            <span>{xl t='Add New'}</span>
+    </a>
+</td> </tr>
 
-<tr>
-        <td colspan="4"><br /><br /><br /></td>
-</tr>
-<tr>
-        <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Insurance Company'}</td>
-        <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+{php} if ( $_GET['showform'] == 'true' ) { {/php}
+<tr> <td style="border-style:none;" colspan="5">
+<br>
+<b><span>{if $ins->get_id() eq ""}{xl t='Add Provider Number'}{else}{xl t='Update Provider Number'}{/if}</span></b><br>
+	<table width="100%"><tr>
+        <td style="border-style:none;" width="200px" VALIGN="MIDDLE" >{xl t='Insurance Company'}</td>
+        <td style="border-style:none;" VALIGN="MIDDLE" >
                 {if $ins->get_id() eq ""}
                         {html_options name="insurance_company_id" options=$ic_array values=$ic_array selected=$ins->get_insurance_company_id()}
                 {else}
@@ -66,42 +55,87 @@
         </td>
 </tr>
 <tr>
-        <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Provider Number'}</td>
-        <td COLSPAN="3" ALIGN="LEFT" VALIGN="MIDDLE" >
-                <input type="text" size="20" name="provider_number" value="{$ins->get_provider_number()}"/>
-                &nbsp;Type:&nbsp;
-                {html_options name="provider_number_type" options=$ic_type_options_array values=$ins->provider_number_type_array selected=$ins->get_provider_number_type()}
+        <td style="border-style:none;" VALIGN="MIDDLE" >{xl t='Provider Number'}</td>
+        <td style="border-style:none;" VALIGN="MIDDLE" >
+           <input type="text" size="20" name="provider_number" value="{$ins->get_provider_number()}"/>
         </td>
 </tr>
 <tr>
-        <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Rendering Provider Number'}</td>
-        <td COLSPAN="3" ALIGN="LEFT" VALIGN="MIDDLE" >
+        <td style="border-style:none;" VALIGN="MIDDLE" >Provider Number({xl t='Type'})</td>
+        <td style="border-style:none;" VALIGN="MIDDLE" >
+           {html_options name="provider_number_type" options=$ic_type_options_array values=$ins->provider_number_type_array selected=$ins->get_provider_number_type()}
+        </td>
+</tr>
+<tr>
+        <td style="border-style:none;" VALIGN="MIDDLE" >{xl t='Rendering Provider Number'}</td>
+        <td style="border-style:none;" VALIGN="MIDDLE" >
                 <input type="text" size="20" name="rendering_provider_number" value="{$ins->get_rendering_provider_number()}"/>
-                &nbsp;Type:&nbsp;
-                {html_options name="rendering_provider_number_type" options=$ic_rendering_type_options_array values=$ins->rendering_provider_number_type_array selected=$ins->get_rendering_provider_number_type()}
+		</td>
+</tr>
+<tr>
+        <td style="border-style:none;" VALIGN="MIDDLE" >{xl t='Rendering Provider Number'} ({xl t='Type'})</td>
+        <td style="border-style:none;" VALIGN="MIDDLE" >
+            {html_options name="rendering_provider_number_type" options=$ic_rendering_type_options_array values=$ins->rendering_provider_number_type_array selected=$ins->get_rendering_provider_number_type()}
         </td>
 </tr>
 <tr>
-        <td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Group Number'}</td>
-        <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+        <td style="border-style:none;" VALIGN="MIDDLE" >{xl t='Group Number'}</td>
+        <td style="border-style:none;" VALIGN="MIDDLE" >
                 <input type="text" size="20" name="group_number" value="{$ins->get_group_number()}"/>
         </td>
 </tr>
+<tr><td style="border-style:none;"></td></tr>
 <tr>
-        <td><br />
-
+        <td style="border-style:none;" colspan="2">
                 {if $ins->get_id() eq ""}
-                        <input type="submit" value="{xl t='Add'}" />
+                	<a href="javascript:submit_insurancenumbers_add();" class="css_button"><span>{xl t='Save'}</span></a>
                 {else}
-                        <input type="submit" value="{xl t='Update'}" />
+                   	<a href="javascript:submit_insurancenumbers_update();" class="css_button"><span>{xl t='Save'}</span></a>
                 {/if}
 
-        </td>
-</tr>
+		<a href="controller.php?practice_settings&insurance_numbers&action=list"  {php} if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; {/php} class="css_button" onclick="top.restoreSession()">
+<span>{xl t='Cancel'}</span></a>
+</td> </tr>
+{php} } else { {/php}
+<input type="hidden" name="provider_number" value="{$ins->get_provider_number()}" />
+<input type="hidden" name="provider_number_type" value="{$ins->get_provider_number_type()}" />
+<input type="hidden" name="rendering_provider_number" value="{$ins->get_rendering_provider_number()}" />
+<input type="hidden" name="rendering_provider_number_type" value="{$ins->get_rendering_provider_number_type()}" />
+<input type="hidden" name="group_number" value="{$ins->get_group_number()}" />
+
+{php} } {/php}
+
+    </table>
+</td></tr>
 </table>
 <input type="hidden" name="id" value="{$ins->id}" />
 <input type="hidden" name="provider_id" value="{$ins->get_provider_id()}" />
 <input type="hidden" name="process" value="{$PROCESS}" />
 </form>
 {/if}
+{literal}
+<script language="javascript">
+function submit_insurancenumbers_update() {
+    top.restoreSession();
+    document.provider.submit();
+}
+function submit_insurancenumbers_add() {
+    top.restoreSession();
+    document.provider.submit();
+    Waittoredirect(500);
+    document.location.href="/controller.php?practice_settings&insurance_numbers&action=list";
+}
 
+function Waittoredirect(delaymsec) {
+ var st = new Date();
+ var et = null;
+ do {
+ et = new Date();
+ } while ((et - st) < delaymsec);
+
+ }
+</script>
+<style type="text/css">
+text,select {font-size:9pt;}
+</style>
+{/literal}

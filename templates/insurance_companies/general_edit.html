@@ -1,48 +1,70 @@
-<form name="insurancecompany" method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
+{literal}
+<script language="javascript">
+function submit_insurancecompany() {
+    if(document.insurancecompany.name.value.length>0) { document.insurancecompany.submit();
+        jsWaitForDelay(500);
+        top.restoreSession();
+        document.location.href="/controller.php?practice_settings&insurance_company&action=list";
+    } else{
+        document.insurancecompany.name.style.backgroundColor="red";
+        document.insurancecompany.name.focus();
+    }
+}
+
+function jsWaitForDelay(delay) {
+     var startTime = new Date();
+     var endTime = null;
+     do {
+        endTime = new Date();
+     } while ((endTime - startTime) < delay);
+}
+</script>
+{/literal}
+<form name="insurancecompany" method="post" action="{$FORM_ACTION}">
 <!-- it is important that the hidden form_id field be listed first, when it is called it populates any old information attached with the id, this allows for partial edits
 		if it were called last, the settings from the form would be overwritten with the old information-->
 <input type="hidden" name="form_id" value="{$insurancecompany->id}" />
-<table CELLSPACING="0" CELLPADDING="3">
+<table style="font-size:9pt;" width="500px" CELLSPACING="0" CELLPADDING="3">
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Name'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-		<input type="text" size="40" name="name" value="{$insurancecompany->get_name()}"/>
+	<td width="220px" VALIGN="MIDDLE" >{xl t='Name'}</td>
+	<td VALIGN="MIDDLE" >
+		<input type="text" size="40" name="name" value="{$insurancecompany->get_name()}"/> ({xl t='Required'})
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Attn'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	<td VALIGN="MIDDLE" >{xl t='Attn'}</td>
+	<td VALIGN="MIDDLE" >
 		<input type="text" size="40" name="attn" value="{$insurancecompany->get_attn()}"/>
 	</td>
 </tr>
 
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Address'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	<td VALIGN="MIDDLE" >{xl t='Address'}</td>
+	<td VALIGN="MIDDLE" >
 		<input type="text" size="40" name="address_line1" value="{$insurancecompany->address->line1}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Address'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	<td VALIGN="MIDDLE" >{xl t='Address'}</td>
+	<td VALIGN="MIDDLE" >
 		<input type="text" size="40" name="address_line2" value="{$insurancecompany->address->line2}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='City, State Zip'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	<td VALIGN="MIDDLE" >{xl t='City, State Zip'}</td>
+	<td VALIGN="MIDDLE" >
 		<input type="text" size="25" name="city" value="{$insurancecompany->address->city}"/> , <input type="text" size="2" maxlength="2" name="state" value="{$insurancecompany->address->state}"/> <input type="text" size="5" name="zip" value="{$insurancecompany->address->zip}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Phone'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	<td VALIGN="MIDDLE" >{xl t='Phone'}</td>
+	<td VALIGN="MIDDLE" >
 		<input TYPE="TEXT" NAME="phone" SIZE="12" VALUE="{$insurancecompany->get_phone()}"/>
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='CMS ID'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
+	<td VALIGN="MIDDLE" >{xl t='CMS ID'}</td>
+	<td VALIGN="MIDDLE" >
 		<input type="text" size="15" name="cms_id" value="{$insurancecompany->get_cms_id()}"/>
 {php} if ($GLOBALS['support_encounter_claims']) { {/php}
     &nbsp;&nbsp;{xl t='For Encounter Claims'}:
@@ -51,8 +73,8 @@
 	</td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE">{xl t='Payer Type'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE">
+	<td VALIGN="MIDDLE">{xl t='Payer Type'}</td>
+	<td VALIGN="MIDDLE">
 		{html_options name="freeb_type" options=$insurancecompany->freeb_type_array selected=$insurancecompany->get_freeb_type()}
 	</td>
 </tr>
@@ -65,13 +87,15 @@ This is now deprecated use the newer x12 partner code instead
 	</td>
 </tr>-->
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE">{xl t='Default X12 Partner'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE">
+	<td VALIGN="MIDDLE">{xl t='Default X12 Partner'}</td>
+	<td VALIGN="MIDDLE">
 		{html_options name="x12_default_partner_id" options=$x12_partners selected=$insurancecompany->get_x12_default_partner_id()}
 	</td>
 </tr>
+<tr height="25"><td colspan=2>&nbsp;</td></tr>
 <tr>
-	<td><br /><input type="submit" value="{xl t='Update'}" /></td>
+	<td colspan="2"><a href="javascript:submit_insurancecompany();" class="css_button"><span>{xl t='Save'}</span></a><a href="controller.php?practice_settings&insurance_company&action=list"  {php} if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; {/php} class="css_button" onclick="top.restoreSession()">
+<span>{xl t='Cancel'}</span></a></td>
 </tr>
 </table>
 <input type="hidden" name="id" value="{$insurancecompany->id}" />

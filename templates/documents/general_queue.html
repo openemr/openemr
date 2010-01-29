@@ -1,37 +1,50 @@
+{literal}
+<head>
+<script language="javascript">
+function submit_documents()
+{
+    top.restoreSession();
+    document.queue.submit();
+}
+</script>
+</head>
+{/literal}
+
+<a href="controller.php?practice_settings&{$TOP_ACTION}document_category&action=list" {php} if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; {/php} onclick="top.restoreSession()" class="css_button" >
+<span>{xl t='Edit Categories'}</span></a><a href="#" onclick="submit_documents();" class="css_button" target="_self" ><span>{xl t='Update files'}</span></a>
+<input type="hidden" name="process" value="{$PROCESS}" /><br><br>
+
 <form name="queue" method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
-<table>
-	<tr>
-		<td colspan="7">{$messages}</td>
+<table cellpadding="1" class="showborder">
+	<tr class="center_display">
+		<td colspan="6">{$messages}</td>
 	</tr>
-	<tr>
-		<td></td>
-		<td>&nbsp;</td>
-		<td>{xl t='Name'}</td>
-		<td>&nbsp;</td>
-		<td>{xl t='Date'}</td>
-		<td>&nbsp;</td>
-		<td>{xl t='Patient'}</td>
-		<td>&nbsp;</td>
-		<td>{xl t='Category'}</td>
+	<tr class="showborder_head">
+		<th colspan="2" width="110px">{xl t='Name'}</td>
+		<th width="100px">{xl t='Date'}</td>
+		<th width="200px">{xl t='Patient'}</td>
+		<th colspan="2">{xl t='Category'}</td>
 	</tr>
 	{foreach name=queue_list from=$queue_files item=file}
 	<tr>
 		<td><input type="checkbox" name="files[{$file.document_id}][active]" value="1" {if is_numeric($file.patient_id)}checked{/if}></td>
-		<td></td>
+
 		<td><a href="{$file.web_path}" onclick="top.restoreSession()">{$file.filename}</a><input type="hidden" name="files[{$file.document_id}][name]" value="{$file.filename}"></td>
-		<td></td>
+
 		<td>{$file.mtime}</td>
-		<td></td>
-		<td><input type="text" name="files[{$file.document_id}][patient_id]" size="5" value="{$file.patient_id}"></td>
-		<input type="hidden" name="patient_name" value="">
+
+		<td><input type="text" name="files[{$file.document_id}][patient_id]" size="5" value="{$file.patient_id}"><input type="hidden" name="patient_name" value=""></td>
+
 		<td><a href="javascript:{literal}{}{/literal}" onclick="top.restoreSession();var URL='controller.php?patient_finder&find&form_id=queue{"['files[`$file.document_id`][patient_id]']"|escape:"url"}&form_name=patient_name'; window.open(URL, 'queue', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left = 425,top = 250');"><img src="images/stock_search-16.png" border="0"</a>&nbsp;&nbsp;&nbsp;</td>
 		<td><select name="files[{$file.document_id}][category_id]">{$tree_html_listbox}</select></td>
-		
+
+	</tr>
+	{foreachelse}
+	<tr height="25" class="center_display">
+		<td colspan="6">{xl t='No Documents Found'}</td>
 	</tr>
 	{/foreach}
-	<tr>
-		<td colspan="5"><br><input type="submit" name="update_files" value="{xl t='Update files'}"></td>
-	</tr>
-</table>
-<input type="hidden" name="process" value="{$PROCESS}" />
+
+</table><br><br>
+
 </form>

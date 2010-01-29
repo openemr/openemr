@@ -1,21 +1,25 @@
-<table>
-	<tr>
-		<td>{xl t='Name'}</td>
-		<td rowspan="50">&nbsp;</td>
-		<td>{xl t='Address'}</td>
-		<td rowspan="50">&nbsp;</td>
-		<td>{xl t='Default Method'}</td>
+<a href="controller.php?practice_settings&{$TOP_ACTION}pharmacy&action=edit" {php} if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; {/php} onclick="top.restoreSession()" class="css_button" >
+<span>{xl t='Add a Pharmacy'}</span></a><br><br>
+
+<table cellpadding="1" cellspacing='0' class="showborder">
+	<tr class="showborder_head">
+		<th width="170px"><b>{xl t='Name'}</b></th>
+		<th width="320px"><b>{xl t='Address'}</b></th>
+		<th><b>{xl t='Default Method'}</b></th>
 	</tr>
 	{foreach from=$pharmacies item=pharmacy}
-	<tr>
-		<td><a href="{$CURRENT_ACTION}action=edit&id={$pharmacy->id}" onclick="top.restoreSession()">{$pharmacy->name}</a></td>
-		<td>{$pharmacy->address->line1}, {$pharmacy->address->city},
-			{$pharmacy->address->state|upper} {$pharmacy->address->zip}</td>
-		<td>{$pharmacy->get_transmit_method_display()}</td>
+	<tr height="22">
+		<td><a href="{$CURRENT_ACTION}action=edit&id={$pharmacy->id}" onclick="top.restoreSession()">{$pharmacy->name}&nbsp;</a></td>
+		<td>
+		{if $pharmacy->address->line1 != ''}{$pharmacy->address->line1}, {/if}
+		{if $pharmacy->address->city != ''}{$pharmacy->address->city}, {/if}
+			{$pharmacy->address->state|upper} {$pharmacy->address->zip}&nbsp;</td>
+		<td>{$pharmacy->get_transmit_method_display()}&nbsp;
+	{foreachelse}</td>
 	</tr>
-	{foreachelse}
-	<tr>
-		<td colspan="6">{xl t='No Pharmacies Found'}</td>
+
+	<tr class="center_display">
+		<td colspan="3"><b>{xl t='No Pharmacies Found'}<b></td>
 	</tr>
 	{/foreach}
 </table>

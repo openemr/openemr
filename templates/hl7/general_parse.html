@@ -2,32 +2,10 @@
 <head>
 {php}html_header_show();{/php}
 
-{literal}
- <style type="text/css" title="mystyles" media="all">
-<!--
-td {
-	font-size:12pt;
-	font-family:helvetica;
-}
-input {
-	font-size:8pt;
-	font-family:helvetica;
-}
-select {
-	font-size:8pt;
-	font-family:helvetica;
-}
-textarea {
-	font-size:8pt;
-	font-family:helvetica;
-}
--->
-</style>
-{/literal}
 </head>
 <body bgcolor="{$STYLE.BGCOLOR2}">
 <form name="prescribe" method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
-<table CELLSPACING="0" CELLPADDING="3">
+<table CELLSPACING="0" CELLPADDING="3" class="shownoborder">
 <!--<tr><td>Example HL7 data<td></tr>
 <tr><td>MSH|^~\&|ADT1|CUH|LABADT|CUH|198808181127|SECURITY|ADT^A01|MSG00001|P|2.3|
 EVN|A01|198808181122||
@@ -35,22 +13,23 @@ PID|||PATID1234^5^M11||RYAN^HENRY^P||19610615|M||C|1200 N ELM STREET^^GREENSBORO
 NK1|JOHNSON^JOAN^K|WIFE||||||NK^NEXT OF KIN
 PV1|1|I|2000^2053^01||||004777^FISHER^BEN^J.|||SUR||||ADM|A0|</td></tr>-->
 <tr>
-<td>{xl t='Paste HL7 Data'}</td>
+<td colspan="2"><b>{xl t='Paste HL7 Data'}</b></td>
 </tr>
-<tr>
-	<td><textarea rows="10" wrap="virtual" cols="65" name="hl7data"></textarea><br /><br />
-	<input type="submit" name="HL7" value="{xl t='Parse HL7'}"/><br /><br />
+<tr height="25">
+	<td colspan="2" ><textarea rows="10" wrap="virtual" cols="70" name="hl7data"></textarea><br /><br />
+	</td></tr>
+	<tr class="text"><td colspan="2">
+	<a href="javascript:document.forms[0].reset();" class="css_button"><span>{xl t='Clear HL7 Data'}</span></a><a href="javascript:document.forms[0].submit();" class="css_button" ><span>{xl t='Parse HL7'}</span></a>
 	</td>
-</tr>
+
 {if $hl7_message_err}
-	<tr><td>{$hl7_message_err}</td></tr>
+	<tr height="25"><td colspan="2">{$hl7_message_err}</td></tr>
 {/if}
 {if $hl7_array}
-	<tr><td>
-	<table>
+	<tr class="text"><td colspan="2">
+	<table class="showborder">
 	{foreach from=$hl7_array item=hl7item key=hl7key}
-	<tr><td>&nbsp;</td></tr>
-	<tr><td><td colspan="2">{$hl7key}</td></tr>
+	<tr height="25"><td colspan="3">{$hl7key}</td></tr>
 		{foreach from=$hl7item item=segment_val key=segment_name}
 			<tr><td>&nbsp;</td><td>{$segment_name}: </td><td>{$segment_val}</td></tr>
 		{/foreach}

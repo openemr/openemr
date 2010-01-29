@@ -1,66 +1,72 @@
-<form name="x12_partner" method="post" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
-<table CELLSPACING="0" CELLPADDING="3" border="0">
+{literal}
+<script language="javascript">
+function add_x12()
+{
+if (document.x12_partner.name.value.length>0)
+{
+top.restoreSession();
+document.x12_partner.submit();
+Waittoredirect(1000);
+this.location.href="/controller.php?practice_settings&x12_partner&action=list";
+}
+else
+{
+document.x12_partner.name.style.backgroundColor="red";
+document.x12_partner.name.focus();
+}
+}
+
+ function Waittoredirect(delaymsec) {
+ var st = new Date();
+ var et = null;
+ do {
+ et = new Date();
+ } while ((et - st) < delaymsec);
+
+   }
+</script>
+{/literal}
+
+<form name="x12_partner" method="post" action="{$FORM_ACTION}">
+<table width="400px" style="font-size:9pt;" CELLSPACING="0" CELLPADDING="3" border="0">
 <tr>
-	<td colspan="2">{xl t='X12 Partner'}</td>
+	<td VALIGN="MIDDLE" >{xl t='Partner'}&nbsp;{xl t='Name'}</td>
+	<td VALIGN="MIDDLE" ><input type="text" size="20" name="name" value="{$partner->get_name()}"/><span class=text>&nbsp; ({xl t='Required'})</span></td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Partner'}&nbsp;{xl t='Name'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="name" value="{$partner->get_name()}"/></td>
+	<td VALIGN="MIDDLE" >{xl t='ID'}&nbsp;{xl t='Number'}&nbsp;({xl t='ETIN'})</td>
+	<td VALIGN="MIDDLE" ><input type="text" size="20" name="id_number" value="{$partner->get_id_number()}"/></td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='ID'}&nbsp;{xl t='Number'}&nbsp;({xl t='ETIN'})</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="id_number" value="{$partner->get_id_number()}"/></td>
+	<td VALIGN="MIDDLE" >{xl t='Receiver'}&nbsp;{xl t='ID'}</td>
+	<td VALIGN="MIDDLE" ><input type="text" size="20" name="x12_receiver_id" value="{$partner->get_x12_receiver_id()}"/></td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Receiver ID Qualifier (ISA07)'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >{html_options name="x12_isa07" options=$partner->get_idqual_array() selected=$partner->get_x12_isa07()}</td>
+	<td VALIGN="MIDDLE" >{xl t='Sender'}&nbsp;{xl t='ID'}</td>
+	<td VALIGN="MIDDLE" ><input type="text" size="20" name="x12_sender_id" value="{$partner->get_x12_sender_id()}"/></td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Receiver ID (ISA08)'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_receiver_id" value="{$partner->get_x12_receiver_id()}"/></td>
+	<td VALIGN="MIDDLE" >{xl t='Version'}</td>
+	<td VALIGN="MIDDLE" ><input type="text" size="20" name="x12_version" value="{$partner->get_x12_version()}"/></td>
 </tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Sender ID Qualifier (ISA05)'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >{html_options name="x12_isa05" options=$partner->get_idqual_array() selected=$partner->get_x12_isa05()}</td>
+	<td VALIGN="MIDDLE" >{xl t='Processing'}&nbsp;{xl t='Format'}</td>
+	<td VALIGN="MIDDLE" >{html_options name="processing_format" options=$partner->get_processing_format_array() selected=$partner->get_processing_format()}</td>
 </tr>
+<tr height="25"><td colspan="2">&nbsp;</td></tr>
 <tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Sender ID (ISA06)'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_sender_id" value="{$partner->get_x12_sender_id()}"/></td>
-</tr>
-<tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Acknowledgment Requested (ISA14)'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >{html_options name="x12_isa14" options=$partner->get_x12_isa14_array() selected=$partner->get_x12_isa14()}</td>
-</tr>
-<tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Usage Indicator (ISA15)'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >{html_options name="x12_isa15" options=$partner->get_x12_isa15_array() selected=$partner->get_x12_isa15()}</td>
-</tr>
-<tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Application Sender Code (GS02)'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_gs02" value="{$partner->get_x12_gs02()}"/></td>
-</tr>
-<tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Submitter EDI Access Number (PER06)'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_per06" value="{$partner->get_x12_per06()}"/></td>
-</tr>
-<tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Version'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" ><input type="text" size="20" name="x12_version" value="{$partner->get_x12_version()}"/></td>
-</tr>
-<tr>
-	<td COLSPAN="1" ALIGN="LEFT" VALIGN="MIDDLE" >{xl t='Processing'}&nbsp;{xl t='Format'}</td>
-	<td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >{html_options name="processing_format" options=$partner->get_processing_format_array() selected=$partner->get_processing_format()}</td>
-</tr>
-<tr>
-	<td>
+	<td colspan="2">
 		{if $partner->get_id() eq ""}
-			<input type="submit" value="{xl t='Add'}" />
+			<a class="css_button" href="javascript:add_x12();"><span>{xl t='Save'}</span></a>
+
 		{else}
-			<input type="submit" value="{xl t='Update'}" />
-		{/if}	
-	</td>
+			<a class="css_button" href="javascript:add_x12();"><span>{xl t='Save'}</span></a>
+		{/if}
+	<a href="controller.php?practice_settings&x12_partner&action=list"  {php} if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; {/php} class="css_button" onclick="top.restoreSession()">
+<span>{xl t='Cancel'}</span></a></td>
 </tr>
 </table>
 <input type="hidden" name="id" value="{$partner->id}" />
 <input type="hidden" name="process" value="{$PROCESS}" />
+<input type="hidden" name="sub" value="no" />
 </form>

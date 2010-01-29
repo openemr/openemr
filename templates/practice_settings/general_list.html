@@ -2,58 +2,36 @@
 <head>
 {php}html_header_show();{/php}
 
-{literal}
- <style type="text/css" title="mystyles" media="all">
-<!--
-td {
-	font-size:12pt;
-	font-family:helvetica;
-}
-.small {
-	font-size:9pt;
-	font-family:helvetica;
-	text-decoration: none;
-}
-.small:hover {
-	text-decoration: underline;
-}
-li{
-	font-size:11pt;
-	font-family:helvetica;
-	margin-left: 15px;
-}
-a {
-	font-size:11pt;
-	font-family:helvetica;
-}
--->
-</style>
-{/literal}
+<link rel="stylesheet" href="{$CSS_HEADER}" type="text/css">
+<link rel="stylesheet" type="text/css" href="{php}echo $GLOBALS['rootdir'] . '/../library/js/fancybox/jquery.fancybox-1.2.6.css';{/php}" media="screen" />
+<script type="text/javascript" src="{php}echo $GLOBALS['rootdir'] . '/../library/js/jquery.1.3.2.js';{/php}"></script>
+<script type="text/javascript" src="{php}echo $GLOBALS['rootdir'] . '/../library/js/common.js';{/php}"></script>
 </head>
-<body bgcolor="{$STYLE.BGCOLOR2}">
-<table>
-	<tr>
-		<td valign="top">
-		{xl t='Settings'}<br />
-			<ul style="list-style: none;">
-				<lh><a href="{$TOP_ACTION}pharmacy&action=list">{xl t='Pharmacies'}</a></lh>
-				<li><a href="{$TOP_ACTION}pharmacy&action=edit">{xl t='Add a Pharmacy'}</a></li>
-				<!--<lh><br /><a href="{$TOP_ACTION}pharmacist">Pharmacists</a></lh>-->
-				<br{php}if ($GLOBALS['ippf_specific']) echo " style='display:none'";{/php}>
-				<lh{php}if ($GLOBALS['ippf_specific']) echo " style='display:none'";{/php}><a href="{$TOP_ACTION}insurance_company&action=list">{xl t='Insurance Companies'}</a></lh>
-				<li{php}if ($GLOBALS['ippf_specific']) echo " style='display:none'";{/php}><a href="{$TOP_ACTION}insurance_company&action=edit">{xl t='Add a Company'}</a></li>
-				<br{php}if ($GLOBALS['ippf_specific']) echo " style='display:none'";{/php}>
-				<lh{php}if ($GLOBALS['ippf_specific']) echo " style='display:none'";{/php}><a href="{$TOP_ACTION}insurance_numbers&action=list">{xl t='Insurance Numbers'}</a></lh>
-				<li{php}if ($GLOBALS['ippf_specific']) echo " style='display:none'";{/php}><a href="{$TOP_ACTION}x12_partner&action=list">{xl t='X12 Partners'}</a></li>
-				<br>
-				<lh><a href="{$TOP_ACTION}document&action=queue">{xl t='Documents'}</a></lh>
-				<li><a href="{$TOP_ACTION}document_category&action=list">{xl t='Edit Categories'}</a></li>
-				<br><br><br>
-				<lh{php}if ($GLOBALS['ippf_specific']) echo " style='visibility:hidden'";{/php}><a href="{$TOP_ACTION}hl7&action=default">{xl t='HL7 Viewer'}</a></lh>
-			</ul>
-		</td><td width="50">&nbsp;</td>
-		<td valign="top"><br /><br />{$display}</td>
-	</tr>
-</table>
+<body class="body_top">
+
+<div>
+    <b>{xl t='Practice Settings'}</b>
+</div>
+
+<div>
+    <div class="small">
+        <a href="{$TOP_ACTION}pharmacy&action=list">{xl t='Pharmacies'}</a> |
+        <a href="{$TOP_ACTION}insurance_company&action=list">{xl t='Insurance Companies'}</a> |
+        <a href="{$TOP_ACTION}insurance_numbers&action=list">{xl t='Insurance Numbers'}</a> |
+        <a href="{$TOP_ACTION}x12_partner&action=list">{xl t='X12 Partners'}</a> |
+        <a href="{$TOP_ACTION}document&action=queue">{xl t='Documents'}</a> |
+        <a href="{$TOP_ACTION}hl7&action=default">{xl t='HL7 Viewer'}</a>
+    </div>
+
+    <br/>
+    <div class="section-header">
+        <b>{$ACTION_NAME}</b>
+    </div>
+    <div class="tabContainer">
+        <div class="tab current">
+            {$display}
+        </div>
+    </div>
+</div>
 </body>
 </html>

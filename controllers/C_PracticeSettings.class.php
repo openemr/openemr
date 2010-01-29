@@ -16,6 +16,7 @@ class C_PracticeSettings extends Controller {
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
 		$this->assign("TOP_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings" . "&");
 		$this->assign("STYLE", $GLOBALS['style']);
+	    $this->assign("CSS_HEADER",  $GLOBALS['css_header'] );
 	}
 
 	function default_action($display = "") {
@@ -31,14 +32,15 @@ class C_PracticeSettings extends Controller {
 		//and value passing
 
 		$fga = func_get_args();
-		
+
 		$fga = array_slice($fga,1);
 		$args = array_merge(array("pharmacy" => "",$arg => ""),$fga);
-		
+
 		$display =  $c->act($args);
+		$this->assign("ACTION_NAME", xl("Pharmacies") );
 		$this->default_action($display);
 	}
-	
+
 	function insurance_company_action($arg) {
 		$c = new Controller();
 
@@ -47,14 +49,15 @@ class C_PracticeSettings extends Controller {
 		//and value passing
 
 		$fga = func_get_args();
-		
+
 		$fga = array_slice($fga,1);
 		$args = array_merge(array("insurance_company" => "",$arg => ""),$fga);
-		
+
 		$display =  $c->act($args);
+		$this->assign("ACTION_NAME", xl("Insurance Companies") );
 		$this->default_action($display);
 	}
-	
+
 	function insurance_numbers_action($arg) {
 		$c = new Controller();
 
@@ -63,15 +66,16 @@ class C_PracticeSettings extends Controller {
 		//and value passing
 
 		$fga = func_get_args();
-		
+
 		$fga = array_slice($fga,1);
 		$args = array_merge(array("insurance_numbers" => "",$arg => ""),$fga);
-		
+
 		$display =  $c->act($args);
-		
+
+		$this->assign("ACTION_NAME", xl("Insurance Numbers") );
 		$this->default_action($display);
 	}
-	
+
 	function document_action($arg) {
 		$c = new Controller();
 
@@ -80,15 +84,16 @@ class C_PracticeSettings extends Controller {
 		//and value passing
 
 		$fga = func_get_args();
-		
+
 		$fga = array_slice($fga,1);
 		$args = array_merge(array("document" => "",$arg => ""),$fga);
-		
+
 		$display =  $c->act($args);
-		
+
+		$this->assign("ACTION_NAME", xl("Documents") );
 		$this->default_action($display);
 	}
-	
+
 	function document_category_action($arg) {
 		$c = new Controller();
 
@@ -97,15 +102,16 @@ class C_PracticeSettings extends Controller {
 		//and value passing
 
 		$fga = func_get_args();
-		
+
 		$fga = array_slice($fga,1);
 		$args = array_merge(array("document_category" => "",$arg => ""),$fga);
-		
+
 		$display =  $c->act($args);
-		
+
+		$this->assign("ACTION_NAME", xl("Documents") );
 		$this->default_action($display);
 	}
-	
+
 	function x12_partner_action($arg) {
 		$c = new Controller();
 
@@ -114,16 +120,17 @@ class C_PracticeSettings extends Controller {
 		//and value passing
 
 		$fga = func_get_args();
-		
+
 		$fga = array_slice($fga,1);
 		$args = array_merge(array("x12_partner" => "",$arg => ""),$fga);
-		
+
 		$display =  $c->act($args);
-		
+
+		$this->assign("ACTION_NAME", xl("X12 Partners") );
 		$this->default_action($display);
 	}
-	
-	
+
+
 	function hl7_action($arg) {
 		$c = new Controller();
 
@@ -135,6 +142,7 @@ class C_PracticeSettings extends Controller {
 		$fga = array_slice($fga,1);
 		$args = array_merge(array("hl7" => "",$arg => ""),$fga);
 		$display =  $c->act($args);
+		$this->assign("ACTION_NAME", xl("HL7 Viewer") );
 		$this->default_action($display);
 	}
 

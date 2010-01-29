@@ -1,17 +1,20 @@
-<table>
-	<tr>
-		<td><b>{xl t='Name'}</b></td>
-		<td><b>{xl t='City, State'}</b></td>
-		<td><b>{xl t='Default X12 Partner'}</b></td>
+<a href="controller.php?practice_settings&{$TOP_ACTION}insurance_company&action=edit" {php} if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; {/php} onclick="top.restoreSession()" class="css_button" >
+<span>{xl t='Add a Company'}</span></a><br>
+<br>
+<table cellpadding="1" cellspacing="0" class="showborder">
+	<tr class="showborder_head">
+		<th width="140px"><b>{xl t='Name'}</b></th>
+		<th width="300px"><b>{xl t='City, State'}</b></th>
+		<th><b>{xl t='Default X12 Partner'}</b></th>
 	</tr>
 	{foreach from=$icompanies item=insurancecompany}
-	<tr>
+	<tr height="22">
 		<td><a href="{$CURRENT_ACTION}action=edit&id={$insurancecompany->id}" onsubmit="return top.restoreSession()">{$insurancecompany->name}&nbsp;</a></td>
 		<td>{$insurancecompany->address->city} {$insurancecompany->address->state|upper}&nbsp;</td>
-		<td>{$insurancecompany->get_x12_default_partner_name()}</td>
+		<td>{$insurancecompany->get_x12_default_partner_name()}&nbsp;</td>
 	</tr>
 	{foreachelse}
-	<tr>
+	<tr class="center_display">
 		<td colspan="3">{xl t='No Insurance Companies Found'}</td>
 	</tr>
 	{/foreach}
