@@ -15,6 +15,20 @@
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
 
+
+
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../../library/textformat.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../../library/js/common.js"></script>
+<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+
 <script language="JavaScript">
 
  // Process click on Delete link.
@@ -36,12 +50,69 @@
 
 </script>
 
+<script language="javascript">
+function expandcollapse(atr){
+	if(atr == "expand") {
+		for(i=1;i<15;i++){
+			var mydivid="divid_"+i;var myspanid="spanid_"+i;
+				var ele = document.getElementById(mydivid);	var text = document.getElementById(myspanid);
+				ele.style.display = "block";text.innerHTML = "Collapse";
+		}
+  	}
+	else {
+		for(i=1;i<15;i++){
+			var mydivid="divid_"+i;var myspanid="spanid_"+i;
+				var ele = document.getElementById(mydivid);	var text = document.getElementById(myspanid);
+				ele.style.display = "none";	text.innerHTML = "Expand";
+		}
+	}
+
+}
+
+function divtoggle(spanid, divid) {
+	var ele = document.getElementById(divid);
+	var text = document.getElementById(spanid);
+	if(ele.style.display == "block") {
+		ele.style.display = "none";
+		text.innerHTML = "Expand";
+  	}
+	else {
+		ele.style.display = "block";
+		text.innerHTML = "Collapse";
+	}
+}
+</script>
+
+<style type="text/css">
+    div.tab {
+        min-height: 50px;
+        padding:8px;
+    }
+
+    div.form_header_controls {
+        float:left;margin-bottom:2px;
+    }
+
+    div.form_header {
+        float:left;
+        margin-left:6px;
+    }
+</style>
+
 </head>
 
 <body class="body_top">
+
 <div id="encounter_forms">
 
-<span class="title"><?php xl('This Encounter','e'); ?></span>
+
+<?php
+$dateres = getEncounterDateByEncounter($encounter);
+$encounter_date = date("Y-m-d",strtotime($dateres["date"]));
+?>
+
+<div style='float:left'>
+<span class="title"><?php xl($encounter_date . " Encounter ",'e'); ?></span>
 <?php
 $auth_notes_a  = acl_check('encounters', 'notes_a');
 $auth_notes    = acl_check('encounters', 'notes');
@@ -61,18 +132,21 @@ if (is_numeric($pid)) {
         $auth_notes_a = $auth_notes = $auth_relaxed = 0;
     }
 }
+?>
+</div>
+<div style='float:left;margin-left:10px'>
+<?php if (acl_check('admin', 'super')) { ?>
+    <a href='toggledivs(this.id,this.id);' class='css_button' onclick='return deleteme()'><span><?php echo xl('Delete') ?></span></a>
+	&nbsp;&nbsp;&nbsp;<a href="#" onClick='expandcollapse("expand");' style="font-size:80%;">Expand All</a>
+	&nbsp;&nbsp;&nbsp;<a  style="font-size:80%;" href="#" onClick='expandcollapse("collapse");'>Collapse All</a>
+<?php } ?>
+</div>
+<br/>
+<br/>
 
-echo ":";
-if (acl_check('admin', 'super')) {
-    // echo "&nbsp;&nbsp;<a href='' onclick='return deleteme()' class='deleteme'>" .
-    echo "&nbsp;&nbsp;<a href='' onclick='return deleteme()'>" .
-        "<font class='more' style='color:red'>(" . xl('Delete') . ")</font></a>";
-}
-echo "<br>\n";
-
-if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {
-    echo "<table>";
-    echo "<tr><th>" . xl('User') . "</th><th>" . xl('Form') . "</th><th>&nbsp;</th></tr>";
+<? if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {
+    echo "<table width='100%' id='partable'>";
+	$divnos=1;
     foreach ($result as $iter) {
         $formdir = $iter['formdir'];
 
@@ -87,49 +161,56 @@ if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name
 
         // $form_info = getFormInfoById($iter['id']);
         if (strtolower(substr($iter['form_name'],0,5)) == 'camos') {
-	//CAMOS generates links from report.php and these links should
-	//be clickable without causing view.php to come up unexpectedly.
-	//I feel that the JQuery code in this file leading to a click
-	//on the report.php content to bring up view.php steps on a
-	//form's autonomy to generate it's own html content in it's report
-	//but until any other form has a problem with this, I will just
-	//make an exception here for CAMOS and allow it to carry out this
-	//functionality for all other forms.  --Mark
+            //CAMOS generates links from report.php and these links should
+            //be clickable without causing view.php to come up unexpectedly.
+            //I feel that the JQuery code in this file leading to a click
+            //on the report.php content to bring up view.php steps on a
+            //form's autonomy to generate it's own html content in it's report
+            //but until any other form has a problem with this, I will just
+            //make an exception here for CAMOS and allow it to carry out this
+            //functionality for all other forms.  --Mark
 	        echo '<tr title="' . xl('Edit form') . '" '.
        		      'id="'.$formdir.'~'.$iter['form_id'].'">';
-	} else {
-	        echo '<tr title="' . xl('Edit form') . '" '.
-       		      'id="'.$formdir.'~'.$iter['form_id'].'" class="text onerow">';
-	}
+        } else {
+            echo '<tr title="' . xl('Edit form') . '" '.
+                  'id="'.$formdir.'~'.$iter['form_id'].'" class="text onerow">';
+        }
         $user = getNameFromUsername($iter['user']);
 
         $form_name = ($formdir == 'newpatient') ? xl('Patient Encounter') : xl_form_title($iter['form_name']);
-    
-        echo "<td valign='top' class='bold formrow'>" .
-                $user['fname'] . " " . $user['lname'] . "</td>";
-        echo "<td valign='top' class='center formrow'>";
 
+        echo "<tr>";
+        echo "<td style='border-bottom:1px solid'>";
         // a link to edit the form
+        echo "<div class='form_header_controls'>";
         echo "<a target='".
                 ($GLOBALS['concurrent_layout'] ? "_parent" : "Main") .
                 "' href='$rootdir/patient_file/encounter/view_form.php?" .
                 "formname=" . $formdir . "&id=" . $iter['form_id'] .
-                "' onclick='top.restoreSession()'>$form_name</a>";
+                "' onclick='top.restoreSession()' class='css_button_small'><span>Edit</span></a>";
 
-        if (acl_check('admin', 'super') && $formdir != 'newpatient') {
-            // a link to delete the form from the encounter 
-            echo "<span class='small'> (<a target='".
-                ($GLOBALS['concurrent_layout'] ? "_parent" : "Main") .
-                "' href='$rootdir/patient_file/encounter/delete_form.php?" .
-                "formname=" . $formdir . 
-                "&id=" . $iter['id'] .
-                "&encounter=". $encounter.
-                "&pid=".$pid.
-                "' class='small' title='" . xl('Delete this form') . "' onclick='top.restoreSession()'>" . xl('Delete') . "</a>)</span>";
+        if (acl_check('admin', 'super') ) {
+            if ( $formdir != 'newpatient') {
+                // a link to delete the form from the encounter
+                echo "<a target='".
+                    ($GLOBALS['concurrent_layout'] ? "_parent" : "Main") .
+                    "' href='$rootdir/patient_file/encounter/delete_form.php?" .
+                    "formname=" . $formdir .
+                    "&id=" . $iter['id'] .
+                    "&encounter=". $encounter.
+                    "&pid=".$pid.
+                    "' class='css_button_small' title='" . xl('Delete this form') . "' onclick='top.restoreSession()'><span>" . xl('Delete') . "</span></a>";
+            } else {
+                ?><a href='javascript:;' class='css_button_small' style='color:gray'><span>Delete</span></a><?php
+            }
         }
 
-        echo "</td>\n" .
-                "<td valign='top' class='formrow' style='padding-left: 25px;'>";
+        echo "<div class='form_header'>";
+        echo "<a href='#' onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos'><b>$form_name</b> <span class='text'>by " . $user['fname'] . "  " . $user['lname'] . "</span> (<span id=spanid_$divnos class=\"indicator\">Collapse</span>)</a></div>";
+        echo "</td>\n";
+        echo "</tr>";
+        echo "<tr>";
+        echo "<td valign='top' class='formrow'><div class='tab' id='divid_$divnos' style='display:block'>";
 
         // Use the form's report.php for display.  Forms with names starting with LBF
         // are list-based forms sharing a single collection of code.
@@ -143,7 +224,8 @@ if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name
           call_user_func($formdir . "_report", $pid, $iter['encounter'], 2, $iter['form_id']);
         }
 
-        echo "</td></tr>";
+        echo "</div></td></tr>";
+		$divnos=$divnos+1;
     }
     echo "</table>";
 }
