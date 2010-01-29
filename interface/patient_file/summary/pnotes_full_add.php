@@ -3,6 +3,7 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
+
 require_once("../../globals.php");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
@@ -16,7 +17,6 @@ if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
     require_once("$srcdir/pid.inc");
     setpid($_GET['set_pid']);
 }
-
 // Check authorization.
 $thisauth = acl_check('patients', 'notes');
 if ($thisauth != 'write' && $thisauth != 'addonly')
@@ -127,223 +127,123 @@ $result = getPnotesByDate("", $active, 'id,date,body,user,activity,title,assigne
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript">
-/// todo, move this to a common library
-
-$(document).ready(function(){
-
-    $("#dem_view").click( function() {
-        toggle( $(this), "#DEM" );
-    });
-
-    // load divs
-    $("#stats_div").load("stats.php");
-    $("#notes_div").load("pnotes_fragment.php");
-
-    // fancy box
-    enable_modals();
-});
-
+function submitform(attr) {
+if (attr="newnote")
+document.forms[0].submit();
+}
 </script>
 </head>
 <body class="body_top">
 
 <div id="pnotes"> <!-- large outer DIV -->
 
-<form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php?docid=<?php echo $docid; ?>'>
-
+<form border='0' method='post' name='new_note' id="new_note" target="_parent" action='pnotes_full.php?docid=<?php echo $docid; ?>'>
 
     <div>
-        <span class="title"><?php xl('Patient Notes','e'); ?></span>
+        <div style='float:left; margin-right: 5px'>
+            <span class="title"><?php xl('Patient Note','e'); ?></span>
+        </div>
+        <div>
+            <?php if ($noteid) { ?>
+            <!-- existing note -->
+            <a href="#" class="css_button" id="printnote"><span><?php xl('Print','e'); ?></span></a>
+            <?php } ?>
+            <a class="css_button large_button" id='cancel' href='javascript:;'>
+            <span class='css_button_span large_button_span'><?php xl('Cancel','e');?></span>
+            </a>
+        </div>
     </div>
-    <div style='float:left;margin-right:10px'>
-        <?php echo xl('for', 'e');?>&nbsp;<span class="title"><a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo getPatientName($pid) ?></a></span>
-    </div>
-    <div>
-        <a href="pnotes_full_add.php" class="css_button iframe"><span><?php xl('Add','e'); ?></span></a>
-        <a href="demographics.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
-            <span><?php echo xl('View Patient','e');?></span>
-        </a>
-    </div>
+
     <br/>
 
+<?php
+$title_docname = "";
+if ($docid) {
+  $title_docname = " " . xl("linked to document") . " ";
+  $d = new Document($docid);
+  $title_docname .= $d->get_url_file();
+}
+?>
+<input type='hidden' name='mode' id="mode" value="new">
+<input type='hidden' name='trigger' id="trigger" value="add">
+<input type='hidden' name='offset' id="offset" value="<?php echo $offset ?>">
+<input type='hidden' name='form_active' id="form_active" value="<?php echo $form_active ?>">
+<input type='hidden' name='form_inactive' id="form_inactive" value="<?php echo $form_inactive ?>">
+<input type='hidden' name='noteid' id="noteid" value="<?php echo $noteid ?>">
+<input type='hidden' name='form_doc_only' id="form_doc_only" value="<?php echo $form_doc_only ?>">
+<table border='0' cellspacing='8'>
+ <tr>
+  <td class='text'>
     <?php
-    $title_docname = "";
-    if ($docid) {
-      $title_docname = " " . xl("linked to document") . " ";
-      $d = new Document($docid);
-      $title_docname .= $d->get_url_file();
-    }
+     if ($noteid) {
+       // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
+       echo xl('Amend Existing Note')."<b> &quot;" . generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $title) . "&quot;</b>\n";
+     } else {
+       echo xl('Add New Note')."\n";
+     }
     ?>
-    <input type='hidden' name='mode' id="mode" value="new">
-    <input type='hidden' name='offset' id="offset" value="<?php echo $offset ?>">
-    <input type='hidden' name='form_active' id="form_active" value="<?php echo $form_active ?>">
-    <input type='hidden' name='form_inactive' id="form_inactive" value="<?php echo $form_inactive ?>">
-    <input type='hidden' name='noteid' id="noteid" value="<?php echo $noteid ?>">
-    <input type='hidden' name='form_doc_only' id="form_doc_only" value="<?php echo $form_doc_only ?>">
-</form>
+  </td>
+ </tr>
+ <tr>
+  <td class='text'>
+    <br/>
 
-
+   <b><?php xl('Type','e'); ?>:</b>
+   <?php
+   // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
+    generate_form_field(array('data_type'=>1,'field_id'=>'note_type','list_id'=>'note_type','empty_title'=>'SKIP'), $title);
+   ?>
+   &nbsp; &nbsp;
+   <b><?php xl('To','e'); ?>:</b>
+   <select name='assigned_to'>
+    <option value=''>** <?php xl('Close','e'); ?> **</option>
 <?php
-//display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
-$N = 15;
-
-$conn = $GLOBALS['adodb']['db'];
-
-// Get the billing note if there is one.
-$billing_note = "";
-$colorbeg = "";
-$colorend = "";
-$sql = "select genericname2, genericval2 " .
-    "from patient_data where pid = '$pid' limit 1";
-$resnote = $conn->Execute($sql);
-if($resnote && !$resnote->EOF && $resnote->fields['genericname2'] == 'Billing') {
-  $billing_note = $resnote->fields['genericval2'];
-  $colorbeg = "<span style='color:red'>";
-  $colorend = "</span>";
-}
-
-//Display what the patient owes
-$balance = get_patient_balance($pid);
+ while ($urow = sqlFetchArray($ures)) {
+  echo "    <option value='" . $urow['username'] . "'";
+  if ($urow['username'] == $assigned_to) echo " selected";
+  echo ">" . $urow['lname'];
+  if ($urow['fname']) echo ", " . $urow['fname'];
+  echo "</option>\n";
+ }
 ?>
-
-<?php if ($billing_note || $balance ) { ?>
-
-<div style='margin-top:3px'>
-<table width='80%'>
+   </select>
+  </td>
+ </tr>
+ <tr>
+  <td>
 <?php
-if ($balance != "0") {
-  $formatted = sprintf((xl('$').'%01.2f'), $balance);
-  echo " <tr class='text billing'>\n";
-  echo "  <td>".$colorbeg.xl('Balance Due').$colorend."&nbsp;".$colorbeg.$formatted.$colorend."</td>\n";
-  echo " </tr>\n";
-}
-
-if ($billing_note) {
-  echo " <tr class='text billing'>\n";
-  echo "  <td>".$colorbeg.xl('Billing Note').$colorend."&nbsp;".$colorbeg.$billing_note.$colorend."</td>\n";
-  echo " </tr>\n";
+if ($noteid) {
+    $body = $prow['body'];
+    $body = nl2br($body);
+    echo "<div class='text'>".$body."</div>";
 }
 ?>
+    <br/>
+   <textarea name='note' id='note' rows='4' cols='58'></textarea>
+
+    <?php if ($noteid) { ?>
+    <!-- existing note -->
+    <a href="#" class="css_button" id="newnote" title="<?php xl('Add as a new note','e'); ?>" ><span><?php xl('Save as new note','e'); ?></span></a>
+    <a href="#" class="css_button" id="appendnote" title="<?php xl('Append to the existing note','e'); ?>"><span><?php xl('Append this note','e'); ?></span></a>
+    <?php } else { ?>
+    <a href="#" class="css_button" id="newnote" title="<?php xl('Add as a new note','e'); ?>" ><span><?php xl('Save as new note','e'); ?></span></a>
+    <?php } ?>
+
+  </td>
+ </tr>
 </table>
-</div>
 <br>
-<?php } ?>
-
+</form>
 <form border='0' method='post' name='update_activity' id='update_activity'
  action="pnotes_full.php?docid=<?php echo $docid; ?>">
+
 <!-- start of previous notes DIV -->
 <div class=pat_notes>
+
+
 <input type='hidden' name='mode' value="update">
 <input type='hidden' name='offset' id='noteid' value="<?php echo $offset;?>">
 <input type='hidden' name='noteid' id='noteid' value="0">
-<table border='0' cellpadding="1" class="text">
-<?php if ($result != ""): ?>
- <tr>
-  <td colspan='5' style="padding: 5px;" >
-    <a href="#" class="change_activity" ><span><?php xl('Update Active','e'); ?></span></a>
-    |
-    <a href="pnotes_full.php" class="" id='Submit'><span>Refresh</span></a>
-  </td>
- </tr></table>
-<?php endif; ?>
-
-<div>
-<table border='0' cellpadding="1"  class="text" width = "80%">
-<?php
-// display all of the notes for the day, as well as others that are active
-// from previous dates, up to a certain number, $N
-
-if ($result != "") {
-  echo " <tr class=showborder_head align='left'>\n";
-  echo "  <th style='width:100px';>&nbsp;</th>\n";
-  echo "  <th>" . xl('Active') . "&nbsp;</th>\n";
-  echo "  <th>" . ($docid ? xl('Linked') : '') . "</th>\n";
-  echo "  <th>" . xl('Type') . "</th>\n";
-  echo "  <th>" . xl('Content') . "</th>\n";
-  echo " </tr>\n";
-
-  $result_count = 0;
-  foreach ($result as $iter) {
-    $result_count++;
-    $row_note_id = $iter['id'];
-
-    $linked = "";
-    if ($docid) {
-      if (isGpRelation(1, $docid, 6, $row_note_id)) {
-        $linked = "checked";
-      }
-      else {
-        // Skip unlinked notes if that is requested.
-        if ($form_doc_only) continue;
-      }
-    }
-
-    $body = $iter['body'];
-    if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
-      $body = nl2br($body);
-    } else {
-      $body = date('Y-m-d H:i', strtotime($iter['date'])) .
-        ' (' . $iter['user'] . ') ' . nl2br($body);
-    }
-
-    if ($iter{"activity"}) {
-      $checked = "checked";
-    } else {
-      $checked = "";
-    }
-
-    // highlight the row if it's been selected for updating
-    if ($_REQUEST['noteid'] == $row_note_id) {
-        echo " <tr height=20 class='noterow highlightcolor' id='$row_note_id'>\n";
-    }
-    else {
-        echo " <tr class='noterow' id='$row_note_id'>\n";
-    }
-
-
-	echo "  <td><a href='pnotes_full_add.php?trigger=edit&noteid=$row_note_id' class='css_button_small iframe'><span>". xl('Edit') ."</span></a>\n";
-
-    // display, or not, a button to delete the note
-    // if the user is an admin or if they are the author of the note, they can delete it
-    $thisauth = acl_check('admin', 'super');
-    if (($iter['user'] == $_SESSION['authUser']) || ($thisauth == 'write')) {
-	  echo " <a href='#' class='deletenote css_button_small' id='del$row_note_id' title='" . xl('Delete this note') . "'><span>" . xl('Delete') . "</span>\n";
-    }
-    echo "  </td>\n";
-
-
-    echo "  <td class='text bold'>\n";
-    echo "   <input type='hidden' name='act$row_note_id' value='1' />\n";
-    echo "   <input type='checkbox' name='chk$row_note_id' $checked />\n";
-    echo "  </td>\n";
-
-    echo "  <td class='text bold'>\n";
-    if ($docid) {
-      echo "   <input type='checkbox' name='lnk$row_note_id' $linked />\n";
-    }
-    echo "  </td>\n";
-
-    echo "  <td class='bold notecell' id='$row_note_id'><a href='pnotes_full_add.php?trigger=edit&noteid=$row_note_id' class='iframe'>\n";
-    // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-    echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
-    echo "  </a></td>\n";
-
-    echo "  <td class='notecell' id='$row_note_id'>\n";
-    echo "   $body";
-    echo "  </td>\n";
-    echo " </tr>\n";
-
-    $notes_count++;
-  }
-} else {
-  //no results
-  print "<tr><td colspan='3' class='text'>" . xl('None') . ".</td></tr>\n";
-}
-
-?>
-
-</table>
-</div>
 </form>
 
 <table width='400' border='0' cellpadding='0' cellspacing='0'>
@@ -378,8 +278,6 @@ if ($result_count == $N) {
 </table>
 
 </div> <!-- close the previous-notes DIV -->
-
-</center>
 
 <script language='JavaScript'>
 
@@ -467,8 +365,12 @@ $(document).ready(function(){
     }
 
 });
+$(document).ready(function(){
+    $("#cancel").click(function() {
+		  parent.$.fn.fancybox.close();
+	 });
 
+});
 </script>
-
 
 </html>

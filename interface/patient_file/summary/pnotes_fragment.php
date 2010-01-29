@@ -112,7 +112,7 @@
         <br/>
         <span class='text'>
             <?php // todo: fix this when parameterized translations are possible ?>
-            Displaying the <b><?php echo $N;?></b> most recent notes. Click <a href='pnotes.php'>here</a> to view them all.
+            Displaying the <b><?php echo $N;?></b> most recent notes. Click <a href='pnotes_full.php'>here</a> to view them all.
         </span>
         <?php
     } ?>
