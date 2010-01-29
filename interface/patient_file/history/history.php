@@ -9,6 +9,18 @@
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../../library/js/common.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+    tabbify();
+});
+</script>
+
+<style type="text/css">
+</style>
+
 </head>
 <body class="body_top">
 
@@ -28,24 +40,46 @@
  $result = getHistoryData($pid);
  if (!is_array($result)) {
   newHistoryData($pid);
-  $result = getHistoryData($pid);	
+  $result = getHistoryData($pid);
  }
 ?>
 
 <?php if ($thisauth == 'write' || $thisauth == 'addonly') { ?>
-<a href="history_full.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>
- onclick="top.restoreSession()">
-<span class="title"><?php xl('Patient History / Lifestyle','e'); ?></span>
-<span class="more"><?php echo $tmore;?></span></a><br>
+<div>
+    <span class="title"><?php xl('Patient History / Lifestyle','e'); ?></span>
+</div>
+<div style='float:left;margin-right:10px'>
+    <?php echo xl('for', 'e');?>&nbsp;<span class="title"><a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo getPatientName($pid) ?></a></span>
+</div>
+<div>
+    <a href="history_full.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>
+     class="css_button"
+     onclick="top.restoreSession()">
+    <span><?php echo xl("Edit");?></span>
+    </a>
+    <a href="../summary/demographics.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
+        <span><?php echo xl('Back To Patient','e');?></span>
+    </a>
+</div>
+<br/>
 <?php } ?>
 
-<!-- New stuff begins here. -->
-<div id="HIS">
-<table border='0' cellpadding='0' width='100%'>
-<?php
-display_layout_rows('HIS', $result);
-?>
-</table>
+<div style='float:none; margin-top: 10px; margin-right:20px'>
+    <table>
+    <tr>
+        <td>
+            <!-- Demographics -->
+            <div id="HIS">
+                <ul class="tabNav">
+                   <?php display_layout_tabs('HIS', $result, $result2); ?>
+                </ul>
+                <div class="tabContainer">
+                   <?php display_layout_tabs_data('HIS', $result, $result2); ?>
+                </div>
+            </div>
+        </td>
+    </tr>
+    </table>
 </div>
 
 </body>

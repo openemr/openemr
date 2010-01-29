@@ -265,7 +265,7 @@ if ($GLOBALS['patient_id_category_name']) {
 <td class="small" colspan='4'>
 <a href="rx_frameset.php" class='iframe rx_modal' onclick='top.restoreSession()'><?php xl('Rx', 'e'); ?></a>
 |
-<a href="../history/history.php" class='iframe large_modal' onclick='top.restoreSession()'><?php xl('History', 'e'); ?></a>
+<a href="../history/history.php" onclick='top.restoreSession()'><?php xl('History', 'e'); ?></a>
 |
 <a href="../report/patient_report.php" class='iframe  medium_modal' onclick='top.restoreSession()'><?php xl('Report', 'e'); ?></a>
 |

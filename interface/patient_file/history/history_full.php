@@ -23,23 +23,10 @@ if ($thisauth != 'write' && $thisauth != 'addonly')
 <link rel="stylesheet" href="<?php echo $css_header ?>" type="text/css">
 
 <style>
-body, td, input, select, textarea {
+.control_label {
  font-family: Arial, Helvetica, sans-serif;
  font-size: 10pt;
 }
-
-body {
- padding: 5pt 5pt 5pt 5pt;
-}
-
-div.section {
- border: solid;
- border-width: 1px;
- border-color: #0000ff;
- margin: 0 0 0 10pt;
- padding: 5pt;
-}
-
 </style>
 
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
@@ -50,7 +37,8 @@ div.section {
 <script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
+<script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../../library/js/common.js"></script>
 
 <script LANGUAGE="JavaScript">
 
@@ -89,7 +77,24 @@ function submitme() {
  }
 }
 
+function submit_history() {
+    document.forms[0].submit();
+}
 </script>
+
+<script type="text/javascript">
+/// todo, move this to a common library
+$(document).ready(function(){
+    tabbify();
+});
+</script>
+
+<style type="text/css">
+div.tab {
+	height: auto;
+	width: auto;
+}
+</style>
 
 </head>
 <body class="body_top">
@@ -107,137 +112,35 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 ?>
 
 <form action="history_save.php" name='history_form' method='post' onsubmit='return validate(this)'>
-<input type='hidden' name='mode' value='save'>
+    <input type='hidden' name='mode' value='save'>
 
-<?php if ($GLOBALS['concurrent_layout']) { ?>
-<a href='history.php' onclick='top.restoreSession()'>
-<?php } else { ?>
-<a href='patient_history.php' target='Main' onclick='top.restoreSession()'>
-<?php } ?>
-<font class='title'><?php xl('Patient History / Lifestyle','e'); ?></font>
-<font class=back><?php echo $tback;?></font></a><br>
+    <div>
+        <span class="title"><?php xl('Patient History / Lifestyle','e'); ?></span>
+    </div>
+    <div style='float:left;margin-right:10px'>
+        <?php echo xl('for', 'e');?>&nbsp;<span class="title"><a href="../summary/demographics.php"><?php echo getPatientName($pid) ?></a></span>
+    </div>
+    <div>
+        <a href="" class="css_button" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> onclick="top.restoreSession(); submit_history();" >
+            <span><?php echo xl('Save','e');?></span>
+        </a>
+        <a href="history.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
+            <span><?php echo xl('Back To View','e');?></span>
+        </a>
+    </div>
 
-<!-- Start New Stuff -->
+    <br/>
 
-<?php
+    <!-- history tabs -->
+    <div id="HIS" style='float:none; margin-top: 10px; margin-right:20px'>
+        <ul class="tabNav" >
+           <?php display_layout_tabs('HIS', $result, $result2); ?>
+        </ul>
 
-function end_cell() {
-  global $item_count, $cell_count;
-  if ($item_count > 0) {
-    echo "</td>";
-    $item_count = 0;
-  }
-}
-
-function end_row() {
-  global $cell_count, $CPR;
-  end_cell();
-  if ($cell_count > 0) {
-    for (; $cell_count < $CPR; ++$cell_count) echo "<td></td>";
-    echo "</tr>\n";
-    $cell_count = 0;
-  }
-}
-
-function end_group() {
-  global $last_group;
-  if (strlen($last_group) > 0) {
-    end_row();
-    echo " </table>\n";
-    echo "</div>\n";
-  }
-}
-
-$last_group = '';
-$cell_count = 0;
-$item_count = 0;
-$display_style = 'block';
-
-while ($frow = sqlFetchArray($fres)) {
-  $this_group = $frow['group_name'];
-  $titlecols  = $frow['titlecols'];
-  $datacols   = $frow['datacols'];
-  $data_type  = $frow['data_type'];
-  $field_id   = $frow['field_id'];
-  $list_id    = $frow['list_id'];
-  $currvalue  = isset($result[$field_id]) ? $result[$field_id] : '';
-
-  // Handle a data category (group) change.
-  if (strcmp($this_group, $last_group) != 0) {
-    end_group();
-    $group_seq  = substr($this_group, 0, 1);
-    $group_name = substr($this_group, 1);
-    $last_group = $this_group;
-    echo "<br /><span class='bold'><input type='checkbox' name='form_cb_$group_seq' value='1' " .
-      "onclick='return divclick(this,\"div_$group_seq\");'";
-    if ($display_style == 'block') echo " checked";
-
-    // Modified 6-09 by BM - Translate if applicable  
-    echo " /><b>" . xl_layout_label($group_name) . "</b></span>\n";
-
-    echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
-    echo " <table border='0' cellpadding='0'>\n";
-    $display_style = 'none';
-  }
-
-  // Handle starting of a new row.
-  if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
-    end_row();
-    echo "  <tr>";
-  }
-
-  if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
-
-  // Handle starting of a new label cell.
-  if ($titlecols > 0) {
-    end_cell();
-    echo "<td colspan='$titlecols' valign='top'";
-    echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
-    if ($cell_count == 2) echo " style='padding-left:10pt'";
-    echo ">";
-    $cell_count += $titlecols;
-  }
-  ++$item_count;
-
-  echo "<b>";
-
-  // Modified 6-09 by BM - Translate if applicable  
-  if ($frow['title']) echo (xl_layout_label($frow['title']).":");
-
-  echo "</b>";
-
-  // Handle starting of a new data cell.
-  if ($datacols > 0) {
-    end_cell();
-    echo "<td colspan='$datacols' class='text'";
-    if ($cell_count > 0) echo " style='padding-left:5pt'";
-    echo ">";
-    $cell_count += $datacols;
-  }
-
-  ++$item_count;
-  generate_form_field($frow, $currvalue);
-}
-
-end_group();
-?>
-
-<center><br />
-   <input type='submit' value='<?php xl('Save','e'); ?>' />&nbsp;
-   <input type='button' value='<?php xl('To Issues','e'); ?>'
-<?php if ($GLOBALS['concurrent_layout']) { ?>
-    onclick="top.restoreSession();parent.left_nav.setRadio(window.name,'iss');location='../summary/stats_full.php';" />&nbsp;
-<?php } else { ?>
-    onclick="top.restoreSession();location='../summary/stats_full.php';" />&nbsp;
-<?php } ?>
-   <input type='button' value='<?php xl('Back','e'); ?>'
-<?php if ($GLOBALS['concurrent_layout']) { ?>
-    onclick="top.restoreSession();location='history.php';" />
-<?php } else { ?>
-    onclick="top.restoreSession();location='patient_history.php';" />
-<?php } ?>
-</center>
-
+        <div class="tabContainer">
+            <?php display_layout_tabs_data_editable('HIS', $result, $result2); ?>
+        </div>
+    </div>
 </form>
 
 <!-- include support for the list-add selectbox feature -->
