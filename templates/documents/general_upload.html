@@ -1,41 +1,34 @@
 <form method=post enctype="multipart/form-data" action="{$FORM_ACTION}" onsubmit="return top.restoreSession()">
 <input type="hidden" name="MAX_FILE_SIZE" value="12000000" />
-<table>
-	<tr>
-		<td>{xl t="NOTE: Uploading files with duplicate names will cause the files to be automatically renamed (for example, file.jpg will become file.1.jpg). Filenames are considered unique per patient, not per category."}</td>
-	</tr>
-	<tr>
-		<td>{xl t="Upload Document"} {if $category_name} {xl t="to category"} '{$category_name}'{/if}</td>
-	</tr>
-	<tr>
-		<td><input type="file" name="file"></td>
-	</tr>
-	<tr>
-		<td><input type="submit" value="{xl t='Upload'}"></td>
-	</tr>
-	{if !empty($file)}
-	<tr>
-		<td><br><br></td>
-	</tr>
-	<tr>
-		<td>{xl t='Upload Report'}</td>
-	</tr>
-	<tr>
-		<td>{$error}</td>
-	</tr>
-	<tr>
-		<td>
-		{xl t='ID'}: {$file->get_id()}<br>
-		{xl t='Patient'}: {$file->get_foreign_id()}<br>
-		{xl t='URL'}: {$file->get_url()}<br>
-		{xl t='Size'}: {$file->get_size()}<br>
-		{xl t='Date'}: {$file->get_date()}<br>
-		{xl t='MimeType'}: {$file->get_mimetype()}<br>
-		{xl t='Revision'}: {$file->revision}<br>
-		</td>
-	</tr>
-	{/if}
-</table>
+
+<div class="text">
+    {xl t="NOTE: Uploading files with duplicate names will cause the files to be automatically renamed (for example, file.jpg will become file.1.jpg). Filenames are considered unique per patient, not per category."}
+    <br/>
+    <br/>
+</div>
+<div class="text bold">
+    {xl t="Upload Document"} {if $category_name} {xl t="to category"} '{$category_name}'{/if}
+</div>
+<div class="text">
+    <input type="file" name="file"> <input type="submit" value="{xl t='Upload'}">
+</div>
+{if !empty($file)}
+<div class="text bold">
+    <br/>
+    {xl t='Upload Report'}
+</div>
+<div class="text">
+    {if $error}<i>{$error}</i><br/>{/if}
+    {xl t='ID'}: {$file->get_id()}<br>
+    {xl t='Patient'}: {$file->get_foreign_id()}<br>
+    {xl t='URL'}: {$file->get_url()}<br>
+    {xl t='Size'}: {$file->get_size()}<br>
+    {xl t='Date'}: {$file->get_date()}<br>
+    {xl t='MimeType'}: {$file->get_mimetype()}<br>
+    {xl t='Revision'}: {$file->revision}<br>
+</div>
+{/if}
+
 <input type="hidden" name="patient_id" value="{$patient_id}" />
 <input type="hidden" name="category_id" value="{$category_id}" />
 <input type="hidden" name="process" value="{$PROCESS}" />

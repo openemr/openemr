@@ -9,12 +9,14 @@
 
 <script src="DocumentTreeMenu.js" language="JavaScript" type="text/javascript"></script>
 </head>
-<body bgcolor="{$STYLE.BGCOLOR2}">
+<!--<body bgcolor="{$STYLE.BGCOLOR2}">-->
+<body class="body_top">
+<div class="title">{xl t='Documents'}</div>
 <div id="documents_list">
 <table>
 	<tr>
-		<td height="20" valign="top">{xl t='Document Categories'}<br>
-			&nbsp;&nbsp;&nbsp;<a href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">{xl t='collapse all'}</a>
+		<td height="20" valign="top">{xl t='Categories'} &nbsp;
+            (<a href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">{xl t='Collapse all'}</a>)
 		</td>
 	</tr>
 	<tr>
@@ -24,10 +26,10 @@
 </div>
 <div id="documents_actions">
 		{if $message}
-			{$message}<br>
+			<div class='text' style="margin-bottom:-10px; margin-top:-8px"><i>{$message}</i></div><br>
 		{/if}
 		{if $messages}
-			{$messages}<br>
+            <div class='text' style="margin-bottom:-10px; margin-top:-8px"><i>{$messages}</i></div><br>
 		{/if}
 		{$activity}
 </div>

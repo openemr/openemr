@@ -243,16 +243,16 @@ font-style: italic;
 font-weight: bold;
 }
 #documents_list {
-    width: 28%;
-    height: 100%;
+    width: 29%;
+    height: 95%;
     overflow: auto; 
-    border: 2px inset;
     float: left;
+    border-right: dashed 1px;
 }
 #documents_actions {
     padding-top: 10px;
     width: 70%;
-    height: 100%;
+    height: 95%;
     float: right;
     overflow: auto;
 }
@@ -260,7 +260,7 @@ font-weight: bold;
     display: inline;
     border:none; 
     width:100%; 
-    height:600px; 
+    height:200px;
     overflow: auto;
 }
 #documents_actions form {
@@ -268,7 +268,7 @@ font-weight: bold;
 }
 #documents_actions table {
     width: 100%;
-    height: 100%;
+    height: 95%;
 }
 
 /*=============================================================
@@ -794,4 +794,5 @@ font-size:9pt;
 	background-color: #94D6E7;
 	padding: 5px;
 	position: absolute;
-	display: block;	
+	display: block;
+}

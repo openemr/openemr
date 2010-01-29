@@ -88,7 +88,7 @@ class C_Document extends Controller {
                                 $error .= xl('Current file name was changed to','','',' ') . $fname ."\n";
 		  	}
 		  	if (move_uploaded_file($file['tmp_name'],$this->file_path.$file['name'])) {
-                                $error .= xl('File','','',' ') . $file['name'] . xl('successfully stored.','',' ') . "\n";
+        		$this->assign("upload_success", "true");
 		  		$d = new Document();
 		  		$d->url = "file://" .$this->file_path.$file['name'];
 		  		$d->mimetype = $file['type'];
@@ -154,8 +154,8 @@ class C_Document extends Controller {
 		// Added by Rod to support document delete:
 		$delete_string = '';
 		if (acl_check('admin', 'super')) {
-			$delete_string = "<a href='' onclick='return deleteme(" . $d->get_id() .
-				")'><font color='red'>(" . xl('Delete this document') . ")</font></a>";
+			$delete_string = "<a href='' class='css_button' onclick='return deleteme(" . $d->get_id() .
+				")'><span><font color='red'>" . xl('Delete') . "</font></span></a>";
 		}
 		$this->assign("delete_string", $delete_string);
 		$this->assign("REFRESH_ACTION",$this->_link("list"));

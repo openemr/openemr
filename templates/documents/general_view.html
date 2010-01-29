@@ -1,3 +1,4 @@
+<head>
 <style type="text/css">@import url(library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="library/dialog.js"></script>
 <script type="text/javascript" src="library/textformat.js"></script>
@@ -30,62 +31,107 @@
   return false;
  {literal}}{/literal}
 
+
 </script>
+
+</head>
+
+
 <table valign="top">
-	<tr>
+    <tr>
+        <td>
+            <a class="css_button" href="{$web_path}" onclick="top.restoreSession()"><span>{xl t='Download'}</span></a>
+            <a class="css_button" href='' onclick='return showpnotes({$file->get_id()})'><span>{xl t='Show Notes'}</span></a>
+            {$delete_string}
+        </td>
+    </tr>
+    <tr>
 		<td valign="top">
-			<a href="{$web_path}" onclick="top.restoreSession()">{xl t='Click to download'}</a>
 
-      &nbsp;&nbsp;&nbsp;
-      <a href='' onclick='return showpnotes({$file->get_id()})'>{xl t='Show Patient Notes'}</a>
+            <div class="text">
+                <form method="post" name="document_update" action="{$UPDATE_ACTION}" onsubmit="return top.restoreSession()">
+                <div>
+                    <div style="float:left">
+                        <b>{xl t='Update'}</b>&nbsp;
+                    </div>
+                    <div style="float:none">
+                        <a href="javascript:;" onclick="document.forms['document_update'].submit();">(<span>{xl t='submit'})</span></a>
+                    </div>
+                </div>
+                <div>
+                    {xl t='Date'}:
+                    <input type='text' size='10' name='docdate' id='docdate'
+                     value='{$DOCDATE}' title='{xl t='yyyy-mm-dd document date'}'
+                     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
+                    <img src='interface/pic/show_calendar.gif' id='img_docdate' align='absbottom'
+                     width='24' height='22' border='0' alt='[?]' style='cursor:pointer'
+                     title='{xl t='Click here to choose a date'}' />
+                    <select name="issue_id">{$ISSUES_LIST}</select>
+                </div>
+                </form>
+            </div>
 
-			&nbsp;&nbsp;&nbsp;{$delete_string}
+            <br/>
 
-			<p><form method="post" name="document_update" action="{$UPDATE_ACTION}" onsubmit="return top.restoreSession()">
-			{xl t='Date'}:
-			<input type='text' size='10' name='docdate' id='docdate'
-			 value='{$DOCDATE}' title='{xl t='yyyy-mm-dd document date'}'
-			 onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-			<img src='interface/pic/show_calendar.gif' id='img_docdate' align='absbottom'
-			 width='24' height='22' border='0' alt='[?]' style='cursor:pointer'
-			 title='{xl t='Click here to choose a date'}' />
-			&nbsp;&nbsp;
-			<select name="issue_id">{$ISSUES_LIST}</select>
-			&nbsp;&nbsp;
-			<input type="submit" name="docupdate" value="{xl t='Update'}" />
-			</form>
+            <div class="text">
+                <form method="post" name="document_move" action="{$MOVE_ACTION}" onsubmit="return top.restoreSession()">
+                <div>
+                    <div style="float:left">
+                        <b>{xl t='Move'}</b>&nbsp;
+                    </div>
+                    <div style="float:none">
+                        <a href="javascript:;" onclick="document.forms['document_move'].submit();">(<span>{xl t='submit'})</span></a>
+                    </div>
+                </div>
 
-			<p><form method="post" name="document_move" action="{$MOVE_ACTION}" onsubmit="return top.restoreSession()">
-			<select name="new_category_id">{$tree_html_listbox}</select>&nbsp;
-			{xl t='Move to Patient'} # <input type="text" name="new_patient_id" size="4" />
-			<a href="javascript:{literal}{}{/literal}"
-			 onclick="top.restoreSession();var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|escape:"url"}&form_name={"document_move['new_patient_name']"|escape:"url"}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left=425,top=250');">
-			<img src="images/stock_search-16.png" border="0" /></a>
-			<input type="hidden" name="new_patient_name" value="" />
-			&nbsp;&nbsp;&nbsp;<input type="submit" name="move" value="{xl t='Move'}" />
-			</form>
+                <div>
+                        <select name="new_category_id">{$tree_html_listbox}</select>&nbsp;
+                        {xl t='Move to Patient'} # <input type="text" name="new_patient_id" size="4" />
+                        <a href="javascript:{literal}{}{/literal}"
+                         onclick="top.restoreSession();var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|escape:"url"}&form_name={"document_move['new_patient_name']"|escape:"url"}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left=425,top=250');">
+                        <img src="images/stock_search-16.png" border="0" /></a>
+                        <input type="hidden" name="new_patient_name" value="" />
+                </div>
+                </form>
+            </div>
 
-			<p><form name="notes" method="post" action="{$NOTE_ACTION}" onsubmit="return top.restoreSession()">
-			<textarea cols="53" rows="4" wrap="virtual" name="note"></textarea><br>
-			<input type="submit" name="add note" value="{xl t='Add Note'}">
-			<input type="hidden" name="process" value="{$PROCESS}" />
-			<input type="hidden" name="foreign_id" value="{$file->get_id()}" />
-			</form>
+            <br/>
 
-			<textarea cols="53" rows="10" readonly style='background-color:transparent'>
-{foreach name=note_loop from=$notes item=note}
-{xl t='Note'} #{$note->get_id()}
-{xl t='Date:'} {$note->get_date()}
-{$note->get_note()}
+            <form name="notes" method="post" action="{$NOTE_ACTION}" onsubmit="return top.restoreSession()">
+            <div class="text">
+                <div>
+                    <div style="float:left">
+                        <b>{xl t='Notes'}</b>&nbsp;
+                    </div>
+                    <div style="float:none">
+                        <a href="javascript:;" onclick="document.forms['notes'].submit();">(<span>{xl t='add'}</span>)</a>
+                    </div>
+                <div>
+                    <textarea cols="53" rows="4" wrap="virtual" name="note"></textarea><br>
+                    <input type="hidden" name="process" value="{$PROCESS}" />
+                    <input type="hidden" name="foreign_id" value="{$file->get_id()}" />
 
-{/foreach}
-			</textarea>
-			<br />
+                    {if $notes}
+                    <div style="margin-top:7px">
+                        {foreach name=note_loop from=$notes item=note}
+                        <div>
+                        {xl t='Note'} #{$note->get_id()}
+                        {xl t='Date:'} {$note->get_date()}
+                        {$note->get_note()}
+                        </div>
+                        {/foreach}
+                        {/if}
+                    </div>
+                </div>
+            </div>
+            </form>
+
 		</td>
 	</tr>
 	<tr>
 		<td>
-			{if $file->get_mimetype() eq "image/tiff"}
+            <div class="text"><b>{xl t='Content'}</b></div>
+            {if $file->get_mimetype() eq "image/tiff"}
 			<embed frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}as_file=false"></embed>
 			{elseif $file->get_mimetype() eq "image/png" or
 			 $file->get_mimetype() eq "image/jpg" or
