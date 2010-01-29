@@ -13,9 +13,15 @@ if (file_exists($fname)) include_once($fname);
 $transid = empty($_REQUEST['transid']) ? 0 : $_REQUEST['transid'] + 0;
 $mode    = empty($_POST['mode' ]) ? '' : $_POST['mode' ];
 $title   = empty($_POST['title']) ? '' : $_POST['title'];
-
+$inmode    = $_GET['inmode'];
 $body_onload_code="";
-
+if ($inmode) {		/*	For edit func */
+  $inedit = sqlStatement("SELECT * FROM transactions " .
+    "WHERE id = '".$transid."'");
+  while ($inmoderow = sqlFetchArray($inedit)) {
+    $body = $inmoderow['body'];
+  }
+}
 if ($mode) {
   $sets =
     "title='"          . $_POST['title'] . "'" .
@@ -36,7 +42,6 @@ if ($mode) {
     }
     $sets .= ", $field_id = '$value'";
   }
-
   if ($transid) {
     sqlStatement("UPDATE transactions SET $sets WHERE id = '$transid'");
   }
@@ -95,24 +100,8 @@ $trow = $transid ? getTransById($transid) : array();
 <head>
 <?php html_header_show(); ?>
 
-<style>
-
-td, input, select, textarea {
- font-family: Arial, Helvetica, sans-serif;
- font-size: 10pt;
-}
-
-div.section {
- border: solid;
- border-width: 1px;
- border-color: #0000ff;
- margin: 0 0 0 10pt;
- padding: 5pt;
-}
-
-</style>
-
 <link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
@@ -122,7 +111,15 @@ div.section {
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
-
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    tabbify();
+    enable_modals();
+});
+</script>
 <script language="JavaScript">
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -171,6 +168,7 @@ function sel_related() {
 
 // Process click on Delete link.
 function deleteme() {
+// onclick='return deleteme()'
  dlgopen('../deleter.php?transaction=<?php echo $transid ?>', '_blank', 500, 450);
  return false;
 }
@@ -192,53 +190,91 @@ function trimlen(s) {
 }
 
 // Validation logic for form submission.
-function validate() {
- var f = document.forms[0];
+function validate(f) {
+ var errCount = 0;
+ var errMsgs = new Array();
+
  var sel = f.title;
  var si = (sel.selectedIndex < 0) ? 0 : sel.selectedIndex;
  if (sel.options[si].value == 'Referral') {
-<?php generate_layout_validation('REF'); ?>
+    <?php generate_layout_validation('REF'); ?>
  }
- return true;
+
+ var msg = "";
+ msg += "<?php xl('The following fields are required', 'e' ); ?>:\n\n";
+ for ( var i = 0; i < errMsgs.length; i++ ) {
+	msg += errMsgs[i] + "\n";
+ }
+ msg += "\n<?php xl('Please fill them in before continuing', 'e'); ?>.";
+
+ if ( errMsgs.length > 0 ) {
+	alert(msg);
+ }
+
+ return errMsgs.length < 1;
+}
+
+function submitme() {
+ var f = document.forms['new_transaction'];
+ if (validate(f)) {
+  top.restoreSession();
+  f.submit();
+ }
 }
 
 <?php if (function_exists('REF_javascript')) call_user_func('REF_javascript'); ?>
 
 </script>
 
+
+<style type="text/css">
+div.tab {
+	height: auto;
+	width: auto;
+}
+</style>
+
 </head>
 <body class="body_top" onload="<?php echo $body_onload_code; ?>" >
-
-<form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo $transid ?>'>
+<form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo $transid ?>' onsubmit='return validate(this)'>
 <input type='hidden' name='mode' value='add'>
 
-<span class='bold'><?php xl('Transaction Type','e'); ?>:</span>&nbsp;
-<select name='title' onchange='titleChanged()'>
-<?php
-foreach ($trans_types as $key => $value) {
-  echo "    <option value='$key'";
-  if ($key == $db_title) echo " selected";
-  echo ">$value</option>\n";
-}
-?>
-</select>
+	<table>
+	    <tr>
+            <td>
+                <b><?php xl('Add/Edit Patient Transaction','e'); ?></b>&nbsp;</td><td>
+                 <a href="javascript:;"  <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="submitme();">
+                    <span><?php xl('Save','e'); ?></span>
+                 </a>
+             </td>
+             <td>
+                <a href="transactions.php"  <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
+                    <span><?php xl('Cancel','e'); ?></span>
+                </a>
+            </td>
+        </tr>
+	</table>
 
-<?php
-  if ($transid && acl_check('admin', 'super')) {
-   echo "&nbsp;&nbsp;<a href='' onclick='return deleteme()'>" .
-    "<span class='more' style='color:red'>(" . xl('Delete') . ")</span></a>";
-  }
-?>
+	<table class="text">
+	    <tr><td>
+        <?php xl('Transaction Type','e'); ?>:&nbsp;</td><td>
+        <select name='title' onchange='titleChanged()'>
+        <?php
+        $db_title=$_REQUEST['title'];
+        foreach ($trans_types as $key => $value) {
+          echo "    <option value='$key'";
+          if ($key == $db_title) echo " selected";
+          echo ">$value</option>\n";
+        }
+        ?>
+        </select>
+        </td></tr>
+	</table>
 
-<p>
-<div id='otherdiv' style='display:none'>
-<span class='bold'><?php xl('Details','e'); ?>:</span><br>
-<textarea name='body' rows='6' cols='40' wrap='virtual'></textarea>
-</div>
-</p>
+<div id='referdiv'>
 
-<p>
-<div id='referdiv' style='display:none'>
+					<div id="DEM">
+						<ul class="tabNav">
 <?php
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'REF' AND uor > 0 " .
@@ -264,8 +300,55 @@ while ($frow = sqlFetchArray($fres)) {
     if ($field_id == 'refer_date') {
       $currvalue = date('Y-m-d');
     }
-    else if ($field_id == 'body') {
+    else if ($field_id == 'body' ) {
       $tmp = sqlQuery("SELECT reason FROM form_encounter WHERE " .
+        "pid = '$pid' ORDER BY date DESC LIMIT 1");
+      if (!empty($tmp)) $currvalue = $tmp['reason'];
+    }
+  }
+
+  // Handle a data category (group) change.
+  if (strcmp($this_group, $last_group) != 0) {
+    $group_seq  = substr($this_group, 0, 1);
+    $group_name = substr($this_group, 1);
+    $last_group = $this_group;
+	if($group_seq==1)	echo "<li class='current'>";
+	else				echo "<li class=''>";
+	echo "<a href='/play/javascript-tabbed-navigation/' id='div_$group_seq'>".xl_layout_label($group_name)."</a></li>";
+  }
+  ++$item_count;
+}
+?>
+						</ul>
+						<div class="tabContainer">
+
+								<?php
+$fres = sqlStatement("SELECT * FROM layout_options " .
+  "WHERE form_id = 'REF' AND uor > 0 " .
+  "ORDER BY group_name, seq");
+$last_group = '';
+$cell_count = 0;
+$item_count = 0;
+$display_style = 'block';
+
+while ($frow = sqlFetchArray($fres)) {
+  $this_group = $frow['group_name'];
+  $titlecols  = $frow['titlecols'];
+  $datacols   = $frow['datacols'];
+  $data_type  = $frow['data_type'];
+  $field_id   = $frow['field_id'];
+  $list_id    = $frow['list_id'];
+
+  $currvalue  = '';
+  if (isset($trow[$field_id])) $currvalue = $trow[$field_id];
+
+  // Handle special-case default values.
+  if (!$currvalue && !$transid) {
+    if ($field_id == 'refer_date') {
+      $currvalue = date('Y-m-d');
+    }
+    else if ($field_id == 'body' && $transid > 0 ) {
+	   $tmp = sqlQuery("SELECT reason FROM form_encounter WHERE " .
         "pid = '$pid' ORDER BY date DESC LIMIT 1");
       if (!empty($tmp)) $currvalue = $tmp['reason'];
     }
@@ -277,14 +360,8 @@ while ($frow = sqlFetchArray($fres)) {
     $group_seq  = substr($this_group, 0, 1);
     $group_name = substr($this_group, 1);
     $last_group = $this_group;
-    echo "<br /><span class='bold'><input type='checkbox' name='form_cb_$group_seq' value='1' " .
-      "onclick='return divclick(this,\"div_$group_seq\");'";
-    if ($display_style == 'block') echo " checked";
-      
-    // Modified 6-09 by BM - Translate if applicable
-    echo " /><b>" . xl_layout_label($group_name) . "</b></span>\n";
-      
-    echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
+	if($group_seq==1)	echo "<div class='tab current' id='div_$group_seq'>";
+	else				echo "<div class='tab' id='div_$group_seq'>";
     echo " <table border='0' cellpadding='0'>\n";
     $display_style = 'none';
   }
@@ -300,7 +377,7 @@ while ($frow = sqlFetchArray($fres)) {
   // Handle starting of a new label cell.
   if ($titlecols > 0) {
     end_cell();
-    echo "<td valign='top' colspan='$titlecols'";
+    echo "<td width='70' valign='top' colspan='$titlecols'";
     echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
     if ($cell_count == 2) echo " style='padding-left:10pt'";
     echo ">";
@@ -309,10 +386,10 @@ while ($frow = sqlFetchArray($fres)) {
   ++$item_count;
 
   echo "<b>";
-    
+
   // Modified 6-09 by BM - Translate if applicable
   if ($frow['title']) echo (xl_layout_label($frow['title']) . ":"); else echo "&nbsp;";
-    
+
   echo "</b>";
 
   // Handle starting of a new data cell.
@@ -326,20 +403,24 @@ while ($frow = sqlFetchArray($fres)) {
 
   ++$item_count;
   generate_form_field($frow, $currvalue);
+  echo "</div>";
 }
 
 end_group();
+
 ?>
+</div></div>
+</form>
+</div>
+<p>
+<div id='otherdiv' style='display:none'>
+<span class='bold'><?php xl('Details','e'); ?>:</span><br>
+<textarea name='body' rows='6' cols='40' wrap='virtual'><?php echo $body; ?>
+</textarea>
 </div>
 </p>
 
-<p>
-<a href="javascript:document.new_transaction.submit();" class='link_submit'
- onclick='return validate()'>
-[<?php xl('Save Transaction','e'); ?>]</a>
-</p>
 
-</form>
 
 <!-- include support for the list-add selectbox feature -->
 <?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
