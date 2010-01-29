@@ -6,7 +6,8 @@ require_once("$srcdir/formdata.inc.php");
 
 $alertmsg = '';
 
-if (isset($_POST["mode"]) && $_POST["mode"] == "facility") {
+/*		Inserting New facility					*/
+if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] != "admin_facility") {
   sqlStatement("INSERT INTO facility SET " .
   "name = '"         . trim(formData('facility'    )) . "', " .
   "phone = '"        . trim(formData('phone'       )) . "', " .
@@ -19,93 +20,120 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility") {
   "federal_ein = '"  . trim(formData('federal_ein' )) . "', " .
   "facility_npi = '" . trim(formData('facility_npi')) . "'");
 }
+
+/*		Editing existing facility					*/
+if ($_POST["mode"] == "facility" && $_POST["newmode"] == "admin_facility")
+{
+	sqlStatement("update facility set
+		name='" . trim(formData('facility')) . "',
+		phone='" . trim(formData('phone')) . "',
+		fax='" . trim(formData('fax')) . "',
+		street='" . trim(formData('street')) . "',
+		city='" . trim(formData('city')) . "',
+		state='" . trim(formData('state')) . "',
+		postal_code='" . trim(formData('postal_code')) . "',
+		country_code='" . trim(formData('country_code')) . "',
+		federal_ein='" . trim(formData('federal_ein')) . "',
+		service_location='" . trim(formData('service_location')) . "',
+		billing_location='" . trim(formData('billing_location')) . "',
+		accepts_assignment='" . trim(formData('accepts_assignment')) . "',
+		pos_code='" . trim(formData('pos_code')) . "',
+		domain_identifier='" . trim(formData('domain_identifier')) . "',
+		facility_npi='" . trim(formData('facility_npi')) . "',
+		attn='" . trim(formData('attn')) . "' 
+	where id='" . trim(formData('fid')) . "'" );
+}
+
 ?>
 <html>
 <head>
-
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+<script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../../library/js/common.js"></script>
+<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 
+<script type="text/javascript">
+
+
+$(document).ready(function(){
+
+    // fancy box
+    enable_modals();
+
+    // special size for
+	$(".addfac_modal").fancybox( {
+		'overlayOpacity' : 0.0,
+		'showCloseButton' : true,
+		'frameHeight' : 300,
+		'frameWidth' : 600
+	});
+
+    // special size for
+	$(".medium_modal").fancybox( {
+		'overlayOpacity' : 0.0,
+		'showCloseButton' : true,
+		'frameHeight' : 460,
+		'frameWidth' : 650
+	});
+
+});
+
+</script>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
+
 <body class="body_top">
 
-<span class="title"><?php xl('Facility Administration','e'); ?></span>
-
-<br><br>
-
-<table width=100%>
-<tr>
-
-<td valign=top>
-
-<form name='facility' method='post' action="facilities.php"
- onsubmit='return top.restoreSession()'>
-<input type=hidden name=mode value="facility">
-<span class="bold"><?php xl('New Facility Information','e'); ?>: </span>
-</td><td>
-
-<table border=0 cellpadding=0 cellspacing=0>
-<tr>
-<td><span class="text"><?php xl('Name','e'); ?>: </span></td><td><input type=entry name=facility size=20 value=""></td>
-<td><span class="text"><?php xl('Phone','e'); ?>: </span></td><td><input type=entry name=phone size=20 value=""></td>
-</tr>
-<tr>
-<td>&nbsp;</td><td>&nbsp;</td>
-<td><span class="text"><?php xl('Fax','e'); ?>: </span></td><td><input type=entry name=fax size=20 value=""></td>
-</tr>
-<tr>
-<td><span class="text"><?php xl('Address','e'); ?>: </span></td><td><input type=entry size=20 name=street value=""></td>
-<td><span class="text"><?php xl('City','e'); ?>: </span></td><td><input type=entry size=20 name=city value=""></td>
-</tr>
-<tr>
-<td><span class="text"><?php xl('State','e'); ?>: </span></td><td><input type=entry size=20 name=state value=""></td>
-<td><span class="text"><?php xl('Zip Code','e'); ?>: </span></td><td><input type=entry size=20 name=postal_code value=""></td>
-</tr>
-<tr>
-<td height="22"><span class="text"><?php xl('Country','e'); ?>: </span></td>
-<td><input type=entry size=20 name=country_code value=""></td>
-<td><span class="text"><?php xl('Federal EIN','e'); ?>: </span></td><td><input type=entry size=20 name=federal_ein value=""></td>
-</tr>
-<tr>
-<td>&nbsp;</td><td>&nbsp;</td>
-
-<td><span class="text"><?php ($GLOBALS['simplified_demographics'] ? xl('Facility Code','e') : xl('Facility NPI','e')); ?>:
-</span></td><td><input type=entry size=20 name=facility_npi value=""></td>
-
-</tr>
-<tr>
-<td>&nbsp;</td><td>&nbsp;</td>
-<td>&nbsp;</td><td><input type="submit" value=<?php xl('Add Facility','e'); ?>></td>
-</tr>
-</table>
-</form>
-<br>
-</tr>
-<tr>
-<td valign=top>
-
-<span class="bold"><?php xl('Edit Facilities','e'); ?>: </span>
-</td><td valign=top>
-<?php
-$fres = 0;
-$fres = sqlStatement("select * from facility order by name");
-if ($fres) {
-  $result2 = array();
-  for ($iter3 = 0;$frow = sqlFetchArray($fres);$iter3++)
-    $result2[$iter3] = $frow;
-  foreach($result2 as $iter3) {
-?>
-<span class="text"><?php echo $iter3{name};?></span>
-<a href="facility_admin.php?fid=<?php echo $iter3{id};?>" class="link_submit"
- onclick="top.restoreSession()">(<?php xl('Edit','e'); ?>)</a><br>
+<div>
+    <div>
+	<table><tr><td>
+        <b><?php xl('Facilities','e'); ?></b>&nbsp;</td><td>
+		 <a href="facilities_add.php" class="iframe addfac_modal css_button"><span><?php xl('Add','e');?></span></a>
+		 </td></tr>
+	</table>
+    </div>
+    <div class="tabContainer" style="width:550px;">
+        <div>
+<table cellpadding="1" cellspacing="0" class="showborder">
+	<tr class="showborder_head" height="22">
+		<th style="border-style:1px solid #000" width="140px">Name</th>
+		<th style="border-style:1px solid #000" width="320px">Address</th>
+		<th style="border-style:1px solid #000">Phone</th>
+    </tr>
+     <?php
+        $fres = 0;
+        $fres = sqlStatement("select * from facility order by name");
+        if ($fres) {
+          $result2 = array();
+          for ($iter3 = 0;$frow = sqlFetchArray($fres);$iter3++)
+            $result2[$iter3] = $frow;
+          foreach($result2 as $iter3) {
+          $varstreet=$iter3{street };
+          if ($iter3{street }!="")$varstreet=$iter3{street }.",";
+          if ($iter3{city}!="")$varcity=$iter3{city}.",";
+          if ($iter3{state}!="")$varstate=$iter3{state}.",";
+    ?>
+    <tr height="22">
+        <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo $iter3{id};?>" class="iframe medium_modal"><span><?php echo $iter3{name};?></span></a></b>&nbsp;</td>
+        <td valign="top" class="text"><?php echo $varstreet.$varcity.$varstate.$iter3{country_code}." ".$iter3{postal_code}; ?>&nbsp;</td>
+        <td><?php echo $iter3{phone};?>&nbsp;</td>
+    </tr>
 <?php
   }
 }
+ if (count($result2)<=0)
+  {?>
+  <tr height="25">
+		<td colspan="3"  style="text-align:center;font-weight:bold;"> <?php echo xl( "Currently there are no facilities." ); ?></td>
+	</tr>
+  <?}
 ?>
-
-</td>
-</tr>
-</table>
-
+	</table>
+        </div>
+    </div>
+</div>
 <script language="JavaScript">
 <?php
   if ($alertmsg = trim($alertmsg)) {
