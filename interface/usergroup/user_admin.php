@@ -69,7 +69,7 @@ if ($_GET["mode"] == "update") {
 	    and table_id={$_GET["id"]}
 	    and facility_id not in (" . implode(",", $_GET['schedule_facility']) . ")");
 	  foreach($_GET["schedule_facility"] as $tqvar) {
-      sqlStatement("replace into users_facility set 
+      sqlStatement("replace into users_facility set
 		    facility_id = '$tqvar',
 		    tablename='users',
 		    table_id = {$_GET["id"]}");
@@ -84,11 +84,11 @@ if ($_GET["mode"] == "update") {
   if ($_GET["cal_ui"]) {
           $tqvar = formData('cal_ui','G');
           sqlStatement("update users set cal_ui = '$tqvar' where id = {$_GET["id"]}");
-      
+
           // added by bgm to set this session variable if the current user has edited
 	  //   their own settings
 	  if ($_SESSION['authId'] == $_GET["id"]) {
-	    $_SESSION['cal_ui'] = $tqvar;   
+	    $_SESSION['cal_ui'] = $tqvar;
 	  }
   }
   //END (CHEMED) Calendar UI preference
@@ -126,23 +126,54 @@ if ($_GET["mode"] == "update") {
 
   $ws = new WSProvider($_GET['id']);
 
+  /*Dont move usergroup_admin (1).php just close window
   // On a successful update, return to the users list.
   include("usergroup_admin.php");
   exit(0);
+  */  	echo '
+<script type="text/javascript">
+<!--
+parent.$.fn.fancybox.close();
+//-->
+</script>
+
+	';
 }
 
 $res = sqlStatement("select * from users where id={$_GET["id"]}");
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
                 $result[$iter] = $row;
 $iter = $result[0];
+
+///
+if (isset($_POST["mode"])) {
+  	echo '
+<script type="text/javascript">
+<!--
+parent.$.fn.fancybox.close();
+//-->
+</script>
+
+	';
+}
+///
+
 ?>
+
 <html>
 <head>
 
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+<script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../../library/js/common.js"></script>
 
 <script language="JavaScript">
-
+function submitform() {
+    top.restoreSession();
+    document.forms[0].newauthPass.value=MD5(document.forms[0].clearPass.value);document.forms[0].clearPass.value='';
+    document.forms[0].submit();
+}
 function authorized_clicked() {
  var f = document.forms[0];
  f.calendar.disabled = !f.authorized.checked;
@@ -153,29 +184,30 @@ function authorized_clicked() {
 
 </head>
 <body class="body_top">
-
-<a href="usergroup_admin.php"><span class="title"><?php xl('User Administration','e'); ?></span></a>
-<br><br>
-
-<FORM NAME="user_form" METHOD="GET" ACTION="user_admin.php">
+<table><tr><td>
+<span class="title"><?php xl('Edit User','e'); ?></span>&nbsp;
+</td><td>
+    <a class="css_button" name='form_save' id='form_save' href='#' onclick='submitform()'> <span><?php xl('Save','e');?></span> </a>
+	<a class="css_button" id='cancel' href='#'><span><?php xl('Cancel','e');?></span></a>
+</td></tr>
+</table>
+<br>
+<FORM NAME="user_form" METHOD="GET" ACTION="usergroup_admin.php" target="_parent" onsubmit='return top.restoreSession()'>
 <TABLE border=0 cellpadding=0 cellspacing=0>
 <TR>
-<TD><span class=text><?php xl('Username','e'); ?>: </span></TD><TD><input type=entry name=username size=20 value="<?php echo $iter["username"]; ?>" disabled> &nbsp;</td>
-<TD><span class=text><?php xl('Password','e'); ?>: </span></TD><TD class='text'><input type=entry name=clearPass size=20 value=""> * <?php xl('Leave blank to keep password unchanged.','e'); ?></td>
+<TD style="width:180px;"><span class=text><?php xl('Username','e'); ?>: </span></TD><TD style="width:270px;"><input type=entry name=username style="width:150px;" value="<?php echo $iter["username"]; ?>" disabled></td>
+<TD style="width:200px;"><span class=text><?php xl('Password','e'); ?>: </span></TD><TD class='text' style="width:280px;"><input type=entry name=clearPass style="width:150px;"  value=""><font class="mandatory">*</font></td>
 </TR>
 
-<TR>
+<TR height="30" style="valign:middle;">
 <td><span class="text">&nbsp;</span></td><td>&nbsp;</td>
-<TD><span class=text><?php xl('Provider','e'); ?>: </TD>
-<TD>
+<td colspan="2"><span class=text><?php xl('Provider','e'); ?>:
  <input type="checkbox" name="authorized" onclick="authorized_clicked()"<?php
   if ($iter["authorized"]) echo " checked"; ?> />
-
  &nbsp;&nbsp;<span class='text'><?php xl('Calendar','e'); ?>:
  <input type="checkbox" name="calendar"<?php
   if ($iter["calendar"]) echo " checked";
   if (!$iter["authorized"]) echo " disabled"; ?> />
-
  &nbsp;&nbsp;<span class='text'><?php xl('Active','e'); ?>:
  <input type="checkbox" name="active"<?php if ($iter["active"]) echo " checked"; ?> />
 </TD>
@@ -183,13 +215,13 @@ function authorized_clicked() {
 
 <TR>
 <TD><span class=text><?php xl('First Name','e'); ?>: </span></TD>
-<TD><input type=entry name=fname size=20 value="<?php echo $iter["fname"]; ?>"></td>
-<td><span class=text><?php xl('Middle Name','e'); ?>: </span></TD><td><input type=entry name=mname size=20 value="<?php echo $iter["mname"]; ?>"></td>
+<TD><input type=entry name=fname style="width:150px;" value="<?php echo $iter["fname"]; ?>"></td>
+<td><span class=text><?php xl('Middle Name','e'); ?>: </span></TD><td><input type=entry name=mname style="width:150px;"  value="<?php echo $iter["mname"]; ?>"></td>
 </TR>
 
 <TR>
-<td><span class=text><?php xl('Last Name','e'); ?>: </span></td><td><input type=entry name=lname size=20 value="<?php echo $iter["lname"]; ?>"></td>
-<td><span class=text><?php xl('Default Facility','e'); ?>: </span></td><td><select name=facility_id>
+<td><span class=text><?php xl('Last Name','e'); ?>: </span></td><td><input type=entry name=lname style="width:150px;"  value="<?php echo $iter["lname"]; ?>"></td>
+<td><span class=text><?php xl('Default Facility','e'); ?>: </span></td><td><select name=facility_id style="width:150px;" >
 <?php
 $fres = sqlStatement("select * from facility where service_location != 0 order by name");
 if ($fres) {
@@ -210,7 +242,7 @@ foreach($result as $iter2) {
  <td colspan=2>&nbsp;</td>
  <td><span class=text><?php xl('Schedule Facilities:', 'e');?></td>
  <td>
-  <select name="schedule_facility[]" multiple>
+  <select name="schedule_facility[]" multiple style="width:150px;" >
 <?php
   $userFacilities = getUserFacilities($_GET['id']);
   $ufid = array();
@@ -218,7 +250,7 @@ foreach($result as $iter2) {
     $ufid[] = $uf['id'];
   $fres = sqlStatement("select * from facility where service_location != 0 order by name");
   if ($fres) {
-    while($frow = sqlFetchArray($fres)): 
+    while($frow = sqlFetchArray($fres)):
 ?>
    <option <?php echo in_array($frow['id'], $ufid) || $frow['id'] == $iter['facility_id'] ? "selected" : null ?>
     value="<?php echo $frow['id'] ?>"><?php echo $frow['name'] ?></option>
@@ -232,14 +264,14 @@ foreach($result as $iter2) {
 <?php } ?>
 
 <TR>
-<TD><span class=text><?php xl('Federal Tax ID','e'); ?>: </span></TD><TD><input type=text name=taxid size=20 value="<?php echo $iter["federaltaxid"]?>"></td>
-<TD><span class=text><?php xl('Federal Drug ID','e'); ?>: </span></TD><TD><input type=text name=drugid size=20 value="<?php echo $iter["federaldrugid"]?>"></td>
+<TD><span class=text><?php xl('Federal Tax ID','e'); ?>: </span></TD><TD><input type=text name=taxid style="width:150px;"  value="<?php echo $iter["federaltaxid"]?>"></td>
+<TD><span class=text><?php xl('Federal Drug ID','e'); ?>: </span></TD><TD><input type=text name=drugid style="width:150px;"  value="<?php echo $iter["federaldrugid"]?>"></td>
 </TR>
 
 <tr>
-<td><span class="text"><?php xl('UPIN','e'); ?>: </span></td><td><input type="text" name="upin" size="20" value="<?php echo $iter["upin"]?>"></td>
+<td><span class="text"><?php xl('UPIN','e'); ?>: </span></td><td><input type="text" name="upin" style="width:150px;" value="<?php echo $iter["upin"]?>"></td>
 <td class='text'><?php xl('See Authorizations','e'); ?>: </td>
-<td><select name="see_auth">
+<td><select name="see_auth" style="width:150px;" >
 <?php
  foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value)
  {
@@ -252,22 +284,22 @@ foreach($result as $iter2) {
 </tr>
 
 <tr>
-<td><span class="text"><?php xl('NPI','e'); ?>: </span></td><td><input type="text" name="npi" size="20" value="<?php echo $iter["npi"]?>"></td>
-<td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="text" name="job" size="20" value="<?php echo $iter["specialty"]?>"></td>
+<td><span class="text"><?php xl('NPI','e'); ?>: </span></td><td><input type="text" name="npi" style="width:150px;"  value="<?php echo $iter["npi"]?>"></td>
+<td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="text" name="job" style="width:150px;"  value="<?php echo $iter["specialty"]?>"></td>
 </tr>
 
 <?php if (!empty($GLOBALS['ssi']['rh'])) { ?>
 <tr>
 <td><span class="text"><?php xl('Relay Health ID', 'e'); ?>: </span></td>
-<td><input type="password" name="ssi_relayhealth" size="20" value="<?php echo $iter["ssi_relayhealth"]; ?>"></td>
+<td><input type="password" name="ssi_relayhealth" style="width:150px;"  value="<?php echo $iter["ssi_relayhealth"]; ?>"></td>
 </tr>
 <?php } ?>
 
 <!-- (CHEMED) Calendar UI preference -->
 <tr>
 <td><span class="text"><?php xl('Taxonomy','e'); ?>: </span></td>
-<td><input type="text" name="taxonomy" size="20" value="<?php echo $iter["taxonomy"]?>"></td>
-<td><span class="text"><?php xl('Calendar UI','e'); ?>: </span></td><td><select name="cal_ui">
+<td><input type="text" name="taxonomy" style="width:150px;"  value="<?php echo $iter["taxonomy"]?>"></td>
+<td><span class="text"><?php xl('Calendar UI','e'); ?>: </span></td><td><select name="cal_ui" style="width:150px;" >
 <?php
  foreach (array(3 => xl('Outlook'), 1 => xl('Original'), 2 => xl('Fancy')) as $key => $value)
  {
@@ -286,7 +318,7 @@ foreach($result as $iter2) {
 ?>
   <tr>
   <td class='text'><?php xl('Access Control','e'); ?>:</td>
-  <td><select name="access_group[]" multiple>
+  <td><select name="access_group[]" multiple style="width:150px;" >
   <?php
    $list_acl_groups = acl_get_group_title_list();
    $username_acl_groups = acl_get_group_titles($iter["username"]);
@@ -301,28 +333,37 @@ foreach($result as $iter2) {
     }
    }
   ?>
-  </select></td></tr>
+  </select></td>
+  <td><span class=text><?php xl('Additional Info','e'); ?>:</span></td>
+  <td><textarea style="width:150px;" name="comments" wrap=auto rows=4 cols=25><?php echo $iter["info"];?></textarea></td>
+
+  </tr>
+  <tr height="20" valign="bottom">
+  <td colspan="4" class="text">
+  <font class="mandatory">*</font> <?php xl('Leave blank to keep password unchanged.','e'); ?>
+  </td>
+  </tr>
 <?php
  }
 ?>
-
-</tr>
 </table>
 
-<span class=text><?php xl('Additional Info','e'); ?>:</span><br>
-<textarea name="comments" wrap=auto rows=4 cols=30><?php echo $iter["info"];?></textarea>
-
-<br>&nbsp;&nbsp;&nbsp;
 <INPUT TYPE="HIDDEN" NAME="id" VALUE="<?php echo $_GET["id"]; ?>">
 <INPUT TYPE="HIDDEN" NAME="mode" VALUE="update">
+<INPUT TYPE="HIDDEN" NAME="privatemode" VALUE="user_admin">
 <INPUT TYPE="HIDDEN" NAME="newauthPass" VALUE="">
-<INPUT TYPE="Submit" VALUE=<?php xl('Save Changes','e'); ?> onClick="javascript:this.form.newauthPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';">
-&nbsp;&nbsp;&nbsp;
-<a href="usergroup_admin.php" class=link_submit>[<?php xl('Back','e'); ?>]</font></a>
-</FORM>
 
-<br><br>
+</FORM>
+<script language="JavaScript">
+$(document).ready(function(){
+    $("#cancel").click(function() {
+		  parent.$.fn.fancybox.close();
+	 });
+
+});
+</script>
 </BODY>
+
 </HTML>
 
 <?php

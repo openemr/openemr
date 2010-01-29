@@ -8,6 +8,123 @@ require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
 
 $alertmsg = '';
 
+/* To refresh and save variables in mail frame */
+if ($_GET["privatemode"]=="user_admin") {
+    if ($_GET["mode"] == "update") {
+      if ($_GET["username"]) {
+        // $tqvar = addslashes(trim($_GET["username"]));
+        $tqvar = trim(formData('username','G'));
+        $user_data = mysql_fetch_array(sqlStatement("select * from users where id={$_GET["id"]}"));
+        sqlStatement("update users set username='$tqvar' where id={$_GET["id"]}");
+        sqlStatement("update groups set user='$tqvar' where user='". $user_data["username"]  ."'");
+        //echo "query was: " ."update groups set user='$tqvar' where user='". $user_data["username"]  ."'" ;
+      }
+      if ($_GET["taxid"]) {
+        $tqvar = formData('taxid','G');
+        sqlStatement("update users set federaltaxid='$tqvar' where id={$_GET["id"]}");
+      }
+      if ($_GET["drugid"]) {
+        $tqvar = formData('drugid','G');
+        sqlStatement("update users set federaldrugid='$tqvar' where id={$_GET["id"]}");
+      }
+      if ($_GET["upin"]) {
+        $tqvar = formData('upin','G');
+        sqlStatement("update users set upin='$tqvar' where id={$_GET["id"]}");
+      }
+      if ($_GET["npi"]) {
+        $tqvar = formData('npi','G');
+        sqlStatement("update users set npi='$tqvar' where id={$_GET["id"]}");
+      }
+      if ($_GET["taxonomy"]) {
+        $tqvar = formData('taxonomy','G');
+        sqlStatement("update users set taxonomy = '$tqvar' where id= {$_GET["id"]}");
+      }
+      if ($_GET["lname"]) {
+        $tqvar = formData('lname','G');
+        sqlStatement("update users set lname='$tqvar' where id={$_GET["id"]}");
+      }
+      if ($_GET["job"]) {
+        $tqvar = formData('job','G');
+        sqlStatement("update users set specialty='$tqvar' where id={$_GET["id"]}");
+      }
+      if ($_GET["mname"]) {
+              $tqvar = formData('mname','G');
+              sqlStatement("update users set mname='$tqvar' where id={$_GET["id"]}");
+      }
+      if ($_GET["facility_id"]) {
+              $tqvar = formData('facility_id','G');
+              sqlStatement("update users set facility_id = '$tqvar' where id = {$_GET["id"]}");
+              //(CHEMED) Update facility name when changing the id
+              sqlStatement("UPDATE users, facility SET users.facility = facility.name WHERE facility.id = '$tqvar' AND users.id = {$_GET["id"]}");
+              //END (CHEMED)
+      }
+      if ($GLOBALS['restrict_user_facility'] && $_GET["schedule_facility"]) {
+          sqlStatement("delete from users_facility
+            where tablename='users'
+            and table_id={$_GET["id"]}
+            and facility_id not in (" . implode(",", $_GET['schedule_facility']) . ")");
+          foreach($_GET["schedule_facility"] as $tqvar) {
+          sqlStatement("replace into users_facility set
+                facility_id = '$tqvar',
+                tablename='users',
+                table_id = {$_GET["id"]}");
+        }
+      }
+      if ($_GET["fname"]) {
+              $tqvar = formData('fname','G');
+              sqlStatement("update users set fname='$tqvar' where id={$_GET["id"]}");
+      }
+
+      //(CHEMED) Calendar UI preference
+      if ($_GET["cal_ui"]) {
+              $tqvar = formData('cal_ui','G');
+              sqlStatement("update users set cal_ui = '$tqvar' where id = {$_GET["id"]}");
+
+              // added by bgm to set this session variable if the current user has edited
+          //   their own settings
+          if ($_SESSION['authId'] == $_GET["id"]) {
+            $_SESSION['cal_ui'] = $tqvar;
+          }
+      }
+      //END (CHEMED) Calendar UI preference
+
+      if ($_GET["newauthPass"] && $_GET["newauthPass"] != "d41d8cd98f00b204e9800998ecf8427e") { // account for empty
+        $tqvar = formData('newauthPass','G');
+        sqlStatement("update users set password='$tqvar' where id={$_GET["id"]}");
+      }
+
+      // for relay health single sign-on
+      if ($_GET["ssi_relayhealth"]) {
+        $tqvar = formData('ssi_relayhealth','G');
+        sqlStatement("update users set ssi_relayhealth = '$tqvar' where id = {$_GET["id"]}");
+      }
+
+      $tqvar  = $_GET["authorized"] ? 1 : 0;
+      $actvar = $_GET["active"]     ? 1 : 0;
+      $calvar = $_GET["calendar"]   ? 1 : 0;
+
+      sqlStatement("UPDATE users SET authorized = $tqvar, active = $actvar, " .
+        "calendar = $calvar, see_auth = '" . $_GET['see_auth'] . "' WHERE " .
+        "id = {$_GET["id"]}");
+
+      if ($_GET["comments"]) {
+        $tqvar = formData('comments','G');
+        sqlStatement("update users set info = '$tqvar' where id = {$_GET["id"]}");
+      }
+
+      if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
+        // Set the access control group of user
+        $user_data = mysql_fetch_array(sqlStatement("select username from users where id={$_GET["id"]}"));
+        set_user_aro($_GET['access_group'], $user_data["username"],
+          formData('fname','G'), formData('mname','G'), formData('lname','G'));
+      }
+
+      $ws = new WSProvider($_GET['id']);
+
+    }
+}
+
+/* To refresh and save variables in mail frame  - Arb*/
 if (isset($_POST["mode"])) {
   if ($_POST["mode"] == "new_user") {
     if ($_POST["authorized"] != "1") {
@@ -25,7 +142,7 @@ if (isset($_POST["mode"])) {
       }
     }
 
-    if ($doit == true) {	
+    if ($doit == true) {
       $prov_id = idSqlStatement("insert into users set " .
         "username = '"         . trim(formData('rumple'       )) .
         "', password = '"      . trim(formData('newauthPass'  )) .
@@ -42,12 +159,12 @@ if (isset($_POST["mode"])) {
         "', facility_id = '"   . trim(formData('facility_id'  )) .
         "', specialty = '"     . trim(formData('specialty'    )) .
         "', see_auth = '"      . trim(formData('see_auth'     )) .
-	"', cal_ui = '"        . trim(formData('cal_ui'       )) .			
+	    "', cal_ui = '"        . trim(formData('cal_ui'       )) .
         "', calendar = '"      . $calvar                         .
         "'");
       //set the facility name from the selected facility_id
       sqlStatement("UPDATE users, facility SET users.facility = facility.name WHERE facility.id = '" . trim(formData('facility_id')) . "' AND users.username = '" . trim(formData('rumple')) . "'");
-	
+
       sqlStatement("insert into groups set name = '" . trim(formData('groupname')) .
         "', user = '" . trim(formData('rumple')) . "'");
 
@@ -132,7 +249,34 @@ $form_inactive = empty($_REQUEST['form_inactive']) ? false : true;
 <head>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+<script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../../library/js/common.js"></script>
+<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 
+<script type="text/javascript">
+
+$(document).ready(function(){
+
+    // fancy box
+    enable_modals();
+
+    tabbify();
+
+    // special size for
+	$(".iframe_medium").fancybox( {
+		'overlayOpacity' : 0.0,
+		'showCloseButton' : true,
+		'frameHeight' : 450,
+		'frameWidth' : 660
+	});
+
+
+});
+
+</script>
 <script language="JavaScript">
 
 function authorized_clicked() {
@@ -146,232 +290,31 @@ function authorized_clicked() {
 </head>
 <body class="body_top">
 
-<span class="title">
-<?php
-if ($GLOBALS['disable_non_default_groups'])
-  xl('User Administration','e');
-else
-  xl('User and Group Administration','e');
-?>
-</span>
+<div>
+    <div>
+       <table>
+	  <tr >
+		<td><b><?php xl('User / Groups','e'); ?></b></td>
+		<td><a href="usergroup_admin_add.php" class="iframe_medium css_button"><span><?php xl('Add User','e'); ?></span></a>
+		</td>
+	  </tr>
+	</table>
+    </div>
+    <div style="width:650px;">
+        <div>
 
-<br><br>
-
-<table width=100%>
-
-<tr><td valign=top>
-<form name='new_user' method='post' action="usergroup_admin.php"
- onsubmit='return top.restoreSession()'>
-<input type=hidden name=mode value=new_user>
-<span class="bold"><?php xl('New User','e'); ?>:</span>
-</td><td>
-<table border=0 cellpadding=0 cellspacing=0>
-<tr>
-<td><span class="text"><?php xl('Username','e'); ?>: </span></td><td><input type=entry name=rumple size=20> &nbsp;</td>
-<td><span class="text"><?php xl('Password','e'); ?>: </span></td><td><input type="entry" size=20 name=stiltskin></td>
-</tr>
-<tr>
-<td><span class="text"<?php if ($GLOBALS['disable_non_default_groups']) echo " style='display:none'"; ?>><?php xl('Groupname','e'); ?>: </span></td>
-<td>
-<select name=groupname<?php if ($GLOBALS['disable_non_default_groups']) echo " style='display:none'"; ?>>
-<?php
-$res = sqlStatement("select distinct name from groups");
-$result2 = array();
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-  $result2[$iter] = $row;
-foreach ($result2 as $iter) {
-  print "<option value='".$iter{"name"}."'>" . $iter{"name"} . "</option>\n";
-}
-?>
-</select></td>
-<td><span class="text"><?php xl('Provider','e'); ?>: </span></td><td>
- <input type='checkbox' name='authorized' value='1' onclick='authorized_clicked()' />
- &nbsp;&nbsp;<span class='text'><?php xl('Calendar','e'); ?>:
- <input type='checkbox' name='calendar' disabled />
-</td>
-</tr>
-<tr>
-<td><span class="text"><?php xl('First Name','e'); ?>: </span></td><td><input type=entry name='fname' size=20></td>
-<td><span class="text"><?php xl('Middle Name','e'); ?>: </span></td><td><input type=entry name='mname' size=20></td>
-</tr>
-<tr>
-<td><span class="text"><?php xl('Last Name','e'); ?>: </span></td><td><input type=entry name='lname' size=20></td>
-<td><span class="text"><?php xl('Default Facility','e'); ?>: </span></td><td><select name=facility_id>
-<?php
-$fres = sqlStatement("select * from facility where service_location != 0 order by name");
-if ($fres) {
-  for ($iter = 0;$frow = sqlFetchArray($fres);$iter++)
-    $result[$iter] = $frow;
-  foreach($result as $iter) {
-?>
-<option value="<?php echo $iter{id};?>"><?php echo $iter{name};?></option>
-<?php
-  }
-}
-?>
-</select></td>
-</tr>
-<tr>
-<td><span class="text"><?php xl('Federal Tax ID','e'); ?>: </span></td><td><input type=entry name='federaltaxid' size=20></td>
-<td><span class="text"><?php xl('Federal Drug ID','e'); ?>: </span></td><td><input type=entry name='federaldrugid' size=20></td>
-</tr>
-<tr>
-<td><span class="text"><?php xl('UPIN','e'); ?>: </span></td><td><input type="entry" name="upin" size="20"></td>
-<td class='text'><?php xl('See Authorizations','e'); ?>: </td>
-<td><select name="see_auth">
-<?php
- foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value)
- {
-  echo " <option value='$key'";
-  echo ">$value</option>\n";
- }
-?>
-</select></td>
-
-<tr>
-<td><span class="text"><?php xl('NPI','e'); ?>: </span></td><td><input type="entry" name="npi" size="20"></td>
-<td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="entry" name="specialty" size="20"></td>
-</tr>
-
-<!-- (CHEMED) Calendar UI preference -->
-<tr>
-<td><span class="text"><?php xl('Taxonomy','e'); ?>: </span></td>
-<td><input type="entry" name="taxonomy" size="20" value="207Q00000X"></td>
-<td><span class="text"><?php xl('Calendar UI','e'); ?>: </span></td><td><select name="cal_ui">
-<?php
- foreach (array(3 => xl('Outlook'), 1 => xl('Original'), 2 => xl('Fancy')) as $key => $value)
- {
-  echo " <option value='$key'";
-  if ($key == $iter['cal_ui']) echo " selected";
-  echo ">$value</option>\n";
- }
-?>
-</select></td>
-</tr>
-<!-- END (CHEMED) Calendar UI preference -->
-
-<?php
- // List the access control groups if phpgacl installed
- if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
-?>
-  <tr>
-  <td class='text'><?php xl('Access Control','e'); ?>:</td>
-  <td><select name="access_group[]" multiple>
-  <?php
-   $list_acl_groups = acl_get_group_title_list();
-   $default_acl_group = 'Administrators';
-   foreach ($list_acl_groups as $value) {
-    if ($default_acl_group == $value) {
-     // Modified 6-2009 by BM - Translate group name if applicable
-     echo " <option value='$value' selected>" . xl_gacl_group($value) . "</option>\n";
-    }
-    else {
-     // Modified 6-2009 by BM - Translate group name if applicable
-     echo " <option value='$value'>" . xl_gacl_group($value) . "</option>\n";
-    }
-   }
-  ?>
-  </select></td></tr>
-<?php
- }
-?>
-
-</table>
-<span class="text"><?php xl('Additional Info','e'); ?>: </span><br>
-<textarea name=info cols=40 rows=4 wrap=auto></textarea>
-<br><input type="hidden" name="newauthPass">
-<input type="submit" onClick="javascript:this.form.newauthPass.value=MD5(this.form.stiltskin.value);this.form.stiltskin.value='';" value=<?php xl('Add User','e'); ?>>
+<form name='userlist' method='post' action='usergroup_admin.php' onsubmit='return top.restoreSession()'>
+    <input type='checkbox' name='form_inactive' value='1' onclick='submit()' <?php if ($form_inactive) echo 'checked '; ?>/>
+    <span class='text' style = "margin-left:-3px"> <?php xl('Include inactive users','e'); ?> </span>
 </form>
-</td>
+<table cellpadding="1" cellspacing="0" class="showborder">
+	<tbody><tr height="22" class="showborder_head">
+		<th width="180px"><b><?php xl('Username','e'); ?></b></th>
+		<th width="270px"><b><?php xl('Real Name','e'); ?></b></th>
+		<th width="320px"><b><span class="bold"><?php xl('Additional Info','e'); ?></span></b></th>
+		<th><b><?php xl('Authorized','e'); ?>?</b></th>
 
-</tr>
-
-<tr<?php if ($GLOBALS['disable_non_default_groups']) echo " style='display:none'"; ?>>
-
-<td valign=top>
-<form name='new_group' method='post' action="usergroup_admin.php"
- onsubmit='return top.restoreSession()'>
-<br>
-<input type=hidden name=mode value=new_group>
-<span class="bold"><?php xl('New Group','e'); ?>:</span>
-</td><td>
-<span class="text"><?php xl('Groupname','e'); ?>: </span><input type=entry name=groupname size=10>
-&nbsp;&nbsp;&nbsp;
-<span class="text"><?php xl('Initial User','e'); ?>: </span>
-<select name=rumple>
-<?php
-$res = sqlStatement("select distinct username from users where username != ''");
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-  $result[$iter] = $row;
-foreach ($result as $iter) {
-  print "<option value='".$iter{"username"}."'>" . $iter{"username"} . "</option>\n";
-}
-?>
-</select>
-&nbsp;&nbsp;&nbsp;
-<input type="submit" value=<?php xl('Add Group','e'); ?>>
-</form>
-</td>
-
-</tr>
-
-<tr<?php if ($GLOBALS['disable_non_default_groups']) echo " style='display:none'"; ?>>
-
-<td valign=top>
-<form name='new_group' method='post' action="usergroup_admin.php"
- onsubmit='return top.restoreSession()'>
-<input type=hidden name=mode value=new_group>
-<span class="bold"><?php xl('Add User To Group','e'); ?>:</span>
-</td><td>
-<span class="text">
-<?php xl('User','e'); ?>
-: </span>
-<select name=rumple>
-<?php
-$res = sqlStatement("select distinct username from users where username != ''");
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-  $result3[$iter] = $row;
-foreach ($result3 as $iter) {
-  print "<option value='".$iter{"username"}."'>" . $iter{"username"} . "</option>\n";
-}
-?>
-</select>
-&nbsp;&nbsp;&nbsp;
-<span class="text"><?php xl('Groupname','e'); ?>: </span>
-<select name=groupname>
-<?php
-$res = sqlStatement("select distinct name from groups");
-$result2 = array();
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-  $result2[$iter] = $row;
-foreach ($result2 as $iter) {
-  print "<option value='".$iter{"name"}."'>" . $iter{"name"} . "</option>\n";
-}
-?>
-</select>
-&nbsp;&nbsp;&nbsp;
-<input type="submit" value=<?php xl('Add User To Group','e'); ?>>
-</form>
-</td>
-
-</tr>
-
-</table>
-
-<hr>
-
-<form name='userlist' method='post' action='usergroup_admin.php'
- onsubmit='return top.restoreSession()'>
-<span class='bold'>
-<input type='checkbox' name='form_inactive' value='1' onclick='submit()'
- <?php if ($form_inactive) echo 'checked '; ?>/>
-<?php xl('Include inactive users','e'); ?>
-</span>
-</form>
-
-<table border=0 cellpadding=1 cellspacing=2>
-<tr><td><span class="bold"><?php xl('Username','e'); ?></span></td><td><span class="bold"><?php xl('Real Name','e'); ?></span></td><td><span class="bold"><?php xl('Info','e'); ?></span></td><td><span class="bold"><?php xl('Authorized','e'); ?>?</span></td></tr>
-<?php
+		<?php
 $query = "SELECT * FROM users WHERE username != '' ";
 if (!$form_inactive) $query .= "AND active = '1' ";
 $query .= "ORDER BY username";
@@ -384,24 +327,18 @@ foreach ($result4 as $iter) {
   } else {
       $iter{"authorized"} = "";
   }
-
-  print "<tr><td><span class='text'>" . $iter{"username"} .
-    "</span><a href='user_admin.php?id=" . $iter{"id"} .
-    "' class='link_submit' onclick='top.restoreSession()'>(" . xl('Edit') . ")</a>" .
-    "</td><td><span class='text'>" .
-    $iter{"fname"} . ' ' . $iter{"lname"}."</span></td><td><span class='text'>" .
-    $iter{"info"} . "</span></td><td align='center'><span class='text'>" .
-    $iter{"authorized"} . "</span></td>";
+  print "<tr height=20  class='text' style='border-bottom: 1px dashed;'>
+		<td class='text'><b><a href='user_admin.php?id=" . $iter{"id"} .
+    "' class='iframe_medium' onclick='top.restoreSession()'><span>" . $iter{"username"} . "</span></a></b>" ."&nbsp;</td>
+	<td><span class='text'>" .$iter{"fname"} . ' ' . $iter{"lname"}."</span>&nbsp;</td>
+	<td><span class='text'>" .$iter{"info"} . "</span>&nbsp;</td>
+	<td align='left'><span class='text'>" .$iter{"authorized"} . "</span>&nbsp;</td>";
   print "<td><!--<a href='usergroup_admin.php?mode=delete&id=" . $iter{"id"} .
     "' class='link_submit'>[Delete]</a>--></td>";
   print "</tr>\n";
 }
 ?>
-
-</table>
-
-<hr>
-
+	</tbody></table>
 <?php
 if (empty($GLOBALS['disable_non_default_groups'])) {
   $res = sqlStatement("select * from groups order by name");
@@ -420,6 +357,10 @@ if (empty($GLOBALS['disable_non_default_groups'])) {
   }
 }
 ?>
+        </div>
+    </div>
+</div>
+
 
 <script language="JavaScript">
 <?php
