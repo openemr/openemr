@@ -34,6 +34,11 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
+<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/overlib_mini.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
@@ -62,6 +67,14 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 
  function saveClicked() {
   var f = document.forms[0];
+
+  var category = document.forms[0].pc_catid.value;
+
+  if ( category == '_blank' ) {
+	alert("<?php echo xl('You must select a visit category.', 'e'); ?>");
+	return;
+  }
+
 <?php if (false /* $GLOBALS['ippf_specific'] */) { // ippf decided not to do this ?>
   if (f['issues[]'].selectedIndex < 0) {
    if (!confirm('There is no issue selected. If this visit relates to ' +
@@ -75,6 +88,11 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
   top.restoreSession();
   f.submit();
  }
+
+$(document).ready(function(){
+    // fancy box
+    enable_modals();
+});
 
 </script>
 </head>
@@ -91,6 +109,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <form method='post' action="<?php echo $rootdir ?>/forms/newpatient/save.php" name='new_encounter'
  <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>>
 
+<div style = 'float:left'>
 <?php if ($viewmode) { ?>
 <input type=hidden name='mode' value='update'>
 <input type=hidden name='id' value='<?php echo $_GET["id"] ?>'>
@@ -99,21 +118,41 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <input type='hidden' name='mode' value='new'>
 <span class='title'><?php xl('New Encounter Form','e'); ?></span>
 <?php } ?>
+</div>
 
-<br>
-<center>
+<div>
+    <div style = 'float:left; margin-left:8px;margin-top:-3px'>
+      <a href="javascript:saveClicked();" class="css_button link_submit"><span><?php xl('Save','e'); ?></span></a>
+      <?php if ($viewmode || !isset($_GET["autoloaded"]) || $_GET["autoloaded"] != "1") { ?>
+    </div>
+
+    <div style = 'float:left; margin-top:-3px'>
+  <?php if ($GLOBALS['concurrent_layout']) { ?>
+      <a href="<?php echo "$rootdir/patient_file/encounter/encounter_top.php"; ?>"
+        class="css_button link_submit" onclick="top.restoreSession()"><span><?php xl('Cancel','e'); ?></span></a>
+  <?php } else { ?>
+      <a href="<?php echo "$rootdir/patient_file/encounter/patient_encounter.php"; ?>"
+        class="css_button link_submit" target='Main' onclick="top.restoreSession()">
+      <span><?php xl('Cancel','e'); ?>]</span></a>
+  <?php } // end not concurrent layout ?>
+  <?php } // end not autoloading ?>
+    </div>
+ </div>
+
+<br> <br>
 
 <table width='96%'>
 
  <tr>
   <td width='33%' nowrap class='bold'><?php xl('Consultation Brief Description','e'); ?>:</td>
-  <td width='34%' rowspan='2' align='center' valign='top' class='text'>
+  <td width='34%' rowspan='2' align='center' valign='center' class='text'>
    <table>
 
     <tr>
      <td class='bold' nowrap><?php xl('Visit Category:','e'); ?></td>
      <td class='text'>
-      <select name='pc_catid'>
+      <select name='pc_catid' id='pc_catid'>
+	<option value='_blank'>-- Select One --</option>
 <?php
  $cres = sqlStatement("SELECT pc_catid, pc_catname " .
   "FROM openemr_postcalendar_categories ORDER BY pc_catname");
@@ -204,7 +243,7 @@ if ($fres) {
      </td>
     </tr>
 
-    <tr<?php if ($GLOBALS['ippf_specific']) echo " style='visibility:hidden;'"; ?>>
+    <tr>
      <td class='bold' nowrap><?php xl('Onset/hosp. date:','e'); ?></td>
      <td class='text' nowrap>
       <input type='text' size='10' name='form_onset_date' id='form_onset_date'
@@ -229,22 +268,6 @@ if ($fres) {
       New allergy - only if nil exist</i></p>
 <?php } ?>
 
-      <p class='bold'>
-      <a href="javascript:saveClicked();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
-      <?php if ($viewmode || !isset($_GET["autoloaded"]) || $_GET["autoloaded"] != "1") { ?>
-      &nbsp; &nbsp;
-      <?php if ($GLOBALS['concurrent_layout']) { ?>
-      <a href="<?php echo "$rootdir/patient_file/encounter/encounter_top.php"; ?>"
-        class="link_submit" onclick="top.restoreSession()">[<?php xl('Cancel','e'); ?>]</a>
-      <?php } else { ?>
-      <a href="<?php echo "$rootdir/patient_file/encounter/patient_encounter.php"; ?>"
-        class="link_submit" target='Main' onclick="top.restoreSession()">
-      [<?php xl('Cancel','e'); ?>]</a>
-      <?php } // end not concurrent layout ?>
-      <?php } // end not autoloading ?>
-      &nbsp; &nbsp;
-      <a href="" onclick="return newissue()" class="link_submit">[<?php xl('Add Issue','e'); ?>]</a>
-      </p>
 
      </td>
     </tr>
@@ -254,7 +277,12 @@ if ($fres) {
   </td>
 
   <td class='bold' width='33%' nowrap>
-   <?php xl('Issues (Injuries/Medical/Allergy):','e'); ?>
+    <div style='float:left'>
+   <?php xl('Issues (Injuries/Medical/Allergy)','e'); ?>
+    </div>
+    <div style='float:left;margin-left:8px;margin-top:-3px'>
+      <a href="../../patient_file/summary/add_edit_issue.php" class="css_button_small link_submit iframe"><span><?php xl('Add','e'); ?></span></a>
+    </div>
   </td>
  </tr>
 
@@ -288,14 +316,14 @@ while ($irow = sqlFetchArray($ires)) {
 ?>
    </select>
 
-   <p><i><?php xl('To link this encounter/consult to an existing issue, click the desired issue above to highlight it and then click [Save]. Hold down [Ctrl] button to select multiple issues.','e'); ?></i></p>
+   <p><i><?php xl('To link this encounter/consult to an existing issue, click the '
+   . 'desired issue above to highlight it and then click [Save]. '
+   . 'Hold down [Ctrl] button to select multiple issues.','e'); ?></i></p>
 
   </td>
  </tr>
 
 </table>
-
-</center>
 
 </form>
 

@@ -171,7 +171,7 @@ if ($_POST['form_save']) {
   if ($info_msg) echo " alert('$info_msg');\n";
   echo " window.close();\n";
   // echo " opener.location.reload();\n";
-  echo " if (opener.refreshIssue) opener.refreshIssue($issue,'$tmp_title');\n";
+  echo " if (parent.refreshIssue) parent.refreshIssue($issue,'$tmp_title'); parent.$.fn.fancybox.close();\n";
   echo "</script></body></html>\n";
   exit();
 }
@@ -517,7 +517,7 @@ function divclick(cb, divid) {
    <?php
     // Modified 6/2009 by BM to incorporate the occurrence items into the list_options listings
     generate_form_field(array('data_type'=>1,'field_id'=>'occur','list_id'=>'occurrence','empty_title'=>'SKIP'), $irow['occurrence']);
-   ?>	
+   ?>
   </td>
  </tr>
 
@@ -562,7 +562,7 @@ function divclick(cb, divid) {
 
  <tr<?php if ($GLOBALS['athletic_team'] || $GLOBALS['ippf_specific']) echo " style='display:none;'"; ?>>
   <td valign='top' nowrap><b><?php xl('Outcome','e'); ?>:</b></td>
-  <td>	
+  <td>
    <?php
     // Modified 6/2009 by BM to incorporate the outcome items into the list_options listings
     generate_form_field(array('data_type'=>1,'field_id'=>'outcome','list_id'=>'outcome','empty_title'=>'SKIP'), $irow['outcome']);
