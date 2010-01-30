@@ -93,9 +93,9 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 
 #IfNotRow2D list_options list_id lists option_id proc_lat
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_lat','Procedure Lateralities', 1,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_lat','left' ,'Left' ,10,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_lat','right','Right',20,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_lat','oth'  ,'Other',90,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_lat','left' ,'Left'     ,10,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_lat','right','Right'    ,20,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_lat','bilat','Bilateral',30,0);
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id proc_unit
@@ -131,6 +131,7 @@ CREATE TABLE `procedure_type` (
   `route_admin`         varchar(31)  NOT NULL DEFAULT '' COMMENT 'oral, injection',
   `laterality`          varchar(31)  NOT NULL DEFAULT '' COMMENT 'left, right, ...',
   `description`         varchar(255) NOT NULL DEFAULT '' COMMENT 'descriptive text for procedure_code',
+  `standard_code`       varchar(255) NOT NULL DEFAULT '' COMMENT 'industry standard code type and code (e.g. CPT4:12345)',
   `related_code`        varchar(255) NOT NULL DEFAULT '' COMMENT 'suggested code(s) for followup services if result is abnormal',
   `is_discrete`         tinyint(1)   NOT NULL DEFAULT 0  COMMENT 'can this be referenced by lab_test_result?',
   `is_orderable`        tinyint(1)   NOT NULL DEFAULT 0  COMMENT 'can this test type be ordered?',

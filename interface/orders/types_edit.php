@@ -83,22 +83,27 @@ td { font-size:10pt; }
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
+// The name of the form field for find-code popup results.
+var rcvarname;
+
 // This is for callback by the find-code popup.
 // Appends to or erases the current list of related codes.
 function set_related(codetype, code, selector, codedesc) {
  var f = document.forms[0];
- var s = f.form_related_code.value;
+ var s = f[rcvarname].value;
  if (code) {
   if (s.length > 0) s += ';';
   s += codetype + ':' + code;
  } else {
   s = '';
  }
- f.form_related_code.value = s;
+ f[rcvarname].value = s;
 }
 
 // This invokes the find-code popup.
-function sel_related() {
+function sel_related(varname) {
+ if (typeof varname == 'undefined') varname = 'form_related_code';
+ rcvarname = varname;
  dlgopen('../patient_file/encounter/find_code_popup.php', '_blank', 500, 400);
 }
 
@@ -124,6 +129,7 @@ if ($_POST['form_save']) {
     "description = "    . invalue('form_description')    . ", " .
     "units = "          . invalue('form_units')          . ", " .
     "range = "          . invalue('form_range')          . ", " .
+    "standard_code = "  . invalue('form_standard_code')  . ", " .
     "related_code = "   . invalue('form_related_code')   . ", " .
     "is_discrete = "    . cbvalue('form_is_discrete')    . ", " .
     "is_orderable = "   . cbvalue('form_is_orderable');
@@ -178,6 +184,18 @@ if ($typeid) {
 <table border='0' width='100%'>
 
  <tr>
+  <td width='1%' nowrap><b><?php xl('Procedure Type','e'); ?>:</b></td>
+  <td>
+<?php
+generate_form_field(array('data_type' => 1, 'field_id' => 'procedure_type',
+  'list_id' => 'proc_type',
+  'description' => xl('The general classification of this category, procedure or result')),
+  $row['procedure_type']);
+?>
+  </td>
+ </tr>
+
+ <tr>
   <td nowrap><b><?php xl('Name','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_name' maxlength='63'
@@ -205,20 +223,18 @@ generate_form_field(array('data_type' => 14, 'field_id' => 'lab_id',
   <td>
    <input type='text' size='40' name='form_procedure_code' maxlength='31'
     value='<?php echo htmlspecialchars($row['procedure_code'], ENT_QUOTES); ?>'
-    title='<?php xl('The code identifying this procedure or result','e'); ?>'
+    title='<?php xl('The vendor-specific code identifying this procedure or result','e'); ?>'
     style='width:100%' class='inputtext' />
   </td>
  </tr>
 
  <tr>
-  <td width='1%' nowrap><b><?php xl('Procedure Type','e'); ?>:</b></td>
+  <td nowrap><b><?php xl('Standard Code','e'); ?>:</b></td>
   <td>
-<?php
-generate_form_field(array('data_type' => 1, 'field_id' => 'procedure_type',
-  'list_id' => 'proc_type',
-  'description' => xl('The general classification of this procedure or result')),
-  $row['procedure_type']);
-?>
+   <input type='text' size='50' name='form_standard_code'
+    value='<?php echo $row['standard_code'] ?>' onclick='sel_related("form_standard_code")'
+    title='<?php xl('Click to select an industry-standard code for this procedure','e'); ?>'
+    style='width:100%' readonly />
   </td>
  </tr>
 
@@ -318,7 +334,7 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'units',
   <td nowrap><b><?php xl('Followup Services','e'); ?>:</b></td>
   <td>
    <input type='text' size='50' name='form_related_code'
-    value='<?php echo $row['related_code'] ?>' onclick='sel_related()'
+    value='<?php echo $row['related_code'] ?>' onclick='sel_related("form_related_code")'
     title='<?php xl('Click to select services to perform if this result is abnormal','e'); ?>'
     style='width:100%' readonly />
   </td>
