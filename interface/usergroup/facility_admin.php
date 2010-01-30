@@ -71,29 +71,29 @@ document.forms[0].facility.focus();
     <table border=0 cellpadding=0 cellspacing=1 style="width:630px;">
          <tr>
           <td width='150px'><span class='text'><?php xl('Name','e'); ?>: </span></td>
-          <td width='220px'><input type='entry' name='facility' size='20' value='<?php echo $facility['name'] ?>'><font class="mandatory">&nbsp;*</font></td>
+          <td width='220px'><input type='entry' name='facility' size='20' value='<?php echo htmlspecialchars($facility['name'], ENT_QUOTES) ?>'><font class="mandatory">&nbsp;*</font></td>
           <td width='200px'><span class='text'><?php xl('Phone','e'); ?> <?php xl('as','e'); ?> (000) 000-0000:</span></td>
-          <td width='220px'><input type='entry' name='phone' size='20' value='<?php echo $facility['phone'] ?>'></td>
+          <td width='220px'><input type='entry' name='phone' size='20' value='<?php echo htmlspecialchars($facility['phone'], ENT_QUOTES) ?>'></td>
          </tr>
          <tr>
-          <td><span class=text><?php xl('Address','e'); ?>: </span></td><td><input type=entry size=20 name=street value="<?php echo $facility["street"] ?>"></td>
+          <td><span class=text><?php xl('Address','e'); ?>: </span></td><td><input type=entry size=20 name=street value="<?php echo htmlspecialchars($facility["street"], ENT_QUOTES) ?>"></td>
           <td><span class='text'><?php xl('Fax','e'); ?> <?php xl('as','e'); ?> (000) 000-0000:</span></td>
-          <td><input type='entry' name='fax' size='20' value='<?php echo $facility['fax'] ?>'></td>
+          <td><input type='entry' name='fax' size='20' value='<?php echo htmlspecialchars($facility['fax'], ENT_QUOTES) ?>'></td>
          </tr>
         <tr>
 
             <td><span class=text><?php xl('City','e'); ?>: </span></td>
-            <td><input type=entry size=20 name=city value="<?php echo $facility{"city"} ?>"></td>
-            <td><span class=text><?php xl('Zip Code','e'); ?>: </span></td><td><input type=entry size=20 name=postal_code value="<?php echo $facility{"postal_code"} ?>"></td>
+            <td><input type=entry size=20 name=city value="<?php echo htmlspecialchars($facility{"city"}, ENT_QUOTES) ?>"></td>
+            <td><span class=text><?php xl('Zip Code','e'); ?>: </span></td><td><input type=entry size=20 name=postal_code value="<?php echo htmlspecialchars($facility{"postal_code"}, ENT_QUOTES) ?>"></td>
         </tr>
         <tr>
-            <td><span class=text><?php xl('State','e'); ?>: </span></td><td><input type=entry size=20 name=state value="<?php echo $facility{"state"} ?>"></td>
-            <td><span class=text><?php xl('Federal EIN','e'); ?>: </span></td><td><input type=entry size=20 name=federal_ein value="<?php echo $facility{"federal_ein"} ?>"></td>
+            <td><span class=text><?php xl('State','e'); ?>: </span></td><td><input type=entry size=20 name=state value="<?php echo htmlspecialchars($facility{"state"}, ENT_QUOTES) ?>"></td>
+            <td><span class=text><?php xl('Federal EIN','e'); ?>: </span></td><td><input type=entry size=20 name=federal_ein value="<?php echo htmlspecialchars($facility{"federal_ein"}, ENT_QUOTES) ?>"></td>
         </tr>
         <tr>
-            <td><span class=text><?php xl('Country','e'); ?>: </span></td><td><input type=entry size=20 name=country_code value="<?php echo $facility{"country_code"} ?>"></td>
+            <td><span class=text><?php xl('Country','e'); ?>: </span></td><td><input type=entry size=20 name=country_code value="<?php echo htmlspecialchars($facility{"country_code"}, ENT_QUOTES) ?>"></td>
             <td width="21"><span class=text><?php ($GLOBALS['simplified_demographics'] ? xl('Facility Code','e') : xl('Facility NPI','e')); ?>:
-          </span></td><td><input type=entry size=20 name=facility_npi value="<?php echo $facility{"facility_npi"} ?>"></td>
+          </span></td><td><input type=entry size=20 name=facility_npi value="<?php echo htmlspecialchars($facility{"facility_npi"}, ENT_QUOTES) ?>"></td>
         </tr>
          <tr>
           <td><span class='text'><?php xl('Billing Location','e'); ?>: </span></td>
@@ -129,11 +129,11 @@ document.forms[0].facility.focus();
         </tr>
         <tr>
             <td><span class="text"><?php xl('Billing Attn','e'); ?>:</span></td>
-            <td colspan="4"><input type="text" name="attn" size="45" value="<?php echo $facility['attn'] ?>"></td>
+            <td colspan="4"><input type="text" name="attn" size="45" value="<?php echo htmlspecialchars($facility['attn'], ENT_QUOTES) ?>"></td>
         </tr>
         <tr>
             <td><span class="text"><?php xl('CLIA Number','e'); ?>:</span></td>
-            <td colspan="4"><input type="text" name="domain_identifier" size="45" value="<?php echo $facility['domain_identifier'] ?>"></td>
+            <td colspan="4"><input type="text" name="domain_identifier" size="45" value="<?php echo htmlspecialchars($facility['domain_identifier'], ENT_QUOTES) ?>"></td>
         </tr>
         <tr height="20" valign="bottom">
             <td colspan=2><span class="text"><font class="mandatory">*</font> <?php echo xl('Required','e');?></span></td>
