@@ -33,6 +33,11 @@ function xl($constant,$mode='r',$prepend='',$append='') {
     $row = SqlFetchArray($res);
     $string = $row['definition'];
     if ($string == '') { $string = "$constant"; }
+    
+    // remove dangerous characters
+    $patterns = array ('/\n/','/\r/','/"/',"/'/");
+    $replace = array (' ','','`','`');
+    $string = preg_replace($patterns, $replace, $string);
   }
     
   $string = "$prepend" . "$string" . "$append";
