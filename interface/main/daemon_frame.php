@@ -49,7 +49,7 @@
 
  var ld = parent.left_nav.document;
 
- if (ld && ld.getElementById('logout_link')) {
+ if (ld && ld.getElementById('searchFields')) {
   setTimeout('timerint()', <?php echo $daemon_interval * 1000; ?>);
 
   var elem = ld.getElementById('lbl_fax');
