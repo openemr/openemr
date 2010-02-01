@@ -142,3 +142,19 @@ CREATE TABLE `procedure_type` (
 ) ENGINE=MyISAM;
 #EndIf
 
+#IfMissingColumn history_data recreational_drugs
+ALTER TABLE history_data ADD recreational_drugs longtext;
+#EndIf
+
+update layout_options set seq = 1, data_type = 28, titlecols = 1, datacols = 3 where form_id = 'HIS' and field_id = 'coffee';
+update layout_options set seq = 6, data_type = 28, titlecols = 1, datacols = 3 where form_id = 'HIS' and field_id = 'exercise_patterns';
+update layout_options set seq = 2, data_type = 28, titlecols = 1, datacols = 3 where form_id = 'HIS' and field_id = 'tobacco';
+update layout_options set seq = 3, data_type = 28, titlecols = 1, datacols = 3 where form_id = 'HIS' and field_id = 'alcohol';
+update layout_options set seq = 5, data_type = 28, titlecols = 1, datacols = 3 where form_id = 'HIS' and field_id = 'counseling';
+update layout_options set seq = 7, data_type = 28, titlecols = 1, datacols = 3 where form_id = 'HIS' and field_id = 'hazardous_activities';
+update layout_options set seq = 8, titlecols = 1, datacols = 3 where form_id = 'HIS' and field_id = 'sleep_patterns';
+update layout_options set seq = 9, titlecols = 1, datacols = 3 where form_id = 'HIS' and field_id = 'seatbelt_use';
+
+#IfNotRow2D layout_options form_id HIS field_id recreational_drugs
+INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('HIS','recreational_drugs','4Lifestyle','Recreational Drugs',4,28,1,20,255,'',1,3,'','' ,'Recreational drugs use');
+#EndIf

@@ -475,6 +475,83 @@ function generate_form_field($frow, $currvalue) {
     }
   }
 
+  // special case for history of lifestyle status; 3 radio buttons and a date text field:
+  else if ($data_type == 28) {
+    $tmp = explode('|', $currvalue);
+    switch(count($tmp)) {
+      case "3": {
+        $resnote = $tmp[0];
+        $restype = $tmp[1];
+        $resdate = $tmp[2];
+      } break;
+      case "2": {
+        $resnote = $tmp[0];
+        $restype = $tmp[1];
+        $resdate = "";
+      } break;
+      case "1": {
+        $resnote = $tmp[0];
+        $resdate = $restype = "";
+      } break;
+      default: {
+        $restype = $resdate = $resnote = "";
+      } break;
+    }
+    $maxlength = empty($frow['max_length']) ? 255 : $frow['max_length'];
+    $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
+    
+    echo "<table cellpadding='0' cellspacing='0'>";
+    echo "<tr>";
+	// input text 
+    echo "<td><input type='text'" .
+      " name='form_$field_id'" .
+      " id='form_$field_id'" .
+      " size='$fldlength'" .
+      " maxlength='$maxlength'" .
+      " value='$resnote' />&nbsp;</td>";
+	echo "<td class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;".xl('Status').":&nbsp;</td>";
+    // current
+    echo "<td><input type='radio'" .
+      " name='radio_{$field_id}'" .
+      " id='radio_{$field_id}[current]'" .
+      " value='current".$field_id."'";
+    if ($restype == "current".$field_id) echo " checked";
+    // echo " onclick=\"return clinical_alerts_popup(this.value,'Patient_History')\" />".xl('Current')."&nbsp;</td>";
+	echo "/>".xl('Current')."&nbsp;</td>";
+    // quit
+    echo "<td><input type='radio'" .
+      " name='radio_{$field_id}'" .
+      " id='radio_{$field_id}[quit]'" .
+      " value='quit".$field_id."'";
+    if ($restype == "quit".$field_id) echo " checked";
+    echo "/>".xl('Quit')."&nbsp;</td>";
+    // quit date
+    echo "<td><input type='text' size='6' name='date_$field_id' id='date_$field_id'" .
+      " value='$resdate'" .
+      " title='$description'" .
+      " onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />" .
+      "<img src='$rootdir/pic/show_calendar.gif' align='absbottom' width='24' height='22'" .
+      " id='img_$field_id' border='0' alt='[?]' style='cursor:pointer'" .
+      " title='" . xl('Click here to choose a date') . "' />&nbsp;</td>";
+    $date_init .= " Calendar.setup({inputField:'date_$field_id', ifFormat:'%Y-%m-%d', button:'img_$field_id'});\n";
+    // never
+    echo "<td><input type='radio'" .
+      " name='radio_{$field_id}'" .
+      " id='radio_{$field_id}[never]'" .
+      " value='never".$field_id."'";
+    if ($restype == "never".$field_id) echo " checked";
+    echo " />".xl('Never')."&nbsp;</td>";
+	// Not Applicable
+    echo "<td><input type='radio'" .
+      " name='radio_{$field_id}'" .
+      " id='radio_{$field_id}[not_applicable]'" .
+      " value='not_applicable".$field_id."'";
+    if ($restype == "not_applicable".$field_id) echo " checked";
+    echo " />".xl('N/A')."&nbsp;</td>";
+    echo "</tr>";
+    echo "</table>";
+  }
+
 }
 
 function generate_print_field($frow, $currvalue) {
@@ -836,6 +913,62 @@ function generate_print_field($frow, $currvalue) {
     echo "</table>";
   }
 
+  // special case for history of lifestyle status; 3 radio buttons and a date text field:
+  else if ($data_type == 28) {
+    $tmp = explode('|', $currvalue);
+	switch(count($tmp)) {
+      case "3": {
+        $resnote = $tmp[0];
+        $restype = $tmp[1];
+        $resdate = $tmp[2];
+      } break;
+      case "2": {
+        $resnote = $tmp[0];
+        $restype = $tmp[1];
+        $resdate = "";
+      } break;
+      case "1": {
+        $resnote = $tmp[0];
+        $resdate = $restype = "";
+      } break;
+      default: {
+        $restype = $resdate = $resnote = "";
+      } break;
+    }
+    $maxlength = empty($frow['max_length']) ? 255 : $frow['max_length'];
+    $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
+    echo "<table cellpadding='0' cellspacing='0'>";
+    echo "<tr>";
+	
+    echo "<td><input type='text'" .
+      " size='$fldlength'" .
+      " class='under'" .
+      " value='$resnote' /></td>";
+	echo "<td class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;".xl('Status').":&nbsp;</td>";  
+    echo "<td><input type='radio'";
+    if ($restype == "current".$field_id) echo " checked";
+    echo "/>".xl('Current')."&nbsp;</td>";
+    
+    echo "<td><input type='radio'";
+    if ($restype == "current".$field_id) echo " checked";
+    echo "/>".xl('Quit')."&nbsp;</td>";
+    
+    echo "<td><input type='text' size='6'" .
+      " value='$resdate'" .
+      " class='under'" .
+      " /></td>";
+    
+    echo "<td><input type='radio'";
+    if ($restype == "current".$field_id) echo " checked";
+    echo " />".xl('Never')."</td>";
+	
+    echo "<td><input type='radio'";
+    if ($restype == "not_applicable".$field_id) echo " checked";
+    echo " />".xl('N/A')."&nbsp;</td>";
+    echo "</tr>";
+    echo "</table>";
+  }
+
 }
 
 function generate_display_field($frow, $currvalue) {
@@ -1027,6 +1160,45 @@ function generate_display_field($frow, $currvalue) {
       $s .= "<td class='text' valign='top'>$resnote</td></tr>";
       $s .= "</tr>";
     }
+    $s .= "</table>";
+  }
+
+  // special case for history of lifestyle status; 3 radio buttons and a date text field:
+  else if ($data_type == 28) {
+    $tmp = explode('|', $currvalue);
+    switch(count($tmp)) {
+      case "3": {
+        $resnote = $tmp[0];
+        $restype = $tmp[1];
+        $resdate = $tmp[2];
+      } break;
+      case "2": {
+        $resnote = $tmp[0];
+        $restype = $tmp[1];
+        $resdate = "";
+      } break;
+      case "1": {
+        $resnote = $tmp[0];
+        $resdate = $restype = "";
+      } break;
+      default: {
+        $restype = $resdate = $resnote = "";
+      } break;
+    }
+    $s .= "<table cellpadding='0' cellspacing='0'>";
+      
+    $s .= "<tr>";
+	$res = "";
+    if ($restype == "current".$field_id) $res = xl('Current');
+	if ($restype == "quit".$field_id) $res = xl('Quit');
+	if ($restype == "never".$field_id) $res = xl('Never');
+	if ($restype == "not_applicable".$field_id) $res = xl('N/A');
+    // $s .= "<td class='text' valign='top'>$restype</td></tr>";
+    // $s .= "<td class='text' valign='top'>$resnote</td></tr>";
+    if (!empty($resnote)) $s .= "<td class='text' valign='top'>$resnote&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>";
+	if (!empty($res)) $s .= "<td class='text' valign='top'><b>".xl('Status')."</b>:&nbsp;".$res."&nbsp;</td>";
+    if ($restype == "quit".$field_id) $s .= "<td class='text' valign='top'>$resdate&nbsp;</td>";
+    $s .= "</tr>";
     $s .= "</table>";
   }
 
@@ -1444,6 +1616,15 @@ function get_layout_form_value($frow, $maxlength=255) {
         if (strlen($value)) $value .= '|';
         $value .= "$key:$restype:$val";
       }
+    }
+    else if ($data_type == 28) {
+      // $_POST["form_$field_id"] is an date text fields with companion
+      // radio buttons to be imploded into "notes|type|date".
+      $restype = $_POST["radio_{$field_id}"];
+      if (empty($restype)) $restype = '0';
+      $resdate = str_replace('|', ' ', $_POST["date_$field_id"]);
+      $resnote = str_replace('|', ' ', $_POST["form_$field_id"]);
+      $value = "$resnote|$restype|$resdate";
     }
     else {
       $value = $_POST["form_$field_id"];
