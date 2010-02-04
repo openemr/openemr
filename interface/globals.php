@@ -57,6 +57,20 @@ $webserver_root = "/var/www/openemr";
 // to "/clinic/openemr" without the trailing slash.
 $web_root = "/openemr";
 
+//path to Certificate Authority crt file. Set this to full absolute path.
+//Used for creating client SSL certificates for https connections.
+$certificate_authority_crt = "";
+
+//path to Certificate Authority key file. Set this to full absolute path.
+//Used for creating client SSL certificates for https connections.
+$certificate_authority_key = "";
+
+//Enable or Disable client SSL Certificate Authentication
+$is_client_ssl_enabled = false;
+
+//Default validity for Client certificate
+$client_certificate_valid_in_days = "365";
+
 ///////////////////////////////////////////////////////////////////
 
 // Collecting the utf8 disable flag from the sqlconf.php file in order
