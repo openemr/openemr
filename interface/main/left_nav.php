@@ -836,6 +836,7 @@ function getEncounterTargetFrame( name ) {
           <?php if (acl_check('admin', 'users'   )) genMiscLink('RTop','adm','0',xl('Logs'),'logview/logview.php'); ?>
           <?php if (acl_check('admin', 'database')) genMiscLink('RTop','adm','0',xl('Database'),'../phpmyadmin/index.php'); ?>
           <?php if (acl_check('admin', 'super'   )) genMiscLink('RTop','adm','0',xl('Backup'),'main/backup.php'); ?>
+          <?php if (acl_check('admin', 'users'   )) genMiscLink('RTop','adm','0',xl('Certificates'),'usergroup/ssl_certificates_admin.php'); ?>
         </ul>
       </li>
     </ul>
@@ -936,6 +937,7 @@ if (!empty($reg)) {
           <?php if (acl_check('admin', 'calendar') && !$GLOBALS['disable_calendar']) genMiscLink('RTop','adm','0',xl('Calendar'),'main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig'); ?>
           <?php if (acl_check('admin', 'users'   )) genMiscLink('RTop','adm','0',xl('Logs'),'logview/logview.php'); ?>
           <?php if (acl_check('admin', 'database')) genMiscLink('RTop','adm','0',xl('Database'),'../phpmyadmin/index.php'); ?>
+          <?php if (acl_check('admin', 'users'   )) genMiscLink('RTop','adm','0',xl('Certificates'),'usergroup/ssl_certificates_admin.php'); ?>
         </ul>
       </li>
     </ul>
