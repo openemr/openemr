@@ -116,6 +116,9 @@ INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('proc_unit',
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('proc_unit','thous_cu_mm','Thous/CU.MM',130);
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('proc_unit','units'      ,'Units'      ,140);
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('proc_unit','units_l'    ,'Units/L'    ,150);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('proc_unit','days'       ,'Days'       ,600);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('proc_unit','weeks'      ,'Weeks'      ,610);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('proc_unit','months'     ,'Months'     ,620);
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('proc_unit','oth'        ,'Other'      ,990);
 #EndIf
 
@@ -136,9 +139,10 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 #IfNotRow2D list_options list_id lists option_id proc_rep_status
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_rep_status','Procedure Report Statuses', 1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_rep_status','final' ,'Final'      ,10,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_rep_status','prelim','Preliminary',20,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_rep_status','cancel','Canceled'   ,30,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_rep_status','error' ,'Error'      ,40,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_rep_status','review','Reviewed'   ,20,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_rep_status','prelim','Preliminary',30,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_rep_status','cancel','Canceled'   ,40,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_rep_status','error' ,'Error'      ,50,0);
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id proc_res_abnormal
@@ -200,7 +204,8 @@ CREATE TABLE `procedure_order` (
   `order_status`           varchar(31)  NOT NULL DEFAULT '' COMMENT 'pending,routed,complete,canceled',
   `patient_instructions`   text         NOT NULL DEFAULT '',
   `activity`               tinyint(1)   NOT NULL DEFAULT 1  COMMENT '0 if deleted',
-  PRIMARY KEY (`procedure_order_id`)
+  PRIMARY KEY (`procedure_order_id`),
+  KEY datepid (date_ordered, patient_id)
 ) ENGINE=MyISAM;
 #EndIf
 
@@ -210,9 +215,11 @@ CREATE TABLE `procedure_report` (
   `procedure_order_id`  bigint(20)     DEFAULT NULL   COMMENT 'references procedure_order.procedure_order_id',
   `date_collected`      datetime       DEFAULT NULL,
   `date_report`         date           DEFAULT NULL,
+  `source`              bigint(20)     NOT NULL DEFAULT 0  COMMENT 'references users.id, who entered this data',
   `specimen_num`        varchar(63)    NOT NULL DEFAULT '',
   `report_status`       varchar(31)    NOT NULL DEFAULT '' COMMENT 'received,complete,error',
-  PRIMARY KEY (`procedure_report_id`)
+  PRIMARY KEY (`procedure_report_id`),
+  KEY procedure_order_id (procedure_order_id)
 ) ENGINE=MyISAM; 
 #EndIf
 
@@ -230,7 +237,8 @@ CREATE TABLE `procedure_result` (
   `comments`            text         NOT NULL DEFAULT '' COMMENT 'comments from the lab',
   `document_id`         bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references documents.id if this result is a document',
   `result_status`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'preliminary, cannot be done, final, corrected, incompete...etc.',
-  PRIMARY KEY (`procedure_result_id`)
+  PRIMARY KEY (`procedure_result_id`),
+  KEY procedure_report_id (procedure_report_id)
 ) ENGINE=MyISAM; 
 #EndIf
 
