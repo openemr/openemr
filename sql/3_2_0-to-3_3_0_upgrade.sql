@@ -100,6 +100,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 
 #IfNotRow2D list_options list_id lists option_id proc_unit
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists','proc_unit','Procedure Units', 1);
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('proc_unit','bool'       ,'Boolean'    ,  5);
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('proc_unit','cu_mm'      ,'CU.MM'      , 10);
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('proc_unit','fl'         ,'FL'         , 20);
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('proc_unit','g_dl'       ,'G/DL'       , 30);
@@ -116,6 +117,50 @@ INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('proc_unit',
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('proc_unit','units'      ,'Units'      ,140);
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('proc_unit','units_l'    ,'Units/L'    ,150);
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('proc_unit','oth'        ,'Other'      ,990);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id ord_priority
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','ord_priority','Order Priorities', 1,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ord_priority','high'  ,'High'  ,10,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ord_priority','normal','Normal',20,0);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id ord_status
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','ord_status','Order Statuses', 1,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ord_status','pending' ,'Pending' ,10,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ord_status','routed'  ,'Routed'  ,20,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ord_status','complete','Complete',30,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ord_status','canceled','Canceled',40,0);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id proc_rep_status
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_rep_status','Procedure Report Statuses', 1,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_rep_status','final' ,'Final'      ,10,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_rep_status','prelim','Preliminary',20,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_rep_status','cancel','Canceled'   ,30,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_rep_status','error' ,'Error'      ,40,0);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id proc_res_abnormal
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_res_abnormal','Procedure Result Abnormal', 1,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_abnormal','no'  ,'No'  ,10,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_abnormal','yes' ,'Yes' ,20,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_abnormal','high','High',30,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_abnormal','low' ,'Low' ,40,0);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id proc_res_status
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_res_status','Procedure Result Statuses', 1,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_status','final' ,'Final'      ,10,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_status','prelim','Preliminary',20,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_status','cancel','Canceled'   ,30,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_status','error' ,'Error'      ,40,0);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id proc_res_bool
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_res_bool','Procedure Boolean Results', 1,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_bool','neg' ,'Negative',10,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_bool','pos' ,'Positive',20,0);
 #EndIf
 
 #IfNotTable procedure_type
@@ -142,6 +187,53 @@ CREATE TABLE `procedure_type` (
 ) ENGINE=MyISAM;
 #EndIf
 
+#IfNotTable procedure_order
+CREATE TABLE `procedure_order` (
+  `procedure_order_id`     bigint(20)   NOT NULL AUTO_INCREMENT,
+  `procedure_type_id`      bigint(20)   NOT NULL            COMMENT 'references procedure_type.procedure_type_id',
+  `provider_id`            bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references users.id',
+  `patient_id`             bigint(20)   NOT NULL            COMMENT 'references patient_data.pid',
+  `encounter_id`           bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references form_encounter.encounter',
+  `date_collected`         datetime     DEFAULT NULL        COMMENT 'time specimen collected',
+  `date_ordered`           date         DEFAULT NULL,
+  `order_priority`         varchar(31)  NOT NULL DEFAULT '',
+  `order_status`           varchar(31)  NOT NULL DEFAULT '' COMMENT 'pending,routed,complete,canceled',
+  `patient_instructions`   text         NOT NULL DEFAULT '',
+  `activity`               tinyint(1)   NOT NULL DEFAULT 1  COMMENT '0 if deleted',
+  PRIMARY KEY (`procedure_order_id`)
+) ENGINE=MyISAM;
+#EndIf
+
+#IfNotTable procedure_report
+CREATE TABLE `procedure_report` (
+  `procedure_report_id` bigint(20)     NOT NULL AUTO_INCREMENT,
+  `procedure_order_id`  bigint(20)     DEFAULT NULL   COMMENT 'references procedure_order.procedure_order_id',
+  `date_collected`      datetime       DEFAULT NULL,
+  `date_report`         date           DEFAULT NULL,
+  `specimen_num`        varchar(63)    NOT NULL DEFAULT '',
+  `report_status`       varchar(31)    NOT NULL DEFAULT '' COMMENT 'received,complete,error',
+  PRIMARY KEY (`procedure_report_id`)
+) ENGINE=MyISAM; 
+#EndIf
+
+#IfNotTable procedure_result
+CREATE TABLE `procedure_result` (
+  `procedure_result_id` bigint(20)   NOT NULL AUTO_INCREMENT,
+  `procedure_report_id` bigint(20)   NOT NULL            COMMENT 'references procedure_report.procedure_report_id',
+  `procedure_type_id`   bigint(20)   NOT NULL            COMMENT 'references procedure_type.procedure_type_id',
+  `date`                datetime     DEFAULT NULL        COMMENT 'lab-provided date specific to this result',
+  `facility`            varchar(255) NOT NULL DEFAULT '' COMMENT 'lab-provided testing facility ID',
+  `units`               varchar(31)  NOT NULL DEFAULT '',
+  `result`              varchar(255) NOT NULL DEFAULT '',
+  `range`               varchar(255) NOT NULL DEFAULT '',
+  `abnormal`            varchar(31)  NOT NULL DEFAULT '' COMMENT 'no,yes,high,low',
+  `comments`            text         NOT NULL DEFAULT '' COMMENT 'comments from the lab',
+  `document_id`         bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references documents.id if this result is a document',
+  `result_status`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'preliminary, cannot be done, final, corrected, incompete...etc.',
+  PRIMARY KEY (`procedure_result_id`)
+) ENGINE=MyISAM; 
+#EndIf
+
 #IfMissingColumn history_data recreational_drugs
 ALTER TABLE history_data ADD recreational_drugs longtext;
 #EndIf
@@ -157,4 +249,4 @@ update layout_options set seq = 9, titlecols = 1, datacols = 3 where form_id = '
 
 #IfNotRow2D layout_options form_id HIS field_id recreational_drugs
 INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('HIS','recreational_drugs','4Lifestyle','Recreational Drugs',4,28,1,20,255,'',1,3,'','' ,'Recreational drugs use');
-#EndIf
+#EndIf
