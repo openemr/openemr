@@ -120,26 +120,7 @@ include_once("../../library/acl.inc");
  onclick="top.restoreSession()"
  title="View Logs"><?php xl('Logs','e'); ?></a>&nbsp;
 </td>
-
 <?php } ?>
-
-<!-- DBC menu ============================ -->
-<? if ( (acl_check('admin', 'dbc')) && ($GLOBALS['dutchpc']) ) { ?>
-<td valign="middle" nowrap>
-&nbsp;<a class=menu target=Main href="<?echo $rootdir?>/dbc/dbc_main.php"
- title="DBC Administration">DBC</a>&nbsp;
-</td>
-<? } ?>
-<!-- end DBC menu ====================== -->
-
-<!-- vektis menu ============================ -->
-<? if ( (acl_check('admin', 'vektis')) && ($GLOBALS['dutchpc']) ) { ?>
-<td valign="middle" nowrap>
-&nbsp;<a class=menu target=Main href="<?echo $rootdir?>/vektis/vk_main.php"
- title="Vektis Administration">Vektis</a>&nbsp;
-</td>
-<? } ?>
-<!-- end vektis menu ====================== -->
 
 <?php if (! $GLOBALS['concurrent_layout']) { ?>
 <td valign="middle" align="right" nowrap>
