@@ -56,10 +56,6 @@
 
  $info_msg = "";
 
-// used for DBC Dutch System
- $_SESSION['event_date'] = $date;
- $link = '../../../library/DBC_functions.php'; // ajax stuff and db work
-
  ?>
 
  <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.js"></script>
@@ -98,46 +94,6 @@ function InsertEvent($args) {
                     "1, " .(int)$args['facility']. " )"
                 );
 }
-
- // =====================================
- // DBC Dutch System
- // ACTIVITIES / TIMES
- if ( $GLOBALS['dutchpc'] ) {
-     if ( $eid ) {
-        if ( $GLOBALS['select_multi_providers'] ) {
-            // ------------------------------------------
-            // what is multiple key around this $eid?
-            $rowmulti = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
-
-            // what are all pc_eid's grouped by multiple key
-            $eventsrow = array();
-            $rezev = mysql_query("SELECT pc_eid FROM openemr_postcalendar_events WHERE pc_multiple = {$rowmulti['pc_multiple']}");
-            while ( $row = mysql_fetch_array($rezev) ) {
-                $eventsrow[] = $row['pc_eid'];
-            }
-
-            // we look in cl_event_activiteit / cl_time_activiteit for a matching record
-            foreach ( $eventsrow as $ev) {
-                $activ = sqlQuery("SELECT * FROM cl_event_activiteit WHERE event_id = $ev");
-                if ( $activ['event_id'] ) $singleeid = $activ['event_id'];
-
-                $time = sqlQuery("SELECT * FROM cl_time_activiteit WHERE event_id = $ev");
-                if ( $time ) $timerow = $time;
-            }
-
-            // prevent blank values for $singleeid
-            if ( !$singleeid) $singleeid = $eid;
-
-            // ------------------------------------------
-        } else {
-            // ------------------------------------------
-            // single providers case
-            $timerow = sqlQuery("SELECT * FROM cl_time_activiteit WHERE event_id = $eid");
-            $singleeid = $eid;
-            // ------------------------------------------
-        }
-    } // if ($eid)
- } // if (dutchpc)
 
 // EVENTS TO FACILITIES (lemonsoftware)
 //(CHEMED) get facility name
@@ -183,19 +139,6 @@ if ( $eid ) {
 // If we are saving, then save and close the window.
 //
 if ($_POST['form_action'] == "save") {
-
-    // ========================================
-    // DBC SYSTEM
-    // check if for activity act_3.2 we have times completed
-    // larry :: fix dbc
-    if ( $GLOBALS['dutchpc'] ) {
-        $sa = selected_ac();
-        if ( $sa == 'act_3.2') {
-            $duration = (int)$_POST['form_duration'];
-            if ( empty($duration) ) exit();
-        }
-    }
-    // ========================================
 
     // the starting date of the event, pay attention with this value
     // when editing recurring events -- JRM Oct-08
@@ -256,14 +199,6 @@ if ($_POST['form_action'] == "save") {
 
         // what is multiple key around this $eid?
         $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
-
-        // timing-activity validation - larry :: DBC ????
-        $activ = "";
-        if ( $GLOBALS['dutchpc'] ) {
-            if ( $_SESSION['editactiv'] ) { $activ = selected_ac(); }
-            else { $activ = what_activity($eid); }
-        }
-        // eof DBC
 
         // ====================================
         // multiple providers
@@ -513,37 +448,6 @@ if ($_POST['form_action'] == "save") {
             }
         }
 
-        // ===================================
-        // DBC change activity /  times
-        $activ = ''; // activity could be an old value or a new one
-        if ( $GLOBALS['dutchpc'] ) {
-            if ( $_SESSION['editactiv'] ) {
-                $ac = selected_ac(); $activ = $ac;
-                $acid = what_sysid($ac);
-
-                if ( $acid ) sqlInsert("INSERT INTO cl_event_activiteit (event_id, activity_sysid)".
-                " VALUES ('" .$singleeid. "', '" .$acid. "') ON DUPLICATE KEY UPDATE activity_sysid = " .$acid );
-
-                $_SESSION['editactiv'] = FALSE; // otherwise you'll get a nasty bug!
-            } else {
-                $activcode = what_activity($singleeid);
-                $activ = what_code_activity($activcode);
-            }
-
-            // timing-activity validation
-            if ( vl_activity_travel($activ) ) {
-                $itime  = (int)$_POST['form_duration_indirect']; $ttime  = 0;
-            } else {
-                $itime  = (int)$_POST['form_duration_indirect']; $ttime  = (int)$_POST['form_duration_travel'];
-            }
-            sqlInsert("INSERT INTO cl_time_activiteit (event_id, indirect_time, travel_time)".
-                  " VALUES ('" .$singleeid. "', '" .$itime. "', '" .$ttime. "') ON DUPLICATE KEY UPDATE indirect_time = " .$itime.
-                  ", travel_time = " . $ttime);
-        }
-
-        // end DBC change activity / times
-        // ===================================
-
         // =======================================
         // end Update Multi providers case
         // =======================================
@@ -596,37 +500,6 @@ if ($_POST['form_action'] == "save") {
             $args['locationspec'] = $locationspec;
             InsertEvent($args);
         }
-
-        // ==============================================
-        // DBC Dutch System (insert case)
-        $lid = mysql_insert_id($GLOBALS['dbh']); // obtain last inserted id
-
-        // larry :: fix dbc
-        if ( $GLOBALS['dutchpc'] ) {
-            $ac = selected_ac();
-            $acid = what_sysid($ac);
-            sqlInsert("INSERT INTO cl_event_activiteit (event_id, activity_sysid) VALUES ('" .$lid. "', '" .$acid. "')");
-
-            // timing-activity validation
-            if ( vl_activity_travel($activ) ) {
-                $itime  = (int)$_POST['form_duration_indirect']; $ttime  = 0;
-            } else {
-                $itime  = (int)$_POST['form_duration_indirect']; $ttime  = (int)$_POST['form_duration_travel'];
-            }
-            sqlInsert("INSERT INTO cl_time_activiteit (event_id, indirect_time, travel_time)".
-                    " VALUES ('" .$lid. "', '" .$itime. "', '" .$ttime. "')");
-
-            // DBC Dutch System (insert case)
-            // ==============================================
-
-            // new ZTN ?
-            $pid1007 = ( $_POST['form_pid']  ) ? $_POST['form_pid'] : $pid;
-            if ( $pid1007 ) {
-                $a = generate_id1007($pid1007, $event_date); //var_dump($a); exit();
-            }
-        }
-        // end DBC
-        // ==============================================
 
     }
 
@@ -916,17 +789,6 @@ td { font-size:0.8em; }
 <script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 
-<?php
-// ============================================================================
-// DBC SYSTEM JAVASCRIPT FILE
-
-if ( $GLOBALS['dutchpc'] ) { ?>
-<script type="text/javascript" src="../../../library/js/add_edit_event.js"></script>
-
-<?php }
-// ============================================================================
-?>
-
 <script language="JavaScript">
 
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -1100,51 +962,7 @@ if ( $GLOBALS['dutchpc'] ) { ?>
         //END (CHEMED) modifications
     }
 
-    //  ==============================
-    // DBC BOS
-    function verify_selecteerbaar (a) {
-        var f = document.forms[0];  var a;
-        if (f.box5.value != 0) a = f.box5.value; 
-        else if (f.box4.value != 0) a = f.box4.value; 
-        else if (f.box3.value != 0) a = f.box3.value;
-        else if (f.box2.value != 0) a = f.box2.value; 
-        else if (f.box1.value != 0) a = f.box1.value;
-        else { alert('You must choose an activity.'); return false; 
-        }
-
-        var answer = $.ajax({
-                        url: "<?=$link?>",
-                        type: 'POST',
-                        data: 'vcode='+a,
-                        async: false
-                    }).responseText;
-        if ( answer == 'false') { alert("Please select again"); return false; }
-        else return true;
-    }
-    // EOS DBC
-
 </script>
-
-<?php
-if ( $GLOBALS['dutchpc'])
-{ ?>
-
-<script type="text/javascript">
-    boxes();
-
-<?php
-if ( $eid ) { // editing case
-?>
-    editcase();
-<?php
-} // EOS editing case
-?>
-
-</script>
-
-<?php
-} // EOS DBC DUTCH AJAX PART
-?>
 
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
@@ -1231,80 +1049,6 @@ if ( $eid ) { // editing case
     <?php xl('minutes','e'); ?>
   </td>
  </tr>
-
-<?php
- // =============================================
- // DBC DUTCH SYSTEMS
- // minutes issue
- if ( $GLOBALS['dutchpc'] ) { ?>
- <tr>
-   <td colspan="3">&nbsp;</td>
-   <td>indirect</td>
-   <td><input type='text' name='form_duration_indirect' id='form_duration_indirect' size='4'
-   value='<?php if ( isset($timerow['indirect_time']) ) echo $timerow['indirect_time']; ?>'/>minutes</td>
- </tr>
- <tr>
-   <td colspan="3">&nbsp;</td>
-   <td>travel</td>
-   <td><input type='text' name='form_duration_travel' name='form_duration_travel' size='4'
-   value='<?php if ( isset($timerow['travel_time']) ) echo $timerow['travel_time']; ?>'/>minutes</td>
- </tr>
-<?php
-// =======================================================
-// DBC DUTCH SYSTEM
-// cascading dropdowns
-// =======================================================
-if ( $GLOBALS['dutchpc'] ) {
-    if ( $eid ) { // editing mode
-      $activ = what_activity( $singleeid );
-
-      if ( empty($activ) ) {
-        $activ = "No activity selected.";
-      } else {
-        $activ = what_full_sysid($activ);
-        $_SESSION['editactiv'] = FALSE;
-      }
-    }
-}
-// end DBC DUTCH SYSTEM
-?>
-    <tr>
-        <td><b>Current activity:</b><br /><a href="#" id="addc">&lt;&lt;Add/Change&gt;&gt;</a></td>
-        <td><?=$activ?><br /> <td colspan="3">&nbsp;</td></td>
-    </tr>
-    <tr>
-        <td nowrap><b>Activiteit:</b></td>
-        <td width='1%' nowrap>
-        <select name="box1" id="box1">
-        <?php
-        $rlvone = records_level1('ev');
-        foreach ($rlvone as $rlv) {
-            echo '<option value=\'' .$rlv['cl_activiteit_code']. '\'>' .$rlv['cl_activiteit_element']. '</option>';
-        } ?>
-        </select>
-        </td>
-        <td colspan="3"><?php if ( $patientid ) $are = has_ztndbc($patientid); else $are = ' '; ?>
-            <p style="background-color: #78AEBC; padding: 3px; text-align: center"><?=$are['str']?></p>
-        </td>
-    </tr>
-
-    <tr colspan="2"><td></td><td>
-    <select id="box2" name="box2">
-    </select></td></tr>
-
-    <tr colspan="2"><td></td><td>
-    <select id="box3" name="box3"></select>
-    </td></tr>
-
-    <tr colspan="2"><td></td><td>
-    <select id="box4" name="box4"></select>
-    </td></tr>
-
-    <tr colspan="2"><td></td><td>
-    <select id="box5" name="box5"></select>
-    </td></tr>
-
-<?php }  ?>
 
     <tr>
       <td nowrap><b><?php xl('Facility','e'); ?>:</b></td>
@@ -1700,13 +1444,6 @@ function deleteEvent() {
 }
 
 function SubmitForm() {
-    // DBC Dutch System validation
-    <?php if ( $GLOBALS['dutchpc'] && $_SESSION['editactiv']) { ?>
-        var a = verify_selecteerbaar();
-        if ( !a ) return false;
-    <?php } ?>
-    // DBC EOS
-
     $('#theform').submit();
     top.restoreSession();
     return true;
