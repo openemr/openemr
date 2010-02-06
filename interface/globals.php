@@ -220,6 +220,9 @@ $GLOBALS['translate_appt_categories'] = true;
 //  open the openemr mysql connection.
 include_once (dirname(__FILE__) . "/../library/translation.inc.php");
 
+// Includes functions for date internationalization
+include_once (dirname(__FILE__) . "/../library/date_functions.php");
+
 //
 // Lists and Layouts Control Section
 //
@@ -274,9 +277,6 @@ $GLOBALS['default_top_pane'] = 'main_info.php';
 // set to the Sourceforge support forums. Note you can also remove
 // the link entirely by simple commenting out below line.
 $GLOBALS['online_support_link'] = 'http://sourceforge.net/projects/openemr/support';
-
-include_once (dirname(__FILE__) . "/../library/date_functions.php");
-include_once (dirname(__FILE__) . "/../library/classes/Filtreatment_class.php");
 
 // Default category for find_patient screen
 $GLOBALS['default_category'] = 5;

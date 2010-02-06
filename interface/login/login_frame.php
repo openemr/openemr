@@ -1,7 +1,6 @@
 <?php
 $ignoreAuth = true;
 include_once ("../globals.php");
-include_once ("$srcdir/classes/Filtreatment_class.php");
 ?>
 <HTML>
 <head>
