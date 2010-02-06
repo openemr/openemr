@@ -138,10 +138,10 @@ function Uncheck(chk) {
       {$prescription->get_dosage_display()} &nbsp;
     </td>
     <td class="editscript" id="{$prescription->id}">
-      {$prescription->get_size()} {$prescription->get_unit_display()} &nbsp;
+      {$prescription->quantity} &nbsp;
     </td>
     <td id="{$prescription->id}">
-      {$prescription->get_unit_display()}&nbsp;
+       {$prescription->get_size()} {$prescription->get_unit_display()}&nbsp;
     </td>
     <td id="{$prescription->id}">
       {$prescription->provider->get_name_display()}&nbsp;
