@@ -10,11 +10,6 @@ include_once ("$srcdir/classes/Filtreatment_class.php");
 <link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
 </HEAD>
 
-<?php
-// uncomment when PHP>=5
-//$ob         = new Filtreatment();
-//$_rootdir = $ob->ft_xss($rootdir, 'UTF-8');
-?>
 <frameset rows="<?php echo "$GLOBALS[logoBarHeight],$GLOBALS[titleBarHeight]" ?>,*" cols="*" frameborder="NO" border="0" framespacing="0">
   <frame class="logobar" src="<?php echo $rootdir;?>/login/filler.php" name="Filler Top" scrolling="no" noresize frameborder="NO">
   <frame class="titlebar" src="<?php echo $rootdir;?>/login/login_title.php" name="Title" scrolling="no" noresize frameborder="NO">
