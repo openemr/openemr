@@ -93,9 +93,6 @@ class Controller extends Smarty {
                $c_action = preg_replace("/[^A-Za-z0-9_]/","",array_pop($args));
                $args = array_reverse($args);
 
-               // load dutch version for C_Prescription.class
-               if ( ($GLOBALS['dutchpc']) && ($c_name == "Prescription") ) $c_name .= 'dutch';
-
                if(!@call_user_func(array(Controller,"i_once"),$GLOBALS['fileroot'] ."/controllers/C_" . $c_name . ".class.php")) {
                        echo "Unable to load controller $name\n, please check the first argument supplied in the URL and try again";
                        exit;
