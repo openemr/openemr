@@ -255,17 +255,9 @@ if ($authorize) {
     if ($GLOBALS['concurrent_layout']) {
       // Clicking the patient name will load both frames for that patient,
       // as demographics.php takes care of loading the bottom frame.
-      // larry :: dbc change here 
-      if( $GLOBALS['dutchpc'] )
-      {
-        echo "<a href='$rootdir/patient_file/summary/demographics_dutch.php?set_pid=$ppid' " .
-          "target='RTop'>";
-      } else
-      {
+
         echo "<a href='$rootdir/patient_file/summary/demographics.php?set_pid=$ppid' " .
           "target='RTop'>";      
-      }
-      // larry :: end of dbc change
         
     } else {
       echo "<a href='$rootdir/patient_file/patient_file.php?set_pid=$ppid' " .

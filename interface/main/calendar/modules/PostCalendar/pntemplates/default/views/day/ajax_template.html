@@ -47,16 +47,9 @@ $timeslotHeightUnit="px";
 [-php-]
  if ($GLOBALS['concurrent_layout'])
  {
- 	if( $GLOBALS['dutchpc'] )
- 	{
-  		echo "  top.RTop.location = '../../patient_file/summary/demographics_dutch.php' " .
-   		"+ '?set_pid=' + pid;\n";
-   	} else
-   	{
+
   		echo "  top.RTop.location = '../../patient_file/summary/demographics.php' " .
    		"+ '?set_pid=' + pid;\n";
-
-   	}
 
  } else 
  {

@@ -210,13 +210,8 @@ var GotoHistory = function() {
 var GoBack = function () {
     top.restoreSession();
 <?php if ($GLOBALS['concurrent_layout']): ?>
-  <?php if( $GLOBALS['dutchpc'] ): ?>
-    parent.left_nav.setRadio(window.name,'dem');
-    location.href='demographics_dutch.php';
-  <?php else: ?>
     parent.left_nav.setRadio(window.name,'dem');
     location.href='demographics.php';
-  <?php endif; ?>
 <?php else: ?>
     location.href="patient_summary.php";
 <?php endif; ?>

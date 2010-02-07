@@ -79,20 +79,6 @@ function getProviders() {
 }
 
 // ----------------------------------------------------------------------------
-/**
- * GET ADDITIONAL INFORMATIONS 
- * 
- * only Dutch use
- * 
- * @param $pid - patient id
- * @return array
- */
-function getPatientDataNL($pid) {
-    sqlQuery("SET NAMES 'utf8'");
-    $sql = "SELECT * FROM patient_data_NL WHERE pdn_id = '$pid'";
-    return sqlQuery($sql);
-}
-
 // Get one facility row.  If the ID is not specified, then get either the
 // "main" (billing) facility, or the default facility of the currently
 // logged-in user.  This was created to support genFacilityTitle() but
@@ -566,11 +552,6 @@ function newPatientData(    $db_id="",
                 $sex = "",
                 $DOB = "",
                 $street = "",
-                // DBC dutch use
-                $nstreet = "",
-                $nnr = "",
-                $nadd = "",
-                // EOS DBC
                 $postal_code = "",
                 $city = "",
                 $state = "",
@@ -608,16 +589,7 @@ function newPatientData(    $db_id="",
                 $drivers_license = "",
                 $hipaa_notice = "",
                 $hipaa_message = "",
-                $regdate = "",
-		// dutch specific
-		$prefixlast = "",
-		$prefixlastpartner = "",
-		$lastpartner = "",
-                $initials = "",
-		$provider_data = array(),
-		$referer_data = array()
-		// DBC Dutch System
-
+                $regdate = ""
             )
 {
     $DOB = fixDate($DOB);
@@ -695,81 +667,13 @@ function newPatientData(    $db_id="",
         date=NOW()");
 
     $id = sqlInsert($query);
-
-    // DBC 
+ 
     if ( !$db_id ) {
       // find the last inserted id for new patient case
-      $db_id = empty($GLOBALS['dutchpc']) ? mysql_insert_id() : dsql_lastid();
+      $db_id = mysql_insert_id();
     }
-    // EOS DBC
 
     $foo = sqlQuery("select pid from patient_data where id='$id' order by date limit 0,1");
-
-         // dutch use
-	if ( $GLOBALS['dutchpc'] ) {
-	        $init = strtoupper(preg_replace('/[\s\.\-_0-9]/','',$initials));
-	        
-            $querynl = ("REPLACE INTO patient_data_NL SET
-                    pdn_id = '$db_id',
-                    pdn_pxlast = '$prefixlast',
-                    pdn_pxlastpar = '$prefixlastpartner',
-                    pdn_lastpar = '$lastpartner',
-                    pdn_street = '$nstreet',
-                    pdn_number = '$nnr',
-                    pdn_addition = '$nadd',
-                    pdn_initials = '$init'
-            ");
-
-            if ( $db_id ) $idnl = sqlInsert($querynl); // only if exists
-        }
-        // EOS dutch use
-
-
-       // DBC Dutch System
-	// provider first
-	if ( $GLOBALS['dutchpc'] && $db_id && $provider_data && $referer_data) {
-	   $querypr = ("INSERT INTO cl_providers(pro_pid, pro_company, pro_initials, pro_prefix, pro_lname,
-	           pro_street, pro_number, pro_addition, pro_city, pro_zipcode,  pro_phone, pro_fax, pro_email, pro_referer ) 
-	           VALUES ($db_id, '{$provider_data['pro_company']}', '{$provider_data['pro_initials']}',
-                  '{$provider_data['pro_prefix']}', '{$provider_data['pro_lname']}',  
-                  '{$provider_data['pro_street']}', '{$provider_data['pro_number']}', '{$provider_data['pro_addition']}', 
-                  '{$provider_data['pro_city']}',  '{$provider_data['pro_zipcode']}',
-                  '{$provider_data['pro_phone']}', '{$provider_data['pro_fax']}',  '{$provider_data['pro_email']}', 
-                  '{$provider_data['pro_referer']}') 
-                  ON DUPLICATE KEY UPDATE  pro_referer = '{$provider_data['pro_referer']}',
-                  pro_company = '{$provider_data['pro_company']}', pro_initials = '{$provider_data['pro_initials']}',
-                  pro_prefix = '{$provider_data['pro_prefix']}',
-                  pro_lname = '{$provider_data['pro_lname']}', pro_street = '{$provider_data['pro_street']}',
-                  pro_number = '{$provider_data['pro_number']}', pro_addition = '{$provider_data['pro_addition']}',
-                  pro_city = '{$provider_data['pro_city']}', pro_zipcode = '{$provider_data['pro_zipcode']}',
-                  pro_phone = '{$provider_data['pro_phone']}', pro_fax = '{$provider_data['pro_fax']}',
-                  pro_email = '{$provider_data['pro_email']}'
-            ");
-	   $idpr = sqlInsert($querypr);
-
-	// referer if it's the case
-	if ( $referer_data['ref_code'] ) {
-	   $queryre = ("INSERT INTO cl_referers(ref_pid, ref_code, ref_company, ref_initials, ref_prefix,
-                   ref_lname, ref_street, ref_number, ref_addition, ref_city, ref_zipcode,  ref_phone, ref_fax,
-                   ref_email) 
-	           VALUES ($db_id, {$referer_data['ref_code']}, '{$referer_data['ref_company']}', 
-                   '{$referer_data['ref_initials']}', '{$referer_data['ref_prefix']}',
-                   '{$referer_data['ref_lname']}', '{$referer_data['ref_street']}', '{$referer_data['ref_number']}', 
-                   '{$referer_data['ref_addition']}', '{$referer_data['ref_city']}', '{$referer_data['ref_zipcode']}',
-                  '{$referer_data['ref_phone']}', '{$referer_data['ref_fax']}',  '{$referer_data['ref_email']}')
-	          ON DUPLICATE KEY UPDATE ref_code = {$referer_data['ref_code']},
-                  ref_company = '{$referer_data['ref_company']}', ref_initials = '{$referer_data['ref_initials']}',
-                  ref_prefix = '{$referer_data['ref_prefix']}',
-                  ref_lname = '{$referer_data['ref_lname']}', ref_street = '{$referer_data['ref_street']}',
-                  ref_number = '{$referer_data['ref_number']}', ref_addition = '{$referer_data['ref_addition']}',
-                  ref_city = '{$referer_data['ref_city']}', ref_zipcode = '{$referer_data['ref_zipcode']}',
-                  ref_phone = '{$referer_data['ref_phone']}', ref_fax = '{$referer_data['ref_fax']}',
-                  ref_email = '{$referer_data['ref_email']}'
-            ");
-	   $idre = sqlInsert($queryre);
-	} 
-	} // if globals
-        // EOS DBC
 
     sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone_home,
                 $phone_biz,$phone_cell,$email,$pid);
@@ -1422,68 +1326,6 @@ function country_code($country_code = 0, $country_name = '') {
     }
 
     return $strint;
-}
-
-// ----------------------------------------------------------------------------
-/**
- * GET INSURANCE DATA
- * (Dutch usage)
- * 
- * return the insurer(s) and some patient
- * 
- * @param int $pid - patient id
- * @param int $current 1-current 0-all insurers
- * @return array
- */
-function get_insurers_nl($pid = 0, $current = 1) {
-    if ( !$pid ) return FALSE;
-
-    $join = 'insurance_companies ic ON ic.id = pi.pin_provider';
-    $r = dsql_select('*', 'patient_insurers_NL pi', array('pin_pid' => $pid), 'pin_date DESC', $join);
-
-    while ( $row = mysql_fetch_array($r) ) {
-        $rez[] = $row;
-    } // while
-
-    return ( $current ? $rez[0] : $rez );
-}
-
-// ----------------------------------------------------------------------------
-/**
- * SET INSURANCE DATA
- * (Dutch usage)
- * 
- * set the insurer for a patient
- * 
- * @param int $pid - patient id
- * @param int $insid - insurer id
- * @return void
- */
-function set_insurer_nl($pid = 0, $insid = 0, $date = '', $policy = '') {
-    if ( !$pid || !$insid || ($date == '0000-00-00') ) return FALSE;
-
-    $fields = array('pin_pid', 'pin_provider', 'pin_date', 'pin_policy');
-    $values = array($pid, $insid, $date, $policy);
-    dsql_insert('patient_insurers_NL', $fields, $values);
-}
-
-// ----------------------------------------------------------------------------
-/**
- * FIND THE INSURERS STATUS FOR A PATIENT
- * (Dutch usage)
- * 
- * return the answer for the question: is this the first insurer or not?
- * 
- * @param int $pid - patient id
- * @return int - the number of insurer records ( 0 - no insurer; >0 some insurers)
- */
-function total_insurers($pid = 0) {
-    if ( !$pid ) return FALSE;
-
-    $r = dsql_select('COUNT(*) AS c', 'patient_insurers_NL', array('pin_pid' => $pid));
-    $row = mysql_fetch_array($r);
-
-    return $row['c'];
 }
 
 function DBToDate ($date)

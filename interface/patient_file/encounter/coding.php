@@ -52,15 +52,11 @@ function selfl() {
 
 
 <?php
-if ($GLOBALS['dutchpc']) $pres = "prescriptiondutch";
-else $pres = "prescription";
+$pres = "prescription";
 ?>
 
 <dl>
 <dt><span href="coding.php" class="title"><?php xl('Coding','e'); ?></span></dt>
-<?php 
-// regular openemr 
- if ( !$GLOBALS['dutchpc'] ) { ?>
 
 <dd><a class="text" href="superbill_codes.php"
  target="<?php echo $GLOBALS['concurrent_layout'] ? '_parent' : 'Main'; ?>"
@@ -76,34 +72,6 @@ else $pres = "prescription";
 <dd><a class="text" href="copay.php" target="Codes" onclick="top.restoreSession()"><?php xl('Copay','e'); ?></a></dd>
 <dd><a class="text" href="other.php" target="Codes" onclick="top.restoreSession()"><?php xl('Other','e'); ?></a></dd><br />
 
-<?php } else { 
-// implement DBC Dutch System
-// DBC Dutch SYSTEM
-  if ( !$_SESSION['newdbc'] || !isset($_SESSION['newdbc']) ) {
-    $_SESSION['posas'] = 1; // we need these to automatically select first radiobutton in dbc choose
-  }
-
-    $_SESSION['newdbc'] = TRUE;
-    $_SESSION['show_axid'] = FALSE; 
-    
-  if ( $_SESSION['save'] ) { // prevent erasing session vars at refresh
-    // reset session variables
-    for ( $i = 1 ; $i <= 5 ; $i++) {
-      $varr = "as$i";
-      if ( isset($_SESSION[$varr]) ) {
-        unset($_SESSION[$varr]);
-      }
-    } // for
-  
-    $_SESSION['save'] = TRUE;
-    $_SESSION['newdbc'] = FALSE;
-  } 
- 
-    // display the required links, function of ZTN situation
-    display_links(); 
-
-} // EOS DBC
-?>
 <?php if (!$GLOBALS['disable_prescriptions']) { ?>
 <dt><span href="coding.php" class="title"><?php xl('Prescriptions','e'); ?></span></dt>
 <dd><a class="text" href="<?php echo $GLOBALS['webroot']?>/controller.php?<?php echo $pres?>&list&id=<?php echo $pid?>"

@@ -97,10 +97,6 @@
  // * The URL relative to the interface directory
  //
 
- // larry :: dbc insert 
- $demovarbase = ( $GLOBALS['dutchpc'] ) ? 'demographics_dutch.php' : 'demographics.php';
- // larry :: end of dbc insert
-
  $primary_docs = array(
   'ros' => array(xl('Roster')    , 0, 'reports/players_report.php?embed=1'),
   'cal' => array(xl('Calendar')  , 0, 'main/main_info.php'),
@@ -117,7 +113,7 @@
   'sup' => array(xl('Superbill') , 0, 'patient_file/encounter/superbill_custom_full.php'),
   'aun' => array(xl('Auth/notes'), 0, 'main/authorizations/authorizations.php'),
   'new' => array(xl('New Pt')    , 0, 'new/new.php'),
-  'dem' => array(xl('Patient')   , 1,  "patient_file/summary/$demovarbase"),
+  'dem' => array(xl('Patient')   , 1,  "patient_file/summary/demographics.php"),
   'his' => array(xl('History')   , 1, 'patient_file/history/history.php'),
   'ens' => array(xl('Encounters'), 1, 'patient_file/history/encounters.php'),
   'nen' => array(xl('New Enctr') , 1, 'forms/newpatient/new.php?autoloaded=1&calenc='),

@@ -47,23 +47,9 @@ if (isset($_GET["set_encounter"])) {
   </frameset>
 
   <frameset rows="*" cols="200,400,*">
-	
-        <?php 
-	  // ==============================
-	  // DBC DUTCH SYSTEM 
-	  if ( $GLOBALS['dutchpc'] )
-	  {
-            echo '<frame src="coding.php" name="Codesets" scrolling="auto">';
-            echo '<frame src="dbc_content.php" name="Codes" scrolling="auto">';
-            echo '<frame src="dbc_history.php" name="Diagnosis" scrolling="auto"> ';
-          } else 
-          { ?>
 	    <frame src="coding.php" name="Codesets" scrolling="auto">
             <frame src="blank.php" name="Codes" scrolling="auto">
             <frame src="diagnosis.php" name="Diagnosis" scrolling="auto">
-	<?php } 
-	// ==============================
-	?>
   </frameset>
 
 </frameset>

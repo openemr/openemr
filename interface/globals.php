@@ -311,11 +311,6 @@ $GLOBALS['restore_sessions'] = 1; // 0=no, 1=yes, 2=yes+debug
 // used in Add new event for multiple providers
 $GLOBALS['select_multi_providers'] = false;
 
-// NOT functional. Always keep this value FALSE.
-//  Plan to remove when this functionally has been completely
-//   removed from code.
-$GLOBALS['dutchpc'] = FALSE;
-
 // Theme definition:
 if ($GLOBALS['concurrent_layout']) {
  $top_bg_line = ' bgcolor="#dddddd" ';
