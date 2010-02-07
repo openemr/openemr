@@ -162,25 +162,6 @@ function toencounter(pid, pubpid, pname, enc, datestr) {
 <?php } ?>
 }
 
-// Process a click to go to patient demographics.
-// larry :: dbc insert
-<?php if( $GLOBALS['dutchpc'] )
-{
-?>
-function topatient(pid) {
- top.restoreSession();
-<?php if ($GLOBALS['concurrent_layout']) { ?>
- var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
- parent.frames[othername].location.href =
-  '../patient_file/summary/demographics_full_dutch.php?pid=' + pid;
-<?php } else { ?>
- location.href = '../patient_file/summary/demographics_full_dutch.php?pid=' + pid;
-<?php } ?>
-}
-
-<?php } else
-{ ?>
-
 function topatient(pid) {
  top.restoreSession();
 <?php if ($GLOBALS['concurrent_layout']) { ?>
@@ -191,8 +172,6 @@ function topatient(pid) {
  location.href = '../patient_file/summary/demographics_full.php?pid=' + pid;
 <?php } ?>
 }
-<?php } ?>
-// larry :: end of dbc change
 
 </script>
 </head>

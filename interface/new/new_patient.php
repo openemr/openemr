@@ -18,11 +18,7 @@ $_SESSION["encounter"] = "";
   <frame src="new_navigation.php" name="Navigation" scrolling="no" noresize frameborder="NO">
   <frame src="new_title.php" name="Title" scrolling="no" noresize frameborder="NO">
 
-  <?php if ( $GLOBALS['dutchpc'] ) { ?>
-    <frame src="new_dutch.php" name="Main" scrolling="auto" noresize frameborder="NO">
-<?php } else { ?>c
     <frame src="new.php" name="Main" scrolling="auto" noresize frameborder="NO">
-<?php } ?>
 
 </frameset>
 

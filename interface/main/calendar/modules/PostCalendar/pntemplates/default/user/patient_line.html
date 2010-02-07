@@ -11,6 +11,6 @@
 	
 	
 	<a href="[-$TPL_ROOTDIR-]/patient_file/patient_file.php?go=encounter&pid=[-$event.pid-]&set_pid=[-$event.pid-]" target="_top"><img align="middle" src="[-$TPL_IMAGE_PATH-]/encounter_hotlink.gif" border="0" vspace="0" hspace="0"/></a>
-	{php} $demovar = ( $GLOBALS['dutchpc'] ) ? 'demographics_full_dutch.php' : 'demographics_full.php'; {/php}
+	{php} $demovar = 'demographics_full.php'; {/php}
 	<a href="[-$TPL_ROOTDIR-]/patient_file/summary/[-$demovar-]?pid=[-$event.pid-]&set_pid=[-$event.pid-]" target="Main"><img align="middle" src="[-$TPL_IMAGE_PATH-]/demo_hotlink.gif" border="0" vspace="0" hspace="0"/></a>
 [-/if-]

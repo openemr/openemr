@@ -9,11 +9,7 @@ include_once("../../globals.php");
 
 <frameset rows="50%,50%">
 
-<?php if($GLOBALS['dutchpc']) { ?>
- <frame src="demographics_dutch.php" name="Demographics" scrolling="auto">
-<?php } else { ?>
  <frame src="demographics.php" name="Demographics" scrolling="auto">
-<?php } ?>
 
 <?php if ($GLOBALS['athletic_team']) { ?>
  <frameset cols="25%,50%,*">
