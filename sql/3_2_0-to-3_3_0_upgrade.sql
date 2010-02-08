@@ -258,3 +258,16 @@ update layout_options set seq = 9, titlecols = 1, datacols = 3 where form_id = '
 #IfNotRow2D layout_options form_id HIS field_id recreational_drugs
 INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('HIS','recreational_drugs','4Lifestyle','Recreational Drugs',4,28,1,20,255,'',1,3,'','' ,'Recreational drugs use');
 #EndIf
+
+
+#IfMissingColumn users pwd_expiration_date
+ALTER TABLE users ADD pwd_expiration_date date DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn users pwd_history1
+ALTER TABLE users ADD pwd_history1 longtext DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn users pwd_history2
+ALTER TABLE users ADD pwd_history2 longtext DEFAULT NULL;
+#EndIf

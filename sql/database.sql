@@ -2857,6 +2857,9 @@ CREATE TABLE `users` (
   `ssi_relayhealth` varchar(64) NULL,
   `calendar` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 = appears in calendar',
   `abook_type` varchar(31) NOT NULL DEFAULT '',
+  `pwd_expiration_date` date default NULL,
+  `pwd_history1` longtext default NULL,
+  `pwd_history2` longtext default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 

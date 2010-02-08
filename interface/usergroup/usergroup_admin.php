@@ -3,6 +3,7 @@ require_once("../globals.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/md5.js");
 require_once("$srcdir/sql.inc");
+require_once("$srcdir/auth.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
 
@@ -87,11 +88,21 @@ if ($_GET["privatemode"]=="user_admin") {
           }
       }
       //END (CHEMED) Calendar UI preference
-
-      if ($_GET["newauthPass"] && $_GET["newauthPass"] != "d41d8cd98f00b204e9800998ecf8427e") { // account for empty
-        $tqvar = formData('newauthPass','G');
-        sqlStatement("update users set password='$tqvar' where id={$_GET["id"]}");
-      }
+     if ($_GET["newauthPass"] && $_GET["newauthPass"] != "d41d8cd98f00b204e9800998ecf8427e") { // account for empty
+	$tqvar = formData('newauthPass','G');
+// When the user password is updated and the password history option is enabled, update the password history in database. A new password expiration is also calculated
+	if($GLOBALS['password_history'] != 0 ){
+		$updatepwd = UpdatePasswordHistory($_GET["id"], $tqvar);
+	}else
+	{
+		sqlStatement("update users set password='$tqvar' where id={$_GET["id"]}");
+		if($GLOBALS['password_expiration_days'] != 0){
+			$exp_days=$GLOBALS['password_expiration_days'];
+			$exp_date = date('Y-m-d', strtotime("+$exp_days days"));
+			sqlStatement("update users set pwd_expiration_date='$exp_date' where id=$userid");
+		}
+	}
+}
 
       // for relay health single sign-on
       if ($_GET["ssi_relayhealth"]) {
@@ -143,6 +154,11 @@ if (isset($_POST["mode"])) {
     }
 
     if ($doit == true) {
+      //if password expiration option is enabled,  calculate the expiration date of the password
+      if($GLOBALS['password_expiration_days'] != 0){
+      $exp_days = $GLOBALS['password_expiration_days'];
+      $exp_date = date('Y-m-d', strtotime("+$exp_days days"));
+      }
       $prov_id = idSqlStatement("insert into users set " .
         "username = '"         . trim(formData('rumple'       )) .
         "', password = '"      . trim(formData('newauthPass'  )) .
@@ -161,6 +177,7 @@ if (isset($_POST["mode"])) {
         "', see_auth = '"      . trim(formData('see_auth'     )) .
 	    "', cal_ui = '"        . trim(formData('cal_ui'       )) .
         "', calendar = '"      . $calvar                         .
+        "', pwd_expiration_date = '" . trim("$exp_date") .
         "'");
       //set the facility name from the selected facility_id
       sqlStatement("UPDATE users, facility SET users.facility = facility.name WHERE facility.id = '" . trim(formData('facility_id')) . "' AND users.username = '" . trim(formData('rumple')) . "'");

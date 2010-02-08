@@ -1,11 +1,36 @@
 <?php
  include_once("../globals.php");
+ require_once("$srcdir/formdata.inc.php");
  $_SESSION["encounter"] = "";
 
+ // Fetching the password expiration date
+ if($GLOBALS['password_expiration_days'] != 0){
+ $is_expired = false;
+ $q=formData('authUser','P');
+ $result = sqlStatement("select pwd_expiration_date from users where username = '".$q."'");
+ $current_date = date("Y-m-d");
+ $pwd_expires_date = $current_date;
+ if($row = sqlFetchArray($result)) {
+  $pwd_expires_date = $row['pwd_expiration_date'];
+ }
+
+// Displaying the password expiration message (starting from 7 days before the password gets expired)
+ $pwd_alert_date = date("Y-m-d", strtotime($pwd_expires_date . "-7 days"));
+
+ if (strtotime($pwd_alert_date) != "" && strtotime($current_date) >= strtotime($pwd_alert_date) && 
+     (!isset($_SESSION['expiration_msg']) or $_SESSION['expiration_msg'] == 0)) {
+
+  $is_expired = true;
+  $_SESSION['expiration_msg'] = 1; // only show the expired message once
+ }
+}
  if ($GLOBALS['athletic_team']) {
   $frame1url = "../reports/players_report.php?embed=1";
  } else {
-  if (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
+  if ($is_expired) {
+   $frame1url = "pwd_expires_alert.php"; //php file which display's password expiration message.
+  }
+  elseif (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
    $frame1url = "calendar/index.php?pid=" . $_GET['pid'];
    if (isset($_GET['date'])) $frame1url .= "&date=" . $_GET['date'];
   } else {

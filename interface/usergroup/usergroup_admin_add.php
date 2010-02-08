@@ -19,23 +19,36 @@ $alertmsg = '';
 <script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<script src="checkpwd_validation.js" type="text/javascript"></script>
 
 <script language="JavaScript">
 
 function submitform() {
-    if (document.forms[0].rumple.value.length>0 && document.forms[0].stiltskin.value.length>0) {
-        top.restoreSession();
-        document.forms[0].newauthPass.value=MD5(document.forms[0].stiltskin.value);
-        document.forms[0].stiltskin.value='';
-        document.forms[0].submit();
-    } else {
-        if (document.forms[0].rumple.value.length<=0)
-            {document.forms[0].rumple.focus();document.forms[0].rumple.style.backgroundColor="red";}
-        if (document.forms[0].stiltskin.value.length<=0)
-            {document.forms[0].stiltskin.focus();document.forms[0].stiltskin.style.backgroundColor="red";}
-    }
-}
+	if (document.forms[0].rumple.value.length>0 && document.forms[0].stiltskin.value.length>0) {
+		top.restoreSession();
 
+		//Checking if secure password is enabled or disabled.
+		//If it is enabled and entered password is a weak password, alert the user to enter strong password.
+		if(document.new_user.secure_pwd.value == 1){
+			var password = trim(document.new_user.stiltskin.value);
+			if(password != "") {
+				var pwdresult = passwordvalidate(password);
+				if(pwdresult == 0){
+					alert("<?php echo xl('The password must be at least eight characters, and should'); echo '\n'; echo xl('contain at least three of the four following items:'); echo '\n'; echo xl('A number'); echo '\n'; echo xl('A lowercase letter'); echo '\n'; echo xl('An uppercase letter'); echo '\n'; echo xl('A special character');echo '('; echo xl('not a letter or number'); echo ').'; echo '\n'; echo xl('For example:'); echo ' healthCare@09'; ?>");
+					return false;
+				}
+			}
+		} //secure_pwd if ends here
+		document.forms[0].newauthPass.value=MD5(document.forms[0].stiltskin.value);
+		document.forms[0].stiltskin.value='';
+		document.forms[0].submit();
+	} else {
+		if (document.forms[0].rumple.value.length<=0)
+		{document.forms[0].rumple.focus();document.forms[0].rumple.style.backgroundColor="red";}
+		if (document.forms[0].stiltskin.value.length<=0)
+		{document.forms[0].stiltskin.focus();document.forms[0].stiltskin.style.backgroundColor="red";}
+	}
+}
 function authorized_clicked() {
      var f = document.forms[0];
      f.calendar.disabled = !f.authorized.checked;
@@ -49,7 +62,7 @@ function authorized_clicked() {
 <table><tr><td>
 <span class="title"><?php xl('Add User','e'); ?></span>&nbsp;</td>
 <td>
-<a class="css_button" name='form_save' id='form_save' href='#' onclick="submitform()">
+<a class="css_button" name='form_save' id='form_save' href='#' onclick="return submitform()">
 	<span><?php xl('Save','e');?></span></a>
 <a class="css_button large_button" id='cancel' href='#'>
 	<span class='css_button_span large_button_span'><?php xl('Cancel','e');?></span>
@@ -63,6 +76,7 @@ function authorized_clicked() {
 <form name='new_user' method='post'  target="_parent" action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
 <input type=hidden name=mode value=new_user>
+<input type=hidden name=secure_pwd value="<? echo $GLOBALS['secure_password']; ?>">
 <span class="bold">&nbsp;</span>
 </td><td>
 <table border=0 cellpadding=0 cellspacing=0 style="width:600px;">

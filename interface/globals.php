@@ -393,6 +393,31 @@ $GLOBALS['schedule_end'] = 17;
 // in minutes for an appointment slot:
 $GLOBALS['calendar_interval'] = 15;
 
+/*
+ Set 1 to enable strong password feature in openemr
+ Set 0 to disable strong password feature in openemr
+ Strong password means the user password must be at least 8 characters, and should contain at least three of the four following items:
+ -A number
+ -A lowercase letter
+ -An uppercase letter
+ -A special character (not a letter or number).
+ For example: healthCare@09
+*/
+$GLOBALS['secure_password'] = 0;
+
+//Set 1 to enable password history feature in openemr
+//Set 0 to disable password history feature in openemr
+//Password History means last three passwords of user should not be allowed while changing the password
+$GLOBALS['password_history'] = 0;
+
+// Set the default password expiration period, in days. if it is 0 this feature is disabled. 
+// The administrator can override this value when editing a user.
+// Set the grace login period in days, only when $GLOBALS['password_expiration_days'] is set to some values(like 180 days).
+$GLOBALS['password_expiration_days'] = 0;
+
+// Set the grace login period where the user can login with an expired password.
+$GLOBALS['password_grace_time'] = 0;
+
 // Include the authentication module code here, but the rule is
 // if the file has the word "login" in the source code file name,
 // don't include the authentication module - we do this to avoid

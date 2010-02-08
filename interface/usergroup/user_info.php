@@ -2,12 +2,57 @@
 include_once("../globals.php");
 include_once("$srcdir/md5.js");
 include_once("$srcdir/sql.inc");
+include_once("$srcdir/auth.inc");
 ?>
 <html>
 <head>
-
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<script src="checkpwd_validation.js" type="text/javascript"></script>
+<script language='JavaScript'>
+//Validating password and display message if password field is empty - starts
+function pwdvalidation()
+{
+  var password1=trim(document.user_form.clearPass.value);
+  var password2=trim(document.user_form.clearPass2.value);
+  document.getElementById("display_msg").innerHTML="";
+  if (password1 == "")
+  {
+	alert("<?php echo xl('Please enter the password'); ?>");
+    document.user_form.clearPass.focus();
+    return false;
+  }
+  if (password2 == "")
+  {
+	alert("<?php echo xl('Please enter the password'); ?>");
+    document.user_form.clearPass2.focus();
+    return false;
+  }
+  if (password1 != password2)
+  {
+	alert("<?php echo xl('Error: passwords don\'t match. Please check your typing.'); ?>");
+    document.user_form.clearPass.value="";
+    document.user_form.clearPass2.value="";
+    document.user_form.clearPass.focus();
+    return false;
+  }
+//Checking for the strong password if the 'secure password' feature is enabled
+  if(document.user_form.secure_pwd.value == 1){ 
+  var pwdresult = passwordvalidate(password1);
+  if  (pwdresult == 0){
+    alert("<?php echo xl('The password must be at least eight characters, and should'); echo '\n'; echo xl('contain at least three of the four following items:'); echo '\n'; echo xl('A number'); echo '\n'; echo xl('A lowercase letter'); echo '\n'; echo xl('An uppercase letter'); echo '\n'; echo xl('A special character');echo '('; echo xl('not a letter or number'); echo ').'; echo '\n'; echo xl('For example:'); echo ' healthCare@09'; ?>");
+    document.user_form.clearPass.value="";
+    document.user_form.clearPass2.value="";
+    document.user_form.clearPass.focus();
+    return false;
+  }
+}
+  document.user_form.authPass.value=MD5(document.user_form.clearPass.value);
+  document.user_form.clearPass.value='';
+  document.user_form.authPass2.value=MD5(document.user_form.clearPass2.value);
+  document.user_form.clearPass2.value='';
+}
 
+</script>
 </head>
 <body class="body_top">
 
@@ -16,28 +61,50 @@ include_once("$srcdir/sql.inc");
 
 <?php
 
+$update_pwd_failed=0;
+$ip=$_SERVER['REMOTE_ADDR'];
 if ($_GET["mode"] == "update") {
-	if ($_GET["authPass"] && $_GET["authPass2"] && $_GET["authPass"] != "d41d8cd98f00b204e9800998ecf8427e") { // account for empty
-		$tqvar = addslashes($_GET["authPass"]);
-		$tqvar2 = addslashes($_GET["authPass2"]);
-		if ($tqvar == $tqvar2) {
-			sqlStatement("update users set password='$tqvar' where id={$_SESSION['authId']}");
-			echo "<span class='alert'>".xl("Password change successful.",'','',' ').xl("Click")."<a href='$rootdir/logout.php?auth=logout' class=link_submit>".xl("here",'',' ',' ')."</a>".xl("to login again").".<br><br></span>";
-		}
-		else
-			echo "<span class=alert>" . xl("Error: passwords don't match. Please check your typing.") . "</span><br><br>\n";
-	}
+  if ($_GET["authPass"] && $_GET["authPass2"] && $_GET["authPass"] != "d41d8cd98f00b204e9800998ecf8427e") { // account for empty
+    $tqvar = addslashes($_GET["authPass"]);
+    $tqvar2 = addslashes($_GET["authPass2"]);
+    if ($tqvar == $tqvar2)  {
+
+   // Validating the password  
+    if($GLOBALS['password_history'] != 0){
+      $updatepwd = UpdatePasswordHistory($_SESSION["authId"],$tqvar);  
+      }else {
+      sqlStatement("update users set password='$tqvar' where id={$_SESSION["authId"]}");
+      $updatepwd=1;	
+     }
+      if ($updatepwd == 1) {
+        echo "<span class='alert'>".xl("Password change successful.",'','',' ').xl("Click")."<a href='$rootdir/logout.php?auth=logout' class=link_submit>".xl("here",'',' ',' ')."</a>".xl("to login again").".<br><br></span>";
+      } else {
+        $update_pwd_failed=1;
+      }
+    }
+    else {
+      echo "<span class=alert>" . xl("Error: passwords don't match. Please check your typing.") . "</span><br><br>\n";
+    }
+  }
 }
 
 $res = sqlStatement("select * from users where id={$_SESSION["authId"]}"); 
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-                $result[$iter] = $row;
-$iter = $result[0];
-
+$row = sqlFetchArray($res);
+      $iter=$row;
 ?>
+<div id="display_msg">
+<?
+if ($update_pwd_failed==1) //display message if entered password matched one of last three passwords.
+{
+  echo "<font class='redtext'>". xl("Recent three passwords are not allowed.") ."</font>";
+}
+?>
+</div>
+<br>
 <span class="text"><?php xl('Once you change your password, you will have to re-login.','e'); ?><br></span>
 <FORM NAME="user_form" METHOD="GET" ACTION="user_info.php"
  onsubmit="top.restoreSession()">
+<input type=hidden name=secure_pwd value="<? echo $GLOBALS['secure_password']; ?>">
 <TABLE>
 <TR>
 <TD><span class=text><?php xl('Real Name','e'); ?>: </span></TD>
@@ -64,7 +131,7 @@ $iter = $result[0];
 <INPUT TYPE="HIDDEN" NAME="mode" VALUE="update">
 <INPUT TYPE="HIDDEN" NAME="authPass" VALUE="">
 <INPUT TYPE="HIDDEN" NAME="authPass2" VALUE="">
-<INPUT TYPE="Submit" VALUE=<?php xl('Save Changes','e','\'','\''); ?> onClick="javascript:this.form.authPass.value=MD5(this.form.clearPass.value);this.form.clearPass.value='';this.form.authPass2.value=MD5(this.form.clearPass2.value);this.form.clearPass2.value='';">
+<INPUT TYPE="Submit" VALUE=<?php xl('Save Changes','e','\'','\''); ?> onClick="return pwdvalidation()">
 
 <?php if (! $GLOBALS['concurrent_layout']) { ?>
 &nbsp;&nbsp;&nbsp;

@@ -79,7 +79,6 @@ if ($_GET["mode"] == "update") {
           $tqvar = formData('fname','G');
           sqlStatement("update users set fname='$tqvar' where id={$_GET["id"]}");
   }
-
   //(CHEMED) Calendar UI preference
   if ($_GET["cal_ui"]) {
           $tqvar = formData('cal_ui','G');
@@ -167,12 +166,51 @@ parent.$.fn.fancybox.close();
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
+<script src="checkpwd_validation.js" type="text/javascript"></script>
 
 <script language="JavaScript">
 function submitform() {
-    top.restoreSession();
-    document.forms[0].newauthPass.value=MD5(document.forms[0].clearPass.value);document.forms[0].clearPass.value='';
-    document.forms[0].submit();
+	top.restoreSession();
+	var flag=0;
+	if(document.forms[0].clearPass.value!="")
+	{
+		//Checking for the strong password if the 'secure password' feature is enabled
+		if(document.forms[0].secure_pwd.value == 1)
+		{
+			var pwdresult = passwordvalidate(document.forms[0].clearPass.value);
+			if(pwdresult == 0) {
+				flag=1;
+				alert("<?php echo xl('The password must be at least eight characters, and should'); echo '\n'; echo xl('contain at least three of the four following items:'); echo '\n'; echo xl('A number'); echo '\n'; echo xl('A lowercase letter'); echo '\n'; echo xl('An uppercase letter'); echo '\n'; echo xl('A special character');echo '('; echo xl('not a letter or number'); echo ').'; echo '\n'; echo xl('For example:'); echo ' healthCare@09'; ?>");
+				return false;
+			}
+		}
+		//Checking for password history if the 'password history' feature is enabled.
+		if(document.forms[0].pwd_history.value == 1){
+			var p  = MD5(document.forms[0].clearPass.value);
+			var p1 = document.forms[0].pwd.value;
+			var p2 = document.forms[0].pwd_history1.value;
+			var p3 = document.forms[0].pwd_history2.value;
+			if((p == p1) || (p == p2) || (p == p3))
+			{
+				flag=1;
+				document.getElementById('error_message').innerHTML="<?php xl('Recent three passwords are not allowed.',e) ?>";
+				return false;
+			}
+		}
+
+	}//If pwd null ends here
+	//Request to reset the user password if the user was deactived once the password expired.
+	if((document.forms[0].pwd_expires.value != 0) && (document.forms[0].clearPass.value == "")) {
+		if((document.forms[0].pre_active.value == 0) && (document.forms[0].active.checked == 1) && (document.forms[0].grace_time.value != "") && (document.forms[0].current_date.value) > (document.forms[0].grace_time.value))
+		{
+			flag=1;
+			document.getElementById('error_message').innerHTML="<?php xl('Please reset the password.',e) ?>";
+		}
+	}
+	if(flag == 0){
+		document.forms[0].newauthPass.value=MD5(document.forms[0].clearPass.value);document.forms[0].clearPass.value='';
+		document.forms[0].submit();
+	}
 }
 function authorized_clicked() {
  var f = document.forms[0];
@@ -187,12 +225,31 @@ function authorized_clicked() {
 <table><tr><td>
 <span class="title"><?php xl('Edit User','e'); ?></span>&nbsp;
 </td><td>
-    <a class="css_button" name='form_save' id='form_save' href='#' onclick='submitform()'> <span><?php xl('Save','e');?></span> </a>
+    <a class="css_button" name='form_save' id='form_save' href='#' onclick='return submitform()'> <span><?php xl('Save','e');?></span> </a>
 	<a class="css_button" id='cancel' href='#'><span><?php xl('Cancel','e');?></span></a>
 </td></tr>
 </table>
 <br>
 <FORM NAME="user_form" METHOD="GET" ACTION="usergroup_admin.php" target="_parent" onsubmit='return top.restoreSession()'>
+<input type=hidden name="pwd_history" value="<? echo $GLOBALS['password_history']; ?>" >
+<input type=hidden name="pwd_history1" value="<? echo $iter["pwd_history1"]; ?>" >
+<input type=hidden name="pwd_history2" value="<? echo $iter["pwd_history2"]; ?>" >
+<input type=hidden name="pwd" value="<? echo $iter["password"]; ?>" >
+
+<input type=hidden name="pwd_expires" value="<? echo $GLOBALS['password_expiration_days']; ?>" >
+<input type=hidden name="pre_active" value="<? echo $iter["active"]; ?>" >
+<input type=hidden name="exp_date" value="<? echo $iter["pwd_expiration_date"]; ?>" >
+<?php 
+//Calculating the grace time 
+$current_date = date("Y-m-d");
+$password_exp=$iter["pwd_expiration_date"];
+if($password_exp != "0000-00-00")
+  {
+    $grace_time1 = date("Y-m-d", strtotime($password_exp . "+".$GLOBALS['password_grace_time'] ."days"));
+  }
+?>
+<input type=hidden name="current_date" value="<? echo strtotime($current_date); ?>" >
+<input type=hidden name="grace_time" value="<? echo strtotime($grace_time1); ?>" >
 <TABLE border=0 cellpadding=0 cellspacing=0>
 <TR>
 <TD style="width:180px;"><span class=text><?php xl('Username','e'); ?>: </span></TD><TD style="width:270px;"><input type=entry name=username style="width:150px;" value="<?php echo $iter["username"]; ?>" disabled></td>
@@ -341,6 +398,10 @@ foreach($result as $iter2) {
   <tr height="20" valign="bottom">
   <td colspan="4" class="text">
   <font class="mandatory">*</font> <?php xl('Leave blank to keep password unchanged.','e'); ?>
+<!--
+Display red alert if entered password matched one of last three passwords/Display red alert if user password was expired and the user was inactivated previously
+-->
+  <div class="redtext" id="error_message">&nbsp;</div>
   </td>
   </tr>
 <?php
@@ -352,7 +413,7 @@ foreach($result as $iter2) {
 <INPUT TYPE="HIDDEN" NAME="mode" VALUE="update">
 <INPUT TYPE="HIDDEN" NAME="privatemode" VALUE="user_admin">
 <INPUT TYPE="HIDDEN" NAME="newauthPass" VALUE="">
-
+<INPUT TYPE="HIDDEN" NAME="secure_pwd" VALUE="<? echo $GLOBALS['secure_password']; ?>">
 </FORM>
 <script language="JavaScript">
 $(document).ready(function(){
