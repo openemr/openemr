@@ -279,6 +279,8 @@ CREATE TABLE `drug_inventory` (
   `expiration` date default NULL,
   `manufacturer` varchar(255) default NULL,
   `on_hand` int(11) NOT NULL default '0',
+  `warehouse_id` varchar(31) NOT NULL DEFAULT '',
+  `vendor_id` bigint(20) NOT NULL DEFAULT 0,
   `last_notify` date NOT NULL default '0000-00-00',
   `destroy_date` date default NULL,
   `destroy_method` varchar(255) default NULL,

@@ -271,3 +271,14 @@ ALTER TABLE users ADD pwd_history1 longtext DEFAULT NULL;
 #IfMissingColumn users pwd_history2
 ALTER TABLE users ADD pwd_history2 longtext DEFAULT NULL;
 #EndIf
+
+#IfMissingColumn drug_inventory warehouse_id
+ALTER TABLE drug_inventory
+  ADD warehouse_id bigint(20) NOT NULL DEFAULT 0;
+#EndIf
+
+#IfMissingColumn drug_inventory vendor_id
+ALTER TABLE drug_inventory
+  ADD vendor_id bigint(20) NOT NULL DEFAULT 0;
+#EndIf
+
