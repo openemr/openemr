@@ -27,6 +27,41 @@ function get_pharmacies() {
     "ORDER BY name, area_code, prefix, number");
 }
 
+// Function to generate a drop-list.
+//
+function generate_select_list($tag_name, $list_id, $currvalue, $title,
+  $empty_name=' ', $class='')
+{
+  echo "<select name='$tag_name' id='$tag_name'";
+  if ($class) echo " class='$class'";
+  echo " title='$title'>";
+  if ($empty_name) echo "<option value=''>" . xl($empty_name) . "</option>";
+  $lres = sqlStatement("SELECT * FROM list_options " .
+    "WHERE list_id = '$list_id' ORDER BY seq, title");
+  $got_selected = FALSE;
+  while ($lrow = sqlFetchArray($lres)) {
+    echo "<option value='" . $lrow['option_id'] . "'";
+    if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
+        (strlen($currvalue)  > 0 && $lrow['option_id'] == $currvalue))
+    {
+      echo " selected";
+      $got_selected = TRUE;
+    }
+    echo ">" . xl_list_label($lrow['title']) . "</option>\n";
+  }
+  if (!$got_selected && strlen($currvalue) > 0) {
+    $currescaped = htmlspecialchars($currvalue, ENT_QUOTES);
+    echo "<option value='$currescaped' selected>* $currescaped *</option>";
+    echo "</select>";
+    echo " <font color='red' title='" .
+      xl('Please choose a valid selection from the list.') . "'>" .
+      xl('Fix this') . "!</font>";
+  }
+  else {
+    echo "</select>";
+  }
+}
+
 function generate_form_field($frow, $currvalue) {
   global $rootdir, $date_init;
 
@@ -61,32 +96,8 @@ function generate_form_field($frow, $currvalue) {
     
   // generic single-selection list
   if ($data_type == 1) {
-    echo "<select name='form_$field_id' id='form_$field_id' title='$description'>";
-    if ($showEmpty) echo "<option value=''>" . xl($empty_title) . "</option>";
-    $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = '$list_id' ORDER BY seq, title");
-    $got_selected = FALSE;
-    while ($lrow = sqlFetchArray($lres)) {
-      echo "<option value='" . $lrow['option_id'] . "'";
-      if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
-          (strlen($currvalue)  > 0 && $lrow['option_id'] == $currvalue))
-      {
-        echo " selected";
-        $got_selected = TRUE;
-      }
-	
-      // Added 5-09 by BM - Translate label if applicable	
-      echo ">" . xl_list_label($lrow['title']) . "</option>\n";
-	
-    }
-    if (!$got_selected && strlen($currvalue) > 0) {
-      echo "<option value='$currescaped' selected>* $currescaped *</option>";
-      echo "</select>";
-      echo " <font color='red' title='" . xl('Please choose a valid selection from the list.') . "'>" . xl('Fix this') . "!</font>";
-    }
-    else {
-      echo "</select>";
-    }
+    generate_select_list("form_$field_id", $list_id, $currvalue, $description,
+      $showEmpty ? $empty_title : '');
   }
 
   // simple text field
@@ -197,10 +208,15 @@ function generate_form_field($frow, $currvalue) {
   // Alternatively the letter O in edit_options means that abook_type
   // must begin with "ord_", indicating types used with the procedure
   // ordering system.
+  // Alternatively the letter V in edit_options means that abook_type
+  // must be "vendor", indicating the Vendor type.
   else if ($data_type == 14) {
-    $tmp = (strpos($frow['edit_options'], 'O') === FALSE) ?
-      "( username = '' OR authorized = 1 )" :
-      "abook_type LIKE 'ord\\_%'";
+    if (strpos($frow['edit_options'], 'O') !== FALSE)
+      $tmp = "abook_type LIKE 'ord\\_%'";
+    else if (strpos($frow['edit_options'], 'V') !== FALSE)
+      $tmp = "abook_type LIKE 'vendor%'";
+    else
+      $tmp = "( username = '' OR authorized = 1 )";
     $ures = sqlStatement("SELECT id, fname, lname, organization, username FROM users " .
       "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
       "AND $tmp " .
