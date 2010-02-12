@@ -1,3 +1,360 @@
+
+ERROR: 39 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 39 or one row above.)
+
+ERROR: 53 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 53 or one row above.)
+
+ERROR: 79 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 79 or one row above.)
+
+ERROR: 118 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 118 or one row above.)
+
+ERROR: 179 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 179 or one row above.)
+
+ERROR: 180 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 180 or one row above.)
+
+ERROR: 181 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 181 or one row above.)
+
+ERROR: 212 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 212 or one row above.)
+
+ERROR: 231 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 231 or one row above.)
+
+ERROR: 330 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 330 or one row above.)
+
+ERROR: 375 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 375 or one row above.)
+
+ERROR: 473 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 473 or one row above.)
+
+ERROR: 501 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 501 or one row above.)
+
+ERROR: 513 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 513 or one row above.)
+
+ERROR: 525 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 525 or one row above.)
+
+ERROR: 536 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 536 or one row above.)
+
+ERROR: 555 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 555 or one row above.)
+
+ERROR: 561 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 561 or one row above.)
+
+ERROR: 571 row with incorrect number of tabs. There are 4 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 571 or one row above.)
+
+ERROR: 643 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 643 or one row above.)
+
+ERROR: 644 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 644 or one row above.)
+
+ERROR: 645 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 645 or one row above.)
+
+ERROR: 646 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 646 or one row above.)
+
+ERROR: 682 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 682 or one row above.)
+
+ERROR: 751 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 751 or one row above.)
+
+ERROR: 760 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 760 or one row above.)
+
+ERROR: 801 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 801 or one row above.)
+
+ERROR: 834 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 834 or one row above.)
+
+ERROR: 837 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 837 or one row above.)
+
+ERROR: 873 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 873 or one row above.)
+
+ERROR: 899 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 899 or one row above.)
+
+ERROR: 912 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 912 or one row above.)
+
+ERROR: 1024 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1024 or one row above.)
+
+ERROR: 1026 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1026 or one row above.)
+
+ERROR: 1031 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1031 or one row above.)
+
+ERROR: 1033 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1033 or one row above.)
+
+ERROR: 1035 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1035 or one row above.)
+
+ERROR: 1122 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1122 or one row above.)
+
+ERROR: 1205 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1205 or one row above.)
+
+ERROR: 1206 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1206 or one row above.)
+
+ERROR: 1269 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1269 or one row above.)
+
+ERROR: 1270 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1270 or one row above.)
+
+ERROR: 1276 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1276 or one row above.)
+
+ERROR: 1374 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1374 or one row above.)
+
+ERROR: 1404 row with incorrect number of tabs. There are 4 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1404 or one row above.)
+
+ERROR: 1415 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1415 or one row above.)
+
+ERROR: 1423 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1423 or one row above.)
+
+ERROR: 1514 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1514 or one row above.)
+
+ERROR: 1564 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1564 or one row above.)
+
+ERROR: 1658 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1658 or one row above.)
+
+ERROR: 1659 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1659 or one row above.)
+
+ERROR: 1667 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1667 or one row above.)
+
+ERROR: 1668 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1668 or one row above.)
+
+ERROR: 1684 row with incorrect number of tabs. There are 4 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1684 or one row above.)
+
+ERROR: 1695 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1695 or one row above.)
+
+ERROR: 1999 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 1999 or one row above.)
+
+ERROR: 2011 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2011 or one row above.)
+
+ERROR: 2022 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2022 or one row above.)
+
+ERROR: 2171 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2171 or one row above.)
+
+ERROR: 2243 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2243 or one row above.)
+
+ERROR: 2299 row with incorrect number of tabs. There are 4 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2299 or one row above.)
+
+ERROR: 2344 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2344 or one row above.)
+
+ERROR: 2345 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2345 or one row above.)
+
+ERROR: 2346 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2346 or one row above.)
+
+ERROR: 2352 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2352 or one row above.)
+
+ERROR: 2353 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2353 or one row above.)
+
+ERROR: 2357 row with incorrect number of tabs. There are 4 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2357 or one row above.)
+
+ERROR: 2359 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2359 or one row above.)
+
+ERROR: 2368 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2368 or one row above.)
+
+ERROR: 2380 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2380 or one row above.)
+
+ERROR: 2384 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2384 or one row above.)
+
+ERROR: 2415 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2415 or one row above.)
+
+ERROR: 2420 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2420 or one row above.)
+
+ERROR: 2421 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2421 or one row above.)
+
+ERROR: 2422 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2422 or one row above.)
+
+ERROR: 2473 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2473 or one row above.)
+
+ERROR: 2474 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2474 or one row above.)
+
+ERROR: 2530 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2530 or one row above.)
+
+ERROR: 2567 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2567 or one row above.)
+
+ERROR: 2647 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2647 or one row above.)
+
+ERROR: 2668 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2668 or one row above.)
+
+ERROR: 2678 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2678 or one row above.)
+
+ERROR: 2681 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2681 or one row above.)
+
+ERROR: 2682 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2682 or one row above.)
+
+ERROR: 2721 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2721 or one row above.)
+
+ERROR: 2731 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2731 or one row above.)
+
+ERROR: 2734 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2734 or one row above.)
+
+ERROR: 2747 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2747 or one row above.)
+
+ERROR: 2823 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2823 or one row above.)
+
+ERROR: 2824 row with incorrect number of tabs. There are 4 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2824 or one row above.)
+
+ERROR: 2825 row with incorrect number of tabs. There are 4 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2825 or one row above.)
+
+ERROR: 2838 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2838 or one row above.)
+
+ERROR: 2854 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2854 or one row above.)
+
+ERROR: 2857 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2857 or one row above.)
+
+ERROR: 2858 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2858 or one row above.)
+
+ERROR: 2860 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2860 or one row above.)
+
+ERROR: 2927 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2927 or one row above.)
+
+ERROR: 2954 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2954 or one row above.)
+
+ERROR: 2978 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2978 or one row above.)
+
+ERROR: 2979 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2979 or one row above.)
+
+ERROR: 2980 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 2980 or one row above.)
+
+ERROR: 3004 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 3004 or one row above.)
+
+ERROR: 3081 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 3081 or one row above.)
+
+ERROR: 3162 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 3162 or one row above.)
+
+ERROR: 3163 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 3163 or one row above.)
+
+ERROR: 3164 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 3164 or one row above.)
+
+ERROR: 3184 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 3184 or one row above.)
+
+ERROR: 3253 row with incorrect number of tabs. There are 4 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 3253 or one row above.)
+
+ERROR: 3260 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 3260 or one row above.)
+
+ERROR: 3263 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 3263 or one row above.)
+
+ERROR: 3276 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 3276 or one row above.)
+
+ERROR: 3326 row with incorrect number of tabs. There are 7 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 3326 or one row above.)
+
+ERROR: 3327 row with incorrect number of tabs. There are 4 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 3327 or one row above.)
+
+ERROR: 3356 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 3356 or one row above.)
+
+ERROR: 3357 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 3357 or one row above.)
+
+ERROR: 3358 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 3358 or one row above.)
+
+ERROR: 3361 row with incorrect number of tabs. There are 5 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 3361 or one row above.)
+
+ERROR: 3430 row with incorrect number of tabs. There are 4 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 3430 or one row above.)
+
+ERROR: 3445 row with incorrect number of tabs. There are 4 in this row and should be 8.
+	(This is likely secondary to a rogue newline character(s) on row 3445 or one row above.)
 Checking constants:
 
 Following constant not same:
@@ -549,24 +906,12 @@ Good, constants weren't modified by translators
 
 Language Statistics:
 Total number of english constants: 3501
-Total number of definitions: 29374
-Arabic: 6% (215 definitions)
-Armenian: 0% (0 definitions)
-Bahasa Indonesia: 73% (2557 definitions)
-Chinese (Simplified): 51% (1770 definitions)
-Chinese (Traditional): % (7 definitions)
-dummy: 1% (3501 definitions)
+Total number of definitions: 19495
 Dutch: 1% (3500 definitions)
-English (Indian): 2% (70 definitions)
+English (Indian): 2% (71 definitions)
 English (Standard): 0% (0 definitions)
-French: 1% (41 definitions)
-German: 23% (798 definitions)
 Greek: 97% (3389 definitions)
-Hebrew: 0% (0 definitions)
-Norwegian: 26% (902 definitions)
 Portuguese (Brazilian): 97% (3382 definitions)
 Portuguese (European): 97% (3400 definitions)
-Russian: 3% (89 definitions)
-Slovak: 0% (0 definitions)
 Spanish: 96% (3365 definitions)
 Swedish: 68% (2388 definitions)
