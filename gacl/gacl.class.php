@@ -172,7 +172,9 @@ class gacl {
 		        if ($this->_db_utf8_flag) {
 			        $success_flag = $this->db->Execute("SET NAMES 'utf8'");
 			        if (!$success_flag) {
-			                error_log("PHP custom error: from gacl gacl/gacl.class.php  - Unable to set up UTF8 encoding with mysql database".$this->db->ErrorMsg(), 0);
+				        // commented out to avoid bunch of benign log errors when opening myphpadmin within openemr
+					//   still working on figuring out source of this benign error.
+			                // error_log("PHP custom error: from gacl gacl/gacl.class.php  - Unable to set up UTF8 encoding with mysql database".$this->db->ErrorMsg(), 0);
 				}
 			}
 		        // ---------------------------------------
