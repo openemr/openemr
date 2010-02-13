@@ -23,6 +23,8 @@
  * @param Smarty
  */
 
+require_once(dirname(__FILE__) . '../../translation.inc.php');
+
 function smarty_function_xl($params, &$smarty)
 {
 	if (empty($params['t'])) {
@@ -32,22 +34,7 @@ function smarty_function_xl($params, &$smarty)
         	$translate = $params['t'];
 	}
 
-	$lang_id = $_SESSION['language_choice'];
-	$sql = "SELECT * FROM lang_definitions JOIN lang_constants ON " .
-    	"lang_definitions.cons_id = lang_constants.cons_id WHERE " .
-    	"lang_id='$lang_id' AND constant_name = '" .
-    	addslashes($translate) . "' LIMIT 1";
-	
-	$res = SqlStatement($sql);
-	$row = SqlFetchArray($res);
-
-	$string = $row['definition'];
-
-	if ($string=='') { 
-		$string="$translate"; 
-	}
-
-	echo $string;
+	xl($translate,'e');
 }
 
 /* vim: set expandtab: */
