@@ -227,8 +227,14 @@
 <!-- for the fancy jQuery stuff -->
 <script type="text/javascript">
 
-    function submitfun() {
-     document.forms["prescribe"].submit();
+function submitfun() {
+    top.restoreSession();
+    if (CheckForErrors(this)) {
+        document.forms["prescribe"].submit();
+    }
+    else {
+        return false;
+    }
 }
 
 function iframetopardiv(string){
@@ -286,9 +292,9 @@ var CheckForErrors = function(eObj) {
 function CheckRequired(objID) {
 
     // for text boxes
-    if ($('#'+objID).is('text')) {
+    if ($('#'+objID).is('input')) {
         if ($('#'+objID).val() == "") {
-            alert("Missing a required field");
+            alert("{/literal}{xl t='Missing a required field'}{literal}");
             $('#'+objID).css("backgroundColor", "pink");
             return false;
         }
@@ -297,7 +303,7 @@ function CheckRequired(objID) {
     // for select boxes
     if ($('#'+objID).is('select')) {
         if ($('#'+objID).val() == "0") {
-            alert("Missing a required field");
+            alert("{/literal}{xl t='Missing a required field'}{literal}");
             $('#'+objID).css("backgroundColor", "pink");
             return false;
         }
