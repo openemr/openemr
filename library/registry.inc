@@ -38,7 +38,7 @@ function updateRegistered ( $id, $mod )
 
 function getRegistered ( $state="1", $limit="unlimited", $offset="0")
 {
-	$sql = "select * from registry where state like \"$state\" order by name";
+	$sql = "select * from registry where state like \"$state\" order by priority, name";
 	if ($limit != "unlimited")
 		$sql .= " limit $limit, $offset";
 	$res = sqlStatement($sql);
