@@ -33,7 +33,7 @@ include_once("$srcdir/registry.inc");
 function myGetRegistered($state="1", $limit="unlimited", $offset="0") {
   $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
     "unpackaged, date FROM registry WHERE " .
-    "state LIKE \"$state\" ORDER BY category, priority";
+    "state LIKE \"$state\" ORDER BY category, priority, name";
   if ($limit != "unlimited") $sql .= " limit $limit, $offset";
   $res = sqlStatement($sql);
   if ($res) {
