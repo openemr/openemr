@@ -9,7 +9,7 @@ provider signature and other information that would normally be handled by hand.
 feature must be explained and managed at the clinic location and at the clinic's risk.
 
 * The follow text is printed on all print-to-faxes as addes security
-	"Please do not accept this prescription unless it was received via facimile."
+	"Please do not accept this prescription unless it was received via facsimile."
  
 Manual steps:
 - edit includes/config.php and make sure the following are set:

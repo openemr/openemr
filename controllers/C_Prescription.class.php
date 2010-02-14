@@ -379,7 +379,7 @@ class C_Prescription extends Controller {
 				$pdf->ezImage($sigfile, "", "", "none", "center");
 				$pdf->ezText( xl('Date') . ": " . date('Y-m-d'), 12);
 				if ( $this->is_print_to_fax ) {
-					$pdf->ezText(xl('Please do not accept this prescription unless it was received via facimile.'));
+					$pdf->ezText(xl('Please do not accept this prescription unless it was received via facsimile.'));
 				}
 
 				$addenumFile = $this->pconfig['addendum_file'];
