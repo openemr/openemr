@@ -83,7 +83,7 @@ if (sqlNumRows($lres)) {
     $option_id = $lrow['option_id']; // should start with LBF
     $title = $lrow['title'];
 	  echo "<option value='$rootdir/patient_file/encounter/load_form.php?" .
-      "formname=$option_id'>$title</option>\n";
+      "formname=$option_id'>" . xl_form_title($title) . "</option>\n";
   }
   echo "</select>\n";
 }
