@@ -153,17 +153,19 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
   if ($drug_id) {
    if ($_POST['form_save']) { // updating an existing drug
     sqlStatement("UPDATE drugs SET " .
-     "name = '"          . escapedff('form_name')          . "', " .
-     "ndc_number = '"    . escapedff('form_ndc_number')    . "', " .
-     "on_order = '"      . escapedff('form_on_order')      . "', " .
-     "reorder_point = '" . escapedff('form_reorder_point') . "', " .
-     "form = '"          . escapedff('form_form')          . "', " .
-     "size = '"          . escapedff('form_size')          . "', " .
-     "unit = '"          . escapedff('form_unit')          . "', " .
-     "route = '"         . escapedff('form_route')         . "', " .
-     "cyp_factor = '"    . numericff('form_cyp_factor')    . "', " .
-     "related_code = '"  . escapedff('form_related_code')  . "', " .
-     "active = "         . (empty($_POST['form_active']) ? 0 : 1) . " " .
+     "name = '"           . escapedff('form_name')          . "', " .
+     "ndc_number = '"     . escapedff('form_ndc_number')    . "', " .
+     "on_order = '"       . escapedff('form_on_order')      . "', " .
+     "reorder_point = '"  . escapedff('form_reorder_point') . "', " .
+     "form = '"           . escapedff('form_form')          . "', " .
+     "size = '"           . escapedff('form_size')          . "', " .
+     "unit = '"           . escapedff('form_unit')          . "', " .
+     "route = '"          . escapedff('form_route')         . "', " .
+     "cyp_factor = '"     . numericff('form_cyp_factor')    . "', " .
+     "related_code = '"   . escapedff('form_related_code')  . "', " .
+     "allow_multiple = "  . (empty($_POST['form_allow_multiple' ]) ? 0 : 1) . ", " .
+     "allow_combining = " . (empty($_POST['form_allow_combining']) ? 0 : 1) . ", " .
+     "active = "          . (empty($_POST['form_active']) ? 0 : 1) . " " .
      "WHERE drug_id = '$drug_id'");
     sqlStatement("DELETE FROM drug_templates WHERE drug_id = '$drug_id'");
    }
@@ -180,7 +182,8 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
    $new_drug = true;
    $drug_id = sqlInsert("INSERT INTO drugs ( " .
     "name, ndc_number, on_order, reorder_point, form, " .
-    "size, unit, route, cyp_factor, related_code, active " .
+    "size, unit, route, cyp_factor, related_code, " .
+    "allow_multiple, allow_combining, active " .
     ") VALUES ( " .
     "'" . escapedff('form_name')          . "', " .
     "'" . escapedff('form_ndc_number')    . "', " .
@@ -192,6 +195,8 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
     "'" . escapedff('form_route')         . "', " .
     "'" . numericff('form_cyp_factor')    . "', " .
     "'" . escapedff('form_related_code')  . "', " .
+    (empty($_POST['form_allow_multiple' ]) ? 0 : 1) . ", " .
+    (empty($_POST['form_allow_combining']) ? 0 : 1) . ", " .
     (empty($_POST['form_active']) ? 0 : 1)        .
     ")");
   }
@@ -258,6 +263,23 @@ if ($drug_id) {
   $tres = sqlStatement("SELECT * FROM drug_templates WHERE " .
    "drug_id = '$drug_id' ORDER BY selector");
 }
+else {
+  $row = array(
+    'name' => '',
+    'active' => '1',
+    'allow_multiple' => '1',
+    'allow_combining' => '',
+    'ndc_number' => '',
+    'on_order' => '0',
+    'reorder_point' => '0',
+    'form' => '',
+    'size' => '',
+    'unit' => '',
+    'route' => '',
+    'cyp_factor' => '',
+    'related_code' => '',
+  );
+}
 ?>
 
 <form method='post' name='theform' action='add_edit_drug.php?drug=<?php echo $drug_id; ?>'>
@@ -276,6 +298,16 @@ if ($drug_id) {
   <td valign='top' nowrap><b><?php xl('Active','e'); ?>:</b></td>
   <td>
    <input type='checkbox' name='form_active' value='1'<?php if ($row['active']) echo ' checked'; ?> />
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' nowrap><b><?php xl('Allow','e'); ?>:</b></td>
+  <td>
+   <input type='checkbox' name='form_allow_multiple' value='1'<?php if ($row['allow_multiple']) echo ' checked'; ?> />
+   <?php xl('Multiple Lots','e'); ?> &nbsp;
+   <input type='checkbox' name='form_allow_combining' value='1'<?php if ($row['allow_combining']) echo ' checked'; ?> />
+   <?php xl('Combining Lots','e'); ?>
   </td>
  </tr>
 

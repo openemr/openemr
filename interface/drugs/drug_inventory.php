@@ -20,7 +20,7 @@
   "di.inventory_id, di.lot_number, di.expiration, di.manufacturer, di.on_hand " .
   "FROM drugs AS d " .
   "LEFT OUTER JOIN drug_inventory AS di ON di.drug_id = d.drug_id " .
-  "AND di.on_hand != 0 AND di.destroy_date IS NULL " .
+  "AND di.destroy_date IS NULL " .
   "ORDER BY d.name, d.drug_id, di.expiration, di.lot_number");
 ?>
 <html>

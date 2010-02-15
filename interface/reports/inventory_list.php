@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2008 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -16,10 +16,13 @@
  if (!$thisauth) die(xl('Not authorized'));
 
  // get drugs
- $res = sqlStatement("SELECT d.*, SUM(di.on_hand) AS on_hand " .
+ $res = sqlStatement("SELECT d.*, SUM(di.on_hand) AS on_hand, " .
+  "SUM(ds.quantity) AS sale_quantity, MIN(ds.sale_date) AS min_sale_date " .
   "FROM drugs AS d " .
-  "LEFT OUTER JOIN drug_inventory AS di ON di.drug_id = d.drug_id " .
+  "LEFT JOIN drug_inventory AS di ON di.drug_id = d.drug_id " .
   "AND di.on_hand != 0 AND di.destroy_date IS NULL " .
+  "LEFT JOIN drug_sales AS ds ON ds.sale_date > DATE_SUB(NOW(), INTERVAL 1 YEAR) " .
+  "AND ds.pid != 0 " .
   "WHERE d.active = 1 " .
   "GROUP BY d.name, d.drug_id ORDER BY d.name, d.drug_id");
 ?>
@@ -63,10 +66,11 @@ a, a:visited, a:hover { color:#0000cc; }
 <table width='98%' cellpadding='2' cellspacing='2'>
  <thead style='display:table-header-group'>
   <tr class='head'>
-   <th><?php  xl('NDC','e'); ?></th>
    <th><?php  xl('Name','e'); ?></th>
+   <th><?php  xl('NDC','e'); ?></th>
    <th><?php  xl('Form','e'); ?></th>
    <th align='right'><?php  xl('QOH','e'); ?></th>
+   <th><?php  xl('Stock Months','e'); ?></th>
   </tr>
  </thead>
  <tbody>
@@ -75,13 +79,24 @@ $encount = 0;
 while ($row = sqlFetchArray($res)) {
   ++$encount;
   $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
+
+  $sale_quantity = $row['sale_quantity'];
+  $msd = $row['min_sale_date'];
+  $months = (time() - mktime(0, 0, 0, substr($msd,5,2),
+    substr($msd,8,2), substr($msd,0,4))) / (60 * 60 * 24 * 30.5);
+
+  $stock_months = '&nbsp;';
+  if ($sale_quantity != 0) $stock_months = sprintf('%0.1f',
+    $row['on_hand'] * $months / $sale_quantity);
+
   echo " <tr class='detail' bgcolor='$bgcolor'>\n";
-  echo "  <td>" . htmlentities($row['ndc_number']) . "</td>\n";
   echo "  <td>" . htmlentities($row['name']) . "</td>\n";
+  echo "  <td>" . htmlentities($row['ndc_number']) . "</td>\n";
   echo "  <td>" .
        generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
        "</td>\n";
   echo "  <td align='right'>" . $row['on_hand'] . "</td>\n";
+  echo "  <td align='right'>$stock_months</td>\n";
   echo " </tr>\n";
  }
 ?>

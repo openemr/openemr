@@ -286,6 +286,8 @@ CREATE TABLE `drug_inventory` (
   `destroy_method` varchar(255) default NULL,
   `destroy_witness` varchar(255) default NULL,
   `destroy_notes` varchar(255) default NULL,
+  `warehouse_id` varchar(31) NOT NULL DEFAULT '',
+  `vendor_id` bigint(20) NOT NULL DEFAULT 0,
   PRIMARY KEY  (`inventory_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
@@ -308,6 +310,7 @@ CREATE TABLE `drug_sales` (
   `quantity` int(11) NOT NULL default '0',
   `fee` decimal(12,2) NOT NULL default '0.00',
   `billed` tinyint(1) NOT NULL default '0' COMMENT 'indicates if the sale is posted to accounting',
+  `xfer_inventory_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY  (`sale_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
@@ -352,6 +355,8 @@ CREATE TABLE `drugs` (
   `related_code` varchar(255) NOT NULL DEFAULT '' COMMENT 'may reference a related codes.code',
   `cyp_factor` float NOT NULL DEFAULT 0 COMMENT 'quantity representing a years supply',
   `active` TINYINT(1) DEFAULT 1 COMMENT '0 = inactive, 1 = active',
+  `allow_combining` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = allow filling an order from multiple lots',
+  `allow_multiple`  tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = allow multiple lots at one warehouse',
   PRIMARY KEY  (`drug_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 

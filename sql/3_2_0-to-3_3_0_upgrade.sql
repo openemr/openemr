@@ -259,7 +259,6 @@ update layout_options set seq = 9, titlecols = 1, datacols = 3 where form_id = '
 INSERT INTO layout_options (form_id, field_id, group_name, title, seq, data_type, uor, fld_length, max_length, list_id, titlecols, datacols, default_value, edit_options, description) VALUES ('HIS','recreational_drugs','4Lifestyle','Recreational Drugs',4,28,1,20,255,'',1,3,'','' ,'Recreational drugs use');
 #EndIf
 
-
 #IfMissingColumn users pwd_expiration_date
 ALTER TABLE users ADD pwd_expiration_date date DEFAULT NULL;
 #EndIf
@@ -274,11 +273,22 @@ ALTER TABLE users ADD pwd_history2 longtext DEFAULT NULL;
 
 #IfMissingColumn drug_inventory warehouse_id
 ALTER TABLE drug_inventory
-  ADD warehouse_id bigint(20) NOT NULL DEFAULT 0;
+  ADD warehouse_id varchar(31) NOT NULL DEFAULT '';
 #EndIf
 
 #IfMissingColumn drug_inventory vendor_id
 ALTER TABLE drug_inventory
   ADD vendor_id bigint(20) NOT NULL DEFAULT 0;
+#EndIf
+
+#IfMissingColumn drug_sales xfer_inventory_id
+ALTER TABLE drug_sales
+  ADD xfer_inventory_id int(11) NOT NULL DEFAULT 0;
+#EndIf
+
+#IfMissingColumn drugs allow_combining
+ALTER TABLE drugs
+  ADD allow_combining tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = allow filling an order from multiple lots',
+  ADD allow_multiple  tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = allow multiple lots at one warehouse';
 #EndIf
 
