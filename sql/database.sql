@@ -286,8 +286,6 @@ CREATE TABLE `drug_inventory` (
   `destroy_method` varchar(255) default NULL,
   `destroy_witness` varchar(255) default NULL,
   `destroy_notes` varchar(255) default NULL,
-  `warehouse_id` varchar(31) NOT NULL DEFAULT '',
-  `vendor_id` bigint(20) NOT NULL DEFAULT 0,
   PRIMARY KEY  (`inventory_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 
@@ -1996,6 +1994,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('abook_type','ord_imm','Immunization Service',10,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('abook_type','ord_lab','Lab Service'         ,15,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('abook_type','spe'    ,'Specialist'          ,20,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('abook_type','vendor' ,'Vendor'              ,25,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('abook_type','oth'    ,'Other'               ,95,0);
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_type','Procedure Types', 1,0);
