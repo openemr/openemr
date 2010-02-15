@@ -107,6 +107,7 @@
   'fax' => array(xl('Fax/Scan')  , 0, 'fax/faxq.php'),
   'adb' => array(xl('Addr Bk')   , 0, 'usergroup/addrbook_list.php'),
   'ort' => array(xl('Proc Cat')  , 0, 'orders/types.php'),
+  'orb' => array(xl('Proc Bat')  , 0, 'orders/orders_results.php?batch=1'),
   'cht' => array(xl('Chart Trk') , 0, '../custom/chart_tracker.php'),
   'imp' => array(xl('Import')    , 0, '../custom/import.php'),
   'bil' => array(xl('Billing')   , 0, 'billing/billing_report.php'),
@@ -121,6 +122,7 @@
   'iss' => array(xl('Issues')    , 1, 'patient_file/summary/stats_full.php?active=all'),
   'imm' => array(xl('Immunize')  , 1, 'patient_file/summary/immunizations.php'),
   'doc' => array(xl('Documents') , 1, '../controller.php?document&list&patient_id={PID}'),
+  'orr' => array(xl('Proc Res')  , 1, 'orders/orders_results.php'),
   'prp' => array(xl('Pt Report') , 1, 'patient_file/report/patient_report.php'),
   'pno' => array(xl('Pt Notes')  , 1, 'patient_file/summary/pnotes.php'),
   'tra' => array(xl('Transact')  , 1, 'patient_file/transaction/transactions.php'),
@@ -912,6 +914,16 @@ if (!empty($reg)) {
     </ul>
   </li>
   <?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) genMiscLink('RTop','adm','0',xl('Inventory'),'drugs/drug_inventory.php'); ?>
+  <li><span><?php xl('Orders','e') ?></span>
+    <ul>
+      <?php genTreeLink('RTop','ort',xl('Catalog')); ?>
+      <?php genTreeLink('RTop','orb',xl('Batch Results')); ?>
+      <?php genTreeLink('RTop','orr',xl('Patient Results')); ?>
+      <?php genPopLink('Pending Res','../orders/pending_orders.php'); ?>
+      <?php genPopLink('Pending F/U','../orders/pending_followup.php'); ?>
+      <?php genPopLink('Statistics','../orders/procedure_stats.php'); ?>
+    </ul>
+  </li>
   <?php if (!$disallowed['adm']) { ?>
   <li><span><?php xl('Administration','e') ?></span>
     <ul>
@@ -958,6 +970,7 @@ if (!empty($reg)) {
 <?php } ?>
           <?php if (!$GLOBALS['disable_chart_tracker']) genMiscLink('RTop','rep','0',xl('Chart Activity'),'reports/chart_location_activity.php'); ?>
           <?php if (!$GLOBALS['disable_chart_tracker']) genMiscLink('RTop','rep','0',xl('Charts Out'),'reports/charts_checked_out.php'); ?>
+          <?php genMiscLink('RTop','rep','0',xl('Services'), 'reports/services_by_category.php'); ?>
         </ul>
       </li>
 <?php if (acl_check('acct', 'rep_a')) { ?>
@@ -971,13 +984,15 @@ if (!empty($reg)) {
         </ul>
       </li>
 <?php } ?>
-      <li><span><?php xl('General','e') ?></span>
+<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
+      <li><span><?php xl('Inventory','e') ?></span>
         <ul>
-          <?php genMiscLink('RTop','rep','0',xl('Services'), 'reports/services_by_category.php'); ?>
-          <?php if ($GLOBALS['inhouse_pharmacy']) genPopLink(xl('Inventory'),'inventory_list.php'); ?>
-          <?php if ($GLOBALS['inhouse_pharmacy']) genPopLink(xl('Destroyed'),'destroyed_drugs_report.php'); ?>
+          <?php genPopLink(xl('Inventory'),'inventory_list.php'); ?>
+          <?php genPopLink(xl('Activity'),'inventory_activity.php'); ?>
+          <?php genPopLink(xl('Destroyed'),'destroyed_drugs_report.php'); ?>
         </ul>
       </li>
+<?php } ?>
 <?php if (! $GLOBALS['simplified_demographics']) { ?>
       <li><span><?php xl('Insurance','e') ?></span>
         <ul>
