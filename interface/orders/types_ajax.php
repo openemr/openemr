@@ -10,6 +10,7 @@ require_once("../globals.php");
 require_once("$srcdir/formdata.inc.php");
 
 $id = formData('id','G') + 0;
+$order = formData('order','G') + 0;
 
 echo "$('#con$id').html('<table width=\"100%\" cellspacing=\"0\">";
 
@@ -36,9 +37,7 @@ while ($row = sqlFetchArray($res)) {
   if ($iscontainer) {
     $classes .= ' haskids';
   }
-  // $bgclass = ((++$encount & 1) ? "evenrow" : "oddrow");
 
-  // echo "<tr class=\"$bgclass\">";
   echo "<tr>";
   echo "<td id=\"td$chid\"";
   echo " onclick=\"toggle($chid)\"";
@@ -47,7 +46,23 @@ while ($row = sqlFetchArray($res)) {
   echo $iscontainer ? "+" : '|';
   echo "</span>";
   echo $row['name'] . "</td>";
-  echo "<td class=\"col2\">" . ($row['is_orderable'] ? 'Yes' : '-') . "</td>";
+  //
+  echo "<td class=\"col2\">";
+  if ($row['is_orderable']) {
+    if ($order) {
+      echo "<input type=\"radio\" name=\"form_order\" value=\"$chid\"";
+      if ($chid == $order) echo " checked";
+      echo " />";
+    }
+    else {
+      echo xl('Yes');
+    }
+  }
+  else {
+    echo '&nbsp;';
+  }
+  echo "</td>";
+  //
   echo "<td class=\"col3\">" . $row['procedure_code'] . "</td>";
   echo "<td class=\"col4\">" . $row['description'] . "</td>";
   echo "<td class=\"col5\">";
@@ -59,6 +74,5 @@ while ($row = sqlFetchArray($res)) {
 
 echo "</table>');\n"; // end of html argument
 
-echo "recolor();\n";
-
+echo "nextOpen();\n";
 ?>

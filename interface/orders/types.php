@@ -8,6 +8,36 @@
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
+require_once("$srcdir/formdata.inc.php");
+
+// This script can be run either inside the OpenEMR frameset for order catalog
+// maintenance, or as a popup window for selecting an item to order.  In the
+// popup case the GET variables 'popup' (a boolean) and 'order' (an optional
+// item ID to select) will be provided, and maintenance may also be permitted.
+
+$popup = empty($_GET['popup']) ? 0 : 1;
+$order = formData('order', 'G') + 0;
+
+// If Save was clicked, set the result, close the window and exit.
+//
+if ($popup && $_POST['form_save']) {
+  $form_order = formData('form_order') + 0;
+  $ptrow = sqlQuery("SELECT name FROM procedure_type WHERE " .
+    "procedure_type_id = '$form_order'");
+  $name = addslashes($ptrow['name']);
+?>
+<script language="JavaScript">
+if (opener.closed || ! opener.set_proc_type)
+ alert('<?php xl('The destination form was closed; I cannot act on your selection.','e'); ?>');
+else
+ opener.set_proc_type(<?php echo "$form_order, '$name'" ?>);
+window.close();
+</script>
+<?php
+  exit();
+}
+// end Save logic
+
 ?>
 <html>
 
@@ -63,14 +93,51 @@ tr.oddrow {
 </style>
 
 <script src="../../library/js/jquery-1.2.2.min.js" type="text/javascript"></script>
+<?php if ($popup) { ?>
+<script type="text/javascript" src="../../library/topdialog.js"></script>
+<?php } ?>
 <script type="text/javascript" src="../../library/dialog.js"></script>
 
 <script language="JavaScript">
 
+<?php if ($popup) require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+
+<?php
+// Create array of IDs to pre-select, leaf to top.
+echo "preopen = [";
+echo $order > 0 ? $order : 0;
+for ($parentid = $order; $parentid > 0;) {
+  $row = sqlQuery("SELECT parent FROM procedure_type WHERE procedure_type_id = '$parentid'");
+  $parentid = $row['parent'] + 0;
+  echo ", $parentid";
+}
+echo "];\n";
+?>
+
 // initiate by loading the top-level nodes
 $(document).ready(function(){
- $.getScript('types_ajax.php?id=0');
+ nextOpen();
 });
+
+// This is called repeatedly at initialization until all desired nodes
+// have been opened.
+function nextOpen() {
+ if (preopen.length) {
+  var thisid = preopen.pop();
+  if (thisid == 0 || preopen.length > 0) {
+   if (thisid > 0)
+    toggle(thisid);
+   else
+    $.getScript('types_ajax.php?id=' + thisid + '&order=<?php echo $order; ?>');
+  }
+  else {
+   recolor();
+  }
+ }
+ else {
+  recolor();
+ }
+}
 
 // toggle expansion indicator from + to - or vice versa
 function swapsign(td1, from, to) {
@@ -93,7 +160,7 @@ function toggle(id) {
   td1.parent().after('<tr class="outertr"><td colspan="5" id="con' + id + '" style="padding:0">Loading...</td></tr>');
   td1.addClass('isExpanded');
   swapsign(td1, '+', '-');
-  $.getScript('types_ajax.php?id=' + id);
+  $.getScript('types_ajax.php?id=' + id + '&order=<?php echo $order; ?>');
  }
 }
 
@@ -124,7 +191,7 @@ function refreshFamily(id, haskids) {
   }
  }
  if (haskids)
-  $.getScript('types_ajax.php?id=' + id);
+  $.getScript('types_ajax.php?id=' + id + '&order=<?php echo $order; ?>');
  else
   recolor();
 }
@@ -158,6 +225,8 @@ function recolor() {
 
 <h3 style='margin-top:0'><?php xl('Types of Orders and Results','e') ?></h3>
 
+<form method='post' name='theform' action='types.php?popup=<?php echo $popup ?>&order=<?php echo $order ?>'>
+
 <table width='100%' cellspacing='0' cellpadding='0' border='0'>
  <tr class='head'>
   <th class='col1' align='left'>&nbsp;&nbsp;<?php xl('Name','e') ?></th>
@@ -171,9 +240,20 @@ function recolor() {
 <div id="con0">
 </div>
 
-<p><span onclick='anode(0)' class='haskids'>[<?php xl('Add Top Level','e') ?>]</span></p>
+<p>
+<?php if ($popup) { ?>
+<input type='submit' name='form_save' value='<?php xl('Save','e'); ?>' />
+&nbsp;
+<input type='button' value=<?php xl('Cancel','e'); ?> onclick='window.close()' />
+&nbsp;
+<?php } ?>
+<input type='button' value='<?php xl('Add Top Level','e'); ?>' onclick='anode(0)' />
+</p>
+
+</form>
 
 </center>
+
 </body>
 </html>
 
