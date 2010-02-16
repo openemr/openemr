@@ -59,6 +59,37 @@ function Uncheck(chk) {
         }
     }
 }
+
+var CheckForChecks = function(chk) {
+    // Checks for any checked boxes, if none are found than an alert is raised and the link is killed
+    if (Checking(chk) == false) { return false; }
+    return top.restoreSession();
+};
+
+function Checking(chk) {
+    var len=chk.length;
+	var foundone=false;
+	 
+    if (len==undefined) {
+			if (chk.checked == true){
+				foundone=true;
+			}
+	} 
+	else {
+		for (pr = 0; pr < chk.length; pr++){
+			if (chk[pr].checked == true) {
+				foundone=true;
+			}
+		}
+	}	
+	if (foundone) {
+		return true;
+	} else {
+		alert("{/literal}{xl t='Please select at least one prescription!'}{literal}");
+		return false;
+	}
+}
+
 </script>
 
 {/literal}
@@ -162,6 +193,9 @@ function Uncheck(chk) {
 <script language='JavaScript'>
 
 $(document).ready(function(){
+$("#multiprint").click(function() { return CheckForChecks(document.presc.check_list); });
+$("#multiprintcss").click(function() { return CheckForChecks(document.presc.check_list); });
+$("#multiprintToFax").click(function() { return CheckForChecks(document.presc.check_list); });
 $(".editscript").click(function() { ShowScript(this); });
 $(".onescript").mouseover(function() { $(this).children().toggleClass("highlight"); });
 $(".onescript").mouseout(function() { $(this).children().toggleClass("highlight"); });
