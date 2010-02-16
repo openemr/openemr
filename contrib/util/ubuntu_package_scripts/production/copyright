@@ -1,5 +1,5 @@
 This package was debianized by Brady Miller <brady@sparmy.com> on
-Tue, 08 Dec 2009 15:11:53 -0800.
+Tue, 16 Feb 2010 11:35:18 -0800.
 
 It was downloaded from http://downloads.sourceforge.net/openemr/openemr-3.2.0.tar.gz
 
@@ -7,10 +7,10 @@ Upstream Author:
     http://www.oemr.org
 
 Copyright: 
-    Copyright (C) 2009 http://www.oemr.org
+    Copyright (C) 2010 http://www.oemr.org
 
 License:
     GPL
 
-The Debian packaging is (C) 2009, Brady Miller <brady@sparmy.com> and
+The Debian packaging is (C) 2010, Brady Miller <brady@sparmy.com> and
 is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
