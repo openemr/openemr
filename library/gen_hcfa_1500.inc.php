@@ -584,6 +584,9 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
     put_hcfa(61, 65, 14, $claim->providerGroupNumber());
   }
 
+  // Put an extra line here for compatibility with old hcfa text generated form
+    put_hcfa(62, 1, 1, ' ');
+
   return;
 }
 ?>
