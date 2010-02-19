@@ -232,8 +232,12 @@ if ($result = getEncounters($pid)) {
         $auth_sensitivity = true;
 
         $raw_encounter_date = '';
-        if ($result4 = sqlQuery("SELECT * FROM form_encounter WHERE encounter = '" .
-                                $iter{"encounter"} . "' AND pid = '$pid'"))
+
+        if ($result4 = sqlQuery("SELECT fe.*, u.fname, u.mname, u.lname " .
+          "FROM form_encounter AS fe " .
+          "LEFT JOIN users AS u ON u.id = fe.provider_id " .
+          "WHERE fe.encounter = '" . $iter["encounter"] .
+          "' AND fe.pid = '$pid'"))
         {
             $raw_encounter_date = date("Y-m-d", strtotime($result4{"date"}));
             $encounter_date = date("D F jS", strtotime($result4{"date"}));
@@ -242,7 +246,6 @@ if ($result = getEncounters($pid)) {
             $reason_string .= $result4{"reason"} . "<br>\n";
             // else
             //   $reason_string = "(No access)";
-
 
             if ($result4['sensitivity']) {
                 $auth_sensitivity = acl_check('sensitivities', $result4['sensitivity']);
@@ -365,8 +368,14 @@ if ($result = getEncounters($pid)) {
             echo "</div>";
             echo "</td>\n";
 
-            // show user (Provider) who created the encounter
-            echo "<td>".$erow['user']."</td>\n";
+            // show user (Provider) for the encounter
+            $provname = '&nbsp;';
+            if (!empty($result4['lname']) || !empty($result4['fname'])) {
+              $provname = $result4['lname'];
+              if (!empty($result4['fname']) || !empty($result4['mname']))
+                $provname .= ', ' . $result4['fname'] . ' ' . $result4['mname'];
+            }
+            echo "<td>$provname</td>\n";
 
         } // end not billing view
 
