@@ -56,7 +56,7 @@ $query = "SELECT " .
   "u.lname AS ulname, u.fname AS ufname, u.mname AS umname " .
   "FROM ( form_encounter AS fe, forms AS f ) " .
   "LEFT OUTER JOIN patient_data AS p ON p.pid = fe.pid " .
-  "LEFT OUTER JOIN users AS u ON u.username = f.user " .
+  "LEFT JOIN users AS u ON u.id = fe.provider_id " .
   "WHERE f.encounter = fe.encounter AND f.formdir = 'newpatient' ";
 if ($form_to_date) {
   $query .= "AND fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_to_date 23:59:59' ";
@@ -314,7 +314,14 @@ if ($res) {
   $doc_encounters = 0;
   while ($row = sqlFetchArray($res)) {
     $patient_id = $row['pid'];
-    $docname  = $row['ulname'] . ', ' . $row['ufname'] . ' ' . $row['umname'];
+
+    $docname = '';
+    if (!empty($row['ulname']) || !empty($row['ufname'])) {
+      $docname = $row['ulname'];
+      if (!empty($row['ufname']) || !empty($row['umname']))
+        $docname .= ', ' . $row['ufname'] . ' ' . $row['umname'];
+    }
+
     $errmsg  = "";
     if ($form_details) {
       // Fetch all other forms for this encounter.
