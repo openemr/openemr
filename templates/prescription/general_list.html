@@ -27,12 +27,43 @@ function changeLinkHref(id,addValue,value) {
     }
 }
 
+var CheckForChecks = function(chk) {
+    // Checks for any checked boxes, if none are found than an alert is raised and the link is killed
+    if (Checking(chk) == false) { return false; }
+    return top.restoreSession();
+};
+
+function Checking(chk) {
+    var len=chk.length;
+	var foundone=false;
+	 
+    if (len==undefined) {
+			if (chk.checked == true){
+				foundone=true;
+			}
+	} 
+	else {
+		for (pr = 0; pr < chk.length; pr++){
+			if (chk[pr].checked == true) {
+				foundone=true;
+			}
+		}
+	}	
+	if (foundone) {
+		return true;
+	} else {
+		alert("{/literal}{xl t='Please select at least one prescription!'}{literal}");
+		return false;
+	}
+}
+
 </script>
 
 {/literal}
 </head>
 <body class="body_bottom">
 <div id="prescription_list">
+<form name="presc">
 <div id="print_links">
 <a id="multiprint" target="_new" href="{$CONTROLLER}prescription&multiprint&id={$printm}" onclick="top.restoreSession()">{xl t='Print Multiple'} ({xl t='PDF'})</a>
 <br>
@@ -46,6 +77,7 @@ function changeLinkHref(id,addValue,value) {
 </div>
 
 <table>
+
     <tr>
         <th>{xl t='Drug'}</th>
         <th>{xl t='Created'}<br />{xl t='Changed'}</th>
@@ -78,7 +110,7 @@ function changeLinkHref(id,addValue,value) {
       {$prescription->provider->get_name_display()}
     </td>
     <td>
-      <input type="checkbox" value="{$prescription->id}" onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xl t='Select for printing'}">
+      <input id="check_list" type="checkbox" value="{$prescription->id}" onclick="changeLinkHref('multiprint',this.checked, this.value);changeLinkHref('multiprintcss',this.checked, this.value);changeLinkHref('multiprintToFax',this.checked, this.value)" title="{xl t='Select for printing'}">
     </td>
   </tr>
 	{foreachelse}
@@ -87,12 +119,16 @@ function changeLinkHref(id,addValue,value) {
 	</tr>
 	{/foreach}
 </table>
+</form>
 </div>
 </body>
 {literal}
 <script language='JavaScript'>
 
 $(document).ready(function(){
+$("#multiprint").click(function() { return CheckForChecks(document.presc.check_list); });
+$("#multiprintcss").click(function() { return CheckForChecks(document.presc.check_list); });
+$("#multiprintToFax").click(function() { return CheckForChecks(document.presc.check_list); });
 $(".editscript").click(function() { ShowScript(this); });
 $(".onescript").mouseover(function() { $(this).children().toggleClass("highlight"); });
 $(".onescript").mouseout(function() { $(this).children().toggleClass("highlight"); });
