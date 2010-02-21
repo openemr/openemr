@@ -4,7 +4,7 @@ function submit_insurancecompany() {
     if(document.insurancecompany.name.value.length>0) { document.insurancecompany.submit();
         jsWaitForDelay(500);
         top.restoreSession();
-        document.location.href="/controller.php?practice_settings&insurance_company&action=list";
+        document.location.href="{/literal}{$WEB_ROOT}{literal}/controller.php?practice_settings&insurance_company&action=list";
     } else{
         document.insurancecompany.name.style.backgroundColor="red";
         document.insurancecompany.name.focus();

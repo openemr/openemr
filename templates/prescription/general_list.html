@@ -204,7 +204,7 @@ $(".onescript").mouseout(function() { $(this).children().toggleClass("highlight"
 var ShowScript = function(eObj) {
     top.restoreSession();
     objID = eObj.id;
-    document.location.href="controller.php?prescription&edit&id="+objID;
+    document.location.href="{/literal}{$WEB_ROOT}{literal}/controller.php?prescription&edit&id="+objID;
     return true;
 };
 

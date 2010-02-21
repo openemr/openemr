@@ -123,7 +123,7 @@ function submit_insurancenumbers_add() {
     top.restoreSession();
     document.provider.submit();
     Waittoredirect(500);
-    document.location.href="/controller.php?practice_settings&insurance_numbers&action=list";
+    document.location.href="{/literal}{$WEB_ROOT}{literal}/controller.php?practice_settings&insurance_numbers&action=list";
 }
 
 function Waittoredirect(delaymsec) {

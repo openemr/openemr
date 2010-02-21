@@ -7,7 +7,7 @@ if (document.x12_partner.name.value.length>0)
 top.restoreSession();
 document.x12_partner.submit();
 Waittoredirect(1000);
-this.location.href="/controller.php?practice_settings&x12_partner&action=list";
+this.location.href="{/literal}{$WEB_ROOT}{literal}/controller.php?practice_settings&x12_partner&action=list";
 }
 else
 {
