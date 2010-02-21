@@ -105,7 +105,7 @@
 		{xl t='prescription has reached its limit of'} {$prescription->get_refills()} {xl t='refills'}.
 		{/if}
 		{/if}
-         <a class='css_button_small' href="controller.php?prescription&list&id=1"><span>{xl t='Back'}</span></a>
+         <a class='css_button_small' href="controller.php?prescription&list&id={$prescription->patient->id}"><span>{xl t='Back'}</span></a>
 </td></tr>
 </table>
 
@@ -267,7 +267,7 @@ function DoDrugLookup(eObj) {
     drugname = "";
     if ($('#drug').val() != "") { drugname = $('#drug').val(); }
     $("#druglist").css('display','block');
-    document.lookup.action='controller.php?prescription&edit&id=&pid=1&drug=sss'+drugname;
+    document.lookup.action='controller.php?prescription&edit&id=&pid={/literal}{$prescription->patient->id}{literal}&drug=sss'+drugname;
     drugPopup = window.open('controller.php?prescription&lookup&drug='+drugname, 'drugPopup', 'width=400,height=50,menubar=no,titlebar=no,left = 825,top = 400');
     drugPopup.opener = self;
     return true;
