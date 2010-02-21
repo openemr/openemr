@@ -72,7 +72,7 @@ function submit_pharmacy()
         top.restoreSession();
         document.pharmacy.submit();
         Waittoredirect(500);
-        this.location.href="/controller.php?practice_settings&pharmacy&action=list";
+        this.location.href="{/literal}{$WEB_ROOT}{literal}/controller.php?practice_settings&pharmacy&action=list";
 	}
 	else
 	{
