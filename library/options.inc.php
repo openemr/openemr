@@ -32,34 +32,36 @@ function get_pharmacies() {
 function generate_select_list($tag_name, $list_id, $currvalue, $title,
   $empty_name=' ', $class='')
 {
-  echo "<select name='$tag_name' id='$tag_name'";
-  if ($class) echo " class='$class'";
-  echo " title='$title'>";
-  if ($empty_name) echo "<option value=''>" . xl($empty_name) . "</option>";
+  $s = '';
+  $s .= "<select name='$tag_name' id='$tag_name'";
+  if ($class) $s .= " class='$class'";
+  $s .= " title='$title'>";
+  if ($empty_name) $s .= "<option value=''>" . xl($empty_name) . "</option>";
   $lres = sqlStatement("SELECT * FROM list_options " .
     "WHERE list_id = '$list_id' ORDER BY seq, title");
   $got_selected = FALSE;
   while ($lrow = sqlFetchArray($lres)) {
-    echo "<option value='" . $lrow['option_id'] . "'";
+    $s .= "<option value='" . $lrow['option_id'] . "'";
     if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
         (strlen($currvalue)  > 0 && $lrow['option_id'] == $currvalue))
     {
-      echo " selected";
+      $s .= " selected";
       $got_selected = TRUE;
     }
-    echo ">" . xl_list_label($lrow['title']) . "</option>\n";
+    $s .= ">" . xl_list_label($lrow['title']) . "</option>\n";
   }
   if (!$got_selected && strlen($currvalue) > 0) {
     $currescaped = htmlspecialchars($currvalue, ENT_QUOTES);
-    echo "<option value='$currescaped' selected>* $currescaped *</option>";
-    echo "</select>";
-    echo " <font color='red' title='" .
+    $s .= "<option value='$currescaped' selected>* $currescaped *</option>";
+    $s .= "</select>";
+    $s .= " <font color='red' title='" .
       xl('Please choose a valid selection from the list.') . "'>" .
       xl('Fix this') . "!</font>";
   }
   else {
-    echo "</select>";
+    $s .= "</select>";
   }
+  return $s;
 }
 
 function generate_form_field($frow, $currvalue) {
@@ -96,8 +98,8 @@ function generate_form_field($frow, $currvalue) {
     
   // generic single-selection list
   if ($data_type == 1) {
-    generate_select_list("form_$field_id", $list_id, $currvalue, $description,
-      $showEmpty ? $empty_title : '');
+    echo generate_select_list("form_$field_id", $list_id, $currvalue,
+      $description, $showEmpty ? $empty_title : '');
   }
 
   // simple text field
