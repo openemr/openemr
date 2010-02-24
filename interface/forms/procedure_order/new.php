@@ -87,6 +87,12 @@ if ($formid) {
   $row = sqlQuery ("SELECT * FROM procedure_order WHERE " .
     "procedure_order_id = '$formid' AND activity = '1'") ;
 }
+
+$enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date FROM " .
+  "form_encounter AS fe, forms AS f, patient_data AS p WHERE " .
+  "p.pid = '$pid' AND f.pid = '$pid' AND f.encounter = '$encounter' AND " .
+  "f.formdir = 'newpatient' AND f.deleted = 0 AND " .
+  "fe.id = f.form_id LIMIT 1");
 ?>
 <html>
 <head>
@@ -141,14 +147,18 @@ function set_proc_type(typeid, typename) {
 
 <form method="post" action="<?php echo $rootdir ?>/forms/procedure_order/new.php?id=<?php echo $formid ?>" onsubmit="return top.restoreSession()">
 
+<p class='title' style='margin-top:8px;margin-bottom:8px;text-align:center'>
+<?php
+  echo xl('Procedure Order for') . ' ';
+  echo $enrow['fname'] . ' ' . $enrow['mname'] . ' ' . $enrow['lname'];
+  echo ' ' . xl('on') . ' ' . substr($enrow['date'], 0, 10);
+?>
+</p>
+
 <center>
 
 <p>
 <table border='1' width='95%'>
-
- <tr bgcolor='#dddddd'>
-  <td colspan='2' align='center'><b><?php xl('Procedure Order','e') ?></b></td>
- </tr>
 
 <?php
 $ptid = -1; // -1 means no order is selected yet
@@ -198,7 +208,7 @@ generate_form_field(array('data_type'=>10,'field_id'=>'provider_id'),
  </tr>
 
  <tr>
-  <td width='1%' nowrap><b><?php xl('Time Collected','e'); ?>:</b></td>
+  <td width='1%' nowrap><b><?php xl('Internal Time Collected','e'); ?>:</b></td>
   <td>
 <?php
     echo "<input type='text' size='16' name='form_date_collected' id='form_date_collected'" .
