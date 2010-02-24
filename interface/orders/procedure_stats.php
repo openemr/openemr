@@ -9,9 +9,10 @@
 // This module creates statistical reports related to lab tests and
 // other procedure orders.
 
-include_once("../globals.php");
-include_once("../../library/patient.inc");
-include_once("../../library/acl.inc");
+require_once("../globals.php");
+require_once("../../library/patient.inc");
+require_once("../../library/acl.inc");
+require_once("../../custom/code_types.inc.php");
 
 // Might want something different here.
 //
@@ -417,6 +418,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
       "AND ps.result_status = 'final' " .
       "JOIN procedure_type AS pto ON pto.procedure_type_id = po.procedure_type_id " .
       "JOIN procedure_type AS ptr ON ptr.procedure_type_id = ps.procedure_type_id " .
+      "AND ptr.procedure_type NOT LIKE 'rec' " .
       "WHERE po.date_ordered IS NOT NULL AND po.date_ordered >= '$from_date' " .
       "AND po.date_ordered <= '$to_date' ";
     if ($form_facility) {
@@ -440,7 +442,14 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
 
     genStartRow("bgcolor='#dddddd'");
 
-    genHeadCell($arr_by[$form_by]);
+    // genHeadCell($arr_by[$form_by]);
+    // If the key is an MA or IPPF code, then add a column for its description.
+    if ($form_by === '5')
+    {
+      genHeadCell(array($arr_by[$form_by], xl('Description')));
+    } else {
+      genHeadCell($arr_by[$form_by]);
+    }
 
     // Generate headings for values to be shown.
     foreach ($form_show as $value) {
@@ -486,6 +495,17 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
 
       $dispkey = $key;
 
+      // If the key is an MA or IPPF code, then get its description.
+      if ($form_by === '5')
+      {
+        list($codetype, $code) = explode(':', $key);
+        $type = $code_types[$codetype]['id'];
+        $dispkey = array($key, '');
+        $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
+          "code_type = '$type' AND code = '$code' ORDER BY id LIMIT 1");
+        if (!empty($crow['code_text'])) $dispkey[1] = $crow['code_text'];
+      }
+
       genStartRow("bgcolor='$bgcolor'");
 
       genAnyCell($dispkey, false, 'detail');
@@ -527,7 +547,14 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
       // Generate the line of totals.
       genStartRow("bgcolor='#dddddd'");
 
-      genHeadCell(xl('Totals'));
+      // genHeadCell(xl('Totals'));
+      // If the key is an MA or IPPF code, then add a column for its description.
+      if ($form_by === '5')
+      {
+        genHeadCell(array(xl('Totals'), ''));
+      } else {
+        genHeadCell(xl('Totals'));
+      }
 
       for ($cnum = 0; $cnum < count($atotals); ++$cnum) {
         genHeadCell($atotals[$cnum], true);
