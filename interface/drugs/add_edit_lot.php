@@ -125,74 +125,101 @@ td { font-size:10pt; }
 
 <body class="body_top">
 <?php
+if ($lot_id) {
+  $row = sqlQuery("SELECT * FROM drug_inventory WHERE drug_id = '$drug_id' " .
+    "AND inventory_id = '$lot_id'");
+}
+
 // If we are saving, then save and close the window.
 //
 if ($_POST['form_save'] || $_POST['form_delete']) {
 
   $form_quantity = formData('form_quantity') + 0;
 
-  if ($lot_id) {
-    if ($_POST['form_save']) {
-      sqlStatement("UPDATE drug_inventory SET " .
-        "lot_number = '"   . formData('form_lot_number')    . "', " .
-        "manufacturer = '" . formData('form_manufacturer')  . "', " .
-        "expiration = "    . QuotedOrNull($form_expiration) . ", "  .
-        "vendor_id = '"    . formData('form_vendor_id')     . "', " .
-        "warehouse_id = '" . formData('form_warehouse_id')  . "', " .
-        "on_hand = on_hand + '" . $form_quantity            . "' "  .
-        "WHERE drug_id = '$drug_id' AND inventory_id = '$lot_id'");
-    }
-    else {
-      sqlStatement("DELETE FROM drug_inventory WHERE drug_id = '$drug_id' " .
-        "AND inventory_id = '$lot_id'");
+  if ($form_save && $form_source_lot && $form_quantity) {
+    $srow = sqlQuery("SELECT on_hand FROM drug_inventory WHERE " .
+      "drug_id = '$drug_id' AND inventory_id = '$form_source_lot'");
+    if ($srow['on_hand'] < $form_quantity) {
+        $info_msg = xl('Transfer failed, insufficient quantity in source lot');
     }
   }
-  else {
-    $lot_id = sqlInsert("INSERT INTO drug_inventory ( " .
-      "drug_id, lot_number, manufacturer, expiration, " .
-      "vendor_id, warehouse_id, on_hand " .
-      ") VALUES ( " .
-      "'$drug_id', "                            .
-      "'" . formData('form_lot_number')   . "', " .
-      "'" . formData('form_manufacturer') . "', " .
-      QuotedOrNull($form_expiration)      . ", "  .
-      "'" . formData('form_vendor_id')    . "', " .
-      "'" . formData('form_warehouse_id') . "', " .
-      "'" . $form_quantity                . "' "  .
-      ")");
-  }
 
-  // Create the corresponding drug_sales transaction.
-  if ($_POST['form_save'] && $form_quantity) {
-    $form_source_lot = formData('form_source_lot') + 0;
-    $form_cost = sprintf('%0.2f', formData('form_cost'));
-    sqlInsert("INSERT INTO drug_sales ( " .
-      "drug_id, inventory_id, prescription_id, pid, encounter, user, " .
-      "sale_date, quantity, fee, xfer_inventory_id " .
-      ") VALUES ( " .
-      "'$drug_id', '$lot_id', '0', '0', '0', " .
-      "'" . $_SESSION['authUser'] . "', " .
-      "'" . date('Y-m-d')         . "', " .
-      "'" . (0 - $form_quantity)  . "', " .
-      "'" . (0 - $form_cost)      . "', " .
-      "'$form_source_lot' )");
-
-    // If this is a transfer then reduce source QOH, and also copy some
-    // fields from the source when they are missing.
-    if ($form_source_lot) {
-      sqlStatement("UPDATE drug_inventory SET " .
-        "on_hand = on_hand - '$form_quantity' " .
-        "WHERE inventory_id = '$form_source_lot'");
-
-      foreach (array('lot_number', 'manufacturer', 'expiration', 'vendor_id') as $item) {
-        sqlStatement("UPDATE drug_inventory AS di1, drug_inventory AS di2 " .
-          "SET di1.$item = di2.$item " .
-          "WHERE di1.inventory_id = '$lot_id' AND " .
-          "di2.inventory_id = '$form_source_lot' AND " .
-          "( di1.$item IS NULL OR di1.$item = '' OR di1.$item = '0' )");
+  if (!$info_msg) {
+    if ($lot_id) {
+      if ($_POST['form_save']) {
+        if (($row['on_hand'] + $form_quantity) < 0) {
+          $info_msg = xl('Transaction failed, insufficient quantity in destination lot');
+        }
+        else {
+          sqlStatement("UPDATE drug_inventory SET " .
+            "lot_number = '"   . formData('form_lot_number')    . "', " .
+            "manufacturer = '" . formData('form_manufacturer')  . "', " .
+            "expiration = "    . QuotedOrNull($form_expiration) . ", "  .
+            "vendor_id = '"    . formData('form_vendor_id')     . "', " .
+            "warehouse_id = '" . formData('form_warehouse_id')  . "', " .
+            "on_hand = on_hand + '" . $form_quantity            . "' "  .
+            "WHERE drug_id = '$drug_id' AND inventory_id = '$lot_id'");
+        }
+      }
+      else {
+        sqlStatement("DELETE FROM drug_inventory WHERE drug_id = '$drug_id' " .
+          "AND inventory_id = '$lot_id'");
       }
     }
-  }
+    else {
+      if ($form_quantity < 0) {
+        $info_msg = xl('Transaction failed, quantity is less than zero');
+      }
+      else {
+        $lot_id = sqlInsert("INSERT INTO drug_inventory ( " .
+          "drug_id, lot_number, manufacturer, expiration, " .
+          "vendor_id, warehouse_id, on_hand " .
+          ") VALUES ( " .
+          "'$drug_id', "                            .
+          "'" . formData('form_lot_number')   . "', " .
+          "'" . formData('form_manufacturer') . "', " .
+          QuotedOrNull($form_expiration)      . ", "  .
+          "'" . formData('form_vendor_id')    . "', " .
+          "'" . formData('form_warehouse_id') . "', " .
+          "'" . $form_quantity                . "' "  .
+          ")");
+      }
+    }
+
+    // Create the corresponding drug_sales transaction.
+    if ($_POST['form_save'] && $form_quantity) {
+      $form_source_lot = formData('form_source_lot') + 0;
+      $form_cost = sprintf('%0.2f', formData('form_cost'));
+      $form_sale_date = formData('form_sale_date');
+      if (empty($form_sale_date)) $form_sale_date = date('Y-m-d');
+      sqlInsert("INSERT INTO drug_sales ( " .
+        "drug_id, inventory_id, prescription_id, pid, encounter, user, " .
+        "sale_date, quantity, fee, xfer_inventory_id " .
+        ") VALUES ( " .
+        "'$drug_id', '$lot_id', '0', '0', '0', " .
+        "'" . $_SESSION['authUser'] . "', " .
+        "'$form_sale_date', " .
+        "'" . (0 - $form_quantity)  . "', " .
+        "'" . (0 - $form_cost)      . "', " .
+        "'$form_source_lot' )");
+
+      // If this is a transfer then reduce source QOH, and also copy some
+      // fields from the source when they are missing.
+      if ($form_source_lot) {
+        sqlStatement("UPDATE drug_inventory SET " .
+          "on_hand = on_hand - '$form_quantity' " .
+          "WHERE inventory_id = '$form_source_lot'");
+
+        foreach (array('lot_number', 'manufacturer', 'expiration', 'vendor_id') as $item) {
+          sqlStatement("UPDATE drug_inventory AS di1, drug_inventory AS di2 " .
+            "SET di1.$item = di2.$item " .
+            "WHERE di1.inventory_id = '$lot_id' AND " .
+            "di2.inventory_id = '$form_source_lot' AND " .
+            "( di1.$item IS NULL OR di1.$item = '' OR di1.$item = '0' )");
+        }
+      }
+    }
+  } // end if not $info_msg
 
   // Close this window and redisplay the updated list of drugs.
   //
@@ -202,11 +229,6 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
   echo " if (opener.refreshme) opener.refreshme();\n";
   echo "</script></body></html>\n";
   exit();
-}
-
-if ($lot_id) {
-  $row = sqlQuery("SELECT * FROM drug_inventory WHERE drug_id = '$drug_id' " .
-    "AND inventory_id = '$lot_id'");
 }
 ?>
 
@@ -286,6 +308,19 @@ generate_form_field(array('data_type' => 14, 'field_id' => 'vendor_id',
  </tr>
 
  <tr>
+  <td valign='top' nowrap><b><?php xl('Date','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='10' name='form_sale_date' id='form_sale_date'
+    value='<?php echo date('Y-m-d') ?>'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+    title=<?php xl('yyyy-mm-dd date of purchase or transfer','e','\'','\''); ?> />
+   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_sale_date' border='0' alt='[?]' style='cursor:pointer'
+    title=<?php xl('Click here to choose a date','e','\'','\''); ?>>
+  </td>
+ </tr>
+
+ <tr>
   <td valign='top' nowrap><b><?php xl('Quantity','e'); ?>:</b></td>
   <td>
    <input type='text' size='5' name='form_quantity' maxlength='7' />
@@ -311,7 +346,8 @@ $lres = sqlStatement("SELECT " .
   "FROM drug_inventory AS di " .
   "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
   "lo.option_id = di.warehouse_id " .
-  "WHERE di.drug_id = '$drug_id' AND di.on_hand > 0 AND di.destroy_date IS NULL " .
+  "WHERE di.drug_id = '$drug_id' AND di.inventory_id != '$lot_id' AND " .
+  "di.on_hand > 0 AND di.destroy_date IS NULL " .
   "ORDER BY di.lot_number, lo.title, di.inventory_id");
 while ($lrow = sqlFetchArray($lres)) {
   echo "<option value='" . $lrow['inventory_id'] . "'>";
@@ -345,6 +381,7 @@ while ($lrow = sqlFetchArray($lres)) {
 </form>
 <script language='JavaScript'>
  Calendar.setup({inputField:"form_expiration", ifFormat:"%Y-%m-%d", button:"img_expiration"});
+ Calendar.setup({inputField:"form_sale_date", ifFormat:"%Y-%m-%d", button:"img_sale_date"});
 <?php
 if ($info_msg) {
   echo " alert('$info_msg');\n";
