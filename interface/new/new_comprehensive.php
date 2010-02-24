@@ -21,13 +21,14 @@ $CPR = 4; // cells per row
 $searchcolor = empty($GLOBALS['layout_search_color']) ?
   '#ffff55' : $GLOBALS['layout_search_color'];
 
-$SHORT_FORM = ($GLOBALS['full_new_patient_form'] === 2);
+$WITH_SEARCH = ($GLOBALS['full_new_patient_form'] === 1 || $GLOBALS['full_new_patient_form'] === 2);
+$SHORT_FORM  = ($GLOBALS['full_new_patient_form'] === 2 || $GLOBALS['full_new_patient_form'] === 3);
 
 function getLayoutRes() {
   global $SHORT_FORM;
   return sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
-    ($SHORT_FORM ? "AND ( UOR > 1 OR field_id = 'pubpid' ) " : "") .
+    ($SHORT_FORM ? "AND edit_options LIKE '%N%' " : "") .
     "ORDER BY group_name, seq");
 }
 
@@ -172,11 +173,13 @@ function validate(f) {
 
 function toggleSearch(elem) {
  var f = document.forms[0];
+<?php if ($WITH_SEARCH) { ?>
  // Toggle background color.
  if (elem.style.backgroundColor == '')
   elem.style.backgroundColor = '<?php echo $searchcolor; ?>';
  else
   elem.style.backgroundColor = '';
+<?php } ?>
  if (force_submit) {
   force_submit = false;
   f.create.value = '<?php xl('Create New Patient','e'); ?>';
@@ -235,18 +238,6 @@ while ($lrow = sqlFetchArray($lres)) {
 }
 ?>
 
- dlgopen(url, '_blank', 700, 500);
-}
-
-// This is called from an AJAX script.
-function show_matches(fname, mname, lname, pubpid, ss, errmsg) {
- var f = document.forms[0];
- var url = '../main/finder/patient_select.php?popup=1&message=' + escape(errmsg);
- if (fname  != '') url += '&fname='  + escape(fname);
- if (mname  != '') url += '&mname='  + escape(mname);
- if (lname  != '') url += '&lname='  + escape(lname);
- if (pubpid != '') url += '&pubpid=' + escape(pubpid);
- if (ss     != '') url += '&ss='     + escape(ss);
  dlgopen(url, '_blank', 700, 500);
 }
 
@@ -385,9 +376,11 @@ end_group();
 
 <?php if (!$SHORT_FORM) echo "  <center>\n"; ?>
 <br />
+<?php if ($WITH_SEARCH) { ?>
 <input type="button" id="search" value=<?php xl('Search','e','\'','\''); ?>
  style='background-color:<?php echo $searchcolor; ?>' />
 &nbsp;&nbsp;
+<?php } ?>
 <input type="button" name='create' id="create" value=<?php xl('Create New Patient','e','\'','\''); ?> />
 
 </center>
@@ -437,18 +430,33 @@ $(document).ready(function() {
           f.submit();
           return;
         }
-        // Check for duplication via an AJAX query.
-        var url = '<?php echo $GLOBALS['webroot']; ?>/library/ajax/find_patients.php';
-        var flds = new Array('fname', 'mname', 'lname', 'pubpid', 'ss');
+<?php
+// D in edit_options indicates the field is used in duplication checking.
+// This constructs a list of the names of those fields.
+$mflist = "";
+$mfres = sqlStatement("SELECT * FROM layout_options " .
+  "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' AND " .
+  "edit_options LIKE '%D%' " .
+  "ORDER BY group_name, seq");
+while ($mfrow = sqlFetchArray($mfres)) {
+  $field_id  = $mfrow['field_id'];
+  if (strpos($field_id, 'em_') === 0) continue;
+  if (!empty($mflist)) $mflist .= ",";
+  $mflist .= "'" . htmlentities($field_id) . "'";
+}
+?>
+        // Build and invoke the URL to create the dup-checker dialog.
+        var url = 'new_search_popup.php';
+        var flds = new Array(<?php echo $mflist; ?>);
         for (var i = 0; i < flds.length; ++i) {
           var fval = $('#form_' + flds[i]).val();
           if (fval && fval != '') {
             url += (i == 0) ? '?' : '&';
-            url += flds[i] + '=' + escape(fval);
+            url += 'mf_' + flds[i] + '=' + escape(fval);
           }
         }
-        // The following will result in execution of some javascript.
-        $.getScript(url);
+        dlgopen(url, '_blank', 700, 500);
+
       } // end if validate
     } // end function
 
