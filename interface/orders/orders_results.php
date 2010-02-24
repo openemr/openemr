@@ -71,6 +71,8 @@ if ($_POST['form_submit']) {
         "abnormal = '" . oresData("form_result_abnormal", $lino) . "', " .
         "result = '" . oresData("form_result_result", $lino) . "', " .
         "range = '" . oresData("form_result_range", $lino) . "', " .
+        "facility = '" . oresData("form_facility", $lino) . "', " .
+        "comments = '" . oresData("form_comments", $lino) . "', " .
         "result_status = '" . oresData("form_result_status", $lino) . "'";
       if ($result_id) { // result already exists
         sqlStatement("UPDATE procedure_result SET $sets "  .
@@ -112,10 +114,22 @@ a, a:visited, a:hover { color:#0000cc; }
  color:#0000cc;
 }
 
+.celltextfw {
+ font-size:10pt;
+ font-weight:normal;
+ border-style:solid;
+ border-top-width:0px;
+ border-bottom-width:0px;
+ border-left-width:0px;
+ border-right-width:0px;
+ border-color: #aaaaaa;
+ background-color:transparent;
+ color:#0000cc;
+}
+
 .cellselect {
  font-size:10pt;
  background-color:transparent;
- width:100%;
  color:#0000cc;
 }
 
@@ -154,13 +168,93 @@ function set_proc_type(typeid, typename) {
  f[ptvarname + '_desc'].value = typename;
 }
 
+// Helper functions.
+function extGetX(elem) {
+ var x = 0;
+ while(elem != null) {
+  x += elem.offsetLeft;
+  elem = elem.offsetParent;
+ }
+ return x;
+}
+function extGetY(elem) {
+ var y = 0;
+ while(elem != null) {
+  y += elem.offsetTop;
+  elem = elem.offsetParent;
+ }
+ return y;
+}
+
+// Show or hide the "extras" div for a result.
+var extdiv = null;
+function extShow(lino, show) {
+ var thisdiv = document.getElementById("ext_" + lino);
+ if (extdiv) {
+  extdiv.style.visibility = 'hidden';
+  extdiv.style.left = '-1000px';
+  extdiv.style.top = '0px';
+ }
+ if (show && thisdiv != extdiv) {
+  extdiv = thisdiv;
+  var dw = window.innerWidth ? window.innerWidth - 20 : document.body.clientWidth;
+  x = dw - extdiv.offsetWidth;
+  if (x < 0) x = 0;
+  var y = extGetY(show) + show.offsetHeight;
+  extdiv.style.left = x;
+  extdiv.style.top  = y;
+  extdiv.style.visibility = 'visible';
+ }
+ else {
+  extdiv = null;
+ }
+}
+
+// Helper function for validate.
+function prDateRequired(rlino) {
+ var f = document.forms[0];
+ if (f['form_date_report['+rlino+']'].value.length < 10) {
+  alert('<?php xl('Missing report date','e') ?>');
+  if (f['form_date_report['+rlino+']'].focus)
+   f['form_date_report['+rlino+']'].focus();
+  return false;
+ }
+ return true;
+}
+
+// Validation at submit time.
+function validate(f) {
+ var rlino = 0;
+ for (var lino = 0; f['form_line['+lino+']']; ++lino) {
+  if (f['form_date_report['+lino+']']) {
+   rlino = lino;
+   if (f['form_report_status['+rlino+']'].selectedIndex > 0) {
+    if (!prDateRequired(rlino)) return false;
+   }
+  }
+  var abnstat = f['form_result_abnormal['+lino+']'].selectedIndex > 0;
+  if (abnstat && !prDateRequired(rlino)) return false;
+  /*******************************************************************
+  var resstat = f['form_result_status['+lino+']'].selectedIndex > 0;
+  if (resstat != abnstat) {
+   alert('<?php xl('Result status or abnormality is missing','e') ?>');
+   if (f['form_result_abnormal['+lino+']'].focus)
+    f['form_result_abnormal['+lino+']'].focus();
+   return false;
+  }
+  *******************************************************************/
+ }
+ top.restoreSession();
+ return true;
+}
+
 </script>
 
 </head>
 
 <body class="body_top">
 <form method='post' action='orders_results.php?batch=<?php echo $form_batch; ?>'
- onsubmit='return top.restoreSession()'>
+ onsubmit='return validate(this)'>
 
 <table>
  <tr>
@@ -223,7 +317,7 @@ if ($form_batch) {
  <tr class='head'>
   <td colspan='2'><?php echo $form_batch ? xl('Patient') : xl('Order'); ?></td>
   <td colspan='4'><?php xl('Report','e'); ?></td>
-  <td colspan='5'><?php xl('Results and','e'); ?> <span class='reccolor''>
+  <td colspan='4'><?php xl('Results and','e'); ?> <span class='reccolor''>
    <?php  xl('Recommendations','e'); ?></span></td>
  </tr>
 
@@ -231,14 +325,13 @@ if ($form_batch) {
   <td><?php echo $form_batch ? xl('Name') : xl('Date'); ?></td>
   <td><?php echo $form_batch ? xl('ID') : xl('Name'); ?></td>
   <td><?php xl('Reported','e'); ?></td>
-  <td><?php xl('Collected','e'); ?></td>
+  <td><?php xl('Ext Time Collected','e'); ?></td>
   <td><?php xl('Specimen','e'); ?></td>
   <td><?php xl('Status','e'); ?></td>
-  <td><?php xl('Name','e'); ?></td>
+  <td><?php xl('Name (click for more)','e'); ?></td>
   <td><?php xl('Abn','e'); ?></td>
   <td><?php xl('Value','e'); ?></td>
   <td><?php xl('Range','e'); ?></td>
-  <td><?php xl('Status','e'); ?></td>
  </tr>
 
 <?php 
@@ -250,17 +343,34 @@ $selects =
   "pt2.units AS result_def_units, pt2.range AS result_def_range, " .
   "pt2.description AS result_description, lo.title AS units_name, " .
   "pr.procedure_report_id, pr.date_report, pr.date_collected, pr.specimen_num, pr.report_status, " .
-  "ps.procedure_result_id, ps.abnormal, ps.result, ps.range, ps.result_status ";
+  "ps.procedure_result_id, ps.abnormal, ps.result, ps.range, ps.result_status, " .
+  "ps.facility, ps.comments";
+
+// This join syntax means that results must all be at the same "level".
+// Either there is one result the same as the order, or all results are
+// direct children of the order, or all results are grandchildren of the
+// order.  No other arrangements are allowed.
+//
 $joins =
   "LEFT JOIN procedure_type AS pt1 ON pt1.procedure_type_id = po.procedure_type_id " .
-  "LEFT JOIN procedure_type AS pt2 ON pt2.parent = po.procedure_type_id " .
+  // ptrc is an optional result category just under the order type
+  "LEFT JOIN procedure_type AS ptrc ON ptrc.parent = po.procedure_type_id " .
+  "AND ptrc.is_discrete = 0 AND ptrc.procedure_type NOT LIKE 'rec' " .
+  // pt2 is a result or recommendation type the same as or just under the order type
+  "LEFT JOIN procedure_type AS pt2 ON " .
+  "( ( ptrc.procedure_type_id IS NULL AND ( pt2.parent = po.procedure_type_id " .
+  "OR pt2.procedure_type_id = po.procedure_type_id ) ) OR " .
+  "( ptrc.procedure_type_id IS NOT NULL AND pt2.parent = ptrc.procedure_type_id ) " .
+  ") AND ( pt2.is_discrete = 1 OR pt2.procedure_type LIKE 'rec' ) " .
+  //
   "LEFT JOIN list_options AS lo ON list_id = 'proc_unit' AND option_id = pt2.units " .
   "LEFT JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id " .
   "LEFT JOIN procedure_result AS ps ON ps.procedure_report_id = pr.procedure_report_id " .
   "AND ps.procedure_type_id = pt2.procedure_type_id";
+
 $orderby =
   "po.date_ordered, po.procedure_order_id, pr.procedure_report_id, " .
-  "pt2.name, pt2.procedure_type_id";
+  "ptrc.name, pt2.name, pt2.procedure_type_id";
 
 $where = empty($_POST['form_all']) ?
   "( pr.report_status IS NULL OR pr.report_status = '' OR pr.report_status = 'prelim' )" :
@@ -287,6 +397,7 @@ $lastpoid = -1;
 $lastprid = -1;
 $encount = 0;
 $lino = 0;
+$extra_html = '';
 
 while ($row = sqlFetchArray($res)) {
   $order_id  = empty($row['procedure_order_id' ]) ? 0 : ($row['procedure_order_id' ] + 0);
@@ -302,6 +413,8 @@ while ($row = sqlFetchArray($res)) {
   $result_name      = empty($row['result_name'     ]) ? '' : $row['result_name'];
   $result_abnormal  = empty($row['abnormal'        ]) ? '' : $row['abnormal'];
   $result_result    = empty($row['result'          ]) ? '' : $row['result'];
+  $facility         = empty($row['facility'        ]) ? '' : $row['facility'];
+  $comments         = empty($row['comments'        ]) ? '' : $row['comments'];
   $result_range     = empty($row['range'           ]) ? $row['result_def_range'] : $row['range'];
   $result_status    = empty($row['result_status'   ]) ? '' : $row['result_status'];
   $result_def_units = empty($row['result_def_units']) ? '' : $row['result_def_units'];
@@ -344,20 +457,25 @@ while ($row = sqlFetchArray($res)) {
   // the previous report is marked "Preliminary".
   //
   if ($report_id != $lastprid) {
-    echo "  <td>";
+    echo "  <td nowrap>";
     echo "<input type='text' size='8' name='form_date_report[$lino]'" .
-      " class='celltext' value='$date_report' " .
+      " id='form_date_report[$lino]' class='celltextfw' value='$date_report' " .
       " title='" . xl('Date of this report') . "'" .
       " onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'" .
       " />";
+    echo "<span class='bold' id='q_date_report[$lino]' style='cursor:pointer' " .
+      "title='" . xl('Click here to choose a date') . "' />?</span>";
     echo "</td>\n";
 
-    echo "  <td>";
+    echo "  <td nowrap>";
     echo "<input type='text' size='13' name='form_date_collected[$lino]'" .
-      " class='celltext' value='$date_collected' " .
+      " id='form_date_collected[$lino]'" .
+      " class='celltextfw' value='$date_collected' " .
       " title='" . xl('Date and time of sample collection') . "'" .
       " onkeyup='datekeyup(this,mypcc,true)' onblur='dateblur(this,mypcc,true)'" .
       " />";
+    echo "<span class='bold' id='q_date_collected[$lino]' style='cursor:pointer' " .
+      "title='" . xl('Click here to choose a date and time') . "' />?</span>";
     echo "</td>\n";
 
     echo "  <td>";
@@ -368,7 +486,7 @@ while ($row = sqlFetchArray($res)) {
     echo "</td>\n";
 
     echo "  <td>";
-    generate_select_list("form_report_status[$lino]", 'proc_rep_status',
+    echo generate_select_list("form_report_status[$lino]", 'proc_rep_status',
       $report_status, xl('Report Status'), ' ', 'cellselect');
     echo "</td>\n";
   }
@@ -378,17 +496,19 @@ while ($row = sqlFetchArray($res)) {
 
   echo "  <td title='" . addslashes($row['result_description']) . "'";
   if ($row['result_type'] == 'rec') echo " class='reccolor'";
-  echo ">" . htmlentities($row['result_name']) . "</td>\n";
+  echo " style='cursor:pointer' onclick='extShow($lino, this)'>" .
+    htmlentities($row['result_name']) . "</td>\n";
 
   echo "  <td>";
-  generate_select_list("form_result_abnormal[$lino]", 'proc_res_abnormal',
+  echo generate_select_list("form_result_abnormal[$lino]", 'proc_res_abnormal',
     $result_abnormal, xl('Indicates abnormality'), ' ', 'cellselect');
   echo "</td>\n";
 
   echo "  <td>";
   if ($result_def_units == 'bool') {
-    generate_select_list("form_result_result[$lino]", 'proc_res_bool',
-      $result_result, $units_name, ' ', 'cellselect');
+    // echo generate_select_list("form_result_result[$lino]", 'proc_res_bool',
+    //   $result_result, $units_name, ' ', 'cellselect');
+    echo "&nbsp;--";
   }
   else {
     echo "<input type='text' size='4' name='form_result_result[$lino]'" .
@@ -405,14 +525,35 @@ while ($row = sqlFetchArray($res)) {
     " />";
   echo "</td>\n";
 
-  echo "  <td>";
-  generate_select_list("form_result_status[$lino]", 'proc_res_status',
-    $result_status, xl('Result Status'), ' ', 'cellselect');
-  echo "</td>\n";
-
   echo " </tr>\n";
 
-  // TBD: report and/or result comments?
+  // Create a floating div for additional attributes of this result.
+  $extra_html .= "<div id='ext_$lino' " .
+    "style='position:absolute;width:500px;border:1px solid black;" .
+    "padding:2px;background-color:#cccccc;visibility:hidden;" .
+    "z-index:1000;left:-1000px;top:0px;font-size:9pt;'>\n" .
+    "<table width='100%'>\n" .
+    "<tr><td class='bold' align='center' colspan='2' style='padding:4pt 0 4pt 0'>" .
+    // xl('Additional Attributes') .
+    htmlspecialchars($row['result_name']) .
+    "</td></tr>\n" .
+    "<tr><td class='bold' width='1%' nowrap>" . xl('Status') . ": </td>" .
+    "<td>" . generate_select_list("form_result_status[$lino]", 'proc_res_status',
+      $result_status, xl('Result Status'), '') . "</td></tr>\n" .
+    "<tr><td class='bold' nowrap>" . xl('Facility') . ": </td>" .
+    "<td><input type='text' size='15' name='form_facility[$lino]'" .
+    " value='$facility' " .
+    " title='" . xl('Supplier facility name') . "'" .
+    " style='width:100%' /></td></tr>\n" .
+    "<tr><td class='bold' nowrap>" . xl('Comments') . ": </td>" .
+    "<td><textarea rows='3' cols='15' name='form_comments[$lino]'" .
+    " title='" . xl('Comments for this result or recommendation') . "'" .
+    " style='width:100%' />" . htmlspecialchars($comments) .
+    "</textarea></td></tr>\n" .
+    "</table>\n" .
+    "<p><center><input type='button' value='" . xl('Close') . "' " .
+    "onclick='extShow($lino, false)' /></center></p>\n" .
+    "</div>\n";
 
   $lastpoid = $order_id;
   $lastprid = $report_id;
@@ -427,14 +568,30 @@ while ($row = sqlFetchArray($res)) {
 
 <?php } ?>
 
-<?php if ($form_batch) { ?>
+<?php echo $extra_html; ?>
+
 <script language='JavaScript'>
+
+<?php if ($form_batch) { ?>
+// Initialize calendar widgets for "from" and "to" dates.
 Calendar.setup({inputField:'form_from_date', ifFormat:'%Y-%m-%d',
  button:'img_from_date'});
 Calendar.setup({inputField:'form_to_date', ifFormat:'%Y-%m-%d',
  button:'img_to_date'});
-</script>
 <?php } ?>
+
+// Initialize calendar widgets for report dates and collection dates.
+var f = document.forms[0];
+for (var lino = 0; f['form_line['+lino+']']; ++lino) {
+ if (f['form_date_report['+lino+']']) {
+  Calendar.setup({inputField:'form_date_report['+lino+']', ifFormat:'%Y-%m-%d',
+   button:'q_date_report['+lino+']'});
+  Calendar.setup({inputField:'form_date_collected['+lino+']', ifFormat:'%Y-%m-%d %H:%M',
+   button:'q_date_collected['+lino+']', showsTime:true});
+ }
+}
+
+</script>
 
 </form>
 </body>
