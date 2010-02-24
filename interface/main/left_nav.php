@@ -913,15 +913,20 @@ if (!empty($reg)) {
       <?php if (! $GLOBALS['simplified_demographics']) genTreeLink('RTop','bil',xl('Billing')); ?>
     </ul>
   </li>
-  <?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) genMiscLink('RTop','adm','0',xl('Inventory'),'drugs/drug_inventory.php'); ?>
-  <li><span><?php xl('Orders','e') ?></span>
+  <?php // if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) genMiscLink('RTop','adm','0',xl('Inventory'),'drugs/drug_inventory.php'); ?>
+<?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) { ?>
+  <li><span><?php xl('Inventory','e') ?></span>
     <ul>
-      <?php genTreeLink('RTop','ort',xl('Catalog')); ?>
-      <?php genTreeLink('RTop','orb',xl('Batch Results')); ?>
+      <?php genMiscLink('RTop','adm','0',xl('Management'),'drugs/drug_inventory.php'); ?>
+      <?php genPopLink(xl('Destroyed'),'destroyed_drugs_report.php'); ?>
+    </ul>
+  </li>
+<?php } ?>
+  <li><span><?php xl('Procedures','e') ?></span>
+    <ul>
+      <?php genTreeLink('RTop','ort',xl('Configuration')); ?>
       <?php genTreeLink('RTop','orr',xl('Patient Results')); ?>
-      <?php genPopLink('Pending Res','../orders/pending_orders.php'); ?>
-      <?php genPopLink('Pending F/U','../orders/pending_followup.php'); ?>
-      <?php genPopLink('Statistics','../orders/procedure_stats.php'); ?>
+      <?php genTreeLink('RTop','orb',xl('Batch Results')); ?>
     </ul>
   </li>
   <?php if (!$disallowed['adm']) { ?>
@@ -987,12 +992,18 @@ if (!empty($reg)) {
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
       <li><span><?php xl('Inventory','e') ?></span>
         <ul>
-          <?php genPopLink(xl('Inventory'),'inventory_list.php'); ?>
+          <?php genPopLink(xl('List'),'inventory_list.php'); ?>
           <?php genPopLink(xl('Activity'),'inventory_activity.php'); ?>
-          <?php genPopLink(xl('Destroyed'),'destroyed_drugs_report.php'); ?>
         </ul>
       </li>
 <?php } ?>
+      <li><span><?php xl('Procedures','e') ?></span>
+        <ul>
+          <?php genPopLink('Pending Res','../orders/pending_orders.php'); ?>
+          <?php if (!empty($GLOBALS['code_types']['IPPF'])) genPopLink('Pending F/U','../orders/pending_followup.php'); ?>
+          <?php genPopLink('Statistics','../orders/procedure_stats.php'); ?>
+        </ul>
+      </li>
 <?php if (! $GLOBALS['simplified_demographics']) { ?>
       <li><span><?php xl('Insurance','e') ?></span>
         <ul>
