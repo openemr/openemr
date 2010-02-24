@@ -27,6 +27,9 @@ function display_desc($desc) {
   return $desc;
 }
 
+// Specify if product or warehouse is the first column.
+$product_first = (!empty($_POST['form_by']) && $_POST['form_by'] == 'w') ? 0 : 1;
+
 $last_warehouse_id = '~';
 $last_product_id = 0;
 
@@ -74,9 +77,9 @@ function getEndInventory($product_id = 0, $warehouse_id = '~') {
 function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
   $rowprod, $rowwh, $transdate, $qtys)
 {
-  global $warehouse, $product, $whqtys, $prodqtys, $grandqtys;
+  global $warehouse, $product, $secqtys, $priqtys, $grandqtys;
   global $whleft, $prodleft; // left 2 columns, blank where repeated
-  global $last_warehouse_id, $last_product_id;
+  global $last_warehouse_id, $last_product_id, $product_first;
 
   $invnumber = $patient_id ? "$patient_id.$encounter_id" : "";
 
@@ -87,20 +90,25 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
   if (empty($rowwh)) $rowwh = 'None';
 
   if ($warehouse_id != $last_warehouse_id || $product_id != $last_product_id) {
-    if ($last_warehouse_id != '~') {
+    if (($product_first && $last_warehouse_id != '~') || (!$product_first && $last_product_id)) {
 
-      $whei = getEndInventory($last_product_id, $last_warehouse_id);
+      $secei = getEndInventory($last_product_id, $last_warehouse_id);
 
-      // Print warehouse totals.
+      // Print second-column totals.
       if ($_POST['form_csvexport']) {
         if (! $_POST['form_details']) {
-          echo '"'  . display_desc($product)   . '"';
-          echo ',"' . display_desc($warehouse) . '"';
-          echo ',"' . ($whei - $whqtys[0] - $whqtys[1] - $whqtys[2]) . '"'; // start inventory
-          echo ',"' . $whqtys[0] . '"'; // sales
-          echo ',"' . $whqtys[1] . '"'; // purchases
-          echo ',"' . $whqtys[2] . '"'; // transfers
-          echo ',"' . $whei      . '"'; // end inventory
+          if ($product_first) {
+            echo '"'  . display_desc($product)   . '"';
+            echo ',"' . display_desc($warehouse) . '"';
+          } else {
+            echo '"'  . display_desc($warehouse) . '"';
+            echo ',"' . display_desc($product)   . '"';
+          }
+          echo ',"' . ($secei - $secqtys[0] - $secqtys[1] - $secqtys[2]) . '"'; // start inventory
+          echo ',"' . $secqtys[0] . '"'; // sales
+          echo ',"' . $secqtys[1] . '"'; // purchases
+          echo ',"' . $secqtys[2] . '"'; // transfers
+          echo ',"' . $secei      . '"'; // end inventory
           echo "\n";
         }
       }
@@ -108,40 +116,59 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
         // Warehouse totals and not export:
 ?>
  <tr bgcolor="#ddddff">
+<?php if ($product_first) { ?>
   <td class="detail">
    <?php echo display_desc($prodleft); $prodleft = "&nbsp;"; ?>
   </td>
   <td class="detail" colspan='3'>
    <?php if ($_POST['form_details']) echo xl('Total for') . ' '; echo display_desc($warehouse); ?>
   </td>
+<?php } else { ?>
+  <td class="detail">
+   <?php echo display_desc($whleft); $whleft = "&nbsp;"; ?>
+  </td>
+  <td class="detail" colspan='3'>
+   <?php if ($_POST['form_details']) echo xl('Total for') . ' '; echo display_desc($product); ?>
+  </td>
+<?php } ?>
   <td class="dehead" align="right">
-   <?php echo $whei - $whqtys[0] - $whqtys[1] - $whqtys[2]; ?>
+   <?php echo $secei - $secqtys[0] - $secqtys[1] - $secqtys[2]; ?>
   </td>
   <td class="dehead" align="right">
-   <?php echo $whqtys[0]; ?>
+   <?php echo $secqtys[0]; ?>
   </td>
   <td class="dehead" align="right">
-   <?php echo $whqtys[1]; ?>
+   <?php echo $secqtys[1]; ?>
   </td>
   <td class="dehead" align="right">
-   <?php echo $whqtys[2]; ?>
+   <?php echo $secqtys[2]; ?>
   </td>
   <td class="dehead" align="right">
-   <?php echo $whei; ?>
+   <?php echo $secei; ?>
   </td>
  </tr>
 <?php
       } // End not csv export
     }
-    $whqtys = array(0, 0, 0);
-    $whleft = $warehouse = $rowwh;
-    $last_warehouse_id = $warehouse_id;
+    $secqtys = array(0, 0, 0);
+    if ($product_first ) {
+      $whleft = $warehouse = $rowwh;
+      $last_warehouse_id = $warehouse_id;
+    } else {
+      $prodleft = $product = $rowprod;
+      $last_product_id = $product_id;
+    }
   }
 
-  if ($product_id != $last_product_id) {
-    if ($last_product_id) {
-      $whep = getEndInventory($last_product_id);
-      // Print product total.
+  if (($product_first && $product_id != $last_product_id) ||
+      (!$product_first && $warehouse_id != $last_warehouse_id))
+  {
+    if (($product_first && $last_product_id) ||
+        (!$product_first && $last_warehouse_id != '~'))
+    {
+      $priei = $product_first ? getEndInventory($last_product_id) :
+        getEndInventory(0, $last_warehouse_id);
+      // Print first column total.
       if (!$_POST['form_csvexport']) {
 ?>
 
@@ -150,36 +177,46 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
    &nbsp;
   </td>
   <td class="detail" colspan="3">
-   <?php echo xl('Total for') . ' '; echo display_desc($product); ?>
+   <?php echo xl('Total for') . ' '; echo display_desc($product_first ? $product : $warehouse); ?>
   </td>
   <td class="dehead" align="right">
-   <?php echo $whep - $prodqtys[0] - $prodqtys[1] - $prodqtys[2]; ?>
+   <?php echo $priei - $priqtys[0] - $priqtys[1] - $priqtys[2]; ?>
   </td>
   <td class="dehead" align="right">
-   <?php echo $prodqtys[0]; ?>
+   <?php echo $priqtys[0]; ?>
   </td>
   <td class="dehead" align="right">
-   <?php echo $prodqtys[1]; ?>
+   <?php echo $priqtys[1]; ?>
   </td>
   <td class="dehead" align="right">
-   <?php echo $prodqtys[2]; ?>
+   <?php echo $priqtys[2]; ?>
   </td>
   <td class="dehead" align="right">
-   <?php echo $whep; ?>
+   <?php echo $priei; ?>
   </td>
  </tr>
 <?php
       } // End not csv export
     }
-    $prodqtys = array(0, 0, 0);
-    $prodleft = $product = $rowprod;
-    $last_product_id = $product_id;
+    $priqtys = array(0, 0, 0);
+    if ($product_first) {
+      $prodleft = $product = $rowprod;
+      $last_product_id = $product_id;
+    } else {
+      $whleft = $warehouse = $rowwh;
+      $last_warehouse_id = $warehouse_id;
+    }
   }
 
   if ($_POST['form_details'] && $product_id && ($qtys[0] + $qtys[1] + $qtys[2])) {
     if ($_POST['form_csvexport']) {
-      echo '"'  . display_desc($product )  . '"';
-      echo ',"' . display_desc($warehouse) . '"';
+      if ($product_first) {
+        echo '"'  . display_desc($product )  . '"';
+        echo ',"' . display_desc($warehouse) . '"';
+      } else {
+        echo '"'  . display_desc($warehouse) . '"';
+        echo ',"' . display_desc($product)   . '"';
+      }
       echo ',"' . display_desc($transdate) . '"';
       echo ',"' . display_desc($invnumber) . '"';
       echo ',"' . $qtys[0]             . '"'; // sales
@@ -190,12 +227,21 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
     else {
 ?>
  <tr>
+<?php if ($product_first) { ?>
   <td class="detail">
    <?php echo display_desc($prodleft); $prodleft = "&nbsp;"; ?>
   </td>
   <td class="detail">
    <?php echo display_desc($whleft); $whleft = "&nbsp;"; ?>
   </td>
+<?php } else { ?>
+  <td class="detail">
+   <?php echo display_desc($whleft); $whleft = "&nbsp;"; ?>
+  </td>
+  <td class="detail">
+   <?php echo display_desc($prodleft); $prodleft = "&nbsp;"; ?>
+  </td>
+<?php } ?>
   <td class="dehead">
    <?php echo $transdate; ?>
   </td>
@@ -222,8 +268,8 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
     } // End not csv export
   } // end details
   for ($i = 0; $i < 3; ++$i) {
-    $whqtys[$i]    += $qtys[$i];
-    $prodqtys[$i]  += $qtys[$i];
+    $secqtys[$i]   += $qtys[$i];
+    $priqtys[$i]   += $qtys[$i];
     $grandqtys[$i] += $qtys[$i];
   }
 } // end function
@@ -242,9 +288,14 @@ if ($_POST['form_csvexport']) {
   header("Content-Disposition: attachment; filename=inventory_activity.csv");
   header("Content-Description: File Transfer");
   // CSV headers:
-  if ($_POST['form_details']) {
+  if ($product_first) {
     echo '"' . xl('Product'  ) . '",';
     echo '"' . xl('Warehouse') . '",';
+  } else {
+    echo '"' . xl('Warehouse') . '",';
+    echo '"' . xl('Product'  ) . '",';
+  }
+  if ($_POST['form_details']) {
     echo '"' . xl('Date'     ) . '",';
     echo '"' . xl('Invoice'  ) . '",';
     echo '"' . xl('Sales'    ) . '",';
@@ -252,8 +303,6 @@ if ($_POST['form_csvexport']) {
     echo '"' . xl('Transfers') . '"' . "\n";
   }
   else {
-    echo '"' . xl('Product'  ) . '",';
-    echo '"' . xl('Warehouse') . '",';
     echo '"' . xl('Start'    ) . '",';
     echo '"' . xl('Sales'    ) . '",';
     echo '"' . xl('Purchases') . '",';
@@ -274,12 +323,20 @@ else {
 
 <h2><?php xl('Inventory Activity','e')?></h2>
 
-<form method='post' action='inventory_activity.php'>
+<form method='post' action='inventory_activity.php?product=<?php echo $product_first; ?>'>
 
 <table border='0' cellpadding='3'>
 
  <tr>
   <td>
+
+   <?php xl('By','e'); ?>:
+   <select name='form_by'>
+    <option value='p'>Product</option>
+    <option value='w'<?php if (!$product_first) echo ' selected'; ?>>Warehouse</option>
+   </select>
+
+   &nbsp;
 <?php
 // Build a drop-down list of products.
 //
@@ -295,26 +352,33 @@ while ($prow = sqlFetchArray($pres)) {
 }
 echo "   </select>\n";
 ?>
+
    &nbsp;<?php xl('From','e'); ?>:
    <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
     title='<?php xl('Click here to choose a date','e'); ?>'>
+
    &nbsp;<?php xl('To','e'); ?>:
    <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
     title='<?php xl('Click here to choose a date','e'); ?>'>
+
    &nbsp;
    <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details','e') ?>
+
    &nbsp;
    <input type='submit' name='form_refresh' value="<?php xl('Refresh','e') ?>">
+
    &nbsp;
    <input type='submit' name='form_csvexport' value="<?php xl('Export to CSV','e') ?>">
+
    &nbsp;
    <input type='button' value='<?php xl('Print','e'); ?>' onclick='window.print()' />
+
   </td>
  </tr>
 
@@ -329,11 +393,11 @@ echo "   </select>\n";
 
  <tr bgcolor="#dddddd">
   <td class="dehead">
-   <?php xl('Product','e'); ?>
+   <?php echo $product_first ? xl('Product') : xl('Warehouse'); ?>
   </td>
 <?php if ($_POST['form_details']) { ?>
   <td class="dehead">
-   <?php xl('Warehouse','e'); ?>
+   <?php echo $product_first ? xl('Warehouse') : xl('Product'); ?>
   </td>
   <td class="dehead">
    <?php xl('Date','e'); ?>
@@ -343,7 +407,7 @@ echo "   </select>\n";
   </td>
 <?php } else { ?>
   <td class="dehead" colspan="3">
-   <?php xl('Warehouse','e'); ?>
+   <?php echo $product_first ? xl('Warehouse') : xl('Product'); ?>
   </td>
 <?php } ?>
   <td class="dehead" align="right" width="8%">
@@ -374,8 +438,8 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
   $warehouse = "";
   $whleft    = "";
   $grandqtys = array(0, 0, 0);
-  $prodqtys  = array(0, 0, 0);
-  $whqtys    = array(0, 0, 0);
+  $priqtys   = array(0, 0, 0);
+  $secqtys   = array(0, 0, 0);
 
   /*******************************************************************
   $query = "SELECT s.sale_date, s.quantity, s.pid, s.encounter, " .
@@ -404,8 +468,15 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
   if ($form_product) {
     $query .= " AND di.drug_id = '$form_product'";
   }
-  $query .= " ORDER BY d.name, d.drug_id, lo.title, di.warehouse_id, s.sale_date, s.sale_id";
-  //
+
+  if ($product_first) {
+    $query .= " ORDER BY d.name, d.drug_id, lo.title, di.warehouse_id, " .
+      "s.sale_date, s.sale_id";
+  } else {
+    $query .= " ORDER BY lo.title, di.warehouse_id, d.name, d.drug_id, " .
+      "s.sale_date, s.sale_id";
+  }
+
   $res = sqlStatement($query);
   while ($row = sqlFetchArray($res)) {
     $qtys = array(0, 0, 0);
