@@ -71,7 +71,7 @@ function doiclick(id, lot) {
   <td><?php  xl('Form','e'); ?></td>
   <td><?php  xl('Size','e'); ?></td>
   <td><?php  xl('Unit','e'); ?></td>
-  <td title=<?php xl('Click to receive (add) new lot','e','\'','\''); ?>><?php  xl('Add','e'); ?></td>
+  <td title=<?php xl('Click to receive (add) new lot','e','\'','\''); ?>><?php  xl('New','e'); ?></td>
   <td title=<?php xl('Click to edit','e','\'','\''); ?>><?php  xl('Lot','e'); ?></td>
   <td><?php  xl('QOH','e'); ?></td>
   <td><?php  xl('Expires','e'); ?></td>
@@ -97,8 +97,8 @@ function doiclick(id, lot) {
    echo "  <td>" .
 	generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']) .
 	"</td>\n";
-   echo "  <td onclick='doiclick($lastid,0)'>" .
-    "<a href='' onclick='return false'>" . xl('Add') . "</a></td>\n";
+   echo "  <td onclick='doiclick($lastid,0)' title='" . xl('Add new lot and transaction') . "'>" .
+    "<a href='' onclick='return false'>" . xl('New') . "</a></td>\n";
   } else {
    echo " <tr class='detail' bgcolor='$bgcolor'>\n";
    echo "  <td colspan='7'>&nbsp;</td>\n";
