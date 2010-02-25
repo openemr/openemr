@@ -51,8 +51,10 @@ if ($report_type == 'm') {
   );
   $arr_report = array(
     // Items are content|row|column|column|...
+    /*****************************************************************
     '2|2|3|4|5|8|11' => xl('Client Profile - Unique Clients'),
     '4|2|3|4|5|8|11' => xl('Client Profile - New Clients'),
+    *****************************************************************/
   );
 }
 else if ($report_type == 'g') {
@@ -74,7 +76,9 @@ else if ($report_type == 'g') {
     4 => xl('Unique New Clients'),
   );
   $arr_report = array(
+    /*****************************************************************
     '1|11|13' => xl('Complications by Service Provider'),
+    *****************************************************************/
   );
 }
 else {

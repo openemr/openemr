@@ -67,7 +67,7 @@ INSERT INTO layout_options VALUES ('LBFgcac','contrameth'   ,'3Contraception','N
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('occupations','oth','Other', 1);
 DELETE FROM list_options WHERE list_id = 'lists' AND option_id = 'occupations';
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists','occupations','Occupations',61);
-#endIf
+#EndIf
 
 UPDATE layout_options SET data_type = 26, list_id = 'occupations'  WHERE form_id = 'DEM' AND field_id = 'occupation';
 UPDATE layout_options SET data_type = 26, title = 'Religion'       WHERE form_id = 'DEM' AND field_id = 'userlist5';
@@ -85,10 +85,12 @@ UPDATE layout_options AS a, list_options AS i SET a.group_name = '1Basic Data', 
 UPDATE list_options SET title = 'Retention of Product' WHERE title = 'Incomplete Abortion or Retention of Prod';
 
 UPDATE list_options SET title = 'Surgical - MVA/EVA' WHERE list_id = 'in_ab_proc' AND title = 'Surgical - MVA';
+
 DELETE FROM list_options where list_id = 'contrameth' AND option_id = 'abs';
 DELETE FROM list_options where list_id = 'contrameth' AND option_id = 'eva';
 DELETE FROM list_options where list_id = 'contrameth' AND option_id = 'oth';
 DELETE FROM list_options where list_id = 'contrameth' AND option_id = 'wd';
+
 UPDATE list_options SET mapping = ':2522231'   WHERE list_id = 'in_ab_proc' AND option_id = 's_dnc';
 UPDATE list_options SET mapping = ':2522232'   WHERE list_id = 'in_ab_proc' AND option_id = 's_dne';
 UPDATE list_options SET mapping = ':2522233'   WHERE list_id = 'in_ab_proc' AND option_id = 's_mva';
@@ -96,6 +98,7 @@ UPDATE list_options SET mapping = ':2522239'   WHERE list_id = 'in_ab_proc' AND 
 UPDATE list_options SET mapping = ':2522242'   WHERE list_id = 'in_ab_proc' AND option_id = 'm_mis';
 UPDATE list_options SET mapping = ':2522241'   WHERE list_id = 'in_ab_proc' AND option_id = 'm_mm';
 UPDATE list_options SET mapping = ':2522249'   WHERE list_id = 'in_ab_proc' AND option_id = 'm_oth';
+
 UPDATE list_options SET mapping = ':11214'     WHERE list_id = 'contrameth' AND option_id = 'con';
 UPDATE list_options SET mapping = ':11215'     WHERE list_id = 'contrameth' AND option_id = 'dia';
 UPDATE list_options SET mapping = ':14521'     WHERE list_id = 'contrameth' AND option_id = 'ec';
@@ -110,4 +113,285 @@ UPDATE list_options SET mapping = ':11215'     WHERE list_id = 'contrameth' AND 
 UPDATE list_options SET mapping = ':11216'     WHERE list_id = 'contrameth' AND option_id = 'sp';
 UPDATE list_options SET mapping = ':12.18'     WHERE list_id = 'contrameth' AND option_id = 'vsc';
 UPDATE list_options SET mapping = ':00000'     WHERE list_id = 'contrameth' AND option_id = 'no';
+
+UPDATE list_options SET mapping = 'F' WHERE list_id = 'sex' AND option_id = 'Female';
+UPDATE list_options SET mapping = 'M' WHERE list_id = 'sex' AND option_id = 'Male';
+
+#IfNotRow2D list_options list_id userlist2 mapping 1
+UPDATE list_options SET title = 'Education' WHERE list_id = 'lists' AND option_id = 'userlist2';
+DELETE FROM list_options WHERE list_id = 'userlist2';
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, mapping ) VALUES ('userlist2','1','Illiterate',1,0,'0');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, mapping ) VALUES ('userlist2','2','Basic Schooling',2,1,'1');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, mapping ) VALUES ('userlist2','3','Advanced Schooling',3,0,'2');
+#EndIf
+
+#IfNotRow lang_constants constant_name (New Patient)
+insert into lang_constants ( constant_name ) values ( '(New Patient)' );
+#EndIf
+#IfNotRow lang_constants constant_name Active Encounter
+insert into lang_constants ( constant_name ) values ( 'Active Encounter' );
+#EndIf
+#IfNotRow lang_constants constant_name Active Patient
+insert into lang_constants ( constant_name ) values ( 'Active Patient' );
+#EndIf
+#IfNotRow lang_constants constant_name Active Patient:
+insert into lang_constants ( constant_name ) values ( 'Active Patient:' );
+#EndIf
+#IfNotRow lang_constants constant_name Add Copay
+insert into lang_constants ( constant_name ) values ( 'Add Copay' );
+#EndIf
+#IfNotRow lang_constants constant_name Add Drug
+insert into lang_constants ( constant_name ) values ( 'Add Drug' );
+#EndIf
+#IfNotRow lang_constants constant_name Add Patient Record
+insert into lang_constants ( constant_name ) values ( 'Add Patient Record' );
+#EndIf
+#IfNotRow lang_constants constant_name Appointments and Encounters
+insert into lang_constants ( constant_name ) values ( 'Appointments and Encounters' );
+#EndIf
+#IfNotRow lang_constants constant_name Appointments and Visits
+insert into lang_constants ( constant_name ) values ( 'Appointments and Visits' );
+#EndIf
+#IfNotRow lang_constants constant_name Appt-Enc
+insert into lang_constants ( constant_name ) values ( 'Appt-Enc' );
+#EndIf
+#IfNotRow lang_constants constant_name Cash Rec
+insert into lang_constants ( constant_name ) values ( 'Cash Rec' );
+#EndIf
+#IfNotRow lang_constants constant_name Cash Receipts
+insert into lang_constants ( constant_name ) values ( 'Cash Receipts' );
+#EndIf
+#IfNotRow lang_constants constant_name Chart
+insert into lang_constants ( constant_name ) values ( 'Chart' );
+#EndIf
+#IfNotRow lang_constants constant_name Chief Complaint
+insert into lang_constants ( constant_name ) values ( 'Chief Complaint' );
+#EndIf
+#IfNotRow lang_constants constant_name Chief Compliant
+insert into lang_constants ( constant_name ) values ( 'Chief Compliant' );
+#EndIf
+#IfNotRow lang_constants constant_name Client
+insert into lang_constants ( constant_name ) values ( 'Client' );
+#EndIf
+#IfNotRow lang_constants constant_name CO-PAY
+insert into lang_constants ( constant_name ) values ( 'CO-PAY' );
+#EndIf
+#IfNotRow lang_constants constant_name Collections
+insert into lang_constants ( constant_name ) values ( 'Collections' );
+#EndIf
+#IfNotRow lang_constants constant_name COPAY
+insert into lang_constants ( constant_name ) values ( 'COPAY' );
+#EndIf
+#IfNotRow lang_constants constant_name CPT4
+insert into lang_constants ( constant_name ) values ( 'CPT4' );
+#EndIf
+#IfNotRow lang_constants constant_name Encounter
+insert into lang_constants ( constant_name ) values ( 'Encounter' );
+#EndIf
+#IfNotRow lang_constants constant_name Encounter Forms to Include in this Report:
+insert into lang_constants ( constant_name ) values ( 'Encounter Forms to Include in this Report:' );
+#EndIf
+#IfNotRow lang_constants constant_name Encounters
+insert into lang_constants ( constant_name ) values ( 'Encounters' );
+#EndIf
+#IfNotRow lang_constants constant_name Encounters Report
+insert into lang_constants ( constant_name ) values ( 'Encounters Report' );
+#EndIf
+#IfNotRow lang_constants constant_name Facility
+insert into lang_constants ( constant_name ) values ( 'Facility' );
+#EndIf
+#IfNotRow lang_constants constant_name Fee Sheet
+insert into lang_constants ( constant_name ) values ( 'Fee Sheet' );
+#EndIf
+#IfNotRow lang_constants constant_name Find Patient
+insert into lang_constants ( constant_name ) values ( 'Find Patient' );
+#EndIf
+#IfNotRow lang_constants constant_name ID
+insert into lang_constants ( constant_name ) values ( 'ID' );
+#EndIf
+#IfNotRow lang_constants constant_name IPPF SRH Data
+insert into lang_constants ( constant_name ) values ( 'IPPF SRH Data' );
+#EndIf
+#IfNotRow lang_constants constant_name IPPF SRH Data for
+insert into lang_constants ( constant_name ) values ( 'IPPF SRH Data for' );
+#EndIf
+#IfNotRow lang_constants constant_name Last
+insert into lang_constants ( constant_name ) values ( 'Last' );
+#EndIf
+#IfNotRow lang_constants constant_name New Encounter
+insert into lang_constants ( constant_name ) values ( 'New Encounter' );
+#EndIf
+#IfNotRow lang_constants constant_name New Encounter Form
+insert into lang_constants ( constant_name ) values ( 'New Encounter Form' );
+#EndIf
+#IfNotRow lang_constants constant_name New Patient
+insert into lang_constants ( constant_name ) values ( 'New Patient' );
+#EndIf
+#IfNotRow lang_constants constant_name Past Encounters and Documents
+insert into lang_constants ( constant_name ) values ( 'Past Encounters and Documents' );
+#EndIf
+#IfNotRow lang_constants constant_name Patient
+insert into lang_constants ( constant_name ) values ( 'Patient' );
+#EndIf
+#IfNotRow lang_constants constant_name Patient Appointment
+insert into lang_constants ( constant_name ) values ( 'Patient Appointment' );
+#EndIf
+#IfNotRow lang_constants constant_name Patient Encounter Form
+insert into lang_constants ( constant_name ) values ( 'Patient Encounter Form' );
+#EndIf
+#IfNotRow lang_constants constant_name Patient Notes
+insert into lang_constants ( constant_name ) values ( 'Patient Notes' );
+#EndIf
+#IfNotRow lang_constants constant_name Patient Number
+insert into lang_constants ( constant_name ) values ( 'Patient Number' );
+#EndIf
+#IfNotRow lang_constants constant_name Patient Record Report
+insert into lang_constants ( constant_name ) values ( 'Patient Record Report' );
+#EndIf
+#IfNotRow lang_constants constant_name Patient Report
+insert into lang_constants ( constant_name ) values ( 'Patient Report' );
+#EndIf
+#IfNotRow lang_constants constant_name Patient Transactions
+insert into lang_constants ( constant_name ) values ( 'Patient Transactions' );
+#EndIf
+#IfNotRow lang_constants constant_name Patient/Client
+insert into lang_constants ( constant_name ) values ( 'Patient/Client' );
+#EndIf
+#IfNotRow lang_constants constant_name PID
+insert into lang_constants ( constant_name ) values ( 'PID' );
+#EndIf
+#IfNotRow lang_constants constant_name Prepay
+insert into lang_constants ( constant_name ) values ( 'Prepay' );
+#EndIf
+#IfNotRow lang_constants constant_name Provider
+insert into lang_constants ( constant_name ) values ( 'Provider' );
+#EndIf
+#IfNotRow lang_constants constant_name Pt Notes/Auth
+insert into lang_constants ( constant_name ) values ( 'Pt Notes/Auth' );
+#EndIf
+#IfNotRow lang_constants constant_name Rendering
+insert into lang_constants ( constant_name ) values ( 'Rendering' );
+#EndIf
+#IfNotRow lang_constants constant_name Rx
+insert into lang_constants ( constant_name ) values ( 'Rx' );
+#EndIf
+#IfNotRow lang_constants constant_name Sales by Item
+insert into lang_constants ( constant_name ) values ( 'Sales by Item' );
+#EndIf
+#IfNotRow lang_constants constant_name Save Patient Demographic
+insert into lang_constants ( constant_name ) values ( 'Save Patient Demographic' );
+#EndIf
+#IfNotRow lang_constants constant_name Search or Add Patient
+insert into lang_constants ( constant_name ) values ( 'Search or Add Patient ' );
+#EndIf
+#IfNotRow lang_constants constant_name Select Patient
+insert into lang_constants ( constant_name ) values ( 'Select Patient' );
+#EndIf
+#IfNotRow lang_constants constant_name Select Patient by Last
+insert into lang_constants ( constant_name ) values ( 'Select Patient by Last' );
+#EndIf
+#IfNotRow lang_constants constant_name Sensitivity
+insert into lang_constants ( constant_name ) values ( 'Sensitivity' );
+#EndIf
+#IfNotRow lang_constants constant_name SSN
+insert into lang_constants ( constant_name ) values ( 'SSN' );
+#EndIf
+#IfNotRow lang_constants constant_name Superbill
+insert into lang_constants ( constant_name ) values ( 'Superbill' );
+#EndIf
+#IfNotRow lang_constants constant_name This Encounter
+insert into lang_constants ( constant_name ) values ( 'This Encounter' );
+#EndIf
+#IfNotRow lang_constants constant_name Transact
+insert into lang_constants ( constant_name ) values ( 'Transact' );
+#EndIf
+#IfNotRow lang_constants constant_name User & Group Administration
+insert into lang_constants ( constant_name ) values ( 'User & Group Administration' );
+#EndIf
+#IfNotRow lang_constants constant_name View Comprehensive Patient Report
+insert into lang_constants ( constant_name ) values ( 'View Comprehensive Patient Report' );
+#EndIf
+#IfNotRow lang_constants constant_name Procedures
+insert into lang_constants ( constant_name ) values ( 'Procedures' );
+#EndIf
+#IfNotRow lang_constants constant_name Layout Based
+insert into lang_constants ( constant_name ) values ( 'Layout Based' );
+#EndIf
+
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'New Client' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = '(New Patient)' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Active visit' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Active Encounter' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Active Client' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Active Patient' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Active Client:' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Active Patient:' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Add Payment' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Add Copay' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Add Product' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Add Drug' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Create a new OpenEMR record' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Add Patient Record' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Appointments and Visits' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Appointments and Encounters' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Charges by Visit' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Appointments and Visits' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Appt-Visit' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Appt-Enc' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Svcs Provider Cash Rec' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Cash Rec' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Service Provider Cash Receipts' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Cash Receipts' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'System ID' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Chart' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Reason of Visit' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Chief Complaint' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Reason of Visit' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Chief Compliant' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Cliente' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Client' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Payment' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'CO-PAY' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Collection Report' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Collections' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Payment' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'COPAY' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'C3' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'CPT4' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Visit' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Encounter' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Visit Forms to include in this Report:' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Encounter Forms to Include in this Report:' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Visits' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Encounters' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Visits Report' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Encounters Report' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Clinic ID' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Facility' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Tally Sheet' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Fee Sheet' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Find Client' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Find Patient' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'ID' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'ID' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'GCAC Form (example)' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'IPPF SRH Data' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'GCAC Form (example) for' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'IPPF SRH Data for' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Last name' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Last' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Visit' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'New Encounter' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'New Visit Form' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'New Encounter Form' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'New Client' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'New Patient' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Past Visits and Documents' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Past Encounters and Documents' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Client' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Patient' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Client Appointment' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Patient Appointment' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Client Visit Form' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Patient Encounter Form' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Client Notes' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Patient Notes' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Client number' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Patient Number' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Client Record Report' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Patient Record Report' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Client Report' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Patient Report' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Referrals and Other Transactions' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Patient Transactions' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Client' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Patient/Client' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Client ID (assign by the system)' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'PID' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Payments' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Prepay' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Service Provider' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Provider' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Client notes/Auth' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Pt Notes/Auth' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Default' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Rendering' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Prescp & Disp' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Rx' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Sales by Item' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Sales by Item' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Save Demographic Client  Data' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Save Patient Demographic' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Search or Add Client' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Search or Add Patient ' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Select Client' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Select Patient' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Select Client by Last' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Select Patient by Last' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Risk' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Sensitivity' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'National ID' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'SSN' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Tally Sheet' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Superbill' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'This Visit' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'This Encounter' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Referrals' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Transact' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'User Administration' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'User & Group Administration' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'View Comprehensive Client Report' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'View Comprehensive Patient Report' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Diagnostic Labs & Orders' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Procedures' and ld.cons_id is null;
+insert into lang_definitions ( cons_id, lang_id, definition ) select lc.cons_id, 1, 'Program' from lang_constants as lc left join lang_definitions as ld on ld.cons_id = lc.cons_id and ld.lang_id = 1 where lc.constant_name = 'Layout Based' and ld.cons_id is null;
+
+UPDATE openemr_postcalendar_categories SET pc_catname = '1 Admission', pc_catcolor = '#FFFFFF' WHERE pc_catid = 10 AND pc_catname = 'New Patient';
+UPDATE openemr_postcalendar_categories SET pc_catname = '2 Re-Visit', pc_catcolor = '#CCFFFF' WHERE pc_catid = 9 AND pc_catname = 'Established Patient';
+#IfNotRow openemr_postcalendar_categories pc_catid 12
+INSERT INTO `openemr_postcalendar_categories` VALUES (12,'3 Counselling Only','#FFFFCC','Counselling',1,NULL,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,900,0,3,2,0,0);
+#EndIf
+#IfNotRow openemr_postcalendar_categories pc_catid 13
+INSERT INTO `openemr_postcalendar_categories` VALUES (13,'4 Supply/Re-Supply','#CCCCCC','Supply/Re-Supply',1,NULL,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,900,0,3,2,0,0);
+#EndIf
+#IfNotRow openemr_postcalendar_categories pc_catid 14
+INSERT INTO `openemr_postcalendar_categories` VALUES (14,'5 Administrative','#FFFFFF','Supply/Re-Supply',1,NULL,'a:5:{s:17:\"event_repeat_freq\";s:1:\"1\";s:22:\"event_repeat_freq_type\";s:1:\"4\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}',0,900,0,3,2,0,0);
+#EndIf
 
