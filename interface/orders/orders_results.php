@@ -338,6 +338,7 @@ if ($form_batch) {
 $selects =
   "po.procedure_order_id, po.date_ordered, " .
   "po.procedure_type_id AS order_type_id, pt1.name AS procedure_name, " .
+  "ptrc.name AS result_category_name, " .
   "pt2.procedure_type AS result_type, " .
   "pt2.procedure_type_id AS result_type_id, pt2.name AS result_name, " .
   "pt2.units AS result_def_units, pt2.range AS result_def_range, " .
@@ -355,13 +356,13 @@ $joins =
   "LEFT JOIN procedure_type AS pt1 ON pt1.procedure_type_id = po.procedure_type_id " .
   // ptrc is an optional result category just under the order type
   "LEFT JOIN procedure_type AS ptrc ON ptrc.parent = po.procedure_type_id " .
-  "AND ptrc.is_discrete = 0 AND ptrc.procedure_type NOT LIKE 'rec' " .
+  "AND ptrc.procedure_type LIKE 'grp%' " .
   // pt2 is a result or recommendation type the same as or just under the order type
   "LEFT JOIN procedure_type AS pt2 ON " .
   "( ( ptrc.procedure_type_id IS NULL AND ( pt2.parent = po.procedure_type_id " .
   "OR pt2.procedure_type_id = po.procedure_type_id ) ) OR " .
   "( ptrc.procedure_type_id IS NOT NULL AND pt2.parent = ptrc.procedure_type_id ) " .
-  ") AND ( pt2.is_discrete = 1 OR pt2.procedure_type LIKE 'rec' ) " .
+  ") AND ( pt2.procedure_type LIKE 'res%' OR pt2.procedure_type LIKE 'rec%' ) " .
   //
   "LEFT JOIN list_options AS lo ON list_id = 'proc_unit' AND option_id = pt2.units " .
   "LEFT JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id " .
@@ -370,7 +371,8 @@ $joins =
 
 $orderby =
   "po.date_ordered, po.procedure_order_id, pr.procedure_report_id, " .
-  "ptrc.name, pt2.name, pt2.procedure_type_id";
+  "ptrc.seq, ptrc.name, ptrc.procedure_type_id, " .
+  "pt2.seq, pt2.name, pt2.procedure_type_id";
 
 $where = empty($_POST['form_all']) ?
   "( pr.report_status IS NULL OR pr.report_status = '' OR pr.report_status = 'prelim' )" :
@@ -405,12 +407,14 @@ while ($row = sqlFetchArray($res)) {
   $report_id = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
   $result_id = empty($row['procedure_result_id']) ? 0 : ($row['procedure_result_id'] + 0);
 
+  $result_name = '';
+  if (!empty($row['result_category_name'])) $result_name = $row['result_category_name'] . ' / ';
+  if (!empty($row['result_name'])) $result_name .= $row['result_name'];
+
   $date_report      = empty($row['date_report'     ]) ? '' : $row['date_report'];
   $date_collected   = empty($row['date_collected'  ]) ? '' : substr($row['date_collected'], 0, 16);
   $specimen_num     = empty($row['specimen_num'    ]) ? '' : $row['specimen_num'];
   $report_status    = empty($row['report_status'   ]) ? '' : $row['report_status']; 
-
-  $result_name      = empty($row['result_name'     ]) ? '' : $row['result_name'];
   $result_abnormal  = empty($row['abnormal'        ]) ? '' : $row['abnormal'];
   $result_result    = empty($row['result'          ]) ? '' : $row['result'];
   $facility         = empty($row['facility'        ]) ? '' : $row['facility'];
@@ -497,7 +501,7 @@ while ($row = sqlFetchArray($res)) {
   echo "  <td title='" . addslashes($row['result_description']) . "'";
   if ($row['result_type'] == 'rec') echo " class='reccolor'";
   echo " style='cursor:pointer' onclick='extShow($lino, this)'>" .
-    htmlentities($row['result_name']) . "</td>\n";
+    htmlentities($result_name) . "</td>\n";
 
   echo "  <td>";
   echo generate_select_list("form_result_abnormal[$lino]", 'proc_res_abnormal',
@@ -535,7 +539,7 @@ while ($row = sqlFetchArray($res)) {
     "<table width='100%'>\n" .
     "<tr><td class='bold' align='center' colspan='2' style='padding:4pt 0 4pt 0'>" .
     // xl('Additional Attributes') .
-    htmlspecialchars($row['result_name']) .
+    htmlspecialchars($result_name) .
     "</td></tr>\n" .
     "<tr><td class='bold' width='1%' nowrap>" . xl('Status') . ": </td>" .
     "<td>" . generate_select_list("form_result_status[$lino]", 'proc_res_status',
