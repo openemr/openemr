@@ -30,11 +30,12 @@ function get_pharmacies() {
 // Function to generate a drop-list.
 //
 function generate_select_list($tag_name, $list_id, $currvalue, $title,
-  $empty_name=' ', $class='')
+  $empty_name=' ', $class='', $onchange='')
 {
   $s = '';
   $s .= "<select name='$tag_name' id='$tag_name'";
   if ($class) $s .= " class='$class'";
+  if ($onchange) $s .= " onchange='$onchange'";
   $s .= " title='$title'>";
   if ($empty_name) $s .= "<option value=''>" . xl($empty_name) . "</option>";
   $lres = sqlStatement("SELECT * FROM list_options " .
