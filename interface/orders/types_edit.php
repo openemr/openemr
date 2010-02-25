@@ -74,10 +74,15 @@ td { font-size:10pt; }
  font-size:9pt;
  font-weight:bold;
 }
+
+.ordonly { }
+.resonly { }
+
 </style>
 
 <script type="text/javascript" src="../../library/topdialog.js"></script>
 <script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/jquery-1.2.2.min.js"></script>
 
 <script language="JavaScript">
 
@@ -107,6 +112,22 @@ function sel_related(varname) {
  dlgopen('../patient_file/encounter/find_code_popup.php', '_blank', 500, 400);
 }
 
+// Show or hide sections depending on procedure type.
+function proc_type_changed() {
+ var f = document.forms[0];
+ var pt = f.form_procedure_type;
+ var ix = pt.selectedIndex;
+ if (ix < 0) ix = 0;
+ var ptval = pt.options[ix].value;
+ var ptpfx = ptval.substring(0, 3);
+ if (ptpfx == 'ord') $('.ordonly').show(); else $('.ordonly').hide();
+ if (ptpfx == 'res'|| ptpfx == 'rec') $('.resonly').show(); else $('.resonly').hide();
+}
+
+$(document).ready(function() {
+ proc_type_changed();
+});
+
 </script>
 
 </head>
@@ -131,8 +152,7 @@ if ($_POST['form_save']) {
     "range = "          . invalue('form_range')          . ", " .
     "standard_code = "  . invalue('form_standard_code')  . ", " .
     "related_code = "   . invalue('form_related_code')   . ", " .
-    "is_discrete = "    . cbvalue('form_is_discrete')    . ", " .
-    "is_orderable = "   . cbvalue('form_is_orderable');
+    "seq = "            . invalue('form_seq');
 
   if ($typeid) {
     sqlStatement("UPDATE procedure_type SET $sets WHERE procedure_type_id = '$typeid'");
@@ -187,10 +207,8 @@ if ($typeid) {
   <td width='1%' nowrap><b><?php xl('Procedure Type','e'); ?>:</b></td>
   <td>
 <?php
-generate_form_field(array('data_type' => 1, 'field_id' => 'procedure_type',
-  'list_id' => 'proc_type',
-  'description' => xl('The general classification of this category, procedure or result')),
-  $row['procedure_type']);
+echo generate_select_list('form_procedure_type', 'proc_type', $row['procedure_type'],
+  xl('The type of this entity'), ' ', '', 'proc_type_changed()');
 ?>
   </td>
  </tr>
@@ -206,6 +224,26 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'procedure_type',
  </tr>
 
  <tr>
+  <td nowrap><b><?php xl('Description','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='40' name='form_description' maxlength='255'
+    value='<?php echo htmlspecialchars($row['description'], ENT_QUOTES); ?>'
+    title='<?php xl('Description of this procedure or result code','e'); ?>'
+    style='width:100%' class='inputtext' />
+  </td>
+ </tr>
+
+ <tr>
+  <td nowrap><b><?php xl('Sequence','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='4' name='form_seq' maxlength='11'
+    value='<?php echo $row['seq'] + 0; ?>'
+    title='<?php xl('Relative ordering of this entity','e'); ?>'
+    class='inputtext' />
+  </td>
+ </tr>
+
+ <tr class='ordonly'>
   <td width='1%' nowrap><b><?php xl('Order From','e'); ?>:</b></td>
   <td>
 <?php
@@ -218,7 +256,7 @@ generate_form_field(array('data_type' => 14, 'field_id' => 'lab_id',
   </td>
  </tr>
 
- <tr>
+ <tr class='ordonly'>
   <td nowrap><b><?php xl('Procedure Code','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_procedure_code' maxlength='31'
@@ -228,7 +266,7 @@ generate_form_field(array('data_type' => 14, 'field_id' => 'lab_id',
   </td>
  </tr>
 
- <tr>
+ <tr class='ordonly'>
   <td nowrap><b><?php xl('Standard Code','e'); ?>:</b></td>
   <td>
    <input type='text' size='50' name='form_standard_code'
@@ -238,7 +276,7 @@ generate_form_field(array('data_type' => 14, 'field_id' => 'lab_id',
   </td>
  </tr>
 
- <tr>
+ <tr class='ordonly'>
   <td width='1%' nowrap><b><?php xl('Body Site','e'); ?>:</b></td>
   <td>
 <?php
@@ -249,7 +287,7 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'body_site',
   </td>
  </tr>
 
- <tr>
+ <tr class='ordonly'>
   <td width='1%' nowrap><b><?php xl('Specimen Type','e'); ?>:</b></td>
   <td>
 <?php
@@ -261,7 +299,7 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'specimen',
   </td>
  </tr>
 
- <tr>
+ <tr class='ordonly'>
   <td width='1%' nowrap><b><?php xl('Administer Via','e'); ?>:</b></td>
   <td>
 <?php
@@ -273,7 +311,7 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'route_admin',
   </td>
  </tr>
 
- <tr>
+ <tr class='ordonly'>
   <td width='1%' nowrap><b><?php xl('Laterality','e'); ?>:</b></td>
   <td>
 <?php
@@ -285,30 +323,7 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'laterality',
   </td>
  </tr>
 
- <tr>
-  <td nowrap><b><?php xl('Description','e'); ?>:</b></td>
-  <td>
-   <input type='text' size='40' name='form_description' maxlength='255'
-    value='<?php echo htmlspecialchars($row['description'], ENT_QUOTES); ?>'
-    title='<?php xl('Description of this procedure or result code','e'); ?>'
-    style='width:100%' class='inputtext' />
-  </td>
- </tr>
-
- <tr>
-  <td nowrap><b><?php xl('Indicators','e'); ?>:</b></td>
-  <td>
-   <input type='checkbox' name='form_is_orderable' value='1'
-    <?php if (!empty($row['is_orderable'])) echo 'checked '; ?>/>
-   Orderable
-   &nbsp;
-   <input type='checkbox' name='form_is_discrete' value='1'
-    <?php if (!empty($row['is_discrete'])) echo 'checked '; ?>/>
-   Discrete Result
-  </td>
- </tr>
-
- <tr>
+ <tr class='resonly'>
   <td width='1%' nowrap><b><?php xl('Default Units','e'); ?>:</b></td>
   <td>
 <?php
@@ -320,7 +335,7 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'units',
   </td>
  </tr>
 
- <tr>
+ <tr class='resonly'>
   <td nowrap><b><?php xl('Default Range','e'); ?>:</b></td>
   <td>
    <input type='text' size='40' name='form_range' maxlength='255'
@@ -330,7 +345,7 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'units',
   </td>
  </tr>
 
- <tr>
+ <tr class='resonly'>
   <td nowrap><b><?php xl('Followup Services','e'); ?>:</b></td>
   <td>
    <input type='text' size='50' name='form_related_code'
