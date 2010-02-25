@@ -21,7 +21,7 @@ for ($level = 0, $parentid = $id; $parentid; ++$level) {
 }
 
 $res = sqlStatement("SELECT * FROM procedure_type WHERE parent = '$id' " .
-  "ORDER BY name, procedure_type_id");
+  "ORDER BY seq, name, procedure_type_id");
 
 $encount = 0;
 
@@ -48,7 +48,7 @@ while ($row = sqlFetchArray($res)) {
   echo $row['name'] . "</td>";
   //
   echo "<td class=\"col2\">";
-  if ($row['is_orderable']) {
+  if (substr($row['procedure_type'], 0, 3) == 'ord') {
     if ($order) {
       echo "<input type=\"radio\" name=\"form_order\" value=\"$chid\"";
       if ($chid == $order) echo " checked";
