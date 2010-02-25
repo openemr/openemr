@@ -124,7 +124,11 @@ foreach ($_REQUEST as $key => $value) {
   $fldname = substr($key, 3);
   $avalue = formDataCore($value);
   $hvalue = htmlspecialchars(strip_escape_custom($value));
-  $relevance .= " + ( $fldname LIKE '$avalue' )";
+  // pubpid requires special treatment.  Match on that is fatal.
+  if ($fldname == 'pubpid')
+    $relevance .= " + 1000 * ( $fldname LIKE '$avalue' )";
+  else
+    $relevance .= " + ( $fldname LIKE '$avalue' )";
   $where .= " OR $fldname LIKE '$avalue'";
   echo "<input type='hidden' name='$key' value='$hvalue' />\n";
   ++$numfields;
@@ -206,13 +210,19 @@ while ($trow = sqlFetchArray($tres)) {
 <table>
 <tr>
 <?php
+$pubpid_matched = false;
 if ($result) {
   foreach ($result as $iter) {
+    $relevance = $iter['relevance'];
+    if ($relevance > 999) {
+      $relevance -= 999;
+      $pubpid_matched = true;
+    }
     echo "<tr id='" . $iter['pid'] . "' class='oneresult";
     // Highlight entries where all fields matched.
-    echo $numfields == $iter['relevance'] ? " topresult" : "";
+    echo $numfields <= $iter['relevance'] ? " topresult" : "";
     echo "'>";
-    echo  "<td class='srID'>" . $iter['relevance'] . "</td>\n";
+    echo  "<td class='srID'>$relevance</td>\n";
     echo  "<td class='srName'>" . $iter['lname'] . ", " . $iter['fname'] . "</td>\n";
     foreach ($extracols as $field_id => $title) {
       echo "<td class='srMisc'>" . $iter[$field_id] . "</td>\n";
@@ -224,8 +234,13 @@ if ($result) {
 </div>  <!-- end searchResults DIV -->
 
 <center>
+<?php if ($pubpid_matched) { ?>
+<input type='button' value='<?php echo xl('Cancel'); ?>'
+ onclick='window.close();' />
+<?php } else { ?>
 <input type='button' value='<?php echo xl('Confirm Create New Patient'); ?>'
  onclick='opener.top.restoreSession();opener.document.forms[0].submit();window.close();' />
+<?php } ?>
 </center>
 
 <script language="javascript">
@@ -260,8 +275,12 @@ else {
 }
 
 var f = opener.document.forms[0];
+<?php if ($pubpid_matched) { ?>
+alert('<?php xl('A patient already exists with this ID','e'); ?>')
+<?php } else { ?>
 opener.force_submit = true;
 f.create.value = '<?php xl('Confirm Create New Patient','e'); ?>';
+<?php } ?>
 
 <?php if (!count($result)) { ?>
 if (confirm('<?php xl('No matches were found. Create the new patient now?','e'); ?>')) {
