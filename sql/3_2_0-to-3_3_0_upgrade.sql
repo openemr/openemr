@@ -63,11 +63,10 @@ ALTER TABLE users
 
 #IfNotRow2D list_options list_id lists option_id proc_type
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_type','Procedure Types', 1,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','img','Imaging'       ,10,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','imm','Immunization'  ,20,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','lab','Lab'           ,30,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','rec','Recommendation',80,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','oth','Other'         ,90,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','grp','Group'          ,10,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','ord','Procedure Order',20,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','res','Discrete Result',30,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','rec','Recommendation' ,40,0);
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id proc_body_site
@@ -175,7 +174,7 @@ CREATE TABLE `procedure_type` (
   `name`                varchar(63)  NOT NULL DEFAULT '' COMMENT 'name for this category, procedure or result type',
   `lab_id`              bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references users.id, 0 means default to parent',
   `procedure_code`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'code identifying this procedure',
-  `procedure_type`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'lab, imaging, ...',
+  `procedure_type`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'see list proc_type',
   `body_site`           varchar(31)  NOT NULL DEFAULT '' COMMENT 'where to do injection, e.g. arm, buttok',
   `specimen`            varchar(31)  NOT NULL DEFAULT '' COMMENT 'blood, urine, saliva, etc.',
   `route_admin`         varchar(31)  NOT NULL DEFAULT '' COMMENT 'oral, injection',
@@ -183,10 +182,9 @@ CREATE TABLE `procedure_type` (
   `description`         varchar(255) NOT NULL DEFAULT '' COMMENT 'descriptive text for procedure_code',
   `standard_code`       varchar(255) NOT NULL DEFAULT '' COMMENT 'industry standard code type and code (e.g. CPT4:12345)',
   `related_code`        varchar(255) NOT NULL DEFAULT '' COMMENT 'suggested code(s) for followup services if result is abnormal',
-  `is_discrete`         tinyint(1)   NOT NULL DEFAULT 0  COMMENT 'can this be referenced by lab_test_result?',
-  `is_orderable`        tinyint(1)   NOT NULL DEFAULT 0  COMMENT 'can this test type be ordered?',
   `units`               varchar(31)  NOT NULL DEFAULT '' COMMENT 'default for procedure_result.units',
   `range`               varchar(255) NOT NULL DEFAULT '' COMMENT 'default for procedure_result.range',
+  `seq`                 int(11)      NOT NULL default 0  COMMENT 'sequence number for ordering',
   PRIMARY KEY (`procedure_type_id`),
   KEY parent (parent)
 ) ENGINE=MyISAM;
@@ -292,4 +290,14 @@ ALTER TABLE drugs
   ADD allow_combining tinyint(1) NOT NULL DEFAULT 0 COMMENT '1 = allow filling an order from multiple lots',
   ADD allow_multiple  tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = allow multiple lots at one warehouse';
 #EndIf
+
+#IfNotRow registry directory procedure_order
+INSERT INTO `registry` VALUES ('Procedure Order', 1, 'procedure_order', NULL, 1, 1, '2010-02-25 00:00:00', 0, 'Administrative', '');
+#EndIf
+
+UPDATE registry SET category = 'Administrative' WHERE category = 'category' AND directory = 'fee_sheet';
+UPDATE registry SET category = 'Administrative' WHERE category = 'category' AND directory = 'procedure_order';
+UPDATE registry SET category = 'Administrative' WHERE category = 'category' AND directory = 'newpatient';
+UPDATE registry SET category = 'Administrative' WHERE category = 'category' AND directory = 'misc_billing_options';
+UPDATE registry SET category = 'Clinical' WHERE category = 'category';
 
