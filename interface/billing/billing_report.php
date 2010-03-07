@@ -139,6 +139,7 @@ function set_button_states() {
   f.bn_x12_encounter.disabled   = !can_generate;
 <?php } ?>
   f.bn_process_hcfa.disabled    = !can_generate;
+  f.bn_hcfa_txt_file.disabled   = !can_generate;
   // f.bn_electronic_file.disabled = !can_bill;
   f.bn_reopen.disabled          = !can_bill;
 <?php } ?>
@@ -343,9 +344,12 @@ function topatient(pid) {
  title="<?php xl('Generate and download X12 encounter claim batch','e')?>"
  onclick="alert('<?php xl('After saving your batch, click [View Log] to check for errors.','e'); ?>')">
 <?php } ?>
-<input type="submit" class="subbtn" name="bn_process_hcfa" value="<?php xl('Generate CMS 1500','e')?>"
- title="<?php xl('Generate and download HCFA 1500 paper claims','e')?>"
+<input type="submit" class="subbtn" name="bn_process_hcfa" value="<?php xl('Generate CMS 1500 PDF','e')?>"
+ title="<?php xl('Generate and download CMS 1500 paper claims','e')?>"
  onclick="alert('<?php xl('After saving the PDF, click [View Log] to check for errors.','e'); ?>')">
+<input type="submit" class="subbtn" name="bn_hcfa_txt_file" value="<?php xl('Generate CMS 1500 TEXT','e')?>"
+ title="<?php xl('Making batch text files for uploading to Clearing House and will mark as billed', 'e')?>"
+ onclick="alert('<?php xl('After saving the TEXT file(s), click [View Log] to check for errors.','e'); ?>')">
 <input type="submit" class="subbtn" name="bn_mark" value="<?php xl('Mark as Cleared','e')?>" title="<?php xl('Post to accounting and mark as billed','e')?>">
 <input type="submit" class="subbtn" name="bn_reopen" value="<?php xl('Re-Open','e')?>" title="<?php xl('Mark as not billed','e')?>">
 <!--

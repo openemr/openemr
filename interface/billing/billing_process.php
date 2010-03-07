@@ -111,7 +111,7 @@ process_form($_POST);
 function process_form($ar) {
   global $bill_info, $webserver_root, $bat_filename, $pdf;
 
-  if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter']) || isset($ar['bn_process_hcfa'])) {
+  if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter']) || isset($ar['bn_process_hcfa']) || isset($ar['bn_hcfa_txt_file'])) {
     $hlog = fopen("$webserver_root/library/freeb/process_bills.log", 'w');
   }
 
@@ -155,7 +155,7 @@ function process_form($ar) {
 
       if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter'])) {
         $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', $target, $claim_array['partner']);
-      } else if (isset($ar['bn_process_hcfa'])) {
+      } else if (isset($ar['bn_process_hcfa']) || isset($ar['bn_hcfa_txt_file'])) {
         $tmp = updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', 'hcfa');
       } else if (isset($ar['bn_mark'])) {
         // $sql .= " billed = 1, ";
@@ -206,6 +206,16 @@ function process_form($ar) {
           }
         }
 
+        else if (isset($ar['bn_hcfa_txt_file'])) {
+          $log = '';
+          $lines = gen_hcfa_1500($patient_id, $encounter, $log);
+          fwrite($hlog, $log);
+          $bat_content .= $lines;
+          if (!updateClaim(false, $patient_id, $encounter, -1, -1, 2, 2, $bat_filename)) {
+            $bill_info[] = xl("Internal error: claim ") . $claimid . xl(" not found!") . "\n";
+          }
+        }
+
         else {
           $bill_info[] = xl("Claim ") . $claimid . xl(" was queued successfully.") . "\n";
         }
@@ -233,6 +243,24 @@ function process_form($ar) {
     }
     // Send the PDF download.
     $pdf->ezStream(array('Content-Disposition' => $bat_filename));
+    exit;
+  }
+
+  if (isset($ar['bn_hcfa_txt_file'])) {
+    fclose($hlog);
+    $fh = @fopen("$webserver_root/edi/$bat_filename", 'a');
+    if ($fh) {
+      fwrite($fh, $bat_content);
+      fclose($fh);
+    }
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Content-Type: application/force-download");
+    header("Content-Disposition: attachment; filename=$bat_filename");
+    header("Content-Description: File Transfer");
+    header("Content-Length: " . strlen($bat_content));
+    echo $bat_content;
     exit;
   }
 
