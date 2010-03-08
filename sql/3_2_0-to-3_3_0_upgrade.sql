@@ -301,3 +301,18 @@ UPDATE registry SET category = 'Administrative' WHERE category = 'category' AND 
 UPDATE registry SET category = 'Administrative' WHERE category = 'category' AND directory = 'misc_billing_options';
 UPDATE registry SET category = 'Clinical' WHERE category = 'category';
 
+#IfMissingColumn log patient_id
+ALTER TABLE log ADD patient_id bigint(20) DEFAULT NULL;
+#EndIf
+ 
+#IfMissingColumn log success
+ALTER TABLE log ADD success tinyint(1) DEFAULT 1;
+#EndIf
+ 
+#IfMissingColumn log checksum
+ALTER TABLE log ADD checksum longtext DEFAULT NULL;
+#EndIf
+ 
+#IfMissingColumn log crt_user
+ALTER TABLE log ADD crt_user varchar(255) DEFAULT NULL;
+#EndIf

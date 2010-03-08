@@ -27,7 +27,7 @@ if (isset($mode)) {
     }
     elseif ($mode == "delete" ) {
         // log the event
-        newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], "Immunization id ".$_POST['id']." deleted from pid ".$_POST['pid']);
+        newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Immunization id ".$_POST['id']." deleted from pid ".$_POST['pid']);
         // delete the immunization
         $sql="DELETE FROM immunizations WHERE id =". mysql_real_escape_string($id)." LIMIT 1";
         sqlStatement($sql);

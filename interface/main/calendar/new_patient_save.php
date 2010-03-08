@@ -11,7 +11,7 @@ function setpid($new_pid) {
     $_SESSION['pid']=$new_pid;
     $pid=$new_pid;
 
-    newEvent("view",$_SESSION["authUser"],$_SESSION["authProvider"],$pid);
+    newEvent("view",$_SESSION["authUser"],$_SESSION["authProvider"],1, $pid);
 }
 
 //check if the name already exists:

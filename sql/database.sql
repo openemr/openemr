@@ -2124,6 +2124,10 @@ CREATE TABLE `log` (
   `groupname` varchar(255) default NULL,
   `comments` longtext,
   `user_notes` longtext,
+  `patient_id` bigint(20) default NULL,
+  `success` tinyint(1) default 1,
+  `checksum` longtext default NULL,
+  `crt_user` varchar(255) default NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 

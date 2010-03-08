@@ -135,7 +135,7 @@ else if ($_POST['formaction'] == "addfield" && $layout_id) {
       sqlStatement("ALTER TABLE `" . $tablename . "` ADD ".
                       "`" . formTrim($_POST['newid']) . "`" .
                       " VARCHAR( 255 )");
-      newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'],
+      newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], 1,
         $tablename . " ADD " . formTrim($_POST['newid']));
     }
 }
@@ -180,7 +180,7 @@ else if ($_POST['formaction'] == "deletefields" && $layout_id) {
         else if ($layout_id == "GCA") { $tablename = "lists_ippf_gcac"; }
         foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
             sqlStatement("ALTER TABLE `".$tablename."` DROP `".$onefield."`");
-            newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], $tablename." DROP ".$onefield);
+            newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $tablename." DROP ".$onefield);
         }
     }
 }
@@ -236,7 +236,7 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
       sqlStatement("ALTER TABLE `" . $tablename . "` ADD ".
                       "`" . formTrim($_POST['gnewid']) . "`" .
                       " VARCHAR( 255 )");
-      newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'],
+      newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], 1,
         $tablename . " ADD " . formTrim($_POST['gnewid']));
     }
 }
@@ -257,7 +257,7 @@ else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
             else if ($layout_id == "CON") { $tablename = "lists_ippf_con"; }
             else if ($layout_id == "GCA") { $tablename = "lists_ippf_gcac"; }
             sqlStatement("ALTER TABLE `".$tablename."` DROP `".$row['field_id']."`");
-            newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], $tablename." DROP ".trim($row['field_id']));
+            newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $tablename." DROP ".trim($row['field_id']));
         }
     }
 

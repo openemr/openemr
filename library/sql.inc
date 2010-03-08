@@ -2,6 +2,7 @@
 
 include_once(dirname(__FILE__) . "/sqlconf.php");
 require_once(dirname(__FILE__) . "/adodb/adodb.inc.php");
+include_once(dirname(__FILE__) . "/log.inc");
 
 if (!defined('ADODB_FETCH_ASSOC')) define('ADODB_FETCH_ASSOC', 2);
 $database = NewADOConnection("mysql");
@@ -40,8 +41,12 @@ function sqlConnect($login,$pass,$dbase,$host,$port = '3306')
 function sqlStatement($statement)
 {
   //----------run a mysql query, return the handle
-  $query = mysql_query($statement, $GLOBALS['dbh']) or 
+  $query = mysql_query($statement, $GLOBALS['dbh']);
+  if ($query === FALSE) {
+    auditSQLEvent($statement, FALSE);
     HelpfulDie("query failed: $statement", mysql_error($GLOBALS['dbh']));
+  }
+  auditSQLEvent($statement, TRUE);
   return $query;
 }
 
@@ -61,8 +66,12 @@ function sqlClose()
 function sqlInsert($statement)
 {
   //----------run a mysql insert, return the last id generated
-  mysql_query($statement, $GLOBALS['dbh']) or 
+  $ret = mysql_query($statement, $GLOBALS['dbh']);
+  if ($ret === FALSE) {
+    auditSQLEvent($statement, FALSE);
     HelpfulDie("insert failed: $statement", mysql_error($GLOBALS['dbh']));
+  }
+  auditSQLEvent($statement, TRUE);
   return mysql_insert_id($GLOBALS['dbh']);
 }
 
@@ -84,12 +93,16 @@ function sqlFetchArray($resource)
   return mysql_fetch_array($resource, MYSQL_ASSOC);
 }
 
-function sqlQuery ($statement)
+function sqlQuery ($statement,$status=false)
 {
   //echo "[$statement]<br>";
   //echo "link is: " . $GLOBALS['dbh'];
-  $query = mysql_query($statement, $GLOBALS['dbh']) or 
+  $query = mysql_query($statement, $GLOBALS['dbh']);
+  if (($query === FALSE) && ($status == false)) {
+    auditSQLEvent($statement, FALSE);
     HelpfulDie("query failed: $statement", mysql_error($GLOBALS['dbh']));
+  }
+  auditSQLEvent($statement, TRUE);
   $rez = @mysql_fetch_array($query, MYSQL_ASSOC);
   if ($rez == FALSE)
     return FALSE;

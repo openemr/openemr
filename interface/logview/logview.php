@@ -1,45 +1,45 @@
 <?php
 include_once("../globals.php");
 include_once("$srcdir/log.inc");
+include_once("$srcdir/formdata.inc.php");
 ?>
 <html>
 <head>
 <?php html_header_show();?>
+<link rel="stylesheet" href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css' type='text/css'>
+<script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_en.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
-
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <style>
-#logview_header {
+#logview {
     width: 100%;
 }
-#logview_header table {
+#logview table {
     width:100%;
     border-collapse: collapse;
 }
-#logview_header tr {
-    width: 20%;
-    background-color: #ccc;
+#logview th {
+    background-color: #cccccc;
     cursor: pointer; cursor: hand;
+    padding: 5px 5px;
+    align: left;
+    text-align: left;
 }
-#logview_data {
-    width: 100%;
-    height: 50%;
-    overflow: auto;
-}
-#logview_data table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #fff;
-}
-#logview_data td {
-    width: 20%;
-    border-bottom: 1px solid #eee;
+
+#logview td {
+    background-color: #ffffff;
+    border-bottom: 1px solid #808080;
     cursor: default;
+    padding: 5px 5px;
+    vertical-align: top;
 }
 .highlight {
     background-color: #336699;
-    color: #fff;
+    color: #336699;
 }
 </style>
 
@@ -47,9 +47,29 @@ include_once("$srcdir/log.inc");
 <body class="body_top">
 <font class="title"><?php  xl('Logs Viewer','e'); ?></font>
 <br>
+<?php 
+$err_message=0;
+if ($_GET["start_date"])
+$start_date = formData('start_date','G');
 
+if ($_GET["end_date"])
+$end_date = formData('end_date','G');
+
+/*
+ * Start date should not be greater than end date - Date Validation
+ */
+if ($start_date && $end_date)
+{
+	if($start_date > $end_date){
+		echo "<table><tr class='alert'><td colspan=7>"; xl('Start Date should not be greater than End Date',e);
+		echo "</td></tr></table>"; 
+		$err_message=1;	
+	}
+}
+
+?>
 <?php
-$form_user = $_REQUEST['form_user'];
+$form_user = formData('form_user','R');
 
 $res = sqlStatement("select distinct LEFT(date,10) as date from log order by date desc limit 30");
 for($iter=0;$row=sqlFetchArray($res);$iter++) {
@@ -63,33 +83,37 @@ $sqlQuery = "SELECT username, fname, lname FROM users " .
 $ures = sqlStatement($sqlQuery);
 ?>
 
+<?php 
+$get_sdate=$start_date ? $start_date : date("Y-m-d");
+$get_edate=$end_date ? $end_date : date("Y-m-d");
+
+?>
+
 <br>
 <FORM METHOD="GET" name="theform" id="theform">
-<input type="hidden" name="sortby" id="sortby" value="<?php echo $_GET['sortby']; ?>">
-<span class="text"><?php  xl('Date','e'); ?>: </span>
-<SELECT NAME="date">
-<?php
-$getdate = $_GET["date"] ? $_GET["date"] : date("Y-m-d");
-
-$found = 0;
-foreach ($ret as $iter) {
-	echo "<option value='{$iter["date"]}'";
-	if (!$found && substr($iter["date"],0,10) == $getdate) {
-		echo " selected";
-		$found++;
-	}
-	echo ">{$iter["date"]}</option>\n";
-}
-if (!$found) {
-	echo "<option value='$getdate'";
-	echo " selected";
-	echo ">$getdate</option>\n";
-}
+<?
+$sortby = formData('sortby','G') ;
 ?>
-</SELECT>
-
-&nbsp;&nbsp;<span class='text'><?php  xl('User','e'); ?>: </span>
-
+<input type="hidden" name="sortby" id="sortby" value="<?php echo $sortby; ?>">
+<input type=hidden name=csum value="">
+<table>
+<tr><td>
+<span class="text"><?php  xl('Start Date','e'); ?>: </span>
+</td><td>
+<input type="text" size="10" name="start_date" id="start_date" value="<?php echo $start_date ? substr($start_date, 0, 10) : date('Y-m-d'); ?>" title="<?php  xl('yyyy-mm-dd Date of service','e'); ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)" />
+<img src="../pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_begin_date" border="0" alt="[?]" style="cursor: pointer; cursor: hand" title="<?php  xl('Click here to choose a date','e'); ?>">&nbsp;
+</td>
+<td>
+<span class="text"><?php  xl('End Date','e'); ?>: </span>
+</td><td>
+<input type="text" size="10" name="end_date" id="end_date" value="<?php echo $end_date ? substr($end_date, 0, 10) : date('Y-m-d'); ?>" title="<?php  xl('yyyy-mm-dd Date of service','e'); ?>" onkeyup="datekeyup(this,mypcc)" onblur="dateblur(this,mypcc)" />
+<img src="../pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_end_date" border="0" alt="[?]" style="cursor: pointer; cursor: hand" title="<?php  xl('Click here to choose a date','e'); ?>">&nbsp;
+</td>
+</tr>
+<tr><td>
+<span class='text'><?php  xl('User','e'); ?>: </span>
+</td>
+<td>
 <?php
 echo "<select name='form_user'>\n";
 echo " <option value=''>" . xl('All') . "</option>\n";
@@ -102,67 +126,143 @@ while ($urow = sqlFetchArray($ures)) {
   echo "</option>\n";
 }
 echo "</select>\n";
-
+?>
+</td>
+<td>
+<!-- list of events name -->
+<span class='text'><?php  xl('Name of Events','e'); ?>: </span>
+</td>
+<td>
+<?php 
 $res = sqlStatement("select distinct event from log order by event ASC");
-
-$found = 0;
-echo "<br> <span class='text'>";
-for($iter=0;$row=sqlFetchArray($res);$iter++) {
-?>
-<input type="radio" name="event" value="<?php echo $row["event"];?>"
-<?php
-  if ($row["event"] == $_GET["event"]) {
-    echo " checked";
-    $found++;
-  }
-?>
-><?php echo xl($row["event"])?>&nbsp;&nbsp;
-<?php
-  $ret[$iter] = $row;
+$ename_list=array(); $j=0;
+while ($erow = sqlFetchArray($res)) {
+	 if (!trim($erow['event'])) continue;
+	 $data = explode('-', $erow['event']);
+	 $data_c = count($data);
+	 $ename=$data[0];
+	 for($i=1;$i<($data_c-1);$i++)
+	 {
+	 	$ename.="-".$data[$i];
+	}
+	$ename_list[$j]=$ename;
+	$j=$j+1;
 }
+$ename_list=array_unique($ename_list);
+$ename_list=array_merge($ename_list);
+$ecount=count($ename_list);
+echo "<select name='eventname'>\n";
+echo " <option value=''>" . xl('All') . "</option>\n";
+for($k=0;$k<$ecount;$k++) {
+echo " <option value='" .$ename_list[$k]. "'";
+  if ($ename_list[$k] == $eventname && $ename_list[$k]!= "") echo " selected";
+  echo ">" . $ename_list[$k];
+  echo "</option>\n";
+}
+echo "</select>\n"; 
 ?>
-<input type="radio" name="event" value="*"<?php if (!$found) echo " checked";?>><?php xl('All','e'); ?>
-</span>&nbsp;
+</td>
+<!-- type of events ends  -->
+<td>
+&nbsp;&nbsp;<span class='text'><?php  xl('Type of Events','e'); ?>: </span>
+</td><td>
+<?php 
+$event_types=array("select", "update", "insert", "delete", "replace");
+$lcount=count($event_types);
+  echo "<select name='type_event'>\n";
+  echo " <option value=''>" . xl('All') . "</option>\n";
+  for($k=0;$k<$lcount;$k++) {
+  echo " <option value='" .$event_types[$k]. "'";
+  if ($event_types[$k] == $type_event && $event_types[$k]!= "") echo " selected";
+  echo ">" . $event_types[$k];
+  echo "</option>\n";
+}
+echo "</select>\n";
+?>
+</td>
+<tr><td>
+<span class='text'><?php xl('Include Checksum','e'); ?>: </span>
+</td><td>
+<?
+$check_sum = formData('check_sum','G');
+?>
+<input type="checkbox" name="check_sum" " <?php if ($check_sum == 'on') echo "checked";  ?>"></input>
+</td>
+<td>
+<input type=hidden name="event" value=<?php echo $event ; ?>>
 <a href="javascript:document.theform.submit();" class='link_submit'>[<?php  xl('Refresh','e'); ?>]</a>
+</td>
+</tr>
+</table>
 </FORM>
 
-<?php if ($_GET["date"]) { ?>
-<div id="logview_header">
-<TABLE>
+
+<?php if ($start_date && $end_date && $err_message!=1) { ?>
+<div id="logview">
+<table>
  <tr>
   <!-- <TH><?php  xl('Date', 'e'); ?><TD> -->
   <th id="sortby_date" class="text" title="<?php xl('Sort by date/time','e'); ?>"><?php xl('Date','e'); ?></th>
-  <TH id="sortby_event" class="text" title="<?php xl('Sort by Event','e'); ?>"><?php  xl('Event','e'); ?></TD>
-  <TH id="sortby_user" class="text" title="<?php xl('Sort by User','e'); ?>"><?php  xl('User','e'); ?></TD>
-  <TH id="sortby_group" class="text" title="<?php xl('Sort by Group','e'); ?>"><?php  xl('Group','e'); ?></TD>
-  <TH id="sortby_comments" class="text" title="<?php xl('Sort by Comments','e'); ?>"><?php  xl('Comments','e'); ?></TD>
+  <th id="sortby_event" class="text" title="<?php xl('Sort by Event','e'); ?>"><?php  xl('Event','e'); ?></th>
+  <th id="sortby_user" class="text" title="<?php xl('Sort by User','e'); ?>"><?php  xl('User','e'); ?></th>
+  <th id="sortby_cuser" class="text" title="<?php xl('Sort by Crt User','e'); ?>"><?php  xl('Certificate User','e'); ?></th>
+  <th id="sortby_group" class="text" title="<?php xl('Sort by Group','e'); ?>"><?php  xl('Group','e'); ?></th>
+  <th id="sortby_pid" class="text" title="<?php xl('Sort by PatientID','e'); ?>"><?php  xl('PatientID','e'); ?></th>
+  <th id="sortby_success" class="text" title="<?php xl('Sort by Success','e'); ?>"><?php  xl('Success','e'); ?></th>
+  <th id="sortby_comments" class="text" title="<?php xl('Sort by Comments','e'); ?>"><?php  xl('Comments','e'); ?></th>
+ <?php  if($check_sum) {?>
+  <th id="sortby_checksum" class="text" title="<?php xl('Sort by Checksum','e'); ?>"><?php  xl('Checksum','e'); ?></th>
+  <?php } ?>
  </tr>
-</table>
-</div>
-
-<div id="logview_data">
-<table>
+<?
+$eventname = formData('eventname','G');
+$type_event = formData('type_event','G');
+?>
+<input type=hidden name=event value=<?php echo $eventname."-".$type_event ?>>
 <?php
-  if ($ret = getEvents(array('date' => $getdate, 'user' => $form_user, 'sortby' => $_GET['sortby']))) {
-    if (!$_GET["event"]) $gev = "*";
-    else $gev = $_GET["event"];
-    foreach ($ret as $iter) {
-      if (($gev == "*") || ($gev == $iter["event"])) {
-        //translate comments
-        $patterns = array ('/^success/','/^failure/','/ encounter/');
+
+$tevent=""; $gev="";
+if($eventname != "" && $type_event != "")
+{
+	$getevent=$eventname."-".$type_event;
+}
+      
+	if(($eventname == "") && ($type_event != ""))
+    {	$tevent=$type_event;   	
+    }
+	else if($type_event =="" && $eventname != "")
+    {$gev=$eventname;}
+    else if ($eventname == "")
+ 	{$gev = "";}
+ else 
+    {$gev = $getevent;}
+    
+if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' => $form_user, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent))) {
+
+
+  foreach ($ret as $iter) {
+    //translate comments
+    $patterns = array ('/^success/','/^failure/','/ encounter/');
 	$replace = array ( xl('success'), xl('failure'), xl('encounter','',' '));
 	$trans_comments = preg_replace($patterns, $replace, $iter["comments"]);
+	
 ?>
  <TR class="oneresult">
   <TD class="text"><?php echo $iter["date"]?></TD>
   <TD class="text"><?php echo xl($iter["event"])?></TD>
   <TD class="text"><?php echo $iter["user"]?></TD>
+  <TD class="text"><?php echo $iter["crt_user"]?></TD>
   <TD class="text"><?php echo $iter["groupname"]?></TD>
+  <TD class="text"><?php echo $iter["patient_id"]?></TD>
+  <TD class="text"><?php echo $iter["success"]?></TD>
   <TD class="text"><?php echo $trans_comments?></TD>
+  <?php  if($check_sum) { ?>
+  <TD class="text"><?php echo $iter["checksum"]?></TD>
+  <?php } ?>
  </TR>
 
 <?php
-      }
+      
     }
   }
 ?>
@@ -191,10 +291,20 @@ $(document).ready(function(){
     $("#sortby_date").click(function() { $("#sortby").val("date"); $("#theform").submit(); });
     $("#sortby_event").click(function() { $("#sortby").val("event"); $("#theform").submit(); });
     $("#sortby_user").click(function() { $("#sortby").val("user"); $("#theform").submit(); });
+    $("#sortby_cuser").click(function() { $("#sortby").val("user"); $("#theform").submit(); });
     $("#sortby_group").click(function() { $("#sortby").val("groupname"); $("#theform").submit(); });
+    $("#sortby_pid").click(function() { $("#sortby").val("patient_id"); $("#theform").submit(); });
+    $("#sortby_success").click(function() { $("#sortby").val("success"); $("#theform").submit(); });
     $("#sortby_comments").click(function() { $("#sortby").val("comments"); $("#theform").submit(); });
+    $("#sortby_checksum").click(function() { $("#sortby").val("checksum"); $("#theform").submit(); });
 });
+
+
+/* required for popup calendar */
+Calendar.setup({inputField:"start_date", ifFormat:"%Y-%m-%d", button:"img_begin_date"});
+Calendar.setup({inputField:"end_date", ifFormat:"%Y-%m-%d", button:"img_end_date"});
 
 </script>
 
 </html>
+

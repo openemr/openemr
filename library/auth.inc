@@ -24,11 +24,11 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
     $ip=$_SERVER['REMOTE_ADDR'];
     if (!authNewSession($_POST['authUser'], $_POST['authPass'], $_POST['authProvider']))
     {
-        newEvent("login",$_POST['authUser'], $_POST['authProvider'], "failure: $ip");
+        newEvent("login",$_POST['authUser'], $_POST['authProvider'], 0, "failure: $ip");
         $_SESSION['loginfailure'] = 1;
         authLoginScreen();
     }
-    newEvent("login", $_POST['authUser'], $_POST['authProvider'], "success: $ip");
+    newEvent("login", $_POST['authUser'], $_POST['authProvider'], 1, "success: $ip");
     $_SESSION['loginfailure'] = null;
     unset($_SESSION['loginfailure']);
     //store the very first initial timestamp for timeout errors
@@ -36,7 +36,7 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
 }
 else if ( (isset($_GET['auth'])) && ($_GET['auth'] == "logout") )
 {
-    newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], "success");
+    newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "success");
     authCloseSession();
     authLoginScreen();
 }
@@ -47,16 +47,18 @@ else
         if (isset($_SESSION['pid']) && empty($GLOBALS['DAEMON_FLAG']))
         {
             require_once("{$GLOBALS['srcdir']}/patient.inc");
+            /**
             $logpatient = getPatientData($_SESSION['pid'], "lname, fname, mname");
             newEvent("view", $_SESSION['authUser'], $_SESSION['authProvider'],
                 "{$logpatient['lname']}, {$logpatient['fname']} {$logpatient['mname']} :: encounter " .
                 $_SESSION['encounter']);
+            **/
         }
         //LOG EVERYTHING
         //newEvent("view", $_SESSION['authUser'], $_SESSION['authProvider'], $_SERVER['REQUEST_URI']);
     }
     else {
-        newEvent("login",$_POST['authUser'], $_POST['authProvider'], "insufficient data sent");
+        newEvent("login",$_POST['authUser'], $_POST['authProvider'], 0, "insufficient data sent");
         authLoginScreen();
     }
 }
@@ -66,7 +68,7 @@ if (!isset($_SESSION["last_update"])) {
 } else {
      //if page has not been updated in a given period of time, we call login screen
     if ((time() - $_SESSION["last_update"]) > $timeout) {
-        newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], "timeout");
+        newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "timeout");
         authCloseSession();
         authLoginScreen();
     } else {

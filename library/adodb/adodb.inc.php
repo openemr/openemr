@@ -731,6 +731,7 @@
 	 */
 	function &Execute($sql,$inputarr=false) 
 	{
+		include_once(dirname(__FILE__) . "/../log.inc");
 		if ($this->fnExecute) {
 			$fn = $this->fnExecute;
 			$ret =& $fn($this,$sql,$inputarr);
@@ -777,10 +778,12 @@
 				} else
 					$ret =& $this->_Execute($sql,$inputarr);
 			}
+			auditSQLEvent($sql,false);
 		} else {
 			$ret =& $this->_Execute($sql,false);
+			auditSQLEvent($sql,true);
 		}
-
+		
 		return $ret;
 	}
 	
@@ -871,6 +874,7 @@
 					$rs->_numOfRows = 0;
 			}
 		}
+		
 		return $rs;
 	}
 

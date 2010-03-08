@@ -18,7 +18,7 @@ if ($_POST['confirm']) {
     $sql = "update forms set deleted=1 where id=".$_POST['id'];
     if ($_POST['id'] != "*" && $_POST['id'] != '') sqlInsert($sql);
     // log the event   
-    newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], "Form ".$_POST['formname']." deleted from Encounter ".$_POST['encounter']);
+    newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form ".$_POST['formname']." deleted from Encounter ".$_POST['encounter']);
 
     // redirect back to the encounter
     $address = "{$GLOBALS['rootdir']}/patient_file/encounter/$returnurl";

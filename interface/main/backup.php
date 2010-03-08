@@ -36,6 +36,7 @@
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
+require_once("$srcdir/log.inc");
 
 if (!acl_check('admin', 'super')) die(xl('Not authorized','','','!'));
 
@@ -58,12 +59,16 @@ else {
 $BTN_TEXT_CREATE = xl('Create Backup');
 $BTN_TEXT_EXPORT = xl('Export Configuration');
 $BTN_TEXT_IMPORT = xl('Import Configuration');
+// ViSolve: Create Log  Backup button
+$BTN_TEXT_CREATE_EVENTLOG = xl('Create Eventlog Backup');
 
 $form_step   = isset($_POST['form_step']) ? trim($_POST['form_step']) : '0';
 $form_status = isset($_POST['form_status' ]) ? trim($_POST['form_status' ]) : '';
 
 if (!empty($_POST['form_export'])) $form_step = 101;
 if (!empty($_POST['form_import'])) $form_step = 201;
+//ViSolve: Assign Unique Number for the Log Creation
+if (!empty($_POST['form_backup'])) $form_step = 301;
 // When true the current form will submit itself after a brief pause.
 $auto_continue = false;
 
@@ -116,7 +121,7 @@ if ($form_step == 104) {
 &nbsp;<br />
 <form method='post' action='backup.php' enctype='multipart/form-data'>
 
-<table style='width:30em'>
+<table style='width:50em'>
  <tr>
   <td>
 
@@ -125,6 +130,7 @@ $cmd = '';
 $mysql_cmd = $MYSQL_PATH . DIRECTORY_SEPARATOR . 'mysql';
 $mysql_dump_cmd = $mysql_cmd . 'dump';
 $file_to_compress = '';  // if named, this iteration's file will be gzipped after it is created 
+$eventlog=0;  // Eventlog Flag
 
 if ($form_step == 0) {
   echo "<table>\n";
@@ -142,7 +148,15 @@ if ($form_step == 0) {
     echo "  <td><input type='submit' name='form_import' value='$BTN_TEXT_IMPORT' /></td>\n";
     echo "  <td>" . xl('Upload configuration data') . "</td>\n";
     echo " </tr>\n";
-  }
+    }
+// ViSolve : Add ' Create Log table backup Button'
+   echo " <tr>\n";
+   echo "  <td><input type='submit' name='form_backup' value='$BTN_TEXT_CREATE_EVENTLOG' /></td>\n";
+   echo "  <td>" . xl('Create Eventlog Backup') . "</td>\n";
+   echo " </tr>\n";
+   echo " <tr>\n";
+   echo "  <td></td><td class='text'><b>" . xl('Note')."</b>&nbsp;" . xl('Please refer to').'&nbsp;README-Log-Backup.txt&nbsp;'.xl('file in the Documentation directory to learn how to automate the process of creating log backups') . "</td>\n";
+   echo " </tr>\n";
   echo "</table>\n";
 }
 
@@ -262,8 +276,13 @@ if ($form_step == 7) {   // create the final compressed tar containing all files
   if (!create_tar_archive($TAR_FILE_PATH, '', $file_list))
     die(xl("Error: Unable to create downloadable archive"));
   chdir($cur_dir);
+   /* To log the backup event */
+  if ($GLOBALS["audit_events"]["backup"] == 1 ){
+  newEvent("backup", $_SESSION['authUser'], $_SESSION['authProvider'], 0,"Backup is completed");
+}
   $auto_continue = true;
 }
+
 
 if ($form_step == 101) {
   echo xl('Select the configuration items to export') . ":";
@@ -365,6 +384,34 @@ if ($form_step == 203) {
   echo nl2br($form_status);
 }
 
+/// ViSolve : EventLog Backup
+if ($form_step == 301) {
+# Get the Current Timestamp, to attach with the log backup file
+  $backuptime=date("Ymd_His");
+# Eventlog backup directory
+$BACKUP_EVENTLOG_DIR = $GLOBALS['backup_log_dir'] . "/emr_eventlog_backup";
+
+# Check if Eventlog Backup directory exists, if not create it with Write permission
+  if (!file_exists($BACKUP_EVENTLOG_DIR))
+  {
+  mkdir($BACKUP_EVENTLOG_DIR);
+  chmod($BACKUP_EVENTLOG_DIR,0777);
+}
+# Frame the Eventlog Backup File Name
+$BACKUP_EVENTLOG_FILE=$BACKUP_EVENTLOG_DIR.'/eventlog_'.$backuptime.'.sql';
+# Create a new table similar to event table, rename the existing table as backup table, and rename the new table to event log table.  Then export the contents of the table into a text file and drop the table.
+$res=sqlStatement("create table if not exists log_new like log");
+$res=sqlStatement("rename table log to log_backup,log_new to log");
+echo "<br>";
+  $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
+    " -p" . escapeshellarg($sqlconf["pass"]) .
+    " --opt --quote-names -r $BACKUP_EVENTLOG_FILE " .
+    escapeshellarg($sqlconf["dbase"]) ." --tables log_backup";
+# Set Eventlog Flag when it is done
+$eventlog=1;
+// 301 If ends here.
+}
+
 ++$form_step;
 ?>
 
@@ -382,7 +429,26 @@ ob_flush();
 flush();
 if ($cmd) {
   $tmp0 = exec($cmd, $tmp1, $tmp2);
-  if ($tmp2) die("\"$cmd\" returned $tmp2: $tmp0");
+
+  if ($tmp2) 
+  {
+    if ($eventlog==1)
+     {
+	// ViSolve : Restore previous state, if backup fails.
+         $res=sqlStatement("drop table if exists log");
+         $res=sqlStatement("rename table log_backup to log");
+     }
+    die("\"$cmd\" returned $tmp2: $tmp0");
+  }
+  //  ViSolve:  If the Eventlog is set, then clear the temporary table  -- Start here
+  if ($eventlog==1)       {
+        $res=sqlStatement("drop table if exists log_backup");
+        echo "<br><b>";
+        echo xl('Backup Successfully taken in')." ";
+        echo  $BACKUP_EVENTLOG_DIR; 
+		echo "</b>";
+     }
+ //  ViSolve:  If the Eventlog is set, then clear the temporary table  -- Ends here
 }
 // If a file was flagged to be gzip-compressed after this cmd, do it.
 if ($file_to_compress) {

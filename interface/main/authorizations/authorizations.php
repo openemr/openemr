@@ -23,7 +23,7 @@ $imauthorized = $_SESSION['userauthorized'] || $see_auth > 2;
 // This authorizes everything for the specified patient.
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
   $retVal = getProviderId($_SESSION['authUser']);	
-  newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], $_GET["pid"]);
+  newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, $_GET["pid"]);
   // sqlStatement("update billing set authorized=1, provider_id = '" .
   //   mysql_real_escape_string($retVal[0]['id']) .
   //   "' where pid='" . $_GET["pid"] . "'");

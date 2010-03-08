@@ -35,7 +35,7 @@
     if ($logstring) $logstring .= " ";
     $logstring .= $key . "='" . addslashes($value) . "'";
    }
-   newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], "$table: $logstring");
+   newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
    ++$count;
   }
   if ($count) {
@@ -50,7 +50,7 @@
  //
  function row_modify($table, $set, $where) {
   if (sqlQuery("SELECT * FROM $table WHERE $where")) {
-   newEvent("deactivate", $_SESSION['authUser'], $_SESSION['authProvider'], "$table: $where");
+   newEvent("deactivate", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $where");
    $query = "UPDATE $table SET $set WHERE $where";
    echo $query . "<br>\n";
    sqlStatement($query);
@@ -251,7 +251,7 @@ document.deletefrm.submit();
       slInitialize();
       $trans_id = SLQueryValue("SELECT id FROM ar WHERE ar.invnumber = '$billing' LIMIT 1");
       if ($trans_id) {
-        newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], "Invoice $billing from SQL-Ledger");
+        newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Invoice $billing from SQL-Ledger");
         SLQuery("DELETE FROM acc_trans WHERE trans_id = '$trans_id'");
         if ($sl_err) die($sl_err);
         SLQuery("DELETE FROM invoice WHERE trans_id = '$trans_id'");

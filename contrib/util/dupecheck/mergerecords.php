@@ -87,7 +87,7 @@ foreach ($parameters['otherid'] as $otherID) {
     if ($commitchanges == true) addPnote($masterPID, $notetext);
 
     // add a log entry regarding the merged data
-    if ($commitchanges == true) newEvent("data_merge", $_SESSION['authUser'], "Default", "Merged PID ".$otherPID." data into master PID ".$masterPID);
+    if ($commitchanges == true) newEvent("data_merge", $_SESSION['authUser'], "Default", 1, "Merged PID ".$otherPID." data into master PID ".$masterPID);
     echo "<li>Added entry to log</li>";
 
     echo "<br><br>";
