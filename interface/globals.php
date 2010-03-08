@@ -100,13 +100,17 @@ $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
 $GLOBALS['mysql_bin_dir_win'] = "C:/xampp/mysql/bin";
 $GLOBALS['perl_bin_dir_win'] = "C:/xampp/perl/bin";
 $GLOBALS['temporary_files_dir_win'] = "C:/windows/temp";
+// Event log backup directory
+$GLOBALS['backup_log_dir_win']="C:/windows/temp";
 //
+
 // LINUX (non-Windows) Specific Settings
 $GLOBALS['mysql_bin_dir_linux'] = "/usr/bin";
 $GLOBALS['perl_bin_dir_linux'] = "/usr/bin";
 $GLOBALS['temporary_files_dir_linux'] = "/tmp";
 // Event log backup directory
-$GLOBALS['backup_log_dir']="/tmp";
+$GLOBALS['backup_log_dir_linux']="/tmp";
+
 //
 // Print command for spooling to printers, used by statements.inc.php
 // This is the command to be used for printing (without the filename).
@@ -658,9 +662,11 @@ $GLOBALS['mysql_bin_dir'] = IS_WINDOWS ? $GLOBALS['mysql_bin_dir_win'] : $GLOBAL
 $GLOBALS['perl_bin_dir'] = IS_WINDOWS ? $GLOBALS['perl_bin_dir_win'] : $GLOBALS['perl_bin_dir_linux'];
 if (version_compare(phpversion(), "5.2.1", ">=")) {
  $GLOBALS['temporary_files_dir'] = rtrim(sys_get_temp_dir(),'/'); // only works in PHP >= 5.2.1
+ $GLOBALS['backup_log_dir'] = rtrim(sys_get_temp_dir(),'/'); // only works in PHP >= 5.2.1
 }
 else {
  $GLOBALS['temporary_files_dir'] = IS_WINDOWS ?  $GLOBALS['temporary_files_dir_win'] : $GLOBALS['temporary_files_dir_linux'];
+ $GLOBALS['backup_log_dir'] = IS_WINDOWS ?  $GLOBALS['backup_log_dir_win'] : $GLOBALS['backup_log_dir_linux'];
 }
 
 // turn off PHP compatibility warnings
