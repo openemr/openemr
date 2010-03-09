@@ -658,13 +658,12 @@ function strterm($string,$length) {
 // OS specific configuration (do not modify this)
 $GLOBALS['mysql_bin_dir'] = IS_WINDOWS ? $GLOBALS['mysql_bin_dir_win'] : $GLOBALS['mysql_bin_dir_linux'];
 $GLOBALS['perl_bin_dir'] = IS_WINDOWS ? $GLOBALS['perl_bin_dir_win'] : $GLOBALS['perl_bin_dir_linux'];
+$GLOBALS['backup_log_dir'] = IS_WINDOWS ?  $GLOBALS['backup_log_dir_win'] : $GLOBALS['backup_log_dir_linux'];
 if (version_compare(phpversion(), "5.2.1", ">=")) {
  $GLOBALS['temporary_files_dir'] = rtrim(sys_get_temp_dir(),'/'); // only works in PHP >= 5.2.1
- $GLOBALS['backup_log_dir'] = rtrim(sys_get_temp_dir(),'/'); // only works in PHP >= 5.2.1
 }
 else {
  $GLOBALS['temporary_files_dir'] = IS_WINDOWS ?  $GLOBALS['temporary_files_dir_win'] : $GLOBALS['temporary_files_dir_linux'];
- $GLOBALS['backup_log_dir'] = IS_WINDOWS ?  $GLOBALS['backup_log_dir_win'] : $GLOBALS['backup_log_dir_linux'];
 }
 
 // turn off PHP compatibility warnings
