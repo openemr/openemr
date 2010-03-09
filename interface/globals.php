@@ -100,16 +100,14 @@ $GLOBALS['login_screen'] = "$rootdir/login_screen.php";
 $GLOBALS['mysql_bin_dir_win'] = "C:/xampp/mysql/bin";
 $GLOBALS['perl_bin_dir_win'] = "C:/xampp/perl/bin";
 $GLOBALS['temporary_files_dir_win'] = "C:/windows/temp";
-// Event log backup directory
-$GLOBALS['backup_log_dir_win']="C:/windows/temp";
+$GLOBALS['backup_log_dir_win']="C:/windows/temp"; // Event log backup directory
 //
-
 // LINUX (non-Windows) Specific Settings
 $GLOBALS['mysql_bin_dir_linux'] = "/usr/bin";
 $GLOBALS['perl_bin_dir_linux'] = "/usr/bin";
 $GLOBALS['temporary_files_dir_linux'] = "/tmp";
-// Event log backup directory
-$GLOBALS['backup_log_dir_linux']="/tmp";
+$GLOBALS['backup_log_dir_linux']="/tmp"; // Event log backup directory
+//
 
 //
 // Print command for spooling to printers, used by statements.inc.php
