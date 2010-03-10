@@ -455,10 +455,11 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 			 </td>
 			 <td class='required'>:</td>
 			 <td>
-			  <input type='entry' size='16' name='i<?php echo $i ?>effective_date'
+			  <input type='entry' size='16' id='i<?php echo $i ?>effective_date' name='i<?php echo $i ?>effective_date'
 			   value='<?php echo $result3['date'] ?>'
 			   onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
 			   title='yyyy-mm-dd' />
+                          <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' id='img_i<?php echo $i ?>effective_date' border='0' alt='[?]' style='cursor:pointer' title='<?php xl('Click here to choose a date','e'); ?>'>
 			 </td>
 			</tr>
 
@@ -665,6 +666,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 
 <?php echo $date_init; ?>
 <?php if (! $GLOBALS['simplified_demographics']) { for ($i=1; $i<=3; $i++): ?>
+ Calendar.setup({inputField:"i<?php echo $i?>effective_date", ifFormat:"%Y-%m-%d", button:"img_i<?php echo $i?>effective_date"});
  Calendar.setup({inputField:"i<?php echo $i?>subscriber_DOB", ifFormat:"%Y-%m-%d", button:"img_i<?php echo $i?>dob_date"});
 <?php endfor; } ?>
 </script>
