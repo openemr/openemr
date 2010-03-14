@@ -153,7 +153,7 @@ if ($eventCount == 0) {
 <!-- stuff for the popup calendar -->
 <style type="text/css">@import url([-php-] echo $GLOBALS['webroot'] [-/php-]/library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/dynarch_calendar_en.js"></script>
+[-php-] include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); [-/php-]
 <script type="text/javascript" src="[-php-] echo $GLOBALS['webroot'] [-/php-]/library/dynarch_calendar_setup.js"></script>
 <script language="Javascript">
  Calendar.setup({inputField:"start", ifFormat:"%m/%d/%Y", button:"img_from_date"});
