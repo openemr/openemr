@@ -222,7 +222,7 @@ $arr_types_ucsmc = array(
 </style>
 <script type="text/javascript" src="../../library/textformat.js"></script>
 <script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar_en.js"></script>
+<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
 <script language="JavaScript">
  var mypcc = '<? echo $GLOBALS['phone_country_code'] ?>';
