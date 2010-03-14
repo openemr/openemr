@@ -1,5 +1,11 @@
 // ** I18N
 
+// IMPORTANT:
+//  This library has been migrated to dynarch_calendar_en.inc.php
+//   in order to support internationalization. This script is left here
+//   to support old use of the calendar widget.
+//
+
 // Calendar EN language
 // Author: Mihai Bazon, <mihai_bazon@yahoo.com>
 // Encoding: any
