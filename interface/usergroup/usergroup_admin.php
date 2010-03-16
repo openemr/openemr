@@ -6,9 +6,34 @@ require_once("$srcdir/sql.inc");
 require_once("$srcdir/auth.inc");
 require_once("$srcdir/formdata.inc.php");
 require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
+require_once ($GLOBALS['srcdir'] . "/classes/postmaster.php");
 
 $alertmsg = '';
+$bg_msg = '';
+$set_active_msg=0;
 
+/* Sending a mail to the admin when the breakglass user is activated only if $GLOBALS['Emergency_Login_email'] is set to 1 */
+$bg_count=count($access_group);
+$mail_id = explode(".",$SMTP_HOST);
+for($i=0;$i<$bg_count;$i++){
+if(($_GET['access_group'][$i] == "Emergency Login") && ($_GET['active'] == 'on') && ($_GET['pre_active'] == 0)){
+  if(($_GET['get_admin_id'] == 1) && ($_GET['admin_id'] != "")){
+	$res = sqlStatement("select username from users where id={$_GET["id"]}");
+	$row = sqlFetchArray($res);
+	$uname=$row['username'];
+	$mail = new MyMailer();
+        $mail->SetLanguage("en",$GLOBALS['fileroot'] . "/library/" );
+        $mail->From = "admin@".$mail_id[1].".".$mail_id[2];     
+        $mail->FromName = "Administrator OpenEMR";
+        $text_body  = "Hello Security Admin,\n\n The Emergency Login user ".$uname.
+                                                " was activated at ".date('l jS \of F Y h:i:s A')." \n\nThanks,\nAdmin OpenEMR.";
+        $mail->Body = $text_body;
+        $mail->Subject = "Emergency Login User Activated";
+        $mail->AddAddress($_GET['admin_id']);
+        $mail->Send();
+}
+}
+}
 /* To refresh and save variables in mail frame */
 if ($_GET["privatemode"]=="user_admin") {
     if ($_GET["mode"] == "update") {
@@ -113,11 +138,24 @@ if ($_GET["privatemode"]=="user_admin") {
       $tqvar  = $_GET["authorized"] ? 1 : 0;
       $actvar = $_GET["active"]     ? 1 : 0;
       $calvar = $_GET["calendar"]   ? 1 : 0;
-
+  
       sqlStatement("UPDATE users SET authorized = $tqvar, active = $actvar, " .
         "calendar = $calvar, see_auth = '" . $_GET['see_auth'] . "' WHERE " .
         "id = {$_GET["id"]}");
-
+      //Display message when Emergency Login user was activated 
+      $bg_count=count($_GET['access_group']);
+      for($i=0;$i<$bg_count;$i++){
+        if(($_GET['access_group'][$i] == "Emergency Login") && ($_GET['pre_active'] == 0) && ($actvar == 1)){
+         $show_message = 1;
+        }
+      }
+      if(($_GET['access_group'])){
+	for($i=0;$i<$bg_count;$i++){
+        if(($_GET['access_group'][$i] == "Emergency Login") && ($_GET['user_type']) == "" && ($_GET['check_acl'] == 1) && ($_GET['active']) != ""){
+         $set_active_msg=1;
+        }
+      }
+    }	
       if ($_GET["comments"]) {
         $tqvar = formData('comments','G');
         sqlStatement("update users set info = '$tqvar' where id = {$_GET["id"]}");
@@ -196,6 +234,14 @@ if (isset($_POST["mode"])) {
     } else {
       $alertmsg .= xl('User','','',' ') . trim(formData('rumple')) . xl('already exists.','',' ');
     }
+   if($_POST['access_group']){
+	 $bg_count=count($_POST['access_group']);
+         for($i=0;$i<$bg_count;$i++){
+          if($_POST['access_group'][$i] == "Emergency Login"){
+             $set_active_msg=1;
+           }
+	}
+      }
   }
   else if ($_POST["mode"] == "new_group") {
     $res = sqlStatement("select distinct name, user from groups");
@@ -324,6 +370,17 @@ function authorized_clicked() {
     <input type='checkbox' name='form_inactive' value='1' onclick='submit()' <?php if ($form_inactive) echo 'checked '; ?>/>
     <span class='text' style = "margin-left:-3px"> <?php xl('Include inactive users','e'); ?> </span>
 </form>
+<?
+if($set_active_msg == 1){
+echo "<font class='alert'>".xl('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the user during emergency situations.')."</font><br>";
+echo "<font class='alert'>".xl('Note').": ".xl('Visit Administration')."->".xl('Users for activation or de-activation.')."</font><br>";
+}
+if ($show_message == 1){
+ echo "<font class='alert'>".xl('Emergency Login User')." "."<b>".$_GET['fname']."</b>"." ".xl('is activated')."</font><br>";
+ echo "<font class='alert'>".xl('Emergency Login activation mail will be circulated only if')." \$GLOBALS['Emergency_Login_email'] ".xl('and')." \$GLOBALS['Emergency_Login_email_id'] ".xl('are configured')."</font>";
+}
+
+?>
 <table cellpadding="1" cellspacing="0" class="showborder">
 	<tbody><tr height="22" class="showborder_head">
 		<th width="180px"><b><?php xl('Username','e'); ?></b></th>

@@ -3,7 +3,6 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
-
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/md5.js");
@@ -201,17 +200,40 @@ function submitform() {
 	}//If pwd null ends here
 	//Request to reset the user password if the user was deactived once the password expired.
 	if((document.forms[0].pwd_expires.value != 0) && (document.forms[0].clearPass.value == "")) {
-		if((document.forms[0].pre_active.value == 0) && (document.forms[0].active.checked == 1) && (document.forms[0].grace_time.value != "") && (document.forms[0].current_date.value) > (document.forms[0].grace_time.value))
+		if((document.forms[0].user_type.value != "Emergency Login") && (document.forms[0].pre_active.value == 0) && (document.forms[0].active.checked == 1) && (document.forms[0].grace_time.value != "") && (document.forms[0].current_date.value) > (document.forms[0].grace_time.value))
 		{
 			flag=1;
 			document.getElementById('error_message').innerHTML="<?php xl('Please reset the password.',e) ?>";
 		}
 	}
+	var sel = getSelected(document.forms[0].access_group_id.options);
+	for (var item in sel){       
+            if(sel[item].value == "Emergency Login"){
+                 document.forms[0].check_acl.value = 1; 
+            }
+          }
+
 	if(flag == 0){
 		document.forms[0].newauthPass.value=MD5(document.forms[0].clearPass.value);document.forms[0].clearPass.value='';
 		document.forms[0].submit();
+		parent.$.fn.fancybox.close(); 
 	}
 }
+//Getting the list of selected item in ACL
+function getSelected(opt) {
+         var selected = new Array();
+            var index = 0;
+            for (var intLoop = 0; intLoop < opt.length; intLoop++) {
+               if ((opt[intLoop].selected) ||
+                   (opt[intLoop].checked)) {
+                  index = selected.length;
+                  selected[index] = new Object;
+                  selected[index].value = opt[intLoop].value;
+                  selected[index].index = intLoop;
+               }
+            }
+            return selected;
+         }
 function authorized_clicked() {
  var f = document.forms[0];
  f.calendar.disabled = !f.authorized.checked;
@@ -239,6 +261,9 @@ function authorized_clicked() {
 <input type=hidden name="pwd_expires" value="<? echo $GLOBALS['password_expiration_days']; ?>" >
 <input type=hidden name="pre_active" value="<? echo $iter["active"]; ?>" >
 <input type=hidden name="exp_date" value="<? echo $iter["pwd_expiration_date"]; ?>" >
+<input type=hidden name="get_admin_id" value="<? echo $GLOBALS['Emergency_Login_email']; ?>" >
+<input type=hidden name="admin_id" value="<? echo $GLOBALS['Emergency_Login_email_id']; ?>" >
+<input type=hidden name="check_acl" value="">
 <?php 
 //Calculating the grace time 
 $current_date = date("Y-m-d");
@@ -250,6 +275,17 @@ if($password_exp != "0000-00-00")
 ?>
 <input type=hidden name="current_date" value="<? echo strtotime($current_date); ?>" >
 <input type=hidden name="grace_time" value="<? echo strtotime($grace_time1); ?>" >
+<!--  Get the list ACL for the user -->
+<?php
+$acl_name=acl_get_group_titles($iter["username"]);
+$bg_count=count($acl_name);
+   for($i=0;$i<$bg_count;$i++){
+      if($acl_name[$i] == "Emergency Login")
+       $bg_name=$acl_name[$i];
+      }
+?>
+<input type=hidden name="user_type" value="<? echo $bg_name; ?>" >
+
 <TABLE border=0 cellpadding=0 cellspacing=0>
 <TR>
 <TD style="width:180px;"><span class=text><?php xl('Username','e'); ?>: </span></TD><TD style="width:270px;"><input type=entry name=username style="width:150px;" value="<?php echo $iter["username"]; ?>" disabled></td>
@@ -375,7 +411,7 @@ foreach($result as $iter2) {
 ?>
   <tr>
   <td class='text'><?php xl('Access Control','e'); ?>:</td>
-  <td><select name="access_group[]" multiple style="width:150px;" >
+  <td><select id="access_group_id" name="access_group[]" multiple style="width:150px;" >
   <?php
    $list_acl_groups = acl_get_group_title_list();
    $username_acl_groups = acl_get_group_titles($iter["username"]);

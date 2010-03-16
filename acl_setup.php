@@ -171,6 +171,9 @@
      // xl('Front Office')
  $back  = $gacl->add_group('back' , 'Accounting'    , $users, 'ARO');
      // xl('Accounting')
+$breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'ARO');
+     // xl('Emergency Login')
+
 
  // Create a Users section for the AROs (humans).
  //
@@ -288,6 +291,21 @@
   1, 1, 'write', 'Things that back office can read and modify'
  );
      // xl('Things that back office can read and modify')
+ // Set permissions for Emergency Login.
+ //
+ $gacl->add_acl(
+  array(
+   'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
+   'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl'),
+   'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
+   'lists'=>array('default','state','country','language','ethrace'),
+   'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes'),
+   'sensitivities'=>array('normal', 'high')
+  ),
+  NULL, array($breakglass), NULL, NULL,
+  1, 1, 'write', 'Emergency Login user can do anything'
+ );
+     // xl('Emergency Login user can do anything')
 
 ?>
 <html>

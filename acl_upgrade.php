@@ -109,6 +109,8 @@ $doc_addonly = addNewACL('Physicians', 'doc', 'addonly', 'Things that physicians
 $front_addonly = addNewACL('Front Office', 'front', 'addonly', 'Things that front office can read and enter but not modify');
 //Add 'Accounting' ACL with 'addonly' and collect the ID number (added in 3.0.2)
 $back_addonly = addNewACL('Accounting', 'back', 'addonly', 'Things that back office can read and enter but not modify');
+//Add 'Emergency Login' ACL with 'write' and collect the ID number (added in 3.3.0)
+$emergency_write = addNewACL('Emergency Login', 'breakglass', 'write', 'Things that can use for emergency login, can read and modify');
 
 //Update the ACLs
 echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
@@ -148,7 +150,73 @@ updateAcl($admin_write, 'Administrators', 'lists', 'Lists', 'country', 'Country 
 updateAcl($admin_write, 'Administrators', 'lists', 'Lists', 'language', 'Language List (write,addonly optional)', 'write');
 //Insert the 'race' object from the 'lists' section into the Administrators group write ACL (added in 3.0.2)
 updateAcl($admin_write, 'Administrators', 'lists', 'Lists', 'ethrace', 'Ethnicity-Race List (write,addonly optional)', 'write');
-
+//Update ACLs for Emergency Login
+//Insert the 'disc' object from the 'acct' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'acct', 'Accounting', 'disc', 'Price Discounting', 'write');
+//Insert the 'bill' object from the 'acct' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'acct', 'Accounting', 'bill', 'Billing (write optional)', 'write');
+//Insert the 'eob' object from the 'acct' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'acct', 'Accounting', 'eob', 'EOB Data Entry', 'write');
+//Insert the 'rep' object from the 'acct' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'acct', 'Accounting', 'rep', 'Financial Reporting - my encounters', 'write');
+//Insert the 'rep_a' object from the 'acct' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'acct', 'Accounting', 'rep_a', 'Financial Reporting - anything', 'write');
+//Insert the 'calendar' object from the 'admin' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'admin', 'Administration', 'calendar', 'Calendar Settings', 'write');
+//Insert the 'database' object from the 'admin' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'admin', 'Administration', 'database', 'Database Reporting', 'write');
+//Insert the 'forms' object from the 'admin' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'admin', 'Administration', 'forms', 'Forms Administration', 'write');
+//Insert the 'practice' object from the 'admin' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'admin', 'Administration', 'practice', 'Practice Settings', 'write');
+//Insert the 'superbill' object from the 'admin' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'admin', 'Administration', 'superbill', 'Superbill Codes Administration', 'write');
+//Insert the 'users' object from the 'admin' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'admin', 'Administration', 'users', 'Users/Groups/Logs Administration', 'write');
+//Insert the 'batchcom' object from the 'admin' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'admin', 'Administration', 'batchcom', 'Batch Communication Tool', 'write');
+//Insert the 'language' object from the 'admin' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'admin', 'Administration', 'language', 'Language Interface Tool', 'write');
+//Insert the 'super' object from the 'admin' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'admin', 'Administration', 'super', 'Superuser', 'write');
+//Insert the 'drugs' object from the 'admin' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'admin', 'Administration', 'drugs', 'Pharmacy Dispensary', 'write');
+//Insert the 'acl' object from the 'admin' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'admin', 'Administration', 'acl', 'ACL Administration', 'write');
+//Insert the 'auth_a' object from the 'encounters' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'encounters', 'Encounters', 'auth_a', 'Authorize - any encounters', 'write');
+//Insert the 'coding_a' object from the 'encounters' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'encounters', 'Encounters', 'coding_a', 'Coding - any encounters (write,wsome optional)', 'write');
+//Insert the 'notes_a' object from the 'encounters' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'encounters', 'Encounters', 'notes_a', 'Notes - any encounters (write,addonly optional)', 'write');
+//Insert the 'date_a' object from the 'encounters' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'encounters', 'Encounters', 'date_a', 'Fix encounter dates - any encounters', 'write');
+//Insert the 'default' object from the 'lists' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'lists', 'Lists', 'default', 'Default List (write,addonly optional)', 'write');
+//Insert the 'state' object from the 'lists' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'lists', 'Lists', 'state', 'State List (write,addonly optional)', 'write');
+//Insert the 'country' object from the 'lists' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'lists', 'Lists', 'country', 'Country List (write,addonly optional)', 'write');
+//Insert the 'language' object from the 'lists' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'lists', 'Lists', 'language', 'Language List (write,addonly optional)', 'write');
+//Insert the 'ethrace' object from the 'lists' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'lists', 'Lists', 'ethrace', 'Ethnicity-Race List (write,addonly optional)', 'write');
+//Insert the 'appt' object from the 'patients' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'patients', 'Patients', 'appt', 'Appointments (write optional)', 'write');
+//Insert the 'demo' object from the 'patients' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'patients', 'Patients', 'demo', 'Demographics (write,addonly optional)', 'write');
+//Insert the 'med' object from the 'patients' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'patients', 'Patients', 'med', 'Medical/History (write,addonly optional)', 'write');
+//Insert the 'trans' object from the 'patients' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'patients', 'Patients', 'trans', 'Transactions (write optional)', 'write');
+//Insert the 'docs' object from the 'patients' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'patients', 'Patients', 'docs', 'Documents (write,addonly optional)', 'write');
+//Insert the 'notes' object from the 'patients' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'patients', 'Patients', 'notes', 'Patient Notes (write,addonly optional)', 'write');
+//Insert the 'high' object from the 'sensitivities' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'sensitivities', 'Sensitivities', 'high', 'High', 'write');
+//Insert the 'normal' object from the 'sensitivities' section into the Emergency Login group write ACL (added in 3.3.0)
+updateAcl($emergency_write, 'Emergency Login', 'sensitivities', 'Sensitivities', 'normal', 'Normal', 'write');
 
 //Function will return an array that contains the ACL ID number.
 //It will also check to ensure the ACL exist and is not duplicated.

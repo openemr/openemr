@@ -422,6 +422,13 @@ $GLOBALS['is_client_ssl_enabled'] = false;
 //Default validity for Client certificate
 $GLOBALS['client_certificate_valid_in_days'] = "365";
 
+//Set 1 to send email message to given id for Emergency Login user activation.
+//Default value is 0.
+$GLOBALS['Emergency_Login_email'] = 0;
+
+//Set the admin email id
+$GLOBALS['Emergency_Login_email_id'] = "";
+
 // Include the authentication module code here, but the rule is
 // if the file has the word "login" in the source code file name,
 // don't include the authentication module - we do this to avoid
