@@ -316,3 +316,14 @@ ALTER TABLE log ADD checksum longtext DEFAULT NULL;
 #IfMissingColumn log crt_user
 ALTER TABLE log ADD crt_user varchar(255) DEFAULT NULL;
 #EndIf
+
+#IfMissingColumn users default_warehouse
+ALTER TABLE users ADD default_warehouse varchar(31) NOT NULL DEFAULT '';
+#EndIf
+
+UPDATE layout_options SET edit_options = 'N'  WHERE form_id = 'DEM' AND field_id = 'title'  AND edit_options = '';
+UPDATE layout_options SET edit_options = 'CD' WHERE form_id = 'DEM' AND field_id = 'fname'  AND edit_options = 'C';
+UPDATE layout_options SET edit_options = 'CD' WHERE form_id = 'DEM' AND field_id = 'lname'  AND edit_options = 'C';
+UPDATE layout_options SET edit_options = 'ND' WHERE form_id = 'DEM' AND field_id = 'pubpid' AND edit_options = '';
+UPDATE layout_options SET edit_options = 'N'  WHERE form_id = 'DEM' AND field_id = 'sex'    AND edit_options = '';
+
