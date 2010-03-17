@@ -542,6 +542,30 @@ function process_ippf_code($row, $code) {
   }
   *******************************************************************/
 
+  // Contraceptive method for new contraceptive adoption following abortion.
+  // Get it from the IPPF code if there is a suitable recent GCAC form.
+  //
+  else if ($form_by === '7') {
+    $key = getContraceptiveMethod($code);
+    if (empty($key)) return;
+    $patient_id = $row['pid'];
+    $encdate = $row['encdate'];
+    $query = "SELECT COUNT(*) AS count " .
+      "FROM forms AS f, form_encounter AS fe, lbf_data AS d " .
+      "WHERE f.pid = '$patient_id' AND " .
+      "f.formdir = 'LBFgcac' AND " .
+      "f.deleted = 0 AND " .
+      "fe.pid = f.pid AND fe.encounter = f.encounter AND " .
+      "fe.date <= '$encdate' AND " .
+      "DATE_ADD(fe.date, INTERVAL 14 DAY) > '$encdate' AND " .
+      "d.form_id = f.form_id AND " .
+      "d.field_id = 'client_status' AND " .
+      "( d.field_value = 'maaa' OR d.field_value = 'refout' )";
+    // echo "<!-- $key: $query -->\n"; // debugging
+    $irow = sqlQuery($query);
+    if (empty($irow['count'])) return;
+  }
+
   // Post-Abortion Care and Followup by Source.
   // Requirements just call for counting sessions, but this way the columns
   // can be anything - age category, religion, whatever.
@@ -687,7 +711,8 @@ function process_visit($row) {
 
   if ($form_by !== '7' && $form_by !== '11') return;
 
-  // New contraceptive method following abortion.
+  // New contraceptive method following abortion.  These should only be
+  // present for inbound referrals.
   //
   if ($form_by === '7') {
     $dres = LBFgcac_query($row['pid'], $row['encounter'], 'contrameth');
