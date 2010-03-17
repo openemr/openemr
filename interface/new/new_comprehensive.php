@@ -28,7 +28,7 @@ function getLayoutRes() {
   global $SHORT_FORM;
   return sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
-    ($SHORT_FORM ? "AND edit_options LIKE '%N%' " : "") .
+    ($SHORT_FORM ? "AND ( uor > 1 OR edit_options LIKE '%N%' ) " : "") .
     "ORDER BY group_name, seq");
 }
 
