@@ -43,6 +43,10 @@ function sellDrug($drug_id, $quantity, $fee, $patient_id=0, $encounter_id=0,
 
   // error_log("quantity = '$quantity'"); // debugging
 
+  // Get the default warehouse, if any, for the user.
+  $rowuser = sqlQuery("SELECT default_warehouse FROM users WHERE username = '$user'");
+  $default_warehouse = $rowuser['default_warehouse'];
+
   // Get relevant options for this product.
   $rowdrug = sqlQuery("SELECT allow_combining, reorder_point, name " .
     "FROM drugs WHERE drug_id = '$drug_id'");
@@ -58,6 +62,11 @@ function sellDrug($drug_id, $quantity, $fee, $patient_id=0, $encounter_id=0,
   $bad_lot_list = '';
   $total_on_hand = 0;
 
+  // If the user has a default warehouse, sort those lots first.
+  $orderby = ($default_warehouse === '') ?
+    "" : "di.warehouse_id != '$default_warehouse', ";
+  $orderby .= "lo.seq, di.expiration, di.inventory_id";
+
   // Retrieve lots in order of expiration date within warehouse preference.
   $res = sqlStatement("SELECT di.*, lo.option_id, lo.seq " .
     "FROM drug_inventory AS di " .
@@ -65,7 +74,7 @@ function sellDrug($drug_id, $quantity, $fee, $patient_id=0, $encounter_id=0,
     "lo.option_id = di.warehouse_id " .
     "WHERE " .
     "di.drug_id = '$drug_id' AND di.destroy_date IS NULL " .
-    "ORDER BY lo.seq, di.expiration, di.inventory_id");
+    "ORDER BY $orderby");
 
   // First pass.  Pick out lots to be used in filling this order, figure out
   // if there is enough quantity on hand and check for lots to be destroyed.
