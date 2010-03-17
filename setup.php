@@ -9,6 +9,9 @@ $url = "";
 $upgrade = 0;
 $state = $_POST["state"];
 
+// Make this true for IPPF.
+$ippf_specific = false;
+
 //If having problems with file and directory permission
 // checking, then can be manually disabled here.
 $checkPermissions = "TRUE";
@@ -311,6 +314,12 @@ if ($upgrade != 1) {
         array_push($dumpfiles,$translations_dumpfile_latin1);
         array_push($dumpfilesTitles,"Language Translation (latin1)");
     }
+
+    // Deal with IPPF-specific SQL.
+    if ($ippf_specific) {
+      array_push($dumpfiles, $manualPath . "sql/ippf_layout.sql");
+      array_push($dumpfilesTitles, "IPPF Layout");
+    }
     
     $dumpfileCounter = 0;
     foreach ($dumpfiles as $var) {
@@ -338,7 +347,10 @@ if ($upgrade != 1) {
 		$chr = substr($query,strlen($query)-1,1);
 		if ($chr == ";") { // valid query, execute
 			$query = rtrim($query,";");
-			mysql_query("$query",$dbh);
+      if (!mysql_query($query, $dbh)) {
+        echo "<p>ERROR. Query failed: \"$query\"\n";
+        echo "<br />" . mysql_error() . " (#" . mysql_errno() . ")</p>\n";
+      }
 			$query = "";
 		}
 	}
