@@ -380,12 +380,11 @@ function authorized_clicked() {
 </form>
 <?
 if($set_active_msg == 1){
-echo "<font class='alert'>".xl('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the user during emergency situations.')."</font><br>";
-echo "<font class='alert'>".xl('Note').": ".xl('Visit Administration')."->".xl('Users for activation or de-activation.')."</font><br>";
+echo "<font class='alert'>".xl('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.')."</font><br>";
 }
 if ($show_message == 1){
- echo "<font class='alert'>".xl('Emergency Login User')." "."<b>".$_GET['fname']."</b>"." ".xl('is activated')."</font><br>";
- echo "<font class='alert'>".xl('Emergency Login activation mail will be circulated only if')." \$GLOBALS['Emergency_Login_email'] ".xl('and')." \$GLOBALS['Emergency_Login_email_id'] ".xl('are configured')."</font>";
+ echo "<font class='alert'>".xl('The following Emergency Login User is activated:')." "."<b>".$_GET['fname']."</b>"."</font><br>";
+ echo "<font class='alert'>".xl('Emergency Login activation email will be circulated only if following settings in the interface/globals.php file are configured:')." \$GLOBALS['Emergency_Login_email'], \$GLOBALS['Emergency_Login_email_id']</font>";
 }
 
 ?>
