@@ -394,7 +394,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 		<ul class="tabNav">
 		<?
 		foreach (array('primary','secondary','tertiary') as $instype) {
-			?><li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="/play/javascript-tabbed-navigation/"><?php xl(ucfirst($instype),'e'); ?></a></li><?
+			?><li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="/play/javascript-tabbed-navigation/"><?php $CapInstype=ucfirst($instype); xl($CapInstype,'e'); ?></a></li><?
 		}
 		?>
 		</ul>
