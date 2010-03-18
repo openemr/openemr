@@ -386,11 +386,11 @@ if ($GLOBALS['patient_id_category_name']) {
 								 <td valign='top' colspan='3'>
 								  <span class='text'>
 								  <?php if (strcmp($enddate, 'Present') != 0) echo xl("Old")." "; ?>
-								  <?php xl(ucfirst($instype) . ' Insurance','e'); ?>
+								  <?php $tempinstype=ucfirst($instype); xl($tempinstype.' Insurance','e'); ?>
 								  <?php if (strcmp($row['date'], '0000-00-00') != 0) { ?>
-								  <?php xl(' from','e'); echo ' ' . $row['date']; ?>
+								  <?php xl('from','e',' ',' '); echo $row['date']; ?>
 								  <?php } ?>
-								  <?php xl(' until ','e'); echo $enddate; ?>:</span>
+						                  <?php xl('until','e',' ',' '); echo (strcmp($enddate, 'Present') != 0) ? $enddate : xl('Present'); ?>:</span>
 								 </td>
 								</tr>
 								<tr>
@@ -404,13 +404,13 @@ if ($GLOBALS['patient_id_category_name']) {
 									  echo $adobj->get_city() . ', ' . $adobj->get_state() . ' ' . $adobj->get_zip();
 									}
 								  } else {
-									echo "<font color='red'><b>Unassigned</b></font>";
+									echo "<font color='red'><b>".xl('Unassigned')."</b></font>";
 								  }
 								  ?>
 								  <br>
 								  <?php xl('Policy Number','e'); ?>: <?php echo $row['policy_number'] ?><br>
-								  Plan Name: <?php echo $row['plan_name']; ?><br>
-								  Group Number: <?php echo $row['group_number']; ?></span>
+								  <?php xl('Plan Name','e'); ?>: <?php echo $row['plan_name']; ?><br>
+								  <?php xl('Group Number','e'); ?>: <?php echo $row['group_number']; ?></span>
 								 </td>
 								 <td valign='top'>
 								  <span class='bold'><?php xl('Subscriber','e'); ?>: </span><br>
@@ -421,10 +421,10 @@ if ($GLOBALS['patient_id_category_name']) {
 								  }
 							?>
 								  <br>
-								  S.S.: <?php echo $row['subscriber_ss']; ?><br>
+								  <?php xl('S.S.','e'); ?>: <?php echo $row['subscriber_ss']; ?><br>
 								  <?php xl('D.O.B.','e'); ?>:
 								  <?php if ($row['subscriber_DOB'] != "0000-00-00 00:00:00") echo $row['subscriber_DOB']; ?><br>
-								  Phone: <?php echo $row['subscriber_phone'] ?>
+								  <?php xl('Phone','e'); ?>: <?php echo $row['subscriber_phone'] ?>
 								  </span>
 								 </td>
 								 <td valign='top'>
