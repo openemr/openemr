@@ -347,9 +347,10 @@ if ($GLOBALS['patient_id_category_name']) {
 							if ($row['provider'] ) {
 
 								$ins_description  = ucfirst($instype);
-								$ins_description  .= strcmp($enddate, 'Present') != 0 ? " (Old)" : "";
+	                                                        $ins_description = xl($ins_description);
+								$ins_description  .= strcmp($enddate, 'Present') != 0 ? " (".xl('Old').")" : "";
 								?>
-								<li <?php echo $first ? 'class="current"' : '' ?>><a href="/play/javascript-tabbed-navigation/"><?php xl(ucfirst($ins_description),'e'); ?></a></li>
+								<li <?php echo $first ? 'class="current"' : '' ?>><a href="/play/javascript-tabbed-navigation/"><?php echo $ins_description; ?></a></li>
 								<?php
 								$first = false;
 							}
@@ -384,7 +385,7 @@ if ($GLOBALS['patient_id_category_name']) {
 								<tr>
 								 <td valign='top' colspan='3'>
 								  <span class='text'>
-								  <?php if (strcmp($enddate, 'Present') != 0) echo "Old "; ?>
+								  <?php if (strcmp($enddate, 'Present') != 0) echo xl("Old")." "; ?>
 								  <?php xl(ucfirst($instype) . ' Insurance','e'); ?>
 								  <?php if (strcmp($row['date'], '0000-00-00') != 0) { ?>
 								  <?php xl(' from','e'); echo ' ' . $row['date']; ?>
