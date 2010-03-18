@@ -1,4 +1,5 @@
 Additional history notes
+Address Book Types
 Adjustment Reasons
 Advance Directive
 Alcohol consumption
@@ -11,11 +12,14 @@ Allow SMS (text messages)?
 Allow telephone messages?
 Allow Voice Message
 Appointment Statuses
+Arm
 Asian
 autosaved
+Bilateral
 Bill/Collect
 Billing Code for Requested Service
 Black
+Blood
 Boolean
 Both Ears
 Bpd
@@ -24,7 +28,9 @@ Breast Biopsy
 Breast Discharge
 Breast Disease
 Burning With Urination
+Buttock
 Caffeine consumption
+Canceled
 Caucasian
 Cell Phone Number
 Change In Vision
@@ -35,6 +41,7 @@ Child
 Choices
 Cirrhosis Of The Liver
 City Name
+Complete
 Contact Email Address
 Contact Lenses
 Contraceptive Complication (specify)
@@ -43,6 +50,7 @@ Counseling activities
 Counter-Referral
 Coupon
 Crohns Disease
+CU.MM
 Date contraceptive services initially provided
 Date of referral
 Date of reply
@@ -52,6 +60,7 @@ Dictation
 Did you receive a copy of the HIPAA Notice?
 Direct Mail
 Discount Level
+Discrete Result
 Divorced
 Do Not Resuscitate Order
 Doctor
@@ -97,11 +106,15 @@ Female Symptoms
 FH Blood Problems
 Fibroids
 File Room
+Final
 Final diagnosis by specialist
 Findings by specialist
+FL
+G/DL
 Gall Bladder Condition
 Gastro Pain
 Glaucoma Family History
+GM/DL
 grams
 Hazardous activities
 Head Circ
@@ -120,10 +133,13 @@ HIPAA Notice Received
 Hirsutism/Striae
 Hispanic
 History Murmur
+HMOL/L
 Home Phone Number
 Homeless or similar?
 Homeless, etc.
 Hypertension
+Imaging Service
+Immunization Service
 Improved
 In Office
 Include Vitals
@@ -131,13 +147,16 @@ Include vitals data?
 Infertility
 Influenza 1
 Influenza 2
+Injection
 Interpreter needed?
 IPV 1
 IPV 2
 IPV 3
 IPV 4
+IU/L
 Joint Pain
 Lab Report
+Lab Service
 Last Activity Date
 Layout-Based Visit Forms
 Leave Message With
@@ -156,13 +175,16 @@ Menstrual Frequency
 mg/2cc
 mg/3cc
 mg/4cc
+MG/DL
 Migrant or seasonal worker?
+Mil/CU.MM
 Misc
 Misc Billing Options
 Misc Billing Options HCFA
 MMR 1
 MMR 2
 Mobile Phone
+Months
 Mr.
 Mrs.
 Ms.
@@ -175,6 +197,7 @@ Musc Warm
 Name 1
 Name 2
 Name/Value
+Negative
 Neuro Numbness
 Neuro Weakness
 New Document
@@ -186,6 +209,9 @@ Normal Office Visit
 Obesity I
 Obesity II
 Obesity III
+On Site
+Order Priorities
+Order Statuses
 Other (specify)
 Out Of Office
 Overweight
@@ -193,26 +219,45 @@ Patient ID card
 Patient Information
 Patient Note Types
 Pending followup
+Percent
+Percentile
+PG
 Pharmacy
 PID (Pelvic Inflammatory Disease)
 Pneumococcal Conjugate 1
 Pneumococcal Conjugate 2
 Pneumococcal Conjugate 3
 Pneumococcal Conjugate 4
+Positive
 Preferred Language
 Preferred Pharmacy
+Preliminary
 Prescriptions and/or referrals by specialist
 Prescriptions/Referrals
 Presumed Diagnosis
 Presumed diagnosis by specialist
 Prior Auth
 Prior Authorization Form
+Procedure Body Sites
+Procedure Boolean Results
+Procedure Lateralities
+Procedure Order
+Procedure Report Statuses
+Procedure Result Abnormal
+Procedure Result Statuses
+Procedure Routes
+Procedure Specimen Types
+Procedure Types
+Procedure Units
 Psych Diagnosis
 Psych Medication
 Radio
+Ratio
 Reason for referral
-Recommendations
+Recommendation
 Recommendations by specialist
+Recreational drug use
+Recreational Drugs
 Refer By
 Referral By
 Referral Card
@@ -229,17 +274,19 @@ Reserved to define when a provider may not have available appointments after.
 Reserved to define when an event did not occur as specified.
 Reserved todefine when a provider may haveavailable appointments after.
 Resolved
+Reviewed
 Right Ear
 Ringing In Ears
 Risk Factors
 Risk Level
+Routed
+Saliva
 Sample
 Seatbelt use
 See Growth-Chart
 Self
 Separated
 Service Category
-Service Date
 Service provided by specialist
 Services Provided
 Severe Migraine
@@ -252,6 +299,7 @@ Skin Disease
 Skin Other
 Sleep patterns
 Social Security Number
+Specialist
 Squad Membership
 Standard
 Start Date at This Clinic
@@ -265,10 +313,13 @@ Tax Rate
 Td
 Temp Method
 Test Scheduling
+Thous/CU.MM
 Thrombosis/Stroke
 Titles
 Tobacco use
 Underweight
+Units/L
+Urine
 Urine Dribbling
 Urine Frequency
 Urine Hesitancy
@@ -302,6 +353,8 @@ Varicose Veins
 view
 Waist Circ
 Walk-In
+Warehouses
+Weeks
 Where may related scanned or paper documents be found?
 Who
 Who replied?
