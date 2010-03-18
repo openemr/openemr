@@ -276,7 +276,7 @@ else {
 
 var f = opener.document.forms[0];
 <?php if ($pubpid_matched) { ?>
-alert('<?php xl('A patient already exists with this ID','e'); ?>')
+alert('<?php xl('A patient with this ID already exists.','e'); ?>')
 <?php } else { ?>
 opener.force_submit = true;
 f.create.value = '<?php xl('Confirm Create New Patient','e'); ?>';

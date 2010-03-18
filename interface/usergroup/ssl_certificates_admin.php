@@ -392,7 +392,7 @@ else if ($_POST["mode"] == "download_certificates") {
                 document.ssl_frm.clientCertValidity_hidden.value = document.ssl_certificate_frm.clientCertValidity.value;
             }
             else {
-                alert("<?php xl('Client certificate validity should be a valid number', 'e'); ?>");
+                alert("<?php xl('Client certificate validity should be a valid number.', 'e'); ?>");
                 document.ssl_certificate_frm.clientCertValidity.focus();
                 return false;
             }
@@ -550,7 +550,7 @@ else if ($_POST["mode"] == "download_certificates") {
   <form method='post' name=ssl_certificate_frm action='ssl_certificates_admin.php'>
   <input type='hidden' name='mode' value='download_certificates'>
   <div class='borderbox'>
-    <b><?php xl('Create the SSL Certificate Authority and Server certificates', 'e'); ?></b><br>
+    <b><?php xl('Create the SSL Certificate Authority and Server certificates.', 'e'); ?></b><br>
     <br>
     1. <?php xl('Fill in the values below', 'e'); ?><br>
     2. <?php xl('Click Download Certificate to download the certificates in the file ssl.zip', 'e'); ?> <br>
@@ -615,7 +615,7 @@ else if ($_POST["mode"] == "download_certificates") {
   <br>
 
   <div class="borderbox">
-    <b><?php xl('Configure Apache to use HTTPS', 'e'); ?></b><br>
+    <b><?php xl('Configure Apache to use HTTPS.', 'e'); ?></b><br>
     <br>
     <?php xl('Add new certificates to the Apache configuration file', 'e'); ?>:<br>
     <br>

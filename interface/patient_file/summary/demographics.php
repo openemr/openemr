@@ -552,7 +552,7 @@ if ($GLOBALS['patient_id_category_name']) {
           }
           }
           if (!$counterFlag) {
-              echo xl('None.', 'e');
+              echo xl('None', 'e');
           } ?>
       </div>
       <? } ?>
@@ -685,7 +685,7 @@ if ($GLOBALS['patient_id_category_name']) {
 			  echo $row['fname'] . " " . $row['lname'] . "</a><br>\n";
 			 }
 			 if (isset($res) && $res != null) {
-				if ( $count < 1 ) { echo xl('None.', 'e'); }
+				if ( $count < 1 ) { echo xl('None', 'e'); }
 				echo "</div>";
 			 }
 			}

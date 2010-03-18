@@ -205,7 +205,7 @@ function validate(f) {
  for ( var i = 0; i < errMsgs.length; i++ ) {
 	msg += errMsgs[i] + "\n";
  }
- msg += "\n<?php xl('Please fill them in before continuing', 'e'); ?>.";
+ msg += "\n<?php xl('Please fill them in before continuing.', 'e'); ?>";
 
  if ( errMsgs.length > 0 ) {
 	alert(msg);

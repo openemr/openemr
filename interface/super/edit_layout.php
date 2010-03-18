@@ -438,9 +438,7 @@ function writeFieldLine($linedata) {
          htmlspecialchars($linedata['datacols'], ENT_QUOTES) . "' size='3' maxlength='10' class='optin' />";
     echo "</td>\n";
   
-    echo "  <td align='center' class='optcell' title='" .
-      xl('C = Capitalize, D = Dup Check, N = New Patient Form, O = Order Processor, V = Vendor') .
-      "'>";
+    echo "  <td align='center' class='optcell' title='C = ".xl('Capitalize').", D = ".xl('Dup Check').", N = ".xl('New Patient Form').", O = ".xl('Order Processor').", V = ".xl('Vendor')."'>";
     echo "<input type='text' name='fld[$fld_line_no][edit_options]' value='" .
          htmlspecialchars($linedata['edit_options'], ENT_QUOTES) . "' size='3' maxlength='36' class='optin' />";
     echo "</td>\n";

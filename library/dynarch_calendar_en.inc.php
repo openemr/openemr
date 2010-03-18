@@ -124,5 +124,5 @@ Calendar._TT["DEF_DATE_FORMAT"] = "%Y-%m-%d";
 Calendar._TT["TT_DATE_FORMAT"] = "%a, %b %e";
 
 Calendar._TT["WK"] = "<?php xl("wk","e"); ?>";
-Calendar._TT["TIME"] = "<?php xl("Time:","e"); ?>";
+Calendar._TT["TIME"] = "<?php xl("Time","e"); ?>"+":";
 </script>
