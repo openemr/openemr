@@ -293,7 +293,7 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'body_site',
 <?php
 generate_form_field(array('data_type' => 1, 'field_id' => 'specimen',
   'list_id' => 'proc_specimen',
-  'description' => xl('Specimen type')),
+  'description' => xl('Specimen Type')),
   $row['specimen']);
 ?>
   </td>
