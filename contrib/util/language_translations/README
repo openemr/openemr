@@ -63,7 +63,9 @@ set', select {Tab} for 'Field delimiter', and select nothing (make blank by
 removing the " character) for 'Text delimiter', and then click 'OK'.
 
 The current_spreadsheet.tsv file is what can be uploaded to Google Docs for
-collaboration.
+collaboration (open the current_spreadsheet.tsv in Open Office first,
+and then save in Open Office format; then can upload this file to
+google docs).
 
 The currentLanguage_utf8.sql and currentLanguage_latin1.sql holds current
 sql tables dumpfile.
