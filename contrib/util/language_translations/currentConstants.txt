@@ -1,8 +1,15 @@
 A
 A check number or claim number to identify the payment
+A client certificate for the admin user
 A GCAC visit form should be added to this visit.
 A lot number is required!
+A lowercase letter
+A number
+A patient with this ID already exists.
+A patient with this name already exists.
+A patient with this SS already exists.
 A related IPPF code is required!
+A special character
 A unique value to identify this field, not visible to the user
 a.c.
 a.m.
@@ -23,6 +30,7 @@ Abortion Issues
 Abortion Method
 Abortion-Related Categories
 Abortions
+About the calendar
 Absences by Diagnosis
 Accept Assignment
 Accept Payment for 
@@ -42,10 +50,11 @@ Active
 Active Encounter
 Active lists
 Active Patient
+Activity
 Activity Type
 Acute on Chronic
-Add
 add
+Add
 Add a Company
 Add a Pharmacy
 add an event for 
@@ -58,28 +67,35 @@ Add Drug
 Add Encounter
 Add Facility
 Add Field
+Add following lines to the Apache configuration file
 Add Group
 Add ICD Code
 Add Issue
 Add Language
 Add New
 Add new category : 
+Add new certificates to the Apache configuration file
 Add New Group
+Add new lot and transaction
 Add New Note
 Add new note
 Add New Partner
 Add Note
 Add Patient Record
 Add Prescription
+Add Provider Number
 Add to
 Add to Medication List
+Add Top Level
 Add Transaction
 Add User
 Add User To Group
+Add/Edit Patient Transaction
 added
 Adding demographics is not authorized.
 Addison Syndrom
 Addison Syndrome
+Additional Attributes
 Additional Diagnosis:
 Additional History
 Additional history notes
@@ -94,6 +110,9 @@ Addr Bk
 Addr Book
 Address
 Address Book
+Address book entry for the company performing this procedure
+Address book entry for the vendor
+Address Book Types
 Address1
 Address2
 ADDRESSEE
@@ -105,17 +124,21 @@ Adjustments
 Adm adjust
 Admin
 Admin Email Address
+Administer Via
 Administered
 Administered By
 Administration
 Administrators
 Administrators can do anything
 Advance Directive
+Advance Directives
 Advanced
 Advice
 Affect normal
 After hrs calls
+After performing above configurations, import the admin client certificate to the browser and restart Apache server (empty password).
 After saving the PDF, click [View Log] to check for errors.
+After saving the TEXT file(s), click [View Log] to check for errors.
 After saving your batch, click [View Log] to check for errors.
 After the information is correctly entered, click the Save button.
 Again
@@ -136,6 +159,7 @@ All day event
 All Facilities
 All or part of the first name
 All or part of the last name
+All Products
 All Providers
 All Reviewed and Negative:
 All Topics
@@ -144,6 +168,7 @@ Allergic
 Allergies
 Allergies:
 Allergy
+Allow
 Allow Email
 Allow email messages?
 Allow Email?
@@ -175,11 +200,13 @@ An error occurred while dumping OpenEMR web directory tree
 An error occurred while dumping phpGACL web directory tree
 An error occurred while dumping SQL-Ledger web directory tree
 An incomplete GCAC issue has been created and linked. Someone will need to complete it later.
+An uppercase letter
 And
 AND
 and
 and 
 and all subordinate data? This action will be logged
+and restart Apache server.
 Anemia
 Ankle
 Ankle + heel
@@ -200,6 +227,7 @@ Any part of the patient name, or \"last,first\", or \"X-Y\"
 Apnea
 Appearance
 Appearance:
+Append this note
 Append to the existing note
 Append to this note
 Append to This Note
@@ -222,6 +250,7 @@ Approved
 Approved Events Administration
 Appt-Enc
 Appts
+Apr
 April
 Arabic
 Are you prepared to complete a new GCAC issue for this visit?
@@ -239,6 +268,7 @@ Are you sure you wish to delete the field in
 Are you sure you wish to delete the selected fields?
 Are you sure you\'d like to continue with these actions?
 Area not specified
+Arm
 Armenian
 Arrythmia
 Arthritis
@@ -258,6 +288,7 @@ At the Navicular:
 Athletic/Injury
 Attention
 Attn
+Aug
 August
 Auth
 Auth/notes
@@ -266,11 +297,13 @@ Authorize
 Authorize - any encounters
 Authorize - my encounters
 Authorized
+Authorized Only
 Auto Send
 Auto-generated
 Automobile Medical
 autosaved
 Available Times
+Avg Monthly
 Avulsion / avulsion fracture
 Avulsion lateral malleolus
 Avulsion medial malleolus 
@@ -291,10 +324,13 @@ Back six visits
 Back Surgery
 Back ten visits
 Back three visits
+Back To Patient
+Back To View
 Back twelve visits
 Back two visits
 Backup
 Backup file has been created. Will now send download.
+Backup Successfully taken in
 Bad check
 Bad debt
 Bahasa Indonesia
@@ -306,6 +342,7 @@ Base of fifth (5th) Metarsal
 Base of fifth (5th) Metarsal:
 Batch Communication Tool
 Batch processing initiated; this may take a while.
+Batch Results
 BatchCom
 because that id does not exist.
 Begin
@@ -313,6 +350,7 @@ Begin Date
 Beginning date of service yyyy-mm-dd
 Belching
 between
+Bilateral
 Bilateral:
 Bill Date:
 Bill/Collect
@@ -341,6 +379,7 @@ Bleeding Problems
 Blind Spots
 Bloating
 Blocked
+Blood
 Blood Pressure
 Blood pressure
 Bloody Nose
@@ -350,6 +389,8 @@ Blurred Vision
 BMI
 BMI Status
 Body Region
+Body Site
+Body site, if applicable
 Bone Tenderness:
 Bone Tenderness: Medial Malleolus
 Boolean
@@ -389,8 +430,10 @@ Bulging Right:
 Burning with Urination
 Burning With Urination
 Busy
+Buttock
 Buttock + S.I.
 by
+By
 by mouth
 By/Source
 By:
@@ -406,6 +449,7 @@ Call to addForm() goes here.<br>
 Calories
 CAMOS
 Cancel
+Canceled
 Cancer
 Cannot add this entry because it already exists!
 Cannot add/update this entry because a duplicate already exists!
@@ -421,6 +465,7 @@ Cannot find provider from SQL-Ledger employee =
 Cannot open 
 Cannot read
 Cannot update because you are not editing an existing entry!
+Capitalize
 capsule
 Card
 Cardiac Catheterization
@@ -446,6 +491,10 @@ Caucasian
 Cell Phone
 Cell Phone Number
 Central Certification
+Certificate Authority crt file location cannot be empty
+Certificate Authority key file location cannot be empty
+Certificate User
+Certificates
 cfirst($instype) . ' Ins
 ChampUS
 ChampUSVA
@@ -487,6 +536,7 @@ checkbox w/ text
 Checkbox w/text
 Checked box = yes ,  empty = no
 Checkout
+Checksum
 Chest
 Chest CTAB
 Chest Pain
@@ -524,15 +574,21 @@ Claim was generated to file
 Classification
 Clear
 Clear All
+Clear HL7 Data
 Clear Justification
 Clear Smarty Cache
 CLIA Number
 Click
 Click 'export' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click 'import'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.
+Click Download Certificate to download the certificates in the file ssl.zip
 click for more
 Click here to choose a date
+Click here to choose a date and time
+Click here to choose a start date
+click here to search
 click here to update priority, category and nickname settings
 Click here to view all.
+Click on any of the time parts to increase it
 Click to download
 Click to edit
 Click to edit this event
@@ -540,13 +596,18 @@ Click to generate the report
 Click to print
 Click to receive (add) new lot
 Click to select
+Click to select an industry-standard code for this procedure
 Click to select or change diagnoses
 Click to select patient
 Click to select related code
+Click to select services to perform if this result is abnormal
+Click to select the desired procedure
 Click to view
 Click to view or edit
 Click to view/edit
 Click:
+Client certificate validation period
+Client certificate validity should be a valid number.
 Client Copy
 Client medical history summary
 Client Profile - New Clients
@@ -578,6 +639,8 @@ Coding - my encounters (write,wsome optional)
 Coding not authorized
 Coffee
 Coll w/o
+collapse
+Collapse all
 collapse all
 Collections
 Collections Report
@@ -586,16 +649,26 @@ Colon Cancer Surgery
 Colonoscopy
 colonoscopy
 Color
+Color:Abbr
 Columns
+Combining Lots
 Comments
+Comments for this result or recommendation
 Commercial Insurance Co.
 Commit Changes
 Communications
+Complete
 Completed
 Complications by Service Provider
 Complications of Abortion
 Computer Aided Medical Ordering System
 Conclusions
+Configuration
+Configure Apache and OpenEMR to use Client side SSL certificates.
+Configure Apache to use Client side SSL certificates
+Configure Apache to use HTTPS.
+Configure Openemr to use Client side SSL certificates
+Confirm Create New Patient
 Congenital
 Conjuntiva, pupils
 Constant
@@ -612,6 +685,7 @@ Contact Lenses
 Contact name
 Contact Person
 Contact Phone Number
+contain at least three of the four following items:
 Content
 content
 Continue
@@ -634,6 +708,7 @@ Copyright Notice
 Coronary Artery Bypass
 Cough
 Cough:
+Could not read file
 Could not send email due to a server problem, 
 Couldn't create backup dir:
 Couldn't remove dir:
@@ -646,24 +721,33 @@ COUNTER REFERRAL FORM
 Counter-Referral
 Country
 Country List (write,addonly optional)
+Country Name should be represent in two letters. (Example: United States is US)
 county
 Coupon
 CPT
 CPT Codes
 Crackles:
 cream
+Create a Client side SSL certificate for each user or client machine.
+Create a client side SSL certificate for either a user or a client hostname.
 Create an Event
 Create and download a full backup
 Create Backup
+Create Client Certificate
+Create Client side SSL certificates
+Create Eventlog Backup
 Create New Patient
 Create Patient Note
+Create the SSL Certificate Authority and Server certificates.
 Created
 Creating export file
 credit
 Credits
 Crohn\'s Disease
 Crohns Disease
+CSV Export
 CSV File
+CU.MM
 Current
 Current Consultation
 Current day highlight color
@@ -671,6 +755,7 @@ Current file name was changed to
 Current Location
 Current Patient
 Currently Active
+Currently there are no facilities.
 Cushing Syndrom
 Cushing Syndrome
 Custom
@@ -693,6 +778,8 @@ DataCols must be a number between 1 and 999
 Date
 DATE
 Date Administered
+Date and time of sample collection
+Date and time that the sample was collected
 Date contraceptive services initially provided
 Date Destroyed
 Date Display Format
@@ -714,7 +801,10 @@ Date Of Service
 Date of service mm/dd/yyyy
 Date of Service:
 Date Of Signature
+Date of this order
+Date of this report
 Date of VIS Statement
+Date Ordered
 Date/Appt
 Date/Notes
 Date/Notes of Last
@@ -728,10 +818,13 @@ days
 Days
 Days and Games Missed
 Days From Last Encounter
+Days Missed
 Days per Column:
+Days/Col:
 DB installed
 DEA
 Debug Information
+Dec
 December
 Default
 Default Calendar View
@@ -739,8 +832,11 @@ Default Facility
 Default List (write,addonly optional)
 Default Method
 Default Provider
+Default Range
 Default Template
+Default Units
 Default Value
+Default Warehouse
 Default X12 Partner
 Default/Global
 del
@@ -770,6 +866,7 @@ Depressed
 Depression
 Description
 description
+Description of this procedure or result code
 Description Translation
 Destination
 Destroy Lot
@@ -806,6 +903,7 @@ Discharge Right:
 Discount
 Discount Amount
 Discount Level
+Discrete Result
 Disease
 Dislocation
 Disp #
@@ -819,6 +917,7 @@ Display the calendar?
 Display today\'s events in the block?
 Display topic in block?
 Display upcoming events in block?
+Displayed Columns
 Distribution
 Diverticulitis
 Diverticulitis Surgery
@@ -830,6 +929,7 @@ Do Not Resuscitate Order
 do not save
 do not substitute
 do nothing
+Do you really want to delete
 Do you really want to delete this group
 Do you wish to continue adding this new patient?
 Do you wish to continue with the new name?
@@ -863,12 +963,15 @@ DOS
 Dosage
 double click to edit
 Double Vision
+Download
 Download billing file, post to accounting and mark as billed
+Download Certificates
 Download configuration data
 Download Selected Statements
 Dr Check
 Dr Visit
 Dr.
+Drag to move
 Dribbling
 Drivers License or State ID
 Drug
@@ -903,6 +1006,7 @@ Dumping phpGACL database
 Dumping phpGACL web directory tree
 Dumping SQL-Ledger database
 Dumping SQL-Ledger web directory tree
+Dup Check
 DUPLICATION WARNING
 Durable Power of Attorney
 duration
@@ -921,11 +1025,13 @@ Edit Categories
 Edit definitions
 Edit Diagnoses for
 Edit Facilities
+Edit Facility
 Edit Facility Information
 Edit form
 Edit layout
 Edit list
 Edit Structure
+Edit User
 Education
 Education Date
 ee the  * GNU General Public License for more details.  *   * You should have received a copy of the GNU General Public License  * along with this program; if not, write to the Free 
@@ -936,6 +1042,7 @@ Elbow
 Elbow Problems
 Electronic Remits
 Email
+Email Address
 Email from Batchcom
 Email Notification
 Email send before
@@ -946,6 +1053,10 @@ Emergency Contact
 Emergency Contact Person
 Emergency Contact Phone Number
 Emergency Contraception
+Emergency Login
+Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.
+Emergency Login activation email will be circulated only if following settings in the interface/globals.php file are configured:
+Emergency Login user can do anything
 Emergency Phone
 Emphysema
 Employee
@@ -953,6 +1064,7 @@ Employer
 Employer Address
 Employer Data
 Employer Name
+EMPTY
 Empty
 Empty value in "Email Hours"
 Empty value in "Email Sender"
@@ -963,6 +1075,7 @@ Empty value in "Password"
 Empty value in "SMS Hours"
 Empty value in "SMS Text"
 Empty value in "Username"
+Enable User Certificate Authentication
 enabled
 Enc
 encounter
@@ -980,8 +1093,8 @@ Encounters Report
 Encounters Section
 End
 End (yyyy-mm-dd): 
-End date
 End Date
+End date
 End Date:
 End Time
 Ending date of service yyyy-mm-dd
@@ -1022,11 +1135,20 @@ Error opening uploaded file for reading
 error while registering form!
 Error while saving to the file
 Error while writing to file
+Error, the file does not exist
 ERROR, unable to collect data from server
+Error, unable to create client certificate.
+Error, unable to create the admin.p12 certificate.
+Error, unable to create the Certificate Authority certificate.
+Error, unable to create the Server certificate.
+Error, unable to open file
+Error, User Certificate Authentication is not enabled in OpenEMR
 Error. You need to install the Archive/Tar.php php module.
 ERROR: could not open table.sql, broken form?
 ERROR: Field
 Error: passwords don't match. Please check your typing.
+Error: passwords don\'t match. Please check your typing.
+Error: the file does not exist
 Error: Unable to create downloadable archive
 Errors
 Erythema:
@@ -1068,6 +1190,7 @@ Every, every other, every 3rd, etc.
 Exam and test results
 Exam results
 Examination Date
+Example
 Exams/Tests
 Excessive Tearing
 Exclusive Provider Organization (EPO)
@@ -1075,6 +1198,7 @@ Exercise patterns
 Exercise Patterns
 Exit from Administration
 Exp
+expand
 Expanded View
 Expected form_encounter.pid to be 
 Expiration
@@ -1090,6 +1214,7 @@ Export to CSV
 Export to external billing system
 Exposure to Foreign Countries
 Exposure To Foreign Countries
+Ext Time Collected
 External
 External ID
 External identifier
@@ -1098,6 +1223,7 @@ External Referral
 External Referral Followups
 External referral?
 External Referrals
+Extract the zip file
 Exudate:
 Eye Irritation
 Eye Pain
@@ -1129,6 +1255,7 @@ Fax number
 Fax/Scan
 Faxes In
 Faxes Out
+Feb
 February
 FECA
 Federal Drug ID
@@ -1153,14 +1280,18 @@ Fever:
 FH Blood Problems
 Fibroids
 File
+file in the Documentation directory to learn how to automate the process of creating log backups
+file location
 File Room
 File to upload
 File with same name already exists at location:
 Filename
 Fill here only if sending email notification to patients
+Fill in the values below
 Filter
 Filter for Constants
 Filters
+Final
 Final Diagnosis
 Final diagnosis by specialist
 Financial
@@ -1180,15 +1311,20 @@ First Name
 First name
 First Name:
 Fitness
+Fitness Level
+Fitness level for this player on this day
 Fitness to Play
 Fix encounter dates - any encounters
 Fix this
+FL
 Flatulence
 Flow
 Flu Vaccination
 Fluid and electrolyte problem
 FMS
 Follow manually
+Followup Services
+Followups Indicated
 Food Intolerance
 Foot
 Foot Problems
@@ -1198,13 +1334,17 @@ Football Injury Report
 Footwear Type
 for
 For Encounter Claims
+For example:
 For Referred Organization/Practitioner
+For the past
+for variable
 for:
+Force Create New Patient
 Forearm
 Form
 form
-format
 Format
+format
 Format incorrect for NDC
 Forms
 Forms Administration
@@ -1223,6 +1363,7 @@ Fri
 Friday
 From
 FROM
+from
 From:
 From: 
 FROM_CITY
@@ -1244,10 +1385,12 @@ Full Name
 Full Play
 Full Training
 G
+G/DL
 Gall Bladder Condition
 Gall Stones
 Game Period
 Games
+Games Missed
 games/events
 Games/Events Missed
 Gastritis
@@ -1259,10 +1402,13 @@ Gender
 Gender 
 General
 General Service Category
+Generate and download CMS 1500 paper claims
 Generate and download HCFA 1500 paper claims
 Generate and download X12 batch
 Generate and download X12 encounter claim batch
 Generate CMS 1500
+Generate CMS 1500 PDF
+Generate CMS 1500 TEXT
 Generate HCFA
 Generate Letter
 Generate Letter regarding 
@@ -1277,10 +1423,12 @@ Glaucoma
 Glaucoma Family History
 Global
 Global ID
+GM/DL
 go
 Go
 Go to
 Go to week of
+Go Today
 Grade:
 grams
 Grand Total
@@ -1380,8 +1528,10 @@ History
 History Data
 History Murmur
 History of Heart Murmur
+Hits
 HIV
 HL7 Viewer
+HMOL/L
 Hold down [Ctrl] for multiple selections or to unselect
 Hold down Ctrl to select multiple items
 Hold down Ctrl to select multiple squads
@@ -1391,6 +1541,8 @@ Home Phone Number
 Homeless or similar?
 Homeless, etc
 Homeless, etc.
+Host Name
+Host Name cannot be empty
 Hours
 How did Injury Occur?
 How did Injury Occur?:
@@ -1422,14 +1574,17 @@ If you have entered a Pay Date in the search page, this will override the postin
 If you want to change data types, or add rows or columns
 Illness
 IM
+Imaging Service
 Immunization
 Immunization Lot Number
 Immunization Manufacturer
+Immunization Service
 Immunizations
 Immunize
 Immunologic
 Implants
 Import
+Import certificate to the browser.
 Import Configuration
 Import Patient
 Import Patient Demographics
@@ -1445,6 +1600,8 @@ in right eye
 in-house
 Inactive
 Inactive Days
+Include Checksum
+Include Completed
 Include inactive users
 Include Uncategorized
 Include Vitals
@@ -1455,7 +1612,9 @@ Incontinence
 increased:
 Indemnity Insurance
 Indeterminate
+Indicates abnormality
 Indicates if this issue is currently active
+Indigent Patients
 Indigent Patients Report
 Indigents
 Induced Abortion
@@ -1476,12 +1635,14 @@ inhalations
 inhilations
 Initial User
 Injectables
+Injection
 Injured Out
 Injury
 Injury Mechanism
 Injury Overview Report
 Injury Surveillance
 Injury Type
+Injury/illness-related
 Input Fields
 Ins adjust
 Ins bundling
@@ -1522,6 +1683,7 @@ Internal error: encounter '
 Internal error: pid or encounter is missing.
 Internal Identifier (pid)
 Internal Referrals
+Internal Time Collected
 International Duty
 Interpreter
 Interpreter needed?
@@ -1536,6 +1698,7 @@ Invalid Service Codes
 Invalid source designation "
 InvAmt
 Inventory
+Inventory Activity
 Inventory is not available for this order.
 Inventory List
 Invoice
@@ -1560,6 +1723,7 @@ is too long
 issue
 Issue
 Issues
+Issues (Injuries/Medical/Allergy)
 Issues (Injuries/Medical/Allergy):
 Issues and Encounters
 Issues and Encounters for
@@ -1568,8 +1732,10 @@ Issues Section
 Item
 item
 Items load failed
+IU/L
 IUD
 IV
+Jan
 January
 Jaundice
 Job Description
@@ -1577,7 +1743,9 @@ Job ID
 Joint dislocations
 Joint Pain
 Joint sprains
+Jul
 July
+Jun
 June
 Just below the check information is a blue area where you put in your search parameters.  You can search by patient name, chart number, encounter number or date of service, or any combination of these.  You may also select whether you want to see all invoices, open invoices, or only invoices that are due (by the patient).  Click the Search button to perform the search.
 Just Mine
@@ -1597,6 +1765,7 @@ Knee Problems
 Knee Replacement
 Lab
 Lab Report
+Lab Service
 Label
 Label cannot be blank
 Label Cols
@@ -1619,12 +1788,15 @@ Last Encounter
 Last Name
 Last name
 Last Name:
+Last Reviewed
 Last Saved
 Last update by
 Last Visit
 Late Recurrence (2-12 Mo)
 Lateral Malleolus
 Lateral malleolus:
+Laterality
+Laterality of this procedure, if applicable
 laterally displaced PMI:
 Layout Based
 Layout Editor
@@ -1657,6 +1829,7 @@ Liability
 Liability Medical
 License/ID
 Lifestyle
+Lifestyle status
 Ligament tear or sprain
 Limit Of Events
 Linked
@@ -1685,6 +1858,7 @@ LOC
 Local
 Locality
 Location
+Location of this lot
 Location unspecified
 Location:
 Lock
@@ -1717,14 +1891,18 @@ MA Category
 Main Address
 Make modifications to current categories.
 Make sure "
+Making batch text files for uploading to Clearing House and will mark as billed
 Malaise:
 Male
 Male Condoms
 Male VSC
 Mammogram
+Manage
 Management
+Manual
 Manual Posting
 Manufacturer
+Mar
 March
 Marital Status
 Mark as billed but skip billing
@@ -1772,11 +1950,13 @@ mg/2cc
 mg/3cc
 mg/4cc
 mg/5cc
+MG/DL
 Middle
 Middle Name
 Middle name
 Migrant or seasonal worker?
 Migrant/Seasonal
+Mil/CU.MM
 MimeType
 min
 Minor joint strain +/- synovitis
@@ -1788,8 +1968,11 @@ Misc Billing Options for HCFA-1500
 Misc Billing Options HCFA
 Miscellaneous
 Missed
+Missing a required field
 Missing Fee
+Missing Mods Only
 Missing PID.
+Missing report date
 Missing slash after payer in source for code 
 Mixed
 ml
@@ -1809,6 +1992,7 @@ Month
 Month View
 Month(s)
 Monthly Income
+Months
 More than 100 records found. Please narrow your search criteria.
 More than 50 results, please make your search more specific.
 Mother
@@ -1824,6 +2008,7 @@ Mrs.
 Ms.
 Multi Language Tool
 Multiple areas
+Multiple Lots
 Murmur:
 Musc Ache
 Musc Aches
@@ -1839,9 +2024,11 @@ MVA
 N/A
 n/a
 Name
+Name (click for more)
 Name 1
 Name 2
 Name and Title of Immunization Administrator
+Name of Events
 Name of insurance company
 Name of Provider
 Name Translation
@@ -1865,11 +2052,14 @@ Need to enter title
 Needs Auth
 Needs Justify
 Needs secondary billing
+Negative
+Negatives
 Nerve injury
 Neural condition / nerve damage
 Neuro Numbness
 Neuro Weakness
 Neurologic
+Never
 New
 New =>
 New Acceptors
@@ -1891,8 +2081,10 @@ New Limit of Events
 New List
 New Patient
 New Patient Encounter
+New Patient Form
 New Patient ID
 New Pt
+New Search
 New Submissions
 New User
 New Visit
@@ -1901,7 +2093,9 @@ Newspaper
 Next
 Next Day
 Next Month
+Next month (hold for menu)
 Next Week
+Next year (hold for menu)
 Nickname
 Night Sweats
 Nl ext genitalia, vag mucosa, cervix
@@ -1914,14 +2108,17 @@ No billing system is currently active
 No Bills Found to Include in OFX Export<br>
 No code was specified!
 No Diagnosis
+No Documents Found
 No end date
 No entries found, use the form below to add an entry.
 No Events
 No group was selected
 No hernia
+No injury/illness
 No Insurance Companies Found
 No items were selected!
 No masses, tenderness
+No matches were found. Create the new patient now?
 No notes
 No ogrganomegoly
 No openings were found for this period.
@@ -1970,6 +2167,7 @@ normal:
 Norwegian
 Nose
 Nosebleed
+not a letter or number
 Not all fields are required for all codes or code types.
 Not Allowed
 Not allowed to delete the Administrators group
@@ -2001,6 +2199,7 @@ Nothing was selected
 NOTICE:: PostCalendar Submission/Modification
 Notification
 Notify Admin About Event Submission/Modification?
+Nov
 November
 Now posting for:
 Now printing
@@ -2021,6 +2220,7 @@ Obesity III
 Objective
 Occupation
 Occurrence
+Oct
 October
 OD
 of quantity
@@ -2033,6 +2233,7 @@ Offspring
 ointment
 OK
 OK to link the GCAC issue dated
+Old
 Old Clients
 Old fracture non / malunion
 Omit internal users?
@@ -2040,6 +2241,7 @@ omit to autoassign
 on
 On Hand
 On Order
+On Site
 Once you change your password, you will have to re-login.
 Online Support
 Only Active
@@ -2051,26 +2253,45 @@ Onset of Ilness:
 Onset of Swelling:
 Onset/hosp. date:
 Open
+OpenEMR already has a Certificate Authority configured.
+OpenEMR must be configured to use certificates before it can create client certificates.
 OpenEMR requires Javascript to perform user authentication.
 OpenEMR Users
 Option
 Optional
+Optional default range for manual entry of results
+Optional default units for manual entry of results
 Optional drug name, use % as a wildcard
 Optional information about this event
 Optional lot number, use % as a wildcard
 Optional numeric patient ID
 Optional procedure code
+Options
 Or
 OR
 or choose
+or click and drag for faster selection.
 Or Out To
+or Shift-click to decrease it
 Or upload ERA file:
 Oral
 Oral mucosa pink, throat clear
 Order
+Order and Result Types
+Order Catalog
+Order From
 Order must be a number between 1 and 999
+Order Priorities
+Order Processor
+Order Statuses
+Order Type
+Order/Result Type
+Ordered
+Ordering Provider
 Organ injury
 Organization
+Organization Name
+Organizational Unit Name
 Organizations
 Orientated x 3
 Original
@@ -2152,6 +2373,7 @@ Patient ID
 Patient ID card
 Patient Immunization
 Patient Information
+Patient Instructions
 Patient Insurance Distribution
 Patient Insurance Distribution Report
 Patient Issues
@@ -2159,6 +2381,7 @@ Patient List
 Patient Medical Problems
 Patient Medications
 Patient Name & Address
+Patient Note
 Patient Note Types
 Patient Notes
 Patient Notes (write,addonly optional)
@@ -2168,11 +2391,13 @@ Patient Printed Report
 Patient Record Report
 Patient Report
 Patient Request
+Patient Results
 Patient Summary
 Patient Transactions
 patient(s) in the database that match the demographic information you have entered.
 Patient/Client
 Patient:
+PatientID
 Patients
 Pay
 Pay attention to the "Done with" checkboxes.  After the insurances are marked complete then we will start asking the patient to pay the remaining balance; if you fail to mark all of the insurances complete then the remaining amount will not be collected!  Also if there is a balance that the patient should pay, then set the due date appropriately, as this will affect the language that appears on patient statements.
@@ -2192,6 +2417,8 @@ Pelvis and buttock
 Pemphigus
 Pending
 Pending followup
+Pending Followup from Results
+Pending Orders
 Pennington Firm OpenEMR  v
 Peptic Ulcer Disease
 per min
@@ -2201,11 +2428,14 @@ Per Oris
 per oris
 Per Rectum
 per rectum
+Percent
+Percentile
 Perforated Right:
 Perform Search
 Perform this action
 Peripheral
 Person
+PG
 Pharmacies
 Pharmacy
 Pharmacy Dispensary
@@ -2236,22 +2466,31 @@ Plan:
 Player
 Playing Position
 Please call if any of the above information is incorrect
+Please change your password.
 Please choose a valid selection from the list.
 Please choose a valid selection.
 Please choose a value for
 Please close this window.
 Please compare the new name
 Please do not accept this prescription unless it was received via facimile.
+Please do not accept this prescription unless it was received via facsimile.
 Please do NOT use your browsers stop or reload button while this page is running unless more than 10 minutes have elapsed, this will not cause the process to  stop on the server and will consume uneccesary resources.
+Please enter a date for Last Reviewed.
 Please enter a monetary amount using only numbers and a decimal point.
 Please enter a title!
+Please enter the password
+Please fill them in before continuing.
+Please input search criteria above, and click Submit to view results.
 Please note that this can take a very long time, up to several minutes, your web browser may not appear very active during this time but generating a bill is a  complicated process and your web browser is merely waiting for more information.
 Please Note: constants are case sensitive and any string is allowed.
 Please only use alphabetic characters
 Please only use alphabetic characters with no spaces
 Please pay this amount
+Please refer to
+Please reset the password.
 Please select an adjustment reason for code 
 Please select an event
+Please select at least one prescription!
 Please select the desired pages to copy or forward:
 PM
 Pmt Method
@@ -2275,6 +2514,8 @@ Popups
 Portuguese (Brazilian)
 Portuguese (European)
 POS Code
+Positive
+Positives
 Post Nasal Drip
 Post surgical
 Post to accounting and mark as billed
@@ -2303,8 +2544,10 @@ Preferred Language
 Preferred Pharmacy
 Preferred Provider Organization (PPO)
 Preg Test
+Preliminary
 Prepay
 Prescription
+prescription has reached its limit of
 Prescription Label
 Prescriptions
 Prescriptions and Dispensations
@@ -2312,11 +2555,14 @@ Prescriptions and other referrals
 Prescriptions and/or referrals by specialist
 Prescriptions Report
 Prescriptions/Referrals
+Present
 Presenting Complaint
 Press Continue to proceed
 Presumed Diagnosis
 Presumed diagnosis by specialist
 Prev
+Prev. month (hold for menu)
+Prev. year (hold for menu)
 Preview Event
 Previous
 Previous Consultations
@@ -2364,16 +2610,37 @@ Printing skipped; see test output in
 Printing skipped; see test output in 
 Prior Auth
 Prior Authorization Form
+Priority
 Priority 
 Private
 Problem
 Problem List
 Problems/Issues
+Proc Bat
+Proc Cat
+Proc Res
 Procedure
+Procedure Body Sites
+Procedure Boolean Results
+Procedure Code
+Procedure Lateralities
+Procedure Order
+Procedure Order for
+Procedure Report Statuses
+Procedure Result Abnormal
+Procedure Result Statuses
+Procedure Results
+Procedure Routes
+Procedure Specimen Types
+Procedure Statistics Report
+Procedure Type
+Procedure Types
+Procedure Units
 Procedures
 Process
 Process ERA File
 Processing
+Product
 Products
 Prof.
 Progress Notes
@@ -2381,6 +2648,9 @@ Prostate Cancer
 Prostate Exam
 Prostate Problems
 Prostate w/o enlrgmt, nodules, tender
+Provide absolute path
+Provide absolute path of file
+Provide valid Email Address
 Provider
 Provider Number
 Provider:
@@ -2418,6 +2688,7 @@ PT_STREET
 Public
 Pulmonary
 Pulse
+Purchases
 q.3h
 q.4h
 q.5h
@@ -2440,13 +2711,16 @@ Queued
 Queued Events Administration
 Queued for
 Queued Submissions Administration
+Quit
 R
 Race
 Race/Ethnicity
 Radio
 Radio buttons
+Range
 Rashes
 Rate
+Ratio
 Re-Open
 Re-opened
 Reactions
@@ -2467,11 +2741,15 @@ Receiver
 Receiver ID
 Receiver ID (ISA08)
 Receiver ID Qualifier (ISA07)
+Recent three passwords are not allowed.
+Recommendation
 Recommendations
 Recommendations and treatment
 Recommendations by specialist
 Record Payment
 records found.
+Recreational drug use
+Recreational Drugs
 Rectal
 Rectal Exam
 rectally
@@ -2482,6 +2760,7 @@ Refer By
 Refer Date
 Refer To
 Reference classification (risk level)
+Reference range of results
 Reference Reason
 Referer name and signature
 Referral
@@ -2515,8 +2794,10 @@ Registration Form
 Rehabilitation
 Relate To
 Related
+Related Issue
 Relation(s) / Children
 Relationship
+Relative ordering of this entity
 Relatives
 Relay Health credentials are missing from this user account.
 Relay Health ID
@@ -2538,7 +2819,9 @@ Reply Date
 Reply From
 Report
 Report by
+Report Status
 Report Totals
+Reported
 Reports
 Request ignored - claims processing is already running!
 Requested Service
@@ -2555,6 +2838,9 @@ Respirator effort unlabored
 Respiratory
 Restricted Training
 Result
+Result Status
+Result status or abnormality is missing
+Results and
 Results Found For Search
 Retinal Exam
 Retracted Right:
@@ -2567,6 +2853,7 @@ Returned to Play
 Review of PMH:
 Review Of Systems
 Review of Systems Checks
+Reviewed
 Revision
 Rheumotoid Arthritis
 Right
@@ -2581,6 +2868,8 @@ RLL:
 ROM
 Roster
 Route
+Route of administration, if applicable
+Routed
 Rows
 RRR without MOR
 Rub:
@@ -2598,6 +2887,7 @@ SA  *  * To read the license please read the docs/license.txt or visit  * http:/
 Sales
 Sales by Item
 Sales by Product Report
+Saliva
 Same Day
 Sample
 Sanction Type
@@ -2607,6 +2897,8 @@ Saturday
 Save
 Save and Dispense
 Save as New
+Save as new note
+Save Certificate Settings
 Save Changes
 Save Form
 Save Immunization
@@ -2641,6 +2933,7 @@ Search or Add Patient
 Search Results:
 Search Selected
 Search the Events
+Search/Add
 Search/Add Insurer
 Searching for appointments
 Searching...
@@ -2661,14 +2954,17 @@ Sel
 Select
 Select All
 Select CAMOS Entries for Printing
+Select date
 Select field
 Select Fields
 Select for printing
 Select Issue
 Select the configuration items to export
+Select the issue primarily responsible for any missed events on this day
 Select Yes to confirm group deletion
 Self
 Self Pay
+Send
 Send in progress
 Send this file
 Sender
@@ -2680,8 +2976,11 @@ Sensitivity:
 Sensory exam normal
 Sent successfully
 sent to printer.
+Sep
 Separated
 September
+Sequence
+Service
 Service Category
 Service Date
 Service Date:
@@ -2691,6 +2990,7 @@ Services
 Services by Category
 Services provided
 Services Provided
+Set
 Settings
 Severe Migraine
 Severity of Pain
@@ -2704,6 +3004,7 @@ Shortness Of Breath 2
 Shot Record
 Shot Record as of:
 should be like nnnnn-nnnn-nn
+Should be two letters
 Shoulder
 Shoulder + clavicle
 Shoulder Problems
@@ -2713,6 +3014,7 @@ Show Authorized Only
 Show Details
 Show hovering event text on mouseover?
 Show how many events on admin pages?
+Show Notes
 Show Patient Notes
 Show Report
 Show search/submit links in block?
@@ -2766,23 +3068,33 @@ Some notes were not displayed.
 some words
 Sore Throat
 Sort by
+Sort by Checksum
 Sort by Comments
+Sort by Crt User
 Sort by date
 Sort by date/time
 Sort by Event
 Sort by Group
+Sort by PatientID
+Sort by Success
 Sort by User
 Sort by vaccine
 Source
 Source is missing for code 
+Source Lot
 Source:
 Spanish
+Specialist
 Specialist name and signature
 Specialty
 Specialty Systems
 Specialty:
 Specific
+Specific Result
 Specific Service
+Specimen
+Specimen number/identifier
+Specimen Type
 Speech Dictation
 Spermicides
 Splenectomy
@@ -2799,20 +3111,24 @@ SRH Non Family Planning
 SRH Referrals
 SRH Visit Form
 SS
+SSL Certificate Administration
 SSN
 Stability
 Standard
+Standard Code
 Start
 Start (yyyy-mm-dd): 
 Start Date
 Start Date at This Clinic
-Start Date:
+Start Date should not be greater than End Date
 Start date:
+Start Date:
 Start Time
 Starting Date
 stat
 State
 State List (write,addonly optional)
+State Or Province
 State/Locality
 State/Parish
 STATEMENT SUMMARY
@@ -2826,6 +3142,7 @@ STD/AIDS Couns
 Stength and Conditioning
 Stiff Joints
 Stiffness
+Stock Months
 Stomach Pains
 Strain of muscle
 Stream
@@ -2846,6 +3163,7 @@ Subjective
 Sublingual
 sublingual
 Submit
+submit
 Submit All Content
 Submit Event
 submit form
@@ -2871,6 +3189,7 @@ Subscriber relationship is self but SS number is different!
 Subscriber Sex
 Substitution
 substitution allowed
+Success
 success
 successfully added to category,
 successfully stored.
@@ -2886,6 +3205,7 @@ Superbill Report
 Superbills, sometimes referred to as Encounter Forms or Routing Slips, are an essential part of most medical practices.
 Superuser
 Supervising
+Supplier facility name
 Surface Type
 Surgeries
 Surgery
@@ -2947,28 +3267,40 @@ Textbox list
 textbox list
 Thank You
 Thank you for choosing
+The Apache SSL server certificate and public key
+The Certificate Authority certificate
 The claim file: 
+The corresponding private key
 The destination form was closed; I cannot act on your selection.
 The event(s) have been approved.
 The event(s) have been hidden.
 The exported data appears in the text area below.  You can copy and paste this into an email or to any other desired destination.
 The following calendar event has been added:
 The following calendar event has been modifed:
+The following Emergency Login User is activated:
 The following errors occurred
+The following fields are required
 The initial window is the invoice search page.  At the top you may enter a source (e.g. check number), pay date and check amount.  The reason for the source and pay date is so that you don\'t have to enter them over and over again for each claim.  The amount that you enter will be decreased for each invoice that is given part of the payment, and hopefully will end at zero when you are done.
 The label that appears to the user on the form
 The new category will be a sub-category of 
+The password must be at least eight characters, and should
 The remaining information below applies only if you are posting manually, or if you are doing manual corrections.
 The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.
 The Source and Date columns are copied from the first page, so normally you will not need to touch those.  You can put a payment amount in the Pay column, an adjustment amount in the Adjust column, or both.  You can also click the "W" on the right to automatically compute an adjustment value that writes off the remainder of the charge for that line item.
 The translated label that will appear on the form in current language
 The translated Title that will appear in current language
 The translation of description in current language
+The type of this entity
+The vendor-specific code identifying this procedure or result
 The X12 files as well as the resulting HTML output reports are archived in the "era" subdirectory of the main OpenEMR installation directory.  You will want to refer to these archives from time to time.  The URL is 
+The zip file will contain the following items
 Therapeutic Injections
 There are
+There are currently no prescriptions
 There are errors with your submission.  These are outlined below.
+There are no charts checked out.
 There are no New Submissions
+There are no notes on file for this patient.
 There has been a mail error sending to
 There is already a category named
 There is already a subcategory named
@@ -2976,6 +3308,7 @@ There is already an item named
 There is no COA entry for AR account 
 There is no COA entry for cash account 
 There is no COA entry for income account 
+There is no current patient
 There is no match for invoice id
 There is no match for invoice id = 
 There is no parts entry for services ID 
@@ -3003,10 +3336,12 @@ This module promotes efficient entry of EOB data.
 This page will inline include the login page, so that we do not have to click relogin every time.
 This patient has no activity.
 This patient ID is already in use!
+This product allows only one lot per warehouse.
 This user is not a member of any group
 This visit begins new contraceptive use
 This will create a backup in tar format and then send it to your web browser so you can save it
 Thoracic spine
+Thous/CU.MM
 Throat
 Throat Cancer
 Throat Cancer Surgery
@@ -3019,6 +3354,7 @@ Thyroid Problems
 TIA
 Time
 Time Increment for Add (minutes 1-60)
+Time selection
 Timed event
 Times array (N/A)
 Timestamp and Text
@@ -3033,6 +3369,8 @@ TMs/EAMs/EE, ext nose
 To
 TO
 to
+to absolute path of file
+To add notes, please click 
 To Affected Area
 to affected area
 To Billing View
@@ -3041,12 +3379,19 @@ To Clinical View
 To copay
 To ded'ble
 To Dems
+To Disable client side SSL certificates, comment above lines in Apache configuration file and set
+To Disable HTTPS, comment the above lines in Apache configuration file and restart Apache server.
+To enable Client side ssl certificates
+To Enable Client side SSL certificates authentication, HTTPS should be enabled.
+To Enable only HTTPS, perform the above changes and restart Apache server. If you want to configure client side certificates also, please configure them in the next section.
 To Enctr
 To filter by sex
 To History
 To Issues
+To link this encounter/consult to an existing issue, click the 
 To link this encounter/consult to an existing issue, click the desired issue above to highlight it and then click [Save]. Hold down [Ctrl] button to select multiple issues.
 to login again
+To setup https access with client certificate authentication, do the following
 To Skin
 to skin
 to this visit?
@@ -3066,17 +3411,19 @@ TO_VALEDICTORY
 Tobacco
 Tobacco use
 Today
+today
 Today\'s Date
 Today\'s Events
 Tonsillectomy
 Top
 Topic
-total
 Total
+total
 Total amount due
 Total Amount Paid
 Total Charges
 Total Clients
+Total Cost
 Total for
 Total for 
 Total for category
@@ -3089,10 +3436,14 @@ Training Type
 Transact
 transaction
 Transaction
+Transaction failed, insufficient quantity in destination lot
+Transaction failed, quantity is less than zero
 Transaction Type
 Transactions
 Transactions (write optional)
 Transactions/Referrals
+Transfer failed, insufficient quantity in source lot
+Transfers
 translate this
 Translation
 Translations
@@ -3116,13 +3467,16 @@ Tumour
 twice daily
 Tympanic Membrane
 Type
+Type of Events
 Type or scan the patient identifier here
+Types of Orders and Results
 UCSMC codes provided by the University of Calgary Sports Medicine Centre
 Ulcerations
 Ulcerative Colitis
 Ulcers:
 Unassigned
 Unauthorized access.
+Unbilled Only
 under tongue
 Underweight
 Undiagnosed
@@ -3136,6 +3490,8 @@ Unit
 Units
 units
 Units must be a number
+Units not defined
+Units/L
 Unknown
 Unknown or N/A
 Unnamed insurance company
@@ -3152,10 +3508,13 @@ Upcoming Appointments
 Upcoming Events
 Update
 update
+Update Active
 Update files
 Update Info
 Update List
+Update Provider Number
 Update Selected Items
+Update the following variables in file
 Update User Information
 Updating demographics is not authorized.
 UPIN
@@ -3170,6 +3529,7 @@ Upon clicking an invoice number the "manual posting window" appears. Here you ca
 Upon searching you are presented with a list of invoices.  You may click on one of the invoice numbers to open a second window, which is the data entry page for manual posting.  You may also click on a patient name if you want to enter a note that the front office staff will see when the patient checks in, and you may select invoices to appear on patient statements and print those statements.
 Upper arm
 Urgency
+Urine
 Urine Dribbling
 Urine Frequency
 Urine Hesitancy
@@ -3180,12 +3540,15 @@ Usage Indicator (ISA15)
 Use 24 hour time format?
 Use Defaults
 Use international date style?
+Use the fields below for a purchase or transfer.
 Use this feature only with newly installed sites, 
 Use topics?
 User
+User / Groups
 User Administration
 User and Facility Administration
 User and Group Administration
+User Certificate Authentication is disabled
 User Defined
 User Defined Area 11
 User Defined Area 12
@@ -3207,6 +3570,8 @@ User Defined Text 7
 User Defined Text 8
 User Manual
 User Memberships
+User name or Host name cannot be empty
+User or Host name
 Username
 Username for SMS Gateway
 Username:
@@ -3219,6 +3584,7 @@ Vacation
 Vaccine
 Vaginal Ring
 Valedictory
+Value
 Value 1
 Value 2
 Var1
@@ -3229,6 +3595,7 @@ Varicose Veins
 Vascular condition
 Vascular injury
 Vascular Surgery
+Vendor
 Version
 Vertigo
 Veterans Administration Plan
@@ -3241,6 +3608,7 @@ View encounter
 View events in a popup window?
 View Page 1
 View Page 2
+View Patient
 View related encounters
 View/Edit Allergies
 View:
@@ -3263,6 +3631,8 @@ Waist Circumference
 Waiting
 Walk-In
 Walt Pennington
+Warehouse
+Warehouses
 Warm
 WARNING
 Warning: A visit was already created for this patient today!
@@ -3278,9 +3648,12 @@ week
 Week
 Week View
 Week(s)
+Weekly Exposures
+Weeks
 Weight
 Weight Change
 Weight Loss
+Welcome
 What is to be counted?
 Wheezes:
 Wheezing
@@ -3299,6 +3672,7 @@ within minutes
 within minutes:
 Without Update
 Witness
+wk
 WNL
 Women
 Women Only
@@ -3340,6 +3714,7 @@ Yes, Delete and Log
 Yes/No
 Yes:
 You are about to permanently replace the existing template. Are you sure you wish to continue?
+You are in Grace Login period. Change your password before
 You are not allowed to delete this event
 You are not allowed to edit this event
 You are not authorized for this.
@@ -3356,6 +3731,7 @@ You do not have access to view/edit this note
 You have attempted to alter content which is locked. Remove the lock if you want to do this. To unlock, remove the line, '/*lock::*/'
 You must first select or add a patient.
 You must first select or create an encounter.
+You must select a visit category.
 You must select some fields to continue.
 You should be running this test if this claim appeared to generate successfully but the actual claim file does not contain any data or only an unfinished portion of the amount of data it is supposed to contain. It is obvious with HCFA claims because they are human readable, with X12 claims it is a more difficult process to determine if the claim is properly complete.
 Your end date is invalid
@@ -3363,6 +3739,10 @@ Your event has been deleted.
 Your event has been modified.
 Your event has been submitted.
 Your list name has been changed to meet naming requirements.
+Your name for this category, procedure or result
+Your Password Expired. Please change your password.
+Your Password Expires on
+Your Password Expires today. Please change your password.
 Your PostCalendar configuration has been reset to use defaults.
 Your PostCalendar configuration has been updated.
 Your repeating frequency must be an integer.
@@ -3378,6 +3758,7 @@ yyyy-mm-dd date of birth
 yyyy-mm-dd date of expiration
 yyyy-mm-dd Date of onset or hospitalization
 yyyy-mm-dd date of onset, surgery or start of medication
+yyyy-mm-dd date of purchase or transfer
 yyyy-mm-dd date of recovery or end of medication
 yyyy-mm-dd Date of return to play
 yyyy-mm-dd Date of service
@@ -3433,6 +3814,7 @@ $label (yyyy-mm-dd):
 (Notes and Authorizations)
 (Patient Notes)
 (Select one of these, or type your own title)
+(Shift-)Click or drag to change value
 * Reminder done
 ** Please move surgeries to Issues!
 *Required
