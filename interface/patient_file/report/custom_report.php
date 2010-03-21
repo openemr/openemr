@@ -51,6 +51,11 @@ function postToGet($arin) {
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<style>
+ @media print {
+  .navigateLink {display:none;}		
+ }		
+</style>
 </head>
 
 <body class="body_top">
