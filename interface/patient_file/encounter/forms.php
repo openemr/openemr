@@ -56,14 +56,14 @@ function expandcollapse(atr){
 		for(i=1;i<15;i++){
 			var mydivid="divid_"+i;var myspanid="spanid_"+i;
 				var ele = document.getElementById(mydivid);	var text = document.getElementById(myspanid);
-				ele.style.display = "block";text.innerHTML = "Collapse";
+				ele.style.display = "block";text.innerHTML = "<?php xl('Collapse','e'); ?>";
 		}
   	}
 	else {
 		for(i=1;i<15;i++){
 			var mydivid="divid_"+i;var myspanid="spanid_"+i;
 				var ele = document.getElementById(mydivid);	var text = document.getElementById(myspanid);
-				ele.style.display = "none";	text.innerHTML = "Expand";
+				ele.style.display = "none";	text.innerHTML = "<?php xl('Expand','e'); ?>";
 		}
 	}
 
@@ -74,11 +74,11 @@ function divtoggle(spanid, divid) {
 	var text = document.getElementById(spanid);
 	if(ele.style.display == "block") {
 		ele.style.display = "none";
-		text.innerHTML = "Expand";
+		text.innerHTML = "<?php xl('Expand','e'); ?>";
   	}
 	else {
 		ele.style.display = "block";
-		text.innerHTML = "Collapse";
+		text.innerHTML = "<?php xl('Collapse','e'); ?>";
 	}
 }
 </script>
@@ -137,8 +137,8 @@ if (is_numeric($pid)) {
 <div style='float:left;margin-left:10px'>
 <?php if (acl_check('admin', 'super')) { ?>
     <a href='toggledivs(this.id,this.id);' class='css_button' onclick='return deleteme()'><span><?php echo xl('Delete') ?></span></a>
-	&nbsp;&nbsp;&nbsp;<a href="#" onClick='expandcollapse("expand");' style="font-size:80%;">Expand All</a>
-	&nbsp;&nbsp;&nbsp;<a  style="font-size:80%;" href="#" onClick='expandcollapse("collapse");'>Collapse All</a>
+	&nbsp;&nbsp;&nbsp;<a href="#" onClick='expandcollapse("expand");' style="font-size:80%;"><?php xl('Expand All','e'); ?></a>
+	&nbsp;&nbsp;&nbsp;<a  style="font-size:80%;" href="#" onClick='expandcollapse("collapse");'><?php xl('Collapse All','e'); ?></a>
 <?php } ?>
 </div>
 <br/>
@@ -187,7 +187,7 @@ if (is_numeric($pid)) {
                 ($GLOBALS['concurrent_layout'] ? "_parent" : "Main") .
                 "' href='$rootdir/patient_file/encounter/view_form.php?" .
                 "formname=" . $formdir . "&id=" . $iter['form_id'] .
-                "' onclick='top.restoreSession()' class='css_button_small'><span>Edit</span></a>";
+                "' onclick='top.restoreSession()' class='css_button_small'><span>" . xl('Edit') . "</span></a>";
 
         if (acl_check('admin', 'super') ) {
             if ( $formdir != 'newpatient') {
@@ -201,12 +201,12 @@ if (is_numeric($pid)) {
                     "&pid=".$pid.
                     "' class='css_button_small' title='" . xl('Delete this form') . "' onclick='top.restoreSession()'><span>" . xl('Delete') . "</span></a>";
             } else {
-                ?><a href='javascript:;' class='css_button_small' style='color:gray'><span>Delete</span></a><?php
+                ?><a href='javascript:;' class='css_button_small' style='color:gray'><span><?php xl('Delete','e'); ?></span></a><?php
             }
         }
 
         echo "<div class='form_header'>";
-        echo "<a href='#' onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos'><b>$form_name</b> <span class='text'>by " . $user['fname'] . "  " . $user['lname'] . "</span> (<span id=spanid_$divnos class=\"indicator\">Collapse</span>)</a></div>";
+        echo "<a href='#' onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos'><b>$form_name</b> <span class='text'>by " . $user['fname'] . "  " . $user['lname'] . "</span> (<span id=spanid_$divnos class=\"indicator\">" . xl('Collapse') . "</span>)</a></div>";
         echo "</td>\n";
         echo "</tr>";
         echo "<tr>";

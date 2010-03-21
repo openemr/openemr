@@ -999,9 +999,9 @@ if (!empty($reg)) {
 <?php } ?>
       <li><span><?php xl('Procedures','e') ?></span>
         <ul>
-          <?php genPopLink('Pending Res','../orders/pending_orders.php'); ?>
-          <?php if (!empty($GLOBALS['code_types']['IPPF'])) genPopLink('Pending F/U','../orders/pending_followup.php'); ?>
-          <?php genPopLink('Statistics','../orders/procedure_stats.php'); ?>
+          <?php genPopLink(xl('Pending Res'),'../orders/pending_orders.php'); ?>
+          <?php if (!empty($GLOBALS['code_types']['IPPF'])) genPopLink(xl('Pending F/U'),'../orders/pending_followup.php'); ?>
+          <?php genPopLink(xl('Statistics'),'../orders/procedure_stats.php'); ?>
         </ul>
       </li>
 <?php if (! $GLOBALS['simplified_demographics']) { ?>
