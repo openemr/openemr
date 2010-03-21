@@ -197,7 +197,7 @@ $tres = sqlStatement("SELECT field_id, title FROM layout_options " .
 
 while ($trow = sqlFetchArray($tres)) {
   $extracols[$trow['field_id']] = $trow['title'];
-  echo "<th class='srMisc'>" . $trow['title'] . "</th>\n";
+  echo "<th class='srMisc'>" . xl_layout_label($trow['title']) . "</th>\n";
 }
 ?>
 
