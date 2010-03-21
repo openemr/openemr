@@ -8,6 +8,7 @@
 
 include_once("../../globals.php");
 include_once($GLOBALS["srcdir"] . "/api.inc");
+include_once($GLOBALS["srcdir"] . "/options.inc.php");
 
 function procedure_order_report($pid, $encounter, $cols, $id) {
  $cols = 1; // force always 1 column
@@ -25,7 +26,19 @@ function procedure_order_report($pid, $encounter, $cols, $id) {
    }
 
    $key=ucwords(str_replace("_"," ",$key));
-   print "<td valign='top'><span class='bold'>$key: </span><span class='text'>$value &nbsp;</span></td>\n";
+   if ($key == "Order Priority") {
+    print "<td valign='top'><span class='bold'>" . xl($key). ": </span><span class='text'>" .
+     generate_display_field(array('data_type'=>'1','list_id'=>'ord_priority'),$value) .
+     " &nbsp;</span></td>\n";
+   }
+   else if ($key == "Order Status") {
+    print "<td valign='top'><span class='bold'>" . xl($key). ": </span><span class='text'>" .
+     generate_display_field(array('data_type'=>'1','list_id'=>'ord_status'),$value) .
+     " &nbsp;</span></td>\n";
+   }
+   else {
+    print "<td valign='top'><span class='bold'>" . xl($key). ": </span><span class='text'>$value &nbsp;</span></td>\n";   
+   }
    $count++;
    if ($count == $cols) {
     $count = 0;
