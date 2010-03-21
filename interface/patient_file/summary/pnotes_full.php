@@ -242,7 +242,7 @@ if ($billing_note) {
   <td colspan='5' style="padding: 5px;" >
     <a href="#" class="change_activity" ><span><?php xl('Update Active','e'); ?></span></a>
     |
-    <a href="pnotes_full.php" class="" id='Submit'><span>Refresh</span></a>
+    <a href="pnotes_full.php" class="" id='Submit'><span><?php xl('Refresh','e'); ?></span></a>
   </td>
  </tr></table>
 <?php endif; ?>
