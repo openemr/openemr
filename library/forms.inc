@@ -92,6 +92,11 @@ function getEncounterDateByEncounter($encounter)
 	return sqlQuery($sql);
 }
 
+function getFormNameByFormdirAndFormid ($formdir,$form_id)
+{
+        return sqlQuery("select form_name from forms where formdir='$formdir' and form_id='$form_id'");
+}
+
 function getFormNameByFormdir ($formdir)
 {
 	return sqlQuery("select form_name from forms where formdir='$formdir'");

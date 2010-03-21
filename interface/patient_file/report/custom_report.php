@@ -394,7 +394,7 @@ foreach ($ar as $key => $val) {
                 $form_encounter = $val;
                 preg_match('/^(.*)_(\d+)$/', $key, $res);
                 $form_id = $res[2];
-                $formres = getFormNameByFormdir($res[1]);
+                $formres = getFormNameByFormdirAndFormid($res[1],$form_id);
                 $dateres = getEncounterDateByEncounter($form_encounter);
 
                 if ($res[1] == 'newpatient') {
