@@ -355,8 +355,8 @@ else {
 
 //Version tags
 
-$v_major = '3';
-$v_minor = '3';
+$v_major = '4';
+$v_minor = '0';
 $v_patch = '0';
 $tag = '-dev'; // minor revision number, should be empty for production releases
 
