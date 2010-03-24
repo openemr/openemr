@@ -576,6 +576,19 @@ $SMTP_PORT = 25;
 $SMTP_USER = "";
 $SMTP_PASS = "";
 
+// The following credentials are provided by OpenEMR Support LLC for testing.
+// When you sign up with their Lab Exchange service, they will provide you with your own credentials.
+
+/* use this for testing
+$siteId = "3";
+$token = "12345";
+$endpoint = "https://openemrsupport.com:29443/len/api";
+*/
+
+$siteId   = "";
+$token    = "";
+$endpoint = "";
+
 //settings for cronjob of the sms/email module
 // SEND SMS NOTIFICATION BEFORE HH HOUR
 $SMS_NOTIFICATION_HOUR = 50;

@@ -9,7 +9,7 @@ include_once("$srcdir/lists.inc");
 include_once("$srcdir/patient.inc");
 include_once("$srcdir/options.inc.php");
 
-//the number of authorizations to display in the quick view:
+// The number of authorizations to display in the quick view:
 // MAR 20041008 the full authorizations screen sucks... no links to the patient charts
 // increase to a high number to make the mini frame more useful.
 $N = 50;
@@ -66,15 +66,8 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 <img src="<?php echo $GLOBALS['webroot']; ?>/images/min.gif">
 </div>
 
-<?php
-$_GET['show_all']=='yes' ? $lnkvar="'authorizations.php?show_all=no' name='Just Mine'> (".xl('Just Mine').") " : $lnkvar="'authorizations.php?show_all=yes' name='See All'>(".xl('See All').")"; 
-?>
-
-<span class='title'><?php xl('Patient Notes','e')?> </span>
-<a class='more' href=<?php echo $lnkvar; ?></a>
-
 <?php if ($imauthorized) { ?>
-<span class='title'><?php xl('and ','e')?>
+<span class='title'>
 <?php if ($GLOBALS['concurrent_layout']) { ?>
 <a href='authorizations_full.php'>
 <?php } else { ?>
@@ -91,62 +84,6 @@ $_GET['show_all']=='yes' ? $lnkvar="'authorizations.php?show_all=no' name='Just 
 <a href="#" id="findpatients" name='Find Patients'>(<?php xl('Find Patient','e')?>)</a>
 </span>
 <?php } ?>
-
-<div id="pnotes">
-<?php
-// Retrieve all active notes addressed to me (or to anybody)
-$_GET['show_all']=='yes' ? $usrvar='_%' : $usrvar=$_SESSION['authUser'] ; 
-if ($result=getPnotesByDate("", 1, "id,date,body,pid,user,title,assigned_to", '%', "all", 0, $usrvar))
-{
-  echo "<table border='0'>\n";
-  echo " <tr>\n";
-  echo "  <td class='bold' nowrap>".xl('Patient')." &nbsp;</td>\n";
-  echo "  <td class='bold' nowrap>".xl('Note Type')." &nbsp;</td>\n";
-  echo "  <td class='bold' nowrap>".xl('Timestamp and Text')."</td>\n";
-  echo " </tr>\n";
-
-  foreach ($result as $iter) {
-    $body = $iter['body'];
-    if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
-      $body = nl2br($body);
-    } else {
-      $body = date('Y-m-d H:i', strtotime($iter['date'])) .
-        ' (' . $iter['user'] . ') ' . nl2br($body);
-    }
-
-    echo " <tr class='noterow' id='".$iter['pid']."~".$iter['id']."'>\n";
-    echo "  <td valign='top' class='text'>\n";
-    echo getPatientName($iter['pid']) . "\n";
-    echo "  </td>\n";
-    echo "  <td valign='top'>\n";
-
-    if ($GLOBALS['concurrent_layout']) {
-      // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings	
-      echo "   <a href='../../patient_file/summary/pnotes_full.php" .
-           "?set_pid=" . $iter['pid'] . "&noteid=" . $iter['id'] .
-           "&active=1' class='link_submit'>" .
-	   generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']) .
-	   "</a>\n";
-    } else {
-      // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
-      echo "   <a href='../../patient_file/patient_file.php" .
-           "?set_pid=" . $iter['pid'] . "&noteid=" . $iter['id'] .
-           "' target='_top' class='link_submit'>" .
-	   generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']) .
-	   "</a>\n";
-    }
-
-    echo "  </td>\n";
-    echo "  <td valign='top' class='text'>\n";
-    echo "   $body\n";
-    echo "  </td>\n";
-    echo " </tr>\n";
-  }
-
-  echo "</table>\n";
-}
-?>
-</div> <!-- end of pnotes -->
 
 <?php
 if ($imauthorized && $see_auth > 1) {
@@ -204,7 +141,7 @@ if (empty($GLOBALS['ignore_pnotes_authorization'])) {
           stripslashes(strterm($iter{"body"},25)) . " " .
           date("n/j/Y",strtotime($iter{"date"})) . "</span><br>\n";
       }
-      //$authorize[$iter{"pid"}]{"pnotes"} = substr($authorize[$iter{"pid"}]{"pnotes"},0,strlen($authorize[$iter{"pid"}]{"pnotes"}));
+      // $authorize[$iter{"pid"}]{"pnotes"} = substr($authorize[$iter{"pid"}]{"pnotes"},0,strlen($authorize[$iter{"pid"}]{"pnotes"}));
     }
   }
 }
@@ -221,7 +158,7 @@ if ($res = sqlStatement("select * from forms where authorized = 0 and " .
         $iter{"form_name"} . " " . date("n/j/Y",strtotime($iter{"date"})) .
         "</span><br>\n";
     }
-    //$authorize[$iter{"pid"}]{"forms"} = substr($authorize[$iter{"pid"}]{"forms"},0,strlen($authorize[$iter{"pid"}]{"forms"}));
+    // $authorize[$iter{"pid"}]{"forms"} = substr($authorize[$iter{"pid"}]{"forms"},0,strlen($authorize[$iter{"pid"}]{"forms"}));
   }
 }
 // echo "HERE"; // what the heck was this for?
@@ -257,8 +194,8 @@ if ($authorize) {
       // as demographics.php takes care of loading the bottom frame.
 
         echo "<a href='$rootdir/patient_file/summary/demographics.php?set_pid=$ppid' " .
-          "target='RTop'>";      
-        
+          "target='RTop'>";
+
     } else {
       echo "<a href='$rootdir/patient_file/patient_file.php?set_pid=$ppid' " .
         "target='_top'>";

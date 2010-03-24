@@ -16,7 +16,7 @@ function getPnoteById($id, $cols = "*")
 }
 
 function getPnotesByDate($date, $activity = "1", $cols = "*", $pid = "%",
-  $limit = "all", $start = 0, $username = '', $docid = 0)
+  $limit = "all", $start = 0, $username = '', $docid = 0, $status = "")
 {
   if ($docid) {
     $sql = "SELECT $cols FROM pnotes AS p, gprelations AS r " .
@@ -32,6 +32,8 @@ function getPnotesByDate($date, $activity = "1", $cols = "*", $pid = "%",
     $sql .= " AND activity = '$activity'";
   if ($username)
     $sql .= " AND assigned_to LIKE '$username'";
+  if ($status)
+    $sql .= " AND message_status IN ('".str_replace(",", "','", $status)."')";
   $sql .= " ORDER BY date DESC";
   if($limit != "all")
     $sql .= " LIMIT $start, $limit";

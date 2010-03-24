@@ -59,6 +59,7 @@
   //   trans       Transactions, e.g. referrals (write optional)
   //   docs        Documents (write,addonly optional)
   //   notes       Patient Notes (write,addonly optional)
+  //   sign        Sign Lab Results (write,addonly optional)
   //
   // Section "encounters" (Encounter Information):
   //   auth        Authorize - my encounters

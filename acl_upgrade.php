@@ -34,6 +34,9 @@
 //       ADD  ethrace   Ethnicity-Race List (write,addonly optional)  (Administrators)
 //     ADD Section "placeholder" (Placeholder):
 //       ADD  filler    Placeholder (Maintains empty ACLs)
+//   3.3.0
+//     Section "patients" (Patients):
+//       ADD  sign  Sign Lab Results (Physicians)
 
 //Ensure that phpGACL has been installed
 include_once('library/acl.inc');
@@ -94,6 +97,8 @@ addObjectAcl('lists', 'Lists', 'language', 'Language List (write,addonly optiona
 addObjectAcl('lists', 'Lists', 'ethrace', 'Ethnicity-Race List (write,addonly optional)');
 //Add 'Placeholder (Maintains empty ACLs)' object (added in 3.0.2)
 addObjectAcl('placeholder', 'Placeholder', 'filler', 'Placeholder (Maintains empty ACLs)');
+//Add 'Sign Lab Results (write,addonly optional)' object (added in 3.3.0)
+addObjectAcl('patients', 'Patients', 'sign', 'Sign Lab Results (write,addonly optional)');
 
 //Update already existing Objects
 echo "<BR/><B>Upgrading objects</B><BR/>";
@@ -217,6 +222,9 @@ updateAcl($emergency_write, 'Emergency Login', 'patients', 'Patients', 'notes', 
 updateAcl($emergency_write, 'Emergency Login', 'sensitivities', 'Sensitivities', 'high', 'High', 'write');
 //Insert the 'normal' object from the 'sensitivities' section into the Emergency Login group write ACL (added in 3.3.0)
 updateAcl($emergency_write, 'Emergency Login', 'sensitivities', 'Sensitivities', 'normal', 'Normal', 'write');
+//Insert the 'sign' object from the 'patients' section into the Physicians group write ACL (added in 3.3.0)
+updateAcl($doc_write, 'Physicians', 'patients', 'Patients', 'sign', 'Sign Lab Results (write,addonly optional)', 'write');
+
 
 //Function will return an array that contains the ACL ID number.
 //It will also check to ensure the ACL exist and is not duplicated.

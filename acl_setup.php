@@ -132,18 +132,20 @@
 
  // Create ACOs for patients.
  //
- $gacl->add_object('patients', 'Appointments (write optional)'           , 'appt' , 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Appointments (write optional)'            , 'appt' , 10, 0, 'ACO');
      // xl('Appointments (write optional)')
- $gacl->add_object('patients', 'Demographics (write,addonly optional)'   , 'demo' , 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Demographics (write,addonly optional)'    , 'demo' , 10, 0, 'ACO');
      // xl('Demographics (write,addonly optional)')
- $gacl->add_object('patients', 'Medical/History (write,addonly optional)', 'med'  , 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Medical/History (write,addonly optional)' , 'med'  , 10, 0, 'ACO');
      // xl('Medical/History (write,addonly optional)')
- $gacl->add_object('patients', 'Transactions (write optional)'           , 'trans', 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Transactions (write optional)'            , 'trans', 10, 0, 'ACO');
      // xl('Transactions (write optional)')
- $gacl->add_object('patients', 'Documents (write,addonly optional)'      , 'docs' , 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Documents (write,addonly optional)'       , 'docs' , 10, 0, 'ACO');
      // xl('Documents (write,addonly optional)')
- $gacl->add_object('patients', 'Patient Notes (write,addonly optional)'  , 'notes', 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Patient Notes (write,addonly optional)'   , 'notes', 10, 0, 'ACO');
      // xl('Patient Notes (write,addonly optional)')
+ $gacl->add_object('patients', 'Sign Lab Results (write,addonly optional)', 'sign'  , 10, 0, 'ACO');
+     // xl('Sign Lab Results (write,addonly optional)')
 
  // Create ACOs for sensitivities.
  //
@@ -220,7 +222,7 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
    'acct'=>array('disc', 'rep'),
    'admin'=>array('drugs'),
    'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
-   'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes'),
+   'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign'),
    'sensitivities'=>array('normal', 'high')
   ),
   NULL, array($doc), NULL, NULL,

@@ -14,11 +14,33 @@ require_once("$srcdir/options.inc.php");
 // Indicates if we are entering in batch mode.
 $form_batch = empty($_GET['batch']) ? 0 : 1;
 
+// Indicates if we are entering in review mode.
+$form_review = empty($_GET['review']) ? 0 : 1;
+
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
 if (!$thisauth) die(xl('Not authorized'));
 
-if (!$form_batch && !$pid) die(xl('There is no current patient'));
+// Check authorization for panding review.
+$reviewauth = acl_check('patients', 'sign');
+if ($form_review and !$reviewauth and !$thisauth) die(xl('Not authorized'));
+
+// Set pid for panding review.
+if ($_GET['set_pid'] && $form_review) {
+  require_once("$srcdir/pid.inc");
+  require_once("$srcdir/patient.inc");
+  setpid($_GET['set_pid']);
+  
+  $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
+  ?>
+  <script language='JavaScript'>
+    parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' ".xl('DOB').": ".$result['DOB_YMD'] ." ".xl('Age').": ".getPatientAge($result['DOB_YMD'])."'"; ?>);
+    parent.left_nav.setRadio(window.name, 'orp');
+  </script>
+  <?
+}
+
+if (!$form_batch && !$pid && !$form_review) die(xl('There is no current patient'));
 
 function oresData($name, $index) {
   $s = isset($_POST[$name][$index]) ? $_POST[$name][$index] : '';
@@ -50,11 +72,16 @@ if ($_POST['form_submit']) {
         "date_collected = " . QuotedOrNull(oresData("form_date_collected", $lino)) . ", " .
         "specimen_num = '" . oresData("form_specimen_num", $lino) . "', " .
         "report_status = '" . oresData("form_report_status", $lino) . "'";
-      if ($report_id) { // report already exists
+
+      // Set the review status to reviewed.
+      if ($form_review) 
+        $sets .= ", review_status = 'reviewed'";
+    
+      if ($report_id) { // Report already exists.
         sqlStatement("UPDATE procedure_report SET $sets "  .
           "WHERE procedure_report_id = '$report_id'");
       }
-      else { // add new report
+      else { // Add new report.
         $report_id = sqlInsert("INSERT INTO procedure_report SET $sets");
       }
     }
@@ -70,7 +97,7 @@ if ($_POST['form_submit']) {
         "procedure_type_id = '$restyp_id', " .
         "abnormal = '" . oresData("form_result_abnormal", $lino) . "', " .
         "result = '" . oresData("form_result_result", $lino) . "', " .
-        "range = '" . oresData("form_result_range", $lino) . "', " .
+        "`range` = '" . oresData("form_result_range", $lino) . "', " .
         "facility = '" . oresData("form_facility", $lino) . "', " .
         "comments = '" . oresData("form_comments", $lino) . "', " .
         "result_status = '" . oresData("form_result_status", $lino) . "'";
@@ -78,7 +105,7 @@ if ($_POST['form_submit']) {
         sqlStatement("UPDATE procedure_result SET $sets "  .
           "WHERE procedure_result_id = '$result_id'");
       }
-      else { // add new result
+      else { // Add new result.
         $result_id = sqlInsert("INSERT INTO procedure_result SET $sets");
       }
     }
@@ -253,7 +280,7 @@ function validate(f) {
 </head>
 
 <body class="body_top">
-<form method='post' action='orders_results.php?batch=<?php echo $form_batch; ?>'
+<form method='post' action='orders_results.php?batch=<?php echo $form_batch; ?>&review=<?php echo $form_review; ?>'
  onsubmit='return validate(this)'>
 
 <table>
@@ -343,7 +370,7 @@ $selects =
   "pt2.procedure_type_id AS result_type_id, pt2.name AS result_name, " .
   "pt2.units AS result_def_units, pt2.range AS result_def_range, " .
   "pt2.description AS result_description, lo.title AS units_name, " .
-  "pr.procedure_report_id, pr.date_report, pr.date_collected, pr.specimen_num, pr.report_status, " .
+  "pr.procedure_report_id, pr.date_report, pr.date_collected, pr.specimen_num, pr.report_status, pr.review_status, " .
   "ps.procedure_result_id, ps.abnormal, ps.result, ps.range, ps.result_status, " .
   "ps.facility, ps.comments";
 
@@ -423,6 +450,16 @@ while ($row = sqlFetchArray($res)) {
   $result_status    = empty($row['result_status'   ]) ? '' : $row['result_status'];
   $result_def_units = empty($row['result_def_units']) ? '' : $row['result_def_units'];
   $units_name       = empty($row['units_name'      ]) ? xl('Units not defined') : $row['units_name'];
+
+  $review_status    = empty($row['review_status'   ]) ? 'received' : $row['review_status'];
+  
+  // skip report_status = receive to make sure do not show the report before it reviewed and sign off by Physicians
+  if ($form_review) {
+    if ($review_status == "reviewed") continue;
+  }
+  else {
+    if ($review_status == "received") continue;
+  }
 
   if ($lastpoid != $order_id) ++$encount;
   $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
@@ -566,9 +603,32 @@ while ($row = sqlFetchArray($res)) {
 ?>
 </table>
 
-<center><p>
- <input type='submit' name='form_submit' value='<?php xl('Save','e'); ?>' />
-</p></center>
+<?php
+if ($form_review) {
+ // if user authorised for panding review.
+ if ($reviewauth) {
+ ?>
+  <center><p>
+   <input type='submit' name='form_submit' value='<?php xl('Sign Results','e'); ?>' />
+  </p></center>
+ <?php
+ }
+ else {
+ ?>
+  <center><p>
+   <input type='button' name='form_submit' value='<?php xl('Sign Results','e'); ?>' onclick="alert('<?php xl('Not authorized','e') ?>');" />
+  </p></center>
+ <?php
+ }
+}
+else {
+?>
+ <center><p>
+  <input type='submit' name='form_submit' value='<?php xl('Save','e'); ?>' />
+ </p></center>
+<?php
+}
+?>
 
 <?php } ?>
 

@@ -100,6 +100,7 @@
  $primary_docs = array(
   'ros' => array(xl('Roster')    , 0, 'reports/players_report.php?embed=1'),
   'cal' => array(xl('Calendar')  , 0, 'main/main_info.php'),
+  'msg' => array(xl('Messages')  , 0, 'main/messages/messages.php'),
   'pwd' => array(xl('Password')  , 0, 'usergroup/user_info.php'),
   'adm' => array(xl('Admin')     , 0, 'usergroup/admin_frameset.php'),
   'rep' => array(xl('Reports')   , 0, 'reports/index.php'),
@@ -112,7 +113,7 @@
   'imp' => array(xl('Import')    , 0, '../custom/import.php'),
   'bil' => array(xl('Billing')   , 0, 'billing/billing_report.php'),
   'sup' => array(xl('Superbill') , 0, 'patient_file/encounter/superbill_custom_full.php'),
-  'aun' => array(xl('Auth/notes'), 0, 'main/authorizations/authorizations.php'),
+  'aun' => array(xl('Authorizations'), 0, 'main/authorizations/authorizations.php'),
   'new' => array(xl('New Pt')    , 0, 'new/new.php'),
   'dem' => array(xl('Patient')   , 1,  "patient_file/summary/demographics.php"),
   'his' => array(xl('History')   , 1, 'patient_file/history/history.php'),
@@ -122,6 +123,7 @@
   'iss' => array(xl('Issues')    , 1, 'patient_file/summary/stats_full.php?active=all'),
   'imm' => array(xl('Immunize')  , 1, 'patient_file/summary/immunizations.php'),
   'doc' => array(xl('Documents') , 1, '../controller.php?document&list&patient_id={PID}'),
+  'orp' => array(xl('Proc Pending Rev'), 1, 'orders/orders_results.php?review=1'),
   'orr' => array(xl('Proc Res')  , 1, 'orders/orders_results.php'),
   'prp' => array(xl('Pt Report') , 1, 'patient_file/report/patient_report.php'),
   'pno' => array(xl('Pt Notes')  , 1, 'patient_file/summary/pnotes.php'),
@@ -771,7 +773,7 @@ function getEncounterTargetFrame( name ) {
           <?php genTreeLink('RTop','doc',xl('Document/Imaging Store'),true); ?>
           <?php genTreeLink('RTop','prp',xl('Patient Printed Report')); ?>
           <?php genDualLink('dem','pno',xl('Additional Notes')); // with dem on top ?>
-          <li><a href='' onclick="return repPopup('../patient_file/letter.php')" id='prp1'>Letter</a></li>
+          <li><a href='' onClick="return repPopup('../patient_file/letter.php')" id='prp1'>Letter</a></li>
           <?php genPopLink('Address Book','../usergroup/addrbook_list.php?popup=1'); ?>
          </ul>
       </li>
@@ -841,7 +843,7 @@ function getEncounterTargetFrame( name ) {
   </li>
   <li><span><?php xl('Miscellaneous','e') ?></span>
     <ul>
-      <?php genTreeLink('RBot','aun',xl('Pt Notes/Auth')); ?>
+      <?php genTreeLink('RBot','aun',xl('Authorizations')); ?>
       <?php genTreeLink('RTop','fax',xl('Fax/Scan')); ?>
       <?php genTreeLink('RTop','adb',xl('Addr Book')); ?>
       <?php genTreeLink('RTop','ono',xl('Ofc Notes')); ?>
@@ -854,6 +856,7 @@ function getEncounterTargetFrame( name ) {
 
 <ul id="navigation">
   <?php if (!$GLOBALS['disable_calendar'] && !$GLOBALS['ippf_specific']) genTreeLink('RTop','cal',xl('Calendar')); ?>
+  <?php genTreeLink('RTop','msg',xl('Messages')); ?>
   <li class="open"><span><?php xl('Patient/Client','e') ?></span>
     <ul>
       <li><span><?php xl('Management','e') ?></span>
@@ -925,6 +928,7 @@ if (!empty($reg)) {
   <li><span><?php xl('Procedures','e') ?></span>
     <ul>
       <?php genTreeLink('RTop','ort',xl('Configuration')); ?>
+      <?php genTreeLink('RTop','orp',xl('Pending Review')); ?>
       <?php genTreeLink('RTop','orr',xl('Patient Results')); ?>
       <?php genTreeLink('RTop','orb',xl('Batch Results')); ?>
     </ul>
@@ -1045,7 +1049,7 @@ if (!empty($reg)) {
   </li>
   <li><span><?php xl('Miscellaneous','e') ?></span>
     <ul>
-      <?php genTreeLink('RBot','aun',xl('Pt Notes/Auth')); ?>
+      <?php genTreeLink('RBot','aun',xl('Authorizations')); ?>
       <?php genTreeLink('RTop','fax',xl('Fax/Scan')); ?>
       <?php genTreeLink('RTop','adb',xl('Addr Book')); ?>
       <?php genTreeLink('RTop','ort',xl('Order Catalog')); ?>
@@ -1165,7 +1169,7 @@ if (!empty($reg)) {
 
 <hr />
 <?php if (!empty($GLOBALS['online_support_link'])) { ?>
-<a href='<?php echo $GLOBALS["online_support_link"]; ?>' target="_blank" id="support_link" class='css_button' onclick="top.restoreSession()"><span><?php xl('Online Support','e'); ?></span></a>
+<a href='<?php echo $GLOBALS["online_support_link"]; ?>' target="_blank" id="support_link" class='css_button' onClick="top.restoreSession()"><span><?php xl('Online Support','e'); ?></span></a>
 <?php } ?>
 
 <input type='hidden' name='findBy' value='Last' />
