@@ -52,58 +52,58 @@ switch($task) {
     {
         // Add a new message for a specific patient; the message is documented in Patient Notes.
         // Add a new message; it's treated as a new note in Patient Notes.
-	$note = strip_escape_custom($_POST['note']);
+        $note = strip_escape_custom($_POST['note']);
         $noteid = formData("noteid");
         $form_note_type = formData("form_note_type");
         $assigned_to = formData("assigned_to");
-        $form_messsage_status = formData("form_messsage_status");
+        $form_message_status = formData("form_message_status");
         $reply_to = formData("reply_to");
         $userauthorized = formData("userauthorized");
         if ($noteid) {
           updatePnote($noteid, $note, $form_note_type, $assigned_to);
-          sqlQuery("update pnotes set message_status='".$form_messsage_status."' where id = '".$noteid."'");
+          sqlQuery("update pnotes set message_status='".$form_message_status."' where id = '".$noteid."'");
           $noteid = '';
         }
         else {
           $noteid = addPnote($reply_to, $note, $userauthorized, '1', $form_note_type, $assigned_to);
-          sqlQuery("update pnotes set message_status='".$form_messsage_status."' where id = '$noteid'");
+          sqlQuery("update pnotes set message_status='".$form_message_status."' where id = '$noteid'");
         }
     } break;
     case "save" : {
         // Update alert.
         $noteid = formData("noteid");
-        $form_messsage_status = formData("form_messsage_status");
-        sqlQuery("update pnotes set message_status='".$form_messsage_status."' where id = '".$noteid."'");
+        $form_message_status = formData("form_message_status");
+        sqlQuery("update pnotes set message_status='".$form_message_status."' where id = '".$noteid."'");
         $task = "edit";
         $note = formData("note");
-		$title = formData("form_note_type");
+        $title = formData("form_note_type");
         $assigned_to = formData("assigned_to");
         $reply_to = formData("reply_to");
     }
     case "edit" : {
-		if ($noteid == "") {
-			$noteid = formData('noteid', 'G');
-		}
+        if ($noteid == "") {
+            $noteid = formData('noteid', 'G');
+        }
         // Update the message if it already exists; it's appended to an existing note in Patient Notes.
         $sql = "select title, assigned_to, body, pid, message_status from pnotes where id='$noteid'";
         $result = sqlStatement($sql);
         if ($myrow = sqlFetchArray($result)) {
-			if ($title == ""){
-				$title = $myrow['title'];
-			}
-			if ($assigned_to == ""){
-				$assigned_to = $myrow['assigned_to'];
-			}
+            if ($title == ""){
+                $title = $myrow['title'];
+            }
+            if ($assigned_to == ""){
+                $assigned_to = $myrow['assigned_to'];
+            }
             $body = $myrow['body'];
-			if ($reply_to == ""){
-				$reply_to = $myrow['pid'];
-			}
-            $form_messsage_status = $myrow['message_status'];
+            if ($reply_to == ""){
+                $reply_to = $myrow['pid'];
+            }
+            $form_message_status = $myrow['message_status'];
         }
     } break;
     case "delete" : {
         // Delete selected message(s) from the Messages box (only).
-		$delete_id = $_POST['delete_id'];
+        $delete_id = $_POST['delete_id'];
         for($i = 0; $i < count($delete_id); $i++) {
             sqlQuery("delete from pnotes where id='$delete_id[$i]'");
         }
@@ -167,10 +167,10 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
    &nbsp; &nbsp;
    <b><?php xl('Status','e'); ?>:</b>
     <?php
-   if ($form_messsage_status == "") {
-       $form_messsage_status = 'New';
+   if ($form_message_status == "") {
+       $form_message_status = 'New';
    }
-    generate_form_field(array('data_type'=>1,'field_id'=>'messsage_status','list_id'=>'messsage_status','empty_title'=>'SKIP','order_by'=>'title'), $form_messsage_status); ?>
+    generate_form_field(array('data_type'=>1,'field_id'=>'message_status','list_id'=>'message_status','empty_title'=>'SKIP','order_by'=>'title'), $form_message_status); ?>
   </td>
  </tr>
  <tr>
@@ -209,20 +209,20 @@ if ($noteid) {
 $(document).ready(function(){
     $("#newnote").click(function() { NewNote(); });
     $("#printnote").click(function() { PrintNote(); });
-    obj = document.getElementById("form_messsage_status");
+    obj = document.getElementById("form_message_status");
     obj.onchange = function(){SaveNote();};
     $("#cancel").click(function() { CancelNote(); });
     $("#note").focus();
 
     var NewNote = function () {
         top.restoreSession();
-	  if (document.forms[0].reply_to.value.length == 0) {
-	   alert('<?php xl('Please choose a value for Re!', 'e') ?>');
-	  }
-	  else
-	  {
+      if (document.forms[0].reply_to.value.length == 0) {
+       alert('<?php xl('Please choose a value for Re!', 'e') ?>');
+      }
+      else
+      {
         $("#new_note").submit();
-	  }
+      }
     }
 
     var PrintNote = function () {
@@ -231,11 +231,11 @@ $(document).ready(function(){
     }
 
     var SaveNote = function () {
-	<?php if ($noteid) { ?>
+    <?php if ($noteid) { ?>
         top.restoreSession();
         $("#task").val("save");
         $("#new_note").submit();
-		<?php } ?>
+        <?php } ?>
     }
 
     var CancelNote = function () {

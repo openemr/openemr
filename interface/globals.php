@@ -580,14 +580,14 @@ $SMTP_PASS = "";
 // When you sign up with their Lab Exchange service, they will provide you with your own credentials.
 
 /* use this for testing
-$siteId = "3";
-$token = "12345";
-$endpoint = "https://openemrsupport.com:29443/len/api";
+$LAB_EXCHANGE_SITEID   = "3";
+$LAB_EXCHANGE_TOKEN    = "12345";
+$LAB_EXCHANGE_ENDPOINT = "https://openemrsupport.com:29443/len/api";
 */
 
-$siteId   = "";
-$token    = "";
-$endpoint = "";
+$LAB_EXCHANGE_SITEID   = "";
+$LAB_EXCHANGE_TOKEN    = "";
+$LAB_EXCHANGE_ENDPOINT = "";
 
 //settings for cronjob of the sms/email module
 // SEND SMS NOTIFICATION BEFORE HH HOUR

@@ -14,16 +14,16 @@
     
 
     // Create the REST client
-    $client = new LabExchangeClient($siteId, $token, $endpoint);
+    $client = new LabExchangeClient($LAB_EXCHANGE_SITEID, $LAB_EXCHANGE_TOKEN, $LAB_EXCHANGE_ENDPOINT);
 
     // Make the request
     $response = $client->sendRequest("results", "GET");
 
     // Check response for success or error
     if($response->IsError)
-        echo "Error getting lab results from Lab Exchange Network: {$response->ErrorMessage}\n";
+        echo xl("Error getting lab results from Lab Exchange Network").": {$response->ErrorMessage}\n";
     else {
-        echo "Success getting lab results \n";
+        echo xl("Success getting lab results")." \n";
         $resultSet = $response->ResponseXml;
 
         // For each lab result message
@@ -92,42 +92,42 @@
                 $date = '';
                 $date = substr($observationDate,0,8);
             
-                $check_type = sqlQuery("SELECT COUNT(*) AS count FROM procedure_type WHERE procedure_type_id = '".formDataCore($observationCode)."'");
+                $check_type = sqlQuery("SELECT COUNT(*) AS count FROM procedure_type WHERE procedure_type_id = '".add_escape_custom($observationCode)."'");
                 
                 if ($check_type['count'] <= 0) {
                     $sql_type_data = 
-                        "procedure_type_id = '".formDataCore($observationCode)."', " .
-                        "name = '".formDataCore($observationText)."', ".
+                        "procedure_type_id = '".add_escape_custom($observationCode)."', " .
+                        "name = '".add_escape_custom($observationText)."', ".
                         "procedure_type = 'res'";
                         
                     $type_id = sqlInsert("INSERT INTO procedure_type SET $sql_type_data");
                 }
                 
-                $check_order = sqlQuery("SELECT COUNT(*) AS count, procedure_order_id, provider_id, patient_id FROM procedure_order WHERE control_id = '".formDataCore($controlId)."' AND procedure_type_id = '".formDataCore($observationCode)."'");
+                $check_order = sqlQuery("SELECT COUNT(*) AS count, procedure_order_id, provider_id, patient_id FROM procedure_order WHERE control_id = '".add_escape_custom($controlId)."' AND procedure_type_id = '".add_escape_custom($observationCode)."'");
                 
                 if ($check_order['count'] <= 0) {
                     $sql_order_data = 
-                        "procedure_type_id = '".formDataCore($observationCode)."', " .
-                        "provider_id = '".formDataCore($user_id)."', " .
-                        "patient_id = '".formDataCore($patient_id)."', " .
-                        "date_collected = DATE_FORMAT('".formDataCore($observationDate.'00')."', '%Y%m%d%H%i%s'), " .
-                        "date_ordered = DATE_FORMAT('".formDataCore($date)."', '%Y%m%d'), " .
+                        "procedure_type_id = '".add_escape_custom($observationCode)."', " .
+                        "provider_id = '".add_escape_custom($user_id)."', " .
+                        "patient_id = '".add_escape_custom($patient_id)."', " .
+                        "date_collected = DATE_FORMAT('".add_escape_custom($observationDate.'00')."', '%Y%m%d%H%i%s'), " .
+                        "date_ordered = DATE_FORMAT('".add_escape_custom($date)."', '%Y%m%d'), " .
                         "order_priority = 'normal', " .
                         "order_status = 'Complete', " .
-                        "control_id = '".formDataCore($controlId)."'";
+                        "control_id = '".add_escape_custom($controlId)."'";
                         
                     $order_id = sqlInsert("INSERT INTO procedure_order SET $sql_order_data");
                 }
                 else {
                     $sql_order_data =
-                        "provider_id = '".formDataCore($user_id)."', " .
-                        "date_collected = DATE_FORMAT('".formDataCore($observationDate.'00')."', '%Y%m%d%H%i%s'), " .
+                        "provider_id = '".add_escape_custom($user_id)."', " .
+                        "date_collected = DATE_FORMAT('".add_escape_custom($observationDate.'00')."', '%Y%m%d%H%i%s'), " .
                         "order_priority = 'normal', " .
                         "order_status = 'Complete'";
                         
                     if ($check_order['patient_id'] == "") {
                         $sql_order_data .=
-                        ", patient_id = '".formDataCore($patient_id)."'";
+                        ", patient_id = '".add_escape_custom($patient_id)."'";
                     }
                     else {
                         $patient_id = $check_order['patient_id'];
@@ -135,40 +135,40 @@
                     
                     if ($check_order['provider_id'] == "" or $check_order['provider_id'] <= 0) {
                         $sql_order_data .=
-                        ", provider_id = '".formDataCore($user_id)."'";
+                        ", provider_id = '".add_escape_custom($user_id)."'";
                     }
                     else {
                         $user_id = $check_order['provider_id'];
                     }
                         
                     $order_id = $check_order['procedure_order_id'];
-                    sqlStatement("UPDATE procedure_order SET $sql_order_data WHERE procedure_order_id = '".formDataCore($order_id)."'");
+                    sqlStatement("UPDATE procedure_order SET $sql_order_data WHERE procedure_order_id = '".add_escape_custom($order_id)."'");
                 }
                 
                 $report_status = mapReportStatus($observationStatus);
                 
-                $check_report = sqlQuery("SELECT COUNT(*) AS count, procedure_report_id FROM procedure_report WHERE procedure_order_id = '".formDataCore($order_id)."'");
+                $check_report = sqlQuery("SELECT COUNT(*) AS count, procedure_report_id FROM procedure_report WHERE procedure_order_id = '".add_escape_custom($order_id)."'");
                 
                 if ($check_report['count'] <= 0) {
                     $sql_report_data = 
-                        "procedure_order_id = '".formDataCore($order_id)."', ".
-                        "date_collected = DATE_FORMAT('".formDataCore($observationDate."00")."', '%Y%m%d%H%i%s'), " .
-                        "source = '".formDataCore($user_id)."', " .
-                        "date_report = DATE_FORMAT('".formDataCore($date)."', '%Y%m%d'), " .
-                        "report_status = '".formDataCore($report_status)."', ".
+                        "procedure_order_id = '".add_escape_custom($order_id)."', ".
+                        "date_collected = DATE_FORMAT('".add_escape_custom($observationDate."00")."', '%Y%m%d%H%i%s'), " .
+                        "source = '".add_escape_custom($user_id)."', " .
+                        "date_report = DATE_FORMAT('".add_escape_custom($date)."', '%Y%m%d'), " .
+                        "report_status = '".add_escape_custom($report_status)."', ".
                         "review_status = 'received'";
                         
                     $report_id = sqlInsert("INSERT INTO procedure_report SET $sql_report_data");
                 }
                 else {
                     $sql_report_data =
-                        "date_collected = DATE_FORMAT('".formDataCore($observationDate."00")."', '%Y%m%d%H%i%s'), " .
-                        "source = '".formDataCore($user_id)."', " .
-                        "report_status = '".formDataCore($report_status)."', ".
+                        "date_collected = DATE_FORMAT('".add_escape_custom($observationDate."00")."', '%Y%m%d%H%i%s'), " .
+                        "source = '".add_escape_custom($user_id)."', " .
+                        "report_status = '".add_escape_custom($report_status)."', ".
                         "review_status = 'received'";
                         
                     $report_id = $check_report['procedure_report_id'];
-                    sqlStatement("UPDATE procedure_report SET $sql_report_data WHERE procedure_report_id = '".formDataCore($check_report['procedure_report_id'])."' AND procedure_order_id = '".formDataCore($order_id)."'");
+                    sqlStatement("UPDATE procedure_report SET $sql_report_data WHERE procedure_report_id = '".add_escape_custom($check_report['procedure_report_id'])."' AND procedure_order_id = '".add_escape_custom($order_id)."'");
                 }
                 
                 // Loop through all Results
@@ -186,12 +186,12 @@
                     $comment = $result->CommentText;            //=> procedure_result.comments
                     //Do something with result, ie put in DB
                     //echo $resultCode . ":" .$value . " " . $unit. "\n";
-                     $check_type2 = sqlQuery("SELECT COUNT(*) AS count FROM procedure_type WHERE procedure_type_id = '".formDataCore($resultCode)."'");
+                     $check_type2 = sqlQuery("SELECT COUNT(*) AS count FROM procedure_type WHERE procedure_type_id = '".add_escape_custom($resultCode)."'");
                     if ($check_type2['count'] <= 0) {
                         $sql_type_data = 
-                            "procedure_type_id = '".formDataCore($resultCode)."', " .
-                            "parent = '".formDataCore($observationCode)."', " .
-                            "name = '".formDataCore($resultCodeTex)."', ".
+                            "procedure_type_id = '".add_escape_custom($resultCode)."', " .
+                            "parent = '".add_escape_custom($observationCode)."', " .
+                            "name = '".add_escape_custom($resultCodeTex)."', ".
                             "procedure_type = 'res'";
                             
                         $type_id = sqlInsert("INSERT INTO procedure_type SET $sql_type_data");
@@ -201,36 +201,36 @@
                     
                     $abnormalFlag = mapAbnormalStatus($abnormalFlag);
                     
-                    $check_result = sqlQuery("SELECT COUNT(*) AS count, procedure_result_id FROM procedure_result WHERE procedure_report_id = '".formDataCore($report_id)."' AND procedure_type_id = '".formDataCore($resultCode)."'");
+                    $check_result = sqlQuery("SELECT COUNT(*) AS count, procedure_result_id FROM procedure_result WHERE procedure_report_id = '".add_escape_custom($report_id)."' AND procedure_type_id = '".add_escape_custom($resultCode)."'");
                 
                     if ($check_result['count'] <= 0) {
                     
                         $sql_result_data = 
-                            "procedure_report_id = '".formDataCore($report_id)."', ".
-                            "procedure_type_id = '".formDataCore($resultCode)."', ".
-                            "date = DATE_FORMAT('".formDataCore($resultDateTime.'00')."', '%Y%m%d%H%i%s'), ".
-                            "facility = '".formDataCore($str_facilityId)."', " .
-                            "units = '".formDataCore($unit)."', ".
-                            "result = '".formDataCore($value)."', ".
-                            "`range` = '".formDataCore($referenceRange)."', ".
-                            "abnormal = '".formDataCore($abnormalFlag)."', ".
-                            "comments = '".formDataCore($comment)."', ".
-                            "result_status = '".formDataCore($result_status)."'";
+                            "procedure_report_id = '".add_escape_custom($report_id)."', ".
+                            "procedure_type_id = '".add_escape_custom($resultCode)."', ".
+                            "date = DATE_FORMAT('".add_escape_custom($resultDateTime.'00')."', '%Y%m%d%H%i%s'), ".
+                            "facility = '".add_escape_custom($str_facilityId)."', " .
+                            "units = '".add_escape_custom($unit)."', ".
+                            "result = '".add_escape_custom($value)."', ".
+                            "`range` = '".add_escape_custom($referenceRange)."', ".
+                            "abnormal = '".add_escape_custom($abnormalFlag)."', ".
+                            "comments = '".add_escape_custom($comment)."', ".
+                            "result_status = '".add_escape_custom($result_status)."'";
                         
                         sqlInsert("INSERT INTO procedure_result SET $sql_result_data");
                     }
                     else {
                         $sql_result_data =
-                            "date = DATE_FORMAT('".formDataCore($resultDateTime.'00')."', '%Y%m%d%H%i%s'), ".
-                            "facility = '".formDataCore($str_facilityId)."', " .
-                            "units = '".formDataCore($unit)."', ".
-                            "result = '".formDataCore($value)."', ".
-                            "`range` = '".formDataCore($referenceRange)."', ".
-                            "abnormal = '".formDataCore($abnormalFlag)."', ".
-                            "comments = '".formDataCore($comment)."', ".
-                            "result_status = '".formDataCore($result_status)."'";
+                            "date = DATE_FORMAT('".add_escape_custom($resultDateTime.'00')."', '%Y%m%d%H%i%s'), ".
+                            "facility = '".add_escape_custom($str_facilityId)."', " .
+                            "units = '".add_escape_custom($unit)."', ".
+                            "result = '".add_escape_custom($value)."', ".
+                            "`range` = '".add_escape_custom($referenceRange)."', ".
+                            "abnormal = '".add_escape_custom($abnormalFlag)."', ".
+                            "comments = '".add_escape_custom($comment)."', ".
+                            "result_status = '".add_escape_custom($result_status)."'";
                         
-                        sqlStatement("UPDATE procedure_result SET $sql_result_data WHERE procedure_result_id = '".formDataCore($check_result['procedure_result_id'])."'");
+                        sqlStatement("UPDATE procedure_result SET $sql_result_data WHERE procedure_result_id = '".add_escape_custom($check_result['procedure_result_id'])."'");
                     }
                 
                 }
@@ -243,13 +243,13 @@
             // Need to confirm that the lab result message has been received.
             // This is the url of the confirm request.
             $url = "confirm/" . $id;
-            // Make the confirmation request
+            // Make the confirmation request.
             $response = $client->sendRequest($url, "POST");
             // Check response for success or error.
             if($response->IsError)
-                echo "Error confirming receipt of lab results: {$response->ErrorMessage}\n";
+                echo xl("Error confirming receipt of lab results").": {$response->ErrorMessage}\n";
             else{ 
-                echo "Success confirming receipt of lab result \n";
+                echo xl("Success confirming receipt of lab result")." \n";
                 echo $response->ResponseXml;
             }
         }

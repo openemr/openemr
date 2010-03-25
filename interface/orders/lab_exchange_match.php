@@ -17,7 +17,7 @@ function lab_exchange_match_patient($externalId, $firstName, $middleName, $lastN
     /* 
     // Search for pid and return if pid match with $externalId(from lab API)
     if ($externalId != "") {
-        $where .= "pid = '".formDataCore($externalId, true)."' " ;
+        $where .= "pid = '".add_escape_custom($externalId)."' " ;
         $res = sqlQuery($sql . $where);
         if ($res['pid']) {
             return $res['pid'];
@@ -30,35 +30,35 @@ function lab_exchange_match_patient($externalId, $firstName, $middleName, $lastN
     
     // If empty $externalId or externalId no matched
     if ($firstName != "")
-        $where .= "fname = '".formDataCore($firstName, true)."' " ;
+        $where .= "fname = '".add_escape_custom($firstName)."' " ;
     
     if ($lastName != "") {
         if ($where != "") $where .= "AND ";
-        $where .= "lname = '".formDataCore($lastName, true)."' " ;
+        $where .= "lname = '".add_escape_custom($lastName)."' " ;
     }
     
     if ($middleName != ""){
         if ($where != "") $where .= "AND ";
-        $where .= "mname = '".formDataCore($middleName, true)."' " ;
+        $where .= "mname = '".add_escape_custom($middleName)."' " ;
     }
     
     if ($dob != ""){
         if ($where != "") $where .= "AND ";
-        $where .= "DOB = DATE_FORMAT('".formDataCore($dob, true)."', '%Y-%m-%d') " ;
+        $where .= "DOB = DATE_FORMAT('".add_escape_custom($dob)."', '%Y-%m-%d') " ;
     }
     
     if ($gender != "") {
         if ($gender =="F") $sex = "Female";
         if ($gender =="M") $sex = "Male";
         if ($where != "") $where .= "AND ";
-        $where .= "sex = '".formDataCore($sex, true)."' " ;
+        $where .= "sex = '".add_escape_custom($sex)."' " ;
     }
     
     if ($ssn != ""){
         if ($where != "") $where .= "AND ";
         // Change to xxx-xx-xxxx format.
         $ss = substr($ssn,0,3)."-".substr($ssn,3,2)."-".substr($ssn,5);
-        $where .= "(ss = '".formDataCore($ssn, true)."' OR ss = '".formDataCore($ss, true)."' OR ss = '')";
+        $where .= "(ss = '".add_escape_custom($ssn)."' OR ss = '".add_escape_custom($ss)."' OR ss = '')";
     }
         
     if ($where == "") {
@@ -82,11 +82,11 @@ function lab_exchange_match_provider($lastName, $firstName) {
     $where = "";
     
     if ($lastName != "")
-        $where .= "lname = '".formDataCore($lastName, true)."' " ;
+        $where .= "lname = '".add_escape_custom($lastName)."' " ;
     
     if ($lastName != "") {
         if ($where != "") $where .= "AND ";
-        $where .= "fname = '".formDataCore($firstName, true)."' " ;
+        $where .= "fname = '".add_escape_custom($firstName)."' " ;
     }
         
     if ($where == "") {

@@ -2134,11 +2134,11 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_bool','neg' ,'Negative',10,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_res_bool','pos' ,'Positive',20,0);
 
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'          ,'messsage_status','Messsage Status',45,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('messsage_status','Done'           ,'Done'           , 5,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('messsage_status','Forwarded'      ,'Forwarded'      ,10,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('messsage_status','New'            ,'New'            ,15,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('messsage_status','Read'           ,'Read'           ,20,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'         ,'message_status','Message Status',45,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('message_status','Done'           ,'Done'         , 5,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('message_status','Forwarded'      ,'Forwarded'    ,10,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('message_status','New'            ,'New'          ,15,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('message_status','Read'           ,'Read'         ,20,0);
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('note_type','Lab Results' ,'Lab Results', 15,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('note_type','New Orders' ,'New Orders', 20,0);

@@ -332,12 +332,12 @@ UPDATE layout_options SET edit_options = 'CD' WHERE form_id = 'DEM' AND field_id
 UPDATE layout_options SET edit_options = 'ND' WHERE form_id = 'DEM' AND field_id = 'pubpid' AND edit_options = '';
 UPDATE layout_options SET edit_options = 'N'  WHERE form_id = 'DEM' AND field_id = 'sex'    AND edit_options = '';
 
-#IfNotRow2D list_options list_id lists option_id messsage_status
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'          ,'messsage_status','Messsage Status',45,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('messsage_status','Done'           ,'Done'           , 5,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('messsage_status','Forwarded'      ,'Forwarded'      ,10,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('messsage_status','New'            ,'New'            ,15,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('messsage_status','Read'           ,'Read'           ,20,0);
+#IfNotRow2D list_options list_id lists option_id message_status
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'         ,'message_status','Message Status',45,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('message_status','Done'           ,'Done'         , 5,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('message_status','Forwarded'      ,'Forwarded'    ,10,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('message_status','New'            ,'New'          ,15,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('message_status','Read'           ,'Read'         ,20,0);
 #EndIf
 
 #IfNotRow2D list_options list_id note_type option_id Lab Results
