@@ -113,7 +113,7 @@
                         "date_collected = DATE_FORMAT('".add_escape_custom($observationDate.'00')."', '%Y%m%d%H%i%s'), " .
                         "date_ordered = DATE_FORMAT('".add_escape_custom($date)."', '%Y%m%d'), " .
                         "order_priority = 'normal', " .
-                        "order_status = 'Complete', " .
+                        "order_status = 'complete', " .
                         "control_id = '".add_escape_custom($controlId)."'";
                         
                     $order_id = sqlInsert("INSERT INTO procedure_order SET $sql_order_data");
@@ -123,7 +123,7 @@
                         "provider_id = '".add_escape_custom($user_id)."', " .
                         "date_collected = DATE_FORMAT('".add_escape_custom($observationDate.'00')."', '%Y%m%d%H%i%s'), " .
                         "order_priority = 'normal', " .
-                        "order_status = 'Complete'";
+                        "order_status = 'complete'";
                         
                     if ($check_order['patient_id'] == "") {
                         $sql_order_data .=
