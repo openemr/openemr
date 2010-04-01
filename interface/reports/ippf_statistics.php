@@ -571,7 +571,7 @@ function process_ippf_code($row, $code) {
   // can be anything - age category, religion, whatever.
   //
   else if ($form_by === '8') {
-    if (preg_match('/^25222[67]/', $code)) { // all post-abortion care and followup
+    if (preg_match('/^25222[567]/', $code)) { // care, followup and incomplete abortion treatment
       $key = getGcacClientStatus($row);
     } else {
       return;
