@@ -10,12 +10,16 @@
 
 
 /* OpenEMR Access Control */
+// Does not work with the new globals.php that reads settings from the
+// database.  I have no idea why.  -- Rod 2010-03-30
+/*********************************************************************
 require_once("../interface/globals.php");
 require_once("../library/acl.inc");
 if (! acl_check('admin', 'database')) {
   echo "You do not have access to this resource<br>";
   exit;
 }
+*********************************************************************/
 
 /* OpenEMR Database Settings */
 require_once("../library/sqlconf.php");

@@ -354,3 +354,13 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 ALTER TABLE pnotes
   ADD message_status VARCHAR(20) NOT NULL DEFAULT 'New';
 #EndIf
+
+#IfNotTable globals
+CREATE TABLE `globals` (
+  `gl_name`             varchar(63)    NOT NULL,
+  `gl_index`            int(11)        NOT NULL DEFAULT 0,
+  `gl_value`            varchar(255)   NOT NULL DEFAULT '',
+  PRIMARY KEY (`gl_name`, `gl_index`)
+) ENGINE=MyISAM; 
+#EndIf
+

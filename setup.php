@@ -1,4 +1,14 @@
 <?php
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+// Dummy xl function so things needing it will work.
+function xl($s) {
+  return $s;
+}
+
 //required for normal operation because of recent changes in PHP:
 extract($_GET);
 extract($_POST);
@@ -41,7 +51,8 @@ $gaclSetupScript2 = $manualPath."acl_setup.php";
 
 //These are files and dir checked before install for
 // correct permissions.
-$writableFileList = array($conffile, $conffile2);
+// $writableFileList = array($conffile, $conffile2);
+$writableFileList = array($conffile);
 $writableDirList = array($docsDirectory, $billingDirectory, $billingDirectory2, $billingLogDirectory, $lettersDirectory, $gaclWritableDirectory, $requiredDirectory1, $requiredDirectory2);
 
 //These are the dumpfiles that are loaded into database 
@@ -123,8 +134,12 @@ If you edited the PHP or Apache configuration files during this installation pro
   $iuser = $_POST["iuser"];
 	$iuname = $_POST["iuname"];
 	$igroup = $_POST["igroup"];
+
+  /*******************************************************************
 	$openemrBasePath = $_POST["openemrBasePath"];
 	$openemrWebPath = $_POST["openemrWebPath"];
+  *******************************************************************/
+
 	//END POST VARIABLES
 
 
@@ -199,11 +214,15 @@ echo "<TR VALIGN='TOP'><TD><span class='text'>Initial User:</span></TD><TD><INPU
 <TR VALIGN='TOP'><TD><span class='text'>Initial Group:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='igroup' VALUE='Default'></TD><TD><span class='text'>(This is the group that will be created for your users.  This should be the name of your practice.)</span></TD></TR>
 ";
 echo "<TR VALIGN='TOP'><TD>&nbsp;</TD></TR>";
+
+/*********************************************************************
 echo "<TR VALIGN='TOP'><TD COLSPAN=2><font color='red'>OPENEMR PATHS:</font></TD></TR>";
 echo "<TR VALIGN='TOP'><TD COLSPAN=3></TD></TR>
 <TR VALIGN='TOP'><TD><span class='text'>Absolute Path:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='openemrBasePath' VALUE='".realpath('./')."'></TD><TD><span class='text'>(This is the full absolute directory path to openemr. The value here is automatically created, and should not need to be modified. Do not worry about direction of slashes; they will be automatically corrected.)</span></TD></TR>
 <TR VALIGN='TOP'><TD><span class='text'>Relative HTML Path:</span></TD><TD><INPUT SIZE='30' TYPE='TEXT' NAME='openemrWebPath' VALUE='/openemr'></TD><TD><span class='text'>(Set this to the relative html path, ie. what you would type into the web browser after the server address to get to OpenEMR. For example, if you type 'http://127.0.0.1/clinic/openemr/ to load OpenEMR, set this to '/clinic/openemr' without the trailing slash. Do not worry about direction of slashes; they will be automatically corrected.)</span></TD></TR>
 ";
+*********************************************************************/
+
 echo "</TABLE>
 <br>
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>";
@@ -376,6 +395,7 @@ if ($upgrade != 1) {
 	}
 	echo "OK<br>\n";
 	flush();
+
 /*	echo "Inserting ICD-9-CM Codes into Database...\n";
 	flush();
         $fd = fopen($icd9, 'r');
@@ -406,6 +426,7 @@ if ($upgrade != 1) {
         }
 	echo "OK\n";
 	fclose($fd);*/
+
 	flush();
 }	
 
@@ -462,6 +483,7 @@ fclose($fd);
 
 echo "Successfully wrote SQL configuration.<BR><br>";
 
+/*********************************************************************
 echo "Writing OpenEMR webserver paths to config file...<br>";
 //edit interface/globals.php
 //first, ensure slashes are in correct direction (windows specific fix)
@@ -502,7 +524,25 @@ if ($isCount == 2) {
 else {
 	echo "<FONT COLOR='red'>ERROR</FONT> writing openemr webserver root paths to config file ($conffile2). ($isCount)<br><br>\n";
 }
-	
+*********************************************************************/
+
+echo "Writing global configuration defaults...<br>";
+require_once("library/globals.inc.php");
+foreach ($GLOBALS_METADATA as $grpname => $grparr) {
+  foreach ($grparr as $fldid => $fldarr) {
+    list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+    if (substr($fldtype, 0, 2) !== 'm_') {
+      $res = mysql_query("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
+      $row = @mysql_fetch_array($res, MYSQL_ASSOC);
+      if (empty($row['count'])) {
+        mysql_query("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
+          "VALUES ( '$fldid', '0', '$flddef' )");
+      }
+    }
+  }
+}
+echo "Successfully wrote global configuration defaults.<br><br>";
+
 echo "\n<br>Next step will install and configure access controls (php-GACL).<br>\n";
 	
 echo "

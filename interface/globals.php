@@ -2,7 +2,7 @@
 /* $Id$ */
 //  ------------------------------------------------------------------------ //
 //                OpenEMR Electronic Medical Records System                  //
-//                   Copyright (c) 2005-2008 oemr.org                        //
+//                   Copyright (c) 2005-2010 oemr.org                        //
 //                       <http://www.oemr.org/>                              //
 //  ------------------------------------------------------------------------ //
 //  This program is free software; you can redistribute it and/or modify     //
@@ -44,20 +44,15 @@ if ($ps === false) {
 }
 
 require_once(dirname(__FILE__) . "/../includes/config.php");
-// Global variable file in which colors and paths are set for the interface.
-///////////////////////////////////////////////////////////////////
-// THESE VALUES MUST BE SET BEFORE OPENEMR WILL FUNCTION:
-///////////////////////////////////////////////////////////////////
-// Set this to the full absolute directory path for openemr:
-$webserver_root = "/var/www/openemr";
 
-// Set this to the relative html path, ie. what you would type into the web
-// browser after the server address to get to OpenEMR.  For example, if you
-// type "http://127.0.0.1/clinic/openemr/"  to load OpenEMR, set $web_root
-// to "/clinic/openemr" without the trailing slash.
-$web_root = "/openemr";
+// The full absolute directory path for openemr.
+// Commonly "/var/www/openemr".
+$webserver_root = dirname(dirname(__FILE__));
 
-///////////////////////////////////////////////////////////////////
+// This is the relative html path, i.e. what you would type into the web
+// browser after the server address to get to OpenEMR.
+// Commonly "/openemr".
+$web_root = substr($webserver_root, strlen($_SERVER['DOCUMENT_ROOT']) - 1);
 
 // Collecting the utf8 disable flag from the sqlconf.php file in order
 // to set the correct html encoding. utf8 vs iso-8859-1. If flag is set
@@ -65,16 +60,16 @@ $web_root = "/openemr";
 require_once(dirname(__FILE__) . "/../library/sqlconf.php");
 if (!$disable_utf8_flag) {    
  ini_set('default_charset', 'utf-8');
+ $HTML_CHARSET = "UTF-8";
 }
 else {
  ini_set('default_charset', 'iso-8859-1');
+ $HTML_CHARSET = "ISO-8859-1";
 }
-
-// This is the return mail address used when sending prescriptions by email:
-$GLOBALS['practice_return_email_path'] = "prescription_mail@example.com";
 
 // Root directory, relative to the webserver root:
 $GLOBALS['rootdir'] = "$web_root/interface";
+$rootdir = $GLOBALS['rootdir'];
 // Absolute path to the source code include and headers file directory (Full path):
 $GLOBALS['srcdir'] = "$webserver_root/library";
 // Absolute path to the location of documentroot directory for use with include statements:
@@ -87,124 +82,7 @@ $GLOBALS['webroot'] = $web_root;
 $GLOBALS['template_dir'] = $GLOBALS['fileroot'] . "/templates/";
 $GLOBALS['incdir'] = $include_root;
 // Location of the login screen file
-$GLOBALS['login_screen'] = "$rootdir/login_screen.php";
-
-//
-// Operating system specific settings
-//  Currently used in the Adminstration->Backup page within OpenEMR
-//  -Note the temporary file directory parameter is only used when
-//    php version is < 5.2.1 (otherwise the temporary directory that
-//    is set within php is used)
-//
-// WINDOWS Specific Settings
-$GLOBALS['mysql_bin_dir_win'] = "C:/xampp/mysql/bin";
-$GLOBALS['perl_bin_dir_win'] = "C:/xampp/perl/bin";
-$GLOBALS['temporary_files_dir_win'] = "C:/windows/temp";
-$GLOBALS['backup_log_dir_win']="C:/windows/temp"; // Event log backup directory
-//
-// LINUX (non-Windows) Specific Settings
-$GLOBALS['mysql_bin_dir_linux'] = "/usr/bin";
-$GLOBALS['perl_bin_dir_linux'] = "/usr/bin";
-$GLOBALS['temporary_files_dir_linux'] = "/tmp";
-$GLOBALS['backup_log_dir_linux']="/tmp"; // Event log backup directory
-//
-
-//
-// Print command for spooling to printers, used by statements.inc.php
-// This is the command to be used for printing (without the filename).
-// The word following "-P" should be the name of your printer.  This
-// example is designed for 8.5x11-inch paper with 1-inch margins,
-// 10 CPI, 6 LPI, 65 columns, 54 lines per page.
-//
-// IF lpr services are installed on Windows this setting will be similar
-// Otherwise configure it as needed (print /d:PRN) might be an option for Windows parallel printers
-$GLOBALS['print_command'] = "lpr -P HPLaserjet6P -o cpi=10 -o lpi=6 -o page-left=72 -o page-top=72";
-
-//
-// Language Translations Control Section
-//
-
-//  Current supported languages:    // Allow capture of term for translation:
-//   Arabic                         // xl('Arabic')
-//   Armenian                       // xl('Armenian')
-//   Bahasa Indonesia               // xl('Bahasa Indonesia')
-//   Chinese (Simplified)           // xl('Chinese (Simplified)')
-//   Chinese (Traditional)          // xl('Chinese (Traditional)')
-//   Dutch                          // xl('Dutch')
-//   English (Indian)               // xl('English (Indian)')
-//   English (Standard)             // xl('English (Standard)')
-//   French                         // xl('French')
-//   German                         // xl('German')
-//   Greek                          // xl('Greek')
-//   Hebrew                         // xl('Hebrew')
-//   Norwegian                      // xl('Norwegian')
-//   Portuguese (Brazilian)         // xl('Portuguese (Brazilian)')
-//   Portuguese (European)          // xl('Portuguese (European)')
-//   Russian                        // xl('Russian')
-//   Slovak                         // xl('Slovak')
-//   Spanish                        // xl('Spanish')
-//   Swedish                        // xl('Swedish')
-
-// Login Menu Language Translation Configuration
-//
-//  'language_menu_login' toggle
-//    -If set to true then will allow language selection on login
-//    -If set to false then will not show menu in login and will use default (see below)
-$GLOBALS['language_menu_login'] = true;
-//
-//  'language_menu_all' toggle
-//    -If set to true then show all languages in login menu
-//    -If set to false then only show chosen (see below) languages in login menu
-$GLOBALS['language_menu_showall'] = true;
-//
-//  'language_menu_show' array
-//    -ONLY pertinent if above 'language_menu_all' toggle is set to false
-//    -Displays these chosen languages in the login menu
-$GLOBALS['language_menu_show'] = array('English (Standard)','Swedish');
-//
-//  'language_default'
-//    -Sets the default language
-//    -If login menu is on, then it will be the 'Default' choice in menu
-//    -If login menu is off, then it will choose this language
-$GLOBALS['language_default'] = "English (Standard)";
-
-// Language translation options
-//  -The globals below allow granular control to turn off translation of
-//   several specific parts of OpenEMR.
-//
-//  'translate_layout'
-//    -If true, then will translate the layout information.
-//    -If false, will not translate the layout information.
-//      If false, then most of the demographics and patient data
-//       entry forms will not be translated.
-$GLOBALS['translate_layout'] = true;
-//
-//  'translate_lists'
-//    -If true, then will translate the lists information.
-//    -If false, will not translate the lists information.
-//      If false, then many lists of information in forms
-//       and templates will be untranslated.
-$GLOBALS['translate_lists'] = true;
-//
-//  'translate_gacl_groups'
-//    -If true, then will translate the access control group names.
-//    -If false, will not translate the access control group names.
-$GLOBALS['translate_gacl_groups'] = true;
-//
-//  'translate_note_titles'
-//    -If true, then will translate the patient Form (note) titles.
-//    -If false, will not translate the patient Form (note) titles.
-$GLOBALS['translate_form_titles'] = true;
-//
-//  'translate_document_categories'
-//    -If true, then will translate the document categories.
-//    -If false, will not translate the document categories.
-$GLOBALS['translate_document_categories'] = true;
-//
-//  'translate_appt_categories'
-//    -If true, then will translate the appt categories.
-//    -If false, will not translate the appt categories.
-$GLOBALS['translate_appt_categories'] = true;
+$GLOBALS['login_screen'] = $GLOBALS['rootdir'] . "/login_screen.php";
 
 // Include the translation engine. This will also call sql.inc to
 //  open the openemr mysql connection.
@@ -212,6 +90,87 @@ include_once (dirname(__FILE__) . "/../library/translation.inc.php");
 
 // Includes functions for date internationalization
 include_once (dirname(__FILE__) . "/../library/date_functions.php");
+
+// Defaults for specific applications.
+$GLOBALS['athletic_team'] = false;
+$GLOBALS['weight_loss_clinic'] = false;
+$GLOBALS['ippf_specific'] = false;
+$GLOBALS['cene_specific'] = false;
+
+// Defaults for drugs and products.
+$GLOBALS['inhouse_pharmacy'] = false;
+$GLOBALS['sell_non_drug_products'] = 0;
+
+$glrow = sqlQuery("SHOW TABLES LIKE 'globals'");
+if (!empty($glrow)) {
+  // Set global parameters from the database globals table.
+  // Some parameters require custom handling.
+  //
+  $GLOBALS['language_menu_show'] = array();
+  $glres = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals " .
+    "ORDER BY gl_name, gl_index");
+  while ($glrow = sqlFetchArray($glres)) {
+    $gl_name  = $glrow['gl_name'];
+    $gl_value = $glrow['gl_value'];
+    if ($gl_name == 'language_menu_other') {
+      $GLOBALS['language_menu_show'][] = $gl_value;
+    }
+    else if ($gl_name == 'css_header') {
+      $GLOBALS[$gl_name] = "$rootdir/themes/" . $gl_value;
+    }
+    else if ($gl_name == 'specific_application') {
+      if      ($gl_value == '1') $GLOBALS['athletic_team'] = true;
+      else if ($gl_value == '2') $GLOBALS['ippf_specific'] = true;
+      else if ($gl_value == '3') $GLOBALS['weight_loss_clinic'] = true;
+    }
+    else if ($gl_name == 'inhouse_pharmacy') {
+      if ($gl_value) $GLOBALS['inhouse_pharmacy'] = true;
+      if ($gl_value == '2') $GLOBALS['sell_non_drug_products'] = 1;
+      else if ($gl_value == '3') $GLOBALS['sell_non_drug_products'] = 2;
+    }
+    else {
+      if ($gl_name == 'language_default') {
+        // Include default language in the selection list of languages.
+        $GLOBALS['language_menu_show'][] = $glrow['gl_value'];
+      }
+      $GLOBALS[$gl_name] = $glrow['gl_value'];
+    }
+  }
+  // Language cleanup stuff.
+  $GLOBALS['language_menu_showall'] = false;
+  $GLOBALS['language_menu_login'] = false;
+  if (count($GLOBALS['language_menu_show']) > 1) {
+    $GLOBALS['language_menu_login'] = true;
+  }
+  //
+  // End of globals table processing.
+}
+else {
+  // Temporary stuff to handle the case where the globals table does not
+  // exist yet.  This will happen in sql_upgrade.php on upgrading to the
+  // first release containing this table.
+  $GLOBALS['language_menu_login'] = true;
+  $GLOBALS['language_menu_showall'] = true;
+  $GLOBALS['language_menu_show'] = array('English (Standard)','Swedish');
+  $GLOBALS['language_default'] = "English (Standard)";
+  $GLOBALS['translate_layout'] = true;
+  $GLOBALS['translate_lists'] = true;
+  $GLOBALS['translate_gacl_groups'] = true;
+  $GLOBALS['translate_form_titles'] = true;
+  $GLOBALS['translate_document_categories'] = true;
+  $GLOBALS['translate_appt_categories'] = true;
+  $GLOBALS['concurrent_layout'] = 2;
+  $timeout = 7200;
+  $openemr_name = 'OpenEMR';
+  $css_header = "$rootdir/themes/style_sky_blue.css";
+  $GLOBALS['css_header'] = $css_header;
+  $GLOBALS['schedule_start'] = 8;
+  $GLOBALS['schedule_end'] = 17;
+  $GLOBALS['calendar_interval'] = 15;
+  $GLOBALS['phone_country_code'] = '1';
+  $GLOBALS['disable_non_default_groups'] = true;
+  $GLOBALS['ippf_specific'] = false;
+}
 
 //
 // Lists and Layouts Control Section
@@ -221,40 +180,8 @@ include_once (dirname(__FILE__) . "/../library/date_functions.php");
 //  - If true, then will display a customized addlist widget for
 //    state list entries (will ask for title and abbreviation)
 $GLOBALS['state_custom_addlist_widget'] = true;
-//
-// Data type options. This will set data types in forms that are not
-//  covered by a layout.
-//   1  = single-selection list 
-//   2  = text field
-//   26 = single-selection list with ability to add to the list (addlist widget)
-//   (the list entries below are only pertinent for data types 1 or 26)
-//
-// 'state_data_type'
-$GLOBALS['state_data_type'] = 26;
 $GLOBALS['state_list'] = "state";
-//
-// 'country_data_type'
-$GLOBALS['country_data_type'] = 26;
 $GLOBALS['country_list'] = "country";
-
-// Vitals form and growth chart units (US and-or metrics)
-//   1 = Show both US and metric (main unit is US)
-//   2 = Show both US and metric (main unit is metric)
-//   3 = Show US only
-//   4 = Show metric only
-$GLOBALS['units_of_measurement'] = 1;
-
-// Flag to not show the old deprecated metric form in
-// the unregistered section of the admin->forms module.
-//  (since 3.1.0, metric units are now used along with US units
-//   in the main vitals form; controlled by above setting)
-$GLOBALS['disable_deprecated_metrics_form'] = true;
-
-// Flags to turn off/on specific OpenEMR modules
-$GLOBALS['disable_calendar'] = false;
-$GLOBALS['disable_chart_tracker'] = false; 
-$GLOBALS['disable_immunizations'] = false; 
-$GLOBALS['disable_prescriptions'] = false;
 
 // Option to set the top default window. By default, it is set
 // to the calendar screen. The starting directory is
@@ -262,11 +189,6 @@ $GLOBALS['disable_prescriptions'] = false;
 //    The calendar screen is 'main_info.php' .
 //    The patient search/add screen is '../new/new.php' .
 $GLOBALS['default_top_pane'] = 'main_info.php';
-
-// Option to set the 'Online Support' link. By default, it is
-// set to the Sourceforge support forums. Note you can also remove
-// the link entirely by simple commenting out below line.
-$GLOBALS['online_support_link'] = 'http://sourceforge.net/projects/openemr/support';
 
 // Default category for find_patient screen
 $GLOBALS['default_category'] = 5;
@@ -284,13 +206,6 @@ session_name("OpenEMR");
 
 session_start();
 
-// Set this to 1 or 2 to activate support for the new frame layout.
-// 0 = Old-style layout
-// 1 = Navigation menu consists of pairs of radio buttons
-// 2 = Navigation menu is a tree view
-//
-$GLOBALS['concurrent_layout'] = 2;
-
 // If >0 this will enforce a separate PHP session for each top-level
 // browser window.  You must log in separately for each.  This is not
 // thoroughly tested yet and some browsers might have trouble with it,
@@ -298,10 +213,8 @@ $GLOBALS['concurrent_layout'] = 2;
 // notified when the session ID changes.
 $GLOBALS['restore_sessions'] = 1; // 0=no, 1=yes, 2=yes+debug
 
-// used in Add new event for multiple providers
-$GLOBALS['select_multi_providers'] = false;
-
-// Theme definition:
+// Theme definition.  All this stuff should be moved to CSS.
+//
 if ($GLOBALS['concurrent_layout']) {
  $top_bg_line = ' bgcolor="#dddddd" ';
  $GLOBALS['style']['BGCOLOR2'] = "#dddddd";
@@ -317,7 +230,6 @@ if ($GLOBALS['concurrent_layout']) {
 }
 $login_filler_line = ' bgcolor="#f7f0d5" ';
 $login_body_line = ' background="'.$rootdir.'/pic/aquabg.gif" ';
-$css_header = "$rootdir/themes/style_sky_blue.css";
 $logocode="<img src='$rootdir/pic/logo_sky.gif'>";
 $linepic = "$rootdir/pic/repeat_vline9.gif";
 $table_bg = ' bgcolor="#cccccc" ';
@@ -325,7 +237,6 @@ $GLOBALS['style']['BGCOLOR1'] = "#cccccc";
 $GLOBALS['style']['TEXTCOLOR11'] = "#222222";
 $GLOBALS['style']['HIGHLIGHTCOLOR'] = "#dddddd";
 $GLOBALS['style']['BOTTOM_BG_LINE'] = $bottom_bg_line;
-
 // The height in pixels of the Logo bar at the top of the login page:
 $GLOBALS['logoBarHeight'] = 110;
 // The height in pixels of the Navigation bar:
@@ -348,10 +259,6 @@ $tback = xl('(Back)');
 if (!empty($special_timeout)) {
   $timeout = intval($special_timeout);
 }
-else {
-  // Max Idle Time in seconds before logout.  Default 7200 (2 hours):
-  $timeout = 7200;
-}
 
 //Version tags
 
@@ -360,74 +267,16 @@ $v_minor = '0';
 $v_patch = '0';
 $tag = '-dev'; // minor revision number, should be empty for production releases
 
-// This name appears on the login page and in the title bar of most windows.
-// It's nice to customize this to be the name of your clinic.
-$openemr_name = 'OpenEMR';
-
 $openemr_version = "$v_major.$v_minor.$v_patch".$tag;	// Version tag used by program
 
-$rootdir = $GLOBALS['rootdir'];
 $srcdir = $GLOBALS['srcdir'];
 $login_screen = $GLOBALS['login_screen'];
 $GLOBALS['css_header'] = $css_header;
 $GLOBALS['backpic'] = $backpic;
-$GLOBALS['rootdir'] = $rootdir;
 
-// change these to reflect when the daily view should start to display times
-// as well as it should end. ex schedule_start = 9 schedule_end = 17
-// start end times in hours
-$GLOBALS['schedule_start'] = 8;
-$GLOBALS['schedule_end'] = 17;
-
-// This is the time granularity of the calendar and the smallest interval
-// in minutes for an appointment slot:
-$GLOBALS['calendar_interval'] = 15;
-
-/*
- Set 1 to enable strong password feature in openemr
- Set 0 to disable strong password feature in openemr
- Strong password means the user password must be at least 8 characters, and should contain at least three of the four following items:
- -A number
- -A lowercase letter
- -An uppercase letter
- -A special character (not a letter or number).
- For example: healthCare@09
-*/
-$GLOBALS['secure_password'] = 0;
-
-//Set 1 to enable password history feature in openemr
-//Set 0 to disable password history feature in openemr
-//Password History means last three passwords of user should not be allowed while changing the password
-$GLOBALS['password_history'] = 0;
-
-// Set the default password expiration period, in days. if it is 0 this feature is disabled. 
-// The administrator can override this value when editing a user.
-// Set the grace login period in days, only when $GLOBALS['password_expiration_days'] is set to some values(like 180 days).
-$GLOBALS['password_expiration_days'] = 0;
-
-// Set the grace login period where the user can login with an expired password.
-$GLOBALS['password_grace_time'] = 0;
-
-//path to Certificate Authority crt file. Set this to full absolute path.
-//Used for creating client SSL certificates for https connections.
-$GLOBALS['certificate_authority_crt'] = "";
-
-//path to Certificate Authority key file. Set this to full absolute path.
-//Used for creating client SSL certificates for https connections.
-$GLOBALS['certificate_authority_key'] = "";
-
-//Enable or Disable client SSL Certificate Authentication
-$GLOBALS['is_client_ssl_enabled'] = false;
-
-//Default validity for Client certificate
-$GLOBALS['client_certificate_valid_in_days'] = "365";
-
-//Set 1 to send email message to given id for Emergency Login user activation.
-//Default value is 0.
-$GLOBALS['Emergency_Login_email'] = 0;
-
-//Set the admin email id
-$GLOBALS['Emergency_Login_email_id'] = "";
+// 1 = send email message to given id for Emergency Login user activation,
+// else 0.
+$GLOBALS['Emergency_Login_email'] = $GLOBALS['Emergency_Login_email_id'] ? 1 : 0;
 
 // Include the authentication module code here, but the rule is
 // if the file has the word "login" in the source code file name,
@@ -443,138 +292,12 @@ if (!$ignoreAuth) {
 // (2005-03-21) does nothing useful with insurance companies as customers.
 $GLOBALS['insurance_companies_are_not_customers'] = true;
 
-// If OpenEMR is being used by an athletic team rather than in a traditional
-// clinical setting, set this to true.
-$GLOBALS['athletic_team'] = false;
-
-// True if this is a weight loss clinic:
-$GLOBALS['weight_loss_clinic'] = false;
-
-// The telephone country code of this installation.  1 = USA.
-// See http://www.wtng.info/ for a list.
-$GLOBALS['phone_country_code'] = '1';
-
-// This determines how appointments display on the calendar:
-// 1 = lastname; 2 = last,first; 3 = last,first(title);
-// 4 = last,first(title: description)
-$GLOBALS['calendar_appt_style'] = 2;
-
-// Make this true if you want providers to see all appointments by default
-// and not just their own.
-$GLOBALS['docs_see_entire_calendar'] = false;
-
-// Set this to true if you want the drug database and support for in-house
-// prescription dispensing.
-$GLOBALS['inhouse_pharmacy'] = false;
-
-// Make this nonzero if you want the ability to sell products other than
-// prescription drugs.  Also requires inhouse_pharmacy to be true.
-// This allows selection of products from the Fee Sheet.
-// Set this to 2 if you want a simplified interface (no templates, no
-// prescription drugs), otherwise to 1.
-$GLOBALS['sell_non_drug_products'] = 0;
-
-// True to omit insurance and some other things from the demographics form:
-$GLOBALS['simplified_demographics'] = false;
-
-// True to omit form, route and interval which then become part of dosage:
-$GLOBALS['simplified_prescriptions'] = false;
-
-// True to omit method of payment from the copay panel:
-$GLOBALS['simplified_copay'] = false;
-
-// You may put text here as the default complaint in the New Patient form:
-$GLOBALS['default_chief_complaint'] = '';
-
-// This was added for sports teams needing to fill out injury forms, but might
-// have other applications.
-$GLOBALS['default_new_encounter_form'] = '';
-
-// If you want a new encounter to be automatically created when appointment
-// status is set to "@" (arrived), then make this true.
-$GLOBALS['auto_create_new_encounters'] = true;
-
-// If you don't want employer information, country, title in patient demographics.
-$GLOBALS['omit_employers'] = false;
-
-// This is for insurance billing and is specific to Medicare.  Make it true
-// to force the referring provider to be the same as the rendering provider,
-// instead of coming from the patient demographics.
-$GLOBALS['MedicareReferrerIsRenderer'] = false;
-
-// You can set this to the category name of a document to link to from the
-// patient summary page.  Normally this is the category for insurance cards.
-// This lets you click on the patient's name to see their ID card.
-$GLOBALS['patient_id_category_name'] = '';
-
-// Traditionally OpenEMR has allowed creation of user groups (not the same
-// as access control groups).  However this has never done anything very
-// useful and creates confusion.  Make this false if you really want it.
-$GLOBALS['disable_non_default_groups'] = true;
-
-// These are flags for some installation-specific customizations for which
-// we have not yet figured out better parameters.
-$GLOBALS['ippf_specific'] = false;
-$GLOBALS['cene_specific'] = false;
-
-// True to support discounts in the Checkout form by dollars instead of percentage.
-$GLOBALS['discount_by_money'] = false;
-
-// Set this to false if you want the doctors to be prompted to authorize
-// patient notes created by others.
-$GLOBALS['ignore_pnotes_authorization'] = true;
-
-// This controls the style of the "new patient" form and its search and
-// duplication check features.  Options are:
-// 0 = Old-style static form without search or duplication check
-// 1 = All demographics fields, with search and duplication check
-// 2 = Mandatory fields only, with search and duplication check
-$GLOBALS['full_new_patient_form'] = 1;
-
 // This is the background color to apply to form fields that are searchable.
 // Currently it is applicable only to the "Search or Add Patient" form.
 $GLOBALS['layout_search_color'] = '#ffff55';
 
-// This can be used to enable the old Charges panel for entering billing
-// codes and payments.  It is not recommended, as it was obsoleted by the
-// Fee Sheet which is more complete and comprehensive.
-$GLOBALS['use_charges_panel'] = false;
-
-// This was added for Wellcare EDI which can accept a special kind of claim
-// containing diagnoses but not requiring procedures or charges.  If you
-// don't know what this is about then you don't want it!
-$GLOBALS['support_encounter_claims'] = false;
-
-// Multi-facility Configuration
-//
-// Restrict non-authorized users to the "Schedule Facilities" (aka user_facilities table)
-// set in User admin.
-$GLOBALS['restrict_user_facility'] = false;
-//
-// Set a facility cookie, so browser keeps a default selected facility between logins.
-$GLOBALS['set_facility_cookie'] = false;
-
-// Control the display of Advance Directives in demographics page
-$GLOBALS['advance_directives_warning'] = true;
-
-// Make this true to add options for configuration export and import to the
-// Backup page.
-$GLOBALS['configuration_import_export'] = false;
-
-// Style for patient search results.  0 = with encounter statistics, 1 = alternate.
-$GLOBALS['patient_search_results_style'] = 0;
-
 //EMAIL SETTINGS
-// EMAIL METHOD (PHPMAIL, SMTP, SENDMAIL)
-$EMAIL_METHOD = "SMTP";
-// HTML CHARSET
-$HTML_CHARSET = "UTF-8";
-// SMTP SETTINGS
-$SMTP_Auth = true;
-$SMTP_HOST = "";
-$SMTP_PORT = 25;
-$SMTP_USER = "";
-$SMTP_PASS = "";
+$SMTP_Auth = !empty($GLOBALS['SMTP_USER']);
 
 // The following credentials are provided by OpenEMR Support LLC for testing.
 // When you sign up with their Lab Exchange service, they will provide you with your own credentials.
@@ -588,15 +311,6 @@ $LAB_EXCHANGE_ENDPOINT = "https://openemrsupport.com:29443/len/api";
 $LAB_EXCHANGE_SITEID   = "";
 $LAB_EXCHANGE_TOKEN    = "";
 $LAB_EXCHANGE_ENDPOINT = "";
-
-//settings for cronjob of the sms/email module
-// SEND SMS NOTIFICATION BEFORE HH HOUR
-$SMS_NOTIFICATION_HOUR = 50;
-// SEND EMAIL NOTIFICATION BEFORE HH HOUR
-$EMAIL_NOTIFICATION_HOUR = 50;
-$SMS_GATEWAY_USENAME     = 'SMS_GATEWAY_USENAME';
-$SMS_GATEWAY_PASSWORD    = 'SMS_GATEWAY_PASSWORD';
-$SMS_GATEWAY_APIKEY      = 'SMS_GATEWAY_APIKEY';
 
 // If you want Hylafax support then uncomment and customize the following
 // statements, and also customize custom/faxcover.txt:
@@ -677,15 +391,9 @@ function strterm($string,$length) {
   }
 }
 
-// OS specific configuration (do not modify this)
-$GLOBALS['mysql_bin_dir'] = IS_WINDOWS ? $GLOBALS['mysql_bin_dir_win'] : $GLOBALS['mysql_bin_dir_linux'];
-$GLOBALS['perl_bin_dir'] = IS_WINDOWS ? $GLOBALS['perl_bin_dir_win'] : $GLOBALS['perl_bin_dir_linux'];
-$GLOBALS['backup_log_dir'] = IS_WINDOWS ?  $GLOBALS['backup_log_dir_win'] : $GLOBALS['backup_log_dir_linux'];
+// Override temporary_files_dir if PHP >= 5.2.1.
 if (version_compare(phpversion(), "5.2.1", ">=")) {
- $GLOBALS['temporary_files_dir'] = rtrim(sys_get_temp_dir(),'/'); // only works in PHP >= 5.2.1
-}
-else {
- $GLOBALS['temporary_files_dir'] = IS_WINDOWS ?  $GLOBALS['temporary_files_dir_win'] : $GLOBALS['temporary_files_dir_linux'];
+ $GLOBALS['temporary_files_dir'] = rtrim(sys_get_temp_dir(),'/');
 }
 
 // turn off PHP compatibility warnings
