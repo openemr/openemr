@@ -129,17 +129,12 @@ if (!empty($glrow)) {
       else if ($gl_value == '3') $GLOBALS['sell_non_drug_products'] = 2;
     }
     else {
-      if ($gl_name == 'language_default') {
-        // Include default language in the selection list of languages.
-        $GLOBALS['language_menu_show'][] = $glrow['gl_value'];
-      }
       $GLOBALS[$gl_name] = $glrow['gl_value'];
     }
   }
   // Language cleanup stuff.
-  $GLOBALS['language_menu_showall'] = false;
   $GLOBALS['language_menu_login'] = false;
-  if (count($GLOBALS['language_menu_show']) > 1) {
+  if ((count($GLOBALS['language_menu_show']) >= 1) || $GLOBALS['language_menu_showall']) {
     $GLOBALS['language_menu_login'] = true;
   }
   //

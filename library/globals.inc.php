@@ -154,11 +154,18 @@ $GLOBALS_METADATA = array(
       xl('Default language if no other is allowed or chosen.')
     ),
 
+    'language_menu_showall' => array(
+      xl('All Languages Allowed'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('Allow all available languages as choices on menu at login.')			     				     
+    ),
+			
     'language_menu_other' => array(
-      xl('Other Allowed Languages'),
+      xl('Allowed Languages'),
       'm_lang',                         // data type
       '',                               // default = none
-      xl('Select which other languages, if any, may be chosen at login.')
+      xl('Select which languages, if any, may be chosen at login. (only pertinent if above All Languages Allowed is turned off)')
     ),
 
     'translate_layout' => array(
