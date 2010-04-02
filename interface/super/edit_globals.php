@@ -162,7 +162,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         echo "   <option value='" . $row['lang_description'] . "'";
         if ($row['lang_description'] == $fldvalue) echo " selected";
         echo ">";
-        echo $row['lang_description'];
+        echo xl($row['lang_description']);
         echo "</option>\n";
       }
       echo "  </select>\n";
@@ -180,7 +180,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
           }
         }
         echo ">";
-        echo $row['lang_description'];
+        echo xl($row['lang_description']);
         echo "</option>\n";
       }
       echo "  </select>\n";
