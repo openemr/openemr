@@ -52,7 +52,7 @@ $webserver_root = dirname(dirname(__FILE__));
 // This is the relative html path, i.e. what you would type into the web
 // browser after the server address to get to OpenEMR.
 // Commonly "/openemr".
-$web_root = substr($webserver_root, strlen($_SERVER['DOCUMENT_ROOT']) - 1);
+$web_root = substr($webserver_root, strlen($_SERVER['DOCUMENT_ROOT']));
 
 // Collecting the utf8 disable flag from the sqlconf.php file in order
 // to set the correct html encoding. utf8 vs iso-8859-1. If flag is set
