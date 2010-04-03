@@ -50,14 +50,14 @@ require_once(dirname(__FILE__) . "/../includes/config.php");
 // If not working, can set manually below.
 // Auto collect the full absolute directory path for openemr.
 $webserver_root = dirname(dirname(__FILE__));
-if (stristr(PHP_OS, 'WIN')) {
+if (IS_WINDOWS) {
  //convert windows path separators
  $webserver_root = str_replace("\\","/",$webserver_root); 
 }
 // Auto collect the relative html path, i.e. what you would type into the web
 // browser after the server address to get to OpenEMR.
 $web_root = substr($webserver_root, strlen($_SERVER['DOCUMENT_ROOT']));
-if (stristr(PHP_OS, 'WIN')) {
+if (IS_WINDOWS) {
  //convert windows path separators
  $web_root = str_replace("\\","/",$web_root);
 }
