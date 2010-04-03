@@ -53,7 +53,7 @@ $webserver_root = dirname(dirname(__FILE__));
 // browser after the server address to get to OpenEMR.
 // Commonly "/openemr".
 $web_root = substr($webserver_root, strlen($_SERVER['DOCUMENT_ROOT']));
-if (preg_match("/^[^\/]/",$web_root)) {
+if (preg_match("/^[^\/\\\\]/",$web_root)) {
          $web_root = "/".$web_root;
 }
 
