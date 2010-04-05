@@ -51,11 +51,13 @@ function postToGet($arin) {
 <head>
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<style>
- @media print {
-  .navigateLink {display:none;}		
- }		
-</style>
+
+<?php // do not show stuff from report.php in forms that is encaspulated
+      // by div of navigateLink class. Specifically used for CAMOS, but
+      // can also be used by other forms that require output in the 
+      // encounter listings output, but not in the custom report. ?>
+<style> div .navigateLink {display:none;} </style>
+
 </head>
 
 <body class="body_top">
