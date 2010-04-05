@@ -56,7 +56,7 @@ function postToGet($arin) {
       // by div of navigateLink class. Specifically used for CAMOS, but
       // can also be used by other forms that require output in the 
       // encounter listings output, but not in the custom report. ?>
-<style> div .navigateLink {display:none;} </style>
+<style> div.navigateLink {display:none;} </style>
 
 </head>
 
