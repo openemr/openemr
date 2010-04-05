@@ -22,12 +22,12 @@ function CAMOS_report( $pid, $encounter, $cols, $id) {
       "/interface/forms/CAMOS/rx_print.php?letterhead=true&signer=doctor' target=_new>" . xl('Letterhead that doctor signs') . "</a>\n";
     echo "<br>";
     echo "<a href='" . $GLOBALS['webroot'] .
-      "/interface/forms/CAMOS/notegen.php?pid=".$GLOBALS['pid']."&encounter=".$GLOBALS['encounter']."' target=_new>" . xl('Print This Encounter') . "</a>\n";
+      "/interface/forms/CAMOS/notegen.php?pid=".$pid."&encounter=".$encounter."' target=_new>" . xl('Print This Encounter') . "</a>\n";
     echo " | ";
     echo "<a href='" . $GLOBALS['webroot'] .
       "/interface/forms/CAMOS/notegen.php' target=_new>" . xl('Print Any Encounter') . "</a></div>\n";
 //    echo "<pre>".wordwrap(stripslashes(content_parser($data['content'])))."</pre><hr>\n";
-    echo "<pre>".wordwrap(stripslashes(replace($GLOBALS['pid'],$GLOBALS['encounter'],$data['content'])))."</pre><hr>\n";
+    echo "<pre>".wordwrap(stripslashes(replace($pid,$encounter,$data['content'])))."</pre><hr>\n";
   }
 }
 ?> 
