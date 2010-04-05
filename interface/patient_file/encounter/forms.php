@@ -136,11 +136,11 @@ if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name
         //
         if (substr($formdir,0,3) == 'LBF') {
           include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-          call_user_func("lbf_report", $pid, $iter['encounter'], 2, $iter['form_id'], $formdir);
+          call_user_func("lbf_report", $pid, $encounter, 2, $iter['form_id'], $formdir);
         }
         else  {
           include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
-          call_user_func($formdir . "_report", $pid, $iter['encounter'], 2, $iter['form_id']);
+          call_user_func($formdir . "_report", $pid, $encounter, 2, $iter['form_id']);
         }
 
         echo "</td></tr>";
