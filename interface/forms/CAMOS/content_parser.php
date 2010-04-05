@@ -212,7 +212,7 @@ function replace($pid, $enc, $content) { //replace placeholders with values
 		$gender = $results['gender'];
 	}
 	$query1 = sqlStatement("select t1.lname from users as t1 join forms as " .
-	"t2 on (t1.username like t2.user) where t2.encounter = ".$_SESSION['encounter']);
+	"t2 on (t1.username like t2.user) where t2.encounter = ".$enc);
 	if ($results = mysql_fetch_array($query1, MYSQL_ASSOC)) {
 		$doctorname = "Dr. ".$results['lname'];
 	}
