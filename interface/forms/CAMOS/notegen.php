@@ -3,6 +3,7 @@ $depth = '../../../';
 include_once ($depth.'interface/globals.php');
 include_once($depth.'library/formdata.inc.php');
 include_once ($depth.'library/classes/class.ezpdf.php');
+include_once("content_parser.php");
 ?>
 <?php
 if (!($_POST['submit_pdf'] || $_POST['submit_html']) && ($_GET['pid'] && $_GET['encounter'])) {
@@ -159,7 +160,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
 				print "<span class='heading'>" . xl("Progress Notes") . "</span><br/>";
 				print "<br/>";
 				foreach($notecontents['exam'] as $examnote) {
-					print nl2br($examnote) . "<br/>";
+					print nl2br(replace($pid,$enc,$examnote)) . "<br/>";
 				}
 			}
 			if (count($notecontents['prescriptions']) > 0) {
@@ -167,7 +168,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
 				print "<span class='heading'>" . xl("Prescriptions") . "</span><br/>";
 				print "<br/>";
 				foreach($notecontents['prescriptions'] as $rx) {
-					print nl2br($rx) . "<br/>";
+					print nl2br(replace($pid,$enc,$rx)) . "<br/>";
 				}
 			}
 			if (count($notecontents['other']) > 0) {
@@ -177,7 +178,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
 				foreach($notecontents['other'] as $other => $othercat) {
 					print nl2br($other) . "<br/>";
 					foreach($othercat as $items) {
-						print nl2br($items) . "<br/>";
+						print nl2br(replace($pid,$enc,$items)) . "<br/>";
 					}
 				}
 			}
@@ -267,7 +268,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
 				$pdf->ezText(xl("Progress Notes"),12);
 				$pdf->ezText("",8);
 				foreach($notecontents['exam'] as $examnote) {
-					$pdf->ezText("$examnote");
+					$pdf->ezText(replace($pid,$enc,$examnote));
 				}
 			}
 			if (count($notecontents['prescriptions']) > 0) {
@@ -275,7 +276,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
 				$pdf->ezText(xl("Prescriptions"),12);
 				$pdf->ezText("",8);
 				foreach($notecontents['prescriptions'] as $rx) {
-					$pdf->ezText($rx);
+					$pdf->ezText(replace($pid,$enc,$rx));
 				}
 			}
 			if (count($notecontents['other']) > 0) {
@@ -285,7 +286,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
 				foreach($notecontents['other'] as $other => $othercat) {
 					$pdf->ezText($other,8);
 					foreach($othercat as $items) {
-						$pdf->ezText($items,8);
+						$pdf->ezText(replace($pid,$enc,$items),8);
 					}
 				}
 			}
