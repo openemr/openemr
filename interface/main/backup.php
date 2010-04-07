@@ -168,10 +168,23 @@ if ($form_step == 1) {
   if (! obliterate_dir($TMP_BASE)) die(xl("Couldn't remove dir:"). " " . $TMP_BASE);
   if (! mkdir($BACKUP_DIR, 0777, true)) die(xl("Couldn't create backup dir:") . " " . $BACKUP_DIR);
   $file_to_compress = "$BACKUP_DIR/openemr.sql";   // gzip this file after creation
-  $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
+  
+  if($GLOBALS['include_de_identification']==1)
+  {
+    //include routines during backup when de-identification is enabled
+    $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
+    " -p" . escapeshellarg($sqlconf["pass"]) .
+    " --routines".
+    " --opt --quote-names -r $file_to_compress " .
+    escapeshellarg($sqlconf["dbase"]);
+  }
+  else
+  { 
+    $cmd = "$mysql_dump_cmd -u " . escapeshellarg($sqlconf["login"]) .
     " -p" . escapeshellarg($sqlconf["pass"]) .
     " --opt --quote-names -r $file_to_compress " .
     escapeshellarg($sqlconf["dbase"]);
+  } 
   $auto_continue = true;
 }
 

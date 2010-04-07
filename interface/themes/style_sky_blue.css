@@ -827,3 +827,19 @@ font-size:9pt;
     font-size: 10pt;
 }
 /* Style for red font */
+
+.de_identification_status_message{
+	width: 50%;
+	border:1px solid #0000FF;
+}
+
+.de_identification_input_controls_box{
+	width: 100%;
+	border:1px solid #0000FF;
+}
+
+.de_id_upgrade_login{
+	width: 40%;
+	border:1px solid Black;
+        background-color:#DEDEDE;
+}
