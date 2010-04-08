@@ -18,7 +18,7 @@ require_once("language.inc.php");
 <script language='JavaScript'>
 function editLang(lang_id) {
  var filter = document.forms[0].form_filter.value;
- window.location = '?m=definition&edit=' + lang_id + '&filter=' + escape(filter);
+ window.location = '?m=definition&edit=' + lang_id + '&filter=' + encodeURIComponent(filter);
  return false;
 }
 </script>

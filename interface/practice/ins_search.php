@@ -75,7 +75,7 @@ td { font-size:10pt; }
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
  function doescape(value) {
-  return escape(value);
+  return encodeURIComponent(value);
  }
 
  // This is invoked when our Search button is clicked.
