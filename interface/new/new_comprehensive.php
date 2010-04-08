@@ -164,7 +164,7 @@ while ($lrow = sqlFetchArray($lres)) {
     case 14:
       echo
       " if (f.$fldname.selectedIndex > 0) {\n" .
-      "  url += '&$field_id=' + escape(f.$fldname.options[f.$fldname.selectedIndex].value);\n" .
+      "  url += '&$field_id=' + encodeURIComponent(f.$fldname.options[f.$fldname.selectedIndex].value);\n" .
       " }\n";
       break;
     case  2:
@@ -173,7 +173,7 @@ while ($lrow = sqlFetchArray($lres)) {
     case 15:
       echo
       " if (trimlen(f.$fldname.value) > 0) {\n" .
-      "  url += '&$field_id=' + escape(f.$fldname.value);\n" .
+      "  url += '&$field_id=' + encodeURIComponent(f.$fldname.value);\n" .
       " }\n";
       break;
   }
