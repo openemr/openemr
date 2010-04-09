@@ -16,7 +16,12 @@ $id = formSubmit('form_habits', $_POST);
 // then it may be retrievable by the report menu
 if ($encounter == "")
 	$encounter = date("Ymd");
-$newid=mysql_insert_id($GLOBALS['dbh']); // last id 
+//$newid=mysql_insert_id($GLOBALS['dbh']); // last id 
+if($GLOBALS['lastidado'] >0)
+$newid = $GLOBALS['lastidado'];
+else
+$newid=mysql_insert_id($GLOBALS['dbh']); // last id
+
 addForm($encounter, "Habits", $newid, "habits", $pid, $userauthorized);
 
 

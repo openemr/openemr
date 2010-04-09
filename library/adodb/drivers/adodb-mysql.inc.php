@@ -198,7 +198,15 @@ class ADODB_mysql extends ADOConnection {
 			$this->Execute(sprintf($this->_genSeq2SQL,$seqname,$startID-1));
 			$rs = $this->Execute($getnext);
 		}
-		$this->genID = mysql_insert_id($this->_connectionID);
+		//$this->genID = mysql_insert_id($this->_connectionID);
+
+                // ViSolve:  If (auditlog enabled), the value of GlOBALS['lastidado'] variable - which contains the
+                //   correct mysql_insert_id value before the audit call - is greater than 0, 
+                //   then return GLOBALS['lastiddao'] else return the mysql_insert_id value
+		if($GLOBALS['lastidado'] >0)
+                        $this->genID =$GLOBALS['lastidado'];
+                else
+                        $this->genID =mysql_insert_id($this->_connectionID);
 		
 		if ($rs) $rs->Close();
 		

@@ -11,7 +11,9 @@ function newEvent($event, $user, $groupname, $success, $comments="") {
             "," . $adodb->qstr($groupname) . "," . $adodb->qstr($success) . "," .
             $adodb->qstr($comments) ."," .
             $adodb->qstr($crt_user) .  ")";
-    $ret = sqlInsertClean($sql);
+    //$ret = sqlInsertClean($sql);
+    // Call the new function created for audit log
+    $ret = sqlInsertClean_audit($sql);
     send_atna_audit_msg($user, $groupname, $event, 0, $success, $comments);
 }
 
@@ -631,6 +633,9 @@ function auditSQLEvent($statement, $outcome)
     $event = $event . "-" . $querytype;
 
     $adodb = $GLOBALS['adodb']['db'];
+   
+    // ViSolve : Don't log sequences - to avoid the affect due to GenID calls
+    if (strpos($comments, "sequences") !== FALSE) return;
 
     $sql = "insert into log (date, event, user, groupname, comments, patient_id, success, checksum,crt_user) " .
          "values ( NOW(), " . 
@@ -643,9 +648,11 @@ function auditSQLEvent($statement, $outcome)
          $adodb->qstr($checksum) . "," .
          $adodb->qstr($_SERVER['SSL_CLIENT_S_DN_CN']) .")";
 
-    $ret = sqlInsertClean($sql);
+    //$ret = sqlInsertClean($sql);
+    //ViSolve: Call the new function created for audit logs
+    sqlInsertClean_audit($sql);
     send_atna_audit_msg($user, $group, $event, $pid, $success, $comments);
-    return $ret;
+    //return $ret;
 }
 
 ?>

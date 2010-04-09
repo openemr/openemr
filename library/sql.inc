@@ -67,12 +67,32 @@ function sqlInsert($statement)
 {
   //----------run a mysql insert, return the last id generated
   $ret = mysql_query($statement, $GLOBALS['dbh']);
+  // To return the correct mysql_insert_id 
+  $lastid= mysql_insert_id($GLOBALS['dbh']);
+
   if ($ret === FALSE) {
     auditSQLEvent($statement, FALSE);
     HelpfulDie("insert failed: $statement", mysql_error($GLOBALS['dbh']));
   }
   auditSQLEvent($statement, TRUE);
-  return mysql_insert_id($GLOBALS['dbh']);
+  return $lastid;
+}
+
+// ViSolve: Create a seperate function for audit log calls.
+// The audit calls are handled through separate function.
+// Before the audit calls are executed, the mysql_insert_id() is stored in GLOBALS['lastiddao']
+//  and used in the relevant places, i.e in the mysql adodb driver files.. 
+// Note:  This GLOBAL variable gets its value only when the audit is enabled. 
+function sqlInsertClean_audit($statement)
+{
+// Get the mysql_insert_id() before the execution of the log statement
+$lastid=mysql_insert_id($GLOBALS['dbh']);;
+$GLOBALS['lastidado']=$lastid;
+  //----------run a mysql insert, return the last id generated
+  $ret = mysql_query($statement, $GLOBALS['dbh']);
+  if ($ret === FALSE) {
+    HelpfulDie("insert failed: $statement", mysql_error($GLOBALS['dbh']));
+  }
 }
 
 function sqlInsertClean($statement)
