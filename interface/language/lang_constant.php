@@ -2,21 +2,24 @@
 require_once("language.inc.php");
 
 
-if ($_POST['Submit']==xl('Add')){
+if ($_POST['add']){
 	//validate	
-	$myconst=$_POST['constant_name'];
-	$sql="SELECT * FROM lang_constants WHERE constant_name='".$_POST['constant_name']."' limit 1" ;
+	if (strip_escape_custom($_POST['constant_name']) == "") {
+	        echo xl('Constant name is blank','','','<br>');
+	        $err='y';
+	}
+	$sql="SELECT * FROM lang_constants WHERE constant_name='".formData('constant_name')."' limit 1" ;
 	$res=SqlQuery($sql);
 	if ( $res ) {
 		echo xl('Data Alike is already in database, please change constant name','','','<br>');
 		$err='y';
 	}
 	if ($err=='y'){
-		$val_constant=$myconst;
+		$val_constant=strip_escape_custom($_POST['constant_name']);
 	} else {
-		$sql="INSERT INTO lang_constants SET constant_name='".$myconst."'"; 
+		$sql="INSERT INTO lang_constants SET constant_name='".formData('constant_name')."'"; 
 		SqlStatement ($sql);
-		echo xl('Constant','','',' ') . $myconst  . xl('added','',' ','<br>');
+		echo xl('Constant','','',' ') . strip_escape_custom($_POST['constant_name']) . xl('added','',' ','<br>');
 	}
 	
 
@@ -27,14 +30,14 @@ if ($_POST['Submit']==xl('Add')){
 ?>
 
 <TABLE>
-<FORM name="cons_form" METHOD=POST ACTION="?m=constant">
+<FORM name="cons_form" METHOD=POST ACTION="?m=constant" onsubmit="return top.restoreSession()">
 <TR>
 	<TD><? xl ('constant name','e'); ?></TD>
-	<TD><INPUT TYPE="text" NAME="constant_name" size="100" value="<? echo $val_constant; ?>"></TD>
+	<TD><INPUT TYPE="text" NAME="constant_name" size="100" value="<? echo htmlspecialchars($val_constant,ENT_QUOTES); ?>"></TD>
 </TR>
 <TR>
 	<TD></TD>
-	<TD><INPUT TYPE="submit" name="Submit" value="<?php xl('Add','e'); ?>"></TD>
+	<TD><INPUT TYPE="submit" name="add" value="<?php xl('Add','e'); ?>"></TD>
 </TR>
 </FORM>
 </TABLE>

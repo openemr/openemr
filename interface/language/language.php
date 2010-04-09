@@ -5,6 +5,7 @@ include_once("$srcdir/registry.inc");
 include_once("$srcdir/sql.inc");
 include_once("../../library/acl.inc");
 require_once("language.inc.php");
+require_once("$srcdir/formdata.inc.php");
 
 //START OUT OUR PAGE....
 ?>
@@ -18,6 +19,7 @@ require_once("language.inc.php");
 <script language='JavaScript'>
 function editLang(lang_id) {
  var filter = document.forms[0].form_filter.value;
+ top.restoreSession();
  window.location = '?m=definition&edit=' + lang_id + '&filter=' + encodeURIComponent(filter);
  return false;
 }
@@ -26,8 +28,8 @@ function editLang(lang_id) {
 
 <body class="body_top">
 <form name='filterform' id='filterform' method='get' action='language.php'>
-<input type='hidden' name='m' value='<?php echo $_GET['m']; ?>' />
-<input type='hidden' name='edit' value='<?php echo $_GET['edit']; ?>' />
+<input type='hidden' name='m' value='<?php echo strip_escape_custom($_GET['m']); ?>' />
+<input type='hidden' name='edit' value='<?php echo strip_escape_custom($_GET['edit']); ?>' />
 <span class="title"><?php  xl('Multi Language Tool','e') ?></span>
 <span class='text'>&nbsp;&nbsp;&nbsp;<?php xl('Filter for Constants','e','',':'); ?>
 <input type='text' name='form_filter' size='8' value='' />
