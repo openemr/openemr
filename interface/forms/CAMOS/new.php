@@ -669,7 +669,7 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
           	$clone_vitals .= "/* vitals\n :: $weight\n :: $height\n :: $bps\n :: $bpd\n :: $pulse\n :: $temperature\n */"; 
           	$clone_data_array[$clone_vitals] = $clone_vitals;
 	}
-        $query = "SELECT code_type, code, code_text, modifier, units, fee FROM billing WHERE encounter = '$last_encounter_id' and pid=".$_SESSION['pid']." and activity=1 order by id"; 
+        $query = "SELECT code_type, code, code_text, modifier, units, fee, justify FROM billing WHERE encounter = '$last_encounter_id' and pid=".$_SESSION['pid']." and activity=1 order by id"; 
         $statement = sqlStatement($query);
         while ($result = sqlFetchArray($statement)) {
           $clone_code_type = $result['code_type'];
@@ -678,7 +678,19 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
           $clone_modifier = $result['modifier'];
           $clone_units = $result['units'];
           $clone_fee = $result['fee'];
-          $clone_billing_data = "/* billing :: $clone_code_type :: $clone_code :: $clone_code_text :: $clone_modifier :: $clone_units :: $clone_fee */"; 
+	  
+	  //added ability to grab justifications also - bm
+	  $clone_justify = "";
+	  $clone_justify_raw = $result['justify'];
+	  $clone_justify_array = explode(":",$clone_justify_raw);
+	  foreach ($clone_justify_array as $temp_justify) {
+	    trim($temp_justify);
+	    if ($temp_justify != "") {
+	      $clone_justify .= ":: ".$temp_justify." ";
+	    }
+	  }
+	      
+          $clone_billing_data = "/* billing :: $clone_code_type :: $clone_code :: $clone_code_text :: $clone_modifier :: $clone_units :: $clone_fee $clone_justify*/"; 
           $clone_data_array[$clone_billing_data] = $clone_billing_data;
         }
       }

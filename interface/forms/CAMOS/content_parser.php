@@ -35,7 +35,12 @@ function addBilling2($encounter, $code_type, $code, $code_text, $modifier="",$un
   $justify_string = '';
   if ($justify)
   {
-    $justify_string = implode(":",$justify).":";
+    //trim eahc entry
+    foreach ($justify as $temp_justify) {
+      $justify_trimmed[] = trim($temp_justify);	
+    }
+    //format it
+    $justify_string = implode(":",$justify_trimmed).":";
   }
   $code_type = formDataCore($code_type);
   $code = formDataCore($code);
@@ -44,6 +49,11 @@ function addBilling2($encounter, $code_type, $code, $code_text, $modifier="",$un
   $units = formDataCore($units);
   $fee = formDataCore($fee);
   $justify_string = formDataCore($justify_string);
+    
+  // set to authorize billing codes as default - bm
+  //  could place logic here via acls to control who
+  //  can authorize as a feature in the future
+  $authorized=1;
 
   $sql = "insert into billing (date, encounter, code_type, code, code_text, pid, authorized, user, groupname,activity,billed,provider_id,modifier,units,fee,justify) values (NOW(), '".$_SESSION['encounter']."', '$code_type', '$code', '$code_text', '".$_SESSION['pid']."', '$authorized', '" . $_SESSION['authId'] . "', '" . $_SESSION['authProvider'] . "',1,0,".$_SESSION['authUserID'].",'$modifier','$units','$fee','$justify_string')";
 	
@@ -141,8 +151,16 @@ function process_commands(&$string_to_process, &$camos_return_data) {
       $code = trim(array_shift($comm_array));  
       $text = trim(array_shift($comm_array));  
       $modifier = trim(array_shift($comm_array));  
-      $units = trim(array_shift($comm_array));  
-      $fee = sprintf("%01.2f",trim(array_shift($comm_array)));  
+      $units = trim(array_shift($comm_array));
+      //make default units 1 if left blank - bm
+      if ($units == '') {
+        $units = 1;	  
+      }
+      $fee = sprintf("%01.2f",trim(array_shift($comm_array)));
+      //make default fee 0.00 if left blank
+      if ($fee == '') {
+        $fee = sprintf("%01.2f",'0.00');
+      }
       //in function call 'addBilling' note last param is the remainder of the array.  we will look for justifications here...
       addBilling2($encounter, $type, $code, $text, $modifier,$units,$fee,$comm_array);
     }
