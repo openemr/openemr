@@ -361,7 +361,7 @@ $sl_dbpass      = 'secret';     // sql-ledger database login password
 //backup:- set 1 (0 to off) to log backup related activites.
 
 //Turning off Auditing. It is currently broken due to the conflicts with LAST_INSERT_ID
-$GLOBALS["enable_auditlog"]=0;
+$GLOBALS["enable_auditlog"]=1;
 $GLOBALS["audit_events"]=array("patient-record"=>1,
                                 "scheduling"=>1,
                                 "query"=>0,
