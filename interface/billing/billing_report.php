@@ -147,11 +147,11 @@ function set_button_states() {
 }
 
 // Process a click to go to an encounter.
-function toencounter(pid, pubpid, pname, enc, datestr) {
+function toencounter(pid, pubpid, pname, enc, datestr, dobstr) {
  top.restoreSession();
 <?php if ($GLOBALS['concurrent_layout']) { ?>
  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';
- parent.left_nav.setPatient(pname,pid,pubpid,'');
+ parent.left_nav.setPatient(pname,pid,pubpid,'',dobstr);
  parent.left_nav.setEncounter(datestr, enc, othername);
  parent.left_nav.setRadio(othername, 'enc');
  parent.frames[othername].location.href =
@@ -513,7 +513,7 @@ if ($ret = getBillsBetween($from_date,
         }
       }
 
-      $name = getPatientData($iter['enc_pid'], "fname, mname, lname, pubpid");
+      $name = getPatientData($iter['enc_pid'], "fname, mname, lname, pubpid, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
 
       # Check if patient has primary insurance and a subscriber exists for it.
       # If not we will highlight their name in red.
@@ -546,7 +546,9 @@ if ($ret = getBillsBetween($from_date,
         "href=\"javascript:window.toencounter(" . $iter['enc_pid'] .
         ",'" . addslashes($name['pubpid']) .
         "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] .
-        ",'$raw_encounter_date')\">[" . xl('To Enctr') . " $raw_encounter_date]</a>";
+        ",'$raw_encounter_date',' " . 
+	xl('DOB').": ".$name['DOB_YMD']." ".xl('Age').": ".getPatientAge($name['DOB_YMD'])."')\">[" .
+	xl('To Enctr') . " $raw_encounter_date]</a>";
 				
             //  Changed "To xxx" buttons to allow room for encounter date display 2/17/09  JCH
       $lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" " .
