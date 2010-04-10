@@ -1,14 +1,18 @@
 <?php
 require_once("language.inc.php");
 
-if ($_POST['Submit'] == xl("Load Definitions")) {
+if ($_POST['load']) {
 	// query for entering new definitions it picks the cons_id because is existant.
 	$sql = "INSERT INTO lang_definitions (`cons_id`,`lang_id`,`definition`) VALUES  ";
   if (!empty($_POST['cons_id'])) {
     foreach ($_POST['cons_id'] as $key => $value) {
-      $value = mysql_real_escape_string (trim($value));
+      $value = formDataCore($value,true);
+	
+      // do not create new blank definitions
+      if ($value == "") continue;
+	
       $sql .= " ('$key', ";
-      $sql .= "'" . $_POST['lang_id'] . "',";
+      $sql .= "'" . formData('lang_id') . "',";
       $sql .= "'" . $value . "'),";
       $go = 'yes';
     }
@@ -23,17 +27,19 @@ if ($_POST['Submit'] == xl("Load Definitions")) {
   // echo ('<pre>');	print_r($_POST['def_id']);	echo ('</pre>');
   if (!empty($_POST['def_id'])) {
     foreach ($_POST['def_id'] as $key => $value) {
-      $value = mysql_real_escape_string (trim($value));
+      $value = formDataCore($value,true);
       $sql = "UPDATE `lang_definitions` SET `definition` = '$value' WHERE `def_id`='$key' LIMIT 1";
       SqlStatement($sql);
+      $goMod = 'yes';
     }
+    if ($goMod=='yes') xl("New Definition set added",'e');
   }
 }
 
 if ($_GET['edit'] != ''){
-	$lang_id = (int)$_GET['edit'];
+	$lang_id = (int)formData('edit','G');
 
-  $lang_filter = isset($_GET['filter']) ? $_GET['filter'] : '';
+  $lang_filter = isset($_GET['filter']) ? formData('filter','G') : '';
   $lang_filter .= '%';
 
 	$sql = "SELECT lc.cons_id, lc.constant_name, ld.def_id, ld.definition " .
@@ -52,7 +58,7 @@ if ($_GET['edit'] != ''){
 
 	$res = SqlStatement($sql);
 
-	echo ('<table><FORM METHOD=POST ACTION="?m=definition">');
+	echo ('<table><FORM METHOD=POST ACTION="?m=definition" onsubmit="return top.restoreSession()">');
 	// only english definitions
 	if ($lang_id==1) { 
 		while ($row=SqlFetchArray($res)){
@@ -64,7 +70,7 @@ if ($_GET['edit'] != ''){
 			} else {
 				$cons_name = "def_id[" . $row['def_id'] . "]";
 			}
-			echo ('<td><INPUT TYPE="text" size="50" NAME="' . $cons_name . '" value="' . $row['definition'] . '">');
+			echo ('<td><INPUT TYPE="text" size="50" NAME="' . $cons_name . '" value="' . htmlspecialchars($row['definition'],ENT_QUOTES) . '">');
 			echo ('</td><td></td></tr>');
 		}
 		echo ('<INPUT TYPE="hidden" name="lang_id" value="'.$lang_id.'">');
@@ -73,7 +79,7 @@ if ($_GET['edit'] != ''){
 		while ($row=SqlFetchArray($res)){
 			echo ('<tr><td>'.$row['constant_name'].'</td>');
 			if ($row['definition']=='' OR $row['definition']=='NULL') { 
-				$def="NULL" ;
+				$def=" " ;
 			} else {
 				$def=$row['definition'];
 			}
@@ -85,12 +91,12 @@ if ($_GET['edit'] != ''){
 			} else {
 				$cons_name="def_id[".$row['def_id']."]";;
 			}
-			echo ('<td><INPUT TYPE="text" size="50" NAME="'.$cons_name.'" value="'.$row['definition'].'">');
+			echo ('<td><INPUT TYPE="text" size="50" NAME="'.$cons_name.'" value="'.htmlspecialchars($row['definition'],ENT_QUOTES).'">');
 			echo ('</td></tr>');
 		}
 		echo ('<INPUT TYPE="hidden" name="lang_id" value="'.$lang_id.'">');
 	}
-	echo ('<tr><td colspan=3><INPUT TYPE="submit" name="Submit" Value="' . xl('Load Definitions') . '"></td></tr>');
+	echo ('<tr><td colspan=3><INPUT TYPE="submit" name="load" Value="' . xl('Load Definitions') . '"></td></tr>');
 	echo ('</FORM></table>');
 }
 
