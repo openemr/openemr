@@ -934,10 +934,10 @@ function postcalendar_userapi_buildSubmitForm($args,$admin=false)
     extract($args); unset($args);
     //since we seem to clobber category
     $cat = $category;
-    $output =& new pnHTML();
+    $output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
     // set up Smarty
-    $tpl =& new pcSmarty();
+    $tpl = new pcSmarty();
     $tpl->caching = false;
 
     $template_name = pnModGetVar(__POSTCALENDAR__,'pcTemplate');
@@ -1575,7 +1575,7 @@ function postcalendar_userapi_eventDetail($args,$admin=false)
     //=================================================================
     //  Setup Smarty Template Engine
     //=================================================================
-    $tpl =& new pcSmarty();
+    $tpl = new pcSmarty();
 
     if($admin) {
         $template = $template_name.'/admin/details.html';

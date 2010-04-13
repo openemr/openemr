@@ -154,8 +154,7 @@ function pnSessionSetVar($name, $value)
 
     	global $$var;
 	$$var = $value;
-	$HTTP_SESSION_VARS[$var] = $value;
-	session_register($var);
+	$_SESSION[$var]=$value;
 
     	return true;
 }

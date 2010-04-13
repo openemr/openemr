@@ -156,7 +156,7 @@ function postcalendar_userapi_buildView($args)
 	//=================================================================
 	//  Setup Smarty Template Engine
 	//=================================================================
-	$tpl =& new pcSmarty();
+	$tpl = new pcSmarty();
 
 	//if(!$tpl->is_cached("$template_name/views/$viewtype/$template_view_load.html",$cacheid)) {
 	//diable caching completely
@@ -550,7 +550,7 @@ function postcalendar_userapi_eventPreview($args)
     //=================================================================
     //  Setup Smarty Template Engine
     //=================================================================
-    $tpl =& new pcSmarty();
+    $tpl = new pcSmarty();
 	$tpl->caching = false;
 	// add preceding zeros
     $event_starttimeh   = sprintf('%02d',$event_starttimeh);

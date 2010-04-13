@@ -146,7 +146,7 @@ function postcalendar_user_delete()
         return _POSTCALENDAR_NOAUTH;
     }
 
-    $output =& new pnHTML();
+    $output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
 
     $uname = $_SESSION['authUser'];
@@ -193,7 +193,7 @@ function postcalendar_user_deleteevents()
     }
     unset($event);
 
-    $output =& new pnHTML();
+    $output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
     list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
@@ -203,7 +203,7 @@ function postcalendar_user_deleteevents()
     //$sql = "DELETE FROM $events_table WHERE $events_column[eid] = '$pc_eid'";
     $sql = "UPDATE $events_table SET pc_eventstatus = 0 WHERE $events_column[eid] = '$pc_eid'";
     $dbconn->Execute($sql);
-    $tpl =& new pcSmarty();
+    $tpl = new pcSmarty();
     $template_name = _SETTING_TEMPLATE;
     if(!isset($template_name)) {
         $template_name = 'default';
@@ -273,7 +273,7 @@ function postcalendar_user_submit2($args)
         //select the category you wish to add,
         //using the info from that category we can populate some data
 
-        $output =& new pnHTML();
+        $output = new pnHTML();
         $output->SetInputMode(_PNH_VERBATIMINPUT);
         $output->Text('<body bgcolor="'.$GLOBALS['style']['BGCOLOR2'].'"></body>');
         // get the theme globals :: is there a better way to do this?
@@ -315,7 +315,7 @@ function postcalendar_user_submit($args)
         return _POSTCALENDARNOAUTH;
     }
 
-    $output =& new pnHTML();
+    $output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
 
 
@@ -794,7 +794,7 @@ function postcalendar_user_submit($args)
                 $output->Text($dbconn->ErrorMsg());
             } else {
                 // clear the Smarty cache
-                $tpl =& new pcSmarty();
+                $tpl = new pcSmarty();
                 $tpl->clear_all_cache();
                 $output->Text('<center><div style="padding:5px; border:1px solid green; background-color: lightgreen;">');
                 if($is_update) {
@@ -846,7 +846,7 @@ function postcalendar_user_search()
 {
     if (!(bool)PC_ACCESS_OVERVIEW) { return _POSTCALENDARNOAUTH; }
 
-    $tpl =& new pcSmarty();
+    $tpl = new pcSmarty();
     $k = formData("pc_keywords","R"); //from library/formdata.inc.php
     $k_andor = pnVarCleanFromInput('pc_keywords_andor');
     $pc_category = pnVarCleanFromInput('pc_category');
@@ -944,7 +944,7 @@ function postcalendar_user_search()
     $tpl->assign('provider_id', $ProviderID);
     $tpl->assign("event_category", pnVarCleanFromInput("event_category"));
     $tpl->assign("event_subject", pnVarCleanFromInput("event_subject"));
-    $output =& new pnHTML();
+    $output = new pnHTML();
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
     if(_SETTING_USE_INT_DATES) {
 

@@ -3208,7 +3208,7 @@
 		}
 		
 		$cls = 'ADODB_'.$ADODB_Database;
-		$obj =& new $cls();
+		$obj = new $cls();
 		if ($errorfn) $obj->raiseErrorFn = $errorfn;
 		
 		return $obj;
@@ -3245,7 +3245,7 @@
 		}
 		include_once($path);
 		$class = "ADODB2_$drivername";
-		$dict =& new $class();
+		$dict = new $class();
 		$dict->dataProvider = $conn->dataProvider;
 		$dict->connection = &$conn;
 		$dict->upperName = strtoupper($drivername);
