@@ -17,8 +17,13 @@ if ($_POST['add']){
 	if ($err=='y'){
 		$val_constant=strip_escape_custom($_POST['constant_name']);
 	} else {
+	        //insert into the main table
 		$sql="INSERT INTO lang_constants SET constant_name='".formData('constant_name')."'"; 
 		SqlStatement ($sql);
+	    
+                //insert into the log table - to allow persistant customizations
+	      	insert_language_log('','',formData('constant_name'),'');
+	    
 		echo xl('Constant','','',' ') . strip_escape_custom($_POST['constant_name']) . xl('added','',' ','<br>');
 	}
 	

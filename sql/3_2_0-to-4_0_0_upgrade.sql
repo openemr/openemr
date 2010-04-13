@@ -364,3 +364,12 @@ CREATE TABLE `globals` (
 ) ENGINE=MyISAM; 
 #EndIf
 
+#IfNotTable lang_custom
+CREATE TABLE lang_custom (
+  `lang_description`   varchar(100)   NOT NULL default '',
+  `lang_code`          char(2)        NOT NULL default '',
+  `constant_name`      varchar(255)   NOT NULL default '',
+  `definition`         mediumtext     NOT NULL default ''
+) ENGINE=MyISAM;
+#EndIf
+

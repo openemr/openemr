@@ -18,7 +18,7 @@ require_once("$srcdir/formdata.inc.php");
 
 <script language='JavaScript'>
 function editLang(lang_id) {
- var filter = document.forms[0].form_filter.value;
+ var filter = document.forms[1].form_filter.value;
  top.restoreSession();
  window.location = '?m=definition&edit=' + lang_id + '&filter=' + encodeURIComponent(filter);
  return false;
@@ -26,46 +26,39 @@ function editLang(lang_id) {
 </script>
 </head>
 
-<body class="body_top">
-<form name='filterform' id='filterform' method='get' action='language.php'>
+<body class="body_top">	
+<form name='translation' id='translation' method='get' action='language.php' onsubmit="return top.restoreSession()">
 <input type='hidden' name='m' value='<?php echo strip_escape_custom($_GET['m']); ?>' />
 <input type='hidden' name='edit' value='<?php echo strip_escape_custom($_GET['edit']); ?>' />
 <span class="title"><?php  xl('Multi Language Tool','e') ?></span>
-<span class='text'>&nbsp;&nbsp;&nbsp;<?php xl('Filter for Constants','e','',':'); ?>
-<input type='text' name='form_filter' size='8' value='' />
-<?php xl('(% matches any string, _ matches any character)','e'); ?>
+<table>
+ <tr>
+  <td class="small" colspan='4'>
+   <a href="?m=manage" onclick="top.restoreSession()"><?php xl('Manage Translations','e'); ?></a> | 
+   <a href="?m=language" onclick="top.restoreSession()"><?php xl('Add Language','e'); ?></a> | 
+   <a href="?m=constant" onclick="top.restoreSession()"><?php xl('Add Constant','e'); ?></a> |
+   <a href="?m=definition" onclick="top.restoreSession()"><?php xl('Edit Definitions','e'); ?></a>
+  </td>
+ </tr>
+</table>
 </form>
-</span>
-
-<div class="text">
-<br>
-
+	
 <?php
-/* menu */
-$sql="SELECT * FROM lang_languages ORDER BY lang_id";
-$res=SqlStatement($sql);
-$string='|';
-while ($row=SqlFetchArray($res)){
-  $string .= "| <a href='' onclick='return editLang(" . $row['lang_id'] . ")'>" . xl($row['lang_description']) . "</a> |";
-}
-$string.='|';
-
-echo ("<a href=\"?m=language&language=add\">".xl('Add Language')."</a> or ");
-echo ("<a href=\"?m=constant&constant=add\">".xl('Add Constant')."</a> or ");
-echo (xl('Edit definitions').": $string <br><br>");
-
 switch ($_GET['m']):
 	case 'definition':
 		include_once('lang_definition.php');
-	break;
+	        break;
 	case 'constant':
 		include_once('lang_constant.php');
-	break;
-		case 'language':
+	        break;
+	case 'language':
 		include_once('lang_language.php');
-	break;
+	        break;
+        case 'manage':
+                include_once('lang_manage.php');
+                break;
 endswitch;
 ?>
 
 <BR><A HREF="lang.info.html" TARGET="_blank"><?php xl('Info','e'); ?></A>
-</div>
+</body>
