@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2008-2009 Rod Roark <rod@sunsetsystems.com>
+# Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -172,8 +172,9 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+OEDIR=/var/www/openemr
+
 # Get various parameters from the extracted files.
-OEDIR=`grep '^\$webserver_root' interface/globals.php | cut -d \" -f 2`
 OEDBNAME=`grep '^\$dbase' library/sqlconf.php | cut -d \' -f 2 | cut -d \" -f 2`
 OEDBUSER=`grep '^\$login' library/sqlconf.php | cut -d \' -f 2 | cut -d \" -f 2`
 OEDBPASS=`grep '^\$pass'  library/sqlconf.php | cut -d \' -f 2 | cut -d \" -f 2`
@@ -222,7 +223,8 @@ if [ -f ../sql-ledger.tar.gz ]; then
   SLDIR=`dirname $OEDIR`/sql-ledger
 fi
 
-dlg_yesno 'Do you want to specify new locations and database names for the restore?'
+dlg_yesno "Do you want to specify locations or database names for the restore?"
+
 CHANGES=$RESULT
 
 dlg_blank_line
@@ -263,40 +265,20 @@ if [ $CHANGES -gt 0 ]; then
     if [ ! -z "$RESULT" ]; then SLDBPASS="$RESULT"; fi
   fi
   OLDOEDIR="$OEDIR"
-  dlg_input "OpenEMR web directory [$OEDIR]? "
+  dlg_input "New OpenEMR web directory [$OEDIR]? "
   if [ ! -z "$RESULT" ]; then OEDIR="$RESULT"; fi
   if [ ! -z "$GADIR" ]; then
     OLDGADIR="$GADIR"
-    dlg_input "phpGACL web directory [$GADIR]? "
+    dlg_input "New phpGACL web directory [$GADIR]? "
     if [ ! -z "$RESULT" ]; then GADIR="$RESULT"; fi
   fi
   if [ ! -z "$SLDIR" ]; then
     OLDSLDIR="$SLDIR"
-    dlg_input "SQL-Ledger web directory [$SLDIR]? "
+    dlg_input "New SQL-Ledger web directory [$SLDIR]? "
     if [ ! -z "$RESULT" ]; then SLDIR="$RESULT"; fi
+    dlg_input "Previous SQL-Ledger web directory [$OLDSLDIR]? "
+    if [ ! -z "$RESULT" ]; then OLDSLDIR="$RESULT"; fi
   fi
-  #
-  # The following is to figure out the proper value for $web_root.
-  #
-  LOOKING=1
-  DOCROOT=`dirname $OEDIR`
-  OEFILE=`basename $OEDIR`
-  while [ $LOOKING -eq 1 ]; do
-    dlg_yesno "Is the Apache document root '$DOCROOT'?"
-    if [ $RESULT -eq 1 ]; then
-      LOOKING=0
-    else
-      OEFILE=`basename $DOCROOT`/$OEFILE
-      DOCROOT=`dirname $DOCROOT`
-      if [ "$DOCROOT" = "/" ]; then
-        LOOKING=0
-        OEFILE=`basename $OEDIR`
-        DOCROOT=`dirname $OEDIR`
-        dlg_msg "Never mind, I will assume '$DOCROOT'. You may need to manually correct" "the value of \$web_root in '$OEDIR/interface/globals.php'."
-      fi
-    fi
-  done
-  unset DOCROOT
   #
 fi
 
@@ -535,11 +517,9 @@ if [ $CHANGES -gt 0 ]; then
   dlg_info "Modifying $OEDIR/interface/globals.php ..."
   cd $OEDIR/interface
   mv -f globals.php globals.php.old
-  sed "s^$OLDOEDIR^$OEDIR^"                globals.php.old | \
-  sed "/\\\$web_root *=/ c \$web_root = \"/$OEFILE\";"     | \
-  sed "s^sl_dbname *= '.*'^sl_dbname = '$SLDBNAME'^"       | \
-  sed "s^sl_dbuser *= '.*'^sl_dbuser = '$SLDBUSER'^"       | \
-  sed "s^sl_dbpass *= '.*'^sl_dbpass = '$SLDBPASS'^"         \
+  sed "s^sl_dbname *= '.*'^sl_dbname = '$SLDBNAME'^" globals.php.old | \
+  sed "s^sl_dbuser *= '.*'^sl_dbuser = '$SLDBUSER'^"                 | \
+  sed "s^sl_dbpass *= '.*'^sl_dbpass = '$SLDBPASS'^"                   \
   > globals.php
   #
   dlg_info "Modifying $OEDIR/library/sqlconf.php ..."
@@ -549,16 +529,9 @@ if [ $CHANGES -gt 0 ]; then
   sed "s^login\t= ['\"].*['\"]^login\t= '$OEDBUSER'^"                 | \
   sed "s^pass\t= ['\"].*['\"]^pass\t= '$OEDBPASS'^" > sqlconf.php
   #
-  dlg_info "Modifying $OEDIR/includes/config.php ..."
-  SLFILE=`dirname /$OEFILE`
-  if [ "$SLFILE" = "/" ]; then
-    SLFILE="/sql-ledger"
-  else
-    SLFILE="$SLFILE/sql-ledger"
-  fi
-  cd $OEDIR/includes
-  cp -f config.php config.php.old
-  sed "s^\"/.*/ws_server.pl\"^\"$SLFILE/ws_server.pl\"^" config.php.old > config.php
+  # Logic to fix the path to ws_server.pl in includes/config.php was removed.
+  # Not gonna worry about this because SL is deprecated, the old logic was not
+  # very robust, and this can be fixed up manually easily enough.
 fi
 
 if [ ! -z "$GADIR" ]; then
@@ -575,7 +548,7 @@ if [ ! -z "$GADIR" ]; then
     dlg_info "Modifying $OEDIR/library/acl.inc ..."
     cd $OEDIR/library
     mv -f acl.inc acl.inc.old
-    sed "s^$OLDGADIR^$GADIR^" acl.inc.old > acl.inc
+    sed "s^phpgacl_location *= *\"/.*\"^phpgacl_location = \"$GADIR\"^" acl.inc.old > acl.inc
   fi
 fi
 
