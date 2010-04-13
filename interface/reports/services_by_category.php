@@ -1,23 +1,21 @@
 <?php
-// Copyright (C) 2008-2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-include_once("../globals.php");
-include_once("../../custom/code_types.inc.php");
-include_once("$srcdir/sql.inc");
+require_once("../globals.php");
+require_once("../../custom/code_types.inc.php");
+require_once("$srcdir/sql.inc");
+require_once("$srcdir/formatting.inc.php");
 
 // Format dollars for display.
 //
 function bucks($amount) {
-  if ($amount) {
-    $amount = sprintf("%.2f", $amount);
-    if ($amount != 0.00) return $amount;
-  }
-  return '';
+  if (empty($amount)) return '';
+  return oeFormatMoney($amount);
 }
 
 $filter = $_REQUEST['filter'] + 0;

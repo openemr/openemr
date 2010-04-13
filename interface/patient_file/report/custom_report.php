@@ -10,11 +10,12 @@ require_once("$srcdir/billing.inc");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
-include_once("$srcdir/acl.inc");
-include_once("$srcdir/lists.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/lists.inc");
 require_once("$srcdir/report.inc");
-require_once(dirname(__file__) . "/../../../library/classes/Document.class.php");
-require_once(dirname(__file__) . "/../../../library/classes/Note.class.php");
+require_once("$srcdir/classes/Document.class.php");
+require_once("$srcdir/classes/Note.class.php");
+require_once("$srcdir/formatting.inc.php");
 require_once(dirname(__file__) . "/../../../custom/code_types.inc.php");
 
 // get various authorization levels
@@ -96,7 +97,7 @@ if ($printable) {
 <?php echo $facility['phone'] ?><br>
 </p>
 <a href="javascript:window.close();"><span class='title'><?php echo $titleres['fname'] . " " . $titleres['lname']; ?></span></a><br>
-<span class='text'><?php xl('Generated on','e'); ?>: <?php echo date("Y-m-d"); ?></span>
+<span class='text'><?php xl('Generated on','e'); ?>: <?php echo oeFormatShortDate(); ?></span>
 <br><br>
 
 <?php
@@ -202,7 +203,7 @@ foreach ($ar as $key => $val) {
                         echo $b['code_type'] . ":\t" . $b['code'] . "&nbsp;". $b['modifier'] . "&nbsp;&nbsp;&nbsp;" . $b['code_text'] . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
                         echo "</td>\n";
                         echo "<td class=text>";
-                        echo $b['fee'];
+                        echo oeFormatMoney($b['fee']);
                         echo "</td>\n";
                         echo "</tr>\n";
                         $total += $b['fee'];
@@ -212,9 +213,9 @@ foreach ($ar as $key => $val) {
                     }
                 }
                 echo "<tr><td>&nbsp;</td></tr>";
-                echo "<tr><td class=bold>".xl('Sub-Total')."</td><td class=text>" . sprintf("%0.2f",$total + abs($copays)) . "</td></tr>";
-                echo "<tr><td class=bold>".xl('Paid')."</td><td class=text>" . sprintf("%0.2f",abs($copays)) . "</td></tr>";
-                echo "<tr><td class=bold>".xl('Total')."</td><td class=text>" . sprintf("%0.2f",$total) . "</td></tr>";
+                echo "<tr><td class=bold>".xl('Sub-Total')."</td><td class=text>" . oeFormatMoney($total + abs($copays)) . "</td></tr>";
+                echo "<tr><td class=bold>".xl('Paid')."</td><td class=text>" . oeFormatMoney(abs($copays)) . "</td></tr>";
+                echo "<tr><td class=bold>".xl('Total')."</td><td class=text>" . oeFormatMoney($total) . "</td></tr>";
                 echo "</table>";
                 echo "<pre>";
                 //print_r($billings);
@@ -313,7 +314,7 @@ foreach ($ar as $key => $val) {
                     echo '<td>' . xl('Note') . ' #' . $note->get_id() . '</td>';
                     echo '</tr>';
                     echo '<tr>';
-                    echo '<td>' . xl('Date') . ': '.$note->get_date().'</td>';
+                    echo '<td>' . xl('Date') . ': ' . oeFormatShortDate($note->get_date()) . '</td>';
                     echo '</tr>';
                     echo '<tr>';
                     echo '<td>'.$note->get_note().'<br><br></td>';
@@ -419,7 +420,7 @@ foreach ($ar as $key => $val) {
                 }
 
                 // show the encounter's date
-                echo "(" . date("Y-m-d",strtotime($dateres["date"])) . ") ";
+                echo "(" . oeFormatSDFT(strtotime($dateres["date"])) . ") ";
                 if ($res[1] == 'newpatient') {
                     // display the provider info
                     $tmp = sqlQuery("SELECT u.title, u.fname, u.mname, u.lname " .

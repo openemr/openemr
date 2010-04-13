@@ -2,6 +2,7 @@
 include_once("../globals.php");
 include_once("$srcdir/log.inc");
 include_once("$srcdir/formdata.inc.php");
+require_once("$srcdir/formatting.inc.php");
 ?>
 <html>
 <head>
@@ -248,7 +249,7 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
 	
 ?>
  <TR class="oneresult">
-  <TD class="text"><?php echo $iter["date"]?></TD>
+  <TD class="text"><?php echo oeFormatShortDate(substr($iter["date"], 0, 10)) . substr($iter["date"], 10) ?></TD>
   <TD class="text"><?php echo xl($iter["event"])?></TD>
   <TD class="text"><?php echo $iter["user"]?></TD>
   <TD class="text"><?php echo $iter["crt_user"]?></TD>

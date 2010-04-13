@@ -1,8 +1,14 @@
 <?php
- include_once("../../globals.php");
- include_once("$srcdir/forms.inc");
- include_once("$srcdir/calendar.inc");
- include_once("$srcdir/acl.inc");
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+require_once("../../globals.php");
+require_once("$srcdir/forms.inc");
+require_once("$srcdir/calendar.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/formatting.inc.php");
 ?>
 <html>
 
@@ -112,7 +118,7 @@ $encounter_date = date("Y-m-d",strtotime($dateres["date"]));
 ?>
 
 <div style='float:left'>
-<span class="title"><?php xl($encounter_date . " Encounter ",'e'); ?></span>
+<span class="title"><?php echo oeFormatShortDate($encounter_date) . " " . xl("Encounter"); ?> </span>
 <?php
 $auth_notes_a  = acl_check('encounters', 'notes_a');
 $auth_notes    = acl_check('encounters', 'notes');
@@ -144,7 +150,8 @@ if (is_numeric($pid)) {
 <br/>
 <br/>
 
-<? if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {
+<?php
+  if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {
     echo "<table width='100%' id='partable'>";
 	$divnos=1;
     foreach ($result as $iter) {

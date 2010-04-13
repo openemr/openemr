@@ -1,5 +1,5 @@
 <?php
-  // Copyright (C) 2006-2009 Rod Roark <rod@sunsetsystems.com>
+  // Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
   //
   // This program is free software; you can redistribute it and/or
   // modify it under the terms of the GNU General Public License
@@ -11,10 +11,11 @@
   // but I wanted to make the code available to the project because
   // many other practices have this same need. - rod@sunsetsystems.com
 
-  include_once("../globals.php");
-  include_once("../../library/patient.inc");
-  include_once("../../library/sql-ledger.inc");
-  include_once("../../library/acl.inc");
+  require_once("../globals.php");
+  require_once("$srcdir/patient.inc");
+  require_once("$srcdir/sql-ledger.inc");
+  require_once("$srcdir/acl.inc");
+  require_once("$srcdir/formatting.inc.php");
 
   // This determines if a particular procedure code corresponds to receipts
   // for the "Clinic" column as opposed to receipts for the practitioner.  Each
@@ -33,8 +34,7 @@
   }
 
   function bucks($amount) {
-    if ($amount)
-      printf("%.2f", $amount);
+    if ($amount) echo oeFormatMoney($amount);
   }
 
   if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
@@ -626,7 +626,7 @@
    <?php echo $docnameleft; $docnameleft = "&nbsp;" ?>
   </td>
   <td class="detail">
-   <?php echo $row['transdate'] ?>
+   <?php echo oeFormatShortDate($row['transdate']) ?>
   </td>
 <?php if ($form_procedures) { ?>
   <td class="detail">

@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006, 2010 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -15,6 +15,7 @@
  require_once("$srcdir/patient.inc");
  require_once("$srcdir/options.inc.php");
  require_once("../drugs/drugs.inc.php");
+ require_once("$srcdir/formatting.inc.php");
 
  $form_from_date  = fixDate($_POST['form_from_date'], date('Y-01-01'));
  $form_to_date    = fixDate($_POST['form_to_date']  , date('Y-m-d'));
@@ -317,7 +318,7 @@
   <td>
    <a href='../drugs/dispense_drug.php?sale_id=<?php echo $row['sale_id'] ?>'
     style='color:#0000ff' target='_blank'>
-    <?php echo $row['sale_date'] ?>
+    <?php echo oeFormatShortDate($row['sale_date']) ?>
    </a>
   </td>
   <td>

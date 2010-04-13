@@ -11,6 +11,7 @@ require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/formdata.inc.php");
+require_once("$srcdir/formatting.inc.php");
 
 // Defaults for new orders.
 $row = array(
@@ -151,7 +152,7 @@ function set_proc_type(typeid, typename) {
 <?php
   echo xl('Procedure Order for') . ' ';
   echo $enrow['fname'] . ' ' . $enrow['mname'] . ' ' . $enrow['lname'];
-  echo ' ' . xl('on') . ' ' . substr($enrow['date'], 0, 10);
+  echo ' ' . xl('on') . ' ' . oeFormatShortDate(substr($enrow['date'], 0, 10));
 ?>
 </p>
 

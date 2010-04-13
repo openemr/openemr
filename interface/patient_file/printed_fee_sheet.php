@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007-2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -11,6 +11,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/classes/Address.class.php");
 require_once("$srcdir/classes/InsuranceCompany.class.php");
+require_once("$srcdir/formatting.inc.php");
 
 // This value is initially a maximum, and will be recomputed to
 // distribute lines evenly among the pages.
@@ -383,7 +384,7 @@ else {
     echo substr($encdata['date'], 0, 10);
   }
   else {
-    echo date('Y-m-d') . "\n";
+    echo oeFormatShortDate(date('Y-m-d')) . "\n";
   }
 }
 ?>

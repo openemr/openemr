@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006-2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -10,13 +10,13 @@
 // SQL-Ledger so as to include all types of invoice items.
 
 require_once("../globals.php");
-require_once("../../library/patient.inc");
-require_once("../../library/sql-ledger.inc");
-require_once("../../library/acl.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/sql-ledger.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/formatting.inc.php");
 
 function bucks($amount) {
-  if ($amount)
-    printf("%.2f", $amount);
+  if ($amount) echo oeFormatMoney($amount);
 }
 
 function display_desc($desc) {
@@ -106,7 +106,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
     if ($_POST['form_csvexport']) {
       echo '"' . display_desc($category ) . '",';
       echo '"' . display_desc($product  ) . '",';
-      echo '"' . display_desc($transdate) . '",';
+      echo '"' . oeFormatShortDate(display_desc($transdate)) . '",';
       echo '"' . display_desc($invnumber) . '",';
       echo '"' . display_desc($qty      ) . '",';
       echo '"'; bucks($rowamount); echo '"' . "\n";
@@ -122,7 +122,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
    <?php echo display_desc($productleft); $productleft = "&nbsp;"; ?>
   </td>
   <td>
-   <?php echo $transdate; ?>
+   <?php echo oeFormatShortDate($transdate); ?>
   </td>
   <td class="detail">
    <?php echo $invnumber; ?>

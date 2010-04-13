@@ -16,9 +16,10 @@
 // Transfers
 
 require_once("../globals.php");
-require_once("../../library/patient.inc");
-require_once("../../library/sql-ledger.inc");
-require_once("../../library/acl.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/sql-ledger.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/formatting.inc.php");
 
 function display_desc($desc) {
   if (preg_match('/^\S*?:(.+)$/', $desc, $matches)) {
@@ -217,7 +218,7 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
         echo '"'  . display_desc($warehouse) . '"';
         echo ',"' . display_desc($product)   . '"';
       }
-      echo ',"' . display_desc($transdate) . '"';
+      echo ',"' . oeFormatShortDate(display_desc($transdate)) . '"';
       echo ',"' . display_desc($invnumber) . '"';
       echo ',"' . $qtys[0]             . '"'; // sales
       echo ',"' . $qtys[1]             . '"'; // purchases
@@ -243,7 +244,7 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
   </td>
 <?php } ?>
   <td class="dehead">
-   <?php echo $transdate; ?>
+   <?php echo oeFormatShortDate($transdate); ?>
   </td>
   <td class="detail">
    <?php echo $invnumber; ?>

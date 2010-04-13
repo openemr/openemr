@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -11,6 +11,7 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
+require_once("$srcdir/formatting.inc.php");
 
 $form_patient_id = trim($_POST['form_patient_id']);
 ?>
@@ -165,7 +166,7 @@ if (!empty($ptrow)) {
 ?>
  <tr>
   <td>
-   <?php echo $row['ct_when']; ?>
+   <?php echo oeFormatShortDate(substr($row['ct_when'], 0, 10)) . substr($row['ct_when'], 10); ?>
   </td>
   <td>
 <?php

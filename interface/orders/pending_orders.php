@@ -7,8 +7,9 @@
 // of the License, or (at your option) any later version.
 
 require_once("../globals.php");
-require_once("../../library/patient.inc");
-require_once("../../library/acl.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/formatting.inc.php");
 
 function thisLineItem($row) {
   $provname = $row['provider_lname'];
@@ -22,7 +23,7 @@ function thisLineItem($row) {
   if ($_POST['form_csvexport']) {
     echo '"' . addslashes($row['patient_name'  ]) . '",';
     echo '"' . addslashes($row['pubpid'        ]) . '",';
-    echo '"' . addslashes($row['date_ordered'  ]) . '",';
+    echo '"' . addslashes(oeFormatShortDate($row['date_ordered'  ])) . '",';
     echo '"' . addslashes($row['organization'  ]) . '",';
     echo '"' . addslashes($row['procedure_name']) . '",';
     echo '"' . addslashes($provname             ) . '",';
@@ -34,7 +35,7 @@ function thisLineItem($row) {
  <tr>
   <td class="detail"><?php echo $row['patient_name'  ]; ?></td>
   <td class="detail"><?php echo $row['pubpid'        ]; ?></td>
-  <td class="detail"><?php echo $row['date_ordered'  ]; ?></td>
+  <td class="detail"><?php echo oeFormatShortDate($row['date_ordered'  ]); ?></td>
   <td class="detail"><?php echo $row['organization'  ]; ?></td>
   <td class="detail"><?php echo $row['procedure_name']; ?></td>
   <td class="detail"><?php echo $provname; ?></td>

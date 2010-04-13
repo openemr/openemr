@@ -15,6 +15,7 @@
 //   flags in globals.php
 
 require_once("formdata.inc.php");
+require_once("formatting.inc.php");
 
 $date_init = "";
 
@@ -661,7 +662,7 @@ function generate_print_field($frow, $currvalue) {
       " />";
     *****************************************************************/
     if ($currescaped === '') $currescaped = '&nbsp;';
-    echo $currescaped;
+    echo oeFormatShortDate($currescaped);
   }
 
   // provider list
@@ -1016,7 +1017,7 @@ function generate_display_field($frow, $currvalue) {
 
   // date
   else if ($data_type == 4) {
-    $s = $currvalue;
+    $s = oeFormatShortDate($currvalue);
   }
 
   // provider

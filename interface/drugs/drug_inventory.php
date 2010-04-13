@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006, 2009 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -10,6 +10,7 @@
  require_once("$srcdir/acl.inc");
  require_once("drugs.inc.php");
  require_once("$srcdir/options.inc.php");
+ require_once("$srcdir/formatting.inc.php");
 
  // Check authorization.
  $thisauth = acl_check('admin', 'drugs');
@@ -108,7 +109,7 @@ function doiclick(id, lot) {
    echo "  <td onclick='doiclick($lastid," . $row['inventory_id'] . ")'>" .
     "<a href='' onclick='return false'>$lot_number</a></td>\n";
    echo "  <td>" . $row['on_hand'] . "</td>\n";
-   echo "  <td>" . $row['expiration'] . "</td>\n";
+   echo "  <td>" . oeFormatShortDate($row['expiration']) . "</td>\n";
   } else {
    echo "  <td colspan='3'>&nbsp;</td>\n";
   }

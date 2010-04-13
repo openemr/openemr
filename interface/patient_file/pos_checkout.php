@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006-2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -32,6 +32,7 @@ require_once("$srcdir/billing.inc");
 require_once("$srcdir/sql-ledger.inc");
 require_once("$srcdir/freeb/xmlrpc.inc");
 require_once("$srcdir/freeb/xmlrpcs.inc");
+require_once("$srcdir/formatting.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 $INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
@@ -204,11 +205,11 @@ function receiptDetailLine($svcdate, $description, $amount, $quantity) {
   $tmp = sprintf('%01.2f', $price);
   if ($price == $tmp) $price = $tmp;
   echo " <tr>\n";
-  echo "  <td>" . ($svcdate == $prevsvcdate ? '&nbsp;' : $svcdate) . "</td>\n";
+  echo "  <td>" . ($svcdate == $prevsvcdate ? '&nbsp;' : oeFormatShortDate($svcdate)) . "</td>\n";
   echo "  <td>$description</td>\n";
-  echo "  <td align='right'>$price</td>\n";
+  echo "  <td align='right'>" . oeFormatMoney($price) . "</td>\n";
   echo "  <td align='right'>$quantity</td>\n";
-  echo "  <td align='right'>$amount</td>\n";
+  echo "  <td align='right'>" . oeFormatMoney($amount) . "</td>\n";
   echo " </tr>\n";
   $prevsvcdate = $svcdate;
 }
@@ -218,10 +219,10 @@ function receiptDetailLine($svcdate, $description, $amount, $quantity) {
 function receiptPaymentLine($paydate, $amount, $description='') {
   $amount = sprintf('%01.2f', 0 - $amount); // make it negative
   echo " <tr>\n";
-  echo "  <td>$paydate</td>\n";
+  echo "  <td>" . oeFormatShortDate($paydate) . "</td>\n";
   echo "  <td>" . xl('Payment') . " $description</td>\n";
   echo "  <td colspan='2'>&nbsp;</td>\n";
-  echo "  <td align='right'>$amount</td>\n";
+  echo "  <td align='right'>" . oeFormatMoney($amount) . "</td>\n";
   echo " </tr>\n";
 }
 
@@ -401,11 +402,11 @@ function generate_receipt($patient_id, $encounter=0) {
   <td colspan='5'>&nbsp;</td>
  </tr>
  <tr>
-  <td><?php echo $svcdispdate; ?></td>
+  <td><?php echo oeFormatShortDate($svcdispdate); ?></td>
   <td><b><?php xl('Total Charges','e'); ?></b></td>
   <td align='right'>&nbsp;</td>
   <td align='right'>&nbsp;</td>
-  <td align='right'><?php echo sprintf('%01.2f', $charges) ?></td>
+  <td align='right'><?php echo oeFormatMoney($charges) ?></td>
  </tr>
  <tr>
   <td colspan='5'>&nbsp;</td>
@@ -465,7 +466,7 @@ function generate_receipt($patient_id, $encounter=0) {
   <td>&nbsp;</td>
   <td><b><?php xl('Balance Due','e'); ?></b></td>
   <td colspan='2'>&nbsp;</td>
-  <td align='right'><?php echo sprintf('%01.2f', $charges) ?></td>
+  <td align='right'><?php echo oeFormatMoney($charges) ?></td>
  </tr>
 </table>
 </center>
@@ -502,7 +503,7 @@ function write_form_line($code_type, $code, $id, $date, $description,
   $price = $amount / $units; // should be even cents, but ok here if not
   if ($code_type == 'COPAY' && !$description) $description = xl('Payment');
   echo " <tr>\n";
-  echo "  <td>$date";
+  echo "  <td>" . oeFormatShortDate($date);
   echo "<input type='hidden' name='line[$lino][code_type]' value='$code_type'>";
   echo "<input type='hidden' name='line[$lino][code]' value='$code'>";
   echo "<input type='hidden' name='line[$lino][id]' value='$id'>";

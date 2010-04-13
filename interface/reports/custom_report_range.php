@@ -1,19 +1,24 @@
 <?php
-include_once(dirname(__file__)."/../globals.php");
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
 
-include_once("$srcdir/forms.inc");
-include_once("$srcdir/billing.inc");
-include_once("$srcdir/pnotes.inc");
-include_once("$srcdir/patient.inc");
-include_once("$srcdir/report.inc");
-include_once("$srcdir/classes/Document.class.php");
-include_once("$srcdir/classes/Note.class.php");
+require_once(dirname(__file__)."/../globals.php");
+require_once("$srcdir/forms.inc");
+require_once("$srcdir/billing.inc");
+require_once("$srcdir/pnotes.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/report.inc");
+require_once("$srcdir/classes/Document.class.php");
+require_once("$srcdir/classes/Note.class.php");
+require_once("$srcdir/formatting.inc.php");
 
 $startdate = $enddate = "";
 if(empty($_POST['start']) || empty($_POST['end'])) {
     // set some default dates
-    $startdate = date('Ymd', (time() - 30*24*60*60));
-    $enddate = date('Ymd', time());
+    $startdate = date('Y-m-d', (time() - 30*24*60*60));
+    $enddate = date('Y-m-d', time());
 }
 
 ?>
@@ -229,7 +234,6 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
     }
     $N = 6;
 
-
     function postToGet($newpatient, $pids) {
         $getstring="";
         $serialnewpatient = serialize($newpatient);
@@ -287,26 +291,25 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
                     $bdate = strtotime($b['date']);
 
                     echo "<tr>\n";
-                    echo "<td class='text' style='font-size: 0.8em'>" . date("Y-m-d",$bdate)."<BR>".date("h:i a", $bdate) . "</td>";
+                    echo "<td class='text' style='font-size: 0.8em'>" . oeFormatShortDate(date("Y-m-d",$bdate)) . "<BR>" . date("h:i a", $bdate) . "</td>";
                     echo "<td class='text'>" . $b['provider_name'] . "</td>";
                     echo "<td class='text'>";
                     echo $b['code_type'] . ":\t" . $b['code'] . "&nbsp;". $b['modifier'] . "&nbsp;&nbsp;&nbsp;" . $b['code_text'] . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
                     echo "</td>\n";
                     echo "<td class='text'>";
-                    echo $b['fee'];
+                    echo oeFormatMoney($b['fee']);
                     echo "</td>\n";
                     echo "</tr>\n";
                     $total += $b['fee'];
                     if ($b['code_type'] == "COPAY") {
                         $copays += $b['fee'];
                     }
-
                 }
             //}
             echo "<tr><td>&nbsp;</td></tr>";
-            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xl('Sub-Total')."</td><td class='text'>" . sprintf("%0.2f",$total + abs($copays)) . "</td></tr>";
-            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xl('Paid')."</td><td class='text'>" . sprintf("%0.2f",abs($copays)) . "</td></tr>";
-            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xl('Total')."</td><td class='text'>" . sprintf("%0.2f",$total) . "</td></tr>";
+            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xl('Sub-Total')."</td><td class='text'>" . oeFormatMoney($total + abs($copays)) . "</td></tr>";
+            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xl('Paid')."</td><td class='text'>" . oeFormatMoney(abs($copays)) . "</td></tr>";
+            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xl('Total')."</td><td class='text'>" . oeFormatMoney($total) . "</td></tr>";
             echo "</table>";
             echo "<pre>";
             //print_r($billings);
@@ -318,17 +321,9 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
         print "<br/><br/>".xl('Physician Signature').":  _______________________________________________";
         print "<hr class='pagebreak' />";
     }
-
-
 }
     ?>
 </div>
-
-
-
-
-
-
 
     </body>
 

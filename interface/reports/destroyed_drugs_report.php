@@ -1,5 +1,5 @@
-<?
- // Copyright (C) 2006 Rod Roark <rod@sunsetsystems.com>
+<?php
+ // Copyright (C) 2006, 2010 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -12,6 +12,7 @@
  require_once("../globals.php");
  require_once("$srcdir/patient.inc");
  require_once("../drugs/drugs.inc.php");
+ require_once("$srcdir/formatting.inc.php");
 
  $form_from_date  = fixDate($_POST['form_from_date'], date('Y-01-01'));
  $form_to_date    = fixDate($_POST['form_to_date']  , date('Y-m-d'));
@@ -144,7 +145,7 @@
    <?php echo $row['on_hand'] ?>
   </td>
   <td class='detail'>
-   <?php echo $row['destroy_date'] ?>
+   <?php echo oeFormatShortDate($row['destroy_date']) ?>
   </td>
   <td class='detail'>
    <?php echo $row['destroy_method'] ?>

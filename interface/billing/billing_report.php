@@ -1,12 +1,17 @@
 <?php
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 require_once("../../custom/code_types.inc.php");
-
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billrep.inc");
 require_once(dirname(__FILE__) . "/../../library/classes/OFX.class.php");
 require_once(dirname(__FILE__) . "/../../library/classes/X12Partner.class.php");
+require_once("$srcdir/formatting.inc.php");
 
 $EXPORT_INC = "$webserver_root/custom/BillingExport.php";
 
@@ -544,9 +549,9 @@ if ($ret = getBillsBetween($from_date,
         "href=\"javascript:window.toencounter(" . $iter['enc_pid'] .
         ",'" . addslashes($name['pubpid']) .
         "','" . addslashes($ptname) . "'," . $iter['enc_encounter'] .
-        ",'$raw_encounter_date',' " . 
-	xl('DOB').": ".$name['DOB_YMD']." ".xl('Age').": ".getPatientAge($name['DOB_YMD'])."')\">[" .
-	xl('To Enctr') . " $raw_encounter_date]</a>";
+        ",'" . oeFormatShortDate($raw_encounter_date) . "',' " . 
+        xl('DOB') . ": " . oeFormatShortDate($name['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($name['DOB_YMD']) . "')\">[" .
+        xl('To Enctr') . " " . oeFormatShortDate($raw_encounter_date) . "]</a>";
 				
             //  Changed "To xxx" buttons to allow room for encounter date display 2/17/09  JCH
       $lhtml .= "&nbsp;&nbsp;&nbsp;<a class=\"link_submit\" " .
@@ -602,8 +607,8 @@ if ($ret = getBillsBetween($from_date,
           $lhtml .= '>' . $xname . '</option>';
         }
         $lhtml .= "</select>";
-        $lhtml .= "<br>\n&nbsp;" . substr($iter['date'], 0, 16) . " " .
-          xl("Encounter was coded");
+        $lhtml .= "<br>\n&nbsp;" . oeFormatShortDate(substr($iter['date'], 0, 10))
+          . substr($iter['date'], 10, 6) . " " . xl("Encounter was coded");
 
         $query = "SELECT * FROM claims WHERE " .
           "patient_id = '" . $iter['enc_pid'] . "' AND " .
@@ -625,24 +630,32 @@ if ($ret = getBillsBetween($from_date,
           $irow= sqlQuery($query);
 
           if ($crow['bill_process']) {
-            $lhtml .= "<br>\n&nbsp;" . substr($crow['bill_time'], 0, 16) . " " .
+            $lhtml .= "<br>\n&nbsp;" .
+              oeFormatShortDate(substr($crow['bill_time'], 0, 10)) .
+              substr($crow['bill_time'], 10, 6) . " " .
               xl("Queued for") . " {$irow['type']} {$crow['target']} " .
               xl("billing to ") . $irow['name'];
             ++$lcount;
           }
           else if ($crow['status'] > 1) {
-            $lhtml .= "<br>\n&nbsp;" . substr($crow['bill_time'], 0, 16) . " " .
+            $lhtml .= "<br>\n&nbsp;" .
+              oeFormatShortDate(substr($crow['bill_time'], 0, 10)) .
+              substr($crow['bill_time'], 10, 6) . " " .
               xl("Marked as cleared");
             ++$lcount;
           }
           else {
-            $lhtml .= "<br>\n&nbsp;" . substr($crow['bill_time'], 0, 16) . " " .
+            $lhtml .= "<br>\n&nbsp;" .
+              oeFormatShortDate(substr($crow['bill_time'], 0, 10)) .
+              substr($crow['bill_time'], 10, 6) . " " .
               xl("Re-opened");
             ++$lcount;
           }
 
           if ($crow['process_time']) {
-            $lhtml .= "<br>\n&nbsp;" . substr($crow['process_time'], 0, 16) . " " .
+            $lhtml .= "<br>\n&nbsp;" .
+              oeFormatShortDate(substr($crow['process_time'], 0, 10)) .
+              substr($crow['process_time'], 10, 6) . " " .
               xl("Claim was generated to file ") .
               "<a href='get_claim_file.php?key=" . $crow['process_file'] .
               "' onclick='top.restoreSession()'>" .
@@ -706,20 +719,21 @@ if ($ret = getBillsBetween($from_date,
       }
     }
 
-    $rhtml .= "<td><span class='text'>" . $iter['code'];
+    $rhtml .= "<td><span class='text'>" .
+      ($iter['code_type'] == 'COPAY' ? oeFormatMoney($iter['code']) : $iter['code']);
     if ($iter['modifier']) $rhtml .= ":" . $iter['modifier'];
     $rhtml .= "</span><span style='font-size:8pt;'>$justify</span></td>\n";
 
     $rhtml .= '<td align="right"><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
     if ($iter['id'] && $iter['fee'] > 0) {
-      $rhtml .= '$' . $iter['fee'];
+      $rhtml .= oeFormatMoney($iter['fee']);
     }
     $rhtml .= "</span></td>\n";
     $rhtml .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
     if ($iter['id']) $rhtml .= getProviderName(empty($iter['provider_id']) ? $iter['enc_provider_id'] : $iter['provider_id']);
     $rhtml .= "</span></td>\n";
     $rhtml .= '<td width=100>&nbsp;&nbsp;&nbsp;<span style="font-size:8pt;">';
-    if ($iter['id']) $rhtml .= date("Y-m-d",strtotime($iter{"date"}));
+    if ($iter['id']) $rhtml .= oeFormatSDFT(strtotime($iter{"date"}));
     $rhtml .= "</span></td>\n";
     if ($iter['id'] && $iter['authorized'] != 1) {
       $rhtml .= "<td><span class=alert>".xl("Note: This code was not entered by an authorized user. Only authorized codes may be uploaded to the Open Medical Billing Network for processing. If you wish to upload these codes, please select an authorized user here.")."</span></td>\n";

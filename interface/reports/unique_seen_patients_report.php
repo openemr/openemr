@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006, 2008 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -9,8 +9,9 @@
  // This report lists patients that were seen within a given date
  // range.
 
- include_once("../globals.php");
- include_once("$srcdir/patient.inc");
+require_once("../globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/formatting.inc.php");
 
  $from_date = fixDate($_POST['form_from_date'], date('Y-01-01'));
  $to_date   = fixDate($_POST['form_to_date'], date('Y-12-31'));
@@ -239,7 +240,7 @@
 ?>
  <tr>
   <td>
-   <?php echo substr($row['edate'], 0, 10) ?>
+   <?php echo oeFormatShortDate(substr($row['edate'], 0, 10)) ?>
   </td>
   <td>
    <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] ?>

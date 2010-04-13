@@ -1,7 +1,13 @@
 <?php
- include_once("../../globals.php");
- include_once("$srcdir/acl.inc");
- include_once("$srcdir/options.inc.php");
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+require_once("../../globals.php");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/formatting.inc.php");
 
  // Session pid must be right or bad things can happen when demographics are saved!
  //
@@ -660,7 +666,7 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 <?php } ?>
 
 <?php if ($GLOBALS['concurrent_layout'] && $set_pid) { ?>
- parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' ".xl('DOB').": ".$result['DOB_YMD']." ".xl('Age').": ".getPatientAge($result['DOB_YMD'])."'"; ?>);
+ parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($result['DOB_YMD']) . "'"; ?>);
  parent.left_nav.setRadio(window.name, 'dem');
 <?php } ?>
 

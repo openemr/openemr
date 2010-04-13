@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006-2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,6 +13,7 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once("../../custom/code_types.inc.php");
+require_once("$srcdir/formatting.inc.php");
 
 $INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
 ?>
@@ -26,8 +27,16 @@ $INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
 //
 function bucks($amount) {
   if ($amount) {
+    $amount = oeFormatMoney($amount);
+    return $amount;
+  }
+  return '';
+}
+
+function rawbucks($amount) {
+  if ($amount) {
     $amount = sprintf("%.2f", $amount);
-    if ($amount != 0.00) return $amount;
+    return $amount;
   }
   return '';
 }
@@ -49,14 +58,14 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept) {
   $balance = bucks($charges - $ptpaid - $inspaid);
   $getfrompt = ($duept > 0) ? $duept : 0;
   echo " <tr>\n";
-  echo "  <td class='detail'>$date</td>\n";
+  echo "  <td class='detail'>" . oeFormatShortDate($date) . "</td>\n";
   echo "  <td class='detail' align='right'>" . bucks($charges) . "</td>\n";
   echo "  <td class='detail' align='right'>" . bucks($ptpaid) . "</td>\n";
   echo "  <td class='detail' align='right'>" . bucks($inspaid) . "</td>\n";
   echo "  <td class='detail' align='right'>$balance</td>\n";
   echo "  <td class='detail' align='right'>" . bucks($duept) . "</td>\n";
   echo "  <td class='detail' align='right'><input type='text' name='$iname' " .
-    "size='6' value='" . bucks($getfrompt) . "' onchange='calctotal()' " .
+    "size='6' value='" . rawbucks($getfrompt) . "' onchange='calctotal()' " .
     "onkeyup='calctotal()' /></td>\n";
   echo " </tr>\n";
 }
@@ -147,7 +156,7 @@ function calcTaxes($row, $amount) {
       continue;
     }
     $tax = sprintf("%01.2f", $amount * $trow['option_value']);
-    echo "<!-- Rate = '$value', amount = '$amount', tax = '$tax' -->\n";
+    // echo "<!-- Rate = '$value', amount = '$amount', tax = '$tax' -->\n";
     $total += $tax;
   }
   return $total;
@@ -314,7 +323,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
 <table border='0' cellspacing='8'>
  <tr>
   <td><?php xl('Date','e'); ?>:</td>
-  <td><?php echo date('Y-m-d', strtotime($payrow['dtime'])) ?></td>
+  <td><?php echo oeFormatSDFT(strtotime($payrow['dtime'])) ?></td>
  </tr>
  <tr>
   <td><?php xl('Patient','e'); ?>:</td>
@@ -331,11 +340,11 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
  </tr>
  <tr>
   <td><?php xl('Amount for This Visit','e'); ?>:</td>
-  <td><?php echo $payrow['amount1'] ?></td>
+  <td><?php echo oeFormatMoney($payrow['amount1']) ?></td>
  </tr>
  <tr>
   <td><?php xl('Amount for Past Balance','e'); ?>:</td>
-  <td><?php echo $payrow['amount2'] ?></td>
+  <td><?php echo oeFormatMoney($payrow['amount2']) ?></td>
  </tr>
  <tr>
   <td><?php xl('Received By','e'); ?>:</td>
@@ -547,7 +556,7 @@ function calctotal() {
       $gottoday = true;
     }
     $inscopay = getCopay($pid, $value['date']);
-    $balance = bucks($value['charges'] - $value['payments']);
+    $balance = rawbucks($value['charges'] - $value['payments']);
     $duept = (($inscopay >= 0) ? $inscopay : $value['charges']) - $value['payments'];
     echoLine("form_upay[$enc]", $dispdate, $value['charges'],
       $value['payments'], 0, $duept);

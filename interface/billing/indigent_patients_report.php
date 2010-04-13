@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2005, 2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -11,13 +11,14 @@
 // insurance.
 
 require_once("../globals.php");
-require_once("../../library/patient.inc");
-require_once("../../library/sql-ledger.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/sql-ledger.inc");
+require_once("$srcdir/formatting.inc.php");
 
 $alertmsg = '';
 
 function bucks($amount) {
-  if ($amount) return sprintf("%.2f", $amount);
+  if ($amount) return oeFormatMoney($amount);
   return "";
 }
 
@@ -30,7 +31,7 @@ if (!$INTEGRATED_AR) SLConnect();
 ?>
 <html>
 <head>
-<? html_header_show();?>
+<?php html_header_show(); ?>
 <style type="text/css">
 
 /* specifically include & exclude from printing */
@@ -55,7 +56,7 @@ if (!$INTEGRATED_AR) SLConnect();
         display: none;
     }
 }
-</style><link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+</style><link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 <title><?php xl('Indigent Patients Report','e')?></title>
 
 <script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
@@ -87,20 +88,20 @@ if (!$INTEGRATED_AR) SLConnect();
 			   <?php xl('Visits From','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
+			   <input type='text' name='form_start_date' id="form_start_date" size='10' value='<?php echo $form_start_date ?>'
 				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
 			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-				id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
+				id='img_start_date' border='0' alt='[?]' style='cursor:pointer'
 				title='<?php xl('Click here to choose a date','e'); ?>'>
 			</td>
 			<td class='label'>
 			   <?php xl('To','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
+			   <input type='text' name='form_end_date' id="form_end_date" size='10' value='<?php echo $form_end_date ?>'
 				onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
 			   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-				id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
+				id='img_end_date' border='0' alt='[?]' style='cursor:pointer'
 				title='<?php xl('Click here to choose a date','e'); ?>'>
 			</td>
 		</tr>
@@ -239,10 +240,10 @@ if (!$INTEGRATED_AR) SLConnect();
    &nbsp;<?php  echo $invnumber ?></a>
   </td>
   <td class="detail">
-   &nbsp;<?php  echo substr($row['date'], 0, 10) ?>
+   &nbsp;<?php  echo oeFormatShortDate(substr($row['date'], 0, 10)) ?>
   </td>
   <td class="detail">
-   &nbsp;<?php  echo $inv_duedate ?>
+   &nbsp;<?php  echo oeFormatShortDate($inv_duedate) ?>
   </td>
   <td class="detail" align="right">
    <?php  echo bucks($inv_amount) ?>&nbsp;
@@ -300,4 +301,18 @@ if (!$INTEGRATED_AR) SLConnect();
 ?>
 </script>
 </body>
+
+<!-- stuff for the popup calendar -->
+<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
+<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
+<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
+<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
+<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+
+<script language="Javascript">
+ Calendar.setup({inputField:"form_start_date", ifFormat:"%Y-%m-%d", button:"img_start_date"});
+ Calendar.setup({inputField:"form_end_date", ifFormat:"%Y-%m-%d", button:"img_end_date"});
+</script>
+
 </html>

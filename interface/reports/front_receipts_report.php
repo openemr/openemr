@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006-2007 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -8,14 +8,15 @@
 
  // This report lists front office receipts for a given date range.
 
- include_once("../globals.php");
- include_once("$srcdir/patient.inc");
+require_once("../globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/formatting.inc.php");
 
  $from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
  $to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 
  function bucks($amt) {
-  return ($amt != 0.00) ? sprintf('%.2f', $amt) : '';
+  return ($amt != 0.00) ? oeFormatMoney($amt) : '';
  }
 ?>
 <html>
@@ -191,7 +192,7 @@
  <tr>
   <td nowrap>
    <a href="javascript:show_receipt(<?php echo $row['pid'] . ",'$timestamp'"; ?>)">
-   <?php echo substr($row['dtime'], 0, 16); ?>
+   <?php echo oeFormatShortDate(substr($row['dtime'], 0, 10)) . substr($row['dtime'], 10, 6); ?>
    </a>
   </td>
   <td>

@@ -3,6 +3,7 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
+
 require_once("../../globals.php");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
@@ -11,6 +12,7 @@ require_once("$srcdir/log.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/classes/Document.class.php");
 require_once("$srcdir/gprelations.inc.php");
+require_once("$srcdir/formatting.inc.php");
 
 if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
     require_once("$srcdir/pid.inc");
@@ -212,7 +214,8 @@ $balance = get_patient_balance($pid);
 <table width='80%'>
 <?php
 if ($balance != "0") {
-  $formatted = sprintf((xl('$').'%01.2f'), $balance);
+  // $formatted = sprintf((xl('$').'%01.2f'), $balance);
+  $formatted = oeFormatMoney($balance);
   echo " <tr class='text billing'>\n";
   echo "  <td>".$colorbeg.xl('Balance Due').$colorend."&nbsp;".$colorbeg.$formatted.$colorend."</td>\n";
   echo " </tr>\n";
@@ -280,10 +283,10 @@ if ($result != "") {
 
     $body = $iter['body'];
     if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
-      $body = nl2br($body);
+      $body = nl2br(oeFormatPatientNote($body));
     } else {
-      $body = date('Y-m-d H:i', strtotime($iter['date'])) .
-        ' (' . $iter['user'] . ') ' . nl2br($body);
+      $body = oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date'])) .
+        ' (' . $iter['user'] . ') ' . nl2br(oeFormatPatientNote($body));
     }
 
     if ($iter{"activity"}) {

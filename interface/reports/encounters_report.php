@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2007-2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2007-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -12,6 +12,7 @@ require_once("../globals.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/billing.inc");
 require_once("$srcdir/patient.inc");
+require_once("$srcdir/formatting.inc.php");
 
 $alertmsg = ''; // not used yet but maybe later
 
@@ -369,7 +370,7 @@ if ($res) {
    <?php echo ($docname == $lastdocname) ? "" : $docname ?>&nbsp;
   </td>
   <td>
-   <?php echo substr($row['date'], 0, 10) ?>&nbsp;
+   <?php echo oeFormatShortDate(substr($row['date'], 0, 10)) ?>&nbsp;
   </td>
   <td>
    <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']; ?>&nbsp;

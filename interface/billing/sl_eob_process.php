@@ -1,5 +1,5 @@
 <?php
-	// Copyright (C) 2006-2007 Rod Roark <rod@sunsetsystems.com>
+	// Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
 	//
 	// This program is free software; you can redistribute it and/or
 	// modify it under the terms of the GNU General Public License
@@ -11,13 +11,14 @@
 	// Buffer all output so we can archive it to a file.
 	ob_start();
 
-	include_once("../globals.php");
-	include_once("../../library/invoice_summary.inc.php");
-	include_once("../../library/sl_eob.inc.php");
-	include_once("../../library/parse_era.inc.php");
-	include_once("claim_status_codes.php");
-	include_once("adjustment_reason_codes.php");
-	include_once("remark_codes.php");
+require_once("../globals.php");
+require_once("$srcdir/invoice_summary.inc.php");
+require_once("$srcdir/sl_eob.inc.php");
+require_once("$srcdir/parse_era.inc.php");
+require_once("claim_status_codes.php");
+require_once("adjustment_reason_codes.php");
+require_once("remark_codes.php");
+require_once("$srcdir/formatting.inc.php");
 
 	$debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
 	$paydate = parse_date($_GET['paydate']);
@@ -67,10 +68,10 @@
 			"  <td class='$class'>$ptname</td>\n" .
 			"  <td class='$class'>$invnumber</td>\n" .
 			"  <td class='$class'>$code</td>\n" .
-			"  <td class='$class'>$date</td>\n" .
+			"  <td class='$class'>" . oeFormatShortDate($date) . "</td>\n" .
 			"  <td class='$class'>$description</td>\n" .
-			"  <td class='$class' align='right'>$amount</td>\n" .
-			"  <td class='$class' align='right'>$balance</td>\n" .
+			"  <td class='$class' align='right'>" . oeFormatMoney($amount) . "</td>\n" .
+			"  <td class='$class' align='right'>" . oeFormatMoney($balance) . "</td>\n" .
 			" </tr>\n";
 		echo $dline;
 	}

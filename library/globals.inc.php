@@ -236,6 +236,17 @@ $GLOBALS_METADATA = array(
       xl('1 = North America. See http://www.wtng.info/ for a list of other country codes.')
     ),
 
+    'date_display_format' => array(
+      xl('Date Display Format'),
+      array(
+        '0' => xl('YYYY-MM-DD'),
+        '1' => xl('MM/DD/YYYY'),
+        '2' => xl('DD/MM/YYYY'),
+      ),
+      '0',
+      xl('Format used to display most dates.')
+    ),
+
     'currency_decimals' => array(
       xl('Currency Decimal Places'),
       array(

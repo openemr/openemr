@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2008 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2008, 2010 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -8,8 +8,9 @@
 
  // This report lists referrals for a given date range.
 
- include_once("../globals.php");
- include_once("$srcdir/patient.inc");
+ require_once("../globals.php");
+ require_once("$srcdir/patient.inc");
+ require_once("$srcdir/formatting.inc.php");
 
  $from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
  $to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
@@ -217,11 +218,11 @@
   </td>
   <td>
    <a href='#' onclick="return show_referral(<?php echo $row['id']; ?>)">
-   <?php echo $row['refer_date']; ?>&nbsp;
+   <?php echo oeFormatShortDate($row['refer_date']); ?>&nbsp;
    </a>
   </td>
   <td>
-   <?php echo $row['reply_date'] ?>
+   <?php echo oeFormatShortDate($row['reply_date']) ?>
   </td>
   <td>
    <?php echo $row['patient_name'] ?>

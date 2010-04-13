@@ -12,6 +12,7 @@ require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/acl.inc");
+require_once("$srcdir/formatting.inc.php");
 
 $accounting_enabled = $GLOBALS['oer_config']['ws_accounting']['enabled'];
 
@@ -83,7 +84,8 @@ while ($row = sqlFetchArray($res)) {
   $reason_string = $row['reason'];
   $auth_sensitivity = true;
 
-  $href = "javascript:window.toencounter(" . $row['encounter'] . ",\"$raw_encounter_date\")";
+  $href = "javascript:window.toencounter(" . $row['encounter'] . ",\"" .
+    oeFormatShortDate($raw_encounter_date) . "\")";
   $linkbeg = "<a class='text' href='$href'>";
   $linkend = "</a>";
 

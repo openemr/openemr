@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2005-2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -12,6 +12,7 @@ require_once("$srcdir/api.inc");
 require_once("codes.php");
 require_once("../../../custom/code_types.inc.php");
 require_once("../../drugs/drugs.inc.php");
+require_once("$srcdir/formatting.inc.php");
 
 // Some table cells will not be displayed unless insurance billing is used.
 $usbillstyle = $GLOBALS['ippf_specific'] ? " style='display:none'" : "";
@@ -137,7 +138,7 @@ function echoLine($lino, $codetype, $code, $modifier, $ndc_info='',
         "<input type='hidden' name='bill[$lino][mod]' value='$modifier'></td>\n";
     }
     if (fees_are_used()) {
-      echo "  <td class='billcell' align='right'>$price</td>\n";
+      echo "  <td class='billcell' align='right'>" . oeFormatMoney($price) . "</td>\n";
       if ($codetype != 'COPAY') {
         echo "  <td class='billcell' align='center'>$units</td>\n";
       } else {
@@ -276,7 +277,7 @@ function echoProdLine($lino, $drug_id, $del = FALSE, $units = NULL,
   }
   if ($billed) {
     if (fees_are_used()) {
-      echo "  <td class='billcell' align='right'>$price</td>\n";
+      echo "  <td class='billcell' align='right'>" . oeFormatMoney($price) . "</td>\n";
       echo "  <td class='billcell' align='center'>$units</td>\n";
       echo "  <td class='billcell' align='center'$usbillstyle>&nbsp;</td>\n"; // justify
     }

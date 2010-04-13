@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2005-2009 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -24,9 +24,10 @@
  //   forms.encounter
  //   billing.pid_encounter
 
- include_once("../globals.php");
- include_once("../../library/patient.inc");
- include_once("../../custom/code_types.inc.php");
+require_once("../globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/formatting.inc.php");
+require_once("../../custom/code_types.inc.php");
 
  $errmsg  = "";
  $alertmsg = ''; // not used yet but maybe later
@@ -41,7 +42,7 @@ function postError($msg) {
 }
 
  function bucks($amount) {
-  if ($amount) printf("%.2f", $amount);
+  if ($amount) echo oeFormatMoney($amount);
  }
 
  function endDoctor(&$docrow) {
@@ -286,10 +287,10 @@ function postError($msg) {
   <th> &nbsp;<?php  xl('Date/Appt','e'); ?> </th>
   <th> &nbsp;<?php  xl('Patient','e'); ?> </th>
   <th> &nbsp;<?php  xl('ID','e'); ?> </th>
-  <th> <?php  xl('Chart','e'); ?>&nbsp; </th>
-  <th> <?php  xl('Encounter','e'); ?>&nbsp; </th>
-  <th> <?php  xl('Charges','e'); ?>&nbsp; </th>
-  <th> <?php  xl('Copays','e'); ?>&nbsp; </th>
+  <th align='right'> <?php  xl('Chart','e'); ?>&nbsp; </th>
+  <th align='right'> <?php  xl('Encounter','e'); ?>&nbsp; </th>
+  <th align='right'> <?php  xl('Charges','e'); ?>&nbsp; </th>
+  <th align='right'> <?php  xl('Copays','e'); ?>&nbsp; </th>
   <th> <?php  xl('Billed','e'); ?> </th>
   <th> &nbsp;<?php  xl('Error','e'); ?> </th>
  </thead>
@@ -424,10 +425,10 @@ function postError($msg) {
     }
     *****************************************************************/
     if (empty($row['pc_eventDate'])) {
-      echo substr($row['encdate'], 0, 10);
+      echo oeFormatShortDate(substr($row['encdate'], 0, 10));
     }
     else {
-      echo $row['pc_eventDate'] . ' ' . substr($row['pc_startTime'], 0, 5);
+      echo oeFormatShortDate($row['pc_eventDate']) . ' ' . substr($row['pc_startTime'], 0, 5);
     }
     ?>
   </td>

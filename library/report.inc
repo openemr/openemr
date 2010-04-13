@@ -1,6 +1,12 @@
 <?php
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
 require_once("{$GLOBALS['srcdir']}/sql.inc");
 require_once("{$GLOBALS['srcdir']}/acl.inc");
+require_once("{$GLOBALS['srcdir']}/formatting.inc.php");
 
 $patient_data_array = array(title => "Title: ",
 fname => "First Name: ",
@@ -24,7 +30,6 @@ hipaa_voice => "Allows Voice msgs: ",
 hipaa_notice => "Notice Received: ",
 hipaa_message => "Leave Message With: "
 );
-
 
 $history_data_array = array(
 coffee => "Coffee Use: ",
@@ -98,15 +103,6 @@ subscriber_employer_postal_code => "Subscriber Employer Zip: ",
 subscriber_employer_state => "Subscriber Employer State: ",
 subscriber_employer_country => "Subscriber Employer Country: "
 );
-
-
-
-
-
-
-
-
-
 
 function getPatientReport($pid)
 {
@@ -207,27 +203,30 @@ function printListData($pid, $list_type, $list_activity = "%") {
 }
 
 function printPatientNotes($pid) {
-        // exclude ALL deleted notes
-	$res = sqlStatement("select * from pnotes where pid='$pid' and deleted!=1 and activity=1 order by date");
-	while($result = sqlFetchArray($res)) {
-		print "<span class=bold>" . date("Y-m-d",strtotime($result{"date"})) . ":</span><span class=text> " . stripslashes($result{"body"}) . "</span><br>\n";
-	}
+  // exclude ALL deleted notes
+  $res = sqlStatement("select * from pnotes where pid = '$pid' and deleted != 1 and activity = 1 order by date");
+  while($result = sqlFetchArray($res)) {
+    print "<span class=bold>" . oeFormatSDFT(strtotime($result{"date"})) .
+      ":</span><span class=text> " .
+      stripslashes(oeFormatPatientNote($result['body'])) . "</span><br>\n";
+  }
 }
 
 function printPatientTransactions($pid) {
 	$res = sqlStatement("select * from transactions where pid='$pid' order by date");
 	while($result = sqlFetchArray($res)) {
-		print "<span class=bold>" . date("Y-m-d",strtotime($result{"date"})) . ":</span><span class=text>(".$result{"title"}.") " . stripslashes($result{"body"}) . "</span><br>\n";
+		print "<span class=bold>" . oeFormatSDFT(strtotime($result{"date"})) . ":</span><span class=text>(".$result{"title"}.") " . stripslashes($result{"body"}) . "</span><br>\n";
 	}
 }
 
-
 function printPatientBilling($pid) {
-	$res = sqlStatement("select * from billing where pid='$pid' order by date");
-	while($result = sqlFetchArray($res)) {
-		echo "<span class=bold>" . date("Y-m-d",strtotime($result{"date"})) . " : </span>";
-                echo "<span class=text>(".$result{"code_type"}.") " . $result{"code"} . " - ". $result['code_text']."</span>";
-                echo "<br>\n";
+  $res = sqlStatement("select * from billing where pid='$pid' order by date");
+  while($result = sqlFetchArray($res)) {
+    echo "<span class=bold>" . oeFormatSDFT(strtotime($result{"date"})) . " : </span>";
+    echo "<span class=text>(".$result{"code_type"}.") ";
+    echo $result['code_type'] == 'COPAY' ? oeFormatMoney($result['code']) : $result['code'];
+    echo " - ". $result['code_text']."</span>";
+    echo "<br>\n";
 	}
 }
 
@@ -290,7 +289,7 @@ function printPatientForms($pid, $cols) {
             echo "<div class='text encounter_form'>";
             echo "<h1>" . $result["form_name"] . "</h1>";
         }
-        echo "(" . date("Y-m-d",strtotime($result["date"])) . ") ";
+        echo "(" . oeFormatSDFT(strtotime($result["date"])) . ") ";
 
         if (acl_check('acct', 'rep') || acl_check('acct', 'eob') || acl_check('acct', 'bill')) {
             if ($result{"form_name"} == "New Patient Encounter") {
@@ -312,7 +311,6 @@ function printPatientForms($pid, $cols) {
         echo "</div>";
     }
 }
-
 
 function getRecHistoryData ($pid) {
 	//data is returned as a multi-level array:
@@ -362,7 +360,6 @@ function getRecEmployerData ($pid) {
 	return $retar;
 }
 
-
 function getRecPatientData ($pid) {
 	//data is returned as a multi-level array:
 	//column name->dates->values
@@ -386,7 +383,6 @@ function getRecPatientData ($pid) {
 	}
 	return $retar;
 }
-
 
 function getRecInsuranceData ($pid, $ins_type) {
 	//data is returned as a multi-level array:
@@ -412,7 +408,6 @@ function getRecInsuranceData ($pid, $ins_type) {
 	return $retar;
 }
 
-
 function printRecData($data_array, $recres, $N) {
 	//this function generates a formatted history of all changes to the data
 	//it is a multi-level recursive function that exhaustively displays all of
@@ -436,16 +431,13 @@ function printRecData($data_array, $recres, $N) {
 	print "</tr></table>\n";
 }
 
-
-
-
 function printData ($retar, $key, $sep, $date_format) {
 	//$retar{$key}
 	if (@array_key_exists($key,$retar)) {
 		$length = sizeof($retar{$key});
 		for ($iter = $length;$iter>=1;$iter--) {
 			if ($retar{$key}[$iter]{"value"} != "0000-00-00 00:00:00") {
-				print $retar{$key}[$iter]{"value"} . " (" . date($date_format,strtotime($retar{$key}[$iter]{"date"})) . ")$sep";
+				print $retar{$key}[$iter]{"value"} . " (" . oeFormatSDFT(strtotime($retar{$key}[$iter]{"date"})) . ")$sep";
 			}
 		}
 	}
@@ -477,16 +469,14 @@ function printRecDataOne($data_array, $recres, $N) {
 	print "</tr></table>\n";
 }
 
-
-
-
 function printDataOne ($retar, $key, $sep, $date_format) {
 	//this function supports the printRecDataOne function above
 	if (@array_key_exists($key,$retar)) {
 		$length = sizeof($retar{$key});
 		if ($retar{$key}[$length]{"value"} != "0000-00-00 00:00:00") {
-			//print $retar{$key}[$length]{"value"} . " (" . date($date_format,strtotime($retar{$key}[$length]{"date"})) . "$sep";
-			print $retar{$key}[$length]{"value"} . "$sep";
+      $tmp = $retar{$key}[$length]{"value"};
+      if (strstr($key, 'DOB')) $tmp = oeFormatShortDate($tmp);
+			print "$tmp$sep";
 		}
 	}
 }

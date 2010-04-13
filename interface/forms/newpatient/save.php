@@ -1,9 +1,15 @@
 <?php
- include_once("../../globals.php");
- include_once("$srcdir/forms.inc");
- include_once("$srcdir/sql.inc");
- include_once("$srcdir/encounter.inc");
- include_once("$srcdir/acl.inc");
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+require_once("../../globals.php");
+require_once("$srcdir/forms.inc");
+require_once("$srcdir/sql.inc");
+require_once("$srcdir/encounter.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/formatting.inc.php");
 
 foreach ($_POST as $k => $var) {
   if (! is_array($var)) $_POST[$k] = mysql_escape_string($var);
@@ -122,7 +128,7 @@ if ($mode == 'new' && $GLOBALS['default_new_encounter_form'] == 'football_injury
 <body>
 <script language="Javascript">
 <?php if ($GLOBALS['concurrent_layout'] && $mode == 'new') { ?>
- parent.left_nav.setEncounter(<?php echo "'$date', $encounter, window.name"; ?>);
+ parent.left_nav.setEncounter(<?php echo "'" . oeFormatShortDate($date) . "', $encounter, window.name"; ?>);
  parent.left_nav.setRadio(window.name, 'enc');
 <?php } ?>
  top.restoreSession();

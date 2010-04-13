@@ -4,10 +4,11 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-include_once("../../globals.php");
-include_once("../../../custom/code_types.inc.php");
-include_once("$srcdir/sql.inc");
-include_once("$srcdir/options.inc.php");
+require_once("../../globals.php");
+require_once("../../../custom/code_types.inc.php");
+require_once("$srcdir/sql.inc");
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/formatting.inc.php");
 
 // Translation for form fields.
 function ffescape($field) {
@@ -19,8 +20,8 @@ function ffescape($field) {
 //
 function bucks($amount) {
   if ($amount) {
-    $amount = sprintf("%.2f", $amount);
-    if ($amount != 0.00) return $amount;
+    $amount = oeFormatMoney($amount);
+    return $amount;
   }
   return '';
 }

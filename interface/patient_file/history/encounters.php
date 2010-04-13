@@ -4,16 +4,17 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
- include_once("../../globals.php");
- include_once("$srcdir/forms.inc");
- include_once("$srcdir/billing.inc");
- include_once("$srcdir/pnotes.inc");
- include_once("$srcdir/patient.inc");
- include_once("$srcdir/lists.inc");
- include_once("$srcdir/acl.inc");
- include_once("$srcdir/sql-ledger.inc");
- include_once("$srcdir/invoice_summary.inc.php");
- include_once("../../../custom/code_types.inc.php");
+require_once("../../globals.php");
+require_once("$srcdir/forms.inc");
+require_once("$srcdir/billing.inc");
+require_once("$srcdir/pnotes.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/lists.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/sql-ledger.inc");
+require_once("$srcdir/invoice_summary.inc.php");
+require_once("$srcdir/formatting.inc.php");
+require_once("../../../custom/code_types.inc.php");
 
  $accounting_enabled = $GLOBALS['oer_config']['ws_accounting']['enabled'];
  $INTEGRATED_AR = $accounting_enabled === 2;
@@ -59,7 +60,7 @@ function showDocument(&$drow) {
   echo "<tr class='text docrow' id='".$drow['id']."' title='". xl('View document') . "'>\n";
 
   // show date
-  echo "<td>".$docdate."</td>\n";
+  echo "<td>" . oeFormatShortDate($docdate) . "</td>\n";
 
   // show associated issue, if any
   echo "<td>";
@@ -217,6 +218,7 @@ if ($result = getEncounters($pid)) {
     if ($billing_view && $accounting_enabled && !$INTEGRATED_AR) SLConnect();
 
     foreach ($result as $iter ) {
+        /*************************************************************
         // $count++; // Forget about limiting the number of encounters
         if ($count > $N) {
             //we have more encounters to print, but we've reached our display maximum
@@ -226,6 +228,7 @@ if ($result = getEncounters($pid)) {
                 "</a></td></tr>\n";
             break;
         }
+        *************************************************************/
 
         // $href = "javascript:window.toencounter(" . $iter['encounter'] . ")";
         $reason_string = "";
@@ -275,11 +278,11 @@ if ($result = getEncounters($pid)) {
             $encounter_rows = count($encarr);
         }
 
-        $rawdata = $iter['encounter']."~".$raw_encounter_date;
+        $rawdata = $iter['encounter'] . "~" . oeFormatShortDate($raw_encounter_date);
         echo "<tr class='encrow text' id='".$rawdata."' title='" . xl('View encounter','','',' ') . "$pid.{$iter['encounter']}'>\n";
 
         // show encounter date
-        echo "<td valign='top'>$raw_encounter_date</td>\n";
+        echo "<td valign='top'>" . oeFormatShortDate($raw_encounter_date) . "</td>\n";
 
         if ($billing_view) {
 
@@ -450,15 +453,15 @@ if ($result = getEncounters($pid)) {
                         if (empty($arinvoice[$codekey])) {
                             // If no invoice, show the fee.
                             if ($arlinkbeg) $binfo[1] .= '&nbsp;';
-                            else $binfo[1] .= sprintf('%.2f', $iter2['fee']);
+                            else $binfo[1] .= oeFormatMoney($iter2['fee']);
 
                             for ($i = 2; $i < 5; ++$i) $binfo[$i] .= '&nbsp;';
                         }
                         else {
-                            $binfo[1] .= sprintf('%.2f', $arinvoice[$codekey]['chg'] + $arinvoice[$codekey]['adj']);
-                            $binfo[2] .= sprintf('%.2f', $arinvoice[$codekey]['chg'] - $arinvoice[$codekey]['bal']);
-                            $binfo[3] .= sprintf('%.2f', $arinvoice[$codekey]['adj']);
-                            $binfo[4] .= sprintf('%.2f', $arinvoice[$codekey]['bal']);
+                            $binfo[1] .= oeFormatMoney($arinvoice[$codekey]['chg'] + $arinvoice[$codekey]['adj']);
+                            $binfo[2] .= oeFormatMoney($arinvoice[$codekey]['chg'] - $arinvoice[$codekey]['bal']);
+                            $binfo[3] .= oeFormatMoney($arinvoice[$codekey]['adj']);
+                            $binfo[4] .= oeFormatMoney($arinvoice[$codekey]['bal']);
                             unset($arinvoice[$codekey]);
                         }
                     }
@@ -473,10 +476,10 @@ if ($result = getEncounters($pid)) {
                         }
                         for ($i = 0; $i < 5; ++$i) $binfo[$i] .= "<font color='red'>";
                         $binfo[0] .= $codekey;
-                        $binfo[1] .= sprintf('%.2f', $val['chg'] + $val['adj']);
-                        $binfo[2] .= sprintf('%.2f', $val['chg'] - $val['bal']);
-                        $binfo[3] .= sprintf('%.2f', $val['adj']);
-                        $binfo[4] .= sprintf('%.2f', $val['bal']);
+                        $binfo[1] .= oeFormatMoney($val['chg'] + $val['adj']);
+                        $binfo[2] .= oeFormatMoney($val['chg'] - $val['bal']);
+                        $binfo[3] .= oeFormatMoney($val['adj']);
+                        $binfo[4] .= oeFormatMoney($val['bal']);
                         for ($i = 0; $i < 5; ++$i) $binfo[$i] .= "</font>";
                     }
                 }
@@ -494,7 +497,7 @@ if ($result = getEncounters($pid)) {
 
         // show insurance
         if (!$GLOBALS['athletic_team'] && !$GLOBALS['ippf_specific']) {
-            $insured = "$raw_encounter_date";
+            $insured = oeFormatShortDate($raw_encounter_date);
             if ($auth_demo) {
                 $responsible = -1;
                 if ($arid) {

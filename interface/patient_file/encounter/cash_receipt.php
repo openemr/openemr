@@ -1,13 +1,19 @@
 <?php
- include_once("../../globals.php");
- include_once("$srcdir/forms.inc");
- include_once("$srcdir/billing.inc");
- include_once("$srcdir/pnotes.inc");
- include_once("$srcdir/patient.inc");
- include_once("$srcdir/report.inc");
- include_once(dirname(__file__) . "/../../../library/classes/Document.class.php");
- include_once(dirname(__file__) . "/../../../library/classes/Note.class.php");
- include_once("$srcdir/options.inc.php");
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+require_once("../../globals.php");
+require_once("$srcdir/forms.inc");
+require_once("$srcdir/billing.inc");
+require_once("$srcdir/pnotes.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/report.inc");
+require_once(dirname(__file__) . "/../../../library/classes/Document.class.php");
+require_once(dirname(__file__) . "/../../../library/classes/Note.class.php");
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/formatting.inc.php");
 
  $N = 6;
  $first_issue = 1;
@@ -62,7 +68,7 @@
 <a href="javascript:window.close();"><font class=title><?php print $titleres{"fname"} . " " . $titleres{"lname"};?></font></a><br><br>
 
 <table>
-<tr><td><?php xl('Generated on','e'); ?>:</td><td> <?php print date("Y-m-d");?></td></tr>
+<tr><td><?php xl('Generated on','e'); ?>:</td><td> <?php print oeFormatShortDate(date("Y-m-d"));?></td></tr>
 <?php
 if ($date_result = sqlQuery("select date from form_encounter where encounter='" .
 $encounter . "' and pid='$pid'"))
@@ -72,7 +78,7 @@ $encounter . "' and pid='$pid'"))
 
 }
 ?>
-<tr><td><?php xl('Date Of Service','e'); ?>: </td><td> <?php print $raw_encounter_date;?></td></tr>
+<tr><td><?php xl('Date Of Service','e'); ?>: </td><td> <?php print oeFormatShortDate($raw_encounter_date);?></td></tr>
 </table>
 <br><br>
 <?php
@@ -167,7 +173,7 @@ $encounter . "' and pid='$pid'"))
        echo $b['code_type'] . ":\t" . $b['code'] . "&nbsp;&nbsp;&nbsp;" . $b['code_text'] . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
        echo "</td>\n";
        echo "<td class=text>";
-       echo $b['fee'];
+       echo oeFormatMoney($b['fee']);
        echo "</td>\n";
        echo "</tr>\n";
        $total += $b['fee'];
@@ -177,9 +183,9 @@ $encounter . "' and pid='$pid'"))
       }
      }
      echo "<tr><td>&nbsp;</td></tr>";
-     echo "<tr><td class=bold>Sub-Total</td><td class=text>" . sprintf("%0.2f",$total) . "</td></tr>";
-     echo "<tr><td class=bold>Paid</td><td class=text>" . sprintf("%0.2f",$copays) . "</td></tr>";
-     echo "<tr><td class=bold>Total</td><td class=text>" . sprintf("%0.2f",($total - $copays)) . "</td></tr>";
+     echo "<tr><td class=bold>Sub-Total</td><td class=text>" . oeFormatMoney($total) . "</td></tr>";
+     echo "<tr><td class=bold>Paid</td><td class=text>" . oeFormatMoney($copays) . "</td></tr>";
+     echo "<tr><td class=bold>Total</td><td class=text>" . oeFormatMoney($total - $copays) . "</td></tr>";
      echo "</table>";
      echo "<pre>";
      //print_r($billings);
@@ -242,7 +248,7 @@ $encounter . "' and pid='$pid'"))
       echo '<td>'.xl('Note').' #' . $note->get_id() . '</td>';
       echo '</tr>';
       echo '<tr>';
-      echo '<td>'.xl('Date').': '.$note->get_date().'</td>';
+      echo '<td>' . xl('Date') . ': ' . oeFormatShortDate($note->get_date()) . '</td>';
       echo '</tr>';
       echo '<tr>';
       echo '<td>'.$note->get_note().'<br><br></td>';
@@ -295,7 +301,7 @@ $encounter . "' and pid='$pid'"))
     $dateres = getEncounterDateByEncounter($form_encounter);
     if ($res[1] == 'newpatient') print "<br>\n";
     print "<span class='bold'>" . $formres{"form_name"} .
-     "</span><span class=text>(" . date("Y-m-d",strtotime($dateres{"date"})) .
+     "</span><span class=text>(" . oeFormatShortDate(strtotime($dateres{"date"})) .
      ")" . "</span><br>\n";
     call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
     if ($res[1] == 'newpatient') {
@@ -344,7 +350,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 		elseif ($iter["code_type"] == "COPAY") { 
 			$html .= "<tr><td>".xl('Payment').":</td><td>".xl('Thank You')."!</td><td>"
 				.$iter["code_text"]."</td><td>"
-				.$iter["code"]."</td></tr>\n";
+				. oeFormatMoney($iter["code"]) . "</td></tr>\n";
 			if ($iter["code"] > 0.00) {
 				$copay += $iter["code"];
 				$billing_html[$iter["code_type"]] .= $html;
@@ -354,7 +360,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 			$html .= "<tr><td>".$iter[code_type].
 				"</td><td>".$iter[code]."</td><td>"
 				.$iter["code_text"].' '.$iter['modifier']
-				."</td><td>".$iter['fee']."</td></tr>\n";
+				."</td><td>" . oeFormatMoney($iter['fee']) . "</td></tr>\n";
 			$billing_html[$iter["code_type"]] .= $html;
 			$total += $iter['fee'];
 			$js = split(":",$iter['justify']);
@@ -377,7 +383,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 			
 	}
 	
-$billing_html["CPT4"] .= "<tr><td>".xl('total')."</td><td></td><td></td><td>" . sprintf("%01.2f",$total) . "</td></tr>\n";
+$billing_html["CPT4"] .= "<tr><td>".xl('total')."</td><td></td><td></td><td>" . oeFormatMoney($total) . "</td></tr>\n";
 ?>
 <tr><td><?php xl('code type','e'); ?></td><td><?php xl('code','e'); ?></td><td><?php xl('description','e'); ?></td><td><?php xl('fee','e'); ?></td></tr>
 <?php
@@ -389,7 +395,7 @@ $billing_html["CPT4"] .= "<tr><td>".xl('total')."</td><td></td><td></td><td>" . 
 		print $val;
 $balance = $total-$copay;
 if ($balance != 0.00) {
-	print "<tr><td>".xl('balance')."</td><td></td><td>".xl('Please pay this amount').":</td><td>" . sprintf("%01.2f",$balance) . "</td></tr>\n";
+	print "<tr><td>".xl('balance')."</td><td></td><td>".xl('Please pay this amount').":</td><td>" . oeFormatMoney($balance) . "</td></tr>\n";
 }
 
 }

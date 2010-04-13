@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -9,8 +9,9 @@
  // This report shows upcoming appointments with filtering and
  // sorting by patient, practitioner, appointment type, and date.
 
- include_once("../globals.php");
- include_once("../../library/patient.inc");
+require_once("../globals.php");
+require_once("../../library/patient.inc");
+require_once("$srcdir/formatting.inc.php");
 
  $alertmsg = ''; // not used yet but maybe later
 
@@ -24,10 +25,6 @@
   'time'    => 'pc_eventDate, pc_startTime, lower(u.lname), lower(u.fname)',
   'type'    => 'pc_catname, pc_eventDate, pc_startTime, lower(u.lname), lower(u.fname)'
  );
-
- function bucks($amount) {
-  if ($amount) printf("%.2f", $amount);
- }
 
  $patient = $_REQUEST['patient'];
 
@@ -327,7 +324,7 @@
   </td>
 
   <td class="detail">
-   <?php echo $row['pc_eventDate'] . ' ' . substr($row['pc_startTime'], 0, 5) ?>
+   <?php echo oeFormatShortDate($row['pc_eventDate']) . ' ' . substr($row['pc_startTime'], 0, 5) ?>
    <!--
    &nbsp;<a href='javascript:oldEvt(<?php echo $row['pc_eid'] ?>)'>
    </a>

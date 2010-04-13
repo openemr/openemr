@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2005-2008 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2005-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // Windows compatibility and statement downloading:
 //     2009 Bill Cernansky and Tony McCormick [mi-squared.com]
@@ -12,13 +12,14 @@
 // This is the first of two pages to support posting of EOBs.
 // The second is sl_eob_invoice.php.
 
-include_once("../globals.php");
-include_once("../../library/patient.inc");
-include_once("../../library/sql-ledger.inc");
-include_once("../../library/invoice_summary.inc.php");
-include_once("../../custom/statement.inc.php");
-include_once("../../library/parse_era.inc.php");
-include_once("../../library/sl_eob.inc.php");
+require_once("../globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/sql-ledger.inc");
+require_once("$srcdir/invoice_summary.inc.php");
+require_once("../../custom/statement.inc.php");
+require_once("$srcdir/parse_era.inc.php");
+require_once("$srcdir/sl_eob.inc.php");
+require_once("$srcdir/formatting.inc.php");
 
 $DEBUG = 0; // set to 0 for production, 1 to test
 
@@ -51,8 +52,7 @@ function era_callback(&$out) {
 }
 
 function bucks($amount) {
-  if ($amount)
-    printf("%.2f", $amount);
+  if ($amount) echo oeFormatMoney($amount);
 }
 
 // Upload a file to the client's browser
@@ -842,10 +842,10 @@ if ($_POST['form_search'] || $_POST['form_print']) {
     target="_blank"><?php echo $row['pid'] . '.' . $row['encounter']; ?></a>
   </td>
   <td class="detail">
-   &nbsp;<?php echo $svcdate ?>
+   &nbsp;<?php echo oeFormatShortDate($svcdate) ?>
   </td>
   <td class="detail">
-   &nbsp;<?php echo $last_stmt_date ?>
+   &nbsp;<?php echo oeFormatShortDate($last_stmt_date) ?>
   </td>
   <td class="detail" align="right">
    <?php bucks($row['charges']) ?>&nbsp;
@@ -954,10 +954,10 @@ if ($_POST['form_search'] || $_POST['form_print']) {
     target="_blank"><?php echo $row['invnumber'] ?></a>
   </td>
   <td class="detail">
-   &nbsp;<?php echo $svcdate ?>
+   &nbsp;<?php echo oeFormatShortDate($svcdate) ?>
   </td>
   <td class="detail">
-   &nbsp;<?php echo $row['duedate'] ?>
+   &nbsp;<?php echo oeFormatShortDate($row['duedate']) ?>
   </td>
   <td class="detail" align="right">
    <?php bucks($row['charges']) ?>&nbsp;

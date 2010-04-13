@@ -1,4 +1,9 @@
 <?php
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
  require_once("../../globals.php");
  require_once("$srcdir/patient.inc");
  require_once("$srcdir/acl.inc");
@@ -7,6 +12,7 @@
  require_once("./patient_picture.php");
  require_once("$srcdir/options.inc.php");
  require_once("../history/history.inc.php");
+ require_once("$srcdir/formatting.inc.php");
   if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) {
   include_once("$srcdir/pid.inc");
   setpid($_GET['set_pid']);
@@ -234,8 +240,9 @@ $(document).ready(function(){
   }
 	if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
 	  // Show current balance and billing note, if any.
-	  echo "<td>&nbsp;&nbsp;&nbsp;<span class='bold'><font color='#ee6600'>" . xl('Balance Due') . ": " . xl('$') .
-		get_patient_balance($pid) . "</font><br />";
+    echo "<td>&nbsp;&nbsp;&nbsp;<span class='bold'><font color='#ee6600'>" .
+      xl('Balance Due') . ": " . oeFormatMoney(get_patient_balance($pid)) .
+      "</font><br />";
 	  if ($result['genericname2'] == 'Billing') {
 		xl('Billing Note') . ":";
 		echo "<span class='bold'><font color='red'>" .
@@ -712,7 +719,7 @@ if ($GLOBALS['patient_id_category_name']) {
 
 <?php if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) { ?>
 <script language='JavaScript'>
- parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' ".xl('DOB').": ".$result['DOB_YMD'] ." ".xl('Age').": ".getPatientAge($result['DOB_YMD'])."'"; ?>);
+ parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($result['DOB_YMD']) . "'"; ?>);
  parent.left_nav.setRadio(window.name, 'dem');
 </script>
 <?php } ?>

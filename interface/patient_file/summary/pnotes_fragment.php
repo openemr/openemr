@@ -1,10 +1,16 @@
 <?php
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
  require_once("../../globals.php");
  require_once("$srcdir/pnotes.inc");
  require_once("$srcdir/acl.inc");
  require_once("$srcdir/patient.inc");
  require_once("$srcdir/options.inc.php");
  require_once("$srcdir/classes/Document.class.php");
+ require_once("$srcdir/formatting.inc.php");
 
  // form parameter docid can be passed to restrict the display to a document.
  $docid = empty($_REQUEST['docid']) ? 0 : 0 + $_REQUEST['docid'];
@@ -55,7 +61,7 @@
     $balance = get_patient_balance($pid);
     if ($balance != "0") {
       $has_note = 1;
-      $formatted = sprintf((xl('$').'%01.2f'), $balance);
+      $formatted = oeFormatMoney($balance);
       echo " <tr class='text billing'>\n";
       echo "  <td>".$colorbeg.xl('Balance Due').$colorend."</td><td>".$colorbeg.$formatted.$colorend."</td>\n";
       echo " </tr>\n";
@@ -79,10 +85,10 @@
 
         $body = $iter['body'];
         if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
-          $body = nl2br($body);
+          $body = nl2br(oeFormatPatientNote($body));
         } else {
-          $body = date('Y-m-d H:i', strtotime($iter['date'])) .
-            ' (' . $iter['user'] . ') ' . nl2br($body);
+          $body = oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date'])) .
+            ' (' . $iter['user'] . ') ' . nl2br(oeFormatPatientNote($body));
         }
 
         echo " <tr class='text' id='".$iter['id']."' style='border-bottom:1px dashed' >\n";

@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2006-2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,9 +16,10 @@
 // column of the SQL-Ledger acc_trans table or ar_session table.
 
 require_once("../globals.php");
-require_once("../../library/patient.inc");
-require_once("../../library/sql-ledger.inc");
-require_once("../../library/acl.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/sql-ledger.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/formatting.inc.php");
 
 // This controls whether we show pt name, policy number and DOS.
 $showing_ppd = true;
@@ -26,8 +27,7 @@ $showing_ppd = true;
 $insarray = array();
 
 function bucks($amount) {
-  if ($amount)
-    printf("%.2f", $amount);
+  if ($amount) echo oeFormatMoney($amount);
 }
 
 function thisLineItem($patient_id, $encounter_id, $memo, $transdate,
@@ -99,7 +99,7 @@ function showLineItem($patient_id, $encounter_id, $memo, $transdate,
    <?php echo $paymethodleft; $paymethodleft = "&nbsp;" ?>
   </td>
   <td>
-   <?php echo $transdate ?>
+   <?php echo oeFormatShortDate($transdate) ?>
   </td>
   <td class="detail">
    <?php echo $invnumber ?>
@@ -127,7 +127,7 @@ function showLineItem($patient_id, $encounter_id, $memo, $transdate,
       echo "  </td>\n";
 
       echo "  <td class='dehead'>\n";
-      echo "   $dos\n";
+      echo "   " . oeFormatShortDate($dos) . "\n";
       echo "  </td>\n";
     }
 ?>

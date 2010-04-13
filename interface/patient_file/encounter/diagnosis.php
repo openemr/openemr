@@ -1,8 +1,14 @@
 <?php
- include_once("../../globals.php");
- include_once("$srcdir/billing.inc");
- include_once("$srcdir/sql.inc");
- include_once("$srcdir/acl.inc");
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+include_once("../../globals.php");
+include_once("$srcdir/billing.inc");
+include_once("$srcdir/sql.inc");
+include_once("$srcdir/acl.inc");
+require_once("$srcdir/formatting.inc.php");
 
 $mode              = $_REQUEST['mode'];
 $type              = $_REQUEST['type'];
@@ -229,10 +235,10 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 			$billing_html[$iter["code_type"]] .=
 				"<tr><td></td><td><a target='$target' class='small' " .
         "href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
-				$iter['code'] . "</b> " .
+				oeFormatMoney($iter['code']) . "</b> " .
 				ucwords(strtolower($iter['code_text'])) .
 				' ' . xl('payment entered on') . ' ' .
-				$iter['date']."</a></td></tr>\n";
+				oeFormatShortDate(substr($iter['date'], 0, 10)) . substr($iter['date'], 10, 6) . "</a></td></tr>\n";
 		}
 		else {
 			$billing_html[$iter["code_type"]] .=
@@ -241,7 +247,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 				"</td><td><a target='$target' class='small' " .
         "href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
 				$iter{"code"} . ' ' . $iter['modifier'] . "</b> " .
-				ucwords(strtolower($iter{"code_text"})) . ' ' . $iter['fee'] .
+				ucwords(strtolower($iter{"code_text"})) . ' ' . oeFormatMoney($iter['fee']) .
 				"</a><span class=\"small\">";
 			$total += $iter['fee'];
 			$js = split(":",$iter['justify']);
@@ -286,7 +292,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 		}
 	}
 
-	$billing_html["CPT4"] .= "<tr><td>" . xl('total') . ":</td><td>" . sprintf("%01.2f",$total) . "</td></tr>\n";
+	$billing_html["CPT4"] .= "<tr><td>" . xl('total') . ":</td><td>" . oeFormatMoney($total) . "</td></tr>\n";
 	foreach ($billing_html as $key => $val) {
 		print "<tr><td>$key</td><td><table>$val</table><td></tr><tr><td height=\"5\"></td></tr>\n";
 	}

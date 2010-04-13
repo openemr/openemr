@@ -7,8 +7,9 @@
 // of the License, or (at your option) any later version.
 
 require_once("../globals.php");
-require_once("../../library/patient.inc");
-require_once("../../library/acl.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/formatting.inc.php");
 
 function formatcyp($amount) {
   if ($amount) return sprintf("%.2f", $amount);
@@ -73,7 +74,7 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
   if ($_POST['form_details']) {
     if ($_POST['form_csvexport']) {
       echo '"' . display_desc($product         ) . '",';
-      echo '"' . display_desc($transdate) . '",';
+      echo '"' . oeFormatShortDate(display_desc($transdate)) . '",';
       echo '"' . display_desc($invnumber) . '",';
       echo '"' . display_desc($qty      ) . '",';
       echo '"' . formatcyp($rowcyp) . '",';
@@ -87,7 +88,7 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
    <?php echo display_desc($productleft); $productleft = "&nbsp;"; ?>
   </td>
   <td class="dehead">
-   <?php echo $transdate; ?>
+   <?php echo oeFormatShortDate($transdate); ?>
   </td>
   <td class="detail">
    <?php echo $invnumber; ?>
@@ -208,24 +209,24 @@ else { // not export
 
  <tr bgcolor="#dddddd">
   <td class="dehead">
-   <?xl('Item','e')?>
+   <?php xl('Item','e') ?>
   </td>
 <?php if ($_POST['form_details']) { ?>
   <td class="dehead">
-   <?xl('Date','e')?>
+   <?php xl('Date','e') ?>
   </td>
   <td class="dehead">
-   <?xl('Invoice','e')?>
+   <?php xl('Invoice','e') ?>
   </td>
 <?php } ?>
   <td class="dehead" align="right">
-   <?xl('Qty','e')?>
+   <?php xl('Qty','e') ?>
   </td>
   <td class="dehead" align="right">
-   <?xl('CYP','e')?>
+   <?php xl('CYP','e') ?>
   </td>
   <td class="dehead" align="right">
-   <?xl('Result','e')?>
+   <?php xl('Result','e') ?>
   </td>
  </tr>
 <?php
