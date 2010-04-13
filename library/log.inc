@@ -441,7 +441,7 @@ function send_atna_audit_msg($user, $group, $event, $patient_id, $outcome, $comm
     $cacert = $GLOBALS['atna_audit_cacert'];
     $conn = create_tls_conn($host, $port, $localcert, $cacert);
     if ($conn !== FALSE) {
-        $msg = create_rfc3881_msg($user, $group, $event, $patient_id, $success, $comments);
+        $msg = create_rfc3881_msg($user, $group, $event, $patient_id, $outcome, $comments);
         $len = strlen($msg);
         fwrite($conn, $msg);
         fclose($conn);
