@@ -1,5 +1,4 @@
 <?php
-require_once("language.inc.php");
 
 if ($_POST['add']){
 	//validate	
@@ -19,9 +18,14 @@ if ($_POST['add']){
 		$val_lang_code=strip_escape_custom($_POST['lang_code']);
 		$val_lang_name=strip_escape_custom($_POST['lang_name']);
 	} else {
+	        //insert into the main table
 		$sql="INSERT INTO lang_languages SET lang_code='".formData('lang_code')."', lang_description='".formData('lang_name')."'";
 		SqlStatement ($sql);
-		xl('Language definition added','e','','<br>');
+	        
+		//insert into the log table - to allow persistant customizations
+		insert_language_log(formData('lang_name'),formData('lang_code'),'','');
+	    
+	        xl('Language definition added','e','','<br>');
 	}
 }
 
