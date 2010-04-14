@@ -21,8 +21,8 @@ $CPR = 4; // cells per row
 $searchcolor = empty($GLOBALS['layout_search_color']) ?
   '#ffff55' : $GLOBALS['layout_search_color'];
 
-$WITH_SEARCH = ($GLOBALS['full_new_patient_form'] === 1 || $GLOBALS['full_new_patient_form'] === 2);
-$SHORT_FORM  = ($GLOBALS['full_new_patient_form'] === 2 || $GLOBALS['full_new_patient_form'] === 3);
+$WITH_SEARCH = ($GLOBALS['full_new_patient_form'] == '1' || $GLOBALS['full_new_patient_form'] == '2');
+$SHORT_FORM  = ($GLOBALS['full_new_patient_form'] == '2' || $GLOBALS['full_new_patient_form'] == '3');
 
 function getLayoutRes() {
   global $SHORT_FORM;
