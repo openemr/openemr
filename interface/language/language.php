@@ -38,7 +38,7 @@ CREATE TABLE lang_custom (
 <table>
  <tr>
   <td class="small" colspan='4'>
-   <a href="?m=definition" onclick="top.restoreSession()"><?php xl('Edit Definitions','e'); ?></a> |
+   <a href="?m=definition" onclick="top.restoreSession()"><?php xl('Edit definitions','e'); ?></a> |
    <a href="?m=language" onclick="top.restoreSession()"><?php xl('Add Language','e'); ?></a> | 
    <a href="?m=constant" onclick="top.restoreSession()"><?php xl('Add Constant','e'); ?></a> |
    <?php if ($enable_custom_language_logging) { ?>

@@ -14,7 +14,7 @@
     <tr>	
       <td><?php echo (xl('Select Language').":"); ?></td>
       <td>
-	<select size='8' name='language_select'>
+	<select name='language_select'>
           <?php
           // sorting order of language titles depends on language translation options.
           $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
@@ -35,7 +35,7 @@
             $res=SqlStatement($sql);
 	  }
           // collect the default selected language id, and then display list
-          $tempLangID = isset($_POST['language_select']) ? strip_escape_custom($_POST['language_select']) : '1';
+          $tempLangID = isset($_POST['language_select']) ? strip_escape_custom($_POST['language_select']) : $mainLangID;
           while ($row=SqlFetchArray($res)){
 	    if ($tempLangID == $row['lang_id']) {
 	      echo "<option value='" . $row['lang_id'] . "' selected>" . $row['lang_description'] . "</option>";
@@ -53,7 +53,7 @@
     </tr>
     </form>
   </table>
-
+  <br>
 <?php
 if ($_POST['load']) {
   // set up the mysql collation string to ensure case is sensitive in the mysql queries
