@@ -60,7 +60,27 @@ else {
 $_SESSION['language_choice'] = $defaultLangID;
 // collect languages if showing language menu
 if ($GLOBALS['language_menu_login']) {
-        $res3 = sqlStatement("select * from lang_languages order by lang_description");
+    
+        // sorting order of language titles depends on language translation options.
+        $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+        if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation']))
+        {
+          $sql = "SELECT * FROM lang_languages ORDER BY lang_description, lang_id";
+	  $res3=SqlStatement($sql);
+        }
+        else {
+          // Use and sort by the translated language name.
+          $sql = "SELECT ll.lang_id, " .
+            "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
+	    "ll.lang_description " .
+            "FROM lang_languages AS ll " .
+            "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
+            "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
+            "ld.lang_id = '$mainLangID' " .
+            "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
+          $res3=SqlStatement($sql);
+	}
+    
         for ($iter = 0;$row = sqlFetchArray($res3);$iter++)
                $result3[$iter] = $row;
         if (count($result3) == 1) {
@@ -121,11 +141,11 @@ if (count($result3) != 1) { ?>
         echo "<option selected='selected' value='".$defaultLangID."'>" . xl('Default','','',' -') . xl($defaultLangName,'',' ') . "</option>\n";
         foreach ($result3 as $iter) {
 	        if ($GLOBALS['language_menu_showall']) {
-                    echo "<option value='".$iter[lang_id]."'>".xl($iter[lang_description])."</option>\n";
+                    echo "<option value='".$iter[lang_id]."'>".$iter[trans_lang_description]."</option>\n";
 		}
 	        else {
 		    if (in_array($iter[lang_description], $GLOBALS['language_menu_show'])) {
-		        echo "<option value='".$iter[lang_id]."'>" . xl($iter[lang_description]) . "</option>\n";
+		        echo "<option value='".$iter[lang_id]."'>" . $iter[trans_lang_description] . "</option>\n";
 		    }
 		}
         }
