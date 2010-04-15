@@ -9,9 +9,6 @@ function xl($s) {
   return $s;
 }
 
-//required for normal operation because of recent changes in PHP:
-extract($_GET);
-extract($_POST);
 //turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn","off");
 
@@ -84,6 +81,7 @@ include_once($conffile);
 	
 <?php
  if ($state == 7) {
+   $iuser = $_POST["iuser"];
 ?>
 
 <p>Congratulations! OpenEMR is now installed.</p>
@@ -134,6 +132,7 @@ If you edited the PHP or Apache configuration files during this installation pro
   $iuser = $_POST["iuser"];
 	$iuname = $_POST["iuname"];
 	$igroup = $_POST["igroup"];
+        $inst = $_POST["inst"];
 
   /*******************************************************************
 	$openemrBasePath = $_POST["openemrBasePath"];
