@@ -46,4 +46,4 @@ if ($_POST['add']){
 </TR>
 </FORM>
 </TABLE>
-<?php xl('Please Note: constants are case sensitive and any string is allowed.','e'); ?>
+<span class="text"><?php xl('Please Note: constants are case sensitive and any string is allowed.','e'); ?></span>

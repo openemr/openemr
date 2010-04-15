@@ -11,8 +11,7 @@ require_once("$srcdir/formdata.inc.php");
 // (Note that the below mysql table is required for this function)
 $enable_custom_language_logging=false;
 /* Note that the table mysql lang_custom is required for this function,
-which can ce accomplished with following script in mysql:
-DROP TABLE IF EXISTS lang_custom;
+which can be accomplished with following script in mysql:
 CREATE TABLE lang_custom (
   lang_description varchar(100) NOT NULL default '',
   lang_code char(2) NOT NULL default '',
@@ -29,15 +28,6 @@ CREATE TABLE lang_custom (
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/calendar.js"></script>
-
-<script language='JavaScript'>
-function editLang(lang_id) {
- var filter = document.forms[1].form_filter.value;
- top.restoreSession();
- window.location = '?m=definition&edit=' + lang_id + '&filter=' + encodeURIComponent(filter);
- return false;
-}
-</script>
 </head>
 
 <body class="body_top">	
@@ -48,12 +38,12 @@ function editLang(lang_id) {
 <table>
  <tr>
   <td class="small" colspan='4'>
-   <?php if ($enable_custom_language_logging) { ?>
-   <a href="?m=manage" onclick="top.restoreSession()"><?php xl('Manage Translations','e'); ?></a> |
-   <?php  } ?>
+   <a href="?m=definition" onclick="top.restoreSession()"><?php xl('Edit Definitions','e'); ?></a> |
    <a href="?m=language" onclick="top.restoreSession()"><?php xl('Add Language','e'); ?></a> | 
    <a href="?m=constant" onclick="top.restoreSession()"><?php xl('Add Constant','e'); ?></a> |
-   <a href="?m=definition" onclick="top.restoreSession()"><?php xl('Edit Definitions','e'); ?></a>
+   <?php if ($enable_custom_language_logging) { ?>
+   <a href="?m=manage" onclick="top.restoreSession()"><?php xl('Manage Translations','e'); ?></a>
+   <?php  } ?>
   </td>
  </tr>
 </table>
@@ -78,3 +68,4 @@ endswitch;
 
 <BR><A HREF="lang.info.html" TARGET="_blank"><?php xl('Info','e'); ?></A>
 </body>
+</html>
