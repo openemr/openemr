@@ -15,15 +15,6 @@ require_once("$srcdir/formdata.inc.php");
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../library/overlib_mini.js"></script>
 <script type="text/javascript" src="../../library/calendar.js"></script>
-
-<script language='JavaScript'>
-function editLang(lang_id) {
- var filter = document.forms[1].form_filter.value;
- top.restoreSession();
- window.location = '?m=definition&edit=' + lang_id + '&filter=' + encodeURIComponent(filter);
- return false;
-}
-</script>
 </head>
 
 <body class="body_top">	
@@ -34,15 +25,15 @@ function editLang(lang_id) {
 <table>
  <tr>
   <td class="small" colspan='4'>
-   <a href="?m=manage" onclick="top.restoreSession()"><?php xl('Manage Translations','e'); ?></a> | 
+   <a href="?m=definition" onclick="top.restoreSession()"><?php xl('Edit Definitions','e'); ?></a> | 
    <a href="?m=language" onclick="top.restoreSession()"><?php xl('Add Language','e'); ?></a> | 
    <a href="?m=constant" onclick="top.restoreSession()"><?php xl('Add Constant','e'); ?></a> |
-   <a href="?m=definition" onclick="top.restoreSession()"><?php xl('Edit Definitions','e'); ?></a>
+   <a href="?m=manage" onclick="top.restoreSession()"><?php xl('Manage Translations','e'); ?></a>
   </td>
  </tr>
 </table>
 </form>
-	
+
 <?php
 switch ($_GET['m']):
 	case 'definition':
@@ -62,3 +53,4 @@ endswitch;
 
 <BR><A HREF="lang.info.html" TARGET="_blank"><?php xl('Info','e'); ?></A>
 </body>
+</html>

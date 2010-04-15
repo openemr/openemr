@@ -51,15 +51,15 @@ function insert_language_log($lang_desc,$lang_code,$cons_name,$def) {
   else {
     // FULL ENTRY
     // (ensure not a repeat log entry)
-    $sql = "SELECT * FROM lang_custom WHERE lang_description='".$lang_desc."' AND constant_name='".$cons_name."' AND definition='".$def."' ".$case_sensitive_collation;
+    $sql = "SELECT * FROM lang_custom WHERE lang_description='".$lang_desc."' ".$case_sensitive_collation." AND constant_name='".$cons_name."' ".$case_sensitive_collation." AND definition='".$def."' ".$case_sensitive_collation;
     $res_test = SqlStatement($sql);
     if (!SqlFetchArray($res_test)) {
       // either modify already existing log entry or create a new one
-      $sql = "SELECT * FROM lang_custom WHERE lang_description='".$lang_desc."' AND constant_name='".$cons_name."' ".$case_sensitive_collation;
+      $sql = "SELECT * FROM lang_custom WHERE lang_description='".$lang_desc."' ".$case_sensitive_collation." AND constant_name='".$cons_name."' ".$case_sensitive_collation;
       $res_test2 = SqlStatement($sql);
       if (SqlFetchArray($res_test2)) {
         // modify existing log entry(s)
-        $sql = "UPDATE lang_custom SET definition = '".$def."' WHERE lang_description='".$lang_desc."' AND constant_name='".$cons_name."' ".$case_sensitive_collation;
+        $sql = "UPDATE lang_custom SET definition = '".$def."' WHERE lang_description='".$lang_desc."' ".$case_sensitive_collation." AND constant_name='".$cons_name."' ".$case_sensitive_collation;
         SqlStatement($sql);
       }
       else {
