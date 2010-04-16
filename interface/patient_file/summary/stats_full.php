@@ -117,8 +117,10 @@ while ($row = sqlFetchArray($pres)) {
    ****/
         $disptype = $ISSUE_TYPES[$lasttype][0];
 
+        // use disptype to get style from themes/__.css files (see style_sky_blue.css for examples)
+
         echo " <tr class='detail'>\n";
-        echo "  <td class='typehead' colspan='9'><b>$disptype</b></td>\n";
+        echo "  <td class='$disptype' colspan='9'><b>$disptype</b></td>\n";
         echo " </tr>\n";
     }
 

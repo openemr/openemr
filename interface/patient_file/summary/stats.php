@@ -48,8 +48,8 @@ foreach ($ISSUE_TYPES as $key => $arr) {
 
     if (mysql_num_rows($pres) > 0 || $ix == 0) {
 
-        // output a header for the $ISSUE_TYPE
-        echo " <tr class='issuetitle'>\n";
+        // output a header for the $ISSUE_TYPE (matches to themes/__.css entry for issuetitle)
+        echo " <tr class='$arr[0]'>\n";
         echo "  <td colspan='$numcols'>\n";
 
         ?>
@@ -61,6 +61,9 @@ foreach ($ISSUE_TYPES as $key => $arr) {
 
         echo "  </td>\n";
         echo " </tr>\n";
+       
+	    // set display tupe for details (matches to themes/__.css entry for "issuetitle"-detail)
+        $disptype = $arr[0] . '-detail';
 
         while ($row = sqlFetchArray($pres)) {
             // output each issue for the $ISSUE_TYPE
@@ -73,7 +76,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
 
             echo " <tr class='text $rowclass;'>\n";
 
-            echo "  <td colspan='$numcols'>&nbsp;&nbsp;" . $row['title'] . "</td>\n";
+            echo "  <td class='$disptype', colspan='$numcols'>&nbsp;&nbsp;" . $row['title'] . "</td>\n";
 
             echo " </tr>\n";
         }
