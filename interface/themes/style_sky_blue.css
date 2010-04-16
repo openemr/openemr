@@ -392,20 +392,6 @@ font-weight: bold;
     text-align: center;
 }
 
-#patient_stats .Allergies {
-	color: #fe0000;
-}
-#patient_stats .Medications {
-	color: #000000;
-}
-
-#patient_stats .Problems {
-	color: #000000;
-}
-
-#patient_stats .Medical Problems {
-	color: #000000;
-}
 
 /*=============================================================
  * Patient Stats Summary
@@ -426,32 +412,9 @@ font-weight: bold;
 #patient_stats_summary .title {
     font-size: 1.1em;
 }
-
 #patient_stats_issues {
     width: 100%;
 }
-
-#patient_stats_issues .Allergies {
-	color: #fe0000;
-	font-weight: bold;
-}
-
-#patient_stats_issues .Allergies-detail {
-	color: #fe0000;
-}
-
-#patient_stats_issues .Medications {
-   font-weight: bold;
-}
-
-#patient_stats_issues .Problems {
-   font-weight: bold;
-}
-
-#patient_stats_issues .Medical Problems {
-	font-weight: bold;
-}
-
 #patient_stats_spreadsheets {
     width: 100%;
 }
@@ -461,7 +424,6 @@ font-weight: bold;
 #patient_stats_prescriptions {
     width: 100%;
 }
-
 
 /*=============================================================
  * Patient Past Encounters and Documents
