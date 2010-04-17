@@ -41,9 +41,9 @@ setInst="1"                 #CONSTANT, don't set
 #FIRST DEAL WITH STUFF SPECIFIC TO THE CVS DEMO AND DEVELOPER APPLIANCE
 #Install php-gd (graphics) and php-mbstring (multibyte character support) packages
 #  and restart apache (done after below suhosin patch).
-echo "Installing gd(graphics) and mbstring(multibyte support) and zip php packages..."
-echo "Installing gd(graphics) and mbstring(multibyte support) and zip php packages..." >> $LOG
-urpmi --auto php-gd php-mbstring php-zip >> $LOG
+echo "Installing gd(graphics) and mbstring(multibyte support) and zip php packages and perl-CGI package..."
+echo "Installing gd(graphics) and mbstring(multibyte support) and zip php packages and perl-CGI package..." >> $LOG
+urpmi --auto php-gd php-mbstring php-zip perl-CGI >> $LOG
 #Patch the suhosin bug
 SUHOSINCONF=/etc/php.d/Z98_suhosin.ini
 echo "Disabling suhosin patch which is not compatible with OpenEMR"
