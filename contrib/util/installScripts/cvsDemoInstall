@@ -36,15 +36,14 @@ setColl="utf8_general_ci"   #collation for mysql
 setIuser="admin"            #initial user login name
 setIuname="Administrator"   #initial user full name
 setIgroup="Default"         #practice group name
-setOpenemrWebPath=/openemr  #path on browser to openemr
 setInst="1"                 #CONSTANT, don't set
 
 #FIRST DEAL WITH STUFF SPECIFIC TO THE CVS DEMO AND DEVELOPER APPLIANCE
 #Install php-gd (graphics) and php-mbstring (multibyte character support) packages
 #  and restart apache (done after below suhosin patch).
-echo "Installing gd(graphics) and mbstring(multibyte support) php packages..."
-echo "Installing gd(graphics) and mbstring(multibyte support) php packages..." >> $LOG
-urpmi --auto php-gd php-mbstring >> $LOG
+echo "Installing gd(graphics) and mbstring(multibyte support) and zip php packages..."
+echo "Installing gd(graphics) and mbstring(multibyte support) and zip php packages..." >> $LOG
+urpmi --auto php-gd php-mbstring php-zip >> $LOG
 #Patch the suhosin bug
 SUHOSINCONF=/etc/php.d/Z98_suhosin.ini
 echo "Disabling suhosin patch which is not compatible with OpenEMR"
@@ -77,7 +76,6 @@ mkdir -p $TMPDIR
 cp -rf $CVS/openemr $TMPDIR/
 rm -rf `find $TMPDIR -name CVS`
 chmod a+w $TMPDIR/openemr/library/sqlconf.php
-chmod a+w $TMPDIR/openemr/interface/globals.php
 chmod -R a+w $TMPDIR/openemr/documents
 chmod -R a+w $TMPDIR/openemr/edi
 chmod -R a+w $TMPDIR/openemr/era
@@ -104,7 +102,6 @@ date > date-cvs.txt
 rm -fr $TMPDIR
 echo "Done creating OpenEMR CVS packages"
 echo "Done creating OpenEMR CVS packages" >> $LOG
-#Edit some php.ini settings and restart apache (pending)
 
 #INSTALL AND CONFIGURE OPENEMR
 echo "Configuring OpenEMR"
@@ -113,7 +110,6 @@ echo "Configuring OpenEMR" >> $LOG
 chmod 666 $OPENEMR/library/sqlconf.php
 chmod 666 $OPENEMR/gacl/gacl.ini.php
 chmod 666 $OPENEMR/gacl/gacl.class.php
-chmod 666 $OPENEMR/interface/globals.php
 chown -R apache:apache $OPENEMR/documents
 chown -R apache:apache $OPENEMR/edi
 chown -R apache:apache $OPENEMR/era
@@ -143,8 +139,6 @@ sed -e 's@\/\/END POST VARIABLES@\
     $iuser = '\'''$setIuser''\'';\
     $iuname = '\'''$setIuname''\'';\
     $igroup = '\'''$setIgroup''\'';\
-    $openemrBasePath = '\'''$OPENEMR''\'';\
-    $openemrWebPath = '\'''$setOpenemrWebPath''\'';\
     $collate = '\'''$setColl''\'';\
     $inst = 1;@' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
 mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
@@ -174,7 +168,6 @@ php -f $OPENEMR/TEMPsetup.php >> $LOG
 rm -f $OPENEMR/TEMPsetup.php
 #reinstitute file permissions
 chmod 644 $OPENEMR/library/sqlconf.php
-chmod 644 $OPENEMR/interface/globals.php
 #replace original acl.inc and gacl/setup.php script
 mv $OPENEMR/library/TEMP2acl.inc $OPENEMR/library/acl.inc
 mv $OPENEMR/gacl/TEMP2setup.php $OPENEMR/gacl/setup.php
