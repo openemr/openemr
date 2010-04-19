@@ -24,7 +24,7 @@ my $documentation =<<'START';
 
 To run at the shell command line, type:
 
-Perl formscript.pl [filename]
+perl formscript.pl [filename]
 
 where filename is a text file with data relating to your form.  If you run
 without a filename argument, a sample data file will be created in the same
@@ -107,7 +107,7 @@ my $date_header =<<'START';
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
+<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 <script language='JavaScript'> var mypcc = '1'; </script>
 START
@@ -179,9 +179,9 @@ if ($value == "on") {
 $value = "yes";
 }
 $key=ucwords(str_replace("_"," ",$key));
-$mykey = $key.": ";
-$myval = stripslashes($value);
-print "<td><span class=bold>".$mykey."</span><span class=text>".$myval."</span></td>";
+$mykey = $key;
+$myval = $value;
+print "<td><span class=bold>".$mykey.": </span><span class=text>".$myval."</span></td>";
 $count++;
 if ($count == $cols) {
 $count = 0;
@@ -201,6 +201,7 @@ my $save_php=<<'START';
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
+require_once("$srcdir/formdata.inc.php");
 
 //process form variables here
 //create an array of all of the existing field names
@@ -254,14 +255,9 @@ foreach($field_names as $key=>$val)
 }
 
 //end special processing
-if(get_magic_quotes_gpc()) {
-  foreach ($field_names as $k => $var) {
-    $field_names[$k] = stripslashes($var);
-  }
-}
 foreach ($field_names as $k => $var) {
   #if (strtolower($k) == strtolower($var)) {unset($field_names[$k]);}
-  $field_names[$k] = mysql_real_escape_string($var);
+  $field_names[$k] = formDataCore($var);
 echo "$var\n";
 }
 if ($encounter == "")
@@ -311,10 +307,10 @@ formHeader("Form: FORM_NAME");
 $obj = formFetch("form_FORM_NAME", $_GET["id"]);  //#Use the formFetch function from api.inc to get values for existing form.
 
 function chkdata_Txt(&$obj, $var) {
-        return htmlentities($obj{"$var"});
+        return htmlspecialchars($obj{"$var"},ENT_QUOTES);
 }
 function chkdata_Date(&$obj, $var) {
-        return htmlentities($obj{"$var"});
+        return htmlspecialchars($obj{"$var"},ENT_QUOTES);
 }
 function chkdata_CB(&$obj, $nam, $var) {
 	if (preg_match("/Negative.*$var/",$obj{$nam})) {return;} else {return "checked";}
@@ -782,7 +778,7 @@ sub xl_fix #make compliant with translation feature
 {
 	my $string = shift;
 	return $string if $noxl;
-	$string =~ s/>([^\s][^<>]+?)<\//> <\? xl("$1",'e') \?> <\//gs; 
+	$string =~ s/(>{1,2})([^\s][^<>]+?)<\//$1 <\?php xl("$2",'e') \?> <\//gs; 
         return $string;
 }
 sub xl_fix2 #make compliant with translation feature for report.php
