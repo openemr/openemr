@@ -95,13 +95,13 @@ if ($_GET["mode"] == "update") {
   if (isset($_GET['default_warehouse'])) {
     sqlStatement("UPDATE users SET default_warehouse = '" .
       formData('default_warehouse','G') .
-      "' WHERE id = '" . $formData('id','G') . "'");
+      "' WHERE id = '" . formData('id','G') . "'");
   }
 
   if (isset($_GET['irnpool'])) {
     sqlStatement("UPDATE users SET irnpool = '" .
       formData('irnpool','G') .
-      "' WHERE id = '" . $formData('id','G') . "'");
+      "' WHERE id = '" . formData('id','G') . "'");
   }
 
   if ($_GET["newauthPass"] && $_GET["newauthPass"] != "d41d8cd98f00b204e9800998ecf8427e") { // account for empty
