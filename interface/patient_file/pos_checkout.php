@@ -76,7 +76,7 @@ function updateInvoiceRefNumber() {
   // Here "?" specifies a minimal match, to get the most digits possible:
   if (preg_match('/^(.*?)(\d+)(\D*)$/', $irnumber, $matches)) {
     $newdigs = sprintf('%0' . strlen($matches[2]) . 'd', $matches[2] + 1);
-    $newnumber = addslashes($matches[1] . $newdigs . $matches[3]);
+    $newnumber = add_escape_custom($matches[1] . $newdigs . $matches[3]);
     sqlStatement("UPDATE users AS u, list_options AS lo " .
       "SET lo.notes = '$newnumber' WHERE " .
       "u.username = '" . $_SESSION['authUser'] . "' AND " .
@@ -770,7 +770,7 @@ if ($_POST['form_save']) {
     $invoice_refno = formData('form_irnumber', 'P', true);
   }
   else {
-    $invoice_refno = addslashes(updateInvoiceRefNumber());
+    $invoice_refno = add_escape_custom(updateInvoiceRefNumber());
   }
   if ($invoice_refno) {
     sqlStatement("UPDATE form_encounter " .
