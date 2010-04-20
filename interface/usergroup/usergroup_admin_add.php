@@ -178,7 +178,7 @@ echo generate_select_list('default_warehouse', 'warehouse',
  <td class='text'>
 <?php
 echo generate_select_list('irnpool', 'irnpool', '',
-  'Invoice reference number pool, if used');
+  xl('Invoice reference number pool, if used'));
 ?>
  </td>
 </tr>
