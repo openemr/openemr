@@ -19,7 +19,7 @@ GetOptions('noxl' => \$noxl, 'bigtable' => \$bigtable);
 my $documentation =<<'START';
 
 *************************************
-*      Form Generating Script 3.0   *
+*      Form Generating Script 3.2   *
 *************************************
 
 To run at the shell command line, type:
@@ -107,7 +107,7 @@ my $date_header =<<'START';
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
+<script type="text/javascript" src="../../../library/dynarch_calendar_en.js"></script>
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 <script language='JavaScript'> var mypcc = '1'; </script>
 START

@@ -1,11 +1,11 @@
 
 *************************************
-*      Form Generating Script 3.0   *
+*      Form Generating Script 3.2   *
 *************************************
 
 To run at the shell command line, type:
 
-Perl formscript.pl [filename]
+perl formscript.pl [filename]
 
 where filename is a text file with data relating to your form.  If you run
 without a filename argument, a sample data file will be created in the same
