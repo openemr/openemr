@@ -519,7 +519,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
     }
 
     $query = "SELECT f.id, f.date, f.pid, f.encounter, f.last_level_billed, " .
-      "f.last_level_closed, f.last_stmt_date, f.stmt_count, " .
+      "f.last_level_closed, f.last_stmt_date, f.stmt_count, f.invoice_refno, " .
       "p.fname, p.mname, p.lname, p.street, p.city, p.state, " .
       "p.postal_code, p.phone_home, p.ss, p.genericname2, p.genericval2, " .
       "p.pubpid, p.DOB, CONCAT(u.lname, ', ', u.fname) AS referrer, " .
@@ -610,6 +610,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       $row['pubpid']    = $erow['pubpid'];
       $row['billnote']  = ($erow['genericname2'] == 'Billing') ? $erow['genericval2'] : '';
       $row['referrer']  = $erow['referrer'];
+      $row['irnumber']  = $erow['invoice_refno'];
 
       // Also get the primary insurance company name whenever there is one.
       $row['ins1'] = '';
@@ -1088,7 +1089,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
 ?>
   <td class="detail">
    &nbsp;<a href="../billing/sl_eob_invoice.php?id=<?php echo $row['id'] ?>"
-    target="_blank"><?php echo $row['invnumber'] ?></a>
+    target="_blank"><?php echo empty($row['irnumber']) ? $row['invnumber'] : $row['irnumber']; ?></a>
   </td>
   <td class="detail">
    &nbsp;<?php echo oeFormatShortDate($row['dos']); ?>
@@ -1161,7 +1162,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
       // echo '"' . $insname                             . '",';
       echo '"' . $row['ins1']                         . '",';
       echo '"' . $ptname                              . '",';
-      echo '"' . $row['invnumber']                    . '",';
+      echo '"' . (empty($row['irnumber']) ? $row['invnumber'] : $row['irnumber']) . '",';
       echo '"' . oeFormatShortDate($row['dos'])       . '",';
       echo '"' . $row['referrer']                     . '",';
       echo '"' . oeFormatMoney($row['charges'])       . '",';

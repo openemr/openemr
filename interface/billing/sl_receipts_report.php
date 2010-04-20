@@ -310,7 +310,7 @@
         }
         *************************************************************/
         $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, b.code, b.modifier, " .
-          "fe.date, fe.id AS trans_id, fe.provider_id AS docid " .
+          "fe.date, fe.id AS trans_id, fe.provider_id AS docid, fe.invoice_refno " .
           "FROM billing AS b " .
           "JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter " .
           "WHERE b.code_type = 'COPAY' AND b.activity = 1 AND " .
@@ -356,6 +356,7 @@
           $arows[$key]['project_id'] = 0;
           $arows[$key]['memo'] = '';
           $arows[$key]['invnumber'] = "$patient_id.$encounter_id";
+          $arows[$key]['irnumber'] = $row['invoice_refno'];
         } // end while
       } // end copays (not $form_cptcode)
 
@@ -380,7 +381,7 @@
       if ($form_doctor) $query .= " AND u.id = '$form_doctor'";
       ***************************************************************/
       $query = "SELECT a.pid, a.encounter, a.post_time, a.code, a.modifier, a.pay_amount, " .
-        "fe.date, fe.id AS trans_id, fe.provider_id AS docid, s.deposit_date, s.payer_id, " .
+        "fe.date, fe.id AS trans_id, fe.provider_id AS docid, fe.invoice_refno, s.deposit_date, s.payer_id, " .
         "b.provider_id " .
         "FROM ar_activity AS a " .
         "JOIN form_encounter AS fe ON fe.pid = a.pid AND fe.encounter = a.encounter " .
@@ -445,6 +446,7 @@
         $arows[$key]['project_id'] = empty($row['payer_id']) ? 0 : $row['payer_id'];
         $arows[$key]['memo'] = $row['code'];
         $arows[$key]['invnumber'] = "$patient_id.$encounter_id";
+        $arows[$key]['irnumber'] = $row['invoice_refno'];
       } // end while
     } // end $INTEGRATED_AR
 
@@ -630,7 +632,7 @@
   </td>
 <?php if ($form_procedures) { ?>
   <td class="detail">
-   <?php echo $row['invnumber'] ?>
+   <?php echo empty($row['irnumber']) ? $row['invnumber'] : $row['irnumber']; ?>
   </td>
 <?php } ?>
 <?php

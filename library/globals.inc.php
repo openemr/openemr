@@ -394,6 +394,20 @@ $GLOBALS_METADATA = array(
       xl('Set a facility cookie to remember the selected facility between logins.')
     ),
 
+    'gbl_mask_patient_id' => array(
+      xl('Mask for Patient IDs'),
+      'text',                           // data type
+      '',                               // default
+      xl('Specifies formatting for the external patient ID.  # = digit, * = any character.  Empty if not used.')
+    ),
+
+    'gbl_mask_invoice_number' => array(
+      xl('Mask for Invoice Numbers'),
+      'text',                           // data type
+      '',                               // default
+      xl('Specifies formatting for invoice reference numbers.  # = digit, * = any character.  Empty if not used.')
+    ),
+
   ),
 
   // Calendar Tab

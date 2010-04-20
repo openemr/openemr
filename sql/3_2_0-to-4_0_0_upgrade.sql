@@ -373,3 +373,16 @@ CREATE TABLE lang_custom (
 ) ENGINE=MyISAM;
 #EndIf
 
+#IfNotRow2D list_options list_id lists option_id irnpool
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'irnpool','Invoice Reference Number Pools', 1,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('irnpool','main','Main',1,1,'000001');
+#EndIf
+
+#IfMissingColumn users irnpool
+ALTER TABLE users ADD irnpool varchar(31) NOT NULL DEFAULT '';
+#EndIf
+
+#IfMissingColumn form_encounter invoice_refno
+ALTER TABLE form_encounter ADD invoice_refno varchar(31) NOT NULL DEFAULT '';
+#EndIf
+

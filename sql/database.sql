@@ -487,6 +487,7 @@ CREATE TABLE `form_encounter` (
   `stmt_count`        int  NOT NULL DEFAULT 0,
   `provider_id` INT(11) DEFAULT '0' COMMENT 'default and main provider for this visit',
   `supervisor_id` INT(11) DEFAULT '0' COMMENT 'supervising provider, if any, for this visit',
+  `invoice_refno` varchar(31) NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
@@ -2158,6 +2159,9 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('note_type','New Orders' ,'New Orders', 20,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('note_type','Patient Reminders' ,'Patient Reminders', 25,0);
 
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'irnpool','Invoice Reference Number Pools', 1,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('irnpool','main','Main',1,1,'000001');
+
 -- --------------------------------------------------------
 
 -- 
@@ -2951,6 +2955,7 @@ CREATE TABLE `users` (
   `pwd_history1` longtext default NULL,
   `pwd_history2` longtext default NULL,
   `default_warehouse` varchar(31) NOT NULL DEFAULT '',
+  `irnpool` varchar(31) NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 

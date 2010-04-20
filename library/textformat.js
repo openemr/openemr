@@ -114,6 +114,19 @@ function dateblur(e, defcc, withtime) {
   }
  }
 
+ // A birth date may be just age in years, in which case we convert it.
+ if (ix == 0 && arr[0] > 0 && arr[0] <= 3 && e.name.indexOf('DOB') >= 0) {
+  var d = new Date();
+  d = new Date(d.getTime() - parseInt(v) * 365.25 * 24 * 60 * 60 * 1000);
+  var s = '' + d.getFullYear() + '-';
+  if (d.getMonth() < 9) s += '0';
+  s += (d.getMonth() + 1) + '-';
+  if (d.getDate() < 10) s += '0';
+  s += d.getDate();
+  e.value = s;
+  return;
+ }
+
  if ((!withtime && ix != 2) || (withtime && ix < 2) || arr[0] != 4 || arr[1] != 2 || arr[2] < 1) {
   if (confirm('Date entry is incomplete! Try again?'))
    e.focus();
@@ -215,3 +228,48 @@ function phonekeyup(e, defcc) {
 
  return;
 }
+
+// onKeyUp handler for mask-formatted fields.
+// This feature is experimental.
+function maskkeyup(elem, mask) {
+ if (!mask || mask.length == 0) return;
+ var i = 0; // elem and mask index
+ var v = elem.value;
+ for (; i < mask.length && i < v.length; ++i) {
+  var ec = v.charAt(i);
+  var mc = mask.charAt(i);
+  if (mc == '#' && (ec < '0' || ec > '9')) {
+   break;
+  }
+ }
+ v = v.substring(0, i);
+ while (i < mask.length) {
+  var mc = mask.charAt(i++);
+  if (mc == '*' || mc == '#') break;
+  v += mc;
+ }
+ elem.value = v;
+}
+
+// onBlur handler for mask-formatted fields.
+// This feature is experimental.
+function maskblur(elem, mask) {
+ var v = elem.value;
+ var i = mask.length;
+ if (i > 0 && v.length > 0 && v.length != i) {
+  for (; i > 0 && mask.charAt(i-1) == '#'; --i);
+  // i is now index to first # in # string at end of mask
+  if (i > v.length) {
+   if (confirm('Field entry is incomplete! Try again?'))
+    elem.focus();
+   else
+    elem.value = '';
+   return;
+  }
+  while (v.length < mask.length) {
+   v = v.substring(0, i) + '0' + v.substring(i, v.length);
+  }
+  elem.value = v;
+ }
+}
+

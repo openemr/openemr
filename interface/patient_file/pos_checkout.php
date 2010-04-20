@@ -25,6 +25,18 @@
 // (5) Receipt printing must be a separate operation from payment,
 //     and repeatable.
 
+
+// TBD:
+// If this user has 'irnpool' set
+//   on display of checkout form
+//     show pending next invoice number
+//   on applying checkout
+//     save next invoice number to form_encounter
+//     compute new next invoice number
+//   on receipt display
+//     show invoice number
+
+
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
@@ -33,7 +45,10 @@ require_once("$srcdir/sql-ledger.inc");
 require_once("$srcdir/freeb/xmlrpc.inc");
 require_once("$srcdir/freeb/xmlrpcs.inc");
 require_once("$srcdir/formatting.inc.php");
+require_once("$srcdir/formdata.inc.php");
 require_once("../../custom/code_types.inc.php");
+
+$currdecimals = $GLOBALS['currency_decimals'];
 
 $INTEGRATED_AR = $GLOBALS['oer_config']['ws_accounting']['enabled'] === 2;
 
@@ -41,6 +56,34 @@ $details = empty($_GET['details']) ? 0 : 1;
 
 // Get the patient's name and chart number.
 $patdata = getPatientData($pid, 'fname,mname,lname,pubpid,street,city,state,postal_code');
+
+// Get the "next invoice reference number" from this user's pool.
+//
+function getInvoiceRefNumber() {
+  $trow = sqlQuery("SELECT lo.notes " .
+    "FROM users AS u, list_options AS lo " .
+    "WHERE u.username = '" . $_SESSION['authUser'] . "' AND " .
+    "lo.list_id = 'irnpool' AND lo.option_id = u.irnpool LIMIT 1");
+  return empty($trow['notes']) ? '' : $trow['notes'];
+}
+
+// Increment the "next invoice reference number" of this user's pool.
+// This identifies the "digits" portion of that number and adds 1 to it.
+// If it contains more than one string of digits, the last is used.
+//
+function updateInvoiceRefNumber() {
+  $irnumber = getInvoiceRefNumber();
+  // Here "?" specifies a minimal match, to get the most digits possible:
+  if (preg_match('/^(.*?)(\d+)(\D*)$/', $irnumber, $matches)) {
+    $newdigs = sprintf('%0' . strlen($matches[2]) . 'd', $matches[2] + 1);
+    $newnumber = addslashes($matches[1] . $newdigs . $matches[3]);
+    sqlStatement("UPDATE users AS u, list_options AS lo " .
+      "SET lo.notes = '$newnumber' WHERE " .
+      "u.username = '" . $_SESSION['authUser'] . "' AND " .
+      "lo.list_id = 'irnpool' AND lo.option_id = u.irnpool");
+  }
+  return $irnumber;
+}
 
 //////////////////////////////////////////////////////////////////////
 // The following functions are inline here temporarily, and should be
@@ -147,12 +190,9 @@ function invoice_add_line_item(& $invoice_info, $code_type, $code,
   $tii['maincode'] = $code;
   $tii['itemtext'] = "$code_type:$code";
   if ($code_text) $tii['itemtext'] .= " $code_text";
-  // $tii['qty'] = 1;
-  // $tii['price'] = sprintf("%01.2f", $amount);
   $tii['qty'] = $units;
   $tii['price'] = $price;
   $tii['glaccountid'] = $GLOBALS['oer_config']['ws_accounting']['income_acct'];
-  // $invoice_info['total'] = sprintf("%01.2f", $invoice_info['total'] + $tii['price']);
   $invoice_info['total'] = sprintf("%01.2f", $invoice_info['total'] + $amount);
   $invoice_info['items'][] = $tii;
   return '';
@@ -283,6 +323,11 @@ function generate_receipt($patient_id, $encounter=0) {
       $svcdate = substr($tmp['date'], 0, 10);
     }
   } // end not $INTEGRATED_AR
+
+  // Get invoice reference number.
+  $encrow = sqlQuery("SELECT invoice_refno FROM form_encounter WHERE " .
+    "pid = '$patient_id' AND encounter = '$encounter' LIMIT 1");
+  $invoice_refno = $encrow['invoice_refno'];
 ?>
 <html>
 <head>
@@ -322,7 +367,11 @@ function generate_receipt($patient_id, $encounter=0) {
 <br><?php echo $frow['city'] . ', ' . $frow['state'] . ' ' . $frow['postal_code'] ?>
 <br><?php echo $frow['phone'] ?>
 <br>&nbsp;
-<br><?php echo xl("Receipt Generated") . date(' F j, Y') ?>
+<br>
+<?php
+  echo xl("Receipt Generated") . date(' F j, Y');
+  if ($invoice_refno) echo " " . xl("for Invoice") . " $invoice_refno";
+?>
 <br>&nbsp;
 </b></p>
 </center>
@@ -658,7 +707,12 @@ if ($_POST['form_save']) {
 
   // Post discount.
   if ($_POST['form_discount']) {
-    $amount  = sprintf('%01.2f', trim($_POST['form_discount']));
+    if ($GLOBALS['discount_by_money']) {
+      $amount  = sprintf('%01.2f', trim($_POST['form_discount']));
+    }
+    else {
+      $amount  = sprintf('%01.2f', trim($_POST['form_discount']) * $form_amount / 100);
+    }
     $memo = xl('Discount');
     if ($INTEGRATED_AR) {
       $time = date('Y-m-d H:i:s');
@@ -708,6 +762,20 @@ if ($_POST['form_save']) {
   if (!$INTEGRATED_AR) {
     $msg = invoice_post($invoice_info);
     if ($msg) die($msg);
+  }
+
+  // If applicable, set the invoice reference number.
+  $invoice_refno = '';
+  if (isset($_POST['form_irnumber'])) {
+    $invoice_refno = formData('form_irnumber', 'P', true);
+  }
+  else {
+    $invoice_refno = addslashes(updateInvoiceRefNumber());
+  }
+  if ($invoice_refno) {
+    sqlStatement("UPDATE form_encounter " .
+      "SET invoice_refno = '$invoice_refno' " .
+      "WHERE pid = '$form_pid' AND encounter = '$form_encounter'");
   }
 
   generate_receipt($form_pid, $form_encounter);
@@ -804,10 +872,10 @@ while ($urow = sqlFetchArray($ures)) {
    if (f[pfx + '[code_type]'].value != 'TAX') continue;
    if (f[pfx + '[code]'].value != rateid) continue;
    var tax = amount * parseFloat(f[pfx + '[taxrates]'].value);
-   tax = parseFloat(tax.toFixed(2));
+   tax = parseFloat(tax.toFixed(<?php echo $currdecimals ?>));
    var cumtax = parseFloat(f[pfx + '[price]'].value) + tax;
-   f[pfx + '[price]'].value  = cumtax.toFixed(2); // requires JS 1.5
-   if (visible) f[pfx + '[amount]'].value = cumtax.toFixed(2); // requires JS 1.5
+   f[pfx + '[price]'].value  = cumtax.toFixed(<?php echo $currdecimals ?>); // requires JS 1.5
+   if (visible) f[pfx + '[amount]'].value = cumtax.toFixed(<?php echo $currdecimals ?>); // requires JS 1.5
    if (isNaN(tax)) alert('Tax rate not numeric at line ' + lino);
    return tax;
   }
@@ -827,19 +895,13 @@ while ($urow = sqlFetchArray($ures)) {
    if (isNaN(price)) alert('Price not numeric at line ' + lino);
    if (code_type == 'COPAY' || code_type == 'TAX') {
     // This works because the tax lines come last.
-    total += parseFloat(price.toFixed(2));
+    total += parseFloat(price.toFixed(<?php echo $currdecimals ?>));
     continue;
    }
    var units = f['line[' + lino + '][units]'].value;
    var amount = price * units;
-   /******************************************************************
-   if (discount > 0) {
-    // Force a discounted amount based on a whole number of cents per unit.
-    amount = ((amount * (100 - discount) / 100) / units).toFixed(2) * units;
-   }
-   ******************************************************************/
-   amount = parseFloat(amount.toFixed(2));
-   if (visible) f['line[' + lino + '][amount]'].value = amount.toFixed(2);
+   amount = parseFloat(amount.toFixed(<?php echo $currdecimals ?>));
+   if (visible) f['line[' + lino + '][amount]'].value = amount.toFixed(<?php echo $currdecimals ?>);
    total += amount;
    var taxrates  = f['line[' + lino + '][taxrates]'].value;
    var taxids = taxrates.split(':');
@@ -855,20 +917,14 @@ while ($urow = sqlFetchArray($ures)) {
   var f = document.forms[0];
   var discount = parseFloat(f.form_discount.value);
   if (isNaN(discount)) discount = 0;
-  /*******************************************************************
-<?php if ($GLOBALS['discount_by_money']) { ?>
-  // This site discounts by dollars instead of percentage.
-  // We first compute an undiscounted total and then convert
-  // the dollar discount to a percentage of the total,  This might
-  // introduce a bit of round-off error.
-  discount = 100 * discount / computeDiscountedTotals(0, false);
-<?php } ?>
-  if (isNaN(discount) || discount > 1000) discount = 0;
+<?php if (!$GLOBALS['discount_by_money']) { ?>
+  // This site discounts by percentage, so convert it to a money amount.
   if (discount > 100) discount = 100;
   if (discount < 0  ) discount = 0;
-  *******************************************************************/
+  discount = 0.01 * discount * computeDiscountedTotals(0, false);
+<?php } ?>
   var total = computeDiscountedTotals(discount, true);
-  f.form_amount.value = total.toFixed(2);
+  f.form_amount.value = total.toFixed(<?php echo $currdecimals ?>);
   return true;
  }
 
@@ -930,11 +986,6 @@ while ($brow = sqlFetchArray($bres)) {
     $taxrates = $tmp['taxrates'];
     $related_code = $tmp['related_code'];
     markTaxes($taxrates);
-    /*****************************************************************
-    // catch provider id from non-copay items if we do not have it yet.
-    if (!$inv_provider && !empty($arr_users[$brow['provider_id']]))
-      $inv_provider = $brow['provider_id'] + 0;
-    *****************************************************************/
   }
 
   write_form_line($code_type, $brow['code'], $brow['id'], $thisdate,
@@ -990,17 +1041,6 @@ foreach ($taxes as $key => $value) {
 // Note that we don't try to get anything from the ar_activity table.  Since
 // this is the checkout, nothing should be there yet for this invoice.
 
-/*********************************************************************
-// If there were only products without prescriptions then there is no
-// provider yet, so get it from the encounter.
-if ($inv_encounter && !$inv_provider) {
-  $erow = sqlQuery("SELECT users.id FROM forms, users WHERE " .
-    "forms.encounter = '$inv_encounter' AND " .
-    "forms.formdir = 'newpatient' AND " .
-    "users.username = forms.user LIMIT 1");
-  $inv_provider = $erow['id'] + 0;
-}
-*********************************************************************/
 if ($inv_encounter) {
   $erow = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .
     "pid = '$pid' AND encounter = '$inv_encounter' " .
@@ -1011,11 +1051,11 @@ if ($inv_encounter) {
 </table>
 
 <p>
-<table border='0' cellspacing='8'>
+<table border='0' cellspacing='4'>
 
  <tr>
   <td>
-   <?php xl('Discount Amount','e'); ?>:
+   <?php echo $GLOBALS['discount_by_money'] ? xl('Discount Amount') : xl('Discount Percentage'); ?>:
   </td>
   <td>
    <input type='text' name='form_discount' size='6' maxlength='8' value=''
@@ -1071,6 +1111,40 @@ if ($inv_encounter) {
     title='Click here to choose a date'>
   </td>
  </tr>
+
+<?php
+// If this user has a non-empty irnpool assigned, show the pending
+// invoice reference number.
+$irnumber = getInvoiceRefNumber();
+if (!empty($irnumber)) {
+?>
+ <tr>
+  <td>
+   <?php xl('Tentative Invoice Ref No','e'); ?>:
+  </td>
+  <td>
+   <?php echo $irnumber; ?>
+  </td>
+ </tr>
+<?php
+}
+// Otherwise if there is an invoice reference number mask, ask for the refno.
+else if (!empty($GLOBALS['gbl_mask_invoice_number'])) {
+?>
+ <tr>
+  <td>
+   <?php xl('Invoice Reference Number','e'); ?>:
+  </td>
+  <td>
+   <input type='text' name='form_irnumber' size='10' value=''
+    onkeyup='maskkeyup(this,"<?php echo addslashes($GLOBALS['gbl_mask_invoice_number']); ?>")'
+    onblur='maskblur(this,"<?php echo addslashes($GLOBALS['gbl_mask_invoice_number']); ?>")'
+    />
+  </td>
+ </tr>
+<?php
+}
+?>
 
  <tr>
   <td colspan='2' align='center'>

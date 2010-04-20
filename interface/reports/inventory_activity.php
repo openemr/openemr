@@ -76,13 +76,13 @@ function getEndInventory($product_id = 0, $warehouse_id = '~') {
 }
 
 function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
-  $rowprod, $rowwh, $transdate, $qtys)
+  $rowprod, $rowwh, $transdate, $qtys, $irnumber='')
 {
   global $warehouse, $product, $secqtys, $priqtys, $grandqtys;
   global $whleft, $prodleft; // left 2 columns, blank where repeated
   global $last_warehouse_id, $last_product_id, $product_first;
 
-  $invnumber = $patient_id ? "$patient_id.$encounter_id" : "";
+  $invnumber = empty($irnumber) ? ($patient_id ? "$patient_id.$encounter_id" : "") : $irnumber;
 
   // Product name for this detail line item.
   if (empty($rowprod)) $rowprod = 'Unnamed Product';
@@ -454,7 +454,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
   *******************************************************************/
   $query = "SELECT s.sale_id, s.sale_date, s.quantity, s.pid, s.encounter, " .
     "s.xfer_inventory_id, d.name, lo.title, di.drug_id, di.warehouse_id, " .
-    "di.inventory_id " .
+    "di.inventory_id, fe.invoice_refno " .
     "FROM drug_inventory AS di " .
     "JOIN drugs AS d ON d.drug_id = di.drug_id " .
     "LEFT JOIN drug_sales AS s ON " .
@@ -463,6 +463,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     "( s.inventory_id = di.inventory_id OR s.xfer_inventory_id = di.inventory_id ) " .
     "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
     "lo.option_id = di.warehouse_id " .
+    "LEFT JOIN form_encounter AS fe ON fe.pid = s.pid AND fe.encounter = s.encounter " .
     "WHERE ( di.destroy_date IS NULL OR di.destroy_date > '$form_from_date' )";
 
   // If a product was specified.
@@ -496,7 +497,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     }
     thisLineItem($row['drug_id'], $row['warehouse_id'], $row['pid'] + 0,
       $row['encounter'] + 0, $row['name'], $row['title'], $row['sale_date'],
-      $qtys);
+      $qtys, $row['invoice_refno']);
   }
 
   // Generate totals for last product and warehouse.

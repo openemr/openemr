@@ -31,13 +31,13 @@ function bucks($amount) {
 }
 
 function thisLineItem($patient_id, $encounter_id, $memo, $transdate,
-  $rowmethod, $rowpayamount, $rowadjamount, $payer_type=0)
+  $rowmethod, $rowpayamount, $rowadjamount, $payer_type=0, $irnumber='')
 {
   global $form_report_by, $insarray, $grandpaytotal, $grandadjtotal;
 
   if ($form_report_by != '1') { // reporting by method or check number
     showLineItem($patient_id, $encounter_id, $memo, $transdate,
-      $rowmethod, $rowpayamount, $rowadjamount, $payer_type);
+      $rowmethod, $rowpayamount, $rowadjamount, $payer_type, $irnumber);
     return;
   }
 
@@ -46,7 +46,7 @@ function thisLineItem($patient_id, $encounter_id, $memo, $transdate,
   if ($_POST['form_details']) { // details are wanted
     // Save everything for later sorting.
     $insarray[] = array($patient_id, $encounter_id, $memo, $transdate,
-      $rowmethod, $rowpayamount, $rowadjamount, $payer_type);
+      $rowmethod, $rowpayamount, $rowadjamount, $payer_type, $irnumber);
   }
   else { // details not wanted
     if (empty($insarray[$rowmethod])) $insarray[$rowmethod] = array(0, 0);
@@ -58,14 +58,14 @@ function thisLineItem($patient_id, $encounter_id, $memo, $transdate,
 }
 
 function showLineItem($patient_id, $encounter_id, $memo, $transdate,
-  $rowmethod, $rowpayamount, $rowadjamount, $payer_type=0)
+  $rowmethod, $rowpayamount, $rowadjamount, $payer_type=0, $irnumber='')
 {
   global $paymethod, $paymethodleft, $methodpaytotal, $methodadjtotal,
     $grandpaytotal, $grandadjtotal, $showing_ppd;
 
   if (! $rowmethod) $rowmethod = 'Unknown';
 
-  $invnumber = "$patient_id.$encounter_id";
+  $invnumber = $irnumber ? $irnumber : "$patient_id.$encounter_id";
 
   if ($paymethod != $rowmethod) {
     if ($paymethod) {
@@ -387,7 +387,7 @@ if ($_POST['form_refresh']) {
     //
     if (!$form_cptcode) {
       $query = "SELECT b.fee, b.pid, b.encounter, b.code_type, " .
-        "fe.date, fe.facility_id " .
+        "fe.date, fe.facility_id, fe.invoice_refno " .
         "FROM billing AS b " .
         "JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter " .
         "WHERE b.code_type = 'COPAY' AND b.activity = 1 AND b.fee != 0 AND " .
@@ -400,7 +400,7 @@ if ($_POST['form_refresh']) {
       while ($row = sqlFetchArray($res)) {
         $rowmethod = $form_report_by == 1 ? 'Patient' : 'Co-Pay';
         thisLineItem($row['pid'], $row['encounter'], $row['code_text'],
-          substr($row['date'], 0, 10), $rowmethod, 0 - $row['fee'], 0);
+          substr($row['date'], 0, 10), $rowmethod, 0 - $row['fee'], 0, 0, $row['invoice_refno']);
       }
     } // end if not form_cptcode
 
@@ -409,7 +409,7 @@ if ($_POST['form_refresh']) {
     //
     $query = "SELECT a.pid, a.encounter, a.post_time, a.pay_amount, " .
       "a.adj_amount, a.memo, a.session_id, a.code, a.payer_type, fe.id, fe.date, " .
-      "s.deposit_date, s.payer_id, s.reference, i.name " .
+      "fe.invoice_refno, s.deposit_date, s.payer_id, s.reference, i.name " .
       "FROM ar_activity AS a " .
       "JOIN form_encounter AS fe ON fe.pid = a.pid AND fe.encounter = a.encounter " .
       "JOIN forms AS f ON f.pid = a.pid AND f.encounter = a.encounter AND f.formdir = 'newpatient' " .
@@ -468,7 +468,8 @@ if ($_POST['form_refresh']) {
       }
       //
       thisLineItem($row['pid'], $row['encounter'], $row['code'], $thedate,
-        $rowmethod, $row['pay_amount'], $row['adj_amount'], $row['payer_type']);
+        $rowmethod, $row['pay_amount'], $row['adj_amount'], $row['payer_type'],
+        $row['invoice_refno']);
     }
   } // end $INTEGRATED_AR
   else {
@@ -570,13 +571,13 @@ if ($_POST['form_refresh']) {
             $b[5] += $a[5];
             $b[6] += $a[6];
           } else {
-            showLineItem($b[0], $b[1], $b[2], $b[3], $b[4], $b[5], $b[6], $b[7]);
+            showLineItem($b[0], $b[1], $b[2], $b[3], $b[4], $b[5], $b[6], $b[7], $b[8]);
             $b = $a;
           }
         }
       }
       if (!empty($b)) {
-        showLineItem($b[0], $b[1], $b[2], $b[3], $b[4], $b[5], $b[6], $b[7]);
+        showLineItem($b[0], $b[1], $b[2], $b[3], $b[4], $b[5], $b[6], $b[7], $b[8]);
       }
     } // end by payer with details
 

@@ -115,6 +115,11 @@ function generate_form_field($frow, $currvalue) {
       " value='$currescaped'";
     if (strpos($frow['edit_options'], 'C') !== FALSE)
       echo " onchange='capitalizeMe(this)'";
+    $tmp = addslashes($GLOBALS['gbl_mask_patient_id']);
+    if ($field_id == 'pubpid' && strlen($tmp) > 0) {
+      echo " onkeyup='maskkeyup(this,\"$tmp\")'";
+      echo " onblur='maskblur(this,\"$tmp\")'";
+    }
     echo " />";
   }
 

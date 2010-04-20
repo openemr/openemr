@@ -98,6 +98,12 @@ if ($_GET["mode"] == "update") {
       "' WHERE id = '" . $formData('id','G') . "'");
   }
 
+  if (isset($_GET['irnpool'])) {
+    sqlStatement("UPDATE users SET irnpool = '" .
+      formData('irnpool','G') .
+      "' WHERE id = '" . $formData('id','G') . "'");
+  }
+
   if ($_GET["newauthPass"] && $_GET["newauthPass"] != "d41d8cd98f00b204e9800998ecf8427e") { // account for empty
     $tqvar = formData('newauthPass','G');
     sqlStatement("update users set password='$tqvar' where id={$_GET["id"]}");
@@ -412,8 +418,8 @@ foreach($result as $iter2) {
 </tr>
 <!-- END (CHEMED) Calendar UI preference -->
 
-<tr>
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
+<tr>
  <td class="text"><?php xl('Default Warehouse','e'); ?>: </td>
  <td class='text'>
 <?php
@@ -421,11 +427,15 @@ echo generate_select_list('default_warehouse', 'warehouse',
   $iter['default_warehouse'], '');
 ?>
  </td>
-<?php } else { ?>
- <td></td><td></td>
-<?php } ?>
- <td></td><td></td> <!-- This space available -->
+ <td class="text"><?php xl('Invoice Refno Pool','e'); ?>: </td>
+ <td class='text'>
+<?php
+echo generate_select_list('irnpool', 'irnpool', $iter['irnpool'],
+  'Invoice reference number pool, if used');
+?>
+ </td>
 </tr>
+<?php } ?>
 
 <?php
  // Collect the access control group of user

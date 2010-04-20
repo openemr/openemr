@@ -120,6 +120,12 @@ if ($_GET["privatemode"]=="user_admin") {
           "' WHERE id = '" . formData('id','G') . "'");
       }
 
+      if (isset($_GET['irnpool'])) {
+        sqlStatement("UPDATE users SET irnpool = '" .
+          formData('irnpool','G') .
+          "' WHERE id = '" . formData('id','G') . "'");
+      }
+
      if ($_GET["newauthPass"] && $_GET["newauthPass"] != "d41d8cd98f00b204e9800998ecf8427e") { // account for empty
 	$tqvar = formData('newauthPass','G');
 // When the user password is updated and the password history option is enabled, update the password history in database. A new password expiration is also calculated
@@ -220,8 +226,9 @@ if (isset($_POST["mode"])) {
         "', facility_id = '"   . trim(formData('facility_id'  )) .
         "', specialty = '"     . trim(formData('specialty'    )) .
         "', see_auth = '"      . trim(formData('see_auth'     )) .
-	    "', cal_ui = '"        . trim(formData('cal_ui'       )) .
+        "', cal_ui = '"        . trim(formData('cal_ui'       )) .
         "', default_warehouse = '" . trim(formData('default_warehouse')) .
+        "', irnpool = '"       . trim(formData('irnpool'      )) .
         "', calendar = '"      . $calvar                         .
         "', pwd_expiration_date = '" . trim("$exp_date") .
         "'");

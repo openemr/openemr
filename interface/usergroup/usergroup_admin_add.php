@@ -4,6 +4,7 @@ require_once("../../library/acl.inc");
 require_once("$srcdir/md5.js");
 require_once("$srcdir/sql.inc");
 require_once("$srcdir/formdata.inc.php");
+require_once("$srcdir/options.inc.php");
 require_once(dirname(__FILE__) . "/../../library/classes/WSProvider.class.php");
 
 $alertmsg = '';
@@ -163,6 +164,25 @@ if ($fres) {
 </select></td>
 </tr>
 <!-- END (CHEMED) Calendar UI preference -->
+
+<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
+<tr>
+ <td class="text"><?php xl('Default Warehouse','e'); ?>: </td>
+ <td class='text'>
+<?php
+echo generate_select_list('default_warehouse', 'warehouse',
+  '', '');
+?>
+ </td>
+ <td class="text"><?php xl('Invoice Refno Pool','e'); ?>: </td>
+ <td class='text'>
+<?php
+echo generate_select_list('irnpool', 'irnpool', '',
+  'Invoice reference number pool, if used');
+?>
+ </td>
+</tr>
+<?php } ?>
 
 <?php
  // List the access control groups if phpgacl installed

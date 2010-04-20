@@ -50,18 +50,4 @@ function oeFormatClientID($id) {
   return $id;
 }
 
-function oeFormatInventoryID($id) {
-
-  // TBD
-
-  return $id;
-}
-
-function oeFormatInvoiceNumber($invno) {
-
-  // TBD
-
-  return $invno;
-}
-
 ?>
