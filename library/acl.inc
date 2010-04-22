@@ -14,10 +14,14 @@
   //which are run from main OpenEMR directory.
   $phpgacl_location = "gacl";
  }
+ if (isset ($GLOBALS['phpmyadmin_acl_check'])) {
+   //use for phpmyadmin acl check (ie. no globals.php is included)
+   $phpgacl_location = "../gacl";
+ }
 //
 // If using an external version of phpGACL, then uncomment the following
 // line and manually place the path below.  IN THIS CASE YOU MUST ALSO
-// COMMENT OUT BOTH $phpgacl_location ASSIGNMENTS ABOVE, OR BACKUPS WILL
+// COMMENT OUT ALL THREE $phpgacl_location ASSIGNMENTS ABOVE, OR BACKUPS WILL
 // NOT RESTORE PROPERLY!
 //
 //$phpgacl_location = "/var/www/gacl";
