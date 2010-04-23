@@ -140,6 +140,51 @@ function validate(f) {
  return true;
 }
 
+<!-- Get current date -->
+
+function getFormattedToday() 
+{
+   var today = new Date();
+   var dd = today.getDate();
+   var mm = today.getMonth()+1; //January is 0!
+   var yyyy = today.getFullYear();
+   if(dd<10){dd='0'+dd}
+   if(mm<10){mm='0'+mm}
+
+   return (yyyy + '-' + mm + '-' + dd);
+}
+
+<!-- Update Payment Fields -->
+
+function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
+{
+   var payAmount = 0.0;
+   var adjAmount = 0.0;
+   var balAmount = 0.0;
+   var coPayAmount = 0.0;
+   
+   // coPayFiled will be null if there is no co-pay entry in the fee sheet
+   if (coPayField)
+      coPayAmount = coPayField.value;
+
+   // if balance field is 0.00, its value comes back as null, so check for nul-ness first
+   if (balField)
+      balAmount = (balField.value) ? balField.value : 0;
+   if (payField)
+      payAmount = (payField.value) ? payField.value : 0;
+
+   //alert('balance = >' + balAmount +'<  payAmount = ' + payAmount + '  copay = ' + coPayAmount + '  isFirstProcCode = ' + isFirstProcCode);
+
+   // subtract the co-pay only from the first procedure code
+   if (isFirstProcCode == 1)
+      balAmount = parseFloat(balAmount) + parseFloat(coPayAmount);
+
+   adjAmount = balAmount - payAmount;
+   
+   // Assign rounded adjustment value back to TextField
+   adjField.value = adjAmount = Math.round(adjAmount*100)/100;
+}
+
 </script>
 </head>
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
@@ -576,11 +621,17 @@ function validate(f) {
   </td>
  </tr>
 <?php
+  $firstProcCodeIndex = -1;
   $encount = 0;
   foreach ($codes as $code => $cdata) {
    ++$encount;
    $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
    $dispcode = $code;
+
+   // remember the index of the first entry whose code is not "CO-PAY", i.e. it's a legitimate proc code
+   if ($firstProcCodeIndex == -1 && strcmp($code, "CO-PAY") !=0)
+    $firstProcCodeIndex = $encount;
+
    // this sorts the details more or less chronologically:
    ksort($cdata['dtl']);
    foreach ($cdata['dtl'] as $dkey => $ddata) {
@@ -667,10 +718,16 @@ function validate(f) {
   </td>
   <td class="detail">
    <input type="text" name="form_line[<?php echo $code ?>][pay]" size="10"
-    style="background-color:<?php echo $bgcolor ?>" />
+    style="background-color:<?php echo $bgcolor ?>" 
+    onKeyUp="updateFields(document.forms[0]['form_line[<?php echo $code ?>][pay]'], 
+                          document.forms[0]['form_line[<?php echo $code ?>][adj]'],
+                          document.forms[0]['form_line[<?php echo $code ?>][bal]'],
+                          document.forms[0]['form_line[CO-PAY][bal]'],
+                          <?php echo ($firstProcCodeIndex == $encount) ? 1 : 0 ?>)"/>
   </td>
   <td class="detail">
    <input type="text" name="form_line[<?php echo $code ?>][adj]" size="10"
+    value='<?php echo $totalAdjAmount ?>' 
     style="background-color:<?php echo $bgcolor ?>" />
    &nbsp; <a href="" onclick="return writeoff('<?php echo $code ?>')">W</a>
   </td>
@@ -711,7 +768,11 @@ while ($orow = sqlFetchArray($ores)) {
     // These support creation and lookup of ar_session table entries:
     echo "  f2.form_reference.value         = f1.form_source.value;\n";
     echo "  f2.form_check_date.value        = f1.form_paydate.value;\n";
-    echo "  f2.form_deposit_date.value      = f1.form_deposit_date.value;\n";
+    echo "  //f2.form_deposit_date.value      = f1.form_deposit_date.value;\n";
+    echo "  if (f1.form_deposit_date.value != '')\n";
+    echo "     f2.form_deposit_date.value      = f1.form_deposit_date.value;\n";
+    echo "  else\n";
+    echo "     f2.form_deposit_date.value      = getFormattedToday();\n";
     echo "  f2.form_payer_id.value          = f1.form_payer_id.value;\n";
     echo "  f2.form_pay_total.value         = f1.form_amount.value;\n";
     echo "  f2.form_orig_reference.value    = f1.form_source.value;\n";
