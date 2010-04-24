@@ -604,7 +604,7 @@ $GLOBALS_METADATA = array(
     ),
 
     'EMAIL_NOTIFICATION_HOUR' => array(
-      xl('EMAIL Notification Hours'),
+      xl('Email Notification Hours'),
       'num',                            // data type
       '50',                             // default
       xl('Number of hours in advance to send email notifications.')

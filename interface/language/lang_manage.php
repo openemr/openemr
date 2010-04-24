@@ -140,12 +140,12 @@ if ($_POST['check'] || $_POST['synchronize']){
 <FORM name="manage_form" METHOD=POST ACTION="?m=manage" onsubmit="return top.restoreSession()">
   <TR>
     <TD><INPUT TYPE="submit" name="check" value="<?php xl('Check','e'); ?>"></TD>
-    <TD class="text"> <?php xl('(Check for Differences of Translations with Custom Language Table)','e'); ?></TD>  
+    <TD class="text">(<?php xl('Check for differences of translations with custom language table.','e'); ?>)</TD>  
   </TR>
   <TR></TR>
   <TR>
     <TD><INPUT TYPE="submit" name="synchronize" value="<?php xl('Synchronize','e'); ?>"></TD>
-    <TD class="text"> <?php xl('(Synchronize Translations with Custom Language Table)','e'); ?></TD>
+    <TD class="text">(<?php xl('Synchronize translations with custom language table.','e'); ?>)</TD>
   </TR>
 </FORM>
 </TABLE>	

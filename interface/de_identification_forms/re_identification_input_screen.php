@@ -79,8 +79,8 @@ function download_file()
 		<br>
         <?php echo xl('Please upgrade OpenEMR Database to include De Identification procedures, function, tables'); ?>
 	</br></br><a  target="Blank" href="../../contrib/util/de_identification_upgrade.php"><?php echo xl('Click here');?></a>
-	<?php echo xl('to Run de_identification_upgrade.php'); 
-    	echo "</br>";	?>      <br>
+	<?php echo xl('to run'); 
+    	echo " de_identification_upgrade.php</br>";?><br>
 		</td>
 		<td>&nbsp;</td>
 	</tr>    
@@ -152,7 +152,7 @@ function download_file()
 	</br>
 		<?php xl('Enter the Re Identification code','e'); ?> <input
 	type='text' size='50' name='re_id_code' id='re_id_code'
-	title='<?php xl('enter single Re Identification code','e'); ?>' /> </br>
+	title='<?php xl('Enter the Re Identification code','e'); ?>' /> </br>
 	</br>
 	<Input type="Submit" Name="Submit" Value=<?php echo xl("submit");?>></center>
 		<?php

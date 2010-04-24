@@ -107,7 +107,7 @@ function check_search_str()
  var search_str = document.getElementById('search_term').value;
  if(search_str.length < 3)
  {
-  alert('<?php echo xl("Search string should have atleast three characters");?>');
+  alert('<?php echo xl("Search string should have at least three characters");?>');
   return false;
  }
  top.restoreSession();
@@ -226,13 +226,13 @@ else {
  </table>
 <center>
 </br>
- <input type='button' id='select_all' value='<?php xl('select all','e'); ?>' onclick="chkbox_select_all(document.select_diagonsis.chkbox);"/>
+ <input type='button' id='select_all' value='<?php xl('Select All','e'); ?>' onclick="chkbox_select_all(document.select_diagonsis.chkbox);"/>
  
- <input type='button' id='unselect_all' value='<?php xl('unselect all','e'); ?>' onclick="chkbox_select_none(document.select_diagonsis.chkbox);"/>
+ <input type='button' id='unselect_all' value='<?php xl('Unselect All','e'); ?>' onclick="chkbox_select_none(document.select_diagonsis.chkbox);"/>
  
- <input type='button' id='submit' value='<?php xl('submit','e'); ?>' onclick="window_submit(document.select_diagonsis.chkbox);"/>
+ <input type='button' id='submit' value='<?php xl('Submit','e'); ?>' onclick="window_submit(document.select_diagonsis.chkbox);"/>
  
- <input type='button' id='cancel' value='<?php xl('cancel','e'); ?>' onclick="window_close();"/>
+ <input type='button' id='cancel' value='<?php xl('Cancel','e'); ?>' onclick="window_close();"/>
  
 </center> 
 <?php } ?>

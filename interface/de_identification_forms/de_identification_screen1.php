@@ -261,8 +261,8 @@ function download_file()
 		<br>
         <?php echo xl('Please upgrade OpenEMR Database to include De Identification procedures, function, tables'); ?>
 	</br></br><a  target="Blank" href="../../contrib/util/de_identification_upgrade.php"><?php echo xl('Click here');?></a>
-	<?php echo xl('to Run de_identification_upgrade.php'); 
-    	echo "</br>";	?>      <br>
+	<?php echo xl('to run'); 
+    	echo " de_identification_upgrade.php</br>";?><br>
 		</td>
 		<td>&nbsp;</td>
 	</tr>    
@@ -508,10 +508,10 @@ function download_file()
 				</td>
 			</tr>
 			<tr> <td class="style1"> 
-				<input type="button" name="add_diagnosis" id = "add_diagnosis" value=<?php echo xl("add diagnosis"); ?> onclick="get_values('diagnosis')">
-				<input type="button" name="remove_diagnosis" id="remove_diagnosis"value=<?php echo xl("remove"); ?> onclick="remove_selected('diagnosis')">&nbsp; </td> <td class="style1"> 
-				<input type="button" name="add_drug" id="add_drug" value=<?php echo xl("add drug"); ?> onclick="get_values('drugs')">
-				<input type="button" name="remove_drug" id="remove_drug" value=<?php echo xl("remove"); ?> onclick="remove_selected('drugs')"> 
+				<input type="button" name="add_diagnosis" id = "add_diagnosis" value=<?php echo xl("Add Diagnosis"); ?> onclick="get_values('diagnosis')">
+				<input type="button" name="remove_diagnosis" id="remove_diagnosis"value=<?php echo xl("Remove"); ?> onclick="remove_selected('diagnosis')">&nbsp; </td> <td class="style1"> 
+				<input type="button" name="add_drug" id="add_drug" value=<?php echo xl("Add Drug"); ?> onclick="get_values('drugs')">
+				<input type="button" name="remove_drug" id="remove_drug" value=<?php echo xl("Remove"); ?> onclick="remove_selected('drugs')"> 
 			</td> </tr>
 		</table>
 		</td>
@@ -527,8 +527,8 @@ function download_file()
 		<span class="text"><?php xl('Select Immunizations','e'); ?></span> <br>
 		<select id="immunization_list" name="immunization_list" size="10" width="300" style="width: 30%">
 		</select> <br>
-		<input type="button" name="add_immunization" id="add_immunization" value=<?php echo xl("add immunization"); ?> onclick="get_values('immunizations')">
-		<input type="button" name="remove_immunization" id="remove_immunization" value=<?php echo xl("remove"); ?> onclick="remove_selected('immunizations')">
+		<input type="button" name="add_immunization" id="add_immunization" value=<?php echo xl("Add Immunization"); ?> onclick="get_values('immunizations')">
+		<input type="button" name="remove_immunization" id="remove_immunization" value=<?php echo xl("Remove"); ?> onclick="remove_selected('immunizations')">
 		<br>
 &nbsp;</td>
 		<td>&nbsp;</td>

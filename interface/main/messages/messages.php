@@ -216,7 +216,7 @@ $(document).ready(function(){
     var NewNote = function () {
         top.restoreSession();
       if (document.forms[0].reply_to.value.length == 0) {
-       alert('<?php xl('Please choose a value for Re!', 'e') ?>');
+       alert('<?php xl('Please choose a patient', 'e') ?>');
       }
       else
       {

@@ -45,7 +45,7 @@ function upgradeFromSqlFile($filename) {
 
   $fd = fopen($fullname, 'r');
   if ($fd == FALSE) {
-    echo xl("ERROR.  Could not open"); echo " ".$fullname."\n";
+    echo xl("Error, unable to open file"); echo " ".$fullname."\n";
     flush();
     break;
   }
@@ -138,9 +138,9 @@ if (!empty($_POST['form_submit'])) {
   }  $login=$sqlconf["login"];   $loginhost=$sqlconf["host"];
   mysql_select_db($sqlconf['dbase']) or die(mysql_error());
   if (mysql_query("GRANT FILE ON *.* TO '$login'@'$loginhost'",$dbh) == FALSE) {
-		echo xl("ERROR when granting file privilege to the OpenEMR user."); echo "\n";
+		echo xl("Error when granting file privilege to the OpenEMR user."); echo "\n";
       echo "<p>".mysql_error()." (#".mysql_errno().")\n";
-		echo xl("ERROR."); echo "\n";
+		echo xl("Error"); echo "\n";
 		break;
 	}
         else
@@ -159,12 +159,12 @@ function form_validate()
 {
  if(document.forms[0].root_user_name.value == "")
  { 
-  alert("<?php echo xl('Enter root Username');?>");
+  alert("<?php echo xl('Enter Database root Username');?>");
   return false;
  }
  /*if(document.forms[0].root_user_pass.value == "")
  { 
-  alert("<?php echo xl('Enter root Password');?>");
+  alert("<?php echo xl('Enter Database root Password');?>");
   return false;
  }*/
  return true;
@@ -190,7 +190,7 @@ else
 		<td><?php xl('Enter Database root Username','e'); ?></td>
 		<td>:</td>
 		<td> <input type='text' size='20' name='root_user_name' id='root_user_name'
-			value= "" title="<?php xl('Enter root username','e'); ?>" /> </td>
+			value= "" title="<?php xl('Enter Database root Username','e'); ?>" /> </td>
 		<td>&nbsp;</td>
 	</tr>
 	<tr valign="top">
@@ -198,7 +198,7 @@ else
 		<td><?php xl('Enter Database root Password','e'); ?></td>
 		<td>:</td>
 		<td><input type='password' size='20' name='root_user_pass' id='root_user_pass'
-			value= "" title="<?php xl('Enter root password','e'); ?>" /> </td>
+			value= "" title="<?php xl('Enter Database root Password','e'); ?>" /> </td>
 		<td>&nbsp;</td>
 	</tr>   
 	<tr><td>&nbsp;</td><td colspan=3 align=center>&nbsp;</td><td>&nbsp;</td></tr>  
