@@ -46,6 +46,7 @@ Contact Email Address
 Contact Lenses
 Contraceptive Complication (specify)
 Contraceptives Start
+Corrected
 Counseling activities
 Counter-Referral
 Coupon
@@ -110,6 +111,7 @@ Final
 Final diagnosis by specialist
 Findings by specialist
 FL
+Forwarded
 G/DL
 Gall Bladder Condition
 Gastro Pain
@@ -137,6 +139,7 @@ HMOL/L
 Home Phone Number
 Homeless or similar?
 Homeless, etc.
+How did they hear about us
 Hypertension
 Imaging Service
 Immunization Service
@@ -144,11 +147,13 @@ Improved
 In Office
 Include Vitals
 Include vitals data?
+Incomplete
 Infertility
 Influenza 1
 Influenza 2
 Injection
 Interpreter needed?
+Invoice Reference Number Pools
 IPV 1
 IPV 2
 IPV 3
@@ -156,6 +161,7 @@ IPV 4
 IU/L
 Joint Pain
 Lab Report
+Lab Results
 Lab Service
 Last Activity Date
 Layout-Based Visit Forms
@@ -168,10 +174,12 @@ login
 logout
 Low
 Lunch
+Main
 Married
 Medium
 Menstrual Flow
 Menstrual Frequency
+Message Status
 mg/2cc
 mg/3cc
 mg/4cc
@@ -201,6 +209,7 @@ Negative
 Neuro Numbness
 Neuro Weakness
 New Document
+New Orders
 Newspaper
 No Show
 Noninsulin Dependent Diabetes
@@ -218,6 +227,7 @@ Overweight
 Patient ID card
 Patient Information
 Patient Note Types
+Patient Reminders
 Pending followup
 Percent
 Percentile
@@ -253,6 +263,7 @@ Psych Diagnosis
 Psych Medication
 Radio
 Ratio
+Read
 Reason for referral
 Recommendation
 Recommendations by specialist
