@@ -112,15 +112,13 @@ refer to openemr/library/translation.inc.php for more details.
 
 V. Configure the Customization Log (for OpenEMR version 3.2)
 
-This will require a minor modification to a page and a new mysql table
-(lang_custom).
+This will require a new mysql table(lang_custom):
 
-STEP 1: Edit interface/language/language.php at top of
-the script, set the $enable_custom_language_logging variable to true.
-
-STEP 2: Within OpenEMR, go to Administration->Database screen. Then
-click 'openemr' on top left of phpmyadmin screen. Then click 'SQL' tab
-on the screen. Then copy/paste below text, and click 'Go' button:
+STEPS TO INSTALL NEW TABLE: Within OpenEMR, go to Administration->Database
+screen. Scroll through the tables on left to ensure the lang_custom
+table does not already exist. If the lang_custom table does not exist,
+then click 'openemr' on top left of phpmyadmin screen. Then click
+'SQL' tab on the screen. Then copy/paste below text, and click 'Go' button:
 CREATE TABLE lang_custom (
  lang_description varchar(100) NOT NULL default '',
  lang_code char(2) NOT NULL default '',

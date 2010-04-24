@@ -7,9 +7,14 @@ include_once("../../library/acl.inc");
 require_once("language.inc.php");
 require_once("$srcdir/formdata.inc.php");
 
-// Setting to enable custom logging of language translations
-// (Note that the below mysql table is required for this function)
-$enable_custom_language_logging=false;
+// Check to see if the lang_custom table exists
+$test_table = SqlStatement("show tables like 'lang_custom'");
+if (SqlFetchArray($test_table)) {
+ $enable_custom_language_logging=true;
+}
+else {
+ $enable_custom_language_logging=false;
+}
 /* Note that the table mysql lang_custom is required for this function,
 which can be accomplished with following script in mysql:
 CREATE TABLE lang_custom (
