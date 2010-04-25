@@ -55,16 +55,20 @@
   </table>
   <br>
 <?php
+
+// set up the mysql collation string to ensure case is sensitive (or insensitive) in the mysql queries
+if (!$disable_utf8_flag) {
+  $case_sensitive_collation = "COLLATE utf8_bin";
+  $case_insensitive_collation = "COLLATE utf8_general_ci";
+}
+else {
+  $case_sensitive_collation = "COLLATE latin_bin";
+  $case_insensitive_collation = "COLLATE latin1_swedish_ci";
+}
+
 if ($_POST['load']) {
-  // set up the mysql collation string to ensure case is sensitive in the mysql queries
-  if (!$disable_utf8_flag) {
-    $case_sensitive_collation = "COLLATE utf8_bin";
-  }
-  else {
-    $case_sensitive_collation = "COLLATE latin_bin";
-  }
-    
-	// query for entering new definitions it picks the cons_id because is existant.
+
+  // query for entering new definitions it picks the cons_id because is existant.
   if (!empty($_POST['cons_id'])) {
     foreach ($_POST['cons_id'] as $key => $value) {
       $value = formDataCore($value,true);
@@ -138,7 +142,7 @@ if ($_POST['edit']){
     "FROM lang_definitions AS ld " .
     "RIGHT JOIN ( lang_constants AS lc, lang_languages AS ll ) ON " .
     "( lc.cons_id = ld.cons_id AND ll.lang_id = ld.lang_id ) " .
-    "WHERE lc.constant_name LIKE '$lang_filter' AND ( ll.lang_id = 1 ";
+    "WHERE lc.constant_name ".$case_insensitive_collation." LIKE '$lang_filter' AND ( ll.lang_id = 1 ";
   if ($lang_id != 1) {
 		$sql .= "OR ll.lang_id = '$lang_id' ";
 		$what = "SELECT * from lang_languages where lang_id = $lang_id LIMIT 1";
@@ -146,7 +150,7 @@ if ($_POST['edit']){
 		$row = SqlFetchArray($res);
 		$lang_name = $row['lang_description'];
 	}
-	$sql .= ") ORDER BY lc.constant_name";
+	$sql .= ") ORDER BY lc.constant_name ".$case_insensitive_collation;
 
 	$res = SqlStatement($sql);
 
