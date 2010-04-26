@@ -87,6 +87,8 @@ $drug_id = $_REQUEST['drug'] + 0;
 $lot_id  = $_REQUEST['lot'] + 0;
 $info_msg = "";
 
+$form_trans_type = isset($_POST['form_trans_type']) ? formData('form_trans_type') : '0';
+
 if (!acl_check('admin', 'drugs')) die(xl('Not authorized'));
 if (!$drug_id) die(xl('Drug ID missing!'));
 ?>
@@ -119,6 +121,39 @@ td { font-size:10pt; }
   return true;
  }
 
+ function trans_type_changed() {
+  var f = document.forms[0];
+  var sel = f.form_trans_type;
+  var type = sel.options[sel.selectedIndex].value;
+  var showQuantity  = true;
+  var showSaleDate  = true;
+  var showCost      = true;
+  var showSourceLot = true;
+  if (type == '2') { // purchase
+    showSourceLot = false;
+  }
+  else if (type == '3') { // return
+    showSourceLot = false;
+  }
+  else if (type == '4') { // transfer
+    showCost = false;
+  }
+  else if (type == '5') { // adjustment
+    showCost = false;
+    showSourceLot = false;
+  }
+  else {
+    showQuantity  = false;
+    showSaleDate  = false;
+    showCost      = false;
+    showSourceLot = false;
+  }
+  document.getElementById('row_quantity'  ).style.display = showQuantity  ? '' : 'none';
+  document.getElementById('row_sale_date' ).style.display = showSaleDate  ? '' : 'none';
+  document.getElementById('row_cost'      ).style.display = showCost      ? '' : 'none';
+  document.getElementById('row_source_lot').style.display = showSourceLot ? '' : 'none';
+ }
+
 </script>
 
 </head>
@@ -135,7 +170,26 @@ if ($lot_id) {
 if ($_POST['form_save'] || $_POST['form_delete']) {
 
   $form_quantity = formData('form_quantity') + 0;
+  $form_cost = sprintf('%0.2f', formData('form_cost'));
+  $form_source_lot = formData('form_source_lot') + 0;
 
+  // Some fixups depending on transaction type.
+  if ($form_trans_type == '3') { // return
+    $form_quantity = 0 - $form_quantity;
+    $form_cost = 0 - $form_cost;
+  }
+  else if ($form_trans_type == '5') { // adjustment
+    $form_cost = 0;
+  }
+  else if ($form_trans_type == '0') { // no transaction
+    $form_quantity = 0;
+    $form_cost = 0;
+  }
+  if ($form_trans_type != '4') { // not transfer
+    $form_source_lot = 0;
+  }
+
+  // If a transfer, make sure there is sufficient quantity in the source lot.
   if ($form_save && $form_source_lot && $form_quantity) {
     $srow = sqlQuery("SELECT on_hand FROM drug_inventory WHERE " .
       "drug_id = '$drug_id' AND inventory_id = '$form_source_lot'");
@@ -145,8 +199,10 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
   }
 
   if (!$info_msg) {
+    // Destination lot already exists.
     if ($lot_id) {
       if ($_POST['form_save']) {
+        // Make sure the destination quantity will not end up negative.
         if (($row['on_hand'] + $form_quantity) < 0) {
           $info_msg = xl('Transaction failed, insufficient quantity in destination lot');
         }
@@ -166,6 +222,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
           "AND inventory_id = '$lot_id'");
       }
     }
+    // Destination lot will be created.
     else {
       if ($form_quantity < 0) {
         $info_msg = xl('Transaction failed, quantity is less than zero');
@@ -188,8 +245,6 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
 
     // Create the corresponding drug_sales transaction.
     if ($_POST['form_save'] && $form_quantity) {
-      $form_source_lot = formData('form_source_lot') + 0;
-      $form_cost = sprintf('%0.2f', formData('form_cost'));
       $form_sale_date = formData('form_sale_date');
       if (empty($form_sale_date)) $form_sale_date = date('Y-m-d');
       sqlInsert("INSERT INTO drug_sales ( " .
@@ -301,13 +356,23 @@ generate_form_field(array('data_type' => 14, 'field_id' => 'vendor_id',
  </tr>
 
  <tr>
-  <td valign='top' nowrap>&nbsp;</td>
+  <td valign='top' nowrap><b><?php xl('Transaction','e'); ?>:</b></td>
   <td>
-   <b><?php xl('Use the fields below for a purchase or transfer.','e'); ?></b>
+   <select name='form_trans_type' onchange='trans_type_changed()'>
+<?php
+foreach (array('0' => xl('None'), '2' => xl('Purchase'), '3' => xl('Return'),
+  '4' => xl('Transfer'), '5' => xl('Adjustment')) as $key => $value)
+{
+  echo "<option value='$key'";
+  if ($key == $form_trans_type) echo " selected";
+  echo ">$value</option>\n";
+}
+?>
+   </select>
   </td>
  </tr>
 
- <tr>
+ <tr id='row_sale_date'>
   <td valign='top' nowrap><b><?php xl('Date','e'); ?>:</b></td>
   <td>
    <input type='text' size='10' name='form_sale_date' id='form_sale_date'
@@ -320,22 +385,21 @@ generate_form_field(array('data_type' => 14, 'field_id' => 'vendor_id',
   </td>
  </tr>
 
- <tr>
+ <tr id='row_quantity'>
   <td valign='top' nowrap><b><?php xl('Quantity','e'); ?>:</b></td>
   <td>
    <input type='text' size='5' name='form_quantity' maxlength='7' />
   </td>
  </tr>
 
- <tr>
+ <tr id='row_cost'>
   <td valign='top' nowrap><b><?php xl('Total Cost','e'); ?>:</b></td>
   <td>
    <input type='text' size='7' name='form_cost' maxlength='12' />
-   (for purchase only)
   </td>
  </tr>
 
- <tr>
+ <tr id='row_source_lot'>
   <td valign='top' nowrap><b><?php xl('Source Lot','e'); ?>:</b></td>
   <td>
    <select name='form_source_lot'>
@@ -358,7 +422,6 @@ while ($lrow = sqlFetchArray($lres)) {
 }
 ?>
    </select>
-   (for transfer only)
   </td>
  </tr>
 
@@ -388,6 +451,7 @@ if ($info_msg) {
   echo " window.close();\n";
 }
 ?>
+trans_type_changed();
 </script>
 </body>
 </html>
