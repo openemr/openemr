@@ -13,6 +13,7 @@ require_once("codes.php");
 require_once("../../../custom/code_types.inc.php");
 require_once("../../drugs/drugs.inc.php");
 require_once("$srcdir/formatting.inc.php");
+require_once("$srcdir/options.inc.php");
 
 // Some table cells will not be displayed unless insurance billing is used.
 $usbillstyle = $GLOBALS['ippf_specific'] ? " style='display:none'" : "";
@@ -371,6 +372,7 @@ if ($_POST['bn_save']) {
   $main_provid = 0 + $_POST['ProviderID'];
   $main_supid  = 0 + $_POST['SupervisorID'];
   if ($main_supid == $main_provid) $main_supid = 0;
+  $default_warehouse = $_POST['default_warehouse'];
 
   $bill = $_POST['bill'];
   for ($lino = 1; $bill["$lino"]['code_type']; ++$lino) {
@@ -472,7 +474,8 @@ if ($_POST['bn_save']) {
 
     // Otherwise it's a new item...
     else if (! $del) {
-      $sale_id = sellDrug($drug_id, $units, $fee, $pid, $encounter);
+      $sale_id = sellDrug($drug_id, $units, $fee, $pid, $encounter, 0, '', '',
+        $default_warehouse);
       if (!$sale_id) die("Insufficient inventory for product ID \"$drug_id\".");
     }
   } // end for
@@ -1035,6 +1038,19 @@ if ($trow['count'] && $contraception && !$isBilled) {
       echo "   </select>\n";
       echo "&nbsp; &nbsp; &nbsp;\n";
     }
+  }
+}
+
+// If there is a choice of warehouses, allow override of user default.
+if ($GLOBALS['inhouse_pharmacy']) {
+  $trow = sqlQuery("SELECT count(*) AS count FROM list_options WHERE list_id = 'warehouse'");
+  if ($trow['count'] > 1) {
+    $trow = sqlQuery("SELECT default_warehouse FROM users WHERE username = '" .
+      $_SESSION['authUser'] . "'");
+    echo "   <span class='billcell'><b>" . xl('Warehouse') . ":</b></span>\n";
+    echo generate_select_list('default_warehouse', 'warehouse',
+      $trow['default_warehouse'], '');
+    echo "&nbsp; &nbsp; &nbsp;\n";
   }
 }
 
