@@ -1,5 +1,5 @@
 <?php
- // Copyright (C) 2006-2009 Rod Roark <rod@sunsetsystems.com>
+ // Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
  // modify it under the terms of the GNU General Public License
@@ -102,6 +102,7 @@ td { font-size:10pt; }
 
 <script type="text/javascript" src="../../library/topdialog.js"></script>
 <script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/textformat.js"></script>
 
 <script language="JavaScript">
 
@@ -314,7 +315,11 @@ else {
  <tr>
   <td valign='top' nowrap><b><?php xl('NDC Number','e'); ?>:</b></td>
   <td>
-   <input type='text' size='40' name='form_ndc_number' maxlength='20' value='<?php echo $row['ndc_number'] ?>' style='width:100%' />
+   <input type='text' size='40' name='form_ndc_number' maxlength='20'
+    value='<?php echo $row['ndc_number'] ?>' style='width:100%'
+    onkeyup='maskkeyup(this,"<?php echo addslashes($GLOBALS['gbl_mask_product_id']); ?>")'
+    onblur='maskblur(this,"<?php echo addslashes($GLOBALS['gbl_mask_product_id']); ?>")'
+    />
   </td>
  </tr>
 

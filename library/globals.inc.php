@@ -408,6 +408,13 @@ $GLOBALS_METADATA = array(
       xl('Specifies formatting for invoice reference numbers.  # = digit, * = any character.  Empty if not used.')
     ),
 
+    'gbl_mask_product_id' => array(
+      xl('Mask for Product IDs'),
+      'text',                           // data type
+      '',                               // default
+      xl('Specifies formatting for product NDC fields.  # = digit, * = any character.  Empty if not used.')
+    ),
+
   ),
 
   // Calendar Tab
