@@ -455,7 +455,7 @@ function generate_receipt($patient_id, $encounter=0) {
   <td><b><?php xl('Total Charges','e'); ?></b></td>
   <td align='right'>&nbsp;</td>
   <td align='right'>&nbsp;</td>
-  <td align='right'><?php echo oeFormatMoney($charges) ?></td>
+  <td align='right'><?php echo oeFormatMoney($charges, true) ?></td>
  </tr>
  <tr>
   <td colspan='5'>&nbsp;</td>
@@ -515,7 +515,7 @@ function generate_receipt($patient_id, $encounter=0) {
   <td>&nbsp;</td>
   <td><b><?php xl('Balance Due','e'); ?></b></td>
   <td colspan='2'>&nbsp;</td>
-  <td align='right'><?php echo oeFormatMoney($charges) ?></td>
+  <td align='right'><?php echo oeFormatMoney($charges, true) ?></td>
  </tr>
 </table>
 </center>
