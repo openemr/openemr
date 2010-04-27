@@ -77,6 +77,13 @@ $GLOBALS_METADATA = array(
       xl('Pick a CSS theme.')
     ),
 
+    'gbl_nav_area_width' => array(
+      xl('Navigation Area Width'),
+      'num',
+      '130',
+      xl('Width in pixels of the left navigation frame.')
+    ),
+
     'openemr_name' => array(
       xl('Application Title'),
       'text',
@@ -278,6 +285,14 @@ $GLOBALS_METADATA = array(
       ),
       ',',
       xl('Symbol used to separate thousands for currency.')
+    ),
+
+    'gbl_currency_symbol' => array(
+      xl('Currency Designator'),
+      'text',                           // data type
+      '$',                              // default
+      xl('Code or symbol to indicate currency') . '. ' . xl('Examples') .
+        ': USD GBP EUR $ £ €'
     ),
 
   ),
