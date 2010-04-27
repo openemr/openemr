@@ -64,7 +64,7 @@ include_once("../../library/acl.inc");
 </td>
 <?php } ?>
 
-<?php if (acl_check('admin', 'database')) { ?>
+<?php if ( (!$GLOBALS['disable_phpmyadmin_link']) && (acl_check('admin', 'database')) ) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../../phpmyadmin/index.php"
  onclick="top.restoreSession()"

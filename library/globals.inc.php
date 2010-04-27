@@ -317,6 +317,13 @@ $GLOBALS_METADATA = array(
       xl('Removes the Chart Tracker feature')
     ),
 
+    'disable_phpmyadmin_link' => array(
+     xl('Disable phpMyAdmin'),
+     'bool',                            // data type
+     '0',                               // default = false
+     xl('Removes support for phpMyAdmin')
+    ),
+
     'disable_immunizations' => array(
       xl('Disable Immunizations'),
       'bool',                           // data type
