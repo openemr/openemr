@@ -345,7 +345,7 @@ if ($form_batch) {
  <tr class='head'>
   <td colspan='2'><?php echo $form_batch ? xl('Patient') : xl('Order'); ?></td>
   <td colspan='4'><?php xl('Report','e'); ?></td>
-  <td colspan='4'><?php xl('Results and','e'); ?> <span class='reccolor''>
+  <td colspan='5'><?php xl('Results and','e'); ?> <span class='reccolor''>
    <?php  xl('Recommendations','e'); ?></span></td>
  </tr>
 
@@ -356,6 +356,7 @@ if ($form_batch) {
   <td><?php xl('Ext Time Collected','e'); ?></td>
   <td><?php xl('Specimen','e'); ?></td>
   <td><?php xl('Status','e'); ?></td>
+  <td><?php xl('Group','e'); ?></td>
   <td><?php xl('Name (click for more)','e'); ?></td>
   <td><?php xl('Abn','e'); ?></td>
   <td><?php xl('Value','e'); ?></td>
@@ -428,6 +429,7 @@ $lastprid = -1;
 $encount = 0;
 $lino = 0;
 $extra_html = '';
+$lastrcn = '';
 
 while ($row = sqlFetchArray($res)) {
   $order_id  = empty($row['procedure_order_id' ]) ? 0 : ($row['procedure_order_id' ] + 0);
@@ -435,9 +437,13 @@ while ($row = sqlFetchArray($res)) {
   $report_id = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
   $result_id = empty($row['procedure_result_id']) ? 0 : ($row['procedure_result_id'] + 0);
 
+  /*******************************************************************
   $result_name = '';
   if (!empty($row['result_category_name'])) $result_name = $row['result_category_name'] . ' / ';
   if (!empty($row['result_name'])) $result_name .= $row['result_name'];
+  *******************************************************************/
+  $result_category_name = empty($row['result_category_name']) ? '--' : $row['result_category_name'];
+  $result_name      = empty($row['result_name'     ]) ? '' : $row['result_name'];
 
   $date_report      = empty($row['date_report'     ]) ? '' : $row['date_report'];
   $date_collected   = empty($row['date_collected'  ]) ? '' : substr($row['date_collected'], 0, 16);
@@ -462,7 +468,10 @@ while ($row = sqlFetchArray($res)) {
     if ($review_status == "received") continue;
   }
 
-  if ($lastpoid != $order_id) ++$encount;
+  if ($lastpoid != $order_id) {
+    ++$encount;
+    $lastrcn = '';
+  }
   $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
 
   echo " <tr class='detail' bgcolor='$bgcolor'>\n";
@@ -534,6 +543,16 @@ while ($row = sqlFetchArray($res)) {
   }
   else {
     echo "  <td colspan='4' style='background-color:#94d6e7'>&nbsp;</td>\n";
+  }
+
+  if ($result_category_name != $lastrcn) {
+    echo "  <td>";
+    echo htmlentities($result_category_name);
+    echo "</td>\n";
+    $lastrcn = $result_category_name;
+  }
+  else {
+    echo "  <td style='background-color:#94d6e7'>&nbsp;</td>\n";
   }
 
   echo "  <td title='" . addslashes($row['result_description']) . "'";
