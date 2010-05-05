@@ -105,10 +105,11 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
             echo '"'  . display_desc($warehouse) . '"';
             echo ',"' . display_desc($product)   . '"';
           }
-          echo ',"' . ($secei - $secqtys[0] - $secqtys[1] - $secqtys[2]) . '"'; // start inventory
+          echo ',"' . ($secei - $secqtys[0] - $secqtys[1] - $secqtys[2] - $secqtys[3]) . '"'; // start inventory
           echo ',"' . $secqtys[0] . '"'; // sales
           echo ',"' . $secqtys[1] . '"'; // purchases
           echo ',"' . $secqtys[2] . '"'; // transfers
+          echo ',"' . $secqtys[3] . '"'; // adjustments
           echo ',"' . $secei      . '"'; // end inventory
           echo "\n";
         }
@@ -133,7 +134,7 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
   </td>
 <?php } ?>
   <td class="dehead" align="right">
-   <?php echo $secei - $secqtys[0] - $secqtys[1] - $secqtys[2]; ?>
+   <?php echo $secei - $secqtys[0] - $secqtys[1] - $secqtys[2] - $secqtys[3]; ?>
   </td>
   <td class="dehead" align="right">
    <?php echo $secqtys[0]; ?>
@@ -145,13 +146,16 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
    <?php echo $secqtys[2]; ?>
   </td>
   <td class="dehead" align="right">
+   <?php echo $secqtys[3]; ?>
+  </td>
+  <td class="dehead" align="right">
    <?php echo $secei; ?>
   </td>
  </tr>
 <?php
       } // End not csv export
     }
-    $secqtys = array(0, 0, 0);
+    $secqtys = array(0, 0, 0, 0);
     if ($product_first ) {
       $whleft = $warehouse = $rowwh;
       $last_warehouse_id = $warehouse_id;
@@ -181,7 +185,7 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
    <?php echo xl('Total for') . ' '; echo display_desc($product_first ? $product : $warehouse); ?>
   </td>
   <td class="dehead" align="right">
-   <?php echo $priei - $priqtys[0] - $priqtys[1] - $priqtys[2]; ?>
+   <?php echo $priei - $priqtys[0] - $priqtys[1] - $priqtys[2] - $priqtys[3]; ?>
   </td>
   <td class="dehead" align="right">
    <?php echo $priqtys[0]; ?>
@@ -193,13 +197,16 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
    <?php echo $priqtys[2]; ?>
   </td>
   <td class="dehead" align="right">
+   <?php echo $priqtys[3]; ?>
+  </td>
+  <td class="dehead" align="right">
    <?php echo $priei; ?>
   </td>
  </tr>
 <?php
       } // End not csv export
     }
-    $priqtys = array(0, 0, 0);
+    $priqtys = array(0, 0, 0, 0);
     if ($product_first) {
       $prodleft = $product = $rowprod;
       $last_product_id = $product_id;
@@ -209,7 +216,7 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
     }
   }
 
-  if ($_POST['form_details'] && $product_id && ($qtys[0] + $qtys[1] + $qtys[2])) {
+  if ($_POST['form_details'] && $product_id && ($qtys[0] + $qtys[1] + $qtys[2] + $qtys[3])) {
     if ($_POST['form_csvexport']) {
       if ($product_first) {
         echo '"'  . display_desc($product )  . '"';
@@ -223,6 +230,7 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
       echo ',"' . $qtys[0]             . '"'; // sales
       echo ',"' . $qtys[1]             . '"'; // purchases
       echo ',"' . $qtys[2]             . '"'; // transfers
+      echo ',"' . $qtys[3]             . '"'; // adjustments
       echo "\n";
     }
     else {
@@ -261,6 +269,9 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
   <td class="dehead" align="right">
    <?php echo $qtys[2]; ?>
   </td>
+  <td class="dehead" align="right">
+   <?php echo $qtys[3]; ?>
+  </td>
   <td class="detail">
    &nbsp;
   </td>
@@ -268,7 +279,7 @@ function thisLineItem($product_id, $warehouse_id, $patient_id, $encounter_id,
 <?php
     } // End not csv export
   } // end details
-  for ($i = 0; $i < 3; ++$i) {
+  for ($i = 0; $i < 4; ++$i) {
     $secqtys[$i]   += $qtys[$i];
     $priqtys[$i]   += $qtys[$i];
     $grandqtys[$i] += $qtys[$i];
@@ -301,13 +312,15 @@ if ($_POST['form_csvexport']) {
     echo '"' . xl('Invoice'  ) . '",';
     echo '"' . xl('Sales'    ) . '",';
     echo '"' . xl('Purchases') . '",';
-    echo '"' . xl('Transfers') . '"' . "\n";
+    echo '"' . xl('Transfers') . '",';
+    echo '"' . xl('Adjustments') . '"' . "\n";
   }
   else {
     echo '"' . xl('Start'    ) . '",';
     echo '"' . xl('Sales'    ) . '",';
     echo '"' . xl('Purchases') . '",';
     echo '"' . xl('Transfers') . '",';
+    echo '"' . xl('Adjustments') . '",';
     echo '"' . xl('End'      ) . '"' . "\n";
   }
 } // end export
@@ -424,6 +437,9 @@ echo "   </select>\n";
    <?php xl('Transfers','e'); ?>
   </td>
   <td class="dehead" align="right" width="8%">
+   <?php xl('Adjustments','e'); ?>
+  </td>
+  <td class="dehead" align="right" width="8%">
    <?php xl('End','e'); ?>
   </td>
  </tr>
@@ -438,9 +454,9 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
   $prodleft  = "";
   $warehouse = "";
   $whleft    = "";
-  $grandqtys = array(0, 0, 0);
-  $priqtys   = array(0, 0, 0);
-  $secqtys   = array(0, 0, 0);
+  $grandqtys = array(0, 0, 0, 0);
+  $priqtys   = array(0, 0, 0, 0);
+  $secqtys   = array(0, 0, 0, 0);
 
   /*******************************************************************
   $query = "SELECT s.sale_date, s.quantity, s.pid, s.encounter, " .
@@ -452,7 +468,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     "lo.option_id = di.warehouse_id " .
     "WHERE s.sale_date >= '$from_date' AND s.sale_date <= '$to_date'";
   *******************************************************************/
-  $query = "SELECT s.sale_id, s.sale_date, s.quantity, s.pid, s.encounter, " .
+  $query = "SELECT s.sale_id, s.sale_date, s.quantity, s.fee, s.pid, s.encounter, " .
     "s.xfer_inventory_id, d.name, lo.title, di.drug_id, di.warehouse_id, " .
     "di.inventory_id, fe.invoice_refno " .
     "FROM drug_inventory AS di " .
@@ -481,7 +497,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
   $res = sqlStatement($query);
   while ($row = sqlFetchArray($res)) {
-    $qtys = array(0, 0, 0);
+    $qtys = array(0, 0, 0, 0);
     if ($row['sale_id']) {
       if ($row['xfer_inventory_id']) {
         // A transfer sale item will appear twice, once with each lot.
@@ -492,8 +508,10 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
       }
       else if ($row['pid'])
         $qtys[0] = 0 - $row['quantity'];
-      else
+      else if ($row['fee'] != 0)
         $qtys[1] = 0 - $row['quantity'];
+      else // no pid, source lot or fee, must be an adjustment
+        $qtys[3] = 0 - $row['quantity'];
     }
     thisLineItem($row['drug_id'], $row['warehouse_id'], $row['pid'] + 0,
       $row['encounter'] + 0, $row['name'], $row['title'], $row['sale_date'],
@@ -501,7 +519,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
   }
 
   // Generate totals for last product and warehouse.
-  thisLineItem(0, '~', 0, 0, '', '', '0000-00-00', array(0, 0, 0));
+  thisLineItem(0, '~', 0, 0, '', '', '0000-00-00', array(0, 0, 0, 0));
 
   // Grand totals line.
   if (!$_POST['form_csvexport']) {
@@ -512,7 +530,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
    <?php xl('Grand Total','e'); ?>
   </td>
   <td class="dehead" align="right">
-   <?php echo $grei - $grandqtys[0] - $grandqtys[1] - $grandqtys[2]; ?>
+   <?php echo $grei - $grandqtys[0] - $grandqtys[1] - $grandqtys[2] - $grandqtys[3]; ?>
   </td>
   <td class="dehead" align="right">
    <?php echo $grandqtys[0]; ?>
@@ -522,6 +540,9 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
   </td>
   <td class="dehead" align="right">
    <?php echo $grandqtys[2]; ?>
+  </td>
+  <td class="dehead" align="right">
+   <?php echo $grandqtys[3]; ?>
   </td>
   <td class="dehead" align="right">
    <?php echo $grei; ?>
