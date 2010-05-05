@@ -309,6 +309,7 @@ CREATE TABLE `drug_sales` (
   `fee` decimal(12,2) NOT NULL default '0.00',
   `billed` tinyint(1) NOT NULL default '0' COMMENT 'indicates if the sale is posted to accounting',
   `xfer_inventory_id` int(11) NOT NULL DEFAULT 0,
+  `notes` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY  (`sale_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
 

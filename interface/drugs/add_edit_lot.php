@@ -129,6 +129,7 @@ td { font-size:10pt; }
   var showSaleDate  = true;
   var showCost      = true;
   var showSourceLot = true;
+  var showNotes     = true;
   if (type == '2') { // purchase
     showSourceLot = false;
   }
@@ -147,11 +148,13 @@ td { font-size:10pt; }
     showSaleDate  = false;
     showCost      = false;
     showSourceLot = false;
+    showNotes     = false;
   }
   document.getElementById('row_quantity'  ).style.display = showQuantity  ? '' : 'none';
   document.getElementById('row_sale_date' ).style.display = showSaleDate  ? '' : 'none';
   document.getElementById('row_cost'      ).style.display = showCost      ? '' : 'none';
   document.getElementById('row_source_lot').style.display = showSourceLot ? '' : 'none';
+  document.getElementById('row_notes'     ).style.display = showNotes     ? '' : 'none';
  }
 
 </script>
@@ -245,18 +248,20 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
 
     // Create the corresponding drug_sales transaction.
     if ($_POST['form_save'] && $form_quantity) {
+      $form_notes = formData('form_notes');
       $form_sale_date = formData('form_sale_date');
       if (empty($form_sale_date)) $form_sale_date = date('Y-m-d');
       sqlInsert("INSERT INTO drug_sales ( " .
         "drug_id, inventory_id, prescription_id, pid, encounter, user, " .
-        "sale_date, quantity, fee, xfer_inventory_id " .
+        "sale_date, quantity, fee, xfer_inventory_id, notes " .
         ") VALUES ( " .
         "'$drug_id', '$lot_id', '0', '0', '0', " .
         "'" . $_SESSION['authUser'] . "', " .
         "'$form_sale_date', " .
         "'" . (0 - $form_quantity)  . "', " .
         "'" . (0 - $form_cost)      . "', " .
-        "'$form_source_lot' )");
+        "'$form_source_lot', " .
+        "'$form_notes' )");
 
       // If this is a transfer then reduce source QOH, and also copy some
       // fields from the source when they are missing.
@@ -422,6 +427,13 @@ while ($lrow = sqlFetchArray($lres)) {
 }
 ?>
    </select>
+  </td>
+ </tr>
+
+ <tr id='row_notes'>
+  <td valign='top' nowrap><b><?php xl('Comments','e'); ?>:</b></td>
+  <td>
+   <input type='text' size='40' name='form_notes' maxlength='255' style='width:100%' />
   </td>
  </tr>
 

@@ -386,3 +386,8 @@ ALTER TABLE users ADD irnpool varchar(31) NOT NULL DEFAULT '';
 ALTER TABLE form_encounter ADD invoice_refno varchar(31) NOT NULL DEFAULT '';
 #EndIf
 
+#IfMissingColumn drug_sales notes
+ALTER TABLE drug_sales
+  ADD notes varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
