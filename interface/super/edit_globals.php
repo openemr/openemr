@@ -97,7 +97,8 @@ $(document).ready(function(){
 $i = 0;
 foreach ($GLOBALS_METADATA as $grpname => $grparr) {
   echo " <li" . ($i ? "" : " class='current'") .
-    "><a href='/play/javascript-tabbed-navigation/'>$grpname</a></li>\n";
+    "><a href='/play/javascript-tabbed-navigation/'>" .
+    xl($grpname) . "</a></li>\n";
   ++$i;
 }
 ?>

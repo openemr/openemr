@@ -53,11 +53,20 @@ else {
   $backup_log_dir      = '/tmp';
 }
 
+// Language constant declarations:
+// xl('Appearance')
+// xl('Locale')
+// xl('Features')
+// xl('Calendar')
+// xl('Security')
+// xl('Notifications')
+// xl('Miscellaneous')
+
 $GLOBALS_METADATA = array(
 
   // Appearance Tab
   //
-  xl('Appearance') => array(
+  'Appearance' => array(
 
     'concurrent_layout' => array(
       xl('Layout Style'),               // descriptive name
@@ -152,7 +161,7 @@ $GLOBALS_METADATA = array(
 
   // Locale Tab
   //
-  xl('Locale') => array(
+  'Locale' => array(
 
     'language_default' => array(
       xl('Default Language'),
@@ -299,7 +308,7 @@ $GLOBALS_METADATA = array(
 
   // Features Tab
   //
-  xl('Features') => array(
+  'Features' => array(
 
     'specific_application' => array(
       xl('Specific Application'),
@@ -441,7 +450,7 @@ $GLOBALS_METADATA = array(
 
   // Calendar Tab
   //
-  xl('Calendar') => array(
+  'Calendar' => array(
 
     'disable_calendar' => array(
       xl('Disable Calendar'),
@@ -508,7 +517,7 @@ $GLOBALS_METADATA = array(
 
   // Security Tab
   //
-  xl('Security') => array(
+  'Security' => array(
 
     'timeout' => array(
       xl('Idle Session Timeout Seconds'),
@@ -584,7 +593,7 @@ $GLOBALS_METADATA = array(
 
   // Notifications Tab
   //
-  xl('Notifications') => array(
+  'Notifications' => array(
 
     'practice_return_email_path' => array(
       xl('Notification Email Address'),
@@ -671,7 +680,7 @@ $GLOBALS_METADATA = array(
 
   // Miscellaneous Tab
   //
-  xl('Miscellaneous') => array(
+  'Miscellaneous' => array(
 
     'mysql_bin_dir' => array(
       xl('Path to MySQL Binaries'),
