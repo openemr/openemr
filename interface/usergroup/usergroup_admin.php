@@ -333,7 +333,8 @@ $form_inactive = empty($_REQUEST['form_inactive']) ? false : true;
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.1.3.2.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.easydrag.handler.beta2.js"></script>
 <script type="text/javascript">
 
 $(document).ready(function(){
@@ -350,8 +351,11 @@ $(document).ready(function(){
 		'frameHeight' : 450,
 		'frameWidth' : 660
 	});
-
-
+	
+	$(function(){
+		// add drag and drop functionality to fancybox
+		$("#fancy_outer").easydrag();
+	});
 });
 
 </script>
