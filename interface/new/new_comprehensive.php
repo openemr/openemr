@@ -117,8 +117,63 @@ function replace(string,text,by) {
  return newstr;
 }
 
+<?php for ($i=1;$i<=3;$i++) { ?>
+function auto_populate_employer_address<?php echo $i ?>(){
+ var f = document.demographics_form;
+ if (f.form_i<?php echo $i?>subscriber_relationship.options[f.form_i<?php echo $i?>subscriber_relationship.selectedIndex].value == "self") {
+  f.i<?php echo $i?>subscriber_fname.value=f.form_fname.value;
+  f.i<?php echo $i?>subscriber_mname.value=f.form_mname.value;
+  f.i<?php echo $i?>subscriber_lname.value=f.form_lname.value;
+  f.i<?php echo $i?>subscriber_street.value=f.form_street.value;
+  f.i<?php echo $i?>subscriber_city.value=f.form_city.value;
+  f.form_i<?php echo $i?>subscriber_state.value=f.form_state.value;
+  f.i<?php echo $i?>subscriber_postal_code.value=f.form_postal_code.value;
+  if (f.form_country_code)
+    f.form_i<?php echo $i?>subscriber_country.value=f.form_country_code.value;
+  f.i<?php echo $i?>subscriber_phone.value=f.form_phone_home.value;
+  f.i<?php echo $i?>subscriber_DOB.value=f.form_DOB.value;
+  f.i<?php echo $i?>subscriber_ss.value=f.form_ss.value;
+  f.form_i<?php echo $i?>subscriber_sex.value = f.form_sex.value;
+  f.i<?php echo $i?>subscriber_employer.value=f.form_em_name.value;
+  f.i<?php echo $i?>subscriber_employer_street.value=f.form_em_street.value;
+  f.i<?php echo $i?>subscriber_employer_city.value=f.form_em_city.value;
+  f.form_i<?php echo $i?>subscriber_employer_state.value=f.form_em_state.value;
+  f.i<?php echo $i?>subscriber_employer_postal_code.value=f.form_em_postal_code.value;
+  if (f.form_em_country)
+    f.form_i<?php echo $i?>subscriber_employer_country.value=f.form_em_country.value;
+ }
+}
+
+<?php } ?>
+
 function upperFirst(string,text) {
  return replace(string,text,text.charAt(0).toUpperCase() + text.substring(1,text.length));
+}
+
+// The ins_search.php window calls this to set the selected insurance.
+function set_insurance(ins_id, ins_name) {
+ var thesel = document.forms[0]['i' + insurance_index + 'provider'];
+ var theopts = thesel.options; // the array of Option objects
+ var i = 0;
+ for (; i < theopts.length; ++i) {
+  if (theopts[i].value == ins_id) {
+   theopts[i].selected = true;
+   return;
+  }
+ }
+ // no matching option was found so create one, append it to the
+ // end of the list, and select it.
+ theopts[i] = new Option(ins_name, ins_id, false, true);
+}
+
+// Indicates which insurance slot is being updated.
+var insurance_index = 0;
+
+// The OnClick handler for searching/adding the insurance company.
+function ins_search(ins) {
+ insurance_index = ins;
+ dlgopen('../../interface/practice/ins_search.php', '_blank', 550, 400);
+ return false;
 }
 
 function checkNum () {
@@ -248,7 +303,7 @@ while ($lrow = sqlFetchArray($lres)) {
 
 <body class="body_top">
 
-<form action='new_comprehensive_save.php' method='post' onsubmit='return validate(this)'>
+<form action='new_comprehensive_save.php' name='demographics_form' method='post' onsubmit='return validate(this)'>
 
 <span class='title'><?php xl('Search or Add Patient','e'); ?></span>
 
@@ -374,6 +429,224 @@ while ($frow = sqlFetchArray($fres)) {
 end_group();
 ?>
 
+<?php
+if (! $GLOBALS['simplified_demographics']) {
+  $insurancei = getInsuranceProviders();
+  $pid = 0;
+  $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
+  $insurance_info = array();
+  $insurance_info[1] = getInsuranceData($pid,"primary");
+  $insurance_info[2] = getInsuranceData($pid,"secondary");
+  $insurance_info[3] = getInsuranceData($pid,"tertiary");
+
+  echo "<br /><span class='bold'><input type='checkbox' name='form_cb_ins' value='1' " .
+    "onclick='return divclick(this,\"div_ins\");'";
+  if ($display_style == 'block') echo " checked";
+  echo " /><b>" . xl('Insurance') . "</b></span>\n";
+  echo "<div id='div_ins' class='section' style='display:$display_style;'>\n";
+
+  for($i=1;$i<=3;$i++) {
+   $result3 = $insurance_info[$i];
+?>
+<table border="0">
+ <tr>
+  <td valign='top' colspan='2'>
+   <span class='required'><?php echo $insurance_headings[$i -1].":"?></span>
+   <select name="i<?php echo $i?>provider">
+    <option value=""><?php xl('Unassigned','e'); ?></option>
+<?php
+ foreach ($insurancei as $iid => $iname) {
+  echo "<option value='" . $iid . "'";
+  if (strtolower($iid) == strtolower($result3{"provider"}))
+   echo " selected";
+  echo ">" . $iname . "</option>\n";
+ }
+?>
+   </select>&nbsp;<a href='' onclick='return ins_search(<?php echo $i?>)'>
+   <?php xl('Search/Add Insurer','e'); ?></a>
+  </td>
+ </tr>
+ <tr>
+  <td valign=top>
+   <table border="0">
+
+    <tr>
+     <td>
+      <span class='required'><?php xl('Plan Name','e'); ?>: </span>
+     </td>
+     <td>
+      <input type='entry' size='20' name='i<?php echo $i?>plan_name' value="<?php echo $result3{"plan_name"} ?>"
+       onchange="capitalizeMe(this);" />&nbsp;&nbsp;
+     </td>
+    </tr>
+
+    <tr>
+     <td>
+      <span class='required'><?php xl('Effective Date','e'); ?>: </span>
+     </td>
+     <td>
+      <input type='entry' size='11' name='i<?php echo $i ?>effective_date'
+       id='i<?php echo $i ?>effective_date'
+       value='<?php echo $result3['date'] ?>'
+       onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+       title='yyyy-mm-dd' />
+
+      <img src='../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
+      id='img_i<?php echo $i ?>effective_date' border='0' alt='[?]' style='cursor:pointer'
+      title='<?php xl('Click here to choose a date','e'); ?>'>
+
+      <script LANGUAGE="JavaScript">
+      Calendar.setup({inputField:"i<?php echo $i ?>effective_date", ifFormat:"%Y-%m-%d", button:"img_i<?php echo $i; ?>effective_date"});
+      </script>
+
+
+     </td>
+    </tr>
+
+    <tr>
+     <td><span class=required><?php xl('Policy Number','e'); ?>: </span></td>
+     <td><input type='entry' size='16' name='i<?php echo $i?>policy_number' value="<?php echo $result3{"policy_number"}?>"
+      onkeyup='policykeyup(this)'></td>
+    </tr>
+
+    <tr>
+     <td><span class=required><?php xl('Group Number','e'); ?>: </span></td><td><input type=entry size=16 name=i<?php echo $i?>group_number value="<?php echo $result3{"group_number"}?>"></td>
+    </tr>
+
+    <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
+     <td class='required'><?php xl('Subscriber Employer (SE)','e'); ?><br><span style='font-weight:normal'>
+      (<?php xl('if unemployed enter Student','e'); ?>,<br><?php xl('PT Student, or leave blank','e'); ?>): </span></td>
+     <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer
+      value="<?php echo $result3{"subscriber_employer"}?>"
+       onchange="capitalizeMe(this);" /></td>
+    </tr>
+
+    <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
+     <td><span class=required><?php xl('SE Address','e'); ?>: </span></td>
+     <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer_street
+      value="<?php echo $result3{"subscriber_employer_street"}?>"
+       onchange="capitalizeMe(this);" /></td>
+    </tr>
+
+    <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
+     <td colspan="2">
+      <table>
+       <tr>
+        <td><span class=required><?php xl('SE City','e'); ?>: </span></td>
+        <td><input type=entry size=15 name=i<?php echo $i?>subscriber_employer_city
+         value="<?php echo $result3{"subscriber_employer_city"}?>"
+          onchange="capitalizeMe(this);" /></td>
+        <td><span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('SE State','e') : xl('SE Locality','e') ?>: </span></td>
+	<td>
+         <?php
+          // Modified 7/2009 by BM to incorporate data types
+	  generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'field_id'=>('i'.$i.'subscriber_employer_state'),'list_id'=>$GLOBALS['state_list'],'fld_length'=>'15','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_employer_state']);
+         ?>
+        </td>
+       </tr>
+       <tr>
+        <td><span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('SE Zip Code','e') : xl('SE Postal Code','e') ?>: </span></td>
+        <td><input type=entry size=10 name=i<?php echo $i?>subscriber_employer_postal_code value="<?php echo $result3{"subscriber_employer_postal_code"}?>"></td>
+        <td><span class=required><?php xl('SE Country','e'); ?>: </span></td>
+	<td>
+         <?php
+          // Modified 7/2009 by BM to incorporate data types
+	  generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_employer_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_employer_country']);
+         ?>
+	</td>
+       </tr>
+      </table>
+     </td>
+    </tr>
+
+   </table>
+  </td>
+
+  <td valign=top>
+   <span class=required><?php xl('Subscriber','e'); ?>: </span>
+   <input type=entry size=10 name=i<?php echo $i?>subscriber_fname
+    value="<?php echo $result3{"subscriber_fname"}?>"
+    onchange="capitalizeMe(this);" />
+   <input type=entry size=3 name=i<?php echo $i?>subscriber_mname
+    value="<?php echo $result3{"subscriber_mname"}?>"
+    onchange="capitalizeMe(this);" />
+   <input type=entry size=10 name=i<?php echo $i?>subscriber_lname
+    value="<?php echo $result3{"subscriber_lname"}?>"
+    onchange="capitalizeMe(this);" />
+   <br>
+   <span class=required><?php xl('Relationship','e'); ?>: </span>
+   <?php
+    // Modified 6/2009 by BM to use list_options and function
+    generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_relationship'),'list_id'=>'sub_relation','empty_title'=>''), $result3['subscriber_relationship']);
+   ?>
+   <a href="javascript:popUp('../../interface/patient_file/summary/browse.php?browsenum=<?php echo $i?>')" class=text>(<?php xl('Browse','e'); ?>)</a><br />
+
+   <span class=bold><?php xl('D.O.B.','e'); ?>: </span>
+   <input type='entry' size='11' name='i<?php echo $i?>subscriber_DOB'
+    id='i<?php echo $i?>subscriber_DOB'
+    value='<?php echo $result3['subscriber_DOB'] ?>'
+    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+    title='yyyy-mm-dd' />
+
+   <img src='../../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
+    id='img_i<?php echo $i; ?>dob_date' border='0' alt='[?]' style='cursor:pointer'
+    title='<?php xl('Click here to choose a date','e'); ?>'>
+
+    <script LANGUAGE="JavaScript">
+    Calendar.setup({inputField:"i<?php echo $i?>subscriber_DOB", ifFormat:"%Y-%m-%d", button:"img_i<?php echo $i; ?>dob_date"});
+    </script>
+
+
+   <span class=bold><?php xl('S.S.','e'); ?>: </span><input type=entry size=11 name=i<?php echo $i?>subscriber_ss value="<?php echo $result3{"subscriber_ss"}?>">&nbsp;
+   <span class=bold><?php xl('Sex','e'); ?>: </span>
+   <?php
+    // Modified 6/2009 by BM to use list_options and function
+    generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_sex'),'list_id'=>'sex'), $result3['subscriber_sex']);
+   ?>	
+   <br>
+   <span class=required><?php xl('Subscriber Address','e'); ?>: </span>
+   <input type=entry size=25 name=i<?php echo $i?>subscriber_street
+    value="<?php echo $result3{"subscriber_street"}?>"
+    onchange="capitalizeMe(this);" /><br>
+   <span class=required><?php xl('City','e'); ?>: </span>
+   <input type=entry size=15 name=i<?php echo $i?>subscriber_city
+    value="<?php echo $result3{"subscriber_city"}?>"
+    onchange="capitalizeMe(this);" />
+   <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('State','e') : xl('Locality','e') ?>: </span>
+   <?php
+    // Modified 7/2009 by BM to incorporate data types
+    generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'field_id'=>('i'.$i.'subscriber_state'),'list_id'=>$GLOBALS['state_list'],'fld_length'=>'15','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_state']);
+   ?>
+   <br />	
+   <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('Zip Code','e') : xl('Postal Code','e') ?>: </span><input type=entry size=10 name=i<?php echo $i?>subscriber_postal_code value="<?php echo $result3{"subscriber_postal_code"}?>">
+   <span class='required'<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
+   <?php xl('Country','e'); ?>: </span>
+   <?php
+    // Modified 7/2009 by BM to incorporate data types
+    generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_country']);
+   ?>
+   <br />
+   <span class=bold><?php xl('Subscriber Phone','e'); ?>: 
+   <input type='text' size='20' name='i<?php echo $i?>subscriber_phone' value='<?php echo $result3["subscriber_phone"] ?>' onkeyup='phonekeyup(this,mypcc)' />
+   </span><br />
+   <span class=bold><?php xl('CoPay','e'); ?>: <input type=text size="6" name=i<?php echo $i?>copay value="<?php echo $result3{"copay"}?>">
+   </span><br />
+   <span class='required'><?php xl('Accept Assignment','e'); ?>: </span>
+   <select name=i<?php echo $i?>accept_assignment>
+     <option value="TRUE" <?php if (strtoupper($result3{"accept_assignment"}) == "TRUE") echo "selected"?>><?php xl('YES','e'); ?></option>
+     <option value="FALSE" <?php if (strtoupper($result3{"accept_assignment"}) == "FALSE") echo "selected"?>><?php xl('NO','e'); ?></option>
+   </select>
+  </td>
+ </tr>
+
+</table>
+<hr />
+<?php
+  }
+  echo "</div>\n";
+ } // end of "if not simplified_demographics"
+?>
+
 <?php if (!$SHORT_FORM) echo "  <center>\n"; ?>
 <br />
 <?php if ($WITH_SEARCH) { ?>
@@ -417,6 +690,11 @@ if (f.form_phone_cell   ) phonekeyup(f.form_phone_cell   ,mypcc);
 
 $(document).ready(function() {
 
+    // added to integrate insurance stuff
+    <?php for ($i=1;$i<=3;$i++) { ?>
+    $("#form_i<?php echo $i?>subscriber_relationship").change(function() { auto_populate_employer_address<?php echo $i?>(); });
+    <?php } ?>
+	
     $('#search').click(function() { searchme(); });
     $('#create').click(function() { submitme(); });
 
