@@ -577,7 +577,7 @@ if (! $GLOBALS['simplified_demographics']) {
    <span class=required><?php xl('Relationship','e'); ?>: </span>
    <?php
     // Modified 6/2009 by BM to use list_options and function
-    generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_relationship'),'list_id'=>'sub_relation','empty_title'=>''), $result3['subscriber_relationship']);
+    generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_relationship'),'list_id'=>'sub_relation','empty_title'=>' '), $result3['subscriber_relationship']);
    ?>
    <a href="javascript:popUp('../../interface/patient_file/summary/browse.php?browsenum=<?php echo $i?>')" class=text>(<?php xl('Browse','e'); ?>)</a><br />
 

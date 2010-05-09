@@ -216,7 +216,7 @@ td { font-size:10pt; }
   <td width='1%' nowrap><b><?php xl('Name','e'); ?>:</b></td>
   <td>
 <?php
- generate_form_field(array('data_type'=>1,'field_id'=>'title','list_id'=>'titles','empty_title'=>''), $row['title']);
+ generate_form_field(array('data_type'=>1,'field_id'=>'title','list_id'=>'titles','empty_title'=>' '), $row['title']);
 ?>
    <b><?php xl('Last','e'); ?>:</b><input type='text' size='10' name='form_lname' class='inputtext'
      maxlength='50' value='<?php echo htmlspecialchars($row['lname'], ENT_QUOTES); ?>'/>&nbsp;
