@@ -8,10 +8,15 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
+require_once("$srcdir/csv_like_join.php");
 require_once("../../../custom/code_types.inc.php");
 
 $info_msg = "";
 $codetype = $_REQUEST['codetype'];
+if (isset($codetype)) {
+	$allowed_codes = split_csv_line($codetype);
+}
+
 $form_code_type = $_POST['form_code_type'];
 ?>
 <html>
@@ -55,8 +60,25 @@ td { font-size:10pt; }
    <b>
 
 <?php
-if ($codetype) {
+if (isset($allowed_codes)) {
+	if (count($allowed_codes) === 1) {
   echo "<input type='text' name='form_code_type' value='$codetype' size='5' readonly>\n";
+	} else {
+?>
+   <select name='form_code_type'>
+<?php
+		foreach ($allowed_codes as $code) {
+			$value = htmlspecialchars($code, ENT_QUOTES);
+			$selected_attr = ($form_code_type == $code) ? " selected='selected'" : '';
+			$text = htmlspecialchars($code, ENT_NOQUOTES);
+?>
+   	<option value='<?php echo $value ?>'<?php echo $select_attr?>><?php echo $text ?></option>
+<?php
+		}
+?>
+   </select>
+<?php
+	}
 }
 else {
   echo "   <select name='form_code_type'";

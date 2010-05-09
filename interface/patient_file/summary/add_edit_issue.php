@@ -11,6 +11,8 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
+require_once("$srcdir/../custom/code_types.inc.php");
+require_once("$srcdir/csv_like_join.php");
 
 if ($ISSUE_TYPES['football_injury']) {
   // Most of the logic for the "football injury" issue type comes from this
@@ -23,7 +25,17 @@ if ($ISSUE_TYPES['ippf_gcac']) {
   require_once("$srcdir/ippf_issues.inc.php");
 }
 
-$diagnosis_type = $GLOBALS['athletic_team'] ? 'OSICS10' : 'ICD9';
+$diagnosis_types = array();
+foreach ($code_types as $code => $data) {
+	if ($data['diag']) {
+		array_push($diagnosis_types, $code);
+	}
+}
+if (count($diagnosis_types) < 1) {
+	$diagnosis_type = 'ICD9';
+} else {
+	$diagnosis_type = csv_like_join($diagnosis_types);
+}
 
 $issue = $_REQUEST['issue'];
 $thispid = 0 + (empty($_REQUEST['thispid']) ? $pid : $_REQUEST['thispid']);
