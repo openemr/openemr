@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2008-2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -38,6 +38,8 @@ if ($report_type == 'm') {
   $arr_by = array(
     101 => xl('MA Category'),
     102 => xl('Specific Service'),
+    104 => xl('Method and Specific Product'),
+    105 => xl('Product Contraceptive Method'),
     17  => xl('Patient'),
     9   => xl('Internal Referrals'),
     10  => xl('External Referrals'),
@@ -45,7 +47,7 @@ if ($report_type == 'm') {
     2   => xl('Total'),
   );
   $arr_content = array(
-    1 => xl('Services'),
+    1 => xl('Services/Products'),
     2 => xl('Unique Clients'),
     4 => xl('Unique New Clients')
   );
@@ -86,12 +88,14 @@ else {
   $arr_by = array(
     3  => xl('General Service Category'),
     4  => xl('Specific Service'),
+    104 => xl('Method and Specific Product'),
+    105 => xl('Product Contraceptive Method'),
     6  => xl('Contraceptive Method'),
     9   => xl('Internal Referrals'),
     10  => xl('External Referrals'),
   );
   $arr_content = array(
-    1 => xl('Services'),
+    1 => xl('Services/Products'),
     3 => xl('New Acceptors'),
   );
   $arr_report = array(
@@ -363,8 +367,11 @@ function getGcacClientStatus($row) {
 
 // Helper function called after the reporting key is determined for a row.
 //
-function loadColumnData($key, $row) {
+function loadColumnData($key, $row, $quantity=1) {
   global $areport, $arr_titles, $form_cors, $from_date, $to_date, $arr_show;
+
+  // Quantity is not meaningful if we are counting clients.
+  if ($form_cors != 1) $quantity = 1;
 
   // If first instance of this key, initialize its arrays.
   if (empty($areport[$key])) {
@@ -408,21 +415,21 @@ function loadColumnData($key, $row) {
 
   // Increment the correct sex category.
   if (strcasecmp($row['sex'], 'Male') == 0)
-    ++$areport[$key]['.men'];
+    $areport[$key]['.men'] += $quantity;
   else
-    ++$areport[$key]['.wom'];
+    $areport[$key]['.wom'] += $quantity;
 
   // Increment the correct age category.
   $age = getAge(fixDate($row['DOB']), $row['encdate']);
   $i = min(intval(($age - 5) / 5), 8);
   if ($age < 11) $i = 0;
-  ++$areport[$key]['.age'][$i];
+  $areport[$key]['.age'][$i] += $quantity;
 
   foreach ($arr_show as $askey => $dummy) {
     if (substr($askey, 0, 1) == '.') continue;
     $status = empty($row[$askey]) ? 'Unspecified' : $row[$askey];
-    $areport[$key][$askey][$status] += 1;
-    $arr_titles[$askey][$status] += 1;
+    $areport[$key][$askey][$status] += $quantity;
+    $arr_titles[$askey][$status] += $quantity;
   }
 }
 
@@ -715,6 +722,8 @@ function process_visit($row) {
   // present for inbound referrals.
   //
   if ($form_by === '7') {
+    // We think this case goes away, but not sure yet.
+    /*****************************************************************
     $dres = LBFgcac_query($row['pid'], $row['encounter'], 'contrameth');
     while ($drow = sqlFetchArray($dres)) {
       $a = explode('|', $drow['field_value']);
@@ -727,6 +736,7 @@ function process_visit($row) {
         loadColumnData($key, $row);
       }
     }
+    *****************************************************************/
   }
 
   // Complications of abortion by abortion method and complication type.
@@ -1119,7 +1129,41 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
     *****************************************************************/
 
     // else {
-    if ($form_by !== '9' && $form_by !== '10' && $form_by !== '20') {
+
+    if ($form_by === '104' || $form_by === '105') {
+      $query = "SELECT " .
+        "d.name, d.related_code, ds.pid, ds.quantity, " . 
+        "pd.regdate, pd.referral_source, " .
+        "pd.sex, pd.DOB, pd.lname, pd.fname, pd.mname, " .
+        "pd.contrastart$pd_fields " .
+        "FROM drug_sales AS ds " .
+        "JOIN drugs AS d ON d.drug_id = ds.drug_id " .
+        "JOIN patient_data AS pd ON pd.pid = ds.pid $sexcond" .
+        "WHERE ds.sale_date IS NOT NULL AND ds.pid != 0 AND " .
+        "ds.sale_date >= '$from_date' AND ds.sale_date <= '$to_date' " .
+        "ORDER BY ds.pid, ds.sale_id";
+      $res = sqlStatement($query);
+      while ($row = sqlFetchArray($res)) {
+        $key = "(Unspecified)";
+        if (!empty($row['related_code'])) {
+          $relcodes = explode(';', $row['related_code']);
+          foreach ($relcodes as $codestring) {
+            if ($codestring === '') continue;
+            list($codetype, $code) = explode(':', $codestring);
+            if ($codetype !== 'IPPF') continue;
+            $key = getContraceptiveMethod($code);
+            if (!empty($key)) break;
+            $key = "(No Method)";
+          }
+        }
+        if ($form_by === '104') $key .= " / " . $row['name'];
+        loadColumnData($key, $row, $row['quantity']);
+      }
+    }
+
+    if ($form_by !== '9' && $form_by !== '10' && $form_by !== '20' &&
+      $form_by !== '104' && $form_by !== '105')
+    {
       // This gets us all MA codes, with encounter and patient
       // info attached and grouped by patient and encounter.
       $query = "SELECT " .
