@@ -184,7 +184,7 @@ if ($_POST['edit']){
 	// english plus the other
 	} else {
 		while ($row=SqlFetchArray($res)){
-      if ($row['lang_id'] != '1') {
+      if (!empty($row['lang_id']) && $row['lang_id'] != '1') {
         // This should not happen, if it does that must mean that this
         // constant has more than one definition for the same language!
         continue;
