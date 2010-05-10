@@ -1042,7 +1042,7 @@ if ($trow['count'] && $contraception && !$isBilled) {
 }
 
 // If there is a choice of warehouses, allow override of user default.
-if ($GLOBALS['inhouse_pharmacy']) {
+if ($prod_lino > 0) { // if any products are in this form
   $trow = sqlQuery("SELECT count(*) AS count FROM list_options WHERE list_id = 'warehouse'");
   if ($trow['count'] > 1) {
     $trow = sqlQuery("SELECT default_warehouse FROM users WHERE username = '" .
