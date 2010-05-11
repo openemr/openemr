@@ -1,0 +1,99 @@
+<html>
+<head>
+{php}html_header_show();{/php}
+{literal}
+
+ <style type="text/css" title="mystyles" media="all">
+<!--
+td {
+	font-size:12pt;
+	font-family:helvetica;
+}
+li{
+	font-size:11pt;
+	font-family:helvetica;
+	margin-left: 15px;
+}
+a {
+	font-size:11pt;
+	font-family:helvetica;
+}
+.title {
+	font-family: sans-serif;
+	font-size: 12pt;
+	font-weight: bold;
+	text-decoration: none;
+	color: #000000;
+}
+
+.form_text{
+	font-family: sans-serif;
+	font-size: 9pt;
+	text-decoration: none;
+	color: #000000;
+}
+
+-->
+</style>
+{/literal}
+</head>
+<body bgcolor="{$STYLE.BGCOLOR2}">
+<p><span class="title">Grip Strength</span></p>
+<form name="soap" method="post" action="{$FORM_ACTION}/interface/forms/hand/save.php"
+ onsubmit="return top.restoreSession()">
+<table border='1px' cellspacing='1px'; cellpadding='1px'>
+	<tr>
+		<td><b>Grip Strength</b></td>
+		<td><b>1st</b></td>
+		<td><b>2nd</b></td>
+		<td><b>3rd</b></td>
+	</tr>
+	<tr>
+		<td><b>Left Hand</b></td>
+		<td><b><input type='text' size='15px' name='left_1' value='{$data->get_left_1()}'> fp</td>
+		<td><b><input type='text' size='15px' name='left_2' value='{$data->get_left_2()}'> fp</td>
+		<td><b><input type='text' size='15px' name='left_3' value='{$data->get_left_3()}'> fp</td>
+	</tr>	
+	<tr>
+		<td><b>Right Hand</b></td>
+		<td><b><input type='text' size='15px' name='right_1' value='{$data->get_right_1()}'> fp</td>
+		<td><b><input type='text' size='15px' name='right_2' value='{$data->get_right_2()}'> fp</td>
+		<td><b><input type='text' size='15px' name='right_3' value='{$data->get_right_3()}'> fp</td>
+	</tr>	
+</table>
+
+<table border=0 cellpadding=0 cellspacing=0>
+	<tr>
+	<td>Handedness:</td>
+	<td><INPUT TYPE=radio NAME='handedness' VALUE='Left' '{$data->get_handedness_l()}'></td><td><span class='text'>Left</span></td>
+	<td><INPUT TYPE=radio NAME='handedness' VALUE='Right'  '{$data->get_handedness_r()}'></td><td><span class='text'>Right</span></td>
+	<td><INPUT TYPE=radio NAME='handedness' VALUE='Both' '{$data->get_handedness_b()}'></td><td><span class='text'>Both</span></td>
+	</tr>
+</table>
+
+</p>
+<table border='0' cellpadding='0' cellspacing='0' class='text'>
+	<tr class='text'>
+		<td><b>NOTES</b></td>
+	</tr>
+	<tr class='text'>
+		<td><textarea cols='80' rows='5' name='notes'>{$data->get_notes()}</textarea></td>
+	</tr>
+</table>
+
+<table>
+	<tr>
+		<td>
+			<input type="submit" name="Submit" value="Save Form">
+		</td>
+		<td>
+			<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a>
+		</td>
+	</tr>
+</table>
+<input type="hidden" name="id" value="{$data->get_id()}" />
+<input type="hidden" name="pid" value="{$data->get_pid()}">
+<input type="hidden" name="process" value="true">
+</form>
+</body>
+</html>
