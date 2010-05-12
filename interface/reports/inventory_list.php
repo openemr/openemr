@@ -64,8 +64,8 @@ a, a:visited, a:hover { color:#0000cc; }
    <?php xl('For the past','e'); ?>
    <input type="input" name="form_days" size='3' value="<?php echo $form_days; ?>" />
    <?php xl('days','e'); ?>&nbsp;
-   <input type="submit" value="Refresh" />&nbsp;
-   <input type="button" value="Print" onclick="window.print()" />
+   <input type="submit" value="<?php xl('Refresh','e'); ?>" />&nbsp;
+   <input type="button" value="<?php xl('Print','e'); ?>" onclick="window.print()" />
   </td>
  </tr>
 </table>

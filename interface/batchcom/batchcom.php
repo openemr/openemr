@@ -188,7 +188,7 @@ if ($_POST['form_action']=='Process') {
         <br>
         <?php xl('Age From','e')?>:<INPUT TYPE="text" size="2" NAME="age_from"> <?php xl('Up to','e')?>:<INPUT TYPE="text" size="2" NAME="age_upto"> 
         <?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_gender" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_gender" value="OR">
-        <?php xl('Gender ','e')?>:<SELECT NAME="gender">
+        <?php xl('Gender','e')?> :<SELECT NAME="gender">
                 <?php
                 foreach ($gender as $value) {
                     echo ("<option>$value</option>");

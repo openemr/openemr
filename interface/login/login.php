@@ -134,7 +134,7 @@ Invalid username or password
 if ($GLOBALS['language_menu_login']) {
 if (count($result3) != 1) { ?>
 <tr>
-<td><span class="text"><?php xl('Language:','e'); ?></span></td>
+<td><span class="text"><?php xl('Language','e'); ?>:</span></td>
 <td>
 <select name=languageChoice size="1">
 <?php

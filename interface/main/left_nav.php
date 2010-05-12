@@ -763,7 +763,7 @@ function getEncounterTargetFrame( name ) {
           <?php genDualLink('his','ens',xl('PPE + Prev Med/Surg Hx')); // with ens on bottom ?>
 
           <?php // genTreeLink('RBot','nen',xl('New Allergy')); // nen with Allergy in chief complaint ?>
-          <?php genPopLink('New Allergy','../patient_file/summary/add_edit_issue.php?thistype=allergy','xxx1'); ?>
+          <?php genPopLink(xl('New Allergy'),'../patient_file/summary/add_edit_issue.php?thistype=allergy','xxx1'); ?>
 
           <?php genTreeLink('RTop','iss',xl('View/Edit Allergies')); // somehow emphasizing allergies...? ?>
           <?php genDualLink('iss','ens',xl('Problems/Issues')); // with ens on bottom ?>
@@ -774,7 +774,7 @@ function getEncounterTargetFrame( name ) {
           <?php genTreeLink('RTop','prp',xl('Patient Printed Report')); ?>
           <?php genDualLink('dem','pno',xl('Additional Notes')); // with dem on top ?>
           <li><a href='' onClick="return repPopup('../patient_file/letter.php')" id='prp1'>Letter</a></li>
-          <?php genPopLink('Address Book','../usergroup/addrbook_list.php?popup=1'); ?>
+          <?php genPopLink(xl('Address Book'),'../usergroup/addrbook_list.php?popup=1'); ?>
          </ul>
       </li>
     </ul>
@@ -791,7 +791,7 @@ function getEncounterTargetFrame( name ) {
       </li>
       <li><span><?php xl('Patient/Client','e') ?></span>
         <ul>
-          <?php genPopLink('List','patient_list.php'); ?>
+          <?php genPopLink(xl('List'),'patient_list.php'); ?>
           <?php if (acl_check('patients', 'med') && !$GLOBALS['disable_prescriptions']) genPopLink(xl('Prescriptions'),'prescriptions_report.php'); ?>
           <?php genPopLink(xl('Referrals'),'referrals_report.php'); ?>
         </ul>
@@ -1026,11 +1026,11 @@ if (!empty($reg)) {
 <?php if (!empty($GLOBALS['code_types']['IPPF'])) { ?>
       <li><span><?php xl('Statistics','e') ?></span>
         <ul>
-          <?php genPopLink('IPPF Stats','ippf_statistics.php?t=i'); ?>
-          <?php genPopLink('GCAC Stats','ippf_statistics.php?t=g'); ?>
-          <?php genPopLink('MA Stats','ippf_statistics.php?t=m'); ?>
-          <?php genPopLink('CYP','ippf_cyp_report.php'); ?>
-          <?php genPopLink('Daily Record','ippf_daily.php'); ?>
+          <?php genPopLink(xl('IPPF Stats'),'ippf_statistics.php?t=i'); ?>
+          <?php genPopLink(xl('GCAC Stats'),'ippf_statistics.php?t=g'); ?>
+          <?php genPopLink(xl('MA Stats'),'ippf_statistics.php?t=m'); ?>
+          <?php genPopLink(xl('CYP'),'ippf_cyp_report.php'); ?>
+          <?php genPopLink(xl('Daily Record'),'ippf_daily.php'); ?>
         </ul>
       </li>
 <?php } // end ippf-specific ?>

@@ -50,7 +50,7 @@ require_once("$srcdir/classes/Pharmacy.class.php");
    <span style="font-size:8pt;">(<?php echo $info; ?>)</span>
   </td>
   <td width="33%" align="center" valign="middle" nowrap>
-   <span class="title"><?php xl('Logged in as: ','e', '', ' '); echo $provider_results{"fname"}.' '.$provider_results{"lname"};?></span>
+   <span class="title"><?php echo xl('Logged in as') . ': ' . $provider_results{"fname"} . ' ' . $provider_results{"lname"}; ?></span>
   </td>
   <td width="33%" align="right" valign="middle" nowrap>
    <span class="title_bar_top"><?php xl('Encounter','e', '', ' '); echo $encounter_date; ?> </span>
