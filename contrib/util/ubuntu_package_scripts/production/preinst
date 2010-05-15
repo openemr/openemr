@@ -8,7 +8,7 @@
 # authors: Amalu Obinna <amaluobinna@aol.com>
 #          Brady Miller <brady@sparmy.com>
 #
-# date:    12/08/09
+# date:    05/15/10
 #
 # Debian package pre-installation script steps:
 #  1) Create log file
@@ -127,6 +127,8 @@ upgrade_function () {
             OLD_VERSION="3.0.1-1"
          elif [ "$OLD_VERSION" == "3.1.0" ]; then
             OLD_VERSION="3.1.0-1" 
+         elif [ "$OLD_VERSION" == "3.2.0" ]; then
+            OLD_VERSION="3.2.0-1"
          else
             unable_exit "Unable to upgrade from $OLD_VERSION version package with $UPGRADETYPE method, so can not upgrade the OpenEMR Package."
          fi
@@ -134,16 +136,11 @@ upgrade_function () {
       #
       # ONLY acceptable package and converted raw is 3.0.1-1 or 3.1.0-1
       #
-      if [ "$OLD_VERSION" != "3.0.1-1" ] && [ "$OLD_VERSION" != "3.1.0-1" ]; then
+      if [ "$OLD_VERSION" != "3.0.1-1" ] && [ "$OLD_VERSION" != "3.1.0-1" ] && [ "$OLD_VERSION" != "3.2.0-1" ]; then
          unable_exit "Unable to upgrade from $OLD_VERSION version package with $UPGRADETYPE method, so can not upgrade the OpenEMR Package."
       fi
 
-      #Collect variables
-       #collect web path data
-      ABSPATH=$(collect_var \$webserver_root $OPENEMR/interface/globals.php)
-      WEBPATH=$(collect_var \$web_root $OPENEMR/interface/globals.php)
       #collect openemr mysql data
-
       SQLLOCATION=$(collect_var \$host $OPENEMR/library/sqlconf.php)
       SQLUSER=$(collect_var \$login $OPENEMR/library/sqlconf.php)
       SQLPASSWORD=$(collect_var \$pass $OPENEMR/library/sqlconf.php)
@@ -187,8 +184,6 @@ process=pending\n\
 plan=upgrade\n\
 pass=\n\
 previous_version=$OLD_VERSION\n\
-abspath=$ABSPATH\n\
-webpath=$WEBPATH\n\
 sqllocation=$SQLLOCATION\n\
 sqluser=$SQLUSER\n\
 sqlpassword=$SQLPASSWORD\n\

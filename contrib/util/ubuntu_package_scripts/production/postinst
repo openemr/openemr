@@ -8,7 +8,7 @@
 # authors: Amalu Obinna <amaluobinna@aol.com>
 #          Brady Miller <brady@sparmy.com>
 #
-# date:    12/08/09
+# date:    05/15/09
 #
 # Debian package post installation script steps:
 #  1) Collect setting from package configuration file
@@ -141,17 +141,11 @@ case "$1" in
 
          #collect more information from config file
          OLD_VERSION=$(collect_var previous_version $CONFIG)
-         ABSPATH=$(collect_var abspath $CONFIG)
-         WEBPATH=$(collect_var webpath $CONFIG)
          SQLLOCATION=$(collect_var sqllocation $CONFIG)
          SQLUSER=$(collect_var sqluser $CONFIG)
          SQLPASSWORD=$(collect_var sqlpassword $CONFIG)
          SQLDATABASE=$(collect_var sqldatabase $CONFIG)
          SQLUTFFLAG=$(collect_var sqlutfflag $CONFIG)
-
-         #configure openemr/interface/globals.php
-         insert_var "\$webserver_root" "\"$ABSPATH\";" $OPENEMR/interface/globals.php
-         insert_var "\$web_root" "\"$WEBPATH\";" $OPENEMR/interface/globals.php
 
          #configure openemr/library/sqlconf.php
          insert_var "\$host" "\'$SQLLOCATION\';" $OPENEMR/library/sqlconf.php
@@ -208,8 +202,6 @@ case "$1" in
          sed -i "/^[ 	]*plan[ 	=].*$/d" $CONFIG
          sed -i "/^[ 	]*pass[ 	=].*$/d" $CONFIG
          sed -i "/^[ 	]*previous_version[ 	=].*$/d" $CONFIG
-         sed -i "/^[ 	]*abspath[ 	=].*$/d" $CONFIG
-         sed -i "/^[ 	]*webpath[ 	=].*$/d" $CONFIG
          sed -i "/^[ 	]*sqllocation[ 	=].*$/d" $CONFIG
          sed -i "/^[ 	]*sqluser[ 	=].*$/d" $CONFIG
          sed -i "/^[ 	]*sqlpassword[ 	=].*$/d" $CONFIG
@@ -299,7 +291,6 @@ case "$1" in
       setIuser="admin" #initial user login name 
       setIuname="Administrator" #initial user full name 
       setIgroup="Default" #practice group name 
-      setOpenemrWebPath="$INSTALL_WEBPATH" #path on browser to openemr
       setInst="1" #CONSTANT, don't set 
 
       #go to openemr directory
@@ -312,7 +303,6 @@ case "$1" in
       output_both "Configuring OpenEMR" 
       # Set file and directory permissions 
       chmod 666 $OPENEMR/library/sqlconf.php 
-      chmod 666 $OPENEMR/interface/globals.php 
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/documents 
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/edi 
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/era 
@@ -342,8 +332,6 @@ case "$1" in
     $iuser = '\'''$setIuser''\'';\
     $iuname = '\'''$setIuname''\'';\
     $igroup = '\'''$setIgroup''\'';\
-    $openemrBasePath = '\'''$OPENEMR''\'';\
-    $openemrWebPath = '\'''$setOpenemrWebPath''\'';\
     $collate = '\'''$setColl''\'';\
     $inst = 1;@' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
       mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
