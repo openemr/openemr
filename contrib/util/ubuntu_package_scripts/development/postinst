@@ -8,7 +8,7 @@
 # authors: Brady Miller <brady@sparmy.com>
 #          Amalu Obinna <amaluobinna@aol.com>
 #
-# date:    04/28/09
+# date:    05/14/10
 #
 # Debian package post installation script steps:
 #  1) Collect mysql root password
@@ -210,7 +210,6 @@ case "$1" in
       setIuser="admin" #initial user login name 
       setIuname="Administrator" #initial user full name 
       setIgroup="Default" #practice group name 
-      setOpenemrWebPath="$INSTALL_WEBPATH" #path on browser to openemr 
       setInst="1" #CONSTANT, don't set 
 
       #go to openemr directory
@@ -222,7 +221,6 @@ case "$1" in
       #INSTALL AND CONFIGURE OPENEMR 
       # Set file and directory permissions 
       chmod 666 $OPENEMR/library/sqlconf.php 
-      chmod 666 $OPENEMR/interface/globals.php 
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/documents 
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/edi 
       chown -R $WEB_GROUP.$WEB_USER $OPENEMR/era 
@@ -252,8 +250,6 @@ case "$1" in
     $iuser = '\'''$setIuser''\'';\
     $iuname = '\'''$setIuname''\'';\
     $igroup = '\'''$setIgroup''\'';\
-    $openemrBasePath = '\'''$OPENEMR''\'';\
-    $openemrWebPath = '\'''$setOpenemrWebPath''\'';\
     $collate = '\'''$setColl''\'';\
     $inst = 1;@' <$OPENEMR/TEMPsetup.php >$OPENEMR/TEMP2setup.php
       mv -f $OPENEMR/TEMP2setup.php $OPENEMR/TEMPsetup.php
