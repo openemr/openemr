@@ -69,6 +69,7 @@ function upload_file_to_client($file_to_send) {
   // flush the content to the browser. If you don't do this, the text from the subsequent
   // output from this script will be in the file instead of sent to the browser.
   flush();
+  exit(); //added to exit from process properly in order to stop bad html code -ehrlive
   // sleep one second to ensure there's no follow-on.
   sleep(1);
 }
