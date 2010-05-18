@@ -25,7 +25,7 @@ function formFooter ()
 {
 	?>
 	</body>
-	</form>
+	</html>
 	<?php
 }
 
