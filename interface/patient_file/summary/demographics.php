@@ -719,7 +719,7 @@ if ($GLOBALS['patient_id_category_name']) {
 
 <?php if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) { ?>
 <script language='JavaScript'>
- parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($result['DOB_YMD']) . "'"; ?>);
+ top.window.parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($result['DOB_YMD']) . "'"; ?>);
  parent.left_nav.setRadio(window.name, 'dem');
 </script>
 <?php } ?>

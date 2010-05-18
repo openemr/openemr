@@ -122,6 +122,20 @@ form {
 </style>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-1.2.2.min.js"></script>
+<!-- ViSolve: Verify the noresult parameter -->
+<?php
+if(isset($_GET["res"])){
+echo '
+<script language="Javascript">
+			// Pass the variable to parent hidden type and submit
+			opener.document.theform.resname.value = "noresult";
+			opener.document.theform.submit();
+			// Close the window
+			window.self.close();
+</script>';
+}
+?>
+<!-- ViSolve: Verify the noresult parameter -->
 
 <script language="JavaScript">
 
@@ -165,7 +179,10 @@ form {
 <?php if (! isset($_REQUEST['searchparm'])): ?>
 <div id="searchstatus"><?php xl('Enter your search criteria above','e'); ?></div>
 <?php elseif (count($result) == 0): ?>
-<div id="searchstatus" class="noResults"><?php xl('No records found. Please expand your search criteria.','e'); ?></div>
+<div id="searchstatus" class="noResults"><?php xl('No records found. Please expand your search criteria.','e'); ?>
+<br>
+<a class="noresult" href='find_patient_popup.php?res=noresult'><?php xl('Click Here to add a new patient.','e'); ?></a>
+</div>
 <?php elseif (count($result)>=100): ?>
 <div id="searchstatus" class="tooManyResults"><?php xl('More than 100 records found. Please narrow your search criteria.','e'); ?></div>
 <?php elseif (count($result)<100): ?>
@@ -226,8 +243,12 @@ $(document).ready(function(){
     $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").click(function() { SelectPatient(this); });
+    //ViSolve 
+    $(".noresult").click(function () { SubmitForm(this);});
+
     //$(".event").dblclick(function() { EditEvent(this); });
     $("#theform").submit(function() { SubmitForm(this); });
+
 });
 
 // show the 'searching...' status and submit the form
