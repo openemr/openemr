@@ -35,10 +35,18 @@ if (!defined('IS_WINDOWS'))
 ini_set('memory_limit', '64M');
 ini_set('session.gc_maxlifetime', '14400');
 
+/* If the includer didn't specify, assume they want us to "fake" register_globals. */
+if (!isset($fake_register_globals)) {
+	$fake_register_globals = TRUE;
+}
+
+/* Pages with "myadmin" in the URL don't need register_globals. */
+$fake_register_globals =
+	$fake_register_globals && (strpos($_SERVER['REQUEST_URI'],"myadmin") !== FALSE);
+
 // Emulates register_globals = On.  Moved to here from the bottom of this file
 // to address security issues.  Need to change everything requiring this!
-$ps = strpos($_SERVER['REQUEST_URI'],"myadmin");
-if ($ps === false) {
+if ($fake_register_globals) {
   extract($_GET);
   extract($_POST);
 }
