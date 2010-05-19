@@ -42,7 +42,7 @@ if (!isset($fake_register_globals)) {
 
 /* Pages with "myadmin" in the URL don't need register_globals. */
 $fake_register_globals =
-	$fake_register_globals && (strpos($_SERVER['REQUEST_URI'],"myadmin") !== FALSE);
+	$fake_register_globals && (strpos($_SERVER['REQUEST_URI'],"myadmin") === FALSE);
 
 // Emulates register_globals = On.  Moved to here from the bottom of this file
 // to address security issues.  Need to change everything requiring this!
