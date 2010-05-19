@@ -15,6 +15,12 @@
  $thisauth = acl_check('admin', 'drugs');
  if (!$thisauth) die(xl('Not authorized'));
 
+function addWarning($msg) {
+  global $warnings;
+  if ($warnings) $warnings .= '<br />';
+  $warnings .= $msg;
+}
+
 if (!empty($_POST['form_days'])) {
   $form_days = $_POST['form_days'] + 0;
 }
@@ -78,18 +84,24 @@ a, a:visited, a:hover { color:#0000cc; }
    <th><?php  xl('NDC','e'); ?></th>
    <th><?php  xl('Form','e'); ?></th>
    <th align='right'><?php  xl('QOH','e'); ?></th>
+   <th align='right'><?php  xl('Reorder','e'); ?></th>
    <th align='right'><?php  xl('Avg Monthly','e'); ?></th>
    <th align='right'><?php  xl('Stock Months','e'); ?></th>
+   <th><?php xl('Warnings','e'); ?></th>
   </tr>
  </thead>
  <tbody>
 <?php 
 $encount = 0;
 while ($row = sqlFetchArray($res)) {
+  $on_hand = 0 + $row['on_hand'];
+  $drug_id = 0 + $row['drug_id'];
+  $warnings = '';
+
   $srow = sqlQuery("SELECT " .
     "SUM(quantity) AS sale_quantity " .
     "FROM drug_sales WHERE " .
-    "drug_id = '" . $row['drug_id'] . "' AND " .
+    "drug_id = '$drug_id' AND " .
     "sale_date > DATE_SUB(NOW(), INTERVAL $form_days DAY) " .
     "AND pid != 0");
 
@@ -103,8 +115,59 @@ while ($row = sqlFetchArray($res)) {
     sprintf('%0.1f', $sale_quantity / $months) : '&nbsp;';
 
   $stock_months = '&nbsp;';
-  if ($sale_quantity != 0) $stock_months = sprintf('%0.1f',
-    $row['on_hand'] * $months / $sale_quantity);
+  if ($sale_quantity != 0) {
+    $stock_months = sprintf('%0.1f', $on_hand * $months / $sale_quantity);
+    if ($stock_months < 1.0) {
+      addWarning(xl('QOH is less than monthly usage'));
+    }
+  }
+
+  // Check for reorder point reached.
+  if (!empty($row['reorder_point']) && $on_hand <= $row['reorder_point']) {
+    addWarning(xl('Reorder point has been reached'));
+  }
+
+  // Compute the smallest quantity that might be taken from a lot based on the
+  // past 30 days of sales.  If lot combining is allowed this is always 1.
+  $min_sale = 1;
+  if (!$row['allow_combining']) {
+    $sminrow = sqlQuery("SELECT " .
+      "MIN(quantity) AS min_sale " .
+      "FROM drug_sales WHERE " .
+      "drug_id = '$drug_id' AND " .
+      "sale_date > DATE_SUB(NOW(), INTERVAL $form_days DAY) " .
+      "AND pid != 0 " .
+      "AND quantity > 0");
+    $min_sale = 0 + $sminrow['min_sale'];
+  }
+
+  // Get all lots that we want to issue warnings about.  These are lots
+  // expired, soon to expire, or with insufficient quantity for selling.
+  $ires = sqlStatement("SELECT * " .
+    "FROM drug_inventory WHERE " .
+    "drug_id = '$drug_id' AND " .
+    "on_hand > 0 AND " .
+    "destroy_date IS NULL AND ( " .
+    "on_hand < '$min_sale' OR " .
+    "expiration IS NOT NULL AND expiration < DATE_ADD(NOW(), INTERVAL 30 DAY) " .
+    ") ORDER BY lot_number");
+
+  // Generate warnings associated with individual lots.
+  while ($irow = sqlFetchArray($ires)) {
+    $lotno = $irow['lot_number'];
+    if ($irow['on_hand'] < $min_sale) {
+      addWarning(xl('Lot') . " '$lotno' " . xl('quantity seems unusable'));
+    }
+    if (!empty($irow['expiration'])) {
+      $expdays = (int) ((strtotime($irow['expiration']) - time()) / (60 * 60 * 24));
+      if ($expdays <= 0) {
+        addWarning(xl('Lot') . " '$lotno' " . xl('has expired'));
+      }
+      else if ($expdays <= 30) {
+        addWarning(xl('Lot') . " '$lotno' " . xl('expires in') . " $expdays " . xl('days'));
+      }
+    }
+  }
 
   echo " <tr class='detail' bgcolor='$bgcolor'>\n";
   echo "  <td>" . htmlentities($row['name']) . "</td>\n";
@@ -113,8 +176,10 @@ while ($row = sqlFetchArray($res)) {
        generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
        "</td>\n";
   echo "  <td align='right'>" . $row['on_hand'] . "</td>\n";
+  echo "  <td align='right'>" . $row['reorder_point'] . "</td>\n";
   echo "  <td align='right'>$monthly</td>\n";
   echo "  <td align='right'>$stock_months</td>\n";
+  echo "  <td style='color:red'>$warnings</td>\n";
   echo " </tr>\n";
  }
 ?>
