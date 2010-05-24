@@ -425,6 +425,13 @@ $GLOBALS_METADATA = array(
       xl('Set a facility cookie to remember the selected facility between logins.')
     ),
 
+    'discount_by_money' => array(
+      xl('Discounts as Monetary Amounts'),
+      'bool',                           // data type
+      '1',                              // default = true
+      xl('Discounts at checkout time are entered as money amounts, as opposed to percentage.')
+    ),
+
     'gbl_mask_patient_id' => array(
       xl('Mask for Patient IDs'),
       'text',                           // data type
@@ -765,13 +772,6 @@ $GLOBALS_METADATA = array(
       'bool',                           // data type
       '0',                              // default = true
       xl('For Medicare only, forces the referring provider to be the same as the rendering provider.')
-    ),
-
-    'discount_by_money' => array(
-      xl('Discounts as Monetary Amounts'),
-      'bool',                           // data type
-      '1',                              // default = true
-      xl('Discounts at checkout time are entered as money amounts, as opposed to percentage.')
     ),
 
   ),
