@@ -87,7 +87,7 @@
  include_once("../globals.php");
  include_once($GLOBALS['fileroot']."/library/acl.inc");
  include_once($GLOBALS['fileroot']."/custom/code_types.inc.php");
- include_once($GLOBALS['fileroot']."/library/patient.inc"); 
+ include_once($GLOBALS['fileroot']."/library/patient.inc");
 
  // This array defines the list of primary documents that may be
  // chosen.  Each element value is an array of 3 values:
@@ -165,7 +165,7 @@ if ( isset ($GLOBALS['hylafax_server']) && isset ($GLOBALS['scanner_output_direc
   !is_readable("$webserver_root/custom/import.php");
 
  $disallowed['cht'] = !is_readable("$webserver_root/custom/chart_tracker.php");
- 
+
  $disallowed['pre'] = !(acl_check('patients', 'med'));
 
  // Helper functions for treeview generation.
@@ -561,7 +561,13 @@ function goHome() {
   $(parent.Title.document.getElementById('current_patient_block')).show();
   var encounter_block = $(parent.Title.document.getElementById('current_encounter_block'));
   $(encounter_block).hide();
- }
+
+  // zero out the encounter frame, replace it with the authorizations frame
+  var encounter_frame = getEncounterTargetFrame('enc');
+  loadFrame('aun0',encounter_frame, '<?php echo $primary_docs['aun'][2]; ?>');
+  setRadio(enconter_frame, 'aun');
+
+  }
 
 function loadCurrentPatientFromTitle() {
     top.frames['RTop'].location='../patient_file/summary/demographics.php';
