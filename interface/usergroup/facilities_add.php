@@ -9,11 +9,11 @@ $alertmsg = '';
 <html>
 <head>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="../../../library/dialog.js"></script>
-<script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
-<script type="text/javascript" src="../../../library/js/common.js"></script>
-<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../library/js/common.js"></script>
+<script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <?php
 // Old Browser comp trigger on js
 
@@ -87,6 +87,12 @@ $(document).ready(function(){
 
 });
 
+$(document).ready(function(){
+    $("#cancel").click(function() {
+      document.location="facilities.php";
+    });
+});
+
 </script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
@@ -107,7 +113,7 @@ $(document).ready(function(){
 
 <br>
 
-<form name='facility' method='post' action="facilities.php"  target="_parent" onsubmit='return top.restoreSession()'>
+<form name='facility' method='post' action="facilities.php" onsubmit='return top.restoreSession()'>
     <input type=hidden name=mode value="facility">
     <table border=0 cellpadding=0 cellspacing=0>
         <tr>
@@ -144,12 +150,6 @@ $(document).ready(function(){
 </form>
 
 <script language="JavaScript">
-$(document).ready(function(){
-    $("#cancel").click(function() {
-		  parent.$.fn.fancybox.close();
-	 });
-
-});
 <?php
   if ($alertmsg = trim($alertmsg)) {
     echo "alert('$alertmsg');\n";

@@ -29,11 +29,11 @@ parent.$.fn.fancybox.close();
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="../../../library/dialog.js"></script>
-<script type="text/javascript" src="../../../library/js/jquery.1.3.2.js"></script>
-<script type="text/javascript" src="../../../library/js/common.js"></script>
-<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
+<link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
+<script type="text/javascript" src="../../library/dialog.js"></script>
+<script type="text/javascript" src="../../library/js/jquery.1.3.2.js"></script>
+<script type="text/javascript" src="../../library/js/common.js"></script>
+<script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript">
 function submitform() {
 if (document.forms[0].facility.value.length>0)
@@ -44,7 +44,15 @@ document.forms[0].facility.style.backgroundColor="red";
 document.forms[0].facility.focus();
 }
 }
+
+$(document).ready(function(){
+    $("#cancel").click(function() {
+      document.location="facilities.php";
+    });
+});
+
 </script>
+
 </head>
 <body class="body_top" style="width:600px;height:330px !important;">
 
@@ -62,7 +70,7 @@ document.forms[0].facility.focus();
   </tr>
 </table>
 
-<form name='facility' method='post' action="facilities.php"  target="_parent">
+<form name='facility' method='post' action="facilities.php" >
     <input type=hidden name=mode value="facility">
     <input type=hidden name=newmode value="admin_facility">	<!--	Diffrentiate Admin and add post backs -->
     <input type=hidden name=fid value="<?php echo $my_fid;?>">
@@ -141,14 +149,6 @@ document.forms[0].facility.focus();
 
     </table>
 </form>
-
-<script language="JavaScript">
-$(document).ready(function(){
-    $("#cancel").click(function() {
-		  parent.$.fn.fancybox.close();
-	 });
-});
-</script>
 
 </body>
 </html>
