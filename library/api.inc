@@ -32,7 +32,7 @@ function formFooter ()
 function formSubmit ($tableName, $values, $id, $authorized = "0")
 {
 	$sql = "insert into $tableName set pid = {$_SESSION['pid']},groupname='".$_SESSION['authProvider']."',user='".$_SESSION['authUser']."',authorized=$authorized,activity=1, date = NOW(),";
-	while(list($key, $value) = each($values))
+	foreach ($values as $key => $value)
 		if (strpos($key,"openemr_net_cpt") === 0) {
 			//code to auto add cpt code
 			if (!empty($value)) {
@@ -62,7 +62,7 @@ function formSubmit ($tableName, $values, $id, $authorized = "0")
 function formUpdate ($tableName, $values, $id, $authorized = "0")
 {
 	$sql = "update $tableName set pid = {$_SESSION['pid']},groupname='".$_SESSION['authProvider']."',user='".$_SESSION['authUser']."',authorized=$authorized,activity=1, date = NOW(),";
-	while(list($key, $value) = each($values))
+	foreach ($values as $key => $value)
 		$sql .= " $key = '$value',";
 	$sql = substr($sql, 0, -1);
 	$sql .= " where id=$id";
