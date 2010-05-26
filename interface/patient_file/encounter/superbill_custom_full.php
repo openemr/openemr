@@ -150,6 +150,7 @@ if ($fend > $count) $fend = $count;
 <?php html_header_show(); ?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../../library/dialog.js"></script>
+<script type="text/javascript" src="../../../library/textformat.js"></script>
 
 <script language="JavaScript">
 
@@ -247,6 +248,18 @@ function submitDelete(id) {
  f.submit();
 }
 
+function getCTMask() {
+ var ctid = document.forms[0].code_type.value;
+<?php
+foreach ($code_types as $key => $value) {
+  $ctid   = $value['id'];
+  $ctmask = addslashes($value['mask']);
+  echo " if (ctid == '$ctid') return '$ctmask';\n";
+}
+?>
+ return '';
+}
+
 </script>
 
 </head>
@@ -283,7 +296,10 @@ function submitDelete(id) {
    </select>
    &nbsp;&nbsp;
    <?php xl('Code','e'); ?>:
-   <input type='text' size='6' name='code' value='<?php echo $code ?>'>
+   <input type='text' size='6' name='code' value='<?php echo $code ?>'
+    onkeyup='maskkeyup(this,getCTMask())'
+    onblur='maskblur(this,getCTMask())'
+   />
 <?php if (modifiers_are_used()) { ?>
    &nbsp;&nbsp;<?php xl('Modifier','e'); ?>:
    <input type='text' size='3' name='modifier' value='<?php echo $modifier ?>'>

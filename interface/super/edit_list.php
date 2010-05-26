@@ -40,6 +40,39 @@ if ($_POST['formaction']=='save' && $list_id) {
             }
         }
     }
+    else if ($list_id == 'code_types') {
+      // special case for code types
+      sqlStatement("DELETE FROM code_types");
+      for ($lino = 1; isset($opt["$lino"]['ct_key']); ++$lino) {
+        $iter = $opt["$lino"];
+        $ct_key  = formTrim($iter['ct_key']);
+        $ct_id   = formTrim($iter['ct_id']) + 0;
+        $ct_seq  = formTrim($iter['ct_seq']) + 0;
+        $ct_mod  = formTrim($iter['ct_mod']) + 0;
+        $ct_just = formTrim($iter['ct_just']);
+        $ct_mask = formTrim($iter['ct_mask']);
+        $ct_fee  = empty($iter['ct_fee' ]) ? 0 : 1;
+        $ct_rel  = empty($iter['ct_rel' ]) ? 0 : 1;
+        $ct_nofs = empty($iter['ct_nofs']) ? 0 : 1;
+        $ct_diag = empty($iter['ct_diag']) ? 0 : 1;
+        if (strlen($ct_key) > 0 && $ct_id > 0) {
+          sqlInsert("INSERT INTO code_types ( " .
+            "ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_mask, ct_fee, ct_rel, ct_nofs, ct_diag " .
+            ") VALUES ( "   .
+            "'$ct_key' , " .
+            "'$ct_id'  , " .
+            "'$ct_seq' , " .
+            "'$ct_mod' , " .
+            "'$ct_just', " .
+            "'$ct_mask', " .
+            "'$ct_fee' , " .
+            "'$ct_rel' , " .
+            "'$ct_nofs', " .
+            "'$ct_diag' "  .
+            ")");
+        }
+      }
+    }
     else {
         // all other lists
         //
@@ -231,6 +264,65 @@ function writeFSLine($category, $option, $codes) {
 
   echo " </tr>\n";
 }
+
+// Helper functions for writeCTLine():
+
+function ctGenCell($opt_line_no, $ct_array, $name, $size, $maxlength, $title='') {
+  $value = isset($ct_array[$name]) ? $ct_array[$name] : '';
+  $s = "  <td align='center' class='optcell'";
+  if ($title) $s .= " title='" . addslashes($title) . "'";
+  $s .= ">";
+  $s .= "<input type='text' name='opt[$opt_line_no][$name]' value='";
+  $s .= htmlspecialchars($value, ENT_QUOTES);
+  $s .= "' size='$size' maxlength='$maxlength' class='optin' />";
+  $s .= "</td>\n";
+  return $s;
+}
+
+function ctGenCbox($opt_line_no, $ct_array, $name, $title='') {
+  $checked = empty($ct_array[$name]) ? '' : 'checked ';
+  $s = "  <td align='center' class='optcell'";
+  if ($title) $s .= " title='" . addslashes($title) . "'";
+  $s .= ">";
+  $s .= "<input type='checkbox' name='opt[$opt_line_no][$name]' value='1' ";
+  $s .= "$checked/>";
+  $s .= "</td>\n";
+  return $s;
+}
+
+// Write a form line as above but for the special case of Code Types.
+//
+function writeCTLine($ct_array) {
+  global $opt_line_no;
+
+  ++$opt_line_no;
+  $bgcolor = "#" . (($opt_line_no & 1) ? "ddddff" : "ffdddd");
+
+  echo " <tr bgcolor='$bgcolor'>\n";
+
+  echo ctGenCell($opt_line_no, $ct_array, 'ct_key' , 4, 15,
+    xl('Unique human-readable identifier for this type'));
+  echo ctGenCell($opt_line_no, $ct_array, 'ct_id'  , 2, 11,
+    xl('Unique numeric identifier for this type'));
+  echo ctGenCell($opt_line_no, $ct_array, 'ct_seq' , 2,  3,
+    xl('Numeric display order'));
+  echo ctGenCell($opt_line_no, $ct_array, 'ct_mod' , 1,  2,
+    xl('Length of modifier, 0 if none'));
+  echo ctGenCell($opt_line_no, $ct_array, 'ct_just', 4, 15,
+    xl('If billing justification is used enter the name of the diagnosis code type.'));
+  echo ctGenCell($opt_line_no, $ct_array, 'ct_mask', 6,  9,
+    xl('Specifies formatting for codes. # = digit, * = any character. Empty if not used.'));
+  echo ctGenCBox($opt_line_no, $ct_array, 'ct_fee',
+    xl('Are fees charged for this type?'));
+  echo ctGenCBox($opt_line_no, $ct_array, 'ct_rel',
+    xl('Does this type allow related codes?'));
+  echo ctGenCBox($opt_line_no, $ct_array, 'ct_nofs',
+    xl('Is this type hidden in the fee sheet?'));
+  echo ctGenCBox($opt_line_no, $ct_array, 'ct_diag',
+    xl('Is this a diagnosis type?'));
+
+  echo " </tr>\n";
+}
 ?>
 <html>
 
@@ -332,12 +424,34 @@ function defClicked(lino) {
  }
 }
 
+// Form validation and submission.
+// This needs more validation.
+function mysubmit() {
+ var f = document.forms[0];
+ if (f.list_id.value == 'code_types') {
+  for (var i = 1; f['opt[' + i + '][ct_key]'].value; ++i) {
+   var ikey = 'opt[' + i + ']';
+   for (var j = i+1; f['opt[' + j + '][ct_key]'].value; ++j) {
+    var jkey = 'opt[' + j + ']';
+    if (f[ikey+'[ct_key]'].value == f[jkey+'[ct_key]'].value) {
+     alert('<?php echo xl('Duplicated name on line') ?>' + ' ' + j);
+     return;
+    }
+    if (parseInt(f[ikey+'[ct_id]'].value) == parseInt(f[jkey+'[ct_id]'].value)) {
+     alert('<?php echo xl('Duplicated ID on line') ?>' + ' ' + j);
+     return;
+    }
+   }
+  }
+ }
+ f.submit();
+}
+
 </script>
 
 </head>
 
 <body class="body_top">
-
 
 <form method='post' name='theform' id='theform' action='edit_list.php'>
 <input type="hidden" name="formaction" id="formaction">
@@ -388,6 +502,17 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Group'    ,'e'); ?></b></td>
   <td><b><?php xl('Option'   ,'e'); ?></b></td>
   <td><b><?php xl('Generates','e'); ?></b></td>
+<?php } else if ($list_id == 'code_types') { ?>
+  <td><b><?php xl('Name'        ,'e'); ?></b></td>
+  <td><b><?php xl('ID'          ,'e'); ?></b></td>
+  <td><b><?php xl('Seq'         ,'e'); ?></b></td>
+  <td><b><?php xl('ModLength'   ,'e'); ?></b></td>
+  <td><b><?php xl('Justify'     ,'e'); ?></b></td>
+  <td><b><?php xl('Mask'        ,'e'); ?></b></td>
+  <td><b><?php xl('Fees'        ,'e'); ?></b></td>
+  <td><b><?php xl('Relations'   ,'e'); ?></b></td>
+  <td><b><?php xl('Hide'        ,'e'); ?></b></td>
+  <td><b><?php xl('Diagnosis'   ,'e'); ?></b></td>
 <?php } else { ?>
   <td title=<?php xl('Click to edit','e','\'','\''); ?>><b><?php  xl('ID','e'); ?></b></td>
   <td><b><?php xl('Title'  ,'e'); ?></b></td>	
@@ -421,6 +546,16 @@ if ($list_id) {
     }
     for ($i = 0; $i < 3; ++$i) {
       writeFSLine('', '', '');
+    }
+  }
+  if ($list_id == 'code_types') {
+    $res = sqlStatement("SELECT * FROM code_types " .
+      "ORDER BY ct_seq, ct_key");
+    while ($row = sqlFetchArray($res)) {
+      writeCTLine($row);
+    }
+    for ($i = 0; $i < 3; ++$i) {
+      writeCTLine(array());
     }
   }
   else {
@@ -469,7 +604,8 @@ $(document).ready(function(){
 
     var SaveChanges = function() {
         $("#formaction").val("save");
-        $('#theform').submit();
+        // $('#theform').submit();
+        mysubmit();
     }
 
     // show the DIV to create a new list

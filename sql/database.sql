@@ -3199,3 +3199,22 @@ CREATE TABLE `globals` (
   PRIMARY KEY (`gl_name`, `gl_index`)
 ) ENGINE=MyISAM; 
 
+CREATE TABLE code_types (
+  ct_key  varchar(15) NOT NULL           COMMENT 'short alphanumeric name',
+  ct_id   int(11)     UNIQUE NOT NULL    COMMENT 'numeric identifier',
+  ct_seq  int(11)     NOT NULL DEFAULT 0 COMMENT 'sort order',
+  ct_mod  int(11)     NOT NULL DEFAULT 0 COMMENT 'length of modifier field',
+  ct_just varchar(15) NOT NULL DEFAULT ''COMMENT 'ct_key of justify type, if any',
+  ct_mask varchar(9)  NOT NULL DEFAULT ''COMMENT 'formatting mask for code values',
+  ct_fee  tinyint(1)  NOT NULL default 0 COMMENT '1 if fees are used',
+  ct_rel  tinyint(1)  NOT NULL default 0 COMMENT '1 if can relate to other code types',
+  ct_nofs tinyint(1)  NOT NULL default 0 COMMENT '1 if to be hidden in the fee sheet',
+  ct_diag tinyint(1)  NOT NULL default 0 COMMENT '1 if this is a diagnosis type',
+  PRIMARY KEY (ct_key)
+) ENGINE=MyISAM;
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag ) VALUES ('ICD9' , 2, 1, 2, ''    , 0, 0, 0, 1);
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag ) VALUES ('CPT4' , 1, 2, 2, 'ICD9', 1, 0, 0, 0);
+INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag ) VALUES ('HCPCS', 3, 3, 2, 'ICD9', 1, 0, 0, 0);
+
+INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists', 'code_types', 'Code Types', 1);
+

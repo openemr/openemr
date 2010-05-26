@@ -1,4 +1,11 @@
 <?php
+// Copyright (C) 2006-2010 Rod Roark <rod@sunsetsystems.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
 // This array provides abstraction of billing code types.  This is desirable
 // because different countries or fields of practice use different methods for
 // coding diagnoses, procedures and supplies.  Fees will not be relevant where
@@ -10,14 +17,15 @@
 // just - the code type used for justification, empty if none
 // rel  - 1 if other billing codes may be "related" to this code type
 // nofs - 1 if this code type should NOT appear in the Fee Sheet
+// diag - 1 if this code type is for diagnosis
 //
+/*********************************************************************
 if ($GLOBALS['ippf_specific']) {
  // IPPF:
   $code_types = array(
     'ICD9'  => array('id' =>  2, 'fee' => 0, 'mod' => 0, 'just' => '', 'rel' => 0, 'nofs' => 0, 'diag' => TRUE),
     'MA'    => array('id' => 12, 'fee' => 1, 'mod' => 0, 'just' => '', 'rel' => 1, 'nofs' => 0),
     'IPPF'  => array('id' => 11, 'fee' => 0, 'mod' => 0, 'just' => '', 'rel' => 0, 'nofs' => 1),
-//  'CPT4'  => array('id' =>  1, 'fee' => 0, 'mod' => 0, 'just' => '', 'rel' => 0, 'nofs' => 1),
     'ACCT'  => array('id' => 13, 'fee' => 0, 'mod' => 0, 'just' => '', 'rel' => 0, 'nofs' => 1),
   );
   $default_search_type = 'MA';
@@ -42,6 +50,28 @@ else {
   );
   $default_search_type = 'ICD9';
 }
+*********************************************************************/
+
+// Code types are now stored in the database.
+//
+$code_types = array();
+$default_search_type = '';
+$ctres = sqlStatement("SELECT * FROM code_types ORDER BY ct_seq, ct_key");
+while ($ctrow = sqlFetchArray($ctres)) {
+  $code_types[$ctrow['ct_key']] = array(
+    'id'   => $ctrow['ct_id'  ],
+    'fee'  => $ctrow['ct_fee' ],
+    'mod'  => $ctrow['ct_mod' ],
+    'just' => $ctrow['ct_just'],
+    'rel'  => $ctrow['ct_rel' ],
+    'nofs' => $ctrow['ct_nofs'],
+    'diag' => $ctrow['ct_diag'],
+    'mask' => $ctrow['ct_mask'],
+  );
+  if ($default_search_type === '') $default_search_type = $ctrow['ct_key'];
+}
+
+/********************************************************************/
 
 function fees_are_used() {
  global $code_types;
