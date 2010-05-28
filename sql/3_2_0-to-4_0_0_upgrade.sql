@@ -1,3 +1,144 @@
+--
+--  Comment Meta Language for sql upgrades:
+--
+--  Each section within an upgrade sql file is enveloped with an #If*/#EndIf block.  At first glance, these appear to be standard mysql comments meant to be cryptic hints to other developers about the sql goodness contained therein.  However, were you to rely on such basic premises, you would find yourself grossly decieved.  Indeed, without the knowledge that these comments are, in fact a sneakily embedded meta langauge derived for a purpose none-other than to aid in the protection of the database during upgrades,  you would no doubt be subject to much ridicule and public beratement at the hands of the very developers who envisioned such a crafty use of comments. -jwallace
+--  While these lines are as enigmatic as they are functional, there is a method to the madness.  Let's take a moment to briefly go over proper comment meta language use.
+--  
+--  The #If* sections have the behavior of functions and come complete with arguments supplied command-line style 
+--
+--  Your Comment meta language lines cannot contain any other comment styles such as the nefarious double dashes "--" lest your lines be skipped and the blocks automatcially executed with out regard to the existing database state.   
+--
+--  Comment Meta Language Constructs:
+-- 
+--  #IfNotTable
+--    argument: table_name
+--    behavior: if the table_name does not exist,  the block will be executed
+
+--  #IfTable
+--    argument: table_name
+--    behavior: if the table_name does exist, the block will be executed
+
+--  #IfMissingColumn
+--    arguments: table_name colname
+--    behavior:  if the colname in the table_name table does not exist,  the block will be executed
+
+--  #IfNotColumnType
+--    arguments: table_name colname value
+--    behavior:  If the table table_name does not have a column colname with a data type equal to value, then the block will be executed
+
+--  #IfNotRow
+--    arguments: table_name colname value
+--    behavior:  If the table table_name does not have a row where colname = value, the block will be executed.
+
+--  #IfNotRow2D
+--    arguments: table_name colname value colname2 value2
+--    behavior:  If the table table_name does not have a row where colname = value AND colname2 = value2, the block will be executed.
+
+--  #EndIf
+--    all blocks are terminated with and #EndIF statement. 
+
+
+
+#IfNotRow list_options option_id armen
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'armen', 'Armenian', 10, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'chin', 'Chinese', 20, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'dani', 'Danish', 30, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'deaf', 'Deaf', 40, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'fars', 'Farsi', 60, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'fren', 'French', 70, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'germ', 'German', 80, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'gree', 'Greek', 90, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'hmon', 'Hmong', 100, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'ital', 'Italian', 110, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'jap', 'Japanese', 120, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'kor', 'Korean', 130, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'lao', 'Laotian', 140, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'mien', 'Mien', 150, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'norg', 'Norwegian', 160, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'othrs', 'Others', 170, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'port', 'Portuguese', 180, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'pun', 'Punjabi', 190, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'russ', 'Russian', 200, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'taga', 'Tagalog', 220, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'turk', 'Turkish', 230, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'viet', 'Vietnamese', 240, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'yiddish', 'Yiddish', 250, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'zulu', 'Zulu', 260, 0);
+
+update list_options set seq = 50 where list_id = 'language' and option_id = 'English';
+update list_options set seq = 210 where list_id = 'language' and option_id = 'Spanish';
+#EndIf
+
+#IfNotRow list_options option_id aleut
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'aleut', 'ALEUT', 10,  0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'amer_ind', 'American Indian', 20, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'camb', 'Cambodian', 50, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'cs_amer', 'Central/South American', 70, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'chin', 'Chinese', 80, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'cuba', 'Cuban', 90, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'eski', 'Eskimo', 100, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'fili', 'Filipino', 110, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'guam', 'Guamanian', 120, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'hawa', 'Hawaiian', 130, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'othr_us', 'Hispanic - Other (Born in US)', 150, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'othr_non_us', 'Hispanic - Other (Born outside US)', 160, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'hmong', 'Hmong', 170, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'ind', 'Indian', 180, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'jap', 'Japanese', 190, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'kor', 'Korean', 200, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'lao', 'Laotian', 210, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'mex', 'Mexican/MexAmer/Chicano', 220, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'mlt-rac', 'Multiracial', 230, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'othr', 'Other', 240, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'othr_spec', 'Other - Specified', 250, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'pac_island', 'Pacific Islander', 260, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'puert', 'Puerto Rican', 270, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'refused', 'Refused To State', 280, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'samoan', 'Samoan', 290, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'spec', 'Specified', 300, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'thai', 'Thai', 310, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'unknown', 'Unknown', 320, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'unspec', 'Unspecified', 330, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'viet', 'Vietnamese', 340, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'white', 'White', 350, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'withheld', 'Withheld', 360, 0);
+
+update list_options set seq = 60 where list_id = 'ethrace' and option_id = 'Caucasian';
+update list_options set seq = 30 where list_id = 'ethrace' and option_id = 'Asian';
+update list_options set seq = 40 where list_id = 'ethrace' and option_id = 'Black';
+update list_options set seq = 140 where list_id = 'ethrace' and option_id = 'Hispanic';
+#EndIf
+
+#IfNotRow list_options option_id eligibility
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists', 'eligibility', 'Eligibility', 47, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('Eligibility', 'eligible', 'Eligible', 1, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('Eligibility', 'ineligible', 'Ineligible', 2, 0);
+
+update layout_options set seq = 8 where form_id = 'DEM' and field_id = 'contact_relationship';
+update layout_options set seq = 9 where form_id = 'DEM' and field_id = 'phone_contact';
+update layout_options set seq = 10 where form_id = 'DEM' and field_id = 'phone_home';
+update layout_options set seq = 11 where form_id = 'DEM' and field_id = 'phone_biz';
+update layout_options set seq = 12 where form_id = 'DEM' and field_id = 'phone_cell';
+update layout_options set seq = 13 where form_id = 'DEM' and field_id = 'email';
+
+INSERT INTO `layout_options` VALUES ('DEM', 'vfc', '5Stats', 'VFC', 12, 1, 1, 20, 0, 'Eligibility', 1, 1, '', '', 'Eligibility status for Vaccine for Children supplied vaccine');
+INSERT INTO `layout_options` VALUES ('DEM', 'mothersname', '2Contact', 'Mother''s Name', 6, 2, 1, 20, 63, '', 1, 1, '', '', '');
+INSERT INTO `layout_options` VALUES ('DEM', 'guardiansname', '2Contact', 'Guardian''s Name', 7, 2, 1, 20, 63, '', 1, 1, '', '', '');
+INSERT INTO `layout_options` VALUES ('DEM', 'allow_imm_reg_use', '3Choices', 'Allow Immunization Registry Use', 9, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '');
+INSERT INTO `layout_options` VALUES ('DEM', 'allow_imm_info_share', '3Choices', 'Allow Immunization Info Sharing', 10, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '');
+INSERT INTO `layout_options` VALUES ('DEM', 'allow_health_info_ex', '3Choices', 'Allow Health Information Exchange', 11, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '');
+#EndIf
+
+#IfMissingColumn patient_data vfc
+ALTER TABlE patient_data
+  ADD vfc varchar(255) NOT NULL DEFAULT '',
+  ADD mothersname varchar(255) NOT NULL DEFAULT '',
+  ADD guardiansname varchar(255) NOT NULL DEFAULT '',
+  ADD allow_imm_reg_use varchar(255) NOT NULL DEFAULT '',
+  ADD allow_imm_info_share varchar(255) NOT NULL DEFAULT '',
+  ADD allow_health_info_ex varchar(255) NOT NULL DEFAULT '';
+#EndIf
+
 #IfNotRow categories name Advance Directive
   INSERT INTO categories select (select MAX(id) from categories) + 1, 'Advance Directive', '', 1, rght, rght + 7 from categories where name = 'Categories';
   INSERT INTO categories select (select MAX(id) from categories) + 1, 'Do Not Resuscitate Order', '', (select id from categories where name = 'Advance Directive'), rght + 1, rght + 2 from categories where name = 'Categories';

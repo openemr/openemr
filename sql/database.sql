@@ -1581,7 +1581,6 @@ CREATE TABLE `layout_options` (
 -- 
 -- Dumping data for table `layout_options`
 -- 
-
 INSERT INTO `layout_options` VALUES ('DEM', 'title', '1Who', 'Name', 1, 1, 1, 0, 0, 'titles', 1, 1, '', 'N', 'Title');
 INSERT INTO `layout_options` VALUES ('DEM', 'fname', '1Who', '', 2, 2, 2, 10, 63, '', 0, 0, '', 'CD', 'First Name');
 INSERT INTO `layout_options` VALUES ('DEM', 'mname', '1Who', '', 3, 2, 1, 2, 63, '', 0, 0, '', 'C', 'Middle Name');
@@ -1603,18 +1602,26 @@ INSERT INTO `layout_options` VALUES ('DEM', 'city', '2Contact', 'City', 2, 2, 1,
 INSERT INTO `layout_options` VALUES ('DEM', 'state', '2Contact', 'State', 3, 26, 1, 0, 0, 'state', 1, 1, '', '', 'State/Locality');
 INSERT INTO `layout_options` VALUES ('DEM', 'postal_code', '2Contact', 'Postal Code', 4, 2, 1, 6, 63, '', 1, 1, '', '', 'Postal Code');
 INSERT INTO `layout_options` VALUES ('DEM', 'country_code', '2Contact', 'Country', 5, 26, 1, 0, 0, 'country', 1, 1, '', '', 'Country');
-INSERT INTO `layout_options` VALUES ('DEM', 'contact_relationship', '2Contact', 'Emergency Contact', 6, 2, 1, 10, 63, '', 1, 1, '', 'C', 'Emergency Contact Person');
-INSERT INTO `layout_options` VALUES ('DEM', 'phone_contact', '2Contact', 'Emergency Phone', 7, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Emergency Contact Phone Number');
-INSERT INTO `layout_options` VALUES ('DEM', 'phone_home', '2Contact', 'Home Phone', 8, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Home Phone Number');
-INSERT INTO `layout_options` VALUES ('DEM', 'phone_biz', '2Contact', 'Work Phone', 9, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Work Phone Number');
-INSERT INTO `layout_options` VALUES ('DEM', 'phone_cell', '2Contact', 'Mobile Phone', 10, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Cell Phone Number');
-INSERT INTO `layout_options` VALUES ('DEM', 'email', '2Contact', 'Contact Email', 11, 2, 1, 30, 95, '', 1, 1, '', '', 'Contact Email Address');
+INSERT INTO `layout_options` VALUES ('DEM', 'mothersname', '2Contact', 'Mother''s Name', 6, 2, 1, 20, 63, '', 1, 1, '', '', '');
+INSERT INTO `layout_options` VALUES ('DEM', 'guardiansname', '2Contact', 'Guardian''s Name', 7, 2, 1, 20, 63, '', 1, 1, '', '', '');
+INSERT INTO `layout_options` VALUES ('DEM', 'contact_relationship', '2Contact', 'Emergency Contact', 8, 2, 1, 10, 63, '', 1, 1, '', 'C', 'Emergency Contact Person');
+INSERT INTO `layout_options` VALUES ('DEM', 'phone_contact', '2Contact', 'Emergency Phone', 9, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Emergency Contact Phone Number');
+INSERT INTO `layout_options` VALUES ('DEM', 'phone_home', '2Contact', 'Home Phone', 10, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Home Phone Number');
+INSERT INTO `layout_options` VALUES ('DEM', 'phone_biz', '2Contact', 'Work Phone', 11, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Work Phone Number');
+INSERT INTO `layout_options` VALUES ('DEM', 'phone_cell', '2Contact', 'Mobile Phone', 12, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Cell Phone Number');
+INSERT INTO `layout_options` VALUES ('DEM', 'email', '2Contact', 'Contact Email', 13, 2, 1, 30, 9, '', 1, 1, '', '', 'Contact Email Address');
 INSERT INTO `layout_options` VALUES ('DEM', 'providerID', '3Choices', 'Provider', 1, 11, 1, 0, 0, '', 1, 3, '', '', 'Referring Provider');
 INSERT INTO `layout_options` VALUES ('DEM', 'pharmacy_id', '3Choices', 'Pharmacy', 2, 12, 1, 0, 0, '', 1, 3, '', '', 'Preferred Pharmacy');
 INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_notice', '3Choices', 'HIPAA Notice Received', 3, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Did you receive a copy of the HIPAA Notice?');
 INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_voice', '3Choices', 'Allow Voice Message', 4, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow telephone messages?');
-INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_mail', '3Choices', 'Allow Mail Message', 5, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow email messages?');
-INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_message', '3Choices', 'Leave Message With', 6, 2, 1, 20, 63, '', 1, 1, '', '', 'With whom may we leave a message?');
+INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_message', '3Choices', 'Leave Message With', 5, 2, 1, 20, 63, '', 1, 1, '', '', 'With whom may we leave a message?');
+INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_mail', '3Choices', 'Allow Mail Message', 6, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow email messages?');
+INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_allowsms'  , '3Choices', 'Allow SMS'  , 7, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow SMS (text messages)?');
+INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_allowemail', '3Choices', 'Allow Email', 8, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow Email?');
+
+INSERT INTO `layout_options` VALUES ('DEM', 'allow_imm_reg_use', '3Choices', 'Allow Immunization Registry Use', 9, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '');
+INSERT INTO `layout_options` VALUES ('DEM', 'allow_imm_info_share', '3Choices', 'Allow Immunization Info Sharing', 10, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '');
+INSERT INTO `layout_options` VALUES ('DEM', 'allow_health_info_ex', '3Choices', 'Allow Health Information Exchange', 11, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '');
 INSERT INTO `layout_options` VALUES ('DEM', 'occupation', '4Employer', 'Occupation', 1, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Occupation');
 INSERT INTO `layout_options` VALUES ('DEM', 'em_name', '4Employer', 'Employer Name', 2, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Employer Name');
 INSERT INTO `layout_options` VALUES ('DEM', 'em_street', '4Employer', 'Employer Address', 3, 2, 1, 25, 63, '', 1, 1, '', 'C', 'Street and Number');
@@ -1632,6 +1639,7 @@ INSERT INTO `layout_options` VALUES ('DEM', 'interpretter', '5Stats', 'Interpret
 INSERT INTO `layout_options` VALUES ('DEM', 'migrantseasonal', '5Stats', 'Migrant/Seasonal', 8, 2, 1, 20, 63, '', 1, 1, '', '', 'Migrant or seasonal worker?');
 INSERT INTO `layout_options` VALUES ('DEM', 'contrastart', '5Stats', 'Contraceptives Start',9,4,0,10,10,'',1,1,'','','Date contraceptive services initially provided');
 INSERT INTO `layout_options` VALUES ('DEM', 'referral_source', '5Stats', 'Referral Source',10, 26, 1, 0, 0, 'refsource', 1, 1, '', '', 'How did they hear about us');
+INSERT INTO `layout_options` VALUES ('DEM', 'vfc', '5Stats', 'VFC', 12, 1, 1, 20, 0, 'eligibility', 1, 1, '', '', 'Eligibility status for Vaccine for Children supplied vaccine');
 INSERT INTO `layout_options` VALUES ('DEM', 'usertext1', '6Misc', 'User Defined Text 1', 1, 2, 0, 10, 63, '', 1, 1, '', '', 'User Defined');
 INSERT INTO `layout_options` VALUES ('DEM', 'usertext2', '6Misc', 'User Defined Text 2', 2, 2, 0, 10, 63, '', 1, 1, '', '', 'User Defined');
 INSERT INTO `layout_options` VALUES ('DEM', 'usertext3', '6Misc', 'User Defined Text 3', 3,2,0,10,63,'',1,1,'','','User Defined');
@@ -1648,8 +1656,7 @@ INSERT INTO `layout_options` VALUES ('DEM', 'userlist5', '6Misc', 'User Defined 
 INSERT INTO `layout_options` VALUES ('DEM', 'userlist6', '6Misc', 'User Defined List 6',14, 1, 0, 0, 0, 'userlist6', 1, 1, '', '' , 'User Defined');
 INSERT INTO `layout_options` VALUES ('DEM', 'userlist7', '6Misc', 'User Defined List 7',15, 1, 0, 0, 0, 'userlist7', 1, 1, '', '' , 'User Defined');
 INSERT INTO `layout_options` VALUES ('DEM', 'regdate'  , '6Misc', 'Registration Date'  ,16, 4, 0,10,10, ''         , 1, 1, '', 'D', 'Start Date at This Clinic');
-INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_allowsms'  , '3Choices', 'Allow SMS'  , 5, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow SMS (text messages)?');
-INSERT INTO `layout_options` VALUES ('DEM', 'hipaa_allowemail', '3Choices', 'Allow Email', 5, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow Email?');
+
 
 INSERT INTO layout_options VALUES ('REF','refer_date'      ,'1Referral','Referral Date'                  , 1, 4,2, 0,  0,''         ,1,1,'C','D','Date of referral');
 INSERT INTO layout_options VALUES ('REF','refer_from'      ,'1Referral','Refer By'                       , 2,10,2, 0,  0,''         ,1,1,'' ,'' ,'Referral By');
@@ -1740,12 +1747,68 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('marital', 'widowed', 'Widowed', 4, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('marital', 'separated', 'Separated', 5, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('marital', 'domestic partner', 'Domestic Partner', 6, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'English', 'English', 1, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'Spanish', 'Spanish', 2, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'Caucasian', 'Caucasian', 1, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'Asian', 'Asian', 2, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'Black', 'Black', 3, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'Hispanic', 'Hispanic', 4, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'armen', 'Armenian', 10, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'chin', 'Chinese', 20, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'dani', 'Danish', 30, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'deaf', 'Deaf', 40, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'English', 'English', 50, 0); -- was seq = 1
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'fars', 'Farsi', 60, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'fren', 'French', 70, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'germ', 'German', 80, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'gree', 'Greek', 90, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'hmon', 'Hmong', 100, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'ital', 'Italian', 110, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'jap', 'Japanese', 120, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'kor', 'Korean', 130, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'lao', 'Laotian', 140, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'mien', 'Mien', 150, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'norg', 'Norwegian', 160, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'othrs', 'Others', 170, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'port', 'Portuguese', 180, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'pun', 'Punjabi', 190, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'russ', 'Russian', 200, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'Spanish', 'Spanish', 210, 0); -- was seq = 2
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'taga', 'Tagalog', 220, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'turk', 'Turkish', 230, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'viet', 'Vietnamese', 240, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'yiddish', 'Yiddish', 250, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'zulu', 'Zulu', 260, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'aleut', 'ALEUT', 10,  0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'amer_ind', 'American Indian', 20, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'Asian', 'Asian', 30, 0); -- was seq = 2
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'Black', 'Black', 40, 0); -- was seq = 3
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'camb', 'Cambodian', 50, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'Caucasian', 'Caucasian', 60, 0); -- was seq = 1
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'cs_amer', 'Central/South American', 70, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'chin', 'Chinese', 80, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'cuba', 'Cuban', 90, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'eski', 'Eskimo', 100, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'fili', 'Filipino', 110, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'guam', 'Guamanian', 120, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'hawa', 'Hawaiian', 130, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'Hispanic', 'Hispanic', 140, 0); -- was seq = 4
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'othr_us', 'Hispanic - Other (Born in US)', 150, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'othr_non_us', 'Hispanic - Other (Born outside US)', 160, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'hmong', 'Hmong', 170, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'ind', 'Indian', 180, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'jap', 'Japanese', 190, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'kor', 'Korean', 200, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'lao', 'Laotian', 210, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'mex', 'Mexican/MexAmer/Chicano', 220, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'mlt-rac', 'Multiracial', 230, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'othr', 'Other', 240, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'othr_spec', 'Other - Specified', 250, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'pac_island', 'Pacific Islander', 260, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'puert', 'Puerto Rican', 270, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'refused', 'Refused To State', 280, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'samoan', 'Samoan', 290, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'spec', 'Specified', 300, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'thai', 'Thai', 310, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'unknown', 'Unknown', 320, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'unspec', 'Unspecified', 330, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'viet', 'Vietnamese', 340, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'white', 'White', 350, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'withheld', 'Withheld', 360, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('userlist1', 'sample', 'Sample', 1, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('userlist2', 'sample', 'Sample', 1, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('userlist3','sample','Sample',1,0);
@@ -2163,6 +2226,10 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'irnpool','Invoice Reference Number Pools', 1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('irnpool','main','Main',1,1,'000001');
 
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists', 'eligibility', 'Eligibility', 60, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('Eligibility', 'eligible', 'Eligible', 10, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('Eligibility', 'ineligible', 'Ineligible', 20, 0);
+
 -- --------------------------------------------------------
 
 -- 
@@ -2550,6 +2617,12 @@ CREATE TABLE `patient_data` (
   `contrastart` date DEFAULT NULL COMMENT 'Date contraceptives initially used',
   `completed_ad` VARCHAR(3) NOT NULL DEFAULT 'NO',
   `ad_reviewed` date DEFAULT NULL,
+  `vfc` varchar(255) NOT NULL DEFAULT '',
+  `mothersname` varchar(255) NOT NULL DEFAULT '',
+  `guardiansname` varchar(255) NOT NULL DEFAULT '',
+  `allow_imm_reg_use` varchar(255) NOT NULL DEFAULT '',
+  `allow_imm_info_share` varchar(255) NOT NULL DEFAULT '',
+  `allow_health_info_ex` varchar(255) NOT NULL DEFAULT '',
   UNIQUE KEY `pid` (`pid`),
   KEY `id` (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
