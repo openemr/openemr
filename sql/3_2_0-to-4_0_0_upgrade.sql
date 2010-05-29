@@ -1,12 +1,18 @@
 --
 --  Comment Meta Language for sql upgrades:
 --
---  Each section within an upgrade sql file is enveloped with an #If*/#EndIf block.  At first glance, these appear to be standard mysql comments meant to be cryptic hints to other developers about the sql goodness contained therein.  However, were you to rely on such basic premises, you would find yourself grossly decieved.  Indeed, without the knowledge that these comments are, in fact a sneakily embedded meta langauge derived for a purpose none-other than to aid in the protection of the database during upgrades,  you would no doubt be subject to much ridicule and public beratement at the hands of the very developers who envisioned such a crafty use of comments. -jwallace
+--  Each section within an upgrade sql file is enveloped with an #If*/#EndIf block.  At first glance, these appear to be standard mysql 
+--  comments meant to be cryptic hints to -other developers about the sql goodness contained therein.  However, were you to rely on such basic premises,
+--  you would find yourself grossly decieved.  Indeed, without the knowledge that these comments are, in fact a sneakily embedded meta langauge derived 
+--  for a purpose none-other than to aid in the protection of the database during upgrades,  you would no doubt be subject to much ridicule and public 
+--  beratement at the hands of the very developers who envisioned such a crafty use of comments. -jwallace
+--
 --  While these lines are as enigmatic as they are functional, there is a method to the madness.  Let's take a moment to briefly go over proper comment meta language use.
 --  
 --  The #If* sections have the behavior of functions and come complete with arguments supplied command-line style 
 --
---  Your Comment meta language lines cannot contain any other comment styles such as the nefarious double dashes "--" lest your lines be skipped and the blocks automatcially executed with out regard to the existing database state.   
+--  Your Comment meta language lines cannot contain any other comment styles such as the nefarious double dashes "--" lest your lines be skipped and 
+--  the blocks automatcially executed with out regard to the existing database state.   
 --
 --  Comment Meta Language Constructs:
 -- 
@@ -35,11 +41,9 @@
 --    behavior:  If the table table_name does not have a row where colname = value AND colname2 = value2, the block will be executed.
 
 --  #EndIf
---    all blocks are terminated with and #EndIF statement. 
+--    all blocks are terminated with and #EndIf statement. 
 
-
-
-#IfNotRow list_options option_id armen
+#IfNotRow2D list_options list_id language option_id armenian
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'armenian', 'Armenian', 10, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'chinese', 'Chinese', 20, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('language', 'danish', 'Danish', 30, 0);
@@ -69,7 +73,7 @@ update list_options set seq = 50 where list_id = 'language' and option_id = 'Eng
 update list_options set seq = 210 where list_id = 'language' and option_id = 'Spanish';
 #EndIf
 
-#IfNotRow list_options option_id aleut
+#IfNotRow2D list_options list_id ethrace option_id aleut
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'aleut', 'ALEUT', 10,  0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'amer_indian', 'American Indian', 20, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'cambodian', 'Cambodian', 50, 0);
