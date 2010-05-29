@@ -452,12 +452,22 @@ function cycle_engine(cb,seed) {
 	
 <input type=submit name='print_html' value='<?php xl('Print (HTML)','e'); ?>'>
 <?
-$query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " . 
- "form_CAMOS  as x join forms as y on (x.id = y.form_id) " . 
- "where y.encounter = " .  $_SESSION['encounter'] . 
- " and y.pid = " . $_SESSION['pid'] .  
- " and y.form_name like 'CAMOS%'" .
- " and x.activity = 1");
+//check if an encounter is set
+if ($_SESSION['encounter'] == NULL) { 
+  $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " . 
+  "form_CAMOS as x join forms as y on (x.id = y.form_id) " . 
+  "where y.pid = " . $_SESSION['pid'] . 
+  " and y.form_name like 'CAMOS%'" . 
+  " and x.activity = 1"); 
+} 
+else { 
+  $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " . 
+  "form_CAMOS  as x join forms as y on (x.id = y.form_id) " . 
+  "where y.encounter = " .  $_SESSION['encounter'] . 
+  " and y.pid = " . $_SESSION['pid'] .  
+  " and y.form_name like 'CAMOS%'" .
+  " and x.activity = 1");
+}
 $results = array();
 echo "<div id='checkboxes'>\n";
 $count = 0;
