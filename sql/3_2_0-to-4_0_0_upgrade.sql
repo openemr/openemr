@@ -115,23 +115,33 @@ update list_options set seq = 140 where list_id = 'ethrace' and option_id = 'His
 
 #IfNotRow2D list_options list_id lists option_id eligibility
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists', 'eligibility', 'Eligibility', 47, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('eligibility', 'eligible', 'Eligible', 1, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('eligibility', 'ineligible', 'Ineligible', 2, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('eligibility', 'eligible', 'Eligible', 10, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('eligibility', 'ineligible', 'Ineligible', 20, 0);
 #EndIf
 
 #IfNotRow2D layout_options form_id DEM field_id vfc
 INSERT INTO `layout_options` VALUES ('DEM', 'vfc', '5Stats', 'VFC', 12, 1, 1, 20, 0, 'Eligibility', 1, 1, '', '', 'Eligibility status for Vaccine for Children supplied vaccine');
-INSERT INTO `layout_options` VALUES ('DEM', 'mothersname', '2Contact', 'Mother''s Name', 6, 2, 1, 20, 63, '', 1, 1, '', '', '');
-INSERT INTO `layout_options` VALUES ('DEM', 'guardiansname', '2Contact', 'Guardian''s Name', 7, 2, 1, 20, 63, '', 1, 1, '', '', '');
-INSERT INTO `layout_options` VALUES ('DEM', 'allow_imm_reg_use', '3Choices', 'Allow Immunization Registry Use', 9, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '');
-INSERT INTO `layout_options` VALUES ('DEM', 'allow_imm_info_share', '3Choices', 'Allow Immunization Info Sharing', 10, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '');
-INSERT INTO `layout_options` VALUES ('DEM', 'allow_health_info_ex', '3Choices', 'Allow Health Information Exchange', 11, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '');
 #EndIf
 
-update list_options set seq = 60 where list_id = 'ethrace' and option_id = 'Caucasian';
-update list_options set seq = 30 where list_id = 'ethrace' and option_id = 'Asian';
-update list_options set seq = 40 where list_id = 'ethrace' and option_id = 'Black';
-update list_options set seq = 140 where list_id = 'ethrace' and option_id = 'Hispanic';
+#IfNotRow2D layout_options form_id DEM field_id mothersname
+INSERT INTO `layout_options` VALUES ('DEM', 'mothersname', '2Contact', 'Mother''s Name', 6, 2, 1, 20, 63, '', 1, 1, '', '', '');
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id guardiansname
+INSERT INTO `layout_options` VALUES ('DEM', 'guardiansname', '2Contact', 'Guardian''s Name', 7, 2, 1, 20, 63, '', 1, 1, '', '', '');
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id allow_imm_reg_use
+INSERT INTO `layout_options` VALUES ('DEM', 'allow_imm_reg_use', '3Choices', 'Allow Immunization Registry Use', 9, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '');
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id allow_imm_info_share
+INSERT INTO `layout_options` VALUES ('DEM', 'allow_imm_info_share', '3Choices', 'Allow Immunization Info Sharing', 10, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '');
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id allow_health_info_ex
+INSERT INTO `layout_options` VALUES ('DEM', 'allow_health_info_ex', '3Choices', 'Allow Health Information Exchange', 11, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '');
+#EndIf
 
 #IfMissingColumn patient_data vfc
 ALTER TABlE patient_data
