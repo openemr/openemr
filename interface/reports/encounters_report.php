@@ -169,7 +169,7 @@ $res = sqlStatement($query);
 				  $facid = $frow['id'];
 				  echo "    <option value='$facid'";
 				  if ($facid == $form_facility) echo " selected";
-				  echo ">" . $frow['name'] . "\n";
+				  echo ">" . htmlspecialchars($frow['name']) . "\n";
 				 }
 				 echo "    <option value='0'";
 				 if ($form_facility === '0') echo " selected";

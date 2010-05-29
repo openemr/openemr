@@ -316,7 +316,7 @@ function process_result_code($row) {
   $facid = $frow['id'];
   echo "       <option value='$facid'";
   if ($facid == $_POST['form_facility']) echo " selected";
-  echo ">" . $frow['name'] . "\n";
+  echo ">" . htmlspecialchars($frow['name']) . "\n";
  }
  echo "      </select>\n";
 ?>

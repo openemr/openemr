@@ -335,7 +335,7 @@ for ($iter2 = 0; $frow = sqlFetchArray($fres); $iter2++)
                 $result[$iter2] = $frow;
 foreach($result as $iter2) {
 ?>
-<option value="<?php echo $iter2['id']; ?>" <?php if ($iter['facility_id'] == $iter2['id']) echo "selected"; ?>><?php echo $iter2['name']; ?></option>
+  <option value="<?php echo $iter2['id']; ?>" <?php if ($iter['facility_id'] == $iter2['id']) echo "selected"; ?>><?php echo htmlspecialchars($iter2['name']); ?></option>
 <?php
 }
 }
@@ -359,7 +359,7 @@ foreach($result as $iter2) {
     while($frow = sqlFetchArray($fres)):
 ?>
    <option <?php echo in_array($frow['id'], $ufid) || $frow['id'] == $iter['facility_id'] ? "selected" : null ?>
-    value="<?php echo $frow['id'] ?>"><?php echo $frow['name'] ?></option>
+      value="<?php echo $frow['id'] ?>"><?php echo htmlspecialchars($frow['name']) ?></option>
 <?php
   endwhile;
 }

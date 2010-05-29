@@ -116,9 +116,9 @@ $(document).ready(function(){
           if ($iter3{state}!="")$varstate=$iter3{state}.",";
     ?>
     <tr height="22">
-        <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo $iter3{id};?>" class="iframe medium_modal"><span><?php echo $iter3{name};?></span></a></b>&nbsp;</td>
-        <td valign="top" class="text"><?php echo $varstreet.$varcity.$varstate.$iter3{country_code}." ".$iter3{postal_code}; ?>&nbsp;</td>
-        <td><?php echo $iter3{phone};?>&nbsp;</td>
+       <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo $iter3{id};?>" class="iframe medium_modal"><span><?php echo htmlspecialchars($iter3{name});?></span></a></b>&nbsp;</td>
+       <td valign="top" class="text"><?php echo htmlspecialchars($varstreet.$varcity.$varstate.$iter3{country_code}." ".$iter3{postal_code}); ?>&nbsp;</td>
+       <td><?php echo htmlspecialchars($iter3{phone});?>&nbsp;</td>
     </tr>
 <?php
   }
