@@ -22,6 +22,7 @@
 //   Bahasa Indonesia               // xl('Bahasa Indonesia')
 //   Chinese (Simplified)           // xl('Chinese (Simplified)')
 //   Chinese (Traditional)          // xl('Chinese (Traditional)')
+//   Danish                         // xl('Danish')
 //   Dutch                          // xl('Dutch')
 //   English (Indian)               // xl('English (Indian)')
 //   English (Standard)             // xl('English (Standard)')
