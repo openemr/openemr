@@ -37,6 +37,13 @@ function print_as_money($money) {
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 <script type="text/javascript" src="../../../library/dialog.js"></script>
 <script language="JavaScript">
+//Visolve - sync the radio buttons - Start
+if((top.window.parent) && (parent.window)){
+        var wname = top.window.parent.left_nav;
+        wname.syncRadios();
+        wname.setRadio(parent.window.name, "dem");
+}
+//Visolve - sync the radio buttons - End
 
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
@@ -418,7 +425,7 @@ if (isset($pid) && !$GLOBALS['disable_calendar']) {
 
 <?php if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) { ?>
 <script language='JavaScript'>
- parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' ".xl('DOB').": ".$result['DOB_YMD']." ".xl('Age').": ".getPatientAge($result['DOB_YMD'])."'"; ?>);
+ top.window.parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' ".xl('DOB').": ".$result['DOB_YMD']." ".xl('Age').": ".getPatientAge($result['DOB_YMD'])."'"; ?>);
  parent.left_nav.setRadio(window.name, 'dem');
 <?php if (!$_GET['is_new']) { // if new pt, do not load other frame ?>
  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';

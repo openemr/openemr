@@ -1149,6 +1149,22 @@ if ( $eid ) { // editing case
 <body class="body_top" onunload='imclosing()'>
 
 <form method='post' name='theform' id='theform' action='add_edit_event.php?eid=<?php echo $eid ?>' />
+<!-- ViSolve : Requirement - Redirect to Create New Patient Page -->
+<input type='hidden' size='2' name='resname' value='empty' />
+<?php 
+if ($_POST["resname"]=="noresult"){
+echo '
+<script language="Javascript">
+			// refresh and redirect the parent window
+			if (!opener.closed && opener.refreshme) opener.refreshme();
+			top.restoreSession();
+			opener.document.location="../../new/new.php";
+			// Close the window
+			window.close();
+</script>';
+}
+?>
+<!-- ViSolve : Requirement - Redirect to Create New Patient Page -->
 <input type="hidden" name="form_action" id="form_action" value="">
 <input type="hidden" name="recurr_affect" id="recurr_affect" value="">
 <!-- used for recurring events -->
@@ -1715,5 +1731,5 @@ function SubmitForm() {
 }
 
 </script>
-
+   
 </html>
