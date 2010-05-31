@@ -93,6 +93,13 @@ div.section {
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/js/jquery.js"></script>
 
 <SCRIPT LANGUAGE="JavaScript"><!--
+//Visolve - sync the radio buttons - Start
+if((top.window.parent) && (parent.window)){
+        var wname = top.window.parent.left_nav;
+        fname = (parent.window.name)?parent.window.name:window.name;
+        wname.syncRadios();
+        wname.setRadio(fname, "new");
+}//Visolve - sync the radio buttons - End
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 

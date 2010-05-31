@@ -48,6 +48,13 @@ function print_as_money($money) {
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script language="JavaScript">
+//Visolve - sync the radio buttons - Start
+if((top.window.parent) && (parent.window)){
+        var wname = top.window.parent.left_nav;
+        wname.syncRadios();
+        wname.setRadio(parent.window.name, "dem");
+}
+//Visolve - sync the radio buttons - End
 
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
