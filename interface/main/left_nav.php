@@ -563,10 +563,14 @@ function goHome() {
   $(encounter_block).hide();
 
   // zero out the encounter frame, replace it with the authorizations frame
-  var encounter_frame = getEncounterTargetFrame('enc');
-  loadFrame('aun0',encounter_frame, '<?php echo $primary_docs['aun'][2]; ?>');
-  setRadio(enconter_frame, 'aun');
-
+  var f = document.forms[0];
+  if ( f.cb_top.checked && f.cb_bot.checked ) {
+      var encounter_frame = getEncounterTargetFrame('enc');
+      if ( encounter_frame != undefined )  {
+          loadFrame('aun0',encounter_frame, '<?php echo $primary_docs['aun'][2]; ?>');
+          setRadio(encounter_frame, 'aun');
+      }
+   }
   }
 
 function loadCurrentPatientFromTitle() {
