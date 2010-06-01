@@ -94,7 +94,7 @@ require_once("../library/sql.inc");
 			echo "</td>";
     }
 
-		$layoutCols = sqlStatement( "SELECT field_id, description, group_name "
+		$layoutCols = sqlStatement( "SELECT field_id, title, description, group_name "
       . "FROM layout_options "
       . "WHERE form_id='DEM' "
       . "AND group_name not like ('%Employer%' ) AND uor !=0 "
@@ -104,8 +104,15 @@ require_once("../library/sql.inc");
 		echo "<table>";
 
 		for($iter=0; $row=sqlFetchArray($layoutCols); $iter++) {
-      echoFilterItem($iter, $row['field_id'],
-        xl_layout_label($row['description'] ? $row['description'] : $fieldId));
+		    $label = $row['title'] ? $row['title'] : $row['description'];
+		    if ( !$label ) {
+		        $label = $row['field_id'];
+		    }
+            echoFilterItem(
+                $iter,
+                $row['field_id'],
+                xl_layout_label($label)
+            );
 		}
     echoFilterItem($iter, 'pid', xl('Internal Identifier (pid)'));
 
