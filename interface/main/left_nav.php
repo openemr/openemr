@@ -619,7 +619,7 @@ function getEncounterTargetFrame( name ) {
  }
 
  function loadCurrentEncounterFromTitle() {
-      top.frames[ parent.left_nav.getEncounterTargetFrame('enc') ].location='../patient_file/encounter/forms.php';
+      top.frames[ parent.left_nav.getEncounterTargetFrame('enc') ].location='../patient_file/encounter/encounter_top.php';
  }
 
  // You must call this if you delete the active patient (or if for any other
