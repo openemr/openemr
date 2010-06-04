@@ -128,7 +128,11 @@ class NumberToText {
 	            
 	            if ($convert > 0) {
 	                // we have something here, put it in
-	                $text = $this->n2t_convertthree($convert, $and, ($int > 0))." ".$big[$section-1]." ".$text;
+	                if ( $section > 0 ) {
+	                    $text = $this->n2t_convertthree($convert, $and, ($int > 0))." ".$big[$section-1]." ".$text;
+	                } else {
+	                    $text = $this->n2t_convertthree($convert, $and, ($int > 0));
+	                }
 	            }
 	        }
 	        
@@ -180,7 +184,7 @@ class NumberToText {
 	        $text = str_replace(ucwords(N2T_AND), N2T_AND, ucwords($text));
 	    }
 	    
-	    return $text;
+	    return trim($text);
 	}
 	
 	/** This is a utility function of n2t. It converts a 3-digit number
