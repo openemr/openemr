@@ -1,0 +1,274 @@
+#!/bin/sh
+#
+#This program is free software; you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation; either version 2 of the License, or
+#(at your option) any later version.
+#
+# author Brady Miller
+# email  brady@sparmy.com
+# date   02/20/09
+#
+#
+#Start-up script /etc/rc.d/init.d/rc.StartupDeveloperAppliance2
+# Will download CVS version of OpenEMR.
+# Will place copy of CVS versions in /home/openemr/cvs
+# Then executes openemr/contrib/util/installScripts/cvsDemoInstall script
+# Shows and logs errors if OpenEMR CVS versions are not downloaded
+# Logs php errors
+
+
+#BELOW IS TO SETUP MANDRIVA STARTUP SCRIPT
+# StartupDeveloperAppliance2  Start/Stop the StartupDeveloperAppliance2 daemon.
+# chkconfig: 345 98 8
+# description: Starts the OpenEMR Developer Appliance
+# processname: StartupDeveloperAppliance2
+# Source function library.
+. /etc/rc.d/init.d/functions
+#ABOVE IS TO SETUP MANDRIVA STARTUP SCRIPT
+
+
+# PATH VARIABLES
+WEBROOT=/var/www/html
+OPENEMR=/var/www/html/openemr
+CVS=/home/openemr/cvs
+LOG=/var/www/html/log/logSetup.txt
+
+# FUNCTIONS TO DISPLAY INTRODUCTION INSTRUCTIONS
+function intro_function {
+	# (PENDING)Create the login screen (ALSO NEED TO CVS directory??, and rec always use 'root'??):
+	# welcome
+	echo '' > /etc/issue
+	echo 'Welcome to the OpenEMR Developer and Tester Appliance!!' >> /etc/issue
+	echo '' >> /etc/issue
+	# link to manual
+	echo 'User Manual can be found at /home/openemr/docs/manual.txt' >> /etc/issue
+	echo '' >> /etc/issue
+	echo 'For Developers: CVS directory is at /home/openemr/cvs' >> /etc/issue
+	echo '' >> /etc/issue
+	# list IP address
+	echo -n 'The IP address of this appliance is: ' >> /etc/issue
+	tempx=`/sbin/ifconfig`
+	tempy=${tempx#*inet addr:}
+	tempy=${tempy%% *}
+	echo $tempy >> /etc/issue
+	# list links to OpenEMR and logfiles
+	echo -n 'OpenEMR        -> http://' >> /etc/issue
+	echo -n $tempy >> /etc/issue
+	echo '/openemr     user: admin    pass: pass' >> /etc/issue
+	echo -n 'Setup Log File -> http://' >> /etc/issue
+	echo -n $tempy >> /etc/issue
+	echo '/log/logSetup.txt' >> /etc/issue
+	echo -n 'php Log File   -> http://' >> /etc/issue
+	echo -n $tempy >> /etc/issue
+	echo '/log/logPhp.txt' >> /etc/issue
+	echo -n 'User Manual    -> http://' >> /etc/issue
+	echo -n $tempy >> /etc/issue
+	echo '/manual.txt' >> /etc/issue
+	echo '' >> /etc/issue
+	# more instructions
+	echo 'The HTTP(80) and SSH(22) ports are both open.' >> /etc/issue
+	echo '' >> /etc/issue
+	echo 'Login name is openemr with password openemrcool' >> /etc/issue
+	echo 'root password is rootcool' >> /etc/issue
+	echo '' >> /etc/issue
+	echo 'RECOMMEND using 'root' user all the time in this appliance to ensure it functions correctly' >> /etc/issue
+	echo '' >> /etc/issue
+	echo 'Software version information: Mandriva 2008, Linux kernel 2.6.22.9, MySQL 5.0.45, PHP 5.2.4 and OpenEMR CVS.' >> /etc/issue
+	echo '' >> /etc/issue
+	cp -f /etc/issue /etc/motd
+}
+function intro_cvsconnect_error_function {
+	# Create introduction screen, if user is unable to connect to CVS server
+	# welcome
+	echo '' > /etc/issue
+	echo 'Welcome to the OpenEMR Developer and Tester Appliance!!' >> /etc/issue
+	echo '' >> /etc/issue
+	# unable to connect to CVS error report
+	echo 'ERROR, you were unable to download OpenEMR from the CVS server.' >> /etc/issue
+	echo 'AFTER you set up internet access, RECOMMEND restarting appliance.' >> /etc/issue
+	echo '' >> /etc/issue
+	# link to manual
+	echo 'User Manual can be found at /home/openemr/docs/manual.txt' >> /etc/issue
+	echo '' >> /etc/issue
+	echo 'For Developers: CVS directory is at /home/openemr/cvs' >> /etc/issue
+	echo '' >> /etc/issue
+	# list IP address
+	echo -n 'The IP address of this appliance is: ' >> /etc/issue
+	tempx=`/sbin/ifconfig`
+	tempy=${tempx#*inet addr:}
+	tempy=${tempy%% *}
+	echo $tempy >> /etc/issue
+	# list links to OpenEMR and logfiles
+	echo -n 'OpenEMR        -> http://' >> /etc/issue
+	echo -n $tempy >> /etc/issue
+	echo '/openemr     user: admin    pass: pass' >> /etc/issue
+	echo -n 'Setup Log File -> http://' >> /etc/issue
+	echo -n $tempy >> /etc/issue
+	echo '/log/logSetup.txt' >> /etc/issue
+	echo -n 'php Log File   -> http://' >> /etc/issue
+	echo -n $tempy >> /etc/issue
+	echo '/log/logPhp.txt' >> /etc/issue
+	echo -n 'User Manual    -> http://' >> /etc/issue
+	echo -n $tempy >> /etc/issue
+	echo '/manual.txt' >> /etc/issue
+	echo '' >> /etc/issue
+	# more instructions
+	echo 'The HTTP(80) and SSH(22) ports are both open.' >> /etc/issue
+	echo '' >> /etc/issue
+	echo 'Login name is openemr with password openemrcool' >> /etc/issue
+	echo 'root password is rootcool' >> /etc/issue
+	echo '' >> /etc/issue
+	echo 'RECOMMEND using 'root' user all the time in this appliance to ensure it functions correctly' >> /etc/issue
+	echo '' >> /etc/issue
+	echo 'Software version information: Mandriva 2008, Linux kernel 2.6.22.9, MySQL 5.0.45, PHP 5.2.4, and OpenEMR CVS.' >> /etc/issue
+	echo '' >> /etc/issue
+	cp -f /etc/issue /etc/motd
+}
+function intro_network_error_function {
+	# Create introduction screen, if user is unable to connect to CVS server
+	# welcome
+	echo '' > /etc/issue
+	echo 'Welcome to the OpenEMR Developer and Tester Appliance!!' >> /etc/issue
+	echo '' >> /etc/issue
+	# unable to connect to CVS error report
+	echo 'ERROR, there was a problem while downloading OpenEMR from the CVS server.'  >> /etc/issue
+	echo 'RECOMMEND shutting down appliance, reverting to 'snapshot', and trying again'  >> /etc/issue
+	echo 'RECOMMEND shutting down appliance, reverting to 'snapshot', and trying again'  >> /etc/issue
+	echo '' >> /etc/issue
+	# link to manual
+	echo 'User Manual can be found at /home/openemr/docs/manual.txt' >> /etc/issue
+	echo '' >> /etc/issue
+	echo 'For Developers: CVS directory is at /home/openemr/cvs' >> /etc/issue
+	echo '' >> /etc/issue
+	# list IP address
+	echo -n 'The IP address of this appliance is: ' >> /etc/issue
+	tempx=`/sbin/ifconfig`
+	tempy=${tempx#*inet addr:}
+	tempy=${tempy%% *}
+	echo $tempy >> /etc/issue
+	# list links to OpenEMR and logfiles
+	echo -n 'OpenEMR        -> http://' >> /etc/issue
+	echo -n $tempy >> /etc/issue
+	echo '/openemr     user: admin    pass: pass' >> /etc/issue
+	echo -n 'Setup Log File -> http://' >> /etc/issue
+	echo -n $tempy >> /etc/issue
+	echo '/log/logSetup.txt' >> /etc/issue
+	echo -n 'php Log File   -> http://' >> /etc/issue
+	echo -n $tempy >> /etc/issue
+	echo '/log/logPhp.txt' >> /etc/issue
+	echo -n 'User Manual    -> http://' >> /etc/issue
+	echo -n $tempy >> /etc/issue
+	echo '/manual.txt' >> /etc/issue
+	echo '' >> /etc/issue
+	# more instructions
+	echo 'The HTTP(80) and SSH(22) ports are both open.' >> /etc/issue
+	echo '' >> /etc/issue
+	echo 'Login name is openemr with password openemrcool' >> /etc/issue
+	echo 'root password is rootcool' >> /etc/issue
+	echo '' >> /etc/issue
+	echo 'RECOMMEND using 'root' user all the time in this appliance to ensure it functions correctly' >> /etc/issue
+	echo '' >> /etc/issue
+	echo 'Software version information: Mandriva 2008, Linux kernel 2.6.22.9, MySQL 5.0.45, PHP 5.2.4 and OpenEMR CVS.' >> /etc/issue
+	echo '' >> /etc/issue
+	cp -f /etc/issue /etc/motd
+}
+
+
+#BELOW IS TO SETUP MANDRIVA STARTUP SCRIPT
+case "$1" in
+start)
+#ABOVE IS TO SETUP MANDRIVA STARTUP SCRIPT
+
+
+#Report starting of script
+TEMPDATE=$(date)
+echo -n $TEMPDATE >> $LOG
+echo ': Starting OpenEMR Developer Appliance startup script' >> $LOG
+echo ''
+echo 'Starting OpenEMR Developer Appliance startup script:'
+
+# Check whether OpenEMR has been installed yet
+TEMPDIR="$CVS/openemr"
+if [ -d $TEMPDIR ]; then
+	# OpenEMR CVS version already installed and configured
+	# First, put entry into logfile
+	TEMPDATE=$(date)
+	echo -n $TEMPDATE >> $LOG
+	echo ': OpenEMR CVS version already installed' >> $LOG
+	# Second, send message to screen
+	echo 'OpenEMR CVS version already installed.'
+	# Third, configure intro screen, then can exit the script
+	intro_function
+	exit
+else
+	# Install and Configure OpenEMR CVS version.
+	# Put entry in log file
+	TEMPDATE=$(date)
+	echo -n $TEMPDATE >> $LOG
+	echo ': Will attempt to install OpenEMR CVS version' >> $LOG
+	# Send message to screen
+	echo 'Will attempt to install OpenEMR CVS version'
+	# Continue script below
+fi
+echo 'Connecting to CVS'
+# Download CVS version of OpenEMR
+mkdir $CVS
+cd $CVS
+if !(yes "" | cvs -d:pserver:anonymous:@openemr.cvs.sourceforge.net:/cvsroot/openemr login >> $LOG)
+then
+	# unable to connect to CVS to download OpenEMR
+	# First, put entry into logfile
+	TEMPDATE=$(date)
+	echo -n $TEMPDATE >> $LOG
+	echo ': Unable to connect to CVS server at Sourceforge, so can not download OpenEMR' >> $LOG
+	# Second, send message to screen
+	echo 'Unable to connect to CVS server at Sourceforge, so can not download OpenEMR'
+	# Third, configure intro screen
+	intro_cvsconnect_error_function
+	# Fourth, exit from script
+	exit 1
+fi
+echo 'Downloading OpenEMR from CVS (this could take awhile)'
+if !(cvs -q -z3 -d:pserver:anonymous@openemr.cvs.sourceforge.net:/cvsroot/openemr co -P openemr >> $LOG)
+then
+	# unable to download OpenEMR
+	# First, put entry into logfile
+	TEMPDATE=$(date)
+	echo -n $TEMPDATE >> $LOG
+	echo 'Error while downloading OpenEMR from CVS server at Sourceforge' >> $LOG
+	# Second, send message to screen
+	echo 'Error while downloading OpenEMR from CVS server at Sourceforge'
+	# Third, configure intro screen
+	intro_network_error_function
+	# Fourth, exit from script
+	exit 1
+fi
+
+# Copy OpenEMR and run the install script
+echo 'Installing OpenEMR'
+cp -r $CVS/openemr $WEBROOT
+chown -Rf root:root $OPENEMR
+chmod +x $OPENEMR/contrib/util/installScripts/cvsDemoInstall
+. $OPENEMR/contrib/util/installScripts/cvsDemoInstall
+chmod -x $OPENEMR/contrib/util/installScripts/cvsDemoInstall
+
+# All done, now set up the introduction screen
+intro_function
+
+#BELOW IS TO SETUP MANDRIVA STARTUP SCRIPT
+;;
+stop)
+	# This is to fix a nasty bug with udev and vmware involving
+	# eth adapters and changing MAC addresses. It ensures the eth0
+	# adapter is initialized on every start up to avoid udev from
+	# going up to eth1 which then would break VMware networking.
+	echo "This should only be run during shutdown. If you did this while not shutting down the computer, then may experience network problems. This can be fixed by re-starting appliance"
+	rm -f /etc/udev/rules.d/61-net_config.rules
+;;
+*)
+ 	echo "Usage: {start|stop}"
+ 	exit 1
+ esac
+ exit $?
+#ABOVE IS TO SETUP MANDRIVA STARTUP SCRIPT
