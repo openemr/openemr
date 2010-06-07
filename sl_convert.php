@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2008, 2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -50,6 +50,12 @@ SLConnect();
 echo "<p>Be patient, this will take a while...</p>";
 flush();
 
+// This marker will eventually tell us which encounters have no
+// matching invoice.
+if (!$dry_run) {
+  sqlStatement("UPDATE form_encounter SET last_level_billed = -1");
+}
+
 $invoice_count = 0;
 $activity_count = 0;
 
@@ -59,6 +65,15 @@ $res = SLQuery("SELECT id, invnumber, transdate, shipvia, intnotes " .
 for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
   $row = SLGetRow($res, $irow);
   list($pid, $encounter) = explode(".", $row['invnumber']);
+
+  $tmp = sqlQuery("SELECT count(*) AS count FROM form_encounter WHERE " .
+    "pid = '$pid' AND encounter = '$encounter'");
+  if ($tmp['count'] == 0) {
+    echo "SQL-Ledger invoice $pid.$encounter has no matching encounter " .
+      "and is ignored. This will affect financial reports!<br />\n";
+    continue;
+  }
+
   $billing = array();
   $provider_id = 0;
   $last_biller = 0;
@@ -244,10 +259,10 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
   if ($last_biller) {
     $invdate = $row['transdate'];
     $tmp = sqlQuery("SELECT type FROM insurance_data WHERE " .
-      "pid = '$patient_id' AND provider = '$last_biller' AND " .
+      "pid = '$pid' AND provider = '$last_biller' AND " .
       "date <= '$invdate' ORDER BY date DESC, id ASC LIMIT 1");
     $last_level_billed = ($tmp['type'] == 'tertiary') ?
-      3 : ($tmp['type'] == 'secondary') ? 2 : 1;
+      3 : (($tmp['type'] == 'secondary') ? 2 : 1);
   }
 
   // Compute last insurance level closed.
@@ -297,6 +312,29 @@ for ($irow = 0; $irow < SLRowCount($res); ++$irow) {
   ++$invoice_count;
 } // end invoice
 SLClose();
+
+if (!$dry_run) {
+  $feres = sqlStatement("SELECT * FROM form_encounter WHERE " .
+    "last_level_billed = -1 ORDER BY pid, encounter");
+  while ($ferow = sqlFetchArray($feres)) {
+    $pid = 0 + $ferow['pid'];
+    $encounter = 0 + $ferow['encounter'];
+    $tmp = sqlQuery("SELECT sum(fee) AS sum FROM billing WHERE " .
+      "pid = '$pid' AND encounter = '$encounter' AND " .
+      "activity = 1 AND billed = 1");
+    if ($tmp['sum'] != 0) {
+      $sum = sprintf('%0.2f', 0 + $tmp['sum']);
+      arPostAdjustment($pid, $encounter, 0, $sum,
+        '', 0, 'Missing SL invoice', 0, date('Y-m-d') . ' 00:00:00');
+      echo "Adjustment amount $sum was applied to write off billed " .
+        "items in encounter $pid.$encounter because it has no matching " .
+        "invoice.<br />\n";
+    }
+    sqlStatement("UPDATE form_encounter SET last_level_billed = 0 " .
+      "WHERE id = '" . $ferow['id'] . "'");
+  }
+}
+
 echo "<br />\n";
 echo "$invoice_count SQL-Ledger invoices were processed.<br />\n";
 echo "$activity_count payments and adjustments were posted.<br />\n";
