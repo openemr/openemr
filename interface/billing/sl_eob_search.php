@@ -20,6 +20,7 @@ require_once("../../custom/statement.inc.php");
 require_once("$srcdir/parse_era.inc.php");
 require_once("$srcdir/sl_eob.inc.php");
 require_once("$srcdir/formatting.inc.php");
+require_once("$srcdir/classes/class.ezpdf.php");//for the purpose of pdf creation
 
 $DEBUG = 0; // set to 0 for production, 1 to test
 
@@ -73,6 +74,54 @@ function upload_file_to_client($file_to_send) {
   // sleep one second to ensure there's no follow-on.
   sleep(1);
 }
+function upload_file_to_client_pdf($file_to_send) {
+//Function reads a text file and converts to pdf.
+
+  global $STMT_TEMP_FILE_PDF;
+  $pdf =& new Cezpdf('LETTER');//pdf creation starts
+  $pdf->ezSetMargins(36,0,36,0);
+  $pdf->selectFont($GLOBALS['fileroot'] . "/library/fonts/Courier.afm");
+  $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
+  $countline=1;
+  $file = fopen($file_to_send, "r");//this file contains the text to be converted to pdf.
+  while(!feof($file))
+   {
+    $OneLine=fgets($file);//one line is read
+	 if(stristr($OneLine, "\014") == true && !feof($file))//form feed means we should start a new page.
+	  {
+	    $pdf->ezNewPage();
+	    $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
+		str_replace("\014", "", $OneLine);
+	  }
+	
+	if(stristr($OneLine, 'REMIT TO') == true || stristr($OneLine, 'Visit Date') == true)//lines are made bold when 'REMIT TO' or 'Visit Date' is there.
+	 $pdf->ezText('<b>'.$OneLine.'</b>', 12, array('justification' => 'left', 'leading' => 6)); 
+	else
+	 $pdf->ezText($OneLine, 12, array('justification' => 'left', 'leading' => 6)); 
+	 
+	$countline++; 
+   }
+	
+	$fh = @fopen($STMT_TEMP_FILE_PDF, 'w');//stored to a pdf file
+    if ($fh) {
+      fwrite($fh, $pdf->ezOutput());
+      fclose($fh);
+    }
+  header("Pragma: public");//this section outputs the pdf file to browser
+  header("Expires: 0");
+  header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+  header("Content-Type: application/force-download");
+  header("Content-Length: " . filesize($STMT_TEMP_FILE_PDF));
+  header("Content-Disposition: attachment; filename=" . basename($STMT_TEMP_FILE_PDF));
+  header("Content-Description: File Transfer");
+  readfile($STMT_TEMP_FILE_PDF);
+  // flush the content to the browser. If you don't do this, the text from the subsequent
+  // output from this script will be in the file instead of sent to the browser.
+  flush();
+  exit(); //added to exit from process properly in order to stop bad html code -ehrlive
+  // sleep one second to ensure there's no follow-on.
+  sleep(1);
+}
 
 
 $today = date("Y-m-d");
@@ -81,7 +130,7 @@ if ($INTEGRATED_AR) {
 
   // Print or download statements if requested.
   //
-  if (($_POST['form_print'] || $_POST['form_download']) && $_POST['form_cb']) {
+  if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) && $_POST['form_cb']) {
 
     $fhprint = fopen($STMT_TEMP_FILE, 'w');
 
@@ -180,6 +229,8 @@ if ($INTEGRATED_AR) {
     // Download or print the file, as selected
     if ($_POST['form_download']) {
       upload_file_to_client($STMT_TEMP_FILE);
+    } elseif ($_POST['form_pdf']) {
+      upload_file_to_client_pdf($STMT_TEMP_FILE);
     } else { // Must be print!
       if ($DEBUG) {
         $alertmsg = xl("Printing skipped; see test output in") .' '. $STMT_TEMP_FILE;
@@ -203,7 +254,7 @@ else {
 
   // Print or download statements if requested.
   //
-  if (($_POST['form_print'] || $_POST['form_download']) && $_POST['form_cb']) {
+  if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) && $_POST['form_cb']) {
 
     $fhprint = fopen($STMT_TEMP_FILE, 'w');
 
@@ -342,6 +393,8 @@ else {
     // Download or print the file, as selected
     if ($_POST['form_download']) {
       upload_file_to_client($STMT_TEMP_FILE);
+    } elseif ($_POST['form_pdf']) {
+      upload_file_to_client_pdf($STMT_TEMP_FILE);
     } else { // Must be print!
       if ($DEBUG) {
         $alertmsg = xl("Printing skipped; see test output in") .' '. $STMT_TEMP_FILE;
@@ -1000,6 +1053,7 @@ if (!$INTEGRATED_AR) SLClose();
 <input type='button' value='<?php xl('Clear All','e')?>' onclick='checkAll(false)' /> &nbsp;
 <input type='submit' name='form_print' value='<?php xl('Print Selected Statements','e'); ?>' /> &nbsp;
 <input type='submit' name='form_download' value='<?php xl('Download Selected Statements','e'); ?>' /> &nbsp;
+<input type='submit' name='form_pdf' value='<?php xl('PDF Download Selected Statements','e'); ?>' /> &nbsp;
 <?php } ?>
 <input type='checkbox' name='form_without' value='1' /> <?php xl('Without Update','e'); ?>
 </p>
