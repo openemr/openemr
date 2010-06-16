@@ -550,7 +550,7 @@ div.section {
     <b><?php xl('Scanned Encounter Note','e'); ?></b>
 <?php } ?>
     <div id='div_copy_doc' class='section' style='margin-top:0.5em;'>
-     <table>
+     <table width='100%'>
       <tr>
        <td class='itemtitle' nowrap><?php xl('Category','e'); ?></td>
        <td>
