@@ -210,15 +210,33 @@ function trimlen(s) {
  return j + 1 - i;
 }
 
+// Private function to trim spaces from a form field's value.
+function myTrim(elem) {
+ elem.value = elem.value.replace(/^\s+/, '').replace(/\s+$/, '');
+}
+
 function validate(f) {
 <?php generate_layout_validation('DEM'); ?>
 
-// Some insurance validation.
+ // Trim spaces from some fields.
+ myTrim(f.form_ss);
+ myTrim(f.form_fname);
+ myTrim(f.form_mname);
+ myTrim(f.form_lname);
+
+ // Some insurance validation.
  for (var i = 1; i <= 3; ++i) {
   subprov = 'i' + i + 'provider';
   if (!f[subprov] || f[subprov].selectedIndex <= 0) continue;
   var subpfx = 'i' + i + 'subscriber_';
   var subrelat = f['form_' + subpfx + 'relationship'];
+
+  // Trim spaces from some fields.
+  myTrim(f[subpfx + 'ss']);
+  myTrim(f[subpfx + 'fname']);
+  myTrim(f[subpfx + 'mname']);
+  myTrim(f[subpfx + 'lname']);
+
   var samename =
    f[subpfx + 'fname'].value == f.form_fname.value &&
    f[subpfx + 'mname'].value == f.form_mname.value &&
