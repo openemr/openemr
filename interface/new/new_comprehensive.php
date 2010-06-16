@@ -733,10 +733,12 @@ while ($mfrow = sqlFetchArray($mfres)) {
         // Build and invoke the URL to create the dup-checker dialog.
         var url = 'new_search_popup.php';
         var flds = new Array(<?php echo $mflist; ?>);
+        var separator = '?';
         for (var i = 0; i < flds.length; ++i) {
           var fval = $('#form_' + flds[i]).val();
           if (fval && fval != '') {
-            url += (i == 0) ? '?' : '&';
+            url += separator;
+            separator = '&';
             url += 'mf_' + flds[i] + '=' + encodeURIComponent(fval);
           }
         }
