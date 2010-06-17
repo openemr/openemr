@@ -13,6 +13,8 @@ require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once("../../library/acl.inc");
 require_once("../../custom/code_types.inc.php");
+require_once "$srcdir/options.inc.php";
+require_once "$srcdir/formdata.inc.php";
 
 // Might want something different here.
 //
@@ -305,21 +307,7 @@ function process_result_code($row) {
       <?php xl('Facility','e'); ?>:
      </td>
      <td valign='top' class='detail'>
-<?php
- // Build a drop-down list of facilities.
- //
- $query = "SELECT id, name FROM facility ORDER BY name";
- $fres = sqlStatement($query);
- echo "      <select name='form_facility'>\n";
- echo "       <option value=''>-- All Facilities --\n";
- while ($frow = sqlFetchArray($fres)) {
-  $facid = $frow['id'];
-  echo "       <option value='$facid'";
-  if ($facid == $_POST['form_facility']) echo " selected";
-  echo ">" . htmlspecialchars($frow['name']) . "\n";
- }
- echo "      </select>\n";
-?>
+      <?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', false); ?>
      </td>
     </tr>
     <tr>

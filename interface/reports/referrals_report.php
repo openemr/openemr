@@ -11,6 +11,8 @@
  require_once("../globals.php");
  require_once("$srcdir/patient.inc");
  require_once("$srcdir/formatting.inc.php");
+ require_once "$srcdir/options.inc.php";
+ require_once "$srcdir/formdata.inc.php";
 
  $from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
  $to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
@@ -97,24 +99,7 @@
 				<?php xl('Facility','e'); ?>:
 			</td>
 			<td>
-				<?php
-				 // Build a drop-down list of facilities.
-				 //
-				 $query = "SELECT id, name FROM facility ORDER BY name";
-				 $fres = sqlStatement($query);
-				 echo "   <select name='form_facility'>\n";
-				 echo "    <option value=''>-- " . xl('All Facilities') . " --\n";
-				 while ($frow = sqlFetchArray($fres)) {
-				  $facid = $frow['id'];
-				  echo "    <option value='$facid'";
-				  if ($facid == $form_facility) echo " selected";
-				  echo ">" . htmlspecialchars($frow['name']) . "\n";
-				 }
-				 echo "    <option value='0'";
-				 if ($form_facility === '0') echo " selected";
-				 echo ">-- " . xl('Unspecified') . " --\n";
-				 echo "   </select>\n";
-				?>
+			<?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', true); ?>
 			</td>
 			<td class='label'>
 			   <?php xl('From','e'); ?>:

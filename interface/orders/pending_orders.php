@@ -10,6 +10,8 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/formatting.inc.php");
+require_once "$srcdir/options.inc.php";
+require_once "$srcdir/formdata.inc.php";
 
 function thisLineItem($row) {
   $provname = $row['provider_lname'];
@@ -88,21 +90,7 @@ else { // not export
 
  <tr>
   <td>
-<?php
-  // Build a drop-down list of facilities.
-  //
-  $query = "SELECT id, name FROM facility ORDER BY name";
-  $fres = sqlStatement($query);
-  echo "   <select name='form_facility'>\n";
-  echo "    <option value=''>-- All Facilities --\n";
-  while ($frow = sqlFetchArray($fres)) {
-    $facid = $frow['id'];
-    echo "    <option value='$facid'";
-    if ($facid == $form_facility) echo " selected";
-    echo ">" . htmlspecialchars($frow['name']) . "\n";
-  }
-  echo "   </select>\n";
-?>
+   <?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', false); ?>
    &nbsp;<?xl('From:','e')?>
    <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>

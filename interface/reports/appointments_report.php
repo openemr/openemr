@@ -12,6 +12,8 @@
 require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once("$srcdir/formatting.inc.php");
+require_once "$srcdir/options.inc.php";
+require_once "$srcdir/formdata.inc.php";
 
  $alertmsg = ''; // not used yet but maybe later
 
@@ -169,24 +171,7 @@ require_once("$srcdir/formatting.inc.php");
 				<?php xl('Facility','e'); ?>:
 			</td>
 			<td>
-				<?php
-				 // Build a drop-down list of facilities.
-				 //
-				 $query = "SELECT id, name FROM facility ORDER BY name";
-				 $fres = sqlStatement($query);
-				 echo "   <select name='form_facility'>\n";
-				 echo "    <option value=''>-- " . xl('All Facilities') . " --\n";
-				 while ($frow = sqlFetchArray($fres)) {
-				  $facid = $frow['id'];
-				  echo "    <option value='$facid'";
-				  if ($facid == $form_facility) echo " selected";
-				  echo ">" . htmlspecialchars($frow['name']) . "\n";
-				 }
-				 echo "    <option value='0'";
-				 if ($form_facility === '0') echo " selected";
-				 echo ">-- " . xl('Unspecified') . " --\n";
-				 echo "   </select>\n";
-				?>
+			<?php dropdown_facility(strip_escape_custom($facility), 'form_facility'); ?>
 			</td>
 			<td class='label'>
 			   <?php xl('Provider','e'); ?>:

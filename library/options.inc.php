@@ -1,5 +1,7 @@
 <?php
 // Copyright (C) 2007-2009 Rod Roark <rod@sunsetsystems.com>
+// Copyright © 2010 by Andrew Moore <amoore@cpan.org>
+// Copyright © 2010 by "Boyd Stephen Smith Jr." <bss@iguanasuicide.net>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -1718,4 +1720,69 @@ function generate_layout_validation($form_id) {
     }
   }
 }
+
+/**
+ * DROPDOWN FOR FACILITIES
+ *
+ * build a dropdown with all facilities
+ *
+ * @param string $selected - name of the currently selected facility
+ *                           use '0' for "unspecified facility"
+ *                           use '' for "All facilities" (the default)
+ * @param string $name - the name/id for select form (defaults to "form_facility")
+ * @param boolean $allow_unspecified - include an option for "unspecified" facility
+ *                                     defaults to true
+ * @return void - just echo the html encoded string
+ *
+ * Note: This should become a data-type at some point, according to Brady
+ */
+function dropdown_facility($selected = '', $name = 'form_facility', $allow_unspecified = true) {
+  $have_selected = false;
+  $query = "SELECT id, name FROM facility ORDER BY name";
+  $fres = sqlStatement($query);
+
+  $name = htmlspecialchars($name, ENT_QUOTES);
+  echo "   <select name=\"$name\">\n";
+
+  $option_value = '';
+  $option_selected_attr = '';
+  if ($selected == '') {
+    $option_selected_attr = ' selected="selected"';
+    $have_selected = true;
+  }
+  $option_content = htmlspecialchars('-- ' . xl('All Facilities') . ' --', ENT_NOQUOTES);
+  echo "    <option value=\"$option_value\" $option_selected_attr>$option_content</option>\n";
+
+  while ($frow = sqlFetchArray($fres)) {
+    $facility_id = $frow['id'];
+    $option_value = htmlspecialchars($facility_id, ENT_QUOTES);
+    $option_selected_attr = '';
+    if ($selected == $facility_id) {
+      $option_selected_attr = ' selected="selected"';
+      $have_selected = true;
+    }
+    $option_content = htmlspecialchars($frow['name'], ENT_NOQUOTES);
+    echo "    <option value=\"$option_value\" $option_selected_attr>$option_content</option>\n";
+  }
+
+  if ($allow_unspecified) {
+    $option_value = '0';
+    $option_selected_attr = '';
+    if ( $selected == '0' ) {
+      $option_selected_attr = ' selected="selected"';
+      $have_selected = true;
+    }
+    $option_content = htmlspecialchars('-- ' . xl('Unspecified') . ' --', ENT_NOQUOTES);
+    echo "    <option value=\"$option_value\" $option_selected_attr>$option_content</option>\n";
+  }
+
+  if (!$have_selected) {
+    $option_value = htmlspecialchars($selected, ENT_QUOTES);
+    $option_label = htmlspecialchars('(' . xl('Do not change') . ')', ENT_QUOTES);
+    $option_content = htmlspecialchars(xl('Missing or Invalid'), ENT_NOQUOTES);
+    echo "    <option value='$option_value' label='$option_label' selected='selected'>$option_content</option>\n";
+  }
+  echo "   </select>\n";
+}
+
 ?>
