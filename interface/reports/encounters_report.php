@@ -67,7 +67,7 @@ if ($form_to_date) {
   $query .= "AND fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_from_date 23:59:59' ";
 }
 if ($form_provider) {
-  $query .= "AND f.user = '$form_provider' ";
+  $query .= "AND fe.provider_id = '$form_provider' ";
 }
 if ($form_facility) {
   $query .= "AND fe.facility_id = '$form_facility' ";
