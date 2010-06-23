@@ -4,6 +4,14 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
  require_once("../../globals.php");
  require_once("$srcdir/patient.inc");
  require_once("$srcdir/acl.inc");
@@ -56,7 +64,7 @@ if((top.window.parent) && (parent.window)){
 }
 //Visolve - sync the radio buttons - End
 
- var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'],ENT_QUOTES); ?>';
 
  function oldEvt(eventid) {
   dlgopen('../../main/calendar/add_edit_event.php?eid=' + eventid, '_blank', 550, 270);
@@ -73,7 +81,7 @@ if((top.window.parent) && (parent.window)){
 
  // Process click on Delete link.
  function deleteme() {
-  dlgopen('../deleter.php?patient=<?php echo $pid ?>', '_blank', 500, 450);
+  dlgopen('../deleter.php?patient=<?php echo htmlspecialchars($pid,ENT_QUOTES); ?>', '_blank', 500, 450);
   return false;
  }
 
@@ -93,11 +101,11 @@ if((top.window.parent) && (parent.window)){
 if ($GLOBALS['athletic_team']) {
   echo "  if (f.form_userdate1.value != f.form_original_userdate1.value) {\n";
   $irow = sqlQuery("SELECT id, title FROM lists WHERE " .
-    "pid = '$pid' AND enddate IS NULL ORDER BY begdate DESC LIMIT 1");
+    "pid = ? AND enddate IS NULL ORDER BY begdate DESC LIMIT 1", array($pid));
   if (!empty($irow)) {
 ?>
-   if (confirm('Do you wish to also set this new return date in the issue titled "<?php echo addslashes($irow['title']) ?>"?')) {
-    f.form_issue_id.value = '<?php echo $irow['id'] ?>';
+   if (confirm('Do you wish to also set this new return date in the issue titled "<?php echo htmlspecialchars($irow['title'],ENT_QUOTES); ?>"?')) {
+    f.form_issue_id.value = '<?php echo htmlspecialchars($irow['id'],ENT_QUOTES); ?>';
    } else {
     alert('OK, you will need to manually update the return date in any affected issue(s).');
    }
@@ -112,7 +120,7 @@ if ($GLOBALS['athletic_team']) {
  }
 
  function newEvt() {
-  dlgopen('../../main/calendar/add_edit_event.php?patientid=<?php echo $pid ?>', '_blank', 550, 270);
+  dlgopen('../../main/calendar/add_edit_event.php?patientid=<?php echo htmlspecialchars($pid,ENT_QUOTES); ?>', '_blank', 550, 270);
   return false;
  }
 
@@ -130,11 +138,11 @@ function sendimage(pid, what) {
 function toggle( target, div ) {
 
     $mode = $(target).find(".indicator").text();
-    if ( $mode == "<?php xl('collapse','e'); ?>" ) {
-        $(target).find(".indicator").text( "<?php xl('expand','e'); ?>" );
+    if ( $mode == "<?php echo htmlspecialchars(xl('collapse'),ENT_QUOTES); ?>" ) {
+        $(target).find(".indicator").text( "<?php echo htmlspecialchars(xl('expand'),ENT_QUOTES); ?>" );
         $(div).hide();
     } else {
-        $(target).find(".indicator").text( "<?php xl('collapse','e'); ?>" );
+        $(target).find(".indicator").text( "<?php echo htmlspecialchars(xl('collapse'),ENT_QUOTES); ?>" );
         $(div).show();
     }
 
@@ -225,7 +233,7 @@ $(document).ready(function(){
  }
 
  if (!$thisauth) {
-  echo "<p>(" . xl('Demographics not authorized') . ")</p>\n";
+  echo "<p>(" . htmlspecialchars(xl('Demographics not authorized'),ENT_NOQUOTES) . ")</p>\n";
   echo "</body>\n</html>\n";
   exit();
  }
@@ -235,25 +243,31 @@ $(document).ready(function(){
   echo "<td><a href='demographics_full.php'";
   if (! $GLOBALS['concurrent_layout']) echo " target='Main'";
   echo " onclick='top.restoreSession()'><span class='title'>" .
-   getPatientName($pid) . "</span></a>&nbsp;&nbsp;</td>";
+   htmlspecialchars(getPatientName($pid),ENT_NOQUOTES) .
+   "</span></a>&nbsp;&nbsp;</td>";
 
   echo "<td><a class='css_button' href='demographics_full.php'";
   if (! $GLOBALS['concurrent_layout']) echo " target='Main'";
-  echo " onclick='top.restoreSession()'><span>" . xl("Edit" ). "</span></a></td>";
+  echo " onclick='top.restoreSession()'><span>" .
+  htmlspecialchars(xl("Edit" ),ENT_NOQUOTES). "</span></a></td>";
 
   if (acl_check('admin', 'super')) {
-   echo "<td><a class='css_button iframe' href='../deleter.php?patient=" . $pid . "'>" .
-    "<span>".xl('Delete')."</span></a></td>";
+   echo "<td><a class='css_button iframe' href='../deleter.php?patient=" . 
+    htmlspecialchars($pid,ENT_QUOTES) . "'>" .
+    "<span>".htmlspecialchars(xl('Delete'),ENT_NOQUOTES).
+    "</span></a></td>";
   }
 	if ($GLOBALS['oer_config']['ws_accounting']['enabled']) {
 	  // Show current balance and billing note, if any.
     echo "<td>&nbsp;&nbsp;&nbsp;<span class='bold'><font color='#ee6600'>" .
-      xl('Balance Due') . ": " . oeFormatMoney(get_patient_balance($pid)) .
+      htmlspecialchars(xl('Balance Due'),ENT_NOQUOTES) .
+      ": " . htmlspecialchars(oeFormatMoney(get_patient_balance($pid)),ENT_NOQUOTES) .
       "</font><br />";
 	  if ($result['genericname2'] == 'Billing') {
-		xl('Billing Note') . ":";
+		htmlspecialchars(xl('Billing Note'),ENT_NOQUOTES) . ":";
 		echo "<span class='bold'><font color='red'>" .
-		  $result['genericval2'] . "</font></span>";
+		  htmlspecialchars($result['genericval2'],ENT_NOQUOTES) .
+		  "</font></span>";
 	  }
 	  echo "</span></td>";
 	}
@@ -265,11 +279,11 @@ $document_id = 0;
 if ($GLOBALS['patient_id_category_name']) {
   $tmp = sqlQuery("SELECT d.id, d.date, d.url FROM " .
     "documents AS d, categories_to_documents AS cd, categories AS c " .
-    "WHERE d.foreign_id = $pid " .
+    "WHERE d.foreign_id = ? " .
     "AND cd.document_id = d.id " .
     "AND c.id = cd.category_id " .
-    "AND c.name LIKE '" . $GLOBALS['patient_id_category_name'] . "' " .
-    "ORDER BY d.date DESC LIMIT 1");
+    "AND c.name LIKE ? " .
+    "ORDER BY d.date DESC LIMIT 1", array($pid, $GLOBALS['patient_id_category_name']) );
   if ($tmp) $document_id = $tmp['id'];
 }
 ?>
@@ -277,15 +291,20 @@ if ($GLOBALS['patient_id_category_name']) {
 
 <tr>
 <td class="small" colspan='4'>
-<a href="rx_frameset.php" class='iframe rx_modal' onclick='top.restoreSession()'><?php xl('Rx', 'e'); ?></a>
+<a href="rx_frameset.php" class='iframe rx_modal' onclick='top.restoreSession()'>
+<?php echo htmlspecialchars(xl('Rx'),ENT_NOQUOTES); ?></a>
 |
-<a href="../history/history.php" onclick='top.restoreSession()'><?php xl('History', 'e'); ?></a>
+<a href="../history/history.php" onclick='top.restoreSession()'>
+<?php echo htmlspecialchars(xl('History'),ENT_NOQUOTES); ?></a>
 |
-<a href="../report/patient_report.php" class='iframe  medium_modal' onclick='top.restoreSession()'><?php xl('Report', 'e'); ?></a>
+<a href="../report/patient_report.php" class='iframe  medium_modal' onclick='top.restoreSession()'>
+<?php echo htmlspecialchars(xl('Report'),ENT_NOQUOTES); ?></a>
 |
-<a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>" class='iframe medium_modal' onclick='top.restoreSession()'><?php xl('Documents', 'e'); ?></a>
+<a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>" class='iframe medium_modal' onclick='top.restoreSession()'>
+<?php echo htmlspecialchars(xl('Documents'),ENT_NOQUOTES); ?></a>
 |
-<a href="../transaction/transactions.php" class='iframe large_modal' onclick='top.restoreSession()'><?php xl('Transactions', 'e'); ?></a>
+<a href="../transaction/transactions.php" class='iframe large_modal' onclick='top.restoreSession()'>
+<?php echo htmlspecialchars(xl('Transactions'),ENT_NOQUOTES); ?></a>
 </td>
 </tr>
 </table> <!-- end header -->
@@ -300,7 +319,8 @@ if ($GLOBALS['patient_id_category_name']) {
 		<tr>
 			<td>
 				<div class="section-header">
-					<a href='javascript:;' class='small' id='dem_view'><span class='text'><b><?php xl("Demographics", "e" )?></b></span> (<span class="indicator"><?php xl('collapse','e'); ?></span>)</a>
+					<a href='javascript:;' class='small' id='dem_view'><span class='text'><b>
+					<?php echo htmlspecialchars(xl("Demographics"),ENT_NOQUOTES); ?></b></span> (<span class="indicator"><?php echo htmlspecialchars(xl('collapse'),ENT_QUOTES); ?></span>)</a>
 				</div>
 
 				<!-- Demographics -->
@@ -324,9 +344,9 @@ if ($GLOBALS['patient_id_category_name']) {
 				$enddate = 'Present';
 
 				$query = "SELECT * FROM insurance_data WHERE " .
-				"pid = '$pid' AND type = '$instype' " .
+				"pid = ? AND type = ? " .
 				"ORDER BY date DESC";
-				$res = sqlStatement($query);
+				$res = sqlStatement($query, array($pid, $instype) );
 				while( $row = sqlFetchArray($res) ) {
 					if ($row['provider'] ) $insurance_count++;
 				}
@@ -336,7 +356,8 @@ if ($GLOBALS['patient_id_category_name']) {
 
 		   ?>
 			<div class="section-header">
-				<a href='javascript:;' class='small' id='ins_view'><span class='text'><b><?php xl("Insurance", "e" )?></b></span> (<span class="indicator"><?php xl('collapse','e'); ?></span>)</a>
+				<a href='javascript:;' class='small' id='ins_view'><span class='text'><b>
+				<?php echo htmlspecialchars(xl("Insurance"),ENT_NOQUOTES); ?></b></span> (<span class="indicator"><?php echo htmlspecialchars(xl('collapse'),ENT_QUOTES); ?></span>)</a>
 			</div>
 
 			<div id="INSURANCE">
@@ -351,9 +372,9 @@ if ($GLOBALS['patient_id_category_name']) {
 					foreach (array('primary','secondary','tertiary') as $instype) {
 
 						$query = "SELECT * FROM insurance_data WHERE " .
-						"pid = '$pid' AND type = '$instype' " .
+						"pid = ? AND type = ? " .
 						"ORDER BY date DESC";
-						$res = sqlStatement($query);
+						$res = sqlStatement($query, array($pid, $instype) );
 
 						$enddate = 'Present';
 
@@ -364,7 +385,8 @@ if ($GLOBALS['patient_id_category_name']) {
 	                                                        $ins_description = xl($ins_description);
 								$ins_description  .= strcmp($enddate, 'Present') != 0 ? " (".xl('Old').")" : "";
 								?>
-								<li <?php echo $first ? 'class="current"' : '' ?>><a href="/play/javascript-tabbed-navigation/"><?php echo $ins_description; ?></a></li>
+								<li <?php echo $first ? 'class="current"' : '' ?>><a href="/play/javascript-tabbed-navigation/">
+								<?php echo htmlspecialchars($ins_description,ENT_NOQUOTES); ?></a></li>
 								<?php
 								$first = false;
 							}
@@ -383,9 +405,9 @@ if ($GLOBALS['patient_id_category_name']) {
 					  $enddate = 'Present';
 
 						$query = "SELECT * FROM insurance_data WHERE " .
-						"pid = '$pid' AND type = '$instype' " .
+						"pid = ? AND type = ? " .
 						"ORDER BY date DESC";
-						$res = sqlStatement($query);
+						$res = sqlStatement($query, array($pid, $instype) );
 					  while( $row = sqlFetchArray($res) ) {
 						if ($row['provider'] ) {
 							?>
@@ -399,12 +421,13 @@ if ($GLOBALS['patient_id_category_name']) {
 								<tr>
 								 <td valign='top' colspan='3'>
 								  <span class='text'>
-								  <?php if (strcmp($enddate, 'Present') != 0) echo xl("Old")." "; ?>
-								  <?php $tempinstype=ucfirst($instype); xl($tempinstype.' Insurance','e'); ?>
+								  <?php if (strcmp($enddate, 'Present') != 0) echo htmlspecialchars(xl("Old"),ENT_NOQUOTES)." "; ?>
+								  <?php $tempinstype=ucfirst($instype); echo htmlspecialchars(xl($tempinstype.' Insurance'),ENT_NOQUOTES); ?>
 								  <?php if (strcmp($row['date'], '0000-00-00') != 0) { ?>
-								  <?php xl('from','e',' ',' '); echo $row['date']; ?>
+								  <?php echo htmlspecialchars(xl('from','',' ',' ').$row['date'],ENT_NOQUOTES); ?>
 								  <?php } ?>
-						                  <?php xl('until','e',' ',' '); echo (strcmp($enddate, 'Present') != 0) ? $enddate : xl('Present'); ?>:</span>
+						                  <?php echo htmlspecialchars(xl('until','',' ',' '),ENT_NOQUOTES);
+								    echo (strcmp($enddate, 'Present') != 0) ? $enddate : htmlspecialchars(xl('Present'),ENT_NOQUOTES); ?>:</span>
 								 </td>
 								</tr>
 								<tr>
@@ -412,51 +435,56 @@ if ($GLOBALS['patient_id_category_name']) {
 								  <span class='text'>
 								  <?php
 								  if ($insco_name) {
-									echo $insco_name . '<br>';
+									echo htmlspecialchars($insco_name,ENT_NOQUOTES) . '<br>';
 									if (trim($adobj->get_line1())) {
-									  echo $adobj->get_line1() . '<br>';
-									  echo $adobj->get_city() . ', ' . $adobj->get_state() . ' ' . $adobj->get_zip();
+									  echo htmlspecialchars($adobj->get_line1(),ENT_NOQUOTES) . '<br>';
+									  echo htmlspecialchars($adobj->get_city() . ', ' . $adobj->get_state() . ' ' . $adobj->get_zip(),ENT_NOQUOTES);
 									}
 								  } else {
-									echo "<font color='red'><b>".xl('Unassigned')."</b></font>";
+									echo "<font color='red'><b>".htmlspecialchars(xl('Unassigned'),ENT_NOQUOTES)."</b></font>";
 								  }
 								  ?>
 								  <br>
-								  <?php xl('Policy Number','e'); ?>: <?php echo $row['policy_number'] ?><br>
-								  <?php xl('Plan Name','e'); ?>: <?php echo $row['plan_name']; ?><br>
-								  <?php xl('Group Number','e'); ?>: <?php echo $row['group_number']; ?></span>
+								  <?php echo htmlspecialchars(xl('Policy Number'),ENT_NOQUOTES); ?>: 
+								  <?php echo htmlspecialchars($row['policy_number'],ENT_NOQUOTES) ?><br>
+								  <?php echo htmlspecialchars(xl('Plan Name'),ENT_NOQUOTES); ?>: 
+								  <?php echo htmlspecialchars($row['plan_name'],ENT_NOQUOTES); ?><br>
+								  <?php echo htmlspecialchars(xl('Group Number'),ENT_NOQUOTES); ?>: 
+								  <?php echo htmlspecialchars($row['group_number'],ENT_NOQUOTES); ?></span>
 								 </td>
 								 <td valign='top'>
-								  <span class='bold'><?php xl('Subscriber','e'); ?>: </span><br>
-								  <span class='text'><?php echo $row['subscriber_fname'] . ' ' . $row['subscriber_mname'] . ' ' . $row['subscriber_lname'] ?>
+								  <span class='bold'><?php echo htmlspecialchars(xl('Subscriber'),ENT_NOQUOTES); ?>: </span><br>
+								  <span class='text'><?php echo htmlspecialchars($row['subscriber_fname'] . ' ' . $row['subscriber_mname'] . ' ' . $row['subscriber_lname'],ENT_NOQUOTES); ?>
 							<?php
 								  if ($row['subscriber_relationship'] != "") {
-									echo "(" . $row['subscriber_relationship'] . ")";
+									echo "(" . htmlspecialchars($row['subscriber_relationship'],ENT_NOQUOTES) . ")";
 								  }
 							?>
 								  <br>
-								  <?php xl('S.S.','e'); ?>: <?php echo $row['subscriber_ss']; ?><br>
-								  <?php xl('D.O.B.','e'); ?>:
-								  <?php if ($row['subscriber_DOB'] != "0000-00-00 00:00:00") echo $row['subscriber_DOB']; ?><br>
-								  <?php xl('Phone','e'); ?>: <?php echo $row['subscriber_phone'] ?>
+								  <?php echo htmlspecialchars(xl('S.S.'),ENT_NOQUOTES); ?>: 
+								  <?php echo htmlspecialchars($row['subscriber_ss'],ENT_NOQUOTES); ?><br>
+								  <?php echo htmlspecialchars(xl('D.O.B.'),ENT_NOQUOTES); ?>:
+								  <?php if ($row['subscriber_DOB'] != "0000-00-00 00:00:00") echo htmlspecialchars($row['subscriber_DOB'],ENT_NOQUOTES); ?><br>
+								  <?php echo htmlspecialchars(xl('Phone'),ENT_NOQUOTES); ?>: 
+								  <?php echo htmlspecialchars($row['subscriber_phone'],ENT_NOQUOTES); ?>
 								  </span>
 								 </td>
 								 <td valign='top'>
-								  <span class='bold'><?php xl('Subscriber Address','e'); ?>: </span><br>
-								  <span class='text'><?php echo $row['subscriber_street']; ?><br>
-								  <?php echo $row['subscriber_city']; ?>
-								  <?php if($row['subscriber_state'] != "") echo ", "; echo $row['subscriber_state']; ?>
-								  <?php if($row['subscriber_country'] != "") echo ", "; echo $row['subscriber_country']; ?>
-								  <?php echo " " . $row['subscriber_postal_code']; ?></span>
+								  <span class='bold'><?php echo htmlspecialchars(xl('Subscriber Address'),ENT_NOQUOTES); ?>: </span><br>
+								  <span class='text'><?php echo htmlspecialchars($row['subscriber_street'],ENT_NOQUOTES); ?><br>
+								  <?php echo htmlspecialchars($row['subscriber_city'],ENT_NOQUOTES); ?>
+								  <?php if($row['subscriber_state'] != "") echo ", "; echo htmlspecialchars($row['subscriber_state'],ENT_NOQUOTES); ?>
+								  <?php if($row['subscriber_country'] != "") echo ", "; echo htmlspecialchars($row['subscriber_country'],ENT_NOQUOTES); ?>
+								  <?php echo " " . htmlspecialchars($row['subscriber_postal_code'],ENT_NOQUOTES); ?></span>
 
 							<?php if (trim($row['subscriber_employer'])) { ?>
-								  <br><span class='bold'><?php xl('Subscriber Employer','e'); ?>: </span><br>
-								  <span class='text'><?php echo $row['subscriber_employer']; ?><br>
-								  <?php echo $row['subscriber_employer_street']; ?><br>
-								  <?php echo $row['subscriber_employer_city']; ?>
-								  <?php if($row['subscriber_employer_city'] != "") echo ", "; echo $row['subscriber_employer_state']; ?>
-								  <?php if($row['subscriber_employer_country'] != "") echo ", "; echo $row['subscriber_employer_country']; ?>
-								  <?php echo " " . $row['subscriber_employer_postal_code']; ?>
+								  <br><span class='bold'><?php echo htmlspecialchars(xl('Subscriber Employer'),ENT_NOQUOTES); ?>: </span><br>
+								  <span class='text'><?php echo htmlspecialchars($row['subscriber_employer'],ENT_NOQUOTES); ?><br>
+								  <?php echo htmlspecialchars($row['subscriber_employer_street'],ENT_NOQUOTES); ?><br>
+								  <?php echo htmlspecialchars($row['subscriber_employer_city'],ENT_NOQUOTES); ?>
+								  <?php if($row['subscriber_employer_city'] != "") echo ", "; echo htmlspecialchars($row['subscriber_employer_state'],ENT_NOQUOTES); ?>
+								  <?php if($row['subscriber_employer_country'] != "") echo ", "; echo htmlspecialchars($row['subscriber_employer_country'],ENT_NOQUOTES); ?>
+								  <?php echo " " . htmlspecialchars($row['subscriber_employer_postal_code'],ENT_NOQUOTES); ?>
 								  </span>
 							<?php } ?>
 
@@ -465,13 +493,13 @@ if ($GLOBALS['patient_id_category_name']) {
 								<tr>
 								 <td>
 							<?php if ($row['copay'] != "") { ?>
-								  <span class='bold'><?php xl('CoPay','e'); ?>: </span>
-								  <span class='text'><?php echo $row['copay']; ?></span>
+								  <span class='bold'><?php echo htmlspecialchars(xl('CoPay'),ENT_NOQUOTES); ?>: </span>
+								  <span class='text'><?php echo htmlspecialchars($row['copay'],ENT_NOQUOTES); ?></span>
 							<?php } ?>
 							<br>
-								  <span class='bold'><?php xl('Accept Assignment','e'); ?>:</span>
-								  <span class='text'><?php if($row['accept_assignment'] == "TRUE") echo "YES"; ?>
-								  <?php if($row['accept_assignment'] == "FALSE") echo "NO"; ?></span>
+								  <span class='bold'><?php echo htmlspecialchars(xl('Accept Assignment'),ENT_NOQUOTES); ?>:</span>
+								  <span class='text'><?php if($row['accept_assignment'] == "TRUE") echo xl("YES"); ?>
+								  <?php if($row['accept_assignment'] == "FALSE") echo xl("NO"); ?></span>
 								 </td>
 								 <td valign='top'></td>
 								 <td valign='top'></td>
@@ -499,7 +527,7 @@ if ($GLOBALS['patient_id_category_name']) {
 		<tr>
 			<td width='650px'>
 				<div class="section-header">
-                    <a href='javascript:;' class='small' id='notes_view'><span class='text'><b><?php xl("Notes", "e" )?></b></span> (<span class="indicator"><?php xl('collapse','e'); ?></span>)</a>
+                    <a href='javascript:;' class='small' id='notes_view'><span class='text'><b><?php echo htmlspecialchars(xl("Notes"),ENT_NOQUOTES);?></b></span> (<span class="indicator"><?php echo htmlspecialchars(xl('collapse'),ENT_QUOTES); ?></span>)</a>
 				</div>
 				<!-- Demographics -->
                 <div id='notes_div' class='tab current' style='height:auto; width:100%' >
@@ -525,9 +553,9 @@ if ($GLOBALS['patient_id_category_name']) {
     <?php
     if ($GLOBALS['advance_directives_warning']) { ?>
         <div>
-            <span class="text"><b><?php echo xl('Advance Directives') ?></b></span>
+            <span class="text"><b><?php echo htmlspecialchars(xl('Advance Directives'),ENT_NOQUOTES); ?></b></span>
             <a href="#" class="small" onclick="return advdirconfigure();">
-                (<b><?php echo xl('Manage') ?></b>)
+                (<b><?php echo htmlspecialchars(xl('Manage'),ENT_NOQUOTES); ?></b>)
             </a>
         </div>
 		<div class='small'>
@@ -537,8 +565,8 @@ if ($GLOBALS['patient_id_category_name']) {
           $myrow2 = sqlQuery($query);
           if ($myrow2) {
           $parentId = $myrow2['id'];
-          $query = "SELECT id, name FROM categories WHERE parent='$parentId'";
-          $resNew1 = sqlStatement($query);
+          $query = "SELECT id, name FROM categories WHERE parent=?";
+          $resNew1 = sqlStatement($query, array($parentId) );
           while ($myrows3 = sqlFetchArray($resNew1)) {
               $categoryId = $myrows3['id'];
               $nameDoc = $myrows3['name'];
@@ -546,10 +574,10 @@ if ($GLOBALS['patient_id_category_name']) {
                    "FROM documents " .
                    "INNER JOIN categories_to_documents " .
                    "ON categories_to_documents.document_id=documents.id " .
-                   "WHERE categories_to_documents.category_id='$categoryId' " .
-                   "AND documents.foreign_id='$pid' " .
+                   "WHERE categories_to_documents.category_id=? " .
+                   "AND documents.foreign_id=? " .
                    "ORDER BY documents.date DESC";
-              $resNew2 = sqlStatement($query);
+              $resNew2 = sqlStatement($query, array($categoryId, $pid) );
               $limitCounter = 0; // limit to one entry per category
               while (($myrows4 = sqlFetchArray($resNew2)) && ($limitCounter == 0)) {
                   $dateTimeDoc = $myrows4['date'];
@@ -557,8 +585,11 @@ if ($GLOBALS['patient_id_category_name']) {
               $tempParse = explode(" ",$dateTimeDoc);
               $dateDoc = $tempParse[0];
               $idDoc = $myrows4['id'];
-              echo "<a href='$web_root/controller.php?document&retrieve&patient_id=$pid&document_id=" .
-                    $idDoc . "&as_file=true'>" . xl_document_category($nameDoc) . "</a> " . $dateDoc;
+              echo "<a href='$web_root/controller.php?document&retrieve&patient_id=" .
+                    htmlspecialchars($pid,ENT_QUOTES) . "&document_id=" .
+                    htmlspecialchars($idDoc,ENT_QUOTES) . "&as_file=true'>" .
+                    htmlspecialchars(xl_document_category($nameDoc),ENT_NOQUOTES) . "</a> " .
+                    htmlspecialchars($dateDoc,ENT_NOQUOTES);
               echo "<br>";
               $limitCounter = $limitCounter + 1;
               $counterFlag = true;
@@ -566,7 +597,7 @@ if ($GLOBALS['patient_id_category_name']) {
           }
           }
           if (!$counterFlag) {
-              echo xl('None', 'e');
+              echo htmlspecialchars(xl('None'),ENT_NOQUOTES);
           } ?>
       </div>
       <? } ?>
@@ -610,12 +641,12 @@ if ($GLOBALS['patient_id_category_name']) {
 	  $form_issue_id  = $_POST['form_issue_id'];
 	  if ($form_submit) {
 		$returndate = $form_userdate1 ? "'$form_userdate1'" : "NULL";
-		sqlStatement("UPDATE patient_data SET fitness = '$form_fitness', " .
-		  "userdate1 = $returndate WHERE pid = '$pid'");
+		sqlStatement("UPDATE patient_data SET fitness = ?, " .
+		  "userdate1 = ? WHERE pid = ?", array($form_fitness, $returndate, $pid) );
 		// Update return date in the designated issue, if requested.
 		if ($form_issue_id) {
-		  sqlStatement("UPDATE lists SET returndate = $returndate WHERE " .
-		    "id = '$form_issue_id'");
+		  sqlStatement("UPDATE lists SET returndate = ? WHERE " .
+		    "id = ?", array($returndate, $form_issue_id) );
 		}
 	  } else {
 		$form_fitness = $result['fitness'];
@@ -630,20 +661,20 @@ if ($GLOBALS['patient_id_category_name']) {
 		"list_id = 'fitness' ORDER BY seq");
 	  while ($row = sqlFetchArray($res)) {
 		$key = $row['option_id'];
-		echo "    <option value='$key'";
+		echo "    <option value='" . htmlspecialchars($key,ENT_QUOTES) . "'";
 		if ($key == $form_fitness) echo " selected";
-		echo ">" . $row['title'] . "</option>\n";
+		echo ">" . htmlspecialchars($row['title'],ENT_NOQUOTES) . "</option>\n";
 	  }
 	  echo "   </select>\n";
 	  echo "   <br /><span class='bold'>Return to Play:</span><br>\n";
 	  echo "   <input type='text' size='10' name='form_userdate1' id='form_userdate1' " .
 		"value='$form_userdate1' " .
-		"title='" . xl('yyyy-mm-dd Date of return to play') . "' " .
+		"title='" . htmlspecialchars(xl('yyyy-mm-dd Date of return to play'),ENT_QUOTES) . "' " .
 		"onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />\n" .
 		"   <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22' " .
 		"id='img_userdate1' border='0' alt='[?]' style='cursor:pointer' " .
-		"title='" . xl('Click here to choose a date') . "'>\n";
-	  echo "   <input type='hidden' name='form_original_userdate1' value='$form_userdate1' />\n";
+		"title='" . htmlspecialchars(xl('Click here to choose a date'),ENT_QUOTES) . "'>\n";
+	  echo "   <input type='hidden' name='form_original_userdate1' value='" . htmlspecialchars($form_userdate1,ENT_QUOTES) . "' />\n";
 	  echo "   <input type='hidden' name='form_issue_id' value='' />\n";
 	  echo "<p><input type='submit' name='form_submit' value='Change' /></p>\n";
 	  echo "   </form>\n";
@@ -663,16 +694,16 @@ if ($GLOBALS['patient_id_category_name']) {
 	  "c.pc_catname " .
 	  "FROM openemr_postcalendar_events AS e, users AS u, " .
 	  "openemr_postcalendar_categories AS c WHERE " .
-	  "e.pc_pid = '$pid' AND e.pc_eventDate >= CURRENT_DATE AND " .
+	  "e.pc_pid = ? AND e.pc_eventDate >= CURRENT_DATE AND " .
 	  "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " .
 	  "ORDER BY e.pc_eventDate, e.pc_startTime";
-	 $res = sqlStatement($query);
+	 $res = sqlStatement($query, array($pid) );
 
 	 if (isset($res) && $res != null) { ?>
         <div>
-            <span class="text"><b><?php echo xl('Appointments') ?></b></span>
+            <span class="text"><b><?php echo htmlspecialchars(xl('Appointments'),ENT_NOQUOTES); ?></b></span>
             <a href="#" class="small" onclick="return newEvt();" >
-                (<b><?php echo xl('Add') ?></b>)
+                (<b><?php echo htmlspecialchars(xl('Add'),ENT_NOQUOTES); ?></b>)
             </a>
         </div>
      <?php } ?>
@@ -691,15 +722,16 @@ if ($GLOBALS['patient_id_category_name']) {
 			  }
 			  $etitle = xl('(Click to edit)');
 			  if ($row['pc_hometext'] != "") {
-				$etitle = xl('Comments').": ".addslashes($row['pc_hometext'])."\r\n".$etitle;
+				$etitle = xl('Comments').": ".($row['pc_hometext'])."\r\n".$etitle;
 			  }
-              echo "<a href='javascript:oldEvt(" . $row['pc_eid'] .  ")' title='$etitle'>";
-			  echo "<b>" . xl($dayname) . ", " . $row['pc_eventDate'] . "</b><br>";
-			  echo "$disphour:$dispmin " . xl($dispampm) . " " . xl_appt_category($row['pc_catname']) . "<br>\n";
-			  echo $row['fname'] . " " . $row['lname'] . "</a><br>\n";
+              echo "<a href='javascript:oldEvt(" . htmlspecialchars($row['pc_eid'],ENT_QUOTES) .
+		")' title='" . htmlspecialchars($etitle,ENT_QUOTES) . "'>";
+			  echo "<b>" . htmlspecialchars(xl($dayname) . ", " . $row['pc_eventDate'],ENT_NOQUOTES) . "</b><br>";
+			  echo htmlspecialchars("$disphour:$dispmin " . xl($dispampm) . " " . xl_appt_category($row['pc_catname']),ENT_NOQUOTES) . "<br>\n";
+			  echo htmlspecialchars($row['fname'] . " " . $row['lname'],ENT_NOQUOTES) . "</a><br>\n";
 			 }
 			 if (isset($res) && $res != null) {
-				if ( $count < 1 ) { echo xl('None', 'e'); }
+				if ( $count < 1 ) { echo htmlspecialchars(xl('None'),ENT_NOQUOTES); }
 				echo "</div>";
 			 }
 			}
@@ -726,7 +758,9 @@ if ($GLOBALS['patient_id_category_name']) {
 
 <?php if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) { ?>
 <script language='JavaScript'>
- top.window.parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($result['DOB_YMD']) . "'"; ?>);
+ top.window.parent.left_nav.setPatient(<?php echo "'" . htmlspecialchars(($result['fname']) . " " . ($result['lname']),ENT_QUOTES) .
+   "'," . htmlspecialchars($pid,ENT_QUOTES) . ",'" . htmlspecialchars(($result['pubpid']),ENT_QUOTES) .
+   "','', ' " . htmlspecialchars(xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($result['DOB_YMD']), ENT_QUOTES) . "'"; ?>);
  parent.left_nav.setRadio(window.name, 'dem');
 </script>
 <?php } ?>

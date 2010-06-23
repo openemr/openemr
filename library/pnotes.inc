@@ -18,27 +18,32 @@ function getPnoteById($id, $cols = "*")
 function getPnotesByDate($date, $activity = "1", $cols = "*", $pid = "%",
   $limit = "all", $start = 0, $username = '', $docid = 0, $status = "")
 {
+$sqlParameterArray = array();
   if ($docid) {
     $sql = "SELECT $cols FROM pnotes AS p, gprelations AS r " .
-    "WHERE p.date LIKE '%$date%' AND r.type1 = 1 AND " .
-    "r.id1 = '$docid' AND r.type2 = 6 AND p.id = r.id2";
+    "WHERE p.date LIKE ? AND r.type1 = 1 AND " .
+    "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2";
+    array_push($sqlParameterArray, '%'.$date.'%', $docid);
   }
   else {
     $sql = "SELECT $cols FROM pnotes AS p " .
-      "WHERE date LIKE '%$date%' AND pid LIKE '$pid'";
+      "WHERE date LIKE ? AND pid LIKE ?";
+    array_push($sqlParameterArray, '%'.$date.'%', $pid);
   }
   $sql .= " AND deleted != 1"; // exclude ALL deleted notes
   if ($activity != "all")
     $sql .= " AND activity = '$activity'";
-  if ($username)
-    $sql .= " AND assigned_to LIKE '$username'";
+  if ($username) {
+    $sql .= " AND assigned_to LIKE ?";
+    array_push($sqlParameterArray, $username);
+  }
   if ($status)
     $sql .= " AND message_status IN ('".str_replace(",", "','", $status)."')";
   $sql .= " ORDER BY date DESC";
   if($limit != "all")
     $sql .= " LIMIT $start, $limit";
 
-  $res = sqlStatement($sql);
+  $res = sqlStatement($sql, $sqlParameterArray);
 
   for ($iter = 0;$row = sqlFetchArray($res);$iter++)
     $all[$iter] = $row;

@@ -20,8 +20,8 @@ $PLAYER_FITNESSES = array(
 $PLAYER_FITCOLORS = array('#6677ff', '#00cc00', '#ffff00', '#ff3333', '#ff8800', '#ffeecc', '#ffccaa');
 
 function getPatientData($pid, $given = "*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS") {
-    $sql = "select $given from patient_data where pid='$pid' order by date DESC limit 0,1";
-    return sqlQuery($sql);
+    $sql = "select $given from patient_data where pid=? order by date DESC limit 0,1";
+    return sqlQuery($sql, array($pid) );
 }
 
 function getLanguages() {
@@ -315,8 +315,8 @@ function getInsuranceDataByDate($pid, $date, $type,
 
 function getEmployerData($pid, $given = "*")
 {
-    $sql = "select $given from employer_data where pid='$pid' order by date DESC limit 0,1";
-    return sqlQuery($sql);
+    $sql = "select $given from employer_data where pid=? order by date DESC limit 0,1";
+    return sqlQuery($sql, array($pid) );
 }
 
 function _set_patient_inc_count($limit, $count, $where) {
@@ -1346,12 +1346,12 @@ function DBToDate ($date)
 function get_patient_balance($pid) {
   if ($GLOBALS['oer_config']['ws_accounting']['enabled'] === 2) {
     $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
-      "pid = '$pid' AND activity = 1");
+      "pid = ? AND activity = 1", array($pid) );
     $srow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
-      "pid = '$pid'");
+      "pid = ?", array($pid) );
     $drow = sqlQuery("SELECT SUM(pay_amount) AS payments, " .
       "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
-      "pid = '$pid'");
+      "pid = ?", array($pid) );
     return sprintf('%01.2f', $brow['amount'] + $srow['amount']
       - $drow['payments'] - $drow['adjustments']);
   }

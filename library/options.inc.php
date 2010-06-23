@@ -1008,30 +1008,30 @@ function generate_display_field($frow, $currvalue) {
   // feature, or radio buttons
   if ($data_type == 1 || $data_type == 26 || $data_type == 27) {
     $lrow = sqlQuery("SELECT title FROM list_options " .
-      "WHERE list_id = '$list_id' AND option_id = '$currvalue'");
-      $s = xl_list_label($lrow['title']);
+      "WHERE list_id = ? AND option_id = ?", array($list_id,$currvalue) );
+      $s = htmlspecialchars(xl_list_label($lrow['title']),ENT_NOQUOTES);
   }
 
   // simple text field
   else if ($data_type == 2) {
-    $s = $currvalue;
+    $s = htmlspecialchars($currvalue,ENT_NOQUOTES);
   }
 
   // long or multi-line text field
   else if ($data_type == 3) {
-    $s = nl2br($currvalue);
+    $s = nl2br(htmlspecialchars($currvalue,ENT_NOQUOTES));
   }
 
   // date
   else if ($data_type == 4) {
-    $s = oeFormatShortDate($currvalue);
+    $s = htmlspecialchars(oeFormatShortDate($currvalue),ENT_NOQUOTES);
   }
 
   // provider
   else if ($data_type == 10 || $data_type == 11) {
     $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
-      "WHERE id = '$currvalue'");
-    $s = ucwords($urow['fname'] . " " . $urow['lname']);
+      "WHERE id = ?", array($currvalue) );
+    $s = htmlspecialchars(ucwords($urow['fname'] . " " . $urow['lname']),ENT_NOQUOTES);
   }
 
   // pharmacy list
@@ -1040,9 +1040,9 @@ function generate_display_field($frow, $currvalue) {
     while ($prow = sqlFetchArray($pres)) {
       $key = $prow['id'];
       if ($currvalue == $key) {
-        $s .= $prow['name'] . ' ' . $prow['area_code'] . '-' .
+        $s .= htmlspecialchars($prow['name'] . ' ' . $prow['area_code'] . '-' .
           $prow['prefix'] . '-' . $prow['number'] . ' / ' .
-          $prow['line1'] . ' / ' . $prow['city'];
+          $prow['line1'] . ' / ' . $prow['city'],ENT_NOQUOTES);
       }
     }
   }
@@ -1053,7 +1053,7 @@ function generate_display_field($frow, $currvalue) {
     if ($squads) {
       foreach ($squads as $key => $value) {
         if ($currvalue == $key) {
-          $s .= $value[3];
+          $s .= htmlspecialchars($value[3],ENT_NOQUOTES);
         }
       }
     }
@@ -1062,22 +1062,22 @@ function generate_display_field($frow, $currvalue) {
   // address book
   else if ($data_type == 14) {
     $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
-      "WHERE id = '$currvalue'");
+      "WHERE id = ?", array($currvalue));
     $uname = $urow['lname'];
     if ($urow['fname']) $uname .= ", " . $urow['fname'];
-    $s = $uname;
+    $s = htmlspecialchars($uname,ENT_NOQUOTES);
   }
 
   // billing code
   else if ($data_type == 15) {
-    $s = $currvalue;
+    $s = htmlspecialchars($currvalue,ENT_NOQUOTES);
   }
 
   // a set of labeled checkboxes
   else if ($data_type == 21) {
     $avalue = explode('|', $currvalue);
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = '$list_id' ORDER BY seq, title");
+      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
     $count = 0;
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
@@ -1085,7 +1085,7 @@ function generate_display_field($frow, $currvalue) {
         if ($count++) $s .= "<br />";
 	  
 	// Added 5-09 by BM - Translate label if applicable
-        $s .= xl_list_label($lrow['title']);
+        $s .= htmlspecialchars(xl_list_label($lrow['title']),ENT_NOQUOTES);
 	    
       }
     }
@@ -1101,16 +1101,16 @@ function generate_display_field($frow, $currvalue) {
       }
     }
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = '$list_id' ORDER BY seq, title");
+      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
     $s .= "<table cellpadding='0' cellspacing='0'>";
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
       if (empty($avalue[$option_id])) continue;
 	
       // Added 5-09 by BM - Translate label if applicable
-      $s .= "<tr><td class='bold' valign='top'>" . xl_list_label($lrow['title']) . ":&nbsp;</td>";
+      $s .= "<tr><td class='bold' valign='top'>" . htmlspecialchars(xl_list_label($lrow['title']),ENT_NOQUOTES) . ":&nbsp;</td>";
 	  
-      $s .= "<td class='text' valign='top'>" . $avalue[$option_id] . "</td></tr>";
+      $s .= "<td class='text' valign='top'>" . htmlspecialchars($avalue[$option_id],ENT_NOQUOTES) . "</td></tr>";
     }
     $s .= "</table>";
   }
@@ -1125,7 +1125,7 @@ function generate_display_field($frow, $currvalue) {
       }
     }
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = '$list_id' ORDER BY seq, title");
+      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
     $s .= "<table cellpadding='0' cellspacing='0'>";
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
@@ -1134,13 +1134,13 @@ function generate_display_field($frow, $currvalue) {
       if (empty($restype) && empty($resnote)) continue;
 	
       // Added 5-09 by BM - Translate label if applicable
-      $s .= "<tr><td class='bold' valign='top'>" . xl_list_label($lrow['title']) . "&nbsp;</td>";
+      $s .= "<tr><td class='bold' valign='top'>" . htmlspecialchars(xl_list_label($lrow['title']),ENT_NOQUOTES) . "&nbsp;</td>";
 	
       $restype = ($restype == '1') ? xl('Normal') : (($restype == '2') ? xl('Abnormal') : xl('N/A'));
       // $s .= "<td class='text' valign='top'>$restype</td></tr>";
       // $s .= "<td class='text' valign='top'>$resnote</td></tr>";
-      $s .= "<td class='text' valign='top'>$restype&nbsp;</td>";
-      $s .= "<td class='text' valign='top'>$resnote</td>";
+      $s .= "<td class='text' valign='top'>" . htmlspecialchars($restype,ENT_NOQUOTES) . "&nbsp;</td>";
+      $s .= "<td class='text' valign='top'>" . htmlspecialchars($resnote,ENT_NOQUOTES) . "</td>";
       $s .= "</tr>";
     }
     $s .= "</table>";
@@ -1149,15 +1149,15 @@ function generate_display_field($frow, $currvalue) {
   // the list of active allergies for the current patient
   else if ($data_type == 24) {
     $query = "SELECT title, comments FROM lists WHERE " .
-      "pid = '" . $GLOBALS['pid'] . "' AND type = 'allergy' AND enddate IS NULL " .
+      "pid = ? AND type = 'allergy' AND enddate IS NULL " .
       "ORDER BY begdate";
     // echo "<!-- $query -->\n"; // debugging
-    $lres = sqlStatement($query);
+    $lres = sqlStatement($query, array($GLOBALS['pid']) );
     $count = 0;
     while ($lrow = sqlFetchArray($lres)) {
       if ($count++) $s .= "<br />";
-      $s .= $lrow['title'];
-      if ($lrow['comments']) $s .= ' (' . $lrow['comments'] . ')';
+      $s .= htmlspecialchars($lrow['title'],ENT_NOQUOTES);
+      if ($lrow['comments']) $s .= ' (' . htmlspecialchars($lrow['comments'],ENT_NOQUOTES) . ')';
     }
   }
 
@@ -1171,7 +1171,7 @@ function generate_display_field($frow, $currvalue) {
       }
     }
     $lres = sqlStatement("SELECT * FROM list_options " .
-      "WHERE list_id = '$list_id' ORDER BY seq, title");
+      "WHERE list_id = ? ORDER BY seq, title", array($list_id) );
     $s .= "<table cellpadding='0' cellspacing='0'>";
     while ($lrow = sqlFetchArray($lres)) {
       $option_id = $lrow['option_id'];
@@ -1180,11 +1180,11 @@ function generate_display_field($frow, $currvalue) {
       if (empty($restype) && empty($resnote)) continue;
 	
       // Added 5-09 by BM - Translate label if applicable	
-      $s .= "<tr><td class='bold' valign='top'>" . xl_list_label($lrow['title']) . "&nbsp;</td>";
+      $s .= "<tr><td class='bold' valign='top'>" . htmlspecialchars(xl_list_label($lrow['title']),ENT_NOQUOTES) . "&nbsp;</td>";
 	
       $restype = $restype ? xl('Yes') : xl('No');  
-      $s .= "<td class='text' valign='top'>$restype</td></tr>";
-      $s .= "<td class='text' valign='top'>$resnote</td></tr>";
+      $s .= "<td class='text' valign='top'>" . htmlspecialchars($restype,ENT_NOQUOTES) . "</td></tr>";
+      $s .= "<td class='text' valign='top'>" . htmlspecialchars($resnote,ENT_NOQUOTES) . "</td></tr>";
       $s .= "</tr>";
     }
     $s .= "</table>";
@@ -1222,9 +1222,9 @@ function generate_display_field($frow, $currvalue) {
 	if ($restype == "not_applicable".$field_id) $res = xl('N/A');
     // $s .= "<td class='text' valign='top'>$restype</td></tr>";
     // $s .= "<td class='text' valign='top'>$resnote</td></tr>";
-    if (!empty($resnote)) $s .= "<td class='text' valign='top'>$resnote&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>";
-	if (!empty($res)) $s .= "<td class='text' valign='top'><b>".xl('Status')."</b>:&nbsp;".$res."&nbsp;</td>";
-    if ($restype == "quit".$field_id) $s .= "<td class='text' valign='top'>$resdate&nbsp;</td>";
+    if (!empty($resnote)) $s .= "<td class='text' valign='top'>" . htmlspecialchars($resnote,ENT_NOQUOTES) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>";
+	if (!empty($res)) $s .= "<td class='text' valign='top'><b>" . htmlspecialchars(xl('Status'),ENT_NOQUOTES) . "</b>:&nbsp;" . htmlspecialchars($res,ENT_NOQUOTES) . "&nbsp;</td>";
+    if ($restype == "quit".$field_id) $s .= "<td class='text' valign='top'>" . htmlspecialchars($resdate,ENT_NOQUOTES) . "&nbsp;</td>";
     $s .= "</tr>";
     $s .= "</table>";
   }
@@ -1266,8 +1266,8 @@ function display_layout_rows($formtype, $result1, $result2='') {
   global $item_count, $cell_count, $last_group, $CPR;
 
   $fres = sqlStatement("SELECT * FROM layout_options " .
-    "WHERE form_id = '$formtype' AND uor > 0 " .
-    "ORDER BY group_name, seq");
+    "WHERE form_id = ? AND uor > 0 " .
+    "ORDER BY group_name, seq", array($formtype) );
 
   while ($frow = sqlFetchArray($fres)) {
     $this_group = $frow['group_name'];
@@ -1317,7 +1317,7 @@ function display_layout_rows($formtype, $result1, $result2='') {
         //echo "<font color='#008800'>$group_name</font>";
 	
         // Added 5-09 by BM - Translate label if applicable
-        echo (xl_layout_label($group_name));
+        echo htmlspecialchars(xl_layout_label($group_name),ENT_NOQUOTES);
 	  
         $group_name = '';
       } else {
@@ -1341,7 +1341,7 @@ function display_layout_rows($formtype, $result1, $result2='') {
     ++$item_count;
 
     // Added 5-09 by BM - Translate label if applicable
-    if ($frow['title']) echo (xl_layout_label($frow['title']).":"); else echo "&nbsp;";
+    if ($frow['title']) echo htmlspecialchars(xl_layout_label($frow['title']).":",ENT_NOQUOTES); else echo "&nbsp;";
 
     // Handle starting of a new data cell.
     if ($datacols > 0) {
@@ -1364,8 +1364,8 @@ function display_layout_tabs($formtype, $result1, $result2='') {
   global $item_count, $cell_count, $last_group, $CPR;
 
   $fres = sqlStatement("SELECT distinct group_name FROM layout_options " .
-    "WHERE form_id = '$formtype' AND uor > 0 " .
-    "ORDER BY group_name, seq");
+    "WHERE form_id = ? AND uor > 0 " .
+    "ORDER BY group_name, seq", array($formtype) );
 
   $first = true;
   while ($frow = sqlFetchArray($fres)) {
@@ -1373,7 +1373,7 @@ function display_layout_tabs($formtype, $result1, $result2='') {
       $group_name = substr($this_group, 1);
       ?>
 		<li <?php echo $first ? 'class="current"' : '' ?>>
-			<a href="/play/javascript-tabbed-navigation/" id="header_tab_<?php echo $group_name?>"><?php echo xl_layout_label($group_name); ?></a>
+			<a href="/play/javascript-tabbed-navigation/" id="header_tab_<?php echo $group_name?>"><?php echo htmlspecialchars(xl_layout_label($group_name),ENT_NOQUOTES); ?></a>
 		</li>
 	  <?php
 	  $first = false;
@@ -1384,8 +1384,8 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
   global $item_count, $cell_count, $last_group, $CPR;
 
   $fres = sqlStatement("SELECT distinct group_name FROM layout_options " .
-    "WHERE form_id = '$formtype' AND uor > 0 " .
-    "ORDER BY group_name, seq");
+    "WHERE form_id = ? AND uor > 0 " .
+    "ORDER BY group_name, seq", array($formtype));
 
 	$first = true;
 	while ($frow = sqlFetchArray($fres)) {
@@ -1398,8 +1398,8 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 		$currvalue  = '';
 
 		$group_fields_query = sqlStatement("SELECT * FROM layout_options " .
-		"WHERE form_id = '$formtype' AND uor > 0 AND group_name = '$this_group' " .
-		"ORDER BY seq");
+		"WHERE form_id = ? AND uor > 0 AND group_name = ? " .
+		"ORDER BY seq", array($formtype, $this_group) );
 	?>
 
 		<div class="tab <?php echo $first ? 'current' : '' ?>">
@@ -1463,7 +1463,7 @@ function display_layout_tabs_data($formtype, $result1, $result2='') {
 					++$item_count;
 
 					// Added 5-09 by BM - Translate label if applicable
-					if ($group_fields['title']) echo (xl_layout_label($group_fields['title']).":"); else echo "&nbsp;";
+					if ($group_fields['title']) echo htmlspecialchars(xl_layout_label($group_fields['title']).":",ENT_NOQUOTES); else echo "&nbsp;";
 
 					// Handle starting of a new data cell.
 					if ($datacols > 0) {

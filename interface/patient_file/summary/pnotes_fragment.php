@@ -4,6 +4,14 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
  require_once("../../globals.php");
  require_once("$srcdir/pnotes.inc");
  require_once("$srcdir/acl.inc");
@@ -35,26 +43,26 @@
        $thisauth = 0;
      }
      if (!$thisauth) {
-      echo "<p>(" . xl('Notes not authorized') . ")</p>\n";
+      echo "<p>(" . htmlspecialchars(xl('Notes not authorized'),ENT_NOQUOTES) . ")</p>\n";
      } else { ?>
 
     <table width='100%'>
 
     <?php
 
-    $conn = $GLOBALS['adodb']['db'];
-
     // Get the billing note if there is one.
     $billing_note = "";
     $colorbeg = "";
     $colorend = "";
     $sql = "select genericname2, genericval2 " .
-        "from patient_data where pid = '$pid' limit 1";
-    $resnote = $conn->Execute($sql);
-    if($resnote && !$resnote->EOF && $resnote->fields['genericname2'] == 'Billing') {
-      $billing_note = $resnote->fields['genericval2'];
-      $colorbeg = "<span style='color:red'>";
-      $colorend = "</span>";
+        "from patient_data where pid = ? limit 1";
+    $resnote = sqlQuery($sql, array($pid) );
+    if ($resnote) {
+      if ($resnote['genericname2'] == 'Billing') {
+        $billing_note = $resnote['genericval2'];
+        $colorbeg = "<span style='color:red'>";
+        $colorend = "</span>";
+      }
     }
 
     //Display what the patient owes
@@ -63,14 +71,18 @@
       $has_note = 1;
       $formatted = oeFormatMoney($balance);
       echo " <tr class='text billing'>\n";
-      echo "  <td>".$colorbeg.xl('Balance Due').$colorend."</td><td>".$colorbeg.$formatted.$colorend."</td>\n";
+      echo "  <td>".$colorbeg.
+        htmlspecialchars(xl('Balance Due'),ENT_NOQUOTES).$colorend."</td><td>".$colorbeg.
+	htmlspecialchars($formatted,ENT_NOQUOTES).$colorend."</td>\n";
       echo " </tr>\n";
     }
 
     if ($billing_note) {
       $has_note = 1;
       echo " <tr class='text billing'>\n";
-      echo "  <td>".$colorbeg.xl('Billing Note').$colorend."</td><td>".$colorbeg.$billing_note.$colorend."</td>\n";
+      echo "  <td>".$colorbeg.
+        htmlspecialchars(xl('Billing Note'),ENT_NOQUOTES).$colorend."</td><td>".$colorbeg.
+	htmlspecialchars($billing_note,ENT_NOQUOTES).$colorend."</td>\n";
       echo " </tr>\n";
     }
 
@@ -87,11 +99,12 @@
         if (preg_match('/^\d\d\d\d-\d\d-\d\d \d\d\:\d\d /', $body)) {
           $body = nl2br(oeFormatPatientNote($body));
         } else {
-          $body = oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date'])) .
-            ' (' . $iter['user'] . ') ' . nl2br(oeFormatPatientNote($body));
+          $body = htmlspecialchars(oeFormatSDFT(strtotime($iter['date'])) . date(' H:i', strtotime($iter['date'])) .
+            ' (' . $iter['user'] . ') ',ENT_NOQUOTES) .
+	    nl2br(htmlspecialchars(oeFormatPatientNote($body),ENT_NOQUOTES));
         }
 
-        echo " <tr class='text' id='".$iter['id']."' style='border-bottom:1px dashed' >\n";
+        echo " <tr class='text' id='".htmlspecialchars($iter['id'],ENT_QUOTES)."' style='border-bottom:1px dashed' >\n";
 
         // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
         echo "  <td valign='top' class='text'><b>";
@@ -110,15 +123,20 @@
     <?php
     if ( $has_note < 1 ) { ?>
         <span class='text'>
-            <?php echo xl( "There are no notes on file for this patient.", "e" );
-                  echo " "; echo xl("To add notes, please click ", "e" ); echo "<a href='pnotes_full.php'>"; echo xl("here", "e"); echo "</a>."; ?>
+            <?php echo htmlspecialchars(xl( "There are no notes on file for this patient."),ENT_NOQUOTES);
+                  echo " ";
+	          echo htmlspecialchars(xl("To add notes, please click "),ENT_NOQUOTES);
+	          echo "<a href='pnotes_full.php'>";
+	          echo htmlspecialchars(xl("here"),ENT_NOQUOTES);
+	          echo "</a>."; ?>
         </span>
     <?php } else {
         ?>
         <br/>
         <span class='text'>
-            <?php // todo: fix this when parameterized translations are possible ?>
-            Displaying the <b><?php echo $N;?></b> most recent notes. Click <a href='pnotes_full.php'>here</a> to view them all.
+	    <?php echo htmlspecialchars(xl('Displaying the following number of most recent notes:'),ENT_NOQUOTES); ?> 
+	    <b><?php echo $N;?></b><br>
+	    <a href='pnotes_full.php'><?php echo htmlspecialchars(xl('Click here to view them all.'),ENT_NOQUOTES); ?></a>
         </span>
         <?php
     } ?>

@@ -1,8 +1,18 @@
 <?php
+
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
 include_once("../../globals.php");
 include_once("$srcdir/lists.inc");
 include_once("$srcdir/acl.inc");
 include_once("$srcdir/options.inc.php");
+include_once("$srcdir/formdata.inc.php");
 
 ?>
 
@@ -16,7 +26,7 @@ if ($thisauth) {
         $thisauth = 0;
 }
 if (!$thisauth) {
-    echo "<p>(".xl('Issues not authorized').")</p>\n";
+    echo "<p>(".htmlspecialchars(xl('Issues not authorized'),ENT_NOQUOTES).")</p>\n";
     echo "</body>\n</html>\n";
     exit();
 }
@@ -41,21 +51,21 @@ $ix = 0;
 foreach ($ISSUE_TYPES as $key => $arr) {
     // $result = getListByType($pid, $key, "id,title,begdate,enddate,returndate,extrainfo", "all", "all", 0);
 
-    $query = "SELECT * FROM lists WHERE pid = $pid AND type = '$key' AND ";
+    $query = "SELECT * FROM lists WHERE pid = ? AND type = ? AND ";
     $query .= "enddate IS NULL ";
     $query .= "ORDER BY begdate";
-    $pres = sqlStatement($query);
+    $pres = sqlStatement($query, array($pid, $key) );
 
-    if (mysql_num_rows($pres) > 0 || $ix == 0) {
+    if (sqlNumRows($pres) > 0 || $ix == 0) {
 
         // output a header for the $ISSUE_TYPE
         echo " <tr class='issuetitle'>\n";
         echo "  <td colspan='$numcols'>\n";
 
         ?>
-        <span class="text"><b><?php echo $arr[0] ?></b></span>
+        <span class="text"><b><?php echo htmlspecialchars($arr[0],ENT_NOQUOTES); ?></b></span>
         <a href="javascript:;" class="small" onclick="load_location('stats_full.php?active=all')">
-            (<b><?php echo xl('Manage') ?></b>)
+            (<b><?php echo htmlspecialchars(xl('Manage'),ENT_NOQUOTES); ?></b>)
         </a>
         <?php
 
@@ -73,7 +83,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
 
             echo " <tr class='text $rowclass;'>\n";
 
-            echo "  <td colspan='$numcols'>&nbsp;&nbsp;" . $row['title'] . "</td>\n";
+            echo "  <td colspan='$numcols'>&nbsp;&nbsp;" . htmlspecialchars($row['title'],ENT_NOQUOTES) . "</td>\n";
 
             echo " </tr>\n";
         }
@@ -91,13 +101,14 @@ foreach ($ISSUE_TYPES as $key => $arr) {
 //
 $need_head = true;
 foreach (array('treatment_protocols','injury_log') as $formname) {
-    if (mysql_num_rows(sqlStatement("SHOW TABLES LIKE 'form_$formname'")) > 0) {
+    if (sqlNumRows(sqlStatement("SHOW TABLES LIKE ?", array("form_".$formname) )) > 0) {
         $dres = sqlStatement("SELECT tp.id, tp.value FROM forms, " .
-                            "form_$formname AS tp WHERE forms.pid = $pid AND " .
-                            "forms.formdir = '$formname' AND tp.id = forms.form_id AND " .
+                            "form_" . add_escape_custom($formname) .
+			    " AS tp WHERE forms.pid = ? AND " .
+                            "forms.formdir = ? AND tp.id = forms.form_id AND " .
                             "tp.rownbr = -1 AND tp.colnbr = -1 AND tp.value LIKE '0%' " .
-                            "ORDER BY tp.value DESC");
-        if (mysql_num_rows($dres) > 0 && $need_head) {
+                            "ORDER BY tp.value DESC", array($pid, $formname) );
+        if (sqlNumRows($dres) > 0 && $need_head) {
             $need_head = false;
             echo " <tr>\n";
             echo "  <td colspan='$numcols' valign='top'>\n";
@@ -111,7 +122,9 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
             echo "  <td colspan='$numcols'>&nbsp;&nbsp;";
             echo "<a class='link' href='javascript:;' ";
             echo "onclick='load_location(\"../../forms/$formname/new.php?popup=1&id=";
-            echo $row['id'] . "\")'>$start_date $template_name</a></td>\n";
+            echo htmlspecialchars($row['id'],ENT_QUOTES) . "\")'>" .
+	        htmlspecialchars($start_date,ENT_NOQUOTES) . " " .
+		htmlspecialchars($template_name,ENT_NOQUOTES) . "</a></td>\n";
             echo " </tr>\n";
         }
     }
@@ -124,9 +137,9 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
 <table id="patient_stats_imm">
 <tr>
 <td colspan='<?php echo $numcols ?>' valign='top'>
-<span class="text"><b><?php echo xl('Immunizations', 'e') ?></b></span>
+<span class="text"><b><?php echo htmlspecialchars(xl('Immunizations', 'e'),ENT_NOQUOTES); ?></b></span>
 <a href="javascript:;" class="small" onclick="javascript:load_location('immunizations.php')">
-    (<b><?php echo xl('Manage') ?></b>)
+    (<b><?php echo htmlspecialchars(xl('Manage'),ENT_NOQUOTES) ?></b>)
 </a>
 </td></tr>
 <tr><td>
@@ -135,16 +148,16 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
   $sql = "select i1.id as id, i1.immunization_id as immunization_id,".
          " if (i1.administered_date, concat(i1.administered_date,' - '), substring(i1.note,1,20)) as immunization_data ".
          " from immunizations i1 ".
-         " where i1.patient_id = $pid ".
+         " where i1.patient_id = ? ".
          " order by i1.immunization_id, i1.administered_date desc";
 
-  $result = sqlStatement($sql);
+  $result = sqlStatement($sql, array($pid) );
 
   while ($row=sqlFetchArray($result)){
     echo "&nbsp;&nbsp;";
     echo "<a class='link'";
-    echo "' href='javascript:;' onclick='javascript:load_location(\"immunizations.php?mode=edit&id=".$row['id'] . "\")'>" .
-    $row{'immunization_data'} .
+    echo "' href='javascript:;' onclick='javascript:load_location(\"immunizations.php?mode=edit&id=".htmlspecialchars($row['id'],ENT_QUOTES) . "\")'>" .
+    htmlspecialchars($row{'immunization_data'},ENT_NOQUOTES) .
     generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']) .
     "</a><br>\n";
   }
@@ -159,7 +172,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
 <div>
 <table id="patient_stats_prescriptions">
 <tr><td colspan='<?php echo $numcols ?>' class='issuetitle'>
-<span class='text'><b><?php echo xl('Prescriptions'); ?></b></span>
+<span class='text'><b><?php echo htmlspecialchars(xl('Prescriptions'),ENT_NOQUOTES); ?></b></span>
 </td></tr>
 </tr><td>
 <?php
