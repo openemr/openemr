@@ -51,6 +51,32 @@ if ($fake_register_globals) {
   extract($_POST);
 }
 
+// This is for sanitization of all escapes.
+//  (ie. reversing magic quotes if it's set)
+if ($sanitize_all_escapes) {
+  if (get_magic_quotes_gpc()) {
+    function undoMagicQuotes($array, $topLevel=true) {
+      $newArray = array();
+      foreach($array as $key => $value) {
+        if (!$topLevel) {
+          $key = stripslashes($key);
+        }
+        if (is_array($value)) {
+          $newArray[$key] = undoMagicQuotes($value, false);
+        }
+        else {
+          $newArray[$key] = stripslashes($value);
+        }
+      }
+      return $newArray;
+    }
+    $_GET = undoMagicQuotes($_GET);
+    $_POST = undoMagicQuotes($_POST);
+    $_COOKIE = undoMagicQuotes($_COOKIE);
+    $_REQUEST = undoMagicQuotes($_REQUEST);
+  }
+}
+
 require_once(dirname(__FILE__) . "/../includes/config.php");
 
 //
