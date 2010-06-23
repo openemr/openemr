@@ -778,12 +778,18 @@
 				} else
 					$ret =& $this->_Execute($sql,$inputarr);
 			}
-			auditSQLEvent($sql,false);
 		} else {
 			$ret =& $this->_Execute($sql,false);
-			auditSQLEvent($sql,true);
 		}
-		
+	
+	        // Added for the OpenEMR audit engine
+                if ($ret === false) {
+		        auditSQLEvent($sql,false);
+		}
+	        else {
+		        auditSQLEvent($sql,true);
+		}
+	    
 		return $ret;
 	}
 	
