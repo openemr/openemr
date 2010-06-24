@@ -215,7 +215,7 @@
    <?php echo oeFormatShortDate(substr($row['edate'], 0, 10)) ?>
   </td>
   <td>
-   <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] ?>
+    <?php echo htmlspecialchars( $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] ) ?>
   </td>
   <td>
    <?php echo $row['pubpid'] ?>

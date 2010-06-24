@@ -49,7 +49,7 @@ $(document).ready(function(){
     <span class="title"><?php xl('Patient History / Lifestyle','e'); ?></span>
 </div>
 <div style='float:left;margin-right:10px'>
-    <?php echo xl('for', 'e');?>&nbsp;<span class="title"><a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo getPatientName($pid) ?></a></span>
+<?php echo xl('for', 'e');?>&nbsp;<span class="title"><a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo htmlspecialchars( getPatientName($pid) ) ?></a></span>
 </div>
 <div>
     <a href="history_full.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>

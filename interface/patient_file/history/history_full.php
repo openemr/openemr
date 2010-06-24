@@ -118,7 +118,7 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
         <span class="title"><?php xl('Patient History / Lifestyle','e'); ?></span>
     </div>
     <div style='float:left;margin-right:10px'>
-        <?php echo xl('for', 'e');?>&nbsp;<span class="title"><a href="../summary/demographics.php"><?php echo getPatientName($pid) ?></a></span>
+  <?php echo xl('for', 'e');?>&nbsp;<span class="title"><a href="../summary/demographics.php"><?php echo htmlspecialchars( getPatientName($pid) ) ?></a></span>
     </div>
     <div>
         <a href="" class="css_button" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> onclick="top.restoreSession(); submit_history();" >

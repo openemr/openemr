@@ -267,7 +267,7 @@ else {
 if ($result) {
     foreach ($result as $iter) {
         echo "<tr class='oneresult' id='".$iter['pid']."'>";
-        echo  "<td class='srName'>" . $iter['lname'] . ", " . $iter['fname'] . "</td>\n";
+        echo  "<td class='srName'>" . htmlspecialchars($iter['lname'] . ", " . $iter['fname']) . "</td>\n";
         //other phone number display setup for tooltip
         $phone_biz = '';
         if ($iter{"phone_biz"} != "") {

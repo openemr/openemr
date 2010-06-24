@@ -158,7 +158,7 @@ $(document).ready(function(){
         <span class="title"><?php xl('Patient Notes','e'); ?></span>
     </div>
     <div style='float:left;margin-right:10px'>
-        <?php echo xl('for', 'e');?>&nbsp;<span class="title"><a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo getPatientName($pid) ?></a></span>
+        <?php echo xl('for', 'e');?>&nbsp;<span class="title"><a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo htmlspecialchars( getPatientName($pid) ) ?></a></span>
     </div>
     <div>
         <a href="pnotes_full_add.php" class="css_button iframe"><span><?php xl('Add','e'); ?></span></a>

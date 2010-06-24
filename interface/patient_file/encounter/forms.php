@@ -127,7 +127,7 @@ $auth_relaxed  = acl_check('encounters', 'relaxed');
 if (is_numeric($pid)) {
     // Check for no access to the patient's squad.
     $result = getPatientData($pid, "fname,lname,squad");
-    echo xl('for','',' ',' ') . $result['fname'] . " " . $result['lname'];
+    echo htmlspecialchars( xl('for','',' ',' ') . $result['fname'] . " " . $result['lname'] );
     if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
         $auth_notes_a = $auth_notes = $auth_relaxed = 0;
     }
@@ -213,7 +213,7 @@ if (is_numeric($pid)) {
         }
 
         echo "<div class='form_header'>";
-        echo "<a href='#' onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos'><b>$form_name</b> <span class='text'>by " . $user['fname'] . "  " . $user['lname'] . "</span> (<span id=spanid_$divnos class=\"indicator\">" . xl('Collapse') . "</span>)</a></div>";
+        echo "<a href='#' onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos'><b>$form_name</b> <span class='text'>by " . htmlspecialchars( $user['fname'] . "  " . $user['lname'] ) . "</span> (<span id=spanid_$divnos class=\"indicator\">" . xl('Collapse') . "</span>)</a></div>";
         echo "</td>\n";
         echo "</tr>";
         echo "<tr>";

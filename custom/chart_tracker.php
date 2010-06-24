@@ -102,8 +102,7 @@ if (!empty($row)) {
   $current_location = xl('Unassigned');
   if ($ct_userid) {
     $urow = sqlQuery("SELECT fname, mname, lname FROM users WHERE id = '$ct_userid'");
-    $current_location = $urow['lname'] . ", " . $urow['fname'] . " " . $urow['mname'] .
-      " " . $row['ct_when'];
+    $current_location = htmlspecialchars( $urow['lname'] . ", " . $urow['fname'] . " " . $urow['mname'] . " " . $row['ct_when'] );
   }
   else if ($ct_location) {
     $current_location = generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'),$ct_location);  
@@ -118,7 +117,7 @@ if (!empty($row)) {
 
   echo " <tr>\n";
   echo "  <td class='bold'>" . xl('Name') . ":</td>\n";
-  echo "  <td class='text'>" . $row['lname'] . ", " . $row['fname'] . " " . $row['mname'] . "</td>\n";
+  echo "  <td class='text'>" . htmlspecialchars( $row['lname'] . ", " . $row['fname'] . " " . $row['mname'] ) . "</td>\n";
   echo " </tr>\n";
 
   echo " <tr>\n";
