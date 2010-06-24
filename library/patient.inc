@@ -266,8 +266,8 @@ function getProviderName($providerID) {
 }
 
 function getProviderId($providerName) {
-    $query = "select id from users where username = '". mysql_real_escape_string($providerName)."'";
-    $rez = sqlStatement($query);
+    $query = "select id from users where username = ?";
+    $rez = sqlStatement($query, array($providerName) );
     for($iter=0; $row=sqlFetchArray($rez); $iter++)
         $returnval[$iter]=$row;
     return $returnval;
