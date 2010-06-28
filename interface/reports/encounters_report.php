@@ -56,7 +56,7 @@ $query = "SELECT " .
   "u.lname AS ulname, u.fname AS ufname, u.mname AS umname " .
   "FROM ( form_encounter AS fe, forms AS f ) " .
   "LEFT OUTER JOIN patient_data AS p ON p.pid = fe.pid " .
-  "LEFT OUTER JOIN users AS u ON u.username = f.user " .
+  "LEFT OUTER JOIN users AS u ON u.id = fe.provider_id " .
   "WHERE f.encounter = fe.encounter AND f.formdir = 'newpatient' ";
 if ($form_to_date) {
   $query .= "AND fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_to_date 23:59:59' ";
@@ -64,7 +64,7 @@ if ($form_to_date) {
   $query .= "AND fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_from_date 23:59:59' ";
 }
 if ($form_provider) {
-  $query .= "AND f.user = '$form_provider' ";
+  $query .= "AND fe.provider_id = '$form_provider' ";
 }
 if ($form_facility) {
   $query .= "AND fe.facility_id = '$form_facility' ";
@@ -201,13 +201,13 @@ $res = sqlStatement($query);
 <?php
  // Build a drop-down list of providers.
  //
- $query = "SELECT username, lname, fname FROM users WHERE " .
+ $query = "SELECT id, lname, fname FROM users WHERE " .
   "authorized = 1 ORDER BY lname, fname";
  $ures = sqlStatement($query);
  echo "   <select name='form_provider'>\n";
  echo "    <option value=''>-- " . xl('All') . " --\n";
  while ($urow = sqlFetchArray($ures)) {
-  $provid = $urow['username'];
+  $provid = $urow['id'];
   echo "    <option value='$provid'";
   if ($provid == $_POST['form_provider']) echo " selected";
   echo ">" . $urow['lname'] . ", " . $urow['fname'] . "\n";
