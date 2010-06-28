@@ -848,7 +848,7 @@ function generate_display_field($frow, $currvalue) {
 
   // simple text field
   else if ($data_type == 2) {
-    $s = $currvalue;
+    $s = htmlspecialchars($currvalue);
   }
 
   // long or multi-line text field

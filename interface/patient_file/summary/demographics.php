@@ -425,7 +425,7 @@ if (isset($pid) && !$GLOBALS['disable_calendar']) {
 
 <?php if ($GLOBALS['concurrent_layout'] && $_GET['set_pid']) { ?>
 <script language='JavaScript'>
- top.window.parent.left_nav.setPatient(<?php echo "'" . addslashes($result['fname']) . " " . addslashes($result['lname']) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' ".xl('DOB').": ".$result['DOB_YMD']." ".xl('Age').": ".getPatientAge($result['DOB_YMD'])."'"; ?>);
+ top.window.parent.left_nav.setPatient(<?php echo "'" . htmlspecialchars(addslashes($result['fname']) . " " . addslashes($result['lname'])) . "',$pid,'" . addslashes($result['pubpid']) . "','', ' ".xl('DOB').": ".$result['DOB_YMD']." ".xl('Age').": ".getPatientAge($result['DOB_YMD'])."'"; ?>);
  parent.left_nav.setRadio(window.name, 'dem');
 <?php if (!$_GET['is_new']) { // if new pt, do not load other frame ?>
  var othername = (window.name == 'RTop') ? 'RBot' : 'RTop';

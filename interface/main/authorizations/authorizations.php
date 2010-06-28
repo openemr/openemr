@@ -116,7 +116,7 @@ if ($result=getPnotesByDate("", 1, "id,date,body,pid,user,title,assigned_to", '%
 
     echo " <tr class='noterow' id='".$iter['pid']."~".$iter['id']."'>\n";
     echo "  <td valign='top' class='text'>\n";
-    echo getPatientName($iter['pid']) . "\n";
+    echo htmlspecialchars(getPatientName($iter['pid'])) . "\n";
     echo "  </td>\n";
     echo "  <td valign='top'>\n";
 

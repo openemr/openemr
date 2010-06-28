@@ -50,7 +50,7 @@ $auth_relaxed  = acl_check('encounters', 'relaxed');
 if (is_numeric($pid)) {
     // Check for no access to the patient's squad.
     $result = getPatientData($pid, "fname,lname,squad");
-    echo xl('for','',' ',' ') . $result['fname'] . " " . $result['lname'];
+    echo htmlspecialchars( xl('for','',' ',' ') . $result['fname'] . " " . $result['lname'] );
     if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
         $auth_notes_a = $auth_notes = $auth_relaxed = 0;
     }
@@ -106,7 +106,7 @@ if ($result = getFormByEncounter($pid, $encounter, "id, date, form_id, form_name
         $form_name = ($formdir == 'newpatient') ? xl('Patient Encounter') : xl_form_title($iter['form_name']);
     
         echo "<td valign='top' class='bold formrow'>" .
-                $user['fname'] . " " . $user['lname'] . "</td>";
+                htmlspecialchars($user['fname'] . " " . $user['lname']) . "</td>";
         echo "<td valign='top' class='center formrow'>";
 
         // a link to edit the form
