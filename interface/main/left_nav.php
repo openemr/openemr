@@ -770,7 +770,7 @@ function getEncounterTargetFrame( name ) {
 
           <?php // genDualLink('dem','ens',xl('Previous Consultations')); // with dem on top ?>
           <?php genTreeLink('RBot','ens',xl('Previous Consultations'),true); ?>
-          <?php genDualLink('his','ens',xl('PPE + Prev Med/Surg Hx')); // with ens on bottom ?>
+          <?php genDualLink('his','ens',xl('Prev Med/Surg Hx')); // with ens on bottom ?>
 
           <?php // genTreeLink('RBot','nen',xl('New Allergy')); // nen with Allergy in chief complaint ?>
           <?php genPopLink(xl('New Allergy'),'../patient_file/summary/add_edit_issue.php?thistype=allergy','xxx1'); ?>
