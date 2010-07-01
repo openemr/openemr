@@ -47,8 +47,8 @@ document.forms[0].facility.focus();
 
 $(document).ready(function(){
     $("#cancel").click(function() {
-      document.location="facilities.php";
-    });
+		  parent.$.fn.fancybox.close();
+	 });
 });
 
 </script>
