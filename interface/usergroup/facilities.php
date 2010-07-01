@@ -18,6 +18,12 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] !
   "postal_code = '"  . trim(formData('postal_code' )) . "', " .
   "country_code = '" . trim(formData('country_code')) . "', " .
   "federal_ein = '"  . trim(formData('federal_ein' )) . "', " .
+  "service_location = '"  . trim(formData('service_location' )) . "', " .
+  "billing_location = '"  . trim(formData('billing_location' )) . "', " .
+  "accepts_assignment = '"  . trim(formData('accepts_assignment' )) . "', " .
+  "pos_code = '"  . trim(formData('pos_code' )) . "', " .
+  "domain_identifier = '"  . trim(formData('domain_identifier' )) . "', " .
+  "attn = '"  . trim(formData('attn' )) . "', " .
   "facility_npi = '" . trim(formData('facility_npi')) . "'");
 }
 
@@ -67,8 +73,8 @@ $(document).ready(function(){
 	$(".addfac_modal").fancybox( {
 		'overlayOpacity' : 0.0,
 		'showCloseButton' : true,
-		'frameHeight' : 300,
-		'frameWidth' : 600
+		'frameHeight' : 460,
+		'frameWidth' : 650
 	});
 
     // special size for

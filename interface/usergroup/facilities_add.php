@@ -3,6 +3,7 @@ require_once("../globals.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/sql.inc");
 require_once("$srcdir/formdata.inc.php");
+require_once("$srcdir/classes/POSRef.class.php");
 
 $alertmsg = '';
 ?>
@@ -36,6 +37,8 @@ function submitform() {
     if (document.forms[0].facility.value.length>0) {
         top.restoreSession();
         document.forms[0].submit();
+		parent.$.fn.fancybox.close();
+		parent.location.reload();
     } else {
         document.forms[0].facility.style.backgroundColor="red";
         document.forms[0].facility.focus();
@@ -143,6 +146,44 @@ $(document).ready(function(){
         <td><span class="text"><?php ($GLOBALS['simplified_demographics'] ? xl('Facility Code','e') : xl('Facility NPI','e')); ?>:
         </span></td><td><input type=entry size=20 name=facility_npi value=""></td>
         </tr>
+
+        <tr>
+          <td><span class='text'><?php xl('Billing Location','e'); ?>: </span></td><td><input type='checkbox' name='billing_location' value = '1'></td>
+          <td>&nbsp;</td>
+          <td><span class='text'><?php xl('Accepts Assignment','e'); ?><br>(<?php xl('only if billing location','e'); ?>): </span></td> <td><input type='checkbox' name='accepts_assignment' value = '1'></td>
+        </tr>
+        <tr>
+          <td><span class='text'><?php xl('Service Location','e'); ?>: </span></td> <td><input type='checkbox' name='service_location' value = '1'></td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td> <td>&nbsp;</td>
+        </tr>
+
+        <tr>
+            <td><span class=text><?php xl('POS Code','e'); ?>: </span></td>
+            <td colspan="6">
+                <select name="pos_code">
+                <?php
+                $pc = new POSRef();
+
+                foreach ($pc->get_pos_ref() as $pos) {
+                    echo "<option value=\"" . $pos["code"] . "\" ";
+                    echo ">" . $pos['code']  . ": ". $pos['title'];
+                    echo "</option>\n";
+                }
+
+                ?>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td><span class="text"><?php xl('Billing Attn','e'); ?>:</span></td>
+            <td colspan="4"><input type="text" name="attn" size="45"></td>
+        </tr>
+        <tr>
+            <td><span class="text"><?php xl('CLIA Number','e'); ?>:</span></td>
+            <td colspan="4"><input type="text" name="domain_identifier" size="45"></td>
+        </tr>
+
         <tr height="25" style="valign:bottom;">
         <td><font class="mandatory">*</font><span class="text"> <?php echo xl('Required','e'); ?></span></td><td>&nbsp;</td><td>&nbsp;</td>
         <td>&nbsp;</td><td>&nbsp;</td>

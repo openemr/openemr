@@ -36,13 +36,14 @@ parent.$.fn.fancybox.close();
 <script type="text/javascript" src="../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript">
 function submitform() {
-if (document.forms[0].facility.value.length>0)
-document.forms[0].submit();
-else
-{
-document.forms[0].facility.style.backgroundColor="red";
-document.forms[0].facility.focus();
-}
+    if (document.forms[0].facility.value.length>0) {
+        document.forms[0].submit();
+        parent.$.fn.fancybox.close();
+		parent.location.reload();
+    } else {
+        document.forms[0].facility.style.backgroundColor="red";
+        document.forms[0].facility.focus();
+    }
 }
 
 $(document).ready(function(){
