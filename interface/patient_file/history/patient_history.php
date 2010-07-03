@@ -1,12 +1,21 @@
 <?php
+
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
 include_once("../../globals.php");
 ?>
-
+	
 <HTML>
 <head>
 <? html_header_show();?>
 <TITLE>
-<?php xl('Patient History','e'); ?>
+<?php echo htmlspecialchars(xl('Patient History'),ENT_NOQUOTES); ?>
 </TITLE>
 </HEAD>
 <frameset rows="50%,50%" cols="*">

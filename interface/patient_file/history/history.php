@@ -1,4 +1,13 @@
 <?php
+
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
  require_once("../../globals.php");
  require_once("$srcdir/patient.inc");
  require_once("history.inc.php");
@@ -32,7 +41,7 @@ $(document).ready(function(){
    $thisauth = 0;
  }
  if (!$thisauth) {
-  echo "<p>(History not authorized)</p>\n";
+  echo "<p>(".htmlspecialchars(xl('History not authorized'),ENT_NOQUOTES).")</p>\n";
   echo "</body>\n</html>\n";
   exit();
  }
@@ -46,19 +55,19 @@ $(document).ready(function(){
 
 <?php if ($thisauth == 'write' || $thisauth == 'addonly') { ?>
 <div>
-    <span class="title"><?php xl('Patient History / Lifestyle','e'); ?></span>
+    <span class="title"><?php echo htmlspecialchars(xl('Patient History / Lifestyle'),ENT_NOQUOTES); ?></span>
 </div>
 <div style='float:left;margin-right:10px'>
-<?php echo xl('for', 'e');?>&nbsp;<span class="title"><a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo htmlspecialchars( getPatientName($pid) ) ?></a></span>
+<?php echo htmlspecialchars(xl('for'),ENT_NOQUOTES);?>&nbsp;<span class="title"><a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES) ?></a></span>
 </div>
 <div>
     <a href="history_full.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?>
      class="css_button"
      onclick="top.restoreSession()">
-    <span><?php echo xl("Edit");?></span>
+    <span><?php echo htmlspecialchars(xl("Edit"),ENT_NOQUOTES);?></span>
     </a>
     <a href="../summary/demographics.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
-        <span><?php echo xl('Back To Patient','e');?></span>
+        <span><?php echo htmlspecialchars(xl('Back To Patient'),ENT_NOQUOTES);?></span>
     </a>
 </div>
 <br/>

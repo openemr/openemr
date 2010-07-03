@@ -6,6 +6,14 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
  include_once("../../globals.php");
  include_once("$srcdir/log.inc");
  include_once("$srcdir/acl.inc");
@@ -15,7 +23,7 @@
  $info_msg = "";
 
  $thisauth = (acl_check('acct', 'bill') == 'write');
- if (! $thisauth) die(xl('Not authorized'));
+ if (! $thisauth) die(htmlspecialchars(xl('Not authorized'),ENT_NOQUOTES));
 ?>
 <html>
 <head>
@@ -30,16 +38,18 @@
 <body>
 <?php
 if ($_POST['form_submit'] || $_POST['form_cancel']) {
-  $fenote = trim($_POST['form_note']); // TBD: might need addslashes
+  $fenote = trim($_POST['form_note']);
   if ($_POST['form_submit']) {
     sqlStatement("UPDATE form_encounter " .
-      "SET billing_note = '$fenote' WHERE id = '$feid'");
+      "SET billing_note = ? WHERE id = ?", array($fenote,$feid) );
   }
   else {
     $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
-      " WHERE id = '$feid'");
-    $fenote = addslashes($tmp['billing_note']);
+      " WHERE id = ?", array($feid) );
+    $fenote = $tmp['billing_note'];
   }
+  // escape and format note for viewing
+  $fenote = htmlspecialchars($fenote,ENT_QUOTES);
   $fenote = str_replace("\r\n", "<br />", $fenote);
   $fenote = str_replace("\n"  , "<br />", $fenote);
   if (! $fenote) $fenote = '['. xl('Add') . ']';
@@ -50,18 +60,18 @@ if ($_POST['form_submit'] || $_POST['form_cancel']) {
 }
 
 $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
-  " WHERE id = '$feid'");
+  " WHERE id = ?", array($feid) );
 $fenote = $tmp['billing_note'];
 ?>
 
-<form method='post' action='edit_billnote.php?feid=<?php echo $feid ?>'>
+<form method='post' action='edit_billnote.php?feid=<?php echo htmlspecialchars($feid,ENT_QUOTES); ?>'>
 
 <center>
-<textarea name='form_note' style='width:100%'><?php echo $fenote ?></textarea>
+<textarea name='form_note' style='width:100%'><?php echo htmlspecialchars($fenote,ENT_NOQUOTES); ?></textarea>
 <p>
-<input type='submit' name='form_submit' value=<?php xl('Save','e','\'','\''); ?> />
+<input type='submit' name='form_submit' value='<?php echo htmlspecialchars( xl('Save'), ENT_QUOTES); ?>' />
 &nbsp;&nbsp;
-<input type='submit' name='form_cancel' value=<?php xl('Cancel','e','\'','\''); ?> />
+<input type='submit' name='form_cancel' value='<?php echo htmlspecialchars( xl('Cancel'), ENT_QUOTES); ?>' />
 </center>
 </form>
 </body>

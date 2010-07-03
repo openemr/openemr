@@ -1,4 +1,13 @@
 <?php
+
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
  include_once("../../globals.php");
  include_once("$srcdir/patient.inc");
  include_once("history.inc.php");
@@ -13,7 +22,7 @@
    $thisauth = 0;
  }
  if ($thisauth != 'write' && $thisauth != 'addonly')
-  die("Not authorized.");
+  die(htmlspecialchars(xl("Not authorized"),ENT_NOQUOTES));
 
 foreach ($_POST as $key => $val) {
   if ($val == "YYYY-MM-DD") {

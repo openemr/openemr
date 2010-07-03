@@ -40,7 +40,6 @@
  // * interface/patient_file/history/history_full.php: target changes.
  // * interface/patient_file/history/history_save.php: target change.
  // * interface/patient_file/history/encounters.php: link/target changes.
- // * interface/patient_file/history/encounters_full.php: link/target changes.
  // * interface/patient_file/encounter/encounter_top.php: another new frameset
  //   cloned from patient_encounter.php.
  // * interface/patient_file/encounter/forms.php: link target removal.

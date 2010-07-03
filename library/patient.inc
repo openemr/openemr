@@ -289,8 +289,8 @@ function getEthnoRacials() {
 
 function getHistoryData($pid, $given = "*")
 {
-    $sql = "select $given from history_data where pid='$pid' order by date DESC limit 0,1";
-    return sqlQuery($sql);
+    $sql = "select $given from history_data where pid=? order by date DESC limit 0,1";
+    return sqlQuery($sql, array($pid) );
 }
 
 // function getInsuranceData($pid, $type = "primary", $given = "insd.*, DATE_FORMAT(subscriber_DOB,'%m/%d/%Y') as subscriber_DOB, ic.name as provider_name")
@@ -310,9 +310,9 @@ function getInsuranceDataByDate($pid, $date, $type,
   // but not records enterred after the given date
   $sql = "select $given from insurance_data as insd " .
     "left join insurance_companies as ic on ic.id = provider " .
-    "where pid = '$pid' and date_format(date,'%Y-%m-%d') <= '$date' and " .
-    "type='$type' order by date DESC limit 1";
-  return sqlQuery($sql);
+    "where pid = ? and date_format(date,'%Y-%m-%d') <= ? and " .
+    "type=? order by date DESC limit 1";
+  return sqlQuery($sql, array($pid,$date,$type) );
 }
 
 function getEmployerData($pid, $given = "*")
@@ -993,14 +993,16 @@ function updateInsuranceData($id, $new)
 }
 
 function newHistoryData($pid, $new=false) {
-  $sql = "insert into history_data set pid = '$pid', date = NOW()";
+  $arraySqlBind = array();
+  $sql = "insert into history_data set pid = ?, date = NOW()";
+  array_push($arraySqlBind,$pid);
   if ($new) {
     while(list($key, $value) = each($new)) {
-      if (!get_magic_quotes_gpc()) $value = addslashes($value);
-      $sql .= ", `$key` = '$value'";
+      array_push($arraySqlBind,$value);
+      $sql .= ", `$key` = ?";
     }
   }
-  return sqlInsert($sql);
+  return sqlInsert($sql, $arraySqlBind );
 }
 
 function updateHistoryData($pid,$new)
@@ -1008,15 +1010,19 @@ function updateHistoryData($pid,$new)
         $real = getHistoryData($pid);
         while(list($key, $value) = each ($new))
                 $real[$key] = $value;
-        $real['date'] = "'+NOW()+'";
         $real['id'] = "";
+	// need to unset date, so can reset it below
+	unset($real['date']);
 
-        $sql = "insert into history_data set ";
-        while(list($key, $value) = each($real))
-                $sql .= "`$key` = '$value', ";
+        $arraySqlBind = array();
+        $sql = "insert into history_data set `date` = NOW(), ";
+        while(list($key, $value) = each($real)) {
+	        array_push($arraySqlBind,$value);
+                $sql .= "`$key` = ?, ";
+	}
         $sql = substr($sql, 0, -2);
 
-        return sqlInsert($sql);
+        return sqlInsert($sql, $arraySqlBind );
 }
 
 function sync_patient($id,$fname,$lname,$street,$city,$postal_code,$state,$phone_home,

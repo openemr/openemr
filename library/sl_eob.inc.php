@@ -363,9 +363,9 @@
     $tmp = array(1 => 'primary', 2 => 'secondary', 3 => 'tertiary');
     $value = $tmp[$payer_type];
     $query = "SELECT provider FROM insurance_data WHERE " .
-      "pid = '$patient_id' AND type = '$value' AND date <= '$date_of_service' " .
+      "pid = ? AND type = ? AND date <= ? " .
       "ORDER BY date DESC LIMIT 1";
-    $nprow = sqlQuery($query);
+    $nprow = sqlQuery($query, array($patient_id,$value,$date_of_service) );
     // echo "<!-- $query => '" . $nprow['provider'] . "' -->\n"; // debugging
     if (empty($nprow)) return 0;
     return $nprow['provider'];

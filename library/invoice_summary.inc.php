@@ -137,8 +137,8 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
   $res = sqlStatement("SELECT " .
     "date, code_type, code, modifier, code_text, fee " .
     "FROM billing WHERE " .
-    "pid = '$patient_id' AND encounter = '$encounter_id' AND " .
-    "activity = 1 AND fee != 0.00 ORDER BY id");
+    "pid = ? AND encounter = ? AND " .
+    "activity = 1 AND fee != 0.00 ORDER BY id", array($patient_id,$encounter_id) );
 
   while ($row = sqlFetchArray($res)) {
     $amount = sprintf('%01.2f', $row['fee']);
@@ -176,9 +176,9 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
   $query = "SELECT s.drug_id, s.sale_date, s.fee, s.quantity " .
     "FROM drug_sales AS s " .
     "WHERE " .
-    "s.pid = '$patient_id' AND s.encounter = '$encounter_id' AND s.fee != 0 " .
+    "s.pid = ? AND s.encounter = ? AND s.fee != 0 " .
     "ORDER BY s.sale_id";
-  $res = sqlStatement($query);
+  $res = sqlStatement($query, array($patient_id,$encounter_id) );
   while ($row = sqlFetchArray($res)) {
     $amount = sprintf('%01.2f', $row['fee']);
     $code = 'PROD:' . $row['drug_id'];
@@ -203,8 +203,8 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
     "FROM ar_activity AS a " .
     "LEFT OUTER JOIN ar_session AS s ON s.session_id = a.session_id " .
     "LEFT OUTER JOIN insurance_companies AS i ON i.id = s.payer_id " .
-    "WHERE a.pid = '$patient_id' AND a.encounter = '$encounter_id' " .
-    "ORDER BY s.check_date, a.sequence_no");
+    "WHERE a.pid = ? AND a.encounter = ? " .
+    "ORDER BY s.check_date, a.sequence_no", array($patient_id,$encounter_id) );
   while ($row = sqlFetchArray($res)) {
     $code = strtoupper($row['code']);
     if (! $code) $code = "Unknown";
@@ -265,8 +265,8 @@ function responsible_party($trans_id) {
 function ar_responsible_party($patient_id, $encounter_id) {
   $row = sqlQuery("SELECT date, last_level_billed, last_level_closed " .
     "FROM form_encounter WHERE " .
-    "pid = '$patient_id' AND encounter = '$encounter_id' " .
-    "ORDER BY id DESC LIMIT 1");
+    "pid = ? AND encounter = ? " .
+    "ORDER BY id DESC LIMIT 1", array($patient_id,$encounter_id) );
   if (empty($row)) return -1;
   $next_level = $row['last_level_closed'] + 1;
   if ($next_level <= $row['last_level_billed'])

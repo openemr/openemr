@@ -1,4 +1,13 @@
 <?php
+
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("history.inc.php");
@@ -15,7 +24,7 @@ if ($thisauth) {
    $thisauth = 0;
 }
 if ($thisauth != 'write' && $thisauth != 'addonly')
-  die("Not authorized.");
+  die(htmlspecialchars(xl("Not authorized"),ENT_NOQUOTES));
 ?>
 <html>
 <head>
@@ -115,17 +124,17 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
     <input type='hidden' name='mode' value='save'>
 
     <div>
-        <span class="title"><?php xl('Patient History / Lifestyle','e'); ?></span>
+        <span class="title"><?php echo htmlspecialchars(xl('Patient History / Lifestyle'),ENT_NOQUOTES); ?></span>
     </div>
     <div style='float:left;margin-right:10px'>
-  <?php echo xl('for', 'e');?>&nbsp;<span class="title"><a href="../summary/demographics.php"><?php echo htmlspecialchars( getPatientName($pid) ) ?></a></span>
+  <?php echo htmlspecialchars(xl('for'),ENT_NOQUOTES);?>&nbsp;<span class="title"><a href="../summary/demographics.php"><?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?></a></span>
     </div>
     <div>
         <a href="" class="css_button" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> onclick="top.restoreSession(); submit_history();" >
-            <span><?php echo xl('Save','e');?></span>
+            <span><?php echo htmlspecialchars(xl('Save'),ENT_NOQUOTES); ?></span>
         </a>
         <a href="history.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
-            <span><?php echo xl('Back To View','e');?></span>
+            <span><?php echo htmlspecialchars(xl('Back To View'),ENT_NOQUOTES); ?></span>
         </a>
     </div>
 

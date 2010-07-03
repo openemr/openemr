@@ -4,6 +4,14 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/billing.inc");
@@ -15,6 +23,7 @@ require_once("$srcdir/sql-ledger.inc");
 require_once("$srcdir/invoice_summary.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("../../../custom/code_types.inc.php");
+require_once("$srcdir/formdata.inc.php");
 
  $accounting_enabled = $GLOBALS['oer_config']['ws_accounting']['enabled'];
  $INTEGRATED_AR = $accounting_enabled === 2;
@@ -37,7 +46,7 @@ require_once("../../../custom/code_types.inc.php");
 
  if (!($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
   echo "<body>\n<html>\n";
-  echo "<p>(".xl('Encounters not authorized').")</p>\n";
+  echo "<p>(".htmlspecialchars( xl('Encounters not authorized'), ENT_NOQUOTES).")</p>\n";
   echo "</body>\n</html>\n";
   exit();
  }
@@ -45,7 +54,7 @@ require_once("../../../custom/code_types.inc.php");
 // Perhaps the view choice should be saved as a session variable.
 //
 $tmp = sqlQuery("select authorized from users " .
-  "where id = '" . $_SESSION['authUserID'] . "'");
+  "where id = ?", array($_SESSION['authUserID']) );
 $billing_view = ($tmp['authorized'] || $GLOBALS['athletic_team']) ? 0 : 1;
 if (isset($_GET['billing']))
   $billing_view = empty($_GET['billing']) ? 0 : 1;
@@ -57,32 +66,31 @@ function showDocument(&$drow) {
 
   $docdate = $drow['docdate'];
 
-  echo "<tr class='text docrow' id='".$drow['id']."' title='". xl('View document') . "'>\n";
+  echo "<tr class='text docrow' id='".htmlspecialchars( $drow['id'], ENT_QUOTES)."' title='". htmlspecialchars( xl('View document'), ENT_QUOTES) . "'>\n";
 
   // show date
-  echo "<td>" . oeFormatShortDate($docdate) . "</td>\n";
+  echo "<td>" . htmlspecialchars( oeFormatShortDate($docdate), ENT_NOQUOTES) . "</td>\n";
 
   // show associated issue, if any
   echo "<td>";
   if ($auth_med) {
     $irow = sqlQuery("SELECT type, title, begdate " .
       "FROM lists WHERE " .
-      "id = '" . $drow['list_id'] . "' " .
-      "LIMIT 1");
+      "id = ? " .
+      "LIMIT 1", array($drow['list_id']) );
     if ($irow) {
       $tcode = $irow['type'];
       if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
-      echo "$tcode: " . $irow['title'];
+      echo htmlspecialchars("$tcode: " . $irow['title'], ENT_NOQUOTES);
     }
   } else {
-    echo "(" . xl('No access') . ")";
+    echo "(" . htmlspecialchars( xl('No access'), ENT_NOQUOTES) . ")";
   }
   echo "</td>\n";
 
   // show document name and category
   echo "<td colspan='3'>".
-    xl('Document') . ": " .
-    basename($drow['url']) . ' (' . xl_document_category($drow['name']) . ')' .
+    htmlspecialchars( xl('Document') . ": " . basename($drow['url']) . ' (' . xl_document_category($drow['name']) . ')', ENT_NOQUOTES) .
     "</td>\n";
 
   // skip billing and insurance columns
@@ -145,7 +153,7 @@ function editNote(feid) {
 
  // Called when the billing note editor closes.
  function closeNote(feid, fenote) {
-    var c = "<div id='"+ feid +"' title='<?php xl('Click to edit','e'); ?>' class='text billing_note_text'>" +
+    var c = "<div id='"+ feid +"' title='<?php echo htmlspecialchars( xl('Click to edit'), ENT_QUOTES); ?>' class='text billing_note_text'>" +
             fenote + "</div>";
     setDivContent('note_' + feid, c);
  }
@@ -162,41 +170,41 @@ function editNote(feid) {
 <?php } else { ?>
 <!-- <a href='encounters_full.php' target='Main'> -->
 <?php } ?>
-<font class='title'><?php xl('Past Encounters and Documents','e'); ?></font>
+<font class='title'><?php echo htmlspecialchars( xl('Past Encounters and Documents'), ENT_NOQUOTES); ?></font>
 &nbsp;&nbsp;
 
 <?php if ($billing_view) { ?>
-<a href='encounters.php?billing=0' onclick='top.restoreSession()' style='font-size:8pt'>(<?php xl('To Clinical View','e'); ?>)</a>
+<a href='encounters.php?billing=0' onclick='top.restoreSession()' style='font-size:8pt'>(<?php echo htmlspecialchars( xl('To Clinical View'), ENT_NOQUOTES); ?>)</a>
 <?php } else { ?>
-<a href='encounters.php?billing=1' onclick='top.restoreSession()' style='font-size:8pt'>(<?php xl('To Billing View','e'); ?>)</a>
+<a href='encounters.php?billing=1' onclick='top.restoreSession()' style='font-size:8pt'>(<?php echo htmlspecialchars( xl('To Billing View'), ENT_NOQUOTES); ?>)</a>
 <?php } ?>
 
 <br>
 
 <table>
  <tr class='text'>
-  <th><?php xl('Date','e'); ?></th>
+  <th><?php echo htmlspecialchars( xl('Date'), ENT_NOQUOTES); ?></th>
 
 <?php if ($billing_view) { ?>
-  <th class='billing_note'><?php xl('Billing Note','e'); ?></th>
+  <th class='billing_note'><?php echo htmlspecialchars( xl('Billing Note'), ENT_NOQUOTES); ?></th>
 <?php } else { ?>
-  <th><?php xl('Issue','e');       ?></th>
-  <th><?php xl('Reason/Form','e'); ?></th>
-  <th><?php xl('Provider','e');    ?></th>
+  <th><?php echo htmlspecialchars( xl('Issue'), ENT_NOQUOTES);       ?></th>
+  <th><?php echo htmlspecialchars( xl('Reason/Form'), ENT_NOQUOTES); ?></th>
+  <th><?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES);    ?></th>
 <?php } ?>
 
 <?php if ($billing_view && $accounting_enabled) { ?>
-  <th><?php xl('Code','e'); ?></th>
-  <th class='right'><?php xl('Chg','e'); ?></th>
-  <th class='right'><?php xl('Paid','e'); ?></th>
-  <th class='right'><?php xl('Adj','e'); ?></th>
-  <th class='right'><?php xl('Bal','e'); ?></th>
+  <th><?php echo xl('Code','e'); ?></th>
+  <th class='right'><?php echo htmlspecialchars( xl('Chg'), ENT_NOQUOTES); ?></th>
+  <th class='right'><?php echo htmlspecialchars( xl('Paid'), ENT_NOQUOTES); ?></th>
+  <th class='right'><?php echo htmlspecialchars( xl('Adj'), ENT_NOQUOTES); ?></th>
+  <th class='right'><?php echo htmlspecialchars( xl('Bal'), ENT_NOQUOTES); ?></th>
 <?php } else { ?>
-  <th colspan='5'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('Billing') : xl('Coding') ?></th>
+  <th colspan='5'><?php echo htmlspecialchars( (($GLOBALS['phone_country_code'] == '1') ? xl('Billing') : xl('Coding')), ENT_NOQUOTES); ?></th>
 <?php } ?>
 
 <?php if (!$GLOBALS['athletic_team'] && !$GLOBALS['ippf_specific']) { ?>
-  <th>&nbsp;<?php echo ($GLOBALS['weight_loss_clinic']) ? xl('Payment') : xl('Insurance'); ?></th>
+  <th>&nbsp;<?php echo htmlspecialchars( (($GLOBALS['weight_loss_clinic']) ? xl('Payment') : xl('Insurance')), ENT_NOQUOTES); ?></th>
 <?php } ?>
 
  </tr>
@@ -207,8 +215,8 @@ if (! $billing_view) {
     // Query the documents for this patient.
     $dres = sqlStatement("SELECT d.id, d.type, d.url, d.docdate, d.list_id, c.name " .
                     "FROM documents AS d, categories_to_documents AS cd, categories AS c WHERE " .
-                    "d.foreign_id = '$pid' AND cd.document_id = d.id AND c.id = cd.category_id " .
-                    "ORDER BY d.docdate DESC, d.id DESC");
+                    "d.foreign_id = ? AND cd.document_id = d.id AND c.id = cd.category_id " .
+                    "ORDER BY d.docdate DESC, d.id DESC", array($pid) );
     $drow = sqlFetchArray($dres);
 }
 
@@ -239,27 +247,27 @@ if ($result = getEncounters($pid)) {
         if ($result4 = sqlQuery("SELECT fe.*, u.fname, u.mname, u.lname " .
           "FROM form_encounter AS fe " .
           "LEFT JOIN users AS u ON u.id = fe.provider_id " .
-          "WHERE fe.encounter = '" . $iter["encounter"] .
-          "' AND fe.pid = '$pid'"))
+          "WHERE fe.encounter = ? " .
+          "AND fe.pid = ?", array($iter["encounter"],$pid) ))
         {
             $raw_encounter_date = date("Y-m-d", strtotime($result4{"date"}));
             $encounter_date = date("D F jS", strtotime($result4{"date"}));
 
             // if ($auth_notes_a || ($auth_notes && $iter['user'] == $_SESSION['authUser']))
-            $reason_string .= $result4{"reason"} . "<br>\n";
+            $reason_string .= htmlspecialchars( $result4{"reason"}, ENT_NOQUOTES) . "<br>\n";
             // else
             //   $reason_string = "(No access)";
 
             if ($result4['sensitivity']) {
                 $auth_sensitivity = acl_check('sensitivities', $result4['sensitivity']);
                 if (!$auth_sensitivity) {
-                    $reason_string = "(No access)";
+                    $reason_string = "(".htmlspecialchars( xl("No access"), ENT_NOQUOTES).")";
                 }
             }
         }
 
-        $erow = sqlQuery("SELECT user FROM forms WHERE encounter = '" .
-        $iter['encounter'] . "' AND formdir = 'newpatient' LIMIT 1");
+        $erow = sqlQuery("SELECT user FROM forms WHERE encounter = ? " .
+        "AND formdir = 'newpatient' LIMIT 1", array($iter['encounter']) );
 
         // This generates document lines as appropriate for the date order.
         while ($drow && $raw_encounter_date && $drow['docdate'] > $raw_encounter_date) {
@@ -279,20 +287,21 @@ if ($result = getEncounters($pid)) {
         }
 
         $rawdata = $iter['encounter'] . "~" . oeFormatShortDate($raw_encounter_date);
-        echo "<tr class='encrow text' id='".$rawdata."' title='" . xl('View encounter','','',' ') . "$pid.{$iter['encounter']}'>\n";
+        echo "<tr class='encrow text' id='".htmlspecialchars( $rawdata, ENT_QUOTES) .
+	  "' title='" . htmlspecialchars( xl('View encounter','','',' ') . "$pid.{$iter['encounter']}", ENT_QUOTES) . "'>\n";
 
         // show encounter date
-        echo "<td valign='top'>" . oeFormatShortDate($raw_encounter_date) . "</td>\n";
+        echo "<td valign='top'>" . htmlspecialchars( oeFormatShortDate($raw_encounter_date), ENT_NOQUOTES) . "</td>\n";
 
         if ($billing_view) {
 
             // Show billing note that you can click on to edit.
-            $feid = $result4['id'] ? $result4['id'] : 0; // form_encounter id
+            $feid = $result4['id'] ? htmlspecialchars( $result4['id'], ENT_QUOTES) : 0; // form_encounter id
             echo "<td valign='top'>";
             echo "<div id='note_$feid'>";
             //echo "<div onclick='editNote($feid)' title='Click to edit' class='text billing_note_text'>";
-            echo "<div id='$feid' title='". xl('Click to edit') . "' class='text billing_note_text'>";
-            echo $result4['billing_note'] ? nl2br($result4['billing_note']) : xl('Add','','[',']');
+            echo "<div id='$feid' title='". htmlspecialchars( xl('Click to edit'), ENT_QUOTES) . "' class='text billing_note_text'>";
+            echo $result4['billing_note'] ? nl2br(htmlspecialchars( $result4['billing_note'], ENT_NOQUOTES)) : htmlspecialchars( xl('Add','','[',']'), ENT_NOQUOTES);
             echo "</div>";
             echo "</div>";
             echo "</td>\n";
@@ -306,19 +315,19 @@ if ($result = getEncounters($pid)) {
             if ($auth_med && $auth_sensitivity) {
                 $ires = sqlStatement("SELECT lists.type, lists.title, lists.begdate " .
                                     "FROM issue_encounter, lists WHERE " .
-                                    "issue_encounter.pid = '$pid' AND " .
-                                    "issue_encounter.encounter = '" . $iter['encounter'] . "' AND " .
+                                    "issue_encounter.pid = ? AND " .
+                                    "issue_encounter.encounter = ? AND " .
                                     "lists.id = issue_encounter.list_id " .
-                                    "ORDER BY lists.type, lists.begdate");
+                                    "ORDER BY lists.type, lists.begdate", array($pid,$iter['encounter']) );
                 for ($i = 0; $irow = sqlFetchArray($ires); ++$i) {
                     if ($i > 0) echo "<br>";
                     $tcode = $irow['type'];
                     if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
-                        echo "$tcode: " . $irow['title'];
+                        echo htmlspecialchars( "$tcode: " . $irow['title'], ENT_NOQUOTES);
                 }
             } 
             else {
-                echo "(" . xl('No access') . ")";
+                echo "(" . htmlspecialchars( xl('No access'), ENT_NOQUOTES) . ")";
             }
             echo "</td>\n";
 
@@ -351,8 +360,8 @@ if ($result = getEncounters($pid)) {
                 //
                 if ($GLOBALS['athletic_team']) {
                   if ($enc['formdir'] != 'physical_exam' && substr($enc['formdir'],0,3) != 'LBF') {
-                    $frow = sqlQuery("select * from form_" . $enc['formdir'] .
-                                    " where id = " . $enc['form_id']);
+                    $frow = sqlQuery("select * from form_" . add_escape_custom($enc['formdir']) .
+                                    " where id = ?", array($enc['form_id']) );
                     foreach ($frow as $fkey => $fvalue) {
                         if (! preg_match('/[A-Za-z]/', $fvalue)) continue;
                         if ($title) $title .= "; ";
@@ -363,7 +372,7 @@ if ($result = getEncounters($pid)) {
                 } // end athletic team
 
                 echo "<span class='form_tt' title=\"$title\">";
-                echo xl_form_title($enc['form_name']);
+                echo htmlspecialchars( xl_form_title($enc['form_name']), ENT_NOQUOTES);
                 echo "</span><br>";
 
             } // end encounter Forms loop
@@ -374,9 +383,9 @@ if ($result = getEncounters($pid)) {
             // show user (Provider) for the encounter
             $provname = '&nbsp;';
             if (!empty($result4['lname']) || !empty($result4['fname'])) {
-              $provname = $result4['lname'];
+              $provname = htmlspecialchars( $result4['lname'], ENT_NOQUOTES);
               if (!empty($result4['fname']) || !empty($result4['mname']))
-                $provname .= ', ' . $result4['fname'] . ' ' . $result4['mname'];
+                $provname .= htmlspecialchars( ', ' . $result4['fname'] . ' ' . $result4['mname'], ENT_NOQUOTES);
             }
             echo "<td>$provname</td>\n";
 
@@ -401,7 +410,7 @@ if ($result = getEncounters($pid)) {
                 if ($billing_view && $accounting_enabled) {
                     if ($INTEGRATED_AR) {
                         $tmp = sqlQuery("SELECT id FROM form_encounter WHERE " .
-                                    "pid = '$pid' AND encounter = '" . $iter['encounter'] . "'");
+                                    "pid = ? AND encounter = ?", array($pid,$iter['encounter']) );
                         $arid = 0 + $tmp['id'];
                         if ($arid) $arinvoice = ar_get_invoice_summary($pid, $iter['encounter'], true);
                     }
@@ -411,7 +420,8 @@ if ($result = getEncounters($pid)) {
                         if ($arid) $arinvoice = get_invoice_summary($arid, true);
                     }
                     if ($arid) {
-                        $arlinkbeg = "<a href='../../billing/sl_eob_invoice.php?id=$arid'" .
+                        $arlinkbeg = "<a href='../../billing/sl_eob_invoice.php?id=" .
+			            htmlspecialchars( $arid, ENT_QUOTES)."'" .
                                     " target='_blank' class='text' style='color:#00cc00'>";
                         $arlinkend = "</a>";
                     }
@@ -421,9 +431,9 @@ if ($result = getEncounters($pid)) {
                 $query = "SELECT s.drug_id, s.fee, d.name " .
                   "FROM drug_sales AS s " .
                   "LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
-                  "WHERE s.pid = '$pid' AND s.encounter = '{$iter['encounter']}' " .
+                  "WHERE s.pid = ? AND s.encounter = ? " .
                   "ORDER BY s.sale_id";
-                $sres = sqlStatement($query);
+                $sres = sqlStatement($query, array($pid,$iter['encounter']) );
                 while ($srow = sqlFetchArray($sres)) {
                   $subresult2[] = array('code_type' => 'PROD',
                     'code' => 'PROD:' . $srow['drug_id'], 'modifier' => '',
@@ -436,7 +446,7 @@ if ($result = getEncounters($pid)) {
                     // Next 2 lines were to skip diagnoses, but that seems unpopular.
                     // if ($iter2['code_type'] != 'COPAY' &&
                     //   !$code_types[$iter2['code_type']]['fee']) continue;
-                    $title = addslashes($iter2['code_text']);
+                    $title = htmlspecialchars( ($iter2['code_text']), ENT_QUOTES);
                     $codekey = $iter2['code'];
                     if ($iter2['code_type'] == 'COPAY') $codekey = 'CO-PAY';
                     if ($iter2['modifier']) $codekey .= ':' . $iter2['modifier'];
@@ -444,7 +454,7 @@ if ($result = getEncounters($pid)) {
                     // $binfo[0] .= "<span class='form_tt' title='".$title."'>".
                     $binfo[0] .= "<span title='$title'>".
                                 //onmouseover='ttshow(this,\"$title\")' onmouseout='tthide()'>" .
-                                $arlinkbeg . ($codekey == 'CO-PAY' ? xl($codekey) : $codekey) .
+                                $arlinkbeg . htmlspecialchars( ($codekey == 'CO-PAY' ? xl($codekey) : $codekey), ENT_NOQUOTES) .
                                 $arlinkend . "</span>";
                     if ($billing_view && $accounting_enabled) {
                         if ($binfo[1]) {
@@ -453,15 +463,15 @@ if ($result = getEncounters($pid)) {
                         if (empty($arinvoice[$codekey])) {
                             // If no invoice, show the fee.
                             if ($arlinkbeg) $binfo[1] .= '&nbsp;';
-                            else $binfo[1] .= oeFormatMoney($iter2['fee']);
+                            else $binfo[1] .= htmlspecialchars( oeFormatMoney($iter2['fee']), ENT_NOQUOTES);
 
                             for ($i = 2; $i < 5; ++$i) $binfo[$i] .= '&nbsp;';
                         }
                         else {
-                            $binfo[1] .= oeFormatMoney($arinvoice[$codekey]['chg'] + $arinvoice[$codekey]['adj']);
-                            $binfo[2] .= oeFormatMoney($arinvoice[$codekey]['chg'] - $arinvoice[$codekey]['bal']);
-                            $binfo[3] .= oeFormatMoney($arinvoice[$codekey]['adj']);
-                            $binfo[4] .= oeFormatMoney($arinvoice[$codekey]['bal']);
+                            $binfo[1] .= htmlspecialchars( oeFormatMoney($arinvoice[$codekey]['chg'] + $arinvoice[$codekey]['adj']), ENT_NOQUOTES);
+                            $binfo[2] .= htmlspecialchars( oeFormatMoney($arinvoice[$codekey]['chg'] - $arinvoice[$codekey]['bal']), ENT_NOQUOTES);
+                            $binfo[3] .= htmlspecialchars( oeFormatMoney($arinvoice[$codekey]['adj']), ENT_NOQUOTES);
+                            $binfo[4] .= htmlspecialchars( oeFormatMoney($arinvoice[$codekey]['bal']), ENT_NOQUOTES);
                             unset($arinvoice[$codekey]);
                         }
                     }
@@ -475,11 +485,11 @@ if ($result = getEncounters($pid)) {
                             for ($i = 0; $i < 5; ++$i) $binfo[$i] .= '<br>';
                         }
                         for ($i = 0; $i < 5; ++$i) $binfo[$i] .= "<font color='red'>";
-                        $binfo[0] .= $codekey;
-                        $binfo[1] .= oeFormatMoney($val['chg'] + $val['adj']);
-                        $binfo[2] .= oeFormatMoney($val['chg'] - $val['bal']);
-                        $binfo[3] .= oeFormatMoney($val['adj']);
-                        $binfo[4] .= oeFormatMoney($val['bal']);
+                        $binfo[0] .= htmlspecialchars( $codekey, ENT_NOQUOTES);
+                        $binfo[1] .= htmlspecialchars( oeFormatMoney($val['chg'] + $val['adj']), ENT_NOQUOTES);
+                        $binfo[2] .= htmlspecialchars( oeFormatMoney($val['chg'] - $val['bal']), ENT_NOQUOTES);
+                        $binfo[3] .= htmlspecialchars( oeFormatMoney($val['adj']), ENT_NOQUOTES);
+                        $binfo[4] .= htmlspecialchars( oeFormatMoney($val['bal']), ENT_NOQUOTES);
                         for ($i = 0; $i < 5; ++$i) $binfo[$i] .= "</font>";
                     }
                 }
@@ -492,7 +502,7 @@ if ($result = getEncounters($pid)) {
         } // end if authorized
 
         else {
-            echo "<td class='text' valign='top' colspan='5' rowspan='$encounter_rows'>(No access)</td>\n";
+            echo "<td class='text' valign='top' colspan='5' rowspan='$encounter_rows'>(".htmlspecialchars( xl("No access"), ENT_NOQUOTES).")</td>\n";
         }
 
         // show insurance
@@ -510,28 +520,28 @@ if ($result = getEncounters($pid)) {
                 $subresult5 = getInsuranceDataByDate($pid, $raw_encounter_date, "primary");
                 if ($subresult5 && $subresult5{"provider_name"}) {
                     $style = $responsible == 1 ? " style='color:red'" : "";
-                    $insured = "<span class='text'$style>&nbsp;" . xl('Primary') . ": " .
-                    $subresult5{"provider_name"} . "</span><br>\n";
+                    $insured = "<span class='text'$style>&nbsp;" . htmlspecialchars( xl('Primary'), ENT_NOQUOTES) . ": " .
+                    htmlspecialchars( $subresult5{"provider_name"}, ENT_NOQUOTES) . "</span><br>\n";
                 }
                 $subresult6 = getInsuranceDataByDate($pid, $raw_encounter_date, "secondary");
                 if ($subresult6 && $subresult6{"provider_name"}) {
                     $style = $responsible == 2 ? " style='color:red'" : "";
-                    $insured .= "<span class='text'$style>&nbsp;" . xl('Secondary') . ": " .
-                    $subresult6{"provider_name"} . "</span><br>\n";
+                    $insured .= "<span class='text'$style>&nbsp;" . htmlspecialchars( xl('Secondary'), ENT_NOQUOTES) . ": " .
+                    htmlspecialchars( $subresult6{"provider_name"}, ENT_NOQUOTES) . "</span><br>\n";
                 }
                 $subresult7 = getInsuranceDataByDate($pid, $raw_encounter_date, "tertiary");
                 if ($subresult6 && $subresult7{"provider_name"}) {
                     $style = $responsible == 3 ? " style='color:red'" : "";
-                    $insured .= "<span class='text'$style>&nbsp;" . xl('Tertiary') . ": " .
-                    $subresult7{"provider_name"} . "</span><br>\n";
+                    $insured .= "<span class='text'$style>&nbsp;" . htmlspecialchars( xl('Tertiary'), ENT_NOQUOTES) . ": " .
+                    htmlspecialchars( $subresult7{"provider_name"}, ENT_NOQUOTES) . "</span><br>\n";
                 }
                 if ($responsible == 0) {
-                    $insured .= "<span class='text' style='color:red'>&nbsp;" . xl('Patient') .
+                    $insured .= "<span class='text' style='color:red'>&nbsp;" . htmlspecialchars( xl('Patient'), ENT_NOQUOTES) .
                                 "</span><br>\n";
                 }
             }
             else {
-                $insured = " (No access)";
+                $insured = " (".htmlspecialchars( xl("No access"), ENT_NOQUOTES).")";
             }
       
             echo "<td>".$insured."</td>\n";

@@ -35,14 +35,17 @@ function getFormsByPid ($pid, $cols = "*")
 
 function getFormByEncounter($pid,$encounter, $cols="form_id, form_name", $name="")
 {
-	$sql = "select $cols from forms where encounter = '$encounter' and pid='$pid' ";
+ 	$arraySqlBind = array();
+	$sql = "select $cols from forms where encounter = ? and pid=? ";
+	array_push($arraySqlBind,$encounter,$pid);
 	if(!empty($name)){
-		$sql .= "and form_name='" . $name ."' ";
+		$sql .= "and form_name=? ";
+		array_push($arraySqlBind,$name);
 	}
   // This puts vitals first in the list, and newpatient last:
   $sql .= "ORDER BY FIND_IN_SET(formdir,'vitals') DESC, date DESC";
 
-	$res = sqlStatement($sql);
+	$res = sqlStatement($sql,$arraySqlBind);
 
 	for($iter=0; $row=sqlFetchArray($res); $iter++)
 	{
@@ -74,9 +77,8 @@ function authorizeForm($id, $authorized = "1")
 
 function getEncounters($pid)
 {
-	// $res = sqlStatement("select distinct encounter from forms where pid='$pid' order by date desc;");
 
-  $res = sqlStatement("select distinct encounter from form_encounter where pid = '$pid' order by date desc;");
+ 	$res = sqlStatement("select distinct encounter from form_encounter where pid = ? order by date desc;", array($pid) );
 
 	for($iter=0; $row=sqlFetchArray($res); $iter++)
 	{
