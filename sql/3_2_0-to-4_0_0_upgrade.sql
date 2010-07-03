@@ -120,7 +120,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 #EndIf
 
 #IfNotRow2D layout_options form_id DEM field_id vfc
-INSERT INTO `layout_options` VALUES ('DEM', 'vfc', '5Stats', 'VFC', 12, 1, 1, 20, 0, 'Eligibility', 1, 1, '', '', 'Eligibility status for Vaccine for Children supplied vaccine');
+INSERT INTO `layout_options` VALUES ('DEM', 'vfc', '5Stats', 'VFC', 12, 1, 1, 20, 0, 'eligibility', 1, 1, '', '', 'Eligibility status for Vaccine for Children supplied vaccine');
 #EndIf
 
 #IfNotRow2D layout_options form_id DEM field_id mothersname
