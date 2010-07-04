@@ -3,14 +3,14 @@ require_once("{$GLOBALS['srcdir']}/sql.inc");
 
 function getTransById ($id, $cols = "*")
 {
-  return sqlQuery("select $cols from transactions where id='$id' " .
-    "order by date DESC limit 0,1");
+  return sqlQuery("select $cols from transactions where id=? " .
+    "order by date DESC limit 0,1", array($id) );
 }
 
 function getTransByPid ($pid, $cols = "*")
 {
-  $res = sqlStatement("select $cols from transactions where pid='$pid' " .
-    "order by date DESC");
+  $res = sqlStatement("select $cols from transactions where pid=? " .
+    "order by date DESC", array($pid) );
   for ($iter = 0; $row = sqlFetchArray($res); $iter++)
     $all[$iter] = $row;
   return $all;

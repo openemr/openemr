@@ -7,6 +7,7 @@
 require_once("{$GLOBALS['srcdir']}/sql.inc");
 require_once("{$GLOBALS['srcdir']}/acl.inc");
 require_once("{$GLOBALS['srcdir']}/formatting.inc.php");
+require_once("{$GLOBALS['srcdir']}/formdata.inc.php");
 
 $patient_data_array = array(title => "Title: ",
 fname => "First Name: ",
@@ -213,9 +214,14 @@ function printPatientNotes($pid) {
 }
 
 function printPatientTransactions($pid) {
-	$res = sqlStatement("select * from transactions where pid='$pid' order by date");
+	$res = sqlStatement("select * from transactions where pid=? order by date", array($pid) );
 	while($result = sqlFetchArray($res)) {
-		print "<span class=bold>" . oeFormatSDFT(strtotime($result{"date"})) . ":</span><span class=text>(".$result{"title"}.") " . stripslashes($result{"body"}) . "</span><br>\n";
+		print "<span class=bold>" .
+		htmlspecialchars( oeFormatSDFT(strtotime($result{"date"})), ENT_NOQUOTES) .
+		":</span><span class=text>(" .
+		generate_display_field(array('data_type'=>'1','list_id'=>'transactions'), $result{"title"}) .
+		") " . htmlspecialchars( $result{"body"}, ENT_NOQUOTES) .
+		"</span><br>\n";
 	}
 }
 

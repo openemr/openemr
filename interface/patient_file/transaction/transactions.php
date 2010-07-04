@@ -1,4 +1,13 @@
 <?php
+
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
 include_once("../../globals.php");
 include_once("$srcdir/transactions.inc");
 ?>
@@ -42,15 +51,15 @@ include_once("$srcdir/transactions.inc");
     <table>
     <tr>
         <td>
-            <span class="title"><?php xl('Patient Transactions','e'); ?></span>&nbsp;</td>
+            <span class="title"><?php echo htmlspecialchars( xl('Patient Transactions'), ENT_NOQUOTES); ?></span>&nbsp;</td>
         <td>
             <!-- Define CSS Buttons -->
             <a href="add_transaction.php"  <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
-            <span><?php xl('Add','e'); ?></span></a>
+            <span><?php echo htmlspecialchars( xl('Add'), ENT_NOQUOTES); ?></span></a>
         </td>
         <td>
             <a href="print_referral.php" <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> onclick="top.restoreSession()" class="css_button" >
-            <span><?php xl('Print Blank Referral Form','e'); ?></span></a>
+            <span><?php echo htmlspecialchars( xl('Print Blank Referral Form'), ENT_NOQUOTES); ?></span></a>
         </td>
     </tr>
     </table>
@@ -59,8 +68,7 @@ include_once("$srcdir/transactions.inc");
     <?php if ($result = getTransByPid($pid)) { ?>
         <div id='transactions_div'></div>
     <?php } else { ?>
-        <!-- English until parameterized translations are supported -->
-        <span class="text">Currently there are no transcations. Please <a href='add_transaction.php'>click here</a> to add one.</span>
+        <span class="text"><?php echo htmlspecialchars( xl('There are no transactions on file for this patient.'), ENT_NOQUOTES); ?></span>
     <?php } ?>
     </div>
 </body>

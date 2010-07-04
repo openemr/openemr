@@ -2,6 +2,14 @@
 // add_transaction is a misnomer, as this script will now also edit
 // existing transactions.
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
 require_once("../../globals.php");
 require_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
@@ -17,18 +25,15 @@ $inmode    = $_GET['inmode'];
 $body_onload_code="";
 if ($inmode) {		/*	For edit func */
   $inedit = sqlStatement("SELECT * FROM transactions " .
-    "WHERE id = '".$transid."'");
+    "WHERE id = ?", array($transid) );
   while ($inmoderow = sqlFetchArray($inedit)) {
     $body = $inmoderow['body'];
   }
 }
 if ($mode) {
-  $sets =
-    "title='"          . $_POST['title'] . "'" .
-    ", user = '"       . $_SESSION['authUser'] . "'" .
-    ", groupname = '"  . $_SESSION['authProvider'] . "'" .
-    ", authorized = '" . $userauthorized . "'" .
-    ", date = NOW()";
+  //use sql placemaker
+  $sets = "title=?, user = ?, groupname = ?, authorized = ?, date = NOW()";
+  $sqlBindArray = array($_POST['title'], $_SESSION['authUser'], $_SESSION['authProvider'], $userauthorized);
 
   $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'REF' AND uor > 0 AND field_id != '' " .
@@ -40,14 +45,20 @@ if ($mode) {
     if ($field_id == 'body' && $title != 'Referral') {
       $value = $_POST["body"];
     }
-    $sets .= ", $field_id = '$value'";
+    //use sql placemaker (note need to explicitly escape the column label)
+    $sets .= ", ".add_escape_custom($field_id)." = ?";
+    array_push($sqlBindArray,$value);
   }
   if ($transid) {
-    sqlStatement("UPDATE transactions SET $sets WHERE id = '$transid'");
+    //use sql placemaker
+    array_push($sqlBindArray,$transid);
+    sqlStatement("UPDATE transactions SET $sets WHERE id = ?", $sqlBindArray);
   }
   else {
-    $sets .= ", pid = '$pid'";
-    $transid = sqlInsert("INSERT INTO transactions SET $sets");
+    //use sql placemaker
+    array_push($sqlBindArray,$pid);
+    $sets .= ", pid = ?";
+    $transid = sqlInsert("INSERT INTO transactions SET $sets", $sqlBindArray);
   }
 
   if ($GLOBALS['concurrent_layout'])
@@ -56,6 +67,8 @@ if ($mode) {
     $body_onload_code = "javascript:parent.Transactions.location.href='transactions.php';";
 }
 
+/************************************
+//Migrated this to the list_options engine (transactions list)
 $trans_types = array(
   'Referral'          => xl('Referral'),
   'Patient Request'   => xl('Patient Request'),
@@ -63,6 +76,7 @@ $trans_types = array(
   'Legal'             => xl('Legal'),
   'Billing'           => xl('Billing'),
 );
+************************************/
 
 $CPR = 4; // cells per row
 
@@ -122,7 +136,7 @@ $(document).ready(function(){
 </script>
 <script language="JavaScript">
 
-var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QUOTES); ?>';
 
 function titleChanged() {
  var sel = document.forms[0].title;
@@ -169,7 +183,7 @@ function sel_related() {
 // Process click on Delete link.
 function deleteme() {
 // onclick='return deleteme()'
- dlgopen('../deleter.php?transaction=<?php echo $transid ?>', '_blank', 500, 450);
+ dlgopen('../deleter.php?transaction=<?php echo htmlspecialchars( $transid, ENT_QUOTES); ?>', '_blank', 500, 450);
  return false;
 }
 
@@ -201,11 +215,11 @@ function validate(f) {
  }
 
  var msg = "";
- msg += "<?php xl('The following fields are required', 'e' ); ?>:\n\n";
+ msg += "<?php echo htmlspecialchars( xl('The following fields are required'), ENT_QUOTES); ?>:\n\n";
  for ( var i = 0; i < errMsgs.length; i++ ) {
 	msg += errMsgs[i] + "\n";
  }
- msg += "\n<?php xl('Please fill them in before continuing.', 'e'); ?>";
+ msg += "\n<?php echo htmlspecialchars( xl('Please fill them in before continuing.'), ENT_QUOTES); ?>";
 
  if ( errMsgs.length > 0 ) {
 	alert(msg);
@@ -236,20 +250,20 @@ div.tab {
 
 </head>
 <body class="body_top" onload="<?php echo $body_onload_code; ?>" >
-<form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo $transid ?>' onsubmit='return validate(this)'>
+<form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo htmlspecialchars( $transid, ENT_QUOTES); ?>' onsubmit='return validate(this)'>
 <input type='hidden' name='mode' value='add'>
 
 	<table>
 	    <tr>
             <td>
-                <b><?php xl('Add/Edit Patient Transaction','e'); ?></b>&nbsp;</td><td>
+                <b><?php echo htmlspecialchars( xl('Add/Edit Patient Transaction'), ENT_NOQUOTES); ?></b>&nbsp;</td><td>
                  <a href="javascript:;"  <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="submitme();">
-                    <span><?php xl('Save','e'); ?></span>
+                    <span><?php echo htmlspecialchars( xl('Save'), ENT_NOQUOTES); ?></span>
                  </a>
              </td>
              <td>
                 <a href="transactions.php"  <?php if (!$GLOBALS['concurrent_layout']) echo "target='Main'"; ?> class="css_button" onclick="top.restoreSession()">
-                    <span><?php xl('Cancel','e'); ?></span>
+                    <span><?php echo htmlspecialchars( xl('Cancel'), ENT_NOQUOTES); ?></span>
                 </a>
             </td>
         </tr>
@@ -257,17 +271,8 @@ div.tab {
 
 	<table class="text">
 	    <tr><td>
-        <?php xl('Transaction Type','e'); ?>:&nbsp;</td><td>
-        <select name='title' onchange='titleChanged()'>
-        <?php
-        $db_title=$_REQUEST['title'];
-        foreach ($trans_types as $key => $value) {
-          echo "    <option value='$key'";
-          if ($key == $db_title) echo " selected";
-          echo ">$value</option>\n";
-        }
-        ?>
-        </select>
+        <?php echo htmlspecialchars( xl('Transaction Type'), ENT_NOQUOTES); ?>:&nbsp;</td><td>
+	<?php echo generate_select_list('title','transactions',$_REQUEST['title'],'','','','titleChanged()'); ?>
         </td></tr>
 	</table>
 
@@ -302,7 +307,7 @@ while ($frow = sqlFetchArray($fres)) {
     }
     else if ($field_id == 'body' ) {
       $tmp = sqlQuery("SELECT reason FROM form_encounter WHERE " .
-        "pid = '$pid' ORDER BY date DESC LIMIT 1");
+        "pid = ? ORDER BY date DESC LIMIT 1", array($pid) );
       if (!empty($tmp)) $currvalue = $tmp['reason'];
     }
   }
@@ -314,7 +319,10 @@ while ($frow = sqlFetchArray($fres)) {
     $last_group = $this_group;
 	if($group_seq==1)	echo "<li class='current'>";
 	else				echo "<li class=''>";
-	echo "<a href='/play/javascript-tabbed-navigation/' id='div_$group_seq'>".xl_layout_label($group_name)."</a></li>";
+        $group_seq_esc = htmlspecialchars( $group_seq, ENT_QUOTES);
+        $group_name_show = htmlspecialchars( xl_layout_label($group_name), ENT_NOQUOTES);
+	echo "<a href='/play/javascript-tabbed-navigation/' id='div_$group_seq_esc'>".
+	    "$group_name_show</a></li>";
   }
   ++$item_count;
 }
@@ -349,7 +357,7 @@ while ($frow = sqlFetchArray($fres)) {
     }
     else if ($field_id == 'body' && $transid > 0 ) {
 	   $tmp = sqlQuery("SELECT reason FROM form_encounter WHERE " .
-        "pid = '$pid' ORDER BY date DESC LIMIT 1");
+        "pid = ? ORDER BY date DESC LIMIT 1", array($pid) );
       if (!empty($tmp)) $currvalue = $tmp['reason'];
     }
   }
@@ -360,8 +368,9 @@ while ($frow = sqlFetchArray($fres)) {
     $group_seq  = substr($this_group, 0, 1);
     $group_name = substr($this_group, 1);
     $last_group = $this_group;
-	if($group_seq==1)	echo "<div class='tab current' id='div_$group_seq'>";
-	else				echo "<div class='tab' id='div_$group_seq'>";
+    $group_seq_esc = htmlspecialchars( $group_seq, ENT_QUOTES);
+	if($group_seq==1)	echo "<div class='tab current' id='div_$group_seq_esc'>";
+	else				echo "<div class='tab' id='div_$group_seq_esc'>";
     echo " <table border='0' cellpadding='0'>\n";
     $display_style = 'none';
   }
@@ -377,7 +386,8 @@ while ($frow = sqlFetchArray($fres)) {
   // Handle starting of a new label cell.
   if ($titlecols > 0) {
     end_cell();
-    echo "<td width='70' valign='top' colspan='$titlecols'";
+    $titlecols_esc = htmlspecialchars( $titlecols, ENT_QUOTES);
+    echo "<td width='70' valign='top' colspan='$titlecols_esc'";
     echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
     if ($cell_count == 2) echo " style='padding-left:10pt'";
     echo ">";
@@ -388,14 +398,15 @@ while ($frow = sqlFetchArray($fres)) {
   echo "<b>";
 
   // Modified 6-09 by BM - Translate if applicable
-  if ($frow['title']) echo (xl_layout_label($frow['title']) . ":"); else echo "&nbsp;";
+  if ($frow['title']) echo (htmlspecialchars( xl_layout_label($frow['title']), ENT_NOQUOTES) . ":"); else echo "&nbsp;";
 
   echo "</b>";
 
   // Handle starting of a new data cell.
   if ($datacols > 0) {
     end_cell();
-    echo "<td valign='top' colspan='$datacols' class='text'";
+    $datacols_esc = htmlspecialchars( $datacols, ENT_QUOTES);
+    echo "<td valign='top' colspan='$datacols_esc' class='text'";
     if ($cell_count > 0) echo " style='padding-left:5pt'";
     echo ">";
     $cell_count += $datacols;
@@ -414,8 +425,8 @@ end_group();
 </div>
 <p>
 <div id='otherdiv' style='display:none'>
-<span class='bold'><?php xl('Details','e'); ?>:</span><br>
-<textarea name='body' rows='6' cols='40' wrap='virtual'><?php echo $body; ?>
+<span class='bold'><?php echo htmlspecialchars( xl('Details'), ENT_NOQUOTES); ?>:</span><br>
+<textarea name='body' rows='6' cols='40' wrap='virtual'><?php echo htmlspecialchars( $body, ENT_NOQUOTES); ?>
 </textarea>
 </div>
 </p>

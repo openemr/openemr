@@ -6,6 +6,14 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
 include_once("../../globals.php");
 require_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
@@ -14,38 +22,38 @@ include_once("$srcdir/patient.inc");
 $template_file = "$webserver_root/custom/referral_template.html";
 
 $TEMPLATE_LABELS = array(
-  'label_clinic_id'             => xl('Clinic ID'),
-  'label_control_no'            => xl('Control No.'),
-  'label_date'                  => xl('Date'),
-  'label_webpage_title'         => xl('Referral Form'),
-  'label_form1_title'           => xl('REFERRAL FORM'),
-  'label_name'                  => xl('Name'),
-  'label_age'                   => xl('Age'),
-  'label_gender'                => xl('Gender'),
-  'label_address'               => xl('Address'),
-  'label_postal'                => xl('Postal'),
-  'label_phone'                 => xl('Phone'),
-  'label_ref_reason'            => xl('Reference Reason'),
-  'label_diagnosis'             => xl('Diagnosis'),
-  'label_ref_class'             => xl('Reference classification (risk level)'),
-  'label_dr_name_sig'           => xl('Doctor\'s name and signature'),
-  'label_refer_to'              => xl('Referred to'),
-  'label_clinic'                => xl('Health centre/clinic'),
-  'label_history_summary'       => xl('Client medical history summary'),
-  'label_bp'                    => xl('Blood pressure'),
-  'label_ht'                    => xl('Height'),
-  'label_wt'                    => xl('Weight'),
-  'label_ref_name_sig'          => xl('Referer name and signature'),
-  'label_special_name_sig'      => xl('Specialist name and signature'),
-  'label_form2_title'           => xl('COUNTER REFERRAL FORM'),
-  'label_findings'              => xl('Findings'),
-  'label_final_diagnosis'       => xl('Final Diagnosis'),
-  'label_services_provided'     => xl('Services provided'),
-  'label_recommendations'       => xl('Recommendations and treatment'),
-  'label_scripts_and_referrals' => xl('Prescriptions and other referrals'),
-  'label_subhead_clinic'        => xl('Clinic Copy'),
-  'label_subhead_patient'       => xl('Client Copy'),
-  'label_subhead_referred'      => xl('For Referred Organization/Practitioner'),
+  'label_clinic_id'             => htmlspecialchars( xl('Clinic ID')),
+  'label_control_no'            => htmlspecialchars( xl('Control No.')),
+  'label_date'                  => htmlspecialchars( xl('Date')),
+  'label_webpage_title'         => htmlspecialchars( xl('Referral Form')),
+  'label_form1_title'           => htmlspecialchars( xl('REFERRAL FORM')),
+  'label_name'                  => htmlspecialchars( xl('Name')),
+  'label_age'                   => htmlspecialchars( xl('Age')),
+  'label_gender'                => htmlspecialchars( xl('Gender')),
+  'label_address'               => htmlspecialchars( xl('Address')),
+  'label_postal'                => htmlspecialchars( xl('Postal')),
+  'label_phone'                 => htmlspecialchars( xl('Phone')),
+  'label_ref_reason'            => htmlspecialchars( xl('Reference Reason')),
+  'label_diagnosis'             => htmlspecialchars( xl('Diagnosis')),
+  'label_ref_class'             => htmlspecialchars( xl('Reference classification (risk level)')),
+  'label_dr_name_sig'           => htmlspecialchars( xl('Doctor\'s name and signature')),
+  'label_refer_to'              => htmlspecialchars( xl('Referred to')),
+  'label_clinic'                => htmlspecialchars( xl('Health centre/clinic')),
+  'label_history_summary'       => htmlspecialchars( xl('Client medical history summary')),
+  'label_bp'                    => htmlspecialchars( xl('Blood pressure')),
+  'label_ht'                    => htmlspecialchars( xl('Height')),
+  'label_wt'                    => htmlspecialchars( xl('Weight')),
+  'label_ref_name_sig'          => htmlspecialchars( xl('Referer name and signature')),
+  'label_special_name_sig'      => htmlspecialchars( xl('Specialist name and signature')),
+  'label_form2_title'           => htmlspecialchars( xl('COUNTER REFERRAL FORM')),
+  'label_findings'              => htmlspecialchars( xl('Findings')),
+  'label_final_diagnosis'       => htmlspecialchars( xl('Final Diagnosis')),
+  'label_services_provided'     => htmlspecialchars( xl('Services provided')),
+  'label_recommendations'       => htmlspecialchars( xl('Recommendations and treatment')),
+  'label_scripts_and_referrals' => htmlspecialchars( xl('Prescriptions and other referrals')),
+  'label_subhead_clinic'        => htmlspecialchars( xl('Clinic Copy')),
+  'label_subhead_patient'       => htmlspecialchars( xl('Client Copy')),
+  'label_subhead_referred'      => htmlspecialchars( xl('For Referred Organization/Practitioner'))
 );
 
 if (!is_file($template_file)) die("$template_file does not exist!");
@@ -79,10 +87,10 @@ if ($patient_id) {
   $patient_age = '';
 }
 
-$frrow = sqlQuery("SELECT * FROM users WHERE id = '" . $trow['refer_from'] . "'");
+$frrow = sqlQuery("SELECT * FROM users WHERE id = ?", array($trow['refer_from']) );
 if (empty($frrow)) $frrow = array();
 
-$torow = sqlQuery("SELECT * FROM users WHERE id = '" . $trow['refer_to'] . "'");
+$torow = sqlQuery("SELECT * FROM users WHERE id = ?", array($trow['refer_to']) );
 if (empty($torow)) $torow = array(
   'organization' => '',
   'street' => '',
@@ -93,8 +101,8 @@ if (empty($torow)) $torow = array(
 );
 
 $vrow = sqlQuery("SELECT * FROM form_vitals WHERE " .
-  "pid = '$patient_id' AND date <= '$refer_date 23:59:59' " .
-  "ORDER BY date DESC LIMIT 1");
+  "pid = ? AND date <= ? " .
+  "ORDER BY date DESC LIMIT 1", array($patient_id, $refer_date." 23:59:59") );
 if (empty($vrow)) $vrow = array(
   'bps' => '',
   'bpd' => '',
@@ -107,7 +115,6 @@ if (empty($vrow)) $vrow = array(
 $facrow = getFacility(-1);
 
 // Make some items HTML-friendly if they are empty.
-if (empty($trow['refer_date'])) $trow['refer_date'] = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 if (empty($trow['id'])) $trow['id'] = '&nbsp;';
 if (empty($patient_id)) $patient_id = '&nbsp;';
 if (empty($facrow['facility_npi'])) $facrow['facility_npi'] = '&nbsp;';

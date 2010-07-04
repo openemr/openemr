@@ -90,8 +90,13 @@ function getProviders() {
 // may find additional uses.
 //
 function getFacility($facid=0) {
+
+  //create a sql binding array
+  $sqlBindArray = array();
+  
   if ($facid > 0) {
-    $query = "SELECT * FROM facility WHERE id = '$facid'";
+    $query = "SELECT * FROM facility WHERE id = ?";
+    array_push($sqlBindArray,$facid);
   }
   else if ($facid == 0) {
     $query = "SELECT * FROM facility ORDER BY " .
@@ -99,10 +104,11 @@ function getFacility($facid=0) {
   }
   else {
     $query = "SELECT facility.* FROM users, facility WHERE " .
-      "users.id = '" . $_SESSION['authUserID'] . "' AND " .
+      "users.id = ? AND " .
       "facility.id = users.facility_id";
+    array_push($sqlBindArray,$_SESSION['authUserID']);
   }
-  return sqlQuery($query);
+  return sqlQuery($query,$sqlBindArray);
 }
 
 // Generate a report title including report name and facility name, address
@@ -116,20 +122,20 @@ function genFacilityTitle($repname='', $facid=0) {
   $s .= "  <td class='ftitlecell2'>\n";
   $r = getFacility($facid);
   if (!empty($r)) {
-    $s .= "<b>" . $r['name'] . "</b>\n";
-    if ($r['street']) $s .= "<br />" . $r['street'] . "\n";
+    $s .= "<b>" . htmlspecialchars( $r['name'], ENT_NOQUOTES) . "</b>\n";
+    if ($r['street']) $s .= "<br />" . htmlspecialchars( $r['street'], ENT_NOQUOTES) . "\n";
     if ($r['city'] || $r['state'] || $r['postal_code']) {
       $s .= "<br />";
-      if ($r['city']) $s .= $r['city'];
+      if ($r['city']) $s .= htmlspecialchars( $r['city'], ENT_NOQUOTES);
       if ($r['state']) {
         if ($r['city']) $s .= ", \n";
-        $s .= $r['state'];
+        $s .= htmlspecialchars( $r['state'], ENT_NOQUOTES);
       }
-      if ($r['postal_code']) $s .= " " . $r['postal_code'];
+      if ($r['postal_code']) $s .= " " . htmlspecialchars( $r['postal_code'], ENT_NOQUOTES);
       $s .= "\n";
     }
-    if ($r['country_code']) $s .= "<br />" . $r['country_code'] . "\n";
-    if (preg_match('/[1-9]/', $r['phone'])) $s .= "<br />" . $r['phone'] . "\n";
+    if ($r['country_code']) $s .= "<br />" . htmlspecialchars( $r['country_code'], ENT_NOQUOTES) . "\n";
+    if (preg_match('/[1-9]/', $r['phone'])) $s .= "<br />" . htmlspecialchars( $r['phone'], ENT_NOQUOTES) . "\n";
   }
   $s .= "  </td>\n";
   $s .= " </tr>\n";
