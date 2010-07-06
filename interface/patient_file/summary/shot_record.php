@@ -1,4 +1,13 @@
 <?php
+
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
 include_once("../../globals.php");
 include_once("$srcdir/sql.inc");
 include_once("$srcdir/options.inc.php");
@@ -7,14 +16,14 @@ include_once("$srcdir/options.inc.php");
 $res = sqlQuery("select concat(f.name,'\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code) as facility_address ".
                 " from facility f, users u ".
                 " where u.facility = f.name ".
-                " and u.id = " . $_SESSION['authId']
+                " and u.id = ?", array($_SESSION['authId'])
                 );
 
 //collect patient data
 $res2 = sqlQuery("select concat(p.lname,', ',p.fname,' ',p.mname) patient_name ".
                 ",date_format(p.DOB,'%c/%e/%Y') as patient_DOB ".
                 ",concat(p.street,'\n',p.city,', ',p.state,' ',p.postal_code) as patient_address".
-                " from patient_data p where p.pid = $pid"
+                " from patient_data p where p.pid = ?", array($pid)
                 );
 
 //collect immunizations
@@ -28,14 +37,14 @@ $sqlstmt = "select date_format(i1.administered_date,'%Y-%m-%d') as '" . xl('Date
             " from immunizations i1 ".
             " left join users u on i1.administered_by_id = u.id ".
             " left join patient_data p on i1.patient_id = p.pid ".
-            " where p.pid = " . $pid;
+            " where p.pid = ?";
 
 // sort the results, as they are on the user's screen
 $sqlstmt .= " order by ";
 if ($_GET['sortby'] == "vacc") { $sqlstmt .= " i1.immunization_id, i1.administered_date DESC"; }
 else { $sqlstmt .= " i1.administered_date desc"; }
 
-$res3 = sqlStatement($sqlstmt);
+$res3 = sqlStatement($sqlstmt, array($pid) );
 
 while ($data[] = sqlFetchArray($res3)) {}
 
@@ -49,10 +58,12 @@ $title = xl('Shot Record as of:','','',' ') . date('m/d/Y h:i:s a');
 
 if ($_GET['output'] == "html") { //print html css
     
-  //convert end of line characters to html
+  //convert end of line characters to html (escape for html output first)
   $patterns = array ('/\n/');
   $replace = array ('<br>');
+  $res['facility_address'] = htmlspecialchars( $res['facility_address'], ENT_NOQUOTES);
   $res['facility_address'] = preg_replace($patterns, $replace, $res['facility_address']);
+  $res2['patient_address'] = htmlspecialchars( $res2['patient_address'], ENT_NOQUOTES);
   $res2['patient_address'] = preg_replace($patterns, $replace, $res2['patient_address']);
   
   //deal with bug (last array index is empty)
@@ -133,14 +144,16 @@ if ($_GET['output'] == "html") { //print html css
   for ($i=0;$i<$countTotalPages;$i++) {
     echo "<div class='paddingdiv'>\n";
       
-    //display facility information
+    //display facility information (Note it is already escaped)
     echo "<div class='clinicAddress'>" . $res['facility_address'] . "</div>\n";
     
-    //display patient information
-    echo "<div class='patientAddress'>" . $res2['patient_name'] . "<br>" . xl('Date of Birth') . ": " . $res2['patient_DOB'] . "<br>" . $res2['patient_address'] . "</div>\n";
+    //display patient information (Note patient address is already escaped)
+    echo "<div class='patientAddress'>" . htmlspecialchars( $res2['patient_name'], ENT_NOQUOTES) . "<br>" .
+      htmlspecialchars( xl('Date of Birth') . ": " . $res2['patient_DOB'], ENT_NOQUOTES) . "<br>" .
+      $res2['patient_address'] . "</div>\n";
 
     //display table title
-    echo "<div class='tabletitle'>" . $title . "</div>\n";
+    echo "<div class='tabletitle'>" . htmlspecialchars( $title, ENT_NOQUOTES) . "</div>\n";
       
     echo "<table cellspacing='0' cellpadding='0'>\n";
       
@@ -151,7 +164,7 @@ if ($_GET['output'] == "html") { //print html css
 	$patterns = array ('/\n/');
 	$replace = array (' ');
 	$key = preg_replace($patterns, $replace, $key);
-      	echo "<th>$key</th>\n";
+      	echo "<th>".htmlspecialchars( $key, ENT_NOQUOTES)."</th>\n";
     }
     echo "</tr>\n";
     
@@ -160,9 +173,7 @@ if ($_GET['output'] == "html") { //print html css
       if ($rowData = array_shift($data)) {
 	echo "<tr>";
 	foreach ($rowData as $key => $value) {
-	  //fill empty cells
-	  if ($value == "") $value = "&nbsp;";
-	    
+
 	  //shading of cells
 	  if ($j==0) {
 	    echo "<td>";
@@ -175,7 +186,8 @@ if ($_GET['output'] == "html") { //print html css
 	  }
 	    
 	  // output data of cell
-	  echo $value  . "</td>";
+	    echo ($value == "") ? "&nbsp;" : htmlspecialchars($value, ENT_NOQUOTES);
+	  echo "</td>";
 	}
 	echo "<tr>\n";
       }
@@ -188,11 +200,14 @@ if ($_GET['output'] == "html") { //print html css
     echo "</table>\n";
     
     //display signature line
-    echo "<div class='sign'>" . xl('Signature') . ":________________________________" . "</div>\n";
+    echo "<div class='sign'>" . htmlspecialchars( xl('Signature'), ENT_NOQUOTES) .
+      ":________________________________" . "</div>\n";
   
     if ($countTotalPages > 1) {
       //display page number if greater than one page
-      echo "<div class='pageNumber'>" . xl('Page') . " " . ($i+1) . "/" . $countTotalPages . "</div>\n";
+      echo "<div class='pageNumber'>" .
+        htmlspecialchars( xl('Page') . " " . ($i+1) . "/" . $countTotalPages, ENT_NOQUOTES) .
+	"</div>\n";
     }
       
     echo "</div>\n";    

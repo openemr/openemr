@@ -1,41 +1,66 @@
 <?php
+
+//SANITIZE ALL ESCAPES
+$sanitize_all_escapes=true;
+//
+
+//STOP FAKE REGISTER GLOBALS
+$fake_register_globals=false;
+//
+
 include_once("../../globals.php");
 include_once("$srcdir/sql.inc");
 include_once("$srcdir/options.inc.php");
 
-if (isset($mode)) {
-    if ($mode == "add" ) {
+if (isset($_GET['mode'])) {
+    
+    if ($_GET['mode'] == "add" ) {
         $sql = "REPLACE INTO immunizations set 
-                      id = '" . mysql_real_escape_string($id) . "',
-                      administered_date = if('" . mysql_real_escape_string($administered_date) . "','" . mysql_real_escape_string($administered_date) . "',NULL),  
-                      immunization_id = '" . mysql_real_escape_string($form_immunization_id) . "',
-                      manufacturer = '" . mysql_real_escape_string($manufacturer) . "',
-                      lot_number = '" . mysql_real_escape_string($lot_number) . "',
-                      administered_by_id = if(" . mysql_real_escape_string($administered_by_id) . "," . mysql_real_escape_string($administered_by_id) . ",NULL),
-                      administered_by = if('" . mysql_real_escape_string($administered_by) . "','" . mysql_real_escape_string($administered_by) . "',NULL),
-                      education_date = if('" . mysql_real_escape_string($education_date) . "','" . mysql_real_escape_string($education_date) . "',NULL), 
-                      vis_date = if('" . mysql_real_escape_string($vis_date) . "','" . mysql_real_escape_string($vis_date) . "',NULL), 
-                      note   = '" . mysql_real_escape_string($note) . "',
-                      patient_id   = '" . mysql_real_escape_string($pid) . "',
-                      created_by = '" . mysql_real_escape_string($_SESSION['authId']) . "',
-                      updated_by = '" . mysql_real_escape_string($_SESSION['authId']) . "',
+                      id = ?,
+                      administered_date = if(?,?,NULL),  
+                      immunization_id = ?,
+                      manufacturer = ?,
+                      lot_number = ?,
+                      administered_by_id = if(?,?,NULL),
+                      administered_by = if(?,?,NULL),
+                      education_date = if(?,?,NULL), 
+                      vis_date = if(?,?,NULL), 
+                      note   = ?,
+                      patient_id   = ?,
+                      created_by = ?,
+                      updated_by = ?,
                       create_date = now() ";
-        sqlStatement($sql);
+	$sqlBindArray = array(
+	             trim($_GET['id']),
+		     trim($_GET['administered_date']), trim($_GET['administered_date']),
+		     trim($_GET['form_immunization_id']),
+		     trim($_GET['manufacturer']),
+		     trim($_GET['lot_number']),
+		     trim($_GET['administered_by_id']), trim($_GET['administered_by_id']),
+		     trim($_GET['administered_by']), trim($_GET['administered_by']),
+		     trim($_GET['education_date']), trim($_GET['education_date']),
+		     trim($_GET['vis_date']), trim($_GET['vis_date']),
+		     trim($_GET['note']),
+		     $pid,
+		     $_SESSION['authId'],
+		     $_SESSION['authId']
+		     );
+        sqlStatement($sql,$sqlBindArray);
         $administered_date=$education_date=date('Y-m-d');
         $immunization_id=$manufacturer=$lot_number=$administered_by_id=$note=$id="";
         $administered_by=$vis_date="";
     }
-    elseif ($mode == "delete" ) {
+    elseif ($_GET['mode'] == "delete" ) {
         // log the event
-        newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Immunization id ".$_POST['id']." deleted from pid ".$_POST['pid']);
+        newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Immunization id ".$_GET['id']." deleted from pid ".$pid);
         // delete the immunization
-        $sql="DELETE FROM immunizations WHERE id =". mysql_real_escape_string($id)." LIMIT 1";
-        sqlStatement($sql);
+        $sql="DELETE FROM immunizations WHERE id =? LIMIT 1";
+        sqlStatement($sql, array($_GET['id']));
     }
-    elseif ($mode == "edit" ) {
-        $sql = "select * from immunizations where id = " . mysql_real_escape_string($id);
-        $results = sqlQ($sql);
-        while ($row = mysql_fetch_assoc($results)) {
+    elseif ($_GET['mode'] == "edit" ) {
+        $sql = "select * from immunizations where id = ?";
+        $results = sqlQ($sql, array($_GET['id']));
+        while ($row = sqlFetchArray($results)) {
             $administered_date = $row['administered_date'];
             $immunization_id = $row['immunization_id'];
             $manufacturer = $row['manufacturer'];
@@ -44,20 +69,23 @@ if (isset($mode)) {
             $administered_by = $row['administered_by'];
             $education_date = $row['education_date'];
             $vis_date = $row['vis_date'];
-            $note = stripslashes($row['note']);
+            $note = $row['note'];
         }
+	//set id for page
+	$id = $_GET['id'];
     }
 }
 
 // set the default sort method for the list of past immunizations
+$sortby = $_GET['sortby'];
 if (!$sortby) { $sortby = 'vacc'; }
 
 // set the default value of 'administered_by'
 if (!$administered_by && !$administered_by_id) { 
     $stmt = "select concat(lname,', ',fname) as full_name ".
             " from users where ".
-            " id='".$_SESSION['authId']."'";
-    $row = sqlQuery($stmt);
+            " id=?";
+    $row = sqlQuery($stmt, array($_SESSION['authId']));
     $administered_by = $row['full_name'];
 }
 ?>
@@ -72,6 +100,15 @@ if (!$administered_by && !$administered_by_id) {
 <!-- page styles -->
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
+<style>
+.highlight {
+  color: green;
+}
+tr.selected {
+  background-color: white;
+}	
+</style>
+		
 <!-- pop up calendar -->
 <style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
@@ -80,7 +117,7 @@ if (!$administered_by && !$administered_by_id) {
 
 <script language="JavaScript">
 // required to validate date text boxes
-var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QUOTES); ?>';
 </script>
 
 </head>
@@ -88,24 +125,24 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 <body class="body_top">
 
 <?php if ($GLOBALS['concurrent_layout']) { ?>
-    <span class="title"><?php xl('Immunizations','e'); ?></span>
+    <span class="title"><?php echo htmlspecialchars( xl('Immunizations'), ENT_NOQUOTES); ?></span>
 <?php } else { ?>
     <a href="patient_summary.php" target="Main" onclick="top.restoreSession()">
-    <span class="title"><?php xl('Immunizations','e'); ?></span>
-    <span class=back><?php echo $tback;?></span></a>
+    <span class="title"><?php echo htmlspecialchars( xl('Immunizations'), ENT_NOQUOTES); ?></span>
+    <span class=back><?php echo htmlspecialchars( $tback, ENT_NOQUOTES); ?></span></a>
 <?php } ?>
 
 <form action="immunizations.php" name="add_immunization" id="add_immunization">
 <input type="hidden" name="mode" id="mode" value="add">
-<input type="hidden" name="id" id="id" value="<?php echo $id?>"> 
-<input type="hidden" name="pid" id="pid" value="<?php echo $pid?>"> 
+<input type="hidden" name="id" id="id" value="<?php echo htmlspecialchars( $id, ENT_QUOTES); ?>"> 
+<input type="hidden" name="pid" id="pid" value="<?php echo htmlspecialchars( $pid, ENT_QUOTES); ?>"> 
 <br>
       <table border=0 cellpadding=1 cellspacing=1>
 
         <tr>
           <td align="right">
             <span class=text>
-              <?php xl('Immunization','e'); ?>
+              <?php echo htmlspecialchars( xl('Immunization'), ENT_NOQUOTES); ?>
             </span>
           </td>
           <td>
@@ -118,51 +155,51 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
         <tr>
           <td align="right">
             <span class=text>
-              <?php xl('Date Administered','e'); ?>
+              <?php echo htmlspecialchars( xl('Date Administered'), ENT_NOQUOTES); ?>
             </span>
           </td>
           <td>
 
    <input type='text' size='10' name="administered_date" id="administered_date"
-    value='<?php echo $administered_date ? $administered_date : date('Y-m-d'); ?>'
-    title='<?php xl('yyyy-mm-dd','e'); ?>'
+    value='<?php echo $administered_date ? htmlspecialchars( $administered_date, ENT_QUOTES) : date('Y-m-d'); ?>'
+    title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc);'
     />
    <img src='<?php echo $rootdir; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_administered_date' border='0' alt='[?]' style='cursor:pointer;cursor:hand'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
+    title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'>
 
           </td>
         </tr>
         <tr>
           <td align="right">
             <span class=text>
-              <?php xl('Immunization Manufacturer','e'); ?>
+              <?php echo htmlspecialchars( xl('Immunization Manufacturer'), ENT_NOQUOTES); ?>
             </span>
           </td>
           <td>
-            <input class='text' type='text' name="manufacturer" size="25" value="<?php echo mysql_real_escape_string($manufacturer) ?>">
+            <input class='text' type='text' name="manufacturer" size="25" value="<?php echo htmlspecialchars( $manufacturer, ENT_QUOTES); ?>">
           </td>
         </tr>
         <tr>
           <td align="right">
             <span class=text>
-              <?php xl('Immunization Lot Number','e'); ?>
+              <?php echo htmlspecialchars( xl('Immunization Lot Number'), ENT_NOQUOTES); ?>
             </span>
           </td>
           <td>
-            <input class='text' type='text' name="lot_number" size="25" value="<?php echo mysql_real_escape_string($lot_number) ?>">
+            <input class='text' type='text' name="lot_number" size="25" value="<?php echo htmlspecialchars( $lot_number, ENT_QUOTES); ?>">
           </td>
         </tr>
         <tr>
           <td align="right">
             <span class='text'>
-              <?php xl('Name and Title of Immunization Administrator','e'); ?>
+              <?php echo htmlspecialchars( xl('Name and Title of Immunization Administrator'), ENT_NOQUOTES); ?>
             </span>
           </td>
           <td class='text'>
-            <input type="text" name="administered_by" id="administered_by" size="25" value="<?php echo $administered_by; ?>">
-            <?php xl('or choose','e'); ?>
+            <input type="text" name="administered_by" id="administered_by" size="25" value="<?php echo htmlspecialchars( $administered_by, ENT_QUOTES); ?>">
+            <?php echo htmlspecialchars( xl('or choose'), ENT_NOQUOTES); ?>
 <!-- NEEDS WORK -->
             <select name="administered_by_id" id='administered_by_id'>
             <option value=""></option>
@@ -173,9 +210,9 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
                 $result = sqlStatement($sql);
                 while($row = sqlFetchArray($result)){
-                  echo '<OPTION VALUE=' . $row{'id'};
+                  echo '<OPTION VALUE=' . htmlspecialchars( $row{'id'}, ENT_QUOTES);
                   echo (isset($administered_by_id) && $administered_by_id != "" ? $administered_by_id : $_SESSION['authId']) == $row{'id'} ? ' selected>' : '>';
-                  echo $row{'full_name'} . '</OPTION>';
+                  echo htmlspecialchars( $row{'full_name'}, ENT_NOQUOTES) . '</OPTION>';
                 }
               ?>
             </select>
@@ -183,55 +220,55 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
         </tr>
         <tr>
           <td align="right" class="text">
-              <?php xl('Date Immunization Information Statements Given','e'); ?>
+              <?php echo htmlspecialchars( xl('Date Immunization Information Statements Given'), ENT_NOQUOTES); ?>
           </td>
           <td>
             <input type='text' size='10' name="education_date" id="education_date"
-                    value='<?php echo $education_date? $education_date : date('Y-m-d'); ?>'
-                    title='<?php xl('yyyy-mm-dd','e'); ?>'
+                    value='<?php echo $education_date? htmlspecialchars( $education_date, ENT_QUOTES) : date('Y-m-d'); ?>'
+                    title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES); ?>'
                     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc);'
             />
             <img src='<?php echo $rootdir; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22'
                 id='img_education_date' border='0' alt='[?]' style='cursor:pointer;'
-                title='<?php xl('Click here to choose a date','e'); ?>'
+                title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'
             />
           </td>
         </tr>
         <tr>
           <td align="right" class="text">
-              <?php xl('Date of VIS Statement','e'); ?>
-              (<a href="http://www.cdc.gov/vaccines/pubs/vis/default.htm" title="<?php xl('Help','e'); ?>" target="_blank">?</a>)
+              <?php echo htmlspecialchars( xl('Date of VIS Statement'), ENT_NOQUOTES); ?>
+              (<a href="http://www.cdc.gov/vaccines/pubs/vis/default.htm" title="<?php echo htmlspecialchars( xl('Help'), ENT_QUOTES); ?>" target="_blank">?</a>)
           </td>
           <td>
             <input type='text' size='10' name="vis_date" id="vis_date"
-                    value='<?php echo $vis_date ? $vis_date : date('Y-m-d'); ?>'
-                    title='<?php xl('yyyy-mm-dd','e'); ?>'
+                    value='<?php echo $vis_date ? htmlspecialchars( $vis_date, ENT_QUOTES) : date('Y-m-d'); ?>'
+                    title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES); ?>'
                     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc);'
             />
             <img src='<?php echo $rootdir; ?>/pic/show_calendar.gif' align='absbottom' width='24' height='22'
                 id='img_vis_date' border='0' alt='[?]' style='cursor:pointer;'
-                title='<?php xl('Click here to choose a date','e'); ?>'
+                title='<?php echo htmlspecialchars( xl('Click here to choose a date'), ENT_QUOTES); ?>'
             />
           </td>
         </tr>
         <tr>
           <td align="right" class='text'>
-              <?php xl('Notes','e'); ?>
+              <?php echo htmlspecialchars( xl('Notes'), ENT_NOQUOTES); ?>
           </td>
           <td>
-            <textarea class='text' name="note" id="note" rows=5 cols=25><?php echo $note ?></textarea>
+            <textarea class='text' name="note" id="note" rows=5 cols=25><?php echo htmlspecialchars( $note, ENT_NOQUOTES); ?></textarea>
           </td>
         </tr>
         <tr>
           <td colspan="3" align="center">
 	
-	    <input type="button" name="save" id="save" value="<?php xl('Save Immunization','e'); ?>">
+	    <input type="button" name="save" id="save" value="<?php echo htmlspecialchars( xl('Save Immunization'), ENT_QUOTES); ?>">
 	
-            <input type="button" name="print" id="print" value="<?php echo xl('Print Record') . xl('PDF','',' (',')'); ?>">
+            <input type="button" name="print" id="print" value="<?php echo htmlspecialchars( xl('Print Record') . xl('PDF','',' (',')'), ENT_QUOTES); ?>">
 	
-	    <input type="button" name="printHtml" id="printHtml" value="<?php echo xl('Print Record') . xl('HTML','',' (',')'); ?>">
+	    <input type="button" name="printHtml" id="printHtml" value="<?php echo htmlspecialchars( xl('Print Record') . xl('HTML','',' (',')'), ENT_QUOTES); ?>">
             
-            <input type="reset" name="clear" id="clear" value="<?php xl('Clear','e'); ?>">
+            <input type="reset" name="clear" id="clear" value="<?php echo htmlspecialchars( xl('Clear'), ENT_QUOTES); ?>">
           </td>
         </tr>
       </table>
@@ -244,18 +281,20 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
     <!-- some columns are sortable -->
     <tr class='text bold'>
     <th>
-        <a href="javascript:top.restoreSession();location.href='immunizations.php?sortby=vacc';" title=<?php xl('Sort by vaccine','e','\'','\''); ?>><?php xl('Vaccine','e'); ?></a>
+        <a href="javascript:top.restoreSession();location.href='immunizations.php?sortby=vacc';" title='<?php echo htmlspecialchars( xl('Sort by vaccine'), ENT_QUOTES); ?>'>
+          <?php echo htmlspecialchars( xl('Vaccine'), ENT_NOQUOTES); ?></a>
         <span class='small' style='font-family:arial'><?php if ($sortby == 'vacc') { echo 'v'; } ?></span>
     </th>
     <th>
-        <a href="javascript:top.restoreSession();location.href='immunizations.php?sortby=date';" title=<?php xl('Sort by date','e','\'','\''); ?>><?php xl('Date','e'); ?></a>
+        <a href="javascript:top.restoreSession();location.href='immunizations.php?sortby=date';" title='<?php echo htmlspecialchars( xl('Sort by date'), ENT_QUOTES); ?>'>
+          <?php echo htmlspecialchars( xl('Date'), ENT_NOQUOTES); ?></a>
         <span class='small' style='font-family:arial'><?php if ($sortby == 'date') { echo 'v'; } ?></span>
     </th>
-    <th><?php xl('Manufacturer','e'); ?></th>
-    <th><?php xl('Lot Number','e'); ?></th>
-    <th><?php xl('Administered By','e'); ?></th>
-    <th><?php xl('Education Date','e'); ?></th>
-    <th><?php xl('Note','e'); ?></th>
+    <th><?php echo htmlspecialchars( xl('Manufacturer'), ENT_NOQUOTES); ?></th>
+    <th><?php echo htmlspecialchars( xl('Lot Number'), ENT_NOQUOTES); ?></th>
+    <th><?php echo htmlspecialchars( xl('Administered By'), ENT_NOQUOTES); ?></th>
+    <th><?php echo htmlspecialchars( xl('Education Date'), ENT_NOQUOTES); ?></th>
+    <th><?php echo htmlspecialchars( xl('Note'), ENT_NOQUOTES); ?></th>
     <th>&nbsp;</th>
     </tr>
     
@@ -266,28 +305,28 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
                 ",i1.education_date ,i1.note ".
                 " from immunizations i1 ".
                 " left join users u on i1.administered_by_id = u.id ".
-                " where patient_id = $pid ".
+                " where patient_id = ? ".
                 " order by ";
         if ($sortby == "vacc") { $sql .= " i1.immunization_id, i1.administered_date DESC"; }
         else { $sql .= " administered_date desc"; }
 
-        $result = sqlStatement($sql);
+        $result = sqlStatement($sql, array($pid) );
         while($row = sqlFetchArray($result)) {
             if ($row["id"] == $id) {
-                echo "<tr class='immrow text selected' id='".$row["id"]."'>";
+                echo "<tr class='immrow text selected' id='".htmlspecialchars( $row["id"], ENT_QUOTES)."'>";
             }
             else {
-                echo "<tr class='immrow text' id='".$row["id"]."'>";
+                echo "<tr class='immrow text' id='".htmlspecialchars( $row["id"], ENT_QUOTES)."'>";
             }
 	    // Modified 7/2009 by BM to utilize immunization items from the pertinent list in list_options
             echo "<td>" . generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']) . "</td>";
-            echo "<td>" . $row["administered_date"] . "</td>";
-            echo "<td>" . $row["manufacturer"] . "</td>";
-            echo "<td>" . $row["lot_number"] . "</td>";
-            echo "<td>" . $row["administered_by"] . "</td>";
-            echo "<td>" . $row["education_date"] . "</td>";
-            echo "<td>" . $row["note"] . "</td>";
-            echo "<td><input type='button' class='delete' id='".$row["id"]."' value='" . xl('Delete') . "'></td>";
+            echo "<td>" . htmlspecialchars( $row["administered_date"], ENT_NOQUOTES) . "</td>";
+            echo "<td>" . htmlspecialchars( $row["manufacturer"], ENT_NOQUOTES) . "</td>";
+            echo "<td>" . htmlspecialchars( $row["lot_number"], ENT_NOQUOTES) . "</td>";
+            echo "<td>" . htmlspecialchars( $row["administered_by"], ENT_NOQUOTES) . "</td>";
+            echo "<td>" . htmlspecialchars( $row["education_date"], ENT_NOQUOTES) . "</td>";
+            echo "<td>" . htmlspecialchars( $row["note"], ENT_NOQUOTES) . "</td>";
+            echo "<td><input type='button' class='delete' id='".htmlspecialchars( $row["id"], ENT_QUOTES)."' value='" . htmlspecialchars( xl('Delete'), ENT_QUOTES) . "'></td>";
             echo "</tr>";
         }
 
@@ -341,7 +380,7 @@ var EditImm = function(imm) {
 }
 
 var DeleteImm = function(imm) {
-    if (confirm("<?php xl('This action cannot be undone.','e'); ?>" + "\n" +"<?php xl('Do you wish to PERMANENTLY delete this immunization record?','e'); ?>")) {
+    if (confirm("<?php echo htmlspecialchars( xl('This action cannot be undone.'), ENT_QUOTES); ?>" + "\n" +"<?php echo htmlspecialchars( xl('Do you wish to PERMANENTLY delete this immunization record?'), ENT_QUOTES); ?>")) {
         top.restoreSession();
         location.href='immunizations.php?mode=delete&id='+imm.id;
     }
