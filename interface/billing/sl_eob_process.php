@@ -153,14 +153,6 @@ require_once("$srcdir/formatting.inc.php");
       } // end not internal a/r
 		}
 
-		$insurance_id = 0;
-		foreach ($codes as $cdata) {
-			if ($cdata['ins']) {
-				$insurance_id = $cdata['ins'];
-				break;
-			}
-		}
-
 		// Show the claim status.
 		$csc = $out['claim_status_code'];
 		$inslabel = 'Ins1';
@@ -208,12 +200,20 @@ require_once("$srcdir/formatting.inc.php");
     $production_date = $paydate ? $paydate : parse_date($out['production_date']);
 
     if ($INTEGRATED_AR) {
+      $insurance_id = arGetPayerID($pid, $service_date, substr($inslabel, 3));
       if (empty($ferow['lname'])) {
         $patient_name = $out['patient_fname'] . ' ' . $out['patient_lname'];
       } else {
         $patient_name = $ferow['fname'] . ' ' . $ferow['lname'];
       }
     } else {
+      $insurance_id = 0;
+      foreach ($codes as $cdata) {
+        if ($cdata['ins']) {
+          $insurance_id = $cdata['ins'];
+          break;
+        }
+      }
       $patient_name = $arrow['name'] ? $arrow['name'] :
         ($out['patient_fname'] . ' ' . $out['patient_lname']);
     }
@@ -314,8 +314,10 @@ require_once("$srcdir/formatting.inc.php");
 			if ($svc['paid']) {
 				if (!$error && !$debug) {
           if ($INTEGRATED_AR) {
-            arPostPayment($pid, $encounter, 0, $svc['paid'], $codekey,
-              substr($inslabel,3), $out['check_number'], $debug);
+            $session_id = arGetSession($insurance_id, $out['check_number'],
+              $check_date);
+            arPostPayment($pid, $encounter, $session_id, $svc['paid'],
+              $codekey, substr($inslabel,3), $out['check_number'], $debug);
           } else {
             slPostPayment($arrow['id'], $svc['paid'], $check_date,
               "$inslabel/" . $out['check_number'], $codekey, $insurance_id, $debug);
@@ -361,7 +363,9 @@ require_once("$srcdir/formatting.inc.php");
 					// Post a zero-dollar adjustment just to save it as a comment.
 					if (!$error && !$debug) {
             if ($INTEGRATED_AR) {
-              arPostAdjustment($pid, $encounter, 0, 0, $codekey,
+              $session_id = arGetSession($insurance_id, $out['check_number'],
+                $check_date);
+              arPostAdjustment($pid, $encounter, $session_id, 0, $codekey,
                 substr($inslabel,3), $reason, $debug);
             } else {
               slPostAdjustment($arrow['id'], 0, $production_date,
@@ -376,8 +380,10 @@ require_once("$srcdir/formatting.inc.php");
 				else {
 					if (!$error && !$debug) {
             if ($INTEGRATED_AR) {
-              arPostAdjustment($pid, $encounter, 0, $adj['amount'], $codekey,
-                substr($inslabel,3),
+              $session_id = arGetSession($insurance_id, $out['check_number'],
+                $check_date);
+              arPostAdjustment($pid, $encounter, $session_id, $adj['amount'],
+                $codekey, substr($inslabel,3),
                 "Adjust code " . $adj['reason_code'], $debug);
             } else {
               slPostAdjustment($arrow['id'], $adj['amount'], $production_date,
